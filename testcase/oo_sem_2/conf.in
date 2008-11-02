@@ -1,0 +1,3 @@
+conf = CONF=E1,E2 STATUS=STD,EXT
+worksfor += nios2_dist_src nios2_dist_trace
+

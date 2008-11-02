@@ -1,0 +1,4 @@
+# These scripts are needed to compile a distribution for PIC30
+# execute them using ". ./filename"
+
+export CLASSPATH='C:\Programmi\j2sdk1.4.2_05\lib\tools.jar;C:\Programmi\Evidence\eclipse\startup.jar'

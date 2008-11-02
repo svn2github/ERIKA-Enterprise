@@ -1,0 +1,3 @@
+conf = CONF=B1,B2,E1,E2 STATUS=STD,EXT
+worksfor += nios2_dist_src
+

@@ -1,0 +1,8 @@
+// T32 Fri Sep 12 15:49:36 2003
+
+ B::
+ 
+ WINPOS 96.0 59.615 80. 10. 0. 0. W000
+ v.w overhead tkmkready1 thmkready2 thmkready3 thact capacityirq mutexl mutexu_nopreempt tecycle mutexu_preempt
+ 
+ ENDDO

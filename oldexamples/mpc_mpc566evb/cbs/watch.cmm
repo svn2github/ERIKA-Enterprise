@@ -1,0 +1,39 @@
+// T32 Wed Sep 10 09:13:15 2003
+
+ B::
+ 
+ TOOLBAR ON
+ STATUSBAR ON
+ CMDPOS 3.7142 4.3846 117. 12.
+ WINPAGE.RESET
+ 
+ WINCLEAR
+ WINPOS 105.0 45.23 49. 12. 0. 0. W002
+ v.w
+ 
+ 
+ WINPOS 2.0 45.615 95. 26. 0. 0. W000
+ per.view out/t32/evaluator7t.per
+ 
+ WINPOS 97.428 49.923 80. 7. 0. 0. W007
+ v.w ERIKA_th_budget_avail ERIKA_th_absdline ERIKA_th_status ERIKA_th_nact ERIKA_th_next ERIKA_th_lockedcounter ERIKA_th_active
+ 
+ 
+ WINPOS 97.285 62.846 80. 7. 0. 0. W008
+ v.w ERIKA_last_time ERIKA_exec ERIKA_stkfirst ERIKA_rqfirst ERIKA_sys_ceiling ERIKA_mutex_ceiling ERIKA_mutex_oldceiling
+ 
+ 
+ WINPOS 98.0 41.461 80. 2. 0. 0. W006
+ v.w ERIKA_th_prlevel ERIKA_th_budget 
+ 
+ 
+ WINPOS 2.2857 14.076 93. 25. 13. 1. W003
+ WINTABS 10. 10. 25. 62.
+ Data.List
+ 
+ WINPOS 128.85 2.3846 48. 30. 0. 0. W001
+ Register /SPOTLIGHT
+ 
+ WINPAGE.SELECT P000     
+ 
+ ENDDO

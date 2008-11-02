@@ -1,0 +1,3 @@
+conf = CONF=E1,E2
+worksfor += nios2_dist_src
+
