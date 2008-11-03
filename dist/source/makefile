@@ -39,29 +39,8 @@ help::
 	@echo
 	@echo To generate distributions, I typically use:
 	@echo make DIST=NIOS2_ALL NIOS2_MOVE=Y
-	@echo make DIST=NIOS2_ALL NOCVS=Y BANNER=Y NIOS2_MOVE=Y
-	@echo
 	@echo make DIST=NIOS2_TESTCASE NIOS2_MOVE=Y
-	@echo
-	@echo make DIST=AVR5_ALL AVR5_MOVE=Y
-	@echo make DIST=AVR5_ALL AVR5_MOVE=Y BANNER=Y
-	@echo
-	@echo make DIST=E7T_ALL EECOMMERCIAL_MOVE=Y
-	@echo make DIST=E7T_ALL EECOMMERCIAL_MOVE=Y BANNER=Y
-	@echo
-	@echo make DIST=COBRA_ICD30_ALL COBRA_MOVE=Y
-	@echo
-	@echo make DIST=EEBASIC EE_MOVE=Y
-	@echo make DIST=EEBASIC NOCVS=Y EE_MOVE=Y BANNER=Y
-	@echo
-	@echo make DIST=EEFLEX NOCVS=Y EE_MOVE=Y BANNER=Y
-	@echo make DIST=EEFLEX NOCVS=Y BANNER=EEGPL
-	@echo
-	@echo make DIST=EEAVR5 NOCVS=Y EE_MOVE=Y BANNER=Y
-	@echo make DIST=EEAVR5 NOCVS=Y BANNER=Y
-	@echo
 	@echo make DIST=EE EE_MOVE=Y
-	@echo make DIST=EE NOCVS=Y EE_MOVE=Y BANNER=Y
 	@echo
 	@echo for more help please read readme.txt
 	@echo
@@ -103,5 +82,3 @@ else
 endif
 
 include config/distrib.mk
-
-include mym.mk
