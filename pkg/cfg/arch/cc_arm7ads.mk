@@ -38,15 +38,29 @@
 # Boston, MA 02110-1301 USA.
 # ###*E*###
 
-
 ##
 ## ARM7ADS ARM ADS compiler
 ##
 
 ifeq ($(findstring __ARM7ADS__,$(EEALLOPT)), __ARM7ADS__)
 
+ifeq ($(PLATFORM), LINUX)
+
+# BINDIR is the directory of assembler, compiler, linker...
+BINDIR = $(ARMCONF)
+
+# ALLINCPATH is a colon separated list of directories for source file searching
+ALLINCPATH += $(EEBASE)/pkg,$(APPBASE),.
+
+else
+
 # BINDIR is the directory of assembler, compiler, linker...
 BINDIR = $(shell cygpath -u $(ARMCONF))
+
+# ALLINCPATH is a colon separated list of directories for source file searching
+ALLINCPATH += $(shell cygpath -wsa "$(EEBASE)/pkg"),$(shell cygpath -wsa "$(APPBASE)"),.
+
+endif
 
 ifndef EE_LINK
 EE_LINK=$(BINDIR)/armlink
@@ -74,11 +88,6 @@ endif
 #ifndef EE_OBJDUMP
 #EE_OBJDUMP=
 #endif
-
-# ALLINCPATH is a colon separated list of directories for source file searching
-# -j then adds directories to the source file search path
-ALLINCPATH += $(shell cygpath -wsa "$(EEBASE)/pkg"),$(shell cygpath -wsa "$(APPBASE)"),.
-
 
 ## OPT_CC are the options for arm compiler invocation
 # -g  = add debug tables

@@ -52,11 +52,6 @@
 ifeq ($(findstring __AVR5__,$(EEALLOPT)), __AVR5__)
 
 
-ifndef AVR_GCCPREFIX
-AVR_GCCPREFIX = avr
-endif
-
-
 # BINDIR is the directory of assembler, linker, ... distributed with MPLAB IDE
 BINDIR := $(AVR5_DIR)/bin
 #if AVR5_GCCDIR is defined
@@ -70,6 +65,38 @@ endif
 else
 # We _MUST_ use EE version of GCC
 BINDIRCC := $(ECLIPSEBASE)/../avr5/AVRGCC/avrgcc/bin
+endif
+
+ifeq ($(PLATFORM), LINUX)
+
+# ALLINCPATH is a colon separated list of directories for source file searching
+# -I = adds directories to the source file search path (for both gcc and gas)
+# we consider the ee pkg directory and the application dir
+# we also consider the current directory because the app could be compiled
+# from the config files generated from eclipse...
+# please note the final backslash sequence after the shell command to
+# avoid cygpath insering a trailing backslash
+# INTERNAL_PKGBASEDIR is used to avoid multiple calls to cygpath
+INTERNAL_PKGBASEDIR := -I$(PKGBASE)) -I$(APPBASE) -I.
+ALLINCPATH += $(INTERNAL_PKGBASEDIR)
+
+else
+
+# ALLINCPATH is a colon separated list of directories for source file searching
+# -I = adds directories to the source file search path (for both gcc and gas)
+# we consider the ee pkg directory and the application dir
+# we also consider the current directory because the app could be compiled
+# from the config files generated from eclipse...
+# please note the final backslash sequence after the shell command to
+# avoid cygpath insering a trailing backslash
+# INTERNAL_PKGBASEDIR is used to avoid multiple calls to cygpath
+INTERNAL_PKGBASEDIR := -I"$(shell cygpath -w $(PKGBASE))\\." -I"$(shell cygpath -w $(APPBASE))\\." -I.
+ALLINCPATH += $(INTERNAL_PKGBASEDIR)
+
+endif
+
+ifndef AVR_GCCPREFIX
+AVR_GCCPREFIX = avr
 endif
 
 ifndef EE_OBJDUMP
@@ -102,19 +129,6 @@ EE_OBJCOPY=$(BINDIR)/$(AVR_GCCPREFIX)-objcopy
 endif
 
 
-# ALLINCPATH is a colon separated list of directories for source file searching
-# -I = adds directories to the source file search path (for both gcc and gas)
-# we consider the ee pkg directory and the application dir
-# we also consider the current directory because the app could be compiled
-# from the config files generated from eclipse...
-# please note the final backslash sequence after the shell command to
-# avoid cygpath insering a trailing backslash
-# INTERNAL_PKGBASEDIR is used to avoid multiple calls to cygpath
-INTERNAL_PKGBASEDIR := -I"$(shell cygpath -w $(PKGBASE))\\." -I"$(shell cygpath -w $(APPBASE))\\." -I.
-ALLINCPATH += $(INTERNAL_PKGBASEDIR)
-
-
-
 ################################################################################
 ## OPT_CC are the options for arm compiler invocation			      ##
 # -mmcu=atmega128    = generate optimized code for AVR atmega128 processor     #
@@ -129,14 +143,11 @@ ALLINCPATH += $(INTERNAL_PKGBASEDIR)
 ################################################################################
 
 
-
-
 ## OPT_CC are the options for arm compiler invocation 
 
 OPT_CC = -Os -Wall -std=gnu99 -Winline -w -c $(ALLINCPATH)
 OPT_CC += -DRF_BAND=BAND_2400 -DRF_CHANNEL=18 
 OPT_CC += -DBOARD_TYPE=RDK230 -DAPP_TYPE=APP_L2  -DSPECIAL_PEER=0 -DDEVICE_TYPE=FD1_NOGTS -DCTRL_IF=UART1
-ALLINCPATH += -I"$(shell cygpath -w $(EEBASE)/contrib/atmel802_15_4/inc)\\." -I"$(shell cygpath -w $(EEBASE)/contrib/atmel802_15_4/libsrc/inc)\\."  -I.
 
 
 ifeq ($(findstring DEBUG,$(EEOPT)) , DEBUG)

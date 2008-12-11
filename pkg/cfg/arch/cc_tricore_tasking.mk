@@ -48,6 +48,21 @@ ifeq ($(findstring __TRICORE1__,$(EEALLOPT)), __TRICORE1__)
 # it should be defined in your .bashrc
 # ARM7BASE = 
 
+ifeq ($(PLATFORM), LINUX)
+
+# ALLINCPATH is a colon separated list of directories for source file searching
+# -I = adds directories to the source file search path (for both gcc and gas)
+ALLINCPATH += -I$(subst \,\\,$(EEBASE)/pkg)
+ALLINCPATH += -I$(subst \,\\,$(APPBASE))
+
+else
+
+# ALLINCPATH is a colon separated list of directories for source file searching
+# -I = adds directories to the source file search path (for both gcc and gas)
+ALLINCPATH += -I$(subst \,\\,$(shell cygpath -wa $(EEBASE)/pkg))
+ALLINCPATH += -I$(subst \,\\,$(shell cygpath -wa $(APPBASE)))
+
+endif
 
 # BINDIR is the directory of assembler, compiler, linker...
 BINDIR = $(TRICOREBASE)/bin
@@ -65,13 +80,6 @@ endif
 ifndef EE_AR
 #EE_AR=$(QUIET)$(BINDIR)/ not in the demo version
 endif
-
-# ALLINCPATH is a colon separated list of directories for source file searching
-# -I = adds directories to the source file search path (for both gcc and gas)
-ALLINCPATH += \
-		-I$(subst \,\\,$(shell cygpath -wa $(EEBASE)/pkg)) \
-		-I$(subst \,\\,$(shell cygpath -wa $(APPBASE)))
-
 
 ## OPT_CC are the options for arm compiler invocation
 OPT_CC = --embedded -Ctc1775b -Wc-c99 -Wc-Ax -Wc-g --switch=auto -Wc--align=1 -Wc-O2 -Wc-t2 --inline-max-incr=25 --inline-max-size=10 -Wc-N8  -Wc-s  -Wc--silicon-bug=cor1 -Wa-mt -Wa-gs -Wa-Ogs -Wa-il -Wa--silicon-bug=cor1 $(ALLINCPATH)

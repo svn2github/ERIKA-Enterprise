@@ -38,7 +38,6 @@
 # Boston, MA 02110-1301 USA.
 # ###*E*###
 
-
 ##
 ## ARM7GNU GCC compiler version 3
 ##
@@ -49,12 +48,20 @@ ifeq ($(findstring __ARM7GNU__,$(EEALLOPT)), __ARM7GNU__)
 # it should be defined in your .bashrc
 # ARM7BASE = 
 
+# BINDIR is the directory of assembler, compiler, linker...
+ifeq ($(PLATFORM), LINUX)
+BINDIR = $(ARM7BASE)/bin
+else
+BINDIR = $(shell cygpath -u "$(ARM7BASE)/bin")
+endif
+
+# ALLINCPATH is a colon separated list of directories for source file searching
+# -I = adds directories to the source file search path (for both gcc and gas)
+ALLINCPATH += -I$(EEBASE)/pkg -I$(APPBASE) -I.
+
 ifndef ARM7_GCCPREFIX
 ARM7_GCCPREFIX = arm-unknown-linux-gnu
 endif
-
-# BINDIR is the directory of assembler, compiler, linker...
-BINDIR = $(ARM7BASE)/bin
 
 # GNUPro compilers
 ifndef EE_LINK
@@ -82,9 +89,6 @@ ifndef EE_OBJDUMP
 EE_OBJDUMP=$(BINDIR)/$(ARM7_GCCPREFIX)-objdump
 endif
 
-# ALLINCPATH is a colon separated list of directories for source file searching
-# -I = adds directories to the source file search path (for both gcc and gas)
-ALLINCPATH += -I$(EEBASE)/pkg -I$(APPBASE) -I.
 
 ## OPT_CC are the options for arm compiler invocation
 # -mcpu=arm7tdmi    = generate optimized code for ARM7TDMI processor

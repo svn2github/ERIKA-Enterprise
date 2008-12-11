@@ -134,18 +134,32 @@ LIBDEP += $(LDDEPS)
 
 ## Libraries from MC
 ifneq ($(PIC30_GCCDIR),)
-OPT_LIBS += -L "`cygpath -w $(PIC30_GCCDIR)/lib`"
+
 OPT_LIBS += -lm -lc -ldsp -l$(subst .a,,$(subst lib,,$(PIC30_DEV_LIB))) -lpic30-$(PIC30_OFF)
+
+ifeq ($(PLATFORM), LINUX)
+OPT_LIBS += -L $(PIC30_GCCDIR)/lib
+ifdef C30_LONGPATH
+OPT_LIBS += -L $(PIC30_GCCDIR)/lib$(C30SUBDIR)
+endif
+else
+OPT_LIBS += -L "`cygpath -w $(PIC30_GCCDIR)/lib`"
 ifdef C30_LONGPATH
 OPT_LIBS += -L "`cygpath -w $(PIC30_GCCDIR)/lib$(C30SUBDIR)`"
 endif
+endif
+
 endif
 
 # #Includes from MC
 # only if PIC30_GCCDIR is defined
 ifneq ($(PIC30_GCCDIR),)
 # INTERNAL_GCCINCLUDEDIR is used to avoid multiple calls to cygpath
+ifeq ($(PLATFORM), LINUX)
+INTERNAL_GCCINCLUDEDIR := -I$(PIC30_GCCDIR)/include)
+else
 INTERNAL_GCCINCLUDEDIR := -I"$(shell cygpath -w $(PIC30_GCCDIR)/include)"
+endif
 ALLINCPATH += $(INTERNAL_GCCINCLUDEDIR)
 endif
 
@@ -225,6 +239,17 @@ COMPUTED_OPT_ASM := $(OPT_ASM)
 COMPUTED_OPT_CC := $(OPT_CC)
 COMPUTED_OPT_CC_DEPS := $(OPT_CC_DEPS)
 
+## Select input filename format
+ifeq ($(PLATFORM), LINUX)
+SOURCEFILE = $<
+TARGETFILE = $@
+SRCFILE = $(patsubst %.o,%.src,$(TARGETFILE))
+else
+SOURCEFILE = `cygpath -w $<`
+TARGETFILE = `cygpath -w $@`
+SRCFILE = `cygpath -w $(patsubst %.o,%.src,$@)`
+endif
+
 ##
 ## Main rules: all clean
 ##
@@ -257,30 +282,36 @@ pic30.objdump: pic30.$(PIC30_EXTENSION)
 pic30.$(PIC30_EXTENSION): $(OBJS) $(LINKDEP) $(LIBDEP) 
 	@printf "LD\n";
 	$(QUIET)$(EE_LINK) $(COMPUTED_OPT_LINK) \
-                     -o $@ $(OBJS) \
+                     -o $(TARGETFILE) $(OBJS) \
                      --start-group $(OPT_LIBS) --end-group \
                      -M > pic30.map
 
 					 
+#ifeq ($(findstring BUILDSRC,$(EEALLOPT)), BUILDSRC)
+# preprocess first the assembly code and then compile the object file
 $(OBJDIR)/%.o: %.S ee_pic30regs.inc
-	$(VERBOSE_PRINTPRE) $(EE_DEP) $(COMPUTED_ALLINCPATH) $(DEFS_ASM) -E "`cygpath -w $<`" > $(patsubst %.o,%.src,$@)
-	$(VERBOSE_PRINTASM) $(EE_ASM) $(COMPUTED_OPT_ASM) $(patsubst %.o,%.src,$@) -o $@
-
+	$(VERBOSE_PRINTPRE) $(EE_DEP) $(COMPUTED_ALLINCPATH) $(DEFS_ASM) -E "$(SOURCEFILE)" > $(SRCFILE)
+	$(VERBOSE_PRINTASM) $(EE_ASM) $(COMPUTED_OPT_ASM) $(SRCFILE) -o $(TARGETFILE)
+#else
+# produce the object file from assembly code in a single step
+#$(OBJDIR)/%.o: %.S ee_pic30regs.inc
+#	$(VERBOSE_PRINTCPP) $(EE_CC) $(COMPUTED_ALLINCPATH) $(DEFS_ASM) "$(SOURCEFILE)" -o $(TARGETFILE)
+#endif
 
 ifeq ($(findstring BUILDSRC,$(EEALLOPT)), BUILDSRC)
 # produce first the assembly from C code and then compile the object file
 $(OBJDIR)/%.o: %.c ee_pic30regs.h
-	$(VERBOSE_PRINTCPP) $(EE_CC) $(COMPUTED_OPT_CC) $(DEFS_CC) "`cygpath -w $<`" -S -o $(patsubst %.o,%.src,$@)
-	$(VERBOSE_PRINTASM) $(EE_ASM) $(COMPUTED_OPT_ASM) $(patsubst %.o,%.src,$@) -o $@
+	$(VERBOSE_PRINTCPP) $(EE_CC) $(COMPUTED_OPT_CC) $(DEFS_CC) "$(SOURCEFILE)" -S -o $(SRCFILE)
+	$(VERBOSE_PRINTASM) $(EE_ASM) $(COMPUTED_OPT_ASM) $(SRCFILE) -o $(TARGETFILE)
 else
 # produce the object file from C code in a single step
 $(OBJDIR)/%.o: %.c ee_pic30regs.h
-	$(VERBOSE_PRINTCPP) $(EE_CC) $(COMPUTED_OPT_CC) $(DEFS_CC) -c "`cygpath -w $<`" -o $@
+	$(VERBOSE_PRINTCPP) $(EE_CC) $(COMPUTED_OPT_CC) $(DEFS_CC) -c "$(SOURCEFILE)" -o $(TARGETFILE)
 endif
 
 
 $(OBJDIR)/frommchp/crt0.o: frommchp/crt0.s $(CRT0INC)
-	$(VERBOSE_PRINTASM) $(EE_ASM) $(COMPUTED_OPT_ASM) $< -o $@
+	$(VERBOSE_PRINTASM) $(EE_ASM) $(COMPUTED_OPT_ASM) $(SOURCEFILE) -o $(TARGETFILE)
 
 
 ##
@@ -288,12 +319,12 @@ $(OBJDIR)/frommchp/crt0.o: frommchp/crt0.s $(CRT0INC)
 ##
 
 frommchp/crt0.S: $(PIC30_CRT0)
-	@printf "CP crt0.s \n"; cp $< $@
+	@printf "CP crt0.s \n"; cp $(SOURCEFILE) $(TARGETFILE)
 
 # Add extra include if C30 version is 3.10
 ifdef C30_LONGPATH
 frommchp/p30f2010.inc: $(PIC30_GCCDIR)/support/dsPIC30F/inc/p30f2010.inc
-	@printf "CP p30f2010.inc \n"; cp $< $@
+	@printf "CP p30f2010.inc \n"; cp $(SOURCEFILE) $(TARGETFILE)
 endif
 
 # Check if the MCU model has been defined
@@ -311,10 +342,10 @@ ee_pic30regs.inc: frommchp/$(PIC30_INCLUDE_S)
 	@printf "	.include \"frommchp/$(PIC30_INCLUDE_S)\" \n" >> ee_pic30regs.inc
 
 frommchp/$(PIC30_INCLUDE_C): $(PIC30_GCCDIR)/support$(C30SUBDIR)/h/$(PIC30_INCLUDE_C)
-	@printf "CP $(PIC30_INCLUDE_C)\n"; cp $< $@
+	@printf "CP $(PIC30_INCLUDE_C)\n"; cp $(SOURCEFILE) $(TARGETFILE)
 
 frommchp/$(PIC30_INCLUDE_S): $(PIC30_EXTRA_INCLUDE)/support$(C30SUBDIR)/inc/$(PIC30_INCLUDE_S)
-	@printf "CP $(PIC30_INCLUDE_S)\n"; cp $< $@
+	@printf "CP $(PIC30_INCLUDE_S)\n"; cp $(SOURCEFILE) $(TARGETFILE)
 
 else
 
@@ -335,6 +366,10 @@ endif
 ## Locator files
 ##
 
+debug: 
+	@echo $(PIC30_LINKERDIR)
+	@echo $(PIC30_LINKERSCRIPT)
+	
 #if PIC30_GCCDIR is defined
 loc_gnu.ld: $(PIC30_LINKERDIR)/$(PIC30_LINKERSCRIPT)
 	@printf "LOC\n" ; cp $(PIC30_LINKERDIR)/$(PIC30_LINKERSCRIPT) loc_gnu.ld
@@ -362,17 +397,17 @@ deps.pre: $(addprefix $(OBJDIR)/, $(patsubst %.S,%.Sd,$(patsubst %.c,%.cd, $(SRC
 
 # generate dependencies for .c files and add "file.cd" to the target
 $(OBJDIR)/%.cd: %.c ee_pic30regs.h
-	$(VERBOSE_PRINTDEP) $(EE_DEP) $(COMPUTED_OPT_CC_DEPS) $(DEFS_CC) -M "`cygpath -w $<`" > $@.tmp
-	@echo -n $@ $(dir $@) | cat - $@.tmp > $@
-	@rm -rf $@.tmp
-	@test -s $@ || rm -f $@
+	$(VERBOSE_PRINTDEP) $(EE_DEP) $(COMPUTED_OPT_CC_DEPS) $(DEFS_CC) -M "$(SOURCEFILE)" > $(TARGETFILE).tmp
+	@echo -n $(TARGETFILE) $(dir $(TARGETFILE)) | cat - $(TARGETFILE).tmp > $(TARGETFILE)
+	@rm -rf $(TARGETFILE).tmp
+	@test -s $(TARGETFILE) || rm -f $(TARGETFILE)
 
 # generate dependencies for .S files and add "file.Sd" to the target
 $(OBJDIR)/%.Sd: %.S ee_pic30regs.inc
-	$(VERBOSE_PRINTDEP) $(EE_DEP) $(COMPUTED_ALLINCPATH) $(DEFS_ASM) -M "`cygpath -w $<`" > $@.tmp
-	@echo -n $@ $(dir $@) | cat - $@.tmp > $@
-	@rm -rf $@.tmp
-	@test -s $@ || rm -f $@
+	$(VERBOSE_PRINTDEP) $(EE_DEP) $(COMPUTED_ALLINCPATH) $(DEFS_ASM) -M "$(SOURCEFILE)" > $(TARGETFILE).tmp
+	@echo -n $(TARGETFILE) $(dir $(TARGETFILE)) | cat - $(TARGETFILE).tmp > $(TARGETFILE)
+	@rm -rf $(TARGETFILE).tmp
+	@test -s $(TARGETFILE) || rm -f $(TARGETFILE)
 
 
 #
@@ -399,7 +434,7 @@ endif
 $(OBJDIR)/.make_directories_flag:
 	@printf "MAKE_DIRECTORIES\n"
 	$(QUIET)mkdir -p $(dir $(basename $(addprefix $(OBJDIR)/, $(SRCS) $(LIBEESRCS) $(LIBSRCS)))) frommchp obj/frommchp
-	$(QUIET)touch $@
+	$(QUIET)touch $(TARGETFILE)
 
 #
 # --------------------------------------------------------------------------

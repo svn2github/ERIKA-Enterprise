@@ -144,6 +144,18 @@ COMPUTED_OPT_CC := $(OPT_CC)
 COMPUTED_OPT_CC_DEPS := $(OPT_CC_DEPS)
 COMPUTED_OPT_TCC := $(OPT_TCC)
 
+## Select input filename format
+ifeq ($(PLATFORM), LINUX)
+SOURCEFILE = $<
+TARGETFILE = $@
+SRCFILE = $(patsubst %.o,%.src,$(TARGETFILE))
+TOSRCFILE = $(patsubst %.to,%.src,$(TARGETFILE))
+else
+SOURCEFILE = `cygpath -w $<`
+TARGETFILE = `cygpath -w $@`
+SRCFILE = `cygpath -w $(patsubst %.o,%.src,$@)`
+TOSRCFILE = `cygpath -w $(patsubst %.to,%.src,$@)`
+endif
 
 ##
 ## Main rules: all clean
@@ -171,22 +183,22 @@ evaluator7t.objdump: evaluator7t.elf
 evaluator7t.elf: $(OBJS) $(THUMB_OBJS) $(LINKDEP) $(LIBDEP)
 	@printf "LD\n";
 	$(QUIET)$(EE_LINK) $(COMPUTED_OPT_LINK) \
-                     -o $@ $(OBJS) $(THUMB_OBJS) \
+                     -o $(TARGETFILE) $(OBJS) $(THUMB_OBJS) \
                      --start-group $(OPT_LIBS) --end-group \
                      -M > evaluator7t.map
 
 
 $(OBJDIR)/%.o: %.S
-	$(VERBOSE_PRINTPRE)	$(EE_CC)  $(COMPUTED_ALLINCPATH) $(DEFS_ASM) -E $< > $(patsubst %.o,%.src,$@)
-	$(VERBOSE_PRINTASM)	$(EE_ASM) $(COMPUTED_OPT_ASM) $(patsubst %.o,%.src,$@) -o $@
+	$(VERBOSE_PRINTPRE)	$(EE_CC)  $(COMPUTED_ALLINCPATH) $(DEFS_ASM) -E $< > $(SRCFILE)
+	$(VERBOSE_PRINTASM)	$(EE_ASM) $(COMPUTED_OPT_ASM) $(SRCFILE) -o $(TARGETFILE)
 
 $(OBJDIR)/%.o: %.c
-	$(VERBOSE_PRINTCC)  $(EE_CC) $(COMPUTED_OPT_CC) $(DEFS_CC) $< -o $@
-	$(VERBOSE_PRINTASM)	$(EE_CC) $(COMPUTED_OPT_CC) $(DEFS_CC) $< -S -o $(patsubst %.o,%.src,$@)
+	$(VERBOSE_PRINTCC)  $(EE_CC) $(COMPUTED_OPT_CC) $(DEFS_CC) $< -o $(TARGETFILE)
+	$(VERBOSE_PRINTASM)	$(EE_CC) $(COMPUTED_OPT_CC) $(DEFS_CC) $< -S -o $(SRCFILE)
 
 $(OBJDIR)/%.to: %.c
-	$(VERBOSE_PRINTTCC)	$(EE_TCC) $(COMPUTED_OPT_TCC) $(DEFS_TCC) $< -o $@
-	$(VERBOSE_PRINTASM)	$(EE_TCC) $(COMPUTED_OPT_TCC) $(DEFS_TCC) $< -S -o $(patsubst %.to,%.src,$@)
+	$(VERBOSE_PRINTTCC)	$(EE_TCC) $(COMPUTED_OPT_TCC) $(DEFS_TCC) $< -o $(TARGETFILE)
+	$(VERBOSE_PRINTASM)	$(EE_TCC) $(COMPUTED_OPT_TCC) $(DEFS_TCC) $< -S -o $(TOSRCFILE)
 
 
 ##
@@ -226,24 +238,24 @@ deps.pre: $(addprefix $(OBJDIR)/, $(patsubst %.S,%.Sd,$(patsubst %.c,%.cd, $(SRC
 
 # generate dependencies for ARM .c files and add "file.cd" to the target
 $(OBJDIR)/%.cd: %.c
-	$(VERBOSE_PRINTDEP) $(EE_CC) $(COMPUTED_OPT_CC) $(DEFS_CC) -M $<  > $@.tmp
-	@echo -n $@ $(dir $@) | cat - $@.tmp > $@
-	@rm -rf $@.tmp
-	@test -s $@ || rm -f $@
+	$(VERBOSE_PRINTDEP) $(EE_CC) $(COMPUTED_OPT_CC) $(DEFS_CC) -M $<  > $(TARGETFILE).tmp
+	@echo -n $(TARGETFILE) $(dir $(TARGETFILE)) | cat - $(TARGETFILE).tmp > $(TARGETFILE)
+	@rm -rf $(TARGETFILE).tmp
+	@test -s $(TARGETFILE) || rm -f $(TARGETFILE)
 
 # generate dependencies for THUMB .c files and add "file.td" to the target
 $(OBJDIR)/%.td: %.c
-	$(VERBOSE_PRINTDEP) $(EE_TCC) $(COMPUTED_OPT_TCC) $(DEFS_TCC) -M $< > $@.tmp
-	@echo -n $@ $(dir $@) | cat - $@.tmp > $@
-	@rm -rf $@.tmp
-	@test -s $@ || rm -f $@
+	$(VERBOSE_PRINTDEP) $(EE_TCC) $(COMPUTED_OPT_TCC) $(DEFS_TCC) -M $< > $(TARGETFILE).tmp
+	@echo -n $(TARGETFILE) $(dir $(TARGETFILE)) | cat - $(TARGETFILE).tmp > $(TARGETFILE)
+	@rm -rf $(TARGETFILE).tmp
+	@test -s $(TARGETFILE) || rm -f $(TARGETFILE)
 
 # generate dependencies for .S files and add "file.Sd" to the target
 $(OBJDIR)/%.Sd: %.S
-	$(VERBOSE_PRINTDEP)	$(EE_CC) $(COMPUTED_ALLINCPATH) $(DEFS_ASM) -M $< > $@.tmp
-	@echo -n $@ $(dir $@) | cat - $@.tmp > $@
-	@rm -rf $@.tmp
-	@test -s $@ || rm -f $@
+	$(VERBOSE_PRINTDEP)	$(EE_CC) $(COMPUTED_ALLINCPATH) $(DEFS_ASM) -M $< > $(TARGETFILE).tmp
+	@echo -n $(TARGETFILE) $(dir $(TARGETFILE)) | cat - $(TARGETFILE).tmp > $(TARGETFILE)
+	@rm -rf $(TARGETFILE).tmp
+	@test -s $(TARGETFILE) || rm -f $(TARGETFILE)
 
 
 #
@@ -270,7 +282,7 @@ endif
 $(OBJDIR)/.make_directories_flag:
 	@printf "MAKE_DIRECTORIES\n"
 	$(QUIET)mkdir -p $(dir $(basename $(addprefix $(OBJDIR)/, $(SRCS) $(LIBEESRCS) $(LIBSRCS))))
-	$(QUIET)touch $@
+	$(QUIET)touch $(TARGETFILE)
 
 	
 #
@@ -287,10 +299,10 @@ T32_DIRS = $(shell cd $(PKGBASE)/board/arm_evaluator7t/debug/lauterbach; find . 
 # "touch" solves some dependency issues with make
 define T32_template
 $(1): $(PKGBASE)/board/arm_evaluator7t/debug/lauterbach/$(1)
-	@echo CP $$@
+	@echo CP $$(TARGETFILE)
 	@mkdir -p $$(T32_DIRS)
-	@cp -a $$< $$@
-	@touch $$@
+	@cp -a $$< $$(TARGETFILE)
+	@touch $$(TARGETFILE)
 endef
 
 $(foreach file,$(T32_SCRIPTS),$(eval $(call T32_template,$(file))))

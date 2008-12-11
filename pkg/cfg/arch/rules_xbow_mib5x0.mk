@@ -134,6 +134,14 @@ HEX_EEPROM_FLAGS = -j .eeprom
 HEX_EEPROM_FLAGS += --set-section-flags=.eeprom="alloc,load"
 HEX_EEPROM_FLAGS += --change-section-lma .eeprom=0
 
+## Select input filename format
+ifeq ($(PLATFORM), LINUX)
+SOURCEFILE = $<
+TARGETFILE = $@
+else
+SOURCEFILE = `cygpath -w $<`
+TARGETFILE = `cygpath -w $@`
+endif
 
 ##
 ## Main rules: all clean
@@ -164,11 +172,11 @@ clean::
 #
 avr.lss: avr.elf
 	@printf "LSS\n";
-	$(QUIET)$(EE_OBJDUMP) -h -D  $< > $@
+	$(QUIET)$(EE_OBJDUMP) -h -D  $(SOURCEFILE) > $(TARGETFILE)
 
 avr.hex: avr.elf
 	@printf "HEX\n";
-	$(QUIET)$(EE_OBJCOPY) -O ihex $(HEX_FLASH_FLAGS)  `cygpath -w $<` $@
+	$(QUIET)$(EE_OBJCOPY) -O ihex $(HEX_FLASH_FLAGS)  $(SOURCEFILE) $(TARGETFILE)
 
 avr.srec: avr.hex
 	@printf "SREC\n";
@@ -183,7 +191,7 @@ avr.srec: avr.hex
 avr.elf: $(OBJS) $(LIBDEP)
 	@printf "LD\n";
 	$(QUIET)$(EE_LINK) $(COMPUTED_OPT_LINK) \
-                     $(OBJS) -o $@ \
+                     $(OBJS) -o $(TARGETFILE) \
                           -Wl,--start-group $(OPT_LIBS)  --end-group \
 			  	-Wl,-Map=avr.map 
 
@@ -191,20 +199,16 @@ avr.elf: $(OBJS) $(LIBDEP)
 
 		       
 $(OBJDIR)/%.o: %.S 
-	$(VERBOSE_PRINTPRE) $(EE_CC) $(COMPUTED_ALLINCPATH) $(DEFS_ASM) -E "`cygpath -w $<`" > $(patsubst %.o,%.src,$@)
-	$(VERBOSE_PRINTASM) $(EE_ASM) $(COMPUTED_OPT_ASM) $(patsubst %.o,%.src,$@) -o $@
+	$(VERBOSE_PRINTPRE) $(EE_CC) $(COMPUTED_ALLINCPATH) $(DEFS_ASM) -E $(SOURCEFILE) > $(patsubst %.o,%.src,$(TARGETFILE))
+	$(VERBOSE_PRINTASM) $(EE_ASM) $(COMPUTED_OPT_ASM) $(patsubst %.o,%.src,$(TARGETFILE)) -o $(TARGETFILE)
 
-$(OBJDIR)/%.o: %.c 
-	$(VERBOSE_PRINTCPP) $(EE_CC) $(COMPUTED_OPT_CC) $(DEFS_CC) "`cygpath -w $<`" -S -o $(patsubst %.o,%.src,$@)
-	$(VERBOSE_PRINTASM) $(EE_ASM) $(COMPUTED_OPT_ASM) $(patsubst %.o,%.src,$@) -o $@
-
-ifneq ($(findstring NOSRC,$(EEALLOPT)), NOSRC)
+ifeq ($(findstring BUILDSRC,$(EEALLOPT)), BUILDSRC)
 $(OBJDIR)/%.o: %.c
-	$(VERBOSE_PRINTCPP) $(EE_CC) $(COMPUTED_OPT_CC) $(DEFS_CC) "`cygpath -w $<`" -S -o $(patsubst %.o,%.src,$@)
-	$(VERBOSE_PRINTASM) $(EE_ASM) $(COMPUTED_OPT_ASM) $(patsubst %.o,%.src,$@) -o $@
+	$(VERBOSE_PRINTCPP) $(EE_CC) $(COMPUTED_OPT_CC) $(DEFS_CC) $(SOURCEFILE) -S -o $(patsubst %.o,%.src,$(TARGETFILE))
+	$(VERBOSE_PRINTASM) $(EE_ASM) $(COMPUTED_OPT_ASM) $(patsubst %.o,%.src,$(TARGETFILE)) -o $(TARGETFILE)
 else
 $(OBJDIR)/%.o: %.c 
-	$(VERBOSE_PRINTCPP) $(EE_CC) $(COMPUTED_OPT_CC) $(DEFS_CC) -c "`cygpath -w $<`" -o $@
+	$(VERBOSE_PRINTCPP) $(EE_CC) $(COMPUTED_OPT_CC) $(DEFS_CC) -c $(SOURCEFILE) -o $(TARGETFILE)
 endif
 
 ##
@@ -239,17 +243,17 @@ deps.pre: $(addprefix $(OBJDIR)/, $(patsubst %.S,%.Sd,$(patsubst %.c,%.cd, $(SRC
 
 # generate dependencies for .c files and add "file.cd" to the target
 $(OBJDIR)/%.cd: %.c 
-	$(VERBOSE_PRINTDEP) $(EE_CC) $(COMPUTED_OPT_CC) $(DEFS_CC) -M "`cygpath -w $<`" > $@.tmp
-	@echo -n $@ $(dir $@) | cat - $@.tmp > $@
-	@rm -rf $@.tmp
-	@test -s $@ || rm -f $@
+	$(VERBOSE_PRINTDEP) $(EE_CC) $(COMPUTED_OPT_CC) $(DEFS_CC) -M $(SOURCEFILE) > $(TARGETFILE).tmp
+	@echo -n $(TARGETFILE) $(dir $(TARGETFILE)) | cat - $(TARGETFILE).tmp > $(TARGETFILE)
+	@rm -rf $(TARGETFILE).tmp
+	@test -s $(TARGETFILE) || rm -f $(TARGETFILE)
 
 # generate dependencies for .S files and add "file.Sd" to the target
 $(OBJDIR)/%.Sd: %.S 
-	$(VERBOSE_PRINTDEP) $(EE_CC) $(COMPUTED_ALLINCPATH) $(DEFS_ASM) -M "`cygpath -w $<`" > $@.tmp
-	@echo -n $@ $(dir $@) | cat - $@.tmp > $@
-	@rm -rf $@.tmp
-	@test -s $@ || rm -f $@
+	$(VERBOSE_PRINTDEP) $(EE_CC) $(COMPUTED_ALLINCPATH) $(DEFS_ASM) -M $(SOURCEFILE) > $(TARGETFILE).tmp
+	@echo -n $(TARGETFILE) $(dir $(TARGETFILE)) | cat - $(TARGETFILE).tmp > $(TARGETFILE)
+	@rm -rf $(TARGETFILE).tmp
+	@test -s $(TARGETFILE) || rm -f $(TARGETFILE)
 
 
 
@@ -277,7 +281,7 @@ endif
 $(OBJDIR)/.make_directories_flag:
 	@printf "MAKE_DIRECTORIES\n"
 	$(QUIET)mkdir -p $(dir $(basename $(addprefix $(OBJDIR)/, $(SRCS) $(LIBEESRCS) $(LIBSRCS)))) 
-	$(QUIET)touch $@
+	$(QUIET)touch $(TARGETFILE)
 
 #
 # --------------------------------------------------------------------------

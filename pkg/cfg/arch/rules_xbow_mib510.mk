@@ -61,7 +61,11 @@ else
 # the EE library is stored in the EE lib directory
 #OPT_LIBS += -lee_$(EELIB) -L `cygpath -w $(EEBASE)/lib`
 #LIBDEP = $(EEBASE)/lib/libee_$(EELIB).a
+ifeq ($(PLATFORM), LINUX)
 OPT_LIBS += -l$(EELIB) -L `cygpath -w $(EEBASE)/lib` -l libgcc -L `cygpath -w $(DIRLIBGCC)` 
+else
+OPT_LIBS += -l$(EELIB) -L $(EEBASE)/lib -l libgcc -L $(DIRLIBGCC)
+endif
 LIBDEP = $(EEBASE)/lib/lib$(EELIB).a
 endif
 
@@ -102,10 +106,18 @@ vpath %.S $(EE_VPATH) $(APPBASE)
 
 ## Intel Hex file production flags
 HEX_FLASH_FLAGS = -R .eeprom
-
 HEX_EEPROM_FLAGS = -j .eeprom
 HEX_EEPROM_FLAGS += --set-section-flags=.eeprom="alloc,load"
 HEX_EEPROM_FLAGS += --change-section-lma .eeprom=0
+
+## Select input filename format
+ifeq ($(PLATFORM), LINUX)
+SOURCEFILE = $<
+TARGETFILE = $@
+else
+SOURCEFILE = `cygpath -w $<`
+TARGETFILE = `cygpath -w $@`
+endif
 
 ##
 ## Main rules: all clean
@@ -120,9 +132,9 @@ clean::
 	@-rm -rf *.S *.o *.cd *.Sd *.a *.src *.ld *.map *.elf *.objdump deps
 
 atmega128.lss:atmega128.elf
-	$(EE_OBJDUMP) -h -S  $< > $@
+	$(EE_OBJDUMP) -h -S  $(SOURCEFILE) > $(TARGETFILE)
 atmega128.hex:atmega128.elf
-	$(EE_OBJCOPY) -O ihex $(HEX_FLASH_FLAGS)  `cygpath -w $<` $@
+	$(EE_OBJCOPY) -O ihex $(HEX_FLASH_FLAGS)  $(SOURCEFILE) $(TARGETFILE)
 
 
 ##
@@ -131,14 +143,10 @@ atmega128.hex:atmega128.elf
 
 ifneq ($(findstring __BIN_DISTR ,$(EEALLOPT)), __BIN_DISTR)
 
-##atmega128.elf:$(OBJS) $(LIBOBJS)
-##	$(EE_CC) -mmcu=atmega128 -Wl,-Map=atmega128.map  -o `cygpath -w $@`  $(OBJS) $(LIBOBJS)
-
-
 atmega128.elf: $(OBJS) $(LIBDEP) 
 	@echo LD
 	$(EE_CC) -mmcu=atmega128   \
-                     -Wl,-Map=atmega128.map -o `cygpath -w $@` $(OBJS) \
+                     -Wl,-Map=atmega128.map -o $(TARGETFILE) $(OBJS) \
                       -Wl,--start-group $(OPT_LIBS) --end-group \
 
 else
@@ -148,7 +156,7 @@ atmega128.elf: $(OBJS) $(LINKDEP) \
 	@echo LD lib/liberika_$(EELIB).a
 	$(EE_AR) -x $(EEBASE)/lib/libee_$(EELIB).a 
 	$(EE_LINK) $(OPT_LINK) \
-                     -o $@ $(OBJS) \
+                     -o $(TARGETFILE) $(OBJS) \
                      --start-group $(OPT_LIBS)  --end-group \
 	             -M > atmega128.map
 endif
@@ -156,25 +164,25 @@ endif
 
 %.o: %.S
 	$(VERBOSE_PRINTCPP)
-	$(EE_ASM) $(ALLINCPATH) $(DEFS_ASM) -E `cygpath -w $<` > $(notdir $(patsubst %.o,%.src,$@))
+	$(EE_ASM) $(ALLINCPATH) $(DEFS_ASM) -E $(SOURCEFILE) > $(notdir $(patsubst %.o,%.src,$(TARGETFILE)))
 	$(VERBOSE_PRINTASM)
-	$(EE_ASM) $(OPT_ASM) `cygpath -w $(notdir $(patsubst %.o,%.src,$@))` -o $(notdir $@)
+	$(EE_ASM) $(OPT_ASM) $(notdir $(patsubst %.o,%.src,$(TARGETFILE))) -o $(notdir $(TARGETFILE))
 %.o: %.c
 	$(VERBOSE_PRINTCC)
-	$(EE_CC) $(OPT_CC) $(DEFS_CC) `cygpath -w $<` -o $(notdir $@)
+	$(EE_CC) $(OPT_CC) $(DEFS_CC) $(SOURCEFILE) -o $(notdir $(TARGETFILE))
 ifeq ($(findstring DEBUG,$(EEOPT)) , DEBUG)
 	$(VERBOSE_PRINTSRC)
-	$(EE_CC) $(OPT_CC) $(DEFS_CC) `cygpath -w $<` -S -o $(notdir $(patsubst %.o,%.S,$@))
+	$(EE_CC) $(OPT_CC) $(DEFS_CC) $(SOURCEFILE) -S -o $(notdir $(patsubst %.o,%.S,$(TARGETFILE)))
 endif
 
 
 
 %.to: %.c
 	$(VERBOSE_PRINTTCC)
-	$(EE_TCC) $(OPT_TCC) $(DEFS_TCC) `cygpath -w $<` -o $(notdir $@)
+	$(EE_TCC) $(OPT_TCC) $(DEFS_TCC) $(SOURCEFILE) -o $(notdir $(TARGETFILE))
 ifeq ($(findstring DEBUG,$(EEOPT)) , DEBUG)
 	$(VERBOSE_PRINTSRC)
-	$(EE_TCC) $(OPT_TCC) $(DEFS_TCC) `cygpath -w $<` -S -o $(notdir $(patsubst %.to,%.src,$@))
+	$(EE_TCC) $(OPT_TCC) $(DEFS_TCC) $(SOURCEFILE) -S -o $(notdir $(patsubst %.to,%.src,$(TARGETFILE)))
 endif
 
 ##
@@ -204,14 +212,14 @@ deps: $(patsubst %.S,%.Sd,$(patsubst %.c,%.cd,$(notdir $(SRCS) $(LIBSRCS))))
 # generate dependencies for .c files and add "file.cd" to the target
 %.cd: %.c 
 	$(VERBOSE_PRINTDEP)
-	$(EE_CC) $(OPT_CC) $(DEFS_CC) -M `cygpath -w $<` | sed "s/\($*\)\.o[ :]*/\1\.o $(notdir $@): /g" > $@ 
-	@test -s $@ || rm -f $@
+	$(EE_CC) $(OPT_CC) $(DEFS_CC) -M $(SOURCEFILE) | sed "s/\($*\)\.o[ :]*/\1\.o $(notdir $(TARGETFILE)): /g" > $(TARGETFILE)
+	@test -s $(TARGETFILE) || rm -f $(TARGETFILE)
 
 # generate dependencies for .S files and add "file.Sd" to the target
 %.Sd: %.S
 	$(VERBOSE_PRINTDEP)
-	$(EE_CC) $(ALLINCPATH) $(DEFS_ASM) -M `cygpath -w $<` | sed "s/\($*\)\.o[ :]*/\1\.src $(notdir $@): /g" > $@ 
-	@test -s $@ || rm -f $@
+	$(EE_CC) $(ALLINCPATH) $(DEFS_ASM) -M $(SOURCEFILE) | sed "s/\($*\)\.o[ :]*/\1\.src $(notdir $(TARGETFILE)): /g" > $(TARGETFILE)
+	@test -s $(TARGETFILE) || rm -f $(TARGETFILE)
 
 #
 # --------------------------------------------------------------------------

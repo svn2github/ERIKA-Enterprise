@@ -198,16 +198,16 @@ distrib_opt___ST_STA2051__:: \
 
 
 ifeq ($(findstring __EVALUATOR7T__,$(ALLOPTIONS)) , __EVALUATOR7T__)
-ifeq ($(findstring __FP__,$(ALLOPTIONS)) , __FP__)
-distrib_files_EVALUATOR7T += \
-	ee_$(DIST)/examples/arm_evaluator7t/fp \
-	ee_$(DIST)/examples/arm_evaluator7t/fp/build.xml \
-	ee_$(DIST)/examples/arm_evaluator7t/fp/template.xml \
-	ee_$(DIST)/examples/arm_evaluator7t/fp/code.c \
-	ee_$(DIST)/examples/arm_evaluator7t/fp/conf.oil \
-	ee_$(DIST)/examples/arm_evaluator7t/fp/lancia.bat \
-	ee_$(DIST)/examples/arm_evaluator7t/fp/thumb.c
-endif
+#ifeq ($(findstring __FP__,$(ALLOPTIONS)) , __FP__)
+#distrib_files_EVALUATOR7T += \
+#	ee_$(DIST)/examples/arm_evaluator7t/fp \
+#	ee_$(DIST)/examples/arm_evaluator7t/fp/build.xml \
+#	ee_$(DIST)/examples/arm_evaluator7t/fp/template.xml \
+#	ee_$(DIST)/examples/arm_evaluator7t/fp/code.c \
+#	ee_$(DIST)/examples/arm_evaluator7t/fp/conf.oil \
+#	ee_$(DIST)/examples/arm_evaluator7t/fp/lancia.bat \
+#	ee_$(DIST)/examples/arm_evaluator7t/fp/thumb.c
+#endif
 
 #ifeq ($(findstring __EDF__,$(ALLOPTIONS)) , __EDF__)
 #distrib_files_EVALUATOR7T += \
@@ -1109,24 +1109,24 @@ distrib_opt___PIC30_EXAMPLES__:: \
 ifeq ($(findstring __EVALUATOR7T__,$(ALLOPTIONS)) , __EVALUATOR7T__)
 ifeq ($(findstring __OO_,$(ALLOPTIONS)) , __OO_)
 
-distrib_opt___EVALUATOR7T__:: \
-		ee_$(DIST)/examples/arm_evaluator7t/oil_task \
-		ee_$(DIST)/examples/arm_evaluator7t/oil_task/code.c \
-		ee_$(DIST)/examples/arm_evaluator7t/oil_task/conf.oil \
-		ee_$(DIST)/examples/arm_evaluator7t/oil_task/template.xml \
-		ee_$(DIST)/examples/arm_evaluator7t/oil_resource \
-		ee_$(DIST)/examples/arm_evaluator7t/oil_resource/code.c \
-		ee_$(DIST)/examples/arm_evaluator7t/oil_resource/conf.oil \
-		ee_$(DIST)/examples/arm_evaluator7t/oil_resource/template.xml \
-		ee_$(DIST)/examples/arm_evaluator7t/oil_event \
-		ee_$(DIST)/examples/arm_evaluator7t/oil_event/conf.oil \
-		ee_$(DIST)/examples/arm_evaluator7t/oil_event/conf.orti \
-		ee_$(DIST)/examples/arm_evaluator7t/oil_event/orti.c \
-		ee_$(DIST)/examples/arm_evaluator7t/oil_event/orti.cmm \
-		ee_$(DIST)/examples/arm_evaluator7t/oil_event/ortiperf.men \
-		ee_$(DIST)/examples/arm_evaluator7t/oil_event/template.xml \
-		ee_$(DIST)/examples/arm_evaluator7t/oil_event/code.c
-	@echo OPT Examples __EVALUATOR7T__ up2date.
+#distrib_opt___EVALUATOR7T__:: \
+#		ee_$(DIST)/examples/arm_evaluator7t/oil_task \
+#		ee_$(DIST)/examples/arm_evaluator7t/oil_task/code.c \
+#		ee_$(DIST)/examples/arm_evaluator7t/oil_task/conf.oil \
+#		ee_$(DIST)/examples/arm_evaluator7t/oil_task/template.xml \
+#		ee_$(DIST)/examples/arm_evaluator7t/oil_resource \
+#		ee_$(DIST)/examples/arm_evaluator7t/oil_resource/code.c \
+#		ee_$(DIST)/examples/arm_evaluator7t/oil_resource/conf.oil \
+#		ee_$(DIST)/examples/arm_evaluator7t/oil_resource/template.xml \
+#		ee_$(DIST)/examples/arm_evaluator7t/oil_event \
+#		ee_$(DIST)/examples/arm_evaluator7t/oil_event/conf.oil \
+#		ee_$(DIST)/examples/arm_evaluator7t/oil_event/conf.orti \
+#		ee_$(DIST)/examples/arm_evaluator7t/oil_event/orti.c \
+#		ee_$(DIST)/examples/arm_evaluator7t/oil_event/orti.cmm \
+#		ee_$(DIST)/examples/arm_evaluator7t/oil_event/ortiperf.men \
+#		ee_$(DIST)/examples/arm_evaluator7t/oil_event/template.xml \
+#		ee_$(DIST)/examples/arm_evaluator7t/oil_event/code.c
+#	@echo OPT Examples __EVALUATOR7T__ up2date.
 endif
 endif
 

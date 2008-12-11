@@ -21,6 +21,10 @@ endif
 ##
 ifeq ($(INCLUDE_ATMEL802154), YES)
 
+## Add the inc path to the include pathlist
+ALLINCPATH += -I"$(shell cygpath -w $(EEBASE)/contrib/atmel802_15_4/inc)"
+ALLINCPATH += -I"$(shell cygpath -w $(EEBASE)/contrib/atmel802_15_4/libsrc/inc)"
+
 ##
 ## Library code
 ##
@@ -90,6 +94,7 @@ EE_SRCS_ATMEL802154 := contrib/atmel802_15_4/libsrc/bios/bios.c \
 
 EE_OBJS_ATMEL802154 := $(addprefix $(OBJDIR)/, $(patsubst %.c,%.o,$(patsubst %.S,%.o, $(EE_SRCS_ATMEL802154))))
 
+ALLINCPATH += -I"$(EEBASE)/contrib/atmel802_15_4/inc" -I"$(EEBASE)/contrib/atmel802_15_4/libsrc/inc"  -I.
 
 LIBSRCS += $(EE_SRCS_ATMEL802154)
 		
