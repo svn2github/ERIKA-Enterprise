@@ -546,6 +546,25 @@ distrib_opt___AVR5__:: \
 distrib_opt___PIC30__:: \
 		ee_$(DIST)/contrib \
 		ee_$(DIST)/contrib/readme.txt \
+		ee_$(DIST)/contrib/console \
+		ee_$(DIST)/contrib/console/doxyconf \
+		ee_$(DIST)/contrib/console/cfg \
+		ee_$(DIST)/contrib/console/cfg/cfg.mk \
+		ee_$(DIST)/contrib/console/cfg/libcfg.mk \
+		ee_$(DIST)/contrib/console/inc \
+		ee_$(DIST)/contrib/console/inc/conq.h \
+		ee_$(DIST)/contrib/console/inc/console.h \
+		ee_$(DIST)/contrib/console/inc/console_serial.h \
+		ee_$(DIST)/contrib/console/inc/hal \
+		ee_$(DIST)/contrib/console/inc/hal/arch.h \
+		ee_$(DIST)/contrib/console/inc/hal/compiler.h \
+		ee_$(DIST)/contrib/console/inc/hal/pic30.h \
+		ee_$(DIST)/contrib/console/src \
+		ee_$(DIST)/contrib/console/src/conq.c \
+		ee_$(DIST)/contrib/console/src/console.c \
+		ee_$(DIST)/contrib/console/src/console_serial.c \
+		ee_$(DIST)/contrib/console/src/hal \
+		ee_$(DIST)/contrib/console/src/hal/pic30.c \
 		ee_$(DIST)/contrib/scicos \
 		ee_$(DIST)/contrib/scicos/ScicosBlocks.txt \
 		ee_$(DIST)/contrib/scicos/readme.txt \
@@ -1082,6 +1101,11 @@ distrib_opt___PIC30_EXAMPLES__:: \
 		ee_$(DIST)/examples/pic30/pic30_DemoBoard_base/code.c \
 		ee_$(DIST)/examples/pic30/pic30_DemoBoard_base/conf.oil \
 		ee_$(DIST)/examples/pic30/pic30_DemoBoard_base/template.xml \
+		\
+		ee_$(DIST)/examples/pic30/pic30_DemoBoard_console \
+		ee_$(DIST)/examples/pic30/pic30_DemoBoard_console/code.c \
+		ee_$(DIST)/examples/pic30/pic30_DemoBoard_console/conf.oil \
+		ee_$(DIST)/examples/pic30/pic30_DemoBoard_console/template.xml \
 		\
 		ee_$(DIST)/examples/pic30/pic30_oo_task \
 		ee_$(DIST)/examples/pic30/pic30_oo_task/code.c \

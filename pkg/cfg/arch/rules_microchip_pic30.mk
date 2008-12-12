@@ -194,6 +194,7 @@ endif
 
 include $(PKGBASE)/cfg/cfg.mk
 
+
 #
 # --------------------------------------------------------------------------
 #
@@ -301,12 +302,12 @@ $(OBJDIR)/%.o: %.S ee_pic30regs.inc
 ifeq ($(findstring BUILDSRC,$(EEALLOPT)), BUILDSRC)
 # produce first the assembly from C code and then compile the object file
 $(OBJDIR)/%.o: %.c ee_pic30regs.h
-	$(VERBOSE_PRINTCPP) $(EE_CC) $(COMPUTED_OPT_CC) $(DEFS_CC) "$(SOURCEFILE)" -S -o $(SRCFILE)
+	$(VERBOSE_PRINTCPP) $(EE_CC) $(COMPUTED_OPT_CC) $(COMPUTED_ALLINCPATH) $(DEFS_CC) "$(SOURCEFILE)" -S -o $(SRCFILE)
 	$(VERBOSE_PRINTASM) $(EE_ASM) $(COMPUTED_OPT_ASM) $(SRCFILE) -o $(TARGETFILE)
 else
 # produce the object file from C code in a single step
 $(OBJDIR)/%.o: %.c ee_pic30regs.h
-	$(VERBOSE_PRINTCPP) $(EE_CC) $(COMPUTED_OPT_CC) $(DEFS_CC) -c "$(SOURCEFILE)" -o $(TARGETFILE)
+	$(VERBOSE_PRINTCPP) $(EE_CC) $(COMPUTED_OPT_CC) $(COMPUTED_ALLINCPATH) $(DEFS_CC) -c "$(SOURCEFILE)" -o $(TARGETFILE)
 endif
 
 
@@ -366,10 +367,6 @@ endif
 ## Locator files
 ##
 
-debug: 
-	@echo $(PIC30_LINKERDIR)
-	@echo $(PIC30_LINKERSCRIPT)
-	
 #if PIC30_GCCDIR is defined
 loc_gnu.ld: $(PIC30_LINKERDIR)/$(PIC30_LINKERSCRIPT)
 	@printf "LOC\n" ; cp $(PIC30_LINKERDIR)/$(PIC30_LINKERSCRIPT) loc_gnu.ld
@@ -397,7 +394,7 @@ deps.pre: $(addprefix $(OBJDIR)/, $(patsubst %.S,%.Sd,$(patsubst %.c,%.cd, $(SRC
 
 # generate dependencies for .c files and add "file.cd" to the target
 $(OBJDIR)/%.cd: %.c ee_pic30regs.h
-	$(VERBOSE_PRINTDEP) $(EE_DEP) $(COMPUTED_OPT_CC_DEPS) $(DEFS_CC) -M "$(SOURCEFILE)" > $(TARGETFILE).tmp
+	$(VERBOSE_PRINTDEP) $(EE_DEP) $(COMPUTED_OPT_CC_DEPS) $(COMPUTED_ALLINCPATH) $(DEFS_CC) -M "$(SOURCEFILE)" > $(TARGETFILE).tmp
 	@echo -n $(TARGETFILE) $(dir $(TARGETFILE)) | cat - $(TARGETFILE).tmp > $(TARGETFILE)
 	@rm -rf $(TARGETFILE).tmp
 	@test -s $(TARGETFILE) || rm -f $(TARGETFILE)

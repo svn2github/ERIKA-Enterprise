@@ -106,7 +106,7 @@ endif
 # -Winline	    = warn if a function does not expand inline
 # -finline-functions = make all simple functions inline
 OPT_CC = -mcpu=arm7tdmi -mthumb-interwork \
-	-O3 -Wall -Winline -c $(ALLINCPATH)
+	-O3 -Wall -Winline -c
 #OPT_CC = -mcpu=arm7tdmi -mno-apcs-frame -mthumb-interwork \
 #	-O2 -Wall -Winline -c $(ALLINCPATH)
 ifneq ($(findstring __BIN_DISTR,$(EEALLOPT)), __BIN_DISTR)

@@ -145,7 +145,7 @@ endif
 
 ## OPT_CC are the options for arm compiler invocation 
 
-OPT_CC = -Os -Wall -std=gnu99 -Winline -w -c $(ALLINCPATH)
+OPT_CC = -Os -Wall -std=gnu99 -Winline -w -c
 OPT_CC += -DRF_BAND=BAND_2400 -DRF_CHANNEL=18 
 OPT_CC += -DBOARD_TYPE=RDK230 -DAPP_TYPE=APP_L2  -DSPECIAL_PEER=0 -DDEVICE_TYPE=FD1_NOGTS -DCTRL_IF=UART1
 

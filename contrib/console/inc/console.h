@@ -1,0 +1,171 @@
+#ifndef __console_h__
+#define __console_h__
+/** 
+* @file console.h
+* @brief Generic console port definition.
+* @author Marinoni Mauro, Nastasi Christian 
+* @date 2008-10-29
+*
+* \todo Write more, explain how to use the console in general!
+*/
+
+#ifdef USE_CONSOLE	
+
+#include <string.h>
+#include "hal/compiler.h"
+
+/* ************************************************************************** */
+/*                             Macros Definition                              */
+/* ************************************************************************** */
+#ifndef CONSOLE_NUMBER
+#define CONSOLE_NUMBER 2	/**< Default max number of console ports */
+#endif
+
+/* ************************************************************************** */
+/*                             Types Definition                               */
+/* ************************************************************************** */
+/** 
+* @brief Hook to concrete consoles.
+*
+* The console descriptor allows to map the generic abstract console
+* to a concrete implementation of it.
+* For each concrete function the first argument, the \c void pointer, 
+* is for generic parameters passing.
+* This depends on the specific console implementation and is filled by the 
+* abstract console functions with the \ref params element.
+*/
+typedef struct console_descriptor_t {
+	/** Pointer to the concrete close function. */
+	int (*close)(void *);
+	/** Pointer to the concrete open function. */
+	int (*open)(void *);	
+	/** Pointer to the concrete write function. */
+	int (*write)(void *, uint8_t *, uint16_t);
+	/** Pointer to the concrete read function. */
+	int (*read)(void *, uint8_t *, uint16_t, uint16_t *);
+	/** Pointer to generic parameter(s) for the concrete functions. */
+	void *params;
+} console_descriptor_t;
+
+/* ************************************************************************** */
+/*                        Global Variables Declaration                        */
+/* ************************************************************************** */
+extern console_descriptor_t *consoles[CONSOLE_NUMBER];
+
+/* ************************************************************************** */
+/*                        INLINE  Functions Delcaration                       */
+/* ************************************************************************** */
+/** 
+* @brief Initialize the console port.
+*
+* The function hooks the concrete console descriptor \p hook to the 
+* console port specified by \p cons.
+* In other words maps the consolore port to a concrete console.
+*
+* @param[in] cons 	The number of the console port to be initialized, 
+* 			must less than \ref CONSOLE_NUMBER.
+* @param[in] hook 	The concrete console descriptor.
+* 
+* @return 	\todo Write the return specification.
+*
+* @pre		The \p hook must be properly set before calling this function.
+*/
+COMPILER_INLINE
+int console_init(uint8_t cons, console_descriptor_t *hook)
+{
+	if (cons >= CONSOLE_NUMBER)
+		return -1;
+	consoles[cons] = hook;
+	return 0;
+}
+
+
+/** 
+* @brief Call the concrete console open.
+* 
+* @param[in] cons 	A valid console port identifier.
+* 
+* @return 	\todo Write the return specification.
+*
+* @pre		The \ref console_init must be called on the same \p cons 
+* 		port identifier.
+*/
+COMPILER_INLINE
+int console_open(uint8_t cons)
+{
+	if (consoles[cons]->open != NULL)
+		return consoles[cons]->open(consoles[cons]->params);
+	else
+		return -1;
+}
+
+/** 
+* @brief Write bytes to console.
+*
+* The function attempts to write \p length bytes via the console port,
+* using the hooked concrete console implementation.
+* 
+* @param[in] cons 	A valid console port identifier.
+* @param[in] mesg 	The pointer to the source buffer.
+* @param[in] length 	The number of bytes to write.
+* 
+* @return 	\todo Write the return specification.
+*
+* @pre		The \ref console_init and the \ref console_open functions
+* 		must be called on the same \p cons port identifier.
+*/
+COMPILER_INLINE
+int console_write(uint8_t cons, uint8_t *mesg, uint16_t length)
+{
+	if (consoles[cons]->write != NULL)
+		return consoles[cons]->write(consoles[cons]->params, mesg, length);
+	else
+		return -1;
+}
+
+/** 
+* @brief Read bytes from console.
+* 
+* The function attempts to read \p length bytes via the console port into the
+* destination buffer, using the hooked concrete console implementation.
+*
+* @param[in]  cons 	A valid console port identifier.
+* @param[out] mesg 	The pointer to destination buffer.
+* @param[in]  length 	The number of bytes to read.
+* @param[out] read 	A pointer to store the actual bytes read into \p mesg.
+* 
+* @return 	\todo Write the return specification.
+*
+* @pre		The \ref console_init and \ref console_open functions
+* 		must be called on the same \p cons port identifier.
+*/
+COMPILER_INLINE
+int console_read(uint8_t cons, uint8_t *mesg, uint16_t length, uint16_t *read)
+{
+	if (consoles[cons]->read != NULL)
+		return consoles[cons]->read(consoles[cons]->params, mesg, length, read);
+	else
+		return -1;
+}
+
+/** 
+* @brief Call the concrete console close.
+* 
+* @param[in] cons 	A valid console port identifier.
+* 
+* @return 	\todo Write the return specification.
+*
+* @pre		The \ref console_init and \ref console_open functions
+* 		must be called on the same \p cons port identifier.
+*/
+COMPILER_INLINE
+int console_close(uint8_t cons)
+{
+	if (consoles[cons]->close != NULL)
+		return consoles[cons]->close(consoles[cons]->params);
+	else
+		return -1;
+}
+
+#endif	/* USE_CONSOLE */
+#endif	/* __console_h__ */

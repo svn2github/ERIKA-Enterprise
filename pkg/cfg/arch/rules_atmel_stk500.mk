@@ -200,11 +200,11 @@ $(OBJDIR)/%.o: %.S
 
 ifeq ($(findstring BUILDSRC,$(EEALLOPT)), BUILDSRC)
 $(OBJDIR)/%.o: %.c
-	$(VERBOSE_PRINTCPP) $(EE_CC) $(COMPUTED_OPT_CC) $(DEFS_CC) $(SOURCEFILE) -S -o $(patsubst %.o,%.src,$(TARGETFILE))
+	$(VERBOSE_PRINTCPP) $(EE_CC) $(COMPUTED_OPT_CC) $(COMPUTED_ALLINCPATH) $(DEFS_CC) $(SOURCEFILE) -S -o $(patsubst %.o,%.src,$(TARGETFILE))
 	$(VERBOSE_PRINTASM) $(EE_ASM) $(COMPUTED_OPT_ASM) $(patsubst %.o,%.src,$(TARGETFILE)) -o $(TARGETFILE)
 else
 $(OBJDIR)/%.o: %.c 
-	$(VERBOSE_PRINTCPP) $(EE_CC) $(COMPUTED_OPT_CC) $(DEFS_CC) -c $(SOURCEFILE) -o $(TARGETFILE)
+	$(VERBOSE_PRINTCPP) $(EE_CC) $(COMPUTED_OPT_CC) $(COMPUTED_ALLINCPATH) $(DEFS_CC) -c $(SOURCEFILE) -o $(TARGETFILE)
 endif
 
 ##
@@ -239,7 +239,7 @@ deps.pre: $(addprefix $(OBJDIR)/, $(patsubst %.S,%.Sd,$(patsubst %.c,%.cd, $(SRC
 
 # generate dependencies for .c files and add "file.cd" to the target
 $(OBJDIR)/%.cd: %.c 
-	$(VERBOSE_PRINTDEP) $(EE_CC) $(COMPUTED_OPT_CC) $(DEFS_CC) -M $(SOURCEFILE) > $(TARGETFILE).tmp
+	$(VERBOSE_PRINTDEP) $(EE_CC) $(COMPUTED_OPT_CC) $(COMPUTED_ALLINCPATH) $(DEFS_CC) -M $(SOURCEFILE) > $(TARGETFILE).tmp
 	@echo -n $(TARGETFILE) $(dir $(TARGETFILE)) | cat - $(TARGETFILE).tmp > $(TARGETFILE)
 	@rm -rf $(TARGETFILE).tmp
 	@test -s $(TARGETFILE) || rm -f $(TARGETFILE)

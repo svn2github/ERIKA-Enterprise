@@ -97,8 +97,6 @@ endif
 include $(wildcard $(PKGBASE)/cfg/cfg.mk)
 
 
-
-
 #
 # --------------------------------------------------------------------------
 #
@@ -193,12 +191,12 @@ $(OBJDIR)/%.o: %.S
 	$(VERBOSE_PRINTASM)	$(EE_ASM) $(COMPUTED_OPT_ASM) $(SRCFILE) -o $(TARGETFILE)
 
 $(OBJDIR)/%.o: %.c
-	$(VERBOSE_PRINTCC)  $(EE_CC) $(COMPUTED_OPT_CC) $(DEFS_CC) $< -o $(TARGETFILE)
-	$(VERBOSE_PRINTASM)	$(EE_CC) $(COMPUTED_OPT_CC) $(DEFS_CC) $< -S -o $(SRCFILE)
+	$(VERBOSE_PRINTCC)  $(EE_CC) $(COMPUTED_OPT_CC) $(COMPUTED_ALLINCPATH) $(DEFS_CC) $< -o $(TARGETFILE)
+	$(VERBOSE_PRINTASM)	$(EE_CC) $(COMPUTED_OPT_CC) $(COMPUTED_ALLINCPATH) $(DEFS_CC) $< -S -o $(SRCFILE)
 
 $(OBJDIR)/%.to: %.c
-	$(VERBOSE_PRINTTCC)	$(EE_TCC) $(COMPUTED_OPT_TCC) $(DEFS_TCC) $< -o $(TARGETFILE)
-	$(VERBOSE_PRINTASM)	$(EE_TCC) $(COMPUTED_OPT_TCC) $(DEFS_TCC) $< -S -o $(TOSRCFILE)
+	$(VERBOSE_PRINTTCC)	$(EE_TCC) $(COMPUTED_OPT_TCC) $(COMPUTED_ALLINCPATH) $(DEFS_TCC) $< -o $(TARGETFILE)
+	$(VERBOSE_PRINTASM)	$(EE_TCC) $(COMPUTED_OPT_TCC) $(COMPUTED_ALLINCPATH) $(DEFS_TCC) $< -S -o $(TOSRCFILE)
 
 
 ##
@@ -238,14 +236,14 @@ deps.pre: $(addprefix $(OBJDIR)/, $(patsubst %.S,%.Sd,$(patsubst %.c,%.cd, $(SRC
 
 # generate dependencies for ARM .c files and add "file.cd" to the target
 $(OBJDIR)/%.cd: %.c
-	$(VERBOSE_PRINTDEP) $(EE_CC) $(COMPUTED_OPT_CC) $(DEFS_CC) -M $<  > $(TARGETFILE).tmp
+	$(VERBOSE_PRINTDEP) $(EE_CC) $(COMPUTED_OPT_CC) $(COMPUTED_ALLINCPATH) $(DEFS_CC) -M $<  > $(TARGETFILE).tmp
 	@echo -n $(TARGETFILE) $(dir $(TARGETFILE)) | cat - $(TARGETFILE).tmp > $(TARGETFILE)
 	@rm -rf $(TARGETFILE).tmp
 	@test -s $(TARGETFILE) || rm -f $(TARGETFILE)
 
 # generate dependencies for THUMB .c files and add "file.td" to the target
 $(OBJDIR)/%.td: %.c
-	$(VERBOSE_PRINTDEP) $(EE_TCC) $(COMPUTED_OPT_TCC) $(DEFS_TCC) -M $< > $(TARGETFILE).tmp
+	$(VERBOSE_PRINTDEP) $(EE_TCC) $(COMPUTED_OPT_TCC) $(COMPUTED_ALLINCPATH) $(DEFS_TCC) -M $< > $(TARGETFILE).tmp
 	@echo -n $(TARGETFILE) $(dir $(TARGETFILE)) | cat - $(TARGETFILE).tmp > $(TARGETFILE)
 	@rm -rf $(TARGETFILE).tmp
 	@test -s $(TARGETFILE) || rm -f $(TARGETFILE)

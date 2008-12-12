@@ -143,7 +143,7 @@ INTERNAL_PKGBASEDIR := -I"$(shell cygpath -w $(PKGBASE))\\." -I"$(shell cygpath 
 ALLINCPATH += $(INTERNAL_PKGBASEDIR)
 
 ## OPT_CC are the options for arm compiler invocation
-OPT_CC = -O2 -Wall -Winline $(ALLINCPATH)
+OPT_CC = -O2 -Wall -Winline
 ifeq ($(findstring DEBUG,$(EEOPT)) , DEBUG)
 OPT_CC += -ggdb
 endif
