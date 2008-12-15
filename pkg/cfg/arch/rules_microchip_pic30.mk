@@ -65,7 +65,7 @@ C30_LONGPATH := 1
 endif
 
 # Set include subdirectory for GCC
-ifdef C30_LONGPATH
+ifeq ($(C30_LONGPATH), 1)
 C30SUBDIR :=
 ifeq ($(findstring 30F,$(PIC30_MODEL)) , 30F)
 C30SUBDIR := /dsPIC30F
@@ -84,7 +84,7 @@ C30SUBDIR :=
 endif
 
 # Add extra include if C30 version is 3.10
-ifdef C30_LONGPATH
+ifeq ($(C30_LONGPATH), 1)
 CRT0INC := frommchp/p30f2010.inc
 else
 CRT0INC :=
@@ -139,12 +139,12 @@ OPT_LIBS += -lm -lc -ldsp -l$(subst .a,,$(subst lib,,$(PIC30_DEV_LIB))) -lpic30-
 
 ifeq ($(PLATFORM), LINUX)
 OPT_LIBS += -L $(PIC30_GCCDIR)/lib
-ifdef C30_LONGPATH
+ifeq ($(C30_LONGPATH), 1)
 OPT_LIBS += -L $(PIC30_GCCDIR)/lib$(C30SUBDIR)
 endif
 else
 OPT_LIBS += -L "`cygpath -w $(PIC30_GCCDIR)/lib`"
-ifdef C30_LONGPATH
+ifeq ($(C30_LONGPATH), 1)
 OPT_LIBS += -L "`cygpath -w $(PIC30_GCCDIR)/lib$(C30SUBDIR)`"
 endif
 endif
@@ -323,7 +323,7 @@ frommchp/crt0.S: $(PIC30_CRT0)
 	@printf "CP crt0.s \n"; cp $(SOURCEFILE) $(TARGETFILE)
 
 # Add extra include if C30 version is 3.10
-ifdef C30_LONGPATH
+ifeq ($(C30_LONGPATH), 1)
 frommchp/p30f2010.inc: $(PIC30_GCCDIR)/support/dsPIC30F/inc/p30f2010.inc
 	@printf "CP p30f2010.inc \n"; cp $(SOURCEFILE) $(TARGETFILE)
 endif
