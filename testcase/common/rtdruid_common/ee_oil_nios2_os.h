@@ -53,16 +53,22 @@
 
 //NIOS2_JAM_FILE = "C:/altera/kits/nios2_60/examples/verilog/niosII_stratix_1s40/full_featured/fpga.jam";
 //NIOS2_JAM_FILE = "c:/altera/kits/nios2_60/examples/verilog/niosII_stratix_1s40/standard/standard.jam";
-NIOS2_JAM_FILE = "c:/altera/80/nios2eds/examples/verilog/niosII_stratixII_2s60/standard/standard.jam";
+//NIOS2_JAM_FILE = "c:/altera/80/nios2eds/examples/verilog/niosII_stratixII_2s60/standard/standard.jam";
+		NIOS2_JAM_FILE = "C:/altera/81/nios2eds/examples/verilog/niosII_stratixII_2s60_RoHS/frsh_multi4/fpga.jam";
+		NIOS2_PTF_FILE = "C:/altera/81/nios2eds/examples/verilog/niosII_stratixII_2s60_RoHS/frsh_multi4/NiosII_stratixII_2s60_RoHS_small_sopc.ptf";
 
 		CPU_DATA = NIOSII {
 //			ID = "cpu0";
 			APP_SRC = "code.c";
 			STACK_TOP = "__alt_stack_pointer";
 			SYS_SIZE = 0x1000;
-			SYSTEM_LIBRARY_NAME = "full_featured_syslib";
-			SYSTEM_LIBRARY_PATH = EE_NIOS2_SYSTEM_LIBRARY_PATH_FULLFEATURED;
+
+			//SYSTEM_LIBRARY_NAME = "full_featured_syslib";
+			//SYSTEM_LIBRARY_PATH = EE_NIOS2_SYSTEM_LIBRARY_PATH_FULLFEATURED;
 
 			//SYSTEM_LIBRARY_NAME = "standard_syslib";
 			//SYSTEM_LIBRARY_PATH = EE_NIOS2_SYSTEM_LIBRARY_PATH;
+
+			SYSTEM_LIBRARY_NAME = "frsh_multi4_syslib_0";
+			SYSTEM_LIBRARY_PATH = "/cygdrive/c/Users/pj/workspaceFRSH81/frsh_multi4_syslib_0";
 #endif

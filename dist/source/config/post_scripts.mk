@@ -31,7 +31,7 @@ post_script___NIOS2__ += \
 
 ifdef NIOS2_MOVE
 #ifndef EE_DEST_DIR
-	EE_DEST_DIR = /cygdrive/c/altera/80/nios2eds/components
+	EE_DEST_DIR = /cygdrive/c/altera/81/nios2eds/components
 #endif
 post_script___NIOS2__ += \
 	echo Moving files!; \

@@ -1,0 +1,1 @@
+/cygdrive/c/altera/${EE_NIOS2_VERSION}/quartus/bin/cygwin/bin/bash -c "/bin/bash --rcfile /cygdrive/c/altera/${EE_NIOS2_VERSION}/nios2eds/nios2_sdk_shell_bashrc --login -c 'make QUARTUS_ROOTDIR=/cygdrive/c/altera/${EE_NIOS2_VERSION}/quartus SOPC_KIT_NIOS2=/cygdrive/c/altera/${EE_NIOS2_VERSION}/nios2eds $1 $2 $3 $4 $5 $6 $7 $8 $9 $10'"

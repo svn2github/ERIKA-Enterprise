@@ -7,6 +7,7 @@ area.select A000
 
 
 do testcase_data
+; This optimization seems not to work anymore on nios2 80
 if ("&EE_NIOS2_JAM_FILE"!="&current_jam")
 (
   &current_jam="&EE_NIOS2_JAM_FILE"

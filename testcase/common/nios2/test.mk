@@ -184,7 +184,14 @@ GLOBAL_CONF_nios2_source = \
 		make -C $${EEBASE}/dist/source DIST=NIOS2_TESTCASE NIOS2_MOVE=Y; \
 	fi );
 
-COMPILE_nios2_source = +$$(MAKE) $(PARAMETERS) NODEPS=1 EEBASE=$$(OUTDIR_PREFIX)$(1)/ee_RTDRUID -C $$(OUTDIR_PREFIX)$(1)/Debug
+#COMPILE_nios2_source = +$$(MAKE) $(PARAMETERS) NODEPS=1 EEBASE=$$(OUTDIR_PREFIX)$(1)/ee_RTDRUID -C $$(OUTDIR_PREFIX)$(1)
+
+# workaround for a bug in RT-Druid that does not generate the results in the right directory
+# moreover the make version in Nios II is a 3.80. To call it we use the script mymake.sh
+# we cannot use make 3.81 shipped with cygwin because it does not support windows pathnames in the directory name
+# we cannot use make380 in cygwin because of the CR-LF problem
+# I also had to make a symbolic link in /home in the nios2 cygwin installation
+COMPILE_nios2_source = mkdir $$(OUTDIR_PREFIX)$(1)/Debug; mv $$(OUTDIR_PREFIX)$(1)/makefile $$(OUTDIR_PREFIX)$(1)/Debug; mv $$(OUTDIR_PREFIX)$(1)/default_cpu $$(OUTDIR_PREFIX)$(1)/Debug; mv $$(OUTDIR_PREFIX)$(1)/common.mk $$(OUTDIR_PREFIX)$(1)/Debug; $(EEBASE)/testcase/common/nios2/mymake.sh $(PARAMETERS) NODEPS=1 EEBASE=$$(OUTDIR_PREFIX)$(1)/ee_RTDRUID -C $$(OUTDIR_PREFIX)$(1)/Debug
 
 RTDRUID_nios2_source = \
 	@echo RTDRUID $$(OUTDIR_PREFIX)$(1); \

@@ -13,7 +13,7 @@
 
 # this variable is used in the "help" rule
 ALL_DISTRIBUTIONS += MPC5
-ALL_DISTRIBUTIONS += NIOS2_ALL NIOS2_FROMBINDIST NIOS2_EXAMPLES NIOS2_TESTCASE
+ALL_DISTRIBUTIONS += NIOS2_ALL NIOS2_TEST NIOS2_FROMBINDIST
 ALL_DISTRIBUTIONS += E7T_ALL E7T_TESTCASE
 ALL_DISTRIBUTIONS += PIC30_ALL PIC30_TESTCASE
 ALL_DISTRIBUTIONS += AVR5_ALL AVR5_TESTCASE
@@ -23,30 +23,24 @@ ALL_DISTRIBUTIONS += EEAVR5_ALL
 
 
 # -------------------------------------------------------------------
+# -------------------------------------------------------------------
+# -------------------------------------------------------------------
+# -------------------------------------------------------------------
 
-# This is a source distribution that includes all the sources needed
-# to compile a generic Nios2 application
+# Nios2 distributions
 
-#NIOS2_ALL = NIOS2_ALL_FP NIOS2_ALL_OO
-#NIOS2_ALL = NIOS2_ALL_OO NIOS2_ALL_EXAMP NIOS2_ALL_FRSH
-
-NIOS2_ALL = NIOS2_ALL_FP NIOS2_ALL_OO NIOS2_ALL_EXAMP
+NIOS2_ALL = NIOS2_ALL_FP NIOS2_ALL_OO NIOS2_ALL_EXAMP NIOS2_ALL_TESTCASE
 
 NIOS2_ALL_FP = __NIOS2__ __FP__ __ALLOW_NESTED_IRQ__ __MONO__ __RN__ __MSRP__ __ALARMS__ __SEM__
 NIOS2_ALL_OO = __NIOS2__ __OO_BCC1__ __ALLOW_NESTED_IRQ__ __MONO__ __RN__ __MSRP__
 NIOS2_ALL_EXAMP = __NIOS2_EXAMPLES__
-NIOS2_ALL_FRSH = __NIOS2__ __FRSH__ __ALLOW_NESTED_IRQ__ __MONO__ __RN__ __MSRP__
+NIOS2_ALL_TESTCASE = __ASSERT__
 
-# -------------------------------------------------------------------
 
-# This is used when compiling source distributions for Nios II
+NIOS2_TEST = $(NIOS2_ALL) NIOS2_TEST_FRSH
 
-NIOS2_TESTCASE = NIOS2_TESTCASE_FP NIOS2_TESTCASE_OO
+NIOS2_TEST_FRSH = __NIOS2__ __FRSH__ __ALLOW_NESTED_IRQ__ __MONO__ __RN__ __MSRP__
 
-NIOS2_TESTCASE_FP = $(NIOS2_ALL_FP) __ASSERT__
-NIOS2_TESTCASE_OO = $(NIOS2_ALL_OO) __ASSERT__
-
-# -------------------------------------------------------------------
 
 # this is called hardcoded by the binary distribution scripts when
 # generating a binary distribution for NIOS2. This is needed because
@@ -59,16 +53,12 @@ NIOS2_FROMBINDIST = NIOS2_FROMBINDIST_THEDIST
 NIOS2_FROMBINDIST_THEDIST = __NIOS2__ __OO_BCC1__ __ALLOW_NESTED_IRQ__ __MONO__ __RN__ __MSRP__ __ASSERT__
 
 # -------------------------------------------------------------------
-
-# This source distribution only includes the examples taken from the
-# tutorial. Note that the post_install scripts are used to generate
-# the correct directory layout!!!
-
-NIOS2_EXAMPLES = NIOS2_EXAMPLES_ALL
-
-NIOS2_EXAMPLES_ALL = __NIOS2_EXAMPLES__
-
 # -------------------------------------------------------------------
+# -------------------------------------------------------------------
+# -------------------------------------------------------------------
+
+
+
 
 MPC5 = MPC5_SOURCE
 
