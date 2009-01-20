@@ -203,10 +203,6 @@ extern "C" {
 #include "kernel/edf/inc/ee_kernel.h"
 #endif
 
-#ifdef __IRIS__
-#include "kernel/iris/inc/ee_kernel.h"
-#endif
-
 #ifdef __FRSH__
 #ifdef __SEM_FRSH__
 #include "kernel/frsh/syncobj/inc/ee_sem.h"

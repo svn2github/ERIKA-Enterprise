@@ -97,10 +97,6 @@
 #include "kernel/cbs/inc/ee_api.h"
 #endif
 
-#ifdef __IRIS__
-#include "kernel/iris/inc/ee_api.h"
-#endif
-
 #ifdef __SEM__
 #include "kernel/sem/inc/ee_api.h"
 #endif

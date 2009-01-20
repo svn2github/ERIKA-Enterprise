@@ -54,7 +54,7 @@
  *************************************************************************/
 
 /*
- * Time handling on the dsPIC33 is made by using timer T8 and T9 as a
+ * Time handling on the nios2 is made by using timer T8 and T9 as a
  * 32 bit register value to have a bigger lifetime.
  */
 
@@ -126,9 +126,12 @@ __INLINE__ EE_TIME __ALWAYS_INLINE__ EE_hal_gettime(void)
 }
 #endif
 
-#if defined(__IRIS__) || defined(__FRSH__)
+#if defined(__FRSH__)
 
-__INLINE__ void __ALWAYS_INLINE__ EE_iris_time_init(void)
+/* This function is used to initialize the two timers used for 
+ * budget exaustion and for the recharging queue
+ */
+__INLINE__ void __ALWAYS_INLINE__ EE_frsh_time_init(void)
 {
   IOWR_ALTERA_AVALON_TIMER_PERIODH(TIMER_CAPACITY_BASE, 0xFFFF);
   IOWR_ALTERA_AVALON_TIMER_PERIODL(TIMER_CAPACITY_BASE, 0xFFFF);

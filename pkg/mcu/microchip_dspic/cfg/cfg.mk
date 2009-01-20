@@ -43,13 +43,12 @@
 
 ifeq ($(findstring __MICROCHIP_DSPIC30__,$(EEOPT)) , __MICROCHIP_DSPIC30__)
 
-# This file should contain the list of files that have to be compiled
-
+ifeq ($(findstring __FRSH__,$(EEOPT)) , __FRSH__)
 # directory name containing the sources
-# EE_VPATH += $(PKGBASE)/mcu/microchip_dspic/src
+EE_VPATH += $(PKGBASE)/mcu/microchip_dspic/src
 
-# the list of the sources, Note: every file should start with ee_
-# EE_SRCS += ee_myfile.c
+EE_SRCS += ee_pic30frsh.c
+endif
 
 # typically empty, the crt0.S function is typically provided by the
 # ASM30 Assembler

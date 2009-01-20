@@ -131,9 +131,12 @@ __INLINE__ EE_TIME __ALWAYS_INLINE__ EE_hal_gettime(void)
 }
 #endif
 
-#if defined(__IRIS__) || defined(__FRSH__)
+#if defined(__FRSH__)
 
-__INLINE__ void __ALWAYS_INLINE__ EE_iris_time_init(void)
+/* This function is used to initialize the two timers used for handling
+ * budget exaustion and the recharging queue in FRSH
+ */
+__INLINE__ void __ALWAYS_INLINE__ EE_frsh_time_init(void)
 {
   T4CON = 0; 
   T4CONbits.T32 = 1;  /* Set Timer6 in 32bit mode */ 

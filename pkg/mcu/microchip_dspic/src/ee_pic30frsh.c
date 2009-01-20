@@ -38,3 +38,38 @@
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
 
+/*
+ * Author: 2008 Paolo Tiberi & Francesco Focacci
+ * CVS: $Id: ee_frsh_init.c,v 1.4 2008/07/21 13:51:54 tiberipa Exp $
+ */
+
+#include "ee_internal.h"
+
+#include "mcu/microchip_dspic/inc/ee_internal.h"
+#include "cpu/pic30/inc/ee_irqstub.h"
+
+extern void EE_IRQ_end_budget(void);
+extern void EE_IRQ_end_recharging(void);
+
+/*
+ * These two interrupts are used in the FRSH implementation to handle the
+ * timer interrupts for budget exaustion and for the recharging.
+ */
+
+/* Budget exaustion */
+ISR2(_T5Interrupt)
+{
+	/* clear the interrupt source */
+	IFS1bits.T5IF = 0;
+	T4CONbits.TON = 0;
+	EE_IRQ_end_budget();
+}
+
+/* Recharging queue */
+ISR2(_T7Interrupt)
+{
+	/* clear the interrupt source */
+	IFS3bits.T7IF = 0;
+	T6CONbits.TON = 0;
+	EE_IRQ_end_recharging();
+}

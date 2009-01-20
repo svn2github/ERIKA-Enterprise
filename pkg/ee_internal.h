@@ -202,13 +202,6 @@ extern "C" {
 #include "kernel/cbs/inc/ee_internal.h"
 #endif
 
-#ifdef __IRIS__
-#ifdef __SEM_IRIS__
-#include "kernel/iris/syncobj/inc/ee_sem.h"
-#endif
-#include "kernel/iris/inc/ee_internal.h"
-#endif
-
 #ifdef __FRSH__
 #ifdef __SEM_FRSH__
 #include "kernel/frsh/syncobj/inc/ee_sem.h"
