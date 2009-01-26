@@ -70,21 +70,23 @@
    inserted into the recharging queue safely. */
 #ifndef __PRIVATE_RECHARGEBUDGET__
 void EE_frsh_rechargebudget(EE_TID t) {
+  EE_TYPECONTRACT c = EE_th[t].contract;
+  
   for(;;){
     // recharge the task.
-    if (EE_th_budget_avail[t] > 0) {
+    if (EE_vres[c].budget_avail > 0) {
       // the budget is positive, and we recharge to the maximum and we exit.
-      EE_th_budget_avail[t] = EE_th_budget[t];
+      EE_vres[c].budget_avail = EE_ct[c].budget;
       break;
     } else {
       // the budget is negative. we sum it and we check if the new budget is enough
-      EE_th_budget_avail[t] += EE_th_budget[t];
-      if ( EE_th_budget_avail[t] > EE_TIMER_MINCAPACITY )
+      EE_vres[c].budget_avail += EE_ct[c].budget;
+      if ( EE_vres[c].budget_avail > EE_TIMER_MINCAPACITY )
 	break;
     }
 
     // we have to do another round! we update the period and we put the task back
-    EE_th_absdline[t] += EE_th_period[t];
+    EE_vres[c].absdline += EE_ct[c].period;
   }
 }
 #endif
@@ -98,10 +100,12 @@ void EE_frsh_rechargebudget(EE_TID t) {
  */
 ActionType EE_frsh_updatecapacity(EE_TID t, EE_TIME tmp_time)
 {
+  EE_TYPECONTRACT c = EE_th[t].contract;
+
   /* if the thread is not active or the current deadline is in the past */
-  if (!EE_th_active[t] || (EE_STIME)(EE_th_absdline[t] - tmp_time) < 0) {
+  if (EE_vres[c].status == EE_VRES_FREEZED || (EE_STIME)(EE_vres[c].absdline - tmp_time) < 0) {
     /* task deadline is in the past, reset it to the default */
-    EE_th_absdline[t] = tmp_time + EE_th_period[t];
+    EE_vres[c].absdline = tmp_time + EE_ct[c].period;
 
     /* In this case, we decided to put it equal to the budget because
        since the deadline is in the past or the task is not active it
@@ -109,16 +113,16 @@ ActionType EE_frsh_updatecapacity(EE_TID t, EE_TIME tmp_time)
        += does not guarantees that after the sum the capacity is
        greater than 0, and so we are not sure we can put the task into
        the ready queue! */
-    EE_th_budget_avail[t] = EE_th_budget[t];
+    EE_vres[c].budget_avail = EE_ct[c].budget;
 
-    EE_th_active[t] = 1;
+    EE_vres[c].status = EE_VRES_ACTIVE;
     return InsertRDQueue;
   } 
   else{
     // task deadline is in the future 
-    if (EE_th_budget_avail[t] < EE_TIMER_MINCAPACITY) {
+    if (EE_vres[c].budget_avail < EE_TIMER_MINCAPACITY) {
       EE_frsh_rechargebudget(t);
-
+      EE_vres[c].status = EE_VRES_RECHARGING;
       return InsertRCGQueue;
     }
     /* This is the test of CBS, saying that if the bandwith of the
@@ -129,11 +133,13 @@ ActionType EE_frsh_updatecapacity(EE_TID t, EE_TIME tmp_time)
        the task stays idle for a while, or if the task has been
        blocked for a while. */
 
-    if((EE_STIME)(EE_th_absdline[t] - EE_th_budget_avail[t]*EE_inv_proc_util[t] -
+    if((EE_STIME)(EE_vres[c].absdline - EE_vres[c].budget_avail*EE_ct[c].inv_proc_util -
                    tmp_time) <= 0 ) {
-      EE_th_budget_avail[t] = EE_th_budget[t];
-      EE_th_absdline[t] = tmp_time + EE_th_period[t];          
+      EE_vres[c].budget_avail = EE_ct[c].budget;
+      EE_vres[c].absdline = tmp_time + EE_ct[c].period;
     }
+
+    EE_vres[c].status = EE_VRES_ACTIVE;
     return InsertRDQueue;     
   }
 }
@@ -167,8 +173,8 @@ void EE_frsh_select_exec(void)
   } else {
     /* the ready queue is not empty */
     if (tmp_stk == EE_NIL ||
-	((EE_STIME)(EE_th_absdline[tmp_stk] - EE_th_absdline[tmp_rq]) > 0
-	 && EE_sys_ceiling < EE_th_prlevel[tmp_rq])) {
+	((EE_STIME)(EE_vres[EE_th[tmp_stk].contract].absdline - EE_vres[EE_th[tmp_rq].contract].absdline) > 0
+	 && EE_sys_ceiling < EE_th[tmp_rq].prlevel)) {
       EE_exec = tmp_rq;
       EE_rq_getfirst();
     } else {
@@ -203,30 +209,36 @@ void EE_frsh_select_exec(void)
 void EE_frsh_check_slice(EE_TIME tmp_time)
 {
   if (EE_exec != EE_NIL) {
-    /* account the capacity to the task that is currently executing */
-    EE_th_budget_avail[EE_exec] -= tmp_time - EE_last_time;
+    EE_TYPECONTRACT c = EE_th[EE_exec].contract;
 
-    if (EE_th_lockedcounter[EE_exec]) {
+    /* account the capacity to the task that is currently executing */
+    EE_vres[c].budget_avail -= tmp_time - EE_last_time;
+
+    if (EE_th[EE_exec].lockedcounter) {
       /* The task is holding a resource, put it into the stacked queue 
 	 regardless of the budget it has.
        */
       EE_stk_insertfirst(EE_exec);
-    } else if ( (EE_STIME)EE_th_budget_avail[EE_exec] < EE_TIMER_MINCAPACITY) {
+      EE_th[EE_exec].status = EE_TASK_STACKED | EE_TASK_WASSTACKED;
+      // VRES status unchanged
+    } else if ( (EE_STIME)EE_vres[c].budget_avail < EE_TIMER_MINCAPACITY) {
       /* if the budget is exhausted then insert in the recharging queue */
       EE_frsh_rechargebudget(EE_exec);
-      EE_th_status[EE_exec] = EE_RECHARGING;
+      EE_vres[c].status = EE_VRES_RECHARGING;
+      EE_th[EE_exec].status = EE_TASK_READY | EE_TASK_WASSTACKED;
       EE_rcg_insert(EE_exec);
 
       /* update the recharging IRQ if the activated task becomes the first */
       if(EE_rcg_queryfirst() == EE_exec)
-        EE_hal_set_recharging_timer(EE_th_absdline[EE_exec] - tmp_time);
+        EE_hal_set_recharging_timer(EE_vres[c].absdline - tmp_time);
 
     } else {
       EE_rq_insert(EE_exec);
+      
+      EE_th[EE_exec].status = EE_TASK_READY | EE_TASK_WASSTACKED;
+      // VRES status unchanged
     }
     
-    EE_th_status[EE_exec] |= EE_WASSTACKED;
-
     /* EE_exec has been inserted into a queue */
     EE_exec = EE_NIL;
   }
@@ -269,12 +281,15 @@ void EE_frsh_end_slice(EE_TIME tmp_time)
 {
   register int time_check;
   register int nact_check;
-  
+  register EE_TYPECONTRACT c;
+
+  c = EE_th[EE_exec].contract;
+
   /* account the capacity to the task that is currently executing */
-  EE_th_budget_avail[EE_exec] -= tmp_time - EE_last_time;
+  EE_vres[c].budget_avail -= tmp_time - EE_last_time;
   
-  time_check = (EE_STIME)EE_th_budget_avail[EE_exec] < EE_TIMER_MINCAPACITY;
-  nact_check = EE_th_nact[EE_exec];
+  time_check = (EE_STIME)EE_vres[c].budget_avail < EE_TIMER_MINCAPACITY;
+  nact_check = EE_th[EE_exec].nact;
   
   if (time_check) {
     // no budget left
@@ -283,12 +298,13 @@ void EE_frsh_end_slice(EE_TIME tmp_time)
       // the ending task has consumed all its budget.
       // It has still pending activations, I put the task in recharging
       EE_frsh_rechargebudget(EE_exec);
-      EE_th_status[EE_exec] = EE_RECHARGING;
+      EE_vres[c].status = EE_VRES_RECHARGING;
+      EE_th[EE_exec].status = EE_TASK_READY;
       EE_rcg_insert(EE_exec);
 
       /* update the recharging IRQ if the activated task becomes the first */
       if(EE_rcg_queryfirst() == EE_exec)
-        EE_hal_set_recharging_timer(EE_th_absdline[EE_exec] - tmp_time);
+        EE_hal_set_recharging_timer(EE_vres[c].absdline - tmp_time);
 
       // WASSTACKED is not set, because the task just ended
     } else {
@@ -296,7 +312,8 @@ void EE_frsh_end_slice(EE_TIME tmp_time)
       // do nothing. 
       // the task is currently in any queue
       // the task will be inserted in the recharging queue when activated again
-      EE_th_status[EE_exec] = EE_SUSPENDED;
+      EE_vres[c].status = EE_VRES_INACTIVE;
+      EE_th[EE_exec].status = EE_TASK_SUSPENDED;
     }
   } else {
     // there is still budget
@@ -304,13 +321,15 @@ void EE_frsh_end_slice(EE_TIME tmp_time)
       // nact > 1
       // the task is put back into the ready queue, no need to update the budget
       EE_rq_insert(EE_exec);
-      EE_th_status[EE_exec] = EE_READY;
+      // VRES status unchanged
+      EE_th[EE_exec].status = EE_TASK_READY;
       // WASSTACKED is not set, because the task just ended
     } else {
-      // nact = 0
+      // nact = 0 - tested
       // the task is suspended waiting for the next activation. 
       // the budget is left as it was
-      EE_th_status[EE_exec] = EE_SUSPENDED;
+      EE_vres[c].status = EE_VRES_INACTIVE;
+      EE_th[EE_exec].status = EE_TASK_SUSPENDED;
     }
   }
   
@@ -339,6 +358,7 @@ void EE_frsh_check_recharging(EE_TIME tmp_time)
 {
   register EE_TIME delta;
   register EE_TID t;
+  register EE_TYPECONTRACT c;
   
   /* if there are not tasks in the ready and in the stacked queue,
    * check if there are task in recharging queue and if so, immediately
@@ -363,8 +383,10 @@ void EE_frsh_check_recharging(EE_TIME tmp_time)
   /* remove the task from the recharging queue */
   EE_rcg_getfirst();
 
+  c = EE_th[t].contract;
+
   /* delta is the amount of time we have to shift all the recharging deadlines */
-  delta = EE_th_absdline[t] - tmp_time; 
+  delta = EE_vres[c].absdline - tmp_time; 
 
   /* at this point t is the head of the recharging queue
      t has a budget which is > EE_TIMER_MINCAPACITY
@@ -374,12 +396,13 @@ void EE_frsh_check_recharging(EE_TIME tmp_time)
   */
      
   /* we update the deadline of the task and we set it to ready */
-  EE_th_absdline[t] = tmp_time + EE_th_period[t];
+  EE_vres[c].absdline = tmp_time + EE_ct[c].period;
   EE_rq_insert(t);
 
   /* if a task is in the recharging queue it means it is active and it
      has finished the budget. it means it is on the stack! */
-  EE_th_status[t] = EE_READY | EE_WASSTACKED;
+  EE_vres[c].status = EE_VRES_ACTIVE;
+  EE_th[t].status = EE_TASK_READY | EE_TASK_WASSTACKED;
 
 
   /* we have to shift all the recharging times by delta */
@@ -387,11 +410,14 @@ void EE_frsh_check_recharging(EE_TIME tmp_time)
   EE_TID prev = EE_NIL;
 
   while (t != EE_NIL) {
-    EE_th_absdline[t] -= delta;
+    /* take the contract value */
+    c = EE_th[t].contract;
+
+    EE_vres[c].absdline -= delta;
     
     /* if the deadline is (almost) 0, it means that the task's recharge IRQ once put in the ready queue
        will fire in a few microseconds */
-    if ((EE_STIME)(EE_th_absdline[t] - tmp_time) <= EE_TIMER_MINCAPACITY) {
+    if ((EE_STIME)(EE_vres[c].absdline - tmp_time) <= EE_TIMER_MINCAPACITY) {
       // we have to reassign deadline and budget
       // to avoid the recharging interrupt to arrive
       
@@ -403,25 +429,29 @@ void EE_frsh_check_recharging(EE_TIME tmp_time)
       // (that's why the main if has the else: t and prev have to be
       // updated here!
       if (prev != EE_NIL) {
-	t = EE_th_next[t];
-	EE_th_next[prev] = t;
+	t = EE_th[t].next;
+	EE_th[prev].next = t;
       }
       else {
 	EE_rcg_getfirst();
 	t = EE_rcg_queryfirst();
       }
       
+      // c can stay the same here, because was taken for t_tmp
+
       // update the deadline. Note the deadline has been shifted by delta already
       // The budget has already been set when inserting into the recharging queue
-      EE_th_absdline[t_tmp] += EE_th_period[t_tmp];
+      EE_vres[c].absdline += EE_ct[c].period;
       
       // insert in the ready queue
       EE_rq_insert(t_tmp);
-      EE_th_status[t_tmp] = EE_READY | EE_WASSTACKED;
+      EE_vres[c].status = EE_VRES_ACTIVE;
+      EE_th[t_tmp].status = EE_TASK_READY | EE_TASK_WASSTACKED;
+
     } else {
       // go to the next task
       prev = t;
-      t = EE_th_next[t];
+      t = EE_th[t].next;
     }
   }
   
@@ -429,7 +459,7 @@ void EE_frsh_check_recharging(EE_TIME tmp_time)
 
   // at the end of the update, we have to reprogram the recharging IRQ
   if (t != EE_NIL) {
-      EE_hal_set_recharging_timer(EE_th_absdline[t] - tmp_time);
+      EE_hal_set_recharging_timer(EE_vres[EE_th[t].contract].absdline - tmp_time);
   }
   else
     EE_hal_stop_recharging_timer();

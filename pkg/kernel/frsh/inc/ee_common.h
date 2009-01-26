@@ -85,7 +85,9 @@ resources by the tasks in the stacked queue)
 
 If a task to execute is chosen from the stacked queue, then the task
 is removed from the stacked queue and it is put into exec.
+*/
 
+/*
 Please note the following difference between (FP, EDF) and FRSH.  FRSH
 does a distinction between exec and stkfirst. the rationale is that
 exec may not influence the system ceiling (for example, the running
@@ -102,10 +104,37 @@ Finally note that since FP and EDF implements preemption thresholds,
 all the tasks at the end make a modification to the system ceiling, 
 and then the exec task can coincide without problems to the first 
 stacked task.
+*/
 
+/*
+Notes on thread and VRES status and parameters
+----------------------------------------------
+The kernel makes a distinction between the tasks and VRES
 
-Notes on EE_th_active
----------------------
+Tasks are the executing entities. All queues in the system queue the
+tasks as executing entities.
+
+Tasks have allocated a VRES. the VRES is the container which controls
+when a task can be executed. the parameters of a VRES are:
+- period
+- budget
+- absolute deadline
+- active
+- status
+
+Please note that the VRES status and the task status are distinct
+- the VRES status maps the capability of a VRES to execute
+- the task status maps the status of the task
+
+Example: a task may block on a semaphore for an indefinite time. while
+the status becomes BLOCKED, the VRES status is initially Active, then
+after a while it will become Inactive, and after a long time it will
+be set to freezed.
+*/
+
+/*
+Notes on the freezed state
+--------------------------
 The FRSH Kernel is using a timer representation embedded in a timer
 value. All times in the system are relative to the value of the 
 current timer.
@@ -117,19 +146,13 @@ after some time (half the lifetime of the timer), that this deadline
 in the past becomes a deadline "in the future". At that point, all 
 the deadline update strategies will fail.
 
-To avoid that, the user have to periodically "take a look" at 
+To avoid that, the system have to periodically "take a look" at 
 all the task deadlines to see if they go too much in the past 
 (if a deadline goes in the past it measn the task has not executed 
 for a while). If that happens, then the function 
-EE_frsh_deadlinecheck will set these tasks to "inactive", and then
+EE_frsh_deadlinecheck will set these VRES to "freezed", and then
 when the task wuill be activated again a fresh deadline will be 
-assigned.
-
-EE_th_active tracks exactly the fact that a task is inactive due 
-to the deadline aging. when a task is inactive, when activated a 
-task will be assigned a new proper deadline, in the function 
-EE_frsh_updatecapacity
-
+assigned (done into EE_frsh_updatecapacity.
 -- end note */
 
 /*************************************************************************
@@ -139,22 +162,25 @@ EE_frsh_updatecapacity
 /* invalid TID */
 #define EE_NIL       ((EE_TID)-1)
 
-/* Thread statuses */
+
+/* VRES statuses */
+
+#define EE_VRES_FREEZED    0
+#define EE_VRES_INACTIVE   1
+#define EE_VRES_ACTIVE     2
+#define EE_VRES_RECHARGING 4
 
 
-#define EE_SUSPENDED  0
 
-#define EE_READY      1
+/* TASK statuses */
 
-/* used for tasks which go recharging. A task goes recharging when it
-   has exausted its budget but it could still be ready */
-#define EE_RECHARGING 2
+#define EE_TASK_SUSPENDED  0
+#define EE_TASK_READY      1
+#define EE_TASK_STACKED    2
+#define EE_TASK_BLOCKED    4
 
-/* used by semaphores and blocking primitives in general */
-#define EE_BLOCKED    4
-
-/* used to know if a task has some space allocated on its stack */
-#define EE_WASSTACKED 8
+/* flag used to know if a task has some space allocated on its stack */
+#define EE_TASK_WASSTACKED 8
 
 /*************************************************************************
  Kernel Types
@@ -181,8 +207,8 @@ EE_frsh_updatecapacity
 #endif
 
 /* capacity type */
-#ifndef EE_TYPECAPACITY
-#define EE_TYPECAPACITY EE_STIME
+#ifndef EE_TYPEBUDGET
+#define EE_TYPEBUDGET EE_STIME
 #endif
 
 /* pending activation type */
@@ -195,57 +221,86 @@ EE_frsh_updatecapacity
 #define EE_MUTEX EE_UREG
 #endif
 
+/* contract ID */
+#ifndef EE_TYPECONTRACT
+#define EE_TYPECONTRACT EE_UREG
+#endif
+
+/* vres ID */
+#ifndef EE_TYPEVRES
+#define EE_TYPEVRES EE_UREG
+#endif
+
+/* Contract */
+typedef struct {
+  EE_TYPEBUDGET   budget;
+  EE_TYPERELDLINE period;
+  EE_TYPERELDLINE inv_proc_util;
+} EE_TYPECONTRACTSTRUCT;
+
+/* VRES */
+typedef struct {
+  EE_TYPEBUDGET   budget_avail;  /* available budget (initvalue 0) */
+  EE_TYPEABSDLINE absdline;      /* absolute deadline (initvalue 0) */
+  EE_TYPESTATUS   status;        /* status (initvalue freezing that is 0) */
+} EE_TYPEVRESSTRUCT;
+
+/* TASK */
+typedef struct {
+  EE_TYPERELDLINE prlevel;       /* task preemption level */
+  EE_TYPESTATUS   status;        /* task status (initvalue EE_TASK_SUSPENDED ) */
+  EE_TID          next;          /* next task in the queue (initvalue EE_NIL ) */
+  EE_TYPENACT     nact;          /* number of pending activations (initvalue 0) */
+  EE_UREG         lockedcounter; /* number of locked resources (initvalue 0) */
+  EE_TYPECONTRACT contract;      /* the contract linked to the task */
+} EE_TYPETASKSTRUCT;
+
+
+
+
 
 /*************************************************************************
  Kernel Variables
  *************************************************************************/
 
-/* ROM */
-extern const EE_TYPERELDLINE EE_th_prlevel[];        /* task preemption level */
-extern const EE_TYPEPRIO     EE_mutex_ceiling[];     /* mutex ceiling */
 
-extern EE_TYPECAPACITY EE_th_budget[];         /* FRSH mean execution time */
-extern EE_TYPERELDLINE EE_th_period[];         /* FRSH replenishment period */
-
-typedef struct {
-  EE_TYPECAPACITY capacity;
-  EE_TYPERELDLINE period;
-  EE_TYPERELDLINE inv_proc_util;
-} EE_TYPECONTRACT;
+/*************
+ * CONTRACTS
+ *************/
 
 /* This structure contains the statically defined contractd defined into the OIL File */
-extern const EE_TYPECONTRACT EE_contracts[];
-	
-/* This vector contains the inverse processor utilization of each task 
-   if the budget and the period are power of 2, it contains the logarithm of the
-   ratio in order to speed up the multiplication */
-extern EE_TYPERELDLINE EE_inv_proc_util[];     /* inverse processor utilization */
+extern const EE_TYPECONTRACTSTRUCT EE_ct[];
 
-/* RAM */
-extern EE_TYPECAPACITY EE_th_budget_avail[];	 /* available budget (initvalue: 0) */
-extern EE_TYPEABSDLINE EE_th_absdline[];         /* task absolute deadline (initvalue: 0) */
 
-extern EE_TYPESTATUS   EE_th_status[];	         /* thread status (initvalue: EE_READY) */
-extern EE_TYPENACT     EE_th_nact[];		 /* pending activations (initvalue: 0) */
-extern EE_TID          EE_th_next[];		 /* next task in queue (initvalue: EE_NIL) */
+/*************
+ * VRES
+ *************/
 
-extern EE_TYPEPRIO     EE_mutex_oldceiling[];	 /* old mutex ceiling (initvalue: none) */
-extern EE_UREG         EE_th_lockedcounter[];	 /* number of mutexes locked (initvalue: 0) */
-/* EE_mutex_lockedcounter is used to know if a task have to be put in the ready or 
-   in the stacked queue */
+/* This structure contains all the VRES data. (initvalue 0) */
+extern EE_TYPEVRESSTRUCT EE_vres[EE_MAX_CONTRACT];
 
-extern EE_UREG         EE_th_active[];           /* task is active ? (initvalue: 0) see note above */
-   
-#ifdef __SEM_FRSH__
-#include "../syncobj/inc/ee_sem.h"
-extern EE_TID          EE_th_nextsem[];	 /* next task in the sem wait queue (initvalue: EE_NIL) */
-extern SemRefType      EE_th_semrefs[];    /* Task reference to the used semaphore */
-extern EE_TIME         EE_th_timeouts[];   /* Task semaphore timeouts */
-extern char            EE_th_timedout[];   /* used to check if timedout*/
-#endif
 
-/* system ceiling (initvalue: 0) */
+/*************
+ * TASKS
+ *************/
+
+/* task data */
+extern EE_TYPETASKSTRUCT EE_th[EE_MAX_TASK];
+
+
+/*************
+ * GLOBAL
+ *************/
+
+/* a temporary value that stores the timer read that was done before
+   executing a task. That value is useful for capacity accounting 
+   (initvalue: none)
+*/
+extern EE_TIME EE_last_time;
+
+/* system ceiling (initvalue 0) */
 extern EE_TYPEPRIO EE_sys_ceiling;
+
 
 /* The first task into the ready queue -> ready means that the task
    has been activated without never running or that it has been
@@ -264,22 +319,34 @@ extern EE_TID EE_stkfirst;
 */
 extern EE_TID EE_rcgfirst;
 
+
 /* The running task 
    (initvalue: EE_NIL)
 */
 extern EE_TID EE_exec;
 
-/* a temporary value that stores the timer read that was done before
-   executing a task. That value is useful for capacity accounting 
-   (initvalue: none)
-*/
-extern EE_TIME EE_last_time;
 
-/* This variable is used to check whether a the schedule procedure 
- * at the end of an ISR should be executed or not
-*/
-extern int EE_served;
+/*************
+ * MUTEXES
+ *************/
 
+extern const EE_TYPEPRIO EE_resource_ceiling[EE_MAX_RESOURCE];
+
+extern EE_TYPEPRIO       EE_resource_oldceiling[EE_MAX_RESOURCE];
+
+
+
+
+
+	
+/* da verificare */
+#ifdef __SEM_FRSH__
+#include "../syncobj/inc/ee_sem.h"
+extern EE_TID          EE_th_nextsem[];	 /* next task in the sem wait queue (initvalue: EE_NIL) */
+extern SemRefType      EE_th_semrefs[];    /* Task reference to the used semaphore */
+extern EE_TIME         EE_th_timeouts[];   /* Task semaphore timeouts */
+extern char            EE_th_timedout[];   /* used to check if timedout*/
 #endif
 
 
+#endif

@@ -60,10 +60,6 @@
 int EE_frsh_init(void);
 #endif
 
-#ifndef __PRIVATE_SYS_SCHEDULER__
-void EE_frsh_sys_scheduler(void);
-#endif
-
 #ifndef __PRIVATE_SYS_GETTIME__
 #ifdef __TIME_SUPPORT__
 EE_TIME EE_frsh_sys_gettime(void);

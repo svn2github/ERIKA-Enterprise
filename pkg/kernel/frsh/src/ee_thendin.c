@@ -60,7 +60,7 @@ void EE_thread_end_instance(void)
   tmp_time = EE_hal_gettime();
 
   /* decrease the pending activations... ready or stacked => (nact>0) */
-  EE_th_nact[EE_exec]--;
+  EE_th[EE_exec].nact--;
 
 
   /* end_slice: checks the elapsed time on the exec task, putting it into the right
@@ -70,7 +70,7 @@ void EE_thread_end_instance(void)
 
 
 #ifdef DEBUG
-  if (EE_th_lockedcounter[EE_exec])
+  if (EE_th[EE_exec].lockedcounter)
     for(;;);
 #endif
   
@@ -97,11 +97,11 @@ void EE_thread_end_instance(void)
     EE_hal_stkchange(EE_exec);
   } else {
     /* there is a task to schedule */
-    wasstacked = EE_th_status[EE_exec] & EE_WASSTACKED;
-    EE_th_status[EE_exec] = EE_READY;  
+    wasstacked = EE_th[EE_exec].status & EE_TASK_WASSTACKED;
+    EE_th[EE_exec].status = EE_TASK_READY;  
   
     /* reprogram the capacity timer for the new task */
-    EE_hal_set_budget_timer(EE_th_budget_avail[EE_exec]);
+    EE_hal_set_budget_timer(EE_vres[EE_th[EE_exec].contract].budget_avail);
     
     if (wasstacked)
       EE_hal_stkchange(EE_exec);

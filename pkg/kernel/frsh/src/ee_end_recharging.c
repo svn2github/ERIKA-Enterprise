@@ -65,11 +65,14 @@ void EE_frsh_IRQ_recharging(void)
   // Check for negative budget and in case re-insert in the rcg queue
   t = EE_rcg_queryfirst();
   while (t != EE_NIL) {
-    if ((EE_STIME)(EE_th_absdline[t] - tmp_time) <= EE_TIMER_MINCAPACITY) {
+    EE_TYPECONTRACT c = EE_th[t].contract;
+
+    if ((EE_STIME)(EE_vres[c].absdline - tmp_time) <= EE_TIMER_MINCAPACITY) {
       /* remove the task from the recharging queue */
       EE_rcg_getfirst();
       /* set the task as ready */
-      EE_th_status[t] = EE_READY | EE_WASSTACKED;
+      EE_th[t].status = EE_TASK_READY | EE_TASK_WASSTACKED;
+      EE_vres[c].status = EE_VRES_ACTIVE;
 
       /* update the absolute deadline by summing the period.  doing
 	 absdeadline = tmp_time+period IS WRONG, because in that way
@@ -81,7 +84,7 @@ void EE_frsh_IRQ_recharging(void)
 	 function, or we cannot empty this function, because the
 	 EE_frsh_check_recharging only works when ready and stacked
 	 queues are empty, whereas this function works in any case.*/
-      EE_th_absdline[t] += EE_th_period[t];
+      EE_vres[c].absdline += EE_ct[c].period;
       /* insert the task into the ready queue */
       EE_rq_insert(t);
     } else {
@@ -98,7 +101,7 @@ void EE_frsh_IRQ_recharging(void)
   if (t == EE_NIL) {
       EE_hal_stop_recharging_timer();
   } else {
-      EE_hal_set_recharging_timer(EE_th_absdline[t] - tmp_time);
+      EE_hal_set_recharging_timer(EE_vres[EE_th[t].contract].absdline - tmp_time);
   }
 
   EE_hal_end_nested_primitive(flag);

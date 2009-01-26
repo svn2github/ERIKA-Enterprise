@@ -51,24 +51,27 @@
 // option1 --> create a task that calls this
 // option2 --> create an alarm with an alarm callback
 
-#ifndef __PRIVATE_DEADLINECHECK__
+#ifndef __PRIVATE_IRQ_DLCHECK__
 /* periodic check of deadline MUST be done with a rate
    at least equal to 1/4 of timer capacity*/
-void EE_frsh_deadlinecheck(EE_TID maxtask, EE_TIME tmp_time)
+void EE_frsh_IRQ_dlcheck(void)
 {
-  register EE_UREG t;
+  register EE_TYPECONTRACT c;
+  register EE_FREG flag;
+  register EE_TIME tmp_time;
+  
+  flag = EE_hal_begin_nested_primitive();
 
-  for (t=0; t<maxtask; t++) {
-    if (EE_th_active[t] && (EE_STIME)(tmp_time - EE_th_absdline[t]) > (EE_TIMER_LIFETIME>>2)) {
-      if (EE_th_nact[t])
-	/* hmmm... probably there is something strange here... a ready
-	   thread with  number of activations  > 0 should  never drift
-	   away! */
-	for (;;);
-      else
-	EE_th_active[t]=0;
+  tmp_time = EE_hal_gettime();
+
+  for (c=0; c<EE_MAX_CONTRACT; c++) {
+    if (EE_vres[c].status != EE_VRES_FREEZED &&
+	(EE_STIME)(tmp_time - EE_vres[c].absdline) > (EE_TIMER_LIFETIME>>2)) {
+      EE_vres[c].status = EE_VRES_FREEZED;
 	
     }
   }
+
+  EE_hal_end_nested_primitive(flag);
 }
 #endif

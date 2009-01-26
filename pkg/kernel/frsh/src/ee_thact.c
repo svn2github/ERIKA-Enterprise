@@ -67,27 +67,27 @@ void EE_frsh_thread_activate(EE_TID t)
   /* We activate the task and we put it into the right queue
      we also set the scheduling parameters */
 
-  if (EE_th_nact[t] == 0) {
+  if (EE_th[t].nact == 0) {
     /* since nact==0, the task has not been stacked before, and so it
        is safe to put it in the READY state */
 
     if(EE_frsh_updatecapacity(t, tmp_time) == InsertRCGQueue){
       /* goes in recharging only if the remaining capacity is less than the minimum capacity */
       EE_rcg_insert(t);
-      EE_th_status[t] = EE_RECHARGING;
       
       /* update the recharging IRQ if the activated task becomes the first */
       if(EE_rcg_queryfirst() == t)
-        EE_hal_set_recharging_timer(EE_th_absdline[t] - tmp_time);
+        EE_hal_set_recharging_timer(EE_vres[EE_th[t].contract].absdline - tmp_time);
     }
     else {
       /* In this case, the budhet has been updated and the task is ready to be executed */
-      EE_th_status[t] = EE_READY;
       EE_rq_insert(t);
     }
+    /* EE_frsh_updatecapacity updates the VRES status to either active or recharging */
+    EE_th[t].status = EE_TASK_READY;
   }
   
-  EE_th_nact[t]++;
+  EE_th[t].nact++;
   /* --- */
 
   /* check if in an ISR context
@@ -116,13 +116,13 @@ void EE_frsh_thread_activate(EE_TID t)
     EE_frsh_select_exec();
     /* --- */
 
-    wasstacked = EE_th_status[EE_exec] & EE_WASSTACKED;
-    EE_th_status[EE_exec] = EE_READY;  
+    wasstacked = EE_th[EE_exec].status & EE_TASK_WASSTACKED;
+    EE_th[EE_exec].status = EE_TASK_READY;  
     
     /* if different from the current running task implement the preemption */
     if (tmp_exec != EE_exec) {
       /* reprogram the capacity timer for the new task */
-      EE_hal_set_budget_timer(EE_th_budget_avail[EE_exec]);
+      EE_hal_set_budget_timer(EE_vres[EE_th[EE_exec].contract].budget_avail);
       
       if (wasstacked)
 	EE_hal_stkchange(EE_exec);

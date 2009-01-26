@@ -72,7 +72,7 @@ __INLINE__ EE_TID __ALWAYS_INLINE__ EE_stk_queryfirst(void)
 #ifndef __PRIVATE_RQ_GETFIRST__
 __INLINE__ void __ALWAYS_INLINE__ EE_rq_getfirst(void)
 {
-  EE_rqfirst = EE_th_next[EE_rqfirst];
+  EE_rqfirst = EE_th[EE_rqfirst].next;
 }
 #endif
 
@@ -80,7 +80,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_rq_getfirst(void)
 /* extract the running task from the stack */
 __INLINE__ void __ALWAYS_INLINE__ EE_stk_getfirst(void)
 {
-  EE_stkfirst = EE_th_next[EE_stkfirst];
+  EE_stkfirst = EE_th[EE_stkfirst].next;
 }
 #endif
 
@@ -88,7 +88,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_stk_getfirst(void)
 /* insert a task into the stack  data structures */
 __INLINE__ void __ALWAYS_INLINE__ EE_stk_insertfirst(EE_TID t)
 {
-  EE_th_next[t] = EE_stkfirst;
+  EE_th[t].next = EE_stkfirst;
   EE_stkfirst = t;
 }
 #endif
@@ -104,7 +104,7 @@ __INLINE__ EE_TID __ALWAYS_INLINE__ EE_rcg_queryfirst(void)
 #ifndef __PRIVATE_RCG_GETFIRST__
 __INLINE__ void __ALWAYS_INLINE__ EE_rcg_getfirst(void)
 {
-  EE_rcgfirst = EE_th_next[EE_rcgfirst];
+  EE_rcgfirst = EE_th[EE_rcgfirst].next;
 }
 #endif
 
@@ -156,6 +156,9 @@ void EE_frsh_IRQ_recharging(void);
 void EE_frsh_IRQ_budget(void);
 #endif
 
+#ifndef __PRIVATE_IRQ_DLCHECK__
+void EE_frsh_IRQ_dlcheck(void);
+#endif
 
 /*************************************************************************
  Primitives

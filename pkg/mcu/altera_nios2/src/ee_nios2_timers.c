@@ -47,6 +47,10 @@
 #include "system.h"
 #include "ee_internal.h"
 
+#if defined(__FRSH__)
+
+
+
 #ifndef __PRIVATE_TIME_INIT__
 void EE_time_init(void)
 {
@@ -76,9 +80,7 @@ EE_TIME EE_hal_gettime(void)
 }
 #endif
 
-#if defined(__FRSH__)
-
-
+#ifndef __PRIVATE_NIOS2_IRQ_BUDGET__
 void EE_nios2_IRQ_budget(void* context, alt_u32 id)
 {
   /* clear the interrupt */
@@ -86,7 +88,9 @@ void EE_nios2_IRQ_budget(void* context, alt_u32 id)
 
   EE_frsh_IRQ_budget();
 }
+#endif
 
+#ifndef __PRIVATE_NIOS2_IRQ_RECHARGING__
 void EE_nios2_IRQ_recharging(void* context, alt_u32 id)
 {
   /* clear the interrupt */
@@ -94,10 +98,25 @@ void EE_nios2_IRQ_recharging(void* context, alt_u32 id)
 
   EE_frsh_IRQ_recharging();
 }
+#endif
+
+
+#ifndef __PRIVATE_NIOS2_IRQ_RECHARGING__
+void EE_nios2_IRQ_dlcheck(void* context, alt_u32 id)
+{
+  /* clear the interrupt */
+  IOWR_ALTERA_AVALON_TIMER_STATUS (TIMER_DLCHECK_BASE, 0);
+
+  EE_hal_set_nios2_timer(TIMER_DLCHECK_BASE, 0x3fffffff);
+
+  EE_frsh_IRQ_dlcheck();
+}
+#endif
 
 /* This function is used to initialize the two timers used for 
  * budget exaustion and for the recharging queue
  */
+#ifndef __PRIVATE_FRSH_TIME_INIT__
 void EE_frsh_time_init(void)
 {
   IOWR_ALTERA_AVALON_TIMER_PERIODH(TIMER_CAPACITY_BASE, 0xFFFF);
@@ -118,15 +137,19 @@ void EE_frsh_time_init(void)
             ALTERA_AVALON_TIMER_CONTROL_STOP_MSK);
 
   alt_irq_register (TIMER_RECHARGING_IRQ, NULL, EE_nios2_IRQ_recharging);    
-}
 
+  IOWR_ALTERA_AVALON_TIMER_PERIODH(TIMER_DLCHECK_BASE, 0x3FFF);
+  IOWR_ALTERA_AVALON_TIMER_PERIODL(TIMER_DLCHECK_BASE, 0xFFFF);
+  IOWR_ALTERA_AVALON_TIMER_CONTROL (TIMER_DLCHECK_BASE, 
+            ALTERA_AVALON_TIMER_CONTROL_ITO_MSK  |
+            ALTERA_AVALON_TIMER_CONTROL_CONT_MSK |
+            ALTERA_AVALON_TIMER_CONTROL_START_MSK);
+
+  alt_irq_register (TIMER_DLCHECK_IRQ, NULL, EE_nios2_IRQ_dlcheck);    
+}
 #endif
 
-
-
-
-
-#if defined(__CBS__) || defined(__FRSH__)
+#ifndef __PRIVATE_SET_NIOS2_TIMER__
 void EE_hal_set_nios2_timer(EE_UINT32 base, EE_TIME t) 
 {
   union {
@@ -153,7 +176,9 @@ void EE_hal_set_nios2_timer(EE_UINT32 base, EE_TIME t)
             ALTERA_AVALON_TIMER_CONTROL_CONT_MSK |
             ALTERA_AVALON_TIMER_CONTROL_START_MSK);  
 } 
+#endif
 
+#ifndef __PRIVATE_STOP_NIOS2_TIMER__
 void EE_hal_stop_nios2_timer(EE_UINT32 base)
 {
   IOWR_ALTERA_AVALON_TIMER_CONTROL (base, 
@@ -161,5 +186,6 @@ void EE_hal_stop_nios2_timer(EE_UINT32 base)
   /* clear the interrupt */
   IOWR_ALTERA_AVALON_TIMER_STATUS (base, 0); 
 }
+#endif
 
 #endif
