@@ -56,6 +56,10 @@
  System functions
  *************************************************************************/
 
+#ifndef __PRIVATE_FRSH_INIT__
+int EE_frsh_init(void);
+#endif
+
 #ifndef __PRIVATE_SYS_SCHEDULER__
 void EE_frsh_sys_scheduler(void);
 #endif

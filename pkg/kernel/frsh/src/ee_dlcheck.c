@@ -45,6 +45,12 @@
 
 #include "ee_internal.h"
 
+// PJ: we should initialize this function inside the frsh_init
+// could we put it into the recharging queue?
+
+// option1 --> create a task that calls this
+// option2 --> create an alarm with an alarm callback
+
 #ifndef __PRIVATE_DEADLINECHECK__
 /* periodic check of deadline MUST be done with a rate
    at least equal to 1/4 of timer capacity*/

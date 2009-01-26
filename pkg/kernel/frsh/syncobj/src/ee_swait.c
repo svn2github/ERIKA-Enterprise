@@ -47,7 +47,7 @@
 
 #ifndef __PRIVATE_SEM_WAIT__
 
-int recharge(EE_TIME);
+int EE_frsh_recharge(EE_TIME);
 
 void EE_sem_WaitSem(SemRefType s)
 {
@@ -264,7 +264,7 @@ schedule:
        * check if there are task in recharging queue and if so, immediately
        * recharge one or more of them.
        */
-      if(recharge(tmp_time)){
+      if(EE_frsh_recharge(tmp_time)){
 	goto schedule; //reschedule
       }else{
 	EE_exec=EE_NIL;

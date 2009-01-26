@@ -67,11 +67,13 @@
 
 #ifndef EE_sys_gettime
 #ifdef __TIME_SUPPORT__
-#define EE_sys_gettime		        EE_frsh_sys_gettime
+#define EE_sys_gettime		EE_frsh_sys_gettime
 #endif
 #endif
 
-int frsh_init(void);
+#ifndef frsh_init
+#define frsh_init 	        EE_frsh_init
+#endif
 
 #endif
 #endif

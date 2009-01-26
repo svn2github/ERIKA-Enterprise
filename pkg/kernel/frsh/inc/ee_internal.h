@@ -118,6 +118,11 @@ void EE_rq_insert(EE_TID t);
 void EE_rcg_insert(EE_TID t);
 #endif
 
+
+#ifndef __PRIVATE_RECHARGEBUDGET__
+void EE_frsh_rechargebudget(EE_TID t);
+#endif
+
 #ifndef __PRIVATE_UPDATECAPACITY__
 /* check the current value of a deadline and updates it following the
    IRIS rules */
@@ -126,6 +131,31 @@ typedef enum AT{InsertRCGQueue, InsertRDQueue} ActionType;
 
 ActionType EE_frsh_updatecapacity(EE_TID t, EE_TIME tmp_time);
 #endif
+
+#ifndef __PRIVATE_SELECTEXEC__
+void EE_frsh_select_exec(void);
+#endif
+
+#ifndef __PRIVATE_CHECKSLICE__
+void EE_frsh_check_slice(EE_TIME tmp_time);
+#endif
+
+#ifndef __PRIVATE_ENDSLICE__
+void EE_frsh_end_slice(EE_TIME tmp_time);
+#endif
+
+#ifndef __PRIVATE_CHECKRECHARGING__
+void EE_frsh_check_recharging(EE_TIME tmp_time);
+#endif
+
+#ifndef __PRIVATE_IRQ_RECHARGING__
+void EE_frsh_IRQ_recharging(void);
+#endif
+
+#ifndef __PRIVATE_IRQ_BUDGET__
+void EE_frsh_IRQ_budget(void);
+#endif
+
 
 /*************************************************************************
  Primitives

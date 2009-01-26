@@ -53,75 +53,42 @@
  */
 void EE_IRQ_end_instance(void)
 {
-  if(!EE_served){
-    register EE_TIME tmp_time;
-    register EE_TID tmp_rq;
-    tmp_time = EE_hal_gettime();
-    
-    tmp_rq = EE_rq_queryfirst();
-    // check if there is a preemption
-    if (((tmp_rq != EE_NIL) && (EE_exec == EE_NIL)) ||	// main task!
-      ((tmp_rq != EE_NIL) && (EE_STIME)(EE_th_absdline[EE_exec] - EE_th_absdline[tmp_rq]) > 0
-       && EE_sys_ceiling < EE_th_prlevel[tmp_rq])) {
-      // we have to schedule a ready thread
+  register EE_TIME tmp_time;
+  register int wasstacked;
 
-      register int flag;
-      register EE_TID old_exec;
-
-      old_exec = EE_exec;
-      EE_exec = tmp_rq;
-      
-      if((EE_STIME)(tmp_time - EE_th_absdline[EE_exec])> EE_TIMER_MINCAPACITY){
-        EE_th_absdline[EE_exec]=tmp_time+EE_th_period[EE_exec];
-        EE_th_budget_avail[EE_exec]=EE_th_budget[EE_exec];
-      }
-
-      // remove the first task from the ready queue, and set the new
-      // exec task as READY
-      flag = EE_th_status[tmp_rq] & EE_WASSTACKED;
-      EE_th_status[tmp_rq] = EE_READY;
-      EE_rq_getfirst();
-    
-      // manage the old exec task
-      if (old_exec != EE_NIL) {
-        // account the capacity to the task that is currently executing
-        EE_th_budget_avail[old_exec] -= tmp_time - EE_last_time;
-        
-        if(EE_th_budget_avail[old_exec] < 0) {
-          EE_rcg_insert(old_exec);
-          EE_th_status[old_exec] = EE_RECHARGING | EE_WASSTACKED;
-          if(EE_rcg_queryfirst() == old_exec){
-            EE_hal_rechargingIRQ(EE_th_absdline[EE_rcg_queryfirst()] - tmp_time);
-          }
-        }
-        else {
-          EE_th_status[old_exec] |= EE_WASSTACKED;
+  tmp_time = EE_hal_gettime();
   
-          if (EE_th_lockedcounter[old_exec])
-  	        EE_stk_insertfirst(old_exec);
-          else
-            EE_rq_insert(old_exec);
-        }
-      }
-      EE_last_time=tmp_time;
-      // program the capacity interrupt
-      EE_hal_capacityIRQ(EE_th_budget_avail[EE_exec]);
+  /* check_slice: checks the elapsed time on the exec task, putting it into the right
+     queue (recharging or ready). at the end EE_exec is EE_NIL */
+  EE_frsh_check_slice(tmp_time);
+  /* --- */
     
-      if (flag)
-        EE_hal_IRQ_stacked(EE_exec);
-      else
-        EE_hal_IRQ_ready(EE_exec);
-    }
-    else {
-      // schedule the EE_exec thread
-      if(EE_exec == EE_NIL)
-        EE_hal_stop_budget_timer();
+  /* check_recharging: if ready and stacked queue are empty pulls from the recharging queue */
+  EE_frsh_check_recharging(tmp_time);
+  /* --- */
+
+  /* at this point, exec is for sure EE_NIL (it is set by check_slice) */
+  /* select the first task from the ready or stacked queue */
+  /* the function set the EE_exec value, removing the task from the queue
+     the status is untouched */
+  EE_frsh_select_exec();
+  /* --- */
+
+  if (EE_exec != EE_NIL) {
+    wasstacked = EE_th_status[EE_exec] & EE_WASSTACKED;
+    EE_th_status[EE_exec] = EE_READY;  
+
+    /* reprogram the capacity timer for the new task */
+    EE_hal_set_budget_timer(EE_th_budget_avail[EE_exec]);
+    
+    if (wasstacked)
       EE_hal_IRQ_stacked(EE_exec);
-    }
-  }
-  else{
-    //reset the served FLAG
-    EE_served=0;
+    else
+      EE_hal_IRQ_ready(EE_exec);
+  } else {
+    /* no task to execute. stop the capacity IRQ */
+    EE_hal_stop_budget_timer();
+    EE_hal_IRQ_stacked(EE_exec);
   }
 }
 #endif

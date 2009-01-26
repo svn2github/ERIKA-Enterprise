@@ -42,21 +42,16 @@
  * Author: 2006 Paolo Gai
  * CVS: $Id: ee_mcu.h,v 1.2 2008/07/24 14:26:55 francesco Exp $
  */
-#ifdef __FRSH__
 
 #ifndef __INCLUDE_NIOSII_MCU_H__
 #define __INCLUDE_NIOSII_MCU_H__
+
 #include "system.h"
 #include "altera_avalon_timer_regs.h"
 
 /*************************************************************************
  Time handling
  *************************************************************************/
-
-/*
- * Time handling on the nios2 is made by using timer T8 and T9 as a
- * 32 bit register value to have a bigger lifetime.
- */
 
 /* Time types
  *
@@ -79,168 +74,34 @@
 #define EE_STIME EE_INT32
 #endif
 
-#define EE_TIMER_MINCAPACITY 5000
+/* 40 us @ 50 Mhz */
+#ifndef EE_TIMER_MINCAPACITY
+#define EE_TIMER_MINCAPACITY       2000
+#endif
+
 #define EE_TIMER_MAXFUTUREVALUE    0x7fffffff
 #define EE_TIMER_LIFETIME          0xffffffff
 
-/* This function initializes the timer T8 and T9 as freerunning.
-   Timer T8 and T9 will be used to get the timing reference for the
-   circular timer in EDF.
+/*
+ This function initialize the timer used for the timing reference as
+ freerunning.  The timers will be used for the EDF/FRSH timing reference.
 */
 
 #ifndef __PRIVATE_TIME_INIT__
-__INLINE__ void __ALWAYS_INLINE__ EE_time_init(void)
-{
-  IOWR_ALTERA_AVALON_TIMER_PERIODH(TIMER_SYSTEM_BASE, 0xFFFF);
-  IOWR_ALTERA_AVALON_TIMER_PERIODL(TIMER_SYSTEM_BASE, 0xFFFF);
-  IOWR_ALTERA_AVALON_TIMER_CONTROL (TIMER_SYSTEM_BASE, 
-            ALTERA_AVALON_TIMER_CONTROL_CONT_MSK |
-            ALTERA_AVALON_TIMER_CONTROL_START_MSK);
-}
-
+void EE_time_init(void);
 #endif
 
-/*
- * The function gets the current time by concatenating two timer values.
- *
- * Note: we must take care of the correctness of the value in case of
- * overflow!
- */
 #ifndef __PRIVATE_HAL_GETTIME__
-__INLINE__ EE_TIME __ALWAYS_INLINE__ EE_hal_gettime(void)
-{
-  union {
-    struct { EE_UINT16 low, hi; } lowhi;
-    EE_TIME time;
-  } retvalue;
-  IOWR(TIMER_SYSTEM_BASE, ALTERA_AVALON_TIMER_SNAPH_REG, 0xFFFF);
-  // I split the reading to guarantee that in any case TMR8 will be
-  // read before TMR9. In this way, the TMR9 hold register will be
-  // read correctly!
-
-  retvalue.lowhi.low = IORD_ALTERA_AVALON_TIMER_SNAPL(TIMER_SYSTEM_BASE);
-  retvalue.lowhi.hi = IORD_ALTERA_AVALON_TIMER_SNAPH(TIMER_SYSTEM_BASE);
-  retvalue.time = 0xFFFFFFFF - retvalue.time;
-  
-  return retvalue.time;
-}
+EE_TIME EE_hal_gettime(void);
 #endif
 
-#if defined(__FRSH__)
 
 /* This function is used to initialize the two timers used for 
  * budget exaustion and for the recharging queue
  */
-__INLINE__ void __ALWAYS_INLINE__ EE_frsh_time_init(void)
-{
-  IOWR_ALTERA_AVALON_TIMER_PERIODH(TIMER_CAPACITY_BASE, 0xFFFF);
-  IOWR_ALTERA_AVALON_TIMER_PERIODL(TIMER_CAPACITY_BASE, 0xFFFF);
-  IOWR_ALTERA_AVALON_TIMER_CONTROL (TIMER_CAPACITY_BASE, 
-            ALTERA_AVALON_TIMER_CONTROL_ITO_MSK  |
-            ALTERA_AVALON_TIMER_CONTROL_CONT_MSK |
-            ALTERA_AVALON_TIMER_CONTROL_STOP_MSK);
-  
-  IOWR_ALTERA_AVALON_TIMER_PERIODH(TIMER_RECHARGING_BASE, 0xFFFF);
-  IOWR_ALTERA_AVALON_TIMER_PERIODL(TIMER_RECHARGING_BASE, 0xFFFF);
-  IOWR_ALTERA_AVALON_TIMER_CONTROL (TIMER_RECHARGING_BASE, 
-            ALTERA_AVALON_TIMER_CONTROL_ITO_MSK  |
-            ALTERA_AVALON_TIMER_CONTROL_CONT_MSK |
-            ALTERA_AVALON_TIMER_CONTROL_STOP_MSK);
-
-}
-
+#if defined(__FRSH__)
+void EE_frsh_time_init(void);
 #endif
 
-#else
 
-/* If you are using EDF with a MCU without TMR8, then put a warning! */
-#ifdef __EDF__
-#ifndef __PRIVATE_TIME_INIT__
-#warning Please provide a custom EE_time_init because the MCU you are using does not have TMR8!
-#endif
-#ifndef __PRIVATE_HAL_GETTIME__
-#warning Please provide a custom EE_hal_gettime because the MCU you are using does not have TMR8!
-#endif
-#endif
-
-#endif
-
-/* 
- * Hard timers related stuffs
- * with hard alarms the logical timer identifier 0
- * corresponds to the TMR8/9 (system timer) and TMR 4/5
- * for the hard alarm interrupt   
- */
-#ifdef __HARD_ALARMS__
-#if (1 < EE_N_HARD_ALARMS)
-#error "too many hard alarms!!!"
-#else
-
-__INLINE__ EE_TIME __ALWAYS_INLINE__ EE_hal_init_timer()
-{
-  T8CON = 0;          /* Stops the Timer8 and reset control reg	*/
-  T8CONbits.T32 = 1;  /* Set Timer8 in 32bit mode */
-  TMR8  = 0;          /* Clear contents of the timer registers	*/
-  TMR9  = 0;
-  IFS3bits.T9IF  = 0; /* Clear the Timer9 interrupt status flag	*/
-  IEC3bits.T9IE  = 0; /* Clear Timer9 interrupts		*/
-  T8CONbits.TON  = 1; /* Start Timer8 with prescaler settings at 1:1 */
-  
-  T4CON = 0;  
-  TMR4  = 0;          /* Clear contents of the timer registers	*/
-  TMR5  = 0;
-  PR4 = PR5 = 0xFFFF; 
-  T4CON = 0x0008;  // Timer 4/5 as a 32 bit timer. Timer stop.
-  _T5IE = 1; // Enable interrupt for Timer 4/5
-}
-
-__INLINE__ EE_TIME __ALWAYS_INLINE__ EE_hal_read_timer (EE_SREG timer)
-{
-  switch(timer){
-    case 0:
-    {
-      union {
-        struct { EE_UREG low, hi; } lowhi;
-        EE_TIME time;
-      } retvalue;
-  
-  // I split the reading to guarantee that in any case TMR8 will be
-  // read before TMR9. In this way, the TMR9 hold register will be
-  // read correctly!
-
-      retvalue.lowhi.low = TMR8;
-      retvalue.lowhi.hi = TMR9;
-      return retvalue.time;
-    }
-    break;
-    case 1:; //TODO
-  }
-}
-
-/* This function have to set next capcom trigger
- * if there isn't an already set interrupt flag
- * with hard alarms the logical timer identifier 0
- * corresponds to the TMR8/9 (system timer) and TMR 4/5
- * for the hard alarm interrupt    
- */
-__INLINE__ void __ALWAYS_INLINE__ EE_hal_set_timer (EE_SREG timer, EE_TIME value)
-{
-  switch(timer){
-    case 0:
-    {
-      PR4 = value & 0xFFFF;
-      PR5 = value >> 16;
-      TMR4 = 0;
-      TMR5 = 0;
-      _T5IE = 1; // Enable interrupt for Timer 4/5
-      T4CONbits.TON = 1; // Start Timer 4/5;
-    }
-    break;
-    case 1:; //TODO 
-  }
-}
-#endif
-
-#endif
-
-#endif
+#endif  // initial include

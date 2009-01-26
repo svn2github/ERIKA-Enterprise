@@ -40,104 +40,13 @@
 
 #include "ee_internal.h"
 
-#ifndef __PRIVATE_IRQ_END_BUDGET__
-/* This primitive shall be atomic.
- * This primitive shall be inserted as the last function in an IRQ handler.
- * If the HAL allow IRQ nesting the C_end_instance should work as follows:
- * - it must implement the preemption test only if it is the last IRQ
- *   on the stack
- * - if there are other interrupts on the stack the IRQ scheduler
- *   should do nothing
+#ifndef __PRIVATE_IRQ_BUDGET__
+/*
+  The function is empty, because check_slice is called into the end of
+  the IRQ
 */
 
-/*
- * This routine shall be called when the budget timer expires.
- * the task interrupted is switched to recharging.
- * Anyway, if there are no more ready task, one or more recharging
- * task are immediately recharged.
- */
-
-int recharge(EE_TIME);
-
-void EE_IRQ_end_budget(void)
+void EE_frsh_IRQ_budget(void)
 {
-  EE_served=1;
-  register EE_TIME tmp_time;
-  register EE_TID t_rq,t_stk;
-
-  if (EE_th_lockedcounter[EE_exec]){
-    EE_hal_IRQ_stacked(EE_exec);
-    return;
-  }
-  
-  //update the task status to recharging
-  EE_th_status[EE_exec] = EE_RECHARGING | EE_WASSTACKED;
-  EE_rcg_insert(EE_exec);
-  tmp_time = EE_hal_gettime();
-
-  // this has to be done in any case
-  EE_last_time = tmp_time;
- 
-  if(EE_rcg_queryfirst() == EE_exec){
-    if((EE_STIME)(EE_th_absdline[EE_exec]- tmp_time)<0){
-      /* immedialtely recharge */
-      EE_rcg_getfirst();
-      EE_th_absdline[EE_exec]=tmp_time+EE_th_period[EE_exec];
-      EE_th_budget_avail[EE_exec] = EE_th_budget[EE_exec];
-      EE_th_status[EE_exec] = EE_READY | EE_WASSTACKED;
-      EE_rq_insert(EE_exec);
-    }else
-      EE_hal_rechargingIRQ( EE_th_absdline[EE_rcg_queryfirst()] - tmp_time );
-  }
- 
-  t_rq=EE_rq_queryfirst();
-  t_stk=EE_stk_queryfirst();
-  
-  if(t_rq == EE_NIL && t_stk == EE_NIL){
-  // if there are not tasks in the ready and in the stacked queue, 
-  // immediately recharge one or more task.
-    recharge(tmp_time);
-  }
-  
-  t_rq = EE_rq_queryfirst();
-
-#ifdef DEBUG 
-  if(t_rq == EE_NIL) for(;;);
-#endif
-
-  if(t_rq == EE_NIL ||  // note that this test work also for the main task!
-      ( t_stk != EE_NIL && ( (EE_STIME)(EE_th_absdline[t_stk] - 
-		   EE_th_absdline[t_rq]) <= 0
-	|| EE_sys_ceiling >= EE_th_prlevel[t_rq]) )) {
-  
-    // The task in the stacked queue has to be executed
-    EE_exec = t_stk;
-    EE_stk_getfirst();
-    EE_hal_capacityIRQ(EE_th_budget_avail[EE_exec]); 
-    EE_th_status[EE_exec] = EE_READY;
-    EE_hal_IRQ_stacked(t_stk);
-  }
-  else {
-    /* we will schedule a ready thread */
-    register int flag;
-    
-    /* first, remove the task from the ready queue */
-    EE_exec = t_rq;
-
-    /* remove the first task from the ready queue, and set the new
-       exec task as READY */
-    flag = EE_th_status[EE_exec] & EE_WASSTACKED;
-    EE_th_status[EE_exec] = EE_READY;
-    EE_rq_getfirst();
- 
-    /* program the capacity interrupt */
-    EE_hal_capacityIRQ(EE_th_budget_avail[EE_exec]);
-    
-    if (flag)
-      EE_hal_IRQ_stacked(t_rq);
-    else
-      EE_hal_IRQ_ready(t_rq);
-  }
-
 }
 #endif

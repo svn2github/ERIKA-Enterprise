@@ -55,11 +55,10 @@
  Timers
  *************************************************************************/
 
-/*
- * CBS
- */
+#if defined(__CBS__) || defined(__FRSH__)
 
-#if defined(__CBS__) || defined(__IRIS__) || defined(__FRSH__)
+void EE_hal_set_nios2_timer(EE_UINT32 base, EE_TIME t);
+void EE_hal_stop_nios2_timer(EE_UINT32 base);
 
 /* This function set the capacity timer to raise in t ticks.
    In this implementation, timer1 is used to raise a capacity
@@ -67,54 +66,28 @@
    the delay into the timer1 counter. That is, whenever the timer
    fires, it restart counting down from 0xffffffff, and it will take a
    few seconds to do that. */
-__INLINE__ void __ALWAYS_INLINE__ EE_hal_capacityIRQ(EE_TIME t) 
-{  
-  if((EE_STIME)(t)<0) t=10;
-  IOWR_ALTERA_AVALON_TIMER_CONTROL (TIMER_CAPACITY_BASE, 
-            ALTERA_AVALON_TIMER_CONTROL_STOP_MSK);
-  /* clear the interrupt */
-  IOWR_ALTERA_AVALON_TIMER_STATUS (TIMER_CAPACITY_BASE, 0); 
-  IOWR_ALTERA_AVALON_TIMER_PERIODH(TIMER_CAPACITY_BASE, (t >> 16));
-  IOWR_ALTERA_AVALON_TIMER_PERIODL(TIMER_CAPACITY_BASE, (t & 0xFFFF));
-  IOWR_ALTERA_AVALON_TIMER_CONTROL (TIMER_CAPACITY_BASE, 
-            ALTERA_AVALON_TIMER_CONTROL_ITO_MSK  |
-            ALTERA_AVALON_TIMER_CONTROL_CONT_MSK |
-            ALTERA_AVALON_TIMER_CONTROL_START_MSK);  
-} 
+__INLINE__ void __ALWAYS_INLINE__ EE_hal_set_budget_timer(EE_TIME t) 
+{
+  EE_hal_set_nios2_timer(TIMER_CAPACITY_BASE,t);
+}
 
 __INLINE__ void __ALWAYS_INLINE__ EE_hal_stop_budget_timer(void)
 {
-  IOWR_ALTERA_AVALON_TIMER_CONTROL (TIMER_CAPACITY_BASE, 
-            ALTERA_AVALON_TIMER_CONTROL_STOP_MSK);
-  /* clear the interrupt */
-  IOWR_ALTERA_AVALON_TIMER_STATUS (TIMER_CAPACITY_BASE, 0); 
+  EE_hal_stop_nios2_timer(TIMER_CAPACITY_BASE);
 }
 
 #endif
 
 #if defined(__IRIS__) || defined(__FRSH__)
 
-__INLINE__ void __ALWAYS_INLINE__ EE_hal_rechargingIRQ(EE_TIME t)
+__INLINE__ void __ALWAYS_INLINE__ EE_hal_set_recharging_timer(EE_TIME t)
 {
-  if((EE_STIME)(t)<0) t=10;
-  IOWR_ALTERA_AVALON_TIMER_CONTROL (TIMER_RECHARGING_BASE, 
-            ALTERA_AVALON_TIMER_CONTROL_STOP_MSK);
-  /* clear the interrupt */
-  IOWR_ALTERA_AVALON_TIMER_STATUS (TIMER_RECHARGING_BASE, 0); 
-  IOWR_ALTERA_AVALON_TIMER_PERIODH(TIMER_RECHARGING_BASE, (t >> 16));
-  IOWR_ALTERA_AVALON_TIMER_PERIODL(TIMER_RECHARGING_BASE, (t & 0xFFFF));
-  IOWR_ALTERA_AVALON_TIMER_CONTROL (TIMER_RECHARGING_BASE, 
-            ALTERA_AVALON_TIMER_CONTROL_ITO_MSK  |
-            ALTERA_AVALON_TIMER_CONTROL_CONT_MSK |
-            ALTERA_AVALON_TIMER_CONTROL_START_MSK); 
+  EE_hal_set_nios2_timer(TIMER_RECHARGING_BASE,t);
 }
 
 __INLINE__ void __ALWAYS_INLINE__ EE_hal_stop_recharging_timer(void)
 {
-  IOWR_ALTERA_AVALON_TIMER_CONTROL (TIMER_RECHARGING_BASE, 
-            ALTERA_AVALON_TIMER_CONTROL_STOP_MSK);
-  /* clear the interrupt */
-  IOWR_ALTERA_AVALON_TIMER_STATUS (TIMER_RECHARGING_BASE, 0); 
+  EE_hal_stop_nios2_timer(TIMER_RECHARGING_BASE);
 }
 
 #endif

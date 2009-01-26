@@ -76,7 +76,8 @@ endif
 ifeq ($(findstring __NIOS2__,$(EEOPT)) , __NIOS2__)
 
 EE_C_SRCS  += \
-	ee/pkg/cpu/nios2/src/ee_start.c
+	ee/pkg/cpu/nios2/src/ee_start.c \
+	ee/pkg/mcu/altera_nios2/src/ee_nios2_timers.c
 
 EE_ASM_SRCS += \
 	ee/pkg/cpu/nios2/src/ee_hal.S
@@ -228,19 +229,20 @@ endif
 
 ifeq ($(findstring __FRSH__,$(EEOPT)) , __FRSH__)
 EE_C_SRCS += \
+	ee/pkg/kernel/frsh/src/ee_cap.c \
+	ee/pkg/kernel/frsh/src/ee_dlcheck.c \
+	ee/pkg/kernel/frsh/src/ee_end_budget.c \
+	ee/pkg/kernel/frsh/src/ee_end_recharging.c \
+	ee/pkg/kernel/frsh/src/ee_frsh_init.c \
 	ee/pkg/kernel/frsh/src/ee_gettime.c \
 	ee/pkg/kernel/frsh/src/ee_irq_sc.c \
 	ee/pkg/kernel/frsh/src/ee_mutex.c \
+	ee/pkg/kernel/frsh/src/ee_rcg_inser.c \
+	ee/pkg/kernel/frsh/src/ee_recharge.c \
 	ee/pkg/kernel/frsh/src/ee_rq_inser.c \
 	ee/pkg/kernel/frsh/src/ee_schedule.c \
 	ee/pkg/kernel/frsh/src/ee_thact.c \
-	ee/pkg/kernel/frsh/src/ee_thendin.c \
-	ee/pkg/kernel/frsh/src/ee_cap.c \
-	ee/pkg/kernel/frsh/src/ee_dlcheck.c \
-	ee/pkg/kernel/frsh/src/ee_rcg_inser.c \
-	ee/pkg/kernel/frsh/src/ee_end_recharging.c \
-	ee/pkg/kernel/frsh/src/ee_recharge.c \
-	ee/pkg/kernel/frsh/src/ee_end_budget.c
+	ee/pkg/kernel/frsh/src/ee_thendin.c
 
 ifeq ($(findstring __SEM_FRSH__,$(EEOPT)) , __SEM_FRSH__)
 EE_C_SRCS += \

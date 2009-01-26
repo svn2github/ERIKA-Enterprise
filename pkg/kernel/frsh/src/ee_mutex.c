@@ -188,7 +188,7 @@ void EE_frsh_mutex_unlock(EE_MUTEX m)
   
   EE_last_time = tmp_time;
 
-  /* this code is similar to the EE_iris_sys_scheduler()!!! */
+  /* this code is similar to the EE_frsh_sys_scheduler()!!! */
   t = EE_rq_queryfirst();
 
   test_ready = 

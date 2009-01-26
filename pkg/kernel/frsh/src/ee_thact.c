@@ -50,88 +50,84 @@
 
 void EE_frsh_thread_activate(EE_TID t)
 {
-  register EE_TID tmp_rq;
+  register EE_TID tmp_exec;
   register EE_TIME tmp_time;
+  register int wasstacked;
   register EE_FREG flag;
   
   flag = EE_hal_begin_nested_primitive();
 
   /* read the current time; this will be used later to compute task's
      deadlines */
+
   tmp_time = EE_hal_gettime();
+
+  /* --- */
+
+  /* We activate the task and we put it into the right queue
+     we also set the scheduling parameters */
 
   if (EE_th_nact[t] == 0) {
     /* since nact==0, the task has not been stacked before, and so it
        is safe to put it in the READY state */
 
     if(EE_frsh_updatecapacity(t, tmp_time) == InsertRCGQueue){
+      /* goes in recharging only if the remaining capacity is less than the minimum capacity */
       EE_rcg_insert(t);
       EE_th_status[t] = EE_RECHARGING;
+      
+      /* update the recharging IRQ if the activated task becomes the first */
       if(EE_rcg_queryfirst() == t)
-        EE_hal_rechargingIRQ(EE_th_absdline[EE_rcg_queryfirst()] - tmp_time);
+        EE_hal_set_recharging_timer(EE_th_absdline[t] - tmp_time);
     }
-    else{
+    else {
+      /* In this case, the budhet has been updated and the task is ready to be executed */
       EE_th_status[t] = EE_READY;
       EE_rq_insert(t);
     }
   }
   
   EE_th_nact[t]++;
+  /* --- */
 
-  tmp_rq = EE_rq_queryfirst();
-      
-  /* check if there is a preemption; that is, I have to check if the
-     deadline of the task pointed by exec is later than that of the
-     first task in the ready queue; moreover, I have to check if the
-     preemption level of the first task in the ready queue is high
-     enough */
-  if (!EE_hal_get_IRQ_nesting_level()) { /* check if in an ISR context */
-    if (EE_exec == EE_NIL || 	/* main task! */
-	(tmp_rq != EE_NIL
-	 && (EE_STIME)(EE_th_absdline[EE_exec] - EE_th_absdline[tmp_rq]) > 0
-	 && EE_sys_ceiling < EE_th_prlevel[tmp_rq])) {
-	
-      /* we have to schedule a ready thread (that maybe is different
-	 from the thread we have just activated, due to ) */
-      register EE_TID old_exec;
-      register int wasstacked;
-      
-      old_exec = EE_exec;
-      EE_exec = tmp_rq;
-      
-      /* remove the first task from the ready queue, and set the new
-	 exec task as READY */
-      wasstacked = EE_th_status[tmp_rq] & EE_WASSTACKED;
-      EE_th_status[tmp_rq] = EE_READY;
-      EE_rq_getfirst();
-      
-      /* manage the current exec task */
-      if (old_exec != EE_NIL) {
-      	/* account the capacity to the task that is currently executing */
-      	EE_th_budget_avail[old_exec] -= tmp_time - EE_last_time;
-      	
-      	if ( (EE_STIME) EE_th_budget_avail[old_exec] < EE_TIMER_MINCAPACITY) {
-          /* if the badget is exhausted then recharge*/
-          EE_th_status[old_exec] = EE_RECHARGING | EE_WASSTACKED;
-          EE_rcg_insert(old_exec);
-        }else if (EE_th_lockedcounter[old_exec])
-      	  EE_stk_insertfirst(old_exec);
-      	else
-      	  EE_rq_insert(old_exec);
-        
-        EE_th_status[old_exec] |= EE_WASSTACKED;
-      }
-      
-      /* this has to be done in any case */
-      EE_last_time = tmp_time;
-      
-      /* reprogram the capacity timer */
-      EE_hal_capacityIRQ(EE_th_budget_avail[tmp_rq]);
+  /* check if in an ISR context
+   * if we are in an ISR context the slice and recharging will be done at the end of the interrupt
+   */
+  if (!EE_hal_get_IRQ_nesting_level()) { 
+
+    /* save the current running task into a temporary variable */
+    tmp_exec = EE_exec;
+    /* --- */
+    
+    /* check_slice: checks the elapsed time on the exec task, putting it into the right
+       queue (recharging or ready). at the end EE_exec is EE_NIL */
+    EE_frsh_check_slice(tmp_time);
+    /* --- */
+    
+    /* check_recharging: if ready and stacked queue are empty pulls from the recharging queue */
+    EE_frsh_check_recharging(tmp_time);
+    /* --- */
+
+    /* at this point, exec is for sure EE_NIL (it is set by check_slice) */
+    /* select the first task from the ready or stacked queue */
+    /* the function set the EE_exec value, removing the task from the queue
+       the status is untouched */
+
+    EE_frsh_select_exec();
+    /* --- */
+
+    wasstacked = EE_th_status[EE_exec] & EE_WASSTACKED;
+    EE_th_status[EE_exec] = EE_READY;  
+    
+    /* if different from the current running task implement the preemption */
+    if (tmp_exec != EE_exec) {
+      /* reprogram the capacity timer for the new task */
+      EE_hal_set_budget_timer(EE_th_budget_avail[EE_exec]);
       
       if (wasstacked)
-        EE_hal_stkchange(tmp_rq);
+	EE_hal_stkchange(EE_exec);
       else
-        EE_hal_ready2stacked(tmp_rq);
+	EE_hal_ready2stacked(EE_exec);
     }
   }
 

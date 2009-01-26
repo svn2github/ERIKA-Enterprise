@@ -49,26 +49,88 @@
 
 /*************************************************************************
  Note
- *************************************************************************/
+ *************************************************************************
 
-// (currently in italian, sorry)
-// ho una coda stacked, che contiene tutti i task che sono stati messi in esecuzione che hanno lockato una risorsa
-//per essere messi in esecuzione vuo dire che avevano prlevel>del sysceiling e che avevano deadline < di quello in cima alla coda stacked,
-// questo vuol dire che la coda stacked e' ordinata per deadline in modo naturale.
+Some details about the FRSH implementation:
 
-// se quando vengo preemptato ho lockato una risorsa vado a finire nella coda stacked altrimenti nella ready
-// il check di preemption nella activate e' tra il task in esecuzione ed il primo nella coda ready, considerando naturalmente il preemption level.
-// quando termina il task si suppone che non abbia nessuna risorsa lockata. pertanto (se il suo nact>0) il task viene inserito nella coda ready (non ha risorse lockate), ed il task da eseguire e' scelto tra la coda stacked e la coda ready. la coda ready vince se il preemption level e' > sysceiling & la deadline e' <
-// quando un task e' schedulato partendo dalla coda stacked, il task e' rimosso dalla coda stacked e messo dentro exec
+FRSH uses a stacked queue.
 
-// a differenza dei kernel FP e EDF, nel kernel IRIS ho fatto la
-// distinzione tra exec e stkfirst. il motivo e' che in generale exec
-// potrebbe non influenzare il system ceiling (ad esempio, non ha
-// lockato nessun mutex), mentre stacked conserva il significato
-// comune dei task che hanno in qualche modo modificato il system
-// ceiling. notare che dal momento che FP e EDF implementano i
-// preemption thresholds, tutti i task modificano il system ceiling, e
-// quindi il task exec viene a coincidere con il primo task stacked.
+The stacked queue contains all the tasks that has been executed for
+some time, and that have locked a resource
+
+Note that if a task has been executed it must have been that the task
+preemption level was greater than the system ceiling, and that their
+absolute deadline was earlier than the task on the top of the stacked
+queue.
+
+This also means that the stacked queue is by construction ordered by
+increasing deadlines.
+
+When a task is preempted and it has a locked resource, then the task
+ends up in the stacked queue, otherwise it ends up into the ready
+queue. 
+
+In fact, when activating a task the ActivateTask does a preemption
+Check between the running task and the first task in the ready queue,
+including the preeemption level.
+
+When a task terminates, we suppose that NO RESOURCES are locked. If
+the task has a nact>0 the task is inserted in the ready queue (there
+are no resources locked), and the next running task is chosen between
+the ready and the stacked queue. The task on the ready queue wins if
+it has a deadline earlier than the task on the stacked queue and if it
+has a preemption level greater than the system ceiling (the system
+ceiling subsumes in a single value all the ceilings of the locked
+resources by the tasks in the stacked queue)
+
+If a task to execute is chosen from the stacked queue, then the task
+is removed from the stacked queue and it is put into exec.
+
+Please note the following difference between (FP, EDF) and FRSH.  FRSH
+does a distinction between exec and stkfirst. the rationale is that
+exec may not influence the system ceiling (for example, the running
+task did not lock any resource). The stacked queue maintains the
+meaning of containing all the tasks that modified the system ceiling
+(that is, that locked a resource).
+
+There is a need to have a separate stacked queue because if the top 
+ready task fails the preemption test at the end of a task, then the 
+running task must become the highest priority task (the one with the
+earliest deadline) among those who modified the system ceiling. 
+
+Finally note that since FP and EDF implements preemption thresholds, 
+all the tasks at the end make a modification to the system ceiling, 
+and then the exec task can coincide without problems to the first 
+stacked task.
+
+
+Notes on EE_th_active
+---------------------
+The FRSH Kernel is using a timer representation embedded in a timer
+value. All times in the system are relative to the value of the 
+current timer.
+
+When a task stop executing for some time, its deadline is no more 
+updated, and it will tend to go far in the past. Since the time 
+reference is relative to the current timer value, it may happen 
+after some time (half the lifetime of the timer), that this deadline 
+in the past becomes a deadline "in the future". At that point, all 
+the deadline update strategies will fail.
+
+To avoid that, the user have to periodically "take a look" at 
+all the task deadlines to see if they go too much in the past 
+(if a deadline goes in the past it measn the task has not executed 
+for a while). If that happens, then the function 
+EE_frsh_deadlinecheck will set these tasks to "inactive", and then
+when the task wuill be activated again a fresh deadline will be 
+assigned.
+
+EE_th_active tracks exactly the fact that a task is inactive due 
+to the deadline aging. when a task is inactive, when activated a 
+task will be assigned a new proper deadline, in the function 
+EE_frsh_updatecapacity
+
+-- end note */
 
 /*************************************************************************
  Kernel Constants
@@ -77,14 +139,15 @@
 /* invalid TID */
 #define EE_NIL       ((EE_TID)-1)
 
-/* Thread statuses:
-   the thread status is used with a Multistack HAL, for storing a flag that let
-   the kernel know if the task has some space allocated on its stack.
-*/
+/* Thread statuses */
 
-#define EE_READY      0
 
-/* used for tasks which go recharging */
+#define EE_SUSPENDED  0
+
+#define EE_READY      1
+
+/* used for tasks which go recharging. A task goes recharging when it
+   has exausted its budget but it could still be ready */
 #define EE_RECHARGING 2
 
 /* used by semaphores and blocking primitives in general */
@@ -120,7 +183,6 @@
 /* capacity type */
 #ifndef EE_TYPECAPACITY
 #define EE_TYPECAPACITY EE_STIME
-//#define EE_TYPECONTRACT EE_SREG	//trial
 #endif
 
 /* pending activation type */
@@ -140,22 +202,18 @@
 
 /* ROM */
 extern const EE_TYPERELDLINE EE_th_prlevel[];        /* task preemption level */
-//extern const EE_TYPECAPACITY EE_th_budget[];         /* IRIS mean execution time */
-//extern const EE_TYPERELDLINE EE_th_period[];         /* IRIS replenishment period */
 extern const EE_TYPEPRIO     EE_mutex_ceiling[];     /* mutex ceiling */
 
-extern EE_TYPECAPACITY EE_th_budget[];         /* IRIS mean execution time */
-extern EE_TYPERELDLINE EE_th_period[];         /* IRIS replenishment period */
+extern EE_TYPECAPACITY EE_th_budget[];         /* FRSH mean execution time */
+extern EE_TYPERELDLINE EE_th_period[];         /* FRSH replenishment period */
 
-typedef struct 
-{
+typedef struct {
   EE_TYPECAPACITY capacity;
   EE_TYPERELDLINE period;
   EE_TYPERELDLINE inv_proc_util;
-}EE_TYPECONTRACT;
+} EE_TYPECONTRACT;
 
-	//const struct contracts EE_contracts[];
-    //const EE_TYPECONTRACT EE_contracts[EE_MAX_CONTRACT] = {
+/* This structure contains the statically defined contractd defined into the OIL File */
 extern const EE_TYPECONTRACT EE_contracts[];
 	
 /* This vector contains the inverse processor utilization of each task 
@@ -165,20 +223,18 @@ extern EE_TYPERELDLINE EE_inv_proc_util[];     /* inverse processor utilization 
 
 /* RAM */
 extern EE_TYPECAPACITY EE_th_budget_avail[];	 /* available budget (initvalue: 0) */
-extern EE_TYPEABSDLINE EE_th_absdline[];           /* task absolute deadline (initvalue: 0) */
+extern EE_TYPEABSDLINE EE_th_absdline[];         /* task absolute deadline (initvalue: 0) */
 
 extern EE_TYPESTATUS   EE_th_status[];	         /* thread status (initvalue: EE_READY) */
 extern EE_TYPENACT     EE_th_nact[];		 /* pending activations (initvalue: 0) */
 extern EE_TID          EE_th_next[];		 /* next task in queue (initvalue: EE_NIL) */
+
 extern EE_TYPEPRIO     EE_mutex_oldceiling[];	 /* old mutex ceiling (initvalue: none) */
 extern EE_UREG         EE_th_lockedcounter[];	 /* number of mutexes locked (initvalue: 0) */
 /* EE_mutex_lockedcounter is used to know if a task have to be put in the ready or 
    in the stacked queue */
 
-extern EE_UREG         EE_th_active[];             /* task is active ? (initvalue: 0) */
-/* a task is set to not active whenever its deadline goes too much in
-   the past. usually, it is an user interrupt that calls
-   EE_iris_deadlinecheck */
+extern EE_UREG         EE_th_active[];           /* task is active ? (initvalue: 0) see note above */
    
 #ifdef __SEM_FRSH__
 #include "../syncobj/inc/ee_sem.h"

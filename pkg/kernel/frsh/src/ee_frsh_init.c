@@ -45,36 +45,12 @@
 
 #include "ee_internal.h"
 
-/* Maybe this code should go to HAL source*/
-#ifdef __PIC30__
-#include "mcu/microchip_dspic/inc/ee_internal.h"
-#include "cpu/pic30/inc/ee_irqstub.h"
-
-extern void EE_IRQ_end_budget(void);
-extern void EE_IRQ_end_recharging(void);
-
-ISR2(_T5Interrupt)
-{
-	/* clear the interrupt source */
-	IFS1bits.T5IF = 0;
-	T4CONbits.TON = 0;
-	EE_IRQ_end_budget();
-}
-
-ISR2(_T7Interrupt)
-{
-	/* clear the interrupt source */
-	IFS3bits.T7IF = 0;
-	T6CONbits.TON = 0;
-	EE_IRQ_end_recharging();
-}
-#endif
 
 #ifndef __PRIVATE_FRSH_INIT__
-int frsh_init(void)
+int EE_frsh_init(void)
 {
   EE_time_init();
-  EE_iris_time_init();
+  EE_frsh_time_init();
   return 0;
 }
 #endif
