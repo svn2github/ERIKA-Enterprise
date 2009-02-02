@@ -198,16 +198,14 @@ distrib_opt___ST_STA2051__:: \
 
 
 ifeq ($(findstring __EVALUATOR7T__,$(ALLOPTIONS)) , __EVALUATOR7T__)
-#ifeq ($(findstring __FP__,$(ALLOPTIONS)) , __FP__)
-#distrib_files_EVALUATOR7T += \
-#	ee_$(DIST)/examples/arm_evaluator7t/fp \
-#	ee_$(DIST)/examples/arm_evaluator7t/fp/build.xml \
-#	ee_$(DIST)/examples/arm_evaluator7t/fp/template.xml \
-#	ee_$(DIST)/examples/arm_evaluator7t/fp/code.c \
-#	ee_$(DIST)/examples/arm_evaluator7t/fp/conf.oil \
-#	ee_$(DIST)/examples/arm_evaluator7t/fp/lancia.bat \
-#	ee_$(DIST)/examples/arm_evaluator7t/fp/thumb.c
-#endif
+ifeq ($(findstring __FP__,$(ALLOPTIONS)) , __FP__)
+distrib_files_EVALUATOR7T += \
+	ee_$(DIST)/examples/arm_evaluator7t/fp \
+	ee_$(DIST)/examples/arm_evaluator7t/fp/template.xml \
+	ee_$(DIST)/examples/arm_evaluator7t/fp/code.c \
+	ee_$(DIST)/examples/arm_evaluator7t/fp/conf.oil \
+	ee_$(DIST)/examples/arm_evaluator7t/fp/thumb.c
+endif
 
 #ifeq ($(findstring __EDF__,$(ALLOPTIONS)) , __EDF__)
 #distrib_files_EVALUATOR7T += \

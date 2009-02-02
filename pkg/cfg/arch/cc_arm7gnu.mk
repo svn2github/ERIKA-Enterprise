@@ -44,15 +44,15 @@
 
 ifeq ($(findstring __ARM7GNU__,$(EEALLOPT)), __ARM7GNU__)
 
-# ARM7BASE is the base directory of development environment
+# ARM7_GCCDIR is the base directory of development environment
 # it should be defined in your .bashrc
-# ARM7BASE = 
+# ARM7_GCCDIR = 
 
 # BINDIR is the directory of assembler, compiler, linker...
 ifeq ($(PLATFORM), LINUX)
-BINDIR = $(ARM7BASE)/bin
+BINDIR = $(ARM7_GCCDIR)/bin
 else
-BINDIR = $(shell cygpath -u "$(ARM7BASE)/bin")
+BINDIR = $(shell cygpath -u "$(ARM7_GCCDIR)/bin")
 endif
 
 # ALLINCPATH is a colon separated list of directories for source file searching
