@@ -40,6 +40,7 @@
 
 /*
  * Author 2008 Paolo Tiberi & Francesco Focacci
+ * Author 2009 Paolo Gai
  * CVS: $Id: ee_rcg_inser.c,v 1.3 2008/07/18 09:53:55 tiberipa Exp $
  */
 
@@ -47,29 +48,29 @@
 
 #ifndef __PRIVATE_RCG_INSERT__
 
-// this function inserts a task into the recharging queue
-void EE_rcg_insert(EE_TID t)
+// this function inserts a vres into the recharging queue
+void EE_rcg_insert(EE_TYPECONTRACT v)
 {
-  EE_UINT32 prio;
-  EE_TID p,q;
+  EE_TYPEABSDLINE prio;
+  EE_TYPECONTRACT p,q;
 
-  p = EE_NIL;
+  p = EE_VRES_NIL;
   q = EE_rcg_queryfirst();
-  prio = EE_vres[EE_th[t].contract].absdline;
+  prio = EE_vres[v].absdline;
 
-  while ((q != EE_NIL) && 
-	 (EE_STIME)(prio - EE_vres[EE_th[q].contract].absdline) >= 0
+  while ((q != EE_VRES_NIL) && 
+	 (EE_STIME)(prio - EE_vres[q].absdline) >= 0
   	) {
     p = q;
-    q = EE_th[q].next;
+    q = EE_vres[q].next;
   }
 
-  if (p != EE_NIL)
-    EE_th[p].next = t;
+  if (p != EE_VRES_NIL)
+    EE_vres[p].next = v;
   else
-    EE_rcgfirst = t;
+    EE_rcgfirst = v;
 
-  EE_th[t].next = q;
+  EE_vres[v].next = q;
 }
 
 #endif

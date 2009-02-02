@@ -155,12 +155,22 @@ when the task wuill be activated again a fresh deadline will be
 assigned (done into EE_frsh_updatecapacity.
 -- end note */
 
+
+
 /*************************************************************************
  Kernel Constants
  *************************************************************************/
 
 /* invalid TID */
-#define EE_NIL       ((EE_TID)-1)
+#define EE_NIL           ((EE_TID)-1)
+
+/* invalid TID, used in the VRES task field, to mean that the VRES has
+   been binded BUT the binding has been deferred. Note that only VRES
+   which are inactive/freezed may have this value */
+#define EE_TID_DEFERRED  ((EE_TID)EE_MAX_TASK)
+
+/* invalid VRES, used for tasks without vres binded to them*/
+#define EE_VRES_NIL       ((EE_TYPECONTRACT)-1)
 
 
 /* VRES statuses */
@@ -169,7 +179,6 @@ assigned (done into EE_frsh_updatecapacity.
 #define EE_VRES_INACTIVE   1
 #define EE_VRES_ACTIVE     2
 #define EE_VRES_RECHARGING 4
-
 
 
 /* TASK statuses */
@@ -223,7 +232,7 @@ assigned (done into EE_frsh_updatecapacity.
 
 /* contract ID */
 #ifndef EE_TYPECONTRACT
-#define EE_TYPECONTRACT EE_UREG
+#define EE_TYPECONTRACT EE_SREG
 #endif
 
 /* vres ID */
@@ -243,6 +252,8 @@ typedef struct {
   EE_TYPEBUDGET   budget_avail;  /* available budget (initvalue 0) */
   EE_TYPEABSDLINE absdline;      /* absolute deadline (initvalue 0) */
   EE_TYPESTATUS   status;        /* status (initvalue freezing that is 0) */
+  EE_TID          task;          /* the task binded to the VRES */
+  EE_TYPECONTRACT next;          /* next vres in the recharging queue (initvalue EE_VRES_NIL ) */
 } EE_TYPEVRESSTRUCT;
 
 /* TASK */
@@ -252,9 +263,9 @@ typedef struct {
   EE_TID          next;          /* next task in the queue (initvalue EE_NIL ) */
   EE_TYPENACT     nact;          /* number of pending activations (initvalue 0) */
   EE_UREG         lockedcounter; /* number of locked resources (initvalue 0) */
-  EE_TYPECONTRACT contract;      /* the contract linked to the task */
+  EE_TYPECONTRACT vres;          /* the vres linked to the task */
+  EE_TYPECONTRACT vres_deferred; /* when != EE_VRES_NIL stores the deferred VRES after a bind */
 } EE_TYPETASKSTRUCT;
-
 
 
 
@@ -315,9 +326,9 @@ extern EE_TID EE_rqfirst;
 */
 extern EE_TID EE_stkfirst;
 
-/* The first task in the recharging queue
+/* The first vres in the recharging queue
 */
-extern EE_TID EE_rcgfirst;
+extern EE_TYPECONTRACT EE_rcgfirst;
 
 
 /* The running task 

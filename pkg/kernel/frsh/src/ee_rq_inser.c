@@ -55,10 +55,10 @@ void EE_rq_insert(EE_TID t)
 
   p = EE_NIL;
   q = EE_rq_queryfirst();
-  prio = EE_vres[EE_th[t].contract].absdline;
+  prio = EE_vres[EE_th[t].vres].absdline;
 
   while ((q != EE_NIL) && 
-	 (EE_STIME)(prio - EE_vres[EE_th[q].contract].absdline) >= 0
+	 (EE_STIME)(prio - EE_vres[EE_th[q].vres].absdline) >= 0
   	) {
     p = q;
     q = EE_th[q].next;

@@ -39,90 +39,111 @@
  * ###*E*### */
 
 /*
- * Author: 2003 Paolo Gai
- * CVS: $Id: ee_kernel.h,v 1.4 2008/07/16 09:46:12 francesco Exp $
+ * Author: 2009 Paolo Gai
+ * CVS: $Id: ee_cap.c,v 1.6 2008/07/18 09:53:55 tiberipa Exp $
  */
 
-#include "kernel/frsh/inc/ee_common.h"
-
-#ifndef __INCLUDE_FRSH_KERN_H__
-#define __INCLUDE_FRSH_KERN_H__
-
-/* This macros are used to define a task */
-#define DeclareTask(t) void Func##t(void)
-#define TASK(t) void Func##t(void)
-
-/*************************************************************************
- System functions
- *************************************************************************/
-
-#ifndef __PRIVATE_SYS_GETTIME__
-#ifdef __TIME_SUPPORT__
-EE_TIME EE_frsh_sys_gettime(void);
-#endif
-#endif
-
-
-/*************************************************************************
- Primitives
- *************************************************************************/
-
-
-
-
-#ifndef __PRIVATE_THREAD_ACTIVATE__
-void EE_frsh_thread_activate(EE_TID t);
-#endif
-
-#ifndef __PRIVATE_MUTEX_LOCK__
-/* This primitive implements a SRP mutex lock */
-void EE_frsh_mutex_lock(EE_MUTEX m);
-#endif
-
-#ifndef __PRIVATE_MUTEX_UNLOCK__
-/* This primitive implements a SRP mutex unlock */
-void EE_frsh_mutex_unlock(EE_MUTEX m);
-#endif
-
-
-
-/* FRESCOR API Implementation */
-
+#include <string.h>
+#include "ee_internal.h"
 #include "frsh_configuration_parameters.h"
 #include "frsh_core_types.h"
 #include "frsh_error.h"
 
+/* These functions have been inserted for compatibility with the FRSH API */
 
-/* Basic services */
+/*
+frsh_contract_get_basic_params()
 
-#ifndef __PRIVATE_FRSH_INIT__
-int EE_frsh_init(void);
-#endif
+This operation obtains from the specified contract object its budget,
+period, and workload, and copies them to the places pointed to by the
+corresponding output parameters.
 
-#ifndef __PRIVATE_FRSH_STRERROR__
-int EE_frsh_strerror(int error, char *message, size_t size);
-#endif
+Input Parameters:
+- contract the pointer to the contract object
 
+Output Parameters:
+- budget_min pointer to preallocated space
+- period_max pointer to preallocated space
+- workload pointer to preallocated space
+- contract_type pointer to preallocated space
 
+Returns:
+0 if no error
+FRSH_ERR_BAD_ARGUMENT : if one of the contract or pointers is NULL.
 
-
-/* Contract Creation and initialization */
-
+*/
 #ifndef __PRIVATE_FRSH_CONTRACT_GET_BASIC_PARAMS__
 int EE_frsh_contract_get_basic_params (const frsh_contract_t *contract,
 				       frsh_rel_time_t *budget_min,
 				       frsh_rel_time_t *period_max,
 				       frsh_workload_t *workload,
-				       frsh_contract_type_t *contract_type);
+				       frsh_contract_type_t *contract_type)
+{
+  if (!contract || !budget_min || !period_max || !workload || !contract_type) {
+    return FRSH_ERR_BAD_ARGUMENT;
+  }
+
+  *budget_min = contract->budget;
+  *period_max = contract->period;
+  *workload = FRSH_WT_INDETERMINATE;
+  *contract_type = FRSH_CT_REGULAR;
+
+  return FRSH_NO_ERROR;
+}
 #endif
 
+
+
+/*
+  frsh_contract_get_resource_and_label()
+  Obtain the resource_id and type, and the contract label.
+  Returns:
+  0 if no error
+  FRSH_ERR_BAD_ARGUMENT : if the contract or the contract_label pointer is NULL.
+*/
 #ifndef __PRIVATE_FRSH_CONTRACT_GET_RESOURCE_AND_LABEL__
 int EE_frsh_contract_get_resource_and_label(const frsh_contract_t *contract,
 					    frsh_resource_type_t *resource_type,
 					    frsh_resource_id_t *resource_id, 
-					    char *contract_label);
+					    char *contract_label)
+{
+  int i;
+
+  if (!contract || !resource_type || !resource_id || !contract_label) {
+    return FRSH_ERR_BAD_ARGUMENT;
+  }
+
+  for (i=0; i<EE_MAX_CONTRACT; i++) {
+    if (&EE_ct[i] == contract)
+      break;
+  }
+  
+  if (i == EE_MAX_CONTRACT) {
+    return FRSH_ERR_BAD_ARGUMENT;
+  } else {
+    strncpy((char *)EE_frsh_contract_label[i], contract_label,
+	    FRSH_CONTRACT_LABEL_MAXLENGTH);
+  }
+
+  *resource_type = FRSH_RT_PROCESSOR;
+  *resource_id = EE_CURRENTCPU;
+
+  return FRSH_NO_ERROR;
+}
 #endif
 
+
+/*
+  frsh_contract_get_timing_reqs()
+
+  The operation obtains the corresponding input parameters from the
+  specified contract object. If d_equals_t is true, the deadline will
+  be set to FRSH_NULL_DEADLINE.
+
+  Returns:
+  - 0 if no error
+  - FRSH_ERR_BAD_ARGUMENT : if contract is NULL
+*/
 #ifndef __PRIVATE_FRSH_CONTRACT_GET_TIMING_REQS__
 int EE_frsh_contract_get_timing_reqs(const frsh_contract_t *contract, 
 				     int *d_equals_t,
@@ -130,27 +151,30 @@ int EE_frsh_contract_get_timing_reqs(const frsh_contract_t *contract,
 				     frsh_signal_t *budget_overrun_signal, 
 				     frsh_signal_info_t *budget_overrun_siginfo, 
 				     frsh_signal_t *deadline_miss_signal, 
-				     frsh_signal_info_t *deadline_miss_siginfo);
+				     frsh_signal_info_t *deadline_miss_siginfo)
+{
+  int i;
+
+  if (!contract) {
+    return FRSH_ERR_BAD_ARGUMENT;
+  }
+
+  for (i=0; i<EE_MAX_CONTRACT; i++) {
+    if (&EE_ct[i] == contract)
+      break;
+  }
+  
+  if (i == EE_MAX_CONTRACT) {
+    return FRSH_ERR_BAD_ARGUMENT;
+  }
+
+  *d_equals_t = 1;
+  *deadline = FRSH_NULL_DEADLINE;
+  *budget_overrun_signal = 0;
+  *budget_overrun_siginfo = 0;
+  *deadline_miss_signal = 0;
+  *deadline_miss_siginfo = 0;
+     
+  return FRSH_NO_ERROR;
+}
 #endif
-
-
-
-
-
-
-/* Negotiate Contract Functions */
-
-#ifndef __PRIVATE_BINDTASK__
-int EE_frsh_BindTask(const frsh_vres_id_t vres, const frsh_thread_id_t thread);
-#endif
-
-
-
-
-
-
-
-
-#endif
-
-

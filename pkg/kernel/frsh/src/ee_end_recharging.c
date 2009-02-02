@@ -54,8 +54,8 @@
 void EE_frsh_IRQ_recharging(void)
 {
   register EE_TIME tmp_time;
-  register EE_TID t;
   register EE_FREG flag;
+  register EE_TYPECONTRACT c;
   
   flag = EE_hal_begin_nested_primitive();
 
@@ -63,16 +63,11 @@ void EE_frsh_IRQ_recharging(void)
   tmp_time = EE_hal_gettime();
 
   // Check for negative budget and in case re-insert in the rcg queue
-  t = EE_rcg_queryfirst();
-  while (t != EE_NIL) {
-    EE_TYPECONTRACT c = EE_th[t].contract;
-
+  c = EE_rcg_queryfirst();
+  while (c != EE_VRES_NIL) {
     if ((EE_STIME)(EE_vres[c].absdline - tmp_time) <= EE_TIMER_MINCAPACITY) {
       /* remove the task from the recharging queue */
       EE_rcg_getfirst();
-      /* set the task as ready */
-      EE_th[t].status = EE_TASK_READY | EE_TASK_WASSTACKED;
-      EE_vres[c].status = EE_VRES_ACTIVE;
 
       /* update the absolute deadline by summing the period.  doing
 	 absdeadline = tmp_time+period IS WRONG, because in that way
@@ -85,23 +80,24 @@ void EE_frsh_IRQ_recharging(void)
 	 EE_frsh_check_recharging only works when ready and stacked
 	 queues are empty, whereas this function works in any case.*/
       EE_vres[c].absdline += EE_ct[c].period;
-      /* insert the task into the ready queue */
-      EE_rq_insert(t);
+
+      /* we process the task pointed by the VRES */
+      EE_frsh_process_recharging(c);
     } else {
-      /* the tasks are oredered by deadline. if one fails, the others are for sure in the future */
+      /* the tasks are ordered by deadline. if one fails, the others are for sure in the future */
       break;
     }
 
-    t = EE_rcg_queryfirst();
+    c = EE_rcg_queryfirst();
   }
 
-  /* t points to the top of the recharging queue */
+  /* c points to the top of the recharging queue */
 
   // Program the recharging timer
-  if (t == EE_NIL) {
+  if (c == EE_VRES_NIL) {
       EE_hal_stop_recharging_timer();
   } else {
-      EE_hal_set_recharging_timer(EE_vres[EE_th[t].contract].absdline - tmp_time);
+      EE_hal_set_recharging_timer(EE_vres[c].absdline - tmp_time);
   }
 
   EE_hal_end_nested_primitive(flag);

@@ -71,9 +71,80 @@
 #endif
 #endif
 
+/* FRSH specific API */
+
 #ifndef frsh_init
 #define frsh_init 	        EE_frsh_init
 #endif
+
+#ifndef frsh_strerror
+#define frsh_strerror 	        EE_frsh_strerror
+#endif
+
+#ifndef frsh_contract_get_basic_params
+#define frsh_contract_get_basic_params EE_frsh_contract_get_basic_params
+#endif
+
+#ifndef frsh_contract_get_resource_and_label
+#define frsh_contract_get_resource_and_label EE_frsh_contract_get_resource_and_label
+#endif
+
+#ifndef frsh_contract_get_timing_reqs
+#define frsh_contract_get_timing_reqs EE_frsh_contract_get_timing_reqs
+#endif
+
+#ifndef frsh_thread_bind
+#define frsh_thread_bind EE_frsh_BindTask
+#endif
+
+#ifndef frsh_thread_unbind
+#define frsh_thread_unbind EE_frsh_thread_unbind
+#endif
+
+#ifndef frsh_thread_get_vres_id
+#define frsh_thread_get_vres_id EE_frsh_thread_get_vres_id
+#endif
+
+#ifndef frsh_vres_get_contract
+#define frsh_vres_get_contract EE_frsh_vres_get_contract
+#endif
+
+#ifndef frsh_resource_get_vres_from_label
+#define frsh_resource_get_vres_from_label EE_frsh_resource_get_vres_from_label
+#endif
+
+#ifndef frsh_syncobj_signal
+#define frsh_syncobj_signal EE_frsh_syncobj_signal
+#endif
+
+#ifndef frsh_syncobj_wait
+#define frsh_syncobj_wait EE_frsh_syncobj_wait
+#endif
+
+#ifndef frsh_syncobj_wait_with_timeout
+#define frsh_syncobj_wait_with_timeout EE_frsh_syncobj_wait_with_timeout
+#endif
+
+#ifndef frsh_timed_wait
+#define frsh_timed_wait EE_frsh_timed_wait
+#endif
+
+#ifndef frsh_config_is_admission_test_enabled
+#define frsh_config_is_admission_test_enabled EE_frsh_config_is_admission_test_enabled
+#endif
+
+#ifndef frsh_vres_get_remaining_budget
+#define frsh_vres_get_remaining_budget EE_frsh_vres_get_remaining_budget
+#endif
+
+#ifndef frsh_vres_get_usage
+#define frsh_vres_get_usage EE_frsh_vres_get_usage
+#endif
+
+#ifndef frsh_vres_get_budget_and_period
+#define frsh_vres_get_budget_and_period EE_frsh_vres_get_budget_and_period
+#endif
+
 
 #endif
 #endif

@@ -48,6 +48,21 @@
 #ifndef __INCLUDE_FRSH_INTERNAL_H__
 #define __INCLUDE_FRSH_INTERNAL_H__
 
+
+/*************************************************************************
+ Internal data structures
+ *************************************************************************/
+
+/* this array is defined in a separate file at the same level of
+   eecfg.c because it stores the contract names in string format. If
+   there are no functions called which needs this variable (this is
+   usually the case) then the variable is not linked to the final
+   executable.
+*/
+
+extern const char *EE_frsh_contract_label[EE_MAX_CONTRACT];
+
+
 /*************************************************************************
  Internal Queue management functions
  *************************************************************************/
@@ -95,7 +110,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_stk_insertfirst(EE_TID t)
 
 #ifndef __PRIVATE_RCG_QUERYFIRST__
 /* return the first recharging task (the running task) without extracting it */
-__INLINE__ EE_TID __ALWAYS_INLINE__ EE_rcg_queryfirst(void)
+__INLINE__ EE_TYPECONTRACT __ALWAYS_INLINE__ EE_rcg_queryfirst(void)
 {
   return EE_rcgfirst;  
 }
@@ -104,7 +119,7 @@ __INLINE__ EE_TID __ALWAYS_INLINE__ EE_rcg_queryfirst(void)
 #ifndef __PRIVATE_RCG_GETFIRST__
 __INLINE__ void __ALWAYS_INLINE__ EE_rcg_getfirst(void)
 {
-  EE_rcgfirst = EE_th[EE_rcgfirst].next;
+  EE_rcgfirst = EE_vres[EE_rcgfirst].next;
 }
 #endif
 
@@ -113,9 +128,14 @@ __INLINE__ void __ALWAYS_INLINE__ EE_rcg_getfirst(void)
 void EE_rq_insert(EE_TID t);
 #endif
 
+#ifndef __PRIVATE_RQ_EXTRACT__
+/* extract a task from the ready queue. if not present, do nothing */
+void EE_rq_extract(EE_TID t);
+#endif
+
 #ifndef __PRIVATE_RCG_INSERT__
 /* insert a task into the recharging queue */
-void EE_rcg_insert(EE_TID t);
+void EE_rcg_insert(EE_TYPECONTRACT c);
 #endif
 
 
@@ -127,7 +147,7 @@ void EE_frsh_rechargebudget(EE_TID t);
 /* check the current value of a deadline and updates it following the
    IRIS rules */
 
-typedef enum AT{InsertRCGQueue, InsertRDQueue} ActionType;
+typedef enum AT{InsertedRCGQueue, InsertRDQueue} ActionType;
 
 ActionType EE_frsh_updatecapacity(EE_TID t, EE_TIME tmp_time);
 #endif
@@ -144,6 +164,10 @@ void EE_frsh_check_slice(EE_TIME tmp_time);
 void EE_frsh_end_slice(EE_TIME tmp_time);
 #endif
 
+#ifndef __PRIVATE_PROCESSRECHARGING__
+void EE_frsh_process_recharging(EE_TYPECONTRACT c);
+#endif
+
 #ifndef __PRIVATE_CHECKRECHARGING__
 void EE_frsh_check_recharging(EE_TIME tmp_time);
 #endif
@@ -158,6 +182,10 @@ void EE_frsh_IRQ_budget(void);
 
 #ifndef __PRIVATE_IRQ_DLCHECK__
 void EE_frsh_IRQ_dlcheck(void);
+#endif
+
+#ifndef __PRIVATE_BIND_DETACH_VRES__
+int EE_frsh_bind_detach_vres(EE_TID thread);
 #endif
 
 /*************************************************************************

@@ -39,29 +39,37 @@
  * ###*E*### */
 
 /*
- * Author: 2008 Paolo Tiberi & Francesco Focacci
- * CVS: $Id: ee_frsh_init.c,v 1.4 2008/07/21 13:51:54 tiberipa Exp $
+ * Author 2008 Paolo Tiberi & Francesco Focacci
+ * CVS: $Id: ee_rq_inser.c,v 1.3 2008/07/18 09:53:55 tiberipa Exp $
  */
 
 #include "ee_internal.h"
-#include "frsh_error.h"
-/* used to check if the initialization has already been done */
-int EE_frsh_init_once = 1;
 
-
-#ifndef __PRIVATE_FRSH_INIT__
-int EE_frsh_init(void)
+#ifndef __PRIVATE_RQ_EXTRACT__
+void EE_rq_extract(EE_TID thread)
 {
-  if (EE_frsh_init_once) {
-    /* must be done once */
-    EE_frsh_init_once = 0;
-
-    EE_time_init();
-    EE_frsh_time_init();
-    
-    return FRSH_NO_ERROR;
+  EE_TID p;
+  EE_TID t;
+  
+  p = EE_NIL;
+  t = EE_rq_queryfirst();
+  
+  while ( (t != EE_NIL) && (t != thread)) {
+    p = t;
+    t = EE_th[t].next;
+  }
+  
+  if (t == EE_NIL) {
+    /* the thread is not there */
   } else {
-    return FRSH_ERR_SYSTEM_ALREADY_INITIALIZED;
+    /* t == thread !!! */
+    if ( p == EE_NIL ) {
+      // remove the first item in the ready queue
+      EE_rq_getfirst();
+    } else {
+      // remove an item in the middle of the ready queue
+      EE_th[p].next = EE_th[t].next;
+    }
   }
 }
 #endif

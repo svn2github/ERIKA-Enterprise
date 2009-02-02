@@ -228,19 +228,25 @@ endif
 # ------------------------------------------------------------------------------------
 
 ifeq ($(findstring __FRSH__,$(EEOPT)) , __FRSH__)
+CFLAGS += -I$(SOPC_KIT_NIOS2)/components/evidence_ee/ee/pkg/kernel/frsh/frsh_include
+
+
 EE_C_SRCS += \
 	ee/pkg/kernel/frsh/src/ee_cap.c \
 	ee/pkg/kernel/frsh/src/ee_dlcheck.c \
 	ee/pkg/kernel/frsh/src/ee_end_budget.c \
 	ee/pkg/kernel/frsh/src/ee_end_recharging.c \
+	ee/pkg/kernel/frsh/src/ee_frsh_bind.c \
+	ee/pkg/kernel/frsh/src/ee_frsh_bind_utils.c \
+	ee/pkg/kernel/frsh/src/ee_frsh_contracts.c \
 	ee/pkg/kernel/frsh/src/ee_frsh_init.c \
+	ee/pkg/kernel/frsh/src/ee_frsh_strerror.c \
 	ee/pkg/kernel/frsh/src/ee_gettime.c \
 	ee/pkg/kernel/frsh/src/ee_irq_sc.c \
 	ee/pkg/kernel/frsh/src/ee_mutex.c \
 	ee/pkg/kernel/frsh/src/ee_rcg_inser.c \
-	ee/pkg/kernel/frsh/src/ee_recharge.c \
+	ee/pkg/kernel/frsh/src/ee_rq_extract.c \
 	ee/pkg/kernel/frsh/src/ee_rq_inser.c \
-	ee/pkg/kernel/frsh/src/ee_schedule.c \
 	ee/pkg/kernel/frsh/src/ee_thact.c \
 	ee/pkg/kernel/frsh/src/ee_thendin.c
 
