@@ -126,6 +126,10 @@ extern "C" {
 #include "mcu/samsung_ks32c50100/inc/ee_internal.h"
 #endif
 
+#if defined(__unibo_mparm__)
+#include "mcu/unibo_mparm/inc/ee_internal.h"
+#endif
+
 #if defined __TRISCENDA7S__
 #include "mcu/triscend_a7s/internal.h"
 #endif
@@ -168,6 +172,10 @@ extern "C" {
   /* ARM */
 #ifdef __EVALUATOR7T__
 #include "board/arm_evaluator7t/inc/ee_internal.h"
+#endif
+
+#if defined(__unibo_mparm__)
+#include "board/unibo_mparm/inc/ee_internal.h"
 #endif
 
   /* Microchip dsPIC */

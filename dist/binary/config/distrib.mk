@@ -208,6 +208,14 @@ distrib_opt___SAMSUNG_KS32C50100__:: \
 	@echo OPT __SAMSUNG_KS32C50100__ up2date.
 
 
+distrib_opt___unibo_mparm__:: \
+		ee_$(DIST)/pkg/mcu/unibo_mparm \
+		ee_$(DIST)/pkg/mcu/unibo_mparm/inc \
+		ee_$(DIST)/pkg/mcu/unibo_mparm/inc/ee_mcu.h \
+		ee_$(DIST)/pkg/mcu/unibo_mparm/inc/ee_mcuregs.h \
+		ee_$(DIST)/pkg/mcu/unibo_mparm/inc/ee_ic.h
+	@echo OPT __unibo_mparm__ up2date.
+
 
 distrib_opt___ST_STA2051__:: \
 		ee_$(DIST)/pkg/mcu/st_sta2051 \
@@ -256,6 +264,18 @@ distrib_opt___EVALUATOR7T__:: \
 		ee_$(DIST)/pkg/board/arm_evaluator7t/inc \
 		ee_$(DIST)/pkg/board/arm_evaluator7t/inc/ee_board.h
 	@echo OPT __EVALUATOR7T__ up2date.
+
+
+distrib_opt___unibo_mparm__:: \
+		ee_$(DIST)/pkg/cfg/arch \
+		ee_$(DIST)/pkg/cfg/arch/rules_unibo_mparm.mk \
+		ee_$(DIST)/pkg/board/unibo_mparm \
+		ee_$(DIST)/pkg/board/unibo_mparm/cfg \
+		ee_$(DIST)/pkg/board/unibo_mparm/cfg/loc_gnu.ld \
+		ee_$(DIST)/pkg/board/unibo_mparm/debug \
+		ee_$(DIST)/pkg/board/unibo_mparm/inc \
+		ee_$(DIST)/pkg/board/unibo_mparm/inc/ee_board.h
+	@echo OPT __unibo_mparm__ up2date.
 
 
 distrib_opt___MPC566EVB__:: \

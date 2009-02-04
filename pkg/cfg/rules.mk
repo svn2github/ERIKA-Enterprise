@@ -161,6 +161,10 @@ ifeq ($(findstring __EVALUATOR7T__,$(EEALLOPT)) , __EVALUATOR7T__)
 include $(EEBASE)/pkg/cfg/arch/rules_arm_evaluator7t.mk
 endif
 
+ifeq ($(findstring __unibo_mparm__,$(EEALLOPT)) , __unibo_mparm__)
+include $(EEBASE)/pkg/cfg/arch/rules_unibo_mparm.mk
+endif
+
 ifeq ($(findstring __TRISCENDA7S__,$(EEALLOPT)) , __TRISCENDA7S__)
 include $(EEBASE)/pkg/cfg/arch/rules_triscend_a7s.mak
 endif

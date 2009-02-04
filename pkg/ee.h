@@ -135,6 +135,10 @@ extern "C" {
 #include "mcu/st_sta2051/inc/ee_mcu.h"
 #endif
 
+#ifdef __unibo_mparm__
+#include "mcu/unibo_mparm/inc/ee_mcu.h"
+#endif
+
   /* PPC */
 #ifdef __MPC566EVB__
 #include "mcu/motorola_mpc566/inc/ee_mcu.h"
@@ -168,6 +172,10 @@ extern "C" {
   /* ARM */
 #ifdef __EVALUATOR7T__
 #include "board/arm_evaluator7t/inc/ee_board.h"
+#endif
+
+#ifdef __unibo_mparm__
+#include "board/unibo_mparm/inc/ee_board.h"
 #endif
 
 #ifdef __TRISCENDA7S__

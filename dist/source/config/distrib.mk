@@ -168,6 +168,27 @@ distrib_opt___SAMSUNG_KS32C50100__:: \
 		ee_$(DIST)/pkg/mcu/samsung_ks32c50100/src/ee_start.S
 	@echo OPT __SAMSUNG_KS32C50100__ up2date.
 
+distrib_opt___unibo_mparm__:: \
+		ee_$(DIST)/pkg/mcu/unibo_mparm \
+		ee_$(DIST)/pkg/mcu/unibo_mparm/cfg \
+		ee_$(DIST)/pkg/mcu/unibo_mparm/cfg/cfg.mk \
+		ee_$(DIST)/pkg/mcu/unibo_mparm/inc \
+		ee_$(DIST)/pkg/mcu/unibo_mparm/inc/ee_internal.h \
+		ee_$(DIST)/pkg/mcu/unibo_mparm/inc/ee_ic_fiqstub.S \
+		ee_$(DIST)/pkg/mcu/unibo_mparm/src \
+		ee_$(DIST)/pkg/mcu/unibo_mparm/src/ee_ic.c \
+		ee_$(DIST)/pkg/mcu/unibo_mparm/src/ee_ic_exc_handlers.S \
+		ee_$(DIST)/pkg/mcu/unibo_mparm/src/ee_irqvect.S \
+		ee_$(DIST)/pkg/mcu/unibo_mparm/src/ee_start.S \
+		ee_$(DIST)/pkg/board/unibo_mparm \
+		ee_$(DIST)/pkg/board/unibo_mparm/cfg \
+		ee_$(DIST)/pkg/board/unibo_mparm/cfg/cfg.mk \
+		ee_$(DIST)/pkg/board/unibo_mparm/inc \
+		ee_$(DIST)/pkg/board/unibo_mparm/inc/ee_internal.h \
+		ee_$(DIST)/pkg/board/unibo_mparm/src \
+		ee_$(DIST)/pkg/board/unibo_mparm/src/ee_board.c
+	@echo OPT __unibo_mparm__ up2date.
+
 distrib_opt___ST_STA2051__:: \
 		ee_$(DIST)/pkg/mcu/st_sta2051 \
 		ee_$(DIST)/pkg/mcu/st_sta2051/cfg \
@@ -200,26 +221,26 @@ distrib_opt___ST_STA2051__:: \
 ifeq ($(findstring __EVALUATOR7T__,$(ALLOPTIONS)) , __EVALUATOR7T__)
 ifeq ($(findstring __FP__,$(ALLOPTIONS)) , __FP__)
 distrib_files_EVALUATOR7T += \
-	ee_$(DIST)/examples/arm_evaluator7t/fp \
-	ee_$(DIST)/examples/arm_evaluator7t/fp/template.xml \
-	ee_$(DIST)/examples/arm_evaluator7t/fp/code.c \
-	ee_$(DIST)/examples/arm_evaluator7t/fp/conf.oil \
-	ee_$(DIST)/examples/arm_evaluator7t/fp/thumb.c
+	ee_$(DIST)/examples/arm7_evaluator7t/fp \
+	ee_$(DIST)/examples/arm7_evaluator7t/fp/template.xml \
+	ee_$(DIST)/examples/arm7_evaluator7t/fp/code.c \
+	ee_$(DIST)/examples/arm7_evaluator7t/fp/conf.oil \
+	ee_$(DIST)/examples/arm7_evaluator7t/fp/thumb.c
 endif
 
 #ifeq ($(findstring __EDF__,$(ALLOPTIONS)) , __EDF__)
 #distrib_files_EVALUATOR7T += \
-#	ee_$(DIST)/examples/arm_evaluator7t/edf \
-#	ee_$(DIST)/examples/arm_evaluator7t/edf/cfg_e7t.h \
-#	ee_$(DIST)/examples/arm_evaluator7t/edf/code.c \
-#	ee_$(DIST)/examples/arm_evaluator7t/edf/code.h \
-#	ee_$(DIST)/examples/arm_evaluator7t/edf/eecfg.h \
-#	ee_$(DIST)/examples/arm_evaluator7t/edf/initdrvs.c \
-#	ee_$(DIST)/examples/arm_evaluator7t/edf/inithal.c \
-#	ee_$(DIST)/examples/arm_evaluator7t/edf/initkern.c \
-#	ee_$(DIST)/examples/arm_evaluator7t/edf/makefile \
-#	ee_$(DIST)/examples/arm_evaluator7t/edf/thumb.c \
-#	ee_$(DIST)/examples/arm_evaluator7t/edf/timer.c
+#	ee_$(DIST)/examples/arm7_evaluator7t/edf \
+#	ee_$(DIST)/examples/arm7_evaluator7t/edf/cfg_e7t.h \
+#	ee_$(DIST)/examples/arm7_evaluator7t/edf/code.c \
+#	ee_$(DIST)/examples/arm7_evaluator7t/edf/code.h \
+#	ee_$(DIST)/examples/arm7_evaluator7t/edf/eecfg.h \
+#	ee_$(DIST)/examples/arm7_evaluator7t/edf/initdrvs.c \
+#	ee_$(DIST)/examples/arm7_evaluator7t/edf/inithal.c \
+#	ee_$(DIST)/examples/arm7_evaluator7t/edf/initkern.c \
+#	ee_$(DIST)/examples/arm7_evaluator7t/edf/makefile \
+#	ee_$(DIST)/examples/arm7_evaluator7t/edf/thumb.c \
+#	ee_$(DIST)/examples/arm7_evaluator7t/edf/timer.c
 #endif
 endif
 
