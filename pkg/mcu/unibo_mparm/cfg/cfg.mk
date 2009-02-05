@@ -41,7 +41,7 @@
 ## Author: 2004 Paolo Gai
 ## CVS: $Id: cfg.mk,v 1.4 2006/11/03 11:03:26 pj Exp $
 
-ifeq ($(findstring __unibo_mparm__,$(EEOPT)) , __unibo_mparm__)
+ifeq ($(findstring __UNIBO_MPARM__,$(EEOPT)) , __UNIBO_MPARM__)
 EE_SRCS += pkg/mcu/unibo_mparm/src/ee_irqvect.S
 EE_SRCS += pkg/mcu/unibo_mparm/src/ee_ic_exc_handlers.S
 EE_SRCS += pkg/mcu/unibo_mparm/src/ee_ic.c

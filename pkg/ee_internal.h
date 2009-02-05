@@ -126,7 +126,7 @@ extern "C" {
 #include "mcu/samsung_ks32c50100/inc/ee_internal.h"
 #endif
 
-#if defined(__unibo_mparm__)
+#if defined(__UNIBO_MPARM__)
 #include "mcu/unibo_mparm/inc/ee_internal.h"
 #endif
 

@@ -135,7 +135,7 @@ extern "C" {
 #include "mcu/st_sta2051/inc/ee_mcu.h"
 #endif
 
-#ifdef __unibo_mparm__
+#ifdef __UNIBO_MPARM__
 #include "mcu/unibo_mparm/inc/ee_mcu.h"
 #endif
 

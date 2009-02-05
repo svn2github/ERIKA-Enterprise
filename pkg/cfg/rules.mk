@@ -123,9 +123,13 @@ ifeq ($(findstring __EVALUATOR7T__,$(EEOPT)) , __EVALUATOR7T__)
 EEOPT += __SAMSUNG_KS32C50100__
 endif
 
-
 ifeq ($(findstring __MPC5PROTECTED__,$(EEOPT)) , __MPC5PROTECTED__)
 EEOPT += __PROTECTED__
+endif
+
+# Bugfix: to be removed!
+ifeq ($(findstring __unibo_mparm__,$(EEOPT)) , __unibo_mparm__)
+EEOPT += __UNIBO_MPARM__
 endif
 
 
@@ -161,7 +165,7 @@ ifeq ($(findstring __EVALUATOR7T__,$(EEALLOPT)) , __EVALUATOR7T__)
 include $(EEBASE)/pkg/cfg/arch/rules_arm_evaluator7t.mk
 endif
 
-ifeq ($(findstring __unibo_mparm__,$(EEALLOPT)) , __unibo_mparm__)
+ifeq ($(findstring __UNIBO_MPARM__,$(EEALLOPT)) , __UNIBO_MPARM__)
 include $(EEBASE)/pkg/cfg/arch/rules_unibo_mparm.mk
 endif
 
