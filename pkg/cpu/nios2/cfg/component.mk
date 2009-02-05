@@ -237,6 +237,7 @@ EE_C_SRCS += \
 	ee/pkg/kernel/frsh/src/ee_end_budget.c \
 	ee/pkg/kernel/frsh/src/ee_end_recharging.c \
 	ee/pkg/kernel/frsh/src/ee_frsh_bind.c \
+	ee/pkg/kernel/frsh/src/ee_frsh_unbind.c \
 	ee/pkg/kernel/frsh/src/ee_frsh_bind_utils.c \
 	ee/pkg/kernel/frsh/src/ee_frsh_contracts.c \
 	ee/pkg/kernel/frsh/src/ee_frsh_init.c \

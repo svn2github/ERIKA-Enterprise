@@ -98,7 +98,7 @@
 #endif
 
 #ifndef frsh_thread_unbind
-#define frsh_thread_unbind EE_frsh_thread_unbind
+#define frsh_thread_unbind EE_frsh_UnbindTask
 #endif
 
 #ifndef frsh_thread_get_vres_id

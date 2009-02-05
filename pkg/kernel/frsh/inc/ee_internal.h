@@ -147,7 +147,7 @@ void EE_frsh_rechargebudget(EE_TID t);
 /* check the current value of a deadline and updates it following the
    IRIS rules */
 
-typedef enum AT{InsertedRCGQueue, InsertRDQueue} ActionType;
+typedef enum AT{EE_UC_InsertedRCGQueue, EE_UC_InsertRDQueue, EE_UC_NoVres} ActionType;
 
 ActionType EE_frsh_updatecapacity(EE_TID t, EE_TIME tmp_time);
 #endif
@@ -185,7 +185,7 @@ void EE_frsh_IRQ_dlcheck(void);
 #endif
 
 #ifndef __PRIVATE_BIND_DETACH_VRES__
-int EE_frsh_bind_detach_vres(EE_TID thread);
+int EE_frsh_bind_detach_thread(EE_TID thread);
 #endif
 
 /*************************************************************************

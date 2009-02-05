@@ -71,7 +71,10 @@
 #ifndef __PRIVATE_RECHARGEBUDGET__
 void EE_frsh_rechargebudget(EE_TID t) {
   EE_TYPECONTRACT c = EE_th[t].vres;
-  
+  /* it can not happen that the VRES is UNBOUND because we are
+     recharging the budget, which means that the task was
+     executing (not possible if the vres is unbound) */
+
   for(;;){
     // recharge the task.
     if (EE_vres[c].budget_avail > 0) {
@@ -105,6 +108,13 @@ ActionType EE_frsh_updatecapacity(EE_TID t, EE_TIME tmp_time)
 {
   EE_TYPECONTRACT c = EE_th[t].vres;
 
+  /* check if the VRES is UNBOUND. in this case, return nothing. the
+     capacity is not updated because there is no vres bound to the
+     task. */
+  if (c == EE_VRES_NIL) {
+    return EE_UC_NoVres;
+  }
+
   if (EE_vres[c].status == EE_VRES_RECHARGING) {
     /* the VRES of a task just activated can be recharging in the following scenario:
        1 a task X ends its budget and its vres V goes to recharging
@@ -114,7 +124,7 @@ ActionType EE_frsh_updatecapacity(EE_TID t, EE_TIME tmp_time)
 
        If the vres is recharging, we have nothing to do here.
     */
-    return InsertedRCGQueue;
+    return EE_UC_InsertedRCGQueue;
   }
 
   /* if the thread is not active or the current deadline is in the past */
@@ -131,7 +141,7 @@ ActionType EE_frsh_updatecapacity(EE_TID t, EE_TIME tmp_time)
     EE_vres[c].budget_avail = EE_ct[c].budget;
 
     EE_vres[c].status = EE_VRES_ACTIVE;
-    return InsertRDQueue;
+    return EE_UC_InsertRDQueue;
   } 
   else{
     // task deadline is in the future 
@@ -145,7 +155,7 @@ ActionType EE_frsh_updatecapacity(EE_TID t, EE_TIME tmp_time)
       if (EE_rcg_queryfirst() == c)
         EE_hal_set_recharging_timer(EE_vres[c].absdline - tmp_time);
 
-      return InsertedRCGQueue;
+      return EE_UC_InsertedRCGQueue;
     }
     /* This is the test of CBS, saying that if the bandwith of the
        task considered as the remaining capacity divided buy the time
@@ -162,7 +172,7 @@ ActionType EE_frsh_updatecapacity(EE_TID t, EE_TIME tmp_time)
     }
 
     EE_vres[c].status = EE_VRES_ACTIVE;
-    return InsertRDQueue;     
+    return EE_UC_InsertRDQueue;     
   }
 }
 
@@ -176,6 +186,11 @@ ActionType EE_frsh_updatecapacity(EE_TID t, EE_TIME tmp_time)
  * EE_exec is set to the next task to schedule.
  * the status is untouched
  * if EE_exec is different from EE_NIL, then the task has been removed from its queue
+ *
+ * Note: WE CANNOT CHANGE THE STATUS TO EXEC HERE. The status brings
+ * also the flag wasstacked. if we set it, then nothing will work
+ * after this. A solution could be to put wasstacked in a separate
+ * status variable, but I do not want to do that for now.
  */
 #ifndef __PRIVATE_SELECTEXEC__
 void EE_frsh_select_exec(void)
@@ -232,6 +247,8 @@ void EE_frsh_check_slice(EE_TIME tmp_time)
 {
   if (EE_exec != EE_NIL) {
     EE_TYPECONTRACT c = EE_th[EE_exec].vres;
+    /* it can never happen that the vres is UNBOUND because the task
+       cannot execute without a VRES */
 
     /* account the capacity to the task that is currently executing */
     EE_vres[c].budget_avail -= tmp_time - EE_last_time;
@@ -306,6 +323,8 @@ void EE_frsh_end_slice(EE_TIME tmp_time)
   register EE_TYPECONTRACT c;
 
   c = EE_th[EE_exec].vres;
+  /* it can never happen that the vres is UNBOUND because the task
+     cannot execute without a VRES */
 
   /* account the capacity to the task that is currently executing */
   EE_vres[c].budget_avail -= tmp_time - EE_last_time;

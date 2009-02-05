@@ -71,7 +71,7 @@ void EE_frsh_thread_activate(EE_TID t)
     /* since nact==0, the task has not been stacked before, and so it
        is safe to put it in the READY state */
 
-    if(EE_frsh_updatecapacity(t, tmp_time) == InsertRDQueue){
+    if (EE_frsh_updatecapacity(t, tmp_time) == EE_UC_InsertRDQueue){
       /* In this case, the budhet has been updated and the task is ready to be executed */
       EE_rq_insert(t);
     }
@@ -111,7 +111,7 @@ void EE_frsh_thread_activate(EE_TID t)
     /* --- */
 
     wasstacked = EE_th[EE_exec].status & EE_TASK_WASSTACKED;
-    EE_th[EE_exec].status = EE_TASK_READY;  
+    EE_th[EE_exec].status = EE_TASK_EXEC;  
     
     /* if different from the current running task implement the preemption */
     if (tmp_exec != EE_exec) {

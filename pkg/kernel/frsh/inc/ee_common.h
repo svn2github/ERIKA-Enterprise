@@ -162,15 +162,25 @@ assigned (done into EE_frsh_updatecapacity.
  *************************************************************************/
 
 /* invalid TID */
-#define EE_NIL           ((EE_TID)-1)
+#define EE_NIL            ((EE_TID)-1)
 
 /* invalid TID, used in the VRES task field, to mean that the VRES has
    been binded BUT the binding has been deferred. Note that only VRES
    which are inactive/freezed may have this value */
-#define EE_TID_DEFERRED  ((EE_TID)EE_MAX_TASK)
+#define EE_TID_DEFERRED   ((EE_TID)EE_MAX_TASK)
 
 /* invalid VRES, used for tasks without vres binded to them*/
 #define EE_VRES_NIL       ((EE_TYPECONTRACT)-1)
+
+/* placeholder to say that the deferred VRES attached to a task has
+ * been unbound when a task is safely unbound, its vres is
+ * EE_VRES_NIL. We need this value when deferring the bind at the end
+ * of a critical section. This enable to distinguish when there is
+ * nothing to do (EE_VRES_NIL), the VRES have to be unbound
+ * (EE_VRES_UNBOUND), or if there is a new VRES (one of the valid
+ * values)
+ */
+#define EE_VRES_UNBOUND   ((EE_TYPECONTRACT)EE_MAX_CONTRACT)
 
 
 /* VRES statuses */
@@ -187,9 +197,11 @@ assigned (done into EE_frsh_updatecapacity.
 #define EE_TASK_READY      1
 #define EE_TASK_STACKED    2
 #define EE_TASK_BLOCKED    4
+#define EE_TASK_EXEC       8
 
 /* flag used to know if a task has some space allocated on its stack */
-#define EE_TASK_WASSTACKED 8
+/* WHEN CHANGING THIS WE WILL HAVE TO CHANGE THE ORTI FILE! */
+#define EE_TASK_WASSTACKED 128
 
 /*************************************************************************
  Kernel Types

@@ -98,7 +98,7 @@ void EE_thread_end_instance(void)
   } else {
     /* there is a task to schedule */
     wasstacked = EE_th[EE_exec].status & EE_TASK_WASSTACKED;
-    EE_th[EE_exec].status = EE_TASK_READY;  
+    EE_th[EE_exec].status = EE_TASK_EXEC;  
   
     /* reprogram the capacity timer for the new task */
     EE_hal_set_budget_timer(EE_vres[EE_th[EE_exec].vres].budget_avail);

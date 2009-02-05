@@ -57,13 +57,19 @@
  * Returns 1 if the VRES has been detached, 0 if the VRES detachment has been postponed.
  */
 #ifndef __PRIVATE_BIND_DETACH_VRES__
-int EE_frsh_bind_detach_vres(EE_TID thread)
+int EE_frsh_bind_detach_thread(EE_TID thread)
 {
   register EE_TYPESTATUS status;
   register EE_TYPECONTRACT vres;
 
-  status = EE_th[thread].status;
   vres = EE_th[thread].vres;
+
+  /* check if a task has already been detached */
+  if (vres == EE_VRES_NIL) {
+    return 1;
+  }
+
+  status = EE_th[thread].status;
 
   if (status & EE_TASK_READY) {
     /* the states FREEZED, INACTIVE, NOT_BOUND are not possible for the VRES since the task is active.

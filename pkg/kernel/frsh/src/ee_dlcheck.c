@@ -66,7 +66,7 @@ void EE_frsh_IRQ_dlcheck(void)
 
   for (c=0; c<EE_MAX_CONTRACT; c++) {
     if (EE_vres[c].status != EE_VRES_FREEZED &&
-	(EE_STIME)(tmp_time - EE_vres[c].absdline) > 0)) {
+	(EE_STIME)(tmp_time - EE_vres[c].absdline) > 0) {
       EE_vres[c].status = EE_VRES_FREEZED;
     }
   }

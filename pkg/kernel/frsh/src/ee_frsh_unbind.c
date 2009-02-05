@@ -48,23 +48,19 @@
 #include "frsh_error.h"
 
 /*
-frsh_thread_bind()
+frsh_thread_unbind()
+This operation unbinds a thread from a vres. Since threads with no vres associated are not allowed to
+execute, they remain in a dormant state until they are either eliminated or bound again.
 
-This operation associates a thread with a vres, which means that it starts consuming the vres's budget and
-is executed according to the contract established for that vres. If the thread is already bound to another
-vres, it is effectively unbound from it and bound to the specified one.
-
-It fails if the vres's policy is different than FRSH_NONE, or if there is already a thread bound to this vres.
+If the thread is inside a critical section the effects of this call are deferred until the critical section is ended
 
 Returns:
-- 0 if successful
-- FRSH_ERR_BAD_ARGUMENT : if the vres value does not complain with the
-  expected format or valid range or the given thread does not exist
-- FRSH_ERR_NOT_CONTRACTED_VRES : if the referenced vres is not valid
-- FRSH_ERR_ALREADY_BOUND : if the given vres has a thread already bound
+0 if successful
+FRSH_ERR_BAD_ARGUMENT : if the given thread does not exist
+FRSH_ERR_NOT_BOUND : if the given thread does not have a valid vres bound to it
 */
-#ifndef __PRIVATE_BINDTASK__
-int EE_frsh_BindTask(const frsh_vres_id_t vres, const frsh_thread_id_t thread)
+#ifndef __PRIVATE_UNBINDTASK__
+int EE_frsh_UnbindTask(const frsh_thread_id_t thread)
 {
   register EE_FREG flag;
   register EE_TIME tmp_time;
@@ -72,17 +68,19 @@ int EE_frsh_BindTask(const frsh_vres_id_t vres, const frsh_thread_id_t thread)
   register int wasstacked;
 
   /* consistency check on the parameters. these checks does not require interrupt disabling */
-  if (vres<0 || vres >= EE_MAX_CONTRACT)
-    return FRSH_ERR_NOT_CONTRACTED_VRES;
-
   if (thread<0 || thread >= EE_MAX_TASK)
     return FRSH_ERR_BAD_ARGUMENT;
 
   flag = EE_hal_begin_nested_primitive();
 
-  if (EE_vres[vres].task != EE_NIL) {
+  if (EE_th[thread].vres == EE_VRES_NIL) {
     EE_hal_end_nested_primitive(flag);
-    return FRSH_ERR_ALREADY_BOUND;
+    return FRSH_ERR_NOT_BOUND;
+  }
+
+  if (EE_th[thread].vres_deferred != EE_VRES_NIL) {
+    EE_hal_end_nested_primitive(flag);
+    return FRSH_ERR_NOT_BOUND;
   }
 
   /* this part is very similar to ActivateTask */
@@ -101,34 +99,20 @@ int EE_frsh_BindTask(const frsh_vres_id_t vres, const frsh_thread_id_t thread)
   /* implement the bind behavior */
 
   /* detach the current VRES, and depending on the result do the thread handling */
-  /* works also if the thread has not a VRES attached (that is EE_VRES_NIL) */
+
   if (EE_frsh_bind_detach_thread(thread)) {
     /* The VRES has been detached
        - as a result of detach_vres the task is not inserted in the ready queue
-       - we can give the task the new VRES now*/
-    EE_vres[vres].task = thread;
-    EE_th[thread].vres = vres;
+    
+       at this point, 
 
-    /* at this point, 
+       the task needs to be fixed.
+    */
 
-       the new VRES is linked to the task, but the task needs to be fixed.
+    /* detach the VRES */
+    EE_th[thread].vres = EE_VRES_NIL;
 
-       The new VRES can be in one of the following statuses
-       FREEZED if it has never binded to anyone
-       FREEZED, INACTIVE or RECHARGING after a bind/unbind
-
-       (
-       in fact, bind / unbind leave a VRES in one of the following statuses
-
-       before bind/unbind       after
-       freezed                  no change
-       inactive                 no change
-       active  ---->>>>         inactive
-       recharging               no change
-
-       That is, the new VRES can be either freezed, inactive, or recharging
-       )
-
+    /*
        The task is in a given status. 
        Remember that the task is NOT inserted in the ready queue.
        If it was in the stacked queue, it remained there.
@@ -136,41 +120,18 @@ int EE_frsh_BindTask(const frsh_vres_id_t vres, const frsh_thread_id_t thread)
        uppercase, vres status lowercase):
 
        SUSPENDED
-         freezed    --> nothing
-	 inactive   --> nothing
-	 recharging --> nothing. at the recharging time process_recharging will put the vres in inactive
+         do nothing
        READY
-         freezed    --> updatecapacity, eventually insert into the ready queue
-	 inactive   --> updatecapacity, eventually insert into the ready queue
-	 recharging --> nothing, it will be inserted in the ready queue when the recharging time will happen
-	                we ALWAYS CALL in any case updatecapacity which has a test on the recharging state.
+         the task has already been removed from the ready queue. do nothing
        STACKED
-         freezed    --> updatecapacity 
-	 inactive   --> updatecapacity (no problem if it goes recharging, see next point!)
-	 recharging --> nothing, it can be recharging due to budget exaustion. 
-	                it will stay there until the critical section ends
-	                we ALWAYS CALL in any case updatecapacity which has a test on the recharging state.
+         the unbind is deferred later, see the else part
        BLOCKED
-         freezed    --> nothing
-	 inactive   --> nothing
-	 recharging --> nothing. at the recharging time process_recharging will put the vres in inactive
+         the task is not in the ready queue. do nothing.
     */
-
-    if (EE_th[thread].status & EE_TASK_READY) {
-      if(EE_frsh_updatecapacity(thread, tmp_time) == EE_UC_InsertRDQueue) {
-	EE_rq_insert(thread);
-      }
-    } else if (EE_th[thread].status & EE_TASK_STACKED) {
-      EE_frsh_updatecapacity(thread, tmp_time);
-    }
-
   } else {
     /* The VRES has NOT been detached. Store in the detached variable
        that the task has to be attached to the new VRES */
-    EE_th[thread].vres_deferred = vres;
-
-    /* this value will make the test after begin_nested_primitive fail! */
-    EE_vres[vres].task = EE_TID_DEFERRED;
+    EE_th[thread].vres_deferred = EE_VRES_UNBOUND;
   }
   
   /* --- */

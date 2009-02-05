@@ -144,7 +144,9 @@ int EE_frsh_contract_get_timing_reqs(const frsh_contract_t *contract,
 int EE_frsh_BindTask(const frsh_vres_id_t vres, const frsh_thread_id_t thread);
 #endif
 
-
+#ifndef __PRIVATE_UNBINDTASK__
+int EE_frsh_UnbindTask(const frsh_thread_id_t thread);
+#endif
 
 
 
