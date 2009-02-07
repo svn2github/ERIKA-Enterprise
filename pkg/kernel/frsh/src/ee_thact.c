@@ -46,13 +46,15 @@
 #include "ee_internal.h"
 
 
+
+
 #ifndef __PRIVATE_THREAD_ACTIVATE__
 
 void EE_frsh_thread_activate(EE_TID t)
 {
   register EE_TID tmp_exec;
   register EE_TIME tmp_time;
-  register int wasstacked;
+  // DEAD CODE register int wasstacked;
   register EE_FREG flag;
   
   flag = EE_hal_begin_nested_primitive();
@@ -110,7 +112,7 @@ void EE_frsh_thread_activate(EE_TID t)
     EE_frsh_select_exec();
     /* --- */
 
-    wasstacked = EE_th[EE_exec].status & EE_TASK_WASSTACKED;
+    // DEAD CODE wasstacked = EE_th[EE_exec].status & EE_TASK_WASSTACKED;
     EE_th[EE_exec].status = EE_TASK_EXEC;  
     
     /* if different from the current running task implement the preemption */
@@ -118,9 +120,13 @@ void EE_frsh_thread_activate(EE_TID t)
       /* reprogram the capacity timer for the new task */
       EE_hal_set_budget_timer(EE_vres[EE_th[EE_exec].vres].budget_avail);
       
-      if (wasstacked)
-	EE_hal_stkchange(EE_exec);
-      else
+      // DEAD CODE
+      // if (wasstacked)
+	// NOTE: The THEN part is DEAD code. It can never happen that
+	// a non-ready task was woken up by an activate but it was
+	// already on the stack!
+	// EE_hal_stkchange(EE_exec);
+      // else
 	EE_hal_ready2stacked(EE_exec);
     }
   }

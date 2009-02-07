@@ -145,7 +145,9 @@ void EE_frsh_time_init(void)
             ALTERA_AVALON_TIMER_CONTROL_CONT_MSK |
             ALTERA_AVALON_TIMER_CONTROL_START_MSK);
 
-  alt_irq_register (TIMER_DLCHECK_IRQ, NULL, EE_nios2_IRQ_dlcheck);    
+  alt_irq_register (TIMER_DLCHECK_IRQ, NULL, EE_nios2_IRQ_dlcheck);  
+
+  EE_hal_set_nios2_timer(TIMER_DLCHECK_BASE, 0xffff);  
 }
 #endif
 
