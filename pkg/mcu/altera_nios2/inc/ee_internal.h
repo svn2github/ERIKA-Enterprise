@@ -57,16 +57,20 @@
 
 #if defined(__CBS__) || defined(__FRSH__)
 
-void EE_hal_set_nios2_timer(EE_UINT32 base, EE_TIME t);
+void EE_hal_set_nios2_timer(EE_UINT32 base, EE_STIME t);
 void EE_hal_stop_nios2_timer(EE_UINT32 base);
 
-/* This function set the capacity timer to raise in t ticks.
-   In this implementation, timer1 is used to raise a capacity
-   interrupt. The capacity interrupt is then programmed simply setting
+/* 
+   This function set the capacity timer to raise in t ticks.
+   
+   The capacity interrupt is then programmed simply setting
    the delay into the timer1 counter. That is, whenever the timer
    fires, it restart counting down from 0xffffffff, and it will take a
-   few seconds to do that. */
-__INLINE__ void __ALWAYS_INLINE__ EE_hal_set_budget_timer(EE_TIME t) 
+   few seconds to do that.
+
+   if t < 0, the timer is stopped.
+*/
+__INLINE__ void __ALWAYS_INLINE__ EE_hal_set_budget_timer(EE_STIME t) 
 {
   EE_hal_set_nios2_timer(TIMER_CAPACITY_BASE,t);
 }
@@ -80,7 +84,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_stop_budget_timer(void)
 
 #if defined(__IRIS__) || defined(__FRSH__)
 
-__INLINE__ void __ALWAYS_INLINE__ EE_hal_set_recharging_timer(EE_TIME t)
+__INLINE__ void __ALWAYS_INLINE__ EE_hal_set_recharging_timer(EE_STIME t)
 {
   EE_hal_set_nios2_timer(TIMER_RECHARGING_BASE,t);
 }

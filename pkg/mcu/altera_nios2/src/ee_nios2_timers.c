@@ -151,8 +151,10 @@ void EE_frsh_time_init(void)
 }
 #endif
 
+
+/* note: if the iming is negative, the timer is stopped */
 #ifndef __PRIVATE_SET_NIOS2_TIMER__
-void EE_hal_set_nios2_timer(EE_UINT32 base, EE_TIME t) 
+void EE_hal_set_nios2_timer(EE_UINT32 base, EE_STIME t) 
 {
   union {
     struct { EE_UINT16 low, hi; } lowhi;
@@ -167,16 +169,18 @@ void EE_hal_set_nios2_timer(EE_UINT32 base, EE_TIME t)
   /* clear the interrupt */
   IOWR_ALTERA_AVALON_TIMER_STATUS (base, 0); 
 
-  /* set the next period */
-  retvalue.time = t;
-  IOWR_ALTERA_AVALON_TIMER_PERIODH(base, (retvalue.lowhi.hi));
-  IOWR_ALTERA_AVALON_TIMER_PERIODL(base, (retvalue.lowhi.low));
-
-  /* restart the timer */
-  IOWR_ALTERA_AVALON_TIMER_CONTROL (base, 
-            ALTERA_AVALON_TIMER_CONTROL_ITO_MSK  |
-            ALTERA_AVALON_TIMER_CONTROL_CONT_MSK |
-            ALTERA_AVALON_TIMER_CONTROL_START_MSK);  
+  if (t>0) {
+    /* set the next period */
+    retvalue.time = t;
+    IOWR_ALTERA_AVALON_TIMER_PERIODH(base, (retvalue.lowhi.hi));
+    IOWR_ALTERA_AVALON_TIMER_PERIODL(base, (retvalue.lowhi.low));
+    
+    /* restart the timer */
+    IOWR_ALTERA_AVALON_TIMER_CONTROL (base, 
+				      ALTERA_AVALON_TIMER_CONTROL_ITO_MSK  |
+				      ALTERA_AVALON_TIMER_CONTROL_CONT_MSK |
+				      ALTERA_AVALON_TIMER_CONTROL_START_MSK);
+  }
 } 
 #endif
 

@@ -58,11 +58,11 @@
 #endif
 
 #ifndef GetResource
-#define GetResource             EE_frsh_mutex_lock
+#define GetResource             EE_frsh_GetResource
 #endif
 
 #ifndef ReleaseResource
-#define ReleaseResource 	EE_frsh_mutex_unlock
+#define ReleaseResource 	EE_frsh_ReleaseResource
 #endif
 
 #ifndef EE_sys_gettime

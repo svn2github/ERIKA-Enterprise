@@ -156,6 +156,10 @@ ActionType EE_frsh_updatecapacity(EE_TID t, EE_TIME tmp_time);
 void EE_frsh_select_exec(void);
 #endif
 
+#ifndef __PRIVATE_RUNEXEC__
+void EE_frsh_run_exec(EE_TID tmp_exec);
+#endif
+
 #ifndef __PRIVATE_CHECKSLICE__
 void EE_frsh_check_slice(EE_TIME tmp_time);
 #endif
@@ -165,7 +169,7 @@ void EE_frsh_end_slice(EE_TIME tmp_time);
 #endif
 
 #ifndef __PRIVATE_PROCESSRECHARGING__
-void EE_frsh_process_recharging(EE_TYPECONTRACT c);
+int EE_frsh_process_recharging(EE_TYPECONTRACT c);
 #endif
 
 #ifndef __PRIVATE_CHECKRECHARGING__

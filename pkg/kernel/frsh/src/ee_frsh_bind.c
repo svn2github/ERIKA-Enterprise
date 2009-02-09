@@ -69,7 +69,6 @@ int EE_frsh_BindTask(const frsh_vres_id_t vres, const frsh_thread_id_t thread)
   register EE_FREG flag;
   register EE_TIME tmp_time;
   register EE_TID tmp_exec;
-  register int wasstacked;
 
   /* consistency check on the parameters. these checks does not require interrupt disabling */
   if (vres<0 || vres >= EE_MAX_CONTRACT)
@@ -145,11 +144,9 @@ int EE_frsh_BindTask(const frsh_vres_id_t vres, const frsh_thread_id_t thread)
 	 recharging --> nothing, it will be inserted in the ready queue when the recharging time will happen
 	                we ALWAYS CALL in any case updatecapacity which has a test on the recharging state.
        STACKED
-         freezed    --> updatecapacity 
-	 inactive   --> updatecapacity (no problem if it goes recharging, see next point!)
-	 recharging --> nothing, it can be recharging due to budget exaustion. 
-	                it will stay there until the critical section ends
-	                we ALWAYS CALL in any case updatecapacity which has a test on the recharging state.
+         IT IS NOT POSSIBLE that we are here and the atsk is STARCKED.
+	 if it is tacked, in fact, the bind is deferred.
+
        BLOCKED
          freezed    --> nothing
 	 inactive   --> nothing
@@ -160,8 +157,6 @@ int EE_frsh_BindTask(const frsh_vres_id_t vres, const frsh_thread_id_t thread)
       if(EE_frsh_updatecapacity(thread, tmp_time) == EE_UC_InsertRDQueue) {
 	EE_rq_insert(thread);
       }
-    } else if (EE_th[thread].status & EE_TASK_STACKED) {
-      EE_frsh_updatecapacity(thread, tmp_time);
     }
 
   } else {
@@ -188,19 +183,7 @@ int EE_frsh_BindTask(const frsh_vres_id_t vres, const frsh_thread_id_t thread)
   EE_frsh_select_exec();
   /* --- */
   
-  wasstacked = EE_th[EE_exec].status & EE_TASK_WASSTACKED;
-  EE_th[EE_exec].status = EE_TASK_EXEC;  
-  
-  /* if different from the current running task implement the preemption */
-  if (tmp_exec != EE_exec) {
-    /* reprogram the capacity timer for the new task */
-    EE_hal_set_budget_timer(EE_vres[EE_th[EE_exec].vres].budget_avail);
-    
-    if (wasstacked)
-      EE_hal_stkchange(EE_exec);
-    else
-      EE_hal_ready2stacked(EE_exec);
-  }
+  EE_frsh_run_exec(tmp_exec);
   
   EE_hal_end_nested_primitive(flag);
 

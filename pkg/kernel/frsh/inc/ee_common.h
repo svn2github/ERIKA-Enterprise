@@ -238,8 +238,8 @@ assigned (done into EE_frsh_updatecapacity.
 #endif
 
 /* mutex ID type */
-#ifndef EE_MUTEX
-#define EE_MUTEX EE_UREG
+#ifndef EE_TYPERESOURCE
+#define EE_TYPERESOURCE EE_UREG
 #endif
 
 /* contract ID */
@@ -373,3 +373,13 @@ extern char            EE_th_timedout[];   /* used to check if timedout*/
 
 
 #endif
+
+
+// PJ
+// RT-Druid compatibility
+
+#define EE_counter_RAM_type int
+#define EE_alarm_ROM_type int
+#define EE_alarm_RAM_type int
+#define SattusType int
+#define EE_TYPEEVENTMASK int

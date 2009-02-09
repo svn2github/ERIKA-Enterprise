@@ -74,14 +74,12 @@ EE_TIME EE_frsh_sys_gettime(void);
 void EE_frsh_thread_activate(EE_TID t);
 #endif
 
-#ifndef __PRIVATE_MUTEX_LOCK__
-/* This primitive implements a SRP mutex lock */
-void EE_frsh_mutex_lock(EE_MUTEX m);
+#ifndef __PRIVATE_GETRESOURCE__
+void EE_frsh_GetResource(EE_TYPERESOURCE m);
 #endif
 
-#ifndef __PRIVATE_MUTEX_UNLOCK__
-/* This primitive implements a SRP mutex unlock */
-void EE_frsh_mutex_unlock(EE_MUTEX m);
+#ifndef __PRIVATE_RELEASERESOURCE__
+void EE_frsh_ReleaseResource(EE_TYPERESOURCE m);
 #endif
 
 

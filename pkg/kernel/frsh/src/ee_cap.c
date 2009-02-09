@@ -228,6 +228,34 @@ void EE_frsh_select_exec(void)
 
 
 /* 
+ * If the tmp_exec is different from EE_exec, change context to it.
+ * We suppose that if the task has been put to exec, then it has a valid VRES
+ */
+#ifndef __PRIVATE_RUNEXEC__
+void EE_frsh_run_exec(EE_TID tmp_exec)
+{
+  register int wasstacked;
+
+  wasstacked = EE_th[EE_exec].status & EE_TASK_WASSTACKED;
+  EE_th[EE_exec].status = EE_TASK_EXEC;  
+  
+  /* if different from the current running task implement the preemption */
+  if (tmp_exec != EE_exec) {
+    /* reprogram the capacity timer for the new task */
+    EE_hal_set_budget_timer(EE_vres[EE_th[EE_exec].vres].budget_avail);
+    
+    if (wasstacked)
+      EE_hal_stkchange(EE_exec);
+    else
+      EE_hal_ready2stacked(EE_exec);
+  }
+}
+#endif
+
+
+
+
+/* 
    check_slice
 
    first considers the exec task, and accounts the elapsed time.
@@ -395,9 +423,14 @@ void EE_frsh_end_slice(EE_TIME tmp_time)
 
    We have to process the task and understand if it has to be inserted
    in any queue
+
+   the function returns 1 when the recharge processed is related to a
+   VRES without a task binded to it. this is important in this situation:
+   - a task is unbinded, and its VRES is put in the recharging queue
+   - a time-warp happens, and the first VRES in the recharging queue is the VRES without tasks binded to them. In that case, we have to take another VRES from the queue, because we want to have a good "delta" value!
 */
 #ifndef __PRIVATE_PROCESSRECHARGING__
-void EE_frsh_process_recharging(EE_TYPECONTRACT c)
+int EE_frsh_process_recharging(EE_TYPECONTRACT c)
 {
   register EE_TID t;
   register EE_TYPESTATUS status;
@@ -435,12 +468,14 @@ void EE_frsh_process_recharging(EE_TYPECONTRACT c)
       /* EE_TASK_SUSPENDED or EE_TASK_BLOCKED */
       EE_vres[c].status = EE_VRES_INACTIVE;
     }
+    return 0;
   } else {
     /* EE_NIL --> this is a VRES without bindings to a task. may happen after an unbind
      * EE_TID_DEFERRED --> may happen if a task has been binded to the
      *                     VRES BUT the binding was not yet done because the task is STACKED
      */
     EE_vres[c].status = EE_VRES_INACTIVE;
+    return 1;
   }
 }
 #endif
@@ -470,36 +505,53 @@ void EE_frsh_check_recharging(EE_TIME tmp_time)
   if (EE_stk_queryfirst() != EE_NIL || EE_rq_queryfirst() != EE_NIL)
     return;
 
-  /* we take the first vres in the recharging queue.
-     the tasks has been inserted into the queue with a reasonable budget
-     (see EE_frsh_rechargebudget) */
-  c = EE_rcg_queryfirst();
 
-  /* exit if the recharging queue is empty */
-  if (c == EE_VRES_NIL) {
-    EE_hal_stop_recharging_timer();
-    return;
-  }
+  /* 
+     this first cycle is used to identify a VRES inside the recharging
+     queue which is LINKED TO A TASK. that is, since we want ti
+     implement a recharge which brings a task in recharging into the
+     ready queue, it must haoppen taht we really find one.
 
-  /* remove the vres from the recharging queue */
-  EE_rcg_getfirst();
-
-  /* delta is the amount of time we have to shift all the recharging deadlines */
-  delta = EE_vres[c].absdline - tmp_time; 
-
-  /* at this point t is the head of the recharging queue
-     t has a budget which is > EE_TIMER_MINCAPACITY
-     t has the deadline which was the one which it was inserted (or postponed) into the recharging queue
-     c is no more inside the recharging queue
-     t is not inserted in the ready queue
-     delta is the shift to be applied to all the tasks remaining in the recharging queue
+     In reality the cycle is needed because it may be that the first n
+     entries in the VRES queue are related to VRES without a task
+     attached to them due to bind/unbind. We basically have to process
+     these VRES until either the recharging queue is empty or we find
+     a VRES with a task attached to it.
   */
-     
-  /* we update the deadline of the vres */
-  EE_vres[c].absdline = tmp_time + EE_ct[c].period;
+  do {
+    /* we take the first vres in the recharging queue.
+       the tasks has been inserted into the queue with a reasonable budget
+       (see EE_frsh_rechargebudget) */
+    c = EE_rcg_queryfirst();
+    
+    /* exit if the recharging queue is empty */
+    if (c == EE_VRES_NIL) {
+      EE_hal_stop_recharging_timer();
+      return;
+    }
+    
+    /* remove the vres from the recharging queue */
+    EE_rcg_getfirst();
+    
+    /* delta is the amount of time we have to shift all the recharging deadlines */
+    delta = EE_vres[c].absdline - tmp_time; 
+    
+    /* at this point t is the head of the recharging queue
+       t has a budget which is > EE_TIMER_MINCAPACITY
+       t has the deadline which was the one which it was inserted (or postponed) into the recharging queue
+       c is no more inside the recharging queue
+       t is not inserted in the ready queue
+       delta is the shift to be applied to all the tasks remaining in the recharging queue
+    */
+    
+    /* we update the deadline of the vres */
+    EE_vres[c].absdline = tmp_time + EE_ct[c].period;
+    
+    /* we process the task pointed by the VRES */
+  } while (EE_frsh_process_recharging(c));
 
-  /* we process the task pointed by the VRES */
-  EE_frsh_process_recharging(c);
+  /* If we arrive here, it must be that we found a VRES with a task
+     linked to it, and there are more VRES to process. */
 
   /* we have to shift all the recharging times by delta */
   c = EE_rcg_queryfirst();
