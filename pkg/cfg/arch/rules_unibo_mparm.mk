@@ -285,41 +285,32 @@ $(OBJDIR)/.make_directories_flag:
 
 # Unibo MPARM scripts
 
+MPARM_SCRIPT = mparm_script.sh
+
 mparm_script:
-	@echo TODO: Write MPARM script!
+	@printf "MPARM Write script.\n"
+	@echo \#!/bin/bash												>  $(MPARM_SCRIPT)
+	@echo 															>> $(MPARM_SCRIPT)
+	@echo \########################################################	>> $(MPARM_SCRIPT)
+	@echo \# Set CORENUMBER											>> $(MPARM_SCRIPT)
+	@echo \########################################################	>> $(MPARM_SCRIPT)
+	@echo CORENUMBER=1												>> $(MPARM_SCRIPT)
+	@echo 															>> $(MPARM_SCRIPT)
+	@echo \########################################################	>> $(MPARM_SCRIPT)
+	@echo \# Set MPARMOPTIONS										>> $(MPARM_SCRIPT)
+	@echo \########################################################	>> $(MPARM_SCRIPT)
+	@echo MPARMOPTIONS=												>> $(MPARM_SCRIPT)
+	@echo 															>> $(MPARM_SCRIPT)
+	@echo \########################################################	>> $(MPARM_SCRIPT)
+	@echo \# Set BENCHNAME											>> $(MPARM_SCRIPT)
+	@echo \########################################################	>> $(MPARM_SCRIPT)
+	@echo BENCHNAME=mparm.elf										>> $(MPARM_SCRIPT)
+	@echo 															>> $(MPARM_SCRIPT)
+	@cat $(PKGBASE)/board/unibo_mparm/debug/swarm.tpl				>> $(MPARM_SCRIPT)
 
-
-# Lauterbach t32 scripts
-
-#T32_SCRIPTS = $(shell cd $(PKGBASE)/board/arm_evaluator7t/debug/lauterbach; find . ! -type d | grep -v CVS)
-
-#T32_DIRS = $(shell cd $(PKGBASE)/board/arm_evaluator7t/debug/lauterbach; find .  -type d | grep -v CVS)
-
-
-# "touch" solves some dependency issues with make
-#define T32_template
-#$(1): $(PKGBASE)/board/arm_evaluator7t/debug/lauterbach/$(1)
-#	@echo CP $$(TARGETFILE)
-#	@mkdir -p $$(T32_DIRS)
-#	@cp -a $$< $$(TARGETFILE)
-#	@touch $$(TARGETFILE)
-#endef
-
-#$(foreach file,$(T32_SCRIPTS),$(eval $(call T32_template,$(file))))
-
-#t32: $(T32_SCRIPTS)
-#	@echo \&ADS=0 >t32_settings.cmm
-#	@if test -e system.orti; then \
-#		echo \&ORTI=1 >>t32_settings.cmm; \
-#		$(T32_DIR)/demo/kernel/orti/genmenu.exe system.orti; \
-#		cp $(T32_DIR)/demo/kernel/orti/ortiperf.men .; \
-#	else echo \&ORTI=0 >>t32_settings.cmm; fi
-#	@echo "rem ERIKA Enterprise Debug script!"                         > debug.bat
-#	@echo "rem Do not modify!"                                        >> debug.bat
-#	@echo "cd `cygpath -aw .`" 					  >> debug.bat
-#	@echo `cygpath -aw $(T32_DIR)`\\t32marm -c `cygpath -aw $(T32_DIR)/config.t32` >> debug.bat
-#	@chmod +x debug.bat
-
+#
+# --------------------------------------------------------------------------
+#
 
 ifndef NODEPS
 ifneq ($(MAKECMDGOALS),clean)
