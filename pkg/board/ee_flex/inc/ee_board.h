@@ -70,6 +70,10 @@
 
 #include "mcu/microchip_dspic/inc/ee_mcu.h"
 
+#if (defined __USE_USB__) && (defined __USE_USB_OLD__)
+#error "CANNOT use both __USE_USB__ and __USE_USB_OLD__ in EEOPT"
+#endif
+
 /* /\************************************************************************* */
 /*  LEDs */
 /*  *************************************************************************\/ */
@@ -1275,7 +1279,7 @@ __INLINE__ float __ALWAYS_INLINE__ EE_encoder_get_position( void )
 /* SPI - TODO!!! */
 /* ************************************************************************* */
 
-#if defined (__USE_SPI__) && !defined (__USE_USB__)
+#if (defined __USE_SPI__) && !(defined __USE_USB__ || defined __USE_USB_OLD__)
 
 extern unsigned int RxDmaBuffer;
 extern unsigned int TxDmaBuffer;
@@ -1432,17 +1436,16 @@ __INLINE__ void __ALWAYS_INLINE__ EE_zigbee_init( void ) {
 /* USB Communication - TODO!!! */
 /* ************************************************************************* */
 
-#ifdef __USE_USB__
-
+#if defined __USE_USB__
+void EE_usb_init(void);
+EE_INT16 EE_usb_write(EE_UINT8 *buf, EE_UINT16 len);
+EE_INT16 EE_usb_read(EE_UINT8 *buf, EE_UINT16 len);
+#elif define __USE_USB_OLD__
 void EE_usb_init( void );	
-
 int EE_usb_send(unsigned int *buf, int len);
 int EE_usb_read(unsigned int *buf, int log_channel);
-
 void EE_usb_add_output_buffer(char *, int);
-
 void EE_usb_empty_buffer( void );
-
 #endif
 
 /* ************************************************************************* */
