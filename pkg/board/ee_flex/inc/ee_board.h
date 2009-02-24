@@ -1440,7 +1440,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_zigbee_init( void ) {
 void EE_usb_init(void);
 EE_INT16 EE_usb_write(EE_UINT8 *buf, EE_UINT16 len);
 EE_INT16 EE_usb_read(EE_UINT8 *buf, EE_UINT16 len);
-#elif define __USE_USB_OLD__
+#elif defined __USE_USB_OLD__
 void EE_usb_init( void );	
 int EE_usb_send(unsigned int *buf, int len);
 int EE_usb_read(unsigned int *buf, int log_channel);
