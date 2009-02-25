@@ -111,6 +111,24 @@
 
 #include "ieee802154alarms/ieee802154alarms.h"
 
+
+
+#ifndef FLEX_DEVICE_ADDRESS_1 
+#define FLEX_DEVICE_ADDRESS_1 0x0002
+#endif
+#ifndef FLEX_DEVICE_ADDRESS_2 
+#define FLEX_DEVICE_ADDRESS_2 0x0003
+#endif
+#ifndef FLEX_DEVICE_ADDRESS_3 
+#define FLEX_DEVICE_ADDRESS_3 0x0004
+#endif
+#ifndef FLEX_DEVICE_ADDRESS_4 
+#define FLEX_DEVICE_ADDRESS_4 0x0005
+#endif
+#ifndef FLEX_DEVICE_ADDRESS 
+#define FLEX_DEVICE_ADDRESS FLEX_DEVICE_ADDRESS_1
+#endif
+
 EE_UINT8 GTS_TRANSMITING=0;
 
 /*****************************************************/
@@ -408,8 +426,14 @@ void init_mac()
 		
 		//add_gts_entry(4,1,0x1234,7);		
 		//add_gts_entry(4,0,0x0002,7);
+		add_gts_entry(1,1,0x1234,10);		
 		add_gts_entry(1,1,0x1234,11);		
-		add_gts_entry(1,0,0x0002,11);
+		add_gts_entry(1,1,0x1234,12);		
+		add_gts_entry(1,1,0x1234,13);		
+		add_gts_entry(1,0,FLEX_DEVICE_ADDRESS_1,10);
+		add_gts_entry(1,0,FLEX_DEVICE_ADDRESS_2,11);
+		add_gts_entry(1,0,FLEX_DEVICE_ADDRESS_3,12);
+		add_gts_entry(1,0,FLEX_DEVICE_ADDRESS_4,13);
 	#endif
 	
 
@@ -2316,7 +2340,11 @@ void init_MacPIB()
 	mac_PIB.macRxOnWhenIdle=0;
  
 	//mac_PIB.macShortAddress=TOS_LOCAL_ADDRESS; //16bits short address
-	mac_PIB.macShortAddress=0x0002;
+	#ifdef DEVICE_TYPE_COORDINATOR
+	mac_PIB.macShortAddress = 0x0FFF;
+	#else
+	mac_PIB.macShortAddress = FLEX_DEVICE_ADDRESS;
+	#endif
 	//mac_PIB.macShortAddress=0x0003;
 
 	mac_PIB.macBeaconOrder=6;  //specification of how often the coordinator transmits a beacon
