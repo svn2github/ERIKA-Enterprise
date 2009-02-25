@@ -15,6 +15,7 @@ typedef unsigned short int uint16_t;	/**< Unsigned 16 bit intgerer. */
 typedef unsigned long int uint32_t;	/**< Unsigned 32 bit intgerer. */
 /**  @} */
 
-#define COMPILER_INLINE	static inline	/**< Compiler inlining keywords. */
+/** \brief Compiler inlining keywords. */
+#define COMPILER_INLINE	static inline	
 
 #endif	/* __compiler_h__ */

@@ -10,6 +10,39 @@
 */
 
 #ifdef USE_CONSOLE	
+/** 
+* \mainpage Generic Console Interface for Microcontrollers  
+*
+* \todo Write a brief description of the idea behind the 
+*	definition of this console.
+*
+* \section intro_sec Introduction 
+*
+* Bla Bla Bla... 
+*
+* \section usage_sec Usage 
+*
+* \subsection static_allocation Microcontroller Resource Allocation 
+*
+* \section compilation Compilation 
+* 
+* \subsection make Makefile Targets 
+*
+* Try to type <c>\$ make help </c> in the library directory.
+*
+* \subsection defs Pre-Compilier Definitions 
+*
+* Here is a list the compiler defines .... :
+* - \c DEFINE_1 : 
+* - \c DEFINE_2 : 
+*
+* @section consider Consideration
+*
+* \todo 
+* - fix this documentation main page!! 
+*
+*/
+
 
 #include <string.h>
 #include "hal/compiler.h"
