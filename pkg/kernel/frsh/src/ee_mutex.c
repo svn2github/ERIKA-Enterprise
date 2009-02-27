@@ -48,13 +48,30 @@
 #ifndef __PRIVATE_GETRESOURCE__
 void EE_frsh_GetResource(EE_TYPERESOURCE m)
 {
-    EE_hal_begin_primitive();
-    
-    EE_resource_oldceiling[m] = EE_sys_ceiling;
-    EE_sys_ceiling |= EE_resource_ceiling[m];
-    EE_th[EE_exec].lockedcounter++;
-    
-    EE_hal_end_primitive();
+#ifdef __MSRP__
+  register EE_TYPERESOURCE tmp;
+#endif
+  
+  EE_hal_begin_primitive();
+  
+#ifdef __MSRP__
+  /* mask off the MSB, that indicates whether this is a global or a
+     local resource */
+  tmp = m & ~EE_GLOBAL_MUTEX;
+  
+  EE_resource_oldceiling[tmp] = EE_sys_ceiling;
+  EE_sys_ceiling |= EE_resource_ceiling[tmp];
+  
+  /* if this is a global resource, lock the others CPUs */
+  if (m & EE_GLOBAL_MUTEX) EE_hal_spin_in(tmp);
+#else
+  EE_resource_oldceiling[m] = EE_sys_ceiling;
+  EE_sys_ceiling |= EE_resource_ceiling[m];
+#endif
+  
+  EE_th[EE_exec].lockedcounter++;
+  
+  EE_hal_end_primitive();
 }
 #endif /* __PRIVATE_MUTEX_LOCK__ */
 
@@ -67,10 +84,23 @@ void EE_frsh_ReleaseResource(EE_TYPERESOURCE m)
   register EE_FREG flag;
   register EE_TID tmp_exec;
   register EE_TIME tmp_time;
+#ifdef __MSRP__
+  register EE_TYPERESOURCE tmp;
+#endif
 
   flag = EE_hal_begin_nested_primitive();
   
+#ifdef __MSRP__
+  tmp = m & ~EE_GLOBAL_MUTEX;
+
+  /* if this is a global resource, unlock the others CPUs */
+  if (m & EE_GLOBAL_MUTEX) EE_hal_spin_out(tmp);
+  
+  EE_sys_ceiling = EE_resource_oldceiling[tmp];
+#else
   EE_sys_ceiling = EE_resource_oldceiling[m];
+#endif
+
   EE_th[EE_exec].lockedcounter--;
 
   /* this part is very similar to ActivateTask */

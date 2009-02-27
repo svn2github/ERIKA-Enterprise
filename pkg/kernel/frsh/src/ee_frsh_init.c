@@ -56,6 +56,7 @@ int EE_frsh_init(void)
     /* must be done once */
     EE_frsh_init_once = 0;
 
+    EE_cpu_startos();
     EE_time_init();
     EE_frsh_time_init();
     

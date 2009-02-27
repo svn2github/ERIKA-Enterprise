@@ -77,6 +77,20 @@ int EE_frsh_BindTask(const frsh_vres_id_t vres, const frsh_thread_id_t thread)
   if (thread<0 || thread >= EE_MAX_TASK)
     return FRSH_ERR_BAD_ARGUMENT;
 
+#ifdef __RN_BIND__
+  if (thread & EE_REMOTE_TID) {
+    register EE_TYPERN_PARAM par;
+    par.vres = vres;
+    /* forward the request to another CPU */
+    if (EE_rn_send(thread & ~EE_REMOTE_TID, EE_RN_BIND, par )) {
+      /* a bind or unbind operation is currently pending; maybe we should use a custom return value */
+      return FRSH_ERR_ALREADY_BOUND;
+    } else {
+      return FRSH_NO_ERROR;
+    }
+  }
+#endif
+
   flag = EE_hal_begin_nested_primitive();
 
   if (EE_vres[vres].task != EE_NIL) {

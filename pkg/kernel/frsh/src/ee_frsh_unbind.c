@@ -70,6 +70,18 @@ int EE_frsh_UnbindTask(const frsh_thread_id_t thread)
   if (thread<0 || thread >= EE_MAX_TASK)
     return FRSH_ERR_BAD_ARGUMENT;
 
+#ifdef __RN_UNBIND__
+  if (thread & EE_REMOTE_TID) {
+    /* forward the request to another CPU */
+    if (EE_rn_send(thread & ~EE_REMOTE_TID, EE_RN_UNBIND, (EE_TYPERN_PARAM)(EE_UREG)0 )) {
+      /* a bind or unbind operation is currently pending; maybe we should use a custom return value */
+      return FRSH_ERR_NOT_BOUND;
+    } else {
+      return FRSH_NO_ERROR;
+    }
+  }
+#endif
+
   flag = EE_hal_begin_nested_primitive();
 
   if (EE_th[thread].vres == EE_VRES_NIL) {

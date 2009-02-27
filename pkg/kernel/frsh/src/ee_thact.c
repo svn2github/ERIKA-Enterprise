@@ -55,6 +55,16 @@ void EE_frsh_thread_activate(EE_TID t)
   register EE_TID tmp_exec;
   register EE_TIME tmp_time;
   register EE_FREG flag;
+
+#ifdef __RN_TASK__
+  if (t & EE_REMOTE_TID) {
+    register EE_TYPERN_PARAM par;
+    par.pending = 1;
+    /* forward the request to another CPU */
+    EE_rn_send(t & ~EE_REMOTE_TID, EE_RN_TASK, par );
+    return;
+  }
+#endif
   
   flag = EE_hal_begin_nested_primitive();
 
