@@ -68,9 +68,10 @@ StatusType EE_oo_ActivateTask(TaskType TaskID)
 
 #ifdef __RN_TASK__
   if (TaskID & EE_REMOTE_TID) {
-    /* forward the request to another CPU whether the thread do
-       not become to the current CPU */
-    EE_rn_send(TaskID & ~EE_REMOTE_TID, (EE_TYPERN_PARAM)1, 0 );
+    EE_TYPERN_PARAM par;
+    par.pending = 1;
+    /* forward the request to another CPU */
+    EE_rn_send(TaskID & ~EE_REMOTE_TID, EE_RN_TASK, par );
 
 #ifdef __OO_ORTI_SERVICETRACE__
     EE_ORTI_servicetrace = EE_SERVICETRACE_ACTIVATETASK;

@@ -195,8 +195,10 @@ StatusType EE_oo_ChainTask(TaskType TaskID)
 #ifdef __RN_TASK__
   if (TaskID & EE_REMOTE_TID) 
     {
+      EE_TYPERN_PARAM par;
+      par.pending = 1;
       /* forward the request to another CPU */
-      EE_rn_send(TaskID & ~EE_REMOTE_TID, (EE_TYPERN_PARAM)1, 0 );
+      EE_rn_send(TaskID & ~EE_REMOTE_TID, EE_RN_TASK, par );
       /* like in TerminateTask, we do not have to activate any other task */
       EE_th_terminate_nextask[EE_stk_queryfirst()] = EE_NIL;
     }

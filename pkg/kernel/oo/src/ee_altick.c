@@ -124,9 +124,11 @@ void EE_oo_counter_tick(CounterType c)
 
 #ifdef __RN_TASK__
 	if (TaskID & EE_REMOTE_TID) {
+	  register EE_TYPERN_PARAM par;
+	  par.pending = 1;
 	  /* forward the request to another CPU whether the thread do
 	     not become to the current CPU */
-	  EE_rn_send(TaskID & ~EE_REMOTE_TID, (EE_TYPERN_PARAM)1, 0 );
+	  EE_rn_send(TaskID & ~EE_REMOTE_TID, EE_RN_TASK, par );
 	  break;
 	}
 #endif
@@ -216,9 +218,11 @@ void EE_oo_counter_tick(CounterType c)
 
 #ifdef __RN_EVENT__
 	if (TaskID & EE_REMOTE_TID) {
+	  register EE_TYPERN_PARAM par;
+	  par.ev = Mask;
 	  /* forward the request to another CPU whether the thread do
 	     not become to the current CPU */
-	  EE_rn_send(TaskID & ~EE_REMOTE_TID, 0, (EE_TYPEEVENTMASK)Mask );
+	  EE_rn_send(TaskID & ~EE_REMOTE_TID, EE_RN_EVENT, par );
 
 	  break;
 	}
