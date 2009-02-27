@@ -54,43 +54,102 @@
 #ifndef __PRIVATE_RN_EXECUTE__
 void EE_rn_execute(EE_TYPERN rn, EE_UINT8 sw)
 {
-  switch (EE_rn_type[rn]) {
-
-    /* OO counters */
-#if defined(__RN_COUNTER__) && (defined(__OO_BCC1__) || defined(__OO_BCC2__) || defined(__OO_ECC1__) || defined(__OO_ECC2__) ) && !defined(__OO_NO_ALARMS__)
-  case EE_RN_COUNTER:
-    EE_oo_counter_tick(EE_rn_counter[rn]);
-    break;
+#if defined(__RN_COUNTER__) || defined(__RN_TASK__) || defined(__RN_FUNC__)
+  register EE_UREG pend;
 #endif
 
-    /* EE counters */
-#if defined(__RN_COUNTER__) && defined(__ALARMS__)
-  case EE_RN_COUNTER:
-    EE_counter_tick(EE_rn_counter[rn]);
-    break;
+#ifdef __RN_COUNTER__
+  if (EE_rn_type[rn][sw] & EE_RN_COUNTER) {
+    for (pend = EE_rn_pending[rn][sw];
+	 pend;
+	 pend--) {
+
+#if (defined(__OO_BCC1__) || defined(__OO_BCC2__) || defined(__OO_ECC1__) || defined(__OO_ECC2__) ) && !defined(__OO_NO_ALARMS__)
+      EE_oo_counter_tick(EE_rn_counter[rn]);
+#endif
+#if defined(__ALARMS__)
+      EE_counter_tick(EE_rn_counter[rn]);
 #endif
 
+    }
+    EE_rn_pending[rn][sw] = 0;
+
+    EE_rn_type[rn][sw] &= ~EE_RN_COUNTER;
+  }
+#endif
+
+
+
+  /* Task before Events; in this way we can activate an extended task
+     and then set events for it! */
 #ifdef __RN_TASK__
-  case EE_RN_TASK: 
-    /* this function is called many times, depending on the value of
-       the pending field. */
+  if (EE_rn_type[rn][sw] & EE_RN_TASK) {
+    for (pend = EE_rn_pending[rn][sw];
+	 pend;
+	 pend--) {
 #if defined(__FP__) || defined(__EDF__)
-    /* FP & EDF Kernels */
-    EE_thread_activate(EE_rn_task[rn]);
+      EE_thread_activate(EE_rn_task[rn]);
 #endif
 #if defined(__OO_BCC1__) || defined(__OO_BCC2__) || defined(__OO_ECC1__) || defined(__OO_ECC2__)
-    /* OO Kernels */
-    EE_oo_ActivateTask(EE_rn_task[rn]);
+      EE_oo_ActivateTask(EE_rn_task[rn]);
 #endif
-    break;
+#if defined(__FRSH__)
+      EE_frsh_thread_activate(EE_rn_task[rn]);
+#endif
+    }
+    EE_rn_pending[rn][sw] = 0;
+
+    EE_rn_type[rn][sw] &= ~EE_RN_TASK;
+  }
 #endif
 
-#ifdef __RN_FUNC__
-  case EE_RN_FUNC:
-    ((void (*)(void))(EE_rn_func[rn]))();
-    break;
-#endif
+
+
+#ifdef __RN_EVENT__
+  if (EE_rn_type[rn][sw] & EE_RN_EVENT) {
+    if (EE_rn_event[rn][sw]) {
+      EE_oo_SetEvent(EE_rn_task[rn], EE_rn_event[rn][sw]);
+      /* we have to reset the event mask! */
+      EE_rn_event[rn][sw] = 0;
+    }
+
+    EE_rn_type[rn][sw] &= ~EE_RN_EVENT;
   }
+#endif
+
+
+
+#ifdef __RN_FUNC__
+  if (EE_rn_type[rn][sw] & EE_RN_FUNC) {
+    for (pend = EE_rn_pending[rn][sw];
+	 pend;
+	 pend--) {
+      ((void (*)(void))(EE_rn_func[rn]))();
+    }
+    EE_rn_pending[rn][sw] = 0;
+
+    EE_rn_type[rn][sw] &= ~EE_RN_FUNC;
+  }
+#endif
+
+
+
+#ifdef __RN_BIND__
+  if (EE_rn_type[rn][sw] & EE_RN_BIND) {
+    EE_frsh_BindTask(EE_rn_vres[rn][sw], EE_rn_task[rn]);
+    EE_rn_type[rn][sw] &= ~EE_RN_BIND;
+  }
+#endif
+
+
+
+#ifdef __RN_UNBIND__
+  if (EE_rn_type[rn][sw] & EE_RN_UNBIND) {
+    EE_frsh_UnbindTask(EE_rn_task[rn]);
+    EE_rn_type[rn][sw] &= ~EE_RN_UNBIND;
+  }
+#endif
+
 }
 #endif
 
@@ -108,10 +167,6 @@ void EE_rn_handler(void)
      Please note that we must disable interrupts in a way that the
      spin lock exits as soon as possible.
   */
-
-#if defined(__RN_COUNTER__) || defined(__RN_TASK__) || defined(__RN_FUNC__)
-  register EE_UREG pend;
-#endif
 
   register EE_TYPERN current;
   register EE_TYPERN_SWITCH sw;
@@ -149,29 +204,7 @@ void EE_rn_handler(void)
 	   current != -1;
 	   current = EE_rn_next[current][sw]) {
 	
-#ifdef __RN_EVENT__
-	if (EE_rn_event[current][sw]) {
-	  EE_oo_SetEvent(EE_rn_task[current], EE_rn_event[current][sw]);
-	  /* we have to reset the event mask! */
-	  EE_rn_event[current][sw] = 0;
-	}
-#endif
-
-#if defined(__RN_COUNTER__) || defined(__RN_TASK__) || defined(__RN_FUNC__)
-	/* maybe soon or later I will remove this for and optimize the
-	   execute function */
-	for (pend = EE_rn_pending[current][sw];
-	     pend;
-	     pend--)
-	  /* This function can modify EE_rn_pending to 1!!! */
-	  EE_rn_execute(current,sw);
-#endif
-
-#ifdef __OO_SEM__
-	/* unlock a task blocked on a semaphore! */
-#endif
-	
-	EE_rn_pending[current][sw] = 0;
+	EE_rn_execute(current,sw);
       }
       
       EE_rn_first[EE_CURRENTCPU][sw] = -1;

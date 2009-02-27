@@ -49,16 +49,19 @@
 
 /* This function can be used to send a remote notification.
    Parameters: the remote notification. MUST BE >0
-   Returned values:  None
+   Returned values:  1 in case of error, 0 otherwise
+
+   Errors currently only happen when using FRSH and trying to bind/unbind
 */
 
 #ifndef __PRIVATE_RN_SEND__
-void EE_rn_send(EE_TYPERN rn, EE_TYPERN_PARAM p, EE_TYPEEVENTMASK ev)
+int EE_rn_send(EE_TYPERN rn, EE_TYPERN t, EE_TYPERN_PARAM par)
 {
   register EE_UINT8 cpu;
   register EE_TYPERN_SWITCH sw;
   register int newIRQ;
   register EE_FREG flag;
+  int retvalue = 0;
   
   flag = EE_hal_begin_nested_primitive();
 
@@ -78,7 +81,7 @@ void EE_rn_send(EE_TYPERN rn, EE_TYPERN_PARAM p, EE_TYPEEVENTMASK ev)
        should we return an error?
     */
     EE_hal_end_nested_primitive(flag);
-    return;
+    return 1;
   } else {
     /* Remote notification */
 
@@ -102,7 +105,7 @@ void EE_rn_send(EE_TYPERN rn, EE_TYPERN_PARAM p, EE_TYPEEVENTMASK ev)
       EE_rn_switch[cpu] |= EE_RN_SWITCH_NEWRN;
 
     /* Queuing request */
-    if (!EE_rn_pending[rn][sw]) {
+    if (!EE_rn_type[rn][sw]) {
       /* request was not queued before */
 
       /* insert it into the pending requests */
@@ -110,18 +113,45 @@ void EE_rn_send(EE_TYPERN rn, EE_TYPERN_PARAM p, EE_TYPEEVENTMASK ev)
       EE_rn_first[cpu][sw] = rn;
     }
 
+    /* process the remote notification */
+
+    /* if it is an event, count the event */
 #ifdef __RN_EVENT__
-    EE_rn_event[rn][sw] |= ev; 
+    if (t & EE_RN_EVENT) {
+      EE_rn_event[rn][sw] |= par.ev; 
+    } else
 #endif
 
-#ifdef __OO_SEM__
-    if (p==EE_TYPERN_PARAM_SEM_UNLOCK)
-      /* the task has been unlocked! */
-      EE_rn_sem[rn][sw] = 1;
-    else
+      /* if it is a bind, set the bind value, or error */
+#ifdef __RN_BIND__
+    if (t & EE_RN_BIND) {
+      if (EE_rn_type[rn][sw] & (EE_RN_BIND|EE_RN_UNBIND) ) {
+	retvalue = 1;
+      } else {
+	EE_rn_vres[rn][sw] = par.vres; 
+	retvalue = 0;
+      }
+    } else
 #endif
+
+      /* if it is an unbind, set the unbind flag, or error */
+#ifdef __RN_UNBIND__
+    if (t & EE_RN_UNBIND) {
+      if (EE_rn_type[rn][sw] & (EE_RN_BIND|EE_RN_UNBIND) ) {
+	retvalue = 1;
+      } else {
+	retvalue = 0;
+      }
+    } else
+#endif
+      /* if it is counter, task, func */
       /* increase the pending counter */
-      EE_rn_pending[rn][sw] += p;
+      EE_rn_pending[rn][sw] += par.pending;
+
+
+    /* set the type in the remote notification */
+    EE_rn_type[rn][sw] |= t;
+
     
     /* Spin Lock release */
     EE_hal_spin_out(EE_rn_spin[cpu]);
@@ -141,6 +171,8 @@ void EE_rn_send(EE_TYPERN rn, EE_TYPERN_PARAM p, EE_TYPEEVENTMASK ev)
   }
   
   EE_hal_end_nested_primitive(flag);
+
+  return retvalue;
 }
 #endif
 

@@ -60,6 +60,7 @@
  * __RN_EVENT__     Event RN
  * __RN_TASK__      Task RN
  * __RN_FUNC__      Func RN
+ * __RN_BIND__      Bind RN, for FRSH
  *
  * Constants to be defined by the application:
  * - EE_MAX_RN - the total number of remote notifications
@@ -119,14 +120,22 @@
 #define EE_RN_FUNC      8
 #endif
 
+#ifdef __RN_BIND__
+#define EE_RN_BIND     16
+#endif
+
+#ifdef __RN_UNBIND__
+#define EE_RN_UNBIND   32
+#endif
+
+
 /* For each RN: The CPU to which the RN is related to */
 extern const EE_UINT8 EE_rn_cpu[];
 
 /* For each RN: The type of notification that must be used
-   EE_RN_COUNTER, EE_RN_EVENT, EE_RN_TASK, 
-   EE_RN_FUNC
+   initvalue: 0
 */
-extern const EE_TYPERN_NOTIFY EE_rn_type[];
+extern EE_TYPERN_NOTIFY EE_rn_type[][2];
        
 /* For each RN: The counter number if EE_RN_COUNTER, or -1 */
 #ifdef __RN_COUNTER__
@@ -139,10 +148,14 @@ extern const EE_TYPECOUNTER EE_rn_counter[];
 extern EE_TYPEEVENTMASK EE_rn_event[][2];
 #endif
 
-/* For each RN: a TID if EE_RN_EVENT or EE_RN_TASK, 
-   or any other value */
-#if defined( __RN_EVENT__ ) || defined( __RN_TASK__ )
+/* For each RN: a TID */
+#if defined( __RN_EVENT__ ) || defined( __RN_TASK__ ) || defined( __RN_BIND__ ) || defined( __RN_UNBIND )
 extern const EE_TID EE_rn_task[];
+#endif
+
+/* For each RN: EE_VRES_NIL */
+#if defined( __RN_BIND__ )
+extern EE_TYPECONTRACT EE_rn_vres[][2];
 #endif
 
 /* For each RN: a function name if EE_RN_FUNC or -1 */

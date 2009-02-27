@@ -67,31 +67,27 @@ extern EE_TYPERN_SWITCH EE_rn_switch[];
 
 
 /*
-  this is used as parameter for EE_rn_send.
-  from 0 to n, it stores the pending activations.
-  if equal 0xf...f then it means "semaphore unlock"
-  
+  this is used as parameter for EE_rn_send, to identify the behavior
+  of the particular RN
+
+  It is a bitmask. The bits are defined into ee_rn.h
 */
-typedef EE_UREG EE_TYPERN_PARAM;
-
-#ifdef __OO_SEM__
-#define EE_TYPERN_PARAM_SEM_UNLOCK ((EE_TYPERN_PARAM)~0)
+typedef union {
+  EE_UREG pending;
+#ifdef __RN_EVENT__
+  EE_TYPEEVENTMASK ev;
 #endif
-
-/*
- * EE_TYPEEVENTMASK is defined only in OO
- */
-#if defined(__FP__) || defined(__EDF__) || defined(__CBS__)
-#define EE_TYPEEVENTMASK EE_UREG
+#ifdef __RN_BIND__
+  EE_TYPECONTRACT vres;
 #endif
-
+} EE_TYPERN_PARAM;
 
 /* This function can be used to send a remote notification
    Parameters: the remote notification (MUST BE >0)
-   Returned values: none 
+   Returned values: >0 if there is an error 
 */
 #ifndef __PRIVATE_RN_SEND__
-extern void EE_rn_send(EE_TYPERN rn, EE_TYPERN_PARAM p, EE_TYPEEVENTMASK ev);
+extern int EE_rn_send(EE_TYPERN rn, EE_TYPERN t, EE_TYPERN_PARAM par);
 #endif
 
 /* this function can be used into an interrupt handler to handle
