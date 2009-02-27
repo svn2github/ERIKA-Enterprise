@@ -374,12 +374,3 @@ extern char            EE_th_timedout[];   /* used to check if timedout*/
 
 #endif
 
-
-// PJ
-// RT-Druid compatibility
-
-#define EE_counter_RAM_type int
-#define EE_alarm_ROM_type int
-#define EE_alarm_RAM_type int
-#define SattusType int
-#define EE_TYPEEVENTMASK int

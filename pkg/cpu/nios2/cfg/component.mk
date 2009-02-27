@@ -248,6 +248,7 @@ EE_C_SRCS += \
 	ee/pkg/kernel/frsh/src/ee_rcg_inser.c \
 	ee/pkg/kernel/frsh/src/ee_rq_extract.c \
 	ee/pkg/kernel/frsh/src/ee_rq_inser.c \
+	ee/pkg/kernel/frsh/src/ee_schedule.c \
 	ee/pkg/kernel/frsh/src/ee_thact.c \
 	ee/pkg/kernel/frsh/src/ee_thendin.c
 

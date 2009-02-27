@@ -55,9 +55,11 @@ void EE_edf_ActivateTask(EE_TID t)
  
 #ifdef __RN_TASK__
   if (t & EE_REMOTE_TID) {
+    register EE_TYPERN_PARAM par;
+    par.pending = 1;
     /* forward the request to another CPU whether the task do
        not become to the current CPU */
-    EE_rn_send(t & ~EE_REMOTE_TID, (EE_TYPERN_PARAM)1, 0 );
+    EE_rn_send(t & ~EE_REMOTE_TID, EE_RN_TASK, par);
   } else {
 #endif
 	

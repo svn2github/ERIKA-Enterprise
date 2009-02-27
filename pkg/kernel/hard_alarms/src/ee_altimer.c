@@ -104,7 +104,9 @@ void EE_alarm_timer(EE_TYPECOUNTER c)
         { /* forward the request to another CPU whether the thread do
            * not become to the current CPU 
            */
-          EE_rn_send(t & ~EE_REMOTE_TID, (EE_TYPERN_PARAM)1, 0 );
+	  EE_TYPERN_PARAM par;
+	  par.pending = 1;
+          EE_rn_send(t & ~EE_REMOTE_TID, EE_RN_TASK, par );
         } 
         else 
         {

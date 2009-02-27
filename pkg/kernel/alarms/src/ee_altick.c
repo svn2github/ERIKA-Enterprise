@@ -110,36 +110,44 @@ void EE_alarm_CounterTick(EE_TYPECOUNTER c)
 	/* this code is similar to the first part of thread_activate */
 #ifdef __RN_TASK__
 	  if (t & EE_REMOTE_TID) {
+	    register EE_TYPERN_PARAM par;
+	    par.pending = 1;
 	    /* forward the request to another CPU whether the thread do
 	       not become to the current CPU */
-	    EE_rn_send(t & ~EE_REMOTE_TID, (EE_TYPERN_PARAM)1, 0 );
+	    EE_rn_send(t & ~EE_REMOTE_TID, EE_RN_TASK, par);
 	  } else {
 #endif
 
-	    if (EE_th_nact[t] == 0) {
-	      /* IDLE
-	       * no preemption --> the thread goes into the ready
-	       * queue The preemption test will be done into
-	       * sys_scheduler()
-	       */ 
 
+
+#if defined (__FRSH__)
+	    {
+	      register EE_TIME tmp_time;
+	      tmp_time = EE_hal_gettime();
+	      if (EE_th[t].nact == 0) {
+		if (EE_frsh_updatecapacity(t, tmp_time) == EE_UC_InsertRDQueue){
+		  EE_rq_insert(t);
+		}
+		EE_th[t].status = EE_TASK_READY;
+	      } 
+	      EE_th[t].nact++;
+	    }
+#else
+	    if (EE_th_nact[t] == 0) {
 #ifdef __EDF__
 	      // compute the deadline 
 	      EE_th_absdline[t] = EE_hal_gettime()+EE_th_reldline[t];
 #endif
-
-#if defined (__IRIS__) || defined (__FRSH__)
-        EE_th_absdline[t] = EE_hal_gettime()+EE_th_period[t];
-        EE_th_budget_avail[t] = EE_th_budget[t];
-#endif
-
 #if defined(__MULTI__) || defined(__WITH_STATUS__)
 	      EE_th_status[t] = EE_READY;
 #endif
 	      EE_rq_insert(t);
 	    }
-	    
 	    EE_th_nact[t]++;
+#endif
+
+
+
 
 #ifdef __RN_TASK__
 	  }

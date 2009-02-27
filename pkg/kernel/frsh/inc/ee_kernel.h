@@ -74,6 +74,10 @@ EE_TIME EE_frsh_sys_gettime(void);
 void EE_frsh_thread_activate(EE_TID t);
 #endif
 
+#ifndef __PRIVATE_SCHEDULE__
+void EE_frsh_Schedule(void);
+#endif
+
 #ifndef __PRIVATE_GETRESOURCE__
 void EE_frsh_GetResource(EE_TYPERESOURCE m);
 #endif

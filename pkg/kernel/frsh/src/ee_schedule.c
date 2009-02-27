@@ -1,7 +1,7 @@
 /* ###*B*###
  * ERIKA Enterprise - a tiny RTOS for small microcontrollers
  *
- * Copyright (C) 2002-2008  Evidence Srl
+ * Copyright (C) 2002-2009  Evidence Srl
  *
  * This file is part of ERIKA Enterprise.
  *
@@ -39,78 +39,29 @@
  * ###*E*### */
 
 /*
- * Author: 2001-2002 Paolo Gai
- *
- * CVS: $Id: ee_thact.c,v 1.8 2006/12/03 22:04:56 pj Exp $
+ * Author: 2001 Paolo Gai
+ * CVS: $Id: ee_schedule.c,v 1.6 2006/12/03 22:04:56 pj Exp $
  */
 
 #include "ee_internal.h"
 
-#ifndef __PRIVATE_ACTIVATETASK__
-
-void EE_fp_ActivateTask(EE_TID t)
+// Inspired to EE_frsh_thread_activate
+#ifndef __PRIVATE_SCHEDULE__
+void EE_frsh_Schedule(void)
 {
-  register EE_TID tmp;
   register EE_FREG flag;
-  
-#ifdef __RN_TASK__
-  if (t & EE_REMOTE_TID) {
-    register EE_TYPERN_PARAM par;
-    par.pending = 1;
-    /* forward the request to another CPU whether the task do
-       not become to the current CPU */
-    EE_rn_send(t & ~EE_REMOTE_TID, EE_RN_TASK, par );
-  } else {
-#endif
-    
-    flag = EE_hal_begin_nested_primitive();
-    
-    /* check for first activation */
-    if (EE_th_nact[t] == 0) {
-#if defined(__MULTI__) || defined(__WITH_STATUS__)
-      EE_th_status[t] = EE_READY;
-#endif
-      EE_rq_insert(t);
-    }
-    
-    /* activate the task avoiding the counter wraparound */
-    if (EE_th_nact[t] != EE_MAX_NACT)
-      EE_th_nact[t] ++;
-    
-    /* check for preemption */
-    if (!EE_hal_get_IRQ_nesting_level()) {
-      tmp = EE_rq_queryfirst();
-      if (tmp != EE_NIL) {
-	if (EE_sys_ceiling < EE_th_ready_prio[tmp]) {
-#if defined(__MULTI__)
-	  register int wasstacked;
-	  
-	  wasstacked = EE_th_status[tmp] & EE_WASSTACKED;
-#endif
-	  
-#if defined(__MULTI__) || defined(__WITH_STATUS__)
-	  EE_th_status[tmp] = EE_STACKED;
-#endif
-	  
-	  EE_sys_ceiling |= EE_th_dispatch_prio[tmp];
-	  
-#if defined(__MULTI__)
-	  if (wasstacked)
-	    EE_hal_stkchange(EE_rq2stk_exchange());
-	  else
-	    EE_hal_ready2stacked(EE_rq2stk_exchange());
-#else
-	  EE_hal_ready2stacked(EE_rq2stk_exchange());
-#endif
-	}
-      }
-    }
-    
-    EE_hal_end_nested_primitive(flag);
-    
-#ifdef __RN_TASK__
-  }
-#endif
-}
+  register EE_TID tmp_exec;
+  register EE_TIME tmp_time;
 
+  flag = EE_hal_begin_nested_primitive();
+
+  tmp_time = EE_hal_gettime();
+  tmp_exec = EE_exec;
+  EE_frsh_check_slice(tmp_time);
+  EE_frsh_check_recharging(tmp_time);
+  EE_frsh_select_exec();
+  EE_frsh_run_exec(tmp_exec);
+
+  EE_hal_end_nested_primitive(flag);
+}
 #endif

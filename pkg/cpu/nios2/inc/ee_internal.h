@@ -363,7 +363,67 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_spin_out(EE_TYPESPIN m)
 #endif
 
 
-#ifdef __NIOS2_SPIN_AVALON_MUTEX_DIRECT__
+
+#ifdef  __NIOS2_SPIN_AVALON_MUTEX_DIRECT__
+
+// No queuing spinlock, only Altera Mutexes
+// see the comments below
+
+__INLINE__ void __ALWAYS_INLINE__ EE_altera_mutex_spin_in(void)
+{
+  alt_u32 data, check;
+
+  /* the data we want the mutex to hold */
+  data = (EE_CURRENTCPU << ALTERA_AVALON_MUTEX_MUTEX_OWNER_OFST) | 1;
+
+  do {
+    /* attempt to write to the mutex */
+    IOWR_ALTERA_AVALON_MUTEX_MUTEX(EE_ALTERA_MUTEX_BASE, data);
+    
+    check = IORD_ALTERA_AVALON_MUTEX_MUTEX(EE_ALTERA_MUTEX_BASE);
+    
+  } while ( check != data);
+}
+
+
+__INLINE__ void __ALWAYS_INLINE__ EE_altera_mutex_spin_out(void)
+{
+  //  IOWR_ALTERA_AVALON_MUTEX_RESET(EE_ALTERA_MUTEX_BASE, 
+  //                                  ALTERA_AVALON_MUTEX_RESET_RESET_MSK);
+  IOWR_ALTERA_AVALON_MUTEX_MUTEX(EE_ALTERA_MUTEX_BASE, 
+				 EE_CURRENTCPU << ALTERA_AVALON_MUTEX_MUTEX_OWNER_OFST);
+}
+
+__INLINE__ void __ALWAYS_INLINE__ EE_hal_spin_in(EE_TYPESPIN m)
+{
+  EE_altera_mutex_spin_in();
+}
+
+__INLINE__ void __ALWAYS_INLINE__ EE_hal_spin_out(EE_TYPESPIN m)
+{
+  EE_altera_mutex_spin_out();
+}
+#endif
+
+
+
+
+#ifdef __NIOS2_SPIN_AVALON_MUTEX_DIRECT_QUEUING__
+
+/*
+  NOTE: Although this is probably the right queuing spin-lock
+  mechanism available, what happens is that it seems that some times
+  writes to the shared memory fails, or at least that they are not
+  recorded. It may be some problem related to the avalon bus error
+  when using shared memory locations with cache disabled.
+
+  In fact, it has been reported some sync problems by Altera about
+  bridges to memory whan multple masters access it. Maybe some other
+  bug?
+*/
+
+
+
 
 /* 
    Case 2 - using the Altera Avalon Mutex component directly using the

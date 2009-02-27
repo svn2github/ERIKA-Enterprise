@@ -50,7 +50,7 @@
 #ifdef __FRSH__
 
 #ifndef Schedule
-#define Schedule		EE_frsh_sys_scheduler
+#define Schedule		EE_frsh_Schedule
 #endif
 
 #ifndef ActivateTask
