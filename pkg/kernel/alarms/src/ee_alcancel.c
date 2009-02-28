@@ -63,7 +63,7 @@ void EE_alarm_CancelAlarm(AlarmType AlarmID)
       EE_alarm_RAM[AlarmID].next;
   } else {
     /* the alarm is not the first one in the delta queue */
-    while (current != AlarmID) {
+    do {
       previous = current;
       current = EE_alarm_RAM[current].next;
       if (current == -1) {
@@ -71,7 +71,7 @@ void EE_alarm_CancelAlarm(AlarmType AlarmID)
 	EE_hal_end_nested_primitive(flag);
 	return;
       }
-    } 
+    } while (current != AlarmID);
     EE_alarm_RAM[previous].next = EE_alarm_RAM[AlarmID].next;
   }
 
