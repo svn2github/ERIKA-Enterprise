@@ -95,45 +95,6 @@ int EE_frsh_contract_get_basic_params (const frsh_contract_t *contract,
 
 
 /*
-  frsh_contract_get_resource_and_label()
-  Obtain the resource_id and type, and the contract label.
-  Returns:
-  0 if no error
-  FRSH_ERR_BAD_ARGUMENT : if the contract or the contract_label pointer is NULL.
-*/
-#ifndef __PRIVATE_FRSH_CONTRACT_GET_RESOURCE_AND_LABEL__
-int EE_frsh_contract_get_resource_and_label(const frsh_contract_t *contract,
-					    frsh_resource_type_t *resource_type,
-					    frsh_resource_id_t *resource_id, 
-					    char *contract_label)
-{
-  int i;
-
-  if (!contract || !resource_type || !resource_id || !contract_label) {
-    return FRSH_ERR_BAD_ARGUMENT;
-  }
-
-  for (i=0; i<EE_MAX_CONTRACT; i++) {
-    if (&EE_ct[i] == contract)
-      break;
-  }
-  
-  if (i == EE_MAX_CONTRACT) {
-    return FRSH_ERR_BAD_ARGUMENT;
-  } else {
-    strncpy((char *)EE_frsh_contract_label[i], contract_label,
-	    FRSH_CONTRACT_LABEL_MAXLENGTH);
-  }
-
-  *resource_type = FRSH_RT_PROCESSOR;
-  *resource_id = EE_CURRENTCPU;
-
-  return FRSH_NO_ERROR;
-}
-#endif
-
-
-/*
   frsh_contract_get_timing_reqs()
 
   The operation obtains the corresponding input parameters from the

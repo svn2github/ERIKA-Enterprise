@@ -150,9 +150,13 @@ int EE_frsh_BindTask(const frsh_vres_id_t vres, const frsh_thread_id_t thread);
 int EE_frsh_UnbindTask(const frsh_thread_id_t thread);
 #endif
 
+#ifndef __PRIVATE_GETVRESID__
+int EE_frsh_thread_get_vres_id(const frsh_thread_id_t thread, frsh_vres_id_t *vres_id);
+#endif
 
-
-
+#ifndef __PRIVATE_GETCONTRACT__
+int EE_frsh_vres_get_contract (const frsh_vres_id_t vres, frsh_contract_t *contract);
+#endif
 
 
 #endif

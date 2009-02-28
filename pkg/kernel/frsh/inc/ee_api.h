@@ -85,10 +85,6 @@
 #define frsh_contract_get_basic_params EE_frsh_contract_get_basic_params
 #endif
 
-#ifndef frsh_contract_get_resource_and_label
-#define frsh_contract_get_resource_and_label EE_frsh_contract_get_resource_and_label
-#endif
-
 #ifndef frsh_contract_get_timing_reqs
 #define frsh_contract_get_timing_reqs EE_frsh_contract_get_timing_reqs
 #endif
@@ -107,10 +103,6 @@
 
 #ifndef frsh_vres_get_contract
 #define frsh_vres_get_contract EE_frsh_vres_get_contract
-#endif
-
-#ifndef frsh_resource_get_vres_from_label
-#define frsh_resource_get_vres_from_label EE_frsh_resource_get_vres_from_label
 #endif
 
 #ifndef frsh_syncobj_signal
