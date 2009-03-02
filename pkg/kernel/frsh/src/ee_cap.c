@@ -236,18 +236,26 @@ void EE_frsh_run_exec(EE_TID tmp_exec)
 {
   register int wasstacked;
 
-  wasstacked = EE_th[EE_exec].status & EE_TASK_WASSTACKED;
-  EE_th[EE_exec].status = EE_TASK_EXEC;  
-  
-  /* if different from the current running task implement the preemption */
-  if (tmp_exec != EE_exec) {
-    /* reprogram the capacity timer for the new task */
-    EE_hal_set_budget_timer(EE_vres[EE_th[EE_exec].vres].budget_avail);
-    
-    if (wasstacked)
+  if (EE_exec == EE_NIL) {
+    /* switch to the background thread if needed */
+    if (tmp_exec != EE_exec) {
       EE_hal_stkchange(EE_exec);
-    else
-      EE_hal_ready2stacked(EE_exec);
+    }
+  } else {
+    /* there is a task to schedule */
+    wasstacked = EE_th[EE_exec].status & EE_TASK_WASSTACKED;
+    EE_th[EE_exec].status = EE_TASK_EXEC;  
+  
+    /* if different from the current running task implement the preemption */
+    if (tmp_exec != EE_exec) {
+      /* reprogram the capacity timer for the new task */
+      EE_hal_set_budget_timer(EE_vres[EE_th[EE_exec].vres].budget_avail);
+      
+      if (wasstacked)
+	EE_hal_stkchange(EE_exec);
+      else
+	EE_hal_ready2stacked(EE_exec);
+    }
   }
 }
 #endif
