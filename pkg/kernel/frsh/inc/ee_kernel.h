@@ -172,6 +172,16 @@ int EE_frsh_synchobj_wait (const frsh_synchobj_handle_t synch_handle,
 			   bool *was_budget_overran);
 #endif
 
+#ifndef __PRIVATE_FRSH_SYNCOBJ_WAIT_TIMEOUT__
+int EE_frsh_synchobj_wait_with_timeout (const frsh_synchobj_handle_t synch_handle, 
+					const frsh_abs_time_t *abs_timeout,
+					bool *timed_out,
+					frsh_rel_time_t *next_budget,
+					frsh_rel_time_t *next_period,
+					bool *was_deadline_missed,
+					bool *was_budget_overran);
+#endif
+
 #endif
 
 

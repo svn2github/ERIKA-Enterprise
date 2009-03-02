@@ -282,7 +282,6 @@ typedef struct {
 
 typedef EE_UREG bool;
 
-
 /*************************************************************************
  Kernel Variables
  *************************************************************************/
@@ -374,6 +373,25 @@ typedef SynchObjType *SynchObjRefType;
 typedef SynchObjRefType frsh_synchobj_handle_t;
 
 #define SYNCHOBJINIT { 0, EE_NIL, EE_NIL }
+
+#ifdef __FRSH_SYNCHOBJ__
+/* Timeouts for synchronization objects */
+typedef struct {
+  int flag;                        /* timeout flag */
+  EE_TYPEABSDLINE timeout;         /* absolute timeout */
+  EE_TID next;                     /* used to queue the timeout structure */
+  frsh_synchobj_handle_t synchobj; /* the synchobj the task is waiting on, 
+				      != 0 if the task is queued on a synchobj
+				      == 0 if I'm not waiting on a wait with timeout. 
+				      reset to 0 when the timeout fires or by the signal */
+} EE_TYPETIMEOUTSTRUCT;
+#endif
+
+// initvalue 0
+extern EE_TYPETIMEOUTSTRUCT EE_frsh_timeout[];
+
+// initvalue: EE_NIL
+extern EE_TID EE_frsh_timeout_first;
 
 #endif
 

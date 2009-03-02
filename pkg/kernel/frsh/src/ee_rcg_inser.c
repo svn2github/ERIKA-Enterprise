@@ -47,8 +47,6 @@
 #include "ee_internal.h"
 
 #ifndef __PRIVATE_RCG_INSERT__
-
-// this function inserts a vres into the recharging queue
 void EE_rcg_insert(EE_TYPECONTRACT v)
 {
   EE_TYPEABSDLINE prio;
@@ -74,39 +72,3 @@ void EE_rcg_insert(EE_TYPECONTRACT v)
 }
 
 #endif
-
-/* #else */
-
-/* // This version of the insert is used when the semaphores are used. */
-/* // in this case, depending on the status of the task, the recharging times are set  */
-/* // either into the timeouts or in the absolute deadlines */
-
-/* void EE_rcg_insert(EE_TID t) */
-/* { */
-/*   EE_UINT32 prio; */
-/*   EE_TID p,q; */
-
-/*   p = EE_NIL; */
-/*   q = EE_rcg_queryfirst(); */
-/*   prio = EE_th_absdline[t]; */
-
-/*   while (q != EE_NIL) { */
-/*     if((  (EE_th_status[q] & EE_BLOCKED) */
-/*           && (EE_STIME)(prio - EE_th_timeouts[q]) >= 0) ||  */
-/*        ( (EE_th_status[q] & EE_RECHARGING)  */
-/*           && (EE_STIME)(prio - EE_th_absdline[q]) >= 0)){ */
-/*       p = q; */
-/*       q = EE_th_next[q]; */
-/*     }else */
-/*       break; */
-/*   } */
-
-/*   if (p != EE_NIL) */
-/*     EE_th_next[p] = t; */
-/*   else */
-/*     EE_rcgfirst = t; */
-
-/*   EE_th_next[t] = q; */
-/* } */
-
-/* #endif */

@@ -98,8 +98,6 @@
   FRSH_ERR_BAD_ARGUMENT : if synch_handle is 0
   FRSH_ERR_INTERNAL_ERROR : if the task still uses a resource
 
-  TODO: what if the task has still locked a resource? (see below)
-  
  */
 
 
@@ -165,10 +163,10 @@ int EE_frsh_synchobj_wait (const frsh_synchobj_handle_t synch_handle,
 	 when locking a mutex */
       
       if (synch_handle->first != EE_NIL)
-	// the semaphore queue is not empty
+	// the synchobj queue is not empty
 	EE_th[synch_handle->last].next = tmp_exec;
       else
-	// the semaphore queue is empty
+	// the synchobj queue is empty
 	synch_handle->first = tmp_exec;
       
       synch_handle->last = tmp_exec;

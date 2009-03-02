@@ -63,6 +63,10 @@
   FRSH_ERR_BAD_ARGUMENT : if synch_handle is 0
 */
 
+
+void EE_frsh_timeout_extract(EE_TID t, EE_TIME tmp_time);
+
+
 #ifndef __PRIVATE_FRSH_SYNCOBJ_SIGNAL__
 int EE_frsh_synchobj_signal(const frsh_synchobj_handle_t synch_handle)
 {
@@ -92,8 +96,6 @@ int EE_frsh_synchobj_signal(const frsh_synchobj_handle_t synch_handle)
 
   if (synch_handle->first != EE_NIL) {
     // wake up a blocked thread
-    EE_th[synch_handle->first].timedout=0;
-    
     tmp = synch_handle->first;
 
     synch_handle->first = EE_th[tmp].next;
@@ -103,6 +105,15 @@ int EE_frsh_synchobj_signal(const frsh_synchobj_handle_t synch_handle)
       
     EE_th[tmp].status = EE_TASK_READY | EE_TASK_WASSTACKED;
     EE_rq_insert(tmp);
+
+    // remove the task from the timeout queue
+    if (EE_frsh_timeout[tmp].synchobj) {
+      // reset to say that the task is no more waiting with timeout
+      EE_frsh_timeout[tmp].synchobj = 0;
+
+      // extract the task from the timeout queue, and eventually reprogram the timer
+      EE_frsh_timeout_extract(tmp, tmp_time);
+    }
   }
   else
     synch_handle->count++;
@@ -125,5 +136,7 @@ int EE_frsh_synchobj_signal(const frsh_synchobj_handle_t synch_handle)
   EE_frsh_run_exec(tmp_exec);
 
   EE_hal_end_nested_primitive(flag);
+
+  return 0;
 }
 #endif

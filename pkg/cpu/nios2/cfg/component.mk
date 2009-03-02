@@ -244,8 +244,6 @@ EE_C_SRCS += \
 	ee/pkg/kernel/frsh/src/ee_frsh_getcontract.c \
 	ee/pkg/kernel/frsh/src/ee_frsh_init.c \
 	ee/pkg/kernel/frsh/src/ee_frsh_strerror.c \
-	ee/pkg/kernel/frsh/src/ee_frsh_syncobj_signal.c \
-	ee/pkg/kernel/frsh/src/ee_frsh_syncobj_wait.c \
 	ee/pkg/kernel/frsh/src/ee_gettime.c \
 	ee/pkg/kernel/frsh/src/ee_irq_sc.c \
 	ee/pkg/kernel/frsh/src/ee_mutex.c \
@@ -256,13 +254,12 @@ EE_C_SRCS += \
 	ee/pkg/kernel/frsh/src/ee_thact.c \
 	ee/pkg/kernel/frsh/src/ee_thendin.c
 
-ifeq ($(findstring __SEM_FRSH__,$(EEOPT)) , __SEM_FRSH__)
+ifeq ($(findstring __FRSH_SYNCHOBJ__,$(EEOPT)) , __FRSH_SYNCHOBJ__)
 EE_C_SRCS += \
-	ee/pkg/kernel/frsh/syncobj/src/ee_swait.c \
-	ee/pkg/kernel/frsh/syncobj/src/ee_spost.c \
-	ee/pkg/kernel/frsh/syncobj/src/ee_sgetvalue.c \
-	ee/pkg/kernel/frsh/syncobj/src/ee_strywait.c \
-	ee/pkg/kernel/frsh/syncobj/src/frsh_synchobj.c
+	ee/pkg/kernel/frsh/src/ee_frsh_syncobj_signal.c \
+	ee/pkg/kernel/frsh/src/ee_frsh_syncobj_wait.c \
+	ee/pkg/kernel/frsh/src/ee_frsh_syncobj_waittimeout.c
+
 endif
 
 

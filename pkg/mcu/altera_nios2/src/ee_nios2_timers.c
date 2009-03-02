@@ -113,6 +113,18 @@ void EE_nios2_IRQ_dlcheck(void* context, alt_u32 id)
 }
 #endif
 
+#ifdef __FRSH_SYNCHOBJ__
+#ifndef __PRIVATE_NIOS2_IRQ_SYNCHOBJ__
+void EE_nios2_IRQ_synchobj_timeout(void* context, alt_u32 id)
+{
+  /* clear the interrupt */
+  IOWR_ALTERA_AVALON_TIMER_STATUS (TIMER_SYNCHOBJ_BASE, 0);
+
+  EE_frsh_IRQ_synchobj_timeout();
+}
+#endif
+#endif
+
 /* This function is used to initialize the two timers used for 
  * budget exaustion and for the recharging queue
  */
@@ -146,6 +158,17 @@ void EE_frsh_time_init(void)
             ALTERA_AVALON_TIMER_CONTROL_START_MSK);
 
   alt_irq_register (TIMER_DLCHECK_IRQ, NULL, EE_nios2_IRQ_dlcheck);  
+
+#ifdef __FRSH_SYNCHOBJ__
+  IOWR_ALTERA_AVALON_TIMER_PERIODH(TIMER_SYNCHOBJ_BASE, 0x3FFF);
+  IOWR_ALTERA_AVALON_TIMER_PERIODL(TIMER_SYNCHOBJ_BASE, 0xFFFF);
+  IOWR_ALTERA_AVALON_TIMER_CONTROL (TIMER_SYNCHOBJ_BASE, 
+            ALTERA_AVALON_TIMER_CONTROL_ITO_MSK  |
+            ALTERA_AVALON_TIMER_CONTROL_CONT_MSK |
+            ALTERA_AVALON_TIMER_CONTROL_STOP_MSK);
+
+  alt_irq_register (TIMER_SYNCHOBJ_IRQ, NULL, EE_nios2_IRQ_synchobj_timeout);  
+#endif
 
   EE_hal_set_nios2_timer(TIMER_DLCHECK_BASE, 0xffff);  
 }
