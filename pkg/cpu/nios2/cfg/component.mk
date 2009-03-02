@@ -244,6 +244,8 @@ EE_C_SRCS += \
 	ee/pkg/kernel/frsh/src/ee_frsh_getcontract.c \
 	ee/pkg/kernel/frsh/src/ee_frsh_init.c \
 	ee/pkg/kernel/frsh/src/ee_frsh_strerror.c \
+	ee/pkg/kernel/frsh/src/ee_frsh_syncobj_signal.c \
+	ee/pkg/kernel/frsh/src/ee_frsh_syncobj_wait.c \
 	ee/pkg/kernel/frsh/src/ee_gettime.c \
 	ee/pkg/kernel/frsh/src/ee_irq_sc.c \
 	ee/pkg/kernel/frsh/src/ee_mutex.c \

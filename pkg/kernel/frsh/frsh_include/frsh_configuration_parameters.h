@@ -105,10 +105,10 @@
 /* /\** Number of importance levels for spare capacity allocation **\/ */
 /* #define FRSH_N_IMPORTANCE_LEVELS           0 */
 
-/* /\** */
-/*  * Maximum number of synchronization objects */
-/*  **\/ */
-/* #define FRSH_MAX_N_SYNCH_OBJECTS           EE_MAX_SEM */
+/**
+ * Maximum number of synchronization objects
+ **/
+#define FRSH_MAX_N_SYNCH_OBJECTS           EE_MAX_SEM
 
 /* /\** Maximum number of shared objects **\/ */
 /* #define FRSH_MAX_N_SHARED_OBJECTS          0 */

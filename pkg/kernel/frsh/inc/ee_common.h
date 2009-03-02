@@ -277,9 +277,10 @@ typedef struct {
   EE_UREG         lockedcounter; /* number of locked resources (initvalue 0) */
   EE_TYPECONTRACT vres;          /* the vres linked to the task */
   EE_TYPECONTRACT vres_deferred; /* when != EE_VRES_NIL stores the deferred VRES after a bind */
+  EE_UREG         timedout;      /* used with synchronization objects */
 } EE_TYPETASKSTRUCT;
 
-
+typedef EE_UREG bool;
 
 
 /*************************************************************************
@@ -358,19 +359,21 @@ extern const EE_TYPEPRIO EE_resource_ceiling[EE_MAX_RESOURCE];
 extern EE_TYPEPRIO       EE_resource_oldceiling[EE_MAX_RESOURCE];
 
 
+/*************
+ * SYNCHOBJs
+ *************/
 
+/* The synchobj descriptor */
+typedef struct {
+  int count;
+  EE_TID    first;
+  EE_TID    last;
+} SynchObjType;
 
+typedef SynchObjType *SynchObjRefType;
+typedef SynchObjRefType frsh_synchobj_handle_t;
 
-	
-/* da verificare */
-#ifdef __SEM_FRSH__
-#include "../syncobj/inc/ee_sem.h"
-extern EE_TID          EE_th_nextsem[];	 /* next task in the sem wait queue (initvalue: EE_NIL) */
-extern SemRefType      EE_th_semrefs[];    /* Task reference to the used semaphore */
-extern EE_TIME         EE_th_timeouts[];   /* Task semaphore timeouts */
-extern char            EE_th_timedout[];   /* used to check if timedout*/
-#endif
-
+#define SYNCHOBJINIT { 0, EE_NIL, EE_NIL }
 
 #endif
 

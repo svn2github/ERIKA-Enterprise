@@ -159,6 +159,19 @@ int EE_frsh_vres_get_contract (const frsh_vres_id_t vres, frsh_contract_t *contr
 #endif
 
 
+
+#ifndef __PRIVATE_FRSH_SYNCOBJ_SIGNAL__
+int EE_frsh_synchobj_signal(const frsh_synchobj_handle_t synch_handle);
+#endif
+
+#ifndef __PRIVATE_FRSH_SYNCOBJ_WAIT__
+int EE_frsh_synchobj_wait (const frsh_synchobj_handle_t synch_handle,
+			   frsh_rel_time_t *next_budget,
+			   frsh_rel_time_t *next_period,
+			   bool *was_deadline_missed, 
+			   bool *was_budget_overran);
+#endif
+
 #endif
 
 

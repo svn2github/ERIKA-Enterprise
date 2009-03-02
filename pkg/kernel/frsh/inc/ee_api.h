@@ -105,16 +105,16 @@
 #define frsh_vres_get_contract EE_frsh_vres_get_contract
 #endif
 
-#ifndef frsh_syncobj_signal
-#define frsh_syncobj_signal EE_frsh_syncobj_signal
+#ifndef frsh_synchobj_signal
+#define frsh_synchobj_signal EE_frsh_synchobj_signal
 #endif
 
-#ifndef frsh_syncobj_wait
-#define frsh_syncobj_wait EE_frsh_syncobj_wait
+#ifndef frsh_synchobj_wait
+#define frsh_synchobj_wait EE_frsh_synchobj_wait
 #endif
 
-#ifndef frsh_syncobj_wait_with_timeout
-#define frsh_syncobj_wait_with_timeout EE_frsh_syncobj_wait_with_timeout
+#ifndef frsh_synchobj_wait_with_timeout
+#define frsh_synchobj_wait_with_timeout EE_frsh_synchobj_wait_with_timeout
 #endif
 
 #ifndef frsh_timed_wait
