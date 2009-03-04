@@ -47,57 +47,53 @@
 /*
   From the FRESCOR documentation:
 
+  frsh_timed_wait() 
+
   This operation is invoked by threads associated with bounded
   workload vres to indicate that a job has been completed (and that
   the scheduler may reassign the unused capacity of the current job to
-  other vres). This implementation de facto does not void the budget,
-  but simply does not schedule the task. In fact, the IRIS scheduler
-  automatically reclaims uniused bandwidth.
+  other vres). It is also invoked when the first job of such threads
+  has to be scheduled.
 
-  As a difference with frsh_timed_wait(), here the vres specifies to
-  be awakened by the arrival of a signal operation instead of at a
-  precise point of time.
+  As an effect, the system will make the current vres's budget zero
+  for the remainder of the vres's period, and will not replenish the
+  budget until the specified absolute time. At that time, all pending
+  budget replenishments (if any) are made effective. Once the vres has
+  a positive budget and the scheduler schedules the calling thread
+  again, the call returns and at that time, except for those
+  parameters equal to NULL pointers, the system reports the current
+  period and budget for the current job, whether the deadline of the
+  previous job was missed or not, and whether the budget of the
+  previous job was overrun or not.
 
-  The vres' budget will be made zero for the remainder of the vres'
-  period, and FRSH will not replenish it until an event has been
-  notified to the synchronisation object by another vres.  It can
-  happen that the synchronisation object has notification events
-  queued from the past, in this case one of the events is dequeued
-  immediately and the vres won't have to wait for another one.
-
-  At the time of reception of a notification event (wether in the
-  future or in the past), all pending budget replenishments (if any)
-  are made effective. Once the vres has a positive budget and the
-  scheduler schedules the calling thread again, the call returns and
-  the vres continues executing. 
-
-  Except for those parameters equal to NULL pointers, the system
-  reports the current period and budget for the current job, it
-  informs if the deadline of the previous job was missed or not, and
-  whether the budget of the previous job was overrun or not. Note:
-  this implementation using the IRIS scheduler returns the VRES period
-  and budget (which may not be in sync with the task). For the same
-  reason, since there is not a direct link of the budget/period of a
-  vres with the task deadline, the deadline miss and budget overrun
-  information are not provided (they are meaningless in this
-  implementation).
+  Note about this implementation: The same exceptions to this
+  description made for the synchobj_wait and timedwait applies.
 
 
   Parameters:
-  synch_handle -  Synchronisation object upon which the vres will be waiting.
-  next_budget[out] - Upon return of this function, the variable pointed
-                     by this function will be equal to the current vres 
-		     budget. If this parameter is set to NULL, no action is
-		     taken 
-  next_period[out] - The vres period upon return (ignored if NULL).  
-  was_deadline_missed - NOT IMPLEMENTED
-  was_budget_overran - NOT IMPLEMENTED
+  abs_time absolute time at which the budget will be replenished
 
-  Returns: 
-  0 if success
-  FRSH_ERR_BAD_ARGUMENT : if synch_handle is 0
-  FRSH_ERR_INTERNAL_ERROR : if the task still uses a resource
+  next_budget upon return of this function, the variable pointed by this function will be equal to the
+  current vres budget. If this parameter is set to NULL, no action is taken.
 
+  next_period upon return of this function, the variable pointed by this function will be equal to the
+  current vres period. If this parameter is set to NULL, no action is taken.
+
+  was_deadline_missed upon return of this function, the variable
+  pointed by this function will be equal to true if the previous vres
+  deadline was missed, to false otherwise. If this parameter is set to
+  NULL, no action is taken.
+
+  was_budget_overrun upon return of this function, the variable
+  pointed by this function will be equal to true if the previous vres
+  budget was overrun, to false otherwise. If this parameter is set to
+  NULL, no action is taken.
+
+  Returns:
+  0 if the operation is successful
+  FRSH_ERR_TIME_SPEC_IN_THE_PAST if the absolute time specification is in the past.
+  FRSH_ERR_INTERNAL_ERROR : erroneous binding or malfunction of the FRSH main scheduler
+  FRSH_ERR_BAD_ARGUMENT : if abs_time is NULL
  */
 
 
@@ -105,30 +101,33 @@
 #include "frsh_core_types.h"
 #include "frsh_error.h"
 
+#ifndef __PRIVATE_TIMEOUT_INSERT__
+void EE_frsh_timeout_insert(EE_TID t);
+#endif
 
-
-
-
-#ifndef __PRIVATE_FRSH_SYNCOBJ_WAIT__
-int EE_frsh_synchobj_wait (const frsh_synchobj_handle_t synch_handle,
-			   frsh_rel_time_t *next_budget,
-			   frsh_rel_time_t *next_period,
-			   bool *was_deadline_missed, 
-			   bool *was_budget_overran)
+#ifndef __PRIVATE_FRSH_SYNCOBJ_TIMEDWAIT__
+int EE_frsh_timed_wait (const frsh_abs_time_t *abs_time, 
+			frsh_rel_time_t *next_budget, 
+			frsh_rel_time_t *next_period, 
+			bool *was_deadline_missed, 
+			bool *was_budget_overran)
 {
   register EE_FREG flag;
   register EE_TIME tmp_time;
   register EE_TID tmp_exec;
   register int returnvalue = 0;
 
-  if (synch_handle == 0) {
-    return FRSH_ERR_BAD_ARGUMENT;
-  }
-
   flag = EE_hal_begin_nested_primitive();
 
   tmp_time = EE_hal_gettime();
-  
+
+  /* timeout not valid or in the past */
+  /* I compare with 0, but the IRQ could be really near < min-capacity! */
+  if (!abs_time || ((EE_STIME)(*abs_time-tmp_time))<0) {
+    EE_hal_end_nested_primitive(flag);
+    return FRSH_ERR_BAD_ARGUMENT;
+  }
+
   /* save the current running task into a temporary variable */
   tmp_exec = EE_exec;
   /* --- */
@@ -142,42 +141,37 @@ int EE_frsh_synchobj_wait (const frsh_synchobj_handle_t synch_handle,
   EE_frsh_check_slice(tmp_time);
   /* --- */
 
-  /* implement the wait behavior */
-  if (synch_handle->count)
-    synch_handle->count--;
-  else {
-    /* The running task blocks: 
-       - it must be removed from the ready queue
-       - and then it must be inserted into the blocked queue */
+  /* implement the wait behavior. It is identycal to the wait with
+     timeout operation but without synchobjects */
 
-    // TODO: what if the task has still locked a resource?
-    /* the task has to be removed from the ready queue */
+  /* The running task blocks: 
+     - it must be removed from the ready queue
+     - and then it must be inserted into the blocked queue */
+  
+  /* the task has to be removed from the ready queue */
 
-    if (EE_th[tmp_exec].status & EE_TASK_READY) {
-      EE_rq_extract(tmp_exec);
-
-      /* The task state switch from STACKED TO BLOCKED */
-      EE_th[tmp_exec].status = EE_TASK_BLOCKED | EE_TASK_WASSTACKED;
-
-      /* The VRES becomes inactive */
-      EE_vres[EE_th[tmp_exec].vres].status = EE_VRES_INACTIVE;
-
-      /* the system ceiling is not touched because it is only modified 
-	 when locking a mutex */
-      
-      if (synch_handle->first != EE_NIL)
-	// the synchobj queue is not empty
-	EE_th[synch_handle->last].next = tmp_exec;
-      else
-	// the synchobj queue is empty
-	synch_handle->first = tmp_exec;
-      
-      synch_handle->last = tmp_exec;
-      EE_th[tmp_exec].next = EE_NIL;
-    }
-    else
-      returnvalue = FRSH_ERR_INTERNAL_ERROR;
+  if (EE_th[tmp_exec].status & EE_TASK_READY) {
+    EE_rq_extract(tmp_exec);
+    
+    /* The task state switch from STACKED TO BLOCKED */
+    EE_th[tmp_exec].status = EE_TASK_BLOCKED | EE_TASK_WASSTACKED;
+    
+    /* The VRES becomes inactive */
+    EE_vres[EE_th[tmp_exec].vres].status = EE_VRES_INACTIVE;
+    
+    /* the system ceiling is not touched because it is only modified 
+       when locking a mutex */
+    
+    /* record the timeout into the data structures */
+    EE_frsh_timeout[tmp_exec].flag = 0;
+    EE_frsh_timeout[tmp_exec].timeout = *abs_time;
+    EE_frsh_timeout[tmp_exec].synchobj = 0; /* no synch objects this time */
+    EE_frsh_timeout_insert(tmp_exec);
+    if (EE_frsh_timeout_first == tmp_exec)
+      EE_hal_set_synchobj_timeout_timer(*abs_time - tmp_time);
   }
+  else
+    returnvalue = FRSH_ERR_INTERNAL_ERROR;
 
   /* check_recharging: if ready and stacked queue are empty pulls from the recharging queue */
   EE_frsh_check_recharging(tmp_time);
@@ -211,3 +205,6 @@ int EE_frsh_synchobj_wait (const frsh_synchobj_handle_t synch_handle,
   return returnvalue;
 }
 #endif
+
+
+

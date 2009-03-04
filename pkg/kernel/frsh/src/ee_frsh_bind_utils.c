@@ -111,14 +111,12 @@ int EE_frsh_bind_detach_thread(EE_TID thread)
      */
 
     return 0;
-  } 
-  //else if (status & (EE_TASK_SUSPENDED | EE_TASK_BLOCKED)) {
-    /*
-      I do nothing. In fact, the VRES can be in one of the following statuses
-      - FREEZED, INACTIVE, or VRES == EE_NIL (task not binded) --> the vres is inactive, do nothing
-      - ACTIVE or RECHARGING  --> not possible, the thread is suspended
-    */
-  //}
+  } else {
+    //else if (status & (EE_TASK_SUSPENDED | EE_TASK_BLOCKED)) {
+    /* detach the thread and the VRES */
+    EE_th[thread].vres = EE_VRES_NIL;
+    EE_vres[vres].task = EE_NIL;
+  }
 
 
   /* if we return 1, the task is not on the ready queue */

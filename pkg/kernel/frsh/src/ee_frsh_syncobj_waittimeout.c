@@ -44,21 +44,6 @@
  */
 
 
-/*
-  From the FRESCOR documentation:
-
-  frsh_synchobj_wait_with_timeout()
-
-  This call is the same as frsh_synchobj_wait() but with an extra absolute timeout. The timed_out argument,
-  indicates whether the function returned because of the expiration of the timeout or not.
-
-  Returns: 
-  0 if success
-  FRSH_ERR_BAD_ARGUMENT : if synch_handle is 0 or the abs_timeout argument is NULL or its value is in the past
-  FRSH_ERR_INTERNAL_ERROR : if the task still uses a resource
-
- */
-
 
 #include "ee_internal.h"
 #include "frsh_core_types.h"
@@ -190,19 +175,25 @@ void EE_frsh_IRQ_synchobj_timeout(void)
       /* remove the task from the timeout queue */
       EE_frsh_timeout_first = EE_frsh_timeout[t].next;
 
-      /* remove the task from the synchobj queue */
-      EE_frsh_synchobj_extract(t);
-
-      /* reset the synchobj value, to say that the task is no more waiting on a synchobject, useful for the signal */
-      EE_frsh_timeout[t].synchobj = 0;
+      /* it could be queued because of the frsh_timed_wait */
+      if (EE_frsh_timeout[t].synchobj) {
+	/* remove the task from the synchobj queue */
+	EE_frsh_synchobj_extract(t);
+	
+	/* reset the synchobj value, to say that the task is no more waiting on a synchobject, useful for the signal */
+	EE_frsh_timeout[t].synchobj = 0;
+      }
 
       /* set the timeout flag */
       EE_frsh_timeout[t].flag = 1;
 
       /* wakeup the task pointed by EE_frsh_timeout_first */
-      EE_th[t].status = EE_TASK_READY | EE_TASK_WASSTACKED;
-      EE_rq_insert(t);
+      if (EE_frsh_updatecapacity(t, tmp_time) == EE_UC_InsertRDQueue){
+	/* In this case, the budhet has been updated and the task is ready to be executed */
+	EE_rq_insert(t);
+      }
 
+      EE_th[t].status = EE_TASK_READY | EE_TASK_WASSTACKED;
     } else {
       /* the tasks are ordered by deadline. if one fails, the others are for sure in the future */
       break;
@@ -232,6 +223,21 @@ void EE_frsh_IRQ_synchobj_timeout(void)
 
 
 
+
+/*
+  From the FRESCOR documentation:
+
+  frsh_synchobj_wait_with_timeout()
+
+  This call is the same as frsh_synchobj_wait() but with an extra absolute timeout. The timed_out argument,
+  indicates whether the function returned because of the expiration of the timeout or not.
+
+  Returns: 
+  0 if success
+  FRSH_ERR_BAD_ARGUMENT : if synch_handle is 0 or the abs_timeout argument is NULL or its value is in the past
+  FRSH_ERR_INTERNAL_ERROR : if the task still uses a resource
+
+ */
 
 
 #ifndef __PRIVATE_FRSH_SYNCOBJ_WAIT_TIMEOUT__
@@ -284,7 +290,6 @@ int EE_frsh_synchobj_wait_with_timeout (const frsh_synchobj_handle_t synch_handl
        - it must be removed from the ready queue
        - and then it must be inserted into the blocked queue */
 
-    // TODO: what if the task has still locked a resource?
     /* the task has to be removed from the ready queue */
 
     if (EE_th[tmp_exec].status & EE_TASK_READY) {
@@ -292,6 +297,9 @@ int EE_frsh_synchobj_wait_with_timeout (const frsh_synchobj_handle_t synch_handl
 
       /* The task state switch from STACKED TO BLOCKED */
       EE_th[tmp_exec].status = EE_TASK_BLOCKED | EE_TASK_WASSTACKED;
+
+      /* The VRES becomes inactive */
+      EE_vres[EE_th[tmp_exec].vres].status = EE_VRES_INACTIVE;
       
       /* the system ceiling is not touched because it is only modified 
 	 when locking a mutex */

@@ -102,9 +102,13 @@ int EE_frsh_synchobj_signal(const frsh_synchobj_handle_t synch_handle)
 
     if (synch_handle->first == EE_NIL)
       synch_handle->last = EE_NIL;
+
+    if (EE_frsh_updatecapacity(tmp, tmp_time) == EE_UC_InsertRDQueue){
+      /* In this case, the budhet has been updated and the task is ready to be executed */
+      EE_rq_insert(tmp);
+    }
       
     EE_th[tmp].status = EE_TASK_READY | EE_TASK_WASSTACKED;
-    EE_rq_insert(tmp);
 
     // remove the task from the timeout queue
     if (EE_frsh_timeout[tmp].synchobj) {
