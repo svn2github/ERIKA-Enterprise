@@ -100,6 +100,12 @@ extern volatile void (*_openZB_err_callback) (OpenZB_ExitStatus);
 extern volatile void (*_openZB_sync_callback) (OpenZB_ExitStatus);
 extern volatile OpenZB_DebugInfo _openZB_debug_stats;
 
+/* TODO: remove this mechanism, used just to set address in the PERCOM09 demo 
+	 see also those variable in Mac.c
+*/
+extern unsigned int openzb_device_addresses[4];
+extern unsigned int openzb_device_address;
+
 /** 
 * @brief Set the time synchronization callback
 *

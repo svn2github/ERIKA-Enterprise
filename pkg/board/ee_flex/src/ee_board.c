@@ -161,6 +161,8 @@ unsigned int TxDmaBuffer = 0;
 #endif
 
 struct flex_usb_packet_t {
+	/*CHRIS: TODO: METTERE LA CRC IN FONDO!!!!! */
+    unsigned crc : 8;               /**< The checksum, including header */
 	unsigned start : 5;	/**< Commone header 10101 */
 	unsigned type : 3;	/**< Packet type */
 	unsigned more : 1; 	/**< Is last fragment */
@@ -169,7 +171,7 @@ struct flex_usb_packet_t {
 	unsigned reserved2 : 2;	/**< Reserverd (seq, length) */
 	unsigned length : 6;	/**< Payload lenght */
 	EE_UINT8 payload[FLEX_USB_PACKET_PAYLOAD_SIZE]; /**< Packet payload */
-	EE_UINT8 crc;		/**< The checksum, including header */
+	//EE_UINT8 crc;		/**< The checksum, including header */
 };
 
 enum flex_usb_header_type_t {
@@ -267,7 +269,8 @@ EE_INT16 EE_usb_write(EE_UINT8 *buf, EE_UINT16 len)
 	dma_tx_pkt.length = len;
 	memcpy(dma_tx_pkt.payload, buf, len);
 	/* NOTE 63 = sizeof(dma_tx_pkt) - sizeof(CRC) */
-	for (sum = 0, i = 0; i < 63; i++)
+	//for (sum = 0, i = 0; i < 63; i++)
+	for (sum = 0, i = 1; i < 64; i++) // COMPLIANT TO "HEADER" CRC
 		sum += ((EE_UINT8 *) &dma_tx_pkt)[i];
 	dma_tx_pkt.crc = sum;
 	DMA0STA = __builtin_dmaoffset(&dma_tx_pkt);

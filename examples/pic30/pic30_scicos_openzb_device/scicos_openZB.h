@@ -44,17 +44,30 @@
 #include <ee.h>
 #include "nwl/Nwl.h"
 
-#define SCICOS_OPENZB_CHANNELS 10
+#define SCICOS_OPENZB_ADDRESSES 10
+#define SCICOS_OPENZB_CHANNELS 255
 #define SCICOS_OPENZB_DATA_SIZE 10
 
 typedef struct ScicosOpenZB_Payload {
 	EE_UINT16 	channel_id;
+	EE_UINT16 	src_addr;
+	EE_UINT16 	dst_addr;
 	//EE_UINT8 	data[SCICOS_OPENZB_DATA_SIZE];
 	float 	data;
 } ScicosOpenZB_Payload; 
 
-#ifndef _scicos_openZB_c_
-extern float 	scicosOpenZB_rx_buffer[SCICOS_OPENZB_CHANNELS];
-#endif
+extern float scicosOpenZB_rx_buffer[SCICOS_OPENZB_ADDRESSES][SCICOS_OPENZB_CHANNELS];
+extern unsigned int scicosOpenZB_address_table[SCICOS_OPENZB_ADDRESSES];
+extern unsigned int scicosOpenZB_address_count;
+
+__INLINE__ unsigned int scicosOpenZB_address_lookup(unsigned int address)
+{
+	unsigned int i;
+
+	for (i = 0; i < SCICOS_OPENZB_ADDRESSES; i++)
+		if (scicosOpenZB_address_table[i] == address)
+			break;
+	return i;
+}
 
 #endif

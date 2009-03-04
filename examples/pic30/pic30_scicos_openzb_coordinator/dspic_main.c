@@ -82,6 +82,7 @@
 #define _scicos_openZB_c_
 
 #include "scicos_openZB.h"
+#include "scicos_USB.h"
 
 // Primary (XT, HS, EC) Oscillator with PLL
 _FOSCSEL(FNOSC_PRIPLL);
@@ -96,6 +97,13 @@ static double scicos_time; //simple time
 static int dspic_time;
 static double t;
 static double actTime;
+
+//TODO: mettere sotto ifdef __USE_ZIGBEE__
+unsigned int scicosOpenZB_address_table[SCICOS_OPENZB_ADDRESSES];
+unsigned int scicosOpenZB_address_count = 0;
+float scicosOpenZB_rx_buffer[SCICOS_OPENZB_ADDRESSES][SCICOS_OPENZB_CHANNELS]  
+__attribute__((far));
+float scicosUSB_rx_buffer[SCICOS_USB_CHANNELS] __attribute__((far));
 
 double get_scicos_time()
 {
@@ -223,45 +231,53 @@ TASK(rt_LCD)
 }
 #endif
 
-//TODO: mettere sotto ifdef __USE_ZIGBEE__
-float 	 scicosOpenZB_rx_buffer[SCICOS_OPENZB_CHANNELS] __attribute__((far));
+TASK(rx_USB)
+{
+	struct flex_bus_packet_t pkt;
+	int retv;
+
+	memset((EE_UINT8*) &pkt, 0, sizeof(struct flex_bus_packet_t));
+	retv = EE_usb_read((EE_UINT8 *) &pkt, sizeof(struct flex_bus_packet_t));
+	if (retv == sizeof(struct flex_bus_packet_t)) {
+		GetResource(scicosUSB_rx_buffer_mutex);
+		scicosUSB_rx_buffer[pkt.channel] = *((float*) pkt.payload.data);
+		ReleaseResource(scicosUSB_rx_buffer_mutex); 
+	}
+}
+
 
 void scicosOpenZB_rx_callback(OpenZB_ExitStatus code,  EE_UINT8* pdu, EE_UINT16 size)
 {
-  static int pippo;
-
-	EE_INT16 ch;
+	static int pippo;
+	EE_INT16 ch, idx;
 	ScicosOpenZB_Payload *packet = (ScicosOpenZB_Payload*) pdu;
 
-	/* Check Packet Size */
-	if(size != sizeof(ScicosOpenZB_Payload)){
-	 EE_led_2_on();
-  	return;
-  }
-
-	/* Check channel id buffer */
+	/* Check Packet */
+	if (size != sizeof(ScicosOpenZB_Payload)) {
+		EE_led_2_on();
+	  	return;	// Wrong size
+	}
+	if (packet->dst_addr != openzb_device_address)
+		return;	// Packet is not for me
 	ch = packet->channel_id;
-	//if(ch >=SCICOS_OPENZB_CHANNELS){
-	if(ch != 1){
-	 EE_led_1_on();
-  	//return;
-  }
+	if (ch >= SCICOS_OPENZB_CHANNELS)
+		return; // Bad channel
+	idx = scicosOpenZB_address_lookup(packet->src_addr);
+	if (idx >= SCICOS_OPENZB_ADDRESSES) {
+		EE_led_1_on();
+	  	return; // Bad Address (unknown by the lookup table)
+	}
 	/* Put the float data into the channel buffer */
 	GetResource(scicosOpenZB_rx_buffer_mutex);
-	//memcpy(&(scicosOpenZB_rx_buffer[ch]), packet->data, sizeof(float));
-	
-	scicosOpenZB_rx_buffer[ch] = packet->data;
-	
-	if(pippo) 
-  {
-    EE_led_0_on();
-    pippo=0;     
-  }
-  else{
-    EE_led_0_off();
-    pippo=1;  
-  }
+	scicosOpenZB_rx_buffer[idx][ch] = packet->data;
 	ReleaseResource(scicosOpenZB_rx_buffer_mutex);
+	if(pippo) {
+		EE_led_0_on();
+		pippo=0;     
+	} else{
+		EE_led_0_off();
+		pippo=1;  
+	}
 }
 
 int main(void)
@@ -271,18 +287,14 @@ int main(void)
 	CLKDIVbits.PLLPRE  = 0;
 	CLKDIVbits.PLLPOST = 0;
 	PLLFBDbits.PLLDIV  = 78;
-	
 	/* Wait for PLL to lock */
 	while(OSCCONbits.LOCK!=1);
-  openZB_init(scicosOpenZB_rx_callback, NULL); /* Set RxCallbac and no ErrorCallback */
-#ifdef __USE_LCD__
-	/* Init LCD */
-	EE_lcd_init();
-	
-	/* Clean LCD */
-	EE_lcd_clear();
-#endif
-
+	#ifdef __USE_LCD__
+	EE_lcd_init(); /* Init LCD */
+	EE_lcd_clear(); /* Clean LCD */
+	#endif
+	memset(scicosOpenZB_address_table, 0xFF, 
+	       SCICOS_OPENZB_ADDRESSES * sizeof(unsigned int));
 
 	NAME(MODEL,_init)(); 
 
@@ -291,26 +303,22 @@ int main(void)
 	/* Program Timer 1 to raise interrupts */
 	T1_program();
   
-  //TODO: mettere questo pezzo sotto ifdef __USE_ZIGBEE__
-  /* Initializes OpenZB if required*/
-	
+	//TODO: mettere questo pezzo sotto ifdef __USE_ZIGBEE__
+	openZB_init(scicosOpenZB_rx_callback, NULL); 
   
-  EE_demoboard_leds_init();
+	EE_demoboard_leds_init();
   
 	scicos_time = get_tsamp();
 	dspic_time = (int) (1000*scicos_time);
 	SetRelAlarm(AlarmSci, dspic_time, dspic_time);
 		
-  #ifdef __USE_LCD__
-	  SetRelAlarm(AlarmLcd, dspic_time, 500);
+	#ifdef __USE_LCD__
+	SetRelAlarm(AlarmLcd, dspic_time, 500);
 	#endif
+	SetRelAlarm(AlarmUSB, dspic_time, dspic_time);
 
 	/* Forever loop: background activities (if any) should go here */
-	for (;;) {
-//#ifdef __USE_LCD__
-//		update_lcd();
-//#endif
-	}
+	for (;;) ;	
 	
 	return 0;
 }

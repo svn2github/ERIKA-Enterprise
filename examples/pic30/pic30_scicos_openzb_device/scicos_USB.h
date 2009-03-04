@@ -38,36 +38,24 @@
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
 
-#ifndef _scicos_openZB_h_
-#define _scicos_openZB_h_
+#ifndef _scicos_USB_h_
+#define _scicos_USB_h_
 
 #include <ee.h>
-#include "nwl/Nwl.h"
 
-#define SCICOS_OPENZB_ADDRESSES 10
-#define SCICOS_OPENZB_CHANNELS 255
-#define SCICOS_OPENZB_DATA_SIZE 10
+#define SCICOS_USB_CHANNELS 256
+#define FLEX_BUS_MESSAGE_SIZE 32
 
-typedef struct ScicosOpenZB_Payload {
-	EE_UINT16 	channel_id;
-	EE_UINT16 	src_addr;
-	EE_UINT16 	dst_addr;
-	//EE_UINT8 	data[SCICOS_OPENZB_DATA_SIZE];
-	float 	data;
-} ScicosOpenZB_Payload; 
+struct flex_bus_message_t {
+	unsigned int length;
+	unsigned char data[FLEX_BUS_MESSAGE_SIZE];
+};
+struct flex_bus_packet_t {
+	unsigned int channel;
+	struct flex_bus_message_t payload;
+};
 
-extern float scicosOpenZB_rx_buffer[SCICOS_OPENZB_ADDRESSES][SCICOS_OPENZB_CHANNELS];
-extern unsigned int scicosOpenZB_address_table[SCICOS_OPENZB_ADDRESSES];
-extern unsigned int scicosOpenZB_address_count;
 
-__INLINE__ unsigned int scicosOpenZB_address_lookup(unsigned int address)
-{
-	unsigned int i;
-
-	for (i = 0; i < SCICOS_OPENZB_ADDRESSES; i++)
-		if (scicosOpenZB_address_table[i] == address)
-			break;
-	return i;
-}
+extern float scicosUSB_rx_buffer[SCICOS_USB_CHANNELS];
 
 #endif

@@ -129,6 +129,20 @@
 #define FLEX_DEVICE_ADDRESS FLEX_DEVICE_ADDRESS_1
 #endif
 
+#ifdef DEVICE_TYPE_COORDINATOR
+unsigned int openzb_device_addresses[4] = {
+	FLEX_DEVICE_ADDRESS_1, 
+	FLEX_DEVICE_ADDRESS_2, 
+	FLEX_DEVICE_ADDRESS_3, 
+	FLEX_DEVICE_ADDRESS_4
+};
+unsigned int openzb_device_address = 0x00FF;
+#else
+unsigned int openzb_device_address = FLEX_DEVICE_ADDRESS;
+#endif
+
+
+
 EE_UINT8 GTS_TRANSMITING=0;
 
 /*****************************************************/
@@ -430,10 +444,10 @@ void init_mac()
 		add_gts_entry(1,1,0x1234,11);		
 		add_gts_entry(1,1,0x1234,12);		
 		add_gts_entry(1,1,0x1234,13);		
-		add_gts_entry(1,0,FLEX_DEVICE_ADDRESS_1,10);
-		add_gts_entry(1,0,FLEX_DEVICE_ADDRESS_2,11);
-		add_gts_entry(1,0,FLEX_DEVICE_ADDRESS_3,12);
-		add_gts_entry(1,0,FLEX_DEVICE_ADDRESS_4,13);
+		add_gts_entry(1,0,openzb_device_addresses[0],10);
+		add_gts_entry(1,0,openzb_device_addresses[1],11);
+		add_gts_entry(1,0,openzb_device_addresses[2],12);
+		add_gts_entry(1,0,openzb_device_addresses[3],13);
 	#endif
 	
 
@@ -2340,11 +2354,7 @@ void init_MacPIB()
 	mac_PIB.macRxOnWhenIdle=0;
  
 	//mac_PIB.macShortAddress=TOS_LOCAL_ADDRESS; //16bits short address
-	#ifdef DEVICE_TYPE_COORDINATOR
-	mac_PIB.macShortAddress = 0x0FFF;
-	#else
-	mac_PIB.macShortAddress = FLEX_DEVICE_ADDRESS;
-	#endif
+	mac_PIB.macShortAddress = openzb_device_address;
 	//mac_PIB.macShortAddress=0x0003;
 
 	mac_PIB.macBeaconOrder=6;  //specification of how often the coordinator transmits a beacon

@@ -77,6 +77,7 @@ CPU mySystem {
 
 		CPU_DATA = PIC30 {
 			APP_SRC = "dspic_main.c";
+			//APP_SRC = "check.S";
 			MULTI_STACK = FALSE;
 			ICD2 = TRUE;
 		};
@@ -100,27 +101,45 @@ CPU mySystem {
 	};
 
 	TASK rt_sci {
+		PRIORITY = 1;
+		STACK = SHARED;
+		SCHEDULE = FULL;
+		RESOURCE = "scicosUSB_rx_buffer_mutex";
+	};
+	
+	TASK rt_LCD {
 		PRIORITY = 3;
 		STACK = SHARED;
 		SCHEDULE = FULL;
 	};
 	
-	TASK rt_LCD {
-		PRIORITY = 1;
+	TASK rx_USB {
+		PRIORITY = 8;
 		STACK = SHARED;
 		SCHEDULE = FULL;
+		RESOURCE = "scicosUSB_rx_buffer_mutex";
 	};
 	
+	
 	COUNTER myCounter;
+	COUNTER SciCounter;
 
 	ALARM AlarmSci {
-		COUNTER = "myCounter";
-		ACTION = ACTIVATETASK { TASK = "rt_sci"; };
+		COUNTER = "SciCounter";
+		ACTION = ACTIVATETASK { TASK = "rt_sci"; };		
 	};
 	
 	ALARM AlarmLcd {
-		COUNTER = "myCounter";
+		COUNTER = "SciCounter";
 		ACTION = ACTIVATETASK { TASK = "rt_LCD"; };
 	};
+	
+	ALARM AlarmUSB {
+		COUNTER = "SciCounter";
+		ACTION = ACTIVATETASK { TASK = "rx_USB"; };		
+	};
+	
+	RESOURCE scicosUSB_rx_buffer_mutex { RESOURCEPROPERTY = STANDARD; };
+
 };
 

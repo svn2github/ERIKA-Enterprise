@@ -66,13 +66,13 @@ CPU mySystem {
 	OS myOs {
 		EE_OPT = "DEBUG";
 		EE_OPT = "NODEPS";
-		EE_OPT = "ARIZONADEMO";
 		//EE_OPT = "VERBOSE";
 
 #include "conf_embcodegen.oil"
 
 		LDFLAGS = "--heap=8000";
 		CFLAGS = "-DDEVICE_TYPE_COORDINATOR";
+		CFLAGS = "-DOPENZB_CHANNEL=25";
 
 		//LDFLAGS = "-L../../libscicos/Debug";
 		EE_OPT = "__ADD_LIBS__";
@@ -107,7 +107,8 @@ CPU mySystem {
 		PRIORITY = 1;
 		STACK = SHARED;
 		SCHEDULE = FULL;
-		RESOURCE = "scicosOpenZB_rx_buffer_mutex";
+		RESOURCE = "scicosOpenZB_rx_buffer_mutex";		
+		RESOURCE = "scicosUSB_rx_buffer_mutex";
 	};
 	
 	TASK rt_LCD {
@@ -116,17 +117,30 @@ CPU mySystem {
 		SCHEDULE = FULL;
 	};
 	
+	TASK rx_USB {
+		PRIORITY = 8;
+		STACK = SHARED;
+		SCHEDULE = FULL;
+		RESOURCE = "scicosUSB_rx_buffer_mutex";
+	};
+	
+	
 	COUNTER myCounter;
 	COUNTER SciCounter;
 
 	ALARM AlarmSci {
 		COUNTER = "SciCounter";
-		ACTION = ACTIVATETASK { TASK = "rt_sci"; };
+		ACTION = ACTIVATETASK { TASK = "rt_sci"; };		
 	};
 	
 	ALARM AlarmLcd {
 		COUNTER = "SciCounter";
 		ACTION = ACTIVATETASK { TASK = "rt_LCD"; };
+	};
+	
+	ALARM AlarmUSB {
+		COUNTER = "SciCounter";
+		ACTION = ACTIVATETASK { TASK = "rx_USB"; };		
 	};
 
 	//CC2420 reception tasks
@@ -229,6 +243,7 @@ CPU mySystem {
 	RESOURCE S1 { RESOURCEPROPERTY = STANDARD; };
 	RESOURCE S2 { RESOURCEPROPERTY = STANDARD; };
 	RESOURCE scicosOpenZB_rx_buffer_mutex { RESOURCEPROPERTY = STANDARD; };
+	RESOURCE scicosUSB_rx_buffer_mutex { RESOURCEPROPERTY = STANDARD; };
 
 };
 
