@@ -259,6 +259,7 @@ EE_C_SRCS += \
 	ee/pkg/kernel/frsh/src/ee_frsh_syncobj_signal.c \
 	ee/pkg/kernel/frsh/src/ee_frsh_syncobj_wait.c \
 	ee/pkg/kernel/frsh/src/ee_frsh_syncobj_waittimeout.c \
+	ee/pkg/kernel/frsh/src/ee_frsh_syncobj_wait_utils.c \
 	ee/pkg/kernel/frsh/src/ee_frsh_syncobj_timedwait.c
 
 endif

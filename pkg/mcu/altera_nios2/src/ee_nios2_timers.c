@@ -49,6 +49,9 @@
 
 #if defined(__FRSH__)
 
+#ifndef __PRIVATE_IRQ_SYNCHOBJ_TIMEOUT__
+void EE_frsh_IRQ_synchobj_timeout(void);
+#endif
 
 
 #ifndef __PRIVATE_TIME_INIT__
