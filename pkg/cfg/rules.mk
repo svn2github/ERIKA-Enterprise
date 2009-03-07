@@ -130,6 +130,7 @@ endif
 # Bugfix: to be removed!
 ifeq ($(findstring __unibo_mparm__,$(EEOPT)) , __unibo_mparm__)
 EEOPT += __UNIBO_MPARM__
+EEALLOPT += __UNIBO_MPARM__
 endif
 
 
