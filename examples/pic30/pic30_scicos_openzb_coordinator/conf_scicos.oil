@@ -67,6 +67,7 @@ CPU mySystem {
 		EE_OPT = "DEBUG";
 		EE_OPT = "NODEPS";
 		//EE_OPT = "VERBOSE";
+		EE_OPT = "__USE_USB_OLD__";
 
 #include "conf_embcodegen.oil"
 
@@ -90,7 +91,20 @@ CPU mySystem {
 		
 		BOARD_DATA = EE_FLEX {
 			TYPE = DEMO {
-				OPTIONS = ALL;
+				//OPTIONS = ALL;
+				OPTIONS = ZIGBEE;
+				OPTIONS = ACCELEROMETER;
+				OPTIONS = ADC_IN;
+				OPTIONS = BUTTONS;
+				OPTIONS = BUZZER;
+				OPTIONS = DAC;
+				OPTIONS = ENCODER;
+				OPTIONS = LCD;
+				OPTIONS = LEDS;
+				OPTIONS = PWM_OUT;
+				OPTIONS = SENSORS;
+				OPTIONS = TRIMMER;
+			};
 			};
 		};
 		

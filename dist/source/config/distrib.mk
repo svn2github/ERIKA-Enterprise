@@ -931,6 +931,7 @@ distrib_opt___PIC30__:: \
 		ee_$(DIST)/contrib/scicos/src/pic30/flex_dmb_ntc.c \
 		ee_$(DIST)/contrib/scicos/src/pic30/flex_dmb_potin.c \
 		ee_$(DIST)/contrib/scicos/src/pic30/flex_dmb_pwm.c \
+		ee_$(DIST)/contrib/scicos/src/pic30/flex_usb_receive.c \
 		ee_$(DIST)/contrib/scicos/src/pic30/flex_usb_send.c \
 		ee_$(DIST)/contrib/scicos/src/pic30/openzb \
 		ee_$(DIST)/contrib/scicos/src/pic30/openzb/flex_zigbee_receive.c \
@@ -1072,6 +1073,7 @@ distrib_opt___PIC30_EXAMPLES__:: \
 		ee_$(DIST)/examples/pic30/pic30_scicos \
 		ee_$(DIST)/examples/pic30/pic30_scicos/dspic_main.c \
 		ee_$(DIST)/examples/pic30/pic30_scicos/memory.h \
+		ee_$(DIST)/examples/pic30/pic30_scicos/scicos_USB.h \
 		ee_$(DIST)/examples/pic30/pic30_scicos/template.xml \
 		ee_$(DIST)/examples/pic30/pic30_scicos/conf_scicos.oil \
 		\
@@ -1080,6 +1082,7 @@ distrib_opt___PIC30_EXAMPLES__:: \
 		ee_$(DIST)/examples/pic30/pic30_scicos_openzb_coordinator/memory.h \
 		ee_$(DIST)/examples/pic30/pic30_scicos_openzb_coordinator/types.h \
 		ee_$(DIST)/examples/pic30/pic30_scicos_openzb_coordinator/template.xml \
+		ee_$(DIST)/examples/pic30/pic30_scicos_openzb_coordinator/scicos_USB.h \
 		ee_$(DIST)/examples/pic30/pic30_scicos_openzb_coordinator/scicos_openZB.h \
 		ee_$(DIST)/examples/pic30/pic30_scicos_openzb_coordinator/conf_scicos.oil \
 		\
@@ -1088,6 +1091,7 @@ distrib_opt___PIC30_EXAMPLES__:: \
 		ee_$(DIST)/examples/pic30/pic30_scicos_openzb_device/memory.h \
 		ee_$(DIST)/examples/pic30/pic30_scicos_openzb_device/types.h \
 		ee_$(DIST)/examples/pic30/pic30_scicos_openzb_device/template.xml \
+		ee_$(DIST)/examples/pic30/pic30_scicos_openzb_device/scicos_USB.h \
 		ee_$(DIST)/examples/pic30/pic30_scicos_openzb_device/scicos_openZB.h \
 		ee_$(DIST)/examples/pic30/pic30_scicos_openzb_device/conf_scicos.oil \
 		\

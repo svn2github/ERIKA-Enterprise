@@ -174,7 +174,7 @@ extern "C" {
 #include "board/arm_evaluator7t/inc/ee_board.h"
 #endif
 
-#ifdef __unibo_mparm__
+#ifdef __UNIBO_MPARM__
 #include "board/unibo_mparm/inc/ee_board.h"
 #endif
 
