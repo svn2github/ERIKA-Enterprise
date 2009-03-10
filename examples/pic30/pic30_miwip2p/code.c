@@ -21,8 +21,7 @@
  */
 
 /*
- * code.c
- *
+ * File: code.c
  * Author: Gianluca Franchino (Abbreviation GF).
  * Affiliation: Retis Lab. Scuola Superiore Sant'Anna. Pisa (Italy).
  * Contacts: g.franchino@sssup.it; gianluca@evidence.eu.com
@@ -215,7 +214,7 @@ void flex_demoboard_init()
 }
 
 /*
- * This task sends a message through the MiWiP2P stack.
+ * This task sends a message through the MiWi P2P stack.
  */
 TASK(TaskSend)
 {
@@ -246,7 +245,7 @@ TASK(TaskSend)
 EE_INT16 tog=0;
 
 /*
- * This task prints out on the console a message received through the MiWiP2P
+ * This task prints out on the console a message received through the MiWi P2P
  * stack.
  */
 TASK(TaskRec)

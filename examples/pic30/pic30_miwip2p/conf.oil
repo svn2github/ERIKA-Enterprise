@@ -59,7 +59,7 @@ CPU mySystem {
 		EE_OPT = "USE_CONSOLE_SERIAL";
 	};
 	
-		COUNTER myCounter;
+	COUNTER myCounter;
 	
 	ALARM AlarmProt {
 		COUNTER = "myCounter";
