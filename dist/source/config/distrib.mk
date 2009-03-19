@@ -186,7 +186,10 @@ distrib_opt___unibo_mparm__:: \
 		ee_$(DIST)/pkg/board/unibo_mparm/inc \
 		ee_$(DIST)/pkg/board/unibo_mparm/inc/ee_internal.h \
 		ee_$(DIST)/pkg/board/unibo_mparm/src \
-		ee_$(DIST)/pkg/board/unibo_mparm/src/ee_board.c
+		ee_$(DIST)/pkg/board/unibo_mparm/src/ee_board.c \
+		ee_$(DIST)/pkg/board/unibo_mparm/debug \
+		ee_$(DIST)/pkg/board/unibo_mparm/debug/swarm.tpl
+		
 	@echo OPT __unibo_mparm__ up2date.
 
 distrib_opt___ST_STA2051__:: \
