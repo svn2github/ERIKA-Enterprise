@@ -211,6 +211,47 @@ __INLINE__ EE_UINT8 __ALWAYS_INLINE__ EE_button_get_S4( void ) {
 
 #endif
 
+//Start GF
+/* /\************************************************************************* */
+/*  PICDEM Z RF*/
+/*  *************************************************************************\/ */
+
+#if defined (__USE_PICDEMZ_WITH_INT4__) || (__USE_PICDEMZ_WITH_CN20INT__)
+
+extern void (*EE_picdemz_callback)(void);
+
+__INLINE__ void __ALWAYS_INLINE__ EE_picdemz_init( void(*isr_callback)(void)) {
+
+
+	/* set the pins that control the radio module */
+	TRISGbits.TRISG0 = 0; //PHY_RESETn_TRIS = 0;
+	LATGbits.LATG0 = 0; //PHY_RESETn = 0; Reset the radio
+	TRISGbits.TRISG9 = 0; // PHY_CS_TRIS = 0;
+	LATGbits.LATG9 = 1; //PHY_CS = 1;
+	TRISGbits.TRISG12 = 0; //PHY_WAKE_TRIS = 0;
+	LATGbits.LATG12 = 1; //PHY_WAKE = 1;
+
+	/* Initialize the spi peripheral */
+	dsPIC33F_radio_spi_init(1); /* Initialize SPI2 */
+
+#ifdef __USE_PICDEMZ_WITH_INT4__
+		/* initialize INT4 interrupt */
+	IFS3bits.INT4IF = 0; //RFIF = 0;
+	IEC3bits.INT4IE = 1; //RFIE = 1;
+#else
+	/* initialize CN20 interrupt */
+	CNEN2bits.CN20IE =1; //RFIEC20 = 1; INT on CN20
+	IFS1bits.CNIF = 0; //RFIF = 0;
+	IEC1bits.CNIE = 1; //RFIE = 1;
+	//TRISDbits.TRISD14 = 1; // set CN20 pin as input
+#endif
+	/* link the callback */
+	EE_picdemz_callback = isr_callback;
+
+}
+
+#endif
+//End GF
 
 /* /\************************************************************************* */
 /*  LCD */

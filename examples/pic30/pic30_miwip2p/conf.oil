@@ -25,7 +25,7 @@
  * Author: Gianluca Franchino.
  * Affiliation: Retis Lab. Scuola Superiore Sant'Anna. Pisa (Italy).
  * Contacts: g.franchino@sssup.it; gianluca@evidence.eu.com
- * Date: 02/16/2009.
+ * Date: 03/20/2009.
  */
  
 CPU mySystem {
@@ -47,7 +47,7 @@ CPU mySystem {
 				OPTIONS = ALL;
 			};
 		};
-		
+		 
 		KERNEL_TYPE = FP;
 		
 		EE_OPT = "__ADD_LIBS__";
@@ -57,6 +57,8 @@ CPU mySystem {
 		};	
 		EE_OPT = "USE_CONSOLE";
 		EE_OPT = "USE_CONSOLE_SERIAL";
+		//EE_OPT = "__USE_PICDEMZ_WITH_INT4__";
+		EE_OPT = "__USE_PICDEMZ_WITH_CN20INT__";
 	};
 	
 	COUNTER myCounter;

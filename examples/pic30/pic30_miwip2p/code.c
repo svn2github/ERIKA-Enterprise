@@ -25,7 +25,7 @@
  * Author: Gianluca Franchino (Abbreviation GF).
  * Affiliation: Retis Lab. Scuola Superiore Sant'Anna. Pisa (Italy).
  * Contacts: g.franchino@sssup.it; gianluca@evidence.eu.com
- * Date: 02/16/2009.
+ * Date: 03/20/2009.
  */
 
 
@@ -83,9 +83,9 @@ const unsigned char P2P[65] =
     0xB2,0x20,0x20,0x20,0xB2,0xB2,0xB2,0x20,0xB2,0x20,0x20,0x0D,0x0A
 };
 
-EE_UINT16 now_count = 0;
-
 void T1_clear(void);
+
+EE_UINT16 now_count = 0;
 
 /*
  * This is an ISR Type 2 which is attached to the Timer 1 peripheral IRQ pin
@@ -102,21 +102,6 @@ ISR2(_T1Interrupt)
 	now_count++;
 }
 
-/*
- * This is an ISR Type 2 which is attached to INT4 pin, which in turn is
- * attached to the MRF40J24 IRQ pin (i.e. the radio).
- *
- * The ISR simply checks if an interrupt has been issued and then activates
- * TaskInt.
- */
-ISR2(_INT4Interrupt)
-{
-	if(RFIE && RFIF) {
-		RFIF = 0;
-		ActivateTask(TaskInt);
-	}
-
-}
 
 /* Program the Timer1 peripheral to raise interrupts */
 void T1_program(void)
@@ -143,7 +128,7 @@ void T1_clear(void)
 #define DEBOUNCE_TIME 200 /* DEBOUNCE time is 200 ms */
 
 EE_UINT8 msg_flag = 0, flag  = 1;
-EE_UINT16 last_press_time = 0;
+EE_UINT16 last_press_time[3] = {0, 0, 0};
 
 /*
  * my_button is the callback function executed when
@@ -153,63 +138,69 @@ void my_button(void)
 {
 	EE_INT16 press_diff;
 
-	if (EE_button_get_S1() == 1)
-		msg_flag = (msg_flag + 1) % 2;
-	else
+	if (EE_button_get_S1() == 1) {
+		press_diff = now_count - last_press_time[0];
+		last_press_time[0] = now_count;
+
+		if (press_diff < 0)
+			press_diff += 0xFFFF;
+		if (press_diff >= DEBOUNCE_TIME)
+			msg_flag = (msg_flag + 1) % 2;
+	} else
 		if(EE_button_get_S2() == 1) {
 
-			press_diff = now_count - last_press_time;
-			last_press_time = now_count;
+			press_diff = now_count - last_press_time[1];
+			last_press_time[1] = now_count;
+
 			if (press_diff < 0)
 				press_diff += 0xFFFF;
-			if (press_diff >= DEBOUNCE_TIME) {
+			if (press_diff >= DEBOUNCE_TIME)
 				ActivateTask(TaskSend);
-				last_press_time = 0;
-			}
 
-		} else
+		} else {
 			if(EE_button_get_S3() == 1) {
-				if(flag) {
-					flag = 0;
-					SetRelAlarm(AlarmSend, 50, 250);
-				} else {
-					flag = 1;
-					CancelAlarm(AlarmSend);
+
+				press_diff = now_count - last_press_time[2];
+				last_press_time[2] = now_count;
+				if (press_diff < 0)
+					press_diff += 0xFFFF;
+				if (press_diff >= DEBOUNCE_TIME) {
+					if(flag) {
+						flag = 0;
+						SetRelAlarm(AlarmSend, 50, 250);
+					} else {
+						flag = 1;
+						CancelAlarm(AlarmSend);
+					}
 				}
+			}
 		}
 }
 
+/*
+ * radio_isr is the callback function executed when
+ * the radio module issues an interrupt.
+ */
+void radio_isr(void)
+{
+	ActivateTask(TaskInt);
+}
 
 /*
  * This function initializes the flex board
  * in order to manage buttons and leds of the demo board.
- * Furthermore, it initializes the SPI peripheral and the control pins
- * connected to the radio board.
+ * Furthermore, it initializes the radio module.
  */
 void flex_demoboard_init()
 {
 	/* Initialize buttons 1, 2 and 3 */
-	EE_buttons_init(&my_button, 0x01);
-	EE_buttons_init(&my_button, 0x02);
-	EE_buttons_init(&my_button, 0x04);
-
+	EE_buttons_init(&my_button, 0x07);
 
 	/* Initialize leds */
 	EE_demoboard_leds_init();
 
-	/* Radio SPI initialization stuffs */
-
-	dsPIC33F_radio_spi_init(RADIO_SPI2); /* Initialize SPI2 */
-
-	PHY_RESETn = 0;
-	PHY_RESETn_TRIS = 0;
-	PHY_CS = 1;
-	PHY_CS_TRIS = 0;
-	PHY_WAKE = 1;
-	PHY_WAKE_TRIS = 0;
-
-	RFIF = 0;
-	RFIE = 1;
+	/* Initialize radio module */
+	EE_picdemz_init(&radio_isr);
 
 }
 

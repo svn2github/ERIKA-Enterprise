@@ -36,7 +36,7 @@
  * Author: Gianluca Franchino (Abbreviation GF).
  * Affiliation: Retis Lab. Scuola Superiore Sant'Anna. Pisa (Italy).
  * Contacts: g.franchino@sssup.it; gianluca@evidence.eu.com
- * Date: 02/16/2009.
+ * Date: 03/20/2009.
  */
 
 #ifndef _P2P_DEFS_H_
@@ -152,9 +152,16 @@
         #define RFIE IEC0bits.INT2IE
     #else
         #define CLOCK_FREQ 8000000
-        #define RFIF IFS3bits.INT4IF
-        #define RFIE IEC3bits.INT4IE
-		#define	RF_INT_PIN_POLARITY INTCON2bits.INT4EP
+
+		#ifdef __USE_PICDEMZ_WITH_INT4__
+			#define RFIF IFS3bits.INT4IF
+			#define RFIE IEC3bits.INT4IE
+			#define	RF_INT_PIN_POLARITY INTCON2bits.INT4EP
+		#else
+			#define RFIF IFS1bits.CNIF
+			#define RFIE IEC1bits.CNIE
+			#define RFIEC20 CNEN2bits.CN20IE
+		#endif
     #endif
 /*
     #define RF_INT_PIN PORTBbits.RB0
@@ -167,9 +174,14 @@
     #define PHY_WAKE LATGbits.LATG3
     #define PHY_WAKE_TRIS TRISGbits.TRISG3
 */
-    #define RF_INT_PIN PORTAbits.RA15 //INT4
-	#define TRIS_RF_INT_PIN	TRISAbits.TRISA15
+	#ifdef __USE_PICDEMZ_WITH_INT4__
 
+		#define RF_INT_PIN PORTAbits.RA15 //INT4
+		#define TRIS_RF_INT_PIN	TRISAbits.TRISA15
+	#else
+		#define RF_INT_PIN PORTDbits.RD14 //INT CN20
+		#define TRIS_RF_INT_PIN	TRISDbits.TRISD14
+	#endif
     #define TMRL TMR2
 
 // Transceiver Configuration
@@ -191,7 +203,7 @@
     #define LED_2_TRIS TRISAbits.TRISA6
 */
 
-    #define PUSH_BUTTON_1 PORTDbits.RD4
+/*    #define PUSH_BUTTON_1 PORTDbits.RD4
     #define PUSH_BUTTON_2 PORTDbits.RD5
     #define LED_1 LATFbits.LATF0
     #define LED_2 LATFbits.LATF1
@@ -200,11 +212,11 @@
     #define PUSH_BUTTON_2_TRIS TRISDbits.TRISD5
     #define LED_1_TRIS TRISFbits.TRISF0
     #define LED_2_TRIS TRISFbits.TRISF1
+*/
 
 	#define SPIPut(a) dsPIC33F_radio_spi_put(a)
 	#define SPIGet() dsPIC33F_radio_spi_get()
-	//#undef SPIInit()
-	//#define SPIInit()
+
 #endif
 //End GF
 
