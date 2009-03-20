@@ -53,8 +53,9 @@ include $(wildcard $(EEBASE)/pkg/*/*/cfg/cfg.mk)
 endif
 
 #include only if not empty
-ifneq ($(strip $(wildcard $(EEBASE)/contrib/*/cfg/cfg.mk)),)
-include $(wildcard $(EEBASE)/contrib/*/cfg/cfg.mk)
+cfgsubdirs=$(shell find $(EEBASE)/contrib -name cfg.mk)
+ifneq ($(strip $(cfgsubdirs)),)
+include $(cfgsubdirs)
 endif
 
 endif
@@ -64,8 +65,9 @@ endif
 ifeq ($(ENABLE_LIBS), TRUE)
 
 #include only if not empty
-ifneq ($(strip $(wildcard $(EEBASE)/contrib/*/cfg/libcfg.mk)),)
-include $(wildcard $(EEBASE)/contrib/*/cfg/libcfg.mk)
+libcfgsubdirs=$(shell find $(EEBASE)/contrib -name libcfg.mk)
+ifneq ($(strip $(libcfgsubdirs)),)
+include $(libcfgsubdirs)
 endif
 
 endif
