@@ -7,7 +7,7 @@
  *
  * ERIKA Enterprise is free software; you can redistribute it
  * and/or modify it under the terms of the GNU General Public License
- * version 2 as published by the Free Software Foundation, 
+ * version 2 as published by the Free Software Foundation,
  * (with a special exception described below).
  *
  * Linking this code statically or dynamically with other modules is
@@ -62,19 +62,7 @@
 void (*EE_button_callback)(void);
 EE_UINT8 EE_button_mask;
 
-union  {
-	EE_UINT8 status;
-	struct
-	{
-		EE_UINT8 s1: 1;
-		EE_UINT8 s2: 1;
-		EE_UINT8 s3: 1;
-		EE_UINT8 s4: 1;
-	}bits;
-
-} //cn_status ;
-
- cn_st_old;
+union cn_st cn_st_old;
 #endif
 
 #if defined (__USE_PICDEMZ_WITH_INT4__) || (__USE_PICDEMZ_WITH_CN20INT__)
@@ -157,13 +145,13 @@ EE_UINT8 EE_accelerometer_g = 6;
 #ifdef __USE_LCD__
 EE_UINT16 lcd_temp_count = 0;
 
-void Delay( unsigned int delay_count ) 
+void Delay( unsigned int delay_count )
 {
 	lcd_temp_count = delay_count +1;
-	asm volatile("outer: dec _lcd_temp_count");	
+	asm volatile("outer: dec _lcd_temp_count");
 	asm volatile("cp0 _lcd_temp_count");
 	asm volatile("bra z, done");
-	asm volatile("do #3200, inner" );	
+	asm volatile("do #3200, inner" );
 	asm volatile("nop");
 	asm volatile("inner: nop");
 	asm volatile("bra outer");
@@ -173,15 +161,15 @@ void Delay( unsigned int delay_count )
 void Delay_Us( unsigned int delayUs_count )
 {
 	lcd_temp_count = delayUs_count +1;
-	asm volatile("outer1: dec _lcd_temp_count");	
+	asm volatile("outer1: dec _lcd_temp_count");
 	asm volatile("cp0 _lcd_temp_count");
 	asm volatile("bra z, done1");
-	asm volatile("do #1500, inner1" );	
+	asm volatile("do #1500, inner1" );
 	asm volatile("nop");
 	asm volatile("inner1: nop");
 	asm volatile("bra outer1");
 	asm volatile("done1:");
-}		
+}
 
 #endif
 
@@ -236,8 +224,8 @@ struct flex_usb_packet_t {
 };
 
 enum flex_usb_header_type_t {
-	FLEX_USB_HEADER_NULL = 0x00,	
-	FLEX_USB_HEADER_COMMAND = 0x01,	
+	FLEX_USB_HEADER_NULL = 0x00,
+	FLEX_USB_HEADER_COMMAND = 0x01,
 	FLEX_USB_HEADER_DATA = 0x02,
 	FLEX_USB_HEADER_ACK = 0x03,
 };
@@ -256,7 +244,7 @@ static EE_UINT16 rx_held = 0;
 static volatile char dummy_send_lock = 0;
 static char usb_initialized = 0;
 
-void EE_usb_init(void) 
+void EE_usb_init(void)
 {
 	if(usb_initialized)
 		return;
@@ -309,7 +297,7 @@ void EE_usb_init(void)
 	rx_held = 0;
 	dummy_send_lock = 0;
 	usb_initialized = 1;
-}	
+}
 
 EE_INT16 EE_usb_write(EE_UINT8 *buf, EE_UINT16 len)
 {
@@ -336,9 +324,9 @@ EE_INT16 EE_usb_write(EE_UINT8 *buf, EE_UINT16 len)
 	dma_tx_pkt.crc = sum;
 	DMA0STA = __builtin_dmaoffset(&dma_tx_pkt);
 	DMA0CNT = 63;	/* NOTE 63 = sizeof(dma_tx_pkt) - 1 */
-	IFS0bits.DMA0IF  = 0;	
+	IFS0bits.DMA0IF  = 0;
 	IEC0bits.DMA0IE  = 1;
-	DMA0CONbits.CHEN = 1; 	
+	DMA0CONbits.CHEN = 1;
 	DMA0REQbits.FORCE = 1;
 	USB_PIC18_REQ = 1;	/* Request transmission */
 	/* chris: TODO: non usare il bloccaggio attivo qui!!! */
@@ -352,13 +340,13 @@ EE_INT16 EE_usb_read(EE_UINT8 *buf, EE_UINT16 len)
 	EE_UINT16 idx;
 
 	if (len == 0 || len > FLEX_USB_RX_BUFFER_SIZE)
-		return -1;	
+		return -1;
   	IEC0bits.DMA1IE = 0;	/* mutex: disable DMA SPI RX Interrupt */
 	if (rx_held == 0) {
   		IEC0bits.DMA1IE = 1;	/* mutex: enable DMA SPI RX Interrupt */
-		return 0;	
+		return 0;
 	}
-	if (len > rx_held) 
+	if (len > rx_held)
 		len = rx_held;
 	idx = (rx_first + len) % FLEX_USB_RX_BUFFER_SIZE;
 	/* NOTE: idx = new_first position for rx */
@@ -367,11 +355,11 @@ EE_INT16 EE_usb_read(EE_UINT8 *buf, EE_UINT16 len)
 		memcpy(buf, rx_buffer + rx_first, len);
 	} else {
 		/* The first part of message is stored from rx_first to the end
-		    of the buffer, the remaining part goes from the of the 
+		    of the buffer, the remaining part goes from the of the
 		    begin buffer to idx index.  */
-		memcpy(buf, rx_buffer + rx_first, 
+		memcpy(buf, rx_buffer + rx_first,
 		       FLEX_USB_RX_BUFFER_SIZE - rx_first);
-		memcpy(buf + (FLEX_USB_RX_BUFFER_SIZE - rx_first), 
+		memcpy(buf + (FLEX_USB_RX_BUFFER_SIZE - rx_first),
 		       rx_buffer, idx + 1);
 	}
 	rx_held -= len;
@@ -381,7 +369,7 @@ EE_INT16 EE_usb_read(EE_UINT8 *buf, EE_UINT16 len)
 	return (EE_INT16) len;
 }
 
-/** 
+/**
 * @brief DMA ISR for SPI transmission
 */
 void __attribute__((interrupt, no_auto_psv)) _DMA0Interrupt(void)
@@ -391,17 +379,17 @@ void __attribute__((interrupt, no_auto_psv)) _DMA0Interrupt(void)
 	DMA0CONbits.CHEN = 0;
 	/* TODO: do something eventually here to start another transfer */
 	/* chris: TODO: versione di test.... sblocca il dummy lock! */
-	USB_PIC18_REQ = 0; 
+	USB_PIC18_REQ = 0;
 	dummy_send_lock = 0;
 }
 
-/** 
+/**
 * @brief DMA ISR for SPI reception
 */
 void __attribute__((interrupt, no_auto_psv)) _DMA1Interrupt(void)
 {
 	EE_UINT16 idx;
-	IFS0bits.DMA1IF = 0;	
+	IFS0bits.DMA1IF = 0;
 	/* TODO: controllare header start, controllare CRC */
 	if (dma_rx_pkt.type == FLEX_USB_HEADER_DATA) {
 		/* If the read message is larger than the whole buffer,
@@ -409,7 +397,7 @@ void __attribute__((interrupt, no_auto_psv)) _DMA1Interrupt(void)
 		   TODO: is this a possible scenario?? */
 		if (dma_rx_pkt.length >= FLEX_USB_RX_BUFFER_SIZE) {
 			idx = dma_rx_pkt.length - FLEX_USB_RX_BUFFER_SIZE;
-			memcpy(rx_buffer, dma_rx_pkt.payload + idx, 
+			memcpy(rx_buffer, dma_rx_pkt.payload + idx,
 			       FLEX_USB_RX_BUFFER_SIZE);
 			rx_last = 0;
 			rx_first = 0;
@@ -417,29 +405,29 @@ void __attribute__((interrupt, no_auto_psv)) _DMA1Interrupt(void)
 			return;
 		}
 		if (FLEX_USB_RX_BUFFER_SIZE - rx_held < dma_rx_pkt.length) {
-			/* Overriding condition: implement shift policy 
-			   on the rx_first indec,  idx=amount of 
+			/* Overriding condition: implement shift policy
+			   on the rx_first indec,  idx=amount of
 			   overriding bytes. */
-			idx = dma_rx_pkt.length - 
+			idx = dma_rx_pkt.length -
 			      (FLEX_USB_RX_BUFFER_SIZE - rx_held);
 			rx_first = (rx_first + idx) % FLEX_USB_RX_BUFFER_SIZE;
 		}
 		/* NOTE: idx = new_last position for rx */
 		idx = (rx_last + dma_rx_pkt.length) % FLEX_USB_RX_BUFFER_SIZE;
 		if (idx > rx_last) {
-			/* The message fits from rx_last to the 
+			/* The message fits from rx_last to the
 			   end of the buffer. */
-			memcpy(rx_buffer + rx_last, dma_rx_pkt.payload, 
+			memcpy(rx_buffer + rx_last, dma_rx_pkt.payload,
 			       dma_rx_pkt.length);
 		} else {
-			/* The first part of message must be stored 
-			   from rx_last to the end of the buffer, the 
+			/* The first part of message must be stored
+			   from rx_last to the end of the buffer, the
 			   remaining part goes from begin buffer to
 			   idx index.  */
-			memcpy(rx_buffer + rx_last, dma_rx_pkt.payload, 
+			memcpy(rx_buffer + rx_last, dma_rx_pkt.payload,
 			       (FLEX_USB_RX_BUFFER_SIZE - rx_last));
-			memcpy(rx_buffer, 
-			       dma_rx_pkt.payload + FLEX_USB_RX_BUFFER_SIZE - 
+			memcpy(rx_buffer,
+			       dma_rx_pkt.payload + FLEX_USB_RX_BUFFER_SIZE -
 			       rx_last, idx+1);
 		}
 		rx_last = idx;
@@ -460,9 +448,9 @@ char usb_initialized;
 
 void EE_usb_init( void ) {
   if(!usb_initialized){
-    
+
     LATAbits.LATA14 = 1; // dsPIC SPI communication busy
-    
+
     /* Following code snippet shows SPI register configuration for SLAVE Mode*/
   	SPI1BUF = 0x00;
   	IFS0bits.SPI1IF = 0; //Clear the Interrupt Flag
@@ -483,47 +471,47 @@ void EE_usb_init( void ) {
     //Interrupt Controller Settings
   	IFS0bits.SPI1IF = 0; //Clear the Interrupt Flag
   	IEC0bits.SPI1IE = 0; //Enable The Interrupt
-  	
+
   	// DMA0 configuration for SPI Tx
-  	DMA0CON = 0x2000;			
-  				
-  	DMA0REQ = 0x00A;					
-  
+  	DMA0CON = 0x2000;
+
+  	DMA0REQ = 0x00A;
+
   	DMA0PAD = (volatile unsigned int) &(SPI1BUF);
   	DMA0STA= __builtin_dmaoffset(Spi1TxBuffA);
 //  	DMA0STB= __builtin_dmaoffset(Spi1TxBuffB);
-  	
+
   	IFS0bits.DMA0IF  = 0;			// Clear DMA interrupt
   	IEC0bits.DMA0IE  = 0;			// Disable DMA interrupt
-  	DMA0CONbits.CHEN = 0;    // Disable Tx DMA Channel		
-	
+  	DMA0CONbits.CHEN = 0;    // Disable Tx DMA Channel
+
   	// DMA1 configuration for SPI Rx; lower priority than DMA0
-  	DMA1CON = 0x0000;				
-  	DMA1CNT = 3;						
-  	DMA1REQ = 0x00A;					
-  
+  	DMA1CON = 0x0000;
+  	DMA1CNT = 3;
+  	DMA1REQ = 0x00A;
+
   	DMA1PAD = (volatile unsigned int) &SPI1BUF;
   	DMA1STA= __builtin_dmaoffset(Spi1RxBuffA);
 //  	DMA1STB= __builtin_dmaoffset(Spi1RxBuffB);
-  	
+
   	IFS0bits.DMA1IF  = 0;			// Clear DMA interrupt
-  	
+
   	IEC0bits.DMA1IE  = 1;			// Enable Rx DMA interrupt
-  	DMA1CONbits.CHEN = 1;			// Enable DMA Channel		
-  	
+  	DMA1CONbits.CHEN = 1;			// Enable DMA Channel
+
     IFS0bits.DMA0IF  = 0;			// Clear DMA interrupt
   	IEC0bits.DMA0IE  = 0;			// Disable DMA interrupt
-  	DMA0CONbits.CHEN = 0;// Disable Tx DMA Channel	
-  	
+  	DMA0CONbits.CHEN = 0;// Disable Tx DMA Channel
+
     usb_initialized=1;
 	}
-	
-}	
+
+}
 
 
 int EE_usb_send(unsigned int *buf, int len)
 {
-  
+
   int i = 0, busybuf = 0;
   //LATAbits.LATA14 = 1 means that dsPIC SPI communication busy
   if(!len) return len;
@@ -540,16 +528,16 @@ int EE_usb_send(unsigned int *buf, int len)
     if(tosend == USB_BUF_SIZE+1) tosend = 1;
     Spi1TxBuffA[tosend] = buf[i];
   }
-  if(tosend == USB_BUF_SIZE+1) tosend = 1; 
- 
+  if(tosend == USB_BUF_SIZE+1) tosend = 1;
+
   if(LATAbits.LATA14){ // DMA dedicated to SPI not active
-    
+
     //if(sent != DMA0STA) for(;;); // debug
     busybuf = tosend - sent;
     if(busybuf < 0) busybuf+=USB_BUF_SIZE;
     if(busybuf > 31) busybuf = 31;
     if(busybuf > (USB_BUF_SIZE + 1 - sent)) busybuf = (USB_BUF_SIZE + 1 - sent);
-    if(sent<1 || sent >256) 
+    if(sent<1 || sent >256)
 	     for(;;) EE_hal_begin_primitive();
     Spi1TxBuffA[sent-1] = busybuf;
     DMA0STA= __builtin_dmaoffset(Spi1TxBuffA);
@@ -557,11 +545,11 @@ int EE_usb_send(unsigned int *buf, int len)
     DMA0CNT = busybuf+1;
     IFS0bits.DMA0IF  = 0;			// Clear DMA interrupt
   	IEC0bits.DMA0IE  = 1;			// Enable DMA interrupt
-    DMA0CONbits.CHEN = 1;// Enable Tx DMA Channel	
+    DMA0CONbits.CHEN = 1;// Enable Tx DMA Channel
     LATAbits.LATA14 = 0; // wake up PIC18
   }
-  
-  
+
+
 end:
   EE_hal_end_primitive();
   return len;
@@ -580,7 +568,7 @@ int EE_usb_read(unsigned int *buf, int log_channel)
   {
     EE_hal_end_primitive();
     return 0;
-  } 
+  }
   EE_hal_end_primitive();
   return 1;
 }
@@ -589,15 +577,15 @@ int temp;
 void __attribute__((interrupt, no_auto_psv)) _DMA0Interrupt(void)
 {
   EE_hal_begin_primitive();
-	LATAbits.LATA14 = 1; 
+	LATAbits.LATA14 = 1;
 	IFS0bits.DMA0IF  = 0;			// Clear DMA interrupt
 	IEC0bits.DMA0IE  = 0;			// Disable DMA interrupt
 	DMA0CONbits.CHEN = 0;    // Disable Tx DMA Channel
-	
+
 	int busybuf = 0;
 	if(sent<1 || sent >256)
 	 for(;;) EE_hal_begin_primitive();
-	 
+
 	temp =sent;
   sent = (sent + Spi1TxBuffA[sent-1]);
 
@@ -620,13 +608,13 @@ void __attribute__((interrupt, no_auto_psv)) _DMA0Interrupt(void)
     DMA0STA= __builtin_dmaoffset(Spi1TxBuffA);
     DMA0STA += (sent-1) << 1;
     DMA0CNT = busybuf+1;
-  	
+
   	IFS0bits.DMA0IF  = 0;			// Clear DMA interrupt
   	IEC0bits.DMA0IE  = 1;			// Enable DMA interrupt
-  	DMA0CONbits.CHEN = 1;    // Enable Tx DMA Channel	
-  	
+  	DMA0CONbits.CHEN = 1;    // Enable Tx DMA Channel
+
   	IFS0bits.DMA1IF  = 0;			// Clear DMA interrupt
-  	
+
     LATAbits.LATA14 = 0; // wake up PIC18
   }
   EE_hal_end_primitive();
@@ -635,22 +623,22 @@ void __attribute__((interrupt, no_auto_psv)) _DMA0Interrupt(void)
 void ProcessSpiRxSamples(unsigned int SpiRxBuffer[])
 {
   int log_channel;
-	if(!SpiRxBuffer[0]) 
+	if(!SpiRxBuffer[0])
 		return;
 	else if(SpiRxBuffer[0]==75) // received usb packet
   {
     IEC0bits.DMA1IE  = 0;			// Disable Rx DMA interrupt
   	DMA1CONbits.CHEN = 0;			// Disable DMA Channel
-    
-    
+
+
 	 	IEC0bits.DMA1IE  = 1;			// Enable Rx DMA interrupt
-  	DMA1CONbits.CHEN = 1;			// Enable DMA Channel	
+  	DMA1CONbits.CHEN = 1;			// Enable DMA Channel
 	}
 	else if(SpiRxBuffer[0]==77) // reset usb send buffer
   {
-    DMA0CONbits.CHEN = 0;// Disable Tx DMA Channel	
+    DMA0CONbits.CHEN = 0;// Disable Tx DMA Channel
     sent = tosend = 1;
-    LATAbits.LATA14 = 1; // dsPIC SPI communication busy	
+    LATAbits.LATA14 = 1; // dsPIC SPI communication busy
 	}
 	else if(SpiRxBuffer[0]==80)
   {
@@ -661,7 +649,7 @@ void ProcessSpiRxSamples(unsigned int SpiRxBuffer[])
     EE_usb_buf_in[(log_channel * 3)+1] = SpiRxBuffer[2]; // float_h
     EE_usb_buf_in[(log_channel * 3)+2] = SpiRxBuffer[3]; // float_l
     IEC0bits.DMA1IE  = 1;			// Enable Rx DMA interrupt
-  	DMA1CONbits.CHEN = 1;			// Enable DMA Channel	
+  	DMA1CONbits.CHEN = 1;			// Enable DMA Channel
   }
 }
 

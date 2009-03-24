@@ -7,7 +7,7 @@
  *
  * ERIKA Enterprise is free software; you can redistribute it
  * and/or modify it under the terms of the GNU General Public License
- * version 2 as published by the Free Software Foundation, 
+ * version 2 as published by the Free Software Foundation,
  * (with a special exception described below).
  *
  * Linking this code statically or dynamically with other modules is
@@ -74,6 +74,14 @@
 #error "CANNOT use both __USE_USB__ and __USE_USB_OLD__ in EEOPT"
 #endif
 
+//Start GF
+#if defined (__USE_PICDEMZ_WITH_INT4__) || (__USE_PICDEMZ_WITH_CN20INT__)
+
+#include "radio_spi.h"
+
+#endif
+//End GF
+
 /* /\************************************************************************* */
 /*  LEDs */
 /*  *************************************************************************\/ */
@@ -82,9 +90,9 @@
 
 __INLINE__ void __ALWAYS_INLINE__ EE_leds_init(void) {
 	/* set LED (LEDSYS/RB14) drive state low */
-	LATBbits.LATB14 = 0; 
+	LATBbits.LATB14 = 0;
 	/* set LED pin (LEDSYS/RB14) as output */
-	TRISBbits.TRISB14 = 0; 
+	TRISBbits.TRISB14 = 0;
 }
 
 __INLINE__ void __ALWAYS_INLINE__ EE_led_sys_on(void)   { LATBbits.LATB14 = 1; }
@@ -111,18 +119,18 @@ __INLINE__ void __ALWAYS_INLINE__ EE_led_off(void)  { LATBbits.LATB14 = 0; }
 
 __INLINE__ void __ALWAYS_INLINE__ EE_demoboard_leds_init(void) {
 	/* set LEDs drive state low */
-	LATF  &= 0xFFF0; 
-	LATD  &= 0xF0FF; 
+	LATF  &= 0xFFF0;
+	LATD  &= 0xF0FF;
 
 	/* set LEDs pin as output */
-	TRISF &= 0xFFF0; 
-	TRISD &= 0xF0FF; 
+	TRISF &= 0xFFF0;
+	TRISD &= 0xF0FF;
 }
 
 __INLINE__ void __ALWAYS_INLINE__ EE_leds( EE_UINT8 data ) {
 	LATF &= 0xFFF0;
 	LATD &= 0xF0FF;
-	
+
 	LATF |= (data & 0x0F);
 	LATD |= (data & 0xF0) << 4;
 }
@@ -156,33 +164,53 @@ __INLINE__ void __ALWAYS_INLINE__ EE_leds_off(void)  { LATD  &= 0xF0FF; LATF  &=
 #ifdef __USE_BUTTONS__
 
 extern void (*EE_button_callback)(void);
+
+union  cn_st{
+	EE_UINT8 status;
+	struct a_bits
+	{
+		EE_UINT8 s1: 1;
+		EE_UINT8 s2: 1;
+		EE_UINT8 s3: 1;
+		EE_UINT8 s4: 1;
+	}bits;
+};
+
 extern EE_UINT8 EE_button_mask;
+extern union cn_st cn_st_old;
 
 __INLINE__ void __ALWAYS_INLINE__ EE_buttons_init( void(*isr_callback)(void), EE_UINT8 mask ) {
 	/* set BUTTON pins as inputs */
-	TRISDbits.TRISD4  = 1; 
-	TRISDbits.TRISD5  = 1; 
-	TRISDbits.TRISD6  = 1; 
-	TRISDbits.TRISD15 = 1; 
+	TRISDbits.TRISD4  = 1;
+	TRISDbits.TRISD5  = 1;
+	TRISDbits.TRISD6  = 1;
+	TRISDbits.TRISD15 = 1;
 
 	/* Enable Interrupt */
 	if (isr_callback != NULL) {
-		if (mask & 0x01)
+		if (mask & 0x01) {
 			CNEN1bits.CN13IE = 1;	// S1/RD4
-		if (mask & 0x02)
+			//cn_st_old.bits.s1 = PORTDbits.RD4;
+		}
+		if (mask & 0x02) {
 			CNEN1bits.CN14IE = 1;	// S2/RD5
-		if (mask & 0x04)
+			//cn_st_old.bits.s2 = PORTDbits.RD5;
+		}
+		if (mask & 0x04) {
 			CNEN1bits.CN15IE = 1;	// S3/RD6
-		if (mask & 0x08)
+			//cn_st_old.bits.s3 = PORTDbits.RD6;
+		}
+		if (mask & 0x08) {
 			CNEN2bits.CN21IE = 1;	// S4/RD15
-		
+			//cn_st_old.bits.s4 = PORTDbits.RD15;
+		}
 		IFS1bits.CNIF = 0;
 		IEC1bits.CNIE = 1;
 	}
-	
+
 	/* Save callback */
-	EE_button_callback = isr_callback;	
-} 
+	EE_button_callback = isr_callback;
+}
 
 __INLINE__ EE_UINT8 __ALWAYS_INLINE__ EE_button_get_S1( void ) {
 	if (PORTDbits.RD4)
@@ -243,7 +271,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_picdemz_init( void(*isr_callback)(void)) {
 	CNEN2bits.CN20IE =1; //RFIEC20 = 1; INT on CN20
 	IFS1bits.CNIF = 0; //RFIF = 0;
 	IEC1bits.CNIE = 1; //RFIE = 1;
-	//TRISDbits.TRISD14 = 1; // set CN20 pin as input
+	TRISDbits.TRISD14 = 1; // set CN20 pin as input
 #endif
 	/* link the callback */
 	EE_picdemz_callback = isr_callback;
@@ -258,12 +286,12 @@ __INLINE__ void __ALWAYS_INLINE__ EE_picdemz_init( void(*isr_callback)(void)) {
 /*  *************************************************************************\/ */
 
 #ifdef __USE_LCD__
-/* 
+/*
    For Explorer 16 board, here are the data and control signal definitions
    RS -> RB10
    E   -> RB9
    RW -> N.C.
-   DATA -> RA0 - RA7   
+   DATA -> RA0 - RA7
 */
 
 /* /\* Control signal data pins *\/ */
@@ -293,7 +321,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_picdemz_init( void(*isr_callback)(void)) {
 #define Delay_2mS_Cnt	  (Fcy * 0.002) / 2950
 #define Delay_5mS_Cnt	  (Fcy * 0.005) / 2950
 #define Delay_20mS_Cnt	  (Fcy * 0.020) / 2950
-#define Delay_1S_Cnt	  (Fcy * 1) / 2950 
+#define Delay_1S_Cnt	  (Fcy * 1) / 2950
 
 void Delay( unsigned int delay_count );
 void Delay_Us( unsigned int delayUs_count );
@@ -319,13 +347,13 @@ __INLINE__ void __ALWAYS_INLINE__ EE_lcd_command( EE_UINT8 cmd )
 }
 
 /* /\* Switch on or off the back illumination  *\/ */
-__INLINE__ void __ALWAYS_INLINE__ EE_lcd_brightness( EE_UINT8 btns_status ) 
+__INLINE__ void __ALWAYS_INLINE__ EE_lcd_brightness( EE_UINT8 btns_status )
 {
 	EE_LCD_BRIGHTNESS = btns_status & 1;
 }
 
 /* /\* Switch on or off the display  *\/ */
-__INLINE__ void __ALWAYS_INLINE__ EE_lcd_switch( EE_UINT8 lcd_status ) 
+__INLINE__ void __ALWAYS_INLINE__ EE_lcd_switch( EE_UINT8 lcd_status )
 {
 	EE_LCD_VLCD = lcd_status & 1;
 }
@@ -339,35 +367,35 @@ __INLINE__ void __ALWAYS_INLINE__ EE_lcd_init(void) {
 	EE_LCD_BRIGHTNESS_TRIS	= 0;
 	EE_LCD_VLCD       = 1;
 	EE_LCD_BRIGHTNESS = 1;
-	
+
 	/* Use pin as digital IO */
  	AD1PCFGLbits.PCFG9  = 0;
  	AD1PCFGLbits.PCFG10 = 0;
-			
+
 	/* Initial values */
-	EE_LCD_DATA &= 0xFF00;	
+	EE_LCD_DATA &= 0xFF00;
 	EE_LCD_RS   = 0;
 	EE_LCD_E    = 0;
-		
+
 	/* Set pins direction */
 	EE_LCD_TRISDATA &= 0xFF00;
 	EE_LCD_RS_TRIS  = 0;
 	EE_LCD_E_TRIS   = 0;
 	Delay( Delay_20mS_Cnt );
-	
-	// Init - Step 1 
+
+	// Init - Step 1
 	EE_LCD_DATA &= 0xFF00;
 	EE_LCD_DATA |= 0x0038;
 	EE_lcd_pulse_enable();
 	Delay_Us( Delay500uS_count );
-      
-	// Init - Step 2 
+
+	// Init - Step 2
 	EE_LCD_DATA &= 0xFF00;
 	EE_LCD_DATA |= 0x0038;
 	EE_lcd_pulse_enable();
 	Delay_Us( Delay200uS_count );
 
-	// Init - Step 3 
+	// Init - Step 3
 	EE_LCD_DATA &= 0xFF00;
 	EE_LCD_DATA |= 0x0038;
 	EE_lcd_pulse_enable();
@@ -393,7 +421,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_lcd_putc( unsigned char data )
 __INLINE__ void __ALWAYS_INLINE__ EE_lcd_puts( char *buf )
 {
 	EE_UINT8 i = 0;
-	
+
 	while (buf[i] != '\0')
 		EE_lcd_putc(buf[i++]);
 }
@@ -402,7 +430,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_lcd_puts( char *buf )
 __INLINE__ unsigned char __ALWAYS_INLINE__ EE_lcd_busy( void )
 {
 	EE_INT8 buf;
-	
+
 	EE_LCD_TRISDATA |= 0x00FF;
 	EE_LCD_RS = 1;
 	EE_lcd_pulse_enable();
@@ -425,10 +453,10 @@ __INLINE__ void __ALWAYS_INLINE__ EE_lcd_shift (void)		{ EE_lcd_command( 0x1C );
 __INLINE__ void __ALWAYS_INLINE__ EE_lcd_goto (EE_UINT8 posx, EE_UINT8 posy)
 {
 	EE_UINT8 tmp_pos;
-	
+
 	tmp_pos  = posy ? 0xC0 : 0x80;
 	tmp_pos += 0x0F & posx;
-	EE_lcd_command( tmp_pos ); 
+	EE_lcd_command( tmp_pos );
 }
 
 #endif
@@ -449,11 +477,11 @@ __INLINE__ void __ALWAYS_INLINE__ EE_analog_init( void )
 {
 	/* Check if the ADC is initialized */
 	if (EE_adc_init != 0) return;
-	
+
 	/* turn off ADC module */
 	AD1CON1bits.ADON = 0;
 
-	/* set ALL configuration bits as ADC input */ 		
+	/* set ALL configuration bits as ADC input */
  	AD1PCFGLbits.PCFG12 = 0;         // Temp Sensor -> AN12/RB12
  	AD1PCFGLbits.PCFG13 = 0;         // Light Sensor -> AN13/RB13
  	AD1PCFGLbits.PCFG15 = 0;         // Trimmer        -> AN15/RB15
@@ -463,27 +491,27 @@ __INLINE__ void __ALWAYS_INLINE__ EE_analog_init( void )
  	AD1PCFGHbits.PCFG19 = 0;         // ADC Aux 1    -> AN19/RC4
  	AD1PCFGHbits.PCFG20 = 0;         // ADC Aux 2    -> AN20/RE8
  	AD1PCFGHbits.PCFG21 = 0;         // ADC Aux 3    -> AN21/RE9
-	
+
 	/* Set control register 1 */
 	/* 12-bit, unsigned integer format, autosampling */
 	AD1CON1 = 0x04E0;
-	
+
 	/* Set control register 2 */
 	/* Vref = AVcc/AVdd, Scan Inputs */
 	AD1CON2 = 0x0000;
-	
+
 	/* Set Samples and bit conversion time */
 	/* AS = 31 Tad, Tad = 64 Tcy = 1.6us  */
 	AD1CON3 = 0x1F3F; //** Last PATCH xxx
-        	
+
 	/* disable channel scanning here */
 	AD1CSSL = 0x0000;
-	
-	/* reset ADC interrupt flag */
-	IFS0bits.AD1IF = 0;           
 
-	/* disable ADC interrupts */	  
-	IEC0bits.AD1IE = 0;       
+	/* reset ADC interrupt flag */
+	IFS0bits.AD1IF = 0;
+
+	/* disable ADC interrupts */
+	IEC0bits.AD1IE = 0;
 
 	/* turn on ADC module */
 	AD1CON1bits.ADON = 1;
@@ -495,13 +523,13 @@ __INLINE__ void __ALWAYS_INLINE__ EE_analog_init( void )
 __INLINE__ void __ALWAYS_INLINE__ EE_analog_close( void )
 {
 	/* turn off ADC module */
-	AD1CON1bits.ADON = 0;          	
-	
+	AD1CON1bits.ADON = 0;
+
 	/* set ADC as unconfigured */
 	EE_adc_init = 0;
 }
 
-#endif 
+#endif
 
 /* ADC Aux Input */
 #ifdef __USE_ADC_IN__
@@ -510,7 +538,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_adcin_init( void ) { EE_analog_init(); }
 __INLINE__ float __ALWAYS_INLINE__ EE_adcin_get_volt( EE_UINT8 channel )
 {
 	float adcdata;
-	
+
 	switch (channel) {
 		case 1: // Set AN19 - RC4 as input channel
 			AD1CHS0 = 19;
@@ -528,16 +556,16 @@ __INLINE__ float __ALWAYS_INLINE__ EE_adcin_get_volt( EE_UINT8 channel )
 
 	/* Start conversion */
 	AD1CON1bits.SAMP = 1;
-	
+
 	/* Wait till the EOC */
 	while(!IFS0bits.AD1IF);
-	
+
 	/* reset ADC interrupt flag */
-	IFS0bits.AD1IF = 0;           
+	IFS0bits.AD1IF = 0;
 
 	/* Acquire data */
 	adcdata = ADC1BUF0;
-	
+
 	/* Return conversion */
 	return (adcdata * VREF) / 4096;
 }
@@ -550,18 +578,18 @@ __INLINE__ void __ALWAYS_INLINE__ EE_trimmer_init( void ) { EE_analog_init(); }
 __INLINE__ float __ALWAYS_INLINE__ EE_trimmer_get_volt( void )
 {
 	float adcdata;
-	
+
 	// Set AN15 - RB15 as input channel
 	AD1CHS0 = 15;
 
 	/* Start conversion */
 	AD1CON1bits.SAMP = 1;
-	
+
 	/* Wait till the EOC */
 	while(!IFS0bits.AD1IF);
-	
+
 	/* reset ADC interrupt flag */
-	IFS0bits.AD1IF = 0;           
+	IFS0bits.AD1IF = 0;
 
 	/* Acquire data */
 	adcdata = ADC1BUF0;
@@ -583,18 +611,18 @@ __INLINE__ void __ALWAYS_INLINE__ EE_analogsensors_init( void ) { EE_analog_init
 __INLINE__ float __ALWAYS_INLINE__ EE_analog_get_temperature( void )
 {
 	float adcdata;
-	
+
 	// Set AN12 - RB12 as input channel
 	AD1CHS0 = 12;
 
 	/* Start conversion */
 	AD1CON1bits.SAMP = 1;
-	
+
 	/* Wait till the EOC */
 	while(!IFS0bits.AD1IF);
-	
+
 	/* reset ADC interrupt flag */
-	IFS0bits.AD1IF = 0;           
+	IFS0bits.AD1IF = 0;
 
 	/* Acquire data */
 	adcdata = ADC1BUF0;
@@ -603,11 +631,11 @@ __INLINE__ float __ALWAYS_INLINE__ EE_analog_get_temperature( void )
 	float r_therm, T_K, T_C;
 
 	r_therm = 1 / (4096.0/adcdata - 1.0);
-	
+
 	// T_K = 1.0 / (THERM_A + THERM_B * log(r_therm));
 	T_K = 1.0 / (THERM_A + THERM_B * ((r_therm-1) + 9.8) );
 	T_C = T_K - 273.15;
- 
+
 	/* Return conversion */
 	return T_C;
 }
@@ -615,25 +643,25 @@ __INLINE__ float __ALWAYS_INLINE__ EE_analog_get_temperature( void )
 __INLINE__ EE_UINT16 __ALWAYS_INLINE__ EE_analog_get_light( void )
 {
 	EE_UINT32 adcdata;
-	
+
 	// Set AN13 - RB13 as input channel
 	AD1CHS0 = 13;
 
 	/* Start conversion */
 	AD1CON1bits.SAMP = 1;
-	
+
 	/* Wait till the EOC */
 	while(!IFS0bits.AD1IF);
-	
+
 	/* reset ADC interrupt flag */
-	IFS0bits.AD1IF = 0;           
+	IFS0bits.AD1IF = 0;
 
 	/* Acquire data */
 	adcdata = ADC1BUF0;
 
 	/* Convert the acquired data */
-	adcdata = 200 - ( adcdata * 0.116 ); // lux 
-	
+	adcdata = 200 - ( adcdata * 0.116 ); // lux
+
 	/* Return conversion */
 	return adcdata;
 }
@@ -653,17 +681,17 @@ extern EE_UINT8 EE_accelerometer_g;
 __INLINE__ void __ALWAYS_INLINE__ EE_accelerometer_init( void )
 {
 	EE_analog_init();
-	
+
 	// Set output pins for g-select and sleep options
 	TRISDbits.TRISD3  = 0;
 	TRISGbits.TRISG15 = 0;   // GS1
 	TRISCbits.TRISC13 = 0;   // GS2
-	
+
 	// Set g-selet to 6g
 	LATGbits.LATG15 = 1;
 	LATCbits.LATC13 = 1;
 	EE_accelerometer_g = 3;
-	
+
 	// Disable Sleep mode
 	LATDbits.LATD3 = 1;
 }
@@ -698,18 +726,18 @@ __INLINE__ void __ALWAYS_INLINE__ EE_accelerometer_wakeup( void ) { LATDbits.LAT
 __INLINE__ float __ALWAYS_INLINE__ EE_accelerometer_getx( void )
 {
 	float adcdata;
-	
+
 	// Set AN16 - RB16 as input channel
 	AD1CHS0 = 16;
 
 	/* Start conversion */
 	AD1CON1bits.SAMP = 1;
-	
+
 	/* Wait till the EOC */
 	while(!IFS0bits.AD1IF);
-	
+
 	/* reset ADC interrupt flag */
-	IFS0bits.AD1IF = 0;           
+	IFS0bits.AD1IF = 0;
 
 	/* Acquire data and convert to volts */
 	adcdata = ((ADC1BUF0 * 3.3) / 4096);
@@ -729,7 +757,7 @@ __INLINE__ float __ALWAYS_INLINE__ EE_accelerometer_getx( void )
 		case 3:
 			adcdata /= EE_ACCEL_G_SCALE_6;
 			break;
-	}		
+	}
 
 	return adcdata;
 }
@@ -737,18 +765,18 @@ __INLINE__ float __ALWAYS_INLINE__ EE_accelerometer_getx( void )
 __INLINE__ float __ALWAYS_INLINE__ EE_accelerometer_gety( void )
 {
 	float adcdata;
-	
+
 	// Set AN17 - RB17 as input channel
 	AD1CHS0 = 17;
 
 	/* Start conversion */
 	AD1CON1bits.SAMP = 1;
-	
+
 	/* Wait till the EOC */
 	while(!IFS0bits.AD1IF);
-	
+
 	/* reset ADC interrupt flag */
-	IFS0bits.AD1IF = 0;           
+	IFS0bits.AD1IF = 0;
 
 	/* Acquire data and convert to volts */
 	adcdata = (ADC1BUF0 * 3.3) / 4096;
@@ -768,25 +796,25 @@ __INLINE__ float __ALWAYS_INLINE__ EE_accelerometer_gety( void )
 		case 3:
 			adcdata /= EE_ACCEL_G_SCALE_6;
 			break;
-	}		
+	}
 	return adcdata;
 }
 
 __INLINE__ float __ALWAYS_INLINE__ EE_accelerometer_getz( void )
 {
 	float adcdata;
-	
+
 	// Set AN18 - RB18 as input channel
 	AD1CHS0 = 18;
 
 	/* Start conversion */
 	AD1CON1bits.SAMP = 1;
-	
+
 	/* Wait till the EOC */
 	while(!IFS0bits.AD1IF);
-	
+
 	/* reset ADC interrupt flag */
-	IFS0bits.AD1IF = 0;           
+	IFS0bits.AD1IF = 0;
 
 	/* Acquire data and convert to volts */
 	adcdata = (ADC1BUF0 * 3.3) / 4096;
@@ -806,7 +834,7 @@ __INLINE__ float __ALWAYS_INLINE__ EE_accelerometer_getz( void )
 		case 3:
 			adcdata /= EE_ACCEL_G_SCALE_6;
 			break;
-	}		
+	}
 	return adcdata; // TODO!!!
 }
 
@@ -826,7 +854,7 @@ extern EE_UINT16 count;
 __INLINE__ void __ALWAYS_INLINE__ EE_buzzer_init( void )
 {
   count=0;
-  	
+
   // Initialize Output Compare Module
   OC1CONbits.OCM = 0b000; // Disable Output Compare Module
   OC1R = 300; // Write the duty cycle for the first PWM pulse
@@ -885,7 +913,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_buzzer_unmute( void ) {
 __INLINE__ void __ALWAYS_INLINE__ EE_buzzer_close( void ) {
 	/* Stop Timer4 */
 	T3CONbits.TON = 0;
-	
+
 	/* Disable Timer4 interrupts */
 	IEC0bits.T3IE = 0;
 }
@@ -901,23 +929,23 @@ __INLINE__ void __ALWAYS_INLINE__ EE_buzzer_close( void ) {
 __INLINE__ void __ALWAYS_INLINE__ EE_pwm_init( EE_UINT16 Period , EE_UINT8 chan )
 {
 	// SET TIMER2 if not using Scicos Template - TODO!!!
-	
+
 	/* Stops the Timer2 and reset control reg */
 	//T2CON = 0;
-	
+
 	/* Clear contents of the timer register */
 	//TMR2  = 0;
-	
+
 	/* Load the Period register with the given value */
 	//PR2 = Period;
-	
+
 	/* Clear the Disable Timer2 interrupt status flag */
 	//IFS0bits.T2IF = 0;
 	//IEC0bits.T2IE = 0;
-	
+
 	/* SStart Timer2 */
 	//T2CONbits.TON = 1;
-	
+
 	switch (chan) {
 		case 1:	/** Set PWM 1 **/
 			/* Set OC8 as output */
@@ -931,7 +959,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_pwm_init( EE_UINT16 Period , EE_UINT8 chan 
 			/* Set OC8 module: PWM, no fault check, Timer2 */
 			OC8CON = 0x0006;
 			break;
-		
+
 		case 2:	/** Set PWM 2 **/
 			/* Set OC3 as output */
 			TRISDbits.TRISD2 = 0;
@@ -944,7 +972,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_pwm_init( EE_UINT16 Period , EE_UINT8 chan 
 
 			/* Set OC3 module: PWM, no fault check, Timer2 */
 			OC3CON = 0x0006;
-			
+
 			break;
 	}
 }
@@ -952,17 +980,17 @@ __INLINE__ void __ALWAYS_INLINE__ EE_pwm_init( EE_UINT16 Period , EE_UINT8 chan 
 __INLINE__ void __ALWAYS_INLINE__ EE_pwm_set_duty( float duty, EE_UINT8 chan )
 {
 	/* The computed duty cycle*/
-	float duty_out ; 
+	float duty_out ;
 
 	/* Get period from Timer2 period register PR2 */
-	EE_UINT16 period = PR2;	
-	
+	EE_UINT16 period = PR2;
+
 	if (duty <= 0.0)
-		duty_out = 0; //** for negative values assume zero 
+		duty_out = 0; //** for negative values assume zero
 	else if(duty >= 1.0)
-		duty_out = 1; //** for exessive values assume one 
+		duty_out = 1; //** for exessive values assume one
 	else
-		duty_out = duty; //** for the correct values ... 
+		duty_out = duty; //** for the correct values ...
 
 	// Computer register valure
 	switch (chan) {
@@ -983,7 +1011,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_pwm_close( EE_UINT8 chan )
 			OC8RS  = 0;
 			OC8CON = 0;
 			break;
-			
+
 		case 2: /** Close PWM2 **/
 			OC3RS  = 0;
 			OC3CON = 0;
@@ -994,7 +1022,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_pwm_close( EE_UINT8 chan )
 #endif
 
 /* /\************************************************************************* */
-/*  DAC */ 
+/*  DAC */
 /*  *************************************************************************\/ */
 
 #ifdef __USE_DAC__
@@ -1015,63 +1043,63 @@ __INLINE__ void __ALWAYS_INLINE__ EE_pwm_close( EE_UINT8 chan )
 __INLINE__ EE_INT8 __ALWAYS_INLINE__ EE_dac_general_call( EE_UINT8 second )
 {
 	// Ensure I2C module is idle
-	while(I2C1CONbits.SEN || I2C1CONbits.PEN || I2C1CONbits.RCEN || I2C1CONbits.ACKEN || I2C1STATbits.TRSTAT); 
+	while(I2C1CONbits.SEN || I2C1CONbits.PEN || I2C1CONbits.RCEN || I2C1CONbits.ACKEN || I2C1STATbits.TRSTAT);
 
 	// Transmit a Start condition
 	I2C1CONbits.SEN = 1;		// initiate Start on SDA and SCL pins
 
-	// Wait till Start sequence is completed 
+	// Wait till Start sequence is completed
 	while(I2C1CONbits.SEN);
 
 	// Write Slave address and set master for transmission  (R/W bit should be 0)
 	I2C1TRN = 0x00;
 	if(I2C1STATbits.IWCOL)		// If write collision occurs,return -1
 		return -1;
-	
-	// Wait till address is transmitted 
+
+	// Wait till address is transmitted
 	while(I2C1STATbits.TBF);
 
-	// Test for ACK condition received           
+	// Test for ACK condition received
 	while(I2C1STATbits.ACKSTAT);
 
-	// Ensure I2C module is idle 
-	while(I2C1CONbits.SEN || I2C1CONbits.PEN || I2C1CONbits.RCEN || I2C1CONbits.ACKEN || I2C1STATbits.TRSTAT); 
+	// Ensure I2C module is idle
+	while(I2C1CONbits.SEN || I2C1CONbits.PEN || I2C1CONbits.RCEN || I2C1CONbits.ACKEN || I2C1STATbits.TRSTAT);
 
 	// Write command
 	I2C1TRN = 0x06;
 	if(I2C1STATbits.IWCOL)		// If write collision occurs,return -1
 		return -1;
 
-	// Wait till address is transmitted 
+	// Wait till address is transmitted
 	while(I2C1STATbits.TBF);
 
-	// Test for ACK condition received           
+	// Test for ACK condition received
 	while(I2C1STATbits.ACKSTAT);
 
 	// Ensure I2C module is idle
 	while(I2C1CONbits.SEN || I2C1CONbits.PEN || I2C1CONbits.RCEN || I2C1CONbits.ACKEN || I2C1STATbits.TRSTAT);
 
 	// send STOP condition
-	I2C1CONbits.PEN = 1;	/* initiate Stop on SDA and SCL pins */  
+	I2C1CONbits.PEN = 1;	/* initiate Stop on SDA and SCL pins */
 
-	// Wait till Stop sequence is completed  
+	// Wait till Stop sequence is completed
 	while(I2C1CONbits.PEN);
 
 	// Ensure I2C module is idle
 	while(I2C1CONbits.SEN || I2C1CONbits.PEN || I2C1CONbits.RCEN || I2C1CONbits.ACKEN || I2C1STATbits.TRSTAT);
-	
+
 	return 0;
 }
 
 __INLINE__ EE_INT8 __ALWAYS_INLINE__ EE_dac_fast_write( EE_UINT16 data, EE_UINT8 port, EE_UINT8 power)
 {
 	// Ensure I2C module is idle
-	while(I2C1CONbits.SEN || I2C1CONbits.PEN || I2C1CONbits.RCEN || I2C1CONbits.ACKEN || I2C1STATbits.TRSTAT); 
+	while(I2C1CONbits.SEN || I2C1CONbits.PEN || I2C1CONbits.RCEN || I2C1CONbits.ACKEN || I2C1STATbits.TRSTAT);
 
 	// Transmit a Start condition
 	I2C1CONbits.SEN = 1;		// initiate Start on SDA and SCL pins
 
-	// Wait till Start sequence is completed 
+	// Wait till Start sequence is completed
 	while(I2C1CONbits.SEN);
 
 	// Write address
@@ -1079,64 +1107,64 @@ __INLINE__ EE_INT8 __ALWAYS_INLINE__ EE_dac_fast_write( EE_UINT16 data, EE_UINT8
 	if(I2C1STATbits.IWCOL)		// If write collision occurs,return -1
 		return -1;
 
-	// Wait till address is transmitted 
+	// Wait till address is transmitted
 	while(I2C1STATbits.TBF);
 
-	// Test for ACK condition received           
+	// Test for ACK condition received
 	while(I2C1STATbits.ACKSTAT);
 
-	// Ensure I2C module is idle 
-	while(I2C1CONbits.SEN || I2C1CONbits.PEN || I2C1CONbits.RCEN || I2C1CONbits.ACKEN || I2C1STATbits.TRSTAT); 
+	// Ensure I2C module is idle
+	while(I2C1CONbits.SEN || I2C1CONbits.PEN || I2C1CONbits.RCEN || I2C1CONbits.ACKEN || I2C1STATbits.TRSTAT);
 
 	// Write first byte
 	I2C1TRN = ((data / 256) & 0x0F) + (power << 4);
 	if(I2C1STATbits.IWCOL)		// If write collision occurs,return -1
 		return -1;
 
-	// Wait till data is transmitted 
+	// Wait till data is transmitted
 	while(I2C1STATbits.TBF);
 
-	// Test for ACK condition received           
+	// Test for ACK condition received
 	while(I2C1STATbits.ACKSTAT);
 
-	// Ensure I2C module is idle 
-	while(I2C1CONbits.SEN || I2C1CONbits.PEN || I2C1CONbits.RCEN || I2C1CONbits.ACKEN || I2C1STATbits.TRSTAT); 
+	// Ensure I2C module is idle
+	while(I2C1CONbits.SEN || I2C1CONbits.PEN || I2C1CONbits.RCEN || I2C1CONbits.ACKEN || I2C1STATbits.TRSTAT);
 
 	// Write second byte
 	I2C1TRN = data % 256;
 	if(I2C1STATbits.IWCOL)		// If write collision occurs,return -1
 		return -1;
 
-	// Wait till data is transmitted 
+	// Wait till data is transmitted
 	while(I2C1STATbits.TBF);
 
-	// Test for ACK condition received           
+	// Test for ACK condition received
 	while(I2C1STATbits.ACKSTAT);
 
 	// Ensure I2C module is idle
 	while(I2C1CONbits.SEN || I2C1CONbits.PEN || I2C1CONbits.RCEN || I2C1CONbits.ACKEN || I2C1STATbits.TRSTAT);
 
 	// send STOP condition
-	I2C1CONbits.PEN = 1;	/* initiate Stop on SDA and SCL pins */  
+	I2C1CONbits.PEN = 1;	/* initiate Stop on SDA and SCL pins */
 
-	// Wait till Stop sequence is completed  
+	// Wait till Stop sequence is completed
 	while(I2C1CONbits.PEN);
 
 	// Ensure I2C module is idle
 	while(I2C1CONbits.SEN || I2C1CONbits.PEN || I2C1CONbits.RCEN || I2C1CONbits.ACKEN || I2C1STATbits.TRSTAT);
-	
+
 	return 0;
 }
-	
+
 __INLINE__ EE_INT8 __ALWAYS_INLINE__ EE_dac_write( EE_UINT16 data, EE_UINT8 port, EE_UINT8 power, EE_UINT8 save)
 {
 	// Ensure I2C module is idle
-	while(I2C1CONbits.SEN || I2C1CONbits.PEN || I2C1CONbits.RCEN || I2C1CONbits.ACKEN || I2C1STATbits.TRSTAT); 
+	while(I2C1CONbits.SEN || I2C1CONbits.PEN || I2C1CONbits.RCEN || I2C1CONbits.ACKEN || I2C1STATbits.TRSTAT);
 
 	// Transmit a Start condition
 	I2C1CONbits.SEN = 1;		// initiate Start on SDA and SCL pins
 
-	// Wait till Start sequence is completed 
+	// Wait till Start sequence is completed
 	while(I2C1CONbits.SEN);
 
 	// Write address
@@ -1144,66 +1172,66 @@ __INLINE__ EE_INT8 __ALWAYS_INLINE__ EE_dac_write( EE_UINT16 data, EE_UINT8 port
 	if(I2C1STATbits.IWCOL)		// If write collision occurs,return -1
 		return -1;
 
-	// Wait till address is transmitted 
+	// Wait till address is transmitted
 	while(I2C1STATbits.TBF);
 
-	// Test for ACK condition received           
+	// Test for ACK condition received
 	while(I2C1STATbits.ACKSTAT);
 
-	// Ensure I2C module is idle 
-	while(I2C1CONbits.SEN || I2C1CONbits.PEN || I2C1CONbits.RCEN || I2C1CONbits.ACKEN || I2C1STATbits.TRSTAT); 
+	// Ensure I2C module is idle
+	while(I2C1CONbits.SEN || I2C1CONbits.PEN || I2C1CONbits.RCEN || I2C1CONbits.ACKEN || I2C1STATbits.TRSTAT);
 
 	// Write first byte
 	I2C1TRN = 0x40 + ( save & 0x20 ) + power*2;
 	if(I2C1STATbits.IWCOL)		// If write collision occurs,return -1
 		return -1;
 
-	// Wait till data is transmitted 
+	// Wait till data is transmitted
 	while(I2C1STATbits.TBF);
 
-	// Test for ACK condition received           
+	// Test for ACK condition received
 	while(I2C1STATbits.ACKSTAT);
 
-	// Ensure I2C module is idle 
-	while(I2C1CONbits.SEN || I2C1CONbits.PEN || I2C1CONbits.RCEN || I2C1CONbits.ACKEN || I2C1STATbits.TRSTAT); 
+	// Ensure I2C module is idle
+	while(I2C1CONbits.SEN || I2C1CONbits.PEN || I2C1CONbits.RCEN || I2C1CONbits.ACKEN || I2C1STATbits.TRSTAT);
 
 	// Write second byte
 	I2C1TRN = data / 16;
 	if(I2C1STATbits.IWCOL)		// If write collision occurs,return -1
 		return -1;
 
-	// Wait till address is transmitted 
+	// Wait till address is transmitted
 	while(I2C1STATbits.TBF);
 
-	// Test for ACK condition received           
+	// Test for ACK condition received
 	while(I2C1STATbits.ACKSTAT);
 
-	// Ensure I2C module is idle 
-	while(I2C1CONbits.SEN || I2C1CONbits.PEN || I2C1CONbits.RCEN || I2C1CONbits.ACKEN || I2C1STATbits.TRSTAT); 
+	// Ensure I2C module is idle
+	while(I2C1CONbits.SEN || I2C1CONbits.PEN || I2C1CONbits.RCEN || I2C1CONbits.ACKEN || I2C1STATbits.TRSTAT);
 
 	// Write third byte
 	I2C1TRN = (data % 16) << 4;
 	if(I2C1STATbits.IWCOL)		// If write collision occurs,return -1
 		return -1;
 
-	// Wait till address is transmitted 
+	// Wait till address is transmitted
 	while(I2C1STATbits.TBF);
 
-	// Test for ACK condition received           
+	// Test for ACK condition received
 	while(I2C1STATbits.ACKSTAT);
 
 	// Ensure I2C module is idle
 	while(I2C1CONbits.SEN || I2C1CONbits.PEN || I2C1CONbits.RCEN || I2C1CONbits.ACKEN || I2C1STATbits.TRSTAT);
 
 	// send STOP condition
-	I2C1CONbits.PEN = 1;	/* initiate Stop on SDA and SCL pins */  
+	I2C1CONbits.PEN = 1;	/* initiate Stop on SDA and SCL pins */
 
-	// Wait till Stop sequence is completed  
+	// Wait till Stop sequence is completed
 	while(I2C1CONbits.PEN);
 
 	// Ensure I2C module is idle
 	while(I2C1CONbits.SEN || I2C1CONbits.PEN || I2C1CONbits.RCEN || I2C1CONbits.ACKEN || I2C1STATbits.TRSTAT);
-	
+
 	return 0;
 }
 
@@ -1219,8 +1247,8 @@ __INLINE__ void __ALWAYS_INLINE__ EE_dac_init( void )
 
 	/* Set baudrate */
 	I2C1BRG = (40000ul / EE_DAC_I2C_KCLOCK) - 37;	// With Fcy = 40MHz !!!
-	//I2C1BRG = 363;	
-	
+	//I2C1BRG = 363;
+
 	/* Configure I2C port */
 	I2C1CON = 0;
 	I2C1CONbits.ACKDT  = 1;
@@ -1228,7 +1256,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_dac_init( void )
 
 	/* Start I2C port */
 	I2C1CONbits.I2CEN = 1;
-	
+
 	EE_dac_general_call(EE_DAC_GENERAL_CALL_RESET);
 }
 
@@ -1257,31 +1285,31 @@ __INLINE__ void __ALWAYS_INLINE__ EE_motor_init( void ) {
 
 __INLINE__ void __ALWAYS_INLINE__ EE_encoder_init( void )
 {
-	/* set encoder bits as digital input */ 		
+	/* set encoder bits as digital input */
  	AD1PCFGLbits.PCFG3 = 1;
  	AD1PCFGLbits.PCFG4 = 1;
  	AD1PCFGLbits.PCFG5 = 1;
  	AD2PCFGLbits.PCFG3 = 1;
  	AD2PCFGLbits.PCFG4 = 1;
  	AD2PCFGLbits.PCFG5 = 1;
-	
+
 	// Disable QEI Module
 	QEICONbits.QEIM = 0;
-	
+
 	// Clear any count errors
 	QEICONbits.CNTERR = 0;
-	
+
 	// Count error interrupts disabled
 	DFLTCONbits.CEID = 1;
-	
+
 	// Reset position counter
 	POSCNT = 0;
-	
+
 	// Set bound value
 	MAXCNT = QEI_MAX_CNT_PER_REV;
 
 	// X4 mode with position counter reset by MAXCNT
-	QEICONbits.QEIM = 7;	
+	QEICONbits.QEIM = 7;
 }
 
 __INLINE__ void __ALWAYS_INLINE__ EE_encoder_close( void )
@@ -1301,14 +1329,14 @@ __INLINE__ float __ALWAYS_INLINE__ EE_encoder_get_position( void )
 	EE_INT16 POSCNTcopy = 0;
 
 	POSCNTcopy = (int)POSCNT;
-	
+
 	if (POSCNTcopy < 0)
 		POSCNTcopy = -POSCNTcopy;
-		
+
 	//AngPos[1] = AngPos[0];
 	//AngPos[0] = (unsigned int)(((unsigned long)POSCNTcopy * 2048)/125);
 	// 0 <= POSCNT <= 1999 to 0 <= AngPos <= 32752
-	
+
 	//return (unsigned int)(((unsigned long)POSCNTcopy * 2048)/125);
 	return (float)(((unsigned long)POSCNTcopy*500)/360);
 }
@@ -1335,11 +1363,11 @@ __INLINE__ void __ALWAYS_INLINE__ EE_initSPIBuff(void)
 unsigned int i;
     for(i=0;i<64;i++)
         Spi1TxBuffA[i]=0;
-        Spi1TxBuffB[i]=0;        
+        Spi1TxBuffB[i]=0;
 }
 
 /*=============================================================================
-_DMA0Init(): Initialise DMA0 for SPI Data Transmission 
+_DMA0Init(): Initialise DMA0 for SPI Data Transmission
 =============================================================================*/
 // DMA0 configuration
 // Direction: Read from DMA RAM and write to SPI buffer
@@ -1350,41 +1378,41 @@ _DMA0Init(): Initialise DMA0 for SPI Data Transmission
 void EE_cfgDma0SpiTx(void)
 {
 
-	DMA0CON = 0x2002;					
-	DMA0CNT = 64;			// deve essere uguale al max numero di dati impacchettati			
-	DMA0REQ = 0x00A;					
+	DMA0CON = 0x2002;
+	DMA0CNT = 64;			// deve essere uguale al max numero di dati impacchettati
+	DMA0REQ = 0x00A;
 
 	DMA0PAD = (volatile unsigned int) &SPI1BUF;
 	DMA0STA= __builtin_dmaoffset(Spi1TxBuffA);
 	DMA0STB= __builtin_dmaoffset(Spi1TxBuffB);
-	
-	
+
+
 	IFS0bits.DMA0IF  = 0;			// Clear DMA interrupt
 	IEC0bits.DMA0IE  = 1;			// Enable DMA interrupt
-	DMA0CONbits.CHEN = 1;			// Enable DMA Channel	
-	
+	DMA0CONbits.CHEN = 1;			// Enable DMA Channel
+
 }
 
 // DMA1 configuration
-// Direction: Read from SPI buffer and write to DMA RAM 
+// Direction: Read from SPI buffer and write to DMA RAM
 // AMODE: Register Indirect with Post-Increment mode
 // MODE: Continuous, Ping-Pong Enabled
 // IRQ: SPI
 __INLINE__ void __ALWAYS_INLINE__ EE_cfgDma1SpiRx(void)
 {
-	DMA1CON = 0x0002;				
-	DMA1CNT = 6;						
-	DMA1REQ = 0x00A;					
+	DMA1CON = 0x0002;
+	DMA1CNT = 6;
+	DMA1REQ = 0x00A;
 
 	DMA1PAD = (volatile unsigned int) &SPI1BUF;
 	DMA1STA= __builtin_dmaoffset(Spi1RxBuffA);
 	DMA1STB= __builtin_dmaoffset(Spi1RxBuffB);
-	
-	
+
+
 	IFS0bits.DMA1IF  = 0;			// Clear DMA interrupt
 	IEC0bits.DMA1IE  = 1;			// Enable DMA interrupt
-	DMA1CONbits.CHEN = 1;			// Enable DMA Channel		
-	
+	DMA1CONbits.CHEN = 1;			// Enable DMA Channel
+
 }
 
 __INLINE__ void __ALWAYS_INLINE__ EE_spi1_init( char mode ) {
@@ -1482,7 +1510,7 @@ void EE_usb_init(void);
 EE_INT16 EE_usb_write(EE_UINT8 *buf, EE_UINT16 len);
 EE_INT16 EE_usb_read(EE_UINT8 *buf, EE_UINT16 len);
 #elif defined __USE_USB_OLD__
-void EE_usb_init( void );	
+void EE_usb_init( void );
 int EE_usb_send(unsigned int *buf, int len);
 int EE_usb_read(unsigned int *buf, int log_channel);
 void EE_usb_add_output_buffer(char *, int);
