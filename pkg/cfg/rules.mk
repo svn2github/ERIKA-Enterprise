@@ -62,7 +62,6 @@ ENABLE_LIBS:=TRUE
 endif
 
 
-
 # EEOPT is used to appropriately configure and compile the particular
 # application. Symbols specified in EEOPT are implicithy defined when
 # compiling the application using the -D compiler option
@@ -75,6 +74,12 @@ endif
 # are passed using -D to the compiler. EEALLOPT contains in general
 # also other symbols that are then defined in pkg/ee_libcfg.h of the
 # binary distributions.
+
+# The simbol __ERIKA__ in EE_OPT is used to check the OS in the
+# contrib libraries.
+
+EEOPT += __ERIKA__
+
 
 ifeq ($(strip $(EELIB)),)
 # this is not a binary distribution
