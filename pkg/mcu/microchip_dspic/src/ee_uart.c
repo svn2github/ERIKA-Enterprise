@@ -1,7 +1,6 @@
 #include "mcu/microchip_dspic/inc/ee_uart.h"
 #include "ee_internal.h"
 
-static EE_UINT8 uart_port = EE_UART_PORT_1;
 #ifdef EE_UART_PORT_1_ISR_ENABLE
 static void (*Rx1IsrFunction)(EE_UINT8 data) = NULL;
 #endif
@@ -75,6 +74,18 @@ EE_INT8 EE_uart_init(EE_UINT8 port, EE_UINT32 baud, EE_UINT16 byte_format,
 		/* TX & RX interrupt modes */
 		U2STA = 0;
 		U2STAbits.UTXEN = 1;
+		return 1;
+	}
+	return -EE_UART_ERR_BAD_PORT;
+}
+
+EE_INT8 EE_uart_close(EE_UINT8 port)
+{
+	if (port == EE_UART_PORT_1) {
+		/* chris: TODO: Release something */
+		return 1;
+	} else if (port == EE_UART_PORT_2) {
+		/* chris: TODO: Release something */
 		return 1;
 	}
 	return -EE_UART_ERR_BAD_PORT;

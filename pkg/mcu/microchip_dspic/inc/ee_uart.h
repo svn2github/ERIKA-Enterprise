@@ -42,6 +42,7 @@
 
 EE_INT8 EE_uart_init(EE_UINT8 port, EE_UINT32 baud, EE_UINT16 byte_format, 
 		     EE_UINT16 mode);
+EE_INT8 EE_uart_close(EE_UINT8 port);
 EE_INT8 EE_uart_write_byte(EE_UINT8 port, EE_UINT8 data);
 EE_INT8 EE_uart_read_byte(EE_UINT8 port, EE_UINT8 *data);
 EE_INT8 EE_uart_set_rx_callback(EE_UINT8 port, void (*RxFunc)(EE_UINT8 data), 
