@@ -1,4 +1,4 @@
-#include "ee_uart.h"
+#include "mcu/microchip_dspic/inc/ee_uart.h"
 #include "ee_internal.h"
 
 static EE_UINT8 uart_port = EE_UART_PORT_1;
@@ -39,7 +39,7 @@ EE_INT8 EE_uart_init(EE_UINT8 port, EE_UINT32 baud, EE_UINT16 byte_format,
 			U1MODEbits.UEN = 0;	
 		}
 		/* Number of bit, Parity and Stop bits */
-		U1MODE |= byteformat & 0x07; 
+		U1MODE |= byte_format & 0x07; 
 		/* TX & RX interrupt modes */
 		U1STA = 0;
 		U1STAbits.UTXEN = 1;
@@ -71,7 +71,7 @@ EE_INT8 EE_uart_init(EE_UINT8 port, EE_UINT32 baud, EE_UINT16 byte_format,
 			U2MODEbits.UEN = 0;	
 		}
 		/* Number of bit, Parity and Stop bits */
-		U2MODE |= byteformat & 0x07; 
+		U2MODE |= byte_format & 0x07; 
 		/* TX & RX interrupt modes */
 		U2STA = 0;
 		U2STAbits.UTXEN = 1;
@@ -113,21 +113,20 @@ EE_INT8 EE_uart_set_rx_callback(EE_UINT8 port, void (*RxFunc)(EE_UINT8 data),
 	return -EE_UART_ERR_BAD_PORT;
 }
 
-EE_INT8 EE_uart_write_byte(EE_UINT8 port, EE_UINT8)
+EE_INT8 EE_uart_write_byte(EE_UINT8 port, EE_UINT8 data)
 {
 	if (port == EE_UART_PORT_1) {
 		/* Polling mode */
 		while (U1STAbits.UTXBF) ;
 		U1TXREG = data;
 		while (!U1STAbits.TRMT) ;
-		return 0;
+		return 1;
 	} else if (port == EE_UART_PORT_2) {
 		/* Polling mode */
 		while (U2STAbits.UTXBF) ;
 		U2TXREG = data;
 		while (!U2STAbits.TRMT) ;
-		return 0;
-		return -EE_UART_ERR_INT_MODE;
+		return 1;
 	}
 	return -EE_UART_ERR_BAD_PORT;
 }

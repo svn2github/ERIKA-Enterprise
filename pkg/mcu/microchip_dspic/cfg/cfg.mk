@@ -50,6 +50,13 @@ EE_VPATH += $(PKGBASE)/mcu/microchip_dspic/src
 EE_SRCS += ee_pic30frsh.c
 endif
 
+ifeq ($(findstring __USE_UART__,$(EEOPT)) , __USE_UART__)
+# directory name containing the sources
+EE_VPATH += $(PKGBASE)/mcu/microchip_dspic/src
+
+EE_SRCS += ee_uart.c
+endif
+
 # typically empty, the crt0.S function is typically provided by the
 # ASM30 Assembler
 # EE_BOOT_SRCS +=

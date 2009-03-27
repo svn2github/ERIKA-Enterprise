@@ -1,6 +1,8 @@
 #ifndef __INCLUDE_MICROCHIP_DSPIC_UART_H__
 #define __INCLUDE_MICROCHIP_DSPIC_UART_H__
 
+#include "ee.h"
+
 /* Include a file with the registers from Microchip C30 distribution */ 
 #ifdef __PIC30_INCLUDE_REGS__
 #include "ee_pic30regs.h"
@@ -40,8 +42,8 @@
 
 EE_INT8 EE_uart_init(EE_UINT8 port, EE_UINT32 baud, EE_UINT16 byte_format, 
 		     EE_UINT16 mode);
-EE_INT8 EE_uart_write_byte(EE_UINT8 port, EE_UINT8)
-EE_INT8 EE_uart_read_byte(EE_UINT8 port);
+EE_INT8 EE_uart_write_byte(EE_UINT8 port, EE_UINT8 data);
+EE_INT8 EE_uart_read_byte(EE_UINT8 port, EE_UINT8 *data);
 EE_INT8 EE_uart_set_rx_callback(EE_UINT8 port, void (*RxFunc)(EE_UINT8 data), 
 				EE_UINT8 rxmode);
 
