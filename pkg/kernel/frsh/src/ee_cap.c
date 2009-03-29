@@ -281,13 +281,19 @@ void EE_frsh_run_exec(EE_TID tmp_exec)
 #ifndef __PRIVATE_CHECKSLICE__
 void EE_frsh_check_slice(EE_TIME tmp_time)
 {
+  register EE_TIME delta;
+  
   if (EE_exec != EE_NIL) {
     EE_TYPECONTRACT c = EE_th[EE_exec].vres;
     /* it can never happen that the vres is UNBOUND because the task
        cannot execute without a VRES */
 
     /* account the capacity to the task that is currently executing */
-    EE_vres[c].budget_avail -= tmp_time - EE_last_time;
+    delta = tmp_time - EE_last_time;
+    EE_vres[c].budget_avail -= delta;
+
+    /* account the overall usage */
+    EE_vres[c].usage += delta;
 
     if (EE_th[EE_exec].lockedcounter) {
       /* The task is holding a resource, put it into the stacked queue 
@@ -357,14 +363,19 @@ void EE_frsh_end_slice(EE_TIME tmp_time)
   register int time_check;
   register int nact_check;
   register EE_TYPECONTRACT c;
+  register EE_TYPEBUDGET delta;
 
   c = EE_th[EE_exec].vres;
   /* it can never happen that the vres is UNBOUND because the task
      cannot execute without a VRES */
 
   /* account the capacity to the task that is currently executing */
-  EE_vres[c].budget_avail -= tmp_time - EE_last_time;
-  
+  delta = tmp_time - EE_last_time;
+  EE_vres[c].budget_avail -= delta;
+
+  /* account the overall usage */
+  EE_vres[c].usage += delta;
+
   time_check = (EE_STIME)EE_vres[c].budget_avail < EE_TIMER_MINCAPACITY;
   nact_check = EE_th[EE_exec].nact;
   
@@ -501,7 +512,7 @@ int EE_frsh_process_recharging(EE_TYPECONTRACT c)
 #ifndef __PRIVATE_CHECKRECHARGING__
 void EE_frsh_check_recharging(EE_TIME tmp_time)
 {
-  register EE_TIME delta;
+  register EE_TYPEBUDGET delta;
   register EE_TYPECONTRACT c;
   
   /* if there are not tasks in the ready and in the stacked queue,

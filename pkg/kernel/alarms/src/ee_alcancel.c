@@ -57,6 +57,13 @@ void EE_alarm_CancelAlarm(AlarmType AlarmID)
      delay chain */
   current = EE_counter_RAM[EE_alarm_ROM[AlarmID].c].first;
 
+  /* check if there are alarms pending*/
+  if (current == -1) {
+    /* alarm not present */
+    EE_hal_end_nested_primitive(flag);
+    return;
+  }
+
   if (current == AlarmID) {
     /* the alarm is the first one in the delta queue */
     EE_counter_RAM[EE_alarm_ROM[AlarmID].c].first = 

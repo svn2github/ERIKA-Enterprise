@@ -224,7 +224,7 @@ void EE_rn_handler(void)
       /* if the other processor has queued another request */
       if (EE_rn_switch[EE_CURRENTCPU] & EE_RN_SWITCH_NEWRN) {
 	/* reset the newrn flag */
-	EE_rn_switch[EE_CURRENTCPU] ^= EE_RN_SWITCH_NEWRN;
+	EE_rn_switch[EE_CURRENTCPU] &= ~EE_RN_SWITCH_NEWRN;
 	/* redo the dispatching of the remote notifications */
 	redo = 1;
       }
@@ -232,7 +232,7 @@ void EE_rn_handler(void)
 	/* we can exit the interrupt! */
         redo = 0;
 	/* set that we are no more inside the interrupt */
-	EE_rn_switch[EE_CURRENTCPU] ^= EE_RN_SWITCH_INSIDEIRQ;
+	EE_rn_switch[EE_CURRENTCPU] &= ~EE_RN_SWITCH_INSIDEIRQ;
 
 	EE_hal_IRQ_interprocessor_served(EE_CURRENTCPU);
       }

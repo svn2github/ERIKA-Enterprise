@@ -262,6 +262,7 @@ typedef struct {
 /* VRES */
 typedef struct {
   EE_TYPEBUDGET   budget_avail;  /* available budget (initvalue 0) */
+  EE_TYPEBUDGET   usage;         /* overall incremental budget used by the vres (initvalue 0) */
   EE_TYPEABSDLINE absdline;      /* absolute deadline (initvalue 0) */
   EE_TYPESTATUS   status;        /* status (initvalue freezing that is 0) */
   EE_TID          task;          /* the task binded to the VRES */
@@ -385,13 +386,13 @@ typedef struct {
 				      == 0 if I'm not waiting on a wait with timeout. 
 				      reset to 0 when the timeout fires or by the signal */
 } EE_TYPETIMEOUTSTRUCT;
-#endif
 
 // initvalue 0
 extern EE_TYPETIMEOUTSTRUCT EE_frsh_timeout[];
 
 // initvalue: EE_NIL
 extern EE_TID EE_frsh_timeout_first;
+#endif
 
 #endif
 

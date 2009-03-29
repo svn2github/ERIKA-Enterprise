@@ -110,7 +110,9 @@ void EE_nios2_IRQ_dlcheck(void* context, alt_u32 id)
   /* clear the interrupt */
   IOWR_ALTERA_AVALON_TIMER_STATUS (TIMER_DLCHECK_BASE, 0);
 
-  EE_hal_set_nios2_timer(TIMER_DLCHECK_BASE, 0x3fffffff);
+  // set the IRQ a more often than needed for testing purposes
+  //  EE_hal_set_nios2_timer(TIMER_DLCHECK_BASE, 0x3fffffff);
+  EE_hal_set_nios2_timer(TIMER_DLCHECK_BASE, 0x003fffff);
 
   EE_frsh_IRQ_dlcheck();
 }

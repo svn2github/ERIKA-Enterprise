@@ -85,15 +85,15 @@
 /* types */
 
 #ifndef EE_TYPERN
-#define EE_TYPERN EE_INT8
+#define EE_TYPERN EE_SREG
 #endif
 
 #ifndef EE_TYPERN_SWITCH
-#define EE_TYPERN_SWITCH EE_UINT8
+#define EE_TYPERN_SWITCH EE_UREG
 #endif
 
 #ifndef EE_TYPERN_NOTIFY
-#define EE_TYPERN_NOTIFY EE_UINT8
+#define EE_TYPERN_NOTIFY EE_UREG
 #endif
 
 

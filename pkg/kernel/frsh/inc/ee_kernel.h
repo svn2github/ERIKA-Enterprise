@@ -190,6 +190,103 @@ int EE_frsh_timed_wait (const frsh_abs_time_t *abs_time,
 			bool *was_budget_overran);
 #endif
 
+
+/*
+  Returns true if the system is configured with the on-line admission test enabled, or false otherwise. This
+  situation can only be changed at compile time.
+*/
+#ifdef __PRIVATE_FRSH_ISADMISSIONTESTENABLED__
+__INLINE__ bool __ALWAYS_INLINE__ EE_frsh_config_is_admission_test_enabled(void)
+{
+  return 0;
+}
+#endif
+
+/*
+  This function stores in the variable pointed to by budget the
+  remaining execution-time budget associated with the specified vres.
+
+  Returns:
+
+  0 if successful
+  FRSH_ERR_BAD_ARGUMENT : if the value of the vres argument is not in range or budget is NULL
+*/
+#ifdef __PRIVATE_FRSH_GETREMAININGBUDGET__
+int EE_frsh_vres_get_remaining_budget (const frsh_vres_id_t vres, frsh_rel_time_t *budget)
+{  
+  register EE_FREG flag;
+  
+  if (vres<0 || vres >= EE_MAX_CONTRACT || !budget)
+    return FRSH_ERR_BAD_ARGUMENT;
+
+  flag = EE_hal_begin_nested_primitive();
+  *budget = EE_vres[vres].avail_budget;
+  EE_hal_end_nested_primitive(flag);
+  return 0;
+}
+#endif
+
+/*
+  This function stores the current execution time spent by the threads
+  bound to the specified vres in the variable pointed to by cpu_time.
+
+  Returns:
+  0 if successful
+  FRSH_ERR_BAD_ARGUMENT : if the value of the vres argument is not in range or spent is
+  NULL
+*/
+#ifdef __PRIVATE_FRSH_GETUSAGE__
+int EE_frsh_vres_get_usage (const frsh_vres_id_t vres, frsh_rel_time_t *spent)
+{
+  register EE_FREG flag;
+  
+  if (vres<0 || vres >= EE_MAX_CONTRACT || !spent)
+    return FRSH_ERR_BAD_ARGUMENT;
+
+  flag = EE_hal_begin_nested_primitive();
+  *spent = EE_vres[vres].usage;
+  EE_hal_end_nested_primitive(flag);
+  return 0;
+}
+#endif
+
+/*
+  frsh_vres_get_budget_and_period()
+
+  This function stores in the variables pointed to by budget and
+  period, the execution-time budget and the period respectively
+  associated with the specified vres. If any of these pointers is
+  NULL, the corresponding information is not stored.
+
+Returns:
+
+0 if successful
+
+FRSH_ERR_BAD_ARGUMENT : if the value of the vres argument is not in
+range, or budget and period are both NULL
+*/
+#ifdef __PRIVATE_FRSH_GETBUDGETANDPERIOD__
+int frsh_vres_get_budget_and_period (const frsh_vres_id_t vres, 
+				     frsh_rel_time_t *budget,
+				     frsh_rel_time_t *period)
+{
+  register EE_FREG flag;
+  
+  if (vres<0 || vres >= EE_MAX_CONTRACT || (!budget && !period))
+    return FRSH_ERR_BAD_ARGUMENT;
+  
+  flag = EE_hal_begin_nested_primitive();
+
+  if (budget) {
+    *budget = EE_ct[vres].budget;
+  if (period) {
+    *period = EE_ct[vres].period;
+
+  EE_hal_end_nested_primitive(flag);
+  return 0;
+}
+#endif
+
 #endif
 
 
