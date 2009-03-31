@@ -121,8 +121,12 @@ distrib_opt___PIC30__:: \
 		ee_$(DIST)/pkg/mcu/microchip_dspic/cfg/cfg.mk \
 		ee_$(DIST)/pkg/mcu/microchip_dspic/inc \
 		ee_$(DIST)/pkg/mcu/microchip_dspic/inc/ee_internal.h \
+		ee_$(DIST)/pkg/mcu/microchip_dspic/inc/ee_uart.h \
+		ee_$(DIST)/pkg/mcu/microchip_dspic/inc/ee_spi.h \
 		ee_$(DIST)/pkg/mcu/microchip_dspic/src \
 		ee_$(DIST)/pkg/mcu/microchip_dspic/src/ee_pic30frsh.c \
+		ee_$(DIST)/pkg/mcu/microchip_dspic/src/ee_uart.c \
+		ee_$(DIST)/pkg/mcu/microchip_dspic/src/ee_spi.c \
 		ee_$(DIST)/pkg/board/ee_flex/cfg \
 		ee_$(DIST)/pkg/board/ee_flex/cfg/cfg.mk \
 		ee_$(DIST)/pkg/board/ee_flex/inc \
