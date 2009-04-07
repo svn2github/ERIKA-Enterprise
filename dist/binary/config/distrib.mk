@@ -94,12 +94,18 @@ distrib_opt___AVR5__:: \
 		ee_$(DIST)/pkg/cpu/avr5/inc \
 		ee_$(DIST)/pkg/cpu/avr5/inc/ee_compiler.h \
 		ee_$(DIST)/pkg/cpu/avr5/inc/ee_cpu.h \
-            ee_$(DIST)/pkg/mcu/atmel_atmega128 \
+		ee_$(DIST)/pkg/mcu/atmel_atmega128 \
 		ee_$(DIST)/pkg/mcu/atmel_atmega128/inc \
 		ee_$(DIST)/pkg/mcu/atmel_atmega128/inc/ee_mcu.h \
 		ee_$(DIST)/pkg/mcu/atmel_atmega128/inc/ee_mcuregs.h \
 		ee_$(DIST)/pkg/mcu/atmel_atmega128/inc/ee_ic.h \
 		ee_$(DIST)/pkg/mcu/atmel_atmega128/inc/ee_avr5def.S  \
+		ee_$(DIST)/pkg/mcu/atmel_atmega1281 \
+		ee_$(DIST)/pkg/mcu/atmel_atmega1281/inc \
+		ee_$(DIST)/pkg/mcu/atmel_atmega1281/inc/ee_mcu.h \
+		ee_$(DIST)/pkg/mcu/atmel_atmega1281/inc/ee_mcuregs.h \
+		ee_$(DIST)/pkg/mcu/atmel_atmega1281/inc/ee_ic.h \
+		ee_$(DIST)/pkg/mcu/atmel_atmega1281/inc/ee_avr5def.S  \
 		ee_$(DIST)/pkg/board/atmel_stk500/inc \
 		ee_$(DIST)/pkg/board/atmel_stk500/inc/ee_board.h \
 		ee_$(DIST)/pkg/board/xbow_mib5x0/inc \

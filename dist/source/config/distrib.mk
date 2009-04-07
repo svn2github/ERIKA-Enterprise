@@ -34,12 +34,31 @@ distrib_opt___AVR5__:: \
 		ee_$(DIST)/pkg/mcu/atmel_atmega128/inc \
 		ee_$(DIST)/pkg/mcu/atmel_atmega128/inc/ee_internal.h \
 		ee_$(DIST)/pkg/mcu/atmel_atmega128/inc/ee_irqstub.S \
+		ee_$(DIST)/pkg/mcu/atmel_atmega128/inc/ee_spi.h \
+		ee_$(DIST)/pkg/mcu/atmel_atmega128/inc/ee_uart.h \
 		ee_$(DIST)/pkg/mcu/atmel_atmega128/src \
 		ee_$(DIST)/pkg/mcu/atmel_atmega128/src/ee_ic.c \
 		ee_$(DIST)/pkg/mcu/atmel_atmega128/src/ee_external_int.S \
 		ee_$(DIST)/pkg/mcu/atmel_atmega128/src/ee_timer.S \
 		ee_$(DIST)/pkg/mcu/atmel_atmega128/src/ee_uart.S \
 		ee_$(DIST)/pkg/mcu/atmel_atmega128/src/ee_uartApi.c \
+		ee_$(DIST)/pkg/mcu/atmel_atmega128/src/ee_spi.c \
+		ee_$(DIST)/pkg/mcu/atmel_atmega128/src/ee_uart.c \
+		ee_$(DIST)/pkg/mcu/atmel_atmega1281/cfg \
+		ee_$(DIST)/pkg/mcu/atmel_atmega1281/cfg/cfg.mk \
+		ee_$(DIST)/pkg/mcu/atmel_atmega1281/inc \
+		ee_$(DIST)/pkg/mcu/atmel_atmega1281/inc/ee_internal.h \
+		ee_$(DIST)/pkg/mcu/atmel_atmega1281/inc/ee_irqstub.S \
+		ee_$(DIST)/pkg/mcu/atmel_atmega1281/inc/ee_spi.h \
+		ee_$(DIST)/pkg/mcu/atmel_atmega1281/inc/ee_uart.h \
+		ee_$(DIST)/pkg/mcu/atmel_atmega1281/src \
+		ee_$(DIST)/pkg/mcu/atmel_atmega1281/src/ee_ic.c \
+		ee_$(DIST)/pkg/mcu/atmel_atmega1281/src/ee_external_int.S \
+		ee_$(DIST)/pkg/mcu/atmel_atmega1281/src/ee_timer.S \
+		ee_$(DIST)/pkg/mcu/atmel_atmega1281/src/ee_uart.S \
+		ee_$(DIST)/pkg/mcu/atmel_atmega1281/src/ee_uartApi.c \
+		ee_$(DIST)/pkg/mcu/atmel_atmega1281/src/ee_spi.c \
+		ee_$(DIST)/pkg/mcu/atmel_atmega1281/src/ee_uart.c \
 		ee_$(DIST)/pkg/board/xbow_mib5x0/cfg \
 		ee_$(DIST)/pkg/board/xbow_mib5x0/cfg/cfg.mk \
 		ee_$(DIST)/pkg/board/xbow_mib5x0/inc \

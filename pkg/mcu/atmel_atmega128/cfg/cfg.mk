@@ -42,10 +42,23 @@
 ## CVS: $Id: cfg.mk,v 1.4 2007/06/22 13:56:30 romano Exp $
 
 ifeq ($(findstring __ATMEGA128__,$(EEOPT)),__ATMEGA128__)
-EE_SRCS += pkg/mcu/atmel_atmega128/src/ee_ic.c
-EE_SRCS += pkg/mcu/atmel_atmega128/src/ee_external_int.S
-EE_SRCS += pkg/mcu/atmel_atmega128/src/ee_timer.S
-EE_SRCS += pkg/mcu/atmel_atmega128/src/ee_uart.S
-EE_SRCS += pkg/mcu/atmel_atmega128/src/ee_uartApi.c
+
+# directory name containing the sources
+EE_VPATH += $(PKGBASE)/mcu/atmel_atmega128/src
+
+EE_SRCS += ee_ic.c
+EE_SRCS += ee_external_int.S
+EE_SRCS += ee_timer.S
+
+ifeq ($(findstring __USE_UART__,$(EEOPT)) , __USE_UART__)
+EE_SRCS += ee_uart.c
+else
+EE_SRCS += ee_uart.S
+EE_SRCS += ee_uartApi.c
+endif
+
+ifeq ($(findstring __USE_SPI__,$(EEOPT)) , __USE_SPI__)
+EE_SRCS += ee_spi.c
+endif
 
 endif
