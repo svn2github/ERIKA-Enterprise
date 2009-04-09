@@ -11,4 +11,8 @@
 #include "hal/pic30.h"
 #endif	/* __PIC30__ */
 
+#ifdef __AVR5__
+#include "hal/avr5.h"
+#endif	/* __PIC30__ */
+
 #endif	/* __arch_h__ */

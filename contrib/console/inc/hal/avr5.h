@@ -1,5 +1,5 @@
-#ifndef __pic30_h__
-#define __pic30_h__
+#ifndef __avr5_h__
+#define __avr5_h__
 /** 
 * @file pic30.h
 * @brief PIC30 Hardware Abstraction Layer definition.
@@ -10,7 +10,12 @@
 #ifdef __ERIKA__
 
 #include "console_serial.h"
-#include "mcu/microchip_dspic/inc/ee_uart.h"
+#ifdef __ATMEGA128__
+#include "mcu/atmel_atmega128/inc/ee_uart.h"
+#endif
+#ifdef __ATMEGA1281__
+#include "mcu/atmel_atmega1281/inc/ee_uart.h"
+#endif
 
 /* ************************************************************************** */
 /*                          HAL Macros Declaration                            */
@@ -36,4 +41,4 @@
 /**  @} */
 
 #endif /* __ERIKA__ */
-#endif /* __pic30_h__ */
+#endif /* __avr5_h__ */

@@ -7,7 +7,7 @@
 
 #ifdef USE_CONSOLE
 
-#include "hal/pic30.h"
+#include "hal/avr5.h"
 
 /* ************************************************************************** */
 /*                           HAL Functions Definition                         */

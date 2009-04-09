@@ -44,6 +44,12 @@
 #define CONSOLE_SERIAL_FLAG_BIT8_NO	CONSOLE_SERIAL_HAL_FLAG_BIT8_NO
 #define CONSOLE_SERIAL_FLAG_BIT_STOP1	CONSOLE_SERIAL_HAL_FLAG_BIT_STOP1
 #define CONSOLE_SERIAL_FLAG_BIT_STOP2	CONSOLE_SERIAL_HAL_FLAG_BIT_STOP2
+
+#define CONSOLE_SERIAL_CTRL_SIMPLE 	CONSOLE_SERIAL_HAL_CTRL_SIMPLE	
+#define CONSOLE_SERIAL_CTRL_FLOW 	CONSOLE_SERIAL_HAL_CTRL_FLOW
+
+#define CONSOLE_SERIAL_PORT_1		CONSOLE_SERIAL_HAL_PORT_1	
+#define CONSOLE_SERIAL_PORT_2		CONSOLE_SERIAL_HAL_PORT_2
 /**  @} */
 
 /* ************************************************************************** */
@@ -78,8 +84,7 @@ typedef struct console_serial_t {
 *		If the \c port parameter is invalid \c NULL is returned.
 */
 console_descriptor_t *console_serial_config(uint8_t port, uint32_t baudrate, 
-								uint16_t flags);
-
+					    uint16_t flags);
 
 /* ************************************************************************** */
 /*                           HAL Functions Delcaration                        */
@@ -91,11 +96,11 @@ console_descriptor_t *console_serial_config(uint8_t port, uint32_t baudrate,
 * and must be implemented in the HAL.
 *
 * @{ */
-int console_serial_hal_open(uint8_t port, uint32_t baudrate, uint16_t flags);
-int console_serial_hal_close(uint8_t port);
-int console_serial_hal_write(uint8_t port, uint8_t *mesg, uint16_t length);
-int console_serial_hal_read(uint8_t port, uint8_t *mesg, uint16_t length, 
-								uint16_t *read);
+int8_t console_serial_hal_open(uint8_t port, uint32_t baudrate, uint16_t flags);
+int8_t console_serial_hal_close(uint8_t port);
+int8_t console_serial_hal_write(uint8_t port, uint8_t *mesg, uint16_t length);
+int8_t console_serial_hal_read(uint8_t port, uint8_t *mesg, uint16_t length, 
+			       uint16_t *read);
 /**  @} */
 
 #endif	/* USE_CONSOLE && USE_CONSOLE_SERIAL */

@@ -12,12 +12,12 @@ EE_SRCS_CONSOLE_COMMON := $(addprefix contrib/console/src/, $(notdir $(shell ls 
 EE_SRCS += $(EE_SRCS_CONSOLE_COMMON)
 
 
-## Potentially, check the architecture
+## Check the architecture
 ifeq ($(findstring __PIC30__,$(EEOPT)) , __PIC30__)
-
-## Add each file individually
 EE_SRCS += contrib/console/src/hal/pic30.c
-
+endif
+ifeq ($(findstring __AVR5__,$(EEOPT)) , __AVR5__)
+EE_SRCS += contrib/console/src/hal/avr5.c
 endif
 
 endif
