@@ -115,15 +115,20 @@ OPT_CC += -ggdb
 endif
 endif
 
+## Specific compiler option from the application makefile
+OPT_CC += $(CFLAGS)
+
 ## OPT_TCC are the options for thumb compiler invocation
 # -mcallee-super-interworking = switch to thumb mode after an arm header
-OPT_TCC = $(OPT_CC) -mthumb-interwork -mcallee-super-interworking
+#OPT_TCC = $(OPT_CC) -mthumb-interwork -mcallee-super-interworking
+OPT_TCC = $(OPT_CC) -mcallee-super-interworking
 
 ## OPT_ASM are the options for asm invocation
 # -marm7tdmi        = generate optimized code for ARM7TDMI processor
 # -mapcs-32	    = support APCS function calling standard
 # -mthumb-interwork = support arm/thumb interwork
-OPT_ASM = -marm7tdmi -mthumb-interwork -mapcs-32
+#OPT_ASM = -marm7tdmi -mthumb-interwork -mapcs-32
+OPT_ASM = -mcpu=arm7tdmi -mthumb-interwork -mapcs-32
 
 ifneq ($(findstring __BIN_DISTR,$(EEALLOPT)), __BIN_DISTR)
 ifeq ($(findstring DEBUG,$(EEOPT)) , DEBUG)
@@ -131,8 +136,11 @@ OPT_ASM += --gstabs
 endif
 endif
 
-# OPT_LINK represents the options for armlink invocation
-OPT_LINK += 
+## Specific assembler option from the application makefile
+OPT_ASM += $(ASFLAGS)
+
+## Specific linker option from the application makefile
+OPT_LINK += $(LDFLAGS)
 
 # Defining EEOPT Macros
 # Each identifier that is listed in EEOPT is also inserted as a 

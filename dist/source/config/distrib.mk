@@ -40,7 +40,7 @@ distrib_opt___AVR5__:: \
 		ee_$(DIST)/pkg/mcu/atmel_atmega128/src/ee_ic.c \
 		ee_$(DIST)/pkg/mcu/atmel_atmega128/src/ee_external_int.S \
 		ee_$(DIST)/pkg/mcu/atmel_atmega128/src/ee_timer.S \
-		ee_$(DIST)/pkg/mcu/atmel_atmega128/src/ee_uart.S \
+		ee_$(DIST)/pkg/mcu/atmel_atmega128/src/ee_uart_opt.S \
 		ee_$(DIST)/pkg/mcu/atmel_atmega128/src/ee_uartApi.c \
 		ee_$(DIST)/pkg/mcu/atmel_atmega128/src/ee_spi.c \
 		ee_$(DIST)/pkg/mcu/atmel_atmega128/src/ee_uart.c \
@@ -55,7 +55,7 @@ distrib_opt___AVR5__:: \
 		ee_$(DIST)/pkg/mcu/atmel_atmega1281/src/ee_ic.c \
 		ee_$(DIST)/pkg/mcu/atmel_atmega1281/src/ee_external_int.S \
 		ee_$(DIST)/pkg/mcu/atmel_atmega1281/src/ee_timer.S \
-		ee_$(DIST)/pkg/mcu/atmel_atmega1281/src/ee_uart.S \
+		ee_$(DIST)/pkg/mcu/atmel_atmega1281/src/ee_uart_opt.S \
 		ee_$(DIST)/pkg/mcu/atmel_atmega1281/src/ee_uartApi.c \
 		ee_$(DIST)/pkg/mcu/atmel_atmega1281/src/ee_spi.c \
 		ee_$(DIST)/pkg/mcu/atmel_atmega1281/src/ee_uart.c \
@@ -489,7 +489,7 @@ distrib_opt___CABS__:: \
 #
 #
 
-distrib_opt___AVR5__:: \
+distrib_opt___ATMEL802154__:: \
 		ee_$(DIST)/contrib \
 		ee_$(DIST)/contrib/readme.txt \
 		ee_$(DIST)/contrib/atmel802_15_4 \
@@ -586,9 +586,7 @@ distrib_opt___AVR5__:: \
 		ee_$(DIST)/contrib/atmel802_15_4/inc/wpan_defines.h \
 		ee_$(DIST)/contrib/atmel802_15_4/inc/wpan_mac.h
 
-
-
-distrib_opt___PIC30__:: \
+distrib_opt___CONTRIB__:: \
 		ee_$(DIST)/contrib \
 		ee_$(DIST)/contrib/readme.txt \
 		ee_$(DIST)/contrib/console \
@@ -604,12 +602,121 @@ distrib_opt___PIC30__:: \
 		ee_$(DIST)/contrib/console/inc/hal/arch.h \
 		ee_$(DIST)/contrib/console/inc/hal/compiler.h \
 		ee_$(DIST)/contrib/console/inc/hal/pic30.h \
+		ee_$(DIST)/contrib/console/inc/hal/avr5.h \
 		ee_$(DIST)/contrib/console/src \
 		ee_$(DIST)/contrib/console/src/conq.c \
 		ee_$(DIST)/contrib/console/src/console.c \
 		ee_$(DIST)/contrib/console/src/console_serial.c \
 		ee_$(DIST)/contrib/console/src/hal \
 		ee_$(DIST)/contrib/console/src/hal/pic30.c \
+		ee_$(DIST)/contrib/console/src/hal/avr5.c \
+		ee_$(DIST)/contrib/memory \
+		ee_$(DIST)/contrib/memory/doxyconf \
+		ee_$(DIST)/contrib/memory/cfg \
+		ee_$(DIST)/contrib/memory/cfg/libcfg.mk \
+		ee_$(DIST)/contrib/memory/inc \
+		ee_$(DIST)/contrib/memory/inc/cqueue.h \
+		ee_$(DIST)/contrib/memory/inc/arch \
+		ee_$(DIST)/contrib/memory/inc/arch/mem_compiler.h \
+		ee_$(DIST)/contrib/memory/inc/arch/mem_compiler_ee.h \
+		ee_$(DIST)/contrib/memory/inc/arch/mem_compiler_c30.h \
+		ee_$(DIST)/contrib/memory/libsrc \
+		ee_$(DIST)/contrib/memory/libsrc/cqueue.c
+
+distrib_opt___DRIVERS__:: \
+		ee_$(DIST)/contrib/drivers \
+		ee_$(DIST)/contrib/drivers/cfg \
+		ee_$(DIST)/contrib/drivers/cfg/contrib.mk \
+		ee_$(DIST)/contrib/drivers/radio \
+		ee_$(DIST)/contrib/drivers/radio/cc2420 \
+		ee_$(DIST)/contrib/drivers/radio/cc2420/doxyconf \
+		ee_$(DIST)/contrib/drivers/radio/cc2420/cfg \
+		ee_$(DIST)/contrib/drivers/radio/cc2420/cfg/cfg.mk \
+		ee_$(DIST)/contrib/drivers/radio/cc2420/cfg/libcfg.mk \
+		ee_$(DIST)/contrib/drivers/radio/cc2420/inc \
+		ee_$(DIST)/contrib/drivers/radio/cc2420/inc/cc2420.h \
+		ee_$(DIST)/contrib/drivers/radio/cc2420/inc/cc2420_compiler.h \
+		ee_$(DIST)/contrib/drivers/radio/cc2420/inc/cc2420_compiler_c30.h \
+		ee_$(DIST)/contrib/drivers/radio/cc2420/inc/cc2420_compiler_ee.h \
+		ee_$(DIST)/contrib/drivers/radio/cc2420/inc/cc2420_hal.h \
+		ee_$(DIST)/contrib/drivers/radio/cc2420/inc/cc2420_hal_ee.h \
+		ee_$(DIST)/contrib/drivers/radio/cc2420/src \
+		ee_$(DIST)/contrib/drivers/radio/cc2420/src/cc2420.c \
+		ee_$(DIST)/contrib/drivers/radio/cc2420/src/cc2420_hal_ee.c
+
+distrib_opt___OPENZB__:: \
+		ee_$(DIST)/contrib/network \
+		ee_$(DIST)/contrib/network/cfg \
+		ee_$(DIST)/contrib/network/cfg/contrib.mk \
+		ee_$(DIST)/contrib/network/openzb \
+		ee_$(DIST)/contrib/network/openzb/doxyconf \
+		ee_$(DIST)/contrib/network/openzb/cfg \
+		ee_$(DIST)/contrib/network/openzb/cfg/cfg.mk \
+		ee_$(DIST)/contrib/network/openzb/cfg/libcfg.mk \
+		ee_$(DIST)/contrib/network/openzb/inc \
+		ee_$(DIST)/contrib/network/openzb/inc/ieee802154.h \
+		ee_$(DIST)/contrib/network/openzb/inc/openzb.h \
+		ee_$(DIST)/contrib/network/openzb/inc/hal \
+		ee_$(DIST)/contrib/network/openzb/inc/hal/ozb_compiler.h \
+		ee_$(DIST)/contrib/network/openzb/inc/hal/ozb_compiler_c30.h \
+		ee_$(DIST)/contrib/network/openzb/inc/hal/ozb_compiler_ee.h \
+		ee_$(DIST)/contrib/network/openzb/inc/hal/ozb_radio.h \
+		ee_$(DIST)/contrib/network/openzb/inc/hal/ozb_radio_cc2420.h \
+		ee_$(DIST)/contrib/network/openzb/inc/mac \
+		ee_$(DIST)/contrib/network/openzb/inc/mac/ozb_mac.h \
+		ee_$(DIST)/contrib/network/openzb/inc/mac/ozb_mac_const.h \
+		ee_$(DIST)/contrib/network/openzb/inc/mac/ozb_mac_internal.h \
+		ee_$(DIST)/contrib/network/openzb/inc/mac/ozb_mac_mcps.h \
+		ee_$(DIST)/contrib/network/openzb/inc/mac/ozb_mac_mlme.h \
+		ee_$(DIST)/contrib/network/openzb/inc/mac/ozb_mac_types.h \
+		ee_$(DIST)/contrib/network/openzb/inc/net \
+		ee_$(DIST)/contrib/network/openzb/inc/net/ozb_net.h \
+		ee_$(DIST)/contrib/network/openzb/inc/net/ozb_net_internal.h \
+		ee_$(DIST)/contrib/network/openzb/inc/osal \
+		ee_$(DIST)/contrib/network/openzb/inc/osal/ozb_osal.h \
+		ee_$(DIST)/contrib/network/openzb/inc/osal/ozb_osal_erika.h \
+		ee_$(DIST)/contrib/network/openzb/inc/phy \
+		ee_$(DIST)/contrib/network/openzb/inc/phy/ozb_phy.h \
+		ee_$(DIST)/contrib/network/openzb/inc/phy/ozb_phy_const.h \
+		ee_$(DIST)/contrib/network/openzb/inc/phy/ozb_phy_internal.h \
+		ee_$(DIST)/contrib/network/openzb/inc/phy/ozb_phy_pd.h \
+		ee_$(DIST)/contrib/network/openzb/inc/phy/ozb_phy_plme.h \
+		ee_$(DIST)/contrib/network/openzb/inc/phy/ozb_phy_types.h \
+		ee_$(DIST)/contrib/network/openzb/inc/util \
+		ee_$(DIST)/contrib/network/openzb/inc/util/ozb_debug.h \
+		ee_$(DIST)/contrib/network/openzb/inc/util/ozb_memory.h \
+		ee_$(DIST)/contrib/network/openzb/src \
+		ee_$(DIST)/contrib/network/openzb/src/hal \
+		ee_$(DIST)/contrib/network/openzb/src/hal/ozb_radio_cc2420.c \
+		ee_$(DIST)/contrib/network/openzb/src/mac \
+		ee_$(DIST)/contrib/network/openzb/src/mac/ozb_mac.c \
+		ee_$(DIST)/contrib/network/openzb/src/mac/ozb_mac_phy_events.c \
+		ee_$(DIST)/contrib/network/openzb/src/net \
+		ee_$(DIST)/contrib/network/openzb/src/osal \
+		ee_$(DIST)/contrib/network/openzb/src/phy \
+		ee_$(DIST)/contrib/network/openzb/src/phy/ozb_phy.c \
+		ee_$(DIST)/contrib/network/openzb/src/util \
+		ee_$(DIST)/contrib/network/openzb/src/util/ozb_debug.c
+
+distrib_opt___MIWIP2P__:: \
+		ee_$(DIST)/contrib/MiWiP2P \
+		ee_$(DIST)/contrib/MiWiP2P/cfg \
+		ee_$(DIST)/contrib/MiWiP2P/cfg/cfg.mk \
+		ee_$(DIST)/contrib/MiWiP2P/cfg/libcfg.mk \
+		ee_$(DIST)/contrib/MiWiP2P/inc \
+		ee_$(DIST)/contrib/MiWiP2P/inc/compiler.h \
+		ee_$(DIST)/contrib/MiWiP2P/inc/GenericTypeDefs.h \
+		ee_$(DIST)/contrib/MiWiP2P/inc/MRF24J40.h \
+		ee_$(DIST)/contrib/MiWiP2P/inc/P2P.h \
+		ee_$(DIST)/contrib/MiWiP2P/inc/radio_spi.h \
+		ee_$(DIST)/contrib/MiWiP2P/inc/SymbolTime.h \
+		ee_$(DIST)/contrib/MiWiP2P/libsrc \
+		ee_$(DIST)/contrib/MiWiP2P/libsrc/P2P.c \
+		ee_$(DIST)/contrib/MiWiP2P/libsrc/radio_spi.c \
+		ee_$(DIST)/contrib/MiWiP2P/libsrc/serv_funct.c \
+		ee_$(DIST)/contrib/MiWiP2P/libsrc/SymbolTime.c
+
+distrib_opt___SCICOS__:: \
 		ee_$(DIST)/contrib/scicos \
 		ee_$(DIST)/contrib/scicos/ScicosBlocks.txt \
 		ee_$(DIST)/contrib/scicos/readme.txt \
@@ -1170,7 +1277,12 @@ distrib_opt___PIC30_EXAMPLES__:: \
 		ee_$(DIST)/examples/pic30/pic30_oo_event/code.c \
 		ee_$(DIST)/examples/pic30/pic30_oo_event/conf.oil \
 		ee_$(DIST)/examples/pic30/pic30_oo_event/template.xml \
-
+		\
+		ee_$(DIST)/examples/pic30/pic30_miwip2p \
+		ee_$(DIST)/examples/pic30/pic30_miwip2p/code.c \
+		ee_$(DIST)/examples/pic30/pic30_miwip2p/conf.oil \
+		ee_$(DIST)/examples/pic30/pic30_miwip2p/P2PDefs.h \
+		ee_$(DIST)/examples/pic30/pic30_miwip2p/template.xml
 
 #
 #

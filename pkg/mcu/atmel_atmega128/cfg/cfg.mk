@@ -53,7 +53,7 @@ EE_SRCS += ee_timer.S
 ifeq ($(findstring __USE_UART__,$(EEOPT)) , __USE_UART__)
 EE_SRCS += ee_uart.c
 else
-EE_SRCS += ee_uart.S
+EE_SRCS += ee_uart_opt.S
 EE_SRCS += ee_uartApi.c
 endif
 
