@@ -102,9 +102,9 @@ void EE_frsh_timeout_extract(EE_TID t, EE_TIME tmp_time)
 
       // reprogram the timer
       if (EE_frsh_timeout_first == EE_NIL) {
-	EE_hal_stop_synchobj_timeout_timer();
+	EE_frsh_stop_synchobj_timeout_timer();
       } else {
-	EE_hal_set_synchobj_timeout_timer(EE_frsh_timeout[EE_frsh_timeout_first].timeout - tmp_time);
+	EE_frsh_set_synchobj_timeout_timer(EE_frsh_timeout[EE_frsh_timeout_first].timeout - tmp_time);
       }
     } else {
       // remove an item in the middle of the timeout queue
@@ -206,9 +206,9 @@ void EE_frsh_IRQ_synchobj_timeout(void)
 
   // Program the recharging timer
   if (t == EE_NIL) {
-      EE_hal_stop_synchobj_timeout_timer();
+      EE_frsh_stop_synchobj_timeout_timer();
   } else {
-      EE_hal_set_synchobj_timeout_timer(EE_frsh_timeout[t].timeout - tmp_time);
+      EE_frsh_set_synchobj_timeout_timer(EE_frsh_timeout[t].timeout - tmp_time);
   }
 
   EE_hal_end_nested_primitive(flag);

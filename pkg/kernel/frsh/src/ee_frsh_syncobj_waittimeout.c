@@ -152,7 +152,7 @@ int EE_frsh_synchobj_wait_with_timeout (const frsh_synchobj_handle_t synch_handl
       EE_frsh_timeout[tmp_exec].synchobj = synch_handle;
       EE_frsh_timeout_insert(tmp_exec);
       if (EE_frsh_timeout_first == tmp_exec)
-	EE_hal_set_synchobj_timeout_timer(*abs_timeout - tmp_time);
+	EE_frsh_set_synchobj_timeout_timer(*abs_timeout - tmp_time);
     }
     else
       returnvalue = FRSH_ERR_INTERNAL_ERROR;

@@ -55,6 +55,13 @@
  Timers
  *************************************************************************/
 
+/* In case of single IRQ mode, we remap the budget timer over the COMMON IRQ */
+#ifdef __FRSH_SINGLEIRQ__
+#define TIMER_CAPACITY_BASE TIMER_COMMON_BASE
+#define TIMER_CAPACITY_IRQ  TIMER_COMMON_IRQ
+#endif
+
+
 #if defined(__CBS__) || defined(__FRSH__)
 
 void EE_hal_set_nios2_timer(EE_UINT32 base, EE_STIME t);
@@ -82,7 +89,9 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_stop_budget_timer(void)
 
 #endif
 
-#if defined(__FRSH__)
+#if defined(__FRSH__) && !defined(__FRSH_SINGLEIRQ__)
+
+// these are available only when SINGLEIRQ is not defined.
 
 __INLINE__ void __ALWAYS_INLINE__ EE_hal_set_recharging_timer(EE_STIME t)
 {
@@ -102,6 +111,16 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_set_synchobj_timeout_timer(EE_STIME t)
 __INLINE__ void __ALWAYS_INLINE__ EE_hal_stop_synchobj_timeout_timer(void)
 {
   EE_hal_stop_nios2_timer(TIMER_SYNCHOBJ_BASE);
+}
+
+__INLINE__ void __ALWAYS_INLINE__ EE_hal_set_dline_timer(EE_STIME t)
+{
+  EE_hal_set_nios2_timer(TIMER_DLCHECK_BASE,t);
+}
+
+__INLINE__ void __ALWAYS_INLINE__ EE_hal_stop_dline_timer(void)
+{
+  EE_hal_stop_nios2_timer(TIMER_DLCHECK_BASE);
 }
 
 #endif

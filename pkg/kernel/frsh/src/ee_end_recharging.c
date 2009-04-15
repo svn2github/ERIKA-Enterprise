@@ -95,9 +95,9 @@ void EE_frsh_IRQ_recharging(void)
 
   // Program the recharging timer
   if (c == EE_VRES_NIL) {
-      EE_hal_stop_recharging_timer();
+      EE_frsh_stop_recharging_timer();
   } else {
-      EE_hal_set_recharging_timer(EE_vres[c].absdline - tmp_time);
+      EE_frsh_set_recharging_timer(EE_vres[c].absdline - tmp_time);
   }
 
   EE_hal_end_nested_primitive(flag);

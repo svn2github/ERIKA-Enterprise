@@ -153,7 +153,7 @@ ActionType EE_frsh_updatecapacity(EE_TID t, EE_TIME tmp_time)
       
       /* update the recharging IRQ if the activated task becomes the first */
       if (EE_rcg_queryfirst() == c)
-        EE_hal_set_recharging_timer(EE_vres[c].absdline - tmp_time);
+        EE_frsh_set_recharging_timer(EE_vres[c].absdline - tmp_time);
 
       return EE_UC_InsertedRCGQueue;
     }
@@ -249,7 +249,7 @@ void EE_frsh_run_exec(EE_TID tmp_exec)
     /* if different from the current running task implement the preemption */
     if (tmp_exec != EE_exec) {
       /* reprogram the capacity timer for the new task */
-      EE_hal_set_budget_timer(EE_vres[EE_th[EE_exec].vres].budget_avail);
+      EE_frsh_set_budget_timer(EE_vres[EE_th[EE_exec].vres].budget_avail);
       
       if (wasstacked)
 	EE_hal_stkchange(EE_exec);
@@ -311,7 +311,7 @@ void EE_frsh_check_slice(EE_TIME tmp_time)
 
       /* update the recharging IRQ if the activated task becomes the first */
       if(EE_rcg_queryfirst() == c)
-        EE_hal_set_recharging_timer(EE_vres[c].absdline - tmp_time);
+        EE_frsh_set_recharging_timer(EE_vres[c].absdline - tmp_time);
 
     } else {
       EE_rq_insert(EE_exec);
@@ -392,7 +392,7 @@ void EE_frsh_end_slice(EE_TIME tmp_time)
 
       /* update the recharging IRQ if the activated task becomes the first */
       if(EE_rcg_queryfirst() == c)
-        EE_hal_set_recharging_timer(EE_vres[c].absdline - tmp_time);
+        EE_frsh_set_recharging_timer(EE_vres[c].absdline - tmp_time);
 
       // WASSTACKED is not set, because the task just ended
     } else {
@@ -545,7 +545,7 @@ void EE_frsh_check_recharging(EE_TIME tmp_time)
     
     /* exit if the recharging queue is empty */
     if (c == EE_VRES_NIL) {
-      EE_hal_stop_recharging_timer();
+      EE_frsh_stop_recharging_timer();
       return;
     }
     
@@ -614,10 +614,10 @@ void EE_frsh_check_recharging(EE_TIME tmp_time)
 
   // at the end of the update, we have to reprogram the recharging IRQ
   if (c != EE_VRES_NIL) {
-      EE_hal_set_recharging_timer(EE_vres[c].absdline - tmp_time);
+      EE_frsh_set_recharging_timer(EE_vres[c].absdline - tmp_time);
   }
   else
-    EE_hal_stop_recharging_timer();
+    EE_frsh_stop_recharging_timer();
 }
 #endif
 
@@ -626,7 +626,7 @@ void EE_frsh_check_recharging(EE_TIME tmp_time)
 /*     // note: both recharging times and semaphore timeouts timers are on the same queue */
 /*     // PJ: potremmo usare un vettore per gli accodamenti nel recharging evitando gli if... */
 /*     if (EE_th_status[EE_rcg_queryfirst()] & EE_BLOCKED) { */
-/*       EE_hal_set_recharging_timer(EE_th_timeouts[EE_rcg_queryfirst()] - tmp_time); */
+/*       EE_frsh_set_recharging_timer(EE_th_timeouts[EE_rcg_queryfirst()] - tmp_time); */
 /*     }  */
 /*     else */
 /* #endif */

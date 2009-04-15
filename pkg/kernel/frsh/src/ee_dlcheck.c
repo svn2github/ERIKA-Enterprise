@@ -71,6 +71,10 @@ void EE_frsh_IRQ_dlcheck(void)
     }
   }
 
+  // set this as a periodic interrupt
+  EE_frsh_set_dline_timer(EE_TIMER_MAXFUTUREVALUE>>2);
+
+
   EE_hal_end_nested_primitive(flag);
 }
 #endif

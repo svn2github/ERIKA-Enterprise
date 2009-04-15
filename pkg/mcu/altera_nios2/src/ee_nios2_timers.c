@@ -89,9 +89,17 @@ void EE_nios2_IRQ_budget(void* context, alt_u32 id)
   /* clear the interrupt */
   IOWR_ALTERA_AVALON_TIMER_STATUS (TIMER_CAPACITY_BASE, 0);
 
+#ifndef __FRSH_SINGLEIRQ__ 
   EE_frsh_IRQ_budget();
+#else
+  EE_frsh_IRQ_timer_multiplexer();
+#endif
 }
 #endif
+
+
+#ifndef __FRSH_SINGLEIRQ__ 
+// the other three IRQ sources are available only when 4 timers are available
 
 #ifndef __PRIVATE_NIOS2_IRQ_RECHARGING__
 void EE_nios2_IRQ_recharging(void* context, alt_u32 id)
@@ -110,10 +118,6 @@ void EE_nios2_IRQ_dlcheck(void* context, alt_u32 id)
   /* clear the interrupt */
   IOWR_ALTERA_AVALON_TIMER_STATUS (TIMER_DLCHECK_BASE, 0);
 
-  // set the IRQ a more often than needed for testing purposes
-  //  EE_hal_set_nios2_timer(TIMER_DLCHECK_BASE, 0x3fffffff);
-  EE_hal_set_nios2_timer(TIMER_DLCHECK_BASE, 0x003fffff);
-
   EE_frsh_IRQ_dlcheck();
 }
 #endif
@@ -128,6 +132,9 @@ void EE_nios2_IRQ_synchobj_timeout(void* context, alt_u32 id)
   EE_frsh_IRQ_synchobj_timeout();
 }
 #endif
+#endif
+
+
 #endif
 
 /* This function is used to initialize the two timers used for 
@@ -145,7 +152,7 @@ void EE_frsh_time_init(void)
 
   alt_irq_register (TIMER_CAPACITY_IRQ, NULL, EE_nios2_IRQ_budget);    
 
-  
+#ifndef __FRSH_SINGLEIRQ__  
   IOWR_ALTERA_AVALON_TIMER_PERIODH(TIMER_RECHARGING_BASE, 0xFFFF);
   IOWR_ALTERA_AVALON_TIMER_PERIODL(TIMER_RECHARGING_BASE, 0xFFFF);
   IOWR_ALTERA_AVALON_TIMER_CONTROL (TIMER_RECHARGING_BASE, 
@@ -176,6 +183,10 @@ void EE_frsh_time_init(void)
 #endif
 
   EE_hal_set_nios2_timer(TIMER_DLCHECK_BASE, 0xffff);  
+#else
+  // only a single timer available. Program the deadline timer with the FRSH function...
+  EE_frsh_set_dline_timer(0xffff);
+#endif
 }
 #endif
 

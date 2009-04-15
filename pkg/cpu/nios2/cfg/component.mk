@@ -254,6 +254,11 @@ EE_C_SRCS += \
 	ee/pkg/kernel/frsh/src/ee_thact.c \
 	ee/pkg/kernel/frsh/src/ee_thendin.c
 
+ifeq ($(findstring __FRSH_SINGLEIRQ__,$(EEOPT)) , __FRSH_SINGLEIRQ__)
+EE_C_SRCS += \
+	ee/pkg/kernel/frsh/src/ee_frsh_timers.c
+endif
+
 ifeq ($(findstring __FRSH_SYNCHOBJ__,$(EEOPT)) , __FRSH_SYNCHOBJ__)
 EE_C_SRCS += \
 	ee/pkg/kernel/frsh/src/ee_frsh_syncobj_signal.c \

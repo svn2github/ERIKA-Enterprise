@@ -93,7 +93,7 @@ void EE_thread_end_instance(void)
 
   if (EE_exec == EE_NIL) {
     /* no task to schedule, go to the main */
-    EE_hal_stop_budget_timer();
+    EE_frsh_stop_budget_timer();
     EE_hal_endcycle_stacked(EE_exec);
   } else {
     /* there is a task to schedule */
@@ -101,7 +101,7 @@ void EE_thread_end_instance(void)
     EE_th[EE_exec].status = EE_TASK_EXEC;  
   
     /* reprogram the capacity timer for the new task */
-    EE_hal_set_budget_timer(EE_vres[EE_th[EE_exec].vres].budget_avail);
+    EE_frsh_set_budget_timer(EE_vres[EE_th[EE_exec].vres].budget_avail);
     
     if (wasstacked)
       EE_hal_endcycle_stacked(EE_exec);

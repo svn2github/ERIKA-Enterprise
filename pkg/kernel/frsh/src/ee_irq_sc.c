@@ -79,7 +79,7 @@ void EE_IRQ_end_instance(void)
     EE_th[EE_exec].status = EE_TASK_EXEC;  
 
     /* reprogram the capacity timer for the new task */
-    EE_hal_set_budget_timer(EE_vres[EE_th[EE_exec].vres].budget_avail);
+    EE_frsh_set_budget_timer(EE_vres[EE_th[EE_exec].vres].budget_avail);
     
     if (wasstacked)
       EE_hal_IRQ_stacked(EE_exec);
@@ -87,7 +87,7 @@ void EE_IRQ_end_instance(void)
       EE_hal_IRQ_ready(EE_exec);
   } else {
     /* no task to execute. stop the capacity IRQ */
-    EE_hal_stop_budget_timer();
+    EE_frsh_stop_budget_timer();
     EE_hal_IRQ_stacked(EE_exec);
   }
 }

@@ -188,6 +188,17 @@ void EE_frsh_IRQ_budget(void);
 void EE_frsh_IRQ_dlcheck(void);
 #endif
 
+#ifndef __PRIVATE_IRQ_SYNCHOBJ_TIMEOUT__
+void EE_frsh_IRQ_synchobj_timeout(void);
+#endif
+
+#ifdef __FRSH_SINGLEIRQ__
+void EE_frsh_timer_reprogram(void);
+void EE_frsh_timer_set(int timer, EE_STIME t);
+void EE_frsh_timer_stop(int timer);
+void EE_frsh_IRQ_timer_multiplexer(void);
+#endif
+
 #ifndef __PRIVATE_BIND_DETACH_VRES__
 int EE_frsh_bind_detach_thread(EE_TID thread);
 #endif
@@ -219,6 +230,114 @@ void EE_IRQ_end_instance(void);
 #endif
 
 
+
+
+/*************************************************************************
+ Timers
+ *************************************************************************/
+
+#ifdef __FRSH_SINGLEIRQ__
+// only the budget timer is available
+
+// these two functions are used to set and stop the budget timer,
+// which is the only available when SINGLEIRQ is specified
+// the timer parameter is used to understand which interrupt source is called
+// and it is statically defined in ee_frsh_timers.c
+
+// TODO: we could probably do some more work to make this piece of code more
+// general, exporting it as a service independent from FRSH
+
+void EE_frsh_timer_set(int timer, EE_STIME t);
+void EE_frsh_timer_stop(int timer);
+
+
+
+
+__INLINE__ void __ALWAYS_INLINE__ EE_frsh_set_budget_timer(EE_STIME t) 
+{
+  EE_frsh_timer_set(0, t);
+}
+
+__INLINE__ void __ALWAYS_INLINE__ EE_frsh_stop_budget_timer(void)
+{
+  EE_frsh_timer_stop(0);
+}
+
+__INLINE__ void __ALWAYS_INLINE__ EE_frsh_set_recharging_timer(EE_STIME t)
+{
+  EE_frsh_timer_set(1, t);
+}
+
+__INLINE__ void __ALWAYS_INLINE__ EE_frsh_stop_recharging_timer(void)
+{
+  EE_frsh_timer_stop(1);
+}
+
+__INLINE__ void __ALWAYS_INLINE__ EE_frsh_set_synchobj_timeout_timer(EE_STIME t)
+{
+  EE_frsh_timer_set(2, t);
+}
+
+__INLINE__ void __ALWAYS_INLINE__ EE_frsh_stop_synchobj_timeout_timer(void)
+{
+  EE_frsh_timer_stop(2);
+}
+
+__INLINE__ void __ALWAYS_INLINE__ EE_frsh_set_dline_timer(EE_STIME t)
+{
+  EE_frsh_timer_set(3, t);
+}
+
+__INLINE__ void __ALWAYS_INLINE__ EE_frsh_stop_dline_timer(void)
+{
+  EE_frsh_timer_stop(3);
+}
+
+
+#else
+
+// four different hardware timers available
+__INLINE__ void __ALWAYS_INLINE__ EE_frsh_set_budget_timer(EE_STIME t) 
+{
+  EE_hal_set_budget_timer(t);
+}
+
+__INLINE__ void __ALWAYS_INLINE__ EE_frsh_stop_budget_timer(void)
+{
+  EE_hal_stop_budget_timer();
+}
+
+__INLINE__ void __ALWAYS_INLINE__ EE_frsh_set_recharging_timer(EE_STIME t)
+{
+  EE_hal_set_recharging_timer(t);
+}
+
+__INLINE__ void __ALWAYS_INLINE__ EE_frsh_stop_recharging_timer(void)
+{
+  EE_hal_stop_recharging_timer();
+}
+
+__INLINE__ void __ALWAYS_INLINE__ EE_frsh_set_synchobj_timeout_timer(EE_STIME t)
+{
+  EE_hal_set_synchobj_timeout_timer(t);
+}
+
+__INLINE__ void __ALWAYS_INLINE__ EE_frsh_stop_synchobj_timeout_timer(void)
+{
+  EE_hal_stop_synchobj_timeout_timer();
+}
+
+__INLINE__ void __ALWAYS_INLINE__ EE_frsh_set_dline_timer(EE_STIME t)
+{
+  EE_hal_set_dline_timer(t);
+}
+
+__INLINE__ void __ALWAYS_INLINE__ EE_frsh_stop_dline_timer(void)
+{
+  EE_hal_stop_dline_timer();
+}
+
 #endif
 
 
+#endif
