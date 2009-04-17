@@ -3,7 +3,7 @@
 
 #include <hal/ozb_compiler.h>
 //#include <mac/ozb_mac_const.h>
-typedef uint8_t ozb_mac_dev_addr_extd_t[4]; 
+typedef uint8_t ozb_mac_dev_addr_extd_t[8]; 
 typedef uint16_t ozb_mac_dev_addr_short_t; 
 #ifdef OZB_DEVICE_ADDRESS_16_ONLY /* TODO: check this in the varius call!*/
 typedef ozb_mac_dev_addr_short_t ozb_mac_dev_addr_t; 
@@ -56,6 +56,7 @@ enum ozb_mac_code_t {
 	OZB_MAC_BEACON_LOST // TODO: is this an error? should be LOSS??? 
 };
 
+/* TODO complete this struc!!!! */
 enum ozb_mac_pib_id_t {
 	OZB_MAC_TODO
 };
@@ -77,6 +78,60 @@ struct ozb_pan_des_t {
 	uint8_t KeyIndex;
 };
 
+/** 
+* @brief IEEE 802.15.4 MAC PAN Information Base
+*
+* \todo Write comments!
+*/
+
+/*TODO: reorder the fields to have chance for compact representation (packing)*/
+struct ozb_mac_pib_t {
+	uint8_t macAckWaitDuration;	/*TODO: check representation! */
+	unsigned macAssociatedPANCoord : 1;
+	#ifdef OZB_RFD_DISABLE_OPTIONAL
+	unsigned macAssociationPermit : 1;
+	#endif /* OZB_RFD_DISABLE_OPTIONAL */
+	unsigned macAutoRequest : 1;
+	unsigned macBattLifeExt : 1;
+	uint8_t macBattLifeExtPeriods; /* TODO: reduce representation! */
+	#ifdef OZB_RFD_DISABLE_OPTIONAL
+	//uint8_t macBeaconPayload[aMaxBeaconPayloadLength];
+	uint8_t *macBeaconPayload; /* TODO: use this?? */
+	uint8_t macBeaconPayloadLenght; /* TODO: reduce representation! */
+	uint8_t macBeaconOrder;		/* TODO: reduce representation! */
+	uint32_t macBeaconTxTime;	/* TODO: reduce representation?? */
+	uint8_t macBSN;
+	#endif /* OZB_RFD_DISABLE_OPTIONAL */
+	//EE_UINT32 macCoordExtendedAddress0;	// TODO: REMOVE
+	//EE_UINT32 macCoordExtendedAddress1;	// TODO: REMOVE
+	ozb_mac_dev_addr_extd_t macCoordExtendedAddress;
+	ozb_mac_dev_addr_short_t macCoordShortAddress;
+	uint8_t macDSN;
+	#ifdef OZB_DEVICE_DISABLE_OPTIONAL
+	uint8_t macGTSPermit;
+	#endif /* OZB_DEVICE_DISABLE_OPTIONAL */
+	uint8_t macMaxBE;		/* TODO: reduce representation! */
+	uint8_t macMaxCSMABackoffs;	/* TODO: reduce representation! */
+	uint32_t macMaxFrameTotalWaitTime; /*TODO: check representation! */
+	uint8_t macMaxFrameRetries; 	/* TODO: reduce representation! */
+	uint8_t macMinBE;		/* TODO: reduce representation! */
+	uint8_t macMinLIFSPeriod;	/* TODO: check representation! */
+	uint8_t macMinSIFSPeriod;	/* TODO: check representation! */
+	uint16_t macPANId;
+	#ifdef OZB_RFD_DISABLE_OPTIONAL
+	unsigned macPromiscuousMode : 1;
+	#endif /* OZB_RFD_DISABLE_OPTIONAL */
+	uint8_t macResponseWaitTime;	/* TODO: reduce representation! */
+	unsigned macRxOnWhenIdle : 1;
+	unsigned macSecurityEnabled : 1;
+	ozb_mac_dev_addr_short_t macShortAddress;
+	#ifdef OZB_RFD_DISABLE_OPTIONAL
+	uint8_t macSuperframeOrder;	/* TODO: reduce representation! */
+	#endif /* OZB_RFD_DISABLE_OPTIONAL */
+	uint16_t macSyncSymbolOffset;	/* TODO: reduce representation! */
+	unsigned macTimestampSupported : 1;	
+	uint32_t macTransactionPersistenceTime; /*TODO: check representation!*/
+};
 
 
 #endif /* Header Protection */
