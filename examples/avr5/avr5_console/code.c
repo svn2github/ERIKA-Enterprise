@@ -7,7 +7,7 @@
  *
  * ERIKA Enterprise is free software; you can redistribute it
  * and/or modify it under the terms of the GNU General Public License
- * version 2 as published by the Free Software Foundation, 
+ * version 2 as published by the Free Software Foundation,
  * (with a special exception described below).
  *
  * Linking this code statically or dynamically with other modules is
@@ -38,29 +38,81 @@
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
 
-/*
- * Author: 2001-2002 Alessandro Colantonio
- *       : 2005/2006 Antonio Romano
- * CVS: $Id: threads.c,v 1.1 2007/07/17 13:14:28 romano Exp $
- */
 
 #include "ee.h"
+#include "mcu/atmel_atmega128/inc/ee_ic.h"
 
+#include "console_serial.h"
 
+char * mymessage = "ErikaConsole\r\n";
+console_descriptor_t *my_console_1;
+#define MY_FIRST_SERIAL 0
+#define MY_FIRST_CONSOLE 0
 
-TASK(Task0)
-{
-     EE_led_3_on();    
-     EE_led_2_off();
+int i,j,k;
+
+void irq_1_f__type2(void) {
+	/*if (i==0) {
+		EE_led_1_on();
+		i = 1;
+	} else {
+		EE_led_1_off();
+		i = 0;
+	}*/
+	CounterTick(myCounter);
+}
+
+TASK(TaskSend) {
+	console_write(MY_FIRST_CONSOLE, mymessage, strlen(mymessage));
+	if (j==0) {
+		EE_led_2_on();
+		j = 1;
+	} else {
+		EE_led_2_off();
+		j = 0;
+	}
 };
 
+int main(void) {
+	EE_timer_init1();
+	EE_timer_1_start();
 
+	// Applicatio Init
+	my_console_1 = console_serial_config(MY_FIRST_SERIAL, 9600, 0x06);
+	console_init(MY_FIRST_CONSOLE, my_console_1);
 
-TASK(Task1)
+	SetRelAlarm(AlarmSend,1,1);
+	if (console_open(MY_FIRST_CONSOLE) == -1)
+		EE_led_3_on();
+	else
+		EE_led_3_off();
+
+	for (;;);
+}
+
+/*
+
+TASK(TaskSend)
 {
-    EE_led_2_on();
-    EE_led_3_off();
+	static char j = 0;
 
-};
+	console_write(MY_FIRST_CONSOLE, mymessage, strlen(mymessage));
+	if ((j++)%2) {
+		EE_led_2_on();
+	} else {
+		EE_led_2_off();
+	}
+}
 
-
+int main(void) {
+	// Applicatio Init
+	my_console_1 = console_serial_config(MY_FIRST_SERIAL, 9600,
+						CONSOLE_SERIAL_FLAG_BIT8_NO |
+						CONSOLE_SERIAL_FLAG_BIT_STOP1);
+	console_init(MY_FIRST_CONSOLE, my_console_1);
+	if (console_open(MY_FIRST_CONSOLE) == -1)
+		EE_led_3_on();
+	else
+		EE_led_3_off();
+}
+*/

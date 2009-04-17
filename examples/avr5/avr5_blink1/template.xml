@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<evidence_example version="1" ID="avr5_blink1">
+<evidence_example version="1" ID="avr5_blink_timers">
 
  <category>avr5/XBOW MIB5X0</category>
- <title>blink Demo</title>
+ <title>Blink Demo timers</title>
    
  <small_descr>
  Task0 and Task1 are actived by timers. Every tasks swith on a led. 
@@ -18,8 +18,6 @@
  <file_section>
   <file     name="code.c"/> 
   <file     name="conf.oil"/>
-  <file     name="threads.c"/>
-  <file     name="handler.c"/>
  </file_section>
 
 </evidence_example>

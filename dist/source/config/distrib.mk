@@ -1118,19 +1118,25 @@ distrib_opt___LIB_IEEE802154__:: \
 #
 
 distrib_opt___AVR5_EXAMPLES__:: \
-		ee_$(DIST)/examples/avr5/avr5_first \
-		ee_$(DIST)/examples/avr5/avr5_first/code.c \
-		ee_$(DIST)/examples/avr5/avr5_first/threads.c \
-		ee_$(DIST)/examples/avr5/avr5_first/handler.c \
-		ee_$(DIST)/examples/avr5/avr5_first/conf.oil \
-		ee_$(DIST)/examples/avr5/avr5_first/template.xml \
+		ee_$(DIST)/examples/avr5/avr5_blink \
+		ee_$(DIST)/examples/avr5/avr5_blink/template.xml \
+		ee_$(DIST)/examples/avr5/avr5_blink/code.c \
+		ee_$(DIST)/examples/avr5/avr5_blink/conf.oil \
 		\
 		ee_$(DIST)/examples/avr5/avr5_blink1 \
-		ee_$(DIST)/examples/avr5/avr5_blink1/code.c \
-		ee_$(DIST)/examples/avr5/avr5_blink1/threads.c \
-		ee_$(DIST)/examples/avr5/avr5_blink1/handler.c \
-		ee_$(DIST)/examples/avr5/avr5_blink1/conf.oil \
 		ee_$(DIST)/examples/avr5/avr5_blink1/template.xml \
+		ee_$(DIST)/examples/avr5/avr5_blink1/code.c \
+		ee_$(DIST)/examples/avr5/avr5_blink1/conf.oil \
+		\
+		ee_$(DIST)/examples/avr5/avr5_serial \
+		ee_$(DIST)/examples/avr5/avr5_serial/template.xml \
+		ee_$(DIST)/examples/avr5/avr5_serial/code.c \
+		ee_$(DIST)/examples/avr5/avr5_serial/conf.oil \
+		\
+		ee_$(DIST)/examples/avr5/avr5_console \
+		ee_$(DIST)/examples/avr5/avr5_console/template.xml \
+		ee_$(DIST)/examples/avr5/avr5_console/code.c \
+		ee_$(DIST)/examples/avr5/avr5_console/conf.oil
 
 
 

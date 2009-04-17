@@ -57,7 +57,7 @@ ifndef T32_DRIVE
 T32_DRIVE=c:
 endif
 ifndef T32_DIR
-T32_DIR=/cygdrive/c/T32_dic2002
+T32_DIR=/cygdrive/c/T32
 endif
 
 # ARM7-related directories

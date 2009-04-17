@@ -41,31 +41,43 @@
 
 #include "ee.h"
 #include "mcu/atmel_atmega128/inc/ee_ic.h"
+#include "mcu/atmel_atmega128/inc/ee_uart.h"
+
+int i,j,k;
 
 void irq_1_f__type2(void) {
-	ActivateTask(Task0);
-}
-
-void irq_1_f__type3(void) {
-	ActivateTask(Task1);
+	CounterTick(myCounter);
 }
 
 TASK(Task0) {
-	EE_led_3_on();
-	EE_led_2_off();
+	if (j==0) {
+		EE_led_2_on();
+		j = 1;
+	} else {
+		EE_led_2_off();
+		j = 0;
+	}
+	EE_uart_write_byte(EE_UART_PORT_1, 'E');
 };
 
 TASK(Task1) {
-	EE_led_2_on();
-	EE_led_3_off();
+	if (k==0) {
+		EE_led_3_on();
+		k = 1;
+	} else {
+		EE_led_3_off();
+		k = 0;
+	}
 };
 
 int main(void) {
 	EE_timer_init1();
-	EE_timer_init3();
-
 	EE_timer_1_start();
-	EE_timer_3_start();
+
+	EE_uart_init(EE_UART_PORT_1, 9600, EE_UART_BIT8 | EE_UART_PAR_NO | EE_UART_BIT_STOP_1, 0);
+
+	SetRelAlarm(Alarm0,1,1);
+	SetRelAlarm(Alarm1,2,2);
 
 	for (;;);
 }

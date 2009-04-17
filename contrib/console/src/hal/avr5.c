@@ -21,7 +21,7 @@
 
 int8_t console_serial_hal_open(uint8_t port, uint32_t bdr, uint16_t flags)
 {
-	return EE_uart_init(port, bdr, flags, CONSOLE_SERIAL_HAL_CTRL_SIMPLE);
+	return EE_uart_init(port, bdr, flags, 0);
 }
 
 int8_t console_serial_hal_close(uint8_t port) 

@@ -131,10 +131,6 @@ CPU mySystem {
 				FUNCTION = "irq_1_f__type2";
 				TYPE = 2;
 			};
-			HANDLER = HANDLER_T3_OVERFLW {	// timer 3 overflow interrupt
-				FUNCTION = "irq_1_f__type3";
-				TYPE = 2;
-			};
 		};
 		
 		BOARD_DATA = XBOW_MIB5X0{};
@@ -142,19 +138,28 @@ CPU mySystem {
 		KERNEL_TYPE = FP;
 	};
   	
-	TASK Task0 {
+	COUNTER myCounter;
+	
+	ALARM Alarm0 {
+		COUNTER = "myCounter";
+		ACTION = ACTIVATETASK { TASK = "Task0"; };
+	};
+
+	ALARM Alarm1 {
+		COUNTER = "myCounter";
+		ACTION = ACTIVATETASK { TASK = "Task1"; };
+	};
+
+    TASK Task0 {
 		PRIORITY = 1;
 		STACK = SHARED;
 		SCHEDULE = FULL;
-		RESOURCE = "MUTEX_sync";
 	};
-  
-   
+
 	TASK Task1 {
 		PRIORITY = 2;
 		STACK = SHARED;
 		SCHEDULE = FULL;
 	};
 
-	RESOURCE MUTEX_sync { RESOURCEPROPERTY = STANDARD; };
 };

@@ -7,7 +7,7 @@
  *
  * ERIKA Enterprise is free software; you can redistribute it
  * and/or modify it under the terms of the GNU General Public License
- * version 2 as published by the Free Software Foundation, 
+ * version 2 as published by the Free Software Foundation,
  * (with a special exception described below).
  *
  * Linking this code statically or dynamically with other modules is
@@ -38,18 +38,49 @@
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
 
+
 #include "ee.h"
+#include "mcu/atmel_atmega128/inc/ee_ic.h"
 
+int i,j,k;
 
+void irq_1_f__type2(void) {
+	if (i==0) {
+		EE_led_1_on();
+		i = 1;
+	} else {
+		EE_led_1_off();
+		i = 0;
+	}
+	CounterTick(myCounter);
+}
 
-void irq_1_f__type2(void)
-{
-ActivateTask(0);
- 
+TASK(Task0) {
+	if (j==0) {
+		EE_led_2_on();
+		j = 1;
+	} else {
+		EE_led_2_off();
+		j = 0;
+	}
 };
 
-void irq_1_f__type3(void)
-{
-ActivateTask(1);
- 
+TASK(Task1) {
+	if (k==0) {
+		EE_led_3_on();
+		k = 1;
+	} else {
+		EE_led_3_off();
+		k = 0;
+	}
 };
+
+int main(void) {
+	EE_timer_init1();
+	EE_timer_1_start();
+
+	SetRelAlarm(Alarm0,3,2);
+	SetRelAlarm(Alarm1,1,3);
+
+	for (;;);
+}
