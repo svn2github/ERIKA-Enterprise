@@ -1,127 +1,75 @@
+#include "mcu/atmel_atmega128/inc/ee_mcuregs.h"
 #include "mcu/atmel_atmega128/inc/ee_spi.h"
 
 // TODO: (Nino) Convert from PIC30 to AVR5!
 
-EE_INT8 EE_spi_init(EE_UINT8 port)
+EE_INT8 EE_spi_init(void)
 {
-	/* Enable SPI internal clock
-	 * Enable 8 bits communication mode
-	 * Enable Master Mode
-	 * Primary Prescale 1:1
-	 * Secondary Prescale 8:1
-	 * Note: with these prescale values the port works at 5 MHz. */
-	/* Note: because the chip select pin (SS1) 
-	   does not work properly, we drive this pin 
-	   directly setting it as a normal I/O pin.  */
-	if (port == EE_SPI_PORT_1) {
-		// TODO: (Nino) Convert from PIC30 to AVR5!
-		/*SPI1STATbits.SPIEN = 0; // Disable the SPI module
-		//SPI1CON1 = 0x23;
-		SPI2CON1 = 0x13E;
-		SPI1CON2 = 0;
-		SPI1STATbits.SPIEN = 1; // Enable the SPI module*/
-		return 1;
-	} else if (port == EE_SPI_PORT_2) {
-		// TODO: (Nino) Convert from PIC30 to AVR5!
-		/*SPI2STATbits.SPIEN = 0; // Disable the SPI module
-		//SPI1CON1 = 0x23;
-		SPI2CON1 = 0x13E; 
-		SPI2CON2 = 0;
-		SPI2STATbits.SPIEN = 1; // Enable the SPI module*/
-		return 1;
-	}
-	return -EE_SPI_ERR_BAD_PORT;
+	/* Note: the chip select pin (SS1)  work manually in master mode,
+		we drive this pin  directly setting it as a normal I/O pin.  */
+
+	/* Setup SPI I/O pins */
+	EE_reg(PORTB) |= (1<<PB1);	// set SCK hi
+	EE_reg(DDRB) &= ~(1<<PB3);	// set MISO as input
+	EE_reg(DDRB) |= (1<<PB0);	// SS must be output for Master mode to work
+	EE_reg(DDRB) |= (1<<PB1);	// set SCK as output
+	EE_reg(DDRB) |= (1<<PB2);	// set MOSI as output
+	
+	/* Enable SPI, Master, set clock rate fck/4 */
+	/* Note: with these prescale values the port works at 2 MHz. */
+	
+	// TODO: (Nino): Clock polarity and Phase are ok?
+	EE_reg(SPCR) = (1<<SPE)|(1<<MSTR);
+	
+	return 1;
 }
 
-EE_INT8 EE_spi_close(EE_UINT8 port)
+EE_INT8 EE_spi_close(void)
 {
-	if (port == EE_SPI_PORT_1) {
-		/* chris: TODO: Release something */
-		return 1;
-	} else if (port == EE_SPI_PORT_2) {
-		/* chris: TODO: Release something */
-		return 1;
-	}
-	return -EE_SPI_ERR_BAD_PORT;
+	return 1;
 }
 
-EE_INT8 EE_spi_rw_byte(EE_UINT8 port, EE_UINT8 data_in, EE_UINT8 *data_out)
+EE_INT8 EE_spi_rw_byte(EE_UINT8 data_in, EE_UINT8 *data_out)
 {
-	// TODO: (Nino) Convert from PIC30 to AVR5!
-	if (port == EE_SPI_PORT_1) {
-		// TODO: (Nino) Convert from PIC30 to AVR5!
-		/*IFS0bits.SPI1IF = 0;
-   		SPI1STATbits.SPIROV = 0;
-   		// wait until the tx buffer is empty
-   		while (SPI1STATbits.SPITBF);
-   		SPI1BUF = data_in;
-   		while (!SPI1STATbits.SPIRBF);
-   		SPI1STATbits.SPIROV = 0;
-		*data_out = SPI1BUF & 0x00FF;*/
-   		return 1;
-	} else if (port == EE_SPI_PORT_2) {
-		// TODO: (Nino) Convert from PIC30 to AVR5!
-		/*IFS2bits.SPI2IF = 0;
-   		SPI2STATbits.SPIROV = 0;
-   		// wait until the tx buffer is empty
-   		while (SPI2STATbits.SPITBF);
-   		SPI2BUF = data_in;
-   		while (!SPI2STATbits.SPIRBF);
-   		SPI2STATbits.SPIROV = 0;
-		*data_out = SPI2BUF & 0x00FF;*/
-   		return 1;
-   	}
-	return -EE_SPI_ERR_BAD_PORT;
+	/* Wait for transmission complete */
+	while( !(EE_reg(SPSR) & (1<<SPIF)) );
+
+	/* Start transmission */
+	EE_reg(SPDR) = data_in;
+
+	/* Wait for transmission complete */
+	while( !(EE_reg(SPSR) & (1<<SPIF)) );
+
+	/* Start transmission */
+	*data_out = EE_reg(SPDR);
+
+	return 1;
 }
 
-EE_INT8 EE_spi_write_byte(EE_UINT8 port, EE_UINT8 data)
+EE_INT8 EE_spi_write_byte(EE_UINT8 data)
 {
-	if (port == EE_SPI_PORT_1) {
-		// TODO: (Nino) Convert from PIC30 to AVR5!
-		/*IFS0bits.SPI1IF = 0;
-   		SPI1STATbits.SPIROV = 0;
-   		// wait until the tx buffer is empty
-   		while (SPI1STATbits.SPITBF);
-   		SPI1BUF = data;
-   		while (!SPI1STATbits.SPIRBF);
-   		SPI1STATbits.SPIROV = 0;
-		data = SPI1BUF; // Dummy Read Required */
-   		return 1;
-	} else if (port == EE_SPI_PORT_2) {
-		// TODO: (Nino) Convert from PIC30 to AVR5!
-		/*IFS2bits.SPI2IF = 0;
-   		SPI2STATbits.SPIROV = 0;
-   		// wait until the tx buffer is empty
-   		while (SPI2STATbits.SPITBF);
-   		SPI2BUF = data;
-   		while (!SPI2STATbits.SPIRBF);
-   		SPI2STATbits.SPIROV = 0;
-		data = SPI2BUF; // Dummy Read Required */
-   		return 1;
-   	}
-	return -EE_SPI_ERR_BAD_PORT;
+	/* Wait for transmission complete */
+	while( !(EE_reg(SPSR) & (1<<SPIF)) );
+
+	/* Start transmission */
+	EE_reg(SPDR) = data;
+
+	return 1;
 }
 
-EE_INT8 EE_spi_read_byte(EE_UINT8 port, EE_UINT8 *data)
+EE_INT8 EE_spi_read_byte(EE_UINT8 *data)
 {
-	if (port == EE_SPI_PORT_1) {
-		// TODO: (Nino) Convert from PIC30 to AVR5!
-   		/* //wait until the tx buffer is empty
-   		while (SPI1STATbits.SPITBF);
-   		SPI1BUF = 0x00;
-   		while (!SPI1STATbits.SPIRBF);
-   		SPI1STATbits.SPIROV = 0;
-   		*data =  SPI1BUF & 0x00FF;*/
-   		return 1;
-	} else if (port == EE_SPI_PORT_2) {
-		// TODO: (Nino) Convert from PIC30 to AVR5!
-   		/* //wait until the tx buffer is empty
-   		while (SPI2STATbits.SPITBF);
-   		SPI2BUF = 0x00;
-   		while (!SPI2STATbits.SPIRBF);
-   		SPI2STATbits.SPIROV = 0;
-   		*data =  SPI2BUF & 0x00FF;*/
-   		return 1;
-   	}
-	return -EE_SPI_ERR_BAD_PORT;
+	/* Wait for transmission complete */
+	while( !(EE_reg(SPSR) & (1<<SPIF)) );
+
+	/* Start transmission */
+	EE_reg(SPDR) = 0x00;
+
+	/* Wait for transmission complete */
+	while( !(EE_reg(SPSR) & (1<<SPIF)) );
+
+	/* Start transmission */
+	*data = EE_reg(SPDR);
+
+	return 1;
 }

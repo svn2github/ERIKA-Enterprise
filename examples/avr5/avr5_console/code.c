@@ -89,30 +89,3 @@ int main(void) {
 
 	for (;;);
 }
-
-/*
-
-TASK(TaskSend)
-{
-	static char j = 0;
-
-	console_write(MY_FIRST_CONSOLE, mymessage, strlen(mymessage));
-	if ((j++)%2) {
-		EE_led_2_on();
-	} else {
-		EE_led_2_off();
-	}
-}
-
-int main(void) {
-	// Applicatio Init
-	my_console_1 = console_serial_config(MY_FIRST_SERIAL, 9600,
-						CONSOLE_SERIAL_FLAG_BIT8_NO |
-						CONSOLE_SERIAL_FLAG_BIT_STOP1);
-	console_init(MY_FIRST_CONSOLE, my_console_1);
-	if (console_open(MY_FIRST_CONSOLE) == -1)
-		EE_led_3_on();
-	else
-		EE_led_3_off();
-}
-*/

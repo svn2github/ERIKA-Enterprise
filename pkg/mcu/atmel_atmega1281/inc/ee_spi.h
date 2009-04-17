@@ -1,12 +1,9 @@
-#ifndef __INCLUDE_ATMEL_ATMEGA1281_SPI_H__
-#define __INCLUDE_ATMEL_ATMEGA1281_SPI_H__
+#ifndef __INCLUDE_ATMEL_ATMEGA128_SPI_H__
+#define __INCLUDE_ATMEL_ATMEGA128_SPI_H__
 
 #include "ee.h"
 
 //TODO: (Nino) Include registers .h file?
-
-#define EE_SPI_PORT_1 0
-#define EE_SPI_PORT_2 1
 
 #define EE_SPI_ERR_BAD_PORT		1
 #define EE_SPI_ERR_NO_DATA		2
@@ -19,24 +16,20 @@
 /**
 * @brief Initialize the SPI peripheral.
 *
-* This function initializes the SPI peripheral defined by 
-* the input parameter \p port.
+* This function initializes the SPI peripheral.
 *
-* @param[in] port 	The number of the SPI port to be initialized,
-* 			it must be RADIO_SP1 or RADIO_SP2 defined in radio_spi.h.
 * @return 	\todo
 *
 * @pre		None
 */
-EE_INT8 EE_spi_init(EE_UINT8 port);
+EE_INT8 EE_spi_init(void);
 
-EE_INT8 EE_spi_close(EE_UINT8 port);
+EE_INT8 EE_spi_close(void);
 
 /**
 * @brief Send a byte through  the SPI peripheral.
 *
-* This function send a character (8 bits) through the SPI 
-* port controlling the radio.
+* This function send a character (8 bits) through the SPI port.
 *
 * @param[in] data_in	The character to be sent
 * @param[out] data_out	\todo
@@ -45,13 +38,12 @@ EE_INT8 EE_spi_close(EE_UINT8 port);
 *
 * @pre		The SPI port must be correctly initialized.
 */
-EE_INT8 EE_spi_rw_byte(EE_UINT8 port, EE_UINT8 data_in, EE_UINT8 *data_out);
+EE_INT8 EE_spi_rw_byte(EE_UINT8 data_in, EE_UINT8 *data_out);
 
 /**
 * @brief Send a byte through  the SPI peripheral.
 *
-* This function send a character (8 bits) through the SPI 
-* port controlling the radio.
+* This function send a character (8 bits) through the SPI port.
 *
 * @param[in] data	The character to be sent
 *
@@ -59,18 +51,17 @@ EE_INT8 EE_spi_rw_byte(EE_UINT8 port, EE_UINT8 data_in, EE_UINT8 *data_out);
 *
 * @pre		The SPI port must be correctly initialized.
 */
-EE_INT8 EE_spi_write_byte(EE_UINT8 port, EE_UINT8 data);
+EE_INT8 EE_spi_write_byte(EE_UINT8 data);
 
 /**
 * @brief Get a character through the SPI peripheral.
 *
-* This function send a character (8 bits) through the SPI 
-* port controlling the radio.
+* This function send a character (8 bits) through the SPI port.
 *
 * @return 	\todo
 *
 * @pre		The SPI port must be correctly initialized.
 */
-EE_INT8 EE_spi_read_byte(EE_UINT8 port, EE_UINT8 *data);
+EE_INT8 EE_spi_read_byte(EE_UINT8 *data);
 
 #endif
