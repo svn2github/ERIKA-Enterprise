@@ -103,6 +103,8 @@ distrib_opt___NIOS2__:: \
 		ee_$(DIST)/pkg/cpu/nios2/src/ee_start.c \
 		ee_$(DIST)/pkg/mcu/altera_nios2/inc \
 		ee_$(DIST)/pkg/mcu/altera_nios2/inc/ee_internal.h \
+		ee_$(DIST)/pkg/mcu/altera_nios2/src \
+		ee_$(DIST)/pkg/mcu/altera_nios2/src/ee_nios2_timers.c \
 		$(distrib_files_NIOS2)
 	@echo OPT __NIOS2__ up2date.
 
@@ -212,7 +214,6 @@ distrib_opt___unibo_mparm__:: \
 		ee_$(DIST)/pkg/board/unibo_mparm/src/ee_board.c \
 		ee_$(DIST)/pkg/board/unibo_mparm/debug \
 		ee_$(DIST)/pkg/board/unibo_mparm/debug/swarm.tpl
-		
 	@echo OPT __unibo_mparm__ up2date.
 
 distrib_opt___ST_STA2051__:: \
@@ -447,24 +448,29 @@ distrib_opt___FRSH__:: \
 		ee_$(DIST)/pkg/kernel/frsh/src/ee_dlcheck.c \
 		ee_$(DIST)/pkg/kernel/frsh/src/ee_end_budget.c \
 		ee_$(DIST)/pkg/kernel/frsh/src/ee_end_recharging.c \
-		ee_$(DIST)/pkg/kernel/frsh/src/ee_recharge.c \
+		ee_$(DIST)/pkg/kernel/frsh/src/ee_frsh_bind.c \
+		ee_$(DIST)/pkg/kernel/frsh/src/ee_frsh_bind_utils.c \
+		ee_$(DIST)/pkg/kernel/frsh/src/ee_frsh_contracts.c \
+		ee_$(DIST)/pkg/kernel/frsh/src/ee_frsh_getcontract.c \
+		ee_$(DIST)/pkg/kernel/frsh/src/ee_frsh_getvresid.c \
 		ee_$(DIST)/pkg/kernel/frsh/src/ee_frsh_init.c \
+		ee_$(DIST)/pkg/kernel/frsh/src/ee_frsh_strerror.c \
+		ee_$(DIST)/pkg/kernel/frsh/src/ee_frsh_syncobj_signal.c \
+		ee_$(DIST)/pkg/kernel/frsh/src/ee_frsh_syncobj_timedwait.c \
+		ee_$(DIST)/pkg/kernel/frsh/src/ee_frsh_syncobj_wait.c \
+		ee_$(DIST)/pkg/kernel/frsh/src/ee_frsh_syncobj_wait_utils.c \
+		ee_$(DIST)/pkg/kernel/frsh/src/ee_frsh_syncobj_waittimeout.c \
+		ee_$(DIST)/pkg/kernel/frsh/src/ee_frsh_timers.c \
+		ee_$(DIST)/pkg/kernel/frsh/src/ee_frsh_unbind.c \
 		ee_$(DIST)/pkg/kernel/frsh/src/ee_gettime.c \
 		ee_$(DIST)/pkg/kernel/frsh/src/ee_irq_sc.c \
 		ee_$(DIST)/pkg/kernel/frsh/src/ee_mutex.c \
 		ee_$(DIST)/pkg/kernel/frsh/src/ee_rcg_inser.c \
+		ee_$(DIST)/pkg/kernel/frsh/src/ee_rq_extract.c \
 		ee_$(DIST)/pkg/kernel/frsh/src/ee_rq_inser.c \
 		ee_$(DIST)/pkg/kernel/frsh/src/ee_schedule.c \
 		ee_$(DIST)/pkg/kernel/frsh/src/ee_thact.c \
-		ee_$(DIST)/pkg/kernel/frsh/src/ee_thendin.c \
-		ee_$(DIST)/pkg/kernel/frsh/syncobj/cfg \
-		ee_$(DIST)/pkg/kernel/frsh/syncobj/cfg/cfg.mk \
-		ee_$(DIST)/pkg/kernel/frsh/syncobj/src \
-		ee_$(DIST)/pkg/kernel/frsh/syncobj/src/ee_sgetvalue.c \
-		ee_$(DIST)/pkg/kernel/frsh/syncobj/src/ee_spost.c \
-		ee_$(DIST)/pkg/kernel/frsh/syncobj/src/ee_strywait.c \
-		ee_$(DIST)/pkg/kernel/frsh/syncobj/src/ee_swait.c \
-		ee_$(DIST)/pkg/kernel/frsh/syncobj/src/frsh_synchobj.c
+		ee_$(DIST)/pkg/kernel/frsh/src/ee_thendin.c
 	@echo OPT __FRSH__ up2date.
 
 

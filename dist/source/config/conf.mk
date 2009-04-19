@@ -13,7 +13,6 @@
 
 # this variable is used in the "help" rule
 ALL_DISTRIBUTIONS += MPC5
-ALL_DISTRIBUTIONS += COBRA_ICD30_ALL
 ALL_DISTRIBUTIONS += NIOS2_ALL NIOS2_TEST NIOS2_FROMBINDIST
 
 #ALL_DISTRIBUTIONS += E7T_ALL E7T_TESTCASE
@@ -29,10 +28,11 @@ ALL_DISTRIBUTIONS += EEFLEX EE3ARCH EE3ARCHD
 
 # Nios2 distributions
 
-NIOS2_ALL = NIOS2_ALL_FP NIOS2_ALL_OO NIOS2_ALL_EXAMP NIOS2_ALL_TESTCASE
+NIOS2_ALL = NIOS2_ALL_FP NIOS2_ALL_OO NIOS2_ALL_FRSH NIOS2_ALL_EXAMP NIOS2_ALL_TESTCASE
 
 NIOS2_ALL_FP = __NIOS2__ __FP__ __ALLOW_NESTED_IRQ__ __MONO__ __RN__ __MSRP__ __ALARMS__ __SEM__
 NIOS2_ALL_OO = __NIOS2__ __OO_BCC1__ __ALLOW_NESTED_IRQ__ __MONO__ __RN__ __MSRP__
+NIOS2_ALL_FRSH = __NIOS2__ __FRSH__ __ALLOW_NESTED_IRQ__ __MULTI__ __RN__ __MSRP__
 NIOS2_ALL_EXAMP = __NIOS2_EXAMPLES__
 NIOS2_ALL_TESTCASE = __ASSERT__
 
@@ -60,17 +60,6 @@ NIOS2_FROMBINDIST_THEDIST = __NIOS2__ __OO_BCC1__ __ALLOW_NESTED_IRQ__ __MONO__ 
 MPC5 = MPC5_SOURCE
 
 MPC5_SOURCE = __FP__ __MPC566EVB__ __MPC5XX__
-
-# -------------------------------------------------------------------
-# -------------------------------------------------------------------
-
-# Cobra Automotive Spa
-# source code distribution for the STA2051 Vespucci
-
-COBRA_ICD30_ALL = COBRA_ICD30_ALL_OO
-
-COBRA_ICD30_ALL_OO = __ARM7GNU__ __ST_STA2051__ __COBRA_ICD30__ __OO_BCC1__ __FP__
-
 
 
 # -------------------------------------------------------------------

@@ -369,10 +369,12 @@ distrib_opt___FRSH__:: \
 		ee_$(DIST)/pkg/kernel/frsh/inc/ee_kernel.h \
 		ee_$(DIST)/pkg/kernel/frsh/inc/ee_api.h \
 		ee_$(DIST)/pkg/kernel/frsh/inc/frsh_types.h \
-		ee_$(DIST)/pkg/kernel/frsh/syncobj/inc \
-		ee_$(DIST)/pkg/kernel/frsh/syncobj/inc/ee_api.h \
-		ee_$(DIST)/pkg/kernel/frsh/syncobj/inc/ee_sem.h \
-		ee_$(DIST)/pkg/kernel/frsh/syncobj/inc/frsh_synchobj.h
+		ee_$(DIST)/pkg/kernel/frsh/frsh_include \
+		ee_$(DIST)/pkg/kernel/frsh/frsh_include/frsh_configuration_parameters.h \
+		ee_$(DIST)/pkg/kernel/frsh/frsh_include/frsh_core_types.h \
+		ee_$(DIST)/pkg/kernel/frsh/frsh_include/frsh_error.h \
+		ee_$(DIST)/pkg/kernel/frsh/frsh_include/frsh_time_types.h \
+		ee_$(DIST)/pkg/kernel/frsh/frsh_include/readme.txt
 	@echo OPT __FRSH__ up2date.
 
 
