@@ -22,43 +22,60 @@
 
 #ifdef OZB_DEBUG
 
+#include <hal/ozb_compiler.h> 
+#include <phy/ozb_phy_types.h>
+#include <mac/ozb_mac_types.h>
+
+#ifdef OZB_DEBUG_TIME
+/* FIXME: chris: now this simbol is passed by the compiled -D option, 
+ * we should have something automatically declared when the required contrib 
+ * lib is included in the build. */
+#ifndef USE_DAQ_TIME
+#error "OZB_DEBUG_TIME: DAQ Time library is required for OpenZB Debugging."
+#endif
+
+#include "daq_time.h"	/* From the daq_time contrib library. */
+#define OZB_DEBUG_TIME_CLOCK_ID	0
+
+#endif /* OZB_DEBUG_TIME */
+
+
+#ifdef OZB_DEBUG_LOG
 /* FIXME: chris: now this simbol is passed by the compiled -D option, 
  * we should have something automatically declared when the required contrib 
  * lib is included in the build. */
 #ifndef USE_CONSOLE
-#error "OZB_DEBUG: Console library is required for OpenZB Debugging."
+#error "OZB_DEBUG_LOG: Console library is required for OpenZB Debugging."
 #endif
 
-#include <hal/ozb_compiler.h> 
 #include "console.h"	/* From the console contrib library. */
 
-
 /* Select the specific debug mechanism (port). */
-#ifdef OZB_DEBUG_SERIAL		/* Serial Port */
+#ifdef OZB_DEBUG_LOG_SERIAL		/* Serial Port */
 /* FIXME: chris: now this simbol is passed by the compiled -D option, 
  * we should have something automatically declared when the required contrib 
  * lib is included in the build. */
 #ifndef USE_CONSOLE_SERIAL	
-#error "OZB_DEBUG: Console Serial module is required for serial port."
+#error "OZB_DEBUG_LOG: Console Serial module is required for serial port."
 #endif
 #include "console_serial.h"  /* From the console contrib library. */
-#ifndef OZB_DEBUG_SERIAL_PORT 
-#define OZB_DEBUG_SERIAL_PORT 	CONSOLE_SERIAL_PORT_2		
+#ifndef OZB_DEBUG_LOG_SERIAL_PORT 
+#define OZB_DEBUG_LOG_SERIAL_PORT 	CONSOLE_SERIAL_PORT_2		
 #endif
-#ifndef OZB_DEBUG_SERIAL_BAUDRATE 
-#define OZB_DEBUG_SERIAL_BAUDRATE 115200 
+#ifndef OZB_DEBUG_LOG_SERIAL_BAUDRATE 
+#define OZB_DEBUG_LOG_SERIAL_BAUDRATE 	115200 
 #endif
-#ifndef OZB_DEBUG_SERIAL_OPT
-#define OZB_DEBUG_SERIAL_OPT \
+#ifndef OZB_DEBUG_LOG_SERIAL_OPT
+#define OZB_DEBUG_LOG_SERIAL_OPT \
 	CONSOLE_SERIAL_FLAG_BIT8_NO | CONSOLE_SERIAL_FLAG_BIT_STOP1 
 #endif
 
 #else	/* Unspecified Port */
-#error "OZB_DEBUG: unselected debug mechanism."
+#error "OZB_DEBUG_LOG: unselected debug mechanism."
 
 #endif	/* End Select Debug Port */
 
-#include <phy/ozb_phy_types.h>
+#endif /* OZB_DEBUG_LOG */
 
 /** 
 * @brief Initialize the OpenZB debug port
@@ -67,6 +84,27 @@
 */
 int8_t ozb_debug_init(void);
 
+#ifdef OZB_DEBUG_TIME
+HAL_INLINE void ozb_debug_time_tick(void) 
+{
+	daq_time_reset(OZB_DEBUG_TIME_CLOCK_ID);
+}
+
+HAL_INLINE uint32_t ozb_debug_time_tock(void) 
+{
+	struct daq_time_t t;
+
+	daq_time_get(OZB_DEBUG_TIME_CLOCK_ID, &t);
+	return daq_time_2ticks(&t);
+}
+HAL_INLINE uint32_t ozb_debug_time_tick2us(uint32_t ticks)
+{
+	/* TODO: change this hardcoding!!!!! */
+	return ticks / 40;
+}
+#endif /* OZB_DEBUG_TIME */
+
+#ifdef OZB_DEBUG_LOG
 /** 
 * @brief Write to the OpenZB debug port
 * 
@@ -95,6 +133,7 @@ int8_t ozb_debug_write(uint8_t *msg, uint16_t len);
 int8_t ozb_debug_print(const char *msg);
 
 void ozb_debug_print_phycode(enum ozb_phy_code_t c, char *out); 
+void ozb_debug_print_maccode(enum ozb_mac_code_t c, char *out);
 
 HAL_INLINE void ozb_debug_sprint_uint8(uint8_t data, char *out)
 {
@@ -164,6 +203,8 @@ HAL_INLINE void ozb_debug_print_int32(int32_t data, char *out)
 	out[1] = '0' + ((data / 1000000000) % 10);
 	out[0] = data < 0 ? '-' : ' ';
 }
-#endif /* OSB_DEBUF */
+#endif /* OZB_DEBUG_LOG */
 
+
+#endif /* OZB_DEBUG */
 #endif /* Header Protection */

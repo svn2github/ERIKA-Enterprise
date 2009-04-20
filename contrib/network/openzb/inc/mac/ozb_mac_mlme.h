@@ -16,7 +16,7 @@ int8_t ozb_MLME_ASSOCIATE_confirm(ozb_mac_dev_addr_short_t AssocShortAddress,
 				  uint8_t *KeySource, uint8_t KeyIndex
 );
 
-#ifdef OZB_RFD_DISABLE_OPTIONAL
+#ifndef OZB_RFD_DISABLE_OPTIONAL
 int8_t ozb_MLME_ASSOCIATE_indication(ozb_mac_dev_addr_extd_t DeviceAddress,
 				     uint8_t CapabilityInformation,
 				     uint8_t SecurityLevel, uint8_t KeyIdMode,
@@ -62,7 +62,7 @@ int8_t ozb_MLME_GET_confirm(enum ozb_mac_code_t status,
 	/*TODO: enough?*/   uint16_t PIBAttributeIndex, 
 			    void *PIBAttributeValue);
 
-#ifdef OZB_DEVICE_DISABLE_OPTIONAL
+#ifndef OZB_DEVICE_DISABLE_OPTIONAL
 int8_t ozb_MLME_GTS_request(uint8_t GTSCharacteristics, uint8_t SecurityLevel,
 			    uint8_t KeyIdMode, uint8_t *KeySource,
 			    uint8_t KeyIndex);
@@ -76,7 +76,7 @@ int8_t ozb_MLME_GTS_indication(ozb_mac_dev_addr_short_t DeviceAddress,
 			       uint8_t *KeySource, uint8_t KeyIndex);
 #endif /* OZB_DEVICE_DISABLE_OPTIONAL */
 
-#ifdef OZB_RFD_DISABLE_OPTIONAL
+#ifndef OZB_RFD_DISABLE_OPTIONAL
 int8_t ozb_MLME_ORPHAN_indication(ozb_mac_dev_addr_extd_t OrphanAddress,
 				  uint8_t SecurityLevel, uint8_t KeyIdMode,
 				  uint8_t *KeySource, uint8_t KeyIndex);
@@ -91,7 +91,7 @@ int8_t ozb_MLME_ORPHAN_response(ozb_mac_dev_addr_extd_t OrphanAddress,
 int8_t ozb_MLME_RESET_request(uint8_t SetDefaultPIB);
 int8_t ozb_MLME_RESET_confirm(enum ozb_mac_code_t status);
 
-#ifdef OZB_DEVICE_DISABLE_OPTIONAL
+#ifndef OZB_DEVICE_DISABLE_OPTIONAL
 int8_t ozb_MLME_RX_ENABLE_request(uint8_t DeferPermit, uint32_t RxOnTime,
 				  uint32_t RxOnDuration);
 
@@ -124,7 +124,7 @@ int8_t ozb_MLME_SET_confirm(enum ozb_mac_code_t status,
 			    enum ozb_mac_pib_id_t PIBAttribute,
         /*TODO: enough?*/   uint16_t PIBAttributeIndex);
 
-#ifdef OZB_RFD_DISABLE_OPTIONAL
+#ifndef OZB_RFD_DISABLE_OPTIONAL
 int8_t ozb_MLME_START_request(uint8_t PANId, uint8_t LogicalChannel,
 			      uint8_t ChannelPage, uint32_t StartTime,
 			      uint8_t BeaconOrder, uint8_t SuperframeOrder,
@@ -143,7 +143,7 @@ int8_t ozb_MLME_START_request(uint8_t PANId, uint8_t LogicalChannel,
 int8_t ozb_MLME_START_confirm(enum ozb_mac_code_t status);
 #endif /* OZB_RFD_DISABLE_OPTIONAL */
 
-#ifdef OZB_DEVICE_DISABLE_OPTIONAL
+#ifndef OZB_DEVICE_DISABLE_OPTIONAL
 int8_t ozb_MLME_SYNC_request(uint8_t LogicalChannel, uint8_t ChannelPage,
 			     uint8_t TrackBeacon);
 #endif /* OZB_DEVICE_DISABLE_OPTIONAL */

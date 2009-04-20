@@ -1,9 +1,21 @@
 #ifndef __ozb_mac_const_h__
 #define __ozb_mac_const_h__
 
+#ifndef OZB_TRUE
+#define OZB_TRUE	1
+#endif
+#ifndef OZB_FALSE	
+#define OZB_FALSE	0
+#endif
+
+#define OZB_MAC_TICKS_BEFORE_BI		5
+#define OZB_MAC_TICKS_BEFORE_TIMESLOT	5
+#define OZB_MAC_TICKS_ON_SO_EQUAL_BO	1
+
 /* chris: TODO: could we have a better choice for a default 64bits address? */
 #ifndef OZB_MAC_DEVICE_EXTD_ADDRESS
-#define OZB_MAC_DEVICE_EXTD_ADDRESS	0x0000000000000001
+#define OZB_MAC_DEVICE_EXTD_ADDRESS_HIGH	0x00000000
+#define OZB_MAC_DEVICE_EXTD_ADDRESS_LOW		0x00000001
 #endif
 
 /**
@@ -11,10 +23,12 @@
 * 
 * \see Table 85: Mac Sublayer Constants
 * @{ */
-#define OZB_aBaseSlotDuration		60 /**< Base SF duration in symbols. */
+#define OZB_aBaseSlotDuration		60 /**< Base Time slot duration 
+						in symbols. */
 #define OZB_aBaseSuperframeDuration	960/**< OZB_aBaseSlotDuration x 
 						OZB_aNumSuperframeSlots. */
-#define OZB_aExtendedAddress		OZB_MAC_DEVICE_EXTD_ADDRESS
+#define OZB_aExtendedAddress_high	OZB_MAC_DEVICE_EXTD_ADDRESS_HIGH
+#define OZB_aExtendedAddress_low	OZB_MAC_DEVICE_EXTD_ADDRESS_LOW
 #define OZB_aGTSDescPersistenceTime	4  /**< Duration in number of SFs. */
 #define OZB_aMaxBeaconOverhead		75 /**< Overhead in bytes */
 #define OZB_aMaxBeaconPayloadLength	52 /**< OZB_aMaxPHYPacketSize - 

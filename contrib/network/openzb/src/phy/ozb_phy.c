@@ -2,7 +2,7 @@
 #include <util/ozb_debug.h>
 #include <osal/ozb_osal.h>
 #include <hal/ozb_radio.h>
-#ifdef OZB_DEBUG
+#ifdef OZB_DEBUG_LOG
 #include <stdio.h> //TODO: REMOVE together with the sprintf() !!!!!
 #endif
 
@@ -43,7 +43,7 @@ static void phy_read_dispatcher(void)
 	uint8_t buf[OZB_RADIO_RX_BUFFER_SIZE];
 	int8_t len = 0;
 
-	#ifdef OZB_DEBUG
+	#ifdef OZB_DEBUG_LOG
 	ozb_debug_print("OZB_TASK: PHY_READ_DISPATCHER Activated!");
 	#endif
 	/* chris: FIXME: maybe the error was in that part! */
@@ -82,7 +82,7 @@ static void phy_read_dispatcher(void)
 
 static void phy_read_isr(void)
 {
-	#ifdef OZB_DEBUG
+	#ifdef OZB_DEBUG_LOG
 	ozb_debug_print("phy_read_isr rised!");
 	#endif
 	ozb_osal_set_activation(PHY_READ_DISPATCHER, 0, 0);
@@ -95,21 +95,21 @@ int8_t ozb_phy_init(void)
 {
 	/* TODO: Check if already initialized do something special?? */
 
-	#ifdef OZB_DEBUG
+	#ifdef OZB_DEBUG_LOG
 	ozb_debug_print("Initializing PHY...");
 	#endif
-	if (ozb_osal_init() < 0)
+	if (ozb_osal_init(0) < 0)
 		return -OZB_PHY_OSAL_ERROR;
 	if (ozb_osal_set_body(PHY_READ_DISPATCHER, phy_read_dispatcher) < 0)
 		return -OZB_PHY_OSAL_ERROR;
-	#ifdef OZB_DEBUG
+	#ifdef OZB_DEBUG_LOG
 	ozb_debug_print("OSAL init OK!");
 	#endif
 	if (ozb_radio_set_rx_callback(phy_read_isr) < 0)
 		return -OZB_PHY_HW_FAILURE;
 	if (ozb_radio_init() < 0)
 		return -OZB_PHY_HW_FAILURE;
-	#ifdef OZB_DEBUG
+	#ifdef OZB_DEBUG_LOG
 	ozb_debug_print("Radio init OK!");
 	#endif
 	/*if (ozb_radio_set_rx() < 0)
@@ -135,7 +135,7 @@ int8_t ozb_phy_init(void)
 int8_t ozb_PD_DATA_request(uint8_t psduLength, uint8_t *psdu)
 {
 	enum ozb_phy_code_t status = OZB_SUCCESS;
-	#ifdef OZB_DEBUG
+	#ifdef OZB_DEBUG_LOG
 	char s[100];
 	sprintf(s, "PD_DATA_request(len=%u, *p=%u)", psduLength,(uint16_t)psdu);
 	ozb_debug_print(s);
@@ -173,7 +173,7 @@ int8_t ozb_PD_DATA_request(uint8_t psduLength, uint8_t *psdu)
 int8_t ozb_PLME_CCA_request(void)
 {
 	enum ozb_phy_code_t status;
-	#ifdef OZB_DEBUG
+	#ifdef OZB_DEBUG_LOG
 	ozb_debug_print("PLME_CCA_request()");
 	#endif
 
@@ -203,7 +203,7 @@ int8_t ozb_PLME_ED_request(void)
 {
 	enum ozb_phy_code_t status;
 	uint8_t energy = 0;
-	#ifdef OZB_DEBUG
+	#ifdef OZB_DEBUG_LOG
 	ozb_debug_print("PLME_ED_request");
 	#endif
 
@@ -232,7 +232,7 @@ int8_t ozb_PLME_GET_request(enum ozb_phy_pib_id_t PIBAttribute)
 {
 	enum ozb_phy_code_t status = OZB_SUCCESS;
 	void *value = NULL;
-	#ifdef OZB_DEBUG
+	#ifdef OZB_DEBUG_LOG
 	char s[100];
 	sprintf(s, "PLME_GET_request(%u)", PIBAttribute);
 	ozb_debug_print(s);
@@ -276,7 +276,7 @@ int8_t ozb_PLME_GET_request(enum ozb_phy_pib_id_t PIBAttribute)
 int8_t ozb_PLME_SET_TRX_STATE_request(enum ozb_phy_code_t state)
 {
 	enum ozb_phy_code_t status;
-	#ifdef OZB_DEBUG
+	#ifdef OZB_DEBUG_LOG
 	char s[100];
 	char s1[30];
 	ozb_debug_print_phycode(state, s1);
@@ -331,7 +331,7 @@ int8_t ozb_PLME_SET_request(enum ozb_phy_pib_id_t PIBAttribute,
 {
 	enum ozb_phy_code_t status = OZB_SUCCESS;
 	uint8_t param = *((uint8_t*) PIBAttributeValue);
-	#ifdef OZB_DEBUG
+	#ifdef OZB_DEBUG_LOG
 	char s[100];
 	sprintf(s, "PLME_SET_request(a=%u, val=%u)", PIBAttribute, param);
 	ozb_debug_print(s);

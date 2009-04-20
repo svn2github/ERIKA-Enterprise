@@ -5,7 +5,7 @@
 
 #include <mac/ozb_mac_internal.h>
 
-#ifdef OZB_DEBUG
+#ifdef OZB_DEBUG_LOG
 #include <util/ozb_debug.h>
 #include <string.h>
 #include <stdio.h> //TODO: REMOVE together with the sprintf() !!!!!
@@ -13,7 +13,7 @@
 
 int8_t ozb_PD_DATA_confirm(enum ozb_phy_code_t status)
 {
-	#ifdef OZB_DEBUG
+	#ifdef OZB_DEBUG_LOG
 	char s[100];
 	char s1[30];
 	ozb_debug_print_phycode(status, s1);
@@ -26,7 +26,7 @@ int8_t ozb_PD_DATA_confirm(enum ozb_phy_code_t status)
 int8_t ozb_PD_DATA_indication(uint8_t psduLength, uint8_t *psdu, 
 			      uint8_t ppduLinkQuality)
 {
-	#ifdef OZB_DEBUG
+	#ifdef OZB_DEBUG_LOG
 	char s[100];
 	sprintf(s, "PD_DATA_indication(len=%u,*p=%u,lqi=%u)",
 		psduLength, (uint16_t) psdu, ppduLinkQuality);
@@ -38,7 +38,7 @@ int8_t ozb_PD_DATA_indication(uint8_t psduLength, uint8_t *psdu,
 
 int8_t ozb_PLME_CCA_confirm(enum ozb_phy_code_t status)
 {
-	#ifdef OZB_DEBUG
+	#ifdef OZB_DEBUG_LOG
 	char s[100];
 	char s1[30];
 	ozb_debug_print_phycode(status, s1);
@@ -50,7 +50,7 @@ int8_t ozb_PLME_CCA_confirm(enum ozb_phy_code_t status)
 
 int8_t ozb_PLME_ED_confirm(enum ozb_phy_code_t status, uint8_t EnergyLevel)
 {
-	#ifdef OZB_DEBUG
+	#ifdef OZB_DEBUG_LOG
 	char s[100];
 	char s1[30];
 	ozb_debug_print_phycode(status, s1);
@@ -64,7 +64,7 @@ int8_t ozb_PLME_GET_confirm(enum ozb_phy_code_t status,
 			    enum ozb_phy_pib_id_t PIBAttribute, 
 			    void *PIBAttributeValue)
 {
-	#ifdef OZB_DEBUG
+	#ifdef OZB_DEBUG_LOG
 	uint8_t value = *((uint8_t*)PIBAttributeValue);
 	char s[100];
 	char s1[30];
@@ -77,7 +77,7 @@ int8_t ozb_PLME_GET_confirm(enum ozb_phy_code_t status,
 
 int8_t ozb_PLME_SET_TRX_STATE_confirm(enum ozb_phy_code_t status)
 {
-	#ifdef OZB_DEBUG
+	#ifdef OZB_DEBUG_LOG
 	char s[100];
 	char s1[30];
 	ozb_debug_print_phycode(status, s1);
@@ -90,7 +90,7 @@ int8_t ozb_PLME_SET_TRX_STATE_confirm(enum ozb_phy_code_t status)
 int8_t ozb_PLME_SET_confirm(enum ozb_phy_code_t status, 
 			    enum ozb_phy_pib_id_t PIBAttribute)
 {
-	#ifdef OZB_DEBUG
+	#ifdef OZB_DEBUG_LOG
 	char s[100];
 	char s1[30];
 	ozb_debug_print_phycode(status, s1);

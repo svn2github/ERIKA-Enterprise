@@ -21,6 +21,7 @@
 #include <cc2420.h>
 
 #ifdef OZB_DEBUG
+#include <util/ozb_debug.h> //TODO: REMOVE together with the sprintf() !!!!!
 #include <stdio.h> //TODO: REMOVE together with the sprintf() !!!!!
 #endif
 

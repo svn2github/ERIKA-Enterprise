@@ -9,7 +9,17 @@ ifeq ($(findstring __LIB_OPENZB__,$(LIB_OPT)),__LIB_OPENZB__)
 
 EE_SRCS += contrib/network/openzb/src/util/ozb_debug.c
 EE_SRCS += contrib/network/openzb/src/phy/ozb_phy.c
+
+ifneq ($(findstring OZB_USE_ONLY_802154_PHY,$(EEOPT)), OZB_USE_ONLY_802154_PHY)
+EE_SRCS += contrib/network/openzb/src/mac/ozb_mac.c
 EE_SRCS += contrib/network/openzb/src/mac/ozb_mac_phy_events.c
+EE_SRCS += contrib/network/openzb/src/mac/ozb_mac_mlme.c
+EE_SRCS += contrib/network/openzb/src/mac/ozb_mac_superframe.c
+endif
+
+#EE_SRCS += contrib/network/openzb/src/mac/ozb_net_mac_events.c
+
+
 #EE_SRCS_OPENZB_COMMON := $(addprefix contrib/network/openzb/src/, $(notdir $(shell ls -1 $(EEBASE)/contrib/network/openzb/src/*.c)))
 #EE_SRCS += $(EE_SRCS_OPENZB_COMMON)
 

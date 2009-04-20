@@ -11,8 +11,8 @@ HAL_INLINE int8_t ozb_osal_erika_set_body(void(*src)(void), void(**dst)(void))
 }
 
 HAL_INLINE int8_t ozb_osal_erika_set_activation(TaskType tid, AlarmType aid, 
-						uint16_t offset,
-						uint16_t period) 
+						uint32_t offset,
+						uint32_t period) 
 {
 	if (offset == 0 && period == 0)
 		ActivateTask(tid);
@@ -27,8 +27,12 @@ HAL_INLINE int8_t ozb_osal_erika_cancel_activation(AlarmType aid)
 	return 1;
 }
 
-HAL_INLINE int8_t ozb_osal_init(void) 
+/* tick_duration is expressed in microseconds */
+HAL_INLINE int8_t ozb_osal_erika_init(uint32_t tick_duration) 
 {
+	/* TODO: make use of this information to properly configure the
+		 duration of the tick of the timer connected to the the
+		 Counter fot the OSAL tasks! */
 	return 1;
 }
 
@@ -40,6 +44,8 @@ TASK(OZB_EE_TASK_##task_id)					\
 		OZB_EE_TBODY_##task_id();			\
 }
 
+#define ozb_osal_init(tick_duration) 				\
+ozb_osal_erika_init(tick_duration)				\
 
 #define ozb_osal_set_body(task_id, task_body) 		 	\
 ozb_osal_erika_set_body(task_body, &(OZB_EE_TBODY_##task_id))	\
