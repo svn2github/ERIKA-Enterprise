@@ -13,6 +13,9 @@
 
 // TODO: (Nino) HW parameters, insert AVR constants here if needed.
 
+/* Gianluca: added these constants to be compatible with dsPic which has two ports.*/
+#define EE_SPI_PORT_1 0
+#define EE_SPI_PORT_2 1
 /**
 * @brief Initialize the SPI peripheral.
 *
