@@ -1348,7 +1348,7 @@ __INLINE__ float __ALWAYS_INLINE__ EE_encoder_get_position( void )
 /* SPI - TODO!!! */
 /* ************************************************************************* */
 
-#if (defined __USE_SPI__) && !(defined __USE_USB__ || defined __USE_USB_OLD__)
+#if defined __USE_USB_OLD__
 
 extern unsigned int RxDmaBuffer;
 extern unsigned int TxDmaBuffer;
