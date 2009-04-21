@@ -185,11 +185,11 @@ uint8_t cc2420_get_status()
 	cc2420_radio_status status;
 	CC2420_CSn_0();
 	cc2420_spi_get(&(status.val));
-/* TODO REMOVE----------> */
-char s[100];
-sprintf(s, "         status.val = %X", (uint16_t) status.val);
-ozb_debug_print(s);
-/* <---------- TODO REMOVE */
+///* TODO REMOVE----------> */
+//char s[100];
+//sprintf(s, "         status.val = %X", (uint16_t) status.val);
+//ozb_debug_print(s);
+///* <---------- TODO REMOVE */
 	CC2420_CSn_1();
 	return status.val;
 }
