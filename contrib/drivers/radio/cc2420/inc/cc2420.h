@@ -136,7 +136,7 @@
 * @brief Flush TX
 *
 * This routine slushes the TX FIFO buffer.
-*
+*cc2420_spi_put(CC2420_STROBE_SFLUSHTX, NULL);\
 */
 #define CC2420_TX_FIFO_FLUSH(){\
 	CC2420_CSn_0();\
@@ -150,10 +150,7 @@
 * This routine sets the CSn pin high.
 *
 */
-#define CC2420_CSn_1()\
-{\
-    CC2420_CSn = 1;\
-}
+#define CC2420_CSn_1()	CC2420_SET_PIN(CC2420_CSn)
 
 /**
 * @brief CSn down
@@ -161,10 +158,7 @@
 * This routine sets the CSn pin down.
 *
 */
-#define CC2420_CSn_0()\
-{\
-    CC2420_CSn = 0;\
-}
+#define CC2420_CSn_0()	CC2420_CLEAR_PIN(CC2420_CSn)
 
 /**
 * This constant is used to compute the receiving power

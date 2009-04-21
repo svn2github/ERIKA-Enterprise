@@ -54,10 +54,10 @@ int8_t cc2420_radio_init(uint8_t port)
 	if (retv < 0)
 		return -1;
 
-	CC2420_RESETn = 0;
-	CC2420_VREG_EN = 1;
+	CC2420_CLEAR_PIN(CC2420_RESETn);//CC2420_RESETn = 0;
+	CC2420_SET_PIN(CC2420_VREG_EN);//CC2420_VREG_EN = 1;
 	cc2420_delay_us(1000);
-	CC2420_RESETn = 1;
+	CC2420_SET_PIN(CC2420_RESETn)//CC2420_RESETn = 1;
 	cc2420_delay_us(2000);
 
 	/* turn on the crystal oscillator */
@@ -185,11 +185,11 @@ uint8_t cc2420_get_status()
 	cc2420_radio_status status;
 	CC2420_CSn_0();
 	cc2420_spi_get(&(status.val));
-///* TODO REMOVE----------> */
-//char s[100];
-//sprintf(s, "         status.val = %X", (uint16_t) status.val);
-//ozb_debug_print(s);
-///* <---------- TODO REMOVE */
+/* TODO REMOVE----------> */
+char s[100];
+sprintf(s, "         status.val = %X", (uint16_t) status.val);
+ozb_debug_print(s);
+/* <---------- TODO REMOVE */
 	CC2420_CSn_1();
 	return status.val;
 }
@@ -231,7 +231,7 @@ int8_t cc2420_get_fifo_msg(uint8_t *fifo_msg)
 {
 	uint8_t i;
 
-	if (CC2420_FIFO == 0) {
+	if (CC2420_GET_PIN(CC2420_FIFO) == 0) { //if (CC2420_FIFO == 0) {
 		CC2420_RX_FIFO_FLUSH();
 		//hal_console_out('F');
 		return -1;
@@ -402,7 +402,7 @@ void cc2420_set_mac_pan_id(uint8_t* id)
 
 COMPILER_ISR(CC2420_INTERRUPT_NAME)
 {
-	CC2420_INTERRUPT_FLAG = 0;
+	CC2420_CLEAR_PIN(CC2420_INTERRUPT_FLAG); //CC2420_INTERRUPT_FLAG = 0;
 	if (rx_callback != NULL) 
 		rx_callback();
 }

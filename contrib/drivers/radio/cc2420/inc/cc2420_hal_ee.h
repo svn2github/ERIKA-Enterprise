@@ -141,14 +141,25 @@
 #define CC2420_INTERRUPT_EDGE_POLARITY	 INTCON2bits.INT0EP
 #endif
 
-#define CC2420_SET_PIN_IN(DSPIC_PIN) {\
+#define CC2420_SET_PIN_IN(PIN) {\
     DSPIC_PIN = 1;\
 }
 
-#define CC2420_SET_PIN_OUT(DSPIC_PIN) {\
+#define CC2420_SET_PIN_OUT(PIN) {\
     DSPIC_PIN = 0;\
 }
+#define CC2420_SET_INT_POL_HIGHT() CC2420_INTERRUPT_EDGE_POLARITY = 0
 
+#define CC2420_SET_INT_POL_LOW() CC2420_INTERRUPT_EDGE_POLARITY = 1
+
+#define CC2420_SET_PIN(PIN) {\
+	PIN = 1;\
+}
+#define CC2420_CLEAR_PIN(PIN) {\
+	PIN = 0;\
+}
+
+#define CC2420_GET_PIN(PIN) PIN
 
 
 #endif	/* End default booard selection for ISR */
@@ -177,7 +188,7 @@ COMPILER_INLINE uint8_t cc2420_get_sfd(void)
 #error "CC2420 HAL EE : The SPI module from MCU is required!"
 #endif
 #include <mcu/atmel_atmega128/inc/ee_spi.h>
-
+#include <mcu/atmel_atmega128/inc/ee_mcuregs.h>
 #define CC2420_SPI_PORT_1	EE_SPI_PORT_1
 #define CC2420_SPI_PORT_2	EE_SPI_PORT_2
 
@@ -188,111 +199,112 @@ COMPILER_INLINE uint8_t cc2420_get_sfd(void)
 #define CC2420_RESETn_AVR_PORT	PORTA
 #endif
 
-#ifndef CC2420_RESETn
-#define CC2420_RESETn	PA6
+#ifndef CC2420_RESETn_AVR_PIN
+#define CC2420_RESETn_AVR_PIN	PA6
 #endif
 
 #ifndef CC2420_VREG_EN_AVR_PORT
 #define CC2420_VREG_EN_AVR_PORT	PORTA
 #endif
 
-#ifndef CC2420_VREG_EN
-#define CC2420_VREG_EN	PA5 
+#ifndef CC2420_VREG_EN_AVR_PIN
+#define CC2420_VREG_EN_AVR_PIN	PA5 
 #endif
 
 #ifndef CC2420_FIFO_AVR_PORT
 #define CC2420_FIFO_AVR_PORT	PORTB
 #endif
 
-#ifndef CC2420_FIFO
-#define CC2420_FIFO	PB7
+#ifndef CC2420_FIFO_AVR_PIN
+#define CC2420_FIFO_AVR_PIN	PB7
 #endif
 
 #ifndef CC2420_FIFOP_AVR_PORT
 #define CC2420_FIFOP_AVR_PORT	PORTE
 #endif
 
-#ifndef CC2420_FIFOP
-#define CC2420_FIFOP	PE6
+#ifndef CC2420_FIFOP_AVR_PIN
+#define CC2420_FIFOP_AVR_PIN	PE6
 #endif
 
 #ifndef CC2420_CCA_AVR_PORT
 #define CC2420_CCA_AVR_PORT	PORTD
 #endif
 
-#ifndef CC2420_CCA
-#define CC2420_CCA	PD6
+#ifndef CC2420_CCA_AVR_PIN
+#define CC2420_CCA_AVR_PIN	PD6
 #endif
 
 #ifndef CC2420_SFD_AVR_PORT
 #define CC2420_SFD_AVR_PORT	PORTD
 #endif
 
-#ifndef CC2420_SFD
-#define CC2420_SFD	PD4
+#ifndef CC2420_SFD_AVR_PIN
+#define CC2420_SFD_AVR_PIN	PD4
 #endif
 
 #ifndef CC2420_CSn_AVR_PORT
 #define CC2420_CSn_AVR_PORT	PORTB
 #endif
 
-#ifndef CC2420_CSn
-#define CC2420_CSn	PB0
+#ifndef CC2420_CSn_AVR_PIN
+#define CC2420_CSn_AVR_PIN	PB0
 #endif
 
 #ifndef CC2420_TRIS_RESETn_AVR_PORT
 #define CC2420_TRIS_RESETn_AVR_PORT	DDRA
 #endif
 
-#ifndef CC2420_TRIS_RESETn
-#define CC2420_TRIS_RESETn	DDA6
+#ifndef CC2420_TRIS_RESETn_AVR_PIN
+#define CC2420_TRIS_RESETn_AVR_PIN	DDA6
 #endif
 
 #ifndef CC2420_TRIS_VREG_EN_AVR_PORT
 #define CC2420_TRIS_VREG_EN_AVR_PORT	DDRA
 #endif
 
-#ifndef CC2420_TRIS_VREG_EN
-#define CC2420_TRIS_VREG_EN	DDA5
+#ifndef CC2420_TRIS_VREG_EN_AVR_PIN
+#define CC2420_TRIS_VREG_EN_AVR_PIN	DDA5
 #endif
 
 #ifndef CC2420_TRIS_FIFO_AVR_PORT
 #define CC2420_TRIS_FIFO_AVR_PORT	DDRB
 #endif
 
-#ifndef CC2420_TRIS_FIFO
-#define CC2420_TRIS_FIFO	DDB7
+#ifndef CC2420_TRIS_FIFO_AVR_PIN
+#define CC2420_TRIS_FIFO_AVR_PIN	DDB7
 #endif
 
 #ifndef CC2420_TRIS_FIFOP_AVR_PORT
 #define CC2420_TRIS_FIFOP_AVR_PORT	DDRE
 #endif
 
-#ifndef CC2420_TRIS_FIFOP
-#define CC2420_TRIS_FIFOP	DDE6
+#ifndef CC2420_TRIS_FIFOP_AVR_PIN
+#define CC2420_TRIS_FIFOP_AVR_PIN	DDE6
 #endif
 
 #ifndef CC2420_TRIS_CCA_AVR_PORT
 #define CC2420_TRIS_CCA_AVR_PORT	DDRD
 #endif
 
-#ifndef CC2420_TRIS_CCA
-#define CC2420_TRIS_CCA	DDD6
+#ifndef CC2420_TRIS_CCA_AVR_PIN
+#define CC2420_TRIS_CCA_AVR_PIN	DDD6
 #endif
 
 #ifndef CC2420_TRIS_SFD_AVR_PORT
 #define CC2420_TRIS_SFD_AVR_PORT	DDRD
 #endif
-#ifndef CC2420_TRIS_SFD
-#define CC2420_TRIS_SFD	DDD4
+
+#ifndef CC2420_TRIS_SFD_AVR_PIN
+#define CC2420_TRIS_SFD_AVR_PIN	DDD4
 #endif
 
 #ifndef CC2420_TRIS_CSn_AVR_PORT
 #define CC2420_TRIS_CSn_AVR_PORT	DDRB
 #endif
 
-#ifndef CC2420_TRIS_CSn
-#define CC2420_TRIS_CSn	DDB0
+#ifndef CC2420_TRIS_CSn_AVR_PIN
+#define CC2420_TRIS_CSn_AVR_PIN	DDB0
 #endif
 
 
@@ -304,23 +316,19 @@ COMPILER_INLINE uint8_t cc2420_get_sfd(void)
 #define CC2420_INTERRUPT_FLAG_AVR_PORT	EIFR
 #endif
 
-#ifndef CC2420_INTERRUPT_FLAG
-#define CC2420_INTERRUPT_FLAG	INTF6
+#ifndef CC2420_INTERRUPT_FLAG_AVR_PIN
+#define CC2420_INTERRUPT_FLAG_AVR_PIN	INTF6
 #endif
 
 #ifndef CC2420_INTERRUPT_ENABLE_AVR_PORT
 #define CC2420_INTERRUPT_ENABLE_AVR_PORT EIMSK
 #endif
 
-#ifndef CC2420_INTERRUPT_ENABLE
-#define CC2420_INTERRUPT_ENABLE INT6
+#ifndef CC2420_INTERRUPT_ENABLE_AVR_PIN
+#define CC2420_INTERRUPT_ENABLE_AVR_PIN INT6
 #endif
 
-/*
-#ifndef CC2420_INTERRUPT_PRIORITY
-#define CC2420_INTERRUPT_PRIORITY IPC13bits.INT4IP
-#endif
-*/
+
 #ifndef CC2420_INTERRUPT_EDGE_POLARITY_AVR_PORT
 #define CC2420_INTERRUPT_EDGE_POLARITY_AVR_PORT	 EICRB
 #endif
@@ -329,21 +337,30 @@ COMPILER_INLINE uint8_t cc2420_get_sfd(void)
 #define CC2420_INTERRUPT_EDGE_POLARITY	 //INTCON2bits.INT4EP
 #endif
 */
-#define CC2420_SET_PIN_IN(AVR_PIN) {\
-	##AVR_PIN##_AVR_PORT & = ~(1<< AVR_PIN) ;\
+#define CC2420_SET_PIN_IN(PIN) {\
+	(*(volatile uint8_t*)(PIN##_AVR_PORT)) &= ~(1<< PIN##_AVR_PIN);\
 }
 
-#define CC2420_SET_PIN_OUT(AVR_PIN) {\
-   ##AVR_PIN##_AVR_PORT |= (1<< AVR_PIN);\
+#define CC2420_SET_PIN_OUT(PIN) {\
+	(*(volatile uint8_t*)(PIN##_AVR_PORT)) |= (1<< PIN##_AVR_PIN);\
 }
 
 #define CC2420_SET_INT_POL_HIGHT() {\
-	CC2420_INTERRUPT_EDGE_POLARITY_AVR_PORT |= 0x30;\
+	EE_reg(CC2420_INTERRUPT_EDGE_POLARITY_AVR_PORT) |= 0x30;\
 }
 
 #define CC2420_SET_INT_POL_LOW() {\
-	CC2420_INTERRUPT_EDGE_POLARITY_AVR_PORT |= 0x20;\
+	EE_reg(CC2420_INTERRUPT_EDGE_POLARITY_AVR_PORT) |= 0x20;\
 }
+
+#define CC2420_SET_PIN(PIN) {\
+	(*(volatile uint8_t*)(PIN##_AVR_PORT)) |= (1<<PIN##_AVR_PIN);\
+	}
+#define CC2420_CLEAR_PIN(PIN) {\
+	(*(volatile uint8_t*)(PIN##_AVR_PORT)) &= ~(1<<PIN##_AVR_PIN);\
+	}
+
+#define CC2420_GET_PIN(PIN)	(((*(volatile uint8_t*)(PIN##_AVR_PORT)) >> PIN##_AVR_PIN) & 0x01)
 
 #endif // End  XBOW_MICAz
 
@@ -356,12 +373,12 @@ int8_t	cc2420_spi_get(uint8_t *out);
 
 COMPILER_INLINE uint8_t cc2420_get_cca(void)
 {
-	return (CC2420_CCA_AVR_PORT & (1 << CC2420_CCA)) >> CC2420_CCA;
+	return (CC2420_CCA_AVR_PORT & (1 << CC2420_CCA_AVR_PIN)) >> CC2420_CCA_AVR_PIN;
 }
 
 COMPILER_INLINE uint8_t cc2420_get_sfd(void)
 {
-	return (CC2420_SFD_AVR_PORT & (1 << CC2420_SFD)) >> CC2420_SFD ;
+	return (CC2420_SFD_AVR_PORT & (1 << CC2420_SFD_AVR_PIN)) >> CC2420_SFD_AVR_PIN ;
 }
 
 
