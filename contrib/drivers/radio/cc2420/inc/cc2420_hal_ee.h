@@ -381,6 +381,9 @@ COMPILER_INLINE uint8_t cc2420_get_sfd(void)
 	return (CC2420_SFD_AVR_PORT & (1 << CC2420_SFD_AVR_PIN)) >> CC2420_SFD_AVR_PIN ;
 }
 
+#ifndef CC2420_INTERRUPT_NAME
+#define CC2420_INTERRUPT_NAME	irq_cc2420_type2
+#endif
 
 #else
 

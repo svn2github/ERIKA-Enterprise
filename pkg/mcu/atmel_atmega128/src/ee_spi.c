@@ -9,18 +9,21 @@ EE_INT8 EE_spi_init(void)
 		we drive this pin  directly setting it as a normal I/O pin.  */
 
 	/* Setup SPI I/O pins */
-	EE_reg(PORTB) |= (1<<PB1);	// set SCK hi
-	EE_reg(DDRB) &= ~(1<<PB3);	// set MISO as input
-	EE_reg(DDRB) |= (1<<PB0);	// SS must be output for Master mode to work
-	EE_reg(DDRB) |= (1<<PB1);	// set SCK as output
-	EE_reg(DDRB) |= (1<<PB2);	// set MOSI as output
+	EE_reg(DDRB) &= ~(1<<PB3);					// set MISO as input
+	EE_reg(DDRB) |= (1<<PB0)|(1<<PB1)|(1<<PB2);	// set SS, SCK and MOSI as output
+	EE_reg(PORTB) |= (1<<PB0)|(1<<PB1);			// set SCK and SS as high
 	
-	/* Enable SPI, Master, set clock rate fck/4 */
+	/* Set clock rate fck/4 */
 	/* Note: with these prescale values the port works at 2 MHz. */
+    EE_reg(SPCR) |= (1 << SPR0);
+    EE_reg(SPCR) &= ~(1 << SPR1);
+    EE_reg(SPSR) &= ~(1 << SPI2X);
 	
 	// TODO: (Nino): Clock polarity and Phase are ok?
-	EE_reg(SPCR) = (1<<SPE)|(1<<MSTR);
+	EE_reg(SPCR) |= (1<<CPOL)|(1<<CPHA);
 	
+	/* Enable SPI, Master */
+	EE_reg(SPCR) |= (1<<SPE)|(1<<MSTR);
 	return 1;
 }
 
@@ -31,9 +34,6 @@ EE_INT8 EE_spi_close(void)
 
 EE_INT8 EE_spi_rw_byte(EE_UINT8 data_in, EE_UINT8 *data_out)
 {
-	/* Wait for transmission complete */
-	while( !(EE_reg(SPSR) & (1<<SPIF)) );
-
 	/* Start transmission */
 	EE_reg(SPDR) = data_in;
 
@@ -48,20 +48,17 @@ EE_INT8 EE_spi_rw_byte(EE_UINT8 data_in, EE_UINT8 *data_out)
 
 EE_INT8 EE_spi_write_byte(EE_UINT8 data)
 {
-	/* Wait for transmission complete */
-	while( !(EE_reg(SPSR) & (1<<SPIF)) );
-
 	/* Start transmission */
 	EE_reg(SPDR) = data;
+
+	/* Wait for transmission complete */
+	while( !(EE_reg(SPSR) & (1<<SPIF)) );
 
 	return 1;
 }
 
 EE_INT8 EE_spi_read_byte(EE_UINT8 *data)
 {
-	/* Wait for transmission complete */
-	while( !(EE_reg(SPSR) & (1<<SPIF)) );
-
 	/* Start transmission */
 	EE_reg(SPDR) = 0x00;
 

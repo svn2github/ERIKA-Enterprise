@@ -399,8 +399,11 @@ void cc2420_set_mac_pan_id(uint8_t* id)
 	CC2420_CSn_1();
 }
 
-
+#ifdef __PIC30__
 COMPILER_ISR(CC2420_INTERRUPT_NAME)
+#elif defined __AVR5__
+void irq_cc2420_type2(void)
+#endif
 {
 	CC2420_CLEAR_PIN(CC2420_INTERRUPT_FLAG); //CC2420_INTERRUPT_FLAG = 0;
 	if (rx_callback != NULL) 
