@@ -105,7 +105,6 @@ CPU mySystem {
 				OPTIONS = SENSORS;
 				OPTIONS = TRIMMER;
 			};
-			};
 		};
 		
 		KERNEL_TYPE = FP;
