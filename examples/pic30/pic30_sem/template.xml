@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<evidence_example version="1" ID="pic30_semaphore">
+<evidence_example version="1.1" ID="pic30_semaphore">
 
  <category>pic30/FLEX</category>
  <title>Multistack and semaphore demo</title>
@@ -22,6 +22,8 @@
  &lt;br&gt;
 
  The demo also works for the Microchip Explorer16 development board
+
+ The demo also has an EDf template
  </long_descr>
 
  <file_section>
