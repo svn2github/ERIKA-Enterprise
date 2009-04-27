@@ -40,7 +40,10 @@ help::
 	@echo To generate distributions, I typically use:
 	@echo make DIST=NIOS2_ALL NIOS2_MOVE=Y
 	@echo make DIST=NIOS2_TESTCASE NIOS2_MOVE=Y
-	@echo make DIST=EE EE_MOVE=Y
+	@echo
+	@echo make DIST=EEFLEX EE_MOVE=Y
+	@echo make DIST=EE3ARCH EE_MOVE=Y
+	@echo make DIST=EE3ARCHD EE_MOVE=Y
 	@echo
 	@echo for more help please read readme.txt
 	@echo

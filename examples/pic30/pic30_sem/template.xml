@@ -27,6 +27,7 @@
  <file_section>
   <file     name="code.c"/> 
   <file     name="conf.oil"/>
+  <file     name="conf_EDF.oil"/>
   <file     name="readme.txt"/>
  </file_section>
 

@@ -38,62 +38,48 @@
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
 
-/*
- * Author: 2002 Paolo Gai
- * CVS: $Id: ee_spost.c,v 1.7 2007/06/14 10:27:12 pj Exp $
- */
+CPU mySystem {
 
-#include "ee_internal.h"
+	OS myOs {
+		EE_OPT = "DEBUG";
+		EE_OPT = "__SEM__";
 
-#ifndef __PRIVATE_SEM_POST__
-void EE_sem_PostSem(SemRefType s)
-{
-  register EE_FREG flag;
-  EE_TID newthread;
+		CPU_DATA = PIC30 {
+			APP_SRC = "code.c";
+			MULTI_STACK = TRUE{
+				IRQ_STACK = TRUE {
+					SYS_SIZE=64;
+				};
+			};
+			ICD2 = TRUE;
+		};
 
-  flag = EE_hal_begin_nested_primitive();
+		MCU_DATA = PIC30 {
+			MODEL = PIC33FJ256MC710;
+		};
 
-  if (s->first != EE_NIL) {
-    newthread = s->first;
+		BOARD_DATA = EE_FLEX {
+			USELEDS = TRUE;
+		};
 
-      // wake up blocked thread
-      if ((s->first = EE_th_next[newthread]) == EE_NIL)
-        s->last = EE_NIL;
-      
-      /* check for preemption */ 
-#if defined(__FP__)
-      if (!EE_hal_get_IRQ_nesting_level() &&
-	  EE_sys_ceiling < EE_th_ready_prio[newthread]) {
-#else
-      if (!EE_hal_get_IRQ_nesting_level() &&
-	  (EE_stk_queryfirst() == EE_NIL || 	/* main task! */
-	   ((EE_STIME)(EE_th_absdline[EE_stk_queryfirst()] - EE_th_absdline[newthread]) > 0
-	    && EE_sys_ceiling < EE_th_ready_prio[newthread])
-	  )
-	 ) {
-#endif
-	/* we have to schedule th blocked thread */
-#if defined(__MULTI__) || defined(__WITH_STATUS__)
-	EE_th_status[newthread] = EE_STACKED;
-#endif
-	EE_sys_ceiling |= EE_th_dispatch_prio[newthread];
-	
-	// insert the extracted task on the topo of the stack
-	EE_th_next[newthread] = EE_stk_queryfirst();
-	EE_stkfirst = newthread;
-	
-	EE_hal_stkchange(newthread);
-      }
-      else {      
-#if defined(__MULTI__) || defined(__WITH_STATUS__)
-	EE_th_status[newthread] = EE_READY | EE_WASSTACKED;
-#endif
-	EE_rq_insert(newthread);
-      }
-  }
-  else
-    s->count++;
+		KERNEL_TYPE = EDF { NESTED_IRQ = TRUE; TICK_TIME = "500ns";};
+	};
 
-  EE_hal_end_nested_primitive(flag);
-}
-#endif
+	TASK Producer {
+		REL_DEADLINE = "0.5s";
+		PRIORITY = 1;
+		STACK = PRIVATE {
+			SYS_SIZE = 64;
+		};
+		SCHEDULE = FULL;
+	};
+
+	TASK Consumer {
+		REL_DEADLINE = "0.5s";
+		PRIORITY = 1;
+		STACK = PRIVATE {
+			SYS_SIZE = 64;
+		};
+		SCHEDULE = FULL;
+	};
+};

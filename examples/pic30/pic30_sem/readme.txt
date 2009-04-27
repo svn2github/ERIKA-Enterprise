@@ -1,6 +1,6 @@
 Multistack and Semaphore example
 ------------------------------------------------------------------
-version 1.0 - 22 december 2006
+version 1.1 - april 27, 2009
 Author: Paolo Gai - Mauro Marinoni
 ------------------------------------------------------------------
 
@@ -53,3 +53,7 @@ should be modified with
 
 		BOARD_DATA = MICROCHIP_EXLORER16 {
 
+---
+
+version 1.1 adds a second OIL file, conf_EDF.oil, that shows how the
+same demo can be used with the EDF scheduler.
