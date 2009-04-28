@@ -158,14 +158,6 @@ void ErrorHook(StatusType Error)
  * 
  */
 
-/* We use the HIGH_RES_TIMER available in almost all the Altera example designs
- * to implement the periodic counter needed for ERIKA Enterprise Alarms.
- * 
- * Please remember to specify "null" as timestamp timer in the Altera HAL 
- * System Library: in this way, the init_timer() function can safely call the
- * alt_irq_register function.
- */
- 
 /* call the ERIKA Enterprise tick function for the Counter1 counter! */
 ISR2(_T1Interrupt)
 {
