@@ -44,388 +44,367 @@
 .global init_timer1
 .global init_timer2
 .global init_timer3
-.global init_timer4
-.global init_timer5
-
 .global timer0_start
 .global timer1_start
 .global timer2_start
 .global timer3_start
-.global timer4_start
-.global timer5_start
-
 .global timer0_stop
 .global timer1_stop
 .global timer2_stop
 .global timer3_stop
-.global timer4_stop
-.global timer5_stop
-
 .global timer0_get
 .global timer1_get
 .global timer2_get
 .global timer3_get
-.global timer4_get
-.global timer_5get
 
 
 
 .text
 
+// ---------------- Timer 0 ----------------
+
+init_timer0:
+	//in  r20, SREG	; Save global interrupt flag
+	//cli				; Disable interrupts
+	clr r19
+	clr r18
+	
+	out OCR0, r24	; get the limit as parameter (to be tested!!!)
+	//ldi r18, 0xff
+	//out	OCR0, r18	; set the match register
+	
+	ldi r19, 0x08	; CTC mode, need to set OCR0
+	in  r18, TCCR0
+	andi r18, 0xb7
+	or  r19, r18
+	out TCCR0, r19
+	
+	in  r19, TIFR
+	ori r19, 0x03
+	out TIFR, r19	; Clear pending interrupts
+	
+	in  r18, TIMSK
+	andi r18, 0xfc
+	//ori  r18, 0x01	; Enable Timer/Counter0 Overflow Interrupt	
+	ori  r18, 0x02	; Enable Timer/Counter0 Match Interrupt	
+	out TIMSK, r18
+	
+	sei				; Enable global interrupt
+	//out SREG, r20	; Restore global interrupt flag 
+	
+	ret
+
 timer0_start:
+	//in  r20, SREG	; Save global interrupt flag
+	//cli				; Disable interrupts
 	clr r18
 	clr r19
-	ldi r20, 0x00
-	sts TCNT0, r20
-	// mask
+	sts TCNT0, r18
+
+	in r18, TCCR0
+	andi r18, 0xf8	; Mask clock source bits
+	
 	#ifdef __TIMER0_CLK_DIV1__	
- 	ldi  r19, 0x01 	// set
+ 	ori r18, 0x01
 	#endif
 	#ifdef __TIMER0_CLK_DIV8__	
- 	ldi  r19, 0x02 	// set
+ 	ori r18, 0x02
+	#endif
+	#ifdef __TIMER0_CLK_DIV32__	
+ 	ori r18, 0x03
 	#endif
 	#ifdef __TIMER0_CLK_DIV64__	
- 	ldi  r19, 0x04 	// set
+ 	ori r18, 0x04
+	#endif
+	#ifdef __TIMER0_CLK_DIV128__	
+ 	ori r18, 0x05
 	#endif
 	#ifdef __TIMER0_CLK_DIV256__	
- 	ldi  r19, 0x06 	// set
+ 	ori r18, 0x06
 	#endif
 	#ifdef __TIMER0_CLK_DIV1024__	
- 	ldi  r19, 0x07 	// set
+ 	ori r18, 0x07
 	#endif
-	in r18, TCCR0B
-	or r18, r18	
-	out TCCR0B,r19 ; Timer clock 
-	sei
+	out TCCR0,r18 ; Set timer clock prescaler
+	
+	//out SREG, r20	; Restore global interrupt flag
+	ret
+
+timer0_stop:
+	//in  r20, SREG	; Save global interrupt flag
+	//cli			; Disable interrupts
+	
+	in r18, TCCR0
+	andi r18, 0xf8
+	out TCCR0, r18	; clear cso cs1 cs2 of TCCR0 register. This stop the timer.
+	
+	//out SREG, r20	; Restore global interrupt flag 
+	ret
+
+timer0_get:
+	//in  r20, SREG	; Save global interrupt flag
+	//cli			; Disable interrupts
+	
+	in r24, TCNT0	// NINO: Correct register for return?
+
+	//out SREG, r20	; Restore global interrupt flag 
+	ret
+
+// ---------------- Timer 1 ----------------
+
+init_timer1:
+	//in  r20, SREG	; Save global interrupt flag
+	//cli			; Disable interrupts
+
+	clr r19
+	clr r18
+
+	out OCR1AL, r25	; get the limit as parameter (to be tested!!!)
+	out OCR1AH, r24
+	//ldi r18, 0xff
+	//ldi r19, 0xff
+	//out OCR1AL, r18
+	//out OCR1AH, r19	; set the match register to max (0xff)
+
+	clr r18
+	out TCCR1A, r18	; Disable all OC1 pins
+		
+	//clr  r18		; Enable Normal mode
+	ldi  r18, 0x08	; Enable CTC mode
+	out  TCCR1B, r18
+
+	in  r19, TIFR
+	ori r19, 0x3c
+	out TIFR, r19	; Clear pending interrupts
+	
+	in  r18, TIMSK
+	andi r18, 0xc3
+	//ori  r18, 0x04	; Enable Timer/Counter1 Overflow Interrupt	
+	ori  r18, 0x10	; Enable Timer/Counter1 OCA Match Interrupt	
+	out TIMSK, r18
+
+	sei				; Enable global interrupt
+	//out SREG, r20	; Restore global interrupt flag 
+
 	ret
 
 timer1_start:
+	//in  r20, SREG	; Save global interrupt flag
+	//cli			; Disable interrupts
+
 	clr r18
 	clr r19
-	andi r19, 0xf8 		// mask
+	
+	in r18, TCCR1B
+	andi r18, 0xf8	; Mask clock source bits
+	
 	#ifdef __TIMER1_CLK_DIV1__	
- 	ori  r19, 0x01 	// set
+ 	ori  r18, 0x01
 	#endif
 	#ifdef __TIMER1_CLK_DIV8__	
- 	ori  r19, 0x02 	// set
+ 	ori  r18, 0x02
 	#endif
 	#ifdef __TIMER1_CLK_DIV64__	
- 	ori  r19, 0x03 	// set
+ 	ori  r18, 0x03
 	#endif
 	#ifdef __TIMER1_CLK_DIV256__	
- 	ori  r19, 0x04 	// set
+ 	ori  r18, 0x04
 	#endif
 	#ifdef __TIMER1_CLK_DIV1024__	
- 	ori  r19, 0x05 	// set
+ 	ori  r18, 0x05
 	#endif
-	in r18, TCCR1B
-	or r19, r18	
-	out TCCR1B,r19 ; Timer clock 
-	sei
+	out TCCR1B,r18	; Set timer clock prescaler
+
+	//out SREG, r20	; Restore global interrupt flag 
 	ret
+
+timer1_stop:
+	//in  r20, SREG	; Save global interrupt flag
+	//cli			; Disable interrupts
 	
+	in r18, TCCR1B
+	andi r18, 0xf8
+	out TCCR1B, r18	; clear cso cs1 cs2 of TCCR1 register. This stop the timer.
 	
-timer2_start:
+	//out SREG, r20	; Restore global interrupt flag 
+	ret
+
+timer1_get:
+	//in  r20, SREG	; Save global interrupt flag
+	//cli			; Disable interrupts
+
+	in r24, TCNT1L
+	in r25, TCNT1H
+
+	//out SREG, r20	; Restore global interrupt flag 
+	ret
+
+// ---------------- Timer 2 ----------------
+
+init_timer2:
+	//in  r20, SREG	; Save global interrupt flag
+	//cli			; Disable interrupts
 	clr r19
 	clr r18
-	// mask
+	
+	out OCR2, r24	; get the limit as parameter (to be tested!!!)
+	//ldi r18, 0xff
+	//out	OCR2, r18	; set the match register to max (0xff)
+	
+	ldi r19, 0x08	; CTC mode, need to set OCR0
+	in  r18, TCCR2
+	andi r18, 0xb7
+	or  r19, r18
+	out TCCR2, r19
+	
+	in  r19, TIFR
+	ori r19, 0xC0
+	out TIFR, r19	; Clear pending interrupts
+	
+	in  r18, TIMSK
+	andi r18, 0x3f
+	//ori  r18, 0x40	; Enable Timer/Counter0 Overflow Interrupt	
+	ori  r18, 0x80	; Enable Timer/Counter0 Match Interrupt	
+	out TIMSK, r18
+	
+	sei				; Enable global interrupt
+	//out SREG, r20	; Restore global interrupt flag 
+	ret
+
+timer2_start:
+	//in  r20, SREG	; Save global interrupt flag
+	//cli			; Disable interrupts
+
+	clr r18
+	clr r19
+	
+	in r18, TCCR2
+	andi r18, 0xf8	; Mask clock source bits
+	
 	#ifdef __TIMER2_CLK_DIV1__	
- 	ldi  r19, 0x01 	// set
+ 	ori  r18, 0x01
 	#endif
 	#ifdef __TIMER2_CLK_DIV8__	
- 	ldi  r19, 0x02 	// set
-	#endif
-	#ifdef __TIMER2_CLK_DIV32__	
- 	ldi  r19, 0x03 	// set
+ 	ori  r18, 0x02
 	#endif
 	#ifdef __TIMER2_CLK_DIV64__	
- 	ldi  r19, 0x04 	// set
-	#endif
-	#ifdef __TIMER2_CLK_DIV128__	
- 	ldi  r19, 0x05 	// set
+ 	ori  r18, 0x03
 	#endif
 	#ifdef __TIMER2_CLK_DIV256__	
- 	ldi  r19, 0x06 	// set
+ 	ori  r18, 0x04
 	#endif
 	#ifdef __TIMER2_CLK_DIV1024__	
- 	ldi  r19, 0x07 	// set
+ 	ori  r18, 0x05
 	#endif
-	in r18, TCCR2B
-	or r19, r18	
-	out TCCR2B,r19 ; Timer clock 
-	sei 
-	ret
-	
-timer3_start:
-	clr r18
-	clr r19
-	ldi r20, 0x00
-	ldi r21, 0x00
-	sts TCNT3L, r20
-	sts TCNT3H, r21
-	// mask
-	#ifdef __TIMER3_CLK_DIV1__	
- 	ldi  r19, 0x01 	// set
-	#endif
-	#ifdef __TIMER3_CLK_DIV8__	
- 	ldi  r19, 0x02 	// set
-	#endif
-	#ifdef __TIMER3_CLK_DIV64__	
- 	ldi  r19, 0x03 	// set
-	#endif
-	#ifdef __TIMER3_CLK_DIV256__	
- 	ldi  r19, 0x04 	// set
-	#endif
-	#ifdef __TIMER3_CLK_DIV1024__	
- 	ldi  r19, 0x05 	// set
-	#endif
-	lds r18, TCCR3B
-	or r19, r18	
-	sts TCCR3B,r19 ; Timer clock 
-	sei
+	out TCCR2,r18	; Set timer clock prescaler
+
+	//out SREG, r20	; Restore global interrupt flag 
 	ret
 
-timer4_start:
-	clr r18
-	clr r19
-	ldi r20, 0x00
-	ldi r21, 0x00
-	sts TCNT4L, r20
-	sts TCNT4H, r21
-	// mask
-	#ifdef __TIMER3_CLK_DIV1__	
- 	ldi  r19, 0x01 	// set
-	#endif
-	#ifdef __TIMER3_CLK_DIV8__	
- 	ldi  r19, 0x02 	// set
-	#endif
-	#ifdef __TIMER3_CLK_DIV64__	
- 	ldi  r19, 0x03 	// set
-	#endif
-	#ifdef __TIMER3_CLK_DIV256__	
- 	ldi  r19, 0x04 	// set
-	#endif
-	#ifdef __TIMER3_CLK_DIV1024__	
- 	ldi  r19, 0x05 	// set
-	#endif
-	lds r18, TCCR4B
-	or r19, r18	
-	sts TCCR4B,r19 ; Timer clock 
-	sei
-	ret
-	
-timer5_start:
-	clr r18
-	clr r19
-	ldi r20, 0x00
-	ldi r21, 0x00
-	sts TCNT5L, r20
-	sts TCNT5H, r21
-	// mask
-	#ifdef __TIMER3_CLK_DIV1__	
- 	ldi  r19, 0x01 	// set
-	#endif
-	#ifdef __TIMER3_CLK_DIV8__	
- 	ldi  r19, 0x02 	// set
-	#endif
-	#ifdef __TIMER3_CLK_DIV64__	
- 	ldi  r19, 0x03 	// set
-	#endif
-	#ifdef __TIMER3_CLK_DIV256__	
- 	ldi  r19, 0x04 	// set
-	#endif
-	#ifdef __TIMER3_CLK_DIV1024__	
- 	ldi  r19, 0x05 	// set
-	#endif
-	lds r18, TCCR5B
-	or r19, r18	
-	sts TCCR5B,r19 ; Timer clock 
-	sei
-	ret
-	
-init_timer0:
-	clr r19
-	clr r18
-	ldi r19, (1<<0)
-	in r18, TIFR0
-	or r19, r18
-	out TIFR0, r19 ; Clear TOV0/ clear pending interrupts
-	ldi r19, (1<<0)
-	in r18,TIMSK0
-	or r19, r18
-	out TIMSK0,r19 ; Enable Timer/Counter0 Overflow Interrupt	
-	ret
-	
-init_timer2:
-	clr r19
-	clr r18
-	ldi r19, (1<<0)
-	in r18, TIFR2
-	or r19, r18
-	out TIFR2, r19 ; Clear TOV2/ clear pending interrupts
-	clr r19
-	ldi r19, (1<<0)
-	in r18,TIMSK2
-	or r19, r18
-	out TIMSK2,r19 ; Enable Timer/Counter2 Overflow Interrupt	
-	ret
-	
-init_timer1:
-	clr r19
-	clr r18
-	ldi r19, (1<<0)
-	in r18, TIFR1
-	or r19, r18
-	out TIFR1, r16 ; Clear TOV1/ clear pending interrupts
-	ldi r19, (1<<0)
-	in r18,TIMSK1
-	or r19, r18
-	out TIMSK1,r19 ; Enable Timer/Counter1 Overflow Interrupt	
-	ret
-	
-init_timer3:
-	clr r19
-	clr r18
-	ldi r19, (1<<0)
-	lds r18, TIFR3
-	or r19, r18
-	sts TIFR3, r19 ; Clear TOV3/ clear pending interrupts
-	ldi r19, (1<<0)
-	lds r18,TIMSK3
-	or r19, r18
-	sts TIMSK3,r19 ; Enable Timer/Counter3 Overflow Interrupt	
-	ret
-	
-init_timer4:
-	clr r19
-	clr r18
-	ldi r19, (1<<0)
-	lds r18, TIFR4
-	or r19, r18
-	sts TIFR4, r19 ; Clear TOV4/ clear pending interrupts
-	ldi r19, (1<<0)
-	lds r18,TIMSK4
-	or r19, r18
-	sts TIMSK4,r19 ; Enable Timer/Counter4 Overflow Interrupt	
-	ret
-
-init_timer5:
-	clr r19
-	clr r18
-	ldi r19, (1<<0)
-	lds r18, TIFR5
-	or r19, r18
-	sts TIFR5, r19 ; Clear TOV5/ clear pending interrupts
-	ldi r19, (1<<0)
-	lds r18,TIMSK5
-	or r19, r18
-	sts TIMSK5,r19 ; Enable Timer/Counter5 Overflow Interrupt	
-	ret
-	
-	
-	
-	
-	
-	
-	
-timer0_stop:
-	cli	
-	ldi r18, 0xF8
-	in r19, TCCR0B
-	and r18,r19
-	out TCCR0B, r18	//clear cso cs1 cs2 of TCCR0B register. Stop the timer.
-	sei
-	ret
-	
 timer2_stop:
-	cli	
-	ldi r18, 0xF8
-	in r19, TCCR2B
-	and r18,r19
-	out TCCR2B, r18	//clear cso cs1 cs2 of TCCR2B register. Stop the timer.
-	sei
-	ret
+	//in  r20, SREG	; Save global interrupt flag
+	//cli			; Disable interrupts
 	
-timer1_stop:
-	cli	
-	ldi r18, 0xF8
-	in r19, TCCR1B
-	and r18,r19
-	out TCCR1B, r18	//clear cso cs1 cs2 of TCCR1B register. Stop the timer.
-	sei
-	ret
+	in r18, TCCR2
+	andi r18, 0xf8
+	out TCCR2, r18	; clear cso cs1 cs2 of TCCR2 register. This stop the timer.
 	
-timer3_stop:
-	cli
-	ldi r18, 0xF8
-	lds r19, TCCR3B
-	and r18,r19
-	sts TCCR3B, r18	//clear cso cs1 cs2 of TCCR3B register. Stop the timer.
-	sei
-	ret
-	
-timer4_stop:
-	cli	
-	ldi r18, 0xF8
-	in r19, TCCR4B
-	and r18,r19
-	out TCCR4B, r18	//clear cso cs1 cs2 of TCCR4B register. Stop the timer.
-	sei
-	ret
-	
-timer5_stop:
-	cli
-	ldi r18, 0xF8
-	lds r19, TCCR5B
-	and r18,r19
-	sts TCCR3B, r18	//clear cso cs1 cs2 of TCCR5B register. Stop the timer.
-	sei
-	ret
-	
-	
-	
-	
-	
-timer0_get:
-	cli
-	in r24, TCNT0
-	sei 
+	//out SREG, r20	; Restore global interrupt flag 
 	ret
 
 timer2_get:
-	cli
-	in r24, TCNT2
-	sei 
+	//in  r20, SREG	; Save global interrupt flag
+	//cli			; Disable interrupts
+
+	in r24, TCNT2	// NINO: Correct register for return?
+
+	//out SREG, r20	; Restore global interrupt flag 
 	ret
+
+// ---------------- Timer 3 ----------------
 	
-timer1_get:
-	cli
-	in r22, TCNT1L
-	in r24, TCNT1H
-	sei 
+init_timer3:
+	//in  r20, SREG	; Save global interrupt flag
+	//cli			; Disable interrupts
+
+	clr r19
+	clr r18
+
+	sts OCR3AL, r25	; get the limit as parameter (to be tested!!!)
+	sts OCR3AH, r24
+	//ldi r18, 0xff
+	//ldi r19, 0xff
+	//sts OCR3AL, r18
+	//sts OCR3AH, r19	; set the match register to max (0xff)
+
+	clr r18
+	sts TCCR3A, r18	; Disable all OC3 pins
+		
+	//clr  r18		; Enable Normal mode
+	ldi  r18, 0x08	; Enable CTC mode
+	sts  TCCR3B, r18
+
+	lds  r19, ETIFR
+	ori r19, 0x3f
+	sts ETIFR, r19	; Clear pending interrupts
+	
+	lds  r18, ETIMSK
+	andi r18, 0xc0
+	//ori  r18, 0x04	; Enable Timer/Counter1 Overflow Interrupt	
+	ori  r18, 0x10	; Enable Timer/Counter1 OCA Match Interrupt	
+	sts ETIMSK, r18
+
+	sei				; Enable global interrupt
+	//out SREG, r20	; Restore global interrupt flag 
 	ret
+
+timer3_start:
+	//in  r20, SREG	; Save global interrupt flag
+	//cli			; Disable interrupts
+
+	clr r18
+	clr r19
 	
+	lds r18, TCCR3B
+	andi r18, 0xf8	; Mask clock source bits
+	
+	#ifdef __TIMER3_CLK_DIV1__	
+ 	ori  r18, 0x01
+	#endif
+	#ifdef __TIMER3_CLK_DIV8__	
+ 	ori  r18, 0x02
+	#endif
+	#ifdef __TIMER3_CLK_DIV64__	
+ 	ori  r18, 0x03
+	#endif
+	#ifdef __TIMER3_CLK_DIV256__	
+ 	ori  r18, 0x04
+	#endif
+	#ifdef __TIMER3_CLK_DIV1024__	
+ 	ori  r18, 0x05
+	#endif
+	sts TCCR3B,r18	; Set timer clock prescaler
+
+	//out SREG, r20	; Restore global interrupt flag 
+	ret
+
+timer3_stop:
+	//in  r20, SREG	; Save global interrupt flag
+	//cli			; Disable interrupts
+	
+	lds r18, TCCR3B
+	andi r18, 0xf8
+	sts TCCR3B, r18	; clear cso cs1 cs2 of TCCR1 register. This stop the timer.
+	
+	//out SREG, r20	; Restore global interrupt flag 
+	ret
+
 timer3_get:
-	cli
+	in  r20, SREG	; Save global interrupt flag
+	cli			; Disable interrupts
+
 	lds r24, TCNT3L
 	lds r25, TCNT3H
-	sei 
+
+	out SREG, r20	; Restore global interrupt flag 
 	ret
-
-timer4_get:
-	cli
-	lds r24, TCNT4L
-	lds r25, TCNT4H
-	sei 
-	ret
-
-timer5_get:
-	cli
-	lds r24, TCNT5L
-	lds r25, TCNT5H
-	sei 
-	ret
-	
-	
-
-

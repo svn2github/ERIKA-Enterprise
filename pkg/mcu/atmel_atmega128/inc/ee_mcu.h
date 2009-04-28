@@ -76,18 +76,24 @@ __INLINE__ void EE_uartSend(char * message, int lenght);
 #define __TIMER_USED__
 #endif
 
-__INLINE__ void EE_timer_0_start(void) { 
+__INLINE__ void EE_timer_0_start(void)
+{ 
 	timer0_start();
-	}
+}
 	
-__INLINE__ void EE_timer_0_stop(void)  { 
+__INLINE__ void EE_timer_0_stop(void)
+{ 
 	timer0_stop();
 }
-__INLINE__ EE_UREG EE_timer_0_get(void) {
+
+__INLINE__ EE_UREG EE_timer_0_get(void)
+{
 	EE_UREG time0=0;
+
 	time0 = timer0_get();
 	return time0;
 }
+
 __INLINE__ void EE_timer_0_set(EE_UREG count_down) 
 { 
 	//timer0_set(count_down);
@@ -102,20 +108,26 @@ __INLINE__ void EE_timer_0_set(EE_UREG count_down)
 #define __TIMER_USED__
 #endif
 
-__INLINE__ void EE_timer_2_start(void) {
-timer2_start();
+__INLINE__ void EE_timer_2_start(void) 
+{
+	timer2_start();
 }
-__INLINE__ void EE_timer_2_stop(void) {
-timer2_stop();
 
+__INLINE__ void EE_timer_2_stop(void) 
+{
+	timer2_stop();
 }
-__INLINE__ EE_UREG EE_timer_2_get(void) {  
+
+__INLINE__ EE_UREG EE_timer_2_get(void)
+{  
 	EE_UINT8 time2=0;
+
 	time2 = timer2_get();
 	return time2;
 }
-__INLINE__ void EE_timer_2_set(EE_UREG count_down)
-{  }
+
+__INLINE__ void EE_timer_2_set(EE_UREG count_down){}
+
 #endif /* __TIMER_2_USED__ */
 
 
@@ -125,19 +137,26 @@ __INLINE__ void EE_timer_2_set(EE_UREG count_down)
 #define __TIMER_USED__
 #endif
 
-__INLINE__ void EE_timer_1_start(void) {
-timer1_start();
+__INLINE__ void EE_timer_1_start(void) 
+{
+	timer1_start();
 }
-__INLINE__ void EE_timer_1_stop(void) { 
-timer1_stop();
+
+__INLINE__ void EE_timer_1_stop(void) 
+{ 
+	timer1_stop();
 }
-__INLINE__ EE_UREG EE_timer_1_get(void) { 
-EE_UINT16 time1;
-time1 = timer1_get();
-return time1;
+
+__INLINE__ EE_UREG EE_timer_1_get(void) 
+{ 
+	EE_UINT16 time1;
+	
+	time1 = timer1_get();
+	return time1;
 }
-__INLINE__ void EE_timer_1_set(EE_UREG count_down)
-{  }
+
+__INLINE__ void EE_timer_1_set(EE_UREG count_down) {}
+
 #endif /* __TIMER_1_USED__ */
 
 #ifdef __TIMER_3_USED__
@@ -146,58 +165,55 @@ __INLINE__ void EE_timer_1_set(EE_UREG count_down)
 #define __TIMER_USED__
 #endif
 
-__INLINE__ void EE_timer_3_start(void) {
-timer3_start();
+__INLINE__ void EE_timer_3_start(void) 
+{
+	timer3_start();
 }
-__INLINE__ void EE_timer_3_stop(void) {
-timer3_stop();
+
+__INLINE__ void EE_timer_3_stop(void) 
+{
+	timer3_stop();
 }
-__INLINE__ EE_INT16 EE_timer_3_get(void) {
+
+__INLINE__ EE_INT16 EE_timer_3_get(void) 
+{
 	EE_UINT16 time3=0;
+
 	time3 = timer3_get();
 	return time3;
 }
-__INLINE__ void EE_timer_3_set(EE_UREG count_down)
-{  }
+
+__INLINE__ void EE_timer_3_set(EE_UREG count_down) {}
+
 #endif /* __TIMER_3_USED__ */
 
 
 #ifdef __TIMER_USED__
-__INLINE__ void EE_timer_init0(void)
+__INLINE__ void EE_timer_init0(EE_UINT8 max_tick)
 {
-	
 	#ifdef __TIMER_0_USED__
-	init_timer0();
+	init_timer0(max_tick);
 	#endif
-	
-   
 }
 
-__INLINE__ void EE_timer_init1(void)
+__INLINE__ void EE_timer_init1(EE_UINT16 max_tick)
 {
-	
 	#ifdef __TIMER_1_USED__
-	init_timer1();
+	init_timer1(max_tick);
 	#endif
-	
-   
 }
 
-
-
-__INLINE__ void EE_timer_init2(void)
+__INLINE__ void EE_timer_init2(EE_UINT8 max_tick)
 {
-	
 	#ifdef __TIMER_2_USED__
-	init_timer2();
+	init_timer2(max_tick);
 	#endif
-	
-   
 }
-__INLINE__ void EE_timer_init3(void)
+
+__INLINE__ void EE_timer_init3(EE_UINT16 max_tick)
 {
 	#ifdef __TIMER_3_USED__
-	init_timer3();
+	init_timer3(max_tick);
 	#endif
 		
    

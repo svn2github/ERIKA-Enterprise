@@ -1,5 +1,5 @@
-#ifndef __INCLUDE_ATMEL_ATMEGA128_SPI_H__
-#define __INCLUDE_ATMEL_ATMEGA128_SPI_H__
+#ifndef __INCLUDE_ATMEL_ATMEGA1281_SPI_H__
+#define __INCLUDE_ATMEL_ATMEGA1281_SPI_H__
 
 #include "ee.h"
 
@@ -13,6 +13,9 @@
 
 // TODO: (Nino) HW parameters, insert AVR constants here if needed.
 
+/* Gianluca: added these constants to be compatible with dsPic which has two ports.*/
+#define EE_SPI_PORT_1 0
+#define EE_SPI_PORT_2 1
 /**
 * @brief Initialize the SPI peripheral.
 *
