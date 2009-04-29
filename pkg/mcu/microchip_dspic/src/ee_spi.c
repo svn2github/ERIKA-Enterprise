@@ -14,7 +14,7 @@ EE_INT8 EE_spi_init(EE_UINT8 port)
 	if (port == EE_SPI_PORT_1) {
 		SPI1STATbits.SPIEN = 0; /* Disable the SPI module */
 		//SPI1CON1 = 0x23;
-		SPI2CON1 = 0x13E;
+		SPI1CON1 = 0x13E;
 		SPI1CON2 = 0;
 		SPI1STATbits.SPIEN = 1; /* Enable the SPI module */
 		return 1;
