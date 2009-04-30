@@ -191,7 +191,7 @@ void EE_frsh_time_init(void)
 #endif
 
 
-/* note: if the iming is negative, the timer is stopped */
+/* note: if the timing is negative, the timer is stopped */
 #ifndef __PRIVATE_SET_NIOS2_TIMER__
 void EE_hal_set_nios2_timer(EE_UINT32 base, EE_STIME t) 
 {

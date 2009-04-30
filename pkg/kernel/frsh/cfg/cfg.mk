@@ -42,30 +42,45 @@
 ## CVS: $Id: cfg.mk,v 1.3 2008/07/18 09:53:55 tiberipa Exp $
 
 ifeq ($(findstring __FRSH__,$(EEOPT)) , __FRSH__)
+
+INTERNAL_FRSH_PATH := -I"$(shell cygpath -w $(PKGBASE))\\."/kernel/frsh/frsh_include
+ALLINCPATH += $(INTERNAL_FRSH_PATH)
+
+EE_SRCS += pkg/kernel/frsh/src/ee_cap.c
+EE_SRCS += pkg/kernel/frsh/src/ee_dlcheck.c
+EE_SRCS += pkg/kernel/frsh/src/ee_end_budget.c
+EE_SRCS += pkg/kernel/frsh/src/ee_end_recharging.c
+EE_SRCS += pkg/kernel/frsh/src/ee_frsh_bind.c
+EE_SRCS += pkg/kernel/frsh/src/ee_frsh_unbind.c
+EE_SRCS += pkg/kernel/frsh/src/ee_frsh_bind_utils.c
+EE_SRCS += pkg/kernel/frsh/src/ee_frsh_contracts.c
+EE_SRCS += pkg/kernel/frsh/src/ee_frsh_getvresid.c
+EE_SRCS += pkg/kernel/frsh/src/ee_frsh_getcontract.c
+EE_SRCS += pkg/kernel/frsh/src/ee_frsh_init.c
+EE_SRCS += pkg/kernel/frsh/src/ee_frsh_strerror.c
 EE_SRCS += pkg/kernel/frsh/src/ee_gettime.c
 EE_SRCS += pkg/kernel/frsh/src/ee_irq_sc.c
 EE_SRCS += pkg/kernel/frsh/src/ee_mutex.c
+EE_SRCS += pkg/kernel/frsh/src/ee_rcg_inser.c
+EE_SRCS += pkg/kernel/frsh/src/ee_rq_extract.c
 EE_SRCS += pkg/kernel/frsh/src/ee_rq_inser.c
 EE_SRCS += pkg/kernel/frsh/src/ee_schedule.c
 EE_SRCS += pkg/kernel/frsh/src/ee_thact.c
 EE_SRCS += pkg/kernel/frsh/src/ee_thendin.c
-EE_SRCS += pkg/kernel/frsh/src/ee_cap.c
-EE_SRCS += pkg/kernel/frsh/src/ee_dlcheck.c
-EE_SRCS += pkg/kernel/frsh/src/ee_rcg_inser.c
-EE_SRCS += pkg/kernel/frsh/src/ee_end_recharging.c
-EE_SRCS += pkg/kernel/frsh/src/ee_end_budget.c
-EE_SRCS += pkg/kernel/frsh/src/ee_frsh_init.c
-EE_SRCS += pkg/kernel/frsh/src/ee_recharge.c
 
-ifeq ($(findstring __SEM_FRSH__,$(EEOPT)) , __SEM_FRSH__)
 
-EE_SRCS += pkg/kernel/frsh/syncobj/src/ee_swait.c
-EE_SRCS += pkg/kernel/frsh/syncobj/src/ee_spost.c
-EE_SRCS += pkg/kernel/frsh/syncobj/src/ee_sgetvalue.c
-EE_SRCS += pkg/kernel/frsh/syncobj/src/ee_strywait.c
-EE_SRCS += pkg/kernel/frsh/syncobj/src/frsh_synchobj.c
+ifeq ($(findstring __FRSH_SINGLEIRQ__,$(EEOPT)) , __FRSH_SINGLEIRQ__)
+EE_SRCS += pkg/kernel/frsh/src/ee_frsh_timers.c
 endif
- 
+
+ifeq ($(findstring __FRSH_SYNCHOBJ__,$(EEOPT)) , __FRSH_SYNCHOBJ__)
+EE_SRCS +=pkg/kernel/frsh/src/ee_frsh_syncobj_signal.c
+EE_SRCS +=pkg/kernel/frsh/src/ee_frsh_syncobj_wait.c
+EE_SRCS +=pkg/kernel/frsh/src/ee_frsh_syncobj_waittimeout.c
+EE_SRCS +=pkg/kernel/frsh/src/ee_frsh_syncobj_wait_utils.c
+EE_SRCS +=pkg/kernel/frsh/src/ee_frsh_syncobj_timedwait.c
+endif
+
 endif
 
 

@@ -56,7 +56,9 @@ int EE_frsh_init(void)
     /* must be done once */
     EE_frsh_init_once = 0;
 
+#ifdef __OO_CPU_HAS_STARTOS_ROUTINE__
     EE_cpu_startos();
+#endif
     EE_time_init();
     EE_frsh_time_init();
     

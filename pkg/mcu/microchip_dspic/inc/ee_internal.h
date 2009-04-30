@@ -54,52 +54,31 @@
  *************************************************************************/
 
 /*
- * CBS
+ * CBS & FRSH
  */
 
-#if defined(__CBS__) || defined(__IRIS__) || defined(__FRSH__)
+#if defined(__CBS__) || defined(__FRSH__)
 
-/* This function set the capacity timer to raise in t ticks.
-   In this implementation, timer1 is used to raise a capacity
-   interrupt. The capacity interrupt is then programmed simply setting
-   the delay into the timer1 counter. That is, whenever the timer
-   fires, it restart counting down from 0xffffffff, and it will take a
-   few seconds to do that. */
-__INLINE__ void __ALWAYS_INLINE__ EE_hal_capacityIRQ(EE_TIME t) 
+/* This function set the capacity timer to raise in t ticks. */
+__INLINE__ void __ALWAYS_INLINE__ EE_hal_set_budget_timer(EE_STIME t) 
 {   
-  if((EE_STIME)t < 0) t=10;
-  PR4 = t & 0xFFFF;
-  PR5 = t >> 16;
-  TMR4 = 0;
-  TMR5 = 0;
-  IFS1bits.T5IF = 0;
-  T4CONbits.TON = 1; // Start Timer 4/5;
+  if (t > 0) {
+    PR6 = t & 0xFFFF;
+    PR7 = t >> 16;
+    TMR6 = 0;
+    TMR7 = 0;
+    IFS3bits.T7IF = 0;
+    T6CONbits.TON = 1; // Start Timer 6/7;
+  } else {
+    // Stop the timer
+    IFS3bits.T7IF = 0;
+    T6CONbits.TON = 0;
+  }
 } 
 
 __INLINE__ void __ALWAYS_INLINE__ EE_hal_stop_budget_timer(void)
 {
-	IFS1bits.T5IF = 0;
-  T4CONbits.TON = 0;
-}
-
-#endif
-
-#if defined(__IRIS__) || defined(__FRSH__)
-
-__INLINE__ void __ALWAYS_INLINE__ EE_hal_rechargingIRQ(EE_TIME t)
-{
-  if((EE_STIME)t < 0) t=10;
-  PR6 = t & 0xFFFF;
-  PR7 = t >> 16;
-  TMR6 = 0;
-  TMR7 = 0;
   IFS3bits.T7IF = 0;
-  T6CONbits.TON = 1; // Start Timer 6/7;
-}
-
-__INLINE__ void __ALWAYS_INLINE__ EE_hal_stop_recharging_timer(void)
-{
-	IFS3bits.T7IF = 0;
   T6CONbits.TON = 0;
 }
 
