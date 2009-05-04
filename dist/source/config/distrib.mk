@@ -1294,7 +1294,13 @@ distrib_opt___PIC30_EXAMPLES__:: \
 		ee_$(DIST)/examples/pic30/pic30_miwip2p/code.c \
 		ee_$(DIST)/examples/pic30/pic30_miwip2p/conf.oil \
 		ee_$(DIST)/examples/pic30/pic30_miwip2p/P2PDefs.h \
-		ee_$(DIST)/examples/pic30/pic30_miwip2p/template.xml
+		ee_$(DIST)/examples/pic30/pic30_miwip2p/template.xml \
+		\
+		ee_$(DIST)/examples/pic30/pic30_frsh_coverage \
+		ee_$(DIST)/examples/pic30/pic30_frsh_coverage/code.c \
+		ee_$(DIST)/examples/pic30/pic30_frsh_coverage/conf.oil \
+		ee_$(DIST)/examples/pic30/pic30_frsh_coverage/template.xml \
+
 
 #
 #
