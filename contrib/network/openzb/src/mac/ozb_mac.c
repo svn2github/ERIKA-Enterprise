@@ -67,21 +67,22 @@ static void set_default_mac_pib(void)
 /******************************************************************************/
 /*                       MAC Frames Build Functions                           */
 /******************************************************************************/
-HAL_INLINE void set_frame_control(uint8_t *fcf, uint8_t frame_type, 
-				  uint8_t security, uint8_t frame_pending, 
-				  uint8_t ack_request, uint8_t intra_pan, 
-				  uint8_t dst_addr_mode, uint8_t src_addr_mode) 
+COMPILER_INLINE 
+void set_frame_control(uint8_t *fcf, uint8_t frame_type, uint8_t security, 
+		       uint8_t frame_pending, uint8_t ack_request, 
+		       uint8_t intra_pan, uint8_t dst_addr_mode, 
+		       uint8_t src_addr_mode) 
 {
   	  fcf[0] = (intra_pan << 6) | (ack_request << 5) | 
 		   (frame_pending << 4) | (security << 3) | (frame_type << 0);	
 	  fcf[1] = (src_addr_mode << 6) | (dst_addr_mode << 2);
 } 
 
-HAL_INLINE uint8_t set_addressing_fields(uint8_t *af, 
-					 enum ozb_mac_addr_mode_t dst_mode,
-					 uint16_t dst_panid, void *dst_addr,
-					 enum ozb_mac_addr_mode_t src_mode,
-					 uint16_t src_panid, void *src_addr) 
+COMPILER_INLINE 
+uint8_t set_addressing_fields(uint8_t *af, enum ozb_mac_addr_mode_t dst_mode,
+			      uint16_t dst_panid, void *dst_addr,
+			      enum ozb_mac_addr_mode_t src_mode,
+			      uint16_t src_panid, void *src_addr) 
 {
 	uint8_t offset = OZB_MAC_MPDU_PANID_SIZE;
 
@@ -110,15 +111,14 @@ HAL_INLINE uint8_t set_addressing_fields(uint8_t *af,
 	return offset;
 }
 
-HAL_INLINE uint8_t set_superframe_specification(uint8_t *ss, uint8_t bo, 
-						uint8_t so, 
-						uint8_t final_cap_slot,
-						uint8_t ble, uint8_t pan_coord,	
-						uint8_t association_permit)
+COMPILER_INLINE 
+uint8_t set_superframe_specification(uint8_t *ss, uint8_t bo, uint8_t so, 
+				     uint8_t final_cap_slot, uint8_t ble, 
+				     uint8_t pan_coord,	uint8_t assoc_permit)
 {
 	ss[0] = (bo << 0) | (so << 4); 
 	ss[1] = (final_cap_slot << 0) | (ble) << 4 | (pan_coord << 6)  | 
-		(association_permit << 7);
+		(assoc_permit << 7);
 	return 2;
 }
 
@@ -312,7 +312,7 @@ uint8_t ozb_gts_set_gts_fields(uint8_t *gf)
 //	return 0;
 }
 
-HAL_INLINE uint8_t set_pending_address_fields(uint8_t *pf)
+COMPILER_INLINE uint8_t set_pending_address_fields(uint8_t *pf)
 {
 	OZB_MAC_PENDING_ADDR_SPEC_SET_EMPTY(pf);
 	/* 
@@ -322,7 +322,7 @@ HAL_INLINE uint8_t set_pending_address_fields(uint8_t *pf)
 	return 1;
 }
 
-HAL_INLINE uint8_t set_beacon_payload(uint8_t *bp)
+COMPILER_INLINE uint8_t set_beacon_payload(uint8_t *bp)
 {
 	return 0;
 }
@@ -342,10 +342,10 @@ int8_t ozb_mac_init(void)
 	retv = ozb_phy_init();
 	if (retv < 0)
 		return retv;
-	retv = ozb_mac_sf_init();
+	set_default_mac_pib();
+	retv = ozb_mac_superframe_init();
 	if (retv < 0)
 		return retv;
-	set_default_mac_pib();
 	//return -OZB_MAC_INIT_ERROR;
 	ozb_mac_status.mac_initialized = 1;
 	return 1;

@@ -70,7 +70,7 @@
 *
 * @return initialization result (0 ok, -1 failed).
  */
-HAL_INLINE int8_t ozb_radio_init(void)
+COMPILER_INLINE int8_t ozb_radio_init(void)
 {
 	/* chris: TODO: Find another way, maybe dynamic to set the Radio PORT
 			e.g use defines at compiling time, use void* (nino's
@@ -86,8 +86,12 @@ HAL_INLINE int8_t ozb_radio_init(void)
 /*TODO: chris: do we want to assume the auto ack generation?
 	How do we model this in the generic radio?
 */
-int8_t ozb_radio_store_beacon(ozb_mpdu_ptr_t bcn, uint8_t size);
-int8_t ozb_radio_send_beacon(void);
+
+COMPILER_INLINE int8_t ozb_radio_slotted_csma_init(void)
+{
+	return 1;
+}
+
 int8_t ozb_radio_store_data(uint8_t *buf, uint8_t len);
 int8_t ozb_radio_send_data(void);
 
@@ -125,7 +129,7 @@ int8_t ozb_radio_set_ack_rx_callback(void *todo); /*TODO: chris: define params*/
 * @param[in] buf_legth 	The message lenght
 * @return 0 if the initialization goes well, -1 otherwise.
 */
-HAL_INLINE int8_t ozb_radio_send(uint8_t *buf, uint8_t len)
+COMPILER_INLINE int8_t ozb_radio_send(uint8_t *buf, uint8_t len)
 {
 ozb_debug_print("   ozb_radio_send(...)");// TODO: REMOVE
 	//cc2420_store_txfifo(buf, len); //TODO: this don't define length!!!!!
@@ -156,7 +160,7 @@ ozb_debug_print("      returning OK!");// TODO: REMOVE
 * message stored into the txfifo will be sent.
 *
 */
-HAL_INLINE int8_t ozb_radio_start_tx(void)
+COMPILER_INLINE int8_t ozb_radio_start_tx(void)
 {
 	cc2420_set_tx();
 	return OZB_RADIO_SUCCESS;
@@ -168,7 +172,7 @@ HAL_INLINE int8_t ozb_radio_start_tx(void)
 * \todo
 *
 */
-HAL_INLINE int8_t ozb_radio_set_tx(void)
+COMPILER_INLINE int8_t ozb_radio_set_tx(void)
 {
 	return OZB_RADIO_SUCCESS;
 }
@@ -179,7 +183,7 @@ HAL_INLINE int8_t ozb_radio_set_tx(void)
 * \todo
 *
 */
-HAL_INLINE uint8_t ozb_radio_busy_tx(void)
+COMPILER_INLINE uint8_t ozb_radio_busy_tx(void)
 {
 	return (cc2420_get_status() & 0x08);
 }
@@ -192,7 +196,7 @@ HAL_INLINE uint8_t ozb_radio_busy_tx(void)
 *
 * @param[in] rx_callback The callback function.
 */
-HAL_INLINE int8_t ozb_radio_set_rx_callback(void (*rx_callback)(void))
+COMPILER_INLINE int8_t ozb_radio_set_rx_callback(void (*rx_callback)(void))
 {
 	cc2420_set_rx_callback(rx_callback);
 	return OZB_RADIO_SUCCESS;
@@ -207,7 +211,7 @@ HAL_INLINE int8_t ozb_radio_set_rx_callback(void (*rx_callback)(void))
 *
 * @return the lenght of the received message, or -1 if something has gone wrong.
 */
-HAL_INLINE int8_t ozb_radio_get_msg(uint8_t *msg)
+COMPILER_INLINE int8_t ozb_radio_get_msg(uint8_t *msg)
 {
 	return cc2420_get_fifo_msg(msg);
 }
@@ -221,7 +225,7 @@ HAL_INLINE int8_t ozb_radio_get_msg(uint8_t *msg)
 * @param[in] pwr The pwr level setting (see cc2420.h for the available valuses).
 *
 */
-HAL_INLINE int8_t ozb_radio_set_tx_power(uint8_t pwr)
+COMPILER_INLINE int8_t ozb_radio_set_tx_power(uint8_t pwr)
 {
 	/* TODO: translate the value of pwr from PIB to radio related value! */
 	pwr = CC2420_PA_0DBM;
@@ -236,7 +240,7 @@ HAL_INLINE int8_t ozb_radio_set_tx_power(uint8_t pwr)
 *
 * @return the rssi value in dbm, INVALID_RSSI otherwise
 */
-HAL_INLINE int8_t ozb_radio_get_rx_power(uint8_t *energy)
+COMPILER_INLINE int8_t ozb_radio_get_rx_power(uint8_t *energy)
 {
 	/*TODO: calculate according to standard*/
 	*energy = (uint8_t) cc2420_rssi_get();
@@ -251,7 +255,7 @@ HAL_INLINE int8_t ozb_radio_get_rx_power(uint8_t *energy)
 * @param[in] sleep_level 	The sleep mode: POWER_DOWN or IDLE
 *
 */
-HAL_INLINE int8_t ozb_radio_sleep(void)
+COMPILER_INLINE int8_t ozb_radio_sleep(void)
 {
 	cc2420_set_sleep(CC2420_RADIO_IDLE);
 	return OZB_RADIO_SUCCESS;
@@ -268,7 +272,7 @@ HAL_INLINE int8_t ozb_radio_sleep(void)
 #define SLEEP2RX 0
 #define SLEEP2TX 1
 
-HAL_INLINE int8_t ozb_radio_wakeup(uint8_t status)
+COMPILER_INLINE int8_t ozb_radio_wakeup(uint8_t status)
 {
 	/* chris: FIXME: wrong comparison: status cannot be less than 0!!*/
 	if (status > SLEEP2TX)
@@ -285,7 +289,7 @@ HAL_INLINE int8_t ozb_radio_wakeup(uint8_t status)
 *
 * This routine puts the radio on RX mode.
 */
-HAL_INLINE int8_t ozb_radio_set_rx()
+COMPILER_INLINE int8_t ozb_radio_set_rx()
 {
 	cc2420_set_rx();
 	return OZB_RADIO_SUCCESS;
@@ -295,7 +299,7 @@ HAL_INLINE int8_t ozb_radio_set_rx()
 *
 * \todo
 */
-HAL_INLINE uint8_t ozb_radio_busy_rx()
+COMPILER_INLINE uint8_t ozb_radio_busy_rx()
 {
 	return cc2420_get_sfd();
 }
@@ -307,7 +311,7 @@ HAL_INLINE uint8_t ozb_radio_busy_rx()
 * @param[in] ch 	The channel to tune in (must be in the interval [11, 26] )
 *
  */
-HAL_INLINE int8_t ozb_radio_set_channel(uint8_t ch)
+COMPILER_INLINE int8_t ozb_radio_set_channel(uint8_t ch)
 {
 	cc2420_set_channel(ch);/* chris: TODO:  return nothing?? */
 	return OZB_RADIO_SUCCESS;
@@ -323,7 +327,7 @@ HAL_INLINE int8_t ozb_radio_set_channel(uint8_t ch)
 * 					store the short address; if length = 8 store the long address.
 * @return 0  if length is correct, -1 otherwise.
 */
-HAL_INLINE int8_t ozb_radio_set_mac_address(uint8_t* add, uint8_t length)
+COMPILER_INLINE int8_t ozb_radio_set_mac_address(uint8_t* add, uint8_t length)
 {
 	if (length == 2)
 		cc2420_set_short_mac_add(add);
@@ -343,7 +347,7 @@ HAL_INLINE int8_t ozb_radio_set_mac_address(uint8_t* add, uint8_t length)
 * @param[in] id 	The MAC PAN ID to store in the transceiver.
 *
  */
-/*HAL_INLINE int8_t ozb_radio_set_mac_pan_id(uint8_t *id)
+/*COMPILER_INLINE int8_t ozb_radio_set_mac_pan_id(uint8_t *id)
 {
 	cc2420_set_mac_pan_id(id);
 }
@@ -356,7 +360,7 @@ HAL_INLINE int8_t ozb_radio_set_mac_address(uint8_t* add, uint8_t length)
 *
 */
 
-//HAL_INLINE int8_t ozb_radio_set_auto_crc()
+//COMPILER_INLINE int8_t ozb_radio_set_auto_crc()
 //{
 //	uint8_t low, high;
 //
@@ -383,7 +387,7 @@ HAL_INLINE int8_t ozb_radio_set_mac_address(uint8_t* add, uint8_t length)
 #define VALID_FRAME_AND_ENERGY 0x11000000 /* clear channel when energy is below
 											 the threshold and not receiving
 											 a valid frame */
-HAL_INLINE int8_t ozb_radio_set_cca_mode(uint8_t mode)
+COMPILER_INLINE int8_t ozb_radio_set_cca_mode(uint8_t mode)
 {
 	uint8_t low, high;
 
@@ -393,7 +397,7 @@ HAL_INLINE int8_t ozb_radio_set_cca_mode(uint8_t mode)
 	return OZB_RADIO_SUCCESS;
 }
 
-HAL_INLINE uint8_t ozb_radio_get_cca(void)
+COMPILER_INLINE uint8_t ozb_radio_get_cca(void)
 {
 	return cc2420_get_cca();
 }

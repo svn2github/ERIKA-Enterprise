@@ -1,22 +1,35 @@
 #ifndef __ozb_mac_const_h__
 #define __ozb_mac_const_h__
 
-#ifndef OZB_TRUE
+#ifdef OZB_TRUE
+#undef OZB_TRUE
+#endif
 #define OZB_TRUE	1
+
+#ifdef OZB_FALSE	
+#undef OZB_FALSE	
 #endif
-#ifndef OZB_FALSE	
 #define OZB_FALSE	0
-#endif
 
 /* TODO: these should depend on the current SO and BO settings!! */
-#define OZB_MAC_TICKS_BEFORE_BI		5
-#define OZB_MAC_TICKS_BEFORE_TIMESLOT	5
+#define OZB_MAC_TICKS_BEFORE_BI			5
+#define OZB_MAC_TICKS_BEFORE_TIMESLOT		5
 
 /* chris: TODO: could we have a better choice for a default 64bits address? */
 #ifndef OZB_MAC_DEVICE_EXTD_ADDRESS
 #define OZB_MAC_DEVICE_EXTD_ADDRESS_HIGH	0x00000000
 #define OZB_MAC_DEVICE_EXTD_ADDRESS_LOW		0x00000001
 #endif
+
+#define OZB_MAC_MPDU_SIZE			125
+#define OZB_MAC_MPDU_PANID_SIZE			2
+#define OZB_MAC_MPDU_ADDRESS_SHORT_SIZE		2
+#define OZB_MAC_MPDU_ADDRESS_EXTD_SIZE		8
+#define OZB_MAC_MPDU_MHR_BASE_SIZE		3
+#define OZB_MAC_MPDU_MFR_SIZE			2
+
+#define OZB_MAC_SUPERFRAME_FIRST_SLOT 		0
+#define OZB_MAC_SUPERFRAME_LAST_SLOT 		15
 
 /**
 * @name IEEE 802.15.4 MAC Layer Constants

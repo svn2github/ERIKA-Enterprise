@@ -16,7 +16,7 @@ int8_t ozb_PD_DATA_confirm(enum ozb_phy_code_t status)
 	#ifdef OZB_DEBUG_LOG
 	char s[100];
 	char s1[30];
-	ozb_debug_print_phycode(status, s1);
+	ozb_debug_sprint_phycode(status, s1);
 	sprintf(s, "PD_DATA_confirm(%s)", s1);
 	ozb_debug_print(s);
 	#endif
@@ -41,7 +41,7 @@ int8_t ozb_PLME_CCA_confirm(enum ozb_phy_code_t status)
 	#ifdef OZB_DEBUG_LOG
 	char s[100];
 	char s1[30];
-	ozb_debug_print_phycode(status, s1);
+	ozb_debug_sprint_phycode(status, s1);
 	sprintf(s, "PLME_CCA_confirm(%s)", s1);
 	ozb_debug_print(s);
 	#endif
@@ -53,7 +53,7 @@ int8_t ozb_PLME_ED_confirm(enum ozb_phy_code_t status, uint8_t EnergyLevel)
 	#ifdef OZB_DEBUG_LOG
 	char s[100];
 	char s1[30];
-	ozb_debug_print_phycode(status, s1);
+	ozb_debug_sprint_phycode(status, s1);
 	sprintf(s, "PLME_ED_confirm(%s, el=%u)", s1, EnergyLevel);
 	ozb_debug_print(s);
 	#endif
@@ -68,7 +68,7 @@ int8_t ozb_PLME_GET_confirm(enum ozb_phy_code_t status,
 	uint8_t value = *((uint8_t*)PIBAttributeValue);
 	char s[100];
 	char s1[30];
-	ozb_debug_print_phycode(status, s1);
+	ozb_debug_sprint_phycode(status, s1);
 	sprintf(s, "PLME_GET_confirm(%s, a=%u, v=%u)", s1, PIBAttribute, value);
 	ozb_debug_print(s);
 	#endif
@@ -80,7 +80,7 @@ int8_t ozb_PLME_SET_TRX_STATE_confirm(enum ozb_phy_code_t status)
 	#ifdef OZB_DEBUG_LOG
 	char s[100];
 	char s1[30];
-	ozb_debug_print_phycode(status, s1);
+	ozb_debug_sprint_phycode(status, s1);
 	sprintf(s, "PLME_SET_TRX_STATE_confirm(%s)", s1);
 	ozb_debug_print(s);
 	#endif
@@ -93,7 +93,7 @@ int8_t ozb_PLME_SET_confirm(enum ozb_phy_code_t status,
 	#ifdef OZB_DEBUG_LOG
 	char s[100];
 	char s1[30];
-	ozb_debug_print_phycode(status, s1);
+	ozb_debug_sprint_phycode(status, s1);
 	sprintf(s, "PLME_SET_confirm(%s, a=%u)", s1, PIBAttribute);
 	ozb_debug_print(s);
 	#endif

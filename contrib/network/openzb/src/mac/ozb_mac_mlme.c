@@ -101,8 +101,8 @@ int8_t ozb_MLME_START_request(uint8_t PANId, uint8_t LogicalChannel,
 		/* TODO: security levels management! */
 	}
 	if (StartTime == 0) {
-		ozb_mac_sf_stop();
-		ozb_mac_sf_start(1000);
+		ozb_mac_superframe_stop();
+		ozb_mac_superframe_start(1000);
 	} else {
 		return -OZB_MAC_STANDARD_UNSUPPORTED;
 		/* TODO: Start Time > 0 management! */

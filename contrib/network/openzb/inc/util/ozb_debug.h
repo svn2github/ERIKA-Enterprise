@@ -103,28 +103,29 @@ struct ozb_debug_stat_t {
 
 extern struct ozb_debug_stat_t ozb_debug_stats;
 
-HAL_INLINE int8_t ozb_debug_time_start(uint8_t ck_id) 
+COMPILER_INLINE int8_t ozb_debug_time_start(uint8_t ck_id) 
 {
 	return daq_time_start(ck_id);
 }
 
-HAL_INLINE uint8_t ozb_debug_time_get(uint8_t ck_id) 
+COMPILER_INLINE uint8_t ozb_debug_time_get(uint8_t ck_id) 
 {
 	return daq_time_get(ck_id, ozb_debug_stats.time_clock + ck_id);
 }
 
 
-HAL_INLINE void ozb_debug_stat2str(uint8_t *out) 
+COMPILER_INLINE void ozb_debug_stat2str(uint8_t *out) 
 {
 	uint8_t i;
 
+	/* TODO: the escape mechanism must be done!!! */
 	*(out++) = 0x3C;	/* HEADER */
 	for (i = 0; i < OZB_DEBUG_TIME_CLOCK_NUMBER; i++, out+=DAQ_TIME_STRLEN) 
 		daq_time_2str(ozb_debug_stats.time_clock + i, out);
 	*(out++) = 0x3E;	/* TRAILER */
 }
 
-HAL_INLINE uint32_t ozb_debug_time_get_us(uint8_t ck_id) 
+COMPILER_INLINE uint32_t ozb_debug_time_get_us(uint8_t ck_id) 
 {
 	daq_time_get(ck_id, ozb_debug_stats.time_clock + ck_id);
 	return daq_time_2us(ozb_debug_stats.time_clock + ck_id);
@@ -161,10 +162,10 @@ int8_t ozb_debug_write(uint8_t *msg, uint16_t len);
 */
 int8_t ozb_debug_print(const char *msg);
 
-void ozb_debug_print_phycode(enum ozb_phy_code_t c, char *out); 
-void ozb_debug_print_maccode(enum ozb_mac_code_t c, char *out);
+void ozb_debug_sprint_phycode(enum ozb_phy_code_t c, char *out); 
+void ozb_debug_sprint_maccode(enum ozb_mac_code_t c, char *out);
 
-HAL_INLINE void ozb_debug_sprint_uint8(uint8_t data, char *out)
+COMPILER_INLINE void ozb_debug_sprint_u8(uint8_t data, char *out)
 {
 	out[3] = '\0';
 	out[2] = '0' + (data % 10);
@@ -172,7 +173,7 @@ HAL_INLINE void ozb_debug_sprint_uint8(uint8_t data, char *out)
 	out[0] = '0' + ((data / 100) % 10);
 }
 
-HAL_INLINE void ozb_debug_print_uint16(uint16_t data, char *out)
+COMPILER_INLINE void ozb_debug_sprint_u16(uint16_t data, char *out)
 {
 	out[5] = '\0';
 	out[4] = '0' + (data % 10);
@@ -182,7 +183,7 @@ HAL_INLINE void ozb_debug_print_uint16(uint16_t data, char *out)
 	out[0] = '0' + ((data / 10000) % 10);
 }
 
-HAL_INLINE void ozb_debug_print_uint32(uint32_t data, char *out)
+COMPILER_INLINE void ozb_debug_sprint_u32(uint32_t data, char *out)
 {
 	out[10] = '\0';
 	out[9] = '0' + (data % 10);
@@ -197,7 +198,7 @@ HAL_INLINE void ozb_debug_print_uint32(uint32_t data, char *out)
 	out[0] = '0' + ((data / 1000000000) % 10);
 }
 
-HAL_INLINE void ozb_debug_print_int8(int8_t data, char *out)
+COMPILER_INLINE void ozb_debug_sprint_d8(int8_t data, char *out)
 {
 	out[4] = '\0';
 	out[3] = '0' + (data % 10);
@@ -206,7 +207,7 @@ HAL_INLINE void ozb_debug_print_int8(int8_t data, char *out)
 	out[0] = data < 0 ? '-' : ' ';
 }
 
-HAL_INLINE void ozb_debug_print_int16(int16_t data, char *out)
+COMPILER_INLINE void ozb_debug_sprint_d16(int16_t data, char *out)
 {
 	out[6] = '\0';
 	out[5] = '0' + (data % 10);
@@ -217,7 +218,7 @@ HAL_INLINE void ozb_debug_print_int16(int16_t data, char *out)
 	out[0] = data < 0 ? '-' : ' ';
 }
 
-HAL_INLINE void ozb_debug_print_int32(int32_t data, char *out)
+COMPILER_INLINE void ozb_debug_sprint_d32(int32_t data, char *out)
 {
 	out[11] = '\0';
 	out[10] = '0' + (data % 10);

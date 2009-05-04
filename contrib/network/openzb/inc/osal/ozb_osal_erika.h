@@ -4,15 +4,17 @@
 #include <ee.h>
 
 
-HAL_INLINE int8_t ozb_osal_erika_set_body(void(*src)(void), void(**dst)(void)) 
+COMPILER_INLINE 
+int8_t ozb_osal_erika_set_body(void (*src)(void), void (**dst)(void)) 
 {
 	*dst = src;
 	return 1;
 }
 
-HAL_INLINE int8_t ozb_osal_erika_set_activation(TaskType tid, AlarmType aid, 
-						uint32_t offset,
-						uint32_t period) 
+COMPILER_INLINE 
+int8_t ozb_osal_erika_set_activation(TaskType tid, AlarmType aid, 
+				     uint32_t offset,
+				     uint32_t period) 
 {
 	if (offset == 0 && period == 0)
 		ActivateTask(tid);
@@ -21,14 +23,14 @@ HAL_INLINE int8_t ozb_osal_erika_set_activation(TaskType tid, AlarmType aid,
 	return 1;
 }
 
-HAL_INLINE int8_t ozb_osal_erika_cancel_activation(AlarmType aid) 
+COMPILER_INLINE int8_t ozb_osal_erika_cancel_activation(AlarmType aid) 
 {
 	CancelAlarm(aid);
 	return 1;
 }
 
 /* tick_duration is expressed in microseconds */
-HAL_INLINE int8_t ozb_osal_erika_init(uint32_t tick_duration) 
+COMPILER_INLINE int8_t ozb_osal_erika_init(uint32_t tick_duration) 
 {
 	/* TODO: make use of this information to properly configure the
 		 duration of the tick of the timer connected to the the

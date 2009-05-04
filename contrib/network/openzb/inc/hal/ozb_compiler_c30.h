@@ -41,8 +41,8 @@ typedef signed long int int32_t;	/**< Unsigned 32 bit intgerer. */
 #endif
 /**  @} */
 
-#ifndef HAL_INLINE 
-#define HAL_INLINE static inline
+#ifndef COMPILER_INLINE 
+#define COMPILER_INLINE static inline
 #endif
 
 #endif /* Header Protection */

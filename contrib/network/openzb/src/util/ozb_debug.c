@@ -64,7 +64,7 @@ int8_t ozb_debug_print(const char *msg)
 	#endif /* OZB_DEBUG_LOG_DEVEL */
 }
 
-void ozb_debug_print_phycode(enum ozb_phy_code_t c, char *out) 
+void ozb_debug_sprint_phycode(enum ozb_phy_code_t c, char *out) 
 {
 	switch (c) {
 	case OZB_BUSY:
@@ -106,7 +106,7 @@ void ozb_debug_print_phycode(enum ozb_phy_code_t c, char *out)
 	}
 }
 
-void ozb_debug_print_maccode(enum ozb_mac_code_t c, char *out)
+void ozb_debug_sprint_maccode(enum ozb_mac_code_t c, char *out)
 {
 	switch (c) {
 	case OZB_MAC_SUCCESS:

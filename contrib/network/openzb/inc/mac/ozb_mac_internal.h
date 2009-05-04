@@ -33,9 +33,9 @@ extern struct ozb_mac_flags_t ozb_mac_status;
 
 uint8_t ozb_mac_create_beacon(ozb_mpdu_ptr_t beacon);
 
-int8_t ozb_mac_sf_init(void);
-void ozb_mac_sf_start(uint32_t offset);
-void ozb_mac_sf_stop(void); 
-void ozb_mac_sf_resync(void);
+int8_t ozb_mac_superframe_init(void);
+void ozb_mac_superframe_start(uint32_t offset);
+void ozb_mac_superframe_stop(void); 
+void ozb_mac_superframe_resync(void);
 
 #endif /* Header Protection */

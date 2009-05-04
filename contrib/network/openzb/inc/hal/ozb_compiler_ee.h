@@ -43,8 +43,8 @@ typedef EE_INT32 int32_t;	/**< Unsigned 32 bit intgerer. */
 #endif
 /**  @} */
 
-#ifndef HAL_INLINE 
-#define HAL_INLINE __INLINE__
+#ifndef COMPILER_INLINE 
+#define COMPILER_INLINE __INLINE__
 #endif
 
 #endif /* Header Protection */

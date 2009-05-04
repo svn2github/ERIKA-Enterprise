@@ -18,7 +18,7 @@ int8_t ozb_MCPS_DATA_confirm(uint8_t msduHandle, enum ozb_mac_code_t status,
 	//#ifdef OZB_DEBUG_LOG
 	//char s[100];
 	//char s1[30];
-	//ozb_debug_print_phycode(status, s1);
+	//ozb_debug_sprint_maccode(status, s1);
 	//sprintf(s, "SET_confirm(%s, a=%u)", s1, PIBAttribute);
 	//ozb_debug_print(s);
 	//#endif
@@ -37,7 +37,7 @@ int8_t ozb_MCPS_DATA_indication(uint8_t SrcAddrMode, uint16_t SrcPANId,
 	//#ifdef OZB_DEBUG_LOG
 	//char s[100];
 	//char s1[30];
-	//ozb_debug_print_phycode(status, s1);
+	//ozb_debug_sprint_maccode(status, s1);
 	//sprintf(s, "SET_confirm(%s, a=%u)", s1, PIBAttribute);
 	//ozb_debug_print(s);
 	//#endif
@@ -49,7 +49,7 @@ int8_t ozb_MCPS_PURGE_confirm(uint8_t msduHandle, enum ozb_mac_code_t status)
 	//#ifdef OZB_DEBUG_LOG
 	//char s[100];
 	//char s1[30];
-	//ozb_debug_print_phycode(status, s1);
+	//ozb_debug_sprint_maccode(status, s1);
 	//sprintf(s, "SET_confirm(%s, a=%u)", s1, PIBAttribute);
 	//ozb_debug_print(s);
 	//#endif
@@ -66,7 +66,7 @@ int8_t ozb_MLME_ASSOCIATE_confirm(ozb_mac_dev_addr_short_t AssocShortAddress,
 	//#ifdef OZB_DEBUG_LOG
 	//char s[100];
 	//char s1[30];
-	//ozb_debug_print_phycode(status, s1);
+	//ozb_debug_sprint_maccode(status, s1);
 	//sprintf(s, "SET_confirm(%s, a=%u)", s1, PIBAttribute);
 	//ozb_debug_print(s);
 	//#endif
@@ -82,7 +82,7 @@ int8_t ozb_MLME_ASSOCIATE_indication(ozb_mac_dev_addr_extd_t DeviceAddress,
 	//#ifdef OZB_DEBUG_LOG
 	//char s[100];
 	//char s1[30];
-	//ozb_debug_print_phycode(status, s1);
+	//ozb_debug_sprint_maccode(status, s1);
 	//sprintf(s, "SET_confirm(%s, a=%u)", s1, PIBAttribute);
 	//ozb_debug_print(s);
 	//#endif
@@ -100,7 +100,7 @@ int8_t ozb_MLME_DISASSOCIATE_confirm(enum ozb_mac_code_t status,
 	//#ifdef OZB_DEBUG_LOG
 	//char s[100];
 	//char s1[30];
-	//ozb_debug_print_phycode(status, s1);
+	//ozb_debug_sprint_maccode(status, s1);
 	//sprintf(s, "SET_confirm(%s, a=%u)", s1, PIBAttribute);
 	//ozb_debug_print(s);
 	//#endif
@@ -116,7 +116,7 @@ int8_t ozb_MLME_DISASSOCIATE_indication(ozb_mac_dev_addr_extd_t DeviceAddress,
 	//#ifdef OZB_DEBUG_LOG
 	//char s[100];
 	//char s1[30];
-	//ozb_debug_print_phycode(status, s1);
+	//ozb_debug_sprint_maccode(status, s1);
 	//sprintf(s, "SET_confirm(%s, a=%u)", s1, PIBAttribute);
 	//ozb_debug_print(s);
 	//#endif
@@ -133,7 +133,7 @@ int8_t ozb_MLME_BEACON_NOTIFY_indication(uint8_t BSN,
 	//#ifdef OZB_DEBUG_LOG
 	//char s[100];
 	//char s1[30];
-	//ozb_debug_print_phycode(status, s1);
+	//ozb_debug_sprint_maccode(status, s1);
 	//sprintf(s, "SET_confirm(%s, a=%u)", s1, PIBAttribute);
 	//ozb_debug_print(s);
 	//#endif
@@ -148,7 +148,7 @@ int8_t ozb_MLME_GET_confirm(enum ozb_mac_code_t status,
 	//#ifdef OZB_DEBUG_LOG
 	//char s[100];
 	//char s1[30];
-	//ozb_debug_print_phycode(status, s1);
+	//ozb_debug_sprint_maccode(status, s1);
 	//sprintf(s, "SET_confirm(%s, a=%u)", s1, PIBAttribute);
 	//ozb_debug_print(s);
 	//#endif
@@ -162,7 +162,7 @@ int8_t ozb_MLME_GTS_confirm(uint8_t GTSCharacteristics,
 	//#ifdef OZB_DEBUG_LOG
 	//char s[100];
 	//char s1[30];
-	//ozb_debug_print_phycode(status, s1);
+	//ozb_debug_sprint_maccode(status, s1);
 	//sprintf(s, "SET_confirm(%s, a=%u)", s1, PIBAttribute);
 	//ozb_debug_print(s);
 	//#endif
@@ -177,7 +177,7 @@ int8_t ozb_MLME_GTS_indication(ozb_mac_dev_addr_short_t DeviceAddress,
 	//#ifdef OZB_DEBUG_LOG
 	//char s[100];
 	//char s1[30];
-	//ozb_debug_print_phycode(status, s1);
+	//ozb_debug_sprint_maccode(status, s1);
 	//sprintf(s, "SET_confirm(%s, a=%u)", s1, PIBAttribute);
 	//ozb_debug_print(s);
 	//#endif
@@ -193,7 +193,7 @@ int8_t ozb_MLME_ORPHAN_indication(ozb_mac_dev_addr_extd_t OrphanAddress,
 	//#ifdef OZB_DEBUG_LOG
 	//char s[100];
 	//char s1[30];
-	//ozb_debug_print_phycode(status, s1);
+	//ozb_debug_sprint_maccode(status, s1);
 	//sprintf(s, "SET_confirm(%s, a=%u)", s1, PIBAttribute);
 	//ozb_debug_print(s);
 	//#endif
@@ -207,7 +207,7 @@ int8_t ozb_MLME_RESET_confirm(enum ozb_mac_code_t status)
 	//#ifdef OZB_DEBUG_LOG
 	//char s[100];
 	//char s1[30];
-	//ozb_debug_print_phycode(status, s1);
+	//ozb_debug_sprint_maccode(status, s1);
 	//sprintf(s, "SET_confirm(%s, a=%u)", s1, PIBAttribute);
 	//ozb_debug_print(s);
 	//#endif
@@ -221,7 +221,7 @@ int8_t ozb_MLME_RX_ENABLE_confirm(enum ozb_mac_code_t status)
 	//#ifdef OZB_DEBUG_LOG
 	//char s[100];
 	//char s1[30];
-	//ozb_debug_print_phycode(status, s1);
+	//ozb_debug_sprint_maccode(status, s1);
 	//sprintf(s, "SET_confirm(%s, a=%u)", s1, PIBAttribute);
 	//ozb_debug_print(s);
 	//#endif
@@ -237,7 +237,7 @@ int8_t ozb_MLME_SCAN_confirm(enum ozb_mac_code_t status, uint8_t ScanType,
 	//#ifdef OZB_DEBUG_LOG
 	//char s[100];
 	//char s1[30];
-	//ozb_debug_print_phycode(status, s1);
+	//ozb_debug_sprint_maccode(status, s1);
 	//sprintf(s, "SET_confirm(%s, a=%u)", s1, PIBAttribute);
 	//ozb_debug_print(s);
 	//#endif
@@ -255,7 +255,7 @@ int8_t ozb_MLME_COMM_STATUS_indication(uint16_t PANId, uint8_t SrcAddrMode,
 	//#ifdef OZB_DEBUG_LOG
 	//char s[100];
 	//char s1[30];
-	//ozb_debug_print_phycode(status, s1);
+	//ozb_debug_sprint_maccode(status, s1);
 	//sprintf(s, "SET_confirm(%s, a=%u)", s1, PIBAttribute);
 	//ozb_debug_print(s);
 	//#endif
@@ -269,7 +269,7 @@ int8_t ozb_MLME_SET_confirm(enum ozb_mac_code_t status,
 	//#ifdef OZB_DEBUG_LOG
 	//char s[100];
 	//char s1[30];
-	//ozb_debug_print_phycode(status, s1);
+	//ozb_debug_sprint_maccode(status, s1);
 	//sprintf(s, "SET_confirm(%s, a=%u)", s1, PIBAttribute);
 	//ozb_debug_print(s);
 	//#endif
@@ -283,7 +283,7 @@ int8_t ozb_MLME_START_confirm(enum ozb_mac_code_t status)
 	//#ifdef OZB_DEBUG_LOG
 	//char s[100];
 	//char s1[30];
-	//ozb_debug_print_phycode(status, s1);
+	//ozb_debug_sprint_maccode(status, s1);
 	//sprintf(s, "SET_confirm(%s, a=%u)", s1, PIBAttribute);
 	//ozb_debug_print(s);
 	//#endif
@@ -300,7 +300,7 @@ int8_t ozb_MLME_SYNC_LOSS_indication(enum ozb_mac_code_t LossReason,
 	//#ifdef OZB_DEBUG_LOG
 	//char s[100];
 	//char s1[30];
-	//ozb_debug_print_phycode(status, s1);
+	//ozb_debug_sprint_maccode(status, s1);
 	//sprintf(s, "SET_confirm(%s, a=%u)", s1, PIBAttribute);
 	//ozb_debug_print(s);
 	//#endif
@@ -312,7 +312,7 @@ int8_t ozb_MLME_POLL_confirm(enum ozb_mac_code_t status)
 	//#ifdef OZB_DEBUG_LOG
 	//char s[100];
 	//char s1[30];
-	//ozb_debug_print_phycode(status, s1);
+	//ozb_debug_sprint_maccode(status, s1);
 	//sprintf(s, "SET_confirm(%s, a=%u)", s1, PIBAttribute);
 	//ozb_debug_print(s);
 	//#endif
