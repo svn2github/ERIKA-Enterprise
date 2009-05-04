@@ -46,9 +46,6 @@
 #include "ee_internal.h"
 
 #ifndef __PRIVATE_THREAD_END_INSTANCE__
-// this function MUST NOT BE CALLED BY THE USER!!!
-// maybe it is better to write this function in assembler,
-// a RET can be saved!
 void EE_thread_end_instance(void)
 {
   register EE_TIME tmp_time;

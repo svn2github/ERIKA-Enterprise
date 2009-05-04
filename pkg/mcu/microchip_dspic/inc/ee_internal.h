@@ -60,21 +60,7 @@
 #if defined(__CBS__) || defined(__FRSH__)
 
 /* This function set the capacity timer to raise in t ticks. */
-__INLINE__ void __ALWAYS_INLINE__ EE_hal_set_budget_timer(EE_STIME t) 
-{   
-  if (t > 0) {
-    PR6 = t & 0xFFFF;
-    PR7 = t >> 16;
-    TMR6 = 0;
-    TMR7 = 0;
-    IFS3bits.T7IF = 0;
-    T6CONbits.TON = 1; // Start Timer 6/7;
-  } else {
-    // Stop the timer
-    IFS3bits.T7IF = 0;
-    T6CONbits.TON = 0;
-  }
-} 
+void EE_hal_set_budget_timer(EE_STIME t);
 
 __INLINE__ void __ALWAYS_INLINE__ EE_hal_stop_budget_timer(void)
 {

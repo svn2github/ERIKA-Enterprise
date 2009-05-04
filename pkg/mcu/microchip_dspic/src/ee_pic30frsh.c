@@ -57,19 +57,29 @@ extern void EE_IRQ_end_recharging(void);
  */
 
 /* Budget exaustion */
-ISR2(_T5Interrupt)
-{
-	/* clear the interrupt source */
-	IFS1bits.T5IF = 0;
-	T4CONbits.TON = 0;
-	EE_IRQ_end_budget();
-}
-
-/* Recharging queue */
 ISR2(_T7Interrupt)
 {
 	/* clear the interrupt source */
 	IFS3bits.T7IF = 0;
 	T6CONbits.TON = 0;
-	EE_IRQ_end_recharging();
+	EE_frsh_IRQ_timer_multiplexer();
 }
+
+
+
+/* This function set the capacity timer to raise in t ticks. */
+void EE_hal_set_budget_timer(EE_STIME t) 
+{   
+  if (t > 0) {
+    PR6 = t & 0xFFFF;
+    PR7 = t >> 16;
+    TMR6 = 0;
+    TMR7 = 0;
+    IFS3bits.T7IF = 0;
+    T6CONbits.TON = 1; // Start Timer 6/7;
+  } else {
+    // Stop the timer
+    IFS3bits.T7IF = 0;
+    T6CONbits.TON = 0;
+  }
+} 

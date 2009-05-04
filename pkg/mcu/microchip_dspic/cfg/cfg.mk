@@ -44,24 +44,15 @@
 ifeq ($(findstring __MICROCHIP_DSPIC30__,$(EEOPT)) , __MICROCHIP_DSPIC30__)
 
 ifeq ($(findstring __FRSH__,$(EEOPT)) , __FRSH__)
-# directory name containing the sources
-EE_VPATH += $(PKGBASE)/mcu/microchip_dspic/src
-
-EE_SRCS += ee_pic30frsh.c
+EE_SRCS += pkg/mcu/microchip_dspic/src/ee_pic30frsh.c
 endif
 
 ifeq ($(findstring __USE_UART__,$(EEOPT)) , __USE_UART__)
-# directory name containing the sources
-EE_VPATH += $(PKGBASE)/mcu/microchip_dspic/src
-
-EE_SRCS += ee_uart.c
+EE_SRCS += pkg/mcu/microchip_dspic/src/ee_uart.c
 endif
 
 ifeq ($(findstring __USE_SPI__,$(EEOPT)) , __USE_SPI__)
-# directory name containing the sources
-EE_VPATH += $(PKGBASE)/mcu/microchip_dspic/src
-
-EE_SRCS += ee_spi.c
+EE_SRCS += pkg/mcu/microchip_dspic/src/ee_spi.c
 endif
 
 # typically empty, the crt0.S function is typically provided by the

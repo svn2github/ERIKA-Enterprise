@@ -50,8 +50,6 @@
 int EE_frsh_recharge(EE_TIME);
 
 // this function MUST NOT BE CALLED BY THE USER!!!
-// maybe it is better to write this function in assembler,
-// a RET can be saved!
 void EE_thread_end_instance(void)
 {
   register EE_TIME tmp_time;
@@ -62,18 +60,18 @@ void EE_thread_end_instance(void)
   /* decrease the pending activations... ready or stacked => (nact>0) */
   EE_th[EE_exec].nact--;
 
+  /* this should never happen ... */
+#ifdef DEBUG
+  if (EE_th[EE_exec].lockedcounter)
+    for(;;);
+#endif
 
   /* end_slice: checks the elapsed time on the exec task, putting it into the right
      queue (recharging, ready, or simply put the task suspended). at the end EE_exec is EE_NIL */
   EE_frsh_end_slice(tmp_time);
   /* --- */
 
-
-#ifdef DEBUG
-  if (EE_th[EE_exec].lockedcounter)
-    for(;;);
-#endif
-  
+ 
   /* check if the queues are empty and if there is someone in the recharging queue 
    * to activate
    */
