@@ -8,9 +8,9 @@
 #define OZB_FALSE	0
 #endif
 
+/* TODO: these should depend on the current SO and BO settings!! */
 #define OZB_MAC_TICKS_BEFORE_BI		5
 #define OZB_MAC_TICKS_BEFORE_TIMESLOT	5
-#define OZB_MAC_TICKS_ON_SO_EQUAL_BO	1
 
 /* chris: TODO: could we have a better choice for a default 64bits address? */
 #ifndef OZB_MAC_DEVICE_EXTD_ADDRESS

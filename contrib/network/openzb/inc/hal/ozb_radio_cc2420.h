@@ -14,6 +14,7 @@
 #define __ozb_radio_cc2420_h__
 
 #include <hal/ozb_radio.h>
+#include <mac/ozb_mac_types.h>
 
 #ifndef USE_CC2420
 #error "OZB_RADIO ERROR: the CC2420 radio driver is required for this!"
@@ -85,7 +86,7 @@ HAL_INLINE int8_t ozb_radio_init(void)
 /*TODO: chris: do we want to assume the auto ack generation?
 	How do we model this in the generic radio?
 */
-int8_t ozb_radio_store_beacon(uint8_t *buf, uint8_t len);
+int8_t ozb_radio_store_beacon(ozb_mpdu_ptr_t bcn, uint8_t size);
 int8_t ozb_radio_send_beacon(void);
 int8_t ozb_radio_store_data(uint8_t *buf, uint8_t len);
 int8_t ozb_radio_send_data(void);
@@ -145,7 +146,7 @@ ozb_debug_print("      TX FIFO underflow!");// TODO: REMOVE
 	}
 ozb_debug_print("      returning OK!");// TODO: REMOVE
 	/* Everything goes well. */
-	return 1;
+	return OZB_RADIO_SUCCESS;
 }
 
 /**
@@ -158,7 +159,7 @@ ozb_debug_print("      returning OK!");// TODO: REMOVE
 HAL_INLINE int8_t ozb_radio_start_tx(void)
 {
 	cc2420_set_tx();
-	return 1;
+	return OZB_RADIO_SUCCESS;
 }
 
 /**
@@ -169,7 +170,7 @@ HAL_INLINE int8_t ozb_radio_start_tx(void)
 */
 HAL_INLINE int8_t ozb_radio_set_tx(void)
 {
-	return 1;
+	return OZB_RADIO_SUCCESS;
 }
 
 /**
@@ -194,7 +195,7 @@ HAL_INLINE uint8_t ozb_radio_busy_tx(void)
 HAL_INLINE int8_t ozb_radio_set_rx_callback(void (*rx_callback)(void))
 {
 	cc2420_set_rx_callback(rx_callback);
-	return 1;
+	return OZB_RADIO_SUCCESS;
 }
 
 /**
@@ -225,7 +226,7 @@ HAL_INLINE int8_t ozb_radio_set_tx_power(uint8_t pwr)
 	/* TODO: translate the value of pwr from PIB to radio related value! */
 	pwr = CC2420_PA_0DBM;
 	cc2420_set_pa(pwr);
-	return 1;
+	return OZB_RADIO_SUCCESS;
 }
 
 /**
@@ -239,7 +240,7 @@ HAL_INLINE int8_t ozb_radio_get_rx_power(uint8_t *energy)
 {
 	/*TODO: calculate according to standard*/
 	*energy = (uint8_t) cc2420_rssi_get();
-	return 1;
+	return OZB_RADIO_SUCCESS;
 }
 
 /**
@@ -253,7 +254,7 @@ HAL_INLINE int8_t ozb_radio_get_rx_power(uint8_t *energy)
 HAL_INLINE int8_t ozb_radio_sleep(void)
 {
 	cc2420_set_sleep(CC2420_RADIO_IDLE);
-	return 1;
+	return OZB_RADIO_SUCCESS;
 }
 
 /**
@@ -287,7 +288,7 @@ HAL_INLINE int8_t ozb_radio_wakeup(uint8_t status)
 HAL_INLINE int8_t ozb_radio_set_rx()
 {
 	cc2420_set_rx();
-	return 1;
+	return OZB_RADIO_SUCCESS;
 }
 
 /**
@@ -309,7 +310,7 @@ HAL_INLINE uint8_t ozb_radio_busy_rx()
 HAL_INLINE int8_t ozb_radio_set_channel(uint8_t ch)
 {
 	cc2420_set_channel(ch);/* chris: TODO:  return nothing?? */
-	return 1;
+	return OZB_RADIO_SUCCESS;
 }
 
 /**
@@ -331,7 +332,7 @@ HAL_INLINE int8_t ozb_radio_set_mac_address(uint8_t* add, uint8_t length)
 			cc2420_set_ex_mac_add(add);
 		else
 			return -1;
-	return 1;
+	return OZB_RADIO_SUCCESS;
 }
 
 /**
@@ -389,7 +390,7 @@ HAL_INLINE int8_t ozb_radio_set_cca_mode(uint8_t mode)
 	CC2420_REG_READ_CSn(CC2420_REG_MDMCTRL0, high, low)
 	CC2420_REG_WRITE_CSn(CC2420_REG_MDMCTRL0, high | mode, low);
 	/* chris: TODO: always success??? */
-	return 1;
+	return OZB_RADIO_SUCCESS;
 }
 
 HAL_INLINE uint8_t ozb_radio_get_cca(void)

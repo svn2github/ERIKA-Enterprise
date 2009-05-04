@@ -134,5 +134,61 @@ struct ozb_mac_pib_t {
 	uint32_t macTransactionPersistenceTime; /*TODO: check representation!*/
 };
 
-typedef uint8_t ozb_mpdu_t[125]; 
+#define OZB_MAC_MPDU_SIZE	125
+
+typedef uint8_t ozb_mpdu_t[OZB_MAC_MPDU_SIZE]; 
+typedef uint8_t *ozb_mpdu_ptr_t; 
+
+#define OZB_MAC_MPDU_PANID_SIZE			2
+#define OZB_MAC_MPDU_ADDRESS_SHORT_SIZE		2
+#define OZB_MAC_MPDU_ADDRESS_EXTD_SIZE		8
+#define OZB_MAC_MPDU_MHR_BASE_SIZE		3
+#define OZB_MAC_MPDU_MFR_SIZE			2
+
+#define OZB_MAC_MPDU_FRAME_CONTROL(mpdu) 		(mpdu)
+#define OZB_MAC_MPDU_SEQ_NUMBER(mpdu) 			((mpdu) + 2)
+#define OZB_MAC_MPDU_ADDRESSING_FIELDS(mpdu) 		((mpdu) + 3)
+#define OZB_MAC_MPDU_AUX_SECURITY_HEADER(mpdu, offset) 	((mpdu) + 3 + (offset))
+#define OZB_MAC_MPDU_MAC_PAYLOAD(mpdu, offset) 		((mpdu) + 3 + (offset))
+#define OZB_MAC_MPDU_MAC_FCS(mpdu, offset) 		((mpdu) + 3 + (offset))
+
+/*
+#define OZB_MAC_MPDU_SF_SPECIFICATION(mpdu, offset) 	((mpdu) + 3 + (offset))
+#define OZB_MAC_MPDU_GTS_FIELDS(mpdu, offset) 		((mpdu) + 5 + (offset))
+#define OZB_MAC_MPDU_PENDING_ADDRESSES(mpdu, offset) 	((mpdu) + 6 + (offset))
+#define OZB_MAC_MPDU_BEACON_PAYLOAD(mpdu, offset) 	((mpdu) + 7 + (offset))
+*/
+
+#define OZB_MAC_GTS_SPEC_SET_EMPTY(gts_spec) 		(*(gts_spec) = 0)
+
+#define OZB_MAC_GTS_SPEC_SET_DESCRIPTOR_COUNT(gts_spec, cnt) 	\
+	(*(gts_spec) = (*(gts_spec) & 0xF8) | ((cnt) & 0x07))	\
+
+#define OZB_MAC_GTS_SPEC_SET_PERMIT(gts_spec, permit) 		\
+	(*(gts_spec) = (*(gts_spec) & 0x7F) | ((permit)) << 7)	\
+
+
+#define OZB_MAC_PENDING_ADDR_SPEC_SET_EMPTY(pend_spec)	(*(pend_spec) = 0)
+
+#define OZB_MAC_PENDING_ADDR_SPEC_SET_SHORTS(pend_spec, cnt) 	\
+	(*(pend_spec) = (*(pend_spec) & 0xF8) | ((cnt) & 0x07))	\
+
+#define OZB_MAC_PENDING_ADDR_SPEC_SET_EXTDS(pend_spec, cnt) 		\
+	(*(pend_spec) = (*(pend_spec) & 0x8F) | (((cnt) & 0x07) << 4))	\
+
+enum ozb_mac_frame_type_t {
+	OZB_MAC_TYPE_BEACON 	= 0x0,
+	OZB_MAC_TYPE_DATA	= 0x1,
+	OZB_MAC_TYPE_ACK	= 0x2,
+	OZB_MAC_TYPE_COMMAND	= 0x3,
+};
+
+enum ozb_mac_addr_mode_t {
+	OZB_MAC_ADDRESS_NONE 	= 0x0,
+	OZB_MAC_ADDRESS_SHORT 	= 0x2,
+	OZB_MAC_ADDRESS_EXTD 	= 0x3,
+};
+
+
+
 #endif /* Header Protection */

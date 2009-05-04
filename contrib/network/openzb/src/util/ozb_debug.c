@@ -3,6 +3,10 @@
 #include <util/ozb_debug.h>
 #include <string.h>
 
+#ifdef OZB_DEBUG_TIME
+struct ozb_debug_stat_t ozb_debug_stats;
+#endif
+
 #define OZB_DEBUG_LOG_CONSOLE 0
 /* TODO: chris: shall waste memory for this check variable or not? */
 static uint8_t _ozb_debug_initialized = 0; 
@@ -11,8 +15,9 @@ int8_t ozb_debug_init(void)
 {
 	#ifdef OZB_DEBUG_TIME
 	/* TODO: change this hardcoding!!!!! */
-	if (daq_time_init(1000, 40000) < 0)
+	if (daq_time_init(40000) < 0)
 		return -1;
+	/* TODO: initialize ozb_debug_stats */
 	#endif
 
 	#ifdef OZB_DEBUG_LOG
@@ -41,6 +46,7 @@ int8_t ozb_debug_write(uint8_t *msg, uint16_t len)
 
 int8_t ozb_debug_print(const char *msg) 
 {
+	#ifdef OZB_DEBUG_LOG_HAS_PRINT
 	int8_t retv = 0;
 	const char *m = "\n\rOZB_DEBUG_LOG: ";
 
@@ -53,6 +59,9 @@ int8_t ozb_debug_print(const char *msg)
 				     strlen(msg));
 	}
 	return -1;
+	#else
+	return 1;
+	#endif /* OZB_DEBUG_LOG_DEVEL */
 }
 
 void ozb_debug_print_phycode(enum ozb_phy_code_t c, char *out) 

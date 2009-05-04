@@ -13,6 +13,9 @@
 
 #include <hal/ozb_compiler.h>
 
+#define OZB_RADIO_SUCCESS 0
+#define OZB_RADIO_ERROR_TODO 1
+
 #ifdef USE_CC2420		/* Texas Instruments CC2420 */
 #include <hal/ozb_radio_cc2420.h>
 
@@ -23,6 +26,5 @@
 #error "OZB_HAL ERROR: radio type not specified!"
 
 #endif	/* End Radio Selection */
-
 
 #endif /* Header Protection */

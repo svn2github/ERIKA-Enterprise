@@ -8,6 +8,8 @@ ifeq ($(findstring __LIB_OPENZB__,$(LIB_OPT)),__LIB_OPENZB__)
 ##
 
 EE_SRCS += contrib/network/openzb/src/util/ozb_debug.c
+EE_SRCS += contrib/network/openzb/src/hal/ozb_radio_cc2420.c
+
 EE_SRCS += contrib/network/openzb/src/phy/ozb_phy.c
 
 ifneq ($(findstring OZB_USE_ONLY_802154_PHY,$(EEOPT)), OZB_USE_ONLY_802154_PHY)

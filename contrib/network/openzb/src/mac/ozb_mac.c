@@ -64,84 +64,87 @@ static void set_default_mac_pib(void)
 	#endif /* OZB_RFD_DISABLE_OPTIONAL */
 }
 
-HAL_INLINE void set_frame_control(uint8_t frame_type, uint8_t security, 
-				  uint8_t frame_pending, uint8_t ack_request,
-				  uint8_t intra_pan, uint8_t dst_addr_mode,
-				  uint8_t src_addr_mode, uint8_t *mpdu) 
-{
-	mpdu[1] = (intra_pan << 6) | (ack_request << 5) | (frame_pending << 4) |
-		  (security << 3) | (frame_type << 0);				  
-	mpdu[0] = (src_addr_mode << 6) | (0x00 << 4) | 
-		  (dst_addr_mode << 2);
-}
-
-/******************************************************************************/
-/*                      MAC Layer General Functions                           */
-/******************************************************************************/
-int8_t ozb_mac_init(void) 
-{
-	int8_t retv = 1;
-
-	#ifdef OZB_DEBUG_LOG
-	if (ozb_debug_init() < 0)
-		return -OZB_MAC_DEBUG_INIT_ERROR;
-	#endif
-	ozb_rand_init();
-	retv = ozb_phy_init();
-	if (retv < 0)
-		return retv;
-	retv = ozb_mac_sf_init();
-	if (retv < 0)
-		return retv;
-	set_default_mac_pib();
-	//return -OZB_MAC_INIT_ERROR;
-	ozb_mac_status.mac_initialized = 1;
-	return 1;
-}
-
 /******************************************************************************/
 /*                       MAC Frames Build Functions                           */
 /******************************************************************************/
-//int8_t ozb_create_beacon(void) 
-//{
+HAL_INLINE void set_frame_control(uint8_t *fcf, uint8_t frame_type, 
+				  uint8_t security, uint8_t frame_pending, 
+				  uint8_t ack_request, uint8_t intra_pan, 
+				  uint8_t dst_addr_mode, uint8_t src_addr_mode) 
+{
+  	  fcf[0] = (intra_pan << 6) | (ack_request << 5) | 
+		   (frame_pending << 4) | (security << 3) | (frame_type << 0);	
+	  fcf[1] = (src_addr_mode << 6) | (dst_addr_mode << 2);
+} 
+
+HAL_INLINE uint8_t set_addressing_fields(uint8_t *af, 
+					 enum ozb_mac_addr_mode_t dst_mode,
+					 uint16_t dst_panid, void *dst_addr,
+					 enum ozb_mac_addr_mode_t src_mode,
+					 uint16_t src_panid, void *src_addr) 
+{
+	uint8_t offset = OZB_MAC_MPDU_PANID_SIZE;
+
+	if (dst_mode == OZB_MAC_ADDRESS_SHORT) {
+		af[0] = dst_panid;
+		memcpy(af + offset, (uint8_t *) dst_addr,
+		       OZB_MAC_MPDU_ADDRESS_SHORT_SIZE);
+		offset += OZB_MAC_MPDU_ADDRESS_SHORT_SIZE;
+	} else if (dst_mode == OZB_MAC_ADDRESS_EXTD) {
+		af[0] = dst_panid;
+		memcpy(af + offset, (uint8_t *) dst_addr,
+		       OZB_MAC_MPDU_ADDRESS_EXTD_SIZE);
+		offset += OZB_MAC_MPDU_ADDRESS_EXTD_SIZE;
+	}
+	if (src_mode == OZB_MAC_ADDRESS_SHORT) {
+		af[offset] = src_panid;
+		offset += OZB_MAC_MPDU_PANID_SIZE;
+		memcpy(af + offset, (uint8_t *) src_addr,
+		       OZB_MAC_MPDU_ADDRESS_SHORT_SIZE);
+	} else if (src_mode == OZB_MAC_ADDRESS_EXTD) {
+		af[offset] = src_panid;
+		offset += OZB_MAC_MPDU_PANID_SIZE;
+		memcpy(af + offset, (uint8_t *) src_addr,
+		       OZB_MAC_MPDU_ADDRESS_EXTD_SIZE);
+	}
+	return offset;
+}
+
+HAL_INLINE uint8_t set_superframe_specification(uint8_t *ss, uint8_t bo, 
+						uint8_t so, 
+						uint8_t final_cap_slot,
+						uint8_t ble, uint8_t pan_coord,	
+						uint8_t association_permit)
+{
+	ss[0] = (bo << 0) | (so << 4); 
+	ss[1] = (final_cap_slot << 0) | (ble) << 4 | (pan_coord << 6)  | 
+		(association_permit << 7);
+	return 2;
+}
+
+
+uint8_t ozb_gts_get_last_cap_stlot(void) 
+{
+	return 15;
+}
+
+uint8_t ozb_gts_set_gts_fields(uint8_t *gf) 
+{
+	OZB_MAC_GTS_SPEC_SET_EMPTY(gf);
+	/*
+	OZB_MAC_GTS_SPEC_SET_DESCRIPTOR_COUNT(gf, 0);
+	OZB_MAC_GTS_SPEC_SET_PERMIT(gf, 0);
+	*/
+	return 1;
+
 //	uint8_t i;
 //	uint8_t packet_length = 25;
 //	int data_count=0;
 //	uint8_t short_addr_pending=0;
 //	uint8_t long_addr_pending=0;
 //	uint8_t gts_directions=0x00;
-//	uint16_t frame_control;
 //
-//	beacon_addr_short *mac_beacon_addr_short_ptr;
-//
-//	mac_beacon_addr_short_ptr = (beacon_addr_short*) &mac_beacon_txmpdu.data;
-//		
-//	mac_beacon_txmpdu_ptr->length = 15;
-//	
-//	//creating the 16 bit frame control
-//	frame_control = set_frame_control(TYPE_BEACON,0,0,0,1,SHORT_ADDRESS,SHORT_ADDRESS);
-//		
-//	mac_beacon_txmpdu_ptr->frame_control1 = (uint8_t)( frame_control);
-//	mac_beacon_txmpdu_ptr->frame_control2 = (uint8_t)( frame_control >> 8);
-//	
-//	//assign the sequence number
-//	mac_beacon_txmpdu_ptr->seq_num = mac_PIB.macBSN;
-//	mac_PIB.macBSN++;
-//	
-//	//short address assignment
-//	mac_beacon_addr_short_ptr->destination_PAN_identifier= mac_PIB.macPANId;
-//	mac_beacon_addr_short_ptr->destination_address = 0xffff;
-//	mac_beacon_addr_short_ptr->source_address = mac_PIB.macShortAddress;
-//	if (mac_PIB.macShortAddress == 0x0000)
-//	{	//the device is the PAN Coordinator
-//		mac_beacon_addr_short_ptr->superframe_specification = set_superframe_specification(mac_PIB.macBeaconOrder,(uint8_t)mac_PIB.macSuperframeOrder,final_CAP_slot,0,1,mac_PIB.macAssociationPermit);
-//	}
-//	else
-//	{
-//		mac_beacon_addr_short_ptr->superframe_specification = set_superframe_specification(mac_PIB.macBeaconOrder,(uint8_t)mac_PIB.macSuperframeOrder,final_CAP_slot,0,1,mac_PIB.macAssociationPermit);
-//	}
-//	
-//	//assign the gts specification field
+////assign the gts specification field
 //	mac_beacon_txmpdu_ptr->data[8] = set_gts_specification(GTS_descriptor_count,mac_PIB.macGTSPermit);
 //	
 //	//assign the pending address specification field
@@ -306,7 +309,77 @@ int8_t ozb_mac_init(void)
 //	//long_addr_pending=0;
 //		
 //	mac_beacon_txmpdu_ptr->length = packet_length;
-//		
-//return;
-//
-//}
+//	return 0;
+}
+
+HAL_INLINE uint8_t set_pending_address_fields(uint8_t *pf)
+{
+	OZB_MAC_PENDING_ADDR_SPEC_SET_EMPTY(pf);
+	/* 
+	OZB_MAC_PENDING_ADDR_SPEC_SET_SHORTS(pf, 0);
+	OZB_MAC_PENDING_ADDR_SPEC_SET_EXTDS(pf, 0);
+	*/
+	return 1;
+}
+
+HAL_INLINE uint8_t set_beacon_payload(uint8_t *bp)
+{
+	return 0;
+}
+
+/******************************************************************************/
+/*                      MAC Layer General Functions                           */
+/******************************************************************************/
+int8_t ozb_mac_init(void) 
+{
+	int8_t retv = 1;
+
+	#ifdef OZB_DEBUG_LOG
+	if (ozb_debug_init() < 0)
+		return -OZB_MAC_DEBUG_INIT_ERROR;
+	#endif
+	ozb_rand_init();
+	retv = ozb_phy_init();
+	if (retv < 0)
+		return retv;
+	retv = ozb_mac_sf_init();
+	if (retv < 0)
+		return retv;
+	set_default_mac_pib();
+	//return -OZB_MAC_INIT_ERROR;
+	ozb_mac_status.mac_initialized = 1;
+	return 1;
+}
+
+uint8_t ozb_mac_create_beacon(ozb_mpdu_ptr_t beacon)
+{
+	uint8_t s;
+	ozb_mac_dev_addr_short_t addr = 0xFFFF;
+
+	/* TODO: change this hard-coding! */
+	set_frame_control(OZB_MAC_MPDU_FRAME_CONTROL(beacon), 
+			  OZB_MAC_TYPE_BEACON, 0, 0, 0, 1, 
+			  OZB_MAC_ADDRESS_SHORT, OZB_MAC_ADDRESS_SHORT);
+	*OZB_MAC_MPDU_SEQ_NUMBER(beacon) = ozb_mac_pib.macBSN++;
+	/* TODO: change this hard-coding: what do I set for source_PANID? */	
+	s = set_addressing_fields(OZB_MAC_MPDU_ADDRESSING_FIELDS(beacon),
+				  OZB_MAC_ADDRESS_SHORT, ozb_mac_pib.macPANId, 
+				  (void *) &addr, OZB_MAC_ADDRESS_SHORT, 0, 
+				  &(ozb_mac_pib.macShortAddress));
+	/* TODO: think to security infos? */
+	/* TODO: change this hard-coding: what do I set for BLE? */	
+	s += set_superframe_specification(OZB_MAC_MPDU_MAC_PAYLOAD(beacon, s),
+					  ozb_mac_pib.macBeaconOrder, 
+					  ozb_mac_pib.macSuperframeOrder, 
+					  ozb_gts_get_last_cap_stlot(), 0, 
+					  ozb_mac_status.is_coordinator, 
+					  ozb_mac_pib.macAssociationPermit);
+	s += ozb_gts_set_gts_fields(OZB_MAC_MPDU_MAC_PAYLOAD(beacon, s));
+	s += set_pending_address_fields(OZB_MAC_MPDU_MAC_PAYLOAD(beacon, s));
+	s += set_beacon_payload(OZB_MAC_MPDU_MAC_PAYLOAD(beacon, s));
+	/* TODO: compute FCS , use auto gen? */
+	//*((uint16_t *) OZB_MAC_MPDU_MAC_FCS(beacon, s)) = 0;
+	//s += OZB_MAC_MPDU_MHR_BASE_SIZE + OZB_MAC_MPDU_MFR_SIZE;
+	s += OZB_MAC_MPDU_MHR_BASE_SIZE;
+	return s;
+}

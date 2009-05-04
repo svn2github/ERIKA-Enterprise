@@ -4,8 +4,14 @@
 #include <mac/ozb_mac.h>
 #include <phy/ozb_phy.h>
 
-#define OZB_aBaseSuperframeDuration_ticks 48 /**< OZB_aBaseSuperframeDuration / 
+#define OZB_aBaseSlotDuration_btick	  3  /**< OZB_aBaseSlotDuration / 
+						  OZB_aUnitBackoffPeriod */ 
+#define OZB_aBaseSuperframeDuration_btick 48 /**< OZB_aBaseSuperframeDuration / 
 						  OZB_aUnitBackoffPeriod */
+
+#define OZB_MAC_GET_BI(bo) ((1UL << (bo)) * OZB_aBaseSuperframeDuration_btick)
+#define OZB_MAC_GET_SD(so) ((1UL << (so)) * OZB_aBaseSuperframeDuration_btick)
+#define OZB_MAC_GET_TS(so) ((1UL << (so)) * OZB_aBaseSlotDuration_btick)
 
 enum ozb_mac_state_id_t {
 	OZB_MAC_SF_OFF 	= 0,	/**< Superframe is not present. */
@@ -25,7 +31,7 @@ struct ozb_mac_flags_t {
 extern struct ozb_mac_pib_t ozb_mac_pib;
 extern struct ozb_mac_flags_t ozb_mac_status;
 
-
+uint8_t ozb_mac_create_beacon(ozb_mpdu_ptr_t beacon);
 
 int8_t ozb_mac_sf_init(void);
 void ozb_mac_sf_start(uint32_t offset);

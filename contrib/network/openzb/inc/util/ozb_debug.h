@@ -87,23 +87,50 @@
 int8_t ozb_debug_init(void);
 
 #ifdef OZB_DEBUG_TIME
-HAL_INLINE void ozb_debug_time_tick(void) 
+
+enum ozb_debug_tim_clock_id_t {
+	OZB_DEBUG_TIME_CLOCK_BI = 0,
+	OZB_DEBUG_TIME_CLOCK_DEVEL ,
+	OZB_DEBUG_TIME_CLOCK_NUMBER,
+};
+
+#define OZB_DEBUG_STAT_STRLEN 	26	/**<head(3)+tail(3) + (DAQ_TIME_STRLEN *
+					     OZB_DEBUG_TIME_CLOCK_NUMBER) */
+
+struct ozb_debug_stat_t {
+	struct daq_time_t time_clock[OZB_DEBUG_TIME_CLOCK_NUMBER];
+};
+
+extern struct ozb_debug_stat_t ozb_debug_stats;
+
+HAL_INLINE int8_t ozb_debug_time_start(uint8_t ck_id) 
 {
-	daq_time_reset(OZB_DEBUG_TIME_CLOCK_ID);
+	return daq_time_start(ck_id);
 }
 
-HAL_INLINE uint32_t ozb_debug_time_tock(void) 
+HAL_INLINE uint8_t ozb_debug_time_get(uint8_t ck_id) 
 {
-	struct daq_time_t t;
+	return daq_time_get(ck_id, ozb_debug_stats.time_clock + ck_id);
+}
 
-	daq_time_get(OZB_DEBUG_TIME_CLOCK_ID, &t);
-	return daq_time_2ticks(&t);
-}
-HAL_INLINE uint32_t ozb_debug_time_tick2us(uint32_t ticks)
+
+HAL_INLINE void ozb_debug_stat2str(uint8_t *out) 
 {
-	/* TODO: change this hardcoding!!!!! */
-	return ticks / 40;
+	uint8_t i;
+
+	*(out++) = 0x3C;	/* HEADER */
+	for (i = 0; i < OZB_DEBUG_TIME_CLOCK_NUMBER; i++, out+=DAQ_TIME_STRLEN) 
+		daq_time_2str(ozb_debug_stats.time_clock + i, out);
+	*(out++) = 0x3E;	/* TRAILER */
 }
+
+HAL_INLINE uint32_t ozb_debug_time_get_us(uint8_t ck_id) 
+{
+	daq_time_get(ck_id, ozb_debug_stats.time_clock + ck_id);
+	return daq_time_2us(ozb_debug_stats.time_clock + ck_id);
+}
+
+
 #endif /* OZB_DEBUG_TIME */
 
 #ifdef OZB_DEBUG_LOG
