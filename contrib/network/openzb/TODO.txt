@@ -1,0 +1,34 @@
+********************************************************************************
+                                 OpenZB TODOs 
+********************************************************************************
+
+GENERAL:
+	- think some handle (function pointers?) to provide an easy way to 
+	  change the protocol behaviours (i.e. for baccarat, etc.)
+
+ozb_mac.c (Mac Core):
+	- implement the sending CSMA and GTS queues
+	- implement the frame building functions (data, cmd, ack)
+	- manage the possibility to have auto ack?
+	- put at this layer the phy callback on receive and parse the mpdus!
+
+ozb_mac_mcps.c (MCPS):
+	- implement send data function and the receive one.
+
+ozb_mac_mlme.c (MLME):
+	- complete a first subset of functionalities
+
+ozb_mac_superframe.c (Beacon Enabled mode specific):
+	- how to fully use the design with the ozb_radio for mac? 
+	  (backoff period task for slotted csma, etc.)
+	- send in GTS and CSMA slotted!
+
+ozb_mac_gts_mechanism.c (GTS machine):
+	- to think (DB of GTS, descriptor management, etc.)
+
+TEST: 
+	- need to test all the mechanisms
+
+LOG: 
+	- need to log some information for debugging but also for 
+	  collecting experimental results (ozb logs).
