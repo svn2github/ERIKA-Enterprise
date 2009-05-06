@@ -125,7 +125,7 @@ int8_t ozb_MLME_SET_confirm(enum ozb_mac_code_t status,
         /*TODO: enough?*/   uint16_t PIBAttributeIndex);
 
 #ifndef OZB_RFD_DISABLE_OPTIONAL
-int8_t ozb_MLME_START_request(uint8_t PANId, uint8_t LogicalChannel,
+int8_t ozb_MLME_START_request(uint16_t PANId, uint8_t LogicalChannel,
 			      uint8_t ChannelPage, uint32_t StartTime,
 			      uint8_t BeaconOrder, uint8_t SuperframeOrder,
 			      uint8_t PANCoordinator, 

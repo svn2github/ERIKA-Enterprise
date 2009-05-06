@@ -11,4 +11,7 @@
 #ifndef __ozb_memory_h__
 #define __ozb_memory_h__
 #include "cqueue.h"	/**< Circular queues, from the memory contrib library.*/
-#endif
+#include "list.h"	/**< List, from the memory contrib library.*/
+
+#endif /* Header Protection */
+

@@ -3,32 +3,40 @@
 ********************************************************************************
 
 GENERAL:
-	- think some handle (function pointers?) to provide an easy way to 
+	- *2* think some handle (function pointers?) to provide an easy way to 
 	  change the protocol behaviours (i.e. for baccarat, etc.)
 
 ozb_mac.c (Mac Core):
-	- implement the sending CSMA and GTS queues
-	- implement the frame building functions (data, cmd, ack)
-	- manage the possibility to have auto ack?
-	- put at this layer the phy callback on receive and parse the mpdus!
+	- *7* put at this layer the phy callback on receive and parse the mpdus!
+	- *3* implement the sending CSMA and GTS queues
+	- *3* implement the frame building functions (data, cmd, ack)
+	- *1* manage the possibility to have auto ack?
 
 ozb_mac_mcps.c (MCPS):
-	- implement send data function and the receive one.
+	- *3* implement send data function and the receive one.
 
 ozb_mac_mlme.c (MLME):
-	- complete a first subset of functionalities
+	- *1* complete a first subset of functionalities
 
 ozb_mac_superframe.c (Beacon Enabled mode specific):
-	- how to fully use the design with the ozb_radio for mac? 
+	- *8* Generalize the code: how do I choose I'm coord or device? 
+	  (execution_time +  opzional compilation time)
+	- *7* Implement the SF on the device side (parse beacon?)
+	- *2* how to fully use the design with the ozb_radio for mac? 
 	  (backoff period task for slotted csma, etc.)
-	- send in GTS and CSMA slotted!
+	- *4* send in GTS and CSMA slotted!
 
-ozb_mac_gts_mechanism.c (GTS machine):
-	- to think (DB of GTS, descriptor management, etc.)
+ozb_mac_gts.c (GTS machine):
+	- *7* Management of the GTS information device side (parsing beacon) 
+	- *1* refine the gts_add_entry function to be compliant to the std 
+	  (check the min cap size to be there!) 
+	- *2* implement a gts_remove_entry functionality
+	- *1* perform gts maintenance: allocations, deallocations
+
 
 TEST: 
-	- need to test all the mechanisms
+	- *1* need to test all the mechanisms
 
 LOG: 
-	- need to log some information for debugging but also for 
+	- *1* need to log some information for debugging but also for 
 	  collecting experimental results (ozb logs).

@@ -57,7 +57,7 @@ int8_t cc2420_radio_init(uint8_t port)
 	CC2420_CLEAR_PIN(CC2420_RESETn);//CC2420_RESETn = 0;
 	CC2420_SET_PIN(CC2420_VREG_EN);//CC2420_VREG_EN = 1;
 	cc2420_delay_us(1000);
-	CC2420_SET_PIN(CC2420_RESETn)//CC2420_RESETn = 1;
+	CC2420_SET_PIN(CC2420_RESETn);//CC2420_RESETn = 1;
 	cc2420_delay_us(2000);
 
 	/* turn on the crystal oscillator */
@@ -405,7 +405,11 @@ COMPILER_ISR(CC2420_INTERRUPT_NAME)
 void irq_cc2420_type2(void)
 #endif
 {
+	//debug_print("ISR CC2420: ");
 	CC2420_CLEAR_PIN(CC2420_INTERRUPT_FLAG); //CC2420_INTERRUPT_FLAG = 0;
 	if (rx_callback != NULL) 
 		rx_callback();
+	#if defined __AVR5__
+	ActivateTask(dummy_process);
+	#endif
 }

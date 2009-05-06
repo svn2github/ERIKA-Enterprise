@@ -34,7 +34,7 @@ int8_t ozb_MLME_SET_request(enum ozb_mac_pib_id_t PIBAttribute,
 }
 
 #ifndef OZB_RFD_DISABLE_OPTIONAL
-int8_t ozb_MLME_START_request(uint8_t PANId, uint8_t LogicalChannel,
+int8_t ozb_MLME_START_request(uint16_t PANId, uint8_t LogicalChannel,
 			      uint8_t ChannelPage, uint32_t StartTime,
 			      uint8_t BeaconOrder, uint8_t SuperframeOrder,
 			      uint8_t PANCoordinator, 

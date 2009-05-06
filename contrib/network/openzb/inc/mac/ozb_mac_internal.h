@@ -33,6 +33,10 @@ extern struct ozb_mac_flags_t ozb_mac_status;
 
 uint8_t ozb_mac_create_beacon(ozb_mpdu_ptr_t beacon);
 
+int8_t ozb_mac_gts_init(void); 
+uint8_t ozb_mac_gts_last_cap_slot(void); 
+uint8_t ozb_mac_gts_set_gts_fields(uint8_t *gf);
+
 int8_t ozb_mac_superframe_init(void);
 void ozb_mac_superframe_start(uint32_t offset);
 void ozb_mac_superframe_stop(void); 

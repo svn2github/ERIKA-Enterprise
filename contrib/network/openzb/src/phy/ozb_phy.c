@@ -279,7 +279,7 @@ int8_t ozb_PLME_SET_TRX_STATE_request(enum ozb_phy_code_t state)
 	#ifdef OZB_DEBUG_LOG
 	char s[100];
 	char s1[30];
-	ozb_debug_print_phycode(state, s1);
+	ozb_debug_sprint_phycode(state, s1);
 	sprintf(s, "PLME_SET_TRX_STATE_request(%s)", s1);
 	ozb_debug_print(s);
 	#endif

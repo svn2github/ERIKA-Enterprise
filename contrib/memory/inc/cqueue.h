@@ -21,12 +21,10 @@ typedef struct cqueue_t {
 	uint16_t front;		/**< Pointer to the head of the queue.*/
 	uint16_t count;		/**< Number of element in the queue. */
 	uint16_t length;	/**< The length of the circular queue. */
-	uint16_t data_size;	/**< The size of the a queue element. */
+	uint16_t data_size;	/**< The size of a queue element. */
 	uint8_t *data;		/**< Pointer to the storage for the elements. */
 } cqueue_t;
 
-
-#define CQUEUE_CREATE_STATIC CQUEUE_CREATE_STATIC_PUBLIC
 
 /** 
 * @brief Static circular queue allocation
@@ -50,21 +48,21 @@ typedef struct cqueue_t {
 * @param[in] type 	The data type of the queue elements.
 * @param[in] length 	The length of the queue, max number of elements.
 */
-#define CQUEUE_CREATE_STATIC_PUBLIC(name, type, length)	\
-static type cqueue_data_##name[length];			\
-cqueue_t name = {					\
-	0, 						\
-	0, 						\
-	length, 					\
-	sizeof(type), 					\
-	(uint8_t *) cqueue_data_##name			\
-}; 							\
+#define CQUEUE_DEFINE(name, type, length)	\
+static type cqueue_data_##name[length];		\
+cqueue_t name = {				\
+	0, 					\
+	0, 					\
+	length, 				\
+	sizeof(type), 				\
+	(uint8_t *) cqueue_data_##name		\
+}; 						\
 
 
 /** 
 * @brief Static circular queue allocation
 *
-* Same to \ref CQUEUE_CREATE_STATIC_PUBLIC, but in this case the keyword 
+* Same to \ref CQUEUE_DEFINE, but in this case the keyword 
 * \c static is used in front of \c name. 
 * 
 * \todo If used within a function this declare two persistent variable due to
@@ -74,7 +72,7 @@ cqueue_t name = {					\
 * @param[in] type 	The data type of the queue elements.
 * @param[in] length 	The length of the queue, max number of elements.
 */
-#define CQUEUE_CREATE_STATIC_PRIVATE(name, type, length)\
+#define CQUEUE_DEFINE_STATIC(name, type, length)	\
 static type cqueue_data_##name[length];			\
 static cqueue_t name = {				\
 	0, 						\
@@ -83,14 +81,6 @@ static cqueue_t name = {				\
 	sizeof(type), 					\
 	(uint8_t *) cqueue_data_##name			\
 }; 							\
-
-
-/** 
-* @name Error Codes
-* @{ */
-#define CQUEUE_EMPTY 	1	/**< Empty queue. */
-#define CQUEUE_FULL 	2	/**< Full queue. */
-/**  @} */
 
 
 /** 
@@ -169,49 +159,78 @@ COMPILER_INLINE uint16_t cqueue_get_datasize(cqueue_t *q)
 /** 
 * @brief Get first element
 *
-* Try to get the first element of the queue without removing.
+* Get the reference to first element of the queue without removing.
 * 
 * @param[in] q 	The circular queue.
-* @param[out] p The destination pointer for the retrieved element.
 * 
-* @return A negative error code is returned in case of failure.
+* @return A pointer to the element or 0 if the queue is empty.
 */
-int8_t cqueue_first(cqueue_t *q, uint8_t *p);
+COMPILER_INLINE void *cqueue_first(cqueue_t *q) 
+{
+	if (q->count == 0)
+		return 0;
+	return (void *) (q->data + (q->front * q->data_size));
+}
+
 
 /** 
 * @brief Get last element
 * 
-* Try to get the last element of the queue without removing.
+* Gget the reference to the last element of the queue without removing.
 * 
 * @param[in] q 	The circular queue.
-* @param[out] p The destination pointer for the retrieved element.
 * 
-* @return A negative error code is returned in case of failure.
+* @return A pointer to the element or 0 if the queue is empty.
 */
-int8_t cqueue_last(cqueue_t *q, uint8_t *p); 
+COMPILER_INLINE void *cqueue_last(cqueue_t *q) 
+{
+	if (q->count == 0)
+		return 0;
+	return (void *) (q->data + 
+	       (((q->front + q->count) % q->length) * q->data_size));
+}
 
 /** 
 * @brief Push in the queue
 * 
 * Insert an element in the circular queue if this is not full.
+* The function attempt to return a reference to a free element in the queue
+* in which the data has to be stored.
 * 
 * @param[in] q 	The circular queue.
-* @param[out] p The destination pointer for the retrieved element.
 * 
-* @return A negative error code is returned in case of failure.
+* @return A pointer to the element or 0 if the queue is full.
 */
-int8_t cqueue_push(cqueue_t *q, uint8_t *p);
+COMPILER_INLINE void *cqueue_push(cqueue_t *q)
+{
+	if (q->count == q->length)
+		return 0;
+	return (void *) (q->data + 
+	       (((q->front + (q->count)++) % q->length) * q->data_size));
+}
+
 
 /** 
 * @brief Pop from the queue
 * 
 * Extract an element from the circular queue if this is not empty.
+* The function attempt to return a reference to the extracted element of queue,
+* in which the data are to be stored, logically removing it from the queue.
 * 
 * @param[in] q 	The circular queue.
-* @param[out] p The destination pointer for the retrieved element.
 * 
-* @return A negative error code is returned in case of failure.
+* @return A pointer to the element or 0 if the queue is empty.
 */
-int8_t cqueue_pop(cqueue_t *q, uint8_t *p);
+COMPILER_INLINE void *cqueue_pop(cqueue_t *q)
+{
+	void *p;
+
+	if (q->count == 0)
+		return 0;
+	p = (void *) (q->data + (q->front * q->data_size));
+	q->front = (q->front + 1) % q->length;
+	q->count -= 1;
+	return p;
+}
 
 #endif /* Header Protection */

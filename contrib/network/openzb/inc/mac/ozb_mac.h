@@ -54,6 +54,9 @@ do {							\
 #define OZB_MAC_GTS_SPEC_SET_PERMIT(gts_spec, permit) 			\
 	(*(gts_spec) = (*(gts_spec) & 0x7F) | ((permit)) << 7)		\
 
+#define OZB_MAC_GTS_DIRECTION_SET(gts_dirs, id, val) 			   \
+	(*(gts_dirs) = (*(gts_dirs) & (~(0x1 << (id))))	| ((val)) << (id)) \
+
 
 #define OZB_MAC_PENDING_ADDR_SPEC_SET_EMPTY(pend_spec)			\
 	(*(pend_spec) = 0)						\

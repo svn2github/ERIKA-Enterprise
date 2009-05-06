@@ -92,6 +92,9 @@ COMPILER_INLINE int8_t ozb_radio_slotted_csma_init(void)
 	return 1;
 }
 
+int8_t ozb_radio_store_beacon(ozb_mpdu_ptr_t bcn, uint8_t size);
+int8_t ozb_radio_send_beacon(void);
+
 int8_t ozb_radio_store_data(uint8_t *buf, uint8_t len);
 int8_t ozb_radio_send_data(void);
 

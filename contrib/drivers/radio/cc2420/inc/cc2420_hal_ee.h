@@ -141,28 +141,23 @@
 #define CC2420_INTERRUPT_EDGE_POLARITY	 INTCON2bits.INT0EP
 #endif
 
+#endif	/* End default booard selection for ISR */
+
 #define CC2420_SET_PIN_IN(PIN) {\
     DSPIC_PIN = 1;\
 }
 
-#define CC2420_SET_PIN_OUT(PIN) {\
-    DSPIC_PIN = 0;\
-}
-#define CC2420_SET_INT_POL_HIGHT() CC2420_INTERRUPT_EDGE_POLARITY = 0
+#define CC2420_SET_PIN_OUT(PIN) (DSPIC_PIN = 0)
 
-#define CC2420_SET_INT_POL_LOW() CC2420_INTERRUPT_EDGE_POLARITY = 1
+#define CC2420_SET_INT_POL_HIGHT() (CC2420_INTERRUPT_EDGE_POLARITY = 0)
 
-#define CC2420_SET_PIN(PIN) {\
-	PIN = 1;\
-}
-#define CC2420_CLEAR_PIN(PIN) {\
-	PIN = 0;\
-}
+#define CC2420_SET_INT_POL_LOW() (CC2420_INTERRUPT_EDGE_POLARITY = 1)
 
-#define CC2420_GET_PIN(PIN) PIN
+#define CC2420_SET_PIN(PIN) ((PIN) = 1)
 
+#define CC2420_CLEAR_PIN(PIN) ((PIN) = 0)
 
-#endif	/* End default booard selection for ISR */
+#define CC2420_GET_PIN(PIN) (PIN)
 
 int8_t	cc2420_hal_init(void);
 void	cc2420_delay_us(uint16_t delay_count);
