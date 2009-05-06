@@ -28,6 +28,7 @@ CPU mySystem {
 		};	
 		EE_OPT = "USE_CONSOLE";
 		EE_OPT = "USE_CONSOLE_SERIAL";
+		EE_OPT = "__USE_UART__";
 		
 	};
 
