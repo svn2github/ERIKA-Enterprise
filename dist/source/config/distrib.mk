@@ -6,7 +6,7 @@
 # For that reason, we include the distrib.mk file of the binary distribution
 # here; moreover, all the dependencies are :: rule
 
-include ../binary/config/distrib.mk
+include config/distrib_bin.mk
 
 distrib_opt_base:: \
 		ee_$(DIST)/pkg \
@@ -245,18 +245,14 @@ distrib_opt___ST_STA2051__:: \
 
 
 
-ifeq ($(findstring __EVALUATOR7T__,$(ALLOPTIONS)) , __EVALUATOR7T__)
-ifeq ($(findstring __FP__,$(ALLOPTIONS)) , __FP__)
-distrib_files_EVALUATOR7T += \
+distrib_opt___EVALUATOR7T_EXAMPLES__:: \
 	ee_$(DIST)/examples/arm7_evaluator7t/fp \
 	ee_$(DIST)/examples/arm7_evaluator7t/fp/template.xml \
 	ee_$(DIST)/examples/arm7_evaluator7t/fp/code.c \
 	ee_$(DIST)/examples/arm7_evaluator7t/fp/conf.oil \
 	ee_$(DIST)/examples/arm7_evaluator7t/fp/thumb.c
-endif
 
-#ifeq ($(findstring __EDF__,$(ALLOPTIONS)) , __EDF__)
-#distrib_files_EVALUATOR7T += \
+#distrib_files_EVALUATOR7T_EXAMPLES += \
 #	ee_$(DIST)/examples/arm7_evaluator7t/edf \
 #	ee_$(DIST)/examples/arm7_evaluator7t/edf/cfg_e7t.h \
 #	ee_$(DIST)/examples/arm7_evaluator7t/edf/code.c \
@@ -268,9 +264,6 @@ endif
 #	ee_$(DIST)/examples/arm7_evaluator7t/edf/makefile \
 #	ee_$(DIST)/examples/arm7_evaluator7t/edf/thumb.c \
 #	ee_$(DIST)/examples/arm7_evaluator7t/edf/timer.c
-#endif
-endif
-
 
 distrib_opt___EVALUATOR7T__:: \
 		ee_$(DIST)/pkg/board/arm_evaluator7t \

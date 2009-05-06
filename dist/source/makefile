@@ -1,9 +1,10 @@
 # This is the makefile responsible for creating EE's binary distributions.
 
-include ../binary/config/arch.mk
+include config/arch.mk
 include config/conf.mk
 include config/post_scripts.mk
-include ../banner/banner.mk
+# Banner support is needed?
+#include ../banner/banner.mk
 
 ifdef DISTFILE
 include $(DISTFILE)
@@ -34,9 +35,9 @@ help::
 	@for x in $(ALL_DISTRIBUTIONS); do echo make DIST=$${x}; done
 	@echo
 	@echo
-	@echo to add a BANNER, use BANNER=bannername
-	@echo possible BANNERs: $(ALL_BANNERS)
-	@echo
+#	@echo to add a BANNER, use BANNER=bannername
+#	@echo possible BANNERs: $(ALL_BANNERS)
+#	@echo
 	@echo To generate distributions, I typically use:
 	@echo make DIST=NIOS2_ALL NIOS2_MOVE=Y
 	@echo make DIST=NIOS2_TESTCASE NIOS2_MOVE=Y
