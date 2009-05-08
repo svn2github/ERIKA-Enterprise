@@ -16,7 +16,7 @@
 * Start Compiler Selection section
 * \todo What is the global symbol for Erika Enterprise Kernel?
 */
-#ifdef __ERIKA__		/* Erika Abstract Compiler */
+#ifdef __ERIKA__	/* Erika Abstract Compiler */
 #include <ee.h>
 #include <hal/ozb_compiler_ee.h>
 

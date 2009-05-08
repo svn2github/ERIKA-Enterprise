@@ -89,7 +89,6 @@ uint8_t ozb_mac_gts_set_gts_fields(uint8_t *gf)
 		return s;
 	}
 	OZB_MAC_GTS_SPEC_SET_DESCRIPTOR_COUNT(gf, list_get_size(&gts_list));
-	//OZB_MAC_GTS_SPEC_SET_DESCRIPTOR_COUNT(gf, gts_stat.descriptor_count);
 	OZB_MAC_GTS_SPEC_SET_PERMIT(gf, ozb_mac_pib.macGTSPermit);
 	if (list_is_empty(&gts_list))
 		return s;

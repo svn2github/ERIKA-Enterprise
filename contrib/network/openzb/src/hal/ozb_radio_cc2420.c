@@ -11,23 +11,184 @@
 *
 */
 
-#include <hal/ozb_radio_cc2420.h>
-//#include <mac/ozb_mac_internal.h>
+#ifdef OZB_DEBUG_LOG
+#include <util/ozb_debug.h>
+#include <string.h>
+#include <stdio.h> //TODO: REMOVE together with the sprintf() !!!!!
+#endif
 
+#include <hal/ozb_radio_cc2420.h>
+#include <mac/ozb_mac_internal.h>
+
+/******************************************************************************/
+/*                      Radio MAC/PHY Private Data                            */
+/******************************************************************************/
 static ozb_mpdu_t beacon;
 static uint8_t beacon_size;
+static enum ozb_phy_code_t phy_status;
 
-int8_t ozb_radio_store_beacon(ozb_mpdu_ptr_t bcn, uint8_t size)
+/******************************************************************************/
+/*                         Radio MAC Public Functions                         */
+/******************************************************************************/
+int8_t ozb_radio_mac_create_beacon(void)
 {
-	if (size >= OZB_MAC_MPDU_SIZE)
+	/* TODO: chris: IDEA: We can use this symbol to force the 
+			ozb_radio_mac module to always use software mac */
+	#ifdef OZB_MAC_ALWAYS_SOFTWARE
+	#else
+	#endif
+	beacon_size = ozb_mac_create_beacon(beacon);
+	if (beacon_size >= OZB_MAC_MPDU_SIZE)
 		return -1;
-	memcpy(beacon, bcn, size);
-	beacon_size = size;
 	return 1;
 }
 
-int8_t ozb_radio_send_beacon(void)
+int8_t ozb_radio_mac_send_beacon(void)
 {
-	return ozb_radio_send((uint8_t *) beacon, beacon_size); 
+	/* TODO: chris: IDEA: We can use this symbol to force the 
+			ozb_radio_mac module to always use software mac */
+	#ifdef OZB_MAC_ALWAYS_SOFTWARE
+	#else
+	#endif
+	/* NOTE: this is not going through the ozb_PD_DATA function thus the
+		 exception caught is performed within  the radio_send!! */
+	/* TODO: is the error returned in the readio_send?? */
+	/* phy_status = OZB_PHY_SUCCESS; */
+	if (ozb_radio_send((uint8_t *) beacon, beacon_size) < 0) {
+		/* phy_status = ERROR_OF_THE_PD_DATA_CONFIRM; */
+		return -OZB_RADIO_ERR_PHY_FAILURE;
+	}
+	return -OZB_RADIO_ERR_NONE; 
 }
 
+/******************************************************************************/
+/*                         Radio PHY Public Functions                         */
+/******************************************************************************/
+enum ozb_phy_code_t ozb_radio_phy_get_status(void)
+{
+	return phy_status;
+}
+
+int8_t ozb_radio_phy_set_channel(uint8_t ch)
+{
+	int8_t retv;
+
+	retv = ozb_PLME_SET_request(OZB_PHY_CURRENT_CHANNEL, (void *) &ch);
+	if (retv < 0)
+		return retv;
+	if (phy_status != OZB_PHY_SUCCESS) /* Check Expected status */
+		return -OZB_RADIO_ERR_PHY_FAILURE;
+	return OZB_RADIO_ERR_NONE;
+}
+
+
+#ifndef OZB_USE_ONLY_802154_PHY	
+/******************************************************************************/
+/*                                                                            */
+/*                   PHY LAYER CALLBACKS: Indication + Confirms               */
+/*                                                                            */
+/******************************************************************************/
+
+/******************************************************************************/
+/*                 PD-Callback Definition (phy2mac SIDE)                      */
+/******************************************************************************/
+int8_t ozb_PD_DATA_confirm(enum ozb_phy_code_t status)
+{
+	#ifdef OZB_DEBUG_LOG
+	char s[100];
+	char s1[30];
+	ozb_debug_sprint_phycode(status, s1);
+	sprintf(s, "PD_DATA_confirm(%s)", s1);
+	ozb_debug_print(s);
+	#endif
+	return OZB_PHY_ERR_NONE;
+}
+ 
+int8_t ozb_PD_DATA_indication(uint8_t psduLength, uint8_t *psdu, 
+			      uint8_t ppduLinkQuality)
+{
+	#ifdef OZB_DEBUG_LOG
+	char s[100];
+	sprintf(s, "PD_DATA_indication(len=%u,*p=%u,lqi=%u)",
+		psduLength, (uint16_t) psdu, ppduLinkQuality);
+	ozb_debug_print(s);
+	#endif
+	/* TODO: use return value!!*/
+	ozb_mac_parse_received_mpdu(psdu, psduLength);
+	return OZB_PHY_ERR_NONE;
+}
+ 
+
+/******************************************************************************/
+/*               PLME-Callback Definition (phy2mac SIDE)                      */
+/******************************************************************************/
+int8_t ozb_PLME_CCA_confirm(enum ozb_phy_code_t status)
+{
+	#ifdef OZB_DEBUG_LOG
+	char s[100];
+	char s1[30];
+	ozb_debug_sprint_phycode(status, s1);
+	sprintf(s, "PLME_CCA_confirm(%s)", s1);
+	ozb_debug_print(s);
+	#endif
+	phy_status = status;
+	return OZB_PHY_ERR_NONE;
+}
+
+int8_t ozb_PLME_ED_confirm(enum ozb_phy_code_t status, uint8_t EnergyLevel)
+{
+	#ifdef OZB_DEBUG_LOG
+	char s[100];
+	char s1[30];
+	ozb_debug_sprint_phycode(status, s1);
+	sprintf(s, "PLME_ED_confirm(%s, el=%u)", s1, EnergyLevel);
+	ozb_debug_print(s);
+	#endif
+	phy_status = status;
+	return OZB_PHY_ERR_NONE;
+}
+
+int8_t ozb_PLME_GET_confirm(enum ozb_phy_code_t status, 
+			    enum ozb_phy_pib_id_t PIBAttribute, 
+			    void *PIBAttributeValue)
+{
+	#ifdef OZB_DEBUG_LOG
+	uint8_t value = *((uint8_t*)PIBAttributeValue);
+	char s[100];
+	char s1[30];
+	ozb_debug_sprint_phycode(status, s1);
+	sprintf(s, "PLME_GET_confirm(%s, a=%u, v=%u)", s1, PIBAttribute, value);
+	ozb_debug_print(s);
+	#endif
+	phy_status = status;
+	return OZB_PHY_ERR_NONE;
+}
+
+int8_t ozb_PLME_SET_TRX_STATE_confirm(enum ozb_phy_code_t status)
+{
+	#ifdef OZB_DEBUG_LOG
+	char s[100];
+	char s1[30];
+	ozb_debug_sprint_phycode(status, s1);
+	sprintf(s, "PLME_SET_TRX_STATE_confirm(%s)", s1);
+	ozb_debug_print(s);
+	#endif
+	phy_status = status;
+	return OZB_PHY_ERR_NONE;
+}
+
+int8_t ozb_PLME_SET_confirm(enum ozb_phy_code_t status, 
+			    enum ozb_phy_pib_id_t PIBAttribute)
+{
+	#ifdef OZB_DEBUG_LOG
+	char s[100];
+	char s1[30];
+	ozb_debug_sprint_phycode(status, s1);
+	sprintf(s, "PLME_SET_confirm(%s, a=%u)", s1, PIBAttribute);
+	ozb_debug_print(s);
+	#endif
+	phy_status = status;
+	return OZB_PHY_ERR_NONE;
+}
+
+#endif /* OZB_USE_ONLY_802154_PHY */

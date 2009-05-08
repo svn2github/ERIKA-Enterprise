@@ -1,4 +1,5 @@
 #include <mac/ozb_mac_internal.h>
+#include <osal/ozb_osal.h>
 #include <hal/ozb_radio.h>
 #include <hal/ozb_rand.h>
 #include <util/ozb_debug.h>
@@ -9,6 +10,12 @@
 /******************************************************************************/
 /*                          MAC Layer Private Data                            */
 /******************************************************************************/
+static ozb_mpdu_t rx_beacon;
+static ozb_mpdu_t rx_data;
+static ozb_mpdu_t rx_command;
+static uint16_t rx_beacon_length;
+static uint16_t rx_data_length;
+static uint16_t rx_command_length;
 
 /******************************************************************************/
 /*                          MAC Layer Public Data                             */
@@ -19,7 +26,60 @@ struct ozb_mac_pib_t ozb_mac_pib /*= {
 }*/;
 
 /******************************************************************************/
+/*                              MAC Layer TASK                                */
+/******************************************************************************/
+OZB_OSAL_TASK_ASYNC(MAC_PROCESS_RX_BEACON, 25);
+OZB_OSAL_TASK_ASYNC(MAC_PROCESS_RX_DATA, 20);
+OZB_OSAL_TASK_ASYNC(MAC_PROCESS_RX_COMMAND, 20);
+
+/* IMPORTANT NOTE: 
+ * The mutexes that might be used in the context of possible PHY tasks,
+ * that call the MAC notification functions, MUST be declared in the
+ * file "mac/ozb_mac_mutexes.h" as body of the macro 
+ * OZB_PHY_IMPORT_MAC_MUTEXES().
+*/
+OZB_OSAL_MUTEX(MAC_RX_BEACON_MUTEX, MAC_PROCESS_RX_BEACON);
+OZB_OSAL_MUTEX(MAC_RX_DATA_MUTEX, MAC_PROCESS_RX_COMMAND);
+OZB_OSAL_MUTEX(MAC_RX_COMMAND_MUTEX, MAC_PROCESS_RX_DATA);
+
+static void process_rx_beacon(void) 
+{
+}
+
+static void process_rx_data(void) 
+{
+}
+
+static void process_rx_command(void) 
+{
+}
+
+COMPILER_INLINE int8_t init_rx_tasks(void)
+{
+	int retv;
+
+	retv = ozb_osal_init(0); 
+	if (retv < 0)
+		return retv;
+	retv = ozb_osal_set_body(MAC_PROCESS_RX_BEACON, process_rx_beacon);
+	if (retv < 0)
+		return retv;
+	retv = ozb_osal_set_body(MAC_PROCESS_RX_DATA, process_rx_data);
+	if (retv < 0)
+		return retv;
+	retv = ozb_osal_set_body(MAC_PROCESS_RX_COMMAND, process_rx_command);
+	if (retv < 0)
+		return retv;
+	return 1;
+}
+
+/******************************************************************************/
+/*                                                                            */
 /*                      MAC Layer Private Functions                           */
+/*                                                                            */
+/******************************************************************************/
+/******************************************************************************/
+/*                          MAC General Functions                             */
 /******************************************************************************/
 static void set_default_mac_pib(void)
 {
@@ -143,21 +203,34 @@ COMPILER_INLINE uint8_t set_beacon_payload(uint8_t *bp)
 }
 
 /******************************************************************************/
-/*                      MAC Layer General Functions                           */
+/*                                                                            */
+/*                       MAC Layer Public Functions                           */
+/*                                                                            */
+/******************************************************************************/
+/******************************************************************************/
+/*                          MAC General Functions                             */
 /******************************************************************************/
 int8_t ozb_mac_init(void) 
 {
 	int8_t retv = 1;
 
-	#ifdef OZB_DEBUG_LOG
+	#ifdef OZB_DEBUG
 	if (ozb_debug_init() < 0)
-		return -OZB_MAC_DEBUG_INIT_ERROR;
+		return -OZB_MAC_ERR_DEBUG_INIT;
 	#endif
+	ozb_mac_status.mac_initialized = 0;
+	ozb_mac_status.is_coordinator= 0;
+	ozb_mac_status.beacon_enabled = 0;
+	ozb_mac_status.sf_initialized = 0;
+	ozb_mac_status.sf_context = 0;
 	ozb_rand_init();
 	retv = ozb_phy_init();
 	if (retv < 0)
 		return retv;
 	set_default_mac_pib();
+	retv = init_rx_tasks();
+	if (retv < 0)
+		return retv;
 	retv = ozb_mac_superframe_init();
 	if (retv < 0)
 		return retv;
@@ -169,6 +242,9 @@ int8_t ozb_mac_init(void)
 	return 1;
 }
 
+/******************************************************************************/
+/*                       MAC Frames Build Functions                           */
+/******************************************************************************/
 uint8_t ozb_mac_create_beacon(ozb_mpdu_ptr_t beacon)
 {
 	uint8_t s;
@@ -203,3 +279,47 @@ uint8_t ozb_mac_create_beacon(ozb_mpdu_ptr_t beacon)
 	s += OZB_MAC_MPDU_MHR_BASE_SIZE;
 	return s;
 }
+
+/******************************************************************************/
+/*                       MAC MPDU Parsing Functions                           */
+/******************************************************************************/
+void ozb_mac_parse_received_mpdu(uint8_t *psdu, uint8_t len)
+{
+	switch (OZB_MAC_MPDU_FRAME_CONTROL_GET_FRAME_TYPE(psdu)) {
+	case OZB_MAC_TYPE_BEACON :
+		if (ozb_osal_mutex_wait(MAC_RX_BEACON_MUTEX) < 0)
+			return; /* TODO: manage error? */
+		memcpy(rx_beacon, psdu, len);
+		rx_beacon_length = len;
+		ozb_osal_activate(MAC_PROCESS_RX_BEACON);
+		if (ozb_osal_mutex_signal(MAC_RX_BEACON_MUTEX) < 0)
+			return; /* TODO: manage error? */
+		break;
+	case OZB_MAC_TYPE_DATA :
+		if (ozb_osal_mutex_wait(MAC_RX_DATA_MUTEX) < 0)
+			return; /* TODO: manage error? */
+		memcpy(rx_data, psdu, len);
+		rx_data_length = len;
+		ozb_osal_activate(MAC_PROCESS_RX_DATA);
+		if (ozb_osal_mutex_signal(MAC_RX_DATA_MUTEX) < 0)
+			return; /* TODO: manage error? */
+		break;
+	case OZB_MAC_TYPE_COMMAND :
+		if (ozb_osal_mutex_wait(MAC_RX_COMMAND_MUTEX) < 0)
+			return; /* TODO: manage error? */
+		memcpy(rx_command, psdu, len);
+		rx_command_length = len;
+		ozb_osal_activate(MAC_PROCESS_RX_COMMAND);
+		if (ozb_osal_mutex_signal(MAC_RX_COMMAND_MUTEX) < 0)
+			return; /* TODO: manage error? */
+		break;
+	case OZB_MAC_TYPE_ACK :
+		break;
+	default:
+		break;
+	}
+}
+
+
+
+

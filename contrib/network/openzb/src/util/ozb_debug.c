@@ -64,168 +64,75 @@ int8_t ozb_debug_print(const char *msg)
 	#endif /* OZB_DEBUG_LOG_DEVEL */
 }
 
+#ifdef DO_CASE_STRCPY 	
+#undef DO_CASE_STRCPY 	
+#endif
+
+#define DO_CASE_STRCPY(x, out) 	\
+case x:				\
+strcpy((out), #x);		\
+break;				\
+
 void ozb_debug_sprint_phycode(enum ozb_phy_code_t c, char *out) 
 {
 	switch (c) {
-	case OZB_BUSY:
-		strcpy(out, "OZB_BUSY");
-		break;
-	case OZB_BUSY_RX:
-		strcpy(out, "OZB_BUSY_RX");
-		break;
-	case OZB_BUSY_TX:
-		strcpy(out, "OZB_BUSY_TX");
-		break;
-	case OZB_FORCE_TRX_OFF:
-		strcpy(out, "OZB_FORCE_TRX_OFF");
-		break;
-	case OZB_IDLE:
-		strcpy(out, "OZB_IDLE");
-		break;
-	case OZB_INVALID_PARAMETER:
-		strcpy(out, "OZB_INVALID_PARAMETER");
-		break;
-	case OZB_RX_ON:
-		strcpy(out, "OZB_RX_ON");
-		break;
-	case OZB_SUCCESS:
-		strcpy(out, "OZB_SUCCESS");
-		break;
-	case OZB_TRX_OFF:
-		strcpy(out, "OZB_TRX_OFF");
-		break;
-	case OZB_TX_ON:
-		strcpy(out, "OZB_TX_ON");
-		break;
-	case OZB_UNSUPPORTED_ATTRIBUTE:
-		strcpy(out, "OZB_UNSUPPORTED_ATTRIBUTE");
-		break;
-	case OZB_READ_ONLY:
-		strcpy(out, "OZB_READ_ONLY");
-		break;
+	DO_CASE_STRCPY(OZB_PHY_BUSY, out);
+	DO_CASE_STRCPY(OZB_PHY_BUSY_RX, out);
+	DO_CASE_STRCPY(OZB_PHY_BUSY_TX, out);
+	DO_CASE_STRCPY(OZB_PHY_FORCE_TRX_OFF, out);
+	DO_CASE_STRCPY(OZB_PHY_IDLE, out);
+	DO_CASE_STRCPY(OZB_PHY_INVALID_PARAMETER, out);
+	DO_CASE_STRCPY(OZB_PHY_RX_ON, out);
+	DO_CASE_STRCPY(OZB_PHY_SUCCESS, out);
+	DO_CASE_STRCPY(OZB_PHY_TRX_OFF, out);
+	DO_CASE_STRCPY(OZB_PHY_TX_ON, out);
+	DO_CASE_STRCPY(OZB_PHY_UNSUPPORTED_ATTRIBUTE, out);
+	DO_CASE_STRCPY(OZB_PHY_READ_ONLY, out);
 	}
 }
 
 void ozb_debug_sprint_maccode(enum ozb_mac_code_t c, char *out)
 {
 	switch (c) {
-	case OZB_MAC_SUCCESS:
-		strcpy(out, "OZB_MAC_SUCCESS");
-		break;
-	case OZB_MAC_PAN_AT_CAPACITY:
-		strcpy(out, "OZB_MAC_PAN_AT_CAPACITY");
-		break;
-	case OZB_MAC_PAN_ACCESS_DENIED:
-		strcpy(out, "OZB_MAC_PAN_ACCESS_DENIED");
-		break;
-	case OZB_MAC_COUNTER_ERROR:
-		strcpy(out, "OZB_MAC_COUNTER_ERROR");
-		break;
-	case OZB_MAC_IMPROPER_KEY_TYPE:
-		strcpy(out, "OZB_MAC_IMPROPER_KEY_TYPE");
-		break;
-	case OZB_MAC_IMPROPER_SECURITY_LEVEL:
-		strcpy(out, "OZB_MAC_IMPROPER_SECURITY_LEVEL");
-		break;
-	case OZB_MAC_UNSUPPORTED_LEGACY:
-		strcpy(out, "OZB_MAC_UNSUPPORTED_LEGACY");
-		break;
-	case OZB_MAC_UNSUPPORTED_SECURITY:
-		strcpy(out, "OZB_MAC_UNSUPPORTED_SECURITY");
-		break;
-	case OZB_MAC_BEACON_LOSS:
-		strcpy(out, "OZB_MAC_BEACON_LOSS");
-		break;
-	case OZB_MAC_CHANNEL_ACCESS_FAILURE:
-		strcpy(out, "OZB_MAC_CHANNEL_ACCESS_FAILURE");
-		break;
-	case OZB_MAC_DEFINED:
-		strcpy(out, "OZB_MAC_DEFINED");
-		break;
-	case OZB_MAC_DISABLE_TRX_FAIULURE:
-		strcpy(out, "OZB_MAC_DISABLE_TRX_FAIULURE");
-		break;
-	case OZB_MAC_FRAME_TOO_LONG:
-		strcpy(out, "OZB_MAC_FRAME_TOO_LONG");
-		break;
-	case OZB_MAC_SECURITY_ERROR:
-		strcpy(out, "OZB_MAC_SECURITY_ERROR");
-		break;
-	case OZB_MAC_INVALID_GTS:
-		strcpy(out, "OZB_MAC_INVALID_GTS");
-		break;
-	case OZB_MAC_INVALID_HANDLE:
-		strcpy(out, "OZB_MAC_INVALID_HANDLE");
-		break;
-	case OZB_MAC_INVALID_PARAMETER:
-		strcpy(out, "OZB_MAC_INVALID_PARAMETER");
-		break;
-	case OZB_MAC_NO_ACK:
-		strcpy(out, "OZB_MAC_NO_ACK");
-		break;
-	case OZB_MAC_NO_BEACON:
-		strcpy(out, "OZB_MAC_NO_BEACON");
-		break;
-	case OZB_MAC_NO_DATA:
-		strcpy(out, "OZB_MAC_NO_DATA");
-		break;
-	case OZB_MAC_NO_SHORT_ADDRESS:
-		strcpy(out, "OZB_MAC_NO_SHORT_ADDRESS");
-		break;
-	case OZB_MAC_OUT_OF_CAP:
-		strcpy(out, "OZB_MAC_OUT_OF_CAP");
-		break;
-	case OZB_MAC_PAN_ID_CONFLICT:
-		strcpy(out, "OZB_MAC_PAN_ID_CONFLICT");
-		break;
-	case OZB_MAC_REALIGNMENT:
-		strcpy(out, "OZB_MAC_REALIGNMENT");
-		break;
-	case OZB_MAC_TRANSACTION_EXPIRED:
-		strcpy(out, "OZB_MAC_TRANSACTION_EXPIRED");
-		break;
-	case OZB_MAC_TRANSACTION_OVERFLOW:
-		strcpy(out, "OZB_MAC_TRANSACTION_OVERFLOW");
-		break;
-	case OZB_MAC_TX_ACTIVE:
-		strcpy(out, "OZB_MAC_TX_ACTIVE");
-		break;
-	case OZB_MAC_UNAVAILABLE_KEY:
-		strcpy(out, "OZB_MAC_UNAVAILABLE_KEY");
-		break;
-	case OZB_MAC_UNSUPPORTED_ATTRIBUTE:
-		strcpy(out, "OZB_MAC_UNSUPPORTED_ATTRIBUTE");
-		break;
-	case OZB_MAC_INVALID_ADDRESS:
-		strcpy(out, "OZB_MAC_INVALID_ADDRESS");
-		break;
-	case OZB_MAC_ON_TIME_TOO_LONG:
-		strcpy(out, "OZB_MAC_ON_TIME_TOO_LONG");
-		break;
-	case OZB_MAC_PAST_TIME:
-		strcpy(out, "OZB_MAC_PAST_TIME");
-		break;
-	case OZB_MAC_TRACKING_OFF:
-		strcpy(out, "OZB_MAC_TRACKING_OFF");
-		break;
-	case OZB_MAC_INVALID_INDEX:
-		strcpy(out, "OZB_MAC_INVALID_INDEX");
-		break;
-	case OZB_MAC_LIMIT_REACHED:
-		strcpy(out, "OZB_MAC_LIMIT_REACHED");
-		break;
-	case OZB_MAC_READ_ONLY:
-		strcpy(out, "OZB_MAC_READ_ONLY");
-		break;
-	case OZB_MAC_SCAN_IN_PROGRESS:
-		strcpy(out, "OZB_MAC_SCAN_IN_PROGRESS");
-		break;
-	case OZB_MAC_SUPERFRAME_OVERLAP:
-		strcpy(out, "OZB_MAC_SUPERFRAME_OVERLAP");
-		break;
-	case OZB_MAC_BEACON_LOST:
-		strcpy(out, "OZB_MAC_BEACON_LOST");
-		break;
+	DO_CASE_STRCPY(OZB_MAC_SUCCESS, out);
+	DO_CASE_STRCPY(OZB_MAC_PAN_AT_CAPACITY, out);
+	DO_CASE_STRCPY(OZB_MAC_PAN_ACCESS_DENIED, out);
+	DO_CASE_STRCPY(OZB_MAC_COUNTER_ERROR, out);
+	DO_CASE_STRCPY(OZB_MAC_IMPROPER_KEY_TYPE, out);
+	DO_CASE_STRCPY(OZB_MAC_IMPROPER_SECURITY_LEVEL, out);
+	DO_CASE_STRCPY(OZB_MAC_UNSUPPORTED_LEGACY, out);
+	DO_CASE_STRCPY(OZB_MAC_UNSUPPORTED_SECURITY, out);
+	DO_CASE_STRCPY(OZB_MAC_BEACON_LOSS, out);
+	DO_CASE_STRCPY(OZB_MAC_CHANNEL_ACCESS_FAILURE, out);
+	DO_CASE_STRCPY(OZB_MAC_DEFINED, out);
+	DO_CASE_STRCPY(OZB_MAC_DISABLE_TRX_FAIULURE, out);
+	DO_CASE_STRCPY(OZB_MAC_FRAME_TOO_LONG, out);
+	DO_CASE_STRCPY(OZB_MAC_SECURITY_ERROR, out);
+	DO_CASE_STRCPY(OZB_MAC_INVALID_GTS, out);
+	DO_CASE_STRCPY(OZB_MAC_INVALID_HANDLE, out);
+	DO_CASE_STRCPY(OZB_MAC_INVALID_PARAMETER, out);
+	DO_CASE_STRCPY(OZB_MAC_NO_ACK, out);
+	DO_CASE_STRCPY(OZB_MAC_NO_BEACON, out);
+	DO_CASE_STRCPY(OZB_MAC_NO_DATA, out);
+	DO_CASE_STRCPY(OZB_MAC_NO_SHORT_ADDRESS, out);
+	DO_CASE_STRCPY(OZB_MAC_OUT_OF_CAP, out);
+	DO_CASE_STRCPY(OZB_MAC_PAN_ID_CONFLICT, out);
+	DO_CASE_STRCPY(OZB_MAC_REALIGNMENT, out);
+	DO_CASE_STRCPY(OZB_MAC_TRANSACTION_EXPIRED, out);
+	DO_CASE_STRCPY(OZB_MAC_TRANSACTION_OVERFLOW, out);
+	DO_CASE_STRCPY(OZB_MAC_TX_ACTIVE, out);
+	DO_CASE_STRCPY(OZB_MAC_UNAVAILABLE_KEY, out);
+	DO_CASE_STRCPY(OZB_MAC_UNSUPPORTED_ATTRIBUTE, out);
+	DO_CASE_STRCPY(OZB_MAC_INVALID_ADDRESS, out);
+	DO_CASE_STRCPY(OZB_MAC_ON_TIME_TOO_LONG, out);
+	DO_CASE_STRCPY(OZB_MAC_PAST_TIME, out);
+	DO_CASE_STRCPY(OZB_MAC_TRACKING_OFF, out);
+	DO_CASE_STRCPY(OZB_MAC_INVALID_INDEX, out);
+	DO_CASE_STRCPY(OZB_MAC_LIMIT_REACHED, out);
+	DO_CASE_STRCPY(OZB_MAC_READ_ONLY, out);
+	DO_CASE_STRCPY(OZB_MAC_SCAN_IN_PROGRESS, out);
+	DO_CASE_STRCPY(OZB_MAC_SUPERFRAME_OVERLAP, out);
+	DO_CASE_STRCPY(OZB_MAC_BEACON_LOST, out);
 	}
 } 
 

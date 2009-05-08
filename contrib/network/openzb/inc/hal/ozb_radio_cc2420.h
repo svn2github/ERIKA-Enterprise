@@ -78,6 +78,14 @@ COMPILER_INLINE int8_t ozb_radio_init(void)
 	return cc2420_radio_init(CC2420_SPI_PORT_2);
 }
 
+
+int8_t ozb_radio_mac_create_beacon(void);
+
+int8_t ozb_radio_mac_send_beacon(void);
+
+
+
+
 /* chris: Sending function, can be used by the MAC or implement part of the
 	  MAC itself! */
 /*TODO: chris: do we use the same paradigm (store+send) for all the 4 type?
@@ -92,8 +100,6 @@ COMPILER_INLINE int8_t ozb_radio_slotted_csma_init(void)
 	return 1;
 }
 
-int8_t ozb_radio_store_beacon(ozb_mpdu_ptr_t bcn, uint8_t size);
-int8_t ozb_radio_send_beacon(void);
 
 int8_t ozb_radio_store_data(uint8_t *buf, uint8_t len);
 int8_t ozb_radio_send_data(void);
@@ -153,7 +159,7 @@ ozb_debug_print("      TX FIFO underflow!");// TODO: REMOVE
 	}
 ozb_debug_print("      returning OK!");// TODO: REMOVE
 	/* Everything goes well. */
-	return OZB_RADIO_SUCCESS;
+	return OZB_RADIO_ERR_NONE;
 }
 
 /**
@@ -166,7 +172,7 @@ ozb_debug_print("      returning OK!");// TODO: REMOVE
 COMPILER_INLINE int8_t ozb_radio_start_tx(void)
 {
 	cc2420_set_tx();
-	return OZB_RADIO_SUCCESS;
+	return OZB_RADIO_ERR_NONE;
 }
 
 /**
@@ -177,7 +183,7 @@ COMPILER_INLINE int8_t ozb_radio_start_tx(void)
 */
 COMPILER_INLINE int8_t ozb_radio_set_tx(void)
 {
-	return OZB_RADIO_SUCCESS;
+	return OZB_RADIO_ERR_NONE;
 }
 
 /**
@@ -202,7 +208,7 @@ COMPILER_INLINE uint8_t ozb_radio_busy_tx(void)
 COMPILER_INLINE int8_t ozb_radio_set_rx_callback(void (*rx_callback)(void))
 {
 	cc2420_set_rx_callback(rx_callback);
-	return OZB_RADIO_SUCCESS;
+	return OZB_RADIO_ERR_NONE;
 }
 
 /**
@@ -233,7 +239,7 @@ COMPILER_INLINE int8_t ozb_radio_set_tx_power(uint8_t pwr)
 	/* TODO: translate the value of pwr from PIB to radio related value! */
 	pwr = CC2420_PA_0DBM;
 	cc2420_set_pa(pwr);
-	return OZB_RADIO_SUCCESS;
+	return OZB_RADIO_ERR_NONE;
 }
 
 /**
@@ -247,7 +253,7 @@ COMPILER_INLINE int8_t ozb_radio_get_rx_power(uint8_t *energy)
 {
 	/*TODO: calculate according to standard*/
 	*energy = (uint8_t) cc2420_rssi_get();
-	return OZB_RADIO_SUCCESS;
+	return OZB_RADIO_ERR_NONE;
 }
 
 /**
@@ -261,7 +267,7 @@ COMPILER_INLINE int8_t ozb_radio_get_rx_power(uint8_t *energy)
 COMPILER_INLINE int8_t ozb_radio_sleep(void)
 {
 	cc2420_set_sleep(CC2420_RADIO_IDLE);
-	return OZB_RADIO_SUCCESS;
+	return OZB_RADIO_ERR_NONE;
 }
 
 /**
@@ -295,7 +301,7 @@ COMPILER_INLINE int8_t ozb_radio_wakeup(uint8_t status)
 COMPILER_INLINE int8_t ozb_radio_set_rx()
 {
 	cc2420_set_rx();
-	return OZB_RADIO_SUCCESS;
+	return OZB_RADIO_ERR_NONE;
 }
 
 /**
@@ -317,7 +323,7 @@ COMPILER_INLINE uint8_t ozb_radio_busy_rx()
 COMPILER_INLINE int8_t ozb_radio_set_channel(uint8_t ch)
 {
 	cc2420_set_channel(ch);/* chris: TODO:  return nothing?? */
-	return OZB_RADIO_SUCCESS;
+	return OZB_RADIO_ERR_NONE;
 }
 
 /**
@@ -339,7 +345,7 @@ COMPILER_INLINE int8_t ozb_radio_set_mac_address(uint8_t* add, uint8_t length)
 			cc2420_set_ex_mac_add(add);
 		else
 			return -1;
-	return OZB_RADIO_SUCCESS;
+	return OZB_RADIO_ERR_NONE;
 }
 
 /**
@@ -397,7 +403,7 @@ COMPILER_INLINE int8_t ozb_radio_set_cca_mode(uint8_t mode)
 	CC2420_REG_READ_CSn(CC2420_REG_MDMCTRL0, high, low)
 	CC2420_REG_WRITE_CSn(CC2420_REG_MDMCTRL0, high | mode, low);
 	/* chris: TODO: always success??? */
-	return OZB_RADIO_SUCCESS;
+	return OZB_RADIO_ERR_NONE;
 }
 
 COMPILER_INLINE uint8_t ozb_radio_get_cca(void)

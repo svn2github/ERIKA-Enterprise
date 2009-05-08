@@ -11,6 +11,15 @@
 #endif
 #define OZB_FALSE	0
 
+#define OZB_MAC_ERR_NONE 			1 /* Returned as positive! */
+#define OZB_MAC_ERR_NOT_INITIALIZED		1
+#define OZB_MAC_ERR_SF_NOT_INITIALIZED		2
+#define OZB_MAC_ERR_INVALID_PARAM		3
+#define OZB_MAC_ERR_PHY_FAILURE			4 /**< PHY bad reply. */
+#define OZB_MAC_ERR_STANDARD_UNSUPPORTED	10
+#define OZB_MAC_ERR_DEBUG_INIT			11
+
+
 /* TODO: these should depend on the current SO and BO settings!! */
 #define OZB_MAC_TICKS_BEFORE_BI			5
 #define OZB_MAC_TICKS_BEFORE_TIMESLOT		5
@@ -35,8 +44,8 @@
 #define OZB_MAC_SUPERFRAME_LAST_SLOT 		15
 
 #define OZB_MAC_GTS_MAX_NUMBER 			7
-#define OZB_MAC_GTS_DIRECTION_IN 		0
-#define OZB_MAC_GTS_DIRECTION_OUT 		1
+#define OZB_MAC_GTS_DIRECTION_IN 		1
+#define OZB_MAC_GTS_DIRECTION_OUT 		0
 
 /**
 * @name IEEE 802.15.4 MAC Layer Constants

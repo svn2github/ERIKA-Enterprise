@@ -1,17 +1,6 @@
 #ifndef __ozb_mac_h__
 #define __ozb_mac_h__
 
-/* chris: TODO: solve conflict in the naming: OSB_MAC is used here but 
-		also in the MAC enumerations. The PHY should be set as well */
-//#define OZB_MAC_SUCCESS			1
-
-#define OZB_MAC_INIT_ERROR		1
-#define OZB_MAC_DEBUG_INIT_ERROR	2
-#define OZB_MAC_INVALID_PARAM		3
-#define OZB_MAC_STANDARD_UNSUPPORTED	4
-#define OZB_MAC_SF_NOT_INITIALIZED	5
-#define OZB_MAC_NOT_INITIALIZED		6
-
 #include <mac/ozb_mac_const.h>
 #include <mac/ozb_mac_types.h>	
 #include <mac/ozb_mac_mcps.h>
@@ -37,6 +26,8 @@ do {							\
 #define OZB_MAC_MPDU_AUX_SECURITY_HEADER(mpdu, offset) 	((mpdu) + 3 + (offset))
 #define OZB_MAC_MPDU_MAC_PAYLOAD(mpdu, offset) 		((mpdu) + 3 + (offset))
 #define OZB_MAC_MPDU_MAC_FCS(mpdu, offset) 		((mpdu) + 3 + (offset))
+
+#define OZB_MAC_MPDU_FRAME_CONTROL_GET_FRAME_TYPE(fcf) 	((*(fcf)) & 0x07)
 
 /*
 #define OZB_MAC_MPDU_SF_SPECIFICATION(mpdu, offset) 	((mpdu) + 3 + (offset))

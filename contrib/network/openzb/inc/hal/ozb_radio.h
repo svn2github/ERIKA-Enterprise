@@ -13,8 +13,8 @@
 
 #include <hal/ozb_compiler.h>
 
-#define OZB_RADIO_SUCCESS 0
-#define OZB_RADIO_ERROR_TODO 1
+#define OZB_RADIO_ERR_NONE 		0
+#define OZB_RADIO_ERR_PHY_FAILURE 	1/**< The PHY layer issued a primitive 						      with a failure status. */
 
 #ifdef USE_CC2420		/* Texas Instruments CC2420 */
 #include <hal/ozb_radio_cc2420.h>
@@ -26,5 +26,8 @@
 #error "OZB_HAL ERROR: radio type not specified!"
 
 #endif	/* End Radio Selection */
+
+enum ozb_phy_code_t ozb_radio_phy_get_status(void);
+int8_t ozb_radio_phy_set_channel(uint8_t ch);
 
 #endif /* Header Protection */

@@ -18,7 +18,7 @@ static struct {
 static void start_beacon_interval(void) 
 {
 	ozb_debug_time_get(OZB_DEBUG_TIME_CLOCK_BI);
-	ozb_radio_send_beacon(); /* TODO: parse ret value*/
+	ozb_radio_mac_send_beacon(); /* TODO: parse ret value*/
 	if (ozb_mac_pib.macSuperframeOrder < ozb_mac_pib.macBeaconOrder) {
 		sf_flags.has_idle = OZB_TRUE;
 		sf_flags.wait_sf_end = OZB_TRUE;
@@ -42,14 +42,9 @@ static void stop_superframe(void)
 
 static void before_beacon_interval(void)
 {
-	ozb_mpdu_t bcn;
-	uint8_t bcn_size;
 	uint8_t str[OZB_DEBUG_STAT_STRLEN];
 
-	bcn_size = ozb_mac_create_beacon(bcn);
-	if (bcn_size != 0) {
-		ozb_radio_store_beacon(bcn, bcn_size); /* TODO: parse error! */
-	}
+	ozb_radio_mac_create_beacon(); /* TODO: parse error! */
 	ozb_debug_stat2str(str);
 	ozb_debug_write(str, OZB_DEBUG_STAT_STRLEN);
 }

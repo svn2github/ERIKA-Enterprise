@@ -53,18 +53,18 @@ enum ozb_phy_pib_id_t {
 * \todo Make a reference to the std where is defined the PHY enumeration list.
 */
 enum ozb_phy_code_t {
-	OZB_BUSY 			= 0x00,
-	OZB_BUSY_RX 			= 0x01,
-	OZB_BUSY_TX 			= 0x02,
-	OZB_FORCE_TRX_OFF 		= 0x03,
-	OZB_IDLE 			= 0x04,
-	OZB_INVALID_PARAMETER 		= 0x05,
-	OZB_RX_ON 			= 0x06,
-	OZB_SUCCESS 			= 0x07,
-	OZB_TRX_OFF 			= 0x08,
-	OZB_TX_ON 			= 0x09,
-	OZB_UNSUPPORTED_ATTRIBUTE 	= 0x0A,
-	OZB_READ_ONLY 			= 0x0B
+	OZB_PHY_BUSY 			= 0x00,
+	OZB_PHY_BUSY_RX 		= 0x01,
+	OZB_PHY_BUSY_TX 		= 0x02,
+	OZB_PHY_FORCE_TRX_OFF 		= 0x03,
+	OZB_PHY_IDLE 			= 0x04,
+	OZB_PHY_INVALID_PARAMETER 	= 0x05,
+	OZB_PHY_RX_ON 			= 0x06,
+	OZB_PHY_SUCCESS 		= 0x07,
+	OZB_PHY_TRX_OFF 		= 0x08,
+	OZB_PHY_TX_ON 			= 0x09,
+	OZB_PHY_UNSUPPORTED_ATTRIBUTE 	= 0x0A,
+	OZB_PHY_READ_ONLY 		= 0x0B
 };
 
 
