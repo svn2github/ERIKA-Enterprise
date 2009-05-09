@@ -11,6 +11,10 @@
 
 ifeq ($(findstring __LIB_SCICOS__,$(LIB_OPT)),__LIB_SCICOS__)
 
+EE_VPATH += $(EEBASE)/contrib/scicos/src/pic30
+EE_VPATH += $(EEBASE)/contrib/scicos/libsrc/rt
+EE_VPATH += $(EEBASE)/contrib/scicos/libsrc/core
+
 ##
 ## Application files
 ##
@@ -23,8 +27,10 @@ EE_SRCS +=      contrib/scicos/src/nios2/led.c \
 
 endif
 
-#ifeq ($(findstring __PIC30__,$(EEOPT)) , __PIC30__)
 ifeq ($(findstring __EE_FLEX__,$(EEOPT)) , __EE_FLEX__)
+
+#If the  blocks list (from Scicos Code Generation) is empty, compile all the pic30 block sources
+ifeq ($(EE_SRCS_SCICOS),)
 
 EE_SRCS_SCICOS_DSPIC := $(addprefix contrib/scicos/src/pic30/, $(notdir $(shell ls -1 $(EEBASE)/contrib/scicos/src/pic30/*.c)))
 EE_SRCS += $(EE_SRCS_SCICOS_DSPIC)
@@ -34,12 +40,21 @@ EE_SRCS_SCICOS_DSPIC_OPENZB := $(addprefix contrib/scicos/src/pic30/openzb/, $(n
 EE_SRCS += $(EE_SRCS_SCICOS_DSPIC_OPENZB)
 endif
 
-
-endif
-
 ##
 ## Add Scicos to the linker list of libs
 ##
 OPT_LIBS += -lscicos
 
+else 
+
+EE_SRCS += $(EE_SRCS_SCICOS)
+
 endif
+
+endif
+
+endif
+
+
+
+

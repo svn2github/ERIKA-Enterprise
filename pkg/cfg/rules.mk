@@ -43,6 +43,11 @@
 ## 2005 Antonio Romano
 ## CVS: $Id: rules.mk,v 1.33 2008/01/14 10:35:34 pj Exp $
 
+ifeq ($(findstring app.mk,$(notdir $(wildcard $(APPBASE)/*.mk))), app.mk)
+include $(APPBASE)/app.mk
+endif
+
+
 # Enable libs support
 ifeq ($(findstring __BUILD_ALL_LIBS__,$(EEOPT)) , __BUILD_ALL_LIBS__)
 ENABLE_LIBS:=TRUE
