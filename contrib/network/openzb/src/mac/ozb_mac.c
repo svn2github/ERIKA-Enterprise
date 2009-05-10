@@ -1,5 +1,5 @@
 #include <mac/ozb_mac_internal.h>
-#include <osal/ozb_osal.h>
+#include <kal/ozb_kal.h>
 #include <hal/ozb_radio.h>
 #include <hal/ozb_rand.h>
 #include <util/ozb_debug.h>
@@ -28,9 +28,9 @@ struct ozb_mac_pib_t ozb_mac_pib /*= {
 /******************************************************************************/
 /*                              MAC Layer TASK                                */
 /******************************************************************************/
-OZB_OSAL_TASK_ASYNC(MAC_PROCESS_RX_BEACON, 25);
-OZB_OSAL_TASK_ASYNC(MAC_PROCESS_RX_DATA, 20);
-OZB_OSAL_TASK_ASYNC(MAC_PROCESS_RX_COMMAND, 20);
+OZB_KAL_TASK_ASYNC(MAC_PROCESS_RX_BEACON, 25);
+OZB_KAL_TASK_ASYNC(MAC_PROCESS_RX_DATA, 20);
+OZB_KAL_TASK_ASYNC(MAC_PROCESS_RX_COMMAND, 20);
 
 /* IMPORTANT NOTE: 
  * The mutexes that might be used in the context of possible PHY tasks,
@@ -38,9 +38,9 @@ OZB_OSAL_TASK_ASYNC(MAC_PROCESS_RX_COMMAND, 20);
  * file "mac/ozb_mac_mutexes.h" as body of the macro 
  * OZB_PHY_IMPORT_MAC_MUTEXES().
 */
-OZB_OSAL_MUTEX(MAC_RX_BEACON_MUTEX, MAC_PROCESS_RX_BEACON);
-OZB_OSAL_MUTEX(MAC_RX_DATA_MUTEX, MAC_PROCESS_RX_COMMAND);
-OZB_OSAL_MUTEX(MAC_RX_COMMAND_MUTEX, MAC_PROCESS_RX_DATA);
+OZB_KAL_MUTEX(MAC_RX_BEACON_MUTEX, MAC_PROCESS_RX_BEACON);
+OZB_KAL_MUTEX(MAC_RX_DATA_MUTEX, MAC_PROCESS_RX_COMMAND);
+OZB_KAL_MUTEX(MAC_RX_COMMAND_MUTEX, MAC_PROCESS_RX_DATA);
 
 static void process_rx_beacon(void) 
 {
@@ -58,16 +58,16 @@ COMPILER_INLINE int8_t init_rx_tasks(void)
 {
 	int retv;
 
-	retv = ozb_osal_init(0); 
+	retv = ozb_kal_init(0); 
 	if (retv < 0)
 		return retv;
-	retv = ozb_osal_set_body(MAC_PROCESS_RX_BEACON, process_rx_beacon);
+	retv = ozb_kal_set_body(MAC_PROCESS_RX_BEACON, process_rx_beacon);
 	if (retv < 0)
 		return retv;
-	retv = ozb_osal_set_body(MAC_PROCESS_RX_DATA, process_rx_data);
+	retv = ozb_kal_set_body(MAC_PROCESS_RX_DATA, process_rx_data);
 	if (retv < 0)
 		return retv;
-	retv = ozb_osal_set_body(MAC_PROCESS_RX_COMMAND, process_rx_command);
+	retv = ozb_kal_set_body(MAC_PROCESS_RX_COMMAND, process_rx_command);
 	if (retv < 0)
 		return retv;
 	return 1;
@@ -287,30 +287,30 @@ void ozb_mac_parse_received_mpdu(uint8_t *psdu, uint8_t len)
 {
 	switch (OZB_MAC_MPDU_FRAME_CONTROL_GET_FRAME_TYPE(psdu)) {
 	case OZB_MAC_TYPE_BEACON :
-		if (ozb_osal_mutex_wait(MAC_RX_BEACON_MUTEX) < 0)
+		if (ozb_kal_mutex_wait(MAC_RX_BEACON_MUTEX) < 0)
 			return; /* TODO: manage error? */
 		memcpy(rx_beacon, psdu, len);
 		rx_beacon_length = len;
-		ozb_osal_activate(MAC_PROCESS_RX_BEACON);
-		if (ozb_osal_mutex_signal(MAC_RX_BEACON_MUTEX) < 0)
+		ozb_kal_activate(MAC_PROCESS_RX_BEACON);
+		if (ozb_kal_mutex_signal(MAC_RX_BEACON_MUTEX) < 0)
 			return; /* TODO: manage error? */
 		break;
 	case OZB_MAC_TYPE_DATA :
-		if (ozb_osal_mutex_wait(MAC_RX_DATA_MUTEX) < 0)
+		if (ozb_kal_mutex_wait(MAC_RX_DATA_MUTEX) < 0)
 			return; /* TODO: manage error? */
 		memcpy(rx_data, psdu, len);
 		rx_data_length = len;
-		ozb_osal_activate(MAC_PROCESS_RX_DATA);
-		if (ozb_osal_mutex_signal(MAC_RX_DATA_MUTEX) < 0)
+		ozb_kal_activate(MAC_PROCESS_RX_DATA);
+		if (ozb_kal_mutex_signal(MAC_RX_DATA_MUTEX) < 0)
 			return; /* TODO: manage error? */
 		break;
 	case OZB_MAC_TYPE_COMMAND :
-		if (ozb_osal_mutex_wait(MAC_RX_COMMAND_MUTEX) < 0)
+		if (ozb_kal_mutex_wait(MAC_RX_COMMAND_MUTEX) < 0)
 			return; /* TODO: manage error? */
 		memcpy(rx_command, psdu, len);
 		rx_command_length = len;
-		ozb_osal_activate(MAC_PROCESS_RX_COMMAND);
-		if (ozb_osal_mutex_signal(MAC_RX_COMMAND_MUTEX) < 0)
+		ozb_kal_activate(MAC_PROCESS_RX_COMMAND);
+		if (ozb_kal_mutex_signal(MAC_RX_COMMAND_MUTEX) < 0)
 			return; /* TODO: manage error? */
 		break;
 	case OZB_MAC_TYPE_ACK :

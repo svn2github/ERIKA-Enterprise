@@ -1,7 +1,7 @@
 #include <phy/ozb_phy_internal.h>
 #include <mac/ozb_mac_mutexes.h>
 #include <util/ozb_debug.h>
-#include <osal/ozb_osal.h>
+#include <kal/ozb_kal.h>
 #include <hal/ozb_radio.h>
 #ifdef OZB_DEBUG_LOG
 #include <stdio.h> //TODO: REMOVE together with the sprintf() !!!!!
@@ -36,7 +36,7 @@ static struct {
 /******************************************************************************/
 /*                          PHY Layer TASK and ISR                            */
 /******************************************************************************/
-OZB_OSAL_TASK_ASYNC(PHY_READ_DISPATCHER, 30);
+OZB_KAL_TASK_ASYNC(PHY_READ_DISPATCHER, 30);
 
 OZB_PHY_IMPORT_MAC_MUTEXES(PHY_READ_DISPATCHER); /* TODO: write notes!! */
 
@@ -88,7 +88,7 @@ static void phy_read_isr(void)
 	#ifdef OZB_DEBUG_LOG
 	ozb_debug_print("phy_read_isr rised!");
 	#endif
-	ozb_osal_activate(PHY_READ_DISPATCHER);
+	ozb_kal_activate(PHY_READ_DISPATCHER);
 }
 
 /******************************************************************************/
@@ -101,12 +101,12 @@ int8_t ozb_phy_init(void)
 	#ifdef OZB_DEBUG_LOG
 	ozb_debug_print("Initializing PHY...");
 	#endif
-	if (ozb_osal_init(0) < 0)
-		return -OZB_PHY_ERR_OSAL_ERROR;
-	if (ozb_osal_set_body(PHY_READ_DISPATCHER, phy_read_dispatcher) < 0)
-		return -OZB_PHY_ERR_OSAL_ERROR;
+	if (ozb_kal_init(0) < 0)
+		return -OZB_PHY_ERR_KAL_ERROR;
+	if (ozb_kal_set_body(PHY_READ_DISPATCHER, phy_read_dispatcher) < 0)
+		return -OZB_PHY_ERR_KAL_ERROR;
 	#ifdef OZB_DEBUG_LOG
-	ozb_debug_print("OSAL init OK!");
+	ozb_debug_print("KAL init OK!");
 	#endif
 	if (ozb_radio_set_rx_callback(phy_read_isr) < 0)
 		return -OZB_PHY_ERR_HW_FAILURE;

@@ -14,7 +14,6 @@ EE_SRCS += contrib/network/openzb/src/phy/ozb_phy.c
 
 ifneq ($(findstring OZB_USE_ONLY_802154_PHY,$(EEOPT)), OZB_USE_ONLY_802154_PHY)
 EE_SRCS += contrib/network/openzb/src/mac/ozb_mac.c
-EE_SRCS += contrib/network/openzb/src/mac/ozb_mac_phy_events.c
 EE_SRCS += contrib/network/openzb/src/mac/ozb_mac_mlme.c
 EE_SRCS += contrib/network/openzb/src/mac/ozb_mac_superframe.c
 EE_SRCS += contrib/network/openzb/src/mac/ozb_mac_gts.c

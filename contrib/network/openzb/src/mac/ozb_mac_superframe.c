@@ -1,6 +1,6 @@
 #include <mac/ozb_mac_internal.h>
 #include <hal/ozb_radio.h>
-#include <osal/ozb_osal.h>
+#include <kal/ozb_kal.h>
 #include <util/ozb_debug.h>
 
 /******************************************************************************/
@@ -32,9 +32,9 @@ static void stop_superframe(void)
 
 	ozb_mac_status.sf_context = OZB_MAC_SF_IDLE;
 	sf_flags.wait_sf_end = OZB_FALSE;
-	ozb_osal_cancel_activation(MAC_TIMESLOT);
-	ozb_osal_cancel_activation(MAC_BEFORE_TIMESLOT);
-	ozb_osal_cancel_activation(MAC_BACKOFF_PERIOD);
+	ozb_kal_cancel_activation(MAC_TIMESLOT);
+	ozb_kal_cancel_activation(MAC_BEFORE_TIMESLOT);
+	ozb_kal_cancel_activation(MAC_BACKOFF_PERIOD);
 	t = OZB_MAC_GET_BI(ozb_mac_pib.macBeaconOrder) - 
 	    OZB_MAC_GET_SD(ozb_mac_pib.macSuperframeOrder);
 	ozb_mac_superframe_start(t);
@@ -52,9 +52,9 @@ static void before_beacon_interval(void)
 /******************************************************************************/
 /*                             MAC Layer TASKs                                */
 /******************************************************************************/
-OZB_OSAL_TASK(MAC_TIMESLOT, 10);
-OZB_OSAL_TASK(MAC_BEFORE_TIMESLOT, 10); 
-OZB_OSAL_TASK(MAC_BACKOFF_PERIOD, 10);
+OZB_KAL_TASK(MAC_TIMESLOT, 10);
+OZB_KAL_TASK(MAC_BEFORE_TIMESLOT, 10); 
+OZB_KAL_TASK(MAC_BACKOFF_PERIOD, 10);
 
 static void on_timeslot_start(void) 
 {
@@ -96,20 +96,20 @@ int8_t ozb_mac_superframe_init(void)
 
 	if (ozb_mac_status.sf_initialized)
 		return 1;
-	retv = ozb_osal_init(320); /* TODO: this comes from the PHY, because
+	retv = ozb_kal_init(320); /* TODO: this comes from the PHY, because
 	it's just the duration of the aUnitBackoffPeriod = 20 symbols so...
 	backoff_period = aUnitBackoffPeriod x bit_per_symbols / bandwidth  
 		       = 20 x 4bits / 250000 bps = 320 microseconds .
 	How can we make this general? Where can this change? When? */
 	if (retv < 0)
 		return retv;
-	retv = ozb_osal_set_body(MAC_TIMESLOT, on_timeslot_start);
+	retv = ozb_kal_set_body(MAC_TIMESLOT, on_timeslot_start);
 	if (retv < 0)
 		return retv;
-	retv = ozb_osal_set_body(MAC_BEFORE_TIMESLOT, before_timeslot_start);
+	retv = ozb_kal_set_body(MAC_BEFORE_TIMESLOT, before_timeslot_start);
 	if (retv < 0)
 		return retv;
-	retv = ozb_osal_set_body(MAC_BACKOFF_PERIOD, on_backoff_period_start);
+	retv = ozb_kal_set_body(MAC_BACKOFF_PERIOD, on_backoff_period_start);
 	if (retv < 0)
 		return retv;
 	ozb_mac_status.sf_initialized = OZB_TRUE;
@@ -129,18 +129,18 @@ void ozb_mac_superframe_start(uint32_t offset)
 	sf_flags.wait_sf_end = OZB_FALSE;
 	sf_flags.has_idle = OZB_FALSE;
 	t = OZB_MAC_GET_TS(ozb_mac_pib.macSuperframeOrder);
-	ozb_osal_set_activation(MAC_BEFORE_TIMESLOT, 
+	ozb_kal_set_activation(MAC_BEFORE_TIMESLOT, 
 				offset - OZB_MAC_TICKS_BEFORE_TIMESLOT, t); 
-	ozb_osal_set_activation(MAC_TIMESLOT, offset, t);
-	ozb_osal_set_activation(MAC_BACKOFF_PERIOD, offset, 1);
+	ozb_kal_set_activation(MAC_TIMESLOT, offset, t);
+	ozb_kal_set_activation(MAC_BACKOFF_PERIOD, offset, 1);
 } 
 
 void ozb_mac_superframe_stop(void) 
 {
 	/* FIXME: now I'm ignoring the return values! */
-	ozb_osal_cancel_activation(MAC_TIMESLOT);
-	ozb_osal_cancel_activation(MAC_BEFORE_TIMESLOT);
-	ozb_osal_cancel_activation(MAC_BACKOFF_PERIOD);
+	ozb_kal_cancel_activation(MAC_TIMESLOT);
+	ozb_kal_cancel_activation(MAC_BEFORE_TIMESLOT);
+	ozb_kal_cancel_activation(MAC_BACKOFF_PERIOD);
 }
 
 void ozb_mac_superframe_resync(void)
