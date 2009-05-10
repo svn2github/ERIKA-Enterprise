@@ -38,47 +38,18 @@
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
 
-/*
- * ERIKA Enterprise Basic - a tiny RTOS for small microcontrollers
- *
- * Copyright (C) 2002-2007  Evidence Srl
- *                          Roberto Bucher (roberto.bucher@supsi.ch)
- *
- * This file is part of ERIKA Enterprise Basic.
- *
- * ERIKA Enterprise Basic is free software; you can redistribute it
- * and/or modify it under the terms of the GNU General Public License
- * version 2 as published by the Free Software Foundation.
- *
- * ERIKA Enterprise Basic is distributed in the hope that it will be
- * useful, but WITHOUT ANY WARRANTY; without even the implied warranty
- * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License version 2 for more details.
- *
- * You should have received a copy of the GNU General Public License
- * version 2 along with ERIKA Enterprise Basic; if not, write to the
- * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301 USA.
- */
-
 CPU mySystem {
 
 	OS myOs {
 		EE_OPT = "DEBUG";
 		EE_OPT = "NODEPS";
-		//EE_OPT = "VERBOSE";
-		EE_OPT = "__USE_USB_OLD__";
 
 #include "conf_embcodegen.oil"
 
-		LDFLAGS = "--heap=8000";
-
-		//LDFLAGS = "-L../../libscicos/Debug";
 		EE_OPT = "__ADD_LIBS__";
 
 		CPU_DATA = PIC30 {
 			APP_SRC = "dspic_main.c";
-			//APP_SRC = "check.S";
 			MULTI_STACK = FALSE;
 			ICD2 = TRUE;
 		};
@@ -88,21 +59,6 @@ CPU mySystem {
 		};
 		
 		BOARD_DATA = EE_FLEX {
-			TYPE = DEMO {
-				//OPTIONS = ALL;
-				OPTIONS = ZIGBEE;
-				OPTIONS = ACCELEROMETER;
-				OPTIONS = ADC_IN;
-				OPTIONS = BUTTONS;
-				OPTIONS = BUZZER;
-				OPTIONS = DAC;
-				OPTIONS = ENCODER;
-				OPTIONS = LCD;
-				OPTIONS = LEDS;
-				OPTIONS = PWM_OUT;
-				OPTIONS = SENSORS;
-				OPTIONS = TRIMMER;
-			};
 		};
 		
 		KERNEL_TYPE = FP;
@@ -110,49 +66,19 @@ CPU mySystem {
 		LIB = ENABLE {
 			NAME = "SCICOS";
 		};
-		
 	};
 
 	TASK rt_sci {
 		PRIORITY = 1;
 		STACK = SHARED;
 		SCHEDULE = FULL;
-		RESOURCE = "scicosUSB_rx_buffer_mutex";
 	};
-	
-	TASK rt_LCD {
-		PRIORITY = 3;
-		STACK = SHARED;
-		SCHEDULE = FULL;
-	};
-	
-	TASK rx_USB {
-		PRIORITY = 8;
-		STACK = SHARED;
-		SCHEDULE = FULL;
-		RESOURCE = "scicosUSB_rx_buffer_mutex";
-	};
-	
-	
-	COUNTER myCounter;
+
 	COUNTER SciCounter;
 
 	ALARM AlarmSci {
 		COUNTER = "SciCounter";
 		ACTION = ACTIVATETASK { TASK = "rt_sci"; };		
 	};
-	
-	ALARM AlarmLcd {
-		COUNTER = "SciCounter";
-		ACTION = ACTIVATETASK { TASK = "rt_LCD"; };
-	};
-	
-	ALARM AlarmUSB {
-		COUNTER = "SciCounter";
-		ACTION = ACTIVATETASK { TASK = "rx_USB"; };		
-	};
-	
-	RESOURCE scicosUSB_rx_buffer_mutex { RESOURCEPROPERTY = STANDARD; };
-
 };
 
