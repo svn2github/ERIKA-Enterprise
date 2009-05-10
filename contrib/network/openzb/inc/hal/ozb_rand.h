@@ -30,6 +30,6 @@ COMPILER_INLINE uint8_t ozb_rand_8bit(void)
 #else			/* No random generator */
 #error "OZB_HAL ERROR: random number generator not specified"
 
-#endif	/* End Compiler Selection */
+#endif	/* End Random Generator Selection */
 
 #endif /* Header Protection */

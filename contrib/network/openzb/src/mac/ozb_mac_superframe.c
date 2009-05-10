@@ -145,4 +145,5 @@ void ozb_mac_superframe_stop(void)
 
 void ozb_mac_superframe_resync(void)
 {
+	/* TODO: realign the task activation for the superframe! */
 }

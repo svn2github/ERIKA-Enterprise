@@ -20,58 +20,11 @@ static uint16_t rx_command_length;
 /******************************************************************************/
 /*                          MAC Layer Public Data                             */
 /******************************************************************************/
-struct ozb_mac_flags_t ozb_mac_status = {0, 0, 0, 0, 0};
+struct ozb_mac_flags_t ozb_mac_status = {0, 0, 0, 0, 0, 0, 0};
 struct ozb_mac_pib_t ozb_mac_pib /*= {
 	TODO: set a default values as already done for the phy_pib!	
 }*/;
 
-/******************************************************************************/
-/*                              MAC Layer TASK                                */
-/******************************************************************************/
-OZB_KAL_TASK_ASYNC(MAC_PROCESS_RX_BEACON, 25);
-OZB_KAL_TASK_ASYNC(MAC_PROCESS_RX_DATA, 20);
-OZB_KAL_TASK_ASYNC(MAC_PROCESS_RX_COMMAND, 20);
-
-/* IMPORTANT NOTE: 
- * The mutexes that might be used in the context of possible PHY tasks,
- * that call the MAC notification functions, MUST be declared in the
- * file "mac/ozb_mac_mutexes.h" as body of the macro 
- * OZB_PHY_IMPORT_MAC_MUTEXES().
-*/
-OZB_KAL_MUTEX(MAC_RX_BEACON_MUTEX, MAC_PROCESS_RX_BEACON);
-OZB_KAL_MUTEX(MAC_RX_DATA_MUTEX, MAC_PROCESS_RX_COMMAND);
-OZB_KAL_MUTEX(MAC_RX_COMMAND_MUTEX, MAC_PROCESS_RX_DATA);
-
-static void process_rx_beacon(void) 
-{
-}
-
-static void process_rx_data(void) 
-{
-}
-
-static void process_rx_command(void) 
-{
-}
-
-COMPILER_INLINE int8_t init_rx_tasks(void)
-{
-	int retv;
-
-	retv = ozb_kal_init(0); 
-	if (retv < 0)
-		return retv;
-	retv = ozb_kal_set_body(MAC_PROCESS_RX_BEACON, process_rx_beacon);
-	if (retv < 0)
-		return retv;
-	retv = ozb_kal_set_body(MAC_PROCESS_RX_DATA, process_rx_data);
-	if (retv < 0)
-		return retv;
-	retv = ozb_kal_set_body(MAC_PROCESS_RX_COMMAND, process_rx_command);
-	if (retv < 0)
-		return retv;
-	return 1;
-}
 
 /******************************************************************************/
 /*                                                                            */
@@ -91,7 +44,7 @@ static void set_default_mac_pib(void)
 	ozb_mac_pib.macAutoRequest = 1;
 	ozb_mac_pib.macBattLifeExt = 0;
 	ozb_mac_pib.macBattLifeExtPeriods = 6; /* TODO: apply equation!! */
-	OZB_SET_MAC_EXTD_ADDR(ozb_mac_pib.macCoordExtendedAddress, 0x0, 0x0);
+	OZB_MAC_EXTD_ADDR_SET(ozb_mac_pib.macCoordExtendedAddress, 0x0, 0x0);
 	ozb_mac_pib.macCoordShortAddress = 0xFFFF;
 	ozb_mac_pib.macDSN = ozb_rand_8bit();
 	ozb_mac_pib.macMaxBE = 5;
@@ -177,6 +130,51 @@ uint8_t set_addressing_fields(uint8_t *af, enum ozb_mac_addr_mode_t dst_mode,
 }
 
 COMPILER_INLINE 
+uint8_t get_addressing_fields(uint8_t *af, enum ozb_mac_addr_mode_t dst_mode,
+			      uint16_t *dst_panid, void *dst_addr,
+			      enum ozb_mac_addr_mode_t src_mode,
+			      uint16_t *src_panid, void *src_addr) 
+{
+	uint8_t offset = 0;
+
+	if (dst_mode == OZB_MAC_ADDRESS_SHORT) {
+		if (dst_panid != NULL)
+			*dst_panid = af[offset];
+		offset += OZB_MAC_MPDU_PANID_SIZE;
+		if (dst_addr != NULL)
+			memcpy((uint8_t *) dst_addr, af + offset, 
+			       OZB_MAC_MPDU_ADDRESS_SHORT_SIZE);
+		offset += OZB_MAC_MPDU_ADDRESS_SHORT_SIZE;
+	} else if (dst_mode == OZB_MAC_ADDRESS_EXTD) {
+		if (dst_panid != NULL)
+			*dst_panid = af[offset];
+		offset += OZB_MAC_MPDU_PANID_SIZE;
+		if (dst_addr != NULL)
+			memcpy((uint8_t *) dst_addr, af + offset, 
+			       OZB_MAC_MPDU_ADDRESS_EXTD_SIZE);
+		offset += OZB_MAC_MPDU_ADDRESS_EXTD_SIZE;
+	}
+	if (src_mode == OZB_MAC_ADDRESS_SHORT) {
+		if (src_panid != NULL)
+			*src_panid = af[offset];
+		offset += OZB_MAC_MPDU_PANID_SIZE;
+		if (src_addr != NULL)
+			memcpy((uint8_t *) src_addr, af + offset,
+			       OZB_MAC_MPDU_ADDRESS_SHORT_SIZE);
+		offset += OZB_MAC_MPDU_ADDRESS_SHORT_SIZE;
+	} else if (src_mode == OZB_MAC_ADDRESS_EXTD) {
+		if (src_panid != NULL)
+			*src_panid = af[offset];
+		offset += OZB_MAC_MPDU_PANID_SIZE;
+		if (src_addr != NULL)
+			memcpy((uint8_t *) src_addr, af + offset,
+			       OZB_MAC_MPDU_ADDRESS_EXTD_SIZE);
+		offset += OZB_MAC_MPDU_ADDRESS_EXTD_SIZE;
+	}
+	return offset;
+}
+
+COMPILER_INLINE 
 uint8_t set_superframe_specification(uint8_t *ss, uint8_t bo, uint8_t so, 
 				     uint8_t final_cap_slot, uint8_t ble, 
 				     uint8_t pan_coord,	uint8_t assoc_permit)
@@ -186,6 +184,17 @@ uint8_t set_superframe_specification(uint8_t *ss, uint8_t bo, uint8_t so,
 		(assoc_permit << 7);
 	return 2;
 }
+
+///COMPILER_INLINE 
+///uint8_t get_superframe_specification(uint8_t *ss, uint8_t *bo, uint8_t *so, 
+///				     uint8_t *final_cap_slot, uint8_t *ble, 
+///				     uint8_t *pan_coord, uint8_t *assoc_permit)
+///{
+///	ss[0] = (bo << 0) | (so << 4); 
+///	ss[1] = (final_cap_slot << 0) | (ble) << 4 | (pan_coord << 6)  | 
+///		(assoc_permit << 7);
+///	return 2;
+///}
 
 COMPILER_INLINE uint8_t set_pending_address_fields(uint8_t *pf)
 {
@@ -200,6 +209,93 @@ COMPILER_INLINE uint8_t set_pending_address_fields(uint8_t *pf)
 COMPILER_INLINE uint8_t set_beacon_payload(uint8_t *bp)
 {
 	return 0;
+}
+
+/******************************************************************************/
+/*                              MAC Layer TASKs                               */
+/******************************************************************************/
+OZB_KAL_TASK_ASYNC(MAC_PROCESS_RX_BEACON, 25);
+OZB_KAL_TASK_ASYNC(MAC_PROCESS_RX_DATA, 20);
+OZB_KAL_TASK_ASYNC(MAC_PROCESS_RX_COMMAND, 20);
+
+/* IMPORTANT NOTE: 
+ * The mutexes that might be used in the context of possible PHY tasks,
+ * that call the MAC notification functions, MUST be declared in the
+ * file "mac/ozb_mac_mutexes.h" as body of the macro 
+ * OZB_PHY_IMPORT_MAC_MUTEXES().
+*/
+OZB_KAL_MUTEX(MAC_RX_BEACON_MUTEX, MAC_PROCESS_RX_BEACON);
+OZB_KAL_MUTEX(MAC_RX_DATA_MUTEX, MAC_PROCESS_RX_COMMAND);
+OZB_KAL_MUTEX(MAC_RX_COMMAND_MUTEX, MAC_PROCESS_RX_DATA);
+
+static void process_rx_beacon(void) 
+{
+	uint8_t s;
+	ozb_mac_dev_addr_extd_t src_addr; 
+	uint16_t src_panid = 0; 
+
+	if (ozb_kal_mutex_wait(MAC_RX_BEACON_MUTEX) < 0)
+		return; /* TODO: manage error? */
+	/* TODO: maybe all the rejection condition may be put in a 
+		 check_beacon_reject() function called by the dispatcher and 
+		 this task is executed only for "positive" and long action! */
+	/* NOTE: Src Address is supposed to exist, NOT Dst Address.
+		 Assuming a pre-check in the dispatcher */
+	s = get_addressing_fields(OZB_MAC_MPDU_ADDRESSING_FIELDS(rx_beacon),
+			//OZB_MAC_FCTL_GET_DST_ADDR_MODE(rx_beacon),
+				OZB_MAC_ADDRESS_NONE, NULL, NULL,
+				OZB_MAC_FCTL_GET_SRC_ADDR_MODE(rx_beacon),
+				&src_panid, (void *) src_addr);
+	if (src_panid != ozb_mac_pib.macPANId) 
+		goto process_rx_beacon_exit;
+	if (OZB_MAC_FCTL_GET_SRC_ADDR_MODE(rx_beacon) == OZB_MAC_ADDRESS_SHORT){
+		if (*((ozb_mac_dev_addr_short_t*) src_addr) != 
+		    			ozb_mac_pib.macCoordShortAddress)
+			goto process_rx_beacon_exit;
+	} else {
+		if (!OZB_MAC_EXTD_ADDR_COMPARE(src_addr, 
+		     			ozb_mac_pib.macCoordExtendedAddress))
+			goto process_rx_beacon_exit;
+	}
+	ozb_mac_superframe_resync();
+process_rx_beacon_exit:
+	if (ozb_kal_mutex_signal(MAC_RX_BEACON_MUTEX) < 0)
+		return; /* TODO: manage error? */
+}
+
+static void process_rx_data(void) 
+{
+	if (ozb_kal_mutex_wait(MAC_RX_DATA_MUTEX) < 0)
+		return; /* TODO: manage error? */
+	if (ozb_kal_mutex_signal(MAC_RX_DATA_MUTEX) < 0)
+		return; /* TODO: manage error? */
+}
+
+static void process_rx_command(void) 
+{
+	if (ozb_kal_mutex_wait(MAC_RX_COMMAND_MUTEX) < 0)
+		return; /* TODO: manage error? */
+	if (ozb_kal_mutex_signal(MAC_RX_COMMAND_MUTEX) < 0)
+		return; /* TODO: manage error? */
+}
+
+COMPILER_INLINE int8_t init_rx_tasks(void)
+{
+	int retv;
+
+	retv = ozb_kal_init(0); 
+	if (retv < 0)
+		return retv;
+	retv = ozb_kal_set_body(MAC_PROCESS_RX_BEACON, process_rx_beacon);
+	if (retv < 0)
+		return retv;
+	retv = ozb_kal_set_body(MAC_PROCESS_RX_DATA, process_rx_data);
+	if (retv < 0)
+		return retv;
+	retv = ozb_kal_set_body(MAC_PROCESS_RX_COMMAND, process_rx_command);
+	if (retv < 0)
+		return retv;
+	return 1;
 }
 
 /******************************************************************************/
@@ -219,7 +315,9 @@ int8_t ozb_mac_init(void)
 		return -OZB_MAC_ERR_DEBUG_INIT;
 	#endif
 	ozb_mac_status.mac_initialized = 0;
-	ozb_mac_status.is_coordinator= 0;
+	ozb_mac_status.is_pan_coordinator = 0;
+	ozb_mac_status.is_coordinator = 0;
+	ozb_mac_status.is_associated = 0;
 	ozb_mac_status.beacon_enabled = 0;
 	ozb_mac_status.sf_initialized = 0;
 	ozb_mac_status.sf_context = 0;
@@ -245,36 +343,49 @@ int8_t ozb_mac_init(void)
 /******************************************************************************/
 /*                       MAC Frames Build Functions                           */
 /******************************************************************************/
-uint8_t ozb_mac_create_beacon(ozb_mpdu_ptr_t beacon)
+uint8_t ozb_mac_create_beacon(ozb_mpdu_ptr_t bcn)
 {
 	uint8_t s;
+	ozb_mac_dev_addr_extd_t e_addr;
+	void * addr;
 
-	memset(beacon, 0x0, sizeof(ozb_mpdu_t));
-	set_frame_control(OZB_MAC_MPDU_FRAME_CONTROL(beacon), 
+	memset(bcn, 0x0, sizeof(ozb_mpdu_t));
+	set_frame_control(OZB_MAC_MPDU_FRAME_CONTROL(bcn), 
 			  OZB_MAC_TYPE_BEACON, 
 			  ozb_mac_pib.macSecurityEnabled, 
 			  0, /* TODO: Use Pending List flag */
 			  0, 0, /* Zeros and ignored in case of Beacon */
 			  OZB_MAC_ADDRESS_NONE, OZB_MAC_ADDRESS_SHORT,
 			  ozb_mac_pib.macSecurityEnabled /*TODO: check std*/);
-	*OZB_MAC_MPDU_SEQ_NUMBER(beacon) = ozb_mac_pib.macBSN++;
-	s = set_addressing_fields(OZB_MAC_MPDU_ADDRESSING_FIELDS(beacon),
-				  OZB_MAC_ADDRESS_NONE, 0, NULL, 
-				  OZB_MAC_ADDRESS_SHORT, ozb_mac_pib.macPANId, 
-				  &(ozb_mac_pib.macShortAddress));
+	*OZB_MAC_MPDU_SEQ_NUMBER(bcn) = ozb_mac_pib.macBSN++;
+	if (ozb_mac_pib.macShortAddress == OZB_MAC_SHORT_ADDRESS_BCN_USE_EXTD) {
+		OZB_MAC_EXTD_ADDR_SET(e_addr, OZB_MAC_DEVICE_EXTD_ADDRESS_HIGH,
+				      OZB_MAC_DEVICE_EXTD_ADDRESS_LOW);
+		addr = (void *) e_addr;
+		s = set_addressing_fields(OZB_MAC_MPDU_ADDRESSING_FIELDS(bcn),
+					OZB_MAC_ADDRESS_NONE, 0, NULL, 
+					OZB_MAC_ADDRESS_EXTD, 
+					ozb_mac_pib.macPANId, addr);
+	} else {
+		s = set_addressing_fields(OZB_MAC_MPDU_ADDRESSING_FIELDS(bcn),
+					OZB_MAC_ADDRESS_NONE, 0, NULL, 
+					OZB_MAC_ADDRESS_SHORT, 
+					ozb_mac_pib.macPANId, 
+				  	(void *)&(ozb_mac_pib.macShortAddress));
+	}
 	/* TODO: think to security infos? */
-	s += set_superframe_specification(OZB_MAC_MPDU_MAC_PAYLOAD(beacon, s),
+	s += set_superframe_specification(OZB_MAC_MPDU_MAC_PAYLOAD(bcn, s),
 					  ozb_mac_pib.macBeaconOrder, 
 					  ozb_mac_pib.macSuperframeOrder, 
 					  ozb_mac_gts_last_cap_slot(), 
 					  0, /*TODO: Use w.r.t the std */
-					  ozb_mac_status.is_coordinator, 
+					  ozb_mac_status.is_pan_coordinator, 
 					  ozb_mac_pib.macAssociationPermit);
-	s += ozb_mac_gts_set_gts_fields(OZB_MAC_MPDU_MAC_PAYLOAD(beacon, s));
-	s += set_pending_address_fields(OZB_MAC_MPDU_MAC_PAYLOAD(beacon, s));
-	s += set_beacon_payload(OZB_MAC_MPDU_MAC_PAYLOAD(beacon, s));
+	s += ozb_mac_gts_set_gts_fields(OZB_MAC_MPDU_MAC_PAYLOAD(bcn, s));
+	s += set_pending_address_fields(OZB_MAC_MPDU_MAC_PAYLOAD(bcn, s));
+	s += set_beacon_payload(OZB_MAC_MPDU_MAC_PAYLOAD(bcn, s));
 	/* TODO: compute FCS , use auto gen? */
-	//*((uint16_t *) OZB_MAC_MPDU_MAC_FCS(beacon, s)) = 0;
+	//*((uint16_t *) OZB_MAC_MPDU_MAC_FCS(bcn, s)) = 0;
 	//s += OZB_MAC_MPDU_MHR_BASE_SIZE + OZB_MAC_MPDU_MFR_SIZE;
 	s += OZB_MAC_MPDU_MHR_BASE_SIZE;
 	return s;
@@ -285,8 +396,12 @@ uint8_t ozb_mac_create_beacon(ozb_mpdu_ptr_t beacon)
 /******************************************************************************/
 void ozb_mac_parse_received_mpdu(uint8_t *psdu, uint8_t len)
 {
-	switch (OZB_MAC_MPDU_FRAME_CONTROL_GET_FRAME_TYPE(psdu)) {
+	/* TODO: perform some discarding action depending on the context :
+		 What is I am coordinator? */
+	switch (OZB_MAC_FCTL_GET_FRAME_TYPE(psdu)) {
 	case OZB_MAC_TYPE_BEACON :
+		/* TODO: make an extra compare, to see if Frame Control Field 
+			 is valid for a beacon, no_dest address, a_src address*/
 		if (ozb_kal_mutex_wait(MAC_RX_BEACON_MUTEX) < 0)
 			return; /* TODO: manage error? */
 		memcpy(rx_beacon, psdu, len);

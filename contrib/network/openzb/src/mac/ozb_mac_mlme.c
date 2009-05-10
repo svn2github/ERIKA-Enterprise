@@ -63,12 +63,17 @@ int8_t ozb_MLME_START_request(uint16_t PANId, uint8_t LogicalChannel,
 		ozb_MLME_START_confirm(OZB_MAC_INVALID_PARAMETER);
 		return OZB_MAC_ERR_NONE;
 	}
-	if (ozb_mac_pib.macShortAddress == 0xFFFF) {
+	if (ozb_mac_pib.macShortAddress == OZB_MAC_SHORT_ADDRESS_BCN_INVALID) {
 		ozb_MLME_START_confirm(OZB_MAC_NO_SHORT_ADDRESS);
 		return OZB_MAC_ERR_NONE;
 	}
-	if (PANCoordinator == OZB_TRUE)
+	if (PANCoordinator == OZB_TRUE) {
+		ozb_mac_status.is_pan_coordinator = 1; 
 		ozb_mac_status.is_coordinator = 1; 
+	} else {
+		/* TODO: the FFD can send BCN if already associated to a 
+			 PANCoord with the SF params of that PANCoord! */
+	}
 	if (CoordRealignment == OZB_TRUE) {
 		/* TODO: issue coord realignment command (see std.) */
 		return -OZB_MAC_ERR_STANDARD_UNSUPPORTED;
@@ -97,12 +102,13 @@ int8_t ozb_MLME_START_request(uint16_t PANId, uint8_t LogicalChannel,
 		return -OZB_MAC_ERR_STANDARD_UNSUPPORTED;
 		/* TODO: security levels management! */
 	}
-	if (StartTime == 0) {
+	if (ozb_mac_status.is_pan_coordinator == 1 || StartTime == 0) {
 		ozb_mac_superframe_stop();
-		ozb_mac_superframe_start(1000);
+		// ozb_mac_superframe_start(1000);
+		ozb_mac_superframe_start(0);
 	} else {
 		return -OZB_MAC_ERR_STANDARD_UNSUPPORTED;
-		/* TODO: Start Time > 0 management! */
+		/* TODO: Start Time > 0 management for nonPANCoord case ! */
 	}
 	ozb_MLME_START_confirm(OZB_MAC_SUCCESS);
 	return OZB_MAC_ERR_NONE;

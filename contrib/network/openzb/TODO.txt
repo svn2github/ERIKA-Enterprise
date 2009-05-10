@@ -3,6 +3,8 @@
 ********************************************************************************
 
 GENERAL:
+	- *3* Check the endianess, add macros for eandianess management when
+	  reading/writing the stack frame!
 	- *2* think some handle (function pointers?) to provide an easy way to 
 	  change the protocol behaviours (i.e. for baccarat, etc.)
 
@@ -33,8 +35,12 @@ ozb_mac_gts.c (GTS machine):
 	- *2* implement a gts_remove_entry functionality
 	- *1* perform gts maintenance: allocations, deallocations
 
+driver/radio/cc2420/inc/cc2420_hal_ee.h: 
+	- *1* I suggest to remove any reference to DEMOBOARD, shall we?
 
 TEST: 
+	- *2* Check the include file dependencies and relationship to see if
+	  only the "public" file are included.
 	- *1* need to test all the mechanisms
 
 LOG: 

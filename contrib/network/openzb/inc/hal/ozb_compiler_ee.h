@@ -47,4 +47,12 @@ typedef EE_INT32 int32_t;	/**< Unsigned 32 bit intgerer. */
 #define COMPILER_INLINE __INLINE__
 #endif
 
+#ifndef COMPILER_ISR
+#ifdef __PIC30__
+#define COMPILER_ISR(func) ISR2(func)
+#elif defined __AVR5__
+#define COMPILER_ISR(func) void func(void)
+#endif
+#endif
+
 #endif /* Header Protection */

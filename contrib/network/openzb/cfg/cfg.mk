@@ -9,6 +9,10 @@ ifeq ($(findstring __LIB_OPENZB__,$(LIB_OPT)),__LIB_OPENZB__)
 
 EE_SRCS += contrib/network/openzb/src/util/ozb_debug.c
 EE_SRCS += contrib/network/openzb/src/hal/ozb_radio_cc2420.c
+EE_SRCS += contrib/network/openzb/src/kal/ozb_kal_erika.c
+ifneq ($(findstring OZB_HAL_EXTERNAL_TIMER,$(EEOPT)), OZB_HAL_EXTERNAL_TIMER)
+EE_SRCS += contrib/network/openzb/src/hal/ozb_timer_dspic30.c
+endif
 
 EE_SRCS += contrib/network/openzb/src/phy/ozb_phy.c
 

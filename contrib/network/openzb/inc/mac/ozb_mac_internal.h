@@ -23,7 +23,9 @@ enum ozb_mac_state_id_t {
 
 struct ozb_mac_flags_t {
 	unsigned mac_initialized : 1;
+	unsigned is_pan_coordinator : 1;
 	unsigned is_coordinator : 1;
+	unsigned is_associated : 1;
 	unsigned beacon_enabled : 1;
 	unsigned sf_initialized : 1;
 	unsigned sf_context : 2;
