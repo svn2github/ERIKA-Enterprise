@@ -1,4 +1,4 @@
-/* ###*B*###
+/*
  * ERIKA Enterprise - a tiny RTOS for small microcontrollers
  *
  * Copyright (C) 2002-2008  Evidence Srl
@@ -36,7 +36,7 @@
  * version 2 along with ERIKA Enterprise; if not, write to the
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301 USA.
- * ###*E*### */
+ */
 
 /*
  * ERIKA Enterprise Basic - a tiny RTOS for small microcontrollers
@@ -63,7 +63,7 @@
 
 /*
  * Author: 2006 Paolo Gai
- * CVS: $Id: dspic_main.c,v 1.3 2008/07/17 17:37:51 francesco Exp $
+ * CVS: $Id: dspic_main.c,v 1.10 2008/06/19 08:58:09 francesco Exp $
  */
 
 #include "ee.h"
@@ -77,11 +77,8 @@
 #define STR(x)     XSTR(x)
 
 #define MODELNAME  STR(MODELN)
-#include MODELNAME 
-
-#define _scicos_openZB_c_
-
-#include "scicos_USB.h"
+#include MODELNAME
+#include "common.c"
 
 // Primary (XT, HS, EC) Oscillator with PLL
 _FOSCSEL(FNOSC_PRIPLL);
@@ -97,32 +94,30 @@ static int dspic_time;
 static double t;
 static double actTime;
 
-//TODO: mettere sotto ifdef __USE_ZIGBEE__
-float scicosUSB_rx_buffer[SCICOS_USB_CHANNELS] __attribute__((far));
-
 double get_scicos_time()
 {
 	return(actTime);
 }
 
 /* Program the Timer2 peripheral to raise interrupts */
-void T1_program(void)
+void T2_program(void)
 {
-	T1CON = 0;		    /* Stops the Timer1 and reset control reg	*/
-	TMR1  = 0;		    /* Clear contents of the timer register	*/
-	PR1   = 0x9C40;		/* Load the Period register wit the value 50000	ticks = 25 ms*/
-	IPC0bits.T1IP = 5;	/* Set Timer1 priority to 1		*/
-	IFS0bits.T1IF = 0;	/* Clear the Timer1 interrupt status flag	*/
-	IEC0bits.T1IE = 1;	/* Enable Timer1 interrupts		*/
-	T1CONbits.TON = 1;	/* Start Timer1 with prescaler settings at 1:1
-				* and clock source set to the internal 
-				* instruction cycle			*/
+	T2CON = 0;		/* Stops the Timer2 and reset control reg	*/
+	TMR2  = 0;		/* Clear contents of the timer register	*/
+	PR2   = 0x9c40;		/* 1ms @ 40Mhz */
+//	PR2   = 0x07D0;		/* 1ms @ 2MHz */
+	IPC1bits.T2IP = 5;	/* Set Timer2 priority to 5		*/
+	IFS0bits.T2IF = 0;	/* Clear the Timer2 interrupt status flag	*/
+	IEC0bits.T2IE = 1;	/* Enable Timer2 interrupts		*/
+	T2CONbits.TON = 1;	/* Start Timer2 with prescaler settings at 1:1
+				  * and clock source set to the internal 
+				  * instruction cycle			*/
 }
 
 /* Clear the Timer2 interrupt status flag */
-void T1_clear(void)
+void T2_clear(void)
 {
-	IFS0bits.T1IF = 0;
+	IFS0bits.T2IF = 0;
 }
 
 
@@ -203,13 +198,13 @@ void update_lcd(void)
 /* This is an ISR Type 2 which is attached to the Timer2 peripheral IRQ pin
  * The ISR simply calls CounterTick to implement the timing reference
  */
-ISR2(_T1Interrupt)
+ISR2(_T2Interrupt)
 {
 	/* clear the interrupt source */
-	T1_clear();
+	T2_clear();
 
 	/* count the interrupts, waking up expired alarms */
-	CounterTick(SciCounter);
+	CounterTick(myCounter);
 }
 
 TASK(rt_sci)
@@ -226,55 +221,47 @@ TASK(rt_LCD)
 }
 #endif
 
-TASK(rx_USB)
-{
-	struct flex_bus_packet_t pkt;
-	int retv;
-
-	memset((EE_UINT8*) &pkt, 0, sizeof(struct flex_bus_packet_t));
-	retv = EE_usb_read((EE_UINT8 *) &pkt, sizeof(struct flex_bus_packet_t));
-	if (retv == sizeof(struct flex_bus_packet_t)) {
-		GetResource(scicosUSB_rx_buffer_mutex);
-		scicosUSB_rx_buffer[pkt.channel] = *((float*) pkt.payload.data);
-		ReleaseResource(scicosUSB_rx_buffer_mutex); 
-	}
-}
-
-
 int main(void)
 {
 	/* Clock setup */
 	CLKDIVbits.DOZEN   = 0;
 	CLKDIVbits.PLLPRE  = 0;
 	CLKDIVbits.PLLPOST = 0;
-	PLLFBDbits.PLLDIV  = 78;
+	PLLFBDbits.PLLDIV  = 80;// 78 old value---check!
+	
 	/* Wait for PLL to lock */
 	while(OSCCONbits.LOCK!=1);
-	#ifdef __USE_LCD__
-	EE_lcd_init(); /* Init LCD */
-	EE_lcd_clear(); /* Clean LCD */
-	#endif
+
+#ifdef __USE_LCD__
+	/* Init LCD */
+	EE_lcd_init();
+	
+	/* Clean LCD */
+	EE_lcd_clear();
+#endif
+
 
 	NAME(MODEL,_init)(); 
 
 	t = 0.0; //simulation time
   
 	/* Program Timer 1 to raise interrupts */
-	T1_program();
-    
-	EE_demoboard_leds_init();
+	T2_program();
   
-	scicos_time = get_tsamp();
+	scicos_time = NAME(MODEL,_get_tsamp)();
 	dspic_time = (int) (1000*scicos_time);
 	SetRelAlarm(AlarmSci, dspic_time, dspic_time);
 		
-	#ifdef __USE_LCD__
-	SetRelAlarm(AlarmLcd, dspic_time, 500);
+  #ifdef __USE_LCD__
+	  SetRelAlarm(AlarmLcd, dspic_time, 500);
 	#endif
-	SetRelAlarm(AlarmUSB, dspic_time, dspic_time);
 
 	/* Forever loop: background activities (if any) should go here */
-	for (;;) ;	
+	for (;;) {
+//#ifdef __USE_LCD__
+//		update_lcd();
+//#endif
+	}
 	
 	return 0;
 }
