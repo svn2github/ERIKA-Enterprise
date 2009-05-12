@@ -29,5 +29,6 @@
 
 enum ozb_phy_code_t ozb_radio_phy_get_status(void);
 int8_t ozb_radio_phy_set_channel(uint8_t ch);
+int8_t ozb_radio_phy_set_rx_on(void);
 
 #endif /* Header Protection */

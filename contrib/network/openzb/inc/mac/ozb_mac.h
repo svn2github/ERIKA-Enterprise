@@ -40,6 +40,13 @@ do {							\
 #define OZB_MAC_FCTL_GET_FRAME_VERSION(fcf)	((((fcf)[1]) >> 4) & 0x03)
 #define OZB_MAC_FCTL_GET_SRC_ADDR_MODE(fcf)	((((fcf)[1]) >> 6) & 0x03)
 
+#define OZB_MAC_SF_SPEC_GET_BO(ss)		((*(ss)) & 0x0F)
+#define OZB_MAC_SF_SPEC_GET_SO(ss)		((*(ss)) >> 4)
+#define OZB_MAC_SF_SPEC_GET_LAST_CAP_TSLOT(ss)	(((ss)[1]) & 0x0F)
+#define OZB_MAC_SF_SPEC_GET_BLE(ss)		((((ss)[1]) >> 4) & 0x03)
+#define OZB_MAC_SF_SPEC_GET_PAN_COORD(ss)	((((ss)[1]) >> 6) & 0x01)
+#define OZB_MAC_SF_SPEC_GET_ASSOC_PERMIT(ss)	((((ss)[1]) >> 7) & 0x01)
+
 /*
 #define OZB_MAC_MPDU_SF_SPECIFICATION(mpdu, offset) 	((mpdu) + 3 + (offset))
 #define OZB_MAC_MPDU_GTS_FIELDS(mpdu, offset) 		((mpdu) + 5 + (offset))
@@ -58,6 +65,28 @@ do {							\
 
 #define OZB_MAC_GTS_DIRECTION_SET(gts_dirs, id, val) 			   \
 	(*(gts_dirs) = (*(gts_dirs) & (~(0x1 << (id))))	| ((val)) << (id)) \
+
+
+#define OZB_MAC_GTS_SPEC_GET_DESCRIPTOR_COUNT(gts_spec) \
+	(*(gts_spec) & 0x07)				\
+
+#define OZB_MAC_GTS_SPEC_GET_PERMIT(gts_spec) 		\
+	((*(gts_spec)) >> 7)				\
+
+#define OZB_MAC_GTS_DIRECTION_GET(gts_dirs, id) 	\
+	((*(gts_dirs) >> (id)) & 0x1) 			\
+
+#define OZB_MAC_GTS_DES_GET_ADDRESS(gts_des) 		\
+	(((uint8_t *)(gts_des))[0] + 			\
+	(((uint16_t)((uint8_t *)(gts_des))[1]) << 8))	\
+
+
+#define OZB_MAC_GTS_DES_GET_LENGTH(gts_des) 		\
+	(((gts_des)[2]) >> 4)				\
+
+#define OZB_MAC_GTS_DES_GET_START_SLOT(gts_des) 	\
+	(((gts_des)[2]) & 0x0F)				\
+
 
 
 #define OZB_MAC_PENDING_ADDR_SPEC_SET_EMPTY(pend_spec)			\

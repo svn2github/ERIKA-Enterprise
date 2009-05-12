@@ -81,6 +81,19 @@ int8_t ozb_radio_phy_set_channel(uint8_t ch)
 	return OZB_RADIO_ERR_NONE;
 }
 
+int8_t ozb_radio_phy_set_rx_on(void)
+{
+	int8_t retv;
+
+	retv = ozb_PLME_SET_TRX_STATE_request(OZB_PHY_RX_ON);
+	if (retv < 0)
+		return retv;
+	if (phy_status != OZB_PHY_RX_ON) /* Check Expected status */
+		return -OZB_RADIO_ERR_PHY_FAILURE;
+	return OZB_RADIO_ERR_NONE;
+}
+
+
 
 #ifndef OZB_USE_ONLY_802154_PHY	
 /******************************************************************************/

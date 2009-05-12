@@ -4,6 +4,54 @@
 #include <stdio.h> //TODO: REMOVE together with the sprintf() !!!!!
 #endif
 
+int8_t ozb_MLME_ASSOCIATE_request(uint8_t LogicalChannel, uint8_t ChannelPage,
+				  uint8_t CoordAddrMode, uint16_t CoordPANId,
+				  void *CoordAddress,
+				  uint8_t CapabilityInformation,
+				  uint8_t SecurityLevel, uint8_t KeyIdMode,
+				  uint8_t *KeySource, uint8_t KeyIndex)
+{
+	#ifdef OZB_DEBUG_LOG
+	char s[100];
+	sprintf(s, "MLME_ASSOCIATE_request(panid=%u ...)", CoordPANId);
+	ozb_debug_print(s);
+	#endif
+
+	if (!ozb_mac_status.mac_initialized)
+		return -OZB_MAC_ERR_NOT_INITIALIZED;
+	switch (CoordAddrMode) {
+	case OZB_MAC_ADDRESS_SHORT :
+		memcpy(&(ozb_mac_pib.macCoordShortAddress), CoordAddress, 
+		       sizeof(ozb_mac_dev_addr_short_t));
+		break;
+	case OZB_MAC_ADDRESS_EXTD :
+		memcpy(&(ozb_mac_pib.macCoordExtendedAddress), CoordAddress, 
+		       sizeof(ozb_mac_dev_addr_extd_t));
+		break;
+	default:
+		ozb_MLME_ASSOCIATE_confirm(OZB_MAC_SHORT_ADDRESS_ASSOC_INVALID, 
+					   OZB_MAC_INVALID_PARAMETER, 
+					   0, 0, NULL, 0);
+		return OZB_MAC_ERR_NONE;
+	}
+	ozb_mac_pib.macPANId = CoordPANId;
+	if (ozb_radio_phy_set_channel(LogicalChannel) < 0)
+		return OZB_MAC_ERR_PHY_FAILURE;
+	/* TODO:use the PHY_set primitives to set ChannelPage!*/
+	if (SecurityLevel != 0) {
+		return -OZB_MAC_ERR_STANDARD_UNSUPPORTED;
+		/* TODO: security levels management! */
+	}
+	/* TODO: initiate the association procedure!!!! */
+	/* TODO: current dummy: assoctiation succes, and give hardcoded addr */
+	ozb_mac_status.track_beacon = 1;
+	ozb_mac_superframe_stop();
+	ozb_mac_superframe_start(0);
+	ozb_MLME_ASSOCIATE_confirm(0x0002, OZB_MAC_SUCCESS, 0, 0, NULL, 0);
+	ozb_mac_pib.macShortAddress = 0x0002;//TODO: remove, make this with std
+	return OZB_MAC_ERR_NONE;
+}
+
 int8_t ozb_MLME_SET_request(enum ozb_mac_pib_id_t PIBAttribute,
         /*TODO: enough?*/   uint16_t PIBAttributeIndex,
                             void *PIBAttributeValue)
@@ -104,7 +152,7 @@ int8_t ozb_MLME_START_request(uint16_t PANId, uint8_t LogicalChannel,
 	}
 	if (ozb_mac_status.is_pan_coordinator == 1 || StartTime == 0) {
 		ozb_mac_superframe_stop();
-		// ozb_mac_superframe_start(1000);
+		//ozb_mac_superframe_start(1000);
 		ozb_mac_superframe_start(0);
 	} else {
 		return -OZB_MAC_ERR_STANDARD_UNSUPPORTED;

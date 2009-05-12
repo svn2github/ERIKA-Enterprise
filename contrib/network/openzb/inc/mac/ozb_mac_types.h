@@ -154,7 +154,7 @@ enum ozb_mac_addr_mode_t {
 
 struct ozb_gts_info_t {
 //	uint8_t gts_id;
-	unsigned starting_slot : 4;
+	unsigned starting_tslot : 4;
 	unsigned length : 4;
 	unsigned direction : 1;
 	uint16_t dev_address; /* TODO: Is useful?*/

@@ -20,10 +20,18 @@ static uint16_t rx_command_length;
 /******************************************************************************/
 /*                          MAC Layer Public Data                             */
 /******************************************************************************/
-struct ozb_mac_flags_t ozb_mac_status = {0, 0, 0, 0, 0, 0, 0};
+struct ozb_mac_flags_t ozb_mac_status = {0, 0, 0, 0, 0, 0, 0, 0};
 struct ozb_mac_pib_t ozb_mac_pib /*= {
 	TODO: set a default values as already done for the phy_pib!	
 }*/;
+struct ozb_mac_gts_stat_t ozb_mac_gts_stat = {
+	0, 
+	OZB_MAC_SUPERFRAME_LAST_SLOT,
+	OZB_MAC_SUPERFRAME_FIRST_SLOT,
+	0,
+	OZB_MAC_SUPERFRAME_FIRST_SLOT,
+	0
+};
 
 
 /******************************************************************************/
@@ -52,8 +60,8 @@ static void set_default_mac_pib(void)
 	ozb_mac_pib.macMaxFrameTotalWaitTime = 0; /* TODO: apply equation!! */
 	ozb_mac_pib.macMaxFrameRetries = 3;
 	ozb_mac_pib.macMinBE = 3;
-	ozb_mac_pib.macMinLIFSPeriod = 40; /* TODO: apply equation!! */
-	ozb_mac_pib.macMinSIFSPeriod = 12; /* TODO: apply equation!! */
+	ozb_mac_pib.macMinLIFSPeriod = 40; /* TODO: apply table!! */
+	ozb_mac_pib.macMinSIFSPeriod = 12; /* TODO: apply table!! */
 	ozb_mac_pib.macPANId = 0xFFFF;
 	ozb_mac_pib.macResponseWaitTime = 32;
 	ozb_mac_pib.macRxOnWhenIdle = 0;
@@ -182,7 +190,7 @@ uint8_t set_superframe_specification(uint8_t *ss, uint8_t bo, uint8_t so,
 	ss[0] = (bo << 0) | (so << 4); 
 	ss[1] = (final_cap_slot << 0) | (ble) << 4 | (pan_coord << 6)  | 
 		(assoc_permit << 7);
-	return 2;
+	return OZB_MAC_MPDU_SUPERFRAME_SPEC_SIZE;
 }
 
 ///COMPILER_INLINE 
@@ -233,6 +241,7 @@ static void process_rx_beacon(void)
 	uint8_t s;
 	ozb_mac_dev_addr_extd_t src_addr; 
 	uint16_t src_panid = 0; 
+	uint8_t *bcn = rx_beacon;
 
 	if (ozb_kal_mutex_wait(MAC_RX_BEACON_MUTEX) < 0)
 		return; /* TODO: manage error? */
@@ -241,14 +250,16 @@ static void process_rx_beacon(void)
 		 this task is executed only for "positive" and long action! */
 	/* NOTE: Src Address is supposed to exist, NOT Dst Address.
 		 Assuming a pre-check in the dispatcher */
-	s = get_addressing_fields(OZB_MAC_MPDU_ADDRESSING_FIELDS(rx_beacon),
-			//OZB_MAC_FCTL_GET_DST_ADDR_MODE(rx_beacon),
+ozb_debug_print("BCN -> Got One!");
+	s = get_addressing_fields(OZB_MAC_MPDU_ADDRESSING_FIELDS(bcn),
+			//OZB_MAC_FCTL_GET_DST_ADDR_MODE(bcn),
 				OZB_MAC_ADDRESS_NONE, NULL, NULL,
-				OZB_MAC_FCTL_GET_SRC_ADDR_MODE(rx_beacon),
+				OZB_MAC_FCTL_GET_SRC_ADDR_MODE(bcn),
 				&src_panid, (void *) src_addr);
 	if (src_panid != ozb_mac_pib.macPANId) 
 		goto process_rx_beacon_exit;
-	if (OZB_MAC_FCTL_GET_SRC_ADDR_MODE(rx_beacon) == OZB_MAC_ADDRESS_SHORT){
+ozb_debug_print("BCN -> Panid ok!");
+	if (OZB_MAC_FCTL_GET_SRC_ADDR_MODE(bcn) == OZB_MAC_ADDRESS_SHORT){
 		if (*((ozb_mac_dev_addr_short_t*) src_addr) != 
 		    			ozb_mac_pib.macCoordShortAddress)
 			goto process_rx_beacon_exit;
@@ -257,10 +268,21 @@ static void process_rx_beacon(void)
 		     			ozb_mac_pib.macCoordExtendedAddress))
 			goto process_rx_beacon_exit;
 	}
-	ozb_mac_superframe_resync();
+ozb_debug_print("BCN -> SrcAddr ok!");
+	/* TODO: think to security infos? */
+	bcn = OZB_MAC_MPDU_MAC_PAYLOAD(rx_beacon, s);
+	ozb_mac_pib.macBeaconOrder = OZB_MAC_SF_SPEC_GET_BO(bcn); 
+	ozb_mac_pib.macSuperframeOrder = OZB_MAC_SF_SPEC_GET_SO(bcn); 
+	ozb_mac_gts_set_cap_end(OZB_MAC_SF_SPEC_GET_LAST_CAP_TSLOT(bcn));
+	/*TODO: Use the BLE fiels w.r.t the std */
+	ozb_mac_pib.macAssociationPermit=OZB_MAC_SF_SPEC_GET_ASSOC_PERMIT(bcn);
+	/* TODO: read BO and SO and update the PIB!! */
+	bcn += OZB_MAC_MPDU_SUPERFRAME_SPEC_SIZE;
+	s = ozb_mac_gts_get_gts_fields(bcn);
 process_rx_beacon_exit:
 	if (ozb_kal_mutex_signal(MAC_RX_BEACON_MUTEX) < 0)
 		return; /* TODO: manage error? */
+	ozb_mac_superframe_resync();
 }
 
 static void process_rx_data(void) 
@@ -347,7 +369,6 @@ uint8_t ozb_mac_create_beacon(ozb_mpdu_ptr_t bcn)
 {
 	uint8_t s;
 	ozb_mac_dev_addr_extd_t e_addr;
-	void * addr;
 
 	memset(bcn, 0x0, sizeof(ozb_mpdu_t));
 	set_frame_control(OZB_MAC_MPDU_FRAME_CONTROL(bcn), 
@@ -361,23 +382,22 @@ uint8_t ozb_mac_create_beacon(ozb_mpdu_ptr_t bcn)
 	if (ozb_mac_pib.macShortAddress == OZB_MAC_SHORT_ADDRESS_BCN_USE_EXTD) {
 		OZB_MAC_EXTD_ADDR_SET(e_addr, OZB_MAC_DEVICE_EXTD_ADDRESS_HIGH,
 				      OZB_MAC_DEVICE_EXTD_ADDRESS_LOW);
-		addr = (void *) e_addr;
 		s = set_addressing_fields(OZB_MAC_MPDU_ADDRESSING_FIELDS(bcn),
-					OZB_MAC_ADDRESS_NONE, 0, NULL, 
-					OZB_MAC_ADDRESS_EXTD, 
-					ozb_mac_pib.macPANId, addr);
+					  OZB_MAC_ADDRESS_NONE, 0, NULL, 
+					  OZB_MAC_ADDRESS_EXTD, 
+					  ozb_mac_pib.macPANId, (void*) e_addr);
 	} else {
 		s = set_addressing_fields(OZB_MAC_MPDU_ADDRESSING_FIELDS(bcn),
-					OZB_MAC_ADDRESS_NONE, 0, NULL, 
-					OZB_MAC_ADDRESS_SHORT, 
-					ozb_mac_pib.macPANId, 
-				  	(void *)&(ozb_mac_pib.macShortAddress));
+					  OZB_MAC_ADDRESS_NONE, 0, NULL, 
+					  OZB_MAC_ADDRESS_SHORT, 
+					  ozb_mac_pib.macPANId, 
+				  	 (void*)&(ozb_mac_pib.macShortAddress));
 	}
 	/* TODO: think to security infos? */
 	s += set_superframe_specification(OZB_MAC_MPDU_MAC_PAYLOAD(bcn, s),
 					  ozb_mac_pib.macBeaconOrder, 
 					  ozb_mac_pib.macSuperframeOrder, 
-					  ozb_mac_gts_last_cap_slot(), 
+					  ozb_mac_gts_get_cap_end(), 
 					  0, /*TODO: Use w.r.t the std */
 					  ozb_mac_status.is_pan_coordinator, 
 					  ozb_mac_pib.macAssociationPermit);
@@ -400,6 +420,9 @@ void ozb_mac_parse_received_mpdu(uint8_t *psdu, uint8_t len)
 		 What is I am coordinator? */
 	switch (OZB_MAC_FCTL_GET_FRAME_TYPE(psdu)) {
 	case OZB_MAC_TYPE_BEACON :
+		if (ozb_mac_status.is_pan_coordinator || 
+		    ozb_mac_status.is_coordinator)
+			return; /* TODO: check if this is correct w.r.t std */
 		/* TODO: make an extra compare, to see if Frame Control Field 
 			 is valid for a beacon, no_dest address, a_src address*/
 		if (ozb_kal_mutex_wait(MAC_RX_BEACON_MUTEX) < 0)

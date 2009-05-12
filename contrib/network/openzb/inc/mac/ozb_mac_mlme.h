@@ -3,9 +3,22 @@
 
 #include <mac/ozb_mac_types.h>
 
+COMPILER_INLINE 
+uint8_t ozb_mac_capability_information(uint8_t alt_pan_coord, uint8_t dev_type,
+				       uint8_t power_src, uint8_t rx_on_idle,
+				       uint8_t security, uint8_t alloc_addr) 
+{
+
+	return 	((alt_pan_coord & 0x1) | ((dev_type & 0x1) << 1) | 
+		((power_src & 0x1) << 2) | ((rx_on_idle & 0x1) << 3) |
+		((security & 0x1) << 6) | ((alloc_addr & 0x1) << 7));
+}
+			
+
+
 int8_t ozb_MLME_ASSOCIATE_request(uint8_t LogicalChannel, uint8_t ChannelPage,
 				  uint8_t CoordAddrMode, uint16_t CoordPANId,
-				  ozb_mac_dev_addr_t CoordAddress,
+				  void *CoordAddress,
 				  uint8_t CapabilityInformation,
 				  uint8_t SecurityLevel, uint8_t KeyIdMode,
 				  uint8_t *KeySource, uint8_t KeyIndex);

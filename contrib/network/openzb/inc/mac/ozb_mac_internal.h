@@ -27,20 +27,38 @@ struct ozb_mac_flags_t {
 	unsigned is_coordinator : 1;
 	unsigned is_associated : 1;
 	unsigned beacon_enabled : 1;
+	unsigned track_beacon : 1;
 	unsigned sf_initialized : 1;
 	unsigned sf_context : 2;
 };
 
+struct ozb_mac_gts_stat_t {
+	unsigned descriptor_count : 3; // TODO: maybe is useless!!!
+	unsigned first_cfp_tslot : 4;
+	unsigned tx_start_tslot : 4;
+	unsigned tx_length : 4;
+	unsigned rx_start_tslot : 4;
+	unsigned rx_length : 4;
+};
+
 extern struct ozb_mac_pib_t ozb_mac_pib;
 extern struct ozb_mac_flags_t ozb_mac_status;
+extern struct ozb_mac_gts_stat_t ozb_mac_gts_stat;
 
 uint8_t ozb_mac_create_beacon(ozb_mpdu_ptr_t beacon);
 void ozb_mac_parse_received_mpdu(uint8_t *psdu, uint8_t len);
 
 int8_t ozb_mac_gts_init(void); 
-uint8_t ozb_mac_gts_last_cap_slot(void); 
 uint8_t ozb_mac_gts_set_gts_fields(uint8_t *gf);
-
+uint8_t ozb_mac_gts_get_gts_fields(uint8_t *gf);
+COMPILER_INLINE void ozb_mac_gts_set_cap_end(uint8_t last_cap_tslot) 
+{
+	ozb_mac_gts_stat.first_cfp_tslot = last_cap_tslot + 1;
+}
+COMPILER_INLINE uint8_t ozb_mac_gts_get_cap_end(void) 
+{
+	return ozb_mac_gts_stat.first_cfp_tslot - 1;
+}
 
 int8_t ozb_mac_superframe_init(void);
 void ozb_mac_superframe_start(uint32_t offset);
