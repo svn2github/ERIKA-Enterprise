@@ -127,8 +127,15 @@
 	;salvare i registri  r18 - r27, r30 + r31, SREG
 
 
-	PUSH R0
 	PUSH R1
+	PUSH R0
+	IN R0, 0X3F
+	PUSH R0
+	LDS R0, 0X005B
+	PUSH R0
+	EOR R1, R1
+	
+	
 	PUSH R18
 	PUSH R19
 	PUSH R20
@@ -142,15 +149,11 @@
 	PUSH R30
 	PUSH R31
 	
-	;save SREG	
+	PUSH R29
+	PUSH R28
+	IN R28, 0X3D
+	IN R29, 0X3E
 	
-
-
-
-	IN R1, 0x3F  
-	PUSH R1
-	CLR R1
-
 #ifdef __ALLOW_NESTED_IRQ__
 
 	; increase the nesting level
@@ -275,13 +278,8 @@
 
 	// restore IRQ-handler working registers and return from IRQ
 
-	POP r1
-	OUT 0x3F, r1  
-	
-	;//restore SREG
-	
-	//restore working registers
-	
+	POP R28
+	POP R29
 	POP r31
 	POP r30
 	POP r27
@@ -294,8 +292,13 @@
 	POP r20
 	POP r19
 	POP r18
-	POP r1
-	POP r0
+	
+	POP R0
+	STS 0X005B, R0
+	POP R0
+	OUT 0X3F, R0
+	POP R0
+	POP R1
 	.endm
 	
 	
@@ -334,8 +337,15 @@
 	// overwritten if another interrupt occurs while the current
 	// one is being processed
 	
-	PUSH R0
 	PUSH R1
+	PUSH R0
+	IN R0, 0X3F
+	PUSH R0
+	LDS R0, 0X005B
+	PUSH R0
+	EOR R1, R1
+	
+	
 	PUSH R18
 	PUSH R19
 	PUSH R20
@@ -349,11 +359,11 @@
 	PUSH R30
 	PUSH R31
 	
-	//save SREG	
-	
-	IN R1, 0x3F  
-	PUSH R1
-	CLR R1
+	PUSH R29
+	PUSH R28
+	IN R28, 0X3D
+	IN R29, 0X3E
+
 		
 #ifdef __ALLOW_NESTED_IRQ__
 
@@ -513,7 +523,7 @@
 
 #else
 
-	BRNE 2f 
+	BREQ 1f 
 2:
 	call EE_avr5_hal_ready2stacked 
 	
@@ -524,10 +534,8 @@
 	
 	// restore IRQ-handler working registers and return from IRQ
 
-	POP r1
-	OUT 0x3F, r1  //restore SREG
-	
-	//restore working registers
+	POP R28
+	POP R29
 	POP r31
 	POP r30
 	POP r27
@@ -540,8 +548,13 @@
 	POP r20
 	POP r19
 	POP r18
-	POP r1
-	POP r0
+	
+	POP R0
+	STS 0X005B, R0
+	POP R0
+	OUT 0X3F, R0
+	POP R0
+	POP R1
 	
 
 
