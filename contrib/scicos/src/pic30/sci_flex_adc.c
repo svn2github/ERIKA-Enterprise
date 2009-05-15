@@ -47,7 +47,7 @@ static void end(scicos_block *block)
 {
 }
 
-void flex_dmb_adc(scicos_block *block,int flag)
+void flex_adc(scicos_block *block,int flag)
 {
 	switch (flag) {
 		case 1:	/* set output */

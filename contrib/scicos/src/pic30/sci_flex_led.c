@@ -29,7 +29,7 @@ static void end(scicos_block *block)
 {
 }
 
-void rt_led(scicos_block *block,int flag)
+void flex_led(scicos_block *block,int flag)
 {
 	switch (flag) {
 		case 1:	/* set output */

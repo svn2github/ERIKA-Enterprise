@@ -85,7 +85,7 @@ static void end(scicos_block *block)
 	T3CONbits.TON = 0;
 }
 
-void rt_buzzer(scicos_block *block,int flag)
+void flex_buzzer(scicos_block *block,int flag)
 {
 	switch (flag) {
 		case 1:	/* set output */

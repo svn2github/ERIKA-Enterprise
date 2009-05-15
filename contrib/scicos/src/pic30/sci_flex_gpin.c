@@ -65,7 +65,7 @@ static void end(scicos_block *block)
 {
 }
 
-void rt_gpin(scicos_block *block,int flag)
+void flex_gpin(scicos_block *block,int flag)
 {
 	switch (flag) {
 		case 1:	/* set output */

@@ -77,7 +77,7 @@ static void end(scicos_block *block)
 {
 }
 
-void rt_lcd(scicos_block *block,int flag)
+void flex_lcd(scicos_block *block,int flag)
 {
 	switch (flag) {
 		case 1:	/* set output */

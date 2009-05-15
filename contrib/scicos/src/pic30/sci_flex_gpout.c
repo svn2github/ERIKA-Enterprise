@@ -78,7 +78,7 @@ static void end(scicos_block *block)
 	LATD  &= 0xFFFF - ( 0x01 << (pin-1+8) ); //** set the bit to zero at the ending 
 }
 
-void rt_gpout(scicos_block *block,int flag)
+void flex_gpout(scicos_block *block,int flag)
 {
 	switch (flag) {
 		case 1:	/* set output */

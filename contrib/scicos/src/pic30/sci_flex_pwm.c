@@ -148,7 +148,7 @@ static void end(scicos_block *block)
 	}
 }
 
-void rt_pwmout(scicos_block *block,int flag)
+void flex_pwm(scicos_block *block,int flag)
 {
 	switch (flag) {
 		case 1:	/* set output */
