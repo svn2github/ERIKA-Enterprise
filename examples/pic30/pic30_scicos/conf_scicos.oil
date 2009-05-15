@@ -1,4 +1,4 @@
-/* ###*B*###
+/*
  * ERIKA Enterprise - a tiny RTOS for small microcontrollers
  *
  * Copyright (C) 2002-2008  Evidence Srl
@@ -36,20 +36,27 @@
  * version 2 along with ERIKA Enterprise; if not, write to the
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301 USA.
- * ###*E*### */
+ */
 
 CPU mySystem {
 
 	OS myOs {
 		EE_OPT = "DEBUG";
 		EE_OPT = "NODEPS";
+		EE_OPT = "VERBOSE";
 
-#include "conf_embcodegen.oil"
+#ifndef __NO_MALLOC__
+		LDFLAGS = "--heap=8000";
+#endif // __NO_MALLOC__
 
 		EE_OPT = "__ADD_LIBS__";
 
 		CPU_DATA = PIC30 {
+
 			APP_SRC = "dspic_main.c";
+			APP_SRC = "common.c";
+			// A NEW HOPE: we miss a src hopefully added by the codegen in app.mk
+
 			MULTI_STACK = FALSE;
 			ICD2 = TRUE;
 		};
@@ -59,6 +66,11 @@ CPU mySystem {
 		};
 		
 		BOARD_DATA = EE_FLEX {
+
+			//TYPE = DEMO {
+			//	OPTIONS = ALL;
+			//};
+
 		};
 		
 		KERNEL_TYPE = FP;
@@ -66,6 +78,7 @@ CPU mySystem {
 		LIB = ENABLE {
 			NAME = "SCICOS";
 		};
+		
 	};
 
 	TASK rt_sci {
@@ -74,11 +87,31 @@ CPU mySystem {
 		SCHEDULE = FULL;
 	};
 
-	COUNTER SciCounter;
+#ifdef __USE_LCD__
+ 	TASK rt_LCD {
+		PRIORITY = 3;
+		STACK = SHARED;
+		SCHEDULE = FULL;
+	};
+#endif // __USE_LCD
+	
+//#include "tasks_to_add.oil"
+
+	COUNTER sciCounter;
 
 	ALARM AlarmSci {
-		COUNTER = "SciCounter";
-		ACTION = ACTIVATETASK { TASK = "rt_sci"; };		
+		COUNTER = "sciCounter";
+		ACTION = ACTIVATETASK { TASK = "rt_sci"; };
 	};
+
+#ifdef __USE_LCD__	
+	ALARM AlarmLcd {
+		COUNTER = "sciCounter";
+		ACTION = ACTIVATETASK { TASK = "rt_LCD"; };
+	};
+#endif // __USE_LCD__
+
+//#include "alarms_to_add.oil"
+
 };
 

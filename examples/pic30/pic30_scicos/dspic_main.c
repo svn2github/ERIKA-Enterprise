@@ -39,29 +39,6 @@
  */
 
 /*
- * ERIKA Enterprise Basic - a tiny RTOS for small microcontrollers
- *
- * Copyright (C) 2002-2007  Evidence Srl
- *
- * This file is part of ERIKA Enterprise Basic.
- *
- * ERIKA Enterprise Basic is free software; you can redistribute it
- * and/or modify it under the terms of the GNU General Public License
- * version 2 as published by the Free Software Foundation.
- *
- * ERIKA Enterprise Basic is distributed in the hope that it will be
- * useful, but WITHOUT ANY WARRANTY; without even the implied warranty
- * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License version 2 for more details.
- *
- * You should have received a copy of the GNU General Public License
- * version 2 along with ERIKA Enterprise Basic; if not, write to the
- * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301 USA.
- */
-
-
-/*
  * Author: 2006 Paolo Gai
  * CVS: $Id: dspic_main.c,v 1.10 2008/06/19 08:58:09 francesco Exp $
  */
@@ -73,12 +50,14 @@
 #define XNAME(x,y)  x##y
 #define NAME(x,y)   XNAME(x,y)
 
+/*---------------------------
 #define XSTR(x)    #x
 #define STR(x)     XSTR(x)
 
 #define MODELNAME  STR(MODELN)
 #include MODELNAME
 #include "common.c"
+----------------------------*/
 
 // Primary (XT, HS, EC) Oscillator with PLL
 _FOSCSEL(FNOSC_PRIPLL);
@@ -93,6 +72,11 @@ static double scicos_time; //simple time
 static int dspic_time;
 static double t;
 static double actTime;
+
+extern int NAME(MODELNAME,_init)(void);
+extern double	NAME(MODELNAME,_get_tsamp)(void);
+extern int NAME(MODELNAME,_isr)(double);
+extern int NAME(MODELNAME,_end)(void);
 
 double get_scicos_time()
 {
@@ -193,8 +177,6 @@ void update_lcd(void)
 
 #endif
 
-
-
 /* This is an ISR Type 2 which is attached to the Timer2 peripheral IRQ pin
  * The ISR simply calls CounterTick to implement the timing reference
  */
@@ -204,13 +186,13 @@ ISR2(_T2Interrupt)
 	T2_clear();
 
 	/* count the interrupts, waking up expired alarms */
-	CounterTick(myCounter);
+	CounterTick(sciCounter);
 }
 
 TASK(rt_sci)
 {
 	actTime=t;
-	NAME(MODEL,_isr)(actTime);
+	NAME(MODELNAME,_isr)(actTime);
 	t += scicos_time;
 }
 
@@ -240,28 +222,23 @@ int main(void)
 	EE_lcd_clear();
 #endif
 
-
-	NAME(MODEL,_init)(); 
+	NAME(MODELNAME,_init)(); 
 
 	t = 0.0; //simulation time
   
 	/* Program Timer 1 to raise interrupts */
 	T2_program();
   
-	scicos_time = NAME(MODEL,_get_tsamp)();
+	scicos_time = NAME(MODELNAME,_get_tsamp)();
 	dspic_time = (int) (1000*scicos_time);
 	SetRelAlarm(AlarmSci, dspic_time, dspic_time);
 		
-  #ifdef __USE_LCD__
-	  SetRelAlarm(AlarmLcd, dspic_time, 500);
-	#endif
+#ifdef __USE_LCD__
+	SetRelAlarm(AlarmLcd, dspic_time, 500);
+#endif
 
 	/* Forever loop: background activities (if any) should go here */
-	for (;;) {
-//#ifdef __USE_LCD__
-//		update_lcd();
-//#endif
-	}
+	for (;;);
 	
 	return 0;
 }
