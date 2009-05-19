@@ -16,6 +16,8 @@ static ozb_mpdu_t rx_command;
 static uint16_t rx_beacon_length;
 static uint16_t rx_data_length;
 static uint16_t rx_command_length;
+CQUEUE_DEFINE(ozb_mac_queue_gts, struct ozb_mac_frame_t,OZB_MAC_GTS_QUEUE_SIZE);
+CQUEUE_DEFINE(ozb_mac_queue_cap, struct ozb_mac_frame_t,OZB_MAC_CAP_QUEUE_SIZE);
 
 /******************************************************************************/
 /*                          MAC Layer Public Data                             */
@@ -104,32 +106,37 @@ COMPILER_INLINE
 uint8_t set_addressing_fields(uint8_t *af, enum ozb_mac_addr_mode_t dst_mode,
 			      uint16_t dst_panid, void *dst_addr,
 			      enum ozb_mac_addr_mode_t src_mode,
-			      uint16_t src_panid, void *src_addr) 
+			      uint16_t src_panid, void *src_addr, 
+			      uint8_t panid_compression) 
 {
 	uint8_t offset = 0;
 
 	if (dst_mode == OZB_MAC_ADDRESS_SHORT) {
-		af[offset] = dst_panid;
+		memcpy(af + offset, &dst_panid, sizeof(uint16_t));
 		offset += OZB_MAC_MPDU_PANID_SIZE;
 		memcpy(af + offset, (uint8_t *) dst_addr,
 		       OZB_MAC_MPDU_ADDRESS_SHORT_SIZE);
 		offset += OZB_MAC_MPDU_ADDRESS_SHORT_SIZE;
 	} else if (dst_mode == OZB_MAC_ADDRESS_EXTD) {
-		af[offset] = dst_panid;
+		memcpy(af + offset, &dst_panid, sizeof(uint16_t));
 		offset += OZB_MAC_MPDU_PANID_SIZE;
 		memcpy(af + offset, (uint8_t *) dst_addr,
 		       OZB_MAC_MPDU_ADDRESS_EXTD_SIZE);
 		offset += OZB_MAC_MPDU_ADDRESS_EXTD_SIZE;
 	}
 	if (src_mode == OZB_MAC_ADDRESS_SHORT) {
-		af[offset] = src_panid;
-		offset += OZB_MAC_MPDU_PANID_SIZE;
+		if (panid_compression == 0) {
+			memcpy(af + offset, &src_panid, sizeof(uint16_t));
+			offset += OZB_MAC_MPDU_PANID_SIZE;
+		}
 		memcpy(af + offset, (uint8_t *) src_addr,
 		       OZB_MAC_MPDU_ADDRESS_SHORT_SIZE);
 		offset += OZB_MAC_MPDU_ADDRESS_SHORT_SIZE;
 	} else if (src_mode == OZB_MAC_ADDRESS_EXTD) {
-		af[offset] = src_panid;
-		offset += OZB_MAC_MPDU_PANID_SIZE;
+		if (panid_compression == 0) {
+			memcpy(af + offset, &src_panid, sizeof(uint16_t));
+			offset += OZB_MAC_MPDU_PANID_SIZE;
+		}
 		memcpy(af + offset, (uint8_t *) src_addr,
 		       OZB_MAC_MPDU_ADDRESS_EXTD_SIZE);
 		offset += OZB_MAC_MPDU_ADDRESS_EXTD_SIZE;
@@ -193,17 +200,6 @@ uint8_t set_superframe_specification(uint8_t *ss, uint8_t bo, uint8_t so,
 	return OZB_MAC_MPDU_SUPERFRAME_SPEC_SIZE;
 }
 
-///COMPILER_INLINE 
-///uint8_t get_superframe_specification(uint8_t *ss, uint8_t *bo, uint8_t *so, 
-///				     uint8_t *final_cap_slot, uint8_t *ble, 
-///				     uint8_t *pan_coord, uint8_t *assoc_permit)
-///{
-///	ss[0] = (bo << 0) | (so << 4); 
-///	ss[1] = (final_cap_slot << 0) | (ble) << 4 | (pan_coord << 6)  | 
-///		(assoc_permit << 7);
-///	return 2;
-///}
-
 COMPILER_INLINE uint8_t set_pending_address_fields(uint8_t *pf)
 {
 	OZB_MAC_PENDING_ADDR_SPEC_SET_EMPTY(pf);
@@ -250,7 +246,6 @@ static void process_rx_beacon(void)
 		 this task is executed only for "positive" and long action! */
 	/* NOTE: Src Address is supposed to exist, NOT Dst Address.
 		 Assuming a pre-check in the dispatcher */
-ozb_debug_print("BCN -> Got One!");
 	s = get_addressing_fields(OZB_MAC_MPDU_ADDRESSING_FIELDS(bcn),
 			//OZB_MAC_FCTL_GET_DST_ADDR_MODE(bcn),
 				OZB_MAC_ADDRESS_NONE, NULL, NULL,
@@ -258,8 +253,7 @@ ozb_debug_print("BCN -> Got One!");
 				&src_panid, (void *) src_addr);
 	if (src_panid != ozb_mac_pib.macPANId) 
 		goto process_rx_beacon_exit;
-ozb_debug_print("BCN -> Panid ok!");
-	if (OZB_MAC_FCTL_GET_SRC_ADDR_MODE(bcn) == OZB_MAC_ADDRESS_SHORT){
+	if (OZB_MAC_FCTL_GET_SRC_ADDR_MODE(bcn) == OZB_MAC_ADDRESS_SHORT) {
 		if (*((ozb_mac_dev_addr_short_t*) src_addr) != 
 		    			ozb_mac_pib.macCoordShortAddress)
 			goto process_rx_beacon_exit;
@@ -268,7 +262,6 @@ ozb_debug_print("BCN -> Panid ok!");
 		     			ozb_mac_pib.macCoordExtendedAddress))
 			goto process_rx_beacon_exit;
 	}
-ozb_debug_print("BCN -> SrcAddr ok!");
 	/* TODO: think to security infos? */
 	bcn = OZB_MAC_MPDU_MAC_PAYLOAD(rx_beacon, s);
 	ozb_mac_pib.macBeaconOrder = OZB_MAC_SF_SPEC_GET_BO(bcn); 
@@ -348,6 +341,8 @@ int8_t ozb_mac_init(void)
 	if (retv < 0)
 		return retv;
 	set_default_mac_pib();
+	cqueue_clear(&ozb_mac_queue_gts);
+	cqueue_clear(&ozb_mac_queue_cap);
 	retv = init_rx_tasks();
 	if (retv < 0)
 		return retv;
@@ -360,6 +355,80 @@ int8_t ozb_mac_init(void)
 	//return -OZB_MAC_INIT_ERROR;
 	ozb_mac_status.mac_initialized = 1;
 	return 1;
+}
+
+void ozb_mac_perform_data_request(uint8_t src_mode, uint8_t dst_mode,
+				  uint16_t dst_panid, void *dst_addr,
+				  uint8_t len, uint8_t *payload,
+				  uint8_t handle, uint8_t tx_opt /*,
+				  uint8_t sec_lev, uint8_t key_id_mode,
+				  uint8_t *key_src, uint8_t key_idx */)
+{
+	uint8_t s;
+	struct {
+		unsigned compress : 1;
+		unsigned version : 1;
+	} flag;
+	struct ozb_mac_frame_t *frame;
+	ozb_mac_dev_addr_extd_t e_addr;
+
+	if (OZB_MAC_TX_OPTION_GTS(tx_opt) == OZB_TRUE) {
+		if (!ozb_mac_superframe_has_tx_gts()) {
+			ozb_MCPS_DATA_confirm(handle, OZB_MAC_INVALID_GTS, 0);
+			return;
+		}
+		/* TODO: check if there's enough room to send in GTS mode!
+		if (!ozb_mac_gts_check_tx_time(len)) {
+			ozb_MCPS_DATA_confirm(handle, OZB_MAC_INVALID_GTS, 0);
+			return;
+		} */
+		/* Store in the GTS queue! */
+		frame=(struct ozb_mac_frame_t*) cqueue_push(&ozb_mac_queue_gts);
+		if (frame == 0) {
+			ozb_debug_print("DEVICE:  GTS QUEUE FULL!!! ");
+			return; /* TODO: we have to choose a well formed reply
+				   for the indication primitive (status=??) */
+		}
+		
+	} else { /* Store in the CSMA-CA queue */
+		frame=(struct ozb_mac_frame_t*) cqueue_push(&ozb_mac_queue_cap);
+		if (frame == 0) 
+			return; /* TODO: we have to choose a well formed reply
+				   for the indication primitive (status=??) */
+	}
+	frame->msdu_handle = handle;
+	/* Build the mpdu header (MHR) */
+	memset(frame->mpdu, 0x0, sizeof(ozb_mpdu_t));
+	flag.compress = (src_mode != OZB_MAC_ADDRESS_NONE && 
+			 dst_mode != OZB_MAC_ADDRESS_NONE && 
+			 dst_panid == ozb_mac_pib.macPANId) ?  1 : 0;
+	flag.version = (/*TODO: if has security set (sec_level?) &&*/ 
+		        len > OZB_aMaxMACSafePayloadSize) ?  1 : 0;
+	set_frame_control(OZB_MAC_MPDU_FRAME_CONTROL(frame->mpdu), 
+			  OZB_MAC_TYPE_DATA, 
+			  0,/* TODO: Use security infos (sec_level, etc.) */
+			  0, /* TODO: Use Pending List flag */
+			  OZB_MAC_TX_OPTION_ACK(tx_opt), 
+			  flag.compress, dst_mode, src_mode, flag.version);
+	*(OZB_MAC_MPDU_SEQ_NUMBER(frame->mpdu)) = ozb_mac_pib.macDSN++;
+	if (src_mode == OZB_MAC_ADDRESS_EXTD || 
+	    (src_mode == OZB_MAC_ADDRESS_SHORT && 
+	    (ozb_mac_pib.macShortAddress == OZB_MAC_SHORT_ADDRESS_USE_EXTD ||
+	    ozb_mac_pib.macShortAddress == OZB_MAC_SHORT_ADDRESS_INVALID)))
+		memcpy(e_addr, &(ozb_mac_pib.macShortAddress), 
+		       OZB_MAC_MPDU_ADDRESS_SHORT_SIZE);
+	s = set_addressing_fields(OZB_MAC_MPDU_ADDRESSING_FIELDS(frame->mpdu),
+				  dst_mode, dst_panid, dst_addr, 
+				  src_mode, ozb_mac_pib.macPANId, 
+			  	  (void *) e_addr, flag.compress);
+	/* TODO: think to security infos? */
+	/* Store the msdu (Mac Payload) */
+	memcpy(frame->mpdu + s, payload, len);
+	/* TODO: compute FCS , use auto gen? */
+	//*((uint16_t *) OZB_MAC_MPDU_MAC_FCS(bcn, s)) = 0;
+	frame->mpdu_size = len + s /* + sizeof(uint16_t) */;
+	if (OZB_MAC_TX_OPTION_GTS(tx_opt) == OZB_TRUE) 
+		ozb_mac_superframe_gts_wakeup(); 
 }
 
 /******************************************************************************/
@@ -378,20 +447,22 @@ uint8_t ozb_mac_create_beacon(ozb_mpdu_ptr_t bcn)
 			  0, 0, /* Zeros and ignored in case of Beacon */
 			  OZB_MAC_ADDRESS_NONE, OZB_MAC_ADDRESS_SHORT,
 			  ozb_mac_pib.macSecurityEnabled /*TODO: check std*/);
-	*OZB_MAC_MPDU_SEQ_NUMBER(bcn) = ozb_mac_pib.macBSN++;
-	if (ozb_mac_pib.macShortAddress == OZB_MAC_SHORT_ADDRESS_BCN_USE_EXTD) {
+	*(OZB_MAC_MPDU_SEQ_NUMBER(bcn)) = ozb_mac_pib.macBSN++;
+	if (ozb_mac_pib.macShortAddress == OZB_MAC_SHORT_ADDRESS_USE_EXTD) {
 		OZB_MAC_EXTD_ADDR_SET(e_addr, OZB_MAC_DEVICE_EXTD_ADDRESS_HIGH,
 				      OZB_MAC_DEVICE_EXTD_ADDRESS_LOW);
 		s = set_addressing_fields(OZB_MAC_MPDU_ADDRESSING_FIELDS(bcn),
 					  OZB_MAC_ADDRESS_NONE, 0, NULL, 
 					  OZB_MAC_ADDRESS_EXTD, 
-					  ozb_mac_pib.macPANId, (void*) e_addr);
+					  ozb_mac_pib.macPANId, (void*) e_addr,
+					  0);
 	} else {
 		s = set_addressing_fields(OZB_MAC_MPDU_ADDRESSING_FIELDS(bcn),
 					  OZB_MAC_ADDRESS_NONE, 0, NULL, 
 					  OZB_MAC_ADDRESS_SHORT, 
 					  ozb_mac_pib.macPANId, 
-				  	 (void*)&(ozb_mac_pib.macShortAddress));
+				  	  (void*)&(ozb_mac_pib.macShortAddress),
+					  0);
 	}
 	/* TODO: think to security infos? */
 	s += set_superframe_specification(OZB_MAC_MPDU_MAC_PAYLOAD(bcn, s),

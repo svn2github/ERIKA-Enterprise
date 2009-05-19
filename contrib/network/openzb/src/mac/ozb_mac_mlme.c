@@ -111,7 +111,7 @@ int8_t ozb_MLME_START_request(uint16_t PANId, uint8_t LogicalChannel,
 		ozb_MLME_START_confirm(OZB_MAC_INVALID_PARAMETER);
 		return OZB_MAC_ERR_NONE;
 	}
-	if (ozb_mac_pib.macShortAddress == OZB_MAC_SHORT_ADDRESS_BCN_INVALID) {
+	if (ozb_mac_pib.macShortAddress == OZB_MAC_SHORT_ADDRESS_INVALID) {
 		ozb_MLME_START_confirm(OZB_MAC_NO_SHORT_ADDRESS);
 		return OZB_MAC_ERR_NONE;
 	}

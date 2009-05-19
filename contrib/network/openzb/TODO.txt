@@ -3,6 +3,8 @@
 ********************************************************************************
 
 GENERAL:
+	- *5* Protect the access to the mac, from the upper layer, with a
+	  mutext that MUST be included in the application tasks definition.
 	- *3* Check the endianess, add macros for eandianess management when
 	  reading/writing the stack frame!
 	- *2* think some handle (function pointers?) to provide an easy way to 

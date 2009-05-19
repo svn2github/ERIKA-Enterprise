@@ -139,6 +139,13 @@ struct ozb_mac_pib_t {
 typedef uint8_t ozb_mpdu_t[OZB_MAC_MPDU_SIZE]; 
 typedef uint8_t *ozb_mpdu_ptr_t; 
 
+struct ozb_mac_frame_t {
+	ozb_mpdu_t mpdu;
+	unsigned reserved : 1;
+	unsigned mpdu_size : 7;
+	uint8_t msdu_handle;
+};
+
 enum ozb_mac_frame_type_t {
 	OZB_MAC_TYPE_BEACON 	= 0x0,
 	OZB_MAC_TYPE_DATA	= 0x1,

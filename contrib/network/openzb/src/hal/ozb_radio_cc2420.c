@@ -93,7 +93,18 @@ int8_t ozb_radio_phy_set_rx_on(void)
 	return OZB_RADIO_ERR_NONE;
 }
 
-
+int8_t ozb_radio_phy_send_now(uint8_t *data, uint8_t size)
+{
+	/* NOTE: this is not going through the ozb_PD_DATA function thus the
+		 exception caught is performed within  the radio_send!! */
+	/* TODO: is the error returned in the readio_send?? */
+	/* phy_status = OZB_PHY_SUCCESS; */
+	if (ozb_radio_send(data, size) < 0) {
+		/* phy_status = ERROR_OF_THE_PD_DATA_CONFIRM; */
+		return -OZB_RADIO_ERR_PHY_FAILURE;
+	}
+	return -OZB_RADIO_ERR_NONE; 
+}
 
 #ifndef OZB_USE_ONLY_802154_PHY	
 /******************************************************************************/

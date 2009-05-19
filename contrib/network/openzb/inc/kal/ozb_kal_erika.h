@@ -5,6 +5,8 @@
 #include <hal/ozb_compiler.h>
 #include <hal/ozb_timer.h>
 
+extern volatile uint16_t ozb_kal_erika_time_counter;
+
 void ozb_kal_external_timer_action(void);
 
 /* tick_duration is expressed in microseconds */
@@ -27,6 +29,11 @@ int8_t ozb_kal_erika_init(uint32_t tick_duration)
 		#endif
 	}
 	return 1;
+}
+
+COMPILER_INLINE uint16_t ozb_kal_get_time(void) 
+{
+	return ozb_kal_erika_time_counter;
 }
 
 COMPILER_INLINE 

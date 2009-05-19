@@ -3,6 +3,8 @@
 #include <kal/ozb_kal.h>
 #include <util/ozb_debug.h>
 
+#define NEXT_TSLOT(idx) (((idx) + 1) % 16)
+
 OZB_KAL_TASK(MAC_TIMESLOT, 10);
 OZB_KAL_TASK(MAC_BEFORE_TIMESLOT, 10); 
 OZB_KAL_TASK(MAC_BACKOFF_PERIOD, 10);
@@ -11,11 +13,12 @@ OZB_KAL_TASK(MAC_GTS_SEND, 10);
 /******************************************************************************/
 /*                          MAC Tasks Private Data                            */
 /******************************************************************************/
-static uint8_t current_tslot = OZB_MAC_SUPERFRAME_FIRST_SLOT;
+static uint8_t current_tslot = OZB_MAC_SUPERFRAME_LAST_SLOT;
 static struct {
-	unsigned  has_idle : 1;
-	unsigned  wait_sf_end : 1;
-} sf_flags = {OZB_FALSE, OZB_FALSE};
+	unsigned has_idle : 1;
+	unsigned wait_sf_end : 1;
+	unsigned gts_sending : 1;
+} sf_flags = {OZB_FALSE, OZB_FALSE, OZB_FALSE};
 static uint32_t test_time = 0;
 
 /******************************************************************************/
@@ -64,8 +67,12 @@ COMPILER_INLINE void resync_activations(void)
 COMPILER_INLINE void start_beacon_interval(void) 
 {
 	ozb_debug_time_get(OZB_DEBUG_TIME_CLOCK_BI);
-	if (ozb_mac_status.is_pan_coordinator || ozb_mac_status.is_coordinator)
+	if (ozb_mac_status.is_pan_coordinator || ozb_mac_status.is_coordinator){
 		ozb_radio_mac_send_beacon(); /* TODO: parse ret value*/
+	} else if (ozb_mac_status.count_beacon_lost++ > OZB_aMaxLostBeacons) {
+		stop_activations();
+		return;
+	}
 	if (ozb_mac_pib.macSuperframeOrder < ozb_mac_pib.macBeaconOrder) {
 		sf_flags.has_idle = OZB_TRUE;
 		sf_flags.wait_sf_end = OZB_TRUE;
@@ -105,8 +112,10 @@ COMPILER_INLINE void before_beacon_interval(void)
 /******************************************************************************/
 static void on_timeslot_start(void) 
 {
+	/*
 	char s[100];
 	uint32_t mmm = ozb_debug_time_get_us(OZB_DEBUG_TIME_CLOCK_DEVEL);
+	*/
 	/* TODO: perform GTS send/receive with appropriate IFS */
 	/* TODO: Implement an efficient version:
 		 In case of a device that is not coordinator we can do:
@@ -114,6 +123,8 @@ static void on_timeslot_start(void)
 			- if in CFP, since I already know when to Tx/Rx I can
 			  suspend until that time (manage this!) 
 	*/
+
+	current_tslot = NEXT_TSLOT(current_tslot);
 	if (current_tslot == OZB_MAC_SUPERFRAME_FIRST_SLOT) {
 		if (sf_flags.has_idle) { 	/* Has to go in IDLE? */
 			stop_superframe(); 
@@ -123,13 +134,15 @@ static void on_timeslot_start(void)
 	}
 	if (ozb_mac_pib.macGTSPermit == 0)
 		goto on_timeslot_start_exit;
-goto on_timeslot_start_exit; /* TODO: temporary!! */
-	if (current_tslot == ozb_mac_gts_stat.tx_start_tslot)
-		ozb_kal_set_activation(MAC_GTS_SEND, 0, 0);
-	else if (current_tslot >= ozb_mac_gts_stat.tx_start_tslot + 
-						ozb_mac_gts_stat.tx_length)
-		ozb_kal_cancel_activation(MAC_GTS_SEND);
-	//	perform_cap_send();
+	if (ozb_mac_gts_stat.tx_length != 0 && 
+            current_tslot == ozb_mac_gts_stat.tx_start_tslot) {
+		sf_flags.gts_sending = 1;
+		ozb_kal_set_activation(MAC_GTS_SEND, OZB_MAC_LIFS_PERIOD, 0);
+	} else if (current_tslot >= ozb_mac_gts_stat.tx_start_tslot + 
+		 ozb_mac_gts_stat.tx_length) {
+		sf_flags.gts_sending = 0;
+		ozb_kal_cancel_activation(MAC_GTS_SEND);/* TODO: has effect? */
+	}
 	//if (current_tslot >= ozb_mac_gts_stat.tx_tslot && current_tslot < 
 	//    ozb_mac_gts_stat.tx_tslot + ozb_mac_gts_stat.tx_length)
 	//	perform_cap_send();
@@ -137,6 +150,8 @@ goto on_timeslot_start_exit; /* TODO: temporary!! */
 	//	 ozb_mac_gts_stat.rx_tslot + ozb_mac_gts_stat.rx_length)
 	//	perform_cap_receive();
 on_timeslot_start_exit:
+	return;
+	/*
 	sprintf(s, "DEVICE: slot=%u  Dck=%lu  ck=%lu "
 		"tx_s=%u tx_s=%u rx_s=%u rx_s=%u", 
 		current_tslot, mmm-test_time, mmm, 
@@ -145,13 +160,16 @@ on_timeslot_start_exit:
 		(uint16_t) ozb_mac_gts_stat.rx_start_tslot,
 		(uint16_t) ozb_mac_gts_stat.rx_length);
 	ozb_debug_print(s);
-	current_tslot = (current_tslot + 1) % 16;
+	*/
 }
 
 static void before_timeslot_start(void) 
 {
+	/*
+	char s[100];
 	uint32_t mmm = ozb_debug_time_get_us(OZB_DEBUG_TIME_CLOCK_DEVEL);
-	if (current_tslot == OZB_MAC_SUPERFRAME_FIRST_SLOT) { 
+	*/
+	if (NEXT_TSLOT(current_tslot) == OZB_MAC_SUPERFRAME_FIRST_SLOT) { 
 		/* Is before the BI? */
 		if (sf_flags.wait_sf_end == 0)
 			before_beacon_interval();
@@ -159,15 +177,17 @@ static void before_timeslot_start(void)
 				 that is the place!! */
 		return;
 	}
-	char s[100];
-	sprintf(s, "DEVICE: before slot = %u, Dck%lu, ck=%lu", current_tslot, 
-		mmm-test_time, mmm);
+	/*
+	sprintf(s, "DEVICE: before slot = %u, Dck%lu, ck=%lu", 
+		NEXT_TSLOT(current_tslot), mmm-test_time, mmm);
 	ozb_debug_print(s);
 	test_time = mmm;
+	*/
 }
 
 static void on_backoff_period_start(void) 
 {
+	/* TODO: this task can be stopped after the CAP! */
 	/*
 	if (ozb_mac_status.sf_context != OZB_MAC_SF_CAP)
 		return; 
@@ -176,8 +196,39 @@ static void on_backoff_period_start(void)
 
 static void on_gts_send(void)
 {
-	/* Send with sifs or lifs !! */
+	struct ozb_mac_frame_t *frame;
+	char s[100];
+
+	if (!sf_flags.gts_sending) {
+		sprintf(s,"DEVICE: On GTS SEND -- STOP -- @ %d",current_tslot);
+		ozb_debug_print(s);
+		return;
+	}
+	sprintf(s, "DEVICE: On GTS SEND  @ %d", current_tslot);
+	ozb_debug_print(s);
+	if (cqueue_is_empty(&ozb_mac_queue_gts)) {
+	//	ozb_debug_print("           empty queue!");
+		sf_flags.gts_sending = 0; /* Nothing more to send by now. */
+		return;
+	}
+	frame = (struct ozb_mac_frame_t*) cqueue_pop(&ozb_mac_queue_gts);
+	if (frame == 0) 
+		return; 
+	/* TODO: send data with phy! */
+	if (ozb_radio_phy_send_now(frame->mpdu, frame->mpdu_size) == 
+	    						OZB_RADIO_ERR_NONE)
+		ozb_MCPS_DATA_confirm(frame->msdu_handle, OZB_MAC_SUCCESS, 0);
+	/*
+	else 
+		TODO: how to notify in case of error? if exists!
+	*/
+	if (frame->mpdu_size > OZB_aMaxSIFSFrameSize) /* TODO: check!!!! */
+		ozb_kal_set_activation(MAC_GTS_SEND, OZB_MAC_LIFS_PERIOD, 0);
+	else
+		ozb_kal_set_activation(MAC_GTS_SEND, OZB_MAC_SIFS_PERIOD, 0);
+	//ozb_debug_print("           \"ralogg\"ing");
 }
+
 /******************************************************************************/
 /*                      MAC Tasks General Functions                           */
 /******************************************************************************/
@@ -223,7 +274,7 @@ void ozb_mac_superframe_start(uint32_t offset)
 		return;
 	ozb_debug_time_start(OZB_DEBUG_TIME_CLOCK_DEVEL);
 	ozb_debug_time_start(OZB_DEBUG_TIME_CLOCK_BI);
-	current_tslot = OZB_MAC_SUPERFRAME_FIRST_SLOT;
+	current_tslot = OZB_MAC_SUPERFRAME_LAST_SLOT;
 	sf_flags.wait_sf_end = OZB_FALSE;
 	sf_flags.has_idle = OZB_FALSE;
 	start_activations(offset);
@@ -236,96 +287,41 @@ void ozb_mac_superframe_stop(void)
 
 void ozb_mac_superframe_resync(void)
 {
+	/*
+	char s[100];
 	uint32_t mmm = ozb_debug_time_get_us(OZB_DEBUG_TIME_CLOCK_DEVEL);
+	*/
+	ozb_mac_status.count_beacon_lost = 0;
 	if (!ozb_mac_status.track_beacon)
 		return;
 	resync_activations();
 	/* TODO: realign the task activation for the superframe! */
-	char s[100];
+	/*
 	sprintf(s, "BCN -> SF Resync: Dck=%lu, ck=%lu, %u, %u", 
 		mmm - test_time, mmm,
 		(uint16_t) ozb_mac_pib.macBeaconOrder,
 		(uint16_t) ozb_mac_pib.macSuperframeOrder);
 	ozb_debug_print(s);
 	test_time = mmm;
+	*/
 }
 
 
-
-
-
-
-
-#ifdef compila_merda_di_ricardo
-
-void start_gts_send()
+void ozb_mac_superframe_gts_wakeup(void) 
 {
-	
-	if(!GTS_TRANSMITING && current_time_slot >= s_GTSss && current_time_slot <= s_GTSss + s_GTS_length && gts_send_buffer_count > 0 && on_sync == 1){
-		GTS_TRANSMITING=1;
-		//send_gts_after_interframearrival();
-		SetRelAlarm(interframespace_firedAlarm, 1, 15);			
-	}	
-	return;	
-}
-
-//void send_gts_after_interframearrival(){
-TASK(send_gts_after_interframearrivalTask){
-	
-	//if(current_time_slot >= s_GTSss && current_time_slot <= s_GTSss + s_GTS_length && gts_send_buffer_count > 0 && on_sync == 1)
-		//if (gts_send_buffer_count && check_gts_send_conditions(gts_send_buffer[gts_send_buffer_msg_out].length) == 1 )			
-		//while(gts_send_buffer_count)
-		//if (gts_send_buffer_count)
-		if(current_time_slot >= s_GTSss && current_time_slot < s_GTSss + s_GTS_length && gts_send_buffer_count > 0)
-		{
-			
-			
-			//ee_console_out_str("\nbuf\n");
-			//ee_console_out16_radix(gts_send_buffer_count,16);
-			//PD_DATA_request	
-			//gts_send_buffer[gts_send_buffer_msg_out].data[11+8]=current_time_slot;
-			//gts_send_buffer[gts_send_buffer_msg_out].data[12+8]=gts_send_buffer_count;
-			//gts_send_buffer[gts_send_buffer_msg_out].data[13+8]=gts_send_buffer_msg_out;
-			//gts_send_buffer[gts_send_buffer_msg_out].data[14+8]=mac_PIB.macShortAddress;
-			//gts_send_buffer[gts_send_buffer_msg_out].data[15+8]=(EE_UINT8)beaconnumber>>8;
-			//gts_send_buffer[gts_send_buffer_msg_out].data[16+8]=(EE_UINT8)beaconnumber;
-			
-			PD_DATA_request(gts_send_buffer[gts_send_buffer_msg_out].length,(EE_UINT8 *)&gts_send_buffer[gts_send_buffer_msg_out]);
-		
-			//ee_console_out16_radix(gts_send_buffer[gts_send_buffer_msg_out].length,16);
-			//ee_console_out16_radix(gts_send_buffer[gts_send_buffer_msg_out].data[6],16);
-			
-			gts_send_buffer_count --;
-			gts_send_buffer_msg_out++;
-
-			if (gts_send_buffer_msg_out == GTS_SEND_BUFFER_SIZE)
-				gts_send_buffer_msg_out=0;
-
-			
-			
-//				if (gts_send_buffer_count > 0)
-//					gts_send_pending_data = 1;	
-//					
-//				if(gts_send_buffer_count == 0){
-//					GTS_TRANSMITING=0;
-//					break;					
-//				}else{
-//						//SetRelAlarm(interframespace_firedAlarm, 15, 0);
-//					EE_UINT16 k = 0;
-//					for(k = 0; k < 60000; k++);
-//					//gts_send_buffer_count --;
-//					//gts_send_buffer_msg_out++;
-//				}
+	if (!sf_flags.gts_sending) {
+		if (ozb_mac_gts_stat.tx_length != 0 && 
+		    current_tslot == ozb_mac_gts_stat.tx_start_tslot) {
+			sf_flags.gts_sending = 1;
+			ozb_kal_set_activation(MAC_GTS_SEND, 0, 0);
+		//ozb_kal_set_activation(MAC_GTS_SEND, OZB_MAC_LIFS_PERIOD, 0);
 		}
-		
-		if(gts_send_buffer_count <= 0){
-			CancelAlarm(interframespace_firedAlarm);
-			GTS_TRANSMITING=0;
-		}/*else{
-			SetRelAlarm(interframespace_firedAlarm, 300, 0);
-			//gts_send_buffer_count --;
-			//gts_send_buffer_msg_out++;
-		}*/		
+	}
 }
 
-#endif
+uint8_t ozb_mac_superframe_check_gts(uint8_t lenght)
+{
+	if (sf_flags.gts_sending) {
+	}
+}
+

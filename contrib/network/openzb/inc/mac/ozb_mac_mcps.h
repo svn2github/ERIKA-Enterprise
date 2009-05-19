@@ -3,8 +3,18 @@
 
 #include <mac/ozb_mac_types.h>
 
+COMPILER_INLINE 
+uint8_t ozb_mac_set_tx_options(uint8_t ack, uint8_t use_gts, uint8_t indirect)
+{
+	return (ack & 0x1) | ((use_gts & 0x1) << 1) | ((indirect & 0x1) << 2);
+}
+
+#define OZB_MAC_TX_OPTION_ACK(opt)	((opt) & 0x01)
+#define OZB_MAC_TX_OPTION_GTS(opt)	(((opt) >> 1) & 0x01)
+#define OZB_MAC_TX_OPTION_INDIRECT(opt)	(((opt) >> 2) & 0x01)
+
 int8_t ozb_MCPS_DATA_request(uint8_t SrcAddrMode, uint8_t DstAddrMode,
-			     uint16_t DstPANId, ozb_mac_dev_addr_t DstAddr,
+			     uint16_t DstPANId, void *DstAddr,
 			     uint8_t msduLength, uint8_t *msdu,
 			     uint8_t msduHandle, uint8_t TxOptions,
 			     uint8_t SecurityLevel, uint8_t KeyIdMode,
