@@ -5,25 +5,22 @@
  * Copyright (C) METALAU Project (INRIA)
  * ###*E*### */
  
- 
 #include <machine.h>
 #include <scicos_block4.h>
 
 #include <ee.h>
 #include "mcu/microchip_dspic/inc/ee_uart.h"
 
-
 void flex_serial_send(scicos_block *block,int flag)
 {
 	EE_UINT8 serial_port = block->ipar[0];
-	int baudrate = block->ipar[1];
+	EE_UINT32 baudrate = block->rpar[0];
   float * u = block->inptr[0];
 
 	if ((serial_port < 1) || (serial_port > 2))
 	  return;
-/*	if ((baudrate != 9600) || (baudrate != 19200))
-		return;*/
-
+	if ((baudrate != 9600) && (baudrate != 19200) && (baudrate != 57600) && (baudrate != 115200))
+		return;
 
 	switch(flag) {
 		case 1:	/* set output */
