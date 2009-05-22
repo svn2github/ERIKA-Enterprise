@@ -6,10 +6,10 @@
 
 POST_SCRIPTS_CLEAN=evidence_ee evidence_ee_tutorials
 
-ifdef NOCVS
+ifdef NOSVN
 post_script_ALWAYS += \
-	echo Deleting CVS directories!; \
-	find ee_$(DIST)/ -type d -iname CVS | xargs rm -rf;
+	echo Deleting SVN directories!; \
+	find ee_$(DIST)/ -type d -iname .svn | xargs rm -rf;
 endif
 
 post_script_ALWAYS += \
