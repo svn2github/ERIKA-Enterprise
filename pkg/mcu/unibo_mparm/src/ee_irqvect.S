@@ -56,7 +56,7 @@
 	CODE32
 /* 
  *  Exception Vector
- */  
+ */
 		
 /*  0x00000000:	Reset  */
 	.org 0x0
@@ -84,4 +84,6 @@ entry_point:
 /*  0x0000001C:	Fast Interrupt (FIQ) */
 	EE_FIQ_HANDLER_STUB
 
+
 	.end
+

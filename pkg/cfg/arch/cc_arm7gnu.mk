@@ -74,7 +74,11 @@ ifndef EE_CC
 EE_CC=$(DISTCC) $(BINDIR)/$(ARM7_GCCPREFIX)-gcc
 endif
 ifndef EE_TCC
+ifeq ($(findstring __UNIBO_MPARM__,$(EEALLOPT)) , __UNIBO_MPARM__)
 EE_TCC=$(EE_CC) -mthumb # 16-bit thumb C compiler
+else
+EE_TCC=$(EE_CC) # 16-bit thumb mode not supported, so use same compiler as for arm-32 mode
+endif
 endif
 ifndef EE_AR
 EE_AR=$(BINDIR)/$(ARM7_GCCPREFIX)-ar
@@ -105,30 +109,41 @@ endif
 # -Wall		    = all compiling warning
 # -Winline	    = warn if a function does not expand inline
 # -finline-functions = make all simple functions inline
+ifeq ($(findstring __UNIBO_MPARM__,$(EEALLOPT)) , __UNIBO_MPARM__)
+OPT_CC = -march=armv4 -mno-thumb-interwork -O3 -Wall -Winline -c
+else
 OPT_CC = -mcpu=arm7tdmi -mthumb-interwork \
 	-O3 -Wall -Winline -c
-#OPT_CC = -mcpu=arm7tdmi -mno-apcs-frame -mthumb-interwork \
-#	-O2 -Wall -Winline -c $(ALLINCPATH)
+endif
 ifneq ($(findstring __BIN_DISTR,$(EEALLOPT)), __BIN_DISTR)
 ifeq ($(findstring DEBUG,$(EEOPT)) , DEBUG)
 OPT_CC += -ggdb
 endif
 endif
-
+ 
 ## Specific compiler option from the application makefile
 OPT_CC += $(CFLAGS)
+
 
 ## OPT_TCC are the options for thumb compiler invocation
 # -mcallee-super-interworking = switch to thumb mode after an arm header
 #OPT_TCC = $(OPT_CC) -mthumb-interwork -mcallee-super-interworking
+ifeq ($(findstring __UNIBO_MPARM__,$(EEALLOPT)) , __UNIBO_MPARM__)
+OPT_TCC = $(OPT_CC)
+else
 OPT_TCC = $(OPT_CC) -mcallee-super-interworking
+endif
 
 ## OPT_ASM are the options for asm invocation
 # -marm7tdmi        = generate optimized code for ARM7TDMI processor
 # -mapcs-32	    = support APCS function calling standard
 # -mthumb-interwork = support arm/thumb interwork
+ifeq ($(findstring __UNIBO_MPARM__,$(EEALLOPT)) , __UNIBO_MPARM__)
+OPT_ASM = -march=armv4 -mapcs-32
+else
 #OPT_ASM = -marm7tdmi -mthumb-interwork -mapcs-32
 OPT_ASM = -mcpu=arm7tdmi -mthumb-interwork -mapcs-32
+endif
 
 ifneq ($(findstring __BIN_DISTR,$(EEALLOPT)), __BIN_DISTR)
 ifeq ($(findstring DEBUG,$(EEOPT)) , DEBUG)

@@ -45,10 +45,6 @@
 
 #include "ee_internal.h"
 
-volatile char *ee_pr_string_ptr  = (char *)(SIMSUPPORT_BASE + DEBUG_MSG_STRING_ADDRESS);
-volatile char *ee_pr_value_ptr   = (char *)(SIMSUPPORT_BASE + DEBUG_MSG_VALUE_ADDRESS);
-volatile char *ee_pr_mode_ptr    = (char *)(SIMSUPPORT_BASE + DEBUG_MSG_MODE_ADDRESS);
-
 volatile char *ee_time_low_ptr   = (char *)(SIMSUPPORT_BASE + GET_TIME_ADDRESS_LO);
 volatile char *ee_time_high_ptr  = (char *)(SIMSUPPORT_BASE + GET_TIME_ADDRESS_HI);
 volatile char *ee_time_stop_ptr  = (char *)(SIMSUPPORT_BASE + STOP_TIME_ADDRESS);

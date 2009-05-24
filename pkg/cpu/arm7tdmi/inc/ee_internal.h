@@ -46,6 +46,8 @@
 
 #include "cpu/arm7tdmi/inc/ee_cpu.h"
 
+
+
 #ifndef __INCLUDE_ARM7GNU_INTERNAL_H__
 #define __INCLUDE_ARM7GNU_INTERNAL_H__
 
@@ -229,6 +231,9 @@ extern EE_UREG EE_hal_endcycle_next_tos;
 void EE_arm7_hal_ready2stacked(EE_ADDR thread_addr); /* in ASM */
 __INLINE__ void __ALWAYS_INLINE__ EE_hal_ready2stacked(EE_TID thread)
 {
+#ifdef __NOTIFY_RUNNING_TID__
+    *((volatile unsigned int *)__NOTIFY_RUNNING_TID__) = thread; // write tid of the task actually in stack head (running)
+#endif
     EE_arm7_hal_ready2stacked(EE_hal_thread_body[thread]);
 }
 #endif
@@ -236,6 +241,9 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_ready2stacked(EE_TID thread)
 void EE_arm7_hal_ready2stacked(EE_ADDR thread_addr, EE_UREG tos_index); /* in ASM */
 __INLINE__ void __ALWAYS_INLINE__ EE_hal_ready2stacked(EE_TID thread)
 {
+#ifdef __NOTIFY_RUNNING_TID__
+    *((volatile unsigned int *)__NOTIFY_RUNNING_TID__) = thread; // write tid of the task actually in stack head (running)
+#endif
     EE_arm7_hal_ready2stacked(EE_hal_thread_body[thread],
 			         EE_arm7_thread_tos[thread+1]);
 }
@@ -246,6 +254,9 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_ready2stacked(EE_TID thread)
 #ifdef __MONO__
 __INLINE__ void __ALWAYS_INLINE__ EE_hal_endcycle_stacked(EE_TID thread)
 {
+#ifdef __NOTIFY_RUNNING_TID__
+    *((volatile unsigned int *)__NOTIFY_RUNNING_TID__) = thread; // write tid of the task actually in stack head (running)
+#endif
   EE_hal_endcycle_next_thread = 0;
   /* TID is useless */
 }
@@ -253,6 +264,9 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_endcycle_stacked(EE_TID thread)
 #ifdef __MULTI__
 __INLINE__ void __ALWAYS_INLINE__ EE_hal_endcycle_stacked(EE_TID thread)
 {
+#ifdef __NOTIFY_RUNNING_TID__
+    *((volatile unsigned int *)__NOTIFY_RUNNING_TID__) = thread; // write tid of the task actually in stack head (running)
+#endif
   EE_hal_endcycle_next_tos = EE_arm7_thread_tos[thread+1];
   EE_hal_endcycle_next_thread = 0;
 }
@@ -263,12 +277,18 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_endcycle_stacked(EE_TID thread)
 #ifdef __MONO__
 __INLINE__ void __ALWAYS_INLINE__ EE_hal_endcycle_ready(EE_TID thread)
 {
+#ifdef __NOTIFY_RUNNING_TID__
+    *((volatile unsigned int *)__NOTIFY_RUNNING_TID__) = thread; // write tid of the task actually in stack head (running)
+#endif
   EE_hal_endcycle_next_thread = (EE_UREG)EE_hal_thread_body[thread];
 }
 #endif
 #ifdef __MULTI__
 __INLINE__ void __ALWAYS_INLINE__ EE_hal_endcycle_ready(EE_TID thread)
 {
+#ifdef __NOTIFY_RUNNING_TID__
+    *((volatile unsigned int *)__NOTIFY_RUNNING_TID__) = thread; // write tid of the task actually in stack head (running)
+#endif
   EE_hal_endcycle_next_tos = EE_arm7_thread_tos[thread+1];
   EE_hal_endcycle_next_thread = (EE_UREG)EE_hal_thread_body[thread];
 }
@@ -286,6 +306,9 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_endcycle_ready(EE_TID thread)
 void EE_arm7_hal_stkchange(EE_UREG, EE_UREG tos_index); /* in ASM */
 __INLINE__ void __ALWAYS_INLINE__ EE_hal_stkchange(EE_TID thread)
 {
+#ifdef __NOTIFY_RUNNING_TID__
+    *((volatile unsigned int *)__NOTIFY_RUNNING_TID__) = thread; // write tid of the task actually in stack head (running)
+#endif
     EE_arm7_hal_stkchange(0, EE_arm7_thread_tos[thread+1]);
 }
 #endif

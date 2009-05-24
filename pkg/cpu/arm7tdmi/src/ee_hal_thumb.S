@@ -75,7 +75,11 @@ EE_arm7_enableIRQ:
 	MRS	r0, cpsr
 	BIC	r0, r0, #I_bit
 	MSR	cpsr_c, r0
+#ifdef __unibo_mparm__
+	MOV	pc, lr
+#else
 	BX	lr
+#endif
 
 	.size	EE_arm7_enableIRQ, . - EE_arm7_enableIRQ
 
@@ -91,7 +95,11 @@ EE_arm7_disableIRQ:
 	MRS	r0, cpsr
 	ORR	r0, r0, #I_bit
 	MSR	cpsr_c, r0
+#ifdef __unibo_mparm__
+	MOV	pc, lr
+#else
 	BX	lr
+#endif
 	.size	EE_arm7_disableIRQ, . - EE_arm7_disableIRQ
 	
 
@@ -109,7 +117,11 @@ EE_arm7_end_nested_primitive:
 	// 2) preserving flag field is useless. (I hope ;)
 	//
 	MSR	cpsr_c, r0
+#ifdef __unibo_mparm__
+	MOV	pc, lr
+#else
 	BX	lr
+#endif
 
 	.size	EE_arm7_end_nested_primitive, . - EE_arm7_end_nested_primitive
 
@@ -126,7 +138,11 @@ EE_arm7_begin_nested_primitive:
 	MOV	r1, r0	
 	ORR	r1, r1, #I_bit
 	MSR	cpsr_c, r1
+#ifdef __unibo_mparm__
+	MOV	pc, lr
+#else
 	BX	lr
+#endif
 
 	.size	EE_arm7_begin_nested_primitive, . - EE_arm7_begin_nested_primitive
 

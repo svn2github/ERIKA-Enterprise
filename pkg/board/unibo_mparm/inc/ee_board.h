@@ -49,53 +49,6 @@
 #include "mcu/unibo_mparm/inc/ee_mcu.h"
 
 
-// TODO: Change According to MPARM!!!
-
-/*************************************************************************
- Button
- *************************************************************************/
-
-/* the button is connected to EXT0 */
-
-#ifdef __BUTTON_USED__
-
-/* Initialize the EXT0 interrupt source (button)  */
-__INLINE__ void __ALWAYS_INLINE__ EE_button_init(void)
-{
-    *IOPCON |= IO_ENABLE_EXT0;
-    *IOPCON |= IO_ACTIVE_HIGH_EXT0;
-    *IOPCON |= IO_RISING_EDGE_EXT0;
-}
-
-#endif
-
-
-/*************************************************************************
- LEDs
- *************************************************************************/
-
-#ifdef __LEDS_USED__
-
-/* On Evaluator7T, the LEDs are connected through IO Port 
- * LED1 is Green, LED2 is Red, LED3 is Yellow, LED4 is Green */
-
-__INLINE__ void __ALWAYS_INLINE__ EE_led_4_on(void) {*IOPDATA |= 16;}
-__INLINE__ void __ALWAYS_INLINE__ EE_led_3_on(void) {*IOPDATA |= 32;}
-__INLINE__ void __ALWAYS_INLINE__ EE_led_2_on(void) {*IOPDATA |= 64;}
-__INLINE__ void __ALWAYS_INLINE__ EE_led_1_on(void) {*IOPDATA |= 128;}
-
-__INLINE__ void __ALWAYS_INLINE__ EE_led_4_off(void) {*IOPDATA &= ~16;}
-__INLINE__ void __ALWAYS_INLINE__ EE_led_3_off(void) {*IOPDATA &= ~32;}
-__INLINE__ void __ALWAYS_INLINE__ EE_led_2_off(void) {*IOPDATA &= ~64;}
-__INLINE__ void __ALWAYS_INLINE__ EE_led_1_off(void) {*IOPDATA &= ~128;}
-
-__INLINE__ void __ALWAYS_INLINE__ EE_leds_init(void) {*IOPDATA &= ~(128+64+32+16);}
-
-#endif /* __LEDS_USED__ */
-
-// ------------------------------------------------------------------------------------------------------------------------------------------------
-
-
 /*************************************************************************
 **************************************************************************
  Memory-mapped support functions
@@ -105,9 +58,6 @@ __INLINE__ void __ALWAYS_INLINE__ EE_leds_init(void) {*IOPDATA &= ~(128+64+32+16
 /*************************************************************************
 External variables declaration
  *************************************************************************/
-extern volatile char *ee_pr_string_ptr;
-extern volatile char *ee_pr_value_ptr;
-extern volatile char *ee_pr_mode_ptr;
 
 extern volatile char *ee_time_low_ptr;
 extern volatile char *ee_time_high_ptr;
@@ -217,10 +167,10 @@ Print
 __INLINE__ void __ALWAYS_INLINE__ EE_print(char *msg, unsigned long int value, unsigned long int mode)
 {
 	/* Initialize message, value */
-	*(unsigned long int *)ee_pr_string_ptr = (unsigned long int)msg;
-	*(unsigned long int *)ee_pr_value_ptr = value;
+	*((volatile unsigned long int *)(SIMSUPPORT_BASE + DEBUG_MSG_STRING_ADDRESS)) = (unsigned int)msg;
+	*((volatile unsigned long int *)(SIMSUPPORT_BASE + DEBUG_MSG_VALUE_ADDRESS)) = value;
 	/* Set mode and print */
-	*(unsigned long int *)ee_pr_mode_ptr = mode;
+	*((volatile unsigned long int *)(SIMSUPPORT_BASE + DEBUG_MSG_MODE_ADDRESS)) = mode;
 }
 
 

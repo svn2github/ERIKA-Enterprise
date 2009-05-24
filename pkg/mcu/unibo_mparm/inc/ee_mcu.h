@@ -58,11 +58,16 @@
 #define __TIMER_USED__
 #endif
 
-__INLINE__ void __ALWAYS_INLINE__ EE_timer_0_start(void) { *TMOD |= (1<<0); }
-__INLINE__ void __ALWAYS_INLINE__ EE_timer_0_stop(void)  { *TMOD &= ~(1<<0); }
-__INLINE__ EE_UREG __ALWAYS_INLINE__ EE_timer_0_get(void) { return *TCNT0; }
+__INLINE__ void __ALWAYS_INLINE__ EE_timer_0_start(void) 
+//{ *TMOD |= (1<<0); }	// modified by Francesco Esposito
+{*((volatile unsigned int *)SWARM_TIMER_INTEN) |= 0x1;}	// modified by Francesco Esposito
+__INLINE__ void __ALWAYS_INLINE__ EE_timer_0_stop(void)  
+//{ *TMOD &= ~(1<<0); }	// modified by Francesco Esposito
+{*((volatile unsigned int *)SWARM_TIMER_INTEN) &= ~(0x1);}	// modified by Francesco Esposito
+__INLINE__ EE_UREG __ALWAYS_INLINE__ EE_timer_0_get(void) { return *SWARM_TIMER_CNT; }
 __INLINE__ void __ALWAYS_INLINE__ EE_timer_0_set(EE_UREG count_down) 
-{ *TDATA0 = count_down; }
+//{ *TDATA0 = count_down; } // modified by Francesco Esposito
+{*((volatile unsigned int *)SWARM_TIMER_MATCH0) = *((volatile unsigned int *)SWARM_TIMER_CNT) + count_down;}	// modified by Francesco Esposito
 
 #endif /* __TIMER_0_USED__ */
 
@@ -73,19 +78,60 @@ __INLINE__ void __ALWAYS_INLINE__ EE_timer_0_set(EE_UREG count_down)
 #define __TIMER_USED__
 #endif
 
-__INLINE__ void __ALWAYS_INLINE__ EE_timer_1_start(void) { *TMOD |= (1<<(0+3)); }
-__INLINE__ void __ALWAYS_INLINE__ EE_timer_1_stop(void) {*TMOD &= ~(1<<(0+3)); }
-__INLINE__ EE_UREG __ALWAYS_INLINE__ EE_timer_1_get(void) { return *TCNT1; }
+__INLINE__ void __ALWAYS_INLINE__ EE_timer_1_start(void) 
+//{ *TMOD |= (1<<(0+3)); }	// modified by Francesco Esposito
+{*((volatile unsigned int *)SWARM_TIMER_INTEN) |= 0x2;}	// modified by Francesco Esposito
+__INLINE__ void __ALWAYS_INLINE__ EE_timer_1_stop(void) 
+//{*TMOD &= ~(1<<(0+3)); }	// modified by Francesco Esposito
+{*((volatile unsigned int *)SWARM_TIMER_INTEN) &= ~(0x2);}	// modified by Francesco Esposito
+__INLINE__ EE_UREG __ALWAYS_INLINE__ EE_timer_1_get(void) { return *SWARM_TIMER_CNT; }
 __INLINE__ void __ALWAYS_INLINE__ EE_timer_1_set(EE_UREG count_down)
-{ *TDATA1 = count_down; }
+//{ *TDATA1 = count_down; }	// modified by Francesco Esposito
+{*((volatile unsigned int *)SWARM_TIMER_MATCH1) = *((volatile unsigned int *)SWARM_TIMER_CNT) + count_down;}	// modified by Francesco Esposito
+
 #endif /* __TIMER_1_USED__ */
+
+
+#ifdef __TIMER_2_USED__
+
+#ifndef __TIMER_USED__
+#define __TIMER_USED__
+#endif
+
+__INLINE__ void __ALWAYS_INLINE__ EE_timer_2_start(void) 
+{*((volatile unsigned int *)SWARM_TIMER_INTEN) |= 0x4;}	// modified by Francesco Esposito
+__INLINE__ void __ALWAYS_INLINE__ EE_timer_2_stop(void) 
+{*((volatile unsigned int *)SWARM_TIMER_INTEN) &= ~(0x4);}	// modified by Francesco Esposito
+__INLINE__ EE_UREG __ALWAYS_INLINE__ EE_timer_2_get(void) { return *SWARM_TIMER_CNT; }
+__INLINE__ void __ALWAYS_INLINE__ EE_timer_2_set(EE_UREG count_down)
+{*((volatile unsigned int *)SWARM_TIMER_MATCH2) = *((volatile unsigned int *)SWARM_TIMER_CNT) + count_down;}	// modified by Francesco Esposito
+
+#endif /* __TIMER_2_USED__ */
+
+
+#ifdef __TIMER_3_USED__
+
+#ifndef __TIMER_USED__
+#define __TIMER_USED__
+#endif
+
+__INLINE__ void __ALWAYS_INLINE__ EE_timer_3_start(void) 
+{*((volatile unsigned int *)SWARM_TIMER_INTEN) |= 0x8;}	// modified by Francesco Esposito
+__INLINE__ void __ALWAYS_INLINE__ EE_timer_3_stop(void) 
+{*((volatile unsigned int *)SWARM_TIMER_INTEN) &= ~(0x8);}	// modified by Francesco Esposito
+__INLINE__ EE_UREG __ALWAYS_INLINE__ EE_timer_3_get(void) { return *SWARM_TIMER_CNT; }
+__INLINE__ void __ALWAYS_INLINE__ EE_timer_3_set(EE_UREG count_down)
+{*((volatile unsigned int *)SWARM_TIMER_MATCH3) = *((volatile unsigned int *)SWARM_TIMER_CNT) + count_down;}	// modified by Francesco Esposito
+
+#endif /* __TIMER_3_USED__ */
 
 
 #ifdef __TIMER_USED__
 __INLINE__ void __ALWAYS_INLINE__ EE_timer_init(void)
 {
     /* disable timer */
-    *TMOD = 0;
+    //*TMOD = 0;
+	*SWARM_TIMER_INTEN = 0x0;	// modified by Francesco Esposito
 }
 #endif /* __TIMER_USED__ */
 

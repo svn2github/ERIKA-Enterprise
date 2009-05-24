@@ -55,12 +55,6 @@
 	// kernel code is in ARM-mode
 	.arm
 	
-	// Address of the IRQ controller for the Samsung KS32C50100.
-	// NOTE: it is in the text segment (ROM?) because it cannot
-	//       be an immediate operand and it is constant
-
-
-		
 
 /* ------------------------------------------------------------------------
  * FIQ Macro
@@ -83,8 +77,8 @@
 // GCC!!!
 .macro EE_FIQ_HANDLER_STUB
 
-.extern EE_INTOSET_FIQ
-.extern EE_IC_EXTIRQ_vector	
+.extern EE_IC_EXTIRQ_vector
+.extern EE_INT_FIQ
 
         // The FIQ handler works as follows:
 	//
@@ -104,27 +98,34 @@
 
 	// R0, R1, R2, R3 are free
 
-	LDR	r1, EE_INTOSET_FIQ
-	LDR	r2, [r1]	// read the IRQ highest priority FIQ
-
-	// R0, R3 are free
-	// R1 contains EE_INTOSET_IRQ
-	// R2 contains the offset used for the vectors
-
-	MOV	r0, r2, lsr #2
-	// R0 contains the bit in INTPND to be cleared
+	// R1 is used to address the various registers
+	LDR	r1, EE_INT_FIQ
+	LDR	r0, [r1]	// read the fiq status register
 	
-	SUB	r1, r1, #0x2C    // R1 now contains INTPND
+	// CLZ (count leading zeros) instruction is available only in armv5+
+	// thus now need code to find highest priority pending fiq
+
+	// r0=fiq_status, r1=fiq_status_address; r2, r3 free
+	MOV	r2, #0
 	MOV	r3, #1
-	MOV	r0, r3, lsl r0
-
-	// R0 contains the mask to be applied to INTPND
-	// R1 contains INTPND
-	// R2 contains the offset used for the vectors
-	// R3 is free
-	
-	// clear interrupt source (*INTPND = r2)
+FIQ_SEARCH:
+	TST	r0, r3, lsl r2
+	BNE	FIQ_FOUND
+	ADD	r2, r2, #1
+	B	FIQ_SEARCH
+//	CMP	r2, #32
+//	BNE	FIQ_SEARCH
+//	// can never get here
+//	B	.
+FIQ_FOUND:
+	// clear the interrupt bit from current FIQ status
+	LDR	r0, [r1]	// read the FIQ status register
+	BIC	r0, r0, r3, lsl r2
 	STR	r0, [r1]
+
+	MOV	r2, r2, lsl #2
+	// R2 contains the offset used for the vectors
+	// R0, R1, R3 are free
 
 	LDR	r0, =EE_IC_EXTIRQ_vector
 	LDR	r0, [r0, r2]
@@ -146,9 +147,9 @@
 
 	SUBS	pc, lr, #4
 
-EE_INTOSET_FIQ:	.word	0x03ff4030
 
 
+EE_INT_FIQ:	.word	0x90050010
 	.endm
 
 	/* there is no .end directive, this file is included! */

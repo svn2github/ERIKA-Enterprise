@@ -163,7 +163,7 @@ all:: make_directories $(ALL_LIBS) $(TARGET)
 
 clean::
 	@printf "CLEAN\n" ;
-	@-rm -rf *.a *.ld *.map *.elf *.objdump deps deps.pre debug.bat t32* obj *.men
+	@-rm -rf *.a *.ld *.map *.elf *.objdump deps deps.pre debug.bat t32* obj *.men *.sh *.bin
 
 mparm.objdump: mparm.elf
 	$(QUIET)$(EE_OBJDUMP) -D mparm.elf > mparm.objdump
@@ -283,11 +283,15 @@ $(OBJDIR)/.make_directories_flag:
 # --------------------------------------------------------------------------
 #
 
+mparm.bin: mparm.elf
+	$(QUIET)$(EE_OBJCOPY) -O binary mparm.elf mparm.bin
+
 # Unibo MPARM scripts
 
 MPARM_SCRIPT = mparm_script.sh
 
-mparm_script:
+
+mparm_script: mparm.bin
 	@printf "MPARM Write script.\n"
 	@echo \#!/bin/bash												>  $(MPARM_SCRIPT)
 	@echo 															>> $(MPARM_SCRIPT)
@@ -304,10 +308,10 @@ mparm_script:
 	@echo \########################################################	>> $(MPARM_SCRIPT)
 	@echo \# Set BENCHNAME											>> $(MPARM_SCRIPT)
 	@echo \########################################################	>> $(MPARM_SCRIPT)
-	@echo BENCHNAME=mparm.elf										>> $(MPARM_SCRIPT)
+	@echo BENCHNAME=mparm.bin										>> $(MPARM_SCRIPT)
 	@echo 															>> $(MPARM_SCRIPT)
 	@cat $(PKGBASE)/board/unibo_mparm/debug/swarm.tpl				>> $(MPARM_SCRIPT)
-
+	$(QUIET)chmod a+x $(MPARM_SCRIPT)
 #
 # --------------------------------------------------------------------------
 #

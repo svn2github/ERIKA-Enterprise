@@ -45,8 +45,7 @@
 
 #include "mcu/unibo_mparm/inc/ee_mcuregs.h"
 #include "mcu/unibo_mparm/inc/ee_ic.h"
-
-
+/*
 void EE_IC_compute_masks(EE_TYPEIRQMASK *result, EE_TYPEIRQMASK masked)
 {
   EE_TYPEIRQ i, j, currentmask, currentprio;
@@ -85,4 +84,4 @@ void EE_IC_compute_masks(EE_TYPEIRQMASK *result, EE_TYPEIRQMASK masked)
     priorities[j] = priorities[j] >> 8;
   }
 }
-
+*/

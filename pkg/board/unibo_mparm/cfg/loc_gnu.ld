@@ -90,25 +90,21 @@ SECTIONS
   /* Adjust the address for the data segment.  We want to adjust up to
      the same address within the page on the next page up.  */
   . = ALIGN(256) + (. & (256 - 1));
-  .data           : AT ( _data_copy__ )
+  .data           :
   {
     __data_start = . ;
     *(.data .data.* .gnu.linkonce.d.*)
     SORT(CONSTRUCTORS)
   }
-  .data1          : AT ( _data_copy__ + SIZEOF(.data) )
+  .data1          :
     { *(.data1) }
-  .eh_frame       : AT ( _data_copy__ + SIZEOF(.data) + SIZEOF(.data1) )
+  .eh_frame       :
     { KEEP (*(.eh_frame)) }
-  .gcc_except_table   : AT ( _data_copy__ + SIZEOF(.data) + SIZEOF(.data1) +
-			     SIZEOF(.eh_frame) )
+  .gcc_except_table   :
     { *(.gcc_except_table) }
-  .dynamic        : AT ( _data_copy__ + SIZEOF(.data) + SIZEOF(.data1) +
-			 SIZEOF(.eh_frame) + SIZEOF(.gcc_except_table) ) 
+  .dynamic        :
     { *(.dynamic) }
-  .ctors          : AT ( _data_copy__ + SIZEOF(.data) + SIZEOF(.data1) +
-			 SIZEOF(.eh_frame) + SIZEOF(.gcc_except_table) +
-			 SIZEOF(.dynamic) ) 
+  .ctors          :
   {
     /* gcc uses crtbegin.o to find the start of
        the constructors, so we make sure it is
@@ -128,31 +124,21 @@ SECTIONS
     KEEP (*(SORT(.ctors.*)))
     KEEP (*(.ctors))
   }
-  .dtors          :  AT ( _data_copy__ + SIZEOF(.data) + SIZEOF(.data1) +
-			 SIZEOF(.eh_frame) + SIZEOF(.gcc_except_table) +
-			 SIZEOF(.dynamic) + SIZEOF(.ctors) ) 
+  .dtors          :
   {
     KEEP (*crtbegin.o(.dtors))
     KEEP (*(EXCLUDE_FILE (*crtend.o ) .dtors))
     KEEP (*(SORT(.dtors.*)))
     KEEP (*(.dtors))
   }
-  .jcr            : AT ( _data_copy__ + SIZEOF(.data) + SIZEOF(.data1) +
-			 SIZEOF(.eh_frame) + SIZEOF(.gcc_except_table) +
-			 SIZEOF(.dynamic) + SIZEOF(.ctors) + SIZEOF(.dtors) ) 
+  .jcr            :
     { KEEP (*(.jcr)) }
-  .got            : AT ( _data_copy__ + SIZEOF(.data) + SIZEOF(.data1) +
-			 SIZEOF(.eh_frame) + SIZEOF(.gcc_except_table) +
-			 SIZEOF(.dynamic) + SIZEOF(.ctors) + SIZEOF(.dtors) +
-			 SIZEOF(.jcr) ) 
+  .got            :
     { *(.got.plt) *(.got) }
   /* We want the small data sections together, so single-instruction offsets
      can access them all, and initialized data all before uninitialized, so
      we can shorten the on-disk segment size.  */
-  .sdata          : AT ( _data_copy__ + SIZEOF(.data) + SIZEOF(.data1) +
-			 SIZEOF(.eh_frame) + SIZEOF(.gcc_except_table) +
-			 SIZEOF(.dynamic) + SIZEOF(.ctors) + SIZEOF(.dtors) +
-			 SIZEOF(.jcr) + SIZEOF(.got) ) 
+  .sdata          :
   {
     *(.sdata .sdata.* .gnu.linkonce.s.*)
   }

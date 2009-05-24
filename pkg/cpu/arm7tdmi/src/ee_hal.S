@@ -158,7 +158,11 @@ EE_arm7_hal_stkchange:
 
         // now the stack is changed, and we need to return to the interrupted thread!
         LDMFD   sp!, {lr}
+#ifdef __unibo_mparm__
+        MOV	pc, lr
+#else
         BX      lr
+#endif
         .size   EE_arm7_hal_stkchange, . - EE_arm7_hal_stkchange
 
 #endif // __MULTI__
@@ -190,7 +194,11 @@ EE_arm7_hal_ready2stacked:
 
 	// jump to the preempter thread (r0 = first parameter)
 	MOV	lr, pc
+#ifdef __unibo_mparm__
+	MOV	pc, r0
+#else
 	BX	r0
+#endif
 
 	// NOTE: we have to disable interrupts here before calling
 	// EE_thread_end_instance() because it is a primitive
@@ -234,7 +242,11 @@ EE_arm7_hal_ready2stacked:
 	// return to the interrupted thread
 	//
 	LDMFD	sp!, {lr}
+#ifdef __unibo_mparm__
+	MOV	pc, lr
+#else
 	BX	lr
+#endif
 		
 	.size	EE_arm7_hal_ready2stacked, . - EE_arm7_hal_ready2stacked
 

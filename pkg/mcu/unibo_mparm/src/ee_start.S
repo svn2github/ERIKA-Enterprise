@@ -58,10 +58,10 @@
 	.extern __SP_END		// End of stack memory bank
 
 	// initial C variable values
-	.extern __data_start		// Start of initialized data (RAM)
-	.extern _edata			// End of initialized data   (RAM)
-	.extern _data_copy__		// Start of initialized data (ROM)
-	.extern __bss_end__		// End of uninitialized data (RAM)
+//	.extern __data_start		// Start of initialized data (RAM)
+//	.extern _edata			// End of initialized data   (RAM)
+//	.extern _data_copy__		// Start of initialized data (ROM)
+//	.extern __bss_end__		// End of uninitialized data (RAM)
 	
 		
 //
@@ -122,12 +122,12 @@ _start:
 	//
 	// NOTE: now we are in SYS-mode! 
 	//
-	
+
 		
 	//
 	// BSS and default C variable values (copy from ROM to RAM)
 	//	
-	LDR   	r0, =_data_copy__
+	/*LDR   	r0, =_data_copy__
 	LDR   	r1, =__data_start
 	LDR   	r2, =_edata
 
@@ -166,7 +166,7 @@ _init_stack_fillpattern:
     	STR	r2, [r1], #4 	
     	CMP	r1, r0
     	BCC	_init_stack_fillpattern
-#endif
+#endif*/
 
   	B	main
 
