@@ -717,10 +717,8 @@ distrib_opt___MIWIP2P__:: \
 
 distrib_opt___SCICOS__:: \
 		ee_$(DIST)/contrib/scicos \
-		ee_$(DIST)/contrib/scicos/ScicosBlocks.txt \
 		ee_$(DIST)/contrib/scicos/readme.txt \
 		ee_$(DIST)/contrib/scicos/cfg \
-		ee_$(DIST)/contrib/scicos/cfg/all.txt \
 		ee_$(DIST)/contrib/scicos/cfg/cfg.mk \
 		ee_$(DIST)/contrib/scicos/cfg/libcfg.mk \
 		ee_$(DIST)/contrib/scicos/libsrc \
@@ -733,128 +731,6 @@ distrib_opt___SCICOS__:: \
 		ee_$(DIST)/contrib/scicos/libsrc/core/bit_set_16.c \
 		ee_$(DIST)/contrib/scicos/libsrc/core/bit_set_32.c \
 		ee_$(DIST)/contrib/scicos/libsrc/core/bit_set_8.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/acos_blk.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/acosh_blk.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/asin_blk.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/asinh_blk.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/atan_blk.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/atanh_blk.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/automat.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/blocks-vc.h \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/cos_blk.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/cosh_blk.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/cumsum_c.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/cumsum_m.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/cumsum_r.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/cumsumz_c.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/cumsumz_m.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/cumsumz_r.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/curve_c.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/edgetrig.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/evtdly4.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/evtvardly.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/extdiag.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/extdiagz.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/extractz.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/exttril.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/exttrilz.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/exttriu.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/exttriuz.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/import.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/import.h \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/logicalop.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/logicalop_i16.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/logicalop_i32.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/logicalop_i8.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/logicalop_m.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/logicalop_ui16.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/logicalop_ui32.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/logicalop_ui8.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/m_frequ.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/machine.h \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/mat_bksl.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/mat_cath.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/mat_catv.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/mat_det.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/mat_diag.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/mat_div.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/mat_expm.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/mat_inv.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/mat_lu.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/mat_pinv.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/mat_reshape.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/mat_sing.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/mat_sqrt.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/mat_sum.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/mat_sumc.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/mat_suml.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/mat_svd.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/mat_vps.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/mat_vpv.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/mathermit_m.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/mattran_m.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/matz_abs.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/matz_absc.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/matz_bksl.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/matz_cath.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/matz_catv.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/matz_conj.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/matz_det.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/matz_diag.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/matz_div.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/matz_expm.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/matz_inv.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/matz_lu.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/matz_pinv.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/matz_reim.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/matz_reimc.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/matz_reshape.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/matz_sing.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/matz_sqrt.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/matz_sum.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/matz_sumc.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/matz_suml.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/matz_svd.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/matz_vps.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/matz_vpv.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/matzmul2_m.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/matzmul_m.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/matztran_m.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/memory.h \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/ramp.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/readau.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/readc.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/relational_op.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/relational_op_i16.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/relational_op_i32.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/relational_op_i8.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/relational_op_ui16.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/relational_op_ui32.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/relational_op_ui8.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/relationalop.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/relay.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/ricc_m.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/rndblk_m.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/rndblkz_m.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/root_coef.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/rootz_coef.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/s2s_common.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/selector.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/selector_m.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/sin_blk.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/sinh_blk.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/step_func.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/submat.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/submatz.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/sum.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/switch2.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/tan_blk.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/tanh_blk.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/tcslti4.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/tcsltj4.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/tree.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/blackhole/zcross2.c \
 		ee_$(DIST)/contrib/scicos/libsrc/core/canimxy.c \
 		ee_$(DIST)/contrib/scicos/libsrc/core/cmscope.c \
 		ee_$(DIST)/contrib/scicos/libsrc/core/convert.c \
@@ -982,6 +858,7 @@ distrib_opt___SCICOS__:: \
 		ee_$(DIST)/contrib/scicos/libsrc/core/scicos_block4.h \
 		ee_$(DIST)/contrib/scicos/libsrc/core/scicos_free.c \
 		ee_$(DIST)/contrib/scicos/libsrc/core/scicos_malloc.c \
+		ee_$(DIST)/contrib/scicos/libsrc/core/scicos_USB.h \
 		ee_$(DIST)/contrib/scicos/libsrc/core/sciprint.c \
 		ee_$(DIST)/contrib/scicos/libsrc/core/set_block_error.c \
 		ee_$(DIST)/contrib/scicos/libsrc/core/shift_16_LA.c \
@@ -1040,15 +917,22 @@ distrib_opt___SCICOS__:: \
 		ee_$(DIST)/contrib/scicos/readme.txt \
 		ee_$(DIST)/contrib/scicos/src \
 		ee_$(DIST)/contrib/scicos/src/pic30 \
-		ee_$(DIST)/contrib/scicos/src/pic30/adcin.c \
-		ee_$(DIST)/contrib/scicos/src/pic30/buzzer.c \
-		ee_$(DIST)/contrib/scicos/src/pic30/debug.c \
-		ee_$(DIST)/contrib/scicos/src/pic30/gpin.c \
-		ee_$(DIST)/contrib/scicos/src/pic30/gpout.c \
-		ee_$(DIST)/contrib/scicos/src/pic30/lcd-protocol.h \
-		ee_$(DIST)/contrib/scicos/src/pic30/lcd.c \
-		ee_$(DIST)/contrib/scicos/src/pic30/led.c \
-		ee_$(DIST)/contrib/scicos/src/pic30/pwmout.c \
+		ee_$(DIST)/contrib/scicos/src/pic30/communication \
+		ee_$(DIST)/contrib/scicos/src/pic30/communication/flex_serial_receive.c \
+		ee_$(DIST)/contrib/scicos/src/pic30/communication/flex_serial_send.c \
+		ee_$(DIST)/contrib/scicos/src/pic30/communication/flex_usb_receive.c \
+		ee_$(DIST)/contrib/scicos/src/pic30/communication/flex_usb_send.c \
+		ee_$(DIST)/contrib/scicos/src/pic30/communication/flex_zigbee_receive.c \
+		ee_$(DIST)/contrib/scicos/src/pic30/communication/flex_zigbee_send.c \
+		ee_$(DIST)/contrib/scicos/src/pic30/flex_adc.c \
+		ee_$(DIST)/contrib/scicos/src/pic30/flex_adcin.c \
+		ee_$(DIST)/contrib/scicos/src/pic30/flex_buzzer.c \
+		ee_$(DIST)/contrib/scicos/src/pic30/flex_debug.c \
+		ee_$(DIST)/contrib/scicos/src/pic30/flex_gpin.c \
+		ee_$(DIST)/contrib/scicos/src/pic30/flex_gpout.c \
+		ee_$(DIST)/contrib/scicos/src/pic30/flex_lcd.c \
+		ee_$(DIST)/contrib/scicos/src/pic30/flex_led.c \
+		ee_$(DIST)/contrib/scicos/src/pic30/flex_pwm.c \
 		ee_$(DIST)/contrib/scicos/src/pic30/flex_dmb_adc.c \
 		ee_$(DIST)/contrib/scicos/src/pic30/flex_dmb_button.c \
 		ee_$(DIST)/contrib/scicos/src/pic30/flex_dmb_buzzer.c \
@@ -1063,11 +947,6 @@ distrib_opt___SCICOS__:: \
 		ee_$(DIST)/contrib/scicos/src/pic30/flex_dmb_ntc.c \
 		ee_$(DIST)/contrib/scicos/src/pic30/flex_dmb_potin.c \
 		ee_$(DIST)/contrib/scicos/src/pic30/flex_dmb_pwm.c \
-		ee_$(DIST)/contrib/scicos/src/pic30/flex_usb_receive.c \
-		ee_$(DIST)/contrib/scicos/src/pic30/flex_usb_send.c \
-		ee_$(DIST)/contrib/scicos/src/pic30/openzb \
-		ee_$(DIST)/contrib/scicos/src/pic30/openzb/flex_zigbee_receive.c \
-		ee_$(DIST)/contrib/scicos/src/pic30/openzb/flex_zigbee_send.c
 
 #		ee_$(DIST)/contrib/scicos/src/nios2 \
 #		ee_$(DIST)/contrib/scicos/src/nios2/button.c \
@@ -1210,27 +1089,21 @@ distrib_opt___PIC30_EXAMPLES__:: \
 		\
 		ee_$(DIST)/examples/pic30/pic30_scicos \
 		ee_$(DIST)/examples/pic30/pic30_scicos/dspic_main.c \
-		ee_$(DIST)/examples/pic30/pic30_scicos/memory.h \
-		ee_$(DIST)/examples/pic30/pic30_scicos/scicos_USB.h \
 		ee_$(DIST)/examples/pic30/pic30_scicos/template.xml \
 		ee_$(DIST)/examples/pic30/pic30_scicos/conf_scicos.oil \
 		\
 		ee_$(DIST)/examples/pic30/pic30_scicos_openzb_coordinator \
 		ee_$(DIST)/examples/pic30/pic30_scicos_openzb_coordinator/dspic_main.c \
-		ee_$(DIST)/examples/pic30/pic30_scicos_openzb_coordinator/memory.h \
 		ee_$(DIST)/examples/pic30/pic30_scicos_openzb_coordinator/types.h \
 		ee_$(DIST)/examples/pic30/pic30_scicos_openzb_coordinator/template.xml \
-		ee_$(DIST)/examples/pic30/pic30_scicos_openzb_coordinator/scicos_USB.h \
-		ee_$(DIST)/examples/pic30/pic30_scicos_openzb_coordinator/scicos_openZB.h \
+#		ee_$(DIST)/examples/pic30/pic30_scicos_openzb_coordinator/scicos_openZB.h \
 		ee_$(DIST)/examples/pic30/pic30_scicos_openzb_coordinator/conf_scicos.oil \
 		\
 		ee_$(DIST)/examples/pic30/pic30_scicos_openzb_device \
 		ee_$(DIST)/examples/pic30/pic30_scicos_openzb_device/dspic_main.c \
-		ee_$(DIST)/examples/pic30/pic30_scicos_openzb_device/memory.h \
 		ee_$(DIST)/examples/pic30/pic30_scicos_openzb_device/types.h \
 		ee_$(DIST)/examples/pic30/pic30_scicos_openzb_device/template.xml \
-		ee_$(DIST)/examples/pic30/pic30_scicos_openzb_device/scicos_USB.h \
-		ee_$(DIST)/examples/pic30/pic30_scicos_openzb_device/scicos_openZB.h \
+#		ee_$(DIST)/examples/pic30/pic30_scicos_openzb_device/scicos_openZB.h \
 		ee_$(DIST)/examples/pic30/pic30_scicos_openzb_device/conf_scicos.oil \
 		\
 		ee_$(DIST)/examples/pic30/pic30_openzb_demo \
@@ -1238,12 +1111,6 @@ distrib_opt___PIC30_EXAMPLES__:: \
 		ee_$(DIST)/examples/pic30/pic30_openzb_demo/types.h \
 		ee_$(DIST)/examples/pic30/pic30_openzb_demo/template.xml \
 		ee_$(DIST)/examples/pic30/pic30_openzb_demo/conf.oil \
-		\
-		ee_$(DIST)/examples/pic30/pic30_scicos_demo_prototype \
-		ee_$(DIST)/examples/pic30/pic30_scicos_demo_prototype/dspic_main.c \
-		ee_$(DIST)/examples/pic30/pic30_scicos_demo_prototype/memory.h \
-		ee_$(DIST)/examples/pic30/pic30_scicos_demo_prototype/template.xml \
-		ee_$(DIST)/examples/pic30/pic30_scicos_demo_prototype/conf_scicos.oil \
 		\
 		ee_$(DIST)/examples/pic30/pic30_serial \
 		ee_$(DIST)/examples/pic30/pic30_serial/template.xml \

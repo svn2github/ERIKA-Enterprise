@@ -12,6 +12,7 @@
 ifeq ($(findstring __LIB_SCICOS__,$(LIB_OPT)),__LIB_SCICOS__)
 
 EE_VPATH += $(EEBASE)/contrib/scicos/src/pic30
+EE_VPATH += $(EEBASE)/contrib/scicos/src/pic30/communication
 EE_VPATH += $(EEBASE)/contrib/scicos/libsrc/rt
 EE_VPATH += $(EEBASE)/contrib/scicos/libsrc/core
 
