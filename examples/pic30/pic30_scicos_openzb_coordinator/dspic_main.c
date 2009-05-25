@@ -231,6 +231,7 @@ TASK(rt_LCD)
 }
 #endif
 
+#ifdef __USE_USB__
 TASK(rx_USB)
 {
 	struct flex_bus_packet_t pkt;
@@ -244,7 +245,7 @@ TASK(rx_USB)
 		ReleaseResource(scicosUSB_rx_buffer_mutex); 
 	}
 }
-
+#endif // __USE_USB__
 
 void scicosOpenZB_rx_callback(OpenZB_ExitStatus code,  EE_UINT8* pdu, EE_UINT16 size)
 {

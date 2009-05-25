@@ -45,6 +45,11 @@ CPU mySystem {
 		EE_OPT = "NODEPS";
 		//EE_OPT = "VERBOSE";
 
+#ifdef __USE_ZIGBEE__
+		CFLAGS = "-DDEVICE_TYPE_COORDINATOR";
+		CFLAGS = "-DOPENZB_CHANNEL=25";
+#endif // __USE_ZIGBEE__
+
 		CFLAGS = "-mlarge-data";
 
 #ifndef __NO_MALLOC__
@@ -68,16 +73,17 @@ CPU mySystem {
 		
 		BOARD_DATA = EE_FLEX {
 
-			// TYPE = DEMO {
-				// OPTIONS = ALL;
-			// };
-
 		};
 		
 		KERNEL_TYPE = FP;
 		
 		LIB = ENABLE {
 			NAME = "SCICOS";
+
+#ifdef __USE_ZIGBEE__
+			NAME = "ieee802154";
+#endif // __USE_ZIGBEE__
+
 		};
 		
 	};
@@ -86,6 +92,15 @@ CPU mySystem {
 		PRIORITY = 1;
 		STACK = SHARED;
 		SCHEDULE = FULL;
+		
+#ifdef __USE_USB__
+		RESOURCE = "scicosUSB_rx_buffer_mutex";
+#endif	// __USE_USB__
+		
+#ifdef __USE_ZIGBEE__
+		RESOURCE = "scicosOpenZB_rx_buffer_mutex";		
+#endif // __USE_ZIGBEE__
+
 	};
 
 #ifdef __USE_LCD__
@@ -95,8 +110,15 @@ CPU mySystem {
 		SCHEDULE = FULL;
 	};
 #endif // __USE_LCD
-	
-//#include "tasks_to_add.oil"
+
+#ifdef __USE_USB__
+	TASK rx_USB {
+		PRIORITY = 8;
+		STACK = SHARED;
+		SCHEDULE = FULL;
+		RESOURCE = "scicosUSB_rx_buffer_mutex";
+	};
+#endif // __USE_USB__
 
 	COUNTER sciCounter;
 
@@ -112,7 +134,16 @@ CPU mySystem {
 	};
 #endif // __USE_LCD__
 
-//#include "alarms_to_add.oil"
+#ifdef __USE_USB__
+	ALARM AlarmUSB {
+		COUNTER = "SciCounter";
+		ACTION = ACTIVATETASK { TASK = "rx_USB"; };		
+	};
+#endif // __USE_USB__
+
+#ifdef __USE_USB__
+	RESOURCE scicosUSB_rx_buffer_mutex { RESOURCEPROPERTY = STANDARD; };
+#endif // __USE_USB__
 
 };
 

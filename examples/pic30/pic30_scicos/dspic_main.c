@@ -47,6 +47,13 @@
 #include "cpu/pic30/inc/ee_irqstub.h"
 #include <stdio.h>
 
+#ifdef __USE_USB__
+
+#include <string.h>
+#include "scicos_USB.h"
+
+#endif // __USE_USB__
+
 #define XNAME(x,y)  x##y
 #define NAME(x,y)   XNAME(x,y)
 
@@ -73,8 +80,14 @@ static int dspic_time;
 static double t;
 static double actTime;
 
+
+#ifdef __USE_USB__ 
+float scicosUSB_rx_buffer[SCICOS_USB_CHANNELS] __attribute__((far));
+#endif // __USE_USB__
+
+
 extern int NAME(MODELNAME,_init)(void);
-extern double	NAME(MODELNAME,_get_tsamp)(void);
+extern double NAME(MODELNAME,_get_tsamp)(void);
 extern int NAME(MODELNAME,_isr)(double);
 extern int NAME(MODELNAME,_end)(void);
 
@@ -202,6 +215,22 @@ TASK(rt_LCD)
 	update_lcd();
 }
 #endif
+
+#ifdef __USE_USB__ 
+TASK(rx_USB)
+{
+	struct flex_bus_packet_t pkt;
+	int retv;
+
+	memset((EE_UINT8*) &pkt, 0, sizeof(struct flex_bus_packet_t));
+	retv = EE_usb_read((EE_UINT8 *) &pkt, sizeof(struct flex_bus_packet_t));
+	if (retv == sizeof(struct flex_bus_packet_t)) {
+		GetResource(scicosUSB_rx_buffer_mutex);
+		scicosUSB_rx_buffer[pkt.channel] = *((float*) pkt.payload.data);
+		ReleaseResource(scicosUSB_rx_buffer_mutex); 
+	}
+}
+#endif // __USE_USB__
 
 int main(void)
 {

@@ -15,11 +15,9 @@
 
  <file_section>
   <file     name="dspic_main.c"/>
-  <file     name="memory.h"/>
   <file     name="types.h"/>
   <file     name="conf_scicos.oil"/>
   <file     name="scicos_openZB.h"/>
-  <file     name="scicos_USB.h"/>
  </file_section>
 
 </evidence_example>
