@@ -661,19 +661,23 @@ distrib_opt___OPENZB__:: \
 		ee_$(DIST)/contrib/network/openzb/inc/hal/ozb_compiler_ee.h \
 		ee_$(DIST)/contrib/network/openzb/inc/hal/ozb_radio.h \
 		ee_$(DIST)/contrib/network/openzb/inc/hal/ozb_radio_cc2420.h \
+		ee_$(DIST)/contrib/network/openzb/inc/hal/ozb_rand.h \
+		ee_$(DIST)/contrib/network/openzb/inc/hal/ozb_timer.h \
+		ee_$(DIST)/contrib/network/openzb/inc/hal/ozb_timer_dspic30.h \
+		ee_$(DIST)/contrib/network/openzb/inc/kal \
+		ee_$(DIST)/contrib/network/openzb/inc/kal/ozb_kal.h \
+		ee_$(DIST)/contrib/network/openzb/inc/kal/ozb_kal_erika.h \
 		ee_$(DIST)/contrib/network/openzb/inc/mac \
 		ee_$(DIST)/contrib/network/openzb/inc/mac/ozb_mac.h \
 		ee_$(DIST)/contrib/network/openzb/inc/mac/ozb_mac_const.h \
 		ee_$(DIST)/contrib/network/openzb/inc/mac/ozb_mac_internal.h \
 		ee_$(DIST)/contrib/network/openzb/inc/mac/ozb_mac_mcps.h \
 		ee_$(DIST)/contrib/network/openzb/inc/mac/ozb_mac_mlme.h \
+		ee_$(DIST)/contrib/network/openzb/inc/mac/ozb_mac_mutexes.h \
 		ee_$(DIST)/contrib/network/openzb/inc/mac/ozb_mac_types.h \
 		ee_$(DIST)/contrib/network/openzb/inc/net \
 		ee_$(DIST)/contrib/network/openzb/inc/net/ozb_net.h \
 		ee_$(DIST)/contrib/network/openzb/inc/net/ozb_net_internal.h \
-		ee_$(DIST)/contrib/network/openzb/inc/osal \
-		ee_$(DIST)/contrib/network/openzb/inc/osal/ozb_osal.h \
-		ee_$(DIST)/contrib/network/openzb/inc/osal/ozb_osal_erika.h \
 		ee_$(DIST)/contrib/network/openzb/inc/phy \
 		ee_$(DIST)/contrib/network/openzb/inc/phy/ozb_phy.h \
 		ee_$(DIST)/contrib/network/openzb/inc/phy/ozb_phy_const.h \
@@ -687,11 +691,17 @@ distrib_opt___OPENZB__:: \
 		ee_$(DIST)/contrib/network/openzb/src \
 		ee_$(DIST)/contrib/network/openzb/src/hal \
 		ee_$(DIST)/contrib/network/openzb/src/hal/ozb_radio_cc2420.c \
+		ee_$(DIST)/contrib/network/openzb/src/hal/ozb_timer_dspic30.c \
+		ee_$(DIST)/contrib/network/openzb/src/kal \
+		ee_$(DIST)/contrib/network/openzb/src/kal/ozb_kal_erika.c \
 		ee_$(DIST)/contrib/network/openzb/src/mac \
 		ee_$(DIST)/contrib/network/openzb/src/mac/ozb_mac.c \
-		ee_$(DIST)/contrib/network/openzb/src/mac/ozb_mac_phy_events.c \
+		ee_$(DIST)/contrib/network/openzb/src/mac/ozb_mac_gts.c \
+		ee_$(DIST)/contrib/network/openzb/src/mac/ozb_mac_mcps.c \
+		ee_$(DIST)/contrib/network/openzb/src/mac/ozb_mac_mlme.c \
+		ee_$(DIST)/contrib/network/openzb/src/mac/ozb_mac_superframe.c \
 		ee_$(DIST)/contrib/network/openzb/src/net \
-		ee_$(DIST)/contrib/network/openzb/src/osal \
+		ee_$(DIST)/contrib/network/openzb/src/net/ozb_net_mac_events.c \
 		ee_$(DIST)/contrib/network/openzb/src/phy \
 		ee_$(DIST)/contrib/network/openzb/src/phy/ozb_phy.c \
 		ee_$(DIST)/contrib/network/openzb/src/util \
