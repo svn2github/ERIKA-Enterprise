@@ -17,22 +17,26 @@ post_script_ALWAYS += \
 	echo Packing plugins!; \
 	mkdir ee_$(DIST)/plugins; \
 	cd ee_$(DIST); \
-	echo A; \
-	echo `find $(PWD)/ee_$(DIST)/examples -mindepth 1 -maxdepth 1 -type d ` ; \
-	for e in `find $(PWD)/ee_$(DIST)/examples -mindepth 1 -maxdepth 1 -type d `; do \
-	echo $e; \
-	done; \
-	echo B; \
+	zip -r plugins/ee_$(DIST)_core.zip VERSION pkg contrib; \
+	zip -r plugins/ee_$(DIST)_examples_pic30.zip VERSION examples/pic30; \
+	zip -r plugins/ee_$(DIST)_examples_avr5.zip VERSION examples/avr5; \
 	cd -
 endif
+
+# TODO: finish automatic examples generation!!!
+#	for exampledir in $( find examples -mindepth 1 -maxdepth 1 -type d ); do \
+#	zip -r plugins/ee_$(DIST)_$(exampledir).zip VERSION $(exampledir); \
+#	echo A; \
+#	echo `find $(PWD)/ee_$(DIST)/examples -mindepth 1 -maxdepth 1 -type d ` ; \
+#	for e in `find $(PWD)/ee_$(DIST)/examples -mindepth 1 -maxdepth 1 -type d `; do \
+#	echo $e; \
+#	done; \
+#	echo B; \
 
 post_script_ALWAYS += \
 	echo cp VERSION!; \
 	cp ../../VERSION ee_$(DIST);
 
-#	zip -r plugins/ee_$(DIST)_core.zip VERSION pkg contrib; \
-#	for exampledir in $( find examples -mindepth 1 -maxdepth 1 -type d ); do \
-#	zip -r plugins/ee_$(DIST)_$(exampledir).zip VERSION $(exampledir); \
 # --------------------------------------------------------
 
 
