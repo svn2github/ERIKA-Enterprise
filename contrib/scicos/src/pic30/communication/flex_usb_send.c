@@ -57,7 +57,6 @@ static void inout(scicos_block *block)
 	pkt.payload.length = sizeof(float);
 	*((float *) pkt.payload.data) = *((float *) block->inptr[0]);
 	EE_usb_write((unsigned char *) &pkt, sizeof(struct flex_bus_packet_t));
-	EE_led_2_on();	
 }
 
 static void end(scicos_block *block)
