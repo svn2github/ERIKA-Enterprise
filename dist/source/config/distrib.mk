@@ -1106,14 +1106,12 @@ distrib_opt___PIC30_EXAMPLES__:: \
 		ee_$(DIST)/examples/pic30/pic30_scicos_openzb_coordinator/dspic_main.c \
 		ee_$(DIST)/examples/pic30/pic30_scicos_openzb_coordinator/types.h \
 		ee_$(DIST)/examples/pic30/pic30_scicos_openzb_coordinator/template.xml \
-#		ee_$(DIST)/examples/pic30/pic30_scicos_openzb_coordinator/scicos_openZB.h \
 		ee_$(DIST)/examples/pic30/pic30_scicos_openzb_coordinator/conf_scicos.oil \
 		\
 		ee_$(DIST)/examples/pic30/pic30_scicos_openzb_device \
 		ee_$(DIST)/examples/pic30/pic30_scicos_openzb_device/dspic_main.c \
 		ee_$(DIST)/examples/pic30/pic30_scicos_openzb_device/types.h \
 		ee_$(DIST)/examples/pic30/pic30_scicos_openzb_device/template.xml \
-#		ee_$(DIST)/examples/pic30/pic30_scicos_openzb_device/scicos_openZB.h \
 		ee_$(DIST)/examples/pic30/pic30_scicos_openzb_device/conf_scicos.oil \
 		\
 		ee_$(DIST)/examples/pic30/pic30_openzb_demo \

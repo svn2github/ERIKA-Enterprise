@@ -50,6 +50,7 @@ CPU mySystem {
 		 
 		KERNEL_TYPE = FP;
 		
+		EE_OPT = "__USE_UART__";
 		EE_OPT = "__ADD_LIBS__";
 		LIB = ENABLE {
 			NAME = "CONSOLE";

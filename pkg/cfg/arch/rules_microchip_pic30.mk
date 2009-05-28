@@ -65,7 +65,7 @@ C30_LONGPATH := 1
 endif
 
 # Set include subdirectory for GCC
-ifeq ($(C30_LONGPATH), 1)
+ifdef C30_LONGPATH
 C30SUBDIR :=
 ifeq ($(findstring 30F,$(PIC30_MODEL)) , 30F)
 C30SUBDIR := /dsPIC30F
@@ -84,7 +84,7 @@ C30SUBDIR :=
 endif
 
 # Add extra include if C30 version is 3.10
-ifeq ($(C30_LONGPATH), 1)
+ifdef C30_LONGPATH
 CRT0INC := frommchp/p30f2010.inc
 else
 CRT0INC :=
@@ -139,12 +139,12 @@ OPT_LIBS += -lm -lc -ldsp -l$(subst .a,,$(subst lib,,$(PIC30_DEV_LIB))) -lpic30-
 
 ifeq ($(PLATFORM), LINUX)
 OPT_LIBS += -L $(PIC30_GCCDIR)/lib
-ifeq ($(C30_LONGPATH), 1)
+ifdef C30_LONGPATH
 OPT_LIBS += -L $(PIC30_GCCDIR)/lib$(C30SUBDIR)
 endif
 else
 OPT_LIBS += -L "`cygpath -w $(PIC30_GCCDIR)/lib`"
-ifeq ($(C30_LONGPATH), 1)
+ifdef C30_LONGPATH
 OPT_LIBS += -L "`cygpath -w $(PIC30_GCCDIR)/lib$(C30SUBDIR)`"
 endif
 endif
@@ -288,16 +288,16 @@ pic30.$(PIC30_EXTENSION): $(OBJS) $(LINKDEP) $(LIBDEP)
                      -M > pic30.map
 
 					 
-#ifeq ($(findstring BUILDSRC,$(EEALLOPT)), BUILDSRC)
+ifeq ($(findstring BUILDSRC,$(EEALLOPT)), BUILDSRC)
 # preprocess first the assembly code and then compile the object file
 $(OBJDIR)/%.o: %.S ee_pic30regs.inc
 	$(VERBOSE_PRINTPRE) $(EE_DEP) $(COMPUTED_ALLINCPATH) $(DEFS_ASM) -E "$(SOURCEFILE)" > $(SRCFILE)
 	$(VERBOSE_PRINTASM) $(EE_ASM) $(COMPUTED_OPT_ASM) $(SRCFILE) -o $(TARGETFILE)
-#else
+else
 # produce the object file from assembly code in a single step
-#$(OBJDIR)/%.o: %.S ee_pic30regs.inc
-#	$(VERBOSE_PRINTCPP) $(EE_CC) $(COMPUTED_ALLINCPATH) $(DEFS_ASM) "$(SOURCEFILE)" -o $(TARGETFILE)
-#endif
+$(OBJDIR)/%.o: %.S ee_pic30regs.inc
+	$(VERBOSE_PRINTCPP) $(EE_CC) $(COMPUTED_ALLINCPATH) $(DEFS_ASM) -c "$(SOURCEFILE)" -o $(TARGETFILE)
+endif
 
 ifeq ($(findstring BUILDSRC,$(EEALLOPT)), BUILDSRC)
 # produce first the assembly from C code and then compile the object file
@@ -323,7 +323,7 @@ frommchp/crt0.S: $(PIC30_CRT0)
 	@printf "CP crt0.s \n"; cp $(SOURCEFILE) $(TARGETFILE)
 
 # Add extra include if C30 version is 3.10
-ifeq ($(C30_LONGPATH), 1)
+ifdef C30_LONGPATH
 frommchp/p30f2010.inc: $(PIC30_GCCDIR)/support/dsPIC30F/inc/p30f2010.inc
 	@printf "CP p30f2010.inc \n"; cp $(SOURCEFILE) $(TARGETFILE)
 endif
