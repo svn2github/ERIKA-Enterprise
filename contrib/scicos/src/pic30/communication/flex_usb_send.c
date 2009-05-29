@@ -51,7 +51,6 @@ static void inout(scicos_block *block)
 	//EE_usb_send( (unsigned int *)buf, (datasize + 5)>>1 );
 
 	struct flex_bus_packet_t pkt;	
-	int a[20];
 
 	pkt.channel = (unsigned int) block->ipar[0];
 	pkt.payload.length = sizeof(float);
@@ -70,7 +69,6 @@ void flex_usb_send(scicos_block *block,int flag)
 		inout(block);
 		break;
 	case 2:	/* get input */
-		//inout(block);
 		break;
 	case 4:	/* initialisation */
 		init(block);
