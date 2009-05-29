@@ -309,7 +309,9 @@ EE_INT16 EE_usb_write(EE_UINT8 *buf, EE_UINT16 len)
 	*/
 	if (len == 0 || len > FLEX_USB_PACKET_PAYLOAD_SIZE)
 		return -1;
-	while (USB_PIC18_REQ) ; /* Wait previous transfer to be completed. */
+	//while (USB_PIC18_REQ) ; /* Wait previous transfer to be completed. */
+	if(USB_PIC18_REQ) 
+		return -1; 
 	memset((EE_UINT8 *) &dma_tx_pkt, 0x0, 64);
 	dma_tx_pkt.start = FLEX_USB_HEADER_START;
 	dma_tx_pkt.type = FLEX_USB_HEADER_DATA;
@@ -330,8 +332,8 @@ EE_INT16 EE_usb_write(EE_UINT8 *buf, EE_UINT16 len)
 	DMA0REQbits.FORCE = 1;
 	USB_PIC18_REQ = 1;	/* Request transmission */
 	/* chris: TODO: non usare il bloccaggio attivo qui!!! */
-	dummy_send_lock = 1;
-	while (dummy_send_lock) ;
+	//dummy_send_lock = 1;
+	//while (dummy_send_lock) ;
 	return len;
 }
 
