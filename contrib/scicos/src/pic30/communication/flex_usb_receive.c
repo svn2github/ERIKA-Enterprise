@@ -38,7 +38,7 @@ void flex_usb_receive(scicos_block *block,int flag)
 		inout(block);
 		break;
 	case 2:	/* get input */
-		inout(block);
+		//inout(block);
 		break;
 	case 4:	/* initialisation */
 		init(block);
