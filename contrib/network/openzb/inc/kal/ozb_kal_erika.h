@@ -5,7 +5,7 @@
 #include <hal/ozb_compiler.h>
 #include <hal/ozb_timer.h>
 
-extern volatile uint16_t ozb_kal_erika_time_counter;
+extern volatile uint32_t ozb_kal_erika_time_counter;
 
 void ozb_kal_external_timer_action(void);
 
@@ -31,7 +31,7 @@ int8_t ozb_kal_erika_init(uint32_t tick_duration)
 	return 1;
 }
 
-COMPILER_INLINE uint16_t ozb_kal_get_time(void) 
+COMPILER_INLINE uint32_t ozb_kal_get_time(void) 
 {
 	return ozb_kal_erika_time_counter;
 }
@@ -48,10 +48,16 @@ int8_t ozb_kal_erika_set_activation(TaskType tid, AlarmType aid,
 				     uint32_t offset,
 				     uint32_t period) 
 {
-	if (offset == 0 && period == 0)
-		ActivateTask(tid);
-	else
+	if (offset != 0) { 
 		SetRelAlarm(aid, offset, period);
+	} else {
+		if (period == 0) {
+			ActivateTask(tid);
+		} else {
+			SetRelAlarm(aid, period, period);
+			ActivateTask(tid);
+		}
+	}
 	return 1;
 }
 

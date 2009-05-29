@@ -148,7 +148,8 @@ COMPILER_INLINE
 uint8_t get_addressing_fields(uint8_t *af, enum ozb_mac_addr_mode_t dst_mode,
 			      uint16_t *dst_panid, void *dst_addr,
 			      enum ozb_mac_addr_mode_t src_mode,
-			      uint16_t *src_panid, void *src_addr) 
+			      uint16_t *src_panid, void *src_addr,
+			      uint8_t panid_compression) 
 {
 	uint8_t offset = 0;
 
@@ -170,17 +171,21 @@ uint8_t get_addressing_fields(uint8_t *af, enum ozb_mac_addr_mode_t dst_mode,
 		offset += OZB_MAC_MPDU_ADDRESS_EXTD_SIZE;
 	}
 	if (src_mode == OZB_MAC_ADDRESS_SHORT) {
-		if (src_panid != NULL)
-			*src_panid = af[offset];
-		offset += OZB_MAC_MPDU_PANID_SIZE;
+		if (panid_compression == 0) {
+			if (src_panid != NULL)
+				*src_panid = af[offset];
+			offset += OZB_MAC_MPDU_PANID_SIZE;
+		}
 		if (src_addr != NULL)
 			memcpy((uint8_t *) src_addr, af + offset,
 			       OZB_MAC_MPDU_ADDRESS_SHORT_SIZE);
 		offset += OZB_MAC_MPDU_ADDRESS_SHORT_SIZE;
 	} else if (src_mode == OZB_MAC_ADDRESS_EXTD) {
-		if (src_panid != NULL)
-			*src_panid = af[offset];
-		offset += OZB_MAC_MPDU_PANID_SIZE;
+		if (panid_compression == 0) {
+			if (src_panid != NULL)
+				*src_panid = af[offset];
+			offset += OZB_MAC_MPDU_PANID_SIZE;
+		}
 		if (src_addr != NULL)
 			memcpy((uint8_t *) src_addr, af + offset,
 			       OZB_MAC_MPDU_ADDRESS_EXTD_SIZE);
@@ -215,6 +220,43 @@ COMPILER_INLINE uint8_t set_beacon_payload(uint8_t *bp)
 	return 0;
 }
 
+static uint8_t filtering_condition(uint8_t *fctrl, uint16_t dst_panid,
+				   void *dst_addr, uint16_t src_panid)
+{
+	/* 3rd frame filter:  */
+	/* TODO: check Frame Version invalid!! */
+	if (OZB_MAC_FCTL_GET_FRAME_TYPE(fctrl) == OZB_MAC_TYPE_BEACON) {
+		if (ozb_mac_pib.macPANId != OZB_MAC_PANID_BROADCAST && 
+		    src_panid != ozb_mac_pib.macPANId) 
+			return 0;
+	} else {
+		if (dst_panid != OZB_MAC_PANID_BROADCAST && 
+		    dst_panid != ozb_mac_pib.macPANId) 
+			return 0;
+	}
+	if ((OZB_MAC_FCTL_GET_FRAME_TYPE(fctrl) == OZB_MAC_TYPE_DATA || 
+	    OZB_MAC_FCTL_GET_FRAME_TYPE(fctrl) == OZB_MAC_TYPE_COMMAND) &&
+	    OZB_MAC_FCTL_GET_DST_ADDR_MODE(fctrl) == OZB_MAC_ADDRESS_NONE && 
+	    OZB_MAC_FCTL_GET_SRC_ADDR_MODE(fctrl) != OZB_MAC_ADDRESS_NONE) {
+		if (ozb_mac_status.is_pan_coordinator == OZB_FALSE || 
+		    src_panid != ozb_mac_pib.macPANId)
+			return 0;
+	}
+	if (OZB_MAC_FCTL_GET_DST_ADDR_MODE(fctrl) == OZB_MAC_ADDRESS_SHORT) {
+		if ((*((ozb_mac_dev_addr_short_t*) dst_addr) != 
+		    ozb_mac_pib.macShortAddress) && 
+		    (*((ozb_mac_dev_addr_short_t*) dst_addr) !=
+		    OZB_MAC_SHORT_ADDRESS_BROADCAST))
+			return 0;
+	} else if (OZB_MAC_FCTL_GET_DST_ADDR_MODE(fctrl)==OZB_MAC_ADDRESS_EXTD){
+		if (!OZB_MAC_EXTD_ADDR_COMPARE_IMM(
+			(ozb_mac_dev_addr_extd_ptr_t) dst_addr, 
+			OZB_aExtendedAddress_high, OZB_aExtendedAddress_low))
+			return 0;
+	}
+	return 1;
+}
+
 /******************************************************************************/
 /*                              MAC Layer TASKs                               */
 /******************************************************************************/
@@ -235,34 +277,24 @@ OZB_KAL_MUTEX(MAC_RX_COMMAND_MUTEX, MAC_PROCESS_RX_DATA);
 static void process_rx_beacon(void) 
 {
 	uint8_t s;
-	ozb_mac_dev_addr_extd_t src_addr; 
-	uint16_t src_panid = 0; 
-	uint8_t *bcn = rx_beacon;
+	uint8_t *bcn;
+	uint16_t s_pan = 0; 
+	ozb_mac_dev_addr_extd_t s_a; 
 
 	if (ozb_kal_mutex_wait(MAC_RX_BEACON_MUTEX) < 0)
 		return; /* TODO: manage error? */
-	/* TODO: maybe all the rejection condition may be put in a 
-		 check_beacon_reject() function called by the dispatcher and 
-		 this task is executed only for "positive" and long action! */
-	/* NOTE: Src Address is supposed to exist, NOT Dst Address.
-		 Assuming a pre-check in the dispatcher */
-	s = get_addressing_fields(OZB_MAC_MPDU_ADDRESSING_FIELDS(bcn),
-			//OZB_MAC_FCTL_GET_DST_ADDR_MODE(bcn),
+	/* NOTE: Src Address is supposed to exist. NO Dst Address.
+		 Assuming a pre-check in the dispatcher ? */
+	bcn = OZB_MAC_MPDU_FRAME_CONTROL(rx_beacon);
+	s = get_addressing_fields(OZB_MAC_MPDU_ADDRESSING_FIELDS(rx_beacon),
 				OZB_MAC_ADDRESS_NONE, NULL, NULL,
 				OZB_MAC_FCTL_GET_SRC_ADDR_MODE(bcn),
-				&src_panid, (void *) src_addr);
-	if (src_panid != ozb_mac_pib.macPANId) 
-		goto process_rx_beacon_exit;
-	if (OZB_MAC_FCTL_GET_SRC_ADDR_MODE(bcn) == OZB_MAC_ADDRESS_SHORT) {
-		if (*((ozb_mac_dev_addr_short_t*) src_addr) != 
-		    			ozb_mac_pib.macCoordShortAddress)
-			goto process_rx_beacon_exit;
-	} else {
-		if (!OZB_MAC_EXTD_ADDR_COMPARE(src_addr, 
-		     			ozb_mac_pib.macCoordExtendedAddress))
-			goto process_rx_beacon_exit;
+				&s_pan, (void *) s_a, 0);
+	if (!filtering_condition(bcn, NULL, NULL, s_pan)) { 
+		/* Drop the frame! */
+		ozb_kal_mutex_signal(MAC_RX_BEACON_MUTEX);/*TODO:manage error?*/
+		return;
 	}
-	/* TODO: think to security infos? */
 	bcn = OZB_MAC_MPDU_MAC_PAYLOAD(rx_beacon, s);
 	ozb_mac_pib.macBeaconOrder = OZB_MAC_SF_SPEC_GET_BO(bcn); 
 	ozb_mac_pib.macSuperframeOrder = OZB_MAC_SF_SPEC_GET_SO(bcn); 
@@ -271,8 +303,7 @@ static void process_rx_beacon(void)
 	ozb_mac_pib.macAssociationPermit=OZB_MAC_SF_SPEC_GET_ASSOC_PERMIT(bcn);
 	/* TODO: read BO and SO and update the PIB!! */
 	bcn += OZB_MAC_MPDU_SUPERFRAME_SPEC_SIZE;
-	s = ozb_mac_gts_get_gts_fields(bcn);
-process_rx_beacon_exit:
+	ozb_mac_gts_get_gts_fields(bcn);
 	if (ozb_kal_mutex_signal(MAC_RX_BEACON_MUTEX) < 0)
 		return; /* TODO: manage error? */
 	ozb_mac_superframe_resync();
@@ -280,8 +311,35 @@ process_rx_beacon_exit:
 
 static void process_rx_data(void) 
 {
+	uint8_t s;
+	uint8_t *data;
+	uint16_t s_pan = 0, d_pan = 0; 
+	ozb_mac_dev_addr_extd_t s_a, d_a; 
+
 	if (ozb_kal_mutex_wait(MAC_RX_DATA_MUTEX) < 0)
 		return; /* TODO: manage error? */
+	data = OZB_MAC_MPDU_FRAME_CONTROL(rx_data);
+	s = get_addressing_fields(OZB_MAC_MPDU_ADDRESSING_FIELDS(rx_data),
+				  OZB_MAC_FCTL_GET_DST_ADDR_MODE(data),
+				  &d_pan, (void *) d_a,
+				  OZB_MAC_FCTL_GET_SRC_ADDR_MODE(data),
+				  &s_pan, (void *) s_a, 
+				  OZB_MAC_FCTL_GET_PANID_COMPRESS(data));
+	if (!filtering_condition(data, d_pan, (void*) d_a, s_pan)){
+		ozb_kal_mutex_signal(MAC_RX_DATA_MUTEX);/*TODO:manage error?*/
+		return;
+	}
+	if (OZB_MAC_FCTL_GET_PANID_COMPRESS(data))
+		s_pan = d_pan;
+	ozb_MCPS_DATA_indication(OZB_MAC_FCTL_GET_SRC_ADDR_MODE(data), 
+				 s_pan, (void *) s_a,
+				 OZB_MAC_FCTL_GET_DST_ADDR_MODE(data),
+				 d_pan, (void *) d_a, rx_data_length,
+				 OZB_MAC_MPDU_MAC_PAYLOAD(rx_data, s), 
+				 0 /*TODO: mpduLinkQuality*/,
+				 *(OZB_MAC_MPDU_SEQ_NUMBER(rx_data))/*CHECK!*/,
+				 0 /*TODO: timestamp!! */,
+				 OZB_MAC_NULL_SECURITY_PARAMS_LIST);
 	if (ozb_kal_mutex_signal(MAC_RX_DATA_MUTEX) < 0)
 		return; /* TODO: manage error? */
 }
@@ -377,15 +435,14 @@ void ozb_mac_perform_data_request(uint8_t src_mode, uint8_t dst_mode,
 			ozb_MCPS_DATA_confirm(handle, OZB_MAC_INVALID_GTS, 0);
 			return;
 		}
-		/* TODO: check if there's enough room to send in GTS mode!
-		if (!ozb_mac_gts_check_tx_time(len)) {
+		if (!ozb_mac_superframe_check_gts(len)) {
 			ozb_MCPS_DATA_confirm(handle, OZB_MAC_INVALID_GTS, 0);
 			return;
-		} */
+		} 
 		/* Store in the GTS queue! */
 		frame=(struct ozb_mac_frame_t*) cqueue_push(&ozb_mac_queue_gts);
 		if (frame == 0) {
-			ozb_debug_print("DEVICE:  GTS QUEUE FULL!!! ");
+	//		ozb_debug_print("DEVICE:  GTS QUEUE FULL!!! ");
 			return; /* TODO: we have to choose a well formed reply
 				   for the indication primitive (status=??) */
 		}
@@ -415,6 +472,9 @@ void ozb_mac_perform_data_request(uint8_t src_mode, uint8_t dst_mode,
 	    (src_mode == OZB_MAC_ADDRESS_SHORT && 
 	    (ozb_mac_pib.macShortAddress == OZB_MAC_SHORT_ADDRESS_USE_EXTD ||
 	    ozb_mac_pib.macShortAddress == OZB_MAC_SHORT_ADDRESS_INVALID)))
+		OZB_MAC_EXTD_ADDR_SET(e_addr, OZB_aExtendedAddress_high, 
+				      OZB_aExtendedAddress_low);
+	else /* TODO: can be short_none??? */
 		memcpy(e_addr, &(ozb_mac_pib.macShortAddress), 
 		       OZB_MAC_MPDU_ADDRESS_SHORT_SIZE);
 	s = set_addressing_fields(OZB_MAC_MPDU_ADDRESSING_FIELDS(frame->mpdu),
@@ -423,7 +483,7 @@ void ozb_mac_perform_data_request(uint8_t src_mode, uint8_t dst_mode,
 			  	  (void *) e_addr, flag.compress);
 	/* TODO: think to security infos? */
 	/* Store the msdu (Mac Payload) */
-	memcpy(frame->mpdu + s, payload, len);
+	memcpy(OZB_MAC_MPDU_MAC_PAYLOAD(frame->mpdu, s), payload, len);
 	/* TODO: compute FCS , use auto gen? */
 	//*((uint16_t *) OZB_MAC_MPDU_MAC_FCS(bcn, s)) = 0;
 	frame->mpdu_size = len + s /* + sizeof(uint16_t) */;
@@ -487,8 +547,13 @@ uint8_t ozb_mac_create_beacon(ozb_mpdu_ptr_t bcn)
 /******************************************************************************/
 void ozb_mac_parse_received_mpdu(uint8_t *psdu, uint8_t len)
 {
+	/* 1st frame filter: FCS */
+	/* TODO: Checksum is done by the transceiver, fix this!!! */
+	/* 2nd frame filter: promiscuous mode */
+	if (ozb_mac_pib.macPromiscuousMode == OZB_TRUE)
+		return; /* TODO: pass the frame to the upper layer! (see std) */
 	/* TODO: perform some discarding action depending on the context :
-		 What is I am coordinator? */
+		 What if I am coordinator? */
 	switch (OZB_MAC_FCTL_GET_FRAME_TYPE(psdu)) {
 	case OZB_MAC_TYPE_BEACON :
 		if (ozb_mac_status.is_pan_coordinator || 

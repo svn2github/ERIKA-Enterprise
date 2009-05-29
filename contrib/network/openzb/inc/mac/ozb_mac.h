@@ -23,6 +23,9 @@ do {							\
 #define OZB_MAC_EXTD_ADDR_COMPARE(address1, address2) 	\
 	(((address1)[0] == (address2)[0]) && ((address1)[1] == (address2)[1]))
 
+#define OZB_MAC_EXTD_ADDR_COMPARE_IMM(address, high, low) 	\
+	(((address)[0] == (low) && ((address)[1] == (high))))
+
 
 #define OZB_MAC_MPDU_FRAME_CONTROL(mpdu) 		(mpdu)
 #define OZB_MAC_MPDU_SEQ_NUMBER(mpdu) 			((mpdu) + 2)

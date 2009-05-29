@@ -84,6 +84,7 @@ COMPILER_INLINE uint8_t ozb_mac_superframe_has_tx_gts(void)
 	return (ozb_mac_gts_stat.tx_length != 0);
 }
 
+
 int8_t ozb_mac_superframe_init(void);
 void ozb_mac_superframe_start(uint32_t offset);
 void ozb_mac_superframe_stop(void); 

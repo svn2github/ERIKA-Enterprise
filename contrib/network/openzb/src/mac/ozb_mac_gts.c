@@ -100,19 +100,19 @@ uint8_t ozb_mac_gts_set_gts_fields(uint8_t *gf)
 	}
 	/* TODO: remove this! DEBUG TEST!!! ---------- >>>>> */
 	static uint16_t aaa = 0x0005;
-	static char bbb = 1;
+	//static char bbb = 1;
 	if (gts_add_entry(aaa++, 1, OZB_MAC_GTS_DIRECTION_OUT) == -1) {
 		gts_clean_db();
 		gts_add_entry(0x0002, 1, OZB_MAC_GTS_DIRECTION_OUT);
 		gts_add_entry(0x0003, 3, OZB_MAC_GTS_DIRECTION_OUT);
 		gts_add_entry(0x0004, 2, OZB_MAC_GTS_DIRECTION_OUT);
-		if (bbb) {
-			ozb_mac_pib.macBeaconOrder++;
-			bbb = 0;
-		} else {
-			ozb_mac_pib.macBeaconOrder--;
-			bbb = 1;
-		}
+		//if (bbb) {
+		//	ozb_mac_pib.macBeaconOrder++;
+		//	bbb = 0;
+		//} else {
+		//	ozb_mac_pib.macBeaconOrder--;
+		//	bbb = 1;
+		//}
 	}
 	/* <<<<<<<<<<<<-----------------  TODO REMOVE BLOCK!!! */
 	return s;

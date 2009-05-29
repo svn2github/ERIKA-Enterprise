@@ -4,6 +4,7 @@
 #include <util/ozb_debug.h>
 
 #define NEXT_TSLOT(idx) (((idx) + 1) % 16)
+#define TIME32_SUBTRACT(t1, t2) ((t1)>(t2) ? (t1)-(t2) : 0xFFFFFFFF-(t2)+(t1))
 
 OZB_KAL_TASK(MAC_TIMESLOT, 10);
 OZB_KAL_TASK(MAC_BEFORE_TIMESLOT, 10); 
@@ -19,8 +20,11 @@ static struct {
 	unsigned wait_sf_end : 1;
 	unsigned gts_sending : 1;
 } sf_flags = {OZB_FALSE, OZB_FALSE, OZB_FALSE};
+static uint32_t time_reference = 0;
+static uint32_t gts_available_bytes = 0;
+static uint16_t gts_lifs_bytes = 0;
+static uint16_t gts_sifs_bytes = 0;
 static uint32_t test_time = 0;
-
 /******************************************************************************/
 /*                      MAC Tasks Private Functions                           */
 /******************************************************************************/
@@ -37,7 +41,8 @@ COMPILER_INLINE void start_activations(uint32_t offset)
 	uint32_t t;
 
 	if (offset == 0)
-		offset = OZB_MAC_TICKS_BEFORE_TIMESLOT + 1;
+		offset = OZB_MAC_TICKS_BEFORE_TIMESLOT;
+		//offset = OZB_MAC_TICKS_BEFORE_TIMESLOT + 1;
 	t = OZB_MAC_GET_TS(ozb_mac_pib.macSuperframeOrder);
 	/* FIXME: now I'm ignoring the return values! */
 	ozb_kal_set_activation(MAC_BEFORE_TIMESLOT, 
@@ -52,20 +57,41 @@ COMPILER_INLINE void restart_activations(uint32_t offset)
 	start_activations(offset);
 } 
 
+COMPILER_INLINE uint32_t btick_to_bytes(uint32_t bt)
+{
+	/* TODO: change this hard-coding (320 microsecond) ? */
+	bt *= 32; /* bt1 = bt0 x 320us x 10^-1 */
+	bt *= ozb_radio_phy_get_bitrate() / 80; /* bt2 = bt1 x Bps x 10^-1 */
+	bt /= 10000; /* bt3 = bt2 x 10^-4 [us x Bps x 10^-6] */
+	return bt;
+}
+
+COMPILER_INLINE uint8_t is_in_tx_gts(void) 
+{
+	return (current_tslot >= ozb_mac_gts_stat.tx_start_tslot && 
+		current_tslot < ozb_mac_gts_stat.tx_start_tslot + 
+		ozb_mac_gts_stat.tx_length);
+}
+
+
 COMPILER_INLINE void resync_activations(void) 
 {
 	uint32_t t;
 
 	stop_activations();
 	t = OZB_MAC_GET_TS(ozb_mac_pib.macSuperframeOrder);
+	current_tslot = OZB_MAC_SUPERFRAME_LAST_SLOT;
 	ozb_kal_set_activation(MAC_BEFORE_TIMESLOT, 
 			       t - OZB_MAC_TICKS_BEFORE_TIMESLOT, t);
-	ozb_kal_set_activation(MAC_TIMESLOT, 1, t);
-	ozb_kal_set_activation(MAC_BACKOFF_PERIOD, 1, 1);
+	ozb_kal_set_activation(MAC_TIMESLOT, 0, t);
+	ozb_kal_set_activation(MAC_BACKOFF_PERIOD, 0, 1);
 }
 
 COMPILER_INLINE void start_beacon_interval(void) 
 {
+	char s[100];
+	uint32_t mmm = ozb_debug_time_get_us(OZB_DEBUG_TIME_CLOCK_DEVEL);
+
 	ozb_debug_time_get(OZB_DEBUG_TIME_CLOCK_BI);
 	if (ozb_mac_status.is_pan_coordinator || ozb_mac_status.is_coordinator){
 		ozb_radio_mac_send_beacon(); /* TODO: parse ret value*/
@@ -77,8 +103,20 @@ COMPILER_INLINE void start_beacon_interval(void)
 		sf_flags.has_idle = OZB_TRUE;
 		sf_flags.wait_sf_end = OZB_TRUE;
 	}
+	if (ozb_mac_gts_stat.tx_length != 0) {
+		/* TODO: calculate gts_available_bytes */
+		gts_available_bytes = 
+			btick_to_bytes((uint32_t) ozb_mac_gts_stat.tx_length *
+			       OZB_MAC_GET_TS( ozb_mac_pib.macSuperframeOrder));
+		gts_available_bytes -= gts_lifs_bytes;
+		
+	}
 	ozb_mac_status.sf_context = OZB_MAC_SF_CAP;
-	ozb_debug_print("DEVICE: start BI");
+	sprintf(s, "DEVICE: Start BI - %lu: B0=%u TX=%u LTX=%u ", 
+		mmm, ozb_mac_pib.macBeaconOrder, 
+		ozb_mac_gts_stat.tx_start_tslot, ozb_mac_gts_stat.tx_length);
+	ozb_debug_print(s);
+	//ozb_debug_print("DEVICE: start BI");
 }
 
 COMPILER_INLINE void stop_superframe(void) 
@@ -112,53 +150,69 @@ COMPILER_INLINE void before_beacon_interval(void)
 /******************************************************************************/
 static void on_timeslot_start(void) 
 {
+	uint32_t t, tmin;
 	/*
 	char s[100];
 	uint32_t mmm = ozb_debug_time_get_us(OZB_DEBUG_TIME_CLOCK_DEVEL);
 	*/
-	/* TODO: perform GTS send/receive with appropriate IFS */
 	/* TODO: Implement an efficient version:
 		 In case of a device that is not coordinator we can do:
 			- if in CAP do whatever 
 			- if in CFP, since I already know when to Tx/Rx I can
 			  suspend until that time (manage this!) 
 	*/
-
 	current_tslot = NEXT_TSLOT(current_tslot);
 	if (current_tslot == OZB_MAC_SUPERFRAME_FIRST_SLOT) {
 		if (sf_flags.has_idle) { 	/* Has to go in IDLE? */
 			stop_superframe(); 
 			return;
 		}
+		if (ozb_mac_superframe_has_tx_gts()) {
+			sf_flags.gts_sending = 0;
+			gts_available_bytes = 0;
+			/* TODO: has effect? */
+			ozb_kal_cancel_activation(MAC_GTS_SEND);
+		}
+		time_reference = ozb_kal_get_time(); 
 		start_beacon_interval();
+	} else if (current_tslot == OZB_MAC_SUPERFRAME_FIRST_SLOT + 1) {
+		t = ozb_kal_get_time();
+		t = TIME32_SUBTRACT(t, time_reference);
+		tmin = OZB_MAC_GET_TS(ozb_mac_pib.macSuperframeOrder);
+		tmin -= OZB_MAC_GET_TS(ozb_mac_pib.macSuperframeOrder) >> 2;
+		if (t < tmin) { /* t=<TS_1-TS_0>,  tmin=3/4<TS_size> */
+			current_tslot = OZB_MAC_SUPERFRAME_FIRST_SLOT;
+			return;
+		}
 	}
 	if (ozb_mac_pib.macGTSPermit == 0)
-		goto on_timeslot_start_exit;
-	if (ozb_mac_gts_stat.tx_length != 0 && 
+		return;
+	if (current_tslot == ozb_mac_gts_stat.first_cfp_tslot) {
+		ozb_mac_status.sf_context = OZB_MAC_SF_CFP;
+		if (ozb_mac_status.is_pan_coordinator || 
+		    ozb_mac_status.is_coordinator) {
+			/* TODO: simplified version: 
+				 coordinator can only receive in CFP -> RX ON 				*/
+			ozb_radio_phy_set_rx_on(); /* TODO:Raise error if < 0 */
+		} 
+	}
+	if (ozb_mac_superframe_has_tx_gts() && 
             current_tslot == ozb_mac_gts_stat.tx_start_tslot) {
 		sf_flags.gts_sending = 1;
+		time_reference = (ozb_mac_gts_stat.tx_length *
+			       OZB_MAC_GET_TS(ozb_mac_pib.macSuperframeOrder)) +
+			       ozb_kal_get_time();
 		ozb_kal_set_activation(MAC_GTS_SEND, OZB_MAC_LIFS_PERIOD, 0);
-	} else if (current_tslot >= ozb_mac_gts_stat.tx_start_tslot + 
-		 ozb_mac_gts_stat.tx_length) {
+	} else if (ozb_mac_superframe_has_tx_gts() && 
+		   current_tslot >= ozb_mac_gts_stat.tx_start_tslot + 
+		   ozb_mac_gts_stat.tx_length) {
 		sf_flags.gts_sending = 0;
+		gts_available_bytes = 0;
 		ozb_kal_cancel_activation(MAC_GTS_SEND);/* TODO: has effect? */
 	}
-	//if (current_tslot >= ozb_mac_gts_stat.tx_tslot && current_tslot < 
-	//    ozb_mac_gts_stat.tx_tslot + ozb_mac_gts_stat.tx_length)
-	//	perform_cap_send();
-	//else if (current_tslot >= ozb_mac_gts_stat.rx_tslot && current_tslot < 
-	//	 ozb_mac_gts_stat.rx_tslot + ozb_mac_gts_stat.rx_length)
-	//	perform_cap_receive();
-on_timeslot_start_exit:
-	return;
 	/*
-	sprintf(s, "DEVICE: slot=%u  Dck=%lu  ck=%lu "
-		"tx_s=%u tx_s=%u rx_s=%u rx_s=%u", 
-		current_tslot, mmm-test_time, mmm, 
-		(uint16_t) ozb_mac_gts_stat.tx_start_tslot,
-		(uint16_t) ozb_mac_gts_stat.tx_length,
-		(uint16_t) ozb_mac_gts_stat.rx_start_tslot,
-		(uint16_t) ozb_mac_gts_stat.rx_length);
+	sprintf(s, "DEVICE: slot=%u  Dck=%lu  ck=%lu ref_ck=%lu  t=%lu", 
+		current_tslot, mmm-test_time, mmm, time_reference, t); 
 	ozb_debug_print(s);
 	*/
 }
@@ -171,7 +225,7 @@ static void before_timeslot_start(void)
 	*/
 	if (NEXT_TSLOT(current_tslot) == OZB_MAC_SUPERFRAME_FIRST_SLOT) { 
 		/* Is before the BI? */
-		if (sf_flags.wait_sf_end == 0)
+		if (sf_flags.wait_sf_end == OZB_FALSE)
 			before_beacon_interval();
 			/* TODO: if something must be done before first slot,
 				 that is the place!! */
@@ -204,7 +258,8 @@ static void on_gts_send(void)
 		ozb_debug_print(s);
 		return;
 	}
-	sprintf(s, "DEVICE: On GTS SEND  @ %d", current_tslot);
+	uint32_t mmm = ozb_debug_time_get_us(OZB_DEBUG_TIME_CLOCK_DEVEL);
+	sprintf(s, "DEVICE: On GTS SEND  @ %u, %lu", current_tslot, mmm);
 	ozb_debug_print(s);
 	if (cqueue_is_empty(&ozb_mac_queue_gts)) {
 	//	ozb_debug_print("           empty queue!");
@@ -258,6 +313,8 @@ int8_t ozb_mac_superframe_init(void)
 	if (retv < 0)
 		return retv;
 	ozb_mac_status.sf_initialized = OZB_TRUE;
+	gts_lifs_bytes = btick_to_bytes(OZB_MAC_LIFS_PERIOD);
+	gts_sifs_bytes = btick_to_bytes(OZB_MAC_SIFS_PERIOD);
 	return 1;
 } 
 
@@ -269,15 +326,17 @@ void ozb_mac_superframe_start(uint32_t offset)
 		ozb_debug_time_start(OZB_DEBUG_TIME_CLOCK_BI);
 		return;
 	}	
-	if (!(ozb_mac_status.is_pan_coordinator || 
-	      ozb_mac_status.is_coordinator))
-		return;
 	ozb_debug_time_start(OZB_DEBUG_TIME_CLOCK_DEVEL);
 	ozb_debug_time_start(OZB_DEBUG_TIME_CLOCK_BI);
 	current_tslot = OZB_MAC_SUPERFRAME_LAST_SLOT;
 	sf_flags.wait_sf_end = OZB_FALSE;
 	sf_flags.has_idle = OZB_FALSE;
-	start_activations(offset);
+	if (ozb_mac_status.is_pan_coordinator || ozb_mac_status.is_coordinator)
+		start_activations(offset);
+	/* TODO: do I need this (a before_BI before the first BCN) in device? 
+	else
+		ozb_kal_set_activation(MAC_BEFORE_TIMESLOT, 0, 0);
+	*/
 } 
 
 void ozb_mac_superframe_stop(void) 
@@ -295,7 +354,6 @@ void ozb_mac_superframe_resync(void)
 	if (!ozb_mac_status.track_beacon)
 		return;
 	resync_activations();
-	/* TODO: realign the task activation for the superframe! */
 	/*
 	sprintf(s, "BCN -> SF Resync: Dck=%lu, ck=%lu, %u, %u", 
 		mmm - test_time, mmm,
@@ -309,19 +367,39 @@ void ozb_mac_superframe_resync(void)
 
 void ozb_mac_superframe_gts_wakeup(void) 
 {
-	if (!sf_flags.gts_sending) {
-		if (ozb_mac_gts_stat.tx_length != 0 && 
-		    current_tslot == ozb_mac_gts_stat.tx_start_tslot) {
-			sf_flags.gts_sending = 1;
-			ozb_kal_set_activation(MAC_GTS_SEND, 0, 0);
-		//ozb_kal_set_activation(MAC_GTS_SEND, OZB_MAC_LIFS_PERIOD, 0);
-		}
+	if (!sf_flags.gts_sending && ozb_mac_gts_stat.tx_length != 0 &&
+	    current_tslot == ozb_mac_gts_stat.tx_start_tslot) {
+		sf_flags.gts_sending = 1;
+		ozb_kal_set_activation(MAC_GTS_SEND, 0, 0);
 	}
 }
 
-uint8_t ozb_mac_superframe_check_gts(uint8_t lenght)
+uint8_t ozb_mac_superframe_check_gts(uint8_t length)
 {
-	if (sf_flags.gts_sending) {
+	uint32_t x;
+char s[100];
+
+	/* TODO: use the extra bytes for protection??? in this case 10 */
+	if (gts_available_bytes >= length + 10) {
+		gts_available_bytes -= length + 10;
+		/* x = LISF or SIFS in bytes */
+		x = length < OZB_aMaxSIFSFrameSize ? 
+		    gts_sifs_bytes : gts_lifs_bytes;
+		gts_available_bytes = gts_available_bytes >= x ?
+				      gts_available_bytes - x : 0;
+		if (!is_in_tx_gts()) 
+			return 1;
+		/* x = remaining btick in GTS */
+		x = ozb_kal_get_time();
+		x = TIME32_SUBTRACT(time_reference, x);
+		/* x = remaining bytes in GTS */
+		x = btick_to_bytes(x);
+sprintf(s,"DEVICE: ####--->>> Remaining Byte =  %lu", x);
+ozb_debug_print(s);
+		/* TODO: use the extra bytes for protection??in this case 10*/
+		if (x >= length + 10)
+			return 1;
 	}
+	return 0;
 }
 

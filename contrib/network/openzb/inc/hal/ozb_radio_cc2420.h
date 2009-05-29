@@ -84,6 +84,11 @@ int8_t ozb_radio_mac_create_beacon(void);
 int8_t ozb_radio_mac_send_beacon(void);
 
 
+COMPILER_INLINE uint32_t ozb_radio_phy_get_bitrate(void)
+{
+	/* TODO: change this hard-coding! */
+	return 250000;
+}
 
 
 /* chris: Sending function, can be used by the MAC or implement part of the

@@ -15,7 +15,7 @@
 #define OZB_DEVICE_RFD		0
 
 #ifndef OZB_MAC_GTS_QUEUE_SIZE	
-#define OZB_MAC_GTS_QUEUE_SIZE	20
+#define OZB_MAC_GTS_QUEUE_SIZE	5
 #endif
 
 #ifndef OZB_MAC_CAP_QUEUE_SIZE	
@@ -32,8 +32,8 @@
 
 
 /* TODO: these should depend on the current SO and BO settings!! */
-#define OZB_MAC_TICKS_BEFORE_BI			5
-#define OZB_MAC_TICKS_BEFORE_TIMESLOT		5
+#define OZB_MAC_TICKS_BEFORE_BI			2
+#define OZB_MAC_TICKS_BEFORE_TIMESLOT		2
 
 /* chris: TODO: could we have a better choice for a default 64bits address? */
 #ifndef OZB_MAC_DEVICE_EXTD_ADDRESS
@@ -41,9 +41,13 @@
 #define OZB_MAC_DEVICE_EXTD_ADDRESS_LOW		0x00000001
 #endif
 
+#define OZB_MAC_PANID_BROADCAST			0xFFFF
+#define OZB_MAC_SHORT_ADDRESS_BROADCAST		0xFFFF
 #define OZB_MAC_SHORT_ADDRESS_ASSOC_INVALID	0xFFFF
 #define OZB_MAC_SHORT_ADDRESS_INVALID		0xFFFF
 #define OZB_MAC_SHORT_ADDRESS_USE_EXTD		0xFFFE
+
+#define OZB_MAC_NULL_SECURITY_PARAMS_LIST	0, 0, NULL, 0
 
 #define OZB_MAC_MPDU_SIZE			127 /* TODO: WHY NOT 127 ???? */
 //#define OZB_MAC_MPDU_SIZE			125 /* TODO: WHY NOT 127 ???? */

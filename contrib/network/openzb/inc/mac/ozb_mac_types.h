@@ -6,6 +6,8 @@
 
 typedef uint32_t ozb_mac_dev_addr_extd_t[2]; 
 typedef uint16_t ozb_mac_dev_addr_short_t; 
+typedef uint32_t *ozb_mac_dev_addr_extd_ptr_t; 
+typedef uint16_t *ozb_mac_dev_addr_short_ptr_t; 
 #ifdef OZB_DEVICE_ADDRESS_16_ONLY /* TODO: check this in the varius call!*/
 typedef ozb_mac_dev_addr_short_t ozb_mac_dev_addr_t; 
 #else

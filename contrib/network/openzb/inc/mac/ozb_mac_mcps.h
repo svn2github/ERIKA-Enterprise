@@ -24,8 +24,8 @@ int8_t ozb_MCPS_DATA_confirm(uint8_t msduHandle, enum ozb_mac_code_t status,
 			     uint32_t Timestamp);
 
 int8_t ozb_MCPS_DATA_indication(uint8_t SrcAddrMode, uint16_t SrcPANId,
-				ozb_mac_dev_addr_t SrcAddr, uint8_t DstAddrMode,
-				uint16_t DstPANId, ozb_mac_dev_addr_t DstAddr,
+				void *SrcAddr, uint8_t DstAddrMode,
+				uint16_t DstPANId, void *DstAddr,
 				uint8_t msduLength, uint8_t *msdu,
 				uint8_t mpduLinkQuality, uint8_t DSN,
 				uint32_t Timestamp, uint8_t SecurityLevel,
