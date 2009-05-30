@@ -41,7 +41,7 @@ struct ozb_mac_flags_t {
 
 struct ozb_mac_gts_stat_t {
 	unsigned descriptor_count : 3; // TODO: maybe is useless!!!
-	unsigned first_cfp_tslot : 4;
+	unsigned first_cfp_tslot : 5;
 	unsigned tx_start_tslot : 4;
 	unsigned tx_length : 4;
 	unsigned rx_start_tslot : 4;

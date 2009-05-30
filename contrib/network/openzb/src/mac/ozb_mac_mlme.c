@@ -4,6 +4,10 @@
 #include <stdio.h> //TODO: REMOVE together with the sprintf() !!!!!
 #endif
 
+#ifndef OZB_TEST_DEVICE_ADDRESS
+#define OZB_TEST_DEVICE_ADDRESS 0x0002
+#endif
+
 int8_t ozb_MLME_ASSOCIATE_request(uint8_t LogicalChannel, uint8_t ChannelPage,
 				  uint8_t CoordAddrMode, uint16_t CoordPANId,
 				  void *CoordAddress,
@@ -47,8 +51,10 @@ int8_t ozb_MLME_ASSOCIATE_request(uint8_t LogicalChannel, uint8_t ChannelPage,
 	ozb_mac_status.track_beacon = 1;
 	ozb_mac_superframe_stop();
 	ozb_mac_superframe_start(0);
-	ozb_MLME_ASSOCIATE_confirm(0x0002, OZB_MAC_SUCCESS, 0, 0, NULL, 0);
-	ozb_mac_pib.macShortAddress = 0x0002;//TODO: remove, make this with std
+	//TODO: remove, make this with std
+	ozb_MLME_ASSOCIATE_confirm(OZB_TEST_DEVICE_ADDRESS, OZB_MAC_SUCCESS, 
+				   0, 0, NULL, 0);
+	ozb_mac_pib.macShortAddress = OZB_TEST_DEVICE_ADDRESS;
 	return OZB_MAC_ERR_NONE;
 }
 

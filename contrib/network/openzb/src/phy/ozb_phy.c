@@ -47,7 +47,7 @@ static void phy_read_dispatcher(void)
 	int8_t len = 0;
 
 	#ifdef OZB_DEBUG_LOG
-	ozb_debug_print("OZB_TASK: PHY_READ_DISPATCHER Activated!");
+	/* ozb_debug_print("OZB_TASK: PHY_READ_DISPATCHER Activated!"); */
 	#endif
 	/* chris: FIXME: maybe the error was in that part! */
 	/* chris: TODO: this part has been copied by the old ieee802154 stack.
@@ -86,7 +86,7 @@ static void phy_read_dispatcher(void)
 static void phy_read_isr(void)
 {
 	#ifdef OZB_DEBUG_LOG
-	ozb_debug_print("phy_read_isr rised!");
+	/* ozb_debug_print("phy_read_isr rised!"); */
 	#endif
 	ozb_kal_activate(PHY_READ_DISPATCHER);
 }

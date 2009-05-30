@@ -132,10 +132,12 @@ int8_t ozb_PD_DATA_indication(uint8_t psduLength, uint8_t *psdu,
 			      uint8_t ppduLinkQuality)
 {
 	#ifdef OZB_DEBUG_LOG
+	/*
 	char s[100];
 	sprintf(s, "PD_DATA_indication(len=%u,*p=%u,lqi=%u)",
 		psduLength, (uint16_t) psdu, ppduLinkQuality);
 	ozb_debug_print(s);
+	*/
 	#endif
 	/* TODO: use return value!!*/
 	ozb_mac_parse_received_mpdu(psdu, psduLength);

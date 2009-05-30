@@ -145,24 +145,24 @@ int8_t ozb_radio_set_ack_rx_callback(void *todo); /*TODO: chris: define params*/
 */
 COMPILER_INLINE int8_t ozb_radio_send(uint8_t *buf, uint8_t len)
 {
-ozb_debug_print("   ozb_radio_send(...)");// TODO: REMOVE
+//ozb_debug_print("   ozb_radio_send(...)");// TODO: REMOVE
 	//cc2420_store_txfifo(buf, len); //TODO: this don't define length!!!!!
 	cc2420_store_msg(buf, len);
-ozb_debug_print("      Store FIFO OK!");// TODO: REMOVE
+//ozb_debug_print("      Store FIFO OK!");// TODO: REMOVE
 	cc2420_set_tx();
-ozb_debug_print("      Set TX OK!");// TODO: REMOVE
+//ozb_debug_print("      Set TX OK!");// TODO: REMOVE
 	/* Wait until the transmission has finished. */
 	while (cc2420_get_status() & 0x08) ;
-ozb_debug_print("      Loop 0x08 ok!");// TODO: REMOVE
+//ozb_debug_print("      Loop 0x08 ok!");// TODO: REMOVE
 	/* If a tx underflow has occurred fix the problem
 	 * and return -1.
 	 */
 	if (cc2420_get_status() & 0x20) {
 		CC2420_TX_FIFO_FLUSH();
-ozb_debug_print("      TX FIFO underflow!");// TODO: REMOVE
+//ozb_debug_print("      TX FIFO underflow!");// TODO: REMOVE
 		return -1;
 	}
-ozb_debug_print("      returning OK!");// TODO: REMOVE
+//ozb_debug_print("      returning OK!");// TODO: REMOVE
 	/* Everything goes well. */
 	return OZB_RADIO_ERR_NONE;
 }
