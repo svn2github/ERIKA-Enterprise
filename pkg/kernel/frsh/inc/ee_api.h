@@ -71,6 +71,13 @@
 #endif
 #endif
 
+#ifndef GetTime
+#ifdef __TIME_SUPPORT__
+#define GetTime		        EE_frsh_sys_gettime
+#endif
+#endif
+
+
 /* FRSH specific API */
 
 #ifndef frsh_init

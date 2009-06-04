@@ -48,6 +48,22 @@
 #ifndef __INCLUDE_FRSH_KERN_H__
 #define __INCLUDE_FRSH_KERN_H__
 
+/*************************************************************************
+ Public Kernel Types and Constants
+ *************************************************************************/
+
+#define INVALID_TASK EE_NIL
+
+typedef EE_TID TaskType;
+typedef EE_TYPERESOURCE ResourceType;
+typedef EE_TYPERELDLINE TimeRelType;
+typedef EE_TYPEABSDLINE TimeAbsType;
+
+
+/*************************************************************************
+ Kernel Primitives
+ *************************************************************************/
+
 /* This macros are used to define a task */
 #define DeclareTask(t) void Func##t(void)
 #define TASK(t) void Func##t(void)
@@ -212,7 +228,7 @@ __INLINE__ bool __ALWAYS_INLINE__ EE_frsh_config_is_admission_test_enabled(void)
   FRSH_ERR_BAD_ARGUMENT : if the value of the vres argument is not in range or budget is NULL
 */
 #ifdef __PRIVATE_FRSH_GETREMAININGBUDGET__
-int EE_frsh_vres_get_remaining_budget (const frsh_vres_id_t vres, frsh_rel_time_t *budget)
+__INLINE__ int__ALWAYS_INLINE__ EE_frsh_vres_get_remaining_budget (const frsh_vres_id_t vres, frsh_rel_time_t *budget)
 {  
   register EE_FREG flag;
   
@@ -236,7 +252,7 @@ int EE_frsh_vres_get_remaining_budget (const frsh_vres_id_t vres, frsh_rel_time_
   NULL
 */
 #ifdef __PRIVATE_FRSH_GETUSAGE__
-int EE_frsh_vres_get_usage (const frsh_vres_id_t vres, frsh_rel_time_t *spent)
+__INLINE__ int __ALWAYS_INLINE__ EE_frsh_vres_get_usage (const frsh_vres_id_t vres, frsh_rel_time_t *spent)
 {
   register EE_FREG flag;
   
@@ -266,7 +282,7 @@ FRSH_ERR_BAD_ARGUMENT : if the value of the vres argument is not in
 range, or budget and period are both NULL
 */
 #ifdef __PRIVATE_FRSH_GETBUDGETANDPERIOD__
-int frsh_vres_get_budget_and_period (const frsh_vres_id_t vres, 
+__INLINE__ int __ALWAYS_INLINE__ frsh_vres_get_budget_and_period (const frsh_vres_id_t vres, 
 				     frsh_rel_time_t *budget,
 				     frsh_rel_time_t *period)
 {
