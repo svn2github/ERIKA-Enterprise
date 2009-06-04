@@ -1365,3 +1365,35 @@ distrib_opt___NIOS2_EXAMPLES__:: \
 		ee_$(DIST)/examples/nios2/api_tutorial/event/conf.oil \
 		ee_$(DIST)/examples/nios2/api_tutorial/event/template.xml
 	@echo OPT Examples __NIOS2_EXAMPLES__ up2date - demo_api_examples
+
+# Nios 2 FRESCOR demos
+distrib_opt___NIOS2_EXAMPLES__:: \
+		ee_$(DIST)/examples/nios2/ \
+		ee_$(DIST)/examples/nios2/frescor/ \
+		ee_$(DIST)/examples/nios2/frescor/frsh_coverage_multiirq \
+		ee_$(DIST)/examples/nios2/frescor/frsh_coverage_multiirq/code.c \
+		ee_$(DIST)/examples/nios2/frescor/frsh_coverage_multiirq/conf.oil \
+		ee_$(DIST)/examples/nios2/frescor/frsh_coverage_multiirq/template.xml \
+		ee_$(DIST)/examples/nios2/frescor/frsh_coverage_singleirq \
+		ee_$(DIST)/examples/nios2/frescor/frsh_coverage_singleirq/code.c \
+		ee_$(DIST)/examples/nios2/frescor/frsh_coverage_singleirq/conf.oil \
+		ee_$(DIST)/examples/nios2/frescor/frsh_coverage_singleirq/template.xml \
+		ee_$(DIST)/examples/nios2/frescor/frsh_multicpu_1 \
+		ee_$(DIST)/examples/nios2/frescor/frsh_multicpu_1/conf.oil \
+		ee_$(DIST)/examples/nios2/frescor/frsh_multicpu_1/cpu0_main.c \
+		ee_$(DIST)/examples/nios2/frescor/frsh_multicpu_1/cpu1_main.c \
+		ee_$(DIST)/examples/nios2/frescor/frsh_multicpu_1/cpu2_main.c \
+		ee_$(DIST)/examples/nios2/frescor/frsh_multicpu_1/cpu3_main.c \
+		ee_$(DIST)/examples/nios2/frescor/frsh_multicpu_1/task0.c \
+		ee_$(DIST)/examples/nios2/frescor/frsh_multicpu_1/task1.c \
+		ee_$(DIST)/examples/nios2/frescor/frsh_multicpu_1/task2.c \
+		ee_$(DIST)/examples/nios2/frescor/frsh_multicpu_1/task3.c \
+		ee_$(DIST)/examples/nios2/frescor/frsh_multicpu_1/template.xml \
+		ee_$(DIST)/examples/nios2/frescor/frsh_multicpu_2 \
+		ee_$(DIST)/examples/nios2/frescor/frsh_multicpu_2/conf.oil \
+		ee_$(DIST)/examples/nios2/frescor/frsh_multicpu_2/cpu0_main.c \
+		ee_$(DIST)/examples/nios2/frescor/frsh_multicpu_2/cpu1_main.c \
+		ee_$(DIST)/examples/nios2/frescor/frsh_multicpu_2/cpu2_main.c \
+		ee_$(DIST)/examples/nios2/frescor/frsh_multicpu_2/cpu3_main.c \
+		ee_$(DIST)/examples/nios2/frescor/frsh_multicpu_2/template.xml
+	@echo OPT Examples __NIOS2_EXAMPLES__ up2date - FRESCOR examples
