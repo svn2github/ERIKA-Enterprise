@@ -16,8 +16,6 @@ static ozb_mpdu_t rx_command;
 static uint16_t rx_beacon_length;
 static uint16_t rx_data_length;
 static uint16_t rx_command_length;
-CQUEUE_DEFINE(ozb_mac_queue_gts, struct ozb_mac_frame_t,OZB_MAC_GTS_QUEUE_SIZE);
-CQUEUE_DEFINE(ozb_mac_queue_cap, struct ozb_mac_frame_t,OZB_MAC_CAP_QUEUE_SIZE);
 
 /******************************************************************************/
 /*                          MAC Layer Public Data                             */
@@ -28,12 +26,14 @@ struct ozb_mac_pib_t ozb_mac_pib /*= {
 }*/;
 struct ozb_mac_gts_stat_t ozb_mac_gts_stat = {
 	0, 
-	OZB_MAC_SUPERFRAME_LAST_SLOT,
+	OZB_MAC_SUPERFRAME_LAST_SLOT + 1,
 	OZB_MAC_SUPERFRAME_FIRST_SLOT,
 	0,
 	OZB_MAC_SUPERFRAME_FIRST_SLOT,
 	0
 };
+CQUEUE_DEFINE(ozb_mac_queue_gts, struct ozb_mac_frame_t,OZB_MAC_GTS_QUEUE_SIZE);
+CQUEUE_DEFINE(ozb_mac_queue_cap, struct ozb_mac_frame_t,OZB_MAC_CAP_QUEUE_SIZE);
 
 
 /******************************************************************************/
@@ -334,7 +334,7 @@ static void process_rx_data(void)
 	ozb_MCPS_DATA_indication(OZB_MAC_FCTL_GET_SRC_ADDR_MODE(data), 
 				 s_pan, (void *) s_a,
 				 OZB_MAC_FCTL_GET_DST_ADDR_MODE(data),
-				 d_pan, (void *) d_a, rx_data_length,
+				 d_pan, (void *) d_a, rx_data_length - s,
 				 OZB_MAC_MPDU_MAC_PAYLOAD(rx_data, s), 
 				 0 /*TODO: mpduLinkQuality*/,
 				 *(OZB_MAC_MPDU_SEQ_NUMBER(rx_data))/*CHECK!*/,
@@ -449,9 +449,10 @@ void ozb_mac_perform_data_request(uint8_t src_mode, uint8_t dst_mode,
 		
 	} else { /* Store in the CSMA-CA queue */
 		frame=(struct ozb_mac_frame_t*) cqueue_push(&ozb_mac_queue_cap);
-		if (frame == 0) 
+		if (frame == 0) {
 			return; /* TODO: we have to choose a well formed reply
 				   for the indication primitive (status=??) */
+		}
 	}
 	frame->msdu_handle = handle;
 	/* Build the mpdu header (MHR) */
@@ -593,7 +594,4 @@ void ozb_mac_parse_received_mpdu(uint8_t *psdu, uint8_t len)
 		break;
 	}
 }
-
-
-
 

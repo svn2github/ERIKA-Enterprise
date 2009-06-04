@@ -1,10 +1,33 @@
 #include <mac/ozb_mac_internal.h>
 #include <hal/ozb_radio.h>
+#include <hal/ozb_rand.h>
 #include <kal/ozb_kal.h>
 #include <util/ozb_debug.h>
 
+#ifdef NEXT_TSLOT
+#undef NEXT_TSLOT
+#endif
 #define NEXT_TSLOT(idx) (((idx) + 1) % 16)
+
+#ifdef TIME32_SUBTRACT
+#undef TIME32_SUBTRACT
+#endif
 #define TIME32_SUBTRACT(t1, t2) ((t1)>(t2) ? (t1)-(t2) : 0xFFFFFFFF-(t2)+(t1))
+
+struct ozb_mac_csma_params_t {
+	unsigned NB : 4;
+	unsigned BE : 4;
+	unsigned CW : 2;
+	unsigned state : 2;
+	unsigned slotted : 1;
+	unsigned reserved : 2;
+};
+
+enum ozb_mac_csma_state_t {
+	CSMA_STATE_INIT = 0,
+	CSMA_STATE_DELAY,
+	CSMA_STATE_CCA,	
+};
 
 OZB_KAL_TASK(MAC_TIMESLOT, 10);
 OZB_KAL_TASK(MAC_BEFORE_TIMESLOT, 10); 
@@ -18,12 +41,18 @@ static uint8_t current_tslot = OZB_MAC_SUPERFRAME_LAST_SLOT;
 static struct {
 	unsigned has_idle : 1;
 	unsigned wait_sf_end : 1;
+	unsigned had_cfp : 1;
 	unsigned gts_sending : 1;
-} sf_flags = {OZB_FALSE, OZB_FALSE, OZB_FALSE};
+} sf_flags = {OZB_FALSE, OZB_FALSE, OZB_FALSE, OZB_FALSE};
 static uint32_t time_reference = 0;
+static struct ozb_mac_csma_params_t csma_params;
+static uint8_t csma_delay_counter = 0;
+static uint16_t lifs_bytes = 0;
+static uint16_t sifs_bytes = 0;
+static uint16_t btick_bytes = 0;
+static uint32_t cap_available_bytes = 0;
 static uint32_t gts_available_bytes = 0;
-static uint16_t gts_lifs_bytes = 0;
-static uint16_t gts_sifs_bytes = 0;
+
 static uint32_t test_time = 0;
 /******************************************************************************/
 /*                      MAC Tasks Private Functions                           */
@@ -57,7 +86,7 @@ COMPILER_INLINE void restart_activations(uint32_t offset)
 	start_activations(offset);
 } 
 
-COMPILER_INLINE uint32_t btick_to_bytes(uint32_t bt)
+COMPILER_INLINE uint32_t bticks_to_bytes(uint32_t bt)
 {
 	/* TODO: change this hard-coding (320 microsecond) ? */
 	bt *= 32; /* bt1 = bt0 x 320us x 10^-1 */
@@ -100,6 +129,10 @@ COMPILER_INLINE void start_beacon_interval(void)
 		stop_activations();
 		return;
 	}
+	if (sf_flags.had_cfp == OZB_TRUE) {
+		sf_flags.had_cfp = OZB_FALSE;
+		ozb_kal_set_activation(MAC_BACKOFF_PERIOD, 0, 1);
+	}
 	if (ozb_mac_pib.macSuperframeOrder < ozb_mac_pib.macBeaconOrder) {
 		sf_flags.has_idle = OZB_TRUE;
 		sf_flags.wait_sf_end = OZB_TRUE;
@@ -107,11 +140,14 @@ COMPILER_INLINE void start_beacon_interval(void)
 	if (ozb_mac_gts_stat.tx_length != 0) {
 		/* TODO: calculate gts_available_bytes */
 		gts_available_bytes = 
-			btick_to_bytes((uint32_t) ozb_mac_gts_stat.tx_length *
+			bticks_to_bytes((uint32_t) ozb_mac_gts_stat.tx_length *
 			       OZB_MAC_GET_TS( ozb_mac_pib.macSuperframeOrder));
-		gts_available_bytes -= gts_lifs_bytes;
+		gts_available_bytes -= lifs_bytes;
 		
 	}
+	cap_available_bytes = 
+			bticks_to_bytes((uint32_t) ozb_mac_gts_get_cap_size()) *
+			       OZB_MAC_GET_TS(ozb_mac_pib.macSuperframeOrder);
 	ozb_mac_status.sf_context = OZB_MAC_SF_CAP;
 	/*
 	sprintf(s, "DEVICE: Start BI - %lu: B0=%u S0=%u TX=%u LTX=%u ", 
@@ -146,6 +182,133 @@ COMPILER_INLINE void before_beacon_interval(void)
 	ozb_debug_stat2str(str);
 	ozb_debug_write(str, OZB_DEBUG_STAT_STRLEN);
 	ozb_debug_print("DEVICE: before Start BI");
+}
+
+/******************************************************************************/
+/*                          MAC CSMA-CA Functions                             */
+/******************************************************************************/
+COMPILER_INLINE void csma_init(void) 
+{
+	csma_params.NB = 0;
+	if (csma_params.slotted) {
+		csma_params.CW = 2;
+		csma_params.BE = (ozb_mac_pib.macBattLifeExt == 1 && 
+				 2 < ozb_mac_pib.macMinBE) ?
+				 2 : ozb_mac_pib.macMinBE;
+	} else {
+		csma_params.BE = ozb_mac_pib.macMinBE;
+	}
+}
+
+COMPILER_INLINE void csma_set_delay(void) 
+{
+	csma_delay_counter = ozb_rand_8bit() % 
+			     ((((uint8_t) 1) << csma_params.BE) - 1);
+	//csma_delay_counter = 0;
+	//csma_delay_counter = (((uint8_t) 1) << csma_params.BE) - 1;
+}
+
+COMPILER_INLINE uint8_t csma_check_available_cap(uint8_t len, uint8_t has_ack) 
+{
+	/* TODO: verify if the current check is correct 
+		 (what about phy padding?)
+	*/
+	uint32_t x = len;
+//char s[100];
+
+//sprintf(s,"a=%u l=%u", has_ack, len);
+//ozb_debug_print(s);
+	x = x << 1; /* X = len x 2 */	
+//sprintf(s,"x1=%lu", x);
+//ozb_debug_print(s);
+	if (has_ack) {
+		x += OZB_MAC_ACK_MPDU_SIZE << 1; /* X = (len + ACK) x 2 */
+		x += bticks_to_bytes(OZB_aTurnaroundTime_btick); 
+	}
+//sprintf(s,"x2=%lu", x);
+//ozb_debug_print(s);
+	x += len < OZB_aMaxSIFSFrameSize ?  sifs_bytes : lifs_bytes;
+//sprintf(s,"x3=%lu c=%lu", x, cap_available_bytes);
+//ozb_debug_print(s);
+	return (x <= cap_available_bytes);
+}
+
+static void csma_perform_slotted(void) 
+{
+	struct ozb_mac_frame_t *frame;
+	int8_t tmp;
+
+	if (ozb_mac_status.sf_context != OZB_MAC_SF_CAP)
+		return; 
+	if (cap_available_bytes >= btick_bytes)
+		cap_available_bytes -= btick_bytes;
+	if (csma_params.state == CSMA_STATE_INIT) {
+		if (cqueue_is_empty(&ozb_mac_queue_cap))
+			return;
+		csma_init();
+		csma_set_delay();
+		csma_params.state = CSMA_STATE_DELAY;
+		ozb_debug_print("I->D");
+		return;
+	}
+	if (csma_params.state == CSMA_STATE_DELAY) {
+		if (csma_delay_counter-- == 0) {
+			frame = (struct ozb_mac_frame_t*) 
+					cqueue_first(&ozb_mac_queue_cap);
+			/* Something must be there, check again? */
+			/* if (!frame) ERRORE!!!!!*/
+			tmp = OZB_MAC_FCTL_GET_ACK_REQUEST(
+				OZB_MAC_MPDU_FRAME_CONTROL(frame->mpdu));
+			if (!csma_check_available_cap(frame->mpdu_size, tmp)) {
+				csma_set_delay();
+				csma_params.state = CSMA_STATE_DELAY;
+				ozb_debug_print("D->D");
+				return;
+			}
+			ozb_debug_print("D->C");
+			csma_params.state = CSMA_STATE_CCA;
+		}
+	}
+	if (csma_params.state == CSMA_STATE_CCA) {
+		if (!ozb_radio_get_cca()) {
+			csma_params.CW = 2;
+			if (csma_params.NB > ozb_mac_pib.macMaxCSMABackoffs) {
+				/* TODO: CSMA Failure status!! 
+				Notify with confirm primitive!!!! 
+				*/
+				frame = (struct ozb_mac_frame_t *)
+						 cqueue_pop(&ozb_mac_queue_cap);
+				ozb_MCPS_DATA_confirm(frame->msdu_handle, 
+					     OZB_MAC_CHANNEL_ACCESS_FAILURE, 0);
+				csma_params.state = CSMA_STATE_INIT;
+				ozb_debug_print("C->I fail");
+				return;
+			}
+			csma_params.NB++;
+			if (csma_params.BE < ozb_mac_pib.macMaxBE)
+				csma_params.BE++;
+			csma_set_delay();
+			csma_params.state = CSMA_STATE_DELAY;
+			ozb_debug_print("C->D");
+			return;
+		}
+		if (--csma_params.CW > 0) 
+			return;
+		frame = (struct ozb_mac_frame_t*)cqueue_pop(&ozb_mac_queue_cap);
+		tmp = ozb_radio_phy_send_now(frame->mpdu, frame->mpdu_size);
+		if (tmp == OZB_RADIO_ERR_NONE)
+			ozb_MCPS_DATA_confirm(frame->msdu_handle, 
+					      OZB_MAC_SUCCESS, 0);
+		/* Something must be there, check again? */
+		/* if (!frame) ERRORE!!!!!*/
+		csma_params.state = CSMA_STATE_INIT;
+		ozb_debug_print("C->I succ");
+	}
+}
+
+static void csma_perform_uslotted(void) 
+{
+	/*TODO: implement the unslotted version!! */
 }
 
 /******************************************************************************/
@@ -193,6 +356,8 @@ static void on_timeslot_start(void)
 		return;
 	if (current_tslot == ozb_mac_gts_stat.first_cfp_tslot) {
 		ozb_mac_status.sf_context = OZB_MAC_SF_CFP;
+		sf_flags.had_cfp = OZB_TRUE;
+		ozb_kal_cancel_activation(MAC_BACKOFF_PERIOD);
 		if (ozb_mac_status.is_pan_coordinator || 
 		    ozb_mac_status.is_coordinator) {
 			/* TODO: simplified version: 
@@ -246,11 +411,10 @@ static void before_timeslot_start(void)
 
 static void on_backoff_period_start(void) 
 {
-	/* TODO: this task can be stopped after the CAP! */
-	/*
-	if (ozb_mac_status.sf_context != OZB_MAC_SF_CAP)
-		return; 
-	*/
+	if (csma_params.slotted)
+		csma_perform_slotted();
+	else
+		csma_perform_uslotted();
 }
 
 static void on_gts_send(void)
@@ -332,8 +496,11 @@ int8_t ozb_mac_superframe_init(void)
 	if (retv < 0)
 		return retv;
 	ozb_mac_status.sf_initialized = OZB_TRUE;
-	gts_lifs_bytes = btick_to_bytes(OZB_MAC_LIFS_PERIOD);
-	gts_sifs_bytes = btick_to_bytes(OZB_MAC_SIFS_PERIOD);
+	csma_params.state = CSMA_STATE_INIT;
+	csma_params.slotted = 1;
+	lifs_bytes = bticks_to_bytes(OZB_MAC_LIFS_PERIOD);
+	sifs_bytes = bticks_to_bytes(OZB_MAC_SIFS_PERIOD);
+	btick_bytes = bticks_to_bytes(1);
 TRISEbits.TRISE0 = 0;
 LATEbits.LATE0 = 0;
 	return 1;
@@ -352,6 +519,7 @@ void ozb_mac_superframe_start(uint32_t offset)
 	current_tslot = OZB_MAC_SUPERFRAME_LAST_SLOT;
 	sf_flags.wait_sf_end = OZB_FALSE;
 	sf_flags.has_idle = OZB_FALSE;
+	sf_flags.had_cfp = OZB_FALSE;
 	if (ozb_mac_status.is_pan_coordinator || ozb_mac_status.is_coordinator)
 		start_activations(offset);
 	/* TODO: do I need this (a before_BI before the first BCN) in device? 
@@ -410,7 +578,7 @@ char s[100];
 		x = ozb_kal_get_time();
 		x = TIME32_SUBTRACT(time_reference, x);
 		/* x = remaining bytes in GTS */
-		x = btick_to_bytes(x);
+		x = bticks_to_bytes(x);
 /*
 sprintf(s,"DEVICE: ####--->>> Remaining Byte =  %lu", x);
 ozb_debug_print(s);
@@ -422,8 +590,7 @@ ozb_debug_print(s);
 	}
 	gts_available_bytes = x - (length + 10);
 	/* x = LISF or SIFS in bytes */
-	x = length < OZB_aMaxSIFSFrameSize ? 
-	    gts_sifs_bytes : gts_lifs_bytes;
+	x = length < OZB_aMaxSIFSFrameSize ?  sifs_bytes : lifs_bytes;
 	gts_available_bytes = gts_available_bytes >= x ?
 			      gts_available_bytes - x : 0;
 	return 1;
@@ -433,7 +600,7 @@ ozb_debug_print(s);
 //		gts_available_bytes -= length + 10;
 //		/* x = LISF or SIFS in bytes */
 //		x = length < OZB_aMaxSIFSFrameSize ? 
-//		    gts_sifs_bytes : gts_lifs_bytes;
+//		    sifs_bytes : lifs_bytes;
 //		gts_available_bytes = gts_available_bytes >= x ?
 //				      gts_available_bytes - x : 0;
 //		if (!is_in_tx_gts()) 
@@ -442,7 +609,7 @@ ozb_debug_print(s);
 //		x = ozb_kal_get_time();
 //		x = TIME32_SUBTRACT(time_reference, x);
 //		/* x = remaining bytes in GTS */
-//		x = btick_to_bytes(x);
+//		x = bticks_to_bytes(x);
 //sprintf(s,"DEVICE: ####--->>> Remaining Byte =  %lu", x);
 //ozb_debug_print(s);
 //		if (x >= length + 10) {
@@ -454,4 +621,486 @@ ozb_debug_print(s);
 //	}
 //	return 0;
 }
+
+
+
+
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+                   #ifdef usare_la_merda_di_ricardo_a_colazione
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+ //////////////////////////////////////////////////////////////////////////////
+  ////////////////////////////////////////////////////////////////////////////
+   //////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////
+     //////////////////////////////////////////////////////////////////////
+      ////////////////////////////////////////////////////////////////////
+       //////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////
+         //////////////////////////////////////////////////////////////
+          ////////////////////////////////////////////////////////////
+           //////////////////////////////////////////////////////////
+            ////////////////////////////////////////////////////////
+             //////////////////////////////////////////////////////
+              ////////////////////////////////////////////////////
+               //////////////////////////////////////////////////
+                ////////////////////////////////////////////////
+                       ///////////////////////////////////
+                        /////////////////////////////////
+                         ///////////////////////////////
+                           ///////////////////////////
+                              /////////////////////
+                               ///////////////////
+                                /////////////////
+                                 ///////////////
+                                  /////////////
+                                   ///////////
+                                    /////////
+                                     ///////
+                                      /////
+                                       //
+
+
+void backoff_fired()
+{	
+	//backoff_count++;
+	
+	//TODO activate slotted CSMA/CA
+	backoff_fired_check_csma_ca();
+	
+//	if (backoff_count == 100)
+//	{
+//		ee_console_out_str("BF :");
+//		backoff_count = 0;
+//	}
+	//
+return;
+}
+
+void backoff_fired_check_csma_ca()
+{
+	EE_UINT8 random_interval;
+	//slotted CSMA/CA function
+
+	//if(!I_AM_IN_CAP || current_time_slot < 3)
+	if(!I_AM_IN_CAP)
+		return;
+
+	if( csma_locate_backoff_boundary == 1 )
+	{
+		csma_locate_backoff_boundary=0;
+		//DEFERENCE CHANGE
+		
+		if (backoff_deference == 0)
+		{
+//			//normal situation
+			//srand ( 100 );
+			random_interval = (EE_UINT8)(powf(2,BE) - 1);
+			
+			delay_backoff_period = (EE_UINT8)(rand() & random_interval);
+
+			if (check_csma_ca_backoff_send_conditions((EE_UINT32) delay_backoff_period) == 1)
+			{
+				backoff_deference = 1;
+			}
+		}
+		else
+		{
+			backoff_deference = 0;
+		}
+		
+		csma_delay=1;
+	}
+	if( csma_cca_backoff_boundary == 1 )
+	{
+		perform_csma_ca_slotted();
+		
+	}
+	//CSMA/CA
+	if(csma_delay == 1 )
+	{
+		if (delay_backoff_period == 0)
+		{
+			if(csma_slotted == 0)
+			{
+				perform_csma_ca_unslotted();
+			}
+			else
+			{
+				//CSMA/CA SLOTTED
+				csma_delay=0;
+				csma_cca_backoff_boundary=1;
+			}
+		}
+		delay_backoff_period--;
+	}
+
+return;
+}
+
+
+
+
+/*****************************************************************************************************/
+/*****************************************************************************************************/
+/*****************************************************************************************************/
+/************************		CSMA/CA    			**********************************/
+/*****************************************************************************************************/ 
+/*****************************************************************************************************/
+/*****************************************************************************************************/
+
+void perform_csma_ca_unslotted()
+{
+	MPDU *frame_pkt=0;
+	
+	frame_pkt = (MPDU *)removeq(sendBuffer_ptr);
+	if(frame_pkt == 0)
+		return; //TODO: we have to chose: notifty error with _openZB_raise_error(OPENZB_ERR_INVALID_PACKET) , or do nothing
+
+	//unslotted send
+	
+	PD_DATA_request((EE_UINT8)frame_pkt->length,(EE_UINT8*)frame_pkt);
+	
+	if (!isempty(sendBuffer_ptr))
+	{
+		send_frame_csma();
+	}
+
+return;
+}
+
+//CSMA CA send function
+void send_frame_csma()
+{
+	//RARS TODO shouldn't we make a verification of the CAP or CFP to avoid sending in gts
+	
+	csma_slotted=1;
+	
+	if (csma_slotted == 0)
+	{
+		//ee_console_out_str("sfun");
+		//unslotted, done by hardware
+		perform_csma_ca_unslotted();
+	
+	}
+	else
+	{
+		//ee_console_out_str("1 send_frame_csma\n");
+		//slotted send
+		performing_csma_ca = 1;
+		//perform_csma_ca_unslotted();
+
+		perform_csma_ca();
+	}
+	
+
+return;
+}
+
+void init_csma_ca(EE_UINT8 slotted)
+{
+	//initialization of the CSMA/CA protocol variables
+	//ee_console_out_str("3 - init_csma_ca \n");
+	csma_delay=0;
+	if (slotted == 0 )
+	{
+		NB=0;
+		BE=mac_PIB.macMinBE;
+	}
+	else
+	{
+		NB=0;
+		CW=2;
+		
+		csma_cca_backoff_boundary=0;
+		csma_locate_backoff_boundary=0;
+	}
+
+return;
+}
+
+void perform_csma_ca()
+{
+	EE_UINT8 random_interval;
+	
+	//temp var
+	csma_slotted=1;
+	//STEP 1
+	if (csma_slotted == 0 )
+	{
+		//UNSLOTTED version
+		init_csma_ca(csma_slotted);
+		//STEP 2
+		random_interval = powf(2,BE) - 1;
+		delay_backoff_period = (EE_UINT8)(rand() & random_interval );
+			
+		csma_delay=1;
+		
+		return;
+	}
+	else
+	{
+		//ee_console_out_str("2 - perform_csma_ca \n");
+		//SLOTTED version
+
+		//DEFERENCE CHANGE
+		if (cca_deference==0)
+		{
+			init_csma_ca(csma_slotted);
+			if (mac_PIB.macBattLifeExt == 1 )
+			{
+				BE = min(2,	mac_PIB.macMinBE);
+			}
+			else
+			{
+				BE = mac_PIB.macMinBE;
+			}
+			
+			//ee_console_out_str("BE:");
+			//ee_console_out16_radix(BE, 16);
+			
+			csma_locate_backoff_boundary = 1;
+		}
+		else
+		{
+			cca_deference = 0;
+			csma_delay=0;
+			csma_locate_backoff_boundary=0;
+			csma_cca_backoff_boundary = 1;
+		}
+		return;
+	}
+}
+
+void perform_csma_ca_slotted()
+{
+	EE_UINT8 random_interval;
+	MPDU *frame_pkt=0;
+
+	frame_pkt = (MPDU *)getq(sendBuffer_ptr);
+
+	if(frame_pkt == 0)
+		return; //TODO: we have to chose: notifty error with _openZB_raise_error(OPENZB_ERR_INVALID_PACKET) , or do nothing
+	
+	//ee_console_out_str("4 - perform_csma_ca_slotted\n");
+	
+	//DEFERENCE CHANGE
+	
+
+	if (check_csma_ca_send_conditions(frame_pkt->length,frame_pkt->frame_control1) == 1 )
+	{
+		cca_deference = 0;
+	}
+	else
+	{
+		//nao e necessario
+		cca_deference = 1;
+		return;
+	}
+	
+	//ee_console_out_str("CCA:");
+	//ee_console_out16_radix(CCA, 16);
+	//ee_console_out_str("\n\r");
+	
+	if(CCA==1)
+	{   
+		//ee_console_out_str("CW:");
+		//ee_console_out16_radix(CW, 16);
+		//ee_console_out_str("\n\r");
+		//STEP 5
+		CW--;
+		if (CW == 0 )
+		{
+			//send functions
+			csma_cca_backoff_boundary =0;
+			
+			//verify if the message must be ack
+			if ( get_fc1_ack_request(frame_pkt->frame_control1) == 1 )
+			{
+				//SEND WITH ACK_REQUEST
+
+				//TODO
+				//ENABLE THE ACK RESPONSE WAIT TIME
+				//ENABLE RETRANSMISSIONS OF THE MESSAGE
+				
+				//ee_console_out_str("csma success ack");
+				
+				PD_DATA_request((EE_UINT8)frame_pkt->length,(EE_UINT8*)frame_pkt);
+				
+				removeq(sendBuffer_ptr);
+			}
+			else
+			{	
+				//ee_console_out_str("csma success");
+			
+				// USED FOR TESTING	
+				//insert_mac_payload_16(sendBuffer_ptr, 52, 0xAF);
+				//insert_mac_payload_16(sendBuffer_ptr, 54, current_time_slot);
+				//insert_mac_payload_16(sendBuffer_ptr, 56, I_AM_IN_CAP);
+				//insert_mac_payload_16(sendBuffer_ptr, 58, 0xAF);
+				
+				PD_DATA_request((EE_UINT8)frame_pkt->length,(EE_UINT8*)frame_pkt);
+				
+				packet_count_mac++;
+				
+				total_bytes_send_mac=total_bytes_send_mac+113;
+				
+				removeq(sendBuffer_ptr); 
+			}	
+			
+			//CSMA/CA SUCCESS
+			
+			performing_csma_ca = 0;
+			
+			if (!isempty(sendBuffer_ptr))
+			{
+				send_frame_csma();
+			}
+		}
+	}
+	else
+	{	//CHECK NOT USED
+		//csma_backoff_counter++;
+		//csma_backoff_counter_inst++;
+		
+		//ee_console_out_str("CW");
+		
+		if (NB < mac_PIB.macMaxCSMABackoffs)
+		{	//STEP 4
+			CW = 2;
+			NB++;
+			BE = min(BE+1,aMaxBE);
+				
+			//STEP 2
+			//verification of the backoff_deference
+			//DEFERENCE CHANGE
+			if (backoff_deference == 0)
+			{
+				random_interval = powf(2,BE) - 1;
+				delay_backoff_period = (rand() & random_interval );
+						
+				if (check_csma_ca_backoff_send_conditions((EE_UINT32) delay_backoff_period) == 1)
+				{
+					backoff_deference = 1;
+				}
+			}
+			else
+			{
+				backoff_deference = 0;
+			}
+				csma_delay=1;
+		}
+		else
+		{
+			//CSMA/CA FAIL
+			csma_delay=0;
+			csma_cca_backoff_boundary=0;
+			
+			//TODO 
+			//transmission failed
+			//remove from the queue the packet
+			
+			//ee_console_out_str("csma fail");
+			
+			packet_csmaca_fail ++;
+			
+			//removeq(sendBuffer_ptr);
+			
+			if (!isempty(sendBuffer_ptr))
+			{
+				send_frame_csma();
+			}
+					
+			performing_csma_ca = 0;
+				
+		}
+	}
+return;
+}
+
+
+
+
+
+EE_UINT8 min(EE_UINT8 val1, EE_UINT8 val2)
+{
+	if (val1 < val2)
+	{
+		return val1;
+	}
+	else
+	{
+		return val2;
+	}
+}
+
+
+
+EE_UINT8 calculate_ifs(EE_UINT8 pk_length)
+{
+	if (pk_length > aMaxSIFSFrameSize)
+		return aMinLIFSPeriod; // + ( ((pk_length * 8) / 250.00) / 0.34 );
+	else
+		return aMinSIFSPeriod; // + ( ((pk_length * 8) / 250.00) / 0.34 );
+}
+
+//used to check if the CSMA/CA has enought backoffs until the end of the superframe
+EE_UINT8 check_csma_ca_backoff_send_conditions(EE_UINT32 delay_backoffs)
+{
+	//DEFERENCE CHANGE
+	EE_UINT32 number_of_sd_ticks=0;
+	EE_UINT32 number_of_backoffs_remaining =0;
+	
+	number_of_sd_ticks = ieee802145alarms_get_sd_ticks();
+	
+	//Note:one tick equals one backoff
+	number_of_backoffs_remaining = number_of_sd_ticks - ieee802145alarms_get_backoff_ticks();
+	
+	if (number_of_backoffs_remaining > delay_backoffs)
+		return 0;
+	else
+		return 1;
+
+}
+
+EE_UINT8 check_csma_ca_send_conditions(EE_UINT8 frame_length,EE_UINT8 frame_control1)
+{
+	EE_UINT8 ifs_symbols;
+	EE_UINT32 frame_tx_time_symbols;
+	
+	EE_UINT32 number_of_sd_ticks=0;
+	
+	EE_UINT32 remaining_sd_symbols=0;
+	
+	number_of_sd_ticks = ieee802145alarms_get_sd_ticks();
+	
+	ifs_symbols=calculate_ifs(frame_length);
+	
+	if (get_fc1_ack_request(frame_control1) == 1 )
+		frame_tx_time_symbols =  (EE_UINT32)(((frame_length + ACK_LENGTH) * 2) + (EE_UINT32)aTurnaroundTime + (EE_UINT32)ifs_symbols);
+	else
+		frame_tx_time_symbols =  (EE_UINT32)((frame_length *2) + (EE_UINT32)ifs_symbols);
+	
+	remaining_sd_symbols = (EE_UINT32)((number_of_sd_ticks - ieee802145alarms_get_backoff_ticks()) * 20);
+	
+	if (frame_tx_time_symbols < remaining_sd_symbols)
+		return 1;
+	else
+		return 0;
+
+}
+ 
+
+#endif /* usare_la_merda_di_ricardo_a_colazione */
+
+
 

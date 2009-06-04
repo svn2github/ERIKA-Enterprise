@@ -99,6 +99,7 @@ uint8_t ozb_mac_gts_set_gts_fields(uint8_t *gf)
 		i++;
 	}
 	/* TODO: remove this! DEBUG TEST!!! ---------- >>>>> */
+	/*
 	static uint16_t aaa = 0x0005;
 	//static char bbb = 1;
 	if (gts_add_entry(aaa++, 1, OZB_MAC_GTS_DIRECTION_OUT) == -1) {
@@ -114,6 +115,7 @@ uint8_t ozb_mac_gts_set_gts_fields(uint8_t *gf)
 		//	bbb = 1;
 		//}
 	}
+	*/
 	/* <<<<<<<<<<<<-----------------  TODO REMOVE BLOCK!!! */
 	return s;
 }

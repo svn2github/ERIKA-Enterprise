@@ -10,6 +10,8 @@
 						  OZB_aUnitBackoffPeriod */ 
 #define OZB_aBaseSuperframeDuration_btick 48 /**< OZB_aBaseSuperframeDuration / 
 						  OZB_aUnitBackoffPeriod */
+#define OZB_aTurnaroundTime_btick	1 /**< ceiling( OZB_aTurnaroundTime / 
+						OZB_aUnitBackoffPeriod ) */
 
 #define OZB_MAC_LIFS_PERIOD		2 /**< 	macMinLIFSPeriod / 
 						OZB_aUnitBackoffPeriod */
@@ -77,6 +79,11 @@ COMPILER_INLINE void ozb_mac_gts_set_cap_end(uint8_t last_cap_tslot)
 COMPILER_INLINE uint8_t ozb_mac_gts_get_cap_end(void) 
 {
 	return ozb_mac_gts_stat.first_cfp_tslot - 1;
+}
+
+COMPILER_INLINE uint8_t ozb_mac_gts_get_cap_size(void)
+{
+	return ozb_mac_gts_stat.first_cfp_tslot;
 }
 
 COMPILER_INLINE uint8_t ozb_mac_superframe_has_tx_gts(void) 
