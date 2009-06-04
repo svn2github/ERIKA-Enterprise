@@ -143,7 +143,7 @@ EE_UINT8 EE_accelerometer_g = 6;
 /*  *************************************************************************\/ */
 
 #ifdef __USE_LCD__
-EE_UINT16 lcd_temp_count = 0;
+EE_UINT16 lcd_temp_count __attribute__((near)) = 0;
 
 void Delay( unsigned int delay_count )
 {
