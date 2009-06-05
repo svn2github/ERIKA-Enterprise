@@ -57,15 +57,6 @@
 #define XNAME(x,y)  x##y
 #define NAME(x,y)   XNAME(x,y)
 
-/*---------------------------
-#define XSTR(x)    #x
-#define STR(x)     XSTR(x)
-
-#define MODELNAME  STR(MODELN)
-#include MODELNAME
-#include "common.c"
-----------------------------*/
-
 // Primary (XT, HS, EC) Oscillator with PLL
 _FOSCSEL(FNOSC_PRIPLL);
 // OSC2 Pin Function: OSC2 is Clock Output - Primary Oscillator Mode: XT Crystanl
@@ -80,11 +71,9 @@ static int dspic_time;
 static double t;
 static double actTime;
 
-
 #ifdef __USE_USB__ 
 float scicosUSB_rx_buffer[SCICOS_USB_CHANNELS] __attribute__((far));
 #endif // __USE_USB__
-
 
 extern int NAME(MODELNAME,_init)(void);
 extern double NAME(MODELNAME,_get_tsamp)(void);
@@ -97,24 +86,23 @@ double get_scicos_time()
 }
 
 /* Program the Timer2 peripheral to raise interrupts */
-void T2_program(void)
+void T1_program(void)
 {
-	T2CON = 0;		/* Stops the Timer2 and reset control reg	*/
-	TMR2  = 0;		/* Clear contents of the timer register	*/
-	PR2   = 0x9c40;		/* 1ms @ 40Mhz */
-//	PR2   = 0x07D0;		/* 1ms @ 2MHz */
-	IPC1bits.T2IP = 5;	/* Set Timer2 priority to 5		*/
-	IFS0bits.T2IF = 0;	/* Clear the Timer2 interrupt status flag	*/
-	IEC0bits.T2IE = 1;	/* Enable Timer2 interrupts		*/
-	T2CONbits.TON = 1;	/* Start Timer2 with prescaler settings at 1:1
+	T1CON = 0;		/* Stops the Timer2 and reset control reg	*/
+	TMR1  = 0;		/* Clear contents of the timer register	*/
+	PR1   = 0x9c40;		/* 1ms @ 40Mhz */ //	PR1   = 0x07D0;		/* 1ms @ 2MHz */
+	IPC0bits.T1IP = 5;	/* Set Timer2 priority to 5		*/
+	IFS0bits.T1IF = 0;	/* Clear the Timer2 interrupt status flag	*/
+	IEC0bits.T1IE = 1;	/* Enable Timer2 interrupts		*/
+	T1CONbits.TON = 1;	/* Start Timer2 with prescaler settings at 1:1
 				  * and clock source set to the internal 
 				  * instruction cycle			*/
 }
 
 /* Clear the Timer2 interrupt status flag */
-void T2_clear(void)
+void T1_clear(void)
 {
-	IFS0bits.T2IF = 0;
+	IFS0bits.T1IF = 0;
 }
 
 
@@ -193,10 +181,10 @@ void update_lcd(void)
 /* This is an ISR Type 2 which is attached to the Timer2 peripheral IRQ pin
  * The ISR simply calls CounterTick to implement the timing reference
  */
-ISR2(_T2Interrupt)
+ISR2(_T1Interrupt)
 {
 	/* clear the interrupt source */
-	T2_clear();
+	T1_clear();
 
 	/* count the interrupts, waking up expired alarms */
 	CounterTick(sciCounter);
@@ -238,7 +226,7 @@ int main(void)
 	CLKDIVbits.DOZEN   = 0;
 	CLKDIVbits.PLLPRE  = 0;
 	CLKDIVbits.PLLPOST = 0;
-	PLLFBDbits.PLLDIV  = 80;// 78 old value---check!
+	PLLFBDbits.PLLDIV  = 78;
 	
 	/* Wait for PLL to lock */
 	while(OSCCONbits.LOCK!=1);
@@ -256,7 +244,7 @@ int main(void)
 	t = 0.0; //simulation time
   
 	/* Program Timer 1 to raise interrupts */
-	T2_program();
+	T1_program();
   
 	scicos_time = NAME(MODELNAME,_get_tsamp)();
 	dspic_time = (int) (1000*scicos_time);
