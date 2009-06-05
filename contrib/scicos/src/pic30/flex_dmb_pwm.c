@@ -22,7 +22,7 @@ static void init(scicos_block *block)
 	EE_pwm_init( pin , 20000 , 0 );
 }
  
-void inout(scicos_block *block)
+static void inout(scicos_block *block)
 {
 	/* Get the PWM number [1,2,3,4]     */
 	int pin = block->ipar[0];
@@ -48,20 +48,20 @@ static void end(scicos_block *block)
 
 void flex_dmb_pwm(scicos_block *block,int flag)
 {
-	switch (flag) {
-		case OutputUpdate:	/* set output */
-			inout(block);
-			break;
+ switch (flag) {
+    case OutputUpdate:  /* set output */
+      inout(block);
+      break;
 
-		case StateUpdate:	/* get input */
-			break;
-		
-		case Initialization:	/* initialisation */
-			init(block);
-			break;
-		
-		case Ending:	/* ending */
-			end(block);
-			break;
-	}
+    case StateUpdate: /* get input */
+      break;
+
+    case Initialization:  /* initialisation */
+      init(block);
+      break;
+
+    case Ending:  /* ending */
+      end(block);
+      break;
+  }
 }

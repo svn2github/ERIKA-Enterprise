@@ -26,8 +26,11 @@ void flex_serial_receive(scicos_block *block,int flag)
 		return;
 
 	switch (flag) {
-		case 1:	/* set output */
-		case 2:	/* get input */
+
+		case OutputUpdate:
+      break;
+
+    case StateUpdate: 
 			EE_uart_read_byte(serial_port-1,&serial_data);
 			y[0] = (float)serial_data;
 			break;

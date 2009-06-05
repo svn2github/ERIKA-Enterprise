@@ -61,14 +61,21 @@ static void end(scicos_block *block)
 
 void flex_can_out(scicos_block *block,int flag)
 {
-  if (flag==1){          /* set output */
-    inout(block);
-  }
-  else if (flag==5){     /* termination */ 
-    end(block);
-  }
-  else if (flag ==4){    /* initialisation */
-    init(block);
+ switch (flag) {
+    case OutputUpdate:  /* set output */
+      inout(block);
+      break;
+
+    case StateUpdate: /* get input */
+      break;
+
+    case Initialization:  /* initialisation */
+      init(block);
+      break;
+
+    case Ending:  /* ending */
+      end(block);
+      break;
   }
 }
 

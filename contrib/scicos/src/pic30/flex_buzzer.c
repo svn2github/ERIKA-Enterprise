@@ -88,15 +88,19 @@ static void end(scicos_block *block)
 void flex_buzzer(scicos_block *block,int flag)
 {
 	switch (flag) {
-		case 1:	/* set output */
-		case 2:	/* get input */
-			inout(block);
-			break;
-		case 5:	/* ending */
-			end(block);
-			break;
-		case 4:	/* initialisation */
-			init(block);
-			break;
-	}
+    case OutputUpdate:  /* set output */
+      inout(block);
+      break;
+
+    case StateUpdate: /* get input */
+      break;
+
+    case Initialization:  /* initialisation */
+      init(block);
+      break;
+
+    case Ending:  /* ending */
+      end(block);
+      break;
+  }
 }

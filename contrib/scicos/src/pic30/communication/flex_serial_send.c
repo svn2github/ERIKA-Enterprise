@@ -23,18 +23,18 @@ void flex_serial_send(scicos_block *block,int flag)
 		return;
 
 	switch(flag) {
-		case 1:	/* set output */
+		case OutputUpdate:	/* set output */
 			EE_uart_write_byte(serial_port-1,(EE_UINT8)u[0]);
 			break;
 
-		case 2:	/* get input */
+		case StateUpdate:	/* get input */
 			break;
 		
-		case 4:	/* initialisation */
+		case Initialization:	/* initialisation */
 			EE_uart_init(serial_port-1,baudrate,EE_UART_BIT8_NO|EE_UART_BIT_STOP_1|EE_UART_CTRL_SIMPLE,0);
 			break;
 		
-		case 5:	/* ending */
+		case Ending:	/* ending */
 			EE_uart_close(serial_port-1);
 			break;
 	}
