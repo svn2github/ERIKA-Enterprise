@@ -43,6 +43,10 @@
 
 ifeq ($(findstring __MICROCHIP_DSPIC30__,$(EEOPT)) , __MICROCHIP_DSPIC30__)
 
+ifeq ($(findstring __USE_CAN1__,$(EEOPT)) , __USE_CAN1__)
+EE_SRCS += pkg/mcu/microchip_dspic/src/ee_ecan.c
+endif
+
 ifeq ($(findstring __FRSH__,$(EEOPT)) , __FRSH__)
 EE_SRCS += pkg/mcu/microchip_dspic/src/ee_pic30frsh.c
 endif
