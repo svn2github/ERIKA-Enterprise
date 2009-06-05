@@ -5,9 +5,8 @@
  * Copyright (C) METALAU Project (INRIA)
  * ###*E*### */
  
+// Last modify by Francesco Prosperi
  
-//** 9 Feb 2008 : Revision notes by Simone Mannori 
-//**
 #include <machine.h>
 #include <scicos_block4.h>
 
@@ -20,21 +19,21 @@ static void init(scicos_block *block)
 	if ((pin < 1) || (pin > 2))
 		return;
 
-	EE_pwm_init( 0, pin );
+	EE_pwm_init( pin , 20000 , 0 );
 }
-
-static void inout(scicos_block *block)
+ 
+void inout(scicos_block *block)
 {
 	/* Get the PWM number [1,2,3,4]     */
 	int pin = block->ipar[0];
 
 	/* Get duty cycle from Scicos block */
-	float * duty = block->inptr[0];
+	float *duty = block->inptr[0];
 	
 	if ((pin < 1) || (pin > 2))
 		return; //** refuse not supported PWM
 
-	EE_pwm_set_duty( *duty, pin );
+	EE_pwm_set_duty_f( pin , 1.0 - *duty);
 }
 
 static void end(scicos_block *block)
@@ -50,19 +49,18 @@ static void end(scicos_block *block)
 void flex_dmb_pwm(scicos_block *block,int flag)
 {
 	switch (flag) {
-		case 1:	/* set output */
+		case OutputUpdate:	/* set output */
 			inout(block);
 			break;
 
-		case 2:	/* get input */
-			inout(block);
+		case StateUpdate:	/* get input */
 			break;
 		
-		case 4:	/* initialisation */
+		case Initialization:	/* initialisation */
 			init(block);
 			break;
 		
-		case 5:	/* ending */
+		case Ending:	/* ending */
 			end(block);
 			break;
 	}

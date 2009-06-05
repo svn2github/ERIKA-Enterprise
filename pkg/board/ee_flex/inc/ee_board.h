@@ -926,100 +926,78 @@ __INLINE__ void __ALWAYS_INLINE__ EE_buzzer_close( void ) {
 
 #ifdef __USE_PWM_OUT__
 
-__INLINE__ void __ALWAYS_INLINE__ EE_pwm_init( EE_UINT16 Period , EE_UINT8 chan )
+#define EE_PWM_PORT1 1
+#define EE_PWM_PORT2 2
+
+#define EE_PWM_ZERO_DUTY 1500
+
+extern EE_UINT8 t_pre_scaler;
+
+void EE_pwm_init(EE_UINT8 chan, unsigned long int pwm_period, unsigned long int init_pw);
+
+//__INLINE__ void __ALWAYS_INLINE__ EE_pwm_set_duty_f( EE_UINT8 chan , float duty )
+//{
+//	/* The computed duty cycle*/
+//	float duty_out ;
+//
+//	/* Get period from Timer2 period register PR2 */
+//	EE_UINT16 period = PR2;
+//
+//	if (duty <= 0.0)
+//		duty_out = 0; //** for negative values assume zero
+//	else if(duty >= 1.0)
+//		duty_out = 1; //** for exessive values assume one
+//	else
+//		duty_out = duty; //** for the correct values ...
+//
+//	// Computer register valure
+//	switch (chan) {
+//		case EE_PWM_PORT1:
+//			OC8RS = duty_out * (period+1);
+//			break;
+//		case EE_PWM_PORT2:
+//			OC7RS = duty_out * (period+1);
+//			break;
+//	}
+//}
+
+void EE_pwm_set_duty_f( EE_UINT8 chan , float duty );
+
+__INLINE__ void __ALWAYS_INLINE__ EE_pwm_set_duty(EE_UINT8 chan, unsigned long int duty)
 {
-	// SET TIMER2 if not using Scicos Template - TODO!!!
+  duty = ( (duty * 40) >> t_pre_scaler ) - 1;  /* Compute the Current PulseWidth  to set */
 
-	/* Stops the Timer2 and reset control reg */
-	//T2CON = 0;
+	if(	duty > PR2) return;
 
-	/* Clear contents of the timer register */
-	//TMR2  = 0;
+  switch(chan)
+  {
+    case EE_PWM_PORT1:
+			OC8RS = (unsigned int)duty; /* Load OCRS: current pwm duty cycle */
+    	break;
+    case EE_PWM_PORT2:
+			OC8RS = (unsigned int)duty; /* Load OCRS: current pwm duty cycle */
+    	break;
+  }
 
-	/* Load the Period register with the given value */
-	//PR2 = Period;
-
-	/* Clear the Disable Timer2 interrupt status flag */
-	//IFS0bits.T2IF = 0;
-	//IEC0bits.T2IE = 0;
-
-	/* SStart Timer2 */
-	//T2CONbits.TON = 1;
-
-	switch (chan) {
-		case 1:	/** Set PWM 1 **/
-			/* Set OC8 as output */
-
-			TRISDbits.TRISD7 = 0;
-
-			/* Set the initial duty cycle */
-			OC8R = 0;
-			/* Set the duty cycle */
-			OC8RS = 0;
-			/* Set OC8 module: PWM, no fault check, Timer2 */
-			OC8CON = 0x0006;
-			break;
-
-		case 2:	/** Set PWM 2 **/
-			/* Set OC3 as output */
-			TRISDbits.TRISD2 = 0;
-
-			/* Set the initial duty cycle */
-			OC3R = 0;
-
-			/* Set the duty cycle */
-			OC3RS = 0;
-
-			/* Set OC3 module: PWM, no fault check, Timer2 */
-			OC3CON = 0x0006;
-
-			break;
-	}
-}
-
-__INLINE__ void __ALWAYS_INLINE__ EE_pwm_set_duty( float duty, EE_UINT8 chan )
-{
-	/* The computed duty cycle*/
-	float duty_out ;
-
-	/* Get period from Timer2 period register PR2 */
-	EE_UINT16 period = PR2;
-
-	if (duty <= 0.0)
-		duty_out = 0; //** for negative values assume zero
-	else if(duty >= 1.0)
-		duty_out = 1; //** for exessive values assume one
-	else
-		duty_out = duty; //** for the correct values ...
-
-	// Computer register valure
-	switch (chan) {
-		case 1:
-			OC8RS = duty_out * (period+1);
-		OC1RS = duty_out * (period+1);
-			break;
-		case 2:
-			OC3RS = duty_out * (period+1);
-			break;
-	}
+  return;
 }
 
 __INLINE__ void __ALWAYS_INLINE__ EE_pwm_close( EE_UINT8 chan )
 {
 	switch (chan) {
-		case 1:	/** Close PWM1 **/
+		case EE_PWM_PORT1:	/** Close PWM1 **/
 			OC8RS  = 0;
 			OC8CON = 0;
 			break;
 
-		case 2: /** Close PWM2 **/
-			OC3RS  = 0;
-			OC3CON = 0;
+		case EE_PWM_PORT2: /** Close PWM2 **/
+			OC7RS  = 0;
+			OC7CON = 0;
 			break;
 	}
 }
 
-#endif
+#endif // __USE_PWM_OUT__
 
 /* /\************************************************************************* */
 /*  DAC */

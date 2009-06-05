@@ -667,6 +667,116 @@ void __attribute__((interrupt, no_auto_psv)) _DMA1Interrupt(void)
 
 #endif // use usb
 
+#ifdef __USE_PWM_OUT__
+
+EE_UINT8 t_pre_scaler;
+
+void EE_pwm_init(EE_UINT8 chan, unsigned long int pwm_period, unsigned long int init_pw)
+{
+  /* OutputCompare PWM constants
+  *
+  * pwm_timer2_period = (fcy/pre_scaler) x pwm_period - 1
+  *     fcy [MHz]
+  *     pwm_perdiod [microseconds]
+  *
+  * pwm_resolution = log_2((fcy/pre_scaler) x pwm_perdiod) [bits]
+  */
+
+  unsigned char pre_scaler=0;
+  unsigned int p=0;
+
+  /* Check PW limits */
+  if( init_pw > pwm_period)
+    return;
+
+  T2CON = 0; /* Stops the Timer2 and reset control reg */
+
+  TMR2  = 0; /* Clear contents of the timer register */
+
+  IFS0bits.T2IF = 0; /* Clear the Disable Timer2 interrupt status flag */
+  IEC0bits.T2IE = 0;
+
+  /* Calculate the best(minimum) pre-scaling factor */
+  for(pre_scaler=0; pre_scaler<4; pre_scaler++)
+  {
+    p = (((40*pwm_period) -1) / 0xFFFE) + 1;
+    if(pre_scaler < 3){
+      if( p <= (0x0001 << (pre_scaler*3)) ){
+        p = (pre_scaler*3);
+        break;
+      }
+    }
+    else{
+      if( p <= 256 ){
+        p = 8;
+        break;
+      }
+    }
+  }
+  if(pre_scaler > 3)
+    return;
+
+  T2CONbits.TCKPS = pre_scaler;       /* Set pre-scaler for Timer2 */
+
+	t_pre_scaler = p;
+
+  PR2 = ((pwm_period * 40) >> p);
+	if(PR2 > 0) PR2 -= 1; /* Set period for Timer2 */
+  p = (unsigned int)(( init_pw * 40) >> p );
+	if(p>0) p -= 1;  /* Compute the initial PulseWidth to set */
+
+  switch(chan)
+  {
+    case EE_PWM_PORT1:
+			TRISDbits.TRISD7 = 0; /* Set OC8 as output */
+      OC8R = p; /* Set the initial duty cycle */
+      OC8RS = p; /* Load OCRS: current pwm duty cycle */
+      OC8CON = 0x0006; /* Set OC8 module: PWM, no fault check, Timer2 */
+      break;
+
+    case EE_PWM_PORT2:
+			TRISDbits.TRISD6 = 0; /* Set OC7 as output */
+      OC7R = p; /* Set the initial duty cycle */
+      OC7RS = p; /* Load OCRS: current pwm duty cycle */
+      OC7CON = 0x0006; /* Set OC7 module: PWM, no fault check, Timer2 */
+      break;
+  }
+
+	T2CONbits.TON = 1; 
+
+  return;
+
+}
+
+void EE_pwm_set_duty_f( EE_UINT8 chan , float duty )
+{
+  /* The computed duty cycle*/
+  float duty_out ;
+
+  /* Get period from Timer2 period register PR2 */
+  EE_UINT16 period = PR2;
+
+  if (duty <= 0.0)
+    duty_out = 0; //** for negative values assume zero
+  else if(duty >= 1.0)
+    duty_out = 1; //** for exessive values assume one
+  else
+    duty_out = duty; //** for the correct values ...
+
+  // Computer register valure
+  switch (chan) {
+    case EE_PWM_PORT1:
+      OC8RS = duty_out * (period+1);
+      break;
+    case EE_PWM_PORT2:
+      OC7RS = duty_out * (period+1);
+      break;
+  }
+}
+
+
+#endif // __USE_PWM_OUT__
+
 /* ************************************************************************* */
 
 /* ************************************************************************* */
