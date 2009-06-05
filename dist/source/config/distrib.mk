@@ -144,10 +144,12 @@ distrib_opt___PIC30__:: \
 		ee_$(DIST)/pkg/mcu/microchip_dspic/inc/ee_internal.h \
 		ee_$(DIST)/pkg/mcu/microchip_dspic/inc/ee_uart.h \
 		ee_$(DIST)/pkg/mcu/microchip_dspic/inc/ee_spi.h \
+		ee_$(DIST)/pkg/mcu/microchip_dspic/inc/ee_ecan.h \
 		ee_$(DIST)/pkg/mcu/microchip_dspic/src \
 		ee_$(DIST)/pkg/mcu/microchip_dspic/src/ee_pic30frsh.c \
 		ee_$(DIST)/pkg/mcu/microchip_dspic/src/ee_uart.c \
 		ee_$(DIST)/pkg/mcu/microchip_dspic/src/ee_spi.c \
+		ee_$(DIST)/pkg/mcu/microchip_dspic/src/ee_ecan.c \
 		ee_$(DIST)/pkg/board/ee_flex/cfg \
 		ee_$(DIST)/pkg/board/ee_flex/cfg/cfg.mk \
 		ee_$(DIST)/pkg/board/ee_flex/inc \
@@ -943,6 +945,8 @@ distrib_opt___SCICOS__:: \
 		ee_$(DIST)/contrib/scicos/src/pic30/flex_lcd.c \
 		ee_$(DIST)/contrib/scicos/src/pic30/flex_led.c \
 		ee_$(DIST)/contrib/scicos/src/pic30/flex_pwm.c \
+		ee_$(DIST)/contrib/scicos/src/pic30/flex_can_in.c \
+		ee_$(DIST)/contrib/scicos/src/pic30/flex_can_out.c \
 		ee_$(DIST)/contrib/scicos/src/pic30/flex_dmb_adc.c \
 		ee_$(DIST)/contrib/scicos/src/pic30/flex_dmb_button.c \
 		ee_$(DIST)/contrib/scicos/src/pic30/flex_dmb_buzzer.c \
