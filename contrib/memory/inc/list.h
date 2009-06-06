@@ -49,10 +49,11 @@ typedef struct list_t {
 * @param[out] name 	The name given to the \ref list_t created.  
 * @param[in] type 	The data type of the list elements.
 * @param[in] length 	The length of the list, max number of elements.
+* @param[in] attribute 	A valid compiler attribute for the data storage.
 */
-#define LIST_DEFINE(name, type, length)			\
-type list_data_##name[length];			\
-uint16_t list_next_indexes_##name[length];	\
+#define LIST_DEFINE(name, type, length, attribute)	\
+static type list_data_##name[length] attribute;		\
+uint16_t list_next_indexes_##name[length];		\
 list_t name = {						\
 	0, 						\
 	0, 						\
@@ -76,19 +77,20 @@ list_t name = {						\
 * @param[out] name 	The name given to the \ref list_t created.  
 * @param[in] type 	The data type of the list elements.
 * @param[in] length 	The length of the list, max number of elements.
+* @param[in] attribute 	A valid compiler attribute for the data storage.
 */
-#define LIST_DEFINE_STATIC(name, type, length)		\
-static type list_data_##name[length];			\
-static uint16_t list_next_indexes_##name[length];	\
-static list_t name = {					\
-	0, 						\
-	0, 						\
-	length, 					\
-	0, 						\
-	sizeof(type), 					\
-	(uint8_t *) list_data_##name,			\
-	list_next_indexes_##name			\
-}; 							\
+#define LIST_DEFINE_STATIC(name, type, length, attribute)	\
+static type list_data_##name[length] attribute;			\
+static uint16_t list_next_indexes_##name[length];		\
+static list_t name = {						\
+	0, 							\
+	0, 							\
+	length, 						\
+	0, 							\
+	sizeof(type), 						\
+	(uint8_t *) list_data_##name,				\
+	list_next_indexes_##name				\
+}; 								\
 
 
 /** 

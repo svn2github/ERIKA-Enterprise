@@ -6,7 +6,8 @@
 /******************************************************************************/
 /*                            MAC GTS Private Data                            */
 /******************************************************************************/
-LIST_DEFINE_STATIC(gts_list, struct ozb_gts_info_t , OZB_MAC_GTS_MAX_NUMBER);
+LIST_DEFINE_STATIC(gts_list, struct ozb_gts_info_t, 
+		   OZB_MAC_GTS_MAX_NUMBER, COMPILER_ATTRIBUTE_NONE);
 
 /******************************************************************************/
 /*                        MAC GTS Private Functions                           */

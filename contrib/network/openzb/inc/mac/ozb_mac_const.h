@@ -15,11 +15,13 @@
 #define OZB_DEVICE_RFD		0
 
 #ifndef OZB_MAC_GTS_QUEUE_SIZE	
-#define OZB_MAC_GTS_QUEUE_SIZE	5
+//#define OZB_MAC_GTS_QUEUE_SIZE	5
+#define OZB_MAC_GTS_QUEUE_SIZE	20
 #endif
 
 #ifndef OZB_MAC_CAP_QUEUE_SIZE	
-#define OZB_MAC_CAP_QUEUE_SIZE	5
+//#define OZB_MAC_CAP_QUEUE_SIZE	5
+#define OZB_MAC_CAP_QUEUE_SIZE	20
 #endif
 
 #define OZB_MAC_ERR_NONE 			1 /* Returned as positive! */

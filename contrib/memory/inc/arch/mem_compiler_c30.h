@@ -39,4 +39,8 @@ typedef signed long int int32_t;	/**< Unsigned 32 bit intgerer. */
 #define COMPILER_INLINE static inline
 #endif
 
+#ifndef COMPILER_ATTRIBUTE_NONE 
+#define COMPILER_ATTRIBUTE_NONE 
+#endif
+
 #endif /* Header Protection */

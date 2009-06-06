@@ -32,8 +32,10 @@ struct ozb_mac_gts_stat_t ozb_mac_gts_stat = {
 	OZB_MAC_SUPERFRAME_FIRST_SLOT,
 	0
 };
-CQUEUE_DEFINE(ozb_mac_queue_gts, struct ozb_mac_frame_t,OZB_MAC_GTS_QUEUE_SIZE);
-CQUEUE_DEFINE(ozb_mac_queue_cap, struct ozb_mac_frame_t,OZB_MAC_CAP_QUEUE_SIZE);
+CQUEUE_DEFINE(ozb_mac_queue_gts, struct ozb_mac_frame_t,
+	      OZB_MAC_GTS_QUEUE_SIZE, COMPILER_ATTRIBUTE_FAR);
+CQUEUE_DEFINE(ozb_mac_queue_cap, struct ozb_mac_frame_t,
+	      OZB_MAC_CAP_QUEUE_SIZE, COMPILER_ATTRIBUTE_FAR);
 
 
 /******************************************************************************/

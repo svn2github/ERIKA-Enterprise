@@ -39,4 +39,8 @@ typedef EE_INT32 int32_t;	/**< Unsigned 32 bit intgerer. */
 #define COMPILER_INLINE __INLINE__
 #endif
 
+#ifndef COMPILER_ATTRIBUTE_NONE 
+#define COMPILER_ATTRIBUTE_NONE 
+#endif
+
 #endif /* Header Protection */

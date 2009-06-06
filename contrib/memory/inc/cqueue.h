@@ -47,16 +47,17 @@ typedef struct cqueue_t {
 * @param[out] name 	The name given to the \ref cqueue_t created.  
 * @param[in] type 	The data type of the queue elements.
 * @param[in] length 	The length of the queue, max number of elements.
+* @param[in] attribute 	A valid compiler attribute for the data storage.
 */
-#define CQUEUE_DEFINE(name, type, length)	\
-static type cqueue_data_##name[length];		\
-cqueue_t name = {				\
-	0, 					\
-	0, 					\
-	length, 				\
-	sizeof(type), 				\
-	(uint8_t *) cqueue_data_##name		\
-}; 						\
+#define CQUEUE_DEFINE(name, type, length, attribute)	\
+static type cqueue_data_##name[length] attribute;	\
+cqueue_t name = {					\
+	0, 						\
+	0, 						\
+	length, 					\
+	sizeof(type), 					\
+	(uint8_t *) cqueue_data_##name			\
+}; 							\
 
 
 /** 
@@ -71,16 +72,17 @@ cqueue_t name = {				\
 * @param[out] name 	The name given to the \ref cqueue_t created.  
 * @param[in] type 	The data type of the queue elements.
 * @param[in] length 	The length of the queue, max number of elements.
+* @param[in] attribute 	A valid compiler attribute for the data storage.
 */
-#define CQUEUE_DEFINE_STATIC(name, type, length)	\
-static type cqueue_data_##name[length];			\
-static cqueue_t name = {				\
-	0, 						\
-	0, 						\
-	length, 					\
-	sizeof(type), 					\
-	(uint8_t *) cqueue_data_##name			\
-}; 							\
+#define CQUEUE_DEFINE_STATIC(name, type, length, attribute)	\
+static type cqueue_data_##name[length] attribute;		\
+static cqueue_t name = {					\
+	0, 							\
+	0, 							\
+	length, 						\
+	sizeof(type), 						\
+	(uint8_t *) cqueue_data_##name				\
+}; 								\
 
 
 /** 
