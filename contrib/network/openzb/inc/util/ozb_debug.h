@@ -20,8 +20,6 @@
 #ifndef __ozb_debug_h__
 #define __ozb_debug_h__
 
-#ifdef OZB_DEBUG
-
 #include <hal/ozb_compiler.h> 
 #include <phy/ozb_phy_types.h>
 #include <mac/ozb_mac_types.h>
@@ -86,7 +84,6 @@
 */
 int8_t ozb_debug_init(void);
 
-#ifdef OZB_DEBUG_TIME
 
 enum ozb_debug_tim_clock_id_t {
 	OZB_DEBUG_TIME_CLOCK_BI = 0,
@@ -98,43 +95,59 @@ enum ozb_debug_tim_clock_id_t {
 					     OZB_DEBUG_TIME_CLOCK_NUMBER) */
 
 struct ozb_debug_stat_t {
+	#ifdef OZB_DEBUG_TIME
 	struct daq_time_t time_clock[OZB_DEBUG_TIME_CLOCK_NUMBER];
+	#endif /* OZB_DEBUG_TIME */
 };
 
 extern struct ozb_debug_stat_t ozb_debug_stats;
 
 COMPILER_INLINE int8_t ozb_debug_time_start(uint8_t ck_id) 
 {
+	#ifdef OZB_DEBUG_TIME
 	return daq_time_start(ck_id);
+	#else
+	return 0;
+	#endif
 }
 
 COMPILER_INLINE uint8_t ozb_debug_time_get(uint8_t ck_id) 
 {
+	#ifdef OZB_DEBUG_TIME
 	return daq_time_get(ck_id, ozb_debug_stats.time_clock + ck_id);
+	#else
+	return 0;
+	#endif
 }
 
 
 COMPILER_INLINE void ozb_debug_stat2str(uint8_t *out) 
 {
+	#ifdef OZB_DEBUG
+	#ifdef OZB_DEBUG_TIME
 	uint8_t i;
+	#endif
 
 	/* TODO: the escape mechanism must be done!!! */
 	*(out++) = 0x3C;	/* HEADER */
+	#ifdef OZB_DEBUG_TIME
 	for (i = 0; i < OZB_DEBUG_TIME_CLOCK_NUMBER; i++, out+=DAQ_TIME_STRLEN) 
 		daq_time_2str(ozb_debug_stats.time_clock + i, out);
+	#endif /* OZB_DEBUG_TIME */
 	*(out++) = 0x3E;	/* TRAILER */
+	#endif /* OZB_DEBUG */
 }
 
 COMPILER_INLINE uint32_t ozb_debug_time_get_us(uint8_t ck_id) 
 {
+	#ifdef OZB_DEBUG_TIME
 	daq_time_get(ck_id, ozb_debug_stats.time_clock + ck_id);
 	return daq_time_2us(ozb_debug_stats.time_clock + ck_id);
+	#else
+	return 0;
+	#endif
 }
 
-
-#endif /* OZB_DEBUG_TIME */
-
-#ifdef OZB_DEBUG_LOG
 /** 
 * @brief Write to the OpenZB debug port
 * 
@@ -233,8 +246,5 @@ COMPILER_INLINE void ozb_debug_sprint_d32(int32_t data, char *out)
 	out[1] = '0' + ((data / 1000000000) % 10);
 	out[0] = data < 0 ? '-' : ' ';
 }
-#endif /* OZB_DEBUG_LOG */
 
-
-#endif /* OZB_DEBUG */
 #endif /* Header Protection */

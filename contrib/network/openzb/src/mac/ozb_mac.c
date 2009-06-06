@@ -436,22 +436,28 @@ void ozb_mac_perform_data_request(uint8_t src_mode, uint8_t dst_mode,
 			return;
 		}
 		if (!ozb_mac_superframe_check_gts(len)) {
+			//ozb_debug_print("DEVICE:  GTS CHECK FAIL ");
 			ozb_MCPS_DATA_confirm(handle, OZB_MAC_INVALID_GTS, 0);
 			return;
 		} 
 		/* Store in the GTS queue! */
 		frame=(struct ozb_mac_frame_t*) cqueue_push(&ozb_mac_queue_gts);
 		if (frame == 0) {
-	//		ozb_debug_print("DEVICE:  GTS QUEUE FULL!!! ");
-			return; /* TODO: we have to choose a well formed reply
-				   for the indication primitive (status=??) */
+			//ozb_debug_print("DEVICE:  GTS QUEUE FULL!!! ");
+			/* TODO: we have to choose a well formed reply
+				 for the indication primitive (status=??) */
+			ozb_MCPS_DATA_confirm(handle, OZB_MAC_INVALID_GTS, 0);
+			return; 
 		}
-		
 	} else { /* Store in the CSMA-CA queue */
+		//ozb_debug_print("DEVICE:  CSMA QUEUE FULL!!! ");
 		frame=(struct ozb_mac_frame_t*) cqueue_push(&ozb_mac_queue_cap);
 		if (frame == 0) {
-			return; /* TODO: we have to choose a well formed reply
-				   for the indication primitive (status=??) */
+			/* TODO: we have to choose a well formed reply
+				 for the indication primitive (status=??) */
+			ozb_MCPS_DATA_confirm(handle, 
+					      OZB_MAC_CHANNEL_ACCESS_FAILURE,0);
+			return; 
 		}
 	}
 	frame->msdu_handle = handle;
@@ -487,7 +493,9 @@ void ozb_mac_perform_data_request(uint8_t src_mode, uint8_t dst_mode,
 	memcpy(OZB_MAC_MPDU_MAC_PAYLOAD(frame->mpdu, s), payload, len);
 	/* TODO: compute FCS , use auto gen? */
 	//*((uint16_t *) OZB_MAC_MPDU_MAC_FCS(bcn, s)) = 0;
-	frame->mpdu_size = len + s /* + sizeof(uint16_t) */;
+	frame->mpdu_size = OZB_MAC_MPDU_FRAME_CONTROL_SIZE + 
+			   OZB_MAC_MPDU_SEQ_NUMBER_SIZE + s + len /* + 
+			   sizeof(uint16_t) */;
 	if (OZB_MAC_TX_OPTION_GTS(tx_opt) == OZB_TRUE) 
 		ozb_mac_superframe_gts_wakeup(); 
 }

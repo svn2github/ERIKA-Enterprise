@@ -48,14 +48,20 @@ int8_t ozb_kal_erika_set_activation(TaskType tid, AlarmType aid,
 				     uint32_t offset,
 				     uint32_t period) 
 {
+	/* FIXME: current implementation may not work w.r.t erika FP
+		  need to solve the coherence in the calling sequence of
+		  CancelAlarm and SetRelAlarm 
+	*/
 	if (offset != 0) { 
+		CancelAlarm(aid);
 		SetRelAlarm(aid, offset, period);
 	} else {
 		if (period == 0) {
 			ActivateTask(tid);
 		} else {
-			SetRelAlarm(aid, period, period);
 			ActivateTask(tid);
+			CancelAlarm(aid);
+			SetRelAlarm(aid, period, period);
 		}
 	}
 	return 1;

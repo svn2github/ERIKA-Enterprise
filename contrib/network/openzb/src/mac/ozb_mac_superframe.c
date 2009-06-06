@@ -34,6 +34,13 @@ OZB_KAL_TASK(MAC_BEFORE_TIMESLOT, 10);
 OZB_KAL_TASK(MAC_BACKOFF_PERIOD, 10);
 OZB_KAL_TASK(MAC_GTS_SEND, 10);
 
+OZB_KAL_MUTEX(MAC_MUTEX, MAC_TIMESLOT);
+/*
+OZB_KAL_MUTEX(MAC_MUTEX, MAC_BEFORE_TIMESLOT);
+OZB_KAL_MUTEX(MAC_MUTEX, MAC_BACKOFF_PERIOD);
+OZB_KAL_MUTEX(MAC_MUTEX, MAC_GTS_SEND);
+*/
+
 /******************************************************************************/
 /*                          MAC Tasks Private Data                            */
 /******************************************************************************/
@@ -52,8 +59,8 @@ static uint16_t sifs_bytes = 0;
 static uint16_t btick_bytes = 0;
 static uint32_t cap_available_bytes = 0;
 static uint32_t gts_available_bytes = 0;
+//static uint32_t test_time = 0;
 
-static uint32_t test_time = 0;
 /******************************************************************************/
 /*                      MAC Tasks Private Functions                           */
 /******************************************************************************/
@@ -99,8 +106,36 @@ COMPILER_INLINE uint8_t is_in_tx_gts(void)
 {
 	return (ozb_mac_status.sf_context != OZB_MAC_SF_IDLE && 
 		current_tslot >= ozb_mac_gts_stat.tx_start_tslot && 
-		current_tslot < ozb_mac_gts_stat.tx_start_tslot + 
+		current_tslot < ((uint8_t) ozb_mac_gts_stat.tx_start_tslot) + 
 		ozb_mac_gts_stat.tx_length);
+}
+
+COMPILER_INLINE void empty_gts_queue(void) 
+{
+	struct ozb_mac_frame_t *fr;
+
+	//cqueue_clear(&ozb_mac_queue_gts);
+//	while (cqueue_get_size(&ozb_mac_queue_gts) > 0) {
+//		fr = (struct ozb_mac_frame_t *) cqueue_pop(&ozb_mac_queue_gts);
+//		ozb_MCPS_DATA_confirm(fr->msdu_handle, OZB_MAC_INVALID_GTS, 0);
+//	}
+	fr = (struct ozb_mac_frame_t *) cqueue_pop(&ozb_mac_queue_gts);
+	while (fr != 0) {
+		ozb_MCPS_DATA_confirm(fr->msdu_handle, OZB_MAC_INVALID_GTS, 0);
+		fr = (struct ozb_mac_frame_t *) cqueue_pop(&ozb_mac_queue_gts);
+	}
+}
+
+COMPILER_INLINE void recharge_gts_available_bytes(void)
+{
+	if (ozb_mac_gts_stat.tx_length != 0) {
+		gts_available_bytes = bticks_to_bytes(
+			       (uint32_t) ozb_mac_gts_stat.tx_length *
+			       OZB_MAC_GET_TS(ozb_mac_pib.macSuperframeOrder));
+		gts_available_bytes -= lifs_bytes;
+	} else {
+		gts_available_bytes = 0;
+	}
 }
 
 
@@ -119,13 +154,21 @@ COMPILER_INLINE void resync_activations(void)
 
 COMPILER_INLINE void start_beacon_interval(void) 
 {
+	/*
 	char s[100];
 	uint32_t mmm = ozb_debug_time_get_us(OZB_DEBUG_TIME_CLOCK_DEVEL);
+	*/
 
 	ozb_debug_time_get(OZB_DEBUG_TIME_CLOCK_BI);
 	if (ozb_mac_status.is_pan_coordinator || ozb_mac_status.is_coordinator){
 		ozb_radio_mac_send_beacon(); /* TODO: parse ret value*/
 	} else if (ozb_mac_status.count_beacon_lost++ > OZB_aMaxLostBeacons) {
+		ozb_debug_print("MAC beacon-enabled STOPPING!");
+		sf_flags.gts_sending = 0;
+		ozb_kal_mutex_wait(MAC_MUTEX);
+		gts_available_bytes = 0;
+		ozb_kal_mutex_signal(MAC_MUTEX);
+		empty_gts_queue();
 		stop_activations();
 		return;
 	}
@@ -137,14 +180,10 @@ COMPILER_INLINE void start_beacon_interval(void)
 		sf_flags.has_idle = OZB_TRUE;
 		sf_flags.wait_sf_end = OZB_TRUE;
 	}
-	if (ozb_mac_gts_stat.tx_length != 0) {
-		/* TODO: calculate gts_available_bytes */
-		gts_available_bytes = 
-			bticks_to_bytes((uint32_t) ozb_mac_gts_stat.tx_length *
-			       OZB_MAC_GET_TS( ozb_mac_pib.macSuperframeOrder));
-		gts_available_bytes -= lifs_bytes;
-		
-	}
+	ozb_kal_mutex_wait(MAC_MUTEX);
+	recharge_gts_available_bytes();
+	ozb_kal_mutex_signal(MAC_MUTEX);
+	
 	cap_available_bytes = 
 			bticks_to_bytes((uint32_t) ozb_mac_gts_get_cap_size()) *
 			       OZB_MAC_GET_TS(ozb_mac_pib.macSuperframeOrder);
@@ -175,12 +214,16 @@ COMPILER_INLINE void stop_superframe(void)
 
 COMPILER_INLINE void before_beacon_interval(void)
 {
-	uint8_t str[OZB_DEBUG_STAT_STRLEN];
+	#ifdef OZB_DEBUG
+	//uint8_t str[OZB_DEBUG_STAT_STRLEN];
+	#endif
 
 	if (ozb_mac_status.is_pan_coordinator || ozb_mac_status.is_coordinator)
 		ozb_radio_mac_create_beacon(); /* TODO: parse error! */
-	ozb_debug_stat2str(str);
-	ozb_debug_write(str, OZB_DEBUG_STAT_STRLEN);
+	#ifdef OZB_DEBUG
+	//ozb_debug_stat2str(str);
+	//ozb_debug_write(str, OZB_DEBUG_STAT_STRLEN);
+	#endif
 	ozb_debug_print("DEVICE: before Start BI");
 }
 
@@ -295,12 +338,18 @@ static void csma_perform_slotted(void)
 		if (--csma_params.CW > 0) 
 			return;
 		frame = (struct ozb_mac_frame_t*)cqueue_pop(&ozb_mac_queue_cap);
+		/* Something must be there, check again? */
+		/* if (!frame) ERRORE!!!!!*/
 		tmp = ozb_radio_phy_send_now(frame->mpdu, frame->mpdu_size);
 		if (tmp == OZB_RADIO_ERR_NONE)
 			ozb_MCPS_DATA_confirm(frame->msdu_handle, 
 					      OZB_MAC_SUCCESS, 0);
-		/* Something must be there, check again? */
-		/* if (!frame) ERRORE!!!!!*/
+		else 
+		/* TODO: we have to choose a well formed reply
+			 for the indication primitive (status=??) */
+			ozb_MCPS_DATA_confirm(frame->msdu_handle, 
+					      OZB_MAC_CHANNEL_ACCESS_FAILURE,0);
+		
 		csma_params.state = CSMA_STATE_INIT;
 		ozb_debug_print("C->I succ");
 	}
@@ -334,9 +383,12 @@ static void on_timeslot_start(void)
 			return;
 		}
 		if (ozb_mac_superframe_has_tx_gts()) {
+			/* NOTE: this for the GTS that terminates in
+				 with last timeslot expiration */
 			sf_flags.gts_sending = 0;
-			gts_available_bytes = 0;
-			cqueue_clear(&ozb_mac_queue_gts);
+			/* NOTE: recharging of 'gts_available_bytes' is done
+				 by the srtart_beacon_interval() */
+			empty_gts_queue();
 			/* TODO: has effect? */
 			ozb_kal_cancel_activation(MAC_GTS_SEND);
 		}
@@ -376,8 +428,10 @@ static void on_timeslot_start(void)
 		   current_tslot >= ozb_mac_gts_stat.tx_start_tslot + 
 		   ozb_mac_gts_stat.tx_length) {
 		sf_flags.gts_sending = 0;
-		gts_available_bytes = 0;
-		cqueue_clear(&ozb_mac_queue_gts);
+		ozb_kal_mutex_wait(MAC_MUTEX);
+		recharge_gts_available_bytes(); /* TODO: Check this policy! */
+		ozb_kal_mutex_signal(MAC_MUTEX);
+		empty_gts_queue();
 		ozb_kal_cancel_activation(MAC_GTS_SEND);/* TODO: has effect? */
 	}
 	/*
@@ -420,46 +474,43 @@ static void on_backoff_period_start(void)
 static void on_gts_send(void)
 {
 	struct ozb_mac_frame_t *frame;
+	/*
 	uint32_t t;
-
 	char s[100];
+	*/
 	if (!sf_flags.gts_sending) {
-/*
+		/*
 		sprintf(s,"DEVICE: On GTS SEND -- STOP -- @ %d",current_tslot);
 		ozb_debug_print(s);
-*/
+		*/
 		return;
 	}
-/*
+	/*
 	uint32_t mmm = ozb_debug_time_get_us(OZB_DEBUG_TIME_CLOCK_DEVEL);
 	sprintf(s, "DEVICE: On GTS SEND  @ %u, %lu", current_tslot, mmm);
 	ozb_debug_print(s);
-*/
+	*/
 	if (cqueue_is_empty(&ozb_mac_queue_gts)) {
 		sf_flags.gts_sending = 0; /* Nothing more to send by now. */
 		return;
 	}
 	frame = (struct ozb_mac_frame_t*) cqueue_pop(&ozb_mac_queue_gts);
-	if (frame == 0) 
+	if (frame == 0) /* TODO: this is extra check, empty check is enough!! */
 		return; 
-	/* TODO: send data with phy! */
-	if (!is_in_tx_gts()) /* Check if meanwhile the GTS is no longer valid */
-		return; /* TODO: notify somehow the packet drop */
+	if (!is_in_tx_gts()) { /* Check if meanwhile GTS is no longer valid */
+		/* TODO: we have to choose a well formed reply
+			 for the indication primitive (status=??) */
+		ozb_MCPS_DATA_confirm(frame->msdu_handle,OZB_MAC_INVALID_GTS,0);
+		return; 
+	}
 LATEbits.LATE0 = 1;
 	if (ozb_radio_phy_send_now(frame->mpdu, frame->mpdu_size) == 
 	    						OZB_RADIO_ERR_NONE)
 		ozb_MCPS_DATA_confirm(frame->msdu_handle, OZB_MAC_SUCCESS, 0);
-	/*
-	else 
-		TODO: how to notify in case of error? if exists!
-	*/
-	/* TODO: Add extra "protection" tick (4) */
-	//tmin = OZB_MAC_GET_TS(ozb_mac_pib.macSuperframeOrder);
-	//tmin -= OZB_MAC_GET_TS(ozb_mac_pib.macSuperframeOrder) >> 2;
-	//if (t < tmin) { /* t=<TS_1-TS_0>,  tmin=3/4<TS_size> */
-	//	current_tslot = OZB_MAC_SUPERFRAME_FIRST_SLOT;
-	//	return;
-	//}
+	else
+		/* TODO: we have to choose a well formed reply
+			 for the indication primitive (status=??) */
+		ozb_MCPS_DATA_confirm(frame->msdu_handle,OZB_MAC_INVALID_GTS,0);
 	if (frame->mpdu_size > OZB_aMaxSIFSFrameSize) /* TODO: check!!!! */
 		ozb_kal_set_activation(MAC_GTS_SEND, OZB_MAC_LIFS_PERIOD, 0);
 	else
@@ -565,14 +616,20 @@ void ozb_mac_superframe_gts_wakeup(void)
 
 uint8_t ozb_mac_superframe_check_gts(uint8_t length)
 {
-	uint32_t x = gts_available_bytes;
+	uint32_t x;
 /*
 char s[100];
 */
 	/* TODO: use the extra bytes for protection??? in this case 10 */
 
-	if (gts_available_bytes < length + 10)
+	ozb_kal_mutex_wait(MAC_MUTEX);
+//sprintf(s,"DEVICE: -->>> R=%lu l=%u", gts_available_bytes, length);
+//ozb_debug_print(s);
+	if (gts_available_bytes < length + 10) {
+		ozb_kal_mutex_signal(MAC_MUTEX);
 		return 0; 
+	}
+	x = gts_available_bytes;
 	if (is_in_tx_gts()) {
 		/* x = remaining btick in GTS */
 		x = ozb_kal_get_time();
@@ -585,6 +642,7 @@ ozb_debug_print(s);
 */
 		if (x < length + 10) {
 			gts_available_bytes = 0;
+			ozb_kal_mutex_signal(MAC_MUTEX);
 			return 0;
 		}
 	}
@@ -593,6 +651,7 @@ ozb_debug_print(s);
 	x = length < OZB_aMaxSIFSFrameSize ?  sifs_bytes : lifs_bytes;
 	gts_available_bytes = gts_available_bytes >= x ?
 			      gts_available_bytes - x : 0;
+	ozb_kal_mutex_signal(MAC_MUTEX);
 	return 1;
 
 /* TODO Remove following lines if previous are ok! */	

@@ -104,4 +104,9 @@ do {							\
 
 int8_t ozb_mac_init(void); 
 
+int8_t ozb_mac_gts_db_clean(void);
+
+int8_t ozb_mac_gts_db_add(ozb_mac_dev_addr_short_t dev_addr, 
+			  uint8_t len, uint8_t dir);
+
 #endif /* Header Protection */

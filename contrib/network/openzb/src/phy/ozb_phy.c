@@ -86,7 +86,7 @@ static void phy_read_dispatcher(void)
 static void phy_read_isr(void)
 {
 	#ifdef OZB_DEBUG_LOG
-	/* ozb_debug_print("phy_read_isr rised!"); */
+	//ozb_debug_print("!-> BCN <-!");
 	#endif
 	ozb_kal_activate(PHY_READ_DISPATCHER);
 }

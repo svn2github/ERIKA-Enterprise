@@ -25,9 +25,11 @@
 #include <cc2420_compiler.h>
 #include <cc2420_hal.h>
 
+#ifdef CC2420_DEBUG
 #include "console_serial.h"
 #define DEBUG_PORT 0
 #define debug_print(msg) 	console_write(DEBUG_PORT, msg, strlen(msg));
+#endif /* CC2420_DEBUG */
 
 /**
 * @brief Stobe and CSn

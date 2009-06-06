@@ -1,15 +1,15 @@
-#ifdef OZB_DEBUG_LOG
-
 #include <util/ozb_debug.h>
 #include <string.h>
 
-#ifdef OZB_DEBUG_TIME
+#ifdef OZB_DEBUG
 struct ozb_debug_stat_t ozb_debug_stats;
+#endif
+#ifdef OZB_DEBUG_LOG
+/* TODO: chris: shall waste memory for this check variable or not? */
+static uint8_t debug_initialized = 0; 
 #endif
 
 #define OZB_DEBUG_LOG_CONSOLE 0
-/* TODO: chris: shall waste memory for this check variable or not? */
-static uint8_t _ozb_debug_initialized = 0; 
 
 int8_t ozb_debug_init(void)
 {
@@ -19,9 +19,8 @@ int8_t ozb_debug_init(void)
 		return -1;
 	/* TODO: initialize ozb_debug_stats */
 	#endif
-
 	#ifdef OZB_DEBUG_LOG
-	_ozb_debug_initialized = 0;
+	debug_initialized = 0;
 	console_descriptor_t *des = NULL;
 	#ifdef OZB_DEBUG_LOG_SERIAL 
 	des = console_serial_config(OZB_DEBUG_LOG_SERIAL_PORT, 
@@ -32,16 +31,22 @@ int8_t ozb_debug_init(void)
 		return -1;
 	if (console_init(OZB_DEBUG_LOG_CONSOLE, des) < 0)
 		return -1;
-	_ozb_debug_initialized = 1;
+	debug_initialized = 1;
 	return console_open(OZB_DEBUG_LOG_CONSOLE);
+	#else
+	return 1;
 	#endif /* OZB_DEBUG_LOG */
 }
 
 int8_t ozb_debug_write(uint8_t *msg, uint16_t len) 
 {
-	if (_ozb_debug_initialized)
+	#ifdef OZB_DEBUG_LOG
+	if (debug_initialized)
 		return console_write(OZB_DEBUG_LOG_CONSOLE, msg, len);
 	return -1;
+	#else
+	return 0;
+	#endif /* OZB_DEBUG_LOG */
 }
 
 int8_t ozb_debug_print(const char *msg) 
@@ -50,7 +55,7 @@ int8_t ozb_debug_print(const char *msg)
 	int8_t retv = 0;
 	const char *m = "\n\rOZB_DEBUG_LOG: ";
 
-	if (_ozb_debug_initialized) {
+	if (debug_initialized) {
 		retv = console_write(OZB_DEBUG_LOG_CONSOLE, (uint8_t *) m, 
 				     strlen(m));
 		if (retv < 0)
@@ -61,7 +66,7 @@ int8_t ozb_debug_print(const char *msg)
 	return -1;
 	#else
 	return 1;
-	#endif /* OZB_DEBUG_LOG_DEVEL */
+	#endif /* OZB_DEBUG_LOG_HAS_PRINT */
 }
 
 #ifdef DO_CASE_STRCPY 	
@@ -136,4 +141,3 @@ void ozb_debug_sprint_maccode(enum ozb_mac_code_t c, char *out)
 	}
 } 
 
-#endif /* OZB_DEBUG */

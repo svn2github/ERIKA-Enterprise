@@ -24,6 +24,12 @@ EE_SRCS += contrib/network/openzb/src/mac/ozb_mac_superframe.c
 EE_SRCS += contrib/network/openzb/src/mac/ozb_mac_gts.c
 endif
 
+ifneq ($(findstring OZB_USE_ONLY_802154_MAC,$(EEOPT)), OZB_USE_ONLY_802154_MAC)
+ifeq ($(findstring OZB_USE_SIMPLE_802154,$(EEOPT)), OZB_USE_SIMPLE_802154)
+EE_SRCS += contrib/network/openzb/src/net/ozb_simple154.c
+endif
+endif
+
 #EE_SRCS += contrib/network/openzb/src/mac/ozb_net_mac_events.c
 
 

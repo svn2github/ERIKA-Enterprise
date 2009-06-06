@@ -29,6 +29,8 @@
 #define OZB_MAC_ERR_PHY_FAILURE			4 /**< PHY bad reply. */
 #define OZB_MAC_ERR_STANDARD_UNSUPPORTED	10
 #define OZB_MAC_ERR_DEBUG_INIT			11
+#define OZB_MAC_ERR_GTS_MANIPULATION_DISABLED	20
+#define OZB_MAC_ERR_GTS_CFP_TOO_LARGE		21
 
 
 /* TODO: these should depend on the current SO and BO settings!! */
@@ -48,26 +50,6 @@
 #define OZB_MAC_SHORT_ADDRESS_USE_EXTD		0xFFFE
 
 #define OZB_MAC_NULL_SECURITY_PARAMS_LIST	0, 0, NULL, 0
-
-#define OZB_MAC_ACK_MPDU_SIZE			4
-#define OZB_MAC_MPDU_SIZE			127 /* TODO: WHY NOT 127 ???? */
-//#define OZB_MAC_MPDU_SIZE			125 /* TODO: WHY NOT 127 ???? */
-#define OZB_MAC_MPDU_PANID_SIZE			2
-#define OZB_MAC_MPDU_ADDRESS_SHORT_SIZE		2
-#define OZB_MAC_MPDU_ADDRESS_EXTD_SIZE		8
-#define OZB_MAC_MPDU_MHR_BASE_SIZE		3
-#define OZB_MAC_MPDU_MFR_SIZE			2
-#define OZB_MAC_MPDU_SUPERFRAME_SPEC_SIZE	2
-#define OZB_MAC_MPDU_GTS_SPEC_SIZE		1
-#define OZB_MAC_MPDU_GTS_DIRECTIONS_SIZE	1
-#define OZB_MAC_MPDU_GTS_DESCRIPTOR_SIZE	3
-
-#define OZB_MAC_SUPERFRAME_FIRST_SLOT 		0
-#define OZB_MAC_SUPERFRAME_LAST_SLOT 		15
-
-#define OZB_MAC_GTS_MAX_NUMBER 			7
-#define OZB_MAC_GTS_DIRECTION_IN 		1
-#define OZB_MAC_GTS_DIRECTION_OUT 		0
 
 /**
 * @name IEEE 802.15.4 MAC Layer Constants
@@ -96,6 +78,35 @@
 #define OZB_aNumSuperframeSlots 	16 /**< Number of slots in a SF. */
 #define OZB_aUnitBackoffPeriod		20 /**< In symbols. */
 /**  @} */
+
+#define OZB_MAC_ACK_MPDU_SIZE			4
+#define OZB_MAC_MPDU_SIZE			127 /* TODO: WHY NOT 127 ???? */
+#define OZB_MAC_MAX_MSDU_SIZE			OZB_aMaxMACPayloadSize 
+//#define OZB_MAC_MPDU_SIZE			125 /* TODO: WHY NOT 127 ???? */
+#define OZB_MAC_MPDU_FRAME_CONTROL_SIZE		2
+#define OZB_MAC_MPDU_SEQ_NUMBER_SIZE		1
+#define OZB_MAC_MPDU_PANID_SIZE			2
+#define OZB_MAC_MPDU_ADDRESS_SHORT_SIZE		2
+#define OZB_MAC_MPDU_ADDRESS_EXTD_SIZE		8
+#define OZB_MAC_MPDU_MHR_BASE_SIZE		3
+#define OZB_MAC_MPDU_MFR_SIZE			2
+#define OZB_MAC_MPDU_SUPERFRAME_SPEC_SIZE	2
+#define OZB_MAC_MPDU_GTS_SPEC_SIZE		1
+#define OZB_MAC_MPDU_GTS_DIRECTIONS_SIZE	1
+#define OZB_MAC_MPDU_GTS_DESCRIPTOR_SIZE	3
+
+#define OZB_MAC_SUPERFRAME_FIRST_SLOT 		0
+#define OZB_MAC_SUPERFRAME_LAST_SLOT 		15
+
+#define OZB_MAC_GTS_MAX_NUMBER 			7
+#define OZB_MAC_GTS_DIRECTION_IN 		1
+#define OZB_MAC_GTS_DIRECTION_OUT 		0
+
+
+
+
+
+
 
 /* chris: TODO: What are these supposed to be???? ------> */
 #define OZB_aMaxBE	5 

@@ -1,7 +1,8 @@
 /* TODO: this should go, eventually with a different name, in the makefile 
 	 rules.
 */
-#ifndef OZB_USE_ONLY_802154_MAC	
+//#ifndef OZB_USE_ONLY_802154_MAC	
+#if !( (defined OZB_USE_ONLY_802154_MAC) || (defined OZB_USE_SIMPLE_802154) )
 
 #include <mac/ozb_net_internal.h>
 
@@ -319,4 +320,4 @@ int8_t ozb_MLME_POLL_confirm(enum ozb_mac_code_t status)
 	return 1;
 }
 
-#endif /* OZB_USE_ONLY_802154_MAC */
+#endif /* ! (OZB_USE_ONLY_802154_MAC || OZB_USE_SIMPLE_802154) */
