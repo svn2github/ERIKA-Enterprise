@@ -397,7 +397,8 @@ void __attribute__((interrupt, no_auto_psv)) _DMA1Interrupt(void)
 		/* If the read message is larger than the whole buffer,
 		   write the last FLEX_USB_RX_BUFFER_SIZE bytes in the buffer.
 		   TODO: is this a possible scenario?? */
-		if (dma_rx_pkt.length >= FLEX_USB_RX_BUFFER_SIZE) {
+		idx = dma_rx_pkt.length; /* NOTE: idx as temp vari to silent compiler */
+		if (idx >= FLEX_USB_RX_BUFFER_SIZE) {
 			idx = dma_rx_pkt.length - FLEX_USB_RX_BUFFER_SIZE;
 			memcpy(rx_buffer, dma_rx_pkt.payload + idx,
 			       FLEX_USB_RX_BUFFER_SIZE);
