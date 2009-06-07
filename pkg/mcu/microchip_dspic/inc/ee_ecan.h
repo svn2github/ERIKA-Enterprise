@@ -40,7 +40,8 @@
 
 /*
  * PRELIMINARY VERSION
- * from patch sent by Tizar Rizano (UNITN) and Roberto Bucher (SUPSI)
+ * from patch sent by Tizar Rizano (UNITN)
+ * Code originally written by Daniele Zadra (UNITN) and Roberto Bucher (SUPSI)
  */
 
 #ifndef _ECAN_DEF_H
