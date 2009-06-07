@@ -32,20 +32,43 @@
 #define CC2420_VREG_EN		PORTGbits.RG12
 #endif
 
-#ifndef CC2420_FIFO
-#ifdef __USE_DEMOBOARD__	/* Demoboard defaults */
-#define CC2420_FIFO		PORTDbits.RD14
-#else				/* Gianluca's board default*/
+/*******************************************************************************
+                      OLD Gianluca's Board configuration                    
+
 #define CC2420_FIFO		PORTEbits.RE9
+#define CC2420_FIFOP		PORTFbits.RF6
+#define CC2420_TRIS_FIFO	TRISEbits.TRISE9
+#define CC2420_TRIS_FIFOP	TRISFbits.TRISF6
+
+#ifndef CC2420_INTERRUPT_NAME
+#define CC2420_INTERRUPT_NAME	_INT0Interrupt
 #endif
+
+#ifndef CC2420_INTERRUPT_FLAG
+#define CC2420_INTERRUPT_FLAG	IFS0bits.INT0IF
+#endif
+
+#ifndef CC2420_INTERRUPT_ENABLE
+#define CC2420_INTERRUPT_ENABLE IEC0bits.INT0IE
+#endif
+
+#ifndef CC2420_INTERRUPT_PRIORITY
+#define CC2420_INTERRUPT_PRIORITY IPC0bits.INT0IP
+#endif
+
+#ifndef CC2420_INTERRUPT_EDGE_POLARITY
+#define CC2420_INTERRUPT_EDGE_POLARITY	 INTCON2bits.INT0EP
+#endif
+
+*******************************************************************************/
+
+
+#ifndef CC2420_FIFO
+#define CC2420_FIFO		PORTDbits.RD14
 #endif
 
 #ifndef CC2420_FIFOP
-#ifdef __USE_DEMOBOARD__	/* Demoboard defaults */
 #define CC2420_FIFOP		PORTAbits.RA15
-#else				/* Gianluca's board default*/
-#define CC2420_FIFOP		PORTFbits.RF6
-#endif
 #endif
 
 #ifndef CC2420_CCA
@@ -69,19 +92,11 @@
 #endif
 
 #ifndef CC2420_TRIS_FIFO
-#ifdef __USE_DEMOBOARD__	/* Demoboard defaults */
 #define CC2420_TRIS_FIFO	TRISDbits.TRISD14
-#else				/* Gianluca's board default*/
-#define CC2420_TRIS_FIFO	TRISEbits.TRISE9
-#endif
 #endif
 
 #ifndef CC2420_TRIS_FIFOP
-#ifdef __USE_DEMOBOARD__	/* Demoboard defaults */
 #define CC2420_TRIS_FIFOP	TRISAbits.TRISA15
-#else				/* Gianluca's board default*/
-#define CC2420_TRIS_FIFOP	TRISFbits.TRISF6
-#endif
 #endif
 
 #ifndef CC2420_TRIS_CCA
@@ -96,8 +111,6 @@
 #define CC2420_TRIS_CSn		TRISGbits.TRISG9
 #endif
 
-
-#ifdef __USE_DEMOBOARD__	/* Demoboard defaults */
 
 #ifndef CC2420_INTERRUPT_NAME
 #define CC2420_INTERRUPT_NAME	_INT4Interrupt
@@ -118,30 +131,6 @@
 #ifndef CC2420_INTERRUPT_EDGE_POLARITY
 #define CC2420_INTERRUPT_EDGE_POLARITY	 INTCON2bits.INT4EP
 #endif
-
-#else				/* Gianluca's board default*/
-
-#ifndef CC2420_INTERRUPT_NAME
-#define CC2420_INTERRUPT_NAME	_INT0Interrupt
-#endif
-
-#ifndef CC2420_INTERRUPT_FLAG
-#define CC2420_INTERRUPT_FLAG	IFS0bits.INT0IF
-#endif
-
-#ifndef CC2420_INTERRUPT_ENABLE
-#define CC2420_INTERRUPT_ENABLE IEC0bits.INT0IE
-#endif
-
-#ifndef CC2420_INTERRUPT_PRIORITY
-#define CC2420_INTERRUPT_PRIORITY IPC0bits.INT0IP
-#endif
-
-#ifndef CC2420_INTERRUPT_EDGE_POLARITY
-#define CC2420_INTERRUPT_EDGE_POLARITY	 INTCON2bits.INT0EP
-#endif
-
-#endif	/* End default booard selection for ISR */
 
 #define CC2420_SET_PIN_IN(PIN) {\
     DSPIC_PIN = 1;\
