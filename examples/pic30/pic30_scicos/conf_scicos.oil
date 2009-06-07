@@ -74,6 +74,9 @@ CPU mySystem {
 		BOARD_DATA = EE_FLEX {
 
 		};
+#ifdef __USE_SIMPLE802154__
+		EE_OPT = "__USE_SPI__";
+#endif // __USE_SIMPLE802154__
 		
 		KERNEL_TYPE = FP;
 		
@@ -84,9 +87,21 @@ CPU mySystem {
 			NAME = "ieee802154";
 #endif // __USE_ZIGBEE__
 
+#ifdef __USE_SIMPLE802154__
+			NAME = "MEMORY";
+			NAME = "CC2420";
+			NAME = "OPENZB";
+#endif // __USE_SIMPLE802154__
+
 		};
-		
+#ifdef __USE_SIMPLE802154__
+		EE_OPT = "USE_CC2420";
+		EE_OPT = "EE_TYPETICK=EE_INT32"; /* Mandatory! */
+		EE_OPT = "OZB_USE_SIMPLE_802154";
+		EE_OPT = "OZB_GTS_MANIPULATION"; /* Makes sense if Coord. */
+#endif // __USE_SIMPLE802154__
 	};
+
 
 	TASK rt_sci {
 		PRIORITY = 1;
@@ -101,6 +116,10 @@ CPU mySystem {
 		RESOURCE = "scicosOpenZB_rx_buffer_mutex";		
 #endif // __USE_ZIGBEE__
 
+#ifdef __USE_SIMPLE802154__
+		RESOURCE = "OZB_EE_RESOURCE_MAC_MUTEX";
+		/* TODO: add the rx_buffer one! */
+#endif // __USE_SIMPLE802154__
 	};
 
 #ifdef __USE_LCD__
@@ -145,5 +164,101 @@ CPU mySystem {
 	RESOURCE scicosUSB_rx_buffer_mutex { RESOURCEPROPERTY = STANDARD; };
 #endif // __USE_USB__
 
+#ifdef __USE_SIMPLE802154__
+	/* -------------------------------------------------------------------- 
+	|                  --  OpenZB OIL Section  --                          |
+	|                                                                      |
+	|  - 1 Global Task counter                                             |
+	|  - 1 PHY Task (read from radio)                                      |
+	|  - 7 MAC Tasks (superframe management + rx parsing)                  |
+	|  - 4 Resources (rx parsing tasks + general mac protection)           |
+	 -------------------------------------------------------------------- */
+
+	COUNTER OZB_EE_TASK_COUNTER;
+	
+	TASK OZB_EE_TASK_PHY_READ_DISPATCHER {
+		PRIORITY = 30;
+		STACK = SHARED;
+		SCHEDULE = FULL;
+		RESOURCE = "OZB_EE_RESOURCE_MAC_RX_BEACON_MUTEX";
+		RESOURCE = "OZB_EE_RESOURCE_MAC_RX_DATA_MUTEX";
+		RESOURCE = "OZB_EE_RESOURCE_MAC_RX_COMMAND_MUTEX";
+	};
+
+	TASK OZB_EE_TASK_MAC_PROCESS_RX_BEACON {
+		PRIORITY = 25;
+		STACK = SHARED;
+		SCHEDULE = FULL;
+		RESOURCE = "OZB_EE_RESOURCE_MAC_RX_BEACON_MUTEX";
+	};
+
+	TASK OZB_EE_TASK_MAC_PROCESS_RX_DATA {
+		PRIORITY = 20;
+		STACK = SHARED;
+		SCHEDULE = FULL;
+		RESOURCE = "OZB_EE_RESOURCE_MAC_RX_DATA_MUTEX";
+	};
+
+	TASK OZB_EE_TASK_MAC_PROCESS_RX_COMMAND {
+		PRIORITY = 20;
+		STACK = SHARED;
+		SCHEDULE = FULL;
+		RESOURCE = "OZB_EE_RESOURCE_MAC_RX_COMMAND_MUTEX";
+	};
+
+	TASK OZB_EE_TASK_MAC_TIMESLOT {
+		PRIORITY = 20;
+		STACK = SHARED;
+		SCHEDULE = FULL;
+		RESOURCE = "OZB_EE_RESOURCE_MAC_MUTEX";
+	};
+	ALARM OZB_EE_ALARM_MAC_TIMESLOT {
+		COUNTER = "OZB_EE_TASK_COUNTER";
+		ACTION = ACTIVATETASK {TASK="OZB_EE_TASK_MAC_TIMESLOT";};
+	};
+
+	TASK OZB_EE_TASK_MAC_BEFORE_TIMESLOT {
+		PRIORITY = 20;
+		STACK = SHARED;
+		SCHEDULE = FULL;
+	};
+	ALARM OZB_EE_ALARM_MAC_BEFORE_TIMESLOT {
+		COUNTER = "OZB_EE_TASK_COUNTER";
+		ACTION = ACTIVATETASK {TASK="OZB_EE_TASK_MAC_BEFORE_TIMESLOT";};
+	};
+
+	TASK OZB_EE_TASK_MAC_BACKOFF_PERIOD {
+		PRIORITY = 20;
+		STACK = SHARED;
+		SCHEDULE = FULL;
+	};
+	ALARM OZB_EE_ALARM_MAC_BACKOFF_PERIOD {
+		COUNTER = "OZB_EE_TASK_COUNTER";
+		ACTION = ACTIVATETASK {TASK="OZB_EE_TASK_MAC_BACKOFF_PERIOD";};
+	};
+
+	TASK OZB_EE_TASK_MAC_GTS_SEND {
+		PRIORITY = 15;
+		STACK = SHARED;
+		SCHEDULE = FULL;
+	};
+	ALARM OZB_EE_ALARM_MAC_GTS_SEND {
+		COUNTER = "OZB_EE_TASK_COUNTER";
+		ACTION = ACTIVATETASK {TASK="OZB_EE_TASK_MAC_GTS_SEND";};
+	};
+	
+	RESOURCE OZB_EE_RESOURCE_MAC_MUTEX { 
+		RESOURCEPROPERTY = STANDARD; 
+	};
+	RESOURCE OZB_EE_RESOURCE_MAC_RX_BEACON_MUTEX { 
+		RESOURCEPROPERTY = STANDARD; 
+	};
+	RESOURCE OZB_EE_RESOURCE_MAC_RX_DATA_MUTEX { 
+		RESOURCEPROPERTY = STANDARD; 
+	};
+	RESOURCE OZB_EE_RESOURCE_MAC_RX_COMMAND_MUTEX { 
+		RESOURCEPROPERTY = STANDARD; 
+	};
+#endif // __USE_SIMPLE802154__
 };
 
