@@ -18,6 +18,7 @@
 */
 #ifdef __ERIKA__	/* Erika Abstract Compiler */
 #include <ee.h>
+#include <cpu/pic30/inc/ee_irqstub.h>
 #include <hal/ozb_compiler_ee.h>
 
 #elif defined __C30__ 	/* Microchip C30 */

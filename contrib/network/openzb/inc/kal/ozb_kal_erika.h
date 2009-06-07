@@ -2,7 +2,7 @@
 #define __ozb_kal_erika_h__
 
 #include <ee.h>
-#include <hal/ozb_compiler.h>
+#include <kal/ozb_kal.h>
 #include <hal/ozb_timer.h>
 
 extern volatile uint32_t ozb_kal_erika_time_counter;
@@ -23,7 +23,7 @@ int8_t ozb_kal_erika_init(uint32_t tick_duration)
 			 about the kal tick_duration */
 		#else
 		if (ozb_timer_init(tick_duration, 40000) < 0)
-			return -1;
+			return -OZB_KAL_ERR_TIMER_INIT;
 		ozb_timer_set_isr_callback(ozb_kal_external_timer_action);
 		ozb_timer_start();
 		#endif

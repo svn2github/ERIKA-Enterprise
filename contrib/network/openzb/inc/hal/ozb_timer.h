@@ -1,7 +1,7 @@
 #ifndef __ozb_timer_h__
 #define __ozb_timer_h__
 
-#ifndef OZB_HAL_EXTERNAL_TIMER		/* Check if no HAL timer inref*/
+#ifndef OZB_HAL_EXTERNAL_TIMER		/* Check if no external HAL timer */
 
 #include <hal/ozb_compiler.h>
 

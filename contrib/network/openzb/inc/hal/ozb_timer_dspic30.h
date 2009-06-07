@@ -6,7 +6,10 @@
 #ifndef OZB_TIMER_REG_CON
 #define OZB_TIMER_REG_CON		T5CON
 #endif
-#define OZB_TIMER_REG_CONbits		OZB_TIMER_REG_CON##bits
+
+#ifndef OZB_TIMER_REG_CONbits
+#define OZB_TIMER_REG_CONbits		T5CONbits
+#endif
 
 #ifndef OZB_TIMER_REG_TMR
 #define OZB_TIMER_REG_TMR		TMR5

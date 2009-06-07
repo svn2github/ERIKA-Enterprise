@@ -3,6 +3,8 @@
 
 #include <hal/ozb_compiler.h>
 
+#define OZB_KAL_ERR_TIMER_INIT	10
+
 /* chris: is it necesary to have this include in here? maybe the 
 	  implementation details specific of the particular kal can be 
 	  hidden in the ozb_kal_erika.c? 
