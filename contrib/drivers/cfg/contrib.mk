@@ -50,6 +50,8 @@ ifneq ($(ONLY_LIBS) , TRUE)
 include $(EEBASE)/contrib/drivers/radio/cc2420/cfg/cfg.mk
 #include $(EEBASE)/contrib/drivers/radio/mrf24j40/cfg/cfg.mk
 
+include $(EEBASE)/contrib/drivers/touch/cfg/cfg.mk
+
 endif
 
 
@@ -58,5 +60,7 @@ ifeq ($(ENABLE_LIBS), TRUE)
 
 include $(EEBASE)/contrib/drivers/radio/cc2420/cfg/libcfg.mk
 #include $(EEBASE)/contrib/drivers/radio/mrf24j40/cfg/libcfg.mk
+
+include $(EEBASE)/contrib/drivers/touch/cfg/libcfg.mk
 
 endif

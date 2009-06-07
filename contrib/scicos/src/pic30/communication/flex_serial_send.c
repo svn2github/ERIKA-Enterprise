@@ -15,7 +15,7 @@ void flex_serial_send(scicos_block *block,int flag)
 {
 	EE_UINT8 serial_port = block->ipar[0];
 	EE_UINT32 baudrate = block->rpar[0];
-  float * u = block->inptr[0];
+	float * u = block->inptr[0];
 
 	if ((serial_port < 1) || (serial_port > 2))
 	  return;
