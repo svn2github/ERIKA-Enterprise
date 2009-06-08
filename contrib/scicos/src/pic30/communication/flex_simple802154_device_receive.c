@@ -8,7 +8,6 @@
 #error "FLEX 802.15.4 ERROR: A device configuration block is required."
 #endif
 
-static EE_INT8 rx_initialized = 0;
 static float rx_buffer[FLEX_SIMPLE802154_ADDRESSES][FLEX_SIMPLE802154_CHANNELS];
 
 /* ---------------------------------------------------------------------------- 
@@ -40,9 +39,9 @@ static void rx_data(int8_t status, uint8_t *data, uint8_t len)
 
 static void rx_init(scicos_block *block) 
 {
-	if (!rx_initialized) {
+	if (!flex_simple802154_flags.rx_initialized) {
 		ozb_simple154_set_rx_callback(rx_data);
-		rx_initialized = 1;
+		flex_simple802154_flags.rx_initialized = 1;
 	}
 	flex_simple802154_add_lookup(block->ipar[1]); /* ipar[1] := src_addr */
 }
@@ -51,7 +50,7 @@ static void rx_end(void)
 {
 	return;
 	/* TODO: do something! : clen lookup table? */
-	rx_initialized = 0;
+	flex_simple802154_flags.rx_initialized = 0;
 }
 
 static void rx_inout(scicos_block *block)

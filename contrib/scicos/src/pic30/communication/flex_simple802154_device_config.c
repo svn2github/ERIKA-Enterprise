@@ -10,18 +10,16 @@
 
 EE_UINT16 flex_simple802154_address_table[FLEX_SIMPLE802154_ADDRESSES];
 EE_UINT16 flex_simple802154_local_address;
+flex_simple802154_flags_t flex_simple802154_flags = {0, 0, 0, 0, 0};	
 
 //EE_UINT16 flex_simple802154_address_count = 0;
-static EE_UINT8 cfg_initialized = 0;
 
 static void cfg_init(scicos_block *block)
 {	
 	EE_INT8 retv;
 
-	if (cfg_initialized)
+	if (flex_simple802154_flags.cfg_initialized)
 		return;
-	memset(flex_simple802154_address_table, 0xFF, 
-	       FLEX_SIMPLE802154_ADDRESSES * sizeof(EE_UINT16));
 	/* ipar[0] := local_address 
 	 * ipar[1] := pan_id 
 	 * ipar[2] := channel_id 
@@ -32,14 +30,14 @@ static void cfg_init(scicos_block *block)
 					 block->ipar[1], block->ipar[2]);
 	if (retv < 0)
 		return;
-	cfg_initialized = 1;
+	flex_simple802154_flags.cfg_initialized = 1;
 }
 
 static void cfg_end(void)
 {
 	return;
 	/* TODO: do something! */
-	cfg_initialized = 0;
+	flex_simple802154_flags.cfg_initialized = 0;
 }
 
 

@@ -54,8 +54,17 @@ typedef struct flex_simple802154_packet_t {
 	float 		data;
 } flex_simple802154_packet_t; 
 
+typedef struct flex_simple802154_flags_t {
+	unsigned cfg_initialized : 1;
+	unsigned rx_initialized : 1;
+	unsigned tx_initialized : 1;
+	unsigned lookup_initialized : 1;
+	unsigned reserved : 4;
+} flex_simple802154_flags_t;
+
 extern EE_UINT16 flex_simple802154_address_table[FLEX_SIMPLE802154_ADDRESSES];
 extern EE_UINT16 flex_simple802154_local_address;
+extern flex_simple802154_flags_t flex_simple802154_flags;	
 
 __INLINE__ 
 EE_UINT16 flex_simple802154_address_lookup(EE_UINT16 address)
@@ -68,11 +77,17 @@ EE_UINT16 flex_simple802154_address_lookup(EE_UINT16 address)
 	return i;
 }
 
+/*TODO: have a clear_lookup to be called by the end() of blocks */ 
 __INLINE__ 
 void flex_simple802154_add_lookup(EE_UINT16 address)
 {
 	EE_UINT16 i;
 
+	if (flex_simple802154_flags.lookup_initialized == 0) {
+		for (i = 0; i < FLEX_SIMPLE802154_ADDRESSES; i++)
+			flex_simple802154_address_table[i] = 0xFFFF;
+		flex_simple802154_flags.lookup_initialized = 1;
+	}
 	if (address == 0xFFFF) /* 0xFFFF is free entry) */
 		return;
 	i = flex_simple802154_address_lookup(address);

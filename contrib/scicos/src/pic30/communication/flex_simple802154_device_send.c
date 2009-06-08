@@ -6,8 +6,6 @@
 #error "FLEX 802.15.4 ERROR: A device configuration block is required."
 #endif
 
-#define DEVICE_USE_GTS 0
-
 static void tx_init(void) 
 {
 	/* TODO: do something? */
@@ -23,14 +21,14 @@ static void tx_inout(scicos_block *block)
 	flex_simple802154_packet_t packet;
 	float *y = block->inptr[0];
 	
-	/* ipar[0] := data_id, ipar[1] := dst_addr */
+	/* ipar[0] := data_id, ipar[1] := dst_addr, ipar[2] := use_gts */
 	packet.data = *y;
 	packet.data_id = block->ipar[0];	
 	packet.dst_addr = block->ipar[1]; 
 	packet.src_addr = flex_simple802154_local_address; 
 	ozb_simple154_send((EE_UINT8*) &packet, 
 			   sizeof(flex_simple802154_packet_t), 
-			   block->ipar[1], DEVICE_USE_GTS);
+			   block->ipar[1], block->ipar[2]);
 }
 
 void flex_simple802154_device_send(scicos_block *block, int flag)
