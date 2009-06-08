@@ -1,7 +1,12 @@
 #include <ee.h>
 #include <machine.h>		// TODO: serve?
 #include <scicos_block4.h>
+#include <string.h>
 #include "flex_simple802154.h"
+
+#ifndef __HAS_SIMPLE802154_D_CONFIG__
+#error "FLEX 802.15.4 ERROR: A device configuration block is required."
+#endif
 
 static EE_INT8 rx_initialized = 0;
 static float rx_buffer[FLEX_SIMPLE802154_ADDRESSES][FLEX_SIMPLE802154_CHANNELS];
@@ -13,7 +18,7 @@ static float rx_buffer[FLEX_SIMPLE802154_ADDRESSES][FLEX_SIMPLE802154_CHANNELS];
  ---------------------------------------------------------------------------- */
 static void rx_data(int8_t status, uint8_t *data, uint8_t len)
 {
-	EE_INT16 ch, addr;
+	EE_INT16 id, addr;
 
 	flex_simple802154_packet_t *packet = (flex_simple802154_packet_t*) data;
 	/* Check Packet */
@@ -24,13 +29,13 @@ static void rx_data(int8_t status, uint8_t *data, uint8_t len)
 	id = packet->data_id;
 	if (id >= FLEX_SIMPLE802154_CHANNELS)
 		return; /* Bad data identifier */
-	addr = scicos_simple802154_address_lookup(packet->src_addr);
+	addr = flex_simple802154_address_lookup(packet->src_addr);
 	if (addr >= FLEX_SIMPLE802154_ADDRESSES) 
 	  	return; /* Bad Address (unknown by the lookup table) */
 	/* Put the float data into the data_id buffer */
-	GetResource(scicos_simple802154_rx_buffer_mutex);
+	GetResource(flex_simple802154_rx_buffer_mutex);
 	rx_buffer[addr][id] = packet->data;
-	ReleaseResource(scicos_simple802154_rx_buffer_mutex);
+	ReleaseResource(flex_simple802154_rx_buffer_mutex);
 }
 
 static void rx_init(scicos_block *block) 
@@ -46,7 +51,7 @@ static void rx_end(void)
 {
 	return;
 	/* TODO: do something! : clen lookup table? */
-	rx_initialized = 0
+	rx_initialized = 0;
 }
 
 static void rx_inout(scicos_block *block)
@@ -55,12 +60,12 @@ static void rx_inout(scicos_block *block)
 
 	/* ipar[0] := data_id, ipar[1] := src_addr */
 	id = block->ipar[0];
-	addr = scicos_simple802154_address_lookup(block->ipar[1]); 
+	addr = flex_simple802154_address_lookup(block->ipar[1]); 
 	if (addr >= FLEX_SIMPLE802154_ADDRESSES)
 		return;
-	GetResource(scicos_simple802154_rx_buffer_mutex);
+	GetResource(flex_simple802154_rx_buffer_mutex);
 	*((float *) block->outptr[0]) = rx_buffer[addr][id];
-	ReleaseResource(scicos_simple802154_rx_buffer_mutex);
+	ReleaseResource(flex_simple802154_rx_buffer_mutex);
 }
 
 

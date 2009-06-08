@@ -12,6 +12,11 @@
 #include <ee.h>
 #include "mcu/microchip_dspic/inc/ee_uart.h"
 
+/* TODO: the initialization check should be done among the send and receive 
+         blocks, so that a global variable is required for all of them
+*/
+static EE_UINT8 serial_initialized = 0;
+
 void flex_serial_receive(scicos_block *block,int flag)
 {
 	EE_UINT8 serial_port= block->ipar[0];
@@ -36,7 +41,10 @@ void flex_serial_receive(scicos_block *block,int flag)
 			break;
 		
 		case 4:	/* initialisation */
+			if (serial_initialized)
+				break;
 			EE_uart_init(serial_port-1,baudrate,EE_UART_BIT8_NO|EE_UART_BIT_STOP_1|EE_UART_CTRL_SIMPLE,0);
+			serial_initialized = 1;
 			break;
 		
 		case 5:	/* ending */

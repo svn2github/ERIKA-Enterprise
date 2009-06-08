@@ -76,12 +76,12 @@ void flex_simple802154_add_lookup(EE_UINT16 address)
 	if (address == 0xFFFF) /* 0xFFFF is free entry) */
 		return;
 	i = flex_simple802154_address_lookup(address);
-	if (i < SCICOS_OPENZB_ADDRESSES) /* Address already in lookup table */
+	if (i < FLEX_SIMPLE802154_ADDRESSES) /*Address already in lookup table*/
 		return;
-	for (i = 0; i < SCICOS_OPENZB_ADDRESSES; i++) {
+	for (i = 0; i < FLEX_SIMPLE802154_ADDRESSES; i++) {
 		/* Find free space (0xFFFF is free entry) in the lookup table */
-		if (scicos_simple802154_address_table[i] == 0xFFFF) {
-			scicos_simple802154_address_table[i] = address;
+		if (flex_simple802154_address_table[i] == 0xFFFF) {
+			flex_simple802154_address_table[i] = address;
 			return;
 		}
 	}

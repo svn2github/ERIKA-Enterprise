@@ -313,7 +313,7 @@ static void process_rx_beacon(void)
 
 static void process_rx_data(void) 
 {
-	uint8_t s;
+	uint8_t s, len;
 	uint8_t *data;
 	uint16_t s_pan = 0, d_pan = 0; 
 	ozb_mac_dev_addr_extd_t s_a, d_a; 
@@ -333,10 +333,12 @@ static void process_rx_data(void)
 	}
 	if (OZB_MAC_FCTL_GET_PANID_COMPRESS(data))
 		s_pan = d_pan;
+	len = rx_data_length - OZB_MAC_MPDU_FRAME_CONTROL_SIZE - 
+	      OZB_MAC_MPDU_SEQ_NUMBER_SIZE - s;
 	ozb_MCPS_DATA_indication(OZB_MAC_FCTL_GET_SRC_ADDR_MODE(data), 
 				 s_pan, (void *) s_a,
 				 OZB_MAC_FCTL_GET_DST_ADDR_MODE(data),
-				 d_pan, (void *) d_a, rx_data_length - s,
+				 d_pan, (void *) d_a, len,
 				 OZB_MAC_MPDU_MAC_PAYLOAD(rx_data, s), 
 				 0 /*TODO: mpduLinkQuality*/,
 				 *(OZB_MAC_MPDU_SEQ_NUMBER(rx_data))/*CHECK!*/,

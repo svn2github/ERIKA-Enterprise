@@ -15,7 +15,7 @@
 
 #if defined __MICROCHIP_DSPIC30__
 
-static uint16_t temp_count = 0;
+static uint16_t temp_count COMPILER_ATTRIBUTE_NEAR = 0;
 
 void cc2420_delay_us( uint16_t delay_count )
 {

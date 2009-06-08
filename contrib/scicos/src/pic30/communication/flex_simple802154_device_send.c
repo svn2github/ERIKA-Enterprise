@@ -1,4 +1,10 @@
+#include <machine.h>
+#include <scicos_block4.h>
 #include "flex_simple802154.h"
+
+#ifndef __HAS_SIMPLE802154_D_CONFIG__
+#error "FLEX 802.15.4 ERROR: A device configuration block is required."
+#endif
 
 #define DEVICE_USE_GTS 0
 
@@ -22,20 +28,21 @@ static void tx_inout(scicos_block *block)
 	packet.data_id = block->ipar[0];	
 	packet.dst_addr = block->ipar[1]; 
 	packet.src_addr = flex_simple802154_local_address; 
-	ozb_simple154_send(&packet, sizeof(flex_simple802154_packet_t), 
+	ozb_simple154_send((EE_UINT8*) &packet, 
+			   sizeof(flex_simple802154_packet_t), 
 			   block->ipar[1], DEVICE_USE_GTS);
 }
 
-void flex_simple802154_device_receive(scicos_block *block, int flag)
+void flex_simple802154_device_send(scicos_block *block, int flag)
 {
 	switch (flag) {
 	case OutputUpdate:  	/* set output */
-		tx_inout(); //TODO: CHECK!!!!!!!!!!!!!!!!!!!!!!!!!!
+		tx_inout(block); 
 		break;
 	case StateUpdate: 	/* get input */
 		break;
 	case Initialization:  	/* initialisation */
-		tx_init(block);
+		tx_init();
 		break;
 	case Ending:  		/* ending */
 		tx_end();

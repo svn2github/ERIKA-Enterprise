@@ -20,9 +20,19 @@
 */
 #ifdef __ERIKA__		/* Erika Abstract Compiler */
 #include <cc2420_compiler_ee.h>
+#ifdef __C30__ 
+#ifndef COMPILER_ATTRIBUTE_NEAR 
+#define COMPILER_ATTRIBUTE_NEAR __attribute__((near))
+#endif
+#endif
 
 #elif defined __C30__ 	/* Microchip C30 */
 #include <cc2420_compiler_c30.h>
+#ifdef __C30__ 
+#ifndef COMPILER_ATTRIBUTE_NEAR 
+#define COMPILER_ATTRIBUTE_NEAR __attribute__((near))
+#endif
+#endif
 
 #else			/* No compiler */
 #error "CC2420_HAL ERROR: compiler type not specified"

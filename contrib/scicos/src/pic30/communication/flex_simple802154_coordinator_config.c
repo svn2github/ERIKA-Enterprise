@@ -1,10 +1,18 @@
+#include <machine.h>
+#include <scicos_block4.h>
+#include <string.h>
 #include "flex_simple802154.h"
 
-EE_UINT16 flex_simple802154_address_table[SCICOS_OPENZB_ADDRESSES];
+#ifdef __HAS_SIMPLE802154_D_CONFIG__
+#error "FLEX 802.15.4 ERROR: usage of coordinator and device blocks" \
+	"at the same time is forbidden."
+#endif
+
+EE_UINT16 flex_simple802154_address_table[FLEX_SIMPLE802154_ADDRESSES];
 EE_UINT16 flex_simple802154_local_address;
 
 //EE_UINT16 flex_simple802154_address_count = 0;
-static cfg_initialized = 0;
+static EE_UINT8 cfg_initialized = 0;
 
 static void cfg_init(scicos_block *block)
 {	
