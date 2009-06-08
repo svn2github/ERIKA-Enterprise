@@ -72,8 +72,8 @@ CPU mySystem {
 		};
 		
 		BOARD_DATA = EE_FLEX {
-
 		};
+
 #ifdef __USE_SIMPLE802154__
 		EE_OPT = "__USE_SPI__";
 #endif // __USE_SIMPLE802154__
