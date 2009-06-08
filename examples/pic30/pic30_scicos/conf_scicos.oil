@@ -118,7 +118,7 @@ CPU mySystem {
 
 #ifdef __USE_SIMPLE802154__
 		RESOURCE = "OZB_EE_RESOURCE_MAC_MUTEX";
-		/* TODO: add the rx_buffer one! */
+		RESOURCE = "flex_simple802154_rx_buffer_mutex";
 #endif // __USE_SIMPLE802154__
 	};
 
@@ -165,6 +165,10 @@ CPU mySystem {
 #endif // __USE_USB__
 
 #ifdef __USE_SIMPLE802154__
+	RESOURCE flex_simple802154_rx_buffer_mutex {RESOURCEPROPERTY=STANDARD;};
+#endif // __USE_SIMPLE802154__
+
+#ifdef __USE_SIMPLE802154__
 	/* -------------------------------------------------------------------- 
 	|                  --  OpenZB OIL Section  --                          |
 	|                                                                      |
@@ -197,6 +201,7 @@ CPU mySystem {
 		STACK = SHARED;
 		SCHEDULE = FULL;
 		RESOURCE = "OZB_EE_RESOURCE_MAC_RX_DATA_MUTEX";
+		RESOURCE = "flex_simple802154_rx_buffer_mutex";
 	};
 
 	TASK OZB_EE_TASK_MAC_PROCESS_RX_COMMAND {
