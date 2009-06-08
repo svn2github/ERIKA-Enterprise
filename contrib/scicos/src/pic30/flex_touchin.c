@@ -4,13 +4,14 @@
 #include <scicos_block4.h>
 
 #include <ee.h>
+#include "touch.h"
 
 #define ASCII_X	88
 #define ASCII_Y	89
 
-EE_UINT8 x_already_initialized = 0;
-EE_UINT8 y_already_initialized = 0;
-EE_UINT8 touch_initialized = 0;
+static EE_UINT8 x_already_initialized = 0;
+static EE_UINT8 y_already_initialized = 0;
+static EE_UINT8 touch_initialized = 0;
 
 static void init(scicos_block *block)
 {
@@ -36,20 +37,16 @@ static void init(scicos_block *block)
 
 static void inout(scicos_block *block)
 {
-	EE_UINT8 axis;
-	float *y;
+	EE_UINT8 axis = block->ipar[0];
+	float *y = block->outptr[0];
 
 	if(!touch_initialized)
 		return;
 	
 	if(axis != ASCII_X && axis != ASCII_Y) 
 		return;
-	
-	axis = block->ipar[0];
-	float *y = block->outptr[0];
-	
+		
 	y[0] = (float)touch_get_position(axis-ASCII_X);
-	
 }
 
 static void end(scicos_block *block)

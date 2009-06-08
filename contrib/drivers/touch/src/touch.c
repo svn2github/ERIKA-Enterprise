@@ -7,37 +7,38 @@
 EE_UINT16 X_pos;
 EE_UINT16 Y_pos;
 
-// Array for X/Y-Coordinates
-short int Reading_X[SAMPLES_FOR_ONE_TRUE_XY_PAIR];
-short int Reading_Y[SAMPLES_FOR_ONE_TRUE_XY_PAIR];
-volatile unsigned char i_array;
-static short int Reading_low_level;
-unsigned int horiz_width,vert_height;
-volatile unsigned int Untouch_conditions;
+// Touch state variable
 volatile TouchFlow tf;
-volatile char raw_ready;
-unsigned int X_raw,Y_raw;
+
+// Array for X-Coordinates
+EE_UINT16 Reading_X[SAMPLES_FOR_ONE_TRUE_XY_PAIR];
+// Array for Y-Coordinates
+EE_UINT16 Reading_Y[SAMPLES_FOR_ONE_TRUE_XY_PAIR];
+// Array index
+volatile EE_UINT8 i_array;
+// 
+static EE_UINT16 Reading_low_level;
+EE_UINT16 horiz_width,vert_height;
+volatile EE_UINT16 Untouch_conditions;
+
+volatile EE_UINT8 raw_ready;
+
+EE_UINT16 X_raw,Y_raw;
 
 double cal_a,cal_b,cal_c;
 double cal_d,cal_e,cal_f;
 
-//unsigned char x_panel,y_panel;
-volatile unsigned int x,y;
-
 // computation begins
-volatile unsigned int xd1,yd1;
-volatile unsigned int xd2,yd2;
-volatile unsigned int xd3,yd3;
-volatile unsigned int xt1,yt1;
-volatile unsigned int xt2,yt2;
-volatile unsigned int xt3,yt3;
+volatile EE_UINT16 xd1,yd1;
+volatile EE_UINT16 xd2,yd2;
+volatile EE_UINT16 xd3,yd3;
+volatile EE_UINT16 xt1,yt1;
+volatile EE_UINT16 xt2,yt2;
+volatile EE_UINT16 xt3,yt3;
 
-/**************************************************************************/
-#ifndef __USE_LCD__
+EE_UINT16 temp_count __attribute__((near)) = 0;
 
-EE_UINT16 temp_count = 0;
-
-void Delay( unsigned int delay_count )
+void touch_delay( EE_UINT8 delay_count )
 {
 	temp_count = delay_count +1;
 	asm volatile("outer: dec _temp_count");
@@ -49,10 +50,6 @@ void Delay( unsigned int delay_count )
 	asm volatile("bra outer");
 	asm volatile("done:");
 }
-
-#endif // __USE_LCD__
-
-/**************************************************************************/
 
 void touch_adc_init(void)
 {
@@ -81,15 +78,15 @@ void touch_adc_init(void)
 
 void touch_set_dimension(
 		EE_UINT8 touch_axis,
-		EE_UINT16 touch_range)
+		EE_UINT8 touch_range)
 {
 	if(touch_axis == TOUCH_X_AXIS)
 	{
-		horiz_width = pixel_horizontal_width;
+		horiz_width = touch_range;
 	}
 	else if(touch_axis == TOUCH_Y_AXIS)
 	{
-		vert_height = pixel_vertical_height;
+		vert_height = touch_range;
 	}
 }
 
@@ -109,12 +106,12 @@ void touch_start()
 	i_array = 0;
 	STANDBY_CONFIGURATION;
 	tf.STANDBY = 1;
-	SetRelAlarm(Alarm_Touch_Manager,10,10);
+	SetRelAlarm(AlarmTouchManager,10,10);
 }
 
 void touch_stop()
 {
-	CancelAlarm(Alarm_Touch_Manager);
+	CancelAlarm(AlarmTouchManager);
 }
 
 void touch_calibrate()
@@ -131,9 +128,9 @@ void touch_calibrate()
 
 	/*
 
-	EE_touch_stop();
-	Delay(Delay_1S_Cnt/3);
-	EE_touch_start();
+	touch_stop();
+	touch_delay(Delay_1S_Cnt/3);
+	touch_start();
 
 	//  Outing: Touch P1!
 
@@ -145,9 +142,9 @@ void touch_calibrate()
 	raw_ready = 0;
 	EE_led_off();
 
-	EE_touch_stop();
-	Delay(Delay_1S_Cnt/3);
-	EE_touch_start();
+	touch_stop();
+	touch_delay(Delay_1S_Cnt/3);
+	touch_start();
 
 	//  Outing: Touch P2!
 
@@ -158,9 +155,9 @@ void touch_calibrate()
 	raw_ready = 0;
 	EE_led_off();
 
-	EE_touch_stop();
-	Delay(Delay_1S_Cnt/3);
-	EE_touch_start();
+	touch_stop();
+	touch_delay(Delay_1S_Cnt/3);
+	touch_start();
 
 	//  Outing: Touch P2!
 
@@ -171,7 +168,7 @@ void touch_calibrate()
 	raw_ready = 0;
 	EE_led_off();
 
-	EE_touch_stop();
+	touch_stop();
 
 	*/
 
@@ -207,7 +204,7 @@ void touch_calibrate()
 }
 
 #ifdef __LOW_LEVEL_MEASUREMENT__
-TASK(Touch_Manager)
+TASK(touch_Manager)
 {
 	if(CONVERSION_DONE)
 	{
@@ -262,10 +259,10 @@ TASK(Touch_Manager)
 ISR2(_ADC1Interrupt)
 {
 	IFS0bits.AD1IF = 0;
-	ActivateTask(Touch_Manager);
+	ActivateTask(touch_Manager);
 }
 
-void sorted_insertion(short int Array[])
+void sorted_insertion(EE_UINT16 Array[])
 {
 	signed char i;
 	unsigned char j;
@@ -342,5 +339,6 @@ EE_UINT16 touch_get_position(EE_UINT8 axis)
 		return X_pos;
 	else if(axis==TOUCH_Y_AXIS)
 		return Y_pos;	
+	else return 0;
 }
 

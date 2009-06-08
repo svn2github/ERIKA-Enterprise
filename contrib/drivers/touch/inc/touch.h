@@ -39,12 +39,12 @@ typedef struct {
 ****************************************************************************/
 
 EE_UINT16 touch_get_position(EE_UINT8 axis);
-void	touch_set_dimensions(unsigned int, unsigned int);
+void	touch_set_dimension(EE_UINT8, EE_UINT8);
 void 	touch_start(void);
 void 	touch_stop(void);
 void	touch_calibrate(void);
 void	touch_adc_init(void);
 void 	store_valid_data(void);
-void 	sorted_insertion(short int Array[]);
+void 	sorted_insertion(EE_UINT16 Array[]);
 
 #endif // __TOUCH_H__
