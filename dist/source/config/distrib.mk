@@ -155,7 +155,7 @@ distrib_opt___PIC30__:: \
 		ee_$(DIST)/pkg/board/ee_flex/inc \
 		ee_$(DIST)/pkg/board/ee_flex/inc/ee_internal.h \
 		ee_$(DIST)/pkg/board/ee_flex/src \
-		ee_$(DIST)/pkg/board/ee_flex/src/ee_board.c \
+		ee_$(DIST)/pkg/board/ee_flex/src/ee_flex_demoboard.c \
 		ee_$(DIST)/pkg/board/microchip_explorer16/cfg \
 		ee_$(DIST)/pkg/board/microchip_explorer16/cfg/cfg.mk \
 		ee_$(DIST)/pkg/board/microchip_explorer16/inc \

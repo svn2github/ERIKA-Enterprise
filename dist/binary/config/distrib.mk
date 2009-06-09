@@ -184,6 +184,7 @@ distrib_opt___PIC30__:: \
 		ee_$(DIST)/pkg/mcu/microchip_dspic/inc/ee_mcuregs.h \
 		ee_$(DIST)/pkg/board/ee_flex/inc \
 		ee_$(DIST)/pkg/board/ee_flex/inc/ee_board.h \
+		ee_$(DIST)/pkg/board/ee_flex/inc/ee_flex_demoboard.h \
 		ee_$(DIST)/pkg/board/microchip_explorer16/inc \
 		ee_$(DIST)/pkg/board/microchip_explorer16/inc/ee_board.h \
 		ee_$(DIST)/pkg/board/microchip_dspicdem11plus/inc \
