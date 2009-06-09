@@ -42,99 +42,20 @@
  * Author: 20065 Mauro Marinoni
  * CVS: $Id: ee_board.c,v 1.11 2008/08/29 11:21:08 francesco Exp $
  */
-
-#include "ee_internal.h"
-
-/* /\************************************************************************* */
-/* Check if the Flex MotionBoard has been selected */
-/* /\************************************************************************* */
-
 #ifdef __USE_MOTIONBOARD__
 
+#include "ee_internal.h"
 #include "cpu/pic30/inc/ee_irqstub.h"
 
-//Start GF
-/* /\************************************************************************* */
-/*  Buttons and PICDEM Z */
-/*  *************************************************************************\/ */
-
-#ifdef __USE_BUTTONS__
-void (*EE_button_callback)(void);
-EE_UINT8 EE_button_mask;
-
-union cn_st cn_st_old;
-#endif
-
-#if defined (__USE_PICDEMZ_WITH_INT4__) || (__USE_PICDEMZ_WITH_CN20INT__)
-void (*EE_picdemz_callback)(void);
-#endif
-
-#if defined (__USE_BUTTONS__) || (__USE_PICDEMZ_WITH_CN20INT__)
-ISR2(_CNInterrupt)
-{
-	#ifdef __USE_BUTTONS__
-	/* Execute callback function if there is a change notification related
-	 * to a button.
-	 */
-	if (EE_button_callback != NULL
-			|| PORTDbits.RD4 != cn_st_old.bits.s1
-			|| PORTDbits.RD5 != cn_st_old.bits.s2
-			|| PORTDbits.RD6 != cn_st_old.bits.s3
-			|| PORTDbits.RD15 != cn_st_old.bits.s4) {
-
-		cn_st_old.bits.s1 = PORTDbits.RD4;
-		cn_st_old.bits.s2 = PORTDbits.RD5;
-		cn_st_old.bits.s3 = PORTDbits.RD6;
-		cn_st_old.bits.s4 = PORTDbits.RD15;
-
-		EE_button_callback();
-	}
-	#endif
-
-	#ifdef __USE_PICDEMZ_WITH_CN20INT__
-	/*
-	 * call interrupt handler only with RF_INT_PIN low
-	 */
-	//if ( !RF_INT_PIN && RFIE && RFIF && RFIEC20)
-	if (!PORTDbits.RD14 && IEC1bits.CNIE && IFS1bits.CNIF && CNEN2bits.CN20IE)
-	// Execute callback function
-		if (EE_picdemz_callback != NULL) {
-			EE_picdemz_callback();
-		}
-	#endif
-
-	/* reset CN interrupt flag */
-	IFS1bits.CNIF = 0;
-}
-
-#endif
-
-#ifdef __USE_PICDEMZ_WITH_INT4__
-
-ISR2(_INT4Interrupt)
-{
-	if(IEC3bits.INT4IE && IFS3bits.INT4IF) { //if(RFIE && RFIF)
-		// Execute callback function
-		if (EE_picdemz_callback != NULL)
-			EE_picdemz_callback();
-	}
-	IFS3bits.INT4IF = 0; // clear interrupt flag
-
-}
-#endif
-//End GF
-
-
-/* /\************************************************************************* */
-/*  USB */
-/*  *************************************************************************\/ */
-
+/******************************************************************************/
+/*                                   U S B                                    */
+/******************************************************************************/
 #if defined __USE_USB__
 
 #include <string.h>
 
-#define USB_PIC18_REQ 		LATAbits.LATA14
-#define USB_PIC18_REQ_TRIS 	TRISAbits.TRISA14
+#define USB_PIC18_REQ 		LATDbits.LATD12
+#define USB_PIC18_REQ_TRIS 	TRISDbits.TRISD12
 #define FLEX_USB_HEADER_START 0x15	/**< The start header: 10101 */
 #define FLEX_USB_PACKET_PAYLOAD_SIZE 60	/**< The packet payload size */
 #ifndef FLEX_USB_RX_BUFFER_SIZE
@@ -143,7 +64,7 @@ ISR2(_INT4Interrupt)
 
 struct flex_usb_packet_t {
 	/*CHRIS: TODO: METTERE LA CRC IN FONDO!!!!! */
-    unsigned crc : 8;               /**< The checksum, including header */
+	unsigned crc : 8;       /**< The checksum, including header */
 	unsigned start : 5;	/**< Commone header 10101 */
 	unsigned type : 3;	/**< Packet type */
 	unsigned more : 1; 	/**< Is last fragment */
@@ -173,8 +94,8 @@ static EE_UINT8 rx_buffer[FLEX_USB_RX_BUFFER_SIZE] __attribute__((far));
 static EE_UINT16 rx_first = 0;
 static EE_UINT16 rx_last = 0;
 static EE_UINT16 rx_held = 0;
-static volatile char dummy_send_lock = 0;
-static char usb_initialized = 0;
+static EE_INT8 usb_initialized = 0;
+//static volatile char dummy_send_lock = 0;
 
 void EE_usb_init(void)
 {
@@ -227,7 +148,7 @@ void EE_usb_init(void)
 	rx_first = 0;
 	rx_last = 0;
 	rx_held = 0;
-	dummy_send_lock = 0;
+	//dummy_send_lock = 0;
 	usb_initialized = 1;
 }
 
@@ -314,7 +235,7 @@ void __attribute__((interrupt, no_auto_psv)) _DMA0Interrupt(void)
 	/* TODO: do something eventually here to start another transfer */
 	/* chris: TODO: versione di test.... sblocca il dummy lock! */
 	USB_PIC18_REQ = 0;
-	dummy_send_lock = 0;
+	//dummy_send_lock = 0;
 }
 
 /**
@@ -329,7 +250,8 @@ void __attribute__((interrupt, no_auto_psv)) _DMA1Interrupt(void)
 		/* If the read message is larger than the whole buffer,
 		   write the last FLEX_USB_RX_BUFFER_SIZE bytes in the buffer.
 		   TODO: is this a possible scenario?? */
-		idx = dma_rx_pkt.length; /* NOTE: idx as temp vari to silent compiler */
+		/* NOTE: idx as temp vari to silent compiler */
+		idx = dma_rx_pkt.length; 
 		if (idx >= FLEX_USB_RX_BUFFER_SIZE) {
 			idx = dma_rx_pkt.length - FLEX_USB_RX_BUFFER_SIZE;
 			memcpy(rx_buffer, dma_rx_pkt.payload + idx,
@@ -370,121 +292,101 @@ void __attribute__((interrupt, no_auto_psv)) _DMA1Interrupt(void)
 	}
 }
 
+#endif /* __USE_USB__ */
+
 
 #ifdef __USE_PWM_OUT__
 
 EE_UINT8 t_pre_scaler;
 
-void EE_pwm_init(EE_UINT8 chan, unsigned long int pwm_period, unsigned long int init_pw)
+void EE_pwm_init(EE_UINT8 chan, EE_UINT32 pwm_period, EE_UINT32 init_pw)
 {
-  /* OutputCompare PWM constants
-  *
-  * pwm_timer2_period = (fcy/pre_scaler) x pwm_period - 1
-  *     fcy [MHz]
-  *     pwm_perdiod [microseconds]
-  *
-  * pwm_resolution = log_2((fcy/pre_scaler) x pwm_perdiod) [bits]
-  */
-
-  unsigned char pre_scaler=0;
-  unsigned int p=0;
-
-  /* Check PW limits */
-  if( init_pw > pwm_period)
-    return;
-
-  T2CON = 0; /* Stops the Timer2 and reset control reg */
-
-  TMR2  = 0; /* Clear contents of the timer register */
-
-  IFS0bits.T2IF = 0; /* Clear the Disable Timer2 interrupt status flag */
-  IEC0bits.T2IE = 0;
-
-  /* Calculate the best(minimum) pre-scaling factor */
-  for(pre_scaler=0; pre_scaler<4; pre_scaler++)
-  {
-    p = (((40*pwm_period) -1) / 0xFFFE) + 1;
-    if(pre_scaler < 3){
-      if( p <= (0x0001 << (pre_scaler*3)) ){
-        p = (pre_scaler*3);
-        break;
-      }
-    }
-    else{
-      if( p <= 256 ){
-        p = 8;
-        break;
-      }
-    }
-  }
-  if(pre_scaler > 3)
-    return;
-
-  T2CONbits.TCKPS = pre_scaler;       /* Set pre-scaler for Timer2 */
-
+	/* OutputCompare PWM constants
+	*
+	* pwm_timer2_period = (fcy/pre_scaler) x pwm_period - 1
+	*     fcy [MHz]
+	*     pwm_perdiod [microseconds]
+	*
+	* pwm_resolution = log_2((fcy/pre_scaler) x pwm_perdiod) [bits]
+	*/
+	EE_UINT8 pre_scaler=0;
+	EE_UINT16 p=0;
+	/* Check PW limits */
+	if (init_pw > pwm_period)
+		return;
+	T2CON = 0; /* Stops the Timer2 and reset control reg */
+	TMR2  = 0; /* Clear contents of the timer register */
+	IFS0bits.T2IF = 0; /* Clear the Disable Timer2 interrupt status flag */
+	IEC0bits.T2IE = 0;
+	/* Calculate the best(minimum) pre-scaling factor */
+	for (pre_scaler = 0; pre_scaler < 4; pre_scaler++) {
+		p = (((40*pwm_period) -1) / 0xFFFE) + 1;
+		if (pre_scaler < 3) {
+			if (p <= (0x0001 << (pre_scaler*3))) {
+				p = (pre_scaler*3);
+				break;
+			}
+		} else {
+			if (p <= 256) {
+				p = 8;
+				break;
+			}
+		}
+	}
+	if(pre_scaler > 3)
+		return;
+	 /* Set pre-scaler for Timer2 */
+	T2CONbits.TCKPS = pre_scaler;	
 	t_pre_scaler = p;
-
-  PR2 = ((pwm_period * 40) >> p);
-	if(PR2 > 0) PR2 -= 1; /* Set period for Timer2 */
-  p = (unsigned int)(( init_pw * 40) >> p );
-	if(p>0) p -= 1;  /* Compute the initial PulseWidth to set */
-
-  switch(chan)
-  {
-    case EE_PWM_PORT1:
-			TRISDbits.TRISD7 = 0; /* Set OC8 as output */
-      OC8R = p; /* Set the initial duty cycle */
-      OC8RS = p; /* Load OCRS: current pwm duty cycle */
-      OC8CON = 0x0006; /* Set OC8 module: PWM, no fault check, Timer2 */
-      break;
-
-    case EE_PWM_PORT2:
-			TRISDbits.TRISD6 = 0; /* Set OC7 as output */
-      OC7R = p; /* Set the initial duty cycle */
-      OC7RS = p; /* Load OCRS: current pwm duty cycle */
-      OC7CON = 0x0006; /* Set OC7 module: PWM, no fault check, Timer2 */
-      break;
-  }
-
+	PR2 = ((pwm_period * 40) >> p);
+	if(PR2 > 0) 
+		PR2 -= 1; /* Set period for Timer2 */
+	p = (EE_UINT16)(( init_pw * 40) >> p );
+	if(p>0) 
+		p -= 1;	/* Compute the initial PulseWidth to set */
+	switch(chan)
+	{
+	case EE_PWM_PORT1:
+		TRISDbits.TRISD7 = 0; /* Set OC8 as output */
+		OC8R = p; /* Set the initial duty cycle */
+		OC8RS = p; /* Load OCRS: current pwm duty cycle */
+		OC8CON = 0x0006; /* Set OC8: PWM, no fault check, Timer2 */
+		break;
+	case EE_PWM_PORT2:
+		TRISDbits.TRISD6 = 0; /* Set OC7 as output */
+		OC7R = p; /* Set the initial duty cycle */
+		OC7RS = p; /* Load OCRS: current pwm duty cycle */
+		OC7CON = 0x0006; /* Set OC7: PWM, no fault check, Timer2 */
+		break;
+	}
 	T2CONbits.TON = 1; 
-
-  return;
-
+	return;
 }
 
 void EE_pwm_set_duty_f( EE_UINT8 chan , float duty )
 {
-  /* The computed duty cycle*/
-  float duty_out ;
+	float duty_out;/* The computed duty cycle*/
+	/* Get period from Timer2 period register PR2 */
+	EE_UINT16 period = PR2;
 
-  /* Get period from Timer2 period register PR2 */
-  EE_UINT16 period = PR2;
+	if (duty <= 0.0)
+		duty_out = 0; //** for negative values assume zero
+	else if(duty >= 1.0)
+		duty_out = 1; //** for exessive values assume one
+	else
+		duty_out = duty; //** for the correct values ...
 
-  if (duty <= 0.0)
-    duty_out = 0; //** for negative values assume zero
-  else if(duty >= 1.0)
-    duty_out = 1; //** for exessive values assume one
-  else
-    duty_out = duty; //** for the correct values ...
-
-  // Computer register valure
-  switch (chan) {
-    case EE_PWM_PORT1:
-      OC8RS = duty_out * (period+1);
-      break;
-    case EE_PWM_PORT2:
-      OC7RS = duty_out * (period+1);
-      break;
-  }
+	// Computer register valure
+	switch (chan) {
+	case EE_PWM_PORT1:
+		OC8RS = duty_out * (period + 1);
+		break;
+	case EE_PWM_PORT2:
+		OC7RS = duty_out * (period + 1);
+		break;
+	}
 }
-
-
 #endif // __USE_PWM_OUT__
-
-/* ************************************************************************* */
-
-/* ************************************************************************* */
 
 #endif // __USE_MOTIONBOARD__
 
-/* ************************************************************************* */
