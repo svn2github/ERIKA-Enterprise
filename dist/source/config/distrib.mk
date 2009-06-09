@@ -150,12 +150,20 @@ distrib_opt___PIC30__:: \
 		ee_$(DIST)/pkg/mcu/microchip_dspic/src/ee_uart.c \
 		ee_$(DIST)/pkg/mcu/microchip_dspic/src/ee_spi.c \
 		ee_$(DIST)/pkg/mcu/microchip_dspic/src/ee_ecan.c \
+		ee_$(DIST)/pkg/board/ee_flex/ \
+		ee_$(DIST)/pkg/board/ee_flex/cfg \
+		ee_$(DIST)/pkg/board/ee_flex/cfg/cfg.mk \
+		ee_$(DIST)/pkg/board/ee_flex/ \
 		ee_$(DIST)/pkg/board/ee_flex/cfg \
 		ee_$(DIST)/pkg/board/ee_flex/cfg/cfg.mk \
 		ee_$(DIST)/pkg/board/ee_flex/inc \
+		ee_$(DIST)/pkg/board/ee_flex/inc/ee_board.h \
+		ee_$(DIST)/pkg/board/ee_flex/inc/ee_flex_demoboard.h \
+		ee_$(DIST)/pkg/board/ee_flex/inc/ee_flex_motionboard.h \
 		ee_$(DIST)/pkg/board/ee_flex/inc/ee_internal.h \
 		ee_$(DIST)/pkg/board/ee_flex/src \
 		ee_$(DIST)/pkg/board/ee_flex/src/ee_flex_demoboard.c \
+		ee_$(DIST)/pkg/board/ee_flex/src/ee_flex_motionboard.c \
 		ee_$(DIST)/pkg/board/microchip_explorer16/cfg \
 		ee_$(DIST)/pkg/board/microchip_explorer16/cfg/cfg.mk \
 		ee_$(DIST)/pkg/board/microchip_explorer16/inc \
@@ -643,20 +651,32 @@ distrib_opt___DRIVERS__:: \
 		ee_$(DIST)/contrib/drivers/radio/cc2420/inc/cc2420_hal_ee.h \
 		ee_$(DIST)/contrib/drivers/radio/cc2420/src \
 		ee_$(DIST)/contrib/drivers/radio/cc2420/src/cc2420.c \
-		ee_$(DIST)/contrib/drivers/radio/cc2420/src/cc2420_hal_ee.c
+		ee_$(DIST)/contrib/drivers/radio/cc2420/src/cc2420_hal_ee.c \
+		ee_$(DIST)/contrib/drivers/touch \
+		ee_$(DIST)/contrib/drivers/touch/cfg \
+		ee_$(DIST)/contrib/drivers/touch/cfg/cfg.mk \
+		ee_$(DIST)/contrib/drivers/touch/cfg/libcfg.mk \
+		ee_$(DIST)/contrib/drivers/touch/inc \
+		ee_$(DIST)/contrib/drivers/touch/inc/touch.h \
+		ee_$(DIST)/contrib/drivers/touch/inc/touch_compiler.h \
+		ee_$(DIST)/contrib/drivers/touch/inc/touch_compiler_c30.h \
+		ee_$(DIST)/contrib/drivers/touch/inc/touch_compiler_ee.h \
+		ee_$(DIST)/contrib/drivers/touch/inc/touch_hal.h \
+		ee_$(DIST)/contrib/drivers/touch/inc/touch_hal_ee.h \
+		ee_$(DIST)/contrib/drivers/touch/src \
+		ee_$(DIST)/contrib/drivers/touch/src/touch.c 
 
 distrib_opt___OPENZB__:: \
+
 		ee_$(DIST)/contrib/network \
 		ee_$(DIST)/contrib/network/cfg \
 		ee_$(DIST)/contrib/network/cfg/contrib.mk \
 		ee_$(DIST)/contrib/network/openzb \
-		ee_$(DIST)/contrib/network/openzb/doxyconf \
 		ee_$(DIST)/contrib/network/openzb/cfg \
 		ee_$(DIST)/contrib/network/openzb/cfg/cfg.mk \
 		ee_$(DIST)/contrib/network/openzb/cfg/libcfg.mk \
+		ee_$(DIST)/contrib/network/openzb/doxyconf \
 		ee_$(DIST)/contrib/network/openzb/inc \
-		ee_$(DIST)/contrib/network/openzb/inc/ieee802154.h \
-		ee_$(DIST)/contrib/network/openzb/inc/openzb.h \
 		ee_$(DIST)/contrib/network/openzb/inc/hal \
 		ee_$(DIST)/contrib/network/openzb/inc/hal/ozb_compiler.h \
 		ee_$(DIST)/contrib/network/openzb/inc/hal/ozb_compiler_c30.h \
@@ -680,6 +700,9 @@ distrib_opt___OPENZB__:: \
 		ee_$(DIST)/contrib/network/openzb/inc/net \
 		ee_$(DIST)/contrib/network/openzb/inc/net/ozb_net.h \
 		ee_$(DIST)/contrib/network/openzb/inc/net/ozb_net_internal.h \
+		ee_$(DIST)/contrib/network/openzb/inc/net/ozb_simple154.h \
+		ee_$(DIST)/contrib/network/openzb/inc/openzb.h \
+		ee_$(DIST)/contrib/network/openzb/inc/ozb_ieee802154.h \
 		ee_$(DIST)/contrib/network/openzb/inc/phy \
 		ee_$(DIST)/contrib/network/openzb/inc/phy/ozb_phy.h \
 		ee_$(DIST)/contrib/network/openzb/inc/phy/ozb_phy_const.h \
@@ -704,10 +727,12 @@ distrib_opt___OPENZB__:: \
 		ee_$(DIST)/contrib/network/openzb/src/mac/ozb_mac_superframe.c \
 		ee_$(DIST)/contrib/network/openzb/src/net \
 		ee_$(DIST)/contrib/network/openzb/src/net/ozb_net_mac_events.c \
+		ee_$(DIST)/contrib/network/openzb/src/net/ozb_simple154.c \
 		ee_$(DIST)/contrib/network/openzb/src/phy \
 		ee_$(DIST)/contrib/network/openzb/src/phy/ozb_phy.c \
 		ee_$(DIST)/contrib/network/openzb/src/util \
-		ee_$(DIST)/contrib/network/openzb/src/util/ozb_debug.c
+		ee_$(DIST)/contrib/network/openzb/src/util/ozb_debug.c \
+		ee_$(DIST)/contrib/network/openzb/TODO.txt
 
 distrib_opt___MIWIP2P__:: \
 		ee_$(DIST)/contrib/MiWiP2P \
@@ -728,11 +753,24 @@ distrib_opt___MIWIP2P__:: \
 		ee_$(DIST)/contrib/MiWiP2P/libsrc/SymbolTime.c
 
 distrib_opt___SCICOS__:: \
+
 		ee_$(DIST)/contrib/scicos \
-		ee_$(DIST)/contrib/scicos/readme.txt \
 		ee_$(DIST)/contrib/scicos/cfg \
+		ee_$(DIST)/contrib/scicos/cfg/all.txt \
 		ee_$(DIST)/contrib/scicos/cfg/cfg.mk \
 		ee_$(DIST)/contrib/scicos/cfg/libcfg.mk \
+		ee_$(DIST)/contrib/scicos/inc \
+		ee_$(DIST)/contrib/scicos/inc/core \
+		ee_$(DIST)/contrib/scicos/inc/core/dmmul.h \
+		ee_$(DIST)/contrib/scicos/inc/core/lcd-protocol.h \
+		ee_$(DIST)/contrib/scicos/inc/core/machine.h \
+		ee_$(DIST)/contrib/scicos/inc/core/scicos_block.h \
+		ee_$(DIST)/contrib/scicos/inc/core/scicos_block4.h \
+		ee_$(DIST)/contrib/scicos/inc/core/scicos_USB.h \
+		ee_$(DIST)/contrib/scicos/inc/core/sci_mem_alloc.h \
+		ee_$(DIST)/contrib/scicos/inc/pic30 \
+		ee_$(DIST)/contrib/scicos/inc/pic30/communication \
+		ee_$(DIST)/contrib/scicos/inc/pic30/communication/flex_simple802154.h \
 		ee_$(DIST)/contrib/scicos/libsrc \
 		ee_$(DIST)/contrib/scicos/libsrc/core \
 		ee_$(DIST)/contrib/scicos/libsrc/core/absolute_value.c \
@@ -762,7 +800,6 @@ distrib_opt___SCICOS__:: \
 		ee_$(DIST)/contrib/scicos/libsrc/core/delay4_ui32.c \
 		ee_$(DIST)/contrib/scicos/libsrc/core/delay4_ui8.c \
 		ee_$(DIST)/contrib/scicos/libsrc/core/deriv.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/dmmul.h \
 		ee_$(DIST)/contrib/scicos/libsrc/core/dmmul.c \
 		ee_$(DIST)/contrib/scicos/libsrc/core/dmmul1.c \
 		ee_$(DIST)/contrib/scicos/libsrc/core/dollar4.c \
@@ -771,6 +808,7 @@ distrib_opt___SCICOS__:: \
 		ee_$(DIST)/contrib/scicos/libsrc/core/evaluate_expr.c \
 		ee_$(DIST)/contrib/scicos/libsrc/core/expblk_m.c \
 		ee_$(DIST)/contrib/scicos/libsrc/core/extract.c \
+		ee_$(DIST)/contrib/scicos/libsrc/core/extractor.c \
 		ee_$(DIST)/contrib/scicos/libsrc/core/extract_bit_16_LH.c \
 		ee_$(DIST)/contrib/scicos/libsrc/core/extract_bit_16_LSB.c \
 		ee_$(DIST)/contrib/scicos/libsrc/core/extract_bit_16_MSB0.c \
@@ -804,7 +842,6 @@ distrib_opt___SCICOS__:: \
 		ee_$(DIST)/contrib/scicos/libsrc/core/extract_bit_u8_MSB1.c \
 		ee_$(DIST)/contrib/scicos/libsrc/core/extract_bit_u8_RB1.c \
 		ee_$(DIST)/contrib/scicos/libsrc/core/extract_bit_u8_UH1.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/extractor.c \
 		ee_$(DIST)/contrib/scicos/libsrc/core/gainblk.c \
 		ee_$(DIST)/contrib/scicos/libsrc/core/gainblk_i16e.c \
 		ee_$(DIST)/contrib/scicos/libsrc/core/gainblk_i16n.c \
@@ -826,11 +863,10 @@ distrib_opt___SCICOS__:: \
 		ee_$(DIST)/contrib/scicos/libsrc/core/gainblk_ui8s.c \
 		ee_$(DIST)/contrib/scicos/libsrc/core/get_phase_simulation.c \
 		ee_$(DIST)/contrib/scicos/libsrc/core/hystheresis.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/integral_func.c \
 		ee_$(DIST)/contrib/scicos/libsrc/core/integralz_func.c \
+		ee_$(DIST)/contrib/scicos/libsrc/core/integral_func.c \
 		ee_$(DIST)/contrib/scicos/libsrc/core/invblk4.c \
 		ee_$(DIST)/contrib/scicos/libsrc/core/logic.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/machine.h \
 		ee_$(DIST)/contrib/scicos/libsrc/core/matmul2_m.c \
 		ee_$(DIST)/contrib/scicos/libsrc/core/matmul_i16e.c \
 		ee_$(DIST)/contrib/scicos/libsrc/core/matmul_i16n.c \
@@ -865,12 +901,16 @@ distrib_opt___SCICOS__:: \
 		ee_$(DIST)/contrib/scicos/libsrc/core/samphold4_m.c \
 		ee_$(DIST)/contrib/scicos/libsrc/core/satur.c \
 		ee_$(DIST)/contrib/scicos/libsrc/core/scalar2vector.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/sci_mem_alloc.h \
-		ee_$(DIST)/contrib/scicos/libsrc/core/scicos_block.h \
-		ee_$(DIST)/contrib/scicos/libsrc/core/scicos_block4.h \
 		ee_$(DIST)/contrib/scicos/libsrc/core/scicos_free.c \
 		ee_$(DIST)/contrib/scicos/libsrc/core/scicos_malloc.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/scicos_USB.h \
+		ee_$(DIST)/contrib/scicos/libsrc/core/ScilabLib \
+		ee_$(DIST)/contrib/scicos/libsrc/core/ScilabLib/dmmul.c \
+		ee_$(DIST)/contrib/scicos/libsrc/core/ScilabLib/dmmul1.c \
+		ee_$(DIST)/contrib/scicos/libsrc/core/ScilabLib/get_phase_simulation.c \
+		ee_$(DIST)/contrib/scicos/libsrc/core/ScilabLib/scicos_free.c \
+		ee_$(DIST)/contrib/scicos/libsrc/core/ScilabLib/scicos_malloc.c \
+		ee_$(DIST)/contrib/scicos/libsrc/core/ScilabLib/sciprint.c \
+		ee_$(DIST)/contrib/scicos/libsrc/core/ScilabLib/set_block_error.c \
 		ee_$(DIST)/contrib/scicos/libsrc/core/sciprint.c \
 		ee_$(DIST)/contrib/scicos/libsrc/core/set_block_error.c \
 		ee_$(DIST)/contrib/scicos/libsrc/core/shift_16_LA.c \
@@ -913,14 +953,6 @@ distrib_opt___SCICOS__:: \
 		ee_$(DIST)/contrib/scicos/libsrc/core/switchn.c \
 		ee_$(DIST)/contrib/scicos/libsrc/core/time_delay.c \
 		ee_$(DIST)/contrib/scicos/libsrc/core/variable_delay.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/ScilabLib \
-		ee_$(DIST)/contrib/scicos/libsrc/core/ScilabLib/dmmul.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/ScilabLib/dmmul1.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/ScilabLib/get_phase_simulation.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/ScilabLib/scicos_free.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/ScilabLib/scicos_malloc.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/ScilabLib/sciprint.c \
-		ee_$(DIST)/contrib/scicos/libsrc/core/ScilabLib/set_block_error.c \
 		ee_$(DIST)/contrib/scicos/libsrc/rt \
 		ee_$(DIST)/contrib/scicos/libsrc/rt/rt_randm.c \
 		ee_$(DIST)/contrib/scicos/libsrc/rt/rt_sinus.c \
@@ -930,8 +962,14 @@ distrib_opt___SCICOS__:: \
 		ee_$(DIST)/contrib/scicos/src \
 		ee_$(DIST)/contrib/scicos/src/pic30 \
 		ee_$(DIST)/contrib/scicos/src/pic30/communication \
+		ee_$(DIST)/contrib/scicos/src/pic30/communication/flex_can_in.c \
+		ee_$(DIST)/contrib/scicos/src/pic30/communication/flex_can_out.c \
 		ee_$(DIST)/contrib/scicos/src/pic30/communication/flex_serial_receive.c \
 		ee_$(DIST)/contrib/scicos/src/pic30/communication/flex_serial_send.c \
+		ee_$(DIST)/contrib/scicos/src/pic30/communication/flex_simple802154_coordinator_config.c \
+		ee_$(DIST)/contrib/scicos/src/pic30/communication/flex_simple802154_device_config.c \
+		ee_$(DIST)/contrib/scicos/src/pic30/communication/flex_simple802154_receive.c \
+		ee_$(DIST)/contrib/scicos/src/pic30/communication/flex_simple802154_send.c \
 		ee_$(DIST)/contrib/scicos/src/pic30/communication/flex_usb_receive.c \
 		ee_$(DIST)/contrib/scicos/src/pic30/communication/flex_usb_send.c \
 		ee_$(DIST)/contrib/scicos/src/pic30/communication/flex_zigbee_receive.c \
@@ -940,13 +978,6 @@ distrib_opt___SCICOS__:: \
 		ee_$(DIST)/contrib/scicos/src/pic30/flex_adcin.c \
 		ee_$(DIST)/contrib/scicos/src/pic30/flex_buzzer.c \
 		ee_$(DIST)/contrib/scicos/src/pic30/flex_debug.c \
-		ee_$(DIST)/contrib/scicos/src/pic30/flex_gpin.c \
-		ee_$(DIST)/contrib/scicos/src/pic30/flex_gpout.c \
-		ee_$(DIST)/contrib/scicos/src/pic30/flex_lcd.c \
-		ee_$(DIST)/contrib/scicos/src/pic30/flex_led.c \
-		ee_$(DIST)/contrib/scicos/src/pic30/flex_pwm.c \
-		ee_$(DIST)/contrib/scicos/src/pic30/flex_can_in.c \
-		ee_$(DIST)/contrib/scicos/src/pic30/flex_can_out.c \
 		ee_$(DIST)/contrib/scicos/src/pic30/flex_dmb_adc.c \
 		ee_$(DIST)/contrib/scicos/src/pic30/flex_dmb_button.c \
 		ee_$(DIST)/contrib/scicos/src/pic30/flex_dmb_buzzer.c \
@@ -961,6 +992,12 @@ distrib_opt___SCICOS__:: \
 		ee_$(DIST)/contrib/scicos/src/pic30/flex_dmb_ntc.c \
 		ee_$(DIST)/contrib/scicos/src/pic30/flex_dmb_potin.c \
 		ee_$(DIST)/contrib/scicos/src/pic30/flex_dmb_pwm.c \
+		ee_$(DIST)/contrib/scicos/src/pic30/flex_gpin.c \
+		ee_$(DIST)/contrib/scicos/src/pic30/flex_gpout.c \
+		ee_$(DIST)/contrib/scicos/src/pic30/flex_lcd.c \
+		ee_$(DIST)/contrib/scicos/src/pic30/flex_led.c \
+		ee_$(DIST)/contrib/scicos/src/pic30/flex_pwm.c \
+		ee_$(DIST)/contrib/scicos/src/pic30/flex_touchin.c 
 
 #		ee_$(DIST)/contrib/scicos/src/nios2 \
 #		ee_$(DIST)/contrib/scicos/src/nios2/button.c \
