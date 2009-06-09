@@ -736,10 +736,10 @@ void EE_pwm_init(EE_UINT8 chan, unsigned long int pwm_period, unsigned long int 
       break;
 
     case EE_PWM_PORT2:
-			TRISDbits.TRISD6 = 0; /* Set OC7 as output */
-      OC7R = p; /* Set the initial duty cycle */
-      OC7RS = p; /* Load OCRS: current pwm duty cycle */
-      OC7CON = 0x0006; /* Set OC7 module: PWM, no fault check, Timer2 */
+			TRISDbits.TRISD2 = 0; /* Set OC7 as output */
+      OC3R = p; /* Set the initial duty cycle */
+      OC3RS = p; /* Load OCRS: current pwm duty cycle */
+      OC3CON = 0x0006; /* Set OC3 module: PWM, no fault check, Timer2 */
       break;
   }
 

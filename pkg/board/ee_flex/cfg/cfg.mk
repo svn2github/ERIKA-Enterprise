@@ -42,6 +42,7 @@
 ## CVS: $Id: cfg.mk,v 1.3 2008/02/07 14:05:30 nino Exp $
 
 ifeq ($(findstring __EE_FLEX__,$(EEOPT)) , __EE_FLEX__)
+
 EE_SRCS += pkg/board/ee_flex/src/ee_flex_demoboard.c
 
 # check for the ISR routines

@@ -44,6 +44,16 @@
 
 #ifdef __USE_DEMOBOARD__
 
+/* /\************************************************************************* */
+/*  Includes needed by PicDemZ wirelessmodule (GF) */
+/*  *************************************************************************\/ */
+
+#if defined (__USE_PICDEMZ_WITH_INT4__) || (__USE_PICDEMZ_WITH_CN20INT__)
+
+#include "radio_spi.h"
+
+#endif
+
 
 /* /\************************************************************************* */
 /*  LEDs */
@@ -909,7 +919,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_pwm_set_duty(EE_UINT8 chan, unsigned long i
 			OC8RS = (unsigned int)duty; /* Load OCRS: current pwm duty cycle */
     	break;
     case EE_PWM_PORT2:
-			OC8RS = (unsigned int)duty; /* Load OCRS: current pwm duty cycle */
+			OC3RS = (unsigned int)duty; /* Load OCRS: current pwm duty cycle */
     	break;
   }
 
@@ -925,8 +935,8 @@ __INLINE__ void __ALWAYS_INLINE__ EE_pwm_close( EE_UINT8 chan )
 			break;
 
 		case EE_PWM_PORT2: /** Close PWM2 **/
-			OC7RS  = 0;
-			OC7CON = 0;
+			OC3RS  = 0;
+			OC3CON = 0;
 			break;
 	}
 }
@@ -1257,157 +1267,12 @@ __INLINE__ float __ALWAYS_INLINE__ EE_encoder_get_position( void )
 
 
 /* ************************************************************************* */
-/* SPI - TODO!!! */
-/* ************************************************************************* */
-
-#if defined __USE_USB_OLD__
-
-extern unsigned int RxDmaBuffer;
-extern unsigned int TxDmaBuffer;
-extern unsigned int Spi1RxBuffA[64] __attribute__((space(dma)));
-extern unsigned int Spi1RxBuffB[64] __attribute__((space(dma)));
-extern unsigned int Spi1TxBuffA[256] __attribute__((space(dma)));
-extern unsigned int Spi1TxBuffB[256] __attribute__((space(dma)));
-
-
-__INLINE__ void __ALWAYS_INLINE__ EE_initSPIBuff(void)
-{
-unsigned int i;
-    for(i=0;i<64;i++)
-        Spi1TxBuffA[i]=0;
-        Spi1TxBuffB[i]=0;
-}
-
-/*=============================================================================
-_DMA0Init(): Initialise DMA0 for SPI Data Transmission
-=============================================================================*/
-// DMA0 configuration
-// Direction: Read from DMA RAM and write to SPI buffer
-// AMODE: Register Indirect with Post-Increment mode
-// MODE: Continuous, Ping-Pong Enabled
-// IRQ: SPI
-
-void EE_cfgDma0SpiTx(void)
-{
-
-	DMA0CON = 0x2002;
-	DMA0CNT = 64;			// deve essere uguale al max numero di dati impacchettati
-	DMA0REQ = 0x00A;
-
-	DMA0PAD = (volatile unsigned int) &SPI1BUF;
-	DMA0STA= __builtin_dmaoffset(Spi1TxBuffA);
-	DMA0STB= __builtin_dmaoffset(Spi1TxBuffB);
-
-
-	IFS0bits.DMA0IF  = 0;			// Clear DMA interrupt
-	IEC0bits.DMA0IE  = 1;			// Enable DMA interrupt
-	DMA0CONbits.CHEN = 1;			// Enable DMA Channel
-
-}
-
-// DMA1 configuration
-// Direction: Read from SPI buffer and write to DMA RAM
-// AMODE: Register Indirect with Post-Increment mode
-// MODE: Continuous, Ping-Pong Enabled
-// IRQ: SPI
-__INLINE__ void __ALWAYS_INLINE__ EE_cfgDma1SpiRx(void)
-{
-	DMA1CON = 0x0002;
-	DMA1CNT = 6;
-	DMA1REQ = 0x00A;
-
-	DMA1PAD = (volatile unsigned int) &SPI1BUF;
-	DMA1STA= __builtin_dmaoffset(Spi1RxBuffA);
-	DMA1STB= __builtin_dmaoffset(Spi1RxBuffB);
-
-
-	IFS0bits.DMA1IF  = 0;			// Clear DMA interrupt
-	IEC0bits.DMA1IE  = 1;			// Enable DMA interrupt
-	DMA1CONbits.CHEN = 1;			// Enable DMA Channel
-
-}
-
-__INLINE__ void __ALWAYS_INLINE__ EE_spi1_init( char mode ) {
-/* Following code snippet shows SPI register configuration for SLAVE Mode*/
-	SPI1BUF = 0x00;
-	IFS0bits.SPI1IF = 0; //Clear the Interrupt Flag
-	IEC0bits.SPI1IE = 0; //Disable The Interrupt
-// SPI1CON1 Register Settings
-	SPI1CON1bits.DISSCK = 0; //Internal Serial Clock is Enabled.
-	SPI1CON1bits.DISSDO = 0; //SDOx pin is controlled by the module.
-	SPI1CON1bits.MODE16 = 1; //Communication is word-wide (16 bits).
-	SPI1CON1bits.SMP = 0; //Input Data is sampled at the middle of data
-//output time.
-	SPI1CON1bits.CKE = 0; //Serial output data changes on transition
-//from Idle clock state to active clock state
-	SPI1CON1bits.CKP = 0; //Idle state for clock is a low level; active
-//state is a high level
-	SPI1CON1bits.MSTEN = mode && 1; //Master Mode disabled
-	SPI1STATbits.SPIROV=0; //No Receive Overflow Has Occurred
-	SPI1STATbits.SPIEN = 1; //Enable SPI Module
-//Interrupt Controller Settings
-	IFS0bits.SPI1IF = 0; //Clear the Interrupt Flag
-	IEC0bits.SPI1IE = 0; //Disable The Interrupt
-}
-
-__INLINE__ void __ALWAYS_INLINE__ EE_spi1_interruptEN( void ) {
-  IEC0bits.SPI1IE = 1; //Enable the Interrupt
-}
-
-__INLINE__ void __ALWAYS_INLINE__ EE_spi1_interruptDIS( void ) {
-  IEC0bits.SPI1IE = 0; //Disable the Interrupt
-}
-
-__INLINE__ void __ALWAYS_INLINE__ EE_spi2_init( char mode ) {
-  /* Following code snippet shows SPI2 register configuration for MASTER Mode*/
-	IFS2bits.SPI2IF = 0; //Clear the Interrupt Flag
-	IEC2bits.SPI2IE = 0; //disable the Interrupt
-	// SPI1CON2 Register Settings
-	SPI2CON1bits.DISSCK = 0; //Internal Serial Clock is Enabled.
-	SPI2CON1bits.DISSDO = 0; //SDO2 pin is controlled by the module.
-	SPI2CON1bits.MODE16 = 1; //Communication is word-wide (16 bits).
-	SPI2CON1bits.SMP = 0; //Input Data is sampled at the middle of data output time.
-	SPI2CON1bits.CKE = 0; //Serial output data changes on transition from
-	//Idle clock state to active clock state
-	SPI2CON1bits.CKP = 0; //Idle state for clock is a low level;
-	//active state is a high level
-	SPI2CON1bits.MSTEN = 1; //Master Mode Enabled
-	SPI2STATbits.SPIEN = mode && 1; //Enable SPI Module
-	//SPI2BUF = 0x0000; //Write data to be transmitted
-	//Interrupt Controller Settings
-	IFS2bits.SPI2IF = 0; //Clear the Interrupt Flag
-	IEC2bits.SPI2IE = 0; //Disable the Interrupt
-}
-
-__INLINE__ void __ALWAYS_INLINE__ EE_spi2_interruptEN( void ) {
-  IEC2bits.SPI2IE = 1; //Enable the Interrupt
-}
-
-__INLINE__ void __ALWAYS_INLINE__ EE_spi2_interruptDIS( void ) {
-  IEC2bits.SPI2IE = 0; //Disable the Interrupt
-}
-
-#endif
-
-/* ************************************************************************* */
 /* InfraRed - TODO!!! */
 /* ************************************************************************* */
 
 #ifdef __USE_IR__
 
 __INLINE__ void __ALWAYS_INLINE__ EE_ir_init( void ) {
-
-}
-
-#endif
-
-/* ************************************************************************* */
-/* ZigBee - TODO!!! */
-/* ************************************************************************* */
-
-#ifdef __USE_ZIGBEE__
-
-__INLINE__ void __ALWAYS_INLINE__ EE_zigbee_init( void ) {
 
 }
 
@@ -1421,12 +1286,6 @@ __INLINE__ void __ALWAYS_INLINE__ EE_zigbee_init( void ) {
 void EE_usb_init(void);
 EE_INT16 EE_usb_write(EE_UINT8 *buf, EE_UINT16 len);
 EE_INT16 EE_usb_read(EE_UINT8 *buf, EE_UINT16 len);
-#elif defined __USE_USB_OLD__
-void EE_usb_init( void );
-int EE_usb_send(unsigned int *buf, int len);
-int EE_usb_read(unsigned int *buf, int log_channel);
-void EE_usb_add_output_buffer(char *, int);
-void EE_usb_empty_buffer( void );
 #endif
 
 /* ************************************************************************* */

@@ -48,18 +48,6 @@
 
 #include "mcu/microchip_dspic/inc/ee_mcu.h"
 
-#if (defined __USE_USB__) && (defined __USE_USB_OLD__)
-#error "CANNOT use both __USE_USB__ and __USE_USB_OLD__ in EEOPT"
-#endif
-
-//Start GF
-#if defined (__USE_PICDEMZ_WITH_INT4__) || (__USE_PICDEMZ_WITH_CN20INT__)
-
-#include "radio_spi.h"
-
-#endif
-//End GF
-
 /* /\************************************************************************* */
 /*  LEDs */
 /*  *************************************************************************\/ */
@@ -91,6 +79,14 @@ __INLINE__ void __ALWAYS_INLINE__ EE_led_off(void)  { LATBbits.LATB14 = 0; }
 #include "board/ee_flex/inc/ee_flex_demoboard.h"
 #endif // __USE_DEMOBOARD__
 
-/* ************************************************************************* */
 
+/* /\************************************************************************* */
+/* Check if the Flex MotionBoard has been selected */
+/* /\************************************************************************* */
+
+#ifdef __USE_MOTIONBOARD__
+#include "board/ee_flex/inc/ee_flex_motionboard.h"
+#endif // __USE_MOTIONBOARD__
+
+/* ************************************************************************* */
 #endif
