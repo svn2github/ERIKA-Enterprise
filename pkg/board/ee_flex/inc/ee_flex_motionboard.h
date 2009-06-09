@@ -130,11 +130,11 @@ __INLINE__ void __ALWAYS_INLINE__ EE_buttons_init(void(*isr_callback)(void),
 
 __INLINE__ EE_UINT8 __ALWAYS_INLINE__ EE_button_get_S1(void) 
 {
-	return PORTDbits.RD9;
+	return !(PORTDbits.RD9);
 }
 __INLINE__ EE_UINT8 __ALWAYS_INLINE__ EE_button_get_S2(void) 
 {
-	return PORTDbits.RD11;
+	return !(PORTDbits.RD11);
 }
 
 #endif
