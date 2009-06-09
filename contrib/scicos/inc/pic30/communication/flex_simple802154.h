@@ -44,8 +44,8 @@
 #include <ee.h>
 #include "ozb_ieee802154.h"
 
-#define FLEX_SIMPLE802154_ADDRESSES 	10
-#define FLEX_SIMPLE802154_CHANNELS 	255
+#define FLEX_SIMPLE802154_ADDRESSES 	20
+#define FLEX_SIMPLE802154_CHANNELS 	128
 
 typedef struct flex_simple802154_packet_t {
 	EE_UINT16	src_addr;
@@ -59,7 +59,8 @@ typedef struct flex_simple802154_flags_t {
 	unsigned rx_initialized : 1;
 	unsigned tx_initialized : 1;
 	unsigned lookup_initialized : 1;
-	unsigned reserved : 4;
+	unsigned is_coordinator : 1;
+	unsigned reserved : 3;
 } flex_simple802154_flags_t;
 
 extern EE_UINT16 flex_simple802154_address_table[FLEX_SIMPLE802154_ADDRESSES];
@@ -77,7 +78,6 @@ EE_UINT16 flex_simple802154_address_lookup(EE_UINT16 address)
 	return i;
 }
 
-/*TODO: have a clear_lookup to be called by the end() of blocks */ 
 __INLINE__ 
 void flex_simple802154_add_lookup(EE_UINT16 address)
 {
@@ -101,5 +101,7 @@ void flex_simple802154_add_lookup(EE_UINT16 address)
 		}
 	}
 }
+
+/*TODO: have a clear_lookup to be called by the end() of blocks */ 
 
 #endif

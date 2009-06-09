@@ -3,15 +3,20 @@
 #include "flex_simple802154.h"
 
 #ifdef __HAS_SIMPLE802154_D_CONFIG__
-#error "FLEX 802.15.4 ERROR: usage of coordinator and device blocks" \
-	"at the same time is forbidden."
+#error FLEX 802.15.4 ERROR: usage of coordinator and device blocks \
+	at the same time is forbidden.
 #endif
 
 EE_UINT16 flex_simple802154_address_table[FLEX_SIMPLE802154_ADDRESSES];
 EE_UINT16 flex_simple802154_local_address;
-flex_simple802154_flags_t flex_simple802154_flags = {0, 0, 0, 0, 0};	
-
-//EE_UINT16 flex_simple802154_address_count = 0;
+flex_simple802154_flags_t flex_simple802154_flags = {
+	.cfg_initialized 	= 0,
+	.rx_initialized		= 0,
+	.tx_initialized		= 0,
+	.lookup_initialized	= 0,
+	.is_coordinator		= 1,
+	.reserved		= 0
+};	
 
 static void cfg_init(scicos_block *block)
 {	
@@ -65,6 +70,7 @@ static void cfg_init(scicos_block *block)
 				return;
 		}
 	}
+	flex_simple802154_flags.is_coordinator = 1;
 	flex_simple802154_flags.cfg_initialized = 1;
 }
 
