@@ -61,7 +61,9 @@
 
 #ifdef __USE_LEDS__
 
-__INLINE__ void __ALWAYS_INLINE__ EE_demoboard_leds_init(void) {
+#define EE_demoboard_leds_init() EE_daughter_leds_init()
+
+__INLINE__ void __ALWAYS_INLINE__ EE_daughter_leds_init(void) {
 	/* set LEDs drive state low */
 	LATF  &= 0xFFF0;
 	LATD  &= 0xF0FF;
@@ -410,7 +412,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_lcd_goto (EE_UINT8 posx, EE_UINT8 posy)
 /*  Analog inputs */
 /*  *************************************************************************\/ */
 
-#if defined(__USE_SENSORS__) || defined(__USE_TRIMMER__) || defined(__USE_ACCELEROMETER__) || defined(__USE_ADC_IN__)
+#if defined(__USE_ANALOG_SENSORS__) || defined(__USE_TRIMMER__) || defined(__USE_ACCELEROMETER__) || defined(__USE_ADC__)
 
 #define AVDD 3.3
 #define VREF 3.3
@@ -476,7 +478,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_analog_close( void )
 #endif
 
 /* ADC Aux Input */
-#ifdef __USE_ADC_IN__
+#ifdef __USE_ADC__
 __INLINE__ void __ALWAYS_INLINE__ EE_adcin_init( void ) { EE_analog_init(); }
 
 __INLINE__ float __ALWAYS_INLINE__ EE_adcin_get_volt( EE_UINT8 channel )
@@ -544,7 +546,7 @@ __INLINE__ float __ALWAYS_INLINE__ EE_trimmer_get_volt( void )
 #endif
 
 /* Sensors Input */
-#ifdef __USE_SENSORS__
+#ifdef __USE_ANALOG_SENSORS__
 
 // Thermal constants for the Voltage-Temperature conversion (fra)
 #define THERM_A 0.0004132
@@ -868,7 +870,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_buzzer_close( void ) {
 /*  PWM Output */
 /*  *************************************************************************\/ */
 
-#ifdef __USE_PWM_OUT__
+#ifdef __USE_PWM__
 
 #define EE_PWM_PORT1 1
 #define EE_PWM_PORT2 2
@@ -941,7 +943,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_pwm_close( EE_UINT8 chan )
 	}
 }
 
-#endif // __USE_PWM_OUT__
+#endif // __USE_PWM__
 
 /* /\************************************************************************* */
 /*  DAC */

@@ -50,7 +50,7 @@
 /******************************************************************************/
 #ifdef __USE_LEDS__
 
-__INLINE__ void __ALWAYS_INLINE__ EE_demoboard_leds_init(void) 
+__INLINE__ void __ALWAYS_INLINE__ EE_daughter_leds_init(void) 
 {
 	/* set LEDs drive state low */
 	LATDbits.LATD0 = 0;
@@ -143,7 +143,7 @@ __INLINE__ EE_UINT8 __ALWAYS_INLINE__ EE_button_get_S2(void)
 /******************************************************************************/
 /*                                   PWM Out                                  */
 /******************************************************************************/
-#ifdef __USE_PWM_OUT__
+#ifdef __USE_PWM__
 
 #define EE_PWM_PORT1 1
 #define EE_PWM_PORT2 2
@@ -213,7 +213,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_pwm_close(EE_UINT8 chan)
 	}
 }
 
-#endif // __USE_PWM_OUT__
+#endif // __USE_PWM__
 
 
 /******************************************************************************/
@@ -261,7 +261,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_encoder_close(void)
 	QEICONbits.QEIM = 0;
 }
 
-__INLINE__ EE_INT16 __ALWAYS_INLINE__ EE_encoder_get_ticks(void)
+__INLINE__ EE_INT6 __ALWAYS_INLINE__ EE_encoder_get_ticks(void)
 {
 	return ((EE_INT16)POSCNT);
 }

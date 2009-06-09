@@ -129,7 +129,7 @@ ISR2(_INT4Interrupt)
 /*  Analog input */
 /*  *************************************************************************\/ */
 
-#if defined(__USE_SENSORS__) || defined(__USE_TRIMMER__) || defined(__USE_ACCELEROMETER__) || defined(__USE_ADC_IN__)
+#if defined(__USE_ANALOG_SENSORS__) || defined(__USE_TRIMMER__) || defined(__USE_ACCELEROMETER__) || defined(__USE_ADC__)
 EE_UINT8 EE_adc_init = 0;
 #endif
 
@@ -185,19 +185,7 @@ EE_UINT16 count;
 
 #endif
 
-#if defined (__USE_USB_OLD__) || defined (__USE_SPI__)
-
-#define USB_BUF_SIZE 256
-unsigned int Spi1TxBuffA[USB_BUF_SIZE+1] __attribute__((space(dma)));
-
-unsigned int Spi1RxBuffA[64] __attribute__((space(dma)));
-//unsigned int Spi1RxBuffB[64] __attribute__((space(dma));
-//unsigned int Spi1TxBuffB[256] __attribute__((space(dma)));
-unsigned int RxDmaBuffer = 0;
-unsigned int TxDmaBuffer = 0;
-#endif
-
-#if defined __USE_USB__
+#ifdef __USE_USB__
 
 #include <string.h>
 
@@ -438,237 +426,7 @@ void __attribute__((interrupt, no_auto_psv)) _DMA1Interrupt(void)
 	}
 }
 
-#elif defined __USE_USB_OLD__
-unsigned int j=0;
-char usb_buf[USB_BUF_SIZE] __attribute__((far));
-unsigned int EE_usb_buf_in[USB_BUF_SIZE] __attribute__((far));
-long int sent_prot2=0;
-int tosend=1, sent=1;
-int EE_toread=0, EE_read=0;
-unsigned int EE_read_length=0;
-long int sent_prot1=0;
-char usb_initialized;
-
-void EE_usb_init( void ) {
-  if(!usb_initialized){
-
-    LATAbits.LATA14 = 1; // dsPIC SPI communication busy
-
-    /* Following code snippet shows SPI register configuration for SLAVE Mode*/
-  	SPI1BUF = 0x00;
-  	IFS0bits.SPI1IF = 0; //Clear the Interrupt Flag
-  	IEC0bits.SPI1IE = 0; //Disable The Interrupt
-    // SPI1CON1 Register Settings
-  	SPI1CON1bits.DISSCK = 0; //Internal Serial Clock is Enabled.
-  	SPI1CON1bits.DISSDO = 0; //SDOx pin is controlled by the module.
-  	SPI1CON1bits.MODE16 = 1; //Communication is word-wide (16 bits).
-  	SPI1CON1bits.SMP = 0; //Input Data is sampled at the middle of data
-    //output time.
-  	SPI1CON1bits.CKE = 0; //Serial output data changes on transition
-    //from Idle clock state to active clock state
-  	SPI1CON1bits.CKP = 0; //Idle state for clock is a low level; active
-    //state is a high level
-  	SPI1CON1bits.MSTEN = 0; //Master Mode disabled
-  	SPI1STATbits.SPIROV=0; //No Receive Overflow Has Occurred
-  	SPI1STATbits.SPIEN = 1; //Enable SPI Module
-    //Interrupt Controller Settings
-  	IFS0bits.SPI1IF = 0; //Clear the Interrupt Flag
-  	IEC0bits.SPI1IE = 0; //Enable The Interrupt
-
-  	// DMA0 configuration for SPI Tx
-  	DMA0CON = 0x2000;
-
-  	DMA0REQ = 0x00A;
-
-  	DMA0PAD = (volatile unsigned int) &(SPI1BUF);
-  	DMA0STA= __builtin_dmaoffset(Spi1TxBuffA);
-//  	DMA0STB= __builtin_dmaoffset(Spi1TxBuffB);
-
-  	IFS0bits.DMA0IF  = 0;			// Clear DMA interrupt
-  	IEC0bits.DMA0IE  = 0;			// Disable DMA interrupt
-  	DMA0CONbits.CHEN = 0;    // Disable Tx DMA Channel
-
-  	// DMA1 configuration for SPI Rx; lower priority than DMA0
-  	DMA1CON = 0x0000;
-  	DMA1CNT = 3;
-  	DMA1REQ = 0x00A;
-
-  	DMA1PAD = (volatile unsigned int) &SPI1BUF;
-  	DMA1STA= __builtin_dmaoffset(Spi1RxBuffA);
-//  	DMA1STB= __builtin_dmaoffset(Spi1RxBuffB);
-
-  	IFS0bits.DMA1IF  = 0;			// Clear DMA interrupt
-
-  	IEC0bits.DMA1IE  = 1;			// Enable Rx DMA interrupt
-  	DMA1CONbits.CHEN = 1;			// Enable DMA Channel
-
-    IFS0bits.DMA0IF  = 0;			// Clear DMA interrupt
-  	IEC0bits.DMA0IE  = 0;			// Disable DMA interrupt
-  	DMA0CONbits.CHEN = 0;// Disable Tx DMA Channel
-
-    usb_initialized=1;
-	}
-
-}
-
-
-int EE_usb_send(unsigned int *buf, int len)
-{
-
-  int i = 0, busybuf = 0;
-  //LATAbits.LATA14 = 1 means that dsPIC SPI communication busy
-  if(!len) return len;
-  EE_hal_begin_primitive();
-  busybuf = (tosend - sent) % USB_BUF_SIZE;
-  if(!((busybuf+1)% USB_BUF_SIZE)) {// the buffer is full
-    len = 0;
-    goto end;
-  }
-  if(busybuf < 0) busybuf+=USB_BUF_SIZE;
-  if(len > (USB_BUF_SIZE-1-(busybuf))) len = (USB_BUF_SIZE-1-(busybuf));
-
-  for(i=0; i<len; i++, tosend++){
-    if(tosend == USB_BUF_SIZE+1) tosend = 1;
-    Spi1TxBuffA[tosend] = buf[i];
-  }
-  if(tosend == USB_BUF_SIZE+1) tosend = 1;
-
-  if(LATAbits.LATA14){ // DMA dedicated to SPI not active
-
-    //if(sent != DMA0STA) for(;;); // debug
-    busybuf = tosend - sent;
-    if(busybuf < 0) busybuf+=USB_BUF_SIZE;
-    if(busybuf > 31) busybuf = 31;
-    if(busybuf > (USB_BUF_SIZE + 1 - sent)) busybuf = (USB_BUF_SIZE + 1 - sent);
-    if(sent<1 || sent >256)
-	     for(;;) EE_hal_begin_primitive();
-    Spi1TxBuffA[sent-1] = busybuf;
-    DMA0STA= __builtin_dmaoffset(Spi1TxBuffA);
-    DMA0STA += (sent-1) << 1;
-    DMA0CNT = busybuf+1;
-    IFS0bits.DMA0IF  = 0;			// Clear DMA interrupt
-  	IEC0bits.DMA0IE  = 1;			// Enable DMA interrupt
-    DMA0CONbits.CHEN = 1;// Enable Tx DMA Channel
-    LATAbits.LATA14 = 0; // wake up PIC18
-  }
-
-
-end:
-  EE_hal_end_primitive();
-  return len;
-}
-
-int EE_usb_read(unsigned int *buf, int log_channel)
-{
-  EE_hal_begin_primitive();
-  if(EE_usb_buf_in[log_channel * 3])
-  {
-    buf[0]=EE_usb_buf_in[log_channel * 3];
-    buf[1]=EE_usb_buf_in[(log_channel * 3)+1];
-    buf[2]=EE_usb_buf_in[(log_channel * 3)+2];
-  }
-  else
-  {
-    EE_hal_end_primitive();
-    return 0;
-  }
-  EE_hal_end_primitive();
-  return 1;
-}
-
-int temp;
-void __attribute__((interrupt, no_auto_psv)) _DMA0Interrupt(void)
-{
-  EE_hal_begin_primitive();
-	LATAbits.LATA14 = 1;
-	IFS0bits.DMA0IF  = 0;			// Clear DMA interrupt
-	IEC0bits.DMA0IE  = 0;			// Disable DMA interrupt
-	DMA0CONbits.CHEN = 0;    // Disable Tx DMA Channel
-
-	int busybuf = 0;
-	if(sent<1 || sent >256)
-	 for(;;) EE_hal_begin_primitive();
-
-	temp =sent;
-  sent = (sent + Spi1TxBuffA[sent-1]);
-
-  if(sent==USB_BUF_SIZE + 1) sent = 1;
-
-  if(sent<1 || sent >256)
-#ifdef ARIZONADEMO
-    sent=tosend=1;
-#else
-	  for(;;) EE_hal_begin_primitive();
-#endif
-
-  if(tosend != sent) {
-    //if(sent != DMA0STA) for(;;); // debug
-    busybuf = tosend - sent;
-    if(busybuf < 0) busybuf+=USB_BUF_SIZE;
-    if(busybuf > 31) busybuf = 31;
-    if(busybuf > (USB_BUF_SIZE + 1 - sent)) busybuf = (USB_BUF_SIZE + 1 - sent);
-    Spi1TxBuffA[sent-1] = busybuf;
-    DMA0STA= __builtin_dmaoffset(Spi1TxBuffA);
-    DMA0STA += (sent-1) << 1;
-    DMA0CNT = busybuf+1;
-
-  	IFS0bits.DMA0IF  = 0;			// Clear DMA interrupt
-  	IEC0bits.DMA0IE  = 1;			// Enable DMA interrupt
-  	DMA0CONbits.CHEN = 1;    // Enable Tx DMA Channel
-
-  	IFS0bits.DMA1IF  = 0;			// Clear DMA interrupt
-
-    LATAbits.LATA14 = 0; // wake up PIC18
-  }
-  EE_hal_end_primitive();
-}
-
-void ProcessSpiRxSamples(unsigned int SpiRxBuffer[])
-{
-  int log_channel;
-	if(!SpiRxBuffer[0])
-		return;
-	else if(SpiRxBuffer[0]==75) // received usb packet
-  {
-    IEC0bits.DMA1IE  = 0;			// Disable Rx DMA interrupt
-  	DMA1CONbits.CHEN = 0;			// Disable DMA Channel
-
-
-	 	IEC0bits.DMA1IE  = 1;			// Enable Rx DMA interrupt
-  	DMA1CONbits.CHEN = 1;			// Enable DMA Channel
-	}
-	else if(SpiRxBuffer[0]==77) // reset usb send buffer
-  {
-    DMA0CONbits.CHEN = 0;// Disable Tx DMA Channel
-    sent = tosend = 1;
-    LATAbits.LATA14 = 1; // dsPIC SPI communication busy
-	}
-	else if(SpiRxBuffer[0]==80)
-  {
-    IEC0bits.DMA1IE  = 0;			// Disable Rx DMA interrupt
-  	DMA1CONbits.CHEN = 0;			// Disable DMA Channel
-    log_channel = SpiRxBuffer[1] >> 8;
-    EE_usb_buf_in[(log_channel * 3)] = (SpiRxBuffer[1] & 0xFF); // id data
-    EE_usb_buf_in[(log_channel * 3)+1] = SpiRxBuffer[2]; // float_h
-    EE_usb_buf_in[(log_channel * 3)+2] = SpiRxBuffer[3]; // float_l
-    IEC0bits.DMA1IE  = 1;			// Enable Rx DMA interrupt
-  	DMA1CONbits.CHEN = 1;			// Enable DMA Channel
-  }
-}
-
-void __attribute__((interrupt, no_auto_psv)) _DMA1Interrupt(void)
-{
-  EE_hal_begin_primitive();
-  LATBbits.LATB14 =!LATBbits.LATB14;
- 	ProcessSpiRxSamples(&Spi1RxBuffA[0]);
-
-  IFS0bits.DMA1IF = 0;		// Clear the DMA0 Interrupt Flag
-  EE_hal_end_primitive();
-}
-
-#endif // use usb
-
-#ifdef __USE_PWM_OUT__
+#ifdef __USE_PWM__
 
 EE_UINT8 t_pre_scaler;
 
@@ -729,14 +487,14 @@ void EE_pwm_init(EE_UINT8 chan, unsigned long int pwm_period, unsigned long int 
   switch(chan)
   {
     case EE_PWM_PORT1:
-			TRISDbits.TRISD7 = 0; /* Set OC8 as output */
+	  TRISDbits.TRISD7 = 0; /* Set OC8 as output */
       OC8R = p; /* Set the initial duty cycle */
       OC8RS = p; /* Load OCRS: current pwm duty cycle */
       OC8CON = 0x0006; /* Set OC8 module: PWM, no fault check, Timer2 */
       break;
 
     case EE_PWM_PORT2:
-			TRISDbits.TRISD2 = 0; /* Set OC7 as output */
+	  TRISDbits.TRISD2 = 0; /* Set OC7 as output */
       OC3R = p; /* Set the initial duty cycle */
       OC3RS = p; /* Load OCRS: current pwm duty cycle */
       OC3CON = 0x0006; /* Set OC3 module: PWM, no fault check, Timer2 */
@@ -770,13 +528,13 @@ void EE_pwm_set_duty_f( EE_UINT8 chan , float duty )
       OC8RS = duty_out * (period+1);
       break;
     case EE_PWM_PORT2:
-      OC7RS = duty_out * (period+1);
+      OC3RS = duty_out * (period+1);
       break;
   }
 }
 
 
-#endif // __USE_PWM_OUT__
+#endif // __USE_PWM__
 
 /* ************************************************************************* */
 
