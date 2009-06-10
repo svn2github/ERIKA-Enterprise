@@ -255,6 +255,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_pwm_set_duty(EE_UINT8 chan, EE_UINT32 duty)
 	duty = ( (duty * 40) >> t_pre_scaler ) - 1;  
 	if (duty > PR2) 
 		return;
+	duty = PR2 - duty;
 	switch(chan) {
 	case EE_PWM_PORT1:
 		OC8RS = (EE_UINT16)duty; /* Load OCRS: current pwm duty cycle */
