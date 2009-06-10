@@ -75,7 +75,11 @@ COMPILER_INLINE int8_t ozb_radio_init(void)
 	/* chris: TODO: Find another way, maybe dynamic to set the Radio PORT
 			e.g use defines at compiling time, use void* (nino's
 			solution!)*/
+	#ifdef __USE_MOTIONBOARD__
+	return cc2420_radio_init(CC2420_SPI_PORT_1);
+	#else
 	return cc2420_radio_init(CC2420_SPI_PORT_2);
+	#endif
 }
 
 

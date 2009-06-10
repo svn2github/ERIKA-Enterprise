@@ -19,7 +19,7 @@ static uint16_t temp_count COMPILER_ATTRIBUTE_NEAR = 0;
 
 void cc2420_delay_us( uint16_t delay_count )
 {
-	temp_count = delay_count +1;
+	temp_count = delay_count + 1;
 	asm volatile("outer: dec _temp_count");
 	asm volatile("cp0 _temp_count");
 	asm volatile("bra z, done");
@@ -40,10 +40,18 @@ int8_t	cc2420_hal_init(void)
 	CC2420_TRIS_CCA = 1;
 	CC2420_TRIS_CSn = 0;
 	/* Set interrupt registers */
+/* TODO: TEMP solution adopted for EUROLAB 2009! */
+#ifdef __USE_MOTIONBOARD__
+	TRISDbits.TRISD15 = 1; 
+	CNEN2bits.CN21IE =1; //RFIEC20 = 1; INT on CN20
+	IFS1bits.CNIF = 0; //RFIF = 0;
+	IEC1bits.CNIE = 1; //RFIE = 1;
+#else
 	CC2420_INTERRUPT_FLAG = 0;
 	CC2420_INTERRUPT_PRIORITY = 1;
 	CC2420_INTERRUPT_EDGE_POLARITY = 0;
 	CC2420_INTERRUPT_ENABLE = 1;
+#endif /* __USE_MOTIONBOARD__ */
 	return 1;
 }
 
@@ -115,7 +123,8 @@ int8_t	cc2420_hal_init(void)
 	
 	/* Set interrupt registers */
 	//C2420_CLEAR_PIN(CC2420_INTERRUPT_FLAG); //CC2420_INTERRUPT_FLAG = 0;	
-	(*(volatile uint8_t*)(CC2420_INTERRUPT_FLAG_AVR_PORT)) &= ~(1<<CC2420_INTERRUPT_FLAG_AVR_PIN);
+	(*(volatile uint8_t*)(CC2420_INTERRUPT_FLAG_AVR_PORT)) &= 
+					~(1<<CC2420_INTERRUPT_FLAG_AVR_PIN);
 
 	#ifdef __MICROCHIP_DSPIC30__
 	CC2420_INTERRUPT_PRIORITY = 1;

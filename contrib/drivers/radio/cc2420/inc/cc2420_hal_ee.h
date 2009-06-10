@@ -79,8 +79,13 @@
 #define CC2420_SFD	PORTDbits.RD13
 #endif
 
+/* TODO: TEMP solution adopted for EUROLAB 2009! */
+#ifdef __USE_MOTIONBOARD__
+#define CC2420_CSn		PORTBbits.RB2
+#else
 #ifndef CC2420_CSn
 #define CC2420_CSn		PORTGbits.RG9
+#endif
 #endif
 
 #ifndef CC2420_TRIS_RESETn
@@ -107,8 +112,13 @@
 #define CC2420_TRIS_SFD	TRISDbits.TRISD13
 #endif
 
+/* TODO: TEMP solution adopted for EUROLAB 2009! */
+#ifdef __USE_MOTIONBOARD__
+#define CC2420_TRIS_CSn		TRISBbits.TRISB2
+#else
 #ifndef CC2420_TRIS_CSn
 #define CC2420_TRIS_CSn		TRISGbits.TRISG9
+#endif
 #endif
 
 

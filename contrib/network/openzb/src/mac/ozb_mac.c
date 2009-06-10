@@ -219,6 +219,8 @@ COMPILER_INLINE uint8_t set_pending_address_fields(uint8_t *pf)
 
 COMPILER_INLINE uint8_t set_beacon_payload(uint8_t *bp)
 {
+//	memset(bp, 0xAF, 20);
+//	return 20;
 	return 0;
 }
 

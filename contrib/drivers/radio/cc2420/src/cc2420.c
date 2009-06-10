@@ -399,6 +399,18 @@ void cc2420_set_mac_pan_id(uint8_t* id)
 	CC2420_CSn_1();
 }
 
+/* TODO: TEMP solution adopted for EUROLAB 2009! */
+#ifdef __USE_MOTIONBOARD__
+void cc2420_cn_irq_notification(void)
+{
+	if (PORTDbits.RD15 && IEC1bits.CNIE && 
+	     IFS1bits.CNIF && CNEN2bits.CN21IE)
+		if (rx_callback != NULL) 
+			rx_callback();
+	IFS1bits.CNIF = 0;
+}
+#else
+
 #ifdef __PIC30__
 COMPILER_ISR(CC2420_INTERRUPT_NAME)
 #elif defined __AVR5__
@@ -413,3 +425,4 @@ void irq_cc2420_type2(void)
 	ActivateTask(dummy_process);
 	#endif
 }
+#endif /* __USE_MOTIONBOARD__ */

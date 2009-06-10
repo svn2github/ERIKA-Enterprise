@@ -426,6 +426,8 @@ void __attribute__((interrupt, no_auto_psv)) _DMA1Interrupt(void)
 	}
 }
 
+#endif /* __USE_USB__ */ 
+
 #ifdef __USE_PWM__
 
 EE_UINT8 t_pre_scaler;
