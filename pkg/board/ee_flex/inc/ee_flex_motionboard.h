@@ -139,6 +139,73 @@ __INLINE__ EE_UINT8 __ALWAYS_INLINE__ EE_button_get_S2(void)
 
 #endif
 
+/******************************************************************************/
+/*                                   Switch                                   */
+/******************************************************************************/
+#ifdef __USE_SWITCH__
+
+__INLINE__ void __ALWAYS_INLINE__ EE_switch_init(void) 
+{
+	/* set SWITCH pins as inputs */
+	TRISEbits.TRISE7  = 1;
+	TRISEbits.TRISE6  = 1;
+	TRISEbits.TRISE5  = 1;
+	TRISGbits.TRISG13 = 1;
+	TRISAbits.TRISA7  = 1;
+	TRISGbits.TRISG14 = 1;
+	TRISDbits.TRISD4  = 1;
+	TRISDbits.TRISD1  = 1;
+}
+
+__INLINE__ EE_UINT8 __ALWAYS_INLINE__ EE_switch_1_get(void) 
+{
+	return !(PORTEbits.RE7);
+}
+__INLINE__ EE_UINT8 __ALWAYS_INLINE__ EE_switch_2_get(void) 
+{
+	return !(PORTEbits.RE6);
+}
+__INLINE__ EE_UINT8 __ALWAYS_INLINE__ EE_switch_3_get(void) 
+{
+	return !(PORTEbits.RE5);
+}
+__INLINE__ EE_UINT8 __ALWAYS_INLINE__ EE_switch_4_get(void) 
+{
+	return !(PORTGbits.RG13);
+}
+__INLINE__ EE_UINT8 __ALWAYS_INLINE__ EE_switch_5_get(void) 
+{
+	return !(PORTAbits.RA7);
+}
+__INLINE__ EE_UINT8 __ALWAYS_INLINE__ EE_switch_6_get(void) 
+{
+	return !(PORTGbits.RG14);
+}
+__INLINE__ EE_UINT8 __ALWAYS_INLINE__ EE_switch_7_get(void) 
+{
+	return !(PORTDbits.RD4);
+}
+__INLINE__ EE_UINT8 __ALWAYS_INLINE__ EE_switch_8_get(void) 
+{
+	return !(PORTDbits.RD1);
+}
+
+__INLINE__ EE_UINT8 __ALWAYS_INLINE__ EE_switch_get_all(void) 
+{
+
+	return !(((EE_UINT8) PORTEbits.RE7      ) |
+		((EE_UINT8) PORTEbits.RE6  << 1 ) |
+		((EE_UINT8) PORTEbits.RE5  << 2 ) |
+		((EE_UINT8) PORTGbits.RG13 << 3 ) |
+		((EE_UINT8) PORTAbits.RA7  << 4 ) |
+		((EE_UINT8) PORTGbits.RG14 << 5 ) |
+		((EE_UINT8) PORTDbits.RD4  << 6 ) |
+		((EE_UINT8) PORTDbits.RD1  << 7 ));
+}
+#endif /* __USE_SWITCH__ */
+
+
+
 
 /******************************************************************************/
 /*                                   PWM Out                                  */

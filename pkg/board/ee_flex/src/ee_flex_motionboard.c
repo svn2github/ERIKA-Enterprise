@@ -47,82 +47,10 @@
 #include "ee_internal.h"
 #include "cpu/pic30/inc/ee_irqstub.h"
 
-//Start GF
-/* /\************************************************************************* */
-/*  Buttons and PICDEM Z */
-/*  *************************************************************************\/ */
 
-#ifdef __USE_BUTTONS__
-void (*EE_button_callback)(void);
-EE_UINT8 EE_button_mask;
-
-union cn_st cn_st_old;
-#endif
-
-#if defined (__USE_PICDEMZ_WITH_INT4__) || (__USE_PICDEMZ_WITH_CN20INT__)
-void (*EE_picdemz_callback)(void);
-#endif
-
-#if defined (__USE_BUTTONS__) || (__USE_PICDEMZ_WITH_CN20INT__)
-ISR2(_CNInterrupt)
-{
-	#ifdef __USE_BUTTONS__
-	/* Execute callback function if there is a change notification related
-	 * to a button.
-	 */
-	if (EE_button_callback != NULL
-			|| PORTDbits.RD4 != cn_st_old.bits.s1
-			|| PORTDbits.RD5 != cn_st_old.bits.s2
-			|| PORTDbits.RD6 != cn_st_old.bits.s3
-			|| PORTDbits.RD15 != cn_st_old.bits.s4) {
-
-		cn_st_old.bits.s1 = PORTDbits.RD4;
-		cn_st_old.bits.s2 = PORTDbits.RD5;
-		cn_st_old.bits.s3 = PORTDbits.RD6;
-		cn_st_old.bits.s4 = PORTDbits.RD15;
-
-		EE_button_callback();
-	}
-	#endif
-
-	#ifdef __USE_PICDEMZ_WITH_CN20INT__
-	/*
-	 * call interrupt handler only with RF_INT_PIN low
-	 */
-	//if ( !RF_INT_PIN && RFIE && RFIF && RFIEC20)
-	if (!PORTDbits.RD14 && IEC1bits.CNIE && IFS1bits.CNIF && CNEN2bits.CN20IE)
-	// Execute callback function
-		if (EE_picdemz_callback != NULL) {
-			EE_picdemz_callback();
-		}
-	#endif
-
-	/* reset CN interrupt flag */
-	IFS1bits.CNIF = 0;
-}
-
-#endif
-
-#ifdef __USE_PICDEMZ_WITH_INT4__
-
-ISR2(_INT4Interrupt)
-{
-	if(IEC3bits.INT4IE && IFS3bits.INT4IF) { //if(RFIE && RFIF)
-		// Execute callback function
-		if (EE_picdemz_callback != NULL)
-			EE_picdemz_callback();
-	}
-	IFS3bits.INT4IF = 0; // clear interrupt flag
-
-}
-#endif
-//End GF
-
-
-/* /\************************************************************************* */
-/*  USB */
-/*  *************************************************************************\/ */
-
+/******************************************************************************/
+/*                                   U S B                                    */
+/******************************************************************************/
 #if defined __USE_USB__
 
 #include <string.h>
@@ -367,6 +295,9 @@ void __attribute__((interrupt, no_auto_psv)) _DMA1Interrupt(void)
 
 #endif /* __USE_USB__ */
 
+/******************************************************************************/
+/*                                   PWM Out                                  */
+/******************************************************************************/
 #ifdef __USE_PWM__
 
 EE_UINT8 t_pre_scaler;

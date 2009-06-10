@@ -43,6 +43,7 @@
 
 ifeq ($(findstring __EE_FLEX__,$(EEOPT)) , __EE_FLEX__)
 
+ifeq ($(findstring __USE_DEMOBOARD__,$(EEOPT)) , __USE_DEMOBOARD__)
 EE_SRCS += pkg/board/ee_flex/src/ee_flex_demoboard.c
 
 # check for the ISR routines
@@ -54,4 +55,10 @@ ifeq ($(findstring __USE_BUZZER__,$(EEOPT)) , __USE_BUZZER__)
 OPT_LINK += -u__T4Interrupt
 endif
 
-endif
+endif # __USE_DEMOBOARD__
+
+ifeq ($(findstring __USE_MOTIONBOARD__,$(EEOPT)) , __USE_MOTIONBOARD__)
+EE_SRCS += pkg/board/ee_flex/src/ee_flex_motionboard.c
+endif # __USE_MOTIONBOARD__
+
+endif # __EE_FLEX__
