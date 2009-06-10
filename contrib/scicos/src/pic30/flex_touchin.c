@@ -29,6 +29,7 @@ static void init(scicos_block *block)
 	
 	if(x_already_initialized && y_already_initialized)
 	{
+		touch_init();
 		touch_calibrate();
 		touch_start();
 		touch_initialized = 1;
@@ -46,7 +47,7 @@ static void inout(scicos_block *block)
 	if(axis != ASCII_X && axis != ASCII_Y) 
 		return;
 		
-	y[0] = (float)touch_get_position(axis-ASCII_X);
+	y[0] = (float)touch_get_position_s(axis-ASCII_X);
 }
 
 static void end(scicos_block *block)

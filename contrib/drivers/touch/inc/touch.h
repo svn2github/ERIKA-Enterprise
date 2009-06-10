@@ -38,13 +38,22 @@ typedef struct {
   Function definitions
 ****************************************************************************/
 
-EE_UINT16 touch_get_position(EE_UINT8 axis);
+EE_UINT16 touch_get_position_u(EE_UINT8 touch_axis);
+EE_INT16 touch_get_position_s(EE_UINT8 axis);
 void	touch_set_dimension(EE_UINT8, EE_UINT8);
-void 	touch_start(void);
-void 	touch_stop(void);
+void 	touch_init(void);
 void	touch_calibrate(void);
-void	touch_adc_init(void);
 void 	store_valid_data(void);
 void 	sorted_insertion(EE_UINT16 Array[]);
+
+COMPILER_INLINE void touch_start(void)
+{
+	SetRelAlarm(AlarmTouchManager,10,10);
+}
+
+COMPILER_INLINE void touch_stop(void)
+{
+	CancelAlarm(AlarmTouchManager);
+}
 
 #endif // __TOUCH_H__
