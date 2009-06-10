@@ -48,7 +48,7 @@ void 	sorted_insertion(EE_UINT16 Array[]);
 
 COMPILER_INLINE void touch_start(void)
 {
-	SetRelAlarm(AlarmTouchManager,10,10);
+	SetRelAlarm(AlarmTouchManager,10,2);
 }
 
 COMPILER_INLINE void touch_stop(void)

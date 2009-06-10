@@ -347,6 +347,7 @@ void EE_pwm_init(EE_UINT8 chan, EE_UINT32 pwm_period, EE_UINT32 init_pw)
 	p = (EE_UINT16)(( init_pw * 40) >> p );
 	if(p>0) 
 		p -= 1;	/* Compute the initial PulseWidth to set */
+	p = PR2 - p;
 	switch(chan)
 	{
 	case EE_PWM_PORT1:

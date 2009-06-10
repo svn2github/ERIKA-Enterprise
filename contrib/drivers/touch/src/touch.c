@@ -253,6 +253,9 @@ void touch_calibrate(void)
 #ifdef __LOW_LEVEL_MEASUREMENT__
 TASK(touch_Manager)
 {
+	#if (defined __USE_LEDS__) && (defined __USE_MOTIONBOARD__) 
+	EE_led_0_off();
+	#endif
 	if(CONVERSION_DONE)
 	{
 		CONVERSION_RESET;
@@ -364,6 +367,9 @@ void store_valid_data(void)
 				
 		s_X_pos = (EE_INT16)u_X_pos - horiz_width/2;
 		s_Y_pos = (EE_INT16)u_Y_pos - vert_height/2;		
+		#if (defined __USE_LEDS__) && (defined __USE_MOTIONBOARD__) 
+		EE_led_0_on();
+		#endif
 				
 		/*uposRead.x = cal_a*X_raw+cal_b*Y_raw+cal_c;
 		uposRead.y = cal_d*X_raw+cal_e*Y_raw+cal_f;
