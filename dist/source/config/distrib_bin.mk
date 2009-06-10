@@ -42,7 +42,8 @@ dirdep.tmp:
 	@echo DIRDEP.TMP
 # to remove potential generated dependencies on the directory we are creating for the distribution
 	@make --no-print-directory -C . clean DIST=
-	@for x in `find ../.. -type d -printf "%P\n" | grep -v CVS | gawk '{ sub(/^..\/..\//, ""); print}'` ; do echo $${x} | gawk '{ print "ee_$$(DIST)/" $$0 ": \n\tmkdir -p ee_$$(DIST)/" $$0 ";" }' >> dirdep.tmp; done
+	find ../.. -type d -printf "%P\n" | grep -v CVS | grep -v svn | gawk '{ sub(/^..\/..\//, ""); print}' | gawk '{ print "ee_$$(DIST)/" $$0 ": \n\tmkdir -p ee_$$(DIST)/" $$0 ";" }' >> dirdep.tmp
+#	@for x in `find ../.. -type d -printf "%P\n" | grep -v CVS | gawk '{ sub(/^..\/..\//, ""); print}'` ; do echo $${x} | gawk '{ print "ee_$$(DIST)/" $$0 ": \n\tmkdir -p ee_$$(DIST)/" $$0 ";" }' >> dirdep.tmp; done
 #	@for x in `find ../.. -type d -printf "%P\n" | grep -v CVS | grep -v oldexamples | grep -v testcase | gawk '{ sub(/^..\/..\//, ""); print}'` ; do echo $${x} | gawk '{ print "ee_$$(DIST)/" $$0 ": \n\tmkdir -p ee_$$(DIST)/" $$0 ";" }' >> dirdep.tmp; done
 endif
 
@@ -90,6 +91,7 @@ distrib_opt___AVR5__:: \
 		ee_$(DIST)/pkg/cfg/arch/cc_avr5gnu.mk \
 		ee_$(DIST)/pkg/cfg/arch/rules_atmel_stk500.mk \
 		ee_$(DIST)/pkg/cfg/arch/rules_xbow_mib5x0.mk \
+		ee_$(DIST)/pkg/cfg/arch/rules_xbow_mib510.mk \
 		ee_$(DIST)/pkg/cpu/avr5 \
 		ee_$(DIST)/pkg/cpu/avr5/inc \
 		ee_$(DIST)/pkg/cpu/avr5/inc/ee_compiler.h \
@@ -364,6 +366,8 @@ distrib_opt___RN__:: \
 	@echo OPT __RN__ up2date.
 
 distrib_opt___FRSH__:: \
+		ee_$(DIST)/pkg/kernel/frsh \
+		ee_$(DIST)/pkg/kernel/frsh/README.txt \
 		ee_$(DIST)/pkg/kernel/frsh/inc \
 		ee_$(DIST)/pkg/kernel/frsh/inc/ee_common.h \
 		ee_$(DIST)/pkg/kernel/frsh/inc/ee_kernel.h \

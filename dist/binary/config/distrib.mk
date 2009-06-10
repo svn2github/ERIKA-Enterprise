@@ -42,7 +42,8 @@ dirdep.tmp:
 	@echo DIRDEP.TMP
 # to remove potential generated dependencies on the directory we are creating for the distribution
 	@make --no-print-directory -C . clean DIST=
-	@for x in `find ../.. -type d -printf "%P\n" | grep -v CVS | gawk '{ sub(/^..\/..\//, ""); print}'` ; do echo $${x} | gawk '{ print "ee_$$(DIST)/" $$0 ": \n\tmkdir -p ee_$$(DIST)/" $$0 ";" }' >> dirdep.tmp; done
+	find ../.. -type d -printf "%P\n" | grep -v CVS | grep -v svn | gawk '{ sub(/^..\/..\//, ""); print}' | gawk '{ print "ee_$$(DIST)/" $$0 ": \n\tmkdir -p ee_$$(DIST)/" $$0 ";" }' >> dirdep.tmp
+#	@for x in `find ../.. -type d -printf "%P\n" | grep -v CVS | gawk '{ sub(/^..\/..\//, ""); print}'` ; do echo $${x} | gawk '{ print "ee_$$(DIST)/" $$0 ": \n\tmkdir -p ee_$$(DIST)/" $$0 ";" }' >> dirdep.tmp; done
 #	@for x in `find ../.. -type d -printf "%P\n" | grep -v CVS | grep -v oldexamples | grep -v testcase | gawk '{ sub(/^..\/..\//, ""); print}'` ; do echo $${x} | gawk '{ print "ee_$$(DIST)/" $$0 ": \n\tmkdir -p ee_$$(DIST)/" $$0 ";" }' >> dirdep.tmp; done
 endif
 

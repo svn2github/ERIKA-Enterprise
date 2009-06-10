@@ -625,11 +625,13 @@ distrib_opt___CONTRIB__:: \
 		ee_$(DIST)/contrib/memory/cfg/libcfg.mk \
 		ee_$(DIST)/contrib/memory/inc \
 		ee_$(DIST)/contrib/memory/inc/cqueue.h \
+		ee_$(DIST)/contrib/memory/inc/list.h \
 		ee_$(DIST)/contrib/memory/inc/arch \
 		ee_$(DIST)/contrib/memory/inc/arch/mem_compiler.h \
 		ee_$(DIST)/contrib/memory/inc/arch/mem_compiler_ee.h \
 		ee_$(DIST)/contrib/memory/inc/arch/mem_compiler_c30.h \
 		ee_$(DIST)/contrib/memory/libsrc \
+		ee_$(DIST)/contrib/memory/libsrc/list.c \
 		ee_$(DIST)/contrib/memory/libsrc/cqueue.c
 
 distrib_opt___DRIVERS__:: \
@@ -667,7 +669,6 @@ distrib_opt___DRIVERS__:: \
 		ee_$(DIST)/contrib/drivers/touch/src/touch.c 
 
 distrib_opt___OPENZB__:: \
-
 		ee_$(DIST)/contrib/network \
 		ee_$(DIST)/contrib/network/cfg \
 		ee_$(DIST)/contrib/network/cfg/contrib.mk \
@@ -753,7 +754,6 @@ distrib_opt___MIWIP2P__:: \
 		ee_$(DIST)/contrib/MiWiP2P/libsrc/SymbolTime.c
 
 distrib_opt___SCICOS__:: \
-
 		ee_$(DIST)/contrib/scicos \
 		ee_$(DIST)/contrib/scicos/cfg \
 		ee_$(DIST)/contrib/scicos/cfg/all.txt \
@@ -1008,6 +1008,7 @@ distrib_opt___SCICOS__:: \
 distrib_opt___LIB_IEEE802154__:: \
 		ee_$(DIST)/contrib/ieee802154/cfg \
 		ee_$(DIST)/contrib/ieee802154/libsrc/common \
+		ee_$(DIST)/contrib/ieee802154/libsrc/common/sralloc.c \
 		ee_$(DIST)/contrib/ieee802154/libsrc/ieee802154alarms \
 		ee_$(DIST)/contrib/ieee802154/libsrc/hal \
 		ee_$(DIST)/contrib/ieee802154/libsrc/phy \
@@ -1129,6 +1130,7 @@ distrib_opt___PIC30_EXAMPLES__:: \
 		ee_$(DIST)/examples/pic30/pic30_sem \
 		ee_$(DIST)/examples/pic30/pic30_sem/code.c \
 		ee_$(DIST)/examples/pic30/pic30_sem/conf.oil \
+		ee_$(DIST)/examples/pic30/pic30_sem/conf_EDF.oil \
 		ee_$(DIST)/examples/pic30/pic30_sem/template.xml \
 		ee_$(DIST)/examples/pic30/pic30_sem/readme.txt \
 		\
