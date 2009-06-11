@@ -977,27 +977,27 @@ distrib_opt___SCICOS__:: \
 		ee_$(DIST)/contrib/scicos/src/pic30/flex_adc.c \
 		ee_$(DIST)/contrib/scicos/src/pic30/flex_adcin.c \
 		ee_$(DIST)/contrib/scicos/src/pic30/flex_buzzer.c \
+		ee_$(DIST)/contrib/scicos/src/pic30/flex_daughter_acc.c \
+		ee_$(DIST)/contrib/scicos/src/pic30/flex_daughter_adc.c \
+		ee_$(DIST)/contrib/scicos/src/pic30/flex_daughter_button.c \
+		ee_$(DIST)/contrib/scicos/src/pic30/flex_daughter_buzzer.c \
+		ee_$(DIST)/contrib/scicos/src/pic30/flex_daughter_dac.c \
+		ee_$(DIST)/contrib/scicos/src/pic30/flex_daughter_encoder.c \
+		ee_$(DIST)/contrib/scicos/src/pic30/flex_daughter_gpin.c \
+		ee_$(DIST)/contrib/scicos/src/pic30/flex_daughter_gpout.c \
+		ee_$(DIST)/contrib/scicos/src/pic30/flex_daughter_lcd.c \
+		ee_$(DIST)/contrib/scicos/src/pic30/flex_daughter_ldr.c \
+		ee_$(DIST)/contrib/scicos/src/pic30/flex_daughter_leds.c \
+		ee_$(DIST)/contrib/scicos/src/pic30/flex_daughter_pwm.c \
+		ee_$(DIST)/contrib/scicos/src/pic30/flex_daughter_switch.c \
+		ee_$(DIST)/contrib/scicos/src/pic30/flex_daughter_therm.c \
+		ee_$(DIST)/contrib/scicos/src/pic30/flex_daughter_touch.c \
+		ee_$(DIST)/contrib/scicos/src/pic30/flex_daughter_trimmer.c \
 		ee_$(DIST)/contrib/scicos/src/pic30/flex_debug.c \
-		ee_$(DIST)/contrib/scicos/src/pic30/flex_dmb_adc.c \
-		ee_$(DIST)/contrib/scicos/src/pic30/flex_dmb_button.c \
-		ee_$(DIST)/contrib/scicos/src/pic30/flex_dmb_buzzer.c \
-		ee_$(DIST)/contrib/scicos/src/pic30/flex_dmb_dac.c \
-		ee_$(DIST)/contrib/scicos/src/pic30/flex_dmb_encoder.c \
-		ee_$(DIST)/contrib/scicos/src/pic30/flex_dmb_gpin.c \
-		ee_$(DIST)/contrib/scicos/src/pic30/flex_dmb_gpout.c \
-		ee_$(DIST)/contrib/scicos/src/pic30/flex_dmb_inertial.c \
-		ee_$(DIST)/contrib/scicos/src/pic30/flex_dmb_lcd.c \
-		ee_$(DIST)/contrib/scicos/src/pic30/flex_dmb_ldr.c \
-		ee_$(DIST)/contrib/scicos/src/pic30/flex_dmb_leds.c \
-		ee_$(DIST)/contrib/scicos/src/pic30/flex_dmb_ntc.c \
-		ee_$(DIST)/contrib/scicos/src/pic30/flex_dmb_potin.c \
-		ee_$(DIST)/contrib/scicos/src/pic30/flex_dmb_pwm.c \
 		ee_$(DIST)/contrib/scicos/src/pic30/flex_gpin.c \
 		ee_$(DIST)/contrib/scicos/src/pic30/flex_gpout.c \
 		ee_$(DIST)/contrib/scicos/src/pic30/flex_lcd.c \
-		ee_$(DIST)/contrib/scicos/src/pic30/flex_led.c \
-		ee_$(DIST)/contrib/scicos/src/pic30/flex_pwm.c \
-		ee_$(DIST)/contrib/scicos/src/pic30/flex_touchin.c 
+		ee_$(DIST)/contrib/scicos/src/pic30/flex_led.c 
 
 #		ee_$(DIST)/contrib/scicos/src/nios2 \
 #		ee_$(DIST)/contrib/scicos/src/nios2/button.c \
