@@ -112,7 +112,7 @@ static void end(scicos_block *block)
 	EE_leds_off(); //** set the bit to zero at the ending 
 }
 
-void flex_dmb_leds(scicos_block *block,int flag)
+void flex_daughter_leds(scicos_block *block,int flag)
 {
  switch (flag) {
     case OutputUpdate:  /* set output */

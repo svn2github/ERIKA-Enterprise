@@ -5,48 +5,38 @@
  * Copyright (C) METALAU Project (INRIA)
  * ###*E*### */
  
-// Last modify by Francesco Prosperi
  
+//** 9 Feb 2008 : Revision notes by Simone Mannori 
+//**
 #include <machine.h>
 #include <scicos_block4.h>
 
 #include <ee.h>
 
+/* NTC bit allocation: AN12-RB12 */
+
 static void init(scicos_block *block)
 {
-	int pin = block->ipar[0];
-	
-	if ((pin < 1) || (pin > 2))
-		return;
-
-	EE_pwm_init( pin , 20000 , 0 );
+	EE_analogsensors_init();
 }
- 
+
 static void inout(scicos_block *block)
 {
-	/* Get the PWM number [1,2,3,4]     */
-	int pin = block->ipar[0];
-
-	/* Get duty cycle from Scicos block */
-	float *duty = block->inptr[0];
+	float adcdata;
+	float * y = block->outptr[0];
 	
-	if ((pin < 1) || (pin > 2))
-		return; //** refuse not supported PWM
+	//** Returns the temparature in Celsius degree 
+	//** using plain vanilla floating point representation 
+	adcdata = EE_analog_get_temperature();
 
-	EE_pwm_set_duty_f( pin , 1.0 - *duty);
+	y[0] = adcdata;
 }
 
 static void end(scicos_block *block)
 {
-	int pin = block->ipar[0];
-	
-	if ((pin < 1) || (pin > 2))
-		return; //** refuse not supported PWM
-
-	EE_pwm_close(pin);
 }
 
-void flex_dmb_pwm(scicos_block *block,int flag)
+void flex_daughter_therm(scicos_block *block,int flag)
 {
  switch (flag) {
     case OutputUpdate:  /* set output */

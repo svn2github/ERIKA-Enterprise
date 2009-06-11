@@ -8,33 +8,36 @@
  
 //** 9 Feb 2008 : Revision notes by Simone Mannori 
 //**
+
 #include <machine.h>
 #include <scicos_block4.h>
 
 #include <ee.h>
 
-/* Trimmer bit allocation: AN15-RB15 */
+// defined in the dspic_main template
+extern float scicos_lcd_value1;
+extern float scicos_lcd_value2;
+extern int scicos_lcd_used;
 
 static void init(scicos_block *block)
 {
-	EE_trimmer_init();
+	scicos_lcd_used = 1;
 }
-
+signed char stop=0;
 static void inout(scicos_block *block)
 {
-	float adcdata;
-	float * y = block->outptr[0];
-	
-	adcdata = EE_trimmer_get_volt();
-
-	y[0] = adcdata;
+	EE_pic30_disableIRQ();
+	stop=1;
+	scicos_lcd_value1 = *(float *)block->inptr[0];
+	scicos_lcd_value2 = *(float *)block->inptr[1];
+	EE_pic30_enableIRQ();
 }
 
 static void end(scicos_block *block)
 {
 }
 
-void flex_dmb_potin(scicos_block *block,int flag)
+void flex_daughter_lcd(scicos_block *block,int flag)
 {
  switch (flag) {
     case OutputUpdate:  /* set output */

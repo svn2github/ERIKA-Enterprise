@@ -62,7 +62,7 @@ static void end(scicos_block *block)
 	LATE  &= 0xFFFF - ( 0x01 << (pin-1) ); //** set the bit to zero at the ending 
 }
 
-void flex_dmb_gpout(scicos_block *block,int flag)
+void flex_daughter_gpout(scicos_block *block,int flag)
 {
  switch (flag) {
     case OutputUpdate:  /* set output */

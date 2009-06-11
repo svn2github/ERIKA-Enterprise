@@ -14,30 +14,40 @@
 
 #include <ee.h>
 
-// defined in the dspic_main template
-extern float scicos_lcd_value1;
-extern float scicos_lcd_value2;
-extern int scicos_lcd_used;
+/* ADCIN bit allocation 
+
+Scicos	Function	dsPIC	Flex Connectors
+Pin=1	 ADCIN1	RC4	CON8.P9	
+Pin=2	 ADCIN2	RE8	CON8.P18	
+Pin=3	 ADCIN3	RE9	CON8.P20	
+*/
 
 static void init(scicos_block *block)
 {
-	scicos_lcd_used = 1;
+	EE_adcin_init();
 }
-signed char stop=0;
+
 static void inout(scicos_block *block)
 {
-	EE_pic30_disableIRQ();
-	stop=1;
-	scicos_lcd_value1 = *(float *)block->inptr[0];
-	scicos_lcd_value2 = *(float *)block->inptr[1];
-	EE_pic30_enableIRQ();
+	float adcdata;
+	float * y = block->outptr[0];
+	
+	int pin = block->ipar[0];
+
+	if ( (pin < 1) || (pin > 3) ) { //** only the first three ADC channels are supported
+		y[0] = -1.0 ;  
+		return;
+	}
+
+	adcdata = EE_adcin_get_volt(pin);
+	y[0] = adcdata ; 
 }
 
 static void end(scicos_block *block)
 {
 }
 
-void flex_dmb_lcd(scicos_block *block,int flag)
+void flex_daughter_adc(scicos_block *block,int flag)
 {
  switch (flag) {
     case OutputUpdate:  /* set output */

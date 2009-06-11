@@ -6,54 +6,58 @@
  * ###*E*### */
  
  
+//** 9 Feb 2008 : Revision notes by Simone Mannori 
+//**
+
 #include <machine.h>
 #include <scicos_block4.h>
 
 #include <ee.h>
 
-/* GPIO bit allocation 
-
-Scicos	Function	dsPIC	Flex Connectors
-Pin=1	 GPIO1	RE0	CON8.P2	
-Pin=2	 GPIO2	RE1	CON8.P4	
-Pin=3	 GPIO3	RE2	CON8.P6	
-Pin=4	 GPIO4	RE3	CON8.P8	
-Pin=5	 GPIO5	RE4	CON8.P10
-Pin=6	 GPIO6	RE5	CON8.P12
-Pin=7	 GPIO7	RE6	CON8.P14
-Pin=8	 GPIO8	RE7	CON8.P16
+/* Accelerometer bit allocation:
+X axis:	AN16-RC1 
+Y axis:	AN17-RC2 
+Z axis:	AN18-RC3 
+G Select1:	RF12
+G Select2:	RF13
+Sleep:	RD3
 */
 
 static void init(scicos_block *block)
 {
-	unsigned int pin = block->ipar[0];
-	
-	if ((pin < 1) || (pin > 8))
-	  return;
-
-	TRISE |= 0x01 << (pin-1);
+	EE_accelerometer_init();
 }
 
 static void inout(scicos_block *block)
 {
+	float adcdata;
 	float * y = block->outptr[0];
-
-	unsigned int pin = block->ipar[0];
 	
-	if ((pin < 1) || (pin > 8))
-		return;
+	int axis = block->ipar[0];
 
-	if ( PORTE & (0x01 << (pin-1)) )
-		y[0] = 1.0; //** the output of a input bit is "1.0"  
-	else                           //** or 
-		y[0] = 0.0; //** "0.0" (float)
+	if ( (axis < 1) || (axis > 3) )
+		return; //** return if outside the allowed range
+
+	switch (axis) {
+		case 1:
+			adcdata = EE_accelerometer_getx();
+			y[0] = adcdata;
+			break;
+		case 2:
+			adcdata = EE_accelerometer_gety();
+			y[0] = adcdata;
+			break;
+		case 3:
+			adcdata = EE_accelerometer_getz();
+			y[0] = adcdata;
+	}
 }
 
 static void end(scicos_block *block)
 {
 }
 
-void flex_dmb_gpin(scicos_block *block,int flag)
+void flex_daughter_acc(scicos_block *block,int flag)
 {
  switch (flag) {
     case OutputUpdate:  /* set output */

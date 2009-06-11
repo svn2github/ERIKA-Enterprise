@@ -7,33 +7,44 @@
  
  
 //** 9 Feb 2008 : Revision notes by Simone Mannori 
-//**
 
 #include <machine.h>
 #include <scicos_block4.h>
 
 #include <ee.h>
 
+/* Encoder bit allocation 
+QEA	RB4
+QEB	RB5
+*/
+
 static void init(scicos_block *block)
 {
-	EE_buzzer_init();
+	EE_encoder_init(); //** encoder initialization 
 }
 
 static void inout(scicos_block *block)
 {
-	/* Get duty cycle from Scicos block */
-	float * freq = block->inptr[0];
+	float data = 0.0     ;
+	int int_data_enc = 0 ; 
+	float * y = block->outptr[0];
 	
-	//** Set the frequency in Hz 
-	EE_buzzer_set_freq( freq[0] ); 
+	//** the encoder return a float value coded in signed pulse units
+	//** this means that the dspic register MUST be read as "int" 
+	//** in order to keep the signed comp. 2' bynary rapresentation.
+	//** the scaling to degree/radian/centesimal/mm will be done 
+	//** in a later release.
+
+	int_data_enc = EE_encoder_get_ticks();
+	data = (float) (int_data_enc) ; 
+	y[0] = data; //** pass the variable to Scicos 
 }
 
 static void end(scicos_block *block)
 {
-	EE_buzzer_close();
 }
 
-void flex_dmb_buzzer(scicos_block *block,int flag)
+void flex_daughter_encoder(scicos_block *block,int flag)
 {
  switch (flag) {
     case OutputUpdate:  /* set output */

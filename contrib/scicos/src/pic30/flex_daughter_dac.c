@@ -54,7 +54,7 @@ static void end(scicos_block *block)
 	EE_dac_fast_write( 0, pin-1, 0 );
 }
 
-void flex_dmb_dac(scicos_block *block,int flag)
+void flex_daughter_dac(scicos_block *block,int flag)
 {
  switch (flag) {
     case OutputUpdate:  /* set output */

@@ -14,40 +14,31 @@
 
 #include <ee.h>
 
-/* ADCIN bit allocation 
-
-Scicos	Function	dsPIC	Flex Connectors
-Pin=1	 ADCIN1	RC4	CON8.P9	
-Pin=2	 ADCIN2	RE8	CON8.P18	
-Pin=3	 ADCIN3	RE9	CON8.P20	
-*/
+/* LDR bit allocation: AN13-RB13 */
 
 static void init(scicos_block *block)
 {
-	EE_adcin_init();
+	EE_analogsensors_init();
 }
 
 static void inout(scicos_block *block)
 {
 	float adcdata;
 	float * y = block->outptr[0];
-	
-	int pin = block->ipar[0];
+   
+	//** please specify the units of measure. Usually the best option
+	//** is to give back a 0-100% relative value in the range of the
+	//** sensor. 
+	adcdata = EE_analog_get_light();
 
-	if ( (pin < 1) || (pin > 3) ) { //** only the first three ADC channels are supported
-		y[0] = -1.0 ;  
-		return;
-	}
-
-	adcdata = EE_adcin_get_volt(pin);
-	y[0] = adcdata ; 
+	y[0] = adcdata;
 }
 
 static void end(scicos_block *block)
 {
 }
 
-void flex_dmb_adc(scicos_block *block,int flag)
+void flex_daughter_ldr(scicos_block *block,int flag)
 {
  switch (flag) {
     case OutputUpdate:  /* set output */

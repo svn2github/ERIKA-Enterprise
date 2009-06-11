@@ -8,35 +8,32 @@
  
 //** 9 Feb 2008 : Revision notes by Simone Mannori 
 //**
+
 #include <machine.h>
 #include <scicos_block4.h>
 
 #include <ee.h>
 
-/* NTC bit allocation: AN12-RB12 */
-
 static void init(scicos_block *block)
 {
-	EE_analogsensors_init();
+	EE_buzzer_init();
 }
 
 static void inout(scicos_block *block)
 {
-	float adcdata;
-	float * y = block->outptr[0];
+	/* Get duty cycle from Scicos block */
+	float * freq = block->inptr[0];
 	
-	//** Returns the temparature in Celsius degree 
-	//** using plain vanilla floating point representation 
-	adcdata = EE_analog_get_temperature();
-
-	y[0] = adcdata;
+	//** Set the frequency in Hz 
+	EE_buzzer_set_freq( freq[0] ); 
 }
 
 static void end(scicos_block *block)
 {
+	EE_buzzer_close();
 }
 
-void flex_dmb_ntc(scicos_block *block,int flag)
+void flex_daughter_buzzer(scicos_block *block,int flag)
 {
  switch (flag) {
     case OutputUpdate:  /* set output */

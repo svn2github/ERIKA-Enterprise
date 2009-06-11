@@ -54,7 +54,7 @@ static void end(scicos_block *block)
 {
 }
 
-void flex_touchin(scicos_block *block,int flag)
+void flex_daughter_touch(scicos_block *block,int flag)
 {
  switch (flag) {
     case OutputUpdate:  /* set output */
