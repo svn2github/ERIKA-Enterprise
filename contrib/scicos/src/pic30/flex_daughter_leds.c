@@ -31,21 +31,40 @@ static void init(scicos_block *block)
 {
 	int pin = block->ipar[0];
 	
-	if ( (pin < 1) || (pin > 8) )
-		return; //** return if outside the allowed range
+	float led_threshold = block->rpar[0];
+	
 
-	EE_demoboard_leds_init();
+#if defined(__USE_DEMOBOARD__)	
+	if ( (pin < 1) || (pin > 8) ) return; //** return if outside the allowed range
+#elif defined(__USE_MOTIONBOARD__)
+	if ( (pin < 1) || (pin > 2) ) return; //** return if outside the allowed range
+#endif
+
+
+	if( led_threshold < 0.01 || led_threshold > 0.99 )
+		led_threshold = 0.5;
+	
+	EE_daughter_leds_init();
 }
 
 static void inout(scicos_block *block)
 {
   float *u = block->inptr[0];
-	int pin = block->ipar[0];
-	
-	if ( (pin < 1) || (pin > 8) )
-		return;
 
-	if (u[0] > 0.5) {     //** threshold is fixed to 0.5 STATIC 
+	int pin = block->ipar[0];
+
+	float led_threshold = block->rpar[0];
+
+	if( led_threshold < 0.01 || led_threshold > 0.99 )
+		led_threshold = 0.5;
+
+#if defined(__USE_DEMOBOARD__)	
+	if ( (pin < 1) || (pin > 8) ) return; //** return if outside the allowed range
+#elif defined(__USE_MOTIONBOARD__)
+	if ( (pin < 1) || (pin > 2) ) return; //** return if outside the allowed range
+#endif
+
+	if (u[0] > led_threshold) {     //** threshold is parametric 
 		switch (pin) { //** set the bit to one 
 			case 1:
 				EE_led_0_on();
@@ -53,6 +72,7 @@ static void inout(scicos_block *block)
 			case 2:
 				EE_led_1_on();
 				break;
+#if defined(__USE_DEMOBOARD__)	
 			case 3:
 				EE_led_2_on();
 				break;
@@ -71,6 +91,7 @@ static void inout(scicos_block *block)
 			case 8:
 				EE_led_7_on();
 				break;
+#endif
 		}
 	} else {
 		switch (pin) { //** set the bit to zero 
@@ -80,6 +101,7 @@ static void inout(scicos_block *block)
 			case 2:
 				EE_led_1_off();
 				break;
+#if defined(__USE_DEMOBOARD__)	
 			case 3:
 				EE_led_2_off();
 				break;
@@ -98,6 +120,7 @@ static void inout(scicos_block *block)
 			case 8:
 				EE_led_7_off();
 				break;
+#endif
 		}
 	}
 }
