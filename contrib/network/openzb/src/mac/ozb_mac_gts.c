@@ -20,7 +20,7 @@ static int8_t gts_db_add_entry(ozb_mac_dev_addr_short_t dev_addr, uint8_t len,
 	if (len > OZB_MAC_SUPERFRAME_LAST_SLOT || dir > 1) 
 		return -OZB_MAC_ERR_INVALID_PARAM; /* invalid params values */
 	/*TODO: check aMinCAPLength, calculate the minCAP in slot and use it
-		instead of 1
+		instead of 1 
 	*/
 	if (list_is_full(&gts_list) || ozb_mac_gts_stat.first_cfp_tslot < len+1)
 		return -OZB_MAC_ERR_GTS_CFP_TOO_LARGE;
@@ -157,6 +157,12 @@ uint8_t ozb_mac_gts_get_gts_fields(uint8_t *gf)
 	uint8_t s = OZB_MAC_MPDU_GTS_SPEC_SIZE;
 
 	ozb_mac_pib.macGTSPermit = OZB_MAC_GTS_SPEC_GET_PERMIT(gf);
+	/* TODO: current policy is, no more GTS available when the
+		 descriptor is not present any more.
+		 Check w.r.t the std.
+	*/
+	ozb_mac_gts_stat.tx_length = 0;
+	ozb_mac_gts_stat.rx_length = 0;
 	if (ozb_mac_pib.macGTSPermit == 0) 
 		return s;
 	cnt = OZB_MAC_GTS_SPEC_GET_DESCRIPTOR_COUNT(gf);

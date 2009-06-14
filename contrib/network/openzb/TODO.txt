@@ -11,36 +11,30 @@ GENERAL:
 	  change the protocol behaviours (i.e. for baccarat, etc.)
 
 ozb_mac.c (Mac Core):
-	- *7* put at this layer the phy callback on receive and parse the mpdus!
-	- *3* implement the sending CSMA and GTS queues
-	- *3* implement the frame building functions (data, cmd, ack)
+	- *3* implement the cmd and ack frame building functions 
 	- *1* manage the possibility to have auto ack?
 
 ozb_mac_mcps.c (MCPS):
-	- *3* implement send data function and the receive one.
 
 ozb_mac_mlme.c (MLME):
-	- *1* complete a first subset of functionalities
+	- *1* Implement the association mechanism 
 
 ozb_mac_superframe.c (Beacon Enabled mode specific):
-	- *8* Generalize the code: how do I choose I'm coord or device? 
-	  (execution_time +  opzional compilation time)
-	- *7* Implement the SF on the device side (parse beacon?)
+	- *5* Implement Coordinator Send GTS and Device Receive GTS. 
 	- *2* how to fully use the design with the ozb_radio for mac? 
 	  (backoff period task for slotted csma, etc.)
-	- *4* send in GTS and CSMA slotted!
 
 ozb_mac_gts.c (GTS machine):
-	- *7* Management of the GTS information device side (parsing beacon) 
+	- *2* implement a gts_remove_entry functionality
 	- *1* refine the gts_add_entry function to be compliant to the std 
 	  (check the min cap size to be there!) 
-	- *2* implement a gts_remove_entry functionality
-	- *1* perform gts maintenance: allocations, deallocations
+	- *1* perform std gts maintenance: allocations, deallocations 
 
 driver/radio/cc2420/inc/cc2420_hal_ee.h: 
-	- *1* I suggest to remove any reference to DEMOBOARD, shall we?
+	- *1* I suggest to remove any reference to MOTIONBOARD, shall we?
 
 TEST: 
+	- *4* test send (and receive) in GTS and CSMA slotted, check time!
 	- *2* Check the include file dependencies and relationship to see if
 	  only the "public" file are included.
 	- *1* need to test all the mechanisms
