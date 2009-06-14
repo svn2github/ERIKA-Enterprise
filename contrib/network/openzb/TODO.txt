@@ -1,5 +1,5 @@
 ********************************************************************************
-                       *_____   OpenZB TODOs   _____*              
+                       *_____   uWireless TODOs   _____*              
 ********************************************************************************
 
 GENERAL:
@@ -10,21 +10,21 @@ GENERAL:
 	- *2* think some handle (function pointers?) to provide an easy way to 
 	  change the protocol behaviours (i.e. for baccarat, etc.)
 
-ozb_mac.c (Mac Core):
+uwl_mac.c (Mac Core):
 	- *3* implement the cmd and ack frame building functions 
 	- *1* manage the possibility to have auto ack?
 
-ozb_mac_mcps.c (MCPS):
+uwl_mac_mcps.c (MCPS):
 
-ozb_mac_mlme.c (MLME):
+uwl_mac_mlme.c (MLME):
 	- *1* Implement the association mechanism 
 
-ozb_mac_superframe.c (Beacon Enabled mode specific):
+uwl_mac_superframe.c (Beacon Enabled mode specific):
 	- *5* Implement Coordinator Send GTS and Device Receive GTS. 
-	- *2* how to fully use the design with the ozb_radio for mac? 
+	- *2* how to fully use the design with the uwl_radio for mac? 
 	  (backoff period task for slotted csma, etc.)
 
-ozb_mac_gts.c (GTS machine):
+uwl_mac_gts.c (GTS machine):
 	- *2* implement a gts_remove_entry functionality
 	- *1* refine the gts_add_entry function to be compliant to the std 
 	  (check the min cap size to be there!) 
@@ -41,4 +41,4 @@ TEST:
 
 LOG: 
 	- *1* need to log some information for debugging but also for 
-	  collecting experimental results (ozb logs).
+	  collecting experimental results (uwl logs).

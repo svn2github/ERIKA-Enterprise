@@ -1,5 +1,5 @@
 /** 
-* \mainpage OpenZB 
+* \mainpage uWireless 
 *
 * \todo Write a brief description of ...
 *
@@ -30,4 +30,4 @@
 *
 */
 #include <ieee802154.h>
-#include <net/ozb_net.h>
+#include <net/uwl_net.h>
