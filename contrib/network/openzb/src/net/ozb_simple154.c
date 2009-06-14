@@ -39,15 +39,15 @@ int8_t ozb_simple154_init_coordinator(uint16_t coordinator_id, uint16_t pan_id,
 				      uint8_t channel, uint8_t bo, uint8_t so)
 {
 	if (flags.initialized)
-		RETURN_WITH_ERROR(-OZB_IEEE802154_ERR_ALREADYINIT);
+		RETURN_WITH_ERROR(-OZB_SIMPLE154_ERR_ALREADYINIT);
 	mac_error = ozb_mac_init(); 
 	if (mac_error < 0) 
-		RETURN_WITH_ERROR(-OZB_IEEE802154_ERR_INITMAC);
+		RETURN_WITH_ERROR(-OZB_SIMPLE154_ERR_INITMAC);
 	
 	mac_error = ozb_MLME_SET_request(OZB_MAC_SHORT_ADDRESS, 0, 
 					 (void *) &coordinator_id);
 	if (mac_error < 0) 
-		RETURN_WITH_ERROR(-OZB_IEEE802154_ERR_SETADDR);
+		RETURN_WITH_ERROR(-OZB_SIMPLE154_ERR_SETADDR);
 	/* TODO: channel scan phase */
 	flags.wait_confirm = 1;		
 	mac_error = ozb_MLME_START_request(pan_id, 	/* PanID */
@@ -62,14 +62,14 @@ int8_t ozb_simple154_init_coordinator(uint16_t coordinator_id, uint16_t pan_id,
 					   OZB_MAC_NULL_SECURITY_PARAMS_LIST,
 					   OZB_MAC_NULL_SECURITY_PARAMS_LIST);
 	if (mac_error < 0) 
-		RETURN_WITH_ERROR(-OZB_IEEE802154_ERR_STARTMAC);
+		RETURN_WITH_ERROR(-OZB_SIMPLE154_ERR_STARTMAC);
 	while (flags.wait_confirm) ;	
 	if (last_error < 0)
 		return last_error;
 	flags.initialized = 1;
 	flags.coordinator = 1;
 	coordinator_pan_id = pan_id;
-	RETURN_WITH_ERROR(OZB_IEEE802154_ERR_NONE);
+	RETURN_WITH_ERROR(OZB_SIMPLE154_ERR_NONE);
 }
 
 int8_t ozb_simple154_init_device(uint16_t device_id, uint16_t coordinator_id, 
@@ -78,10 +78,10 @@ int8_t ozb_simple154_init_device(uint16_t device_id, uint16_t coordinator_id,
 	uint8_t capability;
 
 	if (flags.initialized)
-		RETURN_WITH_ERROR(-OZB_IEEE802154_ERR_ALREADYINIT);
+		RETURN_WITH_ERROR(-OZB_SIMPLE154_ERR_ALREADYINIT);
 	mac_error = ozb_mac_init(); 
 	if (mac_error < 0) 
-		RETURN_WITH_ERROR(-OZB_IEEE802154_ERR_INITMAC);
+		RETURN_WITH_ERROR(-OZB_SIMPLE154_ERR_INITMAC);
 	capability = ozb_mac_capability_information(OZB_FALSE, /*AltPanCoord*/
 						    OZB_DEVICE_FFD, /*DevType*/
 						    OZB_TRUE, /*PowerSource*/
@@ -98,7 +98,7 @@ int8_t ozb_simple154_init_device(uint16_t device_id, uint16_t coordinator_id,
 			        	       OZB_MAC_NULL_SECURITY_PARAMS_LIST
 					       ); 
 	if (mac_error < 0) 
-		RETURN_WITH_ERROR(-OZB_IEEE802154_ERR_ASSOCIATE);
+		RETURN_WITH_ERROR(-OZB_SIMPLE154_ERR_ASSOCIATE);
 	while (flags.wait_confirm) ;	
 	if (last_error < 0)
 		return last_error;
@@ -106,12 +106,12 @@ int8_t ozb_simple154_init_device(uint16_t device_id, uint16_t coordinator_id,
 	mac_error = ozb_MLME_SET_request(OZB_MAC_SHORT_ADDRESS, 0, 
 				    (void *) &device_id);
 	if (mac_error < 0) 
-		RETURN_WITH_ERROR(-OZB_IEEE802154_ERR_SETADDR);
+		RETURN_WITH_ERROR(-OZB_SIMPLE154_ERR_SETADDR);
 	flags.initialized = 1;
 	flags.coordinator = 0;
 	coordinator_address = coordinator_id;
 	coordinator_pan_id = pan_id;
-	RETURN_WITH_ERROR(OZB_IEEE802154_ERR_NONE);
+	RETURN_WITH_ERROR(OZB_SIMPLE154_ERR_NONE);
 }
 
 int8_t ozb_simple154_send(uint8_t *data, uint8_t len, uint16_t dst_device_id, 
@@ -119,9 +119,9 @@ int8_t ozb_simple154_send(uint8_t *data, uint8_t len, uint16_t dst_device_id,
 {
 	/* TODO: current implementation is non-blocking and ignore if success */
 	if (!flags.initialized)
-		RETURN_WITH_ERROR(-OZB_IEEE802154_ERR_NOTINIT);
+		RETURN_WITH_ERROR(-OZB_SIMPLE154_ERR_NOTINIT);
 	if (flags.coordinator && use_gts)
-		RETURN_WITH_ERROR(-OZB_IEEE802154_ERR_NOTSUPPORTED);
+		RETURN_WITH_ERROR(-OZB_SIMPLE154_ERR_NOTSUPPORTED);
 	if (!flags.coordinator)
 		dst_device_id = coordinator_address;
 //	flags.wait_confirm = 1;		
@@ -134,36 +134,36 @@ int8_t ozb_simple154_send(uint8_t *data, uint8_t len, uint16_t dst_device_id,
 					  ozb_mac_set_tx_options(0, use_gts, 0),
 					  OZB_MAC_NULL_SECURITY_PARAMS_LIST); 
 	if (mac_error < 0) 
-		RETURN_WITH_ERROR(-OZB_IEEE802154_ERR_DATAREQ);
+		RETURN_WITH_ERROR(-OZB_SIMPLE154_ERR_DATAREQ);
 	/* msdu_handle_id++; */
 //	while (flags.wait_confirm) ;	
 //	if (last_error < 0)
 //		return last_error;
-	RETURN_WITH_ERROR(OZB_IEEE802154_ERR_NONE);
+	RETURN_WITH_ERROR(OZB_SIMPLE154_ERR_NONE);
 }
 
 int8_t ozb_simple154_gts_clear(void) 
 {
 	if (!flags.initialized)
-		RETURN_WITH_ERROR(-OZB_IEEE802154_ERR_NOTINIT);
+		RETURN_WITH_ERROR(-OZB_SIMPLE154_ERR_NOTINIT);
 	if (!flags.coordinator)
-		RETURN_WITH_ERROR(-OZB_IEEE802154_ERR_GTS_NOTCOORDINATOR);
+		RETURN_WITH_ERROR(-OZB_SIMPLE154_ERR_GTS_NOTCOORDINATOR);
 	mac_error = ozb_mac_gts_db_clean();
 	if (mac_error < 0)
-		RETURN_WITH_ERROR(OZB_IEEE802154_ERR_GTS_MANIPULATION);
-	RETURN_WITH_ERROR(OZB_IEEE802154_ERR_NONE);
+		RETURN_WITH_ERROR(OZB_SIMPLE154_ERR_GTS_MANIPULATION);
+	RETURN_WITH_ERROR(OZB_SIMPLE154_ERR_NONE);
 }
 
 int8_t ozb_simple154_gts_add(uint16_t device_id, uint8_t length, uint8_t dir)
 {
 	if (!flags.initialized)
-		RETURN_WITH_ERROR(-OZB_IEEE802154_ERR_NOTINIT);
+		RETURN_WITH_ERROR(-OZB_SIMPLE154_ERR_NOTINIT);
 	if (!flags.coordinator)
-		RETURN_WITH_ERROR(-OZB_IEEE802154_ERR_GTS_NOTCOORDINATOR);
+		RETURN_WITH_ERROR(-OZB_SIMPLE154_ERR_GTS_NOTCOORDINATOR);
 	mac_error = ozb_mac_gts_db_add(device_id, length, dir);
 	if (mac_error < 0)
-		RETURN_WITH_ERROR(OZB_IEEE802154_ERR_GTS_MANIPULATION);
-	RETURN_WITH_ERROR(OZB_IEEE802154_ERR_NONE);
+		RETURN_WITH_ERROR(OZB_SIMPLE154_ERR_GTS_MANIPULATION);
+	RETURN_WITH_ERROR(OZB_SIMPLE154_ERR_NONE);
 }
 
 /******************************************************************************/
@@ -184,7 +184,7 @@ int8_t ozb_MCPS_DATA_confirm(uint8_t msduHandle, enum ozb_mac_code_t status,
 	#endif
 	*/
 	if (status == OZB_MAC_SUCCESS)
-		last_error = -OZB_IEEE802154_ERR_DATACONFIRM;
+		last_error = -OZB_SIMPLE154_ERR_DATACONFIRM;
 	flags.wait_confirm = 0;
 	return 1;
 }
@@ -202,7 +202,7 @@ int8_t ozb_MCPS_DATA_indication(uint8_t SrcAddrMode, uint16_t SrcPANId,
 	if (rx_callback != NULL && msduLength <= OZB_MAC_MAX_MSDU_SIZE) {
 		memset(rx_buffer, 0x00, OZB_MAC_MAX_MSDU_SIZE);
 		memcpy(rx_buffer, msdu, msduLength);
-		rx_callback(OZB_IEEE802154_ERR_NONE, rx_buffer, msduLength);
+		rx_callback(OZB_SIMPLE154_ERR_NONE, rx_buffer, msduLength);
 	} 
 	return 1;
 }
@@ -221,7 +221,7 @@ int8_t ozb_MLME_ASSOCIATE_confirm(ozb_mac_dev_addr_short_t AssocShortAddress,
 	mac_error = ozb_MLME_SET_request(OZB_MAC_SHORT_ADDRESS, 0, 
 				    (void *) &AssocShortAddress);
 	if (mac_error < 0 || status != OZB_MAC_SUCCESS) 
-		last_error = -OZB_IEEE802154_ERR_ASSOCIATE;
+		last_error = -OZB_SIMPLE154_ERR_ASSOCIATE;
 	flags.wait_confirm = 0;
 	return 1;
 }
@@ -343,7 +343,7 @@ int8_t ozb_MLME_SET_confirm(enum ozb_mac_code_t status,
 int8_t ozb_MLME_START_confirm(enum ozb_mac_code_t status)
 {
 	if (status != OZB_MAC_SUCCESS) 
-		last_error = -OZB_IEEE802154_ERR_STARTMAC;
+		last_error = -OZB_SIMPLE154_ERR_STARTMAC;
 	flags.wait_confirm = 0;
 	return 1;
 }

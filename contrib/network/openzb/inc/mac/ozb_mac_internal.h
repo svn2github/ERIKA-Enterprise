@@ -36,9 +36,10 @@ struct ozb_mac_flags_t {
 	unsigned is_associated : 1;
 	unsigned beacon_enabled : 1;
 	unsigned track_beacon : 1;
+	unsigned sf_context : 2;
 	unsigned count_beacon_lost : 4;
 	unsigned sf_initialized : 1;
-	unsigned sf_context : 2;
+	unsigned has_rx_beacon : 1;
 };
 
 struct ozb_mac_gts_stat_t {

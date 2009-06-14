@@ -16,11 +16,16 @@ static ozb_mpdu_t rx_command;
 static uint16_t rx_beacon_length;
 static uint16_t rx_data_length;
 static uint16_t rx_command_length;
+static uint8_t beacon_payload[OZB_aMaxBeaconPayloadLength] 
+	   COMPILER_ATTRIBUTE_FAR;
+static uint8_t beacon_payload_length = 0; 
 
 /******************************************************************************/
 /*                          MAC Layer Public Data                             */
 /******************************************************************************/
-struct ozb_mac_flags_t ozb_mac_status = {0, 0, 0, 0, 0, 0, 0, 0};
+struct ozb_mac_flags_t ozb_mac_status = {
+0, 0, 0, 0, 0, 0, 0, 0, 0
+};
 struct ozb_mac_pib_t ozb_mac_pib /*= {
 	TODO: set a default values as already done for the phy_pib!	
 }*/;
@@ -219,9 +224,14 @@ COMPILER_INLINE uint8_t set_pending_address_fields(uint8_t *pf)
 
 COMPILER_INLINE uint8_t set_beacon_payload(uint8_t *bp)
 {
-//	memset(bp, 0xAF, 20);
-//	return 20;
-	return 0;
+	uint8_t len;
+	
+	ozb_kal_mutex_wait(MAC_MUTEX);
+	if (beacon_payload_length > 0)
+		memcpy(bp, beacon_payload, beacon_payload_length);
+	len = beacon_payload_length;
+	ozb_kal_mutex_signal(MAC_MUTEX);
+	return len;
 }
 
 static uint8_t filtering_condition(uint8_t *fctrl, uint16_t dst_panid,
@@ -307,7 +317,12 @@ static void process_rx_beacon(void)
 	ozb_mac_pib.macAssociationPermit=OZB_MAC_SF_SPEC_GET_ASSOC_PERMIT(bcn);
 	/* TODO: read BO and SO and update the PIB!! */
 	bcn += OZB_MAC_MPDU_SUPERFRAME_SPEC_SIZE;
-	ozb_mac_gts_get_gts_fields(bcn);
+	bcn += ozb_mac_gts_get_gts_fields(bcn); // <-- TODO: check return value
+	/* TODO: compute FCS , use auto gen? */
+	// consider 2 bytes in the following formula
+	beacon_payload_length = rx_beacon_length - (bcn - rx_beacon);
+	if (beacon_payload_length > 0)
+		memcpy(beacon_payload, bcn, beacon_payload_length);		
 	if (ozb_kal_mutex_signal(MAC_RX_BEACON_MUTEX) < 0)
 		return; /* TODO: manage error? */
 	ozb_mac_superframe_resync();
@@ -419,6 +434,33 @@ int8_t ozb_mac_init(void)
 	//return -OZB_MAC_INIT_ERROR;
 	ozb_mac_status.mac_initialized = 1;
 	return 1;
+}
+
+int8_t ozb_mac_get_beacon_payload(uint8_t *data, uint8_t len)
+{
+	/* NOTE: mutex condition is guaranteed due to 
+	 * task activation mechanism and the following flag */
+	if (!ozb_mac_status.has_rx_beacon)
+		return -100; //TODO: add error code 
+	if (beacon_payload_length == 0)
+		return 0;
+	if (len > beacon_payload_length)
+		len = beacon_payload_length;
+	memcpy(data, beacon_payload, len);
+	return (int8_t) len;
+}
+
+
+int8_t ozb_mac_set_beacon_payload(uint8_t *data, uint8_t len)
+{
+	if (len > OZB_aMaxBeaconPayloadLength)
+		return -OZB_MAC_ERR_INVALID_LENGTH;
+	ozb_kal_mutex_wait(MAC_MUTEX);
+	if (len > 0)
+		memcpy(beacon_payload, data, len);
+	beacon_payload_length = len;
+	ozb_kal_mutex_signal(MAC_MUTEX);
+	return OZB_MAC_ERR_NONE;
 }
 
 void ozb_mac_perform_data_request(uint8_t src_mode, uint8_t dst_mode,

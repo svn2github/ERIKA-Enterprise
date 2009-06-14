@@ -59,6 +59,10 @@ static uint16_t sifs_bytes = 0;
 static uint16_t btick_bytes = 0;
 static uint32_t cap_available_bytes = 0;
 static uint32_t gts_available_bytes = 0;
+#ifdef OZB_SUPERFRAME_CALLBACKS
+static void (* before_beacon_callback)(void) = NULL;
+static void (* on_beacon_callback)(void) = NULL;
+#endif
 //static uint32_t test_time = 0;
 
 /******************************************************************************/
@@ -195,6 +199,11 @@ COMPILER_INLINE void start_beacon_interval(void)
 	ozb_debug_print(s);
 	*/
 	ozb_debug_print("DEVICE: start BI");
+	#ifdef OZB_SUPERFRAME_CALLBACKS
+	if (on_beacon_callback)
+		on_beacon_callback();
+	#endif
+	ozb_mac_status.has_rx_beacon = 0;
 }
 
 COMPILER_INLINE void stop_superframe(void) 
@@ -217,7 +226,11 @@ COMPILER_INLINE void before_beacon_interval(void)
 	#ifdef OZB_DEBUG
 	//uint8_t str[OZB_DEBUG_STAT_STRLEN];
 	#endif
-
+	
+	#ifdef OZB_SUPERFRAME_CALLBACKS
+	if (before_beacon_callback)
+		before_beacon_callback();
+	#endif
 	if (ozb_mac_status.is_pan_coordinator || ozb_mac_status.is_coordinator)
 		ozb_radio_mac_create_beacon(); /* TODO: parse error! */
 	#ifdef OZB_DEBUG
@@ -591,6 +604,7 @@ void ozb_mac_superframe_resync(void)
 	uint32_t mmm = ozb_debug_time_get_us(OZB_DEBUG_TIME_CLOCK_DEVEL);
 	*/
 	ozb_mac_status.count_beacon_lost = 0;
+	ozb_mac_status.has_rx_beacon = 1;
 	if (!ozb_mac_status.track_beacon)
 		return;
 	resync_activations();
@@ -681,4 +695,23 @@ ozb_debug_print(s);
 //	return 0;
 }
 
+int8_t ozb_mac_set_before_beacon_callback(void (* func)(void)) 
+{
+	#ifdef OZB_SUPERFRAME_CALLBACKS
+	before_beacon_callback = func;
+	return OZB_MAC_ERR_NONE;
+	#else
+	return -OZB_MAC_ERR_SUPERFRAME_CALLBACKS_DISABLED;
+	#endif
+}
+
+int8_t ozb_mac_set_on_beacon_callback(void (* func)(void)) 
+{
+	#ifdef OZB_SUPERFRAME_CALLBACKS
+	on_beacon_callback = func;
+	return OZB_MAC_ERR_NONE;
+	#else
+	return -OZB_MAC_ERR_SUPERFRAME_CALLBACKS_DISABLED;
+	#endif
+}
 

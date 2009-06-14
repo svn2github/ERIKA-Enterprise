@@ -108,5 +108,13 @@ int8_t ozb_mac_gts_db_clean(void);
 
 int8_t ozb_mac_gts_db_add(ozb_mac_dev_addr_short_t dev_addr, 
 			  uint8_t len, uint8_t dir);
+			  
+int8_t ozb_mac_set_beacon_payload(uint8_t *data, uint8_t len);
+
+int8_t ozb_mac_get_beacon_payload(uint8_t *data, uint8_t len);
+
+int8_t ozb_mac_set_before_beacon_callback(void (* func)(void)); 
+
+int8_t ozb_mac_set_on_beacon_callback(void (* func)(void));
 
 #endif /* Header Protection */
