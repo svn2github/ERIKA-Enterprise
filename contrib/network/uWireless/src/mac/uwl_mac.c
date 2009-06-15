@@ -463,6 +463,20 @@ int8_t uwl_mac_set_beacon_payload(uint8_t *data, uint8_t len)
 	return UWL_MAC_ERR_NONE;
 }
 
+int8_t uwl_mac_jammer_cap(uint8_t *data, uint8_t len) 
+{
+	#ifdef UWL_HAS_JAMMER
+	if (uwl_mac_status.sf_context != UWL_MAC_SF_CAP || len == 0)
+		return -1; /* TODO: write appropriate error code */
+	if (len > UWL_aMaxMACPayloadSize)
+		len = UWL_aMaxMACPayloadSize;
+	uwl_radio_phy_send_now((EE_UINT8 *)data, len);
+	return 1;
+	#else 
+	return -1; /* TODO: write appropriate error code */
+	#endif
+}
+
 void uwl_mac_perform_data_request(uint8_t src_mode, uint8_t dst_mode,
 				  uint16_t dst_panid, void *dst_addr,
 				  uint8_t len, uint8_t *payload,

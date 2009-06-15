@@ -17,6 +17,7 @@
 #define UWL_SIMPLE154_ERR_GTS_NOTCOORDINATOR		11
 #define UWL_SIMPLE154_ERR_INVALID_LENGTH		12
 #define UWL_SIMPLE154_ERR_SUPERFRAME_CALLBACKS_DISABLED 13
+#define UWL_SIMPLE154_ERR_INVALID_JAMMER		14
 
 void uwl_simple154_set_rx_callback(void (*func) (int8_t, uint8_t*, uint8_t));
 
@@ -61,10 +62,19 @@ int8_t uwl_simple154_set_on_beacon_callback(void (* func)(void))
 
 COMPILER_INLINE
 int8_t uwl_simple154_set_before_beacon_callback(void (* func)(void))
- {
+{
 	if (uwl_mac_set_before_beacon_callback(func) < 0)
 		return -UWL_SIMPLE154_ERR_INVALID_LENGTH;
 	return UWL_SIMPLE154_ERR_NONE;
 }
+
+COMPILER_INLINE
+int8_t uwl_simple154_jam_cap(uint8_t *data, uint8_t len)
+{
+	if (uwl_mac_jammer_cap(data, len) < 0)
+		return -UWL_SIMPLE154_ERR_INVALID_JAMMER;
+	return UWL_SIMPLE154_ERR_NONE;
+}
+
 
 #endif /* Header Protection */
