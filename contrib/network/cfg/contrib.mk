@@ -47,7 +47,7 @@
 # Add application-related files
 ifneq ($(ONLY_LIBS) , TRUE)
 
-include $(EEBASE)/contrib/network/openzb/cfg/cfg.mk
+include $(EEBASE)/contrib/network/uWireless/cfg/cfg.mk
 
 endif
 
@@ -55,6 +55,6 @@ endif
 # Add libs-related files
 ifeq ($(ENABLE_LIBS), TRUE)
 
-include $(EEBASE)/contrib/network/openzb/cfg/libcfg.mk
+include $(EEBASE)/contrib/network/uWireless/cfg/libcfg.mk
 
 endif

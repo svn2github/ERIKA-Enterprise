@@ -42,7 +42,7 @@
 #define __flex_simple802154_h__
 
 #include <ee.h>
-#include "ozb_ieee802154.h"
+#include "uwl_ieee802154.h"
 
 #define FLEX_SIMPLE802154_ADDRESSES 	20
 #define FLEX_SIMPLE802154_CHANNELS 	128

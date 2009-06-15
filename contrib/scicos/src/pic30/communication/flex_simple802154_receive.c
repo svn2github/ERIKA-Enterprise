@@ -40,7 +40,7 @@ static void rx_data(int8_t status, uint8_t *data, uint8_t len)
 static void rx_init(scicos_block *block) 
 {
 	if (!flex_simple802154_flags.rx_initialized) {
-		ozb_simple154_set_rx_callback(rx_data);
+		uwl_simple154_set_rx_callback(rx_data);
 		flex_simple802154_flags.rx_initialized = 1;
 	}
 	flex_simple802154_add_lookup(block->ipar[1]); /* ipar[1] := src_addr */

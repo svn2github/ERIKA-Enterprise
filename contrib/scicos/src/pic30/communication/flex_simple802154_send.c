@@ -32,7 +32,7 @@ static void tx_inout(scicos_block *block)
 	packet.src_addr = flex_simple802154_local_address; 
 	use_gts = (flex_simple802154_flags.is_coordinator) ? 
 		  COORDINATOR_USE_GTS :  block->ipar[2];
-	ozb_simple154_send((EE_UINT8 *) &packet, 
+	uwl_simple154_send((EE_UINT8 *) &packet, 
 			   sizeof(flex_simple802154_packet_t), 
 			   block->ipar[1], use_gts);
 }

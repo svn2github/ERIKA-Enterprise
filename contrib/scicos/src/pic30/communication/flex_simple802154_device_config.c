@@ -31,7 +31,7 @@ static void cfg_init(scicos_block *block)
 	 * ipar[3] := coordinator_address 
 	*/
 	flex_simple802154_local_address = block->ipar[0];
-	retv = ozb_simple154_init_device(block->ipar[0], block->ipar[3],
+	retv = uwl_simple154_init_device(block->ipar[0], block->ipar[3],
 					 block->ipar[1], block->ipar[2]);
 	if (retv < 0)
 		return;

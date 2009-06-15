@@ -52,18 +52,18 @@ static void cfg_init(scicos_block *block)
 	 * ipar[25] := gts7_dir
 	*/
 	flex_simple802154_local_address = block->ipar[0];
-	retv = ozb_simple154_init_coordinator(block->ipar[0], block->ipar[1],
+	retv = uwl_simple154_init_coordinator(block->ipar[0], block->ipar[1],
 					      block->ipar[2], block->ipar[3], 
 					      block->ipar[4]);
 	if (retv < 0)
 		return;
-	retv = ozb_simple154_gts_clear();
+	retv = uwl_simple154_gts_clear();
 	if (retv < 0)
 		return;
 	for (i = 0; i < 7; i++) {
 		idx = 5 + (i * 3);
 		if (block->ipar[idx] != 0 && block->ipar[idx + 1] != 0) {
-			retv = ozb_simple154_gts_add(block->ipar[idx], 
+			retv = uwl_simple154_gts_add(block->ipar[idx], 
 						     block->ipar[idx + 1],
 						     block->ipar[idx + 2]);
 			if (retv < 0)
