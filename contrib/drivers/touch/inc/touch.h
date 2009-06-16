@@ -40,6 +40,7 @@ typedef struct {
 
 EE_UINT16 touch_get_position_u(EE_UINT8 touch_axis);
 EE_INT16 touch_get_position_s(EE_UINT8 axis);
+EE_UINT16 touch_get_position_raw(EE_UINT8 touch_axis);
 void	touch_set_dimension(EE_UINT8, EE_UINT8);
 void 	touch_init(void);
 void	touch_calibrate(void);

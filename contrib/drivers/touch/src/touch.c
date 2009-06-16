@@ -26,23 +26,23 @@ EE_UINT16 Reading_X[SAMPLES_FOR_ONE_TRUE_XY_PAIR];
 // Array for Y-Coordinates
 EE_UINT16 Reading_Y[SAMPLES_FOR_ONE_TRUE_XY_PAIR];
 // Array index
-volatile EE_UINT8 i_array;
+static volatile EE_UINT8 i_array;
 
 static EE_UINT16 Reading_low_level;
 
-volatile EE_UINT16 Untouch_conditions;
+static volatile EE_UINT16 Untouch_conditions;
 
 // Valibration values
 double cal_a,cal_b,cal_c;
 double cal_d,cal_e,cal_f;
 
 // computation begins
-volatile EE_UINT16 xd1,yd1;
-volatile EE_UINT16 xd2,yd2;
-volatile EE_UINT16 xd3,yd3;
-volatile EE_UINT16 xt1,yt1;
-volatile EE_UINT16 xt2,yt2;
-volatile EE_UINT16 xt3,yt3;
+static volatile EE_UINT16 xd1,yd1;
+static volatile EE_UINT16 xd2,yd2;
+static volatile EE_UINT16 xd3,yd3;
+static volatile EE_UINT16 xt1,yt1;
+static volatile EE_UINT16 xt2,yt2;
+static volatile EE_UINT16 xt3,yt3;
 
 
 
@@ -71,6 +71,18 @@ EE_INT16 touch_get_position_s(
 	else if(touch_axis == TOUCH_Y_AXIS)
 	{
 		return s_Y_pos;
+	} else return 0;
+}
+
+EE_UINT16 touch_get_position_raw(EE_UINT8 touch_axis)
+{
+	if(touch_axis == TOUCH_X_AXIS)
+	{
+		return X_raw;
+	}
+	else if(touch_axis == TOUCH_Y_AXIS)
+	{
+		return Y_raw;
 	} else return 0;
 }
 
@@ -224,13 +236,22 @@ void touch_calibrate(void)
 	yt2 = 2876;
 	xt3 = 1128;
 	yt3 = 988;*/
-	
+
+/*	
 	xt1 = 2919;
 	yt1 = 1592;
 	xt2 = 1703;
 	yt2 = 2567;
 	xt3 = 496;
 	yt3 = 631;
+*/
+	
+	xt1 = 2823;
+	yt1 = 1271;
+	xt2 = 1854;
+	yt2 = 2057;
+	xt3 = 870;
+	yt3 = 515;
 	
 
 	cal_a = ((long)yt1*xd3-(long)yt1*xd2-(long)yt2*xd3+(long)xd2*yt3-(long)xd1*yt3+(long)xd1*yt2);
