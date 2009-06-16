@@ -1,5 +1,6 @@
 #include "mcu/microchip_dspic/inc/ee_uart.h"
 #include "ee_internal.h"
+#include "cpu/pic30/inc/ee_irqstub.h"
 
 #ifdef EE_UART_PORT_1_ISR_ENABLE
 static void (*Rx1IsrFunction)(EE_UINT8 data) = NULL;
