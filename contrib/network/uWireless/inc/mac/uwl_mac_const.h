@@ -38,8 +38,10 @@
 
 
 /* TODO: these should depend on the current SO and BO settings!! */
-#define UWL_MAC_TICKS_BEFORE_BI			2
+#ifndef UWL_MAC_TICKS_BEFORE_TIMESLOT
+//#define UWL_MAC_TICKS_BEFORE_BI			2
 #define UWL_MAC_TICKS_BEFORE_TIMESLOT		2
+#endif
 
 /* chris: TODO: could we have a better choice for a default 64bits address? */
 #ifndef UWL_MAC_DEVICE_EXTD_ADDRESS
