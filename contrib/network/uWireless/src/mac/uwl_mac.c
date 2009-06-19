@@ -16,32 +16,49 @@ static uwl_mpdu_t rx_command;
 static uint16_t rx_beacon_length;
 static uint16_t rx_data_length;
 static uint16_t rx_command_length;
-static uint8_t beacon_payload[UWL_aMaxBeaconPayloadLength] 
-	   COMPILER_ATTRIBUTE_FAR;
 static uint8_t beacon_payload_length = 0; 
+static uint8_t beacon_payload[UWL_aMaxBeaconPayloadLength] 
+	       COMPILER_ATTRIBUTE_FAR;
+static struct uwl_mac_frame_t gts_queue_storage[UWL_MAC_GTS_QUEUE_SIZE]
+			      COMPILER_ATTRIBUTE_FAR;
+static uint16_t gts_queue_rears[UWL_MAC_GTS_MAX_NUMBER] = {0, 0, 0, 0, 0, 0, 0};
+/* NOTE: overlapping data structure for coordinator/device gts queues.*/
+CQUEUE_DEFINE_EXTMEM_STATIC(uwl_mac_queue_dev_gts, struct uwl_mac_frame_t,
+		            UWL_MAC_GTS_QUEUE_SIZE, gts_queue_storage);
+LIST_DEFINE_EXTMEM_STATIC(uwl_mac_queue_coord_gts, struct uwl_mac_frame_t,
+		          UWL_MAC_GTS_QUEUE_SIZE, gts_queue_storage);
 
 /******************************************************************************/
 /*                          MAC Layer Public Data                             */
 /******************************************************************************/
 struct uwl_mac_flags_t uwl_mac_status = {
-0, 0, 0, 0, 0, 0, 0, 0, 0
+	.mac_initialized = 0, 
+	.is_pan_coordinator = 0, 
+	.is_coordinator = 0, 
+	.is_associated = 0, 
+	.beacon_enabled = 0, 
+	.track_beacon = 0, 
+	.sf_context = 0, 
+	.count_beacon_lost = 0, 
+	.sf_initialized = 0,
+	.has_rx_beacon = 0
 };
 struct uwl_mac_pib_t uwl_mac_pib /*= {
 	TODO: set a default values as already done for the phy_pib!	
 }*/;
 struct uwl_mac_gts_stat_t uwl_mac_gts_stat = {
-	0, 
-	UWL_MAC_SUPERFRAME_LAST_SLOT + 1,
-	UWL_MAC_SUPERFRAME_FIRST_SLOT,
-	0,
-	UWL_MAC_SUPERFRAME_FIRST_SLOT,
-	0
+	.descriptor_count = 0, 
+	.first_cfp_tslot = UWL_MAC_SUPERFRAME_LAST_SLOT + 1,
+	.tx_start_tslot = UWL_MAC_SUPERFRAME_FIRST_SLOT,
+	.tx_length = 0,
+	.rx_start_tslot = UWL_MAC_SUPERFRAME_FIRST_SLOT,
+	.rx_length = 0
 };
-CQUEUE_DEFINE(uwl_mac_queue_gts, struct uwl_mac_frame_t,
-	      UWL_MAC_GTS_QUEUE_SIZE, COMPILER_ATTRIBUTE_FAR);
 CQUEUE_DEFINE(uwl_mac_queue_cap, struct uwl_mac_frame_t,
 	      UWL_MAC_CAP_QUEUE_SIZE, COMPILER_ATTRIBUTE_FAR);
-
+/* TODO: used only by coordinator. */
+struct uwl_gts_info_t uwl_gts_schedule[UWL_MAC_GTS_MAX_NUMBER] 
+		      COMPILER_ATTRIBUTE_FAR;
 
 /******************************************************************************/
 /*                                                                            */
@@ -92,6 +109,112 @@ static void set_default_mac_pib(void)
 	uwl_mac_pib.macPromiscuousMode = 0;
 	uwl_mac_pib.macSuperframeOrder = 15;
 	#endif /* UWL_RFD_DISABLE_OPTIONAL */
+}
+
+COMPILER_INLINE int8_t gts_search_device(uwl_mac_dev_addr_short_t addr)
+{
+	int8_t i;
+
+	for (i = 0; i < UWL_MAC_GTS_MAX_NUMBER; i++)
+		if (uwl_gts_schedule[i].dev_address == addr && 
+		    uwl_gts_schedule[i].length != 0 &&
+		    uwl_gts_schedule[i].direction == UWL_MAC_GTS_DIRECTION_IN)
+			return i;
+	return -1;
+}
+
+COMPILER_INLINE 
+uwl_mac_dev_addr_short_t addr_to_short(enum uwl_mac_addr_mode_t mode, void *dst)
+{
+	uwl_mac_dev_addr_short_t addr;
+
+	if (mode == UWL_MAC_ADDRESS_SHORT) {
+		addr = *((uwl_mac_dev_addr_short_t *) dst);
+	} else { /* mode == UWL_MAC_ADDRESS_EXTD */ 
+		/* TODO: use lookup table to resolve the corresponding short */
+		addr = 0x0001;
+	}
+	return addr;
+}
+
+COMPILER_INLINE struct uwl_mac_frame_t *gts_queue_alloc(uint8_t gts)
+{
+	uint8_t i;
+	struct uwl_mac_frame_t *elem;
+
+	if (!(uwl_mac_status.is_pan_coordinator || 
+	      uwl_mac_status.is_coordinator)) {
+		return (struct uwl_mac_frame_t *) 
+		       cqueue_push(&uwl_mac_queue_dev_gts);
+	} 
+	/* TODO: what should be done if uwl_mac_status.is_coordinator ? 
+		 Is the node both coordinator and device in such a case? 
+		 Double storage is required in that case! 
+	*/
+	elem = (struct uwl_mac_frame_t *) 
+	       list_insert_after(&uwl_mac_queue_coord_gts,gts_queue_rears[gts]);
+	if (elem != 0) 
+		/* Update rears for the coordinator gts queues */
+		for (i = gts; i < UWL_MAC_GTS_MAX_NUMBER; i++)
+			gts_queue_rears[i]++;
+	return elem;
+}
+
+void uwl_gts_queue_flush(uint8_t gts) 
+{
+	struct uwl_mac_frame_t *fr;
+	uint8_t i;
+	uint16_t cnt;
+
+	if (uwl_mac_status.is_pan_coordinator || uwl_mac_status.is_coordinator){
+		fr = (struct uwl_mac_frame_t *) 
+		     list_pop_front(&uwl_mac_queue_coord_gts);
+		cnt = 0;
+		while (fr != 0 && cnt < gts_queue_rears[gts]) {
+			uwl_MCPS_DATA_confirm(fr->msdu_handle, 
+					      UWL_MAC_INVALID_GTS, 0);
+			fr = (struct uwl_mac_frame_t *) 
+			     list_pop_front(&uwl_mac_queue_coord_gts);
+			cnt++;
+			/* Update rears for the coordinator gts queues */
+			for (i = gts; i < UWL_MAC_GTS_MAX_NUMBER; i++)
+				gts_queue_rears[i]--;
+		}
+	} else {
+		fr=(struct uwl_mac_frame_t*) cqueue_pop(&uwl_mac_queue_dev_gts);
+		while (fr != 0) {
+			uwl_MCPS_DATA_confirm(fr->msdu_handle, 
+					      UWL_MAC_INVALID_GTS, 0);
+			fr = (struct uwl_mac_frame_t *) 
+			     cqueue_pop(&uwl_mac_queue_dev_gts);
+		}
+	}
+}
+
+uint8_t uwl_gts_queue_is_empty(uint8_t gts) 
+{
+	if (uwl_mac_status.is_pan_coordinator || uwl_mac_status.is_coordinator)
+		return (gts_queue_rears[gts] == 0);
+	else 
+		return cqueue_is_empty(&uwl_mac_queue_dev_gts);
+}
+
+struct uwl_mac_frame_t *uwl_gts_queue_extract(uint8_t gts) 
+{
+	uint8_t i;
+
+	if (uwl_mac_status.is_pan_coordinator || uwl_mac_status.is_coordinator){
+		if (gts_queue_rears[gts] == 0)
+			return 0;
+		/* Update rears for the coordinator gts queues */
+		for (i = gts; i < UWL_MAC_GTS_MAX_NUMBER; i++)
+			gts_queue_rears[i]--;
+		return (struct uwl_mac_frame_t*) 
+		       list_pop_front(&uwl_mac_queue_coord_gts);
+	} else {
+		return (struct uwl_mac_frame_t*) 
+		       cqueue_pop(&uwl_mac_queue_dev_gts);
+	}
 }
 
 /******************************************************************************/
@@ -420,8 +543,10 @@ int8_t uwl_mac_init(void)
 	if (retv < 0)
 		return retv;
 	set_default_mac_pib();
-	cqueue_clear(&uwl_mac_queue_gts);
 	cqueue_clear(&uwl_mac_queue_cap);
+	cqueue_clear(&uwl_mac_queue_dev_gts);
+	list_clear(&uwl_mac_queue_coord_gts);
+	memset(gts_queue_rears, 0, sizeof(uint16_t) * UWL_MAC_GTS_QUEUE_SIZE);
 	retv = init_rx_tasks();
 	if (retv < 0)
 		return retv;
@@ -477,7 +602,8 @@ int8_t uwl_mac_jammer_cap(uint8_t *data, uint8_t len)
 	#endif
 }
 
-void uwl_mac_perform_data_request(uint8_t src_mode, uint8_t dst_mode,
+void uwl_mac_perform_data_request(enum uwl_mac_addr_mode_t src_mode, 
+				  enum uwl_mac_addr_mode_t dst_mode,
 				  uint16_t dst_panid, void *dst_addr,
 				  uint8_t len, uint8_t *payload,
 				  uint8_t handle, uint8_t tx_opt /*,
@@ -491,19 +617,26 @@ void uwl_mac_perform_data_request(uint8_t src_mode, uint8_t dst_mode,
 	} flag;
 	struct uwl_mac_frame_t *frame;
 	uwl_mac_dev_addr_extd_t e_addr;
+	int8_t gts_idx = 0;
 
 	if (UWL_MAC_TX_OPTION_GTS(tx_opt) == UWL_TRUE) {
-		if (!uwl_mac_superframe_has_tx_gts()) {
-			uwl_MCPS_DATA_confirm(handle, UWL_MAC_INVALID_GTS, 0);
-			return;
+		if (uwl_mac_status.is_pan_coordinator || 
+		    uwl_mac_status.is_coordinator) {
+			gts_idx = gts_search_device(addr_to_short(dst_mode, 
+								  dst_addr));
+			if (gts_idx < 0) {
+				uwl_MCPS_DATA_confirm(handle, 
+						      UWL_MAC_INVALID_GTS, 0);
+				return;
+			}
 		}
-		if (!uwl_mac_superframe_check_gts(len)) {
+		if (!uwl_mac_superframe_check_gts(len, (uint8_t) gts_idx)) {
 			//uwl_debug_print("DEVICE:  GTS CHECK FAIL ");
 			uwl_MCPS_DATA_confirm(handle, UWL_MAC_INVALID_GTS, 0);
 			return;
 		} 
 		/* Store in the GTS queue! */
-		frame=(struct uwl_mac_frame_t*) cqueue_push(&uwl_mac_queue_gts);
+		frame = gts_queue_alloc((uint8_t) gts_idx);
 		if (frame == 0) {
 			//uwl_debug_print("DEVICE:  GTS QUEUE FULL!!! ");
 			/* TODO: we have to choose a well formed reply
@@ -559,7 +692,7 @@ void uwl_mac_perform_data_request(uint8_t src_mode, uint8_t dst_mode,
 			   UWL_MAC_MPDU_SEQ_NUMBER_SIZE + s + len /* + 
 			   sizeof(uint16_t) */;
 	if (UWL_MAC_TX_OPTION_GTS(tx_opt) == UWL_TRUE) 
-		uwl_mac_superframe_gts_wakeup(); 
+		uwl_mac_superframe_gts_wakeup(gts_idx); 
 }
 
 /******************************************************************************/

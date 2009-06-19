@@ -17,6 +17,14 @@ int8_t uwl_MCPS_DATA_request(uint8_t SrcAddrMode, uint8_t DstAddrMode,
 	    DstAddrMode == UWL_MAC_ADDRESS_NONE) {
 		uwl_MCPS_DATA_confirm(msduHandle, UWL_MAC_INVALID_ADDRESS, 0);
 		return UWL_MAC_ERR_NONE;
+	} else if (SrcAddrMode != UWL_MAC_ADDRESS_SHORT && 
+		   SrcAddrMode != UWL_MAC_ADDRESS_EXTD) {
+		uwl_MCPS_DATA_confirm(msduHandle, UWL_MAC_INVALID_PARAMETER, 0);
+		return UWL_MAC_ERR_NONE;
+	} else if (DstAddrMode != UWL_MAC_ADDRESS_SHORT && 
+		   DstAddrMode != UWL_MAC_ADDRESS_EXTD) {
+		uwl_MCPS_DATA_confirm(msduHandle, UWL_MAC_INVALID_PARAMETER, 0);
+		return UWL_MAC_ERR_NONE;
 	}
 	if (msduLength > UWL_aMaxMACPayloadSize) {
 		uwl_MCPS_DATA_confirm(msduHandle, UWL_MAC_INVALID_PARAMETER, 0);

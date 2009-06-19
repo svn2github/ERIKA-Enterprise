@@ -14,6 +14,12 @@
 #endif
 #define TIME32_SUBTRACT(t1, t2) ((t1)>(t2) ? (t1)-(t2) : 0xFFFFFFFF-(t2)+(t1))
 
+enum uwl_mac_csma_state_t {
+	CSMA_STATE_INIT = 0,
+	CSMA_STATE_DELAY,
+	CSMA_STATE_CCA,	
+};
+
 struct uwl_mac_csma_params_t {
 	unsigned NB : 4;
 	unsigned BE : 4;
@@ -21,12 +27,6 @@ struct uwl_mac_csma_params_t {
 	unsigned state : 2;
 	unsigned slotted : 1;
 	unsigned reserved : 2;
-};
-
-enum uwl_mac_csma_state_t {
-	CSMA_STATE_INIT = 0,
-	CSMA_STATE_DELAY,
-	CSMA_STATE_CCA,	
 };
 
 UWL_KAL_TASK(MAC_TIMESLOT, 10);
@@ -50,7 +50,9 @@ static struct {
 	unsigned wait_sf_end : 1;
 	unsigned had_cfp : 1;
 	unsigned gts_sending : 1;
-} sf_flags = {UWL_FALSE, UWL_FALSE, UWL_FALSE, UWL_FALSE};
+	unsigned gts_tx_on_cfp_end : 1;
+	unsigned gts_schedule_idx : 3;
+} sf_flags = {UWL_FALSE, UWL_FALSE, UWL_FALSE, UWL_FALSE, UWL_FALSE, 0};
 static uint32_t time_reference = 0;
 static struct uwl_mac_csma_params_t csma_params;
 static uint8_t csma_delay_counter = 0;
@@ -58,7 +60,9 @@ static uint16_t lifs_bytes = 0;
 static uint16_t sifs_bytes = 0;
 static uint16_t btick_bytes = 0;
 static uint32_t cap_available_bytes = 0;
-static uint32_t gts_available_bytes = 0;
+//static uint32_t gts_available_bytes = 0;
+static uint32_t gts_available_bytes[UWL_MAC_GTS_MAX_NUMBER] 
+		COMPILER_ATTRIBUTE_FAR = {0, 0, 0, 0, 0, 0, 0};
 #ifdef UWL_SUPERFRAME_CALLBACKS
 static void (* before_beacon_callback)(void) = NULL;
 static void (* on_beacon_callback)(void) = NULL;
@@ -114,34 +118,16 @@ COMPILER_INLINE uint8_t is_in_tx_gts(void)
 		uwl_mac_gts_stat.tx_length);
 }
 
-COMPILER_INLINE void empty_gts_queue(void) 
+COMPILER_INLINE void recharge_gts_bytes(uint8_t len, uint8_t gts_idx)
 {
-	struct uwl_mac_frame_t *fr;
-
-	//cqueue_clear(&uwl_mac_queue_gts);
-//	while (cqueue_get_size(&uwl_mac_queue_gts) > 0) {
-//		fr = (struct uwl_mac_frame_t *) cqueue_pop(&uwl_mac_queue_gts);
-//		uwl_MCPS_DATA_confirm(fr->msdu_handle, UWL_MAC_INVALID_GTS, 0);
-//	}
-	fr = (struct uwl_mac_frame_t *) cqueue_pop(&uwl_mac_queue_gts);
-	while (fr != 0) {
-		uwl_MCPS_DATA_confirm(fr->msdu_handle, UWL_MAC_INVALID_GTS, 0);
-		fr = (struct uwl_mac_frame_t *) cqueue_pop(&uwl_mac_queue_gts);
-	}
-}
-
-COMPILER_INLINE void recharge_gts_available_bytes(void)
-{
-	if (uwl_mac_gts_stat.tx_length != 0) {
-		gts_available_bytes = bticks_to_bytes(
-			       (uint32_t) uwl_mac_gts_stat.tx_length *
+	if (len != 0) {
+		gts_available_bytes[gts_idx] = bticks_to_bytes((uint32_t) len *
 			       UWL_MAC_GET_TS(uwl_mac_pib.macSuperframeOrder));
-		gts_available_bytes -= lifs_bytes;
+		gts_available_bytes[gts_idx] -= lifs_bytes;
 	} else {
-		gts_available_bytes = 0;
+		gts_available_bytes[gts_idx] = 0;
 	}
 }
-
 
 COMPILER_INLINE void resync_activations(void) 
 {
@@ -158,6 +144,7 @@ COMPILER_INLINE void resync_activations(void)
 
 COMPILER_INLINE void start_beacon_interval(void) 
 {
+	uint8_t i;
 	/*
 	char s[100];
 	uint32_t mmm = uwl_debug_time_get_us(UWL_DEBUG_TIME_CLOCK_DEVEL);
@@ -166,28 +153,36 @@ COMPILER_INLINE void start_beacon_interval(void)
 	uwl_debug_time_get(UWL_DEBUG_TIME_CLOCK_BI);
 	if (uwl_mac_status.is_pan_coordinator || uwl_mac_status.is_coordinator){
 		uwl_radio_mac_send_beacon(); /* TODO: parse ret value*/
+		sf_flags.gts_schedule_idx = 0;
 	} else if (uwl_mac_status.count_beacon_lost++ > UWL_aMaxLostBeacons) {
 		uwl_debug_print("MAC beacon-enabled STOPPING!");
 		sf_flags.gts_sending = 0;
 		uwl_kal_mutex_wait(MAC_MUTEX);
-		gts_available_bytes = 0;
+		//gts_available_bytes = 0;
+		memset(gts_available_bytes, 0, 
+		       sizeof(uint32_t) * UWL_MAC_GTS_MAX_NUMBER);
 		uwl_kal_mutex_signal(MAC_MUTEX);
-		empty_gts_queue();
+		uwl_gts_queue_flush(0); /* NOTE: this is the device case! */
 		stop_activations();
 		return;
 	}
 	if (sf_flags.had_cfp == UWL_TRUE) {
 		sf_flags.had_cfp = UWL_FALSE;
 		uwl_kal_set_activation(MAC_BACKOFF_PERIOD, 0, 1);
+	} else {
+		uwl_kal_mutex_wait(MAC_MUTEX);
+		if (uwl_mac_status.is_pan_coordinator || 
+		    uwl_mac_status.is_coordinator)
+			for (i = 0; i < UWL_MAC_GTS_MAX_NUMBER; i++)
+			       recharge_gts_bytes(uwl_gts_schedule[i].length,i);
+		else 
+			recharge_gts_bytes(uwl_mac_gts_stat.tx_length, 0);
+		uwl_kal_mutex_signal(MAC_MUTEX);
 	}
 	if (uwl_mac_pib.macSuperframeOrder < uwl_mac_pib.macBeaconOrder) {
 		sf_flags.has_idle = UWL_TRUE;
 		sf_flags.wait_sf_end = UWL_TRUE;
 	}
-	uwl_kal_mutex_wait(MAC_MUTEX);
-	recharge_gts_available_bytes();
-	uwl_kal_mutex_signal(MAC_MUTEX);
-	
 	cap_available_bytes = 
 			bticks_to_bytes((uint32_t) uwl_mac_gts_get_cap_size()) *
 			       UWL_MAC_GET_TS(uwl_mac_pib.macSuperframeOrder);
@@ -203,7 +198,7 @@ COMPILER_INLINE void start_beacon_interval(void)
 	if (on_beacon_callback)
 		on_beacon_callback();
 	#endif
-	uwl_mac_status.has_rx_beacon = 0;
+	uwl_mac_status.has_rx_beacon = 0; /* MUST be at the END of Function */
 }
 
 COMPILER_INLINE void stop_superframe(void) 
@@ -240,6 +235,95 @@ COMPILER_INLINE void before_beacon_interval(void)
 	uwl_debug_print("DEVICE: before Start BI");
 }
 
+COMPILER_INLINE void cfp_perform_coordinator(void)
+{
+	struct uwl_gts_info_t *gts;
+
+	if (uwl_mac_status.sf_context != UWL_MAC_SF_CFP)
+		return;
+	gts = uwl_gts_schedule + sf_flags.gts_schedule_idx;
+	if (current_tslot != uwl_mac_gts_stat.first_cfp_tslot && 
+	    gts->starting_tslot + gts->length != current_tslot)
+		return; /* NO need to update coordinator GTS behaviour */
+	if (current_tslot != uwl_mac_gts_stat.first_cfp_tslot) {
+		/* Next GTS starts here (start of first is skipped) */
+		if (sf_flags.gts_sending) {
+			/* Stop previous GTS */
+			sf_flags.gts_sending = 0;
+			uwl_kal_mutex_wait(MAC_MUTEX);
+			recharge_gts_bytes(gts->length, 
+				           sf_flags.gts_schedule_idx);
+			uwl_kal_mutex_signal(MAC_MUTEX);
+			uwl_gts_queue_flush(sf_flags.gts_schedule_idx);
+			/* TODO: has effect? */
+			uwl_kal_cancel_activation(MAC_GTS_SEND);
+		}
+		sf_flags.gts_schedule_idx++;
+		gts++;
+	}
+	/* NOTE: output for device, means input for coordinator */
+	if (gts->direction == UWL_MAC_GTS_DIRECTION_OUT) {
+		uwl_radio_phy_set_rx_on(); /*TODO:Raise error if < 0 */
+		return;
+	}
+	sf_flags.gts_sending = 1;
+	time_reference = (uwl_mac_gts_stat.tx_length *
+		         UWL_MAC_GET_TS(uwl_mac_pib.macSuperframeOrder)) +
+		         uwl_kal_get_time();
+	uwl_kal_set_activation(MAC_GTS_SEND, UWL_MAC_LIFS_PERIOD, 0);
+	if (gts->starting_tslot + gts->length == UWL_MAC_SUPERFRAME_LAST_SLOT)
+		sf_flags.gts_tx_on_cfp_end = UWL_TRUE;
+}
+
+COMPILER_INLINE void cfp_perform_device(void)
+{
+	if (uwl_mac_gts_stat.tx_length != 0 && 
+            current_tslot == uwl_mac_gts_stat.tx_start_tslot) {
+		/* Start Device GTS */
+		sf_flags.gts_sending = 1;
+		time_reference = (uwl_mac_gts_stat.tx_length *
+			       UWL_MAC_GET_TS(uwl_mac_pib.macSuperframeOrder)) +
+			       uwl_kal_get_time();
+		uwl_kal_set_activation(MAC_GTS_SEND, UWL_MAC_LIFS_PERIOD, 0);
+		if (uwl_mac_gts_stat.tx_start_tslot + 
+		    uwl_mac_gts_stat.tx_length == UWL_MAC_SUPERFRAME_LAST_SLOT)
+			sf_flags.gts_tx_on_cfp_end = UWL_TRUE;
+	} else if (uwl_mac_gts_stat.tx_length != 0 && 
+		   current_tslot >= uwl_mac_gts_stat.tx_start_tslot + 
+		   uwl_mac_gts_stat.tx_length) {
+		/* Stop Devie GTS */
+		sf_flags.gts_sending = 0;
+		uwl_kal_mutex_wait(MAC_MUTEX);
+		recharge_gts_bytes(uwl_mac_gts_stat.tx_length, 0); 
+		uwl_kal_mutex_signal(MAC_MUTEX);
+		uwl_gts_queue_flush(0);
+		uwl_kal_cancel_activation(MAC_GTS_SEND);/* TODO: has effect? */
+	}
+}
+
+COMPILER_INLINE void stop_previous_cfp(void) 
+{
+	uint8_t i = 0;
+
+	/* NOTE: this if for the GTS that terminates in
+		 with last timeslot expiration */
+	if (sf_flags.gts_tx_on_cfp_end == UWL_FALSE)
+		return;
+	uwl_kal_mutex_wait(MAC_MUTEX);
+	if (uwl_mac_status.is_pan_coordinator || uwl_mac_status.is_coordinator){
+		i = UWL_MAC_GTS_MAX_NUMBER - 1;
+		recharge_gts_bytes(uwl_gts_schedule[i].length, i);
+	} else {
+		recharge_gts_bytes(uwl_mac_gts_stat.tx_length, 0);
+	}
+	uwl_kal_mutex_signal(MAC_MUTEX);
+	sf_flags.gts_sending = 0;
+	/* NOTE: recharging of 'gts_available_bytes' is done
+	 by the start_beacon_interval() */
+	uwl_gts_queue_flush(i);
+	uwl_kal_cancel_activation(MAC_GTS_SEND); /* TODO: has effect? */
+}
+
 /******************************************************************************/
 /*                          MAC CSMA-CA Functions                             */
 /******************************************************************************/
@@ -260,8 +344,6 @@ COMPILER_INLINE void csma_set_delay(void)
 {
 	csma_delay_counter = uwl_rand_8bit() % 
 			     ((((uint8_t) 1) << csma_params.BE) - 1);
-	//csma_delay_counter = 0;
-	//csma_delay_counter = (((uint8_t) 1) << csma_params.BE) - 1;
 }
 
 COMPILER_INLINE uint8_t csma_check_available_cap(uint8_t len, uint8_t has_ack) 
@@ -368,7 +450,7 @@ static void csma_perform_slotted(void)
 	}
 }
 
-static void csma_perform_uslotted(void) 
+static void csma_perform_unslotted(void) 
 {
 	/*TODO: implement the unslotted version!! */
 }
@@ -390,21 +472,13 @@ static void on_timeslot_start(void)
 			  suspend until that time (manage this!) 
 	*/
 	current_tslot = NEXT_TSLOT(current_tslot);
+	/* Check if second slot activation is too close to the first one */
 	if (current_tslot == UWL_MAC_SUPERFRAME_FIRST_SLOT) {
 		if (sf_flags.has_idle) { 	/* Has to go in IDLE? */
 			stop_superframe(); 
 			return;
 		}
-		if (uwl_mac_superframe_has_tx_gts()) {
-			/* NOTE: this for the GTS that terminates in
-				 with last timeslot expiration */
-			sf_flags.gts_sending = 0;
-			/* NOTE: recharging of 'gts_available_bytes' is done
-				 by the srtart_beacon_interval() */
-			empty_gts_queue();
-			/* TODO: has effect? */
-			uwl_kal_cancel_activation(MAC_GTS_SEND);
-		}
+		stop_previous_cfp();
 		time_reference = uwl_kal_get_time(); 
 		start_beacon_interval();
 	} else if (current_tslot == UWL_MAC_SUPERFRAME_FIRST_SLOT + 1) {
@@ -417,36 +491,20 @@ static void on_timeslot_start(void)
 			return;
 		}
 	}
+	/* GTS Management part */
 	if (uwl_mac_pib.macGTSPermit == 0)
 		return;
 	if (current_tslot == uwl_mac_gts_stat.first_cfp_tslot) {
 		uwl_mac_status.sf_context = UWL_MAC_SF_CFP;
 		sf_flags.had_cfp = UWL_TRUE;
+		sf_flags.gts_tx_on_cfp_end = UWL_FALSE;
 		uwl_kal_cancel_activation(MAC_BACKOFF_PERIOD);
-		if (uwl_mac_status.is_pan_coordinator || 
-		    uwl_mac_status.is_coordinator) {
-			/* TODO: simplified version: 
-				 coordinator can only receive in CFP -> RX ON 				*/
-			uwl_radio_phy_set_rx_on(); /* TODO:Raise error if < 0 */
-		} 
 	}
-	if (uwl_mac_superframe_has_tx_gts() && 
-            current_tslot == uwl_mac_gts_stat.tx_start_tslot) {
-		sf_flags.gts_sending = 1;
-		time_reference = (uwl_mac_gts_stat.tx_length *
-			       UWL_MAC_GET_TS(uwl_mac_pib.macSuperframeOrder)) +
-			       uwl_kal_get_time();
-		uwl_kal_set_activation(MAC_GTS_SEND, UWL_MAC_LIFS_PERIOD, 0);
-	} else if (uwl_mac_superframe_has_tx_gts() && 
-		   current_tslot >= uwl_mac_gts_stat.tx_start_tslot + 
-		   uwl_mac_gts_stat.tx_length) {
-		sf_flags.gts_sending = 0;
-		uwl_kal_mutex_wait(MAC_MUTEX);
-		recharge_gts_available_bytes(); /* TODO: Check this policy! */
-		uwl_kal_mutex_signal(MAC_MUTEX);
-		empty_gts_queue();
-		uwl_kal_cancel_activation(MAC_GTS_SEND);/* TODO: has effect? */
-	}
+	if (uwl_mac_status.is_pan_coordinator || uwl_mac_status.is_coordinator) 
+		cfp_perform_coordinator();
+	else
+		cfp_perform_device();
+	
 	/*
 	sprintf(s, "DEVICE: slot=%u  Dck=%lu  ck=%lu ref_ck=%lu  t=%lu", 
 		current_tslot, mmm-test_time, mmm, time_reference, t); 
@@ -481,7 +539,7 @@ static void on_backoff_period_start(void)
 	if (csma_params.slotted)
 		csma_perform_slotted();
 	else
-		csma_perform_uslotted();
+		csma_perform_unslotted();
 }
 
 static void on_gts_send(void)
@@ -503,11 +561,11 @@ static void on_gts_send(void)
 	sprintf(s, "DEVICE: On GTS SEND  @ %u, %lu", current_tslot, mmm);
 	uwl_debug_print(s);
 	*/
-	if (cqueue_is_empty(&uwl_mac_queue_gts)) {
+	if (uwl_gts_queue_is_empty(sf_flags.gts_schedule_idx)) {
 		sf_flags.gts_sending = 0; /* Nothing more to send by now. */
 		return;
 	}
-	frame = (struct uwl_mac_frame_t*) cqueue_pop(&uwl_mac_queue_gts);
+	frame = uwl_gts_queue_extract(sf_flags.gts_schedule_idx);
 	if (frame == 0) /* TODO: this is extra check, empty check is enough!! */
 		return; 
 	if (!is_in_tx_gts()) { /* Check if meanwhile GTS is no longer valid */
@@ -516,7 +574,7 @@ static void on_gts_send(void)
 		uwl_MCPS_DATA_confirm(frame->msdu_handle,UWL_MAC_INVALID_GTS,0);
 		return; 
 	}
-LATEbits.LATE0 = 1;
+//LATEbits.LATE0 = 1;
 	if (uwl_radio_phy_send_now(frame->mpdu, frame->mpdu_size) == 
 	    						UWL_RADIO_ERR_NONE)
 		uwl_MCPS_DATA_confirm(frame->msdu_handle, UWL_MAC_SUCCESS, 0);
@@ -528,7 +586,7 @@ LATEbits.LATE0 = 1;
 		uwl_kal_set_activation(MAC_GTS_SEND, UWL_MAC_LIFS_PERIOD, 0);
 	else
 		uwl_kal_set_activation(MAC_GTS_SEND, UWL_MAC_SIFS_PERIOD, 0);
-LATEbits.LATE0 = 0;
+//LATEbits.LATE0 = 0;
 }
 
 /******************************************************************************/
@@ -565,8 +623,8 @@ int8_t uwl_mac_superframe_init(void)
 	lifs_bytes = bticks_to_bytes(UWL_MAC_LIFS_PERIOD);
 	sifs_bytes = bticks_to_bytes(UWL_MAC_SIFS_PERIOD);
 	btick_bytes = bticks_to_bytes(1);
-TRISEbits.TRISE0 = 0;
-LATEbits.LATE0 = 0;
+//TRISEbits.TRISE0 = 0;
+//LATEbits.LATE0 = 0;
 	return 1;
 } 
 
@@ -584,12 +642,9 @@ void uwl_mac_superframe_start(uint32_t offset)
 	sf_flags.wait_sf_end = UWL_FALSE;
 	sf_flags.has_idle = UWL_FALSE;
 	sf_flags.had_cfp = UWL_FALSE;
+	sf_flags.gts_tx_on_cfp_end = UWL_FALSE;
 	if (uwl_mac_status.is_pan_coordinator || uwl_mac_status.is_coordinator)
 		start_activations(offset);
-	/* TODO: do I need this (a before_BI before the first BCN) in device? 
-	else
-		uwl_kal_set_activation(MAC_BEFORE_TIMESLOT, 0, 0);
-	*/
 } 
 
 void uwl_mac_superframe_stop(void) 
@@ -618,32 +673,59 @@ void uwl_mac_superframe_resync(void)
 	*/
 }
 
-
-void uwl_mac_superframe_gts_wakeup(void) 
+void uwl_mac_superframe_gts_wakeup(uint8_t gts_idx) 
 {
-	if (!sf_flags.gts_sending && uwl_mac_gts_stat.tx_length != 0 &&
-	    current_tslot == uwl_mac_gts_stat.tx_start_tslot) {
-		sf_flags.gts_sending = 1;
-		uwl_kal_set_activation(MAC_GTS_SEND, 0, 0);
+	struct uwl_gts_info_t *gts;
+
+	if (uwl_mac_status.is_pan_coordinator || uwl_mac_status.is_coordinator){
+		/* Coordinator wakeup gts */
+		gts = uwl_gts_schedule + sf_flags.gts_schedule_idx;
+		if (!sf_flags.gts_sending && gts->length != 0 &&
+		    current_tslot == gts->starting_tslot) {
+				sf_flags.gts_sending = 1;
+				uwl_kal_set_activation(MAC_GTS_SEND, 0, 0);
+		}
+	} else {
+	 	/* Device wakeup gts */
+	 	if (!sf_flags.gts_sending && uwl_mac_gts_stat.tx_length != 0 &&
+	 	    current_tslot == uwl_mac_gts_stat.tx_start_tslot) {
+	 		sf_flags.gts_sending = 1;
+	 		uwl_kal_set_activation(MAC_GTS_SEND, 0, 0);
+	 	}
 	}
 }
 
-uint8_t uwl_mac_superframe_check_gts(uint8_t length)
+uint8_t uwl_mac_superframe_check_gts(uint8_t length, uint8_t gts_idx)
 {
 	uint32_t x;
-/*
-char s[100];
-*/
-	/* TODO: use the extra bytes for protection??? in this case 10 */
+	uint32_t *bytes = gts_available_bytes;
+	/* char s[100]; */
 
+	if (uwl_mac_status.is_pan_coordinator || uwl_mac_status.is_coordinator){
+		/* GTS presence must be already checked, gts_idx range too. */
+		bytes += gts_idx; 
+	} else {
+		if (uwl_mac_gts_stat.tx_length == 0)
+			return 0;
+	}
+	/* TODO: use the extra bytes for protection??? in this case 10 */
 	uwl_kal_mutex_wait(MAC_MUTEX);
-//sprintf(s,"DEVICE: -->>> R=%lu l=%u", gts_available_bytes, length);
+//sprintf(s,"DEVICE: -->>> R=%lu l=%u", *bytes, length);
 //uwl_debug_print(s);
-	if (gts_available_bytes < length + 10) {
+	if (*bytes < length + 10) {
 		uwl_kal_mutex_signal(MAC_MUTEX);
 		return 0; 
 	}
-	x = gts_available_bytes;
+/* ******************************************************************** */
+/* ******************************************************************** */
+/* TODO  TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO         */
+/* ******************************************************************** */
+/* ******************************************************************** */
+/*  DEBUG FROM HERE: available bytes is 0 in case of ccoordinator, debug*/
+/*		     all the data structures instroduced for GTS send.  */
+/* ******************************************************************** */
+/* ******************************************************************** */
+	x = *bytes;
 	if (is_in_tx_gts()) {
 		/* x = remaining btick in GTS */
 		x = uwl_kal_get_time();
@@ -655,44 +737,17 @@ sprintf(s,"DEVICE: ####--->>> Remaining Byte =  %lu", x);
 uwl_debug_print(s);
 */
 		if (x < length + 10) {
-			gts_available_bytes = 0;
+			*bytes = 0;
 			uwl_kal_mutex_signal(MAC_MUTEX);
 			return 0;
 		}
 	}
-	gts_available_bytes = x - (length + 10);
+	*bytes = x - (length + 10);
 	/* x = LISF or SIFS in bytes */
 	x = length < UWL_aMaxSIFSFrameSize ?  sifs_bytes : lifs_bytes;
-	gts_available_bytes = gts_available_bytes >= x ?
-			      gts_available_bytes - x : 0;
+	*bytes = (*bytes) >= x ?  (*bytes) - x : 0;
 	uwl_kal_mutex_signal(MAC_MUTEX);
 	return 1;
-
-/* TODO Remove following lines if previous are ok! */	
-//	if (gts_available_bytes >= length + 10) {
-//		gts_available_bytes -= length + 10;
-//		/* x = LISF or SIFS in bytes */
-//		x = length < UWL_aMaxSIFSFrameSize ? 
-//		    sifs_bytes : lifs_bytes;
-//		gts_available_bytes = gts_available_bytes >= x ?
-//				      gts_available_bytes - x : 0;
-//		if (!is_in_tx_gts()) 
-//			return 1;
-//		/* x = remaining btick in GTS */
-//		x = uwl_kal_get_time();
-//		x = TIME32_SUBTRACT(time_reference, x);
-//		/* x = remaining bytes in GTS */
-//		x = bticks_to_bytes(x);
-//sprintf(s,"DEVICE: ####--->>> Remaining Byte =  %lu", x);
-//uwl_debug_print(s);
-//		if (x >= length + 10) {
-//			gts_available_bytes = x - (length + 10);
-//			return 1;
-//		} else {
-//			gts_available_bytes = 0
-//		}
-//	}
-//	return 0;
 }
 
 int8_t uwl_mac_set_before_beacon_callback(void (* func)(void)) 

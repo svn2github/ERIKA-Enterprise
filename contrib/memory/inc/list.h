@@ -25,7 +25,6 @@ typedef struct list_t {
 	uint16_t *next;		/**< Pointer to the array of next indexes. */
 } list_t;
 
-
 /** 
 * @brief Static list allocation
 *
@@ -42,8 +41,8 @@ typedef struct list_t {
 * \see list_first
 * \see list_last
 * \see list_insert
-* \see list_add
-* \see list_append
+* \see list_push_front
+* \see list_push_back
 * \see list_remove
 * 
 * @param[out] name 	The name given to the \ref list_t created.  
@@ -53,7 +52,7 @@ typedef struct list_t {
 */
 #define LIST_DEFINE(name, type, length, attribute)	\
 static type list_data_##name[length] attribute;		\
-uint16_t list_next_indexes_##name[length];		\
+static uint16_t list_next_indexes_##name[length];	\
 list_t name = {						\
 	0, 						\
 	0, 						\
@@ -63,7 +62,6 @@ list_t name = {						\
 	(uint8_t *) list_data_##name,			\
 	list_next_indexes_##name			\
 }; 							\
-
 
 /** 
 * @brief Static list allocation
@@ -92,6 +90,29 @@ static list_t name = {						\
 	list_next_indexes_##name				\
 }; 								\
 
+#define LIST_DEFINE_EXTMEM(name, type, length, storage)	\
+static uint16_t list_next_indexes_##name[length];	\
+list_t name = {						\
+	0, 						\
+	0, 						\
+	length, 					\
+	0, 						\
+	sizeof(type), 					\
+	(uint8_t *) (storage),				\
+	list_next_indexes_##name			\
+}; 							\
+
+#define LIST_DEFINE_EXTMEM_STATIC(name, type, length, storage)	\
+static uint16_t list_next_indexes_##name[length];		\
+static list_t name = {						\
+	0, 							\
+	0, 							\
+	length, 						\
+	0, 							\
+	sizeof(type), 						\
+	(uint8_t *) (storage),					\
+	list_next_indexes_##name				\
+}; 								\
 
 /** 
 * @name Error Codes
@@ -99,11 +120,6 @@ static list_t name = {						\
 #define LIST_EMPTY 	1	/**< Empty list. */
 #define LIST_FULL 	2	/**< Full list. */
 /**  @} */
-
-#ifdef L_IDX_SKIP
-#undef L_IDX_SKIP
-#endif
-#define L_IDX_SKIP 0
 
 #ifdef L_EOL
 #undef L_EOL
@@ -114,11 +130,6 @@ static list_t name = {						\
 #undef L_FREE
 #endif
 #define L_FREE 0xFFFF
-
-#ifdef L_IDX
-#undef L_IDX
-#endif
-#define L_IDX(i) ((i) - L_IDX_SKIP)
 
 /** 
 * @brief Clear the list
@@ -235,7 +246,6 @@ void *list_at(list_t *l, uint16_t p);
 */
 void *list_last(list_t *l);
 
-
 /** 
 * @brief Insertion in the list
 * 
@@ -261,7 +271,7 @@ void *list_insert(list_t *l, uint16_t p);
 * 
 * @return A pointer to the element or 0 if the list is full.
 */
-void *list_add(list_t *l);
+void *list_push_front(list_t *l);
 
 /** 
 * @brief Appending to the list
@@ -272,23 +282,70 @@ void *list_add(list_t *l);
 * 
 * @return A pointer to the element or 0 if the list is full.
 */
-void *list_append(list_t *l);
+void *list_push_back(list_t *l);
 
 /** 
-* @brief Insertion in the list
+* @brief Insertion (after) in the list
 * 
-* Remove (extract) an element from the list, if this is not empty, from the 
+* Insert an element in the list, if this is not full, after the 
+* specified position.
+* The function attempt to return a reference to a free element in the list
+* in which the data has to be stored.
+* 
+* @param[in] l 	The list.
+* @param[in] p 	Position before the new element.
+* 
+* @return A pointer to the element; 0 if the list is either full or the there
+*	  is no element at that position.
+*/
+COMPILER_INLINE void *list_insert_after(list_t *l, uint16_t p)
+{
+	if (p == 0)
+		return list_push_front(l);
+	else 
+		return list_insert(l, p + 1);
+}
+
+/** 
+* @brief Extract from the list
+* 
+* Extract (remove) an element from the list, if this is not empty, from the 
 * specified position.
 * The function attempt to return a reference to the extracted element of 
-* the list in which the data are stored, logically removing it from the list.
+* the list in which the data are stored, removing it from the list.
 * 
 * @param[in] l 	The list.
 * @param[in] p 	Position of the element to remove.
 * 
 * @return A pointer to the element or 0 if the list is empty.
 */
-void *list_remove(list_t *l, uint16_t p);
+void *list_extract(list_t *l, uint16_t p);
 
+/** 
+* @brief Head extraction from the list
+* 
+* Extract (remove) the list head, if this is not empty.
+* The function attempt to return a reference to the extracted element 
+* in which the data are stored, removing it from the list.
+* 
+* @param[in] l 	The list.
+* 
+* @return A pointer to the element or 0 if the list is empty.
+*/
+void *list_pop_front(list_t *l);
+
+/** 
+* @brief End extraction from the list
+* 
+* Extract (remove) the last element from the list, if this is not empty.
+* The function attempt to return a reference to the extracted element 
+* in which the data are stored, removing it from the list.
+* 
+* @param[in] l 	The list.
+* 
+* @return A pointer to the element or 0 if the list is empty.
+*/
+void *list_pop_back(list_t *l);
 
 /** 
 * @brief Set iterator to head
@@ -299,7 +356,7 @@ void *list_remove(list_t *l, uint16_t p);
 * 
 * @return  A pointer to the head element or 0 if the list is empty.
 */
-void *list_iterator_head(list_t *l);
+void *list_iter_front(list_t *l);
 
 /** 
 * @brief Set iterator to position
@@ -311,7 +368,7 @@ void *list_iterator_head(list_t *l);
 * 
 * @return  A pointer to the pointed element or 0 if the list is empty.
 */
-void *list_iterator_at(list_t *l, uint16_t p);
+void *list_iter_at(list_t *l, uint16_t p);
 
 /** 
 * @brief Forward iteration
@@ -323,7 +380,7 @@ void *list_iterator_at(list_t *l, uint16_t p);
 * 
 * @return  A pointer to the element or 0 if the end of the list is reached.
 */
-void *list_iterate(list_t *l);
+void *list_iter_next(list_t *l);
 
 /** 
 * @brief Get current iterator position
@@ -334,6 +391,6 @@ void *list_iterate(list_t *l);
 * 
 * @return  A pointer to the element or 0 if the iterator was not valid.
 */
-void *list_iterator_get_current(list_t *l);
+void *list_iter_current(list_t *l);
 
 #endif /* Header Protection */

@@ -12,7 +12,6 @@
 						  UWL_aUnitBackoffPeriod */
 #define UWL_aTurnaroundTime_btick	1 /**< ceiling( UWL_aTurnaroundTime / 
 						UWL_aUnitBackoffPeriod ) */
-
 #define UWL_MAC_LIFS_PERIOD		2 /**< 	macMinLIFSPeriod / 
 						UWL_aUnitBackoffPeriod */
 #define UWL_MAC_SIFS_PERIOD		1 /**<  Greater than macMinSIFSPeriod / 
@@ -21,6 +20,13 @@
 #define UWL_MAC_GET_BI(bo) ((1UL << (bo)) * UWL_aBaseSuperframeDuration_btick)
 #define UWL_MAC_GET_SD(so) ((1UL << (so)) * UWL_aBaseSuperframeDuration_btick)
 #define UWL_MAC_GET_TS(so) ((1UL << (so)) * UWL_aBaseSlotDuration_btick)
+
+#define UWL_MAC_GTS_SET_SCHEDULE(sched, slot, len, dir) 	\
+	((sched) = ((sched) & 					\
+		   (~(((0x1 << (len)) - 1) << (slot)) | 	\
+		   (((0x1 << (len)) - 1) * (dir)) << (slot)) 	\
+
+#define UWL_MAC_GTS_GET_SCHEDULE(sched, pos) (((sched) >> (pos)) & 0x1) 
 
 enum uwl_mac_state_id_t {
 	UWL_MAC_SF_OFF 	= 0,	/**< Superframe is not present. */
@@ -51,17 +57,18 @@ struct uwl_mac_gts_stat_t {
 	unsigned rx_length : 4;
 };
 
-
 extern struct uwl_mac_pib_t uwl_mac_pib;
 extern struct uwl_mac_flags_t uwl_mac_status;
 extern struct uwl_mac_gts_stat_t uwl_mac_gts_stat;
 extern cqueue_t uwl_mac_queue_cap;
-extern cqueue_t uwl_mac_queue_gts;
-
+//extern cqueue_t uwl_mac_queue_dev_gts;
+//extern list_t uwl_mac_queue_coord_gts;
+extern struct uwl_gts_info_t uwl_gts_schedule[UWL_MAC_GTS_MAX_NUMBER]; 
 
 uint8_t uwl_mac_create_beacon(uwl_mpdu_ptr_t beacon);
 void uwl_mac_parse_received_mpdu(uint8_t *psdu, uint8_t len);
-void uwl_mac_perform_data_request(uint8_t src_mode, uint8_t dst_mode,
+void uwl_mac_perform_data_request(enum uwl_mac_addr_mode_t src_mode, 
+				  enum uwl_mac_addr_mode_t dst_mode,
 				  uint16_t dst_panid, void *dst_addr,
 				  uint8_t len, uint8_t *payload,
 				  uint8_t handle, uint8_t tx_opt /*,
@@ -87,17 +94,18 @@ COMPILER_INLINE uint8_t uwl_mac_gts_get_cap_size(void)
 	return uwl_mac_gts_stat.first_cfp_tslot;
 }
 
-COMPILER_INLINE uint8_t uwl_mac_superframe_has_tx_gts(void) 
-{
-	return (uwl_mac_gts_stat.tx_length != 0);
-}
-
 
 int8_t uwl_mac_superframe_init(void);
 void uwl_mac_superframe_start(uint32_t offset);
 void uwl_mac_superframe_stop(void); 
 void uwl_mac_superframe_resync(void);
-void uwl_mac_superframe_gts_wakeup(void); 
-uint8_t uwl_mac_superframe_check_gts(uint8_t lenght); 
+void uwl_mac_superframe_gts_wakeup(uint8_t gts_idx); 
+uint8_t uwl_mac_superframe_check_gts(uint8_t lenght, uint8_t gts_idx); 
+struct uwl_gts_info_t *uwl_mac_gts_get_first(void);
+struct uwl_gts_info_t *uwl_mac_gts_get_next(void);
+void uwl_gts_queue_flush(uint8_t gts_idx);
+uint8_t uwl_gts_queue_is_empty(uint8_t gts_idx); 
+struct uwl_mac_frame_t *uwl_gts_queue_extract(uint8_t gts_idx);
+
 
 #endif /* Header Protection */

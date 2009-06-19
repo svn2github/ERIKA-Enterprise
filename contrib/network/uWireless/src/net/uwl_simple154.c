@@ -120,8 +120,8 @@ int8_t uwl_simple154_send(uint8_t *data, uint8_t len, uint16_t dst_device_id,
 	/* TODO: current implementation is non-blocking and ignore if success */
 	if (!flags.initialized)
 		RETURN_WITH_ERROR(-UWL_SIMPLE154_ERR_NOTINIT);
-	if (flags.coordinator && use_gts)
-		RETURN_WITH_ERROR(-UWL_SIMPLE154_ERR_NOTSUPPORTED);
+//	if (flags.coordinator && use_gts)
+//		RETURN_WITH_ERROR(-UWL_SIMPLE154_ERR_NOTSUPPORTED);
 	if (!flags.coordinator)
 		dst_device_id = coordinator_address;
 //	flags.wait_confirm = 1;		

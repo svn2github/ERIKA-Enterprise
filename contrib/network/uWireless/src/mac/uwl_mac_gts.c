@@ -24,13 +24,13 @@ static int8_t gts_db_add_entry(uwl_mac_dev_addr_short_t dev_addr, uint8_t len,
 	*/
 	if (list_is_full(&gts_list) || uwl_mac_gts_stat.first_cfp_tslot < len+1)
 		return -UWL_MAC_ERR_GTS_CFP_TOO_LARGE;
-	for (entry = (struct uwl_gts_info_t *) list_iterator_head(&gts_list); 
+	for (entry = (struct uwl_gts_info_t *) list_iter_front(&gts_list); 
 	     entry != 0;
-             entry = (struct uwl_gts_info_t *) list_iterate(&gts_list)) 
+             entry = (struct uwl_gts_info_t *) list_iter_next(&gts_list)) 
 		if (entry->dev_address == dev_addr && entry->direction == dir)
 			return 0; /*TODO: check. already added, make sense? */
 	uwl_mac_gts_stat.first_cfp_tslot -= len;
-	entry = list_add(&gts_list); /* NOTE: already checked if full! */
+	entry = list_push_front(&gts_list); /* NOTE: already checked if full! */
 	entry->starting_tslot = uwl_mac_gts_stat.first_cfp_tslot;
 	entry->length = len;
 	entry->direction = dir;
@@ -92,8 +92,8 @@ int8_t uwl_mac_gts_db_add(uwl_mac_dev_addr_short_t dev_addr,
 int8_t uwl_mac_gts_init(void) 
 {
 	gts_db_delete_all();
-	/* TODO: parse return values! */
 	#ifndef UWL_GTS_MANIPULATION
+	/* TODO: TEST CODE, remove it!!! */
 	gts_db_add_entry(0x0002, 1, UWL_MAC_GTS_DIRECTION_OUT);
 	gts_db_add_entry(0x0003, 3, UWL_MAC_GTS_DIRECTION_OUT);
 	gts_db_add_entry(0x0004, 2, UWL_MAC_GTS_DIRECTION_OUT);
@@ -108,6 +108,8 @@ uint8_t uwl_mac_gts_set_gts_fields(uint8_t *gf)
 	uint8_t i = 0;
 	uint8_t s = UWL_MAC_MPDU_GTS_SPEC_SIZE;
 
+	memset(uwl_gts_schedule, 0x00, 
+	       sizeof(struct uwl_gts_info_t) * UWL_MAC_GTS_MAX_NUMBER);
 	if (uwl_mac_pib.macGTSPermit == 0) {
 		UWL_MAC_GTS_SPEC_SET_EMPTY(gf);
 		return s;
@@ -118,13 +120,15 @@ uint8_t uwl_mac_gts_set_gts_fields(uint8_t *gf)
 		return s;
 	tmp = gf + s;
 	s += UWL_MAC_MPDU_GTS_DIRECTIONS_SIZE;
-	for (entry = (struct uwl_gts_info_t *) list_iterator_head(&gts_list); 
+	for (entry = (struct uwl_gts_info_t *) list_iter_front(&gts_list); 
 	     entry != 0;
-             entry = (struct uwl_gts_info_t *) list_iterate(&gts_list)) {
+             entry = (struct uwl_gts_info_t *) list_iter_next(&gts_list)) {
 		UWL_MAC_GTS_DIRECTION_SET(tmp, i, entry->direction);
 		set_gts_descriptor(gf + s, entry->dev_address,  
 				   entry->starting_tslot, entry->length); 
 		s += UWL_MAC_MPDU_GTS_DESCRIPTOR_SIZE;
+		memcpy(uwl_gts_schedule + i, entry, 
+		       sizeof(struct uwl_gts_info_t));
 		i++;
 	}
 	/* TODO: remove this! DEBUG TEST!!! ---------- >>>>> */
@@ -190,4 +194,5 @@ uint8_t uwl_mac_gts_get_gts_fields(uint8_t *gf)
 	}
 	return s;
 }
+
 

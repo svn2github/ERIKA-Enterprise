@@ -59,7 +59,6 @@ cqueue_t name = {					\
 	(uint8_t *) cqueue_data_##name			\
 }; 							\
 
-
 /** 
 * @brief Static circular queue allocation
 *
@@ -84,6 +83,23 @@ static cqueue_t name = {					\
 	(uint8_t *) cqueue_data_##name				\
 }; 								\
 
+#define CQUEUE_DEFINE_EXTMEM(name, type, length, storage)	\
+cqueue_t name = {						\
+	0, 							\
+	0, 							\
+	length, 						\
+	sizeof(type), 						\
+	(uint8_t *) (storage)					\
+}; 								\
+
+#define CQUEUE_DEFINE_EXTMEM_STATIC(name, type, length, storage) 	\
+static cqueue_t name = {						\
+	0, 								\
+	0, 								\
+	length, 							\
+	sizeof(type), 							\
+	(uint8_t *) (storage)						\
+}; 									\
 
 /** 
 * @brief Clear the circular queue
