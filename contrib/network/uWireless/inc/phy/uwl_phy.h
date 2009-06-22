@@ -1,6 +1,6 @@
 /**
 * @file phy.h
-* @brief IEEE 802.15.4 PHY Layer Definition
+* @brief IEEE 802.15.4 PHY Layer Public Interface
 * @author Christian Nastasi
 * @date 2009-03-22
 *

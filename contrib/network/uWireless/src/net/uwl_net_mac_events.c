@@ -1,3 +1,10 @@
+/** 
+* @file uwl_net_mac_events.c
+* @brief IEEE 802.15.4 MAC to Upper layer Interface
+* @author Christian Nastasi
+* @version 0.1
+* @date 2009-06-22
+*/
 /* TODO: this should go, eventually with a different name, in the makefile 
 	 rules.
 */

@@ -1,3 +1,10 @@
+/** 
+* @file uwl_debug.c
+* @brief Debug Module Implementation
+* @author Christian Nastasi
+* @version 0.1
+* @date 2009-06-22
+*/
 #include <util/uwl_debug.h>
 #include <string.h>
 

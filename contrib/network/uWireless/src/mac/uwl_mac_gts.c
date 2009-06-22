@@ -1,3 +1,10 @@
+/** 
+* @file uwl_mac_gts.c
+* @brief IEEE 802.15.4 MAC Layer GTS Management
+* @author Christian Nastasi
+* @version 0.1
+* @date 2009-06-22
+*/
 #include <mac/uwl_mac_internal.h>
 #include <hal/uwl_radio.h>
 #include <util/uwl_memory.h>

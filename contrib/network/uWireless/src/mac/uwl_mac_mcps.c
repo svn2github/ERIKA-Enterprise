@@ -1,3 +1,10 @@
+/** 
+* @file uwl_mac_mcps.c
+* @brief IEEE 802.15.4 MCPS-SAP Implementation
+* @author Christian Nastasi
+* @version 0.1
+* @date 2009-06-22
+*/
 #include <mac/uwl_mac_internal.h>
 #include <util/uwl_debug.h>
 #ifdef UWL_DEBUG_LOG

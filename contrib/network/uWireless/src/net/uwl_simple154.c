@@ -1,3 +1,10 @@
+/** 
+* @file uwl_simple154.c
+* @brief Simple IEEE 802.15.4 Implementation 
+* @author Christian Nastasi
+* @version 0.1
+* @date 2009-06-22
+*/
 #include <net/uwl_simple154.h>
 #include <string.h>
 
@@ -15,7 +22,6 @@ static uint16_t coordinator_address = 0;
 /* static uint8_t msdu_handle_id = 0; */
 static void (*rx_callback) (int8_t, uint8_t*, uint8_t) = NULL;
 static uint8_t rx_buffer[UWL_MAC_MAX_MSDU_SIZE];
-
 
 
 #define RETURN_WITH_ERROR(e) 		\
@@ -163,6 +169,56 @@ int8_t uwl_simple154_gts_add(uint16_t device_id, uint8_t length, uint8_t dir)
 	mac_error = uwl_mac_gts_db_add(device_id, length, dir);
 	if (mac_error < 0)
 		RETURN_WITH_ERROR(UWL_SIMPLE154_ERR_GTS_MANIPULATION);
+	RETURN_WITH_ERROR(UWL_SIMPLE154_ERR_NONE);
+}
+
+int8_t uwl_simple154_set_beacon_payload(uint8_t *data, uint8_t len) 
+{
+	if (!flags.initialized)
+		RETURN_WITH_ERROR(-UWL_SIMPLE154_ERR_NOTINIT);
+	if (!flags.coordinator)
+		RETURN_WITH_ERROR(-UWL_SIMPLE154_ERR_GTS_NOTCOORDINATOR);
+	mac_error = uwl_mac_set_beacon_payload(data, len);
+	if (mac_error < 0)
+		RETURN_WITH_ERROR(UWL_SIMPLE154_ERR_INVALID_LENGTH);
+	RETURN_WITH_ERROR(UWL_SIMPLE154_ERR_NONE);
+}
+
+int8_t uwl_simple154_get_beacon_payload(uint8_t *data, uint8_t len)
+{
+	if (!flags.initialized)
+		RETURN_WITH_ERROR(-UWL_SIMPLE154_ERR_NOTINIT);
+	mac_error = uwl_mac_get_beacon_payload(data, len);
+	if (mac_error < 0)
+		RETURN_WITH_ERROR(UWL_SIMPLE154_ERR_INVALID_LENGTH);
+	RETURN_WITH_ERROR(UWL_SIMPLE154_ERR_NONE);
+}
+
+int8_t uwl_simple154_set_on_beacon_callback(void (* func)(void)) 
+{
+	mac_error = uwl_mac_set_on_beacon_callback(func)
+	if (mac_error < 0)
+		RETURN_WITH_ERROR(
+			UWL_SIMPLE154_ERR_SUPERFRAME_CALLBACKS_DISABLED);
+	RETURN_WITH_ERROR(UWL_SIMPLE154_ERR_NONE);
+}
+
+int8_t uwl_simple154_set_before_beacon_callback(void (* func)(void))
+{
+	mac_error = uwl_mac_set_before_beacon_callback(func)
+	if (mac_error < 0)
+		RETURN_WITH_ERROR(
+			UWL_SIMPLE154_ERR_SUPERFRAME_CALLBACKS_DISABLED);
+	RETURN_WITH_ERROR(UWL_SIMPLE154_ERR_NONE);
+}
+
+int8_t uwl_simple154_jam_cap(uint8_t *data, uint8_t len)
+{
+	if (!flags.initialized)
+		RETURN_WITH_ERROR(-UWL_SIMPLE154_ERR_NOTINIT);
+	mac_error = uwl_mac_jammer_cap(data, len)
+	if (mac_error < 0)
+		RETURN_WITH_ERROR(UWL_SIMPLE154_ERR_INVALID_JAMMER);
 	RETURN_WITH_ERROR(UWL_SIMPLE154_ERR_NONE);
 }
 

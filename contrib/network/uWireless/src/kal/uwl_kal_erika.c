@@ -1,3 +1,10 @@
+/** 
+* @file uwl_kal_erika.c
+* @brief Erika Implementation for KAL
+* @author Christian Nastasi
+* @version 0.1
+* @date 2009-06-22
+*/
 #include <kal/uwl_kal_erika.h>
 
 volatile uint32_t uwl_kal_erika_time_counter = 0;

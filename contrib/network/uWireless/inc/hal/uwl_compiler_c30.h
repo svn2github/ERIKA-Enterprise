@@ -2,6 +2,7 @@
 * @file uwl_compiler_c30.h
 * @brief Microchip C30 support for uWireless.
 * @author Christian Nastasi
+* @version 0.1
 * @date 2009-03-22
 */
 #ifndef __uwl_compiler_c30_h__

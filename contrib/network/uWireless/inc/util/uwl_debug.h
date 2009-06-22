@@ -1,6 +1,6 @@
 /** 
 * @file debug.h
-* @brief 
+* @brief Debug Interface
 * @author Christian Nastasi
 * @date 2009-03-22
 *

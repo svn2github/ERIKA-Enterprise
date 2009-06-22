@@ -1,3 +1,10 @@
+/** 
+* @file uwl_kal_erika.h
+* @brief Erika KAL Implementation
+* @author Christian Nastasi
+* @version 0.1
+* @date 2009-06-22
+*/
 #ifndef __uwl_kal_erika_h__
 #define __uwl_kal_erika_h__
 

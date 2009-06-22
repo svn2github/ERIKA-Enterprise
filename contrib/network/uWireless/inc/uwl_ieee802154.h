@@ -1,3 +1,10 @@
+/** 
+* @file uwl_ieee802154.h
+* @brief IEEE 802.15.4 Interface
+* @author Christian Nastasi
+* @version 0.1
+* @date 2009-06-22
+*/
 #ifndef __uwl_ieee802154_h__
 #define __uwl_ieee802154_h__
 

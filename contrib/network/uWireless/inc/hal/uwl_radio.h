@@ -2,6 +2,7 @@
 * @file uwl_radio.h
 * @brief Abstract Radio Definition
 * @author Christian Nastasi
+* @version 0.1
 * @date 2009-03-22
 *
 * This file contains the declarations of the abstract radio used by the uWireless

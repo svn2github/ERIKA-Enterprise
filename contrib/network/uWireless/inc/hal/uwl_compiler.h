@@ -2,6 +2,7 @@
 * @file uwl_compiler.h
 * @brief uWireless Abstract Compiler
 * @author Christian Nastasi
+* @version 0.1
 * @date 2009-03-22
 *
 * This file is the definition of the abstract compiler used by all the module

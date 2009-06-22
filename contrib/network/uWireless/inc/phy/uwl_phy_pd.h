@@ -1,6 +1,6 @@
 /** 
 * @file phy_pd.h
-* @brief IEEE 802.15.4 PD-SAP Primitives
+* @brief IEEE 802.15.4 PD-SAP Interface
 * @author Christian Nastasi
 * @date 2009-03-19
 *

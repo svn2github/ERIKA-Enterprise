@@ -1,3 +1,10 @@
+/** 
+* @file uwl_timer.h
+* @brief Abstract Timer Interface
+* @author Christian Nastasi
+* @version 0.1
+* @date 2009-06-22
+*/
 #ifndef __uwl_timer_h__
 #define __uwl_timer_h__
 

@@ -1,6 +1,6 @@
 /** 
 * @file memory.h
-* @brief Generic data structure
+* @brief Data Structure Interface
 * @author Christian Nastasi
 * @date 2009-03-22
 *

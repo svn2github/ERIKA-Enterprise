@@ -1,3 +1,10 @@
+/** 
+* @file uwl_mac_internal.h
+* @brief IEEE 802.15.4 MAC Layer Internals
+* @author Christian Nastasi
+* @version 0.1
+* @date 2009-06-22
+*/
 #ifndef __uwl_mac_internal_h__
 #define __uwl_mac_internal_h__
 

@@ -1,3 +1,10 @@
+/** 
+* @file uwl_phy.c
+* @brief IEEE 802.15.4 PHY Layer Implementation
+* @author Christian Nastasi
+* @version 0.1
+* @date 2009-06-22
+*/
 #include <phy/uwl_phy_internal.h>
 #include <mac/uwl_mac_mutexes.h>
 #include <util/uwl_debug.h>

@@ -1,3 +1,10 @@
+/** 
+* @file uwl_timer_dspic30.h
+* @brief Timer Implementation for dsPIC33
+* @author Christian Nastasi
+* @version 0.1
+* @date 2009-06-22
+*/
 #ifndef __uwl_timer_dspic30_h__
 #define __uwl_timer_dspic30_h__
 

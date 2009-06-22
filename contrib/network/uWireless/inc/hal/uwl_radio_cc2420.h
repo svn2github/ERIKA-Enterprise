@@ -1,9 +1,10 @@
 /**
 * @file uwl_radio_cc2420.c
 * @brief Abstract Radio functions
-* @author Gianluca Franchino
 * @author Christian Nastasi
+* @author Gianluca Franchino
 * @author Mauro Nino Marinoni
+* @version 0.1
 * @date 2009-03-24
 *
 * This file contains the declarations of the abstract radio used by the uWireless

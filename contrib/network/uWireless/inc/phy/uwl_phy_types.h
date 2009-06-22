@@ -1,6 +1,6 @@
 /** 
 * @file phy_types.h
-* @brief PHY types
+* @brief IEEE 802.15.4 PHY Types
 * @author Christian Nastasi
 * @date 2009-03-22
 */

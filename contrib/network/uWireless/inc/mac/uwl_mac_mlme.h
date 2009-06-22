@@ -1,3 +1,10 @@
+/** 
+* @file uwl_mac_mlme.h
+* @brief IEEE 802.15.4 MLME-SAP Interface
+* @author Christian Nastasi
+* @version 0.1
+* @date 2009-06-22
+*/
 #ifndef __uwl_mac_mlme_h__
 #define __uwl_mac_mlme_h__
 

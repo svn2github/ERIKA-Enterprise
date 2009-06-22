@@ -1,3 +1,10 @@
+/** 
+* @file uwl_mac.c
+* @brief IEEE 802.15.4 MAC Layer General Part
+* @author Christian Nastasi
+* @version 0.1
+* @date 2009-06-22
+*/
 #include <mac/uwl_mac_internal.h>
 #include <kal/uwl_kal.h>
 #include <hal/uwl_radio.h>

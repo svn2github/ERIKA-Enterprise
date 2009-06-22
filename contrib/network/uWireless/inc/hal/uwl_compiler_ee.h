@@ -2,6 +2,7 @@
 * @file uwl_compiler_ee.h
 * @brief Erika Enterprise Compiler support for uWireless.
 * @author Christian Nastasi
+* @version 0.1
 * @date 2009-03-22
 *
 * Using the Erika Enterprise abstraction for the compiler.

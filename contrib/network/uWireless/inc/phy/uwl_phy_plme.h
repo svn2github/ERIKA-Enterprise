@@ -1,6 +1,6 @@
 /**
 * @file phy_plme.h
-* @brief IEEE 802.15.4 PLME-SAP Primitives
+* @brief IEEE 802.15.4 PLME-SAP Interface
 * @author Christian Nastasi
 * @date 2009-03-19
 *

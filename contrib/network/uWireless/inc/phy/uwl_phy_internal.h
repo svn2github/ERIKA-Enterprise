@@ -1,6 +1,6 @@
 /** 
 * @file phy_internal.h
-* @brief IEEE 802.15.4 PHY Internals
+* @brief IEEE 802.15.4 PHY Layer Internals
 * @author Christian Nastasi
 * @date 2009-03-22
 *

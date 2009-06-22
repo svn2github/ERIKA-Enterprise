@@ -1,6 +1,6 @@
 /**
 * @file phy_const.h
-* @brief PHY Constants
+* @brief IEEE 802.15.4 PHY Constants
 * @author Christian Nastasi
 * @date 2009-03-22
 */

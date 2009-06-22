@@ -1,3 +1,10 @@
+/** 
+* @file uwl_mac_types.h
+* @brief IEEE 802.15.4 MAC Types
+* @author Christian Nastasi
+* @version 0.1
+* @date 2009-06-22
+*/
 #ifndef __uwl_mac_types_h__
 #define __uwl_mac_types_h__
 

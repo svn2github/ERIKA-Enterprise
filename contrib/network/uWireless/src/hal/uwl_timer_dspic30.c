@@ -1,3 +1,10 @@
+/** 
+* @file uwl_timer_dspic30.c
+* @brief Timer Implementation for dsPIC33
+* @author Christian Nastasi
+* @version 0.1
+* @date 2009-06-22
+*/
 #include <hal/uwl_timer_dspic30.h>
 
 static void (* volatile isr_callback)(void) = NULL;
