@@ -73,6 +73,7 @@ static double actTime;
 
 #ifdef __USE_USB__ 
 float scicosUSB_rx_buffer[SCICOS_USB_CHANNELS] __attribute__((far));
+float scicosUSB_tx_buffer[SCICOS_USB_CHANNELS] __attribute__((far));
 #endif // __USE_USB__
 
 extern int NAME(MODELNAME,_init)(void);
@@ -207,16 +208,27 @@ TASK(rt_LCD)
 #ifdef __USE_USB__ 
 TASK(rx_USB)
 {
-	struct flex_bus_packet_t pkt;
-	int retv;
+/// chris: simplified dummy version!
+///	struct flex_bus_packet_t pkt;
+///	int retv;
+///
+///	memset((EE_UINT8*) &pkt, 0, sizeof(struct flex_bus_packet_t));
+///	retv = EE_usb_read((EE_UINT8 *) &pkt, sizeof(struct flex_bus_packet_t));
+///	if (retv == sizeof(struct flex_bus_packet_t)) {
+///		GetResource(scicosUSB_rx_buffer_mutex);
+///		scicosUSB_rx_buffer[pkt.channel] = *((float*) pkt.payload.data);
+///		ReleaseResource(scicosUSB_rx_buffer_mutex); 
+///	}
 
-	memset((EE_UINT8*) &pkt, 0, sizeof(struct flex_bus_packet_t));
-	retv = EE_usb_read((EE_UINT8 *) &pkt, sizeof(struct flex_bus_packet_t));
-	if (retv == sizeof(struct flex_bus_packet_t)) {
-		GetResource(scicosUSB_rx_buffer_mutex);
-		scicosUSB_rx_buffer[pkt.channel] = *((float*) pkt.payload.data);
-		ReleaseResource(scicosUSB_rx_buffer_mutex); 
-	}
+	GetResource(scicosUSB_tx_buffer_mutex);
+	EE_usb_write((EE_UINT8 *) scicosUSB_tx_buffer, 
+		     SCICOS_USB_CHANNELS * sizeof(float));
+	ReleaseResource(scicosUSB_tx_buffer_mutex); 
+
+	GetResource(scicosUSB_rx_buffer_mutex);
+	EE_usb_read((EE_UINT8 *) scicosUSB_rx_buffer, 
+		    SCICOS_USB_CHANNELS * sizeof(float));
+	ReleaseResource(scicosUSB_rx_buffer_mutex); 
 }
 #endif // __USE_USB__
 

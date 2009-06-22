@@ -50,12 +50,21 @@ static void inout(scicos_block *block)
 	//
 	//EE_usb_send( (unsigned int *)buf, (datasize + 5)>>1 );
 
-	struct flex_bus_packet_t pkt;	
+// chris: simplified dummy version!
+//	struct flex_bus_packet_t pkt;	
+//
+//	pkt.channel = (unsigned int) block->ipar[0];
+//	pkt.payload.length = sizeof(float);
+//	*((float *) pkt.payload.data) = *((float *) block->inptr[0]);
+//	EE_usb_write((unsigned char *) &pkt, sizeof(struct flex_bus_packet_t));
 
-	pkt.channel = (unsigned int) block->ipar[0];
-	pkt.payload.length = sizeof(float);
-	*((float *) pkt.payload.data) = *((float *) block->inptr[0]);
-	EE_usb_write((unsigned char *) &pkt, sizeof(struct flex_bus_packet_t));
+	EE_INT16 data_id = (EE_INT16) block->ipar[0];
+
+	if (data_id < 0 || data_id >= SCICOS_USB_CHANNELS)
+		return;
+	GetResource(scicosUSB_tx_buffer_mutex);
+	memcpy(scicosUSB_tx_buffer + data_id,  block->inptr[0], sizeof(float));
+	ReleaseResource(scicosUSB_tx_buffer_mutex);
 }
 
 static void end(scicos_block *block)

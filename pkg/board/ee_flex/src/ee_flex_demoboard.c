@@ -292,12 +292,18 @@ EE_INT16 EE_usb_write(EE_UINT8 *buf, EE_UINT16 len)
 	EE_UINT16 i;
 	EE_UINT8 sum;
 
+	if(!usb_initialized)
+		return -1;
 	/* chris: current policy is: have no packet buffer, no fragmentation,
 		  no ack and wait until the previous packet transmission ends.
 	*/
 	if (len == 0 || len > FLEX_USB_PACKET_PAYLOAD_SIZE)
 		return -1;
-	while (USB_PIC18_REQ) ; /* Wait previous transfer to be completed. */
+	i = 0xFF00;
+	while (USB_PIC18_REQ) /* Wait previous transfer to be completed. */
+		if (++i == 0) /* ... with a limit */
+			return -1; 
+	//while (USB_PIC18_REQ) ; /* Wait previous transfer to be completed. */
 	//if (USB_PIC18_REQ) 
 	//	return -1; 
 	memset((EE_UINT8 *) &dma_tx_pkt, 0x0, 64);
@@ -329,6 +335,8 @@ EE_INT16 EE_usb_read(EE_UINT8 *buf, EE_UINT16 len)
 {
 	EE_UINT16 idx;
 
+	if(!usb_initialized)
+		return -1;
 	if (len == 0 || len > FLEX_USB_RX_BUFFER_SIZE)
 		return -1;
   	IEC0bits.DMA1IE = 0;	/* mutex: disable DMA SPI RX Interrupt */

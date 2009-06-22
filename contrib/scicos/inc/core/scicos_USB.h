@@ -43,19 +43,22 @@
 
 #include <ee.h>
 
-#define SCICOS_USB_CHANNELS 256
-#define FLEX_BUS_MESSAGE_SIZE 32
+#define SCICOS_USB_CHANNELS 15
 
-struct flex_bus_message_t {
-	unsigned int length;
-	unsigned char data[FLEX_BUS_MESSAGE_SIZE];
-};
-struct flex_bus_packet_t {
-	unsigned int channel;
-	struct flex_bus_message_t payload;
-};
+/// chris: simplified dummy version!
+///#define FLEX_BUS_MESSAGE_SIZE 32
+///
+///struct flex_bus_message_t {
+///	unsigned int length;
+///	unsigned char data[FLEX_BUS_MESSAGE_SIZE];
+///};
+///struct flex_bus_packet_t {
+///	unsigned int channel;
+///	struct flex_bus_message_t payload;
+///};
 
 
 extern float scicosUSB_rx_buffer[SCICOS_USB_CHANNELS];
+extern float scicosUSB_tx_buffer[SCICOS_USB_CHANNELS];
 
 #endif

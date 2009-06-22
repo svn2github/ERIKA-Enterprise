@@ -110,6 +110,7 @@ CPU mySystem {
 		
 #ifdef __USE_USB__
 		RESOURCE = "scicosUSB_rx_buffer_mutex";
+		RESOURCE = "scicosUSB_tx_buffer_mutex";
 #endif	// __USE_USB__
 		
 #ifdef __USE_ZIGBEE__
@@ -136,6 +137,7 @@ CPU mySystem {
 		STACK = SHARED;
 		SCHEDULE = FULL;
 		RESOURCE = "scicosUSB_rx_buffer_mutex";
+		RESOURCE = "scicosUSB_tx_buffer_mutex";
 	};
 #endif // __USE_USB__
 
@@ -162,6 +164,7 @@ CPU mySystem {
 
 #ifdef __USE_USB__
 	RESOURCE scicosUSB_rx_buffer_mutex { RESOURCEPROPERTY = STANDARD; };
+	RESOURCE scicosUSB_tx_buffer_mutex { RESOURCEPROPERTY = STANDARD; };
 #endif // __USE_USB__
 
 #ifdef __USE_SIMPLE802154__
