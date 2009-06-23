@@ -195,9 +195,9 @@ int8_t uwl_PLME_SET_TRX_STATE_confirm(enum uwl_phy_code_t status)
 	#ifdef UWL_DEBUG_LOG
 	char s[100];
 	char s1[30];
-	uwl_debug_sprint_phycode(status, s1);
-	sprintf(s, "PLME_SET_TRX_STATE_confirm(%s)", s1);
-	uwl_debug_print(s);
+//	uwl_debug_sprint_phycode(status, s1);
+//	sprintf(s, "PLME_SET_TRX_STATE_confirm(%s)", s1);
+//	uwl_debug_print(s);
 	#endif
 	phy_status = status;
 	return UWL_PHY_ERR_NONE;

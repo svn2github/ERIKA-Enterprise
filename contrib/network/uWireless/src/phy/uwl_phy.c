@@ -289,9 +289,9 @@ int8_t uwl_PLME_SET_TRX_STATE_request(enum uwl_phy_code_t state)
 	#ifdef UWL_DEBUG_LOG
 	char s[100];
 	char s1[30];
-	uwl_debug_sprint_phycode(state, s1);
-	sprintf(s, "PLME_SET_TRX_STATE_request(%s)", s1);
-	uwl_debug_print(s);
+//	uwl_debug_sprint_phycode(state, s1);
+//	sprintf(s, "PLME_SET_TRX_STATE_request(%s)", s1);
+//	uwl_debug_print(s);
 	#endif
 
 	if (!phy_status.initialized)

@@ -196,7 +196,7 @@ int8_t uwl_simple154_get_beacon_payload(uint8_t *data, uint8_t len)
 
 int8_t uwl_simple154_set_on_beacon_callback(void (* func)(void)) 
 {
-	mac_error = uwl_mac_set_on_beacon_callback(func)
+	mac_error = uwl_mac_set_on_beacon_callback(func);
 	if (mac_error < 0)
 		RETURN_WITH_ERROR(
 			UWL_SIMPLE154_ERR_SUPERFRAME_CALLBACKS_DISABLED);
@@ -205,7 +205,7 @@ int8_t uwl_simple154_set_on_beacon_callback(void (* func)(void))
 
 int8_t uwl_simple154_set_before_beacon_callback(void (* func)(void))
 {
-	mac_error = uwl_mac_set_before_beacon_callback(func)
+	mac_error = uwl_mac_set_before_beacon_callback(func);
 	if (mac_error < 0)
 		RETURN_WITH_ERROR(
 			UWL_SIMPLE154_ERR_SUPERFRAME_CALLBACKS_DISABLED);
@@ -216,7 +216,7 @@ int8_t uwl_simple154_jam_cap(uint8_t *data, uint8_t len)
 {
 	if (!flags.initialized)
 		RETURN_WITH_ERROR(-UWL_SIMPLE154_ERR_NOTINIT);
-	mac_error = uwl_mac_jammer_cap(data, len)
+	mac_error = uwl_mac_jammer_cap(data, len);
 	if (mac_error < 0)
 		RETURN_WITH_ERROR(UWL_SIMPLE154_ERR_INVALID_JAMMER);
 	RETURN_WITH_ERROR(UWL_SIMPLE154_ERR_NONE);

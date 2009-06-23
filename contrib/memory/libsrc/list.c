@@ -110,6 +110,7 @@ void *list_pop_front(list_t *l)
 
 	if (l->count == 0) 
 		return 0;
+	l->count--;
 	l->head = l->next[old_head];
 	l->next[old_head] = L_FREE;
 	return (void *) (l->data + (old_head * l->data_size));
@@ -121,6 +122,7 @@ void *list_pop_back(list_t *l)
 
 	if (l->count == 0) 
 		return 0;
+	l->count--;
 	prev_i = l->head;
 	for (i = l->head; l->next[i] != L_EOL; i = l->next[i]) 
 		prev_i = i;
@@ -131,9 +133,20 @@ void *list_pop_back(list_t *l)
 
 void *list_extract(list_t *l, uint16_t p)
 {
-	/* TODO */
-	//l->count--;
-	return 0;
+	uint16_t i;
+
+	if (p == 0)
+		return list_pop_front(l);
+	if (p == l->count)
+		return list_pop_back(l);
+	if (l->count == 0 || p > l->count) 
+		return 0;
+	for (i = l->head; p-- > 1; i = l->next[i]) ;
+	/* p = to_extract, i = prev(p), N = next(p) */
+	l->next[i] = l->next[p];	/* i->N */
+	l->next[p] = L_FREE;		/* p = free */
+	l->count--;
+	return (void *) (l->data + (p * l->data_size));
 }
 
 /******************************************************************************/

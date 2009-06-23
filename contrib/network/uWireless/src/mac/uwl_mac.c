@@ -158,8 +158,15 @@ COMPILER_INLINE struct uwl_mac_frame_t *gts_queue_alloc(uint8_t gts)
 		 Is the node both coordinator and device in such a case? 
 		 Double storage is required in that case! 
 	*/
+char str[100];
 	elem = (struct uwl_mac_frame_t *) 
 	       list_insert_after(&uwl_mac_queue_coord_gts,gts_queue_rears[gts]);
+sprintf(str, "---> ALLOC Q = %u [%u %u %u %u %u %u %u ] id=%u", 
+	list_get_size(&uwl_mac_queue_coord_gts),
+	gts_queue_rears[0], gts_queue_rears[1], gts_queue_rears[2],
+	gts_queue_rears[3], gts_queue_rears[4], gts_queue_rears[5],
+	gts_queue_rears[6], gts);
+uwl_debug_print(str);
 	if (elem != 0) 
 		/* Update rears for the coordinator gts queues */
 		for (i = gts; i < UWL_MAC_GTS_MAX_NUMBER; i++)
@@ -172,11 +179,18 @@ void uwl_gts_queue_flush(uint8_t gts)
 	struct uwl_mac_frame_t *fr;
 	uint8_t i;
 	uint16_t cnt;
+char str[100];
 
 	if (uwl_mac_status.is_pan_coordinator || uwl_mac_status.is_coordinator){
 		fr = (struct uwl_mac_frame_t *) 
 		     list_pop_front(&uwl_mac_queue_coord_gts);
 		cnt = 0;
+sprintf(str, "---> FLUSH Q = %u [%u %u %u %u %u %u %u ] id=%u", 
+	list_get_size(&uwl_mac_queue_coord_gts),
+	gts_queue_rears[0], gts_queue_rears[1], gts_queue_rears[2],
+	gts_queue_rears[3], gts_queue_rears[4], gts_queue_rears[5],
+	gts_queue_rears[6], gts);
+uwl_debug_print(str);
 		while (fr != 0 && cnt < gts_queue_rears[gts]) {
 			uwl_MCPS_DATA_confirm(fr->msdu_handle, 
 					      UWL_MAC_INVALID_GTS, 0);
@@ -200,6 +214,13 @@ void uwl_gts_queue_flush(uint8_t gts)
 
 uint8_t uwl_gts_queue_is_empty(uint8_t gts) 
 {
+char str[100];
+sprintf(str, "---> IS_EMPTY Q = %u [%u %u %u %u %u %u %u ] id=%u", 
+	list_get_size(&uwl_mac_queue_coord_gts),
+	gts_queue_rears[0], gts_queue_rears[1], gts_queue_rears[2],
+	gts_queue_rears[3], gts_queue_rears[4], gts_queue_rears[5],
+	gts_queue_rears[6], gts);
+uwl_debug_print(str);
 	if (uwl_mac_status.is_pan_coordinator || uwl_mac_status.is_coordinator)
 		return (gts_queue_rears[gts] == 0);
 	else 
@@ -210,14 +231,26 @@ struct uwl_mac_frame_t *uwl_gts_queue_extract(uint8_t gts)
 {
 	uint8_t i;
 
+char str[100];
+sprintf(str, "---> EXTRACT Q = %u [%u %u %u %u %u %u %u ] id=%u", 
+	list_get_size(&uwl_mac_queue_coord_gts),
+	gts_queue_rears[0], gts_queue_rears[1], gts_queue_rears[2],
+	gts_queue_rears[3], gts_queue_rears[4], gts_queue_rears[5],
+	gts_queue_rears[6], gts);
+uwl_debug_print(str);
 	if (uwl_mac_status.is_pan_coordinator || uwl_mac_status.is_coordinator){
 		if (gts_queue_rears[gts] == 0)
 			return 0;
 		/* Update rears for the coordinator gts queues */
 		for (i = gts; i < UWL_MAC_GTS_MAX_NUMBER; i++)
 			gts_queue_rears[i]--;
-		return (struct uwl_mac_frame_t*) 
-		       list_pop_front(&uwl_mac_queue_coord_gts);
+		if (gts == 0)
+			return (struct uwl_mac_frame_t*) 
+			       list_pop_front(&uwl_mac_queue_coord_gts);
+		else
+			return (struct uwl_mac_frame_t*) 
+			       list_extract(&uwl_mac_queue_coord_gts, 
+					    gts_queue_rears[gts - 1]);
 	} else {
 		return (struct uwl_mac_frame_t*) 
 		       cqueue_pop(&uwl_mac_queue_dev_gts);
@@ -618,6 +651,7 @@ void uwl_mac_perform_data_request(enum uwl_mac_addr_mode_t src_mode,
 				  uint8_t *key_src, uint8_t key_idx */)
 {
 	uint8_t s;
+char str[100];
 	struct {
 		unsigned compress : 1;
 		unsigned version : 1;
@@ -631,15 +665,20 @@ void uwl_mac_perform_data_request(enum uwl_mac_addr_mode_t src_mode,
 		    uwl_mac_status.is_coordinator) {
 			gts_idx = gts_search_device(addr_to_short(dst_mode, 
 								  dst_addr));
+sprintf(str, "---> SEND GTS: Q=%u GTS=%u", 
+	list_get_size(&uwl_mac_queue_coord_gts), gts_idx);
+uwl_debug_print(str);
 			if (gts_idx < 0) {
 				uwl_MCPS_DATA_confirm(handle, 
 						      UWL_MAC_INVALID_GTS, 0);
+uwl_debug_print("--->        Invalid GTS");
 				return;
 			}
 		}
 		if (!uwl_mac_superframe_check_gts(len, (uint8_t) gts_idx)) {
 			//uwl_debug_print("DEVICE:  GTS CHECK FAIL ");
 			uwl_MCPS_DATA_confirm(handle, UWL_MAC_INVALID_GTS, 0);
+uwl_debug_print("--->        Invalid CHECK");
 			return;
 		} 
 		/* Store in the GTS queue! */
@@ -649,8 +688,11 @@ void uwl_mac_perform_data_request(enum uwl_mac_addr_mode_t src_mode,
 			/* TODO: we have to choose a well formed reply
 				 for the indication primitive (status=??) */
 			uwl_MCPS_DATA_confirm(handle, UWL_MAC_INVALID_GTS, 0);
+uwl_debug_print("--->        Invalid ALLOC");
 			return; 
 		}
+sprintf(str, "---> SEND OK: Q = %u", list_get_size(&uwl_mac_queue_coord_gts));
+uwl_debug_print(str);
 	} else { /* Store in the CSMA-CA queue */
 		//uwl_debug_print("DEVICE:  CSMA QUEUE FULL!!! ");
 		frame=(struct uwl_mac_frame_t*) cqueue_push(&uwl_mac_queue_cap);

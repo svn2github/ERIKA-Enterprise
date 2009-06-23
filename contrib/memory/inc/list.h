@@ -300,10 +300,9 @@ void *list_push_back(list_t *l);
 */
 COMPILER_INLINE void *list_insert_after(list_t *l, uint16_t p)
 {
-	if (p == 0)
-		return list_push_front(l);
-	else 
-		return list_insert(l, p + 1);
+	if (p < l->count)
+		p++;
+	return list_insert(l, p);
 }
 
 /** 
