@@ -118,18 +118,6 @@ static void set_default_mac_pib(void)
 	#endif /* UWL_RFD_DISABLE_OPTIONAL */
 }
 
-COMPILER_INLINE int8_t gts_search_device(uwl_mac_dev_addr_short_t addr)
-{
-	int8_t i;
-
-	for (i = 0; i < UWL_MAC_GTS_MAX_NUMBER; i++)
-		if (uwl_gts_schedule[i].dev_address == addr && 
-		    uwl_gts_schedule[i].length != 0 &&
-		    uwl_gts_schedule[i].direction == UWL_MAC_GTS_DIRECTION_IN)
-			return i;
-	return -1;
-}
-
 COMPILER_INLINE 
 uwl_mac_dev_addr_short_t addr_to_short(enum uwl_mac_addr_mode_t mode, void *dst)
 {
@@ -142,6 +130,18 @@ uwl_mac_dev_addr_short_t addr_to_short(enum uwl_mac_addr_mode_t mode, void *dst)
 		addr = 0x0001;
 	}
 	return addr;
+}
+
+COMPILER_INLINE int8_t gts_search_device(uwl_mac_dev_addr_short_t addr)
+{
+	int8_t i;
+
+	for (i = 0; i < UWL_MAC_GTS_MAX_NUMBER; i++)
+		if (uwl_gts_schedule[i].dev_address == addr && 
+		    uwl_gts_schedule[i].length != 0 &&
+		    uwl_gts_schedule[i].direction == UWL_MAC_GTS_DIRECTION_IN)
+			return i;
+	return -1;
 }
 
 COMPILER_INLINE struct uwl_mac_frame_t *gts_queue_alloc(uint8_t gts)
@@ -160,7 +160,7 @@ COMPILER_INLINE struct uwl_mac_frame_t *gts_queue_alloc(uint8_t gts)
 	*/
 char str[100];
 	elem = (struct uwl_mac_frame_t *) 
-	       list_insert_after(&uwl_mac_queue_coord_gts,gts_queue_rears[gts]);
+	       list_insert(&uwl_mac_queue_coord_gts, gts_queue_rears[gts]);
 sprintf(str, "---> ALLOC Q = %u [%u %u %u %u %u %u %u ] id=%u", 
 	list_get_size(&uwl_mac_queue_coord_gts),
 	gts_queue_rears[0], gts_queue_rears[1], gts_queue_rears[2],
@@ -172,89 +172,6 @@ uwl_debug_print(str);
 		for (i = gts; i < UWL_MAC_GTS_MAX_NUMBER; i++)
 			gts_queue_rears[i]++;
 	return elem;
-}
-
-void uwl_gts_queue_flush(uint8_t gts) 
-{
-	struct uwl_mac_frame_t *fr;
-	uint8_t i;
-	uint16_t cnt;
-char str[100];
-
-	if (uwl_mac_status.is_pan_coordinator || uwl_mac_status.is_coordinator){
-		fr = (struct uwl_mac_frame_t *) 
-		     list_pop_front(&uwl_mac_queue_coord_gts);
-		cnt = 0;
-sprintf(str, "---> FLUSH Q = %u [%u %u %u %u %u %u %u ] id=%u", 
-	list_get_size(&uwl_mac_queue_coord_gts),
-	gts_queue_rears[0], gts_queue_rears[1], gts_queue_rears[2],
-	gts_queue_rears[3], gts_queue_rears[4], gts_queue_rears[5],
-	gts_queue_rears[6], gts);
-uwl_debug_print(str);
-		while (fr != 0 && cnt < gts_queue_rears[gts]) {
-			uwl_MCPS_DATA_confirm(fr->msdu_handle, 
-					      UWL_MAC_INVALID_GTS, 0);
-			fr = (struct uwl_mac_frame_t *) 
-			     list_pop_front(&uwl_mac_queue_coord_gts);
-			cnt++;
-			/* Update rears for the coordinator gts queues */
-			for (i = gts; i < UWL_MAC_GTS_MAX_NUMBER; i++)
-				gts_queue_rears[i]--;
-		}
-	} else {
-		fr=(struct uwl_mac_frame_t*) cqueue_pop(&uwl_mac_queue_dev_gts);
-		while (fr != 0) {
-			uwl_MCPS_DATA_confirm(fr->msdu_handle, 
-					      UWL_MAC_INVALID_GTS, 0);
-			fr = (struct uwl_mac_frame_t *) 
-			     cqueue_pop(&uwl_mac_queue_dev_gts);
-		}
-	}
-}
-
-uint8_t uwl_gts_queue_is_empty(uint8_t gts) 
-{
-char str[100];
-sprintf(str, "---> IS_EMPTY Q = %u [%u %u %u %u %u %u %u ] id=%u", 
-	list_get_size(&uwl_mac_queue_coord_gts),
-	gts_queue_rears[0], gts_queue_rears[1], gts_queue_rears[2],
-	gts_queue_rears[3], gts_queue_rears[4], gts_queue_rears[5],
-	gts_queue_rears[6], gts);
-uwl_debug_print(str);
-	if (uwl_mac_status.is_pan_coordinator || uwl_mac_status.is_coordinator)
-		return (gts_queue_rears[gts] == 0);
-	else 
-		return cqueue_is_empty(&uwl_mac_queue_dev_gts);
-}
-
-struct uwl_mac_frame_t *uwl_gts_queue_extract(uint8_t gts) 
-{
-	uint8_t i;
-
-char str[100];
-sprintf(str, "---> EXTRACT Q = %u [%u %u %u %u %u %u %u ] id=%u", 
-	list_get_size(&uwl_mac_queue_coord_gts),
-	gts_queue_rears[0], gts_queue_rears[1], gts_queue_rears[2],
-	gts_queue_rears[3], gts_queue_rears[4], gts_queue_rears[5],
-	gts_queue_rears[6], gts);
-uwl_debug_print(str);
-	if (uwl_mac_status.is_pan_coordinator || uwl_mac_status.is_coordinator){
-		if (gts_queue_rears[gts] == 0)
-			return 0;
-		/* Update rears for the coordinator gts queues */
-		for (i = gts; i < UWL_MAC_GTS_MAX_NUMBER; i++)
-			gts_queue_rears[i]--;
-		if (gts == 0)
-			return (struct uwl_mac_frame_t*) 
-			       list_pop_front(&uwl_mac_queue_coord_gts);
-		else
-			return (struct uwl_mac_frame_t*) 
-			       list_extract(&uwl_mac_queue_coord_gts, 
-					    gts_queue_rears[gts - 1]);
-	} else {
-		return (struct uwl_mac_frame_t*) 
-		       cqueue_pop(&uwl_mac_queue_dev_gts);
-	}
 }
 
 /******************************************************************************/
@@ -615,7 +532,6 @@ int8_t uwl_mac_get_beacon_payload(uint8_t *data, uint8_t len)
 	return (int8_t) len;
 }
 
-
 int8_t uwl_mac_set_beacon_payload(uint8_t *data, uint8_t len)
 {
 	if (len > UWL_aMaxBeaconPayloadLength)
@@ -642,6 +558,101 @@ int8_t uwl_mac_jammer_cap(uint8_t *data, uint8_t len)
 	#endif
 }
 
+/******************************************************************************/
+/*                  MAC GTS queue 'protected' Functions                       */
+/******************************************************************************/
+void uwl_gts_queue_flush(uint8_t gts) 
+{
+	struct uwl_mac_frame_t *fr;
+	uint8_t i;
+	uint16_t cnt;
+char str[100];
+
+	if (uwl_mac_status.is_pan_coordinator || uwl_mac_status.is_coordinator){
+		fr = (struct uwl_mac_frame_t *) 
+		     list_pop_front(&uwl_mac_queue_coord_gts);
+		cnt = 0;
+sprintf(str, "---> FLUSH Q = %u [%u %u %u %u %u %u %u ] id=%u", 
+	list_get_size(&uwl_mac_queue_coord_gts),
+	gts_queue_rears[0], gts_queue_rears[1], gts_queue_rears[2],
+	gts_queue_rears[3], gts_queue_rears[4], gts_queue_rears[5],
+	gts_queue_rears[6], gts);
+uwl_debug_print(str);
+/* TODO: FIXME: rewrite!!! */
+		while (fr != 0 && cnt < gts_queue_rears[gts]) {
+			uwl_MCPS_DATA_confirm(fr->msdu_handle, 
+					      UWL_MAC_INVALID_GTS, 0);
+			fr = (struct uwl_mac_frame_t *) 
+			     list_pop_front(&uwl_mac_queue_coord_gts);
+			cnt++;
+			/* Update rears for the coordinator gts queues */
+			for (i = gts; i < UWL_MAC_GTS_MAX_NUMBER; i++)
+				gts_queue_rears[i]--;
+		}
+	} else {
+		fr=(struct uwl_mac_frame_t*) cqueue_pop(&uwl_mac_queue_dev_gts);
+		while (fr != 0) {
+			uwl_MCPS_DATA_confirm(fr->msdu_handle, 
+					      UWL_MAC_INVALID_GTS, 0);
+			fr = (struct uwl_mac_frame_t *) 
+			     cqueue_pop(&uwl_mac_queue_dev_gts);
+		}
+	}
+}
+
+uint8_t uwl_gts_queue_is_empty(uint8_t gts) 
+{
+char str[100];
+sprintf(str, "---> IS_EMPTY Q = %u [%u %u %u %u %u %u %u ] id=%u", 
+	list_get_size(&uwl_mac_queue_coord_gts),
+	gts_queue_rears[0], gts_queue_rears[1], gts_queue_rears[2],
+	gts_queue_rears[3], gts_queue_rears[4], gts_queue_rears[5],
+	gts_queue_rears[6], gts);
+uwl_debug_print(str);
+	if (uwl_mac_status.is_pan_coordinator || uwl_mac_status.is_coordinator)
+		return (gts_queue_rears[gts] == 0);
+	else 
+		return cqueue_is_empty(&uwl_mac_queue_dev_gts);
+}
+
+struct uwl_mac_frame_t *uwl_gts_queue_extract(uint8_t gts) 
+{
+	uint8_t i;
+
+char str[100];
+sprintf(str, "---> EXTRACT Q = %u [%u %u %u %u %u %u %u ] id=%u", 
+	list_get_size(&uwl_mac_queue_coord_gts),
+	gts_queue_rears[0], gts_queue_rears[1], gts_queue_rears[2],
+	gts_queue_rears[3], gts_queue_rears[4], gts_queue_rears[5],
+	gts_queue_rears[6], gts);
+uwl_debug_print(str);
+	if (uwl_mac_status.is_pan_coordinator || uwl_mac_status.is_coordinator){
+		if (gts == 0) {
+			if (gts_queue_rears[gts] == 0)
+				return 0;
+		} else {
+			if (gts_queue_rears[gts] == gts_queue_rears[gts - 1])
+				return 0;
+		}
+		/* Update rears for the coordinator gts queues */
+		for (i = gts; i < UWL_MAC_GTS_MAX_NUMBER; i++)
+			gts_queue_rears[i]--;
+		if (gts == 0)
+			return (struct uwl_mac_frame_t*) 
+			       list_pop_front(&uwl_mac_queue_coord_gts);
+		else
+			return (struct uwl_mac_frame_t*) 
+			       list_extract(&uwl_mac_queue_coord_gts, 
+					    gts_queue_rears[gts - 1]);
+	} else {
+		return (struct uwl_mac_frame_t*) 
+		       cqueue_pop(&uwl_mac_queue_dev_gts);
+	}
+}
+
+/******************************************************************************/
+/*                       MAC Frames Build Functions                           */
+/******************************************************************************/
 void uwl_mac_perform_data_request(enum uwl_mac_addr_mode_t src_mode, 
 				  enum uwl_mac_addr_mode_t dst_mode,
 				  uint16_t dst_panid, void *dst_addr,
@@ -744,9 +755,6 @@ uwl_debug_print(str);
 		uwl_mac_superframe_gts_wakeup(gts_idx); 
 }
 
-/******************************************************************************/
-/*                       MAC Frames Build Functions                           */
-/******************************************************************************/
 uint8_t uwl_mac_create_beacon(uwl_mpdu_ptr_t bcn)
 {
 	uint8_t s;
