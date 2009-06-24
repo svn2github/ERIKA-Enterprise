@@ -37,6 +37,44 @@ void *list_last(list_t *l)
 	return (void *) (l->data + (i * l->data_size));
 }
 
+char str[1000];
+#define logger(l) \
+{\
+\
+	sprintf(str, \
+		"*_*_* List INSERT @ %u\n: "\
+		"                   cnt=%u head=%u"\
+		" next[%u %u %u %u %u %u %u %u %u"\
+		" %u %u %u %u %u %u %u %u %u %u %u ]", \
+		__LINE__, l->count, l->head,\
+		l->next[0], l->next[1], l->next[2], l->next[3], \
+		l->next[4], l->next[5],\
+		l->next[6], l->next[7], l->next[8], l->next[9], l->next[10],\
+		l->next[11], l->next[12], l->next[13], l->next[14], \
+		l->next[15], l->next[16], l->next[17], l->next[18], \
+		l->next[19]);\
+	uwl_debug_print(str);\
+}
+
+#define logger_extr(l) \
+{\
+\
+	sprintf(str, \
+		"*_*_* List EXTRACT @ %u\n: "\
+		"                   cnt=%u head=%u"\
+		" next[%u %u %u %u %u %u %u %u %u"\
+		" %u %u %u %u %u %u %u %u %u %u %u ]", \
+		__LINE__, l->count, l->head,\
+		l->next[0], l->next[1], l->next[2], l->next[3], \
+		l->next[4], l->next[5],\
+		l->next[6], l->next[7], l->next[8], l->next[9], l->next[10],\
+		l->next[11], l->next[12], l->next[13], l->next[14], \
+		l->next[15], l->next[16], l->next[17], l->next[18], \
+		l->next[19]);\
+	uwl_debug_print(str);\
+}
+
+
 void *list_push_front(list_t *l)
 {
 	uint16_t i;
@@ -47,12 +85,14 @@ void *list_push_front(list_t *l)
 		l->head = 0;
 		l->next[0] = L_EOL;
 		l->count++;
+logger(l);
 		return (void *) l->data;
 	}
 	i = get_free_index(l);
 	l->next[i] = l->head;
 	l->head = i;
 	l->count++;
+logger(l);
 	return (void *) (l->data + (i * l->data_size));
 }
 
@@ -66,6 +106,7 @@ void *list_push_back(list_t *l)
 		l->head = 0;
 		l->next[0] = L_EOL;
 		l->count++;
+logger(l);
 		return (void *) l->data;
 	}
 	for (i = l->head; l->next[i] != L_EOL; i = l->next[i]) ;
@@ -73,6 +114,7 @@ void *list_push_back(list_t *l)
 	i = l->next[i];
 	l->next[i] = L_EOL;
 	l->count++;
+logger(l);
 	return (void *) (l->data + (i * l->data_size));
 }
 
@@ -91,6 +133,7 @@ void *list_insert(list_t *l, uint16_t p)
 	l->next[p] = l->next[i];/* p->next(i) */
 	l->next[i] = p;		/* i->p */
 	l->count++;
+logger(l);
 	return (void *) (l->data + (p * l->data_size));
 }
 
@@ -113,6 +156,7 @@ void *list_pop_front(list_t *l)
 	l->count--;
 	l->head = l->next[old_head];
 	l->next[old_head] = L_FREE;
+logger_extr(l);
 	return (void *) (l->data + (old_head * l->data_size));
 }
 
@@ -128,6 +172,7 @@ void *list_pop_back(list_t *l)
 		prev_i = i;
 	l->next[i] = L_FREE;
 	l->next[prev_i] = L_EOL;
+logger_extr(l);
 	return (void *) (l->data + (i * l->data_size));
 }
 
@@ -137,15 +182,16 @@ void *list_extract(list_t *l, uint16_t p)
 
 	if (p == 0)
 		return list_pop_front(l);
-	if (p == l->count)
-		return list_pop_back(l);
-	if (l->count == 0 || p > l->count) 
+	if (l->count == 0 || p >= l->count) 
 		return 0;
+	if (p == l->count - 1)
+		return list_pop_back(l);
 	for (i = l->head; p-- > 1; i = l->next[i]) ;
-	/* p = to_extract, i = prev(p), N = next(p) */
-	l->next[i] = l->next[p];	/* i->N */
-	l->next[p] = L_FREE;		/* p = free */
+	p = l->next[i];		/* p = to_extract, i = prev(p), n = next(p) */
+	l->next[i] = l->next[p];/* i->n */
+	l->next[p] = L_FREE;	/* p = free */
 	l->count--;
+logger_extr(l);
 	return (void *) (l->data + (p * l->data_size));
 }
 

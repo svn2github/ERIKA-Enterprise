@@ -569,6 +569,7 @@ void uwl_gts_queue_flush(uint8_t gts)
 char str[100];
 
 	if (uwl_mac_status.is_pan_coordinator || uwl_mac_status.is_coordinator){
+		return;
 		fr = (struct uwl_mac_frame_t *) 
 		     list_pop_front(&uwl_mac_queue_coord_gts);
 		cnt = 0;
@@ -602,6 +603,7 @@ uwl_debug_print(str);
 
 uint8_t uwl_gts_queue_is_empty(uint8_t gts) 
 {
+/*
 char str[100];
 sprintf(str, "---> IS_EMPTY Q = %u [%u %u %u %u %u %u %u ] id=%u", 
 	list_get_size(&uwl_mac_queue_coord_gts),
@@ -609,10 +611,14 @@ sprintf(str, "---> IS_EMPTY Q = %u [%u %u %u %u %u %u %u ] id=%u",
 	gts_queue_rears[3], gts_queue_rears[4], gts_queue_rears[5],
 	gts_queue_rears[6], gts);
 uwl_debug_print(str);
-	if (uwl_mac_status.is_pan_coordinator || uwl_mac_status.is_coordinator)
-		return (gts_queue_rears[gts] == 0);
-	else 
+*/
+	if (uwl_mac_status.is_pan_coordinator || uwl_mac_status.is_coordinator){
+		if (gts == 0) 
+			return (gts_queue_rears[gts] == 0);
+		return (gts_queue_rears[gts] == gts_queue_rears[gts - 1]);
+	} else {
 		return cqueue_is_empty(&uwl_mac_queue_dev_gts);
+	}
 }
 
 struct uwl_mac_frame_t *uwl_gts_queue_extract(uint8_t gts) 
