@@ -20,7 +20,7 @@ static int8_t last_error = 0;
 static uint16_t coordinator_pan_id = 0;
 static uint16_t coordinator_address = 0;
 /* static uint8_t msdu_handle_id = 0; */
-static void (*rx_callback) (int8_t, uint8_t*, uint8_t) = NULL;
+static void (*rx_callback) (int8_t, uint8_t*, uint8_t, uint16_t) = NULL;
 static uint8_t rx_buffer[UWL_MAC_MAX_MSDU_SIZE];
 
 
@@ -30,7 +30,8 @@ do {					\
 	return (e);			\
 } while (0)				\
 
-void uwl_simple154_set_rx_callback(void (*func) (int8_t, uint8_t*, uint8_t))
+void uwl_simple154_set_rx_callback(void (*func) (int8_t, uint8_t*, uint8_t, 
+				   		 uint16_t))
 {
 	rx_callback = func;
 }
@@ -254,11 +255,18 @@ int8_t uwl_MCPS_DATA_indication(uint8_t SrcAddrMode, uint16_t SrcPANId,
 				uint8_t KeyIdMode, uint8_t *KeySource,
 				uint8_t KeyIndex)
 {
+	uint16_t src;
+	/* NOTE: the rx_buffer could be a local buffer! */
+
 	/* TODO: solve mutex problem on test_packet due to race condition! */
 	if (rx_callback != NULL && msduLength <= UWL_MAC_MAX_MSDU_SIZE) {
 		memset(rx_buffer, 0x00, UWL_MAC_MAX_MSDU_SIZE);
 		memcpy(rx_buffer, msdu, msduLength);
-		rx_callback(UWL_SIMPLE154_ERR_NONE, rx_buffer, msduLength);
+		if (SrcAddrMode == UWL_MAC_ADDRESS_SHORT)
+			memcpy(&src, SrcAddr, sizeof(uint16_t));
+		else
+			src = 0xFFFE;
+		rx_callback(UWL_SIMPLE154_ERR_NONE, rx_buffer, msduLength, src);
 	} 
 	return 1;
 }

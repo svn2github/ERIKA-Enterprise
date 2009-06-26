@@ -87,7 +87,7 @@ static uint32_t gts_available_bytes[UWL_MAC_GTS_MAX_NUMBER]
 static void (* before_beacon_callback)(void) = NULL;
 static void (* on_beacon_callback)(void) = NULL;
 #endif
-static uint32_t test_time = 0;
+//static uint32_t test_time = 0;
 
 /******************************************************************************/
 /*                      MAC Genaral Private Functions                         */
@@ -313,7 +313,7 @@ static void csma_perform_unslotted(void)
 static void cfp_perform_coordinator(void)
 {
 	struct uwl_gts_info_t *gts;
-	char str[100];
+//	char str[100];
 
 	if (uwl_mac_status.sf_context != UWL_MAC_SF_CFP)
 		return;
@@ -494,10 +494,10 @@ COMPILER_INLINE void before_beacon_interval(void)
 static void on_timeslot_start(void) 
 {
 	uint32_t t, tmin;
-	///*
+	/*
 	char s[100];
 	uint32_t mmm = uwl_debug_time_get_us(UWL_DEBUG_TIME_CLOCK_DEVEL);
-	//*/
+	*/
 	/* TODO: Implement an efficient version:
 		 In case of a device that is not coordinator we can do:
 			- if in CAP do whatever 
@@ -578,10 +578,10 @@ static void on_backoff_period_start(void)
 static void on_gts_send(void)
 {
 	struct uwl_mac_frame_t *frame;
-	///*
+	/*
 	uint32_t t;
 	char s[100];
-	//*/
+	*/
 	if (!sf_flags.gts_sending) {
 		/*
 		sprintf(s,"DEVICE: On GTS SEND -- STOP -- @ %d",current_tslot);
@@ -590,12 +590,12 @@ static void on_gts_send(void)
 		return;
 	}
 	uwl_kal_mutex_wait(MAC_GTS_SEND_MUTEX);
-	///*
+	/*
 	uint32_t mmm = uwl_debug_time_get_us(UWL_DEBUG_TIME_CLOCK_DEVEL);
 	sprintf(s, "DEVICE: On GTS SEND  @ %u idx=%u, %lu", 
 		current_tslot, sf_flags.gts_schedule_idx, mmm);
 	uwl_debug_print(s);
-	//*/
+	*/
 	if (uwl_gts_queue_is_empty(sf_flags.gts_schedule_idx)) {
 		sf_flags.gts_sending = 0; /* Nothing more to send by now. */
 		uwl_kal_mutex_signal(MAC_GTS_SEND_MUTEX);
@@ -748,7 +748,7 @@ uint8_t uwl_mac_superframe_check_gts(uint8_t length, uint8_t gts_idx)
 {
 	uint32_t x;
 	uint32_t *bytes = gts_available_bytes;
-	char str[100];
+	//char str[100];
 
 	if (uwl_mac_status.is_pan_coordinator || uwl_mac_status.is_coordinator){
 		/* GTS presence must be already checked, gts_idx range too. */
@@ -757,15 +757,15 @@ uint8_t uwl_mac_superframe_check_gts(uint8_t length, uint8_t gts_idx)
 		if (uwl_mac_gts_stat.tx_length == 0)
 			return 0;
 	}
-	sprintf(str, "CHECK: currGTS=%u GTS%u l=%u",
-		sf_flags.gts_schedule_idx, gts_idx, length);
-	uwl_debug_print(str);
-	sprintf(str, "CHECK: Avail %lu %lu %lu %lu %lu %lu %lu",
-		gts_available_bytes[0], gts_available_bytes[1],
-		gts_available_bytes[2], gts_available_bytes[3],
-		gts_available_bytes[4], gts_available_bytes[5],
-		gts_available_bytes[6]);
-	uwl_debug_print(str);
+	//sprintf(str, "CHECK: currGTS=%u GTS%u l=%u",
+	//	sf_flags.gts_schedule_idx, gts_idx, length);
+	//uwl_debug_print(str);
+	//sprintf(str, "CHECK: Avail %lu %lu %lu %lu %lu %lu %lu",
+	//	gts_available_bytes[0], gts_available_bytes[1],
+	//	gts_available_bytes[2], gts_available_bytes[3],
+	//	gts_available_bytes[4], gts_available_bytes[5],
+	//	gts_available_bytes[6]);
+	//uwl_debug_print(str);
 
 	/* TODO: use the extra bytes for protection??? in this case 10 */
 	uwl_kal_mutex_wait(MAC_MUTEX);

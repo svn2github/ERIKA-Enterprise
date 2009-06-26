@@ -41,10 +41,13 @@
 * - The MAC error code
 * - A pointer to the received data
 * - The length of the received data
+* - The short address of the sender, if the addressing mode was extended then
+*   0xFFFE is returned.
 * 
 * @param[in] func The RX callback pointer, if NULL nothing is done on reception.
 */
-void uwl_simple154_set_rx_callback(void (*func) (int8_t, uint8_t*, uint8_t));
+void uwl_simple154_set_rx_callback(void (*func) (int8_t, uint8_t*, uint8_t, 
+						 uint16_t));
 
 /** 
 * @brief PAN Coordinator Initialization

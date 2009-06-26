@@ -37,6 +37,11 @@ void *list_last(list_t *l)
 	return (void *) (l->data + (i * l->data_size));
 }
 
+#define logger(l) 
+
+#define logger_extr(l) 
+
+/*
 char str[1000];
 #define logger(l) \
 {\
@@ -73,7 +78,7 @@ char str[1000];
 		l->next[19]);\
 	uwl_debug_print(str);\
 }
-
+*/
 
 void *list_push_front(list_t *l)
 {
