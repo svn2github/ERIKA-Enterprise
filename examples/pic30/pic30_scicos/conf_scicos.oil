@@ -104,7 +104,7 @@ CPU mySystem {
 
 
 	TASK rt_sci {
-		PRIORITY = 1;
+		PRIORITY = 100;
 		STACK = SHARED;
 		SCHEDULE = FULL;
 		
@@ -157,7 +157,7 @@ CPU mySystem {
 
 #ifdef __USE_USB__
 	ALARM AlarmUSB {
-		COUNTER = "SciCounter";
+		COUNTER = "sciCounter";
 		ACTION = ACTIVATETASK { TASK = "rx_USB"; };		
 	};
 #endif // __USE_USB__

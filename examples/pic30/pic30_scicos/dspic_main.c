@@ -266,6 +266,10 @@ int main(void)
 	SetRelAlarm(AlarmLcd, dspic_time, 500);
 #endif
 
+#ifdef __USE_USB__
+	SetRelAlarm(AlarmUSB, dspic_time, 100);
+#endif
+
 	/* Forever loop: background activities (if any) should go here */
 	for (;;);
 	
