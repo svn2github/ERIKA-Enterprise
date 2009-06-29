@@ -13,6 +13,7 @@
 #include <scicos_block4.h>
 #include <ee.h>
 #include "scicos_USB.h"
+#include "string.h"
 
 static void init(scicos_block *block)
 {
