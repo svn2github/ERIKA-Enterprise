@@ -202,7 +202,7 @@ COMPILER_INLINE void stop_previous_cfp(void)
 {
 	uint8_t i = 0;
 
-	/* NOTE: this if for the GTS that terminates in
+	/* NOTE: this if for the GTS that terminates 
 		 with last timeslot expiration */
 	if (sf_flags.gts_tx_on_cfp_end == UWL_FALSE)
 		return;
@@ -331,27 +331,26 @@ static void cfp_perform_coordinator(void)
 		if (sf_flags.gts_sending) {
 			/* Stop previous GTS */
 			sf_flags.gts_sending = 0;
-			uwl_kal_mutex_wait(MAC_MUTEX);
-			recharge_gts_bytes(gts->length, 
-				           sf_flags.gts_schedule_idx);
-			uwl_kal_mutex_signal(MAC_MUTEX);
-			uwl_gts_queue_flush(sf_flags.gts_schedule_idx);
 			/* TODO: has effect? */
 			uwl_kal_cancel_activation(MAC_GTS_SEND);
 		}
+		uwl_kal_mutex_wait(MAC_MUTEX);
+		recharge_gts_bytes(gts->length, sf_flags.gts_schedule_idx);
+		uwl_kal_mutex_signal(MAC_MUTEX);
+		uwl_gts_queue_flush(sf_flags.gts_schedule_idx);
 		sf_flags.gts_schedule_idx++;
 		gts++;
 		uwl_kal_mutex_signal(MAC_GTS_SEND_MUTEX);
-//		uwl_debug_print("COORDINATOR: GTS ContextSwitch");
+		uwl_debug_print("COORDINATOR: GTS ContextSwitch");
 	}
 	/* NOTE: output for device, means input for coordinator */
 	if (gts->direction == UWL_MAC_GTS_DIRECTION_OUT) {
 		sf_flags.in_tx_gts = UWL_FALSE;
 		uwl_radio_phy_set_rx_on(); /*TODO:Raise error if < 0 */
-//		uwl_debug_print("COORDINATOR: GTS RX");
+		uwl_debug_print("COORDINATOR: GTS RX");
 		return;
 	}
-//	uwl_debug_print("COORDINATOR: GTS TX");
+	uwl_debug_print("COORDINATOR: GTS TX");
 	sf_flags.in_tx_gts = UWL_TRUE;
 	sf_flags.gts_sending = 1;
 	time_reference = (uwl_mac_gts_stat.tx_length *
@@ -447,7 +446,7 @@ COMPILER_INLINE void start_beacon_interval(void)
 		uwl_mac_gts_stat.tx_start_tslot, uwl_mac_gts_stat.tx_length);
 	uwl_debug_print(s);
 	*/
-	uwl_debug_print("DEVICE: start BI");
+	uwl_debug_print("SF: start BI");
 	#ifdef UWL_SUPERFRAME_CALLBACKS
 	if (on_beacon_callback)
 		on_beacon_callback();
@@ -468,7 +467,7 @@ COMPILER_INLINE void stop_superframe(void)
 	sf_flags.in_tx_gts = UWL_FALSE;
 	sf_flags.wait_sf_end = UWL_FALSE;
 	sf_flags.has_idle = UWL_FALSE;
-	uwl_debug_print("DEVICE: End Of SF");
+	uwl_debug_print("SF: End Of SF");
 }
 
 COMPILER_INLINE void before_beacon_interval(void)
@@ -488,7 +487,7 @@ COMPILER_INLINE void before_beacon_interval(void)
 	//uwl_debug_stat2str(str);
 	//uwl_debug_write(str, UWL_DEBUG_STAT_STRLEN);
 	#endif
-	uwl_debug_print("DEVICE: before Start BI");
+	uwl_debug_print("SF: before Start BI");
 }
 
 static void on_timeslot_start(void) 
@@ -596,25 +595,25 @@ static void on_gts_send(void)
 		current_tslot, sf_flags.gts_schedule_idx, mmm);
 	uwl_debug_print(s);
 	*/
+	uwl_debug_print("On GTS SEND |");
 	if (uwl_gts_queue_is_empty(sf_flags.gts_schedule_idx)) {
 		sf_flags.gts_sending = 0; /* Nothing more to send by now. */
 		uwl_kal_mutex_signal(MAC_GTS_SEND_MUTEX);
-		uwl_debug_print("DEVICE: On GTS SEND  - EMPTY Q");
+		uwl_debug_print("            |-> EMPTY Q");
 		return;
 	}
 	frame = uwl_gts_queue_extract(sf_flags.gts_schedule_idx);
-	if (frame == 0) /* TODO: this is extra check, empty check is enough!! */
-{
+	if (frame == 0) { /* TODO: this is extra check, empty check is enough!*/
 		uwl_kal_mutex_signal(MAC_GTS_SEND_MUTEX);
-uwl_debug_print("DEVICE: On GTS SEND - REALLY BAD");
+		uwl_debug_print("            |-> Really BAD!");
 		return; 
-}
+	}
 	if (!sf_flags.in_tx_gts) { /* Check if GTS is no longer valid */
 		/* TODO: we have to choose a well formed reply
 			 for the indication primitive (status=??) */
 		uwl_kal_mutex_signal(MAC_GTS_SEND_MUTEX);
 		uwl_MCPS_DATA_confirm(frame->msdu_handle,UWL_MAC_INVALID_GTS,0);
-uwl_debug_print("DEVICE: On GTS SEND - NO MORE GTS");
+		uwl_debug_print("            |-> No More GTS");
 		return; 
 	}
 //LATEbits.LATE0 = 1;
@@ -629,7 +628,7 @@ uwl_debug_print("DEVICE: On GTS SEND - NO MORE GTS");
 		uwl_kal_set_activation(MAC_GTS_SEND, UWL_MAC_LIFS_PERIOD, 0);
 	else
 		uwl_kal_set_activation(MAC_GTS_SEND, UWL_MAC_SIFS_PERIOD, 0);
-uwl_debug_print("DEVICE: On GTS SEND - ###### S E N T ######");
+	uwl_debug_print("            |-> SENT");
 //LATEbits.LATE0 = 0;
 	uwl_kal_mutex_signal(MAC_GTS_SEND_MUTEX);
 }
@@ -722,15 +721,15 @@ void uwl_mac_superframe_gts_wakeup(uint8_t gts_idx)
 {
 	struct uwl_gts_info_t *gts;
 
+	uwl_debug_print("GTS WAKEUP? |");
 	if (uwl_mac_status.is_pan_coordinator || uwl_mac_status.is_coordinator){
 		/* Coordinator wakeup gts */
-		uwl_debug_print("GTS WAKEUP: ? ");
 		gts = uwl_gts_schedule + gts_idx;
 		if (gts_idx == sf_flags.gts_schedule_idx &&
 		    current_tslot == gts->starting_tslot && 
 		    gts->direction == UWL_MAC_GTS_DIRECTION_IN &&
 		    !sf_flags.gts_sending && gts->length != 0) {
-			uwl_debug_print("GTS WAKEUP: !! ");
+			uwl_debug_print("            |-> Coord!");
 			sf_flags.gts_sending = 1;
 			uwl_kal_set_activation(MAC_GTS_SEND, 0, 0);
 		}
@@ -740,6 +739,7 @@ void uwl_mac_superframe_gts_wakeup(uint8_t gts_idx)
 	 	    current_tslot == uwl_mac_gts_stat.tx_start_tslot) {
 	 		sf_flags.gts_sending = 1;
 	 		uwl_kal_set_activation(MAC_GTS_SEND, 0, 0);
+			uwl_debug_print("            |-> Device!");
 	 	}
 	}
 }
@@ -748,7 +748,7 @@ uint8_t uwl_mac_superframe_check_gts(uint8_t length, uint8_t gts_idx)
 {
 	uint32_t x;
 	uint32_t *bytes = gts_available_bytes;
-	//char str[100];
+//char str[100];
 
 	if (uwl_mac_status.is_pan_coordinator || uwl_mac_status.is_coordinator){
 		/* GTS presence must be already checked, gts_idx range too. */
@@ -769,11 +769,12 @@ uint8_t uwl_mac_superframe_check_gts(uint8_t length, uint8_t gts_idx)
 
 	/* TODO: use the extra bytes for protection??? in this case 10 */
 	uwl_kal_mutex_wait(MAC_MUTEX);
-//sprintf(s,"DEVICE: -->>> R=%lu l=%u", *bytes, length);
-//uwl_debug_print(s);
+	uwl_debug_print("CHECK GTS |");
+//sprintf(str,"DEVICE: -->>> R=%lu l=%u", *bytes, length);
+//uwl_debug_print(str);
 	if (*bytes < length + 10) {
 		uwl_kal_mutex_signal(MAC_MUTEX);
-		uwl_debug_print("CHECK: 0 (apriori)");
+		uwl_debug_print("          |-> 0 (apriori)");
 		return 0; 
 	}
 	x = *bytes;
@@ -788,7 +789,7 @@ uwl_debug_print(s); */
 		if (x < length + 10) {
 			*bytes = 0;
 			uwl_kal_mutex_signal(MAC_MUTEX);
-			uwl_debug_print("CHECK: 0 (on remainig)");
+			uwl_debug_print("          |-> 0 (on remaining)");
 			return 0;
 		}
 	}
@@ -797,7 +798,7 @@ uwl_debug_print(s); */
 	x = length < UWL_aMaxSIFSFrameSize ?  sifs_bytes : lifs_bytes;
 	*bytes = (*bytes) >= x ?  (*bytes) - x : 0;
 	uwl_kal_mutex_signal(MAC_MUTEX);
-	uwl_debug_print("CHECK: 1");
+	uwl_debug_print("          |-> 1 (ok)");
 	return 1;
 }
 

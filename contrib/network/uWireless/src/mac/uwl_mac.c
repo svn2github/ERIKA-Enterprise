@@ -680,6 +680,7 @@ void uwl_mac_perform_data_request(enum uwl_mac_addr_mode_t src_mode,
 	uwl_mac_dev_addr_extd_t e_addr;
 	int8_t gts_idx = 0;
 
+uwl_debug_print("DATA REQ TX :");
 	if (UWL_MAC_TX_OPTION_GTS(tx_opt) == UWL_TRUE) {
 		if (uwl_mac_status.is_pan_coordinator || 
 		    uwl_mac_status.is_coordinator) {
@@ -718,14 +719,14 @@ void uwl_mac_perform_data_request(enum uwl_mac_addr_mode_t src_mode,
 			if (gts_idx < 0) {
 				uwl_MCPS_DATA_confirm(handle, 
 						      UWL_MAC_INVALID_GTS, 0);
-//uwl_debug_print("--->        Invalid GTS");
+uwl_debug_print("--->        Invalid GTS");
 				return;
 			}
 		}
 		if (!uwl_mac_superframe_check_gts(len, (uint8_t) gts_idx)) {
 			//uwl_debug_print("DEVICE:  GTS CHECK FAIL ");
 			uwl_MCPS_DATA_confirm(handle, UWL_MAC_INVALID_GTS, 0);
-//uwl_debug_print("--->        Invalid CHECK");
+uwl_debug_print("--->        Invalid CHECK");
 			return;
 		} 
 		/* Store in the GTS queue! */
@@ -735,7 +736,7 @@ void uwl_mac_perform_data_request(enum uwl_mac_addr_mode_t src_mode,
 			/* TODO: we have to choose a well formed reply
 				 for the indication primitive (status=??) */
 			uwl_MCPS_DATA_confirm(handle, UWL_MAC_INVALID_GTS, 0);
-//uwl_debug_print("--->        Invalid ALLOC");
+uwl_debug_print("--->        Invalid ALLOC");
 			return; 
 		}
 //sprintf(str, "---> SEND OK: Q = %u", list_get_size(&uwl_mac_queue_coord_gts));
@@ -789,6 +790,7 @@ void uwl_mac_perform_data_request(enum uwl_mac_addr_mode_t src_mode,
 			   sizeof(uint16_t) */;
 	if (UWL_MAC_TX_OPTION_GTS(tx_opt) == UWL_TRUE) 
 		uwl_mac_superframe_gts_wakeup(gts_idx); 
+uwl_debug_print("--->       OK (in TX Queue)");
 }
 
 uint8_t uwl_mac_create_beacon(uwl_mpdu_ptr_t bcn)
