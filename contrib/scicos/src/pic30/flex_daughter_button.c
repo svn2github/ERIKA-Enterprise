@@ -26,7 +26,7 @@ Pin=4	Button4	RD15
 static void init(scicos_block *block)
 {
 	unsigned int pin = block->ipar[0];
-#if defined(_USE_DEMOBOARD__)	
+#if defined(__USE_DEMOBOARD__)	
 	if ((pin < 1) || (pin > 4))
 #elif defined(__USE_MOTIONBOARD__)
 	if ((pin < 1) || (pin > 2))
@@ -42,7 +42,7 @@ static void inout(scicos_block *block)
 
 	unsigned int pin = block->ipar[0];
 	
-#if defined(_USE_DEMOBOARD__)	
+#if defined(__USE_DEMOBOARD__)	
 	if ((pin < 1) || (pin > 4))
 #elif defined(__USE_MOTIONBOARD__)
 	if ((pin < 1) || (pin > 2))
@@ -62,7 +62,7 @@ static void inout(scicos_block *block)
 			else
 				y[0] = 0.0; //** "0.0" (float)
 			break;
-#if defined(_USE_DEMOBOARD__)	
+#if defined(__USE_DEMOBOARD__)	
 		case 3:
 			if (EE_button_get_S3())
 				y[0] = 1.0; //** the output of a input bit is "1.0"  
