@@ -7,7 +7,7 @@
 #error FLEX 802.15.4 ERROR: Either a coordinator or a device configuration block is required.
 #endif
 
-#define COORDINATOR_USE_GTS 0
+//#define COORDINATOR_USE_GTS 0
 
 static void tx_init(void) 
 {
@@ -30,8 +30,12 @@ static void tx_inout(scicos_block *block)
 	packet.data_id = block->ipar[0];	
 	packet.dst_addr = block->ipar[1]; 
 	packet.src_addr = flex_simple802154_local_address; 
+	#ifdef COORDINATOR_USE_GTS	
 	use_gts = (flex_simple802154_flags.is_coordinator) ? 
 		  COORDINATOR_USE_GTS :  block->ipar[2];
+	#else	
+	use_gts = block->ipar[2];
+	#endif
 	uwl_simple154_send((EE_UINT8 *) &packet, 
 			   sizeof(flex_simple802154_packet_t), 
 			   block->ipar[1], use_gts);

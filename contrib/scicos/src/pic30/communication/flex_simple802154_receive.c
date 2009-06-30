@@ -15,7 +15,7 @@ static float rx_buffer[FLEX_SIMPLE802154_ADDRESSES][FLEX_SIMPLE802154_CHANNELS];
 |                                                                              |
 |  Called by the network stack when data have been received.                   |
  ---------------------------------------------------------------------------- */
-static void rx_data(int8_t status, uint8_t *data, uint8_t len)
+static void rx_data(int8_t status, uint8_t *data, uint8_t len, uint16_t sender)
 {
 	EE_INT16 id, addr;
 
