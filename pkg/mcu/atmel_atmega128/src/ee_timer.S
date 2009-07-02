@@ -159,8 +159,8 @@ init_timer1:
 	clr r19
 	clr r18
 
-	out OCR1AL, r25	; get the limit as parameter (to be tested!!!)
-	out OCR1AH, r24
+	out OCR1AH, r25	; get the limit as parameter (to be tested!!!)
+	out OCR1AL, r24
 	//ldi r18, 0xff
 	//ldi r19, 0xff
 	//out OCR1AL, r18
@@ -330,8 +330,8 @@ init_timer3:
 	clr r19
 	clr r18
 
-	sts OCR3AL, r25	; get the limit as parameter (to be tested!!!)
-	sts OCR3AH, r24
+	sts OCR3AH, r25	; get the limit as parameter (to be tested!!!)
+	sts OCR3AL, r24
 	//ldi r18, 0xff
 	//ldi r19, 0xff
 	//sts OCR3AL, r18
