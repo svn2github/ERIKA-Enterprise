@@ -31,94 +31,87 @@
 ****************************************************************************/
 
 // ADC Settings
-#define ADC_TURN_ON					AD1CON1bits.ADON = 1
-#define ADC_TURN_OFF				AD1CON1bits.ADON = 0
-#define START_CONVERSION         	AD1CON1bits.SAMP = 0
-#define CONVERSION_DONE				AD1CON1bits.DONE
-#define CONVERSION_RESET			AD1CON1bits.DONE = 0
-
-#if !defined(__USE_TOUCH_STANDARD__) && !defined(__USE_TOUCH_ALTERNATE__)
-#error "Choose one between TOUCH_STANDARD or TOUCH_ALTERNATE."
+#ifndef ADC_TO_USE
+#define ADC_TO_USE						1
 #endif
 
-#if defined(__USE_TOUCH_STANDARD__) && defined(__USE_TOUCH__ALTERNATE__)
-#error "Choose only ONE between TOUCH_STANDARD or TOUCH_ALTERNATE."
+#if ADC_TO_USE!=1 && ADC_TO_USE!=2
+#error dsPIC33 has only two ADCs.Please change ADC_TO_USE macro.
 #endif
 
-#ifdef __USE_TOUCH_ALTERNATE__
+#if ADC_TO_USE==1
 
-// I/O
-#define TOUCHSCREEN_INPUT		PORTB
-#define TOUCHSCREEN_OUTPUT		LATB
-#define TOUCHSCREEN_DDR			TRISB
-
-#define FAKE_PULL_UP_OUTPUT		LATD
-#define FAKE_PULL_UP_DDR		TRISD
-
-// Bit Definitions
-
-#define EE_T_TOP	11			// RB11
-#define EE_T_LEFT	10			// RB10
-#define EE_T_BOTTOM	4			// RB4
-#define EE_T_RIGHT	5			// RB5
-
-#define EE_T_FAKE_PULL_UP		8
-
-// ADC reading pins
-#define STANDBY_PIN				EE_T_BOTTOM            // Pin Change & Low_Level_Readings & X-Coordinate Reading
-#define ADC_X					STANDBY_PIN
-#define ADC_Y					EE_T_RIGHT
-#define ADC_Z1					ADC_Y
-#define ADC_Z2					EE_T_TOP
-
-#define CLEARBIT(ADRESS,BIT)	(ADRESS&=~(1<<BIT)) // LAT##ADRESS##bits.LAT##ADRESS##BIT = 0
-#define SETBIT(ADRESS,BIT)		(ADRESS|=(1<<BIT))
-#define TESTBIT(ADRESS,BIT)		((ADRESS&(1<<BIT)))
-#define TOGGLEBIT(ADRESS, BIT) 	((ADRESS)^=(1<<(BIT)))
-
-#define Pin_Gnd(LLL)			(SETBIT(AD1PCFGL,LLL),CLEARBIT(TOUCHSCREEN_DDR,LLL),CLEARBIT(TOUCHSCREEN_OUTPUT,LLL))
-#define Pin_Vdd(LLL)			(SETBIT(AD1PCFGL,LLL),CLEARBIT(TOUCHSCREEN_DDR,LLL),SETBIT(TOUCHSCREEN_OUTPUT,LLL))
-#define Pin_Hi_Z(LLL)			(CLEARBIT(AD1PCFGL,LLL),SETBIT(TOUCHSCREEN_DDR,LLL))
-#define Pin_Pullup(LLL)			(SETBIT(AD1PCFGL,LLL),SETBIT(TOUCHSCREEN_DDR,LLL))
-
-// I/O States
-#define STANDBY_CONFIGURATION		(Pin_Gnd(EE_T_LEFT),	Pin_Hi_Z(EE_T_RIGHT), 	Pin_Hi_Z(EE_T_TOP),	Pin_Hi_Z(EE_T_BOTTOM))
-#define X_POS_CONFIGURATION			(Pin_Gnd(EE_T_LEFT),	Pin_Vdd(EE_T_RIGHT),	Pin_Hi_Z(EE_T_TOP),	Pin_Hi_Z(EE_T_BOTTOM))
-#define Y_POS_CONFIGURATION			(Pin_Hi_Z(EE_T_LEFT),	Pin_Hi_Z(EE_T_RIGHT),	Pin_Gnd(EE_T_TOP),	Pin_Vdd(EE_T_BOTTOM))
-#define HI_Z_CONFIGURATION			(Pin_Hi_Z(EE_T_LEFT),	Pin_Hi_Z(EE_T_RIGHT),	Pin_Hi_Z(EE_T_TOP),	Pin_Hi_Z(EE_T_BOTTOM))
-#define Z1_Z2_CONFIGURATION			(Pin_Gnd(EE_T_LEFT),	Pin_Hi_Z(EE_T_RIGHT),	Pin_Hi_Z(EE_T_TOP),	Pin_Vdd(EE_T_BOTTOM))
-
-#elif defined(__USE_TOUCH_STANDARD__) 
-
+#define ADC_ONOFF							AD1CON1bits.ADON
+#define ADC_SAMP							AD1CON1bits.SAMP
+#define ADC_ASAM							AD1CON1bits.ASAM
+#define ADC_FORM							AD1CON1bits.FORM
+#define ADC_SSRC							AD1CON1bits.SSRC
+#define ADC_AD12B							AD1CON1bits.AD12B
+#define ADC_CON2							AD1CON2
+#define ADC_SAMC							AD1CON3bits.SAMC
+#define ADC_ADRC							AD1CON3bits.ADRC
+#define ADC_ADCS							AD1CON3bits.ADCS
+#define ADC_CONVERSION_DONE		AD1CON1bits.DONE
+#define ADC_SELECTED_PIN 			AD1CHS0
+#define ADC_RESULT_BUFFER			ADC1BUF0
+#define ADC_INTERRUPT_FLAG		IFS0bits.AD1IF
+#define ADC_INTERRUPT_ENABLE	IEC0bits.AD1IE
+#define ADC_INTERRUPT_NAME		_ADC1Interrupt
 #define EE_TOUCH_BOTTOM_AD		AD1PCFGLbits.PCFG15
-#define EE_TOUCH_RIGHT_AD		AD1PCFGLbits.PCFG9
+#define EE_TOUCH_RIGHT_AD			AD1PCFGLbits.PCFG9
+
+#else
+
+#define ADC_ONOFF							AD2CON1bits.ADON
+#define ADC_SAMP							AD2CON1bits.SAMP
+#define ADC_ASAM							AD2CON1bits.ASAM
+#define ADC_FORM							AD2CON1bits.FORM
+#define ADC_SSRC							AD2CON1bits.SSRC
+#define ADC_AD12B							AD2CON1bits.AD12B
+#define ADC_CON2							AD2CON2
+#define ADC_SAMC							AD2CON3bits.SAMC
+#define ADC_ADRC							AD2CON3bits.ADRC
+#define ADC_ADCS							AD2CON3bits.ADCS
+#define ADC_CONVERSION_DONE		AD2CON1bits.DONE
+#define ADC_SELECTED_PIN 			AD2CHS0
+#define ADC_RESULT_BUFFER			ADC2BUF0
+#define ADC_INTERRUPT_FLAG		IFS1bits.AD2IF
+#define ADC_INTERRUPT_ENABLE	IEC1bits.AD2IE
+#define ADC_INTERRUPT_NAME		_ADC2Interrupt
+#define EE_TOUCH_BOTTOM_AD		AD2PCFGLbits.PCFG15
+#define EE_TOUCH_RIGHT_AD			AD2PCFGLbits.PCFG9
+
+#endif
+
+#define ADC_TURN_ON						SETBIT(ADC_ONOFF)
+#define ADC_TURN_OFF					CLEARBIT(ADC_ONOFF)
+#define ADC_CONVERSION_RESET	CLEARBIT(ADC_CONVERSION_DONE)
+#define ADC_CONVERSION_START  CLEARBIT(ADC_SAMP)
 
 #define EE_TOUCH_BOTTOM_TRIS	TRISBbits.TRISB15
 #define EE_TOUCH_RIGHT_TRIS		TRISBbits.TRISB9
 
-#define EE_TOUCH_EN_A			LATEbits.LATE1
-#define EE_TOUCH_EN_B			LATEbits.LATE2
-#define EE_TOUCH_EN_C			LATEbits.LATE3
+#define EE_TOUCH_EN_A					LATEbits.LATE1
+#define EE_TOUCH_EN_B					LATEbits.LATE2
+#define EE_TOUCH_EN_C					LATEbits.LATE3
 
 #define EE_TOUCH_EN_A_TRIS 		TRISEbits.TRISE1
 #define EE_TOUCH_EN_B_TRIS		TRISEbits.TRISE2
 #define EE_TOUCH_EN_C_TRIS		TRISEbits.TRISE3
 
-#define CLEARBIT(BIT)			(BIT = 0)
-#define SETBIT(BIT)				(BIT = 1)
-#define TOGGLEBIT(BIT) 			(BIT ^= 1)
+#define CLEARBIT(BIT)					(BIT = 0)
+#define SETBIT(BIT)						(BIT = 1)
+#define TOGGLEBIT(BIT) 				(BIT ^= 1)
 
 // ADC reading pins
-#define STANDBY_PIN				9		// Pin Change & Low_Level_Readings & X-Coordinate Reading
-#define ADC_X					15
-#define ADC_Y					9
+#define STANDBY_PIN						9		// Pin Change & Low_Level_Readings & X-Coordinate Reading
+#define ADC_X									15
+#define ADC_Y									9	
 
 // I/O States
 #define STANDBY_CONFIGURATION	(SETBIT(EE_TOUCH_EN_A), SETBIT(EE_TOUCH_EN_B), CLEARBIT(EE_TOUCH_EN_C))
 #define X_POS_CONFIGURATION		(CLEARBIT(EE_TOUCH_EN_A), SETBIT(EE_TOUCH_EN_B), SETBIT(EE_TOUCH_EN_C))
 #define Y_POS_CONFIGURATION		(SETBIT(EE_TOUCH_EN_A), CLEARBIT(EE_TOUCH_EN_B), CLEARBIT(EE_TOUCH_EN_C))
-
-#endif // __USE_TOUCH_STANDARD__
 
 #endif // __FOUR_WIRES__
 

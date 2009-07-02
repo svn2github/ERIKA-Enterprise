@@ -44,8 +44,6 @@ static volatile EE_UINT16 xt1,yt1;
 static volatile EE_UINT16 xt2,yt2;
 static volatile EE_UINT16 xt3,yt3;
 
-
-
 EE_UINT16 touch_delay_count __attribute__((near)) = 0;
 
 EE_UINT16 touch_get_position_u(
@@ -130,10 +128,7 @@ void touch_init(void)
 	i_array = 0;
 
 	// Pilot pins setting and lighting up 
-#ifdef __USE_TOUCH_ALTERNATE__
-	CLEARBIT(FAKE_PULL_UP_DDR,EE_T_FAKE_PULL_UP); // Set fake pull-up pin (RD8) as output
-	SETBIT(FAKE_PULL_UP_OUTPUT,EE_T_FAKE_PULL_UP); // Light up fake pull-up pin.
-#elif defined(__USE_TOUCH_STANDARD__)
+
 	CLEARBIT(EE_TOUCH_EN_A_TRIS);
 	CLEARBIT(EE_TOUCH_EN_B_TRIS);
 	CLEARBIT(EE_TOUCH_EN_C_TRIS);
@@ -141,134 +136,31 @@ void touch_init(void)
 	SETBIT(EE_TOUCH_RIGHT_TRIS);
 	CLEARBIT(EE_TOUCH_BOTTOM_AD);
 	CLEARBIT(EE_TOUCH_RIGHT_AD);
-#endif
 
 	STANDBY_CONFIGURATION;
 	tf.STANDBY = 1;
 	
-	// TODO: Abstract this bits in the .h [like ADC_TURN_ON]
-	AD1CHS0 = STANDBY_PIN;
-	AD1CON1bits.ASAM = 1;
-	AD1CON1bits.FORM = 0;
-	AD1CON1bits.SSRC = 0;
-	AD1CON1bits.AD12B = 1;
-	AD1CON2 = 0;
-	AD1CON3bits.SAMC = 16;
-	AD1CON3bits.ADRC = 0;
-	AD1CON3bits.ADCS = 3;
-	IFS0bits.AD1IF = 0;		// reset ADC interrupt flag
-	IEC0bits.AD1IE = 1;		// enable ADC interrupts, disable this interrupt if the DMA is enabled
+	ADC_SELECTED_PIN = STANDBY_PIN;
+	SETBIT(ADC_ASAM);
+	ADC_FORM = 0;
+	ADC_SSRC = 0;
+	SETBIT(ADC_AD12B);
+	ADC_CON2 = 0;
+	ADC_SAMC = 16;
+	ADC_ADRC = 0;
+	ADC_ADCS = 3;
 	
-	ADC_TURN_ON;			// turn on ADC
-	
+	// reset ADC interrupt flag
+	CLEARBIT(ADC_INTERRUPT_FLAG);
+
+	// enable ADC interrupts, disable this interrupt if the DMA is enabled
+	SETBIT(ADC_INTERRUPT_ENABLE);
+
+	// turn on ADC
+	ADC_TURN_ON;				
+
 	touch_calibrate();
 		
-}
-
-void touch_calibrate(void)
-{
-	// touch input P1 (90%,50%)
-	xd1 = (EE_UINT16)(0.9*horiz_width);
-	yd1 = (EE_UINT16)( 0.5*vert_height);
-	// touch input P2 (50%,10%)
-	xd2 = (EE_UINT16)(0.5*horiz_width);
-	yd2 = (EE_UINT16)(0.9*vert_height);
-	// touch input P3 (10%,90%)
-	xd3 = (EE_UINT16)(0.1*horiz_width);
-	yd3 = (EE_UINT16)(0.1*vert_height);
-
-	/*
-
-	touch_stop();
-	touch_delay(Delay_1S_Cnt/3);
-	touch_start();
-
-	//  Outing: Touch P1!
-
-	EE_led_on();
-	raw_ready = 0;
-	while(!raw_ready);
-	xt1 = X_raw;
-	yt1 = Y_raw;
-	raw_ready = 0;
-	EE_led_off();
-
-	touch_stop();
-	touch_delay(Delay_1S_Cnt/3);
-	touch_start();
-
-	//  Outing: Touch P2!
-
-	EE_led_on();
-	while(!raw_ready);
-	xt2 = X_raw;
-	yt2 = Y_raw;
-	raw_ready = 0;
-	EE_led_off();
-
-	touch_stop();
-	touch_delay(Delay_1S_Cnt/3);
-	touch_start();
-
-	//  Outing: Touch P2!
-
-	EE_led_on();
-	while(!raw_ready);
-	xt3 = X_raw;
-	yt3 = Y_raw;
-	raw_ready = 0;
-	EE_led_off();
-
-	touch_stop();
-
-	*/
-
-	/*xt1 = 2990;
-	yt1 = 1890;
-	xt2 = 2110;
-	yt2 = 2770;
-	xt3 = 1300;
-	yt3 = 1040;*/
-
-	/*xt1 = 3104;
-	yt1 = 1944;
-	xt2 = 2102;
-	yt2 = 2876;
-	xt3 = 1128;
-	yt3 = 988;*/
-
-/*	
-	xt1 = 2919;
-	yt1 = 1592;
-	xt2 = 1703;
-	yt2 = 2567;
-	xt3 = 496;
-	yt3 = 631;
-*/
-	
-	xt1 = 2823;
-	yt1 = 1271;
-	xt2 = 1854;
-	yt2 = 2057;
-	xt3 = 870;
-	yt3 = 515;
-	
-
-	cal_a = ((long)yt1*xd3-(long)yt1*xd2-(long)yt2*xd3+(long)xd2*yt3-(long)xd1*yt3+(long)xd1*yt2);
-	cal_a /= (-(long)xt1*yt3+(long)xt2*yt3-(long)xt2*yt1+(long)xt3*yt1-(long)xt3*yt2+(long)xt1*yt2);
-
-	cal_b = cal_a*((float)xt3-xt2)+xd2-xd3;
-	cal_b /= (yt2-yt3);
-
-	cal_c = xd3-cal_a*xt3-cal_b*yt3;
-
-	cal_d = -((long)yt2*yd3-(long)yt2*yd1-(long)yt1*yd3-(long)yt3*yd2+(long)yt3*yd1+(long)yt1*yd2);
-	cal_d /= (-(long)yt2*xt3+(long)yt2*xt1+(long)yt1*xt3+(long)yt3*xt2-(long)yt3*xt1-(long)yt1*xt2);
-
-	cal_e = cal_d*((float)xt3-xt2)+yd2-yd3;
-	cal_e /= yt2-yt3;
-
-	cal_f = yd3-cal_d*xt3-cal_e*yt3;
 }
 
 #ifdef __LOW_LEVEL_MEASUREMENT__
@@ -277,12 +169,12 @@ TASK(touch_Manager)
 	#if (defined __USE_LEDS__) && (defined __USE_MOTIONBOARD__) 
 	EE_led_0_off();
 	#endif
-	if(CONVERSION_DONE)
+	if(ADC_CONVERSION_DONE)
 	{
-		CONVERSION_RESET;
+		ADC_CONVERSION_RESET;
 		if(tf.STANDBY)
 		{
-			Reading_low_level = ADC1BUF0;
+			Reading_low_level = ADC_RESULT_BUFFER;
 			if(Reading_low_level < MAXIMUM_LOW_LEVEL)
 			{
 				tf.STANDBY = 0;
@@ -292,7 +184,7 @@ TASK(touch_Manager)
 					store_valid_data();
 				}
 				Y_POS_CONFIGURATION;
-				AD1CHS0 = ADC_Y;
+				ADC_SELECTED_PIN = ADC_Y;
 				Untouch_conditions = 0;
 			} else
 			{
@@ -306,30 +198,30 @@ TASK(touch_Manager)
 
 		} else if(tf.YPOS)
 		{
-			Reading_Y[i_array] = ADC1BUF0;
+			Reading_Y[i_array] = ADC_RESULT_BUFFER;
 			tf.YPOS = 0;
 			tf.XPOS = 1;
 			X_POS_CONFIGURATION;
-			AD1CHS0 = ADC_X;
+			ADC_SELECTED_PIN = ADC_X;
 		} else if(tf.XPOS)
 		{
-			Reading_X[i_array] = ADC1BUF0;
+			Reading_X[i_array] = ADC_RESULT_BUFFER;
 			tf.XPOS = 0;
 			tf.STANDBY = 1;
 			tf.COMPLETE = 1;
 			STANDBY_CONFIGURATION;
-			AD1CHS0 = STANDBY_PIN;
+			ADC_SELECTED_PIN = STANDBY_PIN;
 		}
 	} else
 	{
-		START_CONVERSION;
+		ADC_CONVERSION_START;
 	}
 }
 #endif // __LOW_LEVEL_MEASUREMENT__
 
-ISR2(_ADC1Interrupt)
+ISR2(ADC_INTERRUPT_NAME)
 {
-	IFS0bits.AD1IF = 0;
+	CLEARBIT(ADC_INTERRUPT_FLAG);
 	ActivateTask(touch_Manager);
 }
 
@@ -408,6 +300,89 @@ void store_valid_data(void)
 		i_array = 0;
 
     } else	i_array++;
+}
+
+void touch_calibrate(void)
+{
+	// touch input P1 (90%,50%)
+	xd1 = (EE_UINT16)(0.9*horiz_width);
+	yd1 = (EE_UINT16)( 0.5*vert_height);
+	// touch input P2 (50%,10%)
+	xd2 = (EE_UINT16)(0.5*horiz_width);
+	yd2 = (EE_UINT16)(0.9*vert_height);
+	// touch input P3 (10%,90%)
+	xd3 = (EE_UINT16)(0.1*horiz_width);
+	yd3 = (EE_UINT16)(0.1*vert_height);
+
+	/*
+
+	touch_stop();
+	touch_delay(Delay_1S_Cnt/3);
+	touch_start();
+
+	//  Outing: Touch P1!
+
+	EE_led_on();
+	raw_ready = 0;
+	while(!raw_ready);
+	xt1 = X_raw;
+	yt1 = Y_raw;
+	raw_ready = 0;
+	EE_led_off();
+
+	touch_stop();
+	touch_delay(Delay_1S_Cnt/3);
+	touch_start();
+
+	//  Outing: Touch P2!
+
+	EE_led_on();
+	while(!raw_ready);
+	xt2 = X_raw;
+	yt2 = Y_raw;
+	raw_ready = 0;
+	EE_led_off();
+
+	touch_stop();
+	touch_delay(Delay_1S_Cnt/3);
+	touch_start();
+
+	//  Outing: Touch P2!
+
+	EE_led_on();
+	while(!raw_ready);
+	xt3 = X_raw;
+	yt3 = Y_raw;
+	raw_ready = 0;
+	EE_led_off();
+
+	touch_stop();
+
+	*/
+
+	xt1 = 2823;
+	yt1 = 1271;
+	xt2 = 1854;
+	yt2 = 2057;
+	xt3 = 870;
+	yt3 = 515;
+	
+
+	cal_a = ((long)yt1*xd3-(long)yt1*xd2-(long)yt2*xd3+(long)xd2*yt3-(long)xd1*yt3+(long)xd1*yt2);
+	cal_a /= (-(long)xt1*yt3+(long)xt2*yt3-(long)xt2*yt1+(long)xt3*yt1-(long)xt3*yt2+(long)xt1*yt2);
+
+	cal_b = cal_a*((float)xt3-xt2)+xd2-xd3;
+	cal_b /= (yt2-yt3);
+
+	cal_c = xd3-cal_a*xt3-cal_b*yt3;
+
+	cal_d = -((long)yt2*yd3-(long)yt2*yd1-(long)yt1*yd3-(long)yt3*yd2+(long)yt3*yd1+(long)yt1*yd2);
+	cal_d /= (-(long)yt2*xt3+(long)yt2*xt1+(long)yt1*xt3+(long)yt3*xt2-(long)yt3*xt1-(long)yt1*xt2);
+
+	cal_e = cal_d*((float)xt3-xt2)+yd2-yd3;
+	cal_e /= yt2-yt3;
+
+	cal_f = yd3-cal_d*xt3-cal_e*yt3;
 }
 
 
