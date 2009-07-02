@@ -82,6 +82,8 @@ CPU mySystem {
 		
 		LIB = ENABLE {
 			NAME = "SCICOS";
+			
+
 
 #ifdef __USE_ZIGBEE__
 			NAME = "ieee802154";
@@ -93,6 +95,10 @@ CPU mySystem {
 			NAME = "UWIRELESS";
 #endif // __USE_SIMPLE802154__
 
+#ifdef __USE_MIWIP2P__	//Start GF		
+			NAME = "MIWIP2P";
+#endif //__USE_MIWIP2P__ //End GF
+
 		};
 #ifdef __USE_SIMPLE802154__
 		EE_OPT = "USE_CC2420";
@@ -100,6 +106,12 @@ CPU mySystem {
 		EE_OPT = "UWL_USE_SIMPLE_802154";
 		EE_OPT = "UWL_GTS_MANIPULATION"; /* Makes sense if Coord. */
 #endif // __USE_SIMPLE802154__
+
+#ifdef __USE_MIWI2P2__
+		//EE_OPT = "__USE_PICDEMZ_WITH_INT4__";
+		EE_OPT = "__USE_PICDEMZ_WITH_CN20INT__";
+#endif //__USE_MIWIP2P__
+
 	};
 
 
@@ -275,5 +287,57 @@ CPU mySystem {
 		RESOURCEPROPERTY = STANDARD; 
 	};
 #endif // __USE_SIMPLE802154__
+
+/* **************************************************************/
+/*						MIWIP2P OIL Section						*/
+/* **************************************************************/
+#ifdef __USE_MIWIP2P__	//Start GF	
+
+	TASK TaskSend {
+		PRIORITY = 1;
+		STACK = SHARED;
+		SCHEDULE = FULL;
+		RESOURCE = "S0";
+	};
+		
+	TASK TaskMiWiOP {
+		PRIORITY = 2;
+		STACK = SHARED;
+		SCHEDULE = FULL;
+		RESOURCE = "S0";
+		RESOURCE = "S1";
+	};
+	
+		TASK TaskRec {
+		PRIORITY = 3;
+		STACK = SHARED;
+		SCHEDULE = FULL;
+		RESOURCE = "S0";
+		RESOURCE = "S1";
+	};
+	
+	TASK TaskInt {
+		PRIORITY = 4;
+		STACK = SHARED;
+		SCHEDULE = FULL;
+		RESOURCE = "S0";
+	};
+	
+	COUNTER miwip2p_counter;
+	
+	ALARM AlarmProt {
+		COUNTER = "miwip2p_counter";
+		ACTION = ACTIVATETASK { TASK = "TaskMiWiOP"; };
+		
+	};
+	
+	
+	RESOURCE S0 { RESOURCEPROPERTY = STANDARD; };
+	RESOURCE S1 { RESOURCEPROPERTY = STANDARD; };
+	
+#endif //__USE_MIWIP2P__ //End GF
+
+	
+		
 };
 

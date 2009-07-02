@@ -54,6 +54,16 @@
 
 #endif // __USE_USB__
 
+
+#ifdef __USE_MIWIP2P__	//Start GF	
+
+#include "P2PDefs.h"
+#include "MRF24J40.h"
+#include "P2P.h"
+#include "SymbolTime.h"
+
+#endif //__USE_MIWIP2P__ //End GF
+
 #define XNAME(x,y)  x##y
 #define NAME(x,y)   XNAME(x,y)
 
@@ -232,6 +242,57 @@ TASK(rx_USB)
 }
 #endif // __USE_USB__
 
+#ifdef __USE_MIWIP2P__	//Start GF	
+
+/*
+ * radio_isr is the callback function executed when
+ * the radio module issues an interrupt.
+ */
+void radio_isr(void)
+{
+	ActivateTask(TaskInt);
+}
+
+
+
+/*
+ * This task sends a message through the MiWi P2P stack.
+ */
+TASK(TaskSend)
+{
+
+}
+
+/*
+ * This task prints out on the console a message received through the MiWi P2P
+ * stack.
+ */
+TASK(TaskRec)
+{
+
+}
+
+/*
+ * This task is activated when an interrupt is issued by the radio transceiver.
+ */
+
+TASK(TaskInt)
+{
+	int_service();
+}
+
+/*
+ * This task checks for a message arriving, and if it is so, it activates
+ * TaskRec.
+ */
+TASK(TaskMiWiOP)
+{
+	if( ReceivedPacket() )
+			ActivateTask(TaskRec);
+}
+
+#endif //__USE_MIWIP2P__ //End GF
+
 int main(void)
 {
 	/* Clock setup */
@@ -269,6 +330,15 @@ int main(void)
 #ifdef __USE_USB__
 	SetRelAlarm(AlarmUSB, dspic_time, 100);
 #endif
+
+#ifdef __USE_MIWIP2P__	//Start GF	
+	/*
+	* This alarm activates, every 5 ms, the TaskMiWiOP task which
+	* manages the MiWi-P2P protocol.
+	*/
+	SetRelAlarm(AlarmProt, 5, 5);
+
+#endif //__USE_MIWIP2P__ //End GF
 
 	/* Forever loop: background activities (if any) should go here */
 	for (;;);
