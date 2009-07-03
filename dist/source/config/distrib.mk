@@ -672,68 +672,68 @@ distrib_opt___OPENZB__:: \
 		ee_$(DIST)/contrib/network \
 		ee_$(DIST)/contrib/network/cfg \
 		ee_$(DIST)/contrib/network/cfg/contrib.mk \
-		ee_$(DIST)/contrib/network/openzb \
-		ee_$(DIST)/contrib/network/openzb/cfg \
-		ee_$(DIST)/contrib/network/openzb/cfg/cfg.mk \
-		ee_$(DIST)/contrib/network/openzb/cfg/libcfg.mk \
-		ee_$(DIST)/contrib/network/openzb/doxyconf \
-		ee_$(DIST)/contrib/network/openzb/inc \
-		ee_$(DIST)/contrib/network/openzb/inc/hal \
-		ee_$(DIST)/contrib/network/openzb/inc/hal/ozb_compiler.h \
-		ee_$(DIST)/contrib/network/openzb/inc/hal/ozb_compiler_c30.h \
-		ee_$(DIST)/contrib/network/openzb/inc/hal/ozb_compiler_ee.h \
-		ee_$(DIST)/contrib/network/openzb/inc/hal/ozb_radio.h \
-		ee_$(DIST)/contrib/network/openzb/inc/hal/ozb_radio_cc2420.h \
-		ee_$(DIST)/contrib/network/openzb/inc/hal/ozb_rand.h \
-		ee_$(DIST)/contrib/network/openzb/inc/hal/ozb_timer.h \
-		ee_$(DIST)/contrib/network/openzb/inc/hal/ozb_timer_dspic30.h \
-		ee_$(DIST)/contrib/network/openzb/inc/kal \
-		ee_$(DIST)/contrib/network/openzb/inc/kal/ozb_kal.h \
-		ee_$(DIST)/contrib/network/openzb/inc/kal/ozb_kal_erika.h \
-		ee_$(DIST)/contrib/network/openzb/inc/mac \
-		ee_$(DIST)/contrib/network/openzb/inc/mac/ozb_mac.h \
-		ee_$(DIST)/contrib/network/openzb/inc/mac/ozb_mac_const.h \
-		ee_$(DIST)/contrib/network/openzb/inc/mac/ozb_mac_internal.h \
-		ee_$(DIST)/contrib/network/openzb/inc/mac/ozb_mac_mcps.h \
-		ee_$(DIST)/contrib/network/openzb/inc/mac/ozb_mac_mlme.h \
-		ee_$(DIST)/contrib/network/openzb/inc/mac/ozb_mac_mutexes.h \
-		ee_$(DIST)/contrib/network/openzb/inc/mac/ozb_mac_types.h \
-		ee_$(DIST)/contrib/network/openzb/inc/net \
-		ee_$(DIST)/contrib/network/openzb/inc/net/ozb_net.h \
-		ee_$(DIST)/contrib/network/openzb/inc/net/ozb_net_internal.h \
-		ee_$(DIST)/contrib/network/openzb/inc/net/ozb_simple154.h \
-		ee_$(DIST)/contrib/network/openzb/inc/openzb.h \
-		ee_$(DIST)/contrib/network/openzb/inc/ozb_ieee802154.h \
-		ee_$(DIST)/contrib/network/openzb/inc/phy \
-		ee_$(DIST)/contrib/network/openzb/inc/phy/ozb_phy.h \
-		ee_$(DIST)/contrib/network/openzb/inc/phy/ozb_phy_const.h \
-		ee_$(DIST)/contrib/network/openzb/inc/phy/ozb_phy_internal.h \
-		ee_$(DIST)/contrib/network/openzb/inc/phy/ozb_phy_pd.h \
-		ee_$(DIST)/contrib/network/openzb/inc/phy/ozb_phy_plme.h \
-		ee_$(DIST)/contrib/network/openzb/inc/phy/ozb_phy_types.h \
-		ee_$(DIST)/contrib/network/openzb/inc/util \
-		ee_$(DIST)/contrib/network/openzb/inc/util/ozb_debug.h \
-		ee_$(DIST)/contrib/network/openzb/inc/util/ozb_memory.h \
-		ee_$(DIST)/contrib/network/openzb/src \
-		ee_$(DIST)/contrib/network/openzb/src/hal \
-		ee_$(DIST)/contrib/network/openzb/src/hal/ozb_radio_cc2420.c \
-		ee_$(DIST)/contrib/network/openzb/src/hal/ozb_timer_dspic30.c \
-		ee_$(DIST)/contrib/network/openzb/src/kal \
-		ee_$(DIST)/contrib/network/openzb/src/kal/ozb_kal_erika.c \
-		ee_$(DIST)/contrib/network/openzb/src/mac \
-		ee_$(DIST)/contrib/network/openzb/src/mac/ozb_mac.c \
-		ee_$(DIST)/contrib/network/openzb/src/mac/ozb_mac_gts.c \
-		ee_$(DIST)/contrib/network/openzb/src/mac/ozb_mac_mcps.c \
-		ee_$(DIST)/contrib/network/openzb/src/mac/ozb_mac_mlme.c \
-		ee_$(DIST)/contrib/network/openzb/src/mac/ozb_mac_superframe.c \
-		ee_$(DIST)/contrib/network/openzb/src/net \
-		ee_$(DIST)/contrib/network/openzb/src/net/ozb_net_mac_events.c \
-		ee_$(DIST)/contrib/network/openzb/src/net/ozb_simple154.c \
-		ee_$(DIST)/contrib/network/openzb/src/phy \
-		ee_$(DIST)/contrib/network/openzb/src/phy/ozb_phy.c \
-		ee_$(DIST)/contrib/network/openzb/src/util \
-		ee_$(DIST)/contrib/network/openzb/src/util/ozb_debug.c \
-		ee_$(DIST)/contrib/network/openzb/TODO.txt
+		ee_$(DIST)/contrib/network/uWireless \
+		ee_$(DIST)/contrib/network/uWireless/cfg \
+		ee_$(DIST)/contrib/network/uWireless/cfg/cfg.mk \
+		ee_$(DIST)/contrib/network/uWireless/cfg/libcfg.mk \
+		ee_$(DIST)/contrib/network/uWireless/doxyconf \
+		ee_$(DIST)/contrib/network/uWireless/inc \
+		ee_$(DIST)/contrib/network/uWireless/inc/hal \
+		ee_$(DIST)/contrib/network/uWireless/inc/hal/uwl_compiler.h \
+		ee_$(DIST)/contrib/network/uWireless/inc/hal/uwl_compiler_c30.h \
+		ee_$(DIST)/contrib/network/uWireless/inc/hal/uwl_compiler_ee.h \
+		ee_$(DIST)/contrib/network/uWireless/inc/hal/uwl_radio.h \
+		ee_$(DIST)/contrib/network/uWireless/inc/hal/uwl_radio_cc2420.h \
+		ee_$(DIST)/contrib/network/uWireless/inc/hal/uwl_rand.h \
+		ee_$(DIST)/contrib/network/uWireless/inc/hal/uwl_timer.h \
+		ee_$(DIST)/contrib/network/uWireless/inc/hal/uwl_timer_dspic30.h \
+		ee_$(DIST)/contrib/network/uWireless/inc/kal \
+		ee_$(DIST)/contrib/network/uWireless/inc/kal/uwl_kal.h \
+		ee_$(DIST)/contrib/network/uWireless/inc/kal/uwl_kal_erika.h \
+		ee_$(DIST)/contrib/network/uWireless/inc/mac \
+		ee_$(DIST)/contrib/network/uWireless/inc/mac/uwl_mac.h \
+		ee_$(DIST)/contrib/network/uWireless/inc/mac/uwl_mac_const.h \
+		ee_$(DIST)/contrib/network/uWireless/inc/mac/uwl_mac_internal.h \
+		ee_$(DIST)/contrib/network/uWireless/inc/mac/uwl_mac_mcps.h \
+		ee_$(DIST)/contrib/network/uWireless/inc/mac/uwl_mac_mlme.h \
+		ee_$(DIST)/contrib/network/uWireless/inc/mac/uwl_mac_mutexes.h \
+		ee_$(DIST)/contrib/network/uWireless/inc/mac/uwl_mac_types.h \
+		ee_$(DIST)/contrib/network/uWireless/inc/net \
+		ee_$(DIST)/contrib/network/uWireless/inc/net/uwl_net.h \
+		ee_$(DIST)/contrib/network/uWireless/inc/net/uwl_net_internal.h \
+		ee_$(DIST)/contrib/network/uWireless/inc/net/uwl_simple154.h \
+		ee_$(DIST)/contrib/network/uWireless/inc/openzb.h \
+		ee_$(DIST)/contrib/network/uWireless/inc/uwl_ieee802154.h \
+		ee_$(DIST)/contrib/network/uWireless/inc/phy \
+		ee_$(DIST)/contrib/network/uWireless/inc/phy/uwl_phy.h \
+		ee_$(DIST)/contrib/network/uWireless/inc/phy/uwl_phy_const.h \
+		ee_$(DIST)/contrib/network/uWireless/inc/phy/uwl_phy_internal.h \
+		ee_$(DIST)/contrib/network/uWireless/inc/phy/uwl_phy_pd.h \
+		ee_$(DIST)/contrib/network/uWireless/inc/phy/uwl_phy_plme.h \
+		ee_$(DIST)/contrib/network/uWireless/inc/phy/uwl_phy_types.h \
+		ee_$(DIST)/contrib/network/uWireless/inc/util \
+		ee_$(DIST)/contrib/network/uWireless/inc/util/uwl_debug.h \
+		ee_$(DIST)/contrib/network/uWireless/inc/util/uwl_memory.h \
+		ee_$(DIST)/contrib/network/uWireless/src \
+		ee_$(DIST)/contrib/network/uWireless/src/hal \
+		ee_$(DIST)/contrib/network/uWireless/src/hal/uwl_radio_cc2420.c \
+		ee_$(DIST)/contrib/network/uWireless/src/hal/uwl_timer_dspic30.c \
+		ee_$(DIST)/contrib/network/uWireless/src/kal \
+		ee_$(DIST)/contrib/network/uWireless/src/kal/uwl_kal_erika.c \
+		ee_$(DIST)/contrib/network/uWireless/src/mac \
+		ee_$(DIST)/contrib/network/uWireless/src/mac/uwl_mac.c \
+		ee_$(DIST)/contrib/network/uWireless/src/mac/uwl_mac_gts.c \
+		ee_$(DIST)/contrib/network/uWireless/src/mac/uwl_mac_mcps.c \
+		ee_$(DIST)/contrib/network/uWireless/src/mac/uwl_mac_mlme.c \
+		ee_$(DIST)/contrib/network/uWireless/src/mac/uwl_mac_superframe.c \
+		ee_$(DIST)/contrib/network/uWireless/src/net \
+		ee_$(DIST)/contrib/network/uWireless/src/net/uwl_net_mac_events.c \
+		ee_$(DIST)/contrib/network/uWireless/src/net/uwl_simple154.c \
+		ee_$(DIST)/contrib/network/uWireless/src/phy \
+		ee_$(DIST)/contrib/network/uWireless/src/phy/uwl_phy.c \
+		ee_$(DIST)/contrib/network/uWireless/src/util \
+		ee_$(DIST)/contrib/network/uWireless/src/util/uwl_debug.c \
+		ee_$(DIST)/contrib/network/uWireless/TODO.txt
 
 distrib_opt___MIWIP2P__:: \
 		ee_$(DIST)/contrib/MiWiP2P \
@@ -1144,18 +1144,6 @@ distrib_opt___PIC30_EXAMPLES__:: \
 		ee_$(DIST)/examples/pic30/pic30_scicos/dspic_main.c \
 		ee_$(DIST)/examples/pic30/pic30_scicos/template.xml \
 		ee_$(DIST)/examples/pic30/pic30_scicos/conf_scicos.oil \
-		\
-		ee_$(DIST)/examples/pic30/pic30_scicos_openzb_coordinator \
-		ee_$(DIST)/examples/pic30/pic30_scicos_openzb_coordinator/dspic_main.c \
-		ee_$(DIST)/examples/pic30/pic30_scicos_openzb_coordinator/types.h \
-		ee_$(DIST)/examples/pic30/pic30_scicos_openzb_coordinator/template.xml \
-		ee_$(DIST)/examples/pic30/pic30_scicos_openzb_coordinator/conf_scicos.oil \
-		\
-		ee_$(DIST)/examples/pic30/pic30_scicos_openzb_device \
-		ee_$(DIST)/examples/pic30/pic30_scicos_openzb_device/dspic_main.c \
-		ee_$(DIST)/examples/pic30/pic30_scicos_openzb_device/types.h \
-		ee_$(DIST)/examples/pic30/pic30_scicos_openzb_device/template.xml \
-		ee_$(DIST)/examples/pic30/pic30_scicos_openzb_device/conf_scicos.oil \
 		\
 		ee_$(DIST)/examples/pic30/pic30_openzb_demo \
 		ee_$(DIST)/examples/pic30/pic30_openzb_demo/code.c \
