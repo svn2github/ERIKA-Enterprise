@@ -380,6 +380,8 @@ void EE_pwm_set_duty_f( EE_UINT8 chan , float duty )
 	else
 		duty_out = duty; //** for the correct values ...
 
+	duty_out = 1.0 - duty_out;
+
 	// Computer register valure
 	switch (chan) {
 	case EE_PWM_PORT1:

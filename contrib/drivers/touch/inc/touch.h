@@ -6,6 +6,7 @@
 
 #include<touch_compiler.h>
 #include<touch_hal.h>
+#include<touch_kal.h>
 
 #define TOUCH_X_AXIS	0
 #define TOUCH_Y_AXIS	1
@@ -49,12 +50,14 @@ void 	sorted_insertion(EE_UINT16 Array[]);
 
 COMPILER_INLINE void touch_start(void)
 {
-	SetRelAlarm(AlarmTouchManager,10,2);
+	//SetRelAlarm(AlarmTouchManager,10,2);
+	touch_timer_start();
 }
 
 COMPILER_INLINE void touch_stop(void)
 {
-	CancelAlarm(AlarmTouchManager);
+	//CancelAlarm(AlarmTouchManager);
+	touch_timer_stop();
 }
 
 #endif // __TOUCH_H__

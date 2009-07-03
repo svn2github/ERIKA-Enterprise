@@ -1,4 +1,5 @@
 #include "touch.h"
+#include "touch_kal.h"
 
 /****************************************************************************
   Global variables
@@ -152,19 +153,18 @@ void touch_init(void)
 	
 	// reset ADC interrupt flag
 	CLEARBIT(ADC_INTERRUPT_FLAG);
-
 	// enable ADC interrupts, disable this interrupt if the DMA is enabled
 	SETBIT(ADC_INTERRUPT_ENABLE);
-
 	// turn on ADC
-	ADC_TURN_ON;				
-
+	ADC_TURN_ON;		
+	
+	touch_kal_init(1400);
+	
 	touch_calibrate();
-		
 }
 
 #ifdef __LOW_LEVEL_MEASUREMENT__
-TASK(touch_Manager)
+TASK(TASK_TOUCH_MANAGER)
 {
 	#if (defined __USE_LEDS__) && (defined __USE_MOTIONBOARD__) 
 	EE_led_0_off();
@@ -222,7 +222,7 @@ TASK(touch_Manager)
 ISR2(ADC_INTERRUPT_NAME)
 {
 	CLEARBIT(ADC_INTERRUPT_FLAG);
-	ActivateTask(touch_Manager);
+	ActivateTask(TASK_TOUCH_MANAGER);
 }
 
 void sorted_insertion(EE_UINT16 Array[])
@@ -384,6 +384,3 @@ void touch_calibrate(void)
 
 	cal_f = yd3-cal_d*xt3-cal_e*yt3;
 }
-
-
-

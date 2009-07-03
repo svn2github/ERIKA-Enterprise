@@ -3,6 +3,8 @@
 #include <machine.h>
 #include <scicos_block4.h>
 
+#define ADC_TO_USE 2
+
 #include <ee.h>
 #include "touch.h"
 
@@ -17,11 +19,16 @@ static void init(scicos_block *block)
 {
 	EE_UINT8 axis = block->ipar[0];
 	EE_UINT16 range = block->ipar[1];
+
 	if(axis != ASCII_X && axis != ASCII_Y) 
 		return;
-	
+	if(axis == ASCII_X && x_already_initialized)
+		return;
+	if(axis == ASCII_Y && y_already_initialized)
+		return;
+
 	touch_set_dimension(axis-ASCII_X,range);
-	
+
 	if(axis == ASCII_X)
 		x_already_initialized = 1;
 	else if(axis == ASCII_Y)
@@ -29,10 +36,9 @@ static void init(scicos_block *block)
 	
 	if(x_already_initialized && y_already_initialized)
 	{
-		touch_init();
-		touch_calibrate();
-		touch_start();
 		touch_initialized = 1;
+		touch_init();
+		touch_start();
 	}
 }
 
