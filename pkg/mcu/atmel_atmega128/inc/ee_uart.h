@@ -36,7 +36,7 @@
 
 // TODO: Set the correct value for clock freq
 #ifndef EE_UART_INSTRUCTION_CLOCK
-#define EE_UART_INSTRUCTION_CLOCK	8000000ul
+#define EE_UART_INSTRUCTION_CLOCK	7370000ul
 #endif
 
 // TODO: Add doxygen documentation!
