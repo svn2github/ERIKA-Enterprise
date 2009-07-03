@@ -54,7 +54,6 @@
 
 #endif // __USE_USB__
 
-
 #ifdef __USE_MIWIP2P__	//Start GF	
 
 #include "P2PDefs.h"
@@ -96,27 +95,6 @@ double get_scicos_time()
 	return(actTime);
 }
 
-/* Program the Timer2 peripheral to raise interrupts */
-void T1_program(void)
-{
-	T1CON = 0;		/* Stops the Timer2 and reset control reg	*/
-	TMR1  = 0;		/* Clear contents of the timer register	*/
-	PR1   = 0x9c40;		/* 1ms @ 40Mhz */ //	PR1   = 0x07D0;		/* 1ms @ 2MHz */
-	IPC0bits.T1IP = 5;	/* Set Timer2 priority to 5		*/
-	IFS0bits.T1IF = 0;	/* Clear the Timer2 interrupt status flag	*/
-	IEC0bits.T1IE = 1;	/* Enable Timer2 interrupts		*/
-	T1CONbits.TON = 1;	/* Start Timer2 with prescaler settings at 1:1
-				  * and clock source set to the internal 
-				  * instruction cycle			*/
-}
-
-/* Clear the Timer2 interrupt status flag */
-void T1_clear(void)
-{
-	IFS0bits.T1IF = 0;
-}
-
-
 /* LCD update functions
  * -------------------------------------------------------------
  */
@@ -146,15 +124,12 @@ static void write_buf(float data)
 	sprintf(lcd_buf,"%+.6E ",(double)data);
 }
 
-void update_lcd(void)
+TASK(rt_LCD)
 {
 	static float oldvalue1 = 1.0; // something different from 0
 	static float oldvalue2 = 1.0; // something different from 0
 	float newvalue1;
 	float newvalue2;
-
-	if (!scicos_lcd_used)
-		return;
 
 	/* check if we have to update the LCD */
 	EE_pic30_disableIRQ();
@@ -186,34 +161,7 @@ void update_lcd(void)
 	/* Reset position for the next iteration */
 	EE_lcd_home();
 }
-
-#endif
-
-/* This is an ISR Type 2 which is attached to the Timer2 peripheral IRQ pin
- * The ISR simply calls CounterTick to implement the timing reference
- */
-ISR2(_T1Interrupt)
-{
-	/* clear the interrupt source */
-	T1_clear();
-
-	/* count the interrupts, waking up expired alarms */
-	CounterTick(sciCounter);
-}
-
-TASK(rt_sci)
-{
-	actTime=t;
-	NAME(MODELNAME,_isr)(actTime);
-	t += scicos_time;
-}
-
-#ifdef __USE_LCD__
-TASK(rt_LCD)
-{
-	update_lcd();
-}
-#endif
+#endif // __USE_LCD__
 
 #ifdef __USE_USB__ 
 TASK(rx_USB)
@@ -253,8 +201,6 @@ void radio_isr(void)
 	ActivateTask(TaskInt);
 }
 
-
-
 /*
  * This task sends a message through the MiWi P2P stack.
  */
@@ -292,6 +238,45 @@ TASK(TaskMiWiOP)
 }
 
 #endif //__USE_MIWIP2P__ //End GF
+
+/* Program the Timer1 peripheral to raise interrupts */
+void T1_program(void)
+{
+	T1CON = 0;		/* Stops the Timer1 and reset control reg	*/
+	TMR1  = 0;		/* Clear contents of the timer register	*/
+	PR1   = 0x9c40;		/* 1ms @ 40Mhz */ //	PR1   = 0x07D0;		/* 1ms @ 2MHz */
+	IPC0bits.T1IP = 5;	/* Set Timer1 priority to 5		*/
+	IFS0bits.T1IF = 0;	/* Clear the Timer1 interrupt status flag	*/
+	IEC0bits.T1IE = 1;	/* Enable Timer1 interrupts		*/
+	T1CONbits.TON = 1;	/* Start Timer1 with prescaler settings at 1:1
+				  * and clock source set to the internal 
+				  * instruction cycle			*/
+}
+
+/* Clear the Timer2 interrupt status flag */
+void T1_clear(void)
+{
+	IFS0bits.T1IF = 0;
+}
+
+/* This is an ISR Type 2 which is attached to the Timer2 peripheral IRQ pin
+ * The ISR simply calls CounterTick to implement the timing reference
+ */
+ISR2(_T1Interrupt)
+{
+	/* clear the interrupt source */
+	T1_clear();
+
+	/* count the interrupts, waking up expired alarms */
+	CounterTick(sciCounter);
+}
+
+TASK(rt_sci)
+{
+	actTime=t;
+	NAME(MODELNAME,_isr)(actTime);
+	t += scicos_time;
+}
 
 int main(void)
 {

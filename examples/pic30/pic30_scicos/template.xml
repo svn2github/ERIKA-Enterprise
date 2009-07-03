@@ -16,6 +16,6 @@
  <file_section>
   <file     name="dspic_main.c"/>
   <file     name="conf_scicos.oil"/>
-</file_section>
+ </file_section>
 
 </evidence_example>
