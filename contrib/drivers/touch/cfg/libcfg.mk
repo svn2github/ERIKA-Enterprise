@@ -20,6 +20,10 @@ ifeq ($(INCLUDE_TOUCH), YES)
 ##
 
 ## Add the inc path to the include pathlist
+ifeq ($(findstring __RTD_CYGWIN__,$(EEOPT)), __RTD_CYGWIN__) 
 ALLINCPATH += -I"$(shell cygpath -w $(EEBASE)/contrib/drivers/touch/inc)"
+else
+ALLINCPATH += -I$(EEBASE)/contrib/drivers/touch/inc
+endif
 
 endif

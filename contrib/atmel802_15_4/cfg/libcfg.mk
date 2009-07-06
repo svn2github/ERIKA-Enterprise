@@ -22,8 +22,13 @@ endif
 ifeq ($(INCLUDE_ATMEL802154), YES)
 
 ## Add the inc path to the include pathlist
+ifeq ($(findstring __RTD_CYGWIN__,$(EEOPT)), __RTD_CYGWIN__) 
 ALLINCPATH += -I"$(shell cygpath -w $(EEBASE)/contrib/atmel802_15_4/inc)"
 ALLINCPATH += -I"$(shell cygpath -w $(EEBASE)/contrib/atmel802_15_4/libsrc/inc)"
+else
+ALLINCPATH += -I$(EEBASE)/contrib/atmel802_15_4/inc
+ALLINCPATH += -I$(EEBASE)/contrib/atmel802_15_4/libsrc/inc
+endif
 
 ##
 ## Library code

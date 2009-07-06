@@ -18,7 +18,12 @@ ifeq ($(INCLUDE_MEMORY), YES)
 ##
 
 ## Add the inc path to the include pathlist
+ifeq ($(findstring __RTD_CYGWIN__,$(EEOPT)), __RTD_CYGWIN__) 
 ALLINCPATH += -I"$(shell cygpath -w $(EEBASE)/contrib/memory/inc)"
+else
+ALLINCPATH += -I$(EEBASE)/contrib/memory/inc
+endif
+
 ## Add each file individually
 #EE_SRCS_MEMORY += contrib/memory/libsrc/cqueue.c
 EE_SRCS_MEMORY += contrib/memory/libsrc/list.c

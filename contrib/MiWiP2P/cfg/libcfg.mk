@@ -20,7 +20,11 @@ ifeq ($(INCLUDE_MIWIP2P), YES)
 ##
 
 ## Add the inc path to the include pathlist
+ifeq ($(findstring __RTD_CYGWIN__,$(EEOPT)), __RTD_CYGWIN__) 
 ALLINCPATH += -I"$(shell cygpath -w $(EEBASE)/contrib/MiWiP2P/inc)"
+else
+ALLINCPATH += -I$(EEBASE)/contrib/MiWiP2P/inc
+endif
 
 ## Add each file individually
 EE_SRCS_MIWIP2P +=

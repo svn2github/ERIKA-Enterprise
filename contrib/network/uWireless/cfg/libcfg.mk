@@ -20,7 +20,11 @@ ifeq ($(INCLUDE_UWIRELESS), YES)
 ##
 
 ## Add the inc path to the include pathlist
+ifeq ($(findstring __RTD_CYGWIN__,$(EEOPT)), __RTD_CYGWIN__) 
 ALLINCPATH += -I"$(shell cygpath -w $(EEBASE)/contrib/network/uWireless/inc)"
+else
+ALLINCPATH += -I$(EEBASE)/contrib/network/uWireless/inc
+endif
 
 ## Add each file individually
 #EE_SRCS_uWireless += contrib/network/libsrc/libuWireless.c

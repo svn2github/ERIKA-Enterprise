@@ -16,9 +16,13 @@ EE_VPATH += $(EEBASE)/contrib/scicos/src/pic30/communication
 EE_VPATH += $(EEBASE)/contrib/scicos/libsrc/rt
 EE_VPATH += $(EEBASE)/contrib/scicos/libsrc/core
 
+ifeq ($(findstring __RTD_CYGWIN__,$(EEOPT)), __RTD_CYGWIN__) 
 ALLINCPATH += -I"$(shell cygpath -w $(EEBASE)/contrib/scicos/inc/core)"
 ALLINCPATH += -I"$(shell cygpath -w $(EEBASE)/contrib/scicos/inc/pic30/communication)"
-
+else
+ALLINCPATH += -I$(EEBASE)/contrib/scicos/inc/core
+ALLINCPATH += -I$(EEBASE)/contrib/scicos/inc/pic30/communication
+endif
 ##
 ## Application files
 ##
