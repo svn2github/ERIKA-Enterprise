@@ -38,7 +38,6 @@
 # Boston, MA 02110-1301 USA.
 # ###*E*###
 
-
 ##
 ## PIC30 GCC compiler version 3.3 dsPIC30, Microchip 1.32
 ##
@@ -48,13 +47,8 @@ ifeq ($(findstring __PIC30__,$(EEALLOPT)), __PIC30__)
 # Select object file format
 # IMPORTANT NOTE:
 # Due to a bug in MPLAB IDE, debug symbols are only supported in COFF
-ifeq ($(PIC30_USE_EEGCC_COMPILE), Y)
-PIC30_OFF := elf
-PIC30_EXTENSION := elf
-else
 PIC30_OFF := coff
 PIC30_EXTENSION := cof
-endif
 
 # Prefix for GCC tools (prefix for deps below)
 PIC30_GCCPREFIX := pic30-$(PIC30_OFF)-
@@ -65,15 +59,25 @@ PIC30_GCCPREFIX := pic30-$(PIC30_OFF)-
 # BINDIR_CYG   - Cygwin gcc
 # BINDIR_EVI   - C30 compiler compiled from Microchip gcc source code
 
+BINDIR_EVI := /opt/mchp/pic30/bin
+BINDIR_CYG := /usr/bin
+
+# If Linux, force recompiled gcc usage
+
+ifeq ($(findstring __RTD_LINUX__,$(EEOPT)), __RTD_LINUX__) 
+PIC30_USE_EEGCC_COMPILE := Y
+endif
+ifeq ($(findstring __RTD_CYGWIN__,$(EEOPT)), __RTD_CYGWIN__) 
 ifeq ($(wildcard $(PIC30_GCCDIR)/bin/bin),)
 BINDIR_C30   := $(PIC30_GCCDIR)/bin
 else
 BINDIR_C30   := $(PIC30_GCCDIR)/bin/bin
 endif
-BINDIR_ASM30 := $(PIC30_ASMDIR)/bin
-BINDIR_CYG   := /usr/bin
-BINDIR_EVI   := $(EVIDENCEBASE)/pic30/pic30-elf/bin
+endif
 
+#BINDIR_ASM30 := $(PIC30_ASMDIR)/bin
+#BINDIR_CYG   := /usr/bin
+#BINDIR_EVI   := $(EVIDENCEBASE)/pic30/pic30-elf/bin
 
 # Bin directories used for compilation
 # BINDIR_ASM      - directory of the Assembler
@@ -81,23 +85,25 @@ BINDIR_EVI   := $(EVIDENCEBASE)/pic30/pic30-elf/bin
 # BINDIR_DEP      - directory of the C compiler used for dependencies
 # BINDIR_BINUTILS - directory of the binutils
 
+# If Linux always first branch
+
 ifeq ($(PIC30_USE_EEGCC_COMPILE), Y)
-BINDIR_ASM      := $(BINDIR_ASM30)
+BINDIR_ASM      := $(BINDIR_EVI)
 BINDIR_CC       := $(BINDIR_EVI)
-BINDIR_BINUTILS := $(BINDIR_ASM30)
+BINDIR_BINUTILS := $(BINDIR_EVI)
 else
 BINDIR_ASM      := $(BINDIR_C30)
 BINDIR_CC       := $(BINDIR_C30)
 BINDIR_BINUTILS := $(BINDIR_C30)
 endif
 
-#ifeq ($(PIC30_USE_EEGCC_DEPS), Y)
-#BINDIR_DEP := $(BINDIR_EVI)
-#PIC30_DEPPREFIX := pic30-elf-
-#else
+ifeq ($(PIC30_USE_EEGCC_DEPS), Y)
+BINDIR_DEP := $(BINDIR_EVI)
+PIC30_DEPPREFIX := pic30-$(PIC30_OFF)-
+else
 BINDIR_DEP := $(BINDIR_CYG)
 PIC30_DEPPREFIX :=
-#endif
+endif
 
 ifndef EE_LINK
 EE_LINK:=$(BINDIR_BINUTILS)/$(PIC30_GCCPREFIX)ld
@@ -139,7 +145,11 @@ endif
 # please note the final backslash sequence after the shell command to
 # avoid cygpath insering a trailing backslash
 # INTERNAL_PKGBASEDIR is used to avoid multiple calls to cygpath
+ifeq ($(findstring __RTD_CYGWIN__,$(EEOPT)), __RTD_CYGWIN__) 
 INTERNAL_PKGBASEDIR := -I"$(shell cygpath -w $(PKGBASE))\\." -I"$(shell cygpath -w $(APPBASE))\\." -I.
+else
+INTERNAL_PKGBASEDIR := -I$(PKGBASE) -I$(APPBASE) -I.
+endif
 ALLINCPATH += $(INTERNAL_PKGBASEDIR)
 
 ## OPT_CC are the options for arm compiler invocation

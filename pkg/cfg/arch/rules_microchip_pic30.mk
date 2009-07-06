@@ -53,58 +53,77 @@ include $(EEBASE)/pkg/cfg/dir.mk
 include $(PKGBASE)/cfg/verbose.mk
 include $(PKGBASE)/cfg/compiler.mk
 
-# Automaticl selection of C30 version
-#C30_VERSION := $(shell $(EE_CC) -v 2>&1)
-#C30_LONGPATH := $(if $(findstring Microchip 3.10,$(C30_VERSION)),1)
-C30_VERSION := $(shell $(EE_CC) --version 2>&1 | awk '/__C30_VERSION__/{split($$0,a,"== "); print a[2]; }' )
-C30_LONGPATH := $(shell $(EE_CC) --version 2>&1 | awk '/__C30_VERSION__/{split($$0,a,"== "); if (a[2]>=310) print 1; else print 0; }' )
+# Recomplied Microchip GCC path in Linux and Cygwin environments
+EE_GCCDIR := /opt/mchp/pic30
 
-# Manual selection of C30 include path version
-ifeq ($(findstring C30_LONGPATH,$(EEOPT)) , C30_LONGPATH)
-C30_LONGPATH := 1
-endif
+PIC30_CRT0 := $(EEBASE)/contrib/microchip/pic30/src/crt0.s
 
+###########################################
+## OLD Automatic selection of C30 version
+###########################################
+##C30_VERSION := $(shell $(EE_CC) -v 2>&1)
+##C30_LONGPATH := $(if $(findstring Microchip 3.10,$(C30_VERSION)),1)
+#C30_VERSION := $(shell $(EE_CC) --version 2>&1 | awk '/__C30_VERSION__/{split($$0,a,"== "); print a[2]; }' )
+#C30_LONGPATH := $(shell $(EE_CC) --version 2>&1 | awk '/__C30_VERSION__/{split($$0,a,"== "); if (a[2]>=310) print 1; else print 0; }' )
+#
+## Manual selection of C30 include path version
+#ifeq ($(findstring C30_LONGPATH,$(EEOPT)) , C30_LONGPATH)
+#C30_LONGPATH := 1
+#endif
+#
 # Set include subdirectory for GCC
-ifeq ($(C30_LONGPATH), 1)
-C30SUBDIR :=
-ifeq ($(findstring 30F,$(PIC30_MODEL)) , 30F)
-C30SUBDIR := /dsPIC30F
-endif
-ifeq ($(findstring 33F,$(PIC30_MODEL)) , 33F)
-C30SUBDIR := /dsPIC33F
-endif
-ifeq ($(findstring 24H,$(PIC30_MODEL)) , 24H)
-C30SUBDIR := /PIC24H
-endif
-ifeq ($(findstring 24F,$(PIC30_MODEL)) , 24F)
-C30SUBDIR := /PIC24F
-endif
+#ifeq ($(C30_LONGPATH), 1)
+#C30SUBDIR :=
+#ifeq ($(findstring 30F,$(PIC30_MODEL)) , 30F)
+#C30SUBDIR := /dsPIC30F
+#endif
+#ifeq ($(findstring 33F,$(PIC30_MODEL)) , 33F)
+#C30SUBDIR := /dsPIC33F
+#endif
+#ifeq ($(findstring 24H,$(PIC30_MODEL)) , 24H)
+#C30SUBDIR := /PIC24H
+#endif
+#ifeq ($(findstring 24F,$(PIC30_MODEL)) , 24F)
+#C30SUBDIR := /PIC24F
+#endif
+#else
+#C30SUBDIR :=
+#endif
+
+##if PIC30_GCCDIR is defined
+#ifneq ($(PIC30_GCCDIR),)
+#PIC30_LINKERDIR := $(PIC30_GCCDIR)/Support$(C30SUBDIR)/gld
+#else
+#PIC30_LINKERDIR := $(PIC30_ASMDIR)/Support$(C30SUBDIR)/gld
+#endif
+###############################################
+###############################################
+
+# MCHP_DATA_DIR refers to the location of Microchip libraries
+# Cygwin environment
+ifeq ($(findstring __RTD_CYGWIN__,$(EEOPT)), __RTD_CYGWIN__) 
+MCHP_DATA_DIR := $(PIC30_GCCDIR)
 else
-C30SUBDIR :=
+# Linux environment
+MCHP_DATA_DIR := $(EE_GCCDIR)/pic30-nonfree
 endif
 
-# Add extra include if C30 version is 3.10
-ifeq ($(C30_LONGPATH), 1)
-CRT0INC := frommchp/p30f2010.inc
+PIC30_LIB_DIR := $(MCHP_DATA_DIR)/lib
+PIC30_INCLUDE_DIR := $(MCHP_DATA_DIR)/include
+
+# If PIC30_LIB_DIR has subdirectories... (since 3.10) 
+ifneq ($(shell find $(PIC30_LIB_DIR) -mindepth 1 -type d),)
+SHORT_MODEL := $(shell echo $(PIC30_MODEL) | awk '{ a = substr($$0,1,3); print a;}')
+MCHP_SUPPORT_DIR := $(MCHP_DATA_DIR)/support/dsPIC$(SHORT_MODEL)
+PIC30_LIBD_DIR := $(PIC30_LIB_DIR)/dsPIC$(SHORT_MODEL)
 else
-CRT0INC :=
+MCHP_SUPPORT_DIR := $(MCHP_DATA_DIR)/support
+PIC30_LIBD_DIR :=
 endif
 
-#if PIC30_GCCDIR is defined
-ifneq ($(PIC30_GCCDIR),)
-PIC30_LINKERDIR := $(PIC30_GCCDIR)/Support$(C30SUBDIR)/gld
-else
-PIC30_LINKERDIR := $(PIC30_ASMDIR)/Support$(C30SUBDIR)/gld
-endif
-
-# Select crt0.S file
-ifeq ($(PIC30_USE_EEGCC_COMPILE), Y)
-PIC30_CRT0 := $(PIC30_ASMDIR)/lib/crt0.s
-PIC30_EXTRA_INCLUDE := $(PIC30_ASMDIR)
-else
-PIC30_CRT0 := $(PIC30_GCCDIR)/src/pic30/crt0.s
-PIC30_EXTRA_INCLUDE := $(PIC30_GCCDIR)
-endif
+PIC30_H_DIR := $(MCHP_SUPPORT_DIR)/h
+PIC30_INC_DIR := $(MCHP_SUPPORT_DIR)/inc
+PIC30_LINKER_DIR := $(MCHP_SUPPORT_DIR)/gld
 
 # Add linker dependencies
 OPT_LINK += --script=loc_gnu.ld -u__reset
@@ -132,36 +151,69 @@ LIBDEP += $(ALL_LIBS)
 # Specific option from the application makefile
 LIBDEP += $(LDDEPS)
 
+################################################
+## OLD Stuff (cont.)
+################################################
 ## Libraries from MC
-ifneq ($(PIC30_GCCDIR),)
+#ifneq ($(PIC30_GCCDIR),)
+#OPT_LIBS += -lm -lc -ldsp -l$(subst .a,,$(subst lib,,$(PIC30_DEV_LIB))) -lpic30-$(PIC30_OFF)
+#
+#ifeq ($(PLATFORM), LINUX)
+#OPT_LIBS += -L $(PIC30_GCCDIR)/lib
+#ifeq ($(C30_LONGPATH), 1)
+#OPT_LIBS += -L $(PIC30_GCCDIR)/lib$(C30SUBDIR)
+#endif
+#else
+#OPT_LIBS += -L "`cygpath -w $(PIC30_GCCDIR)/lib`"
+#ifeq ($(C30_LONGPATH), 1)
+#OPT_LIBS += -L "`cygpath -w $(PIC30_GCCDIR)/lib$(C30SUBDIR)`"
+#endif
+#endif
+#endif
+## Includes from MC
+# only if PIC30_GCCDIR is defined
+#ifneq ($(PIC30_GCCDIR),)
+# INTERNAL_GCCINCLUDEDIR is used to avoid multiple calls to cygpath
+#ifeq ($(PLATFORM), LINUX)
+#INTERNAL_GCCINCLUDEDIR := -I$(PIC30_GCCDIR)/include)
+#else
+#INTERNAL_GCCINCLUDEDIR := -I"$(shell cygpath -w $(PIC30_GCCDIR)/include)"
+#endif
+#ALLINCPATH += $(INTERNAL_GCCINCLUDEDIR)
+#endif
+################################################
+################################################
 
-OPT_LIBS += -lm -lc -ldsp -l$(subst .a,,$(subst lib,,$(PIC30_DEV_LIB))) -lpic30-$(PIC30_OFF)
+## Libraries from MC
+OPT_LIBS += -lm -lc -ldsp
+OPT_LIBS += -l$(subst .a,,$(subst lib,,$(PIC30_DEV_LIB)))
+OPT_LIBS += -lpic30-$(PIC30_OFF)
 
-ifeq ($(PLATFORM), LINUX)
-OPT_LIBS += -L $(PIC30_GCCDIR)/lib
-ifeq ($(C30_LONGPATH), 1)
-OPT_LIBS += -L $(PIC30_GCCDIR)/lib$(C30SUBDIR)
+ifeq ($(findstring __RTD_CYGWIN__,$(EEOPT)), __RTD_CYGWIN__) 
+OPT_LIBS += -L "`cygpath -w $(PIC30_LIB_DIR)`"
+# check if PIC30_LIBD_DIR is empty
+ifneq ($(PIC30_LIBD_DIR),)
+OPT_LIBS += -L "`cygpath -w $(PIC30_LIBD_DIR)`"
 endif
 else
-OPT_LIBS += -L "`cygpath -w $(PIC30_GCCDIR)/lib`"
-ifeq ($(C30_LONGPATH), 1)
-OPT_LIBS += -L "`cygpath -w $(PIC30_GCCDIR)/lib$(C30SUBDIR)`"
+# Linux environment
+OPT_LIBS += -L $(PIC30_LIB_DIR)
+# check if PIC30_LIBD_DIR is empty
+ifneq ($(PIC30_LIBD_DIR),)
+OPT_LIBS += -L $(PIC30_LIBD_DIR)
 endif
-endif
-
 endif
 
 # #Includes from MC
-# only if PIC30_GCCDIR is defined
-ifneq ($(PIC30_GCCDIR),)
 # INTERNAL_GCCINCLUDEDIR is used to avoid multiple calls to cygpath
-ifeq ($(PLATFORM), LINUX)
-INTERNAL_GCCINCLUDEDIR := -I$(PIC30_GCCDIR)/include)
+ifeq ($(findstring __RTD_CYGWIN__,$(EEOPT)), __RTD_CYGWIN__) 
+INTERNAL_GCCINCLUDEDIR := -I"`cygpath -w $(PIC30_INCLUDE_DIR)`"
 else
-INTERNAL_GCCINCLUDEDIR := -I"$(shell cygpath -w $(PIC30_GCCDIR)/include)"
+# Linux environment
+INTERNAL_GCCINCLUDEDIR := -I$(PIC30_INCLUDE_DIR)
 endif
+
 ALLINCPATH += $(INTERNAL_GCCINCLUDEDIR)
-endif
 
 ## PIC30-related directories
 # we should look if these need to be moved inside dir.mk
@@ -241,14 +293,14 @@ COMPUTED_OPT_CC := $(OPT_CC)
 COMPUTED_OPT_CC_DEPS := $(OPT_CC_DEPS)
 
 ## Select input filename format
-ifeq ($(PLATFORM), LINUX)
-SOURCEFILE = $<
-TARGETFILE = $@
-SRCFILE = $(patsubst %.o,%.src,$(TARGETFILE))
-else
+ifeq ($(findstring __RTD_CYGWIN__,$(EEOPT)), __RTD_CYGWIN__) 
 SOURCEFILE = `cygpath -w $<`
 TARGETFILE = `cygpath -w $@`
 SRCFILE = `cygpath -w $(patsubst %.o,%.src,$@)`
+else
+SOURCEFILE = $<
+TARGETFILE = $@
+SRCFILE = $(patsubst %.o,%.src,$(TARGETFILE))
 endif
 
 ##
@@ -311,7 +363,7 @@ $(OBJDIR)/%.o: %.c ee_pic30regs.h
 endif
 
 
-$(OBJDIR)/frommchp/crt0.o: frommchp/crt0.s $(CRT0INC)
+$(OBJDIR)/frommchp/crt0.o: frommchp/crt0.s
 	$(VERBOSE_PRINTASM) $(EE_ASM) $(COMPUTED_OPT_ASM) $(SOURCEFILE) -o $(TARGETFILE)
 
 
@@ -320,13 +372,7 @@ $(OBJDIR)/frommchp/crt0.o: frommchp/crt0.s $(CRT0INC)
 ##
 
 frommchp/crt0.S: $(PIC30_CRT0)
-	@printf "CP crt0.s \n"; cp $(SOURCEFILE) $(TARGETFILE)
-
-# Add extra include if C30 version is 3.10
-ifeq ($(C30_LONGPATH), 1)
-frommchp/p30f2010.inc: $(PIC30_GCCDIR)/support/dsPIC30F/inc/p30f2010.inc
-	@printf "CP p30f2010.inc \n"; cp $(SOURCEFILE) $(TARGETFILE)
-endif
+	@printf "\nCP crt0.s\n"; cp $(SOURCEFILE) $(TARGETFILE)
 
 # Check if the MCU model has been defined
 ifneq ($(PIC30_MODEL),)
@@ -342,10 +388,12 @@ ee_pic30regs.inc: frommchp/$(PIC30_INCLUDE_S)
 	@printf "	.equ __$(PIC30_MODEL), 1 \n" >> ee_pic30regs.inc
 	@printf "	.include \"frommchp/$(PIC30_INCLUDE_S)\" \n" >> ee_pic30regs.inc
 
-frommchp/$(PIC30_INCLUDE_C): $(PIC30_GCCDIR)/support$(C30SUBDIR)/h/$(PIC30_INCLUDE_C)
+#frommchp/$(PIC30_INCLUDE_C): $(PIC30_GCCDIR)/support$(C30SUBDIR)/h/$(PIC30_INCLUDE_C)
+frommchp/$(PIC30_INCLUDE_C): $(PIC30_H_DIR)/$(PIC30_INCLUDE_C)
 	@printf "CP $(PIC30_INCLUDE_C)\n"; cp $(SOURCEFILE) $(TARGETFILE)
 
-frommchp/$(PIC30_INCLUDE_S): $(PIC30_EXTRA_INCLUDE)/support$(C30SUBDIR)/inc/$(PIC30_INCLUDE_S)
+#frommchp/$(PIC30_INCLUDE_S): $(PIC30_EXTRA_INCLUDE)/support$(C30SUBDIR)/inc/$(PIC30_INCLUDE_S)
+frommchp/$(PIC30_INCLUDE_S): $(PIC30_INC_DIR)/$(PIC30_INCLUDE_S)
 	@printf "CP $(PIC30_INCLUDE_S)\n"; cp $(SOURCEFILE) $(TARGETFILE)
 
 else
@@ -368,8 +416,10 @@ endif
 ##
 
 #if PIC30_GCCDIR is defined
-loc_gnu.ld: $(PIC30_LINKERDIR)/$(PIC30_LINKERSCRIPT)
-	@printf "LOC\n" ; cp $(PIC30_LINKERDIR)/$(PIC30_LINKERSCRIPT) loc_gnu.ld
+#loc_gnu.ld: $(PIC30_LINKERDIR)/$(PIC30_LINKERSCRIPT)
+#	@printf "LOC\n" ; cp $(PIC30_LINKERDIR)/$(PIC30_LINKERSCRIPT) loc_gnu.ld
+loc_gnu.ld: $(PIC30_LINKER_DIR)/$(PIC30_LINKERSCRIPT)
+	@printf "LOC\n" ; cp $(PIC30_LINKER_DIR)/$(PIC30_LINKERSCRIPT) loc_gnu.ld
 
 ##
 ## EE Library

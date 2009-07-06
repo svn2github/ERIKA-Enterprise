@@ -1,0 +1,7 @@
+
+	TASK myTask {
+		REL_DEADLINE = "0.5s";
+		PRIORITY = 1;
+		STACK = SHARED;
+		SCHEDULE = FULL;
+	};
