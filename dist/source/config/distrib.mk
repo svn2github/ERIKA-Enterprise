@@ -175,7 +175,12 @@ distrib_opt___PIC30__:: \
 		ee_$(DIST)/pkg/board/microchip_dspicdem11plus/inc \
 		ee_$(DIST)/pkg/board/microchip_dspicdem11plus/inc/ee_internal.h \
 		ee_$(DIST)/pkg/board/microchip_dspicdem11plus/src \
-		ee_$(DIST)/pkg/board/microchip_dspicdem11plus/src/ee_board.c
+		ee_$(DIST)/pkg/board/microchip_dspicdem11plus/src/ee_board.c \
+		ee_$(DIST)/contrib \
+		ee_$(DIST)/contrib/microchip \
+		ee_$(DIST)/contrib/microchip/pic30 \
+		ee_$(DIST)/contrib/microchip/pic30/src \
+		ee_$(DIST)/contrib/microchip/pic30/src/crt0.s
 	@echo OPT __PIC30__ up2date.
 
 
