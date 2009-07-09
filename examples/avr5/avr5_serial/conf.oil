@@ -74,7 +74,7 @@ CPU mySystem {
 			SHARED_MIN_SYS_SIZE = 0x100;
 			
 			TIMER0 = DIV32;
-			TIMER1 = DIV256;
+			TIMER1 = DIV64;
 			TIMER2 = DIV64;
 			TIMER3 = DIV64;
 				
@@ -129,7 +129,7 @@ CPU mySystem {
 			INT32[1,2] TYPE = 1;
 			*/
 
-			HANDLER = HANDLER_T1_OVERFLW {	// timer 1 overflow interrupt
+			HANDLER = HANDLER_T1_MATCH_A {	// timer 1 match interrupt
 				FUNCTION = "irq_1_f__type2";
 				TYPE = 2;
 			};

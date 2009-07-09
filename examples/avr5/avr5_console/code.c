@@ -39,6 +39,9 @@
  * ###*E*### */
 
 
+// Set the real clock frequency
+#define EE_UART_INSTRUCTION_CLOCK	7860000ul
+
 #include "ee.h"
 #include "mcu/atmel_atmega128/inc/ee_ic.h"
 
@@ -49,32 +52,24 @@ console_descriptor_t *my_console_1;
 #define MY_FIRST_SERIAL 0
 #define MY_FIRST_CONSOLE 0
 
-int i,j,k;
-
 void irq_1_f__type2(void) {
-	/*if (i==0) {
-		EE_led_1_on();
-		i = 1;
-	} else {
-		EE_led_1_off();
-		i = 0;
-	}*/
 	CounterTick(myCounter);
 }
 
+EE_UINT8 l2;
+
 TASK(TaskSend) {
-	console_write(MY_FIRST_CONSOLE, mymessage, strlen(mymessage));
-	if (j==0) {
+	l2 = l2 ? 0 : 1;
+	if (l2)
 		EE_led_2_on();
-		j = 1;
-	} else {
+	else
 		EE_led_2_off();
-		j = 0;
-	}
+
+	console_write(MY_FIRST_CONSOLE, mymessage, strlen(mymessage));
 };
 
 int main(void) {
-	EE_timer_init1();
+	EE_timer_init1(0xFFFF);
 	EE_timer_1_start();
 
 	// Applicatio Init

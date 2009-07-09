@@ -424,8 +424,5 @@ void irq_cc2420_type2(void)
 	CC2420_CLEAR_PIN(CC2420_INTERRUPT_FLAG); //CC2420_INTERRUPT_FLAG = 0;
 	if (rx_callback != NULL) 
 		rx_callback();
-	#if defined __AVR5__
-	ActivateTask(dummy_process);
-	#endif
 }
 #endif /* __USE_MOTIONBOARD__ */

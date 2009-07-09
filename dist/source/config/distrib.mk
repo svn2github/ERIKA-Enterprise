@@ -1126,10 +1126,6 @@ distrib_opt___PIC30_EXAMPLES__:: \
 		ee_$(DIST)/examples/pic30/pic30_Firmware_February/template.xml \
 		ee_$(DIST)/examples/pic30/pic30_Firmware_February/readme.txt \
 		\
-		ee_$(DIST)/examples/pic30/pic30_libs \
-		ee_$(DIST)/examples/pic30/pic30_libs/conf.oil \
-		ee_$(DIST)/examples/pic30/pic30_libs/template.xml \
-		\
 		ee_$(DIST)/examples/pic30/pic30_sem \
 		ee_$(DIST)/examples/pic30/pic30_sem/code.c \
 		ee_$(DIST)/examples/pic30/pic30_sem/conf.oil \
@@ -1153,6 +1149,18 @@ distrib_opt___PIC30_EXAMPLES__:: \
 		ee_$(DIST)/examples/pic30/pic30_openzb_demo/types.h \
 		ee_$(DIST)/examples/pic30/pic30_openzb_demo/template.xml \
 		ee_$(DIST)/examples/pic30/pic30_openzb_demo/conf.oil \
+		\
+		ee_$(DIST)/examples/pic30/pic30_uwl_demo_coordinator \
+		ee_$(DIST)/examples/pic30/pic30_uwl_demo_coordinator/code.c \
+		ee_$(DIST)/examples/pic30/pic30_uwl_demo_coordinator/check.S \
+		ee_$(DIST)/examples/pic30/pic30_uwl_demo_coordinator/template.xml \
+		ee_$(DIST)/examples/pic30/pic30_uwl_demo_coordinator/conf.oil \
+		\
+		ee_$(DIST)/examples/pic30/pic30_uwl_demo_device \
+		ee_$(DIST)/examples/pic30/pic30_uwl_demo_device/code.c \
+		ee_$(DIST)/examples/pic30/pic30_uwl_demo_device/check.S \
+		ee_$(DIST)/examples/pic30/pic30_uwl_demo_device/template.xml \
+		ee_$(DIST)/examples/pic30/pic30_uwl_demo_device/conf.oil \
 		\
 		ee_$(DIST)/examples/pic30/pic30_serial \
 		ee_$(DIST)/examples/pic30/pic30_serial/template.xml \

@@ -42,45 +42,50 @@
 #include "ee.h"
 #include "mcu/atmel_atmega128/inc/ee_ic.h"
 
-int i,j,k;
+EE_UINT8 l1, l2, l3;
 
-void irq_1_f__type2(void) {
-	if (i==0) {
-		EE_led_1_on();
-		i = 1;
-	} else {
-		EE_led_1_off();
-		i = 0;
-	}
-	CounterTick(myCounter);
+void irq_t0_type2(void) {
+	CounterTick(Counter1ms);
 }
 
-TASK(Task0) {
-	if (j==0) {
-		EE_led_2_on();
-		j = 1;
-	} else {
-		EE_led_2_off();
-		j = 0;
-	}
+void irq_t1_type2(void) {
+	CounterTick(Counter320us);
+}
+
+TASK(TaskL1) {
+	l1 = l1 ? 0 : 1;
+	if (l1)
+		EE_led_1_on();
+	else
+		EE_led_1_off();
 };
 
-TASK(Task1) {
-	if (k==0) {
+TASK(TaskL2) {
+	l2 = l2 ? 0 : 1;
+	if (l2)
+		EE_led_2_on();
+	else
+		EE_led_2_off();
+};
+
+TASK(TaskL3) {
+	l3 = l3 ? 0 : 1;
+	if (l3)
 		EE_led_3_on();
-		k = 1;
-	} else {
+	else
 		EE_led_3_off();
-		k = 0;
-	}
 };
 
 int main(void) {
-	EE_timer_init1();
+	EE_timer_init0(123);	//   1ms @ 7.86MHz
+	EE_timer_init1(314);	// 320us @ 7.86MHz
+
+	EE_timer_0_start();
 	EE_timer_1_start();
 
-	SetRelAlarm(Alarm0,3,2);
-	SetRelAlarm(Alarm1,1,3);
+	SetRelAlarm(AlarmL1, 500, 500);
+	SetRelAlarm(AlarmL2,1000,1000);
+	SetRelAlarm(AlarmL3, 300, 300);
 
 	for (;;);
 }

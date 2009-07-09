@@ -38,46 +38,49 @@
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
 
+// Set the real clock frequency
+#define EE_UART_INSTRUCTION_CLOCK	7860000ul
 
 #include "ee.h"
 #include "mcu/atmel_atmega128/inc/ee_ic.h"
 #include "mcu/atmel_atmega128/inc/ee_uart.h"
 
-int i,j,k;
+EE_UINT8 l1, l2, l3;
+EE_UINT8 c1 = '0';
 
 void irq_1_f__type2(void) {
 	CounterTick(myCounter);
 }
 
 TASK(Task0) {
-	if (j==0) {
-		EE_led_2_on();
-		j = 1;
-	} else {
-		EE_led_2_off();
-		j = 0;
-	}
-	EE_uart_write_byte(EE_UART_PORT_1, 'E');
+	l1 = l1 ? 0 : 1;
+	if (l1)
+		EE_led_1_on();
+	else
+		EE_led_1_off();
+
+	if (c1==':') c1 = '0';
+	EE_uart_write_byte(EE_UART_PORT_1, c1++);
 };
 
 TASK(Task1) {
-	if (k==0) {
-		EE_led_3_on();
-		k = 1;
-	} else {
-		EE_led_3_off();
-		k = 0;
-	}
+	l2 = l2 ? 0 : 1;
+	if (l2)
+		EE_led_2_on();
+	else
+		EE_led_2_off();
+
+	EE_uart_write_byte(EE_UART_PORT_1, '*');
 };
 
 int main(void) {
-	EE_timer_init1();
+	EE_timer_init1(0xFFFF);
 	EE_timer_1_start();
 
 	EE_uart_init(EE_UART_PORT_1, 9600, EE_UART_BIT8 | EE_UART_PAR_NO | EE_UART_BIT_STOP_1, 0);
 
-	SetRelAlarm(Alarm0,1,1);
-	SetRelAlarm(Alarm1,2,2);
+	SetRelAlarm(Alarm0,1,3);
+	SetRelAlarm(Alarm1,1,1);
 
 	for (;;);
 }

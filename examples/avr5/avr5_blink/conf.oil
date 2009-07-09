@@ -71,10 +71,10 @@ CPU mySystem {
 			SYS_SIZE = 0x1000; 
 			SHARED_MIN_SYS_SIZE = 0x100;
 			
-			TIMER0 = DIV32;
-			TIMER1 = DIV256;
-			TIMER2 = DIV64;
-			TIMER3 = DIV64;
+			TIMER0 = DIV64;
+			TIMER1 = DIV8;
+			TIMER2 = DIV1024;
+			TIMER3 = DIV1024;
 				
 			/*
 			ENUM [STOP, DIV1, DIV8, DIV32, DIV64, DIV256, DIV1024] TIMER0 = STOP;
@@ -127,8 +127,12 @@ CPU mySystem {
 			INT32[1,2] TYPE = 1;
 			*/
 
-			HANDLER = HANDLER_T1_OVERFLW {	// timer 1 overflow interrupt
-				FUNCTION = "irq_1_f__type2";
+			HANDLER = HANDLER_T0_MATCH {	// timer 0 match interrupt
+				FUNCTION = "irq_t0_type2";
+				TYPE = 2;
+			};
+			HANDLER = HANDLER_T1_MATCH_A {	// timer 1 match interrupt
+				FUNCTION = "irq_t1_type2";
 				TYPE = 2;
 			};
 		};
@@ -138,28 +142,41 @@ CPU mySystem {
 		KERNEL_TYPE = FP;
 	};
   	
-	COUNTER myCounter;
-	
-	ALARM Alarm0 {
-		COUNTER = "myCounter";
-		ACTION = ACTIVATETASK { TASK = "Task0"; };
-	};
-
-	ALARM Alarm1 {
-		COUNTER = "myCounter";
-		ACTION = ACTIVATETASK { TASK = "Task1"; };
-	};
-
-    TASK Task0 {
+	TASK TaskL1 {
 		PRIORITY = 1;
 		STACK = SHARED;
 		SCHEDULE = FULL;
+		RESOURCE = "MUTEX_sync";
 	};
-
-	TASK Task1 {
+  
+	TASK TaskL2 {
 		PRIORITY = 2;
 		STACK = SHARED;
 		SCHEDULE = FULL;
 	};
 
+	TASK TaskL3 {
+		PRIORITY = 3;
+		STACK = SHARED;
+		SCHEDULE = FULL;
+	};
+
+	COUNTER Counter320us;
+	
+	COUNTER Counter1ms;
+	
+	ALARM AlarmL1 {
+		COUNTER = "Counter320us";
+		ACTION = ACTIVATETASK { TASK = "TaskL1"; };
+	};
+
+	ALARM AlarmL2 {
+		COUNTER = "Counter320us";
+		ACTION = ACTIVATETASK { TASK = "TaskL2"; };
+	};
+
+	ALARM AlarmL3 {
+		COUNTER = "Counter1ms";
+		ACTION = ACTIVATETASK { TASK = "TaskL3"; };
+	};
 };
