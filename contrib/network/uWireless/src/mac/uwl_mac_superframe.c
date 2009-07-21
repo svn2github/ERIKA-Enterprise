@@ -19,7 +19,7 @@
 #ifdef TIME32_SUBTRACT
 #undef TIME32_SUBTRACT
 #endif
-#define TIME32_SUBTRACT(t1, t2) ((t1)>(t2) ? (t1)-(t2) : 0xFFFFFFFF-(t2)+(t1))
+#define TIME32_SUBTRACT(t1, t2) ((t1)>=(t2) ? (t1)-(t2) : 0xFFFFFFFF-(t2)+(t1))
 
 enum uwl_mac_csma_state_t {
 	CSMA_STATE_INIT = 0,
@@ -58,6 +58,7 @@ static struct {
 	unsigned has_idle : 1;		/* There is an Idle period */
 	unsigned wait_sf_end : 1;	/* Wait for End Of SF (BO<SO) */
 	unsigned had_cfp : 1;		/* There was a CFP in the previous SF */
+	unsigned first_tslot_twice : 1;	/* First tslot activated twice */
 	unsigned gts_sending : 1;	/* GTS_SENT task is 'active' */
 	unsigned in_tx_gts : 1;		/* Current tslot is in a TX GTS */
 	unsigned gts_tx_on_cfp_end : 1;	/* There is a TX GET at the CFP end */
@@ -67,6 +68,7 @@ static struct {
 	.has_idle = UWL_FALSE, 
 	.wait_sf_end = UWL_FALSE, 
 	.had_cfp = UWL_FALSE, 
+	.first_tslot_twice = UWL_FALSE,
 	.gts_sending = UWL_FALSE, 
 	.in_tx_gts = UWL_FALSE,
 	.gts_tx_on_cfp_end = UWL_FALSE, 
@@ -504,16 +506,21 @@ static void on_timeslot_start(void)
 			  suspend until that time (manage this!) 
 	*/
 	current_tslot = NEXT_TSLOT(current_tslot);
-	/* Check if second slot activation is too close to the first one */
 	if (current_tslot == UWL_MAC_SUPERFRAME_FIRST_SLOT) {
 		if (sf_flags.has_idle) { 	/* Has to go in IDLE? */
 			stop_superframe(); 
 			return;
 		}
+		/* Check if the first slot has been activated twice */
+		if (sf_flags.first_tslot_twice) 
+			return;
+		sf_flags.first_tslot_twice = UWL_TRUE;
 		stop_previous_cfp();
 		time_reference = uwl_kal_get_time(); 
 		start_beacon_interval();
 	} else if (current_tslot == UWL_MAC_SUPERFRAME_FIRST_SLOT + 1) {
+		sf_flags.first_tslot_twice = UWL_FALSE;
+		/* Check if the second slot is too close to the first one */
 		t = uwl_kal_get_time();
 		t = TIME32_SUBTRACT(t, time_reference);
 		tmin = UWL_MAC_GET_TS(uwl_mac_pib.macSuperframeOrder);
@@ -686,6 +693,7 @@ void uwl_mac_superframe_start(uint32_t offset)
 	sf_flags.wait_sf_end = UWL_FALSE;
 	sf_flags.has_idle = UWL_FALSE;
 	sf_flags.had_cfp = UWL_FALSE;
+	sf_flags.first_tslot_twice = UWL_FALSE;
 	sf_flags.gts_tx_on_cfp_end = UWL_FALSE;
 	if (uwl_mac_status.is_pan_coordinator || uwl_mac_status.is_coordinator)
 		start_activations(offset);
