@@ -19,6 +19,7 @@ LIST_DEFINE_STATIC(gts_list, struct uwl_gts_info_t,
 /******************************************************************************/
 /*                        MAC GTS Private Functions                           */
 /******************************************************************************/
+#ifdef UWL_GTS_MANIPULATION /* TODO: in future always enable THIS!!! */
 static int8_t gts_db_add_entry(uwl_mac_dev_addr_short_t dev_addr, uint8_t len, 
 			       uint8_t dir) 
 {
@@ -46,6 +47,7 @@ static int8_t gts_db_add_entry(uwl_mac_dev_addr_short_t dev_addr, uint8_t len,
 	//uwl_mac_gts_stat.descriptor_count++;
 	return UWL_MAC_ERR_NONE;
 }
+#endif
 
 COMPILER_INLINE void gts_db_delete_all(void) 
 {
@@ -99,12 +101,6 @@ int8_t uwl_mac_gts_db_add(uwl_mac_dev_addr_short_t dev_addr,
 int8_t uwl_mac_gts_init(void) 
 {
 	gts_db_delete_all();
-	#ifndef UWL_GTS_MANIPULATION
-	/* TODO: TEST CODE, remove it!!! */
-	gts_db_add_entry(0x0002, 1, UWL_MAC_GTS_DIRECTION_OUT);
-	gts_db_add_entry(0x0003, 3, UWL_MAC_GTS_DIRECTION_OUT);
-	gts_db_add_entry(0x0004, 2, UWL_MAC_GTS_DIRECTION_OUT);
-	#endif
 	return 1;
 }
 
