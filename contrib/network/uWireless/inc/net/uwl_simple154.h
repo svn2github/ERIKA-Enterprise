@@ -205,10 +205,27 @@ int8_t uwl_simple154_get_beacon_payload(uint8_t *data, uint8_t len);
 int8_t uwl_simple154_set_on_beacon_callback(void (* func)(void)); 
 
 /** 
+* @brief Set On-RxBeacon Callback
+* 
+* This function will be called every time a beacon is received by the device  
+* and before any internal activities (Beacon parsing, etc.).
+* \note This callback exectutes in the context of the 
+* \b PHY_READ_DISPATCHER task.
+* 
+* @param[in] func The function pointer to the callback, 
+* 		  if NULL nothing is done on reception.
+* 
+* @return 	\ref UWL_SIMPLE154_ERR_NONE is returned on success, otherwise a 
+* 		specific negative error code is returned and the appropriate 
+*		MAC error is retrieved.
+*/
+int8_t uwl_simple154_set_on_rx_beacon_callback(void (* func)(void)); 
+
+/** 
 * @brief Set Before-Beacon Callback
 * 
-* This function will be called every time before the next beacon interval starts 
-* and before any internal activities (Beacon creation, etc.).
+* This function will be called every time before the next beacon 
+* interval starts and before any internal activities (Beacon creation, etc.).
 * \note This callback exectutes in the context of the 
 * \b MAC_BEFORE_TIMESLOT task.
 * 

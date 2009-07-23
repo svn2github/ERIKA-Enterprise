@@ -34,6 +34,9 @@ CQUEUE_DEFINE_EXTMEM_STATIC(uwl_mac_queue_dev_gts, struct uwl_mac_frame_t,
 		            UWL_MAC_GTS_QUEUE_SIZE, gts_queue_storage);
 LIST_DEFINE_EXTMEM_STATIC(uwl_mac_queue_coord_gts, struct uwl_mac_frame_t,
 		          UWL_MAC_GTS_QUEUE_SIZE, gts_queue_storage);
+#ifdef UWL_SUPERFRAME_CALLBACKS
+static void (* on_rx_beacon_callback)(void) = NULL;
+#endif
 
 /******************************************************************************/
 /*                          MAC Layer Public Data                             */
@@ -560,6 +563,16 @@ int8_t uwl_mac_jammer_cap(uint8_t *data, uint8_t len)
 	#endif
 }
 
+int8_t uwl_mac_set_on_rx_beacon_callback(void (* func)(void)) 
+{
+	#ifdef UWL_SUPERFRAME_CALLBACKS
+	on_rx_beacon_callback = func;
+	return UWL_MAC_ERR_NONE;
+	#else
+	return -UWL_MAC_ERR_SUPERFRAME_CALLBACKS_DISABLED;
+	#endif
+}
+
 /******************************************************************************/
 /*                  MAC GTS queue 'protected' Functions                       */
 /******************************************************************************/
@@ -858,6 +871,10 @@ void uwl_mac_parse_received_mpdu(uint8_t *psdu, uint8_t len)
 		if (uwl_mac_status.is_pan_coordinator || 
 		    uwl_mac_status.is_coordinator)
 			return; /* TODO: check if this is correct w.r.t std */
+		#ifdef UWL_SUPERFRAME_CALLBACKS
+		if (on_rx_beacon_callback)
+			on_rx_beacon_callback();
+		#endif
 		/* TODO: make an extra compare, to see if Frame Control Field 
 			 is valid for a beacon, no_dest address, a_src address*/
 		if (uwl_kal_mutex_wait(MAC_RX_BEACON_MUTEX) < 0)

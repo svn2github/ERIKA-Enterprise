@@ -62,7 +62,7 @@ static void phy_read_dispatcher(void)
 			abstract something?
 	*/
 	len = uwl_radio_get_msg(buf);
-	if(len < 13)
+	if(len < 2)
 		return; /* chris: TODO: - Make something: notify to upper layer
 					(raise an error) or ignore
 					(return immediately)

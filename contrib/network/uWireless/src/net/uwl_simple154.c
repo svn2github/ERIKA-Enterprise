@@ -204,6 +204,15 @@ int8_t uwl_simple154_set_on_beacon_callback(void (* func)(void))
 	RETURN_WITH_ERROR(UWL_SIMPLE154_ERR_NONE);
 }
 
+int8_t uwl_simple154_set_on_rx_beacon_callback(void (* func)(void)) 
+{
+	mac_error = uwl_mac_set_on_rx_beacon_callback(func);
+	if (mac_error < 0)
+		RETURN_WITH_ERROR(
+			UWL_SIMPLE154_ERR_SUPERFRAME_CALLBACKS_DISABLED);
+	RETURN_WITH_ERROR(UWL_SIMPLE154_ERR_NONE);
+}
+
 int8_t uwl_simple154_set_before_beacon_callback(void (* func)(void))
 {
 	mac_error = uwl_mac_set_before_beacon_callback(func);
