@@ -1,16 +1,13 @@
+
 /* ###*B*###
- * Copyright (C) Roberto Bucher (SUPSI- Lugano)
- *               Simone Mannori (Scilab / INRIA / DIGITEO)
+ * 
+ * Copyright (C) Francesco Prosperi (SSSA - Pisa)
  *
- * Copyright (C) METALAU Project (INRIA)
  * ###*E*### */
  
-// Last modify by Francesco Prosperi
- 
+#include <ee.h>
 #include <machine.h>
 #include <scicos_block4.h>
-
-#include <ee.h>
 
 static void init(scicos_block *block)
 {
@@ -24,7 +21,7 @@ static void init(scicos_block *block)
  
 static void inout(scicos_block *block)
 {
-	/* Get the PWM number [1,2,3,4]     */
+	/* Get the PWM number [1,2]     */
 	int pin = block->ipar[0];
 
 	/* Get duty cycle from Scicos block */
@@ -46,22 +43,20 @@ static void end(scicos_block *block)
 	EE_pwm_close(pin);
 }
 
-void flex_daughter_pwm(scicos_block *block,int flag)
+void amazing_pwm(scicos_block *block,int flag)
 {
- switch (flag) {
-    case OutputUpdate:  /* set output */
-      inout(block);
-      break;
-
-    case StateUpdate: /* get input */
-      break;
-
-    case Initialization:  /* initialisation */
-      init(block);
-      break;
-
-    case Ending:  /* ending */
-      end(block);
-      break;
-  }
+	switch (flag) {
+		case OutputUpdate:
+			inout(block);
+			break;
+    		case StateUpdate:
+			break;
+		case Initialization:
+			// Already done by AMAZING_config
+			break;
+		case Ending:
+			end(block);
+			break;
+	}
 }
+

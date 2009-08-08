@@ -21,7 +21,7 @@ int8_t touch_kal_init(uint32_t tick_duration)
 		if (touch_timer_init(tick_duration, 40000) < 0)
 			return -TOUCH_KAL_ERR_TIMER_INIT;
 		touch_timer_set_isr_callback(touch_kal_external_timer_action);
-		touch_timer_start();
+		touch_timer_start(); // FIXME: start timer not by default but with touch_start!
 	}
 	
 	return 1;

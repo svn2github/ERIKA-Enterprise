@@ -1,93 +1,113 @@
 #include "touch.h"
 #include "touch_kal.h"
 
+#ifdef __USE_TOUCH__
+
 /****************************************************************************
   Global variables
 ****************************************************************************/
 
-EE_UINT16 horiz_width;
-EE_UINT16 vert_height;
-
+static EE_UINT16 horiz_width;
+static EE_UINT16 vert_height;
 EE_UINT16 u_X_pos;
 EE_UINT16 u_Y_pos;
+static EE_INT16 s_X_pos;
+static EE_INT16 s_Y_pos;
+static volatile EE_UINT8 is_raw_initialized = 0;
+static volatile EE_UINT8 is_raw_ready;
+static volatile EE_UINT8 is_final_ready;
+static EE_UINT16 X_raw;
+static EE_UINT16 Y_raw;
 
-EE_INT16 s_X_pos;
-EE_INT16 s_Y_pos;
+static EE_UINT16 touch_tick_us;
 
-volatile EE_UINT8 raw_ready;
-
-EE_UINT16 X_raw;
-EE_UINT16 Y_raw;
+//static tune_t tune;
+tune_t tune;
+volatile EE_UINT8 is_tuned;
 
 // Touch state variable
-volatile TouchFlow tf;
+static volatile TouchFlow tf;
 
+// Array index
+static volatile EE_UINT8 i_array;
 // Array for X-Coordinates
 EE_UINT16 Reading_X[SAMPLES_FOR_ONE_TRUE_XY_PAIR];
 // Array for Y-Coordinates
 EE_UINT16 Reading_Y[SAMPLES_FOR_ONE_TRUE_XY_PAIR];
-// Array index
-static volatile EE_UINT8 i_array;
 
 static EE_UINT16 Reading_low_level;
-
 static volatile EE_UINT16 Untouch_conditions;
 
-// Valibration values
-double cal_a,cal_b,cal_c;
-double cal_d,cal_e,cal_f;
+static EE_UINT16 touch_delay_count __attribute__((near)) = 0;
 
-// computation begins
-static volatile EE_UINT16 xd1,yd1;
-static volatile EE_UINT16 xd2,yd2;
-static volatile EE_UINT16 xd3,yd3;
-static volatile EE_UINT16 xt1,yt1;
-static volatile EE_UINT16 xt2,yt2;
-static volatile EE_UINT16 xt3,yt3;
-
-EE_UINT16 touch_delay_count __attribute__((near)) = 0;
-
-EE_UINT16 touch_get_position_u(
-		EE_UINT8 touch_axis)
+EE_INT8 touch_poll_raw_position(
+		EE_UINT16 *raw_choord_x,
+		EE_UINT16 *raw_choord_y)
 {
-	if(touch_axis == TOUCH_X_AXIS)
-	{
-		return u_X_pos;
-	}
-	else if(touch_axis == TOUCH_Y_AXIS)
-	{
-		return u_Y_pos;
-	} else return 0;
+	if(!is_raw_ready)
+		return TOUCH_ERROR_RAW_NOT_READY;
+
+	*raw_choord_x = X_raw;
+	*raw_choord_y = Y_raw;
+
+	is_raw_ready = 0;
+	
+	return TOUCH_ERROR_NONE;
 }
 
-EE_INT16 touch_get_position_s(
-		EE_UINT8 touch_axis)
+void touch_wait_raw_position(
+		EE_UINT16 *raw_choord_x,
+		EE_UINT16 *raw_choord_y)
 {
-	if(touch_axis == TOUCH_X_AXIS)
-	{
-		return s_X_pos;
-	}
-	else if(touch_axis == TOUCH_Y_AXIS)
-	{
-		return s_Y_pos;
-	} else return 0;
+	while(!is_raw_ready);
+
+	*raw_choord_x = X_raw;
+ 	*raw_choord_y = Y_raw;
+
+	is_raw_ready = 0;
 }
 
-EE_UINT16 touch_get_position_raw(EE_UINT8 touch_axis)
-{
-	if(touch_axis == TOUCH_X_AXIS)
-	{
-		return X_raw;
-	}
-	else if(touch_axis == TOUCH_Y_AXIS)
-	{
-		return Y_raw;
-	} else return 0;
-}
-
-void touch_set_dimension(
+EE_INT8 touch_poll_u_position(
 		EE_UINT8 touch_axis,
-		EE_UINT8 touch_range)
+		EE_UINT16 *u_choord)
+{
+	if(touch_axis == TOUCH_X_AXIS)
+	{
+		*u_choord = u_X_pos;
+	}
+	else if(touch_axis == TOUCH_Y_AXIS)
+	{
+		*u_choord = u_Y_pos;
+	} else return TOUCH_ERROR_WRONG_AXIS;
+	
+	if(!is_tuned)
+		return TOUCH_ERROR_NOT_TUNED;
+
+	return TOUCH_ERROR_NONE;
+}
+
+EE_INT8 touch_poll_s_position(
+		EE_UINT8 touch_axis,
+		EE_INT16 *s_choord)
+{
+	if(touch_axis == TOUCH_X_AXIS)
+	{
+		*s_choord = s_X_pos;
+	}
+	else if(touch_axis == TOUCH_Y_AXIS)
+	{
+		*s_choord = s_Y_pos;
+	} else return TOUCH_ERROR_WRONG_AXIS;
+	
+	if(!is_tuned)
+		return TOUCH_ERROR_NOT_TUNED;
+
+	return TOUCH_ERROR_NONE;
+}
+
+EE_INT8 touch_set_dimension(
+		EE_UINT8 touch_axis,
+		EE_UINT16 touch_range)
 {
 	if(touch_axis == TOUCH_X_AXIS)
 	{
@@ -96,10 +116,13 @@ void touch_set_dimension(
 	else if(touch_axis == TOUCH_Y_AXIS)
 	{
 		vert_height = touch_range;
-	}
+	} else return TOUCH_ERROR_WRONG_AXIS;
+
+	return TOUCH_ERROR_NONE;
 }
 
-COMPILER_INLINE void touch_delay( EE_UINT8 delay_count )
+COMPILER_INLINE void touch_delay( 
+		EE_UINT8 delay_count )
 {
 	touch_delay_count++;
 	asm volatile("outer: dec _touch_delay_count");
@@ -112,22 +135,8 @@ COMPILER_INLINE void touch_delay( EE_UINT8 delay_count )
 	asm volatile("done:");
 }
 
-void touch_init(void)
+void touch_set_ADC_parameters()
 {
-	// Global variables reset 
-	Untouch_conditions = 0;
-	X_raw = 0;
-	Y_raw = 0;
-	
-	u_X_pos = 0;
-	u_Y_pos = 0;
-	
-	s_X_pos = 0;
-	s_Y_pos = 0;
-	
-	raw_ready = 0;
-	i_array = 0;
-
 	// Pilot pins setting and lighting up 
 
 	CLEARBIT(EE_TOUCH_EN_A_TRIS);
@@ -156,11 +165,122 @@ void touch_init(void)
 	// enable ADC interrupts, disable this interrupt if the DMA is enabled
 	SETBIT(ADC_INTERRUPT_ENABLE);
 	// turn on ADC
-	ADC_TURN_ON;		
+	ADC_TURN_ON;
+}
+
+void touch_set_activation_time(EE_UINT16 _touch_tick_us)
+{
+	touch_tick_us = _touch_tick_us;
+}
+
+void touch_raw_init()
+{
+	if(is_raw_initialized)
+		return;
+
+	// Global variables reset 
+	Untouch_conditions = 0;
+
+	X_raw = 0;
+	Y_raw = 0;
 	
-	touch_kal_init(1400);
+	u_X_pos = horiz_width/2;
+	u_Y_pos = vert_height/2;
 	
-	touch_calibrate();
+	s_X_pos = 0;
+	s_Y_pos = 0;
+	
+	is_raw_ready = 0;
+	is_tuned = 0;
+	is_final_ready = 0;
+	i_array = 0;
+
+	touch_set_ADC_parameters();
+	touch_set_activation_time(TOUCH_ACTIVATION_TIME);
+	touch_kal_init(touch_tick_us);
+	
+	is_raw_initialized = 1;
+}
+
+void touch_tune(tune_t *tun)
+{
+	if(is_tuned)
+		return;
+
+	tune = *tun;
+
+	is_tuned = 1;
+}
+
+void sorted_insertion(EE_UINT16 Array[])
+{
+	EE_INT8 i;
+	EE_UINT8 j;
+	EE_UINT16 current;
+
+	// Sort Array[]
+	for(j=1; j<SAMPLES_FOR_ONE_TRUE_XY_PAIR; j++)
+	{
+		current = Array[j];
+		i = j - 1;
+		while(i>=0 && Array[i]>current)
+		{
+			Array[i+1] = Array[i];
+			i--;
+		}
+		Array[i+1] = current;
+	}
+}
+
+void store_valid_data(void)
+{
+        // Store valid Data in Array
+
+	if(i_array==(END_OF_ARRAY))
+	{
+		// Array Management
+
+		// Sort X/Y Readings To Get Median
+		sorted_insertion(Reading_X);
+		sorted_insertion(Reading_Y);
+
+		X_raw = Reading_X[MEDIAN];
+		Y_raw = Reading_Y[MEDIAN];
+		is_raw_ready = 1;
+
+		#if (defined __USE_LEDS__) && (defined __USE_MOTIONBOARD__) 
+		EE_led_0_on();
+		#endif
+
+		//GetResource(mutex_posRead);
+
+		if(is_tuned)
+		{
+
+			u_X_pos = (EE_UINT16)(tune.cal.a*X_raw+tune.cal.b*Y_raw+tune.cal.c);
+        		u_Y_pos = (EE_UINT16)(tune.cal.d*X_raw+tune.cal.e*Y_raw+tune.cal.f);
+
+                	if(u_X_pos<0)
+                	        u_X_pos = 0;
+                	else if(u_X_pos>horiz_width-1)
+                	        u_X_pos = horiz_width-1;
+
+                	if(u_Y_pos<0)
+                	        u_Y_pos = 0;
+                	else if(u_Y_pos>vert_height-1)
+                	        u_Y_pos = vert_height-1;
+
+                	s_X_pos = (int)u_X_pos - horiz_width/2;
+                	s_Y_pos = (int)u_Y_pos - vert_height/2;
+			is_final_ready = 1;
+
+		}
+
+		//ReleaseResource(mutex_posRead);
+
+		i_array = 0;
+
+    } else i_array++;
 }
 
 #ifdef __LOW_LEVEL_MEASUREMENT__
@@ -169,6 +289,7 @@ TASK(TASK_TOUCH_MANAGER)
 	#if (defined __USE_LEDS__) && (defined __USE_MOTIONBOARD__) 
 	EE_led_0_off();
 	#endif
+
 	if(ADC_CONVERSION_DONE)
 	{
 		ADC_CONVERSION_RESET;
@@ -191,8 +312,14 @@ TASK(TASK_TOUCH_MANAGER)
 				tf.COMPLETE = 0;
 				if(MAXIMUM_UNTOUCH_CONDITIONS == Untouch_conditions )
 				{
+					is_raw_ready = 0;
 					X_raw = 0;
 					Y_raw = 0;
+					is_final_ready = 0;
+					//u_X_pos = horiz_width/2;
+					//u_Y_pos = vert_height/2;
+					//s_X_pos = 0;
+					//s_Y_pos = 0;
 				} else Untouch_conditions++;
 			}
 
@@ -225,162 +352,5 @@ ISR2(ADC_INTERRUPT_NAME)
 	ActivateTask(TASK_TOUCH_MANAGER);
 }
 
-void sorted_insertion(EE_UINT16 Array[])
-{
-	EE_INT8 i;
-	EE_UINT8 j;
-	EE_UINT16 current;
+#endif // __USE_TOUCH__
 
-	// Sort Array[]
-	for(j=1; j<SAMPLES_FOR_ONE_TRUE_XY_PAIR; j++)
-	{
-		  current = Array[j];
-		  i = j - 1;
-		  while(i>=0 && Array[i]>current)
-		  {
-				Array[i+1] = Array[i];
-				i--;
-		  }
-		  Array[i+1] = current;
-	}
-}
-
-void store_valid_data(void)
-{
-        // Store valid Data in Array
-
-	if(i_array==(END_OF_ARRAY))
-    {
-		// Array Management
-
-		// Sort X/Y Readings To Get Median
-		sorted_insertion(Reading_X);
-		sorted_insertion(Reading_Y);
-
-		X_raw = Reading_X[MEDIAN];
-		Y_raw = Reading_Y[MEDIAN];
-		raw_ready = 1;
-
-		// Translation to (PX,PY)
-
-		//GetResource(mutex_posRead);
-
-		u_X_pos = cal_a*X_raw+cal_b*Y_raw+cal_c;
-		u_Y_pos = cal_d*X_raw+cal_e*Y_raw+cal_f;
-		
-		if(u_X_pos<0)
-			u_X_pos = 0;
-		else if(u_X_pos>horiz_width-1)
-			u_X_pos = horiz_width-1;
-			
-		if(u_Y_pos<0)
-			u_Y_pos = 0;
-		else if(u_Y_pos>vert_height-1)
-			u_Y_pos = vert_height-1;
-				
-		s_X_pos = (EE_INT16)u_X_pos - horiz_width/2;
-		s_Y_pos = (EE_INT16)u_Y_pos - vert_height/2;		
-		#if (defined __USE_LEDS__) && (defined __USE_MOTIONBOARD__) 
-		EE_led_0_on();
-		#endif
-				
-		/*uposRead.x = cal_a*X_raw+cal_b*Y_raw+cal_c;
-		uposRead.y = cal_d*X_raw+cal_e*Y_raw+cal_f;
-
-		sposRead.x = (signed int)uposRead.x - horiz_width/2;
-		sposRead.y = (signed int)uposRead.y - vert_height/2;
-
-		if(uposRead.x > horiz_width)
-			uposRead.x = horiz_width;
-		if(uposRead.y > vert_height)
-			uposRead.y = vert_height;*/
-
-		//ReleaseResource(mutex_posRead);
-
-		i_array = 0;
-
-    } else	i_array++;
-}
-
-void touch_calibrate(void)
-{
-	// touch input P1 (90%,50%)
-	xd1 = (EE_UINT16)(0.9*horiz_width);
-	yd1 = (EE_UINT16)( 0.5*vert_height);
-	// touch input P2 (50%,10%)
-	xd2 = (EE_UINT16)(0.5*horiz_width);
-	yd2 = (EE_UINT16)(0.9*vert_height);
-	// touch input P3 (10%,90%)
-	xd3 = (EE_UINT16)(0.1*horiz_width);
-	yd3 = (EE_UINT16)(0.1*vert_height);
-
-	/*
-
-	touch_stop();
-	touch_delay(Delay_1S_Cnt/3);
-	touch_start();
-
-	//  Outing: Touch P1!
-
-	EE_led_on();
-	raw_ready = 0;
-	while(!raw_ready);
-	xt1 = X_raw;
-	yt1 = Y_raw;
-	raw_ready = 0;
-	EE_led_off();
-
-	touch_stop();
-	touch_delay(Delay_1S_Cnt/3);
-	touch_start();
-
-	//  Outing: Touch P2!
-
-	EE_led_on();
-	while(!raw_ready);
-	xt2 = X_raw;
-	yt2 = Y_raw;
-	raw_ready = 0;
-	EE_led_off();
-
-	touch_stop();
-	touch_delay(Delay_1S_Cnt/3);
-	touch_start();
-
-	//  Outing: Touch P2!
-
-	EE_led_on();
-	while(!raw_ready);
-	xt3 = X_raw;
-	yt3 = Y_raw;
-	raw_ready = 0;
-	EE_led_off();
-
-	touch_stop();
-
-	*/
-
-	xt1 = 2823;
-	yt1 = 1271;
-	xt2 = 1854;
-	yt2 = 2057;
-	xt3 = 870;
-	yt3 = 515;
-	
-
-	cal_a = ((long)yt1*xd3-(long)yt1*xd2-(long)yt2*xd3+(long)xd2*yt3-(long)xd1*yt3+(long)xd1*yt2);
-	cal_a /= (-(long)xt1*yt3+(long)xt2*yt3-(long)xt2*yt1+(long)xt3*yt1-(long)xt3*yt2+(long)xt1*yt2);
-
-	cal_b = cal_a*((float)xt3-xt2)+xd2-xd3;
-	cal_b /= (yt2-yt3);
-
-	cal_c = xd3-cal_a*xt3-cal_b*yt3;
-
-	cal_d = -((long)yt2*yd3-(long)yt2*yd1-(long)yt1*yd3-(long)yt3*yd2+(long)yt3*yd1+(long)yt1*yd2);
-	cal_d /= (-(long)yt2*xt3+(long)yt2*xt1+(long)yt1*xt3+(long)yt3*xt2-(long)yt3*xt1-(long)yt1*xt2);
-
-	cal_e = cal_d*((float)xt3-xt2)+yd2-yd3;
-	cal_e /= yt2-yt3;
-
-	cal_f = yd3-cal_d*xt3-cal_e*yt3;
-}

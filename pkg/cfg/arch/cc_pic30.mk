@@ -161,13 +161,16 @@ endif
 OPT_CC += $(CFLAGS)
 
 OPT_CC_DEPS := $(OPT_CC)
-
 # target type, not used for dependencies if the Cygwin GCC is used
 ifneq ($(PIC30_MODEL),)
 OPT_CC += -mcpu=$(PIC30_MODEL)
 
+ifeq ($(PIC30_USE_EEGCC_COMPILE), Y)
+OPT_CC += -mresource="c:\c30_device.info"
+endif
+
 ifeq ($(PIC30_USE_EEGCC_DEPS), Y)
-OPT_CC_DEPS += -mcpu=$(PIC30_MODEL)
+OPT_CC_DEPS += -mresource="c:\c30_device.info" -mcpu=$(PIC30_MODEL)
 else
 OPT_CC_DEPS += -D__dsPIC$(PIC30_MODEL)__
 endif

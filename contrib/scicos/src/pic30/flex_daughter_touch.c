@@ -39,6 +39,10 @@ static void init(scicos_block *block)
 		touch_initialized = 1;
 		touch_init();
 		touch_start();
+		
+		#if (defined __USE_LEDS__) && (defined __USE_MOTIONBOARD__)
+		EE_daughter_leds_init();
+		#endif
 	}
 }
 

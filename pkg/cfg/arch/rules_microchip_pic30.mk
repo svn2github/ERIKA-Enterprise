@@ -56,7 +56,7 @@ include $(PKGBASE)/cfg/compiler.mk
 # Recomplied Microchip GCC path in Linux and Cygwin environments
 EE_GCCDIR := /opt/mchp/pic30
 
-PIC30_CRT0 := $(EEBASE)/contrib/microchip/pic30/src/crt0.s
+PIC30_CRT0 := $(EEBASE)/contrib/microchip/pic30/boot/src/crt0.s
 
 ###########################################
 ## OLD Automatic selection of C30 version

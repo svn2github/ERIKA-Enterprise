@@ -1,8 +1,0 @@
-7 Dec 2007
-
-This document 
-
-ABS_VALUE - Absolute value
-The Abs block outputs the absolute value of the input. 
-absolute_value.c
-FLEX = 

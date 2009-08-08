@@ -20,44 +20,67 @@
 #define MAXIMUM_UNTOUCH_CONDITIONS   	100           // Number of (successive) Invalid Measurements till Untouch Condition
 #define SLEEP_COUNTDOWN                 2000
 
+#define TOUCH_ACTIVATION_TIME		2000
+
+#define TOUCH_ERROR_NONE		0
+#define TOUCH_ERROR_WRONG_AXIS		-1
+#define TOUCH_ERROR_RAW_NOT_READY 	-2
+#define TOUCH_ERROR_NOT_TUNED		-3
+#define TOUCH_CONFIGURED		0
+#define TOUCH_NOT_CONFIGURED		-1
+
 /****************************************************************************
   Type definition
 ****************************************************************************/
 
 typedef struct {
-  unsigned STANDBY:1;
-  unsigned XPOS:1;
-  unsigned YPOS:1;
-  unsigned Z1MEAS:1;
-  unsigned Z2MEAS:1;
-  unsigned UNDEF1:1;
-  unsigned UNDEF2:1;
-  unsigned COMPLETE:1;
+	unsigned STANDBY:1;
+	unsigned XPOS:1;
+	unsigned YPOS:1;
+	unsigned Z1MEAS:1;
+	unsigned Z2MEAS:1;
+	unsigned UNDEF1:1;
+	unsigned UNDEF2:1;
+	unsigned COMPLETE:1;
 } TouchFlow;
+
+typedef union {
+	struct {
+		double a;
+		double b;
+		double c;
+		double d;
+		double e;
+		double f;
+	} cal;
+	unsigned char value[24];
+} tune_t;
 
 /****************************************************************************
   Function definitions
 ****************************************************************************/
 
-EE_UINT16 touch_get_position_u(EE_UINT8 touch_axis);
-EE_INT16 touch_get_position_s(EE_UINT8 axis);
-EE_UINT16 touch_get_position_raw(EE_UINT8 touch_axis);
-void	touch_set_dimension(EE_UINT8, EE_UINT8);
-void 	touch_init(void);
-void	touch_calibrate(void);
-void 	store_valid_data(void);
-void 	sorted_insertion(EE_UINT16 Array[]);
+EE_INT8 touch_poll_raw_position(EE_UINT16 *,EE_UINT16 *);
+void touch_wait_raw_position(EE_UINT16 *, EE_UINT16 *);
+EE_INT8 touch_poll_u_position(EE_UINT8, EE_UINT16 *);
+EE_INT8 touch_poll_s_position(EE_UINT8, EE_INT16 *);
+EE_INT8	touch_set_dimension(EE_UINT8, EE_UINT16);
+
+void 	touch_set_ADC_parameters();
+void 	touch_set_activation_time(EE_UINT16);
+void 	touch_raw_init();
+void 	touch_tune(tune_t *);
 
 COMPILER_INLINE void touch_start(void)
 {
 	//SetRelAlarm(AlarmTouchManager,10,2);
-	touch_timer_start();
+//	touch_timer_start();
 }
 
 COMPILER_INLINE void touch_stop(void)
 {
 	//CancelAlarm(AlarmTouchManager);
-	touch_timer_stop();
+//	touch_timer_stop();
 }
 
 #endif // __TOUCH_H__
