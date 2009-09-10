@@ -179,8 +179,9 @@ distrib_opt___PIC30__:: \
 		ee_$(DIST)/contrib \
 		ee_$(DIST)/contrib/microchip \
 		ee_$(DIST)/contrib/microchip/pic30 \
-		ee_$(DIST)/contrib/microchip/pic30/src \
-		ee_$(DIST)/contrib/microchip/pic30/src/crt0.s
+		ee_$(DIST)/contrib/microchip/pic30/boot \
+		ee_$(DIST)/contrib/microchip/pic30/boot/src \
+		ee_$(DIST)/contrib/microchip/pic30/boot/src/crt0.s
 	@echo OPT __PIC30__ up2date.
 
 
@@ -713,7 +714,6 @@ distrib_opt___OPENZB__:: \
     ee_$(DIST)/contrib/network/uWireless/inc/net/uwl_net.h \
     ee_$(DIST)/contrib/network/uWireless/inc/net/uwl_net_internal.h \
     ee_$(DIST)/contrib/network/uWireless/inc/net/uwl_simple154.h \
-    ee_$(DIST)/contrib/network/uWireless/inc/openzb.h \
     ee_$(DIST)/contrib/network/uWireless/inc/phy \
     ee_$(DIST)/contrib/network/uWireless/inc/phy/uwl_phy.h \
     ee_$(DIST)/contrib/network/uWireless/inc/phy/uwl_phy_const.h \

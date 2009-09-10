@@ -44,8 +44,7 @@ help::
 	@echo
 	@echo make DIST=EEFLEX EE_MOVE=Y
 	@echo make DIST=EE3ARCH EE_MOVE=Y
-	@echo make DIST=EE3ARCHD EE_MOVE=Y
-	@echo make DIST=EE3ARCH PACKPLUGINGS=Y
+	@echo make DIST=EE3ARCH PACKPLUGINS=Y
 	@echo
 	@echo for more help please read readme.txt
 	@echo

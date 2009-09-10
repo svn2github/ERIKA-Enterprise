@@ -20,6 +20,7 @@ post_script_ALWAYS += \
 	zip -r plugins/ee_$(DIST)_core.zip VERSION pkg contrib; \
 	zip -r plugins/ee_$(DIST)_examples_pic30.zip VERSION examples/pic30; \
 	zip -r plugins/ee_$(DIST)_examples_avr5.zip VERSION examples/avr5; \
+	zip -r plugins/ee_$(DIST)_examples_arm7.zip VERSION examples/arm7; \
 	cd -
 endif
 
