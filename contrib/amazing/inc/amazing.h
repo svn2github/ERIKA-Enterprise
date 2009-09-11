@@ -29,7 +29,7 @@
 
 #endif
 
-void amazing_force_recalibration();
+void amazing_reset();
 void amazing_tuner(EE_UINT16,EE_UINT16);
 
 #endif // __AMAZING_H__

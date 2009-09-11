@@ -121,20 +121,6 @@ EE_INT8 touch_set_dimension(
 	return TOUCH_ERROR_NONE;
 }
 
-COMPILER_INLINE void touch_delay( 
-		EE_UINT8 delay_count )
-{
-	touch_delay_count++;
-	asm volatile("outer: dec _touch_delay_count");
-	asm volatile("cp0 _temp_count");
-	asm volatile("bra z, done");
-	asm volatile("do #3200, inner" );
-	asm volatile("nop");
-	asm volatile("inner: nop");
-	asm volatile("bra outer");
-	asm volatile("done:");
-}
-
 void touch_set_ADC_parameters()
 {
 	// Pilot pins setting and lighting up 
@@ -258,20 +244,20 @@ void store_valid_data(void)
 		{
 
 			u_X_pos = (EE_UINT16)(tune.cal.a*X_raw+tune.cal.b*Y_raw+tune.cal.c);
-        		u_Y_pos = (EE_UINT16)(tune.cal.d*X_raw+tune.cal.e*Y_raw+tune.cal.f);
+        	u_Y_pos = (EE_UINT16)(tune.cal.d*X_raw+tune.cal.e*Y_raw+tune.cal.f);
 
-                	if(u_X_pos<0)
-                	        u_X_pos = 0;
-                	else if(u_X_pos>horiz_width-1)
-                	        u_X_pos = horiz_width-1;
-
-                	if(u_Y_pos<0)
-                	        u_Y_pos = 0;
-                	else if(u_Y_pos>vert_height-1)
-                	        u_Y_pos = vert_height-1;
-
-                	s_X_pos = (int)u_X_pos - horiz_width/2;
-                	s_Y_pos = (int)u_Y_pos - vert_height/2;
+           	if(u_X_pos<0)
+				u_X_pos = 0;
+			else if(u_X_pos>horiz_width-1)
+				u_X_pos = horiz_width-1;
+			
+			if(u_Y_pos<0)
+				u_Y_pos = 0;
+			else if(u_Y_pos>vert_height-1)
+				u_Y_pos = vert_height-1;
+			
+			s_X_pos = (int)u_X_pos - horiz_width/2;
+			s_Y_pos = (int)u_Y_pos - vert_height/2;
 			is_final_ready = 1;
 
 		}
@@ -316,10 +302,6 @@ TASK(TASK_TOUCH_MANAGER)
 					X_raw = 0;
 					Y_raw = 0;
 					is_final_ready = 0;
-					//u_X_pos = horiz_width/2;
-					//u_Y_pos = vert_height/2;
-					//s_X_pos = 0;
-					//s_Y_pos = 0;
 				} else Untouch_conditions++;
 			}
 

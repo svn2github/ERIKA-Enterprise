@@ -39,7 +39,7 @@ ISR2(_T9Interrupt)
 
 	if(c_tick == 3000){
 
-/*		switch(pwm_phase%4)
+		switch(pwm_phase%4)
 		{
 			case 0: 
 				EE_pwm_set_duty(EE_PWM_PORT1,AMAZING_DUTY_MIN);
@@ -55,17 +55,17 @@ ISR2(_T9Interrupt)
 				EE_pwm_set_duty(EE_PWM_PORT1,AMAZING_DUTY_MIN);
 				break;
 		}
-*/
+
 		pwm_phase = pwm_phase++;
 
-		if(pwm_phase == 8) T9CONbits.TON = 0; 
+		if(pwm_phase == 5) T9CONbits.TON = 0; 
 
 		c_tick = 0;
 
 	} else c_tick++;
 }
 
-void amazing_force_recalibration()
+void amazing_reset()
 {
 	DataEEInit();
 	dataEEFlags.val = 0;	
@@ -94,10 +94,7 @@ static void write_permanent_conf(tune_t *tn)
 
 void amazing_tuner(EE_UINT16 horiz_width,EE_UINT16 vert_height)
 {
-	EE_UINT8 i;
 	tune_t tun;
-
-	tune_t check_tun;
 
 	EE_UINT16 X_raw,Y_raw;
 	EE_UINT16 xd1,yd1,xd2,yd2,xd3,yd3;
@@ -115,13 +112,16 @@ void amazing_tuner(EE_UINT16 horiz_width,EE_UINT16 vert_height)
 	DataEEInit();
 	dataEEFlags.val = 0;	
 
+	#if (defined __USE_LEDS__) && (defined __USE_MOTIONBOARD__) 
+	EE_daughter_leds_init();
+	#endif
+
 	touch_set_dimension(TOUCH_X_AXIS,horiz_width);
 	touch_set_dimension(TOUCH_Y_AXIS,vert_height);
 	touch_raw_init();
 
-	#if (defined __USE_LEDS__) && (defined __USE_MOTIONBOARD__) 
-	EE_led_1_on();
-	#endif
+	EE_pwm_init( EE_PWM_PORT1 , 20000 , 0 );
+	EE_pwm_init( EE_PWM_PORT2 , 20000 , 0 );
 
 	if(!read_permanent_conf(&tun))
 	{
@@ -136,8 +136,6 @@ void amazing_tuner(EE_UINT16 horiz_width,EE_UINT16 vert_height)
 	        xd3 = (EE_UINT16)(0.1*horiz_width);
 	        yd3 = (EE_UINT16)(0.1*vert_height);
 	
-	   	//EE_pwm_init( EE_PWM_PORT1 , 20000 , 0 );
-	   	//EE_pwm_init( EE_PWM_PORT2 , 20000 , 0 );
 	
 		pwm_phase = 0;
 		T9_program();
@@ -171,7 +169,7 @@ void amazing_tuner(EE_UINT16 horiz_width,EE_UINT16 vert_height)
 	
 	        	if(!modified){
 	
-				if(pwm_phase>=8) break;
+				if(pwm_phase>=5) break;
 	
 			}
 	        	else 
@@ -217,6 +215,10 @@ void amazing_tuner(EE_UINT16 horiz_width,EE_UINT16 vert_height)
 		write_permanent_conf(&tun);
 
 	}
+
+	//#if (defined __USE_LEDS__) && (defined __USE_MOTIONBOARD__) 
+	//EE_led_1_on();
+	//#endif
 
 	touch_tune(&tun);
 

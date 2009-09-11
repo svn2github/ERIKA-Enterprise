@@ -37,8 +37,7 @@ static void init(scicos_block *block)
 	if(x_already_initialized && y_already_initialized)
 	{
 		touch_initialized = 1;
-		touch_init();
-		touch_start();
+		touch_raw_init();
 		
 		#if (defined __USE_LEDS__) && (defined __USE_MOTIONBOARD__)
 		EE_daughter_leds_init();
@@ -49,6 +48,7 @@ static void init(scicos_block *block)
 static void inout(scicos_block *block)
 {
 	EE_UINT8 axis = block->ipar[0];
+	EE_INT16 aux;
 	float *y = block->outptr[0];
 
 	if(!touch_initialized)
@@ -57,7 +57,10 @@ static void inout(scicos_block *block)
 	if(axis != ASCII_X && axis != ASCII_Y) 
 		return;
 		
-	y[0] = (float)touch_get_position_s(axis-ASCII_X);
+	//y[0] = (float)touch_get_position_s(axis-ASCII_X,);
+	touch_poll_s_position(axis-ASCII_X,&aux);
+	y[0] = (float)aux;
+
 }
 
 static void end(scicos_block *block)

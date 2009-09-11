@@ -1,6 +1,6 @@
 ## Author: 2009 Francesco Prosperi
 
-## Check the Console library selection
+## Check the Amazing library selection
 ifeq ($(findstring __LIB_AMAZING__,$(LIB_OPT)),__LIB_AMAZING__)
 
 ##
