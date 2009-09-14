@@ -29,7 +29,7 @@
 
 #endif
 
-void amazing_reset();
-void amazing_tuner(EE_UINT16,EE_UINT16);
+void amazing_reset_body(void);
+void amazing_tuner_body(EE_UINT16,EE_UINT16);
 
 #endif // __AMAZING_H__

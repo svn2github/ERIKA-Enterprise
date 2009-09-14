@@ -10,12 +10,12 @@
 #include <machine.h>
 #include <scicos_block4.h>
 
-static void in(scicos_block *block)
+static void check_reset(scicos_block *block)
 {
 	float *u = block->inptr[0];
 	
 	if(u[0] >= 0.5)
-		amazing_force_recalibration();
+		amazing_reset_body();
 }
 
 void amazing_touch(scicos_block *block,int flag)
@@ -24,6 +24,7 @@ void amazing_touch(scicos_block *block,int flag)
 		case OutputUpdate:
 			break;
 		case StateUpdate:
+			check_reset(block);
 			break;
 		case Initialization:
 			break;

@@ -11,36 +11,28 @@
 
 static void init(scicos_block *block)
 {
-	int pin = block->ipar[0];
-	
-	if ((pin < 1) || (pin > 2))
-		return;
-
-	EE_pwm_init( pin-1 , 20000 , 0 );
+#ifndef __AMAZING_TUNER__
+	EE_pwm_init( EE_PWM_PORT1 , 20000 , 0 );
+	EE_pwm_init( EE_PWM_PORT2 , 20000 , 0 );
+#endif // __AMAZING_TUNER__
 }
  
 static void inout(scicos_block *block)
 {
-	/* Get the PWM number [1,2]     */
-	int pin = block->ipar[0];
-
-	/* Get duty cycle from Scicos block */
-	float *duty = block->inptr[0];
+	/* Get angle(degree) from Scicos block */
+	float *x_angle = block->inptr[0];
+	float *y_angle = block->inptr[1];
+	unsigned int pwm_step = 10; // us
+	unsigned int pwm_bias = 1500; // us
 	
-	if ((pin < 1) || (pin > 2))
-		return; //** refuse not supported PWM
-
-	EE_pwm_set_duty_f( pin-1 , *duty);
+	EE_pwm_set_duty( EE_PWM_PORT1 , (*x_angle)*pwm_step+pwm_bias );
+	EE_pwm_set_duty( EE_PWM_PORT2 , (*y_angle)*pwm_step+pwm_bias );
 }
 
 static void end(scicos_block *block)
 {
-	int pin = block->ipar[0];
-	
-	if ((pin < 1) || (pin > 2))
-		return; //** refuse not supported PWM
-
-	EE_pwm_close(pin);
+	EE_pwm_close(EE_PWM_PORT1);
+	EE_pwm_close(EE_PWM_PORT2);
 }
 
 void amazing_pwm(scicos_block *block,int flag)
@@ -52,7 +44,7 @@ void amazing_pwm(scicos_block *block,int flag)
     		case StateUpdate:
 			break;
 		case Initialization:
-			// Already done by AMAZING_config
+			init(block);
 			break;
 		case Ending:
 			end(block);

@@ -14,10 +14,10 @@ static void init(scicos_block *block)
 	int res_x = block->ipar[0];
 	int res_y = block->ipar[1];
 
-	amazing_tuner((EE_UINT16)res_x,(EE_UINT16)res_y);
+	amazing_tuner_body((EE_UINT16)res_x,(EE_UINT16)res_y);
 }
 
-void AMAZING_tuner(scicos_block *block,int flag)
+void amazing_tuner(scicos_block *block,int flag)
 {
 	switch (flag) {
 		case OutputUpdate:

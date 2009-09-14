@@ -4,14 +4,22 @@
 #include "touch.h"
 #include "cpu/pic30/inc/ee_irqstub.h"
 
+#define AMAZING_LAPS			2
 #define AMAZING_ALREADY_SET_ADDR	2
 #define AMAZING_TUNE_ADDR		4
 #define AMAZING_DUTY_MIN		1200
 #define AMAZING_DUTY_MAX		1800
 
-static EE_UINT8 pwm_phase = 0;
+volatile EE_UINT8 pwm_phase = 0;
 volatile EE_UINT8 modified = 0;
-
+volatile tune_t tune_copy;
+volatile tune_t tun;
+volatile EE_UINT16 X_raw,Y_raw;
+volatile EE_UINT16 xd1,yd1,xd2,yd2,xd3,yd3;
+volatile EE_UINT16 xt1,yt1,xt2,yt2,xt3,yt3;
+volatile EE_UINT16 min_x=65535,max_x=0;
+volatile EE_UINT16 min_y=65535,max_y=0;
+volatile EE_UINT16 H,V;
 
 /* Program the Timer9 peripheral to raise interrupts */
 static void T9_program(void)
@@ -37,7 +45,7 @@ ISR2(_T9Interrupt)
 	// clear the interrupt source
 	T9_clear();
 
-	if(c_tick == 3000){
+	if(c_tick == 2000){
 
 		switch(pwm_phase%4)
 		{
@@ -56,16 +64,14 @@ ISR2(_T9Interrupt)
 				break;
 		}
 
-		pwm_phase = pwm_phase++;
-
-		if(pwm_phase == 5) T9CONbits.TON = 0; 
+		if(++pwm_phase == AMAZING_LAPS*4) T9CONbits.TON = 0; 
 
 		c_tick = 0;
 
 	} else c_tick++;
 }
 
-void amazing_reset()
+void amazing_reset_body()
 {
 	DataEEInit();
 	dataEEFlags.val = 0;	
@@ -92,15 +98,17 @@ static void write_permanent_conf(tune_t *tn)
 		DataEEWrite(tn->value[i],AMAZING_TUNE_ADDR+i);
 }
 
-void amazing_tuner(EE_UINT16 horiz_width,EE_UINT16 vert_height)
+void amazing_tuner_body(EE_UINT16 horiz_width,EE_UINT16 vert_height)
 {
-	tune_t tun;
+//	tune_t tun;
+//	EE_UINT16 X_raw,Y_raw;
+//	EE_UINT16 xd1,yd1,xd2,yd2,xd3,yd3;
+//	EE_UINT16 xt1,yt1,xt2,yt2,xt3,yt3;
+//	EE_UINT16 min_x=65535,max_x=0;
+//	EE_UINT16 min_y=65535,max_y=0;
 
-	EE_UINT16 X_raw,Y_raw;
-	EE_UINT16 xd1,yd1,xd2,yd2,xd3,yd3;
-	EE_UINT16 xt1,yt1,xt2,yt2,xt3,yt3;
-	EE_UINT16 min_x=65535,max_x=0;
-	EE_UINT16 min_y=65535,max_y=0;
+	H = horiz_width;
+	V = vert_height;
 
 	tun.cal.a = 0;
 	tun.cal.b = 0;
@@ -112,10 +120,6 @@ void amazing_tuner(EE_UINT16 horiz_width,EE_UINT16 vert_height)
 	DataEEInit();
 	dataEEFlags.val = 0;	
 
-	#if (defined __USE_LEDS__) && (defined __USE_MOTIONBOARD__) 
-	EE_daughter_leds_init();
-	#endif
-
 	touch_set_dimension(TOUCH_X_AXIS,horiz_width);
 	touch_set_dimension(TOUCH_Y_AXIS,vert_height);
 	touch_raw_init();
@@ -125,7 +129,6 @@ void amazing_tuner(EE_UINT16 horiz_width,EE_UINT16 vert_height)
 
 	if(!read_permanent_conf(&tun))
 	{
-
 	        // touch input P1 (90%,50%)
 	        xd1 = (EE_UINT16)(0.9*horiz_width);
 	        yd1 = (EE_UINT16)(0.5*vert_height);
@@ -135,7 +138,6 @@ void amazing_tuner(EE_UINT16 horiz_width,EE_UINT16 vert_height)
 	        // touch input P3 (10%,90%)
 	        xd3 = (EE_UINT16)(0.1*horiz_width);
 	        yd3 = (EE_UINT16)(0.1*vert_height);
-	
 	
 		pwm_phase = 0;
 		T9_program();
@@ -169,12 +171,11 @@ void amazing_tuner(EE_UINT16 horiz_width,EE_UINT16 vert_height)
 	
 	        	if(!modified){
 	
-				if(pwm_phase>=5) break;
+				if(pwm_phase>=AMAZING_LAPS*4) break;
 	
 			}
 	        	else 
 			{ 
-	
 				#ifdef CONFIG_AMAZING_UART_DEBUG
 				EE_uart_write_byte(EE_UART_PORT_2,'<');
 				EE_uart_write_byte(EE_UART_PORT_2,(X_raw >> 8) & 0xFF);
@@ -209,18 +210,11 @@ void amazing_tuner(EE_UINT16 horiz_width,EE_UINT16 vert_height)
 	
 			}
 		}
-
+	
 		DataEEWrite(0xEE,AMAZING_ALREADY_SET_ADDR);
-
 		write_permanent_conf(&tun);
-
 	}
 
-	//#if (defined __USE_LEDS__) && (defined __USE_MOTIONBOARD__) 
-	//EE_led_1_on();
-	//#endif
-
 	touch_tune(&tun);
-
 }
 
