@@ -37,7 +37,6 @@ void amazing_touch(scicos_block *block,int flag)
 		case StateUpdate:
 			break;
 		case Initialization:
-			init(block);
 			break;
 		case Ending:
 			break;

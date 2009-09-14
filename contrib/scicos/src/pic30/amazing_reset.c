@@ -10,7 +10,7 @@
 #include <machine.h>
 #include <scicos_block4.h>
 
-static void check_reset(scicos_block *block)
+void check_reset(scicos_block *block)
 {
 	float *u = block->inptr[0];
 	
@@ -18,13 +18,13 @@ static void check_reset(scicos_block *block)
 		amazing_reset_body();
 }
 
-void amazing_touch(scicos_block *block,int flag)
+void amazing_reset(scicos_block *block,int flag)
 {
 	switch (flag) {
 		case OutputUpdate:
+			check_reset(block);
 			break;
 		case StateUpdate:
-			check_reset(block);
 			break;
 		case Initialization:
 			break;

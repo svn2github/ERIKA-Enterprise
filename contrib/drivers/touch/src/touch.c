@@ -38,8 +38,6 @@ EE_UINT16 Reading_Y[SAMPLES_FOR_ONE_TRUE_XY_PAIR];
 static EE_UINT16 Reading_low_level;
 static volatile EE_UINT16 Untouch_conditions;
 
-static EE_UINT16 touch_delay_count __attribute__((near)) = 0;
-
 EE_INT8 touch_poll_raw_position(
 		EE_UINT16 *raw_choord_x,
 		EE_UINT16 *raw_choord_y)
@@ -234,10 +232,6 @@ void store_valid_data(void)
 		Y_raw = Reading_Y[MEDIAN];
 		is_raw_ready = 1;
 
-		#if (defined __USE_LEDS__) && (defined __USE_MOTIONBOARD__) 
-		EE_led_0_on();
-		#endif
-
 		//GetResource(mutex_posRead);
 
 		if(is_tuned)
@@ -272,10 +266,6 @@ void store_valid_data(void)
 #ifdef __LOW_LEVEL_MEASUREMENT__
 TASK(TASK_TOUCH_MANAGER)
 {
-	#if (defined __USE_LEDS__) && (defined __USE_MOTIONBOARD__) 
-	EE_led_0_off();
-	#endif
-
 	if(ADC_CONVERSION_DONE)
 	{
 		ADC_CONVERSION_RESET;

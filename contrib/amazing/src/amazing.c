@@ -12,14 +12,6 @@
 
 volatile EE_UINT8 pwm_phase = 0;
 volatile EE_UINT8 modified = 0;
-volatile tune_t tune_copy;
-volatile tune_t tun;
-volatile EE_UINT16 X_raw,Y_raw;
-volatile EE_UINT16 xd1,yd1,xd2,yd2,xd3,yd3;
-volatile EE_UINT16 xt1,yt1,xt2,yt2,xt3,yt3;
-volatile EE_UINT16 min_x=65535,max_x=0;
-volatile EE_UINT16 min_y=65535,max_y=0;
-volatile EE_UINT16 H,V;
 
 /* Program the Timer9 peripheral to raise interrupts */
 static void T9_program(void)
@@ -76,6 +68,7 @@ void amazing_reset_body()
 	DataEEInit();
 	dataEEFlags.val = 0;	
 	DataEEWrite(0x00,AMAZING_ALREADY_SET_ADDR);
+	asm("reset");
 }
 
 static EE_UINT8 read_permanent_conf(tune_t *tn)
@@ -100,15 +93,12 @@ static void write_permanent_conf(tune_t *tn)
 
 void amazing_tuner_body(EE_UINT16 horiz_width,EE_UINT16 vert_height)
 {
-//	tune_t tun;
-//	EE_UINT16 X_raw,Y_raw;
-//	EE_UINT16 xd1,yd1,xd2,yd2,xd3,yd3;
-//	EE_UINT16 xt1,yt1,xt2,yt2,xt3,yt3;
-//	EE_UINT16 min_x=65535,max_x=0;
-//	EE_UINT16 min_y=65535,max_y=0;
-
-	H = horiz_width;
-	V = vert_height;
+	tune_t tun;
+	EE_UINT16 X_raw,Y_raw;
+	EE_UINT16 xd1,yd1,xd2,yd2,xd3,yd3;
+	EE_UINT16 xt1,yt1,xt2,yt2,xt3,yt3;
+	EE_UINT16 min_x=65535,max_x=0;
+	EE_UINT16 min_y=65535,max_y=0;
 
 	tun.cal.a = 0;
 	tun.cal.b = 0;
