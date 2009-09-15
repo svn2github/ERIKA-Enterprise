@@ -350,7 +350,7 @@ void EE_oo_counter_tick(CounterType c)
       }
       /* (*) here we need EE_counter_RAM[c].first again... */
       current = EE_counter_RAM[c].first;
-      if ((current = EE_counter_RAM[c].first) == -1) break;
+      if (current == -1) break;
     }
   }    
 
