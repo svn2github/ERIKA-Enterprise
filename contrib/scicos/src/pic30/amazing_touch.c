@@ -13,16 +13,16 @@
 static void out(scicos_block *block)
 {
 	EE_UINT8 axis = block->ipar[0];
-	EE_UINT16 data;
+	EE_INT16 data;
 
 	float *y = block->outptr[0];
 
 	if(axis != ASCII_X && axis != ASCII_Y) 
 		return;
 	if(axis == ASCII_X){
-		touch_poll_u_position(TOUCH_X_AXIS,&data);
+		touch_poll_s_position(TOUCH_X_AXIS,&data);
 	} else {
-		touch_poll_u_position(TOUCH_Y_AXIS,&data);
+		touch_poll_s_position(TOUCH_Y_AXIS,&data);
 	}
 
 	y[0] = (float)data; 
