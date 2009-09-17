@@ -2,6 +2,7 @@
 * @file uwl_mac.c
 * @brief IEEE 802.15.4 MAC Layer General Part
 * @author Christian Nastasi
+* @author Daniele Alessandrelli
 * @version 0.1
 * @date 2009-06-22
 */
@@ -402,10 +403,11 @@ static void process_rx_beacon(void)
 	uwl_mac_pib.macAssociationPermit=UWL_MAC_SF_SPEC_GET_ASSOC_PERMIT(bcn);
 	/* TODO: read BO and SO and update the PIB!! */
 	bcn += UWL_MAC_MPDU_SUPERFRAME_SPEC_SIZE;
-	bcn += uwl_mac_gts_get_gts_fields(bcn); // <-- TODO: check return value
+	bcn += uwl_mac_gts_get_gts_fields(bcn);
+	bcn += UWL_MAC_MPDU_PENDING_ADDR_SPEC_SIZE;
 	/* TODO: compute FCS , use auto gen? */
 	// consider 2 bytes in the following formula
-	beacon_payload_length = rx_beacon_length - (bcn - rx_beacon);
+	beacon_payload_length = rx_beacon_length - (bcn - rx_beacon);	
 	if (beacon_payload_length > 0)
 		memcpy(beacon_payload, bcn, beacon_payload_length);		
 	if (uwl_kal_mutex_signal(MAC_RX_BEACON_MUTEX) < 0)

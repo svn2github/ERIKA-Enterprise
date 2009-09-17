@@ -2,6 +2,7 @@
 * @file uwl_simple154.c
 * @brief Simple IEEE 802.15.4 Implementation 
 * @author Christian Nastasi
+* @author Daniele Alessandrelli
 * @version 0.1
 * @date 2009-06-22
 */
@@ -157,7 +158,7 @@ int8_t uwl_simple154_gts_clear(void)
 		RETURN_WITH_ERROR(-UWL_SIMPLE154_ERR_GTS_NOTCOORDINATOR);
 	mac_error = uwl_mac_gts_db_clean();
 	if (mac_error < 0)
-		RETURN_WITH_ERROR(UWL_SIMPLE154_ERR_GTS_MANIPULATION);
+		RETURN_WITH_ERROR(-UWL_SIMPLE154_ERR_GTS_MANIPULATION);
 	RETURN_WITH_ERROR(UWL_SIMPLE154_ERR_NONE);
 }
 
@@ -169,7 +170,7 @@ int8_t uwl_simple154_gts_add(uint16_t device_id, uint8_t length, uint8_t dir)
 		RETURN_WITH_ERROR(-UWL_SIMPLE154_ERR_GTS_NOTCOORDINATOR);
 	mac_error = uwl_mac_gts_db_add(device_id, length, dir);
 	if (mac_error < 0)
-		RETURN_WITH_ERROR(UWL_SIMPLE154_ERR_GTS_MANIPULATION);
+		RETURN_WITH_ERROR(-UWL_SIMPLE154_ERR_GTS_MANIPULATION);
 	RETURN_WITH_ERROR(UWL_SIMPLE154_ERR_NONE);
 }
 
@@ -181,18 +182,21 @@ int8_t uwl_simple154_set_beacon_payload(uint8_t *data, uint8_t len)
 		RETURN_WITH_ERROR(-UWL_SIMPLE154_ERR_GTS_NOTCOORDINATOR);
 	mac_error = uwl_mac_set_beacon_payload(data, len);
 	if (mac_error < 0)
-		RETURN_WITH_ERROR(UWL_SIMPLE154_ERR_INVALID_LENGTH);
+		RETURN_WITH_ERROR(-UWL_SIMPLE154_ERR_INVALID_LENGTH);
 	RETURN_WITH_ERROR(UWL_SIMPLE154_ERR_NONE);
 }
 
 int8_t uwl_simple154_get_beacon_payload(uint8_t *data, uint8_t len)
 {
+	int8_t real_len;
 	if (!flags.initialized)
 		RETURN_WITH_ERROR(-UWL_SIMPLE154_ERR_NOTINIT);
-	mac_error = uwl_mac_get_beacon_payload(data, len);
-	if (mac_error < 0)
-		RETURN_WITH_ERROR(UWL_SIMPLE154_ERR_INVALID_LENGTH);
-	RETURN_WITH_ERROR(UWL_SIMPLE154_ERR_NONE);
+	real_len = uwl_mac_get_beacon_payload(data, len);
+	if (real_len < 0) {
+		mac_error = real_len;
+		RETURN_WITH_ERROR(-UWL_SIMPLE154_ERR_INVALID_LENGTH);
+	}
+	return real_len;
 }
 
 int8_t uwl_simple154_set_on_beacon_callback(void (* func)(void)) 
