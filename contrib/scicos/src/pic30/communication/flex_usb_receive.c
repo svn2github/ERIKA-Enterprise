@@ -11,7 +11,9 @@
 
 #include <machine.h>
 #include <scicos_block4.h>
-
+/**************************/
+#include "string.h"
+/**************************/
 #include <ee.h>
 #include "scicos_USB.h"
 
@@ -27,7 +29,7 @@ static void inout(scicos_block *block)
 	if (data_id < 0 || data_id >= SCICOS_USB_CHANNELS)
 		return;
 	GetResource(scicosUSB_rx_buffer_mutex);
-	memcpy(block->inptr[0], scicosUSB_rx_buffer + data_id,  sizeof(float));
+	memcpy(block->outptr[0], scicosUSB_rx_buffer + data_id,  sizeof(float));
 	ReleaseResource(scicosUSB_rx_buffer_mutex);
 }
 

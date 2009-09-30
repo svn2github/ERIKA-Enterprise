@@ -71,6 +71,25 @@ __INLINE__ void __ALWAYS_INLINE__ EE_led_off(void)  { LATBbits.LATB14 = 0; }
 
 /* ######################################################## */
 
+/* ************************************************************************* */
+/* USB Communication - TODO!!! */
+/* ************************************************************************* */
+
+//#if defined __USE_USB__
+//void EE_usb_init(void);
+//EE_INT16 EE_usb_write(EE_UINT8 *buf, EE_UINT16 len);
+//EE_INT16 EE_usb_read(EE_UINT8 *buf, EE_UINT16 len);
+//#endif
+
+#ifdef __USE_USB__
+       #ifndef __USE_DEMOBOARD__
+             #ifndef __USE_MOTIONBOARD__
+                     #define __USE_MOTIONBOARD__
+             #endif
+       #endif
+#endif // __USE_USB__
+
+
 /* /\************************************************************************* */
 /* Check if the Flex DemoBoard has been selected */
 /* /\************************************************************************* */
@@ -87,6 +106,9 @@ __INLINE__ void __ALWAYS_INLINE__ EE_led_off(void)  { LATBbits.LATB14 = 0; }
 #ifdef __USE_MOTIONBOARD__
 #include "board/ee_flex/inc/ee_flex_motionboard.h"
 #endif // __USE_MOTIONBOARD__
+
+
+
 
 /* ************************************************************************* */
 #endif
