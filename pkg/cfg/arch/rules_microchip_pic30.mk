@@ -372,7 +372,7 @@ $(OBJDIR)/frommchp/crt0.o: frommchp/crt0.s
 ##
 
 frommchp/crt0.S: $(PIC30_CRT0)
-	@printf "\nCP crt0.s\n"; cp $(SOURCEFILE) $(TARGETFILE)
+	@printf "\nCP crt0.s\n"; cp $(SOURCEFILE) $(TARGETFILE); chmod +rw $(TARGETFILE)
 
 # Check if the MCU model has been defined
 ifneq ($(PIC30_MODEL),)
@@ -390,11 +390,11 @@ ee_pic30regs.inc: frommchp/$(PIC30_INCLUDE_S)
 
 #frommchp/$(PIC30_INCLUDE_C): $(PIC30_GCCDIR)/support$(C30SUBDIR)/h/$(PIC30_INCLUDE_C)
 frommchp/$(PIC30_INCLUDE_C): $(PIC30_H_DIR)/$(PIC30_INCLUDE_C)
-	@printf "CP $(PIC30_INCLUDE_C)\n"; cp $(SOURCEFILE) $(TARGETFILE)
+	@printf "CP $(PIC30_INCLUDE_C)\n"; cp $(SOURCEFILE) $(TARGETFILE); chmod +rw $(TARGETFILE)
 
 #frommchp/$(PIC30_INCLUDE_S): $(PIC30_EXTRA_INCLUDE)/support$(C30SUBDIR)/inc/$(PIC30_INCLUDE_S)
 frommchp/$(PIC30_INCLUDE_S): $(PIC30_INC_DIR)/$(PIC30_INCLUDE_S)
-	@printf "CP $(PIC30_INCLUDE_S)\n"; cp $(SOURCEFILE) $(TARGETFILE)
+	@printf "CP $(PIC30_INCLUDE_S)\n"; cp $(SOURCEFILE) $(TARGETFILE); chmod +rw $(TARGETFILE)
 
 else
 
@@ -417,9 +417,9 @@ endif
 
 #if PIC30_GCCDIR is defined
 #loc_gnu.ld: $(PIC30_LINKERDIR)/$(PIC30_LINKERSCRIPT)
-#	@printf "LOC\n" ; cp $(PIC30_LINKERDIR)/$(PIC30_LINKERSCRIPT) loc_gnu.ld
+#	@printf "LOC\n" ; cp $(PIC30_LINKERDIR)/$(PIC30_LINKERSCRIPT) loc_gnu.ld; chmod +rw loc_gnu.ld
 loc_gnu.ld: $(PIC30_LINKER_DIR)/$(PIC30_LINKERSCRIPT)
-	@printf "LOC\n" ; cp $(PIC30_LINKER_DIR)/$(PIC30_LINKERSCRIPT) loc_gnu.ld
+	@printf "LOC\n" ; cp $(PIC30_LINKER_DIR)/$(PIC30_LINKERSCRIPT) loc_gnu.ld; chmod +rw loc_gnu.ld
 
 ##
 ## EE Library
