@@ -13,11 +13,11 @@ EE_INT8 EE_spi_init(void)
 	EE_reg(DDRB) |= (1<<PB0)|(1<<PB1)|(1<<PB2);	// set SS, SCK and MOSI as output
 	EE_reg(PORTB) |= (1<<PB0)|(1<<PB1);			// set SCK and SS as high
 	
-	/* Set clock rate fck/4 */
-	/* Note: with these prescale values the port works at 2 MHz. */
-    EE_reg(SPCR) |= (1 << SPR0);
+	/* Set clock rate fck/2 */
+	/* Note: with these prescale values the port works at 4 MHz. */
+    EE_reg(SPCR) &= ~(1 << SPR0);
     EE_reg(SPCR) &= ~(1 << SPR1);
-    EE_reg(SPSR) &= ~(1 << SPI2X);
+    EE_reg(SPSR) |= (1 << SPI2X);
 	
 	// TODO: (Nino): Clock polarity and Phase are ok?
 	EE_reg(SPCR) |= (1<<CPOL)|(1<<CPHA);
