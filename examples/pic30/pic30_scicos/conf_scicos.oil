@@ -95,10 +95,14 @@ CPU mySystem {
 #endif // __USE_SIMPLE802154__
 #ifdef __USE_MIWIP2P__	//Start GF		
 			NAME = "MIWIP2P";
-#endif //__USE_MIWIP2P__ //End GF
+#endif // __USE_MIWIP2P__ //End GF
 #ifdef __USE_TOUCH__
 			NAME = "TOUCH";
 #endif // __USE_TOUCH__
+#ifdef __USE_AMAZING__
+			NAME = "AMAZING";
+			NAME = "DEE_EMULATION";
+#endif // __USE_AMAZING__
 		};
 	};
 
