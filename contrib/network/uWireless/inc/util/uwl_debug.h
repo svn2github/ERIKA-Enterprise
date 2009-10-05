@@ -173,7 +173,14 @@ int8_t uwl_debug_write(uint8_t *msg, uint16_t len);
 *
 * \todo Write a comment to this function.
 */
-int8_t uwl_debug_print(const char *msg);
+//int8_t uwl_debug_print(const char *msg);
+#ifdef UWL_DEBUG_LOG_HAS_PRINT
+//#define uwl_debug_print(str) 
+#define uwl_debug_print(str) uwl_debug_print_func(str)
+#else
+#define uwl_debug_print(str) 
+#endif
+int8_t uwl_debug_print_func(const char *msg);
 
 void uwl_debug_sprint_phycode(enum uwl_phy_code_t c, char *out); 
 void uwl_debug_sprint_maccode(enum uwl_mac_code_t c, char *out);

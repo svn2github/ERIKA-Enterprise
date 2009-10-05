@@ -407,7 +407,7 @@ static void process_rx_beacon(void)
 	bcn += UWL_MAC_MPDU_PENDING_ADDR_SPEC_SIZE;
 	/* TODO: compute FCS , use auto gen? */
 	// consider 2 bytes in the following formula
-	beacon_payload_length = rx_beacon_length - (bcn - rx_beacon);	
+	beacon_payload_length = rx_beacon_length - (bcn - rx_beacon);
 	if (beacon_payload_length > 0)
 		memcpy(beacon_payload, bcn, beacon_payload_length);		
 	if (uwl_kal_mutex_signal(MAC_RX_BEACON_MUTEX) < 0)
@@ -758,10 +758,12 @@ uwl_debug_print("--->        Invalid ALLOC");
 //uwl_debug_print(str);
 	} else { /* Store in the CSMA-CA queue */
 		//uwl_debug_print("DEVICE:  CSMA QUEUE FULL!!! ");
+		uwl_kal_mutex_wait(MAC_SEND_MUTEX);
 		frame=(struct uwl_mac_frame_t*) cqueue_push(&uwl_mac_queue_cap);
 		if (frame == 0) {
 			/* TODO: we have to choose a well formed reply
 				 for the indication primitive (status=??) */
+			uwl_kal_mutex_signal(MAC_SEND_MUTEX);
 			uwl_MCPS_DATA_confirm(handle, 
 					      UWL_MAC_CHANNEL_ACCESS_FAILURE,0);
 			return; 
@@ -806,6 +808,7 @@ uwl_debug_print("--->        Invalid ALLOC");
 	if (UWL_MAC_TX_OPTION_GTS(tx_opt) == UWL_TRUE) 
 		uwl_mac_superframe_gts_wakeup(gts_idx); 
 uwl_debug_print("--->       OK (in TX Queue)");
+	uwl_kal_mutex_signal(MAC_SEND_MUTEX);
 }
 
 uint8_t uwl_mac_create_beacon(uwl_mpdu_ptr_t bcn)
@@ -859,6 +862,9 @@ uint8_t uwl_mac_create_beacon(uwl_mpdu_ptr_t bcn)
 /******************************************************************************/
 /*                       MAC MPDU Parsing Functions                           */
 /******************************************************************************/
+#ifdef __JUST_MEASURE_FOR_PAPER__
+#include "daq_time.h"
+#endif
 void uwl_mac_parse_received_mpdu(uint8_t *psdu, uint8_t len)
 {
 	/* 1st frame filter: FCS */
@@ -888,6 +894,9 @@ void uwl_mac_parse_received_mpdu(uint8_t *psdu, uint8_t len)
 			return; /* TODO: manage error? */
 		break;
 	case UWL_MAC_TYPE_DATA :
+#ifdef __JUST_MEASURE_FOR_PAPER__
+daq_time_start(1); // FIXME: this is just for AVR time measurement!
+#endif
 		if (uwl_kal_mutex_wait(MAC_RX_DATA_MUTEX) < 0)
 			return; /* TODO: manage error? */
 		memcpy(rx_data, psdu, len);

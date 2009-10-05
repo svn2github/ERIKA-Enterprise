@@ -301,7 +301,6 @@ COMPILER_INLINE uint8_t cc2420_get_sfd(void)
 #define CC2420_TRIS_CSn_AVR_PIN	DDB0
 #endif
 
-
 #ifndef CC2420_INTERRUPT_NAME
 #define CC2420_INTERRUPT_NAME	INT6_vect
 #endif
@@ -367,7 +366,11 @@ int8_t	cc2420_spi_get(uint8_t *out);
 
 COMPILER_INLINE uint8_t cc2420_get_cca(void)
 {
+#ifdef __AVR5__
+	return 1; // FIXME: make this work properly!
+#else
 	return (CC2420_CCA_AVR_PORT & (1 << CC2420_CCA_AVR_PIN)) >> CC2420_CCA_AVR_PIN;
+#endif
 }
 
 COMPILER_INLINE uint8_t cc2420_get_sfd(void)

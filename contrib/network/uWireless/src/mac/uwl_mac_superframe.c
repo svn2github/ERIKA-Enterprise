@@ -42,6 +42,7 @@ UWL_KAL_TASK(MAC_BACKOFF_PERIOD, 10);
 UWL_KAL_TASK(MAC_GTS_SEND, 10);
 
 UWL_KAL_MUTEX(MAC_MUTEX, MAC_TIMESLOT);
+UWL_KAL_MUTEX(MAC_SED_MUTEX, MAC_BACKOFF_PERIOD);
 /*
 UWL_KAL_MUTEX(MAC_MUTEX, MAC_BEFORE_TIMESLOT);
 UWL_KAL_MUTEX(MAC_MUTEX, MAC_BACKOFF_PERIOD);
@@ -228,6 +229,10 @@ COMPILER_INLINE void stop_previous_cfp(void)
 /******************************************************************************/
 /*                      MAC CAP and CFP Management Functions                  */
 /******************************************************************************/
+#ifdef __JUST_MEASURE_FOR_PAPER__
+#include "daq_time.h"
+extern struct daq_time_t downlink;
+#endif
 static void csma_perform_slotted(void) 
 {
 	struct uwl_mac_frame_t *frame;
@@ -248,8 +253,10 @@ static void csma_perform_slotted(void)
 	}
 	if (csma_params.state == CSMA_STATE_DELAY) {
 		if (csma_delay_counter-- == 0) {
+			uwl_kal_mutex_wait(MAC_SEND_MUTEX);
 			frame = (struct uwl_mac_frame_t*) 
 					cqueue_first(&uwl_mac_queue_cap);
+			uwl_kal_mutex_signal(MAC_SEND_MUTEX);
 			/* Something must be there, check again? */
 			/* if (!frame) ERRORE!!!!!*/
 			tmp = UWL_MAC_FCTL_GET_ACK_REQUEST(
@@ -292,6 +299,9 @@ static void csma_perform_slotted(void)
 		frame = (struct uwl_mac_frame_t*)cqueue_pop(&uwl_mac_queue_cap);
 		/* Something must be there, check again? */
 		/* if (!frame) ERRORE!!!!!*/
+		#ifdef __JUST_MEASURE_FOR_PAPER__
+		daq_time_get(1, &downlink); // FIXME: this must be done ONLY  IN COORDINATOR
+		#endif
 		tmp = uwl_radio_phy_send_now(frame->mpdu, frame->mpdu_size);
 		if (tmp == UWL_RADIO_ERR_NONE)
 			uwl_MCPS_DATA_confirm(frame->msdu_handle, 

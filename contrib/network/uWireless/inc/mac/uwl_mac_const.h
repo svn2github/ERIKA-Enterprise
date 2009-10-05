@@ -22,14 +22,20 @@
 #define UWL_DEVICE_RFD		0
 
 #ifndef UWL_MAC_GTS_QUEUE_SIZE	
-//#define UWL_MAC_GTS_QUEUE_SIZE	5
+#ifdef __AVR5__ /* FIXME: tmp solution!*/
+#define UWL_MAC_GTS_QUEUE_SIZE	5
+#else
 #define UWL_MAC_GTS_QUEUE_SIZE	20
 #endif
+#endif /* UWL_MAC_GTS_QUEUE_SIZE */
 
 #ifndef UWL_MAC_CAP_QUEUE_SIZE	
-//#define UWL_MAC_CAP_QUEUE_SIZE	5
+#ifdef __AVR5__ /* FIXME: tmp solution!*/
+#define UWL_MAC_CAP_QUEUE_SIZE	5
+#else
 #define UWL_MAC_CAP_QUEUE_SIZE	20
 #endif
+#endif /* UWL_MAC_CAP_QUEUE_SIZE */
 
 #define UWL_MAC_ERR_NONE 			1 /* Returned as positive! */
 #define UWL_MAC_ERR_NOT_INITIALIZED		1

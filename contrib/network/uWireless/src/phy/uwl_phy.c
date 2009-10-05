@@ -90,14 +90,32 @@ static void phy_read_dispatcher(void)
 	uwl_PD_DATA_indication((uint8_t) len - 1, buf + 1, lqi);
 }
 
+#ifdef __AVR5__
+/* TODO TODO TODO: 
+   FIXME -> TEMPORARY SOLUTION due to the FIFO pin problem for AVR!  */
+#ifdef TIME32_SUBTRACT
+#undef TIME32_SUBTRACT
+#endif
+#define TIME32_SUBTRACT(t1, t2) ((t1)>=(t2) ? (t1)-(t2) : 0xFFFFFFFF-(t2)+(t1))
+volatile uint32_t last_time = 0;
+#endif /* __AVR5__ */
 static void phy_read_isr(void)
 {
 	#ifdef UWL_DEBUG_LOG
 	//uwl_debug_print("!-> BCN <-!");
 	#endif
+	#ifdef __AVR5__
+	uint32_t t, tmp;
+	static char bcn_led = 0;
+	t = uwl_kal_get_time();
+	tmp = t;
+	t = TIME32_SUBTRACT(t, last_time);
+	last_time = tmp;
+	if (t < 10) 
+		return;
+	#endif /* __AVR5__ */
 	uwl_kal_activate(PHY_READ_DISPATCHER);
 }
-
 /******************************************************************************/
 /*                      PHY Layer General Functions                           */
 /******************************************************************************/
@@ -115,8 +133,6 @@ int8_t uwl_phy_init(void)
 	#ifdef UWL_DEBUG_LOG
 	uwl_debug_print("KAL init OK!");
 	#endif
-	if (uwl_radio_set_rx_callback(phy_read_isr) < 0)
-		return -UWL_PHY_ERR_HW_FAILURE;
 	if (uwl_radio_init() < 0)
 		return -UWL_PHY_ERR_HW_FAILURE;
 	#ifdef UWL_DEBUG_LOG
@@ -127,6 +143,8 @@ int8_t uwl_phy_init(void)
 	phy_status.radio = UWL_PHY_RX_ON;
 	*/
 	phy_status.radio = UWL_PHY_TRX_OFF;
+	if (uwl_radio_set_rx_callback(phy_read_isr) < 0)
+		return -UWL_PHY_ERR_HW_FAILURE;
 	/* TODO: initialize the PLME and PD */
 	phy_status.initialized = 1;
 	return UWL_PHY_ERR_NONE;

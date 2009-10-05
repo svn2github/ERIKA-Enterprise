@@ -12,8 +12,12 @@
 #ifndef COMPILER_ATTRIBUTE_FAR 
 #define COMPILER_ATTRIBUTE_FAR __attribute__((far))
 #endif
-#endif
-
+#elif defined __AVR5__
+#ifndef COMPILER_ATTRIBUTE_FAR 
+//#define COMPILER_ATTRIBUTE_FAR __attribute__((far))
+#define COMPILER_ATTRIBUTE_FAR 
+#endif 
+#endif/* _AVR5_ */
 
 #elif defined __C30__ 	/* Microchip C30 */
 #include <arch/mem_compiler_c30.h>

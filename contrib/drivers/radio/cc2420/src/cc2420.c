@@ -149,7 +149,6 @@ int8_t cc2420_radio_init(uint8_t port)
 
 	/* Flush the RX FIFO */
 	CC2420_RX_FIFO_FLUSH();
-
 	return 1;
 }
 
@@ -231,14 +230,14 @@ int8_t cc2420_get_fifo_msg(uint8_t *fifo_msg)
 {
 	uint8_t i;
 
-/* TODO: TEMP solution adopted for EUROLAB 2009! */
-//#ifndef __USE_MOTIONBOARD__
+#ifndef __XBOW_MIB5X0__ /* TODO: adopted to port EE+uWireless on MicaZ! */
+//#ifndef __USE_MOTIONBOARD__ /* TODO: adopted for EUROLAB 2009, bugged board */
 	if (CC2420_GET_PIN(CC2420_FIFO) == 0) { //if (CC2420_FIFO == 0) {
 		CC2420_RX_FIFO_FLUSH();
 		//hal_console_out('F');
 		return -1;
 	}
-//#endif
+#endif
 	CC2420_CSn_0();
 	cc2420_spi_put(CC2420_REG_RXFIFO | CC2420_CMD_READ, NULL);
 	cc2420_spi_get(fifo_msg); 	/*get the msg length*/

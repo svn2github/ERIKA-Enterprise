@@ -65,8 +65,14 @@ int8_t uwl_kal_erika_set_activation(TaskType tid, AlarmType aid,
 	} else {
 		if (period == 0) {
 			ActivateTask(tid);
+			// #ifdef __AVR5__
+			// asm("sei"); 
+			// #endif
 		} else {
 			ActivateTask(tid);
+			#ifdef __AVR5__
+			asm("sei"); 
+			#endif
 			CancelAlarm(aid);
 			SetRelAlarm(aid, period, period);
 		}
