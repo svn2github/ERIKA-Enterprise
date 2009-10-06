@@ -26,6 +26,7 @@
 #define EE_UART_BIT6		0x02
 #define EE_UART_BIT5		0x00
 
+#define EE_UART_BIT8_NO		(EE_UART_BIT8 | EE_UART_PAR_NO)
 
 
 #define EE_UART_ERR_BAD_PORT		1
