@@ -400,11 +400,11 @@ timer3_stop:
 	ret
 
 timer3_get:
-	in  r20, SREG	; Save global interrupt flag
-	cli			; Disable interrupts
+	//in  r20, SREG	; Save global interrupt flag
+	//cli			; Disable interrupts
 
 	lds r24, TCNT3L
 	lds r25, TCNT3H
 
-	out SREG, r20	; Restore global interrupt flag 
+	//out SREG, r20	; Restore global interrupt flag 
 	ret
