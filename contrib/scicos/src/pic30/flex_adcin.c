@@ -21,7 +21,7 @@ static void init(scicos_block *block)
 		pin = 8;
 	else if (pin < 1)
 		pin = 1;
-	block->ipar[0]=pin;
+	//block->ipar[0]=pin;
 	
 	/* turn off ADC module */
 	AD1CON1bits.ADON = 0;
@@ -85,6 +85,10 @@ static void inout(scicos_block *block)
 	float * y = block->outptr[0];
 	
 	int pin = block->ipar[0];
+	if (pin > 8)
+		pin = 8;
+	else if (pin < 1)
+		pin = 1;
 
 	/* channel select */
 	switch (pin) {
