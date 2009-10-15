@@ -19,7 +19,7 @@ static void init(scicos_block *block)
 	if ((pin < 1) || (pin > 2))
 		return;
 
-	EE_pwm_init( pin-1 , 20000 , 0 );
+	EE_pwm_init( pin , 20000 , 0 );
 }
  
 static void inout(scicos_block *block)
@@ -33,7 +33,7 @@ static void inout(scicos_block *block)
 	if ((pin < 1) || (pin > 2))
 		return; //** refuse not supported PWM
 
-	EE_pwm_set_duty_f( pin-1 , *duty);
+	EE_pwm_set_duty_f( pin , *duty);
 }
 
 static void end(scicos_block *block)
