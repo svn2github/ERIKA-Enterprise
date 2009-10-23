@@ -143,6 +143,17 @@ EEOPT += __UNIBO_MPARM__
 EEALLOPT += __UNIBO_MPARM__
 endif
 
+# Bugfix: to be removed!
+ifeq ($(findstring __USE_DEMOBOARD__,$(EEOPT)) , __USE_DEMOBOARD__)
+else
+ifeq ($(findstring __USE_MOTIONBOARD__,$(EEOPT)) , __USE_MOTIONBOARD__)
+else
+ifeq ($(findstring __USE_USB__,$(EEOPT)) , __USE_USB__)
+EEOPT += __USE_MOTIONBOARD__
+EE_SRCS += pkg/board/ee_flex/src/ee_flex_motionboard.c
+endif # __USE_USB__
+endif # __USE_MOTIONBOARD__
+endif # __USE_DEMOBOARD__
 
 ##
 ## H8/300 - gcc under GNU/Linux
