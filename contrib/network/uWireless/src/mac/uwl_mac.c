@@ -859,6 +859,78 @@ uint8_t uwl_mac_create_beacon(uwl_mpdu_ptr_t bcn)
 	return s;
 }
 
+/*create association request cmd
+ *
+ * void uwl_mac_association_request_cmd(uint8_t CoordAddrMode,
+ * 										uint16_t CoordPANid,
+ * 										void *CoordAddress,
+ * 										uint8_t CapabilityInformation)
+ * {
+ * struct uwl_mac_frame_t *frame;
+ *
+ * uwl_kal_mutex_wait(MAC_SEND_MUTEX);
+ *		frame=(struct uwl_mac_frame_t*) cqueue_push(&uwl_mac_queue_cap);
+ *		if (frame == 0) {
+ *			/* TODO: we have to choose a well formed reply
+ *				 for the indication primitive (status=??) */ /*
+ *			uwl_kal_mutex_signal(MAC_SEND_MUTEX);
+ *			uwl_MCPS_DATA_confirm(handle,
+ *					      UWL_MAC_CHANNEL_ACCESS_FAILURE,0);
+ *			return;
+ *		}
+ *
+ *	frame->msdu_handle = handle;
+ *	/* Build the mpdu header (MHR) */ /*
+ *
+ *	memset(frame->mpdu, 0x0, sizeof(uwl_mpdu_t));
+ *
+ *
+ *	***flag.compress = (src_mode != UWL_MAC_ADDRESS_NONE &&
+ *	***		 dst_mode != UWL_MAC_ADDRESS_NONE &&
+ *	***		 dst_panid == uwl_mac_pib.macPANId) ?  1 : 0;
+ *	***flag.version = (/*TODO: if has security set (sec_level?) &&*/ /*
+ *	***	        len > UWL_aMaxMACSafePayloadSize) ?  1 : 0;
+ *
+ *	set_frame_control(UWL_MAC_MPDU_FRAME_CONTROL(frame->mpdu),
+ *			  UWL_MAC_TYPE_COMMAND,
+ *			  0,/* TODO: Use security infos (sec_level, etc.) */ /*
+ *			  0, /* TODO: Use Pending List flag */ /*
+ *			  1,
+ *			  0, dst_mode, src_mode, 0);
+ *
+ *
+ *	*(UWL_MAC_MPDU_SEQ_NUMBER(frame->mpdu)) = uwl_mac_pib.macDSN++;
+ *
+ *	if (src_mode == UWL_MAC_ADDRESS_EXTD ||
+ *	    (src_mode == UWL_MAC_ADDRESS_SHORT &&
+ *	    (uwl_mac_pib.macShortAddress == UWL_MAC_SHORT_ADDRESS_USE_EXTD ||
+ *	    uwl_mac_pib.macShortAddress == UWL_MAC_SHORT_ADDRESS_INVALID)))
+ *		UWL_MAC_EXTD_ADDR_SET(e_addr, UWL_aExtendedAddress_high,
+ *				      UWL_aExtendedAddress_low);
+ *	else /* TODO: can be short_none??? */ /*
+ *		memcpy(e_addr, &(uwl_mac_pib.macShortAddress),
+ *		       UWL_MAC_MPDU_ADDRESS_SHORT_SIZE);
+ *	s = set_addressing_fields(UWL_MAC_MPDU_ADDRESSING_FIELDS(frame->mpdu),
+ *				  dst_mode, dst_panid, dst_addr,
+ *				  src_mode, uwl_mac_pib.macPANId,
+ *			  	  (void *) e_addr, flag.compress);
+ *	/* TODO: think to security infos? */ /*
+ *
+ *
+ *	/* Store the msdu (Mac Payload) */ /*
+ *	memcpy(UWL_MAC_MPDU_MAC_PAYLOAD(frame->mpdu, s), payload, len);
+ *	/* TODO: compute FCS , use auto gen? */ /*
+ *	//*((uint16_t *) UWL_MAC_MPDU_MAC_FCS(bcn, s)) = 0;
+ *	frame->mpdu_size = UWL_MAC_MPDU_FRAME_CONTROL_SIZE +
+ *			   UWL_MAC_MPDU_SEQ_NUMBER_SIZE + s + len /* +
+ *			   sizeof(uint16_t) */ /*;
+ *
+ *	uwl_kal_mutex_signal(MAC_SEND_MUTEX);
+ *
+ *
+ * }
+ */
+
 /******************************************************************************/
 /*                       MAC MPDU Parsing Functions                           */
 /******************************************************************************/
