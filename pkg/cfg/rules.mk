@@ -252,7 +252,14 @@ include $(EEBASE)/pkg/cfg/arch/rules_infineon_tc1775b.mk
 endif
 endif
 
-
+##
+## Freescale S12X - Cosmic compiler under windows
+##########################################################################
+ifeq ($(findstring __HCS12XS__,$(EEALLOPT)) , __HCS12XS__)
+ifeq ($(findstring __COSMIC__,$(EEALLOPT)) , __COSMIC__)
+include $(EEBASE)/pkg/cfg/arch/rules_freescale_s12x_cosmic.mk
+endif
+endif
 
 
 

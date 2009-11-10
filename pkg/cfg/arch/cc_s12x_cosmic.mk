@@ -1,7 +1,7 @@
 # ###*B*###
 # ERIKA Enterprise - a tiny RTOS for small microcontrollers
 # 
-# Copyright (C) 2002-2008  Evidence Srl
+# Copyright (C) 2009  Evidence Srl
 # 
 # This file is part of ERIKA Enterprise.
 # 
@@ -45,36 +45,9 @@
 ifeq ($(findstring __HCS12XS__,$(EEALLOPT)), __HCS12XS__)
 
 # Select object file format
-# IMPORTANT NOTE:
-# Due to a bug in MPLAB IDE, debug symbols are only supported in COFF
-COSMIC_OFF := coff
 COSMIC_EXTENSION := elf
 
-# Prefix for GCC tools (prefix for deps below)
-COSMIC_CCPREFIX := 
-
-# Bin install directories of the various compilers
-# BINDIR_CC   - CC binary directory
-# BINDIR_ASM - ASM installed with COSMIC
-# BINDIR_CYG   - Cygwin gcc
-# BINDIR_EVI   - Cosmic compiler compiled from Microchip gcc source code
-
-#BINDIR_EVI := /opt/cosmic/hs12xs/bin
-#BINDIR_CYG := /usr/bin
-
-# If Linux, force recompiled gcc usage
-
-ifeq ($(findstring __RTD_LINUX__,$(EEOPT)), __RTD_LINUX__) 
-COSMIC_USE_EEGCC_COMPILE := Y
-endif
-ifeq ($(findstring __RTD_CYGWIN__,$(EEOPT)), __RTD_CYGWIN__) 
-#ifeq ($(wildcard $(COSMIC_CCDIR)/bin/bin),)
-#BINDIR_COSMIC   := $(COSMIC_CCDIR)/bin
-#else
-#BINDIR_COSMIC   := $(COSMIC_CCDIR)/bin/bin
-#endif
 BINDIR_COSMIC   := $(COSMIC_CCDIR)
-endif
 
 # Bin directories used for compilation
 # BINDIR_ASM      - directory of the Assembler
@@ -82,60 +55,41 @@ endif
 # BINDIR_DEP      - directory of the C compiler used for dependencies
 # BINDIR_BINUTILS - directory of the binutils
 
-# If Linux always first branch
-
-ifeq ($(COSMIC_USE_EEGCC_COMPILE), Y)
-BINDIR_ASM      := $(BINDIR_EVI)
-BINDIR_CC       := $(BINDIR_EVI)
-BINDIR_BINUTILS := $(BINDIR_EVI)
-else
 BINDIR_ASM      := $(BINDIR_COSMIC)
 BINDIR_CC       := $(BINDIR_COSMIC)
 BINDIR_BINUTILS := $(BINDIR_COSMIC)
-endif
-
-ifeq ($(COSMIC_USE_EEGCC_DEPS), Y)
-BINDIR_DEP := $(BINDIR_EVI)
-COSMIC_DEPPREFIX := #hs12xs-$(COSMIC_OFF)-
-else
-BINDIR_DEP := $(BINDIR_CYG)
-COSMIC_DEPPREFIX :=
-endif
+BINDIR_DEP      := $(BINDIR_COSMIC)
 
 ifndef EE_LINK
-EE_LINK:=$(BINDIR_BINUTILS)/$(COSMIC_CCPREFIX)clnk.exe
+EE_LINK:=$(BINDIR_BINUTILS)/clnk.exe
 endif
 
 ifndef EE_ASM
-EE_ASM:=$(BINDIR_ASM)/$(COSMIC_CCPREFIX)cas12x.exe
+EE_ASM:=$(BINDIR_ASM)/cas12x.exe
 endif
 
 ifndef EE_CC
-EE_CC:=$(BINDIR_CC)/$(COSMIC_CCPREFIX)cxs12x.exe
+EE_CC:=$(BINDIR_CC)/cxs12x.exe
 endif
 
 ifndef EE_DEP
-EE_DEP:=$(BINDIR_DEP)/$(COSMIC_DEPPREFIX)gcc
+EE_DEP:=$(BINDIR_DEP)/cxs12x.exe
 endif
 
 ifndef EE_AR
-#EE_AR:=$(BINDIR_BINUTILS)/$(COSMIC_GCCPREFIX)clib.exe
-EE_AR:=
+EE_AR:=$(BINDIR_BINUTILS)/clib.exe
 endif
 
-ifndef EE_NM
-#EE_NM:=$(BINDIR_BINUTILS)/$(COSMIC_GCCPREFIX)cvdwarf.exe
-EE_NM:=
+ifndef EE_CVDWARF
+EE_CVDWARF:=$(BINDIR_BINUTILS)/cvdwarf.exe
 endif
 
-ifndef EE_OBJCOPY
-#EE_OBJCOPY:=$(BINDIR_BINUTILS)/$(COSMIC_GCCPREFIX)objcopy
-EE_OBJCOPY:=
-endif
+#ifndef EE_OBJCOPY
+#EE_OBJCOPY:=$(BINDIR_BINUTILS)/objcopy
+#endif
 
-ifndef EE_OBJDUMP
-#EE_OBJDUMP:=$(BINDIR_BINUTILS)/$(COSMIC_GCCPREFIX)objdump
-EE_OBJDUMP:=
+ifndef EE_CLABS
+EE_CLABS:=$(BINDIR_BINUTILS)/clabs.exe
 endif
 
 # ALLINCPATH is a colon separated list of directories for source file searching
@@ -146,11 +100,8 @@ endif
 # please note the final backslash sequence after the shell command to
 # avoid cygpath insering a trailing backslash
 # INTERNAL_PKGBASEDIR is used to avoid multiple calls to cygpath
-ifeq ($(findstring __RTD_CYGWIN__,$(EEOPT)), __RTD_CYGWIN__) 
 INTERNAL_PKGBASEDIR := -I"$(shell cygpath -w $(PKGBASE))\\." -I"$(shell cygpath -w $(APPBASE))\\." -I.
-else
-INTERNAL_PKGBASEDIR := -I$(PKGBASE) -I$(APPBASE) -I.
-endif
+
 ALLINCPATH += $(INTERNAL_PKGBASEDIR)
 
 ## OPT_CC are the options for arm compiler invocation
@@ -161,18 +112,7 @@ endif
 # Specific option from the application makefile
 OPT_CC += $(CFLAGS)
 
-OPT_CC_DEPS := $(OPT_CC)
-
-# target type, not used for dependencies if the Cygwin GCC is used
-ifneq ($(COSMIC_MODEL),)
-OPT_CC += 
-
-ifeq ($(COSMIC_USE_EEGCC_DEPS), Y)
-OPT_CC_DEPS += 
-else
-OPT_CC_DEPS += -D__$(COSMIC_MODEL)__
-endif
-endif
+OPT_CC_DEPS := $(OPT_CC) -sm
 
 # #OPT_ASM are the options for asm invocation
 OPT_ASM = -i fromcosmic
@@ -194,12 +134,5 @@ OPT_LINK += $(LDFLAGS)
 # MUST be EEOPT, not EEALLOPT!!!
 DEFS_ASM = $(addprefix -D, $(EEOPT) )
 DEFS_CC  = $(addprefix -D, $(EEOPT) )
-
-ifeq ($(findstring __BIN_DISTR,$(EEOPT)), __BIN_DISTR) 
-# Note: the defines used in EEOPT to compile the library
-# are already added in the eecfg.h
-DEFS_ASM += -D__CONFIG_$(EELIB)__
-DEFS_CC  += -D__CONFIG_$(EELIB)__
-endif
 
 endif

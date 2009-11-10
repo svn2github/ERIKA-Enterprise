@@ -1,7 +1,7 @@
 # ###*B*###
 # ERIKA Enterprise - a tiny RTOS for small microcontrollers
 # 
-# Copyright (C) 2002-2008  Evidence Srl
+# Copyright (C) 2009  Evidence Srl
 # 
 # This file is part of ERIKA Enterprise.
 # 
@@ -74,3 +74,8 @@ ifeq ($(findstring __TRICORE1__,$(EEALLOPT)), __TRICORE1__)
 include $(PKGBASE)/cfg/arch/cc_tricore_tasking.mk
 endif
 
+ifeq ($(findstring __HCS12XS__,$(EEALLOPT)) , __HCS12XS__)
+ifeq ($(findstring __COSMIC__,$(EEALLOPT)), __COSMIC__)
+include $(PKGBASE)/cfg/arch/cc_s12x_cosmic.mk
+endif
+endif
