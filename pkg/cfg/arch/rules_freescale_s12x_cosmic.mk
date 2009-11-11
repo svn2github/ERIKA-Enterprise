@@ -38,8 +38,8 @@
 # Boston, MA 02110-1301 USA.
 # ###*E*###
 
-## Author: 2005- Paolo Gai
-## CVS: $Id: rules_cosmic.mk,v 1.24 2008/10/14 22:21:06 nino Exp $
+## Author: 2009 - Paolo Gai
+## CVS: $Id: rules_freescale_s12x_cosmic.mk,v 1.00 2009/11/11 22:21:06 Paolo Exp $
 
 # Enable verbose output from EE_OPT
 ifeq ($(findstring VERBOSE,$(EEOPT)) , VERBOSE)
@@ -53,18 +53,18 @@ include $(EEBASE)/pkg/cfg/dir.mk
 include $(PKGBASE)/cfg/verbose.mk
 include $(PKGBASE)/cfg/compiler.mk
 
-COSMIC_CRT0 := $(BINDIR_COSMIC)/HS12x/crtsx.S
+#COSMIC_CRT0 := $(BINDIR_COSMIC)/HS12x/crtsx.S
 
 # COSMIC_DATA_DIR refers to the location of COSMIC libraries
 COSMIC_DATA_DIR := $(COSMIC_CCDIR)
 
 COSMIC_LIB_DIR := $(COSMIC_DATA_DIR)/Lib
-COSMIC_INCLUDE_DIR := $(COSMIC_DATA_DIR)/HS12x
-COSMIC_LINKER_DIR := $(COSMIC_DATA_DIR)/Link_files
+#COSMIC_INCLUDE_DIR := $(COSMIC_DATA_DIR)/HS12x
+#COSMIC_LINKER_DIR := $(COSMIC_DATA_DIR)/Link_files
 
 # Add linker dependencies
 OPT_LINK += 
-LINKDEP += $(COSMIC_LINKERSCRIPT)
+LINKDEP += $(APPBASE)/$(COSMIC_LINKERSCRIPT)
 
 # Specific option from the libs dependencies
 LIBDEP += $(ALL_LIBS)
@@ -73,12 +73,11 @@ LIBDEP += $(ALL_LIBS)
 LIBDEP += $(LDDEPS)
 
 # path for libraries
-OPT_LIBS += -L "`cygpath -w $(COSMIC_LIB_DIR)`"
+OPT_LIBS += -l "`cygpath -w $(COSMIC_LIB_DIR)`"
 
-# INTERNAL_GCCINCLUDEDIR is used to avoid multiple calls to cygpath
-INTERNAL_CCINCLUDEDIR := -i"`cygpath -w $(COSMIC_INCLUDE_DIR)`"
-
-ALLINCPATH += $(INTERNAL_CCINCLUDEDIR)
+# INTERNAL_CCINCLUDEDIR is used to avoid multiple calls to cygpath
+#INTERNAL_CCINCLUDEDIR := -i"`cygpath -w $(COSMIC_INCLUDE_DIR)`"
+#ALLINCPATH += $(INTERNAL_CCINCLUDEDIR)
 
 
 ## COSMIC-related directories
@@ -86,7 +85,7 @@ ALLINCPATH += $(INTERNAL_CCINCLUDEDIR)
 
 #if COSMIC_CCDIR is defined
 ifneq ($(COSMIC_CCDIR),)
-DEFS_CC += -D__COSMIC_INCLUDE_REGS__
+DEFS_CC += -d__COSMIC_INCLUDE_REGS__
 COSMIC_INCLUDE_REGS=__COSMIC_INCLUDE_REGS__
 endif
 
@@ -102,9 +101,9 @@ include $(PKGBASE)/cfg/cfg.mk
 ##
 
 # Add crtsx.s from MC
-EE_BOOT_SRCS := fromcosmic/crtsx.S
+#EE_BOOT_SRCS := fromcosmic/crtsx.S
 
-SRCS += $(EE_BOOT_SRCS)
+SRCS += 
 
 LIBEESRCS += $(EE_SRCS)
 LIBEEOBJS := $(addprefix $(OBJDIR)/, $(patsubst %.c,%.o,$(patsubst %.S,%.o,$(LIBEESRCS))))
@@ -113,6 +112,7 @@ LIBEESRCS += $(LIB_SRCS)
 LIBOBJS := $(addprefix $(OBJDIR)/, $(patsubst %.c,%.o,$(patsubst %.S,%.o,$(LIBSRCS))))
 
 SRCS += $(APP_SRCS)
+SRCS += $(EE_SRCS)
 OBJS := $(addprefix $(OBJDIR)/, $(patsubst %.c,%.o,$(patsubst %.S,%.o, $(SRCS))))
 
 vpath %.cd $(APPBASE)
@@ -133,7 +133,7 @@ COMPUTED_OPT_CC_DEPS := $(OPT_CC_DEPS)
 ## Select input filename format
 SOURCEFILE = `cygpath -w $<`
 TARGETFILE = `cygpath -w $@`
-TARGET:=hs12xs.objdump
+TARGET := hs12xs.objdump
 SRCFILE = `cygpath -w $(patsubst %.o,%.src,$@)`
 
 ##
@@ -147,75 +147,53 @@ all:: make_directories $(ALL_LIBS) $(TARGET)
 	@printf "Compilation terminated successfully!\n"
 
 clean::
-	@-rm -rf *.a *.ld *.map *.$(COSMIC_EXTENSION) *.objdump deps deps.pre obj
+	@-rm -rf *.a *.ls *.ld *.map *.elf *.$(COSMIC_EXTENSION) *.objdump deps deps.pre obj
 # to support "make clean all"
 ifeq ($(findstring all,$(MAKECMDGOALS)),all)
-	@printf "CLEAN (also \"all\" specified, frommcosmic directory not removed)\n"
+	@printf "CLEAN (also \"all\" specified)\n"
 else
 	@printf "CLEAN\n";
-	@-rm -rf fromcosmic
 endif
 
 hs12xs.objdump: hs12xs.$(COSMIC_EXTENSION)
 	@printf "OBJDUMP\n";
-#	$(QUIET)$(EE_OBJDUMP) -D hs12xs.$(COSMIC_EXTENSION) > hs12xs.objdump
-	touch hs12xs.objdump
+	$(QUIET)$(EE_CLABS) -v hs12xs.$(COSMIC_EXTENSION) > hs12xs.objdump
+	@printf "ELF\n";
+	$(QUIET)$(EE_CVDWARF) hs12xs.$(COSMIC_EXTENSION)
 
 ##
 ## Object file creation
 ##
 
-
+# ATT!!! tolta l'opzione -m > hs12xs.map
 hs12xs.$(COSMIC_EXTENSION): $(OBJS) $(LINKDEP) $(LIBDEP) 
 	@printf "LD\n";
 	$(QUIET)$(EE_LINK) $(COMPUTED_OPT_LINK) \
-                     -o $(TARGETFILE) $(OBJS) \
-                     $(OPT_LIBS) \
-                     -M > hs12xs.map
-
+                     -o $(TARGETFILE) $(OPT_LIBS) $(LINKDEP) $(OBJS) \
+                     
+                    
 
 ifeq ($(findstring BUILDSRC,$(EEALLOPT)), BUILDSRC)
 # preprocess first the assembly code and then compile the object file
 $(OBJDIR)/%.o: %.S
-	$(VERBOSE_PRINTPRE) $(EE_DEP) $(COMPUTED_ALLINCPATH) $(DEFS_ASM) -E "$(SOURCEFILE)" > $(SRCFILE)
-	$(VERBOSE_PRINTASM) $(EE_ASM) $(COMPUTED_OPT_ASM) $(SRCFILE) -o $(TARGETFILE)
+	$(VERBOSE_PRINTPRE) $(EE_DEP) $(COMPUTED_ALLINCPATH) $(DEFS_ASM) -sp "$(SOURCEFILE)" > $(SRCFILE)
+	$(VERBOSE_PRINTASM) $(EE_ASM) $(COMPUTED_OPT_ASM) -o $(TARGETFILE) $(SRCFILE) 
 else
-# produce the object file from assembly code in a single step
+# produce the object file from assembly code in a single step ATT!!!
 $(OBJDIR)/%.o: %.S
-	$(VERBOSE_PRINTCPP) $(EE_CC) $(COMPUTED_ALLINCPATH) $(DEFS_ASM) -c "$(SOURCEFILE)" -o $(TARGETFILE)
+	$(VERBOSE_PRINTCPP) $(EE_CC) $(COMPUTED_ALLINCPATH) $(DEFS_ASM) -a"-o $(TARGETFILE)" "$(SOURCEFILE)" 
 endif
 
 ifeq ($(findstring BUILDSRC,$(EEALLOPT)), BUILDSRC)
 # produce first the assembly from C code and then compile the object file
 $(OBJDIR)/%.o: %.c ee_hs12xsregs.h
-	$(VERBOSE_PRINTCPP) $(EE_CC) $(COMPUTED_OPT_CC) $(COMPUTED_ALLINCPATH) $(DEFS_CC) "$(SOURCEFILE)" -S -o $(SRCFILE)
+	$(VERBOSE_PRINTCPP) $(EE_CC) $(COMPUTED_OPT_CC) $(COMPUTED_ALLINCPATH) $(DEFS_CC) -s -a"-o $(SRCFILE)" "$(SOURCEFILE)" 
 	$(VERBOSE_PRINTASM) $(EE_ASM) $(COMPUTED_OPT_ASM) $(SRCFILE) -o $(TARGETFILE)
 else
-# produce the object file from C code in a single step
+# produce the object file from C code in a single step	ATT!!! tolta opzione -c!!! e tolta l'opzione -o $(TARGETFILE) 
 $(OBJDIR)/%.o: %.c ee_hs12xsregs.h
-	$(VERBOSE_PRINTCPP) $(EE_CC) $(COMPUTED_OPT_CC) $(COMPUTED_ALLINCPATH) $(DEFS_CC) -c "$(SOURCEFILE)" -o $(TARGETFILE)
+	$(VERBOSE_PRINTCPP) $(EE_CC) $(COMPUTED_OPT_CC) $(COMPUTED_ALLINCPATH) $(DEFS_CC) -a"-o $(TARGETFILE)" "$(SOURCEFILE)" 
 endif
-
-
-$(OBJDIR)/fromcosmic/crtsx.o: fromcosmic/crtsx.S
-	$(VERBOSE_PRINTASM) $(EE_ASM) $(COMPUTED_OPT_ASM) $(SOURCEFILE) -o $(TARGETFILE)
-
-
-##
-## Cosmic files
-##
-
-fromcosmic/crtsx.S: $(COSMIC_CRT0)
-	@printf "\nCP crtsx.S\n"; cp $(SOURCEFILE) $(TARGETFILE); chmod +rw $(TARGETFILE)
-
-ee_hs12xsregs.h: fromcosmic/$(COSMIC_INCLUDE_C)
-	@printf "GEN ee_hs12xsregs.h\n"
-	@printf "/* Automatically generated from Makefile */\n" > ee_hs12xsregs.h
-	@printf "#include \"fromcosmic/$(COSMIC_INCLUDE_C)\"\n" >> ee_hs12xsregs.h
-
-fromcosmic/$(COSMIC_INCLUDE_C): $(COSMIC_INCLUDE_DIR)/$(COSMIC_INCLUDE_C)
-	@printf "CP $(COSMIC_INCLUDE_C)\n"; cp $(SOURCEFILE) $(TARGETFILE); chmod +rw $(TARGETFILE)
-
 
 ##
 ## EE Library
@@ -253,6 +231,12 @@ $(OBJDIR)/%.Sd: %.S
 	@test -s $(TARGETFILE) || rm -f $(TARGETFILE)
 
 
+ee_hs12xsregs.h: $(APPBASE)/$(COSMIC_INCLUDE_H)
+	@printf "GEN ee_hs12xsregs.h\n"
+	@printf "/* Automatically generated from Makefile */\n" > ee_hs12xsregs.h
+	@printf "#include \"$(APPBASE)/$(COSMIC_INCLUDE_H)\"\n" >> ee_hs12xsregs.h
+
+
 #
 # --------------------------------------------------------------------------
 #
@@ -270,13 +254,13 @@ $(OBJDIR)/%.Sd: %.S
 make_directories:
 ifneq ($(findstring clean,$(MAKECMDGOALS)),clean)
 	@printf "MAKE_DIRECTORIES (after a clean)\n"
-	$(QUIET)mkdir -p $(dir $(basename $(addprefix $(OBJDIR)/, $(SRCS) $(LIBEESRCS) $(LIBSRCS)))) fromcosmic obj/fromcosmic
+	$(QUIET)mkdir -p $(dir $(basename $(addprefix $(OBJDIR)/, $(SRCS) $(LIBEESRCS) $(LIBSRCS))))
 endif
 
 # this checks but not forces the directory creation when creating dependencies
 $(OBJDIR)/.make_directories_flag:
 	@printf "MAKE_DIRECTORIES\n"
-	$(QUIET)mkdir -p $(dir $(basename $(addprefix $(OBJDIR)/, $(SRCS) $(LIBEESRCS) $(LIBSRCS)))) fromcosmic obj/fromcosmic
+	$(QUIET)mkdir -p $(dir $(basename $(addprefix $(OBJDIR)/, $(SRCS) $(LIBEESRCS) $(LIBSRCS))))
 	$(QUIET)touch $(TARGETFILE)
 
 #
@@ -286,7 +270,7 @@ $(OBJDIR)/.make_directories_flag:
 ifndef NODEPS
 ifneq ($(MAKECMDGOALS),clean)
 ifneq ($(findstring NODEPS,$(EEALLOPT)), NODEPS) 
--include deps
+#-include deps
 endif
 endif
 endif

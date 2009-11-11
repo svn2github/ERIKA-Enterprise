@@ -39,13 +39,13 @@
 # ###*E*###
 
 ##
-## PIC30 GCC compiler version 3.3 dsPIC30, Microchip 1.32
+## Cosmic compiler
 ##
 
 ifeq ($(findstring __HCS12XS__,$(EEALLOPT)), __HCS12XS__)
 
 # Select object file format
-COSMIC_EXTENSION := elf
+COSMIC_EXTENSION := xs12
 
 BINDIR_COSMIC   := $(COSMIC_CCDIR)
 
@@ -100,14 +100,15 @@ endif
 # please note the final backslash sequence after the shell command to
 # avoid cygpath insering a trailing backslash
 # INTERNAL_PKGBASEDIR is used to avoid multiple calls to cygpath
-INTERNAL_PKGBASEDIR := -I"$(shell cygpath -w $(PKGBASE))\\." -I"$(shell cygpath -w $(APPBASE))\\." -I.
+
+INTERNAL_PKGBASEDIR := -i"$(shell cygpath -w $(PKGBASE))\\." -i"$(shell cygpath -w $(APPBASE))\\." -i.
 
 ALLINCPATH += $(INTERNAL_PKGBASEDIR)
 
 ## OPT_CC are the options for arm compiler invocation
 OPT_CC = 
 ifeq ($(findstring DEBUG,$(EEOPT)) , DEBUG)
-OPT_CC += 
+OPT_CC += +debug
 endif
 # Specific option from the application makefile
 OPT_CC += $(CFLAGS)
@@ -115,10 +116,10 @@ OPT_CC += $(CFLAGS)
 OPT_CC_DEPS := $(OPT_CC) -sm
 
 # #OPT_ASM are the options for asm invocation
-OPT_ASM = -i fromcosmic
-#ifeq ($(findstring DEBUG,$(EEOPT)) , DEBUG)
-#OPT_ASM += --gstabs
-#endif
+OPT_ASM = -i "fromcosmic"
+ifeq ($(findstring DEBUG,$(EEOPT)) , DEBUG)
+OPT_ASM += -xx -x
+endif
 # Specific option from the application makefile
 OPT_ASM += $(ASFLAGS)
 
@@ -132,7 +133,7 @@ OPT_LINK += $(LDFLAGS)
 # command-line macro in the compiler...
 
 # MUST be EEOPT, not EEALLOPT!!!
-DEFS_ASM = $(addprefix -D, $(EEOPT) )
-DEFS_CC  = $(addprefix -D, $(EEOPT) )
+DEFS_ASM = $(addprefix -d, $(EEOPT) )
+DEFS_CC  = $(addprefix -d, $(EEOPT) )
 
 endif
