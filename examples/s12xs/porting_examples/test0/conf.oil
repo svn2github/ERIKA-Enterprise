@@ -38,28 +38,30 @@
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
 
-/*
- * Author: 
- * CVS: $Id: ee_mcuregs.h,v 1.7 2007/08/31 08:21:10 pj Exp $
- */
+CPU mySystem {
 
-#include "cpu/cosmic_hs12xs/inc/ee_cpu.h"
+	OS myOs {
+		EE_OPT = "DEBUG";
 
-#ifndef __INCLUDE_MCU_FREESCALE_S12XS_MCUREGS__
-#define __INCLUDE_MCU_FREESCALE_S12XS_MCUREGS__
+		CPU_DATA = PIC30 {
+			APP_SRC = "code.c";
+			MULTI_STACK = FALSE;
+			ICD2 = TRUE;
+		};
 
-/* This file should contain the definition of the registers available
-   on the particular dsPIC being used */
-   
-/* Include a file with the registers from Microchip C30 distribution */ 
-#ifdef __S12XS_INCLUDE_REGS__
-#include "ee_hs12xsregs.h"
-#endif
+		MCU_DATA = PIC30 {
+			MODEL = PIC33FJ256MC710;
+		};
+		
+		BOARD_DATA = EE_FLEX {
+			USELEDS = TRUE;
+		};
+		
+		KERNEL_TYPE = FP;
+		
+	};
 
+	COUNTER myCounter;
 
-/* A set of features which are used by the MCU code... */
-#ifdef __MC9S12XS128__
-#define __S12XS_HAS_TMR8__
-#endif
+};
 
-#endif

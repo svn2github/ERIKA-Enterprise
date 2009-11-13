@@ -89,7 +89,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_IRQ_end_primitive(void)
 
 /* we should make an include file with all the registers of a S12XS CPU
    the file is typically provided by the compiler distribution */
-extern EE_FREG DISICNT;
+//extern EE_FREG DISICNT;
 
 //extern volatile EE_FREG DISICNT __attribute__((__sfr__));
 
@@ -99,7 +99,7 @@ __INLINE__ EE_FREG __ALWAYS_INLINE__ EE_hal_begin_nested_primitive(void)
 {
   register EE_FREG retvalue;
 
-  retvalue = DISICNT;
+  retvalue = 0;	//retvalue = DISICNT;
   EE_hal_disableIRQ();
   return retvalue;
 }

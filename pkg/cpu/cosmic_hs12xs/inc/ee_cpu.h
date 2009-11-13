@@ -98,7 +98,7 @@ typedef EE_UINT16 EE_FREG;
 typedef EE_UINT32 EE_TID;
 
 /* Addresses (that have the same size of a pointer) */
-typedef EE_UINT32 *EE_ADDR;
+typedef EE_UINT32 *EE_ADDR;		// N.B. 16-bit for @near pointer and 32-bit for @far pointer
 
 /* EE_TYPEIRQ is defined inside the MCU */
 

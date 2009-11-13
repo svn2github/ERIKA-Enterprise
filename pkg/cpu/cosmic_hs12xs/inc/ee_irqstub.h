@@ -130,9 +130,9 @@ __INLINE__ void __ALWAYS_INLINE__ EE_ISR2_poststub(void)
   
   if (EE_hal_endcycle_next_thread) {
     // enable interrupt and CPU priority to 0
-    _asm("BCLR.B 0x0042, #0x7");
-    _asm("BCLR.B 0x0042, #0x6");
-    _asm("BCLR.B 0x0042, #0x5");
+    _asm("tfr a,ccrh\n", 0x00);		//_asm("BCLR.B 0x0042, #0x7");
+    								//_asm("BCLR.B 0x0042, #0x6");
+    								//_asm("BCLR.B 0x0042, #0x5");
 #ifdef __MONO__
     EE_s12xs_hal_ready2stacked(EE_hal_endcycle_next_thread);
 #endif
@@ -144,9 +144,9 @@ __INLINE__ void __ALWAYS_INLINE__ EE_ISR2_poststub(void)
 #ifdef __MULTI__
     if (EE_hal_endcycle_next_tos != EE_s12xs_active_tos) {
       // enable interrupt and CPU priority to 0
-      _asm("BCLR.B 0x0042, #0x7");
-      _asm("BCLR.B 0x0042, #0x6");
-      _asm("BCLR.B 0x0042, #0x5");
+      _asm("tfr a,ccrh\n", 0x00);	//_asm("BCLR.B 0x0042, #0x7");
+      								//_asm("BCLR.B 0x0042, #0x6");
+      								//_asm("BCLR.B 0x0042, #0x5");
 
       EE_s12xs_hal_stkchange(EE_hal_endcycle_next_tos);
     }
@@ -155,9 +155,9 @@ __INLINE__ void __ALWAYS_INLINE__ EE_ISR2_poststub(void)
 
   //  Set CPU priority to 6 and enable interrupt with disi
   //  retfie will restore the right priority level
-  _asm("BSET.B 0x0042, #0x7");
-  _asm("BSET.B 0x0042, #0x6");
-  _asm("BCLR.B 0x0042, #0x5");
+  _asm("tfr a,ccrh\n", 0x06);	//_asm("BSET.B 0x0042, #0x7");
+  								//_asm("BSET.B 0x0042, #0x6");
+  								//_asm("BCLR.B 0x0042, #0x5");
   EE_s12xs_enableIRQ();
 }
 

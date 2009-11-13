@@ -52,23 +52,23 @@
 //#include "cpu/cosmic_hs12xs/inc/ee_compiler.h"
 
 
-//	.text
+//	//.text
 //
-//	.extern _EE_hal_endcycle_next_thread	
+//	xref 	_EE_hal_endcycle_next_thread	
 //#ifdef __MULTI__
 //
 //#ifdef __IRQ_STACK_NEEDED__
-//	.global	_EE_s12xs_change_to_irq_tos
-//	.global	_EE_s12xs_change_from_irq_tos
-//	.extern _EE_arm7_temp_tos
+//	xdef	_EE_s12xs_change_to_irq_tos
+//	xdef	_EE_s12xs_change_from_irq_tos
+//	xref 	_EE_s12xs_temp_tos
 //#endif
 //
-//	.global	_EE_s12xs_hal_stkchange
-//	.extern	_EE_s12xs_system_tos
-//	.extern	_EE_s12xs_active_tos
-//	.extern _EE_hal_endcycle_next_tos
+//	xdef	_EE_s12xs_hal_stkchange
+//	xref	_EE_s12xs_system_tos
+//	xref	_EE_s12xs_active_tos
+//	xref 	_EE_hal_endcycle_next_tos
 //
-//.macro EE_CHANGE_TOS_MACRO
+//EE_CHANGE_TOS_MACRO: macro 
 //	// if (tos_index == EE_s12xs_active_tos) goto 2f
 //	mov w0,w2
 //	mov w1, w0
@@ -108,7 +108,7 @@
 //
 //2:	// put back w0
 //	mov w2, w0
-//	.endm
+//	endm
 //
 //#endif // __MULTI__
 //
@@ -121,7 +121,7 @@
 //// parameters are in w0 and w1
 ////
 ////	.type	_EE_s12xs_hal_ready2stacked, #function
-xdef f_EE_s12xs_hal_ready2stacked	// .global _EE_s12xs_hal_ready2stacked
+xdef f_EE_s12xs_hal_ready2stacked	// xdef _EE_s12xs_hal_ready2stacked
 f_EE_s12xs_hal_ready2stacked:
 //
 //1:
@@ -131,7 +131,8 @@ f_EE_s12xs_hal_ready2stacked:
 //#endif
 //
 //	// enable interrupts	
-//	DISI #0
+//	//DISI #0
+//	cli
 ////  DISI #3
 ////  BCLR.B 0x0042, #0x7
 ////  BCLR.B 0x0042, #0x6
@@ -141,29 +142,29 @@ f_EE_s12xs_hal_ready2stacked:
 //	call	w0
 //  
 //	// disable interrupts
-//	DISI #0x3fff
+//	//DISI #0x3fff
+//	sei
 ////  DISI #3
 ////  BSET.B 0x0042, #0x7
 ////  BSET.B 0x0042, #0x6
 ////  BSET.B 0x0042, #0x5
 //	
-//	
 //	// call the thread end instance
-//	rcall	_EE_thread_end_instance
+//	call	_EE_thread_end_instance		// rcall
 //
 //#ifdef __MULTI__
-//	mov	_EE_hal_endcycle_next_tos,w1
+//	mov	_EE_hal_endcycle_next_tos,aux_w1	//w1
 //#endif
-//	mov	_EE_hal_endcycle_next_thread,w0
+//	mov	_EE_hal_endcycle_next_thread,aux_w0		//w0
 //
 //	// EE_hal_endcycle_next_thread == 0 >>> wake up a stacked thread
 //	// EE_hal_endcycle_next_thread != 0 >>> wake up a ready thread
-//	cp0	w0
+//	cp0	aux_w0
 //	bra	nz,1b
 //#ifdef __MULTI__
 //	EE_CHANGE_TOS_MACRO
 //#endif
-//	return	
+//	rtc									//return	
 //
 //
 //
@@ -172,12 +173,12 @@ f_EE_s12xs_hal_ready2stacked:
 //
 ////
 //// MONO:  not defined
-//// MULTI: void EE_arm7_hal_stkchange(EE_UREG 0, EE_UREG tos_index)
+//// MULTI: void EE_s12xs_hal_stkchange(EE_UREG 0, EE_UREG tos_index)
 ////
 //// Typically called into a generic primitive to implement a blocking
 //// synchronization primitive.
 ////
-////	.type	_EE_arm7_hal_stkchange, #function
+////	.type	_EE_s12xs_hal_stkchange, #function
 //_EE_s12xs_hal_stkchange:
 //	// save some registers
 //        mov.d   w8,[w15++]
