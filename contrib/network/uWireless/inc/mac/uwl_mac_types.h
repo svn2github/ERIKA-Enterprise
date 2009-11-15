@@ -155,6 +155,15 @@ struct uwl_mac_frame_t {
 	uint8_t msdu_handle;
 };
 
+
+ struct uwl_mac_command_association_request_t {
+    uwl_mpdu_t mpdu;
+    unsigned reserved : 1;
+    unsigned mpdu_size : 7;
+    uint8_t command_frame_identifier;
+    uint8_t capability_information;
+ };
+
 enum uwl_mac_frame_type_t {
 	UWL_MAC_TYPE_BEACON 	= 0x0,
 	UWL_MAC_TYPE_DATA	= 0x1,
@@ -166,6 +175,10 @@ enum uwl_mac_addr_mode_t {
 	UWL_MAC_ADDRESS_NONE 	= 0x0,
 	UWL_MAC_ADDRESS_SHORT 	= 0x2,
 	UWL_MAC_ADDRESS_EXTD 	= 0x3,
+};
+
+enum uwl_mac_cmd_type_t {
+	UWL_MAC_CMD_ASSOCIATION_REQUEST = 0x01,
 };
 
 struct uwl_gts_info_t {
