@@ -866,63 +866,64 @@ uint8_t uwl_mac_create_beacon(uwl_mpdu_ptr_t bcn)
  										void *dst_addr,
  										uint8_t cap_inform)
  {
- struct uwl_mac_command_association_request_t *command_association_request_ptr;
+	 uint8_t s;
 
-	struct {
-		unsigned compress : 1;
-		unsigned version : 1;
-	} flag;
+	 struct uwl_mac_command_association_request_t *command_association_request_ptr;
 
-	uwl_mac_dev_addr_extd_t e_addr;
+	 struct {
+		 unsigned compress : 1;
+		 unsigned version : 1;
+	 } flag;
 
- uwl_kal_mutex_wait(MAC_SEND_MUTEX);
-		command_association_request_ptr = (struct uwl_mac_command_association_request_t*)
-				cqueue_push(&uwl_mac_queue_cap);
-		if (command_association_request_ptr == 0) {
+	 uwl_mac_dev_addr_extd_t e_addr;
+
+	 uwl_kal_mutex_wait(MAC_SEND_MUTEX);
+	 command_association_request_ptr = (struct uwl_mac_command_association_request_t*)
+		cqueue_push(&uwl_mac_queue_cap);
+	 if (command_association_request_ptr == 0) {
 			/* TODO: we have to choose a well formed reply
 				 for the indication primitive (status=??) */
-			uwl_kal_mutex_signal(MAC_SEND_MUTEX);
-			return;
-		}
+		 uwl_kal_mutex_signal(MAC_SEND_MUTEX);
+		 return;
+	 }
 
 	 	/* Build the mpdu header (MHR) */
 
-	memset(command_association_request_ptr->mpdu, 0x0, sizeof(uwl_mpdu_t));
+	 memset(command_association_request_ptr->mpdu, 0x0, sizeof(uwl_mpdu_t));
 
-  flag.compress = 1;
-  flag.version = 0;
+	 flag.compress = 1;
+	 flag.version = 0;
 
-	set_frame_control(UWL_MAC_MPDU_FRAME_CONTROL(command_association_request_ptr->mpdu),
-			  UWL_MAC_TYPE_COMMAND,
-			  0,/* TODO: Use security infos (sec_level, etc.) */
-			  0, /* TODO: Use Pending List flag */
-			  1,
-			  0, UWL_MAC_ADDRESS_SHORT, UWL_MAC_ADDRESS_EXTD, 0);
+	 set_frame_control(UWL_MAC_MPDU_FRAME_CONTROL(command_association_request_ptr->mpdu),
+			 UWL_MAC_TYPE_COMMAND,
+			 0,/* TODO: Use security infos (sec_level, etc.) */
+			 0, /* TODO: Use Pending List flag */
+			 1,
+			 0, dst_mode, UWL_MAC_ADDRESS_EXTD, 0);
 
 
-	*(UWL_MAC_MPDU_SEQ_NUMBER(command_association_request_ptr->mpdu)) = uwl_mac_pib.macDSN++;
+	 *(UWL_MAC_MPDU_SEQ_NUMBER(command_association_request_ptr->mpdu)) = uwl_mac_pib.macDSN++;
 
-		UWL_MAC_EXTD_ADDR_SET(e_addr, UWL_aExtendedAddress_high,
-				      UWL_aExtendedAddress_low);
+	 UWL_MAC_EXTD_ADDR_SET(e_addr, UWL_aExtendedAddress_high,
+			 UWL_aExtendedAddress_low);
 
-	s = set_addressing_fields(UWL_MAC_MPDU_ADDRESSING_FIELDS
-			(command_association_request_ptr->mpdu),
-				  dst_mode, dst_panid, dst_addr,
-				  UWL_MAC_ADDRESS_EXTD, uwl_mac_pib.macPANId,
-			  	  (void *) e_addr, flag.compress);
+	 s = set_addressing_fields(UWL_MAC_MPDU_ADDRESSING_FIELDS
+			 (command_association_request_ptr->mpdu),
+			 dst_mode, dst_panid, dst_addr,
+			 UWL_MAC_ADDRESS_EXTD, 0xffff,
+			 (void *) e_addr, flag.compress);
 	/* TODO: think to security infos? */
 
-	command_association_request_ptr->command_frame_identifier = CMD_ASSOCIATION_REQUEST;
-	command_association_request_ptr->capability_information = cap_inform;
+	 command_association_request_ptr->command_frame_identifier = CMD_ASSOCIATION_REQUEST;
+	 command_association_request_ptr->capability_information = cap_inform;
 
-	command_association_request_ptr->mpdu_size = UWL_MAC_MPDU_FRAME_CONTROL_SIZE +
-			   UWL_MAC_MPDU_SEQ_NUMBER_SIZE + s + UWL_MAC_CMD_ASSOCIATION_REQUEST /* +
-			   sizeof(uint16_t) */;
+	 command_association_request_ptr->mpdu_size = UWL_MAC_MPDU_FRAME_CONTROL_SIZE +
+			 UWL_MAC_MPDU_SEQ_NUMBER_SIZE + s + UWL_MAC_CMD_ASSOCIATION_REQUEST_SIZE /* +
+			sizeof(uint16_t) */;
 
-	uwl_kal_mutex_signal(MAC_SEND_MUTEX);
+	 uwl_kal_mutex_signal(MAC_SEND_MUTEX);
 
  }
-
 
 /******************************************************************************/
 /*                       MAC MPDU Parsing Functions                           */

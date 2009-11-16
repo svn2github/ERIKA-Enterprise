@@ -54,6 +54,7 @@ int8_t uwl_MLME_ASSOCIATE_request(uint8_t LogicalChannel, uint8_t ChannelPage,
 		/* TODO: security levels management! */
 	}
 	/* TODO: initiate the association procedure!!!! */
+	//create_association_request_cmd(CoorAddrMode, CoordPANId, CoordAddress, CapabilityInformation);
 	/* TODO: current dummy: assoctiation succes, and give hardcoded addr */
 	uwl_mac_status.track_beacon = 1;
 	uwl_mac_superframe_stop();
