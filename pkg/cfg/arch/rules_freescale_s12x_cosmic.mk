@@ -191,7 +191,7 @@ $(OBJDIR)/%.o: %.c ee_hs12xsregs.h
 	$(VERBOSE_PRINTASM) $(EE_ASM) $(COMPUTED_OPT_ASM) $(SRCFILE) -o $(TARGETFILE)
 else
 # produce the object file from C code in a single step	ATT!!! tolta opzione -c!!! e tolta l'opzione -o $(TARGETFILE) 
-$(OBJDIR)/%.o: %.c ee_hs12xsregs.h
+$(OBJDIR)/%.o: %.c ee_hs12xsregs.h  
 	$(VERBOSE_PRINTCPP) $(EE_CC) $(COMPUTED_OPT_CC) $(COMPUTED_ALLINCPATH) $(DEFS_CC) -a"-o $(TARGETFILE)" "$(SOURCEFILE)" 
 endif
 

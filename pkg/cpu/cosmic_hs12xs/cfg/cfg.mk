@@ -43,9 +43,11 @@
 
 ifeq ($(findstring __HCS12XS__,$(EEOPT)) , __HCS12XS__)
 EE_SRCS += pkg/cpu/cosmic_hs12xs/src/ee_hal.S
+#EE_SRCS += pkg/cpu/cosmic_hs12xs/src/pippo.c
 EE_SRCS += pkg/cpu/cosmic_hs12xs/src/ee_hal_c.c
 #EE_SRCS += pkg/cpu/cosmic_hs12xs/src/crts.S
 
+#$(info $(EE_SRCS)) 
 
 ifeq ($(findstring __OO_BCC1__,$(EEOPT)) , __OO_BCC1__)
 CPU_OO=YES

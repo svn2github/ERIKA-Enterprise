@@ -132,6 +132,8 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_ready2stacked(EE_TID thread)
 {
     EE_s12xs_hal_ready2stacked(EE_hal_thread_body[thread]);
 }
+
+
 #endif
 #ifdef __MULTI__
 void EE_s12xs_hal_ready2stacked(EE_ADDR thread_addr, EE_UREG tos_index); /* in ASM */
