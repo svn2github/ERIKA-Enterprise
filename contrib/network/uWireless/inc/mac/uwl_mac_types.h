@@ -155,14 +155,13 @@ struct uwl_mac_frame_t {
 	uint8_t msdu_handle;
 };
 
-
- struct uwl_mac_command_association_request_t {
+struct uwl_mac_command_association_request_t {
     uwl_mpdu_t mpdu;
     unsigned reserved : 1;
     unsigned mpdu_size : 7;
     uint8_t command_frame_identifier;
     uint8_t capability_information;
- };
+};
 
 enum uwl_mac_frame_type_t {
 	UWL_MAC_TYPE_BEACON 	= 0x0,
