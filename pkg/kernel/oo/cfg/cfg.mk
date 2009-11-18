@@ -46,6 +46,7 @@ OO=YES
 endif
 ifeq ($(findstring __OO_BCC2__,$(EEOPT)) , __OO_BCC2__)
 OO=YES
+OO2=YES
 endif
 ifeq ($(findstring __OO_ECC1__,$(EEOPT)) , __OO_ECC1__)
 OO=YES
@@ -54,6 +55,7 @@ endif
 ifeq ($(findstring __OO_ECC2__,$(EEOPT)) , __OO_ECC2__)
 OO=YES
 OO_ECC=YES
+OO2=YES
 endif
 
 ifeq ($(OO), YES)
@@ -66,10 +68,13 @@ EE_SRCS += pkg/kernel/oo/src/ee_irqendin.c
 EE_SRCS += pkg/kernel/oo/src/ee_tstub.c
 EE_SRCS += pkg/kernel/oo/src/ee_lookup.c
 EE_SRCS += pkg/kernel/oo/src/ee_rq_exchg.c
-EE_SRCS += pkg/kernel/oo/src/ee_rq_first.c
 EE_SRCS += pkg/kernel/oo/src/ee_rq_inser.c
 EE_SRCS += pkg/kernel/oo/src/ee_shtdown.c
 EE_SRCS += pkg/kernel/oo/src/ee_startos.c
+
+ifeq ($(OO2), YES)
+EE_SRCS += pkg/kernel/oo/src/ee_rq_first.c
+endif
 
 ifneq ($(findstring __OO_NO_CHAINTASK__,$(EEOPT)) , __OO_NO_CHAINTASK__)
 EE_SRCS += pkg/kernel/oo/src/ee_chaintas.c

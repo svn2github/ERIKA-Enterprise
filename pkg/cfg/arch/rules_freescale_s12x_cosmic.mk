@@ -74,6 +74,8 @@ LIBDEP += $(LDDEPS)
 
 # path for libraries
 OPT_LIBS += -l "`cygpath -w $(COSMIC_LIB_DIR)`"
+OPT_LIBS += -l "`cygpath -w $(shell pwd)`"
+
 
 # INTERNAL_CCINCLUDEDIR is used to avoid multiple calls to cygpath
 #INTERNAL_CCINCLUDEDIR := -i"`cygpath -w $(COSMIC_INCLUDE_DIR)`"
@@ -108,12 +110,15 @@ SRCS +=
 LIBEESRCS += $(EE_SRCS)
 LIBEEOBJS := $(addprefix $(OBJDIR)/, $(patsubst %.c,%.o,$(patsubst %.S,%.o,$(LIBEESRCS))))
 
-LIBEESRCS += $(LIB_SRCS)
-LIBOBJS := $(addprefix $(OBJDIR)/, $(patsubst %.c,%.o,$(patsubst %.S,%.o,$(LIBSRCS))))
+#LIBEESRCS += $(LIBSRCS)
+#LIBOBJS := $(addprefix $(OBJDIR)/, $(patsubst %.c,%.o,$(patsubst %.S,%.o,$(LIBSRCS))))
 
 SRCS += $(APP_SRCS)
-SRCS += $(EE_SRCS)
+#SRCS += $(EE_SRCS)
 OBJS := $(addprefix $(OBJDIR)/, $(patsubst %.c,%.o,$(patsubst %.S,%.o, $(SRCS))))
+
+LIBDEP += libee.x12
+
 
 vpath %.cd $(APPBASE)
 vpath %.Sd $(APPBASE)
@@ -147,7 +152,7 @@ all:: make_directories $(ALL_LIBS) $(TARGET)
 	@printf "Compilation terminated successfully!\n"
 
 clean::
-	@-rm -rf *.a *.ls *.ld *.map *.elf *.$(COSMIC_EXTENSION) *.objdump deps deps.pre obj
+	@-rm -rf *.a *.ls *.ld *.map *.elf *.$(COSMIC_EXTENSION) *.objdump deps deps.pre obj *.x12
 # to support "make clean all"
 ifeq ($(findstring all,$(MAKECMDGOALS)),all)
 	@printf "CLEAN (also \"all\" specified)\n"
@@ -169,7 +174,7 @@ hs12xs.objdump: hs12xs.$(COSMIC_EXTENSION)
 hs12xs.$(COSMIC_EXTENSION): $(OBJS) $(LINKDEP) $(LIBDEP) 
 	@printf "LD\n";
 	$(QUIET)$(EE_LINK) $(COMPUTED_OPT_LINK) \
-                     -o $(TARGETFILE) $(OPT_LIBS) $(LINKDEP) $(OBJS) \
+                     -o $(TARGETFILE) $(OPT_LIBS) $(LINKDEP) $(OBJS) $(LIBDEP) \
                      
                     
 
@@ -199,9 +204,15 @@ endif
 ## EE Library
 ##
 
-libee.a: $(LIBEEOBJS)
-	@printf "AR  libee.a\n" ;
-	$(QUIET)$(EE_AR) rs libee.a $(LIBEEOBJS)
+
+	
+
+libee.x12: $(LIBEEOBJS)
+	@printf "AR  libee.x12\n" ;
+	$(QUIET)$(EE_AR) -c libee.x12 $(LIBEEOBJS)
+	@echo
+	$(QUIET)$(EE_AR) -t -s libee.x12
+	@echo
 
 
 ##

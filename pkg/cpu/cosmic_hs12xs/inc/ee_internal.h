@@ -90,7 +90,6 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_IRQ_end_primitive(void)
 /* we should make an include file with all the registers of a S12XS CPU
    the file is typically provided by the compiler distribution */
 //extern EE_FREG DISICNT;
-
 //extern volatile EE_FREG DISICNT __attribute__((__sfr__));
 
 /* called as _first_ function of a primitive that can be called into
@@ -98,9 +97,10 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_IRQ_end_primitive(void)
 __INLINE__ EE_FREG __ALWAYS_INLINE__ EE_hal_begin_nested_primitive(void)
 {
   register EE_FREG retvalue;
-
-  retvalue = 0;	//retvalue = DISICNT;
+  //retvalue = DISICNT;
+  retvalue = _asm("tfr ccr,b\n");
   EE_hal_disableIRQ();
+  
   return retvalue;
 }
 
@@ -108,7 +108,7 @@ __INLINE__ EE_FREG __ALWAYS_INLINE__ EE_hal_begin_nested_primitive(void)
    an IRQ and into a task */
 __INLINE__ void __ALWAYS_INLINE__ EE_hal_end_nested_primitive(EE_FREG f)
 {
-  if(f) 
+  if(f & 0x10) 
     EE_hal_disableIRQ();
   else
     EE_hal_enableIRQ();

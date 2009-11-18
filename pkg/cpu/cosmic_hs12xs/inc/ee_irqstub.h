@@ -78,7 +78,6 @@ extern const struct EE_TOS EE_s12xs_system_splim[];
 
 __INLINE__ void __ALWAYS_INLINE__ EE_ISR2_prestub(void)
 {
-  EE_s12xs_disableIRQ();
 #ifdef __ALLOW_NESTED_IRQ__
   EE_IRQ_nesting_level++;
 
@@ -130,7 +129,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_ISR2_poststub(void)
   
   if (EE_hal_endcycle_next_thread) {
     // enable interrupt and CPU priority to 0
-    _asm("tfr a,ccrh\n", 0x00);		//_asm("BCLR.B 0x0042, #0x7");
+    _asm("tfr a,ccrh\n", 0x0000);		//_asm("BCLR.B 0x0042, #0x7");
     								//_asm("BCLR.B 0x0042, #0x6");
     								//_asm("BCLR.B 0x0042, #0x5");
 #ifdef __MONO__
@@ -144,7 +143,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_ISR2_poststub(void)
 #ifdef __MULTI__
     if (EE_hal_endcycle_next_tos != EE_s12xs_active_tos) {
       // enable interrupt and CPU priority to 0
-      _asm("tfr a,ccrh\n", 0x00);	//_asm("BCLR.B 0x0042, #0x7");
+      _asm("tfr a,ccrh\n", 0x0000);	//_asm("BCLR.B 0x0042, #0x7");
       								//_asm("BCLR.B 0x0042, #0x6");
       								//_asm("BCLR.B 0x0042, #0x5");
 
@@ -155,7 +154,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_ISR2_poststub(void)
 
   //  Set CPU priority to 6 and enable interrupt with disi
   //  retfie will restore the right priority level
-  _asm("tfr a,ccrh\n", 0x06);	//_asm("BSET.B 0x0042, #0x7");
+  _asm("tfr a,ccrh\n", 0x0600);	//_asm("BSET.B 0x0042, #0x7");
   								//_asm("BSET.B 0x0042, #0x6");
   								//_asm("BCLR.B 0x0042, #0x5");
   EE_s12xs_enableIRQ();

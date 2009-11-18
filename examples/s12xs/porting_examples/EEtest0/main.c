@@ -31,12 +31,13 @@
 #include "ee_hs12xsregs.h"
 
 
-//int counter = 0;
+volatile int counter = 0;
 
-//TASK(TASK_SEND)
-//{
-//    counter++;
-//}
+TASK(TASK_SEND)
+{
+    counter++;
+}
+
 
 /*
  * MAIN TASK

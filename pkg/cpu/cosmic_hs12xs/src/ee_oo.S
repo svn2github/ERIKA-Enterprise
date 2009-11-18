@@ -54,7 +54,9 @@
 //	// w0 = &terminate_data[t]
 //	// w1 = terminate_real_th_body[t]()
 //	// .type	EE_s12xs_terminate_savestk, #function
-//_EE_s12xs_terminate_savestk:
+xdef f_EE_s12xs_terminate_savestk
+f_EE_s12xs_terminate_savestk:
+	rtc
 //	// save some registers:	
 //	// - w0-w7 do not need to be saved (caller saved)
 //	// - w8-w14 have to be saved (callee saved)
@@ -82,7 +84,9 @@
 //
 //	// r0 = &terminate_data[t]
 //	//.type	EE_s12xs_terminate_task, #function
-//_EE_s12xs_terminate_task:
+xdef f_EE_s12xs_terminate_task
+f_EE_s12xs_terminate_task:
+	rtc
 //	// reload sp from terminate_data[t]	
 //	mov [w0], w15
 //	// reload the registers saved before
