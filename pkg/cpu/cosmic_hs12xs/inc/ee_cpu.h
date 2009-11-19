@@ -99,6 +99,7 @@ typedef EE_UINT32 EE_TID;
 
 /* Addresses (that have the same size of a pointer) */
 typedef @far EE_UINT32 *EE_ADDR;		// N.B. 16-bit for @near pointer and 32-bit for @far pointer
+typedef EE_UINT16 *EE_DADD;
 
 /* EE_TYPEIRQ is defined inside the MCU */
 
@@ -159,7 +160,7 @@ extern struct EE_TOS EE_s12xs_IRQ_tos;
 
 /* this is a safe place to put sp_sys when EE_hal_terminate_savestk
    is called into EE_oo_thread_stub */
-extern EE_UINT32 EE_terminate_data[];
+extern EE_UINT16 EE_terminate_data[];
 
 /* this is the real thread body that is called if the thread use the
    TerminateTask function */

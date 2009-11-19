@@ -213,8 +213,8 @@ __INLINE__ EE_UREG __ALWAYS_INLINE__ EE_hal_get_IRQ_nesting_level(void)
 
 #if defined(__OO_BCC1__) || defined(__OO_BCC2__) || defined(__OO_ECC1__) || defined(__OO_ECC2__)
 
-void EE_s12xs_terminate_savestk(EE_ADDR sp, EE_ADDR realbody);
-void EE_s12xs_terminate_task(EE_ADDR sp) NORETURN;
+void EE_s12xs_terminate_savestk(EE_DADD sp, EE_ADDR realbody);
+void EE_s12xs_terminate_task(EE_DADD sp) NORETURN;
 
 __INLINE__ void __ALWAYS_INLINE__ EE_hal_terminate_savestk(EE_TID t)
 {

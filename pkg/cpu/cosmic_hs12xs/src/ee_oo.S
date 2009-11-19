@@ -46,56 +46,28 @@
 
 //#include "cpu/cosmic_hs12xs/inc/ee_compiler.h"
 
-//	.global	_EE_s12xs_terminate_task
-//	.global _EE_s12xs_terminate_savestk
-//	
-//	.text
-//
-//	// w0 = &terminate_data[t]
-//	// w1 = terminate_real_th_body[t]()
-//	// .type	EE_s12xs_terminate_savestk, #function
 xdef f_EE_s12xs_terminate_savestk
 f_EE_s12xs_terminate_savestk:
-	rtc
-//	// save some registers:	
-//	// - w0-w7 do not need to be saved (caller saved)
-//	// - w8-w14 have to be saved (callee saved)
-//	// Please note that the interrupt are ENABLED
-//        mov.d   w8,[w15++]
-//        mov.d   w10,[w15++]
-//        mov.d   w12,[w15++]
-//        mov     w14,[w15++]
-//
-//	// save sp in terminate_data[t]
-//	mov w15, [w0]
-//
-//	// save ourselves in the case the user forgets a TerminateTask
-//	// at the end of the task body (first part)
-//	mov	w0, w8
-//	
-//	// jmp terminate_real_th_body[t]
-//	call w1
-//	
-//	// save ourselves in the case the user forgets a TerminateTask
-//	// at the end of the task body (second part)
-//	mov	w8, w0
-//
-//	//.size	EE_s12xs_terminate_savestk, . - EE_s12xs_terminate_savestk
-//
-//	// r0 = &terminate_data[t]
-//	//.type	EE_s12xs_terminate_task, #function
+	
+	pshd				// Push the address of the memory location of the return stack pointer... 
+OFST:	set	0
+    tfr s,x
+    addx #$02
+    tfr x,d
+    std [OFST+0,s]		// Save the stack pointer
+    
+	call	[OFST+5,s]	// Call the thread
+	
+	leas	2,s			// Remove two bytes from the stack (if the user dont'call the TerminateTask() function...)
+
+
 xdef f_EE_s12xs_terminate_task
 f_EE_s12xs_terminate_task:
-	rtc
-//	// reload sp from terminate_data[t]	
-//	mov [w0], w15
-//	// reload the registers saved before
-//        mov     [--w15],w14
-//        mov.d   [--w15],w12
-//        mov.d   [--w15],w10
-//        mov.d   [--w15],w8
-//	// return back to the caller
-//	return
-//	//.size	EE_s12xs_terminate_task, . - EE_s12xs_terminate_task
-//	
+	
+	tfr	d,y				
+	ldd	0,y
+	tfr	d,s				// Change the stack pointer
+	
+    rtc					// Return in the thread stub 
+    
 	end
