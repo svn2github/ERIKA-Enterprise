@@ -49,12 +49,15 @@
 xdef f_EE_s12xs_terminate_savestk
 f_EE_s12xs_terminate_savestk:
 	
-	pshd				// Push the address of the memory location of the return stack pointer... 
+	pshd				// Push (d, the first argument) in the stack the address of the memory location of the return stack pointer... 
 OFST:	set	0
-    tfr s,x
-    addx #$02
-    tfr x,d
-    std [OFST+0,s]		// Save the stack pointer
+    //tfr s,x			// transfer stack pointer in the register x
+    //addx #$02			// add 2 (x+=2)	
+    //tfr x,d			// transfer x in d
+    tfr s,d				// transfer stack pointer in d register
+    addd #$02			// add 2 (d+=2)
+    
+    std [OFST+0,s]		// Save the stack pointer (from d to the terminate_data vector saved in the stack pointer)
     
 	call	[OFST+5,s]	// Call the thread
 	
@@ -64,10 +67,12 @@ OFST:	set	0
 xdef f_EE_s12xs_terminate_task
 f_EE_s12xs_terminate_task:
 	
-	tfr	d,y				
-	ldd	0,y
-	tfr	d,s				// Change the stack pointer
+	tfr	d,y				// transfer d in y register
 	
-    rtc					// Return in the thread stub 
+	//ldd	0,y			// transfer the content of y in d
+	//tfr	d,s			// Change the stack pointer (transfer d in sp)
+	lds 0,y				// Change the stack pointer (transfer the content of y in sp)
+	
+    rtc					// Return in the thread stub (with ppage change)
     
 	end

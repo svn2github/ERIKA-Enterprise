@@ -98,7 +98,7 @@ __INLINE__ EE_FREG __ALWAYS_INLINE__ EE_hal_begin_nested_primitive(void)
 {
   register EE_FREG retvalue;
   //retvalue = DISICNT;
-  retvalue = _asm("tfr ccr,b\n");
+  retvalue = _asm("tfr ccr,b\n");	// save CCR register (I bit)
   EE_hal_disableIRQ();
   
   return retvalue;
@@ -108,7 +108,7 @@ __INLINE__ EE_FREG __ALWAYS_INLINE__ EE_hal_begin_nested_primitive(void)
    an IRQ and into a task */
 __INLINE__ void __ALWAYS_INLINE__ EE_hal_end_nested_primitive(EE_FREG f)
 {
-  if(f & 0x10) 
+  if(f & 0x10) 						// restore I bit
     EE_hal_disableIRQ();
   else
     EE_hal_enableIRQ();

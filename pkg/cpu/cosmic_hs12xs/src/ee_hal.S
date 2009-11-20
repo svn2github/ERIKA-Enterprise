@@ -123,41 +123,42 @@ xref 	f_EE_thread_end_instance
 
 	xdef f_EE_s12xs_hal_ready2stacked	// xdef _EE_s12xs_hal_ready2stacked
 f_EE_s12xs_hal_ready2stacked:
+	
 	#ifdef __MULTI__
 		// (eventually) switch to the TOS of the new thread
 		EE_CHANGE_TOS_MACRO
 	#endif
-	// enable interrupts
-	pshd
-	pshx
-OFST:	set	0
+	
+	pshd								// push d in sp
+	pshx								// push x in sp
+OFST:	set	0							// set offset to zero
 L3:	
-	cli
-	call	[OFST+0,s]	// call the thread
-	sei					// disable interrupts
+	cli									// enable interrupts
+	call	[OFST+0,s]					// call the thread from sp reading the content of the pointer (because d,x saved in sp)
+	sei									// disable interrupts
 	call	f_EE_thread_end_instance	// call the thread end instance
 	
 	#ifdef __MULTI__
 		mov	_EE_hal_endcycle_next_tos,aux_w1	//w1
 	#endif
 	
-	ldd	_EE_hal_endcycle_next_thread+2
-	std	OFST+2,s
-	ldd	_EE_hal_endcycle_next_thread
-	std	OFST+0,s
+	ldd	_EE_hal_endcycle_next_thread+2	// the first word loaded in d register
+	std	OFST+2,s						// change the first argument word (the first address word) storing d in sp
+	ldd	_EE_hal_endcycle_next_thread	// the second word loaded in d register
+	std	OFST+0,s						// change the second argument word (the second address word) storing d in sp
 	
-	ldd	OFST+0,s
-	bne	L21
-	ldd	OFST+2,s
+	ldd	OFST+0,s						// check the address (first part)
+	bne	L21								// if not equal to zero -> branch
+	ldd	OFST+2,s						// check the address (second part)
 L21:	
-	bne	L3
+	bne	L3								// if not equal to zero -> branch
 	
 	#ifdef __MULTI__
 		EE_CHANGE_TOS_MACRO
 	#endif
 	
-	leas	4,s
-	rtc
+	leas	4,s							// remove four bytes from the stack pointer
+	rtc									// return (with ppage change)
 	
 	#ifdef __MULTI__
 
@@ -201,4 +202,6 @@ L21:
 		rtc	//return
 
 	#endif // __MULTI__
+	
 	end
+	
