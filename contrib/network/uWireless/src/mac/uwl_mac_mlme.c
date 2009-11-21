@@ -54,7 +54,7 @@ int8_t uwl_MLME_ASSOCIATE_request(uint8_t LogicalChannel, uint8_t ChannelPage,
 		/* TODO: security levels management! */
 	}
 	/* TODO: initiate the association procedure!!!! */
-	//create_association_request_cmd(CoorAddrMode, CoordPANId, CoordAddress, CapabilityInformation);
+	uwl_mac_association_request_cmd(CoordAddrMode, CoordPANId, CoordAddress, CapabilityInformation);
 	/* TODO: current dummy: assoctiation succes, and give hardcoded addr */
 	uwl_mac_status.track_beacon = 1;
 	uwl_mac_superframe_stop();
@@ -174,6 +174,32 @@ int8_t uwl_MLME_START_request(uint16_t PANId, uint8_t LogicalChannel,
 	}
 	uwl_MLME_START_confirm(UWL_MAC_SUCCESS);
 	return UWL_MAC_ERR_NONE;
+}
+
+int8_t uwl_MLME_ASSOCIATE_response(uwl_mac_dev_addr_extd_t DeviceAddress,
+				   uwl_mac_dev_addr_short_t AssocShortAddress,
+				   enum uwl_mac_code_t status,
+				   uint8_t SecurityLevel, uint8_t KeyIdMode,
+				   uint8_t *KeySource, uint8_t KeyIndex)
+{
+	uwl_mac_association_response_cmd(DeviceAddress,AssocShortAddress,status);
+}
+
+int8_t uwl_MLME_ASSOCIATE_indication(uwl_mac_dev_addr_extd_t DeviceAddress,
+				     uint8_t CapabilityInformation,
+				     uint8_t SecurityLevel, uint8_t KeyIdMode,
+				     uint8_t *KeySource, uint8_t KeyIndex)
+{
+
+	uwl_mac_dev_addr_short_t AssocShortAddress = 0x1a2b;
+
+	uwl_MLME_ASSOCIATE_response(DeviceAddress,
+					   AssocShortAddress,
+					   UWL_MAC_SUCCESS,
+					   SecurityLevel, KeyIdMode,
+					   *KeySource, KeyIndex);
+
+	return 1;
 }
 
 #endif /* UWL_RFD_DISABLE_OPTIONAL */

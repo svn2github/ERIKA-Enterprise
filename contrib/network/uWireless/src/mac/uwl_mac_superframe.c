@@ -225,6 +225,55 @@ COMPILER_INLINE void stop_previous_cfp(void)
 	uwl_kal_cancel_activation(MAC_GTS_SEND); /* TODO: has effect? */
 }
 
+COMPILER_INLINE
+uint8_t get_addressing_fields(uint8_t *af, enum uwl_mac_addr_mode_t dst_mode,
+			      uint16_t *dst_panid, void *dst_addr,
+			      enum uwl_mac_addr_mode_t src_mode,
+			      uint16_t *src_panid, void *src_addr,
+			      uint8_t panid_compression)
+{
+	uint8_t offset = 0;
+
+	if (dst_mode == UWL_MAC_ADDRESS_SHORT) {
+		if (dst_panid != NULL)
+			*dst_panid = af[offset];
+		offset += UWL_MAC_MPDU_PANID_SIZE;
+		if (dst_addr != NULL)
+			memcpy((uint8_t *) dst_addr, af + offset,
+			       UWL_MAC_MPDU_ADDRESS_SHORT_SIZE);
+		offset += UWL_MAC_MPDU_ADDRESS_SHORT_SIZE;
+	} else if (dst_mode == UWL_MAC_ADDRESS_EXTD) {
+		if (dst_panid != NULL)
+			*dst_panid = af[offset];
+		offset += UWL_MAC_MPDU_PANID_SIZE;
+		if (dst_addr != NULL)
+			memcpy((uint8_t *) dst_addr, af + offset,
+			       UWL_MAC_MPDU_ADDRESS_EXTD_SIZE);
+		offset += UWL_MAC_MPDU_ADDRESS_EXTD_SIZE;
+	}
+	if (src_mode == UWL_MAC_ADDRESS_SHORT) {
+		if (panid_compression == 0) {
+			if (src_panid != NULL)
+				*src_panid = af[offset];
+			offset += UWL_MAC_MPDU_PANID_SIZE;
+		}
+		if (src_addr != NULL)
+			memcpy((uint8_t *) src_addr, af + offset,
+			       UWL_MAC_MPDU_ADDRESS_SHORT_SIZE);
+		offset += UWL_MAC_MPDU_ADDRESS_SHORT_SIZE;
+	} else if (src_mode == UWL_MAC_ADDRESS_EXTD) {
+		if (panid_compression == 0) {
+			if (src_panid != NULL)
+				*src_panid = af[offset];
+			offset += UWL_MAC_MPDU_PANID_SIZE;
+		}
+		if (src_addr != NULL)
+			memcpy((uint8_t *) src_addr, af + offset,
+			       UWL_MAC_MPDU_ADDRESS_EXTD_SIZE);
+		offset += UWL_MAC_MPDU_ADDRESS_EXTD_SIZE;
+	}
+	return offset;
+}
 
 /******************************************************************************/
 /*                      MAC CAP and CFP Management Functions                  */
@@ -237,6 +286,11 @@ static void csma_perform_slotted(void)
 {
 	struct uwl_mac_frame_t *frame;
 	int8_t tmp;
+
+	uint16_t s_pan = 0, d_pan = 0;
+	uwl_mac_dev_addr_extd_t s_a, d_a;
+	 uint8_t s;
+		uint8_t *fr;
 
 	if (uwl_mac_status.sf_context != UWL_MAC_SF_CAP)
 		return; 
@@ -296,7 +350,27 @@ static void csma_perform_slotted(void)
 		}
 		if (--csma_params.CW > 0) 
 			return;
-		frame = (struct uwl_mac_frame_t*)cqueue_pop(&uwl_mac_queue_cap);
+
+		if (uwl_mac_data_req.data_req == 1) {
+			frame = (struct uwl_mac_frame_t*)list_iter_front(&uwl_mac_queue_ind);
+			fr = UWL_MAC_MPDU_FRAME_CONTROL(frame);
+				s = get_addressing_fields(UWL_MAC_MPDU_ADDRESSING_FIELDS(frame),
+				  UWL_MAC_FCTL_GET_DST_ADDR_MODE(fr),
+				  &d_pan, (void *) d_a,
+				  UWL_MAC_FCTL_GET_SRC_ADDR_MODE(fr),
+				  &s_pan, (void *) s_a,
+				  UWL_MAC_FCTL_GET_PANID_COMPRESS(fr));
+
+				//if(&d_a == uwl_mac_data_req.dst_addr){
+
+			frame = (struct uwl_mac_frame_t*)list_extract(&uwl_mac_queue_ind,
+					list_iter_current(frame));
+			//frame = (struct uwl_mac_frame_t*)list_pop_front(&uwl_mac_queue_ind);
+			uwl_mac_data_req.data_req = 0;
+			uwl_mac_data_req.pending_req--;
+		} else
+			frame = (struct uwl_mac_frame_t*)cqueue_pop(&uwl_mac_queue_cap);
+
 		/* Something must be there, check again? */
 		/* if (!frame) ERRORE!!!!!*/
 		#ifdef __JUST_MEASURE_FOR_PAPER__
@@ -311,7 +385,7 @@ static void csma_perform_slotted(void)
 			 for the indication primitive (status=??) */
 			uwl_MCPS_DATA_confirm(frame->msdu_handle, 
 					      UWL_MAC_CHANNEL_ACCESS_FAILURE,0);
-		
+
 		csma_params.state = CSMA_STATE_INIT;
 		uwl_debug_print("C->I succ");
 	}

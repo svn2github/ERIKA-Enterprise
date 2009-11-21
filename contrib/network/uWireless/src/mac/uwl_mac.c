@@ -21,10 +21,14 @@
 static uwl_mpdu_t rx_beacon;
 static uwl_mpdu_t rx_data;
 static uwl_mpdu_t rx_command;
+static uwl_mpdu_t rx_ack;
 static uint16_t rx_beacon_length;
 static uint16_t rx_data_length;
 static uint16_t rx_command_length;
-static uint8_t beacon_payload_length = 0; 
+static uint8_t beacon_payload_length = 0;
+static uint8_t wait_ack = 0;
+static uint8_t association_status = 0;
+static uint8_t seq_num_ack;
 static uint8_t beacon_payload[UWL_aMaxBeaconPayloadLength] 
 	       COMPILER_ATTRIBUTE_FAR;
 static struct uwl_mac_frame_t gts_queue_storage[UWL_MAC_GTS_QUEUE_SIZE]
@@ -65,11 +69,25 @@ struct uwl_mac_gts_stat_t uwl_mac_gts_stat = {
 	.rx_start_tslot = UWL_MAC_SUPERFRAME_FIRST_SLOT,
 	.rx_length = 0
 };
+
+struct uwl_mac_data_request_info uwl_mac_data_req = {
+		.pending_req = 0,
+		.data_req = 0,
+		.dst_addr = 0,
+		.dst_pan_id = 0,
+		.ack = 0
+};
+
 CQUEUE_DEFINE(uwl_mac_queue_cap, struct uwl_mac_frame_t,
 	      UWL_MAC_CAP_QUEUE_SIZE, COMPILER_ATTRIBUTE_FAR);
+CQUEUE_DEFINE(uwl_mac_queue_ack, struct uwl_mac_frame_t,
+		UWL_MAC_CAP_QUEUE_SIZE, COMPILER_ATTRIBUTE_FAR);
+LIST_DEFINE(uwl_mac_queue_ind, struct uwl_mac_frame_t,
+		UWL_MAC_IND_LIST_SIZE, COMPILER_ATTRIBUTE_FAR);
 /* TODO: used only by coordinator. */
 struct uwl_gts_info_t uwl_gts_schedule[UWL_MAC_GTS_MAX_NUMBER] 
 		      COMPILER_ATTRIBUTE_FAR;
+
 
 /******************************************************************************/
 /*                                                                            */
@@ -238,6 +256,50 @@ uint8_t set_addressing_fields(uint8_t *af, enum uwl_mac_addr_mode_t dst_mode,
 }
 
 COMPILER_INLINE 
+uint8_t set_command_header(struct uwl_mac_frame_t *cmd, uint8_t security,
+		uint8_t pending_frame, uint8_t ack_request, uint8_t panid_compress,
+		uint8_t dst_addr_mode, uint8_t src_addr_mode, uint8_t frame_version,
+		enum uwl_mac_addr_mode_t dst_mode, uint16_t dst_panid, void *dst_addr,
+		enum uwl_mac_addr_mode_t src_mode, void * src_addr, uint16_t src_panid,
+		enum uwl_mac_cmd_type_t cmd_type)
+{
+	 uint8_t s;
+	 //uwl_mac_dev_addr_extd_t e_addr;
+
+
+
+	 	/* Build the mpdu header (MHR) */
+
+	 memset(cmd->mpdu, 0x0, sizeof(uwl_mpdu_t));
+
+	 set_frame_control(UWL_MAC_MPDU_FRAME_CONTROL(cmd->mpdu),
+			 UWL_MAC_TYPE_COMMAND,
+			 security,/* TODO: Use security infos (sec_level, etc.) */
+			 pending_frame, /* TODO: Use Pending List flag */
+			 ack_request,
+			 panid_compress, dst_addr_mode, src_addr_mode, frame_version);
+
+
+	 seq_num_ack = uwl_mac_pib.macDSN;
+
+	 *(UWL_MAC_MPDU_SEQ_NUMBER(cmd->mpdu)) = uwl_mac_pib.macDSN++;
+
+
+	 s = set_addressing_fields(UWL_MAC_MPDU_ADDRESSING_FIELDS
+			 (cmd->mpdu),
+			 dst_mode, dst_panid, dst_addr,
+			 src_mode, src_panid,
+			 src_addr, panid_compress);
+	/* TODO: think to security infos? */
+
+	 (UWL_MAC_MPDU_COMMAND_FRAME_IDENTIFIER
+	 			 (cmd->mpdu, s))[0] = cmd_type;
+
+	 return s;
+
+}
+
+COMPILER_INLINE
 uint8_t get_addressing_fields(uint8_t *af, enum uwl_mac_addr_mode_t dst_mode,
 			      uint16_t *dst_panid, void *dst_addr,
 			      enum uwl_mac_addr_mode_t src_mode,
@@ -371,8 +433,8 @@ UWL_KAL_TASK_ASYNC(MAC_PROCESS_RX_COMMAND, 20);
  * UWL_PHY_IMPORT_MAC_MUTEXES().
 */
 UWL_KAL_MUTEX(MAC_RX_BEACON_MUTEX, MAC_PROCESS_RX_BEACON);
-UWL_KAL_MUTEX(MAC_RX_DATA_MUTEX, MAC_PROCESS_RX_COMMAND);
-UWL_KAL_MUTEX(MAC_RX_COMMAND_MUTEX, MAC_PROCESS_RX_DATA);
+UWL_KAL_MUTEX(MAC_RX_DATA_MUTEX, MAC_PROCESS_RX_DATA);
+UWL_KAL_MUTEX(MAC_RX_COMMAND_MUTEX, MAC_PROCESS_RX_COMMAND);
 
 static void process_rx_beacon(void) 
 {
@@ -454,10 +516,93 @@ static void process_rx_data(void)
 
 static void process_rx_command(void) 
 {
+	uint8_t s, i;
+	uint8_t *cmd, *cmd_data_req;
+	uint16_t s_pan = 0, d_pan = 0;
+	uwl_mac_dev_addr_extd_t s_a, d_a;
+	uint8_t cmd_frm_id, cap_inf;
+
 	if (uwl_kal_mutex_wait(MAC_RX_COMMAND_MUTEX) < 0)
 		return; /* TODO: manage error? */
+	cmd = UWL_MAC_MPDU_FRAME_CONTROL(rx_command);
+	s = get_addressing_fields(UWL_MAC_MPDU_ADDRESSING_FIELDS(rx_command),
+				  UWL_MAC_FCTL_GET_DST_ADDR_MODE(cmd),
+				  &d_pan, (void *) d_a,
+				  UWL_MAC_FCTL_GET_SRC_ADDR_MODE(cmd),
+				  &s_pan, (void *) s_a,
+				  UWL_MAC_FCTL_GET_PANID_COMPRESS(cmd));
+
+	uwl_kal_mutex_signal(MAC_RX_COMMAND_MUTEX);
+
+	if (UWL_MAC_FCTL_GET_PANID_COMPRESS(cmd))
+		s_pan = d_pan;
+
+	if(UWL_MAC_FCTL_GET_ACK_REQUEST(cmd))
+		uwl_mac_ack_frame(UWL_MAC_MPDU_SEQ_NUMBER(rx_command));
+
+	cmd = UWL_MAC_MPDU_MAC_COMMAND_FIELDS(rx_command, s);
+
+	switch (UWL_MAC_MPDU_GET_COMMAND_FRAME_ID(cmd)) {
+	case UWL_MAC_CMD_ASSOCIATION_REQUEST :
+		cmd = UWL_MAC_MPDU_MAC_COMMAND_FIELDS(rx_command, (s + 1));
+		cap_inf = UWL_MAC_MPDU_GET_CAPABILITY_INFORMATION(cmd);
+
+		i =  uwl_MLME_ASSOCIATE_indication((void *) s_a,
+				     cap_inf,
+				     0, *(UWL_MAC_MPDU_SEQ_NUMBER(rx_command)),
+				     0, 0);
+		break;
+	case UWL_MAC_CMD_DATA_REQUEST :
+
+		//cmd_data_req = (struct uwl_mac_frame_t*)list_iter_front(&uwl_mac_queue_ind);
+		//s = get_addressing_fields(UWL_MAC_MPDU_ADDRESSING_FIELDS(cmd_data_req),
+			//	  UWL_MAC_FCTL_GET_DST_ADDR_MODE(cmd),
+				//  &d_pan_data, (void *) d_a_data,
+				  //UWL_MAC_FCTL_GET_SRC_ADDR_MODE(cmd),
+				  //&s_pan_data, (void *) s_a_data,
+				  //UWL_MAC_FCTL_GET_PANID_COMPRESS(cmd));
+
+		//if(&s_pan == d_pan_data && &s_a == &s_a_data)
+			uwl_mac_data_req.data_req = 1;
+		//list_iter_front(uwl_mac_queue_ind);
+		//uwl_mac_data_req.addr = s_a;
+
+		//cmd_data_req = list_pop_front(&uwl_mac_queue_ind);
+
+		 uwl_kal_mutex_wait(MAC_SEND_MUTEX);
+//		 cmd = (struct uwl_mac_frame_t*)
+	//		cqueue_push(&uwl_mac_queue_cap);
+		// if (cmd == 0) {
+				/* TODO: we have to choose a well formed reply
+					 for the indication primitive (status=??) */
+			// uwl_kal_mutex_signal(MAC_SEND_MUTEX);
+			 //return;
+		 //}
+
+		uwl_kal_mutex_signal(MAC_SEND_MUTEX);
+
+
+		break;
+	default:
+		break;
+	}
+
 	if (uwl_kal_mutex_signal(MAC_RX_COMMAND_MUTEX) < 0)
 		return; /* TODO: manage error? */
+
+
+}
+
+static void process_rx_ack(void)
+{
+	uint8_t *ack;
+	uint8_t *seq_num;
+
+	ack = UWL_MAC_MPDU_FRAME_CONTROL(rx_ack);
+	seq_num = UWL_MAC_MPDU_SEQ_NUMBER(ack);
+	if(wait_ack == 1 && UWL_MAC_MPDU_GET_SEQ_NUMBER(seq_num) == seq_num_ack
+			&& association_status == 1)
+		uwl_mac_data_request_cmd();
 }
 
 COMPILER_INLINE int8_t init_rx_tasks(void)
@@ -509,7 +654,9 @@ int8_t uwl_mac_init(void)
 	set_default_mac_pib();
 	cqueue_clear(&uwl_mac_queue_cap);
 	cqueue_clear(&uwl_mac_queue_dev_gts);
+	cqueue_clear(&uwl_mac_queue_ack);
 	list_clear(&uwl_mac_queue_coord_gts);
+	list_clear(&uwl_mac_queue_ind);
 	memset(gts_queue_rears, 0, sizeof(uint16_t) * UWL_MAC_GTS_QUEUE_SIZE);
 	retv = init_rx_tasks();
 	if (retv < 0)
@@ -867,61 +1014,180 @@ uint8_t uwl_mac_create_beacon(uwl_mpdu_ptr_t bcn)
  										uint8_t cap_inform)
  {
 	 uint8_t s;
-
-	 struct uwl_mac_command_association_request_t *command_association_request_ptr;
-
-	 struct {
-		 unsigned compress : 1;
-		 unsigned version : 1;
-	 } flag;
-
+	 struct uwl_mac_frame_t *cmd_ass_req;
 	 uwl_mac_dev_addr_extd_t e_addr;
 
 	 uwl_kal_mutex_wait(MAC_SEND_MUTEX);
-	 command_association_request_ptr = (struct uwl_mac_command_association_request_t*)
+	 cmd_ass_req = (struct uwl_mac_frame_t*)
 		cqueue_push(&uwl_mac_queue_cap);
-	 if (command_association_request_ptr == 0) {
+	 if (cmd_ass_req == 0) {
 			/* TODO: we have to choose a well formed reply
 				 for the indication primitive (status=??) */
 		 uwl_kal_mutex_signal(MAC_SEND_MUTEX);
 		 return;
 	 }
 
-	 	/* Build the mpdu header (MHR) */
-
-	 memset(command_association_request_ptr->mpdu, 0x0, sizeof(uwl_mpdu_t));
-
-	 flag.compress = 1;
-	 flag.version = 0;
-
-	 set_frame_control(UWL_MAC_MPDU_FRAME_CONTROL(command_association_request_ptr->mpdu),
-			 UWL_MAC_TYPE_COMMAND,
-			 0,/* TODO: Use security infos (sec_level, etc.) */
-			 0, /* TODO: Use Pending List flag */
-			 1,
-			 0, dst_mode, UWL_MAC_ADDRESS_EXTD, 0);
-
-
-	 *(UWL_MAC_MPDU_SEQ_NUMBER(command_association_request_ptr->mpdu)) = uwl_mac_pib.macDSN++;
-
 	 UWL_MAC_EXTD_ADDR_SET(e_addr, UWL_aExtendedAddress_high,
 			 UWL_aExtendedAddress_low);
 
-	 s = set_addressing_fields(UWL_MAC_MPDU_ADDRESSING_FIELDS
-			 (command_association_request_ptr->mpdu),
-			 dst_mode, dst_panid, dst_addr,
-			 UWL_MAC_ADDRESS_EXTD, 0xffff,
-			 (void *) e_addr, flag.compress);
-	/* TODO: think to security infos? */
+	 s = set_command_header(cmd_ass_req, 0, 0,
+	 		1, 0, dst_mode, UWL_MAC_ADDRESS_EXTD,
+	 		0, dst_mode, dst_panid,
+	 		dst_addr, UWL_MAC_ADDRESS_EXTD, e_addr, UWL_MAC_PANID_BROADCAST,
+			UWL_MAC_CMD_ASSOCIATION_REQUEST);
 
-	 command_association_request_ptr->command_frame_identifier = CMD_ASSOCIATION_REQUEST;
-	 command_association_request_ptr->capability_information = cap_inform;
+	 (UWL_MAC_MPDU_CAPABILITY_INFORMATION
+	 			 (cmd_ass_req->mpdu, s))[0] = cap_inform;
 
-	 command_association_request_ptr->mpdu_size = UWL_MAC_MPDU_FRAME_CONTROL_SIZE +
-			 UWL_MAC_MPDU_SEQ_NUMBER_SIZE + s + UWL_MAC_CMD_ASSOCIATION_REQUEST_SIZE /* +
+	 cmd_ass_req->mpdu_size = UWL_MAC_MPDU_FRAME_CONTROL_SIZE +
+			 UWL_MAC_MPDU_SEQ_NUMBER_SIZE + s +
+			 UWL_MAC_COMMAND_FRAME_IDENTIFIER_SIZE +
+			 UWL_MAC_CAPABILITY_INFORMATION_SIZE/* +
+			sizeof(uint16_t) */;
+
+	 wait_ack = 1;
+	 association_status = 1;
+
+	 uwl_kal_mutex_signal(MAC_SEND_MUTEX);
+
+ }
+
+ /* create association response */
+
+ void uwl_mac_association_response_cmd(void *dst_addr,
+		 uwl_mac_dev_addr_short_t *assoc_short_address,
+		 uint8_t status)
+ {
+	 uint8_t s;
+
+	 struct uwl_mac_frame_t *cmd_ass_res;
+
+	 //uwl_kal_mutex_wait(MAC_SEND_MUTEX);
+	 cmd_ass_res = (struct uwl_mac_frame_t*)
+			 list_push_front(&uwl_mac_queue_ind);
+	 //if (cmd_ass_res == 0) {
+			/* TODO: we have to choose a well formed reply
+				 for the indication primitive (status=??) */
+		// uwl_kal_mutex_signal(MAC_SEND_MUTEX);
+		 //return;
+	 //}
+
+	 s = set_command_header(cmd_ass_res, //struct uwl_mac_frame_t *cmd
+			 0, //uint8_t security
+			 0, //uint8_t pending_frame
+	 		 1, //uint8_t ack_request
+	 		 1, //uint8_t panid_compress
+	 		 UWL_MAC_ADDRESS_EXTD, //uint8_t dst_addr_mode
+	 		 UWL_MAC_ADDRESS_SHORT, //uint8_t src_addr_mode
+	 		 0, //uint8_t frame_version
+	 		 UWL_MAC_ADDRESS_EXTD, //enum uwl_mac_addr_mode_t dst_mode
+	 		 uwl_mac_pib.macPANId, //uint16_t dst_panid
+			 dst_addr, //void *dst_addr
+			 UWL_MAC_ADDRESS_SHORT, //enum uwl_mac_addr_mode_t src_mode
+			 (void*)&(uwl_mac_pib.macShortAddress), //void * src_addr
+			 UWL_MAC_ADDRESS_NONE, //uint16_t src_panid
+			 UWL_MAC_CMD_ASSOCIATION_RESPONSE //enum uwl_mac_cmd_type_t cmd_type
+			 );
+
+	 (UWL_MAC_MPDU_SHORT_ADDRESS
+	 			 (cmd_ass_res->mpdu, s))[0] = &assoc_short_address;
+
+	 (UWL_MAC_MPDU_ASSOCIATION_STATUS
+	 			 (cmd_ass_res->mpdu, s))[0] = status;
+
+	 cmd_ass_res->mpdu_size = UWL_MAC_MPDU_FRAME_CONTROL_SIZE +
+			 UWL_MAC_MPDU_SEQ_NUMBER_SIZE + s + UWL_MAC_COMMAND_FRAME_IDENTIFIER_SIZE +
+			 UWL_MAC_SHORT_ADDRESS_SIZE + UWL_MAC_ASSOCIATION_STATUS_SIZE/* +
+			sizeof(uint16_t) */;
+
+
+	 uwl_mac_data_req.dst_addr = &dst_addr;
+		//memcpy(uwl_mac_data_req.dst_addr, (uint8_t *) dst_addr,
+		  //     UWL_MAC_MPDU_ADDRESS_EXTD_SIZE);
+	 uwl_mac_data_req.pending_req++;
+
+	 //uwl_kal_mutex_signal(MAC_SEND_MUTEX);
+ }
+
+ /* create ack frame */
+
+ void uwl_mac_ack_frame(uint8_t *cmd)
+ {
+	 struct uwl_mac_frame_t *ack;
+
+
+
+	 uwl_kal_mutex_wait(MAC_SEND_MUTEX);
+	 ack = (struct uwl_mac_frame_t*)
+		cqueue_push(&uwl_mac_queue_cap);
+	 if (ack == 0) {
+			/* TODO: we have to choose a well formed reply
+				 for the indication primitive (status=??) */
+		 uwl_kal_mutex_signal(MAC_SEND_MUTEX);
+		 return;
+	 }
+
+	 uwl_mac_data_req.ack = 1;
+
+	 set_frame_control(ack, UWL_MAC_TYPE_ACK, 0,
+	 		       0, 0,
+	 		       0, 0,
+	 		       0, 0);
+
+	 *(UWL_MAC_MPDU_SEQ_NUMBER(ack->mpdu)) = UWL_MAC_MPDU_GET_SEQ_NUMBER(cmd);
+
+	 ack->mpdu_size = UWL_MAC_MPDU_FRAME_CONTROL_SIZE +
+			 UWL_MAC_MPDU_SEQ_NUMBER_SIZE/* +
 			sizeof(uint16_t) */;
 
 	 uwl_kal_mutex_signal(MAC_SEND_MUTEX);
+
+ }
+
+ void uwl_mac_data_request_cmd(void)
+ {
+		 uint8_t s;
+		 struct uwl_mac_frame_t *data_req;
+		 uwl_mac_dev_addr_extd_t e_addr;
+
+		 uwl_kal_mutex_wait(MAC_SEND_MUTEX);
+		 data_req = (struct uwl_mac_frame_t*)
+			cqueue_push(&uwl_mac_queue_cap);
+		 if (data_req == 0) {
+				/* TODO: we have to choose a well formed reply
+					 for the indication primitive (status=??) */
+			 uwl_kal_mutex_signal(MAC_SEND_MUTEX);
+			 return;
+		 }
+
+		 UWL_MAC_EXTD_ADDR_SET(e_addr, UWL_aExtendedAddress_high,
+				 UWL_aExtendedAddress_low);
+
+		 s = set_command_header(data_req, //struct uwl_mac_frame_t *cmd
+				 0, //uint8_t security
+				 0, //uint8_t pending_frame
+		 		 1, //uint8_t ack_request
+		 		 1, //uint8_t panid_compress
+		 		 UWL_MAC_ADDRESS_SHORT, //uint8_t dst_addr_mode
+		 		 UWL_MAC_ADDRESS_EXTD, //uint8_t src_addr_mode
+		 		 0, //uint8_t frame_version
+		 		 UWL_MAC_ADDRESS_SHORT, //enum uwl_mac_addr_mode_t dst_mode
+		 		 uwl_mac_pib.macPANId, //uint16_t dst_panid uwl_mac_pib.macPANId
+		 		 &uwl_mac_pib.macCoordShortAddress, //void *dst_addr
+				 UWL_MAC_ADDRESS_EXTD, //enum uwl_mac_addr_mode_t src_mode
+				 e_addr, //void * src_addr
+				 UWL_MAC_ADDRESS_NONE, //uint16_t src_panid
+				 UWL_MAC_CMD_DATA_REQUEST //enum uwl_mac_cmd_type_t cmd_type
+				 );
+
+		 data_req->mpdu_size = UWL_MAC_MPDU_FRAME_CONTROL_SIZE +
+				 UWL_MAC_MPDU_SEQ_NUMBER_SIZE + s +
+				 UWL_MAC_COMMAND_FRAME_IDENTIFIER_SIZE/* +
+				sizeof(uint16_t) */ ;
+
+		 wait_ack = 0;
+
+		 uwl_kal_mutex_signal(MAC_SEND_MUTEX);
 
  }
 
@@ -981,6 +1247,9 @@ daq_time_start(1); // FIXME: this is just for AVR time measurement!
 			return; /* TODO: manage error? */
 		break;
 	case UWL_MAC_TYPE_ACK :
+		memcpy(rx_ack, psdu, len);
+		process_rx_ack();
+
 		break;
 	default:
 		break;
