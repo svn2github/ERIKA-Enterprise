@@ -127,7 +127,7 @@ int8_t mrf24j40_init(uint8_t int_setup, uint8_t ch)
 	#ifdef ADD_RSSI_AND_LQI_TO_PACKET
 	/** Enable the packet RSSI */
 	mrf24j40_set_short_add_mem(MRF24J40_BBREG6, 0x40);
-    	#endif
+    #endif
 
 	/** Program CCA, RSSI threshold values */
 	mrf24j40_set_short_add_mem(MRF24J40_CCAEDTH, 0x60);

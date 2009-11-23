@@ -189,13 +189,14 @@ void	mrf24j40_wake() ;
  * tx_pwr_set(large_val, samll_val) computes the value for the RFCON3 register.
  * Examples: 
  * - if we want to set tx power to -11,2 dB then: 
- *   tx_pwr_set(TXPWRL_MINUS_10dB, TXPWRS_MINUS1_2dB).
+ *   mrf24j40_tx_pwr_set(TXPWRL_MINUS_10dB, TXPWRS_MINUS1_2dB).
  * - if we want to set the tx power to -4,9 dB then:
- *   tx_pwr_set(TXPWRL_0dB, TXPWRS_MINUS4_9dB).
+ *   mrf24j40_tx_pwr_set(TXPWRL_0dB, TXPWRS_MINUS4_9dB).
  * - if we want to set the tx power to -20 dB then:
- *   tx_pwr_set(TXPWRL_MINUS_20dB, TXPWRS_0dB 0x00).
+ *   mrf24j40_tx_pwr_set(TXPWRL_MINUS_20dB, TXPWRS_0dB 0x00).
  */
-#define mrf24j40_tx_pwr_set(large_val, samll_val) ((large_val << 6) && (samll_val << 3))
+#define mrf24j40_tx_pwr_set(large_val, small_val)\
+	((large_val << 6) || (small_val << 3))
 
 typedef union _TX_status {
 	uint8_t val;
@@ -325,7 +326,7 @@ COMPILER_INLINE void mrf24j40_set_channel(uint16_t ch)
 * @param[in] addr The short MAC address to store in the transceiver.
 *
 */
-COMPILER_INLINE void set_short_MAC_addr(uint16_t addr)
+COMPILER_INLINE void mrf24j40_set_short_MAC_addr(uint16_t addr)
 {
 	mrf24j40_set_short_add_mem(MRF24J40_SADRL, (uint8_t)addr);
 	mrf24j40_set_short_add_mem(MRF24J40_SADRH, (uint8_t)(addr>>8));
@@ -339,7 +340,7 @@ COMPILER_INLINE void set_short_MAC_addr(uint16_t addr)
 * @param[in] id The MAC PAN ID to store in the transceiver.
 *
 */
-COMPILER_INLINE void set_PAN_id(uint16_t id)
+COMPILER_INLINE void mrf24j40_set_PAN_id(uint16_t id)
 {
 	mrf24j40_set_short_add_mem(MRF24J40_PANIDL, (uint8_t)id);
 	mrf24j40_set_short_add_mem(MRF24J40_PANIDH, (uint8_t)(id>>8));
@@ -353,7 +354,7 @@ COMPILER_INLINE void set_PAN_id(uint16_t id)
 * @param[in] addr The extended MAC address to store in the transceiver.
 *
  */
-COMPILER_INLINE void set_ex_MAC_addr(uint64_t addr)
+COMPILER_INLINE void mrf24j40_set_ex_MAC_addr(uint64_t addr)
 {
 	mrf24j40_set_short_add_mem(MRF24J40_EADR0, (uint8_t)addr);
 	mrf24j40_set_short_add_mem(MRF24J40_EADR1, (uint8_t)(addr>>8));
