@@ -22,7 +22,6 @@
 
 #elif defined USE_MRF24J40 	/* Microchip MRF24J40. */
 #include <hal/uwl_radio_mrf24j40.h>
-
 #else			/* No radio */
 #error "UWL_HAL ERROR: radio type not specified!"
 

@@ -7,9 +7,19 @@ ifeq ($(findstring __LIB_UWIRELESS__,$(LIB_OPT)),__LIB_UWIRELESS__)
 ## Application files
 ##
 
-EE_SRCS += contrib/network/uWireless/src/util/uwl_debug.c
-EE_SRCS += contrib/network/uWireless/src/hal/uwl_radio_cc2420.c
 EE_SRCS += contrib/network/uWireless/src/kal/uwl_kal_erika.c
+EE_SRCS += contrib/network/uWireless/src/util/uwl_debug.c
+
+ifeq ($(findstring __LIB_CC2420__,$(LIB_OPT)),__LIB_CC2420__)
+#ifeq ($(findstring USE_CC2420,$(LIB_OPT)), USE_CC2420)
+EE_SRCS += contrib/network/uWireless/src/hal/uwl_radio_cc2420.c
+endif
+
+ifeq ($(findstring __LIB_MRF24J40__,$(LIB_OPT)),__LIB_MRF24J40__)
+#ifeq ($(findstring USE_MRF24J40,$(LIB_OPT)),USE_MRF24J40)
+EE_SRCS += contrib/network/uWireless/src/hal/uwl_radio_mrf24j40.c
+endif
+
 ifneq ($(findstring UWL_HAL_EXTERNAL_TIMER,$(EEOPT)), UWL_HAL_EXTERNAL_TIMER)
 EE_SRCS += contrib/network/uWireless/src/hal/uwl_timer_dspic30.c
 endif

@@ -58,14 +58,17 @@ int8_t mrf24j40_init(uint8_t int_setup, uint8_t ch)
 	MRF24J40_RESETn = 1;
 	mrf24j40_delay_us(2500);
 
+
+
 	/**
 	 * Software reset:  
 	 * 7:3 = '00'  = Reserved
 	 * 2:0   = '111' = Reset MAC, baseband  
 	 * and power management circuitries
 	 */
+	debug_print("\r\n1!!");
 	mrf24j40_set_short_add_mem(MRF24J40_SOFTRST, 0x07);
-
+	debug_print("\r\n2!!");
 	/**
 	* wait until the radio reset is completed
 	*/

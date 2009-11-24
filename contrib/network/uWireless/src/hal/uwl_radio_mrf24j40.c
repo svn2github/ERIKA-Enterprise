@@ -1,5 +1,5 @@
 /**
-* @file uwl_radio_cc2420.c
+* @file uwl_radio_mrf24j40.c
 * @brief Abstract Radio functions
 * @author Gianluca Franchino
 * @author Christian Nastasi

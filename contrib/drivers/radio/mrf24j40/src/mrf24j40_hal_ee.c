@@ -80,6 +80,6 @@ int8_t	mrf24j40_spi_get(uint8_t *out)
 
 #else
 
-#error "CC2420_HAL: Architecture not supported!"
+#error "MRF24J40_HAL: Architecture not supported!"
 
 #endif

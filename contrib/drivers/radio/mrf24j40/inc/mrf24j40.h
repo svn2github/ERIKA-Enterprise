@@ -14,6 +14,7 @@
 #include "mrf24j40_hal.h"
 
 
+
 /* Functions prototypes */
 int8_t	mrf24j40_init(uint8_t int_setup, uint8_t ch);
 int8_t	mrf24j40_store_norm_txfifo(uint8_t* buf, uint8_t len);
@@ -21,6 +22,14 @@ uint8_t	mrf24j40_get_norm_txfifo(uint8_t pos);
 uint8_t	mrf24j40_get_fifo_msg(uint8_t *msg);
 void	mrf24j40_put_to_sleep();
 void	mrf24j40_wake() ;
+
+#define MRF24J40_BUFFER_SIZE 127
+
+#ifdef MRF24J40_DEBUG
+#include "console_serial.h"
+#define DEBUG_PORT 0
+#define debug_print(msg) 	console_write(DEBUG_PORT, msg, strlen(msg));
+#endif /* MRF24J40_DEBUG */
 
 
 #define MRF24J40_CSn_1()\
@@ -195,7 +204,7 @@ void	mrf24j40_wake() ;
  * - if we want to set the tx power to -20 dB then:
  *   mrf24j40_tx_pwr_set(TXPWRL_MINUS_20dB, TXPWRS_0dB 0x00).
  */
-#define mrf24j40_tx_pwr_set(large_val, small_val)\
+#define MRF24J40_TX_PWR_SET(large_val, small_val)\
 	((large_val << 6) || (small_val << 3))
 
 typedef union _TX_status {

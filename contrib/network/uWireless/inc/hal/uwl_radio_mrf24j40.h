@@ -14,12 +14,14 @@
 #ifndef __uwl_radio_mrf24j40_h__
 #define __uwl_radio_mrf24j40_h__
 
+
 #include <hal/uwl_radio.h>
 #include <mac/uwl_mac_types.h>
 
 #ifndef USE_MRF24J40
 #error "UWL_RADIO ERROR: the MRF24J40 radio driver is required for this!"
 #endif
+
 #include <mrf24j40.h>
 
 #ifdef UWL_DEBUG
@@ -27,7 +29,7 @@
 #include <stdio.h> //TODO: REMOVE together with the sprintf() !!!!!
 #endif
 
-#define UWL_RADIO_RX_BUFFER_SIZE CC2420_BUFFER_SIZE
+#define UWL_RADIO_RX_BUFFER_SIZE MRF24J40_BUFFER_SIZE
 
 /**
 * @name Phy PAN Information Base Init Value
@@ -86,7 +88,7 @@ COMPILER_INLINE int8_t uwl_radio_init(void)
 	* 1 = '1' = Disables the TX GTS1 FIFO transmission interrupt
 	* 0 = '0' = Enables the TX Normal FIFO transmission interrupt	
 	*/
-	return mrf24j40_radio_init(0xF6, 11);
+	return mrf24j40_init(0xF6, 11);
 
 }
 
@@ -249,8 +251,8 @@ COMPILER_INLINE int8_t uwl_radio_set_tx_power(uint8_t pwr)
 {
 	/* TODO: translate the value of pwr from PIB to radio related value! */
 	
-	pwr = mrf24j40_set_pa(mrf24j40_tx_pwr_set(MRF24J40_TXPWRL_0dB, 
-				MRF24J40_TXPWRS_0dB));
+	pwr = MRF24J40_TX_PWR_SET(MRF24J40_TXPWRL_0dB,
+				MRF24J40_TXPWRS_0dB);
 
 	mrf24j40_set_pa(pwr);
 
@@ -324,7 +326,7 @@ COMPILER_INLINE int8_t uwl_radio_set_rx()
 	/*
 	* Check if the transceiver is on sleep. If so, wake it up!
 	*/
-	if (rf24j40_get_status() == 0x40) {
+	if (mrf24j40_get_status() == 0x40) {
 		mrf24j40_wake();
 
 		return UWL_RADIO_ERR_NONE; 
@@ -340,14 +342,19 @@ COMPILER_INLINE int8_t uwl_radio_set_rx()
 
 /**
 *
-* \todo
+* @brief Check if the radio is receiving a message
+*
+* GF: with the mrf24j40 radio we cannot check if the radio is receiving a packet.
+* At this time the function returns 0: no busy. It should return an error, since
+* the busy on rx check is not available
 */
-/*
+//
 COMPILER_INLINE uint8_t uwl_radio_busy_rx()
 {
-	return cc2420_get_sfd();
+	//return cc2420_get_sfd();
+	return 0;
 }
-*/
+
 /**
 * @brief Set channel
 *
