@@ -1,0 +1,47 @@
+CPU test_application {
+
+	OS EE {
+		EE_OPT = "DEBUG";
+		EE_OPT = "NODEPS";
+
+		CFLAGS = "-l +modf +fast +nowiden +warn +sprec";
+		ASFLAGS = "-c -v -l ";
+		LDFLAGS = "-p -sa -m mapfile.map"; 
+
+		CPU_DATA = COSMIC_MC9S12XS {
+			APP_SRC = "main.c";
+			MULTI_STACK = FALSE;
+			ICD = TRUE;
+		};
+		
+		MCU_DATA = COSMIC_S12XS {
+   			MODEL = CUSTOM{
+    			MODEL = "MC9S12XS128";
+    			LINKERSCRIPT = "mc9s12xs128.lkf";
+    			INCLUDE_H = "hs12xsregs.h";
+    			INCLUDE_C = "vector_s12x.c";
+    			INCLUDE_S = "crtsx.S";
+   			};
+  		};
+
+		BOARD_DATA = COSMIC_DEMO9S12XSFAME {
+			TYPE = DEMO {
+				OPTIONS = ALL;
+			};
+		};
+
+		STATUS = EXTENDED;
+		STARTUPHOOK = FALSE;
+		ERRORHOOK = FALSE;
+		SHUTDOWNHOOK = FALSE;
+		PRETASKHOOK = FALSE;
+		POSTTASKHOOK = FALSE;
+		USEGETSERVICEID = FALSE;
+		USEPARAMETERACCESS = FALSE;
+		USERESSCHEDULER = FALSE;
+		
+//		ORTI_SECTIONS = ALL;
+    };
+
+    OS EE { KERNEL_TYPE = FP; }; 	
+};
