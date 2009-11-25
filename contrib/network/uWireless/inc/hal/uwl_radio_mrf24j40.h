@@ -88,7 +88,11 @@ COMPILER_INLINE int8_t uwl_radio_init(void)
 	* 1 = '1' = Disables the TX GTS1 FIFO transmission interrupt
 	* 0 = '0' = Enables the TX Normal FIFO transmission interrupt	
 	*/
-	return mrf24j40_init(0xF6, 11);
+#ifdef __USE_MOTIONBOARD__
+	return mrf24j40_init(0xF6, 11, MRF24J40_SPI_PORT_1);
+	#else
+	return mrf24j40_init(0xF6, 11, MRF24J40_SPI_PORT_2);
+	#endif
 
 }
 

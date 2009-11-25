@@ -22,28 +22,14 @@
 #define UWL_DEVICE_RFD		0
 
 #ifndef UWL_MAC_GTS_QUEUE_SIZE	
-#ifdef __AVR5__ /* FIXME: tmp solution!*/
-#define UWL_MAC_GTS_QUEUE_SIZE	5
-#else
+//#define UWL_MAC_GTS_QUEUE_SIZE	5
 #define UWL_MAC_GTS_QUEUE_SIZE	20
 #endif
-#endif /* UWL_MAC_GTS_QUEUE_SIZE */
 
 #ifndef UWL_MAC_CAP_QUEUE_SIZE	
-#ifdef __AVR5__ /* FIXME: tmp solution!*/
-#define UWL_MAC_CAP_QUEUE_SIZE	5
-#else
+//#define UWL_MAC_CAP_QUEUE_SIZE	5
 #define UWL_MAC_CAP_QUEUE_SIZE	20
 #endif
-#endif /* UWL_MAC_CAP_QUEUE_SIZE */
-
-#ifndef UWL_MAC_IND_LIST_SIZE
-#ifdef __AVR5__ /* FIXME: tmp solution!*/
-#define UWL_MAC_IND_LIST_SIZE	5
-#else
-#define UWL_MAC_IND_LIST_SIZE	20
-#endif
-#endif /* UWL_MAC_IND_LIST_SIZE */
 
 #define UWL_MAC_ERR_NONE 			1 /* Returned as positive! */
 #define UWL_MAC_ERR_NOT_INITIALIZED		1
@@ -66,8 +52,8 @@
 
 /* chris: TODO: could we have a better choice for a default 64bits address? */
 #ifndef UWL_MAC_DEVICE_EXTD_ADDRESS
-#define UWL_MAC_DEVICE_EXTD_ADDRESS_HIGH	0x00000002
-#define UWL_MAC_DEVICE_EXTD_ADDRESS_LOW		0x00000002
+#define UWL_MAC_DEVICE_EXTD_ADDRESS_HIGH	0x00000000
+#define UWL_MAC_DEVICE_EXTD_ADDRESS_LOW		0x00000001
 #endif
 
 #define UWL_MAC_PANID_BROADCAST			0xFFFF
@@ -121,7 +107,6 @@
 #define UWL_MAC_MPDU_GTS_SPEC_SIZE		1
 #define UWL_MAC_MPDU_GTS_DIRECTIONS_SIZE	1
 #define UWL_MAC_MPDU_GTS_DESCRIPTOR_SIZE	3
-#define UWL_MAC_MPDU_PENDING_ADDR_SPEC_SIZE	1
 
 #define UWL_MAC_SUPERFRAME_FIRST_SLOT 		0
 #define UWL_MAC_SUPERFRAME_LAST_SLOT 		15
@@ -130,10 +115,8 @@
 #define UWL_MAC_GTS_DIRECTION_IN 		1
 #define UWL_MAC_GTS_DIRECTION_OUT 		0
 
-#define UWL_MAC_COMMAND_FRAME_IDENTIFIER_SIZE	1
-#define UWL_MAC_CAPABILITY_INFORMATION_SIZE		1
-#define UWL_MAC_SHORT_ADDRESS_SIZE				2
-#define UWL_MAC_ASSOCIATION_STATUS_SIZE			1
+
+
 
 
 

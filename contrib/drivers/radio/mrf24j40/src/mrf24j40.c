@@ -39,18 +39,23 @@ void mrf24j40_set_rx_callback(void (*func)(void))
 * @return 0 if the initialization goes well, -1 otherwise.
 */
 
-int8_t mrf24j40_init(uint8_t int_setup, uint8_t ch)
+int8_t mrf24j40_init(uint8_t int_setup, uint8_t ch, uint8_t port)
 {  
 	uint8_t i;
+	int8_t retv;
 
-	/*chris: do I need this chek? This currently avoid the init func to 
-		 be called twice!
-	*/
 	if (radio_initialized) 
 		return -2;
 
 	/* init hal-specific things */
 	mrf24j40_hal_init();
+
+	retv = mrf24j40_spi_init(port);
+
+	/*TODO; manage error code*/
+	if (retv < 0)
+		return -1;
+
 
 	MRF24J40_RESETn = 0;
 	mrf24j40_delay_us(2500); 
@@ -66,9 +71,9 @@ int8_t mrf24j40_init(uint8_t int_setup, uint8_t ch)
 	 * 2:0   = '111' = Reset MAC, baseband  
 	 * and power management circuitries
 	 */
-	debug_print("\r\n1!!");
+
 	mrf24j40_set_short_add_mem(MRF24J40_SOFTRST, 0x07);
-	debug_print("\r\n2!!");
+
 	/**
 	* wait until the radio reset is completed
 	*/
@@ -82,12 +87,15 @@ int8_t mrf24j40_init(uint8_t int_setup, uint8_t ch)
 	
 	mrf24j40_set_short_add_mem(MRF24J40_PACON2, 0x98);
 
+	debug_print("\r\nMRF24J40 Init1");
 	/* 
 	 * Read back to value just written.
 	 * This trick is used to verify if the radio is connected.
 	 */
 	if (mrf24j40_get_short_add_mem(MRF24J40_PACON2) != 0x98)
 		return -1;
+
+	debug_print("\r\nMRF24J40 Init2");
 	/**
 	* Reset RF state machine
 	*/         
@@ -176,22 +184,27 @@ int8_t mrf24j40_init(uint8_t int_setup, uint8_t ch)
 	i = 0;
 
 	#ifdef MRF24J40_AUTOMATIC_ACK
+		debug_print("\r\nMRF24J40 Init AUTOACK");
 		i = i | 0b00100000	
 	#endif
 
 	#ifdef MRF24J40_PAN_COORDINATOR
+		debug_print("\r\nMRF24J40 Init PAN COORD");
 		i = i | 0b00001000;
 	#endif
 	
 	#ifdef MRF24J40_COORDINATOR
+		debug_print("\r\nMRF24J40 Init COORD");
 		i = i | 0b00000100;
 	#endif
 	
 	#ifdef MRF24J40_ACCEPT_WRONG_CRC_PKT
+		debug_print("\r\nMRF24J40 Init Accept Wrong CRC");
 		i = i | 0b00000010;
 	#endif
 	
 	#ifdef MRF24J40_PROMISCUOUS_MODE
+		debug_print("\r\nMRF24J40 Init PROMISUOUS MODE");
 		i = i | 0b00000001;
 	#endif	
 	
@@ -210,8 +223,12 @@ int8_t mrf24j40_init(uint8_t int_setup, uint8_t ch)
 	
 	#ifndef MRF24J40_DISABLE_CSMA
 	
+	debug_print("\r\nMRF24J40 Init CSMA ENABLED");
+
 	#ifdef MRF24J40_BEACON_ENABLED_MODE
 	
+	debug_print("\r\nMRF24J40 Init BEACON MODE ENABLED");
+
 	#ifdef MRF24J40_BATT_LIFE_EXT
 		/*
 		 *Set the TXMCR register.
@@ -223,6 +240,7 @@ int8_t mrf24j40_init(uint8_t int_setup, uint8_t ch)
 		 * bit 2-0 = '100';  CSMA Backoff bits (macMaxCSMABackoff)
 		 */
 		mrf24j40_set_short_add_mem(MRF24J40_TXMCR, 0x7C);
+		debug_print("\r\nMRF24J40 Init Battery life enabled");
 	#else
 		/*
 		 *Set the TXMCR register.
@@ -234,6 +252,7 @@ int8_t mrf24j40_init(uint8_t int_setup, uint8_t ch)
 		 * bit 2-0 = '100';  CSMA Backoff bits (macMaxCSMABackoff)
 		 */
 		mrf24j40_set_short_add_mem(MRF24J40_TXMCR, 0x3C);
+		debug_print("\r\nMRF24J40 Init Battery life disabled");
 	#endif
 
 	#else
@@ -249,6 +268,7 @@ int8_t mrf24j40_init(uint8_t int_setup, uint8_t ch)
 		 * bit 2-0 = '100';  CSMA Backoff bits (macMaxCSMABackoff)
 		 */
 		mrf24j40_set_short_add_mem(MRF24J40_TXMCR, 0x5C);
+		debug_print("\r\nMRF24J40 Init Battery life enabled");
 	#else
 		/*
 		 *Set the TXMCR register.
@@ -260,12 +280,13 @@ int8_t mrf24j40_init(uint8_t int_setup, uint8_t ch)
 		 * bit 2-0 = '100';  CSMA Backoff bits (macMaxCSMABackoff)
 		 */
 		mrf24j40_set_short_add_mem(MRF24J40_TXMCR, 0x1C);
-
+		debug_print("\r\nMRF24J40 Init Battery life disabled");
 	#endif
 		
 	#endif
 	
 	#else
+		debug_print("\r\nMRF24J40 Init CSMA DISABLED");
 		mrf24j40_set_short_add_mem(MRF24J40_TXMCR, 0x80); /* Disable CSMA alg. */
 	#endif
 
@@ -283,13 +304,16 @@ int8_t mrf24j40_init(uint8_t int_setup, uint8_t ch)
 	mrf24j40_set_short_add_mem(MRF24J40_BBREG0, 0x01);
     mrf24j40_set_short_add_mem(MRF24J40_BBREG3, 0x38);
     mrf24j40_set_short_add_mem(MRF24J40_BBREG4, 0x5C);
+    debug_print("\r\nMRF24J40 Init TURBO MODE enabled");
 	#endif
-	
+	while(1);
 	/**
 	* Reset RF state machine
 	*/         
 	mrf24j40_set_short_add_mem(MRF24J40_RFCTL, 0x04);        
 	mrf24j40_set_short_add_mem(MRF24J40_RFCTL, 0x00);
+
+	debug_print("\r\nMRF24J40 Init Done!");
 
 	return 0;
 }
@@ -316,23 +340,21 @@ int8_t mrf24j40_store_norm_txfifo(uint8_t* buf, uint8_t len)
 
 	for (i=0;i<len;i++)
 		mrf24j40_set_long_add_mem(MRF24J40_NORMAL_TX_FIFO + 2 + i, buf[i]);
-	
+	//debug_print("\n\rSTORE NOR_TXFIFO DONE!");
 	return 0;
 }
 /**
 * @brief Store message
 *
-* This routine stores a buffer of buf_length bytes in the TX_FIFO buffer of the 
-* MRF24J40.
+* This retrieve a byte at  position pos from TX_FIFO buffer of the MRF24J40.
 *
-* @param[in] *buf 	The message pointer
-* @param[in] buf_legth 	The message lenght
+* @param[in] pos 	The byte position
 */
 uint8_t mrf24j40_get_norm_txfifo(uint8_t pos)
 {
 	if (pos > 127)
 		return 0;
-	
+
 	return mrf24j40_get_long_add_mem(MRF24J40_NORMAL_TX_FIFO + pos);
 }
 
@@ -432,6 +454,9 @@ void mrf24j40_wake()
 COMPILER_ISR(MRF24J40_INTERRUPT_NAME)
 {
 	MRF24J40_INTERRUPT_FLAG = 0;
+
+	debug_print("\r\nInterrupt!!!!");
+
 	if (rx_callback != NULL) 
 		rx_callback();
 }

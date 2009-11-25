@@ -2,12 +2,10 @@
 * @file uwl_simple154.c
 * @brief Simple IEEE 802.15.4 Implementation 
 * @author Christian Nastasi
-* @author Daniele Alessandrelli
 * @version 0.1
 * @date 2009-06-22
 */
 #include <net/uwl_simple154.h>
-#include <util/uwl_debug.h>
 #include <string.h>
 
 struct uwl_simple154_flags_t {
@@ -16,15 +14,11 @@ struct uwl_simple154_flags_t {
 	unsigned coordinator : 1;
 };
 
-static struct uwl_simple154_flags_t flags = {
-	.wait_confirm = 0, 
-	.initialized = 0, 
-	.coordinator = 0
-};
-static int8_t mac_error;
-static int8_t last_error;
-static uint16_t coordinator_pan_id;
-static uint16_t coordinator_address;
+static struct uwl_simple154_flags_t flags = {0, 0, 0};
+static int8_t mac_error = 0;
+static int8_t last_error = 0;
+static uint16_t coordinator_pan_id = 0;
+static uint16_t coordinator_address = 0;
 /* static uint8_t msdu_handle_id = 0; */
 static void (*rx_callback) (int8_t, uint8_t*, uint8_t, uint16_t) = NULL;
 static uint8_t rx_buffer[UWL_MAC_MAX_MSDU_SIZE];
@@ -56,6 +50,7 @@ int8_t uwl_simple154_init_coordinator(uint16_t coordinator_id, uint16_t pan_id,
 	mac_error = uwl_mac_init(); 
 	if (mac_error < 0) 
 		RETURN_WITH_ERROR(-UWL_SIMPLE154_ERR_INITMAC);
+	
 	mac_error = uwl_MLME_SET_request(UWL_MAC_SHORT_ADDRESS, 0, 
 					 (void *) &coordinator_id);
 	if (mac_error < 0) 
@@ -162,7 +157,7 @@ int8_t uwl_simple154_gts_clear(void)
 		RETURN_WITH_ERROR(-UWL_SIMPLE154_ERR_GTS_NOTCOORDINATOR);
 	mac_error = uwl_mac_gts_db_clean();
 	if (mac_error < 0)
-		RETURN_WITH_ERROR(-UWL_SIMPLE154_ERR_GTS_MANIPULATION);
+		RETURN_WITH_ERROR(UWL_SIMPLE154_ERR_GTS_MANIPULATION);
 	RETURN_WITH_ERROR(UWL_SIMPLE154_ERR_NONE);
 }
 
@@ -174,7 +169,7 @@ int8_t uwl_simple154_gts_add(uint16_t device_id, uint8_t length, uint8_t dir)
 		RETURN_WITH_ERROR(-UWL_SIMPLE154_ERR_GTS_NOTCOORDINATOR);
 	mac_error = uwl_mac_gts_db_add(device_id, length, dir);
 	if (mac_error < 0)
-		RETURN_WITH_ERROR(-UWL_SIMPLE154_ERR_GTS_MANIPULATION);
+		RETURN_WITH_ERROR(UWL_SIMPLE154_ERR_GTS_MANIPULATION);
 	RETURN_WITH_ERROR(UWL_SIMPLE154_ERR_NONE);
 }
 
@@ -186,22 +181,18 @@ int8_t uwl_simple154_set_beacon_payload(uint8_t *data, uint8_t len)
 		RETURN_WITH_ERROR(-UWL_SIMPLE154_ERR_GTS_NOTCOORDINATOR);
 	mac_error = uwl_mac_set_beacon_payload(data, len);
 	if (mac_error < 0)
-		RETURN_WITH_ERROR(-UWL_SIMPLE154_ERR_INVALID_LENGTH);
+		RETURN_WITH_ERROR(UWL_SIMPLE154_ERR_INVALID_LENGTH);
 	RETURN_WITH_ERROR(UWL_SIMPLE154_ERR_NONE);
 }
 
 int8_t uwl_simple154_get_beacon_payload(uint8_t *data, uint8_t len)
 {
-	int8_t real_len;
-
 	if (!flags.initialized)
 		RETURN_WITH_ERROR(-UWL_SIMPLE154_ERR_NOTINIT);
-	real_len = uwl_mac_get_beacon_payload(data, len);
-	if (real_len < 0) {
-		mac_error = real_len;
-		RETURN_WITH_ERROR(-UWL_SIMPLE154_ERR_INVALID_LENGTH);
-	}
-	return real_len;
+	mac_error = uwl_mac_get_beacon_payload(data, len);
+	if (mac_error < 0)
+		RETURN_WITH_ERROR(UWL_SIMPLE154_ERR_INVALID_LENGTH);
+	RETURN_WITH_ERROR(UWL_SIMPLE154_ERR_NONE);
 }
 
 int8_t uwl_simple154_set_on_beacon_callback(void (* func)(void)) 

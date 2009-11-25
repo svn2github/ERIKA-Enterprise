@@ -146,8 +146,7 @@ struct uwl_mac_pib_t {
 
 
 typedef uint8_t uwl_mpdu_t[UWL_MAC_MPDU_SIZE]; 
-typedef uint8_t *uwl_mpdu_ptr_t;
-typedef uint8_t uwl_mac_ack_t[3];
+typedef uint8_t *uwl_mpdu_ptr_t; 
 
 struct uwl_mac_frame_t {
 	uwl_mpdu_t mpdu;
@@ -167,12 +166,6 @@ enum uwl_mac_addr_mode_t {
 	UWL_MAC_ADDRESS_NONE 	= 0x0,
 	UWL_MAC_ADDRESS_SHORT 	= 0x2,
 	UWL_MAC_ADDRESS_EXTD 	= 0x3,
-};
-
-enum uwl_mac_cmd_type_t {
-	UWL_MAC_CMD_ASSOCIATION_REQUEST 	= 0x01,
-	UWL_MAC_CMD_ASSOCIATION_RESPONSE	= 0x02,
-	UWL_MAC_CMD_DATA_REQUEST			= 0x04,
 };
 
 struct uwl_gts_info_t {

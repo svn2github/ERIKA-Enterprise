@@ -2,7 +2,6 @@
 * @file uwl_mac_gts.c
 * @brief IEEE 802.15.4 MAC Layer GTS Management
 * @author Christian Nastasi
-* @author Daniele Alessandrelli
 * @version 0.1
 * @date 2009-06-22
 */
@@ -175,8 +174,7 @@ uint8_t uwl_mac_gts_get_gts_fields(uint8_t *gf)
 		return s;
 	cnt = UWL_MAC_GTS_SPEC_GET_DESCRIPTOR_COUNT(gf);
 	tmp = gf + s;
-	if (cnt > 0)
-		s += UWL_MAC_MPDU_GTS_DIRECTIONS_SIZE;
+	s += UWL_MAC_MPDU_GTS_DIRECTIONS_SIZE;
 	/* NOTE: if the GTS descriptor list is malformed (more than one GTS
 		 in tx or more than one in rx) this shall take the last one! */
 	for (i = 0; i < cnt; i++) {

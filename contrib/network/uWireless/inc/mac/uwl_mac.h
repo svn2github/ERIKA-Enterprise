@@ -41,16 +41,6 @@ do {							\
 #define UWL_MAC_MPDU_MAC_PAYLOAD(mpdu, offset) 		((mpdu) + 3 + (offset))
 #define UWL_MAC_MPDU_MAC_FCS(mpdu, offset) 		((mpdu) + 3 + (offset))
 
-#define UWL_MAC_MPDU_COMMAND_FRAME_IDENTIFIER(mpdu, offset)	((mpdu) + 3 + (offset))
-#define UWL_MAC_MPDU_CAPABILITY_INFORMATION(mpdu, offset)	((mpdu) + 4 + (offset))
-#define UWL_MAC_MPDU_SHORT_ADDRESS(mpdu, offset)	((mpdu) + 4 + (offset))
-#define UWL_MAC_MPDU_ASSOCIATION_STATUS(mpdu, offset)	((mpdu) + 6 + (offset))
-
-#define UWL_MAC_MPDU_GET_SEQ_NUMBER(mpdu)	(*(mpdu))
-#define UWL_MAC_MPDU_MAC_COMMAND_FIELDS(mpdu, offset) 		((mpdu) + 3 + (offset))
-#define UWL_MAC_MPDU_GET_COMMAND_FRAME_ID(cmd)	(*(cmd))
-#define UWL_MAC_MPDU_GET_CAPABILITY_INFORMATION(cmd)	(*(cmd))
-
 #define UWL_MAC_FCTL_GET_FRAME_TYPE(fcf) 	((*(fcf)) & 0x07)
 #define UWL_MAC_FCTL_GET_SECURITY(fcf) 		(((*(fcf)) >> 3) & 0x01)
 #define UWL_MAC_FCTL_GET_FRAME_PENDING(fcf) 	(((*(fcf)) >> 4) & 0x01)
@@ -66,7 +56,6 @@ do {							\
 #define UWL_MAC_SF_SPEC_GET_BLE(ss)		((((ss)[1]) >> 4) & 0x03)
 #define UWL_MAC_SF_SPEC_GET_PAN_COORD(ss)	((((ss)[1]) >> 6) & 0x01)
 #define UWL_MAC_SF_SPEC_GET_ASSOC_PERMIT(ss)	((((ss)[1]) >> 7) & 0x01)
-
 
 /*
 #define UWL_MAC_MPDU_SF_SPECIFICATION(mpdu, offset) 	((mpdu) + 3 + (offset))

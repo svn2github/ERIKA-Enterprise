@@ -56,7 +56,7 @@ int8_t uwl_debug_write(uint8_t *msg, uint16_t len)
 	#endif /* UWL_DEBUG_LOG */
 }
 
-int8_t uwl_debug_print_func(const char *msg) 
+int8_t uwl_debug_print(const char *msg) 
 {
 	#ifdef UWL_DEBUG_LOG_HAS_PRINT
 	int8_t retv = 0;
@@ -87,7 +87,6 @@ break;				\
 
 void uwl_debug_sprint_phycode(enum uwl_phy_code_t c, char *out) 
 {
-	#ifndef __AVR5__
 	switch (c) {
 	DO_CASE_STRCPY(UWL_PHY_BUSY, out);
 	DO_CASE_STRCPY(UWL_PHY_BUSY_RX, out);
@@ -102,12 +101,10 @@ void uwl_debug_sprint_phycode(enum uwl_phy_code_t c, char *out)
 	DO_CASE_STRCPY(UWL_PHY_UNSUPPORTED_ATTRIBUTE, out);
 	DO_CASE_STRCPY(UWL_PHY_READ_ONLY, out);
 	}
-	#endif
 }
 
 void uwl_debug_sprint_maccode(enum uwl_mac_code_t c, char *out)
 {
-	#ifndef __AVR5__
 	switch (c) {
 	DO_CASE_STRCPY(UWL_MAC_SUCCESS, out);
 	DO_CASE_STRCPY(UWL_MAC_PAN_AT_CAPACITY, out);
@@ -149,6 +146,5 @@ void uwl_debug_sprint_maccode(enum uwl_mac_code_t c, char *out)
 	DO_CASE_STRCPY(UWL_MAC_SUPERFRAME_OVERLAP, out);
 	DO_CASE_STRCPY(UWL_MAC_BEACON_LOST, out);
 	}
-	#endif
 } 
 
