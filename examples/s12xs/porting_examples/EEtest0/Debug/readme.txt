@@ -1,3 +1,0 @@
-Test 0
-
-Il test riguarda semplicemente la compilazione mediante la catena dei makefile...
