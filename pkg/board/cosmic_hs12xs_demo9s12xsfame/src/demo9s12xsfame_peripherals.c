@@ -7,7 +7,7 @@
  *
  * ERIKA Enterprise is free software; you can redistribute it
  * and/or modify it under the terms of the GNU General Public License
- * version 2 as published by the Free Software Foundation, 
+ * version 2 as published by the Free Software Foundation,
  * (with a special exception described below).
  *
  * Linking this code statically or dynamically with other modules is
@@ -39,35 +39,40 @@
  * ###*E*### */
 
 /*
- * Author: 2006 Paolo Gai
- * CVS: $Id: ee_internal.h,v 1.8 2008/07/18 09:53:55 tiberipa Exp $
+ * Author: 20065 Mauro Marinoni
+ * CVS: $Id: ee_board.c,v 1.11 2008/08/29 11:21:08 francesco Exp $
  */
 
-#include "mcu/cosmic_hs12xs/inc/ee_mcu.h"
+#include "ee_internal.h"
 
-#ifndef __INCLUDE_FREESCALE_S12XS_INTERNAL_H__
-#define __INCLUDE_FREESCALE_S12XS_INTERNAL_H__
+/* /\************************************************************************* */
+/* Check if the Flex DemoBoard has been selected */
+/* /\************************************************************************* */
 
+#ifdef __DEMO9S12XSFAME__
 
-/*************************************************************************
- Timers
- *************************************************************************/
+#include "cpu\cosmic_hs12xs\inc\ee_irqstub.h"
 
-///*
-// * CBS & FRSH
-// */
-//
-//#if defined(__CBS__) || defined(__FRSH__)
-//
-///* This function set the capacity timer to raise in t ticks. */
-//void EE_hal_set_budget_timer(EE_STIME t);
-//
-//__INLINE__ void __ALWAYS_INLINE__ EE_hal_stop_budget_timer(void)
-//{
-//  //IFS3bits.T7IF = 0;
-//  //T6CONbits.TON = 0;
-//}
+//Start GF
+/* /\************************************************************************* */
+/*  Buttons and PICDEM Z */
+/*  *************************************************************************\/ */
 
-//#endif
+#ifdef __USE_BUTTONS__
+#endif
+
+/* /\************************************************************************* */
+/*  Analog input */
+/*  *************************************************************************\/ */
+EE_UINT8 EE_adc_init = 0;
+#if defined(__USE_POTENTIOMETER__) || defined(__USE_ADC__) || defined(__USE_LIGHT_SENSOR__)
 
 #endif
+
+/* ************************************************************************* */
+
+/* ************************************************************************* */
+
+#endif // __DEMO9S12XSFAME__
+
+/* ************************************************************************* */

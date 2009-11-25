@@ -118,10 +118,10 @@ xref 	f_EE_thread_end_instance
 
 	// MONO:  void EE_s12xs_hal_ready2stacked(ADDR thread_addr)
 	// MULTI: void EE_s12xs_hal_ready2stacked(ADDR thread_addr, EE_UREG tos_index)
-	// parameters are in w0 and w1
-	//	.type	_EE_s12xs_hal_ready2stacked, #function
+	// parameters are in ...
+	// .type	_EE_s12xs_hal_ready2stacked, #function
 
-	xdef f_EE_s12xs_hal_ready2stacked	// xdef _EE_s12xs_hal_ready2stacked
+	xdef f_EE_s12xs_hal_ready2stacked	
 f_EE_s12xs_hal_ready2stacked:
 	
 	#ifdef __MULTI__
@@ -154,7 +154,7 @@ L21:
 	bne	L3								// if not equal to zero -> branch
 	
 	#ifdef __MULTI__
-		EE_CHANGE_TOS_MACRO
+		EE_CHANGE_TOS_MACRO				// macro to ...
 	#endif
 	
 	leas	4,s							// remove four bytes from the stack pointer
@@ -162,7 +162,6 @@ L21:
 	
 	#ifdef __MULTI__
 
-		//
 		// MONO:  not defined
 		// MULTI: void EE_s12xs_hal_stkchange(EE_UREG 0, EE_UREG tos_index)
 		//

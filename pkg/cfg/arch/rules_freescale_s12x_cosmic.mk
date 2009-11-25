@@ -178,34 +178,23 @@ hs12xs.$(COSMIC_EXTENSION): $(OBJS) $(LINKDEP) $(LIBDEP)
                      
                     
 
-ifeq ($(findstring BUILDSRC,$(EEALLOPT)), BUILDSRC)
 # preprocess first the assembly code and then compile the object file
 $(OBJDIR)/%.o: %.S
-	$(VERBOSE_PRINTPRE) $(EE_DEP) $(COMPUTED_ALLINCPATH) $(DEFS_ASM) -sp "$(SOURCEFILE)" > $(SRCFILE)
+	$(VERBOSE_PRINTPRE) $(EE_PREP) $(GCC_ALLINCPATH) $(DEFS_GCCASM) -E -P "$(SOURCEFILE)" > $(SRCFILE)
 	$(VERBOSE_PRINTASM) $(EE_ASM) $(COMPUTED_OPT_ASM) -o $(TARGETFILE) $(SRCFILE) 
-else
-# produce the object file from assembly code in a single step ATT!!!
-$(OBJDIR)/%.o: %.S
-	$(VERBOSE_PRINTCPP) $(EE_CC) $(COMPUTED_ALLINCPATH) $(DEFS_ASM) -a"-o $(TARGETFILE)" "$(SOURCEFILE)" 
-endif
 
-ifeq ($(findstring BUILDSRC,$(EEALLOPT)), BUILDSRC)
-# produce first the assembly from C code and then compile the object file
-$(OBJDIR)/%.o: %.c ee_hs12xsregs.h
-	$(VERBOSE_PRINTCPP) $(EE_CC) $(COMPUTED_OPT_CC) $(COMPUTED_ALLINCPATH) $(DEFS_CC) -s -a"-o $(SRCFILE)" "$(SOURCEFILE)" 
-	$(VERBOSE_PRINTASM) $(EE_ASM) $(COMPUTED_OPT_ASM) $(SRCFILE) -o $(TARGETFILE)
-else
+# produce the object file from assembly code in a single step ATT!!!
+#$(OBJDIR)/%.o: %.S
+#	$(VERBOSE_PRINTCPP) $(EE_CC) $(COMPUTED_ALLINCPATH) $(DEFS_ASM) -a"-o $(TARGETFILE)" "$(SOURCEFILE)" 
+
 # produce the object file from C code in a single step	ATT!!! tolta opzione -c!!! e tolta l'opzione -o $(TARGETFILE) 
 $(OBJDIR)/%.o: %.c ee_hs12xsregs.h  
 	$(VERBOSE_PRINTCPP) $(EE_CC) $(COMPUTED_OPT_CC) $(COMPUTED_ALLINCPATH) $(DEFS_CC) -a"-o $(TARGETFILE)" "$(SOURCEFILE)" 
-endif
 
 ##
 ## EE Library
 ##
 
-
-	
 
 libee.x12: $(LIBEEOBJS)
 	@printf "AR  libee.x12\n" ;

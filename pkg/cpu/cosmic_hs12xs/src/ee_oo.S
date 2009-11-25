@@ -61,8 +61,7 @@ OFST:	set	0
     
 	call	[OFST+5,s]	// Call the thread
 	
-	leas	2,s			// Remove two bytes from the stack (if the user dont'call the TerminateTask() function...)
-
+	puld				// Remove two bytes (the address of terminate_data) from the stack and put them in d (like a call, if the user doesnt'call the TerminateTask() function...)
 
 xdef f_EE_s12xs_terminate_task
 f_EE_s12xs_terminate_task:

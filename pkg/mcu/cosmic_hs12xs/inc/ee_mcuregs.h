@@ -56,10 +56,4 @@
 #include "ee_hs12xsregs.h"
 #endif
 
-
-/* A set of features which are used by the MCU code... */
-#ifdef __MC9S12XS128__
-#define __S12XS_HAS_TMR8__
-#endif
-
 #endif

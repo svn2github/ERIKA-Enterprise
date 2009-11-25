@@ -39,35 +39,47 @@
  * ###*E*### */
 
 /*
- * Author: 2006 Paolo Gai
- * CVS: $Id: ee_internal.h,v 1.8 2008/07/18 09:53:55 tiberipa Exp $
+ * Author: 2008 Paolo Tiberi & Francesco Focacci
+ * CVS: $Id: ee_frsh_init.c,v 1.4 2008/07/21 13:51:54 tiberipa Exp $
  */
 
-#include "mcu/cosmic_hs12xs/inc/ee_mcu.h"
+#include "ee_internal.h"
 
-#ifndef __INCLUDE_FREESCALE_S12XS_INTERNAL_H__
-#define __INCLUDE_FREESCALE_S12XS_INTERNAL_H__
+#include "mcu/freescale_s12xs/inc/ee_internal.h"
+#include "cpu/s12xs/inc/ee_irqstub.h"
 
+extern void EE_IRQ_end_budget(void);
+extern void EE_IRQ_end_recharging(void);
 
-/*************************************************************************
- Timers
- *************************************************************************/
+/*
+ * These two interrupts are used in the FRSH implementation to handle the
+ * timer interrupts for budget exaustion and for the recharging.
+ */
 
-///*
-// * CBS & FRSH
-// */
-//
-//#if defined(__CBS__) || defined(__FRSH__)
-//
-///* This function set the capacity timer to raise in t ticks. */
-//void EE_hal_set_budget_timer(EE_STIME t);
-//
-//__INLINE__ void __ALWAYS_INLINE__ EE_hal_stop_budget_timer(void)
+/* Budget exaustion */
+//ISR2(_T7Interrupt)
 //{
-//  //IFS3bits.T7IF = 0;
-//  //T6CONbits.TON = 0;
+	///* clear the interrupt source */
+//	IFS3bits.T7IF = 0;
+//	T6CONbits.TON = 0;
+//	EE_frsh_IRQ_timer_multiplexer();
 //}
 
-//#endif
 
-#endif
+
+/* This function set the capacity timer to raise in t ticks. */
+//void EE_hal_set_budget_timer(EE_STIME t) 
+//{   
+  //if (t > 0) {
+//    PR6 = t & 0xFFFF;
+//    PR7 = t >> 16;
+//    TMR6 = 0;
+//    TMR7 = 0;
+//    IFS3bits.T7IF = 0;
+//    T6CONbits.TON = 1; // Start Timer 6/7;
+//  } else {
+//    // Stop the timer
+//    IFS3bits.T7IF = 0;
+//    T6CONbits.TON = 0;
+//  }
+//} 

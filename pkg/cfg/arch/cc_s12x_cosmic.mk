@@ -76,6 +76,10 @@ ifndef EE_DEP
 EE_DEP:=$(BINDIR_DEP)/cxs12x.exe
 endif
 
+ifndef EE_PREP
+EE_PREP:= $(shell cygpath `cygpath -ms "C:\cygwin\bin"`)/gcc
+endif
+
 ifndef EE_AR
 EE_AR:=$(BINDIR_BINUTILS)/clib.exe
 endif
@@ -102,8 +106,8 @@ endif
 # INTERNAL_PKGBASEDIR is used to avoid multiple calls to cygpath
 
 INTERNAL_PKGBASEDIR := -i"$(shell cygpath -w $(PKGBASE))\\." -i"$(shell cygpath -w $(APPBASE))\\." -i.
-
 ALLINCPATH += $(INTERNAL_PKGBASEDIR)
+GCC_ALLINCPATH := -I"$(shell cygpath -w $(PKGBASE))\\." -I"$(shell cygpath -w $(APPBASE))\\." -I.
 
 ## OPT_CC are the options for arm compiler invocation
 OPT_CC = 
@@ -116,7 +120,7 @@ OPT_CC += $(CFLAGS)
 OPT_CC_DEPS := $(OPT_CC) -sm
 
 # #OPT_ASM are the options for asm invocation
-OPT_ASM = -i "fromcosmic"
+OPT_ASM = 
 ifeq ($(findstring DEBUG,$(EEOPT)) , DEBUG)
 OPT_ASM += -xx -x
 endif
@@ -134,6 +138,7 @@ OPT_LINK += $(LDFLAGS)
 
 # MUST be EEOPT, not EEALLOPT!!!
 DEFS_ASM = $(addprefix -d, $(EEOPT) )
+DEFS_GCCASM = $(addprefix -D, $(EEOPT) )
 DEFS_CC  = $(addprefix -d, $(EEOPT) )
 
 endif

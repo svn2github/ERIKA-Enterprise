@@ -60,111 +60,108 @@
 
 StatusType EE_oo_TerminateTask(void)
 {
-#ifdef __OO_ORTI_SERVICETRACE__
-  EE_ORTI_servicetrace = EE_SERVICETRACE_TERMINATETASK+1;
-#endif
+	#ifdef __OO_ORTI_SERVICETRACE__
+  	EE_ORTI_servicetrace = EE_SERVICETRACE_TERMINATETASK+1;
+	#endif
 
+	/* check for a call at interrupt level 
+	* This must be the FIRST Check!!!
+	*/
+  	if (EE_hal_get_IRQ_nesting_level()) 
+	{
+		#ifdef __OO_ORTI_LASTERROR__
+    	EE_ORTI_lasterror = E_OS_CALLEVEL;
+		#endif
 
+		#ifdef __OO_HAS_ERRORHOOK__
+    	EE_hal_begin_primitive();
+    	if (!EE_ErrorHook_nested_flag) 
+		{
+			#ifndef __OO_ERRORHOOK_NOMACROS__
+      		EE_oo_ErrorHook_ServiceID = OSServiceId_TerminateTask;
+			#endif
+    		EE_ErrorHook_nested_flag = 1;
+    		ErrorHook(E_OS_CALLEVEL);
+    		EE_ErrorHook_nested_flag = 0;
+    	}
+    	EE_hal_end_primitive();
+		#endif
 
-  /* check for a call at interrupt level 
-   * This must be the FIRST Check!!!
-   */
-  if (EE_hal_get_IRQ_nesting_level()) {
-#ifdef __OO_ORTI_LASTERROR__
-    EE_ORTI_lasterror = E_OS_CALLEVEL;
-#endif
+		#ifdef __OO_ORTI_SERVICETRACE__
+    	EE_ORTI_servicetrace = EE_SERVICETRACE_TERMINATETASK;
+		#endif
 
-#ifdef __OO_HAS_ERRORHOOK__
-    EE_hal_begin_primitive();
-    if (!EE_ErrorHook_nested_flag) {
-#ifndef __OO_ERRORHOOK_NOMACROS__
-      EE_oo_ErrorHook_ServiceID = OSServiceId_TerminateTask;
-#endif
-      EE_ErrorHook_nested_flag = 1;
-      ErrorHook(E_OS_CALLEVEL);
-      EE_ErrorHook_nested_flag = 0;
-    }
-    EE_hal_end_primitive();
-#endif
+    	return E_OS_CALLEVEL;
+  	}
 
-#ifdef __OO_ORTI_SERVICETRACE__
-    EE_ORTI_servicetrace = EE_SERVICETRACE_TERMINATETASK;
-#endif
+	#ifndef __OO_NO_RESOURCES__
+  	/* check for busy resources */ 
+  	
+  	if (EE_th_resource_last[EE_stk_queryfirst()] != EE_UREG_MINUS1) 
+	{
+		#ifdef __OO_ORTI_LASTERROR__
+    	EE_ORTI_lasterror = E_OS_RESOURCE;
+		#endif
 
-    return E_OS_CALLEVEL;
-  }
+		#ifdef __OO_HAS_ERRORHOOK__
+    	EE_hal_begin_primitive();
+    	if (!EE_ErrorHook_nested_flag) 
+		{
+		#ifndef __OO_ERRORHOOK_NOMACROS__
+      	EE_oo_ErrorHook_ServiceID = OSServiceId_TerminateTask;
+		#endif
+      	EE_ErrorHook_nested_flag = 1;
+      	ErrorHook(E_OS_RESOURCE);
+      	EE_ErrorHook_nested_flag = 0;
+    	}
+    	EE_hal_end_primitive();
+		#endif
 
+		#ifdef __OO_ORTI_SERVICETRACE__
+    	EE_ORTI_servicetrace = EE_SERVICETRACE_TERMINATETASK;
+		#endif
 
+    	return E_OS_RESOURCE;
+  	}
+	#endif
 
+  	EE_hal_begin_primitive();
 
-#ifndef __OO_NO_RESOURCES__
-  /* check for busy resources */ 
-  if (EE_th_resource_last[EE_stk_queryfirst()] != -1) {
-#ifdef __OO_ORTI_LASTERROR__
-    EE_ORTI_lasterror = E_OS_RESOURCE;
-#endif
+	#ifndef __OO_NO_CHAINTASK__
+  	EE_th_terminate_nextask[EE_stk_queryfirst()] = EE_NIL;
+	#endif
 
-#ifdef __OO_HAS_ERRORHOOK__
-    EE_hal_begin_primitive();
-    if (!EE_ErrorHook_nested_flag) {
-#ifndef __OO_ERRORHOOK_NOMACROS__
-      EE_oo_ErrorHook_ServiceID = OSServiceId_TerminateTask;
-#endif
-      EE_ErrorHook_nested_flag = 1;
-      ErrorHook(E_OS_RESOURCE);
-      EE_ErrorHook_nested_flag = 0;
-    }
-    EE_hal_end_primitive();
-#endif
-
-#ifdef __OO_ORTI_SERVICETRACE__
-    EE_ORTI_servicetrace = EE_SERVICETRACE_TERMINATETASK;
-#endif
-
-    return E_OS_RESOURCE;
-  }
-#endif
-
-
-
-
-  EE_hal_begin_primitive();
-
-#ifndef __OO_NO_CHAINTASK__
-  EE_th_terminate_nextask[EE_stk_queryfirst()] = EE_NIL;
-#endif
-
-#ifdef __OO_ORTI_SERVICETRACE__
-  EE_ORTI_servicetrace = EE_SERVICETRACE_TERMINATETASK;
-#endif
+	#ifdef __OO_ORTI_SERVICETRACE__
+  	EE_ORTI_servicetrace = EE_SERVICETRACE_TERMINATETASK;
+	#endif
   
-  EE_hal_terminate_task(EE_stk_queryfirst());
+  	EE_hal_terminate_task(EE_stk_queryfirst());
 
-  /* This return instruction usually is optimized by the compiler,
+  	/* This return instruction usually is optimized by the compiler,
      because hal_terminate_task does not return... */
-  return E_OK;
+  	return E_OK;
 }
 
 #else
 
 void EE_oo_TerminateTask(void)
 {
-#ifdef __OO_ORTI_SERVICETRACE__
-  /* both assignment to enable smart debuggers to notice the entry and
+	#ifdef __OO_ORTI_SERVICETRACE__
+  	/* both assignment to enable smart debuggers to notice the entry and
      exit from terminatetask */
-  EE_ORTI_servicetrace = EE_SERVICETRACE_TERMINATETASK+1;
-#endif
+  	EE_ORTI_servicetrace = EE_SERVICETRACE_TERMINATETASK+1;
+	#endif
 
-#ifndef __OO_NO_CHAINTASK__
-  EE_th_terminate_nextask[EE_stk_queryfirst()] = EE_NIL;
-#endif
+	#ifndef __OO_NO_CHAINTASK__
+  	EE_th_terminate_nextask[EE_stk_queryfirst()] = EE_NIL;
+	#endif
 
-#ifdef __OO_ORTI_SERVICETRACE__
-  EE_ORTI_servicetrace = EE_SERVICETRACE_TERMINATETASK;
-#endif
+	#ifdef __OO_ORTI_SERVICETRACE__
+  	EE_ORTI_servicetrace = EE_SERVICETRACE_TERMINATETASK;
+	#endif
 
-  /* just terminate without any check */
-  EE_hal_terminate_task(EE_stk_queryfirst());
+  	/* just terminate without any check */
+  	EE_hal_terminate_task(EE_stk_queryfirst());
 }
 
 

@@ -80,7 +80,7 @@
 
 
 /* Primitive data types */
-/* TODO: it is worth for THUMB?!? */
+/* TODO: it is worth for THUMB?!? */ 
 
 typedef unsigned char EE_BIT;
 typedef unsigned char EE_UINT8;
@@ -100,6 +100,11 @@ typedef EE_UINT32 EE_TID;
 /* Addresses (that have the same size of a pointer) */
 typedef @far EE_UINT32 *EE_ADDR;		// N.B. 16-bit for @near pointer and 32-bit for @far pointer
 typedef EE_UINT16 *EE_DADD;				// N.B. for data pointer you can use only 16 bit 
+
+typedef EE_BIT Bool;
+#define FALSE 0
+#define TRUE 1
+
 
 /* EE_TYPEIRQ is defined inside the MCU */
 

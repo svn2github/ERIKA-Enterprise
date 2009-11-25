@@ -39,47 +39,8 @@
  * ###*E*### */
 
 /*
- * Author: 2008 Paolo Tiberi & Francesco Focacci
- * CVS: $Id: ee_frsh_init.c,v 1.4 2008/07/21 13:51:54 tiberipa Exp $
+ * Author: 2006 Paolo Gai
+ * CVS: $Id: ee_internal.h,v 1.1 2006/12/21 14:49:49 nino Exp $
  */
 
-#include "ee_internal.h"
-
-#include "mcu/freescale_s12xs/inc/ee_internal.h"
-#include "cpu/s12xs/inc/ee_irqstub.h"
-
-extern void EE_IRQ_end_budget(void);
-extern void EE_IRQ_end_recharging(void);
-
-/*
- * These two interrupts are used in the FRSH implementation to handle the
- * timer interrupts for budget exaustion and for the recharging.
- */
-
-/* Budget exaustion */
-ISR2(_T7Interrupt)
-{
-	///* clear the interrupt source */
-//	IFS3bits.T7IF = 0;
-//	T6CONbits.TON = 0;
-//	EE_frsh_IRQ_timer_multiplexer();
-}
-
-
-
-/* This function set the capacity timer to raise in t ticks. */
-void EE_hal_set_budget_timer(EE_STIME t) 
-{   
-  //if (t > 0) {
-//    PR6 = t & 0xFFFF;
-//    PR7 = t >> 16;
-//    TMR6 = 0;
-//    TMR7 = 0;
-//    IFS3bits.T7IF = 0;
-//    T6CONbits.TON = 1; // Start Timer 6/7;
-//  } else {
-//    // Stop the timer
-//    IFS3bits.T7IF = 0;
-//    T6CONbits.TON = 0;
-//  }
-} 
+#include "board\cosmic_hs12xs_demo9s12xsfame\inc\ee_board.h"

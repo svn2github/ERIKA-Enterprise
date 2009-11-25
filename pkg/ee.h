@@ -178,6 +178,7 @@ extern "C" {
     /* Freescale */
 #ifdef __COSMIC__     
 #ifdef __HCS12XS__
+#include "board/cosmic_hs12xs_demo9s12xsfame/inc/ee_board.h"
 #endif
 #endif
 

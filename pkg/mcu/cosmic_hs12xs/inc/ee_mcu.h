@@ -48,6 +48,16 @@
 #ifndef __INCLUDE_FREESCALE_S12XS_MCU_H__
 #define __INCLUDE_FREESCALE_S12XS_MCU_H__
 
+#ifdef __USE_PIT__
+#include "mcu/cosmic_hs12xs/inc/ee_pit.h"
+#endif
+
+#ifdef __USE_SCI__
+#include "mcu/cosmic_hs12xs/inc/ee_sci.h"
+#endif
+
+
+
 /*************************************************************************
  Time handling
  *************************************************************************/
@@ -69,185 +79,185 @@
  * used in the EDF comparisons.
  */
 
-#ifndef EE_TIME
-#define EE_TIME EE_UINT32
-#endif
-
-#ifndef EE_STIME
-#define EE_STIME EE_INT32
-#endif
-
-#define EE_TIMER_MINCAPACITY 5000
-#define EE_TIMER_MAXFUTUREVALUE    0x7fffffff
-#define EE_TIMER_LIFETIME          0xffffffff
-
-/* compile these functions only if TMR8 is available on the
-   particular microcontroller */
-#ifdef __S12XS_HAS_TMR8__
-
-/* This function initializes the timer T8 and T9 as freerunning.
-   Timer T8 and T9 will be used to get the timing reference for the
-   circular timer in EDF.
-*/
-#ifndef __PRIVATE_TIME_INIT__
-__INLINE__ void __ALWAYS_INLINE__ EE_time_init(void)
-{
-
-  //T8CON = 0;          /* Stops the Timer8 and reset control reg	*/
-//  T8CONbits.T32 = 1;  /* Set Timer8 in 32bit mode */
-//  TMR8  = 0;          /* Clear contents of the timer registers	*/
-//  TMR9  = 0;
-//  PR8   = 0xffff;     /* Load the Period registers wit the value 0xffffffff */
-//  PR9   = 0xffff;
-//  IFS3bits.T9IF  = 0; /* Clear the Timer9 interrupt status flag	*/
-//  IEC3bits.T9IE  = 0; /* Clear Timer9 interrupts		*/
-//  T8CONbits.TON  = 1; /* Start Timer8 with prescaler settings at 1:1
-//		              * and clock source set to the internal 
-//		              * instruction cycle			*/
-		       
-}
-
-#endif
-
-/*
- * The function gets the current time by concatenating two timer values.
- *
- * Note: we must take care of the correctness of the value in case of
- * overflow!
- */
-#ifndef __PRIVATE_HAL_GETTIME__
-__INLINE__ EE_TIME __ALWAYS_INLINE__ EE_hal_gettime(void)
-{
-  //union {
-//    struct { EE_UREG low, hi; } lowhi;
-//    EE_TIME time;
-//  } retvalue;
-//  
-//  // I split the reading to guarantee that in any case TMR8 will be
-//  // read before TMR9. In this way, the TMR9 hold register will be
-//  // read correctly!
+//#ifndef EE_TIME
+//#define EE_TIME EE_UINT32
+//#endif
 //
-//  retvalue.lowhi.low = TMR8;
-//  retvalue.lowhi.hi = TMR9;
-//  return retvalue.time;
-    return retvalue.time;
-}
-#endif
-
-#if defined(__FRSH__)
-
-/* This function is used to initialize the two timers used for handling
- * budget exaustion and the recharging queue in FRSH
- */
-__INLINE__ void __ALWAYS_INLINE__ EE_frsh_time_init(void)
-{
-  //T4CON = 0; 
-//  T4CONbits.T32 = 1;  /* Set Timer6 in 32bit mode */ 
-//  TMR4  = 0;          /* Clear contents of the timer registers	*/
-//  TMR5  = 0;
-//  IFS1bits.T5IF  = 0; /* Clear the Timer9 interrupt status flag	*/
-//  _T5IE = 1; // Enable interrupt for Timer 4/5
-//  
-//  T6CON = 0;          /* Stops the Timer6 and reset control reg	*/
-//  T6CONbits.T32 = 1;  /* Set Timer6 in 32bit mode */
-//  TMR6  = 0;          /* Clear contents of the timer registers	*/
-//  TMR7  = 0;
-//  IFS3bits.T7IF  = 0; /* Clear the Timer7 interrupt status flag	*/
-//  _T7IE = 1; // Enable interrupt for Timer 6/7
-}
-
-#endif
-
-#else
-
-/* If you are using EDF with a MCU without TMR8, then put a warning! */
-#ifdef __EDF__
-#ifndef __PRIVATE_TIME_INIT__
-#warning Please provide a custom EE_time_init because the MCU you are using does not have TMR8!
-#endif
-#ifndef __PRIVATE_HAL_GETTIME__
-#warning Please provide a custom EE_hal_gettime because the MCU you are using does not have TMR8!
-#endif
-#endif
-
-#endif
-
-/* 
- * Hard timers related stuffs
- * with hard alarms the logical timer identifier 0
- * corresponds to the TMR8/9 (system timer) and TMR 4/5
- * for the hard alarm interrupt   
- */
-#ifdef __HARD_ALARMS__
-#if (1 < EE_N_HARD_ALARMS)
-#error "too many hard alarms!!!"
-#else
-
-__INLINE__ EE_TIME __ALWAYS_INLINE__ EE_hal_init_timer()
-{
-  //T8CON = 0;          /* Stops the Timer8 and reset control reg	*/
-//  T8CONbits.T32 = 1;  /* Set Timer8 in 32bit mode */
-//  TMR8  = 0;          /* Clear contents of the timer registers	*/
-//  TMR9  = 0;
-//  IFS3bits.T9IF  = 0; /* Clear the Timer9 interrupt status flag	*/
-//  IEC3bits.T9IE  = 0; /* Clear Timer9 interrupts		*/
-//  T8CONbits.TON  = 1; /* Start Timer8 with prescaler settings at 1:1 */
-//  
-//  T4CON = 0;  
-//  TMR4  = 0;          /* Clear contents of the timer registers	*/
-//  TMR5  = 0;
-//  PR4 = PR5 = 0xFFFF; 
-//  T4CON = 0x0008;  // Timer 4/5 as a 32 bit timer. Timer stop.
-//  _T5IE = 1; // Enable interrupt for Timer 4/5
-}
-
-__INLINE__ EE_TIME __ALWAYS_INLINE__ EE_hal_read_timer (EE_SREG timer)
-{
-  //switch(timer){
-//    case 0:
-//    {
-//      union {
-//        struct { EE_UREG low, hi; } lowhi;
-//        EE_TIME time;
-//      } retvalue;
-//  
-//  // I split the reading to guarantee that in any case TMR8 will be
-//  // read before TMR9. In this way, the TMR9 hold register will be
-//  // read correctly!
+//#ifndef EE_STIME
+//#define EE_STIME EE_INT32
+//#endif
 //
-//      retvalue.lowhi.low = TMR8;
-//      retvalue.lowhi.hi = TMR9;
-//      return retvalue.time;
-//    }
-//    break;
-//    case 1:; //TODO
-//  }
-    return retvalue.time;
-}
-
-/* This function have to set next capcom trigger
- * if there isn't an already set interrupt flag
- * with hard alarms the logical timer identifier 0
- * corresponds to the TMR8/9 (system timer) and TMR 4/5
- * for the hard alarm interrupt    
- */
-__INLINE__ void __ALWAYS_INLINE__ EE_hal_set_timer (EE_SREG timer, EE_TIME value)
-{
- // switch(timer){
-//    case 0:
-//    {
-//      PR4 = value & 0xFFFF;
-//      PR5 = value >> 16;
-//      TMR4 = 0;
-//      TMR5 = 0;
-//      _T5IE = 1; // Enable interrupt for Timer 4/5
-//      T4CONbits.TON = 1; // Start Timer 4/5;
-//    }
-//    break;
-//    case 1:; //TODO 
-//  }
-}
-#endif
-#endif
+//#define EE_TIMER_MINCAPACITY 5000
+//#define EE_TIMER_MAXFUTUREVALUE    0x7fffffff
+//#define EE_TIMER_LIFETIME          0xffffffff
+//
+///* compile these functions only if TMR8 is available on the
+//   particular microcontroller */
+//#ifdef __S12XS_HAS_TMR8__
+//
+///* This function initializes the timer T8 and T9 as freerunning.
+//   Timer T8 and T9 will be used to get the timing reference for the
+//   circular timer in EDF.
+//*/
+//#ifndef __PRIVATE_TIME_INIT__
+//__INLINE__ void __ALWAYS_INLINE__ EE_time_init(void)
+//{
+//
+//  //T8CON = 0;          /* Stops the Timer8 and reset control reg	*/
+////  T8CONbits.T32 = 1;  /* Set Timer8 in 32bit mode */
+////  TMR8  = 0;          /* Clear contents of the timer registers	*/
+////  TMR9  = 0;
+////  PR8   = 0xffff;     /* Load the Period registers wit the value 0xffffffff */
+////  PR9   = 0xffff;
+////  IFS3bits.T9IF  = 0; /* Clear the Timer9 interrupt status flag	*/
+////  IEC3bits.T9IE  = 0; /* Clear Timer9 interrupts		*/
+////  T8CONbits.TON  = 1; /* Start Timer8 with prescaler settings at 1:1
+////		              * and clock source set to the internal 
+////		              * instruction cycle			*/
+//		       
+//}
+//
+//#endif
+//
+///*
+// * The function gets the current time by concatenating two timer values.
+// *
+// * Note: we must take care of the correctness of the value in case of
+// * overflow!
+// */
+//#ifndef __PRIVATE_HAL_GETTIME__
+//__INLINE__ EE_TIME __ALWAYS_INLINE__ EE_hal_gettime(void)
+//{
+//  //union {
+////    struct { EE_UREG low, hi; } lowhi;
+////    EE_TIME time;
+////  } retvalue;
+////  
+////  // I split the reading to guarantee that in any case TMR8 will be
+////  // read before TMR9. In this way, the TMR9 hold register will be
+////  // read correctly!
+////
+////  retvalue.lowhi.low = TMR8;
+////  retvalue.lowhi.hi = TMR9;
+////  return retvalue.time;
+//    return retvalue.time;
+//}
+//#endif
+//
+//#if defined(__FRSH__)
+//
+///* This function is used to initialize the two timers used for handling
+// * budget exaustion and the recharging queue in FRSH
+// */
+//__INLINE__ void __ALWAYS_INLINE__ EE_frsh_time_init(void)
+//{
+//  //T4CON = 0; 
+////  T4CONbits.T32 = 1;  /* Set Timer6 in 32bit mode */ 
+////  TMR4  = 0;          /* Clear contents of the timer registers	*/
+////  TMR5  = 0;
+////  IFS1bits.T5IF  = 0; /* Clear the Timer9 interrupt status flag	*/
+////  _T5IE = 1; // Enable interrupt for Timer 4/5
+////  
+////  T6CON = 0;          /* Stops the Timer6 and reset control reg	*/
+////  T6CONbits.T32 = 1;  /* Set Timer6 in 32bit mode */
+////  TMR6  = 0;          /* Clear contents of the timer registers	*/
+////  TMR7  = 0;
+////  IFS3bits.T7IF  = 0; /* Clear the Timer7 interrupt status flag	*/
+////  _T7IE = 1; // Enable interrupt for Timer 6/7
+//}
+//
+//#endif
+//
+//#else
+//
+///* If you are using EDF with a MCU without TMR8, then put a warning! */
+//#ifdef __EDF__
+//#ifndef __PRIVATE_TIME_INIT__
+//#warning Please provide a custom EE_time_init because the MCU you are using does not have TMR8!
+//#endif
+//#ifndef __PRIVATE_HAL_GETTIME__
+//#warning Please provide a custom EE_hal_gettime because the MCU you are using does not have TMR8!
+//#endif
+//#endif
+//
+//#endif
+//
+///* 
+// * Hard timers related stuffs
+// * with hard alarms the logical timer identifier 0
+// * corresponds to the TMR8/9 (system timer) and TMR 4/5
+// * for the hard alarm interrupt   
+// */
+//#ifdef __HARD_ALARMS__
+//#if (1 < EE_N_HARD_ALARMS)
+//#error "too many hard alarms!!!"
+//#else
+//
+//__INLINE__ EE_TIME __ALWAYS_INLINE__ EE_hal_init_timer()
+//{
+//  //T8CON = 0;          /* Stops the Timer8 and reset control reg	*/
+////  T8CONbits.T32 = 1;  /* Set Timer8 in 32bit mode */
+////  TMR8  = 0;          /* Clear contents of the timer registers	*/
+////  TMR9  = 0;
+////  IFS3bits.T9IF  = 0; /* Clear the Timer9 interrupt status flag	*/
+////  IEC3bits.T9IE  = 0; /* Clear Timer9 interrupts		*/
+////  T8CONbits.TON  = 1; /* Start Timer8 with prescaler settings at 1:1 */
+////  
+////  T4CON = 0;  
+////  TMR4  = 0;          /* Clear contents of the timer registers	*/
+////  TMR5  = 0;
+////  PR4 = PR5 = 0xFFFF; 
+////  T4CON = 0x0008;  // Timer 4/5 as a 32 bit timer. Timer stop.
+////  _T5IE = 1; // Enable interrupt for Timer 4/5
+//}
+//
+//__INLINE__ EE_TIME __ALWAYS_INLINE__ EE_hal_read_timer (EE_SREG timer)
+//{
+//  //switch(timer){
+////    case 0:
+////    {
+////      union {
+////        struct { EE_UREG low, hi; } lowhi;
+////        EE_TIME time;
+////      } retvalue;
+////  
+////  // I split the reading to guarantee that in any case TMR8 will be
+////  // read before TMR9. In this way, the TMR9 hold register will be
+////  // read correctly!
+////
+////      retvalue.lowhi.low = TMR8;
+////      retvalue.lowhi.hi = TMR9;
+////      return retvalue.time;
+////    }
+////    break;
+////    case 1:; //TODO
+////  }
+//    return retvalue.time;
+//}
+//
+///* This function have to set next capcom trigger
+// * if there isn't an already set interrupt flag
+// * with hard alarms the logical timer identifier 0
+// * corresponds to the TMR8/9 (system timer) and TMR 4/5
+// * for the hard alarm interrupt    
+// */
+//__INLINE__ void __ALWAYS_INLINE__ EE_hal_set_timer (EE_SREG timer, EE_TIME value)
+//{
+// // switch(timer){
+////    case 0:
+////    {
+////      PR4 = value & 0xFFFF;
+////      PR5 = value >> 16;
+////      TMR4 = 0;
+////      TMR5 = 0;
+////      _T5IE = 1; // Enable interrupt for Timer 4/5
+////      T4CONbits.TON = 1; // Start Timer 4/5;
+////    }
+////    break;
+////    case 1:; //TODO 
+////  }
+//}
+//#endif
+//#endif
 
 #endif

@@ -53,6 +53,9 @@
 /* invalid TID */
 #define EE_NIL       ((EE_TID)-1)
 
+/* maximum value for EE_UREG (used in EE_th_resource_last) */
+#define EE_UREG_MINUS1 ((EE_UREG)-1)	
+
 /* 
 The Kernel constants like NIL and other thread statuses are defined
 in the following sections: 
@@ -303,11 +306,11 @@ extern EE_TYPEPRIO   EE_resource_oldceiling[];    /* old resource ceiling */
 /* This is the last resource that the task has locked. This array
    contains one entry for each task.  Initvalue= all -1. at runtime,
    it points to the first item in the EE_resource_stack data structure */
-extern EE_UREG EE_th_resource_last[];
+extern EE_UREG EE_th_resource_last[];	
 /* this array is used to store a list of resources locked by a
    task. there is one entry for each resource, initvalue = -1. the
    list of resources locked by a task is ended by -1. */
-extern EE_UREG EE_resource_stack[];
+extern EE_UREG EE_resource_stack[];		
 #endif
 
 #if defined(__OO_EXTENDED_STATUS__) || defined(__OO_ORTI_RES_ISLOCKED__)

@@ -132,9 +132,8 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_ready2stacked(EE_TID thread)
 {
     EE_s12xs_hal_ready2stacked(EE_hal_thread_body[thread]);
 }
-
-
 #endif
+
 #ifdef __MULTI__
 void EE_s12xs_hal_ready2stacked(EE_ADDR thread_addr, EE_UREG tos_index); /* in ASM */
 __INLINE__ void __ALWAYS_INLINE__ EE_hal_ready2stacked(EE_TID thread)
@@ -153,6 +152,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_endcycle_stacked(EE_TID thread)
   /* TID is useless */
 }
 #endif
+
 #ifdef __MULTI__
 __INLINE__ void __ALWAYS_INLINE__ EE_hal_endcycle_stacked(EE_TID thread)
 {
@@ -169,6 +169,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_endcycle_ready(EE_TID thread)
   EE_hal_endcycle_next_thread = EE_hal_thread_body[thread];
 }
 #endif
+
 #ifdef __MULTI__
 __INLINE__ void __ALWAYS_INLINE__ EE_hal_endcycle_ready(EE_TID thread)
 {
@@ -181,7 +182,6 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_endcycle_ready(EE_TID thread)
 #define EE_hal_IRQ_stacked EE_hal_endcycle_stacked
 #define EE_hal_IRQ_ready EE_hal_endcycle_ready
 
-
 /* called to change the active stack, typically inside blocking primitives */
 /* there is no mono version for this primitive...*/
 #ifdef __MULTI__
@@ -191,7 +191,6 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_stkchange(EE_TID thread)
     EE_s12xs_hal_stkchange(EE_s12xs_thread_tos[thread+1]);
 }
 #endif
-
 
 
 /*
@@ -214,7 +213,7 @@ __INLINE__ EE_UREG __ALWAYS_INLINE__ EE_hal_get_IRQ_nesting_level(void)
 #if defined(__OO_BCC1__) || defined(__OO_BCC2__) || defined(__OO_ECC1__) || defined(__OO_ECC2__)
 
 void EE_s12xs_terminate_savestk(EE_DADD sp, EE_ADDR realbody);
-void EE_s12xs_terminate_task(EE_DADD sp) NORETURN;
+void EE_s12xs_terminate_task(EE_DADD sp);// NORETURN;
 
 __INLINE__ void __ALWAYS_INLINE__ EE_hal_terminate_savestk(EE_TID t)
 {

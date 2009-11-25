@@ -45,9 +45,9 @@
 
 #include "ee_internal.h"
 
-#ifdef __S12XS_ICD__
-int _ICDRAM;
-#endif
+//#ifdef __S12XS_ICD__
+//int _ICDRAM;
+//#endif
 
 ///*
 // * Endcycle Next thread, Endcycle Next tos, nesting level
@@ -66,9 +66,9 @@ void EE_thread_end_instance(void);
 
 #ifdef __IRQ_STACK_NEEDED__
 EE_ADDR EE_s12xs_temp_tos;
-#ifdef __S12XS_SPLIM__
-EE_ADDR EE_s12xs_temp_splim;
-#endif
+//#ifdef __S12XS_SPLIM__
+//EE_ADDR EE_s12xs_temp_splim;
+//#endif
 #endif
 
 

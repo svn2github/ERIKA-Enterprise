@@ -106,7 +106,7 @@ void EE_oo_WaitEvent(EventMaskType Mask)
 
 #ifndef __OO_NO_RESOURCES__
   /* check for busy resources */ 
-  if (EE_th_resource_last[current] != -1) {
+  if (EE_th_resource_last[current] != EE_UREG_MINUS1) {
 #ifdef __OO_ORTI_LASTERROR__
     EE_ORTI_lasterror = E_OS_RESOURCE;
 #endif
