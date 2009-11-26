@@ -26,6 +26,10 @@
 static uint8_t radio_initialized = 0;
 static void (*rx_callback)(void) = NULL;
 
+#ifdef MRF24J40_DEBUG
+static uint8_t mrf24j40_db_msg[80];
+#endif
+
 void mrf24j40_set_rx_callback(void (*func)(void)) 
 {
 	rx_callback = func;
@@ -82,6 +86,10 @@ int8_t mrf24j40_init(uint8_t int_setup, uint8_t ch, uint8_t port)
 		i = mrf24j40_get_short_add_mem(MRF24J40_SOFTRST);
 	}
 	while((i & 0x07) != 0);   
+
+
+	debug_set_msg("\r\nSOFTRST=0x%X",i);
+	debug_print(mrf24j40_db_msg);
 
 	mrf24j40_delay_us(2500);
 	
@@ -151,7 +159,9 @@ int8_t mrf24j40_init(uint8_t int_setup, uint8_t ch, uint8_t port)
         	i = mrf24j40_get_long_add_mem(MRF24J40_RFSTATE);
 	}
 	while((i&0xA0) != 0xA0);
-    
+
+	debug_set_msg("\r\nRFSTATE=0x%X",i);
+		debug_print(mrf24j40_db_msg);
 	/**
 	*
 	*Set interrupts.
@@ -174,6 +184,7 @@ int8_t mrf24j40_init(uint8_t int_setup, uint8_t ch, uint8_t port)
 	#ifdef INT_POLARITY_HIGH
 	/* Set interrupt edge polarity high */
 	mrf24j40_set_long_add_mem(MRF24J40_SLPCON0, 0x02);
+	debug_print("\r\nMRF24J40 Init INT Polarity High");
 	#endif
 	/**
 	Disables automatic Acknowledgement response.
@@ -202,7 +213,7 @@ int8_t mrf24j40_init(uint8_t int_setup, uint8_t ch, uint8_t port)
 		debug_print("\r\nMRF24J40 Init Accept Wrong CRC");
 		i = i | 0b00000010;
 	#endif
-	
+#define MRF24J40_PROMISCUOUS_MODE
 	#ifdef MRF24J40_PROMISCUOUS_MODE
 		debug_print("\r\nMRF24J40 Init PROMISUOUS MODE");
 		i = i | 0b00000001;
@@ -306,7 +317,7 @@ int8_t mrf24j40_init(uint8_t int_setup, uint8_t ch, uint8_t port)
     mrf24j40_set_short_add_mem(MRF24J40_BBREG4, 0x5C);
     debug_print("\r\nMRF24J40 Init TURBO MODE enabled");
 	#endif
-	while(1);
+
 	/**
 	* Reset RF state machine
 	*/         
@@ -453,10 +464,27 @@ void mrf24j40_wake()
 
 COMPILER_ISR(MRF24J40_INTERRUPT_NAME)
 {
+
+	INT_status int_status;
+	TX_status tx_status;
+
 	MRF24J40_INTERRUPT_FLAG = 0;
 
 	debug_print("\r\nInterrupt!!!!");
 
-	if (rx_callback != NULL) 
-		rx_callback();
+	int_status.val = mrf24j40_get_short_add_mem(MRF24J40_INTSTAT);
+
+	if (int_status.bits.TXNIF) {
+		debug_print("\r\nNormal TX finished");
+		tx_status.val = mrf24j40_get_short_add_mem(MRF24J40_TXSTAT);
+		if (tx_status.bits.TXNSTAT)
+			debug_print("\r\nNormal TX failed");
+		else
+			debug_print("\r\nNormal TX success");
+	}
+	if (int_status.bits.RXIF) {
+		debug_print("\r\nRX received");
+		if (rx_callback != NULL)
+			rx_callback();
+	}
 }

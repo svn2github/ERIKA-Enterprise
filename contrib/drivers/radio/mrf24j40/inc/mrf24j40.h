@@ -16,7 +16,7 @@
 
 
 /* Functions prototypes */
-int8_t mrf24j40_init(uint8_t int_setup, uint8_t ch, uint8_t port);
+int8_t  mrf24j40_init(uint8_t int_setup, uint8_t ch, uint8_t port);
 int8_t	mrf24j40_store_norm_txfifo(uint8_t* buf, uint8_t len);
 uint8_t	mrf24j40_get_norm_txfifo(uint8_t pos);
 uint8_t	mrf24j40_get_fifo_msg(uint8_t *msg);
@@ -27,12 +27,17 @@ void	mrf24j40_wake() ;
 
 #ifdef MRF24J40_DEBUG
 
+#include <stdio.h>
 #include "console_serial.h"
+
 #define DEBUG_PORT 0
 #define debug_print(msg) 	console_write(DEBUG_PORT, msg, strlen(msg))
+#define debug_set_msg(str,val) sprintf(mrf24j40_db_msg, str, val)
 
 #else
+
 #define	debug_print(msg)
+#define debug_set_msg(str,val)
 
 #endif /* MRF24J40_DEBUG */
 
