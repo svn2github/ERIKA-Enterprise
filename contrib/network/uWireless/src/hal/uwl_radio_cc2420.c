@@ -27,6 +27,8 @@ static uwl_mpdu_t beacon;
 static uint8_t beacon_size;
 static enum uwl_phy_code_t phy_status;
 
+static uwl_mpdu_t ack;
+
 /******************************************************************************/
 /*                         Radio MAC Public Functions                         */
 /******************************************************************************/
@@ -59,6 +61,39 @@ int8_t uwl_radio_mac_send_beacon(void)
 		return -UWL_RADIO_ERR_PHY_FAILURE;
 	}
 	return -UWL_RADIO_ERR_NONE; 
+}
+
+int8_t uwl_radio_store_ack(uint8_t *buf, uint8_t len)
+{
+	/* TODO: chris: IDEA: We can use this symbol to force the
+			uwl_radio_mac module to always use software mac */
+	#ifdef UWL_MAC_ALWAYS_SOFTWARE
+	#else
+	#endif
+
+	if (len != UWL_MAC_ACK_SIZE)
+		return -1;
+	memcpy(ack, buf, len);
+
+	return 1;
+}
+
+int8_t uwl_radio_mac_send_ack(void)
+{
+	/* TODO: chris: IDEA: We can use this symbol to force the
+			uwl_radio_mac module to always use software mac */
+	#ifdef UWL_MAC_ALWAYS_SOFTWARE
+	#else
+	#endif
+	/* NOTE: this is not going through the uwl_PD_DATA function thus the
+		 exception caught is performed within  the radio_send!! */
+	/* TODO: is the error returned in the readio_send?? */
+	/* phy_status = UWL_PHY_SUCCESS; */
+	if (uwl_radio_send((uint8_t *) ack, UWL_MAC_ACK_SIZE) < 0) {
+		/* phy_status = ERROR_OF_THE_PD_DATA_CONFIRM; */
+		return -UWL_RADIO_ERR_PHY_FAILURE;
+	}
+	return -UWL_RADIO_ERR_NONE;
 }
 
 /******************************************************************************/
