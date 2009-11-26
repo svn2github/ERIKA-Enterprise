@@ -22,6 +22,7 @@ static uwl_mpdu_t rx_beacon;
 static uwl_mpdu_t rx_data;
 static uwl_mpdu_t rx_command;
 static uwl_mpdu_t rx_ack;
+static uwl_mpdu_t ack;
 static uint16_t rx_beacon_length;
 static uint16_t rx_data_length;
 static uint16_t rx_command_length;
@@ -1107,10 +1108,10 @@ uint8_t uwl_mac_create_beacon(uwl_mpdu_ptr_t bcn)
  void uwl_mac_ack_frame(uint8_t *seq_num)
  {
 
-	 uwl_mpdu_ptr_t ack;
+	 uwl_mpdu_ptr_t *ack_ptr = &ack;
 	 uint8_t s;
 
-	 	 set_frame_control(ack, UWL_MAC_TYPE_ACK, 0,
+	 	 set_frame_control(ack_ptr, UWL_MAC_TYPE_ACK, 0,
 	 	 		       0, 0,
 	 	 		       0, 0,
 	 	 		       0, 0);
@@ -1122,7 +1123,7 @@ uint8_t uwl_mac_create_beacon(uwl_mpdu_ptr_t bcn)
 	 			 UWL_MAC_MPDU_SEQ_NUMBER_SIZE/* +
 	 			sizeof(uint16_t) */ ;
 
-	 	uwl_radio_store_ack(ack, s);
+	 	uwl_radio_store_ack(ack_ptr, s);
 	 	uwl_radio_mac_send_ack();
  }
 
