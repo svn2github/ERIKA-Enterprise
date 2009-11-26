@@ -64,13 +64,22 @@ struct uwl_mac_gts_stat_t {
 	unsigned rx_length : 4;
 };
 
+struct uwl_mac_data_request_info {
+		unsigned data_req : 1;
+		unsigned addr_dev : 8;
+		unsigned addr_pan : 2;
+
+};
+
 extern struct uwl_mac_pib_t uwl_mac_pib;
 extern struct uwl_mac_flags_t uwl_mac_status;
 extern struct uwl_mac_gts_stat_t uwl_mac_gts_stat;
 extern cqueue_t uwl_mac_queue_cap;
 //extern cqueue_t uwl_mac_queue_dev_gts;
 //extern list_t uwl_mac_queue_coord_gts;
-extern struct uwl_gts_info_t uwl_gts_schedule[UWL_MAC_GTS_MAX_NUMBER]; 
+extern struct uwl_gts_info_t uwl_gts_schedule[UWL_MAC_GTS_MAX_NUMBER];
+extern struct uwl_mac_data_request_info uwl_mac_data_req;
+extern struct list_t uwl_mac_list_ind;
 
 uint8_t uwl_mac_create_beacon(uwl_mpdu_ptr_t beacon);
 void uwl_mac_parse_received_mpdu(uint8_t *psdu, uint8_t len);
