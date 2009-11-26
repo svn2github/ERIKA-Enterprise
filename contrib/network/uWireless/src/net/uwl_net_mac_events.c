@@ -82,7 +82,7 @@ int8_t uwl_MLME_ASSOCIATE_confirm(uwl_mac_dev_addr_short_t AssocShortAddress,
 }
 
 #ifndef UWL_RFD_DISABLE_OPTIONAL
-int8_t uwl_MLME_ASSOCIATE_indication(uwl_mac_dev_addr_extd_t DeviceAddress,
+/*int8_t uwl_MLME_ASSOCIATE_indication(uwl_mac_dev_addr_extd_t DeviceAddress,
 				     uint8_t CapabilityInformation,
 				     uint8_t SecurityLevel, uint8_t KeyIdMode,
 				     uint8_t *KeySource, uint8_t KeyIndex)
@@ -95,7 +95,7 @@ int8_t uwl_MLME_ASSOCIATE_indication(uwl_mac_dev_addr_extd_t DeviceAddress,
 	//uwl_debug_print(s);
 	//#endif
 	return 1;
-}
+}*/
 
 #endif /* UWL_RFD_DISABLE_OPTIONAL */
 
