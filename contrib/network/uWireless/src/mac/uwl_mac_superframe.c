@@ -42,6 +42,7 @@ UWL_KAL_TASK(MAC_BACKOFF_PERIOD, 10);
 UWL_KAL_TASK(MAC_GTS_SEND, 10);
 
 UWL_KAL_MUTEX(MAC_MUTEX, MAC_TIMESLOT);
+UWL_KAL_MUTEX(MAC_SED_MUTEX, MAC_BACKOFF_PERIOD);
 /*
 UWL_KAL_MUTEX(MAC_MUTEX, MAC_BEFORE_TIMESLOT);
 UWL_KAL_MUTEX(MAC_MUTEX, MAC_BACKOFF_PERIOD);
@@ -224,21 +225,28 @@ COMPILER_INLINE void stop_previous_cfp(void)
 	uwl_kal_cancel_activation(MAC_GTS_SEND); /* TODO: has effect? */
 }
 
-
 /******************************************************************************/
 /*                      MAC CAP and CFP Management Functions                  */
 /******************************************************************************/
+#ifdef __JUST_MEASURE_FOR_PAPER__
+#include "daq_time.h"
+extern struct daq_time_t downlink;
+#endif
 static void csma_perform_slotted(void) 
 {
 	struct uwl_mac_frame_t *frame;
 	int8_t tmp;
+
+	uint16_t d_pan = 0;
+	uint8_t *fr;
+	void *dst_addr;
 
 	if (uwl_mac_status.sf_context != UWL_MAC_SF_CAP)
 		return; 
 	if (cap_available_bytes >= btick_bytes)
 		cap_available_bytes -= btick_bytes;
 	if (csma_params.state == CSMA_STATE_INIT) {
-		if (cqueue_is_empty(&uwl_mac_queue_cap))
+		if (cqueue_is_empty(&uwl_mac_queue_cap) && uwl_mac_data_req.data_req == 0)
 			return;
 		csma_init();
 		csma_set_delay();
@@ -248,8 +256,10 @@ static void csma_perform_slotted(void)
 	}
 	if (csma_params.state == CSMA_STATE_DELAY) {
 		if (csma_delay_counter-- == 0) {
+			uwl_kal_mutex_wait(MAC_SEND_MUTEX);
 			frame = (struct uwl_mac_frame_t*) 
 					cqueue_first(&uwl_mac_queue_cap);
+			uwl_kal_mutex_signal(MAC_SEND_MUTEX);
 			/* Something must be there, check again? */
 			/* if (!frame) ERRORE!!!!!*/
 			tmp = UWL_MAC_FCTL_GET_ACK_REQUEST(
@@ -289,9 +299,32 @@ static void csma_perform_slotted(void)
 		}
 		if (--csma_params.CW > 0) 
 			return;
-		frame = (struct uwl_mac_frame_t*)cqueue_pop(&uwl_mac_queue_cap);
+
+		if (uwl_mac_data_req.data_req == 1) {
+				frame = (struct uwl_mac_frame_t*)list_iter_front(&uwl_mac_list_ind);
+
+				fr = (uint8_t *)UWL_MAC_MPDU_ADDRESSING_FIELDS(frame);
+
+				d_pan = fr[0];
+				//dst_addr == fr[2];
+				//memcpy((uint8_t *) dst_addr, fr + 2, UWL_MAC_MPDU_ADDRESS_EXTD_SIZE);
+
+				if(d_pan == uwl_mac_data_req.addr_pan //&& dst_addr == uwl_mac_data_req.addr_dev
+						){
+
+					frame = (struct uwl_mac_frame_t*)list_extract(&uwl_mac_list_ind,
+					list_iter_current(frame));
+					uwl_mac_data_req.data_req = 0;
+
+				}
+		} else
+				frame = (struct uwl_mac_frame_t*)cqueue_pop(&uwl_mac_queue_cap);
+
 		/* Something must be there, check again? */
 		/* if (!frame) ERRORE!!!!!*/
+		#ifdef __JUST_MEASURE_FOR_PAPER__
+		daq_time_get(1, &downlink); // FIXME: this must be done ONLY  IN COORDINATOR
+		#endif
 		tmp = uwl_radio_phy_send_now(frame->mpdu, frame->mpdu_size);
 		if (tmp == UWL_RADIO_ERR_NONE)
 			uwl_MCPS_DATA_confirm(frame->msdu_handle, 
@@ -301,7 +334,7 @@ static void csma_perform_slotted(void)
 			 for the indication primitive (status=??) */
 			uwl_MCPS_DATA_confirm(frame->msdu_handle, 
 					      UWL_MAC_CHANNEL_ACCESS_FAILURE,0);
-		
+
 		csma_params.state = CSMA_STATE_INIT;
 		uwl_debug_print("C->I succ");
 	}
