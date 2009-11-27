@@ -30,6 +30,13 @@
 #include "cpu/cosmic_hs12xs/inc/ee_irqstub.h"
 #include "ee_hs12xsregs.h"
 
+volatile int counter = 0;
+
+TASK(Task1)
+{
+    counter++;
+}
+
 /*
  * MAIN TASK
 */

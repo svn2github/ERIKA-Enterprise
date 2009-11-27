@@ -31,7 +31,7 @@
 #include "ee_hs12xsregs.h"
 
 
-int counter = 0;
+volatile int counter = 0;
 
 TASK(Task1)
 {

@@ -8,13 +8,12 @@ CPU test_application {
 		ASFLAGS = "-c -v -l ";
 		LDFLAGS = "-p -sa -m mapfile.map"; 
 
-		CPU_DATA = COSMIC_MC9S12XS {
+		CPU_DATA = MC9S12XS {
 			APP_SRC = "main.c";
 			MULTI_STACK = FALSE;
-			ICD = TRUE;
 		};
 		
-		MCU_DATA = COSMIC_S12XS {
+		MCU_DATA = S12XS {
    			MODEL = CUSTOM{
     			MODEL = "MC9S12XS128";
     			LINKERSCRIPT = "mc9s12xs128.lkf";
@@ -24,7 +23,7 @@ CPU test_application {
    			};
   		};
 
-		BOARD_DATA = COSMIC_DEMO9S12XSFAME {
+		BOARD_DATA = DEMO9S12XSFAME {
 			TYPE = DEMO {
 				OPTIONS = ALL;
 			};

@@ -7,4 +7,4 @@
 
 @set EE_BASH_PATH=C:\cygwin\bin\bash
 
-@%EE_BASH_PATH% -c "/bin/bash --login -c \"cd `/bin/cygpath/ -ms \"$PWD\"`; make %1 %2 %3 %4\""
+@%EE_BASH_PATH% -c "/bin/bash --login -c \"cd \\\"$PWD\\\"; make   \""
