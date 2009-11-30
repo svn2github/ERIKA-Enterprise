@@ -129,6 +129,44 @@ distrib_opt___MPC5XX__:: \
 
 
 # This should be splitted in CPU, MCU, BOARD!!!
+distrib_opt___S12__:: \
+		ee_$(DIST)/pkg/cpu/cosmic_hs12xs/ \
+		ee_$(DIST)/pkg/cpu/cosmic_hs12xs/cfg  \
+		ee_$(DIST)/pkg/cpu/cosmic_hs12xs/cfg/cfg.mk  \
+		ee_$(DIST)/pkg/cpu/cosmic_hs12xs/inc  \
+		ee_$(DIST)/pkg/cpu/cosmic_hs12xs/inc/ee_compiler.h  \
+		ee_$(DIST)/pkg/cpu/cosmic_hs12xs/inc/ee_cpu.h  \
+		ee_$(DIST)/pkg/cpu/cosmic_hs12xs/inc/ee_internal.h  \
+		ee_$(DIST)/pkg/cpu/cosmic_hs12xs/inc/ee_irqstub.h  \
+		ee_$(DIST)/pkg/cpu/cosmic_hs12xs/src \
+		ee_$(DIST)/pkg/cpu/cosmic_hs12xs/src/ee_hal.S \
+		ee_$(DIST)/pkg/cpu/cosmic_hs12xs/src/ee_hal_c.c \
+		ee_$(DIST)/pkg/cpu/cosmic_hs12xs/src/ee_oo.S \
+		ee_$(DIST)/pkg/mcu/cosmic_hs12xs/ \
+		ee_$(DIST)/pkg/mcu/cosmic_hs12xs/cfg \
+		ee_$(DIST)/pkg/mcu/cosmic_hs12xs/cfg/cfg.mk \
+		ee_$(DIST)/pkg/mcu/cosmic_hs12xs/inc \
+  		ee_$(DIST)/pkg/mcu/cosmic_hs12xs/inc/ee_internal.h \
+		ee_$(DIST)/pkg/mcu/cosmic_hs12xs/inc/ee_mcu.h \
+		ee_$(DIST)/pkg/mcu/cosmic_hs12xs/inc/ee_mcuregs.h \
+		ee_$(DIST)/pkg/mcu/cosmic_hs12xs/inc/ee_pit.h \
+		ee_$(DIST)/pkg/mcu/cosmic_hs12xs/inc/ee_sci.h \
+		ee_$(DIST)/pkg/mcu/cosmic_hs12xs/src \
+		ee_$(DIST)/pkg/mcu/cosmic_hs12xs/src/ee_pit.c \
+		ee_$(DIST)/pkg/mcu/cosmic_hs12xs/src/ee_s12xsfrsh.c \
+		ee_$(DIST)/pkg/mcu/cosmic_hs12xs/src/ee_sci.c \
+		ee_$(DIST)/pkg/board/cosmic_hs12xs_demo9s12xsfame/ \
+		ee_$(DIST)/pkg/board/cosmic_hs12xs_demo9s12xsfame/cfg \
+		ee_$(DIST)/pkg/board/cosmic_hs12xs_demo9s12xsfame/cfg/cfg.mk \
+		ee_$(DIST)/pkg/board/cosmic_hs12xs_demo9s12xsfame/inc \
+		ee_$(DIST)/pkg/board/cosmic_hs12xs_demo9s12xsfame/inc/demo9s12xsfame_peripherals.h \
+		ee_$(DIST)/pkg/board/cosmic_hs12xs_demo9s12xsfame/inc/ee_board.h \
+		ee_$(DIST)/pkg/board/cosmic_hs12xs_demo9s12xsfame/inc/ee_internal.h \
+		ee_$(DIST)/pkg/board/cosmic_hs12xs_demo9s12xsfame/src \
+		ee_$(DIST)/pkg/board/cosmic_hs12xs_demo9s12xsfame/src/demo9s12xsfame_peripherals.c
+	@echo OPT __S12__ up2date.
+
+# This should be splitted in CPU, MCU, BOARD!!!
 distrib_opt___PIC30__:: \
 		ee_$(DIST)/pkg/cpu/pic30/cfg \
 		ee_$(DIST)/pkg/cpu/pic30/cfg/cfg.mk \
@@ -1220,6 +1258,127 @@ distrib_opt___AVR5_EXAMPLES__:: \
 		ee_$(DIST)/examples/avr5/avr5_console/code.c \
 		ee_$(DIST)/examples/avr5/avr5_console/conf.oil
 
+
+
+distrib_opt___S12_EXAMPLES__:: \
+		ee_$(DIST)/examples/s12xs/ \
+		ee_$(DIST)/examples/s12xs/porting_examples \
+		ee_$(DIST)/examples/s12xs/porting_examples/EEtest0 \
+		ee_$(DIST)/examples/s12xs/porting_examples/EEtest0/conf.oil \
+		ee_$(DIST)/examples/s12xs/porting_examples/EEtest0/crtsx.S \
+		ee_$(DIST)/examples/s12xs/porting_examples/EEtest0/C_Layout.hwl \
+		ee_$(DIST)/examples/s12xs/porting_examples/EEtest0/Full_Chip_Simulation.ini \
+		ee_$(DIST)/examples/s12xs/porting_examples/EEtest0/hs12xsregs.h \
+		ee_$(DIST)/examples/s12xs/porting_examples/EEtest0/main.c \
+		ee_$(DIST)/examples/s12xs/porting_examples/EEtest0/mc9s12xs128.lkf \
+		ee_$(DIST)/examples/s12xs/porting_examples/EEtest0/readme.txt \
+		ee_$(DIST)/examples/s12xs/porting_examples/EEtest0/SofTec_HCS12.ini \
+		ee_$(DIST)/examples/s12xs/porting_examples/EEtest0/template.xml \
+		ee_$(DIST)/examples/s12xs/porting_examples/EEtest0/vector_s12x.c \
+		\
+		ee_$(DIST)/examples/s12xs/porting_examples/EEtest1 \
+		ee_$(DIST)/examples/s12xs/porting_examples/EEtest1/conf.oil \
+		ee_$(DIST)/examples/s12xs/porting_examples/EEtest1/crtsx.S \
+		ee_$(DIST)/examples/s12xs/porting_examples/EEtest1/C_Layout.hwl \
+		ee_$(DIST)/examples/s12xs/porting_examples/EEtest1/Full_Chip_Simulation.ini \
+		ee_$(DIST)/examples/s12xs/porting_examples/EEtest1/hs12xsregs.h \
+		ee_$(DIST)/examples/s12xs/porting_examples/EEtest1/main.c \
+		ee_$(DIST)/examples/s12xs/porting_examples/EEtest1/mc9s12xs128.lkf \
+		ee_$(DIST)/examples/s12xs/porting_examples/EEtest1/readme.txt \
+		ee_$(DIST)/examples/s12xs/porting_examples/EEtest1/SofTec_HCS12.ini \
+		ee_$(DIST)/examples/s12xs/porting_examples/EEtest1/template.xml \
+		ee_$(DIST)/examples/s12xs/porting_examples/EEtest1/vector_s12x.c \
+		\
+		ee_$(DIST)/examples/s12xs/porting_examples/EEtest2 \
+		ee_$(DIST)/examples/s12xs/porting_examples/EEtest2/conf.oil \
+		ee_$(DIST)/examples/s12xs/porting_examples/EEtest2/crtsx.S \
+		ee_$(DIST)/examples/s12xs/porting_examples/EEtest2/C_Layout.hwl \
+		ee_$(DIST)/examples/s12xs/porting_examples/EEtest2/Full_Chip_Simulation.ini \
+		ee_$(DIST)/examples/s12xs/porting_examples/EEtest2/hs12xsregs.h \
+		ee_$(DIST)/examples/s12xs/porting_examples/EEtest2/main.c \
+		ee_$(DIST)/examples/s12xs/porting_examples/EEtest2/mc9s12xs128.lkf \
+		ee_$(DIST)/examples/s12xs/porting_examples/EEtest2/readme.txt \
+		ee_$(DIST)/examples/s12xs/porting_examples/EEtest2/SofTec_HCS12.ini \
+		ee_$(DIST)/examples/s12xs/porting_examples/EEtest2/template.xml \
+		ee_$(DIST)/examples/s12xs/porting_examples/EEtest2/vector_s12x.c \
+		\
+		ee_$(DIST)/examples/s12xs/porting_examples/EEtest3 \
+		ee_$(DIST)/examples/s12xs/porting_examples/EEtest3/conf.oil \
+		ee_$(DIST)/examples/s12xs/porting_examples/EEtest3/crtsx.S \
+		ee_$(DIST)/examples/s12xs/porting_examples/EEtest3/C_Layout.hwl \
+		ee_$(DIST)/examples/s12xs/porting_examples/EEtest3/Full_Chip_Simulation.ini \
+		ee_$(DIST)/examples/s12xs/porting_examples/EEtest3/hs12xsregs.h \
+		ee_$(DIST)/examples/s12xs/porting_examples/EEtest3/main.c \
+		ee_$(DIST)/examples/s12xs/porting_examples/EEtest3/mc9s12xs128.lkf \
+		ee_$(DIST)/examples/s12xs/porting_examples/EEtest3/readme.txt \
+		ee_$(DIST)/examples/s12xs/porting_examples/EEtest3/SofTec_HCS12.ini \
+		ee_$(DIST)/examples/s12xs/porting_examples/EEtest3/template.xml \
+		ee_$(DIST)/examples/s12xs/porting_examples/EEtest3/vector_s12x.c \
+		\
+		ee_$(DIST)/examples/s12xs/porting_examples/EEtest4 \
+		ee_$(DIST)/examples/s12xs/porting_examples/EEtest4/conf.oil \
+		ee_$(DIST)/examples/s12xs/porting_examples/EEtest4/crtsx.S \
+		ee_$(DIST)/examples/s12xs/porting_examples/EEtest4/C_Layout.hwl \
+		ee_$(DIST)/examples/s12xs/porting_examples/EEtest4/Full_Chip_Simulation.ini \
+		ee_$(DIST)/examples/s12xs/porting_examples/EEtest4/hs12xsregs.h \
+		ee_$(DIST)/examples/s12xs/porting_examples/EEtest4/main.c \
+		ee_$(DIST)/examples/s12xs/porting_examples/EEtest4/mc9s12xs128.lkf \
+		ee_$(DIST)/examples/s12xs/porting_examples/EEtest4/readme.txt \
+		ee_$(DIST)/examples/s12xs/porting_examples/EEtest4/SofTec_HCS12.ini \
+		ee_$(DIST)/examples/s12xs/porting_examples/EEtest4/template.xml \
+		ee_$(DIST)/examples/s12xs/porting_examples/EEtest4/vector_s12x.c \
+		\
+		ee_$(DIST)/examples/s12xs/porting_examples/EEtest5 \
+		ee_$(DIST)/examples/s12xs/porting_examples/EEtest5/conf.oil \
+		ee_$(DIST)/examples/s12xs/porting_examples/EEtest5/crtsx.S \
+		ee_$(DIST)/examples/s12xs/porting_examples/EEtest5/C_Layout.hwl \
+		ee_$(DIST)/examples/s12xs/porting_examples/EEtest5/Full_Chip_Simulation.ini \
+		ee_$(DIST)/examples/s12xs/porting_examples/EEtest5/hs12xsregs.h \
+		ee_$(DIST)/examples/s12xs/porting_examples/EEtest5/main.c \
+		ee_$(DIST)/examples/s12xs/porting_examples/EEtest5/mc9s12xs128.lkf \
+		ee_$(DIST)/examples/s12xs/porting_examples/EEtest5/readme.txt \
+		ee_$(DIST)/examples/s12xs/porting_examples/EEtest5/SofTec_HCS12.ini \
+		ee_$(DIST)/examples/s12xs/porting_examples/EEtest5/template.xml \
+		ee_$(DIST)/examples/s12xs/porting_examples/EEtest5/vector_s12x.c \
+		\
+		ee_$(DIST)/examples/s12xs/porting_examples/EEtest6 \
+		ee_$(DIST)/examples/s12xs/porting_examples/EEtest6/conf.oil \
+		ee_$(DIST)/examples/s12xs/porting_examples/EEtest6/crtsx.S \
+		ee_$(DIST)/examples/s12xs/porting_examples/EEtest6/C_Layout.hwl \
+		ee_$(DIST)/examples/s12xs/porting_examples/EEtest6/Full_Chip_Simulation.ini \
+		ee_$(DIST)/examples/s12xs/porting_examples/EEtest6/hs12xsregs.h \
+		ee_$(DIST)/examples/s12xs/porting_examples/EEtest6/main.c \
+		ee_$(DIST)/examples/s12xs/porting_examples/EEtest6/mc9s12xs128.lkf \
+		ee_$(DIST)/examples/s12xs/porting_examples/EEtest6/readme.txt \
+		ee_$(DIST)/examples/s12xs/porting_examples/EEtest6/SofTec_HCS12.ini \
+		ee_$(DIST)/examples/s12xs/porting_examples/EEtest6/template.xml \
+		ee_$(DIST)/examples/s12xs/porting_examples/EEtest6/vector_s12x.c \
+		\
+		ee_$(DIST)/examples/s12xs/porting_examples/EEtest7 \
+		ee_$(DIST)/examples/s12xs/porting_examples/EEtest7/conf.oil \
+		ee_$(DIST)/examples/s12xs/porting_examples/EEtest7/crtsx.S \
+		ee_$(DIST)/examples/s12xs/porting_examples/EEtest7/C_Layout.hwl \
+		ee_$(DIST)/examples/s12xs/porting_examples/EEtest7/Full_Chip_Simulation.ini \
+		ee_$(DIST)/examples/s12xs/porting_examples/EEtest7/hs12xsregs.h \
+		ee_$(DIST)/examples/s12xs/porting_examples/EEtest7/main.c \
+		ee_$(DIST)/examples/s12xs/porting_examples/EEtest7/mc9s12xs128.lkf \
+		ee_$(DIST)/examples/s12xs/porting_examples/EEtest7/readme.txt \
+		ee_$(DIST)/examples/s12xs/porting_examples/EEtest7/SofTec_HCS12.ini \
+		ee_$(DIST)/examples/s12xs/porting_examples/EEtest7/template.xml \
+		ee_$(DIST)/examples/s12xs/porting_examples/EEtest7/vector_s12x.c \
+		\
+		ee_$(DIST)/examples/s12xs/porting_examples/EEtest8 \
+		ee_$(DIST)/examples/s12xs/porting_examples/EEtest8/conf.oil \
+		ee_$(DIST)/examples/s12xs/porting_examples/EEtest8/crtsx.S \
+		ee_$(DIST)/examples/s12xs/porting_examples/EEtest8/C_Layout.hwl \
+		ee_$(DIST)/examples/s12xs/porting_examples/EEtest8/Full_Chip_Simulation.ini \
+		ee_$(DIST)/examples/s12xs/porting_examples/EEtest8/hs12xsregs.h \
+		ee_$(DIST)/examples/s12xs/porting_examples/EEtest8/main.c \
+		ee_$(DIST)/examples/s12xs/porting_examples/EEtest8/mc9s12xs128.lkf \
+		ee_$(DIST)/examples/s12xs/porting_examples/EEtest8/readme.txt \
+		ee_$(DIST)/examples/s12xs/porting_examples/EEtest8/SofTec_HCS12.ini \
+		ee_$(DIST)/examples/s12xs/porting_examples/EEtest8/template.xml \
+		ee_$(DIST)/examples/s12xs/porting_examples/EEtest8/vector_s12x.c
 
 
 
