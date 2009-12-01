@@ -1,0 +1,71 @@
+CPU test_application {
+
+	OS EE {
+		EE_OPT = "DEBUG";
+		EE_OPT = "NODEPS";
+
+		CFLAGS = "-l +modf +fast +nowiden +warn +sprec";
+		ASFLAGS = "-c -v -l ";
+		LDFLAGS = "-p -sa -m mapfile.map"; 
+
+		CPU_DATA = MC9S12XS {
+			APP_SRC = "main.c";
+			MULTI_STACK = FALSE;
+			ICD = TRUE;
+		};
+		
+		MCU_DATA = S12XS {
+   			MODEL = CUSTOM{
+    			MODEL = "MC9S12XS128";
+    			LINKERSCRIPT = "mc9s12xs128.lkf";
+    			INCLUDE_H = "hs12xsregs.h";
+    			INCLUDE_C = "vector_s12x.c";
+    			INCLUDE_S = "crtsx.S";
+   			};
+  		};
+
+		BOARD_DATA = DEMO9S12XSFAME {
+			TYPE = DEMO {
+				OPTIONS = ALL;
+			};
+		};
+
+		STATUS = EXTENDED;
+		STARTUPHOOK = FALSE;
+		ERRORHOOK = FALSE;
+		SHUTDOWNHOOK = FALSE;
+		PRETASKHOOK = FALSE;
+		POSTTASKHOOK = FALSE;
+		USEGETSERVICEID = FALSE;
+		USEPARAMETERACCESS = FALSE;
+		USERESSCHEDULER = FALSE;
+		
+		KERNEL_TYPE = BCC1;
+		
+//		ORTI_SECTIONS = ALL;
+    };
+    
+    APPMODE ModeDecrement;
+    APPMODE ModeIncrement;
+    
+    TASK Task1 {
+		PRIORITY = 0x01;
+		ACTIVATION = 1;
+		SCHEDULE = FULL;
+		AUTOSTART = FALSE;
+		STACK = SHARED;
+		RESOURCE = "Resource";
+    };
+
+    TASK Task2 {
+		PRIORITY = 0x02;
+		ACTIVATION = 1;
+		SCHEDULE = FULL;
+		AUTOSTART = TRUE { APPMODE="ModeIncrement"; };	
+		STACK = SHARED;
+		RESOURCE = "Resource";
+    };
+
+    RESOURCE Resource { RESOURCEPROPERTY = STANDARD; };
+};
+

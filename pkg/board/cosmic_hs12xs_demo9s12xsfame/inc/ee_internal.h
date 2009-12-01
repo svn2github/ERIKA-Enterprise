@@ -43,4 +43,4 @@
  * CVS: $Id: ee_internal.h,v 1.1 2006/12/21 14:49:49 nino Exp $
  */
 
-#include "board\cosmic_hs12xs_demo9s12xsfame\inc\ee_board.h"
+#include "board/cosmic_hs12xs_demo9s12xsfame/inc/ee_board.h"

@@ -50,6 +50,11 @@
 
 #ifdef __USE_LEDS__
 
+#define LED_0 0x01
+#define LED_1 0x02
+#define LED_2 0x04
+#define LED_3 0x08
+
 #define EE_leds_init() EE_demo9s12xsfame_leds_init()
 #define EE_leds(f) EE_demo9s12xsfame_leds(f)
 #define EE_led_0_on() EE_demo9s12xsfame_led_0_on()   
@@ -72,17 +77,18 @@ __INLINE__ void __ALWAYS_INLINE__ EE_demo9s12xsfame_leds_init(void) {
 
 /* EE_leds: turn on a demo9s12xsfame red led */
 __INLINE__ void __ALWAYS_INLINE__ EE_demo9s12xsfame_leds( EE_UINT8 data ) {
-	unsigned char led = 0;
+//	unsigned char led = 0;
+	PORTA = (EE_UINT8)(data & ((EE_UINT8)0x0F));
 	
-	data += 1;
-	if(data<3)
-		led = data;
-	else if(data==3)
-		led = 4;
-	else if(data==4)
-		led = 8;
-	if(led!=0)
-		PORTA |= led;
+	//data += 1;
+//	if(data<3)
+//		led = data;
+//	else if(data==3)
+//		led = 4;
+//	else if(data==4)
+//		led = 8;
+//	if(led!=0)
+//		PORTA |= led;
 }
 
 __INLINE__ void __ALWAYS_INLINE__ EE_demo9s12xsfame_led_0_on(void)   { PORTA |= 0x01; }
@@ -105,15 +111,63 @@ __INLINE__ void __ALWAYS_INLINE__ EE_demo9s12xsfame_leds_off(void)  { PORTA &= 0
 
 #ifdef __USE_BUTTONS__
 
-#define EE_buttons_init() EE_demo9s12xsfame_buttons_init()
+#define BUTTON_0 0
+#define BUTTON_1 1
+
+#define EE_buttons_init(f,g) EE_demo9s12xsfame_buttons_init(f,g)
+#define EE_buttons_close EE_demo9s12xsfame_buttons_close()
+#define EE_buttons_disable_interrupts(f) EE_demo9s12xsfame_buttons_disable_interrupts(f)
+#define EE_buttons_enable_interrupts(f) EE_demo9s12xsfame_buttons_enable_interrupts(f)
+#define EE_buttons_clear_ISRflag(f) EE_demo9s12xsfame_buttons_clear_ISRflag(f)
 #define EE_button_get_B0() EE_demo9s12xsfame_button_get_B0()
 #define EE_button_get_B1() EE_demo9s12xsfame_button_get_B1()
 
+extern volatile EE_UINT8 EE_buttons_initialized;
+
 /* EE_buttons_init: demo9s12xsfame buttons configuration */
-__INLINE__ void __ALWAYS_INLINE__ EE_demo9s12xsfame_buttons_init( void ) {
+__INLINE__ void __ALWAYS_INLINE__ EE_demo9s12xsfame_buttons_init( EE_UINT8 bx, EE_UINT8 prio ) {
 	
+	if(EE_buttons_initialized == 1)
+		return;
 	DDRP = (unsigned char)0x00;		// configured in input mode
+	PIEP = (EE_UINT8)(bx+1);
+	_asm("cli");
+	INT_CFADDR = 0x8E;
+	INT_CFDATA0 = prio;
+	EE_buttons_initialized = 1;
+}
+
+
+/* EE_buttons_close: demo9s12xsfame buttons configuration */
+__INLINE__ void __ALWAYS_INLINE__ EE_demo9s12xsfame_buttons_close( void ) {
 	
+	if(EE_buttons_initialized == 0)
+		return;
+	PIEP = 0x00;
+	EE_buttons_initialized = 0;
+}
+
+/* EE_demo9s12xsfame_buttons_disable_interrupts: demo9s12xsfame buttons configuration */
+__INLINE__ void __ALWAYS_INLINE__ EE_demo9s12xsfame_buttons_disable_interrupts( EE_UINT8 bx ) {
+	EE_UINT8 x;
+		x = (EE_UINT8)((EE_UINT8)1<<bx);
+	x = (EE_UINT8)(~x);
+	PIEP &= x;
+}
+
+/* EE_demo9s12xsfame_buttons_enable_interrupts: demo9s12xsfame buttons configuration */
+__INLINE__ void __ALWAYS_INLINE__ EE_demo9s12xsfame_buttons_enable_interrupts( EE_UINT8 bx ) {
+	EE_UINT8 x;
+		x = (EE_UINT8)((EE_UINT8)1<<bx);
+	PIFP |= x;
+  	PIEP |= x;
+}
+
+/* EE_demo9s12xsfame_buttons_enable_interrupts: demo9s12xsfame buttons configuration */
+__INLINE__ void __ALWAYS_INLINE__ EE_demo9s12xsfame_buttons_clear_ISRflag( EE_UINT8 bx ) {
+	EE_UINT8 x;
+		x = (EE_UINT8)((EE_UINT8)1<<bx);
+	PIFP |= x;
 }
 
 /* EE_button_get_B0: get value of the button 0 */
@@ -156,8 +210,7 @@ __INLINE__ EE_UINT8 __ALWAYS_INLINE__ EE_demo9s12xsfame_button_get_B1( void ) {
 #define ATDRES_10BIT 1
 #define ATDRES_12BIT 2
 
-extern EE_UINT8 EE_adc_init;
-volatile unsigned int  ATD0_CH0       @0x2d1;	/* ATD0 result 0 */
+extern volatile EE_UINT8 EE_adc_init;
 
 /* EE_adc_init: ADC module configuration */
 __INLINE__ void __ALWAYS_INLINE__ EE_demo9s12xsfame_adc_init( unsigned char res, unsigned char numconvseq )

@@ -10,11 +10,11 @@
 #include "ee_hs12xsregs.h"
 #endif
 
-extern EE_UINT8 EE_pit0_init;
+extern volatile EE_UINT8 EE_pit0_initialized;
 
 __INLINE__ void __ALWAYS_INLINE__ EE_PIT0_init( unsigned char pitmtld0, unsigned char pitld0, unsigned char prio )
 {
-	if(EE_pit0_init==1)
+	if(EE_pit0_initialized==1)
 		return;
 	/*	PIT Module
  	*/
@@ -40,7 +40,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_PIT0_init( unsigned char pitmtld0, unsigned
 	  _asm("cli");
 	  INT_CFADDR = 0x7A;
 	  INT_CFDATA0 = prio;
-	  EE_pit0_init = 1;
+	  EE_pit0_initialized = 1;
 	  
 	  return;
 }
@@ -48,7 +48,12 @@ __INLINE__ void __ALWAYS_INLINE__ EE_PIT0_init( unsigned char pitmtld0, unsigned
 __INLINE__ void __ALWAYS_INLINE__ EE_PIT0_close( void )
 {
 	PITCFLMT      = 0x00;        //@0x340;	/* PIT control micro timer register */
-	EE_pit0_init = 0;
+	EE_pit0_initialized = 0;
+}
+
+__INLINE__ void __ALWAYS_INLINE__ EE_PIT0_clear_ISRflag( void )
+{
+	PITTF         = 0x01;        
 }
 
 

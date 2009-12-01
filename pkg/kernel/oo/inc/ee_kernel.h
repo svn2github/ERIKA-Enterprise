@@ -667,8 +667,15 @@ AppModeType EE_oo_GetActiveApplicationMode(void);
 #endif
 
 /* 13.7.2.2: BCC1, BCC2, ECC1, ECC2 */
+//#ifndef __PRIVATE_STARTOS__
+//void EE_oo_StartOS(AppModeType Mode);
+//#endif
 #ifndef __PRIVATE_STARTOS__
+#ifdef __OO_EXTENDED_STATUS__
+StatusType EE_oo_StartOS(AppModeType Mode);
+#else
 void EE_oo_StartOS(AppModeType Mode);
+#endif
 #endif
 
 /* 13.7.2.3: BCC1, BCC2, ECC1, ECC2 */

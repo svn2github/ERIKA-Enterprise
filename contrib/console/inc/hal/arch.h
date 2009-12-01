@@ -7,6 +7,12 @@
 * @date 2008-11-03
 */
 
+#ifdef __HCS12XS__
+#ifdef __MC9S12XS128__
+#include "hal/s12.h"
+#endif	/* __MC9S12XS128__ */
+#endif	/* __HCS12XS__ */
+
 #ifdef __PIC30__
 #include "hal/pic30.h"
 #endif	/* __PIC30__ */

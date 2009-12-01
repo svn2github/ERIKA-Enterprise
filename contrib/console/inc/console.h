@@ -44,7 +44,7 @@
 */
 
 
-#include <string.h>
+//#include <string.h>
 #include "hal/compiler.h"
 
 /* ************************************************************************** */
@@ -53,6 +53,8 @@
 #ifndef CONSOLE_NUMBER
 #define CONSOLE_NUMBER 2	/**< Default max number of console ports */
 #endif
+
+#define NULLP	(void *)0
 
 /* ************************************************************************** */
 /*                             Types Definition                               */
@@ -126,7 +128,7 @@ int console_init(uint8_t cons, console_descriptor_t *hook)
 COMPILER_INLINE
 int console_open(uint8_t cons)
 {
-	if (consoles[cons]->open != NULL)
+	if (consoles[cons]->open != NULLP)
 		return consoles[cons]->open(consoles[cons]->params);
 	else
 		return -1;
@@ -150,7 +152,7 @@ int console_open(uint8_t cons)
 COMPILER_INLINE
 int console_write(uint8_t cons, uint8_t *mesg, uint16_t length)
 {
-	if (consoles[cons]->write != NULL)
+	if (consoles[cons]->write != NULLP)
 		return consoles[cons]->write(consoles[cons]->params, mesg, length);
 	else
 		return -1;
@@ -175,7 +177,7 @@ int console_write(uint8_t cons, uint8_t *mesg, uint16_t length)
 COMPILER_INLINE
 int console_read(uint8_t cons, uint8_t *mesg, uint16_t length, uint16_t *read)
 {
-	if (consoles[cons]->read != NULL)
+	if (consoles[cons]->read != NULLP)
 		return consoles[cons]->read(consoles[cons]->params, mesg, length, read);
 	else
 		return -1;
@@ -194,7 +196,7 @@ int console_read(uint8_t cons, uint8_t *mesg, uint16_t length, uint16_t *read)
 COMPILER_INLINE
 int console_close(uint8_t cons)
 {
-	if (consoles[cons]->close != NULL)
+	if (consoles[cons]->close != NULLP)
 		return consoles[cons]->close(consoles[cons]->params);
 	else
 		return -1;

@@ -44,7 +44,11 @@ typedef signed long int int32_t;	/**< Unsigned 32 bit intgerer. */
 
 /** \brief Compiler inlining keywords. */
 #ifndef COMPILER_INLINE 
+#ifdef __COSMIC__
+#define COMPILER_INLINE	static @inline
+#else
 #define COMPILER_INLINE	static inline	
 #endif
-
+#endif
 #endif	/* __compiler_h__ */
+

@@ -51,7 +51,7 @@
 
 #ifdef __DEMO9S12XSFAME__
 
-#include "cpu\cosmic_hs12xs\inc\ee_irqstub.h"
+#include "cpu/cosmic_hs12xs/inc/ee_irqstub.h"
 
 //Start GF
 /* /\************************************************************************* */
@@ -59,12 +59,13 @@
 /*  *************************************************************************\/ */
 
 #ifdef __USE_BUTTONS__
+volatile EE_UINT8 EE_buttons_initialized = 0;
 #endif
 
 /* /\************************************************************************* */
 /*  Analog input */
 /*  *************************************************************************\/ */
-EE_UINT8 EE_adc_init = 0;
+volatile EE_UINT8 EE_adc_init = 0;
 #if defined(__USE_POTENTIOMETER__) || defined(__USE_ADC__) || defined(__USE_LIGHT_SENSOR__)
 
 #endif

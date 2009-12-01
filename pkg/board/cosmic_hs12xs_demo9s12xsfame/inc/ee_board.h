@@ -46,7 +46,7 @@
 #ifndef __INCLUDE_S12XS_BOARD_H__
 #define __INCLUDE_S12XS_BOARD_H__
 
-#include "mcu\cosmic_hs12xs\inc\ee_mcu.h"
+#include "mcu/cosmic_hs12xs/inc/ee_mcu.h"
 
 /* /\************************************************************************* */
 /* Check if the DemoBoard has been selected */
