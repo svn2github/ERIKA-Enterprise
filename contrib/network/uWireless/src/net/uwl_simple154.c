@@ -28,6 +28,7 @@ static uint16_t coordinator_address;
 /* static uint8_t msdu_handle_id = 0; */
 static void (*rx_callback) (int8_t, uint8_t*, uint8_t, uint16_t) = NULL;
 static uint8_t rx_buffer[UWL_MAC_MAX_MSDU_SIZE];
+static uwl_mac_dev_addr_short_t AssocShortAddress = 0x0020;
 
 
 #define RETURN_WITH_ERROR(e) 		\
@@ -309,13 +310,22 @@ int8_t uwl_MLME_ASSOCIATE_confirm(uwl_mac_dev_addr_short_t AssocShortAddress,
 }
 
 #ifndef UWL_RFD_DISABLE_OPTIONAL
-/*int8_t uwl_MLME_ASSOCIATE_indication(uwl_mac_dev_addr_extd_t DeviceAddress,
+int8_t uwl_MLME_ASSOCIATE_indication(uwl_mac_dev_addr_extd_t DeviceAddress,
 				     uint8_t CapabilityInformation,
 				     uint8_t SecurityLevel, uint8_t KeyIdMode,
 				     uint8_t *KeySource, uint8_t KeyIndex)
 {
+
+	AssocShortAddress++;
+
+	uwl_MLME_ASSOCIATE_response(DeviceAddress,
+					   AssocShortAddress,
+					   UWL_MAC_SUCCESS,
+					   SecurityLevel, KeyIdMode,
+					   *KeySource, KeyIndex);
+
 	return 1;
-}*/
+}
 
 #endif /* UWL_RFD_DISABLE_OPTIONAL */
 

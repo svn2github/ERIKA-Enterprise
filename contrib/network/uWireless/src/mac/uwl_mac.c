@@ -261,11 +261,8 @@ uint8_t set_command_header(struct uwl_mac_frame_t *cmd, uint8_t security,
 		enum uwl_mac_cmd_type_t cmd_type)
 {
 	 uint8_t s;
-	 //uwl_mac_dev_addr_extd_t e_addr;
 
-
-
-	 	/* Build the mpdu header (MHR) */
+	 /* Build the mpdu header (MHR) */
 
 	 memset(cmd->mpdu, 0x0, sizeof(uwl_mpdu_t));
 
@@ -276,12 +273,6 @@ uint8_t set_command_header(struct uwl_mac_frame_t *cmd, uint8_t security,
 			 ack_request,
 			 panid_compress, dst_addr_mode, src_addr_mode, frame_version);
 
-
-
-	 //uwl_mac_pib.macDSN++;
-	 //uwl_mac_pib.macDSN++;
-	 //uwl_mac_pib.macDSN++;
-	 //uwl_mac_pib.macDSN++;
 	 seq_num_ack = uwl_mac_pib.macDSN;
 	 *(UWL_MAC_MPDU_SEQ_NUMBER(cmd->mpdu)) = uwl_mac_pib.macDSN++;
 
@@ -565,16 +556,24 @@ static void process_rx_command(void)
 		break;
 	case UWL_MAC_CMD_ASSOCIATION_RESPONSE :
 
-		/*cmd = UWL_MAC_MPDU_SHORT_ADDRESS(rx_command, s);
-		AssocShortAddress = (UWL_MAC_MPDU_GET_SHORT_ADDRESS(cmd));
+		association_status = 0;
+
+		cmd = UWL_MAC_MPDU_SHORT_ADDRESS(rx_command, s);
+		//AssocShortAddress = UWL_MAC_MPDU_GET_SHORT_ADDRESS(cmd);
+		uwl_mac_pib.macShortAddress = UWL_MAC_MPDU_GET_SHORT_ADDRESS(cmd);
+
+
 
 		cmd = UWL_MAC_MPDU_ASSOCIATION_STATUS(rx_command, s);
 		status = UWL_MAC_MPDU_GET_STATUS(cmd);
 
+		if(status == UWL_MAC_SUCCESS)
+
+
 		uwl_MLME_ASSOCIATE_confirm(AssocShortAddress,
 						  status,
 						  0, 0,
-						  0, 0);*/
+						  0, 0);
 		break;
 	default:
 		break;
@@ -1057,8 +1056,7 @@ uint8_t uwl_mac_create_beacon(uwl_mpdu_ptr_t bcn)
 	 uwl_kal_mutex_wait(MAC_SEND_MUTEX);
 	 cmd_ass_res = (struct uwl_mac_frame_t*)
 			 list_push_front(&uwl_mac_list_ind);
-	 //cmd_ass_res = (struct uwl_mac_frame_t*)
-		//cqueue_push(&uwl_mac_queue_cap);
+
 	 if (cmd_ass_res == 0) {
 			/* TODO: we have to choose a well formed reply
 				 for the indication primitive (status=??) */
@@ -1094,12 +1092,6 @@ uint8_t uwl_mac_create_beacon(uwl_mpdu_ptr_t bcn)
 			 UWL_MAC_SHORT_ADDRESS_SIZE + UWL_MAC_ASSOCIATION_STATUS_SIZE/* +
 			sizeof(uint16_t) */;
 
-
-	 //uwl_mac_data_req.dst_addr = &dst_addr;
-		//memcpy(uwl_mac_data_req.dst_addr, (uint8_t *) dst_addr,
-		  //     UWL_MAC_MPDU_ADDRESS_EXTD_SIZE);
-	 //uwl_mac_data_req.pending_req++;
-
 	 uwl_kal_mutex_signal(MAC_SEND_MUTEX);
  }
 
@@ -1117,7 +1109,6 @@ uint8_t uwl_mac_create_beacon(uwl_mpdu_ptr_t bcn)
 	 	 		       0, 0);
 
 	 	*(UWL_MAC_MPDU_SEQ_NUMBER(ack)) = UWL_MAC_MPDU_GET_SEQ_NUMBER(seq_num);
-	 	//*(UWL_MAC_MPDU_SEQ_NUMBER(ack->mpdu)) = UWL_MAC_MPDU_GET_SEQ_NUMBER(cmd);
 
 	 	 s = UWL_MAC_MPDU_FRAME_CONTROL_SIZE +
 	 			 UWL_MAC_MPDU_SEQ_NUMBER_SIZE/* +

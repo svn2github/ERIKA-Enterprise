@@ -50,8 +50,8 @@ do {							\
 #define UWL_MAC_MPDU_MAC_COMMAND_FIELDS(mpdu, offset) 		((mpdu) + 3 + (offset))
 #define UWL_MAC_MPDU_GET_COMMAND_FRAME_ID(cmd)	(*(cmd))
 #define UWL_MAC_MPDU_GET_CAPABILITY_INFORMATION(cmd)	(*(cmd))
-#define UWL_MAC_MPDU_GET_SHORT_ADDRESS(cmd)	(*(cmd)))
-#define UWL_MAC_MPDU_GET_STATUS(cmd)	(*(cmd)))
+#define UWL_MAC_MPDU_GET_SHORT_ADDRESS(cmd)	(*(cmd))
+#define UWL_MAC_MPDU_GET_STATUS(cmd)	(*(cmd))
 
 #define UWL_MAC_FCTL_GET_FRAME_TYPE(fcf) 	((*(fcf)) & 0x07)
 #define UWL_MAC_FCTL_GET_SECURITY(fcf) 		(((*(fcf)) >> 3) & 0x01)

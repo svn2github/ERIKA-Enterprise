@@ -168,6 +168,12 @@ enum uwl_mac_addr_mode_t {
 	UWL_MAC_ADDRESS_EXTD 	= 0x3,
 };
 
+enum uwl_mac_cmd_type_t {
+	UWL_MAC_CMD_ASSOCIATION_REQUEST = 0x01,
+	UWL_MAC_CMD_ASSOCIATION_RESPONSE = 0x02,
+	UWL_MAC_CMD_DATA_REQUEST = 0x04,
+};
+
 struct uwl_gts_info_t {
 //	uint8_t gts_id;
 	unsigned starting_tslot : 4;

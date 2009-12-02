@@ -15,7 +15,7 @@
 #define UWL_TEST_DEVICE_ADDRESS 0x0002
 #endif
 
-uwl_mac_dev_addr_short_t AssocShortAddress = 0x0020;
+//uwl_mac_dev_addr_short_t AssocShortAddress = 0x0020;
 
 int8_t uwl_MLME_ASSOCIATE_request(uint8_t LogicalChannel, uint8_t ChannelPage,
 				  uint8_t CoordAddrMode, uint16_t CoordPANId,
@@ -187,7 +187,7 @@ int8_t uwl_MLME_ASSOCIATE_response(uwl_mac_dev_addr_extd_t DeviceAddress,
 	uwl_mac_association_response_cmd(DeviceAddress,AssocShortAddress,status);
 }
 
-int8_t uwl_MLME_ASSOCIATE_indication(uwl_mac_dev_addr_extd_t DeviceAddress,
+/*int8_t uwl_MLME_ASSOCIATE_indication(uwl_mac_dev_addr_extd_t DeviceAddress,
 				     uint8_t CapabilityInformation,
 				     uint8_t SecurityLevel, uint8_t KeyIdMode,
 				     uint8_t *KeySource, uint8_t KeyIndex)
@@ -202,7 +202,7 @@ int8_t uwl_MLME_ASSOCIATE_indication(uwl_mac_dev_addr_extd_t DeviceAddress,
 					   *KeySource, KeyIndex);
 
 	return 1;
-}
+}*/
 
 /*int8_t uwl_MLME_ASSOCIATE_confirm(uwl_mac_dev_addr_short_t AssocShortAddress,
 				  enum uwl_mac_code_t status,
