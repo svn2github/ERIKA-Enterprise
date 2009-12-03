@@ -244,6 +244,13 @@ include $(EEBASE)/pkg/cfg/arch/rules_microchip_pic30.mk
 endif
 
 ##
+## Microchip PIC32 - gcc
+##########################################################################
+ifeq ($(findstring __PIC32__,$(EEALLOPT)) , __PIC32__)
+include $(EEBASE)/pkg/cfg/arch/rules_microchip_pic32.mk
+endif
+
+##
 ## Infineon Tricore - Tasking under Windows
 ##########################################################################
 ifeq ($(findstring __TRICORE1__,$(EEALLOPT)) , __TRICORE1__)

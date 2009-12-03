@@ -114,6 +114,10 @@ extern "C" {
 #include "cpu/pic30/inc/ee_cpu.h"
 #endif
 
+#ifdef __PIC32__
+#include "cpu/pic32/inc/ee_cpu.h"
+#endif
+
 #ifdef __TRICORE1__
 #include "cpu/tricore1/inc/ee_cpu.h"
 #endif

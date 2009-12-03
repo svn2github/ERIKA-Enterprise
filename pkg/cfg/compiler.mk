@@ -70,6 +70,10 @@ ifeq ($(findstring __PIC30__,$(EEALLOPT)), __PIC30__)
 include $(PKGBASE)/cfg/arch/cc_pic30.mk
 endif
 
+ifeq ($(findstring __PIC32__,$(EEALLOPT)), __PIC32__)
+include $(PKGBASE)/cfg/arch/cc_pic32.mk
+endif
+
 ifeq ($(findstring __TRICORE1__,$(EEALLOPT)), __TRICORE1__)
 include $(PKGBASE)/cfg/arch/cc_tricore_tasking.mk
 endif
