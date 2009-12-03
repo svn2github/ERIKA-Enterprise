@@ -145,6 +145,7 @@ int8_t mrf24j40_init(uint8_t int_setup, uint8_t ch, uint8_t port)
     
 	#ifdef ADD_RSSI_AND_LQI_TO_PACKET
 	/** Enable the packet RSSI */
+	debug_print("\r\nMRF24J40 Init append RSSI and LQI to the packet");
 	mrf24j40_set_short_add_mem(MRF24J40_BBREG6, 0x40);
     #endif
 
@@ -161,7 +162,7 @@ int8_t mrf24j40_init(uint8_t int_setup, uint8_t ch, uint8_t port)
 	while((i&0xA0) != 0xA0);
 
 	debug_set_msg("\r\nRFSTATE=0x%X",i);
-		debug_print(mrf24j40_db_msg);
+	debug_print(mrf24j40_db_msg);
 	/**
 	*
 	*Set interrupts.
@@ -213,7 +214,7 @@ int8_t mrf24j40_init(uint8_t int_setup, uint8_t ch, uint8_t port)
 		debug_print("\r\nMRF24J40 Init Accept Wrong CRC");
 		i = i | 0b00000010;
 	#endif
-#define MRF24J40_PROMISCUOUS_MODE
+
 	#ifdef MRF24J40_PROMISCUOUS_MODE
 		debug_print("\r\nMRF24J40 Init PROMISUOUS MODE");
 		i = i | 0b00000001;
@@ -380,7 +381,7 @@ uint8_t mrf24j40_get_norm_txfifo(uint8_t pos)
 * @return the lenght of the received message
 *
 * Note: the last two bytes, representing the CRC code, are discarded.
- */
+*/
 uint8_t mrf24j40_get_fifo_msg(uint8_t *msg)
 {
 	uint8_t i, len;
@@ -399,13 +400,8 @@ uint8_t mrf24j40_get_fifo_msg(uint8_t *msg)
 	/* Get packet length */
 	len = mrf24j40_get_long_add_mem(MRF24J40_RX_FIFO);
 
-	#ifndef MRF24J40_ADD_RSSI_AND_LQI_TO_PACKET
-	/* 
-	 * Note: the last two bytes of the message represent 
-	 * CRC, hence, we discard them.
-	 */
-	len -= 2;
-	#endif
+	/*Discard CRC bytes */
+	len = len - 2;
 
 	/* Get the packet */
 	for (i=0;i < len; i++)
@@ -413,10 +409,57 @@ uint8_t mrf24j40_get_fifo_msg(uint8_t *msg)
 	 
 	/*Enable packet reception*/
 	mrf24j40_set_short_add_mem(MRF24J40_BBREG1, 0x00);
-	
+
 	return len;
 }
 
+/**
+* @brief Get message
+*
+* This routine is used to retrieve a message store in the RX_FIFO
+*
+* @param[in] *msg 	The buffer where to store the message from the RX_FIFO
+*
+* @return the lenght of the received message
+* Note
+*
+*/
+uint8_t mrf24j40_get_fifo_msg_with_lqi(uint8_t *msg, uint8_t *rssi, uint8_t *lqi)
+{
+	uint8_t i, len;
+
+	#ifdef MRF24J40_PROMISCUOUS_MODE
+ 	/*
+	* Flush RX FIFO as suggested by the work around 1 in
+	* MRF24J40 Silicon Errata.
+	*/
+	mrf24j40_set_short_add_mem(MRF24J40_RXFLUSH,0x01);
+	#endif
+
+	/*Disable packet reception*/
+	mrf24j40_set_short_add_mem(MRF24J40_BBREG1, 0x04);
+
+	/* Get packet length */
+	len = mrf24j40_get_long_add_mem(MRF24J40_RX_FIFO);
+
+	/* Get the packet excluding CRC bytes*/
+	for (i=0;i < len - 2; i++)
+		msg[i] = mrf24j40_get_long_add_mem(MRF24J40_RX_FIFO + 1 + i);
+
+	/*
+	 * packet len includes = header + paylod + CRC
+	 */
+	*lqi = mrf24j40_get_long_add_mem(MRF24J40_RX_FIFO + 1 + len );
+	*rssi = mrf24j40_get_long_add_mem(MRF24J40_RX_FIFO + 1 + len + 1);
+
+	/*Enable packet reception*/
+	mrf24j40_set_short_add_mem(MRF24J40_BBREG1, 0x00);
+
+	/*Discard CRC bytes */
+	len = len - 2;
+
+	return len;
+}
 
 /**
 * @brief Start sleep

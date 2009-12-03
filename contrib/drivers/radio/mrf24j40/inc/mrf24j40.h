@@ -31,7 +31,7 @@ void	mrf24j40_wake() ;
 #include "console_serial.h"
 
 #define DEBUG_PORT 0
-#define debug_print(msg) 	console_write(DEBUG_PORT, msg, strlen(msg))
+#define debug_print(msg) 	console_write(DEBUG_PORT, (uint8_t*) msg, strlen(msg))
 #define debug_set_msg(str,val) sprintf(mrf24j40_db_msg, str, val)
 
 #else
