@@ -45,9 +45,9 @@ do {							\
 #define UWL_MAC_MPDU_CAPABILITY_INFORMATION(mpdu, offset)	((mpdu) + 4 + (offset))
 #define UWL_MAC_MPDU_SHORT_ADDRESS(mpdu, offset)	((mpdu) + 4 + (offset))
 #define UWL_MAC_MPDU_ASSOCIATION_STATUS(mpdu, offset)	((mpdu) + 6 + (offset))
+#define UWL_MAC_MPDU_MAC_COMMAND_FIELDS(mpdu, offset) 		((mpdu) + 3 + (offset))
 
 #define UWL_MAC_MPDU_GET_SEQ_NUMBER(mpdu)	(*(mpdu))
-#define UWL_MAC_MPDU_MAC_COMMAND_FIELDS(mpdu, offset) 		((mpdu) + 3 + (offset))
 #define UWL_MAC_MPDU_GET_COMMAND_FRAME_ID(cmd)	(*(cmd))
 #define UWL_MAC_MPDU_GET_CAPABILITY_INFORMATION(cmd)	(*(cmd))
 #define UWL_MAC_MPDU_GET_SHORT_ADDRESS(cmd)	(*(cmd))

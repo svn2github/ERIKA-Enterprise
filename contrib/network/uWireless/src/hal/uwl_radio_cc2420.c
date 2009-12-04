@@ -78,7 +78,7 @@ int8_t uwl_radio_store_ack(uint8_t *buf, uint8_t len)
 	return 1;
 }
 
-int8_t uwl_radio_mac_send_ack(void)
+int8_t uwl_radio_send_ack(void)
 {
 	/* TODO: chris: IDEA: We can use this symbol to force the
 			uwl_radio_mac module to always use software mac */

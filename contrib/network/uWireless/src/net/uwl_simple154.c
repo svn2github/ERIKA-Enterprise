@@ -16,7 +16,7 @@ struct uwl_simple154_flags_t {
 	unsigned coordinator : 1;
 };
 
-static struct uwl_simple154_flags_t flags = {
+static volatile struct uwl_simple154_flags_t flags = {
 	.wait_confirm = 0,
 	.initialized = 0,
 	.coordinator = 0
@@ -76,7 +76,7 @@ int8_t uwl_simple154_init_coordinator(uint16_t coordinator_id, uint16_t pan_id,
 					   UWL_MAC_NULL_SECURITY_PARAMS_LIST);
 	if (mac_error < 0) 
 		RETURN_WITH_ERROR(-UWL_SIMPLE154_ERR_STARTMAC);
-	while (flags.wait_confirm) ;	
+	while (flags.wait_confirm) ;
 	if (last_error < 0)
 		return last_error;
 	flags.initialized = 1;
@@ -112,14 +112,9 @@ int8_t uwl_simple154_init_device(uint16_t device_id, uint16_t coordinator_id,
 					       ); 
 	if (mac_error < 0) 
 		RETURN_WITH_ERROR(-UWL_SIMPLE154_ERR_ASSOCIATE);
-	while (flags.wait_confirm) ;	
+	while (flags.wait_confirm);
 	if (last_error < 0)
 		return last_error;
-	/* NOTE: setting the device address irrespective of the association! */
-	mac_error = uwl_MLME_SET_request(UWL_MAC_SHORT_ADDRESS, 0, 
-				    (void *) &device_id);
-	if (mac_error < 0) 
-		RETURN_WITH_ERROR(-UWL_SIMPLE154_ERR_SETADDR);
 	flags.initialized = 1;
 	flags.coordinator = 0;
 	coordinator_address = coordinator_id;
@@ -259,7 +254,7 @@ int8_t uwl_MCPS_DATA_confirm(uint8_t msduHandle, enum uwl_mac_code_t status,
 	uwl_debug_print(s);
 	#endif
 	*/
-	if (status == UWL_MAC_SUCCESS)
+	if (status != UWL_MAC_SUCCESS)
 		last_error = -UWL_SIMPLE154_ERR_DATACONFIRM;
 	flags.wait_confirm = 0;
 	return 1;
@@ -301,9 +296,7 @@ int8_t uwl_MLME_ASSOCIATE_confirm(uwl_mac_dev_addr_short_t AssocShortAddress,
 				  uint8_t SecurityLevel, uint8_t KeyIdMode,
 				  uint8_t *KeySource, uint8_t KeyIndex)
 {
-	mac_error = uwl_MLME_SET_request(UWL_MAC_SHORT_ADDRESS, 0, 
-				    (void *) &AssocShortAddress);
-	if (mac_error < 0 || status != UWL_MAC_SUCCESS) 
+	if (status != UWL_MAC_SUCCESS)
 		last_error = -UWL_SIMPLE154_ERR_ASSOCIATE;
 	flags.wait_confirm = 0;
 	return 1;
@@ -322,7 +315,7 @@ int8_t uwl_MLME_ASSOCIATE_indication(uwl_mac_dev_addr_extd_t DeviceAddress,
 					   AssocShortAddress,
 					   UWL_MAC_SUCCESS,
 					   SecurityLevel, KeyIdMode,
-					   *KeySource, KeyIndex);
+					   KeySource, KeyIndex);
 
 	return 1;
 }

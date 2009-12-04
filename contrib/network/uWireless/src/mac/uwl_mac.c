@@ -22,7 +22,6 @@ static uwl_mpdu_t rx_beacon;
 static uwl_mpdu_t rx_data;
 static uwl_mpdu_t rx_command;
 static uwl_mpdu_t rx_ack;
-static uwl_mpdu_t ack;
 static uint16_t rx_beacon_length;
 static uint16_t rx_data_length;
 static uint16_t rx_command_length;
@@ -72,9 +71,10 @@ struct uwl_mac_gts_stat_t uwl_mac_gts_stat = {
 };
 
 struct uwl_mac_data_request_info uwl_mac_data_req = {
-		.data_req = 0,
-		.addr_dev = 0,
-		.addr_pan = 0
+	.data_req = 0,
+	.addr_pan = 0,
+	.addr_dev[0] = 0,
+	.addr_dev[1] = 0
 };
 
 CQUEUE_DEFINE(uwl_mac_queue_cap, struct uwl_mac_frame_t,
@@ -513,7 +513,6 @@ static void process_rx_command(void)
 	uint16_t s_pan = 0, d_pan = 0;
 	uwl_mac_dev_addr_extd_t s_a, d_a;
 	uint8_t cap_inf;
-	uwl_mac_dev_addr_short_t AssocShortAddress;
 	enum uwl_mac_code_t status;
 
 	if (uwl_kal_mutex_wait(MAC_RX_COMMAND_MUTEX) < 0)
@@ -542,38 +541,31 @@ static void process_rx_command(void)
 		cmd = UWL_MAC_MPDU_MAC_COMMAND_FIELDS(rx_command, (s + 1));
 		cap_inf = UWL_MAC_MPDU_GET_CAPABILITY_INFORMATION(cmd);
 
-		i =  uwl_MLME_ASSOCIATE_indication((uint8_t *) s_a,
+		i =  uwl_MLME_ASSOCIATE_indication((void *) s_a,
 				     cap_inf,
 				     0, *(UWL_MAC_MPDU_SEQ_NUMBER(rx_command)),
 				     0, 0);
 		break;
 	case UWL_MAC_CMD_DATA_REQUEST :
 
-		uwl_mac_data_req.addr_dev = s_a;
-		uwl_mac_data_req.addr_pan = s_pan;
+		uwl_mac_data_req.addr_pan = d_pan;
+		memcpy( uwl_mac_data_req.addr_dev, s_a,
+		       UWL_MAC_MPDU_ADDRESS_EXTD_SIZE);
+
 		uwl_mac_data_req.data_req = 1;
 
 		break;
 	case UWL_MAC_CMD_ASSOCIATION_RESPONSE :
 
 		association_status = 0;
-
 		cmd = UWL_MAC_MPDU_SHORT_ADDRESS(rx_command, s);
-		//AssocShortAddress = UWL_MAC_MPDU_GET_SHORT_ADDRESS(cmd);
-		uwl_mac_pib.macShortAddress = UWL_MAC_MPDU_GET_SHORT_ADDRESS(cmd);
-
-
-
+		uwl_mac_pib.macShortAddress = *cmd;
 		cmd = UWL_MAC_MPDU_ASSOCIATION_STATUS(rx_command, s);
 		status = UWL_MAC_MPDU_GET_STATUS(cmd);
 
-		if(status == UWL_MAC_SUCCESS)
+		uwl_MLME_ASSOCIATE_confirm(uwl_mac_pib.macShortAddress, status,
+					   0, 0, NULL, 0);
 
-
-		uwl_MLME_ASSOCIATE_confirm(AssocShortAddress,
-						  status,
-						  0, 0,
-						  0, 0);
 		break;
 	default:
 		break;
@@ -940,6 +932,7 @@ uwl_debug_print("--->        Invalid ALLOC");
 	memcpy(UWL_MAC_MPDU_MAC_PAYLOAD(frame->mpdu, s), payload, len);
 	/* TODO: compute FCS , use auto gen? */
 	//*((uint16_t *) UWL_MAC_MPDU_MAC_FCS(bcn, s)) = 0;
+
 	frame->mpdu_size = UWL_MAC_MPDU_FRAME_CONTROL_SIZE + 
 			   UWL_MAC_MPDU_SEQ_NUMBER_SIZE + s + len /* + 
 			   sizeof(uint16_t) */;
@@ -1040,7 +1033,6 @@ uint8_t uwl_mac_create_beacon(uwl_mpdu_ptr_t bcn)
 	 association_status = 1;
 
 	 uwl_kal_mutex_signal(MAC_SEND_MUTEX);
-
  }
 
  /* create association response */
@@ -1099,11 +1091,10 @@ uint8_t uwl_mac_create_beacon(uwl_mpdu_ptr_t bcn)
 
  void uwl_mac_ack_frame(uint8_t *seq_num)
  {
-
-	 uwl_mpdu_ptr_t *ack_ptr = &ack;
+	 uwl_mpdu_t ack;
 	 uint8_t s;
 
-	 	 set_frame_control(ack_ptr, UWL_MAC_TYPE_ACK, 0,
+	 	 set_frame_control(ack, UWL_MAC_TYPE_ACK, 0,
 	 	 		       0, 0,
 	 	 		       0, 0,
 	 	 		       0, 0);
@@ -1114,8 +1105,8 @@ uint8_t uwl_mac_create_beacon(uwl_mpdu_ptr_t bcn)
 	 			 UWL_MAC_MPDU_SEQ_NUMBER_SIZE/* +
 	 			sizeof(uint16_t) */ ;
 
-	 	uwl_radio_store_ack(ack_ptr, s);
-	 	uwl_radio_mac_send_ack();
+	 	uwl_radio_store_ack(ack, s);
+	 	uwl_radio_send_ack();
  }
 
  void uwl_mac_data_request_cmd(void)

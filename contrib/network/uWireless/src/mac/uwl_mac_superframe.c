@@ -237,10 +237,6 @@ static void csma_perform_slotted(void)
 	struct uwl_mac_frame_t *frame;
 	int8_t tmp;
 
-	uint16_t d_pan = 0;
-	uint8_t *fr;
-	void *dst_addr;
-
 	if (uwl_mac_status.sf_context != UWL_MAC_SF_CAP)
 		return; 
 	if (cap_available_bytes >= btick_bytes)
@@ -302,21 +298,8 @@ static void csma_perform_slotted(void)
 
 		if (uwl_mac_data_req.data_req == 1) {
 				frame = (struct uwl_mac_frame_t*)list_iter_front(&uwl_mac_list_ind);
-
-				fr = (uint8_t *)UWL_MAC_MPDU_ADDRESSING_FIELDS(frame);
-
-				d_pan = fr[0];
-				//dst_addr == fr[2];
-				//memcpy((uint8_t *) dst_addr, fr + 2, UWL_MAC_MPDU_ADDRESS_EXTD_SIZE);
-
-				if(d_pan == uwl_mac_data_req.addr_pan //&& dst_addr == uwl_mac_data_req.addr_dev
-						){
-
-					frame = (struct uwl_mac_frame_t*)list_extract(&uwl_mac_list_ind,
-					list_iter_current(frame));
-					uwl_mac_data_req.data_req = 0;
-
-				}
+				frame = (struct uwl_mac_frame_t*)list_pop_front(&uwl_mac_list_ind);
+				uwl_mac_data_req.data_req = 0;
 		} else
 				frame = (struct uwl_mac_frame_t*)cqueue_pop(&uwl_mac_queue_cap);
 

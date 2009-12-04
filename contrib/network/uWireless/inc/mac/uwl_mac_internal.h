@@ -65,10 +65,9 @@ struct uwl_mac_gts_stat_t {
 };
 
 struct uwl_mac_data_request_info {
-		unsigned data_req : 1;
-		unsigned addr_dev : 8;
-		unsigned addr_pan : 2;
-
+	unsigned data_req : 1;
+	uint16_t addr_pan;
+	uwl_mac_dev_addr_extd_t addr_dev;
 };
 
 extern struct uwl_mac_pib_t uwl_mac_pib;
@@ -94,6 +93,15 @@ void uwl_mac_perform_data_request(enum uwl_mac_addr_mode_t src_mode,
 int8_t uwl_mac_gts_init(void); 
 uint8_t uwl_mac_gts_set_gts_fields(uint8_t *gf);
 uint8_t uwl_mac_gts_get_gts_fields(uint8_t *gf);
+void uwl_mac_association_request_cmd(enum uwl_mac_addr_mode_t dst_mode,
+										uint16_t dst_panid,
+										void *dst_addr,
+										uint8_t cap_inform);
+void uwl_mac_association_response_cmd(void *dst_addr,
+		 uwl_mac_dev_addr_short_t assoc_short_address,
+		 uint8_t status);
+void uwl_mac_ack_frame(uint8_t *seq_num);
+void uwl_mac_data_request_cmd(void);
 
 COMPILER_INLINE void uwl_mac_gts_set_cap_end(uint8_t last_cap_tslot) 
 {

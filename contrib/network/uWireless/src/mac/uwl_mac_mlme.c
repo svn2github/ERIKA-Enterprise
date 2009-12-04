@@ -15,8 +15,6 @@
 #define UWL_TEST_DEVICE_ADDRESS 0x0002
 #endif
 
-//uwl_mac_dev_addr_short_t AssocShortAddress = 0x0020;
-
 int8_t uwl_MLME_ASSOCIATE_request(uint8_t LogicalChannel, uint8_t ChannelPage,
 				  uint8_t CoordAddrMode, uint16_t CoordPANId,
 				  void *CoordAddress,
@@ -56,15 +54,15 @@ int8_t uwl_MLME_ASSOCIATE_request(uint8_t LogicalChannel, uint8_t ChannelPage,
 		/* TODO: security levels management! */
 	}
 	/* TODO: initiate the association procedure!!!! */
-	uwl_mac_association_request_cmd(CoordAddrMode, CoordPANId, CoordAddress, CapabilityInformation);
+	uwl_mac_association_request_cmd(CoordAddrMode, CoordPANId, CoordAddress,
+			CapabilityInformation);
+
 	/* TODO: current dummy: assoctiation succes, and give hardcoded addr */
 	uwl_mac_status.track_beacon = 1;
 	uwl_mac_superframe_stop();
 	uwl_mac_superframe_start(0);
 	//TODO: remove, make this with std
-	uwl_MLME_ASSOCIATE_confirm(UWL_TEST_DEVICE_ADDRESS, UWL_MAC_SUCCESS, 
-				   0, 0, NULL, 0);
-	uwl_mac_pib.macShortAddress = UWL_TEST_DEVICE_ADDRESS;
+
 	return UWL_MAC_ERR_NONE;
 }
 
@@ -185,30 +183,8 @@ int8_t uwl_MLME_ASSOCIATE_response(uwl_mac_dev_addr_extd_t DeviceAddress,
 				   uint8_t *KeySource, uint8_t KeyIndex)
 {
 	uwl_mac_association_response_cmd(DeviceAddress,AssocShortAddress,status);
-}
-
-/*int8_t uwl_MLME_ASSOCIATE_indication(uwl_mac_dev_addr_extd_t DeviceAddress,
-				     uint8_t CapabilityInformation,
-				     uint8_t SecurityLevel, uint8_t KeyIdMode,
-				     uint8_t *KeySource, uint8_t KeyIndex)
-{
-
-	AssocShortAddress++;
-
-	uwl_MLME_ASSOCIATE_response(DeviceAddress,
-					   AssocShortAddress,
-					   UWL_MAC_SUCCESS,
-					   SecurityLevel, KeyIdMode,
-					   *KeySource, KeyIndex);
 
 	return 1;
-}*/
+}
 
-/*int8_t uwl_MLME_ASSOCIATE_confirm(uwl_mac_dev_addr_short_t AssocShortAddress,
-				  enum uwl_mac_code_t status,
-				  uint8_t SecurityLevel, uint8_t KeyIdMode,
-				  uint8_t *KeySource, uint8_t KeyIndex) {
-
-	uwl_mac_pib.macShortAddress = AssocShortAddress;
-}*/
 #endif /* UWL_RFD_DISABLE_OPTIONAL */
