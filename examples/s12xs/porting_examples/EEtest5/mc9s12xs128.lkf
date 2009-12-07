@@ -69,7 +69,7 @@
 +grp .ftext=.OS_CODE														# grouping
 
 "obj\main.o"
-"obj\Debug\eecfg.o"
+"obj\eecfg.o"
 
 #
 +seg .ftext -b 0x7f8000 -o 0x8000 -w 0x4000 -n .ftext -f 0xFF -m 0x4000 					# banked - 6th bank

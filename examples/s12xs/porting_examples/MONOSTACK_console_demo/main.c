@@ -108,7 +108,7 @@ void led_blink(unsigned char theled)
   EE_leds(led_status);
   EnableAllInterrupts();
 
-  mydelay((long int)125000);
+  mydelay((long int)60000);
 
   DisableAllInterrupts();
   led_status &= ~theled;
@@ -140,10 +140,10 @@ TASK(Task1)
 TASK(Task2)
 {
   static int which_led = 0;
-  char *msg_tmr =  " Tmr: ";
-  char *msg_tsk1 = " T_1: ";
-  char *msg_btn =  " Btn: ";
-  char *msg_tsk2 = " T_2: ";
+  char *msg_tmr =  "Tmr: ";
+  char *msg_tsk1 = "T_1: ";
+  char *msg_btn =  "Btn: ";
+  char *msg_tsk2 = "T_2: ";
   unsigned char byte = 0;
   /* count the number of Task2 activations */
   task2_fired++;
@@ -197,6 +197,8 @@ TASK(Task2)
   console_write(MY_FIRST_CONSOLE,&byte,1);
   byte = (task2_fired%10)+'0';
   console_write(MY_FIRST_CONSOLE,&byte,1);
+  byte = '\n';
+  console_write(MY_FIRST_CONSOLE,&byte,1);
 
   TerminateTask();
 }
@@ -205,9 +207,9 @@ TASK(Task2)
 int main()
 { 
   ///* Program Timer 1 to raise interrupts */
-  //EE_PIT0_init(99, 14, 2);
+  EE_PIT0_init(99, 14, 2);
   /* Init devices */
-  //EE_buttons_init(BUTTON_0,3);
+  EE_buttons_init(BUTTON_0,3);
   /* Init leds */
   EE_leds_init();
 
@@ -223,7 +225,7 @@ int main()
   message();
   
   /* let's start the multiprogramming environment...*/
-  //StartOS(OSDEFAULTAPPMODE);
+  StartOS(OSDEFAULTAPPMODE);
   
   /* now the background activities... */
   for (;;)
@@ -238,6 +240,9 @@ int main()
 
 Bool message(void)
 {
-	char* msg = " I Love OSEK\n and Erika Enterprise!!!     ";
-	return console_write(MY_FIRST_CONSOLE,msg,36);
+	unsigned char byte;
+	char* msg = "I Love OSEK and Erika Enterprise!!!     ";
+	console_write(MY_FIRST_CONSOLE,msg,36);
+	byte = '\n';
+	return console_write(MY_FIRST_CONSOLE,&byte,1);
 }

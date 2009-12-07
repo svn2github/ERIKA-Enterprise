@@ -185,10 +185,12 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_endcycle_ready(EE_TID thread)
 /* called to change the active stack, typically inside blocking primitives */
 /* there is no mono version for this primitive...*/
 #ifdef __MULTI__
-void EE_s12xs_hal_stkchange(EE_UREG tos_index); /* in ASM */
+//void EE_s12xs_hal_stkchange(EE_UREG tos_index); /* in ASM */
+void EE_s12xs_hal_stkchange(EE_ADDR thread_addr, EE_UREG tos_index); /* in ASM */
 __INLINE__ void __ALWAYS_INLINE__ EE_hal_stkchange(EE_TID thread)
 {
-    EE_s12xs_hal_stkchange(EE_s12xs_thread_tos[thread+1]);
+    //EE_s12xs_hal_stkchange(EE_s12xs_thread_tos[thread+1]);
+    EE_s12xs_hal_stkchange(EE_hal_thread_body[thread],EE_s12xs_thread_tos[thread+1]);
 }
 #endif
 

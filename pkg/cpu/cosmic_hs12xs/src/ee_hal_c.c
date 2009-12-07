@@ -65,7 +65,7 @@ EE_UREG EE_hal_endcycle_next_tos;
 void EE_thread_end_instance(void);			
 
 #ifdef __IRQ_STACK_NEEDED__
-EE_ADDR EE_s12xs_temp_tos;
+EE_DADD EE_s12xs_temp_tos;
 //#ifdef __S12XS_SPLIM__
 //EE_ADDR EE_s12xs_temp_splim;
 //#endif

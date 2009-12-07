@@ -22,12 +22,12 @@ CPU test_application {
     			INCLUDE_C = "vector_s12x.c";
     			INCLUDE_S = "crtsx.S";
    			};
+   			SERIAL = TRUE;
+   			TIMER = TRUE;
   		};
 
 		BOARD_DATA = DEMO9S12XSFAME {
-			TYPE = DEMO {
 				OPTIONS = ALL;
-			};
 		};
 
 		STATUS = EXTENDED;

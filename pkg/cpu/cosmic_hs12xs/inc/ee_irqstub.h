@@ -57,7 +57,7 @@
 /* from ee_internal.h */
 extern EE_ADDR EE_hal_endcycle_next_thread;
 extern EE_UREG EE_hal_endcycle_next_tos;
-extern EE_ADDR EE_s12xs_temp_tos;
+extern EE_DADD EE_s12xs_temp_tos;
 extern EE_UREG EE_IRQ_nesting_level;
 
 void EE_IRQ_end_instance(void);
@@ -66,7 +66,8 @@ void EE_s12xs_hal_ready2stacked(EE_ADDR thread_addr);
 #endif
 #ifdef __MULTI__
 void EE_s12xs_hal_ready2stacked(EE_ADDR thread_addr, EE_UREG tos_index);
-void EE_s12xs_hal_stkchange(EE_UREG tos_index);
+//void EE_s12xs_hal_stkchange(EE_UREG tos_index);
+void EE_s12xs_hal_stkchange(EE_ADDR thread_addr, EE_UREG tos_index); /* in ASM */
 #endif
 
 
@@ -84,15 +85,15 @@ __INLINE__ void __ALWAYS_INLINE__ EE_ISR2_prestub(void)
 #ifdef __MULTI__
 #ifdef __IRQ_STACK_NEEDED__
   if (EE_IRQ_nesting_level==1) {
-    _asm("mov.w  sp, _EE_s12xs_temp_tos");                              //_asm("movw  w15, _EE_s12xs_temp_tos");
-#ifdef __S12XS_SPLIM__
-    _asm("mov    _SPLIM, sp");
-    _asm("mov.w  sp, _EE_s12xs_temp_splim");
-    _asm("mov	_EE_s12xs_IRQ_splim, sp");
-    _asm("mov	sp, _SPLIM");
-    // the next operation cannot do an access based on w15
-#endif
-    _asm("mov.w _EE_s12xs_IRQ_tos, sp");                               //_asm("mov.w _EE_s12xs_IRQ_tos, w15");
+    EE_s12xs_temp_tos = (EE_DADD)(_asm("tfr  s, d"));                              //_asm("movw  w15, _EE_s12xs_temp_tos");
+//#ifdef __S12XS_SPLIM__
+//    _asm("mov    _SPLIM, sp");
+//    _asm("mov.w  sp, _EE_s12xs_temp_splim");
+//    _asm("mov	_EE_s12xs_IRQ_splim, sp");
+//    _asm("mov	sp, _SPLIM");
+//    // the next operation cannot do an access based on w15
+//#endif
+    _asm("tfr d, s",EE_s12xs_IRQ_tos.SYS_tos);                               //_asm("mov.w _EE_s12xs_IRQ_tos, w15");
   }
 #endif
 #endif
@@ -108,16 +109,20 @@ __INLINE__ void __ALWAYS_INLINE__ EE_ISR2_poststub(void)
   EE_s12xs_disableIRQ();
   EE_IRQ_nesting_level--;
 
-  if (EE_IRQ_nesting_level!=0) return;
+  if (EE_IRQ_nesting_level!=0) 
+  {
+  	//EE_s12xs_enableIRQ();	
+	return;
+  }
 
 #ifdef __MULTI__
 #ifdef __IRQ_STACK_NEEDED__
-#ifdef __S12XS_SPLIM__
-  _asm("mov.w _EE_s12xs_temp_splim, sp");
-  _asm("mov	sp, _SPLIM");
-  // the next operation cannot do an access based on w15
-#endif
-  _asm("mov.w _EE_s12xs_temp_tos, sp");
+//#ifdef __S12XS_SPLIM__
+//  _asm("mov.w _EE_s12xs_temp_splim, sp");
+//  _asm("mov	sp, _SPLIM");
+//  // the next operation cannot do an access based on w15
+//#endif
+  _asm("tfr d, s", EE_s12xs_temp_tos);
 #endif
 #endif
 
@@ -146,8 +151,8 @@ __INLINE__ void __ALWAYS_INLINE__ EE_ISR2_poststub(void)
       _asm("tfr a,ccrh\n", 0x0000);	//_asm("BCLR.B 0x0042, #0x7");
       								//_asm("BCLR.B 0x0042, #0x6");
       								//_asm("BCLR.B 0x0042, #0x5");
-
-      EE_s12xs_hal_stkchange(EE_hal_endcycle_next_tos);
+		//EE_s12xs_hal_stkchange(EE_hal_endcycle_next_tos);
+      	EE_s12xs_hal_stkchange(EE_hal_endcycle_next_thread, EE_hal_endcycle_next_tos);
     }
 #endif
   }

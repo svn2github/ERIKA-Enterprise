@@ -47,16 +47,28 @@
 
 ///* the define is needed for binary distributions */
 #define __EECFG_THIS_IS_ASSEMBLER__
-#include "eecfg.h"
-	
+//#include "eecfg.h"	
 //#include "cpu/cosmic_hs12xs/inc/ee_compiler.h"
 
 xref 	f_EE_thread_end_instance
 
 .ftext:	section	.text
 
+	xref	_PPAGE
 	xref 	_EE_hal_endcycle_next_thread	
-	
+
+	//--------------------------------------------------------------------------------
+	//
+	// MACRO Actions:
+	//  - 1. If exiting_tos == entering_tos nothing must be done (end of macro)
+	//  - 2. Save registers in the current stack (exiting one)
+	//  - 3. Save the SP (exiting_tos) in EE_s12xs_system_tos[EE_s12xs_active_tos]
+	//  - 4. Set EE_s12xs_active_tos = tos_index (index of the entering_tos)
+	//  - 5. Load the SP with the entering_tos in EE_s12xs_system_tos[tos_index]
+	//  - 6. Load registers from current stack (entering one)
+	//
+	//--------------------------------------------------------------------------------
+		
 	#ifdef __MULTI__
 
 		#ifdef __IRQ_STACK_NEEDED__
@@ -69,138 +81,195 @@ xref 	f_EE_thread_end_instance
 		xref	_EE_s12xs_system_tos
 		xref	_EE_s12xs_active_tos
 		xref 	_EE_hal_endcycle_next_tos
-	
-		EE_CHANGE_TOS_MACRO: macro 
-		// if (tos_index == EE_s12xs_active_tos) goto 2f
-		mov w0,w2
-		mov w1, w0
-		cp _EE_s12xs_active_tos
-		bra z,2f
-	
+			
+		EE_CHANGE_TOS_MACRO: macro 			// *** this macro needs tos_index in d register ***
+		 
+		// if (tos_index == EE_s12xs_active_tos) goto lab2
+		ldd	OFST+7,s						// put tos_index in d
+		cpd \1								//cpd _EE_s12xs_active_tos, compare d (-> tos_index) with EE_s12xs_active_tos
+		beq \@lab2							// if equal goto lab2
+		
 		// save some registers
-	    mov.d   w8,[w15++]
-	    mov.d   w10,[w15++]
-	    mov.d   w12,[w15++]
-	    mov     w14,[w15++]
-	
-		// here I CANNOT use w1 and w2
+		ldaa \3								// put _PPAGE in a
+		psha								// push a in the stack						
 	
 		// EE_s12xs_system_tos[EE_s12xs_active_tos] = stack pointer;
-		mov	#_EE_s12xs_system_tos,w3
-		mov	_EE_s12xs_active_tos,w4
-		sl	w4,w4
-		mov	w15,[w4+w3]
+		tfr	s,d								// I can use d because tos_index is in saved in the stack...
+		ldy	\1								//ldy	_EE_s12xs_active_tos
+		lsly	
+		std \2,y							//std _EE_s12xs_system_tos,y
+		
 		// EE_s12xs_active_tos = tos_index (tos_index is now in w0 and w1)
-		mov	w0,_EE_s12xs_active_tos
+		ldd	OFST+8,s						// put tos_index in d
+		std	\1								// change _EE_s12xs_active_tos
+		
 		// stack pointer = EE_s12xs_system_tos[tos_index]
-		sl	w0,w0
+		//sl	w0,w0
+		//		#ifdef __S12XS_SPLIM__
+		//			mov	#_EE_s12xs_system_splim,w4
+		//			mov	[w0+w4],w4
+		//			mov	w4, _SPLIM
+		//			// the next operation cannot do an access based on w15
+		//		#endif		
+		//mov	[w0+w3],w15
+		ldy	\1								// ldy	_EE_s12xs_active_tos==tos_index
+		lsly	
+		ldd	\2								// ldd	_EE_s12xs_system_tos,y
+		tfr	d,s								// change the stack pointer
 		
-		#ifdef __S12XS_SPLIM__
-			mov	#_EE_s12xs_system_splim,w4
-			mov	[w0+w4],w4
-			mov	w4, _SPLIM
-			// the next operation cannot do an access based on w15
-		#endif
-		
-		mov	[w0+w3],w15
 		// read some registers
-	    mov     [--w15],w14
-	    mov.d   [--w15],w12
-	    mov.d   [--w15],w10
-	    mov.d   [--w15],w8
-	        
-	2:	// put back w0
-		mov w2, w0
-		endm
+		pula								// pull a form the stack
+	    staa	\3							// change _PPAGE
+	
+	\@lab2:	
+		endm								// end of macro
 
 	#endif // __MULTI__
+	
+	//--------------------------------------------------------------------------------
 
+	//--------------------------------------------------------------------------------
+	//
+	// MONOSTACK:
+	// void EE_s12xs_hal_ready2stacked(EE_ADDR thread_addr);
+	//
+	// MULTISTACK:
+	// void EE_s12xs_hal_ready2stacked(EE_ADDR thread_addr, EE_UREG tos_index);
+	//
+	// a0 = thread_addr	-> Function pointer to the thread body to activate.
+	// a1 = tos_index	-> Index in EE_s12xs_system_tos[] memory array 
+	//                     from which the SP of the entering thread
+	//                     (the caller) must be retrieved.
+	//
+	// Actions: 
+	//  - NOTE: the context is saved by the C compiler calling mechanism, the 
+	//          caller (exiting thread) save what it has to save and the callee 
+	//          (entering thread) will save what it has to (the actual call is done
+	//          by this function). 
+	//  - 1. If MULTISTACK: swap stacks of the exiting thread and the entering one
+	//                      (initially the entering SP is in a1)
+	//  - 2. Enable interrupts: the thread MUST run with enabled interrupts
+	//  - 3. Execute the thread: call the function pointer (initially is in a0)
+	//  - 4. Disable interrupts
+	//  - 5. Call EE_thread_end_instance: this check if there is an other threads to
+	//                                    be activated by setting the global
+	//                                    variable EE_hal_endcycle_next_thread
+	//  - 6. If MULTISTACK: read the SP for the new (possible) entering thread from 
+	//                      from the global variable EE_hal_endcycle_next_tos
+	//  - 7. If EE_hal_endcycle_next_thread != 0 activate it: goint to point 1.
+	//  - 8. If MULTISTACK: swap stacks of the entering thread and the exiting one
+	//  - 9. If EE_hal_endcycle_next_thread == 0: go the the stacked thread, i.e.
+	//                                            simply return to the stacked one
+	//
+	//--------------------------------------------------------------------------------
 
-	// MONO:  void EE_s12xs_hal_ready2stacked(ADDR thread_addr)
-	// MULTI: void EE_s12xs_hal_ready2stacked(ADDR thread_addr, EE_UREG tos_index)
-	// parameters are in ...
-	// .type	_EE_s12xs_hal_ready2stacked, #function
-
-	xdef f_EE_s12xs_hal_ready2stacked	
+xdef f_EE_s12xs_hal_ready2stacked	
 f_EE_s12xs_hal_ready2stacked:
-	
-	#ifdef __MULTI__
-		// (eventually) switch to the TOS of the new thread
-		EE_CHANGE_TOS_MACRO
-	#endif
-	
-	pshd								// push d in sp
-	pshx								// push x in sp
-OFST:	set	0							// set offset to zero
-L3:	
-	cli									// enable interrupts
-	call	[OFST+0,s]					// call the thread from sp reading the content of the pointer (because d,x saved in sp)
-	sei									// disable interrupts
-	call	f_EE_thread_end_instance	// call the thread end instance
-	
-	#ifdef __MULTI__
-		mov	_EE_hal_endcycle_next_tos,aux_w1	//w1
-	#endif
-	
-	ldd	_EE_hal_endcycle_next_thread+2	// the first word loaded in d register
-	std	OFST+2,s						// change the first argument word (the first address word) storing d in sp
-	ldd	_EE_hal_endcycle_next_thread	// the second word loaded in d register
-	std	OFST+0,s						// change the second argument word (the second address word) storing d in sp
-	
-	ldd	OFST+0,s						// check the address (first part)
-	bne	L21								// if not equal to zero -> branch
-	ldd	OFST+2,s						// check the address (second part)
-L21:	
-	bne	L3								// if not equal to zero -> branch
-	
-	#ifdef __MULTI__
-		EE_CHANGE_TOS_MACRO				// macro to ...
-	#endif
-	
-	leas	4,s							// remove four bytes from the stack pointer
-	rtc									// return (with ppage change)
-	
-	#ifdef __MULTI__
+	pshd									// push d in the stack
+	pshx									// push x in the stack
 
-		// MONO:  not defined
-		// MULTI: void EE_s12xs_hal_stkchange(EE_UREG 0, EE_UREG tos_index)
-		//
-		// Typically called into a generic primitive to implement a blocking
-		// synchronization primitive.
-		//
-		//	.type	_EE_s12xs_hal_stkchange, #function
-	_EE_s12xs_hal_stkchange:
+	OFST:	set	0							// set offset = zero
+	
+		#ifdef __MULTI__
+			EE_CHANGE_TOS_MACRO	_EE_s12xs_active_tos, _EE_s12xs_system_tos, _PPAGE			// (eventually) switch to the TOS of the new thread
+		#endif
+	
+	L3:	
+		cli									// enable interrupts
+		call	[OFST+0,s]					// call the thread from sp reading the content of the pointer (because d,x saved in sp)
+		sei									// disable interrupts
+		call	f_EE_thread_end_instance	// call the thread end instance
+		
+		ldd	_EE_hal_endcycle_next_thread+2	// the first word loaded in d register
+		std	OFST+2,s						// change the first argument word (the first address word) storing d in sp
+		ldd	_EE_hal_endcycle_next_thread	// the second word loaded in d register
+		std	OFST+0,s						// change the second argument word (the second address word) storing d in sp
+		
+		ldd	OFST+0,s						// check the address (first part)
+		bne	L21								// if not equal to zero -> branch
+		ldd	OFST+2,s						// check the address (second part)
+	L21:	
+		bne	L3								// if not equal to zero -> branch
+		
+		#ifdef __MULTI__
+			ldd	_EE_hal_endcycle_next_tos	// load in d the next tos 
+			std	OFST+7,s
+		// #endif
+		// #ifdef __MULTI__
+			EE_CHANGE_TOS_MACRO	_EE_s12xs_active_tos, _EE_s12xs_system_tos, _PPAGE				// macro to ...
+		#endif
+		
+		leas	4,s							// remove four bytes from the stack pointer
+		
+		rtc									// return from call(with ppage change)
+
+	//--------------------------------------------------------------------------------
+	//
+	// MONOSTACK:
+	// not defined
+	//
+	// MULTISTACK: 
+	// void EE_s12xs_hal_stkchange(EE_UREG tos_index);
+	//
+	// a0 = tos_index	-> Index in EE_s12xs_system_tos[] memory array 
+	//                     from which the SP of the entering thread
+	//                     (the caller) must be retrieved.
+	//
+	// Actions: 
+	//  - 1. Save registers in the current stack (exiting one)
+	//  - 2. Save the SP (exiting_tos) in EE_s12xs_system_tos[EE_s12xs_active_tos]
+	//  - 3. Set EE_s12xs_active_tos = tos_index (index of the entering_tos)
+	//  - 4. Load the SP with the entering_tos in EE_s12xs_system_tos[tos_index]
+	//  - 5. Load registers from current stack (entering one)
+	//
+	//--------------------------------------------------------------------------------
+
+	#ifdef __MULTI__
+	
+xdef f_EE_s12xs_hal_stkchange		
+f_EE_s12xs_hal_stkchange:
+		pshd									// push d in the stack
+		pshx									// push x in the stack
+
+OFST:	set	0								// set offset = zero
 		// save some registers
-        mov.d   w8,[w15++]
-        mov.d   w10,[w15++]
-        mov.d   w12,[w15++]
-        mov     w14,[w15++]
+		ldaa _PPAGE							// put _PPAGE in a
+		psha								// push a in the stack	
+        
 		// EE_s12xs_system_tos[EE_s12xs_active_tos] = stack pointer;
-		mov	#_EE_s12xs_system_tos,w3
-		mov	_EE_s12xs_active_tos,w4
-		sl	w4,w4
-		mov	w15,[w4+w3]
+		tfr	s,d								// I can use d because tos_index has been saved in the stack... 
+		ldy	_EE_s12xs_active_tos
+		lsly	
+		std _EE_s12xs_system_tos,y 	
+		
+		
 		// EE_s12xs_active_tos = tos_index (tos_index is now in w0 and w1)
-		mov	w0,_EE_s12xs_active_tos
+		ldd	OFST+8,s						// put tos_index in d
+		std	_EE_s12xs_active_tos			// change _EE_s12xs_active_tos
+		
 		// stack pointer = EE_s12xs_system_tos[tos_index]
-		sl	w0,w0
-	#ifdef __S12XS_SPLIM__
-		mov	#_EE_s12xs_system_splim,w4
-		mov	[w0+w4], w4
-		mov	w4, _SPLIM
-		// the next operation cannot do an access based on w15
-	#endif
-		mov	[w0+w3],w15
-
+		// sl	w0,w0
+		//  #ifdef __S12XS_SPLIM__
+		//		mov	#_EE_s12xs_system_splim,w4
+		//		mov	[w0+w4], w4
+		//		mov	w4, _SPLIM
+		//		// the next operation cannot do an access based on w15
+		//	#endif
+		// mov	[w0+w3],w15
+		ldy	_EE_s12xs_active_tos
+		lsly	
+		ldd	_EE_s12xs_system_tos,y
+		tfr	d,s								// change the stack pointer
+		
 		// read some registers
-        mov     [--w15],w14
-        mov.d   [--w15],w12
-        mov.d   [--w15],w10
-        mov.d   [--w15],w8
-
-		rtc	//return
+		pula								// pull a
+	    staa	_PPAGE						// change _PPAGE
+	
+		leas	4,s							// remove two bytes from the stack pointer
+		rtc									// return from call(with ppage change)
 
 	#endif // __MULTI__
 	
 	end
+	
 	

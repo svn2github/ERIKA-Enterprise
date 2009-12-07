@@ -19,7 +19,7 @@ ISR2(PIT0_Interrupt)
 	/* clear the interrupt source */
 	EE_PIT0_clear_ISRflag();
 	timer_divisor++;
-	if (timer_divisor == 10000) {
+	if (timer_divisor == 5000) {
 		timer_divisor = 0;
 		timer_fired++;
         ActivateTask(Task1);
@@ -33,7 +33,7 @@ ISR2(Buttons_Interrupt)
 	EE_buttons_disable_interrupts(BUTTON_0);
 	button_fired++;
 	ActivateTask(Task2); 
-	mydelay((long int)10000);
+	mydelay((long int)5000);
 	EE_buttons_enable_interrupts(BUTTON_0);
 	EE_buttons_clear_ISRflag(BUTTON_0);
 }

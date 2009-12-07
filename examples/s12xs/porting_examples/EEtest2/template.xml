@@ -28,6 +28,9 @@
   <file     name="hs12xsregs.h"/>
   <file     name="main.c"/>
   <file     name="vector_s12x.c"/>
+  <file     name="Full_Chip_Simulation.ini"/>
+  <file     name="SofTec_HCS12.ini"/>
+  <file     name="C_Layout.hwl"/>
  </file_section>
 
 </evidence_example>

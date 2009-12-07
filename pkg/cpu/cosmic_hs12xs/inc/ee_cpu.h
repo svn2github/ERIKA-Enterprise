@@ -122,7 +122,7 @@ typedef EE_BIT Bool;
  */
 #ifdef __MULTI__
 struct EE_TOS {
-    EE_ADDR SYS_tos;
+    EE_DADD SYS_tos;	// EE_ADDR
 };
 #endif
 

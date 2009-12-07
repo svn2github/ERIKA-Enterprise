@@ -23,12 +23,6 @@ CPU test_application {
    			};
   		};
 
-		BOARD_DATA = DEMO9S12XSFAME {
-			TYPE = DEMO {
-				OPTIONS = ALL;
-			};
-		};
-
 		STATUS = EXTENDED;
 		STARTUPHOOK = FALSE;
 		ERRORHOOK = FALSE;

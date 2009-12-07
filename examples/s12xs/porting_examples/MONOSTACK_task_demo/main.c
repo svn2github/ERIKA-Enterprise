@@ -105,7 +105,7 @@ void led_blink(unsigned char theled)
   EE_leds(led_status);
   EnableAllInterrupts();
 
-  mydelay((long int)125000);
+  mydelay((long int)60000);
 
   DisableAllInterrupts();
   led_status &= ~theled;
