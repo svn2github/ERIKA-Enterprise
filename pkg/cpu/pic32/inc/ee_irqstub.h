@@ -125,6 +125,6 @@ of the interrupted thread. We can install the handler without the compiler
 stub (see code below) and use an assemply stub that switches to the common 
 stack (or the ISR private) before saving the context of the interrupted 
 thread. */
-//void __attribute__((vector(f))) isr_##f(void) \
+//void __attribute__((vector(f))) isr_##f(void)
 
 #endif

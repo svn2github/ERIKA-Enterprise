@@ -172,6 +172,11 @@ extern "C" {
 #include "mcu/microchip_dspic/inc/ee_mcu.h"
 #endif
 
+  /* dsPIC */
+#ifdef __PIC32__
+#include "mcu/microchip_pic32/inc/ee_mcu.h"
+#endif
+
   /* NIOS 2 */
 #ifdef __NIOS2__
 #include "mcu/altera_nios2/inc/ee_mcu.h"
@@ -225,6 +230,9 @@ extern "C" {
 #include "board/ee_flex/inc/ee_board.h"
 #endif
 
+#ifdef __EE_FLEX32__
+#include "board/ee_flex32/inc/ee_board.h"
+#endif
 
 
   /*
