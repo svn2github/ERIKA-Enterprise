@@ -1,7 +1,7 @@
 # ###*B*###
 # ERIKA Enterprise - a tiny RTOS for small microcontrollers
 # 
-# Copyright (C) 2002-2008  Evidence Srl
+# Copyright (C) 2002-2009  Evidence Srl
 # 
 # This file is part of ERIKA Enterprise.
 # 
@@ -71,8 +71,8 @@ endif
 # application. Symbols specified in EEOPT are implicithy defined when
 # compiling the application using the -D compiler option
 
-# EEALLOPT is used inside the makefile to contain the EEOPT symbols
-# plus eventually the EEOPT symbols that were used to compile the
+# EEALLOPT is used inside the makefile to contain the EEOPT symbols,
+# possibly plus the EEOPT symbols that were used to compile the
 # binary distribution.
 
 # EEOPT and EEALLOPT are DIFFERENT because only the symbols of EEOPT

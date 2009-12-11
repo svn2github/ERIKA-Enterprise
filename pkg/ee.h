@@ -1,7 +1,7 @@
 /* ###*B*###
  * ERIKA Enterprise - a tiny RTOS for small microcontrollers
  *
- * Copyright (C) 2002-2008  Evidence Srl
+ * Copyright (C) 2002-2009  Evidence Srl
  *
  * This file is part of ERIKA Enterprise.
  *
@@ -40,6 +40,7 @@
 
 /*
  * Author: 2000-2004 Paolo Gai
+ *         2009 Bernardo Dal Seno
  * CVS: $Id: ee.h,v 1.26 2008/07/04 14:26:59 francesco Exp $
  */
 
@@ -120,6 +121,10 @@ extern "C" {
 
 #ifdef __TRICORE1__
 #include "cpu/tricore1/inc/ee_cpu.h"
+#endif
+
+#ifdef __lm32__
+#include "cpu/mico32/inc/ee_cpu.h"
 #endif
 
   /*

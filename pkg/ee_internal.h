@@ -114,6 +114,10 @@ extern "C" {
 #include "cpu/tricore1/inc/ee_internal.h"
 #endif
 
+#ifdef __lm32__
+#include "cpu/mico32/inc/ee_internal.h"
+#endif
+
 
   /*
    *
