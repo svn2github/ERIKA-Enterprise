@@ -17,6 +17,10 @@
 #include "hal/pic30.h"
 #endif	/* __PIC30__ */
 
+#ifdef __PIC32__
+#include "hal/pic32.h"
+#endif	/* __PIC32__ */
+
 #ifdef __AVR5__
 #include "hal/avr5.h"
 #endif	/* __PIC30__ */

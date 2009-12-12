@@ -17,6 +17,10 @@ ifeq ($(findstring __PIC30__,$(EEOPT)) , __PIC30__)
 EE_SRCS += contrib/console/src/hal/pic30.c
 endif
 
+ifeq ($(findstring __PIC32__,$(EEOPT)) , __PIC32__)
+EE_SRCS += contrib/console/src/hal/pic32.c
+endif
+
 ifeq ($(findstring __AVR5__,$(EEOPT)) , __AVR5__)
 EE_SRCS += contrib/console/src/hal/avr5.c
 endif
