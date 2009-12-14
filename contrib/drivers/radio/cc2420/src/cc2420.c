@@ -22,7 +22,7 @@
 * Contacts: g.franchino@sssup.it; gianluca@evidence.eu.com
 * Date: 02/27/2008.
 *
-*/
+ */
 
 #include <cc2420.h>
 
