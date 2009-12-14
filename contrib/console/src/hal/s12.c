@@ -25,13 +25,13 @@ int8_t console_serial_hal_open(uint8_t port, uint32_t bdr, uint16_t flags)
 	{
 		bdr = ((uint32_t)9600);	//#error "Supported baud-rates: 9600"
 	}
-	EE_SCIOpenCommunication(port);
+	EE_sci_open(port);
 	return 1;
 }
 
 int8_t console_serial_hal_close(uint8_t port) 
 {
-	EE_SCICloseCommunication(port);
+	EE_sci_close(port);
 	return 1;
 }
 
@@ -42,7 +42,7 @@ int8_t console_serial_hal_write(uint8_t port, uint8_t *mesg, uint16_t length)
 	
 	/* TODO!!! - Buffer management in interrupt mode */
 	for (i = 0; i < length; i++) {
-		retv = EE_SCISendBuffer(port, mesg[i]);
+		retv = EE_sci_send_byte(port, mesg[i]);
 		if (retv < 0)
 			return retv;
 	}
@@ -57,7 +57,7 @@ int8_t  console_serial_hal_read(uint8_t port, uint8_t *mesg, uint16_t length,
 	
 	/* TODO!!! - Buffer management in interrupt mode */
 	for (i = 0; i < length; i++) {
-		retv = EE_SCIGetBuffer(port, mesg + i);
+		retv = EE_sci_send_byte(port, *(mesg + i));
 		if (retv < 0)
 			return retv;
 	}

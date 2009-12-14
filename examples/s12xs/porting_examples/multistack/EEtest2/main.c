@@ -174,7 +174,7 @@ int main()
 	//_asm("tfr d,s",EE_s12xs_system_tos[EE_s12xs_active_tos].SYS_tos);	
 
   ///* Program Timer 1 to raise interrupts */
-  EE_PIT0_init(99, 14, 2);
+  EE_pit0_init(99, 14, 2);
   
   /* Init leds */
   EE_leds_init();

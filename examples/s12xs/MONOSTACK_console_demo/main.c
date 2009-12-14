@@ -207,7 +207,7 @@ TASK(Task2)
 int main()
 { 
   ///* Program Timer 1 to raise interrupts */
-  EE_PIT0_init(99, 14, 2);
+  EE_pit0_init(99, 14, 2);
   /* Init devices */
   EE_buttons_init(BUTTON_0,3);
   /* Init leds */

@@ -103,11 +103,11 @@ TASK(Task1)
   EE_led_0_on();
   for (j=0; j<10; j++) {
 	mydelay((long int)10000);
-	EE_SCISendBuffer(SCI_0,j+'0');
-	EE_SCISendBuffer(SCI_0,' ');
+	EE_sci_send_byte(SCI_0,j+'0');
+	EE_sci_send_byte(SCI_0,' ');
   }
   EE_led_0_off();
-  EE_SCISendBuffer(SCI_0,'\n');
+  EE_sci_send_byte(SCI_0,'\n');
   
   /* Release the lock */
   ReleaseResource(Resource);
@@ -141,14 +141,14 @@ TASK(Task2)
   else
     mycounter--;
   
-  EE_SCISendChars(SCI_0, msg,ALL);
+  EE_sci_send_bytes(SCI_0, msg,ALL);
   byte = ((mycounter%1000)/100)+'0';
-  EE_SCISendBuffer(SCI_0,byte);
+  EE_sci_send_byte(SCI_0,byte);
   byte = ((mycounter%100)/10)+'0';
-  EE_SCISendBuffer(SCI_0,byte);
+  EE_sci_send_byte(SCI_0,byte);
   byte = (mycounter%10)+'0';
-  EE_SCISendBuffer(SCI_0,byte);
-  EE_SCISendBuffer(SCI_0,'\n');
+  EE_sci_send_byte(SCI_0,byte);
+  EE_sci_send_byte(SCI_0,'\n');
 
   EE_led_1_off();
   ReleaseResource(Resource);
@@ -163,7 +163,7 @@ int main(void)
   char *dec = "Decrement mode when Task2 runs!!!";
   char *intro = "I Love OSEK and Erika Enterprise!!!";
 
-  EE_SCIOpenCommunication(SCI_0);
+  EE_sci_open(SCI_0);
   EE_buttons_init(BUTTON_0,3);
   EE_leds_init();
   mydelay(10);
@@ -183,7 +183,7 @@ int main(void)
   }
 
   StartOS(startupmode);
-  EE_PIT0_init(99, 14, 2);
+  EE_pit0_init(99, 14, 2);
   
   for (;;);
 }
@@ -192,7 +192,7 @@ int main(void)
 void message(char* msg)
 {
 	//char * msg = ;
-	EE_SCISendChars(SCI_0, msg,ALL);
-	EE_SCISendBuffer(SCI_0,'\n');
+	EE_sci_send_bytes(SCI_0, msg,ALL);
+	EE_sci_send_byte(SCI_0,'\n');
 	return;	
 }

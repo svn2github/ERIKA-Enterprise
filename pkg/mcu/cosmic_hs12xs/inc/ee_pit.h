@@ -12,7 +12,7 @@
 
 extern volatile EE_UINT8 EE_pit0_initialized;
 
-__INLINE__ void __ALWAYS_INLINE__ EE_PIT0_init( unsigned char pitmtld0, unsigned char pitld0, unsigned char prio )
+__INLINE__ void __ALWAYS_INLINE__ EE_pit0_init( unsigned char pitmtld0, unsigned char pitld0, unsigned char prio )
 {
 	if(EE_pit0_initialized==1)
 		return;
@@ -45,13 +45,13 @@ __INLINE__ void __ALWAYS_INLINE__ EE_PIT0_init( unsigned char pitmtld0, unsigned
 	  return;
 }
 
-__INLINE__ void __ALWAYS_INLINE__ EE_PIT0_close( void )
+__INLINE__ void __ALWAYS_INLINE__ EE_pit0_close( void )
 {
 	PITCFLMT      = 0x00;        //@0x340;	/* PIT control micro timer register */
 	EE_pit0_initialized = 0;
 }
 
-__INLINE__ void __ALWAYS_INLINE__ EE_PIT0_clear_ISRflag( void )
+__INLINE__ void __ALWAYS_INLINE__ EE_pit0_clear_ISRflag( void )
 {
 	PITTF         = 0x01;        
 }

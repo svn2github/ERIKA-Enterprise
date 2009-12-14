@@ -125,7 +125,7 @@ void StartupHook(void)
   EE_buttons_init(BUTTON_0,3);
   
   ///* Program Timer 1 to raise interrupts */
-  EE_PIT0_init(99, 14, 2);
+  EE_pit0_init(99, 14, 2);
 }
 
 

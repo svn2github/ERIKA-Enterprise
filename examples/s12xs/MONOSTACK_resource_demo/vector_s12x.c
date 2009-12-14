@@ -17,7 +17,7 @@ extern volatile int button_fired;
 ISR2(PIT0_Interrupt)
 {
 	/* clear the interrupt source */
-	EE_PIT0_clear_ISRflag();
+	EE_pit0_clear_ISRflag();
 	timer_divisor++;
 	if (timer_divisor == 5000) {
 		timer_divisor = 0;
@@ -45,7 +45,7 @@ ISR2(Buttons_Interrupt)
  */
 static @interrupt @near void dummit(void)
 	{
-		EE_SCISendBuffer(SCI_0,0xEE);
+		EE_sci_send_byte(SCI_0,0xEE);
 	}
 	
 /*	User interrupt routines

@@ -164,42 +164,42 @@ TASK(Task2)
    * In this way we avoid raceconditions in the usage of stdout.
    */
   
-  EE_SCISendChars(SCI_0, msg_tmr,ALL);
+  EE_sci_send_bytes(SCI_0, msg_tmr,ALL);
   byte = ((timer_fired%1000)/100)+'0';
-  EE_SCISendBuffer(SCI_0,byte);
+  EE_sci_send_byte(SCI_0,byte);
   byte = ((timer_fired%100)/10)+'0';
-  EE_SCISendBuffer(SCI_0,byte);
+  EE_sci_send_byte(SCI_0,byte);
   byte = (timer_fired%10)+'0';
-  EE_SCISendBuffer(SCI_0,byte);
-  EE_SCISendBuffer(SCI_0,' ');
+  EE_sci_send_byte(SCI_0,byte);
+  EE_sci_send_byte(SCI_0,' ');
 
-  EE_SCISendChars(SCI_0, msg_tsk1,ALL);
+  EE_sci_send_bytes(SCI_0, msg_tsk1,ALL);
   byte = ((task1_fired%1000)/100)+'0';
-  EE_SCISendBuffer(SCI_0,byte);
+  EE_sci_send_byte(SCI_0,byte);
   byte = ((task1_fired%100)/10)+'0';
-  EE_SCISendBuffer(SCI_0,byte);
+  EE_sci_send_byte(SCI_0,byte);
   byte = (task1_fired%10)+'0';
-  EE_SCISendBuffer(SCI_0,byte);
-  EE_SCISendBuffer(SCI_0,' ');
+  EE_sci_send_byte(SCI_0,byte);
+  EE_sci_send_byte(SCI_0,' ');
 
-  EE_SCISendChars(SCI_0, msg_btn,ALL);
+  EE_sci_send_bytes(SCI_0, msg_btn,ALL);
   byte = ((button_fired%1000)/100)+'0';
-  EE_SCISendBuffer(SCI_0,byte);
+  EE_sci_send_byte(SCI_0,byte);
   byte = ((button_fired%100)/10)+'0';
-  EE_SCISendBuffer(SCI_0,byte);
+  EE_sci_send_byte(SCI_0,byte);
   byte = (button_fired%10)+'0';
-  EE_SCISendBuffer(SCI_0,byte);
-  EE_SCISendBuffer(SCI_0,' ');
+  EE_sci_send_byte(SCI_0,byte);
+  EE_sci_send_byte(SCI_0,' ');
 
-  EE_SCISendChars(SCI_0, msg_tsk2,ALL);
+  EE_sci_send_bytes(SCI_0, msg_tsk2,ALL);
   byte = ((task2_fired%1000)/100)+'0';
-  EE_SCISendBuffer(SCI_0,byte);
+  EE_sci_send_byte(SCI_0,byte);
   byte = ((task2_fired%100)/10)+'0';
-  EE_SCISendBuffer(SCI_0,byte);
+  EE_sci_send_byte(SCI_0,byte);
   byte = (task2_fired%10)+'0';
-  EE_SCISendBuffer(SCI_0,byte);
+  EE_sci_send_byte(SCI_0,byte);
 
-  EE_SCISendBuffer(SCI_0,'\n');
+  EE_sci_send_byte(SCI_0,'\n');
   TerminateTask();
 }
   
@@ -210,10 +210,10 @@ int main()
   //EE_adc_init( (unsigned char)ATDRES_8BIT, 0x02 );
   
   /* Serial interface */
-  EE_SCIOpenCommunication(SCI_0);
+  EE_sci_open(SCI_0);
   
   ///* Program Timer 1 to raise interrupts */
-  EE_PIT0_init(99, 14, 2);
+  EE_pit0_init(99, 14, 2);
   
   /* Init devices */
   EE_buttons_init(BUTTON_0,3);
@@ -242,7 +242,7 @@ int main()
 void message(void)
 {
 	char * msg = "I Love OSEK and Erika Enterprise!!!";
-	EE_SCISendChars(SCI_0, msg,ALL);
-	EE_SCISendBuffer(SCI_0,'\n');
+	EE_sci_send_bytes(SCI_0, msg,ALL);
+	EE_sci_send_byte(SCI_0,'\n');
 	return;	
 }

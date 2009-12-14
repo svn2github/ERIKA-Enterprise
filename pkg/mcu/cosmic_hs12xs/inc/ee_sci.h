@@ -35,13 +35,13 @@
 //Bool EE_SCIGetBuffer(unsigned char sci_num, unsigned char *buffer);
 //Bool EE_SCICheckGetBuffer(unsigned char sci_num);
 
-struct sci_peripheral
+struct EE_sci_peripheral
 {
   Bool ena;
   unsigned char *init_reg;
 };
 
-extern struct sci_peripheral sci[2];
+extern struct EE_sci_peripheral EE_sci[2];
 
 /////////////////////////////////////////////////////////////////////////////////////////
 // SCIOpenCommunication
@@ -53,13 +53,13 @@ extern struct sci_peripheral sci[2];
 // BR = 13 
 // Baud rate mismatch = 0.160 %
 /////////////////////////////////////////////////////////////////////////////////////////
-__INLINE__ void __ALWAYS_INLINE__ EE_SCIOpenCommunication(unsigned char sci_num)
+__INLINE__ void __ALWAYS_INLINE__ EE_sci_open(unsigned char sci_num)
 {
 
   unsigned char *sci_pt;
 
-  sci[sci_num].ena = TRUE;
-  sci_pt = sci[sci_num].init_reg;
+  EE_sci[sci_num].ena = TRUE;
+  sci_pt = EE_sci[sci_num].init_reg;
   // Set Baud Rate Modulo Divisor
   sci_pt[SCIBDH] = (unsigned char)(13 >> 8);
   sci_pt[SCIBDL] = (unsigned char)13;
@@ -73,15 +73,15 @@ __INLINE__ void __ALWAYS_INLINE__ EE_SCIOpenCommunication(unsigned char sci_num)
 // --------------------------------------------------------------------------------------
 // Configures SCI (x) registers for disable Transmit and Receive data 
 /////////////////////////////////////////////////////////////////////////////////////////
-__INLINE__ void __ALWAYS_INLINE__ EE_SCICloseCommunication(unsigned char sci_num)
+__INLINE__ void __ALWAYS_INLINE__ EE_sci_close(unsigned char sci_num)
 {
 
   unsigned char *sci_pt;
   unsigned char data;
   unsigned int i;
 
-  sci[sci_num].ena = FALSE;
-  sci_pt = sci[sci_num].init_reg;
+  EE_sci[sci_num].ena = FALSE;
+  sci_pt = EE_sci[sci_num].init_reg;
   i = 0;
   // Verify that Receive Data Register is FULL
   while(i < 1000 && !(sci_pt[SCISR1]&0x20))
@@ -102,14 +102,14 @@ __INLINE__ void __ALWAYS_INLINE__ EE_SCICloseCommunication(unsigned char sci_num
 // --------------------------------------------------------------------------------------
 // SCI Transmit Data. True if the buffer has been transmitted.
 /////////////////////////////////////////////////////////////////////////////////////////
-__INLINE__ Bool __ALWAYS_INLINE__ EE_SCISendBuffer(unsigned char sci_num, unsigned char buffer)
+__INLINE__ Bool __ALWAYS_INLINE__ EE_sci_send_byte(unsigned char sci_num, unsigned char buffer)
 {
 
   unsigned char *sci_pt;
 
-  if(!sci[sci_num].ena)
+  if(!EE_sci[sci_num].ena)
     return(FALSE);
-  sci_pt = sci[sci_num].init_reg;
+  sci_pt = EE_sci[sci_num].init_reg;
   // Wait until Transmit Data Register is empty.
   while(!(sci_pt[SCISR1]&0x80))
     ;
@@ -124,13 +124,13 @@ __INLINE__ Bool __ALWAYS_INLINE__ EE_SCISendBuffer(unsigned char sci_num, unsign
 // --------------------------------------------------------------------------------------
 // SCI Transmit Data. True if the buffer has been transmitted.
 /////////////////////////////////////////////////////////////////////////////////////////
-__INLINE__ Bool __ALWAYS_INLINE__ EE_SCISendString(unsigned char sci_num, const char* s, unsigned int num)
+__INLINE__ Bool __ALWAYS_INLINE__ EE_sci_send_string(unsigned char sci_num, const char* s, unsigned int num)
 {
 	unsigned int i = 0;
 	Bool res = TRUE; 	
 	while( (s[i]!='\0') && (i<num) )
 	{
-  		res = EE_SCISendBuffer(sci_num,s[i]);
+  		res = EE_sci_send_byte(sci_num,s[i]);
   		i++;
   		if(res==FALSE)
   			break;
@@ -143,13 +143,13 @@ __INLINE__ Bool __ALWAYS_INLINE__ EE_SCISendString(unsigned char sci_num, const 
 // --------------------------------------------------------------------------------------
 // SCI Transmit Data. True if the buffer has been transmitted.
 /////////////////////////////////////////////////////////////////////////////////////////
-__INLINE__ Bool __ALWAYS_INLINE__ EE_SCISendChars(unsigned char sci_num, char* v, unsigned int num)
+__INLINE__ Bool __ALWAYS_INLINE__ EE_sci_send_bytes(unsigned char sci_num, char* v, unsigned int num)
 {
 	unsigned int i = 0;
 	Bool res = TRUE; 	
 	while( (v[i]!='\0') && (i<num) )
 	{
-  		res = EE_SCISendBuffer(sci_num,v[i]);
+  		res = EE_sci_send_byte(sci_num,v[i]);
   		i++;
   		if(res==FALSE)
   			break;
@@ -162,14 +162,14 @@ __INLINE__ Bool __ALWAYS_INLINE__ EE_SCISendChars(unsigned char sci_num, char* v
 // --------------------------------------------------------------------------------------
 // SCI Receive Data, True if the buffer has been received
 /////////////////////////////////////////////////////////////////////////////////////////
-__INLINE__ Bool __ALWAYS_INLINE__ EE_SCIGetBuffer(unsigned char sci_num, unsigned char *buffer)
+__INLINE__ Bool __ALWAYS_INLINE__ EE_sci_get_byte(unsigned char sci_num, unsigned char *buffer)
 {
 
   unsigned char *sci_pt;
 
-  if(!sci[sci_num].ena)
+  if(!EE_sci[sci_num].ena)
     return(FALSE);
-  sci_pt = sci[sci_num].init_reg;
+  sci_pt = EE_sci[sci_num].init_reg;
   while(!(sci_pt[SCISR1]&0x20))
     ;
   // Get Buffer and clear RDRF flag
@@ -184,14 +184,14 @@ __INLINE__ Bool __ALWAYS_INLINE__ EE_SCIGetBuffer(unsigned char sci_num, unsigne
 // --------------------------------------------------------------------------------------
 // SCI Check Receive Data, True if receiver data register (SCIDR) is full
 /////////////////////////////////////////////////////////////////////////////////////////
-__INLINE__ Bool __ALWAYS_INLINE__ EE_SCICheckGetBuffer(unsigned char sci_num)
+__INLINE__ Bool __ALWAYS_INLINE__ EE_sci_getcheck(unsigned char sci_num)
 {
 
   unsigned char *sci_pt;
 
-  if(!sci[sci_num].ena)
+  if(!EE_sci[sci_num].ena)
     return(FALSE);
-  sci_pt = sci[sci_num].init_reg;
+  sci_pt = EE_sci[sci_num].init_reg;
   if(sci_pt[SCISR1]&0x20)
     return(TRUE);
   return(FALSE);

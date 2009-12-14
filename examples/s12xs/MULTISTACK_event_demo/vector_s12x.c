@@ -16,7 +16,7 @@ extern volatile int dummit_counter;
 ISR2(PIT0_Interrupt)
 {
 	/* clear the interrupt source */
-	EE_PIT0_clear_ISRflag();
+	EE_pit0_clear_ISRflag();
 	CounterTick(Counter1);
 }
 
