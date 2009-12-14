@@ -535,7 +535,7 @@ void	cc2420_set_ex_mac_add(uint8_t*);
 *
 * @param[in] id 	The MAC PAN ID to store in the transceiver.
 *
- */
+*/
 void	cc2420_set_mac_pan_id(uint8_t*);
 
 
