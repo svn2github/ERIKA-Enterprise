@@ -14,7 +14,7 @@
 * Main documentation:
 * <CC2420_Data_Sheet_1_3.pdf> The CC2420 datasheet. Available at www.ti.com
 * <EasyBeeDS480.pdf> EasyBee board datasheet. Available at www.rfsolutions.co.uk
-* <Flex_ref_man_027.pdf> Flex reference Manual. Available at www.evidence.eu.com
+* <Flex_ref_man_027.pdf> Flex reference Manual. Available at erika.tuxfamily.org
 * <70286A.pdf> The dsPIC33 datasheet. Available at www.microchip.com
 *
 * Author: Gianluca Franchino.
