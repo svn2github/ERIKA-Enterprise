@@ -66,8 +66,8 @@ void EE_s12xs_hal_ready2stacked(EE_ADDR thread_addr);
 #endif
 #ifdef __MULTI__
 void EE_s12xs_hal_ready2stacked(EE_ADDR thread_addr, EE_UREG tos_index);
-//void EE_s12xs_hal_stkchange(EE_UREG tos_index);
-void EE_s12xs_hal_stkchange(EE_ADDR thread_addr, EE_UREG tos_index); /* in ASM */
+void EE_s12xs_hal_stkchange(EE_UREG tos_index);
+//void EE_s12xs_hal_stkchange(EE_ADDR thread_addr, EE_UREG tos_index); /* in ASM */
 #endif
 
 
@@ -151,8 +151,8 @@ __INLINE__ void __ALWAYS_INLINE__ EE_ISR2_poststub(void)
       _asm("tfr a,ccrh\n", 0x0000);	//_asm("BCLR.B 0x0042, #0x7");
       								//_asm("BCLR.B 0x0042, #0x6");
       								//_asm("BCLR.B 0x0042, #0x5");
-		//EE_s12xs_hal_stkchange(EE_hal_endcycle_next_tos);
-      	EE_s12xs_hal_stkchange(EE_hal_endcycle_next_thread, EE_hal_endcycle_next_tos);
+		EE_s12xs_hal_stkchange(EE_hal_endcycle_next_tos);
+      	//EE_s12xs_hal_stkchange(EE_hal_endcycle_next_thread, EE_hal_endcycle_next_tos);
     }
 #endif
   }

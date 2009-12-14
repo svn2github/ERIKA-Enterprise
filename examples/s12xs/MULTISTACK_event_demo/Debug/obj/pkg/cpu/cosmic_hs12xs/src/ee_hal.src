@@ -1,0 +1,116 @@
+xref f_EE_thread_end_instance
+xref _wreg
+
+.ftext: section .text
+
+ xref _PPAGE
+ xref _EE_hal_endcycle_next_thread
+  xdef _EE_s12xs_hal_stkchange
+  xref _EE_s12xs_system_tos
+  xref _EE_s12xs_active_tos
+  xref _EE_hal_endcycle_next_tos
+
+  EE_CHANGE_TOS_MACRO: macro
+
+
+  ldd OFST+3,s
+  cpd \1
+  beq \@lab2
+
+
+
+
+
+
+  tfr s,d
+  ldy \1
+  lsly
+  std \2,y
+
+
+  ldd OFST+3,s
+  std \1
+  ldy \1
+  lsly
+  ldd \2,y
+  tfr d,s
+
+
+
+
+
+ \@lab2:
+  endm
+xdef f_EE_s12xs_hal_ready2stacked
+f_EE_s12xs_hal_ready2stacked:
+
+
+ std _wreg+2
+ stx _wreg
+
+ L3:
+ OFST: set 0
+
+
+   EE_CHANGE_TOS_MACRO _EE_s12xs_active_tos, _EE_s12xs_system_tos, _PPAGE
+
+
+  cli
+
+  call [_wreg]
+  sei
+  call f_EE_thread_end_instance
+
+
+   ldd _EE_hal_endcycle_next_tos
+   std OFST+3,s
+
+
+  ldd _EE_hal_endcycle_next_thread+2
+
+  std _wreg+2
+  ldd _EE_hal_endcycle_next_thread
+
+  std _wreg
+
+
+  ldd _wreg
+  bne L21
+
+  ldd _wreg+2
+ L21:
+  bne L3
+
+
+   EE_CHANGE_TOS_MACRO _EE_s12xs_active_tos, _EE_s12xs_system_tos, _PPAGE
+
+
+
+
+  rtc
+xdef f_EE_s12xs_hal_stkchange
+f_EE_s12xs_hal_stkchange:
+  tfr s,x
+  ldy _EE_s12xs_active_tos
+  lsly
+  stx _EE_s12xs_system_tos,y
+
+
+
+
+  std _EE_s12xs_active_tos
+  ldy _EE_s12xs_active_tos
+  lsly
+  ldd _EE_s12xs_system_tos,y
+  tfr d,s
+
+
+
+
+
+
+  rtc
+
+
+
+ end
