@@ -68,6 +68,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_end_primitive(void)
     EE_hal_enableIRQ();
 }
 
+
 /* called to start a primitive called into an IRQ handler */
 __INLINE__ void __ALWAYS_INLINE__ EE_hal_IRQ_begin_primitive(void)
 {
@@ -84,30 +85,22 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_IRQ_end_primitive(void)
 #endif
 }
 
-/* we should make an include file with all the registers of a PIC30 CPU
-   the file is typically provided by the compiler distribution */
-//extern EE_FREG DISICNT;
-extern volatile EE_FREG DISICNT __attribute__((__sfr__));
 
-/* called as _first_ function of a primitive that can be called into
-   an IRQ and into a task */
+/* called as _first_ function of a primitive that can be called in
+   an IRQ and in a task */
 __INLINE__ EE_FREG __ALWAYS_INLINE__ EE_hal_begin_nested_primitive(void)
 {
-  register EE_FREG retvalue;
-
-  retvalue = DISICNT;
-  EE_hal_disableIRQ();
-  return retvalue;
+    return EE_mico32_disableIRQ();
 }
 
-/* called as _last_ function of a primitive that can be called into
-   an IRQ and into a task */
+/* called as _last_ function of a primitive that can be called in
+   an IRQ and in a task */
 __INLINE__ void __ALWAYS_INLINE__ EE_hal_end_nested_primitive(EE_FREG f)
 {
-  if(f) 
-    EE_hal_disableIRQ();
-  else
-    EE_hal_enableIRQ();
+    if (EE_mico32_are_IRQs_enabled(f))
+        EE_mico32_enableIRQ();
+    /* else */
+    /*     EE_mico32_disableIRQ(); */
 }
 
 

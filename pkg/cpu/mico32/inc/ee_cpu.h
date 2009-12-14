@@ -55,9 +55,10 @@
 #error Unsupported compiler
 #endif
 
-#define ASM_DIS_INT
-  
-#define ASM_EN_INT
+
+/* This instruction should cause a trap when executed.  Handy to mark invalid
+ * functions */
+#define INVALID_ASM_INSTR  asm volatile ( ".word 0xcccc" )
 
 
 /*************************************************************************
@@ -86,22 +87,31 @@ typedef EE_UINT32 EE_TID;
  MICO32 interrupt disabling/enabling
  *********************************************************************/
 
+#define EE_mico32_are_IRQs_enabled(ie) (ie & 1)
+
 /*
  * Enable interrupts
  */
 
 __INLINE__ void __ALWAYS_INLINE__ EE_mico32_enableIRQ(void)
 {
-    ASM_EN_INT;
+    EE_FREG oldie, newie;
+    asm volatile ("rcsr %0,ie":"=r"(oldie));
+    newie = oldie | (0x1);
+    asm volatile ("wcsr ie, %0"::"r"(newie));
 }
 
 /*
  * Disable interrupts
  */
 
-__INLINE__ void __ALWAYS_INLINE__ EE_mico32_disableIRQ(void)
+__INLINE__ EE_FREG __ALWAYS_INLINE__ EE_mico32_disableIRQ(void)
 {
-    ASM_DIS_INT;
+    EE_FREG oldie, newie;
+    asm volatile ("rcsr %0,ie":"=r"(oldie));
+    newie = oldie & (~0x1);
+    asm volatile ("wcsr ie, %0"::"r"(newie));
+    return oldie;
 }
 
 
