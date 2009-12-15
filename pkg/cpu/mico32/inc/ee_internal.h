@@ -56,35 +56,7 @@
  * Generic Primitives
  */
 
-/* called to start a generic primitive */
-__INLINE__ void __ALWAYS_INLINE__ EE_hal_begin_primitive(void) 
-{
-  EE_hal_disableIRQ();
-}
-
-/* called as _last_ function of a generic primitive */
-__INLINE__ void __ALWAYS_INLINE__ EE_hal_end_primitive(void)
-{
-    EE_hal_enableIRQ();
-}
-
-
-/* called to start a primitive called into an IRQ handler */
-__INLINE__ void __ALWAYS_INLINE__ EE_hal_IRQ_begin_primitive(void)
-{
-#ifdef __ALLOW_NESTED_IRQ__
-    EE_hal_disableIRQ();
-#endif
-}
-
-/* called as _first_ function of a primitive called into an IRQ handler */
-__INLINE__ void __ALWAYS_INLINE__ EE_hal_IRQ_end_primitive(void)
-{
-#ifdef __ALLOW_NESTED_IRQ__
-    EE_hal_enableIRQ();
-#endif
-}
-
+#include "cpu/common/inc/ee_primitives.h"
 
 /* called as _first_ function of a primitive that can be called in
    an IRQ and in a task */
@@ -108,28 +80,6 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_end_nested_primitive(EE_FREG f)
 /* 
  * Context Handling  
  */
-
-extern EE_ADDR EE_hal_endcycle_next_thread;
-extern EE_UREG EE_hal_endcycle_next_tos;
-
-
-/* typically called into a generic primitive to implement preemption */
-/* NOTE: mico32_thread_tos[0]=dummy, mico32_thread_tos[1]=thread0, ... */
-#ifdef __MONO__
-void EE_mico32_hal_ready2stacked(EE_ADDR thread_addr); /* in ASM */
-__INLINE__ void __ALWAYS_INLINE__ EE_hal_ready2stacked(EE_TID thread)
-{
-    EE_mico32_hal_ready2stacked(EE_hal_thread_body[thread]);
-}
-#endif
-#ifdef __MULTI__
-void EE_mico32_hal_ready2stacked(EE_ADDR thread_addr, EE_UREG tos_index); /* in ASM */
-__INLINE__ void __ALWAYS_INLINE__ EE_hal_ready2stacked(EE_TID thread)
-{
-    EE_mico32_hal_ready2stacked(EE_hal_thread_body[thread],
-			         EE_mico32_thread_tos[thread+1]);
-}
-#endif
 
 
 /* typically called at the end of a thread instance */
@@ -168,16 +118,6 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_endcycle_ready(EE_TID thread)
 #define EE_hal_IRQ_stacked EE_hal_endcycle_stacked
 #define EE_hal_IRQ_ready EE_hal_endcycle_ready
 
-
-/* called to change the active stack, typically inside blocking primitives */
-/* there is no mono version for this primitive...*/
-#ifdef __MULTI__
-void EE_mico32_hal_stkchange(EE_UREG tos_index); /* in ASM */
-__INLINE__ void __ALWAYS_INLINE__ EE_hal_stkchange(EE_TID thread)
-{
-    EE_mico32_hal_stkchange(EE_mico32_thread_tos[thread+1]);
-}
-#endif
 
 
 
