@@ -86,13 +86,13 @@ extern const EE_FADDR EE_hal_thread_body[];
 
 #ifdef __MULTI__
 
-/* each task use a system (IRQ) stack and a user (SYS) stack */
+/* each task uses a system (IRQ) stack and a user (SYS) stack */
 extern struct EE_TOS EE_std_system_tos[];
 
-/* std_system_tos[] index that point to the thread tos (one for each thread) */
+/* std_system_tos[] index that points to the thread tos (one for each thread) */
 extern EE_UREG EE_std_thread_tos[];
 
-/* std_system_tos[] index that point to the active thread tos */
+/* std_system_tos[] index that points to the active thread tos */
 extern EE_UREG EE_std_active_tos;
 
 #ifdef __IRQ_STACK_NEEDED__

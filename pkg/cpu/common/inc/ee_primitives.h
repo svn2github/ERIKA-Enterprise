@@ -79,4 +79,18 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_IRQ_end_primitive(void)
 #endif
 }
 
+
+/*
+ * Nested Interrupts Handling
+ */
+
+/* can be called with interrupt enabled */
+extern EE_UREG EE_IRQ_nesting_level;
+
+__INLINE__ EE_UREG __ALWAYS_INLINE__ EE_hal_get_IRQ_nesting_level(void)
+{
+    return EE_IRQ_nesting_level;
+}
+
+
 #endif /* __INCLUDE_CPU_COMMON_EE_PRIMITIVES__ */

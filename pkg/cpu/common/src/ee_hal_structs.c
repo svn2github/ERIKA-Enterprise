@@ -39,25 +39,19 @@
  * ###*E*### */
 
 /*
- * Context switch functions used in HAL implementations
+ * Structures commonly used in HAL implementations.
+ * Derived from pkg/cpu/pic30/hal/ee_hal_c.c
  * Author: 2009 Bernardo Dal Seno
  */
 
-
 #include "ee_internal.h"
 
-/* This version should work for both the monostack and multistack versions of
- * the kernel, thanks to the macros defined in cpu/commmon/inc/ee_context.h.
- * In the mono version, all the stack-related stuff is ignored. */
-void EE_std_run_task_code(EE_FADDR thread_addr)
-{
-    EE_hal_enableIRQ();
-    ((void (*)())thread_addr)(); /* Call thread_addr */
-    EE_hal_disableIRQ();
-    EE_UREG tos_index;
-    do {
-        EE_thread_end_instance();
-        thread_addr = EE_hal_endcycle_next_thread;
-        tos_index = EE_std_get_next_tos();
-    } while (thread_addr != NULL);
-}
+/*
+ * Endcycle Next thread, Endcycle Next tos, nesting level
+ */
+EE_UREG EE_IRQ_nesting_level;
+
+EE_FADDR EE_hal_endcycle_next_thread;
+#ifdef __MULTI__
+EE_UREG EE_hal_endcycle_next_tos;
+#endif

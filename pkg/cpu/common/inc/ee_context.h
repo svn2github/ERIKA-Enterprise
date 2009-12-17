@@ -55,53 +55,89 @@
 extern EE_FADDR EE_hal_endcycle_next_thread;
 extern EE_UREG EE_hal_endcycle_next_tos;
 
-/* These must be implemented in ASM; no standard implementation, sorry.  This is
- * the only function that performs context switching.  The _multi version
- * doesn't jump to a new address if 'thread_addr' is NULL.  This is used to
- * switch to a thread that has been suspend by a call to
+
+/* The _multi version must be implemented in ASM; no standard implementation,
+ * sorry.  This is the only function that performs context switching.  The
+ * _multi version doesn't jump to a new address if 'thread_addr' is NULL.  This
+ * is used to switch to a thread that has been suspend by a previous call to
  * EE_std_change_contex_multi() */
+#ifdef __MONO__
 void EE_std_change_context_mono(EE_FADDR thread_addr);
+#endif
+#ifdef __MULTI__
 void EE_std_change_context_multi(EE_FADDR thread_addr, EE_UREG tos_index);
+#endif
 /* Pseudo code for EE_std_change_context_multi():
-   save_caller_saved_registers();
-   switch_stacks(tos_index);
-   restore_caller_saved_registers();
-   if (thread_addr != 0) {
-      enable_interrupts();
-      save_registers_you_care_about();
-      call_function(thread_addr);
-      restore_registers_you_care_about();
-      disable_interrupts();
-   }
+      save_caller_saved_registers();
+      switch_stacks(tos_index);
+      restore_caller_saved_registers();
+      if (thread_addr != 0)
+          EE_std_run_task_code(thread_addr);
 */
-*/
+
 
 #ifdef __MONO__
 #define EE_std_get_tos_from_index(ind) (0)
 #define EE_std_get_next_tos() (0)
-__INLINE__ void __ALWAYS_INLINE__ EE_std_change_context(EE_FADDR thread_addr, EE_UREG tos_index )
-{
-    EE_std_change_context_mono(thread_addr)
-}
+void EE_std_change_context(EE_FADDR thread_addr, EE_UREG tos_index );
 #endif
 #ifdef __MULTI__
 #define EE_std_get_tos_from_index(ind) (EE_std_thread_tos[ind+1])
 #define EE_std_get_next_tos() EE_hal_endcycle_next_tos
-__INLINE__ void __ALWAYS_INLINE__ EE_std_change_context(EE_FADDR thread_addr, EE_UREG tos_index )
+void EE_std_change_context(EE_FADDR thread_addr, EE_UREG tos_index );
+#endif
+
+/* Launch a new task, possibly switching to a different stack, clean up the task
+ * after it ends, and call the scheduler (and switch to other tasks/stacks)
+ * until there are no more tasks to switch to. */
+void EE_hal_ready2stacked(EE_TID thread);
+
+/* Launch a new task on the current stack, clean up the task after it ends, and
+ * call the scheduler (and switch to other tasks/stacks) until there are no more
+ * tasks to switch to. */
+void EE_std_run_task_code(EE_FADDR thread_addr);
+
+
+/*
+ * Inline implementations
+ */
+
+#ifdef __MONO__
+__INLINE__ void __ALWAYS_INLINE__ EE_std_change_context_mono(EE_FADDR thread_addr)
 {
-    EE_std_change_context_multi(thread_addr, tos_index)
+    EE_std_run_task_code(thread_addr);
+}
+
+
+__INLINE__ void __ALWAYS_INLINE__ EE_std_change_context(
+    EE_FADDR thread_addr, EE_UREG tos_index )
+{
+    EE_std_change_context_mono(thread_addr);
 }
 #endif
 
-
-void EE_hal_ready2stacked(EE_TID thread);
-
 #ifdef __MULTI__
+__INLINE__ void __ALWAYS_INLINE__ EE_std_change_context(
+    EE_FADDR thread_addr, EE_UREG tos_index )
+{
+    EE_std_change_context_multi(thread_addr, tos_index);
+}
+
 __INLINE__ void __ALWAYS_INLINE__ EE_hal_stkchange(EE_TID thread)
 {
     EE_std_change_context_multi(NULL, EE_std_thread_tos[thread+1]);
 }
 #endif
+
+/* This version should work for both the monostack and multistack versions of
+ * the kernel, thanks to the macros defined above.  In the mono version, all the
+ * stack-related stuff is ignored. */
+__INLINE__ void EE_hal_ready2stacked(EE_TID thread)
+{
+    EE_FADDR thread_addr = EE_hal_thread_body[thread];
+    EE_UREG tos_index = EE_std_get_tos_from_index(thread);
+    EE_std_change_context(thread_addr, tos_index);
+}
 
 
 

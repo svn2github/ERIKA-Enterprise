@@ -81,6 +81,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_end_nested_primitive(EE_FREG f)
  * Context Handling  
  */
 
+#include "cpu/common/inc/ee_context.h"
 
 /* typically called at the end of a thread instance */
 #ifdef __MONO__
@@ -118,20 +119,6 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_endcycle_ready(EE_TID thread)
 #define EE_hal_IRQ_stacked EE_hal_endcycle_stacked
 #define EE_hal_IRQ_ready EE_hal_endcycle_ready
 
-
-
-
-/*
- * Nested Interrupts Handling
- */
-
-/* can be called with interrupt enabled */
-extern EE_UREG EE_IRQ_nesting_level;
-
-__INLINE__ EE_UREG __ALWAYS_INLINE__ EE_hal_get_IRQ_nesting_level(void)
-{
-  return EE_IRQ_nesting_level;
-}
 
 
 /* 
