@@ -40,6 +40,7 @@
 
 ## Author: 2009 Bernardo Dal Seno
 
+# Lattice Mico32
 ifeq ($(findstring __LM32__,$(EEOPT)) , __LM32__)
 EE_SRCS += pkg/cpu/common/src/ee_hal_structs.c
 EE_SRCS += pkg/cpu/common/src/ee_context.c

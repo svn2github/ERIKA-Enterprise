@@ -1,7 +1,7 @@
 # ###*B*###
 # ERIKA Enterprise - a tiny RTOS for small microcontrollers
 # 
-# Copyright (C) 2002-2008  Evidence Srl
+# Copyright (C) 2002-2009  Evidence Srl
 # 
 # This file is part of ERIKA Enterprise.
 # 
@@ -38,14 +38,11 @@
 # Boston, MA 02110-1301 USA.
 # ###*E*###
 
-## Author: 2004 Paolo Gai
-## CVS: $Id: cfg.mk,v 1.4 2006/11/30 16:58:17 nino Exp $
+## Files specific to the Lattice Mico32 soft core
+## Author: 2009 Bernardo Dal Seno
 
-ifeq ($(findstring __HCS12XS__,$(EEOPT)) , __HCS12XS__)
-EE_SRCS += pkg/cpu/cosmic_hs12xs/src/ee_hal.S
-EE_SRCS += pkg/cpu/cosmic_hs12xs/src/ee_hal_c.c
-
-#$(info $(EE_SRCS)) 
+ifeq ($(findstring __LM32__,$(EEOPT)) , __LM32__)
+EE_SRCS += 
 
 ifeq ($(findstring __OO_BCC1__,$(EEOPT)) , __OO_BCC1__)
 CPU_OO=YES
@@ -61,8 +58,7 @@ CPU_OO=YES
 endif
 
 ifeq ($(CPU_OO), YES)
-EE_SRCS += pkg/cpu/cosmic_hs12xs/src/ee_oo.S
+EE_SRCS += pkg/cpu/mico32/src/ee_oo.S
 endif
 
-
-endif
+endif # __LM32__
