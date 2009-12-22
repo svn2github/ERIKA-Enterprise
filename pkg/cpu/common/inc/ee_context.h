@@ -68,11 +68,20 @@ void EE_std_change_context_mono(EE_FADDR thread_addr);
 void EE_std_change_context_multi(EE_FADDR thread_addr, EE_UREG tos_index);
 #endif
 /* Pseudo code for EE_std_change_context_multi():
-      save_caller_saved_registers();
-      switch_stacks(tos_index);
-      restore_caller_saved_registers();
-      if (thread_addr != 0)
-          EE_std_run_task_code(thread_addr);
+     begin:
+      if is_not_the_current_stack(tos_index) {
+          save_caller_saved_registers();
+          switch_stacks(tos_index);
+          restore_caller_saved_registers();
+      }
+      if (thread_addr != 0) {
+          thread_addr = EE_std_run_task_code(thread_addr);
+          tos_index = EE_std_get_next_tos();
+          goto begin;
+      }
+
+      Please notice that the "goto begin" is actually a recursive call to
+      EE_std_change_context_multi(), but in this way there is no stack growing.
 */
 
 
@@ -82,20 +91,22 @@ void EE_std_change_context_multi(EE_FADDR thread_addr, EE_UREG tos_index);
 void EE_std_change_context(EE_FADDR thread_addr, EE_UREG tos_index );
 #endif
 #ifdef __MULTI__
-#define EE_std_get_tos_from_index(ind) (EE_std_thread_tos[ind+1])
+#define EE_std_get_tos_from_index(ind) (EE_std_thread_tos[(ind)+1])
 #define EE_std_get_next_tos() EE_hal_endcycle_next_tos
 void EE_std_change_context(EE_FADDR thread_addr, EE_UREG tos_index );
 #endif
 
 /* Launch a new task, possibly switching to a different stack, clean up the task
  * after it ends, and call the scheduler (and switch to other tasks/stacks)
- * until there are no more tasks to switch to. */
+ * until there are no more tasks to switch to.  In the multistack version, also
+ * change the current stack before returning if the scheduler asks for it. */
 void EE_hal_ready2stacked(EE_TID thread);
 
 /* Launch a new task on the current stack, clean up the task after it ends, and
- * call the scheduler (and switch to other tasks/stacks) until there are no more
- * tasks to switch to. */
-void EE_std_run_task_code(EE_FADDR thread_addr);
+ * call the scheduler.  Return the next task to launch (or NULL if there is no
+ * new task to launch).  Please notice that in the multistack version the
+ * scheduler may ask to switch stacks. */
+EE_FADDR EE_std_run_task_code(EE_FADDR thread_addr);
 
 
 /*
@@ -105,7 +116,9 @@ void EE_std_run_task_code(EE_FADDR thread_addr);
 #ifdef __MONO__
 __INLINE__ void __ALWAYS_INLINE__ EE_std_change_context_mono(EE_FADDR thread_addr)
 {
-    EE_std_run_task_code(thread_addr);
+    do {
+        thread_addr = EE_std_run_task_code(thread_addr);
+    } while (thread_addr != NULL);
 }
 
 

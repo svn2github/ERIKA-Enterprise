@@ -65,14 +65,12 @@ __INLINE__ EE_FREG __ALWAYS_INLINE__ EE_hal_begin_nested_primitive(void)
     return EE_mico32_disableIRQ();
 }
 
-/* called as _last_ function of a primitive that can be called in
-   an IRQ and in a task */
+/* Called as _last_ function of a primitive that can be called in
+   an IRQ and in a task.  Enable IRQs if they were enabled before entering. */
 __INLINE__ void __ALWAYS_INLINE__ EE_hal_end_nested_primitive(EE_FREG f)
 {
     if (EE_mico32_are_IRQs_enabled(f))
         EE_mico32_enableIRQ();
-    /* else */
-    /*     EE_mico32_disableIRQ(); */
 }
 
 

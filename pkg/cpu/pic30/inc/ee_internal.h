@@ -107,7 +107,9 @@ __INLINE__ EE_FREG __ALWAYS_INLINE__ EE_hal_begin_nested_primitive(void)
    an IRQ and into a task */
 __INLINE__ void __ALWAYS_INLINE__ EE_hal_end_nested_primitive(EE_FREG f)
 {
-  if(f) 
+  if(f)
+    /* We use DISI to disable interrupts, so it's better to reissue the
+     * instruction whenever we have the chance */
     EE_hal_disableIRQ();
   else
     EE_hal_enableIRQ();

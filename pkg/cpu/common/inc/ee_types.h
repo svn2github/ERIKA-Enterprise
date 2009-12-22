@@ -52,10 +52,6 @@
 /* Primitive data types */
 typedef unsigned char EE_BIT;
 
-#define __INTTYPES_DEFINED__
-typedef short int __int16_t;
-typedef unsigned short int __uint16_t;
-
 #if SCHAR_MAX == 127
 typedef unsigned char EE_UINT8;
 typedef signed char EE_INT8;
