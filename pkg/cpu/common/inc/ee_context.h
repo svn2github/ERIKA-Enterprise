@@ -82,6 +82,10 @@ void EE_std_change_context_multi(EE_FADDR thread_addr, EE_UREG tos_index);
 
       Please notice that the "goto begin" is actually a recursive call to
       EE_std_change_context_multi(), but in this way there is no stack growing.
+      
+      Please notice also that 'thread_addr' and 'tos_index' must NOT be saved
+      onto the stack before switching stacks, otherwise when switching from
+      another stack back to current one, you would overwrite their values.
 */
 
 
