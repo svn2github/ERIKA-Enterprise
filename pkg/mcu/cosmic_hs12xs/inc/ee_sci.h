@@ -53,16 +53,19 @@ extern struct EE_sci_peripheral EE_sci[2];
 // BR = 13 
 // Baud rate mismatch = 0.160 %
 /////////////////////////////////////////////////////////////////////////////////////////
-__INLINE__ void __ALWAYS_INLINE__ EE_sci_open(unsigned char sci_num)
+__INLINE__ void __ALWAYS_INLINE__ EE_sci_open(unsigned char sci_num, unsigned long int busclock, unsigned long int baudrate)
 {
-
+	unsigned int br = 0;
   unsigned char *sci_pt;
 
   EE_sci[sci_num].ena = TRUE;
   sci_pt = EE_sci[sci_num].init_reg;
   // Set Baud Rate Modulo Divisor
-  sci_pt[SCIBDH] = (unsigned char)(13 >> 8);
-  sci_pt[SCIBDL] = (unsigned char)13;
+  br = (unsigned int)(busclock/(baudrate*((unsigned long int)16)));
+  
+  sci_pt[SCIBDH] = (unsigned char)(br >> 8);
+  sci_pt[SCIBDL] = (unsigned char)(br&0x00FF);
+  
   // Trasmitter and Receiver Enable
   sci_pt[SCICR2] = 0x0C;
   

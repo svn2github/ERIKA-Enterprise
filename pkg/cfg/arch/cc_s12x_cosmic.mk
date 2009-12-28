@@ -77,7 +77,8 @@ EE_DEP:=$(BINDIR_DEP)/cxs12x.exe
 endif
 
 ifndef EE_PREP
-EE_PREP:= $(shell cygpath `cygpath -ms "C:\cygwin\bin"`)/gcc
+#EE_PREP:= $(shell cygpath `cygpath -ms "C:\cygwin\bin"`)/gcc
+EE_PREP:= $(BINDIR_CC)/cps12x.exe
 endif
 
 ifndef EE_AR

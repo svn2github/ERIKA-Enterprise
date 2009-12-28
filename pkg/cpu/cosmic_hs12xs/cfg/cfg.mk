@@ -62,6 +62,7 @@ endif
 
 ifeq ($(CPU_OO), YES)
 EE_SRCS += pkg/cpu/cosmic_hs12xs/src/ee_oo.S
+#EE_SRCS += pkg/cpu/cosmic_hs12xs/src/ee_start.c
 endif
 
 

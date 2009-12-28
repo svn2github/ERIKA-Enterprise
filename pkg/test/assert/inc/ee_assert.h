@@ -129,7 +129,7 @@
 
 
 /* this is an invalid value for the index */
-#define EE_ASSERT_NIL      -1
+#define EE_ASSERT_NIL      ((EE_UREG)(-1))
 
 /* these are the results of each assertion test */
 #define EE_ASSERT_INITVALUE   0

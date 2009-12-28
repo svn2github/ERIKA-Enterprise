@@ -51,6 +51,31 @@
 #ifndef __INCLUDE_S12XS_INTERNAL_H__
 #define __INCLUDE_S12XS_INTERNAL_H__
 
+
+
+/*************************************************************************
+ System startup
+ *************************************************************************/
+
+//#ifndef EE_MAX_COUNTER
+//#include "eecfg.h"
+//#endif //EE_MAX_COUNTER
+
+#if(EE_MAX_COUNTER>0)
+/* defining this let the StartOS routine to call this function */
+//#define __OO_CPU_HAS_STARTOS_ROUTINE__	// Symbol defined in eeopt.h
+/* This function starts ths system,
+ * register the IPIC and synchronize the CPUs 
+ * returns 1 in case of error (typically a mutex name error)
+ */
+#ifdef __OO_EXTENDED_STATUS__
+int EE_cpu_startos(void);
+#else
+void EE_cpu_startos(void);
+#endif	// __OO_EXTENDED_STATUS__
+
+#endif
+
 /*************************************************************************
  Functions
  *************************************************************************/

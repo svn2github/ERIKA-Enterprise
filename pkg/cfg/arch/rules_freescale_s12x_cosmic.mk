@@ -179,8 +179,13 @@ hs12xs.$(COSMIC_EXTENSION): $(OBJS) $(LINKDEP) $(LIBDEP)
                     
 
 # preprocess first the assembly code and then compile the object file
+#$(OBJDIR)/%.o: %.S
+#	$(VERBOSE_PRINTPRE) $(EE_PREP) $(GCC_ALLINCPATH) $(DEFS_GCCASM) -E -P "$(SOURCEFILE)" > $(SRCFILE)
+#	$(VERBOSE_PRINTASM) $(EE_ASM) $(COMPUTED_OPT_ASM) -o $(TARGETFILE) $(SRCFILE) 
+
+# preprocess first the assembly code and then compile the object file
 $(OBJDIR)/%.o: %.S
-	$(VERBOSE_PRINTPRE) $(EE_PREP) $(GCC_ALLINCPATH) $(DEFS_GCCASM) -E -P "$(SOURCEFILE)" > $(SRCFILE)
+	$(VERBOSE_PRINTPRE) $(EE_PREP) $(COMPUTED_ALLINCPATH) $(DEFS_CC) -e "$(SOURCEFILE)" > $(SRCFILE)
 	$(VERBOSE_PRINTASM) $(EE_ASM) $(COMPUTED_OPT_ASM) -o $(TARGETFILE) $(SRCFILE) 
 
 # produce the object file from assembly code in a single step ATT!!!
