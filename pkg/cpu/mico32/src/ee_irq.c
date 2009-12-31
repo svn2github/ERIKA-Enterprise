@@ -39,31 +39,62 @@
  * ###*E*### */
 
 /*
- * Compiler-dependent definitions for Gcc
- * Derived from pkg/cpu/pic30/inc/ee_compiler.h
+ * IRQ-related stuff for Lattice Mico32
  * Author: 2009 Bernardo Dal Seno
  */
 
-/* This file MUST contain only #defines, because it is also included
-   by the .S files */
+#include "cpu/mico32/inc/ee_irq_internal.h"
+#include "ee_internal.h"
+#include "cpu/common/inc/ee_irqstub.h"
 
-/*
- * Compiler dependent interface
- */
+EE_mico32_ISR_handler EE_mico32_ISR_table[MAX_MICO32_ISR_LEVEL+1];
 
-#ifndef __INCLUDE_CPU_COMMON_EE_COMPILER_GCC__
-#define __INCLUDE_CPU_COMMON_EE_COMPILER_GCC__
 
-#ifdef __NO_INLINE__
-#define __INLINE__ static
-#else
-#define __INLINE__ static inline
-#endif
-/* Used to declare an inline function before the actual definition */
-#define __DECLARE_INLINE__ static
+/* Possible improvement: Enable higher-level interrupts while processing lower
+ * level interrupts, even in this function */
+void MicoISRHandler(void)
+{
+    EE_increment_IRQ_nesting_level();
+    int mask, level;
+    int im, ip;
 
-#define __ALWAYS_INLINE__ __attribute__((always_inline))
+    for (;;) {
+        ip = mico32_get_reg_ip();
+        im = mico32_get_reg_im();
+        ip &= im;
+        if (ip == 0)
+            break;
+        for (mask = 1, level = 0; ; ++level, mask <<= 1) {
+            if (ip & mask) {
+                EE_mico32_ISR_handler f = EE_mico32_ISR_table[level];
+                if (f)
+                    EE_mico32_call_ISR_new_stack( f );
+                mico32_clear_ip_mask( mask );
+                break;
+            }
+        }
+    }
+    EE_decrement_IRQ_nesting_level();
+    if (! EE_is_inside_ISR_call()) {
+        /* Outer nesting level: call the scheduler.  If we have also type-ISR1
+         * interrupts, the scheduler should be called only for type-ISR2
+         * interrupts. */
+        EE_std_after_IRQ_schedule();
+    }
+}
 
-#define NORETURN  __attribute__ ((noreturn))
 
-#endif /* __INCLUDE_CPU_COMMON_EE_COMPILER_GCC__ */
+void EE_mico32_register_ISR(int level, EE_mico32_ISR_handler fun)
+{
+    int mask;
+    EE_FREG intst = EE_mico32_disableIRQ();
+    EE_mico32_ISR_table[level] = fun;
+    mask = mico32_get_reg_im();
+    if (fun)
+        mask |= 1 << level;
+    else
+        mask &= ~(1 << level);
+    mico32_set_reg_im(mask);
+    if (EE_mico32_are_IRQs_enabled(intst))
+        EE_mico32_enableIRQ();
+}

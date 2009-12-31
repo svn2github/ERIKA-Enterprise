@@ -39,31 +39,20 @@
  * ###*E*### */
 
 /*
- * Compiler-dependent definitions for Gcc
- * Derived from pkg/cpu/pic30/inc/ee_compiler.h
+ * IRQ-related stuff for Lattice Mico32; userland declarations
  * Author: 2009 Bernardo Dal Seno
  */
 
-/* This file MUST contain only #defines, because it is also included
-   by the .S files */
+#ifndef __INCLUDE_MICO32_IRQ_H__
+#define __INCLUDE_MICO32_IRQ_H__
 
-/*
- * Compiler dependent interface
+typedef void (*EE_mico32_ISR_handler)( void );
+
+/* Register a handler with a given interrupt number; also enable the given
+ * interrupt.  If `fun' is 0, disable the given interrupt.
+ * When interrupt nesting is enabled, it is safe to call this function from
+ * interrupt handlers only for interrupts of higher level.
  */
+void EE_mico32_register_ISR( int level, EE_mico32_ISR_handler fun );
 
-#ifndef __INCLUDE_CPU_COMMON_EE_COMPILER_GCC__
-#define __INCLUDE_CPU_COMMON_EE_COMPILER_GCC__
-
-#ifdef __NO_INLINE__
-#define __INLINE__ static
-#else
-#define __INLINE__ static inline
-#endif
-/* Used to declare an inline function before the actual definition */
-#define __DECLARE_INLINE__ static
-
-#define __ALWAYS_INLINE__ __attribute__((always_inline))
-
-#define NORETURN  __attribute__ ((noreturn))
-
-#endif /* __INCLUDE_CPU_COMMON_EE_COMPILER_GCC__ */
+#endif /*  __INCLUDE_MICO32_IRQ_H__ */

@@ -39,7 +39,7 @@
  * ###*E*### */
 
 /*
- * Derived form cpu/pic30/inc/ee_internal.h
+ * Derived from cpu/pic30/inc/ee_internal.h
  * Author: 2009 Bernardo Dal Seno
  */
 
@@ -47,6 +47,7 @@
 #define __INCLUDE_MICO32_INTERNAL_H__
 
 #include "cpu/mico32/inc/ee_cpu.h"
+
 
 /*************************************************************************
  Functions
@@ -58,12 +59,14 @@
 
 #include "cpu/common/inc/ee_primitives.h"
 
+
 /* called as _first_ function of a primitive that can be called in
    an IRQ and in a task */
 __INLINE__ EE_FREG __ALWAYS_INLINE__ EE_hal_begin_nested_primitive(void)
 {
     return EE_mico32_disableIRQ();
 }
+
 
 /* Called as _last_ function of a primitive that can be called in
    an IRQ and in a task.  Enable IRQs if they were enabled before entering. */
@@ -80,38 +83,6 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_end_nested_primitive(EE_FREG f)
  */
 
 #include "cpu/common/inc/ee_context.h"
-
-/* typically called at the end of a thread instance */
-#ifdef __MONO__
-__INLINE__ void __ALWAYS_INLINE__ EE_hal_endcycle_stacked(EE_TID thread)
-{
-  EE_hal_endcycle_next_thread = 0;
-  /* TID is useless */
-}
-#endif
-#ifdef __MULTI__
-__INLINE__ void __ALWAYS_INLINE__ EE_hal_endcycle_stacked(EE_TID thread)
-{
-  EE_hal_endcycle_next_tos = EE_mico32_thread_tos[thread+1];
-  EE_hal_endcycle_next_thread = 0;
-}
-#endif
-
-
-
-#ifdef __MONO__
-__INLINE__ void __ALWAYS_INLINE__ EE_hal_endcycle_ready(EE_TID thread)
-{
-  EE_hal_endcycle_next_thread = EE_hal_thread_body[thread];
-}
-#endif
-#ifdef __MULTI__
-__INLINE__ void __ALWAYS_INLINE__ EE_hal_endcycle_ready(EE_TID thread)
-{
-  EE_hal_endcycle_next_tos = EE_mico32_thread_tos[thread+1];
-  EE_hal_endcycle_next_thread = EE_hal_thread_body[thread];
-}
-#endif
 
 /* typically called at the end of an interrupt */
 #define EE_hal_IRQ_stacked EE_hal_endcycle_stacked

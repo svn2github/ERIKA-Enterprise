@@ -42,7 +42,7 @@
 ## Author: 2009 Bernardo Dal Seno
 
 ifeq ($(findstring __LM32__,$(EEOPT)) , __LM32__)
-EE_SRCS += 
+EE_SRCS += pkg/cpu/mico32/src/ee_irq.c
 
 ifeq ($(findstring __OO_BCC1__,$(EEOPT)) , __OO_BCC1__)
 CPU_OO=YES

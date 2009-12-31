@@ -45,7 +45,6 @@
  * Author: 2009 Bernardo Dal Seno
  */
 
-
 #ifndef __INCLUDE_CPU_COMMON_EE_CONTEXT__
 #define __INCLUDE_CPU_COMMON_EE_CONTEXT__
 
@@ -62,10 +61,10 @@ extern EE_UREG EE_hal_endcycle_next_tos;
  * is used to switch to a thread that has been suspend by a previous call to
  * EE_std_change_contex_multi() */
 #ifdef __MONO__
-void EE_std_change_context_mono(EE_FADDR thread_addr);
+__DECLARE_INLINE__ void EE_std_change_context_mono(EE_FADDR thread_addr);
 #endif
 #ifdef __MULTI__
-void EE_std_change_context_multi(EE_FADDR thread_addr, EE_UREG tos_index);
+__DECLARE_INLINE__ void EE_std_change_context_multi(EE_FADDR thread_addr, EE_UREG tos_index);
 #endif
 /* Pseudo code for EE_std_change_context_multi():
      begin:
@@ -86,31 +85,43 @@ void EE_std_change_context_multi(EE_FADDR thread_addr, EE_UREG tos_index);
       Please notice also that 'thread_addr' and 'tos_index' must NOT be saved
       onto the stack before switching stacks, otherwise when switching from
       another stack back to current one, you would overwrite their values.
+
+      For processors where the return address is saved in a register, that
+      register must be saved in the stack too.
 */
 
+/* True if `tos_index' is not the current stack.  Only the implementation for
+ * the monostack version is provided below, as the multistack implementation
+ * depends on the architecture. */
+__DECLARE_INLINE__ int EE_hal_need_change_stack(EE_UREG tos_index);
 
 #ifdef __MONO__
-#define EE_std_get_tos_from_index(ind) (0)
+/* To avoid missing any side effect, the parmaters of macro are inserted in the
+ * expansion even when not needed.  */
+#define EE_std_get_tos_from_index(ind) ((void)(ind), 0)
 #define EE_std_get_next_tos() (0)
-void EE_std_change_context(EE_FADDR thread_addr, EE_UREG tos_index );
+__DECLARE_INLINE__ void EE_std_change_context(EE_FADDR thread_addr, EE_UREG tos_index );
+#define EE_std_set_next_tos_from_index(ind) ((void)(ind))
 #endif
 #ifdef __MULTI__
 #define EE_std_get_tos_from_index(ind) (EE_std_thread_tos[(ind)+1])
 #define EE_std_get_next_tos() EE_hal_endcycle_next_tos
-void EE_std_change_context(EE_FADDR thread_addr, EE_UREG tos_index );
+__DECLARE_INLINE__ void EE_std_change_context(EE_FADDR thread_addr, EE_UREG tos_index );
+__DECLARE_INLINE__ void EE_std_set_next_tos_from_index(EE_TID ind);
 #endif
 
 /* Launch a new task, possibly switching to a different stack, clean up the task
  * after it ends, and call the scheduler (and switch to other tasks/stacks)
  * until there are no more tasks to switch to.  In the multistack version, also
  * change the current stack before returning if the scheduler asks for it. */
-void EE_hal_ready2stacked(EE_TID thread);
+__DECLARE_INLINE__ void EE_hal_ready2stacked(EE_TID thread);
 
 /* Launch a new task on the current stack, clean up the task after it ends, and
  * call the scheduler.  Return the next task to launch (or NULL if there is no
  * new task to launch).  Please notice that in the multistack version the
  * scheduler may ask to switch stacks. */
 EE_FADDR EE_std_run_task_code(EE_FADDR thread_addr);
+
 
 
 /*
@@ -126,12 +137,18 @@ __INLINE__ void __ALWAYS_INLINE__ EE_std_change_context_mono(EE_FADDR thread_add
 }
 
 
-__INLINE__ void __ALWAYS_INLINE__ EE_std_change_context(
-    EE_FADDR thread_addr, EE_UREG tos_index )
+__INLINE__ void __ALWAYS_INLINE__ EE_std_change_context(EE_FADDR thread_addr,
+    EE_UREG tos_index )
 {
     EE_std_change_context_mono(thread_addr);
 }
+
+__INLINE__ int __ALWAYS_INLINE__ EE_hal_need_change_stack(EE_UREG tos_index)
+{
+    return 0;
+}
 #endif
+
 
 #ifdef __MULTI__
 __INLINE__ void __ALWAYS_INLINE__ EE_std_change_context(
@@ -140,15 +157,25 @@ __INLINE__ void __ALWAYS_INLINE__ EE_std_change_context(
     EE_std_change_context_multi(thread_addr, tos_index);
 }
 
+
 __INLINE__ void __ALWAYS_INLINE__ EE_hal_stkchange(EE_TID thread)
 {
     EE_std_change_context_multi(NULL, EE_std_thread_tos[thread+1]);
 }
+
+
+__INLINE__ void  __ALWAYS_INLINE__ EE_std_set_next_tos_from_index(EE_TID ind)
+{
+    EE_hal_endcycle_next_tos = EE_mico32_thread_tos[ind+1];
+}
 #endif
 
-/* This version should work for both the monostack and multistack versions of
- * the kernel, thanks to the macros defined above.  In the mono version, all the
- * stack-related stuff is ignored. */
+
+/* The functions below should work for both the monostack and multistack
+ * versions of the kernel, thanks to the macros defined above.  In the mono
+ * version, all the stack-related stuff is ignored. */
+
+
 __INLINE__ void EE_hal_ready2stacked(EE_TID thread)
 {
     EE_FADDR thread_addr = EE_hal_thread_body[thread];
@@ -156,6 +183,19 @@ __INLINE__ void EE_hal_ready2stacked(EE_TID thread)
     EE_std_change_context(thread_addr, tos_index);
 }
 
+
+__INLINE__ void __ALWAYS_INLINE__ EE_hal_endcycle_ready(EE_TID thread)
+{
+    EE_std_set_next_tos_from_index(thread);
+    EE_hal_endcycle_next_thread = EE_hal_thread_body[thread];
+}
+
+
+__INLINE__ void __ALWAYS_INLINE__ EE_hal_endcycle_stacked(EE_TID thread)
+{
+    EE_std_set_next_tos_from_index(thread);
+    EE_hal_endcycle_next_thread = 0;
+}
 
 
 #endif /* __INCLUDE_CPU_COMMON_EE_CONTEXT__ */

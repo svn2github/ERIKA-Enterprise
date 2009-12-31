@@ -39,31 +39,53 @@
  * ###*E*### */
 
 /*
- * Compiler-dependent definitions for Gcc
- * Derived from pkg/cpu/pic30/inc/ee_compiler.h
+ * Some IRQ-related stuff.
  * Author: 2009 Bernardo Dal Seno
  */
 
-/* This file MUST contain only #defines, because it is also included
-   by the .S files */
-
 /*
- * Compiler dependent interface
+ * You should include "ee_internal.h" before including this header, because the
+ * declaration of EE_IRQ_end_instance() is needed.  It also depends on
+ * "cpu/common/inc/ee_context.h" or your own implementation of the same.
  */
 
-#ifndef __INCLUDE_CPU_COMMON_EE_COMPILER_GCC__
-#define __INCLUDE_CPU_COMMON_EE_COMPILER_GCC__
+#ifndef __INCLUDE_CPU_COMMON_EE_IRQSTUB__
+#define __INCLUDE_CPU_COMMON_EE_IRQSTUB__
 
-#ifdef __NO_INLINE__
-#define __INLINE__ static
+
+/* True if we are inside an interrupt-serving routine */
+#define EE_is_inside_ISR_call() (EE_IRQ_nesting_level > 0)
+
+
+/* EE_decrement_IRQ_nesting_level() and EE_increment_IRQ_nesting_level() are
+ * used to keep track of the current IRQ nesting level.
+ * EE_std_enableIRQ_nested() and EE_std_disableIRQ_nested() are used to control
+ * when IRQ nesting is enabled.
+ */
+#ifdef __ALLOW_NESTED_IRQ__
+#define EE_decrement_IRQ_nesting_level() (--EE_IRQ_nesting_level)
+#define EE_increment_IRQ_nesting_level() (++EE_IRQ_nesting_level)
+#define EE_std_enableIRQ_nested EE_hal_enableIRQ
+#define EE_std_disableIRQ_nested EE_hal_disableIRQ
 #else
-#define __INLINE__ static inline
+#define EE_decrement_IRQ_nesting_level() (EE_IRQ_nesting_level = 0)
+#define EE_increment_IRQ_nesting_level() (EE_IRQ_nesting_level = 1)
+#define EE_std_enableIRQ_nested() ((void)0)
+#define EE_std_disableIRQ_nested() ((void)0)
 #endif
-/* Used to declare an inline function before the actual definition */
-#define __DECLARE_INLINE__ static
 
-#define __ALWAYS_INLINE__ __attribute__((always_inline))
 
-#define NORETURN  __attribute__ ((noreturn))
+/* Function to be called at the end of a function servicing an interrupt.  Call
+ * the scheduler and launch a new scheduled task (if any), or change the current
+ * stack (if needed); return whenever there is nothing else to do.
+ */
+__INLINE__ void __ALWAYS_INLINE__ EE_std_after_IRQ_schedule(void)
+{
+    EE_IRQ_end_instance();
+    if (EE_hal_endcycle_next_thread
+        || EE_hal_need_change_stack(EE_std_get_next_tos()))
+        EE_std_change_context( EE_hal_endcycle_next_thread,
+            EE_std_get_next_tos() );
+}
 
-#endif /* __INCLUDE_CPU_COMMON_EE_COMPILER_GCC__ */
+#endif /* __INCLUDE_CPU_COMMON_EE_IRQSTUB__ */

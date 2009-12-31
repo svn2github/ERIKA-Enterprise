@@ -39,31 +39,66 @@
  * ###*E*### */
 
 /*
- * Compiler-dependent definitions for Gcc
- * Derived from pkg/cpu/pic30/inc/ee_compiler.h
+ * IRQ-related stuff for Lattice Mico32; internals
  * Author: 2009 Bernardo Dal Seno
  */
 
-/* This file MUST contain only #defines, because it is also included
-   by the .S files */
+#ifndef __INCLUDE_MICO32_IRQ_INTERNAL_H__
+#define __INCLUDE_MICO32_IRQ_INTERNAL_H__
 
-/*
- * Compiler dependent interface
- */
+#include "cpu/mico32/inc/ee_irq.h"
+#include "MicoInterrupts.h"
+#include "cpu/mico32/inc/ee_internal.h"
 
-#ifndef __INCLUDE_CPU_COMMON_EE_COMPILER_GCC__
-#define __INCLUDE_CPU_COMMON_EE_COMPILER_GCC__
 
-#ifdef __NO_INLINE__
-#define __INLINE__ static
-#else
-#define __INLINE__ static inline
+extern EE_mico32_ISR_handler EE_mico32_ISR_table[];
+
+
+__INLINE__ int __ALWAYS_INLINE__ mico32_get_reg_ip(void)
+{
+    int ip;
+    asm volatile ( "rcsr %0,ip":"=r"(ip) );
+    return ip;
+}
+
+
+__INLINE__ int __ALWAYS_INLINE__ mico32_get_reg_im(void)
+{
+    int im;
+    asm volatile ( "rcsr %0,im":"=r"(im) );
+    return im;
+}
+
+
+__INLINE__ void __ALWAYS_INLINE__ mico32_set_reg_im(int im)
+{
+    asm volatile ( "wcsr im,%0"::"r"(im) );
+}
+
+
+__INLINE__ void __ALWAYS_INLINE__ mico32_clear_ip_mask(int mask)
+{
+    asm volatile ( "wcsr ip,%0"::"r"(mask) );
+}
+
+
+#ifdef __IRQ_STACK_NEEDED__
+void EE_mico32_call_ISR_new_stack(EE_mico32_ISR_handler fun);
+/* This must be written in assembler, as it modifies the stack pointer.
+   
+    if (EE_IRQ_nesting_level == 1)
+        change_stacks();
+    EE_std_enableIRQ_nested(); // Enable IRQ if nesting is allowed
+    fun();
+    EE_std_disableIRQ_nested(); // Disable IRQ if nesting is allowed
+    if (EE_IRQ_nesting_level == 1)
+        change_stacks_back();
+*/
+#else /*ifndef __IRQ_STACK_NEEDED__ */
+#define EE_mico32_call_ISR_new_stack(fun)                               \
+ EE_std_enableIRQ_nested(); /* Enable IRQ if nesting is allowed */      \
+ fun();                                                                 \
+ EE_std_disableIRQ_nested() /* Disable IRQ if nesting is allowed */    
 #endif
-/* Used to declare an inline function before the actual definition */
-#define __DECLARE_INLINE__ static
 
-#define __ALWAYS_INLINE__ __attribute__((always_inline))
-
-#define NORETURN  __attribute__ ((noreturn))
-
-#endif /* __INCLUDE_CPU_COMMON_EE_COMPILER_GCC__ */
+#endif /* __INCLUDE_MICO32_IRQ_INTERNAL_H__ */
