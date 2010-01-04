@@ -349,7 +349,6 @@ typedef struct {
 #define EE_ALARM_ACTION_CALLBACK 1
 #define EE_ALARM_ACTION_EVENT 2
 
-
 /* initvalue: {a_valid_counter, a_valid_action, then you must put the correct
    parameters depending on the action } */
 typedef struct {
@@ -702,6 +701,11 @@ typedef EE_TYPETICK TickType;
 
 /* This data type points to the data type TickType. */
 typedef EE_TYPETICK *TickRefType;
+
+/* This is used for static alarm initialization in SetRelAlarm 
+*/
+#define EE_STATIC_CYCLE_TIME ((TickType)-1)
+#define EE_STATIC_ALARM_TIME ((TickType)-1)
 
 /* A structure for storage of counter characteristics. */
 typedef struct {

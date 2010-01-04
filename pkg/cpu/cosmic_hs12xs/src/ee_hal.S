@@ -47,7 +47,7 @@
 
 ///* the define is needed for binary distributions */
 #define __EECFG_THIS_IS_ASSEMBLER__
-//#include "eecfg.h"	
+#include "eecfg.h"	
 //#include "cpu/cosmic_hs12xs/inc/ee_compiler.h"
 
 xref 	f_EE_thread_end_instance

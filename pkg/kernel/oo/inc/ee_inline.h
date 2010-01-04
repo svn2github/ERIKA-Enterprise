@@ -89,7 +89,8 @@ __INLINE__ StatusType __ALWAYS_INLINE__ EE_oo_GetTaskState(TaskType TaskID, Task
   EE_ORTI_servicetrace = EE_SERVICETRACE_GETTASKSTATE+1;
 #endif
 
-  if (TaskID < 0 || TaskID >= EE_MAX_TASK) {
+  //if (TaskID < 0 || TaskID >= EE_MAX_TASK) {
+	if (TaskID >= EE_MAX_TASK) {
 #ifdef __OO_ORTI_SERVICETRACE__
     EE_ORTI_servicetrace = EE_SERVICETRACE_GETTASKSTATE;
 #endif

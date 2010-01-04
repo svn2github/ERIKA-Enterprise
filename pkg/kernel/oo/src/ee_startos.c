@@ -118,16 +118,16 @@ void EE_oo_StartOS(AppModeType Mode)
 #endif
 
 #if defined(__OO_AUTOSTART_TASK__) || defined(__OO_AUTOSTART_ALARM__)
-  if (Mode >= 0 && Mode < EE_MAX_APPMODE) {
-
+  //if (Mode >= 0 && Mode < EE_MAX_APPMODE) {
+	if (Mode < EE_MAX_APPMODE) {
 #ifdef __OO_AUTOSTART_TASK__
-    n = EE_oo_autostart_task_data[Mode].n;
+    n = (EE_UINT8)(EE_oo_autostart_task_data[Mode].n);
     for (t = 0; t<n; t++)
       EE_oo_ActivateTask(EE_oo_autostart_task_data[Mode].task[t]);
 #endif
 
 #ifdef __OO_AUTOSTART_ALARM__
-    n = EE_oo_autostart_alarm_data[Mode].n;
+    n = (EE_UINT8)(EE_oo_autostart_alarm_data[Mode].n);
     for (t = 0; t<n; t++) {
       EE_TYPEALARM alarm_temp = EE_oo_autostart_alarm_data[Mode].alarm[t];
       EE_oo_SetRelAlarm(alarm_temp, 

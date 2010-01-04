@@ -101,6 +101,16 @@ StatusType EE_oo_SetRelAlarm(AlarmType AlarmID,
   }
 #endif
 
+// New feature: you can configure alarm increment value and alarm cycle value inside the conf.oil and then 
+// call the function in this way: SetRelAlarm(alarm_id, EE_STATIC_ALARM_TIME, EE_STATIC_CYCLE_TIME);
+#ifdef __OO_AUTOSTART_ALARM__
+if(increment==EE_STATIC_ALARM_TIME)
+	increment = EE_oo_autostart_alarm_increment[AlarmID];
+if(cycle==EE_STATIC_CYCLE_TIME)
+	cycle = EE_oo_autostart_alarm_cycle[AlarmID];
+#endif // __OO_AUTOSTART_ALARM__
+
+
 #ifdef __OO_EXTENDED_STATUS__
   if (increment <= 0 || 
       increment > EE_counter_ROM[EE_alarm_ROM[AlarmID].c].maxallowedvalue

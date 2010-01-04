@@ -49,7 +49,7 @@
 
 #include "eecfg.h"
 #include "cpu/cosmic_hs12xs/inc/ee_compiler.h"
-#include "ee_hs12xsregs.h"
+//#include "ee_hs12xsregs.h"
 
 #ifndef __INCLUDE_S12XS_EE_CPU_H__
 #define __INCLUDE_S12XS_EE_CPU_H__
