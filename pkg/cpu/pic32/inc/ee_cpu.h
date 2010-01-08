@@ -46,19 +46,6 @@ typedef EE_UINT32 EE_TID;
 /* Addresses (that have the same size of a pointer) */
 typedef EE_UINT32 *EE_ADDR;
 
-/* TODO: do we still need the following struct? */
-/*
- * This structure is used by the Multistack HAL to contain the
- * information about a "stack", that is composed by a user stack
- * (SYS-mode) and a system stack (IRQ-mode). This type is
- * used internally by the HAL and is not used by the Kernels.
- */
-#ifdef __MULTI__
-//struct EE_TOS {
-//    EE_ADDR SYS_tos;
-//};
-#endif
-
 /*************************************************************************
  Application dependent data types
  *************************************************************************/

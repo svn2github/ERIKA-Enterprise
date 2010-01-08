@@ -3,10 +3,6 @@
 #ifndef __INCLUDE_PIC32_INTERNAL_H__
 #define __INCLUDE_PIC32_INTERNAL_H__
 
-/*************************************************************************
- Functions
- *************************************************************************/
-
 /*
  * Generic Primitives
  */
@@ -39,27 +35,16 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_IRQ_end_primitive(void)
 	#endif
 }
 
-
-/* TODO: do we still need the DISICNT register? I don't think so! (chris) */
-
-/* we should make an include file with all the registers of a PIC32 CPU
-   the file is typically provided by the compiler distribution */
-//extern EE_FREG DISICNT;
-//extern volatile EE_FREG DISICNT __attribute__((__sfr__));
-
 /* called as _first_ function of a primitive that can be called into
    an IRQ and into a task */
 __INLINE__ EE_FREG __ALWAYS_INLINE__ EE_hal_begin_nested_primitive(void)
 {
-	//register EE_FREG retvalue;
-	register EE_FREG retvalue = 0; // chris: TODO: check THIS!
+	register EE_FREG irq_enabled;
 	
-	/*
-	retvalue = DISICNT;
+	asm volatile (	"mfc0 %0, $12\n\t" : "=r"(irq_enabled));
+	irq_enabled &= 0x1; /* chris: Do I need to check IE, EXL, ERL, DM? */
 	EE_hal_disableIRQ();
-	*/
-	EE_hal_disableIRQ();
-	return retvalue;
+	return irq_enabled;
 }
 
 /* called as _last_ function of a primitive that can be called into
@@ -72,17 +57,12 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_end_nested_primitive(EE_FREG f)
 		EE_hal_enableIRQ();
 }
 
-
-/* TODO: I'm leaving all the functions below not modified, 
- *       except for the name of variables. Having PIC30 style. (chris) */
-
 /* 
  * Context Handling  
  */
 
 extern EE_ADDR EE_hal_endcycle_next_thread;
 extern EE_UREG EE_hal_endcycle_next_tos;
-
 
 /* typically called into a generic primitive to implement preemption */
 /* NOTE: pic32_thread_tos[0]=dummy, pic32_thread_tos[1]=thread0, ... */
@@ -139,7 +119,6 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_endcycle_ready(EE_TID thread)
 #define EE_hal_IRQ_stacked EE_hal_endcycle_stacked
 #define EE_hal_IRQ_ready EE_hal_endcycle_ready
 
-
 /* called to change the active stack, typically inside blocking primitives */
 /* there is no mono version for this primitive...*/
 #ifdef __MULTI__
@@ -150,8 +129,6 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_stkchange(EE_TID thread)
 	EE_pic32_hal_stkchange(EE_pic32_thread_tos[thread+1]);
 }
 #endif
-
-
 
 /*
  * Nested Interrupts Handling
@@ -164,7 +141,6 @@ __INLINE__ EE_UREG __ALWAYS_INLINE__ EE_hal_get_IRQ_nesting_level(void)
 {
 	return EE_IRQ_nesting_level;
 }
-
 
 /* 
  * OO TerminateTask related stuffs

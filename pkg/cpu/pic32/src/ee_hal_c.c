@@ -1,8 +1,7 @@
 #include "ee_internal.h"
 
 #ifdef __PIC32_ICD2__
-/* TODO: is this still required? */
-int _ICD2RAM;
+int _ICD2RAM; /* TODO: is this still required? */
 #endif
 
 /*
