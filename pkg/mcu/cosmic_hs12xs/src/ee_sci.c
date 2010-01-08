@@ -1,6 +1,6 @@
 #ifdef __USE_SCI__
 
-#include "mcu/cosmic_hs12xs/inc/ee_sci.h"
+//#include "cpu/cosmic_hs12xs/inc/ee_cpu.h"
 #include "ee_internal.h"
 #include "cpu/cosmic_hs12xs/inc/ee_irqstub.h"
 

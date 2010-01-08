@@ -45,7 +45,7 @@
 
 #include "ee_internal.h"
 
-#include "mcu/freescale_s12xs/inc/ee_internal.h"
+#include "ee_internal.h"
 #include "cpu/s12xs/inc/ee_irqstub.h"
 
 extern void EE_IRQ_end_budget(void);

@@ -47,6 +47,23 @@ ifeq ($(findstring __HCS12XS__,$(EEOPT)) , __HCS12XS__)
 #EE_SRCS += pkg/mcu/cosmic_hs12xs/src/ee_s12xsfrsh.c
 #endif
 
+ifeq ($(findstring __OO_BCC1__,$(EEOPT)) , __OO_BCC1__)
+MCU_OO=YES
+endif
+ifeq ($(findstring __OO_BCC2__,$(EEOPT)) , __OO_BCC2__)
+MCU_OO=YES
+endif
+ifeq ($(findstring __OO_ECC1__,$(EEOPT)) , __OO_ECC1__)
+MCU_OO=YES
+endif
+ifeq ($(findstring __OO_ECC2__,$(EEOPT)) , __OO_ECC2__)
+MCU_OO=YES
+endif
+
+ifeq ($(MCU_OO), YES)
+EE_SRCS += pkg/mcu/cosmic_hs12xs/src/ee_start.c
+endif
+
 ifeq ($(findstring __USE_SCI__,$(EEOPT)) , __USE_SCI__)
 EE_SRCS += pkg/mcu/cosmic_hs12xs/src/ee_sci.c
 endif
@@ -54,7 +71,6 @@ endif
 ifeq ($(findstring __USE_PIT__,$(EEOPT)) , __USE_PIT__)
 EE_SRCS += pkg/mcu/cosmic_hs12xs/src/ee_pit.c
 endif
-
 
 # typically empty, the crts.S function is typically provided by the
 # ASM30 Assembler

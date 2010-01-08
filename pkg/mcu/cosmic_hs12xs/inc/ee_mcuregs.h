@@ -51,9 +51,9 @@
 /* This file should contain the definition of the registers available
    on the particular dsPIC being used */
    
-/* Include a file with the registers from Microchip C30 distribution */ 
-#ifdef __S12XS_INCLUDE_REGS__
-#include "ee_hs12xsregs.h"
-#endif
+///* Include a file with the registers of the s12 micro-controller */ 
+//#ifdef __S12XS_INCLUDE_REGS__
+//#include "ee_hs12xsregs.h"
+//#endif
 
 #endif

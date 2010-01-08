@@ -3,11 +3,7 @@
 #ifndef __INCLUDE_FREESCALE_S12XS_SCI_H__
 #define __INCLUDE_FREESCALE_S12XS_SCI_H__
 
-#include "ee.h"
-/* Include a file with the registers from Microchip C30 distribution */ 
-#ifdef __S12XS_INCLUDE_REGS__
-#include "ee_hs12xsregs.h"
-#endif
+//#include "ee.h"
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////

@@ -47,10 +47,11 @@
 #include "ee_internal.h"
 //#include "cpu/cosmic_hs12xs/inc/ee_irqstub.h"
 //#include "ee_utils.h"
-#ifdef __S12XS_INCLUDE_REGS__
-#include "ee_hs12xsregs.h"
-#endif
+//#ifdef __S12XS_INCLUDE_REGS__
+//#include "ee_hs12xsregs.h"
+//#endif
 
+volatile EE_UINT8 EE_timer0_initialized = 1;
 
 #if(EE_MAX_COUNTER>0)
 
