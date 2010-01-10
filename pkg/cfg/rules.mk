@@ -220,6 +220,7 @@ endif
 
 endif
 
+
 ##
 ## ST10 - Tasking 6.0 under Windows
 ##########################################################################
@@ -243,12 +244,14 @@ ifeq ($(findstring __PIC30__,$(EEALLOPT)) , __PIC30__)
 include $(EEBASE)/pkg/cfg/arch/rules_microchip_pic30.mk
 endif
 
+
 ##
 ## Microchip PIC32 - gcc
 ##########################################################################
 ifeq ($(findstring __PIC32__,$(EEALLOPT)) , __PIC32__)
 include $(EEBASE)/pkg/cfg/arch/rules_microchip_pic32.mk
 endif
+
 
 ##
 ## Infineon Tricore - Tasking under Windows
@@ -258,6 +261,7 @@ ifeq ($(findstring __TC1775B__,$(EEALLOPT)) , __TC1775B__)
 include $(EEBASE)/pkg/cfg/arch/rules_infineon_tc1775b.mk
 endif
 endif
+
 
 ##
 ## Freescale S12X - Cosmic compiler under windows
@@ -269,6 +273,12 @@ endif
 endif
 
 
+##
+## Lattice Mico32 - gcc under Windows or Linux
+##########################################################################
+ifeq ($(findstring __LM32__,$(EEALLOPT)) , __LM32__)
+include $(EEBASE)/pkg/cfg/arch/rules_mico32.mk
+endif
 
 
 

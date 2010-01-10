@@ -46,13 +46,22 @@
 #ifndef __INCLUDE_MICO32_IRQ_H__
 #define __INCLUDE_MICO32_IRQ_H__
 
-typedef void (*EE_mico32_ISR_handler)( void );
+#include "cpu/mico32/inc/ee_internal.h"
+
+typedef void (*EE_mico32_ISR_handler)(void);
 
 /* Register a handler with a given interrupt number; also enable the given
  * interrupt.  If `fun' is 0, disable the given interrupt.
  * When interrupt nesting is enabled, it is safe to call this function from
  * interrupt handlers only for interrupts of higher level.
  */
-void EE_mico32_register_ISR( int level, EE_mico32_ISR_handler fun );
+void EE_mico32_register_ISR(int level, EE_mico32_ISR_handler fun);
+
+/* Unregister the IRQ handler for the given interrupt and disable the given
+ * interrupt. */
+__INLINE__ void EE_mico32_unregister_ISR(int level)
+{
+    EE_mico32_register_ISR((level), 0);
+}
 
 #endif /*  __INCLUDE_MICO32_IRQ_H__ */
