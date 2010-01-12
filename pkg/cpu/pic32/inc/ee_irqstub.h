@@ -1,8 +1,8 @@
-#include "eecfg.h"
-#include "cpu/pic32/inc/ee_compiler.h"
-
 #ifndef __INCLUDE_PIC32_EE_IRQSTUB_H__
 #define __INCLUDE_PIC32_EE_IRQSTUB_H__
+
+#include "eecfg.h"
+#include "cpu/pic32/inc/ee_compiler.h"
 
 /* from ee_internal.h */
 extern EE_ADDR EE_hal_endcycle_next_thread;

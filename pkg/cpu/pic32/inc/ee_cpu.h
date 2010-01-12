@@ -1,9 +1,9 @@
+#ifndef __INCLUDE_PIC32_EE_CPU_H__
+#define __INCLUDE_PIC32_EE_CPU_H__
+
 #include "eecfg.h"
 #include "cpu/pic32/inc/ee_compiler.h"
 #include "ee_pic32regs.h"
-
-#ifndef __INCLUDE_PIC32_EE_CPU_H__
-#define __INCLUDE_PIC32_EE_CPU_H__
 
 #define ASM_DIS_INT      	\
 do {				\
@@ -52,7 +52,6 @@ typedef EE_UINT32 *EE_ADDR;
 #ifdef __HAS_TYPES_H__
 #include "types.h"
 #endif
-
 
 /*************************************************************************
  HAL Variables
@@ -131,5 +130,10 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_disableIRQ(void)
 {
 	EE_pic32_disableIRQ();
 }
+
+/*************************************************************************
+ Include the IRQ stub: ISR2
+ *************************************************************************/
+#include "cpu/pic32/inc/ee_irqstub.h"
 
 #endif /* __INCLUDE_PIC32_ARCH_H__ */
