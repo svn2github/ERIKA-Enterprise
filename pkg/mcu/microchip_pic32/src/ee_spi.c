@@ -5,115 +5,72 @@ EE_INT8 EE_spi_init(EE_UINT8 port)
 	/* Enable SPI internal clock
 	 * Enable 8 bits communication mode
 	 * Enable Master Mode
-	 * Primary Prescale 1:1
-	 * Secondary Prescale 8:1
-	 * Note: with these prescale values the port works at 5 MHz. */
-	 
-	/* Note: because the chip select pin (SS1) 
-	   does not work properly, we drive this pin 
-	   directly setting it as a normal I/O pin.  */
-	/*if (port == EE_SPI_PORT_1) {
-		SPI1STATbits.SPIEN = 0; // Disable the SPI module
-		//SPI1CON1 = 0x23;
-		SPI1CON1 = 0x13E;
-		SPI1CON2 = 0;
-		SPI1STATbits.SPIEN = 1; // Enable the SPI module
-		return 1;
-	} else if (port == EE_SPI_PORT_2) {
-		SPI2STATbits.SPIEN = 0; // Disable the SPI module
-		//SPI1CON1 = 0x23;
-		SPI2CON1 = 0x13E; 
-		SPI2CON2 = 0;
-		SPI2STATbits.SPIEN = 1; // Enable the SPI module
-		return 1;
-	}*/
-	return -EE_SPI_ERR_BAD_PORT;
-}
-
-EE_INT8 EE_spi_close(EE_UINT8 port)
-{
+	 * Note: with these prescale values the port works at 5 MHz. 
+	*/
+	int rData; // chris: FIXME: is the regi cleaning required?
 	if (port == EE_SPI_PORT_1) {
-		/* chris: TODO: Release something */
+		IEC0CLR = _IEC0_SPI1EIE_MASK | _IEC0_SPI1TXIE_MASK | 
+			  _IEC0_SPI1RXIE_MASK;
+		SPI1CON = 0; 		
+		rData = SPI1BUF; 	/* Clears the receive buffer */	
+		SPI1BRG = 0x1; 	// TODO: change this hard-coding.
+				//Bibo: FCLK_SPI = Fpb/(SPIBRG+1) = 9 Mhz
+		SPI1STATCLR = _SPI1STAT_SPIROV_MASK; 
+		SPI1CON = _SPI1CON_MSTEN_MASK | _SPI1CON_SMP_MASK |
+			  _SPI1CON_ON_MASK;
 		return 1;
 	} else if (port == EE_SPI_PORT_2) {
-		/* chris: TODO: Release something */
+		IEC1CLR = _IEC1_SPI2EIE_MASK | _IEC1_SPI2TXIE_MASK | 
+			  _IEC1_SPI2RXIE_MASK;
+		SPI2CON = 0; 		
+		//TRISGCLR = 0x0140;
+		//TRISGSET = 0x0800;
+		rData = SPI2BUF; 	/* Clears the receive buffer */
+		SPI2BRG = 0x1; 	// TODO: change this hard-coding.
+				//Bibo: FCLK_SPI = Fpb/(SPIBRG+1) = 9 Mhz
+		SPI2STATCLR = _SPI2STAT_SPIROV_MASK; 
+		SPI2CON = _SPI2CON_MSTEN_MASK | _SPI2CON_SMP_MASK |
+			  _SPI2CON_ON_MASK;
 		return 1;
 	}
 	return -EE_SPI_ERR_BAD_PORT;
 }
 
+/* chris: TODO: Release something 
+EE_INT8 EE_spi_close(EE_UINT8 port)
+{
+	if (port == EE_SPI_PORT_1) {
+		return 1;
+	} else if (port == EE_SPI_PORT_2) {
+		return 1;
+	}
+	return -EE_SPI_ERR_BAD_PORT;
+}
+*/
+
 EE_INT8 EE_spi_rw_byte(EE_UINT8 port, EE_UINT8 data_in, EE_UINT8 *data_out)
 {
-	/*if (port == EE_SPI_PORT_1) {
-		IFS0bits.SPI1IF = 0;
-   		SPI1STATbits.SPIROV = 0;
-   		// wait until the tx buffer is empty 
-   		while (SPI1STATbits.SPITBF);
+	/* NOTE: Current implementation makes use of polling mode. 
+	 * Moreover this might lead to deadlock condition if the bus is not 
+	 * working properly.
+	*/
+	if (port == EE_SPI_PORT_1) {
+		SPI1STATCLR = _SPI1STAT_SPIROV_MASK; 
+   		while (!SPI1STATbits.SPITBE); 
    		SPI1BUF = data_in;
    		while (!SPI1STATbits.SPIRBF);
-   		SPI1STATbits.SPIROV = 0;
+		SPI1STATCLR = _SPI1STAT_SPIROV_MASK; 
 		*data_out = SPI1BUF & 0x00FF;
    		return 1;
 	} else if (port == EE_SPI_PORT_2) {
-		IFS2bits.SPI2IF = 0;
-   		SPI2STATbits.SPIROV = 0;
-   		// wait until the tx buffer is empty
-   		while (SPI2STATbits.SPITBF);
+		SPI2STATCLR = _SPI2STAT_SPIROV_MASK; 
+   		while (!SPI2STATbits.SPITBE); 
    		SPI2BUF = data_in;
    		while (!SPI2STATbits.SPIRBF);
-   		SPI2STATbits.SPIROV = 0;
+		SPI2STATCLR = _SPI2STAT_SPIROV_MASK; 
 		*data_out = SPI2BUF & 0x00FF;
    		return 1;
-   	}*/
-	return -EE_SPI_ERR_BAD_PORT;
-}
-
-EE_INT8 EE_spi_write_byte(EE_UINT8 port, EE_UINT8 data)
-{
-	/*if (port == EE_SPI_PORT_1) {
-		IFS0bits.SPI1IF = 0;
-   		SPI1STATbits.SPIROV = 0;
-   		// wait until the tx buffer is empty
-   		while (SPI1STATbits.SPITBF);
-   		SPI1BUF = data;
-   		while (!SPI1STATbits.SPIRBF);
-   		SPI1STATbits.SPIROV = 0;
-		data = SPI1BUF; // Dummy Read Required
-   		return 1;
-	} else if (port == EE_SPI_PORT_2) {
-		IFS2bits.SPI2IF = 0;
-   		SPI2STATbits.SPIROV = 0;
-   		// wait until the tx buffer is empty
-   		while (SPI2STATbits.SPITBF);
-   		SPI2BUF = data;
-   		while (!SPI2STATbits.SPIRBF);
-   		SPI2STATbits.SPIROV = 0;
-		data = SPI2BUF; // Dummy Read Required
-   		return 1;
-   	}*/
-	return -EE_SPI_ERR_BAD_PORT;
-}
-
-EE_INT8 EE_spi_read_byte(EE_UINT8 port, EE_UINT8 *data)
-{
-	/*if (port == EE_SPI_PORT_1) {
-   		// wait until the tx buffer is empty
-   		while (SPI1STATbits.SPITBF);
-   		SPI1BUF = 0x00;
-   		while (!SPI1STATbits.SPIRBF);
-   		SPI1STATbits.SPIROV = 0;
-   		*data =  SPI1BUF & 0x00FF;
-		
-   		return 1;
-	} else if (port == EE_SPI_PORT_2) {
-   		// wait until the tx buffer is empty
-   		while (SPI2STATbits.SPITBF);
-   		SPI2BUF = 0x00;
-   		while (!SPI2STATbits.SPIRBF);
-   		SPI2STATbits.SPIROV = 0;
-   		*data =  SPI2BUF & 0x00FF;
-   		return 1;
-   	}*/
+   	}
 	return -EE_SPI_ERR_BAD_PORT;
 }
 

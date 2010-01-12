@@ -27,7 +27,7 @@ void	mrf24j40_wake() ;
 
 #ifdef MRF24J40_DEBUG
 
-#include <stdio.h>
+//#include <stdio.h>
 #include "console_serial.h"
 
 #define DEBUG_PORT 0

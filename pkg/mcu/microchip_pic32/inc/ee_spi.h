@@ -33,7 +33,10 @@
 */
 EE_INT8 EE_spi_init(EE_UINT8 port);
 
-EE_INT8 EE_spi_close(EE_UINT8 port);
+__INLINE__ EE_INT8 EE_spi_close(EE_UINT8 port)
+{
+	return 1;
+}
 
 /**
 * @brief Send a byte through  the SPI peripheral.
@@ -62,7 +65,10 @@ EE_INT8 EE_spi_rw_byte(EE_UINT8 port, EE_UINT8 data_in, EE_UINT8 *data_out);
 *
 * @pre		The SPI port must be correctly initialized.
 */
-EE_INT8 EE_spi_write_byte(EE_UINT8 port, EE_UINT8 data);
+__INLINE__ EE_INT8 EE_spi_write_byte(EE_UINT8 port, EE_UINT8 data)
+{
+	return EE_spi_rw_byte(port, data, &data);
+}
 
 /**
 * @brief Get a character through the SPI peripheral.
@@ -74,6 +80,9 @@ EE_INT8 EE_spi_write_byte(EE_UINT8 port, EE_UINT8 data);
 *
 * @pre		The SPI port must be correctly initialized.
 */
-EE_INT8 EE_spi_read_byte(EE_UINT8 port, EE_UINT8 *data);
+__INLINE__ EE_INT8 EE_spi_read_byte(EE_UINT8 port, EE_UINT8 *data)
+{
+	return EE_spi_rw_byte(port, 0x00, data);
+}
 
 #endif

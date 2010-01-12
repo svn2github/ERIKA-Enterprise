@@ -1,4 +1,3 @@
-
 #include "mcu/microchip_pic32/inc/ee_uart.h"
 #include "ee_internal.h"
 #include "cpu/pic32/inc/ee_irqstub.h"
@@ -26,7 +25,7 @@ EE_INT8 EE_uart_init(EE_UINT8 port, EE_UINT32 baud, EE_UINT16 byte_format,
 			TRISDbits.TRISD14 = 1;	// Set In CTS Pin
 			TRISDbits.TRISD15 = 0;	// Set Out RTS Pin
 		}
-		U1BRG  = (EE_UART_INSTRUCTION_CLOCK / baud) - 1; // Set Baud Rate
+		U1BRG  = ((EE_UART_INSTRUCTION_CLOCK / (16 * baud))) - 1; 
 		//U1BRG = 21 // For 115200 with Fcy = 40MHz
 		U1MODE = 0; 				// Operation settings and start port
 		U1MODEbits.BRGH = 0;
@@ -54,7 +53,7 @@ EE_INT8 EE_uart_init(EE_UINT8 port, EE_UINT32 baud, EE_UINT16 byte_format,
 			TRISFbits.TRISF12 = 1;	// Set In RX Pin
 			TRISFbits.TRISF13 = 0;	// Set Out TX Pin
 		}
-		U2BRG  = (EE_UART_INSTRUCTION_CLOCK / baud) - 1;	// baud rate
+		U2BRG  = ((EE_UART_INSTRUCTION_CLOCK / (16 * baud))) - 1; 
 		//U2BRG = 21; // For 115200 with Fcy = 40MHz
 		U2MODE = 0;					// Operation settings and start port
 		U2MODEbits.BRGH = 0;

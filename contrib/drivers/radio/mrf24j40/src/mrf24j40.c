@@ -59,16 +59,14 @@ int8_t mrf24j40_init(uint8_t int_setup, uint8_t ch, uint8_t port)
 	/*TODO; manage error code*/
 	if (retv < 0)
 		return -1;
-
-
-	MRF24J40_RESETn = 0;
+	
+	// FIXME: change the inverted logic due to elco board inverters.
 	mrf24j40_delay_us(2500); 
-    
 	MRF24J40_RESETn = 1;
+	mrf24j40_delay_us(2500); 
+	MRF24J40_RESETn = 0;
 	mrf24j40_delay_us(2500);
-
-
-
+	
 	/**
 	 * Software reset:  
 	 * 7:3 = '00'  = Reserved
@@ -81,10 +79,8 @@ int8_t mrf24j40_init(uint8_t int_setup, uint8_t ch, uint8_t port)
 	/**
 	* wait until the radio reset is completed
 	*/
-	do
-	{
+	do 
 		i = mrf24j40_get_short_add_mem(MRF24J40_SOFTRST);
-	}
 	while((i & 0x07) != 0);   
 
 

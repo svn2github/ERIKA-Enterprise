@@ -24,7 +24,14 @@
 #ifdef __ERIKA__		/* Erika OS */
 
 #include <ee.h>
-#include <mrf24j40_hal_ee.h>
+
+#if defined 	__MICROCHIP_DSPIC30__
+#include <mrf24j40_hal_ee_dspic.h>
+#elif defined	__MICROCHIP_PIC32__
+#include <mrf24j40_hal_ee_pic32.h>
+#else		/* NO Architecture */
+#error "MRF24J40_HAL: Architecture not supported"
+#endif
 
 #else			/* No OS */
 

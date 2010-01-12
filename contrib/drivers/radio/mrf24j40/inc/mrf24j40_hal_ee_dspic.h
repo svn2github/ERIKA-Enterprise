@@ -14,10 +14,8 @@
 
 // TODO: Check radio pins.
 
-#ifndef __mrf24j40_hal_ee_h__
-#define __mrf24j40_hal_ee_h__
-
-#ifdef __MICROCHIP_DSPIC30__
+#ifndef __mrf24j40_hal_ee_dspic_h__
+#define __mrf24j40_hal_ee_dspic_h__
 
 #ifndef __USE_SPI__
 #error "MRF24J40 HAL EE : The SPI module from MCU is required!"
@@ -135,11 +133,5 @@ int8_t	mrf24j40_spi_init(uint8_t port);
 int8_t	mrf24j40_spi_close(void);
 int8_t	mrf24j40_spi_put(uint8_t in, uint8_t *out);
 int8_t	mrf24j40_spi_get(uint8_t *out);
-
-#else
-
-#error "MRF24J40_HAL: Architecture not supported!"
-
-#endif
 
 #endif /* Header Protection */
