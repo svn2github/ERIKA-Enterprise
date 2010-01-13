@@ -39,62 +39,55 @@
  * ###*E*### */
 
 /*
- * IRQ-related stuff for Lattice Mico32
- * Author: 2009 Bernardo Dal Seno
+ * Some debugging facilities
+ * Author: 2010,  Bernardo  Dal Seno
  */
 
-#include "cpu/mico32/inc/ee_irq_internal.h"
-#include "ee_internal.h"
-#include "cpu/common/inc/ee_irqstub.h"
-
-EE_mico32_ISR_handler EE_mico32_ISR_table[MAX_MICO32_ISR_LEVEL+1];
+#ifndef __INCLUDE_MICO32_DEBUG_H__
+#define __INCLUDE_MICO32_DEBUG_H__
 
 
-/* Possible improvement: Enable higher-level interrupts while processing lower
- * level interrupts, even in this function */
-void MicoISRHandler(void)
-{
-    EE_increment_IRQ_nesting_level();
-    int mask, level;
-    int im, ip;
+/*
+ * Stack debugging
+ */
+#ifdef DEBUG_STACK
 
-    for (;;) {
-        ip = mico32_get_reg_ip();
-        im = mico32_get_reg_im();
-        ip &= im;
-        if (ip == 0)
-            break;
-        for (mask = 1, level = 0; ; ++level, mask <<= 1) {
-            if (ip & mask) {
-                EE_mico32_ISR_handler f = EE_mico32_ISR_table[level];
-                if (f)
-                    EE_mico32_call_ISR_new_stack(f);
-                mico32_clear_ip_mask(mask);
-                break;
-            }
+/*
+ * This value is used as a canary (guard memory location) for stack overflow
+ * detection.  This value has three interesting properties, which tend to cause
+ * an exception if it's read and used by the processor:
+ * 1. It's an invalid instruction
+ * 2. It's a misaligned address
+ * 3. It's an address in the I/O region, not suitable for code, and likely
+ * invalid anyway
+ * The canary is written before and after the actual stack space.  If it is
+ * overwritten, you know that that the stack has been exceeded.
+ */
+#define MICO32_STACK_CANARY     0xabadbeef
+/*
+ * Value to fill uninitialized memory.  It has the same properties of the
+ * canary.
+ */
+#define MICO32_FILL_MEMORY      0xce11f00d
+
+#define PRE_STACK_CANARY_LEN    22  /* Enough to invalidate all caller-saved
+                                     * registers */
+#define POST_STACK_CANARY_LEN    4
+
+/* Write the canary before and after the actual stack, and fill it with
+ * garbage. */
+#define MICO32_STACK_INIT(stack_len) {                                  \
+    [0 ... POST_STACK_CANARY_LEN - 1] = MICO32_STACK_CANARY,            \
+        [POST_STACK_CANARY_LEN ... stack_len + POST_STACK_CANARY_LEN - 1] \
+        = MICO32_FILL_MEMORY,                                           \
+        [stack_len + POST_STACK_CANARY_LEN ...                          \
+            stack_len + PRE_STACK_CANARY_LEN + POST_STACK_CANARY_LEN - 1] \
+        = MICO32_STACK_CANARY                                           \
         }
-    }
-    EE_decrement_IRQ_nesting_level();
-    if (! EE_is_inside_ISR_call()) {
-        /* Outer nesting level: call the scheduler.  If we have also type-ISR1
-         * interrupts, the scheduler should be called only for type-ISR2
-         * interrupts. */
-        EE_std_after_IRQ_schedule();
-    }
-}
+#define MICO32_INIT_TOS_OFFSET (PRE_STACK_CANARY_LEN+1)
+#define MICO32_STACK_DEBUG_LEN (PRE_STACK_CANARY_LEN+POST_STACK_CANARY_LEN)
+
+#endif /* DEBUG_STACK */
 
 
-void EE_mico32_register_ISR(int level, EE_mico32_ISR_handler fun)
-{
-    int mask;
-    EE_FREG intst = EE_mico32_disableIRQ();
-    EE_mico32_ISR_table[level] = fun;
-    mask = mico32_get_reg_im();
-    if (fun)
-        mask |= 1 << level;
-    else
-        mask &= ~(1 << level);
-    mico32_set_reg_im(mask);
-    if (EE_mico32_are_IRQs_enabled(intst))
-        EE_mico32_enableIRQ();
-}
+#endif /* __INCLUDE_MICO32_DEBUG_H__ */

@@ -61,4 +61,8 @@ ifeq ($(CPU_OO), YES)
 EE_SRCS += pkg/cpu/mico32/src/ee_oo.S
 endif
 
+ifeq ($(findstring __MULTI__,$(EEOPT)) , __MULTI__)
+EE_SRCS += pkg/cpu/mico32/src/ee_context.S
+endif
+
 endif # __LM32__

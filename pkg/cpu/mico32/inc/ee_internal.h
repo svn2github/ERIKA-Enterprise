@@ -82,6 +82,10 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_end_nested_primitive(EE_FREG f)
  * Context Handling  
  */
 
+#ifdef __MULTI__
+extern EE_UREG EE_mico32_active_tos;
+#define EE_hal_active_tos EE_mico32_active_tos
+#endif
 #include "cpu/common/inc/ee_context.h"
 
 /* typically called at the end of an interrupt */

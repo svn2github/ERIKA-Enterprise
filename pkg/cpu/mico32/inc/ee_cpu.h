@@ -60,6 +60,10 @@
  * functions */
 #define INVALID_ASM_INSTR  asm volatile ( ".word 0xcccc" )
 
+/* Initial stack offest (in words) */
+#ifndef DEBUG_STACK
+#define MICO32_INIT_TOS_OFFSET 1
+#endif
 
 /*************************************************************************
  HAL Types and structures
@@ -133,5 +137,12 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_disableIRQ(void)
 {
     EE_mico32_disableIRQ();
 }
+
+
+/*************************************************************************
+ Macros for debugging
+ *************************************************************************/
+#include "cpu/mico32/inc/ee_debug.h"
+
 
 #endif /* __INCLUDE_MICO32_EE_CPU_H__ */

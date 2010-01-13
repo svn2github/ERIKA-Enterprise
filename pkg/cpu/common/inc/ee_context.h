@@ -49,6 +49,18 @@
 #define __INCLUDE_CPU_COMMON_EE_CONTEXT__
 
 
+/*
+ * Instructions
+ *
+ * The monostack part is complete (obviously, the functions to disable/enable
+ *  interrupts are not included here).  For the multistack part you have to
+ *  provide two additional things:
+ *  1. An assembly implementation of EE_std_change_context_multi(); see below.
+ *  2. A #define directive for EE_hal_active_tos, which is just an alias for the
+ *  actual architecture-dependent variable.  This variable contains the index of
+ *  the current stack.
+ */
+
 /* After a task terminates, the scheduler puts the new thread and the new stack
  * into these variables.  They represents the new context to switch to. */
 extern EE_FADDR EE_hal_endcycle_next_thread;
@@ -64,7 +76,7 @@ extern EE_UREG EE_hal_endcycle_next_tos;
 __DECLARE_INLINE__ void EE_std_change_context_mono(EE_FADDR thread_addr);
 #endif
 #ifdef __MULTI__
-__DECLARE_INLINE__ void EE_std_change_context_multi(EE_FADDR thread_addr, EE_UREG tos_index);
+void EE_std_change_context_multi(EE_FADDR thread_addr, EE_UREG tos_index);
 #endif
 /* Pseudo code for EE_std_change_context_multi():
      begin:
@@ -166,7 +178,13 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_stkchange(EE_TID thread)
 
 __INLINE__ void  __ALWAYS_INLINE__ EE_std_set_next_tos_from_index(EE_TID ind)
 {
-    EE_hal_endcycle_next_tos = EE_mico32_thread_tos[ind+1];
+    EE_hal_endcycle_next_tos = EE_std_thread_tos[ind+1];
+}
+
+
+__INLINE__ int __ALWAYS_INLINE__ EE_hal_need_change_stack(EE_UREG tos_index)
+{
+    return (EE_hal_active_tos != tos_index);
 }
 #endif
 
