@@ -1,6 +1,6 @@
 /** 
-* @file mrf24j40_hal_.h
-* @brief MRF24J40 Hw Abstraction Layer using Erika OS
+* @file mrf24j40_hal_ee_dspic.h
+* @brief MRF24J40 Hw Abstraction Layer using Erika OS over Microchip dsPIC
 * @author Gianluca Franchino
 * @author Christian Nastasi
 * @author Mauro Nino Marinoni
@@ -133,5 +133,40 @@ int8_t	mrf24j40_spi_init(uint8_t port);
 int8_t	mrf24j40_spi_close(void);
 int8_t	mrf24j40_spi_put(uint8_t in, uint8_t *out);
 int8_t	mrf24j40_spi_get(uint8_t *out);
+
+COMPILER_INLINE void mrf24j40_hal_retsetn_high(void)
+{
+	MRF24J40_RESETn = 1;
+}
+
+COMPILER_INLINE void mrf24j40_hal_retsetn_low(void)
+{
+	MRF24J40_RESETn = 0;
+}
+
+COMPILER_INLINE void mrf24j40_hal_csn_high(void)
+{
+	MRF24J40_CSn = 1;
+}
+
+COMPILER_INLINE void mrf24j40_hal_csn_low(void)
+{
+	MRF24J40_CSn = 0;
+}
+
+COMPILER_INLINE void mrf24j40_hal_irq_enable(void)
+{
+	MRF24J40_INTERRUPT_ENABLE = 1;
+}
+
+COMPILER_INLINE void mrf24j40_hal_irq_disable(void)
+{
+	MRF24J40_INTERRUPT_ENABLE = 0;
+}
+
+COMPILER_INLINE uint8_t mrf24j40_hal_irq_status(void)
+{
+	return MRF24J40_INTERRUPT_ENABLE;
+}
 
 #endif /* Header Protection */

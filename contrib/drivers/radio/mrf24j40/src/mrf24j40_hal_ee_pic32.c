@@ -1,10 +1,9 @@
 /** 
-* @file mrf24j40_hal_ee.c
-* @brief MRF24J40 Hw Abstraction Layer using Erika OS
-* @author Gianluca Franchino
+* @file mrf24j40_hal_ee_pic32.c
+* @brief MRF24J40 Hw Abstraction Layer using Erika OS over microchip pic32.
 * @author Christian Nastasi
-* @author Mauro Nino Marinoni
-* @date 2009-03-24
+* @author Marco Ghibaudi 
+* @date 2010-01-12
 *
 * This file is the  hardware abstraction layer used by all the module
 * of the MRF24J40 library which uses the Erika kernel drivers. 
@@ -15,22 +14,10 @@
 
 #ifdef __MICROCHIP_PIC32__
 
-static uint16_t temp_count = 0;
+static uint8_t spi_port; 
 
-volatile unsigned int pipponia = 0; 
-void mrf24j40_delay_us( uint16_t delay_count ) 
+void mrf24j40_delay_us(uint16_t delay_count) 
 {
-	temp_count = delay_count +1;
-	//asm volatile("outer: dec _temp_count");	
-	//asm volatile("cp0 _temp_count");
-	//asm volatile("bra z, done");
-	//asm volatile("do #1500, inner" );	
-	//asm volatile("nop");
-	//asm volatile("inner: nop");
-	//asm volatile("bra outer");
-	//asm volatile("done:");
-	EE_UINT32 i;
-	
 	asm volatile(	"lui $v0, %hi(18000)\n\t"
 			"addiu $v0, $v0, %lo(18000)\n\t"
 			"1:\n\t"
@@ -43,9 +30,7 @@ int8_t	mrf24j40_hal_init(void)
 {
 	/* Set the IO pins direction */
 	MRF24J40_TRIS_RESETn = 0;
-	//MRF24J40_TRIS_VREG_EN = 0;
 	MRF24J40_TRIS_INT = 1;
-	//MRF24J40_TRIS_FIFOP = 1;
 	MRF24J40_TRIS_CSn = 0;
 	/* Set interrupt registers */
 	MRF24J40_INTERRUPT_FLAG = 0;
@@ -54,8 +39,6 @@ int8_t	mrf24j40_hal_init(void)
 	MRF24J40_INTERRUPT_ENABLE = 1;
 	return 1;
 }
-
-static uint8_t spi_port; 
 
 int8_t	mrf24j40_spi_init(uint8_t port)
 {

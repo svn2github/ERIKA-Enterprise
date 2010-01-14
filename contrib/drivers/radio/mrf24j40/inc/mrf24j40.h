@@ -13,8 +13,6 @@
 #include "mrf24j40_compiler.h"
 #include "mrf24j40_hal.h"
 
-
-
 /* Functions prototypes */
 int8_t  mrf24j40_init(uint8_t int_setup, uint8_t ch, uint8_t port);
 int8_t	mrf24j40_store_norm_txfifo(uint8_t* buf, uint8_t len);
@@ -41,21 +39,7 @@ void	mrf24j40_wake() ;
 
 #endif /* MRF24J40_DEBUG */
 
-
-#define MRF24J40_CSn_1()\
-{\
-    MRF24J40_CSn = 1;\
-}
-
-#define MRF24J40_CSn_0()\
-{\
-    MRF24J40_CSn = 0;\
-}
-
- 
-/**
-* long address registers
-*/
+/* long address registers */
 #define MRF24J40_RFCON0 (0x200)
 #define MRF24J40_RFCON1 (0x201)
 #define MRF24J40_RFCON2 (0x202)
@@ -80,19 +64,14 @@ void	mrf24j40_wake() ;
 #define MRF24J40_MAINCNT2 (0x228)
 #define MRF24J40_MAINCNT3 (0x229)
 #define MRF24J40_TESTMODE (0x22f)
-
 #define MRF24J40_NORMAL_TX_FIFO  (0x000)
 #define MRF24J40_BEACON_TX_FIFO  (0x080)
 #define MRF24J40_GTS1_TX_FIFO    (0x100)
 #define MRF24J40_GTS2_TX_FIFO    (0x180)
-
 #define MRF24J40_RX_FIFO         (0x300)
-
 #define MRF24J40_SECURITY_FIFO   (0x280)
 
-/**
-* Short address registers
-*/
+/* Short address registers */
 #define MRF24J40_RXMCR (0x00)
 #define MRF24J40_PANIDL (0x01)
 #define MRF24J40_PANIDH (0x02)
@@ -152,9 +131,7 @@ void	mrf24j40_wake() ;
 #define MRF24J40_BBREG6 (0x3E)
 #define MRF24J40_CCAEDTH (0x3F)
 
-/*
-* Channel setting codes
-*/
+/* Channel setting codes */
 #define MRF24J40_CHANNEL_11 0x00
 #define MRF24J40_CHANNEL_12 0x10
 #define MRF24J40_CHANNEL_13 0x20
@@ -179,22 +156,28 @@ void	mrf24j40_wake() ;
  * with the & operand (bit-wise AND). 
  */
 
-#define MRF24J40_EN_TX_NORMAL_FIFO (0b11111110)  //Enables the TX Normal FIFO transmission interrupt
-#define MRF24J40_EN_TX_GTS1_FIFO (0b11111101)    //Enables TX GTS1 FIFO transmission interrupt
-#define MRF24J40_EN_TX_GTS2_FIFO (0b11111011)    //Enables TX GTS2 FIFO transmission interrupt
-#define MRF24J40_EN_RX_FIFO (0b11110111)         //Enables the RX FIFO reception interrupt
-#define MRF24J40_EN_SEC_KEY_REQ (0b11101111)     //Enables the security key request interrupt
-#define MRF24J40_EN_HALF_SYMB_TIMER (0b11011111) //Enables the half symbol timer interrupt
-#define MRF24J40_EN_WAKE_UP_INT (0b10111111)     //Enables the wake-up alert interrupt
-#define MRF24J40_EN_SLEEP_ALERT_INT (0b01111111) //Enables the Sleep alert interrupt
+//Enables the TX Normal FIFO transmission interrupt
+#define MRF24J40_EN_TX_NORMAL_FIFO (0b11111110)  
+//Enables TX GTS1 FIFO transmission interrupt
+#define MRF24J40_EN_TX_GTS1_FIFO (0b11111101)    
+//Enables TX GTS2 FIFO transmission interrupt
+#define MRF24J40_EN_TX_GTS2_FIFO (0b11111011)    
+//Enables the RX FIFO reception interrupt
+#define MRF24J40_EN_RX_FIFO (0b11110111)         
+//Enables the security key request interrupt
+#define MRF24J40_EN_SEC_KEY_REQ (0b11101111)     
+//Enables the half symbol timer interrupt
+#define MRF24J40_EN_HALF_SYMB_TIMER (0b11011111) 
+//Enables the wake-up alert interrupt
+#define MRF24J40_EN_WAKE_UP_INT (0b10111111)     
+//Enables the Sleep alert interrupt
+#define MRF24J40_EN_SLEEP_ALERT_INT (0b01111111) 
 
 /* TX power levels masks */
-
 #define MRF24J40_TXPWRL_0dB 0x00
 #define MRF24J40_TXPWRL_MINUS_10dB 0x01
 #define MRF24J40_TXPWRL_MINUS_20dB 0x02
 #define MRF24J40_TXPWRL_MINUS_30dB 0x03
-
 #define MRF24J40_TXPWRS_0dB 0x00
 #define MRF24J40_TXPWRS_MINUS0_5dB 0x01
 #define MRF24J40_TXPWRS_MINUS1_2dB 0x02
@@ -252,14 +235,15 @@ typedef union _INT_status {
 */
 COMPILER_INLINE void mrf24j40_set_short_add_mem(uint8_t addr, uint8_t val)
 {
-	volatile uint8_t tmp = MRF24J40_INTERRUPT_ENABLE;
+	volatile uint8_t tmp = mrf24j40_hal_irq_status();
     
-	MRF24J40_INTERRUPT_ENABLE = 0;
-	MRF24J40_CSn_0();
-	mrf24j40_spi_put((addr<<1) | 0x01, NULL);
+	mrf24j40_hal_irq_disable();
+	mrf24j40_hal_csn_low();
+	mrf24j40_spi_put((addr << 1) | 0x01, NULL);
 	mrf24j40_spi_put(val, NULL);
-	MRF24J40_CSn_1();
-	MRF24J40_INTERRUPT_ENABLE = tmp;
+	mrf24j40_hal_csn_high();
+	if (tmp) 
+		mrf24j40_hal_irq_enable();
 }
 
 /**
@@ -267,14 +251,16 @@ COMPILER_INLINE void mrf24j40_set_short_add_mem(uint8_t addr, uint8_t val)
 */
 COMPILER_INLINE void mrf24j40_set_long_add_mem(uint16_t addr, uint8_t val )
 {
-	volatile uint8_t tmp = MRF24J40_INTERRUPT_ENABLE;
-	MRF24J40_INTERRUPT_ENABLE = 0;
-	MRF24J40_CSn_0();
+	volatile uint8_t tmp = mrf24j40_hal_irq_status();
+
+	mrf24j40_hal_irq_disable();
+	mrf24j40_hal_csn_low();
 	mrf24j40_spi_put((((uint8_t)(addr>>3))&0x7F)|0x80, NULL);
 	mrf24j40_spi_put((((uint8_t)(addr<<5))&0xE0)|0x10, NULL);
 	mrf24j40_spi_put(val, NULL);
-	MRF24J40_CSn_1();
-	MRF24J40_INTERRUPT_ENABLE = tmp;
+	mrf24j40_hal_csn_high();
+	if (tmp) 
+		mrf24j40_hal_irq_enable();
 }
 
 /**
@@ -283,13 +269,15 @@ COMPILER_INLINE void mrf24j40_set_long_add_mem(uint16_t addr, uint8_t val )
 COMPILER_INLINE uint8_t mrf24j40_get_short_add_mem(uint8_t addr)
 {
 	uint8_t ret_val;
-	volatile uint8_t tmp = MRF24J40_INTERRUPT_ENABLE;
-	MRF24J40_INTERRUPT_ENABLE = 0;
-	MRF24J40_CSn_0();
+	volatile uint8_t tmp = mrf24j40_hal_irq_status();
+	
+	mrf24j40_hal_irq_disable();
+	mrf24j40_hal_csn_low();
 	mrf24j40_spi_put(addr<<1, NULL);
 	mrf24j40_spi_get(&ret_val);
-	MRF24J40_CSn_1();
-	MRF24J40_INTERRUPT_ENABLE = tmp;
+	mrf24j40_hal_csn_high();
+	if (tmp) 
+		mrf24j40_hal_irq_enable();
 	return ret_val;
 }
 
@@ -299,14 +287,16 @@ COMPILER_INLINE uint8_t mrf24j40_get_short_add_mem(uint8_t addr)
 COMPILER_INLINE uint8_t mrf24j40_get_long_add_mem(uint16_t addr)
 {
 	uint8_t ret_val;
-	volatile uint8_t tmp = MRF24J40_INTERRUPT_ENABLE;
-	MRF24J40_INTERRUPT_ENABLE = 0;
-	MRF24J40_CSn_0();
+	volatile uint8_t tmp = mrf24j40_hal_irq_status();
+	
+	mrf24j40_hal_irq_disable();
+	mrf24j40_hal_csn_low();
 	mrf24j40_spi_put(((addr>>3)&0x7F)|0x80, NULL);
 	mrf24j40_spi_put((addr<<5)&0xE0, NULL);
 	mrf24j40_spi_get(&ret_val);
-	MRF24J40_CSn_1();
-	MRF24J40_INTERRUPT_ENABLE = tmp;
+	mrf24j40_hal_csn_high();
+	if (tmp) 
+		mrf24j40_hal_irq_enable();
 	return ret_val;
 }
 
@@ -448,10 +438,8 @@ COMPILER_INLINE uint8_t mrf24j40_get_rssi()
 	#else
 	mrf24j40_set_short_add_mem(MRF24J40_BBREG6, 0x40); 
 	#endif
-	
 	/* Wait until RSSI calculation is done */
 	while (!(mrf24j40_get_short_add_mem(MRF24J40_BBREG6) & 0x01));
-	
 	return mrf24j40_get_long_add_mem(MRF24J40_RSSI);
 }
 
@@ -471,9 +459,9 @@ COMPILER_INLINE void mrf24j40_set_CSMA_par(uint8_t be, uint8_t nb)
 	if (be > 3)
 		be = 3;
 	#ifdef BEACON_ENABLED_MODE
-		mrf24j40_set_short_add_mem(MRF24J40_TXMCR, 0x20 | nb | (be << 3));
+	mrf24j40_set_short_add_mem(MRF24J40_TXMCR, 0x20 | nb | (be << 3));
 	#else
-		mrf24j40_set_short_add_mem(MRF24J40_TXMCR, nb | (be << 3));
+	mrf24j40_set_short_add_mem(MRF24J40_TXMCR, nb | (be << 3));
 	#endif
 }
 
@@ -505,10 +493,8 @@ COMPILER_INLINE void mrf24j40_set_lifs(uint8_t val)
 	uint8_t old_txpend = mrf24j40_get_short_add_mem(MRF24J40_TXPEND);
 	
 	old_txpend &= 0x03;
-
 	if (val > 63)
 		val = 63;
-
 	mrf24j40_set_short_add_mem(MRF24J40_TXPEND, old_txpend | (val << 2));
 }
 

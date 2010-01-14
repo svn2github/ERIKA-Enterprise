@@ -1,6 +1,6 @@
 /** 
-* @file mrf24j40_hal_ee.c
-* @brief MRF24J40 Hw Abstraction Layer using Erika OS
+* @file mrf24j40_hal_ee_dspic.c
+* @brief MRF24J40 Hw Abstraction Layer using Erika OS over microchip dsPIC
 * @author Gianluca Franchino
 * @author Christian Nastasi
 * @author Mauro Nino Marinoni

@@ -1,12 +1,12 @@
 /** 
-* @file mrf24j40_hal_.h
-* @brief MRF24J40 Hw Abstraction Layer using Erika OS
-* @author Gianluca Franchino
+* @file mrf24j40_hal_ee_pic32.h
+* @brief MRF24J40 Hw Abstraction Layer using Erika OS over Microchip pic32
 * @author Christian Nastasi
-* @author Mauro Nino Marinoni
-* @date 2009-03-24
+* @author Marco Ghibaudi
+* @date 2010-01-12
 *
-* This file is the definition of the hardware abstraction layer used by all the module
+* This file is the definition of the hardware abstraction layer 
+* used by all the module
 * of the MRF24J40 library which uses the Erika kernel drivers. 
 *
 * \todo Write something about the hal support.
@@ -69,6 +69,8 @@
 #define MRF24J40_INTERRUPT_EDGE_POLARITY	 INTCONbits.INT3EP
 #endif
 
+// chris: The following section is inherited from the dsPIC, was for Flex+DMB.
+//
 //#ifndef MRF24J40_RESETn
 //#define MRF24J40_RESETn		PORTGbits.RG0
 //#endif
@@ -177,5 +179,44 @@ int8_t	mrf24j40_spi_init(uint8_t port);
 int8_t	mrf24j40_spi_close(void);
 int8_t	mrf24j40_spi_put(uint8_t in, uint8_t *out);
 int8_t	mrf24j40_spi_get(uint8_t *out);
+
+COMPILER_INLINE void mrf24j40_hal_retsetn_high(void)
+{
+	// chris: FIXME: This is due to the inverter of the elco v1 board!
+	//MRF24J40_RESETn = 1;
+	MRF24J40_RESETn = 0;
+}
+
+COMPILER_INLINE void mrf24j40_hal_retsetn_low(void)
+{
+	// chris: FIXME: This is due to the inverter of the elco v1 board!
+	//MRF24J40_RESETn = 0;
+	MRF24J40_RESETn = 1;
+}
+
+COMPILER_INLINE void mrf24j40_hal_csn_high(void)
+{
+	MRF24J40_CSn = 1;
+}
+
+COMPILER_INLINE void mrf24j40_hal_csn_low(void)
+{
+	MRF24J40_CSn = 0;
+}
+
+COMPILER_INLINE void mrf24j40_hal_irq_enable(void)
+{
+	MRF24J40_INTERRUPT_ENABLE = 1;
+}
+
+COMPILER_INLINE void mrf24j40_hal_irq_disable(void)
+{
+	MRF24J40_INTERRUPT_ENABLE = 0;
+}
+
+COMPILER_INLINE uint8_t mrf24j40_hal_irq_status(void)
+{
+	return MRF24J40_INTERRUPT_ENABLE;
+}
 
 #endif /* Header Protection */

@@ -44,7 +44,7 @@ __INLINE__ EE_FREG __ALWAYS_INLINE__ EE_hal_begin_nested_primitive(void)
 	asm volatile (	"mfc0 %0, $12\n\t" : "=r"(irq_enabled));
 	irq_enabled &= 0x1; /* chris: Do I need to check IE, EXL, ERL, DM? */
 	EE_hal_disableIRQ();
-	return irq_enabled;
+	return !irq_enabled;
 }
 
 /* called as _last_ function of a primitive that can be called into
@@ -52,9 +52,9 @@ __INLINE__ EE_FREG __ALWAYS_INLINE__ EE_hal_begin_nested_primitive(void)
 __INLINE__ void __ALWAYS_INLINE__ EE_hal_end_nested_primitive(EE_FREG f)
 {
 	if (f) 
-		EE_hal_enableIRQ();
-	else
 		EE_hal_disableIRQ();
+	else
+		EE_hal_enableIRQ();
 }
 
 /* 
