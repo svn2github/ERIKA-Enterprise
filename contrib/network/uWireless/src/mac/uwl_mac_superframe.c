@@ -10,6 +10,7 @@
 #include <hal/uwl_rand.h>
 #include <kal/uwl_kal.h>
 #include <util/uwl_debug.h>
+#include <rete/uwl_net.h>
 
 #ifdef NEXT_TSLOT
 #undef NEXT_TSLOT
@@ -18,6 +19,12 @@
 
 #ifdef TIME32_SUBTRACT
 #undef TIME32_SUBTRACT
+#endif
+#ifdef UWL_DEBUG_LOG
+#include <stdio.h> //TODO: REMOVE together with the sprintf() !!!!!
+#endif
+#ifdef UWL_DEBUG_LOG
+char stri[100];
 #endif
 #define TIME32_SUBTRACT(t1, t2) ((t1)>=(t2) ? (t1)-(t2) : 0xFFFFFFFF-(t2)+(t1))
 
@@ -225,6 +232,8 @@ COMPILER_INLINE void stop_previous_cfp(void)
 	uwl_kal_cancel_activation(MAC_GTS_SEND); /* TODO: has effect? */
 }
 
+struct uwl_mac_frame_t *frame;
+
 /******************************************************************************/
 /*                      MAC CAP and CFP Management Functions                  */
 /******************************************************************************/
@@ -234,8 +243,11 @@ extern struct daq_time_t downlink;
 #endif
 static void csma_perform_slotted(void) 
 {
-	struct uwl_mac_frame_t *frame;
 	int8_t tmp;
+	uint32_t dst_addr1;
+	uint32_t dst_addr2;
+	uint8_t pointer;
+	uint16_t dst_pan_addr;
 
 	if (uwl_mac_status.sf_context != UWL_MAC_SF_CAP)
 		return; 
@@ -247,7 +259,7 @@ static void csma_perform_slotted(void)
 		csma_init();
 		csma_set_delay();
 		csma_params.state = CSMA_STATE_DELAY;
-		uwl_debug_print("I->D");
+		//uwl_debug_print("I->D");
 		return;
 	}
 	if (csma_params.state == CSMA_STATE_DELAY) {
@@ -263,10 +275,10 @@ static void csma_perform_slotted(void)
 			if (!csma_check_available_cap(frame->mpdu_size, tmp)) {
 				csma_set_delay();
 				csma_params.state = CSMA_STATE_DELAY;
-				uwl_debug_print("D->D");
+				//uwl_debug_print("D->D");
 				return;
 			}
-			uwl_debug_print("D->C");
+			//uwl_debug_print("D->C");
 			csma_params.state = CSMA_STATE_CCA;
 		}
 	}
@@ -282,7 +294,7 @@ static void csma_perform_slotted(void)
 				uwl_MCPS_DATA_confirm(frame->msdu_handle, 
 					     UWL_MAC_CHANNEL_ACCESS_FAILURE, 0);
 				csma_params.state = CSMA_STATE_INIT;
-				uwl_debug_print("C->I fail");
+				//uwl_debug_print("C->I fail");
 				return;
 			}
 			csma_params.NB++;
@@ -290,18 +302,47 @@ static void csma_perform_slotted(void)
 				csma_params.BE++;
 			csma_set_delay();
 			csma_params.state = CSMA_STATE_DELAY;
-			uwl_debug_print("C->D");
+			//uwl_debug_print("C->D");
 			return;
 		}
 		if (--csma_params.CW > 0) 
 			return;
 
 		if (uwl_mac_data_req.data_req == 1) {
+
+
+				//uwl_debug_print("in the if");
+
 				frame = (struct uwl_mac_frame_t*)list_iter_front(&uwl_mac_list_ind);
-				frame = (struct uwl_mac_frame_t*)list_pop_front(&uwl_mac_list_ind);
+
+				dst_pan_addr = (frame->mpdu[3] << 0) |	(frame->mpdu[4] << 8);
+				dst_addr1 = (frame->mpdu[5] << 0) |	(frame->mpdu[6] << 8) |
+						(frame->mpdu[7] << 16) | (frame->mpdu[8] << 24);
+				dst_addr2 = (frame->mpdu[9] << 0) |	(frame->mpdu[10] << 8) |
+						(frame->mpdu[11] << 16) | (frame->mpdu[12] << 24);
+				pointer = 0;
+
+				while(dst_addr1 != uwl_mac_data_req.addr_dev[0] &&
+						dst_addr2 != uwl_mac_data_req.addr_dev[1] &&
+						dst_pan_addr != uwl_mac_data_req.addr_pan){
+					frame = (struct uwl_mac_frame_t*)list_iter_next(&uwl_mac_list_ind);
+					pointer++;
+
+					dst_pan_addr = (frame->mpdu[3] << 0) |	(frame->mpdu[4] << 8);
+					dst_addr1 = (frame->mpdu[5] << 0) |	(frame->mpdu[6] << 8) |
+							(frame->mpdu[7] << 16) | (frame->mpdu[8] << 24);
+					dst_addr2 = (frame->mpdu[9] << 0) |	(frame->mpdu[10] << 8) |
+							(frame->mpdu[11] << 16) | (frame->mpdu[12] << 24);
+				}
+
+
+				list_extract(&uwl_mac_list_ind, pointer);
+
 				uwl_mac_data_req.data_req = 0;
+
 		} else
 				frame = (struct uwl_mac_frame_t*)cqueue_pop(&uwl_mac_queue_cap);
+
 
 		/* Something must be there, check again? */
 		/* if (!frame) ERRORE!!!!!*/
@@ -319,7 +360,7 @@ static void csma_perform_slotted(void)
 					      UWL_MAC_CHANNEL_ACCESS_FAILURE,0);
 
 		csma_params.state = CSMA_STATE_INIT;
-		uwl_debug_print("C->I succ");
+		//uwl_debug_print("C->I succ");
 	}
 }
 
@@ -359,16 +400,16 @@ static void cfp_perform_coordinator(void)
 		sf_flags.gts_schedule_idx++;
 		gts++;
 		uwl_kal_mutex_signal(MAC_GTS_SEND_MUTEX);
-		uwl_debug_print("COORDINATOR: GTS ContextSwitch");
+		//uwl_debug_print("COORDINATOR: GTS ContextSwitch");
 	}
 	/* NOTE: output for device, means input for coordinator */
 	if (gts->direction == UWL_MAC_GTS_DIRECTION_OUT) {
 		sf_flags.in_tx_gts = UWL_FALSE;
 		uwl_radio_phy_set_rx_on(); /*TODO:Raise error if < 0 */
-		uwl_debug_print("COORDINATOR: GTS RX");
+		//uwl_debug_print("COORDINATOR: GTS RX");
 		return;
 	}
-	uwl_debug_print("COORDINATOR: GTS TX");
+	//uwl_debug_print("COORDINATOR: GTS TX");
 	sf_flags.in_tx_gts = UWL_TRUE;
 	sf_flags.gts_sending = 1;
 	time_reference = (uwl_mac_gts_stat.tx_length *
@@ -425,7 +466,7 @@ COMPILER_INLINE void start_beacon_interval(void)
 		uwl_kal_mutex_signal(MAC_GTS_SEND_MUTEX);
 		uwl_radio_mac_send_beacon(); /* TODO: parse ret value*/
 	} else if (uwl_mac_status.count_beacon_lost++ > UWL_aMaxLostBeacons) {
-		uwl_debug_print("MAC beacon-enabled STOPPING!");
+		//uwl_debug_print("MAC beacon-enabled STOPPING!");
 		sf_flags.gts_sending = 0;
 		uwl_kal_mutex_wait(MAC_MUTEX);
 		//gts_available_bytes = 0;
@@ -464,7 +505,7 @@ COMPILER_INLINE void start_beacon_interval(void)
 		uwl_mac_gts_stat.tx_start_tslot, uwl_mac_gts_stat.tx_length);
 	uwl_debug_print(s);
 	*/
-	uwl_debug_print("SF: start BI");
+	//uwl_debug_print("SF: start BI");
 	#ifdef UWL_SUPERFRAME_CALLBACKS
 	if (on_beacon_callback)
 		on_beacon_callback();
@@ -485,7 +526,7 @@ COMPILER_INLINE void stop_superframe(void)
 	sf_flags.in_tx_gts = UWL_FALSE;
 	sf_flags.wait_sf_end = UWL_FALSE;
 	sf_flags.has_idle = UWL_FALSE;
-	uwl_debug_print("SF: End Of SF");
+	//uwl_debug_print("SF: End Of SF");
 }
 
 COMPILER_INLINE void before_beacon_interval(void)
@@ -505,7 +546,7 @@ COMPILER_INLINE void before_beacon_interval(void)
 	//uwl_debug_stat2str(str);
 	//uwl_debug_write(str, UWL_DEBUG_STAT_STRLEN);
 	#endif
-	uwl_debug_print("SF: before Start BI");
+	//uwl_debug_print("SF: before Start BI");
 }
 
 static void on_timeslot_start(void) 
@@ -618,17 +659,17 @@ static void on_gts_send(void)
 		current_tslot, sf_flags.gts_schedule_idx, mmm);
 	uwl_debug_print(s);
 	*/
-	uwl_debug_print("On GTS SEND |");
+	//uwl_debug_print("On GTS SEND |");
 	if (uwl_gts_queue_is_empty(sf_flags.gts_schedule_idx)) {
 		sf_flags.gts_sending = 0; /* Nothing more to send by now. */
 		uwl_kal_mutex_signal(MAC_GTS_SEND_MUTEX);
-		uwl_debug_print("            |-> EMPTY Q");
+		//uwl_debug_print("            |-> EMPTY Q");
 		return;
 	}
 	frame = uwl_gts_queue_extract(sf_flags.gts_schedule_idx);
 	if (frame == 0) { /* TODO: this is extra check, empty check is enough!*/
 		uwl_kal_mutex_signal(MAC_GTS_SEND_MUTEX);
-		uwl_debug_print("            |-> Really BAD!");
+		//uwl_debug_print("            |-> Really BAD!");
 		return; 
 	}
 	if (!sf_flags.in_tx_gts) { /* Check if GTS is no longer valid */
@@ -636,7 +677,7 @@ static void on_gts_send(void)
 			 for the indication primitive (status=??) */
 		uwl_kal_mutex_signal(MAC_GTS_SEND_MUTEX);
 		uwl_MCPS_DATA_confirm(frame->msdu_handle,UWL_MAC_INVALID_GTS,0);
-		uwl_debug_print("            |-> No More GTS");
+		//uwl_debug_print("            |-> No More GTS");
 		return; 
 	}
 //LATEbits.LATE0 = 1;
@@ -651,7 +692,7 @@ static void on_gts_send(void)
 		uwl_kal_set_activation(MAC_GTS_SEND, UWL_MAC_LIFS_PERIOD, 0);
 	else
 		uwl_kal_set_activation(MAC_GTS_SEND, UWL_MAC_SIFS_PERIOD, 0);
-	uwl_debug_print("            |-> SENT");
+	//uwl_debug_print("            |-> SENT");
 //LATEbits.LATE0 = 0;
 	uwl_kal_mutex_signal(MAC_GTS_SEND_MUTEX);
 }
@@ -753,7 +794,7 @@ void uwl_mac_superframe_gts_wakeup(uint8_t gts_idx)
 		    current_tslot == gts->starting_tslot && 
 		    gts->direction == UWL_MAC_GTS_DIRECTION_IN &&
 		    !sf_flags.gts_sending && gts->length != 0) {
-			uwl_debug_print("            |-> Coord!");
+			//uwl_debug_print("            |-> Coord!");
 			sf_flags.gts_sending = 1;
 			uwl_kal_set_activation(MAC_GTS_SEND, 0, 0);
 		}
@@ -763,7 +804,7 @@ void uwl_mac_superframe_gts_wakeup(uint8_t gts_idx)
 	 	    current_tslot == uwl_mac_gts_stat.tx_start_tslot) {
 	 		sf_flags.gts_sending = 1;
 	 		uwl_kal_set_activation(MAC_GTS_SEND, 0, 0);
-			uwl_debug_print("            |-> Device!");
+			//uwl_debug_print("            |-> Device!");
 	 	}
 	}
 }
@@ -798,7 +839,7 @@ uint8_t uwl_mac_superframe_check_gts(uint8_t length, uint8_t gts_idx)
 //uwl_debug_print(str);
 	if (*bytes < length + 10) {
 		uwl_kal_mutex_signal(MAC_MUTEX);
-		uwl_debug_print("          |-> 0 (apriori)");
+		//uwl_debug_print("          |-> 0 (apriori)");
 		return 0; 
 	}
 	x = *bytes;
@@ -813,7 +854,7 @@ uwl_debug_print(s); */
 		if (x < length + 10) {
 			*bytes = 0;
 			uwl_kal_mutex_signal(MAC_MUTEX);
-			uwl_debug_print("          |-> 0 (on remaining)");
+			//uwl_debug_print("          |-> 0 (on remaining)");
 			return 0;
 		}
 	}
@@ -822,7 +863,7 @@ uwl_debug_print(s); */
 	x = length < UWL_aMaxSIFSFrameSize ?  sifs_bytes : lifs_bytes;
 	*bytes = (*bytes) >= x ?  (*bytes) - x : 0;
 	uwl_kal_mutex_signal(MAC_MUTEX);
-	uwl_debug_print("          |-> 1 (ok)");
+	//uwl_debug_print("          |-> 1 (ok)");
 	return 1;
 }
 
