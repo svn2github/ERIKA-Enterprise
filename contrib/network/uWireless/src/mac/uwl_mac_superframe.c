@@ -10,7 +10,7 @@
 #include <hal/uwl_rand.h>
 #include <kal/uwl_kal.h>
 #include <util/uwl_debug.h>
-#include <rete/uwl_net.h>
+#include <net/uwl_net.h>
 
 #ifdef NEXT_TSLOT
 #undef NEXT_TSLOT
