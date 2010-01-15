@@ -47,13 +47,13 @@ int8_t mrf24j40_init(uint8_t int_setup, uint8_t ch, uint8_t port)
 {  
 	uint8_t i;
 	int8_t retv;
-
+	int8_t iteration;
+	
 	if (radio_initialized) 
 		return -2;
 
 	/* init hal-specific things */
 	mrf24j40_hal_init();
-
 	retv = mrf24j40_spi_init(port);
 
 	/*TODO; manage error code*/
@@ -61,8 +61,6 @@ int8_t mrf24j40_init(uint8_t int_setup, uint8_t ch, uint8_t port)
 		return -1;
 	
 	i = mrf24j40_get_short_add_mem(MRF24J40_SOFTRST);
-	debug_set_msg("\r\nSOFTRESET(1) = %X",i);
-	debug_print(mrf24j40_db_msg);
 	mrf24j40_delay_us(2500);
 	
 	mrf24j40_delay_us(2500); 
@@ -75,8 +73,6 @@ int8_t mrf24j40_init(uint8_t int_setup, uint8_t ch, uint8_t port)
 	mrf24j40_delay_us(2500);
 	mrf24j40_delay_us(2500);
 	i = mrf24j40_get_short_add_mem(MRF24J40_SOFTRST);
-	debug_set_msg("\r\nSOFTRESET(2) = %X",i);
-	debug_print(mrf24j40_db_msg);
 	mrf24j40_delay_us(2500);
 	
 	/**
@@ -92,7 +88,7 @@ int8_t mrf24j40_init(uint8_t int_setup, uint8_t ch, uint8_t port)
 	/**
 	* wait until the radio reset is completed
 	*/
-	retv = 4;
+	iteration = 4;
 	do {
 		i = mrf24j40_get_short_add_mem(MRF24J40_SOFTRST);
 		debug_set_msg("\r\ni = %X",i);
@@ -105,35 +101,28 @@ int8_t mrf24j40_init(uint8_t int_setup, uint8_t ch, uint8_t port)
 
 	mrf24j40_delay_us(2500);
 	
-	//mrf24j40_set_short_add_mem(MRF24J40_PACON2, 0x98);
+	mrf24j40_set_short_add_mem(MRF24J40_PACON2, 0x98);
 
 	debug_print("\r\nMRF24J40 Init1");
 	/* 
 	 * Read back to value just written.
 	 * This trick is used to verify if the radio is connected.
 	 */
-	//for (;;) {
-		i = mrf24j40_get_short_add_mem(MRF24J40_PACON2);
-		debug_set_msg("\r\nPACON2 = %X",i);
-		debug_print(mrf24j40_db_msg);
-		mrf24j40_delay_us(2500);
-	//}
-	//if (mrf24j40_get_short_add_mem(MRF24J40_PACON2) != 0x98)
-	//	return -1;
+	if (mrf24j40_get_short_add_mem(MRF24J40_PACON2) != 0x98)
+		return -1;
 
 	debug_print("\r\nMRF24J40 Init2");
+	
 	/**
 	* Reset RF state machine
 	*/
-	/*@author: Bibo, ritorna il valore corretto*/
 	mrf24j40_set_short_add_mem(MRF24J40_RFCTL, 0x04);
-      	/*@author: Bibo, ritorna il valore corretto*/
-	mrf24j40_set_short_add_mem(MRF24J40_RFCTL, 0x00);
+      	mrf24j40_set_short_add_mem(MRF24J40_RFCTL, 0x00);
+
 	
 	/** flush RX fifo */
-	/*@TODO: Bibo: ritorna 0x0, come mai?*/
 	mrf24j40_set_short_add_mem(MRF24J40_RXFLUSH, 0x01);
-
+	
 	/** program the RF and Baseband Register */
 	//mrf24j40_long_add_mem(RFCTRL4,0x02);
 	/** Enable the RX */
@@ -141,14 +130,11 @@ int8_t mrf24j40_init(uint8_t int_setup, uint8_t ch, uint8_t port)
 
 	/** setup */
 	mrf24j40_set_channel(ch); //set channel    
-	
-	/*Bibo: il valore corretto*/	
+
 	mrf24j40_set_long_add_mem(MRF24J40_RFCON1, 0x01); //program the RF and Baseband Register as
 						//suggested by the datasheet
-	
-	/*Bibo: il valore corretto*/		
-	mrf24j40_set_long_add_mem(MRF24J40_RFCON2, 0x80); //enable PLL	
-	/*Bibo: il valore corretto*/		
+		
+	mrf24j40_set_long_add_mem(MRF24J40_RFCON2, 0x80); //enable PLL			
 	mrf24j40_set_long_add_mem(MRF24J40_RFCON3, 0x00); //set maximum power 0dBm
 	
 	/** set up RFCON6
@@ -159,27 +145,28 @@ int8_t mrf24j40_init(uint8_t int_setup, uint8_t ch, uint8_t port)
 	* 2:0 = '00' = Reserved
 	*/
 	
-	/*Bibo: il valore corretto*/
+	i = mrf24j40_hal_irq_status();
+	debug_set_msg("\r\nIRQ STATUS 0x%X",i);
+	debug_print(mrf24j40_db_msg);	
+	
 	mrf24j40_set_long_add_mem(MRF24J40_RFCON6, 0x90);
 	
-	/*Bibo: il valore corretto*/
 	mrf24j40_set_long_add_mem(MRF24J40_RFCON7, 0x80); //sleep clock = 100kHz
 	
-	/*Bibo: il valore corretto*/
 	mrf24j40_set_long_add_mem(MRF24J40_RFCON8, 0x10); //as suggested by the datasheet
-	/*Bibo: il valore corretto*/
+	
 	mrf24j40_set_long_add_mem(MRF24J40_SLPCON1, 0x21);
 
 	/** Program CCA mode using RSSI */
 	
-	/*@TODO: Bibo: ritorna 0xE9, come mai? Pag 58 manuale, controllare*/	
 	mrf24j40_set_short_add_mem(MRF24J40_BBREG2, 0x80);
-	    
+	
+   
 	#ifdef ADD_RSSI_AND_LQI_TO_PACKET
 	/** Enable the packet RSSI */
 	debug_print("\r\nMRF24J40 Init append RSSI and LQI to the packet");
 	mrf24j40_set_short_add_mem(MRF24J40_BBREG6, 0x40);
-    #endif
+	#endif
 
 	/** Program CCA, RSSI threshold values */
 	mrf24j40_set_short_add_mem(MRF24J40_CCAEDTH, 0x60);
@@ -187,14 +174,12 @@ int8_t mrf24j40_init(uint8_t int_setup, uint8_t ch, uint8_t port)
 	/**
 	* wait until the radio state machine is not on rx mode
 	*/
-	do
-	{
-        	i = mrf24j40_get_long_add_mem(MRF24J40_RFSTATE);
-	}
+	do {
+        	i = mrf24j40_get_long_add_mem(MRF24J40_RFSTATE);}
 	while((i&0xA0) != 0xA0);
 
-	debug_set_msg("\r\nRFSTATE=0x%X",i);
-	debug_print(mrf24j40_db_msg);
+	//debug_set_msg("\r\nRFSTATE=0x%X",i);
+	//debug_print(mrf24j40_db_msg);
 	/**
 	*
 	*Set interrupts.
@@ -211,15 +196,15 @@ int8_t mrf24j40_init(uint8_t int_setup, uint8_t ch, uint8_t port)
 	* 0 = '0' = Enables the TX Normal FIFO transmission interrupt	
 	*/
 	//mrf24j40_set_short_add_mem(INTCON,0xF6);
-	
-	/*Bibo: corretto*/
+
 	mrf24j40_set_short_add_mem(MRF24J40_INTCON, int_setup);
 	
 	#ifdef INT_POLARITY_HIGH
-	/* Set interrupt edge polarity high */
+	/* Set interrupt edge polarity high */ 
+	debug_print("\r\nMRF24J40 Init INT Polarity High");	
 	mrf24j40_set_long_add_mem(MRF24J40_SLPCON0, 0x02);
-	debug_print("\r\nMRF24J40 Init INT Polarity High");
-	#endif
+	#endif	
+		
 	/**
 	Disables automatic Acknowledgement response.
 	Receive all packet types with good CRC.
@@ -264,7 +249,14 @@ int8_t mrf24j40_init(uint8_t int_setup, uint8_t ch, uint8_t port)
 	 *   illegal frame type, dPAN/sPAN or MAC short address mismatch.
 	 * See the datasheet for further information.
 	 */
+
+	debug_set_msg("\r\nINIT4_PRE_BIBO 0x%X",i);
+	debug_print(mrf24j40_db_msg);
+	
 	mrf24j40_set_short_add_mem(MRF24J40_RXMCR, i);
+		
+	debug_set_msg("\r\nINIT4_BIBO 0x%X",i);
+	debug_print(mrf24j40_db_msg);	
 	
 	#ifndef MRF24J40_DISABLE_CSMA
 	

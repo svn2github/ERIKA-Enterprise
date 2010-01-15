@@ -235,7 +235,7 @@ typedef union _INT_status {
 */
 COMPILER_INLINE void mrf24j40_set_short_add_mem(uint8_t addr, uint8_t val)
 {
-	volatile uint8_t tmp = mrf24j40_hal_irq_status();
+	uint8_t tmp = mrf24j40_hal_irq_status();
     
 	mrf24j40_hal_irq_disable();
 	mrf24j40_hal_csn_low();
@@ -251,7 +251,7 @@ COMPILER_INLINE void mrf24j40_set_short_add_mem(uint8_t addr, uint8_t val)
 */
 COMPILER_INLINE void mrf24j40_set_long_add_mem(uint16_t addr, uint8_t val )
 {
-	volatile uint8_t tmp = mrf24j40_hal_irq_status();
+	uint8_t tmp = mrf24j40_hal_irq_status();
 
 	mrf24j40_hal_irq_disable();
 	mrf24j40_hal_csn_low();
@@ -260,7 +260,7 @@ COMPILER_INLINE void mrf24j40_set_long_add_mem(uint16_t addr, uint8_t val )
 	mrf24j40_spi_put(val, NULL);
 	mrf24j40_hal_csn_high();
 	if (tmp) 
-		mrf24j40_hal_irq_enable();
+	mrf24j40_hal_irq_enable();
 }
 
 /**
@@ -269,7 +269,7 @@ COMPILER_INLINE void mrf24j40_set_long_add_mem(uint16_t addr, uint8_t val )
 COMPILER_INLINE uint8_t mrf24j40_get_short_add_mem(uint8_t addr)
 {
 	uint8_t ret_val;
-	volatile uint8_t tmp = mrf24j40_hal_irq_status();
+	uint8_t tmp = mrf24j40_hal_irq_status();
 	
 	mrf24j40_hal_irq_disable();
 	mrf24j40_hal_csn_low();
@@ -287,7 +287,7 @@ COMPILER_INLINE uint8_t mrf24j40_get_short_add_mem(uint8_t addr)
 COMPILER_INLINE uint8_t mrf24j40_get_long_add_mem(uint16_t addr)
 {
 	uint8_t ret_val;
-	volatile uint8_t tmp = mrf24j40_hal_irq_status();
+	uint8_t tmp = mrf24j40_hal_irq_status();
 	
 	mrf24j40_hal_irq_disable();
 	mrf24j40_hal_csn_low();

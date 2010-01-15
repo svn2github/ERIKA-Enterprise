@@ -12,7 +12,6 @@
 * \todo Write something about the hal support.
 */
 
-// TODO: Check radio pins.
 
 #ifndef __mrf24j40_hal_ee_pic32_h__
 #define __mrf24j40_hal_ee_pic32_h__
@@ -50,7 +49,7 @@
 #endif
 
 #ifndef MRF24J40_INTERRUPT_NAME	
-#define MRF24J40_INTERRUPT_NAME		_INT3Interrupt
+#define MRF24J40_INTERRUPT_NAME		_EXTERNAL_3_VECTOR
 #endif
 
 #ifndef MRF24J40_INTERRUPT_FLAG	
@@ -68,110 +67,6 @@
 #ifndef MRF24J40_INTERRUPT_EDGE_POLARITY	
 #define MRF24J40_INTERRUPT_EDGE_POLARITY	 INTCONbits.INT3EP
 #endif
-
-// chris: The following section is inherited from the dsPIC, was for Flex+DMB.
-//
-//#ifndef MRF24J40_RESETn
-//#define MRF24J40_RESETn		PORTGbits.RG0
-//#endif
-//
-//#ifndef MRF24J40_VREG_EN
-//#define MRF24J40_VREG_EN	PORTGbits.RG12
-//#endif
-//
-//#ifndef MRF24J40_FIFO
-//#ifdef __USE_DEMOBOARD__	/* Demoboard defaults */
-//#define MRF24J40_FIFO		PORTDbits.RD14
-//#else				/* Gianluca's board default*/
-//#define MRF24J40_FIFO		PORTEbits.RE9
-//#endif
-//#endif
-//
-//#ifndef MRF24J40_FIFOP
-//#ifdef __USE_DEMOBOARD__	/* Demoboard defaults */
-//#define MRF24J40_FIFOP		PORTAbits.RA15
-//#else				/* Gianluca's board default*/
-//#define MRF24J40_FIFOP		PORTFbits.RF6
-//#endif
-//#endif
-//
-//#ifndef MRF24J40_CSn
-//#define MRF24J40_CSn		PORTGbits.RG9
-//#endif
-//
-//#ifndef MRF24J40_TRIS_RESETn
-//#define MRF24J40_TRIS_RESETn	TRISGbits.TRISG0
-//#endif
-//
-//#ifndef MRF24J40_TRIS_VREG_EN
-//#define MRF24J40_TRIS_VREG_EN	TRISGbits.TRISG12
-//#endif
-//
-//#ifndef MRF24J40_TRIS_FIFO
-//#ifdef __USE_DEMOBOARD__	/* Demoboard defaults */
-//#define MRF24J40_TRIS_FIFO	TRISDbits.TRISD14
-//#else				/* Gianluca's board default*/
-//#define MRF24J40_TRIS_FIFO	TRISEbits.TRISE9
-//#endif
-//#endif
-//
-//#ifndef MRF24J40_TRIS_FIFOP
-//#ifdef __USE_DEMOBOARD__	/* Demoboard defaults */
-//#define MRF24J40_TRIS_FIFOP	TRISAbits.TRISA15
-//#else				/* Gianluca's board default*/
-//#define MRF24J40_TRIS_FIFOP	TRISFbits.TRISF6
-//#endif
-//#endif
-//
-//#ifndef MRF24J40_TRIS_CSn
-//#define MRF24J40_TRIS_CSn	TRISGbits.TRISG9
-//#endif
-//
-//#ifdef __USE_DEMOBOARD__	/* Demoboard defaults */
-//
-//#ifndef MRF24J40_INTERRUPT_NAME	
-//#define MRF24J40_INTERRUPT_NAME	_INT4Interrupt
-//#endif
-//
-//#ifndef MRF24J40_INTERRUPT_FLAG	
-//#define MRF24J40_INTERRUPT_FLAG	IFS3bits.INT4IF
-//#endif
-//
-//#ifndef MRF24J40_INTERRUPT_ENABLE
-//#define MRF24J40_INTERRUPT_ENABLE IEC3bits.INT4IE
-//#endif
-//
-//#ifndef MRF24J40_INTERRUPT_PRIORITY
-//#define MRF24J40_INTERRUPT_PRIORITY IPC13bits.INT4IP
-//#endif
-//
-//#ifndef MRF24J40_INTERRUPT_EDGE_POLARITY	
-//#define MRF24J40_INTERRUPT_EDGE_POLARITY	 INTCON2bits.INT4EP
-//#endif
-//
-//#else				/* Gianluca's board default*/
-//
-//#ifndef MRF24J40_INTERRUPT_NAME	
-//#define MRF24J40_INTERRUPT_NAME	_INT0Interrupt
-//#endif
-//
-//#ifndef MRF24J40_INTERRUPT_FLAG	
-//#define MRF24J40_INTERRUPT_FLAG	IFS0bits.INT0IF
-//#endif
-//
-//#ifndef MRF24J40_INTERRUPT_ENABLE
-//#define MRF24J40_INTERRUPT_ENABLE IEC0bits.INT0IE
-//#endif
-//
-//#ifndef MRF24J40_INTERRUPT_PRIORITY
-//#define MRF24J40_INTERRUPT_PRIORITY IPC0bits.INT0IP
-//#endif
-//
-//#ifndef MRF24J40_INTERRUPT_EDGE_POLARITY	
-//#define MRF24J40_INTERRUPT_EDGE_POLARITY	 INTCON2bits.INT0EP
-//#endif
-//
-//#endif	/* End default booard selection for ISR */
 
 int8_t	mrf24j40_hal_init(void);
 void	mrf24j40_delay_us(uint16_t delay_count); 
