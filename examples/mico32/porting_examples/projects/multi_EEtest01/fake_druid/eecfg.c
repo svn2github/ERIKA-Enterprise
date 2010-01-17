@@ -1,4 +1,5 @@
 #include "ee.h"
+#include "ee_internal.h"
 
 
 /***************************************************************************
@@ -15,7 +16,7 @@
         MICO32_STACK_INIT(STACK_1_SIZE);	/* Task 1 (Task1) */
 #endif
 
-    EE_UREG EE_std_thread_tos[EE_MAX_TASK+1] = {
+    const EE_UREG EE_std_thread_tos[EE_MAX_TASK+1] = {
         0,	 /* dummy*/
         1,	 /* Task1*/
         0 	 /* Task2*/

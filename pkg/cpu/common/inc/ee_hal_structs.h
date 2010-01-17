@@ -90,7 +90,7 @@ extern const EE_FADDR EE_hal_thread_body[];
 extern struct EE_TOS EE_std_system_tos[];
 
 /* std_system_tos[] index that points to the thread tos (one for each thread) */
-extern EE_UREG EE_std_thread_tos[];
+extern const EE_UREG EE_std_thread_tos[];
 
 /* std_system_tos[] index that points to the active thread tos */
 extern EE_UREG EE_std_active_tos;

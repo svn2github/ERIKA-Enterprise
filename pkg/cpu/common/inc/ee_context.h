@@ -100,6 +100,8 @@ void EE_std_change_context_multi(EE_FADDR thread_addr, EE_UREG tos_index);
 
       For processors where the return address is saved in a register, that
       register must be saved in the stack too.
+
+      switch_stacks() should also update EE_hal_active_tos.
 */
 
 /* True if `tos_index' is not the current stack.  Only the implementation for
