@@ -494,32 +494,7 @@ StatusType EE_oo_PostSem(SemRefType Sem);
 
 /* Semaphore value read: BCC1, BCC2, ECC1, ECC2 */
 #ifndef __PRIVATE_GETVALUESEM__
-__INLINE__ unsigned int __ALWAYS_INLINE__ EE_oo_GetValueSem(SemRefType Sem)
-{
-  unsigned int returnvalue;
-#ifdef __OO_ORTI_SERVICETRACE__
-  EE_ORTI_servicetrace = EE_SERVICETRACE_GETVALUESEM+1;
-#endif
-
-  EE_hal_begin_nested_primitive();
-
-#if defined(__OO_ECC1__) || defined(__OO_ECC2__)
-  if (s->first == EE_NIL)
-    returnvalue = s->count;
-  else
-    returnvalue = -1;
-#else
-  returnvalue = s->count;
-#endif
-
-  EE_hal_end_nested_primitive();
-
-#ifdef __OO_ORTI_SERVICETRACE__
-  EE_ORTI_servicetrace = EE_SERVICETRACE_GETVALUESEM;
-#endif
-
-  return returnvalue;
-}
+int EE_oo_GetValueSem(SemRefType Sem);
 #endif
 
 #endif // __OO_SEM__

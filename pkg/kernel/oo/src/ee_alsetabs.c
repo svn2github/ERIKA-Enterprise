@@ -100,9 +100,15 @@ StatusType EE_oo_SetAbsAlarm(AlarmType AlarmID,
   }
 #endif
 
+  /* let the system still work if the start parameter is 0 note that 0
+   * is still an invalid value, so I decided arbitrarily to let it
+   * fire the next tick.
+   */
+  if (start==0)
+    start = 1;
 
 #ifdef __OO_EXTENDED_STATUS__
-  if (start <= 0 || 
+  if (start < 0 || 
       start > EE_counter_ROM[EE_alarm_ROM[AlarmID].c].maxallowedvalue
       || 
       (cycle && 

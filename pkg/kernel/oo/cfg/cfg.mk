@@ -117,6 +117,7 @@ endif
 ifeq ($(findstring __OO_SEM__,$(EEOPT)) , __OO_SEM__)
 EE_SRCS += pkg/kernel/oo/src/ee_sempost.c
 EE_SRCS += pkg/kernel/oo/src/ee_semtrywait.c
+EE_SRCS += pkg/kernel/oo/src/ee_semgetvalue.c
 
 ifeq ($(OO_ECC) , YES)
 EE_SRCS += pkg/kernel/oo/src/ee_semwait.c

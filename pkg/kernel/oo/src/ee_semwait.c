@@ -169,19 +169,13 @@ void EE_oo_WaitSem(SemRefType Sem)
     Sem->count--;
   }
   else {
-    /* queue the task inside the semaphore queue */
-    if (Sem->first != EE_NIL)
-      // the semaphore queue is not empty
-      EE_th_next[Sem->last] = current;
-    else
-      // the semaphore queue is empty
-      Sem->first = current;
-    Sem->last = current;
-
 #ifdef __OO_HAS_POSTTASKHOOK__
     PostTaskHook();
 #endif 
-    /* extract the task from the stk data structure */
+
+    /* extract the task from the stk data structure
+     * current was filled at the beginning of the function
+     */
     EE_stk_getfirst();
 
     /* the task must go into the WAITING state */
@@ -194,6 +188,17 @@ void EE_oo_WaitSem(SemRefType Sem)
 #ifdef __OO_ORTI_PRIORITY__
     EE_ORTI_th_priority[current] = 0;
 #endif
+
+    /* queue the task inside the semaphore queue */
+    if (Sem->first != EE_NIL)
+      // the semaphore queue is not empty
+      EE_th_next[Sem->last] = current;
+    else
+      // the semaphore queue is empty
+      Sem->first = current;
+    Sem->last = current;
+    EE_th_next[current] = EE_NIL;
+	
 
     /* since the task blocks, it has to be woken up by another
        EE_hal_stkchange */
