@@ -10,8 +10,11 @@
 
 //#include "P2PDefs.h"	// FIXME: chris: from gianluca's driver
 
-#define EE_SPI_PORT_1 0
-#define EE_SPI_PORT_2 1
+enum {
+	EE_SPI_PORT_1  = 0,
+	EE_SPI_PORT_2,
+	EE_SPI_PORT_N,
+};
 
 #define EE_SPI_ERR_BAD_PORT		1
 //#define EE_SPI_ERR_NO_DATA		2
@@ -25,13 +28,14 @@
 * This function initializes the SPI peripheral defined by 
 * the input parameter \p port.
 *
-* @param[in] port 	The number of the SPI port to be initialized,
-* 			it must be RADIO_SP1 or RADIO_SP2 defined in radio_spi.h.
+* @param[in] port 	
+* @param[in] baudrate 	
+* @param[in] flags 	
 * @return 	\todo
 *
 * @pre		None
 */
-EE_INT8 EE_spi_init(EE_UINT8 port);
+EE_INT8 EE_spi_init(EE_UINT8 port/*, EE_UINT32 baudrate, EE_UINT16 flags*/); 
 
 __INLINE__ EE_INT8 EE_spi_close(EE_UINT8 port)
 {
