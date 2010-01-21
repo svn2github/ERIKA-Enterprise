@@ -17,13 +17,14 @@
 static uint8_t spi_port; 
 
 void mrf24j40_delay_us(uint16_t delay_count) 
-{
-	asm volatile(	"lui $v0, %hi(18000)\n\t"
-			"addiu $v0, $v0, %lo(18000)\n\t"
+{	/* Provide a delay with an accuracy of approx. 1.6% @ 80Mhz*/
+	asm volatile(	"add $t0, $a0, $zero\n\t"			  	
 			"1:\n\t"
-			"addi $v0, $v0, -1\n\t"
-		      	"bne $v0, $zero, 1b\n\t"
-	);
+			"addi $t0, $t0, -1\n\t"
+			"nop\n\t"
+			"nop\n\t"
+			"nop\n\t"
+			"bne $t0, $zero, 1b\n\t");			
 }
 
 int8_t	mrf24j40_hal_init(void)
@@ -32,6 +33,7 @@ int8_t	mrf24j40_hal_init(void)
 	MRF24J40_TRIS_RESETn = 0;
 	MRF24J40_TRIS_INT = 1;
 	MRF24J40_TRIS_CSn = 0;
+	MRF24J40_TRIS_VREG_EN = 0;
 	/* Set interrupt registers */
 	MRF24J40_INTERRUPT_FLAG = 0;
 	MRF24J40_INTERRUPT_PRIORITY = 1;

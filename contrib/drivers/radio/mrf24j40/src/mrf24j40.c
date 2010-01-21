@@ -48,7 +48,6 @@ int8_t mrf24j40_init(uint8_t int_setup, uint8_t ch, uint8_t port)
 	uint8_t i;
 	int8_t retv;
 	int8_t iteration;
-	
 	if (radio_initialized) 
 		return -2;
 
@@ -60,50 +59,36 @@ int8_t mrf24j40_init(uint8_t int_setup, uint8_t ch, uint8_t port)
 	if (retv < 0)
 		return -1;
 	
-	i = mrf24j40_get_short_add_mem(MRF24J40_SOFTRST);
-	mrf24j40_delay_us(2500);
-	
-	mrf24j40_delay_us(2500); 
 	mrf24j40_hal_retsetn_low();
 	mrf24j40_delay_us(2500); 
 	mrf24j40_hal_retsetn_high();
 	mrf24j40_delay_us(2500);
-	
-	mrf24j40_delay_us(2500);
-	mrf24j40_delay_us(2500);
-	mrf24j40_delay_us(2500);
-	i = mrf24j40_get_short_add_mem(MRF24J40_SOFTRST);
-	mrf24j40_delay_us(2500);
-	
+
 	/**
 	 * Software reset:  
 	 * 7:3 = '00'  = Reserved
 	 * 2:0   = '111' = Reset MAC, baseband  
 	 * and power management circuitries
 	 */
-
-	debug_print("\r\nGoing for SOFT RESET");
 	mrf24j40_set_short_add_mem(MRF24J40_SOFTRST, 0x07);
 
 	/**
 	* wait until the radio reset is completed
 	*/
-	iteration = 4;
+	iteration = 3;
 	do {
 		i = mrf24j40_get_short_add_mem(MRF24J40_SOFTRST);
-		debug_set_msg("\r\ni = %X",i);
-		debug_print(mrf24j40_db_msg);
-		mrf24j40_delay_us(2500); 
-	} while (retv-- > 0 || (i & 0x07) != 0);   
+	
+	} while (iteration-- > 0 || (i & 0x07) != 0);   
 
-	debug_set_msg("\r\nSOFTRST=0x%X",i);
-	debug_print(mrf24j40_db_msg);
+	mrf24j40_set_short_add_mem(MRF24J40_RXFLUSH, 0x01);
 
 	mrf24j40_delay_us(2500);
 	
 	mrf24j40_set_short_add_mem(MRF24J40_PACON2, 0x98);
 
 	debug_print("\r\nMRF24J40 Init1");
+	
 	/* 
 	 * Read back to value just written.
 	 * This trick is used to verify if the radio is connected.
@@ -123,13 +108,9 @@ int8_t mrf24j40_init(uint8_t int_setup, uint8_t ch, uint8_t port)
 	/** flush RX fifo */
 	mrf24j40_set_short_add_mem(MRF24J40_RXFLUSH, 0x01);
 	
-	/** program the RF and Baseband Register */
-	//mrf24j40_long_add_mem(RFCTRL4,0x02);
-	/** Enable the RX */
-	//mrf24j40_long_add_mem(RFRXCTRL,0x01);
-
 	/** setup */
 	mrf24j40_set_channel(ch); //set channel    
+	mrf24j40_delay_us(200); // After a reset the datasheet suggests to wait at least 180us 
 
 	mrf24j40_set_long_add_mem(MRF24J40_RFCON1, 0x01); //program the RF and Baseband Register as
 						//suggested by the datasheet
@@ -144,11 +125,7 @@ int8_t mrf24j40_init(uint8_t int_setup, uint8_t ch, uint8_t port)
 	* 3 = '0' = battery monitor disabled
 	* 2:0 = '00' = Reserved
 	*/
-	
-	i = mrf24j40_hal_irq_status();
-	debug_set_msg("\r\nIRQ STATUS 0x%X",i);
-	debug_print(mrf24j40_db_msg);	
-	
+		
 	mrf24j40_set_long_add_mem(MRF24J40_RFCON6, 0x90);
 	
 	mrf24j40_set_long_add_mem(MRF24J40_RFCON7, 0x80); //sleep clock = 100kHz
@@ -160,6 +137,13 @@ int8_t mrf24j40_init(uint8_t int_setup, uint8_t ch, uint8_t port)
 	/** Program CCA mode using RSSI */
 	
 	mrf24j40_set_short_add_mem(MRF24J40_BBREG2, 0x80);
+
+	
+	#ifdef MRF24J40MB
+	/** Activate the external amplifier needed by the MRF24J40MB */
+	mrf24j40_set_long_add_mem(MRF24J40_TESTMODE, 0x1F);
+	debug_print("\r\nMRF24J40 Init Amplifier activated ");
+	#endif
 	
    
 	#ifdef ADD_RSSI_AND_LQI_TO_PACKET
@@ -250,13 +234,8 @@ int8_t mrf24j40_init(uint8_t int_setup, uint8_t ch, uint8_t port)
 	 * See the datasheet for further information.
 	 */
 
-	debug_set_msg("\r\nINIT4_PRE_BIBO 0x%X",i);
-	debug_print(mrf24j40_db_msg);
 	
 	mrf24j40_set_short_add_mem(MRF24J40_RXMCR, i);
-		
-	debug_set_msg("\r\nINIT4_BIBO 0x%X",i);
-	debug_print(mrf24j40_db_msg);	
 	
 	#ifndef MRF24J40_DISABLE_CSMA
 	
@@ -344,12 +323,15 @@ int8_t mrf24j40_init(uint8_t int_setup, uint8_t ch, uint8_t port)
     	debug_print("\r\nMRF24J40 Init TURBO MODE enabled");
 	#endif
 
+	i = mrf24j40_get_short_add_mem(MRF24J40_TXMCR);
+	debug_set_msg("\r\nTXMCR 0x%X",i);
+	debug_print(mrf24j40_db_msg);
 	/**
 	* Reset RF state machine
-	*/         
+	*/
+		         
 	mrf24j40_set_short_add_mem(MRF24J40_RFCTL, 0x04);        
 	mrf24j40_set_short_add_mem(MRF24J40_RFCTL, 0x00);
-
 	debug_print("\r\nMRF24J40 Init Done!");
 
 	return 0;

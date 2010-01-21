@@ -28,6 +28,9 @@
 #define MRF24J40_RESETn		PORTFbits.RF1
 #endif
 
+#define MRF24J40_VREG_EN   	PORTGbits.RG15
+
+
 #ifndef MRF24J40_INT
 #define MRF24J40_INT		PORTAbits.RA14
 #endif
@@ -39,6 +42,10 @@
 #ifndef MRF24J40_TRIS_RESETn
 #define MRF24J40_TRIS_RESETn		TRISFbits.TRISF1
 #endif
+
+#define MRF24J40_TRIS_VREG_EN   TRISGbits.TRISG15
+
+
 
 #ifndef MRF24J40_TRIS_INT
 #define MRF24J40_TRIS_INT		TRISAbits.TRISA14
