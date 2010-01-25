@@ -146,7 +146,7 @@ distrib_opt___S12__:: \
 		ee_$(DIST)/pkg/mcu/cosmic_hs12xs/cfg \
 		ee_$(DIST)/pkg/mcu/cosmic_hs12xs/cfg/cfg.mk \
 		ee_$(DIST)/pkg/mcu/cosmic_hs12xs/inc \
-  		ee_$(DIST)/pkg/mcu/cosmic_hs12xs/inc/ee_internal.h \
+		ee_$(DIST)/pkg/mcu/cosmic_hs12xs/inc/ee_internal.h \
 		ee_$(DIST)/pkg/mcu/cosmic_hs12xs/inc/ee_mcu.h \
 		ee_$(DIST)/pkg/mcu/cosmic_hs12xs/inc/ee_mcuregs.h \
 		ee_$(DIST)/pkg/mcu/cosmic_hs12xs/inc/ee_pit.h \
@@ -404,23 +404,6 @@ distrib_opt___ASSERT__:: \
 		ee_$(DIST)/pkg/test/assert/src \
 		ee_$(DIST)/pkg/test/assert/src/ee_assert.c
 	@echo OPT __ASSERT__ up2date.
-
-distrib_opt___CBS__:: \
-		ee_$(DIST)/pkg/kernel/cbs/cfg \
-		ee_$(DIST)/pkg/kernel/cbs/cfg/cfg.mk \
-		ee_$(DIST)/pkg/kernel/cbs/inc \
-		ee_$(DIST)/pkg/kernel/cbs/inc/ee_internal.h \
-		ee_$(DIST)/pkg/kernel/cbs/src \
-		ee_$(DIST)/pkg/kernel/cbs/src/ee_cap.c \
-		ee_$(DIST)/pkg/kernel/cbs/src/ee_dlcheck.c \
-		ee_$(DIST)/pkg/kernel/cbs/src/ee_gettime.c \
-		ee_$(DIST)/pkg/kernel/cbs/src/ee_irq_sc.c \
-		ee_$(DIST)/pkg/kernel/cbs/src/ee_mutex.c \
-		ee_$(DIST)/pkg/kernel/cbs/src/ee_rq_inser.c \
-		ee_$(DIST)/pkg/kernel/cbs/src/ee_schedule.c \
-		ee_$(DIST)/pkg/kernel/cbs/src/ee_thact.c \
-		ee_$(DIST)/pkg/kernel/cbs/src/ee_thendin.c
-	@echo OPT __CBS__ up2date.
 
 
 distrib_opt___FP__:: \

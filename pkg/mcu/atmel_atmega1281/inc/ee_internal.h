@@ -48,29 +48,4 @@
 #ifndef __INCLUDE_MCU_ATMEGA1281_INTERNAL_H__
 #define __INCLUDE_MCU_ATMEGA1281_INTERNAL_H__
 
-
-/*************************************************************************
- Timers
- *************************************************************************/
-
-/*
- * CBS
- */
-
-#ifdef __CBS__
-
-/* This function set the capacity timer to raise in t ticks.
-   In this implementation, timer1 is used to raise a capacity
-   interrupt. The capacity interrupt is then programmed simply setting
-   the delay into the timer1 counter. That is, whenever the timer
-   fires, it restart counting down from 0xffffffff, and it will take a
-   few seconds to do that. */
-__INLINE__ void EE_hal_capacityIRQ()
-{
- 
-}
-
-#endif
-
-
 #endif /* __INCLUDE_AVR5_DRIVERS_H__ */

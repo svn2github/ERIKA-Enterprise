@@ -231,16 +231,6 @@ KERN_SRCS +=
 endif
 
 
-# CBS
-ifeq ($(findstring __CBS__,$(EEOPT)) , __CBS__)
-KERN_VPATH += $(EEBASE)/src/cbs
-KERN_SRCS += gettime.c irq_act.c irq_sc.c mutex.c \
-	rq_inser.c schedule.c thact.c thendin.c thmkrdy.c \
-	cap.c dlcheck.c
-else
-KERN_VPATH +=
-KERN_SRCS +=
-endif
 
 
 

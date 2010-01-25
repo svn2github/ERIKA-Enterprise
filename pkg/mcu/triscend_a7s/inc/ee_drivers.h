@@ -292,24 +292,5 @@ __INLINE__ EE_TIME __ALWAYS_INLINE__ EE_hal_gettime(void)
 #endif /* __TIME_SUPPORT__ */
 
 
-/*
- * CBS
- */
-
-#ifdef __CBS__
-
-/* this is the maximum absolute value for a timer */
-#define EE_TIMER_LIFETIME          0xffff
-
-/* this is the minimum amount that we consider ok as a minimum
-   capacity timer (to be tuned, currently at 100us @50Mhz) */
-#define EE_TIMER_MINCAPACITY           5000
-
-/* this is the maximum value we can sum to the current time to let it
-   still in the future (that is, without wrap-around */
-#define EE_TIMER_MAXFUTUREVALUE    0x7fff
 
 #endif
-
-
-#endif /* __INCLUDE_ARM7GNU_DRIVERS_H__ */

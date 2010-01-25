@@ -49,28 +49,4 @@
 #define __INCLUDE_MCU_SAMSUNG_KS32C50100_INTERNAL_H__
 
 
-/*************************************************************************
- Timers
- *************************************************************************/
-
-/*
- * CBS
- */
-
-#ifdef __CBS__
-
-/* This function set the capacity timer to raise in t ticks.
-   In this implementation, timer1 is used to raise a capacity
-   interrupt. The capacity interrupt is then programmed simply setting
-   the delay into the timer1 counter. That is, whenever the timer
-   fires, it restart counting down from 0xffffffff, and it will take a
-   few seconds to do that. */
-__INLINE__ void __ALWAYS_INLINE__ EE_hal_capacityIRQ(EE_TIME t)
-{
-  *TCNT1 = t;
-}
-
-#endif
-
-
 #endif /* __INCLUDE_ARM7GNU_DRIVERS_H__ */

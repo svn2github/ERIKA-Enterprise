@@ -235,10 +235,6 @@ extern "C" {
 #include "kernel/edf/inc/ee_internal.h"
 #endif
 
-#ifdef __CBS__
-#include "kernel/cbs/inc/ee_internal.h"
-#endif
-
 #ifdef __FRSH__
 #ifdef __SEM_FRSH__
 #include "kernel/frsh/syncobj/inc/ee_sem.h"

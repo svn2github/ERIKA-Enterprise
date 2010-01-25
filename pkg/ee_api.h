@@ -93,10 +93,6 @@
 #include "kernel/edf/inc/ee_api.h"
 #endif
 
-#ifdef __CBS__
-#include "kernel/cbs/inc/ee_api.h"
-#endif
-
 #ifdef __SEM__
 #include "kernel/sem/inc/ee_api.h"
 #endif

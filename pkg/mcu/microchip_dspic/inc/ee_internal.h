@@ -54,10 +54,10 @@
  *************************************************************************/
 
 /*
- * CBS & FRSH
+ * FRSH
  */
 
-#if defined(__CBS__) || defined(__FRSH__)
+#if defined(__FRSH__)
 
 /* This function set the capacity timer to raise in t ticks. */
 void EE_hal_set_budget_timer(EE_STIME t);

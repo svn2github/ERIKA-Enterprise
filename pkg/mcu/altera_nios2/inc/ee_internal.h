@@ -62,7 +62,7 @@
 #endif
 
 
-#if defined(__CBS__) || defined(__FRSH__)
+#if defined(__FRSH__)
 
 void EE_hal_set_nios2_timer(EE_UINT32 base, EE_STIME t);
 void EE_hal_stop_nios2_timer(EE_UINT32 base);

@@ -326,13 +326,6 @@ distrib_opt___ASSERT__:: \
 		ee_$(DIST)/pkg/test/assert/inc/ee_assert.h
 	@echo OPT __ASSERT__ up2date.
 
-distrib_opt___CBS__:: \
-		ee_$(DIST)/pkg/kernel/cbs/inc \
-		ee_$(DIST)/pkg/kernel/cbs/inc/ee_common.h \
-		ee_$(DIST)/pkg/kernel/cbs/inc/ee_kernel.h \
-		ee_$(DIST)/pkg/kernel/cbs/inc/ee_api.h
-	@echo OPT __CBS__ up2date.
-
 
 distrib_opt___FP__:: \
 		ee_$(DIST)/pkg/kernel/fp/inc \

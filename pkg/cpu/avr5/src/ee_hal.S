@@ -83,11 +83,6 @@
 #define __thread_end_instance EE_edf_thread_end_instance
 #endif
 
-#ifdef __CBS__
-	.extern	EE_cbs_thread_end_instance
-#define __thread_end_instance EE_cbs_thread_end_instance
-#endif
-
 #if defined(__OSEKOS_BCC1__) || defined(__OSEKOS_BCC2__) || defined(__OSEKOS_ECC1__) || defined(__OSEKOS_ECC2__)
 	.extern	EE_osek_thread_end_instance
 #define __thread_end_instance EE_osek_thread_end_instance

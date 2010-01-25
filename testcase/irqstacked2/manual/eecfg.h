@@ -43,8 +43,8 @@
  * CVS: $Id: eecfg.h,v 1.1.1.1 2004/11/05 16:03:03 pj Exp $
  */
 
-#ifndef __CBS_CONFIG_H__
-#define	__CBS_CONFIG_H__
+#ifndef __EECONFIG_H__
+#define	__EECONFIG_H__
 
 
 #define THREAD_MAX 4
