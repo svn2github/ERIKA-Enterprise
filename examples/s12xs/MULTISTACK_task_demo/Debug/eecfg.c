@@ -1,7 +1,6 @@
 
 #include "ee.h"
 
-EE_ADDR wreg = (EE_ADDR)0;
 /***************************************************************************
  *
  * Stack definition for PIC 30

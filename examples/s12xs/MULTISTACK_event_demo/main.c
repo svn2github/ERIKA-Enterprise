@@ -46,11 +46,26 @@
 #include "cpu/cosmic_hs12xs/inc/ee_irqstub.h"
 #include "myapp.h"
 
+#include "ee_hs12xsregs.h"
+#include "test/assert/inc/ee_assert.h"
+#define TRUE 1
+/* assertion data */
+EE_TYPEASSERTVALUE EE_assertions[10];
+
+unsigned int EE_TIMER_PRESCALER = 128;
+unsigned int EE_PRESCALE_FACTOR = EE_PRESCALE_FACTOR_128;
+unsigned long int EE_BUS_CLOCK = 2e6;
+unsigned int EE_TIMER_PERIOD = 1e-3;
+
+volatile unsigned int ERROR_FLAG = 0;
+
 DeclareTask(Task1);
 DeclareTask(Task2);
 DeclareEvent(TimerEvent);
 DeclareEvent(ButtonEvent);
 
+volatile int task1_fired = 0;
+volatile int task2_fired = 0;
 volatile int timer_fired = 0;
 volatile int button_fired = 0;
 volatile int dummit_counter = 0;
@@ -85,8 +100,14 @@ void led_blink(unsigned char theled)
 TASK(Task1)
 {
   EventMaskType mask;
+  
+  task1_fired++;
+  if(task1_fired==1)
+  	EE_assert(2, task1_fired==1, 1);
 
   while (1) {
+	EE_buttons_clear_ISRflag(BUTTON_0);	
+	EE_buttons_enable_interrupts(BUTTON_0);	
     WaitEvent(TimerEvent|ButtonEvent);
     GetEvent(Task1, &mask);
 
@@ -105,6 +126,11 @@ TASK(Task1)
 
 TASK(Task2)
 {
+  /* count the number of Task2 activations */
+  task2_fired++;
+  if(task2_fired==1)
+  	EE_assert(3, task2_fired==1, 2);	
+	
   led_blink(0x04);
   TerminateTask();
 }
@@ -112,6 +138,7 @@ TASK(Task2)
 void ErrorHook(StatusType Error)
 {
   myErrorCounter++;
+  ERROR_FLAG = Error;
   led_blink(0xFF);
 }
 
@@ -124,14 +151,15 @@ void StartupHook(void)
   /* Init devices */
   EE_buttons_init(BUTTON_0,3);
   
-  ///* Program Timer 1 to raise interrupts */
-  EE_pit0_init(99, 14, 2);
+  ///* Program Timer0 to raise interrupts */
+  // ATT!!! Timer0 is configured in the StartOS using ee_utils.h
 }
 
 
 /* MAIN */
 int main(void)
 {
+  EE_assert(1, TRUE, EE_ASSERT_NIL);		
   /* Serial interface */
   //EE_SCIOpenCommunication(SCI_0);
 
@@ -143,6 +171,10 @@ int main(void)
   //message();
 	
   StartOS(OSDEFAULTAPPMODE);
+  
+  while(task2_fired==0);
+  EE_assert_range(0,1,3);
+  EE_assert_last();
 
   /* Background activities, none in this demo! */
   while(1);

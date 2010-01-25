@@ -38,11 +38,13 @@
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
 
+#if defined(__NIOS2__)
 /* Altera Includes */ 
 #include "system.h"
 #include <altera_avalon_pio_regs.h>
 #include <stdio.h>
 #include "altera_avalon_timer_regs.h"
+#endif
 
 /* EE includes */
 #include "ee.h"
@@ -121,6 +123,7 @@ void ErrorHook(StatusType Error)
   myErrorCounter++;
 }
 
+#if defined(__NIOS2__)
 /* call the ERIKA Enterprise tick function for the Counter1 counter! */
 static void handle_timer_interrupt(void* context, alt_u32 id)
 {
@@ -148,18 +151,57 @@ static void handle_timer_interrupt(void* context, alt_u32 id)
 
   wecanstart=1;
 }
+#endif
+
+#if defined(__HCS12XS__)
+	#include "cpu/cosmic_hs12xs/inc/ee_irqstub.h"
+	#include "ee_hs12xsregs.h" 
+	ISR2(myISR2)
+	{
+		
+		StatusType s;
+  		unsigned int v;
+  
+  		PITTF         	= 0x01;
+  
+	  /* SemPost chiamato in un ISR con contatore >=0 e nessuno bloccato 
+	   * --> contatore incrementato */
+	  s = PostSem(&mySem);
+	  EE_assert(2, (s==E_OK), 1);
+  
+	  v = GetValueSem(&mySem);
+	  EE_assert(3, (v == 1), 2);
+	 
+	  /* SemPost chiamato in un ISR con contatore =EE_MAX_SEM_COUNTER 
+	   * e nessuno bloccato --> E_OS_VALUE */
+	  s = PostSem(&mySemMax);
+	  EE_assert(4, (s==E_OS_VALUE), 3);
+	  
+	  v = GetValueSem(&mySemMax);
+	  EE_assert(5, (v = EE_MAX_SEM_COUNTER), 4);
+	
+	  wecanstart=1;
+  	  EE_pit0_close();
+	}
+#endif
 
 void StartupHook(void)
 {
-  /* set to free running mode */
-  IOWR_ALTERA_AVALON_TIMER_CONTROL (HIGH_RES_TIMER_BASE, 
+	
+	#if defined(__NIOS2__)
+  	/* set to free running mode */
+  	IOWR_ALTERA_AVALON_TIMER_CONTROL (HIGH_RES_TIMER_BASE, 
             ALTERA_AVALON_TIMER_CONTROL_ITO_MSK  |
             ALTERA_AVALON_TIMER_CONTROL_CONT_MSK |
             ALTERA_AVALON_TIMER_CONTROL_START_MSK);
 
-  /* register the interrupt handler, and enable the interrupt */
+  	/* register the interrupt handler, and enable the interrupt */
     
-  alt_irq_register (HIGH_RES_TIMER_IRQ, NULL, handle_timer_interrupt);    
+  	alt_irq_register (HIGH_RES_TIMER_IRQ, NULL, handle_timer_interrupt);    
+  	#endif
+  	#if defined(__HCS12XS__)
+  		EE_pit0_init(99, 140, 2);
+	#endif 
 }
 
 
@@ -168,6 +210,11 @@ int main(void)
 {
   StatusType s;
   unsigned int v;
+  
+  
+	#if defined(__HCS12XS__)
+   	_asm("cli");
+	#endif
 
   EE_assert(1, TRUE, EE_ASSERT_NIL);
 

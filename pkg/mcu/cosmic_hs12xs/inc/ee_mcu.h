@@ -50,11 +50,6 @@
 #ifndef __INCLUDE_FREESCALE_S12XS_MCU_H__
 #define __INCLUDE_FREESCALE_S12XS_MCU_H__
 
-/* Include a file with the registers of the s12 micro-controller */ 
-#ifdef __S12XS_INCLUDE_REGS__
-#include "ee_hs12xsregs.h"
-#endif
-
 #ifdef __USE_PIT__
 #include "mcu/cosmic_hs12xs/inc/ee_pit.h"
 #endif
@@ -92,6 +87,10 @@ void EE_cpu_startos(void);
  */
 
 #ifndef EE_TIMER0_COUNTER
+/* Include a file with the registers of the s12 micro-controller */ 
+#ifdef __S12XS_INCLUDE_REGS__
+#include "ee_hs12xsregs.h"
+#endif
 ///*
 //*	Timer0 module
 //*/
@@ -105,15 +104,16 @@ void EE_cpu_startos(void);
 #define EE_PRESCALE_FACTOR_2 		1
 #define EE_PRESCALE_FACTOR_1 		0
 
-//#define EE_TIMER_PRESCALER		128
+//EE_TIMER_PRESCALER		es. 128
 extern unsigned int EE_TIMER_PRESCALER;
-//#define EE_PRESCALE_FACTOR		EE_PRESCALE_FACTOR_128
+//EE_PRESCALE_FACTOR		es. EE_PRESCALE_FACTOR_128
 extern unsigned int EE_PRESCALE_FACTOR;
-//#define EE_BUS_CLOCK			32e6
-extern double EE_BUS_CLOCK; 
-//#define EE_TIMER_PERIOD			1e-3
-extern double EE_TIMER_PERIOD; 
-#define EE_TIMER0_STEP 			((double)(EE_BUS_CLOCK))/((double)(EE_TIMER_PRESCALER))*((double)(EE_TIMER_PERIOD))	///250
+//EE_BUS_CLOCK				es. 32000000
+extern unsigned long int EE_BUS_CLOCK; 
+//EE_TIMER_PERIOD			es. 1 in ms
+extern unsigned int EE_TIMER_PERIOD; 	// ms
+
+#define EE_TIMER0_STEP 			(((unsigned long int)(EE_BUS_CLOCK))/((unsigned long int)(EE_TIMER_PRESCALER))*((unsigned long int)(EE_TIMER_PERIOD)))/((unsigned long int)(1000))	///es. 250
 
 //#ifndef __EECFG_THIS_IS_ASSEMBLER__
 static @inline int EE_s12xs_hal_cpu_startos( void )
@@ -127,10 +127,10 @@ static @inline int EE_s12xs_hal_cpu_startos( void )
 		TIE |= 0x01; 						// enable interrupt
 		OCPD |= 0x01;						// disable Timer0 channel port 
 		_asm("cli");						// cli
-		INT_CFADDR = 0xEE;					// set base address
-		INT_CFDATA0 = 0x01; 				// set priority
-		TC0 = (int)(EE_TIMER0_STEP);		// 1ms -> Freq: 64MHz, Bus_clock: 32MHz, -> 32MHz/prescaler*1ms
-		TSCR2 = (int)(EE_PRESCALE_FACTOR);	// prescaler 128
+		INT_CFADDR = 0xE0;					// set base address
+		INT_CFDATA7 = 0x01; 				// set priority
+		TC0 = (unsigned int)(EE_TIMER0_STEP);			// 1ms -> Freq: 64MHz, Bus_clock: 32MHz, -> 32MHz/prescaler*1ms
+		TSCR2 = (unsigned char)(EE_PRESCALE_FACTOR);	// prescaler 128
 		TSCR1 = 0x80; 						// turn on Timer0 module
 
   		return 0;

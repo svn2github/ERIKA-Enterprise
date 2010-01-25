@@ -82,3 +82,7 @@
 #ifdef pic30_dist_src
 #define pic30
 #endif
+
+//#ifdef s12xs_...
+//#define s12xs
+//#endif

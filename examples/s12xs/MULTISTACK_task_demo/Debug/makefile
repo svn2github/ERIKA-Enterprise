@@ -21,7 +21,7 @@ EEOPT =
 EEOPT += DEBUG
 EEOPT += NODEPS
 EEOPT += MYSCHEDULE
-
+EEOPT += __ASSERT__
 
 ############################################################################
 #
@@ -41,6 +41,8 @@ EEOPT += __USE_LEDS__
 #EEOPT += __USE_POTENTIOMETER__
 #EEOPT += __USE_ADC__
 #EEOPT += __USE_LIGHT_SENSOR__
+
+EEOPT += __S12XS_INCLUDE_REGS__
 
 EEOPT += __OO_ECC1__
 EEOPT += __ALLOW_NESTED_IRQ__

@@ -50,12 +50,17 @@ CPU test_application {
 		EE_OPT = "__ASSERT__";
 
 #include "../common/rtdruid_common/ee_oil_nios2_os.h"
+#include "../common/rtdruid_common/ee_oil_s12xs_os.h"
 
 			MULTI_STACK = TRUE {
 				IRQ_STACK = TRUE {
 					SYS_SIZE=512;
 				};
+#ifndef pic30
+	#ifndef s12xs
 				DUMMY_STACK = SHARED;
+	#endif			
+#endif
 			};
 		};
 	  
@@ -92,7 +97,11 @@ CPU test_application {
 		ACTIVATION = 1;
 		SCHEDULE = FULL;
 		AUTOSTART = TRUE;
+		#ifdef nios2
 		STACK = PRIVATE_NIOSII {
+		#else
+		STACK = PRIVATE{
+		#endif
 			SYS_SIZE = 1024;
 		};
 		EVENT = "myEvent";
@@ -113,7 +122,11 @@ CPU test_application {
 		ACTIVATION = 1;
 		SCHEDULE = FULL;
 		AUTOSTART = TRUE;
+		#ifdef nios2
 		STACK = PRIVATE_NIOSII {
+		#else
+		STACK = PRIVATE{
+		#endif
 			SYS_SIZE = 1024;
 		};
 		EVENT = "myEvent";

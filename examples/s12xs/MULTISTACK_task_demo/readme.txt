@@ -1,4 +1,4 @@
-multi6
+multi_task_demo
 
  A minimal EE demo that demonstrates how to work with the MULTISTACK mode and conformance class ECC1.
  In this demo two tasks are activated inside two ISRs and work with different stacks.

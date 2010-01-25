@@ -49,13 +49,22 @@ CPU test_application {
 		EE_OPT = "__OO_SEM__";
 		EE_OPT = "__ASSERT__";
 		
+		#ifdef s12xs
+			EE_OPT = "__S12_PIT0_ISR2_CODEc__";
+		#endif
+		
 #include "../common/rtdruid_common/ee_oil_nios2_os.h"
+#include "../common/rtdruid_common/ee_oil_s12xs_os.h"
 
 			MULTI_STACK = TRUE {
 				IRQ_STACK = TRUE {
 					SYS_SIZE=512;
 				};
-				DUMMY_STACK = SHARED;
+				#ifndef pic30
+					#ifndef s12xs
+						DUMMY_STACK = SHARED;
+					#endif			
+				#endif
 			};
 
 		};

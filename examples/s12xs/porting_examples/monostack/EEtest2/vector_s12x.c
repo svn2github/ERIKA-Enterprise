@@ -7,6 +7,7 @@
 #include "ee.h"
 #include "cpu/cosmic_hs12xs/inc/ee_irqstub.h"
 #include "ee_hs12xsregs.h" 
+ #include "test/assert/inc/ee_assert.h"
  
 extern int counter_isr; 
  
@@ -19,6 +20,8 @@ ISR2(PIT0_ISR)
 	//_asm("cli");
 	ActivateTask(Task1);
 	counter_isr++;
+	EE_assert(3, counter_isr==1, 2);
+	
 	if((PORTA & 0x01)==1)
         PORTA &= 0xFE;
 	else

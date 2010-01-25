@@ -47,13 +47,14 @@
 #include "ee_internal.h"
 //#include "cpu/cosmic_hs12xs/inc/ee_irqstub.h"
 //#include "ee_utils.h"
-//#ifdef __S12XS_INCLUDE_REGS__
-//#include "ee_hs12xsregs.h"
-//#endif
 
-volatile EE_UINT8 EE_timer0_initialized = 1;
+/* Include a file with the registers of the s12 micro-controller */ 
+#ifdef __S12XS_INCLUDE_REGS__
+#include "ee_hs12xsregs.h"
+#endif
 
 #if(EE_MAX_COUNTER>0)
+volatile EE_UINT8 EE_timer0_initialized = 1;
 
 //#define EE_TIMER0_STEP 250
 #ifdef __OO_EXTENDED_STATUS__
@@ -109,5 +110,8 @@ void EE_cpu_startos(void)
 //ISR2(T0_ISR)
 //{
 //}
+
+#else
+volatile EE_UINT8 EE_timer0_initialized = 0;
 
 #endif

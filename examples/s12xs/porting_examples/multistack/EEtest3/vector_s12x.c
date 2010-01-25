@@ -7,7 +7,7 @@
 #include "ee.h"
 #include "cpu/cosmic_hs12xs/inc/ee_irqstub.h"
 #include "ee_hs12xsregs.h" 
-
+#include "test/assert/inc/ee_assert.h"
 #include "myapp.h"
  
 extern volatile int timer_fired;
@@ -38,14 +38,21 @@ ISR2(PIT0_ISR)
 ISR2(PIT1_ISR)
 {
 	PITTF         = 0x02;        //@0x345;	/* PIT time-out flag register */
-	timer_fired++;
 	timer_divisor++;
 	if(timer_divisor==1000)
 	{
+		timer_fired++;
 		ActivateTask(Task2);
 		PITCE         = 0x00;        //@0x342;	/* PIT channel enable register */
 		PITCFLMT      = 0x00;        //@0x340;	/* PIT control micro timer register */
 		timer_divisor = 0;
+		if(timer_fired==1)
+        		EE_assert(2, timer_fired==1, 1);
+        if(timer_fired==10)
+        {
+        		EE_assert_range(0,1,4);
+  				EE_assert_last();
+		}
 	}
 }
  

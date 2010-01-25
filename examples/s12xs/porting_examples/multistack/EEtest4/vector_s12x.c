@@ -7,7 +7,7 @@
 #include "ee.h"
 #include "cpu/cosmic_hs12xs/inc/ee_irqstub.h"
 #include "ee_hs12xsregs.h" 
-
+#include "test/assert/inc/ee_assert.h"
 #include "myapp.h"
  
 extern volatile int timer_fired;
@@ -21,12 +21,17 @@ extern volatile int dummit_counter;
 ///* This is an ISR Type 2 which is attached to the PIT0 peripheral IRQ pin
 // * The ISR simply calls CounterTick to implement the timing reference
 // */
+
+volatile pit0_counter=0;
 ISR2(PIT0_ISR)
 {
 	PITTF         = 0x01;        //@0x345;	/* PIT time-out flag register */
+	pit0_counter++;
 	//_asm("cli");
 	PITCE = 0x02;
 	ActivateTask(Task1);
+	if( pit0_counter==1)
+		EE_assert(2, pit0_counter==1, 1);
 	while(1)
     	if(PITCE == 0x00)
     		break;  
@@ -35,14 +40,17 @@ ISR2(PIT0_ISR)
 ///* This is an ISR Type 2 which is attached to the PIT0 peripheral IRQ pin
 // * The ISR simply calls CounterTick to implement the timing reference
 // */
+volatile pit1_counter=0;
 ISR2(PIT1_ISR)
 {
 	PITTF         = 0x02;        //@0x345;	/* PIT time-out flag register */
-	timer_fired++;
 	timer_divisor++;
 	if(timer_divisor==1000)
 	{
 		ActivateTask(Task2);
+		pit1_counter++;
+		if( pit1_counter==1)
+			EE_assert(3, pit1_counter==1, 2);
 		PITCE         = 0x00;        //@0x342;	/* PIT channel enable register */
 		PITCFLMT      = 0x00;        //@0x340;	/* PIT control micro timer register */
 		timer_divisor = 0;

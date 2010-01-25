@@ -1,4 +1,4 @@
-# # Date             : 11/30/2009
+# # Date             : 1/18/2010
 # RT-Druid version : 
 #
 
@@ -20,7 +20,8 @@ EEOPT =
 ############################################################################
 EEOPT += DEBUG
 EEOPT += NODEPS
-EEOPT += MYSCHEDULE
+EEOPT += __ASSERT__
+EEOPT += __S12XS_INCLUDE_REGS__
 
 
 ############################################################################
@@ -31,33 +32,19 @@ EEOPT += MYSCHEDULE
 EEOPT += __RTD_CYGWIN__
 EEOPT += __COSMIC__
 EEOPT += __HCS12XS__
+EEOPT += __USE_PIT__
 EEOPT += __MC9S12XS128__
-
-#EEOPT += __USE_SCI__
-#EEOPT += __USE_PIT__
 EEOPT += __DEMO9S12XSFAME__
+EEOPT += __USE_POTENTIOMETER__
+EEOPT += __USE_ADC__
+EEOPT += __USE_BUTTONS__
 EEOPT += __USE_LEDS__
-#EEOPT += __USE_BUTTONS__
-#EEOPT += __USE_POTENTIOMETER__
-#EEOPT += __USE_ADC__
-#EEOPT += __USE_LIGHT_SENSOR__
-
-#EEOPT += __OO_ECC2__
-#EEOPT += __ALLOW_NESTED_IRQ__
-#EEOPT += __OO_EXTENDED_STATUS__
-#EEOPT += __OO_HAS_STARTUPHOOK__
-#EEOPT += __OO_HAS_ERRORHOOK__
-#EEOPT += __IRQ_STACK_NEEDED__
-#EEOPT += __MULTI__
-#EEOPT += __OO_HAS_USERESSCHEDULER__
-#EEOPT += __OO_AUTOSTART_TASK__
-#EEOPT += __OO_AUTOSTART_ALARM__
-
+EEOPT += __USE_LIGHT_SENSOR__
 EEOPT += __FP__
+EEOPT += __IRQ_STACK_NEEDED__
 EEOPT += __ALLOW_NESTED_IRQ__
-#EEOPT += __IRQ_STACK_NEEDED__
 EEOPT += __MULTI__
-EEOPT += __ALARMS__
+EEOPT += __FP_NO_RESOURCES__
 
 
 ############################################################################
@@ -65,9 +52,8 @@ EEOPT += __ALARMS__
 # Freescale S12
 #
 ############################################################################
-#EVIDENCEBASE := $(shell cygpath `cygpath -ms "C:\Evidence\Evidence\eclipse\plugins\com.eu.evidence.ee_1.0.0.200911272111"`)
-#EEBASE  := $(shell cygpath `cygpath -ms "C:\Evidence\Evidence\eclipse\plugins\com.eu.evidence.ee_1.0.0.200911272111\ee_base"`)
-EEBASE  := $(shell cygpath `cygpath -ms "C:\cygwin\home\Dario\repos\ee\trunk\ee"`)
+EVIDENCEBASE := $(shell cygpath `cygpath -ms "C:\Evidence\Evidence\eclipse\plugins\com.eu.evidence.ee_1.0.0.200912021119"`)
+EEBASE  := $(shell cygpath `cygpath -ms "C:\Evidence\Evidence\eclipse\plugins\com.eu.evidence.ee_1.0.0.200912021119\ee_base"`)
 APPBASE := 
 OUTBASE := Debug
 
@@ -93,7 +79,7 @@ COSMIC_INCLUDE_S       := crtsx.S
 #
 ############################################################################
 CFLAGS  += -l +modf +fast +nowiden +warn +sprec
-ASFLAGS += -l -c -v  
+ASFLAGS += -c -v -l 
 LDFLAGS += -p -sa -m mapfile.map
 LDDEPS  += 
 LIBS    += 

@@ -44,8 +44,13 @@
 
 #include "ee.h"
 #include "cpu/cosmic_hs12xs/inc/ee_irqstub.h"
-
 #include "myapp.h"
+
+#include "ee_hs12xsregs.h"
+#include "test/assert/inc/ee_assert.h"
+#define TRUE 1
+/* assertion data */
+EE_TYPEASSERTVALUE EE_assertions[10];
 
 /* insert a stub for the functions not directly supported by __FP__ */
 #ifdef __FP__
@@ -68,6 +73,8 @@ __INLINE__ void __ALWAYS_INLINE__ StartOS(int i)
 {
 }
 #endif
+
+double EE_BUS_CLOCK = 2e6;
 
 /* Let's declare the tasks identifiers */
 DeclareTask(Task1);
@@ -117,6 +124,8 @@ void led_blink(unsigned char theled)
 TASK(Task1)
 {
   task1_fired++;
+  if(task1_fired==1)
+  	EE_assert(3, task1_fired==1, 2);
   
   /* First half of the christmas tree */
   led_blink(LED_0);
@@ -142,8 +151,11 @@ TASK(Task2)
   char *msg_btn =  "Button_0: ";
   char *msg_tsk2 = "Task_2: ";
   unsigned char byte = 0;
+  
   /* count the number of Task2 activations */
   task2_fired++;
+  if(task2_fired==1)
+  	EE_assert(2, task2_fired==1, 1);
 
   /* let blink leds 6 or 7 */
   if (which_led) 
@@ -206,11 +218,13 @@ TASK(Task2)
 // MAIN function 
 int main()
 { 
+  EE_assert(1, TRUE, EE_ASSERT_NIL);		
+	
   /* Analog to digital converter */
   //EE_adc_init( (unsigned char)ATDRES_8BIT, 0x02 );
   
   /* Serial interface */
-  EE_sci_open(SCI_0);
+  EE_sci_open(SCI_0,(unsigned long int)EE_BUS_CLOCK,(unsigned long int)9600);
   
   ///* Program Timer 1 to raise interrupts */
   EE_pit0_init(99, 14, 2);
@@ -228,14 +242,12 @@ int main()
   /* let's start the multiprogramming environment...*/
   StartOS(OSDEFAULTAPPMODE);
   
+  while(task1_fired==0);
+  EE_assert_range(0,1,3);
+  EE_assert_last();
+  
   /* now the background activities... */
-  for (;;)
-  {
-     // if(EE_button_get_B0())        			// PP0 pushed
-//      {
-//          handle_button_interrupts(); 
-//      }   
-  }
+  while(1);
   return 0;
 }
 

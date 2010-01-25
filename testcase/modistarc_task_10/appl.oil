@@ -69,13 +69,16 @@ CPU test_application {
 #include "../common/rtdruid_common/ee_oil_janus_os.h"
 #include "../common/rtdruid_common/ee_oil_nios2_os.h"
 #include "../common/rtdruid_common/ee_oil_pic30_os.h"
+#include "../common/rtdruid_common/ee_oil_s12xs_os.h"
 
 
 /* Multi Stack */
 			MULTI_STACK = TRUE {
 				IRQ_STACK = FALSE;
 #ifndef pic30
+	#ifndef s12xs
 				DUMMY_STACK = SHARED;
+	#endif
 #endif
 			};
 
@@ -124,6 +127,11 @@ CPU test_application {
 			SYS_SIZE = 0x100;
 		};
 #endif
+#ifdef s12xs
+		STACK = PRIVATE {
+			SYS_SIZE = 0x100;
+		};
+#endif
     };
 
     TASK Task3 {
@@ -151,6 +159,11 @@ CPU test_application {
 #endif
 #ifdef pic30
 		STACK = PRIVATE_PIC30 {
+			SYS_SIZE = 0x100;
+		};
+#endif
+#ifdef s12xs
+		STACK = PRIVATE {
 			SYS_SIZE = 0x100;
 		};
 #endif

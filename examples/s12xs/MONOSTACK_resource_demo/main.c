@@ -44,8 +44,16 @@
 
 #include "ee.h"
 #include "cpu/cosmic_hs12xs/inc/ee_irqstub.h"
-
 #include "myapp.h"
+
+#include "ee_hs12xsregs.h"
+#include "test/assert/inc/ee_assert.h"
+#define TRUE 1
+/* assertion data */
+EE_TYPEASSERTVALUE EE_assertions[10];
+
+
+double EE_BUS_CLOCK = 2e6;
 
 /* Let's declare the tasks identifiers */
 DeclareTask(Task1);
@@ -96,6 +104,10 @@ TASK(Task1)
 {
   unsigned char j;
 
+  task1_fired++;
+  if(task1_fired==1)
+  	EE_assert(3, task1_fired==1, 2);	
+
   /* Lock the resource */
   GetResource(Resource);
 
@@ -126,6 +138,10 @@ TASK(Task2)
   AppModeType currentmode;
   char * msg = "My Counter: ";
   unsigned char byte = 0;
+  
+  task2_fired++;
+  if(task2_fired==1)
+  	EE_assert(2, task2_fired==1, 1);
   
   /* get the current application mode */
   currentmode = GetActiveApplicationMode();
@@ -163,7 +179,9 @@ int main(void)
   char *dec = "Decrement mode when Task2 runs!!!";
   char *intro = "I Love OSEK and Erika Enterprise!!!";
 
-  EE_sci_open(SCI_0);
+  EE_assert(1, TRUE, EE_ASSERT_NIL);		
+
+  EE_sci_open(SCI_0,(unsigned long int)EE_BUS_CLOCK,(unsigned long int)9600);
   EE_buttons_init(BUTTON_0,3);
   EE_leds_init();
   mydelay(10);
@@ -184,6 +202,10 @@ int main(void)
 
   StartOS(startupmode);
   EE_pit0_init(99, 14, 2);
+  
+  while(task1_fired==0);
+  EE_assert_range(0,1,3);
+  EE_assert_last();
   
   for (;;);
 }

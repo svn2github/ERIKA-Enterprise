@@ -67,11 +67,17 @@ CPU test_application {
 		  	IRQ_TIMER0 = "myISR2"; /* Timer 0 */
 		};
 #endif
+
+#ifdef s12xs
+			EE_OPT = "__S12_PIT0_ISR2_CODEc__";
+#endif
+
+// MCU_DATA and CPU_DATA
 #include "../common/rtdruid_common/ee_oil_e7t_os.h"
 #include "../common/rtdruid_common/ee_oil_janus_os.h"
 #include "../common/rtdruid_common/ee_oil_nios2_os.h"
 #include "../common/rtdruid_common/ee_oil_pic30_os.h"
-
+#include "../common/rtdruid_common/ee_oil_s12xs_os.h"
 
 /* Mono Stack */
 #if defined(B1) || defined(B2)
@@ -83,12 +89,14 @@ CPU test_application {
 			MULTI_STACK = TRUE {
 				IRQ_STACK = FALSE;
 #ifndef pic30
+	#ifndef s12xs
 				DUMMY_STACK = SHARED;
+	#endif			
 #endif
 			};
 #endif
 
-		};
+	}; // CPU_DATA
 
 #ifdef B1
         KERNEL_TYPE = BCC1;
@@ -103,12 +111,15 @@ CPU test_application {
         KERNEL_TYPE = ECC2;
 #endif
 
+		//ORTI_SECTIONS = ALL;
+		ORTI_SECTIONS = OS_SECTION;
+		ORTI_SECTIONS = TASK_SECTION;
+		ORTI_SECTIONS = RESOURCE_SECTION;
+		ORTI_SECTIONS = STACK_SECTION;
+		//ORTI_SECTIONS = ALARM_SECTION;
 
 
-
-		ORTI_SECTIONS = ALL;
-
-    };
+   	};	// OS EE
 
     TASK Task1 {
 		PRIORITY = 0x01;
@@ -126,5 +137,5 @@ CPU test_application {
 		STACK = SHARED;
     };
 
-};
+};	// CPU test_application
 

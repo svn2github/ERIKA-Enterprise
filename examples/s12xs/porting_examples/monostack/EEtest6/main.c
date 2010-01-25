@@ -44,6 +44,12 @@
 
 #include "ee.h"
 #include "cpu/cosmic_hs12xs/inc/ee_irqstub.h"
+#include "test/assert/inc/ee_assert.h"
+#include "ee_hs12xsregs.h" 
+#define TRUE 1
+/* assertion data */
+EE_TYPEASSERTVALUE EE_assertions[10];
+
 
 int func1(void);
 int func2(void);
@@ -88,7 +94,7 @@ DeclareTask(Task2);
 TASK(Task1)
 {
   task1_fired++;
-  
+  EE_assert(3, task1_fired==1, 2);
   //TerminateTask();
 }
 
@@ -97,16 +103,25 @@ TASK(Task1)
 TASK(Task2)
 {
     task2_fired++;
+    EE_assert(2, task2_fired==1, 1);
     //TerminateTask();
+    ActivateTask(Task1);
 	func1();
 }
   
 // MAIN function 
 int main()
 { 	
+	int counter = 0;
+	EE_assert(1, TRUE, EE_ASSERT_NIL);
   /* let's start the multiprogramming environment...*/
   StartOS(OSDEFAULTAPPMODE);
+  counter++;
+  EE_assert(4, counter==1, 3);
   
+  
+  EE_assert_range(0,1,4);
+  EE_assert_last();
   while(1);
  
   return 0;

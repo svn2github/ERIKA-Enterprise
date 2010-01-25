@@ -29,6 +29,11 @@
 #include "ee.h"
 #include "cpu/cosmic_hs12xs/inc/ee_irqstub.h"
 #include "ee_hs12xsregs.h"
+#include "test/assert/inc/ee_assert.h"
+
+#define TRUE 1
+/* assertion data */
+EE_TYPEASSERTVALUE EE_assertions[10];
 
 void Periph_Init(void);
 void PIT0_Program(void);
@@ -42,29 +47,40 @@ volatile int counter_isr = 0;
 TASK(Task1)
 {
     counter_taskS++;
+    EE_assert(2, counter_taskS==1, 1);
     while(1)
     	if(counter_isr > 10)
     		break;
-    PIT0_Close();
+    PIT0_Close();		
+    EE_assert(4, counter_taskS==1, 3);	
+  	
+   
 }
 
 TASK(Task2)
 {
     counter_taskR++;
+    EE_assert(5, counter_taskR==1, 4); 
 }
+
 
 /*
  * MAIN TASK
 */
 int main(void)
 {
+	int counter = 0;
+	EE_assert(1, TRUE, EE_ASSERT_NIL);
 	_asm("cli");
 	Interrupt_Init();
 	Periph_Init();
 	PIT0_Program();
 	ActivateTask(Task1);
-	//SetRelAlarm(Alarm_Send, 2, 3);	// Alarm of the task
+	counter++;
+	EE_assert(6, counter==1, 5);
 	
+	EE_assert_range(0,1,6);
+  	EE_assert_last();
 	// Forever loop: background activities (if any) should go here
 	for (;;);
 

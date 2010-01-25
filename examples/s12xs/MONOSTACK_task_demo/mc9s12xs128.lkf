@@ -22,7 +22,6 @@
 +seg .ram_high -b0xffe20 -o0x3e20 -m0x1E0											# High RAM (???)
 
 #
-+grp .bss=.OS_DATA,.OS_STACK													# OS_DATA and OS_STACK location 
 +def __sbss=@.bss															# start address of bss
 +def __subsct=@.ubsct														# start address of bsct
 +def __sgconst=start(.gconst)													# start address of global constants
@@ -51,13 +50,11 @@
 
 # Place obj files for the unbanked section here
 +seg .text -b 0x7f4c00 -o 0x4c00 -m 0x33fa  -n .code -f 0xFF							# unbanked code 
-+grp .text=.OS_NEAR_CODE													# grouping
 
 #
 +seg .gconst -b 0x7fc000 -ds16 -o 0xc000 -m 0x0700 -n .gconst -f 0xFF						# global constants
 +seg .const -a .gconst -n .const -f 0xFF    										# constants
-+grp .const=.OS_CONST,.CHK_DATA_FLS												# grouping
-																	# OS_CONST and CHK_DATA_FLS placed into constants
+																	
 #
 +seg .sec_flash -b0x7F7FFA -o0x7FFA -m0x06
 +seg .backdoor -b 0x7fff00 -o 0xff00 -m 0x08 -n .backdoor								# Backdoor programming Key
@@ -66,7 +63,7 @@
 #
 +seg .ftext -b 0x7e0000 -o 0x8000 -w 0x4000 -n .ftext -f 0xFF -m 0x14000					# banked - 5th bank
 # Place obj files for the banked section here
-+grp .ftext=.OS_CODE														# grouping
+								
 
 "obj\main.o"
 "obj\eecfg.o"
@@ -79,8 +76,8 @@
 
 #
 +seg .vector -b 0x7fff10 -o 0xff10 -n .vector									      # vectors start address
-+grp .vector=.OS_VEC_TABLE													# grouping
-																	# OS vector table
+
+																
 # Place here obj file for interrupt vectors
 "obj\vector_s12x.o"
 

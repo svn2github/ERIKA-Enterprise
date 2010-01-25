@@ -43,9 +43,14 @@
  */
 
 #include "ee.h"
-#include "cpu/cosmic_hs12xs/inc/ee_irqstub.h"
-
+#include "cpu/cosmic_hs12xs/inc/ee_irqstub.h" 
 #include "myapp.h"
+
+#include "ee_hs12xsregs.h"
+#include "test/assert/inc/ee_assert.h"
+#define TRUE 1
+/* assertion data */
+EE_TYPEASSERTVALUE EE_assertions[10];
 
 /* insert a stub for the functions not directly supported by __FP__ */
 #ifdef __FP__
@@ -107,7 +112,7 @@ void led_blink(unsigned char theled)
   EE_leds(led_status);
   EnableAllInterrupts();
 
-  //mydelay((long int)125000);
+  mydelay((long int)125000);
 
   DisableAllInterrupts();
   led_status &= ~theled;
@@ -119,19 +124,14 @@ void led_blink(unsigned char theled)
 TASK(Task1)
 {
   task1_fired++;
+  if(task1_fired==1)
+  	EE_assert(3, task1_fired==1, 2);
   
   /* First half of the christmas tree */
   led_blink(LED_0);
-  led_blink(LED_1);
   
-  /* CONFIGURATION 3 and 4: we put an additional Schedule() here! */
-  //#ifdef MYSCHEDULE
-  //  Schedule();
-  //#endif
-
-  /* Second half of the christmas tree */
-  led_blink(LED_2);
   PIT_Program();
+  
   TerminateTask();
 }
 
@@ -139,43 +139,22 @@ TASK(Task1)
 TASK(Task2)
 {
   static int which_led = 0;
+  
   /* count the number of Task2 activations */
   task2_fired++;
-
-  /* let blink leds 6 or 7 */
-  if (which_led) 
-  {
-	led_status &= (~LED_3);
-    EE_led_3_off();
-    which_led = 0;
-  }
-  else 
-  {
-	led_status |= LED_3;
-	EE_led_3_on();
-    which_led = 1;
-  }
+  if(task2_fired==1)
+  	EE_assert(2, task2_fired==1, 1);
+	
+  led_blink(LED_1);
   
   TerminateTask();
 }
   
-//void s12xs_hal_ready2stacked(EE_ADDR thread_addr, EE_UREG tos_index)
-//{
-//	if (tos_index == EE_s12xs_active_tos)
-//	goto label_2;
-//label_2:
-//	_asm("cli");
-//	return;
-//}  
-  
-  
 // MAIN function 
 int main()
 { 
-	// EE_s12xs_system_tos[EE_s12xs_active_tos] = stack pointer;
-	//EE_s12xs_system_tos[EE_s12xs_active_tos].SYS_tos = (EE_DADD)_asm("tfr s,d");	
-	//_asm("tfr d,s",EE_s12xs_system_tos[EE_s12xs_active_tos].SYS_tos);	
-
+	
+  EE_assert(1, TRUE, EE_ASSERT_NIL);		
   /* Init leds */
   EE_leds_init();
 
@@ -184,13 +163,14 @@ int main()
   /* let's start the multiprogramming environment...*/
   StartOS(OSDEFAULTAPPMODE);
   
-  /* now the background activities... */
-  for (;;)
-  {
-    ///* Program Timer 1 to raise interrupts */
-  	if(task2_fired==1 && PITCFLMT==0)
-  		PIT_Program();
-  }
+  PIT_Program();
+  
+  while(task1_fired==0);
+  EE_assert_range(0,1,3);
+  EE_assert_last();
+  
+  while(1);
+  
   return 0;
 }
 

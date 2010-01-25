@@ -45,7 +45,11 @@
 
 #include "ee.h"
 #include "kernel/sem/inc/ee_sem.h"        							
-
+#include "test/assert/inc/ee_assert.h"
+#include "ee_hs12xsregs.h" 
+#define TRUE 1
+/* assertion data */
+EE_TYPEASSERTVALUE EE_assertions[10];
 /* This example has 2 semaphores, used by the Task1 and by the Task2 tasks. */
 
 /* This semaphore is initialized automatically */
@@ -62,24 +66,28 @@ TASK(Task1)
 {
 	int i;
 	taskp_counter++;
-	
+	EE_assert(2, taskp_counter==1, 1);
 	ActivateTask(Task2);
 	
 	EE_leds_on();
+	EE_assert(4, taskp_counter==1, 3);
 	PostSem(&V); 
+	EE_assert(6, taskp_counter==1, 5);
 }
 
 TASK(Task2)
 {
 	int i;
 	taskc_counter++;
-	
+	EE_assert(3, taskc_counter==1, 2);
 	WaitSem(&V);
 	EE_leds_off();
+	EE_assert(5, taskc_counter==1, 4);
 }
 
 int main(void)
 {
+	EE_assert(1, TRUE, EE_ASSERT_NIL);
 	/* Initialization of the second semaphore of the example; the first
 	semaphore is initialized inside the definition */
 	InitSem(V,0);
@@ -90,6 +98,9 @@ int main(void)
 
 	ActivateTask(Task1);
 	//ActivateTask(Task2);
+  
+  	EE_assert_range(0,1,6);
+  	EE_assert_last();
   
 	/* Forever loop: background activities (if any) should go here.
 	Please note that in this example the code never reach this point... */

@@ -1,4 +1,4 @@
-# # Date             : 11/24/2009
+# # Date             : 1/18/2010
 # RT-Druid version : 
 #
 
@@ -20,6 +20,8 @@ EEOPT =
 ############################################################################
 EEOPT += DEBUG
 EEOPT += NODEPS
+EEOPT += __ASSERT__
+EEOPT += __S12XS_INCLUDE_REGS__
 
 
 ############################################################################
@@ -35,23 +37,23 @@ EEOPT += __OO_BCC1__
 EEOPT += __ALLOW_NESTED_IRQ__
 EEOPT += __OO_EXTENDED_STATUS__
 EEOPT += __MONO__
+EEOPT += __OO_NO_ALARMS__
+EEOPT += __OO_NO_RESOURCES__
 EEOPT += __OO_AUTOSTART_TASK__
 
 
 ############################################################################
 #
-# Cosmic S12
+# Freescale S12
 #
 ############################################################################
-#EVIDENCEBASE := $(shell cygpath `cygpath -ms "C:\Evidence\Evidence\eclipse\plugins\com.eu.evidence.ee_1.0.0.200910121138"`)
-EEBASE  := $(shell cygpath `cygpath -ms "C:\cygwin\home\Dario\repos\ee\trunk\ee"`)
-
-APPBASE := ..
+EVIDENCEBASE := $(shell cygpath `cygpath -ms "C:\Evidence\Evidence\eclipse\plugins\com.eu.evidence.ee_1.0.0.200912021119"`)
+EEBASE  := $(shell cygpath `cygpath -ms "C:\Evidence\Evidence\eclipse\plugins\com.eu.evidence.ee_1.0.0.200912021119\ee_base"`)
+APPBASE := 
 OUTBASE := Debug
 
-COSMIC_ASMDIR := $(shell cygpath `cygpath -ms "C:\Programmi\COSMIC\EVAL12X"`)
-COSMIC_CCDIR := $(shell cygpath `cygpath -ms "C:\Programmi\COSMIC\EVAL12X"`)
-
+COSMIC_ASMDIR := $(shell cygpath `cygpath -ms "c:\Programmi\COSMIC\EVAL12X"`)
+COSMIC_CCDIR := $(shell cygpath `cygpath -ms "c:\Programmi\COSMIC\EVAL12X"`)
 
 
 ############################################################################

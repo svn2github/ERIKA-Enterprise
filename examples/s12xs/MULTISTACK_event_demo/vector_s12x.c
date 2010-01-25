@@ -2,23 +2,13 @@
 //#include <math.h>
 #include "ee.h"
 #include "cpu/cosmic_hs12xs/inc/ee_irqstub.h"
-//#include "ee_hs12xsregs.h" 
-
+#include "ee_hs12xsregs.h" 
+//#include "ee_utils.h"
 #include "myapp.h"
  
 extern volatile int timer_fired;
 extern volatile int button_fired;
 extern volatile int dummit_counter;
- 
-/*
- * Periodic Timer interrupt
-*/ 
-ISR2(PIT0_Interrupt)
-{
-	/* clear the interrupt source */
-	EE_pit0_clear_ISRflag();
-	CounterTick(Counter1);
-}
 
 /*
  * Handle button_pio interrupts activates Task2.
@@ -28,14 +18,34 @@ ISR2(Buttons_Interrupt)
 	EE_buttons_disable_interrupts(BUTTON_0);
 	button_fired++;
 	/* arm an alarm that will activated Task2 */ 
-	SetRelAlarm(AlarmTask2, 1000, 0);
+	SetRelAlarm(AlarmTask2,EE_STATIC_ALARM_TIME,EE_STATIC_CYCLE_TIME);//SetRelAlarm(AlarmTask2, 1000, 0);
 	/* set an event to wake up Task1 */
     SetEvent(Task1, ButtonEvent);
 	mydelay((long int)1000);
-	EE_buttons_enable_interrupts(BUTTON_0);
+	//EE_buttons_enable_interrupts(BUTTON_0);
 	EE_buttons_clear_ISRflag(BUTTON_0);
 }
  
+ISR2(Counter_Interrupt)
+{
+	unsigned int val = TC0;
+	int diff;
+	timer_fired++;
+	/* clear the interrupt source */
+	TFLG1 = 0x01;	// Clear interrupt flag
+
+	//if (  ((signed)(TCNT-TC0)) >= 0) 	// to avoid spurious interrupts...
+	if (  ((signed)(TCNT-TC0)) >= 0)
+	{
+		do
+		{
+			CounterTick(Counter1);	
+			val += (unsigned int)(EE_TIMER0_STEP);
+   			TC0 = val;					// to manage critical courses...
+   			diff=((signed)(TCNT-val));
+		}while( diff >= 0);
+	}
+}
  
 @interrupt @near void _stext(void);	/* startup routine */
 
@@ -47,11 +57,6 @@ static @interrupt @near void dummit(void)
 //		EE_SCISendBuffer(SCI_0,0xEE);
 	}
 	
-/*	User interrupt routines
- */	
-//extern @interrupt @near void uisr_pit0(void);
-//extern @interrupt @near void uisr_pit1(void);
-
 #pragma section const {vector}
 
 /*	vector table to be located at address 0xFF10
@@ -78,7 +83,7 @@ static @interrupt @near void dummit(void)
   	dummit,			/* 0xFF74  Periodic Interrupt Timer  */
   	dummit,			/* 0xFF76  Periodic Interrupt Timer  */
   	dummit,			/* 0xFF78  Periodic Interrupt Timer  */
-  	PIT0_Interrupt,			/* 0xFF7A  Periodic Interrupt Timer  */
+  	dummit,			/* 0xFF7A  Periodic Interrupt Timer  */
   	dummit,			/* 0xFF7C  HTI                  */
   	dummit,			/* 0xFF7E  Autonomous Periodical Int */
 	dummit,			/* 0xFF80  Low Voltage Interrupt     */
@@ -136,7 +141,7 @@ static @interrupt @near void dummit(void)
   	dummit,			/* 0xFFE8  Timer channel 3           */
   	dummit,			/* 0xFFEA  Timer channel 2           */
   	dummit,			/* 0xFFEC  Timer channel 1           */
-  	dummit,			/* 0xFFEE  Timer channel 0           */
+  	Counter_Interrupt,			/* 0xFFEE  Timer channel 0           */
   	dummit,			/* 0xFFF0  Real Time Interrupt       */
   	dummit,			/* 0xFFF2  IRQ                       */
   	dummit,			/* 0xFFF4  XIRQ                      */

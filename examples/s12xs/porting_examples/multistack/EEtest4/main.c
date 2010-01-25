@@ -44,9 +44,13 @@
 
 #include "ee.h"
 #include "cpu/cosmic_hs12xs/inc/ee_irqstub.h"
-
+#include "ee_hs12xsregs.h" 
 #include "myapp.h"
+#include "test/assert/inc/ee_assert.h"
 
+#define TRUE 1
+/* assertion data */
+EE_TYPEASSERTVALUE EE_assertions[10];
 /* insert a stub for the functions not directly supported by __FP__ */
 #ifdef __FP__
 __INLINE__ void __ALWAYS_INLINE__ DisableAllInterrupts(void)
@@ -119,7 +123,8 @@ void led_blink(unsigned char theled)
 TASK(Task1)
 {
   task1_fired++;
-  
+  if(task1_fired==1)
+  	EE_assert(5, task1_fired==1, 4);
   /* First half of the christmas tree */
   led_blink(LED_0);
   led_blink(LED_1);
@@ -131,7 +136,8 @@ TASK(Task1)
 
   /* Second half of the christmas tree */
   led_blink(LED_2);
-  PIT_Program();
+  if(task1_fired<10)
+  	PIT_Program();
   TerminateTask();
 }
 
@@ -141,7 +147,8 @@ TASK(Task2)
   static int which_led = 0;
   /* count the number of Task2 activations */
   task2_fired++;
-
+  if(task2_fired==1)
+  	EE_assert(4, task2_fired==1, 3);
   /* let blink leds 6 or 7 */
   if (which_led) 
   {
@@ -172,6 +179,7 @@ TASK(Task2)
 // MAIN function 
 int main()
 { 
+	EE_assert(1, TRUE, EE_ASSERT_NIL);
 	// EE_s12xs_system_tos[EE_s12xs_active_tos] = stack pointer;
 	//EE_s12xs_system_tos[EE_s12xs_active_tos].SYS_tos = (EE_DADD)_asm("tfr s,d");	
 	//_asm("tfr d,s",EE_s12xs_system_tos[EE_s12xs_active_tos].SYS_tos);	
@@ -186,6 +194,11 @@ int main()
   
   /* let's start the multiprogramming environment...*/
   StartOS(OSDEFAULTAPPMODE);
+  
+  while(task1_fired<10);
+  
+  EE_assert_range(0,1,5);
+  EE_assert_last();
   
   /* now the background activities... */
   for (;;)

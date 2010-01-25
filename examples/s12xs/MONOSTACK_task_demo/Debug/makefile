@@ -21,7 +21,7 @@ EEOPT =
 EEOPT += DEBUG
 EEOPT += NODEPS
 EEOPT += MYSCHEDULE
-
+EEOPT += __ASSERT__
 
 ############################################################################
 #
@@ -40,6 +40,8 @@ EEOPT += __OO_NO_ALARMS__
 EEOPT += __OO_NO_RESOURCES__
 EEOPT += __OO_AUTOSTART_TASK__
 
+EEOPT += __S12XS_INCLUDE_REGS__
+
 EEOPT += __USE_SCI__
 EEOPT += __USE_PIT__
 EEOPT += __DEMO9S12XSFAME__
@@ -56,7 +58,7 @@ EEOPT += __USE_BUTTONS__
 #
 ############################################################################
 #EVIDENCEBASE := $(shell cygpath `cygpath -ms "C:\Evidence\Evidence\eclipse\plugins\com.eu.evidence.ee_1.0.0.200911272111"`)
-#EEBASE  := $(shell cygpath `cygpath -ms "C:\Evidence\Evidence\eclipse\plugins\com.eu.evidence.ee_1.0.0.200911272111\ee_base"`)
+#EEBASE  := $(shell cygpath `cygpath -ms "C:\Evidence\Evidence\eclipse\plugins\com.eu.evidence.ee_1.0.0.200912021119\ee_base"`)
 EEBASE  := $(shell cygpath `cygpath -ms "C:\cygwin\home\Dario\repos\ee\trunk\ee"`)
 APPBASE := 
 OUTBASE := Debug

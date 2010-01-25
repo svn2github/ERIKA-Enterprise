@@ -38,11 +38,13 @@
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
 
-/* Altera Includes */ 
-#include "system.h"
-#include <altera_avalon_pio_regs.h>
-#include <stdio.h>
-#include "altera_avalon_timer_regs.h"
+#if defined(__NIOS2__)
+	/* Altera Includes */ 
+	#include "system.h"
+	#include <altera_avalon_pio_regs.h>
+	#include <stdio.h>
+	#include "altera_avalon_timer_regs.h"
+#endif
 
 /* EE includes */
 #include "ee.h"
@@ -97,31 +99,51 @@ void ErrorHook(StatusType Error)
   myErrorCounter++;
 }
 
-/* call the ERIKA Enterprise tick function for the Counter1 counter! */
-static void handle_timer_interrupt(void* context, alt_u32 id)
-{
-  StatusType s;
-  /* clear the interrupt */
-  IOWR_ALTERA_AVALON_TIMER_STATUS (HIGH_RES_TIMER_BASE, 0);
+#if defined(__NIOS2__)
+	/* call the ERIKA Enterprise tick function for the Counter1 counter! */
+	static void handle_timer_interrupt(void* context, alt_u32 id)
+	{
+  		StatusType s;
+  		/* clear the interrupt */
+  		IOWR_ALTERA_AVALON_TIMER_STATUS (HIGH_RES_TIMER_BASE, 0);
   
-  /* WaitSem chiamata a livello IRQ --> E_OS_CALLEVEL */
-  s = WaitSem(&mySem);
-  EE_assert(2, (s==E_OS_CALLEVEL), 1);
+  		/* WaitSem chiamata a livello IRQ --> E_OS_CALLEVEL */
+  		s = WaitSem(&mySem);
+  		EE_assert(2, (s==E_OS_CALLEVEL), 1);
   
-  wecanstart=1;
-}
+  		wecanstart=1;
+	}
+#endif
+
+#if defined(__HCS12XS__)
+	#include "cpu/cosmic_hs12xs/inc/ee_irqstub.h"
+	#include "ee_hs12xsregs.h" 
+	ISR2(myISR2)
+	{
+		StatusType s;
+		PITTF         	= 0x01;
+  		/* WaitSem chiamata a livello IRQ --> E_OS_CALLEVEL */
+  		s = WaitSem(&mySem);
+  		EE_assert(2, (s==E_OS_CALLEVEL), 1);
+  		wecanstart=1;
+  		EE_pit0_close();
+	}
+#endif
 
 void StartupHook(void)
 {
-  /* set to free running mode */
-  IOWR_ALTERA_AVALON_TIMER_CONTROL (HIGH_RES_TIMER_BASE, 
+	#if defined(__NIOS2__)	
+  		/* set to free running mode */
+  		IOWR_ALTERA_AVALON_TIMER_CONTROL (HIGH_RES_TIMER_BASE, 
             ALTERA_AVALON_TIMER_CONTROL_ITO_MSK  |
             ALTERA_AVALON_TIMER_CONTROL_CONT_MSK |
             ALTERA_AVALON_TIMER_CONTROL_START_MSK);
-
-  /* register the interrupt handler, and enable the interrupt */
-    
-  alt_irq_register (HIGH_RES_TIMER_IRQ, NULL, handle_timer_interrupt);    
+  		/* register the interrupt handler, and enable the interrupt */
+  		alt_irq_register (HIGH_RES_TIMER_IRQ, NULL, handle_timer_interrupt);    
+  	#endif
+  	#if defined(__HCS12XS__)
+  		EE_pit0_init(99, 140, 2);
+	#endif
 }
 
 
@@ -129,7 +151,11 @@ void StartupHook(void)
 int main(void)
 {
   StatusType s;
-
+  
+  	#if defined(__HCS12XS__)
+   	_asm("cli");
+	#endif
+  
   EE_assert(1, TRUE, EE_ASSERT_NIL);
 
   StartOS(OSDEFAULTAPPMODE);

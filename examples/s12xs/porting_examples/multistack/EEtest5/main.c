@@ -45,7 +45,11 @@
 
 #include "ee.h"
 #include "kernel/sem/inc/ee_sem.h"        							
-
+#include "test/assert/inc/ee_assert.h"
+#include "ee_hs12xsregs.h" 
+#define TRUE 1
+/* assertion data */
+EE_TYPEASSERTVALUE EE_assertions[10];
 /* This example has 2 semaphores, used by the Producer and by the Consumer tasks. */
 
 /* This semaphore is initialized automatically */
@@ -63,6 +67,8 @@ volatile int taskc_counter = 0;
 TASK(Producer)
 {
 	int i;
+	static pcounter=0;
+
 	taskp_counter++;
 
 	/* 
@@ -74,6 +80,9 @@ TASK(Producer)
 	task calls blocking functions like WaitSem.
 	*/
 	for (;;) {
+		pcounter++;
+		if(pcounter==2)
+			EE_assert(2, pcounter==2, 1);
 		WaitSem(&P);
     
 		/* take some time to produce an item */
@@ -81,17 +90,25 @@ TASK(Producer)
 
 		/* the item has been produced! */
 		EE_leds_on();
-
-		PostSem(&V); 
+		if(pcounter==2)
+			EE_assert(5, pcounter==2, 4);
+		PostSem(&V);
+		if(pcounter==2)
+			EE_assert(6, pcounter==2, 5);
 	} 
 }
 
 TASK(Consumer)
 {
 	int i;
+	static ccounter=0;
+
 	taskc_counter++;
 	
 	for (;;) {
+		ccounter++;
+		if(ccounter==1)
+			EE_assert(3, ccounter==1, 2);
 		WaitSem(&V);
     
 		/* take some time to consume an item */
@@ -99,13 +116,22 @@ TASK(Consumer)
 
 		/* the item has been consumed! */
 		EE_leds_off();
-
+		if(ccounter==1)
+			EE_assert(4, ccounter==1, 3);
 		PostSem(&P); 
+		if(ccounter==1)
+		{
+			EE_assert(7, ccounter==1, 6);
+			EE_assert_range(0,1,7);
+  			EE_assert_last();
+		}
+		
 	} 
 }
 
 int main(void)
 {
+	EE_assert(1, TRUE, EE_ASSERT_NIL);
 	/* Initialization of the second semaphore of the example; the first
 	semaphore is initialized inside the definition */
 	InitSem(V,0);

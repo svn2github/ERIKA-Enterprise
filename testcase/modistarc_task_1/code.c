@@ -128,10 +128,16 @@ alt_u32 mycallback (void* arg)
 
 
 #if defined(__ARM7GNU__) && defined(__JANUS__)
-#include "mcu/st_janus/inc/ee_irqstub.h"
-_ISR2(myISR2)
+	#include "mcu/st_janus/inc/ee_irqstub.h"
+	_ISR2(myISR2)
 #else
-void myISR2(void)
+	#if defined(__HCS12XS__)
+		#include "cpu/cosmic_hs12xs/inc/ee_irqstub.h"
+		#include "ee_hs12xsregs.h" 
+		ISR2(myISR2)
+	#else
+		void myISR2(void)
+	#endif
 #endif
 {
   StatusType s;
@@ -155,6 +161,11 @@ void myISR2(void)
 #if defined(__ARM7GNU__) && defined(__JANUS__)
   // Reset the interrupt pending bit on the EIC
   *OCCDEFINT &= ~INTF0B;
+#endif
+
+#if defined(__HCS12XS__)
+	PITTF         	= 0x01;
+	PITCE 			= 0;
 #endif
 }
 
@@ -196,6 +207,12 @@ int main(int argc, char **argv)
     alt_alarm myalarm;
     alt_alarm_start(&myalarm, 100, mycallback, NULL);
   }
+
+#endif
+
+#if defined(__HCS12XS__)
+
+  EE_pit0_init(99, 140, 2);
 
 #endif
 

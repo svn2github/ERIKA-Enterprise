@@ -1,48 +1,3 @@
-
-#include "ee.h"
-
-EE_ADDR wreg = (EE_ADDR)0;
-
-/***************************************************************************
- *
- * Stack definition for PIC 30
- *
- **************************************************************************/
-    #define STACK_1_SIZE 256 // size = 512 bytes 
-    #define STACK_2_SIZE 256 // size = 512 bytes 
-    #define STACK_3_SIZE 256 // size = 512 bytes 
-
-    int EE_s12xs_stack_1[STACK_1_SIZE];	/* Task 0 (Task1) */
-    int EE_s12xs_stack_2[STACK_2_SIZE];	/* irq stack */
-    int EE_s12xs_stack_3[STACK_3_SIZE];	/* irq stack */
-
-    EE_UREG EE_s12xs_thread_tos[EE_MAX_TASK+1] = {
-        0,	 /* dummy*/
-        1,	 /* Task1*/
-        2 	 /* Task2*/
-    };
-
-    struct EE_TOS EE_s12xs_system_tos[3] = {
-        {0},	/* Task   (dummy), Task 1 (Task2) */
-        {(EE_DADD)(&EE_s12xs_stack_1[STACK_1_SIZE-1])}, 	/* Task 0 (Task1) */
-        {(EE_DADD)(&EE_s12xs_stack_2[STACK_2_SIZE-1])} 	/* Task 0 (Task1) */
-    };
-
-    EE_UREG EE_s12xs_active_tos = 0; /* dummy */
-
-    /* stack used only by IRQ handlers */
-    struct EE_TOS EE_s12xs_IRQ_tos = {
-        (EE_DADD)(&EE_s12xs_stack_3[STACK_3_SIZE-1])
-    };
-
-    //extern int _SPLIM_init;
-//    const struct EE_TOS EE_s12xs_system_splim[2] = {
-//        {(EE_ADDR)(EE_UREG)&_SPLIM_init},
-//        {(EE_ADDR)(&EE_s12xs_stack_1[STACK_1_SIZE - 4])}
-//    };
-//    const struct EE_TOS EE_s12xs_IRQ_splim = {
-//        (EE_ADDR)(&EE_s12xs_stack_2[STACK_2_SIZE - 4])
-//    };
 #include "ee.h"
 
 
@@ -251,8 +206,41 @@ EE_ADDR wreg = (EE_ADDR)0;
     };
 
     const EE_TYPETICK EE_oo_autostart_alarm_increment[EE_MAX_ALARM] =
-        {250, 0 };
+        {250, 1000 };
 
     const EE_TYPETICK EE_oo_autostart_alarm_cycle[EE_MAX_ALARM] =
         {500, 0 };
+
+
+#include "ee.h"
+
+
+/***************************************************************************
+ *
+ * Stack definition for Freescale S12
+ *
+ **************************************************************************/
+    #define STACK_1_SIZE 512 // size = 1024 bytes 
+    #define STACK_2_SIZE 256 // size = 512 bytes 
+
+    int EE_s12xs_stack_1[STACK_1_SIZE];	/* Task 0 (Task1) */
+    int EE_s12xs_stack_2[STACK_2_SIZE];	/* irq stack */
+
+    EE_UREG EE_s12xs_thread_tos[EE_MAX_TASK+1] = {
+        0,	 /* dummy*/
+        1,	 /* Task1*/
+        0 	 /* Task2*/
+    };
+
+    struct EE_TOS EE_s12xs_system_tos[2] = {
+        {0},	/* Task   (dummy), Task 1 (Task2) */
+        {(EE_DADD)(&EE_s12xs_stack_1[STACK_1_SIZE -3])} 	/* Task 0 (Task1) */
+    };
+
+    EE_UREG EE_s12xs_active_tos = 0; /* dummy */
+
+    /* stack used only by IRQ handlers */
+    struct EE_TOS EE_s12xs_IRQ_tos = {
+        (EE_DADD)(&EE_s12xs_stack_2[STACK_2_SIZE -3])
+    };
 

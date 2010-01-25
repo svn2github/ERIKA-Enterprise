@@ -2,7 +2,7 @@
 
 <evidence_example version="1" ID="S12XS_COSMIC_EE_TEST3">
 
- <category>s12xs/cosmic</category>
+ <category>s12xs/cosmic/porting_examples/monostack</category>
  <title>test3</title>
    
  <small_descr>

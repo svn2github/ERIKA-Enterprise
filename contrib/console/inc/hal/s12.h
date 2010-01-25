@@ -2,7 +2,20 @@
 #define __s12_h__
 
 #include "console_serial.h"
+
+///* Include a file with the registers of the s12 micro-controller */ 
+//#ifdef __S12XS_INCLUDE_REGS__
+//#include "ee_hs12xsregs.h"
+//#endif
+#include "ee_internal.h"
+
+
+
 #include "mcu/cosmic_hs12xs/inc/ee_sci.h"
+
+
+extern double EE_BUS_CLOCK;
+
 
 //#ifdef __ERIKA__
 //

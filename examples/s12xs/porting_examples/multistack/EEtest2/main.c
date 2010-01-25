@@ -44,9 +44,13 @@
 
 #include "ee.h"
 #include "cpu/cosmic_hs12xs/inc/ee_irqstub.h"
-
+#include "ee_hs12xsregs.h" 
 #include "myapp.h"
+#include "test/assert/inc/ee_assert.h"
 
+#define TRUE 1
+/* assertion data */
+EE_TYPEASSERTVALUE EE_assertions[10];
 /* insert a stub for the functions not directly supported by __FP__ */
 #ifdef __FP__
 __INLINE__ void __ALWAYS_INLINE__ DisableAllInterrupts(void)
@@ -75,6 +79,8 @@ DeclareTask(Task2);
 
 volatile int task1_fired=0;
 volatile int task2_fired=0;
+volatile int timer_fired = 0;
+volatile int timer_divisor = 0;
 volatile int divisor = 0;
 volatile unsigned char led_status = 0;
 volatile int dummit_counter=0;
@@ -116,7 +122,8 @@ void led_blink(unsigned char theled)
 TASK(Task1)
 {
   task1_fired++;
-  
+  if(task1_fired==1)
+  	EE_assert(4, task1_fired==1, 3);
   /* First half of the christmas tree */
   led_blink(LED_0);
   led_blink(LED_1);
@@ -138,7 +145,8 @@ TASK(Task2)
   static int which_led = 0;
   /* count the number of Task2 activations */
   task2_fired++;
-
+	if(task2_fired==1)
+  	EE_assert(3, task2_fired==1, 2);
   /* let blink leds 6 or 7 */
   if (which_led) 
   {
@@ -169,6 +177,7 @@ TASK(Task2)
 // MAIN function 
 int main()
 { 
+	EE_assert(1, TRUE, EE_ASSERT_NIL);
 	// EE_s12xs_system_tos[EE_s12xs_active_tos] = stack pointer;
 	//EE_s12xs_system_tos[EE_s12xs_active_tos].SYS_tos = (EE_DADD)_asm("tfr s,d");	
 	//_asm("tfr d,s",EE_s12xs_system_tos[EE_s12xs_active_tos].SYS_tos);	

@@ -44,6 +44,11 @@
 
 #include "ee.h"
 #include "cpu/cosmic_hs12xs/inc/ee_irqstub.h"
+#include "test/assert/inc/ee_assert.h"
+#include "ee_hs12xsregs.h" 
+#define TRUE 1
+/* assertion data */
+EE_TYPEASSERTVALUE EE_assertions[10];
 
 void Interrupt_Init(void);
 static void mydelay(int end);
@@ -122,11 +127,14 @@ TASK(Task1)
 {
   	task1_fired++;
   	
+  	PITCFLMT      = 0x00;        //@0x340;	/* PIT control micro timer register */
+	PITCE         = 0x00;        //@0x342;	/* PIT channel enable register */
+  	
 	/* Lock the resource */
   	GetResource(Resource);
-  	
+  	EE_assert(3, task1_fired==1, 2);
   	ActivateTask(Task2);
-  	
+  	EE_assert(4, task1_fired==1, 3);
 	PORTA |= 0x03;
 	mydelay(2000);
 	PORTA &= 0xFC;
@@ -141,9 +149,9 @@ TASK(Task1)
 TASK(Task2)
 {
   	task2_fired++;
-  
+  	EE_assert(5, task2_fired==1, 4);
   	GetResource(Resource);
-  
+  	EE_assert(6, task1_fired==1, 5);
   	PORTA |= 0x0C;
 	mydelay(1000);
 	PORTA &= 0xF3;
@@ -166,6 +174,8 @@ void EE_leds_init(void)
 
 int main(void)
 {
+	EE_assert(1, TRUE, EE_ASSERT_NIL);
+	
 	/* Init leds */
 	EE_leds_init();
 	
@@ -175,6 +185,10 @@ int main(void)
   
   	///* Program Timer 1 to raise interrupts */
   	PIT0_program();
+  
+  	while(task2_fired<1);
+  	EE_assert_range(0,1,6);
+  	EE_assert_last();
   
 	while(1);
   

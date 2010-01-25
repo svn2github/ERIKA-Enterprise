@@ -7,7 +7,7 @@
 #include "ee.h"
 #include "cpu/cosmic_hs12xs/inc/ee_irqstub.h"
 #include "ee_hs12xsregs.h" 
-
+#include "test/assert/inc/ee_assert.h"
 #include "myapp.h"
  
 extern volatile int dummit_counter;

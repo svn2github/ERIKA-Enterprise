@@ -21,11 +21,11 @@
 
 int8_t console_serial_hal_open(uint8_t port, uint32_t bdr, uint16_t flags)
 {
-	if(bdr!=((uint32_t)9600))
-	{
-		bdr = ((uint32_t)9600);	//#error "Supported baud-rates: 9600"
-	}
-	EE_sci_open(port);
+	//if(bdr!=((uint32_t)9600))
+//	{
+//		bdr = ((uint32_t)9600);	//#error "Supported baud-rates: 9600"
+//	}
+	EE_sci_open(port,(uint32_t)EE_BUS_CLOCK,bdr);
 	return 1;
 }
 

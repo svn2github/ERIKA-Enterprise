@@ -38,11 +38,13 @@
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
 
+#if defined(__NIOS2__)
 /* Altera Includes */ 
 #include "system.h"
 #include <altera_avalon_pio_regs.h>
 #include <stdio.h>
 #include "altera_avalon_timer_regs.h"
+#endif
 
 /* EE includes */
 #include "ee.h"
@@ -83,7 +85,7 @@ TASK(ExtTask)
 
 TASK(BasTask)
 {
-  unsigned int v;
+  int v;
   
   EE_assert(2, TRUE, 1);
   ActivateTask(ExtTask);
@@ -91,7 +93,7 @@ TASK(BasTask)
  
   v = GetValueSem(&mySem);
  
-  EE_assert(5, (v == 0), 4);
+  EE_assert(5, (v == -1), 4);
 
   /* the IRQ can now do the Post... */
   irqStatus = 1;
@@ -155,6 +157,7 @@ void ErrorHook(StatusType Error)
   myErrorCounter++;
 }
 
+#if defined(__NIOS2__)
 /* call the ERIKA Enterprise tick function for the Counter1 counter! */
 static void handle_timer_interrupt(void* context, alt_u32 id)
 {
@@ -185,18 +188,58 @@ static void handle_timer_interrupt(void* context, alt_u32 id)
   }
   
 }
+#endif
+
+#if defined(__HCS12XS__)
+	#include "cpu/cosmic_hs12xs/inc/ee_irqstub.h"
+	#include "ee_hs12xsregs.h" 
+	ISR2(myISR2)
+	{
+		StatusType s;
+		PITTF         	= 0x01;
+		
+	  if (irqStatus==1) {
+	    /* SemPost chiamato in un IRQ con contatore =0 e qualcuno bloccato 
+	     * --> sblocco un task e il task sbloccato va in coda ready, no preemption, 
+	     * preemption alla fine dell'ISR */
+	    EE_assert(6, TRUE, 5);
+	    s = PostSem(&mySem);
+	    EE_assert(7, (s==E_OK), 6);
+	    BasTask_cancontinue = 1;
+	    irqStatus = 0;
+	  }
+  
+	  if (irqStatus==2) {
+	    /*  SemPost chiamato in un IRQ con contatore =0 e qualcuno bloccato 
+	     * --> sblocco un task e il task sbloccato va in coda ready, no preemption, 
+	     * no preemption alla fine dell'ISR */
+	    EE_assert(17, TRUE, 16);
+	    s = PostSem(&mySem);
+	    EE_assert(18, (s==E_OK), 17);
+	    BasTaskLow_cancontinue = 1;
+	    irqStatus = 0;
+	  }
+  
+  		//EE_pit0_close();
+	}
+#endif
+
 
 void StartupHook(void)
 {
-  /* set to free running mode */
-  IOWR_ALTERA_AVALON_TIMER_CONTROL (HIGH_RES_TIMER_BASE, 
+	#if defined(__NIOS2__)
+  	/* set to free running mode */
+  	IOWR_ALTERA_AVALON_TIMER_CONTROL (HIGH_RES_TIMER_BASE, 
             ALTERA_AVALON_TIMER_CONTROL_ITO_MSK  |
             ALTERA_AVALON_TIMER_CONTROL_CONT_MSK |
             ALTERA_AVALON_TIMER_CONTROL_START_MSK);
 
-  /* register the interrupt handler, and enable the interrupt */
-    
-  alt_irq_register (HIGH_RES_TIMER_IRQ, NULL, handle_timer_interrupt);    
+  	/* register the interrupt handler, and enable the interrupt */
+  	alt_irq_register (HIGH_RES_TIMER_IRQ, NULL, handle_timer_interrupt);    
+  	#endif
+  	#if defined(__HCS12XS__)
+  		EE_pit0_init(99, 140, 2);
+	#endif
 }
 
 
@@ -205,6 +248,10 @@ int main(void)
 {
   StatusType s;
   unsigned int v;
+
+	#if defined(__HCS12XS__)
+   	_asm("cli");
+	#endif
 
   EE_assert(1, TRUE, EE_ASSERT_NIL);
 

@@ -38,11 +38,13 @@
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
 
+#if defined(__NIOS2__)
 /* Altera Includes */ 
 #include "system.h"
 #include <altera_avalon_pio_regs.h>
 #include <stdio.h>
 #include "altera_avalon_timer_regs.h"
+#endif
 
 /* EE includes */
 #include "ee.h"

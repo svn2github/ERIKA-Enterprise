@@ -3,6 +3,11 @@
 #ifndef __INCLUDE_FREESCALE_S12XS_SCI_H__
 #define __INCLUDE_FREESCALE_S12XS_SCI_H__
 
+/* Include a file with the registers of the s12 micro-controller */ 
+#ifdef __S12XS_INCLUDE_REGS__
+#include "ee_hs12xsregs.h"
+#endif
+
 //#include "ee.h"
 
 /////////////////////////////////////////////////////////////////////////////////////////

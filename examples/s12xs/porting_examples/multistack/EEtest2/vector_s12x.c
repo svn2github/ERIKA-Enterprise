@@ -7,7 +7,7 @@
 #include "ee.h"
 #include "cpu/cosmic_hs12xs/inc/ee_irqstub.h"
 #include "ee_hs12xsregs.h" 
-
+#include "test/assert/inc/ee_assert.h"
 #include "myapp.h"
  
 extern volatile int timer_fired;
@@ -18,13 +18,21 @@ extern volatile int dummit_counter;
 ISR2(PIT0_Interrupt)
 {
 	/* clear the interrupt source */
-	EE_PIT0_clear_ISRflag();
+	EE_pit0_clear_ISRflag();
 	timer_divisor++;
 	if (timer_divisor == 10000) {
 		timer_divisor = 0;
 		timer_fired++;
         ActivateTask(Task1);
         ActivateTask(Task2);
+        if(timer_fired==1)
+        		EE_assert(2, timer_fired==1, 1);
+        if(timer_fired==10)
+        {
+        		EE_pit0_close();
+        		EE_assert_range(0,1,4);
+  				EE_assert_last();
+		}
 	}
 
 }

@@ -111,8 +111,6 @@ endef
 $(foreach c,$(confs),$(eval $(call all_template,$(c))))
 
 
-
-
 #
 # rtdruid
 #

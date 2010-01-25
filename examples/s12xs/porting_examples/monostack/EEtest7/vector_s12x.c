@@ -7,7 +7,7 @@
 #include "ee.h"
 #include "cpu/cosmic_hs12xs/inc/ee_irqstub.h"
 #include "ee_hs12xsregs.h" 
- 
+#include "test/assert/inc/ee_assert.h"
 extern volatile int timer_fired;
 extern volatile int timer_divisor; 
  
@@ -19,6 +19,7 @@ ISR2(PIT0_Interrupt)
 	if (timer_divisor == 2000) {
 		timer_divisor = 0;
 		timer_fired++;
+		EE_assert(3, timer_fired==1, 2);
         ActivateTask(Task1);
 	}
 

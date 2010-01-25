@@ -29,6 +29,11 @@
 #include "ee.h"
 #include "cpu/cosmic_hs12xs/inc/ee_irqstub.h"
 #include "ee_hs12xsregs.h"
+#include "test/assert/inc/ee_assert.h"
+
+#define TRUE 1
+/* assertion data */
+EE_TYPEASSERTVALUE EE_assertions[10];
 
 
 volatile int counter = 0;
@@ -36,6 +41,8 @@ volatile int counter = 0;
 TASK(Task1)
 {
     counter++;
+    EE_assert(2, counter==1, 1);
+    
 }
 
 /*
@@ -43,7 +50,14 @@ TASK(Task1)
 */
 int main(void)
 {
+	EE_assert(1, TRUE, EE_ASSERT_NIL);
+
 	ActivateTask(Task1);
+	counter++;
+	EE_assert(3, counter==2, 2);
+	
+	EE_assert_range(0,1,3);
+  	EE_assert_last();
 	// Forever loop: background activities (if any) should go here
 	for (;;);
 

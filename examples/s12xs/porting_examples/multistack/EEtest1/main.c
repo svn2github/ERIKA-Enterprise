@@ -45,7 +45,11 @@
 #include "ee.h"
 #include "cpu/cosmic_hs12xs/inc/ee_irqstub.h"
 #include "myapp.h"
-
+#include "test/assert/inc/ee_assert.h"
+#include "ee_hs12xsregs.h" 
+#define TRUE 1
+/* assertion data */
+EE_TYPEASSERTVALUE EE_assertions[10];
 
 /* insert a stub for the functions not directly supported by __FP__ */
 #ifdef __FP__
@@ -113,7 +117,8 @@ void led_blink(unsigned char theled)
 TASK(Task1)
 {
   task1_fired++;
-
+if(task1_fired==1)
+  	EE_assert(2, task1_fired==1, 1);
   led_blink(LED_0);
   led_blink(LED_1);
   led_blink(LED_2);
@@ -128,7 +133,8 @@ TASK(Task2)
   static int which_led = 0;
   /* count the number of Task2 activations */
   task2_fired++;
-
+	if(task2_fired==1)
+  	EE_assert(3, task2_fired==1, 2);
   /* let blink leds 6 or 7 */
   if (which_led) 
   {
@@ -150,6 +156,8 @@ TASK(Task2)
 // MAIN function 
 int main()
 { 
+	int counter=0;
+	EE_assert(1, TRUE, EE_ASSERT_NIL);
   /* Init leds */
   EE_leds_init();
 
@@ -165,9 +173,18 @@ int main()
 		if (divisor == 10000) 
 		{
 			divisor = 0;
+			counter++;
         	ActivateTask(Task1);
         	ActivateTask(Task2);
+        	if(counter==1)
+        		EE_assert(4, counter==1, 3);
+        	if(counter==10)
+        		break;
 		}
   }
+  
+  EE_assert_range(0,1,4);
+  	EE_assert_last();
+  for (;;);
   return 0;
 }

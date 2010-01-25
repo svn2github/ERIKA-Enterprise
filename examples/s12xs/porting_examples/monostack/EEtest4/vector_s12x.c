@@ -7,7 +7,7 @@
 #include "ee.h"
 #include "cpu/cosmic_hs12xs/inc/ee_irqstub.h"
 #include "ee_hs12xsregs.h" 
- 
+#include "test/assert/inc/ee_assert.h" 
 extern int counter_isr; 
  
 ///* This is an ISR Type 2 which is attached to the PIT0 peripheral IRQ pin
@@ -17,15 +17,21 @@ ISR2(PIT0_ISR)
 {
 	PITTF         = 0x01;        //@0x345;	/* PIT time-out flag register */
 	//_asm("cli");
-	if(counter_isr==0)
-		ActivateTask(Task2);
 	counter_isr++;
+	if(counter_isr==1)
+	{
+		ActivateTask(Task2);
+		EE_assert(3, counter_isr==1, 2);
+	}
+	
+	
 	if((PORTA & 0x01)==1)
         PORTA &= 0xFE;
 	else
         PORTA |= 0x01;
     //CounterTick(DUMMY_COUNTER);    
 }
+ 
  
  
 @interrupt @near void _stext(void);	/* startup routine */

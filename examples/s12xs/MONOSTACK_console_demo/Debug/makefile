@@ -20,7 +20,7 @@ EEOPT =
 ############################################################################
 EEOPT += DEBUG
 EEOPT += NODEPS
-
+EEOPT += __ASSERT__
 
 ############################################################################
 #
@@ -38,6 +38,8 @@ EEOPT += __MONO__
 EEOPT += __OO_NO_ALARMS__
 EEOPT += __OO_NO_RESOURCES__
 EEOPT += __OO_AUTOSTART_TASK__
+
+EEOPT += __S12XS_INCLUDE_REGS__
 
 EEOPT += __USE_SCI__
 EEOPT += __USE_PIT__

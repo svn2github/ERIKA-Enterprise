@@ -7,9 +7,10 @@
 #include "ee.h"
 #include "cpu/cosmic_hs12xs/inc/ee_irqstub.h"
 #include "ee_hs12xsregs.h" 
- 
+#include "test/assert/inc/ee_assert.h" 
 extern volatile int counter_isr; 
- 
+
+int counter0 = 0; 
 ///* This is an ISR Type 2 which is attached to the PIT0 peripheral IRQ pin
 // * The ISR simply calls CounterTick to implement the timing reference
 // */
@@ -18,6 +19,8 @@ ISR2(PIT0_ISR)
 	PITTF         = 0x01;        //@0x345;	/* PIT time-out flag register */
 	//_asm("cli");
 	PITCE = 0x02;
+	counter0++;
+	EE_assert(3, counter0==1, 2);
 	while(1)
     	if(counter_isr > 10)
     		break;
@@ -34,9 +37,12 @@ ISR2(PIT0_ISR)
 ISR2(PIT1_ISR)
 {
 	PITTF         = 0x02;        //@0x345;	/* PIT time-out flag register */
-	if(counter_isr==0)
-		ActivateTask(Task2);
 	counter_isr++;
+	if(counter_isr==1)
+	{
+		ActivateTask(Task2);
+		EE_assert(4, counter_isr==1, 3);
+	}
 	//_asm("cli");
 	if((PORTA & 0x02)==1)
         PORTA &= 0xFD;

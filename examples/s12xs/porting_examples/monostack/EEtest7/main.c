@@ -44,6 +44,11 @@
 
 #include "ee.h"
 #include "cpu/cosmic_hs12xs/inc/ee_irqstub.h"
+#include "test/assert/inc/ee_assert.h"
+#include "ee_hs12xsregs.h" 
+#define TRUE 1
+/* assertion data */
+EE_TYPEASSERTVALUE EE_assertions[10];
 
 void Interrupt_Init(void);
 static void mydelay(int end);
@@ -116,13 +121,16 @@ void Interrupt_Init(void)
 TASK(Task1)
 {
   	task1_fired++;
-  	
+  	EE_assert(4, task1_fired==1, 3);
   	ActivateTask(Task2); 
 
 	PORTA |= 0x03;
 	mydelay(2000);
 	PORTA &= 0xFC;
 	
+	 PITCFLMT      = 0x00;        //@0x340;	/* PIT control micro timer register */
+	 PITCE         = 0x00;        //@0x342;	/* PIT channel enable register */
+
   	//TerminateTask();
 }
 
@@ -130,10 +138,23 @@ TASK(Task1)
 /* Task2: Print the counters on the JTAG UART */
 TASK(Task2)
 {
+	task2_fired++;
   	// static int which_led = 0;
+	if(task2_fired==1)
+	{
+		ActivateTask(Task2);
+		ActivateTask(Task2);
+		ActivateTask(Task2);
+		ActivateTask(Task2);
+		ActivateTask(Task2);
+		ActivateTask(Task2);
+	}
 	//  /* count the number of Task2 activations */
-    task2_fired++;
-  	
+    if(task2_fired==1)
+  		EE_assert(2, task2_fired==1, 1);
+  	else
+  		if(task2_fired==5)
+  			EE_assert(5, task2_fired==5, 4);
   	PORTA |= 0x0C;
 	mydelay(1000);
 	PORTA &= 0xF3;
@@ -157,9 +178,12 @@ void EE_leds_init(void)
 // MAIN function 
 int main()
 { 
+	EE_assert(1, TRUE, EE_ASSERT_NIL);
   /* let's start the multiprogramming environment...*/
   StartOS(OSDEFAULTAPPMODE);
   
+  ActivateTask(Task2);
+
   ///* Program Timer 1 to raise interrupts */
   PIT0_program();
 	
@@ -167,7 +191,12 @@ int main()
   EE_leds_init();
 
   mydelay(10);
+	while(task2_fired<5);
+  EE_assert(6, task2_fired==5, 5);
   
+  
+  EE_assert_range(0,1,6);
+  	EE_assert_last();
   while(1);
   
   return 0;
