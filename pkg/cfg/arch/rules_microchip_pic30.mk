@@ -114,8 +114,16 @@ PIC30_INCLUDE_DIR := $(MCHP_DATA_DIR)/include
 # If PIC30_LIB_DIR has subdirectories... (since 3.10) 
 ifneq ($(shell find $(PIC30_LIB_DIR) -mindepth 1 -type d),)
 SHORT_MODEL := $(shell echo $(PIC30_MODEL) | awk '{ a = substr($$0,1,3); print a;}')
+
+#search for PIC24F
+ifeq ($(findstring 24,$(SHORT_MODEL)), 24)
+MCHP_SUPPORT_DIR := $(MCHP_DATA_DIR)/support/PIC$(SHORT_MODEL)
+PIC30_LIBD_DIR := $(PIC30_LIB_DIR)/PIC$(SHORT_MODEL)
+else
 MCHP_SUPPORT_DIR := $(MCHP_DATA_DIR)/support/dsPIC$(SHORT_MODEL)
 PIC30_LIBD_DIR := $(PIC30_LIB_DIR)/dsPIC$(SHORT_MODEL)
+endif
+
 else
 MCHP_SUPPORT_DIR := $(MCHP_DATA_DIR)/support
 PIC30_LIBD_DIR :=
