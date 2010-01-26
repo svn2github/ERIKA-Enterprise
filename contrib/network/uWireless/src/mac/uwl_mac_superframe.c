@@ -97,8 +97,10 @@ static uint32_t gts_available_bytes[UWL_MAC_GTS_MAX_NUMBER]
 static void (* before_beacon_callback)(void) = NULL;
 static void (* on_beacon_callback)(void) = NULL;
 #endif
-//static uint32_t test_time = 0;
 
+//Variable for associtae request at the device, to resend association req.
+extern int16_t associate_ack_counter;
+extern struct uwl_mac_frame_t ass_req_ack_wait;
 /******************************************************************************/
 /*                      MAC Genaral Private Functions                         */
 /******************************************************************************/
@@ -232,7 +234,7 @@ COMPILER_INLINE void stop_previous_cfp(void)
 	uwl_kal_cancel_activation(MAC_GTS_SEND); /* TODO: has effect? */
 }
 
-struct uwl_mac_frame_t *frame;
+
 
 /******************************************************************************/
 /*                      MAC CAP and CFP Management Functions                  */
@@ -248,6 +250,8 @@ static void csma_perform_slotted(void)
 	uint32_t dst_addr2;
 	uint8_t pointer;
 	uint16_t dst_pan_addr;
+
+	struct uwl_mac_frame_t *frame;
 
 	if (uwl_mac_status.sf_context != UWL_MAC_SF_CAP)
 		return; 
@@ -312,7 +316,6 @@ static void csma_perform_slotted(void)
 
 
 				//uwl_debug_print("in the if");
-
 				frame = (struct uwl_mac_frame_t*)list_iter_front(&uwl_mac_list_ind);
 
 				dst_pan_addr = (frame->mpdu[3] << 0) |	(frame->mpdu[4] << 8);
@@ -335,7 +338,6 @@ static void csma_perform_slotted(void)
 							(frame->mpdu[11] << 16) | (frame->mpdu[12] << 24);
 				}
 
-
 				list_extract(&uwl_mac_list_ind, pointer);
 
 				uwl_mac_data_req.data_req = 0;
@@ -349,15 +351,18 @@ static void csma_perform_slotted(void)
 		#ifdef __JUST_MEASURE_FOR_PAPER__
 		daq_time_get(1, &downlink); // FIXME: this must be done ONLY  IN COORDINATOR
 		#endif
-		tmp = uwl_radio_phy_send_now(frame->mpdu, frame->mpdu_size);
-		if (tmp == UWL_RADIO_ERR_NONE)
-			uwl_MCPS_DATA_confirm(frame->msdu_handle, 
-					      UWL_MAC_SUCCESS, 0);
-		else 
-		/* TODO: we have to choose a well formed reply
-			 for the indication primitive (status=??) */
-			uwl_MCPS_DATA_confirm(frame->msdu_handle, 
-					      UWL_MAC_CHANNEL_ACCESS_FAILURE,0);
+
+		if(frame != 0){
+			tmp = uwl_radio_phy_send_now(frame->mpdu, frame->mpdu_size);
+			if (tmp == UWL_RADIO_ERR_NONE)
+				uwl_MCPS_DATA_confirm(frame->msdu_handle,
+							  UWL_MAC_SUCCESS, 0);
+			else
+			/* TODO: we have to choose a well formed reply
+				 for the indication primitive (status=??) */
+				uwl_MCPS_DATA_confirm(frame->msdu_handle,
+							  UWL_MAC_CHANNEL_ACCESS_FAILURE,0);
+		}
 
 		csma_params.state = CSMA_STATE_INIT;
 		//uwl_debug_print("C->I succ");
@@ -630,8 +635,26 @@ static void before_timeslot_start(void)
 	*/
 }
 
+static void perform_associate_request_ack_check(void){
+
+	static uint8_t associate_req_attempts = 0;
+
+	if(associate_ack_counter > 0){
+		associate_ack_counter++;
+
+		//if(associate_ack_counter==uwl_mac_pib.macAckWaitDuration==){
+		if(associate_ack_counter >= uwl_mac_pib.macAckWaitDuration && associate_req_attempts < uwl_mac_pib.macMaxFrameRetries){
+			uwl_radio_phy_send_now(ass_req_ack_wait.mpdu, ass_req_ack_wait.mpdu_size);
+			associate_ack_counter = 1;
+			associate_req_attempts++;
+		}
+	}
+
+}
+
 static void on_backoff_period_start(void) 
 {
+	perform_associate_request_ack_check();
 	if (csma_params.slotted)
 		csma_perform_slotted();
 	else

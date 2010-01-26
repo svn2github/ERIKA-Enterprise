@@ -82,10 +82,12 @@ CQUEUE_DEFINE(uwl_mac_queue_cap, struct uwl_mac_frame_t,
 LIST_DEFINE(uwl_mac_list_ind, struct uwl_mac_frame_t,
 		UWL_MAC_IND_LIST_SIZE, COMPILER_ATTRIBUTE_FAR);
 /* TODO: used only by coordinator. */
-struct uwl_gts_info_t uwl_gts_schedule[UWL_MAC_GTS_MAX_NUMBER] 
+struct uwl_gts_info_t uwl_gts_schedule[UWL_MAC_GTS_MAX_NUMBER]
 		      COMPILER_ATTRIBUTE_FAR;
 
-
+//Variable for associate request at the device, to resend association req.
+struct uwl_mac_frame_t ass_req_ack_wait;
+extern int16_t associate_ack_counter;
 /******************************************************************************/
 /*                                                                            */
 /*                      MAC Layer Private Functions                           */
@@ -585,8 +587,9 @@ static void process_rx_ack(void)
 	ack = UWL_MAC_MPDU_FRAME_CONTROL(rx_ack);
 	seq_num = UWL_MAC_MPDU_SEQ_NUMBER(ack);
 	if(wait_ack == 1 && UWL_MAC_MPDU_GET_SEQ_NUMBER(seq_num) == seq_num_ack
-			&& association_status == 1)
+			&& association_status == 1){
 		uwl_mac_data_request_cmd();
+	}
 }
 
 COMPILER_INLINE int8_t init_rx_tasks(void)
@@ -998,8 +1001,8 @@ uint8_t uwl_mac_create_beacon(uwl_mpdu_ptr_t bcn)
  										uint8_t cap_inform)
  {
 	 uint8_t s;
-	 struct uwl_mac_frame_t *cmd_ass_req;
 	 uwl_mac_dev_addr_extd_t e_addr;
+	 struct uwl_mac_frame_t *cmd_ass_req;
 
 	 uwl_kal_mutex_wait(MAC_SEND_MUTEX);
 	 cmd_ass_req = (struct uwl_mac_frame_t*)
@@ -1029,6 +1032,7 @@ uint8_t uwl_mac_create_beacon(uwl_mpdu_ptr_t bcn)
 			 UWL_MAC_CAPABILITY_INFORMATION_SIZE/* +
 			sizeof(uint16_t) */;
 
+	 memcpy(&ass_req_ack_wait, cmd_ass_req, sizeof(struct uwl_mac_frame_t));
 	 wait_ack = 1;
 	 association_status = 1;
 
@@ -1116,6 +1120,8 @@ uint8_t uwl_mac_create_beacon(uwl_mpdu_ptr_t bcn)
 		 uwl_mac_dev_addr_extd_t e_addr;
 
 		 uwl_kal_mutex_wait(MAC_SEND_MUTEX);
+
+		 associate_ack_counter = -255;
 		 data_req = (struct uwl_mac_frame_t*)
 			cqueue_push(&uwl_mac_queue_cap);
 		 if (data_req == 0) {

@@ -15,6 +15,9 @@
 #define UWL_TEST_DEVICE_ADDRESS 0x0002
 #endif
 
+//Variable for associtae request at the device, to resend association req.
+int16_t associate_ack_counter = -255;
+
 int8_t uwl_MLME_ASSOCIATE_request(uint8_t LogicalChannel, uint8_t ChannelPage,
 				  uint8_t CoordAddrMode, uint16_t CoordPANId,
 				  void *CoordAddress,
@@ -57,6 +60,8 @@ int8_t uwl_MLME_ASSOCIATE_request(uint8_t LogicalChannel, uint8_t ChannelPage,
 	uwl_mac_association_request_cmd(CoordAddrMode, CoordPANId, CoordAddress,
 			CapabilityInformation);
 
+	//Start counting untill macAckWaitDuration
+	associate_ack_counter = 1;
 	/* TODO: current dummy: assoctiation succes, and give hardcoded addr */
 	uwl_mac_status.track_beacon = 1;
 	uwl_mac_superframe_stop();
