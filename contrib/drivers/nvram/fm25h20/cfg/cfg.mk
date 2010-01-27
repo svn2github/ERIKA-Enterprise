@@ -8,11 +8,11 @@ ifeq ($(findstring __LIB_FM25H20__,$(LIB_OPT)),__LIB_FM25H20__)
 ##
 
 ### Common library files
-#EE_SRCS += contrib/drivers/nvram/fm25h20/src/fm25h20.c
+EE_SRCS += contrib/drivers/nvram/fm25h20/src/fm25h20.c
 
 ### Select the specific architecture files
 ifeq ($(findstring __MICROCHIP_PIC32__,$(EEOPT)) , __MICROCHIP_PIC32__)
-#EE_SRCS += contrib/drivers/nvram/fm25h20/src/fm25h20_hal_ee_pic32.c
+EE_SRCS += contrib/drivers/nvram/fm25h20/src/fm25h20_hal_ee_pic32.c
 endif
 
 endif
