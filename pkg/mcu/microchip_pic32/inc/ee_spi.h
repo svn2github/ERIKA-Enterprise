@@ -16,7 +16,10 @@ enum {
 	EE_SPI_PORT_N,
 };
 
+
+#define EE_SPI_NO_ERRORS		1	//Used positive
 #define EE_SPI_ERR_BAD_PORT		1
+
 //#define EE_SPI_ERR_NO_DATA		2
 //#define EE_SPI_ERR_OVERFLOW		3
 //#define EE_SPI_ERR_INT_MODE		4
@@ -37,13 +40,25 @@ enum {
 */
 EE_INT8 EE_spi_init(EE_UINT8 port/*, EE_UINT32 baudrate, EE_UINT16 flags*/); 
 
-__INLINE__ EE_INT8 EE_spi_close(EE_UINT8 port)
-{
-	return 1;
-}
+
 
 /**
-* @brief Send a byte through  the SPI peripheral.
+* @brief Switch-off the SPI peripheral.
+*
+* This function switches-off the SPI peripheral defined by 
+* the input parameter \p port.
+*
+* @param[in] port 	
+* @return	EE_SPI_NO_ERRORS if no errors occurred. Otherwise a negative
+*		number
+*
+* @pre		None
+*/
+EE_INT8 EE_spi_close(EE_UINT8 port); 
+
+
+/**
+* @brief Send a byte through the SPI peripheral.
 *
 * This function send a character (8 bits) through the SPI 
 * port controlling the radio.
@@ -56,6 +71,7 @@ __INLINE__ EE_INT8 EE_spi_close(EE_UINT8 port)
 * @pre		The SPI port must be correctly initialized.
 */
 EE_INT8 EE_spi_rw_byte(EE_UINT8 port, EE_UINT8 data_in, EE_UINT8 *data_out);
+
 
 /**
 * @brief Send a byte through  the SPI peripheral.
@@ -73,6 +89,7 @@ __INLINE__ EE_INT8 EE_spi_write_byte(EE_UINT8 port, EE_UINT8 data)
 {
 	return EE_spi_rw_byte(port, data, &data);
 }
+
 
 /**
 * @brief Get a character through the SPI peripheral.
