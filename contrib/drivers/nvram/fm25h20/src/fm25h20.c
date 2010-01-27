@@ -47,7 +47,7 @@ int8_t fm25h20_init(uint8_t port)
 	if (retv & CHECK_MASK)
 		return -FM25H20_FRAM_INIT_FAILED;
 	
-	fm25h20_initialized = TRUE; //TODO: verificare	 
+	fm25h20_initialized = 1; //TODO: verificare	 
 	//Initializzation succeed
 	return FM25H20_ERR_NONE;
 }
