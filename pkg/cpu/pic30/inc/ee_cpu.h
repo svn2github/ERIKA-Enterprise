@@ -98,6 +98,11 @@ typedef EE_UINT32 EE_TID;
 /* Addresses (that have the same size of a pointer) */
 typedef EE_UINT32 *EE_ADDR;
 
+/* Code addresses (same size of function pointers) */
+/* For an easy upgrade path, we use a define instead of the typedef:
+   typedef void (*EE_FADDR)(void); */
+#define EE_FADDR EE_ADDR
+
 /* EE_TYPEIRQ is defined inside the MCU */
 
 /* Note: EE_TIME is defined for ARM7 into the drivers.h file,

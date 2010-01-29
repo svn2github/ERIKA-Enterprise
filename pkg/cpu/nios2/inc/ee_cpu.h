@@ -141,6 +141,11 @@ typedef EE_INT32 EE_TID;
 /* Addresses (that have the same size of a pointer) */
 typedef EE_UINT32 *EE_ADDR;
 
+/* Code addresses (same size of function pointers) */
+/* For an easy upgrade path, we use a define instead of the typedef:
+   typedef void (*EE_FADDR)(void); */
+#define EE_FADDR EE_ADDR
+
 /* IRQs */
 typedef EE_UINT32 EE_TYPEIRQ;
 
