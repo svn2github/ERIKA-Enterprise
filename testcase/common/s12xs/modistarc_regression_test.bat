@@ -20,7 +20,7 @@ rem ***************************************************************
 rem Are you here because the script can not find the bash shell?
 rem Please change the following line!
 set EE_BASH_PATH=C:\cygwin\bin\bash.exe
-set TESTCASE_PATH=C:\cygwin\home\Dario\repos\ee\trunk\ee\testcase
+set TESTCASE_PATH=C:\cygwin\home\user\repos\ee\trunk\ee\testcase
 if not exist %EE_BASH_PATH% goto error
 
 rem ***************************************************************
@@ -53,9 +53,6 @@ goto end
 rem ***************************************************************
 
 :hiwave
-:: cd C:\Programmi\Freescale\CodeWarriorHCS12V4_7\Prog
-:: copy c:\Dati\works\0270_MM\application\source\os\0270_MM.ort c:\Dati\works\0270_MM\application\output\bin\0270_MM.ort
-:: hiwave.exe c:\Dati\works\0270_MM\application\output\bin\0270_MM.elf -Prod=c:\Dati\works\0270_MM\application\CodeWrightProject\SofTec_HCS12.ini -instance=softec
 ::C:\Programmi\Freescale\CodeWarriorHCS12V4_7\Prog\hiwave.exe -Prod=%TESTCASE_PATH%\common\s12xs\Full_Chip_Simulation.ini -c %TESTCASE_PATH%\tmp\s12xs.cmd
 C:\Programmi\Freescale\CodeWarriorHCS12V4_7\Prog\hiwave.exe -Prod=%TESTCASE_PATH%\common\s12xs\SofTec_HCS12.ini -c %TESTCASE_PATH%\tmp\s12xs.cmd -instance=softec
 
