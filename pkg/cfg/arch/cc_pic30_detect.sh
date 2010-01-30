@@ -14,7 +14,14 @@ if test -d "$2"; then
 fi
 
 if [ $1 = "ASM" ]; then
-    printf "MPLAB ASM30 directory not found.\n" 1>&2
+    printf "Looking for the MPLAB ASM30 directory...\n" 1>&2
+
+    if test -d "${PROGRAMFILES}\Microchip\MPLAB ASM30 Suite"; then
+	printf "...Using ${PROGRAMFILES}\\Microchip\\MPLAB ASM30 Suite\n" 1>&2
+	cygpath `cygpath -ms "${PROGRAMFILES}\Microchip\MPLAB ASM30 Suite"`
+	exit
+    fi
+
     if test -d "c:\Program Files\Microchip\MPLAB ASM30 Suite"; then
 	printf "...Using c:\\Program Files\\Microchip\\MPLAB ASM30 Suite\n" 1>&2
 	cygpath `cygpath -ms "c:\Program Files\Microchip\MPLAB ASM30 Suite"`
@@ -30,7 +37,14 @@ if [ $1 = "ASM" ]; then
 fi
 
 if [ $1 = "GCC" ]; then
-    printf "MPLAB C30 directory not found.\n" 1>&2
+    printf "Looking for the MPLAB C30 directory...\n" 1>&2
+
+    if test -d "${PROGRAMFILES}\Microchip\MPLAB C30 Suite"; then
+	printf "...Using ${PROGRAMFILES}\\Microchip\\MPLAB C30 Suite\n" 1>&2
+	cygpath `cygpath -ms "${PROGRAMFILES}\Microchip\MPLAB C30 Suite"`
+	exit
+    fi
+
     if test -d "c:\Program Files\Microchip\MPLAB C30"; then
 	printf "...Using c:\\Program Files\\Microchip\\MPLAB C30\n" 1>&2
 	cygpath `cygpath -ms "c:\Program Files\Microchip\MPLAB C30"`
