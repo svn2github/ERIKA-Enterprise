@@ -39,7 +39,7 @@
 /** 
 * @brief  Add a delay. 
 * 	
-* This function adds a delay of delay_count us. Accuracy ~ 2% @ 80 Mhz.
+* This function adds a delay of \var delay_count us. Accuracy ~ 2% @ 80 Mhz.
 *  	
 * @ param[in]  delay_count number of us to be waited
 * 
@@ -64,28 +64,29 @@ int8_t fm25h20_spi_init(uint8_t port);
 * 	
 * This function closes the SPI.
 *  	
-* @ return	EE_SPI_PORT_CLOSED after closing the port 
+* @ return	EE_SPI_PORT_CLOSED after closing the port. 
 */
 int8_t fm25h20_spi_close(void);
 
 
 /** 
-* @brief Initializes SPI. 
+* @brief Put on SPI. 
 * 	
-* This function initializes the SPI.
+* This function puts data on the SPI.
 *  	
-* @ param[in]	port SPI port to be used.
+* @ param[in]	in data to be transmitted.
+* @ param[in]	*out address of data read-back
 * @ return	\todo 
 */
 int8_t fm25h20_spi_put(uint8_t in, uint8_t *out);
 
 
 /** 
-* @brief Initializes SPI. 
+* @brief Get from SPI. 
 * 	
-* This function initializes the SPI.
+* This function acquires data from the SPI.
 *  	
-* @ param[in]	port SPI port to be used.
+* @ param[in]	*out address of data read-back
 * @ return	\todo 
 */
 int8_t fm25h20_spi_get(uint8_t *out);
@@ -100,11 +101,6 @@ COMPILER_INLINE void fm25h20_hal_cs_low(void)
 {
 	FM25H20_CS = 0;
 }
-
-
-
-
-
 
 
 #endif /* Header Protection */
