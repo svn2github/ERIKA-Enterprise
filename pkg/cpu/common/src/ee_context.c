@@ -52,7 +52,7 @@
 EE_FADDR EE_std_run_task_code(EE_FADDR thread_addr)
 {
     EE_hal_enableIRQ();
-    ((void (*)())thread_addr)(); /* Call thread_addr */
+    EE_call_task_body(thread_addr); /* Call thread_addr */
     EE_hal_disableIRQ();
     EE_thread_end_instance();
     return EE_hal_endcycle_next_thread;

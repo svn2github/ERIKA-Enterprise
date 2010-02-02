@@ -109,6 +109,14 @@ void EE_std_change_context_multi(EE_FADDR thread_addr, EE_UREG tos_index);
  * depends on the architecture. */
 __DECLARE_INLINE__ int EE_hal_need_change_stack(EE_UREG tos_index);
 
+/* Call a the body of a task */
+#if defined(__OO_BCC1__) || defined(__OO_BCC2__) || \
+ defined(__OO_ECC1__) || defined(__OO_ECC2__)
+#define EE_call_task_body(thread_addr)  EE_oo_thread_stub()
+#else
+#define EE_call_task_body(thread_addr)  (((void (*)())thread_addr)())
+#endif
+
 #ifdef __MONO__
 /* To avoid missing any side effect, the parmaters of macro are inserted in the
  * expansion even when not needed.  */
