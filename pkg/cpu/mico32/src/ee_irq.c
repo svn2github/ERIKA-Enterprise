@@ -68,7 +68,7 @@ void MicoISRHandler(void)
             if (ip & mask) {
                 EE_mico32_ISR_handler f = EE_mico32_ISR_table[level];
                 if (f)
-                    EE_mico32_call_ISR_new_stack(f);
+                    EE_mico32_call_ISR_new_stack(f, EE_IRQ_nesting_level);
                 mico32_clear_ip_mask(mask);
                 break;
             }

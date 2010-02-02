@@ -1,7 +1,7 @@
 /* ###*B*###
  * ERIKA Enterprise - a tiny RTOS for small microcontrollers
  *
- * Copyright (C) 2002-2009  Evidence Srl
+ * Copyright (C) 2002-2010  Evidence Srl
  *
  * This file is part of ERIKA Enterprise.
  *
@@ -39,70 +39,36 @@
  * ###*E*### */
 
 /*
- * IRQ-related stuff for Lattice Mico32; internals
- * Author: 2009 Bernardo Dal Seno
+ * Assembly macros for IRQs on Lattice Mico32
+ * Author: 2010,  Bernardo  Dal Seno
  */
 
-#ifndef __INCLUDE_MICO32_IRQ_INTERNAL_H__
-#define __INCLUDE_MICO32_IRQ_INTERNAL_H__
+#ifndef __INCLUDE_MICO32_IRQ_ASM_H__
+#define __INCLUDE_MICO32_IRQ_ASM_H__
 
-#include <cpu/mico32/inc/ee_irq.h>
-#include <MicoInterrupts.h>
-/* Here we really need angle brackets */
-#include <ee_internal.h>
-#include <cpu/common/inc/ee_irqstub.h>
+#ifdef __ALLOW_NESTED_IRQ__
+	.macro  SKIP_IF_NESTED nest_lev, tmp_reg, skip_lab
+	addi	\tmp_reg, \nest_lev, -1
+	bne	\tmp_reg, r0, skip_lab
+	.endm
 
+	.macro	ENABLE_NESTED_IRQ
+#error ENABLE_NESTED_IRQ: Not implemented
+	.endm
 
-extern EE_mico32_ISR_handler EE_mico32_ISR_table[];
+	.macro	DISABLE_NESTED_IRQ
+#error DISABLE_NESTED_IRQ: Not implemented
+	.endm
+#else	
+	.macro  SKIP_IF_NESTED nest_lev, tmp_reg, skip_lab
+	/* Never nested, never skip */
+	.endm
+	
+	.macro	ENABLE_NESTED_IRQ
+	.endm
 
-
-__INLINE__ int __ALWAYS_INLINE__ mico32_get_reg_ip(void)
-{
-    int ip;
-    asm volatile ( "rcsr %0,ip":"=r"(ip) );
-    return ip;
-}
-
-
-__INLINE__ int __ALWAYS_INLINE__ mico32_get_reg_im(void)
-{
-    int im;
-    asm volatile ( "rcsr %0,im":"=r"(im) );
-    return im;
-}
-
-
-__INLINE__ void __ALWAYS_INLINE__ mico32_set_reg_im(int im)
-{
-    asm volatile ( "wcsr im,%0"::"r"(im) );
-}
-
-
-__INLINE__ void __ALWAYS_INLINE__ mico32_clear_ip_mask(int mask)
-{
-    asm volatile ( "wcsr ip,%0"::"r"(mask) );
-}
-
-
-#ifdef __IRQ_STACK_NEEDED__
-void EE_mico32_call_ISR_new_stack(EE_mico32_ISR_handler fun, int nesting_level);
-/* This must be written in assembler, as it modifies the stack pointer.
-   
-    if (nesting_level == 1)
-        change_stacks();
-    EE_std_enableIRQ_nested(); // Enable IRQ if nesting is allowed
-    fun();
-    EE_std_disableIRQ_nested(); // Disable IRQ if nesting is allowed
-    if (nesting_level == 1)
-        change_stacks_back();
-*/
-#else /*ifndef __IRQ_STACK_NEEDED__ */
-__ALWAYS_INLINE__ void __INLINE__ EE_mico32_call_ISR_new_stack(EE_mico32_ISR_handler fun, int nesting_level)
-{
-    EE_std_enableIRQ_nested(); /* Enable IRQ if nesting is allowed */
-    fun();
-    EE_std_disableIRQ_nested(); /* Disable IRQ if nesting is allowed */
-}
+	.macro	DISABLE_NESTED_IRQ
+	.endm
 #endif
 
-#endif /* __INCLUDE_MICO32_IRQ_INTERNAL_H__ */
+#endif /*  __INCLUDE_MICO32_IRQ_ASM_H__ */
