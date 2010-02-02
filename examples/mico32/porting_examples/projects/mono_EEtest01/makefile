@@ -45,10 +45,18 @@
 # Destination directory
 export OUTPUT_DIR = output
 
-# Check environment
-ifndef EEBASE
-$(error Environment variable EEBASE is empty)
+# Check the environment and use reasonable defaults
+ifndef DRUID_ECLIPSE_HOME
+DRUID_ECLIPSE_HOME = C:/Evidence/Evidence/eclipse
+DRUID_SCRIPT_DIR =
 endif
+ifndef DRUID_SCRIPT_DIR
+DRUID_SCRIPT_DIR=$(DRUID_ECLIPSE_HOME)/Evidence
+endif
+ifneq (ok,$(shell test -d "$(DRUID_ECLIPSE_HOME)" && echo ok ))
+$(error The variable DRUID_ECLIPSE_HOME must point to a valid Eclipse RT-Druid installation)
+endif
+
 
 DRUID_OUTPUT = $(addprefix $(OUTPUT_DIR)/, \
  makefile lattice.mk platform.mk eecfg.h eecfg.c crt0ram.S)
@@ -65,12 +73,22 @@ clean:
 	rm -f -r $(OUTPUT_DIR)
 
 
-# $(DRUID_OUTPUT): conf.oil
-# 	@echo "Running RT-Druid..."
-#	$(call launch_rtdruid, $<, $(OUTPUT_DIR))
+ifneq ($(DONT_RUN_DRUID),1)
+# Run RT-Druid
+$(DRUID_OUTPUT): conf.oil
+	@echo "Running RT-Druid..."
+	@ECLIPSE_HOME="$(DRUID_ECLIPSE_HOME)" ;\
+	export ECLIPSE_HOME ;\
+	exec sh $(DRUID_SCRIPT_DIR)/start_ant.sh -buildfile $(DRUID_SCRIPT_DIR)/build.xml -Din_conf_oil=$< -Dconf_output_dir=$(OUTPUT_DIR) compile
 
+else
 # Simulate RT-Druid
+ifndef EEBASE
+$(error Environment variable EEBASE is empty)
+endif
+
 $(DRUID_OUTPUT): $(OUTPUT_DIR)/% : fake_druid/%
 	@echo "Substituing RT-Druid in generating $@..."
 	@mkdir -p $(OUTPUT_DIR)
 	cp $< $@
+endif

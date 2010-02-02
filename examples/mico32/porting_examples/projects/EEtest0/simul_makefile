@@ -46,8 +46,6 @@
 # Environment variables
 #
 
-export VERBOSE ?= 1
-
 ifndef SIMUL_DIR
 $(error Environment variable SIMUL_DIR must contain the simulation directory)
 endif

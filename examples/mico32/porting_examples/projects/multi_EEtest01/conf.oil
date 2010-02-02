@@ -17,9 +17,9 @@ CPU test_application {
 
 		MCU_DATA = LATTICE_PLATFORM {
    			MODEL = LIBRARY {
-				PLATFORM_LIB_PATH = "../onchipramtimer_lib"
+				PLATFORM_LIB_PATH = "../onchipramtimer_lib";
 				PLATFORM_NAME = "onchipramtimer";
-				PLATFORM_BLD_CFG = "Release" // Optional, default is ""
+				PLATFORM_BLD_CFG = "Release"; // Optional, default is ""
    			};
   		};
 
