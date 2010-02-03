@@ -27,16 +27,12 @@ void	mrf24j40_wake() ;
 
 //#include <stdio.h>
 #include "console_serial.h"
-
 #define DEBUG_PORT 0
-#define debug_print(msg) 	console_write(DEBUG_PORT, (uint8_t*) msg, strlen(msg))
+#define debug_print(msg) console_write(DEBUG_PORT, (uint8_t*) msg, strlen(msg))
 #define debug_set_msg(str,val) sprintf(mrf24j40_db_msg, str, val)
-
 #else
-
 #define	debug_print(msg)
 #define debug_set_msg(str,val)
-
 #endif /* MRF24J40_DEBUG */
 
 /* long address registers */
@@ -236,11 +232,13 @@ typedef union _INT_status {
 COMPILER_INLINE void mrf24j40_set_short_add_mem(uint8_t addr, uint8_t val)
 {
 	uint8_t tmp = mrf24j40_hal_irq_status();
+	uint8_t msg[2];
     
 	mrf24j40_hal_irq_disable();
 	mrf24j40_hal_csn_low();
-	mrf24j40_spi_put((addr << 1) | 0x01, NULL);
-	mrf24j40_spi_put(val, NULL);
+	msg[0] = (addr << 1) | 0x01;
+	msg[1] = val;
+	mrf24j40_spi_write(msg, 2);
 	mrf24j40_hal_csn_high();
 	if (tmp) 
 		mrf24j40_hal_irq_enable();
@@ -249,18 +247,20 @@ COMPILER_INLINE void mrf24j40_set_short_add_mem(uint8_t addr, uint8_t val)
 /**
 * Write val in the long address register addr
 */
-COMPILER_INLINE void mrf24j40_set_long_add_mem(uint16_t addr, uint8_t val )
+COMPILER_INLINE void mrf24j40_set_long_add_mem(uint16_t addr, uint8_t val)
 {
 	uint8_t tmp = mrf24j40_hal_irq_status();
+	uint8_t msg[3];
 
 	mrf24j40_hal_irq_disable();
 	mrf24j40_hal_csn_low();
-	mrf24j40_spi_put((((uint8_t)(addr>>3))&0x7F)|0x80, NULL);
-	mrf24j40_spi_put((((uint8_t)(addr<<5))&0xE0)|0x10, NULL);
-	mrf24j40_spi_put(val, NULL);
+	msg[0] = (((uint8_t)(addr >> 3)) & 0x7F) | 0x80;
+	msg[1] = (((uint8_t)(addr << 5)) & 0xE0) | 0x10;
+	msg[2] = val; 
+	mrf24j40_spi_write(msg, 3);
 	mrf24j40_hal_csn_high();
 	if (tmp) 
-	mrf24j40_hal_irq_enable();
+		mrf24j40_hal_irq_enable();
 }
 
 /**
@@ -273,8 +273,9 @@ COMPILER_INLINE uint8_t mrf24j40_get_short_add_mem(uint8_t addr)
 	
 	mrf24j40_hal_irq_disable();
 	mrf24j40_hal_csn_low();
-	mrf24j40_spi_put(addr<<1, NULL);
-	mrf24j40_spi_get(&ret_val);
+	addr <<= 1;
+	mrf24j40_spi_write(&addr, 1);
+	mrf24j40_spi_read(&ret_val, 1);
 	mrf24j40_hal_csn_high();
 	if (tmp) 
 		mrf24j40_hal_irq_enable();
@@ -288,12 +289,14 @@ COMPILER_INLINE uint8_t mrf24j40_get_long_add_mem(uint16_t addr)
 {
 	uint8_t ret_val;
 	uint8_t tmp = mrf24j40_hal_irq_status();
+	uint8_t msg[2];
 	
 	mrf24j40_hal_irq_disable();
 	mrf24j40_hal_csn_low();
-	mrf24j40_spi_put(((addr>>3)&0x7F)|0x80, NULL);
-	mrf24j40_spi_put((addr<<5)&0xE0, NULL);
-	mrf24j40_spi_get(&ret_val);
+	msg[0] = (((uint8_t)(addr >> 3)) & 0x7F) | 0x80;
+	msg[1] = ((uint8_t)(addr << 5)) & 0xE0;
+	mrf24j40_spi_write(msg, 2);
+	mrf24j40_spi_read(&ret_val, 1);
 	mrf24j40_hal_csn_high();
 	if (tmp) 
 		mrf24j40_hal_irq_enable();

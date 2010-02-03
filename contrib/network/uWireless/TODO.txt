@@ -20,7 +20,6 @@ uwl_mac_mlme.c (MLME):
 	- *1* Implement the association mechanism 
 
 uwl_mac_superframe.c (Beacon Enabled mode specific):
-	- *5* Implement Coordinator Send GTS and Device Receive GTS. 
 	- *2* how to fully use the design with the uwl_radio for mac? 
 	  (backoff period task for slotted csma, etc.)
 
@@ -34,7 +33,6 @@ driver/radio/cc2420/inc/cc2420_hal_ee.h:
 	- *1* I suggest to remove any reference to MOTIONBOARD, shall we?
 
 TEST: 
-	- *4* test send (and receive) in GTS and CSMA slotted, check time!
 	- *2* Check the include file dependencies and relationship to see if
 	  only the "public" file are included.
 	- *1* need to test all the mechanisms

@@ -60,22 +60,22 @@ int8_t	mrf24j40_spi_close(void)
 	return EE_spi_close(spi_port);
 }
 
-int8_t	mrf24j40_spi_put(uint8_t in, uint8_t *out)
+int8_t	mrf24j40_spi_write(uint8_t *data, uint16_t len)
 {
-	if (out != NULL)
-		return EE_spi_rw_byte(spi_port, in, out);
-	else
-		return EE_spi_write_byte(spi_port, in);
+	uint16_t i;
+
+	for (i = 0; i < len; i++)
+		EE_spi_write_byte(spi_port, data[i]);
+	return 1;
 }
 
-int8_t	mrf24j40_spi_get(uint8_t *out)
+int8_t	mrf24j40_spi_read(uint8_t *data, uint16_t len);
 {
-	uint8_t dummy;
+	uint16_t i;
 
-	if (out != NULL)
-		return EE_spi_read_byte(spi_port, out);
-	else
-		return EE_spi_read_byte(spi_port, &dummy);
+	for (i = 0; i < len; i++)
+		EE_spi_read_byte(spi_port, data + i);
+	return 1;
 }
 
 #else
