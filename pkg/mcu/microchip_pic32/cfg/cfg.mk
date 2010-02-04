@@ -85,7 +85,7 @@ EE_SRCS += pkg/mcu/microchip_pic32/src/ee_uart.c
 endif
 
 ifeq ($(findstring __USE_SPI__,$(EEOPT)) , __USE_SPI__)
-EE_SRCS += pkg/mcu/microchip_pic32/src/ee_spi_dma.c
+EE_SRCS += pkg/mcu/microchip_pic32/src/ee_spi.c
 endif
 
 ifeq ($(findstring __USE_I2C__,$(EEOPT)) , __USE_I2C__)
