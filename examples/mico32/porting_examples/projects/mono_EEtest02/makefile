@@ -46,24 +46,24 @@
 export OUTPUT_DIR = output
 
 # Check the environment and use reasonable defaults
-ifndef DRUID_ECLIPSE_HOME
-DRUID_ECLIPSE_HOME = C:/Evidence/Evidence/eclipse
-DRUID_SCRIPT_DIR =
+ifndef RTDRUID_ECLIPSE_HOME
+RTDRUID_ECLIPSE_HOME = C:/Evidence/Evidence/eclipse
+RTDRUID_SCRIPT_DIR =
 endif
-ifndef DRUID_SCRIPT_DIR
-DRUID_SCRIPT_DIR=$(DRUID_ECLIPSE_HOME)/Evidence
+ifndef RTDRUID_SCRIPT_DIR
+RTDRUID_SCRIPT_DIR=$(RTDRUID_ECLIPSE_HOME)/Evidence
 endif
-ifneq (ok,$(shell test -d "$(DRUID_ECLIPSE_HOME)" && echo ok ))
-$(error The variable DRUID_ECLIPSE_HOME must point to a valid Eclipse RT-Druid installation)
+ifneq (ok,$(shell test -d "$(RTDRUID_ECLIPSE_HOME)" && echo ok ))
+$(error The variable RTDRUID_ECLIPSE_HOME must point to a valid Eclipse RT-Druid installation)
 endif
 
 
-DRUID_OUTPUT = $(addprefix $(OUTPUT_DIR)/, \
+RTDRUID_OUTPUT = $(addprefix $(OUTPUT_DIR)/, \
  makefile lattice.mk platform.mk eecfg.h eecfg.c crt0ram.S)
 
 .PHONY: all clean
 
-all: $(DRUID_OUTPUT)
+all: $(RTDRUID_OUTPUT)
 	make --no-print-directory -f $(OUTPUT_DIR)/makefile all
 # Don't confuse people by printing the directory, as the current directory
 # is not changed
@@ -73,13 +73,13 @@ clean:
 	rm -f -r $(OUTPUT_DIR)
 
 
-ifneq ($(DONT_RUN_DRUID),1)
+ifneq ($(DONT_RUN_RTDRUID),1)
 # Run RT-Druid
-$(DRUID_OUTPUT): conf.oil
+$(RTDRUID_OUTPUT): conf.oil
 	@echo "Running RT-Druid..."
-	@ECLIPSE_HOME="$(DRUID_ECLIPSE_HOME)" ;\
+	@ECLIPSE_HOME="$(RTDRUID_ECLIPSE_HOME)" ;\
 	export ECLIPSE_HOME ;\
-	exec sh $(DRUID_SCRIPT_DIR)/start_ant.sh -buildfile $(DRUID_SCRIPT_DIR)/build.xml -Din_conf_oil=$< -Dconf_output_dir=$(OUTPUT_DIR) compile
+	exec sh $(RTDRUID_SCRIPT_DIR)/start_ant.sh -buildfile $(RTDRUID_SCRIPT_DIR)/build.xml -Din_conf_oil=$< -Dconf_output_dir=$(OUTPUT_DIR) compile
 
 else
 # Simulate RT-Druid
@@ -87,7 +87,7 @@ ifndef EEBASE
 $(error Environment variable EEBASE is empty)
 endif
 
-$(DRUID_OUTPUT): $(OUTPUT_DIR)/% : fake_druid/%
+$(RTDRUID_OUTPUT): $(OUTPUT_DIR)/% : fake_druid/%
 	@echo "Substituing RT-Druid in generating $@..."
 	@mkdir -p $(OUTPUT_DIR)
 	cp $< $@
