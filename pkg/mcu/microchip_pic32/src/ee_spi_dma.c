@@ -259,6 +259,7 @@ __INLINE__ EE_INT8 init_port1(EE_UINT32 baudrate, EE_UINT16 flags)
 		SPI1_DCHINT = 0;
 	}
 	SPI1CON = v | _SPI1CON_ON_MASK;
+
 	return EE_SPI_NO_ERRORS;
 }
 
@@ -293,13 +294,16 @@ __INLINE__ EE_UINT8 init_port2(EE_UINT32 baudrate, EE_UINT16 flags)
 		SPI2_DCHINT = 0;
 	}
 	SPI2CON = v | _SPI2CON_ON_MASK;
+
 	return EE_SPI_NO_ERRORS;
 }
 
 __INLINE__ EE_INT8 write_dma_port1(EE_UINT8 *data, EE_UINT32 len)
 {
 	/* TODO: limit someway the lenght? */
-	/* TODO: what happen with two consecutive (fast) call to this func? */
+	if ((SPI1_DCHCON & SPI_DCHCON_CHEN_MASK) || 
+	   (SPI1STAT & _SPI1STAT_SPIBUSY_MASK))
+		return -EE_SPI_ERR_BUSY;
 	IFS0CLR = _IFS0_SPI1TXIF_MASK;		// Clear SPITX IRQ flag 
 	IEC1CLR = SPI1_DMAIE_MASK;		// Stop DMA channel IRQ
 	IFS1CLR = SPI1_DMAIF_MASK;		// Clear DMA channel IRQ
@@ -320,11 +324,9 @@ __INLINE__ EE_INT8 write_dma_port1(EE_UINT8 *data, EE_UINT32 len)
 __INLINE__ EE_INT8 write_dma_port2(EE_UINT8 *data, EE_UINT32 len)
 {
 	/* TODO: limit someway the lenght? */
-	/* TODO: what happen with two consecutive (fast) call to this func? */
-	while (SPI2_DCHCON & SPI_DCHCON_CHEN_MASK)
-		LATESET = 0x08; // TODO: return -ErrorCode as for SPIBUSY!
-	if (SPI2STAT & _SPI2STAT_SPIBUSY_MASK)
-		return -10;
+	if ((SPI2_DCHCON & SPI_DCHCON_CHEN_MASK) || 
+	   (SPI2STAT & _SPI2STAT_SPIBUSY_MASK))
+		return -EE_SPI_ERR_BUSY;
 	IFS1CLR = _IFS1_SPI2TXIF_MASK;		// Clear SPITX IRQ flag 
 	IEC1CLR = SPI2_DMAIE_MASK;		// Stop DMA channel IRQ
 	IFS1CLR = SPI2_DMAIF_MASK;		// Clear DMA channel IRQ
@@ -338,9 +340,6 @@ __INLINE__ EE_INT8 write_dma_port2(EE_UINT8 *data, EE_UINT32 len)
 	IEC1SET = SPI2_DMAIE_MASK;		// Enable DMA channel IRQ
 	SPI2_DCHCONSET = SPI_DCHCON_CHEN_MASK;	// Enable DMA Channel 
 	SPI2_DCHECONSET = SPI_DCHECON_CFORCE_MASK; 	// Force Tx Start 
-	/* TODO: find a different paradigm to notify transaction completion,
-		 This is a blocking version!!  */
-	while (SPI2STAT & _SPI2STAT_SPIBUSY_MASK);
 
 	return EE_SPI_NO_ERRORS;
 }
@@ -418,39 +417,43 @@ __INLINE__ EE_INT8 read_polling_port2(EE_UINT8 *data, EE_UINT32 len)
 /******************************************************************************/
 /*                                SPI ISRs                                    */
 /******************************************************************************/
-//ISR2(SPI1_DMA_IRQ) 
-//{
-//	IFS1CLR = SPI1_DMAIF_MASK;		// Clear DMA channel IRQ
-//	if (SPI1_DCHINT & SPI_DCHINT_CHBCIF_MASK) 
-//		LATEINV = 0x04;
-//	else
-//		LATESET = 0x08;
-//	SPI1_DCHINTCLR = SPI_DCHINT_CHBCIF_MASK;// Clear end-of-block IRQ
-//	PIPPO = 0;
-//}
+ISR2(SPI1_DMA_IRQ) 
+{
+	register EE_UREG dummy;
+
+	// TODO: when DMA rx is done, rebuild this ISR!
+	IFS1CLR = SPI1_DMAIF_MASK;			// Clear DMA channel IRQ
+	if (SPI1_DCHINT & SPI_DCHINT_CHBCIF_MASK) {	// Check BlockEnd IRQ
+		SPI1_DCHINTCLR = SPI_DCHINT_CHBCIF_MASK;// Clear IRQ source
+		// TODO: check if this leads to deadlock
+		while (SPI1STAT & _SPI1STAT_SPIBUSY_MASK) ; // Wait bus done
+		dummy = SPI1BUF;			// Clean the SPIRBF bit
+		if (port1_tx_callback)
+			port1_tx_callback();
+	}
+}
 
 ISR2(SPI2_DMA_IRQ) 
 {
 	register EE_UREG dummy;
 
+	// TODO: when DMA rx is done, rebuild this ISR!
 	IFS1CLR = SPI2_DMAIF_MASK;			// Clear DMA channel IRQ
-	if (SPI2_DCHINT & SPI_DCHINT_CHBCIF_MASK) {
+	if (SPI2_DCHINT & SPI_DCHINT_CHBCIF_MASK) {	// Check BlockEnd IRQ
 		SPI2_DCHINTCLR = SPI_DCHINT_CHBCIF_MASK;// Clear IRQ source
-		dummy = SPI2BUF;
+		// TODO: check if this leads to deadlock
+		while (SPI2STAT & _SPI2STAT_SPIBUSY_MASK) ; // Wait bus done
+		dummy = SPI2BUF;			// Clean the SPIRBF bit
+		if (port2_tx_callback)
+			port2_tx_callback();
 	}
 }
 
 /******************************************************************************/
 /*                       Public Global Functions                              */
 /******************************************************************************/
-EE_INT8 EE_spi_init(EE_UINT8 port/*, EE_UINT32 baudrate, EE_UINT16 flags*/) 
+EE_INT8 EE_spi_init(EE_UINT8 port, EE_UINT32 baudrate, EE_UINT16 flags) 
 {
-	//chris: TODO: MOVE in the param list!
-	EE_UINT32 baudrate;	
-//	EE_UINT16 flags = EE_SPI_MASTER | EE_SPI_SDO_ON_CLOCK_TO_IDLE;	
-	EE_UINT16 flags = EE_SPI_MASTER | EE_SPI_SDO_ON_CLOCK_TO_IDLE | 
-			  EE_SPI_DMA_TX;	
-
 	if (port == EE_SPI_PORT_1) {
 		init_port1(baudrate, flags); 
 		return EE_SPI_NO_ERRORS;

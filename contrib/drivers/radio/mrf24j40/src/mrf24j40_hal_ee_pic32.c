@@ -45,7 +45,8 @@ int8_t	mrf24j40_hal_init(void)
 int8_t	mrf24j40_spi_init(uint8_t port)
 {
 	spi_port = port;
-	return EE_spi_init(spi_port);
+	return EE_spi_init(spi_port, 10000000, EE_SPI_MASTER | 
+			    EE_SPI_SDO_ON_CLOCK_TO_IDLE);
 }
 
 int8_t	mrf24j40_spi_close(void)

@@ -19,6 +19,7 @@ enum {
 #define EE_SPI_NO_ERRORS		1	//Used positive
 #define EE_SPI_ERR_BAD_PORT		1
 #define EE_SPI_ERR_BAD_ARGS		2
+#define EE_SPI_ERR_BUSY			3
 #define EE_SPI_ERR_UNIMPLEMENTED	10
 
 #define EE_SPI_EVT_TX_DONE		1
@@ -38,7 +39,12 @@ enum {
 /* Other Flags */
 #define EE_SPI_DMA_TX			0x0001
 #define EE_SPI_DMA_RX			0x0002
-/* TODO: have more flags*/
+/* TODO: have more flags 
+#define EE_SPI_SIZE	Use twho bits of the flags to specify 8/16/32. This
+has to be done for DMA accordingly.
+*/
+
+#define EE_SPI_DEFAULT	(EE_SPI_MASTER | EE_SPI_SDO_ON_CLOCK_TO_IDLE)
 /**  @} */
 
 /**
@@ -54,7 +60,7 @@ enum {
 *
 * @pre		None
 */
-EE_INT8 EE_spi_init(EE_UINT8 port/*, EE_UINT32 baudrate, EE_UINT16 flags*/); 
+EE_INT8 EE_spi_init(EE_UINT8 port, EE_UINT32 baudrate, EE_UINT16 flags); 
 
 /**
 * @brief Switch-off the SPI peripheral.
