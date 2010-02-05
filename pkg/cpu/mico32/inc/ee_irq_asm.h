@@ -46,9 +46,22 @@
 #ifndef __INCLUDE_MICO32_IRQ_ASM_H__
 #define __INCLUDE_MICO32_IRQ_ASM_H__
 
+	.macro LOAD_ADDR r sym
+	mvhi	\r, hi(\sym)
+	ori	\r, \r, lo(\sym)
+	.endm
+
+
 #ifdef __ALLOW_NESTED_IRQ__
-	.macro  SKIP_IF_NESTED nest_lev, tmp_reg, skip_lab
+	.macro  SKIP_IF_NESTED_REG nest_lev, tmp_reg, skip_lab
 	addi	\tmp_reg, \nest_lev, -1
+	bne	\tmp_reg, r0, skip_lab
+	.endm
+
+	.macro  SKIP_IF_NESTED nest_reg, tmp_reg, skip_lab
+        LOAD_ADDR \nest_reg, EE_IRQ_nesting_level
+	lw	\nest_reg, (\nest_reg + 0)
+	addi	\tmp_reg, \nest_reg, -1
 	bne	\tmp_reg, r0, skip_lab
 	.endm
 
@@ -60,7 +73,11 @@
 #error DISABLE_NESTED_IRQ: Not implemented
 	.endm
 #else	
-	.macro  SKIP_IF_NESTED nest_lev, tmp_reg, skip_lab
+	.macro  SKIP_IF_NESTED_REG nest_lev, tmp_reg, skip_lab
+	/* Never nested, never skip */
+	.endm
+	
+	.macro  SKIP_IF_NESTED nest_reg, tmp_reg, skip_lab
 	/* Never nested, never skip */
 	.endm
 	

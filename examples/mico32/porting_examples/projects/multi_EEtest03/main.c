@@ -39,71 +39,77 @@
  * ###*E*### */
 
 /*
- * Stack switch for ISRs on Mico32
- * Implementation of EE_mico32_call_ISR_new_stack() as described in
- * pkg/cpu/mico32/inc/ee_irq_internal.h
+ * Simple project to test IRQ private stack
  * Author: 2010,  Bernardo  Dal Seno
+ * Losely based on examples/s12xs/porting_examples/multistack/EEtest4
  */
 
-#include <cpu/mico32/inc/ee_irq_asm.h>
 
-	
-        .section        .bss
-	.global	EE_mico32_tmp_tos
-	.type	EE_mico32_tmp_tos, @object
-	.balign	4
-EE_mico32_tmp_tos:
-        .space  4
-	.size	EE_mico32_tmp_tos, .-EE_mico32_tmp_tos
+#include <ee.h>
+/* Platform description */
+#include <system_conf.h>
+/* Lattice Timer component */
+#include <MicoTimer.h>
+/* Erika Mico32 interrupts */
+#include <cpu/mico32/inc/ee_irq.h>
 
-	
-	.text
 
-/* 
-void EE_mico32_call_ISR_new_stack(EE_mico32_ISR_handler fun, int nesting_level)
+/* Counters; volatile because they are accessed in interrupt handlers and
+ * different tasks */
+volatile int counter1, tick_counter;
+
+/* started: Set to 1 at the beginning of main() */
+int started;
+
+
+/*
+ * Task 1
+ */
+TASK(Task1)
 {
-    if (nesting_level == 1)
-        change_stacks();
-    EE_std_enableIRQ_nested(); // Enable IRQ if nesting is allowed
-    fun();
-    EE_std_disableIRQ_nested(); // Disable IRQ if nesting is allowed
-    if (nesting_level == 1)
-        change_stacks_back();
+    ++counter1;
 }
-*/
 
-	.global EE_mico32_call_ISR_new_stack
-	.type	EE_mico32_call_ISR_new_stack, @function
-/* void EE_std_change_context_multi(EE_mico32_ISR_handler fun, int nesting_level) */
-EE_mico32_call_ISR_new_stack:
-	// r1 == fun
-	// r2 == nesting_level
-	addi	sp, sp, -8
-	sw	(sp + 4), ra
 
-	/* if (nesting_level == 1) */
-	SKIP_IF_NESTED_REG r2, r3, .L_skip_change
-        /*     change_stacks(); */
-	sw	(sp + 8), r11
-	LOAD_ADDR r11, EE_mico32_tmp_tos
-	sw	(r11 + 0), sp
-	LOAD_ADDR r5, EE_mico32_IRQ_tos
-	lw	sp, (r5 + 0)
-.L_skip_change:
-	/* EE_std_enableIRQ_nested(); */
-	ENABLE_NESTED_IRQ
-	/* fun(); */
-	call	r1
-	/* EE_std_disableIRQ_nested(); */
-	DISABLE_NESTED_IRQ
-	/* if (nesting_level == 1) */
-	SKIP_IF_NESTED r2, r2, .L_skip_change_back
-	/*     change_stacks_back(); */
-	lw	sp, (r11 + 0)
-	lw	r11, (sp + 8)
-.L_skip_change_back:
-	lw	ra, (sp + 4)
-	addi	sp, sp, 8
-	ret
-	
-	.size	EE_mico32_call_ISR_new_stack, .-EE_mico32_call_ISR_new_stack
+/*
+ * Interrupt handler for the timer
+ */
+void timer_interrupt(void)
+{
+    MicoTimer_t *timerc = (MicoTimer_t *)TIMER_BASE_ADDRESS;
+    timerc->Status = 0; /* Acknowledge the timer interrupt */
+    ++tick_counter;
+    ActivateTask(Task1);
+}
+
+
+/*
+ * Low-level initialization of the timer
+ */
+void init_timer(void)
+{
+    MicoTimer_t *timerc = (MicoTimer_t *)TIMER_BASE_ADDRESS;
+    /* Register handler and enable the interrupt */
+    EE_mico32_register_ISR(TIMER_IRQ, timer_interrupt);
+    /* Raise an interrupt every 700 clock ticks */
+    timerc->Period = 700;
+    timerc->Control = MICO32_TIMER_CONTROL_INT_BIT_MASK |
+        MICO32_TIMER_CONTROL_CONT_BIT_MASK |
+        MICO32_TIMER_CONTROL_START_BIT_MASK;
+}
+
+
+/*
+ * MAIN TASK
+ */
+int main(void)
+{
+    started = 1;
+    EE_mico32_enableIRQ();
+    init_timer();
+    /* Wait until the fourth timer period */
+    while (tick_counter < 4)
+        ;
+    started = 0;
+    return 0;
+}

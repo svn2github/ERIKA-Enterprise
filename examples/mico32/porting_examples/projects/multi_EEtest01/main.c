@@ -39,9 +39,9 @@
  * ###*E*### */
 
 /*
- * Simple project to test task activation in the monostack environment
+ * Simple project to test task activation in the multistack environment
  * Author: 2010,  Bernardo  Dal Seno
- * Based on examples/s12xs/porting_examples/monostack/EEtest1
+ * Based on examples/s12xs/porting_examples/multistack/EEtest1
  */
 
 

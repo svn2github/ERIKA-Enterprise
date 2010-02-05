@@ -95,11 +95,6 @@ extern const EE_UREG EE_std_thread_tos[];
 /* std_system_tos[] index that points to the active thread tos */
 extern EE_UREG EE_std_active_tos;
 
-#ifdef __IRQ_STACK_NEEDED__
-/* stack used by IRQ handlers */
-extern struct EE_TOS EE_std_IRQ_tos;
-#endif
-
 #endif /* __MULTI__ */
 
 
