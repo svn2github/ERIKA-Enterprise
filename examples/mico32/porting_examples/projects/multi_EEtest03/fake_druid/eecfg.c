@@ -89,8 +89,8 @@
 //   Stack definition for Lattice mico 32
 //  
 /////////////////////////////////////////////////////////////////////////////
-    #define STACK_1_SIZE 256 // size = 512 bytes 
-    #define STACK_2_SIZE 256 // size = 512 bytes 
+    #define STACK_1_SIZE 128 // size = 512 bytes 
+    #define STACK_2_SIZE 128 // size = 512 bytes 
 
 #ifndef DEBUG_STACK
     int EE_mico32_stack_1[STACK_1_SIZE];	/* Task 0 (Task1) */
