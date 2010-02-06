@@ -47,11 +47,11 @@
 #include "ee_internal.h"
 
 /*
- * Endcycle Next thread, Endcycle Next tos, nesting level
+ * IRQ nesting level
  */
 EE_UREG EE_IRQ_nesting_level;
 
-EE_FADDR EE_hal_endcycle_next_thread;
-#ifdef __MULTI__
-EE_UREG EE_hal_endcycle_next_tos;
-#endif
+/*
+ * Next thread to run after a thread terminated
+ */
+EE_TID EE_std_endcycle_next_tid;

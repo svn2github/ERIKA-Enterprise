@@ -49,11 +49,11 @@
 /* This version should work for both the monostack and multistack versions of
  * the kernel, thanks to the macros defined in cpu/commmon/inc/ee_context.h.
  * In the mono version, all the stack-related stuff is ignored. */
-EE_FADDR EE_std_run_task_code(EE_FADDR thread_addr)
+EE_TID EE_std_run_task_code(EE_TID tid)
 {
     EE_hal_enableIRQ();
-    EE_call_task_body(thread_addr); /* Call thread_addr */
+    EE_call_task_body(tid); /* Call the task body */
     EE_hal_disableIRQ();
-    EE_thread_end_instance();
-    return EE_hal_endcycle_next_thread;
+    EE_thread_end_instance(); /* Call the scheduler */
+    return EE_std_endcycle_next_tid;
 }

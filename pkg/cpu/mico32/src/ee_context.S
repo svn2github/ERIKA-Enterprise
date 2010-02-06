@@ -40,7 +40,7 @@
 
 /*
  * Context switch function for multistack on Mico32
- * Implementation of EE_std_change_context_multi() as described in
+ * Implementation of EE_std_change_context() as described in
  * pkg/cpu/common/inc/ee_context.h
  * Author: 2010,  Bernardo  Dal Seno
  */
@@ -48,16 +48,16 @@
 /*
 void EE_std_change_context_multi(EE_FADDR thread_addr, EE_UREG tos_index);
 
-Pseudo code for EE_std_change_context_multi():
+Pseudo code for EE_std_change_context():
      begin:
+      tos_index = EE_std_thread_tos[tid+1];
       if is_not_the_current_stack(tos_index) {
           save_caller_saved_registers();
           switch_stacks(tos_index);
           restore_caller_saved_registers();
       }
-      if (thread_addr != 0) {
-          thread_addr = EE_std_run_task_code(thread_addr);
-          tos_index = EE_std_get_next_tos();
+      if (is_not_marked_stacked(tid)) {
+          tid = EE_std_run_task_code(tid);
           goto begin;
       }
 */
@@ -70,12 +70,18 @@ Pseudo code for EE_std_change_context_multi():
 	
 	.text
 
-	.global EE_std_change_context_multi
-	.type	EE_std_change_context_multi, @function
-/* void EE_std_change_context_multi(EE_FADDR thread_addr, EE_UREG tos_index); */
-EE_std_change_context_multi:
-	// r1 == thread_addr
+	.global EE_std_change_context
+	.type	EE_std_change_context, @function
+/* void EE_std_change_context(EE_TID tid); */
+EE_std_change_context:
+	// r1 == tid
+
+	/* tos_index = EE_std_thread_tos[tid+1]; */
 	// r2 == tos_index
+	sli	r2, r1, 2
+	LOAD_ADDR r3, EE_std_thread_tos
+	add	r2, r3, r2
+	lw	r2, (r2 + 4)
 
 	/* if is_not_the_current_stack(tos_index) { */
 	// r3 = & EE_mico32_active_tos;
@@ -143,29 +149,24 @@ EE_std_change_context_multi:
         /* } */
 _end_change_stacks:
 	
-        /* if (thread_addr != 0) { */
-	// r1 == thread_addr
-	be	r1, r0, _end_run_thread
+        /* if (is_not_marked_stacked(tid)) { */
+	// r1 == tid
+	bg	r0, r1, _end_run_thread
 
-	/*     thread_addr = EE_std_run_task_code(thread_addr); */
-	sw	(sp+0), ra
+	/*     tid = EE_std_run_task_code(tid); */
 	addi	sp, sp, -4
+	sw	(sp+4), ra
 	calli	EE_std_run_task_code
-	// r1 == thread_addr
+	// r1 == tid
 	lw	ra, (sp+4)
 	addi	sp, sp, 4
 	
-	/*     tos_index = EE_std_get_next_tos(); */
-	LOAD_ADDR r2, EE_hal_endcycle_next_tos
-	lw	r2, (r2+0)
-	// r2 == tos_index
-
         /*     goto begin; */
-	bi	EE_std_change_context_multi
+	bi	EE_std_change_context
 
         /* } */
 _end_run_thread:
 
 	ret
 	
-	.size	EE_std_change_context_multi, .-EE_std_change_context_multi
+	.size	EE_std_change_context, .-EE_std_change_context

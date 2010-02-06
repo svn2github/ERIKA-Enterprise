@@ -77,7 +77,9 @@ typedef EE_INT32  EE_SREG;
 typedef EE_UINT32 EE_FREG;
 
 /* Thread IDs */
-typedef EE_UINT32 EE_TID;
+typedef EE_INT32 EE_TID;
+/* Used by the common layer to decide whether to start a new thread */
+#define TID_IS_STACKED_MARK 0x80000000
 
 /* EE_TYPEIRQ is defined inside the MCU */
 
