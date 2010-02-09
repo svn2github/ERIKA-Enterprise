@@ -325,6 +325,10 @@ int main(void)
 
 #endif //__USE_MIWIP2P__ //End GF
 
+#ifdef __USE_UDP__
+	ActivateTask(UDP_TASK);
+#endif
+
 	/* Forever loop: background activities (if any) should go here */
 	for (;;);
 	

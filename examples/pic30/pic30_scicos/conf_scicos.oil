@@ -46,6 +46,12 @@ CPU mySystem {
 		EE_OPT = "NODEPS";
 		//EE_OPT = "VERBOSE";
 		EE_OPT = "__ADD_LIBS__";
+#ifdef __USE_UDP__
+		EE_OPT = "__C30__";
+		EE_OPT = "__dsPIC33F__";
+		CFLAGS = "-I $(PIC30_GCCDIR)/support/h";
+		LIB = ENABLE { NAME = "TCPIP"; };
+#endif		
 #ifdef __USE_SIMPLE802154__
 		EE_OPT = "__USE_SPI__";
 		EE_OPT = "USE_CC2420";
@@ -263,21 +269,13 @@ CPU mySystem {
 #ifdef __USE_MIWIP2P__	//Start GF	
 
 	TASK TaskSend {
-		PRIORITY = 1;
+		PRIORITY = 2;
 		STACK = SHARED;
 		SCHEDULE = FULL;
 		RESOURCE = "S0";
 	};
 	
 	TASK TaskMiWiOP {
-		PRIORITY = 2;
-		STACK = SHARED;
-		SCHEDULE = FULL;
-		RESOURCE = "S0";
-		RESOURCE = "S1";
-	};
-	
-	TASK TaskRec {
 		PRIORITY = 3;
 		STACK = SHARED;
 		SCHEDULE = FULL;
@@ -285,8 +283,16 @@ CPU mySystem {
 		RESOURCE = "S1";
 	};
 	
-	TASK TaskInt {
+	TASK TaskRec {
 		PRIORITY = 4;
+		STACK = SHARED;
+		SCHEDULE = FULL;
+		RESOURCE = "S0";
+		RESOURCE = "S1";
+	};
+	
+	TASK TaskInt {
+		PRIORITY = 5;
 		STACK = SHARED;
 		SCHEDULE = FULL;
 		RESOURCE = "S0";
@@ -324,6 +330,15 @@ CPU mySystem {
 		RESOURCE = "flex_simple802154_rx_buffer_mutex";
 #endif // __USE_SIMPLE802154__
 	};
+
+#ifdef __USE_UDP__				
+	// This task never ends and thus it must be the lowest priority task when present.
+	TASK UDP_TASK {			
+		PRIORITY = 1;
+		STACK = SHARED;
+		SCHEDULE = FULL;
+	};
+#endif
 
 	COUNTER sciCounter;
 

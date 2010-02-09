@@ -44,6 +44,7 @@
 ifneq ($(ONLY_LIBS) , TRUE)
 
 include $(EEBASE)/contrib/microchip/dee_emulation/cfg/cfg.mk
+#include $(EEBASE)/contrib/microchip/tcpip/cfg/cfg.mk
 
 endif
 
@@ -52,5 +53,6 @@ endif
 ifeq ($(ENABLE_LIBS), TRUE)
 
 include $(EEBASE)/contrib/microchip/dee_emulation/cfg/libcfg.mk
+include $(EEBASE)/contrib/microchip/tcpip/cfg/libcfg.mk
 
 endif

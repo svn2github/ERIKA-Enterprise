@@ -13,15 +13,18 @@ ifeq ($(findstring __LIB_SCICOS__,$(LIB_OPT)),__LIB_SCICOS__)
 
 EE_VPATH += $(EEBASE)/contrib/scicos/src/pic30
 EE_VPATH += $(EEBASE)/contrib/scicos/src/pic30/communication
+EE_VPATH += $(EEBASE)/contrib/scicos/src/pic30/communication/udp
 EE_VPATH += $(EEBASE)/contrib/scicos/libsrc/rt
 EE_VPATH += $(EEBASE)/contrib/scicos/libsrc/core
 
 ifeq ($(findstring __RTD_CYGWIN__,$(EEOPT)), __RTD_CYGWIN__) 
 ALLINCPATH += -I"$(shell cygpath -w $(EEBASE)/contrib/scicos/inc/core)"
 ALLINCPATH += -I"$(shell cygpath -w $(EEBASE)/contrib/scicos/inc/pic30/communication)"
+ALLINCPATH += -I"$(shell cygpath -w $(EEBASE)/contrib/scicos/inc/pic30/communication/udp)"
 else
 ALLINCPATH += -I$(EEBASE)/contrib/scicos/inc/core
 ALLINCPATH += -I$(EEBASE)/contrib/scicos/inc/pic30/communication
+ALLINCPATH += -I$(EEBASE)/contrib/scicos/inc/pic30/communication/udp
 endif
 ##
 ## Application files
@@ -56,6 +59,11 @@ OPT_LIBS += -lscicos
 else 
 
 EE_SRCS += $(EE_SRCS_SCICOS)
+
+ifeq ($(findstring __USE_UDP__,$(EEOPT)) , __USE_UDP__)
+EE_SRCS += contrib/scicos/src/pic30/communication/flex_udp.c
+endif
+
 
 endif
 
