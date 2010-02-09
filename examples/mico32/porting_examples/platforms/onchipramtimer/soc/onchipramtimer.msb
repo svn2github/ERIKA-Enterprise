@@ -92,14 +92,14 @@
 		<Parm Condition="CFG_IROM_ENABLED" Name="CFG_IROM_BASE_ADDRESS" Text="Base Address" Type="Integer" Value="0x00100000"/>
 		<Parm Condition="CFG_IROM_ENABLED" Enable="true" Name="CFG_IROM_LIMIT" Text="Size of Memory(in bytes)" Type="Integer" Value="16384"/>
 		<Parm Condition="CFG_IROM_ENABLED" ListValues="hex,binary" Name="CFG_IROM_INIT_FILE_FORMAT" Text="File Format" Type="String" Value="hex" isparm="false"/>
-            <Parm Condition="CFG_IROM_ENABLED" Extension="*.mem" Name="CFG_IROM_INIT_FILE" OType="String" Text="Initialization File Name" Type="File" Value="Y:/meminit_Instruction_IM.mem" isparm="false"/>
+            <Parm Condition="CFG_IROM_ENABLED" Extension="*.mem" Name="CFG_IROM_INIT_FILE" OType="String" Text="Initialization File Name" Type="File" Value="meminit_Instruction_IM.mem" isparm="false"/>
 
 		<Parm Name="CFG_DRAM_ENABLED" Text="Enabled" Type="define" Value="def"/>
 		<Parm Condition="CFG_DRAM_ENABLED" Name="DataInlineName" Text="Instance Name" Type="String" Value="Data_IM"/>
 		<Parm Condition="CFG_DRAM_ENABLED" Name="CFG_DRAM_BASE_ADDRESS" Text="Base Address" Type="Integer" Value="0x00200000"/>
 		<Parm Condition="CFG_DRAM_ENABLED" Enable="true" Name="CFG_DRAM_LIMIT" Text="Size of Memory(in bytes)" Type="Integer" Value="8192"/>
 		<Parm Condition="CFG_DRAM_ENABLED" ListValues="hex,binary" Name="CFG_DRAM_INIT_FILE_FORMAT" Text="File Format" Type="String" Value="hex" isparm="false"/>
-            <Parm Condition="CFG_DRAM_ENABLED" Extension="*.mem" Name="CFG_DRAM_INIT_FILE" OType="String" Text="Initialization File Name" Type="File" Value="Y:/meminit_Data_IM.mem" isparm="false"/>		
+            <Parm Condition="CFG_DRAM_ENABLED" Extension="*.mem" Name="CFG_DRAM_INIT_FILE" OType="String" Text="Initialization File Name" Type="File" Value="meminit_Data_IM.mem" isparm="false"/>		
 	  <Parm Name="CFG_IROM_LOCK" Text="Lock Address" Type="Define" Value="def"/><Parm Name="CFG_DRAM_LOCK" Text="Lock Address" Type="Define" Value="def"/></Parms>
         <GUIS Columns="2" Help="component_help\lm32.htm" Name="LM32" TabCount="2">
             <GUI Columns="2" Text="General" Widget="TabItem"/>

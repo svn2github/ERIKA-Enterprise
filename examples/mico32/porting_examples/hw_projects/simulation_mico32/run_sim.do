@@ -67,10 +67,11 @@ add wave -vbus ea -noreg {/UUT/LM32/cpu/registers(30)}
 @if [exist "global.do"]
 	source "global.do"
 @else
-	@echo {WARNING: Missing "global.do"; not displaying global variables.  See "global.do.example.txt" for an example}
+	@echo {WARNING: Missing "global.do"; not displaying global variables.}
 	@pause 3
 @endif
 
-# Leave vsim as the last line in the command buffer
-vsim onchipramtimer_tb -L ovi_xp2 -PL pmi_work
+# Leave the vsim command visible
+echo vsim onchipramtimer_tb -L ovi_xp2 -PL pmi_work
+
 run 25us

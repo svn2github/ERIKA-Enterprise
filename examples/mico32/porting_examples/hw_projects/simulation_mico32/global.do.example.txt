@@ -1,4 +1,0 @@
-# Launch the script containing the 'wave' commands for the global variables
-if [exist "y:/global.do"]
-	source "y:/global.do"
-endif

@@ -46,11 +46,12 @@
 # Environment variables
 #
 
+# By default work with the simulator contained in the repository
 ifndef SIMUL_DIR
-$(error Environment variable SIMUL_DIR must contain the simulation directory)
+SIMUL_DIR=../../hw_projects/simulation_mico32
 endif
 
-# Set as default
+# Set as default target
 .PHONY: meta-all
 meta-all: deploy globvars
 
