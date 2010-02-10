@@ -9,7 +9,8 @@
 #endif
 
 
-#define DEFAULT_BRG 0xC6
+#define DEFAULT_100KHZ_BRG 0xC6 // Works @ 80 Mhz
+#define DEFAULT_400KHZ_BRG 0x30 // Works @ 80 Mhz
 #define DEFAULT_FLAGS 0x0
 #define EE_I2C_ERR_BAD_PORT -1
 
@@ -31,7 +32,7 @@ __INLINE__ EE_UINT8 i2c_port2_idle(void){
 				I2C2CONbits.ACKEN || I2C2STATbits.TRSTAT;
 }
 
-EE_INT8 EE_i2c_init(EE_UINT8 port);
+EE_INT8 EE_i2c_init(EE_UINT8 port, EE_UINT16 baudrate, EE_UINT16 flags);
 
 EE_UINT8 EE_i2c_idle(EE_UINT8 port);
 

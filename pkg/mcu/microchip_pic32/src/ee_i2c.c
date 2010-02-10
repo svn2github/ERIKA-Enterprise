@@ -3,6 +3,19 @@
 #include "cpu/pic32/inc/ee_irqstub.h"
 
 
+/******************************************************************************/
+/*			 Local variables 				      */
+/******************************************************************************/
+
+static EE_UINT8 i2c_HS_port1;
+static EE_UINT8 i2c_HS_port2;
+
+
+/******************************************************************************/
+/* 			Inline functions 				      */
+/******************************************************************************/
+
+
 __INLINE__ void init_i2c_port_1(EE_UINT16 spibrg, EE_UINT16 flags) {
 	/* Stop I2C port */
 	I2C1CONbits.ON = 0;
@@ -30,16 +43,22 @@ __INLINE__ void init_i2c_port_1(EE_UINT16 spibrg, EE_UINT16 flags) {
 
 	/* Configure I2C port */
 	I2C1CON = 0;
-	I2C1CONbits.ACKDT = 1;	
-	I2C1CONbits.DISSLW = 1;		// Disable HS mode
+	if (i2c_HS_port1)
+		I2C1CONbits.DISSLW = 0; // Enable HS mode
+	else
+		I2C1CONbits.DISSLW = 1; // Disable HS mode
+	
 
+	I2C1CONbits.ACKDT = 1;	
+			
 	/* Start I2C port */
 	I2C1CONbits.ON = 1;
 }
 
 
 __INLINE__ void init_i2c_port_2(EE_UINT16 spibrg, EE_UINT16 flags) {
-		/* Stop I2C port */
+	/*TODO: use the flags. */	
+	/* Stop I2C port */
 	I2C2CONbits.ON = 0;
 
 	/* Disable Interrupts, due to master, slave and channel*/
@@ -64,47 +83,19 @@ __INLINE__ void init_i2c_port_2(EE_UINT16 spibrg, EE_UINT16 flags) {
 	I2C2BRG = spibrg;
 
 	/* Configure I2C port */
-	I2C2CONCLR = 0xFF;
+	I2C2CON = 0;
 	I2C2CONbits.ACKDT = 1;
-	I2C2CONbits.DISSLW = 1; 	//Disable HS mode
-
+	if (i2c_HS_port2)
+		I2C2CONbits.DISSLW = 0; // Enable HS mode
+	else
+		I2C2CONbits.DISSLW = 1; // Disable HS mode
 	/* Start I2C port */
 	I2C2CONbits.ON = 1;
 }
 
-
-
-EE_INT8 EE_i2c_init(EE_UINT8 port/*, EE_UINT32 baudrate, EE_UINT16 flags*/)
-{		
-	if (port == EE_I2C_PORT_1) {
-		/* default settings: clock @ 100 khz with peripheral clock 
-					@ 40 Mhz, default ACK and no 
-					interrupts */
-		init_i2c_port_1(DEFAULT_BRG, DEFAULT_FLAGS);
-		return 1;
-	} else if (port == EE_I2C_PORT_2) {
-		/* default settings: clock @ 100 khz with peripheral clock 
-					@ 40 Mhz, default ACK and no 
-					interrupts */
-		init_i2c_port_2(DEFAULT_BRG, DEFAULT_FLAGS); 
-		return 1;
-	}
-	return -EE_I2C_ERR_BAD_PORT;
-}
-
-EE_UINT8 EE_i2c_idle(EE_UINT8 port){
-	if (port == EE_I2C_PORT_1) {
-		return i2c_port1_idle();
-	} else if (port == EE_I2C_PORT_2) {
-
-		return i2c_port2_idle();
-	}
-	return -EE_I2C_ERR_BAD_PORT;
-}
-
-
-
-
+/******************************************************************************/
+/* 			Local functions 				      */
+/******************************************************************************/
 
 static EE_UINT8 i2c_write_port_1(EE_UINT8 device, EE_UINT8 address,
 							EE_UINT8 data){
@@ -171,21 +162,21 @@ static EE_UINT8 i2c_write_port_1(EE_UINT8 device, EE_UINT8 address,
 	return 0;
 }
 
-
 static EE_UINT8 i2c_write_port_2(EE_UINT8 device, EE_UINT8 address, 
 							EE_UINT8 data){
 	/* Ensure I2C module is idle */
-	while(EE_i2c_idle(EE_I2C_PORT_2));
+	while(EE_i2c_idle(EE_I2C_PORT_2)) ;
 
 	/* Transmit a Start condition */
 	I2C2CONbits.SEN = 1;		// initiate Start on SDA and SCL pins
-
+			
 	/* Wait till Start sequence is completed */
 	while(I2C2CONbits.SEN);
 
 	/* Write Slave address and set master for transmission 
 	(R/W bit should be 0) */
 	I2C2TRN = device;
+
 	if(I2C2STATbits.IWCOL)		// If write collision occurs,return -1
 		return -1;
 
@@ -193,18 +184,19 @@ static EE_UINT8 i2c_write_port_2(EE_UINT8 device, EE_UINT8 address,
 	while(I2C2STATbits.TBF);
 
 	/* Test for ACK condition received */
-	while(I2C2STATbits.ACKSTAT);
+	while(I2C2STATbits.ACKSTAT) ;
 
 	/* Ensure I2C module is idle */
-	while(EE_i2c_idle(EE_I2C_PORT_2));
+	while(EE_i2c_idle(EE_I2C_PORT_2)) ;
 
 	/* Write word address */
 	I2C2TRN = address;
+
 	if(I2C2STATbits.IWCOL)		// If write collision occurs,return -1
 		return -1;
 
 	/* Wait till address is transmitted */
-	while(I2C2STATbits.TBF);
+	while(I2C2STATbits.TBF) ;
 
 	/* Test for ACK condition received */
 	while(I2C2STATbits.ACKSTAT);
@@ -225,10 +217,10 @@ static EE_UINT8 i2c_write_port_2(EE_UINT8 device, EE_UINT8 address,
 
 	/* Ensure I2C module is idle */
 	while(EE_i2c_idle(EE_I2C_PORT_2));
-
+	
 	/* send STOP condition */
 	I2C2CONbits.PEN = 1;		// initiate Stop on SDA and SCL pins
-
+	
 	/* Wait till Stop sequence is completed */
 	while(I2C2CONbits.PEN);
 
@@ -236,23 +228,6 @@ static EE_UINT8 i2c_write_port_2(EE_UINT8 device, EE_UINT8 address,
 	while(EE_i2c_idle(EE_I2C_PORT_2));
 
 	return 0;
-
-
-}
-
-
-
-/* EE_i2c_write_byte calls the specific write function associated with each 
- * port of the I2C to speed_up the communication task 
- */
-EE_UINT8 EE_i2c_write_byte(EE_UINT8 port, EE_UINT8 device, EE_UINT8 address, 
-			EE_UINT8 data) {
-	if (port == EE_I2C_PORT_1 )
-		return i2c_write_port_1(device, address, data);
-	else if (port == EE_I2C_PORT_2 )
-		return i2c_write_port_2(device, address, data);
-	else
-		return -EE_I2C_ERR_BAD_PORT;
 }
 
 
@@ -356,7 +331,7 @@ static EE_INT8 i2c_read_port_1(EE_UINT8 device, EE_UINT8 address){
 static EE_INT8 i2c_read_port_2(EE_UINT8 device, EE_UINT8 address){
 	
 	EE_UINT8 data = 0;
-	
+
 	/* Ensure I2C module is idle  */
 	while(EE_i2c_idle(EE_I2C_PORT_2));
 
@@ -364,21 +339,21 @@ static EE_INT8 i2c_read_port_2(EE_UINT8 device, EE_UINT8 address){
 	I2C2CONbits.SEN = 1;		// initiate Start on SDA and SCL pins
 	
 	/* Wait till Start sequence is completed  */
-	while(I2C2CONbits.SEN);
+	while(I2C2CONbits.SEN) ;
 
 	/* Write Slave address and set master for transmission  
-	(R/W bit should be 0)  */           
-	I2C2TRN = device;
+	(R/W bit should be 0)  */
+        I2C2TRN = device;
 
 	if(I2C2STATbits.IWCOL)	// If write collision occurs,return -1 
 		return -1;
 
 	/* Wait till address is transmitted */
-	while(I2C2STATbits.TBF);
+	while(I2C2STATbits.TBF) ;
 
 	/* Test for ACK condition received */
 	while(I2C2STATbits.ACKSTAT);
-	
+
 	/* Ensure I2C module is idle */
 	while(EE_i2c_idle(EE_I2C_PORT_2));
 
@@ -392,7 +367,7 @@ static EE_INT8 i2c_read_port_2(EE_UINT8 device, EE_UINT8 address){
 
 	/* Test for ACK condition received */
 	while(I2C2STATbits.ACKSTAT);
-	
+		
 	/* Ensure I2C module is idle */
 	while(EE_i2c_idle(EE_I2C_PORT_2));
 
@@ -419,21 +394,20 @@ static EE_INT8 i2c_read_port_2(EE_UINT8 device, EE_UINT8 address){
 
 	/* Read the data byte */
 	I2C2CONbits.RCEN = 1;
-	while(I2C2CONbits.RCEN);
+	while(I2C2CONbits.RCEN) ;
 	I2C2STATbits.I2COV = 0;
 	data = I2C2RCV;
 	
 	/* Ensure I2C module is idle */
 	while(EE_i2c_idle(EE_I2C_PORT_2));
-
+	
 	/* send NACK condition back to the I2C slave indicating master received 
 	the data byte */
 	I2C2CONbits.ACKDT = 1;
 	I2C2CONbits.ACKEN = 1;
 
 	/* wait until NACK sequence is over */
-	while (I2C2CONbits.ACKEN);
-
+	while (I2C2CONbits.ACKEN) ;
 	/* Ensure I2C module is idle */
 	while(EE_i2c_idle(EE_I2C_PORT_2));
 
@@ -441,17 +415,85 @@ static EE_INT8 i2c_read_port_2(EE_UINT8 device, EE_UINT8 address){
 	I2C2CONbits.PEN = 1;		// initiate Stop on SDA and SCL pins
 
 	/* Wait till Stop sequence is completed */
-	while(I2C2CONbits.PEN);
+	while(I2C2CONbits.PEN) ;
 
 	/* Ensure I2C module is idle */
-	while(EE_i2c_idle(EE_I2C_PORT_2));
-
+	while(EE_i2c_idle(EE_I2C_PORT_2)) ;
+	
 	return (data);			// return with data
+}
 
+/******************************************************************************/
+/*			Global Functions 				      */
+/******************************************************************************/
+
+
+/* 
+ * EE_i2c_init initialize the channel.
+ */
+
+EE_INT8 EE_i2c_init(EE_UINT8 port, EE_UINT16 baudrate, EE_UINT16 flags)
+{		
+	if (port == EE_I2C_PORT_1) {
+		switch (baudrate){
+		case 100:
+			i2c_HS_port1 = 0;
+			init_i2c_port_1(DEFAULT_100KHZ_BRG, flags);
+		/* default settings: clock @ 100 khz with peripheral clock 
+					@ 40 Mhz, default ACK and no 
+					interrupts */
+		break;
+		case 400:
+			i2c_HS_port1 = 1;
+			init_i2c_port_1(DEFAULT_400KHZ_BRG, flags);
+		break;
+		default:
+			i2c_HS_port1 = 0;
+			init_i2c_port_1(DEFAULT_100KHZ_BRG, DEFAULT_FLAGS);
+		}
+		return 1;
+	} else if (port == EE_I2C_PORT_2) {
+		/* default settings: clock @ 100 khz with peripheral clock 
+					@ 40 Mhz, default ACK and no 
+					interrupts */
+		switch (baudrate){
+		case 100:
+			i2c_HS_port2 = 0;
+			init_i2c_port_2(DEFAULT_100KHZ_BRG, flags);
+		/* default settings: clock @ 100 khz with peripheral clock 
+					@ 40 Mhz, default ACK and no 
+					interrupts */
+		break;
+		case 400:
+			i2c_HS_port2 = 1;
+			init_i2c_port_2(DEFAULT_400KHZ_BRG, flags);
+		break;
+		default:
+			i2c_HS_port2 = 0;
+			init_i2c_port_2(DEFAULT_100KHZ_BRG, DEFAULT_FLAGS);
+		}
+		return 1;
+		
+	}
+	return -EE_I2C_ERR_BAD_PORT;
+}
+
+/* 
+ * EE_i2c_idle verifies the state of the channel.
+ */
+
+EE_UINT8 EE_i2c_idle(EE_UINT8 port){
+	if (port == EE_I2C_PORT_1) {
+		return i2c_port1_idle();
+	} else if (port == EE_I2C_PORT_2) {
+		return i2c_port2_idle();
+	}
+	return -EE_I2C_ERR_BAD_PORT;
 }
 
 
-/* EE_i2c_read_byte calls the specific read function associated with each port
+/* 
+ * EE_i2c_read_byte calls the specific read function associated with each port
  * of the I2C to speed_up the communication task 
  */
 
@@ -461,6 +503,20 @@ EE_UINT8 EE_i2c_read_byte (EE_UINT8 port, EE_UINT8 device, EE_UINT8 address){
 		return i2c_read_port_1(device, address);
 	else if (port == EE_I2C_PORT_2 )
 		return i2c_read_port_2(device, address); 
+	else
+		return -EE_I2C_ERR_BAD_PORT;
+}
+
+
+/* EE_i2c_write_byte calls the specific write function associated with each 
+ * port of the I2C to speed_up the communication task 
+ */
+EE_UINT8 EE_i2c_write_byte(EE_UINT8 port, EE_UINT8 device, EE_UINT8 address, 
+			EE_UINT8 data) {
+	if (port == EE_I2C_PORT_1 )
+		return i2c_write_port_1(device, address, data);
+	else if (port == EE_I2C_PORT_2 )
+		return i2c_write_port_2(device, address, data);
 	else
 		return -EE_I2C_ERR_BAD_PORT;
 }
