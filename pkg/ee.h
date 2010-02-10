@@ -292,56 +292,6 @@ extern "C" {
 #include "ee_api.h"
 
 
-  /*
-   *
-   * Kernel
-   *
-   */
-
-#ifdef __FP__
-#include "kernel/fp/inc/ee_kernel.h"
-#endif
-
-#ifdef __EDF__
-#include "kernel/edf/inc/ee_kernel.h"
-#endif
-
-#ifdef __FRSH__
-#ifdef __SEM_FRSH__
-#include "kernel/frsh/syncobj/inc/ee_sem.h"
-#endif
-#include "kernel/frsh/inc/ee_kernel.h"
-#endif
-
-/* OO */
-#if defined(__OO_BCC1__) || defined(__OO_BCC2__) || defined(__OO_ECC1__) || defined(__OO_ECC2__)
-#include "kernel/oo/inc/ee_kernel.h"
-#endif
-
-/* SEM */
-#ifdef __SEM__
-#include "kernel/sem/inc/ee_sem.h"
-#endif
-
-/* ALARMS */
-#ifdef __ALARMS__
-#include "kernel/alarms/inc/ee_alarms.h"
-#endif
-
-/* RN */
-#ifdef __RN__
-#include "kernel/rn/inc/ee_rn.h"
-#endif
-
-  /*
-   *
-   * API
-   *
-   */
-
-#include "ee_api.h"
-
-
 #if defined(__cplusplus)
 };
 #endif
