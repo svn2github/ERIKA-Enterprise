@@ -52,9 +52,14 @@ int8_t  console_serial_hal_read(uint8_t port, uint8_t *mesg, uint16_t length,
 	/* TODO!!! - Buffer management in interrupt mode */
 	for (i = 0; i < length; i++) {
 		retv = EE_uart_read_byte(port, mesg + i); 
-		if (retv < 0)
+		if (retv < 0) {
+			if (read)
+				*read = i - 1;
 			return retv;
+		}
 	}
+	if (read)
+		*read = i - 1;
 	return 1;
 }
 

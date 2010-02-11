@@ -167,7 +167,9 @@ int console_write(uint8_t cons, uint8_t *mesg, uint16_t length)
 * @param[in]  cons 	A valid console port identifier.
 * @param[out] mesg 	The pointer to destination buffer.
 * @param[in]  length 	The number of bytes to read.
-* @param[out] read 	A pointer to store the actual bytes read into \p mesg.
+* @param[out] read 	A pointer to store the actual amount of bytes
+*			written into the \p mesg buffer. If it is \c NULL the
+*			is ignored.
 * 
 * @return 	\todo Write the return specification.
 *
