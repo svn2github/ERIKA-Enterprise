@@ -66,7 +66,7 @@
  * of the application respects the sequence.
  *
  * To check if a test case is successful, the automatic tool runs the
- * test case. when the test case ends (i.e., it stops at a predefined
+ * test case. When the test case ends (i.e., it stops at a predefined
  * breackpoint), the debugger (or the user) have to check that the
  * final assertion is verified. If it is verified, the test is passed.
  *
@@ -77,31 +77,34 @@
  *
  * Assertion Data
  *
- * - Assertions are identified by an identifier (index in
+ * - Assertions are identified by an identifier (index in an
  *   array). Index 0 is reserved for the final result that says if the
- *   test case is successful or no.
+ *   test case is successful or not.
  *
- * - The data structures for an assertion is a array of integers
- *   filled with 0. The array contains a structure with a field
- *   "value" that is 0 if the assetion has not yet been evaluated, ASSERT_NO
+ * - The data structure for an assertion is an array of integers
+ *   filled with 0s. The array contains a structure with a field
+ *   "value" that is 0 if the assertion has not yet been evaluated, ASSERT_NO
  *   if the assertion has failed, ASSERT_YES if the assertion was
  *   successful. 
  *
  * Assertion functions 
  *
- * - assertions should run with interrupts enabled.
+ * - Assertions can run with interrupts enabled. Please notice that if a
+ *   preemption by an interrupt or another task occurs during the execution of
+ *   an assertion, and the preempting task/interrupt modifies the same
+ *   assertion, the check for a double use of an assertion may fail.
  *
- * - The assertion function should not work as a normal
+ * - The assertion functions should not work as a normal
  *   primitive. Every assertion basically should work with a dedicated
- *   entry in the array. That is, It can not exist two assertions with
- *   the same identifier.  
+ *   entry in the array. That is, there can not exist two assertions with
+ *   the same identifier.
  *
  * - Assertions can rely on other assertion identifiers to implement
  *   precedence constraints. It is guaranteed that an assertion function
  *   will read the value field only once, to avoid problems due to the
  *   fact that assertion runs with interrupts enabled.
  * 
- * Types that have to be defined into types.h
+ * Types that have to be defined in types.h
  *
  * - EE_TYPEASSERT is the type used for the assertion index. 
  *   MUST BE SIGNED!!! 
@@ -118,7 +121,7 @@
 
 /* types.h */
 #ifndef EE_TYPEASSERT
-#define EE_TYPEASSERT EE_UREG
+#define EE_TYPEASSERT EE_SREG
 #endif
 
 #ifndef EE_TYPEASSERTVALUE
@@ -129,7 +132,7 @@
 
 
 /* this is an invalid value for the index */
-#define EE_ASSERT_NIL      ((EE_UREG)(-1))
+#define EE_ASSERT_NIL      ((EE_TYPEASSERT)(-1))
 
 /* these are the results of each assertion test */
 #define EE_ASSERT_INITVALUE   0
@@ -145,10 +148,10 @@ extern EE_TYPEASSERTVALUE EE_assertions[];
  * the assertion "id" become YES if the test is true and the prev
  * assertion is YES. 
  *
- * If no PREVious assertion have to be checked, the prev parameter
+ * If no PREVious assertion has to be checked, the prev parameter
  * should be EE_ASSERT_NIL.  
  *
- * the return value is either YES or NO depending on the result.
+ * The return value is either YES or NO depending on the result.
  */
 #ifndef __PRIVATE_ASSERT__
 EE_TYPEASSERTVALUE EE_assert(EE_TYPEASSERT id, 
@@ -175,7 +178,7 @@ EE_TYPEASSERTVALUE EE_assert_and(EE_TYPEASSERT id,
 
 /* This is a range assertion, typically used as last assertion.
  *
- * the assertion "id" become YES if ALL the assertion between begin
+ * the assertion "id" become YES if ALL the assertions between begin
  * and end are YES.
  */
 
@@ -186,8 +189,8 @@ EE_TYPEASSERTVALUE EE_assert_range(EE_TYPEASSERT id,
 #endif
 
 /* This is the last assertion. It simply does nothing, and must be
- * included in all the example with the purpose of setting there a
- * breakpoint.  
+ * included in all the examples with the purpose of setting a
+ * breakpoint there.
  */
 #ifndef __PRIVATE_ASSERT_LAST__
 EE_TYPEASSERTVALUE EE_assert_last(void);
