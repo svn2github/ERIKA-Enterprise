@@ -39,49 +39,34 @@
  * ###*E*### */
 
 /*
- * Assembly macros for IRQs on Lattice Mico32
+ * Asm functions that dirty all registers and check for unexepcted changes
  * Author: 2010,  Bernardo  Dal Seno
  */
 
-#ifndef __INCLUDE_MICO32_IRQ_ASM_H__
-#define __INCLUDE_MICO32_IRQ_ASM_H__
 
-#include <cpu/mico32/inc/ee_asm_util.h>
+/*
+ * Save all the callee-saved registers, dirty all user registers (except for sp)
+ * using values computed from `base_dirt', call `func' (cannot be null), check
+ * the value of the callee-saved registers, restore the callee-saved registers,
+ * and return.  Return 0 if no register has changed, or the number X of the
+ * changed register rX.
+ */
+int dirty_regs(void (*func)(void), short base_dirt);
 
-#ifdef __ALLOW_NESTED_IRQ__
-	.macro  SKIP_IF_NESTED_REG nest_lev, tmp_reg, skip_lab
-	addi	\tmp_reg, \nest_lev, -1
-	bne	\tmp_reg, r0, skip_lab
-	.endm
 
-	.macro  SKIP_IF_NESTED nest_reg, tmp_reg, skip_lab
-        LOAD_ADDR \nest_reg, EE_IRQ_nesting_level
-	lw	\nest_reg, (\nest_reg + 0)
-	addi	\tmp_reg, \nest_reg, -1
-	bne	\tmp_reg, r0, skip_lab
-	.endm
+/*
+ * Save all the callee-saved registers, dirty all user registers (except for sp)
+ * using values computed from `base_dirt', and enter a loop to check for any
+ * change in the value of any register.  If a change is detected, return the
+ * number X of the changed register rX.
+ */
+static inline int check_regs(short base_dirt);
 
-	.macro	ENABLE_NESTED_IRQ
-#error ENABLE_NESTED_IRQ: Not implemented
-	.endm
 
-	.macro	DISABLE_NESTED_IRQ
-#error DISABLE_NESTED_IRQ: Not implemented
-	.endm
-#else	
-	.macro  SKIP_IF_NESTED_REG nest_lev, tmp_reg, skip_lab
-	/* Never nested, never skip */
-	.endm
-	
-	.macro  SKIP_IF_NESTED nest_reg, tmp_reg, skip_lab
-	/* Never nested, never skip */
-	.endm
-	
-	.macro	ENABLE_NESTED_IRQ
-	.endm
+static inline int check_regs(short base_dirt)
+{
+    return dirty_regs((void (*)(void))0, base_dirt);
+}
 
-	.macro	DISABLE_NESTED_IRQ
-	.endm
-#endif
 
-#endif /*  __INCLUDE_MICO32_IRQ_ASM_H__ */
+void dirty_caller_saved_regs(short base_dirt);

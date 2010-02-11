@@ -62,10 +62,7 @@ Pseudo code for EE_std_change_context():
       }
 */
 
-	.macro LOAD_ADDR r sym
-	mvhi	\r, hi(\sym)
-	ori	\r, \r, lo(\sym)
-	.endm
+#include <cpu/mico32/inc/ee_asm_util.h>
 
 	
 	.text
@@ -109,7 +106,7 @@ EE_std_change_context:
 	sw	(sp+-8), r13
 	sw	(sp+-4), r12
 	sw	(sp+0), r11
-	// addi	sp, sp, -72	; Not useful 
+	// addi	sp, sp, -72	; Not useful if interrupts are disabled
 	
 	/*     switch_stacks(tos_index); */
 	// r5 = & EE_mico32_system_tos[0];
@@ -126,7 +123,7 @@ EE_std_change_context:
 	lw	sp, (r2+0)
 
         /*     restore_caller_saved_registers(); */
-	// addi sp, sp, 72	; Not useful
+	// addi sp, sp, 72	; Not useful if interrupts are disabled
 	lw	ra, (sp+-68)
 	lw	r27, (sp+-64)
 	lw	r26, (sp+-60)

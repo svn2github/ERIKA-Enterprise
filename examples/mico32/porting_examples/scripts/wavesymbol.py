@@ -27,6 +27,10 @@ class data_section:
         offs = entry_data.addr - self.section_start
         if length <= 4:
             out_word( name, offs, length )
+        elif name == "EE_assertions":
+            # Special treatment for assertions
+            for k in range(0,length):
+                out_word( "%s[%02d]" % (name, k), offs + k, 1 )
         else:
             print >>sys.stderr, "Warning: object %s of length %d > 4 not handled and ignored" % (name, length)
 
@@ -38,8 +42,18 @@ class data_section:
 
 MEMENTITY = "onchipramtimer_tb/UUT/LM32/cpu/load_store_unit/ram/mem"
 def out_word( name, offset, length ):
-    start = offset* 8;
+    start = offset * 8;
     end = start + length * 8 - 1;
+    if length == 1:
+        # Swap bytes: remove the original byte offset (offset % 4) and
+        # add the new one (3 - offset % 4)
+        bytecomp = 3 - 2 * (offset % 4)
+        start = start + bytecomp * 8;
+        end = end + bytecomp * 8;
+    elif length != 4:
+        print >>sys.stderr, "Unsupported object length of %d for object %s" % \
+              (length, name)
+        return
     print "add wave -vbus {%s} -noreg {%s(%d downto %d)}" % \
           (name, MEMENTITY, end, start)
 

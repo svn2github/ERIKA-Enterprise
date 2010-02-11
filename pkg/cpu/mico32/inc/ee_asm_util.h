@@ -39,49 +39,18 @@
  * ###*E*### */
 
 /*
- * Assembly macros for IRQs on Lattice Mico32
+ * Useful assembly macros for Mico32
  * Author: 2010,  Bernardo  Dal Seno
  */
 
-#ifndef __INCLUDE_MICO32_IRQ_ASM_H__
-#define __INCLUDE_MICO32_IRQ_ASM_H__
+#ifndef __INCLUDE_MICO32_ASM_UTIL_H__
+#define __INCLUDE_MICO32_ASM_UTIL_H__
 
-#include <cpu/mico32/inc/ee_asm_util.h>
-
-#ifdef __ALLOW_NESTED_IRQ__
-	.macro  SKIP_IF_NESTED_REG nest_lev, tmp_reg, skip_lab
-	addi	\tmp_reg, \nest_lev, -1
-	bne	\tmp_reg, r0, skip_lab
+	.macro LOAD_ADDR r sym
+	mvhi	\r, hi(\sym)
+	ori	\r, \r, lo(\sym)
 	.endm
 
-	.macro  SKIP_IF_NESTED nest_reg, tmp_reg, skip_lab
-        LOAD_ADDR \nest_reg, EE_IRQ_nesting_level
-	lw	\nest_reg, (\nest_reg + 0)
-	addi	\tmp_reg, \nest_reg, -1
-	bne	\tmp_reg, r0, skip_lab
-	.endm
 
-	.macro	ENABLE_NESTED_IRQ
-#error ENABLE_NESTED_IRQ: Not implemented
-	.endm
 
-	.macro	DISABLE_NESTED_IRQ
-#error DISABLE_NESTED_IRQ: Not implemented
-	.endm
-#else	
-	.macro  SKIP_IF_NESTED_REG nest_lev, tmp_reg, skip_lab
-	/* Never nested, never skip */
-	.endm
-	
-	.macro  SKIP_IF_NESTED nest_reg, tmp_reg, skip_lab
-	/* Never nested, never skip */
-	.endm
-	
-	.macro	ENABLE_NESTED_IRQ
-	.endm
-
-	.macro	DISABLE_NESTED_IRQ
-	.endm
-#endif
-
-#endif /*  __INCLUDE_MICO32_IRQ_ASM_H__ */
+#endif /*  __INCLUDE_MICO32_ASM_UTIL_H__ */

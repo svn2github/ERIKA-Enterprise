@@ -72,6 +72,6 @@ add wave -vbus ea -noreg {/UUT/LM32/cpu/registers(30)}
 @endif
 
 # Leave the vsim command visible
-echo vsim onchipramtimer_tb -L ovi_xp2 -PL pmi_work
+@echo vsim onchipramtimer_tb -L ovi_xp2 -PL pmi_work
 
 run 25us

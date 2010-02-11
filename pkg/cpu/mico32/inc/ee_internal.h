@@ -100,19 +100,13 @@ extern EE_UREG EE_mico32_active_tos;
 
 #if defined(__OO_BCC1__) || defined(__OO_BCC2__) || defined(__OO_ECC1__) || defined(__OO_ECC2__)
 
-void EE_mico32_terminate_savestk(EE_ADDR sp, EE_ADDR realbody);
-void EE_mico32_terminate_task(EE_ADDR sp) NORETURN;
+/* Save the context and call the body of the task `tid'.  Implemented in
+ * assembly */
+void EE_hal_terminate_savestk(EE_TID tid);
 
-__INLINE__ void __ALWAYS_INLINE__ EE_hal_terminate_savestk(EE_TID t)
-{
-  EE_mico32_terminate_savestk(&EE_terminate_data[t],
-			       (EE_ADDR)EE_terminate_real_th_body[t]);
-}
-
-__INLINE__ void __ALWAYS_INLINE__ EE_hal_terminate_task(EE_TID t)
-{
-  EE_mico32_terminate_task(&EE_terminate_data[t]);
-}
+/* Restore the context saved by EE_hal_terminate_savestk() for the task `tid' and
+ * return from EE_hal_terminate_savestk().  Implemented in assembly */
+void EE_hal_terminate_task(EE_TID tid) NORETURN;
 
 #endif /* __OO_BCCx */
 
