@@ -15,7 +15,7 @@
 #ifdef __MICROCHIP_PIC32__
 
 static uint8_t spi_port; 
-
+/* TODO: metterla come inline ?*/
 void fm25h20_delay_us(uint16_t delay_count) 
 {	/* Provide a delay with an accuracy of approx. 2% @ 80Mhz*/
 	asm volatile(	"add $t0, $a0, $zero\n\t"			  	
@@ -30,15 +30,18 @@ void fm25h20_delay_us(uint16_t delay_count)
 void fm25h20_hal_init(void)
 {
 	/* Set the IO pins direction */
-	FM25H20_TRIS_CS = 0;
-	FM25H20_TRIS_WRITE_PROTECT = 0;
-	FM25H20_TRIS_HOLD = 0;	
+	fm25h20_set_cs_as_out();
+	fm25h20_set_hold_as_out();
+	fm25h20_set_write_protection_as_out();	
 }
 
-int8_t	fm25h20_spi_init(uint8_t port)
+
+
+int8_t	fm25h20_spi_init(uint8_t port, EE_UINT32 baudrate, EE_UINT16 flags )
 {
 	spi_port = port;
-	return EE_spi_init(spi_port);
+	return EE_spi_init(spi_port, baudrate, flags); 
+			   
 }
 
 int8_t	fm25h20_spi_close(void)
@@ -46,22 +49,17 @@ int8_t	fm25h20_spi_close(void)
 	return EE_spi_close(spi_port);
 }
 
-int8_t	fm25h20_spi_put(uint8_t in, uint8_t *out)
+/* Modificato */
+int8_t	fm25h20_spi_write(uint8_t *data, uint16_t len)
 {
-	if (out != NULL)
-		return EE_spi_rw_byte(spi_port, in, out);
-	else
-		return EE_spi_write_byte(spi_port, in);
+	return EE_spi_write(spi_port, data, len);
 }
 
-int8_t	fm25h20_spi_get(uint8_t *out)
-{
-	uint8_t dummy;
 
-	if (out != NULL)
-		return EE_spi_read_byte(spi_port, out);
-	else
-		return EE_spi_read_byte(spi_port, &dummy);
+/* Modificato */
+int8_t	fm25h20_spi_read(uint8_t *data, uint16_t len)
+{
+	return EE_spi_read(spi_port, data, len);
 }
 
 #else

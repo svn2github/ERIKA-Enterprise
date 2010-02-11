@@ -21,22 +21,31 @@
 /** 
 * @name Standard Commands
 * @{ */
-#define FM25H20_WRITE_ENABLE (0x06)	//Enables write operation
-#define FM25H20_WRITE_DISABLE (0x04)	//Disables write operation
-#define FM25H20_READ_STATUS_REG (0x05)	//Read the status register
-#define FM25H20_WRITE_STATUS_REG (0x01)	//Writes the status register
-#define FM25H20_READ_MEMORY (0x03)	//Reads the memory
-#define FM25H20_WRITE_MEMORY (0x02)	//Writes the memory
-#define FM25H20_SLEEP (0xB9)		//Enters in the Sleep mode
+#define FM25H20_WRITE_ENABLE 		0x06	//Enables write operation
+#define FM25H20_WRITE_DISABLE 		0x04	//Disables write operation
+#define FM25H20_READ_STATUS_REG 	0x05	//Read the status register
+#define FM25H20_WRITE_STATUS_REG 	0x01	//Writes the status register
+#define FM25H20_READ_MEMORY	 	0x03	//Reads the memory
+#define FM25H20_WRITE_MEMORY 		0x02	//Writes the memory
+#define FM25H20_SLEEP 			0xB9	//Enters in the Sleep mode
 /* @} */
 
 
 /** 
 * @name Device Specific characteristics
 * @{ */
-#define MEMORY_SIZE 0x3FFFF		//Highest memory address
-#define CHECK_MASK 0x40			//Standard value for Status register 
+#define MEMORY_SIZE 	0x3FFFF		//Highest memory address
+#define CHECK_MASK	0x40		//Standard value for Status register 
 /* @} */
+
+
+/** 
+* @name Commands' arrays size
+* @{ */
+#define WRITE_ARRAY_SIZE 	5		
+#define READ_ARRAY_SIZE 	4			
+/* @} */
+
 
 
 /** 
@@ -98,38 +107,43 @@ int8_t fm25h20_store(uint32_t address, uint32_t len, uint8_t* buf);
 
 
 
-
+#if 0
 __INLINE__ void fm25h20_spi_put_address(uint32_t address){
 	address &= MEMORY_SIZE;
 	fm25h20_spi_put((uint8_t)(address>>16), NULL);
 	fm25h20_spi_put((uint8_t)(address>>8), NULL);
 	fm25h20_spi_put((uint8_t)(address), NULL);
 }
-
+#endif
 
 
 COMPILER_INLINE void fm25h20_sleep() 
 {
-	fm25h20_spi_put(FM25H20_SLEEP, NULL);
+	uint8_t app = FM25H20_SLEEP;
+	fm25h20_spi_write(&app, 1);
 }
 
 
 COMPILER_INLINE uint8_t fm25h20_wake() 
 {	
-	uint8_t tmp;
 	/* select the device */
-	fm25h20_hal_cs_low();
-
-	//Probabilmente basta alzare il CS, 
-	fm25h20_spi_put(FM25H20_READ_MEMORY, NULL);
+	fm25h20_cs_low();
+	
+	//TODO: Probabilmente basta alzare il CS 
+	uint8_t tmp = FM25H20_READ_MEMORY;
+	fm25h20_spi_write(&tmp, 1);
 	fm25h20_delay_us(450); // Wake-up time
-	tmp = fm25h20_spi_get(FM25H20_READ_STATUS_REG);
-	fm25h20_hal_cs_high();
+	tmp = FM25H20_READ_STATUS_REG;
+	fm25h20_spi_read(&tmp,1);
+	
+	/*Deselect the device */	
+	fm25h20_cs_high();
+	
 	/* check the waking up */
 	if ((tmp & CHECK_MASK) != 0)  
 		return FM25H20_ERR_NONE; //woken-up correctly
-	return FM25H20_FRAM_WAKE_UP_FAILED; //Waking-up failed
-	/* deselect the device */
+	return FM25H20_FRAM_WAKE_UP_FAILED; //waking-up failed
+	
 	
 }
 

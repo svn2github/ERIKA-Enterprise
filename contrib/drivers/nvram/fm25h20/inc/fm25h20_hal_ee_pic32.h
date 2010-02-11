@@ -20,21 +20,36 @@
 #endif
 #include <mcu/microchip_pic32/inc/ee_spi.h>
 
+/******************************************************************************/
+/*			 	Inclusions				      */
+/******************************************************************************/
+
 #define FM25H20_SPI_PORT_1	EE_SPI_PORT_1
 #define FM25H20_SPI_PORT_2	EE_SPI_PORT_2
+#define FM25H20_SPI_CLOCK 	10000000		/*Clock frequency of the 
+							SPI Channel*/
+#define FM25H20_SPI_FLAGS 	EE_SPI_MASTER | \
+				EE_SPI_CLOCK_IDLE_HIGH | EE_SPI_SDI_ON_CLOCK_END 		/*Settings of the 
+							SPI Channel*/ /*EE_SPI_SDO_ON_CLOCK_TO_IDLE | \ */
 
-#define FM25H20_CS PORTGbits.RG9 //SS2
-#define FM25H20_HOLD PORTCbits.RC2 //attivo basso
-#define FM25H20_WRITE_PROTECT PORTCbits.RC3 //attivo basso
+#define fm25h20_cs_low()			PORTGbits.RG9 = 0 //SS2
+#define fm25h20_cs_high()			PORTGbits.RG9 = 1 //SS2
+
+#define fm25h20_hold_on() 			PORTCbits.RC2 = 0 
+#define fm25h20_hold_off() 			PORTCbits.RC2 = 1 
+
+#define fm25h20_write_protection_on()		PORTCbits.RC3 = 0 
+#define fm25h20_write_protection_off()		PORTCbits.RC3 = 1 
+
+#define fm25h20_set_cs_as_out() 		TRISGbits.TRISG9 = 0
+#define fm25h20_set_hold_as_out() 		TRISCbits.TRISC2 = 0
+#define fm25h20_set_write_protection_as_out()	TRISCbits.TRISC3 = 0
 
 
-#define FM25H20_TRIS_CS TRISGbits.TRISG9
-#define FM25H20_TRIS_HOLD TRISCbits.TRISC2
-#define FM25H20_TRIS_WRITE_PROTECT TRISCbits.TRISC3
 
-
-
-/* Functions prototypes */
+/******************************************************************************/
+/*			 Functions prototypes 				      */
+/******************************************************************************/
 
 /** 
 * @brief  Add a delay. 
@@ -44,7 +59,7 @@
 * @ param[in]  delay_count number of us to be waited
 * 
 */
-void fm25h20_delay_us(uint16_t delay_count); 
+void fm25h20_delay_us(uint16_t delay_count);
 
 
 
@@ -56,7 +71,7 @@ void fm25h20_delay_us(uint16_t delay_count);
 * @ param[in]	port SPI port to be used.
 * @ return	\todo 
 */
-int8_t fm25h20_spi_init(uint8_t port);
+int8_t fm25h20_spi_init(uint8_t port, EE_UINT32 baudrate, EE_UINT16 flags );
 
 
 /** 
@@ -78,7 +93,7 @@ int8_t fm25h20_spi_close(void);
 * @ param[in]	*out address of data read-back
 * @ return	\todo 
 */
-int8_t fm25h20_spi_put(uint8_t in, uint8_t *out);
+int8_t	fm25h20_spi_write(uint8_t *data, uint16_t len);
 
 
 /** 
@@ -89,18 +104,9 @@ int8_t fm25h20_spi_put(uint8_t in, uint8_t *out);
 * @ param[in]	*out address of data read-back
 * @ return	\todo 
 */
-int8_t fm25h20_spi_get(uint8_t *out);
-
-COMPILER_INLINE void fm25h20_hal_cs_high(void)
-{
-	FM25H20_CS = 1;
-}
+int8_t	fm25h20_spi_read(uint8_t *data, uint16_t len);
 
 
-COMPILER_INLINE void fm25h20_hal_cs_low(void)
-{
-	FM25H20_CS = 0;
-}
 
 
 #endif /* Header Protection */

@@ -18,68 +18,75 @@ uint8_t fm25h20_initialized = 0; /*TODO: verificare se si può gestire in modo +
 
 int8_t fm25h20_init(uint8_t port)
 {  
+
 	int8_t retv;
 	if (fm25h20_initialized) 
 		return -FM25H20_DOUBLE_INIT; 
 
-	/* Minimum time needed to power-up the device */
-	fm25h20_delay_us(1500);		
-	
-	/* init hal-specific things */
+	/* Wait the minimum time needed to power-up the device */
+	fm25h20_delay_us(2500);	
+
+	/* Init hal-specific things and disable the hardware protections */
 	fm25h20_hal_init();
+	fm25h20_hold_off();
+	//fm25h20_write_protection_off();
 	
-	/* init the SPI port */	
-	retv = fm25h20_spi_init(port);
+	/* Init the SPI port with the default values */	
+	retv = fm25h20_spi_init(port, FM25H20_SPI_CLOCK, FM25H20_SPI_FLAGS);
 
 	if (retv < 0)
 		return -FM25H20_SPI_INIT_FAILED;
+	
 
 	/* Select the device */
-	fm25h20_hal_cs_low();
-	
+	fm25h20_cs_low();
+
+
+	/* TODO: sistemare questa inizializzazione */	
+	uint8_t set_write = FM25H20_WRITE_ENABLE;
+	fm25h20_spi_write(&set_write, 1);
+	uint8_t app = FM25H20_READ_STATUS_REG;
 	/* test the memory, reading the read status register */
-	retv = fm25h20_spi_get(FM25H20_READ_STATUS_REG); // TODO: Controllare
-	
+	retv = fm25h20_spi_read(&app,1); // TODO: Controllare
+		
 	/* Deselect the device */
-	fm25h20_hal_cs_high();	
+	fm25h20_cs_high();	
 	
 	/* bit 6 of the Status re TODO Finire commento*/
-	if (retv & CHECK_MASK)
-		return -FM25H20_FRAM_INIT_FAILED;
-	
-	fm25h20_initialized = 1; //TODO: verificare	 
-	//Initializzation succeed
-	return FM25H20_ERR_NONE;
+	if (retv & CHECK_MASK){
+		fm25h20_initialized = 1;
+		return retv;//FM25H20_ERR_NONE
+	}			
+	return -FM25H20_FRAM_INIT_FAILED;
+
 }
 
 
 
-int8_t fm25h20_store(uint32_t address, uint32_t len, uint8_t* buf)
+int8_t fm25h20_store(uint32_t address, uint32_t len, uint8_t *buf)
 {
 	
 	/* Check the addressing */
 	if (address > MEMORY_SIZE)
 		return -FM25H20_WRONG_MEMORY_ADDRESS;
 	
+	/* Define the command to be sent */
+	uint8_t set_write [WRITE_ARRAY_SIZE];
+	set_write[0] = FM25H20_WRITE_ENABLE;
+	set_write[1] = FM25H20_WRITE_MEMORY;
+	set_write[2] = (uint8_t)(address>>16);
+	set_write[3] = (uint8_t)(address>>8);
+	set_write[4] = (uint8_t)(address &0XFF);
+	
 	/* Select the device */
-	fm25h20_hal_cs_low();
-	uint32_t i;
-	
-	/*Enables the writing */
-	fm25h20_spi_put(FM25H20_WRITE_ENABLE, NULL);
-	
-	/* Sends the write command */
-	fm25h20_spi_put(FM25H20_WRITE_MEMORY, NULL);
-	
-	/* Selects the memory location */
-	fm25h20_spi_put_address(address); 
-	
-	/* Writes the memory */
-	for (i=0;i<len;i++)
-		fm25h20_spi_put(buf[i], NULL);
-	
+	fm25h20_cs_low();
+
+	/* Send the command and write the memory */
+	fm25h20_spi_write(set_write, WRITE_ARRAY_SIZE); 
+	fm25h20_spi_write(buf, len); 
+
 	/* Deselect the device */
-	fm25h20_hal_cs_high();
+	fm25h20_cs_high();
 
 	return FM25H20_ERR_NONE;
 }
@@ -87,24 +94,27 @@ int8_t fm25h20_store(uint32_t address, uint32_t len, uint8_t* buf)
 
 int8_t fm25h20_get(uint32_t address, uint32_t len, uint8_t *data)
 {
-	uint32_t i;	
+	
+ 	/* Check the precondition */
 	if (address > MEMORY_SIZE)
 		return -FM25H20_WRONG_MEMORY_ADDRESS;
 
-	/* Select the device */
-	fm25h20_hal_cs_low();
-
-	fm25h20_spi_put(FM25H20_READ_MEMORY, NULL);
-	fm25h20_spi_put_address(address); //TODO: Potrei dover metter un offset negativo 
-					// all'indirizzo da poi aggiungere al for per
-					// tenere conto del ritardo di lettura. o usare l'hold...
-	for (i=0;i<len;i++)
-		data[i] = fm25h20_spi_get(FM25H20_READ_MEMORY); /*TODO: messo
-								per fare in sostanza
-		una dummy-read. Da verificare, potrebbe bastare andare in polling */
+	/* Define the command to be sent */
+	uint8_t set_read [READ_ARRAY_SIZE];
+	set_read[0] = (uint8_t)(FM25H20_READ_MEMORY);
+	set_read[1] = (uint8_t)(address>>16);
+	set_read[2] = (uint8_t)(address>>8);
+	set_read[3] = (uint8_t)(address &0XFF);
 	
+	/* Select the device */
+	fm25h20_cs_low();
+	
+	/* Send the command and read the memory */
+	fm25h20_spi_write(set_read, READ_ARRAY_SIZE);
+	fm25h20_spi_read(data, len);
+
 	/* Deselect the device */
-	fm25h20_hal_cs_high();
+	fm25h20_cs_high();
 	return FM25H20_ERR_NONE;
 }
 
