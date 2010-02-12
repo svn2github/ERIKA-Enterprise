@@ -100,6 +100,7 @@ typedef EE_UINT32 EE_TID;
 /* Addresses (that have the same size of a pointer) */
 typedef @far EE_UINT32 *EE_ADDR;		// N.B. 16-bit for @near pointer and 32-bit for @far pointer
 typedef EE_UINT16 *EE_DADD;				// N.B. for data pointer you can use only 16 bit 
+#define EE_FADDR EE_ADDR
 
 typedef EE_BIT Bool;
 #define FALSE 0
