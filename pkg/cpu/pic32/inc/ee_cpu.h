@@ -37,6 +37,7 @@ typedef signed char EE_INT8;
 typedef signed short int EE_INT16;
 typedef signed long EE_INT32;
 typedef EE_UINT32 EE_UREG;
+#define EE_UREG_SIZE 4
 typedef EE_INT32  EE_SREG;
 typedef EE_UINT32 EE_FREG; 
 
