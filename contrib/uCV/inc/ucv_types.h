@@ -39,8 +39,11 @@
 * @{ */
 typedef uint16_t ucv_coord_t;	/**< Image Coordinate Type. */
 typedef ureg_t ucv_word_t;	/**< Word of the size of a machine register.*/
-#define UCV_BIT_START_MASK	(~(((ucv_word_t)-1) >> 1)) 
-#define UCV_POS(i, j, w) (((i) * (w)) + (j))
+#define UCV_WORD_SIZE UREG_SIZE	/**< Machine register size.*/
+
+//#define UCV_BIT_START_MASK	(~(((ucv_word_t)-1) >> 1)) 
+#define UCV_BIT_START_MASK	((1) << ((sizeof(ucv_word_t) * 8) - 1)) 
+#define UCV_POS(i, j, w) 	(((i) * (w)) + (j))
 /**  @} */
 
 /**
@@ -188,6 +191,9 @@ enum {
 	(((((w) * (h)) - 1) / (8 * sizeof(ucv_word_t))) + 1)	\
 	/**< Get the \ref UCV_BW_BIN image size in byte */
 /**  @} */
+
+#define UCV_GRAY_8U_WSIZE(w, h)				\
+	UCV_GRAY_8U_SIZE(w, h) / sizeof(ucv_word_t)	\
 
 /**
 * @brief Image data type

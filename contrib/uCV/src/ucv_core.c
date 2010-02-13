@@ -3,11 +3,12 @@
  * $Log$
  */
 #include "ucv_core.h"
+#include "ucv_opt.h"
 
 /******************************************************************************/
 /*                       Private Local Functions                              */
 /******************************************************************************/
-static int8_t bw_centroid(ucv_image_t* bw, ucv_coord_t* x, ucv_coord_t* y, 
+static int8_t bw_centroid(const ucv_image_t *bw, ucv_coord_t *x, ucv_coord_t *y,
 			  ucv_roi_t *roi)
 {
 	ucv_coord_t x_i, x_f, y_i, y_f;
@@ -18,7 +19,7 @@ static int8_t bw_centroid(ucv_image_t* bw, ucv_coord_t* x, ucv_coord_t* y,
 	UCV_BIT_INIT(bw_word, mask, bw->image);
 
 	/* TODO: check margins of images? */
-	/*TODO: Check the roi limit? */
+	/* TODO: Check the roi limit? */
 	if (roi) {
 		ucv_roi_get(roi, &x_i, &y_i, &x_f, &y_f);
 	} else {
@@ -27,6 +28,7 @@ static int8_t bw_centroid(ucv_image_t* bw, ucv_coord_t* x, ucv_coord_t* y,
 		x_f = bw->width; 
 		y_f = bw->height;
 	}
+	/* TODO: Use loop unrolling to be faster? */
 	for (i = y_i; i < y_f; i++) {
 		if (roi) 
 			UCV_BIT_GOTO(bw_word, mask, bw->image, 
@@ -50,6 +52,88 @@ static int8_t bw_centroid(ucv_image_t* bw, ucv_coord_t* x, ucv_coord_t* y,
 	return UCV_ERR_FAILURE;
 }
 
+#define _BINARIZE_GRAY2BIN_SCHELETON(cond)				\
+	ucv_word_t sw, dw, dm;						\
+	ucv_word_t *s;							\
+	ucv_word_t *d;							\
+	uint8_t v;							\
+	UCV_WORD_UNROLL_INIT();						\
+	const ucv_word_t *s_end = (ucv_word_t *) src->image + 		\
+			UCV_LOOP_UNROLL_8_ROUNDS( 			\
+			    UCV_GRAY_8U_WSIZE(src->width, src->height));\
+	const ucv_word_t *s_actual_end = (ucv_word_t *) src->image + 	\
+			    UCV_GRAY_8U_WSIZE(src->width, src->height); \
+									\
+	s = (ucv_word_t *) src->image;					\
+	d = (ucv_word_t *) dst->image;					\
+	UCV_LOOP_UNROLL_8_DO_ALL(s != s_end, s_actual_end - s,		\
+		dw = 0;							\
+		dm = UCV_BIT_START_MASK;				\
+		,							\
+		sw = *(s++);						\
+		UCV_WORD_UNROLL(					\
+			v = UCV_WORD_UNROLL_TARGET(sw);			\
+			if (cond)					\
+				dw |= dm;				\
+			dm >>= 1;					\
+		);							\
+		,							\
+		*(d++) = dw;						\
+	);
+
+	//while (s != s_end) {						\
+		dw = 0;							\
+		dm = UCV_BIT_START_MASK;				\
+		UCV_LOOP_UNROLL_8(					\
+			sw = *(s++);					\
+			UCV_WORD_UNROLL(				\
+				v = UCV_WORD_UNROLL_TARGET(sw);		\
+				if (cond)				\
+					dw |= dm;			\
+				dm >>= 1;				\
+			);						\
+		);							\
+		*(d++) = dw;						\
+	}								\
+	if (s != s_actual_end)	{					\
+		dw = 0;							\
+		dm = UCV_BIT_START_MASK;				\
+		UCV_LOOP_UNROLL_8_DO_RESIDUALS(s_actual_end - s,	\
+			sw = *(s++);					\
+			UCV_WORD_UNROLL(				\
+				v = UCV_WORD_UNROLL_TARGET(sw);		\
+				if (cond)				\
+					dw |= dm;			\
+				dm >>= 1;				\
+			);						\
+		);							\
+		*d = dw;						\
+	}\
+	
+
+static void binarize_gray2bin_gval(const ucv_image_t *src, 
+				   ucv_image_t *dst, uint8_t th1)
+{
+	_BINARIZE_GRAY2BIN_SCHELETON(v > th1);
+}
+static void binarize_gray2bin_lval(const ucv_image_t *src, 
+				   ucv_image_t *dst, uint8_t th1)
+{
+	_BINARIZE_GRAY2BIN_SCHELETON(v < th1);
+}
+
+static void binarize_gray2bin_in(const ucv_image_t *src, 
+				 ucv_image_t *dst, uint8_t th1, uint8_t th2)
+{
+	_BINARIZE_GRAY2BIN_SCHELETON(v > th1 && v < th2);
+}
+
+static void binarize_gray2bin_out(const ucv_image_t *src, 
+				  ucv_image_t *dst, uint8_t th1, uint8_t th2)
+{
+	_BINARIZE_GRAY2BIN_SCHELETON(v < th1 || v > th2);
+}
+
 /******************************************************************************/
 /*                       Public Global Functions                              */
 /******************************************************************************/
@@ -61,25 +145,17 @@ int8_t ucv_centroid(ucv_image_t *im, ucv_coord_t *x, ucv_coord_t *y,
 	return bw_centroid(im, x, y, roi);
 }
 
-COMPILER_INLINE int8_t binarize_from_gray(ucv_image_t *src, ucv_image_t *dst,
-					  uint8_t bin_type, 
-					  uint8_t th1, uint8_t th2)
+int8_t ucv_binarize(ucv_image_t *src, ucv_image_t *dst, uint8_t bin_type,
+		    void *thr)
 {
 	uint8_t *max;
 	uint8_t *p;
-	UCV_BIT_INIT(bw_word, mask, NULL);
-	
+
+	/* TODO: provide solution for gray2gray similar to the gray2bin one */
 	#define _BIN_GRAY_ITERATIONS(body)	\
 	for (; p < max; p++) {			\
 		body;				\
 	}				
-	
-	#define _BIN_GRAY2BW(cond)		\
-	if (cond)				\
-		UCV_BIT_SET(bw_word, mask);	\
-	else					\
-		UCV_BIT_CLR(bw_word, mask);	\
-	UCV_BIT_NEXT(bw_word, mask);		
 	
 	#define _BIN_GRAY2GRAY(cond)	\
 	if (cond)			\
@@ -87,42 +163,50 @@ COMPILER_INLINE int8_t binarize_from_gray(ucv_image_t *src, ucv_image_t *dst,
 	else				\
 		*p = 0;			
 	
-	#define _BIN_DO_GRAY_CASES(cond)			\
-	if (dst != NULL ) {					\
-		UCV_BIT_GOTO(bw_word, mask, dst->image, 0);	\
-		_BIN_GRAY_ITERATIONS(_BIN_GRAY2BW(cond)); 	\
-	} else {						\
-		_BIN_GRAY_ITERATIONS(_BIN_GRAY2GRAY(cond)); 	\
-	}							
-
+	if (src->type != UCV_GRAY_8U)
+		return -UCV_ERR_BAD_IMAGE_TYPE; 
 	/* TODO: check margins of images? */
 	max = src->image + (((uint32_t) src->width) * ((uint32_t) src->height));
 	p = src->image;
 	switch (bin_type) {
 	case UCV_BINARIZE_GRAY_LVALUE :
-		_BIN_DO_GRAY_CASES(*p < th1);
+		if (dst != NULL) 
+			binarize_gray2bin_lval(src, dst, *((uint8_t *) thr));
+		else {
+		_BIN_GRAY_ITERATIONS(_BIN_GRAY2GRAY(*p < *((uint8_t *) thr)));
+		}
+		break;
 	case UCV_BINARIZE_GRAY_GVALUE :
-		_BIN_DO_GRAY_CASES(*p > th1);
+		if (dst != NULL) 
+			binarize_gray2bin_gval(src, dst, *((uint8_t *) thr));
+		else {
+		_BIN_GRAY_ITERATIONS(_BIN_GRAY2GRAY(*p > *((uint8_t *) thr)));
+		}
+		break;
 	case UCV_BINARIZE_GRAY_IN_INTERVAL : 
-		_BIN_DO_GRAY_CASES((*p > th1) && (*p < th2));
+		if (dst != NULL) 
+			binarize_gray2bin_in(src, dst, ((uint8_t*)thr)[0],
+					     ((uint8_t*)thr)[1]);
+		else {
+		_BIN_GRAY_ITERATIONS(_BIN_GRAY2GRAY(
+				 		  (*p > ((uint8_t*)thr)[0]) && 
+						  (*p < ((uint8_t*)thr)[1])));
+		}
+		break;
 	case UCV_BINARIZE_GRAY_OUT_INTERVAL :
-		_BIN_DO_GRAY_CASES((*p < th1) || (*p > th2));
+		if (dst != NULL) 
+			binarize_gray2bin_out(src, dst, ((uint8_t*)thr)[0],
+					      ((uint8_t*)thr)[1]);
+		else {
+		_BIN_GRAY_ITERATIONS(_BIN_GRAY2GRAY(
+				 		  (*p < ((uint8_t*)thr)[0]) || 
+						  (*p > ((uint8_t*)thr)[1])));
+		}
+		break;
+	default:
+		return -UCV_ERR_UNIMPLEMENTED;
 	} 
 	return 1;
 }
 
-int8_t ucv_binarize(ucv_image_t *src, ucv_image_t *dst, uint8_t bin_type,
-		    void *threshold)
-{
-	if (src->type != UCV_GRAY_8U)
-		return -UCV_ERR_BAD_IMAGE_TYPE; 
-	if (bin_type <= UCV_BINARIZE_GRAY_GVALUE) 
-		return binarize_from_gray(src, dst, bin_type, 
-					  ((uint8_t *)threshold)[0], 0);
-	else if (bin_type <= UCV_BINARIZE_GRAY_OUT_INTERVAL) 
-		return binarize_from_gray(src, dst, bin_type, 
-					  ((uint8_t *)threshold)[0],
-					  ((uint8_t *)threshold)[1]);
-	return -UCV_ERR_UNIMPLEMENTED;
-	
-}
+

@@ -38,6 +38,7 @@ typedef EE_INT32 int32_t;	/**< Unsigned 32 bit intgerer. */
 #ifndef UREG_T 
 #define UREG_T 
 typedef EE_UREG ureg_t;		/**< Unsigned machine register. */
+#define UREG_SIZE  EE_UREG_SIZE
 #endif
 
 #ifndef COMPILER_INLINE 

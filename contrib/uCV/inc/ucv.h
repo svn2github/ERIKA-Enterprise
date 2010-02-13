@@ -38,6 +38,7 @@
 #define __ucv_h__
 
 #include "ucv_types.h"
+#include "ucv_opt.h"
 #include "ucv_core.h"
 #include "ucv_morph.h"
 
