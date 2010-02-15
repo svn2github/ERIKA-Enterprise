@@ -1,3 +1,4 @@
+
 /** 
 * @file fm25h20.c
 * @brief FM25H20 Drive over Microchip pic32
@@ -11,53 +12,52 @@
 */
 
 #include "fm25h20.h"
-
+#include "fm25h20_hal_ee_pic32.h"
 
 uint8_t fm25h20_initialized = 0; /*TODO: verificare se si può gestire in modo +
 					elegante */
 
 int8_t fm25h20_init(uint8_t port)
 {  
-
 	int8_t retv;
 	if (fm25h20_initialized) 
 		return -FM25H20_DOUBLE_INIT; 
 
 	/* Wait the minimum time needed to power-up the device */
 	fm25h20_delay_us(2500);	
-
+	
 	/* Init hal-specific things and disable the hardware protections */
 	fm25h20_hal_init();
 	fm25h20_hold_off();
-	//fm25h20_write_protection_off();
+	fm25h20_write_protection_off();
 	
 	/* Init the SPI port with the default values */	
 	retv = fm25h20_spi_init(port, FM25H20_SPI_CLOCK, FM25H20_SPI_FLAGS);
 
-	if (retv < 0)
+	if (retv != EE_SPI_NO_ERRORS)
 		return -FM25H20_SPI_INIT_FAILED;
 	
-
 	/* Select the device */
-	fm25h20_cs_low();
+	fm25h20_cs_low();  
 
-
-	/* TODO: sistemare questa inizializzazione */	
-	uint8_t set_write = FM25H20_WRITE_ENABLE;
-	fm25h20_spi_write(&set_write, 1);
-	uint8_t app = FM25H20_READ_STATUS_REG;
 	/* test the memory, reading the read status register */
-	retv = fm25h20_spi_read(&app,1); // TODO: Controllare
-		
+	uint8_t app = FM25H20_READ_STATUS_REG; 
+	fm25h20_spi_write(&app,1);
+	retv= fm25h20_spi_read(&app,1);
 	/* Deselect the device */
-	fm25h20_cs_high();	
+	fm25h20_cs_high();
+	//asm volatile ("SDBBP");
+
+	/* Check for errors on spi reading */
+	if (retv != EE_SPI_NO_ERRORS)	
+		return FM25H20_READ_FAILED;
 	
-	/* bit 6 of the Status re TODO Finire commento*/
-	if (retv & CHECK_MASK){
+	/* Check of the Status Register bit 6, it must be 1*/
+	if ((app & CHECK_MASK) > 0 ){
 		fm25h20_initialized = 1;
-		return retv;//FM25H20_ERR_NONE
+		return FM25H20_ERR_NONE;
 	}			
-	return -FM25H20_FRAM_INIT_FAILED;
+	return -FM25H20_FRAM_INIT_FAILED; //app
 
 }
 
@@ -65,10 +65,11 @@ int8_t fm25h20_init(uint8_t port)
 
 int8_t fm25h20_store(uint32_t address, uint32_t len, uint8_t *buf)
 {
-	
 	/* Check the addressing */
 	if (address > MEMORY_SIZE)
 		return -FM25H20_WRONG_MEMORY_ADDRESS;
+
+	int8_t retv;
 	
 	/* Define the command to be sent */
 	uint8_t set_write [WRITE_ARRAY_SIZE];
@@ -82,8 +83,20 @@ int8_t fm25h20_store(uint32_t address, uint32_t len, uint8_t *buf)
 	fm25h20_cs_low();
 
 	/* Send the command and write the memory */
-	fm25h20_spi_write(set_write, WRITE_ARRAY_SIZE); 
-	fm25h20_spi_write(buf, len); 
+	
+	retv= fm25h20_spi_write(set_write, WRITE_ARRAY_SIZE); 
+	
+	if (retv != EE_SPI_NO_ERRORS){
+		fm25h20_cs_high();
+		return FM25H20_WRITE_FAILED;
+	}
+	
+	retv= fm25h20_spi_write(buf, len); 
+	
+	if (retv != EE_SPI_NO_ERRORS){
+		fm25h20_cs_high();
+		return FM25H20_WRITE_FAILED;
+	}
 
 	/* Deselect the device */
 	fm25h20_cs_high();
@@ -94,7 +107,7 @@ int8_t fm25h20_store(uint32_t address, uint32_t len, uint8_t *buf)
 
 int8_t fm25h20_get(uint32_t address, uint32_t len, uint8_t *data)
 {
-	
+	int8_t retv;
  	/* Check the precondition */
 	if (address > MEMORY_SIZE)
 		return -FM25H20_WRONG_MEMORY_ADDRESS;
@@ -110,9 +123,18 @@ int8_t fm25h20_get(uint32_t address, uint32_t len, uint8_t *data)
 	fm25h20_cs_low();
 	
 	/* Send the command and read the memory */
-	fm25h20_spi_write(set_read, READ_ARRAY_SIZE);
-	fm25h20_spi_read(data, len);
-
+	retv = fm25h20_spi_write(set_read, READ_ARRAY_SIZE);
+	if (retv != EE_SPI_NO_ERRORS){
+		fm25h20_cs_high();
+		return FM25H20_WRITE_FAILED;
+	}
+	
+	retv = fm25h20_spi_read(data, len);
+	if (retv != EE_SPI_NO_ERRORS){
+		fm25h20_cs_high();
+		return FM25H20_READ_FAILED;
+	}
+	
 	/* Deselect the device */
 	fm25h20_cs_high();
 	return FM25H20_ERR_NONE;

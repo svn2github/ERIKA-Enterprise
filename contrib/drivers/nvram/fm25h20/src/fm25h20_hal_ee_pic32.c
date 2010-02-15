@@ -14,7 +14,8 @@
       
 #ifdef __MICROCHIP_PIC32__
 
-static uint8_t spi_port; 
+static uint8_t spi_port = 0;
+ 
 /* TODO: metterla come inline ?*/
 void fm25h20_delay_us(uint16_t delay_count) 
 {	/* Provide a delay with an accuracy of approx. 2% @ 80Mhz*/
@@ -36,9 +37,8 @@ void fm25h20_hal_init(void)
 }
 
 
-
 int8_t	fm25h20_spi_init(uint8_t port, EE_UINT32 baudrate, EE_UINT16 flags )
-{
+{	
 	spi_port = port;
 	return EE_spi_init(spi_port, baudrate, flags); 
 			   
@@ -49,15 +49,14 @@ int8_t	fm25h20_spi_close(void)
 	return EE_spi_close(spi_port);
 }
 
-/* Modificato */
-int8_t	fm25h20_spi_write(uint8_t *data, uint16_t len)
+
+int8_t	fm25h20_spi_write(uint8_t *data, uint32_t len)
 {
 	return EE_spi_write(spi_port, data, len);
 }
 
 
-/* Modificato */
-int8_t	fm25h20_spi_read(uint8_t *data, uint16_t len)
+int8_t	fm25h20_spi_read(uint8_t *data, uint32_t len)
 {
 	return EE_spi_read(spi_port, data, len);
 }

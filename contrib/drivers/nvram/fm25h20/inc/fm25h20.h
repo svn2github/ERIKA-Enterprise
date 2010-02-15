@@ -57,9 +57,10 @@
 #define FM25H20_FRAM_INIT_FAILED 		3
 #define FM25H20_FRAM_WAKE_UP_FAILED 		4
 #define FM25H20_DOUBLE_INIT	 		5
+#define FM25H20_WRITE_FAILED	 		6
+#define FM25H20_READ_FAILED	 		7
+
 /* @} */
-
-
 
 
 /* Functions prototypes */
@@ -105,22 +106,12 @@ int8_t fm25h20_get(uint32_t address, uint32_t len, uint8_t *data);
 int8_t fm25h20_store(uint32_t address, uint32_t len, uint8_t* buf);
 
 
-
-
-#if 0
-__INLINE__ void fm25h20_spi_put_address(uint32_t address){
-	address &= MEMORY_SIZE;
-	fm25h20_spi_put((uint8_t)(address>>16), NULL);
-	fm25h20_spi_put((uint8_t)(address>>8), NULL);
-	fm25h20_spi_put((uint8_t)(address), NULL);
-}
-#endif
-
-
 COMPILER_INLINE void fm25h20_sleep() 
 {
+	fm25h20_cs_low();
 	uint8_t app = FM25H20_SLEEP;
 	fm25h20_spi_write(&app, 1);
+	fm25h20_cs_high();
 }
 
 
@@ -129,23 +120,21 @@ COMPILER_INLINE uint8_t fm25h20_wake()
 	/* select the device */
 	fm25h20_cs_low();
 	
-	//TODO: Probabilmente basta alzare il CS 
-	uint8_t tmp = FM25H20_READ_MEMORY;
-	fm25h20_spi_write(&tmp, 1);
+	/* Perform a read to ensure that the device correctly woke up, 
+	controllare */
+	uint8_t app = FM25H20_READ_MEMORY;
+	//fm25h20_spi_write(&app, 1);
 	fm25h20_delay_us(450); // Wake-up time
-	tmp = FM25H20_READ_STATUS_REG;
-	fm25h20_spi_read(&tmp,1);
+	app = FM25H20_READ_STATUS_REG;
+	fm25h20_spi_read(&app,1);
 	
 	/*Deselect the device */	
 	fm25h20_cs_high();
 	
 	/* check the waking up */
-	if ((tmp & CHECK_MASK) != 0)  
+	if ((app & CHECK_MASK) != 0)  
 		return FM25H20_ERR_NONE; //woken-up correctly
 	return FM25H20_FRAM_WAKE_UP_FAILED; //waking-up failed
-	
-	
 }
-
 
 #endif /* _fm25h20_h_*/

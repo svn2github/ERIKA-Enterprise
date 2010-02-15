@@ -28,9 +28,11 @@
 #define FM25H20_SPI_PORT_2	EE_SPI_PORT_2
 #define FM25H20_SPI_CLOCK 	10000000		/*Clock frequency of the 
 							SPI Channel*/
-#define FM25H20_SPI_FLAGS 	EE_SPI_MASTER | \
-				EE_SPI_CLOCK_IDLE_HIGH | EE_SPI_SDI_ON_CLOCK_END 		/*Settings of the 
-							SPI Channel*/ /*EE_SPI_SDO_ON_CLOCK_TO_IDLE | \ */
+
+
+#define FM25H20_SPI_FLAGS 	EE_SPI_MASTER | EE_SPI_SDO_ON_CLOCK_TO_IDLE | \
+				EE_SPI_CLOCK_IDLE_HIGH | EE_SPI_SDI_ON_CLOCK_END 
+
 
 #define fm25h20_cs_low()			PORTGbits.RG9 = 0 //SS2
 #define fm25h20_cs_high()			PORTGbits.RG9 = 1 //SS2
@@ -62,6 +64,16 @@
 void fm25h20_delay_us(uint16_t delay_count);
 
 
+/** 
+* @brief  Init the hardware. 
+* 	
+* This function inits the pins used by the memory.
+*  	
+* @ param[in]  delay_count number of us to be waited
+* 
+*/
+
+void fm25h20_hal_init();
 
 /** 
 * @brief Initializes SPI. 
@@ -93,7 +105,7 @@ int8_t fm25h20_spi_close(void);
 * @ param[in]	*out address of data read-back
 * @ return	\todo 
 */
-int8_t	fm25h20_spi_write(uint8_t *data, uint16_t len);
+int8_t	fm25h20_spi_write(uint8_t *data, uint32_t len);
 
 
 /** 
@@ -104,7 +116,7 @@ int8_t	fm25h20_spi_write(uint8_t *data, uint16_t len);
 * @ param[in]	*out address of data read-back
 * @ return	\todo 
 */
-int8_t	fm25h20_spi_read(uint8_t *data, uint16_t len);
+int8_t	fm25h20_spi_read(uint8_t *data, uint32_t len);
 
 
 
