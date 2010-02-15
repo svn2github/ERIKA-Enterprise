@@ -57,7 +57,7 @@
 
 #if defined(STACK_USE_REBOOT_SERVER)
 
-#include "TCPIP Stack/TCPIP.h"
+#include "TCPIP_Stack/TCPIP.h"
 
 
 #define REBOOT_PORT		69	// UDP TFTP port

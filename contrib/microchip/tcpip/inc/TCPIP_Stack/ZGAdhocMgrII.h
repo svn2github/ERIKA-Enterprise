@@ -70,7 +70,7 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 #define _ZGADHOCMGRII_H_
 
 /* tFSMState defined in lnkmgrII */
-#include "TCPIP Stack/ZGLinkMgrII.h"
+#include "TCPIP_Stack/ZGLinkMgrII.h"
 
 #ifndef ZG_CONFIG_LINKMGRII
   #error "LINKMGRII MUST BE DEFINED"

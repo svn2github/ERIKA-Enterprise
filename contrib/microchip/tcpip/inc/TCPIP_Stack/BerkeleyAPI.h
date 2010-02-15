@@ -4,7 +4,7 @@
  *
  *********************************************************************
  * FileName:        BerkeleyAPI.h
- * Description:     Berkeley socket Distribution(BSD) APIs for Microchip TCPIP Stack
+ * Description:     Berkeley socket Distribution(BSD) APIs for Microchip TCPIP_Stack
  * Processor:       PIC18, PIC24F, PIC24H, dsPIC30F, dsPIC33F, PIC32
  * Compiler:        Microchip C32 v1.05 or higher
  *					Microchip C30 v3.12 or higher

@@ -55,7 +55,7 @@
  ********************************************************************/
 #define __MPFS2_C
 
-#include "TCPIP Stack/TCPIP.h"
+#include "TCPIP_Stack/TCPIP.h"
 
 #if defined(STACK_USE_MPFS2)
 

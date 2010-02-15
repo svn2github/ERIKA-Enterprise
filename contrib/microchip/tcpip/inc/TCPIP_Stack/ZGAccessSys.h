@@ -1,10 +1,11 @@
 /*******************************************************************************
 
  File:
-        ZGDriverAccessSys.h
+        ZGAccessSys.h
 
  Description:
-        Zero G Driver Access Header file to the System Services.
+        Microchip Access Header file to the System Services.
+      Used by the ZGDriverAccessSys.h file.
 
 Copyright © 2009 Microchip Technology Inc.  All rights reserved.
 
@@ -38,34 +39,21 @@ Zero G              Sep 2008    Initial version
 KO                  31 Oct 2008 Port to PIC24F and PIC32 for TCP/IP stack v4.52
 
 *******************************************************************************/
-#ifndef _ZGDRIVERACCESSSYS_H_
-#define _ZGDRIVERACCESSSYS_H_
+#ifndef _ZG_ACCESSSYS_H_
+#define _ZG_ACCESSSYS_H_
 
+  #include "HardwareProfile.h"
+  #include "TCPIP_Stack/TCPIP.h"
+  #include "TCPIPConfig.h"
 
-/* In this sample ZGAccessSys.h contains the prototypes for all the
- * functions used to populate the MACROS below. */
-#include "TCPIP Stack/ZGAccessSys.h"
+#if defined( STACK_USE_UART )
+  #define ZG_PUTRSUART(x)     putrsUART(x)
+  #define ZG_PUTSUART(x)      putsUART(x)
+#else
+  #define ZG_PUTRSUART(x)
+  #define ZG_PUTSUART(x)
+#endif
 
-/* ZGSYS_DRIVER_ASSERT - there are several conditions under which the
- * reference driver will issue an assert using this macro. */
-/* DEFINITION - tZGVoidReturn FunctionName(tZGU16 , tZGDataPtr) */
-#define ZGSYS_DRIVER_ASSERT(tag, string) MCHPSysAssert(tag, string)
+extern tZGVoidReturn MCHPSysAssert(tZGU16 tag, tZGTextPtr string);
 
-/*****************************************************************************/
-/* ZGSYS_SIGNAL_... macros used by the ZG driver to manage the signal
- *  mechanism. */
-/* FIXME: finish this comment */
-/*****************************************************************************/
-
-/* ZGSYS_SIGNAL_WAIT - */
-/* FIXME: Finish this comment */
-/* DEFINITION - */
-#define ZGSYS_SIGNAL_WAIT() ((sig == kZGSignalExit)? kZGSignalContinue : kZGSignalExit)/* this application is single threaded */
-
-/* ZGSYS_SIGNAL_SET - */
-/* FIXME: Finish this comment */
-/* DEFINITION - tZGVoidReturn FunctionName(tZGVoidInput) */
-#define ZGSYS_SIGNAL_SET()  /* NOT USED - this application is single threaded */
-
-
-#endif /*_ZGDRIVERACCESSSYS_H_ */
+#endif /* _ZG_ACCESSSYS_H_ */

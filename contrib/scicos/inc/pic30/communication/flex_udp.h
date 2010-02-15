@@ -8,7 +8,7 @@
 #ifndef ETH_TASK_H_
 #define ETH_TASK_H_
 
-#include "TCPIP Stack/TCPIP.h"
+#include "TCPIP_Stack/TCPIP.h"
 
 #define SCICOS_UDP_CHANNELS 15
 #define REMOTE_PORT_NULL 0 

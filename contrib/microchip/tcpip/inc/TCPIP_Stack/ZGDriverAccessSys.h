@@ -1,10 +1,10 @@
 /*******************************************************************************
 
  File:
-        ZGDriverAccessApp.h
+        ZGDriverAccessSys.h
 
  Description:
-        Zero G Driver Application Access Definition Header file.
+        Zero G Driver Access Header file to the System Services.
 
 Copyright © 2009 Microchip Technology Inc.  All rights reserved.
 
@@ -38,36 +38,34 @@ Zero G              Sep 2008    Initial version
 KO                  31 Oct 2008 Port to PIC24F and PIC32 for TCP/IP stack v4.52
 
 *******************************************************************************/
-
-#ifndef _ZGDRIVERACCESSAPP_H_
-#define _ZGDRIVERACCESSAPP_H_
-
-#include "TCPIP Stack/ZGDriverTypes.h"
-#include "TCPIP Stack/ZGDriverConstants.h"
-#include "TCPIP Stack/ZGAccessApp.h"
-#include "TCPIP Stack/ZGLibIface.h"
+#ifndef _ZGDRIVERACCESSSYS_H_
+#define _ZGDRIVERACCESSSYS_H_
 
 
-/* ZGAPP_HANDLE_MGMTCONFIRM - used by the ZG Driver to pass management confirm
- * messages to the application.
- * type - identifies the type of Management Confirm message. Must be one of kZGMgtCnf...
- *          found in ZGDriverIfaceApp.h.
- */
+/* In this sample ZGAccessSys.h contains the prototypes for all the
+ * functions used to populate the MACROS below. */
+#include "TCPIP_Stack/ZGAccessSys.h"
 
-/* ZGAPP_HANDLE_MGMTINDICATE - used by the ZG Driver to pass management indicate
- * announcements to the application. */
+/* ZGSYS_DRIVER_ASSERT - there are several conditions under which the
+ * reference driver will issue an assert using this macro. */
+/* DEFINITION - tZGVoidReturn FunctionName(tZGU16 , tZGDataPtr) */
+#define ZGSYS_DRIVER_ASSERT(tag, string) MCHPSysAssert(tag, string)
 
-#if defined ( ZG_CONFIG_LIBRARY )
+/*****************************************************************************/
+/* ZGSYS_SIGNAL_... macros used by the ZG driver to manage the signal
+ *  mechanism. */
+/* FIXME: finish this comment */
+/*****************************************************************************/
 
-#define ZGAPP_HANDLE_MGMTCONFIRM(type)         ZGLibConfirm((tZGU8)type)
-#define ZGAPP_HANDLE_MGMTINDICATE(type)        ZGLibIndicate((tZGU8)type)
+/* ZGSYS_SIGNAL_WAIT - */
+/* FIXME: Finish this comment */
+/* DEFINITION - */
+#define ZGSYS_SIGNAL_WAIT() ((sig == kZGSignalExit)? kZGSignalContinue : kZGSignalExit)/* this application is single threaded */
 
-#else
+/* ZGSYS_SIGNAL_SET - */
+/* FIXME: Finish this comment */
+/* DEFINITION - tZGVoidReturn FunctionName(tZGVoidInput) */
+#define ZGSYS_SIGNAL_SET()  /* NOT USED - this application is single threaded */
 
-#define ZGAPP_HANDLE_MGMTCONFIRM(type)
-#define ZGAPP_HANDLE_MGMTINDICATE(type)
 
-#endif
-
-#endif /*_ZGDRIVERACCESSAPP_H_ */
-
+#endif /*_ZGDRIVERACCESSSYS_H_ */

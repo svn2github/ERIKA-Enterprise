@@ -75,9 +75,9 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 #define _ZGLIBIFACE_H_
 
   #include "HardwareProfile.h"
-  #include "TCPIP Stack/TCPIP.h"
-  #include "TCPIP Stack/ZGCustomize.h"
-  #include "TCPIP Stack/ZGModuleAccessSys.h"
+  #include "TCPIP_Stack/TCPIP.h"
+  #include "TCPIP_Stack/ZGCustomize.h"
+  #include "TCPIP_Stack/ZGModuleAccessSys.h"
 
 #if defined (ZG_CONFIG_LIBRARY)
 
@@ -489,7 +489,7 @@ typedef struct
     tZGU8                  reqLen;
 }tZGLibCall;
 
-#include "TCPIP Stack/ZGDriverIfaceApp.h"
+#include "TCPIP_Stack/ZGDriverIfaceApp.h"
 
 /*
  * This function schedules a management request to be sent to G2100.

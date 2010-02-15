@@ -79,8 +79,8 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 #ifndef _ZG_CUSTOMIZE_H_
 #define _ZG_CUSTOMIZE_H_
 
-#include "TCPIP Stack/TCPIP.h"
-#include "TCPIP Stack/ZGFSMStates.h"
+#include "TCPIP_Stack/TCPIP.h"
+#include "TCPIP_Stack/ZGFSMStates.h"
 
 #ifdef ZG_CONFIG_LIBRARY
 

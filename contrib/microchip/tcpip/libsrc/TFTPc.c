@@ -58,7 +58,7 @@
 
 #if defined(STACK_USE_TFTP_CLIENT)
 
-#include "TCPIP Stack/TCPIP.h"
+#include "TCPIP_Stack/TCPIP.h"
 
 
 #define TFTP_CLIENT_PORT        65352L       // Some unique port on this

@@ -75,16 +75,16 @@ KO                  31 Oct 2008 Port to PIC24F and PIC32 for TCP/IP stack v4.52
 
 #include "GenericTypeDefs.h"
 #include "Compiler.h"
-#include "TCPIP Stack/ZGDriverTypes.h"
-#include "TCPIP Stack/ZGDriverAccessHal.h"
-#include "TCPIP Stack/ZGDriverIfaceHal.h"
-#include "TCPIP Stack/ZGDriverAccessApp.h"
-#include "TCPIP Stack/ZGDriverIfaceApp.h"
-#include "TCPIP Stack/ZGDriverConstants.h"
-#include "TCPIP Stack/ZGDriverPrv.h"
-#include "TCPIP Stack/ZGAccessSys.h"
-#include "TCPIP Stack/ZGDriverIfaceApp.h"
-#include "TCPIP Stack/ZGDriverAccessSys.h"
+#include "TCPIP_Stack/ZGDriverTypes.h"
+#include "TCPIP_Stack/ZGDriverAccessHal.h"
+#include "TCPIP_Stack/ZGDriverIfaceHal.h"
+#include "TCPIP_Stack/ZGDriverAccessApp.h"
+#include "TCPIP_Stack/ZGDriverIfaceApp.h"
+#include "TCPIP_Stack/ZGDriverConstants.h"
+#include "TCPIP_Stack/ZGDriverPrv.h"
+#include "TCPIP_Stack/ZGAccessSys.h"
+#include "TCPIP_Stack/ZGDriverIfaceApp.h"
+#include "TCPIP_Stack/ZGDriverAccessSys.h"
 
 //============================================================================
 //                                  RAW msg Constants

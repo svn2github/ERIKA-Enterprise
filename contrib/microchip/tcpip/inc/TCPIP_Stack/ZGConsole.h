@@ -28,49 +28,59 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 /******************************************************************************/
 /*																			  */
 /* File:																	  */
-/*		ZGModuleAccessSys.h													  */
+/*		ZGConsole.h										    				  */
 /*																			  */
 /* Description:																  */
-/*		Zero G Module Access Header file to the System Services.			  */
+/*		Header file implenting the console user interface.		              */
 /*																			  */
 /* DO NOT DELETE THIS LEGAL NOTICE:											  */
-/*  2006, 2007 © ZeroG Wireless, Inc.  All Rights Reserved.					  */
+/*  2008 © ZeroG Wireless, Inc.  All Rights Reserved.					      */
 /*  Confidential and proprietary software of ZeroG Wireless, Inc.			  */
 /*  Do no copy, forward or distribute.										  */
 /*																			  */
 /******************************************************************************/
-#ifndef _ZGMODULEACCESSSYS_H_
-#define _ZGMODULEACCESSSYS_H_
 
-/* Use the same set of access functions as driver does.
- * Particularly, buffer management functions such as
- * ZGSYS_READBUF_GET() and ZGSYS_READBUF_CLEAN()
- */
-#include "TCPIPConfig.h"
+#ifndef _ZGCONSOLE_H_
+#define _ZGCONSOLE_H_
 
-#include "TCPIP Stack/ZGDriverTypes.h"
-#include "TCPIP Stack/ZGDriverConstants.h"
-#include "TCPIP Stack/ZGAccessSys.h"
+#include "TCPIP_Stack/TCPIP.h"
+#include "TCPIP_Stack/ZGConsoleMsgHandler.h"
 
 
-#if defined( STACK_USE_UART )
-#define ZGSYS_MODULE_ASSERT(tag,msg) MCHPSysAssert(tag, msg)
-#else
-#define ZGSYS_MODULE_ASSERT(tag,msg)  while(1)
+#if defined (ZG_CONFIG_CONSOLE)
+  #if defined(__18CXX)
+  #pragma varlocate 4 g_ConsoleContext
+  #endif
+
+  extern tConsoleContext g_ConsoleContext;
 #endif
 
+#define ARGC           g_ConsoleContext.argc
+#define ARGV           g_ConsoleContext.argv
 
-#define ZGSYS_MODULE_GET_MSEC_TICK_COUNT  TickGet
+typedef enum
+{
+    kZGConsoleReqNone = 0,
+    kZGConsoleReqPing
+} tZGConsoleReq;
 
-#define ZGSYS_UART_INIT(port,rate,flag)
-#if defined( STACK_USE_UART )
-	#define ZGSYS_UART_PUTC(port,c)          	putcUART(c)
-	#define ZGSYS_UART_GETC()            		ReadUART()
-	#define ZGSYS_UART_GETC_COUNT()      		DataRdyUART()
+#if defined ( ZG_CONFIG_CONSOLE )
+
+    extern tZGVoidReturn ZGConsoleInit(ROM tZGU8 **p_cmdStrings, tZGU8 numCmdStrings);
+    extern tZGVoidReturn ZGConsoleProcess(tZGVoidInput);
+    extern tZGVoidReturn ZGConsoleReqClear(tZGVoidInput);
+    extern tZGVoidReturn ZGConsoleProcess(tZGVoidInput);
+    extern tZGBool ZGConsoleIsConsoleMsgReceived(tZGVoidInput);
+    extern tZGVoidReturn ZGConsoleReleaseConsoleMsg(tZGVoidInput);
+    extern tZGS8 ** ZGConsoleGetCmdLineTokens(tZGU8 *p_argc);
+    extern tZGVoidReturn ZGConsoleSetMsgFlag(tZGVoidInput);
+
 #else
-	#define ZGSYS_UART_PUTC(port,c)
-	#define ZGSYS_UART_GETC()            		(0)
-	#define ZGSYS_UART_GETC_COUNT()      		(0)
+
+    #define ZGConsoleInit()
+    #define ZGConsoleProcess()
+    #define ZGConsoleReqClear()
+
 #endif
 
-#endif /*_ZGMODULEACCESSSYS_H_ */
+#endif /* _ZGCONSOLE_H_ */

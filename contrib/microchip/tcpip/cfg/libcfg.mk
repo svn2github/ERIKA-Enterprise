@@ -28,7 +28,7 @@ endif
 #EE_SRCS_TCPIP += contrib/tcpip/libsrc/cqueue.c
 #EE_SRCS_TCPIP += contrib/tcpip/libsrc/list.c
 SRC_FILES  := $(shell ls $(EEBASE)/contrib/microchip/tcpip/libsrc/*.c;)
-#SRC_TCP_FILES  := $(shell ls $(EEBASE)/contrib/microchip/tcpip/libsrc/TCPIP Stack/*.c;)
+#SRC_TCP_FILES  := $(shell ls $(EEBASE)/contrib/microchip/tcpip/libsrc/TCPIP_Stack/*.c;)
 #$(info $(SRC_FILES)) 
 EE_SRCS_TCPIP += $(SRC_FILES)
 EE_SRCS_TCPIP += $(SRC_TCP_FILES)

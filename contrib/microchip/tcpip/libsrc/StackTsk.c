@@ -66,14 +66,14 @@
 ********************************************************************/
 #define __STACKTSK_C
 
-#include "TCPIP Stack/TCPIP.h"
+#include "TCPIP_Stack/TCPIP.h"
 
 #if defined( ZG_CS_TRIS )
     #if defined(ZG_CONFIG_LINKMGRII) 
-        #include "TCPIP Stack\ZGLinkMgrII.h"
+        #include "TCPIP_Stack\ZGLinkMgrII.h"
     #endif
     #if defined( ZG_CONFIG_CONSOLE )
-        #include "TCPIP Stack\ZGConsole.h"
+        #include "TCPIP_Stack\ZGConsole.h"
     #endif
 #endif
 

@@ -1,11 +1,10 @@
 /*******************************************************************************
 
  File:
-        ZGAccessSys.h
+        ZGDriverAccessApp.h
 
  Description:
-        Microchip Access Header file to the System Services.
-      Used by the ZGDriverAccessSys.h file.
+        Zero G Driver Application Access Definition Header file.
 
 Copyright © 2009 Microchip Technology Inc.  All rights reserved.
 
@@ -39,21 +38,36 @@ Zero G              Sep 2008    Initial version
 KO                  31 Oct 2008 Port to PIC24F and PIC32 for TCP/IP stack v4.52
 
 *******************************************************************************/
-#ifndef _ZG_ACCESSSYS_H_
-#define _ZG_ACCESSSYS_H_
 
-  #include "HardwareProfile.h"
-  #include "TCPIP Stack/TCPIP.h"
-  #include "TCPIPConfig.h"
+#ifndef _ZGDRIVERACCESSAPP_H_
+#define _ZGDRIVERACCESSAPP_H_
 
-#if defined( STACK_USE_UART )
-  #define ZG_PUTRSUART(x)     putrsUART(x)
-  #define ZG_PUTSUART(x)      putsUART(x)
+#include "TCPIP_Stack/ZGDriverTypes.h"
+#include "TCPIP_Stack/ZGDriverConstants.h"
+#include "TCPIP_Stack/ZGAccessApp.h"
+#include "TCPIP_Stack/ZGLibIface.h"
+
+
+/* ZGAPP_HANDLE_MGMTCONFIRM - used by the ZG Driver to pass management confirm
+ * messages to the application.
+ * type - identifies the type of Management Confirm message. Must be one of kZGMgtCnf...
+ *          found in ZGDriverIfaceApp.h.
+ */
+
+/* ZGAPP_HANDLE_MGMTINDICATE - used by the ZG Driver to pass management indicate
+ * announcements to the application. */
+
+#if defined ( ZG_CONFIG_LIBRARY )
+
+#define ZGAPP_HANDLE_MGMTCONFIRM(type)         ZGLibConfirm((tZGU8)type)
+#define ZGAPP_HANDLE_MGMTINDICATE(type)        ZGLibIndicate((tZGU8)type)
+
 #else
-  #define ZG_PUTRSUART(x)
-  #define ZG_PUTSUART(x)
+
+#define ZGAPP_HANDLE_MGMTCONFIRM(type)
+#define ZGAPP_HANDLE_MGMTINDICATE(type)
+
 #endif
 
-extern tZGVoidReturn MCHPSysAssert(tZGU16 tag, tZGTextPtr string);
+#endif /*_ZGDRIVERACCESSAPP_H_ */
 
-#endif /* _ZG_ACCESSSYS_H_ */

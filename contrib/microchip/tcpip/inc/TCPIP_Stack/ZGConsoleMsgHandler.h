@@ -45,10 +45,10 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 #define __ZGCONSOLEVT100_H
 
 
-#include "TCPIP Stack/ZGLinkMgrII.h"
-#include "TCPIP Stack/ZGDriverTypes.h"
-#include "TCPIP Stack/ZGDriverConstants.h"
-#include "TCPIP Stack/ZGConsoleMsgs.h"
+#include "TCPIP_Stack/ZGLinkMgrII.h"
+#include "TCPIP_Stack/ZGDriverTypes.h"
+#include "TCPIP_Stack/ZGDriverConstants.h"
+#include "TCPIP_Stack/ZGConsoleMsgs.h"
 
 #if defined (ZG_CONFIG_CONSOLE)
 typedef struct

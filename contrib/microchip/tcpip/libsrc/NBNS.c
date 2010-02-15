@@ -59,7 +59,7 @@
 
 #if defined(STACK_USE_NBNS)
 
-#include "TCPIP Stack/TCPIP.h"
+#include "TCPIP_Stack/TCPIP.h"
 
 #define NBNS_PORT		(137u)
 

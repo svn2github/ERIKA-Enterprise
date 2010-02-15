@@ -42,7 +42,7 @@ KO                  31 Oct 2008 Port to PIC24F and PIC32 for TCP/IP stack v4.52
 #ifndef _ZGDRIVERACCESSHAL_H_
 #define _ZGDRIVERACCESSHAL_H_
 
-#include "TCPIP Stack/ZGAccessHal.h"
+#include "TCPIP_Stack/ZGAccessHal.h"
 
 /* zgHALSpiInit - used by the ZG Driver to initialize the
  * SPI driver. */

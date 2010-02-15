@@ -72,14 +72,14 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 #define _ZGLINKMGRII_H_
 
 #include "HardwareProfile.h"
-#include "TCPIP Stack/TCPIP.h"
+#include "TCPIP_Stack/TCPIP.h"
 #include "TCPIPConfig.h"
 
-#include "TCPIP Stack/ZGDriverTypes.h"
-#include "TCPIP Stack/ZGDriverConstants.h"
-#include "TCPIP Stack/ZGDriverIfaceApp.h"
-#include "TCPIP Stack/ZGLibIface.h"
-#include "TCPIP Stack/ZGLibCfg.h"
+#include "TCPIP_Stack/ZGDriverTypes.h"
+#include "TCPIP_Stack/ZGDriverConstants.h"
+#include "TCPIP_Stack/ZGDriverIfaceApp.h"
+#include "TCPIP_Stack/ZGLibIface.h"
+#include "TCPIP_Stack/ZGLibCfg.h"
 
 typedef enum
 {
@@ -99,7 +99,7 @@ typedef enum
 
 #if defined(ZG_CONFIG_LINKMGRII)
 
-#include "TCPIP Stack/ZGFSMStates.h"
+#include "TCPIP_Stack/ZGFSMStates.h"
 
 #define FSM_STATE( A , B , C, D, E, F )   \
   { ZG_LIB_FUNC( A ), ZG_REQ_FUNC( B ), ZG_COMP_FUNC( C ), ZG_NEXT_FUNC( D ), E, F }

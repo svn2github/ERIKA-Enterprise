@@ -47,7 +47,7 @@
  * Author               Date    	Comment
  *~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  * Nilesh Rajbharti     5/8/01  	Original        (Rev 1.0)
- * Howard Schlunder		11/30/06	See "TCPIP Stack Version.txt" file
+ * Howard Schlunder		11/30/06	See "TCPIP_Stack Version.txt" file
  ********************************************************************/
 #ifndef __TCP_HITECH_WORKAROUND_H
 #define __TCP_HITECH_WORKAROUND_H

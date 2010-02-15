@@ -64,7 +64,7 @@
 
 #if defined(STACK_USE_HTTP_SERVER)
 
-#include "TCPIP Stack/TCPIP.h"
+#include "TCPIP_Stack/TCPIP.h"
 #include "ctype.h"
 
 

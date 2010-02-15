@@ -4,7 +4,7 @@
  *
  *********************************************************************
  * FileName:        BerkeleyAPI.c
- * Description:     Berkeley Socket Distribution(BSD) APIs for Microchip TCPIP Stack
+ * Description:     Berkeley Socket Distribution(BSD) APIs for Microchip TCPIP_Stack
  * Processor:       PIC18, PIC24F, PIC24H, dsPIC30F, dsPIC33F, PIC32
  * Compiler:        Microchip C32 v1.05 or higher
  *					Microchip C30 v3.12 or higher
@@ -52,7 +52,7 @@
 
 #if defined(STACK_USE_BERKELEY_API)
 
-#include "TCPIP Stack/TCPIP.h"
+#include "TCPIP_Stack/TCPIP.h"
 
 static BOOL HandlePossibleTCPDisconnection(SOCKET s);
 
@@ -112,7 +112,7 @@ void BerkeleySocketInit(void)
 
   Description:
 	This function creates a new BSD socket for the microchip
-	TCPIP stack. The return socket descriptor is used for the subsequent
+	TCPIP_Stack. The return socket descriptor is used for the subsequent
 	BSD operations.
 
   Precondition:
