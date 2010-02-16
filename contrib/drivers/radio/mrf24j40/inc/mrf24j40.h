@@ -19,7 +19,8 @@ int8_t	mrf24j40_store_norm_txfifo(uint8_t* buf, uint8_t len);
 uint8_t	mrf24j40_get_norm_txfifo(uint8_t pos);
 uint8_t	mrf24j40_get_fifo_msg(uint8_t *msg);
 void	mrf24j40_put_to_sleep();
-void	mrf24j40_wake() ;
+void	mrf24j40_wake();
+void mrf24j40_set_rx_callback(void (*func)(void)) ;
 
 #define MRF24J40_BUFFER_SIZE 127
 
@@ -322,12 +323,15 @@ COMPILER_INLINE void mrf24j40_flush_rx_fifo(void)
 */
 COMPILER_INLINE void mrf24j40_set_channel(uint16_t ch)
 {   
-	mrf24j40_set_long_add_mem(MRF24J40_RFCON0, (ch | 0x02));
+	mrf24j40_set_long_add_mem(MRF24J40_RFCON0, ((ch - 11) << 4) | 0x02);
+	//mrf24j40_set_long_add_mem(MRF24J40_RFCON0, (ch | 0x02));
 	/**
 	* Reset RF state machine as suggested by the datasheet
 	*/ 
 	mrf24j40_set_short_add_mem(MRF24J40_RFCTL, 0x04);
 	mrf24j40_set_short_add_mem(MRF24J40_RFCTL, 0x00);
+
+	//mrf24j40_delay_us(200);
 }
 
 /**
