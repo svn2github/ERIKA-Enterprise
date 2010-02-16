@@ -48,20 +48,28 @@ MCU_BUF = NO
 
 ifeq ($(findstring __USE_TIMER__,$(EEOPT)) , __USE_TIMER__)
 EE_SRCS += pkg/mcu/mico32/src/ee_timer.c
+EE_SRCS += pkg/mcu/mico32/src/ee_timer1.c
+EE_SRCS += pkg/mcu/mico32/src/ee_timer2.c
 endif
 
 ifeq ($(findstring __USE_UART__,$(EEOPT)) , __USE_UART__)
 EE_SRCS += pkg/mcu/mico32/src/ee_uart.c
+EE_SRCS += pkg/mcu/mico32/src/ee_uart1.c
+EE_SRCS += pkg/mcu/mico32/src/ee_uart2.c
 MCU_BUF = YES
 endif
 
 ifeq ($(findstring __USE_SPI__,$(EEOPT)) , __USE_SPI__)
 EE_SRCS += pkg/mcu/mico32/src/ee_spi.c
+#EE_SRCS += pkg/mcu/mico32/src/ee_spi1.c
+#EE_SRCS += pkg/mcu/mico32/src/ee_spi2.c
 MCU_BUF = YES
 endif
 
 ifeq ($(findstring __USE_I2C__,$(EEOPT)) , __USE_I2C__)
 EE_SRCS += pkg/mcu/mico32/src/ee_i2c.c
+#EE_SRCS += pkg/mcu/mico32/src/ee_i2c.c
+#EE_SRCS += pkg/mcu/mico32/src/ee_i2c.c
 MCU_BUF = YES
 endif
 

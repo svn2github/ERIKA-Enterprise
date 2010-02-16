@@ -23,6 +23,20 @@
 /******************************************************************************/
 /*                              ISRs                                          */
 /******************************************************************************/
+void EE_uart_handler(EE_uart_st* usp)
+{
+	MicoUart_t *uartc = (MicoUart_t *)(usp->base); 
+	
+	/* acknowledge the interrupt */
+	//uartc->Status = 0;
+	
+	/* body of the ISR callback... */
+	//usp->cbk();
+	
+	// All done!!!
+	return;	
+}
+
 //// ISR example:
 //void MicoUartISR(void)
 //{
@@ -106,6 +120,18 @@ EE_UINT8 EE_uart_init_base(EE_UINT32 base, EE_UINT32 baudrate, EE_UINT32 setting
 	if(baudrate==0)
 		return EE_UART_ERR_BAD_VALUE; 
 	
+	switch(base)
+	{
+		case UART1_BASE_ADDRESS:
+			ee_uart_st_1.base = base;
+			break;
+		case UART2_BASE_ADDRESS:
+			ee_uart_st_2.base = base;
+			break;
+		default:
+			return(EE_UART_ERR_BAD_VALUE);
+	}    
+	
 	/* reset ier (isr register) */
     uartc->ier = 0;						// if ier==0 -> POLLING MODE (ATT! is a blocking mode!!!)
     									// if ier!=0 -> ISR MODE (ATT! is not a blocking mode!!!)
@@ -120,26 +146,49 @@ EE_UINT8 EE_uart_init_base(EE_UINT32 base, EE_UINT32 baudrate, EE_UINT32 setting
     return EE_UART_OK;
 }
 
-EE_UINT8 EE_uart_set_ISR_callback_base(EE_UINT32 base, EE_UINT32 irq_flag, EE_mico32_ISR_handler isr_rx_callback, EE_mico32_ISR_handler isr_tx_callback)
+EE_UINT8 EE_uart_set_ISR_callback_base(EE_UINT32 base, EE_UINT32 irq_flag, EE_mico32_ISR_handler isr_rx_callback, 
+									   EE_mico32_ISR_handler isr_tx_callback, EE_buffer* rx_buf, EE_buffer* tx_buf)
 {
 	MicoUart_t *uartc = (MicoUart_t *)base;
 	
 	/* reset ier (isr register) */
 	uartc->ier = 0;
 	
-    /* ISR configuration  */
-    if(isr_rx_callback != NULL)
+	switch(base)
 	{
-    	/* Register handler and enable the interrupt */
-    	EE_mico32_register_ISR(irq_flag, isr_rx_callback);
-    	uartc->ier |= MICOUART_IER_RX_INT_MASK;
-	}
-	if(isr_tx_callback != NULL)
-	{
-    	/* Register handler and enable the interrupt */
-    	EE_mico32_register_ISR(irq_flag, isr_tx_callback);
-    	uartc->ier |= MICOUART_IER_TX_INT_MASK;
-	}	
+		case UART1_BASE_ADDRESS:
+			ee_uart_st_1.rxcbk = isr_rx_callback;
+			ee_uart_st_1.txcbk = isr_tx_callback;
+			ee_uart_st_1.rxbuf = rx_buf;
+			ee_uart_st_1.txbuf = tx_buf;
+			if( (isr_rx_callback != NULL)  || (isr_tx_callback != NULL) )
+			{
+				/* Register handler and enable the interrupt */
+				EE_mico32_register_ISR(irq_flag, EE_uart1_handler);
+				if(isr_rx_callback != NULL)
+					uartc->ier |= MICOUART_IER_RX_INT_MASK;
+				if(isr_tx_callback != NULL)
+					uartc->ier |= MICOUART_IER_TX_INT_MASK;
+			}
+			break;
+		case UART2_BASE_ADDRESS:
+			ee_uart_st_2.rxcbk = isr_rx_callback;
+			ee_uart_st_2.txcbk = isr_tx_callback;
+			ee_uart_st_2.rxbuf = rx_buf;
+			ee_uart_st_2.txbuf = tx_buf;
+			if( (isr_rx_callback != NULL)  || (isr_tx_callback != NULL) )
+			{
+				/* Register handler and enable the interrupt */
+				EE_mico32_register_ISR(irq_flag, EE_uart2_handler);
+				if(isr_rx_callback != NULL)
+					uartc->ier |= MICOUART_IER_RX_INT_MASK;
+				if(isr_tx_callback != NULL)
+					uartc->ier |= MICOUART_IER_TX_INT_MASK;
+			}
+			break;
+		default:
+			return(EE_UART_ERR_BAD_VALUE);
+	}   
 	
 	// All done!!!
     return EE_UART_OK;
@@ -156,12 +205,24 @@ EE_UINT8 EE_uart_close_base(EE_UINT32 base)
     return EE_UART_OK;
 }
 
-EE_UINT8 EE_uart_write_byte_base(EE_UINT32 base, EE_INT8 data, ee_buffer *buf)
+EE_UINT8 EE_uart_write_byte_base(EE_UINT32 base, EE_INT8 data)
 {
 	unsigned int uiValue, mode;
-	EE_UINT8 ret = EE_UART_OK;
-	
+	EE_buffer* buffer;
+	EE_UINT8 ret = EE_UART_OK;	
 	MicoUart_t *uartc = (MicoUart_t *)base;
+	
+	switch(base)
+	{
+		case UART1_BASE_ADDRESS:
+			buffer = ee_uart_st_1.txbuf;
+			break;
+		case UART2_BASE_ADDRESS:
+			buffer = ee_uart_st_2.txbuf;
+			break;
+		default:
+			return(EE_UART_ERR_BAD_VALUE);
+	}   
 	
 	/* read IER register to check the operating mode */
 	mode = uartc->ier;
@@ -175,7 +236,7 @@ EE_UINT8 EE_uart_write_byte_base(EE_UINT32 base, EE_INT8 data, ee_buffer *buf)
     		if(uiValue & MICOUART_LSR_TX_RDY_MASK)
 			{
     			uartc->rxtx = data;
-        		if(buf != EE_UART_NULL_BUF)
+        		if(buffer != EE_UART_NULL_BUF)
         			ret = EE_UART_ERR_BAD_VALUE;
     			return ret;
 			}
@@ -184,9 +245,10 @@ EE_UINT8 EE_uart_write_byte_base(EE_UINT32 base, EE_INT8 data, ee_buffer *buf)
 	}
 	else if(mode == EE_UART_ISR_MODE)
 	{
-		if(buf == EE_UART_NULL_BUF)
-			return EE_UART_ERR_BAD_VALUE;
-		ret = EE_buffer_putmsg(buf, &data);	
+		if(buffer == EE_UART_NULL_BUF)
+			uartc->rxtx = data;
+		else
+			ret = EE_buffer_putmsg(buffer, &data);	
 	}
 	else
 		 return EE_UART_ERR_BAD_VALUE;
@@ -195,15 +257,27 @@ EE_UINT8 EE_uart_write_byte_base(EE_UINT32 base, EE_INT8 data, ee_buffer *buf)
 	return ret;
 }
 
-EE_UINT8 EE_uart_read_byte_base(EE_UINT32 base, EE_INT8 *data, ee_buffer *buf)
+EE_UINT8 EE_uart_read_byte_base(EE_UINT32 base, EE_INT8 *data)
 {
 	unsigned int uiValue, mode;
 	EE_UINT8 ret = EE_UART_OK;
-	
+	EE_buffer* buffer;
 	MicoUart_t *uartc = (MicoUart_t *)base;
 	
 	if(data == EE_UART_NULL_VET)
 		return EE_UART_ERR_BAD_VALUE;
+		
+	switch(base)
+	{
+		case UART1_BASE_ADDRESS:
+			buffer = ee_uart_st_1.rxbuf;
+			break;
+		case UART2_BASE_ADDRESS:
+			buffer = ee_uart_st_2.rxbuf;
+			break;
+		default:
+			return(EE_UART_ERR_BAD_VALUE);
+	}  
 	
 	/* read IER register to check the operating mode */
 	mode = uartc->ier;
@@ -216,7 +290,7 @@ EE_UINT8 EE_uart_read_byte_base(EE_UINT32 base, EE_INT8 *data, ee_buffer *buf)
 			if(uiValue & MICOUART_LSR_RX_RDY_MASK)
 			{
     			*data = uartc->rxtx;
-    			if(buf != EE_UART_NULL_BUF)
+    			if(buffer != EE_UART_NULL_BUF)
         			ret = EE_UART_ERR_BAD_VALUE;
         		// All done!!!
     			return ret;
@@ -226,9 +300,10 @@ EE_UINT8 EE_uart_read_byte_base(EE_UINT32 base, EE_INT8 *data, ee_buffer *buf)
 	}
 	else if(mode == EE_UART_ISR_MODE)
 	{
-		if(buf == EE_UART_NULL_BUF)
-			return EE_UART_ERR_BAD_VALUE;
-		ret = EE_buffer_getmsg(buf, data);	
+		if(buffer == EE_UART_NULL_BUF)
+			*data = uartc->rxtx;
+		else
+			ret = EE_buffer_getmsg(buffer, data);	
 	}
 	else
 		return EE_UART_ERR_BAD_VALUE;
@@ -237,26 +312,26 @@ EE_UINT8 EE_uart_read_byte_base(EE_UINT32 base, EE_INT8 *data, ee_buffer *buf)
 	return ret;
 }
 
-EE_UINT8 EE_uart_read_buffer_base(EE_UINT32 base, EE_INT8 *vet, EE_INT16 len, ee_buffer *buf)
+EE_UINT8 EE_uart_read_buffer_base(EE_UINT32 base, EE_INT8 *vet, EE_INT16 len)
 {
 	int i=0;
 
 	for(i=0; i<len; i++)
 	{
-		if(EE_uart_read_byte_base(base, &vet[i], buf) != EE_UART_OK)
+		if(EE_uart_read_byte_base(base, &vet[i]) != EE_UART_OK)
 			return EE_UART_ERR_RECEPTION;
 	}
 	
 	return EE_UART_OK;
 }
 
-EE_UINT8 EE_uart_write_buffer_base(EE_UINT32 base, EE_INT8 *vet, EE_INT16 len, ee_buffer *buf)
+EE_UINT8 EE_uart_write_buffer_base(EE_UINT32 base, EE_INT8 *vet, EE_INT16 len)
 {
 	int i=0;
 
 	for(i=0; i<len; i++)
 	{
-		if(EE_uart_write_byte_base(base, vet[i], buf) != EE_UART_OK)
+		if(EE_uart_write_byte_base(base, vet[i]) != EE_UART_OK)
 			return EE_UART_ERR_TRANSMISSION;
 	}
 	

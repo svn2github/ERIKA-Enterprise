@@ -1,0 +1,35 @@
+/** 
+* ee_timer.h
+*/
+
+#ifndef __INCLUDE_EEMCUMICO32_TIMER2_H__
+#define __INCLUDE_EEMCUMICO32_TIMER2_H__
+
+
+
+/*********************************************************************
+     *                                                    
+     * Timer Device Register-map                         
+     *                                                    
+**********************************************************************/
+//	typedef struct st_MicoTimer
+//	{
+//        volatile unsigned int Status;
+//        volatile unsigned int Control;
+//        volatile unsigned int Period;
+//        volatile unsigned int Snapshot;
+//	}MicoTimer_t;
+
+
+/*************************************************** 
+* Symbols and macros definition
+****************************************************/
+// ...
+
+/*************************************************** 
+* Functions declarations
+****************************************************/
+void EE_timer2_handler(void);
+
+
+#endif // __INCLUDE_EEMCUMICO32_TIMER0_H__

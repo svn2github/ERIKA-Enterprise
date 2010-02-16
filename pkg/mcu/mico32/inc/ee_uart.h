@@ -10,6 +10,8 @@
 #include <system_conf.h>
 #include "MicoUart.h"				// to use LATTICE data structures.
 #include "mcu/mico32/inc/ee_buffer.h"
+#include "mcu/mico32/inc/ee_uart1.h"	// to use Uart0 functions.
+#include "mcu/mico32/inc/ee_uart2.h"	// to use Uart1 functions.
 
 
 /****************************************************************
@@ -32,6 +34,22 @@
 /*************************************************** 
 * Symbols and macros definition
 ****************************************************/
+#ifndef EE_MICO32_CBK_DEFINED
+#define EE_MICO32_CBK_DEFINED
+typedef void (*EE_mico32_ISR_callback)(void);
+#endif
+
+typedef struct {
+    EE_UINT32 base;
+    EE_mico32_ISR_callback rxcbk;
+    EE_mico32_ISR_callback txcbk;
+    EE_buffer* rxbuf;
+    EE_buffer* txbuf;
+} EE_uart_st;
+
+extern EE_uart_st ee_uart_st_1;
+extern EE_uart_st ee_uart_st_2;
+
 //#define EE_UART_BIT9		0x06
 #define EE_UART_BIT8_ODD	(0x0B)
 #define EE_UART_BIT8_EVEN	(0x1B)
@@ -71,7 +89,7 @@
 
 #define EE_UART_POLLING_MODE		(0xC0)
 #define EE_UART_ISR_MODE			(0xC1)
-#define EE_UART_NULL_BUF			((ee_buffer *)0)
+#define EE_UART_NULL_BUF			((EE_buffer *)0)
 #define EE_UART_NULL_VET			((EE_INT8 *)0)
 
 #define EE_UART_OK					(0x00)
@@ -80,23 +98,23 @@
 #define EE_UART_ERR_BAD_VALUE		(0xE3)
 
 #define EE_uart_init(name, per, set) 							EE_uart_init_base((name##_BASE_ADDRESS), (per), (set))
-#define EE_uart_set_ISR_callback(name, rx_isrcbk, tx_isrcbk) 	EE_uart_set_ISR_callback_base((name##_BASE_ADDRESS), (name##_IRQ), (rx_isrcbk), (tx_isrcbk))
+#define EE_uart_set_ISR_callback(name, rx_isrcbk, tx_isrcbk, rx_buf, tx_buf) 	EE_uart_set_ISR_callback_base((name##_BASE_ADDRESS), (name##_IRQ), (rx_isrcbk), (tx_isrcbk), (rx_buf), (tx_buf))
 #define EE_uart_close(name) 									EE_uart_close_base((name##_BASE_ADDRESS))
-#define EE_uart_write_byte(name, val, buf) 						EE_uart_write_byte_base((name##_BASE_ADDRESS), (val), (buf))
-#define EE_uart_read_byte(name, addval, buf) 					EE_uart_read_byte_base((name##_BASE_ADDRESS), (addval), (buf))
-#define EE_uart_write_buffer(name, vet, len, buf) 				EE_uart_write_buffer_base((name##_BASE_ADDRESS), (vet), (len), (buf))
-#define EE_uart_read_buffer(name, vet, len, buf) 				EE_uart_read_buffer_base((name##_BASE_ADDRESS), (vet), (len), (buf))
+#define EE_uart_write_byte(name, val) 							EE_uart_write_byte_base((name##_BASE_ADDRESS), (val))
+#define EE_uart_read_byte(name, addval) 						EE_uart_read_byte_base((name##_BASE_ADDRESS), (addval))
+#define EE_uart_write_buffer(name, vet, len) 					EE_uart_write_buffer_base((name##_BASE_ADDRESS), (vet), (len))
+#define EE_uart_read_buffer(name, vet, len) 					EE_uart_read_buffer_base((name##_BASE_ADDRESS), (vet), (len))
 
 /*************************************************** 
 * Functions declarations
 ****************************************************/
 EE_UINT8 EE_uart_init_base(EE_UINT32 base, EE_UINT32 baudrate, EE_UINT32 settings);
-EE_UINT8 EE_uart_set_ISR_callback_base(EE_UINT32 base, EE_UINT32 irq_flag, EE_mico32_ISR_handler isr_rx_callback, EE_mico32_ISR_handler isr_tx_callback);
+EE_UINT8 EE_uart_set_ISR_callback_base(EE_UINT32 base, EE_UINT32 irq_flag, EE_mico32_ISR_handler isr_rx_callback, EE_mico32_ISR_handler isr_tx_callback, EE_buffer* rx_buf, EE_buffer* tx_buf);
 EE_UINT8 EE_uart_close_base(EE_UINT32 base);
-EE_UINT8 EE_uart_write_byte_base(EE_UINT32 base, EE_INT8 data, ee_buffer *buf);
-EE_UINT8 EE_uart_read_byte_base(EE_UINT32 base, EE_INT8 *data, ee_buffer *buf);
-EE_UINT8 EE_uart_read_buffer_base(EE_UINT32 base, EE_INT8 *vet, EE_INT16 len, ee_buffer *buf);
-EE_UINT8 EE_uart_write_buffer_base(EE_UINT32 base, EE_INT8 *vet, EE_INT16 len, ee_buffer *buf);
-
+EE_UINT8 EE_uart_write_byte_base(EE_UINT32 base, EE_INT8 data);
+EE_UINT8 EE_uart_read_byte_base(EE_UINT32 base, EE_INT8 *data);
+EE_UINT8 EE_uart_read_buffer_base(EE_UINT32 base, EE_INT8 *vet, EE_INT16 len);
+EE_UINT8 EE_uart_write_buffer_base(EE_UINT32 base, EE_INT8 *vet, EE_INT16 len);
+void EE_uart_handler(EE_uart_st* usp);
 
 #endif // __INCLUDE_EEMCUMICO32_UART_H__

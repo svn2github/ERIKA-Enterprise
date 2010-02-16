@@ -41,7 +41,7 @@
 //	EE_INT8 *data;						// buffer data (messages) vector
 //} ee_buffer;
 
-EE_UINT8 EE_buffer_init(ee_buffer *buf, EE_INT16 msgsize, EE_INT16 bufsize, EE_INT8 *vet)
+EE_UINT8 EE_buffer_init(EE_buffer *buf, EE_INT16 msgsize, EE_INT16 bufsize, EE_INT8 *vet)
 {
   	if((msgsize < 0) || (bufsize < 0))	
   		return EE_BUF_ERR_SIZE;
@@ -59,7 +59,7 @@ EE_UINT8 EE_buffer_init(ee_buffer *buf, EE_INT16 msgsize, EE_INT16 bufsize, EE_I
   	return EE_BUF_OK;	  	
 }
 
-EE_UINT8 EE_buffer_isempty(ee_buffer *buf)
+EE_UINT8 EE_buffer_isempty(EE_buffer *buf)
 {
 	EE_UINT8 retvalue;
 	
@@ -74,7 +74,7 @@ EE_UINT8 EE_buffer_isempty(ee_buffer *buf)
 }
 
 
-EE_UINT8 EE_buffer_isfull(ee_buffer *buf)
+EE_UINT8 EE_buffer_isfull(EE_buffer *buf)
 {
 	EE_UINT8 retvalue;
 	
@@ -88,7 +88,7 @@ EE_UINT8 EE_buffer_isfull(ee_buffer *buf)
 	return retvalue;	
 }
 
-EE_UINT8 EE_buffer_putmsg(ee_buffer *buf, EE_INT8* msg)
+EE_UINT8 EE_buffer_putmsg(EE_buffer *buf, EE_INT8* msg)
 {
 	int i=0;
 	
@@ -112,7 +112,7 @@ EE_UINT8 EE_buffer_putmsg(ee_buffer *buf, EE_INT8* msg)
   	return EE_BUF_OK;
 }
 
-EE_UINT8 EE_buffer_getmsg(ee_buffer *buf, EE_INT8* msg)
+EE_UINT8 EE_buffer_getmsg(EE_buffer *buf, EE_INT8* msg)
 {
 	int i=0;
 	
