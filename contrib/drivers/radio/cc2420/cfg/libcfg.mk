@@ -20,7 +20,11 @@ ifeq ($(INCLUDE_CC2420), YES)
 ##
 
 ## Add the inc path to the include pathlist
+ifeq ($(findstring __RTD_CYGWIN__,$(EEOPT)), __RTD_CYGWIN__) 
 ALLINCPATH += -I"$(shell cygpath -w $(EEBASE)/contrib/drivers/radio/cc2420/inc)"
+else
+ALLINCPATH += -I$(EEBASE)/contrib/drivers/radio/cc2420/inc
+endif
 
 ## Add each file individually
 #EE_SRCS_CC2420 += contrib/drivers/radio/cc2420/libsrc/libcc2420.c
