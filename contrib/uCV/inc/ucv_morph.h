@@ -71,11 +71,14 @@ int8_t ucv_mm_negate(ucv_image_t *src, ucv_image_t *dst);
 *
 * @param[in]	src Reference to the source image.
 * @param[out]	dst Reference to the destination image.
+* @param[in] 	se  Reference to a \ref UCV_BW_BIN mask 
+*		    representing the structuring element.
 * @param[in] 	roi Reference to a ROI.
 * 
 * @return \todo
 */
-int8_t ucv_mm_erode(ucv_image_t *src, ucv_image_t *dst, ucv_roi_t *roi);
+int8_t ucv_mm_erode(const ucv_image_t *src, ucv_image_t *dst, ucv_mask_t *se,
+		    ucv_roi_t *roi);
 
 /** 
 * @brief Morphological Dilation
@@ -96,13 +99,18 @@ int8_t ucv_mm_erode(ucv_image_t *src, ucv_image_t *dst, ucv_roi_t *roi);
 * \b IMPORTANT: The \p src and \p dst image references MUST point to different
 * images to properly perfom this operation.
 *
+* \todo Say about restriction on the \p se.
+*
 * @param[in]	src Reference to the source image.
 * @param[out]	dst Reference to the destination image.
+* @param[in] 	se  Reference to a \ref UCV_BW_BIN mask 
+*		    representing the structuring element.
 * @param[in] 	roi Reference to a ROI.
 * 
 * @return \todo
 */
-int8_t ucv_mm_dilate(ucv_image_t *src, ucv_image_t *dst, ucv_roi_t *roi);
+int8_t ucv_mm_dilate(const ucv_image_t *src, ucv_image_t *dst, ucv_mask_t *se,
+		     ucv_roi_t *roi);
 
 /** 
 * @brief Morphological Opening 

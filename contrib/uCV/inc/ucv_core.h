@@ -38,7 +38,7 @@
 * @{ */
 
 #define UCV_BW_BIN_DEFINE(image_name, w, h)				\
-static ucv_word_t image_name##_data_storage[UCV_BW_BIN_SIZE(w, h)];	\
+ucv_word_t image_name##_data_storage[UCV_BW_BIN_SIZE(w, h)];	\
 ucv_image_t image_name = {						\
 	.image = (uint8_t*) image_name##_data_storage,			\
 	.width = w,							\

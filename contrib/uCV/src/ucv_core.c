@@ -109,13 +109,13 @@ static int8_t bw_centroid(const ucv_image_t *bw, ucv_coord_t *x, ucv_coord_t *y,
 		);							\
 		*d = dw;						\
 	}\
-	
 
 static void binarize_gray2bin_gval(const ucv_image_t *src, 
 				   ucv_image_t *dst, uint8_t th1)
 {
 	_BINARIZE_GRAY2BIN_SCHELETON(v > th1);
 }
+
 static void binarize_gray2bin_lval(const ucv_image_t *src, 
 				   ucv_image_t *dst, uint8_t th1)
 {

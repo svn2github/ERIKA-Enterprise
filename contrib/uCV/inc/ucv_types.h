@@ -114,7 +114,6 @@ do {									\
 	(mask) >>= (pos) % (8 * sizeof(ucv_word_t));			\
 } while (0)								\
 
-
 /**
 * @brief Get the current bit value
 *
@@ -224,5 +223,7 @@ typedef struct {
 	ucv_coord_t br_x;	/**< Bottom-Right X ucv_coord_t */
 	ucv_coord_t br_y;	/**< Bottom-Right Y ucv_coord_t */
 } ucv_roi_t;
+
+typedef ucv_image_t ucv_mask_t;
 
 #endif /* __ucv_types_h__ */

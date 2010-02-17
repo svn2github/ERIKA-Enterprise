@@ -3,40 +3,298 @@
  * $Log$
  */
 #include "ucv_morph.h"
-
-/***************************** 
- * Neighbourhood convention  *
- *                           *
- *         b8 b1 b5          *           
- *         b4 -- b2          *
- *         b7 b3 b6          *
- *                           *
- *****************************/
+#include "ucv_opt.h"
 
 /******************************************************************************/
 /*                       Private Local Functions                              */
 /******************************************************************************/
+void fast_dilate_se3(const ucv_image_t *src, ucv_image_t *dst, 
+//static void fast_dilate_se3(const ucv_image_t *src, ucv_image_t *dst, 
+			    uint8_t mask)
+{
+	/*
+	The idea is the following:
+	
+	mask = [s1 s2 s3 s4 s5 s6 s7 s8]
+	
+	pixl = [p1 p2 p3 p4 p5 p6 p7 p8]
+                || || ||
+	se_u = [s1 s2 s3 0 0 0 ...]
+	se_c = [s4 1  s5 0 0 0 ...]
+	se_d = [s6 s7 s8 0 0 0 ...]
+
+	*/
+	#define NW (UCV_WORD_SIZE * 8)
+	#define NW_2 (NW / 2)
+	#define NB (8)
+	register ucv_word_t r_u, r_c, r_d;
+	register ucv_word_t r_u_next, r_c_next, r_d_next;
+	const ucv_word_t se_u = ((ucv_word_t) mask & 0xE0) << (NW - NB); 
+	const ucv_word_t se_c = (((ucv_word_t) mask & 0x10) << (NW - NB + 3)) |
+	                        (((ucv_word_t) mask & 0x40) << (NW - NB)) | 
+	                        (((ucv_word_t) mask & 0x08) << (NW - NB + 2)); 
+	const ucv_word_t se_d = ((ucv_word_t) mask & 0x07) << (NW - NB + 5); 
+	uint32_t i, k;
+	ucv_word_t *d;
+	ucv_word_t dw, dm;
+
+	/* TODO: fare la prima riga! */
+
+#define UCV_BIT_GET_WPTR(im, pos)					\
+	(((ucv_word_t*)(im)) +						\
+		 (((uint32_t)(pos)) / (8 * sizeof(ucv_word_t))))	\
+
+	i = 0;
+
+	d = UCV_BIT_GET_WPTR(dst->image, dst->width);
+	r_u = *(UCV_BIT_GET_WPTR(src->image, 0) + i);
+	r_c = *(UCV_BIT_GET_WPTR(src->image, src->width) + i);
+	r_d = *(UCV_BIT_GET_WPTR(src->image, 2 * src->width) + i);
+
+	dw = 0;	
+	dm = UCV_BIT_START_MASK;
+
+	/* 1st Boundary condition: start of the first coloumn */
+	if (((se_u << 1) & r_u) | ((se_c << 1) & r_c) | ((se_d << 1) & r_d))
+		dw |= dm;
+	dm >>= 1;
+
+	k = ((uint32_t)src->width * (src->height - 2)) / NW;
+	while (k--) {
+		/* Load the _next words */
+		i++; 
+		r_u_next = *(UCV_BIT_GET_WPTR(src->image, 0) + i);
+		r_c_next = *(UCV_BIT_GET_WPTR(src->image, src->width) + i);
+		r_d_next = *(UCV_BIT_GET_WPTR(src->image, 2 * src->width) + i);
+//		#if NW_2 == 16
+		UCV_LOOP_UNROLL_16(
+//		#endif
+			//if ((se_u & r_u) || (se_c & r_c) || (se_d & r_d))
+			//	dw |= dm;
+			if ((se_u & r_u) | (se_c & r_c) | (se_d & r_d))
+				dw |= dm;
+			dm >>= 1;
+			r_u <<= 1;
+			r_c <<= 1;
+			r_d <<= 1;
+		);
+		/* Destination is at 17th pixel, source is at 16th pixels */
+		/* Swap the first NW_2 bits from the _next words 
+		   to the processing ones */
+		r_u |= (r_u_next >> NW_2);
+		r_c |= (r_c_next >> NW_2);
+		r_d |= (r_d_next >> NW_2);
+//		#if NW_2 == 16
+		UCV_LOOP_UNROLL_15(
+//		#endif
+			//if ((se_u & r_u) || (se_c & r_c) || (se_d & r_d))
+			if ((se_u & r_u) | (se_c & r_c) | (se_d & r_d))
+				dw |= dm;
+			dm >>= 1;
+			r_u <<= 1;
+			r_c <<= 1;
+			r_d <<= 1;
+		);
+		/* Destination is at 32th pixel, store result.
+		   Source is at 31th pixel. */
+		*(d++) = dw;
+		dw = 0;	
+		dm = UCV_BIT_START_MASK;
+		/* Consume the 32th pixel from source and 
+		   use it for the new 1st (32+1) destination pixel. */
+		//if ((se_u & r_u) || (se_c & r_c) || (se_d & r_d))
+		if ((se_u & r_u) | (se_c & r_c) | (se_d & r_d))
+			dw |= dm;
+		dm >>= 1;
+		r_u <<= 1;
+		r_c <<= 1;
+		r_d <<= 1;
+		/* Swap the last NW_2 bits from the _next words 
+		   to the processing ones */
+		r_u |= (r_u_next & 0x0000FFFF);
+		r_c |= (r_c_next & 0x0000FFFF);
+		r_d |= (r_d_next & 0x0000FFFF);
+	}
+}
+
+void fast_erode_se3(const ucv_image_t *src, ucv_image_t *dst, 
+//static void fast_dilate_se3(const ucv_image_t *src, ucv_image_t *dst, 
+			    uint8_t mask)
+{
+	/*
+	The idea is the following:
+	
+	mask = [s1 s2 s3 s4 s5 s6 s7 s8]
+	
+	pixl = [p1 p2 p3 p4 p5 p6 p7 p8]
+                || || ||
+	se_u = [s1 s2 s3 0 0 0 ...]
+	se_c = [s4 1  s5 0 0 0 ...]
+	se_d = [s6 s7 s8 0 0 0 ...]
+
+	*/
+	#define NW (UCV_WORD_SIZE * 8)
+	#define NW_2 (NW / 2)
+	#define NB (8)
+	register ucv_word_t r_u, r_c, r_d;
+	register ucv_word_t r_u_next, r_c_next, r_d_next;
+	const ucv_word_t se_u = ((ucv_word_t) mask & 0xE0) << (NW - NB); 
+	const ucv_word_t se_c = (((ucv_word_t) mask & 0x10) << (NW - NB + 3)) |
+	                        (((ucv_word_t) mask & 0x40) << (NW - NB)) | 
+	                        (((ucv_word_t) mask & 0x08) << (NW - NB + 2)); 
+	const ucv_word_t se_d = ((ucv_word_t) mask & 0x07) << (NW - NB + 5); 
+	uint32_t i, k;
+	ucv_word_t *d;
+	ucv_word_t dw, dm;
+
+	/* TODO: fare la prima riga! */
+
+#define UCV_BIT_GET_WPTR(im, pos)					\
+	(((ucv_word_t*)(im)) +						\
+		 (((uint32_t)(pos)) / (8 * sizeof(ucv_word_t))))	\
+
+	i = 0;
+
+	d = UCV_BIT_GET_WPTR(dst->image, dst->width);
+	r_u = *(UCV_BIT_GET_WPTR(src->image, 0) + i);
+	r_c = *(UCV_BIT_GET_WPTR(src->image, src->width) + i);
+	r_d = *(UCV_BIT_GET_WPTR(src->image, 2 * src->width) + i);
+
+	dw = 0;	
+	dm = UCV_BIT_START_MASK;
+
+	/* 1st Boundary condition: start of the first coloumn */
+	#define CON(a, b) (((a) & (b)) ^ (a))
+	if (!(CON(se_u << 1, r_u) | CON(se_c << 1, r_c) | CON(se_d << 1, r_d)))
+		dw |= dm;
+	dm >>= 1;
+
+	k = ((uint32_t)src->width * (src->height - 2)) / NW;
+	while (k--) {
+		/* Load the _next words */
+		i++; 
+		r_u_next = *(UCV_BIT_GET_WPTR(src->image, 0) + i);
+		r_c_next = *(UCV_BIT_GET_WPTR(src->image, src->width) + i);
+		r_d_next = *(UCV_BIT_GET_WPTR(src->image, 2 * src->width) + i);
+//		#if NW_2 == 16
+		UCV_LOOP_UNROLL_16(
+//		#endif
+			//if ((se_u & r_u) || (se_c & r_c) || (se_d & r_d))
+			//	dw |= dm;
+			if (!(CON(se_u, r_u) | CON(se_c, r_c) | CON(se_d, r_d)))
+				dw |= dm;
+			dm >>= 1;
+			r_u <<= 1;
+			r_c <<= 1;
+			r_d <<= 1;
+		);
+		/* Destination is at 17th pixel, source is at 16th pixels */
+		/* Swap the first NW_2 bits from the _next words 
+		   to the processing ones */
+		r_u |= (r_u_next >> NW_2);
+		r_c |= (r_c_next >> NW_2);
+		r_d |= (r_d_next >> NW_2);
+//		#if NW_2 == 16
+		UCV_LOOP_UNROLL_15(
+//		#endif
+			//if ((se_u & r_u) || (se_c & r_c) || (se_d & r_d))
+			if (!(CON(se_u, r_u) | CON(se_c, r_c) | CON(se_d, r_d)))
+				dw |= dm;
+			dm >>= 1;
+			r_u <<= 1;
+			r_c <<= 1;
+			r_d <<= 1;
+		);
+		/* Destination is at 32th pixel, store result.
+		   Source is at 31th pixel. */
+		*(d++) = dw;
+		dw = 0;	
+		dm = UCV_BIT_START_MASK;
+		/* Consume the 32th pixel from source and 
+		   use it for the new 1st (32+1) destination pixel. */
+		//if ((se_u & r_u) || (se_c & r_c) || (se_d & r_d))
+		if (!(CON(se_u, r_u) | CON(se_c, r_c) | CON(se_d, r_d)))
+			dw |= dm;
+		dm >>= 1;
+		r_u <<= 1;
+		r_c <<= 1;
+		r_d <<= 1;
+		/* Swap the last NW_2 bits from the _next words 
+		   to the processing ones */
+		r_u |= (r_u_next & 0x0000FFFF);
+		r_c |= (r_c_next & 0x0000FFFF);
+		r_d |= (r_d_next & 0x0000FFFF);
+	}
+}
+
 
 /******************************************************************************/
 /*                       Public Global Functions                              */
 /******************************************************************************/
 int8_t ucv_mm_negate(ucv_image_t *src, ucv_image_t *dst)
 {
+//	ucv_word_t *s;
+//	ucv_word_t *max;
+//	ucv_word_t *d;
+//
+//	/* TODO: check margins of images? */
+//	s = (ucv_word_t*) src->image;
+//	max = s + UCV_BW_BIN_SIZE(src->width, src->height);
+//	if (dst != NULL) 
+//		for (d = (ucv_word_t*) dst->image; s < max; d++, s++) 
+//			*d = ~(*s);
+//		
+//	else 
+//		for (; s < max; s++) 
+//			*s = ~(*s);
+
 	ucv_word_t *s;
-	ucv_word_t *max;
 	ucv_word_t *d;
+	const ucv_word_t words = UCV_BW_BIN_SIZE(src->width, src->height);
+	const ucv_word_t *end1 = (ucv_word_t *) src->image + 
+				 UCV_LOOP_UNROLL_8_ROUNDS(words);
+	const ucv_word_t *end2 = (ucv_word_t *) src->image + words;
 
 	/* TODO: check margins of images? */
 	s = (ucv_word_t*) src->image;
-	max = s + UCV_BW_BIN_SIZE(src->width, src->height);
-	if (dst != NULL) 
-		for (d = (ucv_word_t*) dst->image; s < max; d++, s++) 
-			*d = ~(*s);
-	else 
-		for (; s < max; s++) 
-			*s = ~(*s);
+	if (dst != NULL) {
+		d = (ucv_word_t*) dst->image;
+		UCV_LOOP_UNROLL_8_DO_ALL(s != end1, end2 - s,
+			,
+			*(d++) = ~(*(s++));
+			,
+		);
+	} else {
+		UCV_LOOP_UNROLL_8_DO_ALL(s != end1, end2 - s,
+			,
+			*(s) = ~(*s);
+			s++;
+			,
+		);
+	}
 	return 1;
 }
+
+int8_t ucv_mm_dilate(const ucv_image_t *src, ucv_image_t *dst, ucv_mask_t *se,
+		     ucv_roi_t *roi)
+{
+	if (roi != NULL)
+		return -UCV_ERR_UNIMPLEMENTED;
+	/* TODO: this code is just for test, make the right one!*/
+	fast_dilate_se3(src, dst, 0xFF);
+	return 1;
+}
+
+int8_t ucv_mm_erode(const ucv_image_t *src, ucv_image_t *dst, ucv_mask_t *se,
+		    ucv_roi_t *roi)
+{
+	if (roi != NULL)
+		return -UCV_ERR_UNIMPLEMENTED;
+	/* TODO: this code is just for test, make the right one!*/
+	fast_erode_se3(src, dst, 0xFF);
+	return 1;
+}
+
 
 #if 0
 void mv_Image_erosion(ucv_image_t *bw, ucv_roi_t *window, Mv_int8u* buffer)
