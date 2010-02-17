@@ -183,6 +183,160 @@ __INLINE__ EE_UINT8 __ALWAYS_INLINE__ EE_button_get_S4( void ) {
 		return 1;
 }
 
+/******************************************************************************/
+/*                  Common APIs for Model Based Suite                         */
+/******************************************************************************/
+
+/* TODO:
+   1- Write APIs doc
+   2- Do we need pre-condition check on the orther of calls? i.e. the init MUST
+      be done before any call to control and read.
+   3- Do we want to keep this "safe" version of the API that checking all 
+      the function params? We can have a "faster" version with no check. We can
+      choose at compilation time with defines.
+*/
+#if 0
+enum {
+	EE_BUTTON_MODE = 0,
+	EE_BUTTON_ATTRIBUTES
+};
+
+enum {
+	EE_BUTTON_RAW = 0,
+	EE_BUTTON_LATCHED,
+	EE_BUTTON_DEBOUNCED,
+	EE_BUTTON_MODE_VALUES
+};
+
+enum {
+	EE_BUTTON_ERR_UNIMPLEMENTED = 1,
+	EE_BUTTON_ERR_BAD_ID,
+};
+
+__INLINE__ EE_INT8  EE_button_init(EE_UINT8 id, void(*callback)(void)) 
+{
+	/* TODO: provide logic for callback registration for each button */
+	if (id > 4)
+		return -EE_BUTTON_ERR_BAD_ID;
+	if (callback != NULL)
+		return -EE_BUTTON_ERR_UNIMPLEMENTED;
+	EE_buttons_init(NULL, 0);
+	return 1;
+}
+
+__INLINE__ EE_INT8 EE_button_control(EE_UINT8 id, EE_UINT8 attribute, 
+				     EE_UINT8 value) 
+{
+	/* TODO: provide parsing of attributes */
+	if (id > 4)
+		return -EE_BUTTON_ERR_BAD_ID;
+	switch (attribute) {
+	case EE_BUTTON_MODE :
+		if (value != EE_BUTTON_RAW)
+			return -EE_BUTTON_ERR_UNIMPLEMENTED;
+		break;
+	default:
+		return -EE_BUTTON_ERR_UNIMPLEMENTED;
+	}
+	return 1;
+}
+
+__INLINE__ EE_INT8 EE_button_read(EE_UINT8 id, EE_UINT8 *value) 
+{
+	switch (id) {
+	case 0 :
+		*value = EE_button_get_S1();
+		break;
+	case 1 :
+		*value = EE_button_get_S2();
+		break;
+	case 2 :
+		*value = EE_button_get_S3();
+		break;
+	case 3 :
+		*value = EE_button_get_S4();
+		break;
+	default :
+		return -EE_BUTTON_ERR_BAD_ID;
+	}
+	return 1;
+}
+
+enum {
+	EE_LED_ERR_UNIMPLEMENTED = 1,
+	EE_LED_ERR_BAD_ID,
+	EE_LED_ERR_BAD_VALUE,
+};
+
+__INLINE__ EE_INT8  EE_led_init(EE_UINT8 id) 
+{
+	if (id > 4)
+	switch (id) {
+	case 0 :
+		TRISFbits.TRISF0 = 0;
+		break;
+	case 1 :
+		TRISFbits.TRISF1 = 0;
+		break;
+	case 2 :
+		TRISFbits.TRISF2 = 0;
+		break;
+	case 3 :
+		TRISFbits.TRISF3 = 0;
+		break;
+	case 4 :
+		TRISDbits.TRISD8 = 0;
+		break;
+	case 5 :
+		TRISDbits.TRISD9 = 0;
+		break;
+	case 6 :
+		TRISDbits.TRISD10 = 0;
+		break;
+	case 7 :
+		TRISDbits.TRISD11 = 0;
+		break;
+	default :
+		return -EE_LED_ERR_BAD_ID;
+	}
+	return 1;
+}
+
+__INLINE__ EE_INT8  EE_led_write(EE_UINT8 id, EE_UINT8 value) 
+{
+	if (value > 1)
+		return -EE_LED_ERR_BAD_VALUE;
+	switch (id) {
+	case 0 :
+		LATFbits.LATF0 = value;
+		break;
+	case 1 :
+		LATFbits.LATF1 = value;
+		break;
+	case 2 :
+		LATFbits.LATF2 = value;
+		break;
+	case 3 :
+		LATFbits.LATF3 = value;
+		break;
+	case 4 :
+		LATDbits.LATD8 = value;
+		break;
+	case 5 :
+		LATDbits.LATD9 = value;
+		break;
+	case 6 :
+		LATDbits.LATD10 = value;
+		break;
+	case 7 :
+		LATDbits.LATD11 = value;
+		break;
+	default :
+		return -EE_LED_ERR_BAD_ID;
+	}
+	return 1;
+}
+#endif
 #endif
 
 //Start GF
