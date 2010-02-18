@@ -51,7 +51,7 @@ RTDRUID_ECLIPSE_HOME = C:/Evidence/Evidence/eclipse
 RTDRUID_SCRIPT_DIR =
 endif
 ifndef RTDRUID_SCRIPT_DIR
-RTDRUID_SCRIPT_DIR=$(RTDRUID_ECLIPSE_HOME)/Evidence
+RTDRUID_SCRIPT_DIR=$(RTDRUID_ECLIPSE_HOME)/evidence
 endif
 ifneq (ok,$(shell test -d "$(RTDRUID_ECLIPSE_HOME)" && echo ok ))
 $(error The variable RTDRUID_ECLIPSE_HOME must point to a valid Eclipse RT-Druid installation)
