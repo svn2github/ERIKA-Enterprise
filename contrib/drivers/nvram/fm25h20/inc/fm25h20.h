@@ -42,7 +42,7 @@
 /** 
 * @name Commands' arrays size
 * @{ */
-#define WRITE_ARRAY_SIZE 	5		
+#define WRITE_ARRAY_SIZE 	4		
 #define READ_ARRAY_SIZE 	4			
 /* @} */
 

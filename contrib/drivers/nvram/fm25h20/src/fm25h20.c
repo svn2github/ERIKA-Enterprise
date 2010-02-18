@@ -14,11 +14,8 @@
 #include "fm25h20.h"
 #include "fm25h20_hal_ee_pic32.h"
 
-uint8_t fm25h20_initialized = 0; /*TODO: verificare se si può gestire in modo +
-					elegante */
-volatile unsigned int PIPPO[100]; 
-volatile unsigned int GIANNI = 0; 
-volatile unsigned int PLUTO = 0; 
+uint8_t fm25h20_initialized = 0; 
+
 
 int8_t fm25h20_init(uint8_t port)
 {  
@@ -31,11 +28,11 @@ int8_t fm25h20_init(uint8_t port)
 	/* Wait the minimum time needed to power-up the device */
 	fm25h20_delay_us(2500);	
 	
-	/* Init hal-specific things and disable the hardware protections */
+	/* Init hal-specific things */
 	fm25h20_hal_init();
 	fm25h20_hold_off();
 	fm25h20_write_protection_off();
-	
+
 	/* Init the SPI port with the default values */	
 	retv = fm25h20_spi_init(port, FM25H20_SPI_CLOCK, FM25H20_SPI_FLAGS);
 
@@ -44,34 +41,15 @@ int8_t fm25h20_init(uint8_t port)
 	
 	/* Select the device */
 	fm25h20_cs_low();  
+
 	/* test the memory, reading the read status register */
 	app = FM25H20_READ_STATUS_REG; 
 	fm25h20_spi_write(&app, 1);
 	retv = fm25h20_spi_read(&app, 1);
-PIPPO[GIANNI++] = app;
+	
 	/* Deselect the device */
 	fm25h20_cs_high();
 
-fm25h20_delay_us(1000);
-fm25h20_cs_low();  
-app = FM25H20_WRITE_ENABLE; 
-fm25h20_spi_write(&app, 1);
-fm25h20_cs_high();  
-
-fm25h20_cs_low();  
-app = FM25H20_WRITE_STATUS_REG; 
-fm25h20_spi_write(&app, 1);
-app = 0x82; 
-fm25h20_spi_write(&app, 1);
-fm25h20_cs_high();  
-
-fm25h20_delay_us(1000);
-fm25h20_cs_low();  
-app = FM25H20_READ_STATUS_REG; 
-fm25h20_spi_write(&app, 1);
-retv = fm25h20_spi_read(&app, 1);
-PIPPO[GIANNI++] = app;
-fm25h20_cs_high();  
 	/* Check for errors on spi reading */
 	if (retv != EE_SPI_NO_ERRORS)	
 		return FM25H20_READ_FAILED;
@@ -81,7 +59,7 @@ fm25h20_cs_high();
 		fm25h20_initialized = 1;
 		return FM25H20_ERR_NONE;
 	}			
-	return -FM25H20_FRAM_INIT_FAILED; //app
+	return -FM25H20_FRAM_INIT_FAILED; 
 }
 
 
@@ -93,28 +71,26 @@ int8_t fm25h20_store(uint32_t address, uint32_t len, uint8_t *buf)
 		return -FM25H20_WRONG_MEMORY_ADDRESS;
 
 	int8_t retv;
-uint8_t app;
 	
-	/* Define the command to be sent */
+	/* Define the write enable command */
+	uint8_t enable_write = FM25H20_WRITE_ENABLE;
+	
+	/* Define the write command + the address */
 	uint8_t set_write[WRITE_ARRAY_SIZE];
-	set_write[0] = FM25H20_WRITE_ENABLE;
-	set_write[1] = FM25H20_WRITE_MEMORY;
-	set_write[2] = (uint8_t)((address >> 16) & 0x03);
-	set_write[3] = (uint8_t)((address >> 8) & 0xFF);
-	set_write[4] = (uint8_t)(address & 0xFF);
 	
-fm25h20_cs_low();  
-app = FM25H20_READ_STATUS_REG; 
-fm25h20_spi_write(&app, 1);
-retv = fm25h20_spi_read(&app, 1);
-PIPPO[GIANNI++] = app;
-fm25h20_cs_high();  
+	set_write[0] = FM25H20_WRITE_MEMORY;
+	set_write[1] = (uint8_t)((address >> 16) & 0x03);
+	set_write[2] = (uint8_t)((address >> 8) & 0xFF);
+	set_write[3] = (uint8_t)(address & 0xFF);
+
 	/* Select the device */
 	fm25h20_cs_low();
-
-	/* Send the command and write the memory */
+		fm25h20_spi_write(&enable_write,1);
+	fm25h20_cs_high();
 	
-	retv= fm25h20_spi_write(set_write, WRITE_ARRAY_SIZE); 
+	/* Send the command and write the memory */
+	fm25h20_cs_low();
+	retv= fm25h20_spi_write(set_write,WRITE_ARRAY_SIZE);
 	
 	if (retv != EE_SPI_NO_ERRORS){
 		fm25h20_cs_high();
@@ -130,31 +106,14 @@ fm25h20_cs_high();
 
 	/* Deselect the device */
 	fm25h20_cs_high();
-fm25h20_delay_us(1000);
-fm25h20_cs_low();  
-app = FM25H20_READ_STATUS_REG; 
-fm25h20_spi_write(&app, 1);
-retv = fm25h20_spi_read(&app, 1);
-PIPPO[GIANNI++] = app;
-fm25h20_cs_high();  
 
-fm25h20_delay_us(1000);
-fm25h20_cs_low();  
-app = FM25H20_WRITE_DISABLE; 
-fm25h20_spi_write(&app, 1);
-fm25h20_cs_high();  
-
-fm25h20_delay_us(1000);
-fm25h20_cs_low();  
-app = FM25H20_READ_STATUS_REG; 
-fm25h20_spi_write(&app, 1);
-retv = fm25h20_spi_read(&app, 1);
-PIPPO[GIANNI++] = app;
-fm25h20_cs_high();  
-//asm ("SDBBP");
+	/* Enable memory and status register protection */
 
 	return FM25H20_ERR_NONE;
 }
+
+
+
 
 
 int8_t fm25h20_get(uint32_t address, uint32_t len, uint8_t *data)
@@ -164,7 +123,6 @@ uint8_t app;
  	/* Check the precondition */
 	if (address > MEMORY_SIZE)
 		return -FM25H20_WRONG_MEMORY_ADDRESS;
-
 	/* Define the command to be sent */
 	uint8_t set_read [READ_ARRAY_SIZE];
 	set_read[0] = (uint8_t)(FM25H20_READ_MEMORY);
@@ -172,14 +130,7 @@ uint8_t app;
 	set_read[2] = (uint8_t)((address >> 8) & 0xFF);
 	set_read[3] = (uint8_t)(address & 0xFF);
 	
-fm25h20_delay_us(1000);
-fm25h20_cs_low();  
-app = FM25H20_READ_STATUS_REG; 
-fm25h20_spi_write(&app, 1);
-retv = fm25h20_spi_read(&app, 1);
-PIPPO[GIANNI++] = app;
-fm25h20_cs_high();  
-//while (1) {
+
 	/* Select the device */
 	fm25h20_cs_low();
 	
@@ -195,18 +146,9 @@ fm25h20_cs_high();
 		fm25h20_cs_high();
 		return FM25H20_READ_FAILED;
 	}
+
 	/* Deselect the device */
 	fm25h20_cs_high();
-fm25h20_delay_us(1000);
-fm25h20_cs_low();  
-app = FM25H20_READ_STATUS_REG; 
-fm25h20_spi_write(&app, 1);
-retv = fm25h20_spi_read(&app, 1);
-PIPPO[GIANNI++] = app;
-fm25h20_cs_high();  
-PLUTO = data[0];
-//asm ("SDBBP");
-//}
 	return FM25H20_ERR_NONE;
 }
 
