@@ -77,7 +77,7 @@ endif
 
 #BINDIR_ASM30 := $(PIC30_ASMDIR)/bin
 #BINDIR_CYG   := /usr/bin
-#BINDIR_EVI   := $(EVIDENCEBASE)/pic30/pic30-elf/bin
+#BINDIR_EVI   := 
 
 # Bin directories used for compilation
 # BINDIR_ASM      - directory of the Assembler
