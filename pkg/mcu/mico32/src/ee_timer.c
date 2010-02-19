@@ -41,7 +41,8 @@ void EE_timer_handler(EE_timer_st* tsp)
 /*                       Public Global Functions                              */
 /******************************************************************************/
 // START_STOP_CONTROL must be controllable!!!
-EE_UINT8 EE_timer_init_base(EE_UINT32 base, EE_UINT32 period, EE_UINT32 settings)
+//EE_UINT8 EE_timer_init_base(EE_UINT32 base, EE_UINT32 period, EE_UINT32 settings)
+EE_UINT8 EE_timer_init_base(EE_UINT32 base, EE_UINT32 irq_flag, EE_UINT32 period, EE_UINT32 settings, EE_mico32_ISR_callback isr_callback)
 {
 	// START_STOP_CONTROL must be controllable!!!
 	MicoTimer_t *timerc = (MicoTimer_t *)base;
@@ -71,8 +72,8 @@ EE_UINT8 EE_timer_init_base(EE_UINT32 base, EE_UINT32 period, EE_UINT32 settings
 	/* Set the control register */
 	timerc->Control = settings;
 	
-	// All done!!!
-	return EE_TIMER_OK;
+	/* ISR management */
+	return EE_timer_set_ISR_callback_base(base, irq_flag, isr_callback);
 }
 
 EE_UINT8 EE_timer_set_ISR_callback_base(EE_UINT32 base, EE_UINT32 irq_flag, EE_mico32_ISR_callback isr_callback)

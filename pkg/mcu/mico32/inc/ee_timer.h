@@ -45,8 +45,9 @@ extern EE_timer_st ee_timer_st_2;
 extern EE_timer_st ee_timer_st_1;
 
 #define EE_TIMER_OK								(0x00)
-#define EE_timer_init(name, per, set) 			EE_timer_init_base((name##_BASE_ADDRESS), (per), (set))
-#define EE_timer_set_ISR_callback(name, isrcbk) EE_timer_set_ISR_callback_base((name##_BASE_ADDRESS), (name##_IRQ), (isrcbk))
+#define EE_timer_init(name, per, set, isrcbk) 	EE_timer_init_base((name##_BASE_ADDRESS), (name##_IRQ), (per), (set), (isrcbk))
+//#define EE_timer_init(name, per, set) 		EE_timer_init_base((name##_BASE_ADDRESS), (per), (set))
+//#define EE_timer_set_ISR_callback(name, isrcbk) EE_timer_set_ISR_callback_base((name##_BASE_ADDRESS), (name##_IRQ), (isrcbk))
 #define EE_timer_start(name) 					EE_timer_start_base((name##_BASE_ADDRESS))
 #define EE_timer_stop(name) 					EE_timer_stop_base((name##_BASE_ADDRESS))
 #define EE_timer_get_val(name, addval) 			EE_timer_get_val_base((name##_BASE_ADDRESS), (addval))
@@ -55,7 +56,8 @@ extern EE_timer_st ee_timer_st_1;
 /*************************************************** 
 * Functions declarations
 ****************************************************/
-EE_UINT8 EE_timer_init_base(EE_UINT32 base, EE_UINT32 period, EE_UINT32 settings); 
+//EE_UINT8 EE_timer_init_base(EE_UINT32 base, EE_UINT32 period, EE_UINT32 settings); 
+EE_UINT8 EE_timer_init_base(EE_UINT32 base, EE_UINT32 irq_flag, EE_UINT32 period, EE_UINT32 settings, EE_mico32_ISR_callback isr_callback); 
 EE_UINT8 EE_timer_start_base(EE_UINT32 base);
 EE_UINT8 EE_timer_stop_base(EE_UINT32 base);
 EE_UINT32 EE_timer_get_val_base(EE_UINT32 base, EE_UINT32 *val);

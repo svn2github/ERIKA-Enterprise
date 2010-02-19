@@ -55,7 +55,7 @@ endif
 ifeq ($(findstring __USE_UART__,$(EEOPT)) , __USE_UART__)
 EE_SRCS += pkg/mcu/mico32/src/ee_uart.c
 EE_SRCS += pkg/mcu/mico32/src/ee_uart1.c
-EE_SRCS += pkg/mcu/mico32/src/ee_uart2.c
+#EE_SRCS += pkg/mcu/mico32/src/ee_uart2.c
 MCU_BUF = YES
 endif
 
