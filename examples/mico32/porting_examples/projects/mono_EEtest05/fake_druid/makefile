@@ -1,4 +1,4 @@
-# # Date             : 2/11/2010
+# # Date             : 2/19/2010
 # RT-Druid version : 
 #
 
@@ -26,7 +26,7 @@ EEOPT += __ASSERT__
 # Automatic options
 #
 ############################################################################
-EEOPT += __RTD_CYGWIN__
+EEOPT += __RTD_LINUX__
 EEOPT += __LM32__
 EEOPT += __OO_BCC1__
 EEOPT += __ALLOW_NESTED_IRQ__
@@ -40,11 +40,8 @@ EEOPT += __OO_AUTOSTART_TASK__
 # Lattice mico 32
 #
 ############################################################################
-ifndef EVIDENCEBASE
-    EVIDENCEBASE := $(shell cygpath `cygpath -ms "C:\Evidence\Evidence\eclipse\plugins\com.eu.evidence.ee_1.0.0.201002081651"`)
-endif
 ifndef EEBASE
-    EEBASE  := $(shell cygpath `cygpath -ms "C:\Evidence\Evidence\eclipse\plugins\com.eu.evidence.ee_1.0.0.201002081651\ee_base"`)
+    EEBASE  := /extra/eclipse/plugins/com.eu.evidence.ee_1.0.0.201002181432/ee_base
 endif
 APPBASE := ..
 OUTBASE := output

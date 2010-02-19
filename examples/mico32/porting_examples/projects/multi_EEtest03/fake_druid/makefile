@@ -1,4 +1,4 @@
-# # Date             : 2/4/2010
+# # Date             : 2/19/2010
 # RT-Druid version : 
 #
 
@@ -39,11 +39,8 @@ EEOPT += __ALARMS__
 # Lattice mico 32
 #
 ############################################################################
-ifndef EVIDENCEBASE
-    EVIDENCEBASE := /extra/eclipse/plugins/com.eu.evidence.ee_1.0.0.201002021707
-endif
 ifndef EEBASE
-    EEBASE  := /extra/eclipse/plugins/com.eu.evidence.ee_1.0.0.201002021707/ee_base
+    EEBASE  := /extra/eclipse/plugins/com.eu.evidence.ee_1.0.0.201002181432/ee_base
 endif
 APPBASE := ..
 OUTBASE := output

@@ -8,7 +8,7 @@
 #
 ############################################################################
 # Use standalone printf implementation: -D_USE_LSCC_PRINTF_
-CFLAGS += -D_USE_LSCC_PRINTF
+CFLAGS += -D_USE_LSCC_PRINTF_
 
 # C library to use.
 C_LIB := -lc

@@ -1,33 +1,3 @@
-
-#include "ee.h"
-#include "ee_internal.h"
-
-#ifndef DEBUG_STACK
-#else
-#endif
-
-
-
-//////////////////////////////////////////////////////////////////////////////
-//  
-//   If necessary, init JTag
-//   Then invoke apllication
-//  
-/////////////////////////////////////////////////////////////////////////////
-    #include "DDStructs.h"
-
-    void LatticeDDInit(void)
-    {
-#if 0
-        // Initialize LM32 instance of lm32_top
-        LatticeMico32Init(&lm32_top_LM32);
-        // Needed only to use the Jtag interface for I/O
-#endif
-
-        // Invoke application's main routine
-        main();
-    }
-
 #include "ee.h"
 
 
@@ -175,4 +145,33 @@
     const struct EE_oo_autostart_task_type EE_oo_autostart_task_data[EE_MAX_APPMODE] = {
         { 1, EE_oo_autostart_task_mode_OSDEFAULTAPPMODE}
     };
+
+
+#include "ee.h"
+
+#ifndef DEBUG_STACK
+#else
+#endif
+
+
+
+//////////////////////////////////////////////////////////////////////////////
+//  
+//   If necessary, init JTag
+//   Then invoke apllication
+//  
+/////////////////////////////////////////////////////////////////////////////
+    #include "DDStructs.h"
+
+    void LatticeDDInit(void)
+    {
+#if 0
+        // Initialize LM32 instance of lm32_top
+        LatticeMico32Init(&lm32_top_LM32);
+        // Needed only to use the Jtag interface for I/O
+#endif
+
+        // Invoke application's main routine
+        main();
+    }
 

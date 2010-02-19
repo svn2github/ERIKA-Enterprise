@@ -108,17 +108,18 @@
     };
 
     struct EE_TOS EE_mico32_system_tos[2] = {
-        {0},	/* Task   (dummy), Task 1 (Task2) */
+        {0},	/* Task   (dummy) */
         {(EE_ADDR)(&EE_mico32_stack_1[STACK_1_SIZE - MICO32_INIT_TOS_OFFSET])} 	/* Task 0 (Task1) */
     };
 
     EE_UREG EE_mico32_active_tos = 0; /* dummy */
 
-
     /* stack used only by IRQ handlers */
     struct EE_TOS EE_mico32_IRQ_tos = {
-        (EE_ADDR)(&EE_mico32_stack_2[STACK_1_SIZE - MICO32_INIT_TOS_OFFSET])
+        (EE_ADDR)(&EE_mico32_stack_2[STACK_2_SIZE - MICO32_INIT_TOS_OFFSET])
     };
+
+
 
 //////////////////////////////////////////////////////////////////////////////
 //  
