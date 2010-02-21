@@ -62,6 +62,6 @@ EE_UINT8 EE_timer_start_base(EE_UINT32 base);
 EE_UINT8 EE_timer_stop_base(EE_UINT32 base);
 EE_UINT32 EE_timer_get_val_base(EE_UINT32 base, EE_UINT32 *val);
 EE_UINT8 EE_timer_set_ISR_callback_base(EE_UINT32 base, EE_UINT32 irq_flag, EE_mico32_ISR_callback isr_callback);
-void EE_timer_handler(EE_timer_st* tsp);
+void EE_timer_handler(int level);
 
 #endif // __INCLUDE_EEMCUMICO32_TIMER_H__

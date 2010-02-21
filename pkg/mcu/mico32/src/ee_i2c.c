@@ -23,8 +23,9 @@
 /******************************************************************************/
 /*                              ISRs                                          */
 /******************************************************************************/
-void EE_i2c_handler(EE_i2c_st* i2csp)
+void EE_i2c_handler(int level)
 {
+	EE_i2c_st* i2csp = EE_get_i2c_st_from_level(level);
 	OCI2CMDev_t *i2cc = (i2cspOCI2CMDev_t *)(i2csp->base);
 	
 	return;	

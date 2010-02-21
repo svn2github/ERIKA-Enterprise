@@ -101,7 +101,7 @@ EE_UINT8 EE_i2c_write_buffer_base(EE_UINT32 base, EE_UINT32 address, EE_INT8 *ve
 EE_UINT8 EE_i2c_write_byte_base(EE_UINT32 base, EE_UINT32 address, EE_INT8 data);
 EE_UINT8 EE_i2c_read_buffer_base(EE_UINT32 base, EE_UINT32 address, EE_INT8 *vet, EE_INT16 len);
 EE_UINT8 EE_i2c_read_byte_base(EE_UINT32 base, EE_UINT32 address, EE_INT8 *data)
-void EE_i2c_handler(EE_i2c_st* i2csp);
+void EE_i2c_handler(int level);
 
 #endif // __INCLUDE_EEMCUMICO32_I2C_H__
 

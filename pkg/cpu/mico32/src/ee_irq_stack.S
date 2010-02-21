@@ -60,7 +60,8 @@ EE_mico32_tmp_tos:
 	.text
 
 /* 
-void EE_mico32_call_ISR_new_stack(EE_mico32_ISR_handler fun, int nesting_level)
+void EE_mico32_call_ISR_new_stack(
+    int irq_level, EE_mico32_ISR_handler fun, int nesting_level)
 {
     if (nesting_level == 1)
         change_stacks();
@@ -74,15 +75,17 @@ void EE_mico32_call_ISR_new_stack(EE_mico32_ISR_handler fun, int nesting_level)
 
 	.global EE_mico32_call_ISR_new_stack
 	.type	EE_mico32_call_ISR_new_stack, @function
-/* void EE_std_change_context_multi(EE_mico32_ISR_handler fun, int nesting_level) */
+/* void EE_mico32_call_ISR_new_stack(
+    int irq_level, EE_mico32_ISR_handler fun, int nesting_level); */
 EE_mico32_call_ISR_new_stack:
-	// r1 == fun
-	// r2 == nesting_level
+	// r1 == irq_level
+	// r2 == fun
+	// r3 == nesting_level
 	addi	sp, sp, -8
 	sw	(sp + 4), ra
 
 	/* if (nesting_level == 1) */
-	SKIP_IF_NESTED_REG r2, r3, .L_skip_change
+	SKIP_IF_NESTED_REG r3, r4, .L_skip_change
         /*     change_stacks(); */
 	sw	(sp + 8), r11
 	LOAD_ADDR r11, EE_mico32_tmp_tos
@@ -93,11 +96,11 @@ EE_mico32_call_ISR_new_stack:
 	/* EE_std_enableIRQ_nested(); */
 	ENABLE_NESTED_IRQ
 	/* fun(); */
-	call	r1
+	call	r2
 	/* EE_std_disableIRQ_nested(); */
 	DISABLE_NESTED_IRQ
 	/* if (nesting_level == 1) */
-	SKIP_IF_NESTED r2, r2, .L_skip_change_back
+	SKIP_IF_NESTED r3, r3, .L_skip_change_back
 	/*     change_stacks_back(); */
 	lw	sp, (r11 + 0)
 	lw	r11, (sp + 8)

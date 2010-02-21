@@ -74,7 +74,7 @@ TASK(Task1)
 /*
  * Interrupt handler for the timer
  */
-void timer_interrupt(void)
+void timer_interrupt(int level)
 {
     MicoTimer_t *timerc = (MicoTimer_t *)TIMER_BASE_ADDRESS;
     timerc->Status = 0; /* Acknowledge the timer interrupt */

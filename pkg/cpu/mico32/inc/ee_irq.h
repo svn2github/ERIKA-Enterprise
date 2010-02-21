@@ -1,7 +1,7 @@
 /* ###*B*###
  * ERIKA Enterprise - a tiny RTOS for small microcontrollers
  *
- * Copyright (C) 2002-2009  Evidence Srl
+ * Copyright (C) 2002-2010  Evidence Srl
  *
  * This file is part of ERIKA Enterprise.
  *
@@ -40,7 +40,7 @@
 
 /*
  * IRQ-related stuff for Lattice Mico32; userland declarations
- * Author: 2009 Bernardo Dal Seno
+ * Author: 2009-2010,  Bernardo  Dal Seno
  */
 
 #ifndef __INCLUDE_MICO32_IRQ_H__
@@ -48,7 +48,8 @@
 
 #include "cpu/mico32/inc/ee_internal.h"
 
-typedef void (*EE_mico32_ISR_handler)(void);
+/* Type for ISR handlers: they get called with the IRQ level as argument */
+typedef void (*EE_mico32_ISR_handler)(int level);
 
 /* Register a handler with a given interrupt number; also enable the given
  * interrupt.  If `fun' is 0, disable the given interrupt.

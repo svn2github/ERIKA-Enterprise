@@ -22,8 +22,9 @@
 /******************************************************************************/
 /*                              ISRs                                          */
 /******************************************************************************/
-void EE_timer_handler(EE_timer_st* tsp)
+void EE_timer_handler(int level)
 {
+	EE_timer_st* tsp = EE_get_timer_st_from_level(level);
 	MicoTimer_t *timerc = (MicoTimer_t *)(tsp->base); 
 	
 	/* acknowledge the interrupt */

@@ -1,7 +1,7 @@
 /* ###*B*###
  * ERIKA Enterprise - a tiny RTOS for small microcontrollers
  *
- * Copyright (C) 2002-2009  Evidence Srl
+ * Copyright (C) 2002-2010  Evidence Srl
  *
  * This file is part of ERIKA Enterprise.
  *
@@ -40,7 +40,7 @@
 
 /*
  * IRQ-related stuff for Lattice Mico32; internals
- * Author: 2009 Bernardo Dal Seno
+ * Author: 2010,  Bernardo  Dal Seno
  */
 
 #ifndef __INCLUDE_MICO32_IRQ_INTERNAL_H__
@@ -85,22 +85,23 @@ __INLINE__ void __ALWAYS_INLINE__ mico32_clear_ip_mask(int mask)
 
 
 #ifdef __IRQ_STACK_NEEDED__
-void EE_mico32_call_ISR_new_stack(EE_mico32_ISR_handler fun, int nesting_level);
+void EE_mico32_call_ISR_new_stack(
+    int irq_level, EE_mico32_ISR_handler fun, int nesting_level);
 /* This must be written in assembler, as it modifies the stack pointer.
    
     if (nesting_level == 1)
         change_stacks();
     EE_std_enableIRQ_nested(); // Enable IRQ if nesting is allowed
-    fun();
+    fun(irq_level);
     EE_std_disableIRQ_nested(); // Disable IRQ if nesting is allowed
     if (nesting_level == 1)
         change_stacks_back();
 */
 #else /*ifndef __IRQ_STACK_NEEDED__ */
-__ALWAYS_INLINE__ void __INLINE__ EE_mico32_call_ISR_new_stack(EE_mico32_ISR_handler fun, int nesting_level)
+__ALWAYS_INLINE__ void __INLINE__ EE_mico32_call_ISR_new_stack(int irq_level, EE_mico32_ISR_handler fun, int nesting_level)
 {
     EE_std_enableIRQ_nested(); /* Enable IRQ if nesting is allowed */
-    fun();
+    fun(irq_level);
     EE_std_disableIRQ_nested(); /* Disable IRQ if nesting is allowed */
 }
 #endif

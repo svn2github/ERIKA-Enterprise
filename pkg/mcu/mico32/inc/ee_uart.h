@@ -113,7 +113,7 @@ int EE_uart_write_buffer_base(MicoUart_t* base, char *vet, int len);
 //int EE_uart_enable_base(MicoUart_t* base);		ATT! not implemented!
 //int EE_uart_start_base(MicoUart_t* base);			ATT! not implemented!
 //int EE_uart_stop_base(MicoUart_t* base);			ATT! not implemented!
-void EE_uart_handler(EE_uart_st* usp);
+void EE_uart_handler(int level);
 
 #endif // __INCLUDE_EEMCUMICO32_UART_H__
 

@@ -25,8 +25,9 @@ char ee_uart_isr_txvet[EE_UART_BUFSIZE];
 /*                              ISRs                                          */
 /******************************************************************************/
 // Interrupt common handler:
-void EE_uart_handler(EE_uart_st* usp)
+void EE_uart_handler(int level)
 {
+    EE_uart_st *usp = EE_get_uart_st_from_level(level);
     unsigned int iir;
     unsigned int lsr;
     char data = 0;
