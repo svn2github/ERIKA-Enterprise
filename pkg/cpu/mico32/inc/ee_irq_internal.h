@@ -43,17 +43,18 @@
  * Author: 2010,  Bernardo  Dal Seno
  */
 
+
 #ifndef __INCLUDE_MICO32_IRQ_INTERNAL_H__
 #define __INCLUDE_MICO32_IRQ_INTERNAL_H__
 
-#include <cpu/mico32/inc/ee_irq.h>
 #include <MicoInterrupts.h>
-/* Here we really need angle brackets */
+/* Here we really need angle brackets: */
 #include <ee_internal.h>
 #include <cpu/common/inc/ee_irqstub.h>
+#include <cpu/mico32/inc/ee_irq_types.h>
 
 
-extern EE_mico32_ISR_handler EE_mico32_ISR_table[];
+extern MICO32_ISR_TABLE_QUALIFIER EE_mico32_ISR_handler EE_mico32_ISR_table[];
 
 
 __INLINE__ int __ALWAYS_INLINE__ mico32_get_reg_ip(void)
@@ -98,7 +99,7 @@ void EE_mico32_call_ISR_new_stack(
         change_stacks_back();
 */
 #else /*ifndef __IRQ_STACK_NEEDED__ */
-__ALWAYS_INLINE__ void __INLINE__ EE_mico32_call_ISR_new_stack(int irq_level, EE_mico32_ISR_handler fun, int nesting_level)
+__INLINE__ void __ALWAYS_INLINE__ EE_mico32_call_ISR_new_stack(int irq_level, EE_mico32_ISR_handler fun, int nesting_level)
 {
     EE_std_enableIRQ_nested(); /* Enable IRQ if nesting is allowed */
     fun(irq_level);

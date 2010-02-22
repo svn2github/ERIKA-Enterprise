@@ -1,6 +1,6 @@
 CPU test_application {
 
-	OS EE {
+	OS EE {		
 		EE_OPT = "__ASSERT__";
 		CFLAGS = "-g2";
 		ASFLAGS = "";
@@ -10,7 +10,7 @@ CPU test_application {
 			APP_SRC = "main.c";
 			MULTI_STACK = FALSE;
 			USESTANDALONEPRINTF = TRUE; // Optional, default is FALSE
-			USESMALLC = FALSE; // Optional, defautl is FALSE
+			USESMALLC = FALSE; // Optional, default is FALSE
 		};
 		
 
@@ -38,8 +38,25 @@ CPU test_application {
 		PRIORITY = 0x01;   /* Low priority */
 		AUTOSTART = FALSE;
 		STACK = SHARED;
-		ACTIVATION = 1;	   /* only one pending activation */
+		ACTIVATION = 1;    /* only one pending activation */
 	};
+
+	ISR Timer {
+		CATEGORY = 2;		// Only category 2 is supported on Mico32
+		LEVEL = "TIMER_IRQ";	// Could be also a number
+		HANDLER = timer_interrupt;	// IRQ handler
+	};
+
+	COUNTER MainTimer;
 	
-	OS EE { KERNEL_TYPE = FP; };	
+	ALARM MyAlarm {
+		COUNTER = "MainTimer";
+		ACTION = ACTIVATETASK {
+			TASK = "Task1";
+		};
+		/* Autstart is not supported on FP kernel! */
+		AUTOSTART = FALSE;
+	};
+
+	OS EE { KERNEL_TYPE = FP; }; 	
 };

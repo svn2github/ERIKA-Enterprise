@@ -39,68 +39,34 @@
  * ###*E*### */
 
 /*
- * IRQ-related stuff for Lattice Mico32
- * Author: 2009-2010,  Bernardo  Dal Seno
+ * IRQ-related stuff for Lattice Mico32; types and common definitions (used by
+ * both ee_irq_internal.h and ee_irq.h)
+ * Author: 2009-2010, Bernardo Dal Seno
  */
 
-#include <cpu/mico32/inc/ee_irq_internal.h>
-#include <ee_internal.h>
-#include <cpu/common/inc/ee_irqstub.h>
+#ifndef __INCLUDE_MICO32_IRQ_TYPES_H__
+#define __INCLUDE_MICO32_IRQ_TYPES_H__
 
-#ifndef __STATIC_ISR_TABLE__
-EE_mico32_ISR_handler EE_mico32_ISR_table[MAX_MICO32_ISR_LEVEL+1];
+#include <MicoInterrupts.h>
+
+/* Type for ISR handlers: they get called with the IRQ level as argument */
+typedef void (*EE_mico32_ISR_handler)(int level);
+
+
+/* Qualifiers for the interrupt handler table */
+#ifdef __STATIC_ISR_TABLE__
+#define MICO32_ISR_TABLE_QUALIFIER const
+#else
+#define MICO32_ISR_TABLE_QUALIFIER
 #endif
 
 
-/* Possible improvement: Enable higher-level interrupts while processing lower
- * level interrupts, even in this function */
-void MicoISRHandler(void)
-{
-    EE_increment_IRQ_nesting_level();
-    int mask, level;
-    int im, ip;
-
-    for (;;) {
-        ip = mico32_get_reg_ip();
-        im = mico32_get_reg_im();
-        ip &= im;
-        if (ip == 0)
-            break;
-        for (mask = 1, level = 0; ; ++level, mask <<= 1) {
-            if (ip & mask) {
-                EE_mico32_ISR_handler f = EE_mico32_ISR_table[level];
-                if (f)
-                    EE_mico32_call_ISR_new_stack(level, f, EE_IRQ_nesting_level);
-                mico32_clear_ip_mask(mask);
-                break;
-            }
-        }
-    }
-    EE_decrement_IRQ_nesting_level();
-    if (! EE_is_inside_ISR_call()) {
-        /* Outer nesting level: call the scheduler.  If we have also type-ISR1
-         * interrupts, the scheduler should be called only for type-ISR2
-         * interrupts. */
-        EE_std_after_IRQ_schedule();
-    }
-}
+/* Length of the ISR table */
+#define MICO32_ISR_TABLE_LEN  (MAX_MICO32_ISR_LEVEL + 1)
 
 
-#ifndef __STATIC_ISR_TABLE__
+/* Used to declare static handlers in eecfg.c */
+#define DECLARE_MICO32_ISR_HANDLER(h)  void h(int)
 
-void EE_mico32_register_ISR(int level, EE_mico32_ISR_handler fun)
-{
-    int mask;
-    EE_FREG intst = EE_mico32_disableIRQ();
-    EE_mico32_ISR_table[level] = fun;
-    mask = mico32_get_reg_im();
-    if (fun)
-        mask |= 1 << level;
-    else
-        mask &= ~(1 << level);
-    mico32_set_reg_im(mask);
-    if (EE_mico32_are_IRQs_enabled(intst))
-        EE_mico32_enableIRQ();
-}
 
-#endif /* __STATIC_ISR_TABLE__ */
+#endif /* __INCLUDE_MICO32_IRQ_TYPES_H__ */

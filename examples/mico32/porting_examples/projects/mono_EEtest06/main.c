@@ -39,9 +39,8 @@
  * ###*E*### */
 
 /*
- * Simple project to test interrupts
+ * Simple project to test static IRQ vector
  * Author: 2010,  Bernardo  Dal Seno
- * Based on examples/s12xs/porting_examples/monostack/EEtest2
  */
 
 
@@ -91,8 +90,6 @@ void timer_interrupt(int level)
     MicoTimer_t *timerc = (MicoTimer_t *)TIMER_BASE_ADDRESS;
     timerc->Status = 0; /* Acknowledge the timer interrupt */
     ++tick_counter;
-    if (tick_counter & 1)
-        ActivateTask(Task1);
     switch (tick_counter) {
     case 1:
         EE_assert(2, counter == 0, 1);
@@ -107,6 +104,7 @@ void timer_interrupt(int level)
         EE_assert(7, counter == 2, 6);
         break;
     }
+    CounterTick(MainTimer);
 }
 
 
@@ -116,10 +114,10 @@ void timer_interrupt(int level)
 void init_timer(void)
 {
     MicoTimer_t *timerc = (MicoTimer_t *)TIMER_BASE_ADDRESS;
-    /* Register handler and enable the interrupt */
-    EE_mico32_register_ISR(TIMER_IRQ, timer_interrupt);
-    /* Raise an interrupt every 500 clock ticks */
-    timerc->Period = 500;
+    /* Enable the interrupt */
+    mico32_enable_irq(TIMER_IRQ);
+    /* Raise an interrupt every 600 clock ticks */
+    timerc->Period = 600;
     timerc->Control = MICO32_TIMER_CONTROL_INT_BIT_MASK |
         MICO32_TIMER_CONTROL_CONT_BIT_MASK |
         MICO32_TIMER_CONTROL_START_BIT_MASK;
@@ -133,6 +131,7 @@ int main(void)
 {
     started = 1;
     EE_assert(1, 1, EE_ASSERT_NIL);
+    SetRelAlarm(MyAlarm, 1, 2);
     EE_mico32_enableIRQ();
     init_timer();
     /* Wait until the fourth timer period */

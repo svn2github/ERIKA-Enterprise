@@ -46,10 +46,12 @@
 #ifndef __INCLUDE_MICO32_IRQ_H__
 #define __INCLUDE_MICO32_IRQ_H__
 
-#include "cpu/mico32/inc/ee_internal.h"
+#include <cpu/mico32/inc/ee_internal.h>
+#include <cpu/mico32/inc/ee_irq_internal.h>
+#include <cpu/mico32/inc/ee_irq_types.h>
 
-/* Type for ISR handlers: they get called with the IRQ level as argument */
-typedef void (*EE_mico32_ISR_handler)(int level);
+
+#ifndef __STATIC_ISR_TABLE__
 
 /* Register a handler with a given interrupt number; also enable the given
  * interrupt.  If `fun' is 0, disable the given interrupt.
@@ -64,5 +66,38 @@ __INLINE__ void EE_mico32_unregister_ISR(int level)
 {
     EE_mico32_register_ISR((level), 0);
 }
+
+#endif /* __STATIC_ISR_TABLE__ */
+
+
+/* Enable the interrupts specified by the `mask' parameter. */
+__INLINE__ void mico32_enable_irq_mask(int mask)
+{
+    int im = mico32_get_reg_im();
+    mico32_set_reg_im(im | mask);
+}
+
+
+/* Disable the interrupts specified by the `mask' parameter. */
+__INLINE__ void mico32_disable_irq_mask(int mask)
+{
+    int im = mico32_get_reg_im();
+    mico32_set_reg_im(im & ~mask);
+}
+
+
+/* Enable the interrupt whose number is specified by the `irq' parameter. */
+__INLINE__ void __ALWAYS_INLINE__ mico32_enable_irq(int irq)
+{
+    mico32_enable_irq_mask(1 << irq);
+}
+
+
+/* Disable the interrupt whose number is specified by the `irq' parameter. */
+__INLINE__ void __ALWAYS_INLINE__ mico32_disable_irq(int irq)
+{
+    mico32_disable_irq_mask(1 << irq);
+}
+
 
 #endif /*  __INCLUDE_MICO32_IRQ_H__ */
