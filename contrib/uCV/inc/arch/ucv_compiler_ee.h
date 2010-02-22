@@ -1,6 +1,7 @@
 #ifndef __ucv_compiler_ee_h__
 #define __ucv_compiler_ee_h__
 
+#include <ee.h>
 /** 
 * @name Basic type representations.
 * @{ */
