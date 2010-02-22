@@ -40,7 +40,7 @@ class data_section:
                    entry[1].length > 0:
                 self.out_object( entry[0], entry[1] )
 
-MEMENTITY = "onchipramtimer_tb/UUT/LM32/cpu/load_store_unit/ram/mem"
+MEMENTITY = "platform_top/UUT/LM32/cpu/load_store_unit/ram/mem"
 def out_word( name, offset, length ):
     start = offset * 8;
     end = start + length * 8 - 1;

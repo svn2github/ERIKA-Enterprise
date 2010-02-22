@@ -24,7 +24,7 @@ module platform_top();
 
 // Instantiate the UUT
 // Please check and add your parameters manually
-    onchipramtimer UUT (
+    onchipram2timers UUT (
         .clk_i(clk_i), 
         .reset_n(reset_n)
         );
