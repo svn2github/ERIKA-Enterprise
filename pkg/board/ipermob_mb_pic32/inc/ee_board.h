@@ -10,7 +10,7 @@
 #if IPERMOB_MB_PIC32_VERSION == 0
 
 #ifdef __USE_LEDS__
-__INLINE__ void __ALWAYS_INLINE__ EE_leds_init(void) 
+__INLINE__ void __ALWAYS_INLINE__ EE_leds_init(void)
 {
 	TRISECLR = 0x0F;
 	LATECLR = 0X0F;
@@ -36,9 +36,51 @@ __INLINE__ void __ALWAYS_INLINE__ EE_leds_init(void)
 
 #endif	/* __USE_LEDS__ */
 
+#ifdef __USE_BUTTONS__
+
+__INLINE__ void __ALWAYS_INLINE__ EE_buttons_init(void)
+{
+	/* set BUTTON pins as inputs */
+	TRISCbits.TRISC1 = 1;
+	TRISCbits.TRISC2 = 1;
+	TRISCbits.TRISC3 = 1;
+	TRISCbits.TRISC4 = 1;
+	/* Enable Interrupt */
+	// TODO
+	/* Save callback */
+	// TODO
+}
+
+#define EE_button_0_read	(PORTCbits.RC1)
+#define EE_button_1_read	(PORTCbits.RC2)
+#define EE_button_2_read	(PORTCbits.RC4)
+#define EE_button_3_read	(PORTCbits.RC3)
+#define EE_button_read(n)	EE_button_##n##_read
+
+/*
+ //Button
+
+ //Raw, latched and debounced
+
+ extern void (*EE_button_callback)(void); // Not used for now
+
+ //  Callback = NULL
+ __INLINE__ void __ALWAYS_INLINE__ EE_button_init(uint8 button_name, void(*isr_callback)(void), EE_UINT8 mask )
+ {
+
+ }
+
+ void EE_button_setup(uint8 button_name, uint8 mode) // button_name =  functional name of button, mode = RAW
+
+ void EE_button_control(uint8 button_name, unit8 param, uint8 value) // not used
+
+ EE_UINT8 EE_button_read(uint8 button_name) // button_name =  functional name of button
+ */
+
+#endif /* __USE_BUTTONS__ */
+
 #else 
 #error "IPERMOB_MB_PIC32: Invalid board version."
 #endif	/* IPERMOB_MB_PIC32_VERSION version selection */
-
 
 #endif /* __INCLUDE_EE_BOARD_H__ */
