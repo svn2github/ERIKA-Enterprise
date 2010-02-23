@@ -1,7 +1,7 @@
 /* ###*B*###
  * ERIKA Enterprise - a tiny RTOS for small microcontrollers
  *
- * Copyright (C) 2002-2009  Evidence Srl
+ * Copyright (C) 2002-2010  Evidence Srl
  *
  * This file is part of ERIKA Enterprise.
  *
@@ -41,7 +41,7 @@
 /*
  * CPU-dependent part of HAL
  * Derived from pkg/cpu/pic30/inc/ee_cpu.h
- * Author: 2009 Bernardo Dal Seno
+ * Author: 2009-2010,  Bernardo  Dal Seno
  */
 
 
@@ -58,16 +58,19 @@
 
 /* This instruction should cause a trap when executed.  Handy to mark invalid
  * functions */
-#define INVALID_ASM_INSTR  asm volatile ( ".word 0xcccc" )
+#define INVALID_ASM_INSTR  asm volatile ( ".word 0xcccccccc" )
 
 /* Initial stack offest (in words) */
 #ifndef DEBUG_STACK
+/* If DEBUG_STACK, the macro is defined inside "ee_debug.h" */
 #define MICO32_INIT_TOS_OFFSET 1
 #endif
+
 
 /*************************************************************************
  HAL Types and structures
  *************************************************************************/
+
 
 /* Primitive data types */
 #include "cpu/common/inc/ee_types.h"
@@ -81,7 +84,7 @@ typedef EE_INT32 EE_TID;
 /* Used by the common layer to decide whether to start a new thread */
 #define TID_IS_STACKED_MARK 0x80000000
 
-/* EE_TYPEIRQ is defined inside the MCU */
+/* EE_TYPEIRQ is currently unused */
 
 /* XXX: define EE_TIME? */
 
@@ -93,12 +96,14 @@ typedef EE_INT32 EE_TID;
  MICO32 interrupt disabling/enabling
  *********************************************************************/
 
-#define EE_mico32_are_IRQs_enabled(ie) (ie & 1)
+
+/* Used to check the value returned by EE_mico32_disableIRQ */
+#define EE_mico32_are_IRQs_enabled(ie) ((ie) & 1)
+
 
 /*
  * Enable interrupts
  */
-
 __INLINE__ void __ALWAYS_INLINE__ EE_mico32_enableIRQ(void)
 {
     EE_FREG oldie, newie;
@@ -107,10 +112,10 @@ __INLINE__ void __ALWAYS_INLINE__ EE_mico32_enableIRQ(void)
     asm volatile ("wcsr ie, %0"::"r"(newie));
 }
 
+
 /*
  * Disable interrupts
  */
-
 __INLINE__ EE_FREG __ALWAYS_INLINE__ EE_mico32_disableIRQ(void)
 {
     EE_FREG oldie, newie;
@@ -121,9 +126,39 @@ __INLINE__ EE_FREG __ALWAYS_INLINE__ EE_mico32_disableIRQ(void)
 }
 
 
+/*
+ * Invalidate data cache
+ */
+__INLINE__ void __ALWAYS_INLINE__ EE_mico32_invalidate_dcache(void)
+{
+    /* The NOPs are needed to be sure that no load or store instruction
+       immediately precedes or follows the `wcsr' instruction, as recommended by
+       the LatticeMico32 Processor Reference Manual, page 17 */
+    asm ("nop\n"
+        "wcsr dcc, r0\n"
+        "nop");
+}
+
+
+/*
+ * Invalidate instruction cache
+ */
+__INLINE__ void __ALWAYS_INLINE__ EE_mico32_invalidate_icache(void)
+{
+    /* Four NOPs, as recommended by the LatticeMico32 Processor Reference
+       Manual, page 17 */
+    asm ("wcsr icc, r0\n"
+        "nop\n"
+        "nop\n"
+        "nop\n"
+        "nop");
+}
+
+
 /*************************************************************************
- Functions
+ Functions exported by the HAL to the kernel
  *************************************************************************/
+
 
 /* 
  * Interrupt Handling
@@ -139,6 +174,10 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_disableIRQ(void)
 {
     EE_mico32_disableIRQ();
 }
+
+/* Cache invalidation */
+#define EE_hal_invalidate_dcache EE_mico32_invalidate_dcache
+#define EE_hal_invalidate_icache EE_mico32_invalidate_icache
 
 
 /*************************************************************************
