@@ -1,4 +1,4 @@
-# # Date             : 2/22/2010
+# # Date             : 2/23/2010
 # RT-Druid version : 
 #
 
@@ -28,9 +28,9 @@ EEOPT += __ASSERT__
 ############################################################################
 EEOPT += __RTD_LINUX__
 EEOPT += __LM32__
-EEOPT += __FP__
-EEOPT += __MONO__
-EEOPT += __ALARMS__
+EEOPT += __OO_BCC1__
+EEOPT += __OO_EXTENDED_STATUS__
+EEOPT += __MULTI__
 
 
 ############################################################################
