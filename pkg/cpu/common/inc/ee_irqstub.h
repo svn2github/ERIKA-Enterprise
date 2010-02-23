@@ -1,7 +1,7 @@
 /* ###*B*###
  * ERIKA Enterprise - a tiny RTOS for small microcontrollers
  *
- * Copyright (C) 2002-2009  Evidence Srl
+ * Copyright (C) 2002-2010  Evidence Srl
  *
  * This file is part of ERIKA Enterprise.
  *
@@ -40,7 +40,7 @@
 
 /*
  * Some IRQ-related stuff.
- * Author: 2009 Bernardo Dal Seno
+ * Author: 2009-2010,  Bernardo  Dal Seno
  */
 
 /*
@@ -65,8 +65,9 @@
 #ifdef __ALLOW_NESTED_IRQ__
 #define EE_decrement_IRQ_nesting_level() (--EE_IRQ_nesting_level)
 #define EE_increment_IRQ_nesting_level() (++EE_IRQ_nesting_level)
-#define EE_std_enableIRQ_nested EE_hal_enableIRQ
-#define EE_std_disableIRQ_nested EE_hal_disableIRQ
+/*  EE_std_enableIRQ_nested() and EE_std_disableIRQ_nested() must be defined in
+ *  the platform-dependent part, as they dependend on the particular way
+ *  interrupts are handled by the CPU. */
 #else
 #define EE_decrement_IRQ_nesting_level() (EE_IRQ_nesting_level = 0)
 #define EE_increment_IRQ_nesting_level() (EE_IRQ_nesting_level = 1)

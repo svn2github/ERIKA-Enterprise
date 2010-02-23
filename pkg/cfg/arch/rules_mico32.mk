@@ -47,7 +47,13 @@ ifeq ($(findstring VERBOSE,$(EEOPT)) , VERBOSE)
 VERBOSE = 1
 endif
 
-# Initial definition of target all as predefined
+# The __ALLOW_NESTED_IRQ__ option is unsupported:
+ifeq ($(findstring __ALLOW_NESTED_IRQ__,$(EEOPT)), __ALLOW_NESTED_IRQ__)
+$(warning Mico32 does not currently support nested interrupts)
+$(warning The IRQ nesting option will be ignored by the HAL)
+endif
+
+# Initial definition of target `all' as predefined
 all:
 
 include $(EEBASE)/pkg/cfg/dir.mk
