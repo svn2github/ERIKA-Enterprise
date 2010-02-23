@@ -52,12 +52,21 @@
 #include <MicoTimer.h>
 /* Erika Mico32 interrupts */
 #include <cpu/mico32/inc/ee_irq.h>
+/* Assertions */
+#include "test/assert/inc/ee_assert.h"
 
 /* For time measurements */
 #include "timing.h"
 
 /* started: Set to 1 at the beginning of main() */
 int started;
+
+
+/* Assertions */
+EE_TYPEASSERTVALUE EE_assertions[16];
+/* Final result */
+EE_TYPEASSERTVALUE result;
+
 
 /* Event time instants */
 volatile timer_t t2_before_irq1, th_caught_irq, th_end_irq, t2_before_irq2,
@@ -88,10 +97,19 @@ end_task_new_task2, end_task2;
  
  */
 
+
 /* Not an Osek kernel: no TeminateTask() */
 #define TerminateTask()
 
-/* Raise an interrupt immediately */
+
+/***********************
+ * Interrupts
+ ***********************/
+
+
+/*
+ * Raise an interrupt immediately
+ */
 void fire_irq(void)
 {
     MicoTimer_t *timerc = (MicoTimer_t *)TIMER_BASE_ADDRESS;
@@ -102,23 +120,84 @@ void fire_irq(void)
     (void)(timerc->Control);
 }
 
+
+/*
+ * Acknowledge the interrupt
+ */
+void acknowledge_interrupt(void)
+{
+    MicoTimer_t *timerc = (MicoTimer_t *)TIMER_BASE_ADDRESS;
+    timerc->Status = 0;
+}
+
+
+/*
+ * Low-level initialization of the interrupts
+ */
+void init_interrupts(void)
+{
+    MicoTimer_t *timerc = (MicoTimer_t *)TIMER_BASE_ADDRESS;
+    /* Register handler and enable the interrupt */
+    void interrupt_handler(int level);
+    EE_mico32_register_ISR(TIMER_IRQ, interrupt_handler);
+    EE_mico32_enableIRQ();
+    /* Raise an interrupt 1 clock tick after the start command */
+    timerc->Period = 1;
+    timerc->Control = MICO32_TIMER_CONTROL_INT_BIT_MASK;
+}
+
+
+/*
+ * Interrupt handler
+ */
+void interrupt_handler(int level)
+{
+    th_caught_irq = get_current_time();
+    acknowledge_interrupt();
+    if (t2_before_irq2 == 0) {
+        /* First firing */
+        EE_assert(3, 1, 2);
+        irq_call1 = time_diff(t2_before_irq1, th_caught_irq);
+        ActivateTask(Task1);
+        EE_assert(4, 1, 3);
+    } else {
+        /* Second firing */
+        EE_assert(6, 1, 5);
+        irq_call2 = time_diff(t2_before_irq2, th_caught_irq);
+        ActivateTask(Task3);
+        EE_assert(7, t3_start_finish == 0, 6);
+    }
+    th_end_irq = get_current_time();
+}
+
+
+/***********************
+ * Tasks
+ ***********************/
+
+
 /*
  * Task 1
  */
 TASK(Task1)
 {
-    timer_t t, tt;
+    timer_t t, tprev, t3;
     t = get_current_time();
     end_task_new_task1 = time_diff(t2_finish, t);
-    tt = get_current_time();
+    EE_assert(9, 1, 8);
+    EE_assert(10, t3_start_finish == 0, EE_ASSERT_NIL);
+    tprev = get_current_time();
     ActivateTask(Task3);
     t = get_current_time();
-    end_task1 = time_diff(t3_start_finish, t);
-    activate_new_task1 = time_diff(tt, t3_start_finish);
+    t3 = t3_start_finish;
+    end_task1 = time_diff(t3, t);
+    activate_new_task1 = time_diff(tprev, t3);
+    EE_assert(11, t3 != 0, 10);
     t1_before_t5 = get_current_time();
     ActivateTask(Task5);
     t = get_current_time();
     end_task2 = time_diff(t4_finish, t);
+    EE_assert(15, 1, 14);
     TerminateTask();
 }
 
@@ -128,16 +207,21 @@ TASK(Task1)
  */
 TASK(Task2)
 {
-    timer_t t;
+    timer_t t, t3;
+    EE_assert(2, 1, 1);
     t2_before_irq1 = get_current_time();
     fire_irq();
     t = get_current_time();
     irq_return = time_diff(th_end_irq, t);
+    EE_assert(5, 1, 4);
     t2_before_irq2 = get_current_time();
     fire_irq();
     t = get_current_time();
-    irq_new_task = time_diff(th_end_irq, t3_start_finish);
-    end_task_after_irq = time_diff(t3_start_finish, t);
+    t3 = t3_start_finish;
+    irq_new_task = time_diff(th_end_irq, t3);
+    end_task_after_irq = time_diff(t3, t);
+    EE_assert(8, t3 != 0, 7);
+    t3_start_finish = 0; // Reset t3 time for another assertion
     t2_finish = get_current_time();
     TerminateTask();
 }
@@ -161,6 +245,7 @@ TASK(Task4)
     timer_t t;
     t = get_current_time();
     end_task_new_task2 = time_diff(t5_finish, t);
+    EE_assert(14, 1, 13);
     t4_finish = get_current_time();
     TerminateTask();
 }
@@ -174,45 +259,11 @@ TASK(Task5)
     timer_t t;
     t = get_current_time();
     activate_new_task2 = time_diff(t1_before_t5, t);
+    EE_assert(12, 1, 11);
     ActivateTask(Task4);
+    EE_assert(13, 1, 12);
     t5_finish = get_current_time();
     TerminateTask();
-}
-
-
-/*
- * Interrupt handler
- */
-void interrupt_handler(int level)
-{
-    th_caught_irq = get_current_time();
-    MicoTimer_t *timerc = (MicoTimer_t *)TIMER_BASE_ADDRESS;
-    timerc->Status = 0; /* Acknowledge the timer interrupt */
-    if (t2_before_irq2 == 0) {
-        /* First firing */
-        irq_call1 = time_diff(t2_before_irq1, th_caught_irq);
-        ActivateTask(Task1);
-    } else {
-        /* Second firing */
-        irq_call2 = time_diff(t2_before_irq2, th_caught_irq);
-        ActivateTask(Task3);
-    }
-    th_end_irq = get_current_time();
-}
-
-
-/*
- * Low-level initialization of the interrupts
- */
-void init_interrupts(void)
-{
-    MicoTimer_t *timerc = (MicoTimer_t *)TIMER_BASE_ADDRESS;
-    /* Register handler and enable the interrupt */
-    EE_mico32_register_ISR(TIMER_IRQ, interrupt_handler);
-    EE_mico32_enableIRQ();
-    /* Raise an interrupt 1 clock tick after the start command */
-    timerc->Period = 1;
-    timerc->Control = MICO32_TIMER_CONTROL_INT_BIT_MASK;
 }
 
 
@@ -222,8 +273,11 @@ void init_interrupts(void)
 int main(void)
 {
     started = 1;
+    EE_assert(1, 1, EE_ASSERT_NIL);
     init_interrupts();
     ActivateTask(Task2);
+    EE_assert_range(0, 1, 15);
+    result = EE_assert_last();
     started = 0;
     return 0;
 }

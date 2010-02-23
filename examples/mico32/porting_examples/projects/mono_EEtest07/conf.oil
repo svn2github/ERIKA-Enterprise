@@ -1,6 +1,7 @@
 CPU test_application {
 
 	OS EE {
+		EE_OPT = "__ASSERT__";
 		CFLAGS = "-g2";
 		ASFLAGS = "";
 		LDFLAGS = "";
