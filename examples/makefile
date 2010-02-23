@@ -34,6 +34,8 @@ TEMPLATE_LIST_PIC30 += board_flex_openzb_demo
 TEMPLATE_LIST_PIC30 += pic30_res_scheduler
 TEMPLATE_LIST_PIC30 += pic30_semaphore
 TEMPLATE_LIST_PIC30 += pic30_MultiBus_Serial
+TEMPLATE_LIST_PIC30 += pic30_uwl_demo_coord
+TEMPLATE_LIST_PIC30 += pic30_uwl_demo_device
 
 # -----------------------------------------------------------
 
