@@ -5,12 +5,10 @@
 #ifndef __INCLUDE_EEMCUMICO32_TIMER_H__
 #define __INCLUDE_EEMCUMICO32_TIMER_H__
 
-#include "ee.h"							// to use Erika Enterprise data types.
-#include "cpu/mico32/inc/ee_irq.h"		// to use ISR functions.
+//#include <ee.h>							// to use Erika Enterprise data types.
+#include <cpu/mico32/inc/ee_irq.h>		// to use ISR functions.
 #include <system_conf.h>				// to use mico32 symbols and names.
-#include "MicoTimer.h"					// to use LATTICE data structures.
-#include "mcu/mico32/inc/ee_timer2.h"	// to use Timer0 functions.
-#include "mcu/mico32/inc/ee_timer1.h"	// to use Timer1 functions.
+#include "mcu/mico32/inc/ee_timer_internal.h"
 
 /*********************************************************************
      *                                                    
@@ -36,10 +34,6 @@
 typedef void (*EE_mico32_ISR_callback)(void);
 #endif
 
-typedef struct {
-    EE_UINT32 base;
-    EE_mico32_ISR_callback cbk;
-} EE_timer_st;
 
 extern EE_timer_st ee_timer_st_2;
 extern EE_timer_st ee_timer_st_1;
@@ -62,6 +56,6 @@ EE_UINT8 EE_timer_start_base(EE_UINT32 base);
 EE_UINT8 EE_timer_stop_base(EE_UINT32 base);
 EE_UINT32 EE_timer_get_val_base(EE_UINT32 base, EE_UINT32 *val);
 EE_UINT8 EE_timer_set_ISR_callback_base(EE_UINT32 base, EE_UINT32 irq_flag, EE_mico32_ISR_callback isr_callback);
-void EE_timer_handler(int level);
+void EE_timer_handler(EE_timer_st* tsp);
 
 #endif // __INCLUDE_EEMCUMICO32_TIMER_H__

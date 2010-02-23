@@ -34,10 +34,8 @@
 
 int EE_buffer_init(EE_buffer *buf, int msgsize, int bufsize, char *vet)
 {
-	EE_FREG intst;
-  	if((msgsize < 0) || (bufsize < 0))	
-  		return EE_BUF_ERR_SIZE;
-
+	unsigned int intst;
+  
 	intst = EE_mico32_disableIRQ();				//EE_hal_disableIRQ();
 	buf->g = 0;
   	buf->p = 0;
@@ -55,7 +53,7 @@ int EE_buffer_init(EE_buffer *buf, int msgsize, int bufsize, char *vet)
 int EE_buffer_isempty(EE_buffer *buf)
 {
 	int retvalue;
-	EE_FREG intst;
+	unsigned int intst;
 	
 	intst = EE_mico32_disableIRQ();				//EE_hal_disableIRQ();
 	if((buf->g == buf->p) && (buf->counter==0))
@@ -72,7 +70,7 @@ int EE_buffer_isempty(EE_buffer *buf)
 int EE_buffer_isfull(EE_buffer *buf)
 {
 	int retvalue;
-	EE_FREG intst;
+	unsigned int intst;
 	
 	intst = EE_mico32_disableIRQ();				//EE_hal_disableIRQ();
 	if((buf->g == buf->p) && (buf->counter==buf->buf_size))
@@ -89,7 +87,7 @@ int EE_buffer_putmsg(EE_buffer *buf, char* msg)
 {
 	int retvalue;
 	int i=0;
-	EE_FREG intst;
+	unsigned int intst;
 	
 	if(msg==NULL)
 		return EE_BUF_ERR_NULL;
@@ -117,7 +115,7 @@ int EE_buffer_getmsg(EE_buffer *buf, char* msg)
 {
 	int retvalue;
 	int i=0;
-	EE_FREG intst;
+	unsigned int intst;
 	
 	if(msg==NULL)
 		return EE_BUF_ERR_NULL;

@@ -3,7 +3,6 @@
 */
 
 #include "mcu/mico32/inc/ee_uart.h"
-//#include "ee_internal.h"
 
 /******************************************************************************/
 /*                             Utility Macros                                 */
@@ -13,8 +12,16 @@
 /******************************************************************************/
 /*                       Private Local Variables                              */
 /******************************************************************************/
-char ee_uart_isr_rxvet[EE_UART_BUFSIZE];
-char ee_uart_isr_txvet[EE_UART_BUFSIZE];
+/* Vectors and uart structures definitions */
+#ifdef EE_UART1_NAME_UC
+DEFINE_VET_UART(EE_UART1_NAME_UC, EE_UART1_NAME_LC)
+DEFINE_STRUCT_UART(EE_UART1_NAME_UC, EE_UART1_NAME_LC)
+#endif
+
+#ifdef EE_UART2_NAME_UC
+DEFINE_VET_UART(EE_UART2_NAME_UC, EE_UART2_NAME_LC)
+DEFINE_STRUCT_UART(EE_UART2_NAME_UC, EE_UART2_NAME_LC)
+#endif
 
 /******************************************************************************/
 /*                       Private Local Functions                              */
@@ -25,15 +32,15 @@ char ee_uart_isr_txvet[EE_UART_BUFSIZE];
 /*                              ISRs                                          */
 /******************************************************************************/
 // Interrupt common handler:
-void EE_uart_handler(int level)
+void EE_uart_common_handler(int level)
 {
-    EE_uart_st *usp = EE_get_uart_st_from_level(level);
     unsigned int iir;
-    unsigned int lsr;
+    unsigned int spint;
     char data = 0;
     
-    MicoUart_t *uartc = (MicoUart_t *)(usp->base); 
-    
+    EE_uart_st *usp = EE_get_uart_st_from_level(level);
+    MicoUart_t *uartc = usp->base; 
+
     /* interrogate interrupt-cause */
     iir = uartc->iir;
     
@@ -46,30 +53,37 @@ void EE_uart_handler(int level)
 	         * reading lsr clears error bits 
 	         */
             //lsr = uartc->lsr;
-            /* check for error(s) with the current word */
             //if((lsr & (MICOUART_LSR_PE_MASK | MICOUART_LSR_FE_MASK)) == 0) if(uiValue & MICOUART_LSR_RX_RDY_MASK)
             data = uartc->rxtx;
             EE_buffer_putmsg(&(usp->rxbuf), &data);
+            
+            /* Call user Callback */
             if(usp->rxcbk != EE_UART_NULL_CBK)
             	usp->rxcbk();
         }break;
         case MICOUART_IIR_TXRDY:	/* the interrupt is due to tx-data */
-		{				
-			EE_buffer_getmsg(&(usp->txbuf), &data);
-			
-	        if(EE_buffer_isempty(&(usp->txbuf)))
-	        {
-				if(ee_uart1_st.ie == EE_UART_ISR_RXTX)
-					uartc->ier = MICOUART_IER_RX_INT_MASK;
-				else
-					/* disable tx interrupts as this is the last data to send */
-					uartc->ier = 0;
+		{
+			spint = 1;
+			/* Loop to empty the buffer */
+			while(!EE_buffer_isempty(&(usp->txbuf)))
+			{
+				EE_buffer_getmsg(&(usp->txbuf), &data);
+				while( !((uartc->lsr) & MICOUART_LSR_TX_RDY_MASK) );	
+				uartc->rxtx = data;
+				if(spint) spint = 0;	// is not a spurious interrupt...
 			}
-			lsr = uartc->lsr;
-			while(!(lsr & MICOUART_LSR_TX_RDY_MASK));
-	        uartc->rxtx = data;
-	        if(usp->txcbk != EE_UART_NULL_CBK)
+			
+			/* To avoid interrupt is again asserted by the UART after reading the IIR register, 
+	   		   we must to disable TX isr-source. NOTE: Could start spurious tx interrupt... */
+			if(usp->mode == EE_UART_RXTX_ISR)
+				uartc->ier = (volatile unsigned int)(MICOUART_IER_RX_INT_MASK);
+			else if(usp->mode == EE_UART_TX_ISR)
+				uartc->ier = 0;
+				
+			/* Call user Callback (not for spurious interrupt...) */
+	       	if( (usp->txcbk != EE_UART_NULL_CBK) && (!spint) )
             	usp->txcbk();
+            		
         }break;
         default:{
             /* 
@@ -80,7 +94,6 @@ void EE_uart_handler(int level)
         }break;
     }
 
-    /* all done */
     return;
 }
 
@@ -88,31 +101,28 @@ void EE_uart_handler(int level)
 /******************************************************************************/
 /*                       Public Global Functions                              */
 /******************************************************************************/
-int EE_uart_init_base(MicoUart_t* base, int irq_flag, int baudrate, unsigned int settings, int ie_flag, 
-						EE_mico32_ISR_callback isr_rx_callback, EE_mico32_ISR_callback isr_tx_callback)
+/* This function records ISR handler */
+int EE_hal_uart_handler_setup(EE_uart_st* usp)
 {
-	MicoUart_t *uartc = base;
-	
-	if(baudrate==0)
-		return EE_UART_ERR_BAD_VALUE; 
-	
-	//switch(base)
-	//	{
-	//		case UART1_BASE_ADDRESS:
-	//			ee_uart1_st.base = base;
-	//			buf = 
-	//			break;
-	//		case UART2_BASE_ADDRESS:
-	//			ee_uart2_st.base = base;
-	//			break;
-	//		default:
-	//			return(EE_UART_ERR_BAD_VALUE);
-	//	}  
-	ee_uart1_st.base = base;  
+    /* Register IRQ handler */
+    EE_mico32_register_ISR(usp->irqf, EE_uart_common_handler);	 
+
+	return EE_UART_OK;
+}
+
+/* This function configures UART baudrate and other features (parity, stop bits...) */
+int EE_hal_uart_config(EE_uart_st* usp, int baudrate, int settings)
+{
+	unsigned int iir;
+	MicoUart_t *uartc = usp->base; 
 	
 	/* reset ier (isr register) */
     uartc->ier = 0;						// if ier==0 -> POLLING MODE (ATT! is a blocking mode!!!)
     									// if ier!=0 -> ISR MODE (ATT! is not a blocking mode!!!)
+    iir = uartc->iir;					// read iir register to clean ISR flags.	FARE PROVA!!!
+	
+	/* Register IRQ handler */
+    EE_hal_uart_handler_setup(usp);
     
 	/* set the control register */
     uartc->lcr = settings;    
@@ -121,98 +131,81 @@ int EE_uart_init_base(MicoUart_t* base, int irq_flag, int baudrate, unsigned int
     uartc->div = (MICO32_CPU_CLOCK_MHZ)/baudrate;
     
     /* ISR management */
-    return EE_uart_set_ISR_callback_base(base, irq_flag, ie_flag, isr_rx_callback, isr_tx_callback);
+    return EE_UART_OK;	//EE_uart_set_ISR_callback_base(base, irq_flag, ie_flag, isr_rx_callback, isr_tx_callback);
 }
 
-int EE_uart_set_ISR_callback_base(MicoUart_t* base, int irq_flag, int ie_flag, EE_mico32_ISR_callback isr_rx_callback, EE_mico32_ISR_callback isr_tx_callback)
+/* This function sets UART operating mode */
+int EE_hal_uart_set_ISR_mode(EE_uart_st* usp, int mode)
 {
-	unsigned int iir; 
-	MicoUart_t *uartc = base;
+	int old_mode;
+	unsigned int intst;
 	
-	/* reset ier (isr register) */
-	uartc->ier = 0;
-	iir = uartc->iir;
-	//switch(base)
-//	{
-//		case UART1_BASE_ADDRESS:
-//			...
-//			break;
-//		case UART2_BASE_ADDRESS:
-//			ee_uart2_st.rxcbk = isr_rx_callback;
-//			ee_uart2_st.txcbk = isr_tx_callback;
-//			if( (isr_rx_callback != EE_UART_NULL_CBK)  || (isr_tx_callback != EE_UART_NULL_CBK) )
-//			{
-//				/* Register handler and enable the interrupt */
-//				EE_mico32_register_ISR(irq_flag, EE_uart2_handler);
-//			}
-//			break;
-//		default:
-//			return(EE_UART_ERR_BAD_VALUE);
-//	}   
-
-	ee_uart1_st.rxcbk = isr_rx_callback;
-	ee_uart1_st.txcbk = isr_tx_callback;
-	switch(ie_flag)
+	MicoUart_t *uartc = usp->base; 
+	
+	#ifdef EE_UART_DEBUG
+	if( (mode<EE_UART_POLLING) || (mode>EE_UART_RXTX_ISR) )
 	{
-		case EE_UART_POLLING_MODE:
-			ee_uart1_st.ie = ie_flag;  
-			uartc->ier = 0;
-			EE_mico32_unregister_ISR(irq_flag);
-			break;
-		case EE_UART_ISR_RX:
-			ee_uart1_st.ie = ie_flag;  
-			/* Register handler and enable the interrupt */
-			EE_mico32_register_ISR(irq_flag, EE_uart1_handler);	
-			EE_buffer_init(&ee_uart1_st.rxbuf, EE_UART_MSGSIZE, EE_UART_BUFSIZE, ee_uart_isr_rxvet);	// vet must be: char vet[msgsize*bufsize]
-			uartc->ier = MICOUART_IER_RX_INT_MASK;
-			break;
-		case EE_UART_ISR_TX:	
-			ee_uart1_st.ie = ie_flag;  
-			/* Register handler and enable the interrupt */
-			EE_mico32_register_ISR(irq_flag, EE_uart1_handler);
-			EE_buffer_init(&ee_uart1_st.txbuf, EE_UART_MSGSIZE, EE_UART_BUFSIZE, ee_uart_isr_txvet);	// vet must be: char vet[msgsize*bufsize]
-			//uartc->ier = MICOUART_IER_TX_INT_MASK;													// Tx Interrupts are enabled only when we need to transmit... 
-			break;
-		case EE_UART_ISR_RXTX:	
-			ee_uart1_st.ie = ie_flag;  
-			/* Register handler and enable the interrupt */
-			EE_mico32_register_ISR(irq_flag, EE_uart1_handler);
-			EE_buffer_init(&ee_uart1_st.rxbuf, EE_UART_MSGSIZE, EE_UART_BUFSIZE, ee_uart_isr_rxvet);	// vet must be: char vet[msgsize*bufsize]
-			EE_buffer_init(&ee_uart1_st.txbuf, EE_UART_MSGSIZE, EE_UART_BUFSIZE, ee_uart_isr_txvet);	// vet must be: char vet[msgsize*bufsize]
-			uartc->ier = MICOUART_IER_RX_INT_MASK; //uartc->ier = MICOUART_IER_RX_INT_MASK | MICOUART_IER_TX_INT_MASK; // Tx Interrupts are enabled only when we need to transmit... 
-			break;
-		default:
-			return(EE_UART_ERR_BAD_VALUE);
+		usp->err = EE_UART_ERR_BAD_VALUE;
+		return EE_UART_ERR_BAD_VALUE;
 	}
-
-	// All done!!!
-    return EE_UART_OK;
+	#endif
+	
+	old_mode = usp->mode;
+	if(old_mode == mode)
+		return EE_UART_OK;
+	
+	/* Disble IRQ */
+	intst = EE_mico32_disableIRQ();
+	
+	/* Register IRQ handler */
+	EE_hal_uart_handler_setup(usp);
+	usp->mode = mode; 	
+	/* Buffer initialization */
+	if (EE_uart_need_init_rx_buf(old_mode, mode))
+		EE_buffer_init(&usp->rxbuf, EE_UART_MSGSIZE, EE_UART_BUFSIZE, usp->rxbuf.data);
+	if (EE_uart_need_init_tx_buf(old_mode, mode))
+		EE_buffer_init(&usp->txbuf, EE_UART_MSGSIZE, EE_UART_BUFSIZE, usp->txbuf.data);
+	/* IRQ settings */
+	if(EE_uart_need_enable_rx_int(mode))
+		uartc->ier = (volatile unsigned int)(MICOUART_IER_RX_INT_MASK);	// check if we lose data when ier is written...	
+		
+	/* Enable IRQ */
+	if (EE_mico32_are_IRQs_enabled(intst))
+        EE_mico32_enableIRQ();
+        
+	return EE_UART_OK;
 }
 
-int EE_uart_write_byte_base(MicoUart_t* base, char data)
+/* This functions sets rx callback */
+int EE_hal_uart_set_rx_callback(EE_uart_st* usp, EE_ISR_callback isr_rx_callback)
 {
-	unsigned int uiValue, ie_flag;
+	usp->rxcbk = isr_rx_callback;
+	
+	return EE_UART_OK;
+}
+
+/* This functions sets tx callback */
+int EE_hal_uart_set_tx_callback(EE_uart_st* usp, EE_ISR_callback isr_tx_callback)
+{
+	usp->txcbk = isr_tx_callback;
+	
+	return EE_UART_OK;
+}
+
+/* This functions can be used to write a character */
+int EE_hal_uart_write_byte(EE_uart_st* usp, char data)
+{
+	unsigned int uiValue, mode;
 	EE_buffer* buffer;
-	char ret = EE_UART_OK;	
-	MicoUart_t *uartc = base;
+	int ret;
+	unsigned int intst;
+  
+	MicoUart_t *uartc = usp->base; 
 	
-	//switch(base)
-//	{
-//		case UART1_BASE_ADDRESS:
-//			buffer = ee_uart1_st.txbuf;
-//			ie_flag = ee_uart1_st.ie;
-//			break;
-//		case UART2_BASE_ADDRESS:
-//			buffer = ee_uart2_st.txbuf;
-//			ie_flag = ee_uart2_st.ie;
-//			break;
-//		default:
-//			return(EE_UART_ERR_BAD_VALUE);
-//	}   
-	buffer = &ee_uart1_st.txbuf;
-	ie_flag = ee_uart1_st.ie;
+	buffer = &usp->txbuf;
+	mode = usp->mode;
 	
-	if( (ie_flag!=EE_UART_ISR_TX) && (ie_flag!=EE_UART_ISR_RXTX) )	// POLLING MODE
+	if( EE_uart_tx_polling(mode) )	// POLLING MODE
 	{
 		do
 		{
@@ -221,95 +214,153 @@ int EE_uart_write_byte_base(MicoUart_t* base, char data)
     		if(uiValue & MICOUART_LSR_TX_RDY_MASK)
 			{
     			uartc->rxtx = data;
-    			return ret;
+    			break;
 			}
 			// if you don't want a blocking procedure return here...
 		}while(1);
+		ret = 1;		// one byte transmitted
+    	usp->err = EE_UART_OK;
 	}
 	else
 	{
-		if(ie_flag == EE_UART_ISR_TX)
-			uartc->ier = MICOUART_IER_TX_INT_MASK;	// Enable interrupts to empty the tx buffer...
-		else
-			uartc->ier = MICOUART_IER_RX_INT_MASK | MICOUART_IER_TX_INT_MASK;
 		ret = EE_buffer_putmsg(buffer, &data);
+		usp->err = ret;
+		intst = EE_mico32_disableIRQ();				//EE_hal_disableIRQ();
+		if(mode == EE_UART_TX_ISR)
+			uartc->ier = (volatile unsigned int)(MICOUART_IER_TX_INT_MASK);	// Enable interrupts to empty the tx buffer...
+		else
+			uartc->ier = (volatile unsigned int)(MICOUART_IER_RX_INT_MASK | MICOUART_IER_TX_INT_MASK);
+		if (EE_mico32_are_IRQs_enabled(intst))		//EE_hal_enableIRQ();
+        	EE_mico32_enableIRQ();
+        if(ret == EE_BUF_OK)
+        	ret = 1;	// one byte loaded in the buffer
 	}
 	
 	// All done!!!
 	return ret;
 }
 
-int EE_uart_read_byte_base(MicoUart_t* base, char *data)
+/* This functions can be used to read a character */
+int EE_hal_uart_read_byte(EE_uart_st* usp, char *adddata)
 {
-	unsigned int uiValue, ie_flag;
-	int ret = EE_UART_OK;
+	unsigned int uiValue, mode;
+	int ret;
 	EE_buffer* buffer;
-	MicoUart_t *uartc = base;
 	
-	if(data == EE_UART_NULL_VET)
-		return EE_UART_ERR_BAD_VALUE;
-		
-	//switch(base)
-//	{
-//		case UART1_BASE_ADDRESS:
-//			buffer = ee_uart1_st.rxbuf;
-//			polling_mode = (ee_uart1_st.rxcbk == EE_UART_NULL_CBK);
-//			break;
-//		case UART2_BASE_ADDRESS:
-//			buffer = ee_uart2_st.rxbuf;
-//			polling_mode = (ee_uart2_st.rxcbk == EE_UART_NULL_CBK);
-//			break;
-//		default:
-//			return(EE_UART_ERR_BAD_VALUE);
-//	}  
-	buffer = &ee_uart1_st.rxbuf;
-	ie_flag = ee_uart1_st.ie;
+	MicoUart_t *uartc = usp->base; 
+
+	buffer = &usp->rxbuf;
+	mode = usp->mode;
 	
-	if( (ie_flag!=EE_UART_ISR_RX) && (ie_flag!=EE_UART_ISR_RXTX) )	// POLLING MODE
+	if( EE_uart_rx_polling(mode) )	// POLLING MODE
 	{
 		do
 		{
 			uiValue = uartc->lsr;
 			if(uiValue & MICOUART_LSR_RX_RDY_MASK)
 			{
-    			*data = uartc->rxtx;
+    			*adddata = uartc->rxtx;
         		// All done!!!
-    			return ret;
+    			break;
     		}
     		// if you don't want a blocking procedure return here...
 		}while(1);
+		ret = 1;			// one byte received.
+    	usp->err = EE_UART_OK;
 	}
 	else
 	{
-		ret = EE_buffer_getmsg(buffer, data);	
+		ret = EE_buffer_getmsg(buffer, adddata);	
+		usp->err = ret;
+		if(ret == EE_BUF_OK)
+			ret = 1;		// one byte read from the buffer.
 	}
 		
     // All done!!!
 	return ret;
 }
 
-int EE_uart_read_buffer_base(MicoUart_t* base, char *vet, int len)
+/* This functions can be used to write a buffer of characters */
+int EE_hal_uart_write_buffer(EE_uart_st* usp, char *vet, int len)
 {
-	int i=0;
+	unsigned int uiValue, mode;
+	EE_buffer* buffer;
+	int ret,i;
+	unsigned int intst;
+  
+	MicoUart_t *uartc = usp->base; 
+	
+	buffer = &usp->txbuf;
+	mode = usp->mode;
+	
+	if( EE_uart_tx_polling(mode) )	// POLLING MODE
+	{
+		for(i=0; i<len; i++)
+		{
+			do
+			{
+				/* if uart's ready to accept character, send immediately */
+    			uiValue = uartc->lsr;
+    			if(uiValue & MICOUART_LSR_TX_RDY_MASK)
+				{
+    				uartc->rxtx = vet[i];
+    				break;
+				}
+				// if you don't want a blocking procedure return here...
+			}while(1);
+		}
+		ret = len;		// number of bytes transmitted... 
+    	usp->err = EE_UART_OK;
+	}
+	else
+	{
+		for(i=0; i<len; i++)
+		{
+			ret = EE_buffer_putmsg(buffer, vet+i);
+			usp->err = ret;
+			if( ret != EE_BUF_OK )
+				break;
+		}
+		intst = EE_mico32_disableIRQ();				//EE_hal_disableIRQ();
+		if(mode == EE_UART_TX_ISR)
+			uartc->ier = (volatile unsigned int)(MICOUART_IER_TX_INT_MASK);	// Enable interrupts to empty the tx buffer...
+		else
+			uartc->ier = (volatile unsigned int)(MICOUART_IER_RX_INT_MASK | MICOUART_IER_TX_INT_MASK);
+		if (EE_mico32_are_IRQs_enabled(intst))		//EE_hal_enableIRQ();
+        	EE_mico32_enableIRQ();
+        ret = i;		// number of bytes loaded in the tx buffer
+	}
+	
+	// All done!!!
+	return ret;
+}
+
+/* This functions can be used to read a buffer of characters */
+int EE_hal_uart_read_buffer(EE_uart_st* usp, char *vet, int len)
+{
+	int i;
 
 	for(i=0; i<len; i++)
 	{
-		if(EE_uart_read_byte_base(base, &vet[i]) != EE_UART_OK)
-			return EE_UART_ERR_RECEPTION;
+		if(EE_hal_uart_read_byte(usp, &vet[i]) < 0)
+			break;
 	}
+	
+	return i;	// number of bytes read.
+}
+
+/* This functions enables IRQ */
+int EE_hal_uart_enable_IRQ(EE_uart_st* usp, int ier)
+{
+	usp->base->ier = (volatile unsigned int)(ier);
 	
 	return EE_UART_OK;
 }
 
-int EE_uart_write_buffer_base(MicoUart_t* base, char *vet, int len)
+/* This functions disables IRQ */
+int EE_hal_uart_disable_IRQ(EE_uart_st* usp)
 {
-	int i=0;
-
-	for(i=0; i<len; i++)
-	{
-		if(EE_uart_write_byte_base(base, vet[i]) != EE_UART_OK)
-			return EE_UART_ERR_TRANSMISSION;
-	}
+	usp->base->ier = 0;
 	
 	return EE_UART_OK;
 }
