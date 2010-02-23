@@ -65,11 +65,11 @@ help:
 	@echo "      make witherrors"
 
 
-BATCH_DIR=/cygdrive/c/Evidence/Evidence/eclipse/evidence
+BATCH_DIR=/cygdrive/c/Evidence/eclipse/evidence
 BATCH_TEMPLATE=$(BATCH_DIR)/template_launcher.bat
 BATCH_GENERATOR=$(BATCH_DIR)/rtd_launcher.bat
 
-ECLIPSE_HOME="C:\\Evidence\\Evidence\\eclipse"
+ECLIPSE_HOME="C:\\Evidence\\eclipse"
 
 FLAGS=$(addsuffix /doneflag.txt,$(addprefix regression/,$(TEMPLATE_LIST)))
 
