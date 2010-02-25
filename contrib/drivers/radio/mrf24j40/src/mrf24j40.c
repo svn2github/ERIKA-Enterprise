@@ -28,6 +28,14 @@ static void (*rx_callback)(void) = NULL;
 
 #ifdef MRF24J40_DEBUG
 static uint8_t mrf24j40_db_msg[80];
+
+#ifdef __STDIO_COMPILER_BUG__
+unsigned int strlen(const char *str);
+int sprintf(char *, const char *, ...);
+#else
+#include <stdio.h> //TODO: REMOVE together with the sprintf() !!!!!
+#endif
+
 #endif
 
 void mrf24j40_set_rx_callback(void (*func)(void)) 
@@ -393,29 +401,46 @@ uint8_t mrf24j40_get_fifo_msg(uint8_t *msg)
 	uint8_t i, len;
 
 	#ifdef MRF24J40_PROMISCUOUS_MODE
- 	/* 
-	* Flush RX FIFO as suggested by the work around 1 in 
-	* MRF24J40 Silicon Errata.
-	*/
+	/*
+	 * Flush RX FIFO as suggested by the work around 1 in
+	 * MRF24J40 Silicon Errata.
+	 */
 	mrf24j40_set_short_add_mem(MRF24J40_RXFLUSH,0x01);
 	#endif
-
 	/*Disable packet reception*/
 	mrf24j40_set_short_add_mem(MRF24J40_BBREG1, 0x04);
-	
 	/* Get packet length */
 	len = mrf24j40_get_long_add_mem(MRF24J40_RX_FIFO);
-
-	/*Discard CRC bytes */
-	len = len - 2;
+	#ifdef MRF24J40_UWL_MODE
+	/* Discard CRC bytes */
+	// don't discard it in UWL_MODE
+	//len = len - 2;
 
 	/* Get the packet */
-	for (i=0;i < len; i++)
+	debug_print("\r\nPacket received:\r\n");
+	msg[0] = len;
+	debug_set_msg("0x%X ", msg[0]);
+	debug_print(mrf24j40_db_msg);
+	for (i=1;i < len + 1 + 2; i++) {
+		msg[i] = mrf24j40_get_long_add_mem(MRF24J40_RX_FIFO + i);
+		debug_set_msg("0x%X ", msg[i]);
+		debug_print(mrf24j40_db_msg);
+	}
+
+	#else
+	/*Discard CRC bytes */
+	len = len - 2;
+	/* Get the packet */
+	debug_print("\r\nPacket received:\r\n");
+	for (i=0;i < len; i++) {
 		msg[i] = mrf24j40_get_long_add_mem(MRF24J40_RX_FIFO + 1 + i);
-	 
+		debug_set_msg("0x%X ", msg[i]);
+		debug_print(mrf24j40_db_msg);
+	}
+	#endif /* MRF24J40_UWL_MODE */
+
 	/*Enable packet reception*/
 	mrf24j40_set_short_add_mem(MRF24J40_BBREG1, 0x00);
-
 	return len;
 }
 
