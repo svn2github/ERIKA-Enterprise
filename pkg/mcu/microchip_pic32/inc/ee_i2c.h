@@ -11,9 +11,15 @@
 
 #define DEFAULT_100KHZ_BRG 0xC6 // Works @ 80 Mhz
 #define DEFAULT_400KHZ_BRG 0x30 // Works @ 80 Mhz
-#define DEFAULT_FLAGS 0x0
-#define EE_I2C_ERR_BAD_PORT -1
 
+#define DEFAULT_FLAGS 0x0
+#define EE_I2C_ERR_BAD_PORT 1
+
+#define EE_I2C_SUCCESS		1 	//Used as positive
+#define EE_I2C_FAILURE	 	1
+
+
+#define CONNECTION_TIMEOUT	2000 
 
 enum {
 	EE_I2C_PORT_1  = 0,

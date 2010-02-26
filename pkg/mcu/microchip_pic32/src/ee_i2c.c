@@ -99,14 +99,23 @@ __INLINE__ void init_i2c_port_2(EE_UINT16 spibrg, EE_UINT16 flags) {
 
 static EE_UINT8 i2c_write_port_1(EE_UINT8 device, EE_UINT8 address,
 							EE_UINT8 data){
+	
+	unsigned int cto = 0;
+
 	/* Ensure I2C module is idle */
-	while(EE_i2c_idle(EE_I2C_PORT_1));
+	while(EE_i2c_idle(EE_I2C_PORT_1)) {
+		if(++cto > CONNECTION_TIMEOUT)
+			return -EE_I2C_FAILURE;
+	}
 
 	/* Transmit a Start condition, initiate Start on SDA and SCL pins */
 	I2C1CONbits.SEN = 1;		
 
 	/* Wait till Start sequence is completed */
-	while(I2C1CONbits.SEN);
+	while(I2C1CONbits.SEN) {
+		if(++cto > CONNECTION_TIMEOUT)
+			return -EE_I2C_FAILURE;
+	}
 	
 	/* Write Slave address and set master for transmission 
 	(R/W bit should be 0) */
@@ -115,13 +124,22 @@ static EE_UINT8 i2c_write_port_1(EE_UINT8 device, EE_UINT8 address,
 		return -1;
 	
 	/* Wait till address is transmitted */
-	while(I2C1STATbits.TBF);
+	while(I2C1STATbits.TBF) {
+		if(++cto > CONNECTION_TIMEOUT)
+			return  -EE_I2C_FAILURE;
+	}
 
 	/* Test for ACK condition received */
-	while(I2C1STATbits.ACKSTAT);
+	while(I2C1STATbits.ACKSTAT) {
+		if(++cto > CONNECTION_TIMEOUT)
+			return  -EE_I2C_FAILURE;
+	}
 
 	/* Ensure I2C module is idle */
-	while(EE_i2c_idle(EE_I2C_PORT_1));
+	while(EE_i2c_idle(EE_I2C_PORT_1)) {
+		if(++cto > CONNECTION_TIMEOUT)
+			return  -EE_I2C_FAILURE;
+	}
 	
 	/* Write word address */
 	I2C1TRN = address;
@@ -129,49 +147,82 @@ static EE_UINT8 i2c_write_port_1(EE_UINT8 device, EE_UINT8 address,
 		return -1;
 
 	/* Wait till address is transmitted */
-	while(I2C1STATbits.TBF);
+	while(I2C1STATbits.TBF) {
+		if(++cto > CONNECTION_TIMEOUT)
+			return -EE_I2C_FAILURE;
+	}
 
 	/* Test for ACK condition received */
-	while(I2C1STATbits.ACKSTAT);
+	while(I2C1STATbits.ACKSTAT) {
+		if(++cto > CONNECTION_TIMEOUT)
+			return -EE_I2C_FAILURE;
+	}
 
 	/* Ensure I2C module is idle */
-	while(EE_i2c_idle(EE_I2C_PORT_1));
+	while(EE_i2c_idle(EE_I2C_PORT_1)) {
+		if(++cto > CONNECTION_TIMEOUT)
+			return -EE_I2C_FAILURE;
+	}
 
 	I2C1TRN = data;
 	if(I2C1STATbits.IWCOL)		// If write collision occurs,return -1
 		return -1;
 
 	/* Wait till address is transmitted */
-	while(I2C1STATbits.TBF);
+	while(I2C1STATbits.TBF) {
+		if(++cto > CONNECTION_TIMEOUT)
+			return -EE_I2C_FAILURE;
+	}
 
 	/* Test for ACK condition received */
-	while(I2C1STATbits.ACKSTAT);
+	while(I2C1STATbits.ACKSTAT) {
+		if(++cto > CONNECTION_TIMEOUT)
+			return -EE_I2C_FAILURE;
+	}
 
 	/* Ensure I2C module is idle */
-	while(EE_i2c_idle(EE_I2C_PORT_1));
+	while(EE_i2c_idle(EE_I2C_PORT_1)) {
+		if(++cto > CONNECTION_TIMEOUT)
+			return -EE_I2C_FAILURE;
+	}
 
 	/* send STOP condition */
 	I2C1CONbits.PEN = 1;		// initiate Stop on SDA and SCL pins 
 
 	/* Wait till Stop sequence is completed */
-	while(I2C1CONbits.PEN);
+	while(I2C1CONbits.PEN) {
+		if(++cto > CONNECTION_TIMEOUT)
+			return -EE_I2C_FAILURE;
+	}
 
 	/* Ensure I2C module is idle */
-	while(EE_i2c_idle(EE_I2C_PORT_1));
+	while(EE_i2c_idle(EE_I2C_PORT_1)) {
+		if(++cto > CONNECTION_TIMEOUT)
+			return -EE_I2C_FAILURE;
+	}
 
-	return 0;
+	return EE_I2C_SUCCESS;
 }
 
 static EE_UINT8 i2c_write_port_2(EE_UINT8 device, EE_UINT8 address, 
 							EE_UINT8 data){
+
+	unsigned int cto = 0;
+	
 	/* Ensure I2C module is idle */
-	while(EE_i2c_idle(EE_I2C_PORT_2)) ;
+	while(EE_i2c_idle(EE_I2C_PORT_2))  {
+		if(++cto > CONNECTION_TIMEOUT)
+			return -EE_I2C_FAILURE;
+	}
 
 	/* Transmit a Start condition */
 	I2C2CONbits.SEN = 1;		// initiate Start on SDA and SCL pins
 			
 	/* Wait till Start sequence is completed */
-	while(I2C2CONbits.SEN);
+	while(I2C2CONbits.SEN) {
+		if(++cto > CONNECTION_TIMEOUT)
+			return -EE_I2C_FAILURE;
+	}
 
 	/* Write Slave address and set master for transmission 
 	(R/W bit should be 0) */
@@ -181,13 +232,22 @@ static EE_UINT8 i2c_write_port_2(EE_UINT8 device, EE_UINT8 address,
 		return -1;
 
 	/* Wait till address is transmitted */
-	while(I2C2STATbits.TBF);
+	while(I2C2STATbits.TBF) {
+		if(++cto > CONNECTION_TIMEOUT)
+			return -EE_I2C_FAILURE;
+	}
 
 	/* Test for ACK condition received */
-	while(I2C2STATbits.ACKSTAT) ;
+	while(I2C2STATbits.ACKSTAT)  {
+		if(++cto > CONNECTION_TIMEOUT)
+			return -EE_I2C_FAILURE;
+	}
 
 	/* Ensure I2C module is idle */
-	while(EE_i2c_idle(EE_I2C_PORT_2)) ;
+	while(EE_i2c_idle(EE_I2C_PORT_2))  {
+		if(++cto > CONNECTION_TIMEOUT)
+			return -EE_I2C_FAILURE;
+	}
 
 	/* Write word address */
 	I2C2TRN = address;
@@ -196,13 +256,22 @@ static EE_UINT8 i2c_write_port_2(EE_UINT8 device, EE_UINT8 address,
 		return -1;
 
 	/* Wait till address is transmitted */
-	while(I2C2STATbits.TBF) ;
+	while(I2C2STATbits.TBF)  {
+		if(++cto > CONNECTION_TIMEOUT)
+			return -EE_I2C_FAILURE;
+	}
 
 	/* Test for ACK condition received */
-	while(I2C2STATbits.ACKSTAT);
+	while(I2C2STATbits.ACKSTAT) {
+		if(++cto > CONNECTION_TIMEOUT)
+			return -EE_I2C_FAILURE;
+	}
 
 	/* Ensure I2C module is idle */
-	while(EE_i2c_idle(EE_I2C_PORT_2));
+	while(EE_i2c_idle(EE_I2C_PORT_2)) {
+		if(++cto > CONNECTION_TIMEOUT)
+			return -EE_I2C_FAILURE;
+	}
 
 	/* Write data byte to serial */
 	I2C2TRN = data;
@@ -210,24 +279,39 @@ static EE_UINT8 i2c_write_port_2(EE_UINT8 device, EE_UINT8 address,
 		return -1;
 
 	/* Wait till address is transmitted */
-	while(I2C2STATbits.TBF);
+	while(I2C2STATbits.TBF) {
+		if(++cto > CONNECTION_TIMEOUT)
+			return -EE_I2C_FAILURE;
+	}
 
 	/* Test for ACK condition received */
-	while(I2C2STATbits.ACKSTAT);
+	while(I2C2STATbits.ACKSTAT) {
+		if(++cto > CONNECTION_TIMEOUT)
+			return -EE_I2C_FAILURE;
+	}
 
 	/* Ensure I2C module is idle */
-	while(EE_i2c_idle(EE_I2C_PORT_2));
+	while(EE_i2c_idle(EE_I2C_PORT_2)) {
+		if(++cto > CONNECTION_TIMEOUT)
+			return -EE_I2C_FAILURE;
+	}
 	
 	/* send STOP condition */
 	I2C2CONbits.PEN = 1;		// initiate Stop on SDA and SCL pins
 	
 	/* Wait till Stop sequence is completed */
-	while(I2C2CONbits.PEN);
+	while(I2C2CONbits.PEN) {
+		if(++cto > CONNECTION_TIMEOUT)
+			return -EE_I2C_FAILURE;
+	}
 
 	/* Ensure I2C module is idle */
-	while(EE_i2c_idle(EE_I2C_PORT_2));
+	while(EE_i2c_idle(EE_I2C_PORT_2)) {
+		if(++cto > CONNECTION_TIMEOUT)
+			return -EE_I2C_FAILURE;
+	}
 
-	return 0;
+	return EE_I2C_SUCCESS;
 }
 
 
@@ -235,15 +319,22 @@ static EE_UINT8 i2c_write_port_2(EE_UINT8 device, EE_UINT8 address,
 
 static EE_INT8 i2c_read_port_1(EE_UINT8 device, EE_UINT8 address){
 	
+	unsigned int cto = 0;
 	EE_UINT8 data = 0;
 
 	/*  Ensure I2C module is idle */
-	while(EE_i2c_idle(EE_I2C_PORT_1));
+	while(EE_i2c_idle(EE_I2C_PORT_1)) {
+		if(++cto > CONNECTION_TIMEOUT)
+			return -EE_I2C_FAILURE;
+	}
 	// Transmit a Start condition on i2c1
 	I2C1CONbits.SEN = 1;		// initiate Start on SDA and SCL pins
 
 	/*  Wait till Start sequence is completed */
-	while(I2C1CONbits.SEN);
+	while(I2C1CONbits.SEN) {
+		if(++cto > CONNECTION_TIMEOUT)
+			return -EE_I2C_FAILURE;
+	}
 
 	/* Write Slave address and set master for transmission  
 	(R/W bit should be 0)*/            
@@ -253,13 +344,22 @@ static EE_INT8 i2c_read_port_1(EE_UINT8 device, EE_UINT8 address){
 		return -1;
 
 	/* Wait till address is transmitted */
-	while(I2C1STATbits.TBF);
+	while(I2C1STATbits.TBF) {
+		if(++cto > CONNECTION_TIMEOUT)
+			return -EE_I2C_FAILURE;
+	}
 
 	/* Test for ACK condition received */
-	while(I2C1STATbits.ACKSTAT);
+	while(I2C1STATbits.ACKSTAT) {
+		if(++cto > CONNECTION_TIMEOUT)
+			return -EE_I2C_FAILURE;
+	}
 
 	/* Ensure I2C module is idle */
-	while(EE_i2c_idle(EE_I2C_PORT_1));
+	while(EE_i2c_idle(EE_I2C_PORT_1)) {
+		if(++cto > CONNECTION_TIMEOUT)
+			return -EE_I2C_FAILURE;
+	}
 
 	/* Write word address */
 	I2C1TRN = address;
@@ -267,19 +367,31 @@ static EE_INT8 i2c_read_port_1(EE_UINT8 device, EE_UINT8 address){
 		return -1;
 
 	/* Wait till address is transmitted */
-	while(I2C1STATbits.TBF);
+	while(I2C1STATbits.TBF) {
+		if(++cto > CONNECTION_TIMEOUT)
+			return -EE_I2C_FAILURE;
+	}
 
 	/* Test for ACK condition received */
-	while(I2C1STATbits.ACKSTAT);
+	while(I2C1STATbits.ACKSTAT) {
+		if(++cto > CONNECTION_TIMEOUT)
+			return -EE_I2C_FAILURE;
+	}
 
 	/* Ensure I2C module is idle */
-	while(EE_i2c_idle(EE_I2C_PORT_1));
+	while(EE_i2c_idle(EE_I2C_PORT_1)) {
+		if(++cto > CONNECTION_TIMEOUT)
+			return -EE_I2C_FAILURE;
+	}
 
 	/* Generate the I2C bus restart condition */
 	I2C1CONbits.RSEN = 1;	// initiate restart on SDA and SCL pins
 
 	/* Wait until re-start condition is over */
-	while (I2C1CONbits.RSEN);
+	while (I2C1CONbits.RSEN) {
+		if(++cto > CONNECTION_TIMEOUT)
+			return -EE_I2C_FAILURE;
+	}
 
 	/* Write Slave address and set master for reception
 	(R/W bit should be 1) */
@@ -288,13 +400,22 @@ static EE_INT8 i2c_read_port_1(EE_UINT8 device, EE_UINT8 address){
 		return -1;
 
 	/* Wait till address is transmitted */
-	while(I2C1STATbits.TBF);
+	while(I2C1STATbits.TBF) {
+		if(++cto > CONNECTION_TIMEOUT)
+			return -EE_I2C_FAILURE;
+	}
 
 	/* Test for ACK condition received */
-	while(I2C1STATbits.ACKSTAT);
+	while(I2C1STATbits.ACKSTAT) {
+		if(++cto > CONNECTION_TIMEOUT)
+			return -EE_I2C_FAILURE;
+	}
 
 	/* Ensure I2C module is idle */
-	while(EE_i2c_idle(EE_I2C_PORT_1));
+	while(EE_i2c_idle(EE_I2C_PORT_1)) {
+		if(++cto > CONNECTION_TIMEOUT)
+			return -EE_I2C_FAILURE;
+	}
 
 	/* Read the data byte */
 	I2C1CONbits.RCEN = 1;
@@ -303,7 +424,10 @@ static EE_INT8 i2c_read_port_1(EE_UINT8 device, EE_UINT8 address){
 	data = I2C1RCV;
 
 	/* Ensure I2C module is idle */
-	while(EE_i2c_idle(EE_I2C_PORT_1));
+	while(EE_i2c_idle(EE_I2C_PORT_1)) {
+		if(++cto > CONNECTION_TIMEOUT)
+			return -EE_I2C_FAILURE;
+	}
 
 	/* send NACK condition back to the I2C slave indicating master received 
 	the data byte */
@@ -311,35 +435,57 @@ static EE_INT8 i2c_read_port_1(EE_UINT8 device, EE_UINT8 address){
 	I2C1CONbits.ACKEN = 1;
 
 	/* wait until NACK sequence is over */
-	while (I2C1CONbits.ACKEN);
+	while (I2C1CONbits.ACKEN) {
+		if(++cto > CONNECTION_TIMEOUT)
+			return -EE_I2C_FAILURE;
+	}
 
 	/* Ensure I2C module is idle */
-	while(EE_i2c_idle(EE_I2C_PORT_1));
+	while(EE_i2c_idle(EE_I2C_PORT_1)) {
+		if(++cto > CONNECTION_TIMEOUT)
+			return -EE_I2C_FAILURE;
+	}
 
 	/* send STOP condition */
 	I2C1CONbits.PEN = 1;		// initiate Stop on SDA and SCL pins
 
 	/* Wait till Stop sequence is completed */
-	while(I2C1CONbits.PEN);
+	while(I2C1CONbits.PEN) {
+		if(++cto > CONNECTION_TIMEOUT)
+			return -EE_I2C_FAILURE;
+	}
 
 	/* Ensure I2C module is idle */
-	while(EE_i2c_idle(EE_I2C_PORT_1));
+	while(EE_i2c_idle(EE_I2C_PORT_1)) {
+		if(++cto > CONNECTION_TIMEOUT)
+			return -EE_I2C_FAILURE;
+	}
 
 	return (data);			// return with data
 }
 
 static EE_INT8 i2c_read_port_2(EE_UINT8 device, EE_UINT8 address){
 	
+	unsigned int cto = 0;
 	EE_UINT8 data = 0;
 
 	/* Ensure I2C module is idle  */
-	while(EE_i2c_idle(EE_I2C_PORT_2));
+	while(EE_i2c_idle(EE_I2C_PORT_2)){
+		if(++cto > CONNECTION_TIMEOUT)
+			return -EE_I2C_FAILURE;
+
+	}
+
 
 	/* Transmit a Start condition on i2c2  */
 	I2C2CONbits.SEN = 1;		// initiate Start on SDA and SCL pins
 	
 	/* Wait till Start sequence is completed  */
-	while(I2C2CONbits.SEN) ;
+	while(I2C2CONbits.SEN) {
+		if(++cto > CONNECTION_TIMEOUT)
+			return -EE_I2C_FAILURE;
+
+	}
 
 	/* Write Slave address and set master for transmission  
 	(R/W bit should be 0)  */
@@ -349,13 +495,23 @@ static EE_INT8 i2c_read_port_2(EE_UINT8 device, EE_UINT8 address){
 		return -1;
 
 	/* Wait till address is transmitted */
-	while(I2C2STATbits.TBF) ;
-
+	while(I2C2STATbits.TBF) {
+		if(++cto > CONNECTION_TIMEOUT)
+			return -EE_I2C_FAILURE;
+	}
+	
 	/* Test for ACK condition received */
-	while(I2C2STATbits.ACKSTAT);
+	while(I2C2STATbits.ACKSTAT) {
+		if(++cto > CONNECTION_TIMEOUT)
+			return -EE_I2C_FAILURE;
+	} 
 
 	/* Ensure I2C module is idle */
-	while(EE_i2c_idle(EE_I2C_PORT_2));
+	while(EE_i2c_idle(EE_I2C_PORT_2)) {
+		if(++cto > CONNECTION_TIMEOUT)
+			return -EE_I2C_FAILURE;
+
+	}
 
 	/* Write word address */
 	I2C2TRN = address;
@@ -363,13 +519,22 @@ static EE_INT8 i2c_read_port_2(EE_UINT8 device, EE_UINT8 address){
 		return -1;
 
 	/* Wait till address is transmitted */
-	while(I2C2STATbits.TBF);
+	while(I2C2STATbits.TBF) {
+		if(++cto > CONNECTION_TIMEOUT)
+			return -EE_I2C_FAILURE;
+	}
 
 	/* Test for ACK condition received */
-	while(I2C2STATbits.ACKSTAT);
+	while(I2C2STATbits.ACKSTAT) {
+		if(++cto > CONNECTION_TIMEOUT)
+			return -EE_I2C_FAILURE;
+	}
 		
 	/* Ensure I2C module is idle */
-	while(EE_i2c_idle(EE_I2C_PORT_2));
+	while(EE_i2c_idle(EE_I2C_PORT_2)) {
+		if(++cto > CONNECTION_TIMEOUT)
+			return -EE_I2C_FAILURE;
+	}
 
 	/* Generate the I2C bus restart condition */
 	I2C2CONbits.RSEN = 1;		// initiate restart on SDA and SCL pins
@@ -384,13 +549,22 @@ static EE_INT8 i2c_read_port_2(EE_UINT8 device, EE_UINT8 address){
 		return -1;
 
 	/* Wait till address is transmitted */
-	while(I2C2STATbits.TBF);
+	while(I2C2STATbits.TBF) {
+		if(++cto > CONNECTION_TIMEOUT)
+			return -EE_I2C_FAILURE;
+	}
 
 	/* Test for ACK condition received */
-	while(I2C2STATbits.ACKSTAT);
+	while(I2C2STATbits.ACKSTAT) {
+		if(++cto > CONNECTION_TIMEOUT)
+			return -EE_I2C_FAILURE;
+	}
 
 	/* Ensure I2C module is idle */
-	while(EE_i2c_idle(EE_I2C_PORT_2));
+	while(EE_i2c_idle(EE_I2C_PORT_2)) {
+		if(++cto > CONNECTION_TIMEOUT)
+			return -EE_I2C_FAILURE;
+	}
 
 	/* Read the data byte */
 	I2C2CONbits.RCEN = 1;
@@ -399,7 +573,10 @@ static EE_INT8 i2c_read_port_2(EE_UINT8 device, EE_UINT8 address){
 	data = I2C2RCV;
 	
 	/* Ensure I2C module is idle */
-	while(EE_i2c_idle(EE_I2C_PORT_2));
+	while(EE_i2c_idle(EE_I2C_PORT_2)) {
+		if(++cto > CONNECTION_TIMEOUT)
+			return -EE_I2C_FAILURE;
+	}
 	
 	/* send NACK condition back to the I2C slave indicating master received 
 	the data byte */
@@ -407,9 +584,16 @@ static EE_INT8 i2c_read_port_2(EE_UINT8 device, EE_UINT8 address){
 	I2C2CONbits.ACKEN = 1;
 
 	/* wait until NACK sequence is over */
-	while (I2C2CONbits.ACKEN) ;
+	while (I2C2CONbits.ACKEN)  {
+		if(++cto > CONNECTION_TIMEOUT)
+			return -EE_I2C_FAILURE;
+	}
+
 	/* Ensure I2C module is idle */
-	while(EE_i2c_idle(EE_I2C_PORT_2));
+	while(EE_i2c_idle(EE_I2C_PORT_2)) {
+		if(++cto > CONNECTION_TIMEOUT)
+			return -EE_I2C_FAILURE;
+	}
 
 	/* send STOP condition */
 	I2C2CONbits.PEN = 1;		// initiate Stop on SDA and SCL pins
@@ -418,7 +602,10 @@ static EE_INT8 i2c_read_port_2(EE_UINT8 device, EE_UINT8 address){
 	while(I2C2CONbits.PEN) ;
 
 	/* Ensure I2C module is idle */
-	while(EE_i2c_idle(EE_I2C_PORT_2)) ;
+	while(EE_i2c_idle(EE_I2C_PORT_2))  {
+		if(++cto > CONNECTION_TIMEOUT)
+			return -EE_I2C_FAILURE;
+	}
 	
 	return (data);			// return with data
 }
@@ -472,7 +659,7 @@ EE_INT8 EE_i2c_init(EE_UINT8 port, EE_UINT16 baudrate, EE_UINT16 flags)
 			i2c_HS_port2 = 0;
 			init_i2c_port_2(DEFAULT_100KHZ_BRG, DEFAULT_FLAGS);
 		}
-		return 1;
+		return EE_I2C_SUCCESS;
 		
 	}
 	return -EE_I2C_ERR_BAD_PORT;
