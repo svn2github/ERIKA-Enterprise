@@ -19,15 +19,14 @@
 #define RTOUCH_MAXIMUM_LEVEL		4000
 #define MAXIMUM_UNTOUCH_CONDITIONS	100           // Number of (successive) Invalid Measurements till Untouch Condition
 #define SLEEP_COUNTDOWN			2000
-
 #define TOUCH_ACTIVATION_TIME		2000
 
+#define TOUCH_ERROR_CONFIGURED		0
 #define TOUCH_ERROR_NONE		0
-#define TOUCH_ERROR_WRONG_AXIS		-1
-#define TOUCH_ERROR_RAW_NOT_READY 	-2
-#define TOUCH_ERROR_NOT_TUNED		-3
-#define TOUCH_CONFIGURED		0
-#define TOUCH_NOT_CONFIGURED		-1
+#define TOUCH_ERROR_WRONG_AXIS		1
+#define TOUCH_ERROR_RAW_NOT_READY 	2
+#define TOUCH_ERROR_NOT_TUNED		3
+#define TOUCH_ERROR_NOT_CONFIGURED	4
 
 /****************************************************************************
   Type definition
@@ -65,18 +64,21 @@ typedef struct {
 /****************************************************************************
   Function definitions
 ****************************************************************************/
-
-EE_INT8 touch_poll_raw_position(EE_UINT16 *,EE_UINT16 *);
-void touch_wait_raw_position(EE_UINT16 *, EE_UINT16 *);
-EE_INT8 touch_poll_u_position(EE_UINT8, EE_UINT16 *);
+EE_INT8 touch_poll_raw_position(EE_UINT8, EE_INT16 *);
+EE_INT8 touch_poll_u_position(EE_UINT8, EE_INT16 *);
 EE_INT8 touch_poll_s_position(EE_UINT8, EE_INT16 *);
+EE_INT8 touch_wait_raw_position(EE_UINT8, EE_INT16 *);
+EE_INT8 touch_wait_u_position(EE_UINT8, EE_INT16 *);
+EE_INT8 touch_wait_s_position(EE_UINT8, EE_INT16 *);
+
 EE_INT8	touch_set_dimension(EE_UINT8, EE_UINT16);
 
-void touch_set_ADC_parameters();
-void touch_set_activation_time(EE_UINT16);
 void touch_raw_init();
 void touch_tune(tune_raw_t *);
+
 void touch_calibrate(tune_raw_t *);
+void touch_set_ADC_parameters();
+void touch_set_activation_time(EE_UINT16);
 
 COMPILER_INLINE void touch_start(void)
 {

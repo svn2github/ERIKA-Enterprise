@@ -140,7 +140,10 @@ void amazing_tuner_body(EE_UINT16 horiz_width, EE_UINT16 vert_height)
 		while(1)
 		{
 			modified = 0;
-			touch_wait_raw_position(&X_raw,&Y_raw);
+			
+			//touch_wait_raw_position(&X_raw,&Y_raw);
+			touch_wait_raw_position(TOUCH_X_AXIS,&X_raw);
+			touch_wait_raw_position(TOUCH_Y_AXIS,&Y_raw);
 	
 	        	if(X_raw < min_x){
 	        	        min_x = X_raw;

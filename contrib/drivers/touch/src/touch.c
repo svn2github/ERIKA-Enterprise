@@ -8,6 +8,7 @@
 ****************************************************************************/
 
 #define STATIC static
+//#define STATIC
 
 STATIC EE_UINT16 horiz_width;
 STATIC EE_UINT16 vert_height;
@@ -24,10 +25,6 @@ STATIC EE_UINT16 Y_raw;
 STATIC EE_UINT16 touch_tick_us;
 STATIC tune_raw_t tune_raw;
 STATIC tune_t tune;
-STATIC volatile EE_UINT8 is_raw_initialized;
-STATIC volatile EE_UINT8 is_raw_ready;
-STATIC volatile EE_UINT8 is_final_ready;
-STATIC volatile EE_UINT8 is_tuned;
 
 // Touch state variable
 STATIC volatile TouchFlow tf;
@@ -53,7 +50,7 @@ EE_INT8 touch_set_dimension(
 	else if(touch_axis == TOUCH_Y_AXIS)
 	{
 		vert_height = touch_range;
-	} else return TOUCH_ERROR_WRONG_AXIS;
+	} else return -TOUCH_ERROR_WRONG_AXIS;
 
 	if(is_raw_initialized)
 		touch_calibrate(&tune_raw);
@@ -262,8 +259,8 @@ TASK(TASK_TOUCH_MANAGER)
 				if(MAXIMUM_UNTOUCH_CONDITIONS == Untouch_conditions )
 				{
 					is_raw_ready = 0;
-					X_raw = 0;
-					Y_raw = 0;
+					//X_raw = 0;
+					//Y_raw = 0;
 					is_final_ready = 0;
 				} else Untouch_conditions++;
 			}
@@ -298,36 +295,34 @@ ISR2(ADC_INTERRUPT_NAME)
 }
 
 EE_INT8 touch_poll_raw_position(
-		EE_UINT16 *raw_choord_x,
-		EE_UINT16 *raw_choord_y)
+		EE_UINT8 touch_axis,
+		EE_INT16 *raw_choord)
 {
-	if(!is_raw_ready)
-		return TOUCH_ERROR_RAW_NOT_READY;
+	if(!is_raw_initialized)
+		return -TOUCH_ERROR_NOT_CONFIGURED;
+		
+	if(touch_axis == TOUCH_X_AXIS)
+	{
+		*raw_choord = X_raw;
+	}
+	else if(touch_axis == TOUCH_Y_AXIS)
+	{
+		*raw_choord = Y_raw;
+	} else return -TOUCH_ERROR_WRONG_AXIS;
 
-	*raw_choord_x = X_raw;
-	*raw_choord_y = Y_raw;
-
-	is_raw_ready = 0;
-	
 	return TOUCH_ERROR_NONE;
-}
-
-void touch_wait_raw_position(
-		EE_UINT16 *raw_choord_x,
-		EE_UINT16 *raw_choord_y)
-{
-	while(!is_raw_ready);
-
-	*raw_choord_x = X_raw;
- 	*raw_choord_y = Y_raw;
-
-	is_raw_ready = 0;
 }
 
 EE_INT8 touch_poll_u_position(
 		EE_UINT8 touch_axis,
-		EE_UINT16 *u_choord)
+		EE_INT16 *u_choord)
 {
+	if(!is_raw_initialized)
+		return -TOUCH_ERROR_NOT_CONFIGURED;
+		
+	if(!is_tuned)
+		return -TOUCH_ERROR_NOT_TUNED;
+
 	if(touch_axis == TOUCH_X_AXIS)
 	{
 		*u_choord = u_X_pos;
@@ -335,10 +330,7 @@ EE_INT8 touch_poll_u_position(
 	else if(touch_axis == TOUCH_Y_AXIS)
 	{
 		*u_choord = u_Y_pos;
-	} else return TOUCH_ERROR_WRONG_AXIS;
-	
-	if(!is_tuned)
-		return TOUCH_ERROR_NOT_TUNED;
+	} else return -TOUCH_ERROR_WRONG_AXIS;
 
 	return TOUCH_ERROR_NONE;
 }
@@ -347,6 +339,12 @@ EE_INT8 touch_poll_s_position(
 		EE_UINT8 touch_axis,
 		EE_INT16 *s_choord)
 {
+	if(!is_raw_initialized)
+		return -TOUCH_ERROR_NOT_CONFIGURED;
+		
+	if(!is_tuned)
+		return -TOUCH_ERROR_NOT_TUNED;
+		
 	if(touch_axis == TOUCH_X_AXIS)
 	{
 		*s_choord = s_X_pos;
@@ -354,11 +352,93 @@ EE_INT8 touch_poll_s_position(
 	else if(touch_axis == TOUCH_Y_AXIS)
 	{
 		*s_choord = s_Y_pos;
-	} else return TOUCH_ERROR_WRONG_AXIS;
-	
-	if(!is_tuned)
-		return TOUCH_ERROR_NOT_TUNED;
+	} else return -TOUCH_ERROR_WRONG_AXIS;
 
+	return TOUCH_ERROR_NONE;
+}
+
+/*void touch_wait_raw_position(
+		EE_INT16 *raw_choord_x,
+		EE_INT16 *raw_choord_y)
+{
+	while(!is_raw_ready);
+
+	*raw_choord_x = X_raw;
+ 	*raw_choord_y = Y_raw;
+
+	is_raw_ready = 0;
+}*/
+
+EE_INT8 touch_wait_raw_position(
+		EE_UINT8 touch_axis,
+		EE_INT16 *raw_choord)
+{
+	if(!is_raw_initialized)
+		return -TOUCH_ERROR_NOT_CONFIGURED;
+	
+	while(!is_raw_ready);
+
+	if(touch_axis == TOUCH_X_AXIS)
+	{
+		*raw_choord = X_raw;
+	}
+	else if(touch_axis == TOUCH_Y_AXIS)
+	{
+		*raw_choord = Y_raw;
+	} else return -TOUCH_ERROR_WRONG_AXIS;
+	
+	return TOUCH_ERROR_NONE;
+}
+
+EE_INT8 touch_wait_u_position(
+		EE_UINT8 touch_axis,
+		EE_INT16 *u_choord)
+{
+	if(!is_raw_initialized)
+		return -TOUCH_ERROR_NOT_CONFIGURED;
+		
+	if(!is_tuned)
+		return -TOUCH_ERROR_NOT_TUNED;
+
+	while(!is_final_ready);
+	
+	if(touch_axis == TOUCH_X_AXIS)
+	{
+		*u_choord = u_X_pos;
+	}
+	else if(touch_axis == TOUCH_Y_AXIS)
+	{
+		*u_choord = u_Y_pos;
+	} else return -TOUCH_ERROR_WRONG_AXIS;
+
+	is_final_ready = 0;
+	
+	return TOUCH_ERROR_NONE;
+}
+
+EE_INT8 touch_wait_s_position(
+		EE_UINT8 touch_axis,
+		EE_INT16 *s_choord)
+{
+	if(!is_raw_initialized)
+		return -TOUCH_ERROR_NOT_CONFIGURED;
+		
+	if(!is_tuned)
+		return -TOUCH_ERROR_NOT_TUNED;
+
+	while(!is_final_ready);
+	
+	if(touch_axis == TOUCH_X_AXIS)
+	{
+		*s_choord = s_X_pos;
+	}
+	else if(touch_axis == TOUCH_Y_AXIS)
+	{
+		*s_choord = s_Y_pos;
+	} else return -TOUCH_ERROR_WRONG_AXIS;
+
+	is_final_ready = 0;
+		
 	return TOUCH_ERROR_NONE;
 }
 
