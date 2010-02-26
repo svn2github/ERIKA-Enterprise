@@ -39,7 +39,8 @@ EE_INT8 EE_uart_init(EE_UINT8 port, EE_UINT32 baud, EE_UINT16 byte_format,
 		}
 		U1MODE |= byte_format & 0x07;	// Number of bit, Parity and Stop bits
 		U1STA = 0;						// TX & RX interrupt modes
-		U1STAbits.UTXEN = 1;
+		U1STAbits.UTXEN = 1; //Enable Transmission
+		U1STAbits.URXEN = 1; //Enable Receiver
 		return 1;
 	} else if (port == EE_UART_PORT_2) {
 		U2MODEbits.UARTEN = 0;		// Stop UART port
@@ -68,6 +69,7 @@ EE_INT8 EE_uart_init(EE_UINT8 port, EE_UINT32 baud, EE_UINT16 byte_format,
 		U2MODE |= byte_format & 0x07;	// Number of bit, Parity and Stop bits
 		U2STA = 0;						// TX & RX interrupt modes
 		U2STAbits.UTXEN = 1;
+		U2STAbits.URXEN = 1; //Enable Receiver
 		return 1;
 	}
 	return -EE_UART_ERR_BAD_PORT;
