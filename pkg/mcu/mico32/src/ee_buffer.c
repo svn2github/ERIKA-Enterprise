@@ -32,7 +32,7 @@
 /*                             Buffer Management                              */
 /******************************************************************************/
 
-int EE_buffer_init(EE_buffer *buf, int msgsize, int bufsize, char *vet)
+int EE_buffer_init(EE_buffer *buf, int msgsize, int bufsize, EE_UINT8 *vet)
 {
 	unsigned int intst;
   
@@ -83,7 +83,7 @@ int EE_buffer_isfull(EE_buffer *buf)
 	return retvalue;	
 }
 
-int EE_buffer_putmsg(EE_buffer *buf, char* msg)
+int EE_buffer_putmsg(EE_buffer *buf, EE_UINT8* msg)
 {
 	int retvalue;
 	int i=0;
@@ -111,7 +111,7 @@ int EE_buffer_putmsg(EE_buffer *buf, char* msg)
   	return retvalue;
 }
 
-int EE_buffer_getmsg(EE_buffer *buf, char* msg)
+int EE_buffer_getmsg(EE_buffer *buf, EE_UINT8* msg)
 {
 	int retvalue;
 	int i=0;

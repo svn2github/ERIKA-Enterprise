@@ -58,5 +58,9 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_stop_budget_timer(void)
 }
 
 #endif  /* __FRSH__ */
- 
+
+/* Macro utils */
+#define cat3(a, b, c)  a ## b ## c
+#define cat2(a, b) a ## b
+
 #endif /* __INCLUDE_MCUMICO32_INTERNAL_H__ */

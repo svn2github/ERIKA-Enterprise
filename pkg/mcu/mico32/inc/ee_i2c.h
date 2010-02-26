@@ -44,29 +44,38 @@
 //...to do...
 
 /* i2c return values */
-#define EE_I2C_OK					(0x00)
-#define EE_I2C_ERR_RECEPTION   		(0xE1)
-#define EE_I2C_ERR_TRANSMISSION		(0xE2)
-#define EE_I2C_ERR_BAD_VALUE		(0xE3)
+#define EE_I2C_OK					(0)
+#define EE_I2C_ERR_RECEPTION   		(-12)
+#define EE_I2C_ERR_TRANSMISSION		(-13)
+#define EE_I2C_ERR_BAD_VALUE		(-14)
+#define EE_I2C_ERR_ADD_ACK			(-15)
+#define EE_I2C_ERR_DATA_ACK			(-16)
+#define EE_I2C_ERR_ARB_LOST			(-17)
 
 /* i2c operating modes */
 #define EE_I2C_POLLING				(0x00)
 #define EE_I2C_RX_ISR				(0x01)
 #define EE_I2C_TX_ISR				(0x02)	
 #define EE_I2C_RXTX_ISR				(0x03)	
+#define EE_I2C_RX_BLOCK				(0x10)
+#define EE_I2C_TX_BLOCK				(0x20)
+#define EE_I2C_RXTX_BLOCK  			(0x30)	
+
 
 #define EE_i2c_need_init_rx_buf(old,new)  (!((old) & EE_I2C_RX_ISR) && ((new) & EE_I2C_RX_ISR))
 #define EE_i2c_need_init_tx_buf(old,new)  (!((old) & EE_I2C_TX_ISR) && ((new) & EE_I2C_TX_ISR))
-#define EE_i2c_need_enable_rx_int(new)  ( (new) & EE_I2C_RX_ISR )
+#define EE_i2c_need_enable_int(new)  ( ((new) & EE_I2C_RX_ISR) || ((new) & EE_I2C_TX_ISR) )
 #define EE_i2c_tx_polling(mode) ( !((mode) & EE_I2C_TX_ISR) )
 #define EE_i2c_rx_polling(mode) ( !((mode) & EE_I2C_RX_ISR) )
 
 /* i2c utils */
 // Slave Address
-#define OCI2CM_RW_MASK                  (0x01) // 1=Read,0=Write
-#define OCI2CM_ADDR_MASK                (0xFE)
-#define OCI2CM_PEND_FOR_TIP_DONE(ADDR)  \
-    while( *(volatile unsigned int *)(ADDR + 0x10) & OCI2CM_STATUS_TRANSFER ) // MACRO FOR WAITING TILL CURRENT TRANSFER IS IN PROGRESS 
+#define EE_I2C_RX_INT_MASK			()
+#define EE_I2C_RW_MASK              (0x01) // 1=Read,0=Write
+#define EE_I2C_ADDR_MASK            (0xFE)
+// MACRO FOR WAITING TILL CURRENT TRANSFER IS IN PROGRESS (check TIP flag of the Status register)
+#define EE_i2c_pend_for_TIP_done(ADDR)  \
+    while( *(volatile unsigned int *)(ADDR + 0x10) & OCI2CM_STATUS_TRANSFER ) 
     
 #define EE_I2C_NULL_CBK				((EE_ISR_callback)0)
 

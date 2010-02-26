@@ -13,7 +13,7 @@ typedef struct {
 	int counter;					// counter: to make difference between full queue and empty queue...
 	int msg_size;					// size of a single message
 	int buf_size;					// size of the buffer (vector of messages)
-	char *data;						// buffer vector (dimension: msg_size * buf_size)
+	EE_UINT8 *data;						// buffer vector (dimension: msg_size * buf_size)
 } EE_buffer;
 
 
@@ -24,12 +24,7 @@ typedef struct {
 #define EE_BUF_ERR_SIZE 	(-1)
 #define EE_BUF_ERR_FULL 	(-2)
 #define EE_BUF_ERR_EMPTY 	(-3)
-#define EE_BUF_ERR_NULL 	(-4)
-
-//#define EE_NO_BUF_INIT 		(0xC0)
-//#define EE_RX_BUF_INIT 		(0xC1)
-//#define EE_TX_BUF_INIT 		(0xC2)
-//#define EE_RXTX_BUF_INIT 		(0xC3)
+#define EE_BUF_ERR_NULL 	(-4) 
 
 #define EE_NULL_BUF			((EE_buffer *)0)
 
@@ -40,49 +35,49 @@ typedef struct {
 * Functions declarations
 ****************************************************/
 /*
-	int EE_buffer_init(EE_buffer *buf, int msgsize, int bufsize, char *vet);
+	int EE_buffer_init(EE_buffer *buf, int msgsize, int bufsize, EE_UINT8 *vet);
 		This function is used to initialize a buffer. 
 		Arguments:
 			- EE_buffer *buf: buffer pointer
 			- int msgsize: size of a message
 			- int bufsize: size of the buffer   
-			- char *vet: vector used for buffering (vector size: msgsize*bufsize)
+			- EE_UINT8 *vet: vector used for buffering (vector size: msgsize*bufsize)
 		Actions: 
 			- reset counters and indexes (this function works with interrupts disabled...)
 		Return values:
 			- the function return the result: EE_BUF_OK if no errors found
 */
-int EE_buffer_init(EE_buffer *buf, int msgsize, int bufsize, char *vet);	// vet must be: char vet[msgsize*bufsize]
+int EE_buffer_init(EE_buffer *buf, int msgsize, int bufsize, EE_UINT8 *vet);	// vet must be: EE_UINT8 vet[msgsize*bufsize]
 
 
 /*
-	int EE_buffer_putmsg(EE_buffer *buf, char* msg);
+	int EE_buffer_putmsg(EE_buffer *buf, EE_UINT8* msg);
 		This function puts a new message in the buffer.
 		Arguments:
 			- EE_buffer *buf: buffer pointer
-			- char *msg: address of first location of the message to be loaded 
+			- EE_UINT8 *msg: address of first location of the message to be loaded 
 		Actions: 
 			- puts a message in the buffer if there is a free location (this function works with interrupts disabled...)
 		Return values:
 			- the function return the result: EE_BUF_OK if no errors found
 											  EE_BUF_ERR_FULL if buffer is full	
 */
-int EE_buffer_putmsg(EE_buffer *buf, char* msg);
+int EE_buffer_putmsg(EE_buffer *buf, EE_UINT8* msg);
 
 
 /*
-	int EE_buffer_getmsg(EE_buffer *buf, char* msg);
+	int EE_buffer_getmsg(EE_buffer *buf, EE_UINT8* msg);
 		This function extracts a message from the buffer.
 		Arguments:
 			- EE_buffer *buf: buffer pointer
-			- char *msg: address of first location of the message to be written with the extracted message 
+			- EE_UINT8 *msg: address of first location of the message to be written with the extracted message 
 		Actions: 
 			- extracts a message from the buffer if buffer is not empty (this function works with interrupts disabled...)
 		Return values:
 			- the function return the result: EE_BUF_OK if no errors found
 											  EE_BUF_ERR_EMPTY if buffer is empty	
 */
-int EE_buffer_getmsg(EE_buffer *buf, char* msg);
+int EE_buffer_getmsg(EE_buffer *buf, EE_UINT8* msg);
 
 /*
 	int EE_buffer_isempty(EE_buffer *buf);
