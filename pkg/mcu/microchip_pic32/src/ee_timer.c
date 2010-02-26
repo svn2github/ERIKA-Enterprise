@@ -60,8 +60,32 @@ __INLINE__ void __ALWAYS_INLINE__ timer1_stop(void)
 #ifdef __USE_EE_TIMER_2__
 #endif /* __USE_EE_TIMER_2__ */
 
+
 #ifdef __USE_EE_TIMER_3__
+__INLINE__ void __ALWAYS_INLINE__ timer3_init(EE_UREG pr, EE_UINT8 tckps)
+{
+	IEC0CLR = _IEC0_T3IE_MASK;	// Disable Timer IRQ
+	IFS0CLR = _IFS0_T3IF_MASK;	// Clean Timer IRQ Flag
+	IPC3CLR = _IPC3_T3IP_MASK;	// Clean IRQ Priority
+	IPC3SET = (2 << _IPC3_T3IP_POSITION); //TODO:change hardcoding Irq Prio?
+	IPC3CLR = _IPC3_T3IS_MASK; //TODO:change hardcoding Irq Sub-Prio?
+	PR3 = pr;
+	TMR3 = 0;
+	T3CON = ((tckps & 0x03) << _T3CON_TCKPS_POSITION);
+}
+
+__INLINE__ void __ALWAYS_INLINE__ timer3_start(void) 
+{
+	T3CONSET = _T3CON_ON_MASK;	// Start Timer
+}
+
+__INLINE__ void __ALWAYS_INLINE__ timer3_stop(void) 
+{
+	T3CONCLR = _T3CON_ON_MASK;	// Stop Timer
+}
 #endif /* __USE_EE_TIMER_3__ */
+
+
 
 #ifdef __USE_EE_TIMER_4__
 #endif /* __USE_EE_TIMER_4__ */
@@ -101,6 +125,7 @@ ISR2(_TIMER_1_VECTOR)
 /******************************************************************************/
 EE_INT8 EE_timer_hard_init(EE_UINT8 id, EE_UINT16 period, EE_UINT8 prescale)
 {
+	
 	switch (id) {
 	#ifdef __USE_EE_TIMER_1__
 	case EE_TIMER_1 :
@@ -112,8 +137,9 @@ EE_INT8 EE_timer_hard_init(EE_UINT8 id, EE_UINT16 period, EE_UINT8 prescale)
 		return -EE_TIMER_ERR_UNIMPLEMENTED;
 	#endif 
 	#ifdef __USE_EE_TIMER_3__
-	case EE_TIMER_3 :
-		return -EE_TIMER_ERR_UNIMPLEMENTED;
+	case EE_TIMER_3 :	
+		timer3_init((EE_UREG) period, prescale);
+		break; 
 	#endif 
 	#ifdef __USE_EE_TIMER_4__
 	case EE_TIMER_4 :
@@ -216,7 +242,8 @@ EE_INT8 EE_timer_start(EE_UINT8 id)
 	#endif 
 	#ifdef __USE_EE_TIMER_3__
 	case EE_TIMER_3 :
-		return -EE_TIMER_ERR_UNIMPLEMENTED;
+		timer3_start();
+		break;
 	#endif 
 	#ifdef __USE_EE_TIMER_4__
 	case EE_TIMER_4 :
@@ -246,7 +273,8 @@ EE_INT8 EE_timer_stop(EE_UINT8 id)
 	#endif 
 	#ifdef __USE_EE_TIMER_3__
 	case EE_TIMER_3 :
-		return -EE_TIMER_ERR_UNIMPLEMENTED;
+		timer3_stop();
+		break;
 	#endif 
 	#ifdef __USE_EE_TIMER_4__
 	case EE_TIMER_4 :
