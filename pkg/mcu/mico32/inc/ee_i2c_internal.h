@@ -11,11 +11,219 @@
  I2C
  *************************************************************************/
 
+/* i2c return values */			
+#define EE_I2C_OK					(0)
+#define EE_I2C_ERR_RECEPTION   		(-12)
+#define EE_I2C_ERR_TRANSMISSION		(-13)
+#define EE_I2C_ERR_BAD_VALUE		(-14)
+#define EE_I2C_ERR_ADD_ACK			(-15)
+#define EE_I2C_ERR_DATA_ACK			(-16)
+#define EE_I2C_ERR_ARB_LOST			(-17)
+#define EE_I2C_ERR_DEV_ACK			(-18)
+
+/* i2c operating modes */
+#define EE_I2C_POLLING				(0x00)
+#define EE_I2C_RX_ISR				(0x01)
+#define EE_I2C_TX_ISR				(0x02)	
+#define EE_I2C_RXTX_ISR				(0x03)	
+#define EE_I2C_RX_BLOCK				(0x10)
+#define EE_I2C_TX_BLOCK				(0x20)
+#define EE_I2C_RXTX_BLOCK  			(0x30)	
+
+/* Macro for tests */
+#define EE_i2c_need_init_rx_buf(old,new)  (!((old) & EE_I2C_RX_ISR) && ((new) & EE_I2C_RX_ISR))
+#define EE_i2c_need_init_tx_buf(old,new)  (!((old) & EE_I2C_TX_ISR) && ((new) & EE_I2C_TX_ISR))
+#define EE_i2c_need_enable_int(new)  ( ((new) & EE_I2C_RX_ISR) || ((new) & EE_I2C_TX_ISR) )
+#define EE_i2c_tx_polling(mode) ( !((mode) & EE_I2C_TX_ISR) )
+#define EE_i2c_rx_polling(mode) ( !((mode) & EE_I2C_RX_ISR) )
+#define EE_i2c_bus_idle(status) ( !((status) & OCI2CM_STATUS_BUS_BUSY) )
+	
+/* Internal functions */
+/*
+	int EE_hal_i2c_write_byte_polling(OCI2CMDev_t* i2cc, EE_UINT8 device, EE_UINT8 address, EE_UINT8 data);	
+		This function is used to write one character on the i2c bus.
+		Arguments:
+			- OCI2CMDev_t* i2cc: I2C base address
+			- EE_UINT8 device: slave address
+			- EE_UINT8 address: slave memory address to be written
+			- EE_UINT8 data: data to be transmitted
+		Actions: 
+			- issue a start signal, transmit device address (write mode), transmit slave memory address, tranmsit data, issue a stop signal. 
+		Return values:
+			- the return values can be:	EE_I2C_ERR_DEV_ACK 	if ACK is not been received during device address transmission
+										EE_I2C_ERR_ADD_ACK 	if ACK is not been received during memory address transmission
+										EE_I2C_ERR_ARB_LOST if arbitration is been lost during transmission
+										EE_I2C_OK 			if all is ok
+*/
+int EE_hal_i2c_write_byte_polling(OCI2CMDev_t* i2cc, EE_UINT8 device, EE_UINT8 address, EE_UINT8 data);	
+
+/*
+	int EE_hal_i2c_read_byte_polling(OCI2CMDev_t* i2cc, EE_UINT8 device, EE_UINT8 address);
+		This function is used to read one character from the i2c bus.
+		Arguments:
+			- OCI2CMDev_t* i2cc: I2C base address
+			- EE_UINT8 device: slave address
+			- EE_UINT8 address: slave memory address to be read
+		Actions: 
+			- issue a start signal, transmit device address (write mode), transmit slave memory address, transmit device address (read mode), 
+				read data and transmit NACK, issue a stop signal. 
+		Return values:
+			- the return values can be:	EE_I2C_ERR_DEV_ACK 	if ACK is not been received during device address transmission
+										EE_I2C_ERR_ADD_ACK 	if ACK is not been received during memory address transmission
+										EE_I2C_ERR_ARB_LOST if arbitration is been lost during transmission
+										data 				if all is ok
+*/
+int EE_hal_i2c_read_byte_polling(OCI2CMDev_t* i2cc, EE_UINT8 device, EE_UINT8 address);
+
+
+
+/*
+	int EE_hal_i2c_read_buffer_polling(OCI2CMDev_t* i2cc, EE_UINT8 device, EE_UINT8 address, EE_UINT8 *data, int len);	
+		This function is used to read mote than one characters from the i2c bus.
+		Arguments:
+			- OCI2CMDev_t* i2cc: I2C base address
+			- EE_UINT8 device: slave address
+			- EE_UINT8 address: slave memory address to be read
+			- EE_UINT8 *data: array to be loaded with the read characters
+			- int len: number of characters to be read
+		Actions: 
+			- issue a start signal, transmit device address (write mode), transmit slave memory address, transmit device address (read mode), 
+				read data and transmit ACK/NACK, issue a stop signal. 
+		Return values:
+			- the return values can be:	EE_I2C_ERR_DEV_ACK 	if ACK is not been received during device address transmission
+										EE_I2C_ERR_ADD_ACK 	if ACK is not been received during memory address transmission
+										EE_I2C_ERR_ARB_LOST if arbitration is been lost during transmission
+										EE_I2C_OK 				if all is ok
+*/
+int EE_hal_i2c_read_buffer_polling(OCI2CMDev_t* i2cc, EE_UINT8 device, EE_UINT8 address, EE_UINT8 *data, int len);		
+
+
+/*
+	int EE_hal_i2c_write_buffer_polling(OCI2CMDev_t* i2cc, EE_UINT8 device, EE_UINT8 address, EE_UINT8 *data, int len);	
+		This function is used to write more than one characters on the i2c bus.
+		Arguments:
+			- OCI2CMDev_t* i2cc: I2C base address
+			- EE_UINT8 device: slave address
+			- EE_UINT8 address: slave memory address to be written
+			- EE_UINT8 *data: array of characters to be transmitted
+			- int len: number of characters to be transmitted
+		Actions: 
+			- issue a start signal, transmit device address (write mode), transmit slave memory address, tranmsit all data, issue a stop signal. 
+		Return values:
+			- the return values can be:	EE_I2C_ERR_DEV_ACK 	if ACK is not been received during device address transmission
+										EE_I2C_ERR_ADD_ACK 	if ACK is not been received during memory address transmission
+										EE_I2C_ERR_ARB_LOST if arbitration is been lost during transmission
+										EE_I2C_OK 			if all is ok
+*/
+int EE_hal_i2c_write_buffer_polling(OCI2CMDev_t* i2cc, EE_UINT8 device, EE_UINT8 address, EE_UINT8 *data, int len);	
+
+/*
+	int EE_hal_i2c_start(OCI2CMDev_t* i2cc);
+		This function is used to issue only a start signal on the i2c bus.
+		Arguments:
+			- OCI2CMDev_t* i2cc: I2C base address
+		Actions: 
+			- issue only a start signal on the i2c bus.
+		Return values:
+			- the return values can be:	EE_I2C_ERR_ARB_LOST if arbitration is been lost during transmission
+										EE_I2C_OK 			if all is ok
+*/
+int EE_hal_i2c_start(OCI2CMDev_t* i2cc);
+
+/*
+	int EE_hal_i2c_stop(OCI2CMDev_t* i2cc);
+		This function is used to issue only a stop signal on the i2c bus.
+		Arguments:
+			- OCI2CMDev_t* i2cc: I2C base address
+		Actions: 
+			- issue only a stop signal on the i2c bus.
+		Return values:
+			- the return values can be:	EE_I2C_OK 	
+*/																	
+int EE_hal_i2c_stop(OCI2CMDev_t* i2cc);
+
+
+/*
+	int EE_hal_i2c_disable(OCI2CMDev_t* i2cc);	
+		This function is used to disable i2c core.
+		Arguments:
+			- OCI2CMDev_t* i2cc: I2C base address
+		Actions: 
+			- disable i2c core.
+		Return values:
+			- the return values can be:	EE_I2C_OK 	
+*/	
+int EE_hal_i2c_disable(OCI2CMDev_t* i2cc);		
+	
+/*
+	__INLINE__ int __ALWAYS_INLINE__ EE_hal_i2c_enable(OCI2CMDev_t* i2cc);
+		This function is used to enable i2c core.
+		Arguments:
+			- OCI2CMDev_t* i2cc: I2C base address
+		Actions: 
+			- enable i2c core.
+		Return values:
+			- the return values can be:	EE_I2C_OK 	
+*/														
+__INLINE__ int __ALWAYS_INLINE__ EE_hal_i2c_enable(OCI2CMDev_t* i2cc)
+{
+	i2cc->Control |= OCI2CM_CTL_CORE_ENABLE;  
+	return EE_I2C_OK;
+}
+
+/*
+	__INLINE__ int __ALWAYS_INLINE__ EE_hal_i2c_enable_IRQ(OCI2CMDev_t* i2cc)
+		This function is used to enable interrupts.
+		Arguments:
+			- OCI2CMDev_t* i2cc: I2C base address
+		Actions: 
+			- enable interrupts.
+		Return values:
+			- the return values can be:	EE_I2C_OK 	
+*/																
+__INLINE__ int __ALWAYS_INLINE__ EE_hal_i2c_enable_IRQ(OCI2CMDev_t* i2cc)
+{
+	i2cc->Control |= OCI2CM_CTL_INT_ENABLE;
+	return EE_I2C_OK;	
+}
+
+/*
+	__INLINE__ int __ALWAYS_INLINE__ EE_hal_i2c_disable_IRQ(OCI2CMDev_t* i2cc)
+		This function is used to disable interrupts.
+		Arguments:
+			- OCI2CMDev_t* i2cc: I2C base address
+		Actions: 
+			- disable interrupts.
+		Return values:
+			- the return values can be:	EE_I2C_OK 	
+*/													
+__INLINE__ int __ALWAYS_INLINE__ EE_hal_i2c_disable_IRQ(OCI2CMDev_t* i2cc)
+{
+	i2cc->Control &= ~OCI2CM_CTL_INT_ENABLE;
+	return EE_I2C_OK;
+}
+
+/*
+	__INLINE__ int __ALWAYS_INLINE__ EE_hal_i2c_idle(OCI2CMDev_t* i2cc)
+		This function is used to check if the i2c bus is idle.
+		Arguments:
+			- OCI2CMDev_t* i2cc: I2C base address
+		Actions: 
+			- check if the i2c bus is idle.
+		Return values:
+			- the return values can be:	1 if i2c bus is idle else 0	
+*/	
+__INLINE__ int __ALWAYS_INLINE__ EE_hal_i2c_idle(OCI2CMDev_t* i2cc)
+{
+	return EE_i2c_bus_idle(i2cc->StatusCommand);
+}
+
+
 #ifdef __USE_I2C_IRQ__
+
 /*
 	I2C structure:
 */
-
 typedef struct {
 	int err;							// last error condition
 	int mode;							// i2c operating mode (polling, isr, ...)
@@ -40,59 +248,92 @@ EE_i2c_st cat3(ee_, lc, _st) = { \
 	.irqf= cat2(uc, _IRQ), .rxcbk= EE_I2C_NULL_CBK, .txcbk= EE_I2C_NULL_CBK,\
 	.rxbuf.data= EE_I2C_VETRX_NAME(lc),.txbuf.data= EE_I2C_VETTX_NAME(lc)};
 
-int EE_hal_i2c_config(EE_i2c_st* i2csp, int baudrate, int setttings);									
-int EE_hal_i2c_set_mode(EE_i2c_st* i2csp, int mode);												
-int EE_hal_i2c_set_rx_callback(EE_i2c_st* i2csp, EE_ISR_callback isr_rx_callback);						
-int EE_hal_i2c_set_tx_callback(EE_i2c_st* i2csp, EE_ISR_callback isr_tx_callback);		
-int EE_hal_i2c_enable_IRQ(EE_i2c_st* i2csp);															
-int EE_hal_i2c_disable_IRQ(EE_i2c_st* i2csp);															
-int EE_hal_i2c_disable(EE_i2c_st* i2csp);																
-int EE_hal_i2c_enable(EE_i2c_st* i2csp);																
-int EE_hal_i2c_start(EE_i2c_st* i2csp);																	
-int EE_hal_i2c_stop(EE_i2c_st* i2csp);																	
-int EE_hal_i2c_return_error(EE_i2c_st* i2csp);			
-int EE_hal_i2c_write_byte_polling(EE_i2c_st* i2csp, EE_UINT8 device, EE_UINT8 address, EE_UINT8 data);	
-int EE_hal_i2c_write_byte_irq(EE_i2c_st* i2csp, EE_UINT8 device, EE_UINT8 address, EE_UINT8 data);	
-int EE_hal_i2c_read_byte_polling(EE_i2c_st* i2csp, EE_UINT8 device, EE_UINT8 address, EE_UINT8 *data);	
-int EE_hal_i2c_read_byte_irq(EE_i2c_st* i2csp, EE_UINT8 device, EE_UINT8 address, EE_UINT8 *data);	
-int EE_hal_i2c_read_buffer_polling(EE_i2c_st* i2csp, EE_UINT8 device, EE_UINT8 address, EE_UINT8 *data, int len);
-int EE_hal_i2c_read_buffer_irq(EE_i2c_st* i2csp, EE_UINT8 device, EE_UINT8 address, EE_UINT8 *data, int len);	
-int EE_hal_i2c_write_buffer_polling(EE_i2c_st* i2csp, EE_UINT8 device, EE_UINT8 address, EE_UINT8 *data, int len);		
-int EE_hal_i2c_write_buffer_irq(EE_i2c_st* i2csp, EE_UINT8 device, EE_UINT8 address, EE_UINT8 *data, int len);		
-
-#else
-
-#define EE_I2C_BASE_ADD(uc) cat2(uc, _BASE_ADDRESS)
-
-int EE_hal_i2c_config(OCI2CMDev_t* i2cc, int baudrate, int setttings);									
-int EE_hal_i2c_set_mode(OCI2CMDev_t* i2cc, int mode);																										
-int EE_hal_i2c_disable(OCI2CMDev_t* i2cc);																
-int EE_hal_i2c_enable(OCI2CMDev_t* i2cc);																
-int EE_hal_i2c_start(OCI2CMDev_t* i2cc);																	
-int EE_hal_i2c_stop(OCI2CMDev_t* i2cc);																			
-int EE_hal_i2c_write_byte_polling(OCI2CMDev_t* i2cc, EE_UINT8 device, EE_UINT8 address, EE_UINT8 data);	
-int EE_hal_i2c_read_byte_polling(OCI2CMDev_t* i2cc, EE_UINT8 device, EE_UINT8 address, EE_UINT8 *data);
-int EE_hal_i2c_read_buffer_polling(OCI2CMDev_t* i2cc, EE_UINT8 device, EE_UINT8 address, EE_UINT8 *data, int len);		
-int EE_hal_i2c_write_buffer_polling(OCI2CMDev_t* i2cc, EE_UINT8 device, EE_UINT8 address, EE_UINT8 *data, int len);	
-
-#endif
-							
 /*
-*/
-void EE_i2c_common_handler(int level);																	
+	int EE_hal_i2c_config(EE_i2c_st* i2csp, int baudrate, int setttings);
+		This function is used to configure i2c controller.
+		Arguments:
+			- EE_i2c_st* i2csp: I2C structure
+			- int baudrate: transmission rate 
+			- int settings: other i2c settings (to do...)
+		Actions: 
+			- configure i2c controller.
+		Return values:
+			- the return values can be:	EE_I2C_OK 	
+*/					
+int EE_hal_i2c_config(EE_i2c_st* i2csp, int baudrate, int settings);
 
+/*
+	int EE_hal_i2c_set_mode(EE_i2c_st* i2csp, int mode);		
+		This function is used to set i2c controller mode.
+		Arguments:
+			- EE_i2c_st* i2csp: I2C structure
+			- int mode: desired mode
+		Actions: 
+			- set i2c controller mode.
+		Return values:
+			- the return values can be:	EE_I2C_OK 	
+*/	
+int EE_hal_i2c_set_mode(EE_i2c_st* i2csp, int mode);	
+
+/*
+	int EE_hal_i2c_set_rx_callback(EE_i2c_st* i2csp, EE_ISR_callback isr_rx_callback);		
+		This function is used to set rx callback.
+		Arguments:
+			- EE_i2c_st* i2csp: I2C structure
+			- EE_ISR_callback isr_rx_callback: rx callback pointer
+		Actions: 
+			- set rx callback.
+		Return values:
+			- the return values can be:	EE_I2C_OK 	
+*/	
+int EE_hal_i2c_set_rx_callback(EE_i2c_st* i2csp, EE_ISR_callback isr_rx_callback);	
+
+/*
+	int EE_hal_i2c_set_tx_callback(EE_i2c_st* i2csp, EE_ISR_callback isr_tx_callback);			
+		This function is used to set tx callback.
+		Arguments:
+			- EE_i2c_st* i2csp: I2C structure
+			- EE_ISR_callback isr_tx_callback: tx callback pointer
+		Actions: 
+			- set tx callback.
+		Return values:
+			- the return values can be:	EE_I2C_OK 	
+*/						
+int EE_hal_i2c_set_tx_callback(EE_i2c_st* i2csp, EE_ISR_callback isr_tx_callback);			
+
+/*
+	int EE_hal_i2c_return_error(EE_i2c_st* i2csp);				
+		This function is used to know the last error condition
+		Arguments:
+			- EE_i2c_st* i2csp: I2C structure
+		Actions: 
+			- return the last error condition
+		Return values:
+			- the return value is the last error condition
+*/																								
+int EE_hal_i2c_return_error(EE_i2c_st* i2csp);			
+
+/* to do */
+int EE_hal_i2c_write_byte_irq(EE_i2c_st* i2csp, EE_UINT8 device, EE_UINT8 address, EE_UINT8 data);	
+/* to do */
+int EE_hal_i2c_read_byte_irq(EE_i2c_st* i2csp, EE_UINT8 device, EE_UINT8 address);	
+/* to do */
+int EE_hal_i2c_read_buffer_irq(EE_i2c_st* i2csp, EE_UINT8 device, EE_UINT8 address, EE_UINT8 *data, int len);
+/* to do */	
+int EE_hal_i2c_write_buffer_irq(EE_i2c_st* i2csp, EE_UINT8 device, EE_UINT8 address, EE_UINT8 *data, int len);
+/* to do */		
+
+/* Interrupt handler */
+void EE_i2c_common_handler(int level);																	
 /* Macro for vectors (buffers) name generation */
 #define EE_I2C_VETRX_NAME(lc) cat3(ee_, lc, _isr_rxvet)
 #define EE_I2C_VETTX_NAME(lc) cat3(ee_, lc, _isr_txvet)
-
 /* Macro for vectors (buffers) definition */  
 #define DEFINE_VET_I2C(uc, lc) \
 EE_UINT8 EE_I2C_VETRX_NAME(lc)[EE_I2C_BUFSIZE]; \
 EE_UINT8 EE_I2C_VETTX_NAME(lc)[EE_I2C_BUFSIZE];  
-
+								
 /* Macros for User functions (API) */  
-#ifdef __USE_I2C_IRQ__
-
 #define DECLARE_FUNC_I2C(uc, lc) \
 __INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _config)(int baudrate,int settings){ \
 	return EE_hal_i2c_config(& EE_I2C_ST_NAME(lc), baudrate, settings); } \
@@ -105,101 +346,57 @@ __INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _set_tx_callback)(EE_ISR_callback
 __INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _write_byte)(EE_UINT8 device, EE_UINT8 address, EE_UINT8 data){ \
 	int ret; \
 	if(EE_i2c_tx_polling(EE_I2C_ST_NAME(lc).mode))\
-		ret = EE_hal_i2c_write_byte_polling(& EE_I2C_ST_NAME(lc), device, address, data); } \
+		ret = EE_hal_i2c_write_byte_polling((OCI2CMDev_t*)EE_BASE_ADD(uc), device, address, data); \
 	else \
-		ret = EE_hal_i2c_write_byte_irq(& EE_I2C_ST_NAME(lc), device, address, data); } \
+		ret = EE_hal_i2c_write_byte_irq(& EE_I2C_ST_NAME(lc), device, address, data); \
 	return ret; } \
-__INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _read_byte)(EE_UINT8 device, EE_UINT8 address, EE_UINT8 *data){ \
+__INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _read_byte)(EE_UINT8 device, EE_UINT8 address){ \
 	int ret; \
 	if(EE_i2c_rx_polling(EE_I2C_ST_NAME(lc).mode))\
-		ret = EE_hal_i2c_read_byte_polling(& EE_I2C_ST_NAME(lc), device, address, data); } \
+		ret = EE_hal_i2c_read_byte_polling((OCI2CMDev_t*)EE_BASE_ADD(uc), device, address); \
 	else \
-		ret = EE_hal_i2c_read_byte_irq(& EE_I2C_ST_NAME(lc), device, address, data); } \
+		ret = EE_hal_i2c_read_byte_irq(& EE_I2C_ST_NAME(lc), device, address); \
 	return ret; } \
 __INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _write_buffer)(EE_UINT8 device, EE_UINT8 address, EE_UINT8 *vet, int len){ \
 	int ret; \
 	if(EE_i2c_tx_polling(EE_I2C_ST_NAME(lc).mode))\
-		ret = EE_hal_i2c_write_buffer_polling(& EE_I2C_ST_NAME(lc), device, address, vet, len); } \
+		ret = EE_hal_i2c_write_buffer_polling((OCI2CMDev_t*)EE_BASE_ADD(uc), device, address, vet, len); \
 	else \
-		ret = EE_hal_i2c_write_buffer_irq(& EE_I2C_ST_NAME(lc), device, address, vet, len); } \
+		ret = EE_hal_i2c_write_buffer_irq(& EE_I2C_ST_NAME(lc), device, address, vet, len); \
 	return ret; } \
 __INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _read_buffer)(EE_UINT8 device, EE_UINT8 address, EE_UINT8 *vet, int len){ \
 	int ret; \
 	if(EE_i2c_rx_polling(EE_I2C_ST_NAME(lc).mode))\
-		ret = EE_hal_i2c_read_buffer_polling(& EE_I2C_ST_NAME(lc), device, address, vet, len); } \
+		ret = EE_hal_i2c_read_buffer_polling((OCI2CMDev_t*)EE_BASE_ADD(uc), device, address, vet, len); \
 	else \
-		ret = EE_hal_i2c_read_buffer_irq(& EE_I2C_ST_NAME(lc), device, address, vet, len); } \
+		ret = EE_hal_i2c_read_buffer_irq(& EE_I2C_ST_NAME(lc), device, address, vet, len); \
 	return ret; } \
 __INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _enable_IRQ)(void){ \
-	return EE_hal_i2c_enable_IRQ(& EE_I2C_ST_NAME(lc)); } \
+	return EE_hal_i2c_enable_IRQ((OCI2CMDev_t*)EE_BASE_ADD(uc)); } \
 __INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _disable_IRQ)(void){ \
-	return EE_hal_i2c_disable_IRQ(& EE_I2C_ST_NAME(lc)); } \
+	return EE_hal_i2c_disable_IRQ((OCI2CMDev_t*)EE_BASE_ADD(uc)); } \
 __INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _disable)(void){ \
-	return EE_hal_i2c_disable(& EE_I2C_ST_NAME(lc)); } \
+	return EE_hal_i2c_disable((OCI2CMDev_t*)EE_BASE_ADD(uc)); } \
 __INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _enable)(void){ \
-	return EE_hal_i2c_enable(& EE_I2C_ST_NAME(lc)); } \
+	return EE_hal_i2c_enable((OCI2CMDev_t*)EE_BASE_ADD(uc)); } \
 __INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _stop)(void){ \
-	return EE_hal_i2c_stop(& EE_I2C_ST_NAME(lc)); } \
+	return EE_hal_i2c_stop((OCI2CMDev_t*)EE_BASE_ADD(uc)); } \
 __INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _start)(void){ \
-	return EE_hal_i2c_start(& EE_I2C_ST_NAME(lc)); } \
+	return EE_hal_i2c_start((OCI2CMDev_t*)EE_BASE_ADD(uc)); } \
 __INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _return_error)(void){ \
-	return EE_hal_i2c_return_error(& EE_I2C_ST_NAME(lc)); }
+	return EE_hal_i2c_return_error(& EE_I2C_ST_NAME(lc)); } \
+__INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _idle)(void){ \
+	return EE_hal_i2c_idle((OCI2CMDev_t*)EE_BASE_ADD(uc)); }
 	
-#else
-
-#define DECLARE_FUNC_I2C(uc, lc) \
-__INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _config)(int baudrate,int settings){ \
-	return EE_hal_i2c_config(& EE_I2C_BASE_ADD(uc), baudrate, settings); } \
-__INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _set_mode)(int mode){ \
-	return EE_hal_i2c_set_mode(& EE_I2C_BASE_ADD(uc), mode); } \
-__INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _set_rx_callback)(EE_ISR_callback rxcbk){ \
-	return EE_hal_i2c_set_rx_callback(& EE_I2C_BASE_ADD(uc), rxcbk); } \
-__INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _set_tx_callback)(EE_ISR_callback txcbk){ \
-	return EE_hal_i2c_set_tx_callback(& EE_I2C_BASE_ADD(uc), txcbk); } \
-__INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _write_byte)(EE_UINT8 device, EE_UINT8 address, EE_UINT8 data){ \
-	return EE_hal_i2c_write_byte_polling(& EE_I2C_BASE_ADD(uc), device, address, data); } \
-__INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _read_byte)(EE_UINT8 device, EE_UINT8 address, EE_UINT8 *data){ \
-	return EE_hal_i2c_read_byte_polling(& EE_I2C_BASE_ADD(uc), device, address, data); } \
-__INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _write_buffer)(EE_UINT8 device, EE_UINT8 address, EE_UINT8 *vet, int len){ \
-	return EE_hal_i2c_write_buffer_polling(& EE_I2C_BASE_ADD(uc), device, address, vet, len); } \
-__INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _read_buffer)(EE_UINT8 device, EE_UINT8 address, EE_UINT8 *vet, int len){ \
-	return EE_hal_i2c_read_buffer_polling(& EE_I2C_BASE_ADD(uc), device, address, vet, len); } \
-__INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _enable_IRQ)(void){ \
-	return EE_hal_i2c_enable_IRQ(& EE_I2C_BASE_ADD(uc)); } \
-__INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _disable_IRQ)(void){ \
-	return EE_hal_i2c_disable_IRQ(& EE_I2C_BASE_ADD(uc)); } \
-__INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _disable)(void){ \
-	return EE_hal_i2c_disable(& EE_I2C_BASE_ADD(uc)); } \
-__INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _enable)(void){ \
-	return EE_hal_i2c_enable(& EE_I2C_BASE_ADD(uc)); } \
-__INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _stop)(void){ \
-	return EE_hal_i2c_stop(& EE_I2C_BASE_ADD(uc)); } \
-__INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _start)(void){ \
-	return EE_hal_i2c_start(& EE_I2C_BASE_ADD(uc)); } \
-__INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _return_error)(void){ \
-	return EE_hal_i2c_return_error(& EE_I2C_BASE_ADD(uc)); }
-		
-#endif //#ifdef __USE_I2C_IRQ__
-
-
 /* User functions (API): */  
 #ifdef EE_I2C1_NAME_UC
-#ifdef __USE_I2C_IRQ__
 DECLARE_STRUCT_I2C(EE_I2C1_NAME_UC, EE_I2C1_NAME_LC)
-#endif	//#ifdef __USE_I2C_IRQ__
-DECLARE_FUNC_I2C(EE_I2C1_NAME_UC, EE_I2C1_NAME_LC)
 #endif	//#ifdef EE_I2C1_NAME_UC
 
 #ifdef EE_I2C2_NAME_UC
-#ifdef __USE_I2C_IRQ__
 DECLARE_STRUCT_I2C(EE_I2C2_NAME_UC, EE_I2C2_NAME_LC)
-#endif	//#ifdef __USE_I2C_IRQ__
-DECLARE_FUNC_I2C(EE_I2C2_NAME_UC, EE_I2C2_NAME_LC)
 #endif	//#ifdef EE_I2C2_NAME_UC
-
-
-#ifdef __USE_I2C_IRQ__
-
+	
 /* Return the I2C structure for the componente associated with the given IRQ
  * level */
 __DECLARE_INLINE__ EE_i2c_st *EE_get_i2c_st_from_level(int level);
@@ -217,12 +414,77 @@ __INLINE__ EE_i2c_st * __ALWAYS_INLINE__ EE_get_i2c_st_from_level(int level)
     else
         return & EE_I2C_ST_NAME(EE_I2C2_NAME_LC);
 }
-#endif /* #ifndef EE_I2C2_NAME_UC */
+#endif /* #ifndef EE_I2C2_NAME_UC */	
+	
+		
+#else //#ifdef __USE_I2C_IRQ__
 
-#endif	//#ifdef __USE_I2C_IRQ__
+/*
+	int EE_hal_i2c_config(OCI2CMDev_t* i2cc, int baudrate, int setttings);
+		This function is used to configure i2c controller.
+		Arguments:
+			- OCI2CMDev_t* i2cc: i2c base address
+			- int baudrate: transmission rate 
+			- int settings: other i2c settings (to do...)
+		Actions: 
+			- configure i2c controller.
+		Return values:
+			- the return values can be:	EE_I2C_OK 	
+*/		
+int EE_hal_i2c_config(OCI2CMDev_t* i2cc, int baudrate, int setttings);
+
+/*
+	int EE_hal_i2c_set_mode(OCI2CMDev_t* i2cc, int mode);		
+		This function is used to set i2c controller mode.
+		Arguments:
+			- OCI2CMDev_t* i2cc: i2c base address
+			- int mode: desired mode
+		Actions: 
+			- set i2c controller mode.
+		Return values:
+			- the return values can be:	EE_I2C_OK 	
+*/	
+int EE_hal_i2c_set_mode(OCI2CMDev_t* i2cc, int mode);	
+
+#define DECLARE_FUNC_I2C(uc, lc) \
+__INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _config)(int baudrate,int settings){ \
+	return EE_hal_i2c_config((OCI2CMDev_t*)EE_BASE_ADD(uc), baudrate, settings); } \
+__INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _set_mode)(int mode){ \
+	return EE_hal_i2c_set_mode((OCI2CMDev_t*)EE_BASE_ADD(uc), mode); } \
+__INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _write_byte)(EE_UINT8 device, EE_UINT8 address, EE_UINT8 data){ \
+	return EE_hal_i2c_write_byte_polling((OCI2CMDev_t*)EE_BASE_ADD(uc), device, address, data); } \
+__INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _read_byte)(EE_UINT8 device, EE_UINT8 address){ \
+	return EE_hal_i2c_read_byte_polling((OCI2CMDev_t*)EE_BASE_ADD(uc), device, address); } \
+__INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _write_buffer)(EE_UINT8 device, EE_UINT8 address, EE_UINT8 *vet, int len){ \
+	return EE_hal_i2c_write_buffer_polling((OCI2CMDev_t*)EE_BASE_ADD(uc), device, address, vet, len); } \
+__INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _read_buffer)(EE_UINT8 device, EE_UINT8 address, EE_UINT8 *vet, int len){ \
+	return EE_hal_i2c_read_buffer_polling((OCI2CMDev_t*)EE_BASE_ADD(uc), device, address, vet, len); } \
+__INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _disable)(void){ \
+	return EE_hal_i2c_disable((OCI2CMDev_t*)EE_BASE_ADD(uc)); } \
+__INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _enable)(void){ \
+	return EE_hal_i2c_enable((OCI2CMDev_t*)EE_BASE_ADD(uc)); } \
+__INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _stop)(void){ \
+	return EE_hal_i2c_stop((OCI2CMDev_t*)EE_BASE_ADD(uc)); } \
+__INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _start)(void){ \
+	return EE_hal_i2c_start((OCI2CMDev_t*)EE_BASE_ADD(uc)); } \
+__INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _enable_IRQ)(void){ \
+	return EE_hal_i2c_enable_IRQ((OCI2CMDev_t*)EE_BASE_ADD(uc)); } \
+__INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _disable_IRQ)(void){ \
+	return EE_hal_i2c_disable_IRQ((OCI2CMDev_t*)EE_BASE_ADD(uc)); } \
+__INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _idle)(void){ \
+	return EE_hal_i2c_idle((OCI2CMDev_t*)EE_BASE_ADD(uc)); }
+		
+#endif //#ifdef __USE_I2C_IRQ__
 
 
+/* User functions (API) declaration: */  
+#ifdef EE_I2C1_NAME_UC
+DECLARE_FUNC_I2C(EE_I2C1_NAME_UC, EE_I2C1_NAME_LC)
+#endif	//#ifdef EE_I2C1_NAME_UC
 
+#ifdef EE_I2C2_NAME_UC
+DECLARE_FUNC_I2C(EE_I2C2_NAME_UC, EE_I2C2_NAME_LC)
+#endif	//#ifdef EE_I2C2_NAME_UC
 
 
 #endif // #ifdef __USE_I2C__

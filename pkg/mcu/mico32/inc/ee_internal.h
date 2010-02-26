@@ -62,5 +62,6 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_stop_budget_timer(void)
 /* Macro utils */
 #define cat3(a, b, c)  a ## b ## c
 #define cat2(a, b) a ## b
+#define EE_BASE_ADD(uc) cat2(uc, _BASE_ADDRESS)
 
 #endif /* __INCLUDE_MCUMICO32_INTERNAL_H__ */

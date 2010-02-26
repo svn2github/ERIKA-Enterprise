@@ -72,7 +72,8 @@ void EE_uart_common_handler(int level)
 			while(!EE_buffer_isempty(&(usp->txbuf)))
 			{
 				EE_buffer_getmsg(&(usp->txbuf), &data);
-				while( !((uartc->lsr) & MICOUART_LSR_TX_RDY_MASK) );	
+				while( !((uartc->lsr) & MICOUART_LSR_TX_RDY_MASK) )
+					;	
 				uartc->rxtx = data;
 				if(spint) spint = 0;	// is not a spurious interrupt...
 			}
@@ -272,7 +273,8 @@ int EE_hal_uart_write_byte(EE_uart_st* usp, EE_UINT8 data)
 					break;
 				}
 				else
-					while(ee_uart_tip);					// wait until transmission is finished
+					while(ee_uart_tip)
+						;					// wait until transmission is finished
 			}
 		}while(1);
 		EE_hal_uart_enable_tx_ISR(usp);					// enable tx interrupt
@@ -410,7 +412,8 @@ int EE_hal_uart_write_buffer(EE_uart_st* usp, EE_UINT8 *vet, int len)
 	{	// if there is no transmission in progress or there is a transmission in progress but we are in blocking mode
 		if( !ee_uart_tip || (ee_uart_tip && EE_uart_tx_block(mode)) )
 		{																																			
-			while(ee_uart_tip);								// wait until transmission is finished...
+			while(ee_uart_tip)
+				;								// wait until transmission is finished...
 			for(i=0; i<len; i++)
 			{
 				ret = EE_buffer_putmsg(buffer, vet+i);
@@ -425,7 +428,8 @@ int EE_hal_uart_write_buffer(EE_uart_st* usp, EE_UINT8 *vet, int len)
 					{
 						i--;											// restore the previous character...
 						EE_hal_uart_enable_tx_ISR(usp);					// enable tx interrupt
-						while(ee_uart_tip);								// wait until transmission is finished...
+						while(ee_uart_tip)
+							;								// wait until transmission is finished...
 					}
 				}
 			}
