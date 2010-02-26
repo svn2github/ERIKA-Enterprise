@@ -96,6 +96,11 @@ ifeq ($(findstring __USE_I2C__,$(EEOPT)) , __USE_I2C__)
 EE_SRCS += pkg/mcu/microchip_pic32/src/ee_i2c.c
 endif
 
+ifeq ($(findstring __USE_OC__,$(EEOPT)) , __USE_OC__)
+EE_SRCS += pkg/mcu/microchip_pic32/src/ee_oc.c
+endif
+
+
 # typically empty, the __start function is typically provided by the
 # ASM32 Assembler
 # EE_BOOT_SRCS +=
