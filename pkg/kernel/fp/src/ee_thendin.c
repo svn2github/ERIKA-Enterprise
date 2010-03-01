@@ -57,7 +57,7 @@ void EE_thread_end_instance(void)
   EE_th_nact[current]--;
   
 #if defined(__MULTI__) || defined(__WITH_STATUS__)
-  /* The task state switch from STACKED TO READY because it end its
+  /* The task state switches from STACKED TO READY because it ends its
    * instance. Note that status=READY and nact=0 ==>> the task is
    * suspended!!! */
   EE_th_status[current] = EE_READY;

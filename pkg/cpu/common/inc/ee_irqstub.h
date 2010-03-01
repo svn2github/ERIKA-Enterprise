@@ -84,7 +84,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_std_after_IRQ_schedule(void)
 {
     EE_IRQ_end_instance();
     if (EE_std_need_context_change(EE_std_endcycle_next_tid))
-        EE_std_change_context( EE_std_endcycle_next_tid);
+        EE_std_change_context(EE_std_endcycle_next_tid);
 }
 
 #endif /* __INCLUDE_CPU_COMMON_EE_IRQSTUB__ */
