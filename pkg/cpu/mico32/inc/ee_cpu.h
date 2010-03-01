@@ -55,6 +55,8 @@
 #error Unsupported compiler
 #endif
 
+/* Include the Mico System Builder configuration */
+#include <system_conf.h>
 
 /* This instruction should cause a trap when executed.  Handy to mark invalid
  * functions */
@@ -91,6 +93,15 @@ typedef EE_INT32 EE_TID;
 /* Use the "standard" implementation */
 #include "cpu/common/inc/ee_hal_structs.h"
 
+#ifdef __MULTI__
+
+/* Top-of-stack of each private stack */
+extern struct EE_TOS EE_mico32_system_tos[];
+
+/* Index of the current stack */
+extern EE_UREG EE_mico32_active_tos;
+
+#endif /* __MULTI__ */
 
 /*********************************************************************
  MICO32 interrupt disabling/enabling
@@ -127,31 +138,48 @@ __INLINE__ EE_FREG __ALWAYS_INLINE__ EE_mico32_disableIRQ(void)
 
 
 /*
- * Invalidate data cache
+ * Return true (not 0) if IRQs are enabled, 0 (false) if IRQ are disabled.
+ */
+__INLINE__ int __ALWAYS_INLINE__ EE_mico32_get_IRQ_enabled(void)
+{
+    int ie;
+    asm volatile ("rcsr %0,ie" : "=r"(ie));
+    return EE_mico32_are_IRQs_enabled(ie);
+}
+
+
+/*
+ * Invalidate data cache.  Do nothing if no data cache is configured.
  */
 __INLINE__ void __ALWAYS_INLINE__ EE_mico32_invalidate_dcache(void)
 {
     /* The NOPs are needed to be sure that no load or store instruction
        immediately precedes or follows the `wcsr' instruction, as recommended by
-       the LatticeMico32 Processor Reference Manual, page 17 */
-    asm ("nop\n"
+       the LatticeMico32 Processor Reference Manual, page 17.  "memory" forbids
+       the compiler from caching global variables across this function. */
+#if CPU_DCACHE_ENABLED
+    asm volatile ("nop\n"
         "wcsr dcc, r0\n"
-        "nop");
+        "nop" : : : "memory");
+#endif
 }
 
 
 /*
- * Invalidate instruction cache
+ * Invalidate instruction cache.  Do nothing if no instruction cache is
+ * configured.
  */
 __INLINE__ void __ALWAYS_INLINE__ EE_mico32_invalidate_icache(void)
 {
     /* Four NOPs, as recommended by the LatticeMico32 Processor Reference
        Manual, page 17 */
-    asm ("wcsr icc, r0\n"
+#if CPU_ICACHE_ENABLED
+    asm volatile ("wcsr icc, r0\n"
         "nop\n"
         "nop\n"
         "nop\n"
         "nop");
+#endif
 }
 
 
