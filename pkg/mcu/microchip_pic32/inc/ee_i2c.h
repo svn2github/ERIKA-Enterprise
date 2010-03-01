@@ -42,7 +42,8 @@ EE_INT8 EE_i2c_init(EE_UINT8 port, EE_UINT16 baudrate, EE_UINT16 flags);
 
 EE_UINT8 EE_i2c_idle(EE_UINT8 port);
 
-EE_UINT8 EE_i2c_read_byte(EE_UINT8 port, EE_UINT8 device, EE_UINT8 address);
+EE_UINT8 EE_i2c_read_byte(EE_UINT8 port, EE_UINT8 device, EE_UINT8 address, 
+							EE_UINT8 *data);
 
 EE_UINT8 EE_i2c_write_byte(EE_UINT8 port, EE_UINT8 device, EE_UINT8 address, 
 			EE_UINT8 data);

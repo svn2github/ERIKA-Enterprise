@@ -317,10 +317,10 @@ static EE_UINT8 i2c_write_port_2(EE_UINT8 device, EE_UINT8 address,
 
 
 
-static EE_INT8 i2c_read_port_1(EE_UINT8 device, EE_UINT8 address){
+static EE_INT8 i2c_read_port_1(EE_UINT8 device, EE_UINT8 address, EE_UINT8 *data){
 	
 	unsigned int cto = 0;
-	EE_UINT8 data = 0;
+	
 
 	/*  Ensure I2C module is idle */
 	while(EE_i2c_idle(EE_I2C_PORT_1)) {
@@ -421,7 +421,7 @@ static EE_INT8 i2c_read_port_1(EE_UINT8 device, EE_UINT8 address){
 	I2C1CONbits.RCEN = 1;
 	while(I2C1CONbits.RCEN);
 	I2C1STATbits.I2COV = 0;
-	data = I2C1RCV;
+	*data = I2C1RCV & 0xFF;
 
 	/* Ensure I2C module is idle */
 	while(EE_i2c_idle(EE_I2C_PORT_1)) {
@@ -460,14 +460,13 @@ static EE_INT8 i2c_read_port_1(EE_UINT8 device, EE_UINT8 address){
 		if(++cto > CONNECTION_TIMEOUT)
 			return -EE_I2C_FAILURE;
 	}
-
-	return (data);			// return with data
+	
+	return EE_I2C_SUCCESS;			// return with data
 }
 
-static EE_INT8 i2c_read_port_2(EE_UINT8 device, EE_UINT8 address){
+static EE_INT8 i2c_read_port_2(EE_UINT8 device, EE_UINT8 address , EE_UINT8 *data){
 	
 	unsigned int cto = 0;
-	EE_UINT8 data = 0;
 
 	/* Ensure I2C module is idle  */
 	while(EE_i2c_idle(EE_I2C_PORT_2)){
@@ -570,7 +569,7 @@ static EE_INT8 i2c_read_port_2(EE_UINT8 device, EE_UINT8 address){
 	I2C2CONbits.RCEN = 1;
 	while(I2C2CONbits.RCEN) ;
 	I2C2STATbits.I2COV = 0;
-	data = I2C2RCV;
+	*data = I2C2RCV & 0xFF;
 	
 	/* Ensure I2C module is idle */
 	while(EE_i2c_idle(EE_I2C_PORT_2)) {
@@ -607,7 +606,7 @@ static EE_INT8 i2c_read_port_2(EE_UINT8 device, EE_UINT8 address){
 			return -EE_I2C_FAILURE;
 	}
 	
-	return (data);			// return with data
+	return EE_I2C_SUCCESS;			// return with data
 }
 
 /******************************************************************************/
@@ -684,12 +683,13 @@ EE_UINT8 EE_i2c_idle(EE_UINT8 port){
  * of the I2C to speed_up the communication task 
  */
 
-EE_UINT8 EE_i2c_read_byte (EE_UINT8 port, EE_UINT8 device, EE_UINT8 address){
+EE_UINT8 EE_i2c_read_byte (EE_UINT8 port, EE_UINT8 device, EE_UINT8 address, 
+							EE_UINT8 * data ){
 	
 	if (port == EE_I2C_PORT_1 )
-		return i2c_read_port_1(device, address);
+		return i2c_read_port_1(device, address, data);
 	else if (port == EE_I2C_PORT_2 )
-		return i2c_read_port_2(device, address); 
+		return i2c_read_port_2(device, address, data); 
 	else
 		return -EE_I2C_ERR_BAD_PORT;
 }
