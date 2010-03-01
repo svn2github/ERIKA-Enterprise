@@ -12,15 +12,17 @@
 #ifdef __USE_LEDS__
 __INLINE__ void __ALWAYS_INLINE__ EE_leds_init(void) 
 {
-	//TODO: Add  mask for LED3 init
 	TRISDCLR = 0x3CB0;
 	LATDCLR = 0x3CB0;
+	TRISFCLR = 0x0001;
+	LATFCLR = 0x00001;
+
 }
 
 #define EE_led_0_on		(LATDSET = 0x0010)
 #define EE_led_1_on		(LATDSET = 0x0020)
 #define EE_led_2_on		(LATDSET = 0x0080)
-#define EE_led_3_on		//TODO
+#define EE_led_3_on		(LATFSET = 0x0001)
 #define EE_led_4_on		(LATDSET = 0x0400)
 #define EE_led_5_on		(LATDSET = 0x0800)
 #define EE_led_6_on		(LATDSET = 0x1000)
@@ -30,7 +32,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_leds_init(void)
 #define EE_led_0_off		(LATDCLR = 0x0010)
 #define EE_led_1_off		(LATDCLR = 0x0020)
 #define EE_led_2_off		(LATDCLR = 0x0080)
-#define EE_led_3_off		//TODO
+#define EE_led_3_off		(LATFCLR = 0x0001)
 #define EE_led_4_off		(LATDCLR = 0x0400)
 #define EE_led_5_off		(LATDCLR = 0x0800)
 #define EE_led_6_off		(LATDCLR = 0x1000)
@@ -40,7 +42,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_leds_init(void)
 #define EE_led_0_toggle		(LATDINV = 0x0010)
 #define EE_led_1_toggle		(LATDINV = 0x0020)
 #define EE_led_2_toggle		(LATDINV = 0x0080)
-#define EE_led_3_toggle		//TODO
+#define EE_led_3_toggle		(LATFINV = 0x0001)
 #define EE_led_4_toggle		(LATDINV = 0x0400)
 #define EE_led_5_toggle		(LATDINV = 0x0800)
 #define EE_led_6_toggle		(LATDINV = 0x1000)
