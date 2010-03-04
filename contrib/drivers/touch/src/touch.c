@@ -10,19 +10,19 @@
 #define STATIC static
 //#define STATIC
 
-STATIC EE_UINT16 horiz_width;
-STATIC EE_UINT16 vert_height;
-STATIC EE_UINT16 u_X_pos;
-STATIC EE_UINT16 u_Y_pos;
-STATIC EE_INT16 s_X_pos;
-STATIC EE_INT16 s_Y_pos;
-STATIC volatile EE_UINT8 is_raw_initialized;
-STATIC volatile EE_UINT8 is_raw_ready;
-STATIC volatile EE_UINT8 is_final_ready;
-STATIC volatile EE_UINT8 is_tuned;
-STATIC EE_UINT16 X_raw;
-STATIC EE_UINT16 Y_raw;
-STATIC EE_UINT16 touch_tick_us;
+STATIC uint16_t horiz_width;
+STATIC uint16_t vert_height;
+STATIC uint16_t u_X_pos;
+STATIC uint16_t u_Y_pos;
+STATIC int16_t s_X_pos;
+STATIC int16_t s_Y_pos;
+STATIC volatile uint8_t is_raw_initialized;
+STATIC volatile uint8_t is_raw_ready;
+STATIC volatile uint8_t is_final_ready;
+STATIC volatile uint8_t is_tuned;
+STATIC uint16_t X_raw;
+STATIC uint16_t Y_raw;
+STATIC uint16_t touch_tick_us;
 STATIC tune_raw_t tune_raw;
 STATIC tune_t tune;
 
@@ -30,18 +30,18 @@ STATIC tune_t tune;
 STATIC volatile TouchFlow tf;
 
 // Array index
-STATIC volatile EE_UINT8 i_array;
+STATIC volatile uint8_t i_array;
 // Array for X-Coordinates
-STATIC EE_UINT16 Reading_X[SAMPLES_FOR_ONE_TRUE_XY_PAIR];
+STATIC uint16_t Reading_X[SAMPLES_FOR_ONE_TRUE_XY_PAIR];
 // Array for Y-Coordinates
-STATIC EE_UINT16 Reading_Y[SAMPLES_FOR_ONE_TRUE_XY_PAIR];
+STATIC uint16_t Reading_Y[SAMPLES_FOR_ONE_TRUE_XY_PAIR];
 
-STATIC EE_UINT16 Reading_low_level;
-STATIC volatile EE_UINT16 Untouch_conditions;
+STATIC uint16_t Reading_low_level;
+STATIC volatile uint16_t Untouch_conditions;
 
-EE_INT8 touch_set_dimension(
-		EE_UINT8 touch_axis,
-		EE_UINT16 touch_range)
+int8_t touch_set_dimension(
+		uint8_t touch_axis,
+		uint16_t touch_range)
 {
 	if(touch_axis == TOUCH_X_AXIS)
 	{
@@ -91,7 +91,7 @@ void touch_set_ADC_parameters()
 	ADC_TURN_ON;
 }
 
-void touch_set_activation_time(EE_UINT16 _touch_tick_us)
+void touch_set_activation_time(uint16_t _touch_tick_us)
 {
 	touch_tick_us = _touch_tick_us;
 }
@@ -127,34 +127,34 @@ void touch_raw_init(void)
 
 void touch_calibrate(tune_raw_t *t)
 {
-	EE_INT32 tmp;
+	int32_t tmp;
         // touch input P1 (90%,50%)
-        EE_UINT16 xd1 = (EE_UINT16)(0.9*horiz_width);
-        EE_UINT16 yd1 = (EE_UINT16)(0.5*vert_height);
+        uint16_t xd1 = (uint16_t)(0.9*horiz_width);
+        uint16_t yd1 = (uint16_t)(0.5*vert_height);
         // touch input P2 (50%,10%)
-        EE_UINT16 xd2 = (EE_UINT16)(0.5*horiz_width);
-        EE_UINT16 yd2 = (EE_UINT16)(0.9*vert_height);
+        uint16_t xd2 = (uint16_t)(0.5*horiz_width);
+        uint16_t yd2 = (uint16_t)(0.9*vert_height);
         // touch input P3 (10%,90%)
-        EE_UINT16 xd3 = (EE_UINT16)(0.1*horiz_width);
-        EE_UINT16 yd3 = (EE_UINT16)(0.1*vert_height);
+        uint16_t xd3 = (uint16_t)(0.1*horiz_width);
+        uint16_t yd3 = (uint16_t)(0.1*vert_height);
 
-        tune.a = (EE_INT32)t->yt1*xd3-(EE_INT32)t->yt1*xd2;
-	tune.a += -(EE_INT32)t->yt2*xd3+(EE_INT32)xd2*t->yt3;
-	tune.a += -(EE_INT32)xd1*t->yt3+(EE_INT32)xd1*t->yt2;
-	tmp = -(EE_INT32)t->xt1*t->yt3+(EE_INT32)t->xt2*t->yt3;
-	tmp += -(EE_INT32)t->xt2*t->yt1+(EE_INT32)t->xt3*t->yt1;
-	tmp += -(EE_INT32)t->xt3*t->yt2+(EE_INT32)t->xt1*t->yt2;
+        tune.a = (int32_t)t->yt1*xd3-(int32_t)t->yt1*xd2;
+	tune.a += -(int32_t)t->yt2*xd3+(int32_t)xd2*t->yt3;
+	tune.a += -(int32_t)xd1*t->yt3+(int32_t)xd1*t->yt2;
+	tmp = -(int32_t)t->xt1*t->yt3+(int32_t)t->xt2*t->yt3;
+	tmp += -(int32_t)t->xt2*t->yt1+(int32_t)t->xt3*t->yt1;
+	tmp += -(int32_t)t->xt3*t->yt2+(int32_t)t->xt1*t->yt2;
 	tune.a /= tmp;
 	tune.b = tune.a*((double)t->xt3-t->xt2)+xd2-xd3;
         tune.b /= (t->yt2-t->yt3);
 	tune.c = xd3-tune.a*t->xt3-tune.b*t->yt3;
 	
-	tune.d = -(EE_INT32)t->yt2*yd3+(EE_INT32)t->yt2*yd1;
-	tune.d += (EE_INT32)t->yt1*yd3+(EE_INT32)t->yt3*yd2;
-	tune.d += -(EE_INT32)t->yt3*yd1-(EE_INT32)t->yt1*yd2;
-	tmp = -(EE_INT32)t->yt2*t->xt3+(EE_INT32)t->yt2*t->xt1;
-	tmp += (EE_INT32)t->yt1*t->xt3+(EE_INT32)t->yt3*t->xt2;
-	tmp += -(EE_INT32)t->yt3*t->xt1-(EE_INT32)t->yt1*t->xt2;
+	tune.d = -(int32_t)t->yt2*yd3+(int32_t)t->yt2*yd1;
+	tune.d += (int32_t)t->yt1*yd3+(int32_t)t->yt3*yd2;
+	tune.d += -(int32_t)t->yt3*yd1-(int32_t)t->yt1*yd2;
+	tmp = -(int32_t)t->yt2*t->xt3+(int32_t)t->yt2*t->xt1;
+	tmp += (int32_t)t->yt1*t->xt3+(int32_t)t->yt3*t->xt2;
+	tmp += -(int32_t)t->yt3*t->xt1-(int32_t)t->yt1*t->xt2;
         tune.d /= tmp;
         tune.e = tune.d*((double)t->xt3-t->xt2)+yd2-yd3;
         tune.e /= t->yt2-t->yt3;
@@ -168,11 +168,11 @@ void touch_tune(tune_raw_t *t)
 	is_tuned = 1;
 }
 
-void sorted_insertion(EE_UINT16 Array[])
+void sorted_insertion(uint16_t Array[])
 {
-	EE_INT8 i;
-	EE_UINT8 j;
-	EE_UINT16 current;
+	int8_t i;
+	uint8_t j;
+	uint16_t current;
 
 	// Sort Array[]
 	for(j=1; j<SAMPLES_FOR_ONE_TRUE_XY_PAIR; j++)
@@ -208,8 +208,8 @@ void store_valid_data(void)
 
 		if(is_tuned)
 		{
-			u_X_pos = (EE_UINT16)(tune.a*X_raw+tune.b*Y_raw+tune.c);
-			u_Y_pos = (EE_UINT16)(tune.d*X_raw+tune.e*Y_raw+tune.f);
+			u_X_pos = (uint16_t)(tune.a*X_raw+tune.b*Y_raw+tune.c);
+			u_Y_pos = (uint16_t)(tune.d*X_raw+tune.e*Y_raw+tune.f);
 
 			if(u_X_pos<0)
 				u_X_pos = 0;
@@ -221,8 +221,8 @@ void store_valid_data(void)
 			else if(u_Y_pos>vert_height-1)
 				u_Y_pos = vert_height-1;
 			
-			s_X_pos = (EE_INT16)u_X_pos - horiz_width/2;
-			s_Y_pos = (EE_INT16)u_Y_pos - vert_height/2;
+			s_X_pos = (int16_t)u_X_pos - horiz_width/2;
+			s_Y_pos = (int16_t)u_Y_pos - vert_height/2;
 			is_final_ready = 1;
 		}
 
@@ -294,9 +294,9 @@ ISR2(ADC_INTERRUPT_NAME)
 	ActivateTask(TASK_TOUCH_MANAGER);
 }
 
-EE_INT8 touch_poll_raw_position(
-		EE_UINT8 touch_axis,
-		EE_INT16 *raw_choord)
+int8_t touch_poll_raw_position(
+		uint8_t touch_axis,
+		int16_t *raw_choord)
 {
 	if(!is_raw_initialized)
 		return -TOUCH_ERROR_NOT_CONFIGURED;
@@ -313,9 +313,9 @@ EE_INT8 touch_poll_raw_position(
 	return TOUCH_ERROR_NONE;
 }
 
-EE_INT8 touch_poll_u_position(
-		EE_UINT8 touch_axis,
-		EE_INT16 *u_choord)
+int8_t touch_poll_u_position(
+		uint8_t touch_axis,
+		int16_t *u_choord)
 {
 	if(!is_raw_initialized)
 		return -TOUCH_ERROR_NOT_CONFIGURED;
@@ -335,9 +335,9 @@ EE_INT8 touch_poll_u_position(
 	return TOUCH_ERROR_NONE;
 }
 
-EE_INT8 touch_poll_s_position(
-		EE_UINT8 touch_axis,
-		EE_INT16 *s_choord)
+int8_t touch_poll_s_position(
+		uint8_t touch_axis,
+		int16_t *s_choord)
 {
 	if(!is_raw_initialized)
 		return -TOUCH_ERROR_NOT_CONFIGURED;
@@ -358,8 +358,8 @@ EE_INT8 touch_poll_s_position(
 }
 
 /*void touch_wait_raw_position(
-		EE_INT16 *raw_choord_x,
-		EE_INT16 *raw_choord_y)
+		int16_t *raw_choord_x,
+		int16_t *raw_choord_y)
 {
 	while(!is_raw_ready);
 
@@ -369,9 +369,9 @@ EE_INT8 touch_poll_s_position(
 	is_raw_ready = 0;
 }*/
 
-EE_INT8 touch_wait_raw_position(
-		EE_UINT8 touch_axis,
-		EE_INT16 *raw_choord)
+int8_t touch_wait_raw_position(
+		uint8_t touch_axis,
+		int16_t *raw_choord)
 {
 	if(!is_raw_initialized)
 		return -TOUCH_ERROR_NOT_CONFIGURED;
@@ -390,9 +390,9 @@ EE_INT8 touch_wait_raw_position(
 	return TOUCH_ERROR_NONE;
 }
 
-EE_INT8 touch_wait_u_position(
-		EE_UINT8 touch_axis,
-		EE_INT16 *u_choord)
+int8_t touch_wait_u_position(
+		uint8_t touch_axis,
+		int16_t *u_choord)
 {
 	if(!is_raw_initialized)
 		return -TOUCH_ERROR_NOT_CONFIGURED;
@@ -416,9 +416,9 @@ EE_INT8 touch_wait_u_position(
 	return TOUCH_ERROR_NONE;
 }
 
-EE_INT8 touch_wait_s_position(
-		EE_UINT8 touch_axis,
-		EE_INT16 *s_choord)
+int8_t touch_wait_s_position(
+		uint8_t touch_axis,
+		int16_t *s_choord)
 {
 	if(!is_raw_initialized)
 		return -TOUCH_ERROR_NOT_CONFIGURED;

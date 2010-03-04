@@ -44,12 +44,12 @@ typedef struct {
 } TouchFlow;
 
 typedef struct {
-	EE_UINT16 xt1;
-	EE_UINT16 yt1; 
-	EE_UINT16 xt2;
-	EE_UINT16 yt2;
-	EE_UINT16 xt3;
-	EE_UINT16 yt3;	
+	uint16_t xt1;
+	uint16_t yt1; 
+	uint16_t xt2;
+	uint16_t yt2;
+	uint16_t xt3;
+	uint16_t yt3;	
 } tune_raw_t;
 
 typedef struct {
@@ -64,21 +64,21 @@ typedef struct {
 /****************************************************************************
   Function definitions
 ****************************************************************************/
-EE_INT8 touch_poll_raw_position(EE_UINT8, EE_INT16 *);
-EE_INT8 touch_poll_u_position(EE_UINT8, EE_INT16 *);
-EE_INT8 touch_poll_s_position(EE_UINT8, EE_INT16 *);
-EE_INT8 touch_wait_raw_position(EE_UINT8, EE_INT16 *);
-EE_INT8 touch_wait_u_position(EE_UINT8, EE_INT16 *);
-EE_INT8 touch_wait_s_position(EE_UINT8, EE_INT16 *);
+int8_t touch_poll_raw_position(uint8_t, int16_t *);
+int8_t touch_poll_u_position(uint8_t, int16_t *);
+int8_t touch_poll_s_position(uint8_t, int16_t *);
+int8_t touch_wait_raw_position(uint8_t, int16_t *);
+int8_t touch_wait_u_position(uint8_t, int16_t *);
+int8_t touch_wait_s_position(uint8_t, int16_t *);
 
-EE_INT8	touch_set_dimension(EE_UINT8, EE_UINT16);
+int8_t	touch_set_dimension(uint8_t, uint16_t);
 
 void touch_raw_init();
 void touch_tune(tune_raw_t *);
 
 void touch_calibrate(tune_raw_t *);
 void touch_set_ADC_parameters();
-void touch_set_activation_time(EE_UINT16);
+void touch_set_activation_time(uint16_t);
 
 COMPILER_INLINE void touch_start(void)
 {

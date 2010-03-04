@@ -113,7 +113,7 @@ static void write_permanent_conf(tune_raw_t *tn)
 void amazing_tuner_body(EE_UINT16 horiz_width, EE_UINT16 vert_height)
 {
 	tune_raw_t t_raw;
-	EE_UINT16 X_raw,Y_raw;
+	EE_INT16 X_raw,Y_raw;
 	EE_UINT16 min_x=65535,max_x=0;
 	EE_UINT16 min_y=65535,max_y=0;
 
