@@ -200,6 +200,11 @@ static EE_UINT8 i2c_write_port_1(EE_UINT8 device, EE_UINT8 address,
 		if(++cto > CONNECTION_TIMEOUT)
 			return -EE_I2C_FAILURE;
 	}
+	
+	IEC0bits.I2C1MIE = 0;
+	IEC0bits.I2C1SIE = 0;
+	IEC0bits.I2C1BIE = 0;	
+
 
 	return EE_I2C_SUCCESS;
 }
@@ -311,6 +316,10 @@ static EE_UINT8 i2c_write_port_2(EE_UINT8 device, EE_UINT8 address,
 			return -EE_I2C_FAILURE;
 	}
 
+	IEC1bits.I2C2MIE = 0;
+	IEC1bits.I2C2SIE = 0;
+	IEC1bits.I2C2BIE = 0;	
+	
 	return EE_I2C_SUCCESS;
 }
 
@@ -461,6 +470,10 @@ static EE_INT8 i2c_read_port_1(EE_UINT8 device, EE_UINT8 address, EE_UINT8 *data
 			return -EE_I2C_FAILURE;
 	}
 	
+	IEC0bits.I2C1MIE = 0;
+	IEC0bits.I2C1SIE = 0;
+	IEC0bits.I2C1BIE = 0;
+
 	return EE_I2C_SUCCESS;			// return with data
 }
 
@@ -606,6 +619,11 @@ static EE_INT8 i2c_read_port_2(EE_UINT8 device, EE_UINT8 address , EE_UINT8 *dat
 			return -EE_I2C_FAILURE;
 	}
 	
+	IEC1bits.I2C2MIE = 0;
+	IEC1bits.I2C2SIE = 0;
+	IEC1bits.I2C2BIE = 0;
+
+
 	return EE_I2C_SUCCESS;			// return with data
 }
 
