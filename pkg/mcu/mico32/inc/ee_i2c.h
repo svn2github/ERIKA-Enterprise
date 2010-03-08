@@ -5,10 +5,6 @@
 #ifndef __INCLUDE_EEMCUMICO32_I2C_H__
 #define __INCLUDE_EEMCUMICO32_I2C_H__
 
-#include "ee.h"
-#include "cpu/mico32/inc/ee_irq.h"
-#include <system_conf.h>
-#include "mcu/mico32/inc/ee_buffer.h"
 #include "mcu/mico32/inc/ee_i2c_internal.h"
 
 /***************************************************************************
@@ -37,20 +33,7 @@
 /*************************************************** 
 * Symbols and macros definition
 ****************************************************/
-#define EE_I2C_MSGSIZE 				(1)		
-#define EE_I2C_BUFSIZE 				(12)
-
-/* i2c settings */
-//...to do...
-
-/* i2c utils */
-//#define EE_I2C_RX_INT_MASK			to do...
-#define EE_I2C_RW_MASK              (0x01) // 1=Read,0=Write
-#define EE_I2C_ADDR_MASK            (0xFE)
-#define EE_I2C_NULL_CBK				((EE_ISR_callback)0)
-
-#define EE_i2c_pend_for_TIP_done(status) \
-    while( (status) & OCI2CM_STATUS_TRANSFER ) 
+//...
     
 
     

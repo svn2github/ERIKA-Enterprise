@@ -3,7 +3,7 @@
 */
 
 #include "mcu/mico32/inc/ee_timer.h"
-//#include "ee_internal.h"
+#include <cpu/mico32/inc/ee_irq.h>		// to use ISR functions.
 
 /******************************************************************************/
 /*                             Utility Macros                                 */
@@ -17,21 +17,39 @@
 /******************************************************************************/
 /*                       Private Local Functions                              */
 /******************************************************************************/
-// ...
+/* Vectors and uart structures definitions */
+#ifdef EE_TIMER1_NAME_UC
+DEFINE_STRUCT_TIMER(EE_TIMER1_NAME_UC, EE_TIMER1_NAME_LC)
+#endif
+
+#ifdef EE_TIMER2_NAME_UC
+DEFINE_STRUCT_TIMER(EE_TIMER2_NAME_UC, EE_TIMER2_NAME_LC)
+#endif
+
+#ifdef EE_TIMER3_NAME_UC
+DEFINE_STRUCT_TIMER(EE_TIMER3_NAME_UC, EE_TIMER3_NAME_LC)
+#endif
+
+#ifdef EE_TIMER4_NAME_UC
+DEFINE_STRUCT_TIMER(EE_TIMER4_NAME_UC, EE_TIMER4_NAME_LC)
+#endif
+
 
 /******************************************************************************/
 /*                              ISRs                                          */
 /******************************************************************************/
-void EE_timer_handler(EE_timer_st* tsp)
+void EE_timer_common_handler(int level)
 {
-	MicoTimer_t *timerc = (MicoTimer_t *)(tsp->base); 
-	
+    EE_timer_st *tstp = EE_get_timer_st_from_level(level);
+    MicoTimer_t *timerc = tstp->base;
+    
 	/* acknowledge the interrupt */
 	timerc->Status = 0;
 	
 	/* body of the ISR callback... */
-	tsp->cbk();
-	
+	if(tstp->cbk != EE_NULL_CBK)
+        tstp->cbk();
+
 	// All done!!!
 	return;	
 }
@@ -40,29 +58,19 @@ void EE_timer_handler(EE_timer_st* tsp)
 /******************************************************************************/
 /*                       Public Global Functions                              */
 /******************************************************************************/
-// START_STOP_CONTROL must be controllable!!!
-//EE_UINT8 EE_timer_init_base(EE_UINT32 base, EE_UINT32 period, EE_UINT32 settings)
-EE_UINT8 EE_timer_init_base(EE_UINT32 base, EE_UINT32 irq_flag, EE_UINT32 period, EE_UINT32 settings, EE_mico32_ISR_callback isr_callback)
+
+int EE_hal_timer_init(EE_timer_st* tst, int period, int settings)
 {
-	// START_STOP_CONTROL must be controllable!!!
-	MicoTimer_t *timerc = (MicoTimer_t *)base;
+	MicoTimer_t *timerc = tst->base;
 	
-	/* check period value */
-	if( period==0 )
-        return(MICO_STATUS_E_INVALID_PARAM);
-        
-    switch(base)
-	{
-		case TIMER1_BASE_ADDRESS:
-			ee_timer_st_1.base = base;
-			break;
-		case TIMER2_BASE_ADDRESS:
-			ee_timer_st_2.base = base;
-			break;
-		default:
-			return(MICO_STATUS_E_INVALID_PARAM);
-	}    
-	    
+	/* Register the handler */
+	EE_mico32_register_ISR(tst->irqf, EE_timer_common_handler);
+	
+	if(EE_timer_need_enable_int(settings))
+		mico32_enable_irq(tst->irqf);
+	else
+		mico32_disable_irq(tst->irqf);
+	
 	/* Stop the timer */
 	timerc->Control = MICO32_TIMER_CONTROL_STOP_BIT_MASK;
 	
@@ -73,71 +81,7 @@ EE_UINT8 EE_timer_init_base(EE_UINT32 base, EE_UINT32 irq_flag, EE_UINT32 period
 	timerc->Control = settings;
 	
 	/* ISR management */
-	return EE_timer_set_ISR_callback_base(base, irq_flag, isr_callback);
-}
-
-EE_UINT8 EE_timer_set_ISR_callback_base(EE_UINT32 base, EE_UINT32 irq_flag, EE_mico32_ISR_callback isr_callback)
-{
-	// START_STOP_CONTROL must be controllable!!!
-	MicoTimer_t *timerc = (MicoTimer_t *)base;
-	
-    switch(base)
-	{
-		case TIMER1_BASE_ADDRESS:
-			ee_timer_st_1.cbk = isr_callback;
-			if(isr_callback != NULL)
-			{
-				EE_mico32_register_ISR(irq_flag, EE_timer1_handler);
-				timerc->Control |= MICO32_TIMER_CONTROL_INT_BIT_MASK; // flags: ex. MICO32_TIMER_CONTROL_INT_BIT_MASK | MICO32_TIMER_CONTROL_CONT_BIT_MASK | MICO32_TIMER_CONTROL_START_BIT_MASK;	
-			}
-			else
-				timerc->Control &= (~(unsigned int)(MICO32_TIMER_CONTROL_INT_BIT_MASK));
-			break;
-		case TIMER2_BASE_ADDRESS:
-			ee_timer_st_2.cbk = isr_callback;
-			if(isr_callback != NULL)
-			{
-				EE_mico32_register_ISR(irq_flag, EE_timer2_handler);
-				timerc->Control |= MICO32_TIMER_CONTROL_INT_BIT_MASK; // flags: ex. MICO32_TIMER_CONTROL_INT_BIT_MASK | MICO32_TIMER_CONTROL_CONT_BIT_MASK | MICO32_TIMER_CONTROL_START_BIT_MASK;	
-			}
-			else
-				timerc->Control &= (~(unsigned int)(MICO32_TIMER_CONTROL_INT_BIT_MASK));
-			break;
-		default:
-			return(MICO_STATUS_E_INVALID_PARAM);
-	}   
-	
-	// All done!!!
 	return EE_TIMER_OK;
-}
 
-EE_UINT8 EE_timer_start_base(EE_UINT32 base) 
-{
-	// START_STOP_CONTROL must be controllable!!!
-	MicoTimer_t *timerc = (MicoTimer_t *)base;
-	timerc->Control |= MICO32_TIMER_CONTROL_START_BIT_MASK; 
-	
-	// All done!!!
-	return EE_TIMER_OK;
 }
-
-EE_UINT8 EE_timer_stop_base(EE_UINT32 base) 
-{
-	// START_STOP_CONTROL must be controllable!!!
-	MicoTimer_t *timerc = (MicoTimer_t *)base;
-	timerc->Control |= MICO32_TIMER_CONTROL_STOP_BIT_MASK; 
-	
-	// All done!!!
-	return EE_TIMER_OK;
-}
-
-EE_UINT32 EE_timer_get_val_base(EE_UINT32 base, EE_UINT32 *val)
-{
-	// START_STOP_CONTROL must be controllable!!!
-	MicoTimer_t *timerc = (MicoTimer_t *)base;
-	
-	// All done!!! return the snapshot value... 
-	return timerc->Snapshot; 
-}
-
 

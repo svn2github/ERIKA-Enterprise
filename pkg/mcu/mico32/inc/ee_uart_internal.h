@@ -3,9 +3,12 @@
 
 #ifdef __USE_UART__
 
-#include <eecfg.h>
+
+#include "cpu/mico32/inc/ee_internal.h"
 #include "mcu/mico32/inc/ee_internal.h"
+#include "mcu/mico32/inc/ee_buffer.h"
 #include <MicoUart.h>				// to use LATTICE data structures.
+
 
 /*************************************************************************
  Uart
@@ -25,6 +28,64 @@ typedef struct {
     EE_buffer rxbuf;					// rx buffer used in isr mode
     EE_buffer txbuf;					// tx buffer used in isr mode
 } EE_uart_st;
+
+/* Uart settings */
+#define EE_UART_MSGSIZE 	(1)		
+#define EE_UART_BUFSIZE 	(4)
+
+#define EE_UART_BIT8_ODD	(0x0B)
+#define EE_UART_BIT8_EVEN	(0x1B)
+#define EE_UART_BIT8_NO		(0x03)
+
+#define EE_UART_BIT7_ODD	(0x0A)
+#define EE_UART_BIT7_EVEN	(0x1A)
+#define EE_UART_BIT7_NO		(0x02)
+
+#define EE_UART_BIT6_ODD	(0x09)
+#define EE_UART_BIT6_EVEN	(0x19)
+#define EE_UART_BIT6_NO		(0x01)
+
+#define EE_UART_BIT5_ODD	(0x08)
+#define EE_UART_BIT5_EVEN	(0x18)
+#define EE_UART_BIT5_NO		(0x00)
+
+#define EE_UART_BIT_STOP_1	(0x00)
+#define EE_UART_BIT_STOP_2	(0x04)
+
+/* Uart operating modes */
+#define EE_UART_POLLING		(0x00)
+#define EE_UART_RX_ISR		(0x01)
+#define EE_UART_TX_ISR		(0x02)	
+#define EE_UART_RXTX_ISR	(0x03)
+#define EE_UART_RX_BLOCK	(0x10)
+#define EE_UART_TX_BLOCK	(0x20)
+#define EE_UART_RXTX_BLOCK  (0x30)	
+
+#define EE_uart_need_init_rx_buf(old,new)  ( !((old) & EE_UART_RX_ISR) && ((new) & EE_UART_RX_ISR) )
+#define EE_uart_need_init_tx_buf(old,new)  ( !((old) & EE_UART_TX_ISR) && ((new) & EE_UART_TX_ISR) )
+#define EE_uart_need_enable_rx_int(old, new)  ( (new) & EE_UART_RX_ISR )
+#define EE_uart_need_disable_rx_int(old, new)  ( !((new) & EE_UART_RX_ISR) )
+#define EE_uart_enabled_rx_int(mode)  ( (mode) & EE_UART_RX_ISR )
+#define EE_uart_need_enable_int(new)  ( ((new) & EE_UART_RX_ISR) || ((new) & EE_UART_TX_ISR) )
+
+#define EE_uart_tx_polling(mode) ( !((mode) & EE_UART_TX_ISR) )
+#define EE_uart_rx_polling(mode) ( !((mode) & EE_UART_RX_ISR) )
+#define EE_uart_rx_block(mode) ( ((mode) & EE_UART_RX_BLOCK) )
+#define EE_uart_tx_block(mode) ( ((mode) & EE_UART_TX_BLOCK) )
+
+/* Uart utils */
+#define EE_UART_NULL_VET			((EE_UINT8 *)0)
+
+/* Uart return values */
+#define EE_UART_OK					(0x00)
+#define EE_UART_ERR_RX_BUF_FULL   	(-5)
+#define EE_UART_ERR_RX_BUF_EMPTY   	(-6)
+#define EE_UART_ERR_TX_BUF_FULL   	(-7)
+#define EE_UART_ERR_TX_BUF_EMPTY   	(-8)
+#define EE_UART_ERR_BAD_VALUE		(-9)
+#define EE_UART_ERR_TX_NOT_READY	(-10)
+#define EE_UART_ERR_RX_NOT_READY	(-11)
+
 
 /********************** Internal functions **************************/
 
@@ -216,53 +277,44 @@ void EE_uart_common_handler(int level);													//handler
 //int EE_hal_uart_start(MicoUart_t* base);			ATT! not implemented!
 //int EE_hal_uart_stop(MicoUart_t* base);			ATT! not implemented!
 
-/* Macro for the structure name generation */
-#define EE_UART_ST_NAME(lc) cat3(ee_, lc, _st)
-
-/* Macros for vectors (buffers) name generation */
-#define EE_UART_VETRX_NAME(lc) cat3(ee_, lc, _isr_rxvet)
-#define EE_UART_VETTX_NAME(lc) cat3(ee_, lc, _isr_txvet)
-
 /* Macro for Structure declaration */
 #define DECLARE_STRUCT_UART(uc, lc) \
-  extern EE_uart_st EE_UART_ST_NAME(lc);
-
-/* Macro for vectors (buffers) definition */  
-#define DEFINE_VET_UART(uc, lc) \
-EE_UINT8 EE_UART_VETRX_NAME(lc)[EE_UART_BUFSIZE]; \
-EE_UINT8 EE_UART_VETTX_NAME(lc)[EE_UART_BUFSIZE];  
-
+  extern EE_uart_st EE_ST_NAME(lc);
 /* Macro for structure definition */
 #define DEFINE_STRUCT_UART(uc, lc) \
 EE_uart_st cat3(ee_, lc, _st) = { \
 	.err=EE_UART_OK, .mode= EE_UART_POLLING | EE_UART_RXTX_BLOCK, .base= (MicoUart_t* )cat2(uc, _BASE_ADDRESS),\
-	.irqf= cat2(uc, _IRQ), .rxcbk= EE_UART_NULL_CBK, .txcbk= EE_UART_NULL_CBK,\
-	.rxbuf.data= EE_UART_VETRX_NAME(lc),.txbuf.data= EE_UART_VETTX_NAME(lc)};
+	.irqf= cat2(uc, _IRQ), .rxcbk= EE_NULL_CBK, .txcbk= EE_NULL_CBK,\
+	.rxbuf.data= EE_VETRX_NAME(lc),.txbuf.data= EE_VETTX_NAME(lc)};
+/* Macro for vectors (buffers) definition */  
+#define DEFINE_VET_UART(uc, lc) \
+EE_UINT8 EE_VETRX_NAME(lc)[EE_UART_BUFSIZE]; \
+EE_UINT8 EE_VETTX_NAME(lc)[EE_UART_BUFSIZE];  
 
 /* Macros for User functions (API) */  
 #define DECLARE_FUNC_UART(uc, lc) \
 __INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _config)(int baudrate,int settings){ \
-	return EE_hal_uart_config(& EE_UART_ST_NAME(lc), baudrate, settings); } \
+	return EE_hal_uart_config(& EE_ST_NAME(lc), baudrate, settings); } \
 __INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _set_mode)(int mode){ \
-	return EE_hal_uart_set_mode(& EE_UART_ST_NAME(lc), mode); } \
+	return EE_hal_uart_set_mode(& EE_ST_NAME(lc), mode); } \
 __INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _set_rx_callback)(EE_ISR_callback rxcbk){ \
-	return EE_hal_uart_set_rx_callback(& EE_UART_ST_NAME(lc), rxcbk); } \
+	return EE_hal_uart_set_rx_callback(& EE_ST_NAME(lc), rxcbk); } \
 __INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _set_tx_callback)(EE_ISR_callback txcbk){ \
-	return EE_hal_uart_set_tx_callback(& EE_UART_ST_NAME(lc), txcbk); } \
+	return EE_hal_uart_set_tx_callback(& EE_ST_NAME(lc), txcbk); } \
 __INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _write_byte)(EE_UINT8 data){ \
-	return EE_hal_uart_write_byte(& EE_UART_ST_NAME(lc), data); } \
+	return EE_hal_uart_write_byte(& EE_ST_NAME(lc), data); } \
 __INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _read_byte)(EE_UINT8 *data){ \
-	return EE_hal_uart_read_byte(& EE_UART_ST_NAME(lc), data); } \
+	return EE_hal_uart_read_byte(& EE_ST_NAME(lc), data); } \
 __INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _write_buffer)(EE_UINT8 *vet, int len){ \
-	return EE_hal_uart_write_buffer(& EE_UART_ST_NAME(lc), vet, len); } \
+	return EE_hal_uart_write_buffer(& EE_ST_NAME(lc), vet, len); } \
 __INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _read_buffer)(EE_UINT8 *vet, int len){ \
-	return EE_hal_uart_read_buffer(& EE_UART_ST_NAME(lc), vet, len); } \
+	return EE_hal_uart_read_buffer(& EE_ST_NAME(lc), vet, len); } \
 __INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _enable_IRQ)(int ier){ \
-	return EE_hal_uart_enable_IRQ(& EE_UART_ST_NAME(lc), ier); } \
+	return EE_hal_uart_enable_IRQ(& EE_ST_NAME(lc), ier); } \
 __INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _disable_IRQ)(void){ \
-	return EE_hal_uart_disable_IRQ(& EE_UART_ST_NAME(lc)); } \
+	return EE_hal_uart_disable_IRQ(& EE_ST_NAME(lc)); } \
 __INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _return_error)(void){ \
-	return EE_hal_uart_return_error(& EE_UART_ST_NAME(lc)); }
+	return EE_hal_uart_return_error(& EE_ST_NAME(lc)); }
 	
 /* User functions (API): */  
 #ifdef EE_UART1_NAME_UC
@@ -284,15 +336,15 @@ __DECLARE_INLINE__ EE_uart_st *EE_get_uart_st_from_level(int level);
 /* If there is only one component of this kind, no test is done */
 __INLINE__ EE_uart_st * __ALWAYS_INLINE__ EE_get_uart_st_from_level(int level)
 {
-    return & EE_UART_ST_NAME(EE_UART1_NAME_LC);
+    return & EE_ST_NAME(EE_UART1_NAME_LC);
 }
 #else /* #ifndef EE_UART2_NAME_UC */
 __INLINE__ EE_uart_st * __ALWAYS_INLINE__ EE_get_uart_st_from_level(int level)
 {
-    if (level == EE_UART_IRQ_NAME(EE_UART1_NAME_UC))
-        return & EE_UART_ST_NAME(EE_UART1_NAME_LC);
+    if (level == EE_IRQ_NAME(EE_UART1_NAME_UC))
+        return & EE_ST_NAME(EE_UART1_NAME_LC);
     else
-        return & EE_UART_ST_NAME(EE_UART2_NAME_LC);
+        return & EE_ST_NAME(EE_UART2_NAME_LC);
 }
 #endif /* #ifndef EE_UART_NAME2_UC */
 

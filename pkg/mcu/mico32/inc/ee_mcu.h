@@ -47,6 +47,22 @@
  Time handling
  *************************************************************************/
 
+#ifdef __USE_I2C__
+#include "mcu/mico32/inc/ee_i2c.h"
+#endif
+
+#ifdef __USE_UART__
+#include "mcu/mico32/inc/ee_uart.h"
+#endif
+
+#ifdef __USE_SPI__
+#include "mcu/mico32/inc/ee_spi.h"
+#endif
+
+#ifdef __USE_TIMER__
+#include "mcu/mico32/inc/ee_timer.h"
+#endif
+
 /*
  * TODO!!! - Time handling on the PIC32.
  */

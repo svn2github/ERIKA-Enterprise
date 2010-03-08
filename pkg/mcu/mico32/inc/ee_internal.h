@@ -38,10 +38,10 @@
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
 
-#include "mcu/mico32/inc/ee_mcu.h"
-
 #ifndef __INCLUDE_MCUMICO32_INTERNAL_H__
 #define __INCLUDE_MCUMICO32_INTERNAL_H__
+
+//#include "mcu/mico32/inc/ee_mcu.h"
 
  /*
  * FRSH
@@ -63,5 +63,12 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_stop_budget_timer(void)
 #define cat3(a, b, c)  a ## b ## c
 #define cat2(a, b) a ## b
 #define EE_BASE_ADD(uc) cat2(uc, _BASE_ADDRESS)
+#define EE_NULL_CBK ((EE_ISR_callback)0)
+/* Macro for the structure name generation */
+#define EE_ST_NAME(lc) cat3(ee_, lc, _st)
+/* Macro for vectors (buffers) name generation */
+#define EE_VETRX_NAME(lc) cat3(ee_, lc, _isr_rxvet)
+#define EE_VETTX_NAME(lc) cat3(ee_, lc, _isr_txvet)
+#define EE_IRQ_NAME(uc) cat2(uc, _IRQ)
 
 #endif /* __INCLUDE_MCUMICO32_INTERNAL_H__ */

@@ -3,6 +3,7 @@
 */
 
 #include "mcu/mico32/inc/ee_i2c.h"
+//#include <cpu/mico32/inc/ee_irq.h>
 
 /******************************************************************************/
 /*                             Utility Macros                                 */
@@ -98,8 +99,10 @@ int EE_hal_i2c_write_byte_polling(OCI2CMDev_t* i2cc, EE_UINT8 device, EE_UINT8 a
 {
 	int ret;
 
+	while( !EE_hal_i2c_idle(i2cc) )
+		;
 	/* load address, set-up a write to write the device address out to the bus */
-	i2cc->Data = ((device<<1) & ~EE_I2C_RW_MASK);
+	i2cc->Data = (device & ~EE_I2C_RW_MASK);
 	/* initiate a start (repeated) and write out the address */
 	i2cc->StatusCommand = (OCI2CM_CMD_START | OCI2CM_CMD_WRITE);
 	/* wait for transfer to complete */
@@ -146,10 +149,12 @@ int EE_hal_i2c_read_byte_polling(OCI2CMDev_t* i2cc, EE_UINT8 device, EE_UINT8 ad
 {
 	int ret;
 
+	while( !EE_hal_i2c_idle(i2cc) )
+		;
 	/* load device address, set-up a write to write the device address out to the bus */
-	i2cc->Data = ((device<<1) & ~EE_I2C_RW_MASK);					// AFTER WRITE
+	i2cc->Data = (device & ~EE_I2C_RW_MASK);					// AFTER WRITE
 	/* initiate a start (repeated) and write out the address */
-	i2cc->StatusCommand = (OCI2CM_CMD_START|OCI2CM_CMD_WRITE);
+	i2cc->StatusCommand = (OCI2CM_CMD_START | OCI2CM_CMD_WRITE);
 	/* wait for transfer to complete */
 	EE_i2c_pend_for_TIP_done(i2cc->StatusCommand);
 	/* check if ack is received */
@@ -169,9 +174,9 @@ int EE_hal_i2c_read_byte_polling(OCI2CMDev_t* i2cc, EE_UINT8 device, EE_UINT8 ad
 		else
 		{
 			/* load device address, set-up a write to write the device address out to the bus */
-			i2cc->Data = ((device<<1) | (EE_I2C_RW_MASK) );			// AFTER READ
+			i2cc->Data = (device | EE_I2C_RW_MASK );			// AFTER READ
 			/* initiate a start (repeated) and write out the address */
-			i2cc->StatusCommand = (OCI2CM_CMD_START|OCI2CM_CMD_WRITE);
+			i2cc->StatusCommand = (OCI2CM_CMD_START | OCI2CM_CMD_WRITE);
 			/* wait for transfer to complete */
 			EE_i2c_pend_for_TIP_done(i2cc->StatusCommand);
 			/* check if ack is received */
@@ -203,8 +208,10 @@ int EE_hal_i2c_write_buffer_polling(OCI2CMDev_t* i2cc, EE_UINT8 device, EE_UINT8
 	int i;
 	int ret;
 	
+	while( !EE_hal_i2c_idle(i2cc) )
+		;
 	/* load device address, set-up a write to write the device address out to the bus */
-    i2cc->Data = ((device<<1) & ~EE_I2C_RW_MASK);			// AFTER WRITE
+    i2cc->Data = (device & ~EE_I2C_RW_MASK);			// AFTER WRITE
     /* initiate a start (repeated) and write out the address */
     i2cc->StatusCommand = (OCI2CM_CMD_START | OCI2CM_CMD_WRITE);
     /* wait for transfer to complete */
@@ -258,8 +265,10 @@ int EE_hal_i2c_read_buffer_polling(OCI2CMDev_t* i2cc, EE_UINT8 device, EE_UINT8 
 	int i;
 	int ret;
 
+	while( !EE_hal_i2c_idle(i2cc) )
+		;
 	/* load device address, set-up a write to write the device address out to the bus */
-	i2cc->Data = ((device<<1) & ~EE_I2C_RW_MASK);			// AFTER WRITE i2cc->Data = ((device<<1) | (EE_I2C_RW_MASK) );
+	i2cc->Data = (device & ~EE_I2C_RW_MASK);			// AFTER WRITE 
 	/* initiate a start (repeated) and write out the address */
 	i2cc->StatusCommand = (OCI2CM_CMD_START | OCI2CM_CMD_WRITE);
 	/* wait for transfer to complete */
@@ -281,7 +290,7 @@ int EE_hal_i2c_read_buffer_polling(OCI2CMDev_t* i2cc, EE_UINT8 device, EE_UINT8 
        	else
        	{
 			/* load device address, set-up a write to write the device address out to the bus */
-			i2cc->Data = ((device<<1) | (EE_I2C_RW_MASK) );			// AFTER READ
+			i2cc->Data = (device | EE_I2C_RW_MASK);		// AFTER READ
 			/* initiate a start (repeated) and write out the address */
 			i2cc->StatusCommand = (OCI2CM_CMD_START | OCI2CM_CMD_WRITE);
 			/* wait for transfer to complete */
@@ -403,7 +412,15 @@ int EE_hal_i2c_set_mode(EE_i2c_st* i2csp, int mode)
 			EE_buffer_init(&i2csp->txbuf, EE_I2C_MSGSIZE, EE_I2C_BUFSIZE, i2csp->txbuf.data);
 		/* IRQ settings */
 		if(EE_i2c_need_enable_int(mode))
-			i2cc->Control |= (volatile unsigned int)OCI2CM_CTL_INT_ENABLE;
+		{
+			mico32_enable_irq(i2csp->irqf);
+			i2cc->Control |= OCI2CM_CTL_INT_ENABLE;
+		}
+		else
+		{
+			i2cc->Control &= ~OCI2CM_CTL_INT_ENABLE;
+			mico32_disable_irq(i2csp->irqf);
+		}
 	}		
 	/* Enable IRQ */
 	if (EE_mico32_are_IRQs_enabled(intst))
@@ -444,6 +461,9 @@ int EE_hal_i2c_write_byte_irq(EE_i2c_st* i2csp, EE_UINT8 device, EE_UINT8 addres
 	int ret = EE_I2C_OK;
 	OCI2CMDev_t *i2cc = i2csp->base; 
 	
+	while( !EE_hal_i2c_idle(i2cc) )
+		;
+		
 	// to do...
 	
 	/* stop signal */
@@ -460,6 +480,8 @@ int EE_hal_i2c_read_byte_irq(EE_i2c_st* i2csp, EE_UINT8 device, EE_UINT8 address
 	int ret = EE_I2C_OK;
 	OCI2CMDev_t *i2cc = i2csp->base; 
 	
+	while( !EE_hal_i2c_idle(i2cc) )
+		;
 	// to do...
 	
 	/* stop signal */
@@ -475,6 +497,8 @@ int EE_hal_i2c_write_buffer_irq(EE_i2c_st* i2csp, EE_UINT8 device, EE_UINT8 addr
 	int ret = EE_I2C_OK;
 	OCI2CMDev_t *i2cc = i2csp->base; 
 	
+	while( !EE_hal_i2c_idle(i2cc) )
+		;
 	// to do...
 	
 	/* stop signal */
@@ -490,6 +514,8 @@ int EE_hal_i2c_read_buffer_irq(EE_i2c_st* i2csp, EE_UINT8 device, EE_UINT8 addre
 	int ret = EE_I2C_OK;
 	OCI2CMDev_t *i2cc = i2csp->base; 
 	
+	while( !EE_hal_i2c_idle(i2cc) )
+		;
 	// to do...
 	
 	/* stop signal */

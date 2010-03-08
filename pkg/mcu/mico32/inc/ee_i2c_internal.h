@@ -1,15 +1,27 @@
 #ifndef __EE_I2C_INTERNAL_H__
 #define __EE_I2C_INTERNAL_H__
 
+
 #ifdef __USE_I2C__
 
-#include <eecfg.h>
+
+#include "cpu/mico32/inc/ee_internal.h"
 #include "mcu/mico32/inc/ee_internal.h"
+#include "mcu/mico32/inc/ee_buffer.h"
 #include "OpenCoresI2CMaster.h"
+
 
 /*************************************************************************
  I2C
  *************************************************************************/
+ 
+/* i2c settings */
+#define EE_I2C_MSGSIZE 				(1)		
+#define EE_I2C_BUFSIZE 				(12)
+
+/* i2c utils */
+#define EE_I2C_RW_MASK              (0x01) // 1=Read,0=Write
+#define EE_I2C_ADDR_MASK            (0xFE)
 
 /* i2c return values */			
 #define EE_I2C_OK					(0)
@@ -37,7 +49,8 @@
 #define EE_i2c_tx_polling(mode) ( !((mode) & EE_I2C_TX_ISR) )
 #define EE_i2c_rx_polling(mode) ( !((mode) & EE_I2C_RX_ISR) )
 #define EE_i2c_bus_idle(status) ( !((status) & OCI2CM_STATUS_BUS_BUSY) )
-	
+#define EE_i2c_pend_for_TIP_done(status) { while((status) & OCI2CM_STATUS_TRANSFER); }
+ 
 /* Internal functions */
 /*
 	int EE_hal_i2c_write_byte_polling(OCI2CMDev_t* i2cc, EE_UINT8 device, EE_UINT8 address, EE_UINT8 data);	
@@ -236,17 +249,19 @@ typedef struct {
     EE_buffer txbuf;					// tx buffer used in isr mode
 } EE_i2c_st;
 
-/* Macro for the structure name generation */
-#define EE_I2C_ST_NAME(lc) cat3(ee_, lc, _st)
 /* Macro for Structure declaration */
 #define DECLARE_STRUCT_I2C(uc, lc) \
-  extern EE_i2c_st EE_I2C_ST_NAME(lc);
+  extern EE_i2c_st EE_ST_NAME(lc);
 /* Macro for structure definition */
 #define DEFINE_STRUCT_I2C(uc, lc) \
 EE_i2c_st cat3(ee_, lc, _st) = { \
 	.err=EE_I2C_OK, .mode= EE_I2C_POLLING | EE_I2C_RXTX_BLOCK, .base= (OCI2CMDev_t* )cat2(uc, _BASE_ADDRESS),\
-	.irqf= cat2(uc, _IRQ), .rxcbk= EE_I2C_NULL_CBK, .txcbk= EE_I2C_NULL_CBK,\
-	.rxbuf.data= EE_I2C_VETRX_NAME(lc),.txbuf.data= EE_I2C_VETTX_NAME(lc)};
+	.irqf= cat2(uc, _IRQ), .rxcbk= EE_NULL_CBK, .txcbk= EE_NULL_CBK,\
+	.rxbuf.data= EE_VETRX_NAME(lc),.txbuf.data= EE_VETTX_NAME(lc)};
+/* Macro for vectors (buffers) definition */  
+#define DEFINE_VET_I2C(uc, lc) \
+EE_UINT8 EE_VETRX_NAME(lc)[EE_I2C_BUFSIZE]; \
+EE_UINT8 EE_VETTX_NAME(lc)[EE_I2C_BUFSIZE];  
 
 /*
 	int EE_hal_i2c_config(EE_i2c_st* i2csp, int baudrate, int setttings);
@@ -325,51 +340,44 @@ int EE_hal_i2c_write_buffer_irq(EE_i2c_st* i2csp, EE_UINT8 device, EE_UINT8 addr
 
 /* Interrupt handler */
 void EE_i2c_common_handler(int level);																	
-/* Macro for vectors (buffers) name generation */
-#define EE_I2C_VETRX_NAME(lc) cat3(ee_, lc, _isr_rxvet)
-#define EE_I2C_VETTX_NAME(lc) cat3(ee_, lc, _isr_txvet)
-/* Macro for vectors (buffers) definition */  
-#define DEFINE_VET_I2C(uc, lc) \
-EE_UINT8 EE_I2C_VETRX_NAME(lc)[EE_I2C_BUFSIZE]; \
-EE_UINT8 EE_I2C_VETTX_NAME(lc)[EE_I2C_BUFSIZE];  
-								
+							
 /* Macros for User functions (API) */  
 #define DECLARE_FUNC_I2C(uc, lc) \
 __INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _config)(int baudrate,int settings){ \
-	return EE_hal_i2c_config(& EE_I2C_ST_NAME(lc), baudrate, settings); } \
+	return EE_hal_i2c_config(& EE_ST_NAME(lc), baudrate, settings); } \
 __INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _set_mode)(int mode){ \
-	return EE_hal_i2c_set_mode(& EE_I2C_ST_NAME(lc), mode); } \
+	return EE_hal_i2c_set_mode(& EE_ST_NAME(lc), mode); } \
 __INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _set_rx_callback)(EE_ISR_callback rxcbk){ \
-	return EE_hal_i2c_set_rx_callback(& EE_I2C_ST_NAME(lc), rxcbk); } \
+	return EE_hal_i2c_set_rx_callback(& EE_ST_NAME(lc), rxcbk); } \
 __INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _set_tx_callback)(EE_ISR_callback txcbk){ \
-	return EE_hal_i2c_set_tx_callback(& EE_I2C_ST_NAME(lc), txcbk); } \
+	return EE_hal_i2c_set_tx_callback(& EE_ST_NAME(lc), txcbk); } \
 __INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _write_byte)(EE_UINT8 device, EE_UINT8 address, EE_UINT8 data){ \
 	int ret; \
-	if(EE_i2c_tx_polling(EE_I2C_ST_NAME(lc).mode))\
+	if(EE_i2c_tx_polling(EE_ST_NAME(lc).mode))\
 		ret = EE_hal_i2c_write_byte_polling((OCI2CMDev_t*)EE_BASE_ADD(uc), device, address, data); \
 	else \
-		ret = EE_hal_i2c_write_byte_irq(& EE_I2C_ST_NAME(lc), device, address, data); \
+		ret = EE_hal_i2c_write_byte_irq(& EE_ST_NAME(lc), device, address, data); \
 	return ret; } \
 __INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _read_byte)(EE_UINT8 device, EE_UINT8 address){ \
 	int ret; \
-	if(EE_i2c_rx_polling(EE_I2C_ST_NAME(lc).mode))\
+	if(EE_i2c_rx_polling(EE_ST_NAME(lc).mode))\
 		ret = EE_hal_i2c_read_byte_polling((OCI2CMDev_t*)EE_BASE_ADD(uc), device, address); \
 	else \
-		ret = EE_hal_i2c_read_byte_irq(& EE_I2C_ST_NAME(lc), device, address); \
+		ret = EE_hal_i2c_read_byte_irq(& EE_ST_NAME(lc), device, address); \
 	return ret; } \
 __INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _write_buffer)(EE_UINT8 device, EE_UINT8 address, EE_UINT8 *vet, int len){ \
 	int ret; \
-	if(EE_i2c_tx_polling(EE_I2C_ST_NAME(lc).mode))\
+	if(EE_i2c_tx_polling(EE_ST_NAME(lc).mode))\
 		ret = EE_hal_i2c_write_buffer_polling((OCI2CMDev_t*)EE_BASE_ADD(uc), device, address, vet, len); \
 	else \
-		ret = EE_hal_i2c_write_buffer_irq(& EE_I2C_ST_NAME(lc), device, address, vet, len); \
+		ret = EE_hal_i2c_write_buffer_irq(& EE_ST_NAME(lc), device, address, vet, len); \
 	return ret; } \
 __INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _read_buffer)(EE_UINT8 device, EE_UINT8 address, EE_UINT8 *vet, int len){ \
 	int ret; \
-	if(EE_i2c_rx_polling(EE_I2C_ST_NAME(lc).mode))\
+	if(EE_i2c_rx_polling(EE_ST_NAME(lc).mode))\
 		ret = EE_hal_i2c_read_buffer_polling((OCI2CMDev_t*)EE_BASE_ADD(uc), device, address, vet, len); \
 	else \
-		ret = EE_hal_i2c_read_buffer_irq(& EE_I2C_ST_NAME(lc), device, address, vet, len); \
+		ret = EE_hal_i2c_read_buffer_irq(& EE_ST_NAME(lc), device, address, vet, len); \
 	return ret; } \
 __INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _enable_IRQ)(void){ \
 	return EE_hal_i2c_enable_IRQ((OCI2CMDev_t*)EE_BASE_ADD(uc)); } \
@@ -384,7 +392,7 @@ __INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _stop)(void){ \
 __INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _start)(void){ \
 	return EE_hal_i2c_start((OCI2CMDev_t*)EE_BASE_ADD(uc)); } \
 __INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _return_error)(void){ \
-	return EE_hal_i2c_return_error(& EE_I2C_ST_NAME(lc)); } \
+	return EE_hal_i2c_return_error(& EE_ST_NAME(lc)); } \
 __INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _idle)(void){ \
 	return EE_hal_i2c_idle((OCI2CMDev_t*)EE_BASE_ADD(uc)); }
 	
@@ -404,15 +412,15 @@ __DECLARE_INLINE__ EE_i2c_st *EE_get_i2c_st_from_level(int level);
 /* If there is only one component of this kind, no test is done */
 __INLINE__ EE_i2c_st * __ALWAYS_INLINE__ EE_get_i2c_st_from_level(int level)
 {
-    return & EE_I2C_ST_NAME(EE_I2C1_NAME_LC);
+    return & EE_ST_NAME(EE_I2C1_NAME_LC);
 }
 #else /* #ifndef EE_I2C2_NAME_UC */
 __INLINE__ EE_i2c_st * __ALWAYS_INLINE__ EE_get_i2c_st_from_level(int level)
 {
-    if (level == EE_I2C_IRQ_NAME(EE_I2C1_NAME_UC))
-        return & EE_I2C_ST_NAME(EE_I2C1_NAME_LC);
+    if (level == EE_IRQ_NAME(EE_I2C1_NAME_UC))
+        return & EE_ST_NAME(EE_I2C1_NAME_LC);
     else
-        return & EE_I2C_ST_NAME(EE_I2C2_NAME_LC);
+        return & EE_ST_NAME(EE_I2C2_NAME_LC);
 }
 #endif /* #ifndef EE_I2C2_NAME_UC */	
 	

@@ -3,6 +3,7 @@
 */
 
 #include "mcu/mico32/inc/ee_uart.h"
+#include <cpu/mico32/inc/ee_irq.h>
 
 /******************************************************************************/
 /*                             Utility Macros                                 */
@@ -62,7 +63,7 @@ void EE_uart_common_handler(int level)
             if(ret==EE_BUF_ERR_FULL) 
 				usp->err = EE_UART_ERR_RX_BUF_FULL;  
             /* Call user Callback */
-            if(usp->rxcbk != EE_UART_NULL_CBK)
+            if(usp->rxcbk != EE_NULL_CBK)
             	usp->rxcbk();
         }break;
         case MICOUART_IIR_TXRDY:	/* the interrupt is due to tx-data */
@@ -87,7 +88,7 @@ void EE_uart_common_handler(int level)
 			ee_uart_tip = 0;							// transmission not in progress...
 				
 			/* Call user Callback (not for spurious interrupt...) */
-	       	if( (usp->txcbk != EE_UART_NULL_CBK) && (!spint) )
+	       	if( (usp->txcbk != EE_NULL_CBK) && (!spint) )
             	usp->txcbk();
             		
         }break;
@@ -161,9 +162,13 @@ int EE_hal_uart_set_mode(EE_uart_st* usp, int mode)
 	if (EE_uart_need_init_tx_buf(old_mode, mode))
 		EE_buffer_init(&usp->txbuf, EE_UART_MSGSIZE, EE_UART_BUFSIZE, usp->txbuf.data);
 	/* IRQ settings */
+	if(EE_uart_need_enable_int(mode))
+		mico32_enable_irq(usp->irqf);
+	else
+		mico32_disable_irq(usp->irqf);
 	if(EE_uart_need_enable_rx_int(old_mode, mode))
 		uartc->ier = MICOUART_IER_RX_INT_MASK;	// check if we lose data when ier is written...	
-	if(EE_uart_need_enable_rx_int(old_mode, mode))
+	else
 		uartc->ier = 0;
 
 	/* Enable IRQ */
