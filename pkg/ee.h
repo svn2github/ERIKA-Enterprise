@@ -182,6 +182,11 @@ extern "C" {
 #include "mcu/altera_nios2/inc/ee_mcu.h"
 #endif
 
+ /* MICO32 */
+#ifdef __LM32__
+#include "mcu/mico32/inc/ee_mcu.h"
+#endif
+
 
   /*
    *
@@ -240,6 +245,11 @@ extern "C" {
 
 #ifdef __IPERMOB_DB_PIC32__
 #include "board/ipermob_db_pic32/inc/ee_board.h"
+#endif
+
+ /* MICO32 */
+#ifdef __LM32__
+#include "board/fpga_camera_mico32/inc/ee_board.h"
 #endif
 
   /*

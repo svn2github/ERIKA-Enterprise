@@ -175,6 +175,10 @@ extern "C" {
 #include "mcu/altera_nios2/inc/ee_internal.h"
 #endif
 
+  /* MICO32 */
+#ifdef __lm32__
+#include "mcu/mico32/inc/ee_internal.h"
+#endif
 
   /*
    *
@@ -218,6 +222,11 @@ extern "C" {
 
 #ifdef __EE_FLEX__
 #include "board/ee_flex/inc/ee_internal.h"
+#endif
+
+ /* MICO32 */
+#ifdef __LM32__
+#include "board/fpga_camera_mico32/inc/ee_internal.h"
 #endif
 
   /*

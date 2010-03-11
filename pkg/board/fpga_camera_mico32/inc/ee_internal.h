@@ -1,13 +1,13 @@
 /* ###*B*###
  * ERIKA Enterprise - a tiny RTOS for small microcontrollers
  *
- * Copyright (C) 2002-2009  Evidence Srl
+ * Copyright (C) 2002-2008  Evidence Srl
  *
  * This file is part of ERIKA Enterprise.
  *
  * ERIKA Enterprise is free software; you can redistribute it
  * and/or modify it under the terms of the GNU General Public License
- * version 2 as published by the Free Software Foundation, 
+ * version 2 as published by the Free Software Foundation,
  * (with a special exception described below).
  *
  * Linking this code statically or dynamically with other modules is
@@ -39,48 +39,8 @@
  * ###*E*### */
 
 /*
- * Erika types, based on standard types defined in <limits.h>
- * Author: 2009 Bernardo Dal Seno
+ * Author: 2006 
+ * CVS: $Id: ee_board.h,v 1.27 2008/08/29 11:21:08 francesco Exp $
  */
 
-#ifndef __INCLUDE_CPU_COMMON_EE_TYPES__
-#define __INCLUDE_CPU_COMMON_EE_TYPES__
-
-/* For Gcc we could use __XXX_MAX__ built-in macros, instead */
-#include <limits.h>
-
-/* Primitive data types */
-typedef unsigned char EE_BIT;
-
-#if SCHAR_MAX == 127
-typedef unsigned char EE_UINT8;
-typedef signed char EE_INT8;
-#else
-#error Unable to define a 8-bit types
-#endif
-
-#if INT_MAX == 32767 /* 16-bit architecture */
-typedef int EE_INT16;
-typedef unsigned int EE_UINT16;
-typedef long int EE_INT32;
-typedef unsigned long int EE_UINT32;
-#elif (INT_MAX == 2147483647) && (SHRT_MAX == 32767) /* 32-bit architecture */
-typedef short int EE_INT16;
-typedef unsigned short int EE_UINT16;
-typedef int EE_INT32;
-typedef unsigned int EE_UINT32;
-#else /* Unknown architecture */
-#error Unknow/unsupported architecture
-#endif
-
-
-/* Data addresses (that have the same size of a pointer) */
-typedef EE_UINT32 *EE_ADDR;
-
-/* Code addresses (same size of function pointers) */
-typedef void (*EE_FADDR)(void);
-
-/* Callback function called by driver handlers  */
-typedef void (*EE_ISR_callback)(void);
-
-#endif /* __INCLUDE_CPU_COMMON_EE_TYPES__ */
+//#include "board/fpga_camera_mico32/inc/ee_board.h"
