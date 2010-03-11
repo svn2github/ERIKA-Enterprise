@@ -1,0 +1,4863 @@
+
+output/out.elf:     file format elf32-lm32
+
+Disassembly of section .boot:
+
+02000000 <_reset_handler>:
+
+#define __RTC_DEBUG__
+
+/* User functions */
+void write_led(volatile unsigned int led)		// Function to turn on the leds 
+{
+ 2000000:	98 00 00 00 	xor r0,r0,r0
+  		
+   	return ret;
+}
+
+int EE_rtc_set_alarm(void)
+{
+ 2000004:	d0 00 00 00 	wcsr IE,r0
+	return EE_UART_OK;
+}
+
+/* This functions sets rx callback */
+int EE_hal_uart_set_rx_callback(EE_uart_st* usp, EE_ISR_callback isr_rx_callback)
+{
+ 2000008:	d0 20 00 00 	wcsr IM,r0
+/******************************************************************************/
+/*                       Public Global Functions                              */
+/******************************************************************************/
+/* This function is used to turn off I2C controller */
+int EE_hal_i2c_disable(OCI2CMDev_t* i2cc)
+{
+ 200000c:	78 01 02 00 	mvhi r1,0x200
+/******************************************************************************/
+/*                             Buffer Management                              */
+/******************************************************************************/
+
+int EE_buffer_init(EE_buffer *buf, int msgsize, int bufsize, EE_UINT8 *vet)
+{
+ 2000010:	38 21 00 00 	ori r1,r1,0x0
+ 2000014:	d0 e1 00 00 	wcsr EBA,r1
+ 2000018:	f8 00 00 3a 	calli 2000100 <_crt0>
+ 200001c:	34 00 00 00 	nop
+
+02000020 <_breakpoint_handler>:
+ 2000020:	91 20 38 00 	rcsr r7,DEBA
+ 2000024:	34 e7 00 20 	addi r7,r7,32
+ 2000028:	c0 e0 00 00 	b r7
+ 200002c:	34 00 00 00 	nop
+ 2000030:	34 00 00 00 	nop
+ 2000034:	34 00 00 00 	nop
+ 2000038:	34 00 00 00 	nop
+ 200003c:	34 00 00 00 	nop
+
+02000040 <_instruction_bus_error_handler>:
+ 2000040:	91 20 38 00 	rcsr r7,DEBA
+ 2000044:	34 e7 00 40 	addi r7,r7,64
+ 2000048:	c0 e0 00 00 	b r7
+ 200004c:	34 00 00 00 	nop
+ 2000050:	34 00 00 00 	nop
+ 2000054:	34 00 00 00 	nop
+ 2000058:	34 00 00 00 	nop
+ 200005c:	34 00 00 00 	nop
+
+02000060 <_watchpoint_handler>:
+ 2000060:	91 20 38 00 	rcsr r7,DEBA
+ 2000064:	34 e7 00 60 	addi r7,r7,96
+ 2000068:	c0 e0 00 00 	b r7
+ 200006c:	34 00 00 00 	nop
+ 2000070:	34 00 00 00 	nop
+ 2000074:	34 00 00 00 	nop
+ 2000078:	34 00 00 00 	nop
+ 200007c:	34 00 00 00 	nop
+
+02000080 <_data_bus_error_handler>:
+ 2000080:	91 20 38 00 	rcsr r7,DEBA
+ 2000084:	34 e7 00 80 	addi r7,r7,128
+ 2000088:	c0 e0 00 00 	b r7
+ 200008c:	34 00 00 00 	nop
+ 2000090:	34 00 00 00 	nop
+ 2000094:	34 00 00 00 	nop
+ 2000098:	34 00 00 00 	nop
+ 200009c:	34 00 00 00 	nop
+
+020000a0 <_divide_by_zero_handler>:
+ 20000a0:	91 20 38 00 	rcsr r7,DEBA
+ 20000a4:	34 e7 00 a0 	addi r7,r7,160
+ 20000a8:	c0 e0 00 00 	b r7
+ 20000ac:	34 00 00 00 	nop
+ 20000b0:	34 00 00 00 	nop
+ 20000b4:	34 00 00 00 	nop
+ 20000b8:	34 00 00 00 	nop
+ 20000bc:	34 00 00 00 	nop
+
+020000c0 <_interrupt_handler>:
+ 20000c0:	5b 9d 00 00 	sw (sp+0),ra
+ 20000c4:	f8 00 00 21 	calli 2000148 <_save_all>
+ 20000c8:	34 01 00 02 	mvi r1,2
+ 20000cc:	f8 00 02 0c 	calli 20008fc <MicoISRHandler>
+ 20000d0:	e0 00 00 33 	bi 200019c <_restore_all_and_return>
+ 20000d4:	34 00 00 00 	nop
+ 20000d8:	34 00 00 00 	nop
+ 20000dc:	34 00 00 00 	nop
+
+020000e0 <_system_call_handler>:
+ 20000e0:	91 20 38 00 	rcsr r7,DEBA
+ 20000e4:	34 e7 00 e0 	addi r7,r7,224
+ 20000e8:	c0 e0 00 00 	b r7
+ 20000ec:	34 00 00 00 	nop
+ 20000f0:	34 00 00 00 	nop
+ 20000f4:	34 00 00 00 	nop
+ 20000f8:	34 00 00 00 	nop
+ 20000fc:	34 00 00 00 	nop
+
+02000100 <_crt0>:
+ 2000100:	98 00 00 00 	xor r0,r0,r0
+ 2000104:	78 1c 02 07 	mvhi sp,0x207
+ 2000108:	3b 9c ff fc 	ori sp,sp,0xfffc
+ 200010c:	78 1a 02 00 	mvhi gp,0x200
+ 2000110:	3b 5a a1 e0 	ori gp,gp,0xa1e0
+ 2000114:	78 01 02 00 	mvhi r1,0x200
+ 2000118:	38 21 21 f0 	ori r1,r1,0x21f0
+ 200011c:	78 03 02 00 	mvhi r3,0x200
+ 2000120:	38 63 22 9c 	ori r3,r3,0x229c
+
+02000124 <.ClearBSS>:
+ 2000124:	e0 00 00 03 	bi 2000130 <.ClearBSS+0xc>
+ 2000128:	58 20 00 00 	sw (r1+0),r0
+ 200012c:	34 21 00 04 	addi r1,r1,4
+ 2000130:	5c 23 ff fe 	bne r1,r3,2000128 <.ClearBSS+0x4>
+
+02000134 <.CallConstructor>:
+ 2000134:	34 01 00 00 	mvi r1,0
+ 2000138:	34 02 00 00 	mvi r2,0
+ 200013c:	34 03 00 00 	mvi r3,0
+ 2000140:	f8 00 01 08 	calli 2000560 <LatticeDDInit>
+ 2000144:	f8 00 06 bc 	calli 2001c34 <_exit>
+
+02000148 <_save_all>:
+ 2000148:	37 9c ff c4 	addi sp,sp,-60
+ 200014c:	5b 81 00 04 	sw (sp+4),r1
+ 2000150:	5b 82 00 08 	sw (sp+8),r2
+ 2000154:	5b 83 00 0c 	sw (sp+12),r3
+ 2000158:	5b 84 00 10 	sw (sp+16),r4
+ 200015c:	5b 85 00 14 	sw (sp+20),r5
+ 2000160:	5b 86 00 18 	sw (sp+24),r6
+ 2000164:	5b 87 00 1c 	sw (sp+28),r7
+ 2000168:	5b 88 00 20 	sw (sp+32),r8
+ 200016c:	5b 89 00 24 	sw (sp+36),r9
+ 2000170:	5b 8a 00 28 	sw (sp+40),r10
+ 2000174:	5b 9e 00 34 	sw (sp+52),ea
+ 2000178:	5b 9f 00 38 	sw (sp+56),ba
+ 200017c:	2b 81 00 3c 	lw r1,(sp+60)
+ 2000180:	5b 81 00 30 	sw (sp+48),r1
+ 2000184:	bb 80 08 00 	mv r1,sp
+ 2000188:	34 21 00 3c 	addi r1,r1,60
+ 200018c:	5b 81 00 2c 	sw (sp+44),r1
+ 2000190:	98 21 08 00 	xor r1,r1,r1
+ 2000194:	d0 01 00 00 	wcsr IE,r1
+ 2000198:	c3 a0 00 00 	ret
+
+0200019c <_restore_all_and_return>:
+ 200019c:	34 01 00 02 	mvi r1,2
+ 20001a0:	d0 01 00 00 	wcsr IE,r1
+ 20001a4:	2b 81 00 04 	lw r1,(sp+4)
+ 20001a8:	2b 82 00 08 	lw r2,(sp+8)
+ 20001ac:	2b 83 00 0c 	lw r3,(sp+12)
+ 20001b0:	2b 84 00 10 	lw r4,(sp+16)
+ 20001b4:	2b 85 00 14 	lw r5,(sp+20)
+ 20001b8:	2b 86 00 18 	lw r6,(sp+24)
+ 20001bc:	2b 87 00 1c 	lw r7,(sp+28)
+ 20001c0:	2b 88 00 20 	lw r8,(sp+32)
+ 20001c4:	2b 89 00 24 	lw r9,(sp+36)
+ 20001c8:	2b 8a 00 28 	lw r10,(sp+40)
+ 20001cc:	2b 9d 00 30 	lw ra,(sp+48)
+ 20001d0:	2b 9e 00 34 	lw ea,(sp+52)
+ 20001d4:	2b 9f 00 38 	lw ba,(sp+56)
+ 20001d8:	2b 9c 00 2c 	lw sp,(sp+44)
+ 20001dc:	34 00 00 00 	nop
+ 20001e0:	c3 c0 00 00 	eret
+Disassembly of section .text:
+
+020001e4 <rtc_display_time>:
+	
+    return 0;
+}
+
+int rtc_display_time(TTime *TimeRead) 
+{
+ 20001e4:	37 9c ff dc 	addi sp,sp,-36
+ 20001e8:	5b 8b 00 18 	sw (sp+24),r11
+ 20001ec:	5b 8c 00 14 	sw (sp+20),r12
+ 20001f0:	5b 8d 00 10 	sw (sp+16),r13
+ 20001f4:	5b 8e 00 0c 	sw (sp+12),r14
+ 20001f8:	5b 8f 00 08 	sw (sp+8),r15
+ 20001fc:	5b 9d 00 04 	sw (sp+4),ra
+   	txt[1] = (TimeRead->day % 10) + 48;
+   	txt[2] = '/';
+   	txt[3] = (TimeRead->month / 10) + 48;
+   	txt[4] = (TimeRead->month % 10) + 48;
+   	txt[5] = '/';
+   	txt[6] = ((TimeRead->year % 100) / 10) + 48;
+ 2000200:	40 27 00 00 	lbu r7,(r1+0)
+{
+	EE_UINT8 txt[12];
+	int ret1, ret2;
+	
+   	// output values to USART
+   	txt[0] = (TimeRead->day / 10) + 48;
+ 2000204:	40 25 00 02 	lbu r5,(r1+2)
+   	txt[1] = (TimeRead->day % 10) + 48;
+   	txt[2] = '/';
+   	txt[3] = (TimeRead->month / 10) + 48;
+ 2000208:	40 26 00 01 	lbu r6,(r1+1)
+   	txt[4] = (TimeRead->month % 10) + 48;
+   	txt[5] = '/';
+   	txt[6] = ((TimeRead->year % 100) / 10) + 48;
+ 200020c:	34 04 00 64 	mvi r4,100
+ 2000210:	c4 e4 20 00 	modu r4,r7,r4
+{
+	EE_UINT8 txt[12];
+	int ret1, ret2;
+	
+   	// output values to USART
+   	txt[0] = (TimeRead->day / 10) + 48;
+ 2000214:	34 0d 00 0a 	mvi r13,10
+   	txt[1] = (TimeRead->day % 10) + 48;
+ 2000218:	c4 ad 40 00 	modu r8,r5,r13
+   	txt[2] = '/';
+   	txt[3] = (TimeRead->month / 10) + 48;
+   	txt[4] = (TimeRead->month % 10) + 48;
+ 200021c:	c4 cd 48 00 	modu r9,r6,r13
+   	txt[5] = '/';
+   	txt[6] = ((TimeRead->year % 100) / 10) + 48;
+ 2000220:	8c 8d 20 00 	divu r4,r4,r13
+   	txt[7] = (TimeRead->year % 10)  + 48;
+ 2000224:	c4 ed 38 00 	modu r7,r7,r13
+{
+	EE_UINT8 txt[12];
+	int ret1, ret2;
+	
+   	// output values to USART
+   	txt[0] = (TimeRead->day / 10) + 48;
+ 2000228:	8c ad 28 00 	divu r5,r5,r13
+   	txt[1] = (TimeRead->day % 10) + 48;
+   	txt[2] = '/';
+   	txt[3] = (TimeRead->month / 10) + 48;
+ 200022c:	8c cd 30 00 	divu r6,r6,r13
+	
+    return 0;
+}
+
+int rtc_display_time(TTime *TimeRead) 
+{
+ 2000230:	b8 20 60 00 	mv r12,r1
+	return EE_hal_uart_return_error(& EE_ST_NAME(lc)); }
+	
+/* User functions (API): */  
+#ifdef EE_UART1_NAME_UC
+DECLARE_STRUCT_UART(EE_UART1_NAME_UC, EE_UART1_NAME_LC)
+DECLARE_FUNC_UART(EE_UART1_NAME_UC, EE_UART1_NAME_LC)
+ 2000234:	37 8f 00 1c 	addi r15,sp,28
+ 2000238:	78 01 02 00 	mvhi r1,0x200
+	int ret1, ret2;
+	
+   	// output values to USART
+   	txt[0] = (TimeRead->day / 10) + 48;
+   	txt[1] = (TimeRead->day % 10) + 48;
+   	txt[2] = '/';
+ 200023c:	34 0a 00 2f 	mvi r10,47
+{
+	EE_UINT8 txt[12];
+	int ret1, ret2;
+	
+   	// output values to USART
+   	txt[0] = (TimeRead->day / 10) + 48;
+ 2000240:	34 a5 00 30 	addi r5,r5,48
+   	txt[1] = (TimeRead->day % 10) + 48;
+ 2000244:	35 08 00 30 	addi r8,r8,48
+   	txt[2] = '/';
+   	txt[3] = (TimeRead->month / 10) + 48;
+ 2000248:	34 c6 00 30 	addi r6,r6,48
+   	txt[4] = (TimeRead->month % 10) + 48;
+ 200024c:	35 29 00 30 	addi r9,r9,48
+   	txt[5] = '/';
+   	txt[6] = ((TimeRead->year % 100) / 10) + 48;
+ 2000250:	34 84 00 30 	addi r4,r4,48
+   	txt[7] = (TimeRead->year % 10)  + 48;
+ 2000254:	34 e7 00 30 	addi r7,r7,48
+ 2000258:	38 21 21 a8 	ori r1,r1,0x21a8
+   	txt[8] = ' ';
+ 200025c:	34 0b 00 20 	mvi r11,32
+ 2000260:	b9 e0 10 00 	mv r2,r15
+ 2000264:	34 03 00 09 	mvi r3,9
+{
+	EE_UINT8 txt[12];
+	int ret1, ret2;
+	
+   	// output values to USART
+   	txt[0] = (TimeRead->day / 10) + 48;
+ 2000268:	33 85 00 1c 	sb (sp+28),r5
+   	txt[1] = (TimeRead->day % 10) + 48;
+ 200026c:	33 88 00 1d 	sb (sp+29),r8
+   	txt[2] = '/';
+   	txt[3] = (TimeRead->month / 10) + 48;
+ 2000270:	33 86 00 1f 	sb (sp+31),r6
+   	txt[4] = (TimeRead->month % 10) + 48;
+ 2000274:	33 89 00 20 	sb (sp+32),r9
+   	txt[5] = '/';
+ 2000278:	33 8a 00 21 	sb (sp+33),r10
+   	txt[6] = ((TimeRead->year % 100) / 10) + 48;
+ 200027c:	33 84 00 22 	sb (sp+34),r4
+   	txt[7] = (TimeRead->year % 10)  + 48;
+ 2000280:	33 87 00 23 	sb (sp+35),r7
+   	txt[8] = ' ';
+ 2000284:	33 8b 00 24 	sb (sp+36),r11
+	int ret1, ret2;
+	
+   	// output values to USART
+   	txt[0] = (TimeRead->day / 10) + 48;
+   	txt[1] = (TimeRead->day % 10) + 48;
+   	txt[2] = '/';
+ 2000288:	33 8a 00 1e 	sb (sp+30),r10
+ 200028c:	f8 00 03 a2 	calli 2001114 <EE_hal_uart_write_buffer>
+ 2000290:	b8 20 70 00 	mv r14,r1
+   	txt[5] = '/';
+   	txt[6] = ((TimeRead->year % 100) / 10) + 48;
+   	txt[7] = (TimeRead->year % 10)  + 48;
+   	txt[8] = ' ';
+   	ret1 = EE_uart_write_buffer(txt,9);
+	if(ret1 < 0) return ret1;
+ 2000294:	48 01 00 2a 	bg r0,r1,200033c <_ftext_rom+0x158>
+	
+   	txt[0] = (TimeRead->hours / 10) + 48;
+ 2000298:	41 85 00 03 	lbu r5,(r12+3)
+   	txt[1] = (TimeRead->hours % 10) + 48;
+   	txt[2] = ':';
+   	txt[3] = (TimeRead->minutes / 10) + 48;
+ 200029c:	41 86 00 04 	lbu r6,(r12+4)
+   	txt[4] = (TimeRead->minutes % 10) + 48;
+   	txt[5] = ':';
+   	txt[6] = (TimeRead->seconds / 10) + 48;
+ 20002a0:	41 87 00 05 	lbu r7,(r12+5)
+   	txt[7] = (TimeRead->seconds % 10) + 48;
+   	txt[8] = ':';
+   	txt[9] = (TimeRead->hundreds_of_seconds / 10) + 48;
+ 20002a4:	41 88 00 06 	lbu r8,(r12+6)
+   	txt[8] = ' ';
+   	ret1 = EE_uart_write_buffer(txt,9);
+	if(ret1 < 0) return ret1;
+	
+   	txt[0] = (TimeRead->hours / 10) + 48;
+   	txt[1] = (TimeRead->hours % 10) + 48;
+ 20002a8:	c4 ad 48 00 	modu r9,r5,r13
+   	txt[2] = ':';
+   	txt[3] = (TimeRead->minutes / 10) + 48;
+   	txt[4] = (TimeRead->minutes % 10) + 48;
+ 20002ac:	c4 cd 50 00 	modu r10,r6,r13
+   	txt[5] = ':';
+   	txt[6] = (TimeRead->seconds / 10) + 48;
+   	txt[7] = (TimeRead->seconds % 10) + 48;
+ 20002b0:	c4 ed 58 00 	modu r11,r7,r13
+   	txt[8] = ':';
+   	txt[9] = (TimeRead->hundreds_of_seconds / 10) + 48;
+   	txt[10] = (TimeRead->hundreds_of_seconds % 10) + 48;;
+ 20002b4:	c5 0d 60 00 	modu r12,r8,r13
+   	txt[7] = (TimeRead->year % 10)  + 48;
+   	txt[8] = ' ';
+   	ret1 = EE_uart_write_buffer(txt,9);
+	if(ret1 < 0) return ret1;
+	
+   	txt[0] = (TimeRead->hours / 10) + 48;
+ 20002b8:	8c ad 28 00 	divu r5,r5,r13
+   	txt[1] = (TimeRead->hours % 10) + 48;
+   	txt[2] = ':';
+   	txt[3] = (TimeRead->minutes / 10) + 48;
+ 20002bc:	8c cd 30 00 	divu r6,r6,r13
+   	txt[4] = (TimeRead->minutes % 10) + 48;
+   	txt[5] = ':';
+   	txt[6] = (TimeRead->seconds / 10) + 48;
+ 20002c0:	8c ed 38 00 	divu r7,r7,r13
+   	txt[7] = (TimeRead->seconds % 10) + 48;
+   	txt[8] = ':';
+   	txt[9] = (TimeRead->hundreds_of_seconds / 10) + 48;
+ 20002c4:	8d 0d 40 00 	divu r8,r8,r13
+ 20002c8:	78 01 02 00 	mvhi r1,0x200
+   	ret1 = EE_uart_write_buffer(txt,9);
+	if(ret1 < 0) return ret1;
+	
+   	txt[0] = (TimeRead->hours / 10) + 48;
+   	txt[1] = (TimeRead->hours % 10) + 48;
+   	txt[2] = ':';
+ 20002cc:	34 04 00 3a 	mvi r4,58
+   	txt[7] = (TimeRead->year % 10)  + 48;
+   	txt[8] = ' ';
+   	ret1 = EE_uart_write_buffer(txt,9);
+	if(ret1 < 0) return ret1;
+	
+   	txt[0] = (TimeRead->hours / 10) + 48;
+ 20002d0:	34 a5 00 30 	addi r5,r5,48
+   	txt[1] = (TimeRead->hours % 10) + 48;
+ 20002d4:	35 29 00 30 	addi r9,r9,48
+   	txt[2] = ':';
+   	txt[3] = (TimeRead->minutes / 10) + 48;
+ 20002d8:	34 c6 00 30 	addi r6,r6,48
+   	txt[4] = (TimeRead->minutes % 10) + 48;
+ 20002dc:	35 4a 00 30 	addi r10,r10,48
+   	txt[5] = ':';
+   	txt[6] = (TimeRead->seconds / 10) + 48;
+ 20002e0:	34 e7 00 30 	addi r7,r7,48
+   	txt[7] = (TimeRead->seconds % 10) + 48;
+   	txt[8] = ':';
+   	txt[9] = (TimeRead->hundreds_of_seconds / 10) + 48;
+ 20002e4:	35 08 00 30 	addi r8,r8,48
+   	txt[2] = ':';
+   	txt[3] = (TimeRead->minutes / 10) + 48;
+   	txt[4] = (TimeRead->minutes % 10) + 48;
+   	txt[5] = ':';
+   	txt[6] = (TimeRead->seconds / 10) + 48;
+   	txt[7] = (TimeRead->seconds % 10) + 48;
+ 20002e8:	35 6b 00 30 	addi r11,r11,48
+   	txt[8] = ':';
+   	txt[9] = (TimeRead->hundreds_of_seconds / 10) + 48;
+   	txt[10] = (TimeRead->hundreds_of_seconds % 10) + 48;;
+ 20002ec:	35 8c 00 30 	addi r12,r12,48
+ 20002f0:	38 21 21 a8 	ori r1,r1,0x21a8
+ 20002f4:	b9 e0 10 00 	mv r2,r15
+ 20002f8:	34 03 00 0c 	mvi r3,12
+   	txt[7] = (TimeRead->year % 10)  + 48;
+   	txt[8] = ' ';
+   	ret1 = EE_uart_write_buffer(txt,9);
+	if(ret1 < 0) return ret1;
+	
+   	txt[0] = (TimeRead->hours / 10) + 48;
+ 20002fc:	33 85 00 1c 	sb (sp+28),r5
+   	txt[1] = (TimeRead->hours % 10) + 48;
+ 2000300:	33 89 00 1d 	sb (sp+29),r9
+   	txt[2] = ':';
+   	txt[3] = (TimeRead->minutes / 10) + 48;
+ 2000304:	33 86 00 1f 	sb (sp+31),r6
+   	txt[4] = (TimeRead->minutes % 10) + 48;
+ 2000308:	33 8a 00 20 	sb (sp+32),r10
+   	txt[5] = ':';
+   	txt[6] = (TimeRead->seconds / 10) + 48;
+ 200030c:	33 87 00 22 	sb (sp+34),r7
+   	txt[7] = (TimeRead->seconds % 10) + 48;
+ 2000310:	33 8b 00 23 	sb (sp+35),r11
+   	txt[8] = ':';
+ 2000314:	33 84 00 24 	sb (sp+36),r4
+   	txt[9] = (TimeRead->hundreds_of_seconds / 10) + 48;
+ 2000318:	33 88 00 25 	sb (sp+37),r8
+   	txt[10] = (TimeRead->hundreds_of_seconds % 10) + 48;;
+ 200031c:	33 8c 00 26 	sb (sp+38),r12
+   	txt[11] = '\n';
+ 2000320:	33 8d 00 27 	sb (sp+39),r13
+   	ret1 = EE_uart_write_buffer(txt,9);
+	if(ret1 < 0) return ret1;
+	
+   	txt[0] = (TimeRead->hours / 10) + 48;
+   	txt[1] = (TimeRead->hours % 10) + 48;
+   	txt[2] = ':';
+ 2000324:	33 84 00 1e 	sb (sp+30),r4
+   	txt[3] = (TimeRead->minutes / 10) + 48;
+   	txt[4] = (TimeRead->minutes % 10) + 48;
+   	txt[5] = ':';
+ 2000328:	33 84 00 21 	sb (sp+33),r4
+ 200032c:	f8 00 03 7a 	calli 2001114 <EE_hal_uart_write_buffer>
+   	txt[10] = (TimeRead->hundreds_of_seconds % 10) + 48;;
+   	txt[11] = '\n';
+   	ret2 = EE_uart_write_buffer(txt,12);
+	if(ret2 < 0) return ret2;
+	
+   	return ret1+ret2;
+ 2000330:	b5 c1 70 00 	add r14,r14,r1
+   	txt[8] = ':';
+   	txt[9] = (TimeRead->hundreds_of_seconds / 10) + 48;
+   	txt[10] = (TimeRead->hundreds_of_seconds % 10) + 48;;
+   	txt[11] = '\n';
+   	ret2 = EE_uart_write_buffer(txt,12);
+	if(ret2 < 0) return ret2;
+ 2000334:	4c 20 00 02 	bge r1,r0,200033c <_ftext_rom+0x158>
+ 2000338:	b8 20 70 00 	mv r14,r1
+	
+   	return ret1+ret2;
+}
+ 200033c:	b9 c0 08 00 	mv r1,r14
+ 2000340:	2b 9d 00 04 	lw ra,(sp+4)
+ 2000344:	2b 8b 00 18 	lw r11,(sp+24)
+ 2000348:	2b 8c 00 14 	lw r12,(sp+20)
+ 200034c:	2b 8d 00 10 	lw r13,(sp+16)
+ 2000350:	2b 8e 00 0c 	lw r14,(sp+12)
+ 2000354:	2b 8f 00 08 	lw r15,(sp+8)
+ 2000358:	37 9c 00 24 	addi sp,sp,36
+ 200035c:	c3 a0 00 00 	ret
+
+02000360 <main>:
+
+/*
+ * MAIN TASK
+ */
+int main(void)
+{
+ 2000360:	37 9c ff e8 	addi sp,sp,-24
+ 2000364:	5b 8b 00 10 	sw (sp+16),r11
+ 2000368:	5b 8c 00 0c 	sw (sp+12),r12
+ 200036c:	5b 8d 00 08 	sw (sp+8),r13
+ 2000370:	5b 9d 00 04 	sw (sp+4),ra
+ * Enable interrupts
+ */
+__INLINE__ void __ALWAYS_INLINE__ EE_mico32_enableIRQ(void)
+{
+    EE_FREG oldie, newie;
+    asm volatile ("rcsr %0,ie":"=r"(oldie));
+ 2000374:	90 00 08 00 	rcsr r1,IE
+    newie = oldie | (0x1);
+    asm volatile ("wcsr ie, %0"::"r"(newie));
+ 2000378:	38 21 00 01 	ori r1,r1,0x1
+ 200037c:	d0 01 00 00 	wcsr IE,r1
+
+/* User functions */
+void write_led(volatile unsigned int led)		// Function to turn on the leds 
+{
+    MicoGPIO_t *ledc = (MicoGPIO_t *)LED_BASE_ADDRESS;
+    ledc->data = (EE_UINT8)led;
+ 2000380:	78 0d 80 00 	mvhi r13,0x8000
+ 2000384:	34 03 00 ff 	mvi r3,255
+ 2000388:	39 ad 00 80 	ori r13,r13,0x80
+ 200038c:	78 01 02 00 	mvhi r1,0x200
+ 2000390:	78 02 00 01 	mvhi r2,0x1
+ 2000394:	59 a3 00 00 	sw (r13+0),r3
+ 2000398:	38 21 21 a8 	ori r1,r1,0x21a8
+ 200039c:	38 42 c2 00 	ori r2,r2,0xc200
+ 20003a0:	34 03 00 03 	mvi r3,3
+ 20003a4:	f8 00 03 b6 	calli 200127c <EE_hal_uart_config>
+ 20003a8:	b8 20 58 00 	mv r11,r1
+	
+	/* Turn off all leds */
+	write_led(NONE_LED);
+	
+	/* UART configuration */
+	if( EE_uart_config(115200, EE_UART_BIT8_NO | EE_UART_BIT_STOP_1) != EE_UART_OK )
+ 20003ac:	44 20 00 04 	be r1,r0,20003bc <main+0x5c>
+
+/* User functions */
+void write_led(volatile unsigned int led)		// Function to turn on the leds 
+{
+    MicoGPIO_t *ledc = (MicoGPIO_t *)LED_BASE_ADDRESS;
+    ledc->data = (EE_UINT8)led;
+ 20003b0:	34 01 00 ef 	mvi r1,239
+ 20003b4:	59 a1 00 00 	sw (r13+0),r1
+ 20003b8:	e0 00 00 00 	bi 20003b8 <main+0x58>
+#endif //#ifdef __USE_I2C_IRQ__
+
+
+/* User functions (API) declaration: */  
+#ifdef EE_I2C1_NAME_UC
+DECLARE_FUNC_I2C(EE_I2C1_NAME_UC, EE_I2C1_NAME_LC)
+ 20003bc:	78 01 80 00 	mvhi r1,0x8000
+ 20003c0:	78 02 00 01 	mvhi r2,0x1
+ 20003c4:	38 21 03 00 	ori r1,r1,0x300
+ 20003c8:	38 42 86 a0 	ori r2,r2,0x86a0
+ 20003cc:	b9 60 18 00 	mv r3,r11
+ 20003d0:	f8 00 05 0c 	calli 2001800 <EE_hal_i2c_config>
+ 20003d4:	b8 20 60 00 	mv r12,r1
+			write_led(LED5);
+    		while(1);
+	}
+	
+	/* I2C configuration */
+	if( EE_i2c_config(100000, 0) != EE_I2C_OK )
+ 20003d8:	44 2b 00 0a 	be r1,r11,2000400 <main+0xa0>
+ 20003dc:	78 01 02 00 	mvhi r1,0x200
+ 20003e0:	78 02 02 00 	mvhi r2,0x200
+ 20003e4:	38 42 1d 68 	ori r2,r2,0x1d68
+ 20003e8:	38 21 21 a8 	ori r1,r1,0x21a8
+ 20003ec:	34 03 00 1b 	mvi r3,27
+ 20003f0:	f8 00 03 49 	calli 2001114 <EE_hal_uart_write_buffer>
+
+/* User functions */
+void write_led(volatile unsigned int led)		// Function to turn on the leds 
+{
+    MicoGPIO_t *ledc = (MicoGPIO_t *)LED_BASE_ADDRESS;
+    ledc->data = (EE_UINT8)led;
+ 20003f4:	34 02 00 7f 	mvi r2,127
+ 20003f8:	59 a2 00 00 	sw (r13+0),r2
+ 20003fc:	e0 00 00 00 	bi 20003fc <main+0x9c>
+		write_led(LED8);
+		while(1);
+	}
+	
+	/* Write Time in RTC */
+	tt.year    = 9;    				// 2009 (offset from 2000)
+ 2000400:	34 02 00 09 	mvi r2,9
+    tt.month   = 12;
+ 2000404:	34 03 00 0c 	mvi r3,12
+    tt.day     = 31;
+ 2000408:	34 04 00 1f 	mvi r4,31
+    tt.hours   = 23;
+ 200040c:	34 05 00 17 	mvi r5,23
+   	tt.minutes = 59;
+ 2000410:	34 06 00 3b 	mvi r6,59
+   	tt.seconds = 40;
+ 2000414:	34 07 00 28 	mvi r7,40
+   	tt.hundreds_of_seconds = 0;
+	ret = EE_rtc_write_time(&tt);
+ 2000418:	37 81 00 14 	addi r1,sp,20
+		write_led(LED8);
+		while(1);
+	}
+	
+	/* Write Time in RTC */
+	tt.year    = 9;    				// 2009 (offset from 2000)
+ 200041c:	33 82 00 14 	sb (sp+20),r2
+    tt.month   = 12;
+ 2000420:	33 83 00 15 	sb (sp+21),r3
+    tt.day     = 31;
+ 2000424:	33 84 00 16 	sb (sp+22),r4
+    tt.hours   = 23;
+ 2000428:	33 85 00 17 	sb (sp+23),r5
+   	tt.minutes = 59;
+ 200042c:	33 86 00 18 	sb (sp+24),r6
+   	tt.seconds = 40;
+ 2000430:	33 87 00 19 	sb (sp+25),r7
+   	tt.hundreds_of_seconds = 0;
+ 2000434:	33 8c 00 1a 	sb (sp+26),r12
+	ret = EE_rtc_write_time(&tt);
+ 2000438:	f8 00 00 bf 	calli 2000734 <EE_rtc_write_time>
+ 200043c:	b8 20 58 00 	mv r11,r1
+	if(ret == EE_I2C_OK)
+ 2000440:	5c 2c 00 11 	bne r1,r12,2000484 <main+0x124>
+	return EE_TIMER_OK;
+}
+
+__INLINE__ int __ALWAYS_INLINE__  EE_hal_timer_set_callback(EE_timer_st* tst, EE_ISR_callback cbk)
+{
+	tst->cbk = cbk;
+ 2000444:	78 04 02 00 	mvhi r4,0x200
+ 2000448:	78 05 02 00 	mvhi r5,0x200
+ 200044c:	38 84 21 90 	ori r4,r4,0x2190
+
+/* User functions */
+void write_led(volatile unsigned int led)		// Function to turn on the leds 
+{
+    MicoGPIO_t *ledc = (MicoGPIO_t *)LED_BASE_ADDRESS;
+    ledc->data = (EE_UINT8)led;
+ 2000450:	34 01 00 fd 	mvi r1,253
+ 2000454:	38 a5 04 a8 	ori r5,r5,0x4a8
+ 2000458:	59 a1 00 00 	sw (r13+0),r1
+#endif /* #ifndef EE_TIMER_NAME2_UC */
+
+
+/* User functions (API) declaration: */  
+#ifdef EE_TIMER1_NAME_UC
+DECLARE_FUNC_TIMER(EE_TIMER1_NAME_UC, EE_TIMER1_NAME_LC)
+ 200045c:	38 02 84 d0 	mvu r2,0x84d0
+ 2000460:	34 03 00 07 	mvi r3,7
+ 2000464:	b8 80 08 00 	mv r1,r4
+	return EE_TIMER_OK;
+}
+
+__INLINE__ int __ALWAYS_INLINE__  EE_hal_timer_set_callback(EE_timer_st* tst, EE_ISR_callback cbk)
+{
+	tst->cbk = cbk;
+ 2000468:	58 85 00 08 	sw (r4+8),r5
+#endif /* #ifndef EE_TIMER_NAME2_UC */
+
+
+/* User functions (API) declaration: */  
+#ifdef EE_TIMER1_NAME_UC
+DECLARE_FUNC_TIMER(EE_TIMER1_NAME_UC, EE_TIMER1_NAME_LC)
+ 200046c:	f8 00 02 e8 	calli 200100c <EE_hal_timer_init>
+		/* Set timer callback */
+		EE_system_timer_set_callback(system_timer_callback);
+		/* Configure System Timer */
+		EE_system_timer_init(MILLISECONDS_TO_TICKS(1), MICO32_TIMER_CONTROL_INT_BIT_MASK | MICO32_TIMER_CONTROL_CONT_BIT_MASK | MICO32_TIMER_CONTROL_START_BIT_MASK);
+		/* Activate an alarm */
+		SetRelAlarm(task1_alarm, 1000, 1000);
+ 2000470:	34 02 03 e8 	mvi r2,1000
+ 2000474:	b9 60 08 00 	mv r1,r11
+ 2000478:	b8 40 18 00 	mv r3,r2
+ 200047c:	f8 00 02 47 	calli 2000d98 <EE_alarm_SetRelAlarm>
+ 2000480:	e0 00 00 00 	bi 2000480 <main+0x120>
+ 2000484:	78 01 02 00 	mvhi r1,0x200
+ 2000488:	78 02 02 00 	mvhi r2,0x200
+ 200048c:	38 42 1d 84 	ori r2,r2,0x1d84
+ 2000490:	38 21 21 a8 	ori r1,r1,0x21a8
+ 2000494:	34 03 00 1f 	mvi r3,31
+ 2000498:	f8 00 03 1f 	calli 2001114 <EE_hal_uart_write_buffer>
+
+/* User functions */
+void write_led(volatile unsigned int led)		// Function to turn on the leds 
+{
+    MicoGPIO_t *ledc = (MicoGPIO_t *)LED_BASE_ADDRESS;
+    ledc->data = (EE_UINT8)led;
+ 200049c:	34 02 00 bf 	mvi r2,191
+ 20004a0:	59 a2 00 00 	sw (r13+0),r2
+ 20004a4:	e0 00 00 00 	bi 20004a4 <main+0x144>
+
+020004a8 <system_timer_callback>:
+   	}
+	
+}
+
+void system_timer_callback(void)
+{
+ 20004a8:	37 9c ff fc 	addi sp,sp,-4
+ 20004ac:	5b 9d 00 04 	sw (sp+4),ra
+	/* count the interrupts, waking up expired alarms */
+	CounterTick(system_counter);
+ 20004b0:	34 01 00 00 	mvi r1,0
+ 20004b4:	f8 00 01 c9 	calli 2000bd8 <EE_alarm_CounterTick>
+	
+	return;
+}
+ 20004b8:	2b 9d 00 04 	lw ra,(sp+4)
+ 20004bc:	37 9c 00 04 	addi sp,sp,4
+ 20004c0:	c3 a0 00 00 	ret
+
+020004c4 <FuncTask1>:
+
+/*
+ * Task 1
+ */
+TASK(Task1)
+{
+ 20004c4:	37 9c ff ec 	addi sp,sp,-20
+ 20004c8:	5b 8b 00 0c 	sw (sp+12),r11
+ 20004cc:	5b 8c 00 08 	sw (sp+8),r12
+ 20004d0:	5b 9d 00 04 	sw (sp+4),ra
+//	led_flag ^= 1;
+
+	int ret;
+	TTime now;
+    
+    ret = EE_rtc_read_time(&now);
+ 20004d4:	37 8c 00 10 	addi r12,sp,16
+ 20004d8:	b9 80 08 00 	mv r1,r12
+ 20004dc:	f8 00 00 27 	calli 2000578 <EE_rtc_read_time>
+ 20004e0:	b8 20 58 00 	mv r11,r1
+    
+    if(ret == EE_I2C_OK)
+ 20004e4:	5c 20 00 14 	bne r1,r0,2000534 <FuncTask1+0x70>
+    {
+		ret = rtc_display_time(&now); 
+ 20004e8:	b9 80 08 00 	mv r1,r12
+ 20004ec:	fb ff ff 3e 	calli 20001e4 <_ftext_rom>
+		if(ret<0)
+ 20004f0:	4c 2b 00 0c 	bge r1,r11,2000520 <FuncTask1+0x5c>
+
+/* User functions */
+void write_led(volatile unsigned int led)		// Function to turn on the leds 
+{
+    MicoGPIO_t *ledc = (MicoGPIO_t *)LED_BASE_ADDRESS;
+    ledc->data = (EE_UINT8)led;
+ 20004f4:	78 04 80 00 	mvhi r4,0x8000
+ 20004f8:	34 03 00 f7 	mvi r3,247
+ 20004fc:	38 84 00 80 	ori r4,r4,0x80
+ 2000500:	78 01 02 00 	mvhi r1,0x200
+ 2000504:	78 02 02 00 	mvhi r2,0x200
+ 2000508:	58 83 00 00 	sw (r4+0),r3
+ 200050c:	38 21 21 a8 	ori r1,r1,0x21a8
+ 2000510:	38 42 1d a4 	ori r2,r2,0x1da4
+ 2000514:	34 03 00 1e 	mvi r3,30
+ 2000518:	f8 00 02 ff 	calli 2001114 <EE_hal_uart_write_buffer>
+ 200051c:	e0 00 00 00 	bi 200051c <FuncTask1+0x58>
+		EE_uart_write_buffer((EE_UINT8 *)str,strlen(str));
+		#endif
+   		while(1);
+   	}
+	
+}
+ 2000520:	2b 9d 00 04 	lw ra,(sp+4)
+ 2000524:	2b 8b 00 0c 	lw r11,(sp+12)
+ 2000528:	2b 8c 00 08 	lw r12,(sp+8)
+ 200052c:	37 9c 00 14 	addi sp,sp,20
+ 2000530:	c3 a0 00 00 	ret
+
+/* User functions */
+void write_led(volatile unsigned int led)		// Function to turn on the leds 
+{
+    MicoGPIO_t *ledc = (MicoGPIO_t *)LED_BASE_ADDRESS;
+    ledc->data = (EE_UINT8)led;
+ 2000534:	78 04 80 00 	mvhi r4,0x8000
+ 2000538:	34 03 00 df 	mvi r3,223
+ 200053c:	38 84 00 80 	ori r4,r4,0x80
+ 2000540:	78 01 02 00 	mvhi r1,0x200
+ 2000544:	78 02 02 00 	mvhi r2,0x200
+ 2000548:	58 83 00 00 	sw (r4+0),r3
+ 200054c:	38 21 21 a8 	ori r1,r1,0x21a8
+ 2000550:	38 42 1d c4 	ori r2,r2,0x1dc4
+ 2000554:	34 03 00 1e 	mvi r3,30
+ 2000558:	f8 00 02 ef 	calli 2001114 <EE_hal_uart_write_buffer>
+ 200055c:	e0 00 00 00 	bi 200055c <FuncTask1+0x98>
+
+02000560 <LatticeDDInit>:
+//  
+/////////////////////////////////////////////////////////////////////////////
+    #include "DDStructs.h"
+
+    void LatticeDDInit(void)
+    {
+ 2000560:	37 9c ff fc 	addi sp,sp,-4
+ 2000564:	5b 9d 00 04 	sw (sp+4),ra
+        LatticeMico32Init(&lm32_top_LM32);
+        // Needed only to use the Jtag interface for I/O
+#endif
+
+        // Invoke application's main routine
+        main();
+ 2000568:	fb ff ff 7e 	calli 2000360 <main>
+    }
+ 200056c:	2b 9d 00 04 	lw ra,(sp+4)
+ 2000570:	37 9c 00 04 	addi sp,sp,4
+ 2000574:	c3 a0 00 00 	ret
+
+02000578 <EE_rtc_read_time>:
+	
+	return ret;
+}
+
+int EE_rtc_read_time(TTime *ttr) 
+{
+ 2000578:	37 9c ff cc 	addi sp,sp,-52
+ 200057c:	5b 8b 00 2c 	sw (sp+44),r11
+ 2000580:	5b 8c 00 28 	sw (sp+40),r12
+ 2000584:	5b 8d 00 24 	sw (sp+36),r13
+ 2000588:	5b 8e 00 20 	sw (sp+32),r14
+ 200058c:	5b 8f 00 1c 	sw (sp+28),r15
+ 2000590:	5b 90 00 18 	sw (sp+24),r16
+ 2000594:	5b 91 00 14 	sw (sp+20),r17
+ 2000598:	5b 92 00 10 	sw (sp+16),r18
+ 200059c:	5b 93 00 0c 	sw (sp+12),r19
+ 20005a0:	5b 94 00 08 	sw (sp+8),r20
+ 20005a4:	5b 9d 00 04 	sw (sp+4),ra
+ 20005a8:	b8 20 98 00 	mv r19,r1
+ 20005ac:	78 01 80 00 	mvhi r1,0x8000
+ 20005b0:	38 21 03 00 	ori r1,r1,0x300
+ 20005b4:	34 02 00 a0 	mvi r2,160
+ 20005b8:	34 03 00 01 	mvi r3,1
+ 20005bc:	37 84 00 30 	addi r4,sp,48
+ 20005c0:	34 05 00 06 	mvi r5,6
+ 20005c4:	f8 00 04 49 	calli 20016e8 <EE_hal_i2c_read_buffer_polling>
+ 20005c8:	b8 20 a0 00 	mv r20,r1
+	EE_UINT8 rx_data[7];
+	EE_INT8 yearmod4, diff;
+	
+	/* Read the time */			
+   	ret = EE_rtc_read_buffer(RTC_HSECONDS_ADD, rx_data, 6);	
+   	if(ret == EE_I2C_OK)
+ 20005cc:	44 20 00 0f 	be r1,r0,2000608 <EE_rtc_read_time+0x90>
+   				
+		}	
+	}
+  		
+   	return ret;
+}
+ 20005d0:	ba 80 08 00 	mv r1,r20
+ 20005d4:	2b 9d 00 04 	lw ra,(sp+4)
+ 20005d8:	2b 8b 00 2c 	lw r11,(sp+44)
+ 20005dc:	2b 8c 00 28 	lw r12,(sp+40)
+ 20005e0:	2b 8d 00 24 	lw r13,(sp+36)
+ 20005e4:	2b 8e 00 20 	lw r14,(sp+32)
+ 20005e8:	2b 8f 00 1c 	lw r15,(sp+28)
+ 20005ec:	2b 90 00 18 	lw r16,(sp+24)
+ 20005f0:	2b 91 00 14 	lw r17,(sp+20)
+ 20005f4:	2b 92 00 10 	lw r18,(sp+16)
+ 20005f8:	2b 93 00 0c 	lw r19,(sp+12)
+ 20005fc:	2b 94 00 08 	lw r20,(sp+8)
+ 2000600:	37 9c 00 34 	addi sp,sp,52
+ 2000604:	c3 a0 00 00 	ret
+   	{
+		ttr->hundreds_of_seconds = (rx_data[0] >> 4)*10 + (rx_data[0] & 0x0F); 
+   		ttr->seconds = (rx_data[1] >> 4)*10 + (rx_data[1] & 0x0F); 
+   		ttr->minutes = (rx_data[2] >> 4)*10 + (rx_data[2] & 0x0F); 
+   		ttr->hours = (rx_data[3] >> 4)*10 + (rx_data[3] & 0x0F); 
+   		ttr->day = ((rx_data[4] & 0b00110000) >> 4)*10 + (rx_data[4] & 0x0F); 
+ 2000608:	43 8b 00 34 	lbu r11,(sp+52)
+   		yearmod4 = (rx_data[4] & 0b11000000) >> 6;        	
+   		ttr->month = ((rx_data[5] & 0b00010000) >> 4)*10 + (rx_data[5] & 0x0F); 	
+ 200060c:	43 8d 00 35 	lbu r13,(sp+53)
+	
+	/* Read the time */			
+   	ret = EE_rtc_read_buffer(RTC_HSECONDS_ADD, rx_data, 6);	
+   	if(ret == EE_I2C_OK)
+   	{
+		ttr->hundreds_of_seconds = (rx_data[0] >> 4)*10 + (rx_data[0] & 0x0F); 
+ 2000610:	43 88 00 30 	lbu r8,(sp+48)
+   		ttr->seconds = (rx_data[1] >> 4)*10 + (rx_data[1] & 0x0F); 
+ 2000614:	43 89 00 31 	lbu r9,(sp+49)
+   		ttr->minutes = (rx_data[2] >> 4)*10 + (rx_data[2] & 0x0F); 
+ 2000618:	43 8a 00 32 	lbu r10,(sp+50)
+   		ttr->hours = (rx_data[3] >> 4)*10 + (rx_data[3] & 0x0F); 
+ 200061c:	43 8c 00 33 	lbu r12,(sp+51)
+   		ttr->day = ((rx_data[4] & 0b00110000) >> 4)*10 + (rx_data[4] & 0x0F); 
+ 2000620:	21 66 00 30 	andi r6,r11,0x30
+   		yearmod4 = (rx_data[4] & 0b11000000) >> 6;        	
+   		ttr->month = ((rx_data[5] & 0b00010000) >> 4)*10 + (rx_data[5] & 0x0F); 	
+ 2000624:	21 a7 00 10 	andi r7,r13,0x10
+	
+	/* Read the time */			
+   	ret = EE_rtc_read_buffer(RTC_HSECONDS_ADD, rx_data, 6);	
+   	if(ret == EE_I2C_OK)
+   	{
+		ttr->hundreds_of_seconds = (rx_data[0] >> 4)*10 + (rx_data[0] & 0x0F); 
+ 2000628:	01 02 00 04 	srui r2,r8,4
+   		ttr->seconds = (rx_data[1] >> 4)*10 + (rx_data[1] & 0x0F); 
+ 200062c:	01 23 00 04 	srui r3,r9,4
+   		ttr->minutes = (rx_data[2] >> 4)*10 + (rx_data[2] & 0x0F); 
+ 2000630:	01 44 00 04 	srui r4,r10,4
+   		ttr->hours = (rx_data[3] >> 4)*10 + (rx_data[3] & 0x0F); 
+ 2000634:	01 85 00 04 	srui r5,r12,4
+   		ttr->day = ((rx_data[4] & 0b00110000) >> 4)*10 + (rx_data[4] & 0x0F); 
+ 2000638:	14 c6 00 04 	sri r6,r6,4
+   		yearmod4 = (rx_data[4] & 0b11000000) >> 6;        	
+   		ttr->month = ((rx_data[5] & 0b00010000) >> 4)*10 + (rx_data[5] & 0x0F); 	
+ 200063c:	14 e7 00 04 	sri r7,r7,4
+	
+	/* Read the time */			
+   	ret = EE_rtc_read_buffer(RTC_HSECONDS_ADD, rx_data, 6);	
+   	if(ret == EE_I2C_OK)
+   	{
+		ttr->hundreds_of_seconds = (rx_data[0] >> 4)*10 + (rx_data[0] & 0x0F); 
+ 2000640:	3c 41 00 03 	sli r1,r2,3
+   		ttr->seconds = (rx_data[1] >> 4)*10 + (rx_data[1] & 0x0F); 
+ 2000644:	3c 6e 00 03 	sli r14,r3,3
+   		ttr->minutes = (rx_data[2] >> 4)*10 + (rx_data[2] & 0x0F); 
+ 2000648:	3c 8f 00 03 	sli r15,r4,3
+   		ttr->hours = (rx_data[3] >> 4)*10 + (rx_data[3] & 0x0F); 
+ 200064c:	3c b0 00 03 	sli r16,r5,3
+   		ttr->day = ((rx_data[4] & 0b00110000) >> 4)*10 + (rx_data[4] & 0x0F); 
+ 2000650:	3c d1 00 03 	sli r17,r6,3
+   		yearmod4 = (rx_data[4] & 0b11000000) >> 6;        	
+   		ttr->month = ((rx_data[5] & 0b00010000) >> 4)*10 + (rx_data[5] & 0x0F); 	
+ 2000654:	3c f2 00 03 	sli r18,r7,3
+	
+	/* Read the time */			
+   	ret = EE_rtc_read_buffer(RTC_HSECONDS_ADD, rx_data, 6);	
+   	if(ret == EE_I2C_OK)
+   	{
+		ttr->hundreds_of_seconds = (rx_data[0] >> 4)*10 + (rx_data[0] & 0x0F); 
+ 2000658:	b4 42 10 00 	add r2,r2,r2
+   		ttr->seconds = (rx_data[1] >> 4)*10 + (rx_data[1] & 0x0F); 
+ 200065c:	b4 63 18 00 	add r3,r3,r3
+   		ttr->minutes = (rx_data[2] >> 4)*10 + (rx_data[2] & 0x0F); 
+ 2000660:	b4 84 20 00 	add r4,r4,r4
+   		ttr->hours = (rx_data[3] >> 4)*10 + (rx_data[3] & 0x0F); 
+ 2000664:	b4 a5 28 00 	add r5,r5,r5
+   		ttr->day = ((rx_data[4] & 0b00110000) >> 4)*10 + (rx_data[4] & 0x0F); 
+ 2000668:	b4 c6 30 00 	add r6,r6,r6
+   		yearmod4 = (rx_data[4] & 0b11000000) >> 6;        	
+   		ttr->month = ((rx_data[5] & 0b00010000) >> 4)*10 + (rx_data[5] & 0x0F); 	
+ 200066c:	b4 e7 38 00 	add r7,r7,r7
+	
+	/* Read the time */			
+   	ret = EE_rtc_read_buffer(RTC_HSECONDS_ADD, rx_data, 6);	
+   	if(ret == EE_I2C_OK)
+   	{
+		ttr->hundreds_of_seconds = (rx_data[0] >> 4)*10 + (rx_data[0] & 0x0F); 
+ 2000670:	b4 41 10 00 	add r2,r2,r1
+ 2000674:	21 08 00 0f 	andi r8,r8,0xf
+   		ttr->seconds = (rx_data[1] >> 4)*10 + (rx_data[1] & 0x0F); 
+   		ttr->minutes = (rx_data[2] >> 4)*10 + (rx_data[2] & 0x0F); 
+   		ttr->hours = (rx_data[3] >> 4)*10 + (rx_data[3] & 0x0F); 
+   		ttr->day = ((rx_data[4] & 0b00110000) >> 4)*10 + (rx_data[4] & 0x0F); 
+ 2000678:	21 61 00 0f 	andi r1,r11,0xf
+	/* Read the time */			
+   	ret = EE_rtc_read_buffer(RTC_HSECONDS_ADD, rx_data, 6);	
+   	if(ret == EE_I2C_OK)
+   	{
+		ttr->hundreds_of_seconds = (rx_data[0] >> 4)*10 + (rx_data[0] & 0x0F); 
+   		ttr->seconds = (rx_data[1] >> 4)*10 + (rx_data[1] & 0x0F); 
+ 200067c:	21 29 00 0f 	andi r9,r9,0xf
+   		ttr->minutes = (rx_data[2] >> 4)*10 + (rx_data[2] & 0x0F); 
+ 2000680:	21 4a 00 0f 	andi r10,r10,0xf
+	/* Read the time */			
+   	ret = EE_rtc_read_buffer(RTC_HSECONDS_ADD, rx_data, 6);	
+   	if(ret == EE_I2C_OK)
+   	{
+		ttr->hundreds_of_seconds = (rx_data[0] >> 4)*10 + (rx_data[0] & 0x0F); 
+   		ttr->seconds = (rx_data[1] >> 4)*10 + (rx_data[1] & 0x0F); 
+ 2000684:	b4 6e 18 00 	add r3,r3,r14
+   		ttr->minutes = (rx_data[2] >> 4)*10 + (rx_data[2] & 0x0F); 
+ 2000688:	b4 8f 20 00 	add r4,r4,r15
+   		ttr->hours = (rx_data[3] >> 4)*10 + (rx_data[3] & 0x0F); 
+ 200068c:	b4 b0 28 00 	add r5,r5,r16
+   		ttr->day = ((rx_data[4] & 0b00110000) >> 4)*10 + (rx_data[4] & 0x0F); 
+ 2000690:	b4 d1 30 00 	add r6,r6,r17
+   		yearmod4 = (rx_data[4] & 0b11000000) >> 6;        	
+   		ttr->month = ((rx_data[5] & 0b00010000) >> 4)*10 + (rx_data[5] & 0x0F); 	
+ 2000694:	b4 f2 38 00 	add r7,r7,r18
+   	if(ret == EE_I2C_OK)
+   	{
+		ttr->hundreds_of_seconds = (rx_data[0] >> 4)*10 + (rx_data[0] & 0x0F); 
+   		ttr->seconds = (rx_data[1] >> 4)*10 + (rx_data[1] & 0x0F); 
+   		ttr->minutes = (rx_data[2] >> 4)*10 + (rx_data[2] & 0x0F); 
+   		ttr->hours = (rx_data[3] >> 4)*10 + (rx_data[3] & 0x0F); 
+ 2000698:	21 8c 00 0f 	andi r12,r12,0xf
+   		ttr->day = ((rx_data[4] & 0b00110000) >> 4)*10 + (rx_data[4] & 0x0F); 
+   		yearmod4 = (rx_data[4] & 0b11000000) >> 6;        	
+   		ttr->month = ((rx_data[5] & 0b00010000) >> 4)*10 + (rx_data[5] & 0x0F); 	
+ 200069c:	21 ad 00 0f 	andi r13,r13,0xf
+	
+	/* Read the time */			
+   	ret = EE_rtc_read_buffer(RTC_HSECONDS_ADD, rx_data, 6);	
+   	if(ret == EE_I2C_OK)
+   	{
+		ttr->hundreds_of_seconds = (rx_data[0] >> 4)*10 + (rx_data[0] & 0x0F); 
+ 20006a0:	b4 48 10 00 	add r2,r2,r8
+   		ttr->seconds = (rx_data[1] >> 4)*10 + (rx_data[1] & 0x0F); 
+ 20006a4:	b4 69 18 00 	add r3,r3,r9
+   		ttr->minutes = (rx_data[2] >> 4)*10 + (rx_data[2] & 0x0F); 
+ 20006a8:	b4 8a 20 00 	add r4,r4,r10
+   		ttr->hours = (rx_data[3] >> 4)*10 + (rx_data[3] & 0x0F); 
+   		ttr->day = ((rx_data[4] & 0b00110000) >> 4)*10 + (rx_data[4] & 0x0F); 
+ 20006ac:	b4 c1 30 00 	add r6,r6,r1
+   	if(ret == EE_I2C_OK)
+   	{
+		ttr->hundreds_of_seconds = (rx_data[0] >> 4)*10 + (rx_data[0] & 0x0F); 
+   		ttr->seconds = (rx_data[1] >> 4)*10 + (rx_data[1] & 0x0F); 
+   		ttr->minutes = (rx_data[2] >> 4)*10 + (rx_data[2] & 0x0F); 
+   		ttr->hours = (rx_data[3] >> 4)*10 + (rx_data[3] & 0x0F); 
+ 20006b0:	b4 ac 28 00 	add r5,r5,r12
+   		ttr->day = ((rx_data[4] & 0b00110000) >> 4)*10 + (rx_data[4] & 0x0F); 
+   		yearmod4 = (rx_data[4] & 0b11000000) >> 6;        	
+   		ttr->month = ((rx_data[5] & 0b00010000) >> 4)*10 + (rx_data[5] & 0x0F); 	
+ 20006b4:	b4 ed 38 00 	add r7,r7,r13
+ 20006b8:	78 01 80 00 	mvhi r1,0x8000
+	
+	/* Read the time */			
+   	ret = EE_rtc_read_buffer(RTC_HSECONDS_ADD, rx_data, 6);	
+   	if(ret == EE_I2C_OK)
+   	{
+		ttr->hundreds_of_seconds = (rx_data[0] >> 4)*10 + (rx_data[0] & 0x0F); 
+ 20006bc:	32 62 00 06 	sb (r19+6),r2
+   		ttr->seconds = (rx_data[1] >> 4)*10 + (rx_data[1] & 0x0F); 
+ 20006c0:	32 63 00 05 	sb (r19+5),r3
+   		ttr->minutes = (rx_data[2] >> 4)*10 + (rx_data[2] & 0x0F); 
+ 20006c4:	32 64 00 04 	sb (r19+4),r4
+ 20006c8:	34 02 00 a0 	mvi r2,160
+   		ttr->hours = (rx_data[3] >> 4)*10 + (rx_data[3] & 0x0F); 
+ 20006cc:	32 65 00 03 	sb (r19+3),r5
+   		ttr->day = ((rx_data[4] & 0b00110000) >> 4)*10 + (rx_data[4] & 0x0F); 
+ 20006d0:	32 66 00 02 	sb (r19+2),r6
+   		yearmod4 = (rx_data[4] & 0b11000000) >> 6;        	
+   		ttr->month = ((rx_data[5] & 0b00010000) >> 4)*10 + (rx_data[5] & 0x0F); 	
+ 20006d4:	32 67 00 01 	sb (r19+1),r7
+ 20006d8:	38 21 03 00 	ori r1,r1,0x300
+ 20006dc:	34 03 00 10 	mvi r3,16
+ 20006e0:	f8 00 03 90 	calli 2001520 <EE_hal_i2c_read_byte_polling>
+		/* Read the year stored in the rt-clock RAM */	
+		rx_data[0] = EE_rtc_read_byte(RTC_YEAR_ADD);	
+ 20006e4:	20 22 00 ff 	andi r2,r1,0xff
+		ttr->hundreds_of_seconds = (rx_data[0] >> 4)*10 + (rx_data[0] & 0x0F); 
+   		ttr->seconds = (rx_data[1] >> 4)*10 + (rx_data[1] & 0x0F); 
+   		ttr->minutes = (rx_data[2] >> 4)*10 + (rx_data[2] & 0x0F); 
+   		ttr->hours = (rx_data[3] >> 4)*10 + (rx_data[3] & 0x0F); 
+   		ttr->day = ((rx_data[4] & 0b00110000) >> 4)*10 + (rx_data[4] & 0x0F); 
+   		yearmod4 = (rx_data[4] & 0b11000000) >> 6;        	
+ 20006e8:	01 6b 00 06 	srui r11,r11,6
+		/* Read the year stored in the rt-clock RAM */	
+		rx_data[0] = EE_rtc_read_byte(RTC_YEAR_ADD);	
+   		if(rx_data[0] >= 0)
+   		{
+			ret = EE_I2C_OK;
+			diff = yearmod4 - (rx_data[0] & 0x03);			// Calculate the difference (3,2,1,0,-1,-2,-3)
+ 20006ec:	20 41 00 03 	andi r1,r2,0x3
+ 20006f0:	c9 61 58 00 	sub r11,r11,r1
+   		ttr->hours = (rx_data[3] >> 4)*10 + (rx_data[3] & 0x0F); 
+   		ttr->day = ((rx_data[4] & 0b00110000) >> 4)*10 + (rx_data[4] & 0x0F); 
+   		yearmod4 = (rx_data[4] & 0b11000000) >> 6;        	
+   		ttr->month = ((rx_data[5] & 0b00010000) >> 4)*10 + (rx_data[5] & 0x0F); 	
+		/* Read the year stored in the rt-clock RAM */	
+		rx_data[0] = EE_rtc_read_byte(RTC_YEAR_ADD);	
+ 20006f4:	33 82 00 30 	sb (sp+48),r2
+   		if(rx_data[0] >= 0)
+   		{
+			ret = EE_I2C_OK;
+			diff = yearmod4 - (rx_data[0] & 0x03);			// Calculate the difference (3,2,1,0,-1,-2,-3)
+ 20006f8:	21 64 00 ff 	andi r4,r11,0xff
+			if (diff!=0 )  							// check if year is changed in RTC
+ 20006fc:	5c 94 00 03 	bne r4,r20,2000708 <EE_rtc_read_time+0x190>
+				ttr->year = rx_data[0] + ((diff+4) & 0x03);			
+   				ret = EE_rtc_write_byte(RTC_YEAR_ADD, ttr->year);	
+   			}
+   			else
+   			{
+				ttr->year = rx_data[0];	
+ 2000700:	32 62 00 00 	sb (r19+0),r2
+ 2000704:	e3 ff ff b3 	bi 20005d0 <EE_rtc_read_time+0x58>
+   		{
+			ret = EE_I2C_OK;
+			diff = yearmod4 - (rx_data[0] & 0x03);			// Calculate the difference (3,2,1,0,-1,-2,-3)
+			if (diff!=0 )  							// check if year is changed in RTC
+   			{										// in this case the new value should be written to RTC RAM at address 16(0x10)  	
+				ttr->year = rx_data[0] + ((diff+4) & 0x03);			
+ 2000708:	20 84 00 03 	andi r4,r4,0x3
+ 200070c:	b4 44 20 00 	add r4,r2,r4
+ 2000710:	20 84 00 ff 	andi r4,r4,0xff
+ 2000714:	78 01 80 00 	mvhi r1,0x8000
+ 2000718:	32 64 00 00 	sb (r19+0),r4
+ 200071c:	38 21 03 00 	ori r1,r1,0x300
+ 2000720:	34 02 00 a0 	mvi r2,160
+ 2000724:	34 03 00 10 	mvi r3,16
+ 2000728:	f8 00 03 4c 	calli 2001458 <EE_hal_i2c_write_byte_polling>
+ 200072c:	b8 20 a0 00 	mv r20,r1
+ 2000730:	e3 ff ff a8 	bi 20005d0 <EE_rtc_read_time+0x58>
+
+02000734 <EE_rtc_write_time>:
+
+/* Global variables */
+//...
+
+int EE_rtc_write_time(const TTime *ttw)
+{
+ 2000734:	37 9c ff e0 	addi sp,sp,-32
+ 2000738:	5b 8b 00 18 	sw (sp+24),r11
+ 200073c:	5b 8c 00 14 	sw (sp+20),r12
+ 2000740:	5b 8d 00 10 	sw (sp+16),r13
+ 2000744:	5b 8e 00 0c 	sw (sp+12),r14
+ 2000748:	5b 8f 00 08 	sw (sp+8),r15
+ 200074c:	5b 9d 00 04 	sw (sp+4),ra
+   	tx_data[0] = RTC_OFF;
+   	tx_data[1] = ((ttw->hundreds_of_seconds/10)<<4) + (ttw->hundreds_of_seconds%10);
+   	tx_data[2] = ((ttw->seconds/10)<<4) + (ttw->seconds%10);
+   	tx_data[3] = ((ttw->minutes/10)<<4) + (ttw->minutes%10);
+   	tx_data[4] = ((ttw->hours/10)<<4) + (ttw->hours%10);
+   	tx_data[5] = ((ttw->year%4)<<6) + ((ttw->day/10)<<4) +(ttw->day%10);
+ 2000750:	40 22 00 02 	lbu r2,(r1+2)
+	int ret;
+	EE_UINT8 tx_data[7];
+	
+	/* Turn off rt-clock and change the time */					
+   	tx_data[0] = RTC_OFF;
+   	tx_data[1] = ((ttw->hundreds_of_seconds/10)<<4) + (ttw->hundreds_of_seconds%10);
+ 2000754:	40 23 00 06 	lbu r3,(r1+6)
+   	tx_data[2] = ((ttw->seconds/10)<<4) + (ttw->seconds%10);
+ 2000758:	40 24 00 05 	lbu r4,(r1+5)
+   	tx_data[3] = ((ttw->minutes/10)<<4) + (ttw->minutes%10);
+ 200075c:	40 25 00 04 	lbu r5,(r1+4)
+   	tx_data[4] = ((ttw->hours/10)<<4) + (ttw->hours%10);
+ 2000760:	40 27 00 03 	lbu r7,(r1+3)
+   	tx_data[5] = ((ttw->year%4)<<6) + ((ttw->day/10)<<4) +(ttw->day%10);
+   	tx_data[6] = ((ttw->month/10)<<4) + (ttw->month%10);
+ 2000764:	40 2d 00 01 	lbu r13,(r1+1)
+
+/* Global variables */
+//...
+
+int EE_rtc_write_time(const TTime *ttw)
+{
+ 2000768:	b8 20 78 00 	mv r15,r1
+	int ret;
+	EE_UINT8 tx_data[7];
+	
+	/* Turn off rt-clock and change the time */					
+   	tx_data[0] = RTC_OFF;
+   	tx_data[1] = ((ttw->hundreds_of_seconds/10)<<4) + (ttw->hundreds_of_seconds%10);
+ 200076c:	34 01 00 0a 	mvi r1,10
+   	tx_data[2] = ((ttw->seconds/10)<<4) + (ttw->seconds%10);
+   	tx_data[3] = ((ttw->minutes/10)<<4) + (ttw->minutes%10);
+   	tx_data[4] = ((ttw->hours/10)<<4) + (ttw->hours%10);
+   	tx_data[5] = ((ttw->year%4)<<6) + ((ttw->day/10)<<4) +(ttw->day%10);
+ 2000770:	41 ee 00 00 	lbu r14,(r15+0)
+ 2000774:	8c 41 30 00 	divu r6,r2,r1
+	int ret;
+	EE_UINT8 tx_data[7];
+	
+	/* Turn off rt-clock and change the time */					
+   	tx_data[0] = RTC_OFF;
+   	tx_data[1] = ((ttw->hundreds_of_seconds/10)<<4) + (ttw->hundreds_of_seconds%10);
+ 2000778:	8c 61 40 00 	divu r8,r3,r1
+   	tx_data[2] = ((ttw->seconds/10)<<4) + (ttw->seconds%10);
+ 200077c:	8c 81 48 00 	divu r9,r4,r1
+   	tx_data[3] = ((ttw->minutes/10)<<4) + (ttw->minutes%10);
+ 2000780:	8c a1 50 00 	divu r10,r5,r1
+   	tx_data[4] = ((ttw->hours/10)<<4) + (ttw->hours%10);
+ 2000784:	8c e1 58 00 	divu r11,r7,r1
+   	tx_data[5] = ((ttw->year%4)<<6) + ((ttw->day/10)<<4) +(ttw->day%10);
+   	tx_data[6] = ((ttw->month/10)<<4) + (ttw->month%10);
+ 2000788:	8d a1 60 00 	divu r12,r13,r1
+   	tx_data[0] = RTC_OFF;
+   	tx_data[1] = ((ttw->hundreds_of_seconds/10)<<4) + (ttw->hundreds_of_seconds%10);
+   	tx_data[2] = ((ttw->seconds/10)<<4) + (ttw->seconds%10);
+   	tx_data[3] = ((ttw->minutes/10)<<4) + (ttw->minutes%10);
+   	tx_data[4] = ((ttw->hours/10)<<4) + (ttw->hours%10);
+   	tx_data[5] = ((ttw->year%4)<<6) + ((ttw->day/10)<<4) +(ttw->day%10);
+ 200078c:	c4 41 10 00 	modu r2,r2,r1
+ 2000790:	3c c6 00 04 	sli r6,r6,4
+	int ret;
+	EE_UINT8 tx_data[7];
+	
+	/* Turn off rt-clock and change the time */					
+   	tx_data[0] = RTC_OFF;
+   	tx_data[1] = ((ttw->hundreds_of_seconds/10)<<4) + (ttw->hundreds_of_seconds%10);
+ 2000794:	c4 61 18 00 	modu r3,r3,r1
+   	tx_data[2] = ((ttw->seconds/10)<<4) + (ttw->seconds%10);
+ 2000798:	c4 81 20 00 	modu r4,r4,r1
+   	tx_data[3] = ((ttw->minutes/10)<<4) + (ttw->minutes%10);
+ 200079c:	c4 a1 28 00 	modu r5,r5,r1
+   	tx_data[4] = ((ttw->hours/10)<<4) + (ttw->hours%10);
+ 20007a0:	c4 e1 38 00 	modu r7,r7,r1
+   	tx_data[5] = ((ttw->year%4)<<6) + ((ttw->day/10)<<4) +(ttw->day%10);
+   	tx_data[6] = ((ttw->month/10)<<4) + (ttw->month%10);
+ 20007a4:	c5 a1 68 00 	modu r13,r13,r1
+	int ret;
+	EE_UINT8 tx_data[7];
+	
+	/* Turn off rt-clock and change the time */					
+   	tx_data[0] = RTC_OFF;
+   	tx_data[1] = ((ttw->hundreds_of_seconds/10)<<4) + (ttw->hundreds_of_seconds%10);
+ 20007a8:	3d 08 00 04 	sli r8,r8,4
+   	tx_data[2] = ((ttw->seconds/10)<<4) + (ttw->seconds%10);
+ 20007ac:	3d 29 00 04 	sli r9,r9,4
+   	tx_data[3] = ((ttw->minutes/10)<<4) + (ttw->minutes%10);
+ 20007b0:	3d 4a 00 04 	sli r10,r10,4
+   	tx_data[4] = ((ttw->hours/10)<<4) + (ttw->hours%10);
+ 20007b4:	3d 6b 00 04 	sli r11,r11,4
+   	tx_data[5] = ((ttw->year%4)<<6) + ((ttw->day/10)<<4) +(ttw->day%10);
+ 20007b8:	3d ce 00 06 	sli r14,r14,6
+   	tx_data[6] = ((ttw->month/10)<<4) + (ttw->month%10);
+ 20007bc:	3d 8c 00 04 	sli r12,r12,4
+   	tx_data[0] = RTC_OFF;
+   	tx_data[1] = ((ttw->hundreds_of_seconds/10)<<4) + (ttw->hundreds_of_seconds%10);
+   	tx_data[2] = ((ttw->seconds/10)<<4) + (ttw->seconds%10);
+   	tx_data[3] = ((ttw->minutes/10)<<4) + (ttw->minutes%10);
+   	tx_data[4] = ((ttw->hours/10)<<4) + (ttw->hours%10);
+   	tx_data[5] = ((ttw->year%4)<<6) + ((ttw->day/10)<<4) +(ttw->day%10);
+ 20007c0:	b4 c2 30 00 	add r6,r6,r2
+ 20007c4:	78 01 80 00 	mvhi r1,0x8000
+	int ret;
+	EE_UINT8 tx_data[7];
+	
+	/* Turn off rt-clock and change the time */					
+   	tx_data[0] = RTC_OFF;
+   	tx_data[1] = ((ttw->hundreds_of_seconds/10)<<4) + (ttw->hundreds_of_seconds%10);
+ 20007c8:	b5 03 40 00 	add r8,r8,r3
+   	tx_data[2] = ((ttw->seconds/10)<<4) + (ttw->seconds%10);
+ 20007cc:	b5 24 48 00 	add r9,r9,r4
+   	tx_data[3] = ((ttw->minutes/10)<<4) + (ttw->minutes%10);
+ 20007d0:	b5 45 50 00 	add r10,r10,r5
+   	tx_data[4] = ((ttw->hours/10)<<4) + (ttw->hours%10);
+ 20007d4:	b5 67 58 00 	add r11,r11,r7
+   	tx_data[5] = ((ttw->year%4)<<6) + ((ttw->day/10)<<4) +(ttw->day%10);
+ 20007d8:	b4 ce 30 00 	add r6,r6,r14
+   	tx_data[6] = ((ttw->month/10)<<4) + (ttw->month%10);
+ 20007dc:	b5 8d 60 00 	add r12,r12,r13
+{
+	int ret;
+	EE_UINT8 tx_data[7];
+	
+	/* Turn off rt-clock and change the time */					
+   	tx_data[0] = RTC_OFF;
+ 20007e0:	34 07 ff 80 	mvi r7,-128
+ 20007e4:	38 21 03 00 	ori r1,r1,0x300
+ 20007e8:	34 02 00 a0 	mvi r2,160
+ 20007ec:	34 03 00 00 	mvi r3,0
+ 20007f0:	37 84 00 1c 	addi r4,sp,28
+ 20007f4:	34 05 00 07 	mvi r5,7
+ 20007f8:	33 87 00 1c 	sb (sp+28),r7
+   	tx_data[1] = ((ttw->hundreds_of_seconds/10)<<4) + (ttw->hundreds_of_seconds%10);
+ 20007fc:	33 88 00 1d 	sb (sp+29),r8
+   	tx_data[2] = ((ttw->seconds/10)<<4) + (ttw->seconds%10);
+ 2000800:	33 89 00 1e 	sb (sp+30),r9
+   	tx_data[3] = ((ttw->minutes/10)<<4) + (ttw->minutes%10);
+ 2000804:	33 8a 00 1f 	sb (sp+31),r10
+   	tx_data[4] = ((ttw->hours/10)<<4) + (ttw->hours%10);
+ 2000808:	33 8b 00 20 	sb (sp+32),r11
+   	tx_data[5] = ((ttw->year%4)<<6) + ((ttw->day/10)<<4) +(ttw->day%10);
+ 200080c:	33 86 00 21 	sb (sp+33),r6
+   	tx_data[6] = ((ttw->month/10)<<4) + (ttw->month%10);
+ 2000810:	33 8c 00 22 	sb (sp+34),r12
+ 2000814:	f8 00 03 7d 	calli 2001608 <EE_hal_i2c_write_buffer_polling>
+   	
+   	ret = EE_rtc_write_buffer(RTC_CSR_ADD, tx_data, 7);
+   	if(ret == EE_I2C_OK)
+ 2000818:	44 20 00 09 	be r1,r0,200083c <EE_rtc_write_time+0x108>
+			ret = EE_rtc_write_byte(RTC_CSR_ADD, RTC_ON);		
+		}
+	}
+	
+	return ret;
+}
+ 200081c:	2b 9d 00 04 	lw ra,(sp+4)
+ 2000820:	2b 8b 00 18 	lw r11,(sp+24)
+ 2000824:	2b 8c 00 14 	lw r12,(sp+20)
+ 2000828:	2b 8d 00 10 	lw r13,(sp+16)
+ 200082c:	2b 8e 00 0c 	lw r14,(sp+12)
+ 2000830:	2b 8f 00 08 	lw r15,(sp+8)
+ 2000834:	37 9c 00 20 	addi sp,sp,32
+ 2000838:	c3 a0 00 00 	ret
+ 200083c:	41 e4 00 00 	lbu r4,(r15+0)
+ 2000840:	78 01 80 00 	mvhi r1,0x8000
+ 2000844:	38 21 03 00 	ori r1,r1,0x300
+ 2000848:	34 02 00 a0 	mvi r2,160
+ 200084c:	34 03 00 10 	mvi r3,16
+ 2000850:	f8 00 03 02 	calli 2001458 <EE_hal_i2c_write_byte_polling>
+   	ret = EE_rtc_write_buffer(RTC_CSR_ADD, tx_data, 7);
+   	if(ret == EE_I2C_OK)
+   	{
+		/* Save year in RAM */		
+		ret = EE_rtc_write_byte(RTC_YEAR_ADD, ttw->year);						
+   		if(ret == EE_I2C_OK)
+ 2000854:	5c 20 ff f2 	bne r1,r0,200081c <EE_rtc_write_time+0xe8>
+ 2000858:	b8 20 18 00 	mv r3,r1
+ 200085c:	78 01 80 00 	mvhi r1,0x8000
+ 2000860:	34 02 00 a0 	mvi r2,160
+ 2000864:	b8 60 20 00 	mv r4,r3
+ 2000868:	38 21 03 00 	ori r1,r1,0x300
+ 200086c:	f8 00 02 fb 	calli 2001458 <EE_hal_i2c_write_byte_polling>
+			ret = EE_rtc_write_byte(RTC_CSR_ADD, RTC_ON);		
+		}
+	}
+	
+	return ret;
+}
+ 2000870:	2b 9d 00 04 	lw ra,(sp+4)
+ 2000874:	2b 8b 00 18 	lw r11,(sp+24)
+ 2000878:	2b 8c 00 14 	lw r12,(sp+20)
+ 200087c:	2b 8d 00 10 	lw r13,(sp+16)
+ 2000880:	2b 8e 00 0c 	lw r14,(sp+12)
+ 2000884:	2b 8f 00 08 	lw r15,(sp+8)
+ 2000888:	37 9c 00 20 	addi sp,sp,32
+ 200088c:	c3 a0 00 00 	ret
+
+02000890 <EE_mico32_register_ISR>:
+
+
+#ifndef __STATIC_ISR_TABLE__
+
+void EE_mico32_register_ISR(int level, EE_mico32_ISR_handler fun)
+{
+ 2000890:	b8 20 20 00 	mv r4,r1
+ * Disable interrupts
+ */
+__INLINE__ EE_FREG __ALWAYS_INLINE__ EE_mico32_disableIRQ(void)
+{
+    EE_FREG oldie, newie;
+    asm volatile ("rcsr %0,ie":"=r"(oldie));
+ 2000894:	90 00 28 00 	rcsr r5,IE
+    newie = oldie & (~0x1);
+    asm volatile ("wcsr ie, %0"::"r"(newie));
+ 2000898:	34 01 ff fe 	mvi r1,-2
+ 200089c:	a0 a1 08 00 	and r1,r5,r1
+ 20008a0:	d0 01 00 00 	wcsr IE,r1
+    int mask;
+    EE_FREG intst = EE_mico32_disableIRQ();
+    EE_mico32_ISR_table[level] = fun;
+ 20008a4:	78 03 02 00 	mvhi r3,0x200
+ 20008a8:	3c 81 00 02 	sli r1,r4,2
+ 20008ac:	38 63 22 0c 	ori r3,r3,0x220c
+ 20008b0:	b4 61 18 00 	add r3,r3,r1
+ 20008b4:	58 62 00 00 	sw (r3+0),r2
+
+
+__INLINE__ int __ALWAYS_INLINE__ mico32_get_reg_im(void)
+{
+    int im;
+    asm volatile ( "rcsr %0,im":"=r"(im) );
+ 20008b8:	90 20 18 00 	rcsr r3,IM
+    mask = mico32_get_reg_im();
+    if (fun)
+        mask |= 1 << level;
+ 20008bc:	34 01 00 01 	mvi r1,1
+ 20008c0:	bc 24 08 00 	sl r1,r1,r4
+ 20008c4:	b8 61 08 00 	or r1,r3,r1
+{
+    int mask;
+    EE_FREG intst = EE_mico32_disableIRQ();
+    EE_mico32_ISR_table[level] = fun;
+    mask = mico32_get_reg_im();
+    if (fun)
+ 20008c8:	44 40 00 08 	be r2,r0,20008e8 <EE_mico32_register_ISR+0x58>
+}
+
+
+__INLINE__ void __ALWAYS_INLINE__ mico32_set_reg_im(int im)
+{
+    asm volatile ( "wcsr im,%0"::"r"(im) );
+ 20008cc:	d0 21 00 00 	wcsr IM,r1
+        mask |= 1 << level;
+    else
+        mask &= ~(1 << level);
+    mico32_set_reg_im(mask);
+    if (EE_mico32_are_IRQs_enabled(intst))
+ 20008d0:	20 a1 00 01 	andi r1,r5,0x1
+ 20008d4:	44 20 00 04 	be r1,r0,20008e4 <EE_mico32_register_ISR+0x54>
+ * Enable interrupts
+ */
+__INLINE__ void __ALWAYS_INLINE__ EE_mico32_enableIRQ(void)
+{
+    EE_FREG oldie, newie;
+    asm volatile ("rcsr %0,ie":"=r"(oldie));
+ 20008d8:	90 00 08 00 	rcsr r1,IE
+    newie = oldie | (0x1);
+    asm volatile ("wcsr ie, %0"::"r"(newie));
+ 20008dc:	38 21 00 01 	ori r1,r1,0x1
+ 20008e0:	d0 01 00 00 	wcsr IE,r1
+ 20008e4:	c3 a0 00 00 	ret
+    EE_mico32_ISR_table[level] = fun;
+    mask = mico32_get_reg_im();
+    if (fun)
+        mask |= 1 << level;
+    else
+        mask &= ~(1 << level);
+ 20008e8:	34 01 00 01 	mvi r1,1
+ 20008ec:	bc 24 08 00 	sl r1,r1,r4
+ 20008f0:	a4 20 08 00 	not r1,r1
+ 20008f4:	a0 61 08 00 	and r1,r3,r1
+ 20008f8:	e3 ff ff f5 	bi 20008cc <EE_mico32_register_ISR+0x3c>
+
+020008fc <MicoISRHandler>:
+
+
+/* Possible improvement: Enable higher-level interrupts while processing lower
+ * level interrupts, even in this function */
+void MicoISRHandler(void)
+{
+ 20008fc:	37 9c ff f0 	addi sp,sp,-16
+ 2000900:	5b 8b 00 10 	sw (sp+16),r11
+ 2000904:	5b 8c 00 0c 	sw (sp+12),r12
+ 2000908:	5b 8d 00 08 	sw (sp+8),r13
+ 200090c:	5b 9d 00 04 	sw (sp+4),ra
+    EE_increment_IRQ_nesting_level();
+ 2000910:	78 0d 02 00 	mvhi r13,0x200
+ 2000914:	39 ad 22 94 	ori r13,r13,0x2294
+ 2000918:	34 01 00 01 	mvi r1,1
+ 200091c:	59 a1 00 00 	sw (r13+0),r1
+
+
+__INLINE__ int __ALWAYS_INLINE__ mico32_get_reg_ip(void)
+{
+    int ip;
+    asm volatile ( "rcsr %0,ip":"=r"(ip) );
+ 2000920:	90 40 10 00 	rcsr r2,IP
+
+
+__INLINE__ int __ALWAYS_INLINE__ mico32_get_reg_im(void)
+{
+    int im;
+    asm volatile ( "rcsr %0,im":"=r"(im) );
+ 2000924:	90 20 08 00 	rcsr r1,IM
+    int im, ip;
+
+    for (;;) {
+        ip = mico32_get_reg_ip();
+        im = mico32_get_reg_im();
+        ip &= im;
+ 2000928:	a0 41 10 00 	and r2,r2,r1
+        if (ip == 0)
+ 200092c:	44 40 00 15 	be r2,r0,2000980 <MicoISRHandler+0x84>
+ 2000930:	78 0c 02 00 	mvhi r12,0x200
+ 2000934:	39 8c 22 0c 	ori r12,r12,0x220c
+ 2000938:	20 43 00 01 	andi r3,r2,0x1
+ 200093c:	34 0b 00 01 	mvi r11,1
+            break;
+        for (mask = 1, level = 0; ; ++level, mask <<= 1) {
+            if (ip & mask) {
+ 2000940:	5c 60 00 29 	bne r3,r0,20009e4 <MicoISRHandler+0xe8>
+        ip = mico32_get_reg_ip();
+        im = mico32_get_reg_im();
+        ip &= im;
+        if (ip == 0)
+            break;
+        for (mask = 1, level = 0; ; ++level, mask <<= 1) {
+ 2000944:	b5 6b 58 00 	add r11,r11,r11
+            if (ip & mask) {
+ 2000948:	a1 62 08 00 	and r1,r11,r2
+        ip = mico32_get_reg_ip();
+        im = mico32_get_reg_im();
+        ip &= im;
+        if (ip == 0)
+            break;
+        for (mask = 1, level = 0; ; ++level, mask <<= 1) {
+ 200094c:	34 63 00 01 	addi r3,r3,1
+            if (ip & mask) {
+ 2000950:	44 20 ff fd 	be r1,r0,2000944 <MicoISRHandler+0x48>
+                EE_mico32_ISR_handler f = EE_mico32_ISR_table[level];
+ 2000954:	3c 61 00 02 	sli r1,r3,2
+ 2000958:	b5 81 08 00 	add r1,r12,r1
+ 200095c:	28 22 00 00 	lw r2,(r1+0)
+                if (f)
+ 2000960:	44 40 00 03 	be r2,r0,200096c <MicoISRHandler+0x70>
+*/
+#else /* __IRQ_STACK_NEEDED__ is defined */
+__INLINE__ void __ALWAYS_INLINE__ EE_mico32_call_ISR_new_stack(int irq_level, EE_mico32_ISR_handler fun, int nesting_level)
+{
+    EE_std_enableIRQ_nested(); /* Enable IRQ if nesting is allowed */
+    fun(irq_level);
+ 2000964:	b8 60 08 00 	mv r1,r3
+ 2000968:	d8 40 00 00 	call r2
+}
+
+
+__INLINE__ void __ALWAYS_INLINE__ mico32_clear_ip_mask(int mask)
+{
+    asm volatile ( "wcsr ip,%0"::"r"(mask) );
+ 200096c:	d0 4b 00 00 	wcsr IP,r11
+
+
+__INLINE__ int __ALWAYS_INLINE__ mico32_get_reg_ip(void)
+{
+    int ip;
+    asm volatile ( "rcsr %0,ip":"=r"(ip) );
+ 2000970:	90 40 10 00 	rcsr r2,IP
+
+
+__INLINE__ int __ALWAYS_INLINE__ mico32_get_reg_im(void)
+{
+    int im;
+    asm volatile ( "rcsr %0,im":"=r"(im) );
+ 2000974:	90 20 08 00 	rcsr r1,IM
+    int im, ip;
+
+    for (;;) {
+        ip = mico32_get_reg_ip();
+        im = mico32_get_reg_im();
+        ip &= im;
+ 2000978:	a0 22 10 00 	and r2,r1,r2
+        if (ip == 0)
+ 200097c:	5c 40 ff ef 	bne r2,r0,2000938 <MicoISRHandler+0x3c>
+                mico32_clear_ip_mask(mask);
+                break;
+            }
+        }
+    }
+    EE_decrement_IRQ_nesting_level();
+ 2000980:	34 01 00 00 	mvi r1,0
+ 2000984:	59 a1 00 00 	sw (r13+0),r1
+ * the scheduler and launch a new scheduled task (if any), or change the current
+ * stack (if needed); return whenever there is nothing else to do.
+ */
+__INLINE__ void __ALWAYS_INLINE__ EE_std_after_IRQ_schedule(void)
+{
+    EE_IRQ_end_instance();
+ 2000988:	f8 00 01 1c 	calli 2000df8 <EE_IRQ_end_instance>
+    if (EE_std_need_context_change(EE_std_endcycle_next_tid))
+ 200098c:	78 01 02 00 	mvhi r1,0x200
+ 2000990:	38 21 22 98 	ori r1,r1,0x2298
+ 2000994:	28 25 00 00 	lw r5,(r1+0)
+ 2000998:	4c a0 00 0b 	bge r5,r0,20009c4 <MicoISRHandler+0xc8>
+ 200099c:	34 a3 00 01 	addi r3,r5,1
+ 20009a0:	3c 63 00 02 	sli r3,r3,2
+ 20009a4:	78 01 02 00 	mvhi r1,0x200
+ 20009a8:	38 21 1e 00 	ori r1,r1,0x1e00
+ 20009ac:	78 02 02 00 	mvhi r2,0x200
+ 20009b0:	b4 23 08 00 	add r1,r1,r3
+ 20009b4:	38 42 21 f4 	ori r2,r2,0x21f4
+ 20009b8:	28 24 00 00 	lw r4,(r1+0)
+ 20009bc:	28 43 00 00 	lw r3,(r2+0)
+ 20009c0:	44 83 00 03 	be r4,r3,20009cc <MicoISRHandler+0xd0>
+        EE_std_change_context(EE_std_endcycle_next_tid);
+ 20009c4:	b8 a0 08 00 	mv r1,r5
+ 20009c8:	f8 00 00 09 	calli 20009ec <EE_std_change_context>
+        /* Outer nesting level: call the scheduler.  If we have also type-ISR1
+         * interrupts, the scheduler should be called only for type-ISR2
+         * interrupts. */
+        EE_std_after_IRQ_schedule();
+    }
+}
+ 20009cc:	2b 9d 00 04 	lw ra,(sp+4)
+ 20009d0:	2b 8b 00 10 	lw r11,(sp+16)
+ 20009d4:	2b 8c 00 0c 	lw r12,(sp+12)
+ 20009d8:	2b 8d 00 08 	lw r13,(sp+8)
+ 20009dc:	37 9c 00 10 	addi sp,sp,16
+ 20009e0:	c3 a0 00 00 	ret
+        im = mico32_get_reg_im();
+        ip &= im;
+        if (ip == 0)
+            break;
+        for (mask = 1, level = 0; ; ++level, mask <<= 1) {
+            if (ip & mask) {
+ 20009e4:	34 03 00 00 	mvi r3,0
+ 20009e8:	e3 ff ff db 	bi 2000954 <MicoISRHandler+0x58>
+
+020009ec <EE_std_change_context>:
+ 20009ec:	3c 22 00 02 	sli r2,r1,2
+ 20009f0:	78 03 02 00 	mvhi r3,0x200
+ 20009f4:	38 63 1e 00 	ori r3,r3,0x1e00
+ 20009f8:	b4 62 10 00 	add r2,r3,r2
+ 20009fc:	28 42 00 04 	lw r2,(r2+4)
+ 2000a00:	78 03 02 00 	mvhi r3,0x200
+ 2000a04:	38 63 21 f4 	ori r3,r3,0x21f4
+ 2000a08:	28 64 00 00 	lw r4,(r3+0)
+ 2000a0c:	44 44 00 2e 	be r2,r4,2000ac4 <_end_change_stacks>
+ 2000a10:	5b 9d ff bc 	sw (sp+-68),ra
+ 2000a14:	5b 9b ff c0 	sw (sp+-64),fp
+ 2000a18:	5b 9a ff c4 	sw (sp+-60),gp
+ 2000a1c:	5b 99 ff c8 	sw (sp+-56),r25
+ 2000a20:	5b 98 ff cc 	sw (sp+-52),r24
+ 2000a24:	5b 97 ff d0 	sw (sp+-48),r23
+ 2000a28:	5b 96 ff d4 	sw (sp+-44),r22
+ 2000a2c:	5b 95 ff d8 	sw (sp+-40),r21
+ 2000a30:	5b 94 ff dc 	sw (sp+-36),r20
+ 2000a34:	5b 93 ff e0 	sw (sp+-32),r19
+ 2000a38:	5b 92 ff e4 	sw (sp+-28),r18
+ 2000a3c:	5b 91 ff e8 	sw (sp+-24),r17
+ 2000a40:	5b 90 ff ec 	sw (sp+-20),r16
+ 2000a44:	5b 8f ff f0 	sw (sp+-16),r15
+ 2000a48:	5b 8e ff f4 	sw (sp+-12),r14
+ 2000a4c:	5b 8d ff f8 	sw (sp+-8),r13
+ 2000a50:	5b 8c ff fc 	sw (sp+-4),r12
+ 2000a54:	5b 8b 00 00 	sw (sp+0),r11
+ 2000a58:	78 05 02 00 	mvhi r5,0x200
+ 2000a5c:	38 a5 21 88 	ori r5,r5,0x2188
+ 2000a60:	3c 84 00 02 	sli r4,r4,2
+ 2000a64:	b4 a4 20 00 	add r4,r5,r4
+ 2000a68:	58 9c 00 00 	sw (r4+0),sp
+ 2000a6c:	58 62 00 00 	sw (r3+0),r2
+ 2000a70:	3c 42 00 02 	sli r2,r2,2
+ 2000a74:	b4 a2 10 00 	add r2,r5,r2
+ 2000a78:	28 5c 00 00 	lw sp,(r2+0)
+ 2000a7c:	2b 9d ff bc 	lw ra,(sp+-68)
+ 2000a80:	2b 9b ff c0 	lw fp,(sp+-64)
+ 2000a84:	2b 9a ff c4 	lw gp,(sp+-60)
+ 2000a88:	2b 99 ff c8 	lw r25,(sp+-56)
+ 2000a8c:	2b 98 ff cc 	lw r24,(sp+-52)
+ 2000a90:	2b 97 ff d0 	lw r23,(sp+-48)
+ 2000a94:	2b 96 ff d4 	lw r22,(sp+-44)
+ 2000a98:	2b 95 ff d8 	lw r21,(sp+-40)
+ 2000a9c:	2b 94 ff dc 	lw r20,(sp+-36)
+ 2000aa0:	2b 93 ff e0 	lw r19,(sp+-32)
+ 2000aa4:	2b 92 ff e4 	lw r18,(sp+-28)
+ 2000aa8:	2b 91 ff e8 	lw r17,(sp+-24)
+ 2000aac:	2b 90 ff ec 	lw r16,(sp+-20)
+ 2000ab0:	2b 8f ff f0 	lw r15,(sp+-16)
+ 2000ab4:	2b 8e ff f4 	lw r14,(sp+-12)
+ 2000ab8:	2b 8d ff f8 	lw r13,(sp+-8)
+ 2000abc:	2b 8c ff fc 	lw r12,(sp+-4)
+ 2000ac0:	2b 8b 00 00 	lw r11,(sp+0)
+
+02000ac4 <_end_change_stacks>:
+ 2000ac4:	48 01 00 07 	bg r0,r1,2000ae0 <_end_run_thread>
+ 2000ac8:	37 9c ff fc 	addi sp,sp,-4
+ 2000acc:	5b 9d 00 04 	sw (sp+4),ra
+ 2000ad0:	f8 00 03 ea 	calli 2001a78 <EE_std_run_task_code>
+ 2000ad4:	2b 9d 00 04 	lw ra,(sp+4)
+ 2000ad8:	37 9c 00 04 	addi sp,sp,4
+ 2000adc:	e3 ff ff c4 	bi 20009ec <EE_std_change_context>
+
+02000ae0 <_end_run_thread>:
+ 2000ae0:	c3 a0 00 00 	ret
+
+02000ae4 <EE_alarm_insert>:
+ */
+
+#include "ee_internal.h"
+
+void EE_alarm_insert(AlarmType AlarmID, TickType increment)
+{
+ 2000ae4:	37 9c ff fc 	addi sp,sp,-4
+ 2000ae8:	5b 8b 00 04 	sw (sp+4),r11
+ 2000aec:	b8 20 48 00 	mv r9,r1
+  register AlarmType current, previous;
+
+  current = EE_counter_RAM[EE_alarm_ROM[AlarmID].c].first;
+ 2000af0:	3d 23 00 04 	sli r3,r9,4
+ 2000af4:	78 01 02 00 	mvhi r1,0x200
+ 2000af8:	38 21 1d f0 	ori r1,r1,0x1df0
+ 2000afc:	b4 23 08 00 	add r1,r1,r3
+ 2000b00:	28 24 00 00 	lw r4,(r1+0)
+ 2000b04:	78 03 02 00 	mvhi r3,0x200
+ 2000b08:	38 63 1f 18 	ori r3,r3,0x1f18
+ 2000b0c:	3c 84 00 03 	sli r4,r4,3
+
+  if (current == -1) {
+ 2000b10:	34 0a ff ff 	mvi r10,-1
+
+void EE_alarm_insert(AlarmType AlarmID, TickType increment)
+{
+  register AlarmType current, previous;
+
+  current = EE_counter_RAM[EE_alarm_ROM[AlarmID].c].first;
+ 2000b14:	b4 64 18 00 	add r3,r3,r4
+ 2000b18:	28 65 00 04 	lw r5,(r3+4)
+
+  if (current == -1) {
+ 2000b1c:	44 aa 00 2b 	be r5,r10,2000bc8 <EE_alarm_insert+0xe4>
+    /* the alarm becomes the first into the delta queue */
+    EE_counter_RAM[EE_alarm_ROM[AlarmID].c].first = AlarmID;
+  } else if (EE_alarm_RAM[current].delta > increment) {
+ 2000b20:	b4 a5 08 00 	add r1,r5,r5
+ 2000b24:	b4 25 08 00 	add r1,r1,r5
+ 2000b28:	3c 26 00 02 	sli r6,r1,2
+ 2000b2c:	78 07 02 00 	mvhi r7,0x200
+ 2000b30:	38 e7 21 fc 	ori r7,r7,0x21fc
+ 2000b34:	b4 e6 40 00 	add r8,r7,r6
+ 2000b38:	29 04 00 04 	lw r4,(r8+4)
+    /* follow the delta chain until I reach the right place */
+    do {
+      increment -= EE_alarm_RAM[current].delta;
+      previous = current;
+      current = EE_alarm_RAM[current].next;
+    } while(current != -1 && EE_alarm_RAM[current].delta <= increment);
+ 2000b3c:	b9 40 58 00 	mv r11,r10
+
+    /* follow the delta chain until I reach the right place */
+    do {
+      increment -= EE_alarm_RAM[current].delta;
+      previous = current;
+      current = EE_alarm_RAM[current].next;
+ 2000b40:	b8 e0 50 00 	mv r10,r7
+  current = EE_counter_RAM[EE_alarm_ROM[AlarmID].c].first;
+
+  if (current == -1) {
+    /* the alarm becomes the first into the delta queue */
+    EE_counter_RAM[EE_alarm_ROM[AlarmID].c].first = AlarmID;
+  } else if (EE_alarm_RAM[current].delta > increment) {
+ 2000b44:	4c 44 00 0d 	bge r2,r4,2000b78 <EE_alarm_insert+0x94>
+    EE_counter_RAM[EE_alarm_ROM[AlarmID].c].first = AlarmID;
+    EE_alarm_RAM[current].delta -= increment;
+ 2000b48:	c8 82 08 00 	sub r1,r4,r2
+ 2000b4c:	59 01 00 04 	sw (r8+4),r1
+
+  if (current == -1) {
+    /* the alarm becomes the first into the delta queue */
+    EE_counter_RAM[EE_alarm_ROM[AlarmID].c].first = AlarmID;
+  } else if (EE_alarm_RAM[current].delta > increment) {
+    EE_counter_RAM[EE_alarm_ROM[AlarmID].c].first = AlarmID;
+ 2000b50:	58 69 00 04 	sw (r3+4),r9
+    if (current != -1)
+      EE_alarm_RAM[current].delta -= increment;
+    EE_alarm_RAM[previous].next = AlarmID;
+  }
+
+  EE_alarm_RAM[AlarmID].delta = increment;
+ 2000b54:	b5 29 08 00 	add r1,r9,r9
+ 2000b58:	b4 29 08 00 	add r1,r1,r9
+ 2000b5c:	3c 21 00 02 	sli r1,r1,2
+ 2000b60:	b4 e1 08 00 	add r1,r7,r1
+  EE_alarm_RAM[AlarmID].next = current;
+ 2000b64:	58 25 00 08 	sw (r1+8),r5
+    if (current != -1)
+      EE_alarm_RAM[current].delta -= increment;
+    EE_alarm_RAM[previous].next = AlarmID;
+  }
+
+  EE_alarm_RAM[AlarmID].delta = increment;
+ 2000b68:	58 22 00 04 	sw (r1+4),r2
+  EE_alarm_RAM[AlarmID].next = current;
+}
+ 2000b6c:	2b 8b 00 04 	lw r11,(sp+4)
+ 2000b70:	37 9c 00 04 	addi sp,sp,4
+ 2000b74:	c3 a0 00 00 	ret
+
+    /* follow the delta chain until I reach the right place */
+    do {
+      increment -= EE_alarm_RAM[current].delta;
+      previous = current;
+      current = EE_alarm_RAM[current].next;
+ 2000b78:	b4 e6 08 00 	add r1,r7,r6
+  if (current == -1) {
+    /* the alarm becomes the first into the delta queue */
+    EE_counter_RAM[EE_alarm_ROM[AlarmID].c].first = AlarmID;
+  } else if (EE_alarm_RAM[current].delta > increment) {
+    EE_counter_RAM[EE_alarm_ROM[AlarmID].c].first = AlarmID;
+    EE_alarm_RAM[current].delta -= increment;
+ 2000b7c:	b8 a0 40 00 	mv r8,r5
+
+    /* follow the delta chain until I reach the right place */
+    do {
+      increment -= EE_alarm_RAM[current].delta;
+      previous = current;
+      current = EE_alarm_RAM[current].next;
+ 2000b80:	28 25 00 08 	lw r5,(r1+8)
+  else {
+    /* the alarm is not the first into the delta queue */
+
+    /* follow the delta chain until I reach the right place */
+    do {
+      increment -= EE_alarm_RAM[current].delta;
+ 2000b84:	c8 44 10 00 	sub r2,r2,r4
+      previous = current;
+      current = EE_alarm_RAM[current].next;
+    } while(current != -1 && EE_alarm_RAM[current].delta <= increment);
+ 2000b88:	b4 a5 08 00 	add r1,r5,r5
+ 2000b8c:	b4 25 08 00 	add r1,r1,r5
+ 2000b90:	3c 26 00 02 	sli r6,r1,2
+ 2000b94:	44 ab 00 07 	be r5,r11,2000bb0 <EE_alarm_insert+0xcc>
+ 2000b98:	b5 46 08 00 	add r1,r10,r6
+ 2000b9c:	28 24 00 04 	lw r4,(r1+4)
+ 2000ba0:	34 23 00 04 	addi r3,r1,4
+ 2000ba4:	4c 44 ff f5 	bge r2,r4,2000b78 <EE_alarm_insert+0x94>
+
+    /* insert the alarm between previous and current */
+    if (current != -1)
+      EE_alarm_RAM[current].delta -= increment;
+ 2000ba8:	c8 82 08 00 	sub r1,r4,r2
+ 2000bac:	58 61 00 00 	sw (r3+0),r1
+    EE_alarm_RAM[previous].next = AlarmID;
+ 2000bb0:	b5 08 08 00 	add r1,r8,r8
+ 2000bb4:	b4 28 08 00 	add r1,r1,r8
+ 2000bb8:	3c 21 00 02 	sli r1,r1,2
+ 2000bbc:	b4 e1 08 00 	add r1,r7,r1
+ 2000bc0:	58 29 00 08 	sw (r1+8),r9
+ 2000bc4:	e3 ff ff e4 	bi 2000b54 <EE_alarm_insert+0x70>
+ 2000bc8:	78 07 02 00 	mvhi r7,0x200
+
+  current = EE_counter_RAM[EE_alarm_ROM[AlarmID].c].first;
+
+  if (current == -1) {
+    /* the alarm becomes the first into the delta queue */
+    EE_counter_RAM[EE_alarm_ROM[AlarmID].c].first = AlarmID;
+ 2000bcc:	58 69 00 04 	sw (r3+4),r9
+ 2000bd0:	38 e7 21 fc 	ori r7,r7,0x21fc
+ 2000bd4:	e3 ff ff e0 	bi 2000b54 <EE_alarm_insert+0x70>
+
+02000bd8 <EE_alarm_CounterTick>:
+  EE_alarm_RAM[AlarmID].next = current;
+}
+
+#ifndef __PRIVATE_COUNTER_TICK__
+void EE_alarm_CounterTick(EE_TYPECOUNTER c)
+{
+ 2000bd8:	37 9c ff cc 	addi sp,sp,-52
+ 2000bdc:	5b 8b 00 34 	sw (sp+52),r11
+ 2000be0:	5b 8c 00 30 	sw (sp+48),r12
+ 2000be4:	5b 8d 00 2c 	sw (sp+44),r13
+ 2000be8:	5b 8e 00 28 	sw (sp+40),r14
+ 2000bec:	5b 8f 00 24 	sw (sp+36),r15
+ 2000bf0:	5b 90 00 20 	sw (sp+32),r16
+ 2000bf4:	5b 91 00 1c 	sw (sp+28),r17
+ 2000bf8:	5b 92 00 18 	sw (sp+24),r18
+ 2000bfc:	5b 93 00 14 	sw (sp+20),r19
+ 2000c00:	5b 94 00 10 	sw (sp+16),r20
+ 2000c04:	5b 95 00 0c 	sw (sp+12),r21
+ 2000c08:	5b 96 00 08 	sw (sp+8),r22
+ 2000c0c:	5b 9d 00 04 	sw (sp+4),ra
+ * Disable interrupts
+ */
+__INLINE__ EE_FREG __ALWAYS_INLINE__ EE_mico32_disableIRQ(void)
+{
+    EE_FREG oldie, newie;
+    asm volatile ("rcsr %0,ie":"=r"(oldie));
+ 2000c10:	90 00 b0 00 	rcsr r22,IE
+    newie = oldie & (~0x1);
+    asm volatile ("wcsr ie, %0"::"r"(newie));
+ 2000c14:	34 02 ff fe 	mvi r2,-2
+ 2000c18:	a2 c2 10 00 	and r2,r22,r2
+ 2000c1c:	d0 02 00 00 	wcsr IE,r2
+  register EE_FREG flag;
+  
+  flag = EE_hal_begin_nested_primitive();
+
+  /* increment the counter value */
+  EE_counter_RAM[c].value++;
+ 2000c20:	78 02 02 00 	mvhi r2,0x200
+ 2000c24:	3c 21 00 03 	sli r1,r1,3
+ 2000c28:	38 42 1f 18 	ori r2,r2,0x1f18
+ 2000c2c:	b4 41 10 00 	add r2,r2,r1
+ 2000c30:	28 41 00 00 	lw r1,(r2+0)
+
+  /* if there are queued alarms */
+  if (EE_counter_RAM[c].first != -1) {
+ 2000c34:	28 4b 00 04 	lw r11,(r2+4)
+ 2000c38:	34 05 ff ff 	mvi r5,-1
+  register EE_FREG flag;
+  
+  flag = EE_hal_begin_nested_primitive();
+
+  /* increment the counter value */
+  EE_counter_RAM[c].value++;
+ 2000c3c:	34 21 00 01 	addi r1,r1,1
+ 2000c40:	58 41 00 00 	sw (r2+0),r1
+
+  /* if there are queued alarms */
+  if (EE_counter_RAM[c].first != -1) {
+ 2000c44:	34 43 00 04 	addi r3,r2,4
+ 2000c48:	45 65 00 2e 	be r11,r5,2000d00 <EE_alarm_CounterTick+0x128>
+    /* decrement first queued alarm delta */
+    EE_alarm_RAM[EE_counter_RAM[c].first].delta--;
+ 2000c4c:	b5 6b 20 00 	add r4,r11,r11
+ 2000c50:	b4 8b 08 00 	add r1,r4,r11
+ 2000c54:	3c 2d 00 02 	sli r13,r1,2
+ 2000c58:	78 0f 02 00 	mvhi r15,0x200
+ 2000c5c:	39 ef 21 fc 	ori r15,r15,0x21fc
+ 2000c60:	b5 ed 10 00 	add r2,r15,r13
+ 2000c64:	28 41 00 04 	lw r1,(r2+4)
+
+    /* execute all the alarms with counter 0 */
+    current = EE_counter_RAM[c].first;
+    while (!EE_alarm_RAM[current].delta) {
+      /* execute it */
+      switch (EE_alarm_ROM[current].action) {
+ 2000c68:	78 10 02 00 	mvhi r16,0x200
+		EE_th[t].status = EE_TASK_READY;
+	      } 
+	      EE_th[t].nact++;
+	    }
+#else
+	    if (EE_th_nact[t] == 0) {
+ 2000c6c:	78 12 02 00 	mvhi r18,0x200
+  EE_counter_RAM[c].value++;
+
+  /* if there are queued alarms */
+  if (EE_counter_RAM[c].first != -1) {
+    /* decrement first queued alarm delta */
+    EE_alarm_RAM[EE_counter_RAM[c].first].delta--;
+ 2000c70:	b4 25 08 00 	add r1,r1,r5
+#ifdef __EDF__
+	      // compute the deadline 
+	      EE_th_absdline[t] = EE_hal_gettime()+EE_th_reldline[t];
+#endif
+#if defined(__MULTI__) || defined(__WITH_STATUS__)
+	      EE_th_status[t] = EE_READY;
+ 2000c74:	78 13 02 00 	mvhi r19,0x200
+  EE_counter_RAM[c].value++;
+
+  /* if there are queued alarms */
+  if (EE_counter_RAM[c].first != -1) {
+    /* decrement first queued alarm delta */
+    EE_alarm_RAM[EE_counter_RAM[c].first].delta--;
+ 2000c78:	58 41 00 04 	sw (r2+4),r1
+
+    /* execute all the alarms with counter 0 */
+    current = EE_counter_RAM[c].first;
+    while (!EE_alarm_RAM[current].delta) {
+      /* execute it */
+      switch (EE_alarm_ROM[current].action) {
+ 2000c7c:	3a 10 1d f0 	ori r16,r16,0x1df0
+		EE_th[t].status = EE_TASK_READY;
+	      } 
+	      EE_th[t].nact++;
+	    }
+#else
+	    if (EE_th_nact[t] == 0) {
+ 2000c80:	3a 52 22 08 	ori r18,r18,0x2208
+#ifdef __EDF__
+	      // compute the deadline 
+	      EE_th_absdline[t] = EE_hal_gettime()+EE_th_reldline[t];
+#endif
+#if defined(__MULTI__) || defined(__WITH_STATUS__)
+	      EE_th_status[t] = EE_READY;
+ 2000c84:	3a 73 1f 08 	ori r19,r19,0x1f08
+	((void (*)(void))EE_alarm_ROM[current].f)();
+	break;
+      };
+      
+      /* remove the current entry */
+      EE_counter_RAM[c].first = EE_alarm_RAM[current].next;
+ 2000c88:	b8 60 88 00 	mv r17,r3
+	   note: this can modify EE_counter_RAM[c].first!!! see (*)
+	*/
+	EE_alarm_insert(current,EE_alarm_RAM[current].cycle);
+      }
+      /* (*) here we need EE_counter_RAM[c].first again... */
+      if ((current = EE_counter_RAM[c].first) == -1) break;
+ 2000c8c:	b8 a0 a0 00 	mv r20,r5
+#ifdef __EDF__
+	      // compute the deadline 
+	      EE_th_absdline[t] = EE_hal_gettime()+EE_th_reldline[t];
+#endif
+#if defined(__MULTI__) || defined(__WITH_STATUS__)
+	      EE_th_status[t] = EE_READY;
+ 2000c90:	34 15 00 01 	mvi r21,1
+ 2000c94:	e0 00 00 05 	bi 2000ca8 <EE_alarm_CounterTick+0xd0>
+	   note: this can modify EE_counter_RAM[c].first!!! see (*)
+	*/
+	EE_alarm_insert(current,EE_alarm_RAM[current].cycle);
+      }
+      /* (*) here we need EE_counter_RAM[c].first again... */
+      if ((current = EE_counter_RAM[c].first) == -1) break;
+ 2000c98:	2a 2b 00 00 	lw r11,(r17+0)
+ 2000c9c:	45 74 00 19 	be r11,r20,2000d00 <EE_alarm_CounterTick+0x128>
+ 2000ca0:	09 6d 00 0c 	muli r13,r11,12
+ 2000ca4:	3d 64 00 01 	sli r4,r11,1
+    /* decrement first queued alarm delta */
+    EE_alarm_RAM[EE_counter_RAM[c].first].delta--;
+
+    /* execute all the alarms with counter 0 */
+    current = EE_counter_RAM[c].first;
+    while (!EE_alarm_RAM[current].delta) {
+ 2000ca8:	b5 ed 08 00 	add r1,r15,r13
+ 2000cac:	28 23 00 04 	lw r3,(r1+4)
+ 2000cb0:	5c 60 00 14 	bne r3,r0,2000d00 <EE_alarm_CounterTick+0x128>
+      /* execute it */
+      switch (EE_alarm_ROM[current].action) {
+ 2000cb4:	3d 61 00 04 	sli r1,r11,4
+ 2000cb8:	b6 01 08 00 	add r1,r16,r1
+ 2000cbc:	40 22 00 04 	lbu r2,(r1+4)
+ 2000cc0:	44 43 00 24 	be r2,r3,2000d50 <EE_alarm_CounterTick+0x178>
+ 2000cc4:	5c 55 00 06 	bne r2,r21,2000cdc <EE_alarm_CounterTick+0x104>
+#endif
+	  
+  	break;
+
+      case EE_ALARM_ACTION_CALLBACK:
+	((void (*)(void))EE_alarm_ROM[current].f)();
+ 2000cc8:	34 81 00 01 	addi r1,r4,1
+ 2000ccc:	3c 21 00 03 	sli r1,r1,3
+ 2000cd0:	b6 01 08 00 	add r1,r16,r1
+ 2000cd4:	28 22 00 04 	lw r2,(r1+4)
+ 2000cd8:	d8 40 00 00 	call r2
+	break;
+      };
+      
+      /* remove the current entry */
+      EE_counter_RAM[c].first = EE_alarm_RAM[current].next;
+ 2000cdc:	b5 ed 08 00 	add r1,r15,r13
+
+      /* the alarm is cyclic? */
+      if (EE_alarm_RAM[current].cycle) {
+ 2000ce0:	28 22 00 00 	lw r2,(r1+0)
+	((void (*)(void))EE_alarm_ROM[current].f)();
+	break;
+      };
+      
+      /* remove the current entry */
+      EE_counter_RAM[c].first = EE_alarm_RAM[current].next;
+ 2000ce4:	28 21 00 08 	lw r1,(r1+8)
+ 2000ce8:	5a 21 00 00 	sw (r17+0),r1
+
+      /* the alarm is cyclic? */
+      if (EE_alarm_RAM[current].cycle) {
+ 2000cec:	44 40 ff eb 	be r2,r0,2000c98 <EE_alarm_CounterTick+0xc0>
+	/* enqueue it again 
+	   note: this can modify EE_counter_RAM[c].first!!! see (*)
+	*/
+	EE_alarm_insert(current,EE_alarm_RAM[current].cycle);
+ 2000cf0:	b9 60 08 00 	mv r1,r11
+ 2000cf4:	fb ff ff 7c 	calli 2000ae4 <EE_alarm_insert>
+      }
+      /* (*) here we need EE_counter_RAM[c].first again... */
+      if ((current = EE_counter_RAM[c].first) == -1) break;
+ 2000cf8:	2a 2b 00 00 	lw r11,(r17+0)
+ 2000cfc:	5d 74 ff e9 	bne r11,r20,2000ca0 <EE_alarm_CounterTick+0xc8>
+
+/* Called as _last_ function of a primitive that can be called in
+   an IRQ and in a task.  Enable IRQs if they were enabled before entering. */
+__INLINE__ void __ALWAYS_INLINE__ EE_hal_end_nested_primitive(EE_FREG f)
+{
+    if (EE_mico32_are_IRQs_enabled(f))
+ 2000d00:	22 c1 00 01 	andi r1,r22,0x1
+ 2000d04:	44 20 00 04 	be r1,r0,2000d14 <EE_alarm_CounterTick+0x13c>
+ * Enable interrupts
+ */
+__INLINE__ void __ALWAYS_INLINE__ EE_mico32_enableIRQ(void)
+{
+    EE_FREG oldie, newie;
+    asm volatile ("rcsr %0,ie":"=r"(oldie));
+ 2000d08:	90 00 08 00 	rcsr r1,IE
+    newie = oldie | (0x1);
+    asm volatile ("wcsr ie, %0"::"r"(newie));
+ 2000d0c:	38 21 00 01 	ori r1,r1,0x1
+ 2000d10:	d0 01 00 00 	wcsr IE,r1
+    }
+  }    
+
+  EE_hal_end_nested_primitive(flag);
+}
+ 2000d14:	2b 9d 00 04 	lw ra,(sp+4)
+ 2000d18:	2b 8b 00 34 	lw r11,(sp+52)
+ 2000d1c:	2b 8c 00 30 	lw r12,(sp+48)
+ 2000d20:	2b 8d 00 2c 	lw r13,(sp+44)
+ 2000d24:	2b 8e 00 28 	lw r14,(sp+40)
+ 2000d28:	2b 8f 00 24 	lw r15,(sp+36)
+ 2000d2c:	2b 90 00 20 	lw r16,(sp+32)
+ 2000d30:	2b 91 00 1c 	lw r17,(sp+28)
+ 2000d34:	2b 92 00 18 	lw r18,(sp+24)
+ 2000d38:	2b 93 00 14 	lw r19,(sp+20)
+ 2000d3c:	2b 94 00 10 	lw r20,(sp+16)
+ 2000d40:	2b 95 00 0c 	lw r21,(sp+12)
+ 2000d44:	2b 96 00 08 	lw r22,(sp+8)
+ 2000d48:	37 9c 00 34 	addi sp,sp,52
+ 2000d4c:	c3 a0 00 00 	ret
+
+      case  EE_ALARM_ACTION_TASK:
+	/* activate the task; NOTE: no preemption at all... 
+	   This code was directly copied from ActivateTask */
+
+	t = EE_alarm_ROM[current].TaskID;
+ 2000d50:	34 81 00 01 	addi r1,r4,1
+ 2000d54:	3c 21 00 03 	sli r1,r1,3
+ 2000d58:	b6 01 08 00 	add r1,r16,r1
+ 2000d5c:	28 23 00 00 	lw r3,(r1+0)
+		EE_th[t].status = EE_TASK_READY;
+	      } 
+	      EE_th[t].nact++;
+	    }
+#else
+	    if (EE_th_nact[t] == 0) {
+ 2000d60:	3c 6c 00 02 	sli r12,r3,2
+ 2000d64:	b6 4c 70 00 	add r14,r18,r12
+ 2000d68:	29 c1 00 00 	lw r1,(r14+0)
+ 2000d6c:	44 22 00 05 	be r1,r2,2000d80 <EE_alarm_CounterTick+0x1a8>
+#if defined(__MULTI__) || defined(__WITH_STATUS__)
+	      EE_th_status[t] = EE_READY;
+#endif
+	      EE_rq_insert(t);
+	    }
+	    EE_th_nact[t]++;
+ 2000d70:	b6 4c 10 00 	add r2,r18,r12
+ 2000d74:	34 21 00 01 	addi r1,r1,1
+ 2000d78:	58 41 00 00 	sw (r2+0),r1
+ 2000d7c:	e3 ff ff d8 	bi 2000cdc <EE_alarm_CounterTick+0x104>
+#ifdef __EDF__
+	      // compute the deadline 
+	      EE_th_absdline[t] = EE_hal_gettime()+EE_th_reldline[t];
+#endif
+#if defined(__MULTI__) || defined(__WITH_STATUS__)
+	      EE_th_status[t] = EE_READY;
+ 2000d80:	b6 6c 10 00 	add r2,r19,r12
+#endif
+	      EE_rq_insert(t);
+ 2000d84:	b8 60 08 00 	mv r1,r3
+#ifdef __EDF__
+	      // compute the deadline 
+	      EE_th_absdline[t] = EE_hal_gettime()+EE_th_reldline[t];
+#endif
+#if defined(__MULTI__) || defined(__WITH_STATUS__)
+	      EE_th_status[t] = EE_READY;
+ 2000d88:	58 55 00 00 	sw (r2+0),r21
+#endif
+	      EE_rq_insert(t);
+ 2000d8c:	f8 00 00 65 	calli 2000f20 <EE_rq_insert>
+ 2000d90:	29 c1 00 00 	lw r1,(r14+0)
+ 2000d94:	e3 ff ff f7 	bi 2000d70 <EE_alarm_CounterTick+0x198>
+
+02000d98 <EE_alarm_SetRelAlarm>:
+
+#ifndef __PRIVATE_ALARM_SETREL__
+void EE_alarm_SetRelAlarm(AlarmType AlarmID, 
+			  TickType increment, 
+			  TickType cycle)
+{
+ 2000d98:	37 9c ff f8 	addi sp,sp,-8
+ 2000d9c:	5b 8b 00 08 	sw (sp+8),r11
+ 2000da0:	5b 9d 00 04 	sw (sp+4),ra
+ * Disable interrupts
+ */
+__INLINE__ EE_FREG __ALWAYS_INLINE__ EE_mico32_disableIRQ(void)
+{
+    EE_FREG oldie, newie;
+    asm volatile ("rcsr %0,ie":"=r"(oldie));
+ 2000da4:	90 00 58 00 	rcsr r11,IE
+    newie = oldie & (~0x1);
+    asm volatile ("wcsr ie, %0"::"r"(newie));
+ 2000da8:	34 04 ff fe 	mvi r4,-2
+ 2000dac:	a1 64 20 00 	and r4,r11,r4
+ 2000db0:	d0 04 00 00 	wcsr IE,r4
+  register EE_FREG flag;
+  
+  flag = EE_hal_begin_nested_primitive();
+
+  EE_alarm_RAM[AlarmID].cycle = cycle;
+ 2000db4:	b4 21 28 00 	add r5,r1,r1
+ 2000db8:	b4 a1 28 00 	add r5,r5,r1
+ 2000dbc:	3c a5 00 02 	sli r5,r5,2
+ 2000dc0:	78 04 02 00 	mvhi r4,0x200
+ 2000dc4:	38 84 21 fc 	ori r4,r4,0x21fc
+ 2000dc8:	b4 85 20 00 	add r4,r4,r5
+ 2000dcc:	58 83 00 00 	sw (r4+0),r3
+ 2000dd0:	21 6b 00 01 	andi r11,r11,0x1
+
+  /* then, insert the task into the delta queue with a value = interval */
+  EE_alarm_insert(AlarmID,increment);
+ 2000dd4:	fb ff ff 44 	calli 2000ae4 <EE_alarm_insert>
+ 2000dd8:	45 60 00 04 	be r11,r0,2000de8 <EE_alarm_SetRelAlarm+0x50>
+ * Enable interrupts
+ */
+__INLINE__ void __ALWAYS_INLINE__ EE_mico32_enableIRQ(void)
+{
+    EE_FREG oldie, newie;
+    asm volatile ("rcsr %0,ie":"=r"(oldie));
+ 2000ddc:	90 00 08 00 	rcsr r1,IE
+    newie = oldie | (0x1);
+    asm volatile ("wcsr ie, %0"::"r"(newie));
+ 2000de0:	38 21 00 01 	ori r1,r1,0x1
+ 2000de4:	d0 01 00 00 	wcsr IE,r1
+
+  EE_hal_end_nested_primitive(flag);
+}
+ 2000de8:	2b 9d 00 04 	lw ra,(sp+4)
+ 2000dec:	2b 8b 00 08 	lw r11,(sp+8)
+ 2000df0:	37 9c 00 08 	addi sp,sp,8
+ 2000df4:	c3 a0 00 00 	ret
+
+02000df8 <EE_IRQ_end_instance>:
+   If the HAL allow IRQ nesting the C_end_instance should work as follows:
+   - it must implement the preemption test only if it is the last IRQ on the stack
+   - if there are other interrupts on the stack the IRQ end_instance should do nothing
+*/
+void EE_IRQ_end_instance(void)
+{
+ 2000df8:	37 9c ff fc 	addi sp,sp,-4
+ 2000dfc:	5b 9d 00 04 	sw (sp+4),ra
+
+/* return the first ready task without extracting it */
+#ifndef __PRIVATE_RQ_QUERYFIRST__
+__INLINE__ EE_TID __ALWAYS_INLINE__ EE_rq_queryfirst(void)
+{
+    return EE_rqfirst;  
+ 2000e00:	78 01 02 00 	mvhi r1,0x200
+ 2000e04:	38 21 1f 14 	ori r1,r1,0x1f14
+ 2000e08:	28 21 00 00 	lw r1,(r1+0)
+    register EE_TID t;
+
+    t = EE_rq_queryfirst();
+    if (t != EE_NIL && EE_sys_ceiling < EE_th_ready_prio[t]) {
+ 2000e0c:	34 02 ff ff 	mvi r2,-1
+ 2000e10:	44 22 00 22 	be r1,r2,2000e98 <EE_IRQ_end_instance+0xa0>
+ 2000e14:	3c 24 00 02 	sli r4,r1,2
+ 2000e18:	78 01 02 00 	mvhi r1,0x200
+ 2000e1c:	38 21 1d e8 	ori r1,r1,0x1de8
+ 2000e20:	78 05 02 00 	mvhi r5,0x200
+ 2000e24:	38 a5 21 f0 	ori r5,r5,0x21f0
+ 2000e28:	b4 24 08 00 	add r1,r1,r4
+ 2000e2c:	28 22 00 00 	lw r2,(r1+0)
+ 2000e30:	28 a6 00 00 	lw r6,(r5+0)
+ 2000e34:	50 c2 00 19 	bgeu r6,r2,2000e98 <EE_IRQ_end_instance+0xa0>
+      register int flag;
+
+      flag = EE_th_status[t] & EE_WASSTACKED;
+#endif
+
+      EE_sys_ceiling |= EE_th_dispatch_prio[t];
+ 2000e38:	78 02 02 00 	mvhi r2,0x200
+ 2000e3c:	38 42 1d ec 	ori r2,r2,0x1dec
+    t = EE_rq_queryfirst();
+    if (t != EE_NIL && EE_sys_ceiling < EE_th_ready_prio[t]) {
+#if defined(__MULTI__)
+      register int flag;
+
+      flag = EE_th_status[t] & EE_WASSTACKED;
+ 2000e40:	78 03 02 00 	mvhi r3,0x200
+#endif
+
+      EE_sys_ceiling |= EE_th_dispatch_prio[t];
+ 2000e44:	b4 44 10 00 	add r2,r2,r4
+    t = EE_rq_queryfirst();
+    if (t != EE_NIL && EE_sys_ceiling < EE_th_ready_prio[t]) {
+#if defined(__MULTI__)
+      register int flag;
+
+      flag = EE_th_status[t] & EE_WASSTACKED;
+ 2000e48:	38 63 1f 08 	ori r3,r3,0x1f08
+ 2000e4c:	b4 64 18 00 	add r3,r3,r4
+#endif
+
+      EE_sys_ceiling |= EE_th_dispatch_prio[t];
+ 2000e50:	28 41 00 00 	lw r1,(r2+0)
+    t = EE_rq_queryfirst();
+    if (t != EE_NIL && EE_sys_ceiling < EE_th_ready_prio[t]) {
+#if defined(__MULTI__)
+      register int flag;
+
+      flag = EE_th_status[t] & EE_WASSTACKED;
+ 2000e54:	28 64 00 00 	lw r4,(r3+0)
+#endif
+
+      EE_sys_ceiling |= EE_th_dispatch_prio[t];
+
+#if defined(__MULTI__) || defined(__WITH_STATUS__)
+      EE_th_status[t] = EE_STACKED;
+ 2000e58:	34 02 00 02 	mvi r2,2
+      register int flag;
+
+      flag = EE_th_status[t] & EE_WASSTACKED;
+#endif
+
+      EE_sys_ceiling |= EE_th_dispatch_prio[t];
+ 2000e5c:	b8 26 08 00 	or r1,r1,r6
+ 2000e60:	58 a1 00 00 	sw (r5+0),r1
+
+#if defined(__MULTI__) || defined(__WITH_STATUS__)
+      EE_th_status[t] = EE_STACKED;
+ 2000e64:	58 62 00 00 	sw (r3+0),r2
+    t = EE_rq_queryfirst();
+    if (t != EE_NIL && EE_sys_ceiling < EE_th_ready_prio[t]) {
+#if defined(__MULTI__)
+      register int flag;
+
+      flag = EE_th_status[t] & EE_WASSTACKED;
+ 2000e68:	20 84 00 08 	andi r4,r4,0x8
+#if defined(__MULTI__) || defined(__WITH_STATUS__)
+      EE_th_status[t] = EE_STACKED;
+#endif
+
+#if defined(__MULTI__)
+      if (flag)
+ 2000e6c:	44 80 00 17 	be r4,r0,2000ec8 <EE_IRQ_end_instance+0xd0>
+	EE_hal_IRQ_stacked(EE_rq2stk_exchange());
+ 2000e70:	f8 00 00 1d 	calli 2000ee4 <EE_rq2stk_exchange>
+}
+
+
+__INLINE__ void __ALWAYS_INLINE__ EE_hal_endcycle_stacked(EE_TID tid)
+{
+    EE_std_endcycle_next_tid = EE_std_mark_tid_stacked(tid);
+ 2000e74:	78 02 80 00 	mvhi r2,0x8000
+ 2000e78:	38 42 00 00 	ori r2,r2,0x0
+ 2000e7c:	78 03 02 00 	mvhi r3,0x200
+ 2000e80:	b8 22 08 00 	or r1,r1,r2
+ 2000e84:	38 63 22 98 	ori r3,r3,0x2298
+ 2000e88:	58 61 00 00 	sw (r3+0),r1
+      EE_hal_IRQ_ready(EE_rq2stk_exchange());
+#endif
+    } else {
+      EE_hal_IRQ_stacked(EE_stk_queryfirst());
+    }
+}
+ 2000e8c:	2b 9d 00 04 	lw ra,(sp+4)
+ 2000e90:	37 9c 00 04 	addi sp,sp,4
+ 2000e94:	c3 a0 00 00 	ret
+ 2000e98:	78 01 02 00 	mvhi r1,0x200
+ 2000e9c:	38 21 1f 10 	ori r1,r1,0x1f10
+ 2000ea0:	28 23 00 00 	lw r3,(r1+0)
+ 2000ea4:	78 02 80 00 	mvhi r2,0x8000
+ 2000ea8:	38 42 00 00 	ori r2,r2,0x0
+ 2000eac:	78 01 02 00 	mvhi r1,0x200
+ 2000eb0:	b8 62 18 00 	or r3,r3,r2
+ 2000eb4:	38 21 22 98 	ori r1,r1,0x2298
+ 2000eb8:	58 23 00 00 	sw (r1+0),r3
+ 2000ebc:	2b 9d 00 04 	lw ra,(sp+4)
+ 2000ec0:	37 9c 00 04 	addi sp,sp,4
+ 2000ec4:	c3 a0 00 00 	ret
+
+#if defined(__MULTI__)
+      if (flag)
+	EE_hal_IRQ_stacked(EE_rq2stk_exchange());
+      else
+	EE_hal_IRQ_ready(EE_rq2stk_exchange());
+ 2000ec8:	f8 00 00 07 	calli 2000ee4 <EE_rq2stk_exchange>
+}
+
+
+__INLINE__ void __ALWAYS_INLINE__ EE_hal_endcycle_ready(EE_TID tid)
+{
+    EE_std_endcycle_next_tid = tid;
+ 2000ecc:	78 02 02 00 	mvhi r2,0x200
+ 2000ed0:	38 42 22 98 	ori r2,r2,0x2298
+ 2000ed4:	58 41 00 00 	sw (r2+0),r1
+      EE_hal_IRQ_ready(EE_rq2stk_exchange());
+#endif
+    } else {
+      EE_hal_IRQ_stacked(EE_stk_queryfirst());
+    }
+}
+ 2000ed8:	2b 9d 00 04 	lw ra,(sp+4)
+ 2000edc:	37 9c 00 04 	addi sp,sp,4
+ 2000ee0:	c3 a0 00 00 	ret
+
+02000ee4 <EE_rq2stk_exchange>:
+
+#include "ee_internal.h"
+
+#ifndef __PRIVATE_RQ2STK_EXCHANGE__
+EE_TID EE_rq2stk_exchange(void)
+{
+ 2000ee4:	78 04 02 00 	mvhi r4,0x200
+ 2000ee8:	38 84 1f 14 	ori r4,r4,0x1f14
+ 2000eec:	28 81 00 00 	lw r1,(r4+0)
+  EE_TID temp;
+
+  temp = EE_rqfirst;
+  
+  // extract the first task from the ready queue
+  EE_rqfirst = EE_th_next[temp]; 
+ 2000ef0:	78 02 02 00 	mvhi r2,0x200
+ 2000ef4:	38 42 1f 0c 	ori r2,r2,0x1f0c
+ 2000ef8:	3c 25 00 02 	sli r5,r1,2
+  // insert the extracted task on the topo of the stack
+  EE_th_next[temp] = EE_stkfirst;
+ 2000efc:	78 03 02 00 	mvhi r3,0x200
+  EE_TID temp;
+
+  temp = EE_rqfirst;
+  
+  // extract the first task from the ready queue
+  EE_rqfirst = EE_th_next[temp]; 
+ 2000f00:	b4 45 10 00 	add r2,r2,r5
+ 2000f04:	28 45 00 00 	lw r5,(r2+0)
+  // insert the extracted task on the topo of the stack
+  EE_th_next[temp] = EE_stkfirst;
+ 2000f08:	38 63 1f 10 	ori r3,r3,0x1f10
+  EE_TID temp;
+
+  temp = EE_rqfirst;
+  
+  // extract the first task from the ready queue
+  EE_rqfirst = EE_th_next[temp]; 
+ 2000f0c:	58 85 00 00 	sw (r4+0),r5
+  // insert the extracted task on the topo of the stack
+  EE_th_next[temp] = EE_stkfirst;
+ 2000f10:	28 64 00 00 	lw r4,(r3+0)
+  EE_stkfirst = temp;
+ 2000f14:	58 61 00 00 	sw (r3+0),r1
+  temp = EE_rqfirst;
+  
+  // extract the first task from the ready queue
+  EE_rqfirst = EE_th_next[temp]; 
+  // insert the extracted task on the topo of the stack
+  EE_th_next[temp] = EE_stkfirst;
+ 2000f18:	58 44 00 00 	sw (r2+0),r4
+  EE_stkfirst = temp;
+
+  return temp;
+}
+ 2000f1c:	c3 a0 00 00 	ret
+
+02000f20 <EE_rq_insert>:
+#include "ee_internal.h"
+
+#ifndef __PRIVATE_RQ_INSERT__
+// this function inserts a task into the ready queue
+void EE_rq_insert(EE_TID t)
+{
+ 2000f20:	37 9c ff fc 	addi sp,sp,-4
+ 2000f24:	5b 8b 00 04 	sw (sp+4),r11
+  EE_TYPEPRIO prio;
+  EE_TID p,q;
+
+  p = EE_NIL;
+  q = EE_rqfirst;
+ 2000f28:	78 03 02 00 	mvhi r3,0x200
+ 2000f2c:	38 63 1f 14 	ori r3,r3,0x1f14
+  prio = EE_th_ready_prio[t];
+ 2000f30:	78 06 02 00 	mvhi r6,0x200
+ 2000f34:	3c 2b 00 02 	sli r11,r1,2
+{
+  EE_TYPEPRIO prio;
+  EE_TID p,q;
+
+  p = EE_NIL;
+  q = EE_rqfirst;
+ 2000f38:	28 67 00 00 	lw r7,(r3+0)
+  prio = EE_th_ready_prio[t];
+ 2000f3c:	38 c6 1d e8 	ori r6,r6,0x1de8
+#include "ee_internal.h"
+
+#ifndef __PRIVATE_RQ_INSERT__
+// this function inserts a task into the ready queue
+void EE_rq_insert(EE_TID t)
+{
+ 2000f40:	b8 20 50 00 	mv r10,r1
+
+  p = EE_NIL;
+  q = EE_rqfirst;
+  prio = EE_th_ready_prio[t];
+
+  while ((q != EE_NIL) && (prio <= EE_th_ready_prio[q])) {
+ 2000f44:	34 09 ff ff 	mvi r9,-1
+  EE_TYPEPRIO prio;
+  EE_TID p,q;
+
+  p = EE_NIL;
+  q = EE_rqfirst;
+  prio = EE_th_ready_prio[t];
+ 2000f48:	b4 cb 08 00 	add r1,r6,r11
+ 2000f4c:	28 28 00 00 	lw r8,(r1+0)
+
+  while ((q != EE_NIL) && (prio <= EE_th_ready_prio[q])) {
+ 2000f50:	44 e9 00 19 	be r7,r9,2000fb4 <EE_rq_insert+0x94>
+ 2000f54:	3c e4 00 02 	sli r4,r7,2
+ 2000f58:	b4 c4 08 00 	add r1,r6,r4
+ 2000f5c:	28 22 00 00 	lw r2,(r1+0)
+ 2000f60:	55 02 00 15 	bgu r8,r2,2000fb4 <EE_rq_insert+0x94>
+ 2000f64:	78 05 02 00 	mvhi r5,0x200
+ 2000f68:	38 a5 1f 0c 	ori r5,r5,0x1f0c
+ 2000f6c:	e0 00 00 05 	bi 2000f80 <EE_rq_insert+0x60>
+ 2000f70:	b4 c4 08 00 	add r1,r6,r4
+ 2000f74:	28 22 00 00 	lw r2,(r1+0)
+ 2000f78:	55 02 00 06 	bgu r8,r2,2000f90 <EE_rq_insert+0x70>
+ 2000f7c:	b8 60 38 00 	mv r7,r3
+    p = q;
+    q = EE_th_next[q];
+ 2000f80:	b4 a4 08 00 	add r1,r5,r4
+ 2000f84:	28 23 00 00 	lw r3,(r1+0)
+
+  p = EE_NIL;
+  q = EE_rqfirst;
+  prio = EE_th_ready_prio[t];
+
+  while ((q != EE_NIL) && (prio <= EE_th_ready_prio[q])) {
+ 2000f88:	3c 64 00 02 	sli r4,r3,2
+ 2000f8c:	5c 69 ff f9 	bne r3,r9,2000f70 <EE_rq_insert+0x50>
+    p = q;
+    q = EE_th_next[q];
+  }
+
+  if (p != EE_NIL)
+    EE_th_next[p] = t;
+ 2000f90:	3c e1 00 02 	sli r1,r7,2
+
+  p = EE_NIL;
+  q = EE_rqfirst;
+  prio = EE_th_ready_prio[t];
+
+  while ((q != EE_NIL) && (prio <= EE_th_ready_prio[q])) {
+ 2000f94:	b8 60 38 00 	mv r7,r3
+    p = q;
+    q = EE_th_next[q];
+  }
+
+  if (p != EE_NIL)
+    EE_th_next[p] = t;
+ 2000f98:	b4 a1 08 00 	add r1,r5,r1
+ 2000f9c:	58 2a 00 00 	sw (r1+0),r10
+  else
+    EE_rqfirst = t;
+
+  EE_th_next[t] = q;
+ 2000fa0:	b4 ab 08 00 	add r1,r5,r11
+ 2000fa4:	58 27 00 00 	sw (r1+0),r7
+}
+ 2000fa8:	2b 8b 00 04 	lw r11,(sp+4)
+ 2000fac:	37 9c 00 04 	addi sp,sp,4
+ 2000fb0:	c3 a0 00 00 	ret
+ 2000fb4:	78 05 02 00 	mvhi r5,0x200
+  }
+
+  if (p != EE_NIL)
+    EE_th_next[p] = t;
+  else
+    EE_rqfirst = t;
+ 2000fb8:	58 6a 00 00 	sw (r3+0),r10
+ 2000fbc:	38 a5 1f 0c 	ori r5,r5,0x1f0c
+ 2000fc0:	e3 ff ff f8 	bi 2000fa0 <EE_rq_insert+0x80>
+
+02000fc4 <EE_timer_common_handler>:
+
+/******************************************************************************/
+/*                              ISRs                                          */
+/******************************************************************************/
+void EE_timer_common_handler(int level)
+{
+ 2000fc4:	37 9c ff fc 	addi sp,sp,-4
+ 2000fc8:	5b 9d 00 04 	sw (sp+4),ra
+    return & EE_ST_NAME(EE_TIMER1_NAME_LC);
+}
+#else /* #ifndef EE_TIMER_NAME2_UC */
+__INLINE__ EE_timer_st * __ALWAYS_INLINE__ EE_get_timer_st_from_level(int level)
+{
+    switch (level) {
+ 2000fcc:	34 02 00 04 	mvi r2,4
+ 2000fd0:	44 22 00 0c 	be r1,r2,2001000 <EE_timer_common_handler+0x3c>
+ 2000fd4:	78 01 02 00 	mvhi r1,0x200
+ 2000fd8:	38 21 21 90 	ori r1,r1,0x2190
+    EE_timer_st *tstp = EE_get_timer_st_from_level(level);
+    MicoTimer_t *timerc = tstp->base;
+ 2000fdc:	28 22 00 00 	lw r2,(r1+0)
+    
+	/* acknowledge the interrupt */
+	timerc->Status = 0;
+	
+	/* body of the ISR callback... */
+	if(tstp->cbk != EE_NULL_CBK)
+ 2000fe0:	28 23 00 08 	lw r3,(r1+8)
+{
+    EE_timer_st *tstp = EE_get_timer_st_from_level(level);
+    MicoTimer_t *timerc = tstp->base;
+    
+	/* acknowledge the interrupt */
+	timerc->Status = 0;
+ 2000fe4:	34 01 00 00 	mvi r1,0
+ 2000fe8:	58 41 00 00 	sw (r2+0),r1
+	
+	/* body of the ISR callback... */
+	if(tstp->cbk != EE_NULL_CBK)
+ 2000fec:	44 61 00 02 	be r3,r1,2000ff4 <EE_timer_common_handler+0x30>
+        tstp->cbk();
+ 2000ff0:	d8 60 00 00 	call r3
+
+	// All done!!!
+	return;	
+}
+ 2000ff4:	2b 9d 00 04 	lw ra,(sp+4)
+ 2000ff8:	37 9c 00 04 	addi sp,sp,4
+ 2000ffc:	c3 a0 00 00 	ret
+ 2001000:	78 01 02 00 	mvhi r1,0x200
+ 2001004:	38 21 21 9c 	ori r1,r1,0x219c
+ 2001008:	e3 ff ff f5 	bi 2000fdc <EE_timer_common_handler+0x18>
+
+0200100c <EE_hal_timer_init>:
+/******************************************************************************/
+/*                       Public Global Functions                              */
+/******************************************************************************/
+
+int EE_hal_timer_init(EE_timer_st* tst, int period, int settings)
+{
+ 200100c:	37 9c ff ec 	addi sp,sp,-20
+ 2001010:	5b 8b 00 14 	sw (sp+20),r11
+ 2001014:	5b 8c 00 10 	sw (sp+16),r12
+ 2001018:	5b 8d 00 0c 	sw (sp+12),r13
+ 200101c:	5b 8e 00 08 	sw (sp+8),r14
+ 2001020:	5b 9d 00 04 	sw (sp+4),ra
+ 2001024:	b8 20 58 00 	mv r11,r1
+	MicoTimer_t *timerc = tst->base;
+	
+	/* Register the handler */
+	EE_mico32_register_ISR(tst->irqf, EE_timer_common_handler);
+ 2001028:	28 21 00 04 	lw r1,(r1+4)
+/******************************************************************************/
+/*                       Public Global Functions                              */
+/******************************************************************************/
+
+int EE_hal_timer_init(EE_timer_st* tst, int period, int settings)
+{
+ 200102c:	b8 40 70 00 	mv r14,r2
+	MicoTimer_t *timerc = tst->base;
+	
+	/* Register the handler */
+	EE_mico32_register_ISR(tst->irqf, EE_timer_common_handler);
+ 2001030:	78 02 02 00 	mvhi r2,0x200
+ 2001034:	38 42 0f c4 	ori r2,r2,0xfc4
+/******************************************************************************/
+/*                       Public Global Functions                              */
+/******************************************************************************/
+
+int EE_hal_timer_init(EE_timer_st* tst, int period, int settings)
+{
+ 2001038:	b8 60 68 00 	mv r13,r3
+	MicoTimer_t *timerc = tst->base;
+ 200103c:	29 6c 00 00 	lw r12,(r11+0)
+	
+	/* Register the handler */
+	EE_mico32_register_ISR(tst->irqf, EE_timer_common_handler);
+ 2001040:	fb ff fe 14 	calli 2000890 <EE_mico32_register_ISR>
+	
+	if(EE_timer_need_enable_int(settings))
+ 2001044:	21 a1 00 01 	andi r1,r13,0x1
+ 2001048:	5c 20 00 14 	bne r1,r0,2001098 <EE_hal_timer_init+0x8c>
+ 200104c:	90 20 08 00 	rcsr r1,IM
+}
+
+
+__INLINE__ void __ALWAYS_INLINE__ mico32_set_reg_im(int im)
+{
+    asm volatile ( "wcsr im,%0"::"r"(im) );
+ 2001050:	29 63 00 04 	lw r3,(r11+4)
+ 2001054:	34 02 00 01 	mvi r2,1
+ 2001058:	bc 43 10 00 	sl r2,r2,r3
+ 200105c:	a4 40 10 00 	not r2,r2
+ 2001060:	a0 22 08 00 	and r1,r1,r2
+ 2001064:	d0 21 00 00 	wcsr IM,r1
+		mico32_enable_irq(tst->irqf);
+	else
+		mico32_disable_irq(tst->irqf);
+	
+	/* Stop the timer */
+	timerc->Control = MICO32_TIMER_CONTROL_STOP_BIT_MASK;
+ 2001068:	34 01 00 08 	mvi r1,8
+ 200106c:	59 81 00 04 	sw (r12+4),r1
+	
+	/* Set the period */
+	timerc->Period = period;	// timer period
+ 2001070:	59 8e 00 08 	sw (r12+8),r14
+	timerc->Control = settings;
+	
+	/* ISR management */
+	return EE_TIMER_OK;
+
+}
+ 2001074:	34 01 00 00 	mvi r1,0
+	
+	/* Set the period */
+	timerc->Period = period;	// timer period
+	
+	/* Set the control register */
+	timerc->Control = settings;
+ 2001078:	59 8d 00 04 	sw (r12+4),r13
+	
+	/* ISR management */
+	return EE_TIMER_OK;
+
+}
+ 200107c:	2b 9d 00 04 	lw ra,(sp+4)
+ 2001080:	2b 8b 00 14 	lw r11,(sp+20)
+ 2001084:	2b 8c 00 10 	lw r12,(sp+16)
+ 2001088:	2b 8d 00 0c 	lw r13,(sp+12)
+ 200108c:	2b 8e 00 08 	lw r14,(sp+8)
+ 2001090:	37 9c 00 14 	addi sp,sp,20
+ 2001094:	c3 a0 00 00 	ret
+
+
+__INLINE__ int __ALWAYS_INLINE__ mico32_get_reg_im(void)
+{
+    int im;
+    asm volatile ( "rcsr %0,im":"=r"(im) );
+ 2001098:	90 20 08 00 	rcsr r1,IM
+}
+
+
+__INLINE__ void __ALWAYS_INLINE__ mico32_set_reg_im(int im)
+{
+    asm volatile ( "wcsr im,%0"::"r"(im) );
+ 200109c:	29 63 00 04 	lw r3,(r11+4)
+ 20010a0:	34 02 00 01 	mvi r2,1
+ 20010a4:	bc 43 10 00 	sl r2,r2,r3
+ 20010a8:	b8 22 08 00 	or r1,r1,r2
+ 20010ac:	d0 21 00 00 	wcsr IM,r1
+ 20010b0:	e3 ff ff ee 	bi 2001068 <EE_hal_timer_init+0x5c>
+
+020010b4 <EE_hal_uart_enable_tx_ISR>:
+	
+	return EE_UART_OK;
+}
+
+int EE_hal_uart_enable_tx_ISR(EE_uart_st* usp)
+{
+ 20010b4:	28 25 00 08 	lw r5,(r1+8)
+	unsigned int intst, mode = usp->mode;;
+ 20010b8:	28 23 00 04 	lw r3,(r1+4)
+ * Disable interrupts
+ */
+__INLINE__ EE_FREG __ALWAYS_INLINE__ EE_mico32_disableIRQ(void)
+{
+    EE_FREG oldie, newie;
+    asm volatile ("rcsr %0,ie":"=r"(oldie));
+ 20010bc:	90 00 20 00 	rcsr r4,IE
+    newie = oldie & (~0x1);
+    asm volatile ("wcsr ie, %0"::"r"(newie));
+ 20010c0:	34 01 ff fe 	mvi r1,-2
+ 20010c4:	a0 81 08 00 	and r1,r4,r1
+ 20010c8:	d0 01 00 00 	wcsr IE,r1
+	MicoUart_t *uartc = usp->base; 
+	
+	intst = EE_mico32_disableIRQ();				
+	ee_uart_tip = 1;								// transmission in progress...
+ 20010cc:	78 02 02 00 	mvhi r2,0x200
+ 20010d0:	34 01 00 01 	mvi r1,1
+ 20010d4:	38 42 21 f8 	ori r2,r2,0x21f8
+ 20010d8:	58 41 00 00 	sw (r2+0),r1
+	if(EE_uart_enabled_rx_int(mode))
+ 20010dc:	a0 61 18 00 	and r3,r3,r1
+ 20010e0:	44 60 00 0a 	be r3,r0,2001108 <EE_hal_uart_enable_tx_ISR+0x54>
+		uartc->ier = (volatile unsigned int)(MICOUART_IER_RX_INT_MASK | MICOUART_IER_TX_INT_MASK);
+ 20010e4:	34 01 00 03 	mvi r1,3
+ 20010e8:	58 a1 00 04 	sw (r5+4),r1
+	else
+		uartc->ier = (volatile unsigned int)(MICOUART_IER_TX_INT_MASK);	// Enable interrupts to empty the tx buffer...
+	if (EE_mico32_are_IRQs_enabled(intst))		
+ 20010ec:	20 81 00 01 	andi r1,r4,0x1
+ 20010f0:	44 20 00 04 	be r1,r0,2001100 <EE_hal_uart_enable_tx_ISR+0x4c>
+ * Enable interrupts
+ */
+__INLINE__ void __ALWAYS_INLINE__ EE_mico32_enableIRQ(void)
+{
+    EE_FREG oldie, newie;
+    asm volatile ("rcsr %0,ie":"=r"(oldie));
+ 20010f4:	90 00 08 00 	rcsr r1,IE
+    newie = oldie | (0x1);
+    asm volatile ("wcsr ie, %0"::"r"(newie));
+ 20010f8:	38 21 00 01 	ori r1,r1,0x1
+ 20010fc:	d0 01 00 00 	wcsr IE,r1
+	   	EE_mico32_enableIRQ();
+	   	
+	return EE_UART_OK;	
+}
+ 2001100:	34 01 00 00 	mvi r1,0
+ 2001104:	c3 a0 00 00 	ret
+	intst = EE_mico32_disableIRQ();				
+	ee_uart_tip = 1;								// transmission in progress...
+	if(EE_uart_enabled_rx_int(mode))
+		uartc->ier = (volatile unsigned int)(MICOUART_IER_RX_INT_MASK | MICOUART_IER_TX_INT_MASK);
+	else
+		uartc->ier = (volatile unsigned int)(MICOUART_IER_TX_INT_MASK);	// Enable interrupts to empty the tx buffer...
+ 2001108:	34 01 00 02 	mvi r1,2
+ 200110c:	58 a1 00 04 	sw (r5+4),r1
+ 2001110:	e3 ff ff f7 	bi 20010ec <EE_hal_uart_enable_tx_ISR+0x38>
+
+02001114 <EE_hal_uart_write_buffer>:
+	- isr mode:
+		- blocking mode: wait if a transmission is in progress or if buffer is full, return the number of bytes loaded (should be loaded all characters...)
+		- no-blocking mode: no wait if buffer is full or if a transmission is in progress, return the number of bytes loaded
+*/
+int EE_hal_uart_write_buffer(EE_uart_st* usp, EE_UINT8 *vet, int len)
+{
+ 2001114:	37 9c ff dc 	addi sp,sp,-36
+ 2001118:	5b 8b 00 24 	sw (sp+36),r11
+ 200111c:	5b 8c 00 20 	sw (sp+32),r12
+ 2001120:	5b 8d 00 1c 	sw (sp+28),r13
+ 2001124:	5b 8e 00 18 	sw (sp+24),r14
+ 2001128:	5b 8f 00 14 	sw (sp+20),r15
+ 200112c:	5b 90 00 10 	sw (sp+16),r16
+ 2001130:	5b 91 00 0c 	sw (sp+12),r17
+ 2001134:	5b 92 00 08 	sw (sp+8),r18
+ 2001138:	5b 9d 00 04 	sw (sp+4),ra
+	int ret,i;
+  
+	MicoUart_t *uartc = usp->base; 
+	
+	buffer = &usp->txbuf;
+	mode = usp->mode;
+ 200113c:	28 25 00 04 	lw r5,(r1+4)
+	- isr mode:
+		- blocking mode: wait if a transmission is in progress or if buffer is full, return the number of bytes loaded (should be loaded all characters...)
+		- no-blocking mode: no wait if buffer is full or if a transmission is in progress, return the number of bytes loaded
+*/
+int EE_hal_uart_write_buffer(EE_uart_st* usp, EE_UINT8 *vet, int len)
+{
+ 2001140:	b8 20 60 00 	mv r12,r1
+ 2001144:	b8 40 78 00 	mv r15,r2
+	MicoUart_t *uartc = usp->base; 
+	
+	buffer = &usp->txbuf;
+	mode = usp->mode;
+	
+	if( EE_uart_tx_polling(mode) )							// TX POLLING MODE
+ 2001148:	20 a1 00 02 	andi r1,r5,0x2
+	- isr mode:
+		- blocking mode: wait if a transmission is in progress or if buffer is full, return the number of bytes loaded (should be loaded all characters...)
+		- no-blocking mode: no wait if buffer is full or if a transmission is in progress, return the number of bytes loaded
+*/
+int EE_hal_uart_write_buffer(EE_uart_st* usp, EE_UINT8 *vet, int len)
+{
+ 200114c:	b8 60 70 00 	mv r14,r3
+	unsigned int uiValue, mode;
+	EE_buffer* buffer;
+	int ret,i;
+  
+	MicoUart_t *uartc = usp->base; 
+ 2001150:	29 84 00 08 	lw r4,(r12+8)
+	
+	buffer = &usp->txbuf;
+ 2001154:	35 90 00 30 	addi r16,r12,48
+	mode = usp->mode;
+	
+	if( EE_uart_tx_polling(mode) )							// TX POLLING MODE
+ 2001158:	44 20 00 0f 	be r1,r0,2001194 <EE_hal_uart_write_buffer+0x80>
+		}
+		ret = len;											// all bytes transmitted... 
+	}
+	else
+	{	// if there is no transmission in progress or there is a transmission in progress but we are in blocking mode
+		if( !ee_uart_tip || (ee_uart_tip && EE_uart_tx_block(mode)) )
+ 200115c:	78 0d 02 00 	mvhi r13,0x200
+ 2001160:	39 ad 21 f8 	ori r13,r13,0x21f8
+ 2001164:	29 a1 00 00 	lw r1,(r13+0)
+ 2001168:	5c 20 00 35 	bne r1,r0,200123c <EE_hal_uart_write_buffer+0x128>
+		{																																			
+			while(ee_uart_tip)
+ 200116c:	29 a1 00 00 	lw r1,(r13+0)
+ 2001170:	5c 20 ff ff 	bne r1,r0,200116c <EE_hal_uart_write_buffer+0x58>
+				;								// wait until transmission is finished...
+			for(i=0; i<len; i++)
+ 2001174:	b8 20 58 00 	mv r11,r1
+				if(ret == EE_BUF_OK)						// byte loaded in the tx buffer... 
+					usp->err = ret; 
+				else
+				{
+					usp->err = EE_UART_ERR_TX_BUF_FULL;
+					if(!EE_uart_tx_block(mode))
+ 2001178:	20 b1 00 20 	andi r17,r5,0x20
+				ret = EE_buffer_putmsg(buffer, vet+i);
+				if(ret == EE_BUF_OK)						// byte loaded in the tx buffer... 
+					usp->err = ret; 
+				else
+				{
+					usp->err = EE_UART_ERR_TX_BUF_FULL;
+ 200117c:	34 12 ff f9 	mvi r18,-7
+	{	// if there is no transmission in progress or there is a transmission in progress but we are in blocking mode
+		if( !ee_uart_tip || (ee_uart_tip && EE_uart_tx_block(mode)) )
+		{																																			
+			while(ee_uart_tip)
+				;								// wait until transmission is finished...
+			for(i=0; i<len; i++)
+ 2001180:	49 c1 00 24 	bg r14,r1,2001210 <EE_hal_uart_write_buffer+0xfc>
+						while(ee_uart_tip)
+							;								// wait until transmission is finished...
+					}
+				}
+			}
+			EE_hal_uart_enable_tx_ISR(usp);					// enable tx interrupt
+ 2001184:	b9 80 08 00 	mv r1,r12
+ 2001188:	fb ff ff cb 	calli 20010b4 <EE_hal_uart_enable_tx_ISR>
+ 200118c:	b9 60 08 00 	mv r1,r11
+ 2001190:	e0 00 00 0d 	bi 20011c4 <EE_hal_uart_write_buffer+0xb0>
+	buffer = &usp->txbuf;
+	mode = usp->mode;
+	
+	if( EE_uart_tx_polling(mode) )							// TX POLLING MODE
+	{							
+		for(i=0; i<len; i++)
+ 2001194:	4c 23 00 1d 	bge r1,r3,2001208 <EE_hal_uart_write_buffer+0xf4>
+ 2001198:	b8 20 18 00 	mv r3,r1
+    				break;
+				}
+				else if(i==0)
+				{											// if TX is not ready because another task uses tx buffer...
+					usp->err = EE_UART_ERR_TX_NOT_READY;
+					if(!EE_uart_tx_block(mode))				// no bytes transmitted, operation failed...
+ 200119c:	20 a5 00 20 	andi r5,r5,0x20
+		{
+			do
+			{
+				/* if uart's ready to accept character, send immediately */
+    			uiValue = uartc->lsr;
+    			if(uiValue & MICOUART_LSR_TX_RDY_MASK)
+ 20011a0:	b8 20 38 00 	mv r7,r1
+    				usp->err = EE_UART_OK;
+    				break;
+				}
+				else if(i==0)
+				{											// if TX is not ready because another task uses tx buffer...
+					usp->err = EE_UART_ERR_TX_NOT_READY;
+ 20011a4:	34 06 ff f6 	mvi r6,-10
+		for(i=0; i<len; i++)
+		{
+			do
+			{
+				/* if uart's ready to accept character, send immediately */
+    			uiValue = uartc->lsr;
+ 20011a8:	28 81 00 14 	lw r1,(r4+20)
+    			if(uiValue & MICOUART_LSR_TX_RDY_MASK)
+ 20011ac:	20 21 00 20 	andi r1,r1,0x20
+ 20011b0:	5c 20 00 10 	bne r1,r0,20011f0 <EE_hal_uart_write_buffer+0xdc>
+    				uartc->rxtx = vet[i];					// byte loaded in the uart tx buffer
+    				ret = 1;
+    				usp->err = EE_UART_OK;
+    				break;
+				}
+				else if(i==0)
+ 20011b4:	5c 61 ff fd 	bne r3,r1,20011a8 <EE_hal_uart_write_buffer+0x94>
+				{											// if TX is not ready because another task uses tx buffer...
+					usp->err = EE_UART_ERR_TX_NOT_READY;
+ 20011b8:	59 86 00 00 	sw (r12+0),r6
+					if(!EE_uart_tx_block(mode))				// no bytes transmitted, operation failed...
+ 20011bc:	5c a3 ff fb 	bne r5,r3,20011a8 <EE_hal_uart_write_buffer+0x94>
+ 20011c0:	b8 c0 08 00 	mv r1,r6
+		}
+	}
+	
+	// All done!!!
+	return ret;
+}
+ 20011c4:	2b 9d 00 04 	lw ra,(sp+4)
+ 20011c8:	2b 8b 00 24 	lw r11,(sp+36)
+ 20011cc:	2b 8c 00 20 	lw r12,(sp+32)
+ 20011d0:	2b 8d 00 1c 	lw r13,(sp+28)
+ 20011d4:	2b 8e 00 18 	lw r14,(sp+24)
+ 20011d8:	2b 8f 00 14 	lw r15,(sp+20)
+ 20011dc:	2b 90 00 10 	lw r16,(sp+16)
+ 20011e0:	2b 91 00 0c 	lw r17,(sp+12)
+ 20011e4:	2b 92 00 08 	lw r18,(sp+8)
+ 20011e8:	37 9c 00 24 	addi sp,sp,36
+ 20011ec:	c3 a0 00 00 	ret
+			{
+				/* if uart's ready to accept character, send immediately */
+    			uiValue = uartc->lsr;
+    			if(uiValue & MICOUART_LSR_TX_RDY_MASK)
+				{
+    				uartc->rxtx = vet[i];					// byte loaded in the uart tx buffer
+ 20011f0:	b5 e3 08 00 	add r1,r15,r3
+ 20011f4:	40 22 00 00 	lbu r2,(r1+0)
+	buffer = &usp->txbuf;
+	mode = usp->mode;
+	
+	if( EE_uart_tx_polling(mode) )							// TX POLLING MODE
+	{							
+		for(i=0; i<len; i++)
+ 20011f8:	34 63 00 01 	addi r3,r3,1
+			{
+				/* if uart's ready to accept character, send immediately */
+    			uiValue = uartc->lsr;
+    			if(uiValue & MICOUART_LSR_TX_RDY_MASK)
+				{
+    				uartc->rxtx = vet[i];					// byte loaded in the uart tx buffer
+ 20011fc:	58 82 00 00 	sw (r4+0),r2
+    				ret = 1;
+    				usp->err = EE_UART_OK;
+ 2001200:	59 87 00 00 	sw (r12+0),r7
+	buffer = &usp->txbuf;
+	mode = usp->mode;
+	
+	if( EE_uart_tx_polling(mode) )							// TX POLLING MODE
+	{							
+		for(i=0; i<len; i++)
+ 2001204:	49 c3 ff e9 	bg r14,r3,20011a8 <EE_hal_uart_write_buffer+0x94>
+			EE_hal_uart_enable_tx_ISR(usp);					// enable tx interrupt
+	        ret = i;										// number of bytes loaded in the tx buffer
+		}
+		else												// there is a transmission in progress and we are in non blocking mode
+		{
+			usp->err = EE_UART_ERR_TX_NOT_READY;
+ 2001208:	b9 c0 08 00 	mv r1,r14
+ 200120c:	e3 ff ff ee 	bi 20011c4 <EE_hal_uart_write_buffer+0xb0>
+		{																																			
+			while(ee_uart_tip)
+				;								// wait until transmission is finished...
+			for(i=0; i<len; i++)
+			{
+				ret = EE_buffer_putmsg(buffer, vet+i);
+ 2001210:	ba 00 08 00 	mv r1,r16
+ 2001214:	b5 eb 10 00 	add r2,r15,r11
+ 2001218:	f8 00 01 b5 	calli 20018ec <EE_buffer_putmsg>
+				if(ret == EE_BUF_OK)						// byte loaded in the tx buffer... 
+ 200121c:	5c 20 00 0d 	bne r1,r0,2001250 <EE_hal_uart_write_buffer+0x13c>
+					usp->err = ret; 
+ 2001220:	59 81 00 00 	sw (r12+0),r1
+	{	// if there is no transmission in progress or there is a transmission in progress but we are in blocking mode
+		if( !ee_uart_tip || (ee_uart_tip && EE_uart_tx_block(mode)) )
+		{																																			
+			while(ee_uart_tip)
+				;								// wait until transmission is finished...
+			for(i=0; i<len; i++)
+ 2001224:	35 6b 00 01 	addi r11,r11,1
+ 2001228:	49 cb ff fa 	bg r14,r11,2001210 <EE_hal_uart_write_buffer+0xfc>
+						while(ee_uart_tip)
+							;								// wait until transmission is finished...
+					}
+				}
+			}
+			EE_hal_uart_enable_tx_ISR(usp);					// enable tx interrupt
+ 200122c:	b9 80 08 00 	mv r1,r12
+ 2001230:	fb ff ff a1 	calli 20010b4 <EE_hal_uart_enable_tx_ISR>
+ 2001234:	b9 60 08 00 	mv r1,r11
+ 2001238:	e3 ff ff e3 	bi 20011c4 <EE_hal_uart_write_buffer+0xb0>
+		}
+		ret = len;											// all bytes transmitted... 
+	}
+	else
+	{	// if there is no transmission in progress or there is a transmission in progress but we are in blocking mode
+		if( !ee_uart_tip || (ee_uart_tip && EE_uart_tx_block(mode)) )
+ 200123c:	29 a1 00 00 	lw r1,(r13+0)
+ 2001240:	5c 20 00 0c 	bne r1,r0,2001270 <EE_hal_uart_write_buffer+0x15c>
+			EE_hal_uart_enable_tx_ISR(usp);					// enable tx interrupt
+	        ret = i;										// number of bytes loaded in the tx buffer
+		}
+		else												// there is a transmission in progress and we are in non blocking mode
+		{
+			usp->err = EE_UART_ERR_TX_NOT_READY;
+ 2001244:	34 01 ff f6 	mvi r1,-10
+ 2001248:	59 81 00 00 	sw (r12+0),r1
+ 200124c:	e3 ff ff de 	bi 20011c4 <EE_hal_uart_write_buffer+0xb0>
+				ret = EE_buffer_putmsg(buffer, vet+i);
+				if(ret == EE_BUF_OK)						// byte loaded in the tx buffer... 
+					usp->err = ret; 
+				else
+				{
+					usp->err = EE_UART_ERR_TX_BUF_FULL;
+ 2001250:	59 92 00 00 	sw (r12+0),r18
+					if(!EE_uart_tx_block(mode))
+ 2001254:	46 20 ff cc 	be r17,r0,2001184 <EE_hal_uart_write_buffer+0x70>
+						break;
+					else
+					{
+						i--;											// restore the previous character...
+						EE_hal_uart_enable_tx_ISR(usp);					// enable tx interrupt
+ 2001258:	b9 80 08 00 	mv r1,r12
+ 200125c:	fb ff ff 96 	calli 20010b4 <EE_hal_uart_enable_tx_ISR>
+						while(ee_uart_tip)
+ 2001260:	29 a1 00 00 	lw r1,(r13+0)
+ 2001264:	5c 20 ff ff 	bne r1,r0,2001260 <EE_hal_uart_write_buffer+0x14c>
+					usp->err = EE_UART_ERR_TX_BUF_FULL;
+					if(!EE_uart_tx_block(mode))
+						break;
+					else
+					{
+						i--;											// restore the previous character...
+ 2001268:	35 6b ff ff 	addi r11,r11,-1
+ 200126c:	e3 ff ff ee 	bi 2001224 <EE_hal_uart_write_buffer+0x110>
+		}
+		ret = len;											// all bytes transmitted... 
+	}
+	else
+	{	// if there is no transmission in progress or there is a transmission in progress but we are in blocking mode
+		if( !ee_uart_tip || (ee_uart_tip && EE_uart_tx_block(mode)) )
+ 2001270:	20 a1 00 20 	andi r1,r5,0x20
+ 2001274:	44 20 ff f4 	be r1,r0,2001244 <EE_hal_uart_write_buffer+0x130>
+ 2001278:	e3 ff ff bd 	bi 200116c <EE_hal_uart_write_buffer+0x58>
+
+0200127c <EE_hal_uart_config>:
+	return EE_UART_OK;
+}
+
+/* This function configures UART baudrate and other features (parity, stop bits...) */
+int EE_hal_uart_config(EE_uart_st* usp, int baudrate, int settings)
+{
+ 200127c:	37 9c ff ec 	addi sp,sp,-20
+ 2001280:	5b 8b 00 14 	sw (sp+20),r11
+ 2001284:	5b 8c 00 10 	sw (sp+16),r12
+ 2001288:	5b 8d 00 0c 	sw (sp+12),r13
+ 200128c:	5b 8e 00 08 	sw (sp+8),r14
+ 2001290:	5b 9d 00 04 	sw (sp+4),ra
+	unsigned int iir;
+	MicoUart_t *uartc = usp->base; 
+ 2001294:	28 2b 00 08 	lw r11,(r1+8)
+	
+	/* reset ier (isr register) */
+    uartc->ier = 0;						// if ier==0 -> POLLING MODE (ATT! is a blocking mode!!!)
+ 2001298:	34 0d 00 00 	mvi r13,0
+	return EE_UART_OK;
+}
+
+/* This function configures UART baudrate and other features (parity, stop bits...) */
+int EE_hal_uart_config(EE_uart_st* usp, int baudrate, int settings)
+{
+ 200129c:	b8 40 70 00 	mv r14,r2
+	unsigned int iir;
+	MicoUart_t *uartc = usp->base; 
+	
+	/* reset ier (isr register) */
+    uartc->ier = 0;						// if ier==0 -> POLLING MODE (ATT! is a blocking mode!!!)
+ 20012a0:	59 6d 00 04 	sw (r11+4),r13
+/******************************************************************************/
+/* This function records ISR handler */
+int EE_hal_uart_handler_setup(EE_uart_st* usp)
+{
+    /* Register IRQ handler */
+    EE_mico32_register_ISR(usp->irqf, EE_uart_common_handler);	 
+ 20012a4:	28 21 00 0c 	lw r1,(r1+12)
+	return EE_UART_OK;
+}
+
+/* This function configures UART baudrate and other features (parity, stop bits...) */
+int EE_hal_uart_config(EE_uart_st* usp, int baudrate, int settings)
+{
+ 20012a8:	b8 60 60 00 	mv r12,r3
+/******************************************************************************/
+/* This function records ISR handler */
+int EE_hal_uart_handler_setup(EE_uart_st* usp)
+{
+    /* Register IRQ handler */
+    EE_mico32_register_ISR(usp->irqf, EE_uart_common_handler);	 
+ 20012ac:	78 02 02 00 	mvhi r2,0x200
+	MicoUart_t *uartc = usp->base; 
+	
+	/* reset ier (isr register) */
+    uartc->ier = 0;						// if ier==0 -> POLLING MODE (ATT! is a blocking mode!!!)
+    									// if ier!=0 -> ISR MODE (ATT! is not a blocking mode!!!)
+    iir = uartc->iir;					// read iir register to clean ISR flags.	FARE PROVA!!!
+ 20012b0:	29 63 00 08 	lw r3,(r11+8)
+/******************************************************************************/
+/* This function records ISR handler */
+int EE_hal_uart_handler_setup(EE_uart_st* usp)
+{
+    /* Register IRQ handler */
+    EE_mico32_register_ISR(usp->irqf, EE_uart_common_handler);	 
+ 20012b4:	38 42 12 f4 	ori r2,r2,0x12f4
+ 20012b8:	fb ff fd 76 	calli 2000890 <EE_mico32_register_ISR>
+	/* Register IRQ handler */
+    EE_hal_uart_handler_setup(usp);
+	/* set the control register */
+    uartc->lcr = settings;    
+    /* Calculate clock-divisor */
+    uartc->div = (MICO32_CPU_CLOCK_MHZ)/baudrate;
+ 20012bc:	78 01 02 06 	mvhi r1,0x206
+    									// if ier!=0 -> ISR MODE (ATT! is not a blocking mode!!!)
+    iir = uartc->iir;					// read iir register to clean ISR flags.	FARE PROVA!!!
+	/* Register IRQ handler */
+    EE_hal_uart_handler_setup(usp);
+	/* set the control register */
+    uartc->lcr = settings;    
+ 20012c0:	59 6c 00 0c 	sw (r11+12),r12
+    /* Calculate clock-divisor */
+    uartc->div = (MICO32_CPU_CLOCK_MHZ)/baudrate;
+ 20012c4:	b9 c0 10 00 	mv r2,r14
+ 20012c8:	38 21 cc 80 	ori r1,r1,0xcc80
+ 20012cc:	f8 00 02 5c 	calli 2001c3c <__divsi3>
+ 20012d0:	59 61 00 1c 	sw (r11+28),r1
+    
+    /* ISR management */
+    return EE_UART_OK;	//EE_uart_set_ISR_callback_base(base, irq_flag, ie_flag, isr_rx_callback, isr_tx_callback);
+}
+ 20012d4:	b9 a0 08 00 	mv r1,r13
+ 20012d8:	2b 9d 00 04 	lw ra,(sp+4)
+ 20012dc:	2b 8b 00 14 	lw r11,(sp+20)
+ 20012e0:	2b 8c 00 10 	lw r12,(sp+16)
+ 20012e4:	2b 8d 00 0c 	lw r13,(sp+12)
+ 20012e8:	2b 8e 00 08 	lw r14,(sp+8)
+ 20012ec:	37 9c 00 14 	addi sp,sp,20
+ 20012f0:	c3 a0 00 00 	ret
+
+020012f4 <EE_uart_common_handler>:
+/******************************************************************************/
+/*                              ISRs                                          */
+/******************************************************************************/
+// Interrupt common handler:
+void EE_uart_common_handler(int level)
+{
+ 20012f4:	37 9c ff e4 	addi sp,sp,-28
+ 20012f8:	5b 8b 00 18 	sw (sp+24),r11
+ 20012fc:	5b 8c 00 14 	sw (sp+20),r12
+ 2001300:	5b 8d 00 10 	sw (sp+16),r13
+ 2001304:	5b 8e 00 0c 	sw (sp+12),r14
+ 2001308:	5b 8f 00 08 	sw (sp+8),r15
+ 200130c:	5b 9d 00 04 	sw (sp+4),ra
+    unsigned int spint;
+    int ret;
+    EE_UINT8 data = 0;
+    
+    EE_uart_st *usp = EE_get_uart_st_from_level(level);
+    MicoUart_t *uartc = usp->base; 
+ 2001310:	78 0e 02 00 	mvhi r14,0x200
+ 2001314:	39 ce 21 a8 	ori r14,r14,0x21a8
+ 2001318:	29 cb 00 08 	lw r11,(r14+8)
+void EE_uart_common_handler(int level)
+{
+    unsigned int iir;
+    unsigned int spint;
+    int ret;
+    EE_UINT8 data = 0;
+ 200131c:	34 01 00 00 	mvi r1,0
+ 2001320:	33 81 00 1f 	sb (sp+31),r1
+    
+    EE_uart_st *usp = EE_get_uart_st_from_level(level);
+    MicoUart_t *uartc = usp->base; 
+
+    /* interrogate interrupt-cause */
+    iir = uartc->iir;
+ 2001324:	29 62 00 08 	lw r2,(r11+8)
+    
+    /* check the interrupt source */
+    switch(iir){
+ 2001328:	34 01 00 02 	mvi r1,2
+ 200132c:	44 41 00 0b 	be r2,r1,2001358 <EE_uart_common_handler+0x64>
+ 2001330:	34 01 00 04 	mvi r1,4
+ 2001334:	44 41 00 31 	be r2,r1,20013f8 <EE_uart_common_handler+0x104>
+             */
+        }break;
+    }
+
+    return;
+}
+ 2001338:	2b 9d 00 04 	lw ra,(sp+4)
+ 200133c:	2b 8b 00 18 	lw r11,(sp+24)
+ 2001340:	2b 8c 00 14 	lw r12,(sp+20)
+ 2001344:	2b 8d 00 10 	lw r13,(sp+16)
+ 2001348:	2b 8e 00 0c 	lw r14,(sp+12)
+ 200134c:	2b 8f 00 08 	lw r15,(sp+8)
+ 2001350:	37 9c 00 1c 	addi sp,sp,28
+ 2001354:	c3 a0 00 00 	ret
+ 2001358:	35 cc 00 30 	addi r12,r14,48
+        }break;
+        case MICOUART_IIR_TXRDY:	/* the interrupt is due to tx-data */
+		{
+			spint = 1;
+			/* Loop to empty the buffer */
+			while(!EE_buffer_isempty(&(usp->txbuf)))
+ 200135c:	b9 80 08 00 	mv r1,r12
+
+    /* interrogate interrupt-cause */
+    iir = uartc->iir;
+    
+    /* check the interrupt source */
+    switch(iir){
+ 2001360:	34 0d 00 01 	mvi r13,1
+		{
+			spint = 1;
+			/* Loop to empty the buffer */
+			while(!EE_buffer_isempty(&(usp->txbuf)))
+			{
+				EE_buffer_getmsg(&(usp->txbuf), &data);
+ 2001364:	37 8f 00 1f 	addi r15,sp,31
+        }break;
+        case MICOUART_IIR_TXRDY:	/* the interrupt is due to tx-data */
+		{
+			spint = 1;
+			/* Loop to empty the buffer */
+			while(!EE_buffer_isempty(&(usp->txbuf)))
+ 2001368:	f8 00 01 4e 	calli 20018a0 <EE_buffer_isempty>
+ 200136c:	5c 20 00 0d 	bne r1,r0,20013a0 <EE_uart_common_handler+0xac>
+			{
+				EE_buffer_getmsg(&(usp->txbuf), &data);
+ 2001370:	b9 80 08 00 	mv r1,r12
+ 2001374:	b9 e0 10 00 	mv r2,r15
+ 2001378:	f8 00 01 8f 	calli 20019b4 <EE_buffer_getmsg>
+				while( !((uartc->lsr) & MICOUART_LSR_TX_RDY_MASK) )
+ 200137c:	29 61 00 14 	lw r1,(r11+20)
+ 2001380:	20 21 00 20 	andi r1,r1,0x20
+ 2001384:	44 20 ff fe 	be r1,r0,200137c <EE_uart_common_handler+0x88>
+					;	
+				uartc->rxtx = data;
+ 2001388:	43 81 00 1f 	lbu r1,(sp+31)
+				if(spint) spint = 0;	// is not a spurious interrupt...
+ 200138c:	34 0d 00 00 	mvi r13,0
+			while(!EE_buffer_isempty(&(usp->txbuf)))
+			{
+				EE_buffer_getmsg(&(usp->txbuf), &data);
+				while( !((uartc->lsr) & MICOUART_LSR_TX_RDY_MASK) )
+					;	
+				uartc->rxtx = data;
+ 2001390:	59 61 00 00 	sw (r11+0),r1
+        }break;
+        case MICOUART_IIR_TXRDY:	/* the interrupt is due to tx-data */
+		{
+			spint = 1;
+			/* Loop to empty the buffer */
+			while(!EE_buffer_isempty(&(usp->txbuf)))
+ 2001394:	b9 80 08 00 	mv r1,r12
+ 2001398:	f8 00 01 42 	calli 20018a0 <EE_buffer_isempty>
+ 200139c:	44 20 ff f5 	be r1,r0,2001370 <EE_uart_common_handler+0x7c>
+				if(spint) spint = 0;	// is not a spurious interrupt...
+			}
+			
+			/* To avoid interrupt is again asserted by the UART after reading the IIR register, 
+	   		   we must to disable TX isr-source. NOTE: Could start spurious tx interrupt... */
+	   		if(EE_uart_enabled_rx_int(usp->mode))
+ 20013a0:	29 c1 00 04 	lw r1,(r14+4)
+ 20013a4:	20 21 00 01 	andi r1,r1,0x1
+ 20013a8:	5c 20 00 26 	bne r1,r0,2001440 <EE_uart_common_handler+0x14c>
+	   			uartc->ier = (volatile unsigned int)(MICOUART_IER_RX_INT_MASK);
+	   		else
+				uartc->ier = 0;
+ 20013ac:	59 61 00 04 	sw (r11+4),r1
+			ee_uart_tip = 0;							// transmission not in progress...
+				
+			/* Call user Callback (not for spurious interrupt...) */
+	       	if( (usp->txcbk != EE_NULL_CBK) && (!spint) )
+ 20013b0:	29 c5 00 14 	lw r5,(r14+20)
+ 20013b4:	65 a4 00 00 	cmpei r4,r13,0
+	   		   we must to disable TX isr-source. NOTE: Could start spurious tx interrupt... */
+	   		if(EE_uart_enabled_rx_int(usp->mode))
+	   			uartc->ier = (volatile unsigned int)(MICOUART_IER_RX_INT_MASK);
+	   		else
+				uartc->ier = 0;
+			ee_uart_tip = 0;							// transmission not in progress...
+ 20013b8:	78 01 02 00 	mvhi r1,0x200
+				
+			/* Call user Callback (not for spurious interrupt...) */
+	       	if( (usp->txcbk != EE_NULL_CBK) && (!spint) )
+ 20013bc:	7c a3 00 00 	cmpnei r3,r5,0
+	   		   we must to disable TX isr-source. NOTE: Could start spurious tx interrupt... */
+	   		if(EE_uart_enabled_rx_int(usp->mode))
+	   			uartc->ier = (volatile unsigned int)(MICOUART_IER_RX_INT_MASK);
+	   		else
+				uartc->ier = 0;
+			ee_uart_tip = 0;							// transmission not in progress...
+ 20013c0:	38 21 21 f8 	ori r1,r1,0x21f8
+ 20013c4:	34 02 00 00 	mvi r2,0
+ 20013c8:	58 22 00 00 	sw (r1+0),r2
+				
+			/* Call user Callback (not for spurious interrupt...) */
+	       	if( (usp->txcbk != EE_NULL_CBK) && (!spint) )
+ 20013cc:	a0 64 18 00 	and r3,r3,r4
+ 20013d0:	44 62 ff da 	be r3,r2,2001338 <EE_uart_common_handler+0x44>
+            	usp->txcbk();
+ 20013d4:	d8 a0 00 00 	call r5
+             */
+        }break;
+    }
+
+    return;
+}
+ 20013d8:	2b 9d 00 04 	lw ra,(sp+4)
+ 20013dc:	2b 8b 00 18 	lw r11,(sp+24)
+ 20013e0:	2b 8c 00 14 	lw r12,(sp+20)
+ 20013e4:	2b 8d 00 10 	lw r13,(sp+16)
+ 20013e8:	2b 8e 00 0c 	lw r14,(sp+12)
+ 20013ec:	2b 8f 00 08 	lw r15,(sp+8)
+ 20013f0:	37 9c 00 1c 	addi sp,sp,28
+ 20013f4:	c3 a0 00 00 	ret
+	         * read lsr to check for errors associated with current word. 
+	         * reading lsr clears error bits 
+	         */
+            //lsr = uartc->lsr;
+            //if((lsr & (MICOUART_LSR_PE_MASK | MICOUART_LSR_FE_MASK)) == 0) if(uiValue & MICOUART_LSR_RX_RDY_MASK)
+            data = uartc->rxtx;
+ 20013f8:	29 63 00 00 	lw r3,(r11+0)
+            ret = EE_buffer_putmsg(&(usp->rxbuf), &data);
+ 20013fc:	37 82 00 1f 	addi r2,sp,31
+ 2001400:	35 c1 00 18 	addi r1,r14,24
+	         * read lsr to check for errors associated with current word. 
+	         * reading lsr clears error bits 
+	         */
+            //lsr = uartc->lsr;
+            //if((lsr & (MICOUART_LSR_PE_MASK | MICOUART_LSR_FE_MASK)) == 0) if(uiValue & MICOUART_LSR_RX_RDY_MASK)
+            data = uartc->rxtx;
+ 2001404:	33 83 00 1f 	sb (sp+31),r3
+            ret = EE_buffer_putmsg(&(usp->rxbuf), &data);
+ 2001408:	f8 00 01 39 	calli 20018ec <EE_buffer_putmsg>
+            if(ret==EE_BUF_ERR_FULL) 
+ 200140c:	34 02 ff fe 	mvi r2,-2
+ 2001410:	44 22 00 0f 	be r1,r2,200144c <EE_uart_common_handler+0x158>
+				usp->err = EE_UART_ERR_RX_BUF_FULL;  
+            /* Call user Callback */
+            if(usp->rxcbk != EE_NULL_CBK)
+ 2001414:	29 c1 00 10 	lw r1,(r14+16)
+ 2001418:	44 20 ff c8 	be r1,r0,2001338 <EE_uart_common_handler+0x44>
+            	usp->rxcbk();
+ 200141c:	d8 20 00 00 	call r1
+             */
+        }break;
+    }
+
+    return;
+}
+ 2001420:	2b 9d 00 04 	lw ra,(sp+4)
+ 2001424:	2b 8b 00 18 	lw r11,(sp+24)
+ 2001428:	2b 8c 00 14 	lw r12,(sp+20)
+ 200142c:	2b 8d 00 10 	lw r13,(sp+16)
+ 2001430:	2b 8e 00 0c 	lw r14,(sp+12)
+ 2001434:	2b 8f 00 08 	lw r15,(sp+8)
+ 2001438:	37 9c 00 1c 	addi sp,sp,28
+ 200143c:	c3 a0 00 00 	ret
+			}
+			
+			/* To avoid interrupt is again asserted by the UART after reading the IIR register, 
+	   		   we must to disable TX isr-source. NOTE: Could start spurious tx interrupt... */
+	   		if(EE_uart_enabled_rx_int(usp->mode))
+	   			uartc->ier = (volatile unsigned int)(MICOUART_IER_RX_INT_MASK);
+ 2001440:	34 01 00 01 	mvi r1,1
+ 2001444:	59 61 00 04 	sw (r11+4),r1
+ 2001448:	e3 ff ff da 	bi 20013b0 <EE_uart_common_handler+0xbc>
+            //lsr = uartc->lsr;
+            //if((lsr & (MICOUART_LSR_PE_MASK | MICOUART_LSR_FE_MASK)) == 0) if(uiValue & MICOUART_LSR_RX_RDY_MASK)
+            data = uartc->rxtx;
+            ret = EE_buffer_putmsg(&(usp->rxbuf), &data);
+            if(ret==EE_BUF_ERR_FULL) 
+				usp->err = EE_UART_ERR_RX_BUF_FULL;  
+ 200144c:	34 01 ff fb 	mvi r1,-5
+ 2001450:	59 c1 00 00 	sw (r14+0),r1
+ 2001454:	e3 ff ff f0 	bi 2001414 <EE_uart_common_handler+0x120>
+
+02001458 <EE_hal_i2c_write_byte_polling>:
+
+    return EE_I2C_OK;
+}
+				
+int EE_hal_i2c_write_byte_polling(OCI2CMDev_t* i2cc, EE_UINT8 device, EE_UINT8 address, EE_UINT8 data)
+{
+ 2001458:	b8 20 28 00 	mv r5,r1
+ 200145c:	20 42 00 ff 	andi r2,r2,0xff
+ 2001460:	20 63 00 ff 	andi r3,r3,0xff
+ 2001464:	20 84 00 ff 	andi r4,r4,0xff
+		Return values:
+			- the return values can be:	1 if i2c bus is idle else 0	
+*/	
+__INLINE__ int __ALWAYS_INLINE__ EE_hal_i2c_idle(OCI2CMDev_t* i2cc)
+{
+	return EE_i2c_bus_idle(i2cc->StatusCommand);
+ 2001468:	28 a1 00 10 	lw r1,(r5+16)
+	int ret;
+
+	while( !EE_hal_i2c_idle(i2cc) )
+ 200146c:	20 21 00 40 	andi r1,r1,0x40
+ 2001470:	5c 20 ff fe 	bne r1,r0,2001468 <EE_hal_i2c_write_byte_polling+0x10>
+		;
+	/* load address, set-up a write to write the device address out to the bus */
+	i2cc->Data = (device & ~EE_I2C_RW_MASK);
+ 2001474:	20 41 00 fe 	andi r1,r2,0xfe
+ 2001478:	58 a1 00 0c 	sw (r5+12),r1
+	/* initiate a start (repeated) and write out the address */
+	i2cc->StatusCommand = (OCI2CM_CMD_START | OCI2CM_CMD_WRITE);
+ 200147c:	34 02 00 90 	mvi r2,144
+ 2001480:	58 a2 00 10 	sw (r5+16),r2
+	/* wait for transfer to complete */
+	EE_i2c_pend_for_TIP_done(i2cc->StatusCommand);
+ 2001484:	28 a1 00 10 	lw r1,(r5+16)
+ 2001488:	20 22 00 02 	andi r2,r1,0x2
+ 200148c:	5c 40 ff fe 	bne r2,r0,2001484 <EE_hal_i2c_write_byte_polling+0x2c>
+	/* check if ack is received */
+	if( i2cc->StatusCommand & OCI2CM_STATUS_RX_ACK )
+ 2001490:	28 a1 00 10 	lw r1,(r5+16)
+ 2001494:	34 06 ff ee 	mvi r6,-18
+ 2001498:	20 21 00 80 	andi r1,r1,0x80
+ 200149c:	5c 22 00 1a 	bne r1,r2,2001504 <EE_hal_i2c_write_byte_polling+0xac>
+		ret = EE_I2C_ERR_DEV_ACK;
+	else
+	{
+		/* load address, set-up a write to write the address out to the bus */
+		i2cc->Data = (unsigned int)address;
+ 20014a0:	58 a3 00 0c 	sw (r5+12),r3
+		/* write the data out to the bus */
+		i2cc->StatusCommand = OCI2CM_CMD_WRITE;
+ 20014a4:	34 01 00 10 	mvi r1,16
+ 20014a8:	58 a1 00 10 	sw (r5+16),r1
+		/* wait for transfer to complete */
+		EE_i2c_pend_for_TIP_done(i2cc->StatusCommand);
+ 20014ac:	28 a1 00 10 	lw r1,(r5+16)
+ 20014b0:	20 22 00 02 	andi r2,r1,0x2
+ 20014b4:	5c 40 ff fe 	bne r2,r0,20014ac <EE_hal_i2c_write_byte_polling+0x54>
+		/* check if ack is received */
+		if( i2cc->StatusCommand & OCI2CM_STATUS_RX_ACK )
+ 20014b8:	28 a1 00 10 	lw r1,(r5+16)
+ 20014bc:	34 06 ff f1 	mvi r6,-15
+ 20014c0:	20 21 00 80 	andi r1,r1,0x80
+ 20014c4:	5c 22 00 10 	bne r1,r2,2001504 <EE_hal_i2c_write_byte_polling+0xac>
+			ret = EE_I2C_ERR_ADD_ACK;
+		else
+		{
+	  		/* load data in register */
+	    	i2cc->Data = (unsigned int)data;
+ 20014c8:	58 a4 00 0c 	sw (r5+12),r4
+	    	/* write the data out to the bus */
+	    	i2cc->StatusCommand = OCI2CM_CMD_WRITE;
+ 20014cc:	34 01 00 10 	mvi r1,16
+ 20014d0:	58 a1 00 10 	sw (r5+16),r1
+	    	/* wait for current transfer to complete */
+	    	EE_i2c_pend_for_TIP_done(i2cc->StatusCommand);
+ 20014d4:	28 a1 00 10 	lw r1,(r5+16)
+ 20014d8:	20 22 00 02 	andi r2,r1,0x2
+ 20014dc:	5c 40 ff fe 	bne r2,r0,20014d4 <EE_hal_i2c_write_byte_polling+0x7c>
+	    	/* check for ack  and if arb was lost during this transaction */
+	    	if( i2cc->StatusCommand & OCI2CM_STATUS_RX_ACK )
+ 20014e0:	28 a1 00 10 	lw r1,(r5+16)
+ 20014e4:	34 06 ff f0 	mvi r6,-16
+ 20014e8:	20 23 00 80 	andi r3,r1,0x80
+ 20014ec:	5c 62 00 06 	bne r3,r2,2001504 <EE_hal_i2c_write_byte_polling+0xac>
+	        	ret = EE_I2C_ERR_DATA_ACK;
+	    	else if( i2cc->StatusCommand & OCI2CM_STATUS_ARB_LOST )
+ 20014f0:	28 a1 00 10 	lw r1,(r5+16)
+ 20014f4:	34 06 ff ef 	mvi r6,-17
+ 20014f8:	20 21 00 20 	andi r1,r1,0x20
+ 20014fc:	5c 23 00 02 	bne r1,r3,2001504 <EE_hal_i2c_write_byte_polling+0xac>
+ 2001500:	b8 20 30 00 	mv r6,r1
+			else
+				ret = EE_I2C_OK;
+		}
+	}
+	/* stop signal */
+	EE_i2c_pend_for_TIP_done(i2cc->StatusCommand);
+ 2001504:	28 a1 00 10 	lw r1,(r5+16)
+ 2001508:	20 21 00 02 	andi r1,r1,0x2
+ 200150c:	5c 20 ff fe 	bne r1,r0,2001504 <EE_hal_i2c_write_byte_polling+0xac>
+    i2cc->StatusCommand = OCI2CM_CMD_STOP;
+ 2001510:	34 01 00 40 	mvi r1,64
+ 2001514:	58 a1 00 10 	sw (r5+16),r1
+	
+	return ret;	
+}
+ 2001518:	b8 c0 08 00 	mv r1,r6
+ 200151c:	c3 a0 00 00 	ret
+
+02001520 <EE_hal_i2c_read_byte_polling>:
+
+int EE_hal_i2c_read_byte_polling(OCI2CMDev_t* i2cc, EE_UINT8 device, EE_UINT8 address)
+{
+ 2001520:	b8 20 20 00 	mv r4,r1
+ 2001524:	20 45 00 ff 	andi r5,r2,0xff
+ 2001528:	20 63 00 ff 	andi r3,r3,0xff
+ 200152c:	28 81 00 10 	lw r1,(r4+16)
+	int ret;
+
+	while( !EE_hal_i2c_idle(i2cc) )
+ 2001530:	20 21 00 40 	andi r1,r1,0x40
+ 2001534:	5c 20 ff fe 	bne r1,r0,200152c <EE_hal_i2c_read_byte_polling+0xc>
+		;
+	/* load device address, set-up a write to write the device address out to the bus */
+	i2cc->Data = (device & ~EE_I2C_RW_MASK);					// AFTER WRITE
+ 2001538:	20 a1 00 fe 	andi r1,r5,0xfe
+ 200153c:	58 81 00 0c 	sw (r4+12),r1
+	/* initiate a start (repeated) and write out the address */
+	i2cc->StatusCommand = (OCI2CM_CMD_START | OCI2CM_CMD_WRITE);
+ 2001540:	34 02 00 90 	mvi r2,144
+ 2001544:	58 82 00 10 	sw (r4+16),r2
+	/* wait for transfer to complete */
+	EE_i2c_pend_for_TIP_done(i2cc->StatusCommand);
+ 2001548:	28 81 00 10 	lw r1,(r4+16)
+ 200154c:	20 22 00 02 	andi r2,r1,0x2
+ 2001550:	5c 40 ff fe 	bne r2,r0,2001548 <EE_hal_i2c_read_byte_polling+0x28>
+	/* check if ack is received */
+	if( i2cc->StatusCommand & OCI2CM_STATUS_RX_ACK )
+ 2001554:	28 81 00 10 	lw r1,(r4+16)
+ 2001558:	20 21 00 80 	andi r1,r1,0x80
+ 200155c:	5c 22 00 26 	bne r1,r2,20015f4 <EE_hal_i2c_read_byte_polling+0xd4>
+		ret = EE_I2C_ERR_DEV_ACK;
+	else
+	{
+		/* load address, set-up a write to write the address out to the bus */
+		i2cc->Data = (unsigned int)address;
+ 2001560:	58 83 00 0c 	sw (r4+12),r3
+		/* write the data out to the bus */
+		i2cc->StatusCommand = OCI2CM_CMD_WRITE;
+ 2001564:	34 01 00 10 	mvi r1,16
+ 2001568:	58 81 00 10 	sw (r4+16),r1
+		/* wait for transfer to complete */
+		EE_i2c_pend_for_TIP_done(i2cc->StatusCommand);
+ 200156c:	28 81 00 10 	lw r1,(r4+16)
+ 2001570:	20 23 00 02 	andi r3,r1,0x2
+ 2001574:	5c 60 ff fe 	bne r3,r0,200156c <EE_hal_i2c_read_byte_polling+0x4c>
+		/* check if ack is received */
+		if( i2cc->StatusCommand & OCI2CM_STATUS_RX_ACK )
+ 2001578:	28 81 00 10 	lw r1,(r4+16)
+ 200157c:	34 02 ff f1 	mvi r2,-15
+ 2001580:	20 21 00 80 	andi r1,r1,0x80
+ 2001584:	5c 23 00 15 	bne r1,r3,20015d8 <EE_hal_i2c_read_byte_polling+0xb8>
+			ret = EE_I2C_ERR_ADD_ACK;
+		else
+		{
+			/* load device address, set-up a write to write the device address out to the bus */
+			i2cc->Data = (device | EE_I2C_RW_MASK );			// AFTER READ
+ 2001588:	38 a1 00 01 	ori r1,r5,0x1
+ 200158c:	58 81 00 0c 	sw (r4+12),r1
+			/* initiate a start (repeated) and write out the address */
+			i2cc->StatusCommand = (OCI2CM_CMD_START | OCI2CM_CMD_WRITE);
+ 2001590:	34 02 00 90 	mvi r2,144
+ 2001594:	58 82 00 10 	sw (r4+16),r2
+			/* wait for transfer to complete */
+			EE_i2c_pend_for_TIP_done(i2cc->StatusCommand);
+ 2001598:	28 81 00 10 	lw r1,(r4+16)
+ 200159c:	20 22 00 02 	andi r2,r1,0x2
+ 20015a0:	5c 40 ff fe 	bne r2,r0,2001598 <EE_hal_i2c_read_byte_polling+0x78>
+			/* check if ack is received */
+			if( i2cc->StatusCommand & OCI2CM_STATUS_RX_ACK )
+ 20015a4:	28 81 00 10 	lw r1,(r4+16)
+ 20015a8:	20 21 00 80 	andi r1,r1,0x80
+ 20015ac:	5c 22 00 12 	bne r1,r2,20015f4 <EE_hal_i2c_read_byte_polling+0xd4>
+				ret = EE_I2C_ERR_DEV_ACK;
+			else
+			{
+				/* issue a read with a NACK */
+	   			i2cc->StatusCommand = (OCI2CM_CMD_READ | OCI2CM_CMD_NACK);
+ 20015b0:	34 01 00 28 	mvi r1,40
+ 20015b4:	58 81 00 10 	sw (r4+16),r1
+	   			/* wait till transfer is in progress */
+	   			EE_i2c_pend_for_TIP_done(i2cc->StatusCommand);
+ 20015b8:	28 81 00 10 	lw r1,(r4+16)
+ 20015bc:	20 23 00 02 	andi r3,r1,0x2
+ 20015c0:	5c 60 ff fe 	bne r3,r0,20015b8 <EE_hal_i2c_read_byte_polling+0x98>
+	   			/* read data */
+	   			ret = i2cc->Data;
+ 20015c4:	28 82 00 0c 	lw r2,(r4+12)
+	   			/* check for ack  and if arb was lost during this transaction */
+	   			if( i2cc->StatusCommand & OCI2CM_STATUS_ARB_LOST )
+ 20015c8:	28 81 00 10 	lw r1,(r4+16)
+ 20015cc:	20 21 00 20 	andi r1,r1,0x20
+ 20015d0:	44 23 00 02 	be r1,r3,20015d8 <EE_hal_i2c_read_byte_polling+0xb8>
+ 20015d4:	34 02 ff ef 	mvi r2,-17
+		       	 	ret = EE_I2C_ERR_ARB_LOST;
+			}
+		}
+	}
+	/* stop signal */
+	EE_i2c_pend_for_TIP_done(i2cc->StatusCommand);
+ 20015d8:	28 81 00 10 	lw r1,(r4+16)
+ 20015dc:	20 21 00 02 	andi r1,r1,0x2
+ 20015e0:	5c 20 ff fe 	bne r1,r0,20015d8 <EE_hal_i2c_read_byte_polling+0xb8>
+    i2cc->StatusCommand = OCI2CM_CMD_STOP;
+ 20015e4:	34 01 00 40 	mvi r1,64
+ 20015e8:	58 81 00 10 	sw (r4+16),r1
+		
+	return ret;
+}
+ 20015ec:	b8 40 08 00 	mv r1,r2
+ 20015f0:	c3 a0 00 00 	ret
+		       	 	ret = EE_I2C_ERR_ARB_LOST;
+			}
+		}
+	}
+	/* stop signal */
+	EE_i2c_pend_for_TIP_done(i2cc->StatusCommand);
+ 20015f4:	28 81 00 10 	lw r1,(r4+16)
+				/* issue a read with a NACK */
+	   			i2cc->StatusCommand = (OCI2CM_CMD_READ | OCI2CM_CMD_NACK);
+	   			/* wait till transfer is in progress */
+	   			EE_i2c_pend_for_TIP_done(i2cc->StatusCommand);
+	   			/* read data */
+	   			ret = i2cc->Data;
+ 20015f8:	34 02 ff ee 	mvi r2,-18
+		       	 	ret = EE_I2C_ERR_ARB_LOST;
+			}
+		}
+	}
+	/* stop signal */
+	EE_i2c_pend_for_TIP_done(i2cc->StatusCommand);
+ 20015fc:	20 21 00 02 	andi r1,r1,0x2
+ 2001600:	5c 20 ff f6 	bne r1,r0,20015d8 <EE_hal_i2c_read_byte_polling+0xb8>
+ 2001604:	e3 ff ff f8 	bi 20015e4 <EE_hal_i2c_read_byte_polling+0xc4>
+
+02001608 <EE_hal_i2c_write_buffer_polling>:
+		
+	return ret;
+}
+
+int EE_hal_i2c_write_buffer_polling(OCI2CMDev_t* i2cc, EE_UINT8 device, EE_UINT8 address, EE_UINT8 *data, int len)
+{
+ 2001608:	b8 20 30 00 	mv r6,r1
+ 200160c:	20 42 00 ff 	andi r2,r2,0xff
+ 2001610:	20 63 00 ff 	andi r3,r3,0xff
+ 2001614:	28 c1 00 10 	lw r1,(r6+16)
+	int i;
+	int ret;
+	
+	while( !EE_hal_i2c_idle(i2cc) )
+ 2001618:	20 21 00 40 	andi r1,r1,0x40
+ 200161c:	5c 20 ff fe 	bne r1,r0,2001614 <EE_hal_i2c_write_buffer_polling+0xc>
+		;
+	/* load device address, set-up a write to write the device address out to the bus */
+    i2cc->Data = (device & ~EE_I2C_RW_MASK);			// AFTER WRITE
+ 2001620:	20 41 00 fe 	andi r1,r2,0xfe
+ 2001624:	58 c1 00 0c 	sw (r6+12),r1
+    /* initiate a start (repeated) and write out the address */
+    i2cc->StatusCommand = (OCI2CM_CMD_START | OCI2CM_CMD_WRITE);
+ 2001628:	34 02 00 90 	mvi r2,144
+ 200162c:	58 c2 00 10 	sw (r6+16),r2
+    /* wait for transfer to complete */
+    EE_i2c_pend_for_TIP_done(i2cc->StatusCommand);
+ 2001630:	28 c1 00 10 	lw r1,(r6+16)
+ 2001634:	20 22 00 02 	andi r2,r1,0x2
+ 2001638:	5c 40 ff fe 	bne r2,r0,2001630 <EE_hal_i2c_write_buffer_polling+0x28>
+    /* check if ack is received */
+    if( i2cc->StatusCommand & OCI2CM_STATUS_RX_ACK )
+ 200163c:	28 c1 00 10 	lw r1,(r6+16)
+ 2001640:	34 07 ff ee 	mvi r7,-18
+ 2001644:	20 21 00 80 	andi r1,r1,0x80
+ 2001648:	5c 22 00 1c 	bne r1,r2,20016b8 <EE_hal_i2c_write_buffer_polling+0xb0>
+       	ret = EE_I2C_ERR_DEV_ACK;
+    else
+    {
+		/* load device address, set-up a write to write the device address out to the bus */
+    	i2cc->Data = (unsigned int)address;
+ 200164c:	58 c3 00 0c 	sw (r6+12),r3
+    	/* initiate a start (repeated) and write out the address */
+    	i2cc->StatusCommand = OCI2CM_CMD_WRITE;
+ 2001650:	34 01 00 10 	mvi r1,16
+ 2001654:	58 c1 00 10 	sw (r6+16),r1
+    	/* wait for transfer to complete */
+    	EE_i2c_pend_for_TIP_done(i2cc->StatusCommand);
+ 2001658:	28 c1 00 10 	lw r1,(r6+16)
+ 200165c:	20 22 00 02 	andi r2,r1,0x2
+ 2001660:	5c 40 ff fe 	bne r2,r0,2001658 <EE_hal_i2c_write_buffer_polling+0x50>
+    	/* check if ack is received */
+    	if( i2cc->StatusCommand & OCI2CM_STATUS_RX_ACK )
+ 2001664:	28 c1 00 10 	lw r1,(r6+16)
+ 2001668:	34 07 ff f1 	mvi r7,-15
+ 200166c:	20 21 00 80 	andi r1,r1,0x80
+ 2001670:	5c 22 00 12 	bne r1,r2,20016b8 <EE_hal_i2c_write_buffer_polling+0xb0>
+       		ret = EE_I2C_ERR_ADD_ACK;
+       	else
+       	{
+    		/* transfer the bytes */
+    		for ( i = 0; i < len; i++)
+ 2001674:	4c 25 00 0d 	bge r1,r5,20016a8 <EE_hal_i2c_write_buffer_polling+0xa0>
+ 2001678:	b8 20 18 00 	mv r3,r1
+    		{
+        		/* load data in register */
+        		i2cc->Data = (unsigned int)(data[i]);
+        		/* write the data out to the bus  */
+        		i2cc->StatusCommand = OCI2CM_CMD_WRITE;
+ 200167c:	34 07 00 10 	mvi r7,16
+       	{
+    		/* transfer the bytes */
+    		for ( i = 0; i < len; i++)
+    		{
+        		/* load data in register */
+        		i2cc->Data = (unsigned int)(data[i]);
+ 2001680:	b4 83 08 00 	add r1,r4,r3
+ 2001684:	40 22 00 00 	lbu r2,(r1+0)
+ 2001688:	58 c2 00 0c 	sw (r6+12),r2
+        		/* write the data out to the bus  */
+        		i2cc->StatusCommand = OCI2CM_CMD_WRITE;
+ 200168c:	58 c7 00 10 	sw (r6+16),r7
+        		/* wait for current transfer to complete */
+        		EE_i2c_pend_for_TIP_done(i2cc->StatusCommand);
+ 2001690:	28 c1 00 10 	lw r1,(r6+16)
+ 2001694:	20 21 00 02 	andi r1,r1,0x2
+ 2001698:	5c 20 ff fe 	bne r1,r0,2001690 <EE_hal_i2c_write_buffer_polling+0x88>
+        		/* check for ack */
+        		if( i2cc->StatusCommand & OCI2CM_STATUS_RX_ACK )
+ 200169c:	28 c1 00 10 	lw r1,(r6+16)
+    	if( i2cc->StatusCommand & OCI2CM_STATUS_RX_ACK )
+       		ret = EE_I2C_ERR_ADD_ACK;
+       	else
+       	{
+    		/* transfer the bytes */
+    		for ( i = 0; i < len; i++)
+ 20016a0:	34 63 00 01 	addi r3,r3,1
+ 20016a4:	48 a3 ff f7 	bg r5,r3,2001680 <EE_hal_i2c_write_buffer_polling+0x78>
+        		/* check for ack */
+        		if( i2cc->StatusCommand & OCI2CM_STATUS_RX_ACK )
+           			ret = EE_I2C_ERR_DATA_ACK;
+    		}
+    		/* see if arbitration was lost during this transaction */
+    		if( i2cc->StatusCommand & OCI2CM_STATUS_ARB_LOST )
+ 20016a8:	28 c1 00 10 	lw r1,(r6+16)
+ 20016ac:	34 07 ff ef 	mvi r7,-17
+ 20016b0:	20 21 00 20 	andi r1,r1,0x20
+ 20016b4:	44 20 00 08 	be r1,r0,20016d4 <EE_hal_i2c_write_buffer_polling+0xcc>
+    		else	
+        		ret = EE_I2C_OK;
+		}
+	}
+	/* stop signal */
+	EE_i2c_pend_for_TIP_done(i2cc->StatusCommand);
+ 20016b8:	28 c1 00 10 	lw r1,(r6+16)
+ 20016bc:	20 21 00 02 	andi r1,r1,0x2
+ 20016c0:	5c 20 ff fe 	bne r1,r0,20016b8 <EE_hal_i2c_write_buffer_polling+0xb0>
+    i2cc->StatusCommand = OCI2CM_CMD_STOP;
+ 20016c4:	34 01 00 40 	mvi r1,64
+ 20016c8:	58 c1 00 10 	sw (r6+16),r1
+    
+	// All done!!!
+	return ret;
+}	
+ 20016cc:	b8 e0 08 00 	mv r1,r7
+ 20016d0:	c3 a0 00 00 	ret
+        		/* check for ack */
+        		if( i2cc->StatusCommand & OCI2CM_STATUS_RX_ACK )
+           			ret = EE_I2C_ERR_DATA_ACK;
+    		}
+    		/* see if arbitration was lost during this transaction */
+    		if( i2cc->StatusCommand & OCI2CM_STATUS_ARB_LOST )
+ 20016d4:	b8 20 38 00 	mv r7,r1
+    		else	
+        		ret = EE_I2C_OK;
+		}
+	}
+	/* stop signal */
+	EE_i2c_pend_for_TIP_done(i2cc->StatusCommand);
+ 20016d8:	28 c1 00 10 	lw r1,(r6+16)
+ 20016dc:	20 21 00 02 	andi r1,r1,0x2
+ 20016e0:	5c 20 ff f6 	bne r1,r0,20016b8 <EE_hal_i2c_write_buffer_polling+0xb0>
+ 20016e4:	e3 ff ff f8 	bi 20016c4 <EE_hal_i2c_write_buffer_polling+0xbc>
+
+020016e8 <EE_hal_i2c_read_buffer_polling>:
+	// All done!!!
+	return ret;
+}	
+
+int EE_hal_i2c_read_buffer_polling(OCI2CMDev_t* i2cc, EE_UINT8 device, EE_UINT8 address, EE_UINT8 *data, int len)
+{
+ 20016e8:	b8 20 30 00 	mv r6,r1
+ 20016ec:	20 47 00 ff 	andi r7,r2,0xff
+ 20016f0:	20 63 00 ff 	andi r3,r3,0xff
+ 20016f4:	28 c1 00 10 	lw r1,(r6+16)
+	int i;
+	int ret;
+
+	while( !EE_hal_i2c_idle(i2cc) )
+ 20016f8:	20 21 00 40 	andi r1,r1,0x40
+ 20016fc:	5c 20 ff fe 	bne r1,r0,20016f4 <EE_hal_i2c_read_buffer_polling+0xc>
+		;
+	/* load device address, set-up a write to write the device address out to the bus */
+	i2cc->Data = (device & ~EE_I2C_RW_MASK);			// AFTER WRITE 
+ 2001700:	20 e1 00 fe 	andi r1,r7,0xfe
+ 2001704:	58 c1 00 0c 	sw (r6+12),r1
+	/* initiate a start (repeated) and write out the address */
+	i2cc->StatusCommand = (OCI2CM_CMD_START | OCI2CM_CMD_WRITE);
+ 2001708:	34 02 00 90 	mvi r2,144
+ 200170c:	58 c2 00 10 	sw (r6+16),r2
+	/* wait for transfer to complete */
+	EE_i2c_pend_for_TIP_done(i2cc->StatusCommand);
+ 2001710:	28 c1 00 10 	lw r1,(r6+16)
+ 2001714:	20 22 00 02 	andi r2,r1,0x2
+ 2001718:	5c 40 ff fe 	bne r2,r0,2001710 <EE_hal_i2c_read_buffer_polling+0x28>
+	/* check if ack is received */
+	if( i2cc->StatusCommand & OCI2CM_STATUS_RX_ACK )
+ 200171c:	28 c1 00 10 	lw r1,(r6+16)
+ 2001720:	20 21 00 80 	andi r1,r1,0x80
+ 2001724:	5c 22 00 30 	bne r1,r2,20017e4 <EE_hal_i2c_read_buffer_polling+0xfc>
+		ret = EE_I2C_ERR_DEV_ACK;
+	else
+	{
+		/* load device address, set-up a write to write the device address out to the bus */
+    	i2cc->Data = (unsigned int)address;
+ 2001728:	58 c3 00 0c 	sw (r6+12),r3
+    	/* initiate a start (repeated) and write out the address */
+    	i2cc->StatusCommand = OCI2CM_CMD_WRITE;
+ 200172c:	34 01 00 10 	mvi r1,16
+ 2001730:	58 c1 00 10 	sw (r6+16),r1
+    	/* wait for transfer to complete */
+    	EE_i2c_pend_for_TIP_done(i2cc->StatusCommand);
+ 2001734:	28 c1 00 10 	lw r1,(r6+16)
+ 2001738:	20 22 00 02 	andi r2,r1,0x2
+ 200173c:	5c 40 ff fe 	bne r2,r0,2001734 <EE_hal_i2c_read_buffer_polling+0x4c>
+    	/* check if ack is received */
+    	if( i2cc->StatusCommand & OCI2CM_STATUS_RX_ACK )
+ 2001740:	28 c1 00 10 	lw r1,(r6+16)
+ 2001744:	34 03 ff f1 	mvi r3,-15
+ 2001748:	20 21 00 80 	andi r1,r1,0x80
+ 200174c:	5c 22 00 1f 	bne r1,r2,20017c8 <EE_hal_i2c_read_buffer_polling+0xe0>
+       		ret = EE_I2C_ERR_ADD_ACK;
+       	else
+       	{
+			/* load device address, set-up a write to write the device address out to the bus */
+			i2cc->Data = (device | EE_I2C_RW_MASK);		// AFTER READ
+ 2001750:	38 e1 00 01 	ori r1,r7,0x1
+ 2001754:	58 c1 00 0c 	sw (r6+12),r1
+			/* initiate a start (repeated) and write out the address */
+			i2cc->StatusCommand = (OCI2CM_CMD_START | OCI2CM_CMD_WRITE);
+ 2001758:	34 02 00 90 	mvi r2,144
+ 200175c:	58 c2 00 10 	sw (r6+16),r2
+			/* wait for transfer to complete */
+			EE_i2c_pend_for_TIP_done(i2cc->StatusCommand);
+ 2001760:	28 c1 00 10 	lw r1,(r6+16)
+ 2001764:	20 22 00 02 	andi r2,r1,0x2
+ 2001768:	5c 40 ff fe 	bne r2,r0,2001760 <EE_hal_i2c_read_buffer_polling+0x78>
+			/* check if ack is received */
+			if( i2cc->StatusCommand & OCI2CM_STATUS_RX_ACK )
+ 200176c:	28 c1 00 10 	lw r1,(r6+16)
+ 2001770:	20 21 00 80 	andi r1,r1,0x80
+ 2001774:	5c 22 00 1c 	bne r1,r2,20017e4 <EE_hal_i2c_read_buffer_polling+0xfc>
+				ret = EE_I2C_ERR_DEV_ACK;
+			else
+			{
+				/* begin reading data */
+		   		for (i = 0; i < len; i++)
+ 2001778:	4c 25 00 0f 	bge r1,r5,20017b4 <EE_hal_i2c_read_buffer_polling+0xcc>
+ 200177c:	b8 20 18 00 	mv r3,r1
+ 2001780:	34 a7 ff ff 	addi r7,r5,-1
+		   		{
+		       		/* read data; send ACK on all reads except the last one */
+		       		if( i == (len - 1) )
+		           		i2cc->StatusCommand = (OCI2CM_CMD_READ|OCI2CM_CMD_NACK);
+		       		else
+		           		i2cc->StatusCommand = (OCI2CM_CMD_READ|OCI2CM_CMD_ACK);	
+ 2001784:	34 08 00 20 	mvi r8,32
+				/* begin reading data */
+		   		for (i = 0; i < len; i++)
+		   		{
+		       		/* read data; send ACK on all reads except the last one */
+		       		if( i == (len - 1) )
+		           		i2cc->StatusCommand = (OCI2CM_CMD_READ|OCI2CM_CMD_NACK);
+ 2001788:	34 09 00 28 	mvi r9,40
+			{
+				/* begin reading data */
+		   		for (i = 0; i < len; i++)
+		   		{
+		       		/* read data; send ACK on all reads except the last one */
+		       		if( i == (len - 1) )
+ 200178c:	44 e3 00 1b 	be r7,r3,20017f8 <EE_hal_i2c_read_buffer_polling+0x110>
+		           		i2cc->StatusCommand = (OCI2CM_CMD_READ|OCI2CM_CMD_NACK);
+		       		else
+		           		i2cc->StatusCommand = (OCI2CM_CMD_READ|OCI2CM_CMD_ACK);	
+ 2001790:	58 c8 00 10 	sw (r6+16),r8
+		       		/* wait while transfer is in progress */
+		       		EE_i2c_pend_for_TIP_done(i2cc->StatusCommand);
+ 2001794:	28 c1 00 10 	lw r1,(r6+16)
+ 2001798:	20 21 00 02 	andi r1,r1,0x2
+ 200179c:	5c 20 ff fe 	bne r1,r0,2001794 <EE_hal_i2c_read_buffer_polling+0xac>
+		       		/* read data */
+		       		data[i] = (EE_UINT8)(i2cc->Data);
+ 20017a0:	28 c2 00 0c 	lw r2,(r6+12)
+ 20017a4:	b4 83 08 00 	add r1,r4,r3
+			if( i2cc->StatusCommand & OCI2CM_STATUS_RX_ACK )
+				ret = EE_I2C_ERR_DEV_ACK;
+			else
+			{
+				/* begin reading data */
+		   		for (i = 0; i < len; i++)
+ 20017a8:	34 63 00 01 	addi r3,r3,1
+		       		else
+		           		i2cc->StatusCommand = (OCI2CM_CMD_READ|OCI2CM_CMD_ACK);	
+		       		/* wait while transfer is in progress */
+		       		EE_i2c_pend_for_TIP_done(i2cc->StatusCommand);
+		       		/* read data */
+		       		data[i] = (EE_UINT8)(i2cc->Data);
+ 20017ac:	30 22 00 00 	sb (r1+0),r2
+			if( i2cc->StatusCommand & OCI2CM_STATUS_RX_ACK )
+				ret = EE_I2C_ERR_DEV_ACK;
+			else
+			{
+				/* begin reading data */
+		   		for (i = 0; i < len; i++)
+ 20017b0:	48 a3 ff f7 	bg r5,r3,200178c <EE_hal_i2c_read_buffer_polling+0xa4>
+		       		EE_i2c_pend_for_TIP_done(i2cc->StatusCommand);
+		       		/* read data */
+		       		data[i] = (EE_UINT8)(i2cc->Data);
+				}
+				/* check for ack  and if arb was lost during this transaction */
+				if( i2cc->StatusCommand & OCI2CM_STATUS_ARB_LOST )
+ 20017b4:	28 c1 00 10 	lw r1,(r6+16)
+ 20017b8:	34 03 ff ef 	mvi r3,-17
+ 20017bc:	20 21 00 20 	andi r1,r1,0x20
+ 20017c0:	5c 20 00 02 	bne r1,r0,20017c8 <EE_hal_i2c_read_buffer_polling+0xe0>
+ 20017c4:	b8 20 18 00 	mv r3,r1
+	        		ret = EE_I2C_OK;	// return the number of bytes received... 
+			}
+		}
+	}
+	/* stop signal */
+	EE_i2c_pend_for_TIP_done(i2cc->StatusCommand);
+ 20017c8:	28 c1 00 10 	lw r1,(r6+16)
+ 20017cc:	20 21 00 02 	andi r1,r1,0x2
+ 20017d0:	5c 20 ff fe 	bne r1,r0,20017c8 <EE_hal_i2c_read_buffer_polling+0xe0>
+    i2cc->StatusCommand = OCI2CM_CMD_STOP;
+ 20017d4:	34 01 00 40 	mvi r1,64
+ 20017d8:	58 c1 00 10 	sw (r6+16),r1
+		
+	// All done!!!
+	return ret;
+}
+ 20017dc:	b8 60 08 00 	mv r1,r3
+ 20017e0:	c3 a0 00 00 	ret
+	        		ret = EE_I2C_OK;	// return the number of bytes received... 
+			}
+		}
+	}
+	/* stop signal */
+	EE_i2c_pend_for_TIP_done(i2cc->StatusCommand);
+ 20017e4:	28 c1 00 10 	lw r1,(r6+16)
+		       		EE_i2c_pend_for_TIP_done(i2cc->StatusCommand);
+		       		/* read data */
+		       		data[i] = (EE_UINT8)(i2cc->Data);
+				}
+				/* check for ack  and if arb was lost during this transaction */
+				if( i2cc->StatusCommand & OCI2CM_STATUS_ARB_LOST )
+ 20017e8:	34 03 ff ee 	mvi r3,-18
+	        		ret = EE_I2C_OK;	// return the number of bytes received... 
+			}
+		}
+	}
+	/* stop signal */
+	EE_i2c_pend_for_TIP_done(i2cc->StatusCommand);
+ 20017ec:	20 21 00 02 	andi r1,r1,0x2
+ 20017f0:	5c 20 ff f6 	bne r1,r0,20017c8 <EE_hal_i2c_read_buffer_polling+0xe0>
+ 20017f4:	e3 ff ff f8 	bi 20017d4 <EE_hal_i2c_read_buffer_polling+0xec>
+				/* begin reading data */
+		   		for (i = 0; i < len; i++)
+		   		{
+		       		/* read data; send ACK on all reads except the last one */
+		       		if( i == (len - 1) )
+		           		i2cc->StatusCommand = (OCI2CM_CMD_READ|OCI2CM_CMD_NACK);
+ 20017f8:	58 c9 00 10 	sw (r6+16),r9
+ 20017fc:	e3 ff ff e6 	bi 2001794 <EE_hal_i2c_read_buffer_polling+0xac>
+
+02001800 <EE_hal_i2c_config>:
+}
+															
+#ifndef __USE_I2C_IRQ__
+
+int EE_hal_i2c_config(OCI2CMDev_t* i2cc, int baudrate, int settings)
+{
+ 2001800:	37 9c ff f4 	addi sp,sp,-12
+ 2001804:	5b 8b 00 0c 	sw (sp+12),r11
+ 2001808:	5b 8c 00 08 	sw (sp+8),r12
+ 200180c:	5b 9d 00 04 	sw (sp+4),ra
+ 2001810:	b8 20 58 00 	mv r11,r1
+ 2001814:	b8 40 28 00 	mv r5,r2
+}
+
+/* This function is used to send a stop condition on the bus */
+int EE_hal_i2c_stop(OCI2CMDev_t* i2cc)		//note: stop condition manual or not???
+{
+	EE_i2c_pend_for_TIP_done(i2cc->StatusCommand);
+ 2001818:	29 61 00 10 	lw r1,(r11+16)
+ 200181c:	20 2c 00 02 	andi r12,r1,0x2
+ 2001820:	5d 80 ff fe 	bne r12,r0,2001818 <EE_hal_i2c_config+0x18>
+
+    i2cc->StatusCommand = OCI2CM_CMD_STOP;
+ 2001824:	34 01 00 40 	mvi r1,64
+ 2001828:	59 61 00 10 	sw (r11+16),r1
+	   command, or when the command register has the STO bit set. When halted during a
+	   transfer, the core can hang the I2C bus.  
+	*/	
+	EE_hal_i2c_stop(i2cc);
+	
+	i2cc->Control &= ~OCI2CM_CTL_CORE_ENABLE; 
+ 200182c:	29 63 00 08 	lw r3,(r11+8)
+ 2001830:	34 01 ff 7f 	mvi r1,-129
+{
+	int prescale;
+	
+	EE_hal_i2c_disable(i2cc);		 
+	EE_hal_i2c_disable_IRQ(i2cc);                       
+	prescale = ((MICO32_CPU_CLOCK_MHZ/(5*baudrate)-1));
+ 2001834:	3c a2 00 02 	sli r2,r5,2
+	   command, or when the command register has the STO bit set. When halted during a
+	   transfer, the core can hang the I2C bus.  
+	*/	
+	EE_hal_i2c_stop(i2cc);
+	
+	i2cc->Control &= ~OCI2CM_CTL_CORE_ENABLE; 
+ 2001838:	a0 61 18 00 	and r3,r3,r1
+ 200183c:	59 63 00 08 	sw (r11+8),r3
+		Return values:
+			- the return values can be:	EE_I2C_OK 	
+*/													
+__INLINE__ int __ALWAYS_INLINE__ EE_hal_i2c_disable_IRQ(OCI2CMDev_t* i2cc)
+{
+	i2cc->Control &= ~OCI2CM_CTL_INT_ENABLE;
+ 2001840:	29 64 00 08 	lw r4,(r11+8)
+ 2001844:	34 03 ff bf 	mvi r3,-65
+{
+	int prescale;
+	
+	EE_hal_i2c_disable(i2cc);		 
+	EE_hal_i2c_disable_IRQ(i2cc);                       
+	prescale = ((MICO32_CPU_CLOCK_MHZ/(5*baudrate)-1));
+ 2001848:	78 01 02 06 	mvhi r1,0x206
+ 200184c:	a0 83 20 00 	and r4,r4,r3
+ 2001850:	b4 45 10 00 	add r2,r2,r5
+ 2001854:	59 64 00 08 	sw (r11+8),r4
+ 2001858:	38 21 cc 80 	ori r1,r1,0xcc80
+ 200185c:	f8 00 00 f8 	calli 2001c3c <__divsi3>
+ 2001860:	34 21 ff ff 	addi r1,r1,-1
+	i2cc->PrescaleLo = prescale & 0xff;                               
+    i2cc->PrescaleHi = prescale >> 8;                                          
+ 2001864:	14 22 00 08 	sri r2,r1,8
+	int prescale;
+	
+	EE_hal_i2c_disable(i2cc);		 
+	EE_hal_i2c_disable_IRQ(i2cc);                       
+	prescale = ((MICO32_CPU_CLOCK_MHZ/(5*baudrate)-1));
+	i2cc->PrescaleLo = prescale & 0xff;                               
+ 2001868:	20 21 00 ff 	andi r1,r1,0xff
+ 200186c:	59 61 00 00 	sw (r11+0),r1
+    i2cc->PrescaleHi = prescale >> 8;                                          
+ 2001870:	59 62 00 04 	sw (r11+4),r2
+    i2cc->Data = 0;                                               
+ 2001874:	59 6c 00 0c 	sw (r11+12),r12
+    i2cc->StatusCommand = 0;   
+ 2001878:	59 6c 00 10 	sw (r11+16),r12
+		Return values:
+			- the return values can be:	EE_I2C_OK 	
+*/														
+__INLINE__ int __ALWAYS_INLINE__ EE_hal_i2c_enable(OCI2CMDev_t* i2cc)
+{
+	i2cc->Control |= OCI2CM_CTL_CORE_ENABLE;  
+ 200187c:	29 62 00 08 	lw r2,(r11+8)
+	EE_hal_i2c_enable(i2cc);	
+	
+	// All done!!!
+	return EE_I2C_OK;
+
+}
+ 2001880:	b9 80 08 00 	mv r1,r12
+ 2001884:	38 42 00 80 	ori r2,r2,0x80
+ 2001888:	59 62 00 08 	sw (r11+8),r2
+ 200188c:	2b 9d 00 04 	lw ra,(sp+4)
+ 2001890:	2b 8b 00 0c 	lw r11,(sp+12)
+ 2001894:	2b 8c 00 08 	lw r12,(sp+8)
+ 2001898:	37 9c 00 0c 	addi sp,sp,12
+ 200189c:	c3 a0 00 00 	ret
+
+020018a0 <EE_buffer_isempty>:
+  	// All done!!!
+  	return EE_BUF_OK;	  	
+}
+
+int EE_buffer_isempty(EE_buffer *buf)
+{
+ 20018a0:	b8 20 18 00 	mv r3,r1
+ * Disable interrupts
+ */
+__INLINE__ EE_FREG __ALWAYS_INLINE__ EE_mico32_disableIRQ(void)
+{
+    EE_FREG oldie, newie;
+    asm volatile ("rcsr %0,ie":"=r"(oldie));
+ 20018a4:	90 00 20 00 	rcsr r4,IE
+    newie = oldie & (~0x1);
+    asm volatile ("wcsr ie, %0"::"r"(newie));
+ 20018a8:	34 01 ff fe 	mvi r1,-2
+ 20018ac:	a0 81 08 00 	and r1,r4,r1
+ 20018b0:	d0 01 00 00 	wcsr IE,r1
+	int retvalue;
+	unsigned int intst;
+	
+	intst = EE_mico32_disableIRQ();				//EE_hal_disableIRQ();
+	if((buf->g == buf->p) && (buf->counter==0))
+ 20018b4:	28 62 00 00 	lw r2,(r3+0)
+ 20018b8:	28 61 00 04 	lw r1,(r3+4)
+ 20018bc:	34 05 00 00 	mvi r5,0
+ 20018c0:	44 41 00 08 	be r2,r1,20018e0 <EE_buffer_isempty+0x40>
+		retvalue = 1;
+	else
+		retvalue = 0; 	
+	if (EE_mico32_are_IRQs_enabled(intst))		//EE_hal_enableIRQ();
+ 20018c4:	20 81 00 01 	andi r1,r4,0x1
+ 20018c8:	44 20 00 04 	be r1,r0,20018d8 <EE_buffer_isempty+0x38>
+ * Enable interrupts
+ */
+__INLINE__ void __ALWAYS_INLINE__ EE_mico32_enableIRQ(void)
+{
+    EE_FREG oldie, newie;
+    asm volatile ("rcsr %0,ie":"=r"(oldie));
+ 20018cc:	90 00 08 00 	rcsr r1,IE
+    newie = oldie | (0x1);
+    asm volatile ("wcsr ie, %0"::"r"(newie));
+ 20018d0:	38 21 00 01 	ori r1,r1,0x1
+ 20018d4:	d0 01 00 00 	wcsr IE,r1
+        EE_mico32_enableIRQ();
+	
+	return retvalue;	
+}
+ 20018d8:	b8 a0 08 00 	mv r1,r5
+ 20018dc:	c3 a0 00 00 	ret
+{
+	int retvalue;
+	unsigned int intst;
+	
+	intst = EE_mico32_disableIRQ();				//EE_hal_disableIRQ();
+	if((buf->g == buf->p) && (buf->counter==0))
+ 20018e0:	28 61 00 08 	lw r1,(r3+8)
+ 20018e4:	64 25 00 00 	cmpei r5,r1,0
+ 20018e8:	e3 ff ff f7 	bi 20018c4 <EE_buffer_isempty+0x24>
+
+020018ec <EE_buffer_putmsg>:
+		
+	return retvalue;	
+}
+
+int EE_buffer_putmsg(EE_buffer *buf, EE_UINT8* msg)
+{
+ 20018ec:	b8 40 30 00 	mv r6,r2
+ 20018f0:	b8 20 28 00 	mv r5,r1
+	int retvalue;
+	int i=0;
+	unsigned int intst;
+	
+	if(msg==NULL)
+ 20018f4:	34 04 ff fc 	mvi r4,-4
+ 20018f8:	44 40 00 25 	be r2,r0,200198c <EE_buffer_putmsg+0xa0>
+ * Disable interrupts
+ */
+__INLINE__ EE_FREG __ALWAYS_INLINE__ EE_mico32_disableIRQ(void)
+{
+    EE_FREG oldie, newie;
+    asm volatile ("rcsr %0,ie":"=r"(oldie));
+ 20018fc:	90 00 38 00 	rcsr r7,IE
+    newie = oldie & (~0x1);
+    asm volatile ("wcsr ie, %0"::"r"(newie));
+ 2001900:	34 01 ff fe 	mvi r1,-2
+ 2001904:	a0 e1 08 00 	and r1,r7,r1
+ 2001908:	d0 01 00 00 	wcsr IE,r1
+		return EE_BUF_ERR_NULL;
+	
+	intst = EE_mico32_disableIRQ();				//EE_hal_disableIRQ();
+	if((buf->g == buf->p) && (buf->counter==buf->buf_size))
+ 200190c:	28 a3 00 04 	lw r3,(r5+4)
+ 2001910:	28 a1 00 00 	lw r1,(r5+0)
+ 2001914:	44 23 00 20 	be r1,r3,2001994 <EE_buffer_putmsg+0xa8>
+		retvalue = EE_BUF_ERR_FULL;
+	else
+	{ 	
+		for(i=0;i<(buf->msg_size);i++)	
+ 2001918:	28 a2 00 0c 	lw r2,(r5+12)
+ 200191c:	4c 02 00 0f 	bge r0,r2,2001958 <EE_buffer_putmsg+0x6c>
+ 2001920:	34 04 00 00 	mvi r4,0
+    		buf(buf->p,i) = msg[i];				//buf->data[buf->p][i] = msg[i];
+ 2001924:	28 a1 00 14 	lw r1,(r5+20)
+ 2001928:	88 43 10 00 	mul r2,r2,r3
+ 200192c:	b4 c4 18 00 	add r3,r6,r4
+ 2001930:	40 63 00 00 	lbu r3,(r3+0)
+ 2001934:	b4 24 08 00 	add r1,r1,r4
+ 2001938:	b4 22 08 00 	add r1,r1,r2
+ 200193c:	30 23 00 00 	sb (r1+0),r3
+	intst = EE_mico32_disableIRQ();				//EE_hal_disableIRQ();
+	if((buf->g == buf->p) && (buf->counter==buf->buf_size))
+		retvalue = EE_BUF_ERR_FULL;
+	else
+	{ 	
+		for(i=0;i<(buf->msg_size);i++)	
+ 2001940:	28 a2 00 0c 	lw r2,(r5+12)
+ 2001944:	34 84 00 01 	addi r4,r4,1
+ 2001948:	4c 82 00 03 	bge r4,r2,2001954 <EE_buffer_putmsg+0x68>
+ 200194c:	28 a3 00 04 	lw r3,(r5+4)
+ 2001950:	e3 ff ff f5 	bi 2001924 <EE_buffer_putmsg+0x38>
+ 2001954:	28 a3 00 04 	lw r3,(r5+4)
+    		buf(buf->p,i) = msg[i];				//buf->data[buf->p][i] = msg[i];
+    	buf->p++;
+    	if(buf->p == buf->buf_size)
+ 2001958:	28 a2 00 10 	lw r2,(r5+16)
+		retvalue = EE_BUF_ERR_FULL;
+	else
+	{ 	
+		for(i=0;i<(buf->msg_size);i++)	
+    		buf(buf->p,i) = msg[i];				//buf->data[buf->p][i] = msg[i];
+    	buf->p++;
+ 200195c:	34 61 00 01 	addi r1,r3,1
+ 2001960:	58 a1 00 04 	sw (r5+4),r1
+    	if(buf->p == buf->buf_size)
+ 2001964:	44 22 00 11 	be r1,r2,20019a8 <EE_buffer_putmsg+0xbc>
+    		buf->p = 0;							//buf->p = (buf->p % (buf->buf_size));
+    	buf->counter++;
+ 2001968:	28 a1 00 08 	lw r1,(r5+8)
+ 200196c:	34 04 00 00 	mvi r4,0
+ 2001970:	34 21 00 01 	addi r1,r1,1
+ 2001974:	58 a1 00 08 	sw (r5+8),r1
+    	retvalue = EE_BUF_OK;
+	}
+    if (EE_mico32_are_IRQs_enabled(intst))		//EE_hal_enableIRQ();
+ 2001978:	20 e1 00 01 	andi r1,r7,0x1
+ 200197c:	44 20 00 04 	be r1,r0,200198c <EE_buffer_putmsg+0xa0>
+ * Enable interrupts
+ */
+__INLINE__ void __ALWAYS_INLINE__ EE_mico32_enableIRQ(void)
+{
+    EE_FREG oldie, newie;
+    asm volatile ("rcsr %0,ie":"=r"(oldie));
+ 2001980:	90 00 08 00 	rcsr r1,IE
+    newie = oldie | (0x1);
+    asm volatile ("wcsr ie, %0"::"r"(newie));
+ 2001984:	38 21 00 01 	ori r1,r1,0x1
+ 2001988:	d0 01 00 00 	wcsr IE,r1
+        EE_mico32_enableIRQ();
+    
+  	return retvalue;
+}
+ 200198c:	b8 80 08 00 	mv r1,r4
+ 2001990:	c3 a0 00 00 	ret
+	
+	if(msg==NULL)
+		return EE_BUF_ERR_NULL;
+	
+	intst = EE_mico32_disableIRQ();				//EE_hal_disableIRQ();
+	if((buf->g == buf->p) && (buf->counter==buf->buf_size))
+ 2001994:	28 a2 00 08 	lw r2,(r5+8)
+ 2001998:	28 a1 00 10 	lw r1,(r5+16)
+ 200199c:	34 04 ff fe 	mvi r4,-2
+ 20019a0:	5c 41 ff de 	bne r2,r1,2001918 <EE_buffer_putmsg+0x2c>
+ 20019a4:	e3 ff ff f5 	bi 2001978 <EE_buffer_putmsg+0x8c>
+	{ 	
+		for(i=0;i<(buf->msg_size);i++)	
+    		buf(buf->p,i) = msg[i];				//buf->data[buf->p][i] = msg[i];
+    	buf->p++;
+    	if(buf->p == buf->buf_size)
+    		buf->p = 0;							//buf->p = (buf->p % (buf->buf_size));
+ 20019a8:	34 01 00 00 	mvi r1,0
+ 20019ac:	58 a1 00 04 	sw (r5+4),r1
+ 20019b0:	e3 ff ff ee 	bi 2001968 <EE_buffer_putmsg+0x7c>
+
+020019b4 <EE_buffer_getmsg>:
+    
+  	return retvalue;
+}
+
+int EE_buffer_getmsg(EE_buffer *buf, EE_UINT8* msg)
+{
+ 20019b4:	b8 40 30 00 	mv r6,r2
+ 20019b8:	b8 20 28 00 	mv r5,r1
+	int retvalue;
+	int i=0;
+	unsigned int intst;
+	
+	if(msg==NULL)
+ 20019bc:	34 02 ff fc 	mvi r2,-4
+ 20019c0:	44 c0 00 25 	be r6,r0,2001a54 <EE_buffer_getmsg+0xa0>
+ * Disable interrupts
+ */
+__INLINE__ EE_FREG __ALWAYS_INLINE__ EE_mico32_disableIRQ(void)
+{
+    EE_FREG oldie, newie;
+    asm volatile ("rcsr %0,ie":"=r"(oldie));
+ 20019c4:	90 00 38 00 	rcsr r7,IE
+    newie = oldie & (~0x1);
+    asm volatile ("wcsr ie, %0"::"r"(newie));
+ 20019c8:	34 01 ff fe 	mvi r1,-2
+ 20019cc:	a0 e1 08 00 	and r1,r7,r1
+ 20019d0:	d0 01 00 00 	wcsr IE,r1
+		return EE_BUF_ERR_NULL;
+	
+	intst = EE_mico32_disableIRQ();				//EE_hal_disableIRQ();
+	if((buf->g == buf->p) && (buf->counter==0)) 
+ 20019d4:	28 a3 00 00 	lw r3,(r5+0)
+ 20019d8:	28 a1 00 04 	lw r1,(r5+4)
+ 20019dc:	44 61 00 20 	be r3,r1,2001a5c <EE_buffer_getmsg+0xa8>
+		retvalue = EE_BUF_ERR_EMPTY; 
+	else
+	{	
+  		for(i=0;i<(buf->msg_size);i++)	
+ 20019e0:	28 a2 00 0c 	lw r2,(r5+12)
+ 20019e4:	4c 02 00 0f 	bge r0,r2,2001a20 <EE_buffer_getmsg+0x6c>
+ 20019e8:	34 04 00 00 	mvi r4,0
+    		msg[i] = buf(buf->g,i);				//buf->data[buf->g][i];
+ 20019ec:	28 a1 00 14 	lw r1,(r5+20)
+ 20019f0:	88 62 10 00 	mul r2,r3,r2
+ 20019f4:	b4 c4 18 00 	add r3,r6,r4
+ 20019f8:	b4 24 08 00 	add r1,r1,r4
+ 20019fc:	b4 22 08 00 	add r1,r1,r2
+ 2001a00:	40 21 00 00 	lbu r1,(r1+0)
+	intst = EE_mico32_disableIRQ();				//EE_hal_disableIRQ();
+	if((buf->g == buf->p) && (buf->counter==0)) 
+		retvalue = EE_BUF_ERR_EMPTY; 
+	else
+	{	
+  		for(i=0;i<(buf->msg_size);i++)	
+ 2001a04:	34 84 00 01 	addi r4,r4,1
+    		msg[i] = buf(buf->g,i);				//buf->data[buf->g][i];
+ 2001a08:	30 61 00 00 	sb (r3+0),r1
+	intst = EE_mico32_disableIRQ();				//EE_hal_disableIRQ();
+	if((buf->g == buf->p) && (buf->counter==0)) 
+		retvalue = EE_BUF_ERR_EMPTY; 
+	else
+	{	
+  		for(i=0;i<(buf->msg_size);i++)	
+ 2001a0c:	28 a2 00 0c 	lw r2,(r5+12)
+ 2001a10:	4c 82 00 03 	bge r4,r2,2001a1c <EE_buffer_getmsg+0x68>
+ 2001a14:	28 a3 00 00 	lw r3,(r5+0)
+ 2001a18:	e3 ff ff f5 	bi 20019ec <EE_buffer_getmsg+0x38>
+ 2001a1c:	28 a3 00 00 	lw r3,(r5+0)
+    		msg[i] = buf(buf->g,i);				//buf->data[buf->g][i];
+  		buf->g++;
+  		if(buf->g == buf->buf_size)
+ 2001a20:	28 a2 00 10 	lw r2,(r5+16)
+		retvalue = EE_BUF_ERR_EMPTY; 
+	else
+	{	
+  		for(i=0;i<(buf->msg_size);i++)	
+    		msg[i] = buf(buf->g,i);				//buf->data[buf->g][i];
+  		buf->g++;
+ 2001a24:	34 61 00 01 	addi r1,r3,1
+ 2001a28:	58 a1 00 00 	sw (r5+0),r1
+  		if(buf->g == buf->buf_size)
+ 2001a2c:	44 22 00 10 	be r1,r2,2001a6c <EE_buffer_getmsg+0xb8>
+  			buf->g = 0;							//buf->g = (buf->g % (buf->buf_size));
+  		buf->counter--;
+ 2001a30:	28 a1 00 08 	lw r1,(r5+8)
+ 2001a34:	34 02 00 00 	mvi r2,0
+ 2001a38:	34 21 ff ff 	addi r1,r1,-1
+ 2001a3c:	58 a1 00 08 	sw (r5+8),r1
+  		retvalue = EE_BUF_OK;
+	}
+  	if (EE_mico32_are_IRQs_enabled(intst))		//EE_hal_enableIRQ();
+ 2001a40:	20 e1 00 01 	andi r1,r7,0x1
+ 2001a44:	44 20 00 04 	be r1,r0,2001a54 <EE_buffer_getmsg+0xa0>
+ * Enable interrupts
+ */
+__INLINE__ void __ALWAYS_INLINE__ EE_mico32_enableIRQ(void)
+{
+    EE_FREG oldie, newie;
+    asm volatile ("rcsr %0,ie":"=r"(oldie));
+ 2001a48:	90 00 08 00 	rcsr r1,IE
+    newie = oldie | (0x1);
+    asm volatile ("wcsr ie, %0"::"r"(newie));
+ 2001a4c:	38 21 00 01 	ori r1,r1,0x1
+ 2001a50:	d0 01 00 00 	wcsr IE,r1
+        EE_mico32_enableIRQ();
+  	
+  	return retvalue;
+}
+ 2001a54:	b8 40 08 00 	mv r1,r2
+ 2001a58:	c3 a0 00 00 	ret
+	
+	if(msg==NULL)
+		return EE_BUF_ERR_NULL;
+	
+	intst = EE_mico32_disableIRQ();				//EE_hal_disableIRQ();
+	if((buf->g == buf->p) && (buf->counter==0)) 
+ 2001a5c:	28 a1 00 08 	lw r1,(r5+8)
+ 2001a60:	34 02 ff fd 	mvi r2,-3
+ 2001a64:	44 20 ff f7 	be r1,r0,2001a40 <EE_buffer_getmsg+0x8c>
+ 2001a68:	e3 ff ff de 	bi 20019e0 <EE_buffer_getmsg+0x2c>
+	{	
+  		for(i=0;i<(buf->msg_size);i++)	
+    		msg[i] = buf(buf->g,i);				//buf->data[buf->g][i];
+  		buf->g++;
+  		if(buf->g == buf->buf_size)
+  			buf->g = 0;							//buf->g = (buf->g % (buf->buf_size));
+ 2001a6c:	34 01 00 00 	mvi r1,0
+ 2001a70:	58 a1 00 00 	sw (r5+0),r1
+ 2001a74:	e3 ff ff ef 	bi 2001a30 <EE_buffer_getmsg+0x7c>
+
+02001a78 <EE_std_run_task_code>:
+
+/* This version should work for both the monostack and multistack versions of
+ * the kernel, thanks to the macros defined in cpu/commmon/inc/ee_context.h.
+ * In the mono version, all the stack-related stuff is ignored. */
+EE_TID EE_std_run_task_code(EE_TID tid)
+{
+ 2001a78:	37 9c ff fc 	addi sp,sp,-4
+ 2001a7c:	5b 9d 00 04 	sw (sp+4),ra
+ * Enable interrupts
+ */
+__INLINE__ void __ALWAYS_INLINE__ EE_mico32_enableIRQ(void)
+{
+    EE_FREG oldie, newie;
+    asm volatile ("rcsr %0,ie":"=r"(oldie));
+ 2001a80:	90 00 10 00 	rcsr r2,IE
+    newie = oldie | (0x1);
+    asm volatile ("wcsr ie, %0"::"r"(newie));
+ 2001a84:	38 42 00 01 	ori r2,r2,0x1
+ 2001a88:	d0 02 00 00 	wcsr IE,r2
+    EE_hal_enableIRQ();
+    EE_call_task_body(tid); /* Call the task body */
+ 2001a8c:	78 02 02 00 	mvhi r2,0x200
+ 2001a90:	3c 21 00 02 	sli r1,r1,2
+ 2001a94:	38 42 1d e4 	ori r2,r2,0x1de4
+ 2001a98:	b4 41 10 00 	add r2,r2,r1
+ 2001a9c:	28 43 00 00 	lw r3,(r2+0)
+ 2001aa0:	d8 60 00 00 	call r3
+ * Disable interrupts
+ */
+__INLINE__ EE_FREG __ALWAYS_INLINE__ EE_mico32_disableIRQ(void)
+{
+    EE_FREG oldie, newie;
+    asm volatile ("rcsr %0,ie":"=r"(oldie));
+ 2001aa4:	90 00 08 00 	rcsr r1,IE
+    newie = oldie & (~0x1);
+    asm volatile ("wcsr ie, %0"::"r"(newie));
+ 2001aa8:	34 02 ff fe 	mvi r2,-2
+ 2001aac:	a0 22 08 00 	and r1,r1,r2
+ 2001ab0:	d0 01 00 00 	wcsr IE,r1
+    EE_hal_disableIRQ();
+    EE_thread_end_instance(); /* Call the scheduler */
+ 2001ab4:	f8 00 00 07 	calli 2001ad0 <EE_thread_end_instance>
+ 2001ab8:	78 02 02 00 	mvhi r2,0x200
+ 2001abc:	38 42 22 98 	ori r2,r2,0x2298
+    return EE_std_endcycle_next_tid;
+}
+ 2001ac0:	28 41 00 00 	lw r1,(r2+0)
+ 2001ac4:	2b 9d 00 04 	lw ra,(sp+4)
+ 2001ac8:	37 9c 00 04 	addi sp,sp,4
+ 2001acc:	c3 a0 00 00 	ret
+
+02001ad0 <EE_thread_end_instance>:
+
+#include "ee_internal.h"
+
+#ifndef __PRIVATE_THREAD_END_INSTANCE__
+void EE_thread_end_instance(void)
+{
+ 2001ad0:	37 9c ff ec 	addi sp,sp,-20
+ 2001ad4:	5b 8b 00 14 	sw (sp+20),r11
+ 2001ad8:	5b 8c 00 10 	sw (sp+16),r12
+ 2001adc:	5b 8d 00 0c 	sw (sp+12),r13
+ 2001ae0:	5b 8e 00 08 	sw (sp+8),r14
+ 2001ae4:	5b 9d 00 04 	sw (sp+4),ra
+
+/* return the first stacked task (the running task) without extracting it */
+#ifndef __PRIVATE_STK_QUERYFIRST__
+__INLINE__ EE_TID __ALWAYS_INLINE__ EE_stk_queryfirst(void)
+{
+    return EE_stkfirst;  
+ 2001ae8:	78 0d 02 00 	mvhi r13,0x200
+ 2001aec:	39 ad 1f 10 	ori r13,r13,0x1f10
+ 2001af0:	29 a7 00 00 	lw r7,(r13+0)
+   * suspended!!! */
+  EE_th_status[current] = EE_READY;
+#endif
+  
+  /* reset the task priority bit in the system_ceiling */
+  EE_sys_ceiling &= ~EE_th_dispatch_prio[current];
+ 2001af4:	78 0e 02 00 	mvhi r14,0x200
+ 2001af8:	39 ce 1d ec 	ori r14,r14,0x1dec
+  EE_TID current;
+  
+  current = EE_stk_queryfirst();
+  
+  /* decrease the pending activations... ready or stacked => (nact>0) */
+  EE_th_nact[current]--;
+ 2001afc:	3c e3 00 02 	sli r3,r7,2
+ 2001b00:	78 04 02 00 	mvhi r4,0x200
+   * suspended!!! */
+  EE_th_status[current] = EE_READY;
+#endif
+  
+  /* reset the task priority bit in the system_ceiling */
+  EE_sys_ceiling &= ~EE_th_dispatch_prio[current];
+ 2001b04:	b5 c3 08 00 	add r1,r14,r3
+ 2001b08:	28 22 00 00 	lw r2,(r1+0)
+
+/* extract the running task from the stack */
+#ifndef __PRIVATE_STK_GETFIRST__
+__INLINE__ void __ALWAYS_INLINE__ EE_stk_getfirst(void)
+{
+    EE_stkfirst = EE_th_next[EE_stkfirst];
+ 2001b0c:	78 01 02 00 	mvhi r1,0x200
+  EE_TID current;
+  
+  current = EE_stk_queryfirst();
+  
+  /* decrease the pending activations... ready or stacked => (nact>0) */
+  EE_th_nact[current]--;
+ 2001b10:	38 84 22 08 	ori r4,r4,0x2208
+   * suspended!!! */
+  EE_th_status[current] = EE_READY;
+#endif
+  
+  /* reset the task priority bit in the system_ceiling */
+  EE_sys_ceiling &= ~EE_th_dispatch_prio[current];
+ 2001b14:	78 0c 02 00 	mvhi r12,0x200
+ 2001b18:	38 21 1f 0c 	ori r1,r1,0x1f0c
+  EE_TID current;
+  
+  current = EE_stk_queryfirst();
+  
+  /* decrease the pending activations... ready or stacked => (nact>0) */
+  EE_th_nact[current]--;
+ 2001b1c:	b4 83 20 00 	add r4,r4,r3
+   * suspended!!! */
+  EE_th_status[current] = EE_READY;
+#endif
+  
+  /* reset the task priority bit in the system_ceiling */
+  EE_sys_ceiling &= ~EE_th_dispatch_prio[current];
+ 2001b20:	39 8c 21 f0 	ori r12,r12,0x21f0
+ 2001b24:	b4 23 08 00 	add r1,r1,r3
+  EE_TID current;
+  
+  current = EE_stk_queryfirst();
+  
+  /* decrease the pending activations... ready or stacked => (nact>0) */
+  EE_th_nact[current]--;
+ 2001b28:	28 85 00 00 	lw r5,(r4+0)
+   * suspended!!! */
+  EE_th_status[current] = EE_READY;
+#endif
+  
+  /* reset the task priority bit in the system_ceiling */
+  EE_sys_ceiling &= ~EE_th_dispatch_prio[current];
+ 2001b2c:	29 86 00 00 	lw r6,(r12+0)
+ 2001b30:	28 21 00 00 	lw r1,(r1+0)
+  
+#if defined(__MULTI__) || defined(__WITH_STATUS__)
+  /* The task state switches from STACKED TO READY because it ends its
+   * instance. Note that status=READY and nact=0 ==>> the task is
+   * suspended!!! */
+  EE_th_status[current] = EE_READY;
+ 2001b34:	78 0b 02 00 	mvhi r11,0x200
+ 2001b38:	39 6b 1f 08 	ori r11,r11,0x1f08
+#endif
+  
+  /* reset the task priority bit in the system_ceiling */
+  EE_sys_ceiling &= ~EE_th_dispatch_prio[current];
+ 2001b3c:	a4 40 10 00 	not r2,r2
+ 2001b40:	a0 46 10 00 	and r2,r2,r6
+ 2001b44:	59 a1 00 00 	sw (r13+0),r1
+  EE_TID current;
+  
+  current = EE_stk_queryfirst();
+  
+  /* decrease the pending activations... ready or stacked => (nact>0) */
+  EE_th_nact[current]--;
+ 2001b48:	34 a5 ff ff 	addi r5,r5,-1
+  
+#if defined(__MULTI__) || defined(__WITH_STATUS__)
+  /* The task state switches from STACKED TO READY because it ends its
+   * instance. Note that status=READY and nact=0 ==>> the task is
+   * suspended!!! */
+  EE_th_status[current] = EE_READY;
+ 2001b4c:	b5 63 18 00 	add r3,r11,r3
+ 2001b50:	34 01 00 01 	mvi r1,1
+ 2001b54:	58 61 00 00 	sw (r3+0),r1
+  EE_TID current;
+  
+  current = EE_stk_queryfirst();
+  
+  /* decrease the pending activations... ready or stacked => (nact>0) */
+  EE_th_nact[current]--;
+ 2001b58:	58 85 00 00 	sw (r4+0),r5
+   * suspended!!! */
+  EE_th_status[current] = EE_READY;
+#endif
+  
+  /* reset the task priority bit in the system_ceiling */
+  EE_sys_ceiling &= ~EE_th_dispatch_prio[current];
+ 2001b5c:	59 82 00 00 	sw (r12+0),r2
+  
+  /* extract the task from the stk data structure */
+  EE_stk_getfirst();
+  
+  if (EE_th_nact[current] > 0) {
+ 2001b60:	5c a0 00 30 	bne r5,r0,2001c20 <EE_thread_end_instance+0x150>
+
+/* return the first ready task without extracting it */
+#ifndef __PRIVATE_RQ_QUERYFIRST__
+__INLINE__ EE_TID __ALWAYS_INLINE__ EE_rq_queryfirst(void)
+{
+    return EE_rqfirst;  
+ 2001b64:	78 01 02 00 	mvhi r1,0x200
+ 2001b68:	38 21 1f 14 	ori r1,r1,0x1f14
+ 2001b6c:	28 21 00 00 	lw r1,(r1+0)
+    EE_rq_insert(current);
+  }
+  
+  /* check if there is to schedule a ready task pop a preempted
+   * task   */
+  if (EE_rq_queryfirst() == EE_NIL ||
+ 2001b70:	34 02 ff ff 	mvi r2,-1
+ 2001b74:	44 22 00 08 	be r1,r2,2001b94 <EE_thread_end_instance+0xc4>
+ 2001b78:	3c 23 00 02 	sli r3,r1,2
+ 2001b7c:	78 01 02 00 	mvhi r1,0x200
+ 2001b80:	38 21 1d e8 	ori r1,r1,0x1de8
+ 2001b84:	b4 23 08 00 	add r1,r1,r3
+ 2001b88:	28 22 00 00 	lw r2,(r1+0)
+ 2001b8c:	29 85 00 00 	lw r5,(r12+0)
+ 2001b90:	54 45 00 0f 	bgu r2,r5,2001bcc <EE_thread_end_instance+0xfc>
+}
+
+
+__INLINE__ void __ALWAYS_INLINE__ EE_hal_endcycle_stacked(EE_TID tid)
+{
+    EE_std_endcycle_next_tid = EE_std_mark_tid_stacked(tid);
+ 2001b94:	29 a1 00 00 	lw r1,(r13+0)
+      EE_hal_endcycle_ready(EE_rq2stk_exchange());
+#else
+    EE_hal_endcycle_ready(EE_rq2stk_exchange());
+#endif
+  }
+}  
+ 2001b98:	78 02 80 00 	mvhi r2,0x8000
+ 2001b9c:	38 42 00 00 	ori r2,r2,0x0
+ 2001ba0:	78 03 02 00 	mvhi r3,0x200
+ 2001ba4:	b8 22 08 00 	or r1,r1,r2
+ 2001ba8:	38 63 22 98 	ori r3,r3,0x2298
+ 2001bac:	58 61 00 00 	sw (r3+0),r1
+ 2001bb0:	2b 9d 00 04 	lw ra,(sp+4)
+ 2001bb4:	2b 8b 00 14 	lw r11,(sp+20)
+ 2001bb8:	2b 8c 00 10 	lw r12,(sp+16)
+ 2001bbc:	2b 8d 00 0c 	lw r13,(sp+12)
+ 2001bc0:	2b 8e 00 08 	lw r14,(sp+8)
+ 2001bc4:	37 9c 00 14 	addi sp,sp,20
+ 2001bc8:	c3 a0 00 00 	ret
+    
+#if defined(__MULTI__) || defined(__WITH_STATUS__)
+    EE_th_status[EE_rq_queryfirst()] = EE_STACKED;
+#endif
+
+    EE_sys_ceiling |= EE_th_dispatch_prio[EE_rq_queryfirst()];
+ 2001bcc:	b5 c3 08 00 	add r1,r14,r3
+  else { 
+    /* we have to schedule a ready task */
+#if defined(__MULTI__)
+    register int flag;
+    
+    flag = EE_th_status[EE_rq_queryfirst()] & EE_WASSTACKED;
+ 2001bd0:	b5 63 20 00 	add r4,r11,r3
+    
+#if defined(__MULTI__) || defined(__WITH_STATUS__)
+    EE_th_status[EE_rq_queryfirst()] = EE_STACKED;
+#endif
+
+    EE_sys_ceiling |= EE_th_dispatch_prio[EE_rq_queryfirst()];
+ 2001bd4:	28 22 00 00 	lw r2,(r1+0)
+  else { 
+    /* we have to schedule a ready task */
+#if defined(__MULTI__)
+    register int flag;
+    
+    flag = EE_th_status[EE_rq_queryfirst()] & EE_WASSTACKED;
+ 2001bd8:	28 83 00 00 	lw r3,(r4+0)
+#endif
+    
+#if defined(__MULTI__) || defined(__WITH_STATUS__)
+    EE_th_status[EE_rq_queryfirst()] = EE_STACKED;
+ 2001bdc:	34 01 00 02 	mvi r1,2
+#endif
+
+    EE_sys_ceiling |= EE_th_dispatch_prio[EE_rq_queryfirst()];
+ 2001be0:	b8 45 10 00 	or r2,r2,r5
+    
+    flag = EE_th_status[EE_rq_queryfirst()] & EE_WASSTACKED;
+#endif
+    
+#if defined(__MULTI__) || defined(__WITH_STATUS__)
+    EE_th_status[EE_rq_queryfirst()] = EE_STACKED;
+ 2001be4:	58 81 00 00 	sw (r4+0),r1
+#endif
+
+    EE_sys_ceiling |= EE_th_dispatch_prio[EE_rq_queryfirst()];
+ 2001be8:	59 82 00 00 	sw (r12+0),r2
+  else { 
+    /* we have to schedule a ready task */
+#if defined(__MULTI__)
+    register int flag;
+    
+    flag = EE_th_status[EE_rq_queryfirst()] & EE_WASSTACKED;
+ 2001bec:	20 63 00 08 	andi r3,r3,0x8
+#endif
+
+    EE_sys_ceiling |= EE_th_dispatch_prio[EE_rq_queryfirst()];
+
+#if defined(__MULTI__)
+    if (flag)
+ 2001bf0:	5c 60 00 0f 	bne r3,r0,2001c2c <EE_thread_end_instance+0x15c>
+      EE_hal_endcycle_stacked(EE_rq2stk_exchange());
+    else
+      EE_hal_endcycle_ready(EE_rq2stk_exchange());
+ 2001bf4:	fb ff fc bc 	calli 2000ee4 <EE_rq2stk_exchange>
+}
+
+
+__INLINE__ void __ALWAYS_INLINE__ EE_hal_endcycle_ready(EE_TID tid)
+{
+    EE_std_endcycle_next_tid = tid;
+ 2001bf8:	78 02 02 00 	mvhi r2,0x200
+ 2001bfc:	38 42 22 98 	ori r2,r2,0x2298
+ 2001c00:	58 41 00 00 	sw (r2+0),r1
+#else
+    EE_hal_endcycle_ready(EE_rq2stk_exchange());
+#endif
+  }
+}  
+ 2001c04:	2b 9d 00 04 	lw ra,(sp+4)
+ 2001c08:	2b 8b 00 14 	lw r11,(sp+20)
+ 2001c0c:	2b 8c 00 10 	lw r12,(sp+16)
+ 2001c10:	2b 8d 00 0c 	lw r13,(sp+12)
+ 2001c14:	2b 8e 00 08 	lw r14,(sp+8)
+ 2001c18:	37 9c 00 14 	addi sp,sp,20
+ 2001c1c:	c3 a0 00 00 	ret
+  
+  if (EE_th_nact[current] > 0) {
+    /* there are pending activations...  */
+    /* we have to reinsert the task into the ready queue before
+     * rescheduling!!! */
+    EE_rq_insert(current);
+ 2001c20:	b8 e0 08 00 	mv r1,r7
+ 2001c24:	fb ff fc bf 	calli 2000f20 <EE_rq_insert>
+ 2001c28:	e3 ff ff cf 	bi 2001b64 <EE_thread_end_instance+0x94>
+
+    EE_sys_ceiling |= EE_th_dispatch_prio[EE_rq_queryfirst()];
+
+#if defined(__MULTI__)
+    if (flag)
+      EE_hal_endcycle_stacked(EE_rq2stk_exchange());
+ 2001c2c:	fb ff fc ae 	calli 2000ee4 <EE_rq2stk_exchange>
+ 2001c30:	e3 ff ff da 	bi 2001b98 <EE_thread_end_instance+0xc8>
+
+02001c34 <_exit>:
+ 2001c34:	34 08 00 01 	mvi r8,1
+ 2001c38:	ac 00 00 07 	scall
+
+02001c3c <__divsi3>:
+ 2001c3c:	37 9c ff f8 	addi sp,sp,-8
+ 2001c40:	5b 8b 00 08 	sw (sp+8),r11
+ 2001c44:	5b 9d 00 04 	sw (sp+4),ra
+ 2001c48:	b8 40 20 00 	mv r4,r2
+ 2001c4c:	b8 20 28 00 	mv r5,r1
+ 2001c50:	5c 40 00 05 	bne r2,r0,2001c64 <__divsi3+0x28>
+ 2001c54:	90 e0 08 00 	rcsr r1,EBA
+ 2001c58:	bb a0 f0 00 	mv ea,ra
+ 2001c5c:	34 21 00 a0 	addi r1,r1,160
+ 2001c60:	c0 20 00 00 	b r1
+ 2001c64:	b8 85 10 00 	or r2,r4,r5
+ 2001c68:	34 01 00 0f 	mvi r1,15
+ 2001c6c:	54 41 00 0b 	bgu r2,r1,2001c98 <__divsi3+0x5c>
+ 2001c70:	78 01 02 00 	mvhi r1,0x200
+ 2001c74:	38 21 1e 08 	ori r1,r1,0x1e08
+ 2001c78:	3c a2 00 04 	sli r2,r5,4
+ 2001c7c:	b4 24 08 00 	add r1,r1,r4
+ 2001c80:	b4 22 08 00 	add r1,r1,r2
+ 2001c84:	40 21 00 00 	lbu r1,(r1+0)
+ 2001c88:	2b 9d 00 04 	lw ra,(sp+4)
+ 2001c8c:	2b 8b 00 08 	lw r11,(sp+8)
+ 2001c90:	37 9c 00 08 	addi sp,sp,8
+ 2001c94:	c3 a0 00 00 	ret
+ 2001c98:	48 05 00 13 	bg r0,r5,2001ce4 <__divsi3+0xa8>
+ 2001c9c:	34 0b 00 00 	mvi r11,0
+ 2001ca0:	4c 80 00 03 	bge r4,r0,2001cac <__divsi3+0x70>
+ 2001ca4:	65 6b 00 00 	cmpei r11,r11,0
+ 2001ca8:	c8 04 20 00 	sub r4,r0,r4
+ 2001cac:	90 c0 08 00 	rcsr r1,CFG
+ 2001cb0:	20 23 00 02 	andi r3,r1,0x2
+ 2001cb4:	8c a4 08 00 	divu r1,r5,r4
+ 2001cb8:	44 60 00 07 	be r3,r0,2001cd4 <__divsi3+0x98>
+ 2001cbc:	45 60 ff f3 	be r11,r0,2001c88 <__divsi3+0x4c>
+ 2001cc0:	c8 01 08 00 	sub r1,r0,r1
+ 2001cc4:	2b 9d 00 04 	lw ra,(sp+4)
+ 2001cc8:	2b 8b 00 08 	lw r11,(sp+8)
+ 2001ccc:	37 9c 00 08 	addi sp,sp,8
+ 2001cd0:	c3 a0 00 00 	ret
+ 2001cd4:	b8 a0 08 00 	mv r1,r5
+ 2001cd8:	b8 80 10 00 	mv r2,r4
+ 2001cdc:	f8 00 00 06 	calli 2001cf4 <__udivmodsi4>
+ 2001ce0:	e3 ff ff f7 	bi 2001cbc <__divsi3+0x80>
+ 2001ce4:	c8 05 28 00 	sub r5,r0,r5
+ 2001ce8:	34 0b 00 01 	mvi r11,1
+ 2001cec:	4c 80 ff f0 	bge r4,r0,2001cac <__divsi3+0x70>
+ 2001cf0:	e3 ff ff ed 	bi 2001ca4 <__divsi3+0x68>
+
+02001cf4 <__udivmodsi4>:
+ 2001cf4:	b8 20 30 00 	mv r6,r1
+ 2001cf8:	b8 40 20 00 	mv r4,r2
+ 2001cfc:	50 41 00 03 	bgeu r2,r1,2001d08 <__udivmodsi4+0x14>
+ 2001d00:	34 05 00 01 	mvi r5,1
+ 2001d04:	4c 40 00 0d 	bge r2,r0,2001d38 <__udivmodsi4+0x44>
+ 2001d08:	34 05 00 01 	mvi r5,1
+ 2001d0c:	34 01 00 00 	mvi r1,0
+ 2001d10:	54 86 00 03 	bgu r4,r6,2001d1c <__udivmodsi4+0x28>
+ 2001d14:	c8 c4 30 00 	sub r6,r6,r4
+ 2001d18:	b8 25 08 00 	or r1,r1,r5
+ 2001d1c:	00 a5 00 01 	srui r5,r5,1
+ 2001d20:	00 84 00 01 	srui r4,r4,1
+ 2001d24:	5c a0 ff fb 	bne r5,r0,2001d10 <__udivmodsi4+0x1c>
+ 2001d28:	5c 60 00 02 	bne r3,r0,2001d30 <__udivmodsi4+0x3c>
+ 2001d2c:	b8 20 30 00 	mv r6,r1
+ 2001d30:	b8 c0 08 00 	mv r1,r6
+ 2001d34:	c3 a0 00 00 	ret
+ 2001d38:	b4 84 20 00 	add r4,r4,r4
+ 2001d3c:	b4 a5 28 00 	add r5,r5,r5
+ 2001d40:	f4 c4 10 00 	cmpgu r2,r6,r4
+ 2001d44:	7c a1 00 00 	cmpnei r1,r5,0
+ 2001d48:	a0 41 10 00 	and r2,r2,r1
+ 2001d4c:	44 40 00 04 	be r2,r0,2001d5c <__udivmodsi4+0x68>
+ 2001d50:	4c 80 ff fa 	bge r4,r0,2001d38 <__udivmodsi4+0x44>
+ 2001d54:	34 01 00 00 	mvi r1,0
+ 2001d58:	e3 ff ff ee 	bi 2001d10 <__udivmodsi4+0x1c>
+ 2001d5c:	5c a2 ff ec 	bne r5,r2,2001d0c <__udivmodsi4+0x18>
+ 2001d60:	b8 a0 08 00 	mv r1,r5
+ 2001d64:	e3 ff ff f1 	bi 2001d28 <__udivmodsi4+0x34>

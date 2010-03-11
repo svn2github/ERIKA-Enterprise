@@ -1,3 +1,0 @@
-// DRUID SIMULATION
-#define EE_UART1_NAME_UC UART
-#define EE_UART1_NAME_LC uart
