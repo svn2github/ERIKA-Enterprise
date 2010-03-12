@@ -40,12 +40,12 @@
 
 ifeq ($(findstring __LM32__,$(EEOPT)) , __LM32__)
 
-ifeq ($(findstring __USE_MICO32BOARD_RTC__,$(EEOPT)) , __USE_MICO32BOARD_RTC__)
-EE_SRCS += pkg/board/fpga_camera_mico32/src/ee_rtc.c
+ifeq ($(findstring __USE_MICO32BOARD_RTC_PCF8583__,$(EEOPT)) ,__USE_MICO32BOARD_RTC_PCF8583__)
+EE_SRCS += pkg/board/fpga_camera_mico32/src/ee_rtc_pcf8583.c
 endif
 
-ifeq ($(findstring __USE_MICO32BOARD_CAMERA__,$(EEOPT)) , __USE_MICO32BOARD_CAMERA__)
-EE_SRCS += pkg/board/fpga_camera_mico32/src/ee_camera.c
+ifeq ($(findstring __USE_MICO32BOARD_CAMERA_HV7131GP__,$(EEOPT)) , __USE_MICO32BOARD_CAMERA_HV7131GP__)
+EE_SRCS += pkg/board/fpga_camera_mico32/src/ee_camera_hv7131gp.c
 endif
 
 

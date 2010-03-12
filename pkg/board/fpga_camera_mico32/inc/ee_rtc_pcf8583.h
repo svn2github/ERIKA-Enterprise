@@ -1,4 +1,4 @@
-#ifdef __USE_MICO32BOARD_RTC__
+#ifdef __USE_MICO32BOARD_RTC_PCF8583__
 
 #ifndef __EE_RTC_PCF8583__
 #define __EE_RTC_PCF8583__
@@ -44,18 +44,18 @@ __INLINE__ int __ALWAYS_INLINE__  EE_rtc_read_byte(EE_UINT8 address){ \
 __INLINE__ int __ALWAYS_INLINE__  EE_rtc_read_buffer(EE_UINT8 address, EE_UINT8 *data, int len){ \
 	return cat3(EE_, lc, _read_buffer)(RTC_DEVICE_ID, address, data, len); }
 	
-#ifdef __EE_RTC_USE_I2C1__
-#ifdef __EE_RTC_USE_I2C2__
+#ifdef __EE_RTC_PCF8583_USE_I2C1__
+#ifdef __EE_RTC_PCF8583_USE_I2C2__
 #error RTC cannot support both i2c controllers
 #endif
 
 DECLARE_FUNC_RTC(EE_I2C1_NAME_UC, EE_I2C1_NAME_LC)
 
-#else //__EE_RTC_USE_I2C1__
+#else //__EE_RTC_PCF8583_USE_I2C1__
 
 DECLARE_FUNC_RTC(EE_I2C2_NAME_UC, EE_I2C2_NAME_LC)
 
-#endif //__EE_RTC_USE_I2C1__
+#endif //__EE_RTC_PCF8583_USE_I2C1__
 
 /*
 	__INLINE__ int __ALWAYS_INLINE__  EE_rtc_start(void)
@@ -203,4 +203,4 @@ int EE_rtc_set_alarm(void);
 
 #endif //#ifndef __EE_RTC_PCF8583__
 
-#endif //#ifdef __USE_MICO32BOARD_RTC__
+#endif //#ifdef __USE_MICO32BOARD_RTC_PCF8583__

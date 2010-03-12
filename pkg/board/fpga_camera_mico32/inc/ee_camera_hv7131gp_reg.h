@@ -14,15 +14,6 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
-/**
- *
- *  \file hv7131gp_reg.h
- *
- *  \date Created on: 9-feb-2009
- *  \author Author: Claudio Salvadori
- *  \brief Enumeration of the register addresses for HV7131GP and definition of
- *  the most common values for some of them
- */
 
 #ifndef HV7131GP_REG_H_
 #define HV7131GP_REG_H_
