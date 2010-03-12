@@ -20,7 +20,8 @@ uint8_t	mrf24j40_get_norm_txfifo(uint8_t pos);
 uint8_t	mrf24j40_get_fifo_msg(uint8_t *msg);
 void	mrf24j40_put_to_sleep();
 void	mrf24j40_wake();
-void mrf24j40_set_rx_callback(void (*func)(void)) ;
+void mrf24j40_set_rx_callback(void (*func)(void));
+void mrf24j40_set_tx_finished_callback(void (*tx_finished_func)(uint8_t tx_status));
 
 #define MRF24J40_BUFFER_SIZE 127
 

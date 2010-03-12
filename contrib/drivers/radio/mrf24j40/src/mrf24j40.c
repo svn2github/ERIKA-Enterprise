@@ -25,7 +25,7 @@
 */
 static uint8_t radio_initialized = 0;
 static void (*rx_callback)(void) = NULL;
-
+static void (*tx_finished_callback)(uint8_t tx_status) = NULL;
 #ifdef MRF24J40_DEBUG
 static uint8_t mrf24j40_db_msg[80];
 
@@ -306,7 +306,7 @@ int8_t mrf24j40_init(uint8_t int_setup, uint8_t ch, uint8_t port)
 		mrf24j40_set_short_add_mem(MRF24J40_TXMCR, 0x1C);
 		debug_print("\r\nMRF24J40 Init Battery life disabled");
 	#endif
-		
+
 	#endif
 	
 	#else
@@ -341,6 +341,21 @@ int8_t mrf24j40_init(uint8_t int_setup, uint8_t ch, uint8_t port)
 	mrf24j40_set_short_add_mem(MRF24J40_RFCTL, 0x04);        
 	mrf24j40_set_short_add_mem(MRF24J40_RFCTL, 0x00);
 	debug_print("\r\nMRF24J40 Init Done!");
+
+	#ifdef MRF24J40_ZERO_MIN_BE
+		/* 
+		 * Set the MAC Minimum Backoff Exponent bits (macMinBE) to 0
+		 * --> collision avoidance disabled (only for the first try?)
+		 */
+		uint8_t tmp_val = mrf24j40_get_short_add_mem(MRF24J40_TXMCR);
+		mrf24j40_set_short_add_mem(MRF24J40_TXMCR, tmp_val & 0xE7);
+//		tmp_val = mrf24j40_get_short_add_mem(MRF24J40_BBREG2);
+//		mrf24j40_set_short_add_mem(MRF24J40_BBREG2, tmp_val | 0xFC);
+//		mrf24j40_set_short_add_mem(MRF24J40_CCAEDTH, 0xFF);
+		tmp_val = mrf24j40_get_short_add_mem(MRF24J40_BBREG2);
+		mrf24j40_set_short_add_mem(MRF24J40_BBREG2, tmp_val | 0xFC);
+		mrf24j40_set_short_add_mem(MRF24J40_CCAEDTH, 0xFF);
+	#endif
 
 	return 0;
 }
@@ -555,10 +570,17 @@ COMPILER_ISR(MRF24J40_INTERRUPT_NAME)
 			debug_print("\r\nNormal TX failed");
 		else
 			debug_print("\r\nNormal TX success");
+		if (tx_finished_callback)
+			tx_finished_callback(tx_status.bits.TXNSTAT);
 	}
 	if (int_status.bits.RXIF) {
 		debug_print("\r\nRX received");
 		if (rx_callback != NULL)
 			rx_callback();
 	}
+}
+
+void mrf24j40_set_tx_finished_callback(void (*tx_finished_func)(uint8_t tx_status))
+{
+	tx_finished_callback = tx_finished_func;
 }
