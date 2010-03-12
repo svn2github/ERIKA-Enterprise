@@ -224,6 +224,10 @@ extern "C" {
 #include "board/ee_flex/inc/ee_internal.h"
 #endif
 
+#ifdef __EE_MINIFLEX__
+#include "board/ee_miniflex/inc/ee_internal.h"
+#endif
+
  /* MICO32 */
 #ifdef __LM32__
 #include "board/fpga_camera_mico32/inc/ee_internal.h"

@@ -65,41 +65,50 @@
 
 __INLINE__ void __ALWAYS_INLINE__ EE_daughter_leds_init(void) {
 	/* set LEDs drive state low */
-	LATF  &= 0xFFF0;
-	LATD  &= 0xF0FF;
+	LATFCLR = 0x000F;
+	LATDCLR = 0x0F00;
 
 	/* set LEDs pin as output */
-	TRISF &= 0xFFF0;
-	TRISD &= 0xF0FF;
+	TRISFCLR = 0x000F;
+	TRISDCLR = 0x0F00;
 }
 
 __INLINE__ void __ALWAYS_INLINE__ EE_leds( EE_UINT8 data ) {
-	LATF &= 0xFFF0;
-	LATD &= 0xF0FF;
+	LATFCLR = 0x000F;
+	LATDCLR = 0x0F00;
 
-	LATF |= (data & 0x0F);
-	LATD |= (data & 0xF0) << 4;
+	LATFSET = (data & 0x0F);
+	LATDSET = (data & 0xF0) << 4;
 }
 
-__INLINE__ void __ALWAYS_INLINE__ EE_led_0_on(void)   { LATFbits.LATF0  = 1; }
-__INLINE__ void __ALWAYS_INLINE__ EE_led_0_off(void)  { LATFbits.LATF0  = 0; }
-__INLINE__ void __ALWAYS_INLINE__ EE_led_1_on(void)   { LATFbits.LATF1  = 1; }
-__INLINE__ void __ALWAYS_INLINE__ EE_led_1_off(void)  { LATFbits.LATF1  = 0; }
-__INLINE__ void __ALWAYS_INLINE__ EE_led_2_on(void)   { LATFbits.LATF2  = 1; }
-__INLINE__ void __ALWAYS_INLINE__ EE_led_2_off(void)  { LATFbits.LATF2  = 0; }
-__INLINE__ void __ALWAYS_INLINE__ EE_led_3_on(void)   { LATFbits.LATF3  = 1; }
-__INLINE__ void __ALWAYS_INLINE__ EE_led_3_off(void)  { LATFbits.LATF3  = 0; }
-__INLINE__ void __ALWAYS_INLINE__ EE_led_4_on(void)   { LATDbits.LATD8  = 1; }
-__INLINE__ void __ALWAYS_INLINE__ EE_led_4_off(void)  { LATDbits.LATD8  = 0; }
-__INLINE__ void __ALWAYS_INLINE__ EE_led_5_on(void)   { LATDbits.LATD9  = 1; }
-__INLINE__ void __ALWAYS_INLINE__ EE_led_5_off(void)  { LATDbits.LATD9  = 0; }
-__INLINE__ void __ALWAYS_INLINE__ EE_led_6_on(void)   { LATDbits.LATD10 = 1; }
-__INLINE__ void __ALWAYS_INLINE__ EE_led_6_off(void)  { LATDbits.LATD10 = 0; }
-__INLINE__ void __ALWAYS_INLINE__ EE_led_7_on(void)   { LATDbits.LATD11 = 1; }
-__INLINE__ void __ALWAYS_INLINE__ EE_led_7_off(void)  { LATDbits.LATD11 = 0; }
+__INLINE__ void __ALWAYS_INLINE__ EE_led_0_on(void)     { LATFSET = 0x0001; }
+__INLINE__ void __ALWAYS_INLINE__ EE_led_0_off(void)    { LATFCLR = 0x0001; }
+__INLINE__ void __ALWAYS_INLINE__ EE_led_0_toggle(void) { LATFINV = 0x0001; }
+__INLINE__ void __ALWAYS_INLINE__ EE_led_1_on(void)     { LATFSET = 0x0002; }
+__INLINE__ void __ALWAYS_INLINE__ EE_led_1_off(void)    { LATFCLR = 0x0002; }
+__INLINE__ void __ALWAYS_INLINE__ EE_led_1_toggle(void) { LATFINV = 0x0002; }
+__INLINE__ void __ALWAYS_INLINE__ EE_led_2_on(void)     { LATFSET = 0x0004; }
+__INLINE__ void __ALWAYS_INLINE__ EE_led_2_off(void)    { LATFCLR = 0x0004; }
+__INLINE__ void __ALWAYS_INLINE__ EE_led_2_toggle(void) { LATFINV = 0x0004; }
+__INLINE__ void __ALWAYS_INLINE__ EE_led_3_on(void)     { LATFSET = 0x0008; }
+__INLINE__ void __ALWAYS_INLINE__ EE_led_3_off(void)    { LATFCLR = 0x0008; }
+__INLINE__ void __ALWAYS_INLINE__ EE_led_3_toggle(void) { LATFINV = 0x0008; }
+__INLINE__ void __ALWAYS_INLINE__ EE_led_4_on(void)     { LATDSET = 0x0100; }
+__INLINE__ void __ALWAYS_INLINE__ EE_led_4_off(void)    { LATDCLR = 0x0100; }
+__INLINE__ void __ALWAYS_INLINE__ EE_led_4_toggle(void) { LATDINV = 0x0100; }
+__INLINE__ void __ALWAYS_INLINE__ EE_led_5_on(void)     { LATDSET = 0x0200; }
+__INLINE__ void __ALWAYS_INLINE__ EE_led_5_off(void)    { LATDCLR = 0x0200; }
+__INLINE__ void __ALWAYS_INLINE__ EE_led_5_toggle(void) { LATDINV = 0x0200; }
+__INLINE__ void __ALWAYS_INLINE__ EE_led_6_on(void)     { LATDSET = 0x0400; }
+__INLINE__ void __ALWAYS_INLINE__ EE_led_6_off(void)    { LATDCLR = 0x0400; }
+__INLINE__ void __ALWAYS_INLINE__ EE_led_6_toggle(void) { LATDINV = 0x0400; }
+__INLINE__ void __ALWAYS_INLINE__ EE_led_7_on(void)     { LATDSET = 0x0800; }
+__INLINE__ void __ALWAYS_INLINE__ EE_led_7_off(void)    { LATDCLR = 0x0800; }
+__INLINE__ void __ALWAYS_INLINE__ EE_led_7_toggle(void) { LATDINV = 0x0800; }
 
-__INLINE__ void __ALWAYS_INLINE__ EE_leds_on(void)   { LATD  |= 0x0F00; LATF  |= 0x000F; }
-__INLINE__ void __ALWAYS_INLINE__ EE_leds_off(void)  { LATD  &= 0xF0FF; LATF  &= 0xFFF0; }
+__INLINE__ void __ALWAYS_INLINE__ EE_leds_on(void)      { LATDSET = 0x0F00; LATFSET = 0x000F; }
+__INLINE__ void __ALWAYS_INLINE__ EE_leds_off(void)     { LATDCLR = 0x0F00; LATFCLR = 0x000F; }
+__INLINE__ void __ALWAYS_INLINE__ EE_leds_toggle(void)  { LATDINV = 0x0F00; LATFCLR = 0x000F; }
 
 #endif
 

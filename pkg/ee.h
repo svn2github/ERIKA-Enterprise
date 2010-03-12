@@ -235,6 +235,10 @@ extern "C" {
 #include "board/ee_flex/inc/ee_board.h"
 #endif
 
+#ifdef __EE_MINIFLEX__
+#include "board/ee_miniflex/inc/ee_board.h"
+#endif
+
 #ifdef __EE_FLEX32__
 #include "board/ee_flex32/inc/ee_board.h"
 #endif
