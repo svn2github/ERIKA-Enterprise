@@ -208,7 +208,7 @@ int8_t mrf24j40_init(uint8_t int_setup, uint8_t ch, uint8_t port)
 	
 	i = 0;
 
-	#ifdef MRF24J40_AUTOMATIC_ACK
+	#ifdef MRF24J40_DISABLE_AUTOMATIC_ACK
 		debug_print("\r\nMRF24J40 Init AUTOACK");
 		i = i | 0b00100000	
 	#endif
