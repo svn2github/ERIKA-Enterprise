@@ -26,6 +26,9 @@
 static uint8_t radio_initialized = 0;
 static void (*rx_callback)(void) = NULL;
 static void (*tx_finished_callback)(uint8_t tx_status) = NULL;
+/* variables to store register values for carrier sense enabling and disabling*/
+static uint8_t bbreg2;
+static uint8_t ccaedth;
 #ifdef MRF24J40_DEBUG
 static uint8_t mrf24j40_db_msg[80];
 
@@ -345,20 +348,40 @@ int8_t mrf24j40_init(uint8_t int_setup, uint8_t ch, uint8_t port)
 	#ifdef MRF24J40_ZERO_MIN_BE
 		/* 
 		 * Set the MAC Minimum Backoff Exponent bits (macMinBE) to 0
-		 * --> collision avoidance disabled (only for the first try?)
+		 * --> collision avoidance disabled (only for the first try!)
 		 */
 		uint8_t tmp_val = mrf24j40_get_short_add_mem(MRF24J40_TXMCR);
 		mrf24j40_set_short_add_mem(MRF24J40_TXMCR, tmp_val & 0xE7);
+//		mrf24j40_set_short_add_mem(MRF24J40_TXMCR, 0x80);
+	
+		/* CCA MODE 3 */
 //		tmp_val = mrf24j40_get_short_add_mem(MRF24J40_BBREG2);
 //		mrf24j40_set_short_add_mem(MRF24J40_BBREG2, tmp_val | 0xFC);
 //		mrf24j40_set_short_add_mem(MRF24J40_CCAEDTH, 0xFF);
-		tmp_val = mrf24j40_get_short_add_mem(MRF24J40_BBREG2);
-		mrf24j40_set_short_add_mem(MRF24J40_BBREG2, tmp_val | 0xFC);
-		mrf24j40_set_short_add_mem(MRF24J40_CCAEDTH, 0xFF);
+		/* CCA MODE 1?*/
+//		tmp_val = mrf24j40_get_short_add_mem(MRF24J40_BBREG2);
+//		mrf24j40_set_short_add_mem(MRF24J40_BBREG2, tmp_val & 0x7F);
+//		mrf24j40_set_short_add_mem(MRF24J40_CCAEDTH, 0xFF);
 	#endif
+	/* Store values for carrier sense enabling and disabling */
+	bbreg2 = mrf24j40_get_short_add_mem(MRF24J40_BBREG2);
+	ccaedth = mrf24j40_get_short_add_mem(MRF24J40_CCAEDTH);
 
 	return 0;
 }
+
+void mrf24j40_disable_carrier_sense()
+{
+	mrf24j40_set_short_add_mem(MRF24J40_BBREG2, bbreg2 & 0x7F);
+	mrf24j40_set_short_add_mem(MRF24J40_CCAEDTH, 0xFF);
+}
+
+void mrf24j40_enable_carrier_sense()
+{
+	mrf24j40_set_short_add_mem(MRF24J40_BBREG2, bbreg2);
+	mrf24j40_set_short_add_mem(MRF24J40_CCAEDTH, ccaedth);
+}
+
 
 
 /**

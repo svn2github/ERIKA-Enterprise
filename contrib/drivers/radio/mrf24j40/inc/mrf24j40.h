@@ -22,6 +22,8 @@ void	mrf24j40_put_to_sleep();
 void	mrf24j40_wake();
 void mrf24j40_set_rx_callback(void (*func)(void));
 void mrf24j40_set_tx_finished_callback(void (*tx_finished_func)(uint8_t tx_status));
+void mrf24j40_disable_carrier_sense();
+void mrf24j40_enable_carrier_sense();
 
 #define MRF24J40_BUFFER_SIZE 127
 
