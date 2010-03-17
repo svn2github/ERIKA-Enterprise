@@ -1,4 +1,4 @@
-# # Date             : 2/23/2010
+# # Date             : 3/17/2010
 # RT-Druid version : 
 #
 
@@ -39,7 +39,7 @@ EEOPT += __MONO__
 #
 ############################################################################
 ifndef EEBASE
-    EEBASE  := /extra/eclipse/plugins/com.eu.evidence.ee_1.0.0.201002181432/ee_base
+    EEBASE  := /extra/eclipse/plugins/com.eu.evidence.ee_1.5.1.201003031211/ee_base
 endif
 APPBASE := ..
 OUTBASE := output
@@ -66,7 +66,7 @@ LIBS    +=
 # Sources
 #
 ############################################################################
-APP_SRCS += $(OUTBASE)/eecfg.c $(OUTPUT_DIR)/crt0ram.S main.c
+APP_SRCS += $(OUTBASE)/eecfg.c $(OUTPUT_DIR)/crt0ram.S main.c dirty_regs.S
 
 
 ############################################################################

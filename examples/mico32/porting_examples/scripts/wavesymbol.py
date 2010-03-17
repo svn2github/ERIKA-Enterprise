@@ -19,7 +19,7 @@ class data_section:
                 elif entry[1].type == st_entry.TYPE_OBJECT:
                     self.table[entry[0]] = entry[1]
                     # print "Added %s" % entry[0]
-    
+
     def out_object( self, name, entry_data=None ):
         if not entry_data:
             entry_data = self.table[name]
@@ -31,6 +31,17 @@ class data_section:
             # Special treatment for assertions
             for k in range(0,length):
                 out_word( "%s[%02d]" % (name, k), offs + k, 1 )
+        elif name in ERIKAINTVECTORS:
+            # Simple kernel structures in RAM
+            out_vector4( name, offs, length )
+        elif name.startswith( "EE_mico32_stack_" ):
+            # Private stacks: show the beginnig and the end
+            # starting from the top (with negative offsets)
+            # If DEBUG_STACK is defined, these cells contain the canary
+            #for k in range(1, 23):
+            #    out_word( "%s[%04d]" % (name, -k), offs + length - k*4, 4 )
+            for k in range(length/4 - 3, length/4 + 1):
+                out_word( "%s[%04d]" % (name, -k), offs + length - k*4, 4 )
         else:
             print >>sys.stderr, "Warning: object %s of length %d > 4 not handled and ignored" % (name, length)
 
@@ -45,8 +56,8 @@ def out_word( name, offset, length ):
     start = offset * 8;
     end = start + length * 8 - 1;
     if length == 1:
-        # Swap bytes: remove the original byte offset (offset % 4) and
-        # add the new one (3 - offset % 4)
+        # Swap bytes: subtract the original byte offset (offset % 4) and
+        # add the correct one (3 - offset % 4)
         bytecomp = 3 - 2 * (offset % 4)
         start = start + bytecomp * 8;
         end = end + bytecomp * 8;
@@ -56,6 +67,10 @@ def out_word( name, offset, length ):
         return
     print "add wave -vbus {%s} -noreg {%s(%d downto %d)}" % \
           (name, MEMENTITY, end, start)
+
+def out_vector4( name, offs, length, start=0 ):
+    for k in range(start/4, length/4):
+        out_word( "%s[%02d]" % (name, k), offs + k*4, 4 )
 
 class st_entry:
     TYPE_OBJECT = "O"
@@ -85,6 +100,12 @@ def parse_line( line ):
 #
 OBJDUMPCMD = "lm32-elf-objdump"
 STARTSYMBOL = "_frodata"
+# These are Erika structures made of vectors of int (or object of the same size)
+ERIKAINTVECTORS = ( "EE_th_ready_prio", "EE_mico32_system_tos", \
+                    "EE_terminate_data", "EE_th_dispatch_prio", "EE_th_status", \
+                    "EE_th_rnact", "EE_th_next", \
+                    "EE_th_resource_last", "EE_th_terminate_nextask" )
+
 if len( sys.argv ) < 2:
     sys.exit( "usage wavesymbol <elf_object> [<symbol1> [<symbol2> ...]]" )
 

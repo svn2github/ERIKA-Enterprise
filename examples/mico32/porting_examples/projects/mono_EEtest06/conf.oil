@@ -44,7 +44,7 @@ CPU test_application {
 	ISR Timer {
 		CATEGORY = 2;		// Only category 2 is supported on Mico32
 		LEVEL = "TIMER_IRQ";	// Could be also a number
-		HANDLER = timer_interrupt;	// IRQ handler
+		HANDLER = "timer_interrupt";	// IRQ handler
 	};
 
 	COUNTER MainTimer;

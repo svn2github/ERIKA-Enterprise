@@ -8,6 +8,7 @@ CPU test_application {
 
 		CPU_DATA = LM32 {
 			APP_SRC = "main.c";
+			APP_SRC = "dirty_regs.S";
 			MULTI_STACK = FALSE;
 			USESTANDALONEPRINTF = TRUE; // Optional, default is FALSE
 			USESMALLC = FALSE; // Optional, default is FALSE
@@ -72,5 +73,13 @@ CPU test_application {
 		SCHEDULE = FULL;
 	};
 	
+	TASK Task6 {
+		PRIORITY = 10;
+		AUTOSTART = FALSE;
+		STACK = SHARED;
+		ACTIVATION = 1;
+		SCHEDULE = FULL;
+	};
+
 	OS EE { KERNEL_TYPE = BCC1; };
 };

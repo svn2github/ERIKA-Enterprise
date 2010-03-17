@@ -1,4 +1,4 @@
-# # Date             : 2/19/2010
+# # Date             : 3/17/2010
 # RT-Druid version : 
 #
 
@@ -29,7 +29,6 @@ EEOPT += __ASSERT__
 EEOPT += __RTD_LINUX__
 EEOPT += __LM32__
 EEOPT += __OO_BCC1__
-EEOPT += __ALLOW_NESTED_IRQ__
 EEOPT += __OO_EXTENDED_STATUS__
 EEOPT += __MONO__
 EEOPT += __OO_AUTOSTART_TASK__
@@ -41,7 +40,7 @@ EEOPT += __OO_AUTOSTART_TASK__
 #
 ############################################################################
 ifndef EEBASE
-    EEBASE  := /extra/eclipse/plugins/com.eu.evidence.ee_1.0.0.201002181432/ee_base
+    EEBASE  := /extra/eclipse/plugins/com.eu.evidence.ee_1.5.1.201003031211/ee_base
 endif
 APPBASE := ..
 OUTBASE := output

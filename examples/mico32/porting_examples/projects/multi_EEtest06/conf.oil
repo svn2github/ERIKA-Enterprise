@@ -2,12 +2,14 @@ CPU test_application {
 
 	OS EE {
 		EE_OPT = "__ASSERT__";
+		EE_OPT = "DEBUG_STACK";
 		CFLAGS = "-g2";
 		ASFLAGS = "";
 		LDFLAGS = "";
 
 		CPU_DATA = LM32 {
 			APP_SRC = "main.c";
+			APP_SRC = "dirty_regs.S";
 			MULTI_STACK = TRUE;
 			USESTANDALONEPRINTF = TRUE; // Optional, default is FALSE
 			USESMALLC = FALSE; // Optional, default is FALSE
@@ -44,7 +46,7 @@ CPU test_application {
 		PRIORITY = 2;
 		AUTOSTART = FALSE;
 		STACK = PRIVATE {
-			SYS_SIZE = 256;
+			SYS_SIZE = 512;
 		};
 		ACTIVATION = 1;
 		SCHEDULE = FULL;
@@ -54,10 +56,11 @@ CPU test_application {
 		PRIORITY = 3;
 		AUTOSTART = FALSE;
 		STACK = PRIVATE {
-			SYS_SIZE = 256;
+			SYS_SIZE = 512;
 		};
 		ACTIVATION = 1;
 		SCHEDULE = FULL;
+		EVENT = "WakeUpEvent";
 	};
 	
 	TASK Task4 {
@@ -76,5 +79,15 @@ CPU test_application {
 		SCHEDULE = FULL;
 	};
 	
-	OS EE { KERNEL_TYPE = BCC1; };
+	TASK Task6 {
+		PRIORITY = 10;
+		AUTOSTART = FALSE;
+		STACK = SHARED;
+		ACTIVATION = 1;
+		SCHEDULE = FULL;
+	};
+
+	EVENT WakeUpEvent { MASK = AUTO; };
+	
+	OS EE { KERNEL_TYPE = ECC1; };
 };

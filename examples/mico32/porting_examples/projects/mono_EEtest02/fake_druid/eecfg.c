@@ -1,3 +1,27 @@
+
+#include "ee.h"
+
+
+//////////////////////////////////////////////////////////////////////////////
+//  
+//   If necessary, init JTag
+//   Then invoke application
+//  
+/////////////////////////////////////////////////////////////////////////////
+    #include "DDStructs.h"
+
+    void LatticeDDInit(void)
+    {
+#if 0
+        // Initialize LM32 instance of lm32_top
+        LatticeMico32Init(&lm32_top_LM32);
+        // Needed only to use the Jtag interface for I/O
+#endif
+
+        // Invoke application's main routine
+        main();
+    }
+
 #include "ee.h"
 
 
@@ -79,33 +103,4 @@
     };
 
     EE_alarm_RAM_type         EE_alarm_RAM[EE_MAX_ALARM];
-
-
-#include "ee.h"
-
-#ifndef DEBUG_STACK
-#else
-#endif
-
-
-
-//////////////////////////////////////////////////////////////////////////////
-//  
-//   If necessary, init JTag
-//   Then invoke apllication
-//  
-/////////////////////////////////////////////////////////////////////////////
-    #include "DDStructs.h"
-
-    void LatticeDDInit(void)
-    {
-#if 0
-        // Initialize LM32 instance of lm32_top
-        LatticeMico32Init(&lm32_top_LM32);
-        // Needed only to use the Jtag interface for I/O
-#endif
-
-        // Invoke application's main routine
-        main();
-    }
 

@@ -1,3 +1,55 @@
+
+#include "ee.h"
+
+
+//////////////////////////////////////////////////////////////////////////////
+//  
+//   Stack definition for Lattice mico 32
+//  
+/////////////////////////////////////////////////////////////////////////////
+    #define STACK_1_SIZE 128 // size = 512 bytes 
+
+#ifndef DEBUG_STACK
+    int EE_mico32_stack_1[STACK_1_SIZE];	/* Task 0 (Task1) */
+#else
+    int EE_mico32_stack_1[STACK_1_SIZE + MICO32_STACK_DEBUG_LEN] = 
+            MICO32_STACK_INIT(STACK_1_SIZE);	/* Task 0 (Task1) */
+#endif
+
+    const EE_UREG EE_std_thread_tos[EE_MAX_TASK+1] = {
+        0,	 /* dummy*/
+        1 	 /* Task1*/
+    };
+
+    struct EE_TOS EE_mico32_system_tos[2] = {
+        {0},	/* Task   (dummy) */
+        {(EE_ADDR)(&EE_mico32_stack_1[STACK_1_SIZE - MICO32_INIT_TOS_OFFSET])} 	/* Task 0 (Task1) */
+    };
+
+    EE_UREG EE_mico32_active_tos = 0; /* dummy */
+
+
+
+//////////////////////////////////////////////////////////////////////////////
+//  
+//   If necessary, init JTag
+//   Then invoke application
+//  
+/////////////////////////////////////////////////////////////////////////////
+    #include "DDStructs.h"
+
+    void LatticeDDInit(void)
+    {
+#if 0
+        // Initialize LM32 instance of lm32_top
+        LatticeMico32Init(&lm32_top_LM32);
+        // Needed only to use the Jtag interface for I/O
+#endif
+
+        // Invoke application's main routine
+        main();
+    }
+
 #include "ee.h"
 
 
@@ -79,56 +131,4 @@
     };
 
     EE_alarm_RAM_type         EE_alarm_RAM[EE_MAX_ALARM];
-
-
-#include "ee.h"
-
-
-//////////////////////////////////////////////////////////////////////////////
-//  
-//   Stack definition for Lattice mico 32
-//  
-/////////////////////////////////////////////////////////////////////////////
-    #define STACK_1_SIZE 128 // size = 512 bytes 
-
-#ifndef DEBUG_STACK
-    int EE_mico32_stack_1[STACK_1_SIZE];	/* Task 0 (Task1) */
-#else
-    int EE_mico32_stack_1[STACK_1_SIZE + MICO32_STACK_DEBUG_LEN] = 
-            MICO32_STACK_INIT(STACK_1_SIZE);	/* Task 0 (Task1) */
-#endif
-
-    const EE_UREG EE_std_thread_tos[EE_MAX_TASK+1] = {
-        0,	 /* dummy*/
-        1 	 /* Task1*/
-    };
-
-    struct EE_TOS EE_mico32_system_tos[2] = {
-        {0},	/* Task   (dummy) */
-        {(EE_ADDR)(&EE_mico32_stack_1[STACK_1_SIZE - MICO32_INIT_TOS_OFFSET])} 	/* Task 0 (Task1) */
-    };
-
-    EE_UREG EE_mico32_active_tos = 0; /* dummy */
-
-
-
-//////////////////////////////////////////////////////////////////////////////
-//  
-//   If necessary, init JTag
-//   Then invoke apllication
-//  
-/////////////////////////////////////////////////////////////////////////////
-    #include "DDStructs.h"
-
-    void LatticeDDInit(void)
-    {
-#if 0
-        // Initialize LM32 instance of lm32_top
-        LatticeMico32Init(&lm32_top_LM32);
-        // Needed only to use the Jtag interface for I/O
-#endif
-
-        // Invoke application's main routine
-        main();
-    }
 
