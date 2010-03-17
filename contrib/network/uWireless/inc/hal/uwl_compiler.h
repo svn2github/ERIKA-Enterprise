@@ -8,7 +8,7 @@
 * This file is the definition of the abstract compiler used by all the module
 * of the uWireless library. 
 *
-* \todo Write something about the supporte compiler.
+* \todo Write something about the supported compiler.
 */
 #ifndef __uwl_compiler_h__
 #define __uwl_compiler_h__
@@ -19,7 +19,6 @@
 */
 #ifdef __ERIKA__	/* Erika Abstract Compiler */
 #include <ee.h>
-#include <cpu/pic30/inc/ee_irqstub.h>
 #include <hal/uwl_compiler_ee.h>
 
 #elif defined __C30__ 	/* Microchip C30 */

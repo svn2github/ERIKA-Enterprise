@@ -108,7 +108,7 @@ int8_t uwl_simple154_init_device(uint16_t device_id, uint16_t coordinator_id,
 					       pan_id, 	   /* CoordPanID */
 					       (void*) &coordinator_id, 
 					       capability, /* Capability Infos*/
-			        	   UWL_MAC_NULL_SECURITY_PARAMS_LIST
+					       UWL_MAC_NULL_SECURITY_PARAMS_LIST
 					       ); 
 	if (mac_error < 0) 
 		RETURN_WITH_ERROR(-UWL_SIMPLE154_ERR_ASSOCIATE);
@@ -310,7 +310,11 @@ int8_t uwl_MLME_ASSOCIATE_indication(uwl_mac_dev_addr_extd_t DeviceAddress,
 {
 
 	AssocShortAddress++;
-
+#ifdef UWL_DEBUG_LOG
+char str[100];
+sprintf(str, "uwl_MLME_ASSOCIATE_indication(..)");
+uwl_debug_print(str);
+#endif
 	uwl_MLME_ASSOCIATE_response(DeviceAddress,
 					   AssocShortAddress,
 					   UWL_MAC_SUCCESS,

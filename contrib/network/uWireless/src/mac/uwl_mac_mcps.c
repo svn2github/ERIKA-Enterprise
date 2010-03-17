@@ -8,7 +8,7 @@
 #include <mac/uwl_mac_internal.h>
 #include <util/uwl_debug.h>
 #ifdef UWL_DEBUG_LOG
-#include <stdio.h> //TODO: REMOVE together with the sprintf() !!!!!
+//#include <stdio.h> //TODO: REMOVE together with the sprintf() !!!!!
 #endif
 
 /* TODO: what is the meaning of the msduHandle? */

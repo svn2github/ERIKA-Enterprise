@@ -20,12 +20,12 @@
 #ifdef TIME32_SUBTRACT
 #undef TIME32_SUBTRACT
 #endif
-#ifdef UWL_DEBUG_LOG
-#include <stdio.h> //TODO: REMOVE together with the sprintf() !!!!!
-#endif
-#ifdef UWL_DEBUG_LOG
-char stri[100];
-#endif
+//#ifdef UWL_DEBUG_LOG
+//#include <stdio.h> //TODO: REMOVE together with the sprintf() !!!!!
+//#endif
+//#ifdef UWL_DEBUG_LOG
+//char stri[100];
+//#endif
 #define TIME32_SUBTRACT(t1, t2) ((t1)>=(t2) ? (t1)-(t2) : 0xFFFFFFFF-(t2)+(t1))
 
 enum uwl_mac_csma_state_t {
@@ -243,7 +243,7 @@ COMPILER_INLINE void stop_previous_cfp(void)
 #include "daq_time.h"
 extern struct daq_time_t downlink;
 #endif
-static void csma_perform_slotted(void) 
+static void csma_perform_slotted(void)
 {
 	int8_t tmp;
 	uint32_t dst_addr1;
@@ -253,11 +253,16 @@ static void csma_perform_slotted(void)
 
 	struct uwl_mac_frame_t *frame;
 
-	if (uwl_mac_status.sf_context != UWL_MAC_SF_CAP)
-		return; 
-	if (cap_available_bytes >= btick_bytes)
+	if (uwl_mac_status.sf_context != UWL_MAC_SF_CAP) {
+		//uwl_debug_print("Dany: csma_perform_slotted: first if");
+		return;
+	}
+	if (cap_available_bytes >= btick_bytes) {
+		//uwl_debug_print("Dany: csma_perform_slotted: second if");
 		cap_available_bytes -= btick_bytes;
+	}
 	if (csma_params.state == CSMA_STATE_INIT) {
+		//uwl_debug_print("Dany: CSMA_STATE_INIT");
 		if (cqueue_is_empty(&uwl_mac_queue_cap) && uwl_mac_data_req.data_req == 0)
 			return;
 		csma_init();
@@ -266,37 +271,49 @@ static void csma_perform_slotted(void)
 		//uwl_debug_print("I->D");
 		return;
 	}
+	uwl_debug_print("Dany: pre-CSMA_STATE_DELAY");
 	if (csma_params.state == CSMA_STATE_DELAY) {
+		uwl_debug_print("Dany: CSMA_STATE_DELAY");
 		if (csma_delay_counter-- == 0) {
+			//uwl_debug_print("Dany: CSMA_STATE_DELAY internal if");
 			uwl_kal_mutex_wait(MAC_SEND_MUTEX);
 			frame = (struct uwl_mac_frame_t*) 
 					cqueue_first(&uwl_mac_queue_cap);
 			uwl_kal_mutex_signal(MAC_SEND_MUTEX);
 			/* Something must be there, check again? */
 			/* if (!frame) ERRORE!!!!!*/
-			tmp = UWL_MAC_FCTL_GET_ACK_REQUEST(
-				UWL_MAC_MPDU_FRAME_CONTROL(frame->mpdu));
-			if (!csma_check_available_cap(frame->mpdu_size, tmp)) {
-				csma_set_delay();
-				csma_params.state = CSMA_STATE_DELAY;
-				//uwl_debug_print("D->D");
+			if (frame) {
+				uwl_debug_print("Dany: CSMA_STATE_DELAY unchecked frame");
+				tmp = UWL_MAC_FCTL_GET_ACK_REQUEST(
+						UWL_MAC_MPDU_FRAME_CONTROL(frame->mpdu));
+				uwl_debug_print("Dany: CSMA_STATE_DELAY after unchecked frame");
+				if (!csma_check_available_cap(frame->mpdu_size, tmp)) {
+					csma_set_delay();
+					csma_params.state = CSMA_STATE_DELAY;
+					uwl_debug_print("D->D");
+					return;
+				}
+			} else if (uwl_mac_data_req.data_req == 0) {
+				// FIXME: return error!!!
 				return;
 			}
 			//uwl_debug_print("D->C");
 			csma_params.state = CSMA_STATE_CCA;
 		}
 	}
+	//uwl_debug_print("Dany: pre-CSMA_STATE_CCA");
 	if (csma_params.state == CSMA_STATE_CCA) {
+		//uwl_debug_print("Dany: CSMA_STATE_CCA");
 		if (!uwl_radio_get_cca()) {
 			csma_params.CW = 2;
 			if (csma_params.NB > uwl_mac_pib.macMaxCSMABackoffs) {
 				/* TODO: CSMA Failure status!! 
 				Notify with confirm primitive!!!! 
-				*/
+				 */
 				frame = (struct uwl_mac_frame_t *)
-						 cqueue_pop(&uwl_mac_queue_cap);
+								 cqueue_pop(&uwl_mac_queue_cap);
 				uwl_MCPS_DATA_confirm(frame->msdu_handle, 
-					     UWL_MAC_CHANNEL_ACCESS_FAILURE, 0);
+						UWL_MAC_CHANNEL_ACCESS_FAILURE, 0);
 				csma_params.state = CSMA_STATE_INIT;
 				//uwl_debug_print("C->I fail");
 				return;
@@ -313,38 +330,32 @@ static void csma_perform_slotted(void)
 			return;
 
 		if (uwl_mac_data_req.data_req == 1) {
-
-
-				//uwl_debug_print("in the if");
-				frame = (struct uwl_mac_frame_t*)list_iter_front(&uwl_mac_list_ind);
-
-				dst_pan_addr = (frame->mpdu[3] << 0) |	(frame->mpdu[4] << 8);
-				dst_addr1 = (frame->mpdu[5] << 0) |	(frame->mpdu[6] << 8) |
-						(frame->mpdu[7] << 16) | (frame->mpdu[8] << 24);
-				dst_addr2 = (frame->mpdu[9] << 0) |	(frame->mpdu[10] << 8) |
-						(frame->mpdu[11] << 16) | (frame->mpdu[12] << 24);
-				pointer = 0;
-
-				while(dst_addr1 != uwl_mac_data_req.addr_dev[0] &&
-						dst_addr2 != uwl_mac_data_req.addr_dev[1] &&
-						dst_pan_addr != uwl_mac_data_req.addr_pan){
-					frame = (struct uwl_mac_frame_t*)list_iter_next(&uwl_mac_list_ind);
-					pointer++;
-
-					dst_pan_addr = (frame->mpdu[3] << 0) |	(frame->mpdu[4] << 8);
-					dst_addr1 = (frame->mpdu[5] << 0) |	(frame->mpdu[6] << 8) |
-							(frame->mpdu[7] << 16) | (frame->mpdu[8] << 24);
-					dst_addr2 = (frame->mpdu[9] << 0) |	(frame->mpdu[10] << 8) |
-							(frame->mpdu[11] << 16) | (frame->mpdu[12] << 24);
-				}
-
-				list_extract(&uwl_mac_list_ind, pointer);
-
-				uwl_mac_data_req.data_req = 0;
+			uwl_debug_print("in the if uwl_mac_data_req.data_req == 1");
+			/* we need to find the requested frame, so we check if
+			 * the destination addresses are the same of the
+			 * requester */
+			frame = (struct uwl_mac_frame_t*)list_iter_front(&uwl_mac_list_ind);
+			memcpy(&dst_pan_addr, &frame->mpdu[3], 2);
+			memcpy(&dst_addr1, &frame->mpdu[5], 4);
+			memcpy(&dst_addr2, &frame->mpdu[9], 4);
+			pointer = 0;
+			while(dst_addr1 != uwl_mac_data_req.addr_dev[0] &&
+					dst_addr2 != uwl_mac_data_req.addr_dev[1] &&
+					dst_pan_addr != uwl_mac_data_req.addr_pan) {
+				frame = (struct uwl_mac_frame_t*)
+						list_iter_next(&uwl_mac_list_ind);
+				pointer++;
+				memcpy(&dst_pan_addr, &frame->mpdu[3], 2);
+				memcpy(&dst_addr1, &frame->mpdu[5], 4);
+				memcpy(&dst_addr2, &frame->mpdu[9], 4);
+			}
+			/* we already have the frame in the variable frame, so
+			 * we delete it from the list */
+			list_extract(&uwl_mac_list_ind, pointer);
+			uwl_mac_data_req.data_req = 0;
 
 		} else
 				frame = (struct uwl_mac_frame_t*)cqueue_pop(&uwl_mac_queue_cap);
-
 
 		/* Something must be there, check again? */
 		/* if (!frame) ERRORE!!!!!*/
@@ -640,9 +651,8 @@ static void perform_associate_request_ack_check(void){
 	static uint8_t associate_req_attempts = 0;
 
 	if(associate_ack_counter > 0){
-		associate_ack_counter++;
+		associate_ack_counter+= 20;
 
-		//if(associate_ack_counter==uwl_mac_pib.macAckWaitDuration==){
 		if(associate_ack_counter >= uwl_mac_pib.macAckWaitDuration && associate_req_attempts < uwl_mac_pib.macMaxFrameRetries){
 			uwl_radio_phy_send_now(ass_req_ack_wait.mpdu, ass_req_ack_wait.mpdu_size);
 			associate_ack_counter = 1;

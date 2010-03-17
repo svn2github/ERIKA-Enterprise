@@ -26,7 +26,7 @@
 
 #ifdef UWL_DEBUG
 #include <util/uwl_debug.h> //TODO: REMOVE together with the sprintf() !!!!!
-#include <stdio.h> //TODO: REMOVE together with the sprintf() !!!!!
+//#include <stdio.h> //TODO: REMOVE together with the sprintf() !!!!!
 #endif
 
 #define UWL_RADIO_RX_BUFFER_SIZE MRF24J40_BUFFER_SIZE
@@ -88,7 +88,7 @@ COMPILER_INLINE int8_t uwl_radio_init(void)
 	* 1 = '1' = Disables the TX GTS1 FIFO transmission interrupt
 	* 0 = '0' = Enables the TX Normal FIFO transmission interrupt	
 	*/
-#ifdef __USE_MOTIONBOARD__
+	#ifdef __USE_MOTIONBOARD__
 	return mrf24j40_init(0xF6, 11, MRF24J40_SPI_PORT_1);
 	#else
 	return mrf24j40_init(0xF6, 11, MRF24J40_SPI_PORT_2);
@@ -162,7 +162,7 @@ int8_t uwl_radio_set_ack_rx_callback(void *todo); /*TODO: chris: define params*/
 */
 COMPILER_INLINE int8_t uwl_radio_send(uint8_t *buf, uint8_t len)
 {
-
+	mrf24j40_disable_carrier_sense();
 //uwl_debug_print("   uwl_radio_send(...)");// TODO: REMOVE
 	if (mrf24j40_store_norm_txfifo( buf, len) < 0)
 		return -1; // len is either less than 0 or
@@ -176,6 +176,7 @@ COMPILER_INLINE int8_t uwl_radio_send(uint8_t *buf, uint8_t len)
 
 //uwl_debug_print("      returning OK!");// TODO: REMOVE
 	/* Everything goes well. */
+	void mrf24j40_enable_carrier_sense();
 	return UWL_RADIO_ERR_NONE;
 }
 
@@ -226,6 +227,34 @@ COMPILER_INLINE int8_t uwl_radio_set_rx_callback(void (*rx_callback)(void))
 {
 	mrf24j40_set_rx_callback(rx_callback);
 	return UWL_RADIO_ERR_NONE;
+}
+
+/**
+* @brief Get a msg from the rx_fifo.
+*
+* This routine retrives a msg from the radio rx_fifo.
+*
+* @param[in] *msg 	The buffer where to store the message from the FIFO
+* @param[in] *fcs_chk	The variable where to store the FCS check result
+* 			(1 if FCS is correct, 0 otherwise)
+* @param[in] *lqi 	The variable where to store the LQI
+* @param[in] *rssi 	The variable where to store the RSSI
+*
+* @return the lenght of the received message (without FCS), or -1 if something
+* has gone wrong.
+*/
+COMPILER_INLINE int8_t uwl_radio_get_rx_data(uint8_t *msg, uint8_t *fcs_chk,
+						uint8_t *lqi, uint8_t *rssi)
+{
+	/* len is the length of the packet without the appended LQI and RSSI*/
+	uint8_t len = mrf24j40_get_fifo_msg(msg);
+	/* mrf24j40 autmatically discard frame with invalid FCS */
+	*fcs_chk = 1;
+	*lqi = msg[len];
+	*rssi = msg[len+1];
+	/* returned len does not consider FCS */
+	len -= 2;
+	return len;
 }
 
 /**
@@ -386,10 +415,10 @@ COMPILER_INLINE int8_t uwl_radio_set_channel(uint8_t ch)
 COMPILER_INLINE int8_t uwl_radio_set_mac_address(uint8_t* add, uint8_t length)
 {
 	if (length == 2)
-		mrf24j40_set_short_mac_add(add);
+		mrf24j40_set_short_MAC_addr(*((uint16_t*) add));
 	else
 		if (length == 8)
-			mrf24j40_set_ex_mac_add(add);
+			mrf24j40_set_ex_MAC_addr(*((uint64_t*) add));
 		else
 			return -1;
 	return UWL_RADIO_ERR_NONE;

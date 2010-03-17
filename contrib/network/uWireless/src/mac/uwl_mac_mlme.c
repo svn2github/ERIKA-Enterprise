@@ -8,12 +8,18 @@
 #include <mac/uwl_mac_internal.h>
 #include <util/uwl_debug.h>
 #ifdef UWL_DEBUG_LOG
+
+#ifdef __STDIO_COMPILER_BUG__
+int sprintf(char *, const char *, ...);
+#else
 #include <stdio.h> //TODO: REMOVE together with the sprintf() !!!!!
 #endif
 
-#ifndef UWL_TEST_DEVICE_ADDRESS
-#define UWL_TEST_DEVICE_ADDRESS 0x0002
 #endif
+
+//#ifndef UWL_TEST_DEVICE_ADDRESS
+//#define UWL_TEST_DEVICE_ADDRESS 0x0002
+//#endif
 
 //Variable for associtae request at the device, to resend association req.
 int16_t associate_ack_counter = -255;
@@ -187,6 +193,11 @@ int8_t uwl_MLME_ASSOCIATE_response(uwl_mac_dev_addr_extd_t DeviceAddress,
 				   uint8_t SecurityLevel, uint8_t KeyIdMode,
 				   uint8_t *KeySource, uint8_t KeyIndex)
 {
+#ifdef UWL_DEBUG_LOG
+char str[150];
+sprintf(str, "uwl_MLME_ASSOCIATE_response(DeviceAddress=%X, AssocShortAddress=%X,..)", DeviceAddress, AssocShortAddress);
+uwl_debug_print(str);
+#endif
 	uwl_mac_association_response_cmd(DeviceAddress,AssocShortAddress,status);
 
 	return 1;

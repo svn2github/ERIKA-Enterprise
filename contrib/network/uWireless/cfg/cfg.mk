@@ -21,7 +21,12 @@ EE_SRCS += contrib/network/uWireless/src/hal/uwl_radio_mrf24j40.c
 endif
 
 ifneq ($(findstring UWL_HAL_EXTERNAL_TIMER,$(EEOPT)), UWL_HAL_EXTERNAL_TIMER)
+ifeq ($(findstring __PIC30__,$(EEOPT)) , __PIC30__)
 EE_SRCS += contrib/network/uWireless/src/hal/uwl_timer_dspic30.c
+endif
+ifeq ($(findstring __PIC32__,$(EEOPT)) , __PIC32__)
+EE_SRCS += contrib/network/uWireless/src/hal/uwl_timer_pic32.c
+endif
 endif
 
 EE_SRCS += contrib/network/uWireless/src/phy/uwl_phy.c

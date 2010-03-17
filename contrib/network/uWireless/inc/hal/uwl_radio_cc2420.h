@@ -235,6 +235,52 @@ COMPILER_INLINE int8_t uwl_radio_get_msg(uint8_t *msg)
 	return cc2420_get_fifo_msg(msg);
 }
 
+/**
+* @brief Get a msg from the rx_fifo.
+*
+* This routine retrives a msg from the radio rx_fifo.
+*
+* @param[in] *msg 	The buffer where to store the message from the FIFO
+* @param[in] *fcs_chk	The variable where to store the FCS check result
+* 			(1 if FCS is correct, 0 otherwise)
+* @param[in] *lqi 	The variable where to store the LQI
+* @param[in] *rssi 	The variable where to store the RSSI
+*
+* @return the lenght of the received message (without FCS), or -1 if something
+* has gone wrong.
+*/
+COMPILER_INLINE int8_t uwl_radio_get_rx_data(uint8_t *msg, uint8_t *fcs_chk,
+		uint8_t *lqi, uint8_t *rssi)
+{
+	/*FIXME: try to remove this buffer */
+	uint8_t buf[130];
+	/* len is the length of the packet with the appended LQI and RSSI plus
+	 * one (since the buffer contains the lenght itself */
+	uint8_t len = cc2420_get_fifo_msg(buf);
+	if (len < 2)
+		return -1;
+	/* Lenght does not consider the first byte (which is length itself) so
+	 * add it! */
+	len += 1;
+	*fcs_chk = !!(buf[len - 1] & 0x80);
+	/* The last two bytes in the buffer are the RSSI value
+	* and the CRC value respectively. They are not part
+	* of the message (payload), then we can discard them.
+	* For further information see the CC2420 datasheet
+	*/
+	*lqi = buf[len - 1] & 0x7F;
+	*rssi= 255 - buf[len - 2];
+	/* remove the FCS/LQI, RSSI, and lenght from the length */
+	len -= 3;
+	//memcpy(msg, buf+1, len);
+	int i = 0;
+	for (i = 0; i < len; i++) {
+		msg[i] = buf[i+1];
+	} 
+	return len;
+}
+
+
 
 /**
 * @brief Set the transmission power.

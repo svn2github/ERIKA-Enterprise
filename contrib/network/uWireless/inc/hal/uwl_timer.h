@@ -19,6 +19,10 @@
 #elif defined __AVR5__
 /* TODO*/
 
+#elif defined __MICROCHIP_PIC32__
+
+#include <hal/uwl_timer_pic32.h>
+
 #else			/* No timer */
 #error "UWL_HAL ERROR: timer hw interface not specified"
 

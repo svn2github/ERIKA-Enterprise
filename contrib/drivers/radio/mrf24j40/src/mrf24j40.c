@@ -210,7 +210,7 @@ int8_t mrf24j40_init(uint8_t int_setup, uint8_t ch, uint8_t port)
 
 	#ifdef MRF24J40_DISABLE_AUTOMATIC_ACK
 		debug_print("\r\nMRF24J40 Init AUTOACK");
-		i = i | 0b00100000	
+		i = i | 0b00100000;
 	#endif
 
 	#ifdef MRF24J40_PAN_COORDINATOR
@@ -456,13 +456,13 @@ uint8_t mrf24j40_get_fifo_msg(uint8_t *msg)
 
 	/* Get the packet */
 	debug_print("\r\nPacket received:\r\n");
-	msg[0] = len;
-	debug_set_msg("0x%X ", msg[0]);
-	debug_print(mrf24j40_db_msg);
-	for (i=1;i < len + 1 + 2; i++) {
-		msg[i] = mrf24j40_get_long_add_mem(MRF24J40_RX_FIFO + i);
-		debug_set_msg("0x%X ", msg[i]);
-		debug_print(mrf24j40_db_msg);
+//	msg[0] = len;
+//	debug_set_msg("Len = 0x%X \n", len);
+//	debug_print(mrf24j40_db_msg);
+	for (i=0;i < len + 2; i++) {
+		msg[i] = mrf24j40_get_long_add_mem(MRF24J40_RX_FIFO + i + 1);
+//		debug_set_msg("0x%X ", msg[i]);
+//		debug_print(mrf24j40_db_msg);
 	}
 
 	#else

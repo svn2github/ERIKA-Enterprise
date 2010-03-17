@@ -11,7 +11,12 @@
 #include <kal/uwl_kal.h>
 #include <hal/uwl_radio.h>
 #ifdef UWL_DEBUG_LOG
+#ifdef __STDIO_COMPILER_BUG__
+unsigned int strlen(const char *str);
+int sprintf(char *, const char *, ...);
+#else
 #include <stdio.h> //TODO: REMOVE together with the sprintf() !!!!!
+#endif
 #endif
 
 /* chris: if the PLME and PD code is not so much their implementation
@@ -49,20 +54,47 @@ UWL_PHY_IMPORT_MAC_MUTEXES(PHY_READ_DISPATCHER); /* TODO: write notes!! */
 
 static void phy_read_dispatcher(void)
 {
-	uint8_t rssi, lqi;
+	uint8_t rssi = 0, lqi = 0, fcs_chk = 0;
 	uint8_t buf[UWL_RADIO_RX_BUFFER_SIZE];
 	int8_t len = 0;
 
-	#ifdef UWL_DEBUG_LOG
-	/* uwl_debug_print("UWL_TASK: PHY_READ_DISPATCHER Activated!"); */
-	#endif
-	/* chris: FIXME: maybe the error was in that part! */
-	/* chris: TODO: this part has been copied by the old ieee802154 stack.
-			maybe this is too dependent on the cc2420? can we
-			abstract something?
-	*/
-	len = uwl_radio_get_msg(buf);
-	if(len < 2)
+//	#ifdef UWL_DEBUG_LOG
+//	uwl_debug_print("UWL_TASK: PHY_READ_DISPATCHER Activated!");
+//	#endif
+//	/* chris: FIXME: maybe the error was in that part! */
+//	/* chris: TODO: this part has been copied by the old ieee802154 stack.
+//			maybe this is too dependent on the cc2420? can we
+//			abstract something?
+//	*/
+//	len = uwl_radio_get_msg(buf);
+//	if(len < 2)
+//		return; /* chris: TODO: - Make something: notify to upper layer
+//					(raise an error) or ignore
+//					(return immediately)
+//					- Check if the condition < 13 is ok (now
+//					it is because of the minimal packet
+//					size);
+//			*/
+//	len += 1; 	/* chris: TODO: Lenght does not consider the first
+//					byte (which is length itself)
+//					so add it! Is this correct????
+//			*/
+//	if (!(buf[len - 1] & 0x80))
+//		return;	/* chris: TODO: - Make something: notify to upper layer
+//					(raise an error) or ignore
+//					(return immediately)
+//			*/
+//	/* The last two bytes in the buffer are the RSSI value
+//	* and the CRC value respectively. They are not part
+//	* of the message (payload), then we can discard them.
+//	* For further information see the CC2420 datasheet
+//	*/
+//	lqi = buf[len - 1] & 0x7F;
+//	rssi= 255 - buf[len - 2];
+//	len -= 2;
+
+	len = uwl_radio_get_rx_data(buf, &fcs_chk, &lqi, &rssi);
+	if (len < 0)
 		return; /* chris: TODO: - Make something: notify to upper layer
 					(raise an error) or ignore
 					(return immediately)
@@ -70,24 +102,23 @@ static void phy_read_dispatcher(void)
 					it is because of the minimal packet
 					size);
 			*/
-	len += 1; 	/* chris: TODO: Lenght doe's not consider the first
-					byte (which is length itself)
-					so add it! Is this correct????
-			*/
-	if (!(buf[len - 1] & 0x80))
-		return;	/* chris: TODO: - Make something: notify to upper layer
+	if (fcs_chk == 0)
+		return; /* chris: TODO: - Make something: notify to upper layer
 					(raise an error) or ignore
 					(return immediately)
 			*/
-	/* The last two bytes in the buffer are the RSSI value
-	* and the CRC value respectively. They are not part
-	* of the message (payload), then we can discard them.
-	* For further information see the CC2420 datasheet
-	*/
-	lqi = buf[len - 1] & 0x7F;
-	rssi= 255 - buf[len - 2];
-	len -= 2;
-	uwl_PD_DATA_indication((uint8_t) len - 1, buf + 1, lqi);
+
+	#ifdef UWL_DEBUG_LOG
+	int i = 0;
+	char s[130];
+	uwl_debug_print("\r\n");
+	for (i = 0; i < len; i++) {
+		sprintf(s, "%X", buf[i]);
+		uwl_debug_print(s);
+	}
+	#endif
+
+	uwl_PD_DATA_indication((uint8_t) len,  buf, lqi);
 }
 
 static void phy_read_isr(void)
@@ -147,7 +178,7 @@ int8_t uwl_PD_DATA_request(uint8_t psduLength, uint8_t *psdu)
 	enum uwl_phy_code_t status = UWL_PHY_SUCCESS;
 	#ifdef UWL_DEBUG_LOG
 	char s[100];
-	sprintf(s, "PD_DATA_request(len=%u, *p=%u)", psduLength,(uint16_t)psdu);
+	sprintf(s, "PD_DATA_request(len=%u, *p=%u)", psduLength,(unsigned int)psdu);
 	uwl_debug_print(s);
 	#endif
 
@@ -287,8 +318,8 @@ int8_t uwl_PLME_SET_TRX_STATE_request(enum uwl_phy_code_t state)
 {
 	enum uwl_phy_code_t status;
 	#ifdef UWL_DEBUG_LOG
-	char s[100];
-	char s1[30];
+//	char s[100];
+//	char s1[30];
 //	uwl_debug_sprint_phycode(state, s1);
 //	sprintf(s, "PLME_SET_TRX_STATE_request(%s)", s1);
 //	uwl_debug_print(s);

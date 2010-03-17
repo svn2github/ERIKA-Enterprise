@@ -12,6 +12,10 @@
 #include <kal/uwl_kal.h>
 #include <hal/uwl_timer.h>
 
+#ifndef UWL_HAL_BUS_FREQ
+#define UWL_HAL_BUS_FREQ 40000
+#endif
+
 extern volatile uint32_t uwl_kal_erika_time_counter;
 
 void uwl_kal_external_timer_action(void);
@@ -29,7 +33,7 @@ int8_t uwl_kal_erika_init(uint32_t tick_duration)
 		/* TODO: call a user callback where the user can be notified 
 			 about the kal tick_duration */
 		#else
-		if (uwl_timer_init(tick_duration, 40000) < 0)
+		if (uwl_timer_init(tick_duration, UWL_HAL_BUS_FREQ) < 0)
 			return -UWL_KAL_ERR_TIMER_INIT;
 		uwl_timer_set_isr_callback(uwl_kal_external_timer_action);
 		uwl_timer_start();
