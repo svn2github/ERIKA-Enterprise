@@ -1,5 +1,4 @@
-/* ###*B*###
- * ERIKA Enterprise - a tiny RTOS for small microcontrollers
+/* ###*B*### ERIKA Enterprise - a tiny RTOS for small microcontrollers
  *
  * Copyright (C) 2010, TU Dortmund University, Faculty of Computer Science 12
  *
@@ -7,7 +6,7 @@
  *
  * ERIKA Enterprise is free software; you can redistribute it
  * and/or modify it under the terms of the GNU General Public License
- * version 2 as published by the Free Software Foundation, 
+ * version 2 as published by the Free Software Foundation,
  * (with a special exception described below).
  *
  * Linking this code statically or dynamically with other modules is
@@ -41,21 +40,38 @@
 /* Author: Jan C. Kleinsorge, TU Dortmund University, 2010-
  *
  */
-#ifndef __INLCUDE_TRICORE_EE_CPUDEFS_H__
-#define __INLCUDE_TRICORE_EE_CPUDEFS_H__
 
-#ifdef __GNUC__
+/* Define functions to be invoked prior to entering main()
+ * Each of these functions may be invoked manually if this
+ * mechanism is not supported by the particular platform.
+ */
+        
+#ifdef __TRICORE_GNU__
 
-/* All the additional definitions that are not required for the core
- * kernel functionality are to be taken from the HighTec TriCore GCC
- * toolchain. It is model specific and complete. The include path
- * should already point there. So for example, do
- * #include <tc1796b/csfr.h>
- * to obtain all the core specific types, readily mapped variables 
- * to system registers, bit masks etc. 
- * Basically all versions/revisions and peripherals are covered. */
+        /* Enforce linkage to libee */
+           .globl EE_link_ctors
+EE_link_ctors: 
 
+        .extern     EE_tc179x_init_clock
+        .extern     EE_init_int_vector
+        .extern     EE_init_trap_vector
+        
+        .section .ctors
+
+#ifndef __TSIM__
+        .word EE_tc179x_init_clock
 #endif
 
+        .word EE_tc179x_stm_init
+        
+#ifdef __INT__
+        .word EE_init_int_vector
 #endif
 
+#ifdef __TRAP__
+        .word EE_init_trap_vector 
+#endif
+        
+        .previous
+
+#endif

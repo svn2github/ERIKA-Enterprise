@@ -254,11 +254,25 @@ endif
 
 
 ##
-## Infineon Tricore - Tasking under Windows
+## Infineon Tricore 1 - Tasking under Windows
 ##########################################################################
-ifeq ($(findstring __TRICORE1__,$(EEALLOPT)) , __TRICORE1__)
+ifeq ($(findstring __TRICORE1_TASKING___,$(EEALLOPT)) , __TRICORE1_TASKING__)
 ifeq ($(findstring __TC1775B__,$(EEALLOPT)) , __TC1775B__)
 include $(EEBASE)/pkg/cfg/arch/rules_infineon_tc1775b.mk
+endif
+endif
+
+
+##
+## Infineon Tricore - GNU
+##########################################################################
+ifeq ($(findstring __TRICORE_GNU__,$(EEALLOPT)) ,__TRICORE_GNU__)
+ifneq ($(filter __TC1796__ __TC1797__,$(EEALLOPT)),)
+  EEALLOPT := $(EEALLOPT) __TC179x__
+  EEOPT := $(EEOPT) __TC179x__
+endif
+ifeq ($(findstring __TC179x__,$(EEALLOPT)) , __TC179x__)
+include $(EEBASE)/pkg/cfg/arch/rules_infineon_tc179x.mk
 endif
 endif
 

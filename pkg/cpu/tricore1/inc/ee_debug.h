@@ -41,21 +41,36 @@
 /* Author: Jan C. Kleinsorge, TU Dortmund University, 2010-
  *
  */
-#ifndef __INLCUDE_TRICORE_EE_CPUDEFS_H__
-#define __INLCUDE_TRICORE_EE_CPUDEFS_H__
+#ifndef __INCLUDE_EE_TC1_DEBUG_H__
+#define __INCLUDE_EE_TC1_DEBUG_H__
 
-#ifdef __GNUC__
+#ifdef DEBUG 
 
-/* All the additional definitions that are not required for the core
- * kernel functionality are to be taken from the HighTec TriCore GCC
- * toolchain. It is model specific and complete. The include path
- * should already point there. So for example, do
- * #include <tc1796b/csfr.h>
- * to obtain all the core specific types, readily mapped variables 
- * to system registers, bit masks etc. 
- * Basically all versions/revisions and peripherals are covered. */
+#include <stdio.h>
+
+#define TRACE(f, ...) \
+    printf( f, ## __VA_ARGS__)
+
+#define EE_tc1_debug() \
+    asm ("debug")
+
+#define EE_tc1_assert(exp) \
+    if (!(exp)) {          \
+        EE_tc1_debug();    \
+    }
+
+#else   /* DEBUG */
+
+#define TRACE(f, ...) \
+    do{}while(0)
+
+#define EE_tc1_debug(x) \
+    do{}while(0)
+
+#define EE_tc1_assert(x) \
+    do{}while(0)
+
+#endif  /* DEBUG */
+
 
 #endif
-
-#endif
-

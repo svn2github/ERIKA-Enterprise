@@ -1,7 +1,7 @@
 # ###*B*###
 # ERIKA Enterprise - a tiny RTOS for small microcontrollers
 # 
-# Copyright (C) 2009  Evidence Srl
+# Copyright (C) 2002-2008  Evidence Srl
 # 
 # This file is part of ERIKA Enterprise.
 # 
@@ -38,56 +38,11 @@
 # Boston, MA 02110-1301 USA.
 # ###*E*###
 
-## Author: 2005 Paolo Gai
-## CVS: $Id: compiler.mk,v 1.18 2006/12/06 17:39:08 pj Exp $
-
-##
-## Compiler related options
+## Author: Jan C. Kleinsorge, TU Dortmund University, 2010
+## 
 ##
 
-ifeq ($(findstring __AVR5__,$(EEALLOPT)), __AVR5__)
-include $(PKGBASE)/cfg/arch/cc_avr5gnu.mk
-endif
+ifeq ($(findstring __TC1796__,$(EEOPT)), __TC1796__)
 
-
-ifeq ($(findstring __ARM7GNU__,$(EEALLOPT)), __ARM7GNU__)
-include $(PKGBASE)/cfg/arch/cc_arm7gnu.mk
-endif
-
-ifeq ($(findstring __ARM7ADS__,$(EEALLOPT)), __ARM7ADS__)
-include $(PKGBASE)/cfg/arch/cc_arm7ads.mk
-endif
-
-ifeq ($(findstring __MPC5XX__,$(EEALLOPT)), __MPC5XX__)
-include $(PKGBASE)/cfg/arch/cc_ppcgnu.mk
-endif
-
-ifeq ($(findstring __MPC5PROTECTED__,$(EEALLOPT)), __MPC5PROTECTED__)
-include $(PKGBASE)/cfg/arch/cc_ppcgnu.mk
-endif
-
-ifeq ($(findstring __PIC30__,$(EEALLOPT)), __PIC30__)
-include $(PKGBASE)/cfg/arch/cc_pic30.mk
-endif
-
-ifeq ($(findstring __PIC32__,$(EEALLOPT)), __PIC32__)
-include $(PKGBASE)/cfg/arch/cc_pic32.mk
-endif
-
-ifeq ($(findstring __TRICORE1_TASKING__,$(EEALLOPT)), __TRICORE1_TASKING__)
-include $(PKGBASE)/cfg/arch/cc_tricore_tasking.mk
-endif
-
-ifeq ($(findstring __TRICORE_GNU__,$(EEALLOPT)), __TRICORE_GNU__)
-include $(PKGBASE)/cfg/arch/cc_tricore_gnu.mk
-endif
-
-ifeq ($(findstring __HCS12XS__,$(EEALLOPT)) , __HCS12XS__)
-ifeq ($(findstring __COSMIC__,$(EEALLOPT)), __COSMIC__)
-include $(PKGBASE)/cfg/arch/cc_s12x_cosmic.mk
-endif
-endif
-
-ifeq ($(findstring __LM32__,$(EEALLOPT)) , __LM32__)
-include $(EEBASE)/pkg/cfg/arch/cc_mico32.mk
+EE_SRCS += pkg/board/infineon_tc1796b/src/ee_board.c
 endif

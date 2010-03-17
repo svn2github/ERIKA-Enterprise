@@ -1,5 +1,4 @@
-/* ###*B*###
- * ERIKA Enterprise - a tiny RTOS for small microcontrollers
+/* ###*B*### ERIKA Enterprise - a tiny RTOS for small microcontrollers
  *
  * Copyright (C) 2010, TU Dortmund University, Faculty of Computer Science 12
  *
@@ -7,7 +6,7 @@
  *
  * ERIKA Enterprise is free software; you can redistribute it
  * and/or modify it under the terms of the GNU General Public License
- * version 2 as published by the Free Software Foundation, 
+ * version 2 as published by the Free Software Foundation,
  * (with a special exception described below).
  *
  * Linking this code statically or dynamically with other modules is
@@ -41,21 +40,48 @@
 /* Author: Jan C. Kleinsorge, TU Dortmund University, 2010-
  *
  */
-#ifndef __INLCUDE_TRICORE_EE_CPUDEFS_H__
-#define __INLCUDE_TRICORE_EE_CPUDEFS_H__
-
 #ifdef __GNUC__
 
-/* All the additional definitions that are not required for the core
- * kernel functionality are to be taken from the HighTec TriCore GCC
- * toolchain. It is model specific and complete. The include path
- * should already point there. So for example, do
- * #include <tc1796b/csfr.h>
- * to obtain all the core specific types, readily mapped variables 
- * to system registers, bit masks etc. 
- * Basically all versions/revisions and peripherals are covered. */
+        .extern EE_trap_vector
+        .extern EE_wdt_lock
+        .extern EE_wdt_unlock
 
-#endif
+/* Default trap handler
+ * 
+ */       
+        .section .text
+        .type EE_trap_default_tsr, @function
+        .globl EE_trap_default_tsr                                    
+EE_trap_default_tsr:        
+        debug 
+        ji %a11
+        
+        .size EE_trap_default_tsr, . - EE_trap_default_tsr
+        .previous
 
-#endif
+        
+/* Sets this table as the trap vector.
+ * 
+ * NOTE: On GNU invoked automatically (see ee_init.S)
+ */       
+        .section .text
+        .globl EE_init_trap_vector
+        .type EE_init_trap_vector, @function
+EE_init_trap_vector:
+        
+        call EE_wdt_unlock       
+        movh %d8, HI:EE_trap_vector
+        addi %d8, %d8, LO:EE_trap_vector
+        mtcr $btv, %d8 /* Table must be properly aligned */
+        dsync
+        call EE_wdt_lock
+        ret
+        
+        .size EE_init_trap_vector, . - EE_init_trap_vector
+        .previous
 
+#else
+
+#error Compiler not supported.
+        
+#endif /* __GNUC__ */

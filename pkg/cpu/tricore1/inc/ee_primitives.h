@@ -41,21 +41,82 @@
 /* Author: Jan C. Kleinsorge, TU Dortmund University, 2010-
  *
  */
-#ifndef __INLCUDE_TRICORE_EE_CPUDEFS_H__
-#define __INLCUDE_TRICORE_EE_CPUDEFS_H__
+#ifndef __INLCUDE_TRICORE1_EE_PRIMITIVES_H__
+#define __INLCUDE_TRICORE1_EE_PRIMITIVES_H__
 
-#ifdef __GNUC__
+// #undef DEBUG
 
-/* All the additional definitions that are not required for the core
- * kernel functionality are to be taken from the HighTec TriCore GCC
- * toolchain. It is model specific and complete. The include path
- * should already point there. So for example, do
- * #include <tc1796b/csfr.h>
- * to obtain all the core specific types, readily mapped variables 
- * to system registers, bit masks etc. 
- * Basically all versions/revisions and peripherals are covered. */
+#include "ee.h"
+#include "cpu/tricore1/inc/ee_debug.h"
+#include "cpu/tricore1/inc/ee_cpu.h"
+#include "cpu/tricore1/inc/ee_hal.h"
 
+
+/*******************************************************************************
+ * Generic Primitives
+ */
+
+/* Called to start a generic primitive. */
+__INLINE__ void __ALWAYS_INLINE__ EE_hal_begin_primitive(void)
+{
+    EE_hal_disableIRQ();
+}
+
+
+/* Called as _last_ function of a generic primitive. */
+__INLINE__ void __ALWAYS_INLINE__ EE_hal_end_primitive(void)
+{
+    EE_hal_enableIRQ();
+}
+
+
+/* Called to start a primitive called from within an IRQ handler. */
+__INLINE__ void __ALWAYS_INLINE__ EE_hal_IRQ_begin_primitive(void)
+{
+#ifdef __ALLOW_NESTED_IRQ__
+    EE_hal_disableIRQ();
 #endif
+}
 
+
+/* Called as _first_ function of a primitive called from within an IRQ
+ * handler. */
+__INLINE__ void __ALWAYS_INLINE__ EE_hal_IRQ_end_primitive(void)
+{
+#ifdef __ALLOW_NESTED_IRQ__
+    EE_hal_enableIRQ();
 #endif
+}
 
+
+/* Called as _first_ function of a primitive that can be called from within
+ * an IRQ and from within a task.
+ *
+ * We can safely store the entire ICR. Saves us instructions here and
+ * a branch in end_nested_primitive.
+ */
+__INLINE__ EE_FREG __ALWAYS_INLINE__ EE_hal_begin_nested_primitive(void)
+{
+    EE_ICR icr = EE_tc1_get_ICR();
+    EE_hal_disableIRQ();
+    return (EE_FREG)icr.reg;
+}
+
+
+/* Called as _last_ function of a primitive that can be called from
+ * within an IRQ or a task.
+ */
+__INLINE__ void __ALWAYS_INLINE__ EE_hal_end_nested_primitive(EE_FREG f)
+{
+    EE_tc1_set_ICR((EE_ICR)f);
+}
+
+
+/* Nested Interrupts Handling */
+__INLINE__ EE_UREG __ALWAYS_INLINE__ EE_hal_get_IRQ_nesting_level(void)
+{
+    return EE_IRQ_nesting_level;
+}
+
+
+#endif /* __INLCUDE_TRICORE1_EE_INTERNAL_H__ */

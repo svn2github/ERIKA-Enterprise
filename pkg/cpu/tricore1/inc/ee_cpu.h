@@ -1,7 +1,7 @@
 /* ###*B*###
  * ERIKA Enterprise - a tiny RTOS for small microcontrollers
  *
- * Copyright (C) 2002-2008  Evidence Srl
+ * Copyright (C) 2010, TU Dortmund University, Faculty of Computer Science 12
  *
  * This file is part of ERIKA Enterprise.
  *
@@ -38,75 +38,114 @@
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
 
-/*
- * Author: 2005 Paolo Gai
- * CVS: $Id: ee_cpu.h,v 1.5 2006/04/08 21:08:54 pj Exp $
+/* Author: Jan C. Kleinsorge, TU Dortmund University, 2010-
+ *
  */
 
+#ifndef __INCLUDE_TRICORE1_EE_CPU_H__
+#define __INCLUDE_TRICORE1_EE_CPU_H__
 
-#include "eecfg.h"
-#include "cpu/tricore1/inc/ee_cpudefs.h"
 #include "cpu/tricore1/inc/ee_compiler.h"
+#include "cpu/tricore1/inc/ee_hal.h"
 
-#ifndef __INCLUDE_TRICORE1_CPU_H__
-#define __INCLUDE_TRICORE1_CPU_H__
-
-
+/* Inclusions at the bottom to break dependency cycle */
 
 /*************************************************************************
- HAL Constants
- *************************************************************************/
+ CPU dependent data types
+*************************************************************************/
+
+#if defined(__TC13__) || defined(__TC131__)
+
+/* Previous Context Information Register */
+typedef union {
+    struct {
+        EE_UINT32 PCXO   :16; /* Previous Context Pointer Offset Address  */
+        EE_UINT32 PCXS   :4;  /* Previous Context Pointer Segment Address */
+        EE_UINT32 _bit20 :1;  /* Reserved */
+        EE_UINT32 _bit21 :1;  /* Reserved */
+        EE_UINT32 UL     :1;  /* Upper or Lower Context Tag */
+        EE_UINT32 PIE    :1;  /* Previous Interrupt Enable */
+        EE_UINT32 PCPN   :8;  /* Previous CPU Priority Number */ 
+    } bits;
+    EE_UINT32 reg;
+} __ALIGNED__(4) EE_PCXI;
 
 
-/* invalid pointer */
-#ifndef NULL
-#define NULL 0
-#endif
-
-/*************************************************************************
- HAL Types
- *************************************************************************/
+/* Context Save Area Link Word (only PCXS and PCXO are valid)*/
+typedef EE_PCXI EE_CSA_LINK;
 
 
-/* Primitive data types */
-/* TODO: it is worth for THUMB?!? */
+/* Context Save Area (16 words, upper or lower context) */
+typedef struct {
+    EE_CSA_LINK next;
+    union {
+        struct {
+            EE_UREG PSW;
+            EE_UREG A10;
+            EE_UREG A11;
+            EE_UREG D8;
+            EE_UREG D9;
+            EE_UREG D10;
+            EE_UREG D11;
+            EE_UREG A12;
+            EE_UREG A13;
+            EE_UREG A14;
+            EE_UREG A15;
+            EE_UREG D12;
+            EE_UREG D13;
+            EE_UREG D14;
+            EE_UREG D15;
+        } ucx;
+        struct {
+            EE_UREG A11;
+            EE_UREG A2;
+            EE_UREG A3;
+            EE_UREG D0;
+            EE_UREG D1;
+            EE_UREG D2;
+            EE_UREG D3;
+            EE_UREG A4;
+            EE_UREG A5;
+            EE_UREG A6;
+            EE_UREG A7;
+            EE_UREG D4;
+            EE_UREG D5;
+            EE_UREG D6;
+            EE_UREG D7;
+        } lcx;
+    };
+} __ALIGNED__(64) EE_CSA;
 
-typedef unsigned char EE_BIT;
-typedef unsigned char EE_UINT8;
-typedef unsigned short EE_UINT16;
-typedef unsigned int EE_UINT32;
-typedef signed char EE_INT8;
-typedef signed short EE_INT16;
-typedef signed int EE_INT32;
 
-typedef EE_UINT32 EE_UREG;
-typedef EE_INT32  EE_SREG;
-typedef EE_UINT32 EE_FREG;
+/* Interrupt control register */
+typedef union {
+    struct {
+        EE_UREG CCPN    :8; /* Current CPU Priority Number */
+        EE_UREG IE      :1; /* Interrupt Enable */
+        EE_UREG _bit9   :1;
+        EE_UREG _bit10  :1;
+        EE_UREG _bit11  :1;
+        EE_UREG _bit12  :1;
+        EE_UREG _bit13  :1;
+        EE_UREG _bit14  :1;
+        EE_UREG _bit15  :1;
+        EE_UREG PIPN    :8; /* Pending Interrupt Priority Number */
+        EE_UREG CARBCYC :2; /* Number of Arbitration Cycles */
+        EE_UREG CONECYC :1; /* No. of Clks per Arb. Cycle Control */
+        EE_UREG _bit27  :1;
+        EE_UREG _bit28  :1;
+        EE_UREG _bit29  :1;
+        EE_UREG _bit30  :1;
+        EE_UREG _bit31  :1;
+    } bits;
+    EE_UREG reg;
+} __ALIGNED__(4) EE_ICR;
 
-/* Thread IDs */
-typedef EE_UINT32 EE_TID;
 
-/* Addresses (that have the same size of a pointer) */
-typedef EE_UINT32 *EE_ADDR;
-
-/* EE_TYPEIRQ is defined inside the MCU */
-
-/*
- * This structure is used by the Multistack HAL to contain the
- * information about a "stack", that is composed by a user stack
- * (SYS-mode) and a system stack (IRQ-mode). This type is
- * used internally by the HAL and is not used by the Kernels.
- */
-#ifdef __MULTI__
-struct EE_TOS {
-    EE_ADDR SYS_tos;
-    EE_ADDR IRQ_tos;
-};
-#endif
 
 /*************************************************************************
  Application dependent data types
- *************************************************************************/
+*************************************************************************/
 
 #ifdef __HAS_TYPES_H__
 #include "types.h"
@@ -114,65 +153,296 @@ struct EE_TOS {
 
 
 /*************************************************************************
- HAL Variables
- *************************************************************************/
+ Execution barriers
+*************************************************************************/
 
-/* Thread function body pointer */
-extern const EE_ADDR EE_hal_thread_body[];
+/* Data barrier */
+#define EE_tc1_dsync(...) \
+    asm volatile("dsync")
 
-
-#ifdef __MULTI__
-
-/* each task use a system (IRQ) stack and a user (SYS) stack */
-extern struct EE_TOS EE_tc1_system_tos[];
-
-/* tc1_system_tos[] index that point to the thread tos (one for each thread) */
-extern EE_UREG EE_tc1_thread_tos[];
-
-/* tc1_system_tos[] index that point to the active thread tos */
-extern EE_UREG EE_tc1_active_tos;
-
-/* stack used by IRQ handlers 
- * mi sa che questo va sostituito con la gestione dell'irq stack di tricore
- */
-#ifdef __IRQ_STACK_NEEDED__
-extern struct EE_TOS EE_tc1_IRQ_tos;
-#endif
-
-#endif /* __MULTI__ */
-
-#if defined(__OO_BCC1__) || defined(__OO_BCC2__) || defined(__OO_ECC1__) || defined(__OO_ECC2__)
-
-/* this is a safe place to put sp_sys when EE_hal_terminate_savestk
-   is called into EE_oo_thread_stub */
-extern EE_UINT32 EE_terminate_data[];
-
-/* this is the real thread body that is called if the thread use the
-   TerminateTask function */
-extern const EE_ADDR EE_terminate_real_th_body[];
-
-/* this is the stub that have to be put into the EE_th_body array */
-extern void EE_oo_thread_stub(void);
-
-#endif
-
+/* Instruction barrier */
+#define EE_tc1_isync(...) \
+    asm volatile("isync")
 
 
 /*********************************************************************
- TRICORE interrupt disabling/enabling
- *********************************************************************/
+ TRICORE1 information
+*********************************************************************/
 
-__INLINE__ void __ALWAYS_INLINE__ EE_tc1_enableIRQ(void) { __asm("enable"); }
-__INLINE__ void __ALWAYS_INLINE__ EE_tc1_disableIRQ(void){ __asm("disable");}
+__INLINE__ unsigned int __ALWAYS_INLINE__ EE_tc1_cpu_model(void)
+{
+    EE_UREG r;
+    asm ("mfcr %0, $cpu_id" : "=d"(r));
+    return (r >> 0x10);
+}
+
+
+__INLINE__ unsigned int __ALWAYS_INLINE__ EE_tc1_cpu_revision(void)
+{
+    EE_UREG r;
+    asm ("mfcr %0, $cpu_id": "=d"(r));
+    return (r & 0xff);
+}
+
+
+#ifdef __TC131__
+/* Reads the CPU Clock Cycle Counter (includes overflow bit) */
+__INLINE__ EE_UREG __ALWAYS_INLINE__ EE_tc1_get_CCTN(void)
+{
+    EE_UREG r;
+    asm ("mfcr %0, $cctn": "=d"(r));
+    return r;
+}
+#endif
+
+
+/*********************************************************************
+ TRICORE1 interrupt support 
+*********************************************************************/
+
+#ifdef __GNUC__
+
+/* Enable interrupts */
+__INLINE__ void __ALWAYS_INLINE__ EE_tc1_enableIRQ(void)
+{
+    asm volatile ("enable");
+}
+
+/* Disable interrupts */
+__INLINE__ void __ALWAYS_INLINE__ EE_tc1_disableIRQ(void)
+{
+    asm volatile ("disable");
+}
+
+
+/* Returns the first CSA in the Previous Context List */
+__INLINE__ EE_ICR  __ALWAYS_INLINE__ EE_tc1_get_ICR()
+{
+    EE_ICR icr; 
+    asm volatile ("mfcr %0, $icr" : "=d"(icr.reg));
+    return icr;
+}
+
+
+/* Set the first CSA in the Previous Context List */
+__INLINE__ void __ALWAYS_INLINE__ EE_tc1_set_ICR(EE_ICR icr)
+{
+    asm volatile ("mtcr $icr, %0" : : "d"(icr));
+}
+
+
+/* Return ICR.IE. */
+__INLINE__ EE_FREG __ALWAYS_INLINE__ EE_tc1_interrupts_enabled(void)
+{
+    EE_ICR icr;
+    asm volatile ("mfcr %0, $icr" : "=D"(icr.reg));
+    return icr.bits.IE;    
+}
+
+
+#else 
+
+#error Compiler not supported.
+
+#endif
+
+
+/*********************************************************************
+ TRICORE1 context handling
+*********************************************************************/
+
+
+#ifdef __GNUC__
+
+
+__INLINE__ void __ALWAYS_INLINE__ EE_tc1_jump(EE_THREAD_PTR t)
+{
+    asm volatile ("ji %0" : : "a"(t));
+}
+
+
+__INLINE__ void __ALWAYS_INLINE__ EE_tc1_jump_and_link(EE_THREAD_PTR t)
+{
+    asm volatile ("jli %0" : : "a"(t));
+}
+
+
+__INLINE__ EE_ADDR __ALWAYS_INLINE__ EE_tc1_get_RA(void)
+{
+    EE_ADDR reg;
+    asm volatile ("mov.d %0, %%a11" : "=d"(reg));
+    return reg;
+}
+
+
+__INLINE__ void __ALWAYS_INLINE__ EE_tc1_set_RA(EE_ADDR reg)
+{
+    asm volatile ("mov.a %%a11, %0" : : "d"(reg));
+}
+
+
+__INLINE__ EE_ADDR __ALWAYS_INLINE__ EE_tc1_get_SP(void)
+{
+    EE_ADDR reg;
+    asm volatile ("mov.d %0, %%a10" : "=d"(reg));
+    return reg;
+}
+
+
+__INLINE__ void __ALWAYS_INLINE__ EE_tc1_set_SP(EE_ADDR reg)
+{
+    asm volatile ("mov.a %%a10, %0" : : "d"(reg));
+}
+
+#else 
+
+#error Compiler not supported.
+
+#endif 
+
+
+/*********************************************************************
+ TRICORE1 CSA handling
+*********************************************************************/
+
+#ifdef __GNUC__
+
+
+/* Makes a CSA pointer from a CSA link word */
+__INLINE__ EE_CSA* __ALWAYS_INLINE__ EE_tc1_csa_make_addr(EE_CSA_LINK link)
+{
+    return (EE_CSA*)((link.bits.PCXS << 28) | (link.bits.PCXO << 6));
+}
+
+
+/* Returns the first CSA in the Free Context List */
+__INLINE__ EE_CSA_LINK __ALWAYS_INLINE__ EE_tc1_csa_get_fcx()
+{
+    EE_CSA_LINK head;
+    asm volatile ("mfcr %0, $fcx" : "=d"(head));
+    return head;
+}
+
+
+/* Set the first CSA in the Free Context List */
+__INLINE__ void __ALWAYS_INLINE__ EE_tc1_csa_set_fcx(EE_CSA_LINK link)
+{
+    asm volatile ("mtcr $fcx, %0" : : "d"(link));
+}
+
+
+/* Returns the first CSA in the Previous Context List */
+__INLINE__ EE_CSA_LINK __ALWAYS_INLINE__ EE_tc1_csa_get_pcxi()
+{
+    EE_CSA_LINK head;
+    asm volatile ("mfcr %0, $pcxi" : "=d"(head));
+    return head;
+}
+
+
+/* Set the first CSA in the Previous Context List */
+__INLINE__ void __ALWAYS_INLINE__ EE_tc1_csa_set_pcxi(EE_CSA_LINK link)
+{
+    asm volatile("mtcr $pcxi, %0" : : "d"(link));
+}
+
+#else 
+
+#error Compiler not supported.
+
+#endif 
+
+
+/* 
+ * Note: 
+ * CSAs must be located in one and the same segment for this implementation.
+ */
+
+
+/* Returns the link work of a given CSA */
+__INLINE__ EE_CSA_LINK __ALWAYS_INLINE__ EE_tc1_csa_get_next(EE_CSA_LINK link)
+{
+    extern EE_CSA __CSA_BEGIN; /* FIXME: Proper wrapping */
+    return (&__CSA_BEGIN)[link.bits.PCXO].next;
+}
+
+
+/* Sets the link word of a given CSA 'at' to 'link* */
+__INLINE__ void __ALWAYS_INLINE__ EE_tc1_csa_set_next(EE_CSA_LINK at,
+                                                      EE_CSA_LINK link)
+{
+    extern EE_CSA __CSA_BEGIN; /* FIXME: Proper wrapping */
+    (&__CSA_BEGIN)[at.bits.PCXO].next = link; 
+}
+
+
+/* Places item after a given CSA into the Previous Context List. 
+ * For head-insertion, use EE_tc1_csa_push().
+ */
+__INLINE__ void __ALWAYS_INLINE__ EE_tc1_csa_insert(EE_CSA_LINK at, 
+                                                    EE_CSA_LINK link)
+{
+    EE_CSA_LINK next = EE_tc1_csa_get_next(at);
+    EE_tc1_csa_set_next(link, next); 
+    EE_tc1_csa_set_next(at, link); 
+}
+
+
+/* Removes the successor of a given CSA from the Previous Context List. 
+ * Returns a link to the removed CSA. 
+ */ 
+__INLINE__ EE_CSA_LINK __ALWAYS_INLINE__ EE_tc1_csa_remove_next(EE_CSA_LINK at)
+{
+    EE_CSA_LINK next = EE_tc1_csa_get_next(at);
+    EE_tc1_csa_set_next(at, EE_tc1_csa_get_next(next));
+    return next;
+}
+
+
+/* Insert CSA as the head of the Previous Context List. */
+__INLINE__ void __ALWAYS_INLINE__ EE_tc1_csa_push(EE_CSA_LINK link)
+{
+    EE_CSA_LINK head = EE_tc1_csa_get_pcxi();
+    EE_tc1_csa_set_next(link, head);
+    EE_tc1_csa_set_pcxi(link);
+}
+
+
+/* Removes and resets the head of the Previous Context List 
+ * Returns the old head.
+ */
+__INLINE__ EE_CSA_LINK __ALWAYS_INLINE__ EE_tc1_csa_pop(void)
+{
+    EE_CSA_LINK head = EE_tc1_csa_get_pcxi();
+    EE_CSA_LINK next = EE_tc1_csa_get_next(head);
+    EE_tc1_csa_set_pcxi(next);
+    return head;
+}
+
+
+/* Removes a CSA from the Free Context List */
+__INLINE__ EE_CSA_LINK __ALWAYS_INLINE__ EE_tc1_csa_alloc(void)
+{
+    EE_CSA_LINK head = EE_tc1_csa_get_fcx();
+    EE_CSA_LINK next = EE_tc1_csa_get_next(head);
+    EE_tc1_csa_set_fcx(next);
+    return head;
+}
+
+
+/* Inserts CSA into the Free Context List. */
+__INLINE__ void __ALWAYS_INLINE__ EE_tc1_csa_free(EE_CSA_LINK link)
+{
+    EE_CSA_LINK head = EE_tc1_csa_get_fcx();
+    EE_tc1_csa_set_next(link, head);
+    EE_tc1_csa_set_fcx(link);
+}
 
 
 /*************************************************************************
- Functions
- *************************************************************************/
+ HAL Interrupt handling
+*************************************************************************/
 
-/* 
- * Interrupt Handling
- */
 
 /* Disable/Enable Interrupts */
 __INLINE__ void __ALWAYS_INLINE__ EE_hal_enableIRQ(void)
@@ -185,4 +455,21 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_disableIRQ(void)
     EE_tc1_disableIRQ();
 }
 
+
+#else 
+
+#error CPU not supported
+
+#endif /* __TC13__ || __TC131__ */
+
+
+#ifdef __INT__
+#include "cpu/tricore1/inc/ee_int.h"
 #endif
+
+#ifdef __TRAP__
+#include "cpu/tricore1/inc/ee_trap.h"
+#endif
+
+
+#endif /* __INCLUDE_TRICORE1_EE_CPU_H__ */

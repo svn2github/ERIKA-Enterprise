@@ -187,6 +187,11 @@ extern "C" {
 #include "mcu/mico32/inc/ee_mcu.h"
 #endif
 
+/* Tricore1 TC179x */
+#ifdef __TC179x__
+#include "mcu/tc179x/inc/ee_mcu.h"
+#endif
+
 
   /*
    *
@@ -254,6 +259,10 @@ extern "C" {
  /* MICO32 */
 #ifdef __LM32__
 #include "board/fpga_camera_mico32/inc/ee_board.h"
+#endif
+
+#ifdef __TC1796__
+#include "board/infineon_tc1796b/inc/ee_board.h"
 #endif
 
   /*

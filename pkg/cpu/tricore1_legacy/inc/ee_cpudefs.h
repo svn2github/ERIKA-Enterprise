@@ -1,7 +1,7 @@
 /* ###*B*###
  * ERIKA Enterprise - a tiny RTOS for small microcontrollers
  *
- * Copyright (C) 2010, TU Dortmund University, Faculty of Computer Science 12
+ * Copyright (C) 2002-2008  Evidence Srl
  *
  * This file is part of ERIKA Enterprise.
  *
@@ -38,24 +38,10 @@
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
 
-/* Author: Jan C. Kleinsorge, TU Dortmund University, 2010-
+/*
+ * Author: Paolo Gai
  *
+ * CVS: $Id: ee_cpudefs.h,v 1.1 2005/06/03 07:05:33 pj Exp $
  */
-#ifndef __INLCUDE_TRICORE_EE_CPUDEFS_H__
-#define __INLCUDE_TRICORE_EE_CPUDEFS_H__
 
-#ifdef __GNUC__
-
-/* All the additional definitions that are not required for the core
- * kernel functionality are to be taken from the HighTec TriCore GCC
- * toolchain. It is model specific and complete. The include path
- * should already point there. So for example, do
- * #include <tc1796b/csfr.h>
- * to obtain all the core specific types, readily mapped variables 
- * to system registers, bit masks etc. 
- * Basically all versions/revisions and peripherals are covered. */
-
-#endif
-
-#endif
-
+/* some definitions for the TRICORE architecture */

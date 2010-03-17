@@ -1,7 +1,7 @@
 /* ###*B*###
  * ERIKA Enterprise - a tiny RTOS for small microcontrollers
  *
- * Copyright (C) 2002-2008  Evidence Srl
+ * Copyright (C) 2010, TU Dortmund University, Faculty of Computer Science 12
  *
  * This file is part of ERIKA Enterprise.
  *
@@ -38,28 +38,59 @@
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
 
-/*
- * Author: Paolo Gai
- * CVS: $Id: ee_compiler.h,v 1.2 2006/04/08 21:08:54 pj Exp $
+/* Author: Jan C. Kleinsorge, TU Dortmund University, 2010-
+ *
  */
 
-/* This file MUST contain only #defines, because it is also included
-   by the .S files */
+#ifndef __INCLUDE_TRICORE1_EE_COMPILER_H__
+#define __INCLUDE_TRICORE1_EE_COMPILER_H__
 
-/*
- * Compiler dependent interface
- */
-
-/*
- * TASKING
- */
+#ifndef __EECFG_THIS_IS_ASSEMBLER__
 
 #ifdef __NO_INLINE__
 #define __INLINE__ static
-#define __ALWAYS_INLINE__ 
 #else
-#define __INLINE__ inline
-#define __ALWAYS_INLINE__ 
+#define __INLINE__ static inline
 #endif
 
-#define NORETURN
+/* GCC-specific language extensions */
+#ifdef __GNUC__
+
+#define __ALWAYS_INLINE__ __attribute__((always_inline))
+
+#define __NEVER_INLINE__ __attribute__((noinline))
+
+#define __UNUSED__ __attribute__((unused))
+
+#define __INTERRUPT__ __attribute__((interrupt))
+
+#define __INTERRUPT_HANDLER__ __attribute__((interrupt_handler))
+
+#define __ALIGNED__(b) __attribute__((aligned(b)))
+
+#define NORETURN  __attribute__ ((noreturn))
+
+/* Predefine types. Mapped to HAL types in ee_cpu.h  */ 
+typedef signed int __attribute__((mode(QI))) int8; 
+typedef signed int __attribute__((mode(HI))) int16; 
+typedef signed int __attribute__((mode(SI))) int32; 
+typedef signed int __attribute__((mode(DI))) int64; 
+
+typedef unsigned int __attribute__((mode(QI))) uint8; 
+typedef unsigned int __attribute__((mode(HI))) uint16; 
+typedef unsigned int __attribute__((mode(SI))) uint32; 
+typedef unsigned int __attribute__((mode(DI))) uint64; 
+
+/* Software barrier */
+#define EE_barrier(...) \
+    do { asm volatile("" : : : "memory"); } while(0)
+
+#else
+
+#error Compiler unsupported.
+
+#endif /* __GNUC__ */
+
+#endif /* __EECFG_THIS_IS_ASSEMBLER__ */
+
+#endif  /* __INCLUDE_TRICORE1_EE_COMPILER_H__ */

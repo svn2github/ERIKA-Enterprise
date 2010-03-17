@@ -1,5 +1,4 @@
-/* ###*B*###
- * ERIKA Enterprise - a tiny RTOS for small microcontrollers
+/* ###*B*### ERIKA Enterprise - a tiny RTOS for small microcontrollers
  *
  * Copyright (C) 2010, TU Dortmund University, Faculty of Computer Science 12
  *
@@ -7,7 +6,7 @@
  *
  * ERIKA Enterprise is free software; you can redistribute it
  * and/or modify it under the terms of the GNU General Public License
- * version 2 as published by the Free Software Foundation, 
+ * version 2 as published by the Free Software Foundation,
  * (with a special exception described below).
  *
  * Linking this code statically or dynamically with other modules is
@@ -41,21 +40,20 @@
 /* Author: Jan C. Kleinsorge, TU Dortmund University, 2010-
  *
  */
-#ifndef __INLCUDE_TRICORE_EE_CPUDEFS_H__
-#define __INLCUDE_TRICORE_EE_CPUDEFS_H__
+#ifndef __INCLUDE_TC179x_EE_MCU_H__
+#define __INCLUDE_TC179x_EE_MCU_H__
 
-#ifdef __GNUC__
+#include "cpu/tricore1/inc/ee_hal.h"
 
-/* All the additional definitions that are not required for the core
- * kernel functionality are to be taken from the HighTec TriCore GCC
- * toolchain. It is model specific and complete. The include path
- * should already point there. So for example, do
- * #include <tc1796b/csfr.h>
- * to obtain all the core specific types, readily mapped variables 
- * to system registers, bit masks etc. 
- * Basically all versions/revisions and peripherals are covered. */
+/*  */
+#ifndef EE_TIME
+#define EE_TIME EE_UINT32
+#endif 
 
-#endif
+/*  */
+#ifndef EE_STIME
+#define EE_STIME EE_INT32
+#endif 
 
-#endif
 
+#endif /* __INCLUDE_TC179x_EE_MCU_H__ */

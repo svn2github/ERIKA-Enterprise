@@ -1,5 +1,4 @@
-/* ###*B*###
- * ERIKA Enterprise - a tiny RTOS for small microcontrollers
+/* ###*B*### ERIKA Enterprise - a tiny RTOS for small microcontrollers
  *
  * Copyright (C) 2010, TU Dortmund University, Faculty of Computer Science 12
  *
@@ -41,21 +40,44 @@
 /* Author: Jan C. Kleinsorge, TU Dortmund University, 2010-
  *
  */
-#ifndef __INLCUDE_TRICORE_EE_CPUDEFS_H__
-#define __INLCUDE_TRICORE_EE_CPUDEFS_H__
+#ifndef __INCLUDE_TRICORE1_EE_TRAP_H__
+#define __INCLUDE_TRICORE1_EE_TRAP_H__
 
-#ifdef __GNUC__
+#include "ee_compiler.h"
 
-/* All the additional definitions that are not required for the core
- * kernel functionality are to be taken from the HighTec TriCore GCC
- * toolchain. It is model specific and complete. The include path
- * should already point there. So for example, do
- * #include <tc1796b/csfr.h>
- * to obtain all the core specific types, readily mapped variables 
- * to system registers, bit masks etc. 
- * Basically all versions/revisions and peripherals are covered. */
 
-#endif
+/* Number of entries within trap table */
+#define EE_MAX_TSR 8
 
-#endif
+#ifndef  __EECFG_THIS_IS_ASSEMBLER__
 
+#include "cpu/tricore1/inc/ee_debug.h"
+
+/* Initialization routine */
+void EE_init_trap_vector(void);
+
+/* Define a trap handler */
+#define TSR(fn) __attribute__((interrupt)) \
+    void EE_tsr_ ## fn (EE_TIN EE_tin)
+
+
+/* Set a trap handler */
+#define SetTSR(fn,t) \
+    do { EE_tsr_table[t] = EE_tsr_ ## fn; } while(0)
+
+
+/* Trap vector initialization */
+#define EE_TSR_DEFAULT EE_trap_default_tsr
+
+
+/* Trap Identification Number */
+typedef EE_UINT8 EE_TIN;
+
+
+/* Trap handler */
+typedef void (*EE_TSR)(EE_TIN);
+
+
+#endif /* __EECFG_THIS_IS_ASSEMBLER__ */
+
+#endif /* __INCLUDE_TRICORE1_EE_TRAP_H__ */

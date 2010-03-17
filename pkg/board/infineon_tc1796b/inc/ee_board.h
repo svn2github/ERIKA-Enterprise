@@ -1,5 +1,4 @@
-/* ###*B*###
- * ERIKA Enterprise - a tiny RTOS for small microcontrollers
+/* ###*B*### ERIKA Enterprise - a tiny RTOS for small microcontrollers
  *
  * Copyright (C) 2010, TU Dortmund University, Faculty of Computer Science 12
  *
@@ -7,7 +6,7 @@
  *
  * ERIKA Enterprise is free software; you can redistribute it
  * and/or modify it under the terms of the GNU General Public License
- * version 2 as published by the Free Software Foundation, 
+ * version 2 as published by the Free Software Foundation,
  * (with a special exception described below).
  *
  * Linking this code statically or dynamically with other modules is
@@ -41,21 +40,45 @@
 /* Author: Jan C. Kleinsorge, TU Dortmund University, 2010-
  *
  */
-#ifndef __INLCUDE_TRICORE_EE_CPUDEFS_H__
-#define __INLCUDE_TRICORE_EE_CPUDEFS_H__
+#ifndef __INCLUDE_EE_BOARD_TC1796_H__
+#define __INCLUDE_EE_BOARD_TC1796_H__
 
-#ifdef __GNUC__
 
-/* All the additional definitions that are not required for the core
- * kernel functionality are to be taken from the HighTec TriCore GCC
- * toolchain. It is model specific and complete. The include path
- * should already point there. So for example, do
- * #include <tc1796b/csfr.h>
- * to obtain all the core specific types, readily mapped variables 
- * to system registers, bit masks etc. 
- * Basically all versions/revisions and peripherals are covered. */
+/*** Setup below runs the CPU in PLL mode at 150MHz. ***/
+
+
+/* TriBoard 1796 default clock frequency (20MHz) */
+#define EE_TRIBOARD1796_OSC_FREQ_HZ 20000000
+
+
+/* Errata sheet: PLL_TC.H005
+ *
+ * The PLL robustness to system noise on the PLL supply voltage can be
+ * improved significantly by increasing NDIV to a value greater than
+ * NDIV = 32.
+ * 
+ * In PLL mode (set by EE_tc179x_init_clock), the CPU frequency is:
+ * CPU_f = N / (P * K)  [N = 19..99, P = 0..7, K = 0..15]
+ * (Refer to the manual)
+ *
+ * System frequency accordingly: 
+ * SYS_f = CPU_f / (PLL_CLC.SYSFS + 1) [SYSFS = 0,1]
+ *
+ * System timer frequency accordingly:
+ * STM_f = SYS_f / STM_CLC.RMC [RMC = 1..7; 0 means 'off']
+ */
+
+/* PLL K Divisor */
+#define EE_TRIBOARD1796_PLL_KDIV 6
+
+/* PLL N Divisor */
+#define EE_TRIBOARD1796_PLL_NDIV 45
+
+/* PLL P Divisor */
+#define EE_TRIBOARD1796_PLL_PDIV 1
+
+/* VCO Operating range */
+#define EE_TRIBOARD1796_PLL_VCOSEL 2
+
 
 #endif
-
-#endif
-
