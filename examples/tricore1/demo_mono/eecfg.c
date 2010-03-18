@@ -6,9 +6,9 @@ DeclareTask(Task0);
 DeclareTask(Task1);
 
 
-const EE_ADDR EE_hal_thread_body[EE_MAX_TASK] = {
-    (EE_ADDR)EE_oo_thread_stub,
-    (EE_ADDR)EE_oo_thread_stub
+const EE_FADDR EE_hal_thread_body[EE_MAX_TASK] = {
+    (EE_FADDR)EE_oo_thread_stub,
+    (EE_FADDR)EE_oo_thread_stub
 };
 
 
@@ -16,9 +16,9 @@ const EE_ADDR EE_hal_thread_body[EE_MAX_TASK] = {
 EE_UINT32 EE_terminate_data[EE_MAX_TASK];
 
 
-const EE_ADDR EE_terminate_real_th_body[EE_MAX_TASK] = {
-    (EE_ADDR)FuncTask0,
-    (EE_ADDR)FuncTask1
+const EE_FADDR EE_terminate_real_th_body[EE_MAX_TASK] = {
+    (EE_FADDR)FuncTask0,
+    (EE_FADDR)FuncTask1
 };
 
 

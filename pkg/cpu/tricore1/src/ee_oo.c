@@ -70,7 +70,7 @@ void EE_tc1_hal_terminate_task(EE_ADDR addr_stored_pcx)
     EE_tc1_csa_set_next(cp, fcx); /* Link tail of dead CSAs to free-list */
     EE_tc1_csa_set_fcx(pcx);      /* Dead CSAs become head of free-list */
     EE_tc1_isync();               /* Ensure changes apply before returning */
-    EE_tc1_set_RA(a11) ;          /* Return to the right place */
+    EE_tc1_set_RA((EE_ADDR)a11) ;          /* Return to the right place */
 
     /* Return into ready2stacked applies the newly reset context. */
     /* Interrupts will be disabled implicitly. */
@@ -79,7 +79,7 @@ void EE_tc1_hal_terminate_task(EE_ADDR addr_stored_pcx)
 
 /* Saves a context "check point" to which we can return to with
  * TerminateTask. */
-void EE_tc1_hal_terminate_savestk(EE_ADDR addr_store_pcx, EE_ADDR realbody)
+void EE_tc1_hal_terminate_savestk(EE_ADDR addr_store_pcx, EE_FADDR realbody)
 {
 
     /* FIXME: this can fairly well be done in plain C and functions

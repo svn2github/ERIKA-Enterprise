@@ -76,6 +76,9 @@ typedef EE_UINT32 EE_FREG;
 /* Thread IDs */
 typedef EE_INT32 EE_TID;
 
+/* Function addresses (that have the same size of a pointer) */
+typedef EE_UINT32 *EE_FADDR;
+
 /* Addresses (that have the same size of a pointer) */
 typedef EE_UINT32 *EE_ADDR;
 
@@ -157,15 +160,15 @@ extern void EE_oo_thread_stub(void);
 
 /*************************************************************************
  HAL Functions 
- (FIXME: Incomplete listing)
 *************************************************************************/
 
 void EE_IRQ_end_instance(void);
 #ifdef __MONO__
 void EE_tc1_hal_thread_start(EE_ADDR thread);
+/* EE_tc1_hal_ready2stacked for monostack is inlined (ee_context.h) */
 #endif
 #ifdef __MULTI__
-void EE_tc1_hal_thread_start(EE_TID tid, EE_ADDR thread);
+void EE_tc1_hal_ready2stacked(EE_TID tid, EE_ADDR thread);
 void EE_tc1_hal_stkchange(EE_TID tid);
 #endif
 

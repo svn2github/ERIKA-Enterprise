@@ -50,6 +50,7 @@
 #include "cpu/tricore1/inc/ee_debug.h"
 #include "cpu/tricore1/inc/ee_compiler.h"
 #include "cpu/tricore1/inc/ee_hal.h"
+#include "cpu/tricore1/inc/ee_cpu.h"
 
 /* Required to break a cyclic dependency. */
 void EE_tc1_hal_stkchange(EE_TID tid);
@@ -64,32 +65,16 @@ void EE_tc1_hal_stkchange(EE_TID tid);
 
 
 #ifdef __MONO__
-__INLINE__ void __ALWAYS_INLINE__ EE_tc1_hal_ready2stacked(EE_ADDR thread_addr)
+/* Multistack variant to be found in ee_hal.c */
+__INLINE__ void __ALWAYS_INLINE__ EE_tc1_hal_ready2stacked(EE_FADDR thread)
 {
     do {
-        EE_tc1_hal_thread_start(thread_addr);
+        EE_hal_enableIRQ();
+        ((EE_THREAD_PTR)thread)();
+        EE_hal_disableIRQ();
         EE_thread_end_instance();  
-        thread_addr = (EE_ADDR)EE_hal_endcycle_next_thread;
-    } while (thread_addr != 0);
-}
-#endif
-
-
-#ifdef __MULTI__
-__INLINE__ void __ALWAYS_INLINE__ EE_tc1_hal_ready2stacked(EE_TID tid, 
-                                                           EE_ADDR thread)
-{
-    const EE_UREG tid_from = EE_tc1_active_tid;
-
-    do {
-        EE_tc1_hal_thread_start(tid, thread);
-        /* Possibly already invoked in EE_tc1_thread_start */
-        if (EE_hal_endcycle_next_tid == EE_MAX_TASK)
-            EE_thread_end_instance(); 
-        tid = EE_hal_endcycle_next_tid;
-        thread = (EE_ADDR)EE_hal_endcycle_next_thread;
+        thread = (EE_FADDR)EE_hal_endcycle_next_thread;
     } while (thread != 0);
-    EE_tc1_active_tid = tid_from;
 }
 #endif
 
@@ -199,7 +184,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_stkchange(EE_TID tid)
 __INLINE__ void __ALWAYS_INLINE__ EE_hal_terminate_savestk(EE_TID tid)
 {
     EE_tc1_hal_terminate_savestk(&EE_terminate_data[tid],
-                                 (EE_ADDR)EE_terminate_real_th_body[tid]);
+                                 (EE_FADDR)EE_terminate_real_th_body[tid]);
 }
 
 

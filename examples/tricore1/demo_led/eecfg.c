@@ -9,9 +9,9 @@ DeclareTask(Task1);
 EE_UREG EE_IRQ_nesting_level;
 
 
-const EE_ADDR EE_hal_thread_body[EE_MAX_TASK] = {
-    (EE_ADDR)FuncTask0,              /* thread Task0 */
-    (EE_ADDR)FuncTask1,              /* thread Task1 */
+const EE_FADDR EE_hal_thread_body[EE_MAX_TASK] = {
+    (EE_FADDR)FuncTask0,              /* thread Task0 */
+    (EE_FADDR)FuncTask1,              /* thread Task1 */
 };
 
 

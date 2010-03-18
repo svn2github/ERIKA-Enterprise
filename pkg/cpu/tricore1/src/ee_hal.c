@@ -57,7 +57,7 @@
  * EE_thread_end_instance() ends; during this period it is
  * important to disable interrupts in order to avoid nested
  * EE_thread_end_instance() calls. */
-EE_ADDR EE_hal_endcycle_next_thread = 0;
+EE_FADDR EE_hal_endcycle_next_thread = 0;
 
 /* Counts nesting of interrupts
  * (PSW.CDC is reset upon each interrupt so we need to keep track
@@ -72,19 +72,6 @@ EE_TID EE_hal_endcycle_next_tid;
 /* The id of the currently active stack. */
 EE_TID EE_tc1_active_tid = -1;
 
-#endif
-
-
-#ifdef __MONO__
-/* Performs a context switch and starts the respective thread. 
- *
- * In a monostack-setting this is simply a call. */
-void EE_tc1_hal_thread_start(EE_ADDR thread_addr)
-{
-    EE_hal_enableIRQ();
-    ((EE_THREAD_PTR)thread_addr)();
-    EE_hal_disableIRQ();
-}
 #endif
 
 
@@ -119,38 +106,38 @@ __INLINE__ void __ALWAYS_INLINE__ EE_tc1_thread_restore(EE_TID tid)
 }
 
 
-/* Starts a new thread. 
- *
- * This function must be invoked with a 'call' so that we have proper
- * access to the previous context (PCX) and so that we can implicitly
- * restore contexts by simply returning.  Given a shared stack, the
- * operation is almost equivalent to the monostack version, except for
- * not being required to disable interrupts explicitly.  */
-void EE_tc1_hal_thread_start(EE_TID tid, EE_ADDR thread)
+/* This function must be invoked by call and may not be inlined  
+ * so we have direct access to the caller's CSA. 
+ * The mono-stack variant is inlined (ee_context.h).
+ */
+void EE_tc1_hal_ready2stacked(EE_TID tid, EE_FADDR thread)
 {
-    const EE_UREG tos_from = EE_tos_of(EE_tc1_active_tid);
-    const EE_UREG tos = EE_tos_of(tid);   
+    EE_UREG tid_from = EE_tc1_active_tid;
+    EE_UREG tos_from = EE_tos_of(tid_from);
+    EE_UREG tos = EE_tos_of(tid);
 
-    if (tos_from != tos) {
-        EE_tc1_thread_save(EE_tc1_active_tid, tos_from);
-        EE_tc1_set_SP(EE_tc1_system_tos[tos].SYS_tos_addr);
-    }
-    EE_tc1_active_tid = tid;
-    /* Flags that a reschedule is necessary when returning. */
-    EE_hal_endcycle_next_tid = EE_MAX_TASK;
+    EE_tc1_thread_save(EE_tc1_active_tid, tos_from);
+    do {
+        if (tos_from != tos)
+            EE_tc1_set_SP(EE_tc1_system_tos[tos].SYS_tos_addr);    
+        EE_tc1_active_tid = tid;
 
-    EE_hal_enableIRQ();
-    ((EE_THREAD_PTR)thread)();  /* Invoke thread */
-    EE_hal_disableIRQ();  
+        EE_hal_enableIRQ();
+        ((EE_THREAD_PTR)thread)();
+        EE_hal_disableIRQ();  
+        EE_thread_end_instance(); 
 
-    /* Since TriCore contexts are restored implicitly on return, we need to 
-     * invoke the scheduler here already. In other situations, it will be
-     * invoked in ready2stacked. */
-    EE_thread_end_instance();
+        tid = EE_hal_endcycle_next_tid;
+        tos = EE_tos_of(tid);
+        thread = (EE_FADDR)EE_hal_endcycle_next_thread;
+        tos_from = EE_tos_of(EE_tc1_active_tid);
+    } while (thread != 0);
 
-    if (EE_tos_of(EE_tc1_active_tid) != EE_tos_of(EE_hal_endcycle_next_tid)) 
-        EE_tc1_thread_restore(EE_hal_endcycle_next_tid);
+    if (tos_from != tos)
+        EE_tc1_set_SP(EE_tc1_system_tos[tos].SYS_tos_addr);    
+    EE_tc1_thread_restore(EE_hal_endcycle_next_tid);
 }
+
 
 
 /* Resumes a preempted thread. 

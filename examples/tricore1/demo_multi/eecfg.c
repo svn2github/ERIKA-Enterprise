@@ -33,9 +33,9 @@ EE_UREG EE_tc1_active_tos = 0; /* main */
 DeclareTask(Task0);
 DeclareTask(Task1);
 
-const EE_ADDR EE_hal_thread_body[EE_MAX_TASK] = {
-    (EE_ADDR)FuncTask0, 
-    (EE_ADDR)FuncTask1  
+const EE_FADDR EE_hal_thread_body[EE_MAX_TASK] = {
+    (EE_FADDR)FuncTask0, 
+    (EE_FADDR)FuncTask1  
 };
 
 const EE_TYPEPRIO EE_th_ready_prio[EE_MAX_TASK] = {
