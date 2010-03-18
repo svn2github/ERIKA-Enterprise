@@ -176,7 +176,7 @@ COMPILER_INLINE int8_t uwl_radio_send(uint8_t *buf, uint8_t len)
 
 //uwl_debug_print("      returning OK!");// TODO: REMOVE
 	/* Everything goes well. */
-	void mrf24j40_enable_carrier_sense();
+	mrf24j40_enable_carrier_sense();
 	return UWL_RADIO_ERR_NONE;
 }
 

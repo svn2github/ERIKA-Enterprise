@@ -254,15 +254,12 @@ static void csma_perform_slotted(void)
 	struct uwl_mac_frame_t *frame;
 
 	if (uwl_mac_status.sf_context != UWL_MAC_SF_CAP) {
-		//uwl_debug_print("Dany: csma_perform_slotted: first if");
 		return;
 	}
 	if (cap_available_bytes >= btick_bytes) {
-		//uwl_debug_print("Dany: csma_perform_slotted: second if");
 		cap_available_bytes -= btick_bytes;
 	}
 	if (csma_params.state == CSMA_STATE_INIT) {
-		//uwl_debug_print("Dany: CSMA_STATE_INIT");
 		if (cqueue_is_empty(&uwl_mac_queue_cap) && uwl_mac_data_req.data_req == 0)
 			return;
 		csma_init();
@@ -271,11 +268,8 @@ static void csma_perform_slotted(void)
 		//uwl_debug_print("I->D");
 		return;
 	}
-	uwl_debug_print("Dany: pre-CSMA_STATE_DELAY");
 	if (csma_params.state == CSMA_STATE_DELAY) {
-		uwl_debug_print("Dany: CSMA_STATE_DELAY");
 		if (csma_delay_counter-- == 0) {
-			//uwl_debug_print("Dany: CSMA_STATE_DELAY internal if");
 			uwl_kal_mutex_wait(MAC_SEND_MUTEX);
 			frame = (struct uwl_mac_frame_t*) 
 					cqueue_first(&uwl_mac_queue_cap);
@@ -283,10 +277,8 @@ static void csma_perform_slotted(void)
 			/* Something must be there, check again? */
 			/* if (!frame) ERRORE!!!!!*/
 			if (frame) {
-				uwl_debug_print("Dany: CSMA_STATE_DELAY unchecked frame");
 				tmp = UWL_MAC_FCTL_GET_ACK_REQUEST(
 						UWL_MAC_MPDU_FRAME_CONTROL(frame->mpdu));
-				uwl_debug_print("Dany: CSMA_STATE_DELAY after unchecked frame");
 				if (!csma_check_available_cap(frame->mpdu_size, tmp)) {
 					csma_set_delay();
 					csma_params.state = CSMA_STATE_DELAY;
@@ -297,13 +289,12 @@ static void csma_perform_slotted(void)
 				// FIXME: return error!!!
 				return;
 			}
-			//uwl_debug_print("D->C");
+			// FIXME: no csma_check_available_cap is done for
+			// requested data
 			csma_params.state = CSMA_STATE_CCA;
 		}
 	}
-	//uwl_debug_print("Dany: pre-CSMA_STATE_CCA");
 	if (csma_params.state == CSMA_STATE_CCA) {
-		//uwl_debug_print("Dany: CSMA_STATE_CCA");
 		if (!uwl_radio_get_cca()) {
 			csma_params.CW = 2;
 			if (csma_params.NB > uwl_mac_pib.macMaxCSMABackoffs) {
