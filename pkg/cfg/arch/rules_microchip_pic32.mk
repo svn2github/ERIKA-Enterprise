@@ -146,7 +146,7 @@ all:: make_directories $(ALL_LIBS) $(TARGET)
 	@printf "Compilation terminated successfully!\n"
 
 clean::
-	@-rm -rf *.a *.ld *.map *.$(PIC32_EXTENSION) *.objdump *.hex deps deps.pre obj
+	@-rm -rf *.a *.ld *.map *.$(PIC32_EXTENSION) *.objdump *.hex deps deps.pre obj ee_pic32regs.h
 # to support "make clean all"
 ifeq ($(findstring all,$(MAKECMDGOALS)),all)
 	@printf "CLEAN (also \"all\" specified, frommchip directory not removed)\n"
