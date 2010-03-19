@@ -95,7 +95,7 @@ endif
 ## OPT_CC are the options for arm compiler invocation
 ##
 
-OPT_CC = -Wall -Wextra -Winline -finline-functions -std=gnu99 -ggdb -O2
+OPT_CC = -Wall -Winline -finline-functions -std=gnu99 -ggdb -O2
 
 ifeq ($(findstring __TC179x__,$(EEALLOPT)) , __TC179x__)
 OPT_CC += -mcpu=$(TRICORE1_MODEL)
@@ -127,7 +127,7 @@ OPT_ASM += $(ASFLAGS)
 ## Specific linker option from the application makefile
 ##
 
-OPT_LINK = -Wall -Wextra 
+OPT_LINK = -Wall 
 
 
 ifneq ($(findstring __TSIM__,$(EEALLOPT)) , __TSIM__)
