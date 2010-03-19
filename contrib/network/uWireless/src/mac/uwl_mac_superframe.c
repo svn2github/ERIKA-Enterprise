@@ -576,8 +576,10 @@ static void on_timeslot_start(void)
 			return;
 		}
 		/* Check if the first slot has been activated twice */
-		if (sf_flags.first_tslot_twice) 
+		if (sf_flags.first_tslot_twice) {
+			start_beacon_interval();
 			return;
+		}
 		sf_flags.first_tslot_twice = UWL_TRUE;
 		stop_previous_cfp();
 		time_reference = uwl_kal_get_time(); 

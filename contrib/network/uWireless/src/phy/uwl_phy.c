@@ -109,13 +109,13 @@ static void phy_read_dispatcher(void)
 			*/
 
 	#ifdef UWL_DEBUG_LOG
-	int i = 0;
-	char s[130];
-	uwl_debug_print("\r\n");
-	for (i = 0; i < len; i++) {
-		sprintf(s, "%X", buf[i]);
-		uwl_debug_print(s);
-	}
+//	int i = 0;
+//	char s[130];
+//	uwl_debug_print("\r\n");
+//	for (i = 0; i < len; i++) {
+//		sprintf(s, "%X", buf[i]);
+//		uwl_debug_print(s);
+//	}
 	#endif
 
 	uwl_PD_DATA_indication((uint8_t) len,  buf, lqi);
