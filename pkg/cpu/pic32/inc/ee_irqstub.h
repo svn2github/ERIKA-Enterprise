@@ -110,7 +110,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_ISR2_poststub(void)
 *               Is 'vector' ok? should be 'at_vector' ? */
 #define ISR2(f) \
 void ISR2_##f(void); \
-void __attribute__((interrupt(ipl2))) \
+void __attribute__((interrupt(ipl6))) \
      __attribute__((vector(f))) isr_##f(void) \
 { \
 	EE_ISR2_prestub(); \
@@ -126,5 +126,14 @@ stub (see code below) and use an assemply stub that switches to the common
 stack (or the ISR private) before saving the context of the interrupted 
 thread. */
 //void __attribute__((vector(f))) isr_##f(void)
+
+/* The effect of this is: 
+   - CPU with max priority and Interrupt Disable 
+   - The Shadow Set usage is NOT driven by this, but we need regs IPCx = 7 
+*/
+#define ISR1(f) \
+void __attribute__((interrupt(ipl7))) \
+     __attribute__((vector(f))) isr1_##f(void) 
+ 
 
 #endif
