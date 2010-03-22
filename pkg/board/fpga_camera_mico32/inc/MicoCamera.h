@@ -20,19 +20,19 @@ typedef struct st_MicoCamera{
 #define MICO_CAM_ENABLE_IRQ_MASK	0x0001				/* bit 1 in CNTR2 register */
 
 /* MICO CAMERA Macros */
-#define Mico_camera_read_address(cam)			{cam->addr}
-#define Mico_camera_write_address(cam, addr)	{cam->addr = addr;}
-#define Mico_camera_read_status_register(cam)	{cam->state}
-#define Mico_camera_read_IF_flag(cam)			{cam->flag & MICO_CAM_IF_FLAG_MASK}
-#define Mico_camera_read_ERR_flag(cam)			{cam->flag & MICO_CAM_ERR_FLAG_MASK}
-#define Mico_camera_start(cam)					{cam->cntr1 = MICO_CAM_START_MASK;}
-#define Mico_camera_clear_IRQ_flag(cam)			{cam->cntr1 = 0;}
-#define Mico_camera_reset(cam)					{cam->cntr1 = MICO_CAM_RESET_MASK;}
-#define Mico_camera_enable_IRQ(cam)				{cam->cntr2 = MICO_CAM_ENABLE_IRQ_MASK;}
-#define Mico_camera_disable_IRQ(cam)			{cam->cntr2 = 0;}
-#define Mico_camera_IRQ_enabled(cam)			{cam->cntr2 & MICO_CAM_ENABLE_IRQ_MASK}
-#define Mico_camera_write_divisor(cam, div)		{cam->div = div;}
-#define Mico_camera_read_divisor(cam)			{cam->div}
-#define Mico_camera_frame_terminated(cam)		{cam->flag & MICO_CAM_IF_FLAG_MASK}
+#define Mico_camera_read_address(cam)			(((MicoCamera_t*)cam)->addr)
+#define Mico_camera_write_address(cam, addr)	(((MicoCamera_t*)cam)->addr = addr)
+#define Mico_camera_read_status_register(cam)	(((MicoCamera_t*)cam)->state)
+#define Mico_camera_read_IF_flag(cam)			(((MicoCamera_t*)cam)->flag & MICO_CAM_IF_FLAG_MASK)
+#define Mico_camera_read_ERR_flag(cam)			(((MicoCamera_t*)cam)->flag & MICO_CAM_ERR_FLAG_MASK)
+#define Mico_camera_start(cam)					(((MicoCamera_t*)cam)->cntr1 = MICO_CAM_START_MASK)
+#define Mico_camera_clear_IRQ_flag(cam)			(((MicoCamera_t*)cam)->cntr1 = 0)
+#define Mico_camera_reset(cam)					(((MicoCamera_t*)cam)->cntr1 = MICO_CAM_RESET_MASK)
+#define Mico_camera_enable_IRQ(cam)				(((MicoCamera_t*)cam)->cntr2 = MICO_CAM_ENABLE_IRQ_MASK)
+#define Mico_camera_disable_IRQ(cam)			(((MicoCamera_t*)cam)->cntr2 = 0)
+#define Mico_camera_IRQ_enabled(cam)			(((MicoCamera_t*)cam)->cntr2 & MICO_CAM_ENABLE_IRQ_MASK)
+#define Mico_camera_write_divisor(cam, div)		(((MicoCamera_t*)cam)->div = div)
+#define Mico_camera_read_divisor(cam)			(((MicoCamera_t*)cam)->div)
+#define Mico_camera_frame_terminated(cam)		(((MicoCamera_t*)cam)->flag & MICO_CAM_IF_FLAG_MASK)
 
 #endif //#ifndef __MICO_CAMERA_HV7131GP__

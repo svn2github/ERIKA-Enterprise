@@ -32,17 +32,17 @@ typedef struct {
 /* Macros for User functions (API) */  
 #define DECLARE_FUNC_RTC(uc, lc) \
 __INLINE__ int __ALWAYS_INLINE__  EE_rtc_start(void){ \
-	return cat3(EE_, lc, _write_byte)(RTC_DEVICE_ID, RTC_CSR_ADD, RTC_ON); } \
+	return cat3(EE_, lc, _send_byte)(RTC_DEVICE_ID, RTC_CSR_ADD, RTC_ON); } \
 __INLINE__ int __ALWAYS_INLINE__  EE_rtc_shutdown(void){ \
-	return cat3(EE_, lc, _write_byte)(RTC_DEVICE_ID, RTC_CSR_ADD, RTC_OFF); } \
+	return cat3(EE_, lc, _send_byte)(RTC_DEVICE_ID, RTC_CSR_ADD, RTC_OFF); } \
 __INLINE__ int __ALWAYS_INLINE__  EE_rtc_write_byte(EE_UINT8 address, EE_UINT8 data){ \
-	return cat3(EE_, lc, _write_byte)(RTC_DEVICE_ID, address, data); } \
+	return cat3(EE_, lc, _send_byte)(RTC_DEVICE_ID, address, data); } \
 __INLINE__ int __ALWAYS_INLINE__  EE_rtc_write_buffer(EE_UINT8 address, EE_UINT8 *data, int len){ \
-	return cat3(EE_, lc, _write_buffer)(RTC_DEVICE_ID, address, data, len); } \
+	return cat3(EE_, lc, _send_buffer)(RTC_DEVICE_ID, address, data, len); } \
 __INLINE__ int __ALWAYS_INLINE__  EE_rtc_read_byte(EE_UINT8 address){ \
-	return cat3(EE_, lc, _read_byte)(RTC_DEVICE_ID, address); } \
+	return cat3(EE_, lc, _receive_byte)(RTC_DEVICE_ID, address); } \
 __INLINE__ int __ALWAYS_INLINE__  EE_rtc_read_buffer(EE_UINT8 address, EE_UINT8 *data, int len){ \
-	return cat3(EE_, lc, _read_buffer)(RTC_DEVICE_ID, address, data, len); }
+	return cat3(EE_, lc, _receive_buffer)(RTC_DEVICE_ID, address, data, len); }
 	
 #ifdef __EE_RTC_PCF8583_USE_I2C1__
 #ifdef __EE_RTC_PCF8583_USE_I2C2__

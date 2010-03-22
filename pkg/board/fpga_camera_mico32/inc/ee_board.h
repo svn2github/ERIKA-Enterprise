@@ -55,5 +55,9 @@
 #include "board/fpga_camera_mico32/inc/ee_camera_hv7131gp.h"
 #endif // __USE_MICO32BOARD_CAMERA__
 
+#ifdef __USE_MICO32BOARD_ETHCTRL_ENC28J60__
+#include "board/fpga_camera_mico32/inc/ee_ethctrl_enc28j60.h"
+#endif // __USE_MICO32BOARD_ETHCTRL_ENC28J60__
+
 /* ************************************************************************* */
 #endif //__INCLUDE_FPGA_CAMERA_BOARD_H__

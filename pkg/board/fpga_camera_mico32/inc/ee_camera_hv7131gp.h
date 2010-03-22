@@ -108,13 +108,13 @@ __INLINE__ int __ALWAYS_INLINE__ EE_camera_frame_terminated(void){ \
 __INLINE__ int __ALWAYS_INLINE__ EE_hv7131gp_i2c_config(int baudrate,int settings){ \
 	return cat3(EE_, lc, _config)(baudrate, settings); } \
 __INLINE__ int __ALWAYS_INLINE__  EE_hv7131gp_write_byte(EE_UINT8 address, EE_UINT8 data){ \
-	return cat3(EE_, lc, _write_byte)(EE_HV7131GP_DEVICE_ID, address, data); } \
+	return cat3(EE_, lc, _send_byte)(EE_HV7131GP_DEVICE_ID, address, data); } \
 __INLINE__ int __ALWAYS_INLINE__  EE_hv7131gp_write_buffer(EE_UINT8 address, EE_UINT8 *data, int len){ \
-	return cat3(EE_, lc, _write_buffer)(EE_HV7131GP_DEVICE_ID, address, data, len); } \
+	return cat3(EE_, lc, _send_buffer)(EE_HV7131GP_DEVICE_ID, address, data, len); } \
 __INLINE__ int __ALWAYS_INLINE__  EE_hv7131gp_read_byte(EE_UINT8 address){ \
-	return cat3(EE_, lc, _read_byte)(EE_HV7131GP_DEVICE_ID, address); } \
+	return cat3(EE_, lc, _receive_byte)(EE_HV7131GP_DEVICE_ID, address); } \
 __INLINE__ int __ALWAYS_INLINE__  EE_hv7131gp_read_buffer(EE_UINT8 address, EE_UINT8 *data, int len){ \
-	return cat3(EE_, lc, _read_buffer)(EE_HV7131GP_DEVICE_ID, address, data, len); }
+	return cat3(EE_, lc, _receive_buffer)(EE_HV7131GP_DEVICE_ID, address, data, len); }
 
 /* Camera initialization */
 int EE_hv7131gp_ISR_init(MicoCamera_t* cam, int irqf);

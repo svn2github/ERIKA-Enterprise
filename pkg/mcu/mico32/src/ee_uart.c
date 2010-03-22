@@ -128,7 +128,7 @@ int EE_hal_uart_config(EE_uart_st* usp, int baudrate, int settings)
     									// if ier!=0 -> ISR MODE (ATT! is not a blocking mode!!!)
     iir = uartc->iir;					// read iir register to clean ISR flags.	FARE PROVA!!!
 	/* Register IRQ handler */
-    EE_hal_uart_handler_setup(usp);
+    //EE_hal_uart_handler_setup(usp);
 	/* set the control register */
     uartc->lcr = settings;    
     /* Calculate clock-divisor */
@@ -499,4 +499,23 @@ int EE_hal_uart_return_error(EE_uart_st* usp)
 {
 	return usp->err;
 }
+
+/* Callback used by pic32-like functions */
+#ifdef __USE_MICO_PIC_API__
+EE_mchp_ISR_callback ee_mchp_uart1_ISR_cbk;
+EE_mchp_ISR_callback ee_mchp_uart2_ISR_cbk;
+void ee_aux_uart1_ISR_cbk(void)
+{
+	EE_UINT8 data;
+	EE_uart_read_byte(1, &data);
+	ee_mchp_uart1_ISR_cbk(data);
+}
+
+void ee_aux_uart2_ISR_cbk(void)
+{
+	EE_UINT8 data;
+	EE_uart_read_byte(2, &data);
+	ee_mchp_uart2_ISR_cbk(data);
+}
+#endif //__USE_MICO2PIC_API__
 

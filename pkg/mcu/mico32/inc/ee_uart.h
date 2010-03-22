@@ -1,10 +1,11 @@
-/** 
+/*
 * ee_uart.h
 */
 
 #ifndef __INCLUDE_EEMCUMICO32_UART_H__
 #define __INCLUDE_EEMCUMICO32_UART_H__
 
+#ifdef __USE_UART__
 
 #include "mcu/mico32/inc/ee_uart_internal.h"
 
@@ -24,10 +25,7 @@
 //        volatile unsigned int div;
 //    }MicoUart_t;
 
-/*************************************************** 
-* Symbols and macros definition
-****************************************************/
-//...
+#endif // #ifdef __USE_UART__
 
 #endif // __INCLUDE_EEMCUMICO32_UART_H__
 

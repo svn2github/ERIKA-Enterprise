@@ -1,334 +1,335 @@
-/****************************************************************************
-**
-**  Name: MicoSPI.c
-**
-**  Description:
-**        Implements functions for manipulating LatticeMico32 SPI 
-**
-**  Revision: 3.0
-**
-** Disclaimer:
-**
-**   This source code is intended as a design reference which
-**   illustrates how these types of functions can be implemented.  It
-**   is the user's responsibility to verify their design for
-**   consistency and functionality through the use of formal
-**   verification methods.  Lattice Semiconductor provides no warranty
-**   regarding the use or functionality of this code.
-**
-** --------------------------------------------------------------------
-**
-**                     Lattice Semiconductor Corporation
-**                     5555 NE Moore Court
-**                     Hillsboro, OR 97214
-**                     U.S.A
-**
-**                     TEL: 1-800-Lattice (USA and Canada)
-**                          (503)268-8001 (other locations)
-**
-**                     web:   http://www.latticesemi.com
-**                     email: techsupport@latticesemi.com
-**
-** --------------------------------------------------------------------------
-**
-**  Change History (Latest changes on top)
-**
-**  Ver    Date        Description
-** --------------------------------------------------------------------------
-**
-**  3.0   Mar-25-2008  Added Header
-**
-**---------------------------------------------------------------------------
-*****************************************************************************/
+/** 
+* ee_spi.c
+*/
 
-#include "MicoSPIService.h"
-#include "MicoSPI.h"
-#include "MicoInterrupts.h"
-#include "MicoUtils.h"
+#include "mcu/mico32/inc/ee_spi.h"
+#include <cpu/mico32/inc/ee_irq.h>
 
+/******************************************************************************/
+/*                             Utility Macros                                 */
+/******************************************************************************/
+// ...
 
-#ifdef __cplusplus
-extern "C"
-{
-#endif /* __cplusplus */
+/******************************************************************************/
+/*                       Private Local Variables                              */
+/******************************************************************************/
+/* Vectors and I2C structures definitions */
 
-    /* status register masks */
-    #define MICOSPI_STATUS_RX_ERR_MASK      (0x008)
-    #define MICOSPI_STATUS_TX_ERR_MASK      (0x010)
-    #define MICOSPI_STATUS_TX_RDY_MASK      (0x040)
-    #define MICOSPI_STATUS_RX_RDY_MASK      (0x080)
+#ifdef __USE_SPI_IRQ__
 
-    /* control-register masks */
-    #define MICOSPI_CTL_RX_ERR_INTR_EN_MASK (0x008)
-    #define MICOSPI_CTL_TX_ERR_INTR_EN_MASK (0x010)
-    #define MICOSPI_CTL_TX_INTR_EN_MASK     (0x040)
-    #define MICOSPI_CTL_RX_INTR_EN_MASK     (0x080)
+#ifdef EE_SPI1_NAME_UC
+DEFINE_VET_SPI(EE_SPI1_NAME_UC, EE_SPI1_NAME_LC)
+DEFINE_STRUCT_SPI(EE_SPI1_NAME_UC, EE_SPI1_NAME_LC)
+#endif
 
+#ifdef EE_SPI2_NAME_UC
+DEFINE_VET_SPI(EE_SPI2_NAME_UC, EE_SPI2_NAME_LC)
+DEFINE_STRUCT_SPI(EE_SPI2_NAME_UC, EE_SPI2_NAME_LC)
+#endif
 
+#endif //#ifdef __USE_SPI_IRQ__
 
-	/****************************
-	 * SPI Register Structure
-	 ****************************/
-	typedef struct st_MicoSPI{
-        volatile unsigned int rx;
-        volatile unsigned int tx;
-        volatile unsigned int status;
-        volatile unsigned int control;
-        volatile unsigned int sSelect;
-	}MicoSPI_t;
+/******************************************************************************/
+/*                       Private Local Functions                              */
+/******************************************************************************/
+#ifdef __USE_SPI_IRQ__
+int EE_hal_SPI_handler_setup(EE_spi_st* spisp);
+#endif //#ifdef __USE_I2C_IRQ__
+/******************************************************************************/
+/*                              ISRs                                          */
+/******************************************************************************/
+#ifdef __USE_SPI_IRQ__
 
-
-#ifdef __cplusplus
-}
-#endif /* __cplusplus */
-
-
-/* MICO-SPI Interrupt handler */
-static void MicoSPIISRHandler(unsigned int intrLevel, void *data)
-{
-    unsigned int uiValue;
-    volatile MicoSPI_t *spi;
-    MicoSPICtx_t *ctx = (MicoSPICtx_t *)data;
-    spi = (volatile MicoSPI_t *)(ctx->base);
-
-
-    /* check the cause of interrupt */
-    uiValue = spi->status;
-
-
-    /* received new data */
-    if(uiValue & MICOSPI_STATUS_RX_RDY_MASK){
-        if(ctx->control & MICOSPI_CTL_RX_INTR_EN_MASK)
-            ((MicoSPIDataHandler_t)ctx->onRx)();
-    }
-
-
-    /* transmitter's ready to accept new data */
-    if(uiValue & MICOSPI_STATUS_TX_RDY_MASK){
-        if(ctx->control & MICOSPI_CTL_TX_INTR_EN_MASK)
-            ((MicoSPIDataHandler_t)ctx->onTx)();
-    }
-
-
-    return;
-}
-
-
-
-/*
- * Initializes SPI instance
- */
-void MicoSPIInit(MicoSPICtx_t *ctx)
-{
-    volatile MicoSPI_t *spi;
-    spi = (volatile MicoSPI_t *)(ctx->base);
-
-
-    /* disable all interrupts and unforce sso if master */
-    spi->control = 0;
-    ctx->control = 0;
-
-
-    /* if master, deselect all slaves */
-    if(ctx->master != 0){
-        spi->sSelect = 0;
-    }
-
-
-    /* register interrupt-handler */
-    MicoRegisterISR(ctx->intrLevel, (void *)ctx, MicoSPIISRHandler);
-
-
-    /* make this SPI device lookup-able */
-    ctx->lookupReg.name = ctx->name;
-    ctx->lookupReg.deviceType = "SPIDevice";
-    ctx->lookupReg.priv = ctx;
-    MicoRegisterDevice(&(ctx->lookupReg));
-
-
-    /* all done! */
-    return;
-}
-
-
-
-/*
- * Enables slave/s (applicable for masters only)
- */
-unsigned int MicoSPISetSlaveEnable(MicoSPICtx_t *ctx, unsigned int mask)
-{
-    volatile MicoSPI_t *spi;
-
-    if(ctx->master == 0)
-        return(MICOSPI_ERR_SLAVE_DEVICE);
-
-    spi = (volatile MicoSPI_t *)(ctx->base);
-    spi->sSelect = mask;
-
-    return(0);
-}
-
-
-
-/*
- * Fetches bit-mask for enabled-slaves
- */
-unsigned int MicoSPIGetSlaveEnable(MicoSPICtx_t *ctx, unsigned int *pMask)
-{
-    unsigned int iMask;
-    volatile MicoSPI_t *spi;
-    spi = (volatile MicoSPI_t *)(ctx->base);
-
-    if(ctx->master == 0)
-        return(MICOSPI_ERR_SLAVE_DEVICE);
-
-    iMask = spi->sSelect;
-
-    if(pMask != 0)
-        *pMask = iMask;
-
-    return(0);
-}
-
-
-
-/*
- * Transmits data
- */
-unsigned int MicoSPITxData(MicoSPICtx_t *ctx, unsigned int data, unsigned int bBlock)
-{
-    unsigned int uiValue;
-    volatile MicoSPI_t *spi;
-    spi = (volatile MicoSPI_t *)(ctx->base);
-
-    do{
-        /* read status register */
-        uiValue = spi->status;
-        if((uiValue & MICOSPI_STATUS_TX_RDY_MASK) != 0){
-            spi->tx = data;
-            return(0);
-        }
-
-
-        /* if non-blocking, return an error */
-        if(bBlock == 0)
-            return(MICOSPI_ERR_WOULD_BLOCK);
-
-    }while(1);
-}
-
-/*
- * Checks if shift-register is done;
- * returns non-zero if tx shift register is empty
- * returns 0 otherwise
- */
-unsigned int MicoSPIIsTxDone(MicoSPICtx_t *ctx)
+/* EE SPI Interrupt handler */
+void EE_spi_common_handler(int level)
 {
 	unsigned int uiValue;
-	volatile MicoSPI_t *spi;
-	spi = (volatile MicoSPI_t *)(ctx->base);
-	uiValue = spi->status;
-	return(uiValue & 0x20);
+	
+	// to do...
+	
+	EE_spi_st *spisp = EE_get_spi_st_from_level(level);
+	MicoSPI_t *spic = spisp->base; 
+	
+	uiValue = spic->status;
+	
+	/* received new data */
+	if(uiValue & EE_SPI_STATUS_RX_RDY_MASK)
+	{
+        if(spic->control & EE_SPI_CTL_RX_INTR_EN_MASK)
+            ;
+    }
+    
+	/* transmitter's ready to accept new data */
+    if(uiValue & EE_SPI_STATUS_TX_RDY_MASK)
+	{
+        if(spic->control & EE_SPI_CTL_TX_INTR_EN_MASK)
+            ;
+    }
+    
+	return;	
 }
 
+#endif //#ifdef __USE_SPI_IRQ__
 
-/*
- * receives data
- */
-unsigned int MicoSPIRxData(MicoSPICtx_t *ctx, unsigned int *pData, unsigned int bBlock)
+/******************************************************************************/
+/*                       Public Global Functions                              */
+/******************************************************************************/			
+int EE_hal_spi_write_byte_polling(MicoSPI_t* spic, EE_UINT8 device, EE_UINT8 data)
 {
-    unsigned int uiValue;
-    volatile MicoSPI_t *spi;
-
-    spi = (volatile MicoSPI_t *)(ctx->base);
-
-    do{
-        /* read status register */
-        uiValue = spi->status;
-        if( (uiValue & MICOSPI_STATUS_RX_RDY_MASK) != 0){
-            if(pData != 0)
-                *pData = spi->rx;
-
-            return(0);
-        }
-
-        /* if non-blocking, return an error */
-        if(bBlock == 0)
-            return(MICOSPI_ERR_WOULD_BLOCK);
-    }while(1);
+	
+	EE_hal_spi_set_slave(spic, device);		
+	//EE_spi_set_SSO(spic->control);
+	spic->tx = data;						
+	while(!EE_spi_tmt_ready(spic->status))
+			;								
+	//EE_spi_clear_SSO(spic->control);
+		
+	return 1;	
 }
 
-
-
-/*
- * enables tx-ready interrupt handler
- */
-unsigned int MicoSPIEnableTxIntr(MicoSPICtx_t *ctx, MicoSPIDataHandler_t handler)
+int EE_hal_spi_read_byte_polling(MicoSPI_t* spic, EE_UINT8 device)
 {
-    volatile MicoSPI_t *spi;
-    spi = (volatile MicoSPI_t *)(ctx->base);
+	int ret;
+	EE_UINT8 dummy = 0xFF;
 
-
-    if(handler == 0)
-        return(MICOSPI_ERR_INVALID_PARAMETER);
-
-
-    /* register the handler and enable transmit interrupts */
-    ctx->onTx = (void *)handler;
-    ctx->control |= MICOSPI_CTL_TX_INTR_EN_MASK;
-    spi->control = ctx->control;
-    return(0);
+	EE_hal_spi_set_slave(spic, device);		
+	//EE_spi_set_SSO(spic->control);
+	spic->tx = dummy;								// one dummy byte transmitted	
+	while(!EE_spi_tmt_ready(spic->status))
+			;
+	ret = spic->rx;
+	//EE_spi_clear_SSO(spic->control);				// one byte transmitted	
+	
+	return ret;
 }
 
-
-
-/*
- * disables tx-ready interrupt
- */
-void MicoSPIDisableTxIntr(MicoSPICtx_t *ctx)
+int EE_hal_spi_write_buffer_polling(MicoSPI_t* spic, EE_UINT8 device, EE_UINT8 address, EE_UINT8* data, int len)
 {
-    volatile MicoSPI_t *spi;
-    spi = (volatile MicoSPI_t *)(ctx->base);
-    spi->control = 0;
-    ctx->control &= (~MICOSPI_CTL_TX_INTR_EN_MASK);
-    spi->control = ctx->control;
-    ctx->onTx = (void *)0;
-    return;
-}
+	int i;
+	int ret;
 
+	EE_hal_spi_set_slave(spic, device);	
+	EE_spi_set_SSO(spic->control);
+	spic->tx = address;							// one byte transmitted	
+	while(!EE_spi_tmt_ready(spic->status))
+			;
+	for(i=0; i<len; i++)
+	{
+		spic->tx = data[i];
+		while(!EE_spi_tmt_ready(spic->status))
+			;
+	}
+	EE_spi_clear_SSO(spic->control);
+	ret = len;	
 
+	return ret;
+}	
 
-/*
- * enables rx-ready interrupt
- */
-unsigned int MicoSPIEnableRxIntr(MicoSPICtx_t *ctx, MicoSPIDataHandler_t handler)
+int EE_hal_spi_read_buffer_polling(MicoSPI_t* spic, EE_UINT8 device, EE_UINT8 address, EE_UINT8* data, int len)
 {
-    volatile MicoSPI_t *spi;
-    spi = (volatile MicoSPI_t *)(ctx->base);
+	int i;
+	int ret;
+	EE_UINT8 tx_dummy = 0xFF;
+	EE_UINT8 rx_dummy = 0;
+	
+	EE_hal_spi_set_slave(spic, device);	
+	EE_spi_set_SSO(spic->control);
+	spic->tx = address;							// one byte transmitted	
+	while(!EE_spi_tmt_ready(spic->status))
+		;
+	rx_dummy = spic->rx;
+	for(i=0; i<len; i++)
+	{
+		spic->tx = tx_dummy;
+		while(!EE_spi_tmt_ready(spic->status))
+			;
+		data[i] = spic->rx;
+	}
+	EE_spi_clear_SSO(spic->control);
+	ret = len;	
 
-    if(handler == 0)
-        return(MICOSPI_ERR_INVALID_PARAMETER);
-
-    /* register handler and enable receive interrupts */
-    ctx->onRx = (void *)handler;
-    ctx->control |= MICOSPI_CTL_RX_INTR_EN_MASK;
-    spi->control = ctx->control;
-    return(0);
+	return ret;
 }
+															
+#ifndef __USE_SPI_IRQ__
 
-
-
-/*
- * disables rx-ready interrupt
- */
-void MicoSPIDisableRxIntr(MicoSPICtx_t *ctx)
+int EE_hal_spi_config(MicoSPI_t* spic, int settings)
 {
-    volatile MicoSPI_t *spi;
-    spi = (volatile MicoSPI_t *)(ctx->base);
-    spi->control = 0;
-    ctx->control &= (~MICOSPI_CTL_RX_INTR_EN_MASK);
-    spi->control = ctx->control;
-    ctx->onRx = (void *)0;
-    return;
+	EE_hal_spi_disable(spic);
+	/* if master, deselect all slaves */	
+	//    if(EE_spi_is_master(settings))								
+    spic->sSelect = 0;
+	spic->control = settings & EE_SPI_CTL_ALL_INTR_DIS_MASK;	
+	
+	return EE_SPI_OK;
 }
+
+int EE_hal_spi_set_mode(MicoSPI_t* spic, int mode)
+{
+	int ret = EE_SPI_OK;
+	
+	// to do...
+	
+	return ret;
+}
+
+#else
+
+int EE_hal_spi_config(EE_spi_st* spisp, int settings)
+{
+	MicoSPI_t *spic = spisp->base; 
+	
+	EE_hal_spi_disable(spisp);
+	/* Register IRQ handler */
+	EE_hal_spi_handler_setup(spisp);
+	/* if master, deselect all slaves */	
+    //if(EE_spi_is_master(settings))								
+    spic->sSelect = 0;
+	spic->control = settings;	
+	
+	return EE_SPI_OK;
+}
+
+int EE_hal_spi_set_mode(EE_spi_st* spisp, int mode)
+{
+	int ret = EE_SPI_OK;
+	int old_mode;
+	unsigned int intst;
+	
+	/* Disble IRQ */
+	intst = EE_mico32_disableIRQ();
+	/* Register IRQ handler */
+	EE_hal_spi_handler_setup(spisp);
+	/* FSM */
+	old_mode = spisp->mode;
+	if(old_mode == mode)
+		ret = EE_SPI_OK;
+	else
+	{	
+		spisp->mode = mode; 	
+		/* Buffer initialization */
+		if (EE_spi_need_init_rx_buf(old_mode, mode))
+			EE_buffer_init(&spisp->rxbuf, EE_SPI_MSGSIZE, EE_SPI_BUFSIZE, spisp->rxbuf.data);
+		if (EE_spi_need_init_tx_buf(old_mode, mode))
+			EE_buffer_init(&spisp->txbuf, EE_SPI_MSGSIZE, EE_SPI_BUFSIZE, spisp->txbuf.data);
+		/* IRQ settings */
+		if(EE_spi_need_enable_int(mode))
+		{
+			mico32_enable_irq(spisp->irqf);
+			EE_hal_spi_enable_IRQ(spisp);
+		}
+		else
+		{
+			EE_hal_spi_disable_IRQ(spisp);
+			mico32_disable_irq(spisp->irqf);
+		}
+	}		
+	/* Enable IRQ */
+	if (EE_mico32_are_IRQs_enabled(intst))
+        EE_mico32_enableIRQ();
+
+	return ret;
+}
+
+/* This function records ISR handler */
+int EE_hal_spi_handler_setup(EE_spi_st* spisp)
+{
+    /* Register IRQ handler */
+    EE_mico32_register_ISR(spisp->irqf, EE_spi_common_handler);	 
+
+	return EE_SPI_OK;
+}
+
+/* This function is used to set rx callback */
+int EE_hal_spi_set_rx_ISR_callback(EE_spi_st* spisp, EE_ISR_callback isr_rx_callback)
+{
+	spisp->rxcbk = isr_rx_callback;
+	
+	return EE_SPI_OK;
+}
+
+/* This function is used to set tx callback */
+int EE_hal_spi_set_tx_ISR_callback(EE_spi_st* spisp, EE_ISR_callback isr_tx_callback)															
+{
+	spisp->txcbk = isr_tx_callback;
+	
+	return EE_SPI_OK;
+}
+
+/* This function is used to send a byte on the bus */
+int EE_hal_spi_write_byte_irq(EE_spi_st* spisp, EE_UINT8 device, EE_UINT8 address, EE_UINT8 data)	// ATT! data is a message (packet)
+{
+	int ret = EE_SPI_OK;
+	MicoSPI_t *spic = spisp->base; 
+		
+	EE_hal_spi_set_slave(spic, device);	
+	
+	EE_spi_set_SSO(spic->control);
+
+	// to do...
+	
+	EE_spi_clear_SSO(spic->control);
+	
+	return ret;
+}	
+	
+/* This function is used to read a byte from the bus */
+int EE_hal_spi_read_byte_irq(EE_spi_st* spisp, EE_UINT8 device, EE_UINT8 address)					// ATT! adddata is a pointer to message (packet)
+{
+	int ret = EE_SPI_OK;
+	MicoSPI_t *spic = spisp->base; 
+	
+	EE_hal_spi_set_slave(spic, device);	
+	
+	EE_spi_set_SSO(spic->control);
+
+	// to do...
+	
+	EE_spi_clear_SSO(spic->control);
+	
+	return ret;
+}
+	
+int EE_hal_spi_write_buffer_irq(EE_spi_st* spisp, EE_UINT8 device, EE_UINT8 address, EE_UINT8* data, int len)	// ATT! data is a vector of messages (packets)
+{
+	int ret = EE_SPI_OK;
+	MicoSPI_t *spic = spisp->base; 
+	
+	EE_hal_spi_set_slave(spic, device);	
+	EE_spi_set_SSO(spic->control);
+
+	// to do...
+	
+	EE_spi_clear_SSO(spic->control);
+	
+	return ret;
+}
+
+int EE_hal_spi_read_buffer_irq(EE_spi_st* spisp, EE_UINT8 device, EE_UINT8 address, EE_UINT8* data, int len)	// ATT! data is a vector of messages (packets)
+{
+	int ret = EE_SPI_OK;
+	MicoSPI_t *spic = spisp->base; 
+	
+	EE_hal_spi_set_slave(spic, device);	
+	EE_spi_set_SSO(spic->control);
+	
+	// to do...
+	
+	EE_spi_clear_SSO(spic->control);
+	
+	return ret;
+}	
+
+int EE_hal_spi_return_error(EE_spi_st* spisp)
+{
+	return spisp->err;
+}
+	
+#endif //#ifdef __USE_SPI_IRQ__
+
+
+
+
+
+
 

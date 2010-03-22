@@ -48,5 +48,8 @@ ifeq ($(findstring __USE_MICO32BOARD_CAMERA_HV7131GP__,$(EEOPT)) , __USE_MICO32B
 EE_SRCS += pkg/board/fpga_camera_mico32/src/ee_camera_hv7131gp.c
 endif
 
+ifeq ($(findstring __USE_MICO32BOARD_ETHCTRL_ENC28J60__,$(EEOPT)) , __USE_MICO32BOARD_ETHCTRL_ENC28J60__)
+EE_SRCS += pkg/board/fpga_camera_mico32/src/ee_ethctrl_enc28j60.c
+endif
 
 endif #__LM32__

@@ -3,7 +3,7 @@
 */
 
 #include "mcu/mico32/inc/ee_i2c.h"
-//#include <cpu/mico32/inc/ee_irq.h>
+#include <cpu/mico32/inc/ee_irq.h>
 
 /******************************************************************************/
 /*                             Utility Macros                                 */
@@ -40,12 +40,32 @@ int EE_hal_i2c_handler_setup(EE_i2c_st* i2csp);
 /******************************************************************************/
 #ifdef __USE_I2C_IRQ__
 
+/* EE SPI Interrupt handler */
 void EE_i2c_common_handler(int level)
 {
-
-//    EE_i2c_st *i2csp = EE_get_i2c_st_from_level(level);
-//    OCI2CMDev_t *i2cc = i2csp->base; 
-
+	unsigned int uiValue;
+	
+	// to do...
+	
+	EE_i2c_st *i2csp = EE_get_i2c_st_from_level(level);
+	OCI2CMDev_t* i2cc = i2csp->base; 
+	
+	uiValue = i2cc->StatusCommand;
+	
+	/* received new data */
+	if(uiValue & EE_I2C_STATUS_RX_RDY_MASK)
+	{
+        if(i2cc->Control & EE_I2C_CTL_RX_INTR_EN_MASK)
+            ;
+    }
+    
+	/* transmitter's ready to accept new data */
+    if(uiValue & EE_I2C_STATUS_TX_RDY_MASK)
+	{
+        if(i2cc->Control & EE_I2C_CTL_TX_INTR_EN_MASK)
+            ;
+    }
+    
 	return;	
 }
 

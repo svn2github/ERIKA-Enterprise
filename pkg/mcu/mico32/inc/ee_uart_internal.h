@@ -1,8 +1,12 @@
-#ifndef __EE_UART_INTERNAL_H__
-#define __EE_UART_INTERNAL_H__
+/*
+* ee_uart_internal.h
+*/
+
+
+#ifndef __INCLUDE_EEMCUMICO32_UART_INTERNAL_H__
+#define __INCLUDE_EEMCUMICO32_UART_INTERNAL_H__
 
 #ifdef __USE_UART__
-
 
 #include "cpu/mico32/inc/ee_internal.h"
 #include "mcu/mico32/inc/ee_internal.h"
@@ -15,9 +19,8 @@
  *************************************************************************/
 
 /*
-	UART structure:
+	UART structure (used in ISR mode):
 */
-
 typedef struct {
 	int err;							// last error condition 					
 	int mode;							// uart operating mode (polling, isr, ...)
@@ -78,13 +81,13 @@ typedef struct {
 
 /* Uart return values */
 #define EE_UART_OK					(0x00)
-#define EE_UART_ERR_RX_BUF_FULL   	(-5)
-#define EE_UART_ERR_RX_BUF_EMPTY   	(-6)
-#define EE_UART_ERR_TX_BUF_FULL   	(-7)
-#define EE_UART_ERR_TX_BUF_EMPTY   	(-8)
-#define EE_UART_ERR_BAD_VALUE		(-9)
-#define EE_UART_ERR_TX_NOT_READY	(-10)
-#define EE_UART_ERR_RX_NOT_READY	(-11)
+#define EE_UART_ERR_RX_BUF_FULL   	(-20)
+#define EE_UART_ERR_RX_BUF_EMPTY   	(-21)
+#define EE_UART_ERR_TX_BUF_FULL   	(-22)
+#define EE_UART_ERR_TX_BUF_EMPTY   	(-23)
+#define EE_UART_ERR_BAD_VALUE		(-24)
+#define EE_UART_ERR_TX_NOT_READY	(-25)
+#define EE_UART_ERR_RX_NOT_READY	(-26)
 
 
 /********************** Internal functions **************************/
@@ -297,17 +300,17 @@ __INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _config)(int baudrate,int setting
 	return EE_hal_uart_config(& EE_ST_NAME(lc), baudrate, settings); } \
 __INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _set_mode)(int mode){ \
 	return EE_hal_uart_set_mode(& EE_ST_NAME(lc), mode); } \
-__INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _set_rx_callback)(EE_ISR_callback rxcbk){ \
+__INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _set_rx_ISR_callback)(EE_ISR_callback rxcbk){ \
 	return EE_hal_uart_set_rx_callback(& EE_ST_NAME(lc), rxcbk); } \
-__INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _set_tx_callback)(EE_ISR_callback txcbk){ \
+__INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _set_tx_ISR_callback)(EE_ISR_callback txcbk){ \
 	return EE_hal_uart_set_tx_callback(& EE_ST_NAME(lc), txcbk); } \
-__INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _write_byte)(EE_UINT8 data){ \
+__INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _send_byte)(EE_UINT8 data){ \
 	return EE_hal_uart_write_byte(& EE_ST_NAME(lc), data); } \
-__INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _read_byte)(EE_UINT8 *data){ \
+__INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _receive_byte)(EE_UINT8 *data){ \
 	return EE_hal_uart_read_byte(& EE_ST_NAME(lc), data); } \
-__INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _write_buffer)(EE_UINT8 *vet, int len){ \
+__INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _send_buffer)(EE_UINT8 *vet, int len){ \
 	return EE_hal_uart_write_buffer(& EE_ST_NAME(lc), vet, len); } \
-__INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _read_buffer)(EE_UINT8 *vet, int len){ \
+__INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _receive_buffer)(EE_UINT8 *vet, int len){ \
 	return EE_hal_uart_read_buffer(& EE_ST_NAME(lc), vet, len); } \
 __INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _enable_IRQ)(int ier){ \
 	return EE_hal_uart_enable_IRQ(& EE_ST_NAME(lc), ier); } \
@@ -348,6 +351,118 @@ __INLINE__ EE_uart_st * __ALWAYS_INLINE__ EE_get_uart_st_from_level(int level)
 }
 #endif /* #ifndef EE_UART_NAME2_UC */
 
+
+#ifdef __USE_MICO_PIC_API__
+/* Macros for compatibility with pic32 uart driver*/ 
+#define EE_mchp_uart_init(lc, baud, bf, mode) EE_hal_uart_config(& EE_ST_NAME(lc), baud, bf)
+#define EE_mchp_uart_write_byte(lc, data) EE_hal_uart_write_byte(& EE_ST_NAME(lc), data)			
+#define EE_mchp_uart_read_byte(lc, data) EE_hal_uart_read_byte(& EE_ST_NAME(lc), data)	
+#define EE_mchp_uart_set_rx_callback(lc, rxcbk) EE_hal_uart_set_rx_callback(& EE_ST_NAME(lc), rxcbk)
+
+__INLINE__ EE_INT8 __ALWAYS_INLINE__ EE_uart_init(EE_UINT8 port, EE_UINT32 baud, EE_UINT16 byte_format, EE_UINT16 mode)
+{
+	EE_INT8 ret;
+	
+	#if defined(EE_UART1_NAME_LC) && defined(EE_UART2_NAME_LC)
+	if(port==1)
+		ret = EE_mchp_uart_init(EE_UART1_NAME_LC, baud, byte_format, mode);
+	else 
+		ret = EE_mchp_uart_init(EE_UART2_NAME_LC, baud, byte_format, mode);
+	#else
+		#if defined(EE_UART1_NAME_LC)
+		ret = EE_mchp_uart_init(EE_UART1_NAME_LC, baud, byte_format, mode);
+		#else	
+		ret = EE_mchp_uart_init(EE_UART2_NAME_LC, baud, byte_format, mode);
+		#endif
+	#endif
+	
+	return ret;
+}
+
+__INLINE__ EE_INT8 __ALWAYS_INLINE__ EE_uart_close(EE_UINT8 port)
+{
+	return EE_UART_OK;
+}
+
+__INLINE__ EE_INT8 __ALWAYS_INLINE__ EE_uart_write_byte(EE_UINT8 port, EE_UINT8 data)
+{
+	EE_INT8 ret;
+	
+	#if defined(EE_UART1_NAME_LC) && defined(EE_UART2_NAME_LC)
+	if(port==1)
+		ret = EE_mchp_uart_write_byte(EE_UART1_NAME_LC, data);
+	else 
+		ret = EE_mchp_uart_write_byte(EE_UART2_NAME_LC, data);
+	#else
+		#if defined(EE_UART1_NAME_LC)
+		ret = EE_mchp_uart_write_byte(EE_UART1_NAME_LC, data);
+		#else	
+		ret = EE_mchp_uart_write_byte(EE_UART2_NAME_LC, data);
+		#endif
+	#endif
+	
+	return ret;
+
+}
+
+__INLINE__ EE_INT8 __ALWAYS_INLINE__ EE_uart_read_byte(EE_UINT8 port, EE_UINT8 *data)
+{
+	EE_INT8 ret;
+	
+	#if defined(EE_UART1_NAME_LC) && defined(EE_UART2_NAME_LC)
+	if(port==1)
+		ret = EE_mchp_uart_read_byte(EE_UART1_NAME_LC, data);
+	else 
+		ret = EE_mchp_uart_read_byte(EE_UART2_NAME_LC, data);
+	#else
+		#if defined(EE_UART1_NAME_LC)
+		ret = EE_mchp_uart_read_byte(EE_UART1_NAME_LC, data);
+		#else	
+		ret = EE_mchp_uart_read_byte(EE_UART2_NAME_LC, data);
+		#endif
+	#endif
+	
+	return ret;
+
+}
+
+typedef void (*EE_mchp_ISR_callback)(EE_UINT8);
+extern EE_mchp_ISR_callback ee_mchp_uart1_ISR_cbk;
+extern EE_mchp_ISR_callback ee_mchp_uart2_ISR_cbk;
+void ee_aux_uart1_ISR_cbk(void);
+void ee_aux_uart2_ISR_cbk(void);
+
+__INLINE__ EE_INT8 __ALWAYS_INLINE__ EE_uart_set_rx_callback(EE_UINT8 port, void (*RxFunc)(EE_UINT8 data), EE_UINT8 rxmode)
+{
+	EE_INT8 ret;
+	
+	#if defined(EE_UART1_NAME_LC) && defined(EE_UART2_NAME_LC)
+	if(port==1)
+	{
+		ee_mchp_uart1_ISR_cbk = RxFunc;
+		ret = EE_mchp_uart_set_rx_callback(EE_UART1_NAME_LC, ee_aux_uart1_ISR_cbk);
+	}
+	else 
+	{
+		ee_mchp_uart2_ISR_cbk = RxFunc;
+		ret = EE_mchp_uart_set_rx_callback(EE_UART2_NAME_LC, ee_aux_uart2_ISR_cbk);
+	}
+	#else
+		#if defined(EE_UART1_NAME_LC)
+		ee_mchp_uart1_ISR_cbk = RxFunc;
+		ret = EE_mchp_uart_set_rx_callback(EE_UART1_NAME_LC, ee_aux_uart1_ISR_cbk);
+		#else	
+		ee_mchp_uart2_ISR_cbk = RxFunc;
+		ret = EE_mchp_uart_set_rx_callback(EE_UART2_NAME_LC, ee_aux_uart2_ISR_cbk);
+		#endif
+	#endif
+	
+	return ret;
+
+}
+
+#endif // #ifdef __USE_MICO_PIC_API__
+
 #endif // #ifdef __USE_UART__
 
-#endif //__EE_UART_INTERNAL_H__
+#endif //__INCLUDE_EEMCUMICO32_UART_INTERNAL_H__

@@ -1,9 +1,11 @@
-/** 
+/*
 * ee_i2c.h
 */
 
 #ifndef __INCLUDE_EEMCUMICO32_I2C_H__
 #define __INCLUDE_EEMCUMICO32_I2C_H__
+
+#ifdef __USE_I2C__
 
 #include "mcu/mico32/inc/ee_i2c_internal.h"
 
@@ -30,13 +32,8 @@
 //        volatile unsigned int StatusCommand;	
 //    }OCI2CMDev_t;
 
-/*************************************************** 
-* Symbols and macros definition
-****************************************************/
-//...
-    
+#endif // #ifdef __USE_I2C__
 
-    
 #endif // __INCLUDE_EEMCUMICO32_I2C_H__
 
 
