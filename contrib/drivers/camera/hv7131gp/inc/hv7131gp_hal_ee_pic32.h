@@ -178,7 +178,6 @@ do { 										\
 * captured.
 *
 * @{ */
-//FIXME Era 1!!
 #define HV7131GP_PIN_VCLK_INIT()					\
 do { 									\
 	INTCONbits.INT4EP = 0;	/* Extern Interrupt on positive edge */	\

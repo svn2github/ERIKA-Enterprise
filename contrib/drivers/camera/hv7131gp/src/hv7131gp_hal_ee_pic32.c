@@ -112,8 +112,7 @@ HV7131GP_EOF_INTERRUPT()
 #ifdef HV7131GP_HSYNC_INT_MODE
 HV7131GP_HSYNC_INTERRUPT()                
 {
-	#ifdef __USE_DMA__
-	
+	#ifdef __USE_DMA__	
 	DCH0SSA = ADDR_VIRTUAL_TO_PHYSICAL((void *)&PORTE);
 	DCH0DSA = ADDR_VIRTUAL_TO_PHYSICAL(&frame_buffer[frame_idx]);	
 	HV7131GP_HAL_DISABLE_INTERRUPTS();
@@ -148,7 +147,6 @@ HV7131GP_HSYNC_INTERRUPT()
 		HV7131GP_PIN_VSYNC_STOP();
 		HV7131GP_EOF_ACTIVATE_IF(); //Activate interrupt
 	}
-
 	HV7131GP_HSYNC_RESET_IF();			/* Reset CN interrupt flag */
 	#endif // __USE_DMA__
 }
@@ -178,7 +176,6 @@ HV7131GP_VSYNC_INTERRUPT()
 	image_size = hv7131gp_get_size();
 
 	HV7131GP_PIN_HSYNC_START();
-
 	HV7131GP_VSYNC_RESET_IF();    /* Reset INT3 interrupt flag */
 }
 
@@ -197,7 +194,6 @@ hv7131gp_status_t hv7131gp_dma_hal_init(uint8_t dma_ch){
 		DCH0DSIZ = DMA_MAX_WIDTH; 
 		DCH0CSIZ = 1;
 		DCH0INTCLR= 0;
-		EE_led_on(6);
 		#ifdef __INT_DMA__
 		DCH0ECON = _DCH0ECON_SIRQEN_MASK | 
 			       (_EXTERNAL_4_IRQ  << _DCH0ECON_CHSIRQ_POSITION);
