@@ -47,7 +47,7 @@ export OUTPUT_DIR = output
 
 # Check the environment and use reasonable defaults
 ifndef RTDRUID_ECLIPSE_HOME
-RTDRUID_ECLIPSE_HOME = C:/Evidence/Evidence/eclipse
+RTDRUID_ECLIPSE_HOME = C:/Evidence/eclipse
 RTDRUID_SCRIPT_DIR =
 endif
 ifndef RTDRUID_SCRIPT_DIR

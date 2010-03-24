@@ -1,9 +1,9 @@
 CPU test_application {
 
-	OS EE {		
+	OS EE {
 		CFLAGS = "-g2";
 		ASFLAGS = "";
-		LDFLAGS = ""; 
+		LDFLAGS = "";
 
 		CPU_DATA = LM32 {
 			APP_SRC = "main.c";
@@ -25,7 +25,7 @@ CPU test_application {
 				// (normally either "Release" or "Debug");
 				// default is "", i.e., use "Debug" if the
 				// option "DEBUG" is set, otherwise use "Release"
-				PLATFORM_BLD_CFG = "Release"; 
+				PLATFORM_BLD_CFG = "Release";
    			};
   		};
 
@@ -38,16 +38,16 @@ CPU test_application {
 		USEGETSERVICEID = FALSE;
 		USEPARAMETERACCESS = FALSE;
 		USERESSCHEDULER = FALSE;
-		
-    };
-    
-    /* this is the OIL part for the first task */
-    TASK Task1 {
+	};
+
+	/* this is the OIL part for the first task */
+	TASK Task1 {
 		PRIORITY = 0x01;   /* Low priority */
 		AUTOSTART = FALSE;
 		STACK = SHARED;
-		ACTIVATION = 1;    /* only one pending activation */
-	};	
+		ACTIVATION = 1;    /* Only one pending activation */
+		SCHEDULE = FULL;   /* Fully preemptable */
+	};
 
-    OS EE { KERNEL_TYPE = FP; }; 	
+	OS EE { KERNEL_TYPE = FP; };
 };
