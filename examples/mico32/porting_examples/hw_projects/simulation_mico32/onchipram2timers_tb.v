@@ -47,9 +47,12 @@ end
 /*
 Complete copy of the Pc
 */
-assign full_pc_w = {UUT.LM32.cpu.pc_w, 2'b00};
-assign full_pc_x = {UUT.LM32.cpu.pc_x, 2'b00};
-assign full_pc_f = {UUT.LM32.cpu.pc_f, 2'b00};
+assign full_pc_w = UUT.LM32.cpu.valid_w == 1'b1 ? {UUT.LM32.cpu.pc_w, 2'b00} :
+                   32'bx;
+assign full_pc_x = UUT.LM32.cpu.valid_x == 1'b1 ? {UUT.LM32.cpu.pc_x, 2'b00} :
+                   32'bx;
+assign full_pc_f = UUT.LM32.cpu.valid_f == 1'b1 ? {UUT.LM32.cpu.pc_f, 2'b00} :
+                   32'bx;
 
 /*----------------------------------------------------------------------
 Trap "Exit" System Call to terminate simulation
