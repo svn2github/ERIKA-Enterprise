@@ -52,4 +52,8 @@ ifeq ($(findstring __USE_MICO32BOARD_ETHCTRL_ENC28J60__,$(EEOPT)) , __USE_MICO32
 EE_SRCS += pkg/board/fpga_camera_mico32/src/ee_ethctrl_enc28j60.c
 endif
 
+ifeq ($(findstring __USE_MICO32BOARD_WIFICTRL_MRF24J40__,$(EEOPT)) , __USE_MICO32BOARD_WIFICTRL_MRF24J40__)
+EE_SRCS += pkg/board/fpga_camera_mico32/src/ee_wifictrl_mrf24j40.c
+endif
+
 endif #__LM32__

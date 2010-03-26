@@ -42,35 +42,45 @@ extern EE_ISR_callback ee_enc28j60_cbk;
 
 /* Macros for SPI-based ethctrl functions */  
 #define DECLARE_FUNC_SPI_ENC28J60(uc, lc) \
-__INLINE__ int __ALWAYS_INLINE__ EE_enc28j60_spi_config(int settings){ \
-	return cat3(EE_, lc, _config)(settings); } \
+__INLINE__ int __ALWAYS_INLINE__ EE_enc28j60_spi_init(int settings, int mode){ \
+	cat3(EE_, lc, _config)(settings); \
+	return cat3(EE_, lc, _set_ISR_mode)(mode); } \
 __INLINE__ int __ALWAYS_INLINE__  EE_enc28j60_write_byte(EE_UINT8 data){ \
-	return cat3(EE_, lc, _send_byte)(EE_ENC28J60_DEVICE_ID, data); } \
-__INLINE__ int __ALWAYS_INLINE__  EE_enc28j60_write_buffer(int address, EE_UINT8 *data, int len){ \
-	return cat3(EE_, lc, _send_buffer)(EE_ENC28J60_DEVICE_ID, address, data, len); } \
+	return cat3(EE_, lc, _send_byte)(data); } \
+__INLINE__ int __ALWAYS_INLINE__  EE_enc28j60_write_buffer(EE_UINT8 *data, int len){ \
+	return cat3(EE_, lc, _send_buffer)(data, len); } \
 __INLINE__ int __ALWAYS_INLINE__  EE_enc28j60_read(void){ \
-	return cat3(EE_, lc, _receive_byte)(EE_ENC28J60_DEVICE_ID); } \
-__INLINE__ int __ALWAYS_INLINE__  EE_enc28j60_read_buffer(int address, EE_UINT8 *data, int len){ \
-	return cat3(EE_, lc, _receive_buffer)(EE_ENC28J60_DEVICE_ID, address, data, len); }
+	return cat3(EE_, lc, _receive_byte)(); } \
+__INLINE__ int __ALWAYS_INLINE__  EE_enc28j60_read_buffer(EE_UINT8 *data, int len){ \
+	return cat3(EE_, lc, _receive_buffer)(data, len); } \
+__INLINE__ int __ALWAYS_INLINE__ EE_enc28j60_set_SSO(void){ \
+	return EE_hal_spi_set_SSO((MicoSPI_t*)EE_BASE_ADD(uc)); } \
+__INLINE__ int __ALWAYS_INLINE__ EE_enc28j60_clear_SSO(void){ \
+	return EE_hal_spi_clear_SSO((MicoSPI_t*)EE_BASE_ADD(uc)); } \
+__INLINE__ int __ALWAYS_INLINE__ EE_enc28j60_set_slave(unsigned int mask){ \
+	return EE_hal_spi_set_slave((MicoSPI_t*)EE_BASE_ADD(uc), mask); } \
+__INLINE__ int __ALWAYS_INLINE__ EE_enc28j60_get_slave(unsigned int *pmask ){ \
+	return EE_hal_spi_get_slave((MicoSPI_t*)EE_BASE_ADD(uc), pmask); }
 
-/* ethctrl API functions */
-#ifdef __EE_ENC28J60_USE_SPI1__
-	#ifdef __EE_ENC28J60_USE_SPI2__
-	#error enc28j60 cannot support both i2c controllers
-	#endif //#ifdef __EE_ENC28J60_USE_SPI2__
-	DECLARE_FUNC_SPI_ENC28J60(EE_SPI1_NAME_UC, EE_SPI1_NAME_LC)
-#else //#ifdef __EE_ENC28J60_USE_SPI1__
-	DECLARE_FUNC_SPI_ENC28J60(EE_SPI2_NAME_UC, EE_SPI2_NAME_LC)
-#endif //#ifdef __EE_ENC28J60_USE_SPI1__
+///* ethctrl API functions */
+//#ifdef __EE_ENC28J60_USE_SPI1__
+//	#ifdef __EE_ENC28J60_USE_SPI2__
+//	#error enc28j60 cannot support both i2c controllers
+//	#endif //#ifdef __EE_ENC28J60_USE_SPI2__
+//	DECLARE_FUNC_SPI_ENC28J60(EE_SPI1_NAME_UC, EE_SPI1_NAME_LC)
+//#else //#ifdef __EE_ENC28J60_USE_SPI1__
+//	DECLARE_FUNC_SPI_ENC28J60(EE_SPI2_NAME_UC, EE_SPI2_NAME_LC)
+//#endif //#ifdef __EE_ENC28J60_USE_SPI1__
+DECLARE_FUNC_SPI_ENC28J60(EE_SPI1_NAME_UC, EE_SPI1_NAME_LC)
 
 /* ethctrl driver functions list */
 /* 
 	__INLINE__ int __ALWAYS_INLINE__ EE_enc28j60_init(int settings)
 	This function configures SPI controller.
  */
-__INLINE__ int __ALWAYS_INLINE__ EE_enc28j60_init(int settings)
+__INLINE__ int __ALWAYS_INLINE__ EE_enc28j60_init(int settings, int mode)
 { 
-	return EE_enc28j60_spi_config(settings);
+	return EE_enc28j60_spi_init(settings, mode);
 } 
 
 /*
@@ -78,25 +88,25 @@ __INLINE__ int __ALWAYS_INLINE__ EE_enc28j60_init(int settings)
 	This function is called by EE_enc28j60_set_mode(int mode) function.
 	It is used to configure the GPIO pin connected to ENC28J60 device.
 */
-int EE_enc28j60_set_ISR_mode(int irqf);
+int EE_hal_enc28j60_set_ISR_mode(int irqf);
 
 /*
 	int EE_enc28j60_set_polling_mode(void);
 	This function is called by EE_enc28j60_set_mode(int mode) function.
 	It is used to configure ENC28J60 driver in polling mode.
 */
-int EE_enc28j60_set_polling_mode(void);
+int EE_hal_enc28j60_set_polling_mode(void);
 
 /*
 	__INLINE__ int __ALWAYS_INLINE__ EE_enc28j60_set_mode(int mode)
 	This function sets ENC28J60 driver operating mode.
 */
-__INLINE__ int __ALWAYS_INLINE__ EE_enc28j60_set_mode(int mode)
+__INLINE__ int __ALWAYS_INLINE__ EE_enc28j60_set_ISR_mode(int mode)
 { 
 	if(mode) 
-		return EE_enc28j60_set_ISR_mode(EE_ETHCTRL_INT_IRQ_FLAG); 
+		return EE_hal_enc28j60_set_ISR_mode(EE_ETHCTRL_INT_IRQ_FLAG); 
 	else 
-		return EE_enc28j60_set_polling_mode(); 
+		return EE_hal_enc28j60_set_polling_mode(); 
 } 
 
 /*

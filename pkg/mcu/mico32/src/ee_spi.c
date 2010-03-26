@@ -74,82 +74,124 @@ void EE_spi_common_handler(int level)
 /******************************************************************************/
 /*                       Public Global Functions                              */
 /******************************************************************************/			
-int EE_hal_spi_write_byte_polling(MicoSPI_t* spic, EE_UINT8 device, EE_UINT8 data)
+int EE_hal_spi_write_byte_polling(MicoSPI_t* spic, EE_UINT8 data)
 {
 	
-	EE_hal_spi_set_slave(spic, device);		
-	//EE_spi_set_SSO(spic->control);
+	// EE_hal_spi_set_slave(spic, device);		
+	// EE_spi_set_SSO(spic->control);
 	spic->tx = data;						
 	while(!EE_spi_tmt_ready(spic->status))
 			;								
-	//EE_spi_clear_SSO(spic->control);
+	// EE_spi_clear_SSO(spic->control);
 		
 	return 1;	
 }
 
-int EE_hal_spi_read_byte_polling(MicoSPI_t* spic, EE_UINT8 device)
+int EE_hal_spi_read_byte_polling(MicoSPI_t* spic)
 {
-	int ret;
 	EE_UINT8 dummy = 0xFF;
 
-	EE_hal_spi_set_slave(spic, device);		
-	//EE_spi_set_SSO(spic->control);
-	spic->tx = dummy;								// one dummy byte transmitted	
+	// EE_hal_spi_set_slave(spic, device);		
+	// EE_spi_set_SSO(spic->control);
+	spic->tx = dummy;							
 	while(!EE_spi_tmt_ready(spic->status))
 			;
-	ret = spic->rx;
-	//EE_spi_clear_SSO(spic->control);				// one byte transmitted	
+	// EE_spi_clear_SSO(spic->control);				
 	
-	return ret;
+	return spic->rx;
 }
 
-int EE_hal_spi_write_buffer_polling(MicoSPI_t* spic, EE_UINT8 device, EE_UINT8 address, EE_UINT8* data, int len)
+int EE_hal_spi_write_buffer_polling(MicoSPI_t* spic, EE_UINT8* data, int len)
 {
 	int i;
 	int ret;
-
-	EE_hal_spi_set_slave(spic, device);	
-	EE_spi_set_SSO(spic->control);
-	spic->tx = address;							// one byte transmitted	
-	while(!EE_spi_tmt_ready(spic->status))
-			;
+	EE_UINT8 rx_dummy = 0;
+	
+	// EE_hal_spi_set_slave(spic, device);		
+	// EE_spi_set_SSO(spic->control);
 	for(i=0; i<len; i++)
 	{
 		spic->tx = data[i];
 		while(!EE_spi_tmt_ready(spic->status))
 			;
+		rx_dummy = spic->rx;
 	}
-	EE_spi_clear_SSO(spic->control);
+	// EE_spi_clear_SSO(spic->control);			
 	ret = len;	
 
 	return ret;
 }	
 
-int EE_hal_spi_read_buffer_polling(MicoSPI_t* spic, EE_UINT8 device, EE_UINT8 address, EE_UINT8* data, int len)
+int EE_hal_spi_read_buffer_polling(MicoSPI_t* spic, EE_UINT8* data, int len)
 {
 	int i;
 	int ret;
 	EE_UINT8 tx_dummy = 0xFF;
-	EE_UINT8 rx_dummy = 0;
 	
-	EE_hal_spi_set_slave(spic, device);	
-	EE_spi_set_SSO(spic->control);
-	spic->tx = address;							// one byte transmitted	
-	while(!EE_spi_tmt_ready(spic->status))
-		;
-	rx_dummy = spic->rx;
+	// EE_hal_spi_set_slave(spic, device);		
+	// EE_spi_set_SSO(spic->control);
 	for(i=0; i<len; i++)
 	{
 		spic->tx = tx_dummy;
 		while(!EE_spi_tmt_ready(spic->status))
 			;
+		while(!EE_spi_rx_ready(spic->status))
+			;
 		data[i] = spic->rx;
 	}
-	EE_spi_clear_SSO(spic->control);
+	// EE_spi_clear_SSO(spic->control);				
 	ret = len;	
 
 	return ret;
 }
+
+//int EE_hal_spi_write_buffer_polling(MicoSPI_t* spic, EE_UINT8 device, EE_UINT8 address, EE_UINT8* data, int len)
+//{
+//	int i;
+//	int ret;
+//
+//	EE_hal_spi_set_slave(spic, device);	
+//	EE_spi_set_SSO(spic->control);
+//	spic->tx = address;							// one byte transmitted	
+//	while(!EE_spi_tmt_ready(spic->status))
+//			;
+//	for(i=0; i<len; i++)
+//	{
+//		spic->tx = data[i];
+//		while(!EE_spi_tmt_ready(spic->status))
+//			;
+//	}
+//	EE_spi_clear_SSO(spic->control);
+//	ret = len;	
+//
+//	return ret;
+//}	
+//
+//int EE_hal_spi_read_buffer_polling(MicoSPI_t* spic, EE_UINT8 device, EE_UINT8 address, EE_UINT8* data, int len)
+//{
+//	int i;
+//	int ret;
+//	EE_UINT8 tx_dummy = 0xFF;
+//	EE_UINT8 rx_dummy = 0;
+//	
+//	EE_hal_spi_set_slave(spic, device);	
+//	EE_spi_set_SSO(spic->control);
+//	spic->tx = address;							// one byte transmitted	
+//	while(!EE_spi_tmt_ready(spic->status))
+//		;
+//	rx_dummy = spic->rx;
+//	for(i=0; i<len; i++)
+//	{
+//		spic->tx = tx_dummy;
+//		while(!EE_spi_tmt_ready(spic->status))
+//			;
+//		data[i] = spic->rx;
+//	}
+//	EE_spi_clear_SSO(spic->control);
+//	ret = len;	
+//
+//	return ret;
+//}
 															
 #ifndef __USE_SPI_IRQ__
 
@@ -164,7 +206,7 @@ int EE_hal_spi_config(MicoSPI_t* spic, int settings)
 	return EE_SPI_OK;
 }
 
-int EE_hal_spi_set_mode(MicoSPI_t* spic, int mode)
+int EE_hal_spi_set_ISR_mode(MicoSPI_t* spic, int mode)
 {
 	int ret = EE_SPI_OK;
 	
@@ -190,7 +232,7 @@ int EE_hal_spi_config(EE_spi_st* spisp, int settings)
 	return EE_SPI_OK;
 }
 
-int EE_hal_spi_set_mode(EE_spi_st* spisp, int mode)
+int EE_hal_spi_set_ISR_mode(EE_spi_st* spisp, int mode)
 {
 	int ret = EE_SPI_OK;
 	int old_mode;
@@ -257,65 +299,63 @@ int EE_hal_spi_set_tx_ISR_callback(EE_spi_st* spisp, EE_ISR_callback isr_tx_call
 }
 
 /* This function is used to send a byte on the bus */
-int EE_hal_spi_write_byte_irq(EE_spi_st* spisp, EE_UINT8 device, EE_UINT8 address, EE_UINT8 data)	// ATT! data is a message (packet)
+int EE_hal_spi_write_byte_irq(EE_spi_st* spisp, EE_UINT8 data)	// ATT! data is a message (packet)
 {
 	int ret = EE_SPI_OK;
 	MicoSPI_t *spic = spisp->base; 
 		
-	EE_hal_spi_set_slave(spic, device);	
-	
-	EE_spi_set_SSO(spic->control);
+	// EE_hal_spi_set_slave(spic, device);	
+	// EE_spi_set_SSO(spic->control);
 
 	// to do...
 	
-	EE_spi_clear_SSO(spic->control);
+	// EE_spi_clear_SSO(spic->control);
 	
 	return ret;
 }	
 	
 /* This function is used to read a byte from the bus */
-int EE_hal_spi_read_byte_irq(EE_spi_st* spisp, EE_UINT8 device, EE_UINT8 address)					// ATT! adddata is a pointer to message (packet)
+int EE_hal_spi_read_byte_irq(EE_spi_st* spisp)					// ATT! adddata is a pointer to message (packet)
 {
 	int ret = EE_SPI_OK;
 	MicoSPI_t *spic = spisp->base; 
 	
-	EE_hal_spi_set_slave(spic, device);	
-	
-	EE_spi_set_SSO(spic->control);
+	// EE_hal_spi_set_slave(spic, device);	
+	// EE_spi_set_SSO(spic->control);
 
 	// to do...
 	
-	EE_spi_clear_SSO(spic->control);
+	// EE_spi_clear_SSO(spic->control);
 	
 	return ret;
 }
 	
-int EE_hal_spi_write_buffer_irq(EE_spi_st* spisp, EE_UINT8 device, EE_UINT8 address, EE_UINT8* data, int len)	// ATT! data is a vector of messages (packets)
+int EE_hal_spi_write_buffer_irq(EE_spi_st* spisp, EE_UINT8* data, int len)	// ATT! data is a vector of messages (packets)
 {
 	int ret = EE_SPI_OK;
 	MicoSPI_t *spic = spisp->base; 
 	
-	EE_hal_spi_set_slave(spic, device);	
-	EE_spi_set_SSO(spic->control);
+	// EE_hal_spi_set_slave(spic, device);	
+	// EE_spi_set_SSO(spic->control);
 
 	// to do...
 	
-	EE_spi_clear_SSO(spic->control);
+	// EE_spi_clear_SSO(spic->control);
 	
 	return ret;
 }
 
-int EE_hal_spi_read_buffer_irq(EE_spi_st* spisp, EE_UINT8 device, EE_UINT8 address, EE_UINT8* data, int len)	// ATT! data is a vector of messages (packets)
+int EE_hal_spi_read_buffer_irq(EE_spi_st* spisp, EE_UINT8* data, int len)	// ATT! data is a vector of messages (packets)
 {
 	int ret = EE_SPI_OK;
 	MicoSPI_t *spic = spisp->base; 
 	
-	EE_hal_spi_set_slave(spic, device);	
-	EE_spi_set_SSO(spic->control);
+	// EE_hal_spi_set_slave(spic, device);	
+	// EE_spi_set_SSO(spic->control);
 	
 	// to do...
 	
-	EE_spi_clear_SSO(spic->control);
+	// EE_spi_clear_SSO(spic->control);
 	
 	return ret;
 }	

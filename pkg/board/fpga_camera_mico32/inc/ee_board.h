@@ -59,5 +59,9 @@
 #include "board/fpga_camera_mico32/inc/ee_ethctrl_enc28j60.h"
 #endif // __USE_MICO32BOARD_ETHCTRL_ENC28J60__
 
+#ifdef __USE_MICO32BOARD_WIFICTRL_MRF24J40__
+#include "board/fpga_camera_mico32/inc/ee_wifictrl_mrf24j40.h"
+#endif // __USE_MICO32BOARD_ETHCTRL_ENC28J60__
+
 /* ************************************************************************* */
 #endif //__INCLUDE_FPGA_CAMERA_BOARD_H__

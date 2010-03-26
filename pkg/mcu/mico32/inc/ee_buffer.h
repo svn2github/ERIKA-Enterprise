@@ -2,6 +2,8 @@
 * ee_buffer.h
 */
 
+//#ifdef __USE_BUFFER__
+
 #ifndef __INCLUDE_EEMCUMICO32_BUFFER_H__
 #define __INCLUDE_EEMCUMICO32_BUFFER_H__
 
@@ -106,3 +108,5 @@ int EE_buffer_isempty(EE_buffer *buf);
 int EE_buffer_isfull(EE_buffer *buf);
 
 #endif // __INCLUDE_EEMCUMICO32_BUFFER_H__
+
+//#endif //#ifdef __USE_BUFFER__

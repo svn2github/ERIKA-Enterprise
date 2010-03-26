@@ -5,6 +5,8 @@
 #include "mcu/mico32/inc/ee_buffer.h"
 //#include "ee_internal.h"
 
+//#ifdef __USE_BUFFER__
+
 /******************************************************************************/
 /*                             Utility Macros                                 */
 /******************************************************************************/
@@ -139,3 +141,4 @@ int EE_buffer_getmsg(EE_buffer *buf, EE_UINT8* msg)
   	return retvalue;
 }
 
+//#endif //#ifdef __USE_BUFFER__
