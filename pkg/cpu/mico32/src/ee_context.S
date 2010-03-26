@@ -75,7 +75,7 @@ EE_std_change_context:
 
 	/* tos_index = EE_std_thread_tos[tid+1]; */
 	// r2 == tos_index
-	sli	r2, r1, 2
+	sli	r2, r1, 2	// This gets rid of the `stacked' mark
 	LOAD_ADDR r3, EE_std_thread_tos
 	add	r2, r3, r2
 	lw	r2, (r2 + 4)
