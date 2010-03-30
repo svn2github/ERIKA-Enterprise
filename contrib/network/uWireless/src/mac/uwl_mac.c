@@ -1,4 +1,4 @@
-/** 
+/**
  * @file uwl_mac.c
  * @brief IEEE 802.15.4 MAC Layer General Part
  * @author Christian Nastasi
@@ -88,7 +88,7 @@ extern int16_t associate_ack_counter;
 /******************************************************************************/
 static void set_default_mac_pib(void)
 {
-	/* chris: TODO: move all this literals in some defines in the 
+	/* chris: TODO: move all this literals in some defines in the
 	 mac const file as already done for the default pib
 	 attribute of the PHY pib */
 	uwl_mac_pib.macAckWaitDuration = 54; /* TODO: apply equation!! */
@@ -166,7 +166,7 @@ COMPILER_INLINE struct uwl_mac_frame_t *gts_queue_alloc(uint8_t gts)
 		return (struct uwl_mac_frame_t *) cqueue_push(
 				&uwl_mac_queue_dev_gts);
 	}
-	/* TODO: what should be done if uwl_mac_status.is_coordinator ? 
+	/* TODO: what should be done if uwl_mac_status.is_coordinator ?
 	 Is the node both coordinator and device in such a case?
 	 Double storage is required in that case!
 	 */
@@ -212,7 +212,15 @@ uint8_t set_addressing_fields(uint8_t *af, enum uwl_mac_addr_mode_t dst_mode,
 	uint8_t offset = 0;
 
 	if (dst_mode == UWL_MAC_ADDRESS_SHORT) {
-		memcpy(af + offset, &dst_panid, sizeof(uint16_t));
+
+		/*FIXME: problem with this instruction, solved by explicitly decompose
+		* the uint16_t in 2 uint8_t
+		* memcpy(af+offset, &dst_panid, sizeof(uint16_t));
+		*/
+		af[offset] = (uint8_t) (dst_panid & 0xFF);
+		af[offset+1] = (uint8_t)(dst_panid >> 8);
+
+
 		offset += UWL_MAC_MPDU_PANID_SIZE;
 		memcpy(af + offset, (uint8_t *) dst_addr,
 				UWL_MAC_MPDU_ADDRESS_SHORT_SIZE);
@@ -343,7 +351,7 @@ uint8_t set_superframe_specification(uint8_t *ss, uint8_t bo, uint8_t so,
 COMPILER_INLINE uint8_t set_pending_address_fields(uint8_t *pf)
 {
 	UWL_MAC_PENDING_ADDR_SPEC_SET_EMPTY(pf);
-	/* 
+	/*
 	 UWL_MAC_PENDING_ADDR_SPEC_SET_SHORTS(pf, 0);
 	 UWL_MAC_PENDING_ADDR_SPEC_SET_EXTDS(pf, 0);
 	 */
@@ -411,10 +419,10 @@ UWL_KAL_TASK_ASYNC(MAC_PROCESS_RX_BEACON, 25);
 UWL_KAL_TASK_ASYNC(MAC_PROCESS_RX_DATA, 20);
 UWL_KAL_TASK_ASYNC(MAC_PROCESS_RX_COMMAND, 20);
 
-/* IMPORTANT NOTE: 
+/* IMPORTANT NOTE:
  * The mutexes that might be used in the context of possible PHY tasks,
  * that call the MAC notification functions, MUST be declared in the
- * file "mac/uwl_mac_mutexes.h" as body of the macro 
+ * file "mac/uwl_mac_mutexes.h" as body of the macro
  * UWL_PHY_IMPORT_MAC_MUTEXES().
  */
 UWL_KAL_MUTEX( MAC_RX_BEACON_MUTEX, MAC_PROCESS_RX_BEACON);
@@ -523,10 +531,11 @@ uwl_debug_print(str);
 			&s_pan, (void *) s_a, UWL_MAC_FCTL_GET_PANID_COMPRESS(
 					cmd));
 
-	if (UWL_MAC_FCTL_GET_ACK_REQUEST(cmd)) {
-		cmd = UWL_MAC_MPDU_SEQ_NUMBER(rx_command);
-		uwl_mac_ack_frame(cmd); //rx_command
-	}
+	/* Moved to the callback in order to speed-up the ack reply */
+//	if (UWL_MAC_FCTL_GET_ACK_REQUEST(cmd)) {
+//		cmd = UWL_MAC_MPDU_SEQ_NUMBER(rx_command);
+//		uwl_mac_ack_frame(cmd); //rx_command
+//	}
 
 	if (UWL_MAC_FCTL_GET_PANID_COMPRESS(cmd))
 		s_pan = d_pan;
@@ -656,10 +665,10 @@ int8_t uwl_mac_init(void)
 
 int8_t uwl_mac_get_beacon_payload(uint8_t *data, uint8_t len)
 {
-	/* NOTE: mutex condition is guaranteed due to 
+	/* NOTE: mutex condition is guaranteed due to
 	 * task activation mechanism and the following flag */
 	if (!uwl_mac_status.has_rx_beacon)
-		return -100; //TODO: add error code 
+		return -100; //TODO: add error code
 	if (beacon_payload_length == 0)
 		return 0;
 	if (len > beacon_payload_length)
@@ -874,6 +883,8 @@ void uwl_mac_perform_data_request(enum uwl_mac_addr_mode_t src_mode,
 			uwl_debug_print("--->        Invalid CHECK");
 			return;
 		}
+
+		uwl_kal_mutex_wait(MAC_GTS_SEND_MUTEX);
 		/* Store in the GTS queue! */
 		frame = gts_queue_alloc((uint8_t) gts_idx);
 		if (frame == 0) {
@@ -919,16 +930,20 @@ void uwl_mac_perform_data_request(enum uwl_mac_addr_mode_t src_mode,
 					&& (uwl_mac_pib.macShortAddress
 							== UWL_MAC_SHORT_ADDRESS_USE_EXTD
 							|| uwl_mac_pib.macShortAddress
-									== UWL_MAC_SHORT_ADDRESS_INVALID)))
+									== UWL_MAC_SHORT_ADDRESS_INVALID))){
+
 		UWL_MAC_EXTD_ADDR_SET(e_addr, UWL_aExtendedAddress_high,
 				UWL_aExtendedAddress_low);
-	else
+		s = set_addressing_fields(UWL_MAC_MPDU_ADDRESSING_FIELDS(frame->mpdu),
+				dst_mode, dst_panid, dst_addr, UWL_MAC_ADDRESS_EXTD,
+				uwl_mac_pib.macPANId, (void *) e_addr, flag.compress);
+	}
+	else {
 		/* TODO: can be short_none??? */
-		memcpy(e_addr, &(uwl_mac_pib.macShortAddress),
-				UWL_MAC_MPDU_ADDRESS_SHORT_SIZE);
-	s = set_addressing_fields(UWL_MAC_MPDU_ADDRESSING_FIELDS(frame->mpdu),
-			dst_mode, dst_panid, dst_addr, src_mode,
-			uwl_mac_pib.macPANId, (void *) e_addr, flag.compress);
+		s = set_addressing_fields(UWL_MAC_MPDU_ADDRESSING_FIELDS(frame->mpdu),
+			dst_mode, dst_panid, dst_addr, UWL_MAC_ADDRESS_SHORT,
+			uwl_mac_pib.macPANId, (void *) &(uwl_mac_pib.macShortAddress), flag.compress);
+	}
 	/* TODO: think to security infos? */
 	/* Store the msdu (Mac Payload) */
 	memcpy(UWL_MAC_MPDU_MAC_PAYLOAD(frame->mpdu, s), payload, len);
@@ -941,7 +956,13 @@ void uwl_mac_perform_data_request(enum uwl_mac_addr_mode_t src_mode,
 	if (UWL_MAC_TX_OPTION_GTS(tx_opt) == UWL_TRUE)
 		uwl_mac_superframe_gts_wakeup(gts_idx);
 	uwl_debug_print("--->       OK (in TX Queue)");
-	uwl_kal_mutex_signal(MAC_SEND_MUTEX);
+
+	/* Free the blocked resources*/
+	if (UWL_MAC_TX_OPTION_GTS(tx_opt) == UWL_TRUE) {
+		uwl_kal_mutex_signal(MAC_GTS_SEND_MUTEX);
+	} else {
+		uwl_kal_mutex_signal(MAC_SEND_MUTEX);
+	}
 }
 
 uint8_t uwl_mac_create_beacon(uwl_mpdu_ptr_t bcn)
@@ -1009,7 +1030,7 @@ void uwl_mac_association_request_cmd(enum uwl_mac_addr_mode_t dst_mode,
 
 	s = set_command_header(cmd_ass_req, 0, 0, 1, 0, dst_mode,
 			UWL_MAC_ADDRESS_EXTD, 0, dst_mode, dst_panid, dst_addr,
-			UWL_MAC_ADDRESS_EXTD, e_addr, UWL_MAC_PANID_BROADCAST,
+			UWL_MAC_ADDRESS_EXTD, (void *) e_addr, UWL_MAC_PANID_BROADCAST,
 			UWL_MAC_CMD_ASSOCIATION_REQUEST);
 
 	(UWL_MAC_MPDU_CAPABILITY_INFORMATION(cmd_ass_req->mpdu, s))[0]
@@ -1130,7 +1151,7 @@ void uwl_mac_data_request_cmd(void)
 			uwl_mac_pib.macPANId, //uint16_t dst_panid uwl_mac_pib.macPANId
 			&uwl_mac_pib.macCoordShortAddress, //void *dst_addr
 			UWL_MAC_ADDRESS_EXTD, //enum uwl_mac_addr_mode_t src_mode
-			e_addr, //void * src_addr
+			(void *) e_addr, //void * src_addr
 			UWL_MAC_ADDRESS_NONE, //uint16_t src_panid
 			UWL_MAC_CMD_DATA_REQUEST //enum uwl_mac_cmd_type_t cmd_type
 			);
@@ -1164,6 +1185,14 @@ void uwl_mac_parse_received_mpdu(uint8_t *psdu, uint8_t len)
 		return; /* TODO: pass the frame to the upper layer! (see std) */
 	/* TODO: perform some discarding action depending on the context :
 	 What if I am coordinator? */
+
+	/* Moved from process_rx_command in order to speed up the ack reply */
+	if (UWL_MAC_FCTL_GET_ACK_REQUEST(psdu)) {
+		uwl_mac_ack_frame(UWL_MAC_MPDU_SEQ_NUMBER(psdu)); //rx_command
+	}
+
+
+
 	switch (UWL_MAC_FCTL_GET_FRAME_TYPE(psdu)) {
 	case UWL_MAC_TYPE_BEACON:
 		if (uwl_mac_status.is_pan_coordinator
@@ -1173,7 +1202,7 @@ void uwl_mac_parse_received_mpdu(uint8_t *psdu, uint8_t len)
 		if (on_rx_beacon_callback)
 		on_rx_beacon_callback();
 #endif
-		/* TODO: make an extra compare, to see if Frame Control Field 
+		/* TODO: make an extra compare, to see if Frame Control Field
 		 is valid for a beacon, no_dest address, a_src address*/
 		if (uwl_kal_mutex_wait(MAC_RX_BEACON_MUTEX) < 0)
 			return; /* TODO: manage error? */

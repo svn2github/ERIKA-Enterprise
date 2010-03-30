@@ -1,4 +1,4 @@
-/** 
+/**
 * @file uwl_mac_mcps.c
 * @brief IEEE 802.15.4 MCPS-SAP Implementation
 * @author Christian Nastasi
@@ -20,15 +20,15 @@ int8_t uwl_MCPS_DATA_request(uint8_t SrcAddrMode, uint8_t DstAddrMode,
 			     uint8_t SecurityLevel, uint8_t KeyIdMode,
 			     uint8_t *KeySource, uint8_t KeyIndex)
 {
-	if (SrcAddrMode == UWL_MAC_ADDRESS_NONE && 
+	if (SrcAddrMode == UWL_MAC_ADDRESS_NONE &&
 	    DstAddrMode == UWL_MAC_ADDRESS_NONE) {
 		uwl_MCPS_DATA_confirm(msduHandle, UWL_MAC_INVALID_ADDRESS, 0);
 		return UWL_MAC_ERR_NONE;
-	} else if (SrcAddrMode != UWL_MAC_ADDRESS_SHORT && 
+	} else if (SrcAddrMode != UWL_MAC_ADDRESS_SHORT &&
 		   SrcAddrMode != UWL_MAC_ADDRESS_EXTD) {
 		uwl_MCPS_DATA_confirm(msduHandle, UWL_MAC_INVALID_PARAMETER, 0);
 		return UWL_MAC_ERR_NONE;
-	} else if (DstAddrMode != UWL_MAC_ADDRESS_SHORT && 
+	} else if (DstAddrMode != UWL_MAC_ADDRESS_SHORT &&
 		   DstAddrMode != UWL_MAC_ADDRESS_EXTD) {
 		uwl_MCPS_DATA_confirm(msduHandle, UWL_MAC_INVALID_PARAMETER, 0);
 		return UWL_MAC_ERR_NONE;
@@ -43,10 +43,10 @@ int8_t uwl_MCPS_DATA_request(uint8_t SrcAddrMode, uint8_t DstAddrMode,
 	}
 	/* TODO: check other params!*/
 	/* TODO: check ret value?*/
-	uwl_mac_perform_data_request(SrcAddrMode, DstAddrMode, DstPANId, 
-				     DstAddr, msduLength, msdu, msduHandle, 
-				     TxOptions/*, SecurityLevel, KeyIdMode, 
+	uwl_mac_perform_data_request(SrcAddrMode, DstAddrMode, DstPANId,
+				     DstAddr, msduLength, msdu, msduHandle,
+				     TxOptions/*, SecurityLevel, KeyIdMode,
 				     KeySource, KeyIndex*/);
-	
+
 	return UWL_MAC_ERR_NONE;
 }

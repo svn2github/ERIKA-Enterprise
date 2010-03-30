@@ -1,4 +1,3 @@
-/** 
 * @file uwl_mac_superframe.c
 * @brief IEEE 802.15.4 MAC Layer Superframe Management
 * @author Christian Nastasi
@@ -31,7 +30,7 @@
 enum uwl_mac_csma_state_t {
 	CSMA_STATE_INIT = 0,
 	CSMA_STATE_DELAY,
-	CSMA_STATE_CCA,	
+	CSMA_STATE_CCA,
 };
 
 struct uwl_mac_csma_params_t {
@@ -44,12 +43,12 @@ struct uwl_mac_csma_params_t {
 };
 
 UWL_KAL_TASK(MAC_TIMESLOT, 10);
-UWL_KAL_TASK(MAC_BEFORE_TIMESLOT, 10); 
+UWL_KAL_TASK(MAC_BEFORE_TIMESLOT, 10);
 UWL_KAL_TASK(MAC_BACKOFF_PERIOD, 10);
 UWL_KAL_TASK(MAC_GTS_SEND, 10);
 
 UWL_KAL_MUTEX(MAC_MUTEX, MAC_TIMESLOT);
-UWL_KAL_MUTEX(MAC_SED_MUTEX, MAC_BACKOFF_PERIOD);
+UWL_KAL_MUTEX(MAC_SEND_MUTEX, MAC_BACKOFF_PERIOD);
 /*
 UWL_KAL_MUTEX(MAC_MUTEX, MAC_BEFORE_TIMESLOT);
 UWL_KAL_MUTEX(MAC_MUTEX, MAC_BACKOFF_PERIOD);
@@ -73,14 +72,14 @@ static struct {
 	unsigned gts_schedule_idx : 3;	/* ID of the next GTS slot (0...6) */
 	unsigned cfp_start_tslot : 5;	/* CFP Start tslot */
 } sf_flags = {
-	.has_idle = UWL_FALSE, 
-	.wait_sf_end = UWL_FALSE, 
-	.had_cfp = UWL_FALSE, 
+	.has_idle = UWL_FALSE,
+	.wait_sf_end = UWL_FALSE,
+	.had_cfp = UWL_FALSE,
 	.first_tslot_twice = UWL_FALSE,
-	.gts_sending = UWL_FALSE, 
+	.gts_sending = UWL_FALSE,
 	.in_tx_gts = UWL_FALSE,
-	.gts_tx_on_cfp_end = UWL_FALSE, 
-	.gts_schedule_idx = 0, 
+	.gts_tx_on_cfp_end = UWL_FALSE,
+	.gts_schedule_idx = 0,
 	.cfp_start_tslot = UWL_MAC_SUPERFRAME_LAST_SLOT + 1
 };
 static uint32_t time_reference = 0;
@@ -91,7 +90,7 @@ static uint16_t sifs_bytes = 0;
 static uint16_t btick_bytes = 0;
 static uint32_t cap_available_bytes = 0;
 //static uint32_t gts_available_bytes = 0;
-static uint32_t gts_available_bytes[UWL_MAC_GTS_MAX_NUMBER] 
+static uint32_t gts_available_bytes[UWL_MAC_GTS_MAX_NUMBER]
 		COMPILER_ATTRIBUTE_FAR = {0, 0, 0, 0, 0, 0, 0};
 #ifdef UWL_SUPERFRAME_CALLBACKS
 static void (* before_beacon_callback)(void) = NULL;
@@ -104,7 +103,7 @@ extern struct uwl_mac_frame_t ass_req_ack_wait;
 /******************************************************************************/
 /*                      MAC Genaral Private Functions                         */
 /******************************************************************************/
-COMPILER_INLINE void stop_activations(void) 
+COMPILER_INLINE void stop_activations(void)
 {
 	/* FIXME: now I'm ignoring the return values! */
 	uwl_kal_cancel_activation(MAC_TIMESLOT);
@@ -112,7 +111,7 @@ COMPILER_INLINE void stop_activations(void)
 	uwl_kal_cancel_activation(MAC_BACKOFF_PERIOD);
 }
 
-COMPILER_INLINE void start_activations(uint32_t offset) 
+COMPILER_INLINE void start_activations(uint32_t offset)
 {
 	uint32_t t;
 
@@ -121,26 +120,26 @@ COMPILER_INLINE void start_activations(uint32_t offset)
 		//offset = UWL_MAC_TICKS_BEFORE_TIMESLOT + 1;
 	t = UWL_MAC_GET_TS(uwl_mac_pib.macSuperframeOrder);
 	/* FIXME: now I'm ignoring the return values! */
-	uwl_kal_set_activation(MAC_BEFORE_TIMESLOT, 
-				offset - UWL_MAC_TICKS_BEFORE_TIMESLOT, t); 
+	uwl_kal_set_activation(MAC_BEFORE_TIMESLOT,
+				offset - UWL_MAC_TICKS_BEFORE_TIMESLOT, t);
 	uwl_kal_set_activation(MAC_TIMESLOT, offset, t);
 	uwl_kal_set_activation(MAC_BACKOFF_PERIOD, offset, 1);
-} 
+}
 
-COMPILER_INLINE void restart_activations(uint32_t offset) 
+COMPILER_INLINE void restart_activations(uint32_t offset)
 {
 	stop_activations();
 	start_activations(offset);
-} 
+}
 
-COMPILER_INLINE void resync_activations(void) 
+COMPILER_INLINE void resync_activations(void)
 {
 	uint32_t t;
 
 	stop_activations();
 	t = UWL_MAC_GET_TS(uwl_mac_pib.macSuperframeOrder);
 	current_tslot = UWL_MAC_SUPERFRAME_LAST_SLOT;
-	uwl_kal_set_activation(MAC_BEFORE_TIMESLOT, 
+	uwl_kal_set_activation(MAC_BEFORE_TIMESLOT,
 			       t - UWL_MAC_TICKS_BEFORE_TIMESLOT, t);
 	uwl_kal_set_activation(MAC_TIMESLOT, 0, t);
 	uwl_kal_set_activation(MAC_BACKOFF_PERIOD, 0, 1);
@@ -166,12 +165,12 @@ COMPILER_INLINE void recharge_gts_bytes(uint8_t len, uint8_t gts_idx)
 	}
 }
 
-COMPILER_INLINE void csma_init(void) 
+COMPILER_INLINE void csma_init(void)
 {
 	csma_params.NB = 0;
 	if (csma_params.slotted) {
 		csma_params.CW = 2;
-		csma_params.BE = (uwl_mac_pib.macBattLifeExt == 1 && 
+		csma_params.BE = (uwl_mac_pib.macBattLifeExt == 1 &&
 				 2 < uwl_mac_pib.macMinBE) ?
 				 2 : uwl_mac_pib.macMinBE;
 	} else {
@@ -179,15 +178,15 @@ COMPILER_INLINE void csma_init(void)
 	}
 }
 
-COMPILER_INLINE void csma_set_delay(void) 
+COMPILER_INLINE void csma_set_delay(void)
 {
-	csma_delay_counter = uwl_rand_8bit() % 
+	csma_delay_counter = uwl_rand_8bit() %
 			     ((((uint8_t) 1) << csma_params.BE) - 1);
 }
 
-COMPILER_INLINE uint8_t csma_check_available_cap(uint8_t len, uint8_t has_ack) 
+COMPILER_INLINE uint8_t csma_check_available_cap(uint8_t len, uint8_t has_ack)
 {
-	/* TODO: verify if the current check is correct 
+	/* TODO: verify if the current check is correct
 		 (what about phy padding?)
 	*/
 	uint32_t x = len;
@@ -195,12 +194,12 @@ COMPILER_INLINE uint8_t csma_check_available_cap(uint8_t len, uint8_t has_ack)
 
 //sprintf(s,"a=%u l=%u", has_ack, len);
 //uwl_debug_print(s);
-	x = x << 1; /* X = len x 2 */	
+	x = x << 1; /* X = len x 2 */
 //sprintf(s,"x1=%lu", x);
 //uwl_debug_print(s);
 	if (has_ack) {
 		x += UWL_MAC_ACK_MPDU_SIZE << 1; /* X = (len + ACK) x 2 */
-		x += bticks_to_bytes(UWL_aTurnaroundTime_btick); 
+		x += bticks_to_bytes(UWL_aTurnaroundTime_btick);
 	}
 //sprintf(s,"x2=%lu", x);
 //uwl_debug_print(s);
@@ -210,11 +209,11 @@ COMPILER_INLINE uint8_t csma_check_available_cap(uint8_t len, uint8_t has_ack)
 	return (x <= cap_available_bytes);
 }
 
-COMPILER_INLINE void stop_previous_cfp(void) 
+COMPILER_INLINE void stop_previous_cfp(void)
 {
 	uint8_t i = 0;
 
-	/* NOTE: this if for the GTS that terminates 
+	/* NOTE: this if for the GTS that terminates
 		 with last timeslot expiration */
 	if (sf_flags.gts_tx_on_cfp_end == UWL_FALSE)
 		return;
@@ -271,7 +270,7 @@ static void csma_perform_slotted(void)
 	if (csma_params.state == CSMA_STATE_DELAY) {
 		if (csma_delay_counter-- == 0) {
 			uwl_kal_mutex_wait(MAC_SEND_MUTEX);
-			frame = (struct uwl_mac_frame_t*) 
+			frame = (struct uwl_mac_frame_t*)
 					cqueue_first(&uwl_mac_queue_cap);
 			uwl_kal_mutex_signal(MAC_SEND_MUTEX);
 			/* Something must be there, check again? */
@@ -298,12 +297,12 @@ static void csma_perform_slotted(void)
 		if (!uwl_radio_get_cca()) {
 			csma_params.CW = 2;
 			if (csma_params.NB > uwl_mac_pib.macMaxCSMABackoffs) {
-				/* TODO: CSMA Failure status!! 
-				Notify with confirm primitive!!!! 
+				/* TODO: CSMA Failure status!!
+				Notify with confirm primitive!!!!
 				 */
 				frame = (struct uwl_mac_frame_t *)
 								 cqueue_pop(&uwl_mac_queue_cap);
-				uwl_MCPS_DATA_confirm(frame->msdu_handle, 
+				uwl_MCPS_DATA_confirm(frame->msdu_handle,
 						UWL_MAC_CHANNEL_ACCESS_FAILURE, 0);
 				csma_params.state = CSMA_STATE_INIT;
 				//uwl_debug_print("C->I fail");
@@ -317,7 +316,7 @@ static void csma_perform_slotted(void)
 			//uwl_debug_print("C->D");
 			return;
 		}
-		if (--csma_params.CW > 0) 
+		if (--csma_params.CW > 0)
 			return;
 
 		if (uwl_mac_data_req.data_req == 1) {
@@ -371,7 +370,7 @@ static void csma_perform_slotted(void)
 	}
 }
 
-static void csma_perform_unslotted(void) 
+static void csma_perform_unslotted(void)
 {
 	/*TODO: implement the unslotted version!! */
 }
@@ -385,10 +384,10 @@ static void cfp_perform_coordinator(void)
 		return;
 	gts = uwl_gts_schedule + sf_flags.gts_schedule_idx;
 //	sprintf(str, "COORD: GTS=%u s=%u l=%u d=%u a=0x%X",
-//		sf_flags.gts_schedule_idx, gts->starting_tslot, 
+//		sf_flags.gts_schedule_idx, gts->starting_tslot,
 //		gts->length, gts->direction, gts->dev_address);
 //	uwl_debug_print(str);
-	if (current_tslot != sf_flags.cfp_start_tslot && 
+	if (current_tslot != sf_flags.cfp_start_tslot &&
 	    current_tslot != gts->starting_tslot + gts->length)
 		return; /* NO need to update coordinator GTS behaviour */
 	if (current_tslot != sf_flags.cfp_start_tslot) {
@@ -429,7 +428,7 @@ static void cfp_perform_coordinator(void)
 
 static void cfp_perform_device(void)
 {
-	if (uwl_mac_gts_stat.tx_length != 0 && 
+	if (uwl_mac_gts_stat.tx_length != 0 &&
             current_tslot == uwl_mac_gts_stat.tx_start_tslot) {
 		/* Start Device TX GTS */
 		sf_flags.in_tx_gts = UWL_TRUE;
@@ -438,17 +437,17 @@ static void cfp_perform_device(void)
 			       UWL_MAC_GET_TS(uwl_mac_pib.macSuperframeOrder)) +
 			       uwl_kal_get_time();
 		uwl_kal_set_activation(MAC_GTS_SEND, UWL_MAC_LIFS_PERIOD, 0);
-		if (uwl_mac_gts_stat.tx_start_tslot + 
+		if (uwl_mac_gts_stat.tx_start_tslot +
 		    uwl_mac_gts_stat.tx_length == UWL_MAC_SUPERFRAME_LAST_SLOT)
 			sf_flags.gts_tx_on_cfp_end = UWL_TRUE;
-	} else if (uwl_mac_gts_stat.tx_length != 0 && 
-		   current_tslot >= uwl_mac_gts_stat.tx_start_tslot + 
+	} else if (uwl_mac_gts_stat.tx_length != 0 &&
+		   current_tslot >= uwl_mac_gts_stat.tx_start_tslot +
 		   uwl_mac_gts_stat.tx_length) {
 		/* Stop Devie TX GTS */
 		sf_flags.in_tx_gts = UWL_FALSE;
 		sf_flags.gts_sending = 0;
 		uwl_kal_mutex_wait(MAC_MUTEX);
-		recharge_gts_bytes(uwl_mac_gts_stat.tx_length, 0); 
+		recharge_gts_bytes(uwl_mac_gts_stat.tx_length, 0);
 		uwl_kal_mutex_signal(MAC_MUTEX);
 		uwl_gts_queue_flush(0);
 		uwl_kal_cancel_activation(MAC_GTS_SEND);/* TODO: has effect? */
@@ -458,7 +457,7 @@ static void cfp_perform_device(void)
 /******************************************************************************/
 /*                      MAC Layer TASKs and Activities                        */
 /******************************************************************************/
-COMPILER_INLINE void start_beacon_interval(void) 
+COMPILER_INLINE void start_beacon_interval(void)
 {
 	uint8_t i;
 	/*
@@ -477,7 +476,7 @@ COMPILER_INLINE void start_beacon_interval(void)
 		sf_flags.gts_sending = 0;
 		uwl_kal_mutex_wait(MAC_MUTEX);
 		//gts_available_bytes = 0;
-		memset(gts_available_bytes, 0, 
+		memset(gts_available_bytes, 0,
 		       sizeof(uint32_t) * UWL_MAC_GTS_MAX_NUMBER);
 		uwl_kal_mutex_signal(MAC_MUTEX);
 		uwl_gts_queue_flush(0); /* NOTE: this is the device case! */
@@ -490,11 +489,11 @@ COMPILER_INLINE void start_beacon_interval(void)
 		uwl_kal_set_activation(MAC_BACKOFF_PERIOD, 0, 1);
 	} else {
 		uwl_kal_mutex_wait(MAC_MUTEX);
-		if (uwl_mac_status.is_pan_coordinator || 
+		if (uwl_mac_status.is_pan_coordinator ||
 		    uwl_mac_status.is_coordinator)
 			for (i = 0; i < UWL_MAC_GTS_MAX_NUMBER; i++)
 			       recharge_gts_bytes(uwl_gts_schedule[i].length,i);
-		else 
+		else
 			recharge_gts_bytes(uwl_mac_gts_stat.tx_length, 0);
 		uwl_kal_mutex_signal(MAC_MUTEX);
 	}
@@ -502,13 +501,13 @@ COMPILER_INLINE void start_beacon_interval(void)
 		sf_flags.has_idle = UWL_TRUE;
 		sf_flags.wait_sf_end = UWL_TRUE;
 	}
-	cap_available_bytes = 
+	cap_available_bytes =
 			bticks_to_bytes((uint32_t) uwl_mac_gts_get_cap_size()) *
 			       UWL_MAC_GET_TS(uwl_mac_pib.macSuperframeOrder);
 	uwl_mac_status.sf_context = UWL_MAC_SF_CAP;
 	/*
-	sprintf(s, "DEVICE: Start BI - %lu: B0=%u S0=%u TX=%u LTX=%u ", 
-		mmm,uwl_mac_pib.macBeaconOrder, uwl_mac_pib.macSuperframeOrder, 
+	sprintf(s, "DEVICE: Start BI - %lu: B0=%u S0=%u TX=%u LTX=%u ",
+		mmm,uwl_mac_pib.macBeaconOrder, uwl_mac_pib.macSuperframeOrder,
 		uwl_mac_gts_stat.tx_start_tslot, uwl_mac_gts_stat.tx_length);
 	uwl_debug_print(s);
 	*/
@@ -520,13 +519,13 @@ COMPILER_INLINE void start_beacon_interval(void)
 	uwl_mac_status.has_rx_beacon = 0; /* MUST be at the END of Function */
 }
 
-COMPILER_INLINE void stop_superframe(void) 
+COMPILER_INLINE void stop_superframe(void)
 {
 	uint32_t t;
 
 	uwl_mac_status.sf_context = UWL_MAC_SF_IDLE;
 	sf_flags.wait_sf_end = UWL_FALSE;
-	t = UWL_MAC_GET_BI(uwl_mac_pib.macBeaconOrder) - 
+	t = UWL_MAC_GET_BI(uwl_mac_pib.macBeaconOrder) -
 	    UWL_MAC_GET_SD(uwl_mac_pib.macSuperframeOrder);
 	restart_activations(t);
 	current_tslot = UWL_MAC_SUPERFRAME_LAST_SLOT;
@@ -541,7 +540,7 @@ COMPILER_INLINE void before_beacon_interval(void)
 	#ifdef UWL_DEBUG
 	//uint8_t str[UWL_DEBUG_STAT_STRLEN];
 	#endif
-	
+
 	#ifdef UWL_SUPERFRAME_CALLBACKS
 	if (before_beacon_callback)
 		before_beacon_callback();
@@ -556,7 +555,7 @@ COMPILER_INLINE void before_beacon_interval(void)
 	//uwl_debug_print("SF: before Start BI");
 }
 
-static void on_timeslot_start(void) 
+static void on_timeslot_start(void)
 {
 	uint32_t t, tmin;
 	/*
@@ -565,14 +564,14 @@ static void on_timeslot_start(void)
 	*/
 	/* TODO: Implement an efficient version:
 		 In case of a device that is not coordinator we can do:
-			- if in CAP do whatever 
+			- if in CAP do whatever
 			- if in CFP, since I already know when to Tx/Rx I can
-			  suspend until that time (manage this!) 
+			  suspend until that time (manage this!)
 	*/
 	current_tslot = NEXT_TSLOT(current_tslot);
 	if (current_tslot == UWL_MAC_SUPERFRAME_FIRST_SLOT) {
 		if (sf_flags.has_idle) { 	/* Has to go in IDLE? */
-			stop_superframe(); 
+			stop_superframe();
 			return;
 		}
 		/* Check if the first slot has been activated twice */
@@ -582,7 +581,7 @@ static void on_timeslot_start(void)
 		}
 		sf_flags.first_tslot_twice = UWL_TRUE;
 		stop_previous_cfp();
-		time_reference = uwl_kal_get_time(); 
+		time_reference = uwl_kal_get_time();
 		start_beacon_interval();
 	} else if (current_tslot == UWL_MAC_SUPERFRAME_FIRST_SLOT + 1) {
 		sf_flags.first_tslot_twice = UWL_FALSE;
@@ -597,9 +596,9 @@ static void on_timeslot_start(void)
 		}
 	}
 	/*
-	sprintf(s, "DEVICE: CFP=%u slot=%u  Dck=%lu  ck=%lu ref_ck=%lu  t=%lu", 
-		sf_flags.cfp_start_tslot, 
-		current_tslot, mmm-test_time, mmm, time_reference, t); 
+	sprintf(s, "DEVICE: CFP=%u slot=%u  Dck=%lu  ck=%lu ref_ck=%lu  t=%lu",
+		sf_flags.cfp_start_tslot,
+		current_tslot, mmm-test_time, mmm, time_reference, t);
 	uwl_debug_print(s);
 	*/
 	/* GTS Management part */
@@ -611,19 +610,19 @@ static void on_timeslot_start(void)
 		sf_flags.gts_tx_on_cfp_end = UWL_FALSE;
 		uwl_kal_cancel_activation(MAC_BACKOFF_PERIOD);
 	}
-	if (uwl_mac_status.is_pan_coordinator || uwl_mac_status.is_coordinator) 
+	if (uwl_mac_status.is_pan_coordinator || uwl_mac_status.is_coordinator)
 		cfp_perform_coordinator();
 	else
 		cfp_perform_device();
 }
 
-static void before_timeslot_start(void) 
+static void before_timeslot_start(void)
 {
 	/*
 	char s[100];
 	uint32_t mmm = uwl_debug_time_get_us(UWL_DEBUG_TIME_CLOCK_DEVEL);
 	*/
-	if (NEXT_TSLOT(current_tslot) == UWL_MAC_SUPERFRAME_FIRST_SLOT) { 
+	if (NEXT_TSLOT(current_tslot) == UWL_MAC_SUPERFRAME_FIRST_SLOT) {
 		/* Is before the BI? */
 		if (sf_flags.wait_sf_end == UWL_FALSE)
 			before_beacon_interval();
@@ -632,7 +631,7 @@ static void before_timeslot_start(void)
 		return;
 	}
 	/*
-	sprintf(s, "DEVICE: before slot = %u, Dck%lu, ck=%lu", 
+	sprintf(s, "DEVICE: before slot = %u, Dck%lu, ck=%lu",
 		NEXT_TSLOT(current_tslot), mmm-test_time, mmm);
 	uwl_debug_print(s);
 	test_time = mmm;
@@ -643,8 +642,14 @@ static void perform_associate_request_ack_check(void){
 
 	static uint8_t associate_req_attempts = 0;
 
+	/* FIXME: Work-around usato per aumentare l'attesa dell'arrivo dell'ack in associazione
+	 * . Un ack al momento impiega circa 1.1 ms, il limite max è di circa 860 us per cui
+	 * sfora. Due possibilità:
+	 * - ack più veloce spostandolo a livello fisico
+	 * - farlo in hardware.
+	 */
 	if(associate_ack_counter > 0){
-		associate_ack_counter+= 20;
+		associate_ack_counter+= 1; //20 valore corretto
 
 		if(associate_ack_counter >= uwl_mac_pib.macAckWaitDuration && associate_req_attempts < uwl_mac_pib.macMaxFrameRetries){
 			uwl_radio_phy_send_now(ass_req_ack_wait.mpdu, ass_req_ack_wait.mpdu_size);
@@ -655,7 +660,7 @@ static void perform_associate_request_ack_check(void){
 
 }
 
-static void on_backoff_period_start(void) 
+static void on_backoff_period_start(void)
 {
 	perform_associate_request_ack_check();
 	if (csma_params.slotted)
@@ -681,7 +686,7 @@ static void on_gts_send(void)
 	uwl_kal_mutex_wait(MAC_GTS_SEND_MUTEX);
 	/*
 	uint32_t mmm = uwl_debug_time_get_us(UWL_DEBUG_TIME_CLOCK_DEVEL);
-	sprintf(s, "DEVICE: On GTS SEND  @ %u idx=%u, %lu", 
+	sprintf(s, "DEVICE: On GTS SEND  @ %u idx=%u, %lu",
 		current_tslot, sf_flags.gts_schedule_idx, mmm);
 	uwl_debug_print(s);
 	*/
@@ -696,7 +701,7 @@ static void on_gts_send(void)
 	if (frame == 0) { /* TODO: this is extra check, empty check is enough!*/
 		uwl_kal_mutex_signal(MAC_GTS_SEND_MUTEX);
 		//uwl_debug_print("            |-> Really BAD!");
-		return; 
+		return;
 	}
 	if (!sf_flags.in_tx_gts) { /* Check if GTS is no longer valid */
 		/* TODO: we have to choose a well formed reply
@@ -704,10 +709,10 @@ static void on_gts_send(void)
 		uwl_kal_mutex_signal(MAC_GTS_SEND_MUTEX);
 		uwl_MCPS_DATA_confirm(frame->msdu_handle,UWL_MAC_INVALID_GTS,0);
 		//uwl_debug_print("            |-> No More GTS");
-		return; 
+		return;
 	}
 //LATEbits.LATE0 = 1;
-	if (uwl_radio_phy_send_now(frame->mpdu, frame->mpdu_size) == 
+	if (uwl_radio_phy_send_now(frame->mpdu, frame->mpdu_size) ==
 	    						UWL_RADIO_ERR_NONE)
 		uwl_MCPS_DATA_confirm(frame->msdu_handle, UWL_MAC_SUCCESS, 0);
 	else
@@ -734,7 +739,7 @@ int8_t uwl_mac_superframe_init(void)
 		return 1;
 	retv = uwl_kal_init(320); /* TODO: this comes from the PHY, because
 	it's just the duration of the aUnitBackoffPeriod = 20 symbols so...
-	backoff_period = aUnitBackoffPeriod x bit_per_symbols / bandwidth  
+	backoff_period = aUnitBackoffPeriod x bit_per_symbols / bandwidth
 		       = 20 x 4bits / 250000 bps = 320 microseconds .
 	How can we make this general? Where can this change? When? */
 	if (retv < 0)
@@ -760,7 +765,7 @@ int8_t uwl_mac_superframe_init(void)
 //TRISEbits.TRISE0 = 0;
 //LATEbits.LATE0 = 0;
 	return 1;
-} 
+}
 
 void uwl_mac_superframe_start(uint32_t offset)
 {
@@ -769,7 +774,7 @@ void uwl_mac_superframe_start(uint32_t offset)
 		uwl_radio_phy_set_rx_on(); /* TODO: Raise error if < 0 */
 		uwl_debug_time_start(UWL_DEBUG_TIME_CLOCK_BI);
 		return;
-	}	
+	}
 	uwl_debug_time_start(UWL_DEBUG_TIME_CLOCK_DEVEL);
 	uwl_debug_time_start(UWL_DEBUG_TIME_CLOCK_BI);
 	current_tslot = UWL_MAC_SUPERFRAME_LAST_SLOT;
@@ -780,9 +785,9 @@ void uwl_mac_superframe_start(uint32_t offset)
 	sf_flags.gts_tx_on_cfp_end = UWL_FALSE;
 	if (uwl_mac_status.is_pan_coordinator || uwl_mac_status.is_coordinator)
 		start_activations(offset);
-} 
+}
 
-void uwl_mac_superframe_stop(void) 
+void uwl_mac_superframe_stop(void)
 {
 	stop_activations();
 }
@@ -799,7 +804,7 @@ void uwl_mac_superframe_resync(void)
 		return;
 	resync_activations();
 	/*
-	sprintf(s, "BCN -> SF Resync: Dck=%lu, ck=%lu, %u, %u", 
+	sprintf(s, "BCN -> SF Resync: Dck=%lu, ck=%lu, %u, %u",
 		mmm - test_time, mmm,
 		(uint16_t) uwl_mac_pib.macBeaconOrder,
 		(uint16_t) uwl_mac_pib.macSuperframeOrder);
@@ -808,7 +813,7 @@ void uwl_mac_superframe_resync(void)
 	*/
 }
 
-void uwl_mac_superframe_gts_wakeup(uint8_t gts_idx) 
+void uwl_mac_superframe_gts_wakeup(uint8_t gts_idx)
 {
 	struct uwl_gts_info_t *gts;
 
@@ -817,7 +822,7 @@ void uwl_mac_superframe_gts_wakeup(uint8_t gts_idx)
 		/* Coordinator wakeup gts */
 		gts = uwl_gts_schedule + gts_idx;
 		if (gts_idx == sf_flags.gts_schedule_idx &&
-		    current_tslot == gts->starting_tslot && 
+		    current_tslot == gts->starting_tslot &&
 		    gts->direction == UWL_MAC_GTS_DIRECTION_IN &&
 		    !sf_flags.gts_sending && gts->length != 0) {
 			//uwl_debug_print("            |-> Coord!");
@@ -843,7 +848,7 @@ uint8_t uwl_mac_superframe_check_gts(uint8_t length, uint8_t gts_idx)
 
 	if (uwl_mac_status.is_pan_coordinator || uwl_mac_status.is_coordinator){
 		/* GTS presence must be already checked, gts_idx range too. */
-		bytes += gts_idx; 
+		bytes += gts_idx;
 	} else {
 		if (uwl_mac_gts_stat.tx_length == 0)
 			return 0;
@@ -866,7 +871,7 @@ uint8_t uwl_mac_superframe_check_gts(uint8_t length, uint8_t gts_idx)
 	if (*bytes < length + 10) {
 		uwl_kal_mutex_signal(MAC_MUTEX);
 		//uwl_debug_print("          |-> 0 (apriori)");
-		return 0; 
+		return 0;
 	}
 	x = *bytes;
 	if (sf_flags.in_tx_gts) {
@@ -893,7 +898,7 @@ uwl_debug_print(s); */
 	return 1;
 }
 
-int8_t uwl_mac_set_before_beacon_callback(void (* func)(void)) 
+int8_t uwl_mac_set_before_beacon_callback(void (* func)(void))
 {
 	#ifdef UWL_SUPERFRAME_CALLBACKS
 	before_beacon_callback = func;
@@ -903,7 +908,7 @@ int8_t uwl_mac_set_before_beacon_callback(void (* func)(void))
 	#endif
 }
 
-int8_t uwl_mac_set_on_beacon_callback(void (* func)(void)) 
+int8_t uwl_mac_set_on_beacon_callback(void (* func)(void))
 {
 	#ifdef UWL_SUPERFRAME_CALLBACKS
 	on_beacon_callback = func;
