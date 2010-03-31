@@ -1,4 +1,4 @@
-* @file uwl_mac_superframe.c
+/* @file uwl_mac_superframe.c
 * @brief IEEE 802.15.4 MAC Layer Superframe Management
 * @author Christian Nastasi
 * @version 0.1
