@@ -1,10 +1,10 @@
-#ifdef __USE_MICO32BOARD_ETHCTRL_ENC28J60__
+#ifdef __USE_MICO32BOARD_ETHERNET_ENC28J60__
 
-#ifndef __EE_ETHCTRL_ENC28J60__
-#define __EE_ETHCTRL_ENC28J60__
+#ifndef __EE_ETHERNET_ENC28J60__
+#define __EE_ETHERNET_ENC28J60__
 
 /* Camera header files */
-#include "board/fpga_camera_mico32/inc/ee_ethctrl_enc28j60_reg.h"
+#include "board/fpga_camera_mico32/inc/ee_ethernet_enc28j60_reg.h"
 #include "cpu/mico32/inc/ee_internal.h"
 #include "mcu/mico32/inc/ee_internal.h"
 #include <cpu/mico32/inc/ee_irq.h>
@@ -12,7 +12,7 @@
 /* Other used libraries: */
 #include "mcu/mico32/inc/ee_spi.h"
 
-/* Callback function called by ethctrl driver handler  */
+/* Callback function called by ETHERNET driver handler  */
 extern EE_ISR_callback ee_enc28j60_cbk;
 
 /* Symbols and macros */
@@ -21,12 +21,12 @@ extern EE_ISR_callback ee_enc28j60_cbk;
 #define EE_ENC28J60_POLLING_MODE			(0x00)
 #define EE_ENC28J60_ADDRESS_MASK			(0x1F)
 #define EE_ENC28J60_need_enable_int(mode)	(mode)
-#define EE_ETHCTRL_INT_IRQ_FLAG				(0x00)
+#define EE_ETHERNET_INT_IRQ_FLAG				(0x00)
 
 /* Default configuration */
 #define EE_ENC28J60_DEFAULT_FORMAT			(0)
 
-/* Exit status for the EE_ETHCTRL driver */
+/* Exit status for the EE_ETHERNET driver */
 #define	ENC28J60_SUCCESS 					(0)		/* no error */
 #define	ENC28J60_FAILURE					(-19)	/* generic error */
 #define	ENC28J60_ERR_SPI_INIT				(-20)	/* error in spi initialization */
@@ -40,7 +40,7 @@ extern EE_ISR_callback ee_enc28j60_cbk;
 
 /* -------------------------------- enc28j60 driver API -------------------------------------- */
 
-/* Macros for SPI-based ethctrl functions */  
+/* Macros for SPI-based ETHERNET functions */  
 #define DECLARE_FUNC_SPI_ENC28J60(uc, lc) \
 __INLINE__ int __ALWAYS_INLINE__ EE_enc28j60_spi_init(int settings, int mode){ \
 	cat3(EE_, lc, _config)(settings); \
@@ -62,7 +62,7 @@ __INLINE__ int __ALWAYS_INLINE__ EE_enc28j60_set_slave(unsigned int mask){ \
 __INLINE__ int __ALWAYS_INLINE__ EE_enc28j60_get_slave(unsigned int *pmask ){ \
 	return EE_hal_spi_get_slave((MicoSPI_t*)EE_BASE_ADD(uc), pmask); }
 
-///* ethctrl API functions */
+///* ETHERNET API functions */
 //#ifdef __EE_ENC28J60_USE_SPI1__
 //	#ifdef __EE_ENC28J60_USE_SPI2__
 //	#error enc28j60 cannot support both i2c controllers
@@ -71,9 +71,18 @@ __INLINE__ int __ALWAYS_INLINE__ EE_enc28j60_get_slave(unsigned int *pmask ){ \
 //#else //#ifdef __EE_ENC28J60_USE_SPI1__
 //	DECLARE_FUNC_SPI_ENC28J60(EE_SPI2_NAME_UC, EE_SPI2_NAME_LC)
 //#endif //#ifdef __EE_ENC28J60_USE_SPI1__
-DECLARE_FUNC_SPI_ENC28J60(EE_SPI1_NAME_UC, EE_SPI1_NAME_LC)
 
-/* ethctrl driver functions list */
+DECLARE_FUNC_SPI_ENC28J60(EE_SPI1_NAME_UC, EE_SPI1_NAME_LC)
+//DECLARE_FUNC_SPI_ENC28J60(NET_SPI, net_spi)
+
+/* ETHERNET driver functions list */
+
+/*
+	void EE_enc28j60_delay_us(EE_UINT16 delay_count);
+	This function contains a delay loop. 
+*/
+void EE_enc28j60_delay_us(EE_UINT16 delay_count);
+
 /* 
 	__INLINE__ int __ALWAYS_INLINE__ EE_enc28j60_init(int settings)
 	This function configures SPI controller.
@@ -104,7 +113,7 @@ int EE_hal_enc28j60_set_polling_mode(void);
 __INLINE__ int __ALWAYS_INLINE__ EE_enc28j60_set_ISR_mode(int mode)
 { 
 	if(mode) 
-		return EE_hal_enc28j60_set_ISR_mode(EE_ETHCTRL_INT_IRQ_FLAG); 
+		return EE_hal_enc28j60_set_ISR_mode(EE_ETHERNET_INT_IRQ_FLAG); 
 	else 
 		return EE_hal_enc28j60_set_polling_mode(); 
 } 
@@ -188,6 +197,12 @@ int EE_enc28j60_bit_field_clear(int address, EE_UINT8 data);
 int EE_enc28j60_software_reset(void);
 
 /*
+	int EE_enc28j60_hardware_reset(void);
+	This function resets the device (HW reset).
+*/
+int EE_enc28j60_hardware_reset(void);
+
+/*
 	int EE_enc28j60_enable_IRQ(void);
 	This function enables ENC28J60 interrupts reception. 
 */
@@ -213,6 +228,6 @@ int EE_enc28j60_bank_select(EE_UINT8 bank);
 
 
 
-#endif //#ifndef __EE_ethctrl_enc28j60__
+#endif //#ifndef __EE_ETHERNET_enc28j60__
 
-#endif //#ifdef __USE_MICO32BOARD_ETHCTRL_ENC28J60__
+#endif //#ifdef __USE_MICO32BOARD_ETHERNET_ENC28J60__

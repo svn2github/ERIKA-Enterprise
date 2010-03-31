@@ -2,12 +2,12 @@
 	ETH library functions
 */
 
-#ifdef __USE_MICO32BOARD_ETHCTRL_ENC28J60__
+#ifdef __USE_MICO32BOARD_ETHERNET_ENC28J60__
 
-#include "board/fpga_camera_mico32/inc/ee_ethctrl_enc28j60.h"
+#include "board/fpga_camera_mico32/inc/ee_ethernet_enc28j60.h"
 
 /* ---------------------- Global variables --------------------------------- */
-EE_ISR_callback ee_enc28j60_cbk;	// ISR ethctrl callback function
+EE_ISR_callback ee_enc28j60_cbk;	// ISR ETHERNET callback function
 
 /* ---------------------- Ethernet interrupt handler ------------------------- */
 
@@ -264,25 +264,41 @@ int EE_enc28j60_bit_field_clear(int address, EE_UINT8 mask)
 	return ret;
 }
 
+void EE_enc28j60_delay_us(EE_UINT16 delay_count)
+{
+	/* Provide a delay with an accuracy of approx. ... @ 34MHz */
+    asm volatile(	"1:\n\t"
+		"addi r1, r1, -1\n\t"
+		"nop\n\t"
+		"bne r1, r0, 1b\n\t");		
+}
+
 int EE_enc28j60_software_reset(void)
+{
+	int ret;
+	
+	// Note: The power save feature may prevent the reset from executing, so
+    // we must make sure that the device is not in power save before issuing
+    // a reset.
+    EE_enc28j60_bit_field_clear(ENC28J60_ECON2, ENC28J60_ECON2_PWRSV);
+
+    // Give some opportunity for the regulator to reach normal regulation and
+    // have all clocks running
+    EE_enc28j60_delay_us(2000);
+
+	ret = EE_enc28j60_write_byte(ENC28J60_SR);
+	
+    // Wait for the oscillator start up timer and PHY to become ready
+    EE_enc28j60_delay_us(2000);
+	
+	return ret;
+}
+
+int EE_enc28j60_hardware_reset(void)
 {
 	int ret=0;
 	
 	// to do...
-	// Note: The power save feature may prevent the reset from executing, so
-    // we must make sure that the device is not in power save before issuing
-    // a reset.
-    //EE_enc28j60_bit_field_clear(ENC28J60_ECON2, ENC28J60_ECON2_PWRSV);
-
-    // Give some opportunity for the regulator to reach normal regulation and
-    // have all clocks running
-    //DelayMs(1);
-
-	//ret = EE_enc28j60_write_byte(ENC28J60_SR);
-	//if(ret = ...)
-	
-    // Wait for the oscillator start up timer and PHY to become ready
-    //DelayMs(1);
 	
 	return ret;
 }
@@ -317,4 +333,4 @@ int EE_enc28j60_IRQ_enabled(void)
 	return ret;
 }
 
-#endif // #ifdef __USE_MICO32BOARD_ETHCTRL_ENC28J60__
+#endif // #ifdef __USE_MICO32BOARD_ETHERNET_ENC28J60__

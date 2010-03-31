@@ -177,16 +177,20 @@ int EE_hv7131gp_set_sleep_status(void);
 /* Set active mode */
 int EE_hv7131gp_set_active_status(void);
 
-/* Camera API functions */
-#ifdef __EE_HV7131GP_USE_I2C1__
-	#ifdef __EE_HV7131GP_USE_I2C2__
-	#error HV7131GP cannot support both i2c controllers
-	#endif
-	DECLARE_FUNC_I2C_HV7131GP(EE_I2C1_NAME_UC, EE_I2C1_NAME_LC)
-#else //__EE_RTC_USE_I2C1__
-	DECLARE_FUNC_I2C_HV7131GP(EE_I2C2_NAME_UC, EE_I2C2_NAME_LC)
-#endif //__EE_RTC_USE_I2C1__
-DECLARE_FUNC_HV7131GP(EE_CAMERA_NAME_UC, EE_CAMERA_NAME_LC)
+///* Camera API functions */
+//#ifdef __EE_CAMERA_USE_I2C1__
+//	#ifdef __EE_CAMERA_USE_I2C2__
+//	#error HV7131GP cannot support both i2c controllers
+//	#endif
+//	DECLARE_FUNC_I2C_HV7131GP(EE_I2C1_NAME_UC, EE_I2C1_NAME_LC)
+//#else //__EE_CAMERA_USE_I2C1__
+//	DECLARE_FUNC_I2C_HV7131GP(EE_I2C2_NAME_UC, EE_I2C2_NAME_LC)
+//#endif //__EE_CAMERA_USE_I2C1__
+
+DECLARE_FUNC_I2C_HV7131GP(CAMERA_I2C, camera_i2c)
+
+//DECLARE_FUNC_HV7131GP(EE_CAMERA_NAME_UC, EE_CAMERA_NAME_LC)
+DECLARE_FUNC_HV7131GP(CAMERA, camera)
 
 /* Set time divisor */
 __INLINE__ int __ALWAYS_INLINE__  EE_hv7131gp_set_time_divisor(int div)

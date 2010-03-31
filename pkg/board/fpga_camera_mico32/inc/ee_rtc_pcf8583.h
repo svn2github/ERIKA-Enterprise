@@ -46,18 +46,20 @@ __INLINE__ int __ALWAYS_INLINE__  EE_rtc_read_buffer(EE_UINT8 address, EE_UINT8 
 	
 	
 
-#ifdef __EE_PCF8583_USE_I2C1__
-#ifdef __EE_PCF8583_USE_I2C2__
-#error RTC cannot support both i2c controllers
-#endif
+//#ifdef __EE_PCF8583_USE_I2C1__
+//#ifdef __EE_PCF8583_USE_I2C2__
+//#error RTC cannot support both i2c controllers
+//#endif
+//
+//DECLARE_FUNC_RTC(EE_I2C1_NAME_UC, EE_I2C1_NAME_LC)
+//
+//#else //__EE_RTC_PCF8583_USE_I2C1__
+//
+//DECLARE_FUNC_RTC(EE_I2C2_NAME_UC, EE_I2C2_NAME_LC)
+//
+//#endif //__EE_RTC_PCF8583_USE_I2C1__
 
-DECLARE_FUNC_RTC(EE_I2C1_NAME_UC, EE_I2C1_NAME_LC)
-
-#else //__EE_RTC_PCF8583_USE_I2C1__
-
-DECLARE_FUNC_RTC(EE_I2C2_NAME_UC, EE_I2C2_NAME_LC)
-
-#endif //__EE_RTC_PCF8583_USE_I2C1__
+DECLARE_FUNC_RTC(RTC_I2C, rtc_i2c)
 
 /*
 	__INLINE__ int __ALWAYS_INLINE__  EE_rtc_start(void)

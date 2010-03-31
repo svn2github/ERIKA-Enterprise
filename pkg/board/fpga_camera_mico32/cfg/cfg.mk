@@ -48,12 +48,12 @@ ifeq ($(findstring __USE_MICO32BOARD_CAMERA_HV7131GP__,$(EEOPT)) , __USE_MICO32B
 EE_SRCS += pkg/board/fpga_camera_mico32/src/ee_camera_hv7131gp.c
 endif
 
-ifeq ($(findstring __USE_MICO32BOARD_ETHCTRL_ENC28J60__,$(EEOPT)) , __USE_MICO32BOARD_ETHCTRL_ENC28J60__)
-EE_SRCS += pkg/board/fpga_camera_mico32/src/ee_ethctrl_enc28j60.c
+ifeq ($(findstring __USE_MICO32BOARD_ETHERNET_ENC28J60__,$(EEOPT)) , __USE_MICO32BOARD_ETHERNET_ENC28J60__)
+EE_SRCS += pkg/board/fpga_camera_mico32/src/ee_ethernet_enc28j60.c
 endif
 
-ifeq ($(findstring __USE_MICO32BOARD_WIFICTRL_MRF24J40__,$(EEOPT)) , __USE_MICO32BOARD_WIFICTRL_MRF24J40__)
-EE_SRCS += pkg/board/fpga_camera_mico32/src/ee_wifictrl_mrf24j40.c
+ifeq ($(findstring __USE_MICO32BOARD_ZIGBEE_MRF24J40__,$(EEOPT)) , __USE_MICO32BOARD_ZIGBEE_MRF24J40__)
+EE_SRCS += pkg/board/fpga_camera_mico32/src/ee_zigbee_mrf24j40.c
 endif
 
 endif #__LM32__

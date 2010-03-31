@@ -55,12 +55,12 @@
 #include "board/fpga_camera_mico32/inc/ee_camera_hv7131gp.h"
 #endif // __USE_MICO32BOARD_CAMERA__
 
-#ifdef __USE_MICO32BOARD_ETHCTRL_ENC28J60__
-#include "board/fpga_camera_mico32/inc/ee_ethctrl_enc28j60.h"
+#ifdef __USE_MICO32BOARD_ETHERNET_ENC28J60__
+#include "board/fpga_camera_mico32/inc/ee_ethernet_enc28j60.h"
 #endif // __USE_MICO32BOARD_ETHCTRL_ENC28J60__
 
-#ifdef __USE_MICO32BOARD_WIFICTRL_MRF24J40__
-#include "board/fpga_camera_mico32/inc/ee_wifictrl_mrf24j40.h"
+#ifdef __USE_MICO32BOARD_ZIGBEE_MRF24J40__
+#include "board/fpga_camera_mico32/inc/ee_zigbee_mrf24j40.h"
 #endif // __USE_MICO32BOARD_ETHCTRL_ENC28J60__
 
 /* ************************************************************************* */
