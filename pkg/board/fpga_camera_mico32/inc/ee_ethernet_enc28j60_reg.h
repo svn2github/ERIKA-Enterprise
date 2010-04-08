@@ -1,3 +1,11 @@
+/*
+  Name: ee_ethernet_enc28j60_reg.h 
+  Copyright: Evidence Srl
+  Author: Dario Di Stefano
+  Date: 29/03/10 18.28
+  Description: Ethernet library registers file for MICO32 CAMERA board
+*/
+
 #ifndef __ENC28J60_REG_H
 #define __ENC28J60_REG_H
 
@@ -69,6 +77,11 @@
 #define ENC28J60_WBM ((0x3<<5) | 0x1A)		// Write Buffer Memory command
 #define ENC28J60_SR  ((0x7<<5) | 0x1F)		// System Reset command does not use an address.
                                 			// It requires 0x1F, however.
+											
+#define ENC28J60_BANK0 0
+#define ENC28J60_BANK1 1
+#define ENC28J60_BANK2 2
+#define ENC28J60_BANK3 3
 
 /******************************************************************************
 * Register locations

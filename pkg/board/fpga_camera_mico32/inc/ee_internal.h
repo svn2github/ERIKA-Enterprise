@@ -44,3 +44,13 @@
  */
 
 //#include "board/fpga_camera_mico32/inc/ee_board.h"
+
+#ifndef __INCLUDE_FPGA_CAMERA_INTERNAL_H__
+#define __INCLUDE_FPGA_CAMERA_INTERNAL_H__
+
+// to do...
+
+#endif
+
+
+

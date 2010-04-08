@@ -54,6 +54,10 @@ endif
 
 ifeq ($(findstring __USE_MICO32BOARD_ZIGBEE_MRF24J40__,$(EEOPT)) , __USE_MICO32BOARD_ZIGBEE_MRF24J40__)
 EE_SRCS += pkg/board/fpga_camera_mico32/src/ee_zigbee_mrf24j40.c
+ifneq ($(findstring __LIB_MRF24J40__,$(LIB_OPT)),__LIB_MRF24J40__)
+EE_SRCS += contrib/drivers/radio/mrf24j40/src/mrf24j40.c
+EE_SRCS += contrib/drivers/radio/mrf24j40/src/mrf24j40_hal_ee_mico32.c
+endif
 endif
 
 endif #__LM32__

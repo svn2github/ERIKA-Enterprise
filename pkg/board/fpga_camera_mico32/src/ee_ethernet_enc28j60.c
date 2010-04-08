@@ -1,5 +1,9 @@
 /*
-	ETH library functions
+  Name: ee_ethernet_enc28j60.c
+  Copyright: Evidence Srl
+  Author: Dario Di Stefano
+  Date: 29/03/10 18.28
+  Description: Ethernet library for MICO32 CAMERA board
 */
 
 #ifdef __USE_MICO32BOARD_ETHERNET_ENC28J60__
@@ -8,6 +12,15 @@
 
 /* ---------------------- Global variables --------------------------------- */
 EE_ISR_callback ee_enc28j60_cbk;	// ISR ETHERNET callback function
+EE_UINT8 ee_enc28j60_isr_rxvet[EE_ENC28J60_BUFSIZE];
+EE_UINT8 ee_enc28j60_isr_txvet[EE_ENC28J60_BUFSIZE];  
+
+EE_enc28j60_st ee_enc28j60_st = {
+	.mode= 0/*EE_ENC28J60_RXTX_ISR*/, .base= (MicoGPIO_t* )MISC_GPIO_BASE_ADDRESS,
+	.irqf= MISC_GPIO_IRQ, .rxcbk= EE_NULL_CBK, .txcbk= EE_NULL_CBK,
+	.rxbuf.data= ee_enc28j60_isr_rxvet,.txbuf.data= ee_enc28j60_isr_txvet};
+	
+int ee_enc28j60_dummy_flag = 0;
 
 /* ---------------------- Ethernet interrupt handler ------------------------- */
 
@@ -296,16 +309,41 @@ int EE_enc28j60_software_reset(void)
 
 int EE_enc28j60_hardware_reset(void)
 {
-	int ret=0;
+	int ret = ENC28J60_SUCCESS;
 	
-	// to do...
+	EE_enc28j60_hold_in_reset();
+	EE_enc28j60_delay_us(2000);
+	EE_enc28j60_release_reset();
 	
 	return ret;
 }
 
+/*
+	int EE_enc28j60_enable(void);
+	This function enables device by reset pin. 
+*/
+int EE_enc28j60_enable(void)
+{
+	EE_enc28j60_release_reset();
+	//EE_enc28j60_delay_us(1000);
+	
+    return ENC28J60_SUCCESS;
+}
+
+/*
+	int EE_enc28j60_disable(void);
+	This function disables device by reset pin. 
+*/
+int EE_enc28j60_disable(void)
+{
+	EE_enc28j60_hold_in_reset();
+	
+    return ENC28J60_SUCCESS;
+}
+
 int EE_enc28j60_enable_IRQ(void)
 {
-	int ret=0;
+	int ret = ENC28J60_SUCCESS;
 	
 	// to do...
 	// gpio pin management...
@@ -315,7 +353,7 @@ int EE_enc28j60_enable_IRQ(void)
 
 int EE_enc28j60_disable_IRQ(void)
 {
-	int ret=0;
+	int ret = ENC28J60_SUCCESS;
 	
 	// to do...
 	// gpio pin management...
@@ -325,7 +363,7 @@ int EE_enc28j60_disable_IRQ(void)
 
 int EE_enc28j60_IRQ_enabled(void)
 {
-	int ret=0;
+	int ret = ENC28J60_SUCCESS;
 	
 	// to do...
 	// gpio pin management...

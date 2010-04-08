@@ -31,6 +31,8 @@ typedef struct {
 
 /* Macros for User functions (API) */  
 #define DECLARE_FUNC_RTC(uc, lc) \
+__INLINE__ int __ALWAYS_INLINE__  EE_rtc_config(int baudrate, int settings){ \
+	return cat3(EE_, lc, _config)(baudrate, settings); } \
 __INLINE__ int __ALWAYS_INLINE__  EE_rtc_start(void){ \
 	return cat3(EE_, lc, _send_byte)(RTC_DEVICE_ID, RTC_CSR_ADD, RTC_ON); } \
 __INLINE__ int __ALWAYS_INLINE__  EE_rtc_shutdown(void){ \
@@ -44,8 +46,6 @@ __INLINE__ int __ALWAYS_INLINE__  EE_rtc_read_byte(EE_UINT8 address){ \
 __INLINE__ int __ALWAYS_INLINE__  EE_rtc_read_buffer(EE_UINT8 address, EE_UINT8 *data, int len){ \
 	return cat3(EE_, lc, _receive_buffer)(RTC_DEVICE_ID, address, data, len); }
 	
-	
-
 //#ifdef __EE_PCF8583_USE_I2C1__
 //#ifdef __EE_PCF8583_USE_I2C2__
 //#error RTC cannot support both i2c controllers

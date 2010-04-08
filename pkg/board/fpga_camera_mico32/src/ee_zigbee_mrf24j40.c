@@ -11,17 +11,17 @@
 #include "board/fpga_camera_mico32/inc/ee_zigbee_mrf24j40.h"
 #include "contrib/drivers/radio/mrf24j40/inc/mrf24j40_hal.h"
 
-int to_remove;
-
 /* ---------------------- Global variables --------------------------------- */
 EE_ISR_callback ee_mrf24j40_cbk;	// ISR ethctrl callback function
 EE_UINT8 ee_mrf24j40_isr_rxvet[EE_MRF24J40_BUFSIZE];
 EE_UINT8 ee_mrf24j40_isr_txvet[EE_MRF24J40_BUFSIZE];  
 
 EE_mrf24j40_st ee_mrf24j40_st = {
-	.mode= EE_MRF24J40_RXTX_ISR, .base= 0,//(MicoGPIO_t* )MISC_GPIO_BASE_ADDRESS,
-	.irqf= 0/*MISC_GPIO_IRQ*/, .rxcbk= EE_NULL_CBK, .txcbk= EE_NULL_CBK,
+	.mode= EE_MRF24J40_RXTX_ISR, .base= (MicoGPIO_t* )MISC_GPIO_BASE_ADDRESS,
+	.irqf= MISC_GPIO_IRQ, .rxcbk= EE_NULL_CBK, .txcbk= EE_NULL_CBK,
 	.rxbuf.data= ee_mrf24j40_isr_rxvet,.txbuf.data= ee_mrf24j40_isr_txvet};
+	
+int ee_mrf24j40_dummy_flag = 0;
 
 /* ---------------------- Ethernet interrupt handler ------------------------- */
 
@@ -283,10 +283,9 @@ int EE_mrf24j40_IRQ_enabled(void)
 */
 int EE_mrf24j40_enable(void)
 {
-    // to do...
-	EE_MRF24J40_RESET = 1;
+	EE_mrf24j40_release_reset()	;
 	EE_mrf24j40_delay_us(1000);
-    return 0;
+    return MRF24J40_SUCCESS;
 }
 
 /*
@@ -295,9 +294,9 @@ int EE_mrf24j40_enable(void)
 */
 int EE_mrf24j40_disable(void)
 {
-    EE_MRF24J40_RESET = 0;
+	EE_mrf24j40_hold_in_reset();
 	
-    return 0;
+    return MRF24J40_SUCCESS;
 }
 
 #endif // #ifdef __USE_MICO32BOARD_ZIGBEE_MRF24J40__
