@@ -99,7 +99,7 @@ static void (* on_beacon_callback)(void) = NULL;
 
 //Variable for associtae request at the device, to resend association req.
 extern int16_t associate_ack_counter;
-extern struct uwl_mac_frame_t ass_req_ack_wait;
+//extern struct uwl_mac_frame_t ass_req_ack_wait;
 /******************************************************************************/
 /*                      MAC Genaral Private Functions                         */
 /******************************************************************************/
@@ -233,8 +233,6 @@ COMPILER_INLINE void stop_previous_cfp(void)
 	uwl_kal_cancel_activation(MAC_GTS_SEND); /* TODO: has effect? */
 }
 
-
-
 /******************************************************************************/
 /*                      MAC CAP and CFP Management Functions                  */
 /******************************************************************************/
@@ -259,7 +257,8 @@ static void csma_perform_slotted(void)
 		cap_available_bytes -= btick_bytes;
 	}
 	if (csma_params.state == CSMA_STATE_INIT) {
-		if (cqueue_is_empty(&uwl_mac_queue_cap) && uwl_mac_data_req.data_req == 0)
+		if (cqueue_is_empty(&uwl_mac_queue_cap) &&
+				uwl_mac_data_req.data_req == 0)
 			return;
 		csma_init();
 		csma_set_delay();
@@ -638,31 +637,48 @@ static void before_timeslot_start(void)
 	*/
 }
 
+#ifndef UWL_NO_DYN_ASS
 static void perform_associate_request_ack_check(void){
 
-	static uint8_t associate_req_attempts = 0;
+	static uint8_t associate_req_attempts = 1;
 
-	/* FIXME: Work-around usato per aumentare l'attesa dell'arrivo dell'ack in associazione
-	 * . Un ack al momento impiega circa 1.1 ms, il limite max è di circa 860 us per cui
-	 * sfora. Due possibilità:
-	 * - ack più veloce spostandolo a livello fisico
-	 * - farlo in hardware.
-	 */
+/* FIXME: Work-around usato per aumentare l'attesa dell'arrivo dell'ack in
+ * associazione. Un ack al momento impiega circa 1.1 ms, il limite max è
+ * di circa 860 us per cui sfora. Due possibilità:
+ * - ack più veloce spostandolo a livello fisico
+ * - farlo in hardware.
+ */
+
 	if(associate_ack_counter > 0){
 		associate_ack_counter+= 1; //20 valore corretto
 
-		if(associate_ack_counter >= uwl_mac_pib.macAckWaitDuration && associate_req_attempts < uwl_mac_pib.macMaxFrameRetries){
-			uwl_radio_phy_send_now(ass_req_ack_wait.mpdu, ass_req_ack_wait.mpdu_size);
+		if(associate_ack_counter >= uwl_mac_pib.macAckWaitDuration &&
+				associate_req_attempts < uwl_mac_pib.macMaxFrameRetries){
+
+/* The retransmitted frame not contain the same DSN!!!
+ *
+ * Standard 802.15.4 - 7.5.6.4.2
+ * "The retransmitted frame shall contain the same DSN as was used in
+ * the original transmission..."
+ */
+			uwl_mac_association_request_cmd(UWL_MAC_ADDRESS_SHORT,
+					uwl_mac_pib.macPANId,
+					(void *)&uwl_mac_pib.macCoordShortAddress,
+					uwl_mac_associate_retry.capability);
+
 			associate_ack_counter = 1;
 			associate_req_attempts++;
 		}
 	}
-
 }
+#endif
 
 static void on_backoff_period_start(void)
 {
+#ifndef UWL_NO_DYN_ASS
 	perform_associate_request_ack_check();
+#endif
+
 	if (csma_params.slotted)
 		csma_perform_slotted();
 	else
@@ -917,4 +933,3 @@ int8_t uwl_mac_set_on_beacon_callback(void (* func)(void))
 	return -UWL_MAC_ERR_SUPERFRAME_CALLBACKS_DISABLED;
 	#endif
 }
-

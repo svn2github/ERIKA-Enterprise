@@ -47,10 +47,16 @@ static void (* on_rx_beacon_callback)(void) = NULL;
 /******************************************************************************/
 /*                          MAC Layer Public Data                             */
 /******************************************************************************/
-struct uwl_mac_flags_t uwl_mac_status = { .mac_initialized = 0,
-		.is_pan_coordinator = 0, .is_coordinator = 0,
-		.is_associated = 0, .beacon_enabled = 0, .track_beacon = 0,
-		.sf_context = 0, .count_beacon_lost = 0, .sf_initialized = 0,
+struct uwl_mac_flags_t uwl_mac_status = {
+		.mac_initialized = 0,
+		.is_pan_coordinator = 0,
+		.is_coordinator = 0,
+		.is_associated = 0,
+		.beacon_enabled = 0,
+		.track_beacon = 0,
+		.sf_context = 0,
+		.count_beacon_lost = 0,
+		.sf_initialized = 0,
 		.has_rx_beacon = 0 };
 struct uwl_mac_pib_t uwl_mac_pib /*= {
  TODO: set a default values as already done for the phy_pib!
@@ -64,8 +70,11 @@ struct uwl_mac_gts_stat_t
 				.rx_start_tslot = UWL_MAC_SUPERFRAME_FIRST_SLOT,
 				.rx_length = 0 };
 
-struct uwl_mac_data_request_info uwl_mac_data_req = { .data_req = 0,
-		.addr_pan = 0, .addr_dev[0] = 0, .addr_dev[1] = 0 };
+struct uwl_mac_data_request_info uwl_mac_data_req = {
+		.data_req = 0,
+		.addr_pan = 0,
+		.addr_dev[0] = 0,
+		.addr_dev[1] = 0 };
 
 CQUEUE_DEFINE( uwl_mac_queue_cap, struct uwl_mac_frame_t,
 		UWL_MAC_CAP_QUEUE_SIZE, COMPILER_ATTRIBUTE_FAR);
@@ -1042,7 +1051,6 @@ void uwl_mac_association_request_cmd(enum uwl_mac_addr_mode_t dst_mode,
 			+ UWL_MAC_CAPABILITY_INFORMATION_SIZE/* +
 	 sizeof(uint16_t) */;
 
-	memcpy(&ass_req_ack_wait, cmd_ass_req, sizeof(struct uwl_mac_frame_t));
 	wait_ack = 1;
 	association_status = 1;
 
@@ -1247,4 +1255,3 @@ void uwl_mac_parse_received_mpdu(uint8_t *psdu, uint8_t len)
 		break;
 	}
 }
-
