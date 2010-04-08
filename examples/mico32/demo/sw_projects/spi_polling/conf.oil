@@ -1,0 +1,61 @@
+//	UART POLLING TEST
+
+CPU test_application {
+
+	OS EE {		
+		EE_OPT = "DEBUG_STACK";
+		EE_OPT = "__USE_UART__";
+		EE_OPT = "__USE_SPI__";
+		EE_OPT = "__USE_TIMER__";
+		
+		CFLAGS = "-g2";
+		ASFLAGS = "";
+		LDFLAGS = ""; 
+
+		CPU_DATA = LM32 {
+			APP_SRC = "main.c";
+			MULTI_STACK = TRUE;
+			USESTANDALONEPRINTF = TRUE; // Optional, default is FALSE
+			USESMALLC = FALSE; // Optional, defautl is FALSE
+		};
+		
+
+		MCU_DATA = LATTICE_PLATFORM {
+   			MODEL = LIBRARY {
+				PLATFORM_LIB_PATH = "../spi_lib";
+				PLATFORM_NAME = "spi_platform";
+				PLATFORM_BLD_CFG = "Release"; // Optional, default is ""
+   			};
+  		};
+
+		STATUS = EXTENDED;
+		STARTUPHOOK = FALSE;
+		ERRORHOOK = FALSE;
+		SHUTDOWNHOOK = FALSE;
+		PRETASKHOOK = FALSE;
+		POSTTASKHOOK = FALSE;
+		USEGETSERVICEID = FALSE;
+		USEPARAMETERACCESS = FALSE;
+		USERESSCHEDULER = FALSE;
+		
+    };
+    
+    /* this is the OIL part for the first task */
+    TASK Task1 {
+		PRIORITY = 0x01;   /* Low priority */
+		AUTOSTART = FALSE;
+		STACK = PRIVATE {
+			SYS_SIZE = 512;
+		};
+		ACTIVATION = 1;    /* only one pending activation */
+	};	
+
+    OS EE { KERNEL_TYPE = FP; }; 	
+    
+    COUNTER system_counter;
+
+ 	ALARM task1_alarm {
+  		COUNTER = "system_counter";
+    	ACTION = ACTIVATETASK { TASK = "Task1"; };
+    };
+};
