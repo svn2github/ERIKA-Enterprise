@@ -139,7 +139,7 @@ int EE_hal_uart_config(EE_uart_st* usp, int baudrate, int settings)
 }
 
 /* This function sets UART operating mode */
-int EE_hal_uart_set_mode(EE_uart_st* usp, int mode)
+int EE_hal_uart_set_ISR_mode(EE_uart_st* usp, int mode)
 {
 	int old_mode;
 	unsigned int intst;

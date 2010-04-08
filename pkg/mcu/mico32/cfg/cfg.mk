@@ -65,6 +65,10 @@ EE_SRCS += pkg/mcu/mico32/src/ee_i2c.c
 MCU_BUF = YES
 endif
 
+ifeq ($(findstring __USE_GPIO__,$(EEOPT)) , __USE_GPIO__)
+EE_SRCS += pkg/mcu/mico32/src/ee_gpio.c
+endif
+
 ifeq ($(MCU_BUF), YES)
 EE_SRCS += pkg/mcu/mico32/src/ee_buffer.c
 endif

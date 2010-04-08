@@ -1,5 +1,9 @@
 /*
-* ee_spi.h
+  Name: ee_spi.h
+  Copyright: Evidence Srl
+  Author: Dario Di Stefano
+  Date: 29/03/10 18.23
+  Description: SPI library.
 */
 
 #ifndef __INCLUDE_EEMCUMICO32_SPI_H__

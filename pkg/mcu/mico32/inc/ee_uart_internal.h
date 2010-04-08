@@ -110,7 +110,7 @@ int EE_hal_uart_config(EE_uart_st* usp, int baudrate, int setttings);					//1
 
 
 /*
-	int EE_hal_uart_set_mode(EE_uart_st* usp, int mode);	
+	int EE_hal_uart_set_ISR_mode(EE_uart_st* usp, int mode);	
 		This function is used to change UART operating mode. 
 		Arguments:
 			- EE_uart_st* usp: UART structure pointer
@@ -123,7 +123,7 @@ int EE_hal_uart_config(EE_uart_st* usp, int baudrate, int setttings);					//1
 			- the function return the result:   EE_UART_OK if no errors found
 												EE_UART_ERR_BAD_VALUE if bad argument passed 
 */
-int EE_hal_uart_set_mode(EE_uart_st* usp, int mode);								//2
+int EE_hal_uart_set_ISR_mode(EE_uart_st* usp, int mode);								//2
 
 
 /*
@@ -298,8 +298,8 @@ EE_UINT8 EE_VETTX_NAME(lc)[EE_UART_BUFSIZE];
 #define DECLARE_FUNC_UART(uc, lc) \
 __INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _config)(int baudrate,int settings){ \
 	return EE_hal_uart_config(& EE_ST_NAME(lc), baudrate, settings); } \
-__INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _set_mode)(int mode){ \
-	return EE_hal_uart_set_mode(& EE_ST_NAME(lc), mode); } \
+__INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _set_ISR_mode)(int mode){ \
+	return EE_hal_uart_set_ISR_mode(& EE_ST_NAME(lc), mode); } \
 __INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _set_rx_ISR_callback)(EE_ISR_callback rxcbk){ \
 	return EE_hal_uart_set_rx_callback(& EE_ST_NAME(lc), rxcbk); } \
 __INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _set_tx_ISR_callback)(EE_ISR_callback txcbk){ \

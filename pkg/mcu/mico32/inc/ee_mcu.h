@@ -63,6 +63,10 @@
 #include "mcu/mico32/inc/ee_timer.h"
 #endif
 
+#ifdef __USE_GPIO__
+#include "mcu/mico32/inc/ee_gpio.h"
+#endif
+
 /*
  * TODO!!! - Time handling on the PIC32.
  */

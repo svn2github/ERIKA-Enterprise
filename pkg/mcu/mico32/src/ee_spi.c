@@ -1,5 +1,9 @@
-/** 
-* ee_spi.c
+/*
+  Name: ee_spi.c
+  Copyright: Evidence Srl
+  Author: Dario Di Stefano
+  Date: 29/03/10 18.23
+  Description: SPI library.
 */
 
 #include "mcu/mico32/inc/ee_spi.h"
@@ -106,7 +110,7 @@ int EE_hal_spi_write_buffer_polling(MicoSPI_t* spic, EE_UINT8* data, int len)
 	int i;
 	int ret;
 	EE_UINT8 rx_dummy = 0;
-	
+			
 	// EE_hal_spi_set_slave(spic, device);		
 	// EE_spi_set_SSO(spic->control);
 	for(i=0; i<len; i++)
@@ -126,7 +130,7 @@ int EE_hal_spi_read_buffer_polling(MicoSPI_t* spic, EE_UINT8* data, int len)
 {
 	int i;
 	int ret;
-	EE_UINT8 tx_dummy = 0xFF;
+	EE_UINT8 tx_dummy = 0x00;
 	
 	// EE_hal_spi_set_slave(spic, device);		
 	// EE_spi_set_SSO(spic->control);

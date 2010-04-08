@@ -48,7 +48,6 @@
  */
 
 #if defined(__FRSH__)
-
 /* This function set the capacity timer to raise in t ticks. */
 void EE_hal_set_budget_timer(EE_STIME t);
 
@@ -56,7 +55,6 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_stop_budget_timer(void)
 {
   // TODO!!!
 }
-
 #endif  /* __FRSH__ */
 
 /* Macro utils */
@@ -70,5 +68,6 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_stop_budget_timer(void)
 #define EE_VETRX_NAME(lc) cat3(ee_, lc, _isr_rxvet)
 #define EE_VETTX_NAME(lc) cat3(ee_, lc, _isr_txvet)
 #define EE_IRQ_NAME(uc) cat2(uc, _IRQ)
+
 
 #endif /* __INCLUDE_MCUMICO32_INTERNAL_H__ */
