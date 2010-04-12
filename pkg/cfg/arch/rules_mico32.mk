@@ -118,7 +118,7 @@ TARGET= $(OUTPUT_DIR)/dump.txt
 
 OBJDIRS=$(sort $(dir $(OBJS)) $(dir $(LIBEEOBJS)))
 
-INCLUDE_PATH = $(PKGBASE) $(APPBASE) $(OUTPUT_DIR) $(PLATFORM_LIB_PATH)/$(PLATFORM_NAME)
+INCLUDE_PATH += $(PKGBASE) $(APPBASE) $(OUTPUT_DIR) $(PLATFORM_LIB_PATH)/$(PLATFORM_NAME)
 # ALLINCPATH includes the '-I' or '-i' flag, which depends on the compiler
 
 # APPBASE is the current directory: not needed
