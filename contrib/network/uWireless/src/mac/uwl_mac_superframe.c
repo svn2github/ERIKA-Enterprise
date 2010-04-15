@@ -280,7 +280,7 @@ static void csma_perform_slotted(void)
 				if (!csma_check_available_cap(frame->mpdu_size, tmp)) {
 					csma_set_delay();
 					csma_params.state = CSMA_STATE_DELAY;
-					uwl_debug_print("D->D");
+					//uwl_debug_print("D->D");
 					return;
 				}
 			} else if (uwl_mac_data_req.data_req == 0) {
@@ -319,7 +319,7 @@ static void csma_perform_slotted(void)
 			return;
 
 		if (uwl_mac_data_req.data_req == 1) {
-			uwl_debug_print("in the if uwl_mac_data_req.data_req == 1");
+			
 			/* we need to find the requested frame, so we check if
 			 * the destination addresses are the same of the
 			 * requester */
@@ -372,6 +372,107 @@ static void csma_perform_slotted(void)
 static void csma_perform_unslotted(void)
 {
 	/*TODO: implement the unslotted version!! */
+
+	int8_t tmp;
+	uint32_t dst_addr1;
+	uint32_t dst_addr2;
+	uint8_t pointer;
+	uint16_t dst_pan_addr;
+	struct uwl_mac_frame_t *frame;
+
+	if (csma_params.state == CSMA_STATE_INIT) {
+		if (cqueue_is_empty(&uwl_mac_queue_cap) &&
+				uwl_mac_data_req.data_req == 0)
+			return;
+		csma_init();
+		csma_set_delay();
+		csma_params.state = CSMA_STATE_DELAY;
+		//uwl_debug_print("I->D");
+		return;
+	}
+	if (csma_params.state == CSMA_STATE_DELAY) {
+		if (csma_delay_counter-- == 0) {
+			uwl_kal_mutex_wait(MAC_SEND_MUTEX);
+			frame = (struct uwl_mac_frame_t*)
+					cqueue_first(&uwl_mac_queue_cap);
+			uwl_kal_mutex_signal(MAC_SEND_MUTEX);
+			/* Something must be there, check again? */
+			/* if (!frame) ERRORE!!!!!*/
+			if (!frame && uwl_mac_data_req.data_req == 0) {
+				// FIXME: return error!!!
+				return;
+			}
+			csma_params.state = CSMA_STATE_CCA;
+		}
+	}
+	if (csma_params.state == CSMA_STATE_CCA) {
+		if (!uwl_radio_get_cca()) {
+			if (csma_params.NB > uwl_mac_pib.macMaxCSMABackoffs) {
+				/* TODO: CSMA Failure status!!
+				Notify with confirm primitive!!!!
+				 */
+				frame = (struct uwl_mac_frame_t *)
+								 cqueue_pop(&uwl_mac_queue_cap);
+				uwl_MCPS_DATA_confirm(frame->msdu_handle,
+						UWL_MAC_CHANNEL_ACCESS_FAILURE, 0);
+				csma_params.state = CSMA_STATE_INIT;
+				//uwl_debug_print("C->I fail");
+				return;
+			}
+			csma_params.NB++;
+			if (csma_params.BE < uwl_mac_pib.macMaxBE)
+				csma_params.BE++;
+			csma_set_delay();
+			csma_params.state = CSMA_STATE_DELAY;
+			//uwl_debug_print("C->D");
+			return;
+		}
+
+		if (uwl_mac_data_req.data_req == 1) {
+			/* we need to find the requested frame, so we check if
+			 * the destination addresses are the same of the
+			 * requester */
+			frame = (struct uwl_mac_frame_t*)list_iter_front(&uwl_mac_list_ind);
+			memcpy(&dst_pan_addr, &frame->mpdu[3], 2);
+			memcpy(&dst_addr1, &frame->mpdu[5], 4);
+			memcpy(&dst_addr2, &frame->mpdu[9], 4);
+			pointer = 0;
+			while(dst_addr1 != uwl_mac_data_req.addr_dev[0] &&
+					dst_addr2 != uwl_mac_data_req.addr_dev[1] &&
+					dst_pan_addr != uwl_mac_data_req.addr_pan) {
+				frame = (struct uwl_mac_frame_t*)
+						list_iter_next(&uwl_mac_list_ind);
+				pointer++;
+				memcpy(&dst_pan_addr, &frame->mpdu[3], 2);
+				memcpy(&dst_addr1, &frame->mpdu[5], 4);
+				memcpy(&dst_addr2, &frame->mpdu[9], 4);
+			}
+			/* we already have the frame in the variable frame, so
+			 * we delete it from the list */
+			list_extract(&uwl_mac_list_ind, pointer);
+			uwl_mac_data_req.data_req = 0;
+
+		} else
+				frame = (struct uwl_mac_frame_t*)cqueue_pop(&uwl_mac_queue_cap);
+
+		/* Something must be there, check again? */
+		/* if (!frame) ERRORE!!!!!*/
+
+		if(frame != 0){
+			tmp = uwl_radio_phy_send_now(frame->mpdu, frame->mpdu_size);
+			if (tmp == UWL_RADIO_ERR_NONE)
+				uwl_MCPS_DATA_confirm(frame->msdu_handle,
+							  UWL_MAC_SUCCESS, 0);
+			else
+			/* TODO: we have to choose a well formed reply
+				 for the indication primitive (status=??) */
+				uwl_MCPS_DATA_confirm(frame->msdu_handle,
+							  UWL_MAC_CHANNEL_ACCESS_FAILURE,0);
+		}
+		csma_params.state = CSMA_STATE_INIT;
+		//uwl_debug_print("C->I succ");
+	}
+
 }
 
 static void cfp_perform_coordinator(void)
@@ -780,6 +881,25 @@ int8_t uwl_mac_superframe_init(void)
 	btick_bytes = bticks_to_bytes(1);
 //TRISEbits.TRISE0 = 0;
 //LATEbits.LATE0 = 0;
+	return 1;
+}
+
+int8_t uwl_mac_csma_unslotted_init(void) {
+	int8_t retv = 1;
+	retv = uwl_kal_init(320); /* TODO: this comes from the PHY, because
+	it's just the duration of the aUnitBackoffPeriod = 20 symbols so...
+	backoff_period = aUnitBackoffPeriod x bit_per_symbols / bandwidth
+		       = 20 x 4bits / 250000 bps = 320 microseconds .
+	How can we make this general? Where can this change? When? */
+	if (retv < 0)
+		return retv;
+	retv = uwl_kal_set_body(MAC_BACKOFF_PERIOD, on_backoff_period_start);
+	if (retv < 0)
+		return retv;
+	uwl_kal_set_activation(MAC_BACKOFF_PERIOD, 0, 10);
+	csma_params.state = CSMA_STATE_INIT;
+	csma_params.slotted = 0;
+	uwl_radio_phy_set_rx_on(); /*TODO:Raise error if < 0 */
 	return 1;
 }
 

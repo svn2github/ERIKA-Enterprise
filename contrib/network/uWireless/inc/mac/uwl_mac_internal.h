@@ -125,6 +125,7 @@ COMPILER_INLINE uint8_t uwl_mac_gts_get_cap_size(void)
 
 
 int8_t uwl_mac_superframe_init(void);
+int8_t uwl_mac_csma_unslotted_init(void);
 void uwl_mac_superframe_start(uint32_t offset);
 void uwl_mac_superframe_stop(void);
 void uwl_mac_superframe_resync(void);

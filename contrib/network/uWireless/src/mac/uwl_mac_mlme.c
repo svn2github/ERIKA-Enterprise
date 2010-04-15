@@ -74,9 +74,10 @@ int8_t uwl_MLME_ASSOCIATE_request(uint8_t LogicalChannel, uint8_t ChannelPage,
 	associate_ack_counter = 1;
 	/* TODO: current dummy: assoctiation succes, and give hardcoded addr */
 	uwl_mac_status.track_beacon = 1;
+#ifndef CSMA_UNSLOTTED
 	uwl_mac_superframe_stop();
 	uwl_mac_superframe_start(0);
-
+#endif
 	//TODO: remove, make this with std
 #ifdef UWL_NO_DYN_ASS
 	uwl_MLME_ASSOCIATE_confirm(0, UWL_MAC_SUCCESS,
@@ -162,10 +163,17 @@ int8_t uwl_MLME_START_request(uint16_t PANId, uint8_t LogicalChannel,
 		return -UWL_MAC_ERR_STANDARD_UNSUPPORTED;
 	} else {
 		if (BeaconOrder == 15) {
-			return -UWL_MAC_ERR_STANDARD_UNSUPPORTED;
+			//return -UWL_MAC_ERR_STANDARD_UNSUPPORTED;
 			/* TODO: non beacon enabled mode!  */
 			uwl_mac_pib.macSuperframeOrder = 15;
 			uwl_mac_status.beacon_enabled = 0;
+			uwl_mac_pib.macPANId = PANId;
+			uwl_mac_pib.macBattLifeExt = BatteryLifeExtension;
+			if (uwl_radio_phy_set_channel(LogicalChannel) < 0)
+				return UWL_MAC_ERR_PHY_FAILURE;
+			/* TODO: how can I check the confirm primitive???
+				 we may use a polling on a global flag. */
+			/* TODO:use the PHY_set primitives to set ChannelPage!*/
 		} else {
 			if (!uwl_mac_status.sf_initialized)
 				return -UWL_MAC_ERR_SF_NOT_INITIALIZED;
@@ -186,9 +194,11 @@ int8_t uwl_MLME_START_request(uint16_t PANId, uint8_t LogicalChannel,
 		/* TODO: security levels management! */
 	}
 	if (uwl_mac_status.is_pan_coordinator == 1 || StartTime == 0) {
+#ifndef CSMA_UNSLOTTED
 		uwl_mac_superframe_stop();
 		//uwl_mac_superframe_start(1000);
 		uwl_mac_superframe_start(0);
+#endif
 	} else {
 		return -UWL_MAC_ERR_STANDARD_UNSUPPORTED;
 		/* TODO: Start Time > 0 management for nonPANCoord case ! */

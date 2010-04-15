@@ -661,12 +661,19 @@ int8_t uwl_mac_init(void)
 	retv = init_rx_tasks();
 	if (retv < 0)
 		return retv;
+#ifdef CSMA_UNSLOTTED
+
+	retv = uwl_mac_csma_unslotted_init();
+	if (retv < 0)
+		return retv;
+#else
 	retv = uwl_mac_superframe_init();
 	if (retv < 0)
 		return retv;
 	retv = uwl_mac_gts_init();
 	if (retv < 0)
 		return retv;
+#endif
 	//return -UWL_MAC_INIT_ERROR;
 	uwl_mac_status.mac_initialized = 1;
 	return 1;
