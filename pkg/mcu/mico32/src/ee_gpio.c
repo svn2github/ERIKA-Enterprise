@@ -56,7 +56,7 @@ void EE_gpio_common_handler(int level)
 	/* Call user callback */
 	if( gpio_sp->cbk != EE_NULL_CBK )
 		gpio_sp->cbk();
-	
+
 	return;	
 }
 

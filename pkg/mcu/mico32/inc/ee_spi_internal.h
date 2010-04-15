@@ -327,7 +327,7 @@ __INLINE__ EE_spi_st * __ALWAYS_INLINE__ EE_get_spi_st_from_level(int level)
 	
 int EE_hal_spi_config(MicoSPI_t* spic, int settings);
 
-int EE_hal_spi_set_ISR_mode(MicoSPI_t* spic, int mode);
+int EE_hal_spi_set_ISR_mode(MicoSPI_t* spic, int irqf, int mode);
 	
 /* This function is used to turn off spi controller */
 __INLINE__ int __ALWAYS_INLINE__ EE_hal_spi_enable(MicoSPI_t* spic)
@@ -349,7 +349,7 @@ __INLINE__ int __ALWAYS_INLINE__ EE_hal_spi_disable(MicoSPI_t* spic)
 __INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _config)(int settings){ \
 	return EE_hal_spi_config((MicoSPI_t*)EE_BASE_ADD(uc), settings); } \
 __INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _set_ISR_mode)(int mode){ \
-	return EE_hal_spi_set_ISR_mode((MicoSPI_t*)EE_BASE_ADD(uc), mode); } \
+	return EE_hal_spi_set_ISR_mode((MicoSPI_t*)EE_BASE_ADD(uc), EE_IRQ_NAME(uc), mode); } \
 __INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _send_byte)(EE_UINT8 data){ \
 	return EE_hal_spi_write_byte_polling((MicoSPI_t*)EE_BASE_ADD(uc), data); } \
 __INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _receive_byte)(void){ \

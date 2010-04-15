@@ -210,11 +210,12 @@ int EE_hal_spi_config(MicoSPI_t* spic, int settings)
 	return EE_SPI_OK;
 }
 
-int EE_hal_spi_set_ISR_mode(MicoSPI_t* spic, int mode)
+int EE_hal_spi_set_ISR_mode(MicoSPI_t* spic, int irqf, int mode)
 {
 	int ret = EE_SPI_OK;
 	
-	// to do...
+	mico32_disable_irq(irqf);
+	// with mode you can choose blocking or non-blocking mode...
 	
 	return ret;
 }

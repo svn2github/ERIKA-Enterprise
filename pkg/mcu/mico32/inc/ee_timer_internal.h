@@ -49,10 +49,11 @@ __INLINE__ int __ALWAYS_INLINE__  EE_hal_timer_start(MicoTimer_t* base)
 __INLINE__ int __ALWAYS_INLINE__  EE_hal_timer_stop(MicoTimer_t* base)
 {
 	base->Control |= MICO32_TIMER_CONTROL_STOP_BIT_MASK; 
+	base->Status = 0;
 	return EE_TIMER_OK;
 }
 
-__INLINE__ int __ALWAYS_INLINE__  EE_hal_timer_get_val(MicoTimer_t* base, unsigned int *val)
+__INLINE__ int __ALWAYS_INLINE__  EE_hal_timer_get_val(MicoTimer_t* base, EE_UINT32 *val)
 {
 	*val = base->Snapshot;
 	return EE_TIMER_OK;
@@ -85,7 +86,7 @@ __INLINE__ int __ALWAYS_INLINE__  cat3(EE_, lc, _off)(void){ \
 	return EE_hal_timer_stop((MicoTimer_t*)EE_BASE_ADD(uc)); } \
 __INLINE__ int __ALWAYS_INLINE__  cat3(EE_, lc, _set_ISR_callback)(EE_ISR_callback cbk){ \
 	return EE_hal_timer_set_callback(& EE_ST_NAME(lc), cbk); } \
-__INLINE__ int __ALWAYS_INLINE__  cat3(EE_, lc, _get_value)(unsigned int *val){ \
+__INLINE__ int __ALWAYS_INLINE__  cat3(EE_, lc, _get_value)(EE_UINT32 *val){ \
 	return EE_hal_timer_get_val((MicoTimer_t*)EE_BASE_ADD(uc), val); } \
 __INLINE__ int __ALWAYS_INLINE__  cat3(EE_, lc, _enable_IRQ)(void){ \
 	return EE_hal_timer_enable_IRQ((MicoTimer_t*)EE_BASE_ADD(uc)); } \
@@ -167,7 +168,6 @@ DECLARE_FUNC_TIMER(EE_TIMER4_NAME_UC, EE_TIMER4_NAME_LC)
 #define EE_mchp_timer_stop(uc) EE_hal_timer_stop((MicoTimer_t*)EE_BASE_ADD(uc))
 #define EE_mchp_timer_set_callback(lc, cbk) EE_hal_timer_set_callback(& EE_ST_NAME(lc), cbk)
 #define EE_mchp_timer_get_val(uc, va) EE_hal_timer_get_val((MicoTimer_t*)EE_BASE_ADD(uc), va)
-#define EE_timer_soft_init(a, b, c) EE_timer_hard_init(a, b, c)
 
 __INLINE__ EE_INT8 __ALWAYS_INLINE__ EE_timer_hard_init(EE_UINT8 id, EE_UINT16 period, EE_UINT8 prescale)
 {
@@ -183,6 +183,26 @@ __INLINE__ EE_INT8 __ALWAYS_INLINE__ EE_timer_hard_init(EE_UINT8 id, EE_UINT16 p
 		ret = EE_mchp_timer_init(EE_TIMER1_NAME_LC, period, prescale);
 		#else	
 		ret = EE_mchp_timer_init(EE_TIMER2_NAME_LC, period, prescale);
+		#endif
+	#endif
+	
+	return ret;
+}
+
+__INLINE__ EE_INT8 __ALWAYS_INLINE__ EE_timer_soft_init(EE_UINT8 id, EE_UINT32 period_us, EE_UINT32 f_tick)
+{
+	EE_INT8 ret;
+	
+	#if defined(EE_TIMER1_NAME_LC) && defined(EE_TIMER2_NAME_LC)
+	if(id==1)
+		ret = EE_mchp_timer_init(EE_TIMER1_NAME_LC, period_us, f_tick);
+	else 
+		ret = EE_mchp_timer_init(EE_TIMER2_NAME_LC, period_us, f_tick);
+	#else
+		#if defined(EE_UART1_NAME_LC)
+		ret = EE_mchp_timer_init(EE_TIMER1_NAME_LC, period_us, f_tick);
+		#else	
+		ret = EE_mchp_timer_init(EE_TIMER2_NAME_LC, period_us, f_tick);
 		#endif
 	#endif
 	
