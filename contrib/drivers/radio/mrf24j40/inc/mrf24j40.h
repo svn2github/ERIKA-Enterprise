@@ -28,7 +28,6 @@ void mrf24j40_enable_carrier_sense();
 #define MRF24J40_BUFFER_SIZE 127
 
 #ifdef MRF24J40_DEBUG
-
 //#include <stdio.h>
 #include "console_serial.h"
 #define DEBUG_PORT 0

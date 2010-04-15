@@ -25,6 +25,10 @@ ifeq ($(findstring __AVR5__,$(EEOPT)) , __AVR5__)
 EE_SRCS += contrib/console/src/hal/avr5.c
 endif
 
+ifeq ($(findstring __LM32__,$(EEOPT)) , __LM32__)
+EE_SRCS += contrib/console/src/hal/mico32.c
+endif
+
 ifeq ($(findstring __HCS12XS__,$(EEOPT)) , __HCS12XS__)
 ifeq ($(findstring __MC9S12XS128__,$(EEOPT)) , __MC9S12XS128__)
 ALLINCPATH += -i"$(shell cygpath -w $(EEBASE)/contrib/console/inc)"

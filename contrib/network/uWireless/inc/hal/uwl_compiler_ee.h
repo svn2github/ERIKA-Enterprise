@@ -48,6 +48,14 @@ typedef EE_INT32 int32_t;	/**< Unsigned 32 bit intgerer. */
 #define COMPILER_INLINE __INLINE__
 #endif
 
+#ifndef COMPILER_ATTRIBUTE_FAR
+#if (defined(__PIC30__))
+#define COMPILER_ATTRIBUTE_FAR __attribute__((far))
+#else
+#define COMPILER_ATTRIBUTE_FAR
+#endif
+#endif
+
 #ifndef COMPILER_ISR
 #if (defined(__PIC30__) || defined(__PIC32__))
 #define COMPILER_ISR(func) ISR2(func)

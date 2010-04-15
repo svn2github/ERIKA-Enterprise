@@ -69,7 +69,7 @@ int8_t	mrf24j40_spi_write(uint8_t *data, uint16_t len)
 	return 1;
 }
 
-int8_t	mrf24j40_spi_read(uint8_t *data, uint16_t len);
+int8_t	mrf24j40_spi_read(uint8_t *data, uint16_t len)
 {
 	uint16_t i;
 

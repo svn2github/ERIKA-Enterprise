@@ -33,15 +33,21 @@ ifneq ($(EE_SRCS_MEMORY),)
 EE_OBJS_MEMORY := $(addprefix $(OBJDIR)/, $(patsubst %.c,%.o,$(patsubst %.S,%.o, $(EE_SRCS_MEMORY))))
 LIBSRCS += $(EE_SRCS_MEMORY)
 
+ifneq ($(findstring __LM32__,$(EEOPT)), __LM32__) 
 libmemory.a: $(EE_OBJS_MEMORY)
 	@echo $(EE_SRC_MEMORY)
 	@printf "AR  libmemory.a\n" ;
 	$(QUIET)$(EE_AR) rs libmemory.a $(EE_OBJS_MEMORY)
+
+
 ##
 ## Add the library to the linker list and list of lib files
 ##
 OPT_LIBS += -lmemory
 ALL_LIBS += libmemory.a
+endif
+
+
 
 endif
 

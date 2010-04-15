@@ -19,11 +19,15 @@ ifeq ($(INCLUDE_MRF24J40), YES)
 ## Library code
 ##
 
+
+
 ## Add the inc path to the include pathlist
 ifeq ($(findstring __RTD_CYGWIN__,$(EEOPT)), __RTD_CYGWIN__) 
 ALLINCPATH += -I"$(shell cygpath -w $(EEBASE)/contrib/drivers/radio/mrf24j40/inc)"
+INCLUDE_PATH += $(EEBASE)/contrib/drivers/radio/mrf24j40/inc
 else
 ALLINCPATH += -I$(EEBASE)/contrib/drivers/radio/mrf24j40/inc
+INCLUDE_PATH += $(EEBASE)/contrib/drivers/radio/mrf24j40/inc
 endif
 
 ## Add each file individually

@@ -541,7 +541,7 @@ void mrf24j40_put_to_sleep()
 {
 	/* Prepare wake pin */
 	#ifdef MRF24J40_USE_WAKE_PIN
-	MRF24J40_WAKE = 0;
+	MRF24J40_WAKE_INACTIVE;
 	#else
 	mrf24j40_set_short_add_mem(MRF24J40_RXFLUSH, 0x60);
 	mrf24j40_set_short_add_mem(MRF24J40_WAKECON, 0x80);
@@ -563,7 +563,7 @@ void mrf24j40_put_to_sleep()
 void mrf24j40_wake() 
 {
 	#ifdef MRF24J40_USE_WAKE_PIN
-	MRF24J40_WAKE = 1;
+	MRF24J40_WAKE_ACTIVE;
 	#else
 	mrf24j40_set_short_add_mem(MRF24J40_WAKECON, 0xC0);
 	mrf24j40_set_short_add_mem(MRF24J40_WAKECON, 0x80);

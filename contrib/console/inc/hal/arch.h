@@ -23,6 +23,11 @@
 
 #ifdef __AVR5__
 #include "hal/avr5.h"
-#endif	/* __PIC30__ */
+#endif	/* __AVR5__ */
+
+#ifdef __LM32__
+#include "hal/mico32.h"
+#endif	/* __LM32__ */
+
 
 #endif	/* __arch_h__ */
