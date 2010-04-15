@@ -59,7 +59,7 @@ __INLINE__ int __ALWAYS_INLINE__  EE_rtc_read_buffer(EE_UINT8 address, EE_UINT8 
 //
 //#endif //__EE_RTC_PCF8583_USE_I2C1__
 
-DECLARE_FUNC_RTC(RTC_I2C, rtc_i2c)
+DECLARE_FUNC_RTC(EE_I2C2_NAME_UC, EE_I2C2_NAME_LC)
 
 /*
 	__INLINE__ int __ALWAYS_INLINE__  EE_rtc_start(void)
