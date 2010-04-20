@@ -233,7 +233,7 @@ do { 								\
 /**
 * @name Software interrupt: end of frame acquisition
 *
-* INT0. This interrupt is generated when an entire frame is captured. This
+* PMP ISR. This interrupt is generated when an entire frame is captured. This
 * interrupt call inside his ISR the callback function passed on the capture
 * function
 * \see hv7131gp_capture
@@ -243,21 +243,22 @@ do { 								\
 
 #define HV7131GP_PIN_EOF_INIT()						\
 do { 									\
-	IPC0bits.INT0IP  = 5;	/* Set INT0 interrupt priority */	\
-	IEC0bits.INT0IE = 1;	/* Enable INT0 interrupt */		\
-	IFS0bits.INT0IF = 0;	/* Reset INT0 interrupt flag */	 	\
+	IPC7bits.PMPIP  = 5;	/* Set interrupt priority */	\
+	IPC7bits.PMPIS  = 0;	/* Set interrupt sub-priority */	\
+	IEC1bits.PMPIE = 1;	/* Enable interrupt */		\
+	IFS1bits.PMPIF = 0;	/* Reset interrupt flag */	 	\
 } while (0)								
 
 #define HV7131GP_PIN_EOF_STOP()						\
 do { 									\
-	IEC0bits.INT0IE = 0;	/* Disable INT0 interrupt */		\
-	IFS0bits.INT0IF = 0;	/* Reset INT0 interrupt flag */	 	\
+	IEC1bits.PMPIE = 0;	/* Disable INT0 interrupt */		\
+	IFS1bits.PMPIF = 0;	/* Reset INT0 interrupt flag */	 	\
 } while (0)								
 
 
-#define HV7131GP_EOF_INTERRUPT() ISR2(_EXTERNAL_0_VECTOR)
-#define HV7131GP_EOF_RESET_IF() IFS0bits.INT0IF = 0
-#define HV7131GP_EOF_ACTIVATE_IF() IFS0bits.INT0IF = 1
+#define HV7131GP_EOF_INTERRUPT() ISR2(_PMP_VECTOR)
+#define HV7131GP_EOF_RESET_IF() IFS1bits.PMPIF = 0
+#define HV7131GP_EOF_ACTIVATE_IF() IFS1bits.PMPIF = 1
 
 
 

@@ -38,8 +38,8 @@ extern volatile void (* capture_complete_func) (hv7131gp_status_t);
 /******************************************************************************/
 /*                          Local Variables                                   */
 /******************************************************************************/
-static volatile uint16_t  row_id, frame_idx;
-static volatile uint16_t  height, width, image_size;
+/*static*/ volatile uint16_t  /*row_id,*/ frame_idx;
+/*static*/ volatile uint16_t  height, width, image_size;
 /******************************************************************************/
 /*                           Hardware Abstraction Layer                       */
 /******************************************************************************/
@@ -119,7 +119,7 @@ HV7131GP_HSYNC_INTERRUPT()
 	DCH0CONSET = _DCH0CON_CHEN_MASK;
 
 	#ifdef __INT_DMA__ 	
-		HV7131GP_PIN_VCLK_START();
+		//HV7131GP_PIN_VCLK_START();
 	#endif //DMA_INTERRUPT
 	
 	while(HV7131GP_HSYNC_VALUE())
@@ -133,15 +133,16 @@ HV7131GP_HSYNC_INTERRUPT()
 	}	
 
 	#ifdef __INT_DMA__
-		HV7131GP_PIN_VCLK_STOP();	
+		//HV7131GP_PIN_VCLK_STOP();	
 	#endif
 	
+	//DCH0CONCLR = _DCH0CON_CHEN_MASK;
 	
 	frame_idx += DMA_MAX_WIDTH;
 	HV7131GP_HAL_ENABLE_INTERRUPTS();
 	/* Check if last row is ready -> frame ready? */
 
-	if((frame_idx >= image_size) || (++row_id >= height)){
+	if((frame_idx >= image_size) /*|| (++row_id >= height)*/){
 		/* Stop row and frame syncs, notify capture complete */
 		HV7131GP_PIN_HSYNC_STOP();
 		HV7131GP_PIN_VSYNC_STOP();
@@ -167,7 +168,7 @@ HV7131GP_HSYNC_INTERRUPT()
 
 HV7131GP_VSYNC_INTERRUPT()
 {	
-	row_id 		= 0;
+	//row_id 		= 0;
 	frame_idx 	= 0;
 
 	//Read the size of the picture
