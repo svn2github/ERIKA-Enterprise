@@ -1,4 +1,4 @@
-## Author: 2009 Mauro Marinoni
+## Author: 2010 Christian Nastasi
 
 ## Check the MRF24J40 library selection
 ifeq ($(findstring __LIB_MRF24J40__,$(LIB_OPT)),__LIB_MRF24J40__)
@@ -14,17 +14,8 @@ endif
 ifeq ($(findstring __MICROCHIP_PIC32__,$(EEOPT)) , __MICROCHIP_PIC32__)
 EE_SRCS += contrib/drivers/radio/mrf24j40/src/mrf24j40_hal_ee_pic32.c
 endif
-#EE_SRCS_MRF24J40_COMMON := $(addprefix contrib/drivers/radio/mrf24j40/src/, $(notdir $(shell ls -1 $(EEBASE)/contrib/drivers/radio/mrf24j40/src/*.c)))
-#EE_SRCS += $(EE_SRCS_MRF24J40_COMMON)
 ifeq ($(findstring __LM32__,$(EEOPT)) , __LM32__)
 EE_SRCS += contrib/drivers/radio/mrf24j40/src/mrf24j40_hal_ee_mico32.c
 endif
-
-
-## Potentially, check the architecture
-#ifeq ($(findstring __PIC30__,$(EEOPT)) , __PIC30__)
-## Add each file individually
-#EE_SRCS += contrib/console/src/hal/pic30.c
-#endif
 
 endif

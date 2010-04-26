@@ -80,6 +80,10 @@ endif
 #EE_SRCS += pkg/mcu/microchip_pic32/src/ee_pic32frsh.c
 #endif
 
+ifeq ($(findstring __USE_CN__,$(EEOPT)) , __USE_CN__)
+EE_SRCS += pkg/mcu/microchip_pic32/src/ee_cn.c
+endif
+
 ifeq ($(findstring __USE_TIMER__,$(EEOPT)) , __USE_TIMER__)
 EE_SRCS += pkg/mcu/microchip_pic32/src/ee_timer.c
 endif

@@ -16,8 +16,6 @@
 
 #include "fm25h20_hal.h"
 
-
-
 /** 
 * @name Standard Commands
 * @{ */
@@ -30,7 +28,6 @@
 #define FM25H20_SLEEP 			0xB9	//Enters in the Sleep mode
 /* @} */
 
-
 /** 
 * @name Device Specific characteristics
 * @{ */
@@ -38,15 +35,12 @@
 #define CHECK_MASK	0x40		//Standard value for Status register 
 /* @} */
 
-
 /** 
 * @name Commands' arrays size
 * @{ */
 #define WRITE_ARRAY_SIZE 	4		
 #define READ_ARRAY_SIZE 	4			
 /* @} */
-
-
 
 /** 
 * @name Error Codes
@@ -59,9 +53,7 @@
 #define FM25H20_DOUBLE_INIT	 		5
 #define FM25H20_WRITE_FAILED	 		6
 #define FM25H20_READ_FAILED	 		7
-
 /* @} */
-
 
 /* Functions prototypes */
 
@@ -76,7 +68,6 @@
 */
 int8_t fm25h20_init(uint8_t port);
 
-
 /** 
 * @brief  Get data from the memory
 * 	
@@ -88,7 +79,6 @@ int8_t fm25h20_init(uint8_t port);
 * @ return  \ref FM25H20_ERR_NONE is returned on success, otherwise a negative
 *		 error code is returned. 
 */
-
 int8_t fm25h20_get(uint32_t address, uint32_t len, uint8_t *data);
 
 /** 
@@ -102,9 +92,7 @@ int8_t fm25h20_get(uint32_t address, uint32_t len, uint8_t *data);
 * @ return  \ref FM25H20_ERR_NONE is returned on success, otherwise a negative
 *		 error code is returned. 
 */
-
 int8_t fm25h20_store(uint32_t address, uint32_t len, uint8_t* buf);
-
 
 COMPILER_INLINE void fm25h20_sleep() 
 {
@@ -121,7 +109,7 @@ COMPILER_INLINE uint8_t fm25h20_wake()
 	fm25h20_cs_low();
 	
 	/* Perform a read to ensure that the device correctly woke up, 
-	controllare */
+	TODO: check this! */
 	uint8_t app = FM25H20_READ_MEMORY;
 	//fm25h20_spi_write(&app, 1);
 	fm25h20_delay_us(450); // Wake-up time

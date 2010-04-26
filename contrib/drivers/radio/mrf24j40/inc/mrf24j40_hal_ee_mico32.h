@@ -24,16 +24,18 @@
 #define MRF24J40_SPI_PORT_2	0x02
 #define ISR2(func) void func(void)
 
+#define MRF24J40_HAL_ISR() ISR2(MRF24J40_INTERRUPT_NAME)
+
 void mrf24j40_set_rx_callback(void (*func)(void));
 void mrf24j40_set_tx_finished_callback(void (*tx_finished_func)(uint8_t tx_status));
 
-COMPILER_ISR(MRF24J40_INTERRUPT_NAME);
+ISR2(MRF24J40_INTERRUPT_NAME);
 int8_t	mrf24j40_hal_init(void);
-void	mrf24j40_delay_us(uint16_t delay_count); 
-int8_t	mrf24j40_spi_init(uint8_t port);
-int8_t	mrf24j40_spi_close(void);
-int8_t	mrf24j40_spi_write(uint8_t *data, uint16_t len);
-int8_t	mrf24j40_spi_read(uint8_t *data, uint16_t len);
+void	mrf24j40_hal_delay_us(uint16_t delay_count); 
+int8_t	mrf24j40_hal_spi_init(uint8_t port);
+int8_t	mrf24j40_hal_spi_close(void);
+int8_t	mrf24j40_hal_spi_write(uint8_t *data, uint16_t len);
+int8_t	mrf24j40_hal_spi_read(uint8_t *data, uint16_t len);
 
 COMPILER_INLINE void mrf24j40_hal_retsetn_high(void)
 {

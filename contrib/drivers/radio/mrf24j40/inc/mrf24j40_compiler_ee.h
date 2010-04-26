@@ -58,8 +58,4 @@ typedef signed long long int64_t;	/**< Unsigned 64 bit intgerer. */
 #define COMPILER_INLINE __INLINE__
 #endif
 
-#ifndef COMPILER_ISR
-#define COMPILER_ISR(func) ISR2(func)
-#endif
-
 #endif /* Header Protection */

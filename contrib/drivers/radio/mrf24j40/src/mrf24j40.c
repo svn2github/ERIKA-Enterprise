@@ -64,16 +64,16 @@ int8_t mrf24j40_init(uint8_t int_setup, uint8_t ch, uint8_t port)
 
 	/* init hal-specific things */
 	mrf24j40_hal_init();
-	retv = mrf24j40_spi_init(port);
+	retv = mrf24j40_hal_spi_init(port);
 
 	/*TODO; manage error code*/
 	if (retv < 0)
 		return -1;
 	
 	mrf24j40_hal_retsetn_low();
-	mrf24j40_delay_us(2500); 
+	mrf24j40_hal_delay_us(2500); 
 	mrf24j40_hal_retsetn_high();
-	mrf24j40_delay_us(2500);
+	mrf24j40_hal_delay_us(2500);
 	/**
 	 * Software reset:  
 	 * 7:3 = '00'  = Reserved
@@ -93,11 +93,11 @@ int8_t mrf24j40_init(uint8_t int_setup, uint8_t ch, uint8_t port)
 
 	mrf24j40_set_short_add_mem(MRF24J40_RXFLUSH, 0x01);
 
-	mrf24j40_delay_us(2500);
+	mrf24j40_hal_delay_us(2500);
 	
 	mrf24j40_set_short_add_mem(MRF24J40_PACON2, 0x98);
 
-	debug_print("\r\nMRF24J40 Init1");
+	mrf24j40_dbg_print("\r\nMRF24J40 Init1");
 	
 	/* 
 	 * Read back to value just written.
@@ -107,7 +107,7 @@ int8_t mrf24j40_init(uint8_t int_setup, uint8_t ch, uint8_t port)
 	if (mrf24j40_get_short_add_mem(MRF24J40_PACON2) != 0x98)
 		return -1;
 
-	debug_print("\r\nMRF24J40 Init2");
+	mrf24j40_dbg_print("\r\nMRF24J40 Init2");
 	
 	/**
 	* Reset RF state machine
@@ -121,7 +121,7 @@ int8_t mrf24j40_init(uint8_t int_setup, uint8_t ch, uint8_t port)
 	
 	/** setup */
 	mrf24j40_set_channel(ch); //set channel    
-	mrf24j40_delay_us(200); // After a reset the datasheet suggests to wait at least 180us 
+	mrf24j40_hal_delay_us(200); // After a reset the datasheet suggests to wait at least 180us 
 
 	mrf24j40_set_long_add_mem(MRF24J40_RFCON1, 0x01); //program the RF and Baseband Register as
 						//suggested by the datasheet
@@ -153,13 +153,13 @@ int8_t mrf24j40_init(uint8_t int_setup, uint8_t ch, uint8_t port)
 	#ifdef MRF24J40MB
 	/** Activate the external amplifier needed by the MRF24J40MB */
 	mrf24j40_set_long_add_mem(MRF24J40_TESTMODE, 0x1F);
-	debug_print("\r\nMRF24J40 Init Amplifier activated ");
+	mrf24j40_dbg_print("\r\nMRF24J40 Init Amplifier activated ");
 	#endif
 	
    
 	#ifdef ADD_RSSI_AND_LQI_TO_PACKET
 	/** Enable the packet RSSI */
-	debug_print("\r\nMRF24J40 Init append RSSI and LQI to the packet");
+	mrf24j40_dbg_print("\r\nMRF24J40 Init append RSSI and LQI to packet");
 	mrf24j40_set_short_add_mem(MRF24J40_BBREG6, 0x40);
 	#endif
 
@@ -173,8 +173,8 @@ int8_t mrf24j40_init(uint8_t int_setup, uint8_t ch, uint8_t port)
         	i = mrf24j40_get_long_add_mem(MRF24J40_RFSTATE);}
 	while((i&0xA0) != 0xA0);
 
-	//debug_set_msg("\r\nRFSTATE=0x%X",i);
-	//debug_print(mrf24j40_db_msg);
+	//mrf24j40_dbg_set_msg("\r\nRFSTATE=0x%X",i);
+	//mrf24j40_dbg_print(mrf24j40_db_msg);
 	/**
 	*
 	*Set interrupts.
@@ -196,7 +196,7 @@ int8_t mrf24j40_init(uint8_t int_setup, uint8_t ch, uint8_t port)
 	
 	#ifdef INT_POLARITY_HIGH
 	/* Set interrupt edge polarity high */ 
-	debug_print("\r\nMRF24J40 Init INT Polarity High");	
+	mrf24j40_dbg_print("\r\nMRF24J40 Init INT Polarity High");	
 	mrf24j40_set_long_add_mem(MRF24J40_SLPCON0, 0x02);
 	#endif	
 		
@@ -209,28 +209,28 @@ int8_t mrf24j40_init(uint8_t int_setup, uint8_t ch, uint8_t port)
 	i = 0;
 
 	#ifdef MRF24J40_DISABLE_AUTOMATIC_ACK
-		debug_print("\r\nMRF24J40 Init AUTOACK");
-		i = i | 0b00100000;
+	mrf24j40_dbg_print("\r\nMRF24J40 Init AUTOACK");
+	i = i | 0b00100000;
 	#endif
 
 	#ifdef MRF24J40_PAN_COORDINATOR
-		debug_print("\r\nMRF24J40 Init PAN COORD");
-		i = i | 0b00001000;
+	mrf24j40_dbg_print("\r\nMRF24J40 Init PAN COORD");
+	i = i | 0b00001000;
 	#endif
 	
 	#ifdef MRF24J40_COORDINATOR
-		debug_print("\r\nMRF24J40 Init COORD");
-		i = i | 0b00000100;
+	mrf24j40_dbg_print("\r\nMRF24J40 Init COORD");
+	i = i | 0b00000100;
 	#endif
 	
 	#ifdef MRF24J40_ACCEPT_WRONG_CRC_PKT
-		debug_print("\r\nMRF24J40 Init Accept Wrong CRC");
-		i = i | 0b00000010;
+	mrf24j40_dbg_print("\r\nMRF24J40 Init Accept Wrong CRC");
+	i = i | 0b00000010;
 	#endif
 
 	#ifdef MRF24J40_PROMISCUOUS_MODE
-		debug_print("\r\nMRF24J40 Init PROMISUOUS MODE");
-		i = i | 0b00000001;
+	mrf24j40_dbg_print("\r\nMRF24J40 Init PROMISUOUS MODE");
+	i = i | 0b00000001;
 	#endif	
 	
 	/*
@@ -250,71 +250,71 @@ int8_t mrf24j40_init(uint8_t int_setup, uint8_t ch, uint8_t port)
 	
 	#ifndef MRF24J40_DISABLE_CSMA
 	
-	debug_print("\r\nMRF24J40 Init CSMA ENABLED");
+	mrf24j40_dbg_print("\r\nMRF24J40 Init CSMA ENABLED");
 
 	#ifdef MRF24J40_BEACON_ENABLED_MODE
 	
-	debug_print("\r\nMRF24J40 Init BEACON MODE ENABLED");
+	mrf24j40_dbg_print("\r\nMRF24J40 Init BEACON MODE ENABLED");
 
 	#ifdef MRF24J40_BATT_LIFE_EXT
-		/*
-		 *Set the TXMCR register.
-		 * bit 7 = '0';  Enable No Carrier Sense Multiple Access (CSMA) 
-		 * Algorithm.
-		 * bit 6 = '1';  Enable Battery Life Extension Mode bit.
-		 * bit 5 = '1';  Enable Slotted CSMA-CA Mode bit.
-		 * bit 4-3 = '11'; MAC Minimum Backoff Exponent bits (macMinBE).
-		 * bit 2-0 = '100';  CSMA Backoff bits (macMaxCSMABackoff)
-		 */
-		mrf24j40_set_short_add_mem(MRF24J40_TXMCR, 0x7C);
-		debug_print("\r\nMRF24J40 Init Battery life enabled");
+	/*
+	 *Set the TXMCR register.
+	 * bit 7 = '0';  Enable No Carrier Sense Multiple Access (CSMA) 
+	 * Algorithm.
+	 * bit 6 = '1';  Enable Battery Life Extension Mode bit.
+	 * bit 5 = '1';  Enable Slotted CSMA-CA Mode bit.
+	 * bit 4-3 = '11'; MAC Minimum Backoff Exponent bits (macMinBE).
+	 * bit 2-0 = '100';  CSMA Backoff bits (macMaxCSMABackoff)
+	 */
+	mrf24j40_set_short_add_mem(MRF24J40_TXMCR, 0x7C);
+	mrf24j40_dbg_print("\r\nMRF24J40 Init Battery life enabled");
 	#else
-		/*
-		 *Set the TXMCR register.
-		 * bit 7 = '0';  Enable No Carrier Sense Multiple Access (CSMA) 
-		 * Algorithm.
-		 * bit 6 = '0';  Disable Battery Life Extension Mode bit.
-		 * bit 5 = '1';  Enable Slotted CSMA-CA Mode bit.
-		 * bit 4-3 = '11'; MAC Minimum Backoff Exponent bits (macMinBE).
-		 * bit 2-0 = '100';  CSMA Backoff bits (macMaxCSMABackoff)
-		 */
-		mrf24j40_set_short_add_mem(MRF24J40_TXMCR, 0x3C);
-		debug_print("\r\nMRF24J40 Init Battery life disabled");
+	/*
+	 *Set the TXMCR register.
+	 * bit 7 = '0';  Enable No Carrier Sense Multiple Access (CSMA) 
+	 * Algorithm.
+	 * bit 6 = '0';  Disable Battery Life Extension Mode bit.
+	 * bit 5 = '1';  Enable Slotted CSMA-CA Mode bit.
+	 * bit 4-3 = '11'; MAC Minimum Backoff Exponent bits (macMinBE).
+	 * bit 2-0 = '100';  CSMA Backoff bits (macMaxCSMABackoff)
+	 */
+	mrf24j40_set_short_add_mem(MRF24J40_TXMCR, 0x3C);
+	mrf24j40_dbg_print("\r\nMRF24J40 Init Battery life disabled");
 	#endif
 
 	#else
 	
 	#ifdef MRF24J40_BATT_LIFE_EXT
-		/*
-		 *Set the TXMCR register.
-		 * bit 7 = '0';  Enable No Carrier Sense Multiple Access (CSMA) 
-		 * Algorithm.
-		 * bit 6 = '1';  Enable Battery Life Extension Mode bit.
-		 * bit 5 = '0';  Disable Slotted CSMA-CA Mode bit.
-		 * bit 4-3 = '11'; MAC Minimum Backoff Exponent bits (macMinBE).
-		 * bit 2-0 = '100';  CSMA Backoff bits (macMaxCSMABackoff)
-		 */
-		mrf24j40_set_short_add_mem(MRF24J40_TXMCR, 0x5C);
-		debug_print("\r\nMRF24J40 Init Battery life enabled");
+	/*
+	 *Set the TXMCR register.
+	 * bit 7 = '0';  Enable No Carrier Sense Multiple Access (CSMA) 
+	 * Algorithm.
+	 * bit 6 = '1';  Enable Battery Life Extension Mode bit.
+	 * bit 5 = '0';  Disable Slotted CSMA-CA Mode bit.
+	 * bit 4-3 = '11'; MAC Minimum Backoff Exponent bits (macMinBE).
+	 * bit 2-0 = '100';  CSMA Backoff bits (macMaxCSMABackoff)
+	 */
+	mrf24j40_set_short_add_mem(MRF24J40_TXMCR, 0x5C);
+	mrf24j40_dbg_print("\r\nMRF24J40 Init Battery life enabled");
 	#else
-		/*
-		 *Set the TXMCR register.
-		 * bit 7 = '0';  Enable No Carrier Sense Multiple Access (CSMA) 
-		 * Algorithm.
-		 * bit 6 = '0';  Disable Battery Life Extension Mode bit.
-		 * bit 5 = '0';  Disable Slotted CSMA-CA Mode bit.
-		 * bit 4-3 = '11'; MAC Minimum Backoff Exponent bits (macMinBE).
-		 * bit 2-0 = '100';  CSMA Backoff bits (macMaxCSMABackoff)
-		 */
-		mrf24j40_set_short_add_mem(MRF24J40_TXMCR, 0x1C);
-		debug_print("\r\nMRF24J40 Init Battery life disabled");
+	/*
+	 *Set the TXMCR register.
+	 * bit 7 = '0';  Enable No Carrier Sense Multiple Access (CSMA) 
+	 * Algorithm.
+	 * bit 6 = '0';  Disable Battery Life Extension Mode bit.
+	 * bit 5 = '0';  Disable Slotted CSMA-CA Mode bit.
+	 * bit 4-3 = '11'; MAC Minimum Backoff Exponent bits (macMinBE).
+	 * bit 2-0 = '100';  CSMA Backoff bits (macMaxCSMABackoff)
+	 */
+	mrf24j40_set_short_add_mem(MRF24J40_TXMCR, 0x1C);
+	mrf24j40_dbg_print("\r\nMRF24J40 Init Battery life disabled");
 	#endif
 
 	#endif
 	
 	#else
-		debug_print("\r\nMRF24J40 Init CSMA DISABLED");
-		mrf24j40_set_short_add_mem(MRF24J40_TXMCR, 0x80); /* Disable CSMA alg. */
+	mrf24j40_dbg_print("\r\nMRF24J40 Init CSMA DISABLED");
+	mrf24j40_set_short_add_mem(MRF24J40_TXMCR, 0x80); /* Disable CSMA */
 	#endif
 
 	/**
@@ -331,37 +331,37 @@ int8_t mrf24j40_init(uint8_t int_setup, uint8_t ch, uint8_t port)
 	mrf24j40_set_short_add_mem(MRF24J40_BBREG0, 0x01);
     	mrf24j40_set_short_add_mem(MRF24J40_BBREG3, 0x38);
     	mrf24j40_set_short_add_mem(MRF24J40_BBREG4, 0x5C);
-    	debug_print("\r\nMRF24J40 Init TURBO MODE enabled");
+    	mrf24j40_dbg_print("\r\nMRF24J40 Init TURBO MODE enabled");
 	#endif
 
 	i = mrf24j40_get_short_add_mem(MRF24J40_TXMCR);
-	debug_set_msg("\r\nTXMCR 0x%X",i);
-	debug_print(mrf24j40_db_msg);
+	mrf24j40_dbg_set_msg("\r\nTXMCR 0x%X",i);
+	mrf24j40_dbg_print(mrf24j40_db_msg);
 	/**
 	* Reset RF state machine
 	*/
 		         
 	mrf24j40_set_short_add_mem(MRF24J40_RFCTL, 0x04);        
 	mrf24j40_set_short_add_mem(MRF24J40_RFCTL, 0x00);
-	debug_print("\r\nMRF24J40 Init Done!");
+	mrf24j40_dbg_print("\r\nMRF24J40 Init Done!");
 
 	#ifdef MRF24J40_ZERO_MIN_BE
-		/* 
-		 * Set the MAC Minimum Backoff Exponent bits (macMinBE) to 0
-		 * --> collision avoidance disabled (only for the first try!)
-		 */
-		uint8_t tmp_val = mrf24j40_get_short_add_mem(MRF24J40_TXMCR);
-		mrf24j40_set_short_add_mem(MRF24J40_TXMCR, tmp_val & 0xE7);
-//		mrf24j40_set_short_add_mem(MRF24J40_TXMCR, 0x80);
+	/* 
+	 * Set the MAC Minimum Backoff Exponent bits (macMinBE) to 0
+	 * --> collision avoidance disabled (only for the first try!)
+	 */
+	uint8_t tmp_val = mrf24j40_get_short_add_mem(MRF24J40_TXMCR);
+	mrf24j40_set_short_add_mem(MRF24J40_TXMCR, tmp_val & 0xE7);
+//	mrf24j40_set_short_add_mem(MRF24J40_TXMCR, 0x80);
 	
-		/* CCA MODE 3 */
-//		tmp_val = mrf24j40_get_short_add_mem(MRF24J40_BBREG2);
-//		mrf24j40_set_short_add_mem(MRF24J40_BBREG2, tmp_val | 0xFC);
-//		mrf24j40_set_short_add_mem(MRF24J40_CCAEDTH, 0xFF);
-		/* CCA MODE 1?*/
-//		tmp_val = mrf24j40_get_short_add_mem(MRF24J40_BBREG2);
-//		mrf24j40_set_short_add_mem(MRF24J40_BBREG2, tmp_val & 0x7F);
-//		mrf24j40_set_short_add_mem(MRF24J40_CCAEDTH, 0xFF);
+	/* CCA MODE 3 */
+//	tmp_val = mrf24j40_get_short_add_mem(MRF24J40_BBREG2);
+//	mrf24j40_set_short_add_mem(MRF24J40_BBREG2, tmp_val | 0xFC);
+//	mrf24j40_set_short_add_mem(MRF24J40_CCAEDTH, 0xFF);
+	/* CCA MODE 1?*/
+//	tmp_val = mrf24j40_get_short_add_mem(MRF24J40_BBREG2);
+//	mrf24j40_set_short_add_mem(MRF24J40_BBREG2, tmp_val & 0x7F);
+//	mrf24j40_set_short_add_mem(MRF24J40_CCAEDTH, 0xFF);
 	#endif
 	/* Store values for carrier sense enabling and disabling */
 	bbreg2 = mrf24j40_get_short_add_mem(MRF24J40_BBREG2);
@@ -404,7 +404,7 @@ int8_t mrf24j40_store_norm_txfifo(uint8_t* buf, uint8_t len)
 	for (i = 0; i < len; i++)
 		mrf24j40_set_long_add_mem(MRF24J40_NORMAL_TX_FIFO + 2 + i, 
 					  buf[i]);
-	//debug_print("\n\rSTORE NOR_TXFIFO DONE!");
+	//mrf24j40_dbg_print("\n\rSTORE NOR_TXFIFO DONE!");
 	return 0;
 }
 /**
@@ -418,7 +418,6 @@ uint8_t mrf24j40_get_norm_txfifo(uint8_t pos)
 {
 	if (pos > 127)
 		return 0;
-
 	return mrf24j40_get_long_add_mem(MRF24J40_NORMAL_TX_FIFO + pos);
 }
 
@@ -455,25 +454,25 @@ uint8_t mrf24j40_get_fifo_msg(uint8_t *msg)
 	//len = len - 2;
 
 	/* Get the packet */
-	debug_print("\r\nPacket received:\r\n");
+	mrf24j40_dbg_print("\r\nPacket received:\r\n");
 //	msg[0] = len;
-//	debug_set_msg("Len = 0x%X \n", len);
-//	debug_print(mrf24j40_db_msg);
+//	mrf24j40_dbg_set_msg("Len = 0x%X \n", len);
+//	mrf24j40_dbg_print(mrf24j40_db_msg);
 	for (i=0;i < len + 2; i++) {
 		msg[i] = mrf24j40_get_long_add_mem(MRF24J40_RX_FIFO + i + 1);
-//		debug_set_msg("0x%X ", msg[i]);
-//		debug_print(mrf24j40_db_msg);
+//		mrf24j40_dbg_set_msg("0x%X ", msg[i]);
+//		mrf24j40_dbg_print(mrf24j40_db_msg);
 	}
 
 	#else
 	/*Discard CRC bytes */
 	len = len - 2;
 	/* Get the packet */
-	debug_print("\r\nPacket received:\r\n");
+	mrf24j40_dbg_print("\r\nPacket received:\r\n");
 	for (i=0;i < len; i++) {
 		msg[i] = mrf24j40_get_long_add_mem(MRF24J40_RX_FIFO + 1 + i);
-		debug_set_msg("0x%X ", msg[i]);
-		debug_print(mrf24j40_db_msg);
+		mrf24j40_dbg_set_msg("0x%X ", msg[i]);
+		mrf24j40_dbg_print(mrf24j40_db_msg);
 	}
 	#endif /* MRF24J40_UWL_MODE */
 
@@ -546,7 +545,6 @@ void mrf24j40_put_to_sleep()
 	mrf24j40_set_short_add_mem(MRF24J40_RXFLUSH, 0x60);
 	mrf24j40_set_short_add_mem(MRF24J40_WAKECON, 0x80);
 	#endif
-	
 	/* Put to sleep*/
 	mrf24j40_set_short_add_mem(MRF24J40_SOFTRST, 0x04);
 	mrf24j40_set_short_add_mem(MRF24J40_SLPACK, 0x80);
@@ -568,42 +566,42 @@ void mrf24j40_wake()
 	mrf24j40_set_short_add_mem(MRF24J40_WAKECON, 0xC0);
 	mrf24j40_set_short_add_mem(MRF24J40_WAKECON, 0x80);
 	#endif
-	mrf24j40_delay_us(2000); /* Delay for 2 ms */
+	mrf24j40_hal_delay_us(2000); /* Delay for 2 ms */
 
 	/* Wait until the transceiver is not on receiving mode */
 	while (mrf24j40_get_long_add_mem(MRF24J40_RFSTATE) != 0xA0 );
 }
 
-COMPILER_ISR(MRF24J40_INTERRUPT_NAME)
+void mrf24j40_set_tx_finished_callback(void (*tx_finished_func)(uint8_t))
 {
+	tx_finished_callback = tx_finished_func;
+}
 
+MRF24J40_HAL_ISR()
+{
+	/* chris: TODO: change the version with bit-fields, this in NOT compiler
+			independent. USE masks and bitwise ANDs instead.
+	*/
 	INT_status int_status;
 	TX_status tx_status;
 
-	MRF24J40_INTERRUPT_FLAG = 0;
-
-	debug_print("\r\nInterrupt!!!!");
-
+	EE_led_toggle(7);
+	mrf24j40_hal_irq_clean();
+	mrf24j40_dbg_print("\r\nMRF24J40 Interrupt");
 	int_status.val = mrf24j40_get_short_add_mem(MRF24J40_INTSTAT);
-
 	if (int_status.bits.TXNIF) {
-		debug_print("\r\nNormal TX finished");
+		mrf24j40_dbg_print("\r\nNormal TX finished");
 		tx_status.val = mrf24j40_get_short_add_mem(MRF24J40_TXSTAT);
 		if (tx_status.bits.TXNSTAT)
-			debug_print("\r\nNormal TX failed");
+			mrf24j40_dbg_print("\r\nNormal TX failed");
 		else
-			debug_print("\r\nNormal TX success");
+			mrf24j40_dbg_print("\r\nNormal TX success");
 		if (tx_finished_callback)
 			tx_finished_callback(tx_status.bits.TXNSTAT);
 	}
 	if (int_status.bits.RXIF) {
-		debug_print("\r\nRX received");
+		mrf24j40_dbg_print("\r\nRX received");
 		if (rx_callback != NULL)
 			rx_callback();
 	}
-}
-
-void mrf24j40_set_tx_finished_callback(void (*tx_finished_func)(uint8_t tx_status))
-{
-	tx_finished_callback = tx_finished_func;
 }

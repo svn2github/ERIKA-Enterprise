@@ -21,7 +21,7 @@ uint8_t	mrf24j40_get_fifo_msg(uint8_t *msg);
 void	mrf24j40_put_to_sleep();
 void	mrf24j40_wake();
 void mrf24j40_set_rx_callback(void (*func)(void));
-void mrf24j40_set_tx_finished_callback(void (*tx_finished_func)(uint8_t tx_status));
+void mrf24j40_set_tx_finished_callback(void (*tx_finished_func)(uint8_t));
 void mrf24j40_disable_carrier_sense();
 void mrf24j40_enable_carrier_sense();
 
@@ -31,11 +31,11 @@ void mrf24j40_enable_carrier_sense();
 //#include <stdio.h>
 #include "console_serial.h"
 #define DEBUG_PORT 0
-#define debug_print(msg) console_write(DEBUG_PORT, (uint8_t*) msg, strlen(msg))
-#define debug_set_msg(str,val) sprintf(mrf24j40_db_msg, str, val)
+#define mrf24j40_dbg_print(msg) console_write(DEBUG_PORT, (uint8_t*) msg, strlen(msg))
+#define mrf24j40_dbg_set_msg(str,val) sprintf(mrf24j40_db_msg, str, val)
 #else
-#define	debug_print(msg)
-#define debug_set_msg(str,val)
+#define	mrf24j40_dbg_print(msg)
+#define mrf24j40_dbg_set_msg(str,val)
 #endif /* MRF24J40_DEBUG */
 
 /* long address registers */
@@ -241,7 +241,7 @@ COMPILER_INLINE void mrf24j40_set_short_add_mem(uint8_t addr, uint8_t val)
 	mrf24j40_hal_csn_low();
 	msg[0] = (addr << 1) | 0x01;
 	msg[1] = val;
-	mrf24j40_spi_write(msg, 2);
+	mrf24j40_hal_spi_write(msg, 2);
 	mrf24j40_hal_csn_high();
 	if (tmp) 
 		mrf24j40_hal_irq_enable();
@@ -260,7 +260,7 @@ COMPILER_INLINE void mrf24j40_set_long_add_mem(uint16_t addr, uint8_t val)
 	msg[0] = (((uint8_t)(addr >> 3)) & 0x7F) | 0x80;
 	msg[1] = (((uint8_t)(addr << 5)) & 0xE0) | 0x10;
 	msg[2] = val; 
-	mrf24j40_spi_write(msg, 3);
+	mrf24j40_hal_spi_write(msg, 3);
 	mrf24j40_hal_csn_high();
 	if (tmp) 
 		mrf24j40_hal_irq_enable();
@@ -277,8 +277,8 @@ COMPILER_INLINE uint8_t mrf24j40_get_short_add_mem(uint8_t addr)
 	mrf24j40_hal_irq_disable();
 	mrf24j40_hal_csn_low();
 	addr <<= 1;
-	mrf24j40_spi_write(&addr, 1);
-	mrf24j40_spi_read(&ret_val, 1);
+	mrf24j40_hal_spi_write(&addr, 1);
+	mrf24j40_hal_spi_read(&ret_val, 1);
 	mrf24j40_hal_csn_high();
 	if (tmp) 
 		mrf24j40_hal_irq_enable();
@@ -298,8 +298,8 @@ COMPILER_INLINE uint8_t mrf24j40_get_long_add_mem(uint16_t addr)
 	mrf24j40_hal_csn_low();
 	msg[0] = (((uint8_t)(addr >> 3)) & 0x7F) | 0x80;
 	msg[1] = ((uint8_t)(addr << 5)) & 0xE0;
-	mrf24j40_spi_write(msg, 2);
-	mrf24j40_spi_read(&ret_val, 1);
+	mrf24j40_hal_spi_write(msg, 2);
+	mrf24j40_hal_spi_read(&ret_val, 1);
 	mrf24j40_hal_csn_high();
 	if (tmp) 
 		mrf24j40_hal_irq_enable();
@@ -333,7 +333,7 @@ COMPILER_INLINE void mrf24j40_set_channel(uint16_t ch)
 	mrf24j40_set_short_add_mem(MRF24J40_RFCTL, 0x04);
 	mrf24j40_set_short_add_mem(MRF24J40_RFCTL, 0x00);
 
-	//mrf24j40_delay_us(200);
+	//mrf24j40_hal_delay_us(200);
 }
 
 /**
@@ -399,7 +399,7 @@ COMPILER_INLINE void mrf24j40_set_tx()
 	*/
 
 	mrf24j40_set_short_add_mem(MRF24J40_TXNCON, 0x01);
-	//debug_print("\n\rTXDONE!");
+	//mrf24j40_dbg_print("\n\rTXDONE!");
 }
 
 /**

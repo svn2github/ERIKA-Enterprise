@@ -127,12 +127,14 @@
 
 #endif	/* End default booard selection for ISR */
 
+#define MRF24J40_HAL_ISR() ISR2(MRF24J40_INTERRUPT_NAME)
+
 int8_t	mrf24j40_hal_init(void);
-void	mrf24j40_delay_us(uint16_t delay_count); 
-int8_t	mrf24j40_spi_init(uint8_t port);
-int8_t	mrf24j40_spi_close(void);
-int8_t	mrf24j40_spi_write(uint8_t *data, uint16_t len);
-int8_t	mrf24j40_spi_read(uint8_t *data, uint16_t len);
+void	mrf24j40_hal_delay_us(uint16_t delay_count); 
+int8_t	mrf24j40_hal_spi_init(uint8_t port);
+int8_t	mrf24j40_hal_spi_close(void);
+int8_t	mrf24j40_hal_spi_write(uint8_t *data, uint16_t len);
+int8_t	mrf24j40_hal_spi_read(uint8_t *data, uint16_t len);
 
 COMPILER_INLINE void mrf24j40_hal_retsetn_high(void)
 {
@@ -152,6 +154,11 @@ COMPILER_INLINE void mrf24j40_hal_csn_high(void)
 COMPILER_INLINE void mrf24j40_hal_csn_low(void)
 {
 	MRF24J40_CSn = 0;
+}
+
+COMPILER_INLINE void mrf24j40_hal_irq_clean(void)
+{
+	MRF24J40_INTERRUPT_FLAG = 0;
 }
 
 COMPILER_INLINE void mrf24j40_hal_irq_enable(void)

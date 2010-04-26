@@ -18,7 +18,7 @@
 
 static uint16_t temp_count = 0;
 
-void mrf24j40_delay_us( uint16_t delay_count ) 
+void mrf24j40_hal_delay_us( uint16_t delay_count ) 
 {
 	temp_count = delay_count +1;
 	asm volatile("outer: dec _temp_count");	
@@ -40,27 +40,27 @@ int8_t	mrf24j40_hal_init(void)
 	MRF24J40_TRIS_FIFOP = 1;
 	MRF24J40_TRIS_CSn = 0;
 	/* Set interrupt registers */
-	MRF24J40_INTERRUPT_FLAG = 0;
 	MRF24J40_INTERRUPT_PRIORITY = 1;
 	MRF24J40_INTERRUPT_EDGE_POLARITY = 0;
-	MRF24J40_INTERRUPT_ENABLE = 1;
+	mrf24j40_hal_irq_clean();
+	mrf24j40_hal_irq_enable();
 	return 1;
 }
 
 static uint8_t spi_port; 
 
-int8_t	mrf24j40_spi_init(uint8_t port)
+int8_t	mrf24j40_hal_spi_init(uint8_t port)
 {
 	spi_port = port;
 	return EE_spi_init(spi_port);
 }
 
-int8_t	mrf24j40_spi_close(void)
+int8_t	mrf24j40_hal_spi_close(void)
 {
 	return EE_spi_close(spi_port);
 }
 
-int8_t	mrf24j40_spi_write(uint8_t *data, uint16_t len)
+int8_t	mrf24j40_hal_spi_write(uint8_t *data, uint16_t len)
 {
 	uint16_t i;
 
@@ -69,7 +69,7 @@ int8_t	mrf24j40_spi_write(uint8_t *data, uint16_t len)
 	return 1;
 }
 
-int8_t	mrf24j40_spi_read(uint8_t *data, uint16_t len)
+int8_t	mrf24j40_hal_spi_read(uint8_t *data, uint16_t len)
 {
 	uint16_t i;
 

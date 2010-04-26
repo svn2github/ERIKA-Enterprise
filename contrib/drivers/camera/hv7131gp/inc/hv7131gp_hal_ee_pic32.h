@@ -24,6 +24,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef HV7131GP_HAL_EE_PIC32_H_
 #define HV7131GP_HAL_EE_PIC32_H_
 
+#include "mcu/microchip_pic32/inc/ee_cn.h"
+
 /******************************************************************************/
 /*                         Functions Prototypes                               */
 /******************************************************************************/
@@ -137,38 +139,12 @@ do { 										\
 * CN15 (RD6). Functions to set, reset, start, stop the horizontal sync interrupt
 *
 * @{ */
-#define HV7131GP_PIN_HSYNC_INIT()						\
-do { 										\
-	TRISDbits.TRISD6 = 1;	/* Set CN15 (RD6) as digital input */		\
-	IPC6bits.CNIP = 7;	/* Set CN interrupt priority */			\
-} while (0)									
-
-#define HV7131GP_PIN_HSYNC_START()						\
-do { 										\
-	CNCONSET = _CNCON_ON_MASK;	/* Activate CN */			\
-	CNENbits.CNEN15 = 1;	/* Select CN15(RD6) change interrupt */		\
-	CNPUESET = 0x8000;	/* Enable weak pull-up on Change Notify	*/	\
-	IEC1bits.CNIE = 1;	/* Enable CN interrupt */			\
-	IFS1bits.CNIF = 0;	/* Reset CN interrupt flag */ 			\
-} while (0)									
-
-#define HV7131GP_PIN_HSYNC_STOP()						\
-do { 										\
-	CNCONCLR = _CNCON_ON_MASK;						\
-	IEC1bits.CNIE = 0;	/* Disable CN interrupt */			\
-	CNENbits.CNEN15 = 0;	/* Disable CN15(RD6) change interrupt */	\
-	IFS1bits.CNIF = 0;	/* Reset CN interrupt flag */	 		\
-} while (0)									
-
-#define HV7131GP_HSYNC_RESET_IF() IFS1bits.CNIF = 0
-
-#define HV7131GP_HSYNC_INTERRUPT() void __attribute__((interrupt(ipl7))) \
-    	 __attribute__((vector(_CHANGE_NOTICE_VECTOR))) isr__CHANGE_NOTICE_VECTOR(void) 
-
-#define HV7131GP_HSYNC_VALUE() PORTDbits.RD6
-
-
-
+#define HV7131GP_PIN_HSYNC_INIT()	EE_cn_init(7, 3)
+#define HV7131GP_PIN_HSYNC_START()	EE_cn_enable(hv7131gp_cn15)
+#define HV7131GP_PIN_HSYNC_STOP()	EE_cn_disable(hv7131gp_cn15)
+#define HV7131GP_HSYNC_RESET_IF() 	
+#define HV7131GP_HSYNC_INTERRUPT() 	EE_CN_HANDLER(hv7131gp_cn15) 
+#define HV7131GP_HSYNC_VALUE() 		PORTDbits.RD6
 /**  @} */
 
 /**
@@ -224,8 +200,8 @@ do { 								\
 * @name Pixel pins. In this set of 8 pins are received the 8 bits of each pixel.
 * The pixel reception is regulated by the pixel clock
 * @{ */
-#define HV7131GP_PIN_Y_INIT()	TRISE = 0x00FF 	/* Init PORT_E */
-#define HV7131GP_PIN_Y_VALUE	PORTE		/* Returns PORT_E */
+#define HV7131GP_PIN_Y_INIT()	TRISESET = 0x00FF 	/* Init PORT_E */
+#define HV7131GP_PIN_Y_ADDRESS	(&PORTE)		/* Address PORT_E */
 /**  @} */
 
 

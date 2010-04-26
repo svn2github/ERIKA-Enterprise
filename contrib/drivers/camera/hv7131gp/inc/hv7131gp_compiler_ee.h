@@ -11,50 +11,55 @@
 #define __hv7131gp_compiler_ee_h__
 
 #include <ee.h>
-#include "p32xxxx.h"
+//#include "p32xxxx.h"
 /** 
 * @name Basic type representations.
 * @{ */
 
+/* chris: FIXME: do we really need this!? */
 typedef enum {
 	TRUE 		= 0x00,	/**< True */
 	FALSE		= 0x01, /**< False */
 } Boolean;
 
-
-#ifndef uint32_t	/**< 32 bits unsigned data type */
-#define uint32_t unsigned int 	
+#ifndef UINT8_T
+#define UINT8_T
+typedef EE_UINT8 uint8_t;	/**< Unsigned 8 bit intgerer. */
 #endif
 
-#ifndef int32_t		/**< 32 bits data type */
-#define int32_t int				
+#ifndef UINT16_T
+#define UINT16_T
+typedef EE_UINT16 uint16_t;	/**< Unsigned 16 bit intgerer. */
 #endif
 
-#ifndef uint16_t	/**< 16 bits unsigned data type */
-#define uint16_t unsigned short int 	
+#ifndef UINT32_T
+#define UINT32_T
+typedef EE_UINT32 uint32_t;	/**< Unsigned 32 bit intgerer. */
 #endif
 
-#ifndef int16_t		/**< 16 bits data type */
-#define int16_t short int 		
+// TODO: Create EE_UINT64?
+#ifndef UINT64_T
+#define UINT64_T
+typedef unsigned long long uint64_t;	/**< Unsigned 64 bit intgerer. */
 #endif
 
-#ifndef uint8_t		/**< 8 bits unsigned data type */
-#define uint8_t unsigned char		
+#ifndef INT8_T
+#define INT8_T
+typedef EE_INT8 int8_t;		/**< Unsigned 8 bit intgerer. */
 #endif
 
-#ifndef int8_t		/**< 8 bits data type */
-#define int8_t char		
+#ifndef INT16_T
+#define INT16_T
+typedef EE_INT16 int16_t;	/**< Unsigned 16 bit intgerer. */
 #endif
 
 /**  @} */
-
-
-
 
 #ifndef COMPILER_INLINE 
 #define COMPILER_INLINE __INLINE__
 #endif
 
+/* chris: TODO: move this in the HAL, see MRF24J40 solution! */
 #ifndef COMPILER_ISR
 #define COMPILER_ISR(func) ISR2(func)
 #endif
