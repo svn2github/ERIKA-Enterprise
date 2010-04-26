@@ -219,7 +219,7 @@ ee_pic32regs.h: frommchp/$(PIC32_INCLUDE_C)
 #	@printf "	.equ __$(PIC32_MODEL), 1 \n" >> ee_pic32regs.inc
 #	@printf "	.include \"frommchp/$(PIC32_INCLUDE_S)\" \n" >> ee_pic32regs.inc
 
-frommchp/$(PIC32_INCLUDE_C): $(PIC32_H_DIR)/$(PIC32_INCLUDE_C)
+frommchp/$(PIC32_INCLUDE_C): $(PIC32_H_DIR)/$(PIC32_INCLUDE_C) $(OBJDIR)/.make_directories_flag
 	@printf "CP $(PIC32_INCLUDE_C)\n"; cp $(SOURCEFILE) $(TARGETFILE)
 
 # chris: I found no *.inc file in the c32 distribution
