@@ -16,7 +16,6 @@ __INLINE__ void __ALWAYS_INLINE__ EE_leds_init(void)
 	LATDCLR = 0x3CB0;
 	TRISFCLR = 0x0001;
 	LATFCLR = 0x00001;
-
 }
 
 #define EE_led_0_on		(LATDSET = 0x0010)
@@ -49,6 +48,41 @@ __INLINE__ void __ALWAYS_INLINE__ EE_leds_init(void)
 #define EE_led_7_toggle		(LATDINV = 0x2000)
 #define EE_led_toggle(n)	EE_led_##n##_toggle
 
+__INLINE__ void __ALWAYS_INLINE__ EE_leds_on(void) 
+{
+	EE_led_0_on;
+	EE_led_1_on;
+	EE_led_2_on;
+	EE_led_3_on;
+	EE_led_4_on;
+	EE_led_5_on;
+	EE_led_6_on;
+	EE_led_7_on;
+}
+
+__INLINE__ void __ALWAYS_INLINE__ EE_leds_off(void) 
+{
+	EE_led_0_off;
+	EE_led_1_off;
+	EE_led_2_off;
+	EE_led_3_off;
+	EE_led_4_off;
+	EE_led_5_off;
+	EE_led_6_off;
+	EE_led_7_off;
+}
+
+__INLINE__ void __ALWAYS_INLINE__ EE_leds_toggle(void) 
+{
+	EE_led_0_toggle;
+	EE_led_1_toggle;
+	EE_led_2_toggle;
+	EE_led_3_toggle;
+	EE_led_4_toggle;
+	EE_led_5_toggle;
+	EE_led_6_toggle;
+	EE_led_7_toggle;
+}
 
 #endif	/* __USE_LEDS__ */
 
