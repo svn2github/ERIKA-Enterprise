@@ -16,29 +16,9 @@
 /*************************************************************************
  Timers
  *************************************************************************/
-
-/* Timer structure */
-typedef struct {
-    MicoTimer_t* base;
-    int irqf;							// irq flag to register the handler
-    EE_ISR_callback cbk;
-} EE_timer_st;
-
 /* Symbols and macros */
 #define EE_TIMER_OK			(0x00)
 #define EE_timer_need_enable_int(mode)  ( (mode) & MICO32_TIMER_CONTROL_INT_BIT_MASK )
-
-/* Macro for Structure declaration */
-#define DECLARE_STRUCT_TIMER(uc, lc) \
-  extern EE_timer_st EE_ST_NAME(lc);
-/* Macro for structure definition */
-#define DEFINE_STRUCT_TIMER(uc, lc) \
-EE_timer_st cat3(ee_, lc, _st) = { \
-	.base= (MicoTimer_t*)cat2(uc, _BASE_ADDRESS),\
-	.irqf= cat2(uc, _IRQ),\
-	.cbk= EE_NULL_CBK };
-
-int EE_hal_timer_init(EE_timer_st* tst, int period, int settings);
 
 __INLINE__ int __ALWAYS_INLINE__  EE_hal_timer_start(MicoTimer_t* base)
 {
@@ -59,12 +39,6 @@ __INLINE__ int __ALWAYS_INLINE__  EE_hal_timer_get_val(MicoTimer_t* base, EE_UIN
 	return EE_TIMER_OK;
 }
 
-__INLINE__ int __ALWAYS_INLINE__  EE_hal_timer_set_callback(EE_timer_st* tst, EE_ISR_callback cbk)
-{
-	tst->cbk = cbk;
-	return EE_TIMER_OK;
-}
-
 __INLINE__ int __ALWAYS_INLINE__  EE_hal_timer_enable_IRQ(MicoTimer_t* base)
 {
 	base->Control |= MICO32_TIMER_CONTROL_INT_BIT_MASK;
@@ -76,6 +50,45 @@ __INLINE__ int __ALWAYS_INLINE__  EE_hal_timer_disable_IRQ(MicoTimer_t* base)
 	base->Control &= ~MICO32_TIMER_CONTROL_INT_BIT_MASK;
 	return EE_TIMER_OK;
 }
+
+
+#ifdef __USE_TIMER_IRQ__
+
+/* Macro for Structure declaration */
+#define DECLARE_STRUCT_TIMER(uc, lc) \
+	extern EE_timer_st EE_ST_NAME(lc);
+/* Macro for structure definition */
+#define DEFINE_STRUCT_TIMER(uc, lc) \
+EE_timer_st cat3(ee_, lc, _st) = { \
+	.base= (MicoTimer_t*)cat2(uc, _BASE_ADDRESS),\
+	.irqf= cat2(uc, _IRQ),\
+	.cbk= EE_NULL_CBK };
+	
+/* Timer structure */
+typedef struct {
+    MicoTimer_t* base;
+    int irqf;							// irq flag to register the handler
+    EE_ISR_callback cbk;
+} EE_timer_st;
+
+/*
+	int EE_hal_timer_init(EE_timer_st* tst, int period, int settings);
+*/
+int EE_hal_timer_init(EE_timer_st* tst, int period, int settings);
+
+/*
+	__INLINE__ int __ALWAYS_INLINE__  EE_hal_timer_set_callback(EE_timer_st* tst, EE_ISR_callback cbk)
+*/
+__INLINE__ int __ALWAYS_INLINE__  EE_hal_timer_set_callback(EE_timer_st* tst, EE_ISR_callback cbk)
+{
+	tst->cbk = cbk;
+	return EE_TIMER_OK;
+}
+
+/*
+	void EE_timer_common_handler(int level);
+*/
+void EE_timer_common_handler(int level);
 
 #define DECLARE_FUNC_TIMER(uc, lc) \
 __INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _init)(int period, int settings){ \
@@ -93,7 +106,6 @@ __INLINE__ int __ALWAYS_INLINE__  cat3(EE_, lc, _enable_IRQ)(void){ \
 __INLINE__ int __ALWAYS_INLINE__  cat3(EE_, lc, _disable_IRQ)(void){ \
 	return EE_hal_timer_disable_IRQ((MicoTimer_t*)EE_BASE_ADD(uc)); }
 	
- 
 #ifdef EE_TIMER1_NAME_UC
 DECLARE_STRUCT_TIMER(EE_TIMER1_NAME_UC, EE_TIMER1_NAME_LC)
 #endif	//#ifdef EE_TIMER1_NAME_UC
@@ -142,6 +154,28 @@ __INLINE__ EE_timer_st * __ALWAYS_INLINE__ EE_get_timer_st_from_level(int level)
 }
 #endif /* #ifndef EE_TIMER_NAME2_UC */
 
+#else // #ifdef __USE_TIMER_IRQ__ --------------------------------------------------------------------------------
+
+/*
+	int EE_hal_timer_init(MicoTimer_t* timerc, int irqf, int period, int settings);
+*/
+int EE_hal_timer_init(MicoTimer_t* timerc, int irqf, int period, int settings);
+
+#define DECLARE_FUNC_TIMER(uc, lc) \
+__INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _init)(int period, int settings){ \
+	return EE_hal_timer_init((MicoTimer_t*)EE_BASE_ADD(uc), (int)EE_IRQ_NAME(uc), period, settings); } \
+__INLINE__ int __ALWAYS_INLINE__  cat3(EE_, lc, _on)(void){ \
+	return EE_hal_timer_start((MicoTimer_t*)EE_BASE_ADD(uc)); } \
+__INLINE__ int __ALWAYS_INLINE__  cat3(EE_, lc, _off)(void){ \
+	return EE_hal_timer_stop((MicoTimer_t*)EE_BASE_ADD(uc)); } \
+__INLINE__ int __ALWAYS_INLINE__  cat3(EE_, lc, _get_value)(EE_UINT32 *val){ \
+	return EE_hal_timer_get_val((MicoTimer_t*)EE_BASE_ADD(uc), val); } \
+__INLINE__ int __ALWAYS_INLINE__  cat3(EE_, lc, _enable_IRQ)(void){ \
+	return EE_hal_timer_enable_IRQ((MicoTimer_t*)EE_BASE_ADD(uc)); } \
+__INLINE__ int __ALWAYS_INLINE__  cat3(EE_, lc, _disable_IRQ)(void){ \
+	return EE_hal_timer_disable_IRQ((MicoTimer_t*)EE_BASE_ADD(uc)); }
+
+#endif	// #ifdef __USE_TIMER_IRQ__
 
 /* User functions (API) declaration: */  
 #ifdef EE_TIMER1_NAME_UC
@@ -163,10 +197,14 @@ DECLARE_FUNC_TIMER(EE_TIMER4_NAME_UC, EE_TIMER4_NAME_LC)
 /* Macros for compatibility with pic32 timer driver */
 #ifdef __USE_MICO_PIC_API__
 #define EE_TIMER_DEFAULT_SETTINGS (MICO32_TIMER_CONTROL_INT_BIT_MASK | MICO32_TIMER_CONTROL_CONT_BIT_MASK | MICO32_TIMER_CONTROL_START_BIT_MASK)
-#define EE_mchp_timer_init(lc, period, prescale) EE_hal_timer_init(& EE_ST_NAME(lc), period, EE_TIMER_DEFAULT_SETTINGS)
+#ifdef __USE_TIMER_IRQ__
+#define EE_mchp_timer_set_callback(lc, cbk) EE_hal_timer_set_callback(& EE_ST_NAME(lc), cbk)
+#define EE_mchp_timer_init(uc, lc, period, prescale) EE_hal_timer_init(& EE_ST_NAME(lc), period, EE_TIMER_DEFAULT_SETTINGS)
+#else
+#define EE_mchp_timer_init(uc, lc, period, prescale) EE_hal_timer_init((MicoTimer_t*)EE_BASE_ADD(uc), (int)EE_IRQ_NAME(uc), period, MICO32_TIMER_CONTROL_CONT_BIT_MASK | MICO32_TIMER_CONTROL_START_BIT_MASK)
+#endif // #ifdef __USE_TIMER_IRQ__
 #define EE_mchp_timer_start(uc) EE_hal_timer_start((MicoTimer_t*)EE_BASE_ADD(uc))
 #define EE_mchp_timer_stop(uc) EE_hal_timer_stop((MicoTimer_t*)EE_BASE_ADD(uc))
-#define EE_mchp_timer_set_callback(lc, cbk) EE_hal_timer_set_callback(& EE_ST_NAME(lc), cbk)
 #define EE_mchp_timer_get_val(uc, va) EE_hal_timer_get_val((MicoTimer_t*)EE_BASE_ADD(uc), va)
 
 __INLINE__ EE_INT8 __ALWAYS_INLINE__ EE_timer_hard_init(EE_UINT8 id, EE_UINT16 period, EE_UINT8 prescale)
@@ -175,14 +213,14 @@ __INLINE__ EE_INT8 __ALWAYS_INLINE__ EE_timer_hard_init(EE_UINT8 id, EE_UINT16 p
 	
 	#if defined(EE_TIMER1_NAME_LC) && defined(EE_TIMER2_NAME_LC)
 	if(id==1)
-		ret = EE_mchp_timer_init(EE_TIMER1_NAME_LC, period, prescale);
+		ret = EE_mchp_timer_init(EE_TIMER1_NAME_UC, EE_TIMER1_NAME_LC, period, prescale);
 	else 
-		ret = EE_mchp_timer_init(EE_TIMER2_NAME_LC, period, prescale);
+		ret = EE_mchp_timer_init(EE_TIMER2_NAME_UC, EE_TIMER2_NAME_LC, period, prescale);
 	#else
 		#if defined(EE_UART1_NAME_LC)
-		ret = EE_mchp_timer_init(EE_TIMER1_NAME_LC, period, prescale);
+		ret = EE_mchp_timer_init(EE_TIMER1_NAME_UC, EE_TIMER1_NAME_LC, period, prescale);
 		#else	
-		ret = EE_mchp_timer_init(EE_TIMER2_NAME_LC, period, prescale);
+		ret = EE_mchp_timer_init(EE_TIMER2_NAME_UC, EE_TIMER2_NAME_LC, period, prescale);
 		#endif
 	#endif
 	
@@ -195,20 +233,21 @@ __INLINE__ EE_INT8 __ALWAYS_INLINE__ EE_timer_soft_init(EE_UINT8 id, EE_UINT32 p
 	
 	#if defined(EE_TIMER1_NAME_LC) && defined(EE_TIMER2_NAME_LC)
 	if(id==1)
-		ret = EE_mchp_timer_init(EE_TIMER1_NAME_LC, period_us, f_tick);
+		ret = EE_mchp_timer_init(EE_TIMER1_NAME_UC, EE_TIMER1_NAME_LC, period_us, f_tick);
 	else 
-		ret = EE_mchp_timer_init(EE_TIMER2_NAME_LC, period_us, f_tick);
+		ret = EE_mchp_timer_init(EE_TIMER2_NAME_UC, EE_TIMER2_NAME_LC, period_us, f_tick);
 	#else
 		#if defined(EE_UART1_NAME_LC)
-		ret = EE_mchp_timer_init(EE_TIMER1_NAME_LC, period_us, f_tick);
+		ret = EE_mchp_timer_init(EE_TIMER1_NAME_UC, EE_TIMER1_NAME_LC, period_us, f_tick);
 		#else	
-		ret = EE_mchp_timer_init(EE_TIMER2_NAME_LC, period_us, f_tick);
+		ret = EE_mchp_timer_init(EE_TIMER2_NAME_UC, EE_TIMER2_NAME_LC, period_us, f_tick);
 		#endif
 	#endif
 	
 	return ret;
 }
 
+#ifdef __USE_TIMER_IRQ__
 __INLINE__ EE_INT8 __ALWAYS_INLINE__ EE_timer_set_callback(EE_UINT8 id, void (*f)(void))
 {
 	EE_INT8 ret;
@@ -228,6 +267,8 @@ __INLINE__ EE_INT8 __ALWAYS_INLINE__ EE_timer_set_callback(EE_UINT8 id, void (*f
 	
 	return ret;
 }
+#endif // #ifdef __USE_TIMER_IRQ__
+
 __INLINE__ EE_INT8 __ALWAYS_INLINE__ EE_timer_start(EE_UINT8 id)
 {
 	EE_INT8 ret;

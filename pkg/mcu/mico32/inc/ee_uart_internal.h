@@ -18,25 +18,7 @@
  Uart
  *************************************************************************/
 
-/*
-	UART structure (used in ISR mode):
-*/
-typedef struct {
-	int err;							// last error condition 					
-	int mode;							// uart operating mode (polling, isr, ...)
-    MicoUart_t* base;					// controller base address
-    int irqf;							// irq flag to register the handler
-    EE_ISR_callback rxcbk;				// rx callback
-    EE_ISR_callback txcbk;				// tx callback
-    EE_buffer rxbuf;					// rx buffer used in isr mode
-    EE_buffer txbuf;					// tx buffer used in isr mode
-} EE_uart_st;
-
-/* Uart settings */
-#define EE_UART_MSGSIZE 	(1)		
-#define EE_UART_BUFSIZE 	(4)
-
-#define EE_UART_BIT8_ODD	(0x0B)
+ #define EE_UART_BIT8_ODD	(0x0B)
 #define EE_UART_BIT8_EVEN	(0x1B)
 #define EE_UART_BIT8_NO		(0x03)
 
@@ -89,6 +71,26 @@ typedef struct {
 #define EE_UART_ERR_TX_NOT_READY	(-25)
 #define EE_UART_ERR_RX_NOT_READY	(-26)
 
+
+#ifdef __USE_UART_IRQ__
+ 
+/*
+	UART structure (used in ISR mode):
+*/
+typedef struct {
+	int err;							// last error condition 					
+	int mode;							// uart operating mode (polling, isr, ...)
+    MicoUart_t* base;					// controller base address
+    int irqf;							// irq flag to register the handler
+    EE_ISR_callback rxcbk;				// rx callback
+    EE_ISR_callback txcbk;				// tx callback
+    EE_buffer rxbuf;					// rx buffer used in isr mode
+    EE_buffer txbuf;					// tx buffer used in isr mode
+} EE_uart_st;
+
+/* Uart settings */
+#define EE_UART_MSGSIZE 	(1)		
+#define EE_UART_BUFSIZE 	(4)
 
 /********************** Internal functions **************************/
 
@@ -319,15 +321,14 @@ __INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _disable_IRQ)(void){ \
 __INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _return_error)(void){ \
 	return EE_hal_uart_return_error(& EE_ST_NAME(lc)); }
 	
+	
 /* User functions (API): */  
 #ifdef EE_UART1_NAME_UC
 DECLARE_STRUCT_UART(EE_UART1_NAME_UC, EE_UART1_NAME_LC)
-DECLARE_FUNC_UART(EE_UART1_NAME_UC, EE_UART1_NAME_LC)
 #endif	
 
 #ifdef EE_UART2_NAME_UC
 DECLARE_STRUCT_UART(EE_UART2_NAME_UC, EE_UART2_NAME_LC)
-DECLARE_FUNC_UART(EE_UART2_NAME_UC, EE_UART2_NAME_LC)
 #endif	
 
 /* Return the Uart structure for the componente associated with the given IRQ
@@ -351,6 +352,208 @@ __INLINE__ EE_uart_st * __ALWAYS_INLINE__ EE_get_uart_st_from_level(int level)
 }
 #endif /* #ifndef EE_UART_NAME2_UC */
 
+#else // #ifdef __USE_UART_IRQ__
+
+/*
+	UART structure (used in polling mode):
+*/
+typedef struct {
+	int err;							// last error condition 					
+	int mode;							// uart operating mode (polling, isr, ...)
+    MicoUart_t* base;					// controller base address
+    int irqf;							// irq flag to register the handler
+} EE_uart_st;
+
+
+/********************** Internal functions **************************/
+
+/*
+	int EE_hal_uart_config(EE_uart_st* usp, int baudrate, int settings);
+		This function is used to change UART parameters. 
+		Arguments:
+			- EE_uart_st* usp: UART structure pointer
+			- int baudrate: rate value in Hz
+			- int settings: settings value (please, use macros defined in ee_uart.h)   
+		Actions: 
+			- reset ier and iir register (polling mode)
+			- set parity, stop bits, data length
+			- calculate and set baudrate 
+		Return values:
+			- the function return the result: EE_UART_OK if no errors found
+*/
+int EE_hal_uart_config(EE_uart_st* usp, int baudrate, int settings);					
+
+
+/*
+	int EE_hal_uart_set_ISR_mode(EE_uart_st* usp, int mode);	
+		This function is used to change UART operating mode. 
+		Arguments:
+			- EE_uart_st* usp: UART structure pointer
+			- int mode: UART desired operating mode (please, use macros defined in ee_uart.h)
+		Actions: 
+			- update the operating mode field in the structure
+			- initialize rx and tx buffers if needed
+			- set ier register
+		Return values:
+			- the function return the result:   EE_UART_OK if no errors found
+												EE_UART_ERR_BAD_VALUE if bad argument passed 
+*/
+int EE_hal_uart_set_ISR_mode(EE_uart_st* usp, int mode);								
+
+/*
+	int EE_hal_uart_write_byte(EE_uart_st* usp, EE_UINT8 data);	
+		This function is used to transmit one byte.
+		Arguments:
+			- EE_uart_st* usp: UART structure pointer
+			- EE_UINT8 data: Character to be transmitted 
+		Actions: 
+			- in tx polling mode: wait if tx register is not ready, then transmit 
+			- in tx isr mode: load the character in the tx buffer and set ier register 
+							  to enable tx interrupts
+		Return values:
+			- in tx polling mode: returns 1 if data is transmitted, else the return value is < 0 
+			- in tx isr mode: returns 1 if data is loaded in the tx buffer, else the return value is < 0 
+*/
+int EE_hal_uart_write_byte(EE_uart_st* usp, EE_UINT8 data);									
+
+
+/*
+	int EE_hal_uart_read_byte(EE_uart_st* usp, EE_UINT8 *data);	
+		This function is used to read one byte.
+		Arguments:
+			- EE_uart_st* usp: UART structure pointer
+			- EE_UINT8 adddata: Address of the location (variable) to be written 
+		Actions: 
+			- in rx polling mode: wait if there isn't a value in rx register, then returns 
+			- in rx isr mode: extracts a chracater from the rx buffer
+		Return values:
+			- in rx polling mode: returns 1 if data is received, else the return value is < 0 
+			- in rx isr mode: returns 1 if data is extracted from the rx buffer, else the return value is < 0 
+*/
+int EE_hal_uart_read_byte(EE_uart_st* usp, EE_UINT8 *data);								
+
+
+/*
+	int EE_hal_uart_read_buffer(EE_uart_st* usp, EE_UINT8 *vet, int len);
+		This function is used to read more than one characters.
+		Arguments:
+			- EE_uart_st* usp: UART structure pointer
+			- EE_UINT8 *vet: address of the first location to be written with the received characters
+			- int len: number of characters to read
+		Actions: 
+			- in rx polling mode: wait until all characters are read, then returns 
+			- in rx isr mode: extracts chracaters from the rx buffer
+		Return values:
+			- in rx polling mode: returns the number of cahracters read, else the return value is < 0 
+			- in rx isr mode: returns the number of cahracters extracted from the rx buffer, else the return value is < 0 
+*/
+int EE_hal_uart_read_buffer(EE_uart_st* usp, EE_UINT8 *vet, int len);						
+
+
+/*
+	int EE_hal_uart_write_buffer(EE_uart_st* usp, EE_UINT8 *vet, int len);
+		This function is used to write more than one characters.
+		Arguments:
+			- EE_uart_st* usp: UART structure pointer
+			- EE_UINT8 *vet: address of the first character to be transmitted
+			- int len: number of characters to transmit
+		Actions: 
+			- in tx polling mode: wait until all characters are transmit, then returns 
+			- in tx isr mode: load chracaters in the tx buffer
+		Return values:
+			- in tx polling mode: returns the number of characters transmitted, else the return value is < 0 
+			- in tx isr mode: returns the number of cahracters loaded in the tx buffer, else the return value is < 0 
+*/
+int EE_hal_uart_write_buffer(EE_uart_st* usp, EE_UINT8 *vet, int len);						
+
+
+/*
+	int EE_hal_uart_enable_IRQ(EE_uart_st* usp, int ier);
+		This function is used to enable UART IRQ.
+		Arguments:
+			- EE_uart_st* usp: UART structure pointer
+			- int ier: value to be loaded in the ier register (please, see MicoUart.h from Lattice)
+		Actions: 
+			- enable irq loading in the ier register the argument passed 
+		Return values:
+			- the function return the result:   EE_UART_OK if no errors found
+*/
+int EE_hal_uart_enable_IRQ(EE_uart_st* usp, int ier);									
+
+
+/*
+	int EE_hal_uart_disable_IRQ(EE_uart_st* usp);
+		This function is used to disable UART IRQ.
+		Arguments:
+			- EE_uart_st* usp: UART structure pointer
+		Actions: 
+			- disable irq clearing ier register 
+		Return values:
+			- the function return the result:   EE_UART_OK if no errors found
+*/
+int EE_hal_uart_disable_IRQ(EE_uart_st* usp);											
+
+/*
+	int EE_hal_uart_return_error(EE_uart_st* usp);
+		This function return the error condition stored in the uart structure.
+		Arguments:
+			- EE_uart_st* usp: UART structure pointer
+		Actions: 
+			- return error condition
+		Return values:
+			- return error condition
+*/
+int EE_hal_uart_return_error(EE_uart_st* usp);											
+
+/* Macro for Structure declaration */
+#define DECLARE_STRUCT_UART(uc, lc) \
+  extern EE_uart_st EE_ST_NAME(lc);
+/* Macro for structure definition */
+#define DEFINE_STRUCT_UART(uc, lc) \
+EE_uart_st cat3(ee_, lc, _st) = { \
+	.err=EE_UART_OK, .mode= EE_UART_POLLING | EE_UART_RXTX_BLOCK, .base= (MicoUart_t* )cat2(uc, _BASE_ADDRESS),\
+	.irqf= cat2(uc, _IRQ) };
+
+/* Macros for User functions (API) */  
+#define DECLARE_FUNC_UART(uc, lc) \
+__INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _config)(int baudrate,int settings){ \
+	return EE_hal_uart_config(& EE_ST_NAME(lc), baudrate, settings); } \
+__INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _set_ISR_mode)(int mode){ \
+	return EE_hal_uart_set_ISR_mode(& EE_ST_NAME(lc), mode); } \
+__INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _send_byte)(EE_UINT8 data){ \
+	return EE_hal_uart_write_byte(& EE_ST_NAME(lc), data); } \
+__INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _receive_byte)(EE_UINT8 *data){ \
+	return EE_hal_uart_read_byte(& EE_ST_NAME(lc), data); } \
+__INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _send_buffer)(EE_UINT8 *vet, int len){ \
+	return EE_hal_uart_write_buffer(& EE_ST_NAME(lc), vet, len); } \
+__INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _receive_buffer)(EE_UINT8 *vet, int len){ \
+	return EE_hal_uart_read_buffer(& EE_ST_NAME(lc), vet, len); } \
+__INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _enable_IRQ)(int ier){ \
+	return EE_hal_uart_enable_IRQ(& EE_ST_NAME(lc), ier); } \
+__INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _disable_IRQ)(void){ \
+	return EE_hal_uart_disable_IRQ(& EE_ST_NAME(lc)); } \
+__INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _return_error)(void){ \
+	return EE_hal_uart_return_error(& EE_ST_NAME(lc)); }
+	
+/* User functions (API): */  
+#ifdef EE_UART1_NAME_UC
+DECLARE_STRUCT_UART(EE_UART1_NAME_UC, EE_UART1_NAME_LC)
+#endif	
+
+#ifdef EE_UART2_NAME_UC
+DECLARE_STRUCT_UART(EE_UART2_NAME_UC, EE_UART2_NAME_LC)
+#endif	
+
+#endif // #ifdef __USE_UART_IRQ__
+
+/* User functions (API): */  
+#ifdef EE_UART1_NAME_UC
+DECLARE_FUNC_UART(EE_UART1_NAME_UC, EE_UART1_NAME_LC)
+#endif	
+
+#ifdef EE_UART2_NAME_UC
+DECLARE_FUNC_UART(EE_UART2_NAME_UC, EE_UART2_NAME_LC)
+#endif	
 
 #ifdef __USE_MICO_PIC_API__
 /* Macros for compatibility with pic32 uart driver*/ 
@@ -426,6 +629,7 @@ __INLINE__ EE_INT8 __ALWAYS_INLINE__ EE_uart_read_byte(EE_UINT8 port, EE_UINT8 *
 
 }
 
+#ifdef __USE_UART_IRQ__
 typedef void (*EE_mchp_ISR_callback)(EE_UINT8);
 extern EE_mchp_ISR_callback ee_mchp_uart1_ISR_cbk;
 extern EE_mchp_ISR_callback ee_mchp_uart2_ISR_cbk;
@@ -458,8 +662,8 @@ __INLINE__ EE_INT8 __ALWAYS_INLINE__ EE_uart_set_rx_callback(EE_UINT8 port, void
 	#endif
 	
 	return ret;
-
 }
+#endif // #ifdef __USE_UART_IRQ__
 
 #endif // #ifdef __USE_MICO_PIC_API__
 

@@ -96,7 +96,6 @@ include $(PKGBASE)/cfg/cfg.mk
 ##
 ## Source files and paths
 ##
-
 LIBEESRCS += $(EE_SRCS)
 LIBEEOBJS := $(addprefix $(OBJDIR)/, $(patsubst %.c,%.o,$(patsubst %.S,%.o,$(LIBEESRCS))))
 
@@ -116,7 +115,7 @@ APP_OUTPUT_ELF = $(OUTPUT_DIR)/out.elf
 # Ultimate target: dissassembly
 TARGET= $(OUTPUT_DIR)/dump.txt
 
-OBJDIRS=$(sort $(dir $(OBJS)) $(dir $(LIBEEOBJS)))
+OBJDIRS=$(sort $(dir $(OBJS)) $(dir $(LIBEEOBJS)) $(dir $(LIBOBJS)))
 
 INCLUDE_PATH += $(PKGBASE) $(APPBASE) $(OUTPUT_DIR) $(PLATFORM_LIB_PATH)/$(PLATFORM_NAME)
 # ALLINCPATH includes the '-I' or '-i' flag, which depends on the compiler

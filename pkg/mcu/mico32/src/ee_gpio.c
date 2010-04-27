@@ -52,7 +52,7 @@ void EE_gpio_common_handler(int level)
 	/* Save edgeCpature register */
 	gpio_sp->flag = EE_hal_gpio_read_edgeCapture(gp);
 	/* Clear edgeCpature register */
-	EE_hal_gpio_write_edgeCapture(gp, 0);
+	EE_hal_gpio_write_edgeCapture(gp, ~gpio_sp->flag);
 	/* Call user callback */
 	if( gpio_sp->cbk != EE_NULL_CBK )
 		gpio_sp->cbk();

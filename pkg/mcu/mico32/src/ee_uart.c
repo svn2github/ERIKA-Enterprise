@@ -13,6 +13,8 @@
 /******************************************************************************/
 /*                       Private Local Variables                              */
 /******************************************************************************/
+
+#ifdef __USE_UART_IRQ__
 /* Vectors and uart structures definitions */
 #ifdef EE_UART1_NAME_UC
 DEFINE_VET_UART(EE_UART1_NAME_UC, EE_UART1_NAME_LC)
@@ -25,6 +27,18 @@ DEFINE_STRUCT_UART(EE_UART2_NAME_UC, EE_UART2_NAME_LC)
 #endif
 
 volatile int ee_uart_tip=0;
+#else	// #ifdef __USE_UART_IRQ__
+
+/* Vectors and uart structures definitions */
+#ifdef EE_UART1_NAME_UC
+DEFINE_STRUCT_UART(EE_UART1_NAME_UC, EE_UART1_NAME_LC)
+#endif
+
+#ifdef EE_UART2_NAME_UC
+DEFINE_STRUCT_UART(EE_UART2_NAME_UC, EE_UART2_NAME_LC)
+#endif
+
+#endif //#ifdef __USE_UART_IRQ__
 
 /******************************************************************************/
 /*                       Private Local Functions                              */
@@ -34,6 +48,8 @@ volatile int ee_uart_tip=0;
 /******************************************************************************/
 /*                              ISRs                                          */
 /******************************************************************************/
+#ifdef __USE_UART_IRQ__
+
 // Interrupt common handler:
 void EE_uart_common_handler(int level)
 {
@@ -103,11 +119,13 @@ void EE_uart_common_handler(int level)
 
     return;
 }
-
+#endif //#ifdef __USE_UART_IRQ__
 
 /******************************************************************************/
 /*                       Public Global Functions                              */
 /******************************************************************************/
+#ifdef __USE_UART_IRQ__
+
 /* This function records ISR handler */
 int EE_hal_uart_handler_setup(EE_uart_st* usp)
 {
@@ -150,7 +168,7 @@ int EE_hal_uart_set_ISR_mode(EE_uart_st* usp, int mode)
 	if(old_mode == mode)
 		return EE_UART_OK;
 	
-	/* Disble IRQ */
+	/* Disable IRQ */
 	intst = EE_mico32_disableIRQ();
 	
 	/* Register IRQ handler */
@@ -210,9 +228,6 @@ int EE_hal_uart_enable_tx_ISR(EE_uart_st* usp)
 	   	
 	return EE_UART_OK;	
 }
-
-
-
 
 /* This functions can be used to write a character */
 /*
@@ -499,6 +514,209 @@ int EE_hal_uart_return_error(EE_uart_st* usp)
 {
 	return usp->err;
 }
+
+#else // #ifdef __USE_UART_IRQ__
+
+int EE_hal_uart_config(EE_uart_st* usp, int baudrate, int settings)
+{
+	unsigned int iir;
+	MicoUart_t *uartc = usp->base; 
+	
+	/* reset ier (isr register) */
+    uartc->ier = 0;						// if ier==0 -> POLLING MODE (ATT! is a blocking mode!!!)
+    									// if ier!=0 -> ISR MODE (ATT! is not a blocking mode!!!)
+    iir = uartc->iir;					// read iir register to clean ISR flags.	FARE PROVA!!!
+	/* Register IRQ handler */
+    //EE_hal_uart_handler_setup(usp);
+	/* set the control register */
+    uartc->lcr = settings;    
+    /* Calculate clock-divisor */
+    uartc->div = (MICO32_CPU_CLOCK_MHZ)/baudrate;
+    
+    /* ISR management */
+    return EE_UART_OK;	//EE_uart_set_ISR_callback_base(base, irq_flag, ie_flag, isr_rx_callback, isr_tx_callback);
+}
+
+int EE_hal_uart_set_ISR_mode(EE_uart_st* usp, int mode)
+{
+	int old_mode;
+	unsigned int intst;
+	
+	MicoUart_t *uartc = usp->base; 
+	
+	old_mode = usp->mode;
+	if(old_mode == mode)
+		return EE_UART_OK;
+	
+	/* Disable IRQ */
+	intst = EE_mico32_disableIRQ();
+	
+	usp->mode = mode; 	
+	mico32_disable_irq(usp->irqf);
+	uartc->ier = 0;
+
+	/* Enable IRQ */
+	if (EE_mico32_are_IRQs_enabled(intst))
+        EE_mico32_enableIRQ();
+        
+	return EE_UART_OK;
+}					
+
+int EE_hal_uart_write_byte(EE_uart_st* usp, EE_UINT8 data)
+{
+	unsigned int uiValue, mode;
+	int ret;
+  
+	MicoUart_t *uartc = usp->base; 
+	mode = usp->mode;
+	
+	do
+	{
+		/* if uart's ready to accept character, send immediately */
+		uiValue = uartc->lsr;
+		if(uiValue & MICOUART_LSR_TX_RDY_MASK)
+		{
+			uartc->rxtx = data;						// one byte transmitted
+			ret = 1;		
+			usp->err = EE_UART_OK;
+			break;
+		}
+		else 
+		{
+			usp->err = EE_UART_ERR_TX_NOT_READY;
+			if(!EE_uart_tx_block(mode))				// if no blocking mode
+			{		
+				ret = EE_UART_ERR_TX_NOT_READY;		// one byte transmitted
+				break;
+			}
+		}
+	}while(1);	
+	
+	
+	// All done!!!
+	return ret;
+
+}								
+
+int EE_hal_uart_read_byte(EE_uart_st* usp, EE_UINT8 *data)
+{
+	unsigned int uiValue; 
+	int mode;
+	int ret;
+	
+	MicoUart_t *uartc = usp->base; 
+	mode = usp->mode;
+					
+	do
+	{
+		uiValue = uartc->lsr;
+		if(uiValue & MICOUART_LSR_RX_RDY_MASK)
+		{
+			ret = 1;										// one byte received.
+			usp->err = EE_UART_OK;
+			*data = uartc->rxtx;
+			// All done!!!
+			break;
+		}
+		else
+		{
+			if(!EE_uart_rx_block(mode))						// if no blocking mode
+			{					
+				usp->err = EE_UART_ERR_RX_NOT_READY;
+				ret = EE_UART_ERR_RX_NOT_READY;				// one byte transmitted
+				break;
+			}
+		} 
+	}while(1);
+	
+	
+    // All done!!!
+	return ret;
+
+}						
+
+int EE_hal_uart_read_buffer(EE_uart_st* usp, EE_UINT8 *vet, int len)
+{
+	int i;
+	int ret = EE_UART_ERR_RX_BUF_EMPTY;
+
+	for(i=0; i<len; i++)
+	{
+		ret = EE_hal_uart_read_byte(usp, &vet[i]); 
+		if( ret < 0)
+			break;
+	}
+	
+	if(i==0)
+		return ret;
+	else
+		return i;	// number of bytes read.
+}					
+
+int EE_hal_uart_write_buffer(EE_uart_st* usp, EE_UINT8 *vet, int len)
+{
+	unsigned int uiValue, mode;
+	int ret,i;
+  
+	MicoUart_t *uartc = usp->base; 
+	mode = usp->mode;
+	
+	for(i=0; i<len; i++)
+	{
+		do
+		{
+			/* if uart's ready to accept character, send immediately */
+			uiValue = uartc->lsr;
+			if(uiValue & MICOUART_LSR_TX_RDY_MASK)
+			{
+				uartc->rxtx = vet[i];					// byte loaded in the uart tx buffer
+				ret = 1;
+				usp->err = EE_UART_OK;
+				break;
+			}
+			else if(i==0)
+			{											// if TX is not ready because another task uses tx buffer...
+				usp->err = EE_UART_ERR_TX_NOT_READY;
+				if(!EE_uart_tx_block(mode))				// no bytes transmitted, operation failed...
+				{			
+					ret = EE_UART_ERR_TX_NOT_READY;		
+					break;
+				}
+			}
+			// if you don't want a blocking procedure return here...
+		}while(1);
+		if(ret == EE_UART_ERR_TX_NOT_READY)
+			return ret;									// return, no bytes transmitted
+	}
+	ret = len;											// all bytes transmitted... 
+
+	// All done!!!
+	return ret;
+
+}					
+
+/* This functions enables IRQ */
+int EE_hal_uart_enable_IRQ(EE_uart_st* usp, int ier)
+{
+	usp->base->ier = (volatile unsigned int)(ier);
+	
+	return EE_UART_OK;
+}
+
+/* This functions disables IRQ */
+int EE_hal_uart_disable_IRQ(EE_uart_st* usp)
+{
+	usp->base->ier = 0;
+	
+	return EE_UART_OK;
+}
+
+int EE_hal_uart_return_error(EE_uart_st* usp)
+{
+	return usp->err;
+}
+
+#endif // #ifdef __USE_UART_IRQ__
 
 /* Callback used by pic32-like functions */
 #ifdef __USE_MICO_PIC_API__

@@ -53,3 +53,4 @@ CPPFLAGS += $(DEFS_CC) $(addprefix -I, $(INCLUDE_PATH))
 LDFLAGS +=-Wl,--gc-sections
 DEFS_GCCASM := $(addprefix -D,$(EEOPT))
 DEFS_CC := $(addprefix -D,$(EEOPT))
+EE_AR = $(AR)

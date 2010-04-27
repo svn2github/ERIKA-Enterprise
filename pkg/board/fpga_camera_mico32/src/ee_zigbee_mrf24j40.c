@@ -9,7 +9,7 @@
 #ifdef __USE_MICO32BOARD_ZIGBEE_MRF24J40__
 
 #include "board/fpga_camera_mico32/inc/ee_zigbee_mrf24j40.h"
-#include "contrib/drivers/radio/mrf24j40/inc/mrf24j40.h"
+#include "mrf24j40.h"
 
 /* ---------------------- Global variables --------------------------------- */
 EE_ISR_callback ee_mrf24j40_cbk;	// ISR ethctrl callback function
@@ -27,14 +27,14 @@ int ee_mrf24j40_dummy_flag = 0;
 
 void EE_mrf24j40_handler(int level)
 {
-	int int_edge_flag;
-	
-	/* Save edgeCpature register */
-	int_edge_flag = EE_hal_gpio_read_edgeCapture(ee_mrf24j40_st.base);
-	/* Clear edgeCpature register */
-	EE_hal_gpio_write_edgeCapture(ee_mrf24j40_st.base, 0);
+	//EE_gpio_common_handler(level);
 	
     MRF24J40_INTERRUPT_NAME();
+	
+	while(1){
+		if( (EE_misc_gpio_read_data() & EE_INT2_MASK) == 0 )
+			break;
+	}
 	
 	return;
 }
@@ -236,7 +236,13 @@ void EE_mrf24j40_delay_us(EE_UINT16 delay_count)
  *
  */
 	MicoSleepMicroSecs((unsigned int)delay_count);
-    
+	// EE_UINT32 t1val, t2val;
+	
+	// EE_timer1_get_value(&t1val);
+    // do {
+		// EE_timer1_get_value(&t2val);
+	// } while ((t2val-t1val) < delay_count);
+	
 }
 
 int EE_mrf24j40_software_reset(void)

@@ -103,6 +103,10 @@ extern EE_ISR_callback ee_mrf24j40_cbk;
 #define EE_mrf24j40_rx_block(mode) 					( ((mode) & EE_MRF24J40_RX_BLOCK) )
 #define EE_mrf24j40_tx_block(mode) 					( ((mode) & EE_MRF24J40_TX_BLOCK) )
 
+#ifndef INT_POLARITY_HIGH
+#error "mrf24j40 int polarity error! please, add INT_POLARITY_HIGH option."
+#endif
+
 /* Board-dependent macros */
 #define EE_INT1_BIT 	(0) // mask: (0x01) (fpga output)
 #define EE_INT2_BIT 	(1) // mask: (0x02) (fpga input)
@@ -311,13 +315,14 @@ __INLINE__ int __ALWAYS_INLINE__ EE_mrf24j40_init(void)
 */
 __INLINE__ int __ALWAYS_INLINE__ EE_mrf24j40_config(void)
 { 
-	EE_mrf24j40_init();
-	EE_mrf24j40_enable();
+	EE_mrf24j40_init();		// init pins and disable gpio interrupt source.
+	EE_mrf24j40_enable();	// set _reset_ pin to turn on the mrf24j40 device.
 	EE_mrf24j40_spi_config(0, EE_SPI_POLLING | EE_SPI_RXTX_BLOCK);
 
 	return EE_mrf24j40_set_ISR_mode(EE_MRF24J40_RXTX_ISR); //(EE_MRF24J40_POLLING | EE_MRF24J40_RXTX_BLOCK); 
 } 
 
+void EE_mrf24j40_handler(int level);
 
 #endif //__EE_ZIGBEE_MRF24J40_H__
 
