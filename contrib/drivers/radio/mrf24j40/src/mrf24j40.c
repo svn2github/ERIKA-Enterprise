@@ -367,6 +367,10 @@ int8_t mrf24j40_init(uint8_t int_setup, uint8_t ch, uint8_t port)
 	bbreg2 = mrf24j40_get_short_add_mem(MRF24J40_BBREG2);
 	ccaedth = mrf24j40_get_short_add_mem(MRF24J40_CCAEDTH);
 
+	#ifdef __LM32__
+	mrf24j40_hal_int_enable();
+	#endif //#ifdef __LM32__
+	
 	return 0;
 }
 

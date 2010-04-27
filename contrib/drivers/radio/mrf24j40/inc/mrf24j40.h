@@ -199,6 +199,7 @@ void mrf24j40_enable_carrier_sense();
 #define MRF24J40_TX_PWR_SET(large_val, small_val)\
 	((large_val << 6) || (small_val << 3))
 
+#ifndef __LM32__
 typedef union _TX_status {
 	uint8_t val;
 	struct TX_bits {
@@ -222,12 +223,41 @@ typedef union _INT_status {
 		uint8_t RXIF: 1;
 		uint8_t SECIF: 1;
 		uint8_t HSYMTMRIF: 1;
-		uint8_t WAKEIF: 2;
+		uint8_t WAKEIF: 1;
 		uint8_t SLPIF: 1;
 	}bits; 
 
 }INT_status;
+#else /* different types because of LM32 endianness */
+typedef union _TX_status {
+	uint8_t val;
+	struct TX_bits {
+		uint8_t TXNRETRY: 2;
+		uint8_t CCAFAIL: 1;
+		uint8_t TXG2FNT: 1;
+		uint8_t TXG1FNT: 1;
+		uint8_t TXG2STAT: 1;
+		uint8_t TXG1STAT: 1;
+		uint8_t TXNSTAT: 1;
+	}bits; 
+}TX_status;
 
+typedef union _INT_status {
+	uint8_t val;
+
+	struct INT_bits {
+		uint8_t SLPIF: 1;
+		uint8_t WAKEIF: 1;
+		uint8_t HSYMTMRIF: 1;
+		uint8_t SECIF: 1;
+		uint8_t RXIF: 1;
+		uint8_t TXG2IF: 1;
+		uint8_t TXG1IF: 1;
+		uint8_t TXNIF: 1;
+	}bits; 
+
+}INT_status;
+#endif //#ifndef __LM32__
 
 /**
 * Write val in the short address register addr

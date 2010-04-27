@@ -25,6 +25,7 @@ ALLINCPATH += -I"$(shell cygpath -w $(EEBASE)/contrib/drivers/camera/hv7131gp/in
 else
 ALLINCPATH += -I$(EEBASE)/contrib/drivers/camera/hv7131gp/inc
 endif
+INCLUDE_PATH += $(EEBASE)/contrib/drivers/camera/hv7131gp/inc
 
 ## Add each file individually
 EE_SRCS_HV7131GP +=

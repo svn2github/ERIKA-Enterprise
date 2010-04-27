@@ -27,6 +27,9 @@ endif
 ifeq ($(findstring __PIC32__,$(EEOPT)) , __PIC32__)
 EE_SRCS += contrib/network/uWireless/src/hal/uwl_timer_pic32.c
 endif
+ifeq ($(findstring __LM32__,$(EEOPT)) , __LM32__)
+EE_SRCS += contrib/network/uWireless/src/hal/uwl_timer_mico32.c
+endif
 endif
 
 EE_SRCS += contrib/network/uWireless/src/phy/uwl_phy.c

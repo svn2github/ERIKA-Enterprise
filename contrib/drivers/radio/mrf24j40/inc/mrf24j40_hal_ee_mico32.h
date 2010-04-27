@@ -11,18 +11,25 @@
 
 #ifndef __USE_SPI__
 #error "MRF24J40 HAL EE : The SPI module is required!"
-#endif
+#endif // __USE_SPI__
 
 #ifdef __USE_MICO32BOARD_ZIGBEE_MRF24J40__
 #include <board/fpga_camera_mico32/inc/ee_zigbee_mrf24j40.h>
 #else		/* NO board */
 #error "MRF24J40_HAL: No board selected!"
-#endif
+#endif //#ifdef __USE_MICO32BOARD_ZIGBEE_MRF24J40__
+
+#ifdef MRF24J40_DEBUG
+#include "string.h"
+#endif // #ifdef MRF24J40_DEBUG
 
 /* Macros for compatibility */
 #define MRF24J40_SPI_PORT_1	0x01
 #define MRF24J40_SPI_PORT_2	0x02
+
+#ifndef ISR2
 #define ISR2(func) void func(void)
+#endif
 
 #define MRF24J40_HAL_ISR() ISR2(MRF24J40_INTERRUPT_NAME)
 
@@ -62,15 +69,33 @@ COMPILER_INLINE void mrf24j40_hal_csn_low(void)
 
 COMPILER_INLINE void mrf24j40_hal_irq_enable(void)
 {
-	EE_mrf24j40_enable_IRQ();
+	EE_mico32_enableIRQ(); //EE_mrf24j40_enable_IRQ();
 }
 
 COMPILER_INLINE void mrf24j40_hal_irq_disable(void)
 {
-	EE_mrf24j40_disable_IRQ();
+	EE_mico32_disableIRQ(); //EE_mrf24j40_disable_IRQ();
 }
 
 COMPILER_INLINE uint8_t mrf24j40_hal_irq_status(void)
+{
+	return EE_mico32_get_IRQ_enabled(); //EE_mrf24j40_IRQ_enabled();
+}
+
+COMPILER_INLINE uint8_t mrf24j40_hal_int_enable(void)
+{
+	mico32_clear_ip_mask(1<<EE_MRF24J40_IRQ); // clear bit in ip register
+	EE_mico32_register_ISR(ee_mrf24j40_st.irqf, EE_mrf24j40_handler);	
+	mico32_enable_irq(ee_mrf24j40_st.irqf);
+	return EE_mrf24j40_enable_IRQ();	 //EE_mrf24j40_set_ISR_mode(EE_MRF24J40_RXTX_ISR); //(EE_MRF24J40_RXTX_ISR); //(EE_MRF24J40_POLLING | EE_MRF24J40_RXTX_BLOCK);;
+}
+
+COMPILER_INLINE uint8_t mrf24j40_hal_int_disable(void)
+{
+	return EE_mrf24j40_disable_IRQ();
+}
+
+COMPILER_INLINE uint8_t mrf24j40_hal_int_status(void)
 {
 	return EE_mrf24j40_IRQ_enabled();
 }

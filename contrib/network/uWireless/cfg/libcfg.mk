@@ -25,6 +25,7 @@ ALLINCPATH += -I"$(shell cygpath -w $(EEBASE)/contrib/network/uWireless/inc)"
 else
 ALLINCPATH += -I$(EEBASE)/contrib/network/uWireless/inc
 endif
+INCLUDE_PATH += $(EEBASE)/contrib/network/uWireless/inc
 
 ## Add each file individually
 #EE_SRCS_uWireless += contrib/network/libsrc/libuWireless.c

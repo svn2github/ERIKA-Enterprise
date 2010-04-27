@@ -23,6 +23,7 @@ ALLINCPATH += -I"$(shell cygpath -w $(EEBASE)/contrib/memory/inc)"
 else
 ALLINCPATH += -I$(EEBASE)/contrib/memory/inc
 endif
+INCLUDE_PATH += $(EEBASE)/contrib/memory/inc
 
 ## Add each file individually
 #EE_SRCS_MEMORY += contrib/memory/libsrc/cqueue.c
@@ -38,13 +39,21 @@ libmemory.a: $(EE_OBJS_MEMORY)
 	@echo $(EE_SRC_MEMORY)
 	@printf "AR  libmemory.a\n" ;
 	$(QUIET)$(EE_AR) rs libmemory.a $(EE_OBJS_MEMORY)
-
-
 ##
 ## Add the library to the linker list and list of lib files
 ##
 OPT_LIBS += -lmemory
 ALL_LIBS += libmemory.a
+else
+$(OUTPUT_DIR)/libmemory.a: $(EE_OBJS_MEMORY)
+	@echo $(EE_SRC_MEMORY)
+	@printf "AR  libmemory.a\n" ;
+	$(QUIET)$(EE_AR) rs $(OUTPUT_DIR)/libmemory.a $(EE_OBJS_MEMORY)
+##
+## Add the library to the linker list and list of lib files
+##
+OPT_LIBS += -lmemory
+ALL_LIBS += $(OUTPUT_DIR)/libmemory.a
 endif
 
 

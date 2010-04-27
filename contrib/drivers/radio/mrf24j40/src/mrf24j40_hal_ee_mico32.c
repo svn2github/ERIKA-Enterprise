@@ -20,7 +20,6 @@ int8_t	mrf24j40_hal_init(void)
 int8_t	mrf24j40_hal_spi_init(uint8_t port)
 {
     EE_mrf24j40_hal_spi_config(0, EE_SPI_POLLING | EE_SPI_RXTX_BLOCK);
-	EE_mrf24j40_set_ISR_mode(EE_MRF24J40_RXTX_ISR); //(EE_MRF24J40_POLLING | EE_MRF24J40_RXTX_BLOCK);
 
     return 1;
 }

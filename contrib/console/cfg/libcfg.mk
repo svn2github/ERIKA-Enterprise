@@ -25,12 +25,11 @@ ALLINCPATH += -i"$(shell cygpath -w $(EEBASE)/contrib/console/inc)"
 else
 ifeq ($(findstring __RTD_CYGWIN__,$(EEOPT)), __RTD_CYGWIN__) 
 ALLINCPATH += -I"$(shell cygpath -w $(EEBASE)/contrib/console/inc)"
-INCLUDE_PATH += $(EEBASE)/contrib/console/inc
 else
 ALLINCPATH += -I$(EEBASE)/contrib/console/inc
+endif
+endif
 INCLUDE_PATH += $(EEBASE)/contrib/console/inc
-endif
-endif
 
 ## Add each file individually
 #EE_SRCS_CONSOLE += contrib/console/libsrc/libconsole.c
