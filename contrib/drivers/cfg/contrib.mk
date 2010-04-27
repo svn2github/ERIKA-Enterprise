@@ -51,8 +51,8 @@ include $(EEBASE)/contrib/drivers/radio/cc2420/cfg/cfg.mk
 include $(EEBASE)/contrib/drivers/radio/mrf24j40/cfg/cfg.mk
 include $(EEBASE)/contrib/drivers/nvram/fm25h20/cfg/cfg.mk
 include $(EEBASE)/contrib/drivers/camera/hv7131gp/cfg/cfg.mk
-
 include $(EEBASE)/contrib/drivers/touch/cfg/cfg.mk
+include $(EEBASE)/contrib/drivers/miscellaneous/tsl2561t/cfg/cfg.mk
 
 endif
 
@@ -65,5 +65,6 @@ include $(EEBASE)/contrib/drivers/radio/mrf24j40/cfg/libcfg.mk
 include $(EEBASE)/contrib/drivers/nvram/fm25h20/cfg/libcfg.mk
 include $(EEBASE)/contrib/drivers/camera/hv7131gp/cfg/libcfg.mk
 include $(EEBASE)/contrib/drivers/touch/cfg/libcfg.mk
+include $(EEBASE)/contrib/drivers/miscellaneous/tsl2561t/cfg/libcfg.mk
 
 endif
