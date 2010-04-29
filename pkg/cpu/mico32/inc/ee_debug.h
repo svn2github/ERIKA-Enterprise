@@ -160,10 +160,10 @@ __INLINE__ EE_UREG __ALWAYS_INLINE__ get_most_likely_tos_index(
     EE_ADDR base_toses[], int num_toses)
 {
     EE_ADDR sp; /* Current stack pointer */
-    asm ("mv %0,sp" : "=r" (sp) );
     EE_UREG tosind = (EE_UREG)-1;
     EE_ADDR tos = (EE_ADDR)-1;
     int i;
+    asm ("mv %0,sp" : "=r" (sp) );
     /* SP is inside the stack whose base top-of-stack is the smallest among
      * those above SP */
     for (i = 0; i < num_toses; ++i)
@@ -201,12 +201,12 @@ __INLINE__ int __ALWAYS_INLINE__ get_base_toses(
     EE_ADDR base_toses[EE_MAX_TASK+1] )
 {
     int i, max_stack = 0;
+    extern int _fstack;     /* Address defined in the linker script */
     for (i = 0; i < EE_MAX_TASK+1; ++i)
         if (EE_std_thread_tos[i] > max_stack) {
             max_stack = EE_std_thread_tos[i];
             base_toses[max_stack] = EE_mico32_system_tos[max_stack].SYS_tos;
         }
-    extern int _fstack;     /* Address defined in the linker script */
     base_toses[0] = (EE_ADDR)&_fstack;
     return max_stack+1;
 }

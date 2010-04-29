@@ -1,7 +1,7 @@
 /* ###*B*###
  * ERIKA Enterprise - a tiny RTOS for small microcontrollers
  *
- * Copyright (C) 2002-2008  Evidence Srl
+ * Copyright (C) 2002-2010  Evidence Srl
  *
  * This file is part of ERIKA Enterprise.
  *
@@ -39,8 +39,8 @@
  * ###*E*### */
 
 /*
- * Author: 2006 
- * CVS: $Id: ee_board.h,v 1.27 2008/08/29 11:21:08 francesco Exp $
+ * Author: 2010,  Dario  Di Stefano
+ * Author: 2010,  Bernardo  Dal Seno
  */
 
 #ifndef __INCLUDE_FPGA_CAMERA_BOARD_H__
@@ -63,5 +63,8 @@
 #include "board/fpga_camera_mico32/inc/ee_zigbee_mrf24j40.h"
 #endif // __USE_MICO32BOARD_ETHCTRL_ENC28J60__
 
-/* ************************************************************************* */
+#if defined(__USE_LEDS__) || defined(__USE_SWITCHES__) || defined(__USE_TRANSISTORS__)
+#include "ee_serio.h"
+#endif
+
 #endif //__INCLUDE_FPGA_CAMERA_BOARD_H__
