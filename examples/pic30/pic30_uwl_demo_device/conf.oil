@@ -13,6 +13,8 @@ CPU mySystem {
 		MCU_DATA = PIC30 {
 			MODEL = PIC33FJ256MC710;
 		};
+		EE_OPT = "__USE_SPI__";
+		//EE_OPT = "__USE_UART__";
 		
 		BOARD_DATA = EE_FLEX {
 			USELEDS = TRUE;
@@ -20,13 +22,6 @@ CPU mySystem {
 				OPTIONS = ALL;
 			};
 		};
-		EE_OPT = "__USE_SPI__";
-		//EE_OPT = "__USE_UART__";
-
-//		EE_OPT="__USE_MOTIONBOARD__";
-//		EE_OPT="__USE_LEDS__";
-//		EE_OPT="__USE_BUTTONS__";
-		
 		KERNEL_TYPE = FP;
 
 		/* ********************************************************** */
@@ -38,22 +33,17 @@ CPU mySystem {
 		
 		LIB = ENABLE { NAME = "CC2420"; };	
 		EE_OPT = "USE_CC2420";
-		//EE_OPT = "CC2420_DEBUG";
 		
 		//LIB = ENABLE { NAME = "CONSOLE"; };	
 		//EE_OPT = "USE_CONSOLE";
 		//EE_OPT = "USE_CONSOLE_SERIAL";
 		
-		//LIB = ENABLE { NAME = "DAQ_TIME"; };	
-		//EE_OPT = "USE_DAQ_TIME";
-
 		LIB = ENABLE { NAME = "UWIRELESS"; };	
 		EE_OPT = "EE_TYPETICK=EE_INT32"; /* Mandatory! */
 		EE_OPT = "UWL_USE_SIMPLE_802154";
-		//EE_OPT = "UWL_GTS_MANIPULATION"; /* Makes sense if Coord. */
-		//EE_OPT = "UWL_HAL_EXTERNAL_TIMER";
+		EE_OPT = "UWL_GTS_MANIPULATION"; /* Makes sense if Coord. */
+		EE_OPT = "UWL_NO_DYN_ASS"; /* Avoid dynamic association */
 		//EE_OPT = "UWL_DEBUG";
-		//EE_OPT = "UWL_DEBUG_TIME";
 		//EE_OPT = "UWL_DEBUG_LOG";
 		//EE_OPT = "UWL_DEBUG_LOG_SERIAL";
 		//EE_OPT = "UWL_DEBUG_LOG_SERIAL_PORT=1";
@@ -65,32 +55,13 @@ CPU mySystem {
 	/* ****************************************************************** */
 	/*                      Application TASKs                             */
 	/* ****************************************************************** */
-	TASK TEST_SEND_GTS {
-		PRIORITY = 3;
-		STACK = SHARED;
-		SCHEDULE = FULL;
-		RESOURCE = "LCD_MUTEX";
-		RESOURCE = "UWL_EE_RESOURCE_MAC_MUTEX";
-	};
-	
-	TASK TEST_SEND_CSMA {
-		PRIORITY = 3;
-		STACK = SHARED;
-		SCHEDULE = FULL;
-		RESOURCE = "LCD_MUTEX";
-		RESOURCE = "UWL_EE_RESOURCE_MAC_MUTEX";
-	};
-	ALARM TEST_SEND_CSMA_ALARM {
-		COUNTER = "TASK_COUNTER";
-		ACTION = ACTIVATETASK { TASK =  "TEST_SEND_CSMA"; };
-	};
-
 	TASK CHAT_SEND {
 		PRIORITY = 4;
 		STACK = SHARED;
 		SCHEDULE = FULL;
 		RESOURCE = "LCD_MUTEX";
 		RESOURCE = "UWL_EE_RESOURCE_MAC_MUTEX";
+		RESOURCE = "UWL_EE_RESOURCE_MAC_SEND_MUTEX";
 	};
 	ALARM CHAT_SEND_ALARM {
 		COUNTER = "TASK_COUNTER";
@@ -128,10 +99,8 @@ CPU mySystem {
 	/* -------------------------------------------------------------------- 
 	|                  --  OpenZB OIL Section  --                          |
 	|                                                                      |
-	|  - 1 Global Task counter                                             |
 	|  - 1 PHY Task (read from radio)                                      |
-	|  - 7 MAC Tasks (superframe management + rx parsing)                  |
-	|  - 5 Resources (rx parsing tasks + general mac protection)           |
+	|  - 7 MAC Tasks (superframe management)                               |
 	 -------------------------------------------------------------------- */
 
 	COUNTER UWL_EE_TASK_COUNTER;
@@ -143,6 +112,7 @@ CPU mySystem {
 		RESOURCE = "UWL_EE_RESOURCE_MAC_RX_BEACON_MUTEX";
 		RESOURCE = "UWL_EE_RESOURCE_MAC_RX_DATA_MUTEX";
 		RESOURCE = "UWL_EE_RESOURCE_MAC_RX_COMMAND_MUTEX";
+		RESOURCE = "UWL_EE_RESOURCE_MAC_SEND_MUTEX";
 	};
 
 	TASK UWL_EE_TASK_MAC_PROCESS_RX_BEACON {
@@ -164,6 +134,7 @@ CPU mySystem {
 		STACK = SHARED;
 		SCHEDULE = FULL;
 		RESOURCE = "UWL_EE_RESOURCE_MAC_RX_COMMAND_MUTEX";
+		RESOURCE = "UWL_EE_RESOURCE_MAC_SEND_MUTEX";
 	};
 
 	TASK UWL_EE_TASK_MAC_TIMESLOT {
@@ -182,6 +153,7 @@ CPU mySystem {
 		PRIORITY = 20;
 		STACK = SHARED;
 		SCHEDULE = FULL;
+		RESOURCE = "UWL_EE_RESOURCE_MAC_MUTEX";
 	};
 	ALARM UWL_EE_ALARM_MAC_BEFORE_TIMESLOT {
 		COUNTER = "UWL_EE_TASK_COUNTER";
@@ -192,6 +164,7 @@ CPU mySystem {
 		PRIORITY = 20;
 		STACK = SHARED;
 		SCHEDULE = FULL;
+		RESOURCE = "UWL_EE_RESOURCE_MAC_SEND_MUTEX";
 	};
 	ALARM UWL_EE_ALARM_MAC_BACKOFF_PERIOD {
 		COUNTER = "UWL_EE_TASK_COUNTER";
@@ -208,7 +181,6 @@ CPU mySystem {
 		COUNTER = "UWL_EE_TASK_COUNTER";
 		ACTION = ACTIVATETASK {TASK="UWL_EE_TASK_MAC_GTS_SEND";};
 	};
-
 	
 	/* ****************************************************************** */
 	/*                    Resources Declaration                           */
@@ -226,6 +198,9 @@ CPU mySystem {
 		RESOURCEPROPERTY = STANDARD; 
 	};
 	RESOURCE UWL_EE_RESOURCE_MAC_RX_COMMAND_MUTEX { 
+		RESOURCEPROPERTY = STANDARD; 
+	};
+	RESOURCE UWL_EE_RESOURCE_MAC_SEND_MUTEX { 
 		RESOURCEPROPERTY = STANDARD; 
 	};
 };
