@@ -12,6 +12,8 @@
 #ifndef COMPILER_ATTRIBUTE_FAR 
 #define COMPILER_ATTRIBUTE_FAR __attribute__((far))
 #endif
+#elif defined (__PIC32__)
+#define COMPILER_ATTRIBUTE_FAR
 #elif defined __AVR5__
 #ifndef COMPILER_ATTRIBUTE_FAR 
 //#define COMPILER_ATTRIBUTE_FAR __attribute__((far))
