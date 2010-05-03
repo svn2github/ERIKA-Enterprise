@@ -6,25 +6,27 @@
 #include "mcu/mico32/inc/ee_i2c.h"
 
 typedef struct {
-  EE_UINT8 year, month, day, hours, minutes, seconds, hundreds_of_seconds;
+    EE_UINT8 year, month, day, hours, minutes, seconds, hundredths;
 } TTime;
 
 /* Symbols and macros */
-#define RTC_DEVICE_ID		(0xA0)
-#define RTC_OFF 			(0x80)
-#define RTC_ON				(0x00)
+#define RTC_DEVICE_ID           (0xA0)
+#define RTC_OFF                 (0x80)
+#define RTC_ON                  (0x00)
 
 /* Memory address */
-#define RTC_CSR_ADD 		(0x00)
-#define RTC_HSECONDS_ADD 	(0x01)
-#define RTC_SECONDS_ADD 	(0x02)
-#define RTC_MINUTES_ADD 	(0x03)
-#define RTC_HOURS_ADD 		(0x04)
-#define RTC_DAYS_ADD 		(0x05)
-#define RTC_MONTHS_ADD 		(0x06)
-#define RTC_TIMER_ADD 		(0x07)
-#define RTC_YEAR_ADD		(0x10)
-#define RTC_FREE_RAM_ADD	(0x11)
+#define RTC_CSR_ADD             (0x00)
+#define RTC_HSECONDS_ADD        (0x01)
+#define RTC_SECONDS_ADD         (0x02)
+#define RTC_MINUTES_ADD         (0x03)
+#define RTC_HOURS_ADD           (0x04)
+#define RTC_DAYS_ADD            (0x05)
+#define RTC_MONTHS_ADD          (0x06)
+#define RTC_TIMER_ADD           (0x07)
+#define RTC_YEAR_ADD            (0x10)
+#define RTC_FREE_RAM_ADD        (0x11)
+
+
 
 
 /* RTC API: */

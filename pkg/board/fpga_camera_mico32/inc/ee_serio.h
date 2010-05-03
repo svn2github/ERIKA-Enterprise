@@ -47,15 +47,6 @@
 #ifndef __INCLUDE_FPGA_CAMERA_BOARD_SERIO_H__
 #define __INCLUDE_FPGA_CAMERA_BOARD_SERIO_H__
 
-#include <ee.h>
-#include <MicoGPIO.h>
-#include <system_conf.h>
-
-/* Common stuff */
-#ifdef SERPARIO_BASE_ADDRESS
-
-/* Public common stuff */
-
 #define EE_LED_COUNT 10
 
 #define EE_TRANSISTOR_SRAM      0
@@ -66,60 +57,11 @@
 #define EE_TRANSISTOR_SWITCHES  5
 #define EE_TRANSISTOR_EXT_SPI   6
 
-/* Private common stuff */
-
-typedef struct
-{
-    /* Register to read state of switches and button (RO) */
-    volatile EE_UINT32 data_in;
-    /* Register to control leds & transistors (R/W) */
-    volatile EE_UINT32 data_out;
-    /* Status register (R/W) */
-    volatile EE_UINT32 status;
-} SerParIO_t;
-
-static SerParIO_t * const serpario = (SerParIO_t *)SERPARIO_BASE_ADDRESS;
-
-
-__INLINE__ EE_UINT32 __ALWAYS_INLINE__ EE_serio_read(void)
-{
-    return serpario->data_in;
-}
-
-
-__INLINE__ void __ALWAYS_INLINE__ EE_serio_write(EE_UINT32 data)
-{
-    serpario->data_out = data;
-}
-
-
-__INLINE__ EE_UINT32 __ALWAYS_INLINE__ EE_serio_get_data_out(void)
-{
-    return serpario->data_out;
-}
-
-#define EE_SERIO_SYSTEM_LED 9
-#define EE_SERIO_LED_COUNT (EE_LED_COUNT - 1)
-#define EE_SERIO_ALL_LEDS ((1 << EE_SERIO_LED_COUNT) - 1)
-#define EE_SERIO_LED_MASK(n) (1 << (n))
-
-#define EE_SERIO_SWITCH_MASK(n) (1 << (n))
-
-#define EE_SERIO_TRANSISTOR_MASK(n) (1 << ((n) + EE_SERIO_LED_COUNT))
-#define EE_SERIO_ALL_TRANSISTORS (0x7f << EE_SERIO_LED_COUNT)
-#else
-#error Unsopported platform: no parallel/serial component found
-#endif /* SERPARIO_BASE_ADDRESS */
-
+#include "ee_serio_internal.h"
 
 /* Leds */
 
 #ifdef __USE_LEDS__
-
-__DECLARE_INLINE__ void EE_serio_system_led_on(void);
-__DECLARE_INLINE__ void EE_serio_system_led_off(void);
-__DECLARE_INLINE__ void EE_serio_system_led_toggle(void);
-__DECLARE_INLINE__ void EE_serio_system_led_set(EE_UREG s);
 
 __INLINE__ void __ALWAYS_INLINE__ EE_led_on(EE_UREG n)
 {
@@ -147,9 +89,18 @@ __INLINE__ void __ALWAYS_INLINE__ EE_led_toggle(EE_UREG n)
 
 __INLINE__ void __ALWAYS_INLINE__ EE_led_set_all(EE_INT32 state)
 {
-    EE_INT32 old = EE_serio_get_data_out();
+    EE_UINT32 old = EE_serio_get_data_out();
     EE_serio_write((old & ~EE_SERIO_ALL_LEDS) | (state & EE_SERIO_ALL_LEDS));
     EE_serio_system_led_set(state & (1 << EE_SERIO_SYSTEM_LED));
+}
+
+
+__INLINE__ EE_UINT32 __ALWAYS_INLINE__ EE_led_get_all(void)
+{
+    EE_UINT32 state = EE_serio_get_data_out() & EE_SERIO_ALL_LEDS;
+    if (EE_serio_system_led_get())
+        state |= (1 << EE_SERIO_SYSTEM_LED);
+    return state;
 }
 
 
@@ -172,33 +123,6 @@ __INLINE__ void __ALWAYS_INLINE__ EE_led_all_toggle(void)
     EE_serio_write(EE_serio_get_data_out() ^ EE_SERIO_ALL_LEDS);
     EE_serio_system_led_toggle();
 }
-
-/* Private LED stuff */
-
-EE_UREG EE_serio_system_led_status; /* Gcc merges all these definitions */
-
-#define EE_SERIO_GPIO_LED_MASK 1
-__INLINE__ void __ALWAYS_INLINE__ EE_serio_system_led_set(EE_UREG s)
-{
-    MicoGPIO_t * const led_io = (MicoGPIO_t *)MISC_GPIO_BASE_ADDRESS;
-    EE_serio_system_led_status = s;
-    led_io->data = s ? EE_SERIO_GPIO_LED_MASK : 0;
-    #warning The current LED driver interferes with networking pins
-}
-__INLINE__ void __ALWAYS_INLINE__ EE_serio_system_led_on(void)
-{
-    EE_serio_system_led_set(1);
-}
-__INLINE__ void __ALWAYS_INLINE__ EE_serio_system_led_off(void)
-{
-    EE_serio_system_led_set(0);
-}
-
-__INLINE__ void __ALWAYS_INLINE__ EE_serio_system_led_toggle(void)
-{
-    EE_serio_system_led_set (! EE_serio_system_led_status);
-}
-
 
 #endif /* __USE_LEDS__ */
 

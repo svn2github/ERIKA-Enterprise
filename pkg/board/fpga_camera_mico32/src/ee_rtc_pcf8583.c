@@ -16,7 +16,7 @@ int EE_rtc_write_time(const TTime *ttw)
 	
 	/* Turn off rt-clock and change the time */					
    	tx_data[0] = RTC_OFF;
-   	tx_data[1] = ((ttw->hundreds_of_seconds/10)<<4) + (ttw->hundreds_of_seconds%10);
+   	tx_data[1] = ((ttw->hundredths/10)<<4) + (ttw->hundredths%10);
    	tx_data[2] = ((ttw->seconds/10)<<4) + (ttw->seconds%10);
    	tx_data[3] = ((ttw->minutes/10)<<4) + (ttw->minutes%10);
    	tx_data[4] = ((ttw->hours/10)<<4) + (ttw->hours%10);
@@ -48,7 +48,7 @@ int EE_rtc_read_time(TTime *ttr)
    	ret = EE_rtc_read_buffer(RTC_HSECONDS_ADD, rx_data, 6);	
    	if(ret == EE_I2C_OK)
    	{
-		ttr->hundreds_of_seconds = (rx_data[0] >> 4)*10 + (rx_data[0] & 0x0F); 
+		ttr->hundredths = (rx_data[0] >> 4)*10 + (rx_data[0] & 0x0F); 
    		ttr->seconds = (rx_data[1] >> 4)*10 + (rx_data[1] & 0x0F); 
    		ttr->minutes = (rx_data[2] >> 4)*10 + (rx_data[2] & 0x0F); 
    		ttr->hours = (rx_data[3] >> 4)*10 + (rx_data[3] & 0x0F); 
