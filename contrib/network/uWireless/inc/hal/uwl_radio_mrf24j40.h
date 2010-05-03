@@ -65,7 +65,6 @@
      TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
 */
 
-//int8_t uwl_radio_init(void *todo);/*TODO: chris: define params */
 /**
 * @brief Initializes the radio.
 *
@@ -73,29 +72,7 @@
 *
 * @return initialization result (0 ok, -1 failed).
  */
-COMPILER_INLINE int8_t uwl_radio_init(void)
-{
-	/* GF: interrupt set up is hard coded. May be a better way to do that
-	*	is needed!
-	*
-	*Set interrupts register with 0xF6, which means:
-	* 7 = '1' = Disables the Sleep alert interrupt
-	* 6 = '1' = Disables the wake-up alert interrupt
-	* 5 = '1' = Disables the half symbol timer interrupt
-	* 4 = '1' = Disables the security key request interrupt
-	* 3 = '0' = Enables the RX FIFO reception interrupt
-	* 2 = '1' = Disables the TX GTS2 FIFO transmission interrupt
-	* 1 = '1' = Disables the TX GTS1 FIFO transmission interrupt
-	* 0 = '0' = Enables the TX Normal FIFO transmission interrupt	
-	*/
-	#if defined(__USE_MOTIONBOARD__) || defined(UWL_USE_SPI_PORT_1)
-	return mrf24j40_init(0xF6, 11, MRF24J40_SPI_PORT_1);
-	#else
-	return mrf24j40_init(0xF6, 11, MRF24J40_SPI_PORT_2);
-	#endif
-
-}
-
+int8_t uwl_radio_init(void);
 
 int8_t uwl_radio_mac_create_beacon(void);
 
@@ -160,25 +137,7 @@ int8_t uwl_radio_set_ack_rx_callback(void *todo); /*TODO: chris: define params*/
 * @param[in] buf_legth 	The message lenght
 * @return 0 if the initialization goes well, -1 otherwise.
 */
-COMPILER_INLINE int8_t uwl_radio_send(uint8_t *buf, uint8_t len)
-{
-	mrf24j40_disable_carrier_sense();
-//uwl_debug_print("   uwl_radio_send(...)");// TODO: REMOVE
-	if (mrf24j40_store_norm_txfifo( buf, len) < 0)
-		return -1; // len is either less than 0 or
-			   // greter than 127.
-//uwl_debug_print("      Store FIFO OK!");// TODO: REMOVE
-	mrf24j40_set_tx();
-//uwl_debug_print("      Set TX OK!");// TODO: REMOVE
-	/* Wait until the transmission has finished. */
-	while (mrf24j40_get_status() & 80);
-//uwl_debug_print("      Loop 0x08 ok!");// TODO: REMOVE
-
-//uwl_debug_print("      returning OK!");// TODO: REMOVE
-	/* Everything goes well. */
-	mrf24j40_enable_carrier_sense();
-	return UWL_RADIO_ERR_NONE;
-}
+int8_t uwl_radio_send(uint8_t *buf, uint8_t len);
 
 /**
 * @brief Put the transceiver on transmission.

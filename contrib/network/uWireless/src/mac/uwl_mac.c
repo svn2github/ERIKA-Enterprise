@@ -479,6 +479,10 @@ static void process_rx_beacon(void)
 	if (uwl_kal_mutex_signal(MAC_RX_BEACON_MUTEX) < 0)
 		return; /* TODO: manage error? */
 	uwl_mac_superframe_resync();
+	#ifdef UWL_SUPERFRAME_CALLBACKS
+	if (on_rx_beacon_callback)
+	on_rx_beacon_callback();
+	#endif
 }
 
 static void process_rx_data(void)
@@ -1213,10 +1217,6 @@ void uwl_mac_parse_received_mpdu(uint8_t *psdu, uint8_t len)
 		if (uwl_mac_status.is_pan_coordinator
 				|| uwl_mac_status.is_coordinator)
 			return; /* TODO: check if this is correct w.r.t std */
-#ifdef UWL_SUPERFRAME_CALLBACKS
-		if (on_rx_beacon_callback)
-		on_rx_beacon_callback();
-#endif
 		/* TODO: make an extra compare, to see if Frame Control Field
 		 is valid for a beacon, no_dest address, a_src address*/
 		if (uwl_kal_mutex_wait(MAC_RX_BEACON_MUTEX) < 0)
