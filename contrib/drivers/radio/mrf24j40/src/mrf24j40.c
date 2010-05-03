@@ -209,7 +209,7 @@ int8_t mrf24j40_init(uint8_t int_setup, uint8_t ch, uint8_t port)
 	i = 0;
 
 	#ifdef MRF24J40_DISABLE_AUTOMATIC_ACK
-	mrf24j40_dbg_print("\r\nMRF24J40 Init AUTOACK");
+	mrf24j40_dbg_print("\r\nMRF24J40 Init NO_AUTO_ACK");
 	i = i | 0b00100000;
 	#endif
 
@@ -589,7 +589,6 @@ MRF24J40_HAL_ISR()
 	INT_status int_status;
 	TX_status tx_status;
 
-	EE_led_toggle(7);
 	mrf24j40_hal_irq_clean();
 	mrf24j40_dbg_print("\r\nMRF24J40 Interrupt");
 	int_status.val = mrf24j40_get_short_add_mem(MRF24J40_INTSTAT);
