@@ -21,7 +21,7 @@
  GPIO
 *************************************************************************/
 /* Generic Macros */
-#define EE_GPIO_OK                                      (0x00) 
+#define EE_GPIO_OK                              (0x00) 
 #define EE_GPIO_FAILURE                         (-1)
 /* Macro for Structure declaration */
 #define DECLARE_STRUCT_GPIO(uc, lc)             \
