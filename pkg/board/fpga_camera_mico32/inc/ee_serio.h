@@ -49,10 +49,10 @@
 
 #define EE_LED_COUNT 10
 
-#define EE_TRANSISTOR_SRAM      0
+#define EE_TRANSISTOR_DRAM      0
 #define EE_TRANSISTOR_LCD       1
 #define EE_TRANSISTOR_FLASH     2
-#define EE_TRANSISTOR_DRAM      3
+#define EE_TRANSISTOR_SRAM      3
 #define EE_TRANSISTOR_CAMERA    4
 #define EE_TRANSISTOR_SWITCHES  5
 #define EE_TRANSISTOR_EXT_SPI   6
