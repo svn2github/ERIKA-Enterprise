@@ -6,8 +6,6 @@
   Description: Ethernet library header file for MICO32 CAMERA board
 */
 
-#ifdef __USE_MICO32BOARD_ETHERNET_ENC28J60__
-
 #ifndef __EE_ETHERNET_ENC28J60__
 #define __EE_ETHERNET_ENC28J60__
 
@@ -45,8 +43,6 @@ typedef struct {
 extern EE_enc28j60_st ee_enc28j60_st;
 /* Callback function called by ZIGBEE driver handler  */
 extern EE_ISR_callback ee_enc28j60_cbk;
-/* Ethernet driver structure */
-// to do...
 
 /* ------------------------------------------------------------------------------- */
 /* Macros used into the Ethernet driver functions */
@@ -72,8 +68,6 @@ extern EE_ISR_callback ee_enc28j60_cbk;
 #define	ENC28J60_ERR_DEV_NOINIT		(-23)	/* eth device error */
 #define	ENC28J60_ERR_MEM_NULL		(-24)	/* eth null pointer error */
 
-/* Settings value */
-// ...
 /* Board-dependent macros */
 #define EE_INT1_BIT 	0 // mask: (0x01)
 #define EE_INT2_BIT 	1 // mask: (0x02)
@@ -313,5 +307,3 @@ __INLINE__ int __ALWAYS_INLINE__ EE_enc28j60_config(int settings, int mode)
 } 
 
 #endif //#ifndef __EE_ETHERNET_enc28j60__
-
-#endif //#ifdef __USE_MICO32BOARD_ETHERNET_ENC28J60__

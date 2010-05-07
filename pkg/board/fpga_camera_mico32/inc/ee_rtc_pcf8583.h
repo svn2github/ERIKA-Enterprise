@@ -1,4 +1,10 @@
-#ifdef __USE_MICO32BOARD_RTC_PCF8583__
+/*
+  Name: ee_rtc_pcf8583.h
+  Copyright: Evidence Srl
+  Author: Dario Di Stefano
+  Date: 29/03/10 18.28
+  Description: RT clock PCF8583 driver header file for MICO32 CAMERA board. 
+*/
 
 #ifndef __EE_RTC_PCF8583__
 #define __EE_RTC_PCF8583__
@@ -47,21 +53,8 @@ __INLINE__ int __ALWAYS_INLINE__  EE_rtc_read_byte(EE_UINT8 address){ \
 	return cat3(EE_, lc, _receive_byte)(RTC_DEVICE_ID, address); } \
 __INLINE__ int __ALWAYS_INLINE__  EE_rtc_read_buffer(EE_UINT8 address, EE_UINT8 *data, int len){ \
 	return cat3(EE_, lc, _receive_buffer)(RTC_DEVICE_ID, address, data, len); }
-	
-//#ifdef __EE_PCF8583_USE_I2C1__
-//#ifdef __EE_PCF8583_USE_I2C2__
-//#error RTC cannot support both i2c controllers
-//#endif
-//
-//DECLARE_FUNC_RTC(EE_I2C1_NAME_UC, EE_I2C1_NAME_LC)
-//
-//#else //__EE_RTC_PCF8583_USE_I2C1__
-//
-//DECLARE_FUNC_RTC(EE_I2C2_NAME_UC, EE_I2C2_NAME_LC)
-//
-//#endif //__EE_RTC_PCF8583_USE_I2C1__
 
-DECLARE_FUNC_RTC(EE_I2C2_NAME_UC, EE_I2C2_NAME_LC)
+DECLARE_FUNC_RTC(RTC_I2C, rtc_i2c)
 
 /*
 	__INLINE__ int __ALWAYS_INLINE__  EE_rtc_start(void)
@@ -201,12 +194,11 @@ int EE_rtc_write_time(const TTime *ttw);
 */
 int EE_rtc_read_time(TTime *ttr); 
 
-
+/*
+	int EE_rtc_set_alarm(void);
+	ATT! not yet supported...
+*/
 int EE_rtc_set_alarm(void);
-
-/* Global variables */
-//...
 
 #endif //#ifndef __EE_RTC_PCF8583__
 
-#endif //#ifdef __USE_MICO32BOARD_RTC_PCF8583__

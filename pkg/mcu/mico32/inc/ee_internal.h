@@ -38,6 +38,14 @@
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
 
+/*
+  Name: ee_internal.h 
+  Copyright: Evidence Srl
+  Author: Dario Di Stefano
+  Date: 29/03/10 18.28
+  Description: ee_internal.h in mcu folder
+*/ 
+ 
 #ifndef __INCLUDE_MCUMICO32_INTERNAL_H__
 #define __INCLUDE_MCUMICO32_INTERNAL_H__
 
@@ -57,7 +65,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_stop_budget_timer(void)
 }
 #endif  /* __FRSH__ */
 
-/* Macro utils */
+/* Macros used by drivers */
 #define cat3(a, b, c)  a ## b ## c
 #define cat2(a, b) a ## b
 #define EE_BASE_ADD(uc) cat2(uc, _BASE_ADDRESS)

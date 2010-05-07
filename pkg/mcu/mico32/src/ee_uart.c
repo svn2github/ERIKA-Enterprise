@@ -1,14 +1,15 @@
-/** 
-* @file ee_uart.c
+/*
+  Name: ee_uart.c
+  Copyright: Evidence Srl
+  Author: Dario Di Stefano
+  Date: 29/03/10 18.28
+  Description: Uart library source file. 
 */
 
 #include "mcu/mico32/inc/ee_uart.h"
 #include <cpu/mico32/inc/ee_irq.h>
 
-/******************************************************************************/
-/*                             Utility Macros                                 */
-/******************************************************************************/
-// ...
+
 
 /******************************************************************************/
 /*                       Private Local Variables                              */

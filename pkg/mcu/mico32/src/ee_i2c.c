@@ -1,17 +1,16 @@
-/** 
-* ee_i2c.c
+/*
+  Name: ee_i2c.c
+  Copyright: Evidence Srl
+  Author: Dario Di Stefano
+  Date: 29/03/10 18.28
+  Description: I2C library source file. 
 */
 
 #include "mcu/mico32/inc/ee_i2c.h"
 #include <cpu/mico32/inc/ee_irq.h>
 
 /******************************************************************************/
-/*                             Utility Macros                                 */
-/******************************************************************************/
-// ...
-
-/******************************************************************************/
-/*                       Private Local Variables                              */
+/*                              Global Variables                              */
 /******************************************************************************/
 /* Vectors and I2C structures definitions */
 
@@ -33,8 +32,9 @@ DEFINE_STRUCT_I2C(EE_I2C2_NAME_UC, EE_I2C2_NAME_LC)
 /*                       Private Local Functions                              */
 /******************************************************************************/
 #ifdef __USE_I2C_IRQ__
-int EE_hal_i2c_handler_setup(EE_i2c_st* i2csp);
+static int EE_hal_i2c_handler_setup(EE_i2c_st* i2csp);
 #endif //#ifdef __USE_I2C_IRQ__
+
 /******************************************************************************/
 /*                              ISRs                                          */
 /******************************************************************************/
@@ -44,8 +44,6 @@ int EE_hal_i2c_handler_setup(EE_i2c_st* i2csp);
 void EE_i2c_common_handler(int level)
 {
 	unsigned int uiValue;
-	
-	// to do...
 	
 	EE_i2c_st *i2csp = EE_get_i2c_st_from_level(level);
 	OCI2CMDev_t* i2cc = i2csp->base; 

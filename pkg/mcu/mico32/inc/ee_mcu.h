@@ -38,6 +38,14 @@
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
 
+/*
+  Name: ee_mcu.h
+  Copyright: Evidence Srl
+  Author: Dario Di Stefano
+  Date: 29/03/10 18.28
+  Description: Header file to include drivers header files needed
+*/ 
+ 
 #include "mcu/mico32/inc/ee_mcuregs.h"
 
 #ifndef __INCLUDE_MCUMICO32_MCU_H__

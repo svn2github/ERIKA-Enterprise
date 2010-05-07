@@ -1,21 +1,16 @@
-/** 
-* @file ee_timer.c
+/*
+  Name: ee_timer.c
+  Copyright: Evidence Srl
+  Author: Dario Di Stefano
+  Date: 29/03/10 18.28
+  Description: Timer library source file. 
 */
 
 #include "mcu/mico32/inc/ee_timer.h"
 #include <cpu/mico32/inc/ee_irq.h>		// to use ISR functions.
 
 /******************************************************************************/
-/*                             Utility Macros                                 */
-/******************************************************************************/
-// ...
-
-/******************************************************************************/
-/*                       Private Local Variables                              */
-/******************************************************************************/
-
-/******************************************************************************/
-/*                       Private Local Functions                              */
+/*                              Global Functions                              */
 /******************************************************************************/
 #ifdef __USE_TIMER_IRQ__
 /* Vectors and uart structures definitions */

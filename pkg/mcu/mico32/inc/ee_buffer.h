@@ -1,8 +1,10 @@
-/** 
-* ee_buffer.h
+/*
+  Name: ee_buffer.h
+  Copyright: Evidence Srl
+  Author: Dario Di Stefano
+  Date: 29/03/10 18.28
+  Description: Buffers library header file. 
 */
-
-//#ifdef __USE_BUFFER__
 
 #ifndef __INCLUDE_EEMCUMICO32_BUFFER_H__
 #define __INCLUDE_EEMCUMICO32_BUFFER_H__
@@ -109,4 +111,4 @@ int EE_buffer_isfull(EE_buffer *buf);
 
 #endif // __INCLUDE_EEMCUMICO32_BUFFER_H__
 
-//#endif //#ifdef __USE_BUFFER__
+

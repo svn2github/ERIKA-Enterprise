@@ -3,7 +3,7 @@
   Copyright: Evidence Srl
   Author: Dario Di Stefano
   Date: 29/03/10 18.28
-  Description: Ethernet library for MICO32 CAMERA board
+  Description: Ethernet driver source file (MICO32 CAMERA board dependent). 
 */
 
 #ifdef __USE_MICO32BOARD_ETHERNET_ENC28J60__

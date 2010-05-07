@@ -38,17 +38,17 @@
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
 
+/*
+  Name: ee_mcuregs.h
+  Copyright: Evidence Srl
+  Author: Dario Di Stefano
+  Date: 29/03/10 18.28
+  Description: To include Mico32 registers file. 
+*/ 
+ 
 #include "cpu/mico32/inc/ee_cpu.h"
 
 #ifndef __INCLUDE_MCUMICO32_MCUREGS__
 #define __INCLUDE_MCUMICO32_MCUREGS__
 
-/* This file should contain the definition of the registers available
-   on the particular dsPIC being used */
-   
-/* Include a file with the registers from Microchip C32 distribution */ 
-#ifdef __MICO32_INCLUDE_REGS__
-#include "ee_mico32regs.h"
-#endif
- 
 #endif

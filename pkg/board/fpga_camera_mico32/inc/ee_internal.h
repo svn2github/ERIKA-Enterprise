@@ -48,8 +48,6 @@
 #ifndef __INCLUDE_FPGA_CAMERA_INTERNAL_H__
 #define __INCLUDE_FPGA_CAMERA_INTERNAL_H__
 
-// to do...
-
 #endif
 
 

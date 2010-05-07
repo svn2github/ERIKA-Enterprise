@@ -38,6 +38,13 @@
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
 
+/*
+  Name: ee_mico32frsh.c
+  Copyright: Evidence Srl
+  Author: Dario Di Stefano
+  Date: 29/03/10 18.28
+  Description: FRSH hal source file (not yet supported...)
+*/
 
 #include "ee_internal.h"
 
@@ -55,29 +62,13 @@ extern void EE_IRQ_end_recharging(void);
 // TODO!!!
 
 /* Budget exaustion */
-/*ISR2(_T7Interrupt)
+/*ISR2(_Timer_Interrupt)
 {
-	// clear the interrupt source
-	IFS3bits.T7IF = 0;
-	T6CONbits.TON = 0;
-	EE_frsh_IRQ_timer_multiplexer();
+	// to do...
 }*/
-
-
 
 /* This function set the capacity timer to raise in t ticks. */
 /*void EE_hal_set_budget_timer(EE_STIME t) 
 {   
-  if (t > 0) {
-    PR6 = t & 0xFFFF;
-    PR7 = t >> 16;
-    TMR6 = 0;
-    TMR7 = 0;
-    IFS3bits.T7IF = 0;
-    T6CONbits.TON = 1; // Start Timer 6/7;
-  } else {
-    // Stop the timer
-    IFS3bits.T7IF = 0;
-    T6CONbits.TON = 0;
-  }
+	// to do...
 }*/

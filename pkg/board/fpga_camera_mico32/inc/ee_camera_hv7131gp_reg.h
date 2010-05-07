@@ -1,5 +1,9 @@
 /*
-	ee_camera_hv7131gp_reg.h
+  Name: ee_camera_hv7131gp_reg.h
+  Copyright: Evidence Srl
+  Author: Dario Di Stefano
+  Date: 29/03/10 18.28
+  Description: hv7131gp camera registers list file for MICO32 CAMERA board. 
 */
 
 #ifndef HV7131GP_REG_H_
@@ -9,7 +13,7 @@
 * @brief Definition of the maximum size of the buffer for different Micro
 */
 #ifdef __LM32__
-#define HV7131GP_MAX_SIZE	19200	/**< For LM32 */
+#define HV7131GP_MAX_SIZE		19200	/**< For LM32 */
 #endif
 
 /******************************************************************************/

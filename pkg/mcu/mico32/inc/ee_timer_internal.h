@@ -1,31 +1,45 @@
 /*
-* ee_timer_internal.h
+  Name: ee_timer_internal.h
+  Copyright: Evidence Srl
+  Author: Dario Di Stefano
+  Date: 29/03/10 18.28
+  Description: Timer library internal header file. 
 */
 
 #ifndef __INCLUDE_EEMCUMICO32_TIMER_INTERNAL_H__
 #define __INCLUDE_EEMCUMICO32_TIMER_INTERNAL_H__
 
-#ifdef __USE_TIMER__
-
 #include "cpu/mico32/inc/ee_internal.h"
 #include "mcu/mico32/inc/ee_internal.h"
 #include "mcu/mico32/inc/ee_buffer.h"
 #include "MicoTimer.h"					// to use LATTICE data structures.
-
-
-/*************************************************************************
- Timers
- *************************************************************************/
+ 
+/* mico-timer register structure (defined in MicoTimer.h) */
+// typedef struct st_MicoTimer{
+	// volatile unsigned int Status;
+	// volatile unsigned int Control;
+	// volatile unsigned int Period;
+	// volatile unsigned int Snapshot;
+// }MicoTimer_t; 
+ 
 /* Symbols and macros */
 #define EE_TIMER_OK			(0x00)
 #define EE_timer_need_enable_int(mode)  ( (mode) & MICO32_TIMER_CONTROL_INT_BIT_MASK )
 
+/*
+	__INLINE__ int __ALWAYS_INLINE__  EE_hal_timer_start(MicoTimer_t* base)
+	Function to start the timer.
+*/
 __INLINE__ int __ALWAYS_INLINE__  EE_hal_timer_start(MicoTimer_t* base)
 {
 	base->Control |= MICO32_TIMER_CONTROL_START_BIT_MASK; 
 	return EE_TIMER_OK;
 }
 
+/*
+	__INLINE__ int __ALWAYS_INLINE__  EE_hal_timer_stop(MicoTimer_t* base)
+	Function to stop the timer.
+*/
 __INLINE__ int __ALWAYS_INLINE__  EE_hal_timer_stop(MicoTimer_t* base)
 {
 	base->Control |= MICO32_TIMER_CONTROL_STOP_BIT_MASK; 
@@ -33,24 +47,35 @@ __INLINE__ int __ALWAYS_INLINE__  EE_hal_timer_stop(MicoTimer_t* base)
 	return EE_TIMER_OK;
 }
 
+/*
+	__INLINE__ int __ALWAYS_INLINE__  EE_hal_timer_get_val(MicoTimer_t* base, EE_UINT32 *val)
+	Function to get the timer value.
+*/
 __INLINE__ int __ALWAYS_INLINE__  EE_hal_timer_get_val(MicoTimer_t* base, EE_UINT32 *val)
 {
 	*val = base->Snapshot;
 	return EE_TIMER_OK;
 }
 
+/*
+	__INLINE__ int __ALWAYS_INLINE__  EE_hal_timer_enable_IRQ(MicoTimer_t* base)
+	Function to enable IRQ.
+*/
 __INLINE__ int __ALWAYS_INLINE__  EE_hal_timer_enable_IRQ(MicoTimer_t* base)
 {
 	base->Control |= MICO32_TIMER_CONTROL_INT_BIT_MASK;
 	return EE_TIMER_OK;
 }
 
+/*
+	__INLINE__ int __ALWAYS_INLINE__  EE_hal_timer_disable_IRQ(MicoTimer_t* base)
+	Function to disable IRQ.
+*/
 __INLINE__ int __ALWAYS_INLINE__  EE_hal_timer_disable_IRQ(MicoTimer_t* base)
 {
 	base->Control &= ~MICO32_TIMER_CONTROL_INT_BIT_MASK;
 	return EE_TIMER_OK;
 }
-
 
 #ifdef __USE_TIMER_IRQ__
 
@@ -72,12 +97,14 @@ typedef struct {
 } EE_timer_st;
 
 /*
-	int EE_hal_timer_init(EE_timer_st* tst, int period, int settings);
+		int EE_hal_timer_init(EE_timer_st* tst, int period, int settings);
+		Function to init the timer.
 */
 int EE_hal_timer_init(EE_timer_st* tst, int period, int settings);
 
 /*
 	__INLINE__ int __ALWAYS_INLINE__  EE_hal_timer_set_callback(EE_timer_st* tst, EE_ISR_callback cbk)
+	Function to record the isr callback user function to be called at the end of the interrupt handler.
 */
 __INLINE__ int __ALWAYS_INLINE__  EE_hal_timer_set_callback(EE_timer_st* tst, EE_ISR_callback cbk)
 {
@@ -87,9 +114,13 @@ __INLINE__ int __ALWAYS_INLINE__  EE_hal_timer_set_callback(EE_timer_st* tst, EE
 
 /*
 	void EE_timer_common_handler(int level);
+	IRQ handler.
 */
 void EE_timer_common_handler(int level);
 
+/* 
+	Macros for TIMER driver API generation (irq mode)
+*/ 
 #define DECLARE_FUNC_TIMER(uc, lc) \
 __INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _init)(int period, int settings){ \
 	return EE_hal_timer_init(& EE_ST_NAME(lc), period, settings); } \
@@ -158,9 +189,13 @@ __INLINE__ EE_timer_st * __ALWAYS_INLINE__ EE_get_timer_st_from_level(int level)
 
 /*
 	int EE_hal_timer_init(MicoTimer_t* timerc, int irqf, int period, int settings);
+	Function to init the timer.
 */
 int EE_hal_timer_init(MicoTimer_t* timerc, int irqf, int period, int settings);
 
+/* 
+	Macros for TIMER driver API generation (polling mode)
+*/ 
 #define DECLARE_FUNC_TIMER(uc, lc) \
 __INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _init)(int period, int settings){ \
 	return EE_hal_timer_init((MicoTimer_t*)EE_BASE_ADD(uc), (int)EE_IRQ_NAME(uc), period, settings); } \
@@ -330,7 +365,5 @@ __INLINE__ EE_INT8 __ALWAYS_INLINE__ EE_timer_get_val(EE_UINT8 id, EE_UINT16 *v)
 	return ret;
 }
 #endif // #ifdef __USE_MICO_PIC_API__
-
-#endif //#ifdef __USE_TIMER__
 
 #endif //__INCLUDE_EEMCUMICO32_TIMER_INTERNAL_H__

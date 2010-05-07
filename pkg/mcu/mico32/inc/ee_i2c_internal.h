@@ -1,29 +1,39 @@
 /*
-* ee_i2c_internal.h
+  Name: ee_i2c_internal.h
+  Copyright: Evidence Srl
+  Author: Dario Di Stefano
+  Date: 29/03/10 18.28
+  Description: I2C internal header file. 
 */
-
 
 #ifndef __INCLUDE_EEMCUMICO32_I2C_INTERNAL_H__
 #define __INCLUDE_EEMCUMICO32_I2C_INTERNAL_H__
-
-#ifdef __USE_I2C__
-
 
 #include "cpu/mico32/inc/ee_internal.h"
 #include "mcu/mico32/inc/ee_internal.h"
 #include "mcu/mico32/inc/ee_buffer.h"
 #include "OpenCoresI2CMaster.h"
 
-/*************************************************************************
- I2C
- *************************************************************************/
+/* mico-i2c register structure (defined in OpenCoresI2CMaster.h) */
+//   typedef struct st_OCI2CMDev_t {
+//        /* Prescale register: lower byte, R/W */
+//        volatile unsigned int PrescaleLo;
+//        /* Prescale register: upper byte, R/W */
+//        volatile unsigned int PrescaleHi;
+//        /* Control register: R/W */
+//        volatile unsigned int Control;
+//        /* Data register: read = rxdata, write = txdata */
+//        volatile unsigned int Data;
+//        /* Command/Status register: !!!read = status!!!, !!!write = command!!! */
+//        volatile unsigned int StatusCommand;	
+//    }OCI2CMDev_t;
  
 /* i2c settings */
-#define EE_I2C_MSGSIZE 				(1)		
-#define EE_I2C_BUFSIZE 				(12)
+#define EE_I2C_MSGSIZE 				(1)		// Size (number of characters) of an I2C message (for buffer usage in IRQ mode)	
+#define EE_I2C_BUFSIZE 				(12)	// Buffer size (number of messages)
 
 /* i2c bit masks */
-#define EE_I2C_RW_MASK              (0x01) // 1=Read,0=Write
+#define EE_I2C_RW_MASK              (0x01)	// 1=Read, 0=Write
 #define EE_I2C_ADDR_MASK            (0xFE)
 #define EE_I2C_STATUS_RX_RDY_MASK	(0x01)
 #define EE_I2C_CTL_RX_INTR_EN_MASK	(0x02)
@@ -349,7 +359,9 @@ int EE_hal_i2c_write_buffer_irq(EE_i2c_st* i2csp, EE_UINT8 device, EE_UINT8 addr
 /* Interrupt handler */
 void EE_i2c_common_handler(int level);																	
 							
-/* Macros for User functions (API) */  
+/* 
+	Macros for I2C driver API generation (irq mode)
+*/ 
 #define DECLARE_FUNC_I2C(uc, lc) \
 __INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _config)(int baudrate,int settings){ \
 	return EE_hal_i2c_config(& EE_ST_NAME(lc), baudrate, settings); } \
@@ -470,6 +482,9 @@ int EE_hal_i2c_config(OCI2CMDev_t* i2cc, int baudrate, int setttings);
 */	
 int EE_hal_i2c_set_mode(OCI2CMDev_t* i2cc, int mode);	
 
+/* 
+	Macros for I2C driver API generation (polling mode)
+*/ 
 #define DECLARE_FUNC_I2C(uc, lc) \
 __INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _config)(int baudrate,int settings){ \
 	return EE_hal_i2c_config((OCI2CMDev_t*)EE_BASE_ADD(uc), baudrate, settings); } \
@@ -493,7 +508,6 @@ __INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _start)(void){ \
 	return EE_hal_i2c_start((OCI2CMDev_t*)EE_BASE_ADD(uc)); } \
 __INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _is_idle)(void){ \
 	return EE_hal_i2c_idle((OCI2CMDev_t*)EE_BASE_ADD(uc)); }
-	
 //__INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _enable_IRQ)(void){
 //	return EE_hal_i2c_enable_IRQ((OCI2CMDev_t*)EE_BASE_ADD(uc)); }
 //__INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _disable_IRQ)(void){
@@ -512,7 +526,6 @@ DECLARE_FUNC_I2C(EE_I2C2_NAME_UC, EE_I2C2_NAME_LC)
 #endif	//#ifdef EE_I2C2_NAME_UC
 
 /* ------------------------------------------------------------------------- */
-
 
 #ifdef __USE_MICO_PIC_API__
 /* Macros for compatibility with pic32 i2c driver*/ 
@@ -608,8 +621,5 @@ __INLINE__ EE_UINT8 __ALWAYS_INLINE__ EE_i2c_write_byte(EE_UINT8 port, EE_UINT8 
 #endif // #ifdef __USE_MICO_PIC_API__
 
 /* ------------------------------------------------------------------------- */
-
-
-#endif // #ifdef __USE_I2C__
 
 #endif //__INCLUDE_EEMCUMICO32_I2C_INTERNAL_H__

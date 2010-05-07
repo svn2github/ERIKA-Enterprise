@@ -1,12 +1,14 @@
 /*
-* ee_uart_internal.h
+  Name: ee_uart_internal.h
+  Copyright: Evidence Srl
+  Author: Dario Di Stefano
+  Date: 29/03/10 18.28
+  Description: Uart library internal header file. 
 */
 
 
 #ifndef __INCLUDE_EEMCUMICO32_UART_INTERNAL_H__
 #define __INCLUDE_EEMCUMICO32_UART_INTERNAL_H__
-
-#ifdef __USE_UART__
 
 #include "cpu/mico32/inc/ee_internal.h"
 #include "mcu/mico32/inc/ee_internal.h"
@@ -14,52 +16,60 @@
 #include <MicoUart.h>				// to use LATTICE data structures.
 
 
-/*************************************************************************
- Uart
- *************************************************************************/
+/* mico-uart register structure (defined in MicoUart.h) */
+//    typedef struct st_MicoUart{
+//        volatile unsigned int rxtx;
+//        volatile unsigned int ier;
+//        volatile unsigned int iir;
+//        volatile unsigned int lcr;
+//        volatile unsigned int mcr;
+//        volatile unsigned int lsr;
+//        volatile unsigned int msr;
+//        volatile unsigned int div;
+//    }MicoUart_t;
 
- #define EE_UART_BIT8_ODD	(0x0B)
-#define EE_UART_BIT8_EVEN	(0x1B)
-#define EE_UART_BIT8_NO		(0x03)
+#define EE_UART_BIT8_ODD	(0x0B)	// 8 bit, odd parity
+#define EE_UART_BIT8_EVEN	(0x1B)	// 8 bit, even parity
+#define EE_UART_BIT8_NO		(0x03)	// 8 bit, no parity
 
-#define EE_UART_BIT7_ODD	(0x0A)
-#define EE_UART_BIT7_EVEN	(0x1A)
-#define EE_UART_BIT7_NO		(0x02)
+#define EE_UART_BIT7_ODD	(0x0A)	// 7 bit, odd parity
+#define EE_UART_BIT7_EVEN	(0x1A)	// 7 bit, even parity
+#define EE_UART_BIT7_NO		(0x02)	// 7 bit, no parity
 
-#define EE_UART_BIT6_ODD	(0x09)
-#define EE_UART_BIT6_EVEN	(0x19)
-#define EE_UART_BIT6_NO		(0x01)
+#define EE_UART_BIT6_ODD	(0x09)	// 6 bit, odd parity
+#define EE_UART_BIT6_EVEN	(0x19)	// 6 bit, even parity
+#define EE_UART_BIT6_NO		(0x01)	// 6 bit, no parity
 
-#define EE_UART_BIT5_ODD	(0x08)
-#define EE_UART_BIT5_EVEN	(0x18)
-#define EE_UART_BIT5_NO		(0x00)
+#define EE_UART_BIT5_ODD	(0x08)	// 5 bit, odd parity
+#define EE_UART_BIT5_EVEN	(0x18)	// 5 bit, even parity
+#define EE_UART_BIT5_NO		(0x00)	// 5 bit, no parity
 
-#define EE_UART_BIT_STOP_1	(0x00)
-#define EE_UART_BIT_STOP_2	(0x04)
+#define EE_UART_BIT_STOP_1	(0x00)	// 1 stop bit
+#define EE_UART_BIT_STOP_2	(0x04)	// 2 stop bits
 
 /* Uart operating modes */
-#define EE_UART_POLLING		(0x00)
-#define EE_UART_RX_ISR		(0x01)
-#define EE_UART_TX_ISR		(0x02)	
-#define EE_UART_RXTX_ISR	(0x03)
-#define EE_UART_RX_BLOCK	(0x10)
-#define EE_UART_TX_BLOCK	(0x20)
-#define EE_UART_RXTX_BLOCK  (0x30)	
+#define EE_UART_POLLING		(0x00)	// polling mode
+#define EE_UART_RX_ISR		(0x01)	// Reception IRQ enabled 
+#define EE_UART_TX_ISR		(0x02)	// Transmission IRQ enabled 
+#define EE_UART_RXTX_ISR	(0x03)	// Transmission/Reception IRQ enabled 
+#define EE_UART_RX_BLOCK	(0x10)	// Blocking mode in reception
+#define EE_UART_TX_BLOCK	(0x20)	// Blocking mode in transmission
+#define EE_UART_RXTX_BLOCK  (0x30)	// Blocking mode in transmission/reception
 
+/* Macro for tests */
 #define EE_uart_need_init_rx_buf(old,new)  ( !((old) & EE_UART_RX_ISR) && ((new) & EE_UART_RX_ISR) )
 #define EE_uart_need_init_tx_buf(old,new)  ( !((old) & EE_UART_TX_ISR) && ((new) & EE_UART_TX_ISR) )
 #define EE_uart_need_enable_rx_int(old, new)  ( (new) & EE_UART_RX_ISR )
 #define EE_uart_need_disable_rx_int(old, new)  ( !((new) & EE_UART_RX_ISR) )
 #define EE_uart_enabled_rx_int(mode)  ( (mode) & EE_UART_RX_ISR )
 #define EE_uart_need_enable_int(new)  ( ((new) & EE_UART_RX_ISR) || ((new) & EE_UART_TX_ISR) )
-
 #define EE_uart_tx_polling(mode) ( !((mode) & EE_UART_TX_ISR) )
 #define EE_uart_rx_polling(mode) ( !((mode) & EE_UART_RX_ISR) )
 #define EE_uart_rx_block(mode) ( ((mode) & EE_UART_RX_BLOCK) )
 #define EE_uart_tx_block(mode) ( ((mode) & EE_UART_TX_BLOCK) )
 
 /* Uart utils */
-#define EE_UART_NULL_VET			((EE_UINT8 *)0)
+#define EE_UART_NULL_VET			((EE_UINT8 *)0)	// Used by buffer array
 
 /* Uart return values */
 #define EE_UART_OK					(0x00)
@@ -78,19 +88,19 @@
 	UART structure (used in ISR mode):
 */
 typedef struct {
-	int err;							// last error condition 					
-	int mode;							// uart operating mode (polling, isr, ...)
-    MicoUart_t* base;					// controller base address
-    int irqf;							// irq flag to register the handler
-    EE_ISR_callback rxcbk;				// rx callback
-    EE_ISR_callback txcbk;				// tx callback
-    EE_buffer rxbuf;					// rx buffer used in isr mode
-    EE_buffer txbuf;					// tx buffer used in isr mode
+	int err;						// last error condition 					
+	int mode;						// uart operating mode (polling, isr, ...)
+    MicoUart_t* base;				// controller base address
+    int irqf;						// irq flag to register the handler
+    EE_ISR_callback rxcbk;			// rx callback
+    EE_ISR_callback txcbk;			// tx callback
+    EE_buffer rxbuf;				// rx buffer used in isr mode
+    EE_buffer txbuf;				// tx buffer used in isr mode
 } EE_uart_st;
 
 /* Uart settings */
-#define EE_UART_MSGSIZE 	(1)		
-#define EE_UART_BUFSIZE 	(4)
+#define EE_UART_MSGSIZE 	(1)		// Size (number of characters) of an UART message (for buffer usage in IRQ mode)
+#define EE_UART_BUFSIZE 	(4)		// Buffer size (number of messages)
 
 /********************** Internal functions **************************/
 
@@ -296,7 +306,9 @@ EE_uart_st cat3(ee_, lc, _st) = { \
 EE_UINT8 EE_VETRX_NAME(lc)[EE_UART_BUFSIZE]; \
 EE_UINT8 EE_VETTX_NAME(lc)[EE_UART_BUFSIZE];  
 
-/* Macros for User functions (API) */  
+/* 
+	Macros for UART driver API generation (irq mode)
+*/  
 #define DECLARE_FUNC_UART(uc, lc) \
 __INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _config)(int baudrate,int settings){ \
 	return EE_hal_uart_config(& EE_ST_NAME(lc), baudrate, settings); } \
@@ -514,7 +526,9 @@ EE_uart_st cat3(ee_, lc, _st) = { \
 	.err=EE_UART_OK, .mode= EE_UART_POLLING | EE_UART_RXTX_BLOCK, .base= (MicoUart_t* )cat2(uc, _BASE_ADDRESS),\
 	.irqf= cat2(uc, _IRQ) };
 
-/* Macros for User functions (API) */  
+/* 
+	Macros for UART driver API generation (polling mode)
+*/  
 #define DECLARE_FUNC_UART(uc, lc) \
 __INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _config)(int baudrate,int settings){ \
 	return EE_hal_uart_config(& EE_ST_NAME(lc), baudrate, settings); } \
@@ -666,7 +680,5 @@ __INLINE__ EE_INT8 __ALWAYS_INLINE__ EE_uart_set_rx_callback(EE_UINT8 port, void
 #endif // #ifdef __USE_UART_IRQ__
 
 #endif // #ifdef __USE_MICO_PIC_API__
-
-#endif // #ifdef __USE_UART__
 
 #endif //__INCLUDE_EEMCUMICO32_UART_INTERNAL_H__

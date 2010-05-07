@@ -1,38 +1,15 @@
 /*
-* ee_i2c.h
+  Name: ee_i2c.h
+  Copyright: Evidence Srl
+  Author: Dario Di Stefano
+  Date: 29/03/10 18.28
+  Description: I2C header file. 
 */
 
 #ifndef __INCLUDE_EEMCUMICO32_I2C_H__
 #define __INCLUDE_EEMCUMICO32_I2C_H__
 
-#ifdef __USE_I2C__
-
 #include "mcu/mico32/inc/ee_i2c_internal.h"
-
-/***************************************************************************
-     *
-     * I2C Component Register Structure
-     * 
-     * Note: The OpenCores I2C Master device has byte-aligned registers.
-     *    However, modifications for LatticeMico32 (32-bit addressing)
-     *    make the registers word-aligned (4-byte aligned).  Other than
-     *    that, the register structure remains unchanged
-     *
-***************************************************************************/
-//   typedef struct st_OCI2CMDev_t {
-//        /* Prescale register: lower byte, R/W */
-//        volatile unsigned int PrescaleLo;
-//        /* Prescale register: upper byte, R/W */
-//        volatile unsigned int PrescaleHi;
-//        /* Control register: R/W */
-//        volatile unsigned int Control;
-//        /* Data register: read = rxdata, write = txdata */
-//        volatile unsigned int Data;
-//        /* Command/Status register: !!!read = status!!!, !!!write = command!!! */
-//        volatile unsigned int StatusCommand;	
-//    }OCI2CMDev_t;
-
-#endif // #ifdef __USE_I2C__
 
 #endif // __INCLUDE_EEMCUMICO32_I2C_H__
 

@@ -1,13 +1,12 @@
 /*
-	RT-Clock library functions
+  Name: ee_rtc_pcf8583.c
+  Copyright: Evidence Srl
+  Author: Dario Di Stefano
+  Date: 29/03/10 18.28
+  Description: RT clock driver source file (MICO32 CAMERA board dependent). 
 */
 
-#ifdef __USE_MICO32BOARD_RTC_PCF8583__
-
 #include "board/fpga_camera_mico32/inc/ee_rtc_pcf8583.h"
-
-/* Global variables */
-//...
 
 int EE_rtc_write_time(const TTime *ttw)
 {
@@ -83,4 +82,3 @@ int EE_rtc_set_alarm(void)
 	return 0;
 }
 
-#endif //#ifdef __USE_MICO32BOARD_RTC_PCF8583__

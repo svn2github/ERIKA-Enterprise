@@ -3,26 +3,18 @@
   Copyright: Evidence Srl
   Author: Dario Di Stefano
   Date: 29/03/10 18.23
-  Description: SPI library.
+  Description: SPI library internal header file.
 */
 
 #ifndef __INCLUDE_EEMCUMICO32_SPI_INTERNAL_H__
 #define __INCLUDE_EEMCUMICO32_SPI_INTERNAL_H__
-
-#ifdef __USE_SPI__
 
 #include "cpu/mico32/inc/ee_internal.h"
 #include "mcu/mico32/inc/ee_internal.h"
 #include "mcu/mico32/inc/ee_buffer.h"
 #include "MicoSPI.h"
 
-/*************************************************************************
- SPI
- *************************************************************************/
-
-/****************************
- * SPI Register Structure
- ****************************/
+/* mico-spi register structure (defined here because is not defined in MicoSPI.h ) */
 typedef struct st_MicoSPI{
        volatile unsigned int rx;
        volatile unsigned int tx;
@@ -31,24 +23,18 @@ typedef struct st_MicoSPI{
        volatile unsigned int sSelect;
 }MicoSPI_t;
  
-/* spi settings */
-#define EE_SLAVE_ID					(0x01)
-#define EE_SPI_MSGSIZE 				(1)		
-#define EE_SPI_BUFSIZE 				(12)
-#define EE_SPI_EVT_TX_DONE 			(0x01)
-#define EE_SPI_EVT_RX_DONE 			(0x00)
+/* spi buffer settings */
+#define EE_SPI_MSGSIZE 					(1)			// Size (number of characters) of an SPI message (for buffer usage in IRQ mode)
+#define EE_SPI_BUFSIZE 					(12)		// Buffer size (number of messages)
 
-/* spi bit masks */
-#define EE_SPI_MASTER_MASK				(0x01)
-#define EE_SPI_SLAVE_MASK				(0x00)
-
-// status register masks 
+/* status register masks */ 
 #define EE_SPI_STATUS_RX_ERR_MASK      	(0x008)
 #define EE_SPI_STATUS_TX_ERR_MASK      	(0x010)
 #define EE_SPI_STATUS_TMT_RDY_MASK		(0x020)
 #define EE_SPI_STATUS_TX_RDY_MASK      	(0x040)
 #define EE_SPI_STATUS_RX_RDY_MASK      	(0x080)
-// control-register masks 
+
+/* control-register masks */ 
 #define EE_SPI_CTL_RX_ERR_INTR_EN_MASK	(0x008)
 #define EE_SPI_CTL_TX_ERR_INTR_EN_MASK 	(0x010)
 #define EE_SPI_CTL_TX_INTR_EN_MASK     	(0x040)
@@ -93,45 +79,69 @@ typedef struct st_MicoSPI{
 
 /* Internal functions */
 
+/*
+	int EE_hal_spi_write_byte_polling(MicoSPI_t* spic, EE_UINT8 data);
+	Write a byte in polling mode.
+*/
 int EE_hal_spi_write_byte_polling(MicoSPI_t* spic, EE_UINT8 data);
 
+/*
+	int EE_hal_spi_read_byte_polling(MicoSPI_t* spic);
+	Read a byte in polling mode.
+*/
 int EE_hal_spi_read_byte_polling(MicoSPI_t* spic);
 
+/*
+	int EE_hal_spi_write_buffer_polling(MicoSPI_t* spic, EE_UINT8 *data, int len);
+	Write an array in polling mode.
+*/
 int EE_hal_spi_write_buffer_polling(MicoSPI_t* spic, EE_UINT8 *data, int len);
 
+/*
+	int EE_hal_spi_read_buffer_polling(MicoSPI_t* spic, EE_UINT8 *data, int len);
+	Read an array in polling mode.
+*/
 int EE_hal_spi_read_buffer_polling(MicoSPI_t* spic, EE_UINT8 *data, int len);
 
-/* This function is used to set slave select register */
+/* 
+	__INLINE__ int __ALWAYS_INLINE__ EE_hal_spi_set_SSO(MicoSPI_t* spic)		
+	This function is used to set slave select register 
+*/
 __INLINE__ int __ALWAYS_INLINE__ EE_hal_spi_set_SSO(MicoSPI_t* spic)		
 {
-	//	if(EE_spi_is_master(set))
 	spic->control |= EE_SPI_CTL_SSO_MASK;
 	
     return EE_SPI_OK;
 }
 
-/* This function is used to get slave select register */
+/* 
+	__INLINE__ int __ALWAYS_INLINE__ EE_hal_spi_clear_SSO(MicoSPI_t* spic)
+	This function is used to get slave select register 
+*/
 __INLINE__ int __ALWAYS_INLINE__ EE_hal_spi_clear_SSO(MicoSPI_t* spic)		
 {
-	//	if(EE_spi_is_master(set))
 	spic->control &= (~EE_SPI_CTL_SSO_MASK);
 
     return EE_SPI_OK;
 }
 
-/* This function is used to set slave select register */
+/* 
+	__INLINE__ int __ALWAYS_INLINE__ EE_hal_spi_set_slave(MicoSPI_t* spic, unsigned int mask)
+	This function is used to set slave select register 
+*/
 __INLINE__ int __ALWAYS_INLINE__ EE_hal_spi_set_slave(MicoSPI_t* spic, unsigned int mask)		
 {
-	//	if(EE_spi_is_master(set))
 	spic->sSelect = mask;
 	
     return EE_SPI_OK;
 }
 
-/* This function is used to get slave select register */
+/* 
+	__INLINE__ int __ALWAYS_INLINE__ EE_hal_spi_get_slave(MicoSPI_t* spic, unsigned int *pmask)	
+	This function is used to get slave select register 
+*/
 __INLINE__ int __ALWAYS_INLINE__ EE_hal_spi_get_slave(MicoSPI_t* spic, unsigned int *pmask)		
 {
-	//	if(EE_spi_is_master(set))
 	if(pmask != 0)
         *pmask = spic->sSelect;
 
@@ -164,31 +174,70 @@ EE_spi_st cat3(ee_, lc, _st) = { \
 	.err=EE_SPI_OK, .mode= EE_SPI_POLLING | EE_SPI_RXTX_BLOCK, .base= (MicoSPI_t* )cat2(uc, _BASE_ADDRESS),\
 	.irqf= cat2(uc, _IRQ), .rxcbk= EE_NULL_CBK, .txcbk= EE_NULL_CBK,\
 	.rxbuf.data= EE_VETRX_NAME(lc),.txbuf.data= EE_VETTX_NAME(lc)};
+	
 /* Macro for vectors (buffers) definition */  
 #define DEFINE_VET_SPI(uc, lc) \
 EE_UINT8 EE_VETRX_NAME(lc)[EE_SPI_BUFSIZE]; \
 EE_UINT8 EE_VETTX_NAME(lc)[EE_SPI_BUFSIZE];  
 
+/*
+	int EE_hal_spi_config(EE_spi_st* spisp, int settings);
+	Function for SPI configuration.
+*/
 int EE_hal_spi_config(EE_spi_st* spisp, int settings);
 
+/*
+	int EE_hal_spi_set_ISR_mode(EE_spi_st* spisp, int mode);
+	Function for SPI isr mode settings.
+*/
 int EE_hal_spi_set_ISR_mode(EE_spi_st* spisp, int mode);
 
-int EE_hal_spi_handler_setup(EE_spi_st* spisp);
-
+/*
+	int EE_hal_spi_set_rx_ISR_callback(EE_spi_st* spisp, EE_ISR_callback isr_rx_callback);
+	Function to record the RX isr callback user function to be called at the end of the interrupt handler.
+*/
 int EE_hal_spi_set_rx_ISR_callback(EE_spi_st* spisp, EE_ISR_callback isr_rx_callback);
 
+/*
+	int EE_hal_spi_set_tx_ISR_callback(EE_spi_st* spisp, EE_ISR_callback isr_rx_callback);
+	Function to record the TX isr callback user function to be called at the end of the interrupt handler.
+*/
 int EE_hal_spi_set_tx_ISR_callback(EE_spi_st* spisp, EE_ISR_callback isr_tx_callback);
-															
+
+/*
+	int EE_hal_spi_write_byte_irq(EE_spi_st* spisp, EE_UINT8 data);
+	Write a byte in irq mode.
+*/														
 int EE_hal_spi_write_byte_irq(EE_spi_st* spisp, EE_UINT8 data);
 
+/*
+	int EE_hal_spi_read_byte_irq(EE_spi_st* spisp);
+	Read a byte in irq mode.
+*/
 int EE_hal_spi_read_byte_irq(EE_spi_st* spisp);
-			
+
+/*
+	int EE_hal_spi_write_buffer_irq(EE_spi_st* spisp, EE_UINT8 *data, int len);
+	Write an array in irq mode.
+*/
 int EE_hal_spi_write_buffer_irq(EE_spi_st* spisp, EE_UINT8 *data, int len);
-	
+
+/*
+	int EE_hal_spi_read_buffer_irq(EE_spi_st* spisp, EE_UINT8 *data, int len);
+	Read an array in irq mode.
+*/	
 int EE_hal_spi_read_buffer_irq(EE_spi_st* spisp, EE_UINT8 *data, int len);
 
+/*
+	int EE_hal_spi_return_error(EE_spi_st* spisp);
+	Read the last error condition recorded.
+*/	
 int EE_hal_spi_return_error(EE_spi_st* spisp);
 
+/*
+	__INLINE__ int __ALWAYS_INLINE__ EE_hal_spi_enable_IRQ(EE_spi_st *spisp)
+	Funtion to enable IRQ.
+*/	
 __INLINE__ int __ALWAYS_INLINE__ EE_hal_spi_enable_IRQ(EE_spi_st *spisp)
 {
 	MicoSPI_t* spic = spisp->base;
@@ -198,6 +247,10 @@ __INLINE__ int __ALWAYS_INLINE__ EE_hal_spi_enable_IRQ(EE_spi_st *spisp)
 	return EE_SPI_OK;
 }
 
+/*
+	__INLINE__ int __ALWAYS_INLINE__ EE_hal_spi_disable_IRQ(EE_spi_st *spisp)
+	Funtion to disable IRQ.
+*/	
 __INLINE__ int __ALWAYS_INLINE__ EE_hal_spi_disable_IRQ(EE_spi_st *spisp)
 {
 	MicoSPI_t* spic = spisp->base;
@@ -207,6 +260,10 @@ __INLINE__ int __ALWAYS_INLINE__ EE_hal_spi_disable_IRQ(EE_spi_st *spisp)
 	return EE_SPI_OK;
 }
 
+/*
+	__INLINE__ int __ALWAYS_INLINE__ EE_hal_spi_enable(EE_spi_st *spisp)
+	Funtion to enable the SPI module.
+*/	
 __INLINE__ int __ALWAYS_INLINE__ EE_hal_spi_enable(EE_spi_st *spisp)
 {
 	MicoSPI_t* spic = spisp->base;
@@ -216,6 +273,10 @@ __INLINE__ int __ALWAYS_INLINE__ EE_hal_spi_enable(EE_spi_st *spisp)
 	return EE_SPI_OK;
 }
 
+/*
+	__INLINE__ int __ALWAYS_INLINE__ EE_hal_spi_disable(EE_spi_st *spisp)
+	Funtion to disable the SPI module.
+*/	
 __INLINE__ int __ALWAYS_INLINE__ EE_hal_spi_disable(EE_spi_st *spisp)
 {
 	MicoSPI_t* spic = spisp->base;
@@ -226,10 +287,15 @@ __INLINE__ int __ALWAYS_INLINE__ EE_hal_spi_disable(EE_spi_st *spisp)
 	return EE_SPI_OK;
 }
 
-/* Interrupt handler */
+/*
+	void EE_spi_common_handler(int level);	
+	SPI Interrupt handler.
+*/
 void EE_spi_common_handler(int level);																	
 							
-/* Macros for User functions (API) */  
+/* 
+	Macros for SPI driver API generation (irq mode)
+*/  
 #define DECLARE_FUNC_SPI(uc, lc) \
 __INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _config)(int settings){ \
 	return EE_hal_spi_config(& EE_ST_NAME(lc), settings); } \
@@ -324,12 +390,23 @@ __INLINE__ EE_spi_st * __ALWAYS_INLINE__ EE_get_spi_st_from_level(int level)
 //	int err;							// last error condition
 //	int mode;							// spi operating mode (polling, isr, ...)
 //} EE_spi_st;
-	
+
+/*
+	int EE_hal_spi_config(MicoSPI_t* spic, int settings);
+	Function for SPI configuration in polling mode.
+*/	
 int EE_hal_spi_config(MicoSPI_t* spic, int settings);
 
+/*
+	int EE_hal_spi_set_ISR_mode(MicoSPI_t* spic, int irqf, int mode);
+	Function for SPI ISR mode settings.
+*/
 int EE_hal_spi_set_ISR_mode(MicoSPI_t* spic, int irqf, int mode);
 	
-/* This function is used to turn off spi controller */
+/* 
+	__INLINE__ int __ALWAYS_INLINE__ EE_hal_spi_enable(MicoSPI_t* spic)
+	This function is used to turn on spi controller 
+*/
 __INLINE__ int __ALWAYS_INLINE__ EE_hal_spi_enable(MicoSPI_t* spic)
 {
 	// to do...
@@ -337,6 +414,10 @@ __INLINE__ int __ALWAYS_INLINE__ EE_hal_spi_enable(MicoSPI_t* spic)
 	return EE_SPI_OK;
 }
 
+/* 
+	__INLINE__ int __ALWAYS_INLINE__ EE_hal_spi_disable(MicoSPI_t* spic)
+	This function is used to turn off spi controller 
+*/
 __INLINE__ int __ALWAYS_INLINE__ EE_hal_spi_disable(MicoSPI_t* spic)
 {
 	while( !EE_spi_tmt_ready(spic->status) );
@@ -345,6 +426,9 @@ __INLINE__ int __ALWAYS_INLINE__ EE_hal_spi_disable(MicoSPI_t* spic)
 	return EE_SPI_OK;
 }
 
+/* 
+	Macros for SPI driver API generation (polling mode)
+*/ 
 #define DECLARE_FUNC_SPI(uc, lc) \
 __INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _config)(int settings){ \
 	return EE_hal_spi_config((MicoSPI_t*)EE_BASE_ADD(uc), settings); } \
@@ -384,6 +468,8 @@ DECLARE_FUNC_SPI(EE_SPI2_NAME_UC, EE_SPI2_NAME_LC)
 
 /* Macros for compatibility with pic32 SPI driver*/ 
 #ifdef __USE_MICO_PIC_API__
+#define EE_SPI_EVT_TX_DONE 					(0x01)
+#define EE_SPI_EVT_RX_DONE 					(0x00)
 #ifdef __USE_SPI_IRQ__
 #define EE_mchp_spi_init(lc, flags)			EE_hal_spi_config(& EE_ST_NAME(lc), flags)
 #else
@@ -523,7 +609,5 @@ __INLINE__ EE_INT8 __ALWAYS_INLINE__ EE_spi_cycle(EE_UINT8 port, EE_UINT8 *data_
 }
 
 #endif // #ifdef __USE_MICO_PIC_API__
-
-#endif //#ifdef __USE_SPI__
 
 #endif //__INCLUDE_EEMCUMICO32_SPI_INTERNAL_H__

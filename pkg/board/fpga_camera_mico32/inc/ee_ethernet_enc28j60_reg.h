@@ -1,11 +1,3 @@
-/*
-  Name: ee_ethernet_enc28j60_reg.h 
-  Copyright: Evidence Srl
-  Author: Dario Di Stefano
-  Date: 29/03/10 18.28
-  Description: Ethernet library registers file for MICO32 CAMERA board
-*/
-
 #ifndef __ENC28J60_REG_H
 #define __ENC28J60_REG_H
 

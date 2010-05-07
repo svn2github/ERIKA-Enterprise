@@ -1,28 +1,15 @@
 /*
-* ee_timer.h
+  Name: ee_timer.h
+  Copyright: Evidence Srl
+  Author: Dario Di Stefano
+  Date: 29/03/10 18.28
+  Description: Timer library header file. 
 */
 
 #ifndef __INCLUDE_EEMCUMICO32_TIMER_H__
 #define __INCLUDE_EEMCUMICO32_TIMER_H__
 
-#ifdef __USE_TIMER__
-
 #include "mcu/mico32/inc/ee_timer_internal.h"
-
-/*********************************************************************
-     *                                                    
-     * Timer Device Register-map                         
-     *                                                    
-**********************************************************************/
-//	typedef struct st_MicoTimer
-//	{
-//        volatile unsigned int Status;
-//        volatile unsigned int Control;
-//        volatile unsigned int Period;
-//        volatile unsigned int Snapshot;
-//	}MicoTimer_t;
-
-#endif //#ifdef __USE_TIMER__
 
 #endif // __INCLUDE_EEMCUMICO32_TIMER_H__
 
