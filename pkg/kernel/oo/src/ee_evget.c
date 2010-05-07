@@ -72,8 +72,8 @@ void EE_oo_GetEvent(TaskType TaskID, EventMaskRefType Event)
 
 #ifdef __OO_EXTENDED_STATUS__    
   /* check if the task Id is valid */
-  //if (TaskID < 0 || TaskID >= EE_MAX_TASK) {
-	if (TaskID >= EE_MAX_TASK) {
+  if (TaskID < 0 || TaskID >= EE_MAX_TASK) {
+	//if (TaskID >= EE_MAX_TASK) {
 #ifdef __OO_ORTI_LASTERROR__
     EE_ORTI_lasterror = E_OS_ID;
 #endif
