@@ -66,6 +66,12 @@ ifeq ($(findstring __MPC5PROTECTED__,$(EEALLOPT)), __MPC5PROTECTED__)
 include $(PKGBASE)/cfg/arch/cc_ppcgnu.mk
 endif
 
+ifeq ($(findstring __PPCE200Z7__,$(EEALLOPT)), __PPCE200Z7__)
+ifeq ($(findstring __DIAB__,$(EEALLOPT)), __DIAB__)
+include $(PKGBASE)/cfg/arch/cc_z7diab.mk
+endif
+endif
+
 ifeq ($(findstring __PIC30__,$(EEALLOPT)), __PIC30__)
 include $(PKGBASE)/cfg/arch/cc_pic30.mk
 endif

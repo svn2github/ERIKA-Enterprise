@@ -1,7 +1,7 @@
 # ###*B*###
 # ERIKA Enterprise - a tiny RTOS for small microcontrollers
 # 
-# Copyright (C) 2002-2009  Evidence Srl
+# Copyright (C) 2002-2010  Evidence Srl
 # 
 # This file is part of ERIKA Enterprise.
 # 
@@ -38,18 +38,8 @@
 # Boston, MA 02110-1301 USA.
 # ###*E*###
 
-## Author: 2009 Bernardo Dal Seno
+ifeq ($(findstring __AXIOM_MPC5674FXMB__,$(EEOPT)) , __AXIOM_MPC5674FXMB__)
 
-# Lattice Mico32
-ifeq ($(findstring __LM32__,$(EEOPT)) , __LM32__)
-EE_SRCS += pkg/cpu/common/src/ee_hal_structs.c
-EE_SRCS += pkg/cpu/common/src/ee_context.c
-endif
+EE_SRCS += pkg/board/axiom_mpc5674fxmb/src/ee_board.c
 
-ifeq ($(findstring __PPCE200Z7__,$(EEALLOPT)) , __PPCE200Z7__)
-ifeq ($(findstring __MPC5674F__,$(EEALLOPT)) , __MPC5674F__)
-EE_SRCS += pkg/cpu/common/src/ee_hal_structs.c
-EE_SRCS += pkg/cpu/common/src/ee_context.c
 endif
-endif
-

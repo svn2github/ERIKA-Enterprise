@@ -1,0 +1,149 @@
+/* ###*B*###
+ * ERIKA Enterprise - a tiny RTOS for small microcontrollers
+ *
+ * Copyright (C) 2002-2010  Evidence Srl
+ *
+ * This file is part of ERIKA Enterprise.
+ *
+ * ERIKA Enterprise is free software; you can redistribute it
+ * and/or modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation, 
+ * (with a special exception described below).
+ *
+ * Linking this code statically or dynamically with other modules is
+ * making a combined work based on this code.  Thus, the terms and
+ * conditions of the GNU General Public License cover the whole
+ * combination.
+ *
+ * As a special exception, the copyright holders of this library give you
+ * permission to link this code with independent modules to produce an
+ * executable, regardless of the license terms of these independent
+ * modules, and to copy and distribute the resulting executable under
+ * terms of your choice, provided that you also meet, for each linked
+ * independent module, the terms and conditions of the license of that
+ * module.  An independent module is a module which is not derived from
+ * or based on this library.  If you modify this code, you may extend
+ * this exception to your version of the code, but you are not
+ * obligated to do so.  If you do not wish to do so, delete this
+ * exception statement from your version.
+ *
+ * ERIKA Enterprise is distributed in the hope that it will be
+ * useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License version 2 for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * version 2 along with ERIKA Enterprise; if not, write to the
+ * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+ * Boston, MA 02110-1301 USA.
+ * ###*E*### */
+
+/*
+ * Context switch function for multistack on E200Z7
+ * Implementation of EE_std_change_context() as described in
+ * pkg/cpu/common/inc/ee_context.h
+ * Author: Fabio Checconi
+ */
+
+#include <cpu/e200z7/inc/ee_regs.h>
+
+/*
+void EE_std_change_context_multi(EE_FADDR thread_addr, EE_UREG tos_index);
+
+Pseudo code for EE_std_change_context():
+     begin:
+      tos_index = EE_std_thread_tos[tid+1];
+      if is_not_the_current_stack(tos_index) {
+          save_caller_saved_registers();
+          switch_stacks(tos_index);
+          restore_caller_saved_registers();
+      }
+      if (is_not_marked_stacked(tid)) {
+          tid = EE_std_run_task_code(tid);
+          goto begin;
+      }
+*/
+
+	.text
+
+	.global EE_std_change_context
+	.type	EE_std_change_context, @function
+
+/* void EE_std_change_context(EE_TID tid); */
+EE_std_change_context:
+	// r3 == tid
+
+	/* tos_index = EE_std_thread_tos[tid+1]; */
+	// r5 == tos_index
+	lis	r4, EE_std_thread_tos@ha
+	addi	r4, r4, EE_std_thread_tos@l
+	rlwinm	r5, r3, 2, 0, 29
+	add	r4, r4, r5
+	lwz	r5, 4(r4)
+
+	/* if is_not_the_current_stack(tos_index) { */
+	// r4 = & EE_e200z7_active_tos;
+	lis	r4, EE_e200z7_active_tos@ha
+	addi	r4, r4, EE_e200z7_active_tos@l
+
+	// r6 = EE_e200z7_active_tos;
+	lwz	r6, 0(r4)
+	cmpw	cr0, r5, r6
+	beq	end_change_stacks
+
+	/*     save_caller_saved_registers(); */
+	mfspr	r0, SPRG_LR
+	stw	r0, -76(sp)
+	stmw	r14, -72(sp)
+	
+	/*     switch_stacks(tos_index); */
+	// r7 = & EE_e200z7_system_tos[0];
+	lis	r7, EE_e200z7_system_tos@ha
+	addi	r7, r7, EE_e200z7_system_tos@l
+
+	// EE_e200z7_system_tos[r6] = sp;
+	rlwinm	r6, r6, 2, 0, 29
+	add	r6, r6, r7
+	stw	sp, 0(r6)
+
+	// EE_e200z7_active_tos = tos_index;
+	stw	r5, 0(r4)
+
+	// sp = EE_e200z7_system_tos[r5];
+	rlwinm	r6, r5, 2, 0, 29
+	add	r6, r6, r7
+	lwz	sp, 0(r6)
+
+        /*     restore_caller_saved_registers(); */
+	lmw	r14, -72(sp)
+	lwz	r0, -76(sp)
+	mtspr	SPRG_LR, r0
+
+        /* } */
+end_change_stacks:
+
+        /* if (is_not_marked_stacked(tid)) { */
+	// r3 == tid
+	cmpi	cr0, r3, 0 
+	blt	end_run_thread
+
+	stwu	sp, -16(sp)
+	/*     tid = EE_std_run_task_code(tid); */
+	mfspr	r0, SPRG_LR
+	stw	r0, 20(sp)
+	bl	EE_std_run_task_code
+	lwz	r0, 20(sp)
+	mtspr	SPRG_LR, r0
+	addi	sp, sp, 16
+
+	// r3 == tid
+
+        /*     goto begin; */
+	b	EE_std_change_context
+
+        /* } */
+end_run_thread:
+
+	blr
+	
+	.size	EE_std_change_context, .-EE_std_change_context

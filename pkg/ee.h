@@ -127,6 +127,10 @@ extern "C" {
 #include "cpu/mico32/inc/ee_cpu.h"
 #endif
 
+#ifdef __PPCE200Z7__
+#include "cpu/e200z7/inc/ee_cpu.h"
+#endif
+
   /*
    *
    * MCU

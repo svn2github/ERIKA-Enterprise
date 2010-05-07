@@ -177,6 +177,14 @@ include $(EEBASE)/pkg/cfg/arch/rules_axiom_mpc566evb.mk
 endif
 endif
 
+##
+## MPC5674F - diab under GNU/Linux
+##########################################################################
+ifeq ($(findstring __PPCE200Z7__,$(EEALLOPT)) , __PPCE200Z7__)
+ifeq ($(findstring __MPC5674F__,$(EEALLOPT)) , __MPC5674F__)
+include $(EEBASE)/pkg/cfg/arch/rules_ppc_mpc5674f.mk
+endif
+endif
 
 ##
 ## ARM7TDMI - GNU gcc under GNU/Linux or Cygwin

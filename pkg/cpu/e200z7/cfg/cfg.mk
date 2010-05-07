@@ -1,7 +1,7 @@
 # ###*B*###
 # ERIKA Enterprise - a tiny RTOS for small microcontrollers
 # 
-# Copyright (C) 2002-2009  Evidence Srl
+# Copyright (C) 2002-2010  Evidence Srl
 # 
 # This file is part of ERIKA Enterprise.
 # 
@@ -38,18 +38,34 @@
 # Boston, MA 02110-1301 USA.
 # ###*E*###
 
-## Author: 2009 Bernardo Dal Seno
+ifeq ($(findstring __PPCE200Z7__,$(EEOPT)) , __PPCE200Z7__)
+EE_SRCS += pkg/cpu/e200z7/src/ee_entry.c
+EE_SRCS += pkg/cpu/e200z7/src/ee_irq.c
 
-# Lattice Mico32
-ifeq ($(findstring __LM32__,$(EEOPT)) , __LM32__)
-EE_SRCS += pkg/cpu/common/src/ee_hal_structs.c
+ifeq ($(findstring __OO_BCC1__,$(EEOPT)) , __OO_BCC1__)
+CPU_OO=YES
+endif
+ifeq ($(findstring __OO_BCC2__,$(EEOPT)) , __OO_BCC2__)
+CPU_OO=YES
+endif
+ifeq ($(findstring __OO_ECC1__,$(EEOPT)) , __OO_ECC1__)
+CPU_OO=YES
+endif
+ifeq ($(findstring __OO_ECC2__,$(EEOPT)) , __OO_ECC2__)
+CPU_OO=YES
+endif
+
+ifeq ($(CPU_OO), YES)
+EE_SRCS += pkg/cpu/e200z7/src/ee_oo.S
+endif
+
+ifeq ($(findstring __MULTI__,$(EEOPT)) , __MULTI__)
+EE_SRCS += pkg/cpu/e200z7/src/ee_context.S
 EE_SRCS += pkg/cpu/common/src/ee_context.c
 endif
 
-ifeq ($(findstring __PPCE200Z7__,$(EEALLOPT)) , __PPCE200Z7__)
-ifeq ($(findstring __MPC5674F__,$(EEALLOPT)) , __MPC5674F__)
-EE_SRCS += pkg/cpu/common/src/ee_hal_structs.c
-EE_SRCS += pkg/cpu/common/src/ee_context.c
-endif
+ifeq ($(findstring __IRQ_STACK_NEEDED__,$(EEOPT)) , __IRQ_STACK_NEEDED__)
+EE_SRCS += pkg/cpu/e200z7/src/ee_irq_stack.S
 endif
 
+endif
