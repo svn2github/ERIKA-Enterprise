@@ -51,15 +51,14 @@ CPU test_application {
 
 #include "../common/rtdruid_common/ee_oil_nios2_os.h"
 #include "../common/rtdruid_common/ee_oil_s12xs_os.h"
+#include "../common/rtdruid_common/ee_oil_e200z7_os.h"
 
 			MULTI_STACK = TRUE {
 				IRQ_STACK = TRUE {
 					SYS_SIZE=512;
 				};
-#ifndef pic30
-	#ifndef s12xs
+#if !defined(pic30) && !defined(s12xs) && !defined(e200z7)
 				DUMMY_STACK = SHARED;
-	#endif			
 #endif
 			};
 		};

@@ -71,6 +71,7 @@ CPU test_application {
 #include "../common/rtdruid_common/ee_oil_nios2_os.h"
 #include "../common/rtdruid_common/ee_oil_pic30_os.h"
 #include "../common/rtdruid_common/ee_oil_s12xs_os.h"
+#include "../common/rtdruid_common/ee_oil_e200z7_os.h"
 
 
 		
