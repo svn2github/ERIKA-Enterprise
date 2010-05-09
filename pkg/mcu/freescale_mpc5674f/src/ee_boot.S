@@ -103,6 +103,8 @@ __start:
 	.align 4
 
 	.space	504
+
+	.global _estack
 _estack:
 	.space	8
 

@@ -226,3 +226,36 @@ EE_e200z7_setup_decrementer:
 	mtspr	SPRG_TCR, r3
 
 	blr
+
+	.global EE_e200z7_setup_decrementer_oneshot
+
+EE_e200z7_setup_decrementer_oneshot:
+	mtspr	SPRG_DEC, r3
+
+	mfspr	r3, SPRG_TCR
+	oris	r3, r3, (1 << TCR_DIE)@ha
+	andis.	r3, r3, ~(1 << TCR_ARE)@ha
+	mtspr	SPRG_TCR, r3
+
+	blr
+
+	.global EE_e200z7_stop_decrementer
+
+EE_e200z7_stop_decrementer:
+	li	r0, 0
+
+	mfspr	r3, SPRG_TCR
+	andis.	r3, r3, ~(1 << TCR_ARE)@ha
+	mtspr	SPRG_TCR, r3
+
+	mtspr	SPRG_DECAR, r0
+	mtspr	SPRG_DEC, r0
+
+	mfspr	r3, SPRG_TCR
+	andis.	r3, r3, ~(1 << TCR_DIE)@ha
+	mtspr	SPRG_TCR, r3
+
+	lis	r3, (1 << TSR_DIS)@h
+	mtspr	SPRG_TSR, r3
+
+	blr

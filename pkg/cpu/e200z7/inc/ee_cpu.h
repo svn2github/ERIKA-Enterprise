@@ -154,5 +154,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_disableIRQ(void)
 }
 
 extern void EE_e200z7_setup_decrementer(unsigned long value);
+extern void EE_e200z7_setup_decrementer_oneshot(unsigned long value);
+extern void EE_e200z7_stop_decrementer(void);
 
 #endif /* __INCLUDE_E200Z7_EE_CPU_H__ */
