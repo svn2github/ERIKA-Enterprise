@@ -31,13 +31,19 @@
 #define EE_UART_PORT_2	1
 
 #define EE_UART_ERR_BAD_PORT		1
-#define EE_UART_ERR_NO_DATA		2
+#define EE_UART_ERR_NO_DATA			2
 #define EE_UART_ERR_OVERFLOW		3
 #define EE_UART_ERR_INT_MODE		4
 #define EE_UART_ERR_INT_DISABLED	5
 
 #ifndef EE_UART_INSTRUCTION_CLOCK
-#define EE_UART_INSTRUCTION_CLOCK	2500000ul
+	#ifdef __PIC24FJ32GA004__
+		/* we are considering Fcy = 16 MHz */
+		#define EE_UART_INSTRUCTION_CLOCK	16000000ul
+	#else
+		#define EE_UART_INSTRUCTION_CLOCK	2500000ul
+	#endif
+
 #endif
 
 EE_INT8 EE_uart_init(EE_UINT8 port, EE_UINT32 baud, EE_UINT16 byte_format, 

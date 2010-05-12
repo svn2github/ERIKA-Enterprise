@@ -18,18 +18,39 @@ EE_INT8 EE_uart_init(EE_UINT8 port, EE_UINT32 baud, EE_UINT16 byte_format,
 		IEC0bits.U1TXIE = 0;
 		IFS0bits.U1RXIF = 0;		/* Clear Interrupt flag bits */
 		IFS0bits.U1TXIF = 0;
+		#ifndef __PIC24FJ32GA004__
 		TRISFbits.TRISF2 = 1;		/* Set In RX Pin */
 		TRISFbits.TRISF3 = 0;		/* Set Out TX Pin */
 		if (mode == EE_UART_CTRL_FLOW) {	
 			TRISDbits.TRISD14 = 1;	/* Set In CTS Pin */
 			TRISDbits.TRISD15 = 0;	/* Set Out RTS Pin */
 		}
+		#endif
+
 		/* baud rate */
+		#ifdef __PIC24FJ32GA004__
+		if ( baud > 57600 )
+		/* EE_UART_INSTRUCTION_CLOCK  is computed considering Fcy = 16MHz*/
+			U1BRG  = (EE_UART_INSTRUCTION_CLOCK  / (4 * baud)) - 1;
+		else
+			U1BRG  = (EE_UART_INSTRUCTION_CLOCK / (16 * baud)) - 1;
+		#else
 		U1BRG  = (EE_UART_INSTRUCTION_CLOCK / baud) - 1; 
-		//U1BRG = 21 // For 115200 with Fcy = 40MHz
-		/* Operation settings and start port */
+				//U1BRG = 21 // For 115200 with Fcy = 40MHz
+				/* Operation settings and start port */
+		#endif
+
 		U1MODE = 0;
+
+		#ifdef __PIC24FJ32GA004__
+		if ( baud > 57600 )
+			U1MODEbits.BRGH = 1;
+		else
+			U1MODEbits.BRGH = 0;
+		#else
 		U1MODEbits.BRGH = 0;
+		#endif
+
 		U1MODEbits.UARTEN = 1;
 		if (mode == EE_UART_CTRL_FLOW) {	
 			U1MODEbits.RTSMD = 1;
@@ -50,18 +71,40 @@ EE_INT8 EE_uart_init(EE_UINT8 port, EE_UINT32 baud, EE_UINT16 byte_format,
 		IEC1bits.U2TXIE = 0;
 		IFS1bits.U2RXIF = 0;		/* Clear Interrupt flag bits */
 		IFS1bits.U2TXIF = 0;
+		#ifndef __PIC24FJ32GA004__
 		TRISFbits.TRISF4 = 1;		/* Set In RX Pin */
 		TRISFbits.TRISF5 = 0;		/* Set Out TX Pin */
+
 		if (mode == EE_UART_CTRL_FLOW) {	
 			TRISFbits.TRISF12 = 1;	/* Set In RX Pin */
 			TRISFbits.TRISF13 = 0;	/* Set Out TX Pin */
 		}
+		#endif
+
 		/* baud rate */
+		#ifdef __PIC24FJ32GA004__
+		if ( baud > 57600 )
+		/* EE_UART_INSTRUCTION_CLOCK  is computed considering Fcy = 16MHz*/
+			U2BRG  = (EE_UART_INSTRUCTION_CLOCK  / (4 * baud)) - 1;
+		else
+			U2BRG  = (EE_UART_INSTRUCTION_CLOCK / (16 * baud)) - 1;
+		#else
 		U2BRG  = (EE_UART_INSTRUCTION_CLOCK / baud) - 1; 
-		//U2BRG = 21; // For 115200 with Fcy = 40MHz
-		/* Operation settings and start port */
+				//U1BRG = 21 // For 115200 with Fcy = 40MHz
+				/* Operation settings and start port */
+		#endif
+
 		U2MODE = 0;
+
+		#ifdef __PIC24FJ32GA004__
+		if ( baud > 57600 )
+			U2MODEbits.BRGH = 1;
+		else
+			U2MODEbits.BRGH = 0;
+		#else
 		U2MODEbits.BRGH = 0;
+		#endif
+
 		U2MODEbits.UARTEN = 1;
 		if (mode == EE_UART_CTRL_FLOW) {	
 			U2MODEbits.RTSMD = 1;
