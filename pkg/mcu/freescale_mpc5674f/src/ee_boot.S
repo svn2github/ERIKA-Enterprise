@@ -53,8 +53,8 @@
 	.long	0
 
 __start:
-	lis	r8, _estack@ha		/* setup the stack pointer */
-	addi	sp, r8, _estack@l
+	lis	r8, _stack0@ha		/* setup the stack pointer */
+	addi	sp, r8, _stack0@l
 
 	lis	r8, _load_ram@ha	/* load _load_ram into r8 */
 	addi	r8, r8, _load_ram@l
@@ -86,6 +86,19 @@ __start:
 	cmplw	cr0, r9, r8
 	blt	1b
 
+	lis	r8, _estack@ha		/* load _estack into r8 */
+	addi	r8, r8, _estack@l
+	lis	r9, _sstack@ha		/* load _sstack into r9 */
+	addi	r9, r9, _sstack@l
+	lis	r11, 0xa5a5a5a5@ha	/* load the fill pattern in r11 */
+	addi	r11, r11, 0xa5a5a5a5@l
+
+1:
+	stw	r11, 0(r9)		/* fill the stacks */
+	addi	r9, r9, 4
+	cmplw	cr0, r9, r8
+	blt	1b
+
 	lis	r13, _SDA_BASE_@ha	/* load .sdata base into r13 */
 	addi	r13, r13, _SDA_BASE_@l
 	lis	r2, _SDA2_BASE_@ha	/* load .sdata2 base into r2 */
@@ -104,8 +117,8 @@ __start:
 
 	.space	504
 
-	.global _estack
-_estack:
+	.global _stack0
+_stack0:
 	.space	8
 
 /*

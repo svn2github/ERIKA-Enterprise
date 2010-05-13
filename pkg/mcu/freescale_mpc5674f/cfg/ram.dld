@@ -76,6 +76,8 @@ SECTIONS
 		.bss : { }
 		_ebss = . ;
 
+		_sstack = . ;
 		.stack (BSS) : { *(.stack) }
+		_estack = . ;
 	} > isram
 }

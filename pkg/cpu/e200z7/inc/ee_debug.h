@@ -57,44 +57,8 @@
  */
 #ifdef DEBUG_STACK
 
-/*
- * This value is used as a canary (guard memory location) for stack overflow
- * detection.  This value has three interesting properties, which tend to cause
- * an exception if it's read and used by the processor:
- * 1. It's an invalid instruction
- * 2. It's a misaligned address
- * 3. It's an address in the I/O region, not suitable for code, and likely
- * invalid anyway
- * The canary is written before and after the actual stack space.  If it is
- * overwritten, you know that that the stack has been exceeded.
- */
-#define E200Z7_STACK_CANARY     0xabadbeef
-/*
- * Value to fill uninitialized memory.  It has the same properties of the
- * canary.
- */
-#define E200Z7_FILL_MEMORY      0xce11f00d
-
-#define PRE_STACK_CANARY_LEN	76  /* Enough to invalidate all caller-saved
-                                     * registers */
-#define POST_STACK_CANARY_LEN	4
-
-/* Used as the initaliaziation value of the private stacks in `eccgc.c'.  Write
- * the canary before and after the actual stack, and fill it with garbage.  C99
- * syntax and `...' GCC extension are used. */
-#ifdef notyet
-#define E200Z7_STACK_INIT(stack_len) {                                  \
-    [0 ... POST_STACK_CANARY_LEN - 1] = E200Z7_STACK_CANARY,            \
-        [POST_STACK_CANARY_LEN ... stack_len + POST_STACK_CANARY_LEN - 1] \
-        = E200Z7_FILL_MEMORY,                                           \
-        [stack_len + POST_STACK_CANARY_LEN ...                          \
-            stack_len + PRE_STACK_CANARY_LEN + POST_STACK_CANARY_LEN - 1] \
-        = E200Z7_STACK_CANARY                                           \
-        }
-#endif
-#define E200Z7_INIT_TOS_OFFSET (1-POST_STACK_CANARY_LEN)
-#define E200Z7_STACK_DEBUG_LEN (PRE_STACK_CANARY_LEN+POST_STACK_CANARY_LEN)
-
+#define E200Z7_FILL_MEMORY      0xa5a5a5a5
+#define E200Z7_STACK_CANARY_LEN	32
 
 /*
  * Check that the canary below the stack is intact.  `base_tos' is the initial
@@ -107,7 +71,7 @@ __INLINE__ int __ALWAYS_INLINE__ check_pre_stack_canary(EE_ADDR base_tos)
     int i;
     int *addr = (int *)base_tos;
     for (i = 1; i <= PRE_STACK_CANARY_LEN; ++i)
-        if (addr[i] != E200Z7_STACK_CANARY)
+        if (addr[i] != E200Z7_FILL_MEMORY)
             return i*4;
     return 0;
 }
@@ -130,7 +94,6 @@ __INLINE__ int __ALWAYS_INLINE__ check_all_pre_stack_canaries(
     }
     return 0;
 }
-
 
 #endif /* DEBUG_STACK */
 
@@ -182,7 +145,6 @@ __INLINE__ EE_UREG __ALWAYS_INLINE__ get_most_likely_tos_index(
     return tosind;
 }
 
-
 /*
  * Check that all stacks are empty, by comparing the current top-of-stack values
  * with those given (which should have been obtained through get_base_toses()).
@@ -209,13 +171,13 @@ __INLINE__ int __ALWAYS_INLINE__ get_base_toses(
     EE_ADDR base_toses[EE_MAX_TASK+1] )
 {
     int i, max_stack = 0;
-    extern int _estack;     /* Address defined in the linker script */
+    extern int _stack0;     /* Address defined in the linker script */
     for (i = 0; i < EE_MAX_TASK+1; ++i)
         if (EE_std_thread_tos[i] > max_stack) {
             max_stack = EE_std_thread_tos[i];
             base_toses[max_stack] = EE_e200z7_system_tos[max_stack].SYS_tos;
         }
-    base_toses[0] = (EE_ADDR)&_estack;
+    base_toses[0] = (EE_ADDR)&_stack0;
     return max_stack+1;
 }
 

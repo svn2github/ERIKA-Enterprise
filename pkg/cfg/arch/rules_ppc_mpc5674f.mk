@@ -51,8 +51,10 @@ include $(PKGBASE)/cfg/compiler.mk
 
 ifneq ($(findstring __E200Z7_EXECUTE_FROM_RAM__,$(EEOPT)),)
 DLD := ram.dld
+T32CMM_SRC := ram.cmm
 else
 DLD := rom.dld
+T32CMM_SRC := flash.cmm
 endif
 
 OPT_LINK += loc_diab.dld -e __start
@@ -151,13 +153,43 @@ TOSRCFILE = $(patsubst %.to,%.src,$(TARGETFILE))
 
 .PHONY: all clean
 
-all:: make_directories $(ALL_LIBS) $(TARGET)
+all:: make_directories $(ALL_LIBS) $(TARGET) t32
 	@printf "************************************\n\n"
 	@printf "Compilation terminated successfully!\n"
 
 clean::
 	@printf "CLEAN\n" ;
-	@-rm -rf *.a *.ld *.map *.elf *.objdump deps deps.pre debug.bat t32* obj *.men
+	@-rm -rf *.a *.ld *.dld *.map *.elf *.objdump deps deps.pre	\
+		debug.bat t32* obj *.men
+
+##
+## Lauterbach targets
+##
+T32BASE ?= /opt/case/emulator/lauterbach/t32
+T32BIN ?= $(T32BASE)/demo/powerpc/flash/quad/c90fl5674.bin
+T32GENMENU ?= $(T32BASE)/demo/kernel/orti/genmenu
+
+T32TARGETS := t32.cmm orti.cmm
+ifneq ($(wildcard system.orti),)
+T32TARGETS += orti.cmm orti.men ortiperf.men
+T32ORTISTR := do orti.cmm
+else
+T32ORTISTR :=
+endif
+
+t32: $(T32TARGETS)
+
+t32.cmm:
+	$(QUIET)sed -e 's:flashdriver=.*$$:flashdriver="$(T32BIN)":'	\
+		-e 's:ORTICMD:$(T32ORTISTR):'				\
+		"$(PKGBASE)/mcu/freescale_mpc5674f/cfg/$(T32CMM_SRC)" > $@
+
+orti.cmm ortiperf.men: t32.cmm
+	@cp $(PKGBASE)/mcu/freescale_mpc5674f/cfg/orti.cmm .
+	@cp $(PKGBASE)/mcu/freescale_mpc5674f/cfg/ortiperf.men .
+
+orti.men: $(T32GENMENU)
+	@$(T32GENMENU) system.orti
 
 ##
 ## ELF file creation
