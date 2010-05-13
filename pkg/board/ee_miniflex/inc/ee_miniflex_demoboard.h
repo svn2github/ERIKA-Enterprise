@@ -45,6 +45,100 @@
 #ifdef __USE_DEMOBOARD__
 
 /* /\************************************************************************* */
+/*  Buzzer */
+/*  *************************************************************************\/ */
+
+#ifdef __USE_BUZZER__
+
+extern EE_UINT16 buzzer_freq;
+extern EE_UINT16 buzzer_ticks;
+extern EE_UINT16 count;
+
+
+__INLINE__ void __ALWAYS_INLINE__ EE_buzzer_init( void )
+{
+  count=0;
+
+  // Initialize Output Compare Module
+  OC1CONbits.OCM = 0b000; // Disable Output Compare Module
+  OC1R = 300; // Write the duty cycle for the first PWM pulse
+  OC1RS = 1250; // Write the duty cycle for the second PWM pulse
+  OC1CONbits.OCTSEL = 1; // Select Timer 3 as output compare time base
+  OC1R = 1250; // Load the Compare Register Value
+  OC1CONbits.OCM = 0b110; // Select the Output Compare mode
+  
+  // Initialize and enable Timer3
+  T3CONbits.TON = 0; // Disable Timer
+  T3CONbits.TCS = 0; // Select internal instruction cycle clock
+  T3CONbits.TGATE = 0; // Disable Gated Timer mode
+  //T2CONbits.TCKPS = 0b00; // Select 1:1 Prescaler
+  	T3CONbits.TCKPS = 1;
+  TMR3 = 0x00; // Clear timer register
+  PR3 = 2500; // Load the period value
+  IPC2bits.T3IP = 0x01; // Set Timer 3 Interrupt Priority Level
+  IFS0bits.T3IF = 0; // Clear Timer 3 Interrupt Flag
+  IEC0bits.T3IE = 0; // Disable Timer 3 interrupt
+  T3CONbits.TON = 0; //
+}
+
+__INLINE__ void __ALWAYS_INLINE__ EE_buzzer_set_freq( EE_UINT16 new_freq )
+{
+	buzzer_freq  = new_freq;
+	if ((new_freq > 100) && (new_freq < 48000)) {
+		buzzer_freq  = 5000000ul / buzzer_freq;
+    buzzer_ticks = buzzer_freq >> 1;
+
+    OC1R = buzzer_ticks;
+    OC1RS = buzzer_ticks;
+    PR3 = buzzer_freq;
+    if(!T3CONbits.TON)
+      T3CONbits.TON = 1; // Start Timer
+  }
+  else T3CONbits.TON = 0; // Start Timer
+}
+
+__INLINE__ EE_UINT16 __ALWAYS_INLINE__ EE_buzzer_get_freq( void ) {
+	return buzzer_freq;
+}
+
+__INLINE__ void __ALWAYS_INLINE__ EE_buzzer_mute( void ) {
+	/* Stop Timer3 */
+	T3CONbits.TON = 0;
+}
+
+__INLINE__ void __ALWAYS_INLINE__ EE_buzzer_unmute( void ) {
+	/* Clear contents of the timer register */
+	TMR3 = 0;
+
+	/* Start Timer3 */
+	T3CONbits.TON = 1;
+}
+
+__INLINE__ void __ALWAYS_INLINE__ EE_buzzer_close( void ) {
+	/* Stop Timer4 */
+	T3CONbits.TON = 0;
+
+	/* Disable Timer4 interrupts */
+	IEC0bits.T3IE = 0;
+}
+
+#endif
+
+
+/* ************************************************************************* */
+
+/* ************************************************************************* */
+
+#endif /* __USE_DEMOBOARD__ */
+
+#endif /* __INCLUDE_EE_MINIFLEX_DEMOBOARD_H__ */
+
+/* ############################# BEGIN OLD STUFF ############################# */
+
+
+#if 0
+
+/* /\************************************************************************* */
 /*  Includes needed by PicDemZ wirelessmodule (GF) */
 /*  *************************************************************************\/ */
 
@@ -940,85 +1034,6 @@ __INLINE__ float __ALWAYS_INLINE__ EE_accelerometer_getz( void )
 
 #endif
 
-/* /\************************************************************************* */
-/*  Buzzer */
-/*  *************************************************************************\/ */
-
-#ifdef __USE_BUZZER__
-
-extern EE_UINT16 buzzer_freq;
-extern EE_UINT16 buzzer_ticks;
-extern EE_UINT16 count;
-
-
-__INLINE__ void __ALWAYS_INLINE__ EE_buzzer_init( void )
-{
-  count=0;
-
-  // Initialize Output Compare Module
-  OC1CONbits.OCM = 0b000; // Disable Output Compare Module
-  OC1R = 300; // Write the duty cycle for the first PWM pulse
-  OC1RS = 1250; // Write the duty cycle for the second PWM pulse
-  OC1CONbits.OCTSEL = 1; // Select Timer 3 as output compare time base
-  OC1R = 1250; // Load the Compare Register Value
-  OC1CONbits.OCM = 0b110; // Select the Output Compare mode
-  // Initialize and enable Timer3
-  T3CONbits.TON = 0; // Disable Timer
-  T3CONbits.TCS = 0; // Select internal instruction cycle clock
-  T3CONbits.TGATE = 0; // Disable Gated Timer mode
-  //T2CONbits.TCKPS = 0b00; // Select 1:1 Prescaler
-  	T3CONbits.TCKPS = 1;
-  TMR3 = 0x00; // Clear timer register
-  PR3 = 2500; // Load the period value
-  IPC2bits.T3IP = 0x01; // Set Timer 3 Interrupt Priority Level
-  IFS0bits.T3IF = 0; // Clear Timer 3 Interrupt Flag
-  IEC0bits.T3IE = 0; // Disable Timer 3 interrupt
-  T3CONbits.TON = 0; //
-}
-
-__INLINE__ void __ALWAYS_INLINE__ EE_buzzer_set_freq( EE_UINT16 new_freq )
-{
-  buzzer_freq  = new_freq;
-  if ((new_freq > 100) && (new_freq < 48000)) {
-
-    buzzer_freq  = 5000000ul / buzzer_freq;
-    buzzer_ticks = buzzer_freq >> 1;
-
-    OC1R = buzzer_ticks;
-    OC1RS = buzzer_ticks;
-    PR3 = buzzer_freq;
-    if(!T3CONbits.TON)
-      T3CONbits.TON = 1; // Start Timer
-  }
-  else T3CONbits.TON = 0; // Start Timer
-}
-
-__INLINE__ EE_UINT16 __ALWAYS_INLINE__ EE_buzzer_get_freq( void ) {
-	return buzzer_freq;
-}
-
-__INLINE__ void __ALWAYS_INLINE__ EE_buzzer_mute( void ) {
-	/* Stop Timer3 */
-	T3CONbits.TON = 0;
-}
-
-__INLINE__ void __ALWAYS_INLINE__ EE_buzzer_unmute( void ) {
-	/* Clear contents of the timer register */
-	TMR3 = 0;
-
-	/* Start Timer3 */
-	T3CONbits.TON = 1;
-}
-
-__INLINE__ void __ALWAYS_INLINE__ EE_buzzer_close( void ) {
-	/* Stop Timer4 */
-	T3CONbits.TON = 0;
-
-	/* Disable Timer4 interrupts */
-	IEC0bits.T3IE = 0;
-}
-
-#endif
 
 /* /\************************************************************************* */
 /*  PWM Output */
@@ -1099,333 +1114,5 @@ __INLINE__ void __ALWAYS_INLINE__ EE_pwm_close( EE_UINT8 chan )
 
 #endif // __USE_PWM__
 
-/* /\************************************************************************* */
-/*  DAC */
-/*  *************************************************************************\/ */
-
-#ifdef __USE_DAC__
-
-#define EE_DAC_I2C_KCLOCK		100
-
-#define EE_DAC_GENERAL_CALL_RESET	0x06
-#define EE_DAC_GENERAL_CALL_WAKEUP	0x09
-
-#define EE_DAC_PD_NORMAL		0x00
-#define EE_DAC_PD_1K			0x01
-#define EE_DAC_PD_100K			0x10
-#define EE_DAC_PD_500K			0x11
-
-#define EE_DAC_SAVE_EEPROM		0x00
-#define EE_DAC_NOSAVE_EEPROM		0x02
-
-__INLINE__ EE_INT8 __ALWAYS_INLINE__ EE_dac_general_call( EE_UINT8 second )
-{
-	// Ensure I2C module is idle
-	while(I2C1CONbits.SEN || I2C1CONbits.PEN || I2C1CONbits.RCEN || I2C1CONbits.ACKEN || I2C1STATbits.TRSTAT);
-
-	// Transmit a Start condition
-	I2C1CONbits.SEN = 1;		// initiate Start on SDA and SCL pins
-
-	// Wait till Start sequence is completed
-	while(I2C1CONbits.SEN);
-
-	// Write Slave address and set master for transmission  (R/W bit should be 0)
-	I2C1TRN = 0x00;
-	if(I2C1STATbits.IWCOL)		// If write collision occurs,return -1
-		return -1;
-
-	// Wait till address is transmitted
-	while(I2C1STATbits.TBF);
-
-	// Test for ACK condition received
-	while(I2C1STATbits.ACKSTAT);
-
-	// Ensure I2C module is idle
-	while(I2C1CONbits.SEN || I2C1CONbits.PEN || I2C1CONbits.RCEN || I2C1CONbits.ACKEN || I2C1STATbits.TRSTAT);
-
-	// Write command
-	I2C1TRN = 0x06;
-	if(I2C1STATbits.IWCOL)		// If write collision occurs,return -1
-		return -1;
-
-	// Wait till address is transmitted
-	while(I2C1STATbits.TBF);
-
-	// Test for ACK condition received
-	while(I2C1STATbits.ACKSTAT);
-
-	// Ensure I2C module is idle
-	while(I2C1CONbits.SEN || I2C1CONbits.PEN || I2C1CONbits.RCEN || I2C1CONbits.ACKEN || I2C1STATbits.TRSTAT);
-
-	// send STOP condition
-	I2C1CONbits.PEN = 1;	/* initiate Stop on SDA and SCL pins */
-
-	// Wait till Stop sequence is completed
-	while(I2C1CONbits.PEN);
-
-	// Ensure I2C module is idle
-	while(I2C1CONbits.SEN || I2C1CONbits.PEN || I2C1CONbits.RCEN || I2C1CONbits.ACKEN || I2C1STATbits.TRSTAT);
-
-	return 0;
-}
-
-__INLINE__ EE_INT8 __ALWAYS_INLINE__ EE_dac_fast_write( EE_UINT16 data, EE_UINT8 port, EE_UINT8 power)
-{
-	// Ensure I2C module is idle
-	while(I2C1CONbits.SEN || I2C1CONbits.PEN || I2C1CONbits.RCEN || I2C1CONbits.ACKEN || I2C1STATbits.TRSTAT);
-
-	// Transmit a Start condition
-	I2C1CONbits.SEN = 1;		// initiate Start on SDA and SCL pins
-
-	// Wait till Start sequence is completed
-	while(I2C1CONbits.SEN);
-
-	// Write address
-	I2C1TRN = 0xC0 + ( port*2 & 0x02 );
-	if(I2C1STATbits.IWCOL)		// If write collision occurs,return -1
-		return -1;
-
-	// Wait till address is transmitted
-	while(I2C1STATbits.TBF);
-
-	// Test for ACK condition received
-	while(I2C1STATbits.ACKSTAT);
-
-	// Ensure I2C module is idle
-	while(I2C1CONbits.SEN || I2C1CONbits.PEN || I2C1CONbits.RCEN || I2C1CONbits.ACKEN || I2C1STATbits.TRSTAT);
-
-	// Write first byte
-	I2C1TRN = ((data / 256) & 0x0F) + (power << 4);
-	if(I2C1STATbits.IWCOL)		// If write collision occurs,return -1
-		return -1;
-
-	// Wait till data is transmitted
-	while(I2C1STATbits.TBF);
-
-	// Test for ACK condition received
-	while(I2C1STATbits.ACKSTAT);
-
-	// Ensure I2C module is idle
-	while(I2C1CONbits.SEN || I2C1CONbits.PEN || I2C1CONbits.RCEN || I2C1CONbits.ACKEN || I2C1STATbits.TRSTAT);
-
-	// Write second byte
-	I2C1TRN = data % 256;
-	if(I2C1STATbits.IWCOL)		// If write collision occurs,return -1
-		return -1;
-
-	// Wait till data is transmitted
-	while(I2C1STATbits.TBF);
-
-	// Test for ACK condition received
-	while(I2C1STATbits.ACKSTAT);
-
-	// Ensure I2C module is idle
-	while(I2C1CONbits.SEN || I2C1CONbits.PEN || I2C1CONbits.RCEN || I2C1CONbits.ACKEN || I2C1STATbits.TRSTAT);
-
-	// send STOP condition
-	I2C1CONbits.PEN = 1;	/* initiate Stop on SDA and SCL pins */
-
-	// Wait till Stop sequence is completed
-	while(I2C1CONbits.PEN);
-
-	// Ensure I2C module is idle
-	while(I2C1CONbits.SEN || I2C1CONbits.PEN || I2C1CONbits.RCEN || I2C1CONbits.ACKEN || I2C1STATbits.TRSTAT);
-
-	return 0;
-}
-
-__INLINE__ EE_INT8 __ALWAYS_INLINE__ EE_dac_write( EE_UINT16 data, EE_UINT8 port, EE_UINT8 power, EE_UINT8 save)
-{
-	// Ensure I2C module is idle
-	while(I2C1CONbits.SEN || I2C1CONbits.PEN || I2C1CONbits.RCEN || I2C1CONbits.ACKEN || I2C1STATbits.TRSTAT);
-
-	// Transmit a Start condition
-	I2C1CONbits.SEN = 1;		// initiate Start on SDA and SCL pins
-
-	// Wait till Start sequence is completed
-	while(I2C1CONbits.SEN);
-
-	// Write address
-	I2C1TRN = 0xC0 + ( port*2 & 0x02 );
-	if(I2C1STATbits.IWCOL)		// If write collision occurs,return -1
-		return -1;
-
-	// Wait till address is transmitted
-	while(I2C1STATbits.TBF);
-
-	// Test for ACK condition received
-	while(I2C1STATbits.ACKSTAT);
-
-	// Ensure I2C module is idle
-	while(I2C1CONbits.SEN || I2C1CONbits.PEN || I2C1CONbits.RCEN || I2C1CONbits.ACKEN || I2C1STATbits.TRSTAT);
-
-	// Write first byte
-	I2C1TRN = 0x40 + ( save & 0x20 ) + power*2;
-	if(I2C1STATbits.IWCOL)		// If write collision occurs,return -1
-		return -1;
-
-	// Wait till data is transmitted
-	while(I2C1STATbits.TBF);
-
-	// Test for ACK condition received
-	while(I2C1STATbits.ACKSTAT);
-
-	// Ensure I2C module is idle
-	while(I2C1CONbits.SEN || I2C1CONbits.PEN || I2C1CONbits.RCEN || I2C1CONbits.ACKEN || I2C1STATbits.TRSTAT);
-
-	// Write second byte
-	I2C1TRN = data / 16;
-	if(I2C1STATbits.IWCOL)		// If write collision occurs,return -1
-		return -1;
-
-	// Wait till address is transmitted
-	while(I2C1STATbits.TBF);
-
-	// Test for ACK condition received
-	while(I2C1STATbits.ACKSTAT);
-
-	// Ensure I2C module is idle
-	while(I2C1CONbits.SEN || I2C1CONbits.PEN || I2C1CONbits.RCEN || I2C1CONbits.ACKEN || I2C1STATbits.TRSTAT);
-
-	// Write third byte
-	I2C1TRN = (data % 16) << 4;
-	if(I2C1STATbits.IWCOL)		// If write collision occurs,return -1
-		return -1;
-
-	// Wait till address is transmitted
-	while(I2C1STATbits.TBF);
-
-	// Test for ACK condition received
-	while(I2C1STATbits.ACKSTAT);
-
-	// Ensure I2C module is idle
-	while(I2C1CONbits.SEN || I2C1CONbits.PEN || I2C1CONbits.RCEN || I2C1CONbits.ACKEN || I2C1STATbits.TRSTAT);
-
-	// send STOP condition
-	I2C1CONbits.PEN = 1;	/* initiate Stop on SDA and SCL pins */
-
-	// Wait till Stop sequence is completed
-	while(I2C1CONbits.PEN);
-
-	// Ensure I2C module is idle
-	while(I2C1CONbits.SEN || I2C1CONbits.PEN || I2C1CONbits.RCEN || I2C1CONbits.ACKEN || I2C1STATbits.TRSTAT);
-
-	return 0;
-}
-
-__INLINE__ void __ALWAYS_INLINE__ EE_dac_init( void )
-{
-	/* Configre SCL/SDA pin as open-drain */
-	ODCGbits.ODCG2 = 1;
-	ODCGbits.ODCG3 = 1;
-
-	/* Clear Address and mask */
-	I2C1ADD = 0;
-	I2C1MSK = 0;
-
-	/* Set baudrate */
-	I2C1BRG = (40000ul / EE_DAC_I2C_KCLOCK) - 37;	// With Fcy = 40MHz !!!
-	//I2C1BRG = 363;
-
-	/* Configure I2C port */
-	I2C1CON = 0;
-	I2C1CONbits.ACKDT  = 1;
-	I2C1CONbits.DISSLW = 1;
-
-	/* Start I2C port */
-	I2C1CONbits.I2CEN = 1;
-
-	EE_dac_general_call(EE_DAC_GENERAL_CALL_RESET);
-}
-
-#endif
-
-/* /\************************************************************************* */
-/*  Motor PWM - TODO!!! */
-/*  *************************************************************************\/ */
-
-#ifdef __USE_PWM_MOTOR__
-
-__INLINE__ void __ALWAYS_INLINE__ EE_motor_init( void ) {
-
-}
-
-#endif
-
-/* /\************************************************************************* */
-/*  Encoder */
-/*  *************************************************************************\/ */
-
-#ifdef __USE_ENCODER__
-
-#define QEI_TICK_PER_REV	500
-#define	QEI_MAX_CNT_PER_REV	0xffff
-
-__INLINE__ void __ALWAYS_INLINE__ EE_encoder_init( void )
-{
-	/* set encoder bits as digital input */
- 	AD1PCFGLbits.PCFG3 = 1;
- 	AD1PCFGLbits.PCFG4 = 1;
- 	AD1PCFGLbits.PCFG5 = 1;
- 	AD2PCFGLbits.PCFG3 = 1;
- 	AD2PCFGLbits.PCFG4 = 1;
- 	AD2PCFGLbits.PCFG5 = 1;
-
-	// Disable QEI Module
-	QEICONbits.QEIM = 0;
-
-	// Clear any count errors
-	QEICONbits.CNTERR = 0;
-
-	// Count error interrupts disabled
-	DFLTCONbits.CEID = 1;
-
-	// Reset position counter
-	POSCNT = 0;
-
-	// Set bound value
-	MAXCNT = QEI_MAX_CNT_PER_REV;
-
-	// X4 mode with position counter reset by MAXCNT
-	QEICONbits.QEIM = 7;
-}
-
-__INLINE__ void __ALWAYS_INLINE__ EE_encoder_close( void )
-{
-	// Disable QEI Module
-	QEICONbits.QEIM = 0;
-}
-
-__INLINE__ EE_INT16 __ALWAYS_INLINE__ EE_encoder_get_ticks( void )
-{
-	return ((EE_INT16)POSCNT);
-}
-
-//__INLINE__ EE_UINT16 __ALWAYS_INLINE__ EE_encoder_get_position( void )
-__INLINE__ float __ALWAYS_INLINE__ EE_encoder_get_position( void )
-{
-	EE_INT16 POSCNTcopy = 0;
-
-	POSCNTcopy = (int)POSCNT;
-
-	if (POSCNTcopy < 0)
-		POSCNTcopy = -POSCNTcopy;
-
-	//AngPos[1] = AngPos[0];
-	//AngPos[0] = (unsigned int)(((unsigned long)POSCNTcopy * 2048)/125);
-	// 0 <= POSCNT <= 1999 to 0 <= AngPos <= 32752
-
-	//return (unsigned int)(((unsigned long)POSCNTcopy * 2048)/125);
-	return (float)(((unsigned long)POSCNTcopy*500)/360);
-}
-
-#endif
-
-
-/* ************************************************************************* */
-
-/* ************************************************************************* */
-
-#endif
 
 #endif
