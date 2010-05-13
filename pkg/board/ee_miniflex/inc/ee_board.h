@@ -45,23 +45,32 @@
 #include "mcu/microchip_dspic/inc/ee_mcu.h"
 
 /* /\************************************************************************* */
+/*  Sys_Clock */
+/*  *************************************************************************\/ */
+
+#ifdef	EE_SYS_CLOCK
+#define	EE_SYS_CLOCK	16000000L
+#endif
+
+/* /\************************************************************************* */
 /*  LEDs */
 /*  *************************************************************************\/ */
 
 #ifdef __USE_LEDS__
 
 __INLINE__ void __ALWAYS_INLINE__ EE_leds_init(void) {
-	/* set LED (LEDSYS/RB14) drive state low */
-	LATBbits.LATB14 = 0;
-	/* set LED pin (LEDSYS/RB14) as output */
-	TRISBbits.TRISB14 = 0;
+	/* set LED (LEDSYS/RA10) drive state low */
+	LATAbits.LATA10 = 0;
+	/* set LED pin (LEDSYS/RA10) as output */
+	TRISAbits.TRISA10 = 0;
 }
 
-__INLINE__ void __ALWAYS_INLINE__ EE_led_sys_on(void)   { LATBbits.LATB14 = 1; }
-__INLINE__ void __ALWAYS_INLINE__ EE_led_sys_off(void)  { LATBbits.LATB14 = 0; }
+__INLINE__ void __ALWAYS_INLINE__ EE_led_sys_on(void)	{ LATAbits.LATA10  = 1; }
+__INLINE__ void __ALWAYS_INLINE__ EE_led_sys_off(void)	{ LATAbits.LATA10  = 0; }
 
-__INLINE__ void __ALWAYS_INLINE__ EE_led_on(void)   { LATBbits.LATB14 = 1; }
-__INLINE__ void __ALWAYS_INLINE__ EE_led_off(void)  { LATBbits.LATB14 = 0; }
+__INLINE__ void __ALWAYS_INLINE__ EE_led_on(void)		{ LATAbits.LATA10  = 1; }
+__INLINE__ void __ALWAYS_INLINE__ EE_led_off(void)		{ LATAbits.LATA10  = 0; }
+__INLINE__ void __ALWAYS_INLINE__ EE_led_toggle(void)	{ LATAbits.LATA10 += 1; }
 
 #endif
 
