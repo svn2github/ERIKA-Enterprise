@@ -24,9 +24,18 @@ void mrf24j40_hal_delay_us( uint16_t delay_count )
 	asm volatile("outer: dec _temp_count");	
 	asm volatile("cp0 _temp_count");
 	asm volatile("bra z, done");
+
+	#ifdef __EE_MINIFLEX__ /* Fcy=16MHz, Tcy =62,5 ns */
+	asm volatile("mov #600, w0");
+	asm volatile("inner: dec w0, w0");
+	asm volatile("cp0 w0");
+	asm volatile("bra nz, inner");
+	#else 
 	asm volatile("do #1500, inner" );	
 	asm volatile("nop");
 	asm volatile("inner: nop");
+	#endif
+
 	asm volatile("bra outer");
 	asm volatile("done:");
 }
@@ -35,9 +44,13 @@ int8_t	mrf24j40_hal_init(void)
 {
 	/* Set the IO pins direction */
 	MRF24J40_TRIS_RESETn = 0;
+	#ifndef __EE_MINIFLEX__
 	MRF24J40_TRIS_VREG_EN = 0;
+	#endif
+	#ifndef __EE_MINIFLEX__	
 	MRF24J40_TRIS_FIFO = 1;
 	MRF24J40_TRIS_FIFOP = 1;
+	#endif
 	MRF24J40_TRIS_CSn = 0;
 	/* Set interrupt registers */
 	MRF24J40_INTERRUPT_PRIORITY = 1;

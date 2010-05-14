@@ -20,19 +20,27 @@
 #ifndef __USE_SPI__
 #error "MRF24J40 HAL EE : The SPI module from MCU is required!"
 #endif
+
 #include <mcu/microchip_dspic/inc/ee_spi.h>
 
 #define MRF24J40_SPI_PORT_1	EE_SPI_PORT_1
 #define MRF24J40_SPI_PORT_2	EE_SPI_PORT_2
 
 #ifndef MRF24J40_RESETn
-#define MRF24J40_RESETn		PORTGbits.RG0
+#ifndef __EE_MINIFLEX__
+#define MRF24J40_RESETn	PORTGbits.RG0
+#else
+#define MRF24J40_RESETn	PORTAbits.RA7	
+#endif
 #endif
 
-#ifndef MRF24J40_VREG_EN
-#define MRF24J40_VREG_EN		PORTGbits.RG12
+#ifndef __EE_MINIFLEX__
+	#ifndef MRF24J40_VREG_EN
+	#define MRF24J40_VREG_EN	PORTGbits.RG12
+	#endif
 #endif
 
+#ifndef __EE_MINIFLEX__	
 #ifndef MRF24J40_FIFO
 #ifdef __USE_DEMOBOARD__	/* Demoboard defaults */
 #define MRF24J40_FIFO		PORTDbits.RD14
@@ -40,27 +48,44 @@
 #define MRF24J40_FIFO		PORTEbits.RE9
 #endif
 #endif
+#endif
 
 #ifndef MRF24J40_FIFOP
-#ifdef __USE_DEMOBOARD__	/* Demoboard defaults */
-#define MRF24J40_FIFOP		PORTAbits.RA15
-#else				/* Gianluca's board default*/
-#define MRF24J40_FIFOP		PORTFbits.RF6
-#endif
+	#ifdef __USE_DEMOBOARD__	/* Demoboard defaults */
+	#define MRF24J40_FIFOP		PORTAbits.RA15
+	#else 
+	#ifdef __EE_MINIFLEX__	/* MiniFlex board default*/
+	#define MRF24J40_FIFOP		PORTBbits.RB7
+	#else				/* Gianluca's board default*/
+	#define MRF24J40_FIFOP		PORTFbits.RF6
+	#endif
+	#endif
 #endif
 
 #ifndef MRF24J40_CSn
+#ifndef __EE_MINIFLEX__
 #define MRF24J40_CSn		PORTGbits.RG9
+#else
+#define MRF24J40_CSn		PORTCbits.RC4
+#endif
 #endif
 
 #ifndef MRF24J40_TRIS_RESETn
+#ifdef __EE_MINIFLEX__
+#define MRF24J40_TRIS_RESETn	TRISAbits.TRISA7
+#else
 #define MRF24J40_TRIS_RESETn	TRISGbits.TRISG0
+
+#endif
 #endif
 
+#ifndef __EE_MINIFLEX__
 #ifndef MRF24J40_TRIS_VREG_EN
 #define MRF24J40_TRIS_VREG_EN	TRISGbits.TRISG12
 #endif
+#endif
 
+#ifndef __EE_MINIFLEX__	
 #ifndef MRF24J40_TRIS_FIFO
 #ifdef __USE_DEMOBOARD__	/* Demoboard defaults */
 #define MRF24J40_TRIS_FIFO	TRISDbits.TRISD14
@@ -68,17 +93,26 @@
 #define MRF24J40_TRIS_FIFO	TRISEbits.TRISE9
 #endif
 #endif
+#endif
 
 #ifndef MRF24J40_TRIS_FIFOP
 #ifdef __USE_DEMOBOARD__	/* Demoboard defaults */
 #define MRF24J40_TRIS_FIFOP	TRISAbits.TRISA15
+#else
+#ifdef __EE_MINIFLEX__	/* MiniFlex board default*/
+#define MRF24J40_TRIS_FIFOP	TRISBbits.TRISB7
 #else				/* Gianluca's board default*/
 #define MRF24J40_TRIS_FIFOP	TRISFbits.TRISF6
 #endif
 #endif
+#endif
 
 #ifndef MRF24J40_TRIS_CSn
-#define MRF24J40_TRIS_CSn		TRISGbits.TRISG9
+#ifndef __EE_MINIFLEX__
+#define MRF24J40_TRIS_CSn	TRISGbits.TRISG9
+#else
+#define MRF24J40_TRIS_CSn	TRISCbits.TRISC4
+#endif	
 #endif
 
 #ifdef __USE_DEMOBOARD__	/* Demoboard defaults */
@@ -103,7 +137,8 @@
 #define MRF24J40_INTERRUPT_EDGE_POLARITY	 INTCON2bits.INT4EP
 #endif
 
-#else				/* Gianluca's board default*/
+#else /* Gianluca's board and MiniFlex default*/
+
 
 #ifndef MRF24J40_INTERRUPT_NAME	
 #define MRF24J40_INTERRUPT_NAME	_INT0Interrupt
@@ -175,5 +210,6 @@ COMPILER_INLINE uint8_t mrf24j40_hal_irq_status(void)
 {
 	return MRF24J40_INTERRUPT_ENABLE;
 }
+
 
 #endif /* Header Protection */
