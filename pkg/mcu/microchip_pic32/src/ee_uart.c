@@ -41,7 +41,7 @@ EE_INT8 EE_uart_init(EE_UINT8 port, EE_UINT32 baud, EE_UINT16 byte_format,
 		U1STA = 0;						// TX & RX interrupt modes
 		U1STAbits.UTXEN = 1; //Enable Transmission
 		U1STAbits.URXEN = 1; //Enable Receiver
-		return 1;
+		return EE_UART_NO_ERROR;
 	} else if (port == EE_UART_PORT_2) {
 		U2MODEbits.UARTEN = 0;		// Stop UART port
 		/*IEC1bits.U2RXIE = 0;		// Disable Interrupts
@@ -70,7 +70,7 @@ EE_INT8 EE_uart_init(EE_UINT8 port, EE_UINT32 baud, EE_UINT16 byte_format,
 		U2STA = 0;						// TX & RX interrupt modes
 		U2STAbits.UTXEN = 1;
 		U2STAbits.URXEN = 1; //Enable Receiver
-		return 1;
+		return EE_UART_NO_ERROR;
 	}
 	return -EE_UART_ERR_BAD_PORT;
 }
@@ -79,10 +79,10 @@ EE_INT8 EE_uart_close(EE_UINT8 port)
 {
 	if (port == EE_UART_PORT_1) {
 		/* chris: TODO: Release something */
-		return 1;
+		return EE_UART_NO_ERROR;
 	} else if (port == EE_UART_PORT_2) {
 		/* chris: TODO: Release something */
-		return 1;
+		return EE_UART_NO_ERROR;
 	}
 	return -EE_UART_ERR_BAD_PORT;
 }
@@ -100,7 +100,7 @@ EE_INT8 EE_uart_set_rx_callback(EE_UINT8 port, void (*RxFunc)(EE_UINT8 data),
 			IEC0bits.U1RXIE = 1;		
 			IFS0bits.U1RXIF = 0;*/
 		}
-		return 1;
+		return EE_UART_NO_ERROR;
 		#else
 		return -EE_UART_ERR_INT_DISABLED;
 		#endif
@@ -114,7 +114,7 @@ EE_INT8 EE_uart_set_rx_callback(EE_UINT8 port, void (*RxFunc)(EE_UINT8 data),
 			IEC1bits.U2RXIE = 1;		
 			IFS1bits.U2RXIF = 0;*/
 		}
-		return 1;
+		return EE_UART_NO_ERROR;
 		#else
 		return -EE_UART_ERR_INT_DISABLED;
 		#endif
@@ -129,13 +129,13 @@ EE_INT8 EE_uart_write_byte(EE_UINT8 port, EE_UINT8 data)
 		while (U1STAbits.UTXBF) ;
 		U1TXREG = data;
 		while (!U1STAbits.TRMT) ;
-		return 1;
+		return EE_UART_NO_ERROR;
 	} else if (port == EE_UART_PORT_2) {
 		/* Polling mode */
 		while (U2STAbits.UTXBF) ;
 		U2TXREG = data;
 		while (!U2STAbits.TRMT) ;
-		return 1;
+		return EE_UART_NO_ERROR;
 	}
 	return -EE_UART_ERR_BAD_PORT;
 }
@@ -153,7 +153,7 @@ EE_INT8 EE_uart_read_byte(EE_UINT8 port, EE_UINT8 *data)
 			}
 			if (U1STAbits.URXDA) {
 				*data = U1RXREG & 0x00FF;
-				return 1;
+				return EE_UART_NO_ERROR;
 			}
 			return -EE_UART_ERR_NO_DATA;
 		#ifdef EE_UART_PORT_1_ISR_ENABLE
@@ -171,7 +171,7 @@ EE_INT8 EE_uart_read_byte(EE_UINT8 port, EE_UINT8 *data)
 			}
 			if (U2STAbits.URXDA) {
 				*data = U2RXREG & 0x00FF;
-				return 1;
+				return EE_UART_NO_ERROR;
 			}
 			return -EE_UART_ERR_NO_DATA;
 		#ifdef EE_UART_PORT_2_ISR_ENABLE

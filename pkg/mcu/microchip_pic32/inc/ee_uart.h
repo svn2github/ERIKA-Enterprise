@@ -31,6 +31,7 @@
 #define EE_UART_PORT_1	0
 #define EE_UART_PORT_2	1
 
+#define EE_UART_NO_ERROR		1	//Used as positive
 #define EE_UART_ERR_BAD_PORT		1
 #define EE_UART_ERR_NO_DATA		2
 #define EE_UART_ERR_OVERFLOW		3
