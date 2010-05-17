@@ -261,8 +261,12 @@ extern "C" {
 #endif
 
  /* MICO32 */
-#ifdef __LM32__
+#ifdef __XP2_CAMERA_BOARD__
 #include "board/fpga_camera_mico32/inc/ee_board.h"
+#endif
+
+#ifdef __LATTICE_XP2_EV_BOARD__
+#include "board/lattice_xp2_ev_board/inc/ee_board.h"
 #endif
 
 #ifdef __TC1796__

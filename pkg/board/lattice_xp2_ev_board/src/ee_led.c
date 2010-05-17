@@ -39,33 +39,46 @@
  * ###*E*### */
 
 /*
- * Author: 2010,  Dario  Di Stefano
+ * Support for LEDs on the Lattice standard XP2 evalutation board
  * Author: 2010,  Bernardo  Dal Seno
  */
 
-#ifndef __INCLUDE_FPGA_CAMERA_BOARD_H__
-#define __INCLUDE_FPGA_CAMERA_BOARD_H__
+#include <board/lattice_xp2_ev_board/inc/ee_board.h>
+#include <mcu/mico32/inc/ee_gpio.h>
+#include <system_conf.h>
 
+/* 7-segment leds */
+#define LED7S_DISP_0    0x81
+#define LED7S_DISP_1    0xcf
+#define LED7S_DISP_2    0x92
+#define LED7S_DISP_3    0x86
+#define LED7S_DISP_4    0xcc
+#define LED7S_DISP_5    0xa4
+#define LED7S_DISP_6    0xa0
+#define LED7S_DISP_7    0x8d
+#define LED7S_DISP_8    0x80
+#define LED7S_DISP_9    0x84
+#define LED7S_DISP_A    0x88
+#define LED7S_DISP_B    0xe0
+#define LED7S_DISP_C    0xf2
+#define LED7S_DISP_D    0xc2
+#define LED7S_DISP_E    0xb0
+#define LED7S_DISP_F    0xb8
+#define LED7S_DISP_DASH 0xfe
 
-#ifdef __USE_MICO32BOARD_RTC_PCF8583__
-#include "board/fpga_camera_mico32/inc/ee_rtc_pcf8583.h"
-#endif // __USE_MICO32BOARD_RTC_PCF8583__
+static const char display_table[] = {
+    LED7S_DISP_0, LED7S_DISP_1, LED7S_DISP_2, LED7S_DISP_3, LED7S_DISP_4,
+    LED7S_DISP_5, LED7S_DISP_6, LED7S_DISP_7, LED7S_DISP_8, LED7S_DISP_9,
+    LED7S_DISP_A, LED7S_DISP_B, LED7S_DISP_C, LED7S_DISP_D, LED7S_DISP_E,
+    LED7S_DISP_F, LED7S_DISP_DASH };
 
-#ifdef __USE_CAMERA_HV7131GP__
-#include "board/fpga_camera_mico32/inc/ee_camera_hv7131gp.h"
-#endif // __USE_CAMERA_HV7131GP__
-
-#ifdef __USE_MICO32BOARD_ETHERNET_ENC28J60__
-#include "board/fpga_camera_mico32/inc/ee_ethernet_enc28j60.h"
-#endif // __USE_MICO32BOARD_ETHERNET_ENC28J60__
-
-#ifdef __USE_MICO32BOARD_ZIGBEE_MRF24J40__
-#include "mrf24j40.h"
-#include "board/fpga_camera_mico32/inc/ee_zigbee_mrf24j40.h"
-#endif // __USE_MICO32BOARD_ZIGBEE_MRF24J40__
-
-#if defined(__USE_LEDS__) || defined(__USE_SWITCHES__) || defined(__USE_TRANSISTORS__)
-#include "ee_serio.h"
-#endif
-
-#endif //__INCLUDE_FPGA_CAMERA_BOARD_H__
+void EE_led_display(EE_UREG num)
+{
+    unsigned data;
+    
+    if (num >= 0 && num < sizeof(display_table))
+        data = display_table[num];
+    else
+        data = 0x7f;
+    EE_num_led_write_data(data);
+}

@@ -39,33 +39,74 @@
  * ###*E*### */
 
 /*
- * Author: 2010,  Dario  Di Stefano
+ * Support for LEDs on the Lattice standard XP2 evalutation board
  * Author: 2010,  Bernardo  Dal Seno
  */
 
-#ifndef __INCLUDE_FPGA_CAMERA_BOARD_H__
-#define __INCLUDE_FPGA_CAMERA_BOARD_H__
+#ifndef __INCLUDE_LATTICE_XP2_EVBOARD_LED_H__
+#define __INCLUDE_LATTICE_XP2_EVBOARD_LED_H__
+
+#include <mcu/mico32/inc/ee_gpio.h>
+#include <system_conf.h>
+
+/* 8 leds */
+
+__INLINE__ void __ALWAYS_INLINE__ EE_led_set_all(EE_INT32 state)
+{
+    EE_led_write_data(~state);
+}
+
+__INLINE__ void __ALWAYS_INLINE__ EE_led_all_off(void)
+{
+    EE_led_set_all(0);
+}
+
+__INLINE__ void __ALWAYS_INLINE__ EE_led_all_on(void)
+{
+    EE_led_set_all(~0);
+}
+
+__INLINE__ void  __ALWAYS_INLINE__ EE_led_init(void)
+{
+    EE_led_all_off();
+}
+
+__INLINE__ void __ALWAYS_INLINE__ EE_led_on(EE_UREG n)
+{
+    EE_led_write_bit_data(0,n);
+}
+
+__INLINE__ void __ALWAYS_INLINE__ EE_led_off(EE_UREG n)
+{
+    EE_led_write_bit_data(1,n);
+}
+
+__INLINE__ EE_UREG __ALWAYS_INLINE__ EE_led_get(EE_UREG n)
+{
+    return ! (EE_led_read_data_out() & (1 << n));
+}
+
+__INLINE__ void __ALWAYS_INLINE__ EE_led_toggle(EE_UREG n)
+{
+    if (EE_led_get(n))
+        EE_led_off(n);
+    else
+        EE_led_on(n);
+}
 
 
-#ifdef __USE_MICO32BOARD_RTC_PCF8583__
-#include "board/fpga_camera_mico32/inc/ee_rtc_pcf8583.h"
-#endif // __USE_MICO32BOARD_RTC_PCF8583__
+/* 7-segment led */
 
-#ifdef __USE_CAMERA_HV7131GP__
-#include "board/fpga_camera_mico32/inc/ee_camera_hv7131gp.h"
-#endif // __USE_CAMERA_HV7131GP__
+#define DISP_DASH       16
 
-#ifdef __USE_MICO32BOARD_ETHERNET_ENC28J60__
-#include "board/fpga_camera_mico32/inc/ee_ethernet_enc28j60.h"
-#endif // __USE_MICO32BOARD_ETHERNET_ENC28J60__
+__INLINE__ void  __ALWAYS_INLINE__ EE_led_init_display(void)
+{
+    EE_num_led_write_data(~0);
+}
 
-#ifdef __USE_MICO32BOARD_ZIGBEE_MRF24J40__
-#include "mrf24j40.h"
-#include "board/fpga_camera_mico32/inc/ee_zigbee_mrf24j40.h"
-#endif // __USE_MICO32BOARD_ZIGBEE_MRF24J40__
+/**
+ * @param num  A number between 0 and 15, or DISP_DASH
+ */
+void EE_led_display(EE_UREG num);
 
-#if defined(__USE_LEDS__) || defined(__USE_SWITCHES__) || defined(__USE_TRANSISTORS__)
-#include "ee_serio.h"
-#endif
-
-#endif //__INCLUDE_FPGA_CAMERA_BOARD_H__
+#endif /* __INCLUDE_LATTICE_XP2_EVBOARD_LED_H__ */

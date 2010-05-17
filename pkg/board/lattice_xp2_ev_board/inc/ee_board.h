@@ -39,33 +39,15 @@
  * ###*E*### */
 
 /*
- * Author: 2010,  Dario  Di Stefano
+ * Support for Lattice standard XP2 evalutation board
  * Author: 2010,  Bernardo  Dal Seno
  */
 
-#ifndef __INCLUDE_FPGA_CAMERA_BOARD_H__
-#define __INCLUDE_FPGA_CAMERA_BOARD_H__
+#ifndef __INCLUDE_LATTICE_XP2_EVBOARD_BOARD_H__
+#define __INCLUDE_LATTICE_XP2_EVBOARD_BOARD_H__
 
-
-#ifdef __USE_MICO32BOARD_RTC_PCF8583__
-#include "board/fpga_camera_mico32/inc/ee_rtc_pcf8583.h"
-#endif // __USE_MICO32BOARD_RTC_PCF8583__
-
-#ifdef __USE_CAMERA_HV7131GP__
-#include "board/fpga_camera_mico32/inc/ee_camera_hv7131gp.h"
-#endif // __USE_CAMERA_HV7131GP__
-
-#ifdef __USE_MICO32BOARD_ETHERNET_ENC28J60__
-#include "board/fpga_camera_mico32/inc/ee_ethernet_enc28j60.h"
-#endif // __USE_MICO32BOARD_ETHERNET_ENC28J60__
-
-#ifdef __USE_MICO32BOARD_ZIGBEE_MRF24J40__
-#include "mrf24j40.h"
-#include "board/fpga_camera_mico32/inc/ee_zigbee_mrf24j40.h"
-#endif // __USE_MICO32BOARD_ZIGBEE_MRF24J40__
-
-#if defined(__USE_LEDS__) || defined(__USE_SWITCHES__) || defined(__USE_TRANSISTORS__)
-#include "ee_serio.h"
+#ifdef __USE_LEDS__
+#include "ee_led.h"
 #endif
 
-#endif //__INCLUDE_FPGA_CAMERA_BOARD_H__
+#endif /* __INCLUDE_LATTICE_XP2_EVBOARD_BOARD_H__ */

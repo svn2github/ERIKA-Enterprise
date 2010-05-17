@@ -124,6 +124,11 @@ __INLINE__ void __ALWAYS_INLINE__ EE_led_all_toggle(void)
     EE_serio_system_led_toggle();
 }
 
+__INLINE__ void __ALWAYS_INLINE__ EE_led_init(void)
+{
+    EE_led_all_off();
+}
+
 #endif /* __USE_LEDS__ */
 
 

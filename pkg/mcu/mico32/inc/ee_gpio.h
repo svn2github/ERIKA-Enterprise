@@ -46,8 +46,8 @@ typedef struct {
     /** Interrupt callback */
     EE_ISR_callback cbk;
     /** Copy of the data register.  Used for GPIO configured as both input and
-     * output */
-    unsigned int data_copy;
+     * output or configured as output only */
+    volatile unsigned int data_copy;
 } EE_gpio_st;
 
 /* Macros for User functions (API) */  
@@ -55,23 +55,23 @@ typedef struct {
 __INLINE__ unsigned int __ALWAYS_INLINE__ cat3(EE_, lc, _read_data)(void){ \
     return EE_hal_gpio_read_data((MicoGPIO_t*)EE_BASE_ADD(uc)); }       \
  __INLINE__ unsigned int __ALWAYS_INLINE__ cat3(EE_, lc, _read_data_out)(void){ \
-     if (cat2(uc, _BOTH_INPUT_AND_OUTPUT))                              \
-         return EE_hal_gpio_bothio_read_data_out(&EE_ST_NAME(lc));      \
+     if (! cat2(uc, _TRISTATE_PORTS))                              \
+         return EE_hal_gpio_output_read_data_out(&EE_ST_NAME(lc));      \
      else                                                               \
          return EE_hal_gpio_read_data_out((MicoGPIO_t*)EE_BASE_ADD(uc)); } \
  __INLINE__ void __ALWAYS_INLINE__ cat3(EE_, lc, _write_data)(unsigned int val){ \
-     if (cat2(uc, _BOTH_INPUT_AND_OUTPUT))                              \
-         EE_hal_gpio_bothio_write_data((MicoGPIO_t*)EE_BASE_ADD(uc), val, &EE_ST_NAME(lc)); \
+     if (! cat2(uc, _TRISTATE_PORTS))                              \
+         EE_hal_gpio_output_write_data((MicoGPIO_t*)EE_BASE_ADD(uc), val, &EE_ST_NAME(lc)); \
      else                                                               \
          EE_hal_gpio_write_data((MicoGPIO_t*)EE_BASE_ADD(uc), val); }   \
  __INLINE__ void __ALWAYS_INLINE__ cat3(EE_, lc, _write_bit_data)(unsigned int val, unsigned char numbit){ \
-     if (cat2(uc, _BOTH_INPUT_AND_OUTPUT))                              \
-         EE_hal_gpio_bothio_write_bit_data((MicoGPIO_t*)EE_BASE_ADD(uc), val, numbit, &EE_ST_NAME(lc)); \
+     if (! cat2(uc, _TRISTATE_PORTS))                              \
+         EE_hal_gpio_output_write_bit_data((MicoGPIO_t*)EE_BASE_ADD(uc), val, numbit, &EE_ST_NAME(lc)); \
      else                                                               \
          EE_hal_gpio_write_bit_data((MicoGPIO_t*)EE_BASE_ADD(uc), val, numbit); } \
  __INLINE__ void __ALWAYS_INLINE__ cat3(EE_, lc, _write_mask_data)(unsigned int val, unsigned int mask){ \
-     if (cat2(uc, _BOTH_INPUT_AND_OUTPUT))                              \
-         EE_hal_gpio_bothio_write_mask_data((MicoGPIO_t*)EE_BASE_ADD(uc), val, mask, &EE_ST_NAME(lc)); \
+     if (! cat2(uc, _TRISTATE_PORTS))                              \
+         EE_hal_gpio_output_write_mask_data((MicoGPIO_t*)EE_BASE_ADD(uc), val, mask, &EE_ST_NAME(lc)); \
      else                                                               \
          EE_hal_gpio_write_mask_data((MicoGPIO_t*)EE_BASE_ADD(uc), val, mask); } \
  __INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _read_tristate)(void){  \
@@ -117,7 +117,7 @@ __INLINE__ unsigned int __ALWAYS_INLINE__ EE_hal_gpio_read_data_out(MicoGPIO_t* 
     return base->data;
 }
  
-__INLINE__ unsigned int __ALWAYS_INLINE__ EE_hal_gpio_bothio_read_data_out(EE_gpio_st *gpio_sp)
+__INLINE__ unsigned int __ALWAYS_INLINE__ EE_hal_gpio_output_read_data_out(EE_gpio_st *gpio_sp)
 {
     return gpio_sp->data_copy;
 }
@@ -127,18 +127,18 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_gpio_write_data(MicoGPIO_t *base, unsig
     base->data = val;
 } 
 
-__INLINE__ void __ALWAYS_INLINE__ EE_hal_gpio_bothio_write_data_internal(MicoGPIO_t *base, unsigned int val, EE_gpio_st *gpio_sp)
+__INLINE__ void __ALWAYS_INLINE__ EE_hal_gpio_output_write_data_internal(MicoGPIO_t *base, unsigned int val, EE_gpio_st *gpio_sp)
 {
     gpio_sp->data_copy = val;
     base->data = val;
 } 
 
-__INLINE__ void __ALWAYS_INLINE__ EE_hal_gpio_bothio_write_data(MicoGPIO_t *base, unsigned int val, EE_gpio_st *gpio_sp)
+__INLINE__ void __ALWAYS_INLINE__ EE_hal_gpio_output_write_data(MicoGPIO_t *base, unsigned int val, EE_gpio_st *gpio_sp)
 {
     EE_FREG irqstat;
 
     irqstat = EE_mico32_disableIRQ();
-    EE_hal_gpio_bothio_write_data_internal(base, val, gpio_sp);
+    EE_hal_gpio_output_write_data_internal(base, val, gpio_sp);
     if (EE_mico32_are_IRQs_enabled(irqstat))
         EE_mico32_enableIRQ();
 } 
@@ -159,7 +159,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_gpio_write_bit_data(MicoGPIO_t *base, u
         EE_mico32_enableIRQ();
 } 
                 
-__INLINE__ void __ALWAYS_INLINE__ EE_hal_gpio_bothio_write_bit_data(
+__INLINE__ void __ALWAYS_INLINE__ EE_hal_gpio_output_write_bit_data(
     MicoGPIO_t *base, unsigned int val, unsigned char numbit,
     EE_gpio_st *gpio_sp)
 {
@@ -168,11 +168,11 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_gpio_bothio_write_bit_data(
     EE_FREG irqstat;
 
     irqstat = EE_mico32_disableIRQ();
-    data = EE_hal_gpio_bothio_read_data_out(gpio_sp);
+    data = EE_hal_gpio_output_read_data_out(gpio_sp);
     if(val)
-        EE_hal_gpio_bothio_write_data_internal(base, data | mask, gpio_sp);
+        EE_hal_gpio_output_write_data_internal(base, data | mask, gpio_sp);
     else
-        EE_hal_gpio_bothio_write_data_internal(base, data & (~mask), gpio_sp);
+        EE_hal_gpio_output_write_data_internal(base, data & (~mask), gpio_sp);
     if (EE_mico32_are_IRQs_enabled(irqstat))
         EE_mico32_enableIRQ();
 } 
@@ -190,15 +190,15 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_gpio_write_mask_data(MicoGPIO_t* base,
         EE_mico32_enableIRQ();
 }
         
-__INLINE__ void __ALWAYS_INLINE__ EE_hal_gpio_bothio_write_mask_data(
+__INLINE__ void __ALWAYS_INLINE__ EE_hal_gpio_output_write_mask_data(
     MicoGPIO_t* base, unsigned int val, unsigned int mask, EE_gpio_st *gpio_sp)
 { 
     unsigned int data;
     EE_FREG irqstat;
 
     irqstat = EE_mico32_disableIRQ();
-    data = EE_hal_gpio_bothio_read_data_out(gpio_sp);
-    EE_hal_gpio_bothio_write_data_internal(base,
+    data = EE_hal_gpio_output_read_data_out(gpio_sp);
+    EE_hal_gpio_output_write_data_internal(base,
         (data & (~mask)) | (val & mask), gpio_sp);
     if (EE_mico32_are_IRQs_enabled(irqstat))
         EE_mico32_enableIRQ();
