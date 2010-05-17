@@ -59,6 +59,10 @@ ifeq ($(findstring __USE_SPI__,$(EEOPT)) , __USE_SPI__)
 EE_SRCS += pkg/mcu/microchip_dspic/src/ee_spi.c
 endif
 
+ifeq ($(findstring __USE_I2C__,$(EEOPT)) , __USE_I2C__)
+EE_SRCS += pkg/mcu/microchip_dspic/src/ee_i2c.c
+endif
+
 # typically empty, the crt0.S function is typically provided by the
 # ASM30 Assembler
 # EE_BOOT_SRCS +=
