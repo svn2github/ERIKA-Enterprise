@@ -64,7 +64,7 @@ RTDRUID_OUTPUT = $(addprefix $(OUTPUT_DIR)/, \
 .PHONY: all clean
 
 all: $(RTDRUID_OUTPUT)
-	make --no-print-directory -f $(OUTPUT_DIR)/makefile all
+	$(MAKE) --no-print-directory -f $(OUTPUT_DIR)/makefile all
 # Don't confuse people by printing the directory, as the current directory
 # is not changed
 
