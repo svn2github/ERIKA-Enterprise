@@ -30,16 +30,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 /******************************************************************************/
 /*                          Local Variables                                   */
 /******************************************************************************/
-volatile void (* capture_complete_func) (hv7131gp_status_t) = NULL;
-
-volatile uint8_t *frame_buffer = NULL;
-
-volatile uint8_t  frame_height = 0;
-volatile uint8_t  frame_width = 0;
-volatile int16_t frame_size = 0;
+static volatile uint16_t  frame_height = 0;
+static volatile uint16_t  frame_width = 0;
+static volatile int32_t frame_size = 0;
 
 /* Configuration static variables */
-static uint8_t act_res; 					//actual resolution
+static uint8_t act_res; 			//actual resolution
 static int16_t act_w, act_h, act_x, act_y;	//size and position of the window
 
 
@@ -59,24 +55,24 @@ static int16_t act_w, act_h, act_x, act_y;	//size and position of the window
  ---------------------------------------------------------------------------- */
 static void init_sequence(void)
 {
-
-	HV7131GP_PIN_ENABLE_HIGH();
-	HV7131GP_PIN_RESETB_HIGH();
-	HV7131GP_PIN_MCLK_START();
+	if (HV7131GP_HAL_DRIVING_PINS) {
+		HV7131GP_PIN_ENABLE_HIGH();
+		HV7131GP_PIN_RESETB_HIGH();
+		HV7131GP_PIN_MCLK_START();
 	
-	//Delay more than 1ms: for example 1500 us
-	hv7131gp_hal_delay_us(HV7131GP_MORE_THAN_1_MS);
+		//Delay more than 1ms: for example 1500 us
+		hv7131gp_hal_delay_us(HV7131GP_MORE_THAN_1_MS);
 	
-	//First sequence
-	HV7131GP_PIN_RESETB_LOW();
-	//Delay more than 4MCLK cycles: 1us (MCLK = 13.3MHz)
-	hv7131gp_hal_delay_us(HV7131GP_MORE_THAN_4_MCLK_CYCLES);
+		//First sequence
+		HV7131GP_PIN_RESETB_LOW();
+		//Delay more than 4MCLK cycles: 1us (MCLK = 13.3MHz)
+		hv7131gp_hal_delay_us(HV7131GP_MORE_THAN_4_MCLK_CYCLES);
 
-	//Second sequence
-	HV7131GP_PIN_RESETB_HIGH();
-	//Delay more than 2086000MCLK cycles: 250ms (MCLK = 13.3MHz)
-	hv7131gp_hal_delay_us(HV7131GP_MORE_THAN_2086000_MCLK_CYCLES);
-
+		//Second sequence
+		HV7131GP_PIN_RESETB_HIGH();
+		//Delay more than 2086000MCLK cycles: 250ms (MCLK = 13.3MHz)
+		hv7131gp_hal_delay_us(HV7131GP_MORE_THAN_2086000_MCLK_CYCLES);
+	}
 }
 
 /* ----------------------------------------------------------------------------
@@ -88,17 +84,20 @@ static void init_sequence(void)
  ---------------------------------------------------------------------------- */
 static hv7131gp_status_t init_ack(void)
 {
+	if (HV7131GP_HAL_DRIVING_PINS) {
+		//TODO: insert a time-out
+		while (!HV7131GP_VSYNC_IF_VALUE) ;
+	
+		/*Reset the IF flag*/
+		HV7131GP_VSYNC_RESET_IF();
+	
+		/*Check the correct lowering of the interrupt pin */
+		while (HV7131GP_VSYNC_IF_VALUE) ;
 
-	//TODO: insert a time-out
-	while (!HV7131GP_VSYNC_IF_VALUE) ;
-	
-	/*Reset the IF flag*/
-	HV7131GP_VSYNC_RESET_IF();
-	
-	/*Check the correct lowering of the interrupt pin */
-	while (HV7131GP_VSYNC_IF_VALUE) ;	
-	
-	return HV7131GP_SUCCESS;
+		return HV7131GP_SUCCESS;
+	} else {
+		return hv7131gp_hal_init_ack();
+	}
 }
 
 /******************************************************************************/
@@ -134,19 +133,19 @@ hv7131gp_status_t hv7131gp_reg_read(hv7131gp_reg_t reg, uint8_t *val)
  ---------------------------------------------------------------------------- */
 hv7131gp_status_t hv7131gp_init(void)
 {
-	/* Initializing pins */
-	HV7131GP_PIN_ENABLE_INIT();
-	HV7131GP_PIN_RESETB_INIT();
-	HV7131GP_PIN_MCLK_INIT(HV7131GP_MCLK_PERIOD);
+	if (HV7131GP_HAL_DRIVING_PINS) {
+		/* Initializing pins */
+		HV7131GP_PIN_ENABLE_INIT();
+		HV7131GP_PIN_RESETB_INIT();
+		HV7131GP_PIN_MCLK_INIT(HV7131GP_MCLK_PERIOD);
 
+		HV7131GP_PIN_VSYNC_INIT_POSITIVE();
+		HV7131GP_PIN_HSYNC_INIT();
+		HV7131GP_PIN_VCLK_INIT();
+		HV7131GP_PIN_EOF_INIT();
 
-	HV7131GP_PIN_VSYNC_INIT_POSITIVE();
-	HV7131GP_PIN_HSYNC_INIT();
-	HV7131GP_PIN_VCLK_INIT();
-	HV7131GP_PIN_EOF_INIT();
-
-	HV7131GP_PIN_Y_INIT();
-
+		HV7131GP_PIN_Y_INIT();
+	}
 	
 	
 	/* Initialize the internal peripheral, setting the comunication 
@@ -155,9 +154,10 @@ hv7131gp_status_t hv7131gp_init(void)
 		return -HV7131GP_HAL_INIT_ERR;
 
 
-	/* Start camera initialization sequence (see device refman) */
-	init_sequence();
-	
+	if (HV7131GP_HAL_DRIVING_PINS) {
+		/* Start camera initialization sequence (see device refman) */
+		init_sequence();
+	}
 	//The answer to the init procedure: Vsync interrupt
 	/*TODO: change this in future by mean of callbacks! */
 	if(init_ack() != HV7131GP_SUCCESS)
@@ -167,12 +167,12 @@ hv7131gp_status_t hv7131gp_init(void)
 }
 
 /* ----------------------------------------------------------------------------
-|  Start configuration of HV7131GP Camera:                                     |
+|  Starting configuration of HV7131GP Camera:                                  |
 |                                                                              |
-|  This functios is called inside the HV7131GP init function to preset the     |
-|  some variable; in this way is prevented the un-initialization of certain    |
-|  variables that are absolutely necessary to capture image, and is possible   |
-|  to use the camera without calling anyone configure function.                |
+|  This function is called inside the HV7131GP init function to preset         |
+|  some variables; in this way is prevented the un-initialization of certain   |
+|  variables that are absolutely necessary to capture an image, and it is      |
+|  possible to use the camera without calling any configuration function.      |
 |  Default settings are:						       |
 |  1. 160x120 resolution						       |
 |  2. Full window       						       |
@@ -222,6 +222,7 @@ hv7131gp_status_t hv7131gp_init_configure(void)
 
 	return HV7131GP_SUCCESS;
 }
+
 /* ----------------------------------------------------------------------------
 |  Highest level configure function for HV7131GP Camera:                      |
 |                                                                              |
@@ -626,7 +627,7 @@ hv7131gp_status_t hv7131gp_vblank_set(int16_t vb)
 /* ----------------------------------------------------------------------------
 |  Configure the resolution and the window size in safe mode:                  |
 |                                                                              |
-|  High level function that set the window values and the resolution, after    |
+|  High level function that sets the window values and the resolution, after   |
 |  a check about the compatibility between the maximum picture size in the     |
 |  selected hardware and the real size defined by the settings.                |
 |									       |
@@ -640,7 +641,7 @@ hv7131gp_status_t hv7131gp_configure_safe(int16_t width, int16_t height, int16_t
 	{
 	case HV7131GP_NO_SUB:
 		frame_size = width * height; 	//Size requested (no sub-sampling)
-		if(frame_size <= HV7131GP_MAX_SIZE){
+		if (frame_size <= HV7131GP_MAX_SIZE) {
 
 			//Set the window
 			help = hv7131gp_window_set(width, height, x, y);
@@ -667,7 +668,7 @@ hv7131gp_status_t hv7131gp_configure_safe(int16_t width, int16_t height, int16_t
 		}
 		break;
 	case HV7131GP_1_4_SUB:
-		frame_size = width * height >> 2; //Size requested (1/4 sub-sampling)
+		frame_size = width * height / 4; //Size requested (1/4 sub-sampling)
 		if(frame_size <= HV7131GP_MAX_SIZE){
 
 			//Set the window
@@ -695,7 +696,7 @@ hv7131gp_status_t hv7131gp_configure_safe(int16_t width, int16_t height, int16_t
 		}
 		break;
 	case HV7131GP_1_16_SUB:
-		frame_size = width * height >> 4; //Size requested (1/16 sub-sampling)
+		frame_size = width * height / 16; //Size requested (1/16 sub-sampling)
 		if(frame_size <= HV7131GP_MAX_SIZE){
 
 			//Set the window
@@ -736,38 +737,17 @@ hv7131gp_status_t hv7131gp_configure_safe(int16_t width, int16_t height, int16_t
 |                                                                              |
 |  - TODO:                                                                     |
  ---------------------------------------------------------------------------- */
-hv7131gp_status_t hv7131gp_capture(uint8_t *image, void (* func) (hv7131gp_status_t))
-{
-	if (image == NULL)
-		return HV7131GP_ERR_MEM_NULL;
-	
-	frame_buffer = image;
-	capture_complete_func = func;
-
-	HV7131GP_VSYNC_RESET_IF();
-
-	//Enables the interrupt associated with the VSYN
-	HV7131GP_PIN_VSYNC_START();	/* Initializes the Frame Sync */
-
-    return HV7131GP_SUCCESS;
-}
-
-/* ----------------------------------------------------------------------------
-|  Start Capture from HV7131GP Camera :                                        |
-|                                                                              |
-|  - TODO:                                                                     |
- ---------------------------------------------------------------------------- */
-uint8_t hv7131gp_get_width(void)
+uint16_t hv7131gp_get_width(void)
 {
 	return frame_width;
 }
 
-uint8_t hv7131gp_get_height(void)
+uint16_t hv7131gp_get_height(void)
 {
 	return frame_height;
 }
 
-uint16_t hv7131gp_get_size(void)
+uint32_t hv7131gp_get_size(void)
 {
 	return frame_size;
 }
@@ -783,7 +763,7 @@ uint8_t hv7131gp_get_Y_average(void)
 }
 
 /* ----------------------------------------------------------------------------
-|  Set HV7131GP to sleep mode:                                        |
+|  Set HV7131GP to sleep mode:                                        	       |
 |                                                                              |
 |  - TODO:                                                                     |
  ---------------------------------------------------------------------------- */
@@ -815,3 +795,11 @@ hv7131gp_status_t hv7131gp_set_active_status(void)
 	/*Set sleep mode*/
 	return hv7131gp_reg_write(HV7131GP_REG_SCTRB, dummy & (~HV7131GP_SLEEP_MODE));
 }
+
+/* - Emacs variables -
+  Local Variables:
+  tab-width: 8
+  c-basic-offset: 8 
+  indent-tabs-mode: t
+  End:
+*/

@@ -19,7 +19,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  *\file hv7131gp.h
  *
  *\date  Created on: 6-feb-2009
- *\author  Author: Claudio Salvadori and Christian Nastasi
+ *\author  Author: Claudio Salvadori and Christian Nastasi (and Bernardo Dal Seno)
  *\brief API header
  */
 
@@ -64,89 +64,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef _hv7131gp_h_
 #define _hv7131gp_h_
 
+#include "hv7131gp_types.h"
 #include "hv7131gp_reg.h"
 #include "hv7131gp_compiler.h"
 
-/******************************************************************************/
-/*                           Constants Definition                             */
-/******************************************************************************/
 
-#define	HV7131GP_MORE_THAN_1_MS			1500
-#define	HV7131GP_MORE_THAN_4_MCLK_CYCLES	1 	
-#define	HV7131GP_MORE_THAN_2086000_MCLK_CYCLES	300000
-
-
-
-
-
-/******************************************************************************/
-/*                            Type Definitions                                */
-/******************************************************************************/
-/**
-*\brief Exit status for the HV7131GP driver
-* Values returned by the operative API function
-* \see hv7131gp_init, hv7131gp_configure, hv7131gp_capture, hv7131gp_reg_write,
-* hv7131gp_reg_read
-*
-*
-*/
-
-
-typedef enum {
-	HV7131GP_SUCCESS = 0,		/**< No error */
-	HV7131GP_FAILURE,		/**< Generic error */
-	HV7131GP_ERR_I2C_INIT,		/**< I2C bus initialization error */
-	HV7131GP_ERR_I2C_READ,		/**< I2C bus read error */
-	HV7131GP_ERR_I2C_WRITE,		/**< I2C bus write error */
-	HV7131GP_ERR_DEV_NOINIT,	/**< Device is not initialized */
-	HV7131GP_ERR_MEM_NULL,		/**< Invalid NULL memory address */
-	HV7131GP_ERR_DMA_INIT,	/**< Invalid NULL memory address */
-	HV7131GP_HAL_INIT_ERR,
-} hv7131gp_status_t;
-
-/**
-* @brief Resolution value
-*/
-typedef enum {
-	HV7131GP_NO_SUB  	= 0x00,		/**< 640x480 pixel resolution*/
-	HV7131GP_1_4_SUB	= 0x01,		/**< 320x240 pixel resolution*/
-	HV7131GP_1_16_SUB	= 0x02,		/**< 160x120 pixel resolution */
-} hv7131gp_R_Value_t;
-
-/**
-* @brief Time divisor
-*
-*/
-typedef enum {
-	HV7131GP_T_1	= 0x00,		/**< Divide MCLK for 1 */
-	HV7131GP_T_2	= 0x01,		/**< Divide MCLK for 2 */
-	HV7131GP_T_3	= 0x02,		/**< Divide MCLK for 4 */
-	HV7131GP_T_4	= 0x03,		/**< Divide MCLK for 8 */
-	HV7131GP_T_5	= 0x04,		/**< Divide MCLK for 16 */
-	HV7131GP_T_6	= 0x05,		/**< Divide MCLK for 32 */
-	HV7131GP_T_7	= 0x06,		/**< Divide MCLK for 64 */
-	HV7131GP_T_8	= 0x07,		/**< Divide MCLK for 128 */
-} hv7131gp_T_D_Value_t;
-
-
-/**
-* @brief Quality value (high level)
-*/
-typedef enum {
-	HV7131GP_160x120_FAST  	= 0x00,		/**< 160x120 + T2 divisor*/
-	HV7131GP_160x120_MEDIUM	= 0x01,		/**< 160x120 + T4 divisor*/
-	HV7131GP_160x120_SLOW	= 0x02,		/**< 160x120 + T7 divisor */
-} hv7131gp_Q_Value_t;
-
-/**
-* @name Type representation
-* @{ */
-
-//TODO: utilizzare definizione standard
-
-
-/**  @} */
-
+#include "hv7131gp_hal.h"
 
 
 /******************************************************************************/
@@ -161,7 +84,7 @@ typedef enum {
 hv7131gp_status_t hv7131gp_init(void);
 
 /**
-* @brief Reset the camera at the start configuration
+* @brief Reset the camera to the starting configuration
 *
 * @return Returns \c HV7131GP_SUCCESS if no error occurs,
 *         otherwise a specific error code.
@@ -275,7 +198,7 @@ hv7131gp_status_t hv7131gp_configure(hv7131gp_Q_Value_t Q);
 * @return Returns \c HV7131GP_SUCCESS if no error occurs,
 *         otherwise a specific error code.
 */
-hv7131gp_status_t hv7131gp_capture(uint8_t *image, void (*func) (hv7131gp_status_t));
+COMPILER_INLINE hv7131gp_status_t hv7131gp_capture(uint8_t *image, void (*func) (hv7131gp_status_t));
 
 /**
 * @brief Write a HV7131GP Camera register
@@ -303,27 +226,27 @@ hv7131gp_status_t hv7131gp_reg_read(hv7131gp_reg_t reg, uint8_t *val);
 * @brief Returns the image width
 *
 *
-* @return Returns \c uint8_t value that represent the number of pixel of
+* @return Returns \c uint16_t value that represent the number of pixel of
 * each row
 */
-uint8_t hv7131gp_get_width(void);
+uint16_t hv7131gp_get_width(void);
 
 /**
 * @brief Returns the image height
 *
 *
-* @return Returns \c uint8_t value that represent the number of pixel of
+* @return Returns \c uint16_t value that represent the number of pixel of
 * each column
 */
-uint8_t hv7131gp_get_height(void);
+uint16_t hv7131gp_get_height(void);
 
 /**
 * @brief Returns the image size
 *
 *
-* @return Returns \c uint16_t value that represent the number of pixel of an image.
+* @return Returns \c uint32_t value that represent the number of pixel of an image.
 */
-uint16_t hv7131gp_get_size(void);
+uint32_t hv7131gp_get_size(void);
 
 /**
 * @brief Returns the luminance mean value
@@ -350,6 +273,20 @@ hv7131gp_status_t hv7131gp_set_sleep_status(void);
 *         otherwise a specific error code.
 */
 hv7131gp_status_t hv7131gp_set_active_status(void);
+
+
+
+/******************************************************************************/
+/*                         Inline function definitions                        */
+/******************************************************************************/
+
+COMPILER_INLINE hv7131gp_status_t hv7131gp_capture(uint8_t *image, hv7131gp_cback_t *func)
+{
+    if (image == NULL)
+        return HV7131GP_ERR_MEM_NULL;
+    else
+        return hv7131gp_hal_capture(image, func);
+}
 
 
 #endif

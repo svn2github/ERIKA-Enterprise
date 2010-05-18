@@ -23,6 +23,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
 #include "hv7131gp_hal.h"
+#include "hv7131gp.h"
 
 #include "mcu/microchip_pic32/inc/ee_i2c.h"
 #include "mcu/microchip_pic32/inc/ee_oc.h"
@@ -31,8 +32,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 /******************************************************************************/
 /*                         Global Variables                                   */
 /******************************************************************************/
-extern volatile uint8_t *frame_buffer;
-extern volatile void (* capture_complete_func) (hv7131gp_status_t);
+volatile void (* capture_complete_func) (hv7131gp_status_t) = NULL;
+
+volatile uint8_t *frame_buffer = NULL;
 
 
 /******************************************************************************/
@@ -261,6 +263,25 @@ hv7131gp_status_t hv7131gp_hal_init(uint8_t dma_channel){
 	if (hv7131gp_dma_hal_init(dma_channel) != HV7131GP_SUCCESS)
 		return -HV7131GP_ERR_DMA_INIT; 
 	#endif
+	return HV7131GP_SUCCESS;
+}
+
+
+/* ----------------------------------------------------------------------------
+|  Start Capture from HV7131GP Camera :                                        |
+|                                                                              |
+|  - TODO:                                                                     |
+ ---------------------------------------------------------------------------- */
+hv7131gp_status_t hv7131gp_hal_capture(uint8_t *image, hv7131gp_cback_t *func)
+{
+	frame_buffer = image;
+	capture_complete_func = func;
+
+	HV7131GP_VSYNC_RESET_IF();
+
+	//Enables the interrupt associated with the VSYN
+	HV7131GP_PIN_VSYNC_START();	/* Initializes the Frame Sync */
+
 	return HV7131GP_SUCCESS;
 }
 

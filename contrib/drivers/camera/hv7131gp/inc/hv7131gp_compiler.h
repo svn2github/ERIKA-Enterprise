@@ -16,7 +16,7 @@
 #include "hv7131gp_compiler_ee.h"
 
 #else			/* No compiler */
-#error "MRF24J40_HAL ERROR: compiler type not specified"
+#error HV7131GP_HAL ERROR: compiler type not specified
 
 #endif	/* End Compiler Selection */
 

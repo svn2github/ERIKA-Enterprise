@@ -1,6 +1,6 @@
 ## Author: 2009 Mauro Marinoni
 
-## Check the MRF24J40 library selection
+## Check the HV7131GP library selection
 ifeq ($(findstring __LIB_HV7131GP__,$(LIB_OPT)),__LIB_HV7131GP__)
 
 ##
@@ -17,5 +17,7 @@ endif
 ifeq ($(findstring __LM32__,$(EEOPT)) , __LM32__)
 EE_SRCS += contrib/drivers/camera/hv7131gp/src/hv7131gp_hal_ee_mico32.c
 endif
+
+INCLUDE_PATH += $(EEBASE)/contrib/drivers/camera/hv7131gp/inc
 
 endif

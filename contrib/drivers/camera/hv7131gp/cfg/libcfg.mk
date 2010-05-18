@@ -37,7 +37,7 @@ EE_OBJS_HV7131GP := $(addprefix $(OBJDIR)/, $(patsubst %.c,%.o,$(patsubst %.S,%.
 
 LIBSRCS += $(EE_SRCS_HV7131GP)
 
-libmrf24j40.a: $(EE_OBJS_HV7131GP)
+libhv7131gp.a: $(EE_OBJS_HV7131GP)
 	@echo $(EE_SRC_HV7131GP)
 	@printf "AR  hv7131gp.a\n" ;
 	$(QUIET)$(EE_AR) rs libhv7131gp.a $(EE_OBJS_HV7131GP)

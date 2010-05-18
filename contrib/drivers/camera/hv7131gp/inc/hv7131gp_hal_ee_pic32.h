@@ -20,10 +20,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  *
  */
 
-#include "hv7131gp.h"
 #ifndef HV7131GP_HAL_EE_PIC32_H_
 #define HV7131GP_HAL_EE_PIC32_H_
 
+#include "hv7131gp_types.h"
+#include "hv7131gp_reg.h"
 #include "mcu/microchip_pic32/inc/ee_cn.h"
 
 /******************************************************************************/
@@ -44,13 +45,18 @@ hv7131gp_status_t hv7131gp_i2c_hal_init(void);
 hv7131gp_status_t hv7131gp_i2c_hal_reg_write(hv7131gp_reg_t reg, uint8_t  val);
 hv7131gp_status_t hv7131gp_i2c_hal_reg_read(hv7131gp_reg_t reg, uint8_t *val);
 hv7131gp_status_t hv7131gp_dma_hal_init(uint8_t dma_ch);
-
-
+hv7131gp_status_t hv7131gp_hal_capture(uint8_t *image, hv7131gp_cback_t *func);
 
 
 /******************************************************************************/
 /*                           Hardware Abstraction Layer                       */
 /******************************************************************************/
+
+#define HV7131GP_HAL_DRIVING_PINS           1
+
+#define	HV7131GP_MORE_THAN_1_MS			1500
+#define	HV7131GP_MORE_THAN_4_MCLK_CYCLES	1 	
+#define	HV7131GP_MORE_THAN_2086000_MCLK_CYCLES	300000
 
 //Main clock speed
 
@@ -250,4 +256,7 @@ do { 									\
 #define HV7131GP_HAL_ENABLE_INTERRUPTS() asm volatile("ei")
 
 
-#endif /* HV7131GP_HAL_H_ */
+/* For compatibilty with other HALs */
+#define hv7131gp_hal_init_ack() HV7131GP_SUCCESS
+
+#endif /* HV7131GP_HAL_EE_PIC32_H_ */
