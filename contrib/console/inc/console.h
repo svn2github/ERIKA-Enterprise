@@ -75,7 +75,7 @@ typedef struct console_descriptor_t {
 	/** Pointer to the concrete open function. */
 	int (*open)(void *);	
 	/** Pointer to the concrete write function. */
-	int (*write)(void *, uint8_t *, uint16_t);
+	int (*write)(void *, const uint8_t *, uint16_t);
 	/** Pointer to the concrete read function. */
 	int (*read)(void *, uint8_t *, uint16_t, uint16_t *);
 	/** Pointer to generic parameter(s) for the concrete functions. */
@@ -150,7 +150,7 @@ int console_open(uint8_t cons)
 * 		must be called on the same \p cons port identifier.
 */
 COMPILER_INLINE
-int console_write(uint8_t cons, uint8_t *mesg, uint16_t length)
+int console_write(uint8_t cons, const uint8_t *mesg, uint16_t length)
 {
 	if (consoles[cons]->write != NULLP)
 		return consoles[cons]->write(consoles[cons]->params, mesg, length);

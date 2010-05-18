@@ -25,7 +25,8 @@ int8_t console_serial_hal_close(uint8_t port)
 	return 1;
 }
 
-int8_t console_serial_hal_write(uint8_t port, uint8_t *mesg, uint16_t length)
+int8_t console_serial_hal_write(uint8_t port, const uint8_t *mesg,
+    uint16_t length)
 {
 	return EE_hal_uart_write_buffer(& EE_ST_NAME(EE_UART1_NAME_LC), mesg, length);
 }

@@ -36,4 +36,5 @@ EE_SRCS += contrib/console/src/hal/s12.c
 endif
 endif
 
+INCLUDE_PATH += $(EEBASE)/contrib/console/inc
 endif

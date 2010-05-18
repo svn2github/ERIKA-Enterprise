@@ -42,7 +42,7 @@ static int console_serial_close(void *prm)
 	return console_serial_hal_close(tmp->port);
 }
 
-static int console_serial_write(void *prm, uint8_t *mesg, uint16_t leng)
+static int console_serial_write(void *prm, const uint8_t *mesg, uint16_t leng)
 {
 	console_serial_t *tmp = (console_serial_t *)prm;
 	return console_serial_hal_write(tmp->port, mesg, leng);
