@@ -1,0 +1,32 @@
+;
+; Script to run ERIKA from RAM, derived from the flashing example in
+; demo/powerpc/flash/mpc5674.cmm
+;
+; For t32 ver (4/12/2009)
+;
+&filename="z7.elf"
+
+SYStem.RESet
+SYStem.BdmClock 4.0MHz
+SYStem.CPU MPC5674
+NExus.PORTSIze MDO12
+NExus.Dtm ReadWrite
+NExus.PORTMode 1/1
+SYStem.Option.WATCHDOG OFF
+SYStem.Up
+
+; initialize SRAM
+Data.Set EA:0x40000000--0x40007fff %Quad 0
+
+; setup MMU for flash, RAM and register access
+MMU.TLB1.SET 0x1 0xC0000500 0xFFF0000A 0xFFF0003F
+MMU.TLB1.SET 0x2 0xC0000700 0x20000000 0x2000003F
+MMU.TLB1.SET 0x3 0xC0000400 0x40000008 0x4000003F
+MMU.TLB1.SET 0x4 0xC0000500 0xC3F00008 0xC3F0003F
+MMU.TLB1.SET 0x5 0xC0000700 0x00000000 0x0000003F
+
+d.load.elf &filename /VM
+
+ORTICMD
+
+ENDDO
