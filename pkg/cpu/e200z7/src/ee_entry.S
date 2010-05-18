@@ -56,7 +56,7 @@ set_ivor: .macro n,label
 save_all: .macro
 	addi	sp, sp, -80
 	stw	r0, 8(sp)
-	mfspr	r0, SPRG_LR
+	mfspr	r0, lr
 	stw	r0, 12(sp)
 	bl	save_registers
 	.endm
@@ -64,7 +64,7 @@ save_all: .macro
 restore_all: .macro
 	bl	restore_registers
 	lwz	r0, 12(sp)
-	mtspr	SPRG_LR, r0
+	mtspr	lr, r0
 	lwz	r0, 8(sp)
 	addi	sp, sp, 80
 	.endm
@@ -93,30 +93,30 @@ save_registers:
 	stw	r11, 52(sp)
 	stw	r12, 56(sp)
 
-	mfspr	r0, SPRG_SRR0
+	mfspr	r0, srr0
 	stw	r0, 60(sp)
-	mfspr	r0, SPRG_SRR1
+	mfspr	r0, srr1
 	stw	r0, 64(sp)
 	mfcr	r0
 	stw	r0, 68(sp)
-	mfspr	r0, SPRG_CTR
+	mfspr	r0, ctr
 	stw	r0, 72(sp)
-	mfspr	r0, SPRG_XER
+	mfspr	r0, xer
 	stw	r0, 76(sp)
 
 	blr
 
 restore_registers:
 	lwz	r0, 76(sp)
-	mtspr	SPRG_XER, r0
+	mtspr	xer, r0
 	lwz	r0, 72(sp)
-	mtspr	SPRG_CTR, r0
+	mtspr	ctr, r0
 	lwz	r0, 68(sp)
 	mtcr	r0
 	lwz	r0, 64(sp)
-	mtspr	SPRG_SRR1, r0
+	mtspr	srr1, r0
 	lwz	r0, 60(sp)
-	mtspr	SPRG_SRR0, r0
+	mtspr	srr0, r0
 
 	lwz	r12, 56(sp)
 	lwz	r11, 52(sp)
@@ -153,7 +153,7 @@ external_input_handler:
 
 decrementer_handler:
 	lis	r0, (1 << TSR_DIS)@h
-	mtspr	SPRG_TSR, r0
+	mtspr	tsr, r0
 	li	r3, 10
 	bl	EE_e200z7_irq
 	vector_epilogue
@@ -179,6 +179,52 @@ vector data_tlb_error, __empty_handler
 vector instruction_tlb_error, __empty_handler
 vector debug_critical, __empty_handler
 
+	.global EE_e200z7_setup_decrementer
+
+EE_e200z7_setup_decrementer:
+	mtspr	decar, r3
+	mtspr	dec, r3
+
+	mfspr	r3, tcr
+	oris	r3, r3, (1 << TCR_DIE)@ha
+	oris	r3, r3, (1 << TCR_ARE)@ha
+	mtspr	tcr, r3
+
+	blr
+
+	.global EE_e200z7_setup_decrementer_oneshot
+
+EE_e200z7_setup_decrementer_oneshot:
+	mtspr	dec, r3
+
+	mfspr	r3, tcr
+	oris	r3, r3, (1 << TCR_DIE)@ha
+	andis.	r3, r3, ~(1 << TCR_ARE)@ha
+	mtspr	tcr, r3
+
+	blr
+
+	.global EE_e200z7_stop_decrementer
+
+EE_e200z7_stop_decrementer:
+	li	r0, 0
+
+	mfspr	r3, tcr
+	andis.	r3, r3, ~(1 << TCR_ARE)@ha
+	mtspr	tcr, r3
+
+	mtspr	decar, r0
+	mtspr	dec, r0
+
+	mfspr	r3, tcr
+	andis.	r3, r3, ~(1 << TCR_DIE)@ha
+	mtspr	tcr, r3
+
+	lis	r3, (1 << TSR_DIS)@h
+	mtspr	tsr, r3
+
+	blr
+
 	.global cpu_setup
 
 cpu_setup:
@@ -201,7 +247,7 @@ cpu_setup:
 	sync
 
 	lis	r0, vector_base@h
-	mtspr	SPRG_IVPR, r0
+	mtspr	ivpr, r0
 
 	li	r0, 0
 	mtspr	SPRG_TBL_W, r0
@@ -214,48 +260,63 @@ cpu_setup:
 
 	blr
 
-	.global EE_e200z7_setup_decrementer
+	.section ".boot"
 
-EE_e200z7_setup_decrementer:
-	mtspr	SPRG_DECAR, r3
-	mtspr	SPRG_DEC, r3
+	.set TLB_0_MAS_0, 0x10050000
+	.set TLB_0_MAS_1, 0xc0000700
+	.set TLB_0_MAS_2, 0x00000000
+	.set TLB_0_MAS_3, 0x0000003f
 
-	mfspr	r3, SPRG_TCR
-	oris	r3, r3, (1 << TCR_DIE)@ha
-	oris	r3, r3, (1 << TCR_ARE)@ha
-	mtspr	SPRG_TCR, r3
+	.set TLB_1_MAS_0, 0x10010000
+	.set TLB_1_MAS_1, 0xc0000500
+	.set TLB_1_MAS_2, 0xfff0000a
+	.set TLB_1_MAS_3, 0xfff0003f
 
-	blr
+	.set TLB_2_MAS_0, 0x10020000
+	.set TLB_2_MAS_1, 0xc0000700
+	.set TLB_2_MAS_2, 0x20000000
+	.set TLB_2_MAS_3, 0x2000003f
 
-	.global EE_e200z7_setup_decrementer_oneshot
+	.set TLB_3_MAS_0, 0x10030000
+	.set TLB_3_MAS_1, 0xc0000400
+	.set TLB_3_MAS_2, 0x40000008
+	.set TLB_3_MAS_3, 0x4000003f
 
-EE_e200z7_setup_decrementer_oneshot:
-	mtspr	SPRG_DEC, r3
+	.set TLB_4_MAS_0, 0x10040000
+	.set TLB_4_MAS_1, 0xc0000500
+	.set TLB_4_MAS_2, 0xc3f00008
+	.set TLB_4_MAS_3, 0xc3f0003f
 
-	mfspr	r3, SPRG_TCR
-	oris	r3, r3, (1 << TCR_DIE)@ha
-	andis.	r3, r3, ~(1 << TCR_ARE)@ha
-	mtspr	SPRG_TCR, r3
+#define TLB_VAL(num, mas)	TLB_&& ## num ## &&_MAS_ ## mas
 
-	blr
+set_tlb: .macro entry
+	lis	r3, TLB_VAL(entry, 0)@ha
+	addi	r3, r3, TLB_VAL(entry, 0)@l
+	mtspr	mas0, r3
 
-	.global EE_e200z7_stop_decrementer
+	lis	r3, TLB_VAL(entry, 1)@ha
+	addi	r3, r3, TLB_VAL(entry, 1)@l
+	mtspr	mas1, r3
 
-EE_e200z7_stop_decrementer:
-	li	r0, 0
+	lis	r3, TLB_VAL(entry, 2)@ha
+	addi	r3, r3, TLB_VAL(entry, 2)@l
+	mtspr	mas2, r3
 
-	mfspr	r3, SPRG_TCR
-	andis.	r3, r3, ~(1 << TCR_ARE)@ha
-	mtspr	SPRG_TCR, r3
+	lis	r3, TLB_VAL(entry, 3)@ha
+	addi	r3, r3, TLB_VAL(entry, 3)@l
+	mtspr	mas3, r3
 
-	mtspr	SPRG_DECAR, r0
-	mtspr	SPRG_DEC, r0
+	tlbwe
+	.endm
 
-	mfspr	r3, SPRG_TCR
-	andis.	r3, r3, ~(1 << TCR_DIE)@ha
-	mtspr	SPRG_TCR, r3
+	.global mmu_setup
 
-	lis	r3, (1 << TSR_DIS)@h
-	mtspr	SPRG_TSR, r3
+mmu_setup:
+	set_tlb	0
+	set_tlb	1
+	set_tlb	2
+	set_tlb	3
+	set_tlb	4
+	sync
 
 	blr

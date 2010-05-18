@@ -53,6 +53,8 @@
 	.long	0
 
 __start:
+	bl	mmu_setup
+
 	lis	r8, _stack0@ha		/* setup the stack pointer */
 	addi	sp, r8, _stack0@l
 

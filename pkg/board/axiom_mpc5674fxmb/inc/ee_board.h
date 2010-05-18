@@ -50,6 +50,8 @@
 #define SIU_PCRS	((volatile EE_UINT16 *)SIU_BASE)
 #define SIU_PCR147	SIU_PCRS[179]
 #define SIU_PCR148	SIU_PCRS[180]
+#define SIU_PCR149	SIU_PCRS[181]
+#define SIU_PCR150	SIU_PCRS[182]
 #define SIU_PCR450	SIU_PCRS[482]
 
 #define SIU_GPIO	((volatile EE_UINT8 *)(SIU_BASE + 0x0600))
@@ -69,20 +71,42 @@
 
 #define LED_0	1
 #define LED_1	2
+#define LED_2	4
+#define LED_3	8
 
 __INLINE__ void __ALWAYS_INLINE__ EE_leds_init(void)
 {
 	SIU_PCR147 = 0x200;
 	SIU_PCR148 = 0x200;
+	SIU_PCR149 = 0x200;
+	SIU_PCR150 = 0x200;
 	SIU_GPIO[147] = 1;
 	SIU_GPIO[148] = 1;
+	SIU_GPIO[149] = 1;
+	SIU_GPIO[150] = 1;
 }
 
 __INLINE__ void __ALWAYS_INLINE__ EE_leds(EE_UREG led)
 {
 	SIU_GPIO[147] = led & 1;
-	SIU_GPIO[148] = led >> 1;
+	SIU_GPIO[148] = (led >> 1) & 1;
+	SIU_GPIO[149] = (led >> 2) & 1;
+	SIU_GPIO[150] = (led >> 3) & 1;
 }
+
+__INLINE__ void __ALWAYS_INLINE__ EE_led_set(EE_UREG idx, EE_UREG val)
+{
+	SIU_GPIO[147 + idx] = val;
+}
+
+#define EE_led_0_on()	EE_led_set(0, 1);
+#define EE_led_0_off()	EE_led_set(0, 0);
+#define EE_led_1_on()	EE_led_set(1, 1);
+#define EE_led_1_off()	EE_led_set(1, 0);
+#define EE_led_2_on()	EE_led_set(2, 1);
+#define EE_led_2_off()	EE_led_set(2, 0);
+#define EE_led_3_on()	EE_led_set(3, 1);
+#define EE_led_3_off()	EE_led_set(3, 0);
 
 #endif
 
@@ -109,6 +133,11 @@ __INLINE__ void __ALWAYS_INLINE__ EE_buttons_enable_interrupts(EE_UREG btn)
 __INLINE__ void __ALWAYS_INLINE__ EE_buttons_clear_ISRflag(EE_UREG btn)
 {
 	SIU_EISR = 1;
+}
+
+__INLINE__ EE_UINT32 __ALWAYS_INLINE__ EE_button_get_B0(void)
+{
+	return SIU_GPIO[450];
 }
 
 __INLINE__ void __ALWAYS_INLINE__ EE_buttons_init(EE_UREG btn, int n)

@@ -1,0 +1,52 @@
+CPU test_application {
+
+	OS EE {
+		EE_OPT = "DEBUG";
+		EE_OPT = "NODEPS";
+		EE_OPT = "__ASSERT__";
+		EE_OPT = "__USE_LEDS__";
+		EE_OPT = "__USE_BUTTONS__";
+
+		CPU_DATA = MPC5674F {
+			APP_SRC = "main.c";
+			MULTI_STACK = FALSE;
+		};
+		
+		STATUS = EXTENDED;
+		STARTUPHOOK = FALSE;
+		ERRORHOOK = FALSE;
+		SHUTDOWNHOOK = FALSE;
+		PRETASKHOOK = FALSE;
+		POSTTASKHOOK = FALSE;
+		USEGETSERVICEID = FALSE;
+		USEPARAMETERACCESS = FALSE;
+		USERESSCHEDULER = FALSE;
+		
+		KERNEL_TYPE = BCC1;
+		
+//		ORTI_SECTIONS = ALL;
+    };
+    
+    APPMODE ModeDecrement;
+    APPMODE ModeIncrement;
+    
+    TASK Task1 {
+		PRIORITY = 0x01;
+		ACTIVATION = 1;
+		SCHEDULE = FULL;
+		AUTOSTART = FALSE;
+		STACK = SHARED;
+		RESOURCE = "Resource";
+    };
+
+    TASK Task2 {
+		PRIORITY = 0x02;
+		ACTIVATION = 1;
+		SCHEDULE = FULL;
+		AUTOSTART = TRUE { APPMODE="ModeIncrement"; };	
+		STACK = SHARED;
+		RESOURCE = "Resource";
+    };
+
+    RESOURCE Resource { RESOURCEPROPERTY = STANDARD; };
+};
