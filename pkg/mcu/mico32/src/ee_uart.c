@@ -387,7 +387,7 @@ int EE_hal_uart_read_byte(EE_uart_st* usp, EE_UINT8 *data)
 		- blocking mode: wait if a transmission is in progress or if buffer is full, return the number of bytes loaded (should be loaded all characters...)
 		- no-blocking mode: no wait if buffer is full or if a transmission is in progress, return the number of bytes loaded
 */
-int EE_hal_uart_write_buffer(EE_uart_st* usp, EE_UINT8 *vet, int len)
+int EE_hal_uart_write_buffer(EE_uart_st* usp, const EE_UINT8 *vet, int len)
 {
 	unsigned int uiValue, mode;
 	EE_buffer* buffer;
@@ -654,7 +654,7 @@ int EE_hal_uart_read_buffer(EE_uart_st* usp, EE_UINT8 *vet, int len)
 		return i;	// number of bytes read.
 }					
 
-int EE_hal_uart_write_buffer(EE_uart_st* usp, EE_UINT8 *vet, int len)
+int EE_hal_uart_write_buffer(EE_uart_st* usp, const EE_UINT8 *vet, int len)
 {
 	unsigned int uiValue, mode;
 	int ret,i;
