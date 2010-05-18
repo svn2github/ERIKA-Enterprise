@@ -419,6 +419,8 @@ EE_INT8 EE_i2c_write_byte(
 	else if( port == EE_I2C_PORT_2 )
 		i2c_write_port_2( device, address, data );
 	else return -EE_I2C_BAD_PORT;
+	
+	return EE_I2C_SUCCESS;
 }
 
 EE_INT8 EE_i2c_read_byte(
@@ -432,4 +434,6 @@ EE_INT8 EE_i2c_read_byte(
 	else if( port == EE_I2C_PORT_2 )
 		i2c_read_port_2( device, address, data );
 	else return -EE_I2C_BAD_PORT;
+	
+	return EE_I2C_SUCCESS;
 }
