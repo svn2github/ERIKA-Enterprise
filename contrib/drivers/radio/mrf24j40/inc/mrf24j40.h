@@ -28,8 +28,13 @@ void mrf24j40_enable_carrier_sense();
 #define MRF24J40_BUFFER_SIZE 127
 
 #ifdef MRF24J40_DEBUG
+#ifdef __STDIO_COMPILER_BUG__
+unsigned int strlen(const char *str);
+int sprintf(char *, const char *, ...);
+#else
 #include <stdio.h>
 #include <string.h>
+#endif
 #include "console_serial.h"
 #define DEBUG_PORT 0
 #define mrf24j40_dbg_print(msg) console_write(DEBUG_PORT, (uint8_t*) msg, strlen((char*)msg))
