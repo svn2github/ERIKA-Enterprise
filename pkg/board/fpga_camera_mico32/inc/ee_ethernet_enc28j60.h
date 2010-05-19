@@ -19,8 +19,8 @@
 #include "mcu/mico32/inc/ee_spi.h"
 #include "mcu/mico32/inc/ee_gpio.h"
 
-#define EE_ETHERNET_SPI_NAME_UC EE_SPI1_NAME_UC
-#define EE_ETHERNET_SPI_NAME_LC EE_SPI1_NAME_LC
+#define EE_ETHERNET_SPI_NAME_UC NET_SPI
+#define EE_ETHERNET_SPI_NAME_LC net_spi
 
 /* ------------------------------------------------------------------------------- */
 /* Structures and external variables */

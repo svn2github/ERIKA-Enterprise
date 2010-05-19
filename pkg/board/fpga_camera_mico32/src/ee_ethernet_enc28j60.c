@@ -6,7 +6,7 @@
   Description: Ethernet driver source file (MICO32 CAMERA board dependent). 
 */
 
-#ifdef __USE_MICO32BOARD_ETHERNET_ENC28J60__
+#ifdef __USE_ETHERNET_ENC28J60__
 
 #include "board/fpga_camera_mico32/inc/ee_ethernet_enc28j60.h"
 
@@ -371,4 +371,4 @@ int EE_enc28j60_IRQ_enabled(void)
 	return ret;
 }
 
-#endif // #ifdef __USE_MICO32BOARD_ETHERNET_ENC28J60__
+#endif // #ifdef __USE_ETHERNET_ENC28J60__

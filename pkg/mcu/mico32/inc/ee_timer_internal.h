@@ -157,33 +157,54 @@ DECLARE_STRUCT_TIMER(EE_TIMER4_NAME_UC, EE_TIMER4_NAME_LC)
  * level */
 __DECLARE_INLINE__ EE_timer_st *EE_get_timer_st_from_level(int level);
 
-#ifndef EE_TIMER2_NAME_UC
-/* If there is only one component of this kind, no test is done */
 __INLINE__ EE_timer_st * __ALWAYS_INLINE__ EE_get_timer_st_from_level(int level)
 {
-    return & EE_ST_NAME(EE_TIMER1_NAME_LC);
-}
-#else /* #ifndef EE_TIMER_NAME2_UC */
-__INLINE__ EE_timer_st * __ALWAYS_INLINE__ EE_get_timer_st_from_level(int level)
-{
-    switch (level) {
-    default:
+	#ifdef EE_TIMER1_NAME_UC
+	if (level == EE_IRQ_NAME(EE_TIMER1_NAME_UC))
         return & EE_ST_NAME(EE_TIMER1_NAME_LC);
-#ifdef EE_TIMER2_NAME_UC
-    case EE_IRQ_NAME(EE_TIMER2_NAME_UC):
+	#endif
+	#ifdef EE_TIMER2_NAME_UC
+	if (level == EE_IRQ_NAME(EE_TIMER2_NAME_UC))
         return & EE_ST_NAME(EE_TIMER2_NAME_LC);
-#endif
-#ifdef EE_TIMER3_NAME_UC
-    case EE_IRQ_NAME(EE_TIMER3_NAME_UC):
+	#endif
+	#ifdef EE_TIMER3_NAME_UC
+	if (level == EE_IRQ_NAME(EE_TIMER3_NAME_UC))
         return & EE_ST_NAME(EE_TIMER3_NAME_LC);
-#endif
-#ifdef EE_TIMER4_NAME_UC
-    case EE_IRQ_NAME(EE_TIMER4_NAME_UC):
+	#endif
+	#ifdef EE_TIMER4_NAME_UC
+	if (level == EE_IRQ_NAME(EE_TIMER4_NAME_UC))
         return & EE_ST_NAME(EE_TIMER4_NAME_LC);
-#endif
-    }
+	#endif
+	return (EE_timer_st *)0;
 }
-#endif /* #ifndef EE_TIMER_NAME2_UC */
+
+// #ifndef EE_TIMER2_NAME_UC
+// /* If there is only one component of this kind, no test is done */
+// __INLINE__ EE_timer_st * __ALWAYS_INLINE__ EE_get_timer_st_from_level(int level)
+// {
+    // return & EE_ST_NAME(EE_TIMER1_NAME_LC);
+// }
+// #else /* #ifndef EE_TIMER_NAME2_UC */
+// __INLINE__ EE_timer_st * __ALWAYS_INLINE__ EE_get_timer_st_from_level(int level)
+// {
+    // switch (level) {
+    // default:
+        // return & EE_ST_NAME(EE_TIMER1_NAME_LC);
+// #ifdef EE_TIMER2_NAME_UC
+    // case EE_IRQ_NAME(EE_TIMER2_NAME_UC):
+        // return & EE_ST_NAME(EE_TIMER2_NAME_LC);
+// #endif
+// #ifdef EE_TIMER3_NAME_UC
+    // case EE_IRQ_NAME(EE_TIMER3_NAME_UC):
+        // return & EE_ST_NAME(EE_TIMER3_NAME_LC);
+// #endif
+// #ifdef EE_TIMER4_NAME_UC
+    // case EE_IRQ_NAME(EE_TIMER4_NAME_UC):
+        // return & EE_ST_NAME(EE_TIMER4_NAME_LC);
+// #endif
+    // }
+// }
+// #endif /* #ifndef EE_TIMER_NAME2_UC */
 
 #else // #ifdef __USE_TIMER_IRQ__ --------------------------------------------------------------------------------
 

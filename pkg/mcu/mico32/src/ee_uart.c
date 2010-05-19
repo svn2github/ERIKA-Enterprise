@@ -125,17 +125,6 @@ void EE_uart_common_handler(int level)
 /******************************************************************************/
 /*                       Public Global Functions                              */
 /******************************************************************************/
-#ifdef __USE_UART_IRQ__
-
-/* This function records ISR handler */
-int EE_hal_uart_handler_setup(EE_uart_st* usp)
-{
-    /* Register IRQ handler */
-    EE_mico32_register_ISR(usp->irqf, EE_uart_common_handler);	 
-
-	return EE_UART_OK;
-}
-
 /* This function configures UART baudrate and other features (parity, stop bits...) */
 int EE_hal_uart_config(EE_uart_st* usp, int baudrate, int settings)
 {
@@ -155,6 +144,38 @@ int EE_hal_uart_config(EE_uart_st* usp, int baudrate, int settings)
     
     /* ISR management */
     return EE_UART_OK;	//EE_uart_set_ISR_callback_base(base, irq_flag, ie_flag, isr_rx_callback, isr_tx_callback);
+}
+
+/* This functions enables IRQ */
+int EE_hal_uart_enable_IRQ(EE_uart_st* usp, int ier)
+{
+	usp->base->ier = (volatile unsigned int)(ier);
+	
+	return EE_UART_OK;
+}
+
+/* This functions disables IRQ */
+int EE_hal_uart_disable_IRQ(EE_uart_st* usp)
+{
+	usp->base->ier = 0;
+	
+	return EE_UART_OK;
+}
+
+int EE_hal_uart_return_error(EE_uart_st* usp)
+{
+	return usp->err;
+}
+
+#ifdef __USE_UART_IRQ__
+
+/* This function records ISR handler */
+int EE_hal_uart_handler_setup(EE_uart_st* usp)
+{
+    /* Register IRQ handler */
+    EE_mico32_register_ISR(usp->irqf, EE_uart_common_handler);	 
+
+	return EE_UART_OK;
 }
 
 /* This function sets UART operating mode */
@@ -437,7 +458,7 @@ int EE_hal_uart_write_buffer(EE_uart_st* usp, const EE_UINT8 *vet, int len)
 				;								// wait until transmission is finished...
 			for(i=0; i<len; i++)
 			{
-				ret = EE_buffer_putmsg(buffer, vet+i);
+				ret = EE_buffer_putmsg(buffer, (EE_UINT8*)vet+i);
 				if(ret == EE_BUF_OK)						// byte loaded in the tx buffer... 
 					usp->err = ret; 
 				else
@@ -495,48 +516,7 @@ int EE_hal_uart_read_buffer(EE_uart_st* usp, EE_UINT8 *vet, int len)
 		return i;	// number of bytes read.
 }
 
-/* This functions enables IRQ */
-int EE_hal_uart_enable_IRQ(EE_uart_st* usp, int ier)
-{
-	usp->base->ier = (volatile unsigned int)(ier);
-	
-	return EE_UART_OK;
-}
-
-/* This functions disables IRQ */
-int EE_hal_uart_disable_IRQ(EE_uart_st* usp)
-{
-	usp->base->ier = 0;
-	
-	return EE_UART_OK;
-}
-
-int EE_hal_uart_return_error(EE_uart_st* usp)
-{
-	return usp->err;
-}
-
 #else // #ifdef __USE_UART_IRQ__
-
-int EE_hal_uart_config(EE_uart_st* usp, int baudrate, int settings)
-{
-	unsigned int iir;
-	MicoUart_t *uartc = usp->base; 
-	
-	/* reset ier (isr register) */
-    uartc->ier = 0;						// if ier==0 -> POLLING MODE (ATT! is a blocking mode!!!)
-    									// if ier!=0 -> ISR MODE (ATT! is not a blocking mode!!!)
-    iir = uartc->iir;					// read iir register to clean ISR flags.	FARE PROVA!!!
-	/* Register IRQ handler */
-    //EE_hal_uart_handler_setup(usp);
-	/* set the control register */
-    uartc->lcr = settings;    
-    /* Calculate clock-divisor */
-    uartc->div = (MICO32_CPU_CLOCK_MHZ)/baudrate;
-    
-    /* ISR management */
-    return EE_UART_OK;	//EE_uart_set_ISR_callback_base(base, irq_flag, ie_flag, isr_rx_callback, isr_tx_callback);
-}
 
 int EE_hal_uart_set_ISR_mode(EE_uart_st* usp, int mode)
 {
@@ -553,7 +533,8 @@ int EE_hal_uart_set_ISR_mode(EE_uart_st* usp, int mode)
 	intst = EE_mico32_disableIRQ();
 	
 	usp->mode = mode; 	
-	mico32_disable_irq(usp->irqf);
+	if( (usp->irqf) >= 0 )
+		mico32_disable_irq(usp->irqf);
 	uartc->ier = 0;
 
 	/* Enable IRQ */
@@ -695,27 +676,6 @@ int EE_hal_uart_write_buffer(EE_uart_st* usp, const EE_UINT8 *vet, int len)
 	return ret;
 
 }					
-
-/* This functions enables IRQ */
-int EE_hal_uart_enable_IRQ(EE_uart_st* usp, int ier)
-{
-	usp->base->ier = (volatile unsigned int)(ier);
-	
-	return EE_UART_OK;
-}
-
-/* This functions disables IRQ */
-int EE_hal_uart_disable_IRQ(EE_uart_st* usp)
-{
-	usp->base->ier = 0;
-	
-	return EE_UART_OK;
-}
-
-int EE_hal_uart_return_error(EE_uart_st* usp)
-{
-	return usp->err;
-}
 
 #endif // #ifdef __USE_UART_IRQ__
 

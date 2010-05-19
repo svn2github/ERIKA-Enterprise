@@ -40,24 +40,33 @@
 
 ifeq ($(findstring __LM32__,$(EEOPT)) , __LM32__)
 
-ifeq ($(findstring __USE_MICO32BOARD_RTC_PCF8583__,$(EEOPT)) ,__USE_MICO32BOARD_RTC_PCF8583__)
+# *** IPERMOB camera board ***
+ifeq ($(findstring XP2_CAMERA_BOARD,$(EEOPT)) , XP2_CAMERA_BOARD)
+
+ifeq ($(findstring __USE_RTC_PCF8583__,$(EEOPT)) ,__USE_RTC_PCF8583__)
 EE_SRCS += pkg/board/fpga_camera_mico32/src/ee_rtc_pcf8583.c
 endif
 
-ifeq ($(findstring __USE_MICO32BOARD_CAMERA_HV7131GP__,$(EEOPT)) , __USE_MICO32BOARD_CAMERA_HV7131GP__)
+ifeq ($(findstring __USE_CAMERA_HV7131GP__,$(EEOPT)) , __USE_CAMERA_HV7131GP__)
 EE_SRCS += pkg/board/fpga_camera_mico32/src/ee_camera_hv7131gp.c
 endif
 
-ifeq ($(findstring __USE_MICO32BOARD_ETHERNET_ENC28J60__,$(EEOPT)) , __USE_MICO32BOARD_ETHERNET_ENC28J60__)
+ifeq ($(findstring __USE_ETHERNET_ENC28J60__,$(EEOPT)) , __USE_ETHERNET_ENC28J60__)
 EE_SRCS += pkg/board/fpga_camera_mico32/src/ee_ethernet_enc28j60.c
 endif
 
-ifeq ($(findstring __USE_MICO32BOARD_ZIGBEE_MRF24J40__,$(EEOPT)) , __USE_MICO32BOARD_ZIGBEE_MRF24J40__)
+ifeq ($(findstring __USE_LIGHTSENSOR_TSL2561__,$(EEOPT)) , __USE_LIGHTSENSOR_TSL2561__)
+EE_SRCS += pkg/board/fpga_camera_mico32/src/ee_lightsensor_tsl2561.c
+endif
+
+ifeq ($(findstring __USE_ZIGBEE_MRF24J40__,$(EEOPT)) , __USE_ZIGBEE_MRF24J40__)
 EE_SRCS += pkg/board/fpga_camera_mico32/src/ee_zigbee_mrf24j40.c
 ifneq ($(findstring __LIB_MRF24J40__,$(LIB_OPT)),__LIB_MRF24J40__)
 EE_SRCS += contrib/drivers/radio/mrf24j40/src/mrf24j40.c
 EE_SRCS += contrib/drivers/radio/mrf24j40/src/mrf24j40_hal_ee_mico32.c
 endif
 endif
+
+endif #XP2_CAMERA_BOARD
 
 endif #__LM32__

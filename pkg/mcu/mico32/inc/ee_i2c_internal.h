@@ -251,10 +251,7 @@ __INLINE__ int __ALWAYS_INLINE__ EE_hal_i2c_idle(OCI2CMDev_t* i2cc)
 
 #ifdef __USE_I2C_IRQ__
 
-/*
-	I2C structure (used in ISR mode):
-*/
-
+/* I2C structure (used in ISR mode) */
 typedef struct {
 	int err;							// last error condition
 	int mode;							// i2c operating mode (polling, isr, ...)
@@ -428,21 +425,35 @@ DECLARE_STRUCT_I2C(EE_I2C2_NAME_UC, EE_I2C2_NAME_LC)
 /* Return the I2C structure for the componente associated with the given IRQ
  * level */
 __DECLARE_INLINE__ EE_i2c_st *EE_get_i2c_st_from_level(int level);
-#ifndef EE_I2C2_NAME_UC
-/* If there is only one component of this kind, no test is done */
+
 __INLINE__ EE_i2c_st * __ALWAYS_INLINE__ EE_get_i2c_st_from_level(int level)
 {
-    return & EE_ST_NAME(EE_I2C1_NAME_LC);
-}
-#else /* #ifndef EE_I2C2_NAME_UC */
-__INLINE__ EE_i2c_st * __ALWAYS_INLINE__ EE_get_i2c_st_from_level(int level)
-{
-    if (level == EE_IRQ_NAME(EE_I2C1_NAME_UC))
+	#ifdef EE_I2C1_NAME_UC
+	if (level == EE_IRQ_NAME(EE_I2C1_NAME_UC))
         return & EE_ST_NAME(EE_I2C1_NAME_LC);
-    else
+	#endif
+	#ifdef EE_I2C2_NAME_UC
+	if (level == EE_IRQ_NAME(EE_I2C2_NAME_UC))
         return & EE_ST_NAME(EE_I2C2_NAME_LC);
+	#endif
+	return (EE_i2c_st *)0;
 }
-#endif /* #ifndef EE_I2C2_NAME_UC */	
+
+// #ifndef EE_I2C2_NAME_UC
+// /* If there is only one component of this kind, no test is done */
+// __INLINE__ EE_i2c_st * __ALWAYS_INLINE__ EE_get_i2c_st_from_level(int level)
+// {
+    // return & EE_ST_NAME(EE_I2C1_NAME_LC);
+// }
+// #else /* #ifndef EE_I2C2_NAME_UC */
+// __INLINE__ EE_i2c_st * __ALWAYS_INLINE__ EE_get_i2c_st_from_level(int level)
+// {
+    // if (level == EE_IRQ_NAME(EE_I2C1_NAME_UC))
+        // return & EE_ST_NAME(EE_I2C1_NAME_LC);
+    // else
+        // return & EE_ST_NAME(EE_I2C2_NAME_LC);
+// }
+// #endif /* #ifndef EE_I2C2_NAME_UC */	
 	
 		
 #else //#ifdef __USE_I2C_IRQ__
@@ -514,7 +525,6 @@ __INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _is_idle)(void){ \
 //	return EE_hal_i2c_disable_IRQ((OCI2CMDev_t*)EE_BASE_ADD(uc)); }
 		
 #endif //#ifdef __USE_I2C_IRQ__
-
 
 /* User functions (API) declaration: */  
 #ifdef EE_I2C1_NAME_UC

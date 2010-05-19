@@ -10,8 +10,6 @@
 #ifndef __INCLUDE_EEMCUMICO32_GPIO_H__
 #define __INCLUDE_EEMCUMICO32_GPIO_H__
 
-#ifdef __USE_GPIO__
-
 #include "cpu/mico32/inc/ee_internal.h"
 #include "mcu/mico32/inc/ee_internal.h"
 #include <cpu/mico32/inc/ee_irq.h>
@@ -345,44 +343,61 @@ DECLARE_FUNC_GPIO(EE_GPIO4_NAME_UC, EE_GPIO4_NAME_LC)
 /* Return the GPIO structure for the componente associated with the given IRQ
  * level */
 __DECLARE_INLINE__ EE_gpio_st *EE_get_gpio_st_from_level(int level);
-#ifndef EE_GPIO2_NAME_UC
-/* If there is only one component of this kind, no test is done */
-__INLINE__ EE_gpio_st * __ALWAYS_INLINE__ EE_get_gpio_st_from_level(int level)
-{
-    return & EE_ST_NAME(EE_GPIO1_NAME_LC);
-}
-#elif ! defined(EE_GPIO3_NAME_UC)
-__INLINE__ EE_gpio_st * __ALWAYS_INLINE__ EE_get_gpio_st_from_level(int level)
-{
-    if (level == EE_IRQ_NAME(EE_GPIO1_NAME_UC))
-        return & EE_ST_NAME(EE_GPIO1_NAME_LC);
-    else
-        return & EE_ST_NAME(EE_GPIO2_NAME_LC);
-}
-#elif ! defined(EE_GPIO4_NAME_UC)
-__INLINE__ EE_gpio_st * __ALWAYS_INLINE__ EE_get_gpio_st_from_level(int level)
-{
-    if (level == EE_IRQ_NAME(EE_GPIO1_NAME_UC))
-        return & EE_ST_NAME(EE_GPIO1_NAME_LC);
-    else if(level == EE_IRQ_NAME(EE_GPIO2_NAME_UC))
-        return & EE_ST_NAME(EE_GPIO2_NAME_LC);
-    else
-        return & EE_ST_NAME(EE_GPIO3_NAME_LC);
-}
-#else // #ifndef EE_GPIO4_NAME_UC
-__INLINE__ EE_gpio_st * __ALWAYS_INLINE__ EE_get_gpio_st_from_level(int level)
-{
-    if (level == EE_IRQ_NAME(EE_GPIO1_NAME_UC))
-        return & EE_ST_NAME(EE_GPIO1_NAME_LC);
-    else if(level == EE_IRQ_NAME(EE_GPIO2_NAME_UC))
-        return & EE_ST_NAME(EE_GPIO2_NAME_LC);
-    else if(level == EE_IRQ_NAME(EE_GPIO3_NAME_UC))
-        return & EE_ST_NAME(EE_GPIO3_NAME_LC);
-    else
-        return & EE_ST_NAME(EE_GPIO4_NAME_LC);
-}
-#endif /* #ifndef EE_GPIO_NAME2_UC */
 
-#endif // #ifdef __USE_GPIO__
+__INLINE__ EE_gpio_st * __ALWAYS_INLINE__ EE_get_gpio_st_from_level(int level)
+{
+	#ifdef EE_GPIO1_NAME_UC
+	if (level == EE_IRQ_NAME(EE_GPIO1_NAME_UC))
+        return & EE_ST_NAME(EE_GPIO1_NAME_LC);
+	#endif
+	#ifdef EE_GPIO2_NAME_UC
+	if (level == EE_IRQ_NAME(EE_GPIO2_NAME_UC))
+        return & EE_ST_NAME(EE_GPIO2_NAME_LC);
+	#endif
+	#ifdef EE_GPIO3_NAME_UC
+	if (level == EE_IRQ_NAME(EE_GPIO3_NAME_UC))
+        return & EE_ST_NAME(EE_GPIO3_NAME_LC);
+	#endif
+	#ifdef EE_GPIO4_NAME_UC
+	if (level == EE_IRQ_NAME(EE_GPIO4_NAME_UC))
+        return & EE_ST_NAME(EE_GPIO4_NAME_LC);
+	#endif
+    return (EE_gpio_st *)0;
+}
+
+// #ifndef EE_GPIO2_NAME_UC
+// /* If there is only one component of this kind, no test is done */
+// __INLINE__ EE_gpio_st * __ALWAYS_INLINE__ EE_get_gpio_st_from_level(int level)
+// {
+    // return & EE_ST_NAME(EE_GPIO1_NAME_LC);
+// }
+// #elif ! defined(EE_GPIO3_NAME_UC)
+// __INLINE__ EE_gpio_st * __ALWAYS_INLINE__ EE_get_gpio_st_from_level(int level)
+// {
+    // if (level == EE_IRQ_NAME(EE_GPIO1_NAME_UC))
+        // return & EE_ST_NAME(EE_GPIO1_NAME_LC);
+	// return & EE_ST_NAME(EE_GPIO2_NAME_LC);
+// }
+// #elif ! defined(EE_GPIO4_NAME_UC)
+// __INLINE__ EE_gpio_st * __ALWAYS_INLINE__ EE_get_gpio_st_from_level(int level)
+// {
+    // if (level == EE_IRQ_NAME(EE_GPIO1_NAME_UC))
+        // return & EE_ST_NAME(EE_GPIO1_NAME_LC);
+    // if(level == EE_IRQ_NAME(EE_GPIO2_NAME_UC))
+        // return & EE_ST_NAME(EE_GPIO2_NAME_LC);
+    // return & EE_ST_NAME(EE_GPIO3_NAME_LC);
+// }
+// #else // #ifndef EE_GPIO4_NAME_UC
+// __INLINE__ EE_gpio_st * __ALWAYS_INLINE__ EE_get_gpio_st_from_level(int level)
+// {
+    // if (level == EE_IRQ_NAME(EE_GPIO1_NAME_UC))
+        // return & EE_ST_NAME(EE_GPIO1_NAME_LC);
+    // if(level == EE_IRQ_NAME(EE_GPIO2_NAME_UC))
+        // return & EE_ST_NAME(EE_GPIO2_NAME_LC);
+    // if(level == EE_IRQ_NAME(EE_GPIO3_NAME_UC))
+        // return & EE_ST_NAME(EE_GPIO3_NAME_LC);
+    // return & EE_ST_NAME(EE_GPIO4_NAME_LC);
+// }
+// #endif /* #ifndef EE_GPIO_NAME2_UC */
 
 #endif //__INCLUDE_EEMCUMICO32_GPIO_H__

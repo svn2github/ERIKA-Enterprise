@@ -364,21 +364,35 @@ DECLARE_STRUCT_SPI(EE_SPI2_NAME_UC, EE_SPI2_NAME_LC)
 /* Return the SPI structure for the componente associated with the given IRQ
  * level */
 __DECLARE_INLINE__ EE_spi_st *EE_get_spi_st_from_level(int level);
-#ifndef EE_SPI2_NAME_UC
-/* If there is only one component of this kind, no test is done */
+
 __INLINE__ EE_spi_st * __ALWAYS_INLINE__ EE_get_spi_st_from_level(int level)
 {
-    return & EE_ST_NAME(EE_SPI1_NAME_LC);
-}
-#else /* #ifndef EE_SPI2_NAME_UC */
-__INLINE__ EE_spi_st * __ALWAYS_INLINE__ EE_get_spi_st_from_level(int level)
-{
-    if (level == EE_IRQ_NAME(EE_SPI1_NAME_UC))
+	#ifdef EE_SPI1_NAME_UC
+	if (level == EE_IRQ_NAME(EE_SPI1_NAME_UC))
         return & EE_ST_NAME(EE_SPI1_NAME_LC);
-    else
+	#endif
+	#ifdef EE_SPI2_NAME_UC
+	if (level == EE_IRQ_NAME(EE_SPI2_NAME_UC))
         return & EE_ST_NAME(EE_SPI2_NAME_LC);
+	#endif
+	return (EE_spi_st *)0;
 }
-#endif /* #ifndef EE_SPI2_NAME_UC */	
+
+// #ifndef EE_SPI2_NAME_UC
+// /* If there is only one component of this kind, no test is done */
+// __INLINE__ EE_spi_st * __ALWAYS_INLINE__ EE_get_spi_st_from_level(int level)
+// {
+    // return & EE_ST_NAME(EE_SPI1_NAME_LC);
+// }
+// #else /* #ifndef EE_SPI2_NAME_UC */
+// __INLINE__ EE_spi_st * __ALWAYS_INLINE__ EE_get_spi_st_from_level(int level)
+// {
+    // if (level == EE_IRQ_NAME(EE_SPI1_NAME_UC))
+        // return & EE_ST_NAME(EE_SPI1_NAME_LC);
+    // else
+        // return & EE_ST_NAME(EE_SPI2_NAME_LC);
+// }
+// #endif /* #ifndef EE_SPI2_NAME_UC */	
 	
 		
 #else //#ifdef __USE_SPI_IRQ__
