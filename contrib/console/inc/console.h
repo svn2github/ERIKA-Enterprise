@@ -204,5 +204,74 @@ int console_close(uint8_t cons)
 		return -1;
 }
 
+COMPILER_INLINE void console_sprint_u8(uint8_t data, char *out)
+{
+	out[3] = '\0';
+	out[2] = '0' + (data % 10);
+	out[1] = '0' + ((data / 10) % 10);
+	out[0] = '0' + ((data / 100) % 10);
+}
+
+COMPILER_INLINE void console_sprint_u16(uint16_t data, char *out)
+{
+	out[5] = '\0';
+	out[4] = '0' + (data % 10);
+	out[3] = '0' + ((data / 10) % 10);
+	out[2] = '0' + ((data / 100) % 10);
+	out[1] = '0' + ((data / 1000) % 10);
+	out[0] = '0' + ((data / 10000) % 10);
+}
+
+COMPILER_INLINE void console_sprint_u32(uint32_t data, char *out)
+{
+	out[10] = '\0';
+	out[9] = '0' + (data % 10);
+	out[8] = '0' + ((data / 10) % 10);
+	out[7] = '0' + ((data / 100) % 10);
+	out[6] = '0' + ((data / 1000) % 10);
+	out[5] = '0' + ((data / 10000) % 10);
+	out[4] = '0' + ((data / 100000) % 10);
+	out[3] = '0' + ((data / 1000000) % 10);
+	out[2] = '0' + ((data / 10000000) % 10);
+	out[1] = '0' + ((data / 100000000) % 10);
+	out[0] = '0' + ((data / 1000000000) % 10);
+}
+
+COMPILER_INLINE void console_sprint_d8(int8_t data, char *out)
+{
+	out[4] = '\0';
+	out[3] = '0' + (data % 10);
+	out[2] = '0' + ((data / 10) % 10);
+	out[1] = '0' + ((data / 100) % 10);
+	out[0] = data < 0 ? '-' : ' ';
+}
+
+COMPILER_INLINE void console_sprint_d16(int16_t data, char *out)
+{
+	out[6] = '\0';
+	out[5] = '0' + (data % 10);
+	out[4] = '0' + ((data / 10) % 10);
+	out[3] = '0' + ((data / 100) % 10);
+	out[2] = '0' + ((data / 1000) % 10);
+	out[1] = '0' + ((data / 10000) % 10);
+	out[0] = data < 0 ? '-' : ' ';
+}
+
+COMPILER_INLINE void console_sprint_d32(int32_t data, char *out)
+{
+	out[11] = '\0';
+	out[10] = '0' + (data % 10);
+	out[9] = '0' + ((data / 10) % 10);
+	out[8] = '0' + ((data / 100) % 10);
+	out[7] = '0' + ((data / 1000) % 10);
+	out[6] = '0' + ((data / 10000) % 10);
+	out[5] = '0' + ((data / 100000) % 10);
+	out[4] = '0' + ((data / 1000000) % 10);
+	out[3] = '0' + ((data / 10000000) % 10);
+	out[2] = '0' + ((data / 100000000) % 10);
+	out[1] = '0' + ((data / 1000000000) % 10);
+	out[0] = data < 0 ? '-' : ' ';
+}
+
 #endif	/* USE_CONSOLE */
 #endif	/* __console_h__ */
