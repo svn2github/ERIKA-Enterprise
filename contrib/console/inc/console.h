@@ -204,6 +204,17 @@ int console_close(uint8_t cons)
 		return -1;
 }
 
+/* TODO: document the functions below */
+
+COMPILER_INLINE 
+void console_puts(uint8_t cons, const char *str)
+{
+	uint16_t i = 0;
+
+	while (str[i++] != '\0') ;
+	console_write(cons, (uint8_t *) str, i);
+}
+
 COMPILER_INLINE void console_sprint_u8(uint8_t data, char *out)
 {
 	out[3] = '\0';
