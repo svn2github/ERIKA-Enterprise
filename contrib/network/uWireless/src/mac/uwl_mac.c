@@ -7,10 +7,14 @@
  * @date 2009-06-22
  */
 #include <mac/uwl_mac_internal.h>
+#include <mac/uwl_mac_marshalling.h>
 #include <kal/uwl_kal.h>
 #include <hal/uwl_radio.h>
 #include <hal/uwl_rand.h>
 #include <util/uwl_debug.h>
+#ifdef UWL_DEBUG_LOG
+#include <stdio.h> //TODO: REMOVE together with the sprintf() !!!!!
+#endif
 
 /******************************************************************************/
 /*                          MAC Layer Private Data                            */
@@ -213,37 +217,40 @@ uint8_t set_addressing_fields(uint8_t *af, enum uwl_mac_addr_mode_t dst_mode,
 		* the uint16_t in 2 uint8_t
 		* memcpy(af+offset, &dst_panid, sizeof(uint16_t));
 		*/
-		af[offset] = (uint8_t) (dst_panid & 0xFF);
-		af[offset+1] = (uint8_t)(dst_panid >> 8);
-
-
+		// af[offset] = (uint8_t) (dst_panid & 0xFF);
+		// af[offset+1] = (uint8_t)(dst_panid >> 8);
+		hton(af+offset, (uint8_t *)&dst_panid, UWL_MAC_MPDU_PANID_SIZE);
 		offset += UWL_MAC_MPDU_PANID_SIZE;
-		memcpy(af + offset, (uint8_t *) dst_addr,
-				UWL_MAC_MPDU_ADDRESS_SHORT_SIZE);
+		hton(af+offset, (uint8_t *)dst_addr, UWL_MAC_MPDU_ADDRESS_SHORT_SIZE);
 		offset += UWL_MAC_MPDU_ADDRESS_SHORT_SIZE;
+		
 	} else if (dst_mode == UWL_MAC_ADDRESS_EXTD) {
-		memcpy(af + offset, &dst_panid, sizeof(uint16_t));
+	
+		hton(af + offset, (uint8_t *)&dst_panid, UWL_MAC_MPDU_PANID_SIZE);
 		offset += UWL_MAC_MPDU_PANID_SIZE;
-		memcpy(af + offset, (uint8_t *) dst_addr,
-				UWL_MAC_MPDU_ADDRESS_EXTD_SIZE);
+		hton(af + offset, (uint8_t *)dst_addr, UWL_MAC_MPDU_ADDRESS_EXTD_SIZE);
 		offset += UWL_MAC_MPDU_ADDRESS_EXTD_SIZE;
+	
 	}
+
 	if (src_mode == UWL_MAC_ADDRESS_SHORT) {
+
 		if (panid_compression == 0) {
-			memcpy(af + offset, &src_panid, sizeof(uint16_t));
+			hton(af + offset, (uint8_t *)&src_panid, UWL_MAC_MPDU_PANID_SIZE);
 			offset += UWL_MAC_MPDU_PANID_SIZE;
 		}
-		memcpy(af + offset, (uint8_t *) src_addr,
-				UWL_MAC_MPDU_ADDRESS_SHORT_SIZE);
+		hton(af + offset, (uint8_t *)src_addr, UWL_MAC_MPDU_ADDRESS_SHORT_SIZE);
 		offset += UWL_MAC_MPDU_ADDRESS_SHORT_SIZE;
+		
 	} else if (src_mode == UWL_MAC_ADDRESS_EXTD) {
+	
 		if (panid_compression == 0) {
-			memcpy(af + offset, &src_panid, sizeof(uint16_t));
+			hton(af + offset, (uint8_t *)&src_panid, UWL_MAC_MPDU_PANID_SIZE);
 			offset += UWL_MAC_MPDU_PANID_SIZE;
 		}
-		memcpy(af + offset, (uint8_t *) src_addr,
-				UWL_MAC_MPDU_ADDRESS_EXTD_SIZE);
+		hton(af + offset, (uint8_t *)src_addr, UWL_MAC_MPDU_ADDRESS_EXTD_SIZE);
 		offset += UWL_MAC_MPDU_ADDRESS_EXTD_SIZE;
+		
 	}
 	return offset;
 }
@@ -293,43 +300,49 @@ uint8_t get_addressing_fields(uint8_t *af, enum uwl_mac_addr_mode_t dst_mode,
 	uint8_t offset = 0;
 
 	if (dst_mode == UWL_MAC_ADDRESS_SHORT) {
+	
 		if (dst_panid != NULL)
-			*dst_panid = af[offset];
+			ntoh((uint8_t *)dst_panid, af + offset, UWL_MAC_MPDU_PANID_SIZE);
 		offset += UWL_MAC_MPDU_PANID_SIZE;
 		if (dst_addr != NULL)
-			memcpy((uint8_t *) dst_addr, af + offset,
-					UWL_MAC_MPDU_ADDRESS_SHORT_SIZE);
+			ntoh((uint8_t *)dst_addr, af + offset, UWL_MAC_MPDU_ADDRESS_SHORT_SIZE);
 		offset += UWL_MAC_MPDU_ADDRESS_SHORT_SIZE;
+		
 	} else if (dst_mode == UWL_MAC_ADDRESS_EXTD) {
+	
 		if (dst_panid != NULL)
-			*dst_panid = af[offset];
+			ntoh((uint8_t *)dst_panid, af + offset, UWL_MAC_MPDU_PANID_SIZE);
 		offset += UWL_MAC_MPDU_PANID_SIZE;
 		if (dst_addr != NULL)
-			memcpy((uint8_t *) dst_addr, af + offset,
-					UWL_MAC_MPDU_ADDRESS_EXTD_SIZE);
+			ntoh((uint8_t *)dst_addr, af + offset, UWL_MAC_MPDU_ADDRESS_EXTD_SIZE);
 		offset += UWL_MAC_MPDU_ADDRESS_EXTD_SIZE;
+		
 	}
+
 	if (src_mode == UWL_MAC_ADDRESS_SHORT) {
+	
 		if (panid_compression == 0) {
 			if (src_panid != NULL)
-				*src_panid = af[offset];
+				ntoh((uint8_t *)src_panid, af + offset, UWL_MAC_MPDU_PANID_SIZE);
 			offset += UWL_MAC_MPDU_PANID_SIZE;
 		}
 		if (src_addr != NULL)
-			memcpy((uint8_t *) src_addr, af + offset,
-					UWL_MAC_MPDU_ADDRESS_SHORT_SIZE);
+			ntoh((uint8_t *)src_addr, af + offset, UWL_MAC_MPDU_ADDRESS_SHORT_SIZE);
 		offset += UWL_MAC_MPDU_ADDRESS_SHORT_SIZE;
+		
 	} else if (src_mode == UWL_MAC_ADDRESS_EXTD) {
+	
 		if (panid_compression == 0) {
 			if (src_panid != NULL)
-				*src_panid = af[offset];
+				ntoh((uint8_t *)src_panid, af + offset, UWL_MAC_MPDU_PANID_SIZE);
 			offset += UWL_MAC_MPDU_PANID_SIZE;
 		}
 		if (src_addr != NULL)
-			memcpy((uint8_t *) src_addr, af + offset,
-					UWL_MAC_MPDU_ADDRESS_EXTD_SIZE);
+			ntoh((uint8_t *)src_addr, af + offset, UWL_MAC_MPDU_ADDRESS_EXTD_SIZE);
 		offset += UWL_MAC_MPDU_ADDRESS_EXTD_SIZE;
+		
 	}
+
 	return offset;
 }
 
@@ -1189,11 +1202,17 @@ daq_time_start(1); // FIXME: this is just for AVR time measurement!
 			return; /* TODO: manage error? */
 		break;
 	case UWL_MAC_TYPE_COMMAND:
-#ifdef UWL_DEBUG_LOG
+		#ifdef UWL_DEBUG_LOG
+		#ifndef __LM32__
 		sprintf(str, "uwl_mac_parse_received_mpdu(*p=%u,len=%u)",
-							 (uint16_t) psdu, len);
+			 (uint16_t) psdu, len);
 		uwl_debug_print(str);
-#endif
+		#else
+		sprintf(str, "uwl_mac_parse_received_mpdu(*p=%u,len=%u)",
+			 (uint32_t) psdu, len);
+		uwl_debug_print(str);
+		#endif	
+		#endif
 		if (uwl_kal_mutex_wait(MAC_RX_COMMAND_MUTEX) < 0)
 			return; /* TODO: manage error? */
 		memcpy(rx_command, psdu, len);

@@ -9,11 +9,11 @@
 #ifndef __mrf24j40_hal_ee_mico32_h__
 #define __mrf24j40_hal_ee_mico32_h__
 
-#ifdef __USE_MICO32BOARD_ZIGBEE_MRF24J40__
+#ifdef __USE_ZIGBEE_MRF24J40__
 #include "board/fpga_camera_mico32/inc/ee_zigbee_mrf24j40.h"
 #else	/* NO board */
 #error "MRF24J40_HAL: No board selected!"
-#endif	//#ifdef __USE_MICO32BOARD_ZIGBEE_MRF24J40__
+#endif	//#ifdef __USE_ZIGBEE_MRF24J40__
 
 #include "cpu/mico32/inc/ee_internal.h"
 #include "mcu/mico32/inc/ee_internal.h"
@@ -111,8 +111,8 @@ extern EE_ISR_callback ee_mrf24j40_cbk;
 /* ------------------------------------------------------------------------------- */
 /* ZIGBEE driver functions list */
 /* ------------------------------------------------------------------------------- */
-#define EE_ZIGBEE_SPI_NAME_UC EE_SPI1_NAME_UC
-#define EE_ZIGBEE_SPI_NAME_LC EE_SPI1_NAME_LC
+#define EE_ZIGBEE_SPI_NAME_UC NET_SPI
+#define EE_ZIGBEE_SPI_NAME_LC net_spi
 
 /* Macros for SPI-based ZIGBEE functions */  
 #define DECLARE_FUNC_SPI_MRF24J40(uc, lc) \

@@ -241,12 +241,16 @@ int8_t uwl_PD_DATA_indication(uint8_t psduLength, uint8_t *psdu,
 			      uint8_t ppduLinkQuality)
 {
 	#ifdef UWL_DEBUG_LOG
-
 	char s[100];
+	#ifndef __LM32__
 	sprintf(s, "PD_DATA_indication(len=%u,*p=%u,lqi=%u)",
 		psduLength, (uint16_t) psdu, ppduLinkQuality);
 	uwl_debug_print(s);
-
+	#else
+	sprintf(s, "PD_DATA_indication(len=%u,*p=%u,lqi=%u)",
+		psduLength, (uint32_t) psdu, ppduLinkQuality);
+	uwl_debug_print(s);
+	#endif
 	#endif
 	/* TODO: use return value!!*/
 	uwl_mac_parse_received_mpdu(psdu, psduLength);
@@ -301,13 +305,13 @@ int8_t uwl_PLME_GET_confirm(enum uwl_phy_code_t status,
 
 int8_t uwl_PLME_SET_TRX_STATE_confirm(enum uwl_phy_code_t status)
 {
-	#ifdef UWL_DEBUG_LOG
+//	#ifdef UWL_DEBUG_LOG
 //	char s[100];
 //	char s1[30];
 //	uwl_debug_sprint_phycode(status, s1);
 //	sprintf(s, "PLME_SET_TRX_STATE_confirm(%s)", s1);
 //	uwl_debug_print(s);
-	#endif
+//	#endif
 	phy_status = status;
 	return UWL_PHY_ERR_NONE;
 }
