@@ -41,7 +41,7 @@
 ifeq ($(findstring __LM32__,$(EEOPT)) , __LM32__)
 
 # *** IPERMOB camera board ***
-ifeq ($(findstring XP2_CAMERA_BOARD,$(EEOPT)) , XP2_CAMERA_BOARD)
+ifeq ($(findstring __XP2_CAMERA_BOARD__,$(EEOPT)) , __XP2_CAMERA_BOARD__)
 
 ifeq ($(findstring __USE_RTC_PCF8583__,$(EEOPT)) ,__USE_RTC_PCF8583__)
 EE_SRCS += pkg/board/fpga_camera_mico32/src/ee_rtc_pcf8583.c
@@ -67,6 +67,6 @@ EE_SRCS += contrib/drivers/radio/mrf24j40/src/mrf24j40_hal_ee_mico32.c
 endif
 endif
 
-endif #XP2_CAMERA_BOARD
+endif #__XP2_CAMERA_BOARD__
 
 endif #__LM32__
