@@ -208,3 +208,32 @@ make_directories: $(OBJDIRS)
 $(OBJDIRS):
 	@echo "MAKE_DIRECTORIES"
 	$(QUIET) mkdir -p $(OBJDIRS)
+
+
+##
+## Memory deployment files
+##
+
+ifndef DEPLOY_DIR
+DEPLOY_DIR:=$(OUTPUT_DIR)
+endif
+
+ifneq ($(findstring clean,$(MAKECMDGOALS)),clean)
+-include $(OUTPUT_DIR)/platform_vars.mk
+endif
+
+PLATFORM_LIB_MAKEFILE=$(PLATFORM_LIB_PATH)/$(PLATFORM_BLD_CFG)/makefile
+
+$(OUTPUT_DIR)/platform_vars.mk: $(PLATFORM_LIB_MAKEFILE)
+	grep -E '^(PLATFORM_FILE|PLATFORM_FILE_PATH|PLATFORM_PERL_FILE_PATH)[ ]*=' $< > $@
+
+REAL_PLATFORM_FILE_PATH=$(PLATFORM_LIB_PATH)/$(PLATFORM_FILE_PATH)
+
+PERLSCRIPTDIR=$(realpath $(PLATFORM_PERL_FILE_PATH)/..)
+PERLUTILDIR=$(realpath $(PERLSCRIPTDIR)/..)
+
+# Using a phony target, as the actual target files are not known (they
+# depend on the platform and library configurations)
+.PHONY: meminit
+meminit: $(APP_OUTPUT_ELF) $(TARGET)
+	perl $(PERLSCRIPTDIR)/misc/multimem_deploy.pl $(PERLUTILDIR) $(abspath $(REAL_PLATFORM_FILE_PATH)/$(PLATFORM_FILE)) $< $(DEPLOY_DIR)/ meminit
