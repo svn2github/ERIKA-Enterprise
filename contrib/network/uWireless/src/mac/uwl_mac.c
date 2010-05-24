@@ -441,8 +441,8 @@ static void process_rx_beacon(void)
 			UWL_MAC_ADDRESS_NONE, NULL, NULL,
 			UWL_MAC_FCTL_GET_SRC_ADDR_MODE(bcn), &s_pan,
 			(void *) s_a, 0);
-	/*FIXME: arg 2 invalid: function is expecting dest_panid as uint16. Dany. */
-	if (!filtering_condition(bcn, NULL, NULL, s_pan)) {
+	/* Note that the dst_pan_id (arg.2) is ignored in case of beacon.*/
+	if (!filtering_condition(bcn, 0, NULL, s_pan)) {
 		/* Drop the frame! */
 		uwl_kal_mutex_signal(MAC_RX_BEACON_MUTEX);/*TODO:manage error?*/
 		return;
