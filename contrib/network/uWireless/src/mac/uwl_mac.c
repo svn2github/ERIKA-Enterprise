@@ -11,9 +11,6 @@
 #include <hal/uwl_radio.h>
 #include <hal/uwl_rand.h>
 #include <util/uwl_debug.h>
-#ifdef UWL_DEBUG_LOG
-//#include <stdio.h> //TODO: REMOVE together with the sprintf() !!!!!
-#endif
 
 /******************************************************************************/
 /*                          MAC Layer Private Data                            */
@@ -30,16 +27,15 @@ static uint8_t wait_ack = 0;
 static uint8_t association_status = 0;
 static uint8_t seq_num_ack;
 static uint8_t beacon_payload[UWL_aMaxBeaconPayloadLength]
-COMPILER_ATTRIBUTE_FAR;
+							COMPILER_ATTRIBUTE_FAR;
 static struct uwl_mac_frame_t gts_queue_storage[UWL_MAC_GTS_QUEUE_SIZE]
-COMPILER_ATTRIBUTE_FAR;
-static uint16_t
-		gts_queue_rears[UWL_MAC_GTS_MAX_NUMBER] = { 0, 0, 0, 0, 0, 0, 0 };
+							COMPILER_ATTRIBUTE_FAR;
+static uint16_t gts_queue_rears[UWL_MAC_GTS_MAX_NUMBER];
 /* NOTE: overlapping data structure for coordinator/device gts queues.*/
-CQUEUE_DEFINE_EXTMEM_STATIC( uwl_mac_queue_dev_gts, struct uwl_mac_frame_t,
-		UWL_MAC_GTS_QUEUE_SIZE, gts_queue_storage);
-LIST_DEFINE_EXTMEM_STATIC( uwl_mac_queue_coord_gts, struct uwl_mac_frame_t,
-		UWL_MAC_GTS_QUEUE_SIZE, gts_queue_storage);
+CQUEUE_DEFINE_EXTMEM_STATIC(uwl_mac_queue_dev_gts, struct uwl_mac_frame_t,
+			    UWL_MAC_GTS_QUEUE_SIZE, gts_queue_storage);
+LIST_DEFINE_EXTMEM_STATIC(uwl_mac_queue_coord_gts, struct uwl_mac_frame_t,
+			  UWL_MAC_GTS_QUEUE_SIZE, gts_queue_storage);
 #ifdef UWL_SUPERFRAME_CALLBACKS
 static void (* on_rx_beacon_callback)(void) = NULL;
 #endif
@@ -179,17 +175,8 @@ COMPILER_INLINE struct uwl_mac_frame_t *gts_queue_alloc(uint8_t gts)
 	 Is the node both coordinator and device in such a case?
 	 Double storage is required in that case!
 	 */
-	//char str[100];
 	elem = (struct uwl_mac_frame_t *) list_insert(&uwl_mac_queue_coord_gts,
 			gts_queue_rears[gts]);
-	/*
-	 sprintf(str, "---> ALLOC Q = %u [%u %u %u %u %u %u %u ] id=%u",
-	 list_get_size(&uwl_mac_queue_coord_gts),
-	 gts_queue_rears[0], gts_queue_rears[1], gts_queue_rears[2],
-	 gts_queue_rears[3], gts_queue_rears[4], gts_queue_rears[5],
-	 gts_queue_rears[6], gts);
-	 uwl_debug_print(str);
-	 */
 	if (elem != 0)
 		/* Update rears for the coordinator gts queues */
 		for (i = gts; i < UWL_MAC_GTS_MAX_NUMBER; i++)
@@ -479,10 +466,10 @@ static void process_rx_beacon(void)
 	if (uwl_kal_mutex_signal(MAC_RX_BEACON_MUTEX) < 0)
 		return; /* TODO: manage error? */
 	uwl_mac_superframe_resync();
-	#ifdef UWL_SUPERFRAME_CALLBACKS
+#ifdef UWL_SUPERFRAME_CALLBACKS
 	if (on_rx_beacon_callback)
 	on_rx_beacon_callback();
-	#endif
+#endif
 }
 
 static void process_rx_data(void)
@@ -522,11 +509,6 @@ static void process_rx_data(void)
 
 static void process_rx_command(void)
 {
-#ifdef UWL_DEBUG_LOG
-char str[100];
-sprintf(str, "process_rx_command()");
-uwl_debug_print(str);
-#endif
 	uint8_t s, i;
 	uint8_t *cmd;
 	uint16_t s_pan = 0, d_pan = 0;
@@ -534,6 +516,7 @@ uwl_debug_print(str);
 	uint8_t cap_inf;
 	enum uwl_mac_code_t status;
 
+	uwl_debug_print("process_rx_command()");
 	if (uwl_kal_mutex_wait(MAC_RX_COMMAND_MUTEX) < 0)
 		return; /* TODO: manage error? */
 	cmd = UWL_MAC_MPDU_FRAME_CONTROL(rx_command);
@@ -564,29 +547,20 @@ uwl_debug_print(str);
 				*(UWL_MAC_MPDU_SEQ_NUMBER(rx_command)), 0, 0);
 		break;
 	case UWL_MAC_CMD_DATA_REQUEST:
-
 		uwl_mac_data_req.addr_pan = d_pan;
 		memcpy(uwl_mac_data_req.addr_dev, s_a,
 				UWL_MAC_MPDU_ADDRESS_EXTD_SIZE);
-
 		uwl_mac_data_req.data_req = 1;
-#ifdef UWL_DEBUG_LOG
-sprintf(str, "process_rx_command(): UWL_MAC_CMD_DATA_REQUEST");
-uwl_debug_print(str);
-#endif
-
+		uwl_debug_print("proc_rx_command(): UWL_MAC_CMD_DATA_REQUEST");
 		break;
 	case UWL_MAC_CMD_ASSOCIATION_RESPONSE:
-
 		association_status = 0;
 		cmd = UWL_MAC_MPDU_SHORT_ADDRESS(rx_command, s);
 		uwl_mac_pib.macShortAddress = *cmd;
 		cmd = UWL_MAC_MPDU_ASSOCIATION_STATUS(rx_command, s);
 		status = UWL_MAC_MPDU_GET_STATUS(cmd);
-
 		uwl_MLME_ASSOCIATE_confirm(uwl_mac_pib.macShortAddress, status,
 				0, 0, NULL, 0);
-
 		break;
 	default:
 		break;
@@ -594,7 +568,6 @@ uwl_debug_print(str);
 
 	if (uwl_kal_mutex_signal(MAC_RX_COMMAND_MUTEX) < 0)
 		return; /* TODO: manage error? */
-
 }
 
 static void process_rx_ack(void)
@@ -661,7 +634,7 @@ int8_t uwl_mac_init(void)
 	cqueue_clear(&uwl_mac_queue_dev_gts);
 	list_clear(&uwl_mac_queue_coord_gts);
 	list_clear(&uwl_mac_list_ind);
-	memset(gts_queue_rears, 0, sizeof(uint16_t) * UWL_MAC_GTS_QUEUE_SIZE);
+	memset(gts_queue_rears, 0, sizeof(uint16_t) * UWL_MAC_GTS_MAX_NUMBER);
 	retv = init_rx_tasks();
 	if (retv < 0)
 		return retv;
@@ -741,20 +714,13 @@ void uwl_gts_queue_flush(uint8_t gts)
 	struct uwl_mac_frame_t *fr;
 	uint8_t i;
 	uint16_t cnt;
-	//char str[100];
 
-	if (uwl_mac_status.is_pan_coordinator || uwl_mac_status.is_coordinator) {
+	if (uwl_mac_status.is_pan_coordinator || uwl_mac_status.is_coordinator){
 		/* TODO: FIXME: CURRENT POLICY: DON'T FLUSH*/
 		return;
 		fr = (struct uwl_mac_frame_t *) list_pop_front(
 				&uwl_mac_queue_coord_gts);
 		cnt = 0;
-		//sprintf(str, "---> FLUSH Q = %u [%u %u %u %u %u %u %u ] id=%u",
-		//	list_get_size(&uwl_mac_queue_coord_gts),
-		//	gts_queue_rears[0], gts_queue_rears[1], gts_queue_rears[2],
-		//	gts_queue_rears[3], gts_queue_rears[4], gts_queue_rears[5],
-		//	gts_queue_rears[6], gts);
-		//uwl_debug_print(str);
 		/* TODO: FIXME: rewrite!!! */
 		while (fr != 0 && cnt < gts_queue_rears[gts]) {
 			uwl_MCPS_DATA_confirm(fr->msdu_handle,
@@ -780,16 +746,7 @@ void uwl_gts_queue_flush(uint8_t gts)
 
 uint8_t uwl_gts_queue_is_empty(uint8_t gts)
 {
-	/*
-	 char str[100];
-	 sprintf(str, "---> IS_EMPTY Q = %u [%u %u %u %u %u %u %u ] id=%u",
-	 list_get_size(&uwl_mac_queue_coord_gts),
-	 gts_queue_rears[0], gts_queue_rears[1], gts_queue_rears[2],
-	 gts_queue_rears[3], gts_queue_rears[4], gts_queue_rears[5],
-	 gts_queue_rears[6], gts);
-	 uwl_debug_print(str);
-	 */
-	if (uwl_mac_status.is_pan_coordinator || uwl_mac_status.is_coordinator) {
+	if (uwl_mac_status.is_pan_coordinator || uwl_mac_status.is_coordinator){
 		if (gts == 0)
 			return (gts_queue_rears[gts] == 0);
 		return (gts_queue_rears[gts] == gts_queue_rears[gts - 1]);
@@ -802,14 +759,7 @@ struct uwl_mac_frame_t *uwl_gts_queue_extract(uint8_t gts)
 {
 	uint8_t i;
 
-	//char str[100];
-	//sprintf(str, "---> EXTRACT Q = %u [%u %u %u %u %u %u %u ] id=%u",
-	//	list_get_size(&uwl_mac_queue_coord_gts),
-	//	gts_queue_rears[0], gts_queue_rears[1], gts_queue_rears[2],
-	//	gts_queue_rears[3], gts_queue_rears[4], gts_queue_rears[5],
-	//	gts_queue_rears[6], gts);
-	//uwl_debug_print(str);
-	if (uwl_mac_status.is_pan_coordinator || uwl_mac_status.is_coordinator) {
+	if (uwl_mac_status.is_pan_coordinator || uwl_mac_status.is_coordinator){
 		if (gts == 0) {
 			if (gts_queue_rears[gts] == 0)
 				return 0;
@@ -836,6 +786,7 @@ struct uwl_mac_frame_t *uwl_gts_queue_extract(uint8_t gts)
 /******************************************************************************/
 /*                       MAC Frames Build Functions                           */
 /******************************************************************************/
+/* chris: TODO: Split this function in more the one */
 void uwl_mac_perform_data_request(enum uwl_mac_addr_mode_t src_mode,
 		enum uwl_mac_addr_mode_t dst_mode, uint16_t dst_panid,
 		void *dst_addr, uint8_t len, uint8_t *payload, uint8_t handle,
@@ -1195,7 +1146,7 @@ void uwl_mac_data_request_cmd(void)
 void uwl_mac_parse_received_mpdu(uint8_t *psdu, uint8_t len)
 {
 #ifdef UWL_DEBUG_LOG
-		char str[100];
+	char str[100];
 #endif
 	/* 1st frame filter: FCS */
 	/* TODO: Checksum is done by the transceiver, fix this!!! */
@@ -1209,8 +1160,6 @@ void uwl_mac_parse_received_mpdu(uint8_t *psdu, uint8_t len)
 	if (UWL_MAC_FCTL_GET_ACK_REQUEST(psdu)) {
 		uwl_mac_ack_frame(UWL_MAC_MPDU_SEQ_NUMBER(psdu)); //rx_command
 	}
-
-
 
 	switch (UWL_MAC_FCTL_GET_FRAME_TYPE(psdu)) {
 	case UWL_MAC_TYPE_BEACON:
@@ -1229,7 +1178,7 @@ void uwl_mac_parse_received_mpdu(uint8_t *psdu, uint8_t len)
 		break;
 	case UWL_MAC_TYPE_DATA:
 #ifdef __JUST_MEASURE_FOR_PAPER__
-		daq_time_start(1); // FIXME: this is just for AVR time measurement!
+daq_time_start(1); // FIXME: this is just for AVR time measurement!
 #endif
 		if (uwl_kal_mutex_wait(MAC_RX_DATA_MUTEX) < 0)
 			return; /* TODO: manage error? */
@@ -1242,7 +1191,7 @@ void uwl_mac_parse_received_mpdu(uint8_t *psdu, uint8_t len)
 	case UWL_MAC_TYPE_COMMAND:
 #ifdef UWL_DEBUG_LOG
 		sprintf(str, "uwl_mac_parse_received_mpdu(*p=%u,len=%u)",
-		 (uint16_t) psdu, len);
+							 (uint16_t) psdu, len);
 		uwl_debug_print(str);
 #endif
 		if (uwl_kal_mutex_wait(MAC_RX_COMMAND_MUTEX) < 0)
