@@ -1,4 +1,4 @@
-//	SPI POLLING TEST
+//	UART POLLING TEST
 
 CPU test_application {
 
@@ -15,6 +15,7 @@ CPU test_application {
 			USESTANDALONEPRINTF = FALSE; // Optional, default is FALSE
 			USESMALLC = FALSE; // Optional, defautl is FALSE
 		};
+		
 
 		MCU_DATA = LATTICE_PLATFORM {
    			MODEL = LIBRARY {
@@ -24,21 +25,12 @@ CPU test_application {
    			};
    			
    			DEVICE = UART{						
-					NAME = "uart";	
-					OPTIONS = UART_IRQ_SUPPORT;											
+					NAME = "uart";										
 			};
 			
 			DEVICE = TIMER{						
 					NAME = "timer";	
 					OPTIONS = TIMER_IRQ_SUPPORT;									
-			};
-			
-			DEVICE = GPIO{						
-					NAME = "misc_gpio";	
-			};
-			
-			DEVICE = SPI{						
-					NAME = "net_spi";	
 			};
   		};
     };

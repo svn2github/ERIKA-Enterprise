@@ -1,4 +1,4 @@
-//	SPI POLLING TEST
+//	I2C POLLING TEST
 
 CPU test_application {
 
@@ -37,8 +37,8 @@ CPU test_application {
 					NAME = "misc_gpio";	
 			};
 			
-			DEVICE = SPI{						
-					NAME = "net_spi";	
+			DEVICE = I2C{						
+					NAME = "rtc_i2c";	
 			};
   		};
     };

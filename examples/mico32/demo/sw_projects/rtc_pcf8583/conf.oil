@@ -1,0 +1,57 @@
+//	RTC TEST
+
+CPU test_application {
+
+	OS EE {		
+		EE_OPT = "DEBUG_STACK";
+		
+		CFLAGS = "-g2";
+		ASFLAGS = "";
+		LDFLAGS = ""; 
+
+		CPU_DATA = LM32 {
+			APP_SRC = "test1_main.c";
+			MULTI_STACK = TRUE;
+			USESTANDALONEPRINTF = TRUE; // Optional, default is FALSE
+			USESMALLC = FALSE; // Optional, defautl is FALSE
+		};
+		
+		MCU_DATA = LATTICE_PLATFORM {
+   			MODEL = LIBRARY {
+				PLATFORM_LIB_PATH = "../test_sram_lib";
+				PLATFORM_NAME = "test_base";
+				PLATFORM_BLD_CFG = "Release"; // Optional, default is ""
+   			};
+   			
+   			DEVICE = GPIO{						
+					NAME = "misc_gpio";	
+			};
+  		};
+
+		BOARD_DATA = XP2_CAMERA_BOARD {
+			OPTIONS = TIMER;			
+			OPTIONS = TIMER_IRQ_SUPPORT;			
+			OPTIONS = RS232;				
+			OPTIONS = RS232_IRQ_SUPPORT;		
+			OPTIONS = RTCLOCK;		
+		};
+    };
+    
+    OS EE { KERNEL_TYPE = FP; }; 	
+    
+    /* ****************************************************************** */
+	/*                      Application TASKs                             */
+	/* ****************************************************************** */
+	TASK myTask {
+		PRIORITY = 10;
+		STACK = SHARED;
+		SCHEDULE = FULL;
+	};
+	
+	COUNTER myCounter;
+
+ 	ALARM myAlarm {
+  		COUNTER = "myCounter";
+    	ACTION = ACTIVATETASK { TASK = "myTask"; };
+    };
+};

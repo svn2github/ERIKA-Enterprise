@@ -1,4 +1,4 @@
-//	SPI POLLING TEST
+//	UART ISR TEST
 
 CPU test_application {
 
@@ -10,11 +10,12 @@ CPU test_application {
 		LDFLAGS = ""; 
 
 		CPU_DATA = LM32 {
-			APP_SRC = "test1_main.c";
+			APP_SRC = "test4_main.c";
 			MULTI_STACK = FALSE;
 			USESTANDALONEPRINTF = FALSE; // Optional, default is FALSE
 			USESMALLC = FALSE; // Optional, defautl is FALSE
 		};
+		
 
 		MCU_DATA = LATTICE_PLATFORM {
    			MODEL = LIBRARY {
@@ -35,10 +36,6 @@ CPU test_application {
 			
 			DEVICE = GPIO{						
 					NAME = "misc_gpio";	
-			};
-			
-			DEVICE = SPI{						
-					NAME = "net_spi";	
 			};
   		};
     };
