@@ -145,7 +145,7 @@ int EE_hal_i2c_read_buffer_polling(OCI2CMDev_t* i2cc, EE_UINT8 device, EE_UINT8 
 										EE_I2C_ERR_ARB_LOST if arbitration is been lost during transmission
 										EE_I2C_OK 			if all is ok
 */
-int EE_hal_i2c_write_buffer_polling(OCI2CMDev_t* i2cc, EE_UINT8 device, EE_UINT8 address, EE_UINT8 *data, int len);	
+int EE_hal_i2c_write_buffer_polling(OCI2CMDev_t* i2cc, EE_UINT8 device, EE_UINT8 address, const EE_UINT8 *data, int len);	
 
 /*
 	int EE_hal_i2c_start(OCI2CMDev_t* i2cc);
@@ -279,18 +279,17 @@ EE_UINT8 EE_VETRX_NAME(lc)[EE_I2C_BUFSIZE]; \
 EE_UINT8 EE_VETTX_NAME(lc)[EE_I2C_BUFSIZE];  
 
 /*
-	int EE_hal_i2c_config(EE_i2c_st* i2csp, int baudrate, int setttings);
+	int EE_hal_i2c_config(EE_i2c_st* i2csp, int baudrate);
 		This function is used to configure i2c controller.
 		Arguments:
 			- EE_i2c_st* i2csp: I2C structure
 			- int baudrate: transmission rate 
-			- int settings: other i2c settings (to do...)
 		Actions: 
 			- configure i2c controller.
 		Return values:
 			- the return values can be:	EE_I2C_OK 	
 */					
-int EE_hal_i2c_config(EE_i2c_st* i2csp, int baudrate, int settings);
+int EE_hal_i2c_config(EE_i2c_st* i2csp, int baudrate);
 
 /*
 	int EE_hal_i2c_set_mode(EE_i2c_st* i2csp, int mode);		
@@ -350,7 +349,7 @@ int EE_hal_i2c_read_byte_irq(EE_i2c_st* i2csp, EE_UINT8 device, EE_UINT8 address
 /* to do */
 int EE_hal_i2c_read_buffer_irq(EE_i2c_st* i2csp, EE_UINT8 device, EE_UINT8 address, EE_UINT8 *data, int len);
 /* to do */	
-int EE_hal_i2c_write_buffer_irq(EE_i2c_st* i2csp, EE_UINT8 device, EE_UINT8 address, EE_UINT8 *data, int len);
+int EE_hal_i2c_write_buffer_irq(EE_i2c_st* i2csp, EE_UINT8 device, EE_UINT8 address, const EE_UINT8 *data, int len);
 /* to do */		
 
 /* Interrupt handler */
@@ -382,7 +381,7 @@ __INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _receive_byte)(EE_UINT8 device, E
 	else \
 		ret = EE_hal_i2c_read_byte_irq(& EE_ST_NAME(lc), device, address); \
 	return ret; } \
-__INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _send_buffer)(EE_UINT8 device, EE_UINT8 address, EE_UINT8 *vet, int len){ \
+__INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _send_buffer)(EE_UINT8 device, EE_UINT8 address, const EE_UINT8 *vet, int len){ \
 	int ret; \
 	if(EE_i2c_tx_polling(EE_ST_NAME(lc).mode))\
 		ret = EE_hal_i2c_write_buffer_polling((OCI2CMDev_t*)EE_BASE_ADD(uc), device, address, vet, len); \
@@ -505,7 +504,7 @@ __INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _send_byte)(EE_UINT8 device, EE_U
 	return EE_hal_i2c_write_byte_polling((OCI2CMDev_t*)EE_BASE_ADD(uc), device, address, data); } \
 __INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _receive_byte)(EE_UINT8 device, EE_UINT8 address){ \
 	return EE_hal_i2c_read_byte_polling((OCI2CMDev_t*)EE_BASE_ADD(uc), device, address); } \
-__INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _send_buffer)(EE_UINT8 device, EE_UINT8 address, EE_UINT8 *vet, int len){ \
+__INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _send_buffer)(EE_UINT8 device, EE_UINT8 address, const EE_UINT8 *vet, int len){ \
 	return EE_hal_i2c_write_buffer_polling((OCI2CMDev_t*)EE_BASE_ADD(uc), device, address, vet, len); } \
 __INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _receive_buffer)(EE_UINT8 device, EE_UINT8 address, EE_UINT8 *vet, int len){ \
 	return EE_hal_i2c_read_buffer_polling((OCI2CMDev_t*)EE_BASE_ADD(uc), device, address, vet, len); } \

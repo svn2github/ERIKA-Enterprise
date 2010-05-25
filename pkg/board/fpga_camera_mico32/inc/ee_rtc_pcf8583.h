@@ -9,6 +9,7 @@
 #ifndef __EE_RTC_PCF8583__
 #define __EE_RTC_PCF8583__
 
+#include "mcu/mico32/inc/ee_internal.h"
 #include "mcu/mico32/inc/ee_i2c.h"
 
 typedef struct {
@@ -37,27 +38,27 @@ typedef struct {
 
 /* RTC API: */
 
-/* Macros for User functions (API) */  
-#define DECLARE_FUNC_RTC(uc, lc) \
-__INLINE__ int __ALWAYS_INLINE__  EE_rtc_config(int baudrate, int settings){ \
-	return cat3(EE_, lc, _config)(baudrate, settings); } \
-__INLINE__ int __ALWAYS_INLINE__  EE_rtc_start(void){ \
-	return cat3(EE_, lc, _send_byte)(RTC_DEVICE_ID, RTC_CSR_ADD, RTC_ON); } \
-__INLINE__ int __ALWAYS_INLINE__  EE_rtc_shutdown(void){ \
-	return cat3(EE_, lc, _send_byte)(RTC_DEVICE_ID, RTC_CSR_ADD, RTC_OFF); } \
-__INLINE__ int __ALWAYS_INLINE__  EE_rtc_write_byte(EE_UINT8 address, EE_UINT8 data){ \
-	return cat3(EE_, lc, _send_byte)(RTC_DEVICE_ID, address, data); } \
-__INLINE__ int __ALWAYS_INLINE__  EE_rtc_write_buffer(EE_UINT8 address, EE_UINT8 *data, int len){ \
-	return cat3(EE_, lc, _send_buffer)(RTC_DEVICE_ID, address, data, len); } \
-__INLINE__ int __ALWAYS_INLINE__  EE_rtc_read_byte(EE_UINT8 address){ \
-	return cat3(EE_, lc, _receive_byte)(RTC_DEVICE_ID, address); } \
-__INLINE__ int __ALWAYS_INLINE__  EE_rtc_read_buffer(EE_UINT8 address, EE_UINT8 *data, int len){ \
-	return cat3(EE_, lc, _receive_buffer)(RTC_DEVICE_ID, address, data, len); }
+#define rtc_i2c_name_lc rtc_i2c
+#define rtc_i2c_name_uc RTC_I2C
 
-DECLARE_FUNC_RTC(RTC_I2C, rtc_i2c)
+
+/**
+ * \brief RTC driver initialization.
+ *
+ * It configures the I2C bus.
+ */
+__INLINE__ void __ALWAYS_INLINE__ EE_rtc_init(void)
+{
+    cat3_ind(EE_, rtc_i2c_name_lc, _config)(100000, 0);
+}
+
+/* Probably, EE_rtc_init() makes this obsolete */
+__INLINE__ int __ALWAYS_INLINE__  EE_rtc_config(int baudrate, int settings)
+{
+    return cat3_ind(EE_, rtc_i2c_name_lc, _config)(baudrate, settings);
+}
 
 /*
-	__INLINE__ int __ALWAYS_INLINE__  EE_rtc_start(void)
 		This function is used to turn on the rt-clock. 
 		Arguments: 
 			- none 
@@ -70,10 +71,14 @@ DECLARE_FUNC_RTC(RTC_I2C, rtc_i2c)
 												EE_I2C_ERR_ARB_LOST if arbitration is lost
 												EE_I2C_OK if no errors found							
 */
-//__INLINE__ int __ALWAYS_INLINE__  EE_rtc_start(void);
+__INLINE__ int __ALWAYS_INLINE__  EE_rtc_start(void)
+{
+    return cat3_ind(EE_, rtc_i2c_name_lc, _send_byte)(RTC_DEVICE_ID,
+        RTC_CSR_ADD, RTC_ON);
+}
+
 
 /*
-	__INLINE__ int __ALWAYS_INLINE__  EE_rtc_shutdown(void)
 		This function is used to turn off the rt-clock. 
 		Arguments: 
 			- none 
@@ -86,11 +91,14 @@ DECLARE_FUNC_RTC(RTC_I2C, rtc_i2c)
 												EE_I2C_ERR_ARB_LOST if arbitration is lost
 												EE_I2C_OK if no errors found							
 */
-//__INLINE__ int __ALWAYS_INLINE__  EE_rtc_shutdown(void);
+__INLINE__ int __ALWAYS_INLINE__  EE_rtc_shutdown(void)
+{
+    return cat3_ind(EE_, rtc_i2c_name_lc, _send_byte)(RTC_DEVICE_ID,
+        RTC_CSR_ADD, RTC_OFF);
+}
 
 
 /*
-	__INLINE__ int __ALWAYS_INLINE__  EE_rtc_write_byte(EE_UINT8 address, EE_UINT8 data)
 		This function is used to store one byte in the rt-clock RAM. 
 		Arguments: 
 			- EE_UINT8 address: memory address in rt-clock RAM
@@ -104,10 +112,13 @@ DECLARE_FUNC_RTC(RTC_I2C, rtc_i2c)
 												EE_I2C_ERR_ARB_LOST if arbitration is lost
 												EE_I2C_OK if no errors found							
 */
-//__INLINE__ int __ALWAYS_INLINE__  EE_rtc_write_byte(EE_UINT8 address, EE_UINT8 data);
+__INLINE__ int __ALWAYS_INLINE__  EE_rtc_write_byte(EE_UINT8 address, EE_UINT8 data)
+{
+    return cat3_ind(EE_, rtc_i2c_name_lc, _send_byte)(RTC_DEVICE_ID, address, data);
+}
+
 
 /*
-	__INLINE__ int __ALWAYS_INLINE__  EE_rtc_write_buffer(EE_UINT8 address, EE_UINT8 *data, int len)
 		This function is used to store one byte in the rt-clock RAM. 
 		Arguments: 
 			- EE_UINT8 address: memory address in rt-clock RAM
@@ -122,11 +133,15 @@ DECLARE_FUNC_RTC(RTC_I2C, rtc_i2c)
 												EE_I2C_ERR_ARB_LOST if arbitration is lost
 												EE_I2C_OK if no errors found							
 */
-//__INLINE__ int __ALWAYS_INLINE__  EE_rtc_write_buffer(EE_UINT8 address, EE_UINT8 *data, int len)
+__INLINE__ int __ALWAYS_INLINE__  EE_rtc_write_buffer(EE_UINT8 address,
+    const EE_UINT8 *data, int len)
+{
+    return cat3_ind(EE_, rtc_i2c_name_lc, _send_buffer)(RTC_DEVICE_ID, address,
+        data, len);
+}
 
 
 /*
-	__INLINE__ int __ALWAYS_INLINE__  EE_rtc_read_byte(EE_UINT8 address)
 		This function is used to read one byte from the rt-clock RAM. 
 		Arguments: 
 			- EE_UINT8 address: memory address in rt-clock RAM to be read
@@ -139,11 +154,13 @@ DECLARE_FUNC_RTC(RTC_I2C, rtc_i2c)
 												EE_I2C_ERR_ARB_LOST if arbitration is lost
 												EE_I2C_OK if no errors found							
 */
-//__INLINE__ int __ALWAYS_INLINE__  EE_rtc_read_byte(EE_UINT8 address);
+__INLINE__ int __ALWAYS_INLINE__  EE_rtc_read_byte(EE_UINT8 address)
+{
+    return cat3_ind(EE_, rtc_i2c_name_lc, _receive_byte)(RTC_DEVICE_ID, address);
+}
 
 
 /*
-	__INLINE__ int __ALWAYS_INLINE__  EE_rtc_read_buffer(EE_UINT8 address, EE_UINT8 *data, int len)
 		This function is used to store one byte in the rt-clock RAM. 
 		Arguments: 
 			- EE_UINT8 address: memory address of the first location in rt-clock RAM to be read
@@ -158,12 +175,15 @@ DECLARE_FUNC_RTC(RTC_I2C, rtc_i2c)
 												EE_I2C_ERR_ARB_LOST if arbitration is lost
 												EE_I2C_OK if no errors found							
 */
-//__INLINE__ int __ALWAYS_INLINE__  EE_rtc_read_buffer(EE_UINT8 address, EE_UINT8 *data, int len);
-
+__INLINE__ int __ALWAYS_INLINE__  EE_rtc_read_buffer(EE_UINT8 address,
+    EE_UINT8 *data, int len)
+{
+    return cat3_ind(EE_, rtc_i2c_name_lc, _receive_buffer)(RTC_DEVICE_ID,
+        address, data, len);
+}
 
 
 /*
-	int EE_rtc_write_time(const TTime *ttw)
 		This function is used to change the rt-clock internal time. 
 		Arguments: 
 			- const TTime *ttw: pointer to the TTime structure with the time to be written; 
@@ -178,8 +198,8 @@ DECLARE_FUNC_RTC(RTC_I2C, rtc_i2c)
 */
 int EE_rtc_write_time(const TTime *ttw);
 
+
 /*
-	int EE_rtc_read_time(TTime *ttr) 
 		This function is used to read the rt-clock internal time. 
 		Arguments: 
 			- TTime *ttr: pointer to the TTime structure with the time to be read; 
@@ -194,11 +214,17 @@ int EE_rtc_write_time(const TTime *ttw);
 */
 int EE_rtc_read_time(TTime *ttr); 
 
+
 /*
 	int EE_rtc_set_alarm(void);
 	ATT! not yet supported...
 */
-int EE_rtc_set_alarm(void);
+/* int EE_rtc_set_alarm(void); */
+
+#undef rtc_i2c_name_lc
+#undef rtc_i2c_name_uc
+
+
 
 #endif //#ifndef __EE_RTC_PCF8583__
 

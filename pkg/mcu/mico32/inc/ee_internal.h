@@ -66,6 +66,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_stop_budget_timer(void)
 #endif  /* __FRSH__ */
 
 /* Macros used by drivers */
+#define cat3_ind(a,b,c) cat3(a,b,c)
 #define cat3(a, b, c)  a ## b ## c
 #define cat2(a, b) a ## b
 #define EE_BASE_ADD(uc) cat2(uc, _BASE_ADDRESS)

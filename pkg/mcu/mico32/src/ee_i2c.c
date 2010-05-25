@@ -221,7 +221,7 @@ int EE_hal_i2c_read_byte_polling(OCI2CMDev_t* i2cc, EE_UINT8 device, EE_UINT8 ad
 	return ret;
 }
 
-int EE_hal_i2c_write_buffer_polling(OCI2CMDev_t* i2cc, EE_UINT8 device, EE_UINT8 address, EE_UINT8 *data, int len)
+int EE_hal_i2c_write_buffer_polling(OCI2CMDev_t* i2cc, EE_UINT8 device, EE_UINT8 address, const EE_UINT8 *data, int len)
 {
 	int i;
 	int ret;
@@ -510,7 +510,7 @@ int EE_hal_i2c_read_byte_irq(EE_i2c_st* i2csp, EE_UINT8 device, EE_UINT8 address
 	return ret;
 }
 	
-int EE_hal_i2c_write_buffer_irq(EE_i2c_st* i2csp, EE_UINT8 device, EE_UINT8 address, EE_UINT8 *data, int len)	// ATT! data is a vector of messages (packets)
+int EE_hal_i2c_write_buffer_irq(EE_i2c_st* i2csp, EE_UINT8 device, EE_UINT8 address, const EE_UINT8 *data, int len)	// ATT! data is a vector of messages (packets)
 {
 	int ret = EE_I2C_OK;
 	OCI2CMDev_t *i2cc = i2csp->base; 
