@@ -147,55 +147,6 @@ ISR2(_INT4Interrupt)
 //End GF
 
 
-/* /\************************************************************************* */
-/*  Analog input */
-/*  *************************************************************************\/ */
-
-#if defined(__USE_ANALOG_SENSORS__) || defined(__USE_TRIMMER__) || defined(__USE_ACCELEROMETER__) || defined(__USE_ADC__)
-EE_UINT8 EE_adc_init = 0;
-#endif
-
-#ifdef __USE_ACCELEROMETER__
-EE_UINT8 EE_accelerometer_g = 6;
-#endif
-
-
-/* /\************************************************************************* */
-/*  LCD */
-/*  *************************************************************************\/ */
-
-#ifdef __USE_LCD__
-EE_UINT16 lcd_temp_count __attribute__((near)) = 0;
-
-void Delay( unsigned int delay_count )
-{
-	lcd_temp_count = delay_count +1;
-	asm volatile("outer: dec _lcd_temp_count");
-	asm volatile("cp0 _lcd_temp_count");
-	asm volatile("bra z, done");
-	asm volatile("do #3200, inner" );
-	asm volatile("nop");
-	asm volatile("inner: nop");
-	asm volatile("bra outer");
-	asm volatile("done:");
-}
-
-void Delay_Us( unsigned int delayUs_count )
-{
-	lcd_temp_count = delayUs_count +1;
-	asm volatile("outer1: dec _lcd_temp_count");
-	asm volatile("cp0 _lcd_temp_count");
-	asm volatile("bra z, done1");
-	asm volatile("do #1500, inner1" );
-	asm volatile("nop");
-	asm volatile("inner1: nop");
-	asm volatile("bra outer1");
-	asm volatile("done1:");
-}
-
-#endif
-
-
 #ifdef __USE_USB__
 
 #include <string.h>

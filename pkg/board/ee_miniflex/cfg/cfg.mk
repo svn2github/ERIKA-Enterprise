@@ -40,6 +40,8 @@
 
 ifeq ($(findstring __EE_MINIFLEX__,$(EEOPT)) , __EE_MINIFLEX__)
 
+EE_SRCS += pkg/board/ee_miniflex/src/ee_miniflex.c
+
 ifeq ($(findstring __USE_DEMOBOARD__,$(EEOPT)) , __USE_DEMOBOARD__)
 EE_SRCS += pkg/board/ee_miniflex/src/ee_miniflex_demoboard.c
 

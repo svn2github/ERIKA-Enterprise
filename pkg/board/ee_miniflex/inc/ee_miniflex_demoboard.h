@@ -61,20 +61,18 @@ __INLINE__ void __ALWAYS_INLINE__ EE_buzzer_init( void )
 
   // Initialize Output Compare Module
   OC1CONbits.OCM = 0b000; // Disable Output Compare Module
-  OC1R = 300; // Write the duty cycle for the first PWM pulse
-  OC1RS = 1250; // Write the duty cycle for the second PWM pulse
-  OC1CONbits.OCTSEL = 1; // Select Timer 3 as output compare time base
-  OC1R = 1250; // Load the Compare Register Value
+  OC1R  = 2272; // Write the duty cycle for the first PWM pulse
+  OC1RS = 2272; // Write the duty cycle for the second PWM pulse
+  OC1CONbits.OCTSEL = 1;  // Select Timer 3 as output compare time base
   OC1CONbits.OCM = 0b110; // Select the Output Compare mode
   
   // Initialize and enable Timer3
   T3CONbits.TON = 0; // Disable Timer
   T3CONbits.TCS = 0; // Select internal instruction cycle clock
   T3CONbits.TGATE = 0; // Disable Gated Timer mode
-  //T2CONbits.TCKPS = 0b00; // Select 1:1 Prescaler
-  	T3CONbits.TCKPS = 1;
+  T3CONbits.TCKPS = 1; // Select 1:8 Prescaler
   TMR3 = 0x00; // Clear timer register
-  PR3 = 2500; // Load the period value
+  PR3  = 4545; // Load the period value
   IPC2bits.T3IP = 0x01; // Set Timer 3 Interrupt Priority Level
   IFS0bits.T3IF = 0; // Clear Timer 3 Interrupt Flag
   IEC0bits.T3IE = 0; // Disable Timer 3 interrupt
@@ -85,7 +83,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_buzzer_set_freq( EE_UINT16 new_freq )
 {
 	buzzer_freq  = new_freq;
 	if ((new_freq > 100) && (new_freq < 48000)) {
-		buzzer_freq  = 5000000ul / buzzer_freq;
+		buzzer_freq  = EE_SYS_CLOCK / (buzzer_freq << 3); // Using 1:8 prescaler
     buzzer_ticks = buzzer_freq >> 1;
 
     OC1R = buzzer_ticks;
@@ -122,8 +120,236 @@ __INLINE__ void __ALWAYS_INLINE__ EE_buzzer_close( void ) {
 	IEC0bits.T3IE = 0;
 }
 
+#endif // __USE_BUZZER__
+
+/* /\************************************************************************* */
+/*  Analog inputs */
+/*  *************************************************************************\/ */
+
+/* Accelerometer Input */
+#ifdef __USE_ACCELEROMETER__
+
+#define	EE_ACCEL_G_ZERO		1.65
+#define	EE_ACCEL_G_SCALE_1_5	0.8
+#define	EE_ACCEL_G_SCALE_2	0.6
+#define	EE_ACCEL_G_SCALE_4	0.3
+#define	EE_ACCEL_G_SCALE_6	0.2
+
+extern EE_UINT8 EE_accelerometer_g;
+
+__INLINE__ void __ALWAYS_INLINE__ EE_accelerometer_init( void )
+{
+	/* set configuration bit as ADC input */
+ 	AD1PCFGbits.PCFG10 = 0; // X Axis -> AN10/RB14
+ 	AD1PCFGbits.PCFG11 = 0; // Y Axis -> AN11/RB13
+ 	AD1PCFGbits.PCFG12 = 0; // Z Axis -> AN12/RB12
+
+	/* Configure ADC */
+	EE_analog_init();
+
+	// Set output pins for g-select and sleep options
+	TRISBbits.TRISB5 = 0;
+	TRISBbits.TRISB8 = 0;   // GS1
+	TRISBbits.TRISB6 = 0;   // GS2
+
+	// Set g-selet to 6g
+	LATBbits.LATB8 = 1;
+	LATBbits.LATB6 = 1;
+	EE_accelerometer_g = 3;
+
+	// Disable Sleep mode
+	LATBbits.LATB5 = 1;
+
+	/* turn on ADC module */
+	EE_analog_start();
+}
+
+__INLINE__ EE_UINT8 __ALWAYS_INLINE__ EE_eccelerometer_getglevel( void ) { return EE_accelerometer_g; }
+
+__INLINE__ void __ALWAYS_INLINE__ EE_eccelerometer_setglevel( EE_UINT8 level)
+{
+	if (level <= 0) {
+		EE_accelerometer_g = 0;
+		LATBbits.LATB8 = 0;
+		LATBbits.LATB6 = 0;
+	} else if (level == 1) {
+		EE_accelerometer_g = 1;
+		LATBbits.LATB8 = 1;
+		LATBbits.LATB6 = 0;
+	} else if (level == 2) {
+		EE_accelerometer_g = 2;
+		LATBbits.LATB8 = 0;
+		LATBbits.LATB6 = 1;
+	} else {
+		EE_accelerometer_g = 3;
+		LATBbits.LATB8 = 1;
+		LATBbits.LATB6 = 1;
+	}
+}
+
+__INLINE__ void __ALWAYS_INLINE__ EE_accelerometer_sleep( void )  { LATBbits.LATB5 = 0; }
+
+__INLINE__ void __ALWAYS_INLINE__ EE_accelerometer_wakeup( void ) { LATBbits.LATB5 = 1; }
+
+__INLINE__ float __ALWAYS_INLINE__ EE_accelerometer_getx( void )
+{
+	float adcdata;
+
+	// Set AN10 - RB14 as input channel
+	AD1CHS = 10;
+
+	/* Start conversion */
+	AD1CON1bits.SAMP = 1;
+
+	/* Wait till the EOC */
+	while(!IFS0bits.AD1IF);
+
+	/* reset ADC interrupt flag */
+	IFS0bits.AD1IF = 0;
+
+	/* Acquire data and convert to volts */
+	adcdata = ((ADC1BUF0 * 3.3) / 1024);
+
+	/* Return conversion */
+	adcdata -= EE_ACCEL_G_ZERO;
+	switch (EE_accelerometer_g) {
+		case 0:
+			adcdata /= EE_ACCEL_G_SCALE_1_5;
+			break;
+		case 1:
+			adcdata /= EE_ACCEL_G_SCALE_2;
+			break;
+		case 2:
+			adcdata /= EE_ACCEL_G_SCALE_4;
+			break;
+		case 3:
+			adcdata /= EE_ACCEL_G_SCALE_6;
+			break;
+	}
+
+	return adcdata;
+}
+
+__INLINE__ float __ALWAYS_INLINE__ EE_accelerometer_gety( void )
+{
+	float adcdata;
+
+	// Set AN11 - RB13 as input channel
+	AD1CHS = 11;
+
+	/* Start conversion */
+	AD1CON1bits.SAMP = 1;
+
+	/* Wait till the EOC */
+	while(!IFS0bits.AD1IF);
+
+	/* reset ADC interrupt flag */
+	IFS0bits.AD1IF = 0;
+
+	/* Acquire data and convert to volts */
+	adcdata = (ADC1BUF0 * 3.3) / 1024;
+
+	/* Return conversion */
+	adcdata -= EE_ACCEL_G_ZERO;
+	switch (EE_accelerometer_g) {
+		case 0:
+			adcdata /= EE_ACCEL_G_SCALE_1_5;
+			break;
+		case 1:
+			adcdata /= EE_ACCEL_G_SCALE_2;
+			break;
+		case 2:
+			adcdata /= EE_ACCEL_G_SCALE_4;
+			break;
+		case 3:
+			adcdata /= EE_ACCEL_G_SCALE_6;
+			break;
+	}
+	return adcdata;
+}
+
+__INLINE__ float __ALWAYS_INLINE__ EE_accelerometer_getz( void )
+{
+	float adcdata;
+
+	// Set AN12 - RB12 as input channel
+	AD1CHS = 12;
+
+	/* Start conversion */
+	AD1CON1bits.SAMP = 1;
+
+	/* Wait till the EOC */
+	while(!IFS0bits.AD1IF);
+
+	/* reset ADC interrupt flag */
+	IFS0bits.AD1IF = 0;
+
+	/* Acquire data and convert to volts */
+	adcdata = (ADC1BUF0 * 3.3) / 1024;
+
+	/* Return conversion */
+	adcdata -= EE_ACCEL_G_ZERO;
+	switch (EE_accelerometer_g) {
+		case 0:
+			adcdata /= EE_ACCEL_G_SCALE_1_5;
+			break;
+		case 1:
+			adcdata /= EE_ACCEL_G_SCALE_2;
+			break;
+		case 2:
+			adcdata /= EE_ACCEL_G_SCALE_4;
+			break;
+		case 3:
+			adcdata /= EE_ACCEL_G_SCALE_6;
+			break;
+	}
+	return adcdata; // TODO!!!
+}
+
 #endif
 
+/* ************************************************************************* */
+
+#ifdef __USE_LIGHT__
+
+__INLINE__ void __ALWAYS_INLINE__ EE_light_init( void )
+{
+	/* set configuration bit as ADC input */
+ 	AD1PCFGbits.PCFG9 = 0; // Temperature Sensor -> AN9/RB15
+
+	/* Configure ADC */
+	EE_analog_init();
+
+	/* turn on ADC module */
+	EE_analog_start();
+}
+
+__INLINE__ EE_UINT16 __ALWAYS_INLINE__ EE_light_get( void )
+{
+	EE_UINT32 adcdata;
+
+	// Set AN9 - RB15 as input channel
+	AD1CHS = 9;
+
+	/* Start conversion */
+	AD1CON1bits.SAMP = 1;
+
+	/* Wait till the EOC */
+	while(!IFS0bits.AD1IF);
+
+	/* reset ADC interrupt flag */
+	IFS0bits.AD1IF = 0;
+
+	/* Acquire data */
+	adcdata = ADC1BUF0;
+
+	/* Convert the acquired data */
+	adcdata = 200 - ( adcdata * 0.464 ); // Lux - TODO: Check constants!
+
+	/* Return conversion */
+	return adcdata;
+}
+#endif
 
 /* ************************************************************************* */
 
@@ -133,8 +359,13 @@ __INLINE__ void __ALWAYS_INLINE__ EE_buzzer_close( void ) {
 
 #endif /* __INCLUDE_EE_MINIFLEX_DEMOBOARD_H__ */
 
-/* ############################# BEGIN OLD STUFF ############################# */
 
+
+
+
+
+
+/* ############################# BEGIN OLD STUFF ############################# */
 
 #if 0
 
@@ -145,55 +376,6 @@ __INLINE__ void __ALWAYS_INLINE__ EE_buzzer_close( void ) {
 #if defined (__USE_PICDEMZ_WITH_INT4__) || (__USE_PICDEMZ_WITH_CN20INT__)
 
 #include "radio_spi.h"
-
-#endif
-
-
-/* /\************************************************************************* */
-/*  LEDs */
-/*  *************************************************************************\/ */
-
-#ifdef __USE_LEDS__
-
-#define EE_demoboard_leds_init() EE_daughter_leds_init()
-
-__INLINE__ void __ALWAYS_INLINE__ EE_daughter_leds_init(void) {
-	/* set LEDs drive state low */
-	LATF  &= 0xFFF0;
-	LATD  &= 0xF0FF;
-
-	/* set LEDs pin as output */
-	TRISF &= 0xFFF0;
-	TRISD &= 0xF0FF;
-}
-
-__INLINE__ void __ALWAYS_INLINE__ EE_leds( EE_UINT8 data ) {
-	LATF &= 0xFFF0;
-	LATD &= 0xF0FF;
-
-	LATF |= (data & 0x0F);
-	LATD |= (data & 0xF0) << 4;
-}
-
-__INLINE__ void __ALWAYS_INLINE__ EE_led_0_on(void)   { LATFbits.LATF0  = 1; }
-__INLINE__ void __ALWAYS_INLINE__ EE_led_0_off(void)  { LATFbits.LATF0  = 0; }
-__INLINE__ void __ALWAYS_INLINE__ EE_led_1_on(void)   { LATFbits.LATF1  = 1; }
-__INLINE__ void __ALWAYS_INLINE__ EE_led_1_off(void)  { LATFbits.LATF1  = 0; }
-__INLINE__ void __ALWAYS_INLINE__ EE_led_2_on(void)   { LATFbits.LATF2  = 1; }
-__INLINE__ void __ALWAYS_INLINE__ EE_led_2_off(void)  { LATFbits.LATF2  = 0; }
-__INLINE__ void __ALWAYS_INLINE__ EE_led_3_on(void)   { LATFbits.LATF3  = 1; }
-__INLINE__ void __ALWAYS_INLINE__ EE_led_3_off(void)  { LATFbits.LATF3  = 0; }
-__INLINE__ void __ALWAYS_INLINE__ EE_led_4_on(void)   { LATDbits.LATD8  = 1; }
-__INLINE__ void __ALWAYS_INLINE__ EE_led_4_off(void)  { LATDbits.LATD8  = 0; }
-__INLINE__ void __ALWAYS_INLINE__ EE_led_5_on(void)   { LATDbits.LATD9  = 1; }
-__INLINE__ void __ALWAYS_INLINE__ EE_led_5_off(void)  { LATDbits.LATD9  = 0; }
-__INLINE__ void __ALWAYS_INLINE__ EE_led_6_on(void)   { LATDbits.LATD10 = 1; }
-__INLINE__ void __ALWAYS_INLINE__ EE_led_6_off(void)  { LATDbits.LATD10 = 0; }
-__INLINE__ void __ALWAYS_INLINE__ EE_led_7_on(void)   { LATDbits.LATD11 = 1; }
-__INLINE__ void __ALWAYS_INLINE__ EE_led_7_off(void)  { LATDbits.LATD11 = 0; }
-
-__INLINE__ void __ALWAYS_INLINE__ EE_leds_on(void)   { LATD  |= 0x0F00; LATF  |= 0x000F; }
-__INLINE__ void __ALWAYS_INLINE__ EE_leds_off(void)  { LATD  &= 0xF0FF; LATF  &= 0xFFF0; }
 
 #endif
 
@@ -474,565 +656,6 @@ __INLINE__ void __ALWAYS_INLINE__ EE_picdemz_init( void(*isr_callback)(void)) {
 
 #endif
 //End GF
-
-/* /\************************************************************************* */
-/*  LCD */
-/*  *************************************************************************\/ */
-
-#ifdef __USE_LCD__
-/*
-   For Explorer 16 board, here are the data and control signal definitions
-   RS -> RB10
-   E   -> RB9
-   RW -> N.C.
-   DATA -> RA0 - RA7
-*/
-
-/* /\* Control signal data pins *\/ */
-#define  EE_LCD_RS		LATBbits.LATB10	// LCD RS signal
-#define  EE_LCD_E		LATBbits.LATB9	// LCD Enable signal
-// fra
-#define  EE_LCD_VLCD		LATBbits.LATB8	// LCD Voltage control
-#define  EE_LCD_BRIGHTNESS	LATBbits.LATB11	// LCD Brightness control
-
-/* /\* Control signal pin direction *\/ */
-#define  EE_LCD_RS_TRIS		TRISBbits.TRISB10
-#define  EE_LCD_E_TRIS		TRISBbits.TRISB9
-// fra
-#define  EE_LCD_VLCD_TRIS	TRISBbits.TRISB8
-#define  EE_LCD_BRIGHTNESS_TRIS	TRISBbits.TRISB11
-
-/* /\* Data signals and pin direction *\/ */
-#define  EE_LCD_DATA		LATA           // Port for LCD data
-#define  EE_LCD_DATAPORT	PORTA
-#define  EE_LCD_TRISDATA	TRISA          // I/O setup for data Port
-
-// fra
-#define Fcy  40000000
-#define Delay200uS_count  (Fcy * 0.0002) / 1080
-#define Delay500uS_count  (Fcy * 0.0005) / 1080
-#define Delay_1mS_Cnt	  (Fcy * 0.001) / 2950
-#define Delay_2mS_Cnt	  (Fcy * 0.002) / 2950
-#define Delay_5mS_Cnt	  (Fcy * 0.005) / 2950
-#define Delay_20mS_Cnt	  (Fcy * 0.020) / 2950
-#define Delay_1S_Cnt	  (Fcy * 1) / 2950
-
-void Delay( unsigned int delay_count );
-void Delay_Us( unsigned int delayUs_count );
-
-/* /\* Send an impulse on the enable line.  *\/ */
-__INLINE__ void __ALWAYS_INLINE__ EE_lcd_pulse_enable( void )
-{
-	EE_LCD_E = 1;
-	Nop();
-	Nop();
-	Nop();
-	EE_LCD_E = 0;
-}
-
-/* /\* Send a command to the lcd.  *\/ */
-__INLINE__ void __ALWAYS_INLINE__ EE_lcd_command( EE_UINT8 cmd )
-{
-	EE_LCD_DATA &= 0xFF00;
-	EE_LCD_DATA |= cmd;
-	EE_LCD_RS = 0;  // fra
-	EE_lcd_pulse_enable();
-	Delay_Us( Delay200uS_count );
-}
-
-/* /\* Switch on or off the back illumination  *\/ */
-__INLINE__ void __ALWAYS_INLINE__ EE_lcd_brightness( EE_UINT8 btns_status )
-{
-	EE_LCD_BRIGHTNESS = btns_status & 1;
-}
-
-/* /\* Switch on or off the display  *\/ */
-__INLINE__ void __ALWAYS_INLINE__ EE_lcd_switch( EE_UINT8 lcd_status )
-{
-	EE_LCD_VLCD = lcd_status & 1;
-}
-
-/* /\* Initialize the display.  *\/ */
-__INLINE__ void __ALWAYS_INLINE__ EE_lcd_init(void) {
-	// 15mS delay after Vdd reaches nnVdc before proceeding with LCD initialization
-	// not alwEE_LCD_VLCDays required and is based on system Vdd rise rate
-	// Todo!!!
-	EE_LCD_VLCD_TRIS	= 0;
-	EE_LCD_BRIGHTNESS_TRIS	= 0;
-	EE_LCD_VLCD       = 1;
-	EE_LCD_BRIGHTNESS = 1;
-
-	/* Use pin as digital IO */
- 	AD1PCFGLbits.PCFG9  = 0;
- 	AD1PCFGLbits.PCFG10 = 0;
-
-	/* Initial values */
-	EE_LCD_DATA &= 0xFF00;
-	EE_LCD_RS   = 0;
-	EE_LCD_E    = 0;
-
-	/* Set pins direction */
-	EE_LCD_TRISDATA &= 0xFF00;
-	EE_LCD_RS_TRIS  = 0;
-	EE_LCD_E_TRIS   = 0;
-	Delay( Delay_20mS_Cnt );
-
-	// Init - Step 1
-	EE_LCD_DATA &= 0xFF00;
-	EE_LCD_DATA |= 0x0038;
-	EE_lcd_pulse_enable();
-	Delay_Us( Delay500uS_count );
-
-	// Init - Step 2
-	EE_LCD_DATA &= 0xFF00;
-	EE_LCD_DATA |= 0x0038;
-	EE_lcd_pulse_enable();
-	Delay_Us( Delay200uS_count );
-
-	// Init - Step 3
-	EE_LCD_DATA &= 0xFF00;
-	EE_LCD_DATA |= 0x0038;
-	EE_lcd_pulse_enable();
-	Delay_Us( Delay200uS_count );
-
-	EE_lcd_command( 0x38 );	// Function set
-	EE_lcd_command( 0x0C );	// Display on/off control, cursor blink off (0x0C)
-	EE_lcd_command( 0x06 );	// Entry mode set (0x06)
-}
-
-/* /\* Send a data.  *\/ */
-__INLINE__ void __ALWAYS_INLINE__ EE_lcd_putc( unsigned char data )
-{
-	EE_LCD_RS = 1;
-	EE_LCD_DATA &= 0xFF00;
-	EE_LCD_DATA |= data;
-	EE_lcd_pulse_enable();
-	EE_LCD_RS = 0;
-	Delay_Us( Delay200uS_count );
-}
-
-/* /\* Send a string to the display.  *\/ */
-__INLINE__ void __ALWAYS_INLINE__ EE_lcd_puts( char *buf )
-{
-	EE_UINT8 i = 0;
-
-	while (buf[i] != '\0')
-		EE_lcd_putc(buf[i++]);
-}
-
-/* /\* Check if the display is busy.  *\/ */
-__INLINE__ unsigned char __ALWAYS_INLINE__ EE_lcd_busy( void )
-{
-	EE_INT8 buf;
-
-	EE_LCD_TRISDATA |= 0x00FF;
-	EE_LCD_RS = 1;
-	EE_lcd_pulse_enable();
-	//Delay_Us( Delay200uS_count );
-	buf = EE_LCD_DATAPORT & 0x00FF;
-	EE_LCD_RS = 0;
-	EE_LCD_TRISDATA &= 0xFF00;
-	return ( (buf & 0x80) ? 1 : 0 );
-}
-
-__INLINE__ void __ALWAYS_INLINE__ EE_lcd_clear (void)		{ EE_lcd_command( 0x01 ); }
-
-__INLINE__ void __ALWAYS_INLINE__ EE_lcd_home  (void)		{ EE_lcd_command( 0x02 ); }
-__INLINE__ void __ALWAYS_INLINE__ EE_lcd_line2 (void)		{ EE_lcd_command( 0xC0 ); }
-
-__INLINE__ void __ALWAYS_INLINE__ EE_lcd_curs_right (void)	{ EE_lcd_command( 0x14 ); }
-__INLINE__ void __ALWAYS_INLINE__ EE_lcd_curs_left (void)	{ EE_lcd_command( 0x10 ); }
-__INLINE__ void __ALWAYS_INLINE__ EE_lcd_shift (void)		{ EE_lcd_command( 0x1C ); }
-
-__INLINE__ void __ALWAYS_INLINE__ EE_lcd_goto (EE_UINT8 posx, EE_UINT8 posy)
-{
-	EE_UINT8 tmp_pos;
-
-	tmp_pos  = posy ? 0xC0 : 0x80;
-	tmp_pos += 0x0F & posx;
-	EE_lcd_command( tmp_pos );
-}
-
-#endif
-
-
-/* /\************************************************************************* */
-/*  Analog inputs */
-/*  *************************************************************************\/ */
-
-#if defined(__USE_ANALOG_SENSORS__) || defined(__USE_TRIMMER__) || defined(__USE_ACCELEROMETER__) || defined(__USE_ADC__)
-
-#define AVDD 3.3
-#define VREF 3.3
-
-extern EE_UINT8 EE_adc_init;
-
-__INLINE__ void __ALWAYS_INLINE__ EE_analog_init( void )
-{
-	/* Check if the ADC is initialized */
-	if (EE_adc_init != 0) return;
-
-	/* turn off ADC module */
-	AD1CON1bits.ADON = 0;
-
-	/* set ALL configuration bits as ADC input */
- 	AD1PCFGLbits.PCFG12 = 0;         // Temp Sensor -> AN12/RB12
- 	AD1PCFGLbits.PCFG13 = 0;         // Light Sensor -> AN13/RB13
- 	AD1PCFGLbits.PCFG15 = 0;         // Trimmer        -> AN15/RB15
- 	AD1PCFGHbits.PCFG16 = 0;         // Accelerometer X Axis -> AN16/RC1
- 	AD1PCFGHbits.PCFG17 = 0;         // Accelerometer Y Axis -> AN17/RC2
- 	AD1PCFGHbits.PCFG18 = 0;         // Accelerometer Z Axis -> AN18/RC3
- 	AD1PCFGHbits.PCFG19 = 0;         // ADC Aux 1    -> AN19/RC4
- 	AD1PCFGHbits.PCFG20 = 0;         // ADC Aux 2    -> AN20/RE8
- 	AD1PCFGHbits.PCFG21 = 0;         // ADC Aux 3    -> AN21/RE9
-
-	/* Set control register 1 */
-	/* 12-bit, unsigned integer format, autosampling */
-	AD1CON1 = 0x04E0;
-
-	/* Set control register 2 */
-	/* Vref = AVcc/AVdd, Scan Inputs */
-	AD1CON2 = 0x0000;
-
-	/* Set Samples and bit conversion time */
-	/* AS = 31 Tad, Tad = 64 Tcy = 1.6us  */
-	AD1CON3 = 0x1F3F; //** Last PATCH xxx
-
-	/* disable channel scanning here */
-	AD1CSSL = 0x0000;
-
-	/* reset ADC interrupt flag */
-	IFS0bits.AD1IF = 0;
-
-	/* disable ADC interrupts */
-	IEC0bits.AD1IE = 0;
-
-	/* turn on ADC module */
-	AD1CON1bits.ADON = 1;
-
-	/* set ADC as configured */
-	EE_adc_init = 1;
-}
-
-__INLINE__ void __ALWAYS_INLINE__ EE_analog_close( void )
-{
-	/* turn off ADC module */
-	AD1CON1bits.ADON = 0;
-
-	/* set ADC as unconfigured */
-	EE_adc_init = 0;
-}
-
-#endif
-
-/* ADC Aux Input */
-#ifdef __USE_ADC__
-__INLINE__ void __ALWAYS_INLINE__ EE_adcin_init( void ) { EE_analog_init(); }
-
-__INLINE__ float __ALWAYS_INLINE__ EE_adcin_get_volt( EE_UINT8 channel )
-{
-	float adcdata;
-
-	switch (channel) {
-		case 1: // Set AN19 - RC4 as input channel
-			AD1CHS0 = 19;
-			break;
-		case 2: // Set AN20 - RE8 as input channel
-			AD1CHS0 = 20;
-			break;
-		case 3: // Set AN21 - RE9 as input channel
-			AD1CHS0 = 21;
-			break;
-		default: // Set to channel 1 as default
-			AD1CHS0 = 19;
-			break;
-	}
-
-	/* Start conversion */
-	AD1CON1bits.SAMP = 1;
-
-	/* Wait till the EOC */
-	while(!IFS0bits.AD1IF);
-
-	/* reset ADC interrupt flag */
-	IFS0bits.AD1IF = 0;
-
-	/* Acquire data */
-	adcdata = ADC1BUF0;
-
-	/* Return conversion */
-	return (adcdata * VREF) / 4096;
-}
-#endif
-
-/* Trimmer Input */
-#ifdef __USE_TRIMMER__
-__INLINE__ void __ALWAYS_INLINE__ EE_trimmer_init( void ) { EE_analog_init(); }
-
-__INLINE__ float __ALWAYS_INLINE__ EE_trimmer_get_volt( void )
-{
-	float adcdata;
-
-	// Set AN15 - RB15 as input channel
-	AD1CHS0 = 15;
-
-	/* Start conversion */
-	AD1CON1bits.SAMP = 1;
-
-	/* Wait till the EOC */
-	while(!IFS0bits.AD1IF);
-
-	/* reset ADC interrupt flag */
-	IFS0bits.AD1IF = 0;
-
-	/* Acquire data */
-	adcdata = ADC1BUF0;
-
-	/* Return conversion */
-	return (adcdata * VREF) / 4096;
-}
-#endif
-
-/* Sensors Input */
-#ifdef __USE_ANALOG_SENSORS__
-
-// Thermal constants for the Voltage-Temperature conversion (fra)
-#define THERM_A 0.0004132
-#define THERM_B 0.000320135
-
-__INLINE__ void __ALWAYS_INLINE__ EE_analogsensors_init( void ) { EE_analog_init(); }
-
-__INLINE__ float __ALWAYS_INLINE__ EE_analog_get_temperature( void )
-{
-	float adcdata;
-
-	// Set AN12 - RB12 as input channel
-	AD1CHS0 = 12;
-
-	/* Start conversion */
-	AD1CON1bits.SAMP = 1;
-
-	/* Wait till the EOC */
-	while(!IFS0bits.AD1IF);
-
-	/* reset ADC interrupt flag */
-	IFS0bits.AD1IF = 0;
-
-	/* Acquire data */
-	adcdata = ADC1BUF0;
-
-	// Conversion (fra)
-	float r_therm, T_K, T_C;
-
-	r_therm = 1 / (4096.0/adcdata - 1.0);
-
-	// T_K = 1.0 / (THERM_A + THERM_B * log(r_therm));
-	T_K = 1.0 / (THERM_A + THERM_B * ((r_therm-1) + 9.8) );
-	T_C = T_K - 273.15;
-
-	/* Return conversion */
-	return T_C;
-}
-
-__INLINE__ EE_UINT16 __ALWAYS_INLINE__ EE_analog_get_light( void )
-{
-	EE_UINT32 adcdata;
-
-	// Set AN13 - RB13 as input channel
-	AD1CHS0 = 13;
-
-	/* Start conversion */
-	AD1CON1bits.SAMP = 1;
-
-	/* Wait till the EOC */
-	while(!IFS0bits.AD1IF);
-
-	/* reset ADC interrupt flag */
-	IFS0bits.AD1IF = 0;
-
-	/* Acquire data */
-	adcdata = ADC1BUF0;
-
-	/* Convert the acquired data */
-	adcdata = 200 - ( adcdata * 0.116 ); // lux
-
-	/* Return conversion */
-	return adcdata;
-}
-#endif
-
-/* Accelerometer Input */
-#ifdef __USE_ACCELEROMETER__
-
-#define	EE_ACCEL_G_ZERO		1.65
-#define	EE_ACCEL_G_SCALE_1_5	0.8
-#define	EE_ACCEL_G_SCALE_2	0.6
-#define	EE_ACCEL_G_SCALE_4	0.3
-#define	EE_ACCEL_G_SCALE_6	0.2
-
-extern EE_UINT8 EE_accelerometer_g;
-
-__INLINE__ void __ALWAYS_INLINE__ EE_accelerometer_init( void )
-{
-	EE_analog_init();
-
-	// Set output pins for g-select and sleep options
-	TRISDbits.TRISD3  = 0;
-	TRISGbits.TRISG15 = 0;   // GS1
-	TRISCbits.TRISC13 = 0;   // GS2
-
-	// Set g-selet to 6g
-	LATGbits.LATG15 = 1;
-	LATCbits.LATC13 = 1;
-	EE_accelerometer_g = 3;
-
-	// Disable Sleep mode
-	LATDbits.LATD3 = 1;
-}
-
-__INLINE__ EE_UINT8 __ALWAYS_INLINE__ EE_eccelerometer_getglevel( void ) { return EE_accelerometer_g; }
-
-__INLINE__ void __ALWAYS_INLINE__ EE_eccelerometer_setglevel( EE_UINT8 level)
-{
-	if (level <= 0) {
-		EE_accelerometer_g = 0;
-		LATGbits.LATG15 = 0;
-	  LATCbits.LATC13 = 0;
-	} else if (level == 1) {
-		EE_accelerometer_g = 1;
-		LATGbits.LATG15 = 1;
-    LATCbits.LATC13 = 0;
-	} else if (level == 2) {
-		EE_accelerometer_g = 2;
-  	LATGbits.LATG15 = 0;
-  	LATCbits.LATC13 = 1;
-	} else {
-		EE_accelerometer_g = 3;
-  	LATGbits.LATG15 = 1;
-  	LATCbits.LATC13 = 1;
-	}
-}
-
-__INLINE__ void __ALWAYS_INLINE__ EE_accelerometer_sleep( void )  { LATDbits.LATD3 = 0; }
-
-__INLINE__ void __ALWAYS_INLINE__ EE_accelerometer_wakeup( void ) { LATDbits.LATD3 = 1; }
-
-__INLINE__ float __ALWAYS_INLINE__ EE_accelerometer_getx( void )
-{
-	float adcdata;
-
-	// Set AN16 - RB16 as input channel
-	AD1CHS0 = 16;
-
-	/* Start conversion */
-	AD1CON1bits.SAMP = 1;
-
-	/* Wait till the EOC */
-	while(!IFS0bits.AD1IF);
-
-	/* reset ADC interrupt flag */
-	IFS0bits.AD1IF = 0;
-
-	/* Acquire data and convert to volts */
-	adcdata = ((ADC1BUF0 * 3.3) / 4096);
-
-	/* Return conversion */
-	adcdata -= EE_ACCEL_G_ZERO;
-	switch (EE_accelerometer_g) {
-		case 0:
-			adcdata /= EE_ACCEL_G_SCALE_1_5;
-			break;
-		case 1:
-			adcdata /= EE_ACCEL_G_SCALE_2;
-			break;
-		case 2:
-			adcdata /= EE_ACCEL_G_SCALE_4;
-			break;
-		case 3:
-			adcdata /= EE_ACCEL_G_SCALE_6;
-			break;
-	}
-
-	return adcdata;
-}
-
-__INLINE__ float __ALWAYS_INLINE__ EE_accelerometer_gety( void )
-{
-	float adcdata;
-
-	// Set AN17 - RB17 as input channel
-	AD1CHS0 = 17;
-
-	/* Start conversion */
-	AD1CON1bits.SAMP = 1;
-
-	/* Wait till the EOC */
-	while(!IFS0bits.AD1IF);
-
-	/* reset ADC interrupt flag */
-	IFS0bits.AD1IF = 0;
-
-	/* Acquire data and convert to volts */
-	adcdata = (ADC1BUF0 * 3.3) / 4096;
-
-	/* Return conversion */
-	adcdata -= EE_ACCEL_G_ZERO;
-	switch (EE_accelerometer_g) {
-		case 0:
-			adcdata /= EE_ACCEL_G_SCALE_1_5;
-			break;
-		case 1:
-			adcdata /= EE_ACCEL_G_SCALE_2;
-			break;
-		case 2:
-			adcdata /= EE_ACCEL_G_SCALE_4;
-			break;
-		case 3:
-			adcdata /= EE_ACCEL_G_SCALE_6;
-			break;
-	}
-	return adcdata;
-}
-
-__INLINE__ float __ALWAYS_INLINE__ EE_accelerometer_getz( void )
-{
-	float adcdata;
-
-	// Set AN18 - RB18 as input channel
-	AD1CHS0 = 18;
-
-	/* Start conversion */
-	AD1CON1bits.SAMP = 1;
-
-	/* Wait till the EOC */
-	while(!IFS0bits.AD1IF);
-
-	/* reset ADC interrupt flag */
-	IFS0bits.AD1IF = 0;
-
-	/* Acquire data and convert to volts */
-	adcdata = (ADC1BUF0 * 3.3) / 4096;
-
-	/* Return conversion */
-	adcdata -= EE_ACCEL_G_ZERO;
-	switch (EE_accelerometer_g) {
-		case 0:
-			adcdata /= EE_ACCEL_G_SCALE_1_5;
-			break;
-		case 1:
-			adcdata /= EE_ACCEL_G_SCALE_2;
-			break;
-		case 2:
-			adcdata /= EE_ACCEL_G_SCALE_4;
-			break;
-		case 3:
-			adcdata /= EE_ACCEL_G_SCALE_6;
-			break;
-	}
-	return adcdata; // TODO!!!
-}
-
-#endif
 
 
 /* /\************************************************************************* */
