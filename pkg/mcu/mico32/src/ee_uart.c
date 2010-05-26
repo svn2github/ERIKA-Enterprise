@@ -7,9 +7,6 @@
 */
 
 #include "mcu/mico32/inc/ee_uart.h"
-#include <cpu/mico32/inc/ee_irq.h>
-
-
 
 /******************************************************************************/
 /*                       Private Local Variables                              */
@@ -135,8 +132,6 @@ int EE_hal_uart_config(EE_uart_st* usp, int baudrate, int settings)
     uartc->ier = 0;						// if ier==0 -> POLLING MODE (ATT! is a blocking mode!!!)
     									// if ier!=0 -> ISR MODE (ATT! is not a blocking mode!!!)
     iir = uartc->iir;					// read iir register to clean ISR flags.	FARE PROVA!!!
-	/* Register IRQ handler */
-    //EE_hal_uart_handler_setup(usp);
 	/* set the control register */
     uartc->lcr = settings;    
     /* Calculate clock-divisor */
@@ -168,16 +163,6 @@ int EE_hal_uart_return_error(EE_uart_st* usp)
 }
 
 #ifdef __USE_UART_IRQ__
-
-/* This function records ISR handler */
-int EE_hal_uart_handler_setup(EE_uart_st* usp)
-{
-    /* Register IRQ handler */
-    EE_mico32_register_ISR(usp->irqf, EE_uart_common_handler);	 
-
-	return EE_UART_OK;
-}
-
 /* This function sets UART operating mode */
 int EE_hal_uart_set_ISR_mode(EE_uart_st* usp, int mode)
 {
@@ -588,7 +573,7 @@ int EE_hal_uart_read_byte(EE_uart_st* usp, EE_UINT8 *data)
 	
 	MicoUart_t *uartc = usp->base; 
 	mode = usp->mode;
-					
+									
 	do
 	{
 		uiValue = uartc->lsr;
@@ -680,7 +665,7 @@ int EE_hal_uart_write_buffer(EE_uart_st* usp, const EE_UINT8 *vet, int len)
 #endif // #ifdef __USE_UART_IRQ__
 
 /* Callback used by pic32-like functions */
-#ifdef __USE_MICO_PIC_API__
+#ifdef __USE_MICO_PIC32LIKE_API__
 EE_mchp_ISR_callback ee_mchp_uart1_ISR_cbk;
 EE_mchp_ISR_callback ee_mchp_uart2_ISR_cbk;
 void ee_aux_uart1_ISR_cbk(void)
@@ -696,5 +681,5 @@ void ee_aux_uart2_ISR_cbk(void)
 	EE_uart_read_byte(2, &data);
 	ee_mchp_uart2_ISR_cbk(data);
 }
-#endif //__USE_MICO2PIC_API__
+#endif //__USE_MICO_PIC32LIKE_API__
 

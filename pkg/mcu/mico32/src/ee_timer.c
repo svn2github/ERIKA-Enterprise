@@ -7,7 +7,6 @@
 */
 
 #include "mcu/mico32/inc/ee_timer.h"
-#include <cpu/mico32/inc/ee_irq.h>		// to use ISR functions.
 
 /******************************************************************************/
 /*                              Global Functions                              */
@@ -69,8 +68,7 @@ int EE_hal_timer_init(EE_timer_st* tst, int period, int settings)
 	timerc->Status = 0;
 	
 	/* Register the handler */
-	EE_mico32_register_ISR(tst->irqf, EE_timer_common_handler);
-	
+	EE_hal_timer_handler_setup(tst);
 	if(EE_timer_need_enable_int(settings))
 		mico32_enable_irq(tst->irqf);
 	else

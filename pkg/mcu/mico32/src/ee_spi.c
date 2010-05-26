@@ -7,7 +7,6 @@
 */
 
 #include "mcu/mico32/inc/ee_spi.h"
-#include <cpu/mico32/inc/ee_irq.h>
 
 /******************************************************************************/
 /*                              Global Variables                              */
@@ -31,16 +30,7 @@ DEFINE_STRUCT_SPI(EE_SPI2_NAME_UC, EE_SPI2_NAME_LC)
 /******************************************************************************/
 /*                       Private Local Functions                              */
 /******************************************************************************/
-#ifdef __USE_SPI_IRQ__
-/* This function records ISR handler */
-static int EE_hal_spi_handler_setup(EE_spi_st* spisp)
-{
-    /* Register IRQ handler */
-    EE_mico32_register_ISR(spisp->irqf, EE_spi_common_handler);	 
-
-	return EE_SPI_OK;
-}
-#endif //#ifdef __USE_SPI_IRQ__
+// ...
 
 /******************************************************************************/
 /*                              ISRs                                          */
@@ -180,8 +170,8 @@ int EE_hal_spi_config(EE_spi_st* spisp, int settings)
 	MicoSPI_t *spic = spisp->base; 
 	
 	EE_hal_spi_disable(spisp);
-	/* Register IRQ handler */
-	EE_hal_spi_handler_setup(spisp);
+	///* Register IRQ handler */
+	//EE_hal_spi_handler_setup(spisp);
 	/* if master, deselect all slaves */	
     //if(EE_spi_is_master(settings))								
     spic->sSelect = 0;
@@ -251,7 +241,7 @@ int EE_hal_spi_set_tx_ISR_callback(EE_spi_st* spisp, EE_ISR_callback isr_tx_call
 int EE_hal_spi_write_byte_irq(EE_spi_st* spisp, EE_UINT8 data)	// ATT! data is a message (packet)
 {
 	int ret = EE_SPI_OK;
-	MicoSPI_t *spic = spisp->base; 
+	//MicoSPI_t *spic = spisp->base; 
 		
 	// EE_hal_spi_set_slave(spic, device);	
 	// EE_spi_set_SSO(spic->control);
@@ -267,7 +257,7 @@ int EE_hal_spi_write_byte_irq(EE_spi_st* spisp, EE_UINT8 data)	// ATT! data is a
 int EE_hal_spi_read_byte_irq(EE_spi_st* spisp)					// ATT! adddata is a pointer to message (packet)
 {
 	int ret = EE_SPI_OK;
-	MicoSPI_t *spic = spisp->base; 
+	//MicoSPI_t *spic = spisp->base; 
 	
 	// EE_hal_spi_set_slave(spic, device);	
 	// EE_spi_set_SSO(spic->control);
@@ -282,7 +272,7 @@ int EE_hal_spi_read_byte_irq(EE_spi_st* spisp)					// ATT! adddata is a pointer 
 int EE_hal_spi_write_buffer_irq(EE_spi_st* spisp, EE_UINT8* data, int len)	// ATT! data is a vector of messages (packets)
 {
 	int ret = EE_SPI_OK;
-	MicoSPI_t *spic = spisp->base; 
+	//MicoSPI_t *spic = spisp->base; 
 	
 	// EE_hal_spi_set_slave(spic, device);	
 	// EE_spi_set_SSO(spic->control);
@@ -297,7 +287,7 @@ int EE_hal_spi_write_buffer_irq(EE_spi_st* spisp, EE_UINT8* data, int len)	// AT
 int EE_hal_spi_read_buffer_irq(EE_spi_st* spisp, EE_UINT8* data, int len)	// ATT! data is a vector of messages (packets)
 {
 	int ret = EE_SPI_OK;
-	MicoSPI_t *spic = spisp->base; 
+	//MicoSPI_t *spic = spisp->base; 
 	
 	// EE_hal_spi_set_slave(spic, device);	
 	// EE_spi_set_SSO(spic->control);

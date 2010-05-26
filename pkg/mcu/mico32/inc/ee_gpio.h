@@ -103,7 +103,18 @@ __INLINE__ unsigned int __ALWAYS_INLINE__ cat3(EE_, lc, _read_data)(void){ \
  __INLINE__ void __ALWAYS_INLINE__ cat3(EE_, lc, _set_IRQ_callback)(EE_ISR_callback cbk){ \
      EE_hal_gpio_set_IRQ_callback(& EE_ST_NAME(lc), cbk); }
 
+/* Interrupt handler */
 void EE_gpio_common_handler(int level);
+  
+#ifndef __STATIC_ISR_TABLE__
+__INLINE__ void __ALWAYS_INLINE__ EE_hal_gpio_handler_setup(EE_gpio_st* gpio_sp)
+{
+	/* Register IRQ handler */
+    EE_mico32_register_ISR(gpio_sp->irqf, EE_gpio_common_handler);   
+}
+#else // __STATIC_ISR_TABLE__
+#define EE_hal_gpio_handler_setup(gpio_sp)
+#endif // __STATIC_ISR_TABLE__
 
 __INLINE__ unsigned int __ALWAYS_INLINE__ EE_hal_gpio_read_data(MicoGPIO_t* base)
 {
@@ -300,7 +311,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_gpio_write_mask_edgeCapture(MicoGPIO_t 
 __INLINE__ void __ALWAYS_INLINE__ EE_hal_gpio_enable_IRQ(EE_gpio_st *gpio_sp, int irq_mode, unsigned int ch)
 {
     if(ch!=0 && irq_mode!=0) {
-        EE_mico32_register_ISR(gpio_sp->irqf, EE_gpio_common_handler);   
+        EE_hal_gpio_handler_setup(gpio_sp);
         mico32_enable_irq(gpio_sp->irqf);
     } else {
         mico32_disable_irq(gpio_sp->irqf);

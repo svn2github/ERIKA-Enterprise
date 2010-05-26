@@ -7,7 +7,6 @@
 */
 
 #include "mcu/mico32/inc/ee_gpio.h"
-#include <cpu/mico32/inc/ee_irq.h>		// to use ISR functions.
 
 
 /******************************************************************************/
@@ -33,6 +32,7 @@ DEFINE_STRUCT_GPIO(EE_GPIO4_NAME_UC, EE_GPIO4_NAME_LC)
 /******************************************************************************/
 /*                              ISRs                                          */
 /******************************************************************************/
+#ifdef __USE_GPIO_IRQ__
 void EE_gpio_common_handler(int level)
 {
     EE_gpio_st *gpio_sp = EE_get_gpio_st_from_level(level);
@@ -48,3 +48,4 @@ void EE_gpio_common_handler(int level)
 
     return;	
 }
+#endif

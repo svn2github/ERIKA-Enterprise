@@ -48,26 +48,45 @@ __INLINE__ int __ALWAYS_INLINE__  EE_lightsensor_read_buffer(EE_UINT8 address, E
 	
 DECLARE_FUNC_I2C_LIGHTSENSOR(CAMERA_I2C, camera_i2c)
 
+/*
+	API functions prototypes declaration
+*/
 __INLINE__ int __ALWAYS_INLINE__  EE_lightsensor_config(int baudrate, int settings);
 __INLINE__ int __ALWAYS_INLINE__  EE_lightsensor_powerup(void);
 __INLINE__ int __ALWAYS_INLINE__  EE_lightsensor_powerdown(void);
 
+/*
+	__INLINE__ int __ALWAYS_INLINE__  EE_lightsensor_config(int baudrate, int settings)
+	This function configures i2c port and turns on the device.
+*/
 __INLINE__ int __ALWAYS_INLINE__  EE_lightsensor_config(int baudrate, int settings)
 {
 	EE_lightsensor_i2c_config(baudrate, settings);
 	return EE_lightsensor_powerup();
 }
 
+/*
+	__INLINE__ int __ALWAYS_INLINE__  EE_lightsensor_powerup(void)
+	This function turns on the device.
+*/
 __INLINE__ int __ALWAYS_INLINE__  EE_lightsensor_powerup(void)
 {
 	return EE_lightsensor_write_byte(TLS2561_BYTE_COMMAND(TLS2561_REG_CONTROL), TLS2561_POWER_UP);
 }
 
+/*
+	__INLINE__ int __ALWAYS_INLINE__  EE_lightsensor_powerdown(void)
+	This function turns off the device.
+*/
 __INLINE__ int __ALWAYS_INLINE__  EE_lightsensor_powerdown(void)
 {
 	return EE_lightsensor_write_byte(TLS2561_BYTE_COMMAND(TLS2561_REG_CONTROL), TLS2561_POWER_DOWN);
 }
 
+/*
+	__INLINE__ int __ALWAYS_INLINE__  EE_lightsensor_read(void)
+	This function returns measured light value.
+*/
 __INLINE__ int __ALWAYS_INLINE__  EE_lightsensor_read(void)
 {
 	EE_UINT8 buf[2];

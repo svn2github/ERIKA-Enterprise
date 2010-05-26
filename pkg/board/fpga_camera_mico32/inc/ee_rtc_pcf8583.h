@@ -34,8 +34,6 @@ typedef struct {
 #define RTC_FREE_RAM_ADD        (0x11)
 
 
-
-
 /* RTC API: */
 
 #define rtc_i2c_name_lc rtc_i2c

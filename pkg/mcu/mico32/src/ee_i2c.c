@@ -7,7 +7,6 @@
 */
 
 #include "mcu/mico32/inc/ee_i2c.h"
-#include <cpu/mico32/inc/ee_irq.h>
 
 /******************************************************************************/
 /*                              Global Variables                              */
@@ -31,9 +30,7 @@ DEFINE_STRUCT_I2C(EE_I2C2_NAME_UC, EE_I2C2_NAME_LC)
 /******************************************************************************/
 /*                       Private Local Functions                              */
 /******************************************************************************/
-#ifdef __USE_I2C_IRQ__
-static int EE_hal_i2c_handler_setup(EE_i2c_st* i2csp);
-#endif //#ifdef __USE_I2C_IRQ__
+// ...
 
 /******************************************************************************/
 /*                              ISRs                                          */
@@ -377,7 +374,6 @@ int EE_hal_i2c_set_mode(OCI2CMDev_t* i2cc, int mode)
 }
 
 #else
-
 int EE_hal_i2c_config(EE_i2c_st* i2csp, int baudrate, int setttings)
 {
 	OCI2CMDev_t *i2cc = i2csp->base; 
@@ -386,8 +382,8 @@ int EE_hal_i2c_config(EE_i2c_st* i2csp, int baudrate, int setttings)
 	EE_hal_i2c_disable(i2cc);		 
 	/* disable interrupts */
 	EE_hal_i2c_disable_IRQ(i2cc);
-	/* Register IRQ handler */
-	EE_hal_i2c_handler_setup(i2csp);
+	///* Register IRQ handler */
+	//EE_hal_i2c_handler_setup(i2csp);
 	/* Load Prescaler LSB */                       
 	i2cc->PrescaleLo = ((MICO32_CPU_CLOCK_MHZ/(5*baudrate)-1));  
 	/* Load Prescaler MSB */                                  
@@ -447,14 +443,7 @@ int EE_hal_i2c_set_mode(EE_i2c_st* i2csp, int mode)
 	return ret;
 }
 
-/* This function records ISR handler */
-int EE_hal_i2c_handler_setup(EE_i2c_st* i2csp)
-{
-    /* Register IRQ handler */
-    EE_mico32_register_ISR(i2csp->irqf, EE_i2c_common_handler);	 
 
-	return EE_I2C_OK;
-}
 
 
 /* This function is used to set rx callback */
