@@ -24,8 +24,7 @@ CPU test_application {
    			};
    			
    			DEVICE = UART{						
-					NAME = "uart";	
-					OPTIONS = UART_IRQ_SUPPORT;											
+					NAME = "uart";											
 			};
 			
 			DEVICE = TIMER{						
@@ -38,7 +37,7 @@ CPU test_application {
 			};
 			
 			DEVICE = I2C{						
-					NAME = "rtc_i2c";	
+					NAME = "rtc_i2c";
 			};
   		};
     };
@@ -47,6 +46,12 @@ CPU test_application {
 		PRIORITY = 10;
 		STACK = SHARED;
 		SCHEDULE = FULL;
+	};
+	
+	ISR Timer {
+		CATEGORY = 2;
+		LEVEL = "TIMER_IRQ";
+		HANDLER = "EE_timer_common_handler";
 	};
 	
 	COUNTER myCounter;

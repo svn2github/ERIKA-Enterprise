@@ -38,13 +38,18 @@ CPU test_application {
 		BOARD_DATA = XP2_CAMERA_BOARD {
 			OPTIONS = TIMER;			
 			OPTIONS = TIMER_IRQ_SUPPORT;			
-			OPTIONS = RS232;				
-			OPTIONS = RS232_IRQ_SUPPORT;			
+			OPTIONS = RS232;							
 		};
     };
     
     OS EE { KERNEL_TYPE = FP; }; 	
     
+	ISR Timer {
+		CATEGORY = 2;
+		LEVEL = "TIMER_IRQ";
+		HANDLER = "EE_timer_common_handler";
+	};
+	
     /* ****************************************************************** */
 	/*                      Application TASKs                             */
 	/* ****************************************************************** */

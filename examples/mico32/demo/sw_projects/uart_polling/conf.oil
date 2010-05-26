@@ -41,6 +41,12 @@ CPU test_application {
 		SCHEDULE = FULL;
 	};
 	
+	ISR Timer {
+		CATEGORY = 2;
+		LEVEL = "TIMER_IRQ";
+		HANDLER = "EE_timer_common_handler";
+	};
+	
 	COUNTER myCounter;
 
  	ALARM myAlarm {

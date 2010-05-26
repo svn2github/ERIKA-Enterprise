@@ -9,8 +9,11 @@ CPU mySystem {
 		CFLAGS = "-g2";
 		ASFLAGS = "";
 		LDFLAGS = ""; 
-
+ 
+		// This demo needs the follwing string in the makefile to compile without errors:
 		// INCLUDE_PATH += $(MIRTES_BASE)/mirtes/inc/ $(MIRTES_BASE)/mirtes/
+		// MIRTES_BASE is an environment variable and its value is the path of MIRTES folder.
+		
 		CPU_DATA = LM32 {
 			/* basic files */
 			APP_SRC = "$(MIRTES_BASE)/mirtes/src/code_mico32.c";
@@ -61,15 +64,15 @@ CPU mySystem {
 					NAME = "camera_i2c";	
 			};
 			DEVICE = TIMER{						
-					NAME = "timer1";							
+					NAME = "timer1";
+					OPTIONS = TIMER_IRQ_SUPPORT;							
 			};
   		};
   		
 		BOARD_DATA = XP2_CAMERA_BOARD {
 			OPTIONS = TIMER;			
 			OPTIONS = TIMER_IRQ_SUPPORT;
-			OPTIONS = RS232;				
-			OPTIONS = RS232_IRQ_SUPPORT;				
+			OPTIONS = RS232;								
 			OPTIONS = ZIGBEE;			
 			OPTIONS = ZIGBEE_IRQ_SUPPORT;	
 		};
@@ -126,6 +129,32 @@ CPU mySystem {
 		EE_OPT = "MRF24J40_PROMISCUOUS_MODE";
 		EE_OPT = "MRF24J40_UWL_MODE";
 };
+	
+	/* ****************************************************************** */
+	/*                      ISR Handler setup                             */
+	/* ****************************************************************** */
+	
+	ISR Timer1 {
+		CATEGORY = 2;
+		LEVEL = "TIMER1_IRQ";
+		HANDLER = "EE_timer_common_handler";
+	};
+	
+	ISR Timer {
+		CATEGORY = 2;
+		LEVEL = "TIMER_IRQ";
+		HANDLER = "EE_timer_common_handler";
+	};
+	
+	ISR Gpio {
+		CATEGORY = 2;
+		LEVEL = "MISC_GPIO_IRQ";
+		HANDLER = "EE_mrf24j40_handler";
+	};
+	
+	/* ****************************************************************** */
+	/*                      Application TASKs                             */
+	/* ****************************************************************** */
 	
 	COUNTER myCounter;
 

@@ -33,8 +33,7 @@ CPU test_application {
 
 			OPTIONS = TIMER;				
 			OPTIONS = TIMER_IRQ_SUPPORT;			
-			OPTIONS = RS232;				
-			OPTIONS = RS232_IRQ_SUPPORT;			
+			OPTIONS = RS232;					
 			OPTIONS = ZIGBEE;			
 			OPTIONS = ZIGBEE_IRQ_SUPPORT;
 		};
@@ -80,6 +79,29 @@ CPU test_application {
 		EE_OPT = "UWL_DEBUG_LOG_HAS_PRINT";
 		
 	};
+	
+	/* ****************************************************************** */
+	/*                      ISR Handler setup                             */
+	/* ****************************************************************** */
+	
+	ISR Timer1 {
+		CATEGORY = 2;
+		LEVEL = "TIMER1_IRQ";
+		HANDLER = "EE_timer_common_handler";
+	};
+	
+	ISR Timer {
+		CATEGORY = 2;
+		LEVEL = "TIMER_IRQ";
+		HANDLER = "EE_timer_common_handler";
+	};
+	
+	ISR Gpio {
+		CATEGORY = 2;
+		LEVEL = "MISC_GPIO_IRQ";
+		HANDLER = "EE_mrf24j40_handler";
+	};
+	
 	
 	/* ****************************************************************** */
 	/*                      Application TASKs                             */
