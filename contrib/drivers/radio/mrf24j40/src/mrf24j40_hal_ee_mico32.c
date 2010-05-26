@@ -38,15 +38,6 @@ void EE_mrf24j40_handler(int level)
 
 /* ---------------------- Ethernet Library functions ------------------------- */
 
-/* This function records ISR handler */
-int EE_hal_mrf24j40_handler_setup(void)
-{
-    /* Register IRQ handler */
-    EE_mico32_register_ISR(ee_mrf24j40_st.irqf, EE_mrf24j40_handler);	 
-
-	return MRF24J40_SUCCESS;
-}
-
 int EE_hal_mrf24j40_set_ISR_mode(int mode)
 {
 	int old_mode;

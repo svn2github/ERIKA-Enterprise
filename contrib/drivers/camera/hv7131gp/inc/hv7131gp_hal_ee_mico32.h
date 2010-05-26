@@ -34,7 +34,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <cpu/mico32/inc/ee_irq.h>
 /* Other used libraries: */
 #include <mcu/mico32/inc/ee_i2c.h>
-#ifdef __USE_CAMERA_HV7131GP__
+
+#ifdef __XP2_CAMERA_BOARD__
 #include <board/fpga_camera_mico32/inc/ee_camera_hv7131gp.h>
 #endif
 
@@ -326,6 +327,16 @@ __INLINE__ int __ALWAYS_INLINE__ EE_hv7131gp_get_Y_average(void)
     return EE_hv7131gp_i2c_read_byte(HV7131GP_REG_YFMEAN);
 }
 
+void EE_hv7131gp_handler(int level);
+#ifndef __STATIC_ISR_TABLE__
+__INLINE__ void __ALWAYS_INLINE__ EE_hal_hv7131gp_hanlder_setup(int irqf)
+{
+	/* Register IRQ handler */
+    EE_mico32_register_ISR(irqf, EE_hv7131gp_handler);
+}
+#else // __STATIC_ISR_TABLE__
+#define EE_hal_hv7131gp_hanlder_setup(irqf)
+#endif // __STATIC_ISR_TABLE__
 
 /******************************************************************************/
 /*                           Hardware Abstraction Layer                       */

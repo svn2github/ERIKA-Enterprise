@@ -9,12 +9,6 @@
 #ifndef __mrf24j40_hal_ee_mico32_h__
 #define __mrf24j40_hal_ee_mico32_h__
 
-#ifdef __USE_ZIGBEE_MRF24J40__
-#include "board/fpga_camera_mico32/inc/ee_zigbee_mrf24j40.h"
-#else	/* NO board */
-#error "MRF24J40_HAL: No board selected!"
-#endif	//#ifdef __USE_ZIGBEE_MRF24J40__
-
 #include "cpu/mico32/inc/ee_internal.h"
 #include "mcu/mico32/inc/ee_internal.h"
 #include "board/fpga_camera_mico32/inc/ee_internal.h"
@@ -22,6 +16,12 @@
 #include "mcu/mico32/inc/ee_spi.h"
 #include "mcu/mico32/inc/ee_gpio.h"
 #include "MicoUtils.h"
+
+#ifdef __XP2_CAMERA_BOARD__
+#include "board/fpga_camera_mico32/inc/ee_zigbee_mrf24j40.h"
+#else	/* NO board */
+#error "MRF24J40_HAL: No board selected!"
+#endif	//#ifdef __XP2_CAMERA_BOARD__
 
 #ifndef __USE_SPI__
 #error "MRF24J40 HAL EE : The SPI module is required!"
@@ -276,81 +276,191 @@ __INLINE__ int __ALWAYS_INLINE__ EE_mrf24j40_config(void)
 	EE_mrf24j40_init();		// init pins and disable gpio interrupt source.
 	EE_mrf24j40_enable();	// set _reset_ pin to turn on the mrf24j40 device.
 	EE_mrf24j40_spi_config(0, EE_SPI_POLLING | EE_SPI_RXTX_BLOCK);
-
-	return EE_mrf24j40_set_ISR_mode(EE_MRF24J40_RXTX_ISR); //(EE_MRF24J40_POLLING | EE_MRF24J40_RXTX_BLOCK); 
+	
+	#ifdef __USE_ZIGBEE_IRQ__
+	return EE_mrf24j40_set_ISR_mode(EE_MRF24J40_RXTX_ISR); 
+	#else // __USE_ZIGBEE_IRQ__
+	return EE_mrf24j40_set_ISR_mode(EE_MRF24J40_POLLING | EE_MRF24J40_RXTX_BLOCK);
+	#endif // __USE_ZIGBEE_IRQ__
 } 
 
+/*
+	void EE_mrf24j40_handler(int level);
+	MRF24J40 driver ISR handler. 
+*/
 void EE_mrf24j40_handler(int level);
 
+#ifndef __STATIC_ISR_TABLE__
+/* This function records ISR handler */
+__INLINE__ void __ALWAYS_INLINE__ EE_hal_mrf24j40_handler_setup(void)
+{
+    /* Register IRQ handler */
+    EE_mico32_register_ISR(ee_mrf24j40_st.irqf, EE_mrf24j40_handler);	 
+}
+#else // __STATIC_ISR_TABLE__
+#define EE_hal_mrf24j40_handler_setup()
+#endif // __STATIC_ISR_TABLE__
 
+
+/*
+	Functions used by UWL
+*/
+
+/*
+	void mrf24j40_set_rx_callback(void (*func)(void));
+	This function sets the rx callback.
+*/
 void mrf24j40_set_rx_callback(void (*func)(void));
+
+/*
+	void mrf24j40_set_tx_finished_callback(void (*tx_finished_func)(uint8_t tx_status));
+	This function sets the tx finished callback.
+*/
 void mrf24j40_set_tx_finished_callback(void (*tx_finished_func)(uint8_t tx_status));
+
+/*
+	Driver internal callback. It's called by the true handler. 
+	Note, it is not the registered handler function. 
+*/
 ISR2(MRF24J40_INTERRUPT_NAME);
+
+/*
+	int8_t	mrf24j40_hal_init(void);
+	This function calls the function EE_mrf24j40_init();
+*/
 int8_t	mrf24j40_hal_init(void);
+
+/*
+	int8_t	mrf24j40_hal_spi_init(uint8_t port);
+	This function initializes spi port.
+*/
 int8_t	mrf24j40_hal_spi_init(uint8_t port);
+
+/*
+	int8_t	mrf24j40_hal_spi_close(void);
+	This function closes spi port
+*/
 int8_t	mrf24j40_hal_spi_close(void);
+
+/*
+	int8_t	mrf24j40_hal_spi_write(uint8_t *data, uint16_t len);
+	This function is used to write on the spi bus.
+*/
 int8_t	mrf24j40_hal_spi_write(uint8_t *data, uint16_t len);
+
+/*
+	int8_t	mrf24j40_hal_spi_read(uint8_t *data, uint16_t len);
+	This function is used to read on the spi bus.
+*/
 int8_t	mrf24j40_hal_spi_read(uint8_t *data, uint16_t len);
 
+/*
+	COMPILER_INLINE void mrf24j40_hal_delay_us(uint16_t delay_count)
+	This function implements a delay.
+*/
 COMPILER_INLINE void mrf24j40_hal_delay_us(uint16_t delay_count)
 {
 	MicoSleepMicroSecs((unsigned int)delay_count);
 }
 
+/*
+	COMPILER_INLINE void mrf24j40_hal_retsetn_high(void)
+	This function is used to release reset condition.
+*/
 COMPILER_INLINE void mrf24j40_hal_retsetn_high(void)
 {
 	EE_mrf24j40_release_reset();
 }
 
+/*
+	COMPILER_INLINE void mrf24j40_hal_retsetn_low(void)
+	This function is used to hold reset condition.
+*/
 COMPILER_INLINE void mrf24j40_hal_retsetn_low(void)
 {
 	EE_mrf24j40_hold_in_reset();
 }
 
+/*
+	COMPILER_INLINE void mrf24j40_hal_csn_high(void)
+	This function is used to release CSN signal.
+*/
 COMPILER_INLINE void mrf24j40_hal_csn_high(void)
 {
 	EE_mrf24j40_spi_clear_SSO();
 }
 
+/*
+	COMPILER_INLINE void mrf24j40_hal_csn_low(void)
+	This function is used to select the slave and configure CSN pin.
+*/
 COMPILER_INLINE void mrf24j40_hal_csn_low(void)
 {
 	EE_mrf24j40_spi_set_slave(EE_MRF24J40_DEVICE_ID);	
 	EE_mrf24j40_spi_set_SSO(); // ss is low when transmission begins...
 }
 
+/*
+	COMPILER_INLINE void mrf24j40_hal_irq_clean(void)
+	This function is void. Kept for compatibility.
+*/
 COMPILER_INLINE void mrf24j40_hal_irq_clean(void)
 {
 	return;
 }
 
+/*
+	COMPILER_INLINE void mrf24j40_hal_irq_enable(void)
+	This function calls EE_mico32_enableIRQ().
+*/
 COMPILER_INLINE void mrf24j40_hal_irq_enable(void)
 {
 	EE_mico32_enableIRQ(); //EE_mrf24j40_enable_IRQ();
 }
 
+/*
+	COMPILER_INLINE void mrf24j40_hal_irq_disable(void)
+	This function calls EE_mico32_disableIRQ().
+*/
 COMPILER_INLINE void mrf24j40_hal_irq_disable(void)
 {
 	EE_mico32_disableIRQ(); //EE_mrf24j40_disable_IRQ();
 }
 
+/*
+	COMPILER_INLINE uint8_t mrf24j40_hal_irq_status(void)
+	Thsi function calls EE_mico32_get_IRQ_enabled().
+*/
 COMPILER_INLINE uint8_t mrf24j40_hal_irq_status(void)
 {
 	return EE_mico32_get_IRQ_enabled(); 
 }
 
+/*
+	COMPILER_INLINE uint8_t mrf24j40_hal_int_enable(void)
+	This function is used to register the handler and enable IRQ. 
+*/
 COMPILER_INLINE uint8_t mrf24j40_hal_int_enable(void)
 {
-	mico32_clear_ip_mask(1<<EE_MRF24J40_IRQ); // clear bit in ip register
-	EE_mico32_register_ISR(ee_mrf24j40_st.irqf, EE_mrf24j40_handler);	
+	mico32_clear_ip_mask(1<<EE_MRF24J40_IRQ); 	// clear bit in ip register
+	EE_hal_mrf24j40_handler_setup(); 			//EE_mico32_register_ISR(ee_mrf24j40_st.irqf, EE_mrf24j40_handler);	
 	mico32_enable_irq(ee_mrf24j40_st.irqf);
-	return EE_mrf24j40_enable_IRQ();	 //EE_mrf24j40_set_ISR_mode(EE_MRF24J40_RXTX_ISR); //(EE_MRF24J40_RXTX_ISR); //(EE_MRF24J40_POLLING | EE_MRF24J40_RXTX_BLOCK);;
+	return EE_mrf24j40_enable_IRQ();	 		//EE_mrf24j40_set_ISR_mode(EE_MRF24J40_RXTX_ISR); //(EE_MRF24J40_RXTX_ISR); //(EE_MRF24J40_POLLING | EE_MRF24J40_RXTX_BLOCK);;
 }
 
+/*
+	COMPILER_INLINE uint8_t mrf24j40_hal_int_disable(void)
+	This function calls EE_mrf24j40_disable_IRQ().
+*/
 COMPILER_INLINE uint8_t mrf24j40_hal_int_disable(void)
 {
 	return EE_mrf24j40_disable_IRQ();
 }
 
+/*
+	CCOMPILER_INLINE uint8_t mrf24j40_hal_int_status(void)
+	This function calls EE_mrf24j40_IRQ_enabled().
+*/
 COMPILER_INLINE uint8_t mrf24j40_hal_int_status(void)
 {
 	return EE_mrf24j40_IRQ_enabled();

@@ -107,8 +107,8 @@ void EE_hv7131gp_ISR_init(MicoCamera_t* cam, int irqf)
     Mico_camera_reset(cam);
     
     /* Interrupt configuration */
-    EE_mico32_register_ISR(irqf, EE_hv7131gp_handler);
-    mico32_enable_irq(irqf);
+    EE_hal_hv7131gp_hanlder_setup(irqf);
+	mico32_enable_irq(irqf);
     EE_camera_enable_IRQ();
 }
 
