@@ -54,6 +54,8 @@
 
 __start:
 	bl	mmu_setup
+	bl	sram_setup
+	bl	pll_setup
 
 	lis	r8, _stack0@ha		/* setup the stack pointer */
 	addi	sp, r8, _stack0@l
@@ -106,6 +108,8 @@ __start:
 	lis	r2, _SDA2_BASE_@ha	/* load .sdata2 base into r2 */
 	addi	r2, r2, _SDA_BASE_@l
 
+	bl	flash_setup		/* reduce flash wait states */
+
 	bl	cpu_setup		/* cpu-specific initialization */
 	bl	mcu_setup		/* mcu-specific initialization */
 	bl	main			/* jump to application code */
@@ -113,6 +117,115 @@ __start:
 	wrteei	0
 1:
 	b	1b
+
+#define RAM_BASE	0x40000000
+#define RAM_WORDS	0x00010000
+
+sram_setup:
+#ifndef __E200Z7_EXECUTE_FROM_RAM__
+	addis	r8, 0, RAM_BASE@ha
+	addi	r8, r8, RAM_BASE@l
+	addis	r9, 0, RAM_WORDS@ha
+	addi	r9, r9, RAM_WORDS@l
+	mtctr	r9
+
+1:
+	stw	r0, (r8)
+	addi	r8, r8,  4
+	bdnz	1b
+#endif
+
+	blr
+
+#define FMPLL_BASE		0xc3f80000
+#define FMPLL_ESYNSR		0xc3f80004
+#define FMPLL_ESYNCR1		0xc3f80008
+#define FMPLL_ESYNCR2		0xc3f8000c
+
+#ifdef F200MHZ
+#define FMPLL_ESYNCR1_VAL0	0x00050022
+#define FMPLL_ESYNCR2_VAL0	0x00000003
+#define FMPLL_ESYNCR1_VAL1	0x70050022
+#define FMPLL_ESYNCR2_VAL1	0x00000001
+#else
+#define FMPLL_ESYNCR1_VAL0	0x00050022
+#define FMPLL_ESYNCR2_VAL0	0x00000003
+#define FMPLL_ESYNCR1_VAL1	0x70050022
+#define FMPLL_ESYNCR2_VAL1	0x00000003
+#endif
+
+pll_setup:
+	addis	r8, 0, FMPLL_BASE@ha
+
+	/* setup PLL to 200Mhz */
+
+	addis	r9, 0, FMPLL_ESYNCR2_VAL0@h
+	addi	r9, r9, FMPLL_ESYNCR2_VAL0@l
+	stw	r9, FMPLL_ESYNCR2@l(r8)
+	msync
+
+	addis   r9,0, FMPLL_ESYNCR1_VAL0@h
+	addi	r9, r9, FMPLL_ESYNCR1_VAL0@l
+	stw	r9, FMPLL_ESYNCR1@l(r8)
+	msync
+
+	addis	r9, 0, FMPLL_ESYNCR1_VAL1@h
+	addi	r9, r9, FMPLL_ESYNCR1_VAL1@l
+	stw	r9, FMPLL_ESYNCR1@l(r8)
+	msync
+
+1:
+	/* wait for PLL to lock */
+	addis   r9, 0, 0
+	addi	r9, r9, 48000
+	mtctr	r9
+
+	/* load the lock bitmask in r9 */
+	addis   r9, 0, 0
+	addi	r9, r9, 8
+
+2:
+	bdnz	3f
+
+	/* timed out: should reset or do something smarter... */
+	b	1b
+
+3:
+	lwz	r10, FMPLL_ESYNSR@l(r8)
+	and.	r11, r9, r10
+	bne	2b
+
+	/* locked: return */
+	addis   r9, 0, FMPLL_ESYNCR2_VAL1@h
+	addi	r9, r9, FMPLL_ESYNCR2_VAL1@l
+	stw	r9, FMPLL_ESYNCR2@l(r8)
+	msync
+
+	blr
+
+#define	FLASH_BIUCR	0
+#define FLASH_CFG	0
+
+flash_setup:
+#ifndef __E200Z7_EXECUTE_FROM_RAM__
+	mfspr	r10, lr
+#ifdef notyet
+	bl	sram_code
+#endif
+	mtspr	lr, r10
+	blr
+
+	.section ".sram_text"
+sram_code:
+	addis	r8, 0, FLASH_BIUCR@ha
+	addis	r9, 0, FLASH_CFG@ha
+	addi	r9, r9, FLASH_CFG@l
+
+	stw	r9, FLASH_BIUCR@l(r8)
+
+	isync
+#endif
+	blr
 
 	.section ".stack"
 	.align 4
