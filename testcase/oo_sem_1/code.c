@@ -130,6 +130,22 @@ void ErrorHook(StatusType Error)
 	}
 #endif
 
+#if defined(__PPCE200Z7__)
+	#include "cpu/e200z7/inc/ee_irq.h"
+	/* call the ERIKA Enterprise tick function for the Counter1 counter! */
+	static void handle_timer_interrupt(void)
+	{
+  		StatusType s;
+  		/* clear the interrupt */
+  
+  		/* WaitSem chiamata a livello IRQ --> E_OS_CALLEVEL */
+  		s = WaitSem(&mySem);
+  		EE_assert(2, (s==E_OS_CALLEVEL), 1);
+  
+  		wecanstart=1;
+	}
+#endif
+
 void StartupHook(void)
 {
 	#if defined(__NIOS2__)	
@@ -144,6 +160,10 @@ void StartupHook(void)
   	#if defined(__HCS12XS__)
   		EE_pit0_init(99, 140, 2);
 	#endif
+	#if defined(__PPCE200Z7__)
+		EE_e200z7_register_ISR(10, handle_timer_interrupt, 0);
+		EE_e200z7_setup_decrementer(2000000);
+	#endif
 }
 
 
@@ -154,6 +174,9 @@ int main(void)
   
   	#if defined(__HCS12XS__)
    	_asm("cli");
+	#endif
+	#if defined(__PPCE200Z7__)
+	EnableAllInterrupts();
 	#endif
   
   EE_assert(1, TRUE, EE_ASSERT_NIL);

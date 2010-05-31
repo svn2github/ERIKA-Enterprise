@@ -111,10 +111,15 @@ RTDRUID_e200z7_source = \
 COMPILE_e200z7_source = +if $$(MAKE) $(PARAMETERS) NODEPS=1 -C $$(OUTDIR_PREFIX)$(1)/Debug &>$$(OUTDIR_PREFIX)$(1)/compile.log; then echo OK $$(EXPERIMENT) $$(OUTDIR_PREFIX)$(1) >>$$(TMPDIR)/ok.log; else echo ERROR $$(EXPERIMENT) $$(OUTDIR_PREFIX)$(1) >>$$(TMPDIR)/errors.log; fi
 
 DEBUG_e200z7_source = \
-	cp e200z7/testcase.cmd $$(OUTDIR_PREFIX)$(1); \
+	@cp e200z7/t32.cmm $$(OUTDIR_PREFIX)$(1); \
 	$$(LOCKFILE) $$(FILE_LOCK); \
-		echo "                                     " >> $$(TMPDIR)/e200z7_jobs.cmd; \
-		echo "cd $$(OUTDIR_PREFIX)$(1)" >> $$(TMPDIR)/e200z7_jobs.cmd; \
-		echo "cf testcase.cmd                      " >> $$(TMPDIR)/e200z7_jobs.cmd; \
-		cp -u e200z7/e200z7.cmd $$(TMPDIR)/e200z7.cmd; \
-	rm -f $$(FILE_LOCK); \
+		echo chdir $$(OUTDIR_PREFIX)$(1) >> $$(TMPDIR)/t32_jobs.cmm; \
+		echo "write \#1 \"$$(OUTDIR_PREFIX)$(1)\"" >> $$(TMPDIR)/t32_jobs.cmm; \
+		echo area.select Messages >> $$(TMPDIR)/t32_jobs.cmm; \
+		echo print >> $$(TMPDIR)/t32_jobs.cmm; \
+		echo print \"$$(OUTDIR_PREFIX)$(1)\" >> $$(TMPDIR)/t32_jobs.cmm; \
+		echo area.select A000 >> $$(TMPDIR)/t32_jobs.cmm; \
+		echo do t32.cmm >> $$(TMPDIR)/t32_jobs.cmm; \
+		cp -u e200z7/t32_quit.cmm $$(TMPDIR)/t32.cmm; \
+	rm -f $$(FILE_LOCK);
+

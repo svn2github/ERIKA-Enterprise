@@ -45,6 +45,10 @@
 #include "mcu/samsung_ks32c50100/inc/ee_ic.h"
 #endif
 
+#ifdef __PPCE200Z7__
+#include "cpu/e200z7/inc/ee_irq.h"
+#endif
+
 #define TRUE 1
 #define FALSE 0
 
@@ -212,6 +216,11 @@ int main(int argc, char **argv)
 
   EE_pit0_init(99, 140, 2);
 
+#endif
+
+#if defined(__PPCE200Z7__)
+  EE_e200z7_register_ISR(10, myISR2, 0);
+  EE_e200z7_setup_decrementer(3000000);
 #endif
 
   StartOS(OSDEFAULTAPPMODE);

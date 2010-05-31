@@ -224,6 +224,37 @@ static void handle_timer_interrupt(void* context, alt_u32 id)
 	}
 #endif
 
+#if defined(__PPCE200Z7__)
+#include "cpu/e200z7/inc/ee_irq.h"
+static void handle_timer_interrupt(void)
+{
+  StatusType s;
+
+  if (irqStatus==1) {
+    /* SemPost chiamato in un IRQ con contatore =0 e qualcuno bloccato 
+     * --> sblocco un task e il task sbloccato va in coda ready, no preemption, 
+     * preemption alla fine dell'ISR */
+    EE_assert(6, TRUE, 5);
+    s = PostSem(&mySem);
+    EE_assert(7, (s==E_OK), 6);
+    BasTask_cancontinue = 1;
+    irqStatus = 0;
+  }
+  
+  if (irqStatus==2) {
+    /*  SemPost chiamato in un IRQ con contatore =0 e qualcuno bloccato 
+     * --> sblocco un task e il task sbloccato va in coda ready, no preemption, 
+     * no preemption alla fine dell'ISR */
+    EE_assert(17, TRUE, 16);
+    s = PostSem(&mySem);
+    EE_assert(18, (s==E_OK), 17);
+    BasTaskLow_cancontinue = 1;
+    irqStatus = 0;
+  }
+  
+}
+#endif
+
 
 void StartupHook(void)
 {
@@ -240,6 +271,10 @@ void StartupHook(void)
   	#if defined(__HCS12XS__)
   		EE_pit0_init(99, 140, 2);
 	#endif
+	#if defined(__PPCE200Z7__)
+		EE_e200z7_register_ISR(10, handle_timer_interrupt, 0);
+		EE_e200z7_setup_decrementer(2000000);		
+	#endif
 }
 
 
@@ -251,6 +286,9 @@ int main(void)
 
 	#if defined(__HCS12XS__)
    	_asm("cli");
+	#endif
+	#if defined(__PPCE200Z7__)
+	EnableAllInterrupts();
 	#endif
 
   EE_assert(1, TRUE, EE_ASSERT_NIL);

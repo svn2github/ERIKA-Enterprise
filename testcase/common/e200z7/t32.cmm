@@ -39,6 +39,7 @@ if (data.byte(EE_assertions)==0x1)
   print "OK!!!"
   print
   AREA.Select A000
+  write #1 "Test OK"
   enddo
 )
 else
@@ -51,4 +52,5 @@ else
   print "----------------------------------------"
   print
   AREA.Select A000
+  write #1 "Test Failed"
 )

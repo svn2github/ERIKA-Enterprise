@@ -40,6 +40,8 @@
 
 #ifdef e200z7
 
+EE_OPT = "__E200Z7_EXECUTE_FROM_RAM__";
+
 CPU_DATA = MPC5674F {
   APP_SRC = "code.c";
   //  APP_SRC = "T1.S"; should we put this file?

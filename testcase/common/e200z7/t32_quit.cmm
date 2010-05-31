@@ -5,6 +5,8 @@ area
 area.create Messages
 area.view Messages
 
+open #1 report.log /Create
+
 do t32_jobs.cmm
 
 area.select Messages
@@ -17,3 +19,5 @@ print "-------------------------------------------------------"
 print "-------------------------------------------------------"
 area.select A000
 
+write #1 "Done."
+close #1

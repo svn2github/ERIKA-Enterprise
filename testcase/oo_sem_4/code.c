@@ -185,6 +185,33 @@ static void handle_timer_interrupt(void* context, alt_u32 id)
 	}
 #endif
 
+#if defined(__PPCE200Z7__)
+#include "cpu/e200z7/inc/ee_irq.h"
+static void handle_timer_interrupt(void)
+{
+  StatusType s;
+  unsigned int v;
+  
+  /* SemPost chiamato in un ISR con contatore >=0 e nessuno bloccato 
+   * --> contatore incrementato */
+  s = PostSem(&mySem);
+  EE_assert(2, (s==E_OK), 1);
+  
+  v = GetValueSem(&mySem);
+  EE_assert(3, (v == 1), 2);
+ 
+  /* SemPost chiamato in un ISR con contatore =EE_MAX_SEM_COUNTER 
+   * e nessuno bloccato --> E_OS_VALUE */
+  s = PostSem(&mySemMax);
+  EE_assert(4, (s==E_OS_VALUE), 3);
+  
+  v = GetValueSem(&mySemMax);
+  EE_assert(5, (v = EE_MAX_SEM_COUNTER), 4);
+
+  wecanstart=1;
+}
+#endif
+
 void StartupHook(void)
 {
 	
@@ -202,6 +229,10 @@ void StartupHook(void)
   	#if defined(__HCS12XS__)
   		EE_pit0_init(99, 140, 2);
 	#endif 
+	#if defined(__PPCE200Z7__)
+		EE_e200z7_register_ISR(10, handle_timer_interrupt, 0);
+		EE_e200z7_setup_decrementer(2000000);
+	#endif
 }
 
 
@@ -214,6 +245,9 @@ int main(void)
   
 	#if defined(__HCS12XS__)
    	_asm("cli");
+	#endif
+	#if defined(__PPCE200Z7__)
+	EnableAllInterrupts();
 	#endif
 
   EE_assert(1, TRUE, EE_ASSERT_NIL);
