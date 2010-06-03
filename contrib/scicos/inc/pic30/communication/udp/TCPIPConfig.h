@@ -158,30 +158,30 @@
 #define MY_DEFAULT_MAC_BYTE5            (0x00)	// factory programmed MAC
 #define MY_DEFAULT_MAC_BYTE6            (0x00)	// address instead.
 
-#define MY_DEFAULT_IP_ADDR_BYTE1        (192ul)
-#define MY_DEFAULT_IP_ADDR_BYTE2        (168ul)
-#define MY_DEFAULT_IP_ADDR_BYTE3        (0ul)
-#define MY_DEFAULT_IP_ADDR_BYTE4        (2ul)
+extern unsigned long int MY_DEFAULT_IP_ADDR_BYTE1;	// #define MY_DEFAULT_IP_ADDR_BYTE1        (192ul)
+extern unsigned long int MY_DEFAULT_IP_ADDR_BYTE2;	// #define MY_DEFAULT_IP_ADDR_BYTE2        (168ul)
+extern unsigned long int MY_DEFAULT_IP_ADDR_BYTE3; 	// #define MY_DEFAULT_IP_ADDR_BYTE3        (0ul)
+extern unsigned long int MY_DEFAULT_IP_ADDR_BYTE4; 	// #define MY_DEFAULT_IP_ADDR_BYTE4        (2ul)
 
-#define MY_DEFAULT_MASK_BYTE1           (255ul)
-#define MY_DEFAULT_MASK_BYTE2           (255ul)
-#define MY_DEFAULT_MASK_BYTE3           (255ul)
-#define MY_DEFAULT_MASK_BYTE4           (0ul)
+extern unsigned long int MY_DEFAULT_MASK_BYTE1;		// #define MY_DEFAULT_MASK_BYTE1           (255ul)
+extern unsigned long int MY_DEFAULT_MASK_BYTE2;		// #define MY_DEFAULT_MASK_BYTE2           (255ul)
+extern unsigned long int MY_DEFAULT_MASK_BYTE3; 		// #define MY_DEFAULT_MASK_BYTE3           (255ul)
+extern unsigned long int MY_DEFAULT_MASK_BYTE4;		// #define MY_DEFAULT_MASK_BYTE4           (0ul)
 
-#define MY_DEFAULT_GATE_BYTE1           (192ul)
-#define MY_DEFAULT_GATE_BYTE2           (168ul)
-#define MY_DEFAULT_GATE_BYTE3           (0ul)
-#define MY_DEFAULT_GATE_BYTE4           (1ul)
+extern unsigned long int MY_DEFAULT_GATE_BYTE1; 		// #define MY_DEFAULT_GATE_BYTE1           (192ul)
+extern unsigned long int MY_DEFAULT_GATE_BYTE2;		// #define MY_DEFAULT_GATE_BYTE2           (168ul)
+extern unsigned long int MY_DEFAULT_GATE_BYTE3;		// #define MY_DEFAULT_GATE_BYTE3           (0ul)
+extern unsigned long int MY_DEFAULT_GATE_BYTE4;		// #define MY_DEFAULT_GATE_BYTE4           (1ul)
 
-#define MY_DEFAULT_PRIMARY_DNS_BYTE1	(192ul)
-#define MY_DEFAULT_PRIMARY_DNS_BYTE2	(168ul)
-#define MY_DEFAULT_PRIMARY_DNS_BYTE3	(0ul)
-#define MY_DEFAULT_PRIMARY_DNS_BYTE4	(1ul)
+extern unsigned long int MY_DEFAULT_PRIMARY_DNS_BYTE1;	// #define MY_DEFAULT_PRIMARY_DNS_BYTE1	(192ul)
+extern unsigned long int MY_DEFAULT_PRIMARY_DNS_BYTE2;	// #define MY_DEFAULT_PRIMARY_DNS_BYTE2	(168ul)
+extern unsigned long int MY_DEFAULT_PRIMARY_DNS_BYTE3;	// #define MY_DEFAULT_PRIMARY_DNS_BYTE3	(0ul)
+extern unsigned long int MY_DEFAULT_PRIMARY_DNS_BYTE4;	// #define MY_DEFAULT_PRIMARY_DNS_BYTE4	(1ul)
 
-#define MY_DEFAULT_SECONDARY_DNS_BYTE1	(0ul)
-#define MY_DEFAULT_SECONDARY_DNS_BYTE2	(0ul)
-#define MY_DEFAULT_SECONDARY_DNS_BYTE3	(0ul)
-#define MY_DEFAULT_SECONDARY_DNS_BYTE4	(0ul)
+extern unsigned long int MY_DEFAULT_SECONDARY_DNS_BYTE1;	// #define MY_DEFAULT_SECONDARY_DNS_BYTE1	(0ul)
+extern unsigned long int MY_DEFAULT_SECONDARY_DNS_BYTE2;	// #define MY_DEFAULT_SECONDARY_DNS_BYTE2	(0ul)
+extern unsigned long int MY_DEFAULT_SECONDARY_DNS_BYTE3;	// #define MY_DEFAULT_SECONDARY_DNS_BYTE3	(0ul)
+extern unsigned long int MY_DEFAULT_SECONDARY_DNS_BYTE4;	// #define MY_DEFAULT_SECONDARY_DNS_BYTE4	(0ul)
 
 
 // =======================================================================

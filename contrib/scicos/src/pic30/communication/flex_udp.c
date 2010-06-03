@@ -20,11 +20,37 @@
 /******************************************************************************/
 volatile unsigned long int UDP_flex_port = 9760;		// FLEX SERVER PORT NUMBER
 volatile unsigned long int UDP_pc_port = 9761;			// PC SERVER PORT NUMBER
-volatile unsigned char UDP_is_initialized = 0;		// udp initialization flag
+volatile unsigned char UDP_is_initialized = 0;			// udp initialization flag
 NODE_INFO UDP_remote;
 UDP_buffer UDP_rx_buffer;
 UDP_buffer UDP_tx_buffer;
+BYTE scicosUDP_rx_buffer[UDP_PKG_LEN];					// buffer for UDP reception
+BYTE scicosUDP_tx_buffer[UDP_PKG_LEN];					// buffer for UDP transmission
 
+unsigned long int MY_DEFAULT_IP_ADDR_BYTE1;	// #define MY_DEFAULT_IP_ADDR_BYTE1        (192ul)
+unsigned long int MY_DEFAULT_IP_ADDR_BYTE2;	// #define MY_DEFAULT_IP_ADDR_BYTE2        (168ul)
+unsigned long int MY_DEFAULT_IP_ADDR_BYTE3; 	// #define MY_DEFAULT_IP_ADDR_BYTE3        (0ul)
+unsigned long int MY_DEFAULT_IP_ADDR_BYTE4; 	// #define MY_DEFAULT_IP_ADDR_BYTE4        (2ul)
+
+unsigned long int MY_DEFAULT_MASK_BYTE1;		// #define MY_DEFAULT_MASK_BYTE1           (255ul)
+unsigned long int MY_DEFAULT_MASK_BYTE2;		// #define MY_DEFAULT_MASK_BYTE2           (255ul)
+unsigned long int MY_DEFAULT_MASK_BYTE3; 		// #define MY_DEFAULT_MASK_BYTE3           (255ul)
+unsigned long int MY_DEFAULT_MASK_BYTE4;		// #define MY_DEFAULT_MASK_BYTE4           (0ul)
+
+unsigned long int MY_DEFAULT_GATE_BYTE1; 		// #define MY_DEFAULT_GATE_BYTE1           (192ul)
+unsigned long int MY_DEFAULT_GATE_BYTE2;		// #define MY_DEFAULT_GATE_BYTE2           (168ul)
+unsigned long int MY_DEFAULT_GATE_BYTE3;		// #define MY_DEFAULT_GATE_BYTE3           (0ul)
+unsigned long int MY_DEFAULT_GATE_BYTE4;		// #define MY_DEFAULT_GATE_BYTE4           (1ul)
+
+unsigned long int MY_DEFAULT_PRIMARY_DNS_BYTE1;	// #define MY_DEFAULT_PRIMARY_DNS_BYTE1	(192ul)
+unsigned long int MY_DEFAULT_PRIMARY_DNS_BYTE2;	// #define MY_DEFAULT_PRIMARY_DNS_BYTE2	(168ul)
+unsigned long int MY_DEFAULT_PRIMARY_DNS_BYTE3;	// #define MY_DEFAULT_PRIMARY_DNS_BYTE3	(0ul)
+unsigned long int MY_DEFAULT_PRIMARY_DNS_BYTE4;	// #define MY_DEFAULT_PRIMARY_DNS_BYTE4	(1ul)
+
+unsigned long int MY_DEFAULT_SECONDARY_DNS_BYTE1;	// #define MY_DEFAULT_SECONDARY_DNS_BYTE1	(0ul)
+unsigned long int MY_DEFAULT_SECONDARY_DNS_BYTE2;	// #define MY_DEFAULT_SECONDARY_DNS_BYTE2	(0ul)
+unsigned long int MY_DEFAULT_SECONDARY_DNS_BYTE3;	// #define MY_DEFAULT_SECONDARY_DNS_BYTE3	(0ul)
+unsigned long int MY_DEFAULT_SECONDARY_DNS_BYTE4;	// #define MY_DEFAULT_SECONDARY_DNS_BYTE4	(0ul)
 
 // Declare AppConfig structure and some other supporting stack variables
 APP_CONFIG AppConfig;

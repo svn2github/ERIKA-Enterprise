@@ -46,15 +46,10 @@ typedef struct {
     int irqf;							// GPIO irq flag to register the handler
     EE_ISR_callback rxcbk;				// rx callback
     EE_ISR_callback txcbk;				// tx callback
-    EE_buffer rxbuf;					// rx buffer used in isr mode
-    EE_buffer txbuf;					// tx buffer used in isr mode
 } EE_mrf24j40_st;
 
 /* ZIGBEE driver functions list */
 extern EE_mrf24j40_st ee_mrf24j40_st;
-
-/* Callback function called by ZIGBEE driver handler  */
-extern EE_ISR_callback ee_mrf24j40_cbk;
 
 /* ------------------------------------------------------------------------------- */
 /* Macros used into the Zigbee driver functions */
@@ -74,11 +69,6 @@ extern EE_ISR_callback ee_mrf24j40_cbk;
 #define	MRF24J40_ERR_DEV_NOINIT	(-23)	/* ZIGBEE device error */
 #define	MRF24J40_ERR_MEM_NULL	(-24)	/* ZIGBEE null pointer error */
 
-/* MRF24J40 settings */
-#define EE_MRF24J40_MSGSIZE 	(1)		
-#define EE_MRF24J40_BUFSIZE 	(4)
-#define EE_MRF24J40_NULL_VET	((EE_UINT8 *)0)
-
 /* MRF24J40 operating modes */
 #define EE_MRF24J40_POLLING		(0x00)
 #define EE_MRF24J40_RX_ISR		(0x01)
@@ -88,7 +78,10 @@ extern EE_ISR_callback ee_mrf24j40_cbk;
 #define EE_MRF24J40_TX_BLOCK	(0x20)
 #define EE_MRF24J40_RXTX_BLOCK  (0x30)
 #define EE_mrf24j40_need_enable_int(new)  	( ((new) & EE_MRF24J40_RX_ISR) || ((new) & EE_MRF24J40_TX_ISR) )
-#define MRF24J40_SOFTRST_MASK 	(0x07)
+
+#define MRF24J40_SOFTRST_MASK 		(0x07)
+#define MRF24J40_WAKE_ACTIVE()		EE_mrf24j40_gpio_wake_active()
+#define MRF24J40_WAKE_INACTIVE()	EE_mrf24j40_gpio_wake_inactive()
 
 #if(0) // not yet supported macros...
 #define EE_MRF24J40_SHORT_ADDRESS_MASK		(0x3F)
@@ -146,7 +139,7 @@ DECLARE_FUNC_SPI_MRF24J40(EE_ZIGBEE_SPI_NAME_UC, EE_ZIGBEE_SPI_NAME_LC)
 	void EE_mrf24j40_delay_us(EE_UINT16 delay_count);
 	This function contains a delay loop. 
 */
-void EE_mrf24j40_delay_us(EE_UINT16 delay_count);
+void EE_mrf24j40_delay_us(unsigned int delay_count);
 
 /*
 	__INLINE__ int __ALWAYS_INLINE__ EE_mrf24j40_set_rx_ISR_callback(EE_ISR_callback rxcbk)
@@ -231,19 +224,28 @@ int EE_mrf24j40_disable(void);
 	int EE_mrf24j40_enable_IRQ(void);
 	This function enables mrf24j40 interrupts reception. 
 */
-int EE_mrf24j40_enable_IRQ(void);
+__INLINE__ void __ALWAYS_INLINE__ EE_mrf24j40_enable_IRQ(void)
+{
+	EE_mrf24j40_gpio_enable_IRQ();
+}
 
 /*
 	int EE_mrf24j40_disable_IRQ(void);
 	This function disables mrf24j40 interrupts reception. 
 */
-int EE_mrf24j40_disable_IRQ(void);
+__INLINE__ void __ALWAYS_INLINE__ EE_mrf24j40_disable_IRQ(void)
+{
+	EE_mrf24j40_gpio_disable_IRQ();
+}
 
 /*
 	int EE_mrf24j40_IRQ_enabled(void);
 	This function returns mrf24j40 interrupts enable state. 
 */
-int EE_mrf24j40_IRQ_enabled(void);
+__INLINE__ int __ALWAYS_INLINE__ EE_mrf24j40_IRQ_enabled(void)
+{
+	return EE_mrf24j40_gpio_IRQ_enabled();
+}
 
 /*
 	__INLINE__ int __ALWAYS_INLINE__ EE_mrf24j40_set_mode(int mode)
@@ -260,8 +262,7 @@ __INLINE__ int __ALWAYS_INLINE__ EE_mrf24j40_set_ISR_mode(int mode)
 */
 __INLINE__ int __ALWAYS_INLINE__ EE_mrf24j40_init(void)
 { 
-	EE_mrf24j40_output_pins_select(EE_MRF24J40_OUTPUT_MASK); 
-	EE_mrf24j40_write_output_pins(0);
+	EE_mrf24j40_gpio_write_output_pins(0);
 	mico32_disable_irq(ee_mrf24j40_st.irqf);
 	EE_mrf24j40_disable_IRQ();
 	return MRF24J40_SUCCESS;
@@ -274,7 +275,7 @@ __INLINE__ int __ALWAYS_INLINE__ EE_mrf24j40_init(void)
 __INLINE__ int __ALWAYS_INLINE__ EE_mrf24j40_config(void)
 { 
 	EE_mrf24j40_init();		// init pins and disable gpio interrupt source.
-	EE_mrf24j40_enable();	// set _reset_ pin to turn on the mrf24j40 device.
+	EE_mrf24j40_enable();	// set to 1 the _reset_ pin to turn on the mrf24j40 device.
 	EE_mrf24j40_spi_config(0, EE_SPI_POLLING | EE_SPI_RXTX_BLOCK);
 	
 	#ifdef __USE_ZIGBEE_IRQ__
@@ -360,7 +361,7 @@ int8_t	mrf24j40_hal_spi_read(uint8_t *data, uint16_t len);
 */
 COMPILER_INLINE void mrf24j40_hal_delay_us(uint16_t delay_count)
 {
-	MicoSleepMicroSecs((unsigned int)delay_count);
+	EE_mrf24j40_delay_us((unsigned int)delay_count);
 }
 
 /*
@@ -369,7 +370,7 @@ COMPILER_INLINE void mrf24j40_hal_delay_us(uint16_t delay_count)
 */
 COMPILER_INLINE void mrf24j40_hal_retsetn_high(void)
 {
-	EE_mrf24j40_release_reset();
+	EE_mrf24j40_gpio_release_reset();
 }
 
 /*
@@ -378,7 +379,7 @@ COMPILER_INLINE void mrf24j40_hal_retsetn_high(void)
 */
 COMPILER_INLINE void mrf24j40_hal_retsetn_low(void)
 {
-	EE_mrf24j40_hold_in_reset();
+	EE_mrf24j40_gpio_hold_in_reset();
 }
 
 /*
@@ -445,7 +446,8 @@ COMPILER_INLINE uint8_t mrf24j40_hal_int_enable(void)
 	mico32_clear_ip_mask(1<<EE_MRF24J40_IRQ); 	// clear bit in ip register
 	EE_hal_mrf24j40_handler_setup(); 			//EE_mico32_register_ISR(ee_mrf24j40_st.irqf, EE_mrf24j40_handler);	
 	mico32_enable_irq(ee_mrf24j40_st.irqf);
-	return EE_mrf24j40_enable_IRQ();	 		//EE_mrf24j40_set_ISR_mode(EE_MRF24J40_RXTX_ISR); //(EE_MRF24J40_RXTX_ISR); //(EE_MRF24J40_POLLING | EE_MRF24J40_RXTX_BLOCK);;
+	EE_mrf24j40_enable_IRQ();	 		//EE_mrf24j40_set_ISR_mode(EE_MRF24J40_RXTX_ISR); //(EE_MRF24J40_RXTX_ISR); //(EE_MRF24J40_POLLING | EE_MRF24J40_RXTX_BLOCK);;
+	return MRF24J40_SUCCESS;
 }
 
 /*
@@ -454,7 +456,8 @@ COMPILER_INLINE uint8_t mrf24j40_hal_int_enable(void)
 */
 COMPILER_INLINE uint8_t mrf24j40_hal_int_disable(void)
 {
-	return EE_mrf24j40_disable_IRQ();
+	EE_mrf24j40_disable_IRQ();
+	return MRF24J40_SUCCESS;
 }
 
 /*

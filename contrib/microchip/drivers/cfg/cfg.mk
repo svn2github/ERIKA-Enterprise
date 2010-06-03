@@ -38,22 +38,15 @@
 # Boston, MA 02110-1301 USA.
 # ###*E*###
 
-## Author: 2009 Francesco Prosperi
+## Author: 2010 Dario Di Stefano 
 
 # Add application-related files
 ifneq ($(ONLY_LIBS) , TRUE)
-
-include $(EEBASE)/contrib/microchip/dee_emulation/cfg/cfg.mk
-#include $(EEBASE)/contrib/microchip/tcpip/cfg/cfg.mk
-include $(EEBASE)/contrib/microchip/drivers/cfg/cfg.mk
-
+include $(EEBASE)/contrib/microchip/drivers/ethernet/enc28j60/cfg/cfg.mk
 endif
 
 
 # Add libs-related files
 ifeq ($(ENABLE_LIBS), TRUE)
-
-include $(EEBASE)/contrib/microchip/dee_emulation/cfg/libcfg.mk
-include $(EEBASE)/contrib/microchip/tcpip/cfg/libcfg.mk
-
+include $(EEBASE)/contrib/microchip/drivers/ethernet/enc28j60/cfg/libcfg.mk
 endif

@@ -8,30 +8,23 @@
 
 #include "mrf24j40.h"
 
-#ifdef __LM32__
-
-
 /* ---------------------- Global variables --------------------------------- */
-EE_ISR_callback ee_mrf24j40_cbk;	// ISR ethctrl callback function
-EE_UINT8 ee_mrf24j40_isr_rxvet[EE_MRF24J40_BUFSIZE];
-EE_UINT8 ee_mrf24j40_isr_txvet[EE_MRF24J40_BUFSIZE];  
-
 EE_mrf24j40_st ee_mrf24j40_st = {
-	.mode= EE_MRF24J40_POLLING, .base= (MicoGPIO_t* )EE_MRF24J40_BASE_ADDRESS,
-	.irqf= EE_MRF24J40_IRQ, .rxcbk= EE_NULL_CBK, .txcbk= EE_NULL_CBK,
-	.rxbuf.data= ee_mrf24j40_isr_rxvet,.txbuf.data= ee_mrf24j40_isr_txvet};
+	.mode= EE_MRF24J40_POLLING, 
+	.base= (MicoGPIO_t* )EE_MRF24J40_BASE_ADDRESS,
+	.irqf= EE_MRF24J40_IRQ, 
+	.rxcbk= EE_NULL_CBK, 
+	.txcbk= EE_NULL_CBK };
 	
-// int ee_mrf24j40_dummy_flag = 0;
-
 /* ---------------------- Ethernet interrupt handler ------------------------- */
 
 void EE_mrf24j40_handler(int level)
 {
-	//EE_gpio_common_handler(level);
+	EE_gpio_common_handler(level);
 	
-	EE_MRF24J40_BOARD_IRQ_PRE_STUB();
+	EE_mrf24j40_gpio_IRQ_pre_stub();
     MRF24J40_INTERRUPT_NAME();
-	EE_MRF24J40_BOARD_IRQ_POST_STUB();
+	EE_mrf24j40_gpio_IRQ_post_stub();
 	
 	return;
 }
@@ -209,9 +202,9 @@ int EE_mrf24j40_write_buffer_memory(EE_UINT8 *data, int len)
 	return ret;
 }
 
-void EE_mrf24j40_delay_us(EE_UINT16 delay_count)
+void EE_mrf24j40_delay_us(unsigned int delay_count)
 {
-	mrf24j40_hal_delay_us((uint16_t)delay_count);
+	MicoSleepMicroSecs((unsigned int)delay_count);
 }
 
 int EE_mrf24j40_software_reset(void)
@@ -235,32 +228,13 @@ int EE_mrf24j40_hardware_reset(void)
     return MRF24J40_SUCCESS;
 }
 
-int EE_mrf24j40_enable_IRQ(void)
-{
-	EE_mrf24j40_int_enable();
-	
-	return MRF24J40_SUCCESS;
-}
-
-int EE_mrf24j40_disable_IRQ(void)
-{
-	EE_mrf24j40_int_disable();
-	
-	return MRF24J40_SUCCESS;
-}
-
-int EE_mrf24j40_IRQ_enabled(void)
-{
-	return EE_hal_gpio_read_irqMask(ee_mrf24j40_st.base) & EE_INT2_MASK;
-}
-
 /*
 	int EE_mrf24j40_enable(void);
 	This function enables device by reset pin. 
 */
 int EE_mrf24j40_enable(void)
 {
-	EE_mrf24j40_release_reset();
+	EE_mrf24j40_gpio_release_reset();
 	EE_mrf24j40_delay_us(1000);
 	
     return MRF24J40_SUCCESS;
@@ -272,10 +246,13 @@ int EE_mrf24j40_enable(void)
 */
 int EE_mrf24j40_disable(void)
 {
-	EE_mrf24j40_hold_in_reset();
+	EE_mrf24j40_gpio_hold_in_reset();
 	
     return MRF24J40_SUCCESS;
 }
+
+
+/* ++++++++++++++++++++++++++++++++++++++++++++++++++++++ */
 
 int8_t	mrf24j40_hal_init(void)
 {
@@ -312,8 +289,4 @@ int8_t	mrf24j40_hal_spi_read(uint8_t *data, uint16_t len)
 	return 1;
 }
 
-#else
 
-#error "MRF24J40_HAL: Architecture not supported!"
-
-#endif
