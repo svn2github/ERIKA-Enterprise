@@ -81,6 +81,15 @@ typedef struct st_MicoSPI{
 /* Internal functions */
 
 /*
+	int EE_hal_spi_wait_for_bus_idle(MicoSPI_t* spic);
+	Write a byte in polling mode.
+*/
+__INLINE__ void __ALWAYS_INLINE__ EE_hal_spi_wait_for_bus_idle(MicoSPI_t* spic)
+{
+	while(!EE_spi_tmt_ready(spic->status))
+		;
+}
+/*
 	int EE_hal_spi_write_byte_polling(MicoSPI_t* spic, EE_UINT8 data);
 	Write a byte in polling mode.
 */
@@ -361,7 +370,9 @@ __INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _disable_IRQ)(void){ \
 __INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _enable)(void){ \
 	return EE_hal_spi_enable(& EE_ST_NAME(lc)); } \
 __INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _disable)(void){ \
-	return EE_hal_spi_disable(& EE_ST_NAME(lc)); }
+	return EE_hal_spi_disable(& EE_ST_NAME(lc)); } \
+__INLINE__ void __ALWAYS_INLINE__ cat3(EE_, lc, _wait_for_bus_idle)(void){ \
+	EE_hal_spi_wait_for_bus_idle((MicoSPI_t*)EE_BASE_ADD(uc)); }
 	
 /* User functions (API): */  
 #ifdef EE_SPI1_NAME_UC

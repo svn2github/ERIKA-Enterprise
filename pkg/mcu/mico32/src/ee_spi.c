@@ -71,13 +71,14 @@ void EE_spi_common_handler(int level)
 /******************************************************************************/			
 int EE_hal_spi_write_byte_polling(MicoSPI_t* spic, EE_UINT8 data)
 {
-	
+	EE_UINT8 rx_dummy = 0;
 	// EE_hal_spi_set_slave(spic, device);		
 	// EE_spi_set_SSO(spic->control);
 	spic->tx = data;						
 	while(!EE_spi_tmt_ready(spic->status))
 			;								
 	// EE_spi_clear_SSO(spic->control);
+	rx_dummy = spic->rx;
 		
 	return 1;	
 }
