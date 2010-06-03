@@ -55,12 +55,16 @@ typedef struct st_MicoCamera {
 } MicoCamera_t;
 
 /* Camera controller bit masks */
+/* Flag register */
 #define MICO_CAM_IF_FLAG_MASK       0x0001       /* bit 1 in FLAG register */
 #define MICO_CAM_ERR_FLAG_MASK      0x0002       /* bit 2 in FLAG register */
+/* Ctnr1 register */
 #define MICO_CAM_START_MASK         0x0001       /* bit 1 in CNTR1 register */
 #define MICO_CAM_IFACK_MASK         0x0002       /* bit 2 in CNTR1 register */
 #define MICO_CAM_RESET_MASK         0x0004       /* bit 3 in CNTR1 register */
+/* Cntr2 register */
 #define MICO_CAM_ENABLE_IRQ_MASK    0x0001       /* bit 1 in CNTR2 register */
+#define MICO_CAM_CLEAR_IRQ          0x0002       /* bit 2 in CNTR2 register */
 
 /* MICO CAMERA Macros */
 
@@ -96,7 +100,7 @@ __INLINE__ int __ALWAYS_INLINE__ Mico_camera_start(MicoCamera_t* cam)
 
 __INLINE__ void __ALWAYS_INLINE__ Mico_camera_clear_IRQ_flag(MicoCamera_t* cam)
 {
-    cam->cntr1 = 0;
+    cam->cntr1 = MICO_CAM_CLEAR_IRQ;
 }
 
 __INLINE__ void __ALWAYS_INLINE__ Mico_camera_reset(MicoCamera_t* cam)

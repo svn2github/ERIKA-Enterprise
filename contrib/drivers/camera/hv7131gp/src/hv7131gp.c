@@ -30,18 +30,26 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 /******************************************************************************/
 /*                          Local Variables                                   */
 /******************************************************************************/
-static volatile uint16_t  frame_height = 0;
-static volatile uint16_t  frame_width = 0;
-static volatile int32_t frame_size = 0;
+static uint16_t  frame_height = 0;
+static uint16_t  frame_width = 0;
+static int32_t frame_size = 0;
 
 /* Configuration static variables */
 static uint8_t act_res; 			//actual resolution
+static uint8_t act_col;				// Actual color status
 static int16_t act_w, act_h, act_x, act_y;	//size and position of the window
 
 
 /******************************************************************************/
 /*                             Local Functions                                */
 /******************************************************************************/
+
+static void update_frame_size(void)
+{
+	frame_size = frame_height * frame_width;
+	if (act_col)
+		frame_size *= 2;
+}
 /* ----------------------------------------------------------------------------
 |  Initialization sequence for HV7131GP Camera (see refman):                   |
 |                                                                              |
@@ -122,6 +130,23 @@ hv7131gp_status_t hv7131gp_reg_write(hv7131gp_reg_t reg, uint8_t val)
 hv7131gp_status_t hv7131gp_reg_read(hv7131gp_reg_t reg, uint8_t *val)
 {
 	return hv7131gp_i2c_hal_reg_read(reg, val);
+}
+
+/*
+ * Modify the bits set in mask of the register reg with the values from value
+ */
+hv7131gp_status_t hv7131gp_reg_update(hv7131gp_reg_t reg, uint8_t mask,
+	uint8_t value)
+{
+	hv7131gp_status_t ret;
+	uint8_t oldvalue;
+	ret = hv7131gp_i2c_hal_reg_read(reg, &oldvalue);
+	if (ret != HV7131GP_SUCCESS)
+		return ret;
+	ret = hv7131gp_reg_write(reg, (oldvalue & ~mask) | (value & mask));
+	if (ret != HV7131GP_SUCCESS)
+		return ret;
+	return HV7131GP_SUCCESS; 
 }
 
 /* ----------------------------------------------------------------------------
@@ -218,7 +243,7 @@ hv7131gp_status_t hv7131gp_init_configure(void)
 	/*TODO: perchè questo hard-coding??? */
 	frame_width = 160;
 	frame_height = 120;
-	frame_size = frame_height * frame_width;
+	update_frame_size();
 
 	return HV7131GP_SUCCESS;
 }
@@ -380,10 +405,73 @@ hv7131gp_status_t hv7131gp_configure_time_divisor(hv7131gp_T_D_Value_t div)
 	return HV7131GP_SUCCESS;
 }
 
+
+/*
+ * Configure the subsampling mode
+ */
+hv7131gp_status_t hv7131gp_configure_subsampling(hv7131gp_R_Value_t res)
+{
+	hv7131gp_status_t ret;
+	uint8_t ssvalue;
+	
+	switch(res)
+	{
+	case HV7131GP_NO_SUB :
+		/* 640x480 pixel resolution: no sub-sampling */
+		ssvalue = HV7131GP_VIDEO_NORMAL;
+		act_res = 1; //Divide the window sizes by 1 (640x480)
+		break;
+
+	case HV7131GP_1_4_SUB: /* 320x240 pixel resolution */
+		//Set the resolution value: 1/4 sub-sampling (320x240)
+		ssvalue = HV7131GP_VIDEO_SUB_4;
+		act_res = 2; //Divide the window sizes by 2 (320x240)
+		break;
+	case HV7131GP_1_16_SUB: /* 160x120 pixel resolution */
+		//Set the resolution value: 1/4 sub-sampling (160x120)
+		ssvalue = HV7131GP_VIDEO_SUB_16;
+		act_res = 4; //Divide the window sizes by 4 (160x120)
+		break;
+	default:
+		return HV7131GP_FAILURE;
+		break;
+	}
+	/* *****Set size***** */
+	frame_width 	= act_w / act_res;
+	frame_height 	= act_h / act_res;
+	update_frame_size();
+
+	ret = hv7131gp_reg_update(HV7131GP_REG_SCTRA, HV7131GP_VIDEO_MASK,
+		ssvalue);
+	if (ret != HV7131GP_SUCCESS)
+		return ret;
+
+	return HV7131GP_SUCCESS;
+}
+
+
+hv7131gp_status_t hv7131gp_configure_x_flip(int status)
+{
+	return hv7131gp_reg_update(HV7131GP_REG_SCTRA, HV7131GP_X_FLIP,
+		status != 0 ? HV7131GP_X_FLIP : 0);
+}
+	
+
+hv7131gp_status_t hv7131gp_configure_color(int status)
+{
+	/* Set 16-bit mode to turn off colors */
+	act_col = status;
+	update_frame_size();
+	return hv7131gp_reg_update(HV7131GP_REG_OUTFMT, HV7131GP_8BIT_OUTPUT,
+		status != 0 ? HV7131GP_8BIT_OUTPUT : 0);
+}
+
+
 /* ----------------------------------------------------------------------------
-|  Configure the image resolution on HV7131GP Camera:                          |
+|  Configure the image resolution, turn off colors, and turn on horizontal     |
+|  flipping on HV7131GP Camera:                                                |
 |                                                                              |
-|  This function set via i2c the possible value of sub-sampling                |
+|  This function sets via i2c one of the possible values of sub-sampling:      |
 |  1. No sub-sampling 	(640x480)					       |
 |  2. 1/4 sub-sampling 	(320x240)					       |
 |  3. 1/16 sub-sampling	(160x120)					       |
@@ -392,82 +480,19 @@ hv7131gp_status_t hv7131gp_configure_time_divisor(hv7131gp_T_D_Value_t div)
  ---------------------------------------------------------------------------- */
 hv7131gp_status_t hv7131gp_configure_resolution(hv7131gp_R_Value_t res)
 {
-	hv7131gp_status_t help;
+	hv7131gp_status_t ret;
 
-	switch(res)
-	{
-	case HV7131GP_NO_SUB : /* 640x480 pixel resolution*/
+	ret = hv7131gp_configure_subsampling(res);
+	if (ret != HV7131GP_SUCCESS)
+		return ret;
 
-		//Y only configuration in the 8 pin Y[0..7]
-		help = hv7131gp_reg_write(HV7131GP_REG_OUTFMT,
-					  HV7131GP_OUTFMT_DEFAULT & (~HV7131GP_8BIT_OUTPUT));
+	ret = hv7131gp_configure_x_flip(1);
+	if (ret != HV7131GP_SUCCESS)
+		return ret;
 
-		if (help != HV7131GP_SUCCESS)
-			return help;
-
-		//Set the resolution value: No sub-sampling (640x480)
-		help = hv7131gp_reg_write(HV7131GP_REG_SCTRA,
-					  HV7131GP_VIDEO_NORMAL | HV7131GP_X_FLIP);
-
-		if (help != HV7131GP_SUCCESS)
-			return help;
-
-		// Save the actual resolution
-		act_res = 1; //Divide the window sizes by 1 (640x480)
-
-		break;
-
-	case HV7131GP_1_4_SUB: /* 320x240 pixel resolution */
-
-		//Y only configuration in the 8 pin Y[0..7]
-		help = hv7131gp_reg_write(HV7131GP_REG_OUTFMT,
-					  HV7131GP_OUTFMT_DEFAULT & (~HV7131GP_8BIT_OUTPUT));
-
-		if (help != HV7131GP_SUCCESS)
-			return help;
-
-		//Set the resolution value: 1/4 sub-sampling (320x240)
-		help = hv7131gp_reg_write(HV7131GP_REG_SCTRA,
-					  HV7131GP_VIDEO_SUB_4 | HV7131GP_X_FLIP);
-
-		if (help != HV7131GP_SUCCESS)
-			return help;
-
-		// Save the actual resolution
-		act_res = 2; //Divide the window sizes by 2 (320x240)
-
-		break;
-
-	case HV7131GP_1_16_SUB: /* 160x120 pixel resolution */
-
-		//Y only configuration in the 8 pin Y[0..7]
-		help = hv7131gp_reg_write(HV7131GP_REG_OUTFMT,
-					  HV7131GP_OUTFMT_DEFAULT & (~HV7131GP_8BIT_OUTPUT));
-
-		if (help != HV7131GP_SUCCESS)
-			return help;
-
-		//Set the resolution value: 1/4 sub-sampling (160x120)
-		help = hv7131gp_reg_write(HV7131GP_REG_SCTRA,
-					  HV7131GP_VIDEO_SUB_16 | HV7131GP_X_FLIP);
-
-		if (help != HV7131GP_SUCCESS)
-			return help;
-
-		// Save the actual resolution
-		act_res = 4; //Divide the window sizes by 4 (160x120)
-
-		break;
-
-	default:
-		return HV7131GP_FAILURE;
-		break;
-	}
-
-	/* *****Set size***** */
-	frame_width 	= act_w / act_res;
-	frame_height 	= act_h / act_res;
-	frame_size = frame_height * frame_width;
+	ret = hv7131gp_configure_color(0);
+	if (ret != HV7131GP_SUCCESS)
+		return ret;
 
 	return HV7131GP_SUCCESS;
 }
@@ -562,7 +587,7 @@ hv7131gp_status_t hv7131gp_window_set(int16_t width, int16_t height, int16_t x, 
 	/* *****Set size***** */
 	frame_width 	= width / act_res;
 	frame_height 	= height / act_res;
-	frame_size = frame_height * frame_width;
+	update_frame_size();
 
 	return HV7131GP_SUCCESS;
 
@@ -754,7 +779,7 @@ uint32_t hv7131gp_get_size(void)
 
 uint8_t hv7131gp_get_Y_average(void)
 {
-	uint8_t Y = 0;
+	uint8_t Y;
 	/*Read the Y mean value*/
 	if (hv7131gp_reg_read(HV7131GP_REG_YFMEAN, &Y) != HV7131GP_SUCCESS )
 		for (;;) ;

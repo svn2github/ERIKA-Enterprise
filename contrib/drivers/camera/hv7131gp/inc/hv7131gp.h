@@ -106,6 +106,23 @@ hv7131gp_status_t hv7131gp_configure_time_divisor(hv7131gp_T_D_Value_t div);
 /**
 * @brief Configure the resolution on HV7131GP Camera
 *
+* This functions configures the camera subsampling mode, but it also turns off
+* colors and turns on horizontal flipping.
+*
+* \param res		Resolution value
+*
+* \see hv7131gp_R_Value_t
+* \see hv7131gp_configure_subsampling
+*
+* @return Returns \c HV7131GP_SUCCESS if no error occurs,
+*         otherwise a specific error code.
+*/
+hv7131gp_status_t hv7131gp_configure_resolution(hv7131gp_R_Value_t res);
+
+
+/**
+* @brief Configure the subsampling mode on HV7131GP Camera
+*
 * \param res		Resolution value
 *
 * \see hv7131gp_R_Value_t
@@ -113,7 +130,30 @@ hv7131gp_status_t hv7131gp_configure_time_divisor(hv7131gp_T_D_Value_t div);
 * @return Returns \c HV7131GP_SUCCESS if no error occurs,
 *         otherwise a specific error code.
 */
-hv7131gp_status_t hv7131gp_configure_resolution(hv7131gp_R_Value_t res);
+hv7131gp_status_t hv7131gp_configure_subsampling(hv7131gp_R_Value_t res);
+
+
+/**
+* @brief Enable horizontal flipping on HV7131GP Camera.
+*
+* \param status		A boolean indicating whether to turn flipping on or off
+*
+* @return Returns \c HV7131GP_SUCCESS if no error occurs,
+*         otherwise a specific error code.
+*/
+hv7131gp_status_t hv7131gp_configure_x_flip(int status);
+
+
+/**
+* @brief Enable colors on HV7131GP Camera.
+*
+* \param status		A boolean indicating whether to turn colors on or off
+*
+* @return Returns \c HV7131GP_SUCCESS if no error occurs,
+*         otherwise a specific error code.
+*/
+hv7131gp_status_t hv7131gp_configure_color(int status);
+
 
 /**
 * @brief Set a window on HV7131GP Camera.
@@ -221,6 +261,19 @@ hv7131gp_status_t hv7131gp_reg_write(hv7131gp_reg_t reg, uint8_t val);
 *         otherwise a specific error code.
 */
 hv7131gp_status_t hv7131gp_reg_read(hv7131gp_reg_t reg, uint8_t *val);
+
+/**
+* @brief Modify some bits of a HV7131GP Camera register
+*
+* @param reg Device register address
+* @param mask Bits to change
+* @param val New value for the bits in the mask
+*
+* @return Returns \c HV7131GP_SUCCESS if no error occurs,
+*         otherwise a specific error code.
+*/
+hv7131gp_status_t hv7131gp_reg_update(hv7131gp_reg_t reg, uint8_t mask,
+    uint8_t value);
 
 /**
 * @brief Returns the image width

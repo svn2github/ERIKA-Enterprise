@@ -79,9 +79,9 @@ typedef enum {
 * @brief Quality value (high level)
 */
 typedef enum {
-	HV7131GP_160x120_FAST  	= 0x00,		/**< 160x120 + T2 divisor*/
-	HV7131GP_160x120_MEDIUM	= 0x01,		/**< 160x120 + T4 divisor*/
-	HV7131GP_160x120_SLOW	= 0x02,		/**< 160x120 + T7 divisor */
+	HV7131GP_160x120_FAST  	= 0x00,	/**< 160x120 + T2 divisor*/
+	HV7131GP_160x120_MEDIUM	= 0x01,	/**< 160x120 + T4 divisor*/
+	HV7131GP_160x120_SLOW	= 0x02,	/**< 160x120 + T7 divisor */
 } hv7131gp_Q_Value_t;
 
 

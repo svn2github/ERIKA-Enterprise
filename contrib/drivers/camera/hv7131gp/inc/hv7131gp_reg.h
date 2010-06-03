@@ -215,6 +215,8 @@ typedef enum {
 #define HV7131GP_X_FLIP 		0x08	/**< Perform horizontal flip */
 #define HV7131GP_Y_FLIP 		0x04	/**< Perform vertical flip */
 
+
+#define	HV7131GP_VIDEO_MASK 		0x03 	/**< Mask for video mode */
 #define	HV7131GP_VIDEO_NORMAL 		0x03 	/**< 3x3 color interpolation */
 #define	HV7131GP_VIDEO_SUB_4 		0x02 	/**< 1/4 subsampling */
 #define	HV7131GP_VIDEO_SUB_16 		0x01 	/**< 1/16 subsampling */

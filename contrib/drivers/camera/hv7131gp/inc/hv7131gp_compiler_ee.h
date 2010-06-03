@@ -18,8 +18,8 @@
 
 /* chris: FIXME: do we really need this!? */
 typedef enum {
-	TRUE 		= 0x00,	/**< True */
-	FALSE		= 0x01, /**< False */
+	TRUE 		= 0x01,	/**< True */
+	FALSE		= 0x00, /**< False */
 } Boolean;
 
 #ifndef UINT8_T
