@@ -164,13 +164,12 @@ pic32.hex: pic32.$(PIC32_EXTENSION)
 	$(QUIET)$(EE_BIN2HEX) pic32.$(PIC32_EXTENSION)
 
 ## Object file creation ###
-# FIXME: chris: the -Map option is not working (does nothig).
 pic32.$(PIC32_EXTENSION): $(OBJS) $(LINKDEP) $(LIBDEP) 
 	@printf "LD\n";
 	$(QUIET)$(EE_LINK) $(COMPUTED_OPT_LINK) \
 		-o $(TARGETFILE) $(OBJS) \
 		$(OPT_LIBS) \
-		-Map=pic32.map
+		-Wl,-Map="pic32.map"
 #--start-group $(OPT_LIBS) --end-group 
 					 
 ifeq ($(findstring BUILDSRC,$(EEALLOPT)), BUILDSRC)
