@@ -91,8 +91,7 @@
 	void SetCLKOUT(BYTE NewConfig)
 	BYTE GetCLKOUT(void)
 	void SetRXHashTableEntry(MAC_ADDR DestMACAddr)
-	static void SendSystemReset(void)
-	
+	void SendSystemReset(void)
 	void WriteReg(BYTE Address, BYTE Data)
 	REG ReadETHReg(BYTE Address)
 	REG ReadMACReg(BYTE Address)
@@ -101,6 +100,7 @@
 	void BFCReg(BYTE Address, BYTE Data)
 	void BFSReg(BYTE Address, BYTE Data)
 	static void BankSel(WORD Register)
+	WORD swaps(WORD v);
 */
 
 #define __ENC28J60_C
@@ -108,10 +108,8 @@
 #include "ENC28J60.h"
 #include "string.h"
 
-
 /* @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ */
 /* WRAPPER */
-APP_CONFIG AppConfig;
 void MACPutHeader(MAC_ADDR *remote, BYTE type, WORD dataLen);
 BOOL MACIsTxReady(void);
 void MACPut(BYTE val);
@@ -120,7 +118,58 @@ void MACFlush(void);
 void WritePHYReg(BYTE Register, WORD Data);
 PHYREG ReadPHYReg(BYTE Register);
 WORD MACGetArray(BYTE *val, WORD len);
+WORD CalcIPBufferChecksum(WORD len);
+BYTE MACGet(void);
+WORD swaps(WORD v);
+/* @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ */
 
+// A header appended at the start of all RX frames by the hardware
+typedef struct  __attribute__((aligned(2), packed))
+{
+    WORD            NextPacketPointer;
+    RXSTATUS        StatusVector;
+
+    MAC_ADDR        DestMACAddr;
+    MAC_ADDR        SourceMACAddr;
+    WORD_VAL        Type;
+} ENC_PREAMBLE;
+
+// Prototypes of functions intended for MAC layer use only.
+void BankSel(WORD Register);
+REG ReadETHReg(BYTE Address);
+REG ReadMACReg(BYTE Address);
+void WriteReg(BYTE Address, BYTE Data);
+void BFCReg(BYTE Address, BYTE Data);
+void BFSReg(BYTE Address, BYTE Data);
+void SendSystemReset(void);
+//static void GetRegs(void);
+//void Get8KBRAM(void);
+
+// Internal MAC level variables and flags.
+static WORD_VAL NextPacketLocation;
+static WORD_VAL CurrentPacketLocation;
+static BOOL WasDiscarded;
+static BYTE ENCRevID;
+
+//NOTE: All code in this module expects Bank 0 to be currently selected.  
+// 		If code ever changes the bank, it must restore it to Bank 0 before returning.
+
+/******************************************************************************
+ * Function:       WORD swaps(WORD v)
+ *
+ * PreCondition:    None
+ *
+ * Input:           None
+ *
+ * Output:          None
+ *
+ * Side Effects:    None
+ *
+ * Overview:        The function can be used to swap bytes in LITTLE ENDIAN 
+ *					devices
+ *
+ * Note:            None
+ *****************************************************************************/
 #ifdef BIG_ENDIAN
 WORD swaps(WORD v)
 {
@@ -138,51 +187,6 @@ WORD swaps(WORD v)
 	return t.Val;
 }
 #endif
-
-WORD CalcIPBufferChecksum(WORD len);
-BYTE MACGet(void);
-/* @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ */
-
-
-
-
-// A header appended at the start of all RX frames by the hardware
-typedef struct  __attribute__((aligned(2), packed))
-{
-    WORD            NextPacketPointer;
-    RXSTATUS        StatusVector;
-
-    MAC_ADDR        DestMACAddr;
-    MAC_ADDR        SourceMACAddr;
-    WORD_VAL        Type;
-} ENC_PREAMBLE;
-
-// Prototypes of functions intended for MAC layer use only.
-// static void BankSel(WORD Register);
-// static REG ReadETHReg(BYTE Address);
-// static REG ReadMACReg(BYTE Address);
-// static void WriteReg(BYTE Address, BYTE Data);
-// static void BFCReg(BYTE Address, BYTE Data);
-// static void BFSReg(BYTE Address, BYTE Data);
-// static void SendSystemReset(void);
-void BankSel(WORD Register);
-REG ReadETHReg(BYTE Address);
-REG ReadMACReg(BYTE Address);
-void WriteReg(BYTE Address, BYTE Data);
-void BFCReg(BYTE Address, BYTE Data);
-void BFSReg(BYTE Address, BYTE Data);
-void SendSystemReset(void);
-//static void GetRegs(void);
-//void Get8KBRAM(void);
-
-// Internal MAC level variables and flags.
-static WORD_VAL NextPacketLocation;
-static WORD_VAL CurrentPacketLocation;
-static BOOL WasDiscarded;
-static BYTE ENCRevID;
-
-
-//NOTE: All code in this module expects Bank 0 to be currently selected.  If code ever changes the bank, it must restore it to Bank 0 before returning.
 
 /******************************************************************************
  * Function:        void MACInit(void)
@@ -1389,13 +1393,12 @@ WORD MACGetArray(BYTE *val, WORD len)
  *****************************************************************************/
 void MACPut(BYTE val)
 {
-	volatile BYTE Dummy;
-	
     ENC_CS_IO_f(0);	//ENC_CS_IO = 0;
     ClearSPIDoneFlag();
 	
     #if defined(__C32__)
     {
+		volatile BYTE Dummy;
         // Send the Write Buffer Memory and data, in on 16-bit write
         ENC_SPICON1bits.MODE16 = 1;
         ENC_SSPBUF = (ENC28J60_WBM<<8) | (WORD)val;  // Start sending the WORD
@@ -1405,6 +1408,7 @@ void MACPut(BYTE val)
     }
     #elif defined(__C30__)
     {
+		volatile BYTE Dummy;
         // Send the Write Buffer Memory and data, in on 16-bit write
         ENC_SPISTATbits.SPIEN = 0;
         ENC_SPICON1bits.MODE16 = 1;
@@ -1422,6 +1426,7 @@ void MACPut(BYTE val)
 	}
     #else
     {
+		volatile BYTE Dummy;
         ENC_SSPBUF = ENC28J60_WBM;       // Send the opcode and constant.
         WaitForDataByte();      // Wait until opcode/constant is transmitted.
         Dummy = ENC_SSPBUF;

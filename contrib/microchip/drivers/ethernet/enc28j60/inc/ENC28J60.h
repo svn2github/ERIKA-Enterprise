@@ -63,157 +63,9 @@
 #include "enc28j60_compiler.h"
 #include "enc28j60_hal.h"
 
-
-/* Generic Type definitions (#include "GenericTypeDefs.h", not allowed...) */	
-
-typedef enum _BOOL { FALSE = 0, TRUE } BOOL;	// Undefined size
-
-#ifndef NULL
-#define NULL    	0 //((void *)0)
-#endif
-
-#define	PUBLIC                                  // Function attributes
-#define PROTECTED
-#define PRIVATE   	static
-
-#if(0)
-typedef uint64_t	QWORD;				// 64-bit unsigned
-typedef int8_t		CHAR;				// 8-bit signed
-typedef int16_t		SHORT;				// 16-bit signed
-typedef int32_t		LONG;				// 32-bit signed
-typedef int64_t		LONGLONG;			// 64-bit signed
-/* Alternate definitions */
-typedef void		VOID;
-typedef int8_t		CHAR8;
-typedef uint8_t		UCHAR8;
-/* Processor & Compiler independent, size specific definitions */
-// To Do:  We need to verify the sizes on each compiler.  These
-//         may be compiler specific, we should either move them
-//         to "compiler.h" or #ifdef them for compiler type.
-typedef signed int          INT;
-typedef signed char         INT8;
-typedef signed short int    INT16;
-typedef signed long int     INT32;
-typedef signed long long    INT64;
-typedef unsigned int        UINT;
-typedef unsigned char       UINT8;
-typedef unsigned short int  UINT16;
-typedef unsigned long int   UINT32;  // other name for 32-bit integer
-typedef unsigned long long  UINT64;
-#endif
-
-typedef uint8_t		BYTE;				// 8-bit unsigned
-typedef uint16_t	WORD;				// 16-bit unsigned
-typedef uint32_t	DWORD;				// 32-bit unsigned
-
-#ifdef BIG_ENDIAN
-/* BYTE_VAL */
-typedef union _BYTE_VAL
-{
-    BYTE Val;
-    struct
-    {
-        unsigned char b7:1;
-        unsigned char b6:1;
-        unsigned char b5:1;
-        unsigned char b4:1;
-        unsigned char b3:1;
-        unsigned char b2:1;
-        unsigned char b1:1;
-        unsigned char b0:1;
-    } bits;
-} BYTE_VAL;
-#else
-typedef union _BYTE_VAL
-{
-    BYTE Val;
-    struct
-    {
-        unsigned char b0:1;
-        unsigned char b1:1;
-        unsigned char b2:1;
-        unsigned char b3:1;
-        unsigned char b4:1;
-        unsigned char b5:1;
-        unsigned char b6:1;
-        unsigned char b7:1;
-    } bits;
-} BYTE_VAL, BYTE_BITS;
-#endif
-
-#ifdef BIG_ENDIAN
-/* WORD_VAL */
-typedef union _WORD_VAL
-{
-    WORD Val;
-    BYTE v[2];
-    struct
-    {
-        BYTE HB;
-        BYTE LB;
-    } byte;
-    struct
-    {
-        unsigned char b15:1;
-        unsigned char b14:1;
-        unsigned char b13:1;
-        unsigned char b12:1;
-        unsigned char b11:1;
-        unsigned char b10:1;
-        unsigned char b9:1;
-        unsigned char b8:1;
-        unsigned char b7:1;
-        unsigned char b6:1;
-        unsigned char b5:1;
-        unsigned char b4:1;
-        unsigned char b3:1;
-        unsigned char b2:1;
-        unsigned char b1:1;
-        unsigned char b0:1;
-    } bits;
-} WORD_VAL;
-#else
-typedef union _WORD_VAL
-{
-    WORD Val;
-    BYTE v[2];
-    struct
-    {
-        BYTE LB;
-        BYTE HB;
-    } byte;
-    struct
-    {
-        unsigned char b0:1;
-        unsigned char b1:1;
-        unsigned char b2:1;
-        unsigned char b3:1;
-        unsigned char b4:1;
-        unsigned char b5:1;
-        unsigned char b6:1;
-        unsigned char b7:1;
-        unsigned char b8:1;
-        unsigned char b9:1;
-        unsigned char b10:1;
-        unsigned char b11:1;
-        unsigned char b12:1;
-        unsigned char b13:1;
-        unsigned char b14:1;
-        unsigned char b15:1;
-    } bits;
-} WORD_VAL, WORD_BITS;
-#endif
-
-/* DWORD_VAL */
-typedef union _DWORD_VAL
-{
-    DWORD Val;
-	WORD w[2];
-    BYTE v[4];
-} DWORD_VAL;
-
 /* @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ */
 /* WRAPPER */
+
 #define RESERVED_SSL_MEMORY 	0ul		// ATT!!! this macro is server dependent... (es. STACK_USE_SSL for Microchip TCPIP stack)
 #define RESERVED_HTTP_MEMORY 	0ul		// ATT!!! this macro is server dependent... (es. STACK_USE_HTTP2_SERVER for Microchip TCPIP stack)
 #define RAMSIZE					(8*1024ul)
@@ -222,21 +74,24 @@ typedef union _DWORD_VAL
 #define	RXSTOP					((TXSTART-2ul) | 0x0001ul)	// Odd for errata workaround
 #define RXSIZE					(RXSTOP-RXSTART+1ul)
 #define TCP_ETH_RAM_SIZE 		0u
-#define ENC_MAX_SPI_FREQ    	(20000000ul)	// SPI max Hz
+#define ENC_MAX_SPI_FREQ    	(20000000ul)				// SPI max Hz
 #define IP_ADDR					DWORD_VAL
 #define SetLEDConfig(NewConfig)	WritePHYReg(PHLCON, NewConfig)
 #define MAC_IP      			(0x00u)
 #define MAC_UNKNOWN 			(0xFFu)
+
 typedef struct __attribute__((__packed__))
 {
     BYTE v[6];
 } MAC_ADDR;
+
 typedef struct  __attribute__((aligned(2), packed))		// A generic structure representing the
 {														// Ethernet header starting all Ethernet frames
 	MAC_ADDR        DestMACAddr;
 	MAC_ADDR        SourceMACAddr;
 	WORD_VAL        Type;
 } ETHER_HEADER;
+
 typedef struct __attribute__((__packed__)) 
 {
 	IP_ADDR		MyIPAddr;
@@ -256,26 +111,25 @@ typedef struct __attribute__((__packed__))
 	} Flags;
 	MAC_ADDR	MyMACAddr;
 
-#if defined(ZG_CS_TRIS)
+	#if defined(ZG_CS_TRIS)
 	BYTE		MySSID[32];
-#endif
+	#endif
 	
-#if defined(STACK_USE_SNMP_SERVER)
+	#if defined(STACK_USE_SNMP_SERVER)
 	// SNMPv2C Read community names
 	// SNMP_COMMUNITY_MAX_LEN (8) + 1 null termination byte
 	BYTE readCommunity[SNMP_MAX_COMMUNITY_SUPPORT][SNMP_COMMUNITY_MAX_LEN+1]; 
-
+	
 	// SNMPv2C Write community names
 	// SNMP_COMMUNITY_MAX_LEN (8) + 1 null termination byte
 	BYTE writeCommunity[SNMP_MAX_COMMUNITY_SUPPORT][SNMP_COMMUNITY_MAX_LEN+1];
-#endif
+	#endif
 
 } APP_CONFIG;
 
-
+extern APP_CONFIG AppConfig;	// This structure must be initialized before the stack initialization.
+								// The structure contains useful informations about gateway, mac address, dns address, masks, etc...
 /* @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ */
-
-
 
 
 /** D E F I N I T I O N S ****************************************************/
