@@ -21,11 +21,11 @@ ifeq ($(INCLUDE_ENC28J60), YES)
 
 ## Add the inc path to the include pathlist
 ifeq ($(findstring __RTD_CYGWIN__,$(EEOPT)), __RTD_CYGWIN__) 
-ALLINCPATH += -I"$(shell cygpath -w $(EEBASE)/contrib/microchip/drivers/ethernet/enc28j60/inc)"
+ALLINCPATH += -I"$(shell cygpath -w $(EEBASE)/contrib/drivers/ethernet/enc28j60/inc)"
 else
-ALLINCPATH += -I$(EEBASE)/contrib/microchip/drivers/ethernet/enc28j60/inc
+ALLINCPATH += -I$(EEBASE)/contrib/drivers/ethernet/enc28j60/inc
 endif
-INCLUDE_PATH += $(EEBASE)/contrib/microchip/drivers/ethernet/enc28j60/inc
+INCLUDE_PATH += $(EEBASE)/contrib/drivers/ethernet/enc28j60/inc
 
 ## Add each file individually
 EE_SRCS_ENC28J60 +=

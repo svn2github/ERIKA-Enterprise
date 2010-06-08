@@ -57,96 +57,13 @@
  *									(DS39662B)
  ********************************************************************/
 
-#ifndef __ENC28J60_H
-#define __ENC28J60_H
+#ifndef __ENC28J60_REG_H
+#define __ENC28J60_REG_H
 
-#include "enc28j60_compiler.h"
-#include "enc28j60_hal.h"
-
-/* @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ */
-/* WRAPPER */
-
-#define RESERVED_SSL_MEMORY 	0ul		// ATT!!! this macro is server dependent... (es. STACK_USE_SSL for Microchip TCPIP stack)
-#define RESERVED_HTTP_MEMORY 	0ul		// ATT!!! this macro is server dependent... (es. STACK_USE_HTTP2_SERVER for Microchip TCPIP stack)
-#define RAMSIZE					(8*1024ul)
-#define TXSTART 				(RAMSIZE - (1ul+1518ul+7ul) - TCP_ETH_RAM_SIZE - RESERVED_HTTP_MEMORY - RESERVED_SSL_MEMORY)
-#define RXSTART					(0ul)						// Should be an even memory address; must be 0 for errata
-#define	RXSTOP					((TXSTART-2ul) | 0x0001ul)	// Odd for errata workaround
-#define RXSIZE					(RXSTOP-RXSTART+1ul)
-#define TCP_ETH_RAM_SIZE 		0u
-#define ENC_MAX_SPI_FREQ    	(20000000ul)				// SPI max Hz
-#define IP_ADDR					DWORD_VAL
-#define SetLEDConfig(NewConfig)	WritePHYReg(PHLCON, NewConfig)
-#define MAC_IP      			(0x00u)
-#define MAC_UNKNOWN 			(0xFFu)
-
-typedef struct __attribute__((__packed__))
-{
-    BYTE v[6];
-} MAC_ADDR;
-
-typedef struct  __attribute__((aligned(2), packed))		// A generic structure representing the
-{														// Ethernet header starting all Ethernet frames
-	MAC_ADDR        DestMACAddr;
-	MAC_ADDR        SourceMACAddr;
-	WORD_VAL        Type;
-} ETHER_HEADER;
-
-typedef struct __attribute__((__packed__)) 
-{
-	IP_ADDR		MyIPAddr;
-	IP_ADDR		MyMask;
-	IP_ADDR		MyGateway;
-	IP_ADDR		PrimaryDNSServer;
-	IP_ADDR		SecondaryDNSServer;
-	IP_ADDR		DefaultIPAddr;
-	IP_ADDR		DefaultMask;
-	BYTE		NetBIOSName[16];
-	struct
-	{
-		unsigned char : 5;
-        unsigned char bConfigureAutoIP : 1;
-		unsigned char bIsDHCPEnabled : 1;
-		unsigned char bInConfigMode : 1;
-	} Flags;
-	MAC_ADDR	MyMACAddr;
-
-	#if defined(ZG_CS_TRIS)
-	BYTE		MySSID[32];
-	#endif
-	
-	#if defined(STACK_USE_SNMP_SERVER)
-	// SNMPv2C Read community names
-	// SNMP_COMMUNITY_MAX_LEN (8) + 1 null termination byte
-	BYTE readCommunity[SNMP_MAX_COMMUNITY_SUPPORT][SNMP_COMMUNITY_MAX_LEN+1]; 
-	
-	// SNMPv2C Write community names
-	// SNMP_COMMUNITY_MAX_LEN (8) + 1 null termination byte
-	BYTE writeCommunity[SNMP_MAX_COMMUNITY_SUPPORT][SNMP_COMMUNITY_MAX_LEN+1];
-	#endif
-
-} APP_CONFIG;
-
-extern APP_CONFIG AppConfig;	// This structure must be initialized before the stack initialization.
-								// The structure contains useful informations about gateway, mac address, dns address, masks, etc...
-/* @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ */
-
-
-/** D E F I N I T I O N S ****************************************************/
-// IMPORTANT SPI NOTE: The code in this file expects that the SPI interrupt
-//      flag (ENC_SPI_IF) be clear at all times.  If the SPI is shared with
-//      other hardware, the other code should clear the ENC_SPI_IF when it is
-//      done using the SPI.
-// Since the ENC28J60 doesn't support auto-negotiation, full-duplex mode is
-// not compatible with most switches/routers.  If a dedicated network is used
-// where the duplex of the remote node can be manually configured, you may
-// change this configuration.  Otherwise, half duplex should always be used.
-#define HALF_DUPLEX
-//#define FULL_DUPLEX
-//#define LEDB_DUPLEX
 // Pseudo Functions
 #define LOW(a)               	((a) & 0xFF)
 #define HIGH(a)              	(((a)>>8) & 0xFF)
+
 // ENC28J60 Opcodes (to be ORed with a 5 bit address)
 #define ENC28J60_WCR (0x2<<5)           // Write Control Register command
 #define ENC28J60_BFS (0x4<<5)           // Bit Field Set command
@@ -156,144 +73,7 @@ extern APP_CONFIG AppConfig;	// This structure must be initialized before the st
 #define ENC28J60_WBM ((0x3<<5) | 0x1A) 	// Write Buffer Memory command
 #define ENC28J60_SR  ((0x7<<5) | 0x1F)  // System Reset command does not use an address.
 										// It requires 0x1F, however.
-#define ETHER_IP    			(0x00u)
-#define ETHER_ARP   			(0x06u)
-
-#ifdef BIG_ENDIAN
-typedef union {
-	BYTE v[7];
-	struct
-    {
-        BYTE HB;
-		BYTE B6;
-		BYTE B5;
-		BYTE B4;
-		BYTE B3;
-		BYTE B2;
-        BYTE LB;
-    } byte;
-	struct {
-		unsigned char	Zeros:4;
-		unsigned char	VLANTaggedFrame:1;
-		unsigned char	BackpressureApplied:1;
-		unsigned char	PAUSEControlFrame:1;
-		unsigned char	ControlFrame:1;
-		WORD 	 		BytesTransmittedOnWire;
-		unsigned char	Underrun:1;
-		unsigned char	Giant:1;
-		unsigned char	LateCollision:1;
-		unsigned char	MaximumCollisions:1;
-		unsigned char	ExcessiveDefer:1;
-		unsigned char	PacketDefer:1;
-		unsigned char	Broadcast:1;
-		unsigned char	Multicast:1;
-		unsigned char	Done:1;
-		unsigned char	LengthOutOfRange:1;
-		unsigned char	LengthCheckError:1;
-		unsigned char	CRCError:1;
-		unsigned char	CollisionCount:4;
-		WORD	 		ByteCount;
-	} bits;
-} TXSTATUS;
-
-typedef union {
-	BYTE v[4];
-	struct
-    {
-        BYTE HB;
-		BYTE B3;
-		BYTE B2;
-        BYTE LB;
-    } byte;
-	struct {
-		unsigned char	Zero:1;
-		unsigned char	VLANType:1;
-		unsigned char	UnsupportedOpcode:1;
-		unsigned char	PauseControlFrame:1;
-		unsigned char	ControlFrame:1;
-		unsigned char	DribbleNibble:1;
-		unsigned char	Broadcast:1;
-		unsigned char	Multicast:1;
-		unsigned char	ReceiveOk:1;
-		unsigned char	LengthOutOfRange:1;
-		unsigned char	LengthCheckError:1;
-		unsigned char	CRCError:1;
-		unsigned char	CodeViolation:1;
-		unsigned char	CarrierPreviouslySeen:1;
-		unsigned char	RXDCPreviouslySeen:1;
-		unsigned char	PreviouslyIgnored:1;
-		WORD	 		ByteCount;
-	} bits;
-} RXSTATUS;
-
-#else	//#ifdef BIG_ENDIAN
-
-typedef union {
-	BYTE v[7];
-	struct
-    {
-        BYTE LB;
-		BYTE B2;
-		BYTE B3;
-		BYTE B4;
-		BYTE B5;
-		BYTE B6;
-        BYTE HB;
-    } byte;
-	struct {
-		WORD	 		ByteCount;
-		unsigned char	CollisionCount:4;
-		unsigned char	CRCError:1;
-		unsigned char	LengthCheckError:1;
-		unsigned char	LengthOutOfRange:1;
-		unsigned char	Done:1;
-		unsigned char	Multicast:1;
-		unsigned char	Broadcast:1;
-		unsigned char	PacketDefer:1;
-		unsigned char	ExcessiveDefer:1;
-		unsigned char	MaximumCollisions:1;
-		unsigned char	LateCollision:1;
-		unsigned char	Giant:1;
-		unsigned char	Underrun:1;
-		WORD 	 		BytesTransmittedOnWire;
-		unsigned char	ControlFrame:1;
-		unsigned char	PAUSEControlFrame:1;
-		unsigned char	BackpressureApplied:1;
-		unsigned char	VLANTaggedFrame:1;
-		unsigned char	Zeros:4;
-	} bits;
-} TXSTATUS;
-
-typedef union {
-	BYTE v[4];
-	struct
-    {
-        BYTE LB;
-		BYTE B2;
-		BYTE B3;
-        BYTE HB;
-    } byte;
-	struct {
-		WORD	 		ByteCount;
-		unsigned char	PreviouslyIgnored:1;
-		unsigned char	RXDCPreviouslySeen:1;
-		unsigned char	CarrierPreviouslySeen:1;
-		unsigned char	CodeViolation:1;
-		unsigned char	CRCError:1;
-		unsigned char	LengthCheckError:1;
-		unsigned char	LengthOutOfRange:1;
-		unsigned char	ReceiveOk:1;
-		unsigned char	Multicast:1;
-		unsigned char	Broadcast:1;
-		unsigned char	DribbleNibble:1;
-		unsigned char	ControlFrame:1;
-		unsigned char	PauseControlFrame:1;
-		unsigned char	UnsupportedOpcode:1;
-		unsigned char	VLANType:1;
-		unsigned char	Zero:1;
-	} bits;
-} RXSTATUS;
-#endif
+										
 /******************************************************************************
 * Register locations
 ******************************************************************************/
@@ -432,8 +212,6 @@ typedef union {
 //#define ESTAT		0x31D
 //#define ECON2		0x31E
 //#define ECON1		0x31F
-
-
 
 // Structures
 typedef union _REG 

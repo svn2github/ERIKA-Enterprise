@@ -66,62 +66,10 @@
  * Howard Schlunder     8/07/06 Added SetRXHashTableEntry() function
 ********************************************************************/
 
-/* List of functions:
-	void MACInit(void)
-	BOOL MACIsLinked(void)
-	BOOL MACIsTxReady(void)
-	void MACDiscardRx(void)
-	WORD MACGetFreeRxSize(void)
-	BOOL MACGetHeader(MAC_ADDR *remote, BYTE* type)
-	void MACPutHeader(MAC_ADDR *remote, BYTE type, WORD dataLen)
-	void MACFlush(void)
-	void MACSetReadPtrInRx(WORD offset)
-	WORD MACSetWritePtr(WORD Address)
-	WORD MACSetReadPtr(WORD Address)
-	WORD MACCalcRxChecksum(WORD offset, WORD len)
-	WORD CalcIPBufferChecksum(WORD len)
-	void MACMemCopyAsync(WORD destAddr, WORD sourceAddr, WORD len)
-	BYTE MACGet()
-	WORD MACGetArray(BYTE *val, WORD len)
-	void MACPut(BYTE val)
-	void MACPutArray(BYTE *val, WORD len)
-	void MACPutROMArray(ROM BYTE *val, WORD len)
-	void MACPowerDown(void)
-	void MACPowerUp(void)
-	void SetCLKOUT(BYTE NewConfig)
-	BYTE GetCLKOUT(void)
-	void SetRXHashTableEntry(MAC_ADDR DestMACAddr)
-	void SendSystemReset(void)
-	void WriteReg(BYTE Address, BYTE Data)
-	REG ReadETHReg(BYTE Address)
-	REG ReadMACReg(BYTE Address)
-	void WritePHYReg(BYTE Register, WORD Data)
-	PHYREG ReadPHYReg(BYTE Register)
-	void BFCReg(BYTE Address, BYTE Data)
-	void BFSReg(BYTE Address, BYTE Data)
-	static void BankSel(WORD Register)
-	WORD swaps(WORD v);
-*/
-
 #define __ENC28J60_C
 
-#include "ENC28J60.h"
+#include "enc28j60.h"
 #include "string.h"
-
-/* @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ */
-/* WRAPPER */
-void MACPutHeader(MAC_ADDR *remote, BYTE type, WORD dataLen);
-BOOL MACIsTxReady(void);
-void MACPut(BYTE val);
-void MACPutArray(BYTE *val, WORD len);
-void MACFlush(void);
-void WritePHYReg(BYTE Register, WORD Data);
-PHYREG ReadPHYReg(BYTE Register);
-WORD MACGetArray(BYTE *val, WORD len);
-WORD CalcIPBufferChecksum(WORD len);
-BYTE MACGet(void);
-WORD swaps(WORD v);
-/* @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ */
 
 // A header appended at the start of all RX frames by the hardware
 typedef struct  __attribute__((aligned(2), packed))
@@ -133,17 +81,6 @@ typedef struct  __attribute__((aligned(2), packed))
     MAC_ADDR        SourceMACAddr;
     WORD_VAL        Type;
 } ENC_PREAMBLE;
-
-// Prototypes of functions intended for MAC layer use only.
-void BankSel(WORD Register);
-REG ReadETHReg(BYTE Address);
-REG ReadMACReg(BYTE Address);
-void WriteReg(BYTE Address, BYTE Data);
-void BFCReg(BYTE Address, BYTE Data);
-void BFSReg(BYTE Address, BYTE Data);
-void SendSystemReset(void);
-//static void GetRegs(void);
-//void Get8KBRAM(void);
 
 // Internal MAC level variables and flags.
 static WORD_VAL NextPacketLocation;
@@ -205,54 +142,12 @@ WORD swaps(WORD v)
  *
  * Note:            None
  *****************************************************************************/
-void MACInit(void)
+void EE_enc28j60_mac_init(void)
 {
     BYTE i;
 
-    // Set up the SPI module on the PIC for communications with the ENC28J60
-    ENC_CS_IO_f(1);			//ENC_CS_IO = 1;
-	ENC_CS_TRIS_f(0);		//ENC_CS_TRIS = 0;        // Make the Chip Select pin an output
-
-#if defined(__18CXX)
-    ENC_SCK_TRIS = 0;
-    ENC_SDO_TRIS = 0;
-    ENC_SDI_TRIS = 1;
-#endif
-
-    // If the RESET pin is connected, take the chip out of reset
-#if defined(ENC_RST_IO)
-    ENC_RST_IO      = 1;
-    ENC_RST_TRIS    = 0;
-#endif
-
-    // Set up SPI
-    ClearSPIDoneFlag();
-#if defined(__18CXX)
-    ENC_SPICON1 = 0x20;     // SSPEN bit is set, SPI in master mode, FOSC/4,
-                            //   IDLE state is low level
-    ENC_SPISTATbits.CKE = 1;// Transmit data on rising edge of clock
-    ENC_SPISTATbits.SMP = 0;// Input sampled at middle of data output time
-#elif defined(__C30__)
-    ENC_SPISTAT = 0;        // clear SPI
-    #if defined(__PIC24H__) || defined(__dsPIC33F__)
-        ENC_SPICON1 = 0x0F;     // 1:1 primary prescale, 5:1 secondary prescale (8MHz  @ 40MIPS)
-    //    ENC_SPICON1 = 0x1E;   // 4:1 primary prescale, 1:1 secondary prescale (10MHz @ 40MIPS, Doesn't work.  CLKRDY is incorrectly reported as being clear.  Problem caused by dsPIC33/PIC24H ES silicon bug.)
-    #elif defined(__PIC24F__)
-    //    ENC_SPICON1 = 0x1F;   // 1:1 prescale broken on PIC24F ES silicon     (16MHz @ 16MIPS)
-        ENC_SPICON1 = 0x1B;     // 1:1 primary prescale, 2:1 secondary prescale (8MHz  @ 16MIPS)
-    #else   // dsPIC30F
-        ENC_SPICON1 = 0x17;     // 1:1 primary prescale, 3:1 secondary prescale (10MHz @ 30MIPS)
-    #endif
-    ENC_SPICON2 = 0;
-    ENC_SPICON1bits.CKE = 1;
-    ENC_SPICON1bits.MSTEN = 1;
-    ENC_SPISTATbits.SPIEN = 1;
-#elif defined(__C32__)
-    ENC_SPIBRG = (GetPeripheralClock()-1ul)/2ul/ENC_MAX_SPI_FREQ;
-    ENC_SPICON1bits.CKE = 1;
-    ENC_SPICON1bits.MSTEN = 1;
-    ENC_SPICON1bits.ON = 1;
-#endif
+	// SPI module configuration
+    EE_enc28j60_spi_init();
 
     // RESET the entire ENC28J60, clearing all registers
     // Also wait for CLKRDY to become set.
@@ -412,7 +307,7 @@ void MACInit(void)
  *
  * Note:            None
  *****************************************************************************/
-BOOL MACIsLinked(void)
+BOOL EE_enc28j60_mac_IsLinked(void)
 {
     // LLSTAT is a latching low link status bit.  Therefore, if the link
     // goes down and comes back up before a higher level stack program calls
@@ -444,7 +339,7 @@ BOOL MACIsLinked(void)
  *
  * Note:            None
  *****************************************************************************/
-BOOL MACIsTxReady(void)
+BOOL EE_enc28j60_mac_IsTxReady(void)
 {
     //return !ReadETHReg(ECON1).ECON1bits.TXRTS;
 	return !(ReadETHReg(ECON1).Val & ECON1_TXRTS);
@@ -470,7 +365,7 @@ BOOL MACIsTxReady(void)
  *                  MACGetHeader() calls.  Extra packets won't be thrown away
  *                  until MACGetHeader() makes it available.
  *****************************************************************************/
-void MACDiscardRx(void)
+void EE_enc28j60_mac_discard_rx(void)
 {
     WORD_VAL NewRXRDLocation;
 
@@ -516,7 +411,7 @@ void MACDiscardRx(void)
  *
  * Note:            None
  *****************************************************************************/
-WORD MACGetFreeRxSize(void)
+WORD EE_enc28j60_mac_get_FreeRxSize(void)
 {
     WORD_VAL ReadPT, WritePT;
 
@@ -579,7 +474,7 @@ WORD MACGetFreeRxSize(void)
  *
  * Note:            None
  *****************************************************************************/
-BOOL MACGetHeader(MAC_ADDR *remote, BYTE* type)
+BOOL EE_enc28j60_mac_get_header(MAC_ADDR *remote, BYTE* type)
 {
     ENC_PREAMBLE header;
     BYTE PacketCount;
@@ -668,7 +563,7 @@ BOOL MACGetHeader(MAC_ADDR *remote, BYTE* type)
  *                  is constructed (header first or data first) is not
  *                  important.
  *****************************************************************************/
-void MACPutHeader(MAC_ADDR *remote, BYTE type, WORD dataLen)
+void EE_enc28j60_mac_put_header(MAC_ADDR *remote, BYTE type, WORD dataLen)
 {
     // Set the SPI write pointer to the beginning of the transmit buffer (post per packet control byte)
     WriteReg(EWRPTL, LOW(TXSTART+1));
@@ -716,7 +611,7 @@ void MACPutHeader(MAC_ADDR *remote, BYTE type, WORD dataLen)
  *                  called (in the TX data area), the data in the TX buffer
  *                  will not be corrupted.
  *****************************************************************************/
-void MACFlush(void)
+void EE_enc28j60_mac_flush(void)
 {
     // Reset transmit logic if a TX Error has previously occured
     // This is a silicon errata workaround
@@ -820,7 +715,7 @@ void MACFlush(void)
  *                  define an RX buffer which spans the 0x1FFF->0x0000 memory
  *                  boundary.
  *****************************************************************************/
-void MACSetReadPtrInRx(WORD offset)
+void EE_enc28j60_mac_set_read_ptr_inRx(WORD offset)
 {
     WORD_VAL ReadPT;
 
@@ -854,7 +749,7 @@ void MACSetReadPtrInRx(WORD offset)
  *
  * Note:            None
  *****************************************************************************/
-WORD MACSetWritePtr(WORD address)
+WORD EE_enc28j60_mac_set_write_ptr(WORD address)
 {
     WORD_VAL oldVal;
 
@@ -884,7 +779,7 @@ WORD MACSetWritePtr(WORD address)
  *
  * Note:            None
  *****************************************************************************/
-WORD MACSetReadPtr(WORD address)
+WORD EE_enc28j60_mac_set_read_ptr(WORD address)
 {
     WORD_VAL oldVal;
 
@@ -918,7 +813,7 @@ WORD MACSetReadPtr(WORD address)
  *
  * Note:            None
  *****************************************************************************/
-WORD MACCalcRxChecksum(WORD offset, WORD len)
+WORD EE_enc28j60_mac_CalcRxChecksum(WORD offset, WORD len)
 {
     WORD_VAL temp;
     WORD_VAL RDSave;
@@ -970,7 +865,7 @@ WORD MACCalcRxChecksum(WORD offset, WORD len)
  * Note:            This function works either in the RX buffer area or the TX
  *                  buffer area.  No validation is done on the len parameter.
  *****************************************************************************/
-WORD CalcIPBufferChecksum(WORD len)
+WORD EE_enc28j60_mac_CalcIPBufferChecksum(WORD len)
 {
     WORD_VAL Start;
     DWORD_VAL Checksum = {0x00000000ul};
@@ -1051,7 +946,7 @@ WORD CalcIPBufferChecksum(WORD len)
  *                  parameters, then that pointer will get updated with the
  *                  next address after the read or write.
  *****************************************************************************/
-void MACMemCopyAsync(WORD destAddr, WORD sourceAddr, WORD len)
+void EE_enc28j60_mac_MemCopyAsync(WORD destAddr, WORD sourceAddr, WORD len)
 {
     WORD_VAL ReadSave, WriteSave;
     BOOL UpdateWritePointer = FALSE;
@@ -1132,928 +1027,10 @@ void MACMemCopyAsync(WORD destAddr, WORD sourceAddr, WORD len)
     }
 }
 
-BOOL MACIsMemCopyDone(void)
+BOOL EE_enc28j60_mac_IsMemCopyDone(void)
 {
     return !(ReadETHReg(ECON1).Val & ECON1_DMAST);
 }
-
-
-/******************************************************************************
- * Function:        BYTE MACGet()
- *
- * PreCondition:    SPI bus must be initialized (done in MACInit()).
- *                  ERDPT must point to the place to read from.
- *
- * Input:           None
- *
- * Output:          Byte read from the ENC28J60's RAM
- *
- * Side Effects:    None
- *
- * Overview:        MACGet returns the byte pointed to by ERDPT and
- *                  increments ERDPT so MACGet() can be called again.  The
- *                  increment will follow the receive buffer wrapping boundary.
- *
- * Note:            None
- *****************************************************************************/
-BYTE MACGet()
-{
-	BYTE Result = 0;
-	
-    ENC_CS_IO_f(0);			//ENC_CS_IO = 0;
-	ClearSPIDoneFlag();
-	
-    #if defined(__C32__)
-    {
-        // Send the opcode and read a byte in one 16-bit operation
-        ENC_SPICON1bits.MODE16 = 1;
-        ENC_SSPBUF = ENC28J60_RBM<<8 | 0x00; // Send Read Buffer Memory command plus 8 dummy bits to generate clocks for the return result
-        WaitForDataByte();          // Wait until WORD is transmitted
-        ENC_SPICON1bits.MODE16 = 0;
-		Result = ENC_SSPBUF;
-    }
-    #elif defined(__C30__)
-    {
-        // Send the opcode and read a byte in one 16-bit operation
-        ENC_SPISTATbits.SPIEN = 0;
-        ENC_SPICON1bits.MODE16 = 1;
-        ENC_SPISTATbits.SPIEN = 1;
-        ENC_SSPBUF = ENC28J60_RBM<<8 | 0x00; // Send Read Buffer Memory command plus 8 dummy bits to generate clocks for the return result
-        WaitForDataByte();          // Wait until WORD is transmitted
-        ENC_SPISTATbits.SPIEN = 0;
-        ENC_SPICON1bits.MODE16 = 0;
-        ENC_SPISTATbits.SPIEN = 1;
-		Result = ENC_SSPBUF;
-    }
-	#elif defined(__LM32__)
-	{
-		EE_enc28j60_read_buffer_memory(&Result, 1);
-    }
-	#else
-    {
-        // Send the opcode and read a byte in two 8-bit operations
-        ENC_SSPBUF = ENC28J60_RBM;
-        WaitForDataByte();      // Wait until opcode/address is transmitted.
-        Result = ENC_SSPBUF;
-
-        ENC_SSPBUF = 0;         // Send a dummy byte to receive the register
-                                //   contents.
-        WaitForDataByte();      // Wait until register is received.
-		Result = ENC_SSPBUF;
-    }
-    #endif
-
-    ENC_CS_IO_f(1);	//ENC_CS_IO = 1;
-	return Result;
-}//end MACGet
-
-
-/******************************************************************************
- * Function:        WORD MACGetArray(BYTE *val, WORD len)
- *
- * PreCondition:    SPI bus must be initialized (done in MACInit()).
- *                  ERDPT must point to the place to read from.
- *
- * Input:           *val: Pointer to storage location
- *                  len:  Number of bytes to read from the data buffer.
- *
- * Output:          Byte(s) of data read from the data buffer.
- *
- * Side Effects:    None
- *
- * Overview:        Burst reads several sequential bytes from the data buffer
- *                  and places them into local memory.  With SPI burst support,
- *                  it performs much faster than multiple MACGet() calls.
- *                  ERDPT is incremented after each byte, following the same
- *                  rules as MACGet().
- *
- * Note:            None
- *****************************************************************************/
-WORD MACGetArray(BYTE *val, WORD len)
-{
-// Workaround needed on HPC Explorer (classic) board to prevent interference
-// with I2C temperature sensor on the same SPI wires
-#if defined(__18F8722) || defined(_18F8722) ||  defined(__18F8723) || defined(_18F8723)
-    WORD i;
-    volatile BYTE Dummy;
-
-    i = len;
-    Dummy = 0xFF;
-    ClearSPIDoneFlag();
-    while(i--)
-    {
-        if(((BYTE_VAL*)&Dummy)->bits.b0)
-        {
-            // End bust operation
-            ENC_CS_IO_f(1);	//ENC_CS_IO = 1;
-            ((BYTE_VAL*)&Dummy)->bits.b0 = 0;
-
-            // Start the burst operation
-            ENC_CS_IO_f(0);	//ENC_CS_IO = 0;
-            ENC_SSPBUF = ENC28J60_RBM;       // Send the Read Buffer Memory opcode.
-            WaitForDataByte();      // Wait until opcode/address is transmitted.
-        }
-        else
-            Dummy = 0xFF;
-
-        ENC_SSPBUF = 0;     // Send a dummy byte to receive a byte
-        if(val)
-        {
-            WaitForDataByte();  // Wait until byte is received.
-            *val++ = ENC_SSPBUF;
-        }
-        else
-        {
-            WaitForDataByte();  // Wait until byte is received.
-        }
-    }
-
-    ENC_CS_IO_f(1);	//ENC_CS_IO = 1;
-
-    return len;
-#elif defined(__LM32__)
-	{
-		return EE_enc28j60_read_buffer_memory(val, len);
-	}
-#else
-    WORD i;
-    volatile BYTE Dummy;
-
-    // Start the burst operation
-    ENC_CS_IO_f(0);	//ENC_CS_IO = 0;
-    ClearSPIDoneFlag();
-    ENC_SSPBUF = ENC28J60_RBM;       // Send the Read Buffer Memory opcode.
-    i = 0;
-    if(val)
-        val--;
-    WaitForDataByte();      // Wait until opcode/address is transmitted.
-    Dummy = ENC_SSPBUF;
-
-    #if defined(__C32__)
-    {
-        DWORD_VAL dwv;
-
-        // Read the data, 4 bytes at a time, for as long as possible
-        if(len >= 4)
-        {
-            ENC_SPICON1bits.MODE32 = 1;
-            while(1)
-            {
-                ENC_SSPBUF = 0x00000000;    // Send a dummy DWORD to generate 32 clocks
-                i += 4;
-                WaitForDataByte();         // Wait until DWORD is transmitted
-                dwv.Val = ENC_SSPBUF;
-                if(val)
-                {
-                    *(++val) = dwv.v[3];
-                    *(++val) = dwv.v[2];
-                    *(++val) = dwv.v[1];
-                    *(++val) = dwv.v[0];
-                }
-                if(len - i < 4)
-                    break;
-            };
-            ENC_SPICON1bits.MODE32 = 0;
-        }
-    }
-    #elif defined(__C30__)
-    {
-        WORD_VAL wv;
-
-        // Read the data, 2 bytes at a time, for as long as possible
-        if(len >= 2)
-        {
-            ENC_SPISTATbits.SPIEN = 0;
-            ENC_SPICON1bits.MODE16 = 1;
-            ENC_SPISTATbits.SPIEN = 1;
-            while(1)
-            {
-                ENC_SSPBUF = 0x0000;    // Send a dummy WORD to generate 32 clocks
-                i += 2;
-                WaitForDataByte();      // Wait until WORD is transmitted
-                wv.Val = ENC_SSPBUF;
-                if(val)
-                {
-                    *(++val) = wv.v[1];
-                    *(++val) = wv.v[0];
-                }
-                if(len - i < 2)
-                    break;
-            };
-            ENC_SPISTATbits.SPIEN = 0;
-            ENC_SPICON1bits.MODE16 = 0;
-            ENC_SPISTATbits.SPIEN = 1;
-        }
-    }
-    #endif
-
-    // Read the data
-    while(i<len)
-    {
-        ENC_SSPBUF = 0;     // Send a dummy byte to receive a byte
-        i++;
-        if(val)
-        {
-            val++;
-            WaitForDataByte();  // Wait until byte is received.
-            *val = ENC_SSPBUF;
-        }
-        else
-        {
-            WaitForDataByte();  // Wait until byte is received.
-            Dummy = ENC_SSPBUF;
-        }
-    };
-
-    // Terminate the burst operation
-    ENC_CS_IO_f(1);	//ENC_CS_IO = 1;
-
-    return i;
-#endif
-}//end MACGetArray
-
-
-/******************************************************************************
- * Function:        void MACPut(BYTE val)
- *
- * PreCondition:    SPI bus must be initialized (done in MACInit()).
- *                  EWRPT must point to the location to begin writing.
- *
- * Input:           Byte to write into the ENC28J60 buffer memory
- *
- * Output:          None
- *
- * Side Effects:    None
- *
- * Overview:        MACPut outputs the Write Buffer Memory opcode/constant
- *                  (8 bits) and data to write (8 bits) over the SPI.
- *                  EWRPT is incremented after the write.
- *
- * Note:            None
- *****************************************************************************/
-void MACPut(BYTE val)
-{
-    ENC_CS_IO_f(0);	//ENC_CS_IO = 0;
-    ClearSPIDoneFlag();
-	
-    #if defined(__C32__)
-    {
-		volatile BYTE Dummy;
-        // Send the Write Buffer Memory and data, in on 16-bit write
-        ENC_SPICON1bits.MODE16 = 1;
-        ENC_SSPBUF = (ENC28J60_WBM<<8) | (WORD)val;  // Start sending the WORD
-        WaitForDataByte();                  // Wait until WORD is transmitted
-        ENC_SPICON1bits.MODE16 = 0;
-		Dummy = ENC_SSPBUF;
-    }
-    #elif defined(__C30__)
-    {
-		volatile BYTE Dummy;
-        // Send the Write Buffer Memory and data, in on 16-bit write
-        ENC_SPISTATbits.SPIEN = 0;
-        ENC_SPICON1bits.MODE16 = 1;
-        ENC_SPISTATbits.SPIEN = 1;
-        ENC_SSPBUF = (ENC28J60_WBM<<8) | (WORD)val;  // Start sending the WORD
-        WaitForDataByte();                  // Wait until WORD is transmitted
-        ENC_SPISTATbits.SPIEN = 0;
-        ENC_SPICON1bits.MODE16 = 0;
-        ENC_SPISTATbits.SPIEN = 1;
-		Dummy = ENC_SSPBUF;
-    }
-	#elif defined(__LM32__)
-	{
-		EE_enc28j60_write_buffer_memory(&val, 1);
-	}
-    #else
-    {
-		volatile BYTE Dummy;
-        ENC_SSPBUF = ENC28J60_WBM;       // Send the opcode and constant.
-        WaitForDataByte();      // Wait until opcode/constant is transmitted.
-        Dummy = ENC_SSPBUF;
-        ENC_SSPBUF = val;       // Send the byte to be writen.
-        WaitForDataByte();      // Wait until finished transmitting
-		Dummy = ENC_SSPBUF;
-    }
-    #endif
-
-    ENC_CS_IO_f(1);	//ENC_CS_IO = 1;
-
-}//end MACPut
-
-
-/******************************************************************************
- * Function:        void MACPutArray(BYTE *val, WORD len)
- *
- * PreCondition:    SPI bus must be initialized (done in MACInit()).
- *                  EWRPT must point to the location to begin writing.
- *
- * Input:           *val: Pointer to source of bytes to copy.
- *                  len:  Number of bytes to write to the data buffer.
- *
- * Output:          None
- *
- * Side Effects:    None
- *
- * Overview:        MACPutArray writes several sequential bytes to the
- *                  ENC28J60 RAM.  It performs faster than multiple MACPut()
- *                  calls.  EWRPT is incremented by len.
- *
- * Note:            None
- *****************************************************************************/
-void MACPutArray(BYTE *val, WORD len)
-{
-// Workaround needed on HPC Explorer (classic) board to prevent interference
-// with I2C temperature sensor on the same SPI wires
-#if defined(__18F8722) || defined(_18F8722) ||  defined(__18F8723) || defined(_18F8723)
-    WORD i;
-    volatile BYTE Dummy;
-    i = len;
-    Dummy = 0xFF;
-    ClearSPIDoneFlag();
-    while(i--)
-    {
-        if(((BYTE_VAL*)&Dummy)->bits.b0)
-        {
-            // End bust operation
-            ENC_CS_IO_f(1);	//ENC_CS_IO = 1;
-            ((BYTE_VAL*)&Dummy)->bits.b0 = 0;
-
-            // Start the burst operation
-            ENC_CS_IO_f(0);	//ENC_CS_IO = 0;
-            ENC_SSPBUF = ENC28J60_WBM;       // Send the Read Buffer Memory opcode.
-            WaitForDataByte();      // Wait until opcode/address is transmitted.
-        }
-        else
-            Dummy = 0xFF;
-
-        ENC_SSPBUF = *val++;    // Send byte
-        WaitForDataByte();      // Wait until byte is sent
-    }
-    ENC_CS_IO_f(1);	//ENC_CS_IO = 1;
-    return;
-	
-#elif defined(__LM32__)
-	EE_enc28j60_write_buffer_memory(val, len);
-    return;
-	
-#else
-    volatile BYTE Dummy;
-    // Select the chip and send the proper opcode
-    ENC_CS_IO_f(0);	//ENC_CS_IO = 0;
-    ClearSPIDoneFlag();
-    ENC_SSPBUF = ENC28J60_WBM;       // Send the Write Buffer Memory opcode
-    WaitForDataByte();      // Wait until opcode/constant is transmitted.
-    Dummy = ENC_SSPBUF;
-    #if defined(__C32__)
-    {
-        DWORD_VAL dwv;
-
-        // Send the data, 4 bytes at a time, for as long as possible
-        if(len >= 4)
-        {
-            dwv.v[3] = *val++;
-            dwv.v[2] = *val++;
-            dwv.v[1] = *val++;
-            dwv.v[0] = *val++;
-            ENC_SPICON1bits.MODE32 = 1;
-            while(1)
-            {
-                ENC_SSPBUF = dwv.Val;       // Start sending the DWORD
-                len -= 4;
-                if(len < 4)
-                    break;
-                dwv.v[3] = *val++;
-                dwv.v[2] = *val++;
-                dwv.v[1] = *val++;
-                dwv.v[0] = *val++;
-                WaitForDataByte();          // Wait until DWORD is transmitted
-                Dummy = ENC_SSPBUF;
-            };
-            WaitForDataByte();              // Wait until DWORD is transmitted
-            Dummy = ENC_SSPBUF;
-            ENC_SPICON1bits.MODE32 = 0;
-        }
-    }
-    #elif defined(__C30__)
-    {
-        WORD_VAL wv;
-
-        // Send the data, 2 bytes at a time, for as long as possible
-        if(len >= 2)
-        {
-            wv.v[1] = *val++;
-            wv.v[0] = *val++;
-            ENC_SPISTATbits.SPIEN = 0;
-            ENC_SPICON1bits.MODE16 = 1;
-            ENC_SPISTATbits.SPIEN = 1;
-            while(1)
-            {
-                ENC_SSPBUF = wv.Val;        // Start sending the WORD
-                len -= 2;
-                if(len < 2)
-                    break;
-                wv.v[1] = *val++;
-                wv.v[0] = *val++;
-                WaitForDataByte();          // Wait until WORD is transmitted
-                Dummy = ENC_SSPBUF;
-            };
-            WaitForDataByte();              // Wait until WORD is transmitted
-            Dummy = ENC_SSPBUF;
-            ENC_SPISTATbits.SPIEN = 0;
-            ENC_SPICON1bits.MODE16 = 0;
-            ENC_SPISTATbits.SPIEN = 1;
-        }
-    }
-    #endif
-    // Send the data, one byte at a time
-    while(len)
-    {
-        ENC_SSPBUF = *val;  // Start sending the byte
-        val++;              // Increment after writing to ENC_SSPBUF to increase speed
-        len--;              // Decrement after writing to ENC_SSPBUF to increase speed
-        WaitForDataByte();  // Wait until byte is transmitted
-        Dummy = ENC_SSPBUF;
-    };
-    // Terminate the burst operation
-    ENC_CS_IO_f(1);	//ENC_CS_IO = 1;
-#endif
-}//end MACPutArray
-
-
-#if defined(__18CXX)
-/******************************************************************************
- * Function:        void MACPutROMArray(ROM BYTE *val, WORD len)
- *
- * PreCondition:    SPI bus must be initialized (done in MACInit()).
- *                  EWRPT must point to the location to begin writing.
- *
- * Input:           *val: Pointer to source of bytes to copy.
- *                  len:  Number of bytes to write to the data buffer.
- *
- * Output:          None
- *
- * Side Effects:    None
- *
- * Overview:        MACPutArray writes several sequential bytes to the
- *                  ENC28J60 RAM.  It performs faster than multiple MACPut()
- *                  calls.  EWRPT is incremented by len.
- *
- * Note:            None
- *****************************************************************************/
-void MACPutROMArray(ROM BYTE *val, WORD len)
-{
-// Workaround needed on HPC Explorer (classic) board to prevent interference
-// with I2C temperature sensor on the same SPI wires
-#if defined(__18F8722) || defined(_18F8722) ||  defined(__18F8723) || defined(_18F8723)
-    WORD i;
-    volatile BYTE Dummy;
-
-    i = len;
-    Dummy = 0xFF;
-    ClearSPIDoneFlag();
-    while(i--)
-    {
-        if(((BYTE_VAL*)&Dummy)->bits.b0)
-        {
-            // End bust operation
-            ENC_CS_IO_f(1);	//ENC_CS_IO = 1;
-            ((BYTE_VAL*)&Dummy)->bits.b0 = 0;
-
-            // Start the burst operation
-            ENC_CS_IO_f(0);	//ENC_CS_IO = 0;
-            ENC_SSPBUF = ENC28J60_WBM;       // Send the Read Buffer Memory opcode.
-            WaitForDataByte();      // Wait until opcode/address is transmitted.
-        }
-        else
-            Dummy = 0xFF;
-
-        ENC_SSPBUF = *val++;    // Send byte
-        WaitForDataByte();      // Wait until byte is sent
-    }
-
-    ENC_CS_IO_f(1);	//ENC_CS_IO = 1;
-
-    return;
-#else
-    volatile BYTE Dummy;
-
-    // Select the chip and send the proper opcode
-    ENC_CS_IO_f(0);	//ENC_CS_IO = 0;
-    ClearSPIDoneFlag();
-    ENC_SSPBUF = ENC28J60_WBM;       // Send the Write Buffer Memory opcode
-    WaitForDataByte();      // Wait until opcode/constant is transmitted.
-    Dummy = ENC_SSPBUF;
-
-    // Send the data
-    while(len)
-    {
-        ENC_SSPBUF = *val;  // Start sending the byte
-        val++;              // Increment after writing to ENC_SSPBUF to increase speed
-        len--;              // Decrement after writing to ENC_SSPBUF to increase speed
-        WaitForDataByte();  // Wait until byte is transmitted
-        Dummy = ENC_SSPBUF;
-    };
-
-    // Terminate the burst operation
-    ENC_CS_IO_f(1);	//ENC_CS_IO = 1;
-#endif
-}//end MACPutROMArray
-#endif
-
-/******************************************************************************
- * Function:        static void SendSystemReset(void)
- *
- * PreCondition:    SPI bus must be initialized (done in MACInit()).
- *
- * Input:           None
- *
- * Output:          None
- *
- * Side Effects:    None
- *
- * Overview:        SendSystemReset sends the System Reset SPI command to
- *                  the Ethernet controller.  It resets all register contents
- *                  (except for ECOCON) and returns the device to the power
- *                  on default state.
- *
- * Note:            None
- *****************************************************************************/
-//static void SendSystemReset(void)
-void SendSystemReset(void)
-{
-	#ifdef __LM32__
-	EE_enc28j60_software_reset();
-	#else
-	volatile BYTE Dummy;
-    // Note: The power save feature may prevent the reset from executing, so
-    // we must make sure that the device is not in power save before issuing
-    // a reset.
-    BFCReg(ECON2, ECON2_PWRSV);
-    // Give some opportunity for the regulator to reach normal regulation and
-    // have all clocks running
-    DelayMs(1);
-    // Execute the System Reset command
-    ENC_CS_IO_f(0);	//ENC_CS_IO = 0;
-    ClearSPIDoneFlag();
-    ENC_SSPBUF = ENC28J60_SR;
-    WaitForDataByte();      // Wait until the command is transmitted.
-    Dummy = ENC_SSPBUF;
-    ENC_CS_IO_f(1);	//ENC_CS_IO = 1;
-	// Wait for the oscillator start up timer and PHY to become ready
-    DelayMs(1);
-	#endif
-}//end SendSystemReset
-
-
-/******************************************************************************
- * Function:        REG ReadETHReg(BYTE Address)
- *
- * PreCondition:    SPI bus must be initialized (done in MACInit()).
- *                  Bank select bits must be set corresponding to the register
- *                  to read from.
- *
- * Input:           5 bit address of the ETH control register to read from.
- *                    The top 3 bits must be 0.
- *
- * Output:          Byte read from the Ethernet controller's ETH register.
- *
- * Side Effects:    None
- *
- * Overview:        ReadETHReg sends the 8 bit RCR opcode/Address byte over
- *                  the SPI and then retrives the register contents in the
- *                  next 8 SPI clocks.
- *
- * Note:            This routine cannot be used to access MAC/MII or PHY
- *                  registers.  Use ReadMACReg() or ReadPHYReg() for that
- *                  purpose.
- *****************************************************************************/
-//static REG ReadETHReg(BYTE Address)
-REG ReadETHReg(BYTE Address)
-{
-    REG r;
-
-	#ifdef __LM32__
-	r.Val = EE_enc28j60_read_ETH_register(Address);
-	#else
-    // Select the chip and send the Read Control Register opcode/address
-    ENC_CS_IO_f(0);	//ENC_CS_IO = 0;
-    ClearSPIDoneFlag();
-    ENC_SSPBUF = ENC28J60_RCR | Address;
-
-    WaitForDataByte();      // Wait until the opcode/address is transmitted
-    r.Val = ENC_SSPBUF;
-    ENC_SSPBUF = 0;         // Send a dummy byte to receive the register
-                            //   contents
-    WaitForDataByte();      // Wait until the register is received
-    r.Val = ENC_SSPBUF;
-    ENC_CS_IO_f(1);	//ENC_CS_IO = 1;
-	#endif
-	
-    return r;
-}//end ReadETHReg
-
-
-/******************************************************************************
- * Function:        REG ReadMACReg(BYTE Address)
- *
- * PreCondition:    SPI bus must be initialized (done in MACInit()).
- *                  Bank select bits must be set corresponding to the register
- *                  to read from.
- *
- * Input:           5 bit address of the MAC or MII register to read from.
- *                    The top 3 bits must be 0.
- *
- * Output:          Byte read from the Ethernet controller's MAC/MII register.
- *
- * Side Effects:    None
- *
- * Overview:        ReadMACReg sends the 8 bit RCR opcode/Address byte as well
- *                  as a dummy byte over the SPI and then retrives the
- *                  register contents in the last 8 SPI clocks.
- *
- * Note:            This routine cannot be used to access ETH or PHY
- *                  registers.  Use ReadETHReg() or ReadPHYReg() for that
- *                  purpose.
- *****************************************************************************/
-//static REG ReadMACReg(BYTE Address)
-REG ReadMACReg(BYTE Address)
-{
-    REG r;
-
-	#ifdef __LM32__
-	r.Val = EE_enc28j60_read_MAC_register(Address);
-	#else
-    ENC_CS_IO_f(0);	//ENC_CS_IO = 0;
-    ClearSPIDoneFlag();
-    ENC_SSPBUF = ENC28J60_RCR | Address; // Send the Read Control Register opcode and
-                                //   address.
-    WaitForDataByte();          // Wait until opcode/address is transmitted.
-    r.Val = ENC_SSPBUF;
-    ENC_SSPBUF = 0;             // Send a dummy byte
-    WaitForDataByte();          // Wait for the dummy byte to be transmitted
-    r.Val = ENC_SSPBUF;
-    ENC_SSPBUF = 0;             // Send another dummy byte to receive the register
-                                //   contents.
-    WaitForDataByte();          // Wait until register is received.
-    r.Val = ENC_SSPBUF;
-    ENC_CS_IO_f(1);	//ENC_CS_IO = 1;
-	#endif
-	
-    return r;
-}//end ReadMACReg
-
-
-/******************************************************************************
- * Function:        ReadPHYReg
- *
- * PreCondition:    SPI bus must be initialized (done in MACInit()).
- *
- * Input:           Address of the PHY register to read from.
- *
- * Output:          16 bits of data read from the PHY register.
- *
- * Side Effects:    None
- *
- * Overview:        ReadPHYReg performs an MII read operation.  While in
- *                  progress, it simply polls the MII BUSY bit wasting time
- *                  (10.24us).
- *
- * Note:            None
- *****************************************************************************/
-PHYREG ReadPHYReg(BYTE Register)
-{
-    PHYREG Result;
-
-    // Set the right address and start the register read operation
-    BankSel(MIREGADR);
-    WriteReg((BYTE)MIREGADR, Register);
-    WriteReg((BYTE)MICMD, MICMD_MIIRD);
-
-    // Loop to wait until the PHY register has been read through the MII
-    // This requires 10.24us
-    BankSel(MISTAT);
-	while(ReadMACReg((BYTE)MISTAT).Val & MISTAT_BUSY);
-	
-	// Stop reading
-    BankSel(MIREGADR);
-    WriteReg((BYTE)MICMD, 0x00);
-	Result.VAL.byte.LB = ReadMACReg((BYTE)MIRDL).Val;
-    Result.VAL.byte.HB = ReadMACReg((BYTE)MIRDH).Val;
-    BankSel(ERDPTL);    // Return to Bank 0
-	
-    return Result;
-}//end ReadPHYReg
-
-
-/******************************************************************************
- * Function:        void WriteReg(BYTE Address, BYTE Data)
- *
- * PreCondition:    SPI bus must be initialized (done in MACInit()).
- *                  Bank select bits must be set corresponding to the register
- *                  to modify.
- *
- * Input:           5 bit address of the ETH, MAC, or MII register to modify.
- *                    The top 3 bits must be 0.
- *                  Byte to be written into the register.
- *
- * Output:          None
- *
- * Side Effects:    None
- *
- * Overview:        WriteReg sends the 8 bit WCR opcode/Address byte over the
- *                  SPI and then sends the data to write in the next 8 SPI
- *                  clocks.
- *
- * Note:            This routine is almost identical to the BFCReg() and
- *                  BFSReg() functions.  It is seperate to maximize speed.
- *                  Unlike the ReadETHReg/ReadMACReg functions, WriteReg()
- *                  can write to any ETH or MAC register.  Writing to PHY
- *                  registers must be accomplished with WritePHYReg().
- *****************************************************************************/
-//static void WriteReg(BYTE Address, BYTE Data)
-void WriteReg(BYTE Address, BYTE Data)
-{
-    ENC_CS_IO_f(0);	//ENC_CS_IO = 0;
-    ClearSPIDoneFlag();
-	
-	#if defined(__C32__)
-    {
-		volatile BYTE Dummy;
-        // Send the Write Buffer Memory and data, in on 16-bit write
-        ENC_SPICON1bits.MODE16 = 1;
-        ENC_SSPBUF = ((ENC28J60_WCR | Address)<<8) | (WORD)Data; // Start sending the WORD
-        WaitForDataByte();                  // Wait until WORD is transmitted
-        ENC_SPICON1bits.MODE16 = 0;
-		Dummy = ENC_SSPBUF;
-    }
-	#elif defined(__LM32__)
-	{
-		EE_enc28j60_write_register(Address, Data);
-	}
-    #else
-    {
-		volatile BYTE Dummy;
-        ENC_SSPBUF = ENC28J60_WCR | Address; // Send the opcode and address.
-        WaitForDataByte();          // Wait until opcode/constant is transmitted.
-        Dummy = ENC_SSPBUF;
-        ENC_SSPBUF = Data;          // Send the byte to be writen.
-        WaitForDataByte();          // Wait until finished transmitting
-		Dummy = ENC_SSPBUF;
-    }
-    #endif
-
-    ENC_CS_IO_f(1);	//ENC_CS_IO = 1;
-}//end WriteReg
-
-
-/******************************************************************************
- * Function:        void BFCReg(BYTE Address, BYTE Data)
- *
- * PreCondition:    SPI bus must be initialized (done in MACInit()).
- *                  Bank select bits must be set corresponding to the register
- *                    to modify.
- *
- * Input:           5 bit address of the register to modify.  The top 3 bits
- *                    must be 0.
- *                  Byte to be used with the Bit Field Clear operation.
- *
- * Output:          None
- *
- * Side Effects:    None
- *
- * Overview:        BFCReg sends the 8 bit BFC opcode/Address byte over the
- *                  SPI and then sends the data in the next 8 SPI clocks.
- *
- * Note:            This routine is almost identical to the WriteReg() and
- *                  BFSReg() functions.  It is separate to maximize speed.
- *                  BFCReg() must only be used on ETH registers.
- *****************************************************************************/
-//static void BFCReg(BYTE Address, BYTE Data)
-void BFCReg(BYTE Address, BYTE Data)
-{
-	#ifdef __LM32__
-	EE_enc28j60_bit_field_clear(Address, Data);
-	#else
-	volatile BYTE Dummy;
-    ENC_CS_IO_f(0);	//ENC_CS_IO = 0;
-    ClearSPIDoneFlag();
-    ENC_SSPBUF = ENC28J60_BFC | Address; // Send the opcode and address.
-    WaitForDataByte();          // Wait until opcode/address is transmitted.
-    Dummy = ENC_SSPBUF;
-    ENC_SSPBUF = Data;          // Send the byte to be writen.
-    WaitForDataByte();          // Wait until register is written.
-    Dummy = ENC_SSPBUF;
-    ENC_CS_IO_f(1);	//ENC_CS_IO = 1;
-	#endif
-	
-}//end BFCReg
-
-
-/******************************************************************************
- * Function:        void BFSReg(BYTE Address, BYTE Data)
- *
- * PreCondition:    SPI bus must be initialized (done in MACInit()).
- *                  Bank select bits must be set corresponding to the register
- *                  to modify.
- *
- * Input:           5 bit address of the register to modify.  The top 3 bits
- *                    must be 0.
- *                  Byte to be used with the Bit Field Set operation.
- *
- * Output:          None
- *
- * Side Effects:    None
- *
- * Overview:        BFSReg sends the 8 bit BFC opcode/Address byte over the
- *                  SPI and then sends the data in the next 8 SPI clocks.
- *
- * Note:            This routine is almost identical to the WriteReg() and
- *                  BFCReg() functions.  It is separate to maximize speed.
- *                  BFSReg() must only be used on ETH registers.
- *****************************************************************************/
-//static void BFSReg(BYTE Address, BYTE Data)
-void BFSReg(BYTE Address, BYTE Data)
-{
-	#ifdef __LM32__
-	EE_enc28j60_bit_field_set(Address, Data);
-	#else
-	volatile BYTE Dummy;
-    ENC_CS_IO_f(0);	//ENC_CS_IO = 0;
-    ClearSPIDoneFlag();
-    ENC_SSPBUF = ENC28J60_BFS | Address; // Send the opcode and address.
-    WaitForDataByte();          // Wait until opcode/address is transmitted.
-    Dummy = ENC_SSPBUF;
-    ENC_SSPBUF = Data;          // Send the byte to be writen.
-    WaitForDataByte();          // Wait until register is written.
-    Dummy = ENC_SSPBUF;
-    ENC_CS_IO_f(1);	//ENC_CS_IO = 1;
-	#endif
-	
-}//end BFSReg
-
-
-/******************************************************************************
- * Function:        WritePHYReg
- *
- * PreCondition:    SPI bus must be initialized (done in MACInit()).
- *
- * Input:           Address of the PHY register to write to.
- *                  16 bits of data to write to PHY register.
- *
- * Output:          None
- *
- * Side Effects:    Alters bank bits to point to Bank 3
- *
- * Overview:        WritePHYReg performs an MII write operation.  While in
- *                  progress, it simply polls the MII BUSY bit wasting time.
- *
- * Note:            None
- *****************************************************************************/
-void WritePHYReg(BYTE Register, WORD Data)
-{
-    // Write the register address
-    BankSel(MIREGADR);
-    WriteReg((BYTE)MIREGADR, Register);
-
-	// Write the data
-    // Order is important: write low byte first, high byte last
-    WriteReg((BYTE)MIWRL, ((WORD_VAL*)&Data)->byte.LB);
-    WriteReg((BYTE)MIWRH, ((WORD_VAL*)&Data)->byte.HB);
-	
-    // Wait until the PHY register has been written
-    BankSel(MISTAT);
-	
-	while(ReadMACReg((BYTE)MISTAT).Val & MISTAT_BUSY);
-
-    BankSel(ERDPTL);    // Return to Bank 0
-}//end WritePHYReg
-
-
-/******************************************************************************
- * Function:        BankSel
- *
- * PreCondition:    SPI bus must be initialized (done in MACInit()).
- *
- * Input:           Register address with the high byte containing the 2 bank
- *                    select 2 bits.
- *
- * Output:          None
- *
- * Side Effects:    None
- *
- * Overview:        BankSel takes the high byte of a register address and
- *                  changes the bank select bits in ETHCON1 to match.
- *
- * Note:            None
- *****************************************************************************/
-//static void BankSel(WORD Register)
-void BankSel(WORD Register)
-{
-	BFCReg(ECON1, ECON1_BSEL1 | ECON1_BSEL0);
-    BFSReg(ECON1, ((WORD_VAL*)&Register)->byte.HB);
-	
-}//end BankSel
-
 
 /******************************************************************************
  * Function:        void MACPowerDown(void)
@@ -2074,7 +1051,7 @@ void BankSel(WORD Register)
  *                  called, this function will block until it is it complete.
  *                  If anything is being received, it will be completed.
  *****************************************************************************/
-void MACPowerDown(void)
+void EE_enc28j60_mac_power_down(void)
 {
     // Disable packet reception
     BFCReg(ECON1, ECON1_RXEN);
@@ -2112,7 +1089,7 @@ void MACPowerDown(void)
  *                  transmitted will most likely be lost.  MACIsLinked() can
  *                  be called to determine if a link is established.
  *****************************************************************************/
-void MACPowerUp(void)
+void EE_enc28j60_mac_power_up(void)
 {
     // Leave power down mode
     BFCReg(ECON2, ECON2_PWRSV);
@@ -2124,70 +1101,6 @@ void MACPowerUp(void)
     // Enable packet reception
     BFSReg(ECON1, ECON1_RXEN);
 }//end MACPowerUp
-
-
-/******************************************************************************
- * Function:        void SetCLKOUT(BYTE NewConfig)
- *
- * PreCondition:    SPI bus must be initialized (done in MACInit()).
- *
- * Input:           NewConfig - 0x00: CLKOUT disabled (pin driven low)
- *                              0x01: Divide by 1 (25 MHz)
- *                              0x02: Divide by 2 (12.5 MHz)
- *                              0x03: Divide by 3 (8.333333 MHz)
- *                              0x04: Divide by 4 (6.25 MHz, POR default)
- *                              0x05: Divide by 8 (3.125 MHz)
- *
- * Output:          None
- *
- * Side Effects:    None
- *
- * Overview:        Writes the value of NewConfig into the ECOCON register.
- *                  The CLKOUT pin will beginning outputting the new frequency
- *                  immediately.
- *
- * Note:
- *****************************************************************************/
-void SetCLKOUT(BYTE NewConfig)
-{
-    BankSel(ECOCON);
-    WriteReg((BYTE)ECOCON, NewConfig);
-    BankSel(ERDPTL);
-}//end SetCLKOUT
-
-
-/******************************************************************************
- * Function:        BYTE GetCLKOUT(void)
- *
- * PreCondition:    SPI bus must be initialized (done in MACInit()).
- *
- * Input:           None
- *
- * Output:          BYTE - 0x00: CLKOUT disabled (pin driven low)
- *                         0x01: Divide by 1 (25 MHz)
- *                         0x02: Divide by 2 (12.5 MHz)
- *                         0x03: Divide by 3 (8.333333 MHz)
- *                         0x04: Divide by 4 (6.25 MHz, POR default)
- *                         0x05: Divide by 8 (3.125 MHz)
- *                         0x06: Reserved
- *                         0x07: Reserved
- *
- * Side Effects:    None
- *
- * Overview:        Returns the current value of the ECOCON register.
- *
- * Note:            None
- *****************************************************************************/
-BYTE GetCLKOUT(void)
-{
-    BYTE i;
-
-    BankSel(ECOCON);
-    i = ReadETHReg((BYTE)ECOCON).Val;
-    BankSel(ERDPTL);
-    return i;
-}//end GetCLKOUT
-
 
 /******************************************************************************
  * Function:        void SetRXHashTableEntry(MAC_ADDR DestMACAddr)
@@ -2212,7 +1125,7 @@ BYTE GetCLKOUT(void)
  *                  to "#if 1" to uncomment it.
  *****************************************************************************/
 #if 0
-void SetRXHashTableEntry(MAC_ADDR DestMACAddr)
+void EE_enc28j60_mac_set_rx_hash_table_entry(MAC_ADDR DestMACAddr)
 {
     DWORD_VAL CRC = {0xFFFFFFFF};
     BYTE HTRegister;
@@ -2256,92 +1169,9 @@ void SetRXHashTableEntry(MAC_ADDR DestMACAddr)
 }
 #endif
 
-//// GetRegs is a function for debugging purposes only.  It will read all
-//// registers and store them in the PIC's RAM so they can be viewed with
-//// the ICD2.
-//REG Regs[4][32];
-//void GetRegs(void)
-//{
-//  BYTE i;
-//
-//  BankSel(0x000);
-//  for(i=0; i<0x1A; i++)
-//      Regs[0][i] = ReadETHReg(i);
-//  for(i=0x1B; i<32; i++)
-//      Regs[0][i] = ReadETHReg(i);
-//
-//  BankSel(0x100);
-//  for(i=0; i<0x1A; i++)
-//      Regs[1][i] = ReadETHReg(i);
-//  for(i=0x1B; i<32; i++)
-//      Regs[1][i] = ReadETHReg(i);
-//
-//  BankSel(0x200);
-//  for(i=0; i<5; i++)
-//      Regs[2][i] = ReadMACReg(i);
-//  Regs[2][5] = ReadETHReg(i);
-//  for(i=6; i<0x0F; i++)
-//      Regs[2][i] = ReadMACReg(i);
-//  Regs[2][0x0F] = ReadETHReg(i);
-//  for(i=0x10; i<0x13; i++)
-//      Regs[2][i] = ReadMACReg(i);
-//  Regs[2][0x13] = ReadETHReg(i);
-//  for(i=0x14; i<0x1A; i++)
-//      Regs[2][i] = ReadMACReg(i);
-//  for(i=0x1B; i<32; i++)
-//      Regs[2][i] = ReadETHReg(i);
-//
-//  BankSel(0x300);
-//  for(i=0; i<0x06; i++)
-//      Regs[3][i] = ReadMACReg(i);
-//  for(i=6; i<0x0A; i++)
-//      Regs[3][i] = ReadETHReg(i);
-//  Regs[3][0x0A] = ReadMACReg(i);
-//  for(i=0x0B; i<0x1A; i++)
-//      Regs[3][i] = ReadETHReg(i);
-//  for(i=0x1B; i<32; i++)
-//      Regs[3][i] = ReadETHReg(i);
-//
-//  Regs[0][0x1A].Val = 0;
-//  Regs[1][0x1A].Val = 0;
-//  Regs[2][0x1A].Val = 0;
-//  Regs[3][0x1A].Val = 0;
-//
-//  BankSel(ERDPTL);
-//
-//  return;
-//}
 
-//// Get8KBMem is a function intended for debugging purposes.  It will read all
-//// Ethernet RAM and output it in hex out the UART
-//void Get8KBMem(void)
-//{
-//  WORD_VAL i;
-//  BYTE v;
-//  WORD_VAL RDSave;
-//
-//  RDSave.v[0] = ReadETHReg(ERDPTL).Val;
-//  RDSave.v[1] = ReadETHReg(ERDPTH).Val;
-//
-//  for(i.Val = 0; i.Val < 8192; i.Val++)
-//  {
-//      WriteReg(ERDPTL, i.v[0]);
-//      WriteReg(ERDPTH, i.v[1]);
-//      v = MACGet();
-//
-//      putcUART('0');
-//      while(BusyUART());
-//      putcUART('x');
-//      while(BusyUART());
-//      putcUART(btohexa_high(v));
-//      while(BusyUART());
-//      putcUART(btohexa_low(v));
-//      while(BusyUART());
-//  }
-//
-//  WriteReg(ERDPTL, RDSave.v[0]);
-//  WriteReg(ERDPTH, RDSave.v[1]);
-//
-//}
+
+
+
 
 
