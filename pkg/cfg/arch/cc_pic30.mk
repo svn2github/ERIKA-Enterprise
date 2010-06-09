@@ -75,6 +75,21 @@ BINDIR_C30   := $(PIC30_GCCDIR)/bin/bin
 endif
 endif
 
+# Make sure that the variable TEMP is defined on Cygwin/Windows.
+# This is needed on some Cygwin installations, where both TEMP and TMP
+# variables are unset inside ".bashrc".  A reasonable default is chosen
+# after a check for the existence of the directory.
+ifeq ($(findstring __RTD_CYGWIN__,$(EEOPT)), __RTD_CYGWIN__)
+ifndef TMP
+ifndef TEMP
+ifneq (ok,$(shell test -d "/tmp" && echo ok ))
+$(error Environment variables TMP and TEMP are unset, and Cygwin /tmp directory does not exist)
+endif
+export TEMP = $(shell cygpath -ws /tmp)
+endif
+endif
+endif
+
 #BINDIR_ASM30 := $(PIC30_ASMDIR)/bin
 #BINDIR_CYG   := /usr/bin
 #BINDIR_EVI   := 
