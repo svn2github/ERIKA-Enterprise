@@ -51,9 +51,16 @@ DECLARE_FUNC_I2C_LIGHTSENSOR(CAMERA_I2C, camera_i2c)
 /*
 	API functions prototypes declaration
 */
+__INLINE__ void __ALWAYS_INLINE__  EE_lightsensor_init(void);
 __INLINE__ int __ALWAYS_INLINE__  EE_lightsensor_config(int baudrate, int settings);
 __INLINE__ int __ALWAYS_INLINE__  EE_lightsensor_powerup(void);
 __INLINE__ int __ALWAYS_INLINE__  EE_lightsensor_powerdown(void);
+
+/** Initialize the i2c port */
+__INLINE__ void __ALWAYS_INLINE__  EE_lightsensor_init(void)
+{
+    EE_lightsensor_i2c_config(400000, 0);
+}
 
 /*
 	__INLINE__ int __ALWAYS_INLINE__  EE_lightsensor_config(int baudrate, int settings)
@@ -84,10 +91,10 @@ __INLINE__ int __ALWAYS_INLINE__  EE_lightsensor_powerdown(void)
 }
 
 /*
-	__INLINE__ int __ALWAYS_INLINE__  EE_lightsensor_read(void)
+	__INLINE__ EE_UINT16 __ALWAYS_INLINE__  EE_lightsensor_read(void)
 	This function returns measured light value.
 */
-__INLINE__ int __ALWAYS_INLINE__  EE_lightsensor_read(void)
+__INLINE__ EE_UINT16 __ALWAYS_INLINE__  EE_lightsensor_read(void)
 {
 	EE_UINT8 buf[2];
 	

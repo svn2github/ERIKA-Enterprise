@@ -87,7 +87,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_led_toggle(EE_UREG n)
         EE_serio_write(EE_serio_get_data_out() ^ EE_SERIO_LED_MASK(n));
 }
 
-__INLINE__ void __ALWAYS_INLINE__ EE_led_set_all(EE_INT32 state)
+__INLINE__ void __ALWAYS_INLINE__ EE_led_set_all(EE_UINT32 state)
 {
     EE_UINT32 old = EE_serio_get_data_out();
     EE_serio_write((old & ~EE_SERIO_ALL_LEDS) | (state & EE_SERIO_ALL_LEDS));
