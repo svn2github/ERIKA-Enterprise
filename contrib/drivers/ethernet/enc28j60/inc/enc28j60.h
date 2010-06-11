@@ -82,52 +82,8 @@
 typedef struct __attribute__((__packed__))
 {
     BYTE v[6];
-} MAC_ADDR;
+} mac_addr;
 
-typedef struct  __attribute__((aligned(2), packed))		// A generic structure representing the
-{														// Ethernet header starting all Ethernet frames
-	MAC_ADDR        DestMACAddr;
-	MAC_ADDR        SourceMACAddr;
-	WORD_VAL        Type;
-} ETHER_HEADER;
-
-typedef struct __attribute__((__packed__)) 
-{
-	IP_ADDR		MyIPAddr;
-	IP_ADDR		MyMask;
-	IP_ADDR		MyGateway;
-	IP_ADDR		PrimaryDNSServer;
-	IP_ADDR		SecondaryDNSServer;
-	IP_ADDR		DefaultIPAddr;
-	IP_ADDR		DefaultMask;
-	BYTE		NetBIOSName[16];
-	struct
-	{
-		unsigned char : 5;
-        unsigned char bConfigureAutoIP : 1;
-		unsigned char bIsDHCPEnabled : 1;
-		unsigned char bInConfigMode : 1;
-	} Flags;
-	MAC_ADDR	MyMACAddr;
-
-	#if defined(ZG_CS_TRIS)
-	BYTE		MySSID[32];
-	#endif
-	
-	#if defined(STACK_USE_SNMP_SERVER)
-	// SNMPv2C Read community names
-	// SNMP_COMMUNITY_MAX_LEN (8) + 1 null termination byte
-	BYTE readCommunity[SNMP_MAX_COMMUNITY_SUPPORT][SNMP_COMMUNITY_MAX_LEN+1]; 
-	
-	// SNMPv2C Write community names
-	// SNMP_COMMUNITY_MAX_LEN (8) + 1 null termination byte
-	BYTE writeCommunity[SNMP_MAX_COMMUNITY_SUPPORT][SNMP_COMMUNITY_MAX_LEN+1];
-	#endif
-
-} APP_CONFIG;
-
-extern APP_CONFIG AppConfig;	// This structure must be initialized before the stack initialization.
-								// The structure contains useful informations about gateway, mac address, dns address, masks, etc...
 /* @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ */
 
 
@@ -160,12 +116,12 @@ typedef union {
         BYTE LB;
     } byte;
 	struct {
-		unsigned char	Zeros:4;
-		unsigned char	VLANTaggedFrame:1;
-		unsigned char	BackpressureApplied:1;
-		unsigned char	PAUSEControlFrame:1;
-		unsigned char	ControlFrame:1;
-		WORD 	 		BytesTransmittedOnWire;
+		WORD	 		ByteCount;	
+		unsigned char	Done:1;
+		unsigned char	LengthOutOfRange:1;
+		unsigned char	LengthCheckError:1;
+		unsigned char	CRCError:1;
+		unsigned char	CollisionCount:4;	
 		unsigned char	Underrun:1;
 		unsigned char	Giant:1;
 		unsigned char	LateCollision:1;
@@ -174,12 +130,12 @@ typedef union {
 		unsigned char	PacketDefer:1;
 		unsigned char	Broadcast:1;
 		unsigned char	Multicast:1;
-		unsigned char	Done:1;
-		unsigned char	LengthOutOfRange:1;
-		unsigned char	LengthCheckError:1;
-		unsigned char	CRCError:1;
-		unsigned char	CollisionCount:4;
-		WORD	 		ByteCount;
+		WORD 	 		BytesTransmittedOnWire;
+		unsigned char	Zeros:4;
+		unsigned char	VLANTaggedFrame:1;
+		unsigned char	BackpressureApplied:1;
+		unsigned char	PAUSEControlFrame:1;
+		unsigned char	ControlFrame:1;
 	} bits;
 } TXSTATUS;
 
@@ -193,14 +149,7 @@ typedef union {
         BYTE LB;
     } byte;
 	struct {
-		unsigned char	Zero:1;
-		unsigned char	VLANType:1;
-		unsigned char	UnsupportedOpcode:1;
-		unsigned char	PauseControlFrame:1;
-		unsigned char	ControlFrame:1;
-		unsigned char	DribbleNibble:1;
-		unsigned char	Broadcast:1;
-		unsigned char	Multicast:1;
+		WORD	 		ByteCount;
 		unsigned char	ReceiveOk:1;
 		unsigned char	LengthOutOfRange:1;
 		unsigned char	LengthCheckError:1;
@@ -209,7 +158,14 @@ typedef union {
 		unsigned char	CarrierPreviouslySeen:1;
 		unsigned char	RXDCPreviouslySeen:1;
 		unsigned char	PreviouslyIgnored:1;
-		WORD	 		ByteCount;
+		unsigned char	Zero:1;
+		unsigned char	VLANType:1;
+		unsigned char	UnsupportedOpcode:1;
+		unsigned char	PauseControlFrame:1;
+		unsigned char	ControlFrame:1;
+		unsigned char	DribbleNibble:1;
+		unsigned char	Broadcast:1;
+		unsigned char	Multicast:1;	
 	} bits;
 } RXSTATUS;
 
@@ -312,12 +268,13 @@ typedef union {
 #define MACSetReadPtrInRx(offset)						EE_enc28j60_mac_set_read_ptr_inRx(offset)
 #define MACFlush()										EE_enc28j60_mac_flush()
 #define MACPutHeader(remote, type, dataLen)				EE_enc28j60_mac_put_header(remote, type, dataLen)
-#define MACGetHeader(remote, type)						EE_enc28j60_mac_get_header(remote, type)
+#define MACGetHeader(remote, type, pcnt, len)			EE_enc28j60_mac_get_header(remote, type, pcnt, len)
 #define MACGetFreeRxSize()								EE_enc28j60_mac_get_FreeRxSize()
 #define MACDiscardRx()									EE_enc28j60_mac_discard_rx()
 #define MACIsTxReady()									EE_enc28j60_mac_IsTxReady()
 #define MACIsLinked()									EE_enc28j60_mac_IsLinked()
 #define MACInit()										EE_enc28j60_mac_init()
+
 #define EE_enc28j60_mac_put_array(val, len)				EE_enc28j60_put_array(val, len)
 #define EE_enc28j60_mac_put(val)						EE_enc28j60_put(val)
 #define EE_enc28j60_mac_get_array(val, len)				EE_enc28j60_get_array(val, len)
@@ -334,8 +291,8 @@ BOOL EE_enc28j60_mac_IsLinked(void);
 BOOL EE_enc28j60_mac_IsTxReady(void);
 void EE_enc28j60_mac_discard_rx(void);
 WORD EE_enc28j60_mac_get_FreeRxSize(void);
-BOOL EE_enc28j60_mac_get_header(MAC_ADDR *remote, BYTE* type);
-void EE_enc28j60_mac_put_header(MAC_ADDR *remote, BYTE type, WORD dataLen);
+BOOL EE_enc28j60_mac_get_header(mac_addr *remote, BYTE* type, BYTE* PacketCount, WORD* length);
+void EE_enc28j60_mac_put_header(mac_addr *remote, WORD type, WORD dataLen);
 void EE_enc28j60_mac_flush(void);
 void EE_enc28j60_mac_set_read_ptr_inRx(WORD offset);
 WORD EE_enc28j60_mac_set_write_ptr(WORD address);
@@ -362,67 +319,100 @@ void EE_enc28j60_mac_power_up(void);
 void EE_enc28j60_set_clkout(BYTE NewConfig);
 BYTE EE_enc28j60_get_clkout(void);
 #if 0
-void EE_enc28j60_mac_set_rx_hash_table_entry(MAC_ADDR DestMACAddr);
+void EE_enc28j60_mac_set_rx_hash_table_entry(mac_addr DestMACAddr);
 #endif
 WORD swaps(WORD v);
+
+#define MY_DEFAULT_MAC_BYTE1            	(0x00)	
+#define MY_DEFAULT_MAC_BYTE2            	(0x1E)	
+#define MY_DEFAULT_MAC_BYTE3            	(0x33)	
+#define MY_DEFAULT_MAC_BYTE4            	(0xC9)	
+#define MY_DEFAULT_MAC_BYTE5            	(0xD6)	
+#define MY_DEFAULT_MAC_BYTE6            	(0xAA)
+// #define MY_DEFAULT_MAC_BYTE1            	(0x00)	// Use the default of
+// #define MY_DEFAULT_MAC_BYTE2            	(0x04)	// 00-04-A3-00-00-00 if using
+// #define MY_DEFAULT_MAC_BYTE3            	(0xA3)	// an ENCX24J600 or ZeroG ZG2100
+// #define MY_DEFAULT_MAC_BYTE4            	(0x00)	// and wish to use the internal
+// #define MY_DEFAULT_MAC_BYTE5            	(0x00)	// factory programmed MAC
+// #define MY_DEFAULT_MAC_BYTE6            	(0x00)	// address instead.
+
+extern mac_addr ee_myMACaddress;
 
 /* 	EE_enc28j60_init 
 	Function used to initialize the device
 */
-__INLINE__ int __ALWAYS_INLINE__ EE_enc28j60_init(void)
+__INLINE__ WORD __ALWAYS_INLINE__ EE_enc28j60_init(void)
 {
+	int ret = 0;
 	//int mode = 0;
-	
 	//EE_enc28j60_config(mode);
-	return 0;
+    EE_enc28j60_spi_init();	// SPI module configuration
+	// Release reset
+	EE_misc_gpio_write_bit_data(1, EE_GP1_BIT);
+	// MAC layer initialization
+	EE_enc28j60_mac_init();
+	
+	return ret;
 }
 
 /* 	EE_enc28j60_transfer_init
 	Function used to initialize the transfer of a packet
 */
-__INLINE__ int __ALWAYS_INLINE__ EE_enc28j60_transfer_init(void)
+__INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_transfer_init(void)
 {
-	return 0;
+	// Set the SPI write pointer to the beginning of the transmit buffer (post per packet control byte)
+    WriteReg(EWRPTL, LOW(TXSTART+1));
+    WriteReg(EWRPTH, HIGH(TXSTART+1));
 }
 
 /* 	EE_enc28j60_write
 	Function used to transmit a packet
 */
-__INLINE__ int __ALWAYS_INLINE__ EE_enc28j60_write(void)
+__INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_write(BYTE* data, WORD len)
 {
-	return 0;
-}
-
-/* 	EE_enc28j60_read
-	Function used to receive a packet
-*/
-__INLINE__ int __ALWAYS_INLINE__ EE_enc28j60_read(void)
-{
-	return 0;
+	MACPutArray(data, len);
 }
 
 /* 	EE_enc28j60_signal
 	Function used to signal the end of a packet transfer
 */
-__INLINE__ int __ALWAYS_INLINE__ EE_enc28j60_signal(void)
+__INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_signal(WORD dataLen)
 {
-	return 0;
+	dataLen += TXSTART; 
+    // Write the TXND pointer into the registers, given the dataLen given
+	WriteReg(ETXNDL, ((WORD_VAL*)&dataLen)->byte.LB);
+    WriteReg(ETXNDH, ((WORD_VAL*)&dataLen)->byte.HB);
+	MACFlush();
+}
+
+/* 	EE_enc28j60_read_length
+	Function used to read the length of the receive packet
+*/
+int EE_enc28j60_read_info(BYTE* PacketCount, WORD* length);
+
+
+/* 	EE_enc28j60_read
+	Function used to receive a packet
+*/
+__INLINE__ int __ALWAYS_INLINE__ EE_enc28j60_read(BYTE* data, WORD len)
+{
+	return MACGetArray(data, len);
 }
 
 /* 	EE_enc28j60_ack
 	Function used to acknowledge a packet reception
 */
-__INLINE__ int __ALWAYS_INLINE__ EE_enc28j60_ack(void)
+__INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_ack(void)
 {
-	return 0;
+	MACDiscardRx();
 }
 
 /* 	EE_enc28j60_drop_packet
 	Function used to drop a packet
 */
-__INLINE__ int __ALWAYS_INLINE__ EE_enc28j60_drop_packet(void)
+__INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_drop_packet(void)
 {
-	return 0;
+	MACDiscardRx();
 }
 
 #endif

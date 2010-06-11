@@ -77,10 +77,21 @@ typedef struct  __attribute__((aligned(2), packed))
     WORD            NextPacketPointer;
     RXSTATUS        StatusVector;
 
-    MAC_ADDR        DestMACAddr;
-    MAC_ADDR        SourceMACAddr;
+    mac_addr        DestMACAddr;
+    mac_addr        SourceMACAddr;
     WORD_VAL        Type;
 } ENC_PREAMBLE;
+
+// A header appended at the start of all RX frames by the hardware
+typedef struct  __attribute__((aligned(2), packed))
+{
+    WORD            NextPacketPointer;
+    RXSTATUS        StatusVector;
+} ENC_INFO;
+
+// Global MAC level variables and flags
+mac_addr ee_myMACaddress = {	.v[0] = MY_DEFAULT_MAC_BYTE1, .v[1] = MY_DEFAULT_MAC_BYTE2, .v[2] = MY_DEFAULT_MAC_BYTE3, 
+								.v[3] = MY_DEFAULT_MAC_BYTE4, .v[4] = MY_DEFAULT_MAC_BYTE5, .v[5] = MY_DEFAULT_MAC_BYTE6 };
 
 // Internal MAC level variables and flags.
 static WORD_VAL NextPacketLocation;
@@ -90,6 +101,10 @@ static BYTE ENCRevID;
 
 //NOTE: All code in this module expects Bank 0 to be currently selected.  
 // 		If code ever changes the bank, it must restore it to Bank 0 before returning.
+
+void print_string(char *s);
+void print_val(char* s, int val);
+void print_vals(char* s, int val1, int val2);
 
 /******************************************************************************
  * Function:       WORD swaps(WORD v)
@@ -108,12 +123,11 @@ static BYTE ENCRevID;
  * Note:            None
  *****************************************************************************/
 #ifdef BIG_ENDIAN
-WORD swaps(WORD v)
+WORD swaps_type(WORD v)
 {
 	return v;
 }
-#else
-WORD swaps(WORD v)
+WORD swaps_bytecount(WORD v)
 {
 	WORD_VAL t;
 	BYTE b;
@@ -122,6 +136,21 @@ WORD swaps(WORD v)
 	t.v[1]  = t.v[0];
 	t.v[0]  = b;
 	return t.Val;
+}
+#else
+WORD swaps_type(WORD v)
+{
+	WORD_VAL t;
+	BYTE b;
+	t.Val   = v;
+	b       = t.v[1];
+	t.v[1]  = t.v[0];
+	t.v[0]  = b;
+	return t.Val;
+}
+WORD swaps_bytecount(WORD v)
+{
+	return v;
 }
 #endif
 
@@ -145,9 +174,6 @@ WORD swaps(WORD v)
 void EE_enc28j60_mac_init(void)
 {
     BYTE i;
-
-	// SPI module configuration
-    EE_enc28j60_spi_init();
 
     // RESET the entire ENC28J60, clearing all registers
     // Also wait for CLKRDY to become set.
@@ -227,12 +253,12 @@ void EE_enc28j60_mac_init(void)
 
     // Enter Bank 3 and initialize physical MAC address registers
     BankSel(MAADR1);
-    WriteReg((BYTE)MAADR1, AppConfig.MyMACAddr.v[0]);
-    WriteReg((BYTE)MAADR2, AppConfig.MyMACAddr.v[1]);
-    WriteReg((BYTE)MAADR3, AppConfig.MyMACAddr.v[2]);
-    WriteReg((BYTE)MAADR4, AppConfig.MyMACAddr.v[3]);
-    WriteReg((BYTE)MAADR5, AppConfig.MyMACAddr.v[4]);
-    WriteReg((BYTE)MAADR6, AppConfig.MyMACAddr.v[5]);
+    WriteReg((BYTE)MAADR1, ee_myMACaddress.v[0]);
+    WriteReg((BYTE)MAADR2, ee_myMACaddress.v[1]);
+    WriteReg((BYTE)MAADR3, ee_myMACaddress.v[2]);
+    WriteReg((BYTE)MAADR4, ee_myMACaddress.v[3]);
+    WriteReg((BYTE)MAADR5, ee_myMACaddress.v[4]);
+    WriteReg((BYTE)MAADR6, ee_myMACaddress.v[5]);
 
     // Disable the CLKOUT output to reduce EMI generation
     WriteReg((BYTE)ECOCON, 0x00);   // Output off (0V)
@@ -452,7 +478,7 @@ WORD EE_enc28j60_mac_get_FreeRxSize(void)
 }
 
 /******************************************************************************
- * Function:        BOOL MACGetHeader(MAC_ADDR *remote, BYTE* type)
+ * Function:        BOOL MACGetHeader(mac_addr *remote, BYTE* type)
  *
  * PreCondition:    None
  *
@@ -474,16 +500,15 @@ WORD EE_enc28j60_mac_get_FreeRxSize(void)
  *
  * Note:            None
  *****************************************************************************/
-BOOL EE_enc28j60_mac_get_header(MAC_ADDR *remote, BYTE* type)
+BOOL EE_enc28j60_mac_get_header(mac_addr *remote, BYTE* type, BYTE* PacketCount, WORD* length)
 {
     ENC_PREAMBLE header;
-    BYTE PacketCount;
-
+   
     // Test if at least one packet has been received and is waiting
     BankSel(EPKTCNT);
-    PacketCount = ReadETHReg((BYTE)EPKTCNT).Val;
+    *PacketCount = ReadETHReg((BYTE)EPKTCNT).Val;
     BankSel(ERDPTL);
-    if(PacketCount == 0u)
+    if(*PacketCount == 0u)
         return FALSE;
 
     // Make absolutely certain that any previous packet was discarded
@@ -500,21 +525,55 @@ BOOL EE_enc28j60_mac_get_header(MAC_ADDR *remote, BYTE* type)
 
     // Obtain the MAC header from the Ethernet buffer
     MACGetArray((BYTE*)&header, sizeof(header));
-
+	
+	header.StatusVector.bits.ByteCount = swaps_bytecount(header.StatusVector.bits.ByteCount);
+	header.NextPacketPointer = swaps_bytecount(header.NextPacketPointer);
+	
+	*length = header.StatusVector.bits.ByteCount;
+	
+	#if 0
+	int i;
+	for(i=0; i<sizeof(header); i++)
+		print_vals("preamble[%d]: 0x%x\n", i, ((BYTE*)&header)[i]);
+	
+	print_val("zero:0x%x ", header.StatusVector.bits.Zero);
+	print_val("vlan:0x%x ", header.StatusVector.bits.VLANType);
+	print_val("op:0x%x ", header.StatusVector.bits.UnsupportedOpcode);
+	print_val("pause:0x%x ", header.StatusVector.bits.PauseControlFrame);
+	print_val("ctrl:0x%x ", header.StatusVector.bits.ControlFrame);
+	print_val("dribble:0x%x ", header.StatusVector.bits.DribbleNibble);
+	print_val("broad:0x%x ", header.StatusVector.bits.Broadcast);
+	print_val("multi:0x%x ", header.StatusVector.bits.Multicast);
+	print_val("rec:0x%x ", header.StatusVector.bits.ReceiveOk);
+	print_val("out:0x%x ", header.StatusVector.bits.LengthOutOfRange);
+	print_val("chk:0x%x ", header.StatusVector.bits.LengthCheckError);
+	print_val("crc:0x%x ", header.StatusVector.bits.CRCError);
+	print_val("viol:0x%x ", header.StatusVector.bits.CodeViolation);
+	print_val("carr:0x%x ", header.StatusVector.bits.CarrierPreviouslySeen);
+	print_val("rxdc:0x%x ", header.StatusVector.bits.RXDCPreviouslySeen);
+	print_val("prev:0x%x ", header.StatusVector.bits.PreviouslyIgnored);
+	print_val("count:0x%x ", header.StatusVector.bits.ByteCount);
+	print_val("next:0x%x ", header.NextPacketPointer);
+	print_val("b0:0x%x ", ((WORD_VAL*)(&header.NextPacketPointer))->bits.b0);
+	print_val("txstart:0x%x ", TXSTART);
+	print_val("rxstop:0x%x ", RXSTOP);
+	#endif
+	
     // The EtherType field, like most items transmitted on the Ethernet medium
     // are in big endian.
-    header.Type.Val = swaps(header.Type.Val);
+    header.Type.Val = swaps_type(header.Type.Val);
 
     // Validate the data returned from the ENC28J60.  Random data corruption,
     // such as if a single SPI bit error occurs while communicating or a
     // momentary power glitch could cause this to occur in rare circumstances.
-    if(header.NextPacketPointer > RXSTOP || ((BYTE_VAL*)(&header.NextPacketPointer))->bits.b0 ||
+    if(header.NextPacketPointer > RXSTOP || ((WORD_VAL*)(&header.NextPacketPointer))->bits.b0 ||
        header.StatusVector.bits.Zero ||
        header.StatusVector.bits.CRCError ||
        header.StatusVector.bits.ByteCount > 1518u ||
        !header.StatusVector.bits.ReceiveOk)
     {
-        Reset();
+        //Reset();
+		print_string("Reset!!!");
     }
 
     // Save the location where the hardware will write the next packet to
@@ -540,7 +599,7 @@ BOOL EE_enc28j60_mac_get_header(MAC_ADDR *remote, BYTE* type)
 
 
 /******************************************************************************
- * Function:        void MACPutHeader(MAC_ADDR *remote, BYTE type, WORD dataLen)
+ * Function:        void MACPutHeader(mac_addr *remote, BYTE type, WORD dataLen)
  *
  * PreCondition:    MACIsTxReady() must return TRUE.
  *
@@ -563,14 +622,17 @@ BOOL EE_enc28j60_mac_get_header(MAC_ADDR *remote, BYTE* type)
  *                  is constructed (header first or data first) is not
  *                  important.
  *****************************************************************************/
-void EE_enc28j60_mac_put_header(MAC_ADDR *remote, BYTE type, WORD dataLen)
+void EE_enc28j60_mac_put_header(mac_addr *remote, WORD type, WORD dataLen)
 {
     // Set the SPI write pointer to the beginning of the transmit buffer (post per packet control byte)
     WriteReg(EWRPTL, LOW(TXSTART+1));
     WriteReg(EWRPTH, HIGH(TXSTART+1));
 
+	/* !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! */
     // Calculate where to put the TXND pointer
-    dataLen += (WORD)sizeof(ETHER_HEADER) + TXSTART;
+    //dataLen += (WORD)sizeof(ETHER_HEADER) + TXSTART;
+	dataLen += TXSTART; // Please pass dataLen + sizeof_eth_addr
+	/* !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! */
 
     // Write the TXND pointer into the registers, given the dataLen given
 	WriteReg(ETXNDL, ((WORD_VAL*)&dataLen)->byte.LB);
@@ -581,11 +643,13 @@ void EE_enc28j60_mac_put_header(MAC_ADDR *remote, BYTE type, WORD dataLen)
     MACPutArray((BYTE*)remote, sizeof(*remote));
 
     // Write our MAC address in the Ethernet source field
-    MACPutArray((BYTE*)&AppConfig.MyMACAddr, sizeof(AppConfig.MyMACAddr));
+    MACPutArray((BYTE*)&ee_myMACaddress, sizeof(ee_myMACaddress));
 
     // Write the appropriate Ethernet Type WORD for the protocol being used
-    MACPut(0x08);
-    MACPut((type == MAC_IP) ? ETHER_IP : ETHER_ARP);
+	// type can be: #define ETHTYPE_ARP       0x0806
+	//				#define ETHTYPE_IP        0x0800
+    MACPut(HIGH(type)); //MACPut(0x08);
+    MACPut(LOW(type));  // ETHER_IP , ETHER_ARP
 }
 
 /******************************************************************************
@@ -654,6 +718,8 @@ void EE_enc28j60_mac_flush(void)
 			WriteReg(ERDPTL, TXEnd.byte.LB);
             WriteReg(ERDPTH, TXEnd.byte.HB);
             MACGetArray((BYTE*)&TXStatus, sizeof(TXStatus));
+			TXStatus.bits.ByteCount = swaps_bytecount(TXStatus.bits.ByteCount);
+			TXStatus.bits.BytesTransmittedOnWire = swaps_bytecount(TXStatus.bits.BytesTransmittedOnWire);
 
             // Implement retransmission if a late collision occured (this can
             // happen on B5 when certain link pulses arrive at the same time
@@ -678,6 +744,8 @@ void EE_enc28j60_mac_flush(void)
 					WriteReg(ERDPTL, TXEnd.byte.LB);
                     WriteReg(ERDPTH, TXEnd.byte.HB);
                     MACGetArray((BYTE*)&TXStatus, sizeof(TXStatus));
+					TXStatus.bits.ByteCount = swaps_bytecount(TXStatus.bits.ByteCount);
+					TXStatus.bits.BytesTransmittedOnWire = swaps_bytecount(TXStatus.bits.BytesTransmittedOnWire);
                 }
                 else
                 {
@@ -1103,7 +1171,7 @@ void EE_enc28j60_mac_power_up(void)
 }//end MACPowerUp
 
 /******************************************************************************
- * Function:        void SetRXHashTableEntry(MAC_ADDR DestMACAddr)
+ * Function:        void SetRXHashTableEntry(mac_addr DestMACAddr)
  *
  * PreCondition:    SPI bus must be initialized (done in MACInit()).
  *
@@ -1125,7 +1193,7 @@ void EE_enc28j60_mac_power_up(void)
  *                  to "#if 1" to uncomment it.
  *****************************************************************************/
 #if 0
-void EE_enc28j60_mac_set_rx_hash_table_entry(MAC_ADDR DestMACAddr)
+void EE_enc28j60_mac_set_rx_hash_table_entry(mac_addr DestMACAddr)
 {
     DWORD_VAL CRC = {0xFFFFFFFF};
     BYTE HTRegister;
@@ -1133,7 +1201,7 @@ void EE_enc28j60_mac_set_rx_hash_table_entry(MAC_ADDR DestMACAddr)
 
     // Calculate a CRC-32 over the 6 byte MAC address
     // using polynomial 0x4C11DB7
-    for(i = 0; i < sizeof(MAC_ADDR); i++)
+    for(i = 0; i < sizeof(mac_addr); i++)
     {
         BYTE  crcnext;
 
@@ -1169,7 +1237,57 @@ void EE_enc28j60_mac_set_rx_hash_table_entry(MAC_ADDR DestMACAddr)
 }
 #endif
 
+int EE_enc28j60_read_info(BYTE* PacketCount, WORD* length)
+{
+	ENC_INFO info;
+   
+    // Test if at least one packet has been received and is waiting
+    BankSel(EPKTCNT);
+    *PacketCount = ReadETHReg((BYTE)EPKTCNT).Val;
+    BankSel(ERDPTL);
+    if(*PacketCount == 0u)
+        return -1;
+    // Make absolutely certain that any previous packet was discarded
+    if(WasDiscarded == FALSE)
+    {
+        MACDiscardRx();
+        return -1;
+    }
+	
+    // Set the SPI read pointer to the beginning of the next unprocessed packet
+    CurrentPacketLocation.Val = NextPacketLocation.Val;
+	WriteReg(ERDPTL, CurrentPacketLocation.byte.LB);
+    WriteReg(ERDPTH, CurrentPacketLocation.byte.HB);
+	
+	// Obtain the MAC header from the Ethernet buffer
+    MACGetArray((BYTE*)&info, sizeof(info));
+	
+	// Swaps Byte count and next pointer
+	info.StatusVector.bits.ByteCount = swaps_bytecount(info.StatusVector.bits.ByteCount);
+	info.NextPacketPointer = swaps_bytecount(info.NextPacketPointer);
+	*length = info.StatusVector.bits.ByteCount;
+	
+    // Validate the data returned from the ENC28J60.  Random data corruption,
+    // such as if a single SPI bit error occurs while communicating or a
+    // momentary power glitch could cause this to occur in rare circumstances.
+    if(info.NextPacketPointer > RXSTOP || ((WORD_VAL*)(&info.NextPacketPointer))->bits.b0 ||
+       info.StatusVector.bits.Zero ||
+       info.StatusVector.bits.CRCError ||
+       info.StatusVector.bits.ByteCount > 1518u ||
+       !info.StatusVector.bits.ReceiveOk)
+	{
+        //Reset();
+		print_string("Reset!!!");
+    }
 
+    // Save the location where the hardware will write the next packet to
+    NextPacketLocation.Val = info.NextPacketPointer;
+    // Mark this packet as discardable
+    WasDiscarded = FALSE;
+	
+    return 0;
+
+}
 
 
 
