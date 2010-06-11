@@ -6,7 +6,7 @@
   Description: Ethernet driver source file (MICO32 CAMERA board dependent). 
 */
 
-#include "ENC28J60.h"
+#include "enc28j60.h"
 #include "enc28j60_hal_ee_mico32.h"
 
 // board dependent features

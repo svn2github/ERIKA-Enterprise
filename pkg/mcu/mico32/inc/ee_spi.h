@@ -89,6 +89,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_spi_wait_for_bus_idle(MicoSPI_t* spic)
 	while(!EE_spi_tmt_ready(spic->status))
 		;
 }
+
 /*
 	int EE_hal_spi_write_byte_polling(MicoSPI_t* spic, EE_UINT8 data);
 	Write a byte in polling mode.

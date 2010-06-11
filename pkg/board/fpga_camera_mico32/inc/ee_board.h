@@ -56,7 +56,7 @@
 #endif // __USE_CAMERA_HV7131GP__
 
 #ifdef __USE_ETHERNET_ENC28J60__
-#include "ENC28J60.h"
+#include "enc28j60.h"
 #endif // __USE_ETHERNET_ENC28J60__
 
 #ifdef __USE_ZIGBEE_MRF24J40__
