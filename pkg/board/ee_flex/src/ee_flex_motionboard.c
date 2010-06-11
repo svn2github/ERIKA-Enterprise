@@ -49,6 +49,32 @@
 
 
 /******************************************************************************/
+/*                              Buttons                                       */
+/* Author: Gianluca Franchino                                                                */
+/******************************************************************************/
+#ifdef __USE_BUTTONS__
+
+void (*EE_buttonS1_callback)(void);
+void (*EE_buttonS2_callback)(void);
+
+ISR2(_IC2Interrupt)
+{
+	IFS0bits.IC2IF = 0;
+
+	if (EE_buttonS2_callback != NULL)
+		EE_buttonS2_callback();
+}
+
+ISR2(_IC4Interrupt)
+{
+	IFS2bits.IC4IF = 0;
+
+	if (EE_buttonS1_callback != NULL)
+		EE_buttonS1_callback();
+}
+#endif
+
+/******************************************************************************/
 /*                                   U S B                                    */
 /******************************************************************************/
 #if defined __USE_USB__

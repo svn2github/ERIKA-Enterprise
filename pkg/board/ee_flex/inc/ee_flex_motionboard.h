@@ -90,51 +90,56 @@ __INLINE__ void __ALWAYS_INLINE__ EE_leds_off(void)
 
 /******************************************************************************/
 /*                                   Buttons                                  */
+/*Author: Gianluca Franchino                                                  */
 /******************************************************************************/
 #ifdef __USE_BUTTONS__
-union cn_st {
-	EE_UINT8 status;
-	struct a_bits {
-		EE_UINT8 s1: 1;
-		EE_UINT8 s2: 1;
-	} bits;
-};
 
-extern void (*EE_button_callback)(void);
-extern EE_UINT8 EE_button_mask;
-extern union cn_st cn_st_old;
+extern void (*EE_buttonS1_callback)(void);
+extern void (*EE_buttonS2_callback)(void);
 
-__INLINE__ void __ALWAYS_INLINE__ EE_buttons_init(void(*isr_callback)(void), 
-						  EE_UINT8 mask) 
+__INLINE__ void __ALWAYS_INLINE__ EE_button_S1_init(void(*isr_callback)(void))
 {
+
+	/* set BUTTON pins as inputs */
+	TRISDbits.TRISD11  = 1;
+
+	/* enable Input capture on falling edge */
+	IC4CON = 0x2;
+
+	/* Enable Interrupt */
+	if (isr_callback != NULL) {
+		IEC2bits.IC4IE = 1;
+		IFS2bits.IC4IF = 0;
+		/* Save callback */
+		EE_buttonS1_callback = isr_callback;
+	}
+}
+
+__INLINE__ void __ALWAYS_INLINE__ EE_button_S2_init(void(*isr_callback)(void))
+{
+
 	/* set BUTTON pins as inputs */
 	TRISDbits.TRISD9  = 1;
-	TRISDbits.TRISD11 = 1;
-	/* TODO: unfeasible due to missing CN, IC must be used.*/
-	///* Enable Interrupt */
-	//if (isr_callback != NULL) {
-	//	if (mask & 0x01) {
-	//		CNEN1bits.CN13IE = 1;	// S1/RD4
-	//		//cn_st_old.bits.s1 = PORTDbits.RD4;
-	//	}
-	//	if (mask & 0x02) {
-	//		CNEN1bits.CN14IE = 1;	// S2/RD5
-	//		//cn_st_old.bits.s2 = PORTDbits.RD5;
-	//	}
-	//	IFS1bits.CNIF = 0;
-	//	IEC1bits.CNIE = 1;
-	//}
-	///* Save callback */
-	//EE_button_callback = isr_callback;
+
+	/* enable Input capture on falling edge */
+	IC2CON = 0x2;
+
+	/* Enable Interrupt */
+	if (isr_callback != NULL) {
+		IEC0bits.IC2IE = 1;
+		IFS0bits.IC2IF = 0;
+		/* Save callback */
+		EE_buttonS2_callback = isr_callback;
+	}
 }
 
-__INLINE__ EE_UINT8 __ALWAYS_INLINE__ EE_button_get_S1(void) 
-{
-	return !(PORTDbits.RD9);
-}
-__INLINE__ EE_UINT8 __ALWAYS_INLINE__ EE_button_get_S2(void) 
+__INLINE__ EE_UINT8 __ALWAYS_INLINE__ EE_button_get_S1(void)
 {
 	return !(PORTDbits.RD11);
+}
+__INLINE__ EE_UINT8 __ALWAYS_INLINE__ EE_button_get_S2(void)
+{
+	return !(PORTDbits.RD9);
 }
 
 #endif
