@@ -13,6 +13,7 @@
 #define __mrf24j40_compiler_ee_h__
 
 #include <ee.h>
+#include <cpu/pic30/inc/ee_irqstub.h>
 /** 
 * @name Basic type representations.
 * @{ */
@@ -56,6 +57,10 @@ typedef signed long long int64_t;	/**< Unsigned 64 bit intgerer. */
 
 #ifndef COMPILER_INLINE 
 #define COMPILER_INLINE __INLINE__
+#endif
+
+#ifndef COMPILER_ISR
+#define COMPILER_ISR(func) ISR2(func)
 #endif
 
 #endif /* Header Protection */
