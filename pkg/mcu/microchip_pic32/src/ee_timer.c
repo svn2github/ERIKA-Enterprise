@@ -30,10 +30,21 @@ static void (* volatile timer5_callback)(void) = NULL;
 /*                       Private Local Functions                              */
 /******************************************************************************/
 #ifdef __USE_EE_TIMER_1__
-__INLINE__ void __ALWAYS_INLINE__ timer1_init(EE_UREG pr, EE_UINT8 tckps)
+__INLINE__ void __ALWAYS_INLINE__ timer1_enable_IRQ(void)
+{
+	IFS0CLR = _IFS0_T1IF_MASK;	// Clean Timer IRQ Flag
+	IEC0SET = _IEC0_T1IE_MASK;	// Enable Timer IRQ
+}
+	
+__INLINE__ void __ALWAYS_INLINE__ timer1_disable_IRQ(void)
 {
 	IEC0CLR = _IEC0_T1IE_MASK;	// Disable Timer IRQ
 	IFS0CLR = _IFS0_T1IF_MASK;	// Clean Timer IRQ Flag
+}
+
+__INLINE__ void __ALWAYS_INLINE__ timer1_init(EE_UREG pr, EE_UINT8 tckps)
+{
+	timer1_disable_IRQ();
 	IPC1CLR = _IPC1_T1IP_MASK;	// Clean IRQ Priority
 	IPC1SET = (2 << _IPC1_T1IP_POSITION); //TODO:change hardcoding Irq Prio?
 	IPC1CLR = _IPC1_T1IS_MASK; //TODO:change hardcoding Irq Sub-Prio?
@@ -44,28 +55,39 @@ __INLINE__ void __ALWAYS_INLINE__ timer1_init(EE_UREG pr, EE_UINT8 tckps)
 
 __INLINE__ void __ALWAYS_INLINE__ timer1_start(void) 
 {
-	IFS0CLR = _IFS0_T1IF_MASK;	// Clean Timer IRQ Flag
-	IEC0SET = _IEC0_T1IE_MASK;	// Enable Timer IRQ
+#ifdef __COUNTER_TICK_ON_TIMER_1__
+	timer1_enable_IRQ();
+#endif
 	T1CONSET = _T1CON_ON_MASK;	// Start Timer
 }
 
 __INLINE__ void __ALWAYS_INLINE__ timer1_stop(void) 
 {
 	T1CONCLR = _T1CON_ON_MASK;	// Stop Timer
-	IEC0CLR = _IEC0_T1IE_MASK;	// Disable Timer IRQ
-	IFS0CLR = _IFS0_T1IF_MASK;	// Clean Timer IRQ Flag
+	timer1_disable_IRQ();
 }
 #endif /* __USE_EE_TIMER_1__ */
 
 #ifdef __USE_EE_TIMER_2__
+#error TIMER 2 not supported
 #endif /* __USE_EE_TIMER_2__ */
 
 
 #ifdef __USE_EE_TIMER_3__
-__INLINE__ void __ALWAYS_INLINE__ timer3_init(EE_UREG pr, EE_UINT8 tckps)
+__INLINE__ void __ALWAYS_INLINE__ timer3_enable_IRQ(void)
+{
+	IFS0CLR = _IFS0_T3IF_MASK;	// Clean Timer IRQ Flag
+	IEC0SET = _IEC0_T3IE_MASK;	// Enable Timer IRQ
+}
+	
+__INLINE__ void __ALWAYS_INLINE__ timer3_disable_IRQ(void)
 {
 	IEC0CLR = _IEC0_T3IE_MASK;	// Disable Timer IRQ
 	IFS0CLR = _IFS0_T3IF_MASK;	// Clean Timer IRQ Flag
+}
+
+__INLINE__ void __ALWAYS_INLINE__ timer3_init(EE_UREG pr, EE_UINT8 tckps)
+{
 	IPC3CLR = _IPC3_T3IP_MASK;	// Clean IRQ Priority
 	IPC3SET = (2 << _IPC3_T3IP_POSITION); //TODO:change hardcoding Irq Prio?
 	IPC3CLR = _IPC3_T3IS_MASK; //TODO:change hardcoding Irq Sub-Prio?
@@ -82,15 +104,18 @@ __INLINE__ void __ALWAYS_INLINE__ timer3_start(void)
 __INLINE__ void __ALWAYS_INLINE__ timer3_stop(void) 
 {
 	T3CONCLR = _T3CON_ON_MASK;	// Stop Timer
+	timer3_disable_IRQ();
 }
 #endif /* __USE_EE_TIMER_3__ */
 
 
 
 #ifdef __USE_EE_TIMER_4__
+#error TIMER 4 not supported
 #endif /* __USE_EE_TIMER_4__ */
 
 #ifdef __USE_EE_TIMER_5__
+#error TIMER 5 not supported
 #endif /* __USE_EE_TIMER_5__ */
 
 /******************************************************************************/
@@ -155,44 +180,34 @@ EE_INT8 EE_timer_hard_init(EE_UINT8 id, EE_UINT16 period, EE_UINT8 prescale)
 	return EE_TIMER_NO_ERRORS;
 } 
 
-EE_INT8 EE_timer_soft_init(EE_UINT8 id, EE_UINT32 period_us, EE_UINT32 f_tick) 
-{	
-	EE_UREG pr, ps;
 
-	/* TODO: Auto calculate proper values for period and prescaler, not
-		 the following fake code
-	 */
-	if (period_us != 1000 && f_tick != 80000)
-		return -EE_TIMER_ERR_UNIMPLEMENTED;
-	pr = 0x9C40;
-	ps = 0;
-	switch (id) {
-	#ifdef __USE_EE_TIMER_1__
-	case EE_TIMER_1 :
-		timer1_init(pr, ps);
-		break;
-	#endif 
-	#ifdef __USE_EE_TIMER_2__
-	case EE_TIMER_2 :
-		return -EE_TIMER_ERR_UNIMPLEMENTED;
-	#endif 
-	#ifdef __USE_EE_TIMER_3__
-	case EE_TIMER_3 :
-		return -EE_TIMER_ERR_UNIMPLEMENTED;
-	#endif 
-	#ifdef __USE_EE_TIMER_4__
-	case EE_TIMER_4 :
-		return -EE_TIMER_ERR_UNIMPLEMENTED;
-	#endif 
-	#ifdef __USE_EE_TIMER_5__
-	case EE_TIMER_5 :
-		return -EE_TIMER_ERR_UNIMPLEMENTED;
-	#endif 
-	default:
-		return -EE_TIMER_ERR_BAD_TIMER_ID;
+EE_INT8 EE_timer_soft_init(EE_UINT8 id, EE_UINT32 period_us)
+{
+	EE_UINT32 base_freq = EE_get_peripheral_clock();
+	/* This works if base_freq is a multiple of 1 million, which should be
+	 * normally the case */
+	EE_UINT32 ticks = period_us * (base_freq / 1000000U);
+	EE_UINT16 prd; /* Period */
+	EE_UINT8 psc; /* Prescale */
+	const EE_UINT32 max_period = 0xffffU;
+	if (ticks < max_period) {
+		prd = ticks;
+		psc = EE_TIMER_PRESCALE_1;
+	} else if (ticks / 8 < max_period) {
+		prd = ticks / 8;
+		psc = EE_TIMER_PRESCALE_8;
+	} else if (ticks / 64 < max_period) {
+		prd = ticks / 64;
+		psc = EE_TIMER_PRESCALE_64;
+	} else if (ticks / 256 < max_period) {
+		prd = ticks / 256;
+		psc = EE_TIMER_PRESCALE_256;
+	} else {
+		return -EE_TIMER_ERR_BAD_ARGS;
 	}
-	return EE_TIMER_NO_ERRORS;
-} 
+	return EE_timer_hard_init(id, prd, psc);
+}
+
 
 EE_INT8 EE_timer_set_callback(EE_UINT8 id, void (*f)(void))
 {
@@ -200,26 +215,46 @@ EE_INT8 EE_timer_set_callback(EE_UINT8 id, void (*f)(void))
 	#ifdef __USE_EE_TIMER_1__
 	case EE_TIMER_1 :
 		timer1_callback = f;
+		if (f != NULL)
+			timer1_enable_IRQ();
+		else
+			timer1_disable_IRQ();
 		break;
 	#endif 
 	#ifdef __USE_EE_TIMER_2__
 	case EE_TIMER_2 :
 		timer2_callback = f;
+		if (f != NULL)
+			timer2_enable_IRQ();
+		else
+			timer2_disable_IRQ();
 		break;
 	#endif 
 	#ifdef __USE_EE_TIMER_3__
 	case EE_TIMER_3 :
 		timer3_callback = f;
+		if (f != NULL)
+			timer3_enable_IRQ();
+		else
+			timer3_disable_IRQ();
 		break;
 	#endif 
 	#ifdef __USE_EE_TIMER_4__
 	case EE_TIMER_4 :
 		timer4_callback = f;
+		if (f != NULL)
+			timer2_enable_IRQ();
+		else
+			timer2_disable_IRQ();
 		break;
 	#endif 
 	#ifdef __USE_EE_TIMER_5__
 	case EE_TIMER_5 :
 		timer5_callback = f;
+		if (f != NULL)
+			timer5_enable_IRQ();
+		else
+			timer5_disable_IRQ();
 		break;
 	#endif 
 	default:
@@ -319,3 +354,11 @@ EE_INT8 EE_timer_get_val(EE_UINT8 id, EE_UINT16 *v)
 	}
 	return EE_TIMER_NO_ERRORS;
 }
+
+
+/*
+  Local Variables:
+  tab-width: 4
+  indent-tabs-mode: t
+  End:
+*/

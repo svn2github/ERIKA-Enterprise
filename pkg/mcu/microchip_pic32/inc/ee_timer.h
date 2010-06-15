@@ -31,7 +31,7 @@ enum {
 #define EE_TIMER_PRESCALE_256		3
 
 EE_INT8 EE_timer_hard_init(EE_UINT8 id, EE_UINT16 period, EE_UINT8 prescale); 
-EE_INT8 EE_timer_soft_init(EE_UINT8 id, EE_UINT32 period_us, EE_UINT32 f_tick); 
+EE_INT8 EE_timer_soft_init(EE_UINT8 id, EE_UINT32 period_us); 
 EE_INT8 EE_timer_set_callback(EE_UINT8 id, void (*f)(void)); 
 EE_INT8 EE_timer_start(EE_UINT8 id);
 EE_INT8 EE_timer_stop(EE_UINT8 id);
