@@ -28,7 +28,7 @@ DEFINE_STRUCT_TIMER(EE_TIMER3_NAME_UC, EE_TIMER3_NAME_LC)
 #ifdef EE_TIMER4_NAME_UC
 DEFINE_STRUCT_TIMER(EE_TIMER4_NAME_UC, EE_TIMER4_NAME_LC)
 #endif
-#endif //#ifdef __USE_TIMER_IRQ__
+#endif /* #ifdef __USE_TIMER_IRQ__ */
 
 /******************************************************************************/
 /*                              ISRs                                          */
@@ -49,7 +49,7 @@ void EE_timer_common_handler(int level)
 	// All done!!!
 	return;	
 }
-#endif //#ifdef __USE_TIMER_IRQ__
+#endif /* #ifdef __USE_TIMER_IRQ__ */
 
 /******************************************************************************/
 /*                       Public Global Functions                              */
@@ -108,4 +108,4 @@ int EE_hal_timer_init(MicoTimer_t* timerc, int irqf, int period, int settings)
 
 }
 
-#endif //#ifdef __USE_TIMER_IRQ__
+#endif /* #ifdef __USE_TIMER_IRQ__ */

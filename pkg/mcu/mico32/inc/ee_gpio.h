@@ -38,9 +38,9 @@ typedef struct {
      * the callback */
     unsigned int flag;
     /** Controller base address */
-    MicoGPIO_t* base;
+    MicoGPIO_t* const base;
     /** IRQ number to register the handler */
-    int irqf;
+    const int irqf;
     /** Interrupt callback */
     EE_ISR_callback cbk;
     /** Copy of the data register.  Used for GPIO configured as both input and
