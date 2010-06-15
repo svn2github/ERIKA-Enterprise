@@ -22,6 +22,7 @@
 #endif
 
 #include <mcu/microchip_dspic/inc/ee_spi.h>
+#include <cpu/pic30/inc/ee_irqstub.h>
 
 #define MRF24J40_SPI_PORT_1	EE_SPI_PORT_1
 #define MRF24J40_SPI_PORT_2	EE_SPI_PORT_2

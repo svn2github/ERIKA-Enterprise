@@ -13,7 +13,7 @@
 #define __mrf24j40_compiler_ee_h__
 
 #include <ee.h>
-#include <cpu/pic30/inc/ee_irqstub.h>
+
 /** 
 * @name Basic type representations.
 * @{ */
