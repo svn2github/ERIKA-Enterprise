@@ -61,6 +61,7 @@
 #define __ENC28J60_H
 
 #include "enc28j60_hal.h"
+#include "enc28j60_debug.h"
 
 /* @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ */
 /* WRAPPER */
@@ -323,20 +324,28 @@ void EE_enc28j60_mac_set_rx_hash_table_entry(mac_addr DestMACAddr);
 #endif
 WORD swaps(WORD v);
 
+#if 1
 #define MY_DEFAULT_MAC_BYTE1            	(0x00)	
 #define MY_DEFAULT_MAC_BYTE2            	(0x1E)	
 #define MY_DEFAULT_MAC_BYTE3            	(0x33)	
 #define MY_DEFAULT_MAC_BYTE4            	(0xC9)	
 #define MY_DEFAULT_MAC_BYTE5            	(0xD6)	
 #define MY_DEFAULT_MAC_BYTE6            	(0xAA)
-// #define MY_DEFAULT_MAC_BYTE1            	(0x00)	// Use the default of
-// #define MY_DEFAULT_MAC_BYTE2            	(0x04)	// 00-04-A3-00-00-00 if using
-// #define MY_DEFAULT_MAC_BYTE3            	(0xA3)	// an ENCX24J600 or ZeroG ZG2100
-// #define MY_DEFAULT_MAC_BYTE4            	(0x00)	// and wish to use the internal
-// #define MY_DEFAULT_MAC_BYTE5            	(0x00)	// factory programmed MAC
-// #define MY_DEFAULT_MAC_BYTE6            	(0x00)	// address instead.
+#else
+#define MY_DEFAULT_MAC_BYTE1            	(0x00)	// Use the default of
+#define MY_DEFAULT_MAC_BYTE2            	(0x04)	// 00-04-A3-00-00-00 if using
+#define MY_DEFAULT_MAC_BYTE3            	(0xA3)	// an ENCX24J600 or ZeroG ZG2100
+#define MY_DEFAULT_MAC_BYTE4            	(0x00)	// and wish to use the internal
+#define MY_DEFAULT_MAC_BYTE5            	(0x00)	// factory programmed MAC
+#define MY_DEFAULT_MAC_BYTE6            	(0x00)	// address instead.
+#endif
 
 extern mac_addr ee_myMACaddress;
+
+/* 	EE_enc28j60_debug_init
+	Function used to configure the console used for debugging.
+*/
+int8_t EE_enc28j60_debug_init(void);
 
 /* 	EE_enc28j60_init 
 	Function used to initialize the device
@@ -344,14 +353,21 @@ extern mac_addr ee_myMACaddress;
 __INLINE__ WORD __ALWAYS_INLINE__ EE_enc28j60_init(void)
 {
 	int ret = 0;
+	
+	#ifdef ENC28J60_DEBUG
+	EE_enc28j60_debug_init();
+	#endif
+	
 	//int mode = 0;
 	//EE_enc28j60_config(mode);
     EE_enc28j60_spi_init();	// SPI module configuration
 	// Release reset
-	EE_misc_gpio_write_bit_data(1, EE_GP1_BIT);
+	EE_enc28j60_gpio_release_reset();
+	// Disable IRQ
+	mico32_disable_irq(EE_ENC28J60_IRQ);
+	EE_enc28j60_gpio_disable_IRQ();
 	// MAC layer initialization
 	EE_enc28j60_mac_init();
-	
 	return ret;
 }
 
@@ -412,7 +428,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_ack(void)
 */
 __INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_drop_packet(void)
 {
-	MACDiscardRx();
+	//MACDiscardRx();
 }
 
 #endif

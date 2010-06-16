@@ -37,35 +37,13 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
- 
-#ifndef __CC_MICO32_H__
-#define __CC_MICO32_H__
 
-#include "util/lwip_debug.h"
+#ifndef __INIT_H
+#define __INIT_H
 
-#ifndef BYTE_ORDER
-#define BYTE_ORDER BIG_ENDIAN
-#endif
+/* prototypes */
 
-#define PACK_STRUCT_BEGIN
-#define PACK_STRUCT_STRUCT __attribute__ ((__packed__))
-#define PACK_STRUCT_END
-#define PACK_STRUCT_FIELD(x) x
+void ee_lwip_init(void);
 
-#define PACK_STRUCT_USE_INCLUDES
-#define LWIP_PROVIDE_ERRNO
+#endif /* !(__INIT_H) */
 
-#define abort()
-
-#ifdef LWIP_DEBUG
-//    void Q_onAssert(char const * const file, int line);
-//    #define LWIP_PLATFORM_ASSERT(msg) Q_onAssert(msg, __LINE__)
-	#define LWIP_PLATFORM_ASSERT(msg) 	lwip_debug_printf("Assertion \"%s\" failed at line %d in %s\n", msg, __LINE__, __FILE__); \
-										abort()
-	#define LWIP_PLATFORM_DIAG(msg) 	lwip_debug_printf msg
-#else
-    #define LWIP_PLATFORM_ASSERT(msg) ((void)0)
-	#define LWIP_PLATFORM_DIAG(msg) ((void)0)
-#endif
-
-#endif	//__CC_MICO32_H__

@@ -71,6 +71,37 @@
 #include "enc28j60.h"
 #include "string.h"
 
+#ifdef ENC28J60_DEBUG
+uint8_t ee_enc28j60_db_msg[ENC28J60_STRING_MAXSIZE];
+uint8_t enc28j60_debug_initialized = 0;
+#endif
+
+int8_t EE_enc28j60_debug_init(void)
+{
+	#ifdef ENC28J60_DEBUG
+	if(enc28j60_debug_initialized==1)
+		return 1;
+		
+	console_descriptor_t *des = NULL;
+	
+	#ifdef ENC28J60_DEBUG_SERIAL 
+	des = console_serial_config(ENC28J60_DEBUG_SERIAL_PORT, ENC28J60_DEBUG_SERIAL_BAUDRATE, ENC28J60_DEBUG_SERIAL_OPT);
+	#endif
+	
+	if (des == NULL)
+		return -1;
+	if (console_init(ENC28J60_DEBUG_PORT, des) < 0)
+		return -1;
+		
+	enc28j60_debug_initialized = 1;
+	return console_open(ENC28J60_DEBUG_PORT);
+	
+	#else	/* ENC28J60_DEBUG */
+	
+	return 1;
+	#endif 	/* ENC28J60_DEBUG */
+}
+
 // A header appended at the start of all RX frames by the hardware
 typedef struct  __attribute__((aligned(2), packed))
 {
@@ -175,6 +206,8 @@ void EE_enc28j60_mac_init(void)
 {
     BYTE i;
 
+	enc28j60_dbg_print("EE_enc28j60_mac_init start!\n");
+	
     // RESET the entire ENC28J60, clearing all registers
     // Also wait for CLKRDY to become set.
     // Bit 3 in ESTAT is an unimplemented bit.  If it reads out as '1' that
@@ -186,7 +219,7 @@ void EE_enc28j60_mac_init(void)
         SendSystemReset();
         i = ReadETHReg(ESTAT).Val;
     } while((i & 0x08) || (~i & ESTAT_CLKRDY));
-
+	
     // Start up in Bank 0 and configure the receive buffer boundary pointers
     // and the buffer write protect pointer (receive buffer read pointer)
     WasDiscarded = TRUE;
@@ -309,8 +342,18 @@ void EE_enc28j60_mac_init(void)
 
     BankSel(ERDPTL);        // Return to default Bank 0
 
+	#ifdef __USE_ETHERNET_IRQ__
+	// Enable interrupt generation
+	BFSReg(EIE, EIE_PKTIE);
+	BFSReg(EIE, EIE_INTIE);
+	enc28j60_dbg_set_msg("eie: %x\n", ReadETHReg(EIE).Val);
+	enc28j60_dbg_print(ee_enc28j60_db_msg);
+	#endif
+	
     // Enable packet reception
     BFSReg(ECON1, ECON1_RXEN);
+	
+	enc28j60_dbg_print("EE_enc28j60_mac_init end!\n");
 }//end MACInit
 
 
@@ -340,7 +383,7 @@ BOOL EE_enc28j60_mac_IsLinked(void)
     // MACIsLinked(), MACIsLinked() will still return FALSE.  The next
     // call to MACIsLinked() will return TRUE (unless the link goes down
     // again).
-    
+    enc28j60_dbg_print("EE_enc28j60_mac_IsLinked!\n");
 	//return ReadPHYReg(PHSTAT1).PHSTAT1bits.LLSTAT;
 	return ReadPHYReg(PHSTAT1).Val & PHSTAT1_LLSTAT;
 }
@@ -367,6 +410,7 @@ BOOL EE_enc28j60_mac_IsLinked(void)
  *****************************************************************************/
 BOOL EE_enc28j60_mac_IsTxReady(void)
 {
+	enc28j60_dbg_print("EE_enc28j60_mac_IsTxReady!\n");
     //return !ReadETHReg(ECON1).ECON1bits.TXRTS;
 	return !(ReadETHReg(ECON1).Val & ECON1_TXRTS);
 }
@@ -395,10 +439,14 @@ void EE_enc28j60_mac_discard_rx(void)
 {
     WORD_VAL NewRXRDLocation;
 
+	enc28j60_dbg_print("EE_enc28j60_mac_discard_rx start!\n");
     // Make sure the current packet was not already discarded
     if(WasDiscarded)
+	{
+		enc28j60_dbg_print("EE_enc28j60_mac_discard_rx was discarded!\n");
         return;
-    WasDiscarded = TRUE;
+    }
+	WasDiscarded = TRUE;
 
     // Decrement the next packet pointer before writing it into
     // the ERXRDPT registers.  This is a silicon errata workaround.
@@ -418,6 +466,8 @@ void EE_enc28j60_mac_discard_rx(void)
     // high byte last.
 	WriteReg(ERXRDPTL, NewRXRDLocation.byte.LB);
     WriteReg(ERXRDPTH, NewRXRDLocation.byte.HB);
+	
+	enc28j60_dbg_print("EE_enc28j60_mac_discard_rx end!\n");
 }
 
 
@@ -440,6 +490,8 @@ void EE_enc28j60_mac_discard_rx(void)
 WORD EE_enc28j60_mac_get_FreeRxSize(void)
 {
     WORD_VAL ReadPT, WritePT;
+	
+	enc28j60_dbg_print("EE_enc28j60_mac_get_FreeRxSize!\n");
 
     // Read the Ethernet hardware buffer write pointer.  Because packets can be
     // received at any time, it can change between reading the low and high
@@ -504,17 +556,23 @@ BOOL EE_enc28j60_mac_get_header(mac_addr *remote, BYTE* type, BYTE* PacketCount,
 {
     ENC_PREAMBLE header;
    
+   enc28j60_dbg_print("EE_enc28j60_mac_get_header start!\n");
+   
     // Test if at least one packet has been received and is waiting
     BankSel(EPKTCNT);
     *PacketCount = ReadETHReg((BYTE)EPKTCNT).Val;
     BankSel(ERDPTL);
     if(*PacketCount == 0u)
+	{
+		enc28j60_dbg_print("EE_enc28j60_mac_get_header PacketCount=0!\n");
         return FALSE;
+	}
 
     // Make absolutely certain that any previous packet was discarded
     if(WasDiscarded == FALSE)
     {
         MACDiscardRx();
+		enc28j60_dbg_print("EE_enc28j60_mac_get_header WasDiscarded==FALSE!\n");
         return FALSE;
     }
 
@@ -572,8 +630,8 @@ BOOL EE_enc28j60_mac_get_header(mac_addr *remote, BYTE* type, BYTE* PacketCount,
        header.StatusVector.bits.ByteCount > 1518u ||
        !header.StatusVector.bits.ReceiveOk)
     {
+		enc28j60_dbg_print("EE_enc28j60_mac_get_header Reset!\n");
         //Reset();
-		print_string("Reset!!!");
     }
 
     // Save the location where the hardware will write the next packet to
@@ -594,6 +652,7 @@ BOOL EE_enc28j60_mac_get_header(mac_addr *remote, BYTE* type, BYTE* PacketCount,
 	
     // Mark this packet as discardable
     WasDiscarded = FALSE;
+	enc28j60_dbg_print("EE_enc28j60_mac_get_header end!\n");
     return TRUE;
 }
 
@@ -624,6 +683,8 @@ BOOL EE_enc28j60_mac_get_header(mac_addr *remote, BYTE* type, BYTE* PacketCount,
  *****************************************************************************/
 void EE_enc28j60_mac_put_header(mac_addr *remote, WORD type, WORD dataLen)
 {
+
+	enc28j60_dbg_print("EE_enc28j60_mac_put_header start!\n");
     // Set the SPI write pointer to the beginning of the transmit buffer (post per packet control byte)
     WriteReg(EWRPTL, LOW(TXSTART+1));
     WriteReg(EWRPTH, HIGH(TXSTART+1));
@@ -650,6 +711,7 @@ void EE_enc28j60_mac_put_header(mac_addr *remote, WORD type, WORD dataLen)
 	//				#define ETHTYPE_IP        0x0800
     MACPut(HIGH(type)); //MACPut(0x08);
     MACPut(LOW(type));  // ETHER_IP , ETHER_ARP
+	enc28j60_dbg_print("EE_enc28j60_mac_put_header end!\n");
 }
 
 /******************************************************************************
@@ -677,6 +739,7 @@ void EE_enc28j60_mac_put_header(mac_addr *remote, WORD type, WORD dataLen)
  *****************************************************************************/
 void EE_enc28j60_mac_flush(void)
 {
+	enc28j60_dbg_print("EE_enc28j60_mac_flush start!\n");
     // Reset transmit logic if a TX Error has previously occured
     // This is a silicon errata workaround
     BFSReg(ECON1, ECON1_TXRST);
@@ -758,6 +821,7 @@ void EE_enc28j60_mac_flush(void)
             WriteReg(ERDPTH, ReadPtrSave.byte.HB);
         }
     }
+	enc28j60_dbg_print("EE_enc28j60_mac_flush end!\n");
 }
 
 
@@ -787,6 +851,7 @@ void EE_enc28j60_mac_set_read_ptr_inRx(WORD offset)
 {
     WORD_VAL ReadPT;
 
+	enc28j60_dbg_print("EE_enc28j60_mac_set_read_ptr_inRx start!\n");
     // Determine the address of the beginning of the entire packet
     // and adjust the address to the desired location
     ReadPT.Val = CurrentPacketLocation.Val + sizeof(ENC_PREAMBLE) + offset;
@@ -798,6 +863,7 @@ void EE_enc28j60_mac_set_read_ptr_inRx(WORD offset)
     // Set the SPI read pointer to the new calculated value
     WriteReg(ERDPTL, ReadPT.byte.LB);
     WriteReg(ERDPTH, ReadPT.byte.HB);
+	enc28j60_dbg_print("EE_enc28j60_mac_set_read_ptr_inRx end!\n");
 }
 
 
@@ -820,6 +886,7 @@ void EE_enc28j60_mac_set_read_ptr_inRx(WORD offset)
 WORD EE_enc28j60_mac_set_write_ptr(WORD address)
 {
     WORD_VAL oldVal;
+	enc28j60_dbg_print("EE_enc28j60_mac_set_write_ptr start!\n");
 
     oldVal.byte.LB = ReadETHReg(EWRPTL).Val;
     oldVal.byte.HB = ReadETHReg(EWRPTH).Val;
@@ -828,6 +895,8 @@ WORD EE_enc28j60_mac_set_write_ptr(WORD address)
     WriteReg(EWRPTL, ((WORD_VAL*)&address)->byte.LB);
     WriteReg(EWRPTH, ((WORD_VAL*)&address)->byte.HB);
 
+	
+	enc28j60_dbg_print("EE_enc28j60_mac_set_write_ptr end!\n");
     return oldVal.Val;
 }
 
@@ -851,6 +920,7 @@ WORD EE_enc28j60_mac_set_read_ptr(WORD address)
 {
     WORD_VAL oldVal;
 
+	enc28j60_dbg_print("EE_enc28j60_mac_set_read_ptr start!\n");
     oldVal.byte.LB = ReadETHReg(ERDPTL).Val;
     oldVal.byte.HB = ReadETHReg(ERDPTH).Val;
 
@@ -858,6 +928,7 @@ WORD EE_enc28j60_mac_set_read_ptr(WORD address)
     WriteReg(ERDPTL, ((WORD_VAL*)&address)->byte.LB);
     WriteReg(ERDPTH, ((WORD_VAL*)&address)->byte.HB);
 
+	enc28j60_dbg_print("EE_enc28j60_mac_set_read_ptr end!\n");
     return oldVal.Val;
 }
 
@@ -885,6 +956,8 @@ WORD EE_enc28j60_mac_CalcRxChecksum(WORD offset, WORD len)
 {
     WORD_VAL temp;
     WORD_VAL RDSave;
+	
+	enc28j60_dbg_print("EE_enc28j60_mac_CalcRxChecksum start!\n");
 
     // Add the offset requested by firmware plus the Ethernet header
     temp.Val = CurrentPacketLocation.Val + sizeof(ENC_PREAMBLE) + offset;
@@ -904,6 +977,7 @@ WORD EE_enc28j60_mac_CalcRxChecksum(WORD offset, WORD len)
     WriteReg(ERDPTL, RDSave.byte.LB);
     WriteReg(ERDPTH, RDSave.byte.HB);
 
+	enc28j60_dbg_print("EE_enc28j60_mac_CalcRxChecksum end!\n");
     return temp.Val;
 }
 
@@ -941,6 +1015,8 @@ WORD EE_enc28j60_mac_CalcIPBufferChecksum(WORD len)
     WORD DataBuffer[10];
     WORD *DataPtr;
 
+	enc28j60_dbg_print("EE_enc28j60_mac_CalcIPBufferChecksum start!\n");
+	
     // Save the SPI read pointer starting address
     Start.byte.LB = ReadETHReg(ERDPTL).Val;
     Start.byte.HB = ReadETHReg(ERDPTH).Val;
@@ -981,6 +1057,7 @@ WORD EE_enc28j60_mac_CalcIPBufferChecksum(WORD len)
     // caused a carry out
     Checksum.w[0] += Checksum.w[1];
 
+	enc28j60_dbg_print("EE_enc28j60_mac_CalcIPBufferChecksum end!\n");
     // Return the resulting checksum
     return ~Checksum.w[0];
 }
@@ -1019,6 +1096,8 @@ void EE_enc28j60_mac_MemCopyAsync(WORD destAddr, WORD sourceAddr, WORD len)
     WORD_VAL ReadSave, WriteSave;
     BOOL UpdateWritePointer = FALSE;
     BOOL UpdateReadPointer = FALSE;
+	
+	enc28j60_dbg_print("EE_enc28j60_mac_MemCopyAsync start!\n");
 
     if(((WORD_VAL*)&destAddr)->bits.b15)
     {
@@ -1093,10 +1172,12 @@ void EE_enc28j60_mac_MemCopyAsync(WORD destAddr, WORD sourceAddr, WORD len)
             WriteReg(ERDPTH, ((WORD_VAL*)&len)->byte.HB);
         }
     }
+	enc28j60_dbg_print("EE_enc28j60_mac_MemCopyAsync end!\n");
 }
 
 BOOL EE_enc28j60_mac_IsMemCopyDone(void)
 {
+	enc28j60_dbg_print("EE_enc28j60_mac_IsMemCopyDone!\n");
     return !(ReadETHReg(ECON1).Val & ECON1_DMAST);
 }
 
@@ -1121,6 +1202,8 @@ BOOL EE_enc28j60_mac_IsMemCopyDone(void)
  *****************************************************************************/
 void EE_enc28j60_mac_power_down(void)
 {
+	enc28j60_dbg_print("EE_enc28j60_mac_power_down start!\n");
+	
     // Disable packet reception
     BFCReg(ECON1, ECON1_RXEN);
 
@@ -1133,6 +1216,8 @@ void EE_enc28j60_mac_power_down(void)
 
     // Enter sleep mode
     BFSReg(ECON2, ECON2_PWRSV);
+	
+	enc28j60_dbg_print("EE_enc28j60_mac_power_down end!\n");
 }//end MACPowerDown
 
 
@@ -1159,6 +1244,8 @@ void EE_enc28j60_mac_power_down(void)
  *****************************************************************************/
 void EE_enc28j60_mac_power_up(void)
 {
+	enc28j60_dbg_print("EE_enc28j60_mac_power_up start!\n");
+	
     // Leave power down mode
     BFCReg(ECON2, ECON2_PWRSV);
 
@@ -1168,6 +1255,7 @@ void EE_enc28j60_mac_power_up(void)
 
     // Enable packet reception
     BFSReg(ECON1, ECON1_RXEN);
+	enc28j60_dbg_print("EE_enc28j60_mac_power_up end!\n");
 }//end MACPowerUp
 
 /******************************************************************************
@@ -1198,6 +1286,8 @@ void EE_enc28j60_mac_set_rx_hash_table_entry(mac_addr DestMACAddr)
     DWORD_VAL CRC = {0xFFFFFFFF};
     BYTE HTRegister;
     BYTE i, j;
+	
+	enc28j60_dbg_print("EE_enc28j60_mac_set_rx_hash_table_entry!\n");
 
     // Calculate a CRC-32 over the 6 byte MAC address
     // using polynomial 0x4C11DB7
@@ -1240,17 +1330,23 @@ void EE_enc28j60_mac_set_rx_hash_table_entry(mac_addr DestMACAddr)
 int EE_enc28j60_read_info(BYTE* PacketCount, WORD* length)
 {
 	ENC_INFO info;
+	
+	enc28j60_dbg_print("EE_enc28j60_read_info start!\n");
    
     // Test if at least one packet has been received and is waiting
     BankSel(EPKTCNT);
     *PacketCount = ReadETHReg((BYTE)EPKTCNT).Val;
     BankSel(ERDPTL);
     if(*PacketCount == 0u)
+	{
+		enc28j60_dbg_print("EE_enc28j60_read_info PacketCount==0!\n");
         return -1;
+	}
     // Make absolutely certain that any previous packet was discarded
     if(WasDiscarded == FALSE)
     {
         MACDiscardRx();
+		enc28j60_dbg_print("EE_enc28j60_read_info WasDiscarded==FALSE!\n");
         return -1;
     }
 	
@@ -1276,8 +1372,8 @@ int EE_enc28j60_read_info(BYTE* PacketCount, WORD* length)
        info.StatusVector.bits.ByteCount > 1518u ||
        !info.StatusVector.bits.ReceiveOk)
 	{
+		enc28j60_dbg_print("EE_enc28j60_read_info Reset!\n");
         //Reset();
-		print_string("Reset!!!");
     }
 
     // Save the location where the hardware will write the next packet to
@@ -1285,6 +1381,7 @@ int EE_enc28j60_read_info(BYTE* PacketCount, WORD* length)
     // Mark this packet as discardable
     WasDiscarded = FALSE;
 	
+	enc28j60_dbg_print("EE_enc28j60_read_info end!\n");
     return 0;
 
 }

@@ -47,6 +47,35 @@ typedef EE_INT32 s32_t;	/**< Unsigned 32 bit intgerer. */
 typedef u32_t               mem_ptr_t;
 #endif
 
+/* printf formatters for data types */
+#ifndef U16_F
+#define U16_F	"u"
+#endif
+
+#ifndef S16_F
+#define S16_F	"d"
+#endif
+
+#ifndef X16_F
+#define X16_F	"x"
+#endif
+
+#ifndef U32_F
+#define U32_F	"u"
+#endif
+
+#ifndef S32_F
+#define S32_F	"d"
+#endif
+
+#ifndef X32_F
+#define X32_F	"x"
+#endif
+
+#ifndef SZT_F
+#define SZT_F	"zu"
+#endif
+
 /**  @} */
 
 // #ifndef COMPILER_INLINE 

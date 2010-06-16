@@ -6,7 +6,10 @@ ifeq ($(findstring __LIB_LWIP__,$(LIB_OPT)),__LIB_LWIP__)
 ##
 ## Application files
 ##
+
 # core ipv4
+ifeq ($(findstring LWIP_IPV4,$(EEOPT)) , LWIP_IPV4)
+
 EE_SRCS += contrib/lwip/lwip_1_3_2/src/core/ipv4/autoip.c  
 EE_SRCS += contrib/lwip/lwip_1_3_2/src/core/ipv4/icmp.c  
 EE_SRCS += contrib/lwip/lwip_1_3_2/src/core/ipv4/igmp.c  
@@ -15,23 +18,41 @@ EE_SRCS += contrib/lwip/lwip_1_3_2/src/core/ipv4/inet_chksum.c
 EE_SRCS += contrib/lwip/lwip_1_3_2/src/core/ipv4/ip.c  
 EE_SRCS += contrib/lwip/lwip_1_3_2/src/core/ipv4/ip_addr.c  
 EE_SRCS += contrib/lwip/lwip_1_3_2/src/core/ipv4/ip_frag.c
+endif
+
 # core ipv6
-#EE_SRCS += contrib/lwip/lwip_1_3_2/src/core/ipv6/icmp6.c  
-#EE_SRCS += contrib/lwip/lwip_1_3_2/src/core/ipv6/inet6.c  
-#EE_SRCS += contrib/lwip/lwip_1_3_2/src/core/ipv6/ip6.c  
-#EE_SRCS += contrib/lwip/lwip_1_3_2/src/core/ipv6/ip6_addr.c
+ifeq ($(findstring LWIP_IPV6,$(EEOPT)) , LWIP_IPV6)
+EE_SRCS += contrib/lwip/lwip_1_3_2/src/core/ipv6/icmp6.c  
+EE_SRCS += contrib/lwip/lwip_1_3_2/src/core/ipv6/inet6.c  
+EE_SRCS += contrib/lwip/lwip_1_3_2/src/core/ipv6/ip6.c  
+EE_SRCS += contrib/lwip/lwip_1_3_2/src/core/ipv6/ip6_addr.c
+endif
+
 # core snmp
+ifeq ($(findstring LWIP_SNMP,$(EEOPT)) , LWIP_SNMP)
 EE_SRCS += contrib/lwip/lwip_1_3_2/src/core/snmp/asn1_dec.c  
 EE_SRCS += contrib/lwip/lwip_1_3_2/src/core/snmp/asn1_enc.c  
 EE_SRCS += contrib/lwip/lwip_1_3_2/src/core/snmp/mib2.c  
 EE_SRCS += contrib/lwip/lwip_1_3_2/src/core/snmp/mib_structs.c 
 EE_SRCS += contrib/lwip/lwip_1_3_2/src/core/snmp/msg_in.c  
 EE_SRCS += contrib/lwip/lwip_1_3_2/src/core/snmp/msg_out.c
-# netif
+endif
+
+# ARP
+ifeq ($(findstring LWIP_ARP,$(EEOPT)) , LWIP_ARP)
 EE_SRCS += contrib/lwip/lwip_1_3_2/src/netif/etharp.c  
-# EE_SRCS += contrib/lwip/lwip_1_3_2/src/netif/ethernetif.c  
+endif
+
+# LOOP
+ifeq ($(findstring LWIP_HAVE_LOOPIF,$(EEOPT)) , LWIP_HAVE_LOOPIF)
 EE_SRCS += contrib/lwip/lwip_1_3_2/src/netif/loopif.c  
+endif
+
+# SLIP
+ifeq ($(findstring LWIP_HAVE_SLIPIF,$(EEOPT)) , LWIP_HAVE_SLIPIF)
 EE_SRCS += contrib/lwip/lwip_1_3_2/src/netif/slipif.c
+endif
+
 # api
 EE_SRCS += contrib/lwip/lwip_1_3_2/src/api/api_lib.c  
 EE_SRCS += contrib/lwip/lwip_1_3_2/src/api/api_msg.c  
@@ -41,6 +62,7 @@ EE_SRCS += contrib/lwip/lwip_1_3_2/src/api/netdb.c
 EE_SRCS += contrib/lwip/lwip_1_3_2/src/api/netifapi.c  
 EE_SRCS += contrib/lwip/lwip_1_3_2/src/api/sockets.c  
 EE_SRCS += contrib/lwip/lwip_1_3_2/src/api/tcpip.c
+
 # core
 EE_SRCS += contrib/lwip/lwip_1_3_2/src/core/dhcp.c  
 EE_SRCS += contrib/lwip/lwip_1_3_2/src/core/dns.c  
@@ -56,7 +78,9 @@ EE_SRCS += contrib/lwip/lwip_1_3_2/src/core/tcp.c
 EE_SRCS += contrib/lwip/lwip_1_3_2/src/core/tcp_in.c  
 EE_SRCS += contrib/lwip/lwip_1_3_2/src/core/tcp_out.c  
 EE_SRCS += contrib/lwip/lwip_1_3_2/src/core/udp.c
+
 # ppp
+ifeq ($(findstring PPP_SUPPORT,$(EEOPT)) , PPP_SUPPORT)
 EE_SRCS += contrib/lwip/lwip_1_3_2/src/netif/ppp/auth.c  
 EE_SRCS += contrib/lwip/lwip_1_3_2/src/netif/ppp/chap.c  
 EE_SRCS += contrib/lwip/lwip_1_3_2/src/netif/ppp/chpms.c  
@@ -70,6 +94,10 @@ EE_SRCS += contrib/lwip/lwip_1_3_2/src/netif/ppp/ppp.c
 EE_SRCS += contrib/lwip/lwip_1_3_2/src/netif/ppp/ppp_oe.c    
 EE_SRCS += contrib/lwip/lwip_1_3_2/src/netif/ppp/randm.c  
 EE_SRCS += contrib/lwip/lwip_1_3_2/src/netif/ppp/vj.c 
+endif
+
+# LWIP init
+EE_SRCS += contrib/lwip/lwip_1_3_2/abstraction/src/lwip_init.c
 
 # Ethernet interface
 EE_SRCS += contrib/lwip/lwip_1_3_2/abstraction/src/hal/lwip_ethernet.c

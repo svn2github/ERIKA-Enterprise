@@ -54,25 +54,31 @@
 #define IFNAME0 'e'
 #define IFNAME1 'n'
 
-/**
- * Helper struct to hold private data used to operate your ethernet interface.
- * Keeping the ethernet address of the MAC in this struct is not necessary
- * as it is already kept in the struct netif.
- * But this is only an example, anyway...
- */
-struct ethernetif {
-  struct eth_addr *ethaddr;
-  /* Add whatever per-interface state that is needed here. */
-};
-
-/* Forward declarations. */
-err_t ethernetif_input(struct netif *netif);
-err_t ethernetif_init(struct netif *netif);
-err_t ethernetif_output(struct netif *netif, struct pbuf *p, struct ip_addr *ipaddr);
-
 static struct pbuf *low_level_input(struct netif *netif);
 static err_t low_level_init(struct netif *netif);
 static err_t low_level_output(struct netif *netif, struct pbuf *p);
+
+/**
+ * This function should be called by the program to service the network interface.
+ * It calls the function low_level_rx() to do the actual input.
+ *
+ * @param netif the already initialized lwip network interface structure
+ *        for this ethernetif
+ */
+err_t ethernetif_service(struct netif *netif)
+{
+  err_t ret_code = 0;
+  //struct ethernetif* dev = (struct ethernetif*)netif->state;
+
+  LWIP_DEBUGF(NETIF_DEBUG | LWIP_DBG_TRACE, ("ethernetif_service()\n"));
+
+  /* Call the device input routine, passing the LWIP input handler */
+  ret_code = ethernetif_input(netif);
+
+  LWIP_DEBUGF(NETIF_DEBUG | LWIP_DBG_TRACE, ("ethernetif_service() returns = %d\n",ret_code));
+
+  return ret_code;
+}
 
 /**
  * In this function, the hardware should be initialized.
@@ -83,7 +89,9 @@ static err_t low_level_output(struct netif *netif, struct pbuf *p);
  */
 static err_t low_level_init(struct netif *netif)
 {
-	struct ethernetif *ethernetif = netif->state;
+	//struct ethernetif *ethernetif = netif->state;
+	
+	LWIP_DEBUGF(NETIF_DEBUG | LWIP_DBG_TRACE, ("low_level_init ( %#x)\n",netif));
 
 	/* set MAC hardware address length */
 	netif->hwaddr_len = ETHARP_HWADDR_LEN;
@@ -95,7 +103,7 @@ static err_t low_level_init(struct netif *netif)
 	netif->hwaddr[3] = MY_DEFAULT_MAC_BYTE4;
 	netif->hwaddr[4] = MY_DEFAULT_MAC_BYTE5;
 	netif->hwaddr[5] = MY_DEFAULT_MAC_BYTE6;
-
+	
 	/* maximum transfer unit */
 	netif->mtu = 1500;
 
@@ -126,7 +134,9 @@ err_t ethernetif_init(struct netif *netif)
   struct ethernetif *ethernetif;
 
   LWIP_ASSERT("netif != NULL", (netif != NULL));
+  LWIP_DEBUGF(NETIF_DEBUG | LWIP_DBG_TRACE, ("ethernetif_init ( %#x)\n",netif));
     
+	// Allocate memory for ethernetif
   ethernetif = mem_malloc(sizeof(struct ethernetif));
   if (ethernetif == NULL) {
     LWIP_DEBUGF(NETIF_DEBUG, ("ethernetif_init: out of memory\n"));
@@ -156,6 +166,8 @@ err_t ethernetif_init(struct netif *netif)
   netif->linkoutput = low_level_output;
   
   ethernetif->ethaddr = (struct eth_addr *)&(netif->hwaddr[0]);
+  ethernetif->pkt_cnt = 0; 
+  ethernetif->length = 0;
   
   /* initialize the hardware */
   low_level_init(netif);
@@ -180,9 +192,12 @@ err_t ethernetif_init(struct netif *netif)
  */
 static err_t low_level_output(struct netif *netif, struct pbuf *p)
 {
-	struct ethernetif *ethernetif = netif->state;
+	//struct ethernetif *ethernetif = netif->state;
 	struct pbuf *q;
 	u16_t length = p->tot_len;
+	#ifdef LWIP_DEBUG
+	//int i;
+	#endif
 
 	LWIP_DEBUGF(NETIF_DEBUG | LWIP_DBG_TRACE, ("low_level_output ( %#x)\n",p));
 
@@ -196,11 +211,17 @@ static err_t low_level_output(struct netif *netif, struct pbuf *p)
 		/* Send the data from the pbuf to the interface, one pbuf at a
 		   time. The size of the data in each pbuf is kept in the ->len
 		   variable. */
+		// LWIP_DEBUGF(NETIF_DEBUG | LWIP_DBG_TRACE, ("\npayload: %x, len: %d\n", q->payload, q->len));
+		// for(i=0; i<(q->len); i++)
+		// {	
+			// LWIP_DEBUGF(NETIF_DEBUG | LWIP_DBG_TRACE, ("q->payload[%d]:%x  ", i, ((u8_t*)q->payload)[i]));
+		// }
 		mydevice_write(q->payload, q->len);
 	}
-
+	
+	LWIP_DEBUGF(NETIF_DEBUG | LWIP_DBG_TRACE, ("signal length: %d\n", length));
 	mydevice_signal(length);
-
+	
 	#if ETH_PAD_SIZE
 	pbuf_header(p, ETH_PAD_SIZE); /* reclaim the padding word */
 	#endif
@@ -223,9 +244,10 @@ static err_t low_level_output(struct netif *netif, struct pbuf *p)
  */
 err_t ethernetif_output(struct netif *netif, struct pbuf *p, struct ip_addr *ipaddr)
 {
+	err_t ret;
 	LWIP_DEBUGF(NETIF_DEBUG | LWIP_DBG_TRACE, ("ethernetif_output()\n"));
 
-	p = etharp_output(netif, p, ipaddr);
+	ret = etharp_output(netif, p, ipaddr);
 
 	if (p != NULL) 
 	{
@@ -247,52 +269,66 @@ err_t ethernetif_output(struct netif *netif, struct pbuf *p, struct ip_addr *ipa
  */
 static struct pbuf *low_level_input(struct netif *netif)
 {
-  struct ethernetif *ethernetif = netif->state;
-  struct pbuf *p, *q;
-  u16_t len;
+	struct ethernetif *ethernetif = netif->state;
+	struct pbuf *p, *q;
+	u16_t len;
+	#ifdef LWIP_DEBUG
+	int i;
+	#endif
 
-  /* Obtain the size of the packet and put it into the "len"
-     variable. */
-  len = 0;
+	/* Obtain the size of the packet and put it into the "len"
+	variable. */
+	
+	mydevice_get_info(ethernetif);
+    if(ethernetif->pkt_cnt==0)
+		return (struct pbuf *)0;
+		
+	len = ethernetif->length;
 
-#if ETH_PAD_SIZE
-  len += ETH_PAD_SIZE; /* allow room for Ethernet padding */
-#endif
+	#if ETH_PAD_SIZE
+	len += ETH_PAD_SIZE; /* allow room for Ethernet padding */
+	#endif
 
-  /* We allocate a pbuf chain of pbufs from the pool. */
-  p = pbuf_alloc(PBUF_RAW, len, PBUF_POOL);
+	/* We allocate a pbuf chain of pbufs from the pool. */
+	p = pbuf_alloc(PBUF_RAW, len, PBUF_POOL);
   
-  if (p != NULL) {
+	if (p != NULL) 
+	{
+		#if ETH_PAD_SIZE
+		pbuf_header(p, -ETH_PAD_SIZE); /* drop the padding word */
+		#endif
 
-#if ETH_PAD_SIZE
-    pbuf_header(p, -ETH_PAD_SIZE); /* drop the padding word */
-#endif
+		/* We iterate over the pbuf chain until we have read the entire
+		* packet into the pbuf. */
+		for(q = p; q != NULL; q = q->next) {
+		/* Read enough bytes to fill this pbuf in the chain. The
+		* available data in the pbuf is given by the q->len
+		* variable.
+		* This does not necessarily have to be a memcpy, you can also preallocate
+		* pbufs for a DMA-enabled MAC and after receiving truncate it to the
+		* actually received size. In this case, ensure the tot_len member of the
+		* pbuf is the sum of the chained pbuf len members.
+		*/
+			mydevice_read(q->payload, q->len);
+			LWIP_DEBUGF(NETIF_DEBUG | LWIP_DBG_TRACE, ("\npayload: %x, len: %d\n", q->payload, q->len));
+			for(i=0; i<(q->len); i++)
+			{	
+			LWIP_DEBUGF(NETIF_DEBUG | LWIP_DBG_TRACE, ("q->payload[%d]:%x  ", i, ((u8_t*)q->payload)[i]));
+			}
+		}
+		mydevice_ack();
 
-    /* We iterate over the pbuf chain until we have read the entire
-     * packet into the pbuf. */
-    for(q = p; q != NULL; q = q->next) {
-      /* Read enough bytes to fill this pbuf in the chain. The
-       * available data in the pbuf is given by the q->len
-       * variable.
-       * This does not necessarily have to be a memcpy, you can also preallocate
-       * pbufs for a DMA-enabled MAC and after receiving truncate it to the
-       * actually received size. In this case, ensure the tot_len member of the
-       * pbuf is the sum of the chained pbuf len members.
-       */
-		mydevice_read(q->payload, q->len);
-    }
-    mydevice_ack();
+		#if ETH_PAD_SIZE
+		pbuf_header(p, ETH_PAD_SIZE); /* reclaim the padding word */
+		#endif
 
-#if ETH_PAD_SIZE
-    pbuf_header(p, ETH_PAD_SIZE); /* reclaim the padding word */
-#endif
-
-    LINK_STATS_INC(link.recv);
-  } else {
-    mydevice_drop_packet();
-    LINK_STATS_INC(link.memerr);
-    LINK_STATS_INC(link.drop);
-  }
+		LINK_STATS_INC(link.recv);
+	} 
+	else {
+		mydevice_drop_packet();
+		LINK_STATS_INC(link.memerr);
+		LINK_STATS_INC(link.drop);
+	}
 
   return p;  
 }
@@ -317,7 +353,11 @@ err_t ethernetif_input(struct netif *netif)
   /* move received packet into a new pbuf */
   p = low_level_input(netif);
   /* no packet could be read, silently ignore this */
-  if (p == NULL) return ERR_OK;;
+  if (p == NULL) 
+  {
+	LWIP_DEBUGF(NETIF_DEBUG, ("ethernetif_input: p == NULL!\n"));
+	return ERR_OK;
+  }
   /* points to packet payload, which starts with an Ethernet header */
   ethhdr = p->payload;
 
@@ -332,13 +372,14 @@ err_t ethernetif_input(struct netif *netif)
 #endif /* PPPOE_SUPPORT */
     /* full packet send to tcpip_thread to process */
     if (netif->input(p, netif)!=ERR_OK)
-     { LWIP_DEBUGF(NETIF_DEBUG, ("ethernetif_input: IP input error\n"));
+     { LWIP_DEBUGF(NETIF_DEBUG, ("ethernetif_input: IP input error!\n"));
        pbuf_free(p);
        p = NULL;
      }
     break;
 
   default:
+	LWIP_DEBUGF(NETIF_DEBUG, ("ethernetif_input: type unknown!\n"));
     pbuf_free(p);
     p = NULL;
     break;
