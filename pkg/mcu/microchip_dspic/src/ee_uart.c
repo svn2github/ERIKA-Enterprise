@@ -199,6 +199,7 @@ EE_INT8 EE_uart_read_byte(EE_UINT8 port, EE_UINT8 *data)
 			}
 			if (U1STAbits.URXDA) {
 				*data = U1RXREG & 0x00FF;
+				U1STAbits.URXDA = 0;
 				return 1;
 			}
 			return -EE_UART_ERR_NO_DATA;
@@ -216,6 +217,7 @@ EE_INT8 EE_uart_read_byte(EE_UINT8 port, EE_UINT8 *data)
 				return -EE_UART_ERR_OVERFLOW;
 			}
 			if (U2STAbits.URXDA) {
+				U2STAbits.URXDA = 0;
 				*data = U2RXREG & 0x00FF;
 				return 1;
 			}
