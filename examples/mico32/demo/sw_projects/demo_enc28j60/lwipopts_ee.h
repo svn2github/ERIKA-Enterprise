@@ -19,7 +19,7 @@
 //#define MY_DEFAULT_MAC_BYTE5        (0xD6)	
 //#define MY_DEFAULT_MAC_BYTE6        (0xAA)
 
-/* test7 */
+/* test7, test8 */
 #define MY_DEFAULT_MAC_BYTE1        (0x00)	// Use the default of
 #define MY_DEFAULT_MAC_BYTE2        (0x04)	// 00-04-A3-00-00-00 if using
 #define MY_DEFAULT_MAC_BYTE3        (0xA3)	// an ENCX24J600 or ZeroG ZG2100
@@ -39,17 +39,17 @@
 #define MY_GATEWAY_ADDR_BYTE2 		(168)
 #define MY_GATEWAY_ADDR_BYTE3 		(0)
 #define MY_GATEWAY_ADDR_BYTE4 		(10)
-#define REMOTE_PORT					(9761)
-#define REMOTE_IPADDR_BYTE1 		(192)
-#define REMOTE_IPADDR_BYTE2 		(168)
-#define REMOTE_IPADDR_BYTE3 		(0)
-#define REMOTE_IPADDR_BYTE4 		(1)
-#define REMOTE_MAC_BYTE1            (0x00)	
-#define REMOTE_MAC_BYTE2            (0x1E)	
-#define REMOTE_MAC_BYTE3            (0x33)	
-#define REMOTE_MAC_BYTE4            (0xC9)	
-#define REMOTE_MAC_BYTE5            (0xD6)	
-#define REMOTE_MAC_BYTE6            (0xAA)	
+//#define REMOTE_PORT					(9761)
+//#define REMOTE_IPADDR_BYTE1 		(192)
+//#define REMOTE_IPADDR_BYTE2 		(168)
+//#define REMOTE_IPADDR_BYTE3 		(0)
+//#define REMOTE_IPADDR_BYTE4 		(1)
+//#define REMOTE_MAC_BYTE1            (0x00)	
+//#define REMOTE_MAC_BYTE2            (0x1E)	
+//#define REMOTE_MAC_BYTE3            (0x33)	
+//#define REMOTE_MAC_BYTE4            (0xC9)	
+//#define REMOTE_MAC_BYTE5            (0xD6)	
+//#define REMOTE_MAC_BYTE6            (0xAA)	
 
 /* ---------- Threads configuration ---------- */
 #ifndef NO_SYS
@@ -112,7 +112,7 @@
 #define ARP_QUEUEING            0
 #endif
 //#define ETHARP_ALWAYS_INSERT    0
-//#define LWIP_ARP                        1
+#define LWIP_ARP                        1
 //#define ARP_TABLE_SIZE                  10
 //#define ARP_QUEUEING                    1
 //#define ETHARP_TRUST_IP_MAC             1

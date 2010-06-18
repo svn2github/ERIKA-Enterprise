@@ -29,29 +29,21 @@ EE_SRCS += contrib/lwip/lwip_1_3_2/src/core/ipv6/ip6_addr.c
 endif
 
 # core snmp
-ifeq ($(findstring LWIP_SNMP,$(EEOPT)) , LWIP_SNMP)
 EE_SRCS += contrib/lwip/lwip_1_3_2/src/core/snmp/asn1_dec.c  
 EE_SRCS += contrib/lwip/lwip_1_3_2/src/core/snmp/asn1_enc.c  
 EE_SRCS += contrib/lwip/lwip_1_3_2/src/core/snmp/mib2.c  
 EE_SRCS += contrib/lwip/lwip_1_3_2/src/core/snmp/mib_structs.c 
 EE_SRCS += contrib/lwip/lwip_1_3_2/src/core/snmp/msg_in.c  
 EE_SRCS += contrib/lwip/lwip_1_3_2/src/core/snmp/msg_out.c
-endif
 
 # ARP
-ifeq ($(findstring LWIP_ARP,$(EEOPT)) , LWIP_ARP)
 EE_SRCS += contrib/lwip/lwip_1_3_2/src/netif/etharp.c  
-endif
 
 # LOOP
-ifeq ($(findstring LWIP_HAVE_LOOPIF,$(EEOPT)) , LWIP_HAVE_LOOPIF)
 EE_SRCS += contrib/lwip/lwip_1_3_2/src/netif/loopif.c  
-endif
 
 # SLIP
-ifeq ($(findstring LWIP_HAVE_SLIPIF,$(EEOPT)) , LWIP_HAVE_SLIPIF)
 EE_SRCS += contrib/lwip/lwip_1_3_2/src/netif/slipif.c
-endif
 
 # api
 EE_SRCS += contrib/lwip/lwip_1_3_2/src/api/api_lib.c  

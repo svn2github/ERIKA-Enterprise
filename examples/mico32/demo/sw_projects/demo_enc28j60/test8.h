@@ -13,6 +13,7 @@
 #include <ee.h>
 /* Mecros used in the application code */
 #define LWIP_ON
+#define PRINT_ON
 #define turn_on_led() 				EE_misc_gpio_write_bit_data(1,EE_DL3_BIT)
 #define turn_off_led() 				EE_misc_gpio_write_bit_data(0,EE_DL3_BIT)
 /* Size of the expected payload */
@@ -25,7 +26,7 @@ void system_timer_callback(void);
 int TCP_receive(BYTE* rxv);
 int TCP_send(BYTE* txv);
 struct pbuf *pbuf_new(u8_t *data, u16_t len);
-int print_string(const char *s);
+void print_string(const char *s);
 void print_val(char* s, int val);
 void print_vals(char* s, int val1, int val2);
 void LWIP_timer_task(void);

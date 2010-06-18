@@ -12,7 +12,7 @@ CPU test_application {
 		EE_OPT = "BIG_ENDIAN";
 		CPU_DATA = LM32 {
 			APP_SRC = "test7_main.c";
-			//APP_SRC = "echo.c";
+			APP_SRC = "echo.c";
 			MULTI_STACK = FALSE;
 			USESTANDALONEPRINTF = FALSE; // Optional, default is FALSE
 			USESMALLC = FALSE; // Optional, defautl is FALSE
@@ -56,9 +56,7 @@ CPU test_application {
 		/* LWIP (TCPIP stack) (only for test7 and upper...) */
 		//EE_OPT = "LWIP_DEBUG";	
 		//EE_OPT = "LWIP_DEBUG_SERIAL";	
-		EE_OPT = "LWIP_ARP=1";
 		EE_OPT = "LWIP_IPV4";
-		EE_OPT = "LWIP_UDP=1";
 		LIB = ENABLE { NAME = "LWIP"; };	
 		
 	};

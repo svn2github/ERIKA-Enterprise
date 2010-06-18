@@ -139,7 +139,7 @@ TASK(myTask2)
 /* LWIP_startup_task */
 void LWIP_startup_task(void)
 {
-	struct ip_addr my_ipaddr, netmask, gw, remote_ipaddr;
+	struct ip_addr my_ipaddr, netmask, gw;
 	
 	/* Initialize lwip */
   	ee_lwip_init();
@@ -148,7 +148,6 @@ void LWIP_startup_task(void)
 	IP4_ADDR(&my_ipaddr, MY_IPADDR_BYTE1, MY_IPADDR_BYTE2, MY_IPADDR_BYTE3, MY_IPADDR_BYTE4);
 	IP4_ADDR(&netmask, MY_NETMASK_BYTE1, MY_NETMASK_BYTE2, MY_NETMASK_BYTE3, MY_NETMASK_BYTE4);
 	IP4_ADDR(&gw, MY_GATEWAY_ADDR_BYTE1, MY_GATEWAY_ADDR_BYTE2, MY_GATEWAY_ADDR_BYTE3, MY_GATEWAY_ADDR_BYTE4);
-	IP4_ADDR(&remote_ipaddr, REMOTE_IPADDR_BYTE1, REMOTE_IPADDR_BYTE2, REMOTE_IPADDR_BYTE3, REMOTE_IPADDR_BYTE4);
 	LWIP_DEBUGF(NETIF_DEBUG | LWIP_DBG_TRACE, ("netif_add!\n"));
 	netif_add(&netif, &my_ipaddr, &netmask, &gw,
                                           (void*)&my_ethernetif,
@@ -240,23 +239,29 @@ struct pbuf *pbuf_new(u8_t *data, u16_t len) {
     return p;
 }
 
-int print_string(const char *s)
+void print_string(const char *s)
 {
-	return EE_uart_send_buffer((EE_UINT8*)s,strlen(s));
+	#ifdef PRINT_ON 
+	EE_uart_send_buffer((EE_UINT8*)s,strlen(s));
+	#endif
 }
 
 void print_val(char* s, int val)
 {
+	#ifdef PRINT_ON 
 	char str[64];
 	sprintf(str, s, val);
 	print_string(str);
+	#endif
 }
 
 void print_vals(char* s, int val1, int val2)
 {
+	#ifdef PRINT_ON 
 	char str[64];
 	sprintf(str, s, val1, val2);
 	print_string(str);
+	#endif
 }
 
 int UDP_receive(BYTE* rxv)

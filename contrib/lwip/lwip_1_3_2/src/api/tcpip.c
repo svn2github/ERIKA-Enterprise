@@ -115,7 +115,7 @@ tcp_timer_needed(void)
  *
  * @param arg unused argument
  */
-static void
+void
 ip_reass_timer(void *arg)
 {
   LWIP_UNUSED_ARG(arg);
