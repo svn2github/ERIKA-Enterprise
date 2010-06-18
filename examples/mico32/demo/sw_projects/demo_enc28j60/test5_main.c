@@ -1,0 +1,390 @@
+/*
+  Name: test4_main.c
+  Copyright: Evidence Srl
+  Author: Dario Di Stefano
+  Date: 29/03/10 18.23
+  Description: ENC28J60 driver function test (reception test).
+*/
+
+/* RT-Kernel */
+#include <ee.h>
+/* Platform description */
+#include <system_conf.h>
+/* Erika Mico32 interrupts */
+#include <cpu/mico32/inc/ee_irq.h>
+/* Lattice components */
+#include <MicoMacros.h>
+#include <string.h>
+#include <stdio.h>
+
+/* ----------------------------------------------------------- */
+/* My device driver */
+/* ----------------------------------------------------------- */
+int device_write(int type);
+int device_read(int type);
+int device_print(void);
+void device_config(void);
+#define turn_on_led() 		EE_misc_gpio_write_bit_data(1,EE_DL3_BIT)
+#define turn_off_led() 		EE_misc_gpio_write_bit_data(0,EE_DL3_BIT)
+#define BANK0 0
+#define BANK1 1
+#define BANK2 2
+#define BANK3 3
+#define ETH_TYPE 0
+#define MAC_TYPE 1
+#define MII_TYPE 2
+#define BANK_TYPE 3
+#define BFC_TYPE 4
+#define BFS_TYPE 5
+#define PHY_TYPE 6
+volatile EE_UINT8 mask;
+volatile EE_UINT8 data = '0';
+volatile EE_UINT8 ret_data;
+volatile EE_UINT8 udata;
+volatile EE_UINT16 phy_data;
+volatile EE_UINT16 ret_phy_data;
+volatile int address;
+volatile int bank;
+
+/* ----------------------------------------------------------- */
+/* Macros */
+/* ----------------------------------------------------------- */
+#define SIZE_OF_ETH_HEADER 			(14)
+#define SIZE_OF_IP_HEADER 			(20)
+#define SIZE_OF_UDP_HEADER 			(8)
+#define SIZE_OF_PAYLOAD 			(4)
+#define ETHTYPE_ARP       			(0x0806)
+#define ETHTYPE_IP        			(0x0800)
+
+#if 0
+/* MICO32-PC simulation */
+#define DEST_MAC_BYTE1            	(0x00)	
+#define DEST_MAC_BYTE2            	(0x1E)	
+#define DEST_MAC_BYTE3            	(0x33)	
+#define DEST_MAC_BYTE4            	(0xC9)	
+#define DEST_MAC_BYTE5            	(0xD6)	
+#define DEST_MAC_BYTE6            	(0xAA)	
+#define myIPaddress					(0xc0a80002)
+#define myPort						(9760)
+#define remoteIPaddress				(0xc0a80001)
+#define remotePort					(9761)
+#define MSG_BYTE1					(0xAA)
+#define MSG_BYTE2					(0xBB)
+#define MSG_BYTE3					(0xCC)
+#define MSG_BYTE4					(0xDD)
+#define UDP_CHKSUM					(0x0000)
+#define UDP_LEN						(0x000c)
+#define IP_ID						(0x0005)
+#define TTL_PROTO					(0x6411)
+#define IP_CHKSUM					(0xd574)
+/**/
+#else
+/* MICO32-DSPIC simulation */
+#define DEST_MAC_BYTE1            	(0x00)	// Use the default of
+#define DEST_MAC_BYTE2            	(0x04)	// 00-04-A3-00-00-00 if using
+#define DEST_MAC_BYTE3            	(0xA3)	// an ENCX24J600 or ZeroG ZG2100
+#define DEST_MAC_BYTE4            	(0x00)	// and wish to use the internal
+#define DEST_MAC_BYTE5            	(0x00)	// factory programmed MAC
+#define DEST_MAC_BYTE6            	(0x00)	// address instead.
+#define myIPaddress					(0xc0a80001)
+#define myPort						(9762)
+#define remoteIPaddress				(0xc0a80002)
+#define remotePort					(9760)
+#define MSG_BYTE1					(0x00)
+#define MSG_BYTE2					(0x00)
+#define MSG_BYTE3					(0x80)
+#define MSG_BYTE4					(0x40)
+#define UDP_CHKSUM					(0xB1FF)
+#define UDP_LEN						(0x000c)
+#define IP_ID						(0xD5CD)
+#define TTL_PROTO					(0x8011)
+#define IP_CHKSUM					(0xe3ab)
+/**/
+#endif
+
+/* ----------------------------------------------------------- */
+/* TYPES */
+/* ----------------------------------------------------------- */
+typedef EE_UINT8 	u8_t;		/**< Unsigned 8 bit intgerer. */
+typedef EE_UINT16 	u16_t;		/**< Unsigned 16 bit intgerer. */
+typedef EE_UINT32 	u32_t;		/**< Unsigned 32 bit intgerer. */
+typedef EE_INT8 	s8_t;		/**< Unsigned 8 bit intgerer. */
+typedef EE_INT16 	s16_t;		/**< Unsigned 16 bit intgerer. */
+typedef EE_INT32 	s32_t;		/**< Unsigned 32 bit intgerer. */
+
+typedef struct ip_addr_t {
+  u32_t addr;
+} ip_addr;
+
+typedef struct udp_hdr_t {
+  u16_t src;
+  u16_t dest;  /* src/dest UDP ports */
+  u16_t len;
+  u16_t chksum;
+} udp_hdr;
+
+typedef struct ip_hdr_t {
+  /* version / header length / type of service */
+  u16_t _v_hl_tos;
+  /* total length */
+  u16_t _len;
+  /* identification */
+  u16_t _id;
+  /* fragment offset field */
+  u16_t _offset;
+  /* time to live / protocol*/
+  u16_t _ttl_proto;
+  /* checksum */
+  u16_t _chksum;
+  /* source and destination IP addresses */
+  ip_addr src;
+  ip_addr dest; 
+} ip_hdr;
+
+typedef struct eth_addr_t {
+  u8_t addr[6];
+} eth_addr;
+
+typedef struct eth_hdr_t {
+  eth_addr dest;
+  eth_addr src;
+  u16_t type;
+} eth_hdr;
+
+typedef struct payload_t {
+  u8_t v[SIZE_OF_PAYLOAD];
+} payload;
+
+typedef struct packet_t{
+	u8_t v[SIZE_OF_ETH_HEADER + SIZE_OF_IP_HEADER + SIZE_OF_UDP_HEADER + SIZE_OF_PAYLOAD];
+} packet;
+
+
+/* ----------------------------------------------------------- */
+/* Variables */
+/* ----------------------------------------------------------- */
+payload msg;
+eth_hdr ethernet_header; 
+udp_hdr udp_header;
+ip_hdr ip_header;	
+u16_t header_plus_len = sizeof(ip_hdr) + sizeof(udp_hdr) + sizeof(payload) + sizeof(eth_hdr); 
+packet test_pkt;
+		
+/* ----------------------------------------------------------- */
+/* Functions */
+/* ----------------------------------------------------------- */
+
+void system_timer_callback(void)
+{
+	/* count the interrupts, waking up expired alarms */
+	CounterTick(myCounter);
+}
+
+void print_string(char *s)
+{
+	EE_uart_send_buffer((EE_UINT8*)s,strlen(s));
+}
+
+void print_val(char* s, int val)
+{
+	char str[64];
+	sprintf(str, s, val);
+	print_string(str);
+}
+
+void print_vals(char* s, int val1, int val2)
+{
+	char str[64];
+	sprintf(str, s, val1, val2);
+	print_string(str);
+}
+
+/*
+ * TASK
+ */
+ 
+TASK(myTask)
+{
+	/*
+	MACGetHeader			// dentro StackTask
+		MACGetArray			// dentro MACGetHeader (eth_hdr)
+	MACGetArray				// dentro IPGetHeader (ip_hdr)
+	MACSetReadPtrInRx		// dentro IPGetHeader, si salta ip_hdr
+	MACGetArray				// dentro UDPProcess (udp_hdr)
+	MACSetReadPtrInRx		// dentro UDPIsGetReady, si salta udp_hdr
+	MACGetArray				// dentro UDPGetArray (payload)
+	MACDiscardRx			// dentro StackTask (UDPDiscard)
+	*/
+	
+	int rb, i;
+	BYTE packet_count = 0;
+	WORD len = 0; 
+
+#if 0
+	mac_addr remote_mac;
+	BYTE type = 0;
+	BYTE ip_hdr[20];
+	BYTE udp_hdr[8];
+	BYTE payload[8];
+	/* Reception */
+	print_string("Reception...\n");
+	if(MACGetHeader(&remote_mac, &type, &packet_count, &len))
+	{
+		for(i=0; i<sizeof(mac_addr); i++)
+			print_vals("remote_mac[%d]: 0x%x\n", i, ((BYTE *)&remote_mac)[i]);
+		print_val("type: 0x%x\n", type);
+		print_val("pcnt: %d\n", packet_count);
+		print_val("len: %d\n", len);
+		// Read IP header.
+		rb = MACGetArray(ip_hdr, 20);
+		for(i=0; i<rb; i++)
+			print_vals("ip_hdr[%d]: 0x%x\n", i, ip_hdr[i]);
+		// Seek to the end of the IP header.
+		//MACSetReadPtrInRx(20);
+		// Retrieve UDP header.
+		rb = MACGetArray(udp_hdr, 8);
+		for(i=0; i<rb; i++)
+			print_vals("udp_hdr[%d]: 0x%x\n", i, udp_hdr[i]);
+		// Seek to the end of the UDP header.
+		//MACSetReadPtrInRx(28);
+		// Read payload.
+		rb = MACGetArray(payload, 22);
+		for(i=0; i<rb; i++)
+			print_vals("payload[%d]: 0x%x\n", i, payload[i]);
+		MACDiscardRx();
+	}
+#else
+	BYTE data[128];
+	if(EE_enc28j60_read_info(&packet_count, &len)>=0)
+	{
+		print_val("pcnt: %d\n", packet_count);
+		print_val("len: %d\n", len);
+		rb = EE_enc28j60_read(data, len);
+		for(i=0; i<len; i++)
+			print_vals("data[%d]: 0x%x\n", i, data[i]);
+		EE_enc28j60_ack();
+	}
+#endif
+}
+
+
+/*
+ * MAIN
+ */
+int main(void)
+{
+	/* ------------------- */
+	/* Disable IRQ         */
+	/* ------------------- */
+	EE_mico32_disableIRQ();
+	
+	/* -------------------------- */
+	/* Uart configuration         */
+	/* -------------------------- */
+	EE_uart_config(115200, EE_UART_BIT8_NO | EE_UART_BIT_STOP_1);
+	EE_uart_set_ISR_mode(EE_UART_POLLING | EE_UART_RXTX_BLOCK); // polling, blocking mode  
+	
+	/* ------------------- */
+	/* Kernel timer configuration */
+	/* ------------------- */
+	EE_timer_set_ISR_callback(system_timer_callback);
+	EE_timer_init(MILLISECONDS_TO_TICKS(1), MICO32_TIMER_CONTROL_INT_BIT_MASK | MICO32_TIMER_CONTROL_CONT_BIT_MASK | MICO32_TIMER_CONTROL_STOP_BIT_MASK);
+	
+	/* ------------------- */
+	/* Enable IRQ         */
+	/* ------------------- */
+	EE_mico32_enableIRQ();
+	
+	/* ------------------- */
+	/* Background activity */
+	/* ------------------- */
+	/* Device initialization */
+	print_string("\ndevice configuration in progress...");
+	device_config();
+	print_string("Done!\n");
+	turn_on_led();	
+	SetRelAlarm(myAlarm, 100, 500);
+	EE_timer_on();
+		
+	while(1)
+		;
+		
+    return 0;
+}
+
+/* ------------------------------------------------------- */
+/* Device driver functions                                 */
+/* ------------------------------------------------------- */
+
+void device_config(void)
+{ 	
+	EE_enc28j60_init();
+}
+
+int device_write(int type)
+{
+	if((type==ETH_TYPE) || (type==MAC_TYPE) || (type==MII_TYPE))
+		WriteReg(address, data);
+	else 
+		if(type==BANK_TYPE)
+			BankSel(address);
+		else 
+			if(type==BFC_TYPE)
+				BFCReg(address, mask);
+			else
+				if(type==BFS_TYPE)
+					BFSReg(address, mask);
+				else
+					if(type==PHY_TYPE)
+						WritePHYReg(address, phy_data);
+	return 0;
+}
+
+int device_read(int type)
+{
+	REG r;
+	PHYREG pr;
+	
+	if(type==ETH_TYPE)
+	{
+		r = ReadETHReg(address);
+		ret_data = r.Val; // = EE_enc28j60_read_ETH_register(address);
+	}
+	else 
+		if(type==MAC_TYPE)
+		{
+			r = ReadMACReg(address);
+			ret_data = r.Val; // = EE_enc28j60_read_MAC_register(address);
+		}
+		else
+			if(type==MII_TYPE)
+			{
+				r = ReadMACReg(address);
+				ret_data = r.Val; // = EE_enc28j60_read_MII_register(address);
+			}
+			else
+				if(type==PHY_TYPE)
+				{
+					pr = ReadPHYReg(address);
+					ret_phy_data = pr.Val;
+				}
+				else
+					ret_data = -100;
+	
+	return ret_data;
+}
+
+int device_print(void)
+{
+	char *str1 = "\nWrite:\n";
+	char *str2 = "\nRead:\n";
+	
+	EE_uart_send_buffer((EE_UINT8 *)str1,strlen(str1));
+	EE_uart_send_buffer((EE_UINT8*)&data, 1);
+	EE_uart_send_buffer((EE_UINT8 *)str2,strlen(str2));
+	EE_uart_send_buffer((EE_UINT8*)&ret_data, 1);	
+	
+	return 0;
+}
+
+

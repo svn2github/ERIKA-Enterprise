@@ -120,7 +120,7 @@ typedef struct  __attribute__((aligned(2), packed))
     RXSTATUS        StatusVector;
 } ENC_INFO;
 
-// Global MAC level variables and flags
+// Global MAC level variables and flags (macros defined in the application code)
 mac_addr ee_myMACaddress = {	.v[0] = MY_DEFAULT_MAC_BYTE1, .v[1] = MY_DEFAULT_MAC_BYTE2, .v[2] = MY_DEFAULT_MAC_BYTE3, 
 								.v[3] = MY_DEFAULT_MAC_BYTE4, .v[4] = MY_DEFAULT_MAC_BYTE5, .v[5] = MY_DEFAULT_MAC_BYTE6 };
 

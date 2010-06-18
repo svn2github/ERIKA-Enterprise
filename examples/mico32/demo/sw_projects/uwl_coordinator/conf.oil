@@ -24,7 +24,7 @@ CPU test_application {
    			};
    			
 			DEVICE = TIMER{						
-					NAME = "timer1";							
+					NAME = "timer_uwl";							
 			};
 			
   		};
@@ -84,9 +84,9 @@ CPU test_application {
 	/*                      ISR Handler setup                             */
 	/* ****************************************************************** */
 	
-	ISR Timer1 {
+	ISR Timer_UWL {
 		CATEGORY = 2;
-		LEVEL = "TIMER1_IRQ";
+		LEVEL = "TIMER_UWL_IRQ";
 		HANDLER = "EE_timer_common_handler";
 	};
 	

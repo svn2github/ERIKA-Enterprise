@@ -10,7 +10,7 @@ CPU test_application {
 		LDFLAGS = ""; 
 
 		CPU_DATA = LM32 {
-			APP_SRC = "test1_main.c";
+			APP_SRC = "test2_main.c";
 			MULTI_STACK = FALSE;
 			USESTANDALONEPRINTF = FALSE; // Optional, default is FALSE
 			USESMALLC = FALSE; // Optional, defautl is FALSE
@@ -18,8 +18,8 @@ CPU test_application {
 
 		MCU_DATA = LATTICE_PLATFORM {
    			MODEL = LIBRARY {
-				PLATFORM_LIB_PATH = "../test_led_switch_lib";
-				PLATFORM_NAME = "test_led_switch";
+				PLATFORM_LIB_PATH = "../test_sram_lib";
+				PLATFORM_NAME = "test_base";
 				PLATFORM_BLD_CFG = "Release"; // Optional, default is ""
    			};
    			
@@ -39,7 +39,7 @@ CPU test_application {
 			DEVICE = SPI{						
 					NAME = "net_spi";		
 			};
-  		};
+  		};	
     };
     
     TASK myTask {

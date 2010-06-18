@@ -1,8 +1,9 @@
 # These scripts are needed to compile a distribution for PIC30
 # execute them using ". ./filename"
 
-export EEBASE=~/repos/ee/trunk/ee
-export ECLIPSE_HOME=C:/Evidence/Evidence/eclipse
+export EEBASE=~/Dario/erika_repository/repos/ee/trunk/ee
+export ECLIPSE_HOME=C:/Evidence/eclipse
+#export EEBASE=~/repos/ee/trunk/ee
 #export ECLIPSE_HOME="C:\Evidence\Evidence\eclipse"
 LAUNCHER_JAR=`find "$ECLIPSE_HOME\\plugins"  -iname "org.eclipse.equinox.launcher_*.jar"` || exit 1
 export LAUNCHER_JAR=`basename $LAUNCHER_JAR`

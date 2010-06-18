@@ -16,9 +16,6 @@
 #include <MicoMacros.h>
 #include <string.h>
 
-#define turn_on_led() 	EE_misc_gpio_write_bit_data(1,0)
-#define turn_off_led() 	EE_misc_gpio_write_bit_data(0,0)
-
 /* ----------------- */
 /* My device driver */
 #define EE_MRF24J40_EADR0 					(0x05)
@@ -29,7 +26,11 @@
 int device_write(void);
 int device_read(void);
 int device_print(void);
-#define device_config() EE_misc_gpio_write_bit_data(1, 1)
+#define EE_DL3_BIT 		(0) //(3) // mask: (0x08) (fpga output)
+#define EE_GP1_BIT 		(1) //(4) // mask: (0x10) (fpga output)
+#define turn_on_led() 	EE_misc_gpio_write_bit_data(1,EE_DL3_BIT)
+#define turn_off_led() 	EE_misc_gpio_write_bit_data(0,EE_DL3_BIT)
+#define device_config() EE_misc_gpio_write_bit_data(1, EE_GP1_BIT)
 EE_UINT8 data = '0';
 EE_UINT8 ret_data;
 int address = EE_MRF24J40_EADR0; 

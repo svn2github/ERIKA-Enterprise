@@ -48,7 +48,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_gpio_IRQ_pre_stub(void){ \
 } \
 __INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_gpio_IRQ_post_stub(void){ \
 	while(1){ \
-		if( (EE_misc_gpio_read_data() & EE_INT2_MASK) == 0 ) \
+		if( (cat3(EE_, lc, _read_data)() & EE_INT2_MASK) == 0 ) \
 		break; \
 	} \
 } \
@@ -72,6 +72,9 @@ __INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_gpio_disable_IRQ(void){ \
 } \
 __INLINE__ int __ALWAYS_INLINE__ EE_enc28j60_gpio_IRQ_enabled(void){ \
 	return (cat3(EE_, lc, _read_irqMask)() & EE_INT2_MASK); \
+} \
+__INLINE__ int __ALWAYS_INLINE__ EE_enc28j60_pending_interrupt(void){ \
+	return !(cat3(EE_, lc, _read_data)() & EE_INT2_MASK); \
 }
 
 EE_ENC28J60_BOARD_FUNCTION(EE_ENC28J60_GPIO_NAME_UC, EE_ENC28J60_GPIO_NAME_LC)

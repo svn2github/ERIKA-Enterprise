@@ -324,22 +324,9 @@ void EE_enc28j60_mac_set_rx_hash_table_entry(mac_addr DestMACAddr);
 #endif
 WORD swaps(WORD v);
 
-#if 1
-#define MY_DEFAULT_MAC_BYTE1            	(0x00)	
-#define MY_DEFAULT_MAC_BYTE2            	(0x1E)	
-#define MY_DEFAULT_MAC_BYTE3            	(0x33)	
-#define MY_DEFAULT_MAC_BYTE4            	(0xC9)	
-#define MY_DEFAULT_MAC_BYTE5            	(0xD6)	
-#define MY_DEFAULT_MAC_BYTE6            	(0xAA)
-#else
-#define MY_DEFAULT_MAC_BYTE1            	(0x00)	// Use the default of
-#define MY_DEFAULT_MAC_BYTE2            	(0x04)	// 00-04-A3-00-00-00 if using
-#define MY_DEFAULT_MAC_BYTE3            	(0xA3)	// an ENCX24J600 or ZeroG ZG2100
-#define MY_DEFAULT_MAC_BYTE4            	(0x00)	// and wish to use the internal
-#define MY_DEFAULT_MAC_BYTE5            	(0x00)	// factory programmed MAC
-#define MY_DEFAULT_MAC_BYTE6            	(0x00)	// address instead.
-#endif
 
+/* MAC address macros defined by the application code */
+#include "lwipopts_ee.h"
 extern mac_addr ee_myMACaddress;
 
 /* 	EE_enc28j60_debug_init

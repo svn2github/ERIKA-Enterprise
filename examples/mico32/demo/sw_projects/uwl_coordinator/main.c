@@ -6,9 +6,10 @@
   Description: UWL coordinator test.
 */
 
+
+#include "ee.h"
 #include "uwl_ieee802154.h"	
 #include "kal/uwl_kal.h"	
-#include "ee.h"
 #include <MicoMacros.h>
 #include <string.h>
 #include <stdio.h>

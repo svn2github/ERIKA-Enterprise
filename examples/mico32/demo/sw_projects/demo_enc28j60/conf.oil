@@ -1,0 +1,118 @@
+//	ENC28J60 TEST
+
+CPU test_application {
+
+	OS EE {		
+		EE_OPT = "DEBUG_STACK";
+		
+		CFLAGS = "-g2";
+		ASFLAGS = "";
+		LDFLAGS = ""; 
+
+		EE_OPT = "BIG_ENDIAN";
+		CPU_DATA = LM32 {
+			APP_SRC = "test7_main.c";
+			//APP_SRC = "echo.c";
+			MULTI_STACK = FALSE;
+			USESTANDALONEPRINTF = FALSE; // Optional, default is FALSE
+			USESMALLC = FALSE; // Optional, defautl is FALSE
+		};
+		
+		MCU_DATA = LATTICE_PLATFORM {
+   			MODEL = LIBRARY {
+				PLATFORM_LIB_PATH = "../test_sram_lib";
+				PLATFORM_NAME = "test_base";
+				PLATFORM_BLD_CFG = "Release"; // Optional, default is ""
+   			};
+   			
+  		};
+  		
+  		BOARD_DATA = XP2_CAMERA_BOARD {
+
+			OPTIONS = TIMER;				
+			OPTIONS = TIMER_IRQ_SUPPORT;			
+			OPTIONS = RS232;	
+			OPTIONS = ETHERNET;
+			OPTIONS = ETHERNET_IRQ_SUPPORT;
+		};
+		
+		KERNEL_TYPE = FP;
+		
+		/* ********************************************************** */
+		/*                Contrib Library Inlcusion                   */
+		/* ********************************************************** */
+		EE_OPT = "__ADD_LIBS__";
+
+		/* CONSOLE */
+		LIB = ENABLE { NAME = "CONSOLE"; };	
+		EE_OPT = "USE_CONSOLE";
+		EE_OPT = "USE_CONSOLE_SERIAL";
+
+		/* ENC28J60 library (ethernet controller) */	
+		EE_OPT = "ENC28J60_DEBUG";	
+		EE_OPT = "ENC28J60_DEBUG_SERIAL";	
+		LIB = ENABLE { NAME = "ENC28J60"; };	
+		
+		/* LWIP (TCPIP stack) (only for test7 and upper...) */
+		EE_OPT = "LWIP_DEBUG";	
+		EE_OPT = "LWIP_DEBUG_SERIAL";	
+		EE_OPT = "LWIP_ARP=1";
+		EE_OPT = "LWIP_IPV4";
+		EE_OPT = "LWIP_UDP=1";
+		LIB = ENABLE { NAME = "LWIP"; };	
+		
+	};
+	
+	/* ****************************************************************** */
+	/*                      ISR Handler setup                             */
+	/* ****************************************************************** */
+
+	ISR Timer {
+		CATEGORY = 2;
+		LEVEL = "TIMER_IRQ";
+		HANDLER = "EE_timer_common_handler";
+	};
+	
+	ISR Gpio {
+		CATEGORY = 2;
+		LEVEL = "EE_ENC28J60_IRQ";
+		HANDLER = "EE_enc28j60_handler";
+	};
+	
+	
+	/* ****************************************************************** */
+	/*                      Application TASKs                             */
+	/* ****************************************************************** */
+	TASK myTask1 {
+		PRIORITY = 10;
+		STACK = SHARED;
+		SCHEDULE = FULL;
+	};
+	
+	TASK myTask2 {
+		PRIORITY = 10;
+		STACK = SHARED;
+		SCHEDULE = FULL;
+	};
+	
+	COUNTER myCounter;
+
+ 	ALARM myAlarm1 {
+  		COUNTER = "myCounter";
+    	ACTION = ACTIVATETASK { TASK = "myTask1"; };
+    };
+    
+    ALARM myAlarm2 {
+  		COUNTER = "myCounter";
+    	ACTION = ACTIVATETASK { TASK = "myTask2"; };
+    };
+    	
+};
+
+
+    
+    
+    
+    
+    
+   
