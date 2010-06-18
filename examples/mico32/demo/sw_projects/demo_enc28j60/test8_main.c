@@ -126,6 +126,7 @@ TASK(myTask1)
 /* myTask2 */
 TASK(myTask2)
 {
+	print_string("tmr!\n");
 	LWIP_timer_task();
 	
 	#if 0
@@ -183,6 +184,7 @@ void LWIP_startup_task(void)
 	echo_init();
 }
 
+void ip_reass_timer(void *arg);
 void LWIP_timer_task(void)
 {
   static int i=0;

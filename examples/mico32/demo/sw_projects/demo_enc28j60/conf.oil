@@ -49,13 +49,13 @@ CPU test_application {
 		EE_OPT = "USE_CONSOLE_SERIAL";
 
 		/* ENC28J60 library (ethernet controller) */	
-		EE_OPT = "ENC28J60_DEBUG";	
-		EE_OPT = "ENC28J60_DEBUG_SERIAL";	
+		//EE_OPT = "ENC28J60_DEBUG";	
+		//EE_OPT = "ENC28J60_DEBUG_SERIAL";	
 		LIB = ENABLE { NAME = "ENC28J60"; };	
 		
 		/* LWIP (TCPIP stack) (only for test7 and upper...) */
-		EE_OPT = "LWIP_DEBUG";	
-		EE_OPT = "LWIP_DEBUG_SERIAL";	
+		//EE_OPT = "LWIP_DEBUG";	
+		//EE_OPT = "LWIP_DEBUG_SERIAL";	
 		EE_OPT = "LWIP_ARP=1";
 		EE_OPT = "LWIP_IPV4";
 		EE_OPT = "LWIP_UDP=1";
