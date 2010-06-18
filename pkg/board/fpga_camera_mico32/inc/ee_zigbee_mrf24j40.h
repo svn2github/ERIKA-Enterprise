@@ -17,28 +17,29 @@
 #define EE_MRF24J40_IRQ				MISC_GPIO_IRQ
 
 // 	XP2 CAMERA BOARD:
+//  LOCATE COMP "misc_gpioPIO_IO_0" SITE "75" ;     -> INT1 	(fpga input)
 //  LOCATE COMP "misc_gpioPIO_IO_1" SITE "77" ;     -> INT2 	(fpga input)
 //  LOCATE COMP "misc_gpioPIO_IO_2" SITE "82" ;     -> FIFOP 	(fpga input)
 //  LOCATE COMP "misc_gpioPIO_IO_3" SITE "76" ;     -> CN1 		(fpga input)
 //  LOCATE COMP "misc_gpioPIO_IO_4" SITE "122";     -> DL3 		(fpga output)
 //  LOCATE COMP "misc_gpioPIO_IO_5" SITE "86" ;     -> GP1 		(fpga output)
 //  LOCATE COMP "misc_gpioPIO_IO_6" SITE "84" ;     -> CCA 		(fpga output)
-//  LOCATE COMP "misc_gpioPIO_IO_0" SITE "75" ;     -> INT1 	(fpga output)
 
-#define EE_INT2_BIT 			(0) // mask: (0x01) (fpga input)
-#define EE_FIFOP_BIT 			(1) // mask: (0x02) (fpga input)
-#define EE_CN1_BIT 				(2) // mask: (0x04) (fpga input)
-#define EE_DL3_BIT 				(0) //(3) // mask: (0x08) (fpga output)
-#define EE_GP1_BIT 				(1) //(4) // mask: (0x10) (fpga output)
-#define EE_CCA_BIT 				(2) //(5) // mask: (0x20) (fpga output)
-#define EE_INT1_BIT 			(3) //(6) // mask: (0x40) (fpga output)
-#define EE_INT2_MASK 			(0x01)
-#define EE_FIFOP_MASK 			(0x02)
-#define EE_CN1_MASK				(0x04)
-#define EE_DL3_MASK				(0x01) //(0x08)
-#define EE_GP1_MASK				(0x02) //(0x10)
-#define EE_CCA_MASK				(0x04) //(0x20)
-#define EE_INT1_MASK 			(0x08) //(0x40)
+#define EE_INT1_BIT 			(0) 
+#define EE_INT2_BIT 			(1)
+#define EE_FIFOP_BIT 			(2) 
+#define EE_CN1_BIT 				(3) 
+#define EE_DL3_BIT 				(0) 
+#define EE_GP1_BIT 				(1)
+#define EE_CCA_BIT 				(2) 
+
+#define EE_INT1_MASK 			(0x01) 
+#define EE_INT2_MASK 			(0x02)
+#define EE_FIFOP_MASK 			(0x04)
+#define EE_CN1_MASK				(0x08)
+#define EE_DL3_MASK				(0x01) 
+#define EE_GP1_MASK				(0x02) 
+#define EE_CCA_MASK				(0x04) 
 
 #define EE_MRF24J40_BOARD_FUNCTION(uc,lc) \
 __INLINE__ void __ALWAYS_INLINE__ EE_mrf24j40_gpio_IRQ_pre_stub(void){ \
