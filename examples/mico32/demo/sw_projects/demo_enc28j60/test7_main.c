@@ -28,7 +28,7 @@
 
 /* Utilities */
 #include "test7.h"
-#include "lwipopts_ee.h"
+//#include "lwipopts_ee.h"
 
 /* ----------------------------------------------------------- */
 /* Demo Variables */
