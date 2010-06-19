@@ -185,7 +185,7 @@ int main(void)
     /* Kernel timer configuration */
     /* ------------------- */
     EE_timer_set_ISR_callback(system_timer_callback);
-    EE_timer_init(MILLISECONDS_TO_TICKS(1), MICO32_TIMER_CONTROL_INT_BIT_MASK | MICO32_TIMER_CONTROL_CONT_BIT_MASK | MICO32_TIMER_CONTROL_STOP_BIT_MASK);
+    EE_timer_init(MILLISECONDS_TO_TICKS(1), MICO32_TIMER_CONTROL_INT_BIT_MASK | MICO32_TIMER_CONTROL_CONT_BIT_MASK);
     
     /* ------------------- */
     /* Enable IRQ         */
