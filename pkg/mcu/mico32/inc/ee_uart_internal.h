@@ -180,7 +180,7 @@ int EE_hal_uart_read_byte(EE_uart_st* usp, EE_UINT8 *data);                     
             - in rx polling mode: returns the number of cahracters read, else the return value is < 0 
             - in rx isr mode: returns the number of cahracters extracted from the rx buffer, else the return value is < 0 
 */
-int EE_hal_uart_read_buffer(EE_uart_st* usp, EE_UINT8 *vet, int len);                       //7
+int EE_hal_uart_read_buffer(EE_uart_st* usp, void *vet, int len);                       //7
 
 
 /*
@@ -197,7 +197,7 @@ int EE_hal_uart_read_buffer(EE_uart_st* usp, EE_UINT8 *vet, int len);           
             - in tx polling mode: returns the number of characters transmitted, else the return value is < 0 
             - in tx isr mode: returns the number of cahracters loaded in the tx buffer, else the return value is < 0 
 */
-int EE_hal_uart_write_buffer(EE_uart_st* usp, const EE_UINT8 *vet, int len);                      //8
+int EE_hal_uart_write_buffer(EE_uart_st* usp, const void *vet, int len);                      //8
 
 
 /*
@@ -300,9 +300,9 @@ __INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _send_byte)(EE_UINT8 data){ \
     return EE_hal_uart_write_byte(& EE_ST_NAME(lc), data); } \
 __INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _receive_byte)(EE_UINT8 *data){ \
     return EE_hal_uart_read_byte(& EE_ST_NAME(lc), data); } \
-__INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _send_buffer)(EE_UINT8 *vet, int len){ \
+__INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _send_buffer)(const void *vet, int len){ \
     return EE_hal_uart_write_buffer(& EE_ST_NAME(lc), vet, len); } \
-__INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _receive_buffer)(EE_UINT8 *vet, int len){ \
+__INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _receive_buffer)(void *vet, int len){ \
     return EE_hal_uart_read_buffer(& EE_ST_NAME(lc), vet, len); } \
 __INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _enable_IRQ)(int ier){ \
     return EE_hal_uart_enable_IRQ(& EE_ST_NAME(lc), ier); } \
@@ -365,9 +365,9 @@ __INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _send_byte)(EE_UINT8 data){ \
     return EE_hal_uart_write_byte(& EE_ST_NAME(lc), data); } \
 __INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _receive_byte)(EE_UINT8 *data){ \
     return EE_hal_uart_read_byte(& EE_ST_NAME(lc), data); } \
-__INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _send_buffer)(const EE_UINT8 *vet, int len){ \
+__INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _send_buffer)(const void *vet, int len){ \
     return EE_hal_uart_write_buffer(& EE_ST_NAME(lc), vet, len); } \
-__INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _receive_buffer)(EE_UINT8 *vet, int len){ \
+__INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _receive_buffer)(void *vet, int len){ \
     return EE_hal_uart_read_buffer(& EE_ST_NAME(lc), vet, len); } \
 __INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _enable_IRQ)(int ier){ \
     return EE_hal_uart_enable_IRQ(& EE_ST_NAME(lc), ier); } \
