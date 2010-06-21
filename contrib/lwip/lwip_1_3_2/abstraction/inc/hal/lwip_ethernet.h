@@ -11,6 +11,7 @@
 #define __lwip_ethernet_h__
 
 #include <hal/lwip_compiler.h>
+#include <lwip/netif.h>
 
 #ifdef __USE_ETHERNET_ENC28J60__		/* Microchip enc28j60 ethernet controller */
 #include <hal/lwip_enc28j60.h>

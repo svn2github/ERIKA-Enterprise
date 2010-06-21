@@ -264,7 +264,7 @@ static err_t low_level_output(struct netif *netif, struct pbuf *p)
 		mydevice_write(q->payload, q->len);
 	}
 	
-	LWIP_DEBUGF(NETIF_DEBUG | LWIP_DBG_TRACE, ("signal length: %d\n", length));
+	LWIP_DEBUGF(NETIF_DEBUG | LWIP_DBG_TRACE, ("low_level_output: signal length: %d\n", length));
 	mydevice_signal(length);
 	
 	#if ETH_PAD_SIZE
@@ -273,7 +273,7 @@ static err_t low_level_output(struct netif *netif, struct pbuf *p)
 
 	LINK_STATS_INC(link.xmit);
 	
-	LWIP_DEBUGF(NETIF_DEBUG | LWIP_DBG_TRACE, ("low_level_output () return OK\n"));
+	LWIP_DEBUGF(NETIF_DEBUG | LWIP_DBG_TRACE, ("low_level_output: return OK\n"));
 
 	return ERR_OK;
 }
@@ -317,7 +317,6 @@ static struct pbuf *low_level_input(struct netif *netif)
 	struct ethernetif *ethernetif = netif->state;
 	struct pbuf *p, *q;
 	u16_t len;
-	int i;
 
 	/* Obtain the size of the packet and put it into the "len"
 	variable. */
@@ -353,11 +352,16 @@ static struct pbuf *low_level_input(struct netif *netif)
 		* pbuf is the sum of the chained pbuf len members.
 		*/
 			mydevice_read(q->payload, q->len);
-			LWIP_DEBUGF(NETIF_DEBUG | LWIP_DBG_TRACE, ("\npayload: %x, len: %d\n", q->payload, q->len));
+			LWIP_DEBUGF(NETIF_DEBUG | LWIP_DBG_TRACE, ("low_level_input: payload=0x%x, len=%d\n", q->payload, q->len));
+#if 0  /* Very verbose debugging information! */
+			{
+			int i;
 			for(i=0; i<(q->len); i++)
 			{	
 			LWIP_DEBUGF(NETIF_DEBUG | LWIP_DBG_TRACE, ("q->payload[%d]:%x  ", i, ((u8_t*)q->payload)[i]));
 			}
+			}
+#endif
 		}
 		mydevice_ack();
 

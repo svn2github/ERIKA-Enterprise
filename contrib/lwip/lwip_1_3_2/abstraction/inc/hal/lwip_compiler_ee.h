@@ -9,6 +9,8 @@
 #ifndef __lwip_compiler_ee_h__
 #define __lwip_compiler_ee_h__
 
+#include <ee.h>
+
 /** 
 * @name Basic type representations.
 * @{ */
