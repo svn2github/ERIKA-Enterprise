@@ -53,6 +53,8 @@ $(warning Mico32 does not currently support nested interrupts)
 $(warning The IRQ nesting option will be ignored by the HAL)
 endif
 
+EEOPT += __BIG_ENDIAN__
+
 # Initial definition of target `all' as predefined
 all:
 
