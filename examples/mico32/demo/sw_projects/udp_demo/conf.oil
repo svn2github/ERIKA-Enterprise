@@ -1,0 +1,141 @@
+//	ENC28J60 + lwIP UDP test
+
+CPU test_application {
+
+	OS EE {		
+		CFLAGS = "-D__USE_LEDS__"; // Workaround for RT-Druid bug
+//		CFLAGS = "-DLWIP_DEBUG -DLWIP_DEBUG_SERIAL";
+		CFLAGS = "-g2";
+		ASFLAGS = "";
+		LDFLAGS = ""; 
+
+		EE_OPT = "BIG_ENDIAN"; // This shouldn't be here
+		CPU_DATA = LM32 {
+			APP_SRC = "main.c";
+			APP_SRC = "lwip.c";
+			MULTI_STACK = FALSE;
+			USESTANDALONEPRINTF = FALSE; // Optional, default is FALSE
+			USESMALLC = FALSE; // Optional, default is FALSE
+		};
+		
+		MCU_DATA = LATTICE_PLATFORM {
+   			MODEL = LIBRARY {
+				PLATFORM_LIB_PATH = "../test_sram_lib";
+				PLATFORM_NAME = "test_base";
+				PLATFORM_BLD_CFG = "Release"; // Optional, default is ""
+   			};
+
+			DEVICE = TIMER {
+				NAME = "timer_uwl";
+				OPTIONS = TIMER_IRQ_SUPPORT;
+			};
+
+			DEVICE = TIMER {
+				NAME = "freetimer";
+			};
+
+			DEVICE = TIMER {
+				NAME = "timer";
+				OPTIONS = TIMER_IRQ_SUPPORT;
+			};
+  		};
+  		
+  		BOARD_DATA = XP2_CAMERA_BOARD {
+//			OPTIONS = TIMERS;  // This options is not complet yet
+			OPTIONS = RS232;
+			OPTIONS = ETHERNET;
+			OPTIONS = ETHERNET_IRQ_SUPPORT;
+//			OPTIONS = LEDS;
+		};
+		
+		KERNEL_TYPE = FP;
+		
+		/* ********************************************************** */
+		/*                Contrib Library Inclusion                   */
+		/* ********************************************************** */
+		EE_OPT = "__ADD_LIBS__";
+
+		/* ENC28J60 library (ethernet controller) */	
+		//EE_OPT = "ENC28J60_DEBUG";	
+		//EE_OPT = "ENC28J60_DEBUG_SERIAL";	
+		LIB = ENABLE { NAME = "ENC28J60"; };	
+		
+		/* CONSOLE */
+		LIB = ENABLE { NAME = "CONSOLE"; };	
+		EE_OPT = "USE_CONSOLE";
+		EE_OPT = "USE_CONSOLE_SERIAL";
+
+		EE_OPT = "__LWIP_IPV4__";
+//		EE_OPT = "__LWIP_DEBUG__";
+		LIB = ENABLE { NAME = "LWIP"; };
+		
+	};
+
+	
+	/* ****************************************************************** */
+	/*                          Application                               */
+	/* ****************************************************************** */
+
+	ISR Timer {
+		CATEGORY = 2;
+		LEVEL = "TIMER_IRQ";
+		HANDLER = "EE_timer_common_handler";
+	};
+
+	TASK Sender {
+		PRIORITY = 8;
+		STACK = SHARED;
+		SCHEDULE = FULL;
+		RESOURCE = "LwipMutex";
+	};
+
+	COUNTER SenderCounter;
+
+	ALARM SenderAlarm {
+		COUNTER = SenderCounter;
+		ACTION = ACTIVATETASK { TASK = "Sender"; };
+	};
+	
+
+	/* ****************************************************************** */
+	/*                              lwIP                                  */
+	/* ****************************************************************** */
+
+	ISR LwipTimer {
+		CATEGORY = 2;
+		LEVEL = "TIMER_UWL_IRQ";
+		HANDLER = "EE_timer_common_handler";
+	};
+	
+	ISR Gpio {
+		CATEGORY = 2;
+		LEVEL = "EE_ENC28J60_IRQ";
+		HANDLER = "EE_enc28j60_handler";
+	};
+	
+	
+	RESOURCE LwipMutex { RESOURCEPROPERTY = STANDARD; };
+	
+
+	TASK LwipReceive {
+		PRIORITY = 30;
+		STACK = SHARED;
+		SCHEDULE = FULL;
+		RESOURCE = "LwipMutex";
+	};
+
+	TASK LwipPeriodic {
+		PRIORITY = 35;
+		STACK = SHARED;
+		SCHEDULE = FULL;
+		RESOURCE = "LwipMutex";
+	};
+};
+
+
+    
+    
+    
+    
+    
+   
