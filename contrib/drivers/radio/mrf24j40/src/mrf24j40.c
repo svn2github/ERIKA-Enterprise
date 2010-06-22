@@ -496,7 +496,8 @@ uint8_t mrf24j40_get_fifo_msg(uint8_t *msg)
 * Note
 *
 */
-uint8_t mrf24j40_get_fifo_msg_with_lqi(uint8_t *msg, uint8_t *rssi, uint8_t *lqi)
+uint8_t mrf24j40_get_fifo_msg_with_lqi(uint8_t *msg, uint8_t *rssi,
+				       uint8_t *lqi)
 {
 	uint8_t i, len;
 

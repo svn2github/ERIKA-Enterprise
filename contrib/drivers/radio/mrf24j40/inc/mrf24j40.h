@@ -18,6 +18,8 @@ int8_t  mrf24j40_init(uint8_t int_setup, uint8_t ch, uint8_t port);
 int8_t	mrf24j40_store_norm_txfifo(uint8_t* buf, uint8_t len);
 uint8_t	mrf24j40_get_norm_txfifo(uint8_t pos);
 uint8_t	mrf24j40_get_fifo_msg(uint8_t *msg);
+uint8_t mrf24j40_get_fifo_msg_with_lqi(uint8_t *msg, uint8_t *rssi,
+				       uint8_t *lqi);
 void	mrf24j40_put_to_sleep();
 void	mrf24j40_wake();
 void mrf24j40_set_rx_callback(void (*func)(void));
