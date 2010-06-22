@@ -50,7 +50,7 @@ TASK(LwipPeriodic)
     EE_hal_enableIRQ();
     ee_lwip_maybe_call_tcp_timers(pending);
     ee_lwip_maybe_call_arp_timer(pending);
-    GetResource(LwipMutex);
+    ReleaseResource(LwipMutex);
 }
 
 

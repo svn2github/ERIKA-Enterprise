@@ -19,11 +19,11 @@ CPU test_application {
 		};
 		
 		MCU_DATA = LATTICE_PLATFORM {
-   			MODEL = LIBRARY {
+			MODEL = LIBRARY {
 				PLATFORM_LIB_PATH = "../test_sram_lib";
 				PLATFORM_NAME = "test_base";
 				PLATFORM_BLD_CFG = "Release"; // Optional, default is ""
-   			};
+			};
 
 			DEVICE = TIMER {
 				NAME = "timer_uwl";
@@ -38,9 +38,9 @@ CPU test_application {
 				NAME = "timer";
 				OPTIONS = TIMER_IRQ_SUPPORT;
 			};
-  		};
-  		
-  		BOARD_DATA = XP2_CAMERA_BOARD {
+		};
+
+		BOARD_DATA = XP2_CAMERA_BOARD {
 //			OPTIONS = TIMERS;  // This options is not complet yet
 			OPTIONS = RS232;
 			OPTIONS = ETHERNET;
@@ -55,20 +55,6 @@ CPU test_application {
 		/* ********************************************************** */
 		EE_OPT = "__ADD_LIBS__";
 
-		/* ENC28J60 library (ethernet controller) */	
-		//EE_OPT = "ENC28J60_DEBUG";	
-		//EE_OPT = "ENC28J60_DEBUG_SERIAL";	
-		LIB = ENABLE { NAME = "ENC28J60"; };	
-		
-		/* CONSOLE */
-		LIB = ENABLE { NAME = "CONSOLE"; };	
-		EE_OPT = "USE_CONSOLE";
-		EE_OPT = "USE_CONSOLE_SERIAL";
-
-		EE_OPT = "__LWIP_IPV4__";
-//		EE_OPT = "__LWIP_DEBUG__";
-		LIB = ENABLE { NAME = "LWIP"; };
-		
 	};
 
 	
@@ -95,12 +81,30 @@ CPU test_application {
 		COUNTER = SenderCounter;
 		ACTION = ACTIVATETASK { TASK = "Sender"; };
 	};
-	
+
 
 	/* ****************************************************************** */
 	/*                              lwIP                                  */
 	/* ****************************************************************** */
 
+	OS EE {
+		EE_OPT = "__ADD_LIBS__";
+
+		/* ENC28J60 library (ethernet controller) */
+		//EE_OPT = "ENC28J60_DEBUG";
+		//EE_OPT = "ENC28J60_DEBUG_SERIAL";
+		LIB = ENABLE { NAME = "ENC28J60"; };
+		
+//		/* CONSOLE */
+//		LIB = ENABLE { NAME = "CONSOLE"; };
+//		EE_OPT = "USE_CONSOLE";
+//		EE_OPT = "USE_CONSOLE_SERIAL";
+
+		EE_OPT = "__LWIP_IPV4__";
+//		EE_OPT = "__LWIP_DEBUG__";
+		LIB = ENABLE { NAME = "LWIP"; };
+	};
+	
 	ISR LwipTimer {
 		CATEGORY = 2;
 		LEVEL = "TIMER_UWL_IRQ";
@@ -131,11 +135,3 @@ CPU test_application {
 		RESOURCE = "LwipMutex";
 	};
 };
-
-
-    
-    
-    
-    
-    
-   

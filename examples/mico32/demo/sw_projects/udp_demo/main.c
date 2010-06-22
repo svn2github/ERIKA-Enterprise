@@ -68,6 +68,9 @@ static void hex_dump(const void *base, int size)
 }
 
 
+#define time_diff_ms(t1,t2)  (((t1) - (t2)) / (EE_UINT32)(CPU_FREQUENCY / 1000))
+#define time_diff_us(t1,t2)  (((t1) - (t2)) / (EE_UINT32)(CPU_FREQUENCY / 1000000))
+
 /* UDP rx handler */
 static void udp_rx_handler(void *arg, struct udp_pcb *upcb,
     struct pbuf *p, struct ip_addr *addr, u16_t port)
@@ -131,10 +134,11 @@ TASK(Sender)
     struct pbuf *pb;
     err_t ret;
     unsigned i;
+    EE_UINT32 time1, time2, time3;
 
     myprintf("\nSender: sending %d %d-byte packets\n", num_packets, size);
 
-    
+    EE_freetimer_get_value(&time1);
     GetResource(LwipMutex);
     socket = udp_new();
     if (0 == socket) {
@@ -154,9 +158,10 @@ TASK(Sender)
     udp_connect(socket, &ipaddr, remote_port);
 
     pb = pbuf_alloc(PBUF_TRANSPORT, size, PBUF_REF);
-    ReleaseResource(LwipMutex);
     if (pb != 0) {
+        ReleaseResource(LwipMutex);
         pb->payload = buf;
+        EE_freetimer_get_value(&time2);
         for (i = 0; i < num_packets; ++i) {
             sprintf((char *)buf, "%5d", i);
             GetResource(LwipMutex);
@@ -165,13 +170,20 @@ TASK(Sender)
             if (ret != ERR_OK)
                 myprintf("ERROR in sending a packet\n");
         }
+        EE_freetimer_get_value(&time3);
+        GetResource(LwipMutex);
+        udp_remove(socket);
         pbuf_free(pb);
+        ReleaseResource(LwipMutex);
+        myprintf("Setup took %d us\n", time_diff_us(time1, time2));
+        myprintf("Transmission of %d kB took %d ms (%d kB/s)\n",
+            size * num_packets / 1024, time_diff_ms(time2, time3),
+            size * num_packets / 1024 * 1000 / time_diff_ms(time2, time3));
     } else {
+        udp_remove(socket);
+        ReleaseResource(LwipMutex);
         myprintf("ERROR while allocating a pbuf\n");
     }
-    GetResource(LwipMutex);
-    udp_remove(socket);
-    ReleaseResource(LwipMutex);
     if (size*2 <= UDP_SENDER_BUF_SIZE)
         size *= 2;
 }
