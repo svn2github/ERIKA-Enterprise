@@ -16,11 +16,15 @@
 * @name Basic type representations.
 * @{ */
 
+#ifndef DEF_BOOL_TYPE
+#define DEF_BOOL_TYPE
 /* chris: FIXME: do we really need this!? */
 typedef enum {
 	TRUE 		= 0x01,	/**< True */
 	FALSE		= 0x00, /**< False */
-} Boolean;
+} BOOL;
+typedef BOOL Boolean;
+#endif /* DEF_BOOL_TYPE */
 
 #ifndef UINT8_T
 #define UINT8_T

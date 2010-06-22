@@ -236,13 +236,17 @@ __INLINE__ int __ALWAYS_INLINE__ EE_hv7131gp_get_Y_average(void)
 
 void EE_hv7131gp_handler(int level);
 #ifndef __STATIC_ISR_TABLE__
-__INLINE__ void __ALWAYS_INLINE__ EE_hal_hv7131gp_hanlder_setup(int irqf)
+__INLINE__ void __ALWAYS_INLINE__ EE_hal_hv7131gp_handler_setup(int irqf)
 {
-	/* Register IRQ handler */
+    /* Register IRQ handler */
     EE_mico32_register_ISR(irqf, EE_hv7131gp_handler);
 }
 #else // __STATIC_ISR_TABLE__
-#define EE_hal_hv7131gp_hanlder_setup(irqf)
+__INLINE__ void __ALWAYS_INLINE__ EE_hal_hv7131gp_handler_setup(int irqf)
+{
+    /* Just unmask the IRQ */
+    mico32_enable_irq(irqf);
+}
 #endif // __STATIC_ISR_TABLE__
 
 /******************************************************************************/
@@ -262,7 +266,6 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_hv7131gp_hanlder_setup(int irqf)
 #define HV7131GP_PIN_EOF_INIT() 
 #define HV7131GP_PIN_MCLK_INIT(p)
 #define HV7131GP_PIN_MCLK_START()
-//#define HV7131GP_PIN_MCLK_STOP()
 #define HV7131GP_PIN_RESETB_INIT()
 #define HV7131GP_PIN_RESETB_HIGH()
 #define HV7131GP_PIN_RESETB_LOW()

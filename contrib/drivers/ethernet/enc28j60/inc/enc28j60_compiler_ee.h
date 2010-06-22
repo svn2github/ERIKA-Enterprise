@@ -64,7 +64,15 @@ typedef signed long long int64_t;	/**< Unsigned 64 bit intgerer. */
 // #include "GenericTypeDefs.h", not allowed...
 
 /* BOOL, BYTE, WORD, DWORD */
-typedef enum _BOOL { FALSE = 0, TRUE } BOOL;	// Undefined size
+#ifndef DEF_BOOL_TYPE
+#define DEF_BOOL_TYPE
+/* chris: FIXME: do we really need this!? */
+typedef enum {
+	TRUE 		= 0x01,	/**< True */
+	FALSE		= 0x00, /**< False */
+} BOOL;
+typedef BOOL Boolean;
+#endif /* DEF_BOOL_TYPE */
 typedef uint8_t		BYTE;						// 8-bit unsigned
 typedef uint16_t	WORD;						// 16-bit unsigned
 typedef uint32_t	DWORD;						// 32-bit unsigned
