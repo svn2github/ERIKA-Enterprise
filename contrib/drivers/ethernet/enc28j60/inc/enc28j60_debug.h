@@ -10,12 +10,12 @@
 #ifndef __ENC28J60_DEBUG_H__
 #define __ENC28J60_DEBUG_H__
 
-#ifdef ENC28J60_DEBUG
+#ifdef __ENC28J60_DEBUG__
 
 #include <stdio.h>
 #include <string.h>
 
-#ifdef ENC28J60_DEBUG_SERIAL
+#ifdef __ENC28J60_DEBUG_SERIAL__
 
 #include "console_serial.h"
 

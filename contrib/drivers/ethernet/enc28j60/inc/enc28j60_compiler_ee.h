@@ -78,7 +78,7 @@ typedef uint16_t	WORD;						// 16-bit unsigned
 typedef uint32_t	DWORD;						// 32-bit unsigned
 
 /* BYTE_VAL */
-#ifdef BIG_ENDIAN
+#ifdef __BIG_ENDIAN__
 typedef union _BYTE_VAL
 {
     BYTE Val;
@@ -113,7 +113,7 @@ typedef union _BYTE_VAL
 #endif
 
 /* WORD_VAL */
-#ifdef BIG_ENDIAN
+#ifdef __BIG_ENDIAN__
 typedef union _WORD_VAL
 {
     WORD Val;
@@ -176,7 +176,7 @@ typedef union _WORD_VAL
 #endif
 
 /* DWORD_VAL */
-#ifdef BIG_ENDIAN
+#ifdef __BIG_ENDIAN__
 typedef union _DWORD_VAL
 {
     DWORD Val;

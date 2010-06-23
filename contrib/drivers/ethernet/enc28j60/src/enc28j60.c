@@ -71,20 +71,24 @@
 #include "enc28j60.h"
 #include "string.h"
 
-#ifdef ENC28J60_DEBUG
+#ifdef __ENC28J60_DEBUG__
 uint8_t ee_enc28j60_db_msg[ENC28J60_STRING_MAXSIZE];
 uint8_t enc28j60_debug_initialized = 0;
 #endif
 
+#ifdef __ENC28J60_TIME_DEBUG__
+EE_UINT32 enc28j60_ts_buffer[ENC28J60_TS_BUFFER_SIZE];
+#endif
+
 int8_t EE_enc28j60_debug_init(void)
 {
-	#ifdef ENC28J60_DEBUG
+	#ifdef __ENC28J60_DEBUG__
 	if(enc28j60_debug_initialized==1)
 		return 1;
 		
 	console_descriptor_t *des = NULL;
 	
-	#ifdef ENC28J60_DEBUG_SERIAL 
+	#ifdef __ENC28J60_DEBUG_SERIAL__ 
 	des = console_serial_config(ENC28J60_DEBUG_SERIAL_PORT, ENC28J60_DEBUG_SERIAL_BAUDRATE, ENC28J60_DEBUG_SERIAL_OPT);
 	#endif
 	
@@ -153,7 +157,7 @@ void print_vals(char* s, int val1, int val2);
  *
  * Note:            None
  *****************************************************************************/
-#ifdef BIG_ENDIAN
+#ifdef __BIG_ENDIAN__
 WORD swaps_type(WORD v)
 {
 	return v;
@@ -757,8 +761,13 @@ void EE_enc28j60_mac_flush(void)
     if(ENCRevID == 0x05u || ENCRevID == 0x06u)
     {
         WORD AttemptCounter = 0x0000;
+		
+		EE_enc28j60_write_timestamp(ENC28J60_START_MAC_FLUSH_WAIT);
         while(!(ReadETHReg(EIR).Val & (EIR_TXERIF | EIR_TXIF)) && (++AttemptCounter < 1000u));
-        if((ReadETHReg(EIR).Val & EIR_TXERIF) || (AttemptCounter >= 1000u))
+        EE_enc28j60_write_timestamp(ENC28J60_END_MAC_FLUSH_WAIT);
+		
+		EE_enc28j60_write_timestamp(ENC28J60_START_MAC_FLUSH_RETX);
+		if((ReadETHReg(EIR).Val & EIR_TXERIF) || (AttemptCounter >= 1000u))
         {
             WORD_VAL ReadPtrSave;
             WORD_VAL TXEnd;
@@ -820,6 +829,7 @@ void EE_enc28j60_mac_flush(void)
 			WriteReg(ERDPTL, ReadPtrSave.byte.LB);
             WriteReg(ERDPTH, ReadPtrSave.byte.HB);
         }
+		EE_enc28j60_write_timestamp(ENC28J60_END_MAC_FLUSH_RETX);
     }
 	enc28j60_dbg_print("EE_enc28j60_mac_flush end!\n");
 }

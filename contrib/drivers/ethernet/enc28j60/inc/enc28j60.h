@@ -62,6 +62,7 @@
 
 #include "enc28j60_hal.h"
 #include "enc28j60_debug.h"
+#include "enc28j60_time_debug.h"
 
 /* @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ */
 /* WRAPPER */
@@ -103,7 +104,7 @@ typedef struct __attribute__((__packed__))
 #define ETHER_IP    			(0x00u)
 #define ETHER_ARP   			(0x06u)
 
-#ifdef BIG_ENDIAN
+#ifdef __BIG_ENDIAN__
 typedef union {
 	BYTE v[7];
 	struct
@@ -170,7 +171,7 @@ typedef union {
 	} bits;
 } RXSTATUS;
 
-#else	//#ifdef BIG_ENDIAN
+#else	//#ifdef __BIG_ENDIAN__
 
 typedef union {
 	BYTE v[7];
@@ -341,7 +342,7 @@ __INLINE__ WORD __ALWAYS_INLINE__ EE_enc28j60_init(void)
 {
 	int ret = 0;
 	
-	#ifdef ENC28J60_DEBUG
+	#ifdef __ENC28J60_DEBUG__
 	EE_enc28j60_debug_init();
 	#endif
 	

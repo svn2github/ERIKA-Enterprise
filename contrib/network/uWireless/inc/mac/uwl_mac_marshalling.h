@@ -11,14 +11,14 @@
 #include <kal/uwl_kal.h>
 
 #ifdef __LM32__
-#ifndef BIG_ENDIAN
-#define BIG_ENDIAN
+#ifndef __BIG_ENDIAN__
+#define __BIG_ENDIAN__
 #endif
 #endif
 
-#ifdef BIG_ENDIAN
+#ifdef __BIG_ENDIAN__
 
-/* Host to net function (BIG_ENDIAN case) */
+/* Host to net function (__BIG_ENDIAN__ case) */
 COMPILER_INLINE void hton(uint8_t* dst, uint8_t* src, int len)
 {
 	int i;
