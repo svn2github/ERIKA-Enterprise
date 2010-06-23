@@ -16,27 +16,14 @@
 #include <MicoMacros.h>
 #include <string.h>
 #include <stdio.h>
-
 /* LWIP */
-#include "lwip/opt.h"
-#include "lwip/init.h"
-#include "arch/init.h"
-#include "lwip/ip.h"
-#include "netif/etharp.h"
-#include "lwip/udp.h"
-#include "hal/lwip_ethernet.h"
-
+#include "ee_lwip.h"
 /* Utilities */
 #include "test7.h"
-//#include "lwipopts_ee.h"
 
 /* ----------------------------------------------------------- */
 /* Demo Variables */
 /* ----------------------------------------------------------- */
-/* Main network structure */
-struct netif netif;     
-/* My ethernet board data */            
-struct ethernetif my_ethernetif;
 /* UDP socket used in this demo */
 struct udp_pcb* my_udp_socket;
 /* UDP buffers used to store udp packets payloads */
@@ -49,33 +36,8 @@ EE_UINT8 udp_tx_data[UDP_BUFFER_SIZE*UDP_PAYLOAD_PKT_SIZE];
 /* Callbacks and tasks */
 /* ----------------------------------------------------------- */
 /* UDP rx handler */
-void udp_rx_handler(void *arg, struct udp_pcb *upcb,
-                    struct pbuf *p, struct ip_addr *addr, u16_t port)
-{
-    struct pbuf *q;
-    int i,j=0;
-    BYTE rx_payload[128];
-    
-    print_string("\nudp_rx_handler!\n");
-    /* connect to the remote host */
-    udp_connect(upcb, addr, port);               
-    /* UDP received packet print */
-    LWIP_DEBUGF(NETIF_DEBUG | LWIP_DBG_TRACE, ("\np->tot_len: %d\n", p->tot_len));
-    for(q = p; q != NULL; q = q->next) 
-    {
-         LWIP_DEBUGF(NETIF_DEBUG | LWIP_DBG_TRACE, ("payload: %x, len: %d\n", q->payload, q->len));
-         for(i=0; i<(q->len); i++)
-         {  
-            rx_payload[j] = ((u8_t*)q->payload)[i];
-            j++;
-            LWIP_DEBUGF(NETIF_DEBUG | LWIP_DBG_TRACE, ("q->payload[%d]:%x  ", i, ((u8_t*)q->payload)[i]));
-         }
-         
-    }
-    /* Put the udp packet in the rx buffer */
-    EE_buffer_putmsg(&UDP_rx_buffer, (EE_UINT8*)rx_payload);
-    pbuf_free(p);                                // don't leak the pbuf!
-}
+void udp_rx_handler(void *arg, struct udp_pcb *upcb, struct pbuf *p, struct ip_addr *addr, u16_t port);
+void load_buffer(EE_buffer *buf, struct pbuf *p);
 
 /* myTask1 */
 TASK(myTask1)
@@ -83,18 +45,13 @@ TASK(myTask1)
     /* Reception */
     if(EE_enc28j60_pending_interrupt())
     {
-        print_string("interrupt signal!\n");
-        print_val("eir: 0x%x\n", ReadETHReg(EIR).Val);
-        print_string("Reception in progress...\n");
+        print_string("\ninterrupt signal! Reception in progress...\n");
         /* Elaborate the received packet */
-        ethernetif_input(&netif);
-        print_val("eir: 0x%x\n", ReadETHReg(EIR).Val);
+        ethernetif_input(&lwip_netif);
     }
-    else
-        print_string("no interrupt!\n");
+    /* --------- */
         
     /* Transmission */
-    int i;
     u8_t msg[UDP_PAYLOAD_PKT_SIZE];
     if(!EE_buffer_isempty(&UDP_tx_buffer))
     {
@@ -106,14 +63,15 @@ TASK(myTask1)
             struct pbuf *p = pbuf_new(msg, UDP_PAYLOAD_PKT_SIZE);
             if (p != (struct pbuf *)0) 
             {
-                print_string("Transmission in progress...\n");
-                for(i=0; i<UDP_PAYLOAD_PKT_SIZE; i++)
-                    print_vals("p->payload[%d]:0x%x  ", i, ((u8_t*)p->payload)[i]);
+                print_string("\nTransmission in progress...\n");   
+                print_pbuf("tx_p", p);    
                 /* Send the extracted packet */
                 udp_send(my_udp_socket, p);
+                pbuf_free(p); 
             }
         }
     }
+    /* --------- */
 }
 
 /* myTask2 */
@@ -126,45 +84,12 @@ TASK(myTask2)
     /* Receive one UDP packet (loaded in the tx buffer by the handler...) */
     if(UDP_receive(rx_v)>=0)
     {
+    	print_array("rx_v", rx_v, UDP_PAYLOAD_PKT_SIZE);
         for(i=0; i<UDP_PAYLOAD_PKT_SIZE; i++)
-        {
-            print_vals("rx_v[%d]:0x%x  ", i, rx_v[i]);
-            tx_v[i] = rx_v[i] + 5;
-        }
+            tx_v[i] = rx_v[i] + 5; /* dummy increment */
         /* Send only if one packet has been received (to see proper increment...) */
         UDP_send(tx_v);
     }
-}
-
-/* LWIP_startup_task */
-void LWIP_startup_task(void)
-{
-    struct ip_addr my_ipaddr, netmask, gw;
-    
-    /* Initialize lwip */
-    ee_lwip_init();
-    
-    /* Initialize the main netif structure */
-    IP4_ADDR(&my_ipaddr, MY_IPADDR_BYTE1, MY_IPADDR_BYTE2, MY_IPADDR_BYTE3, MY_IPADDR_BYTE4);
-    IP4_ADDR(&netmask, MY_NETMASK_BYTE1, MY_NETMASK_BYTE2, MY_NETMASK_BYTE3, MY_NETMASK_BYTE4);
-    IP4_ADDR(&gw, MY_GATEWAY_ADDR_BYTE1, MY_GATEWAY_ADDR_BYTE2, MY_GATEWAY_ADDR_BYTE3, MY_GATEWAY_ADDR_BYTE4);
-    LWIP_DEBUGF(NETIF_DEBUG | LWIP_DBG_TRACE, ("netif_add!\n"));
-    netif_add(&netif, &my_ipaddr, &netmask, &gw,
-                                          (void*)&my_ethernetif,
-                                          ethernetif_init, 
-                                          ethernet_input);
-    netif_set_default(&netif);
-    netif_set_up(&netif);                       /* bring the interface up */
-    
-    /* Initialize application(s) */
-    err_t ret;
-    EE_buffer_init(&UDP_rx_buffer, UDP_PAYLOAD_PKT_SIZE, UDP_BUFFER_SIZE, udp_rx_data);
-    EE_buffer_init(&UDP_tx_buffer, UDP_PAYLOAD_PKT_SIZE, UDP_BUFFER_SIZE, udp_tx_data);
-    LWIP_DEBUGF(NETIF_DEBUG | LWIP_DBG_TRACE, ("udp_new!\n"));
-    my_udp_socket = udp_new();  /* Create an udp socket */
-    ret = udp_bind(my_udp_socket, &my_ipaddr, MY_PORT); /* Bind the udp socket */ 
-    LWIP_DEBUGF(NETIF_DEBUG | LWIP_DBG_TRACE, ("udp_bind return value: %d\n", ret));
-    udp_recv(my_udp_socket, &udp_rx_handler, 0);        /* Set the rx callback for udp packets */ 
 }
 
 /* MAIN (Background task) */
@@ -193,50 +118,69 @@ int main(void)
     EE_mico32_enableIRQ();
     
     /* ------------------- */
-    /* Background activity */
+    /* LWIP configuration  */
     /* ------------------- */
-    /* Device initialization */
     print_string("\n\n\nLWIP configuration in progress...");
-    LWIP_startup_task();    /* LWIP network interface initialization */
-    print_string("Done!\n\n\n");
+    EE_lwip_init();
+    print_string("Done!\n");
     
+    /* ------------------- */
+    /* My app initialization   */
+    /* ------------------- */
+    err_t ret;
+    struct ip_addr my_ipaddr;
+    
+    EE_buffer_init(&UDP_rx_buffer, UDP_PAYLOAD_PKT_SIZE, UDP_BUFFER_SIZE, udp_rx_data);
+    EE_buffer_init(&UDP_tx_buffer, UDP_PAYLOAD_PKT_SIZE, UDP_BUFFER_SIZE, udp_tx_data);
+    my_udp_socket = udp_new();  /* Create an udp socket */
+    print_string("udp_new!\n");
+    IP4_ADDR(&my_ipaddr, MY_IPADDR_BYTE1, MY_IPADDR_BYTE2, MY_IPADDR_BYTE3, MY_IPADDR_BYTE4);
+    ret = udp_bind(my_udp_socket, &my_ipaddr, MY_PORT); /* Bind the udp socket */ 
+    print_val("udp_bind return value: %d\n", ret);
+    udp_recv(my_udp_socket, &udp_rx_handler, 0);        /* Set the rx callback for udp packets */ 
+    print_string("udp_recv!\n");
+    
+    /* ------------------- */
+    /* Start demo */
+    /* ------------------- */
     turn_on_led();
     SetRelAlarm(myAlarm1, 10, 100);
     SetRelAlarm(myAlarm2, 20, 1000);
     EE_timer_on();
         
+    /* ------------------- */
+    /* Background activity */
+    /* ------------------- */
     while(1)
         ;
         
     return 0;
 }
 
+/* ###################################################################################### */
+
 /* ---------------------- */
 /* User functions */
 /* ---------------------- */
+void udp_rx_handler(void *arg, struct udp_pcb *upcb,
+                    struct pbuf *p, struct ip_addr *addr, u16_t port)
+{
+    print_string("\nudp_rx_handler!\n");
+    /* connect to the remote host */
+    udp_connect(upcb, addr, port);               
+    /* UDP received packet print */
+    print_pbuf("rx_p",p);
+    /* Put the udp packet in the rx buffer */
+    load_buffer(&UDP_rx_buffer, p);
+    /* don't leak the pbuf! */
+    pbuf_free(p);	
+}
+
+
 void system_timer_callback(void)
 {
     /* count the interrupts, waking up expired alarms */
     CounterTick(myCounter);
-}
-
-/*
-* Allocate a transport-layer pbuf and copies the provided data buffer 'data'
-* of length 'len' bytes into the payload(s) of the pbuf. The function takes
-* care of splitting the data into successive pbuf payloads, if necessary.
-* The function returns the newly created pbuf or NULL if the pbuf cannot
-* be allocated.
-*/
-struct pbuf *pbuf_new(u8_t *data, u16_t len) {
-    struct pbuf *p = pbuf_alloc(PBUF_TRANSPORT, len, PBUF_RAM);
-    struct pbuf *q = p;
-    while ((q != (struct pbuf *)0) && (len >= q->len)) {
-        memcpy(q->payload, data, q->len);         /* copy data into payload */
-        len  -= q->len;                                 /* remaining length */
-        data += q->len;                              /* remainig data chunk */
-        q = q->next;                                       /* get next pbuf */
-    }
-    return p;
 }
 
 void print_string(const char *s)
@@ -264,6 +208,40 @@ void print_vals(char* s, int val1, int val2)
     #endif
 }
 
+void print_pbuf(const char *name, struct pbuf *p)
+{
+	#ifdef PRINT_ON 
+	int i;
+	struct pbuf *q;
+	
+	print_string(name);
+	print_val("\np->tot_len: %d\n", p->tot_len);
+	for(q = p; q != NULL; q = q->next) 
+	{
+		print_vals("payload: %x, len: %d\n", (unsigned int)q->payload, q->len);
+		for(i=0; i<(q->len); i++)
+		{
+			print_vals("q->payload[%d]:%x  ", i, ((u8_t*)q->payload)[i]);
+		}	
+	}
+	print_string("\n");
+	#endif
+}
+
+void print_array(const char *name, BYTE* vet, int len)
+{
+	#ifdef PRINT_ON 
+	int i;
+	
+	for(i=0; i<len; i++)
+	{
+		print_string(name);
+		print_vals("[%d]:%x  ", i, vet[i]);
+	}
+	print_string("\n");
+	#endif
+}
+
 int UDP_receive(BYTE* rxv)
 {
     if(EE_buffer_getmsg(&UDP_rx_buffer, (EE_UINT8*)rxv)==EE_BUF_OK)
@@ -276,6 +254,23 @@ int UDP_send(BYTE* txv)
 {
     EE_buffer_putmsg(&UDP_tx_buffer, (EE_UINT8*)txv);
     return 1;
+}
+
+void load_buffer(EE_buffer *buf, struct pbuf *p)
+{
+	BYTE rx_payload[128];
+	struct pbuf *q;
+	int i, j=0;
+	
+    for(q = p; q != NULL; q = q->next) 
+    {
+         for(i=0; i<(q->len); i++)
+         {  
+            rx_payload[j] = ((u8_t*)q->payload)[i]; /* load data in rx vector */
+            j++;
+         }
+    }
+    EE_buffer_putmsg(buf, (EE_UINT8*)rx_payload);
 }
 
 

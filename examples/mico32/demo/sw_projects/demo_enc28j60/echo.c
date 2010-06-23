@@ -74,6 +74,8 @@
 #include "lwip/stats.h"
 #include "lwip/tcp.h"
 
+void myprintf(const char *format, ...);
+
 struct echo_state {
   struct pbuf *p;
   u32_t  pos;    /* where to start in this pbuf */
@@ -85,6 +87,8 @@ static void
 echo_err(void *arg, err_t err)
 {
   struct echo_state *es = arg;
+  
+  myprintf("ECHO: echo_err\n");
 
   if (es) {
     if (es->p) {
@@ -97,16 +101,18 @@ echo_err(void *arg, err_t err)
 static void
 close_conn(struct tcp_pcb *pcb, struct echo_state *es)
 {
-  tcp_arg(pcb, NULL);
-  tcp_sent(pcb, NULL);
-  tcp_recv(pcb, NULL);
-  if (es) {
-    if (es->p) {
-      pbuf_free(es->p);
-    }
-    mem_free(es);
-  }
-  tcp_close(pcb);
+	myprintf("ECHO: close_conn\n");	
+	
+	tcp_arg(pcb, NULL);
+	tcp_sent(pcb, NULL);
+	tcp_recv(pcb, NULL);
+	if (es) {
+    	if (es->p) {
+      		pbuf_free(es->p);
+    	}
+    	mem_free(es);
+	}
+	tcp_close(pcb);
 }
 /*-----------------------------------------------------------------------------------*/
 static void
@@ -114,6 +120,8 @@ send_data(struct tcp_pcb *pcb, struct echo_state *es)
 {
   err_t err;
   u16_t len;
+  
+  myprintf("ECHO: send_data\n");	
 
   if (es->p == NULL) 
     return;
@@ -131,7 +139,7 @@ send_data(struct tcp_pcb *pcb, struct echo_state *es)
     es->pos  += len;
     es->left -= len;
   } else {
-    printf("send_data: error %d len %d %d\n", err, len, tcp_sndbuf(pcb));
+    myprintf("send_data: error %d len %d %d\n", err, len, tcp_sndbuf(pcb));
   }
 }
 /*-----------------------------------------------------------------------------------*/
@@ -139,10 +147,12 @@ static err_t
 echo_poll(void *arg, struct tcp_pcb *pcb)
 {
   struct echo_state *es = arg;
+  
+  myprintf("ECHO: echo_poll\n");	
 
-  /*  printf("Poll\n");*/
+  /*  myprintf("Poll\n");*/
   if(es == NULL) {
-    /*    printf("Null, close\n");*/
+    /*    myprintf("Null, close\n");*/
     tcp_close(pcb);
   } else {
     /* check to see if we need re-transmit */
@@ -156,6 +166,8 @@ echo_sent(void *arg, struct tcp_pcb *pcb, u16_t len)
 {
   struct pbuf *p;
   struct echo_state *es = arg;
+  
+  myprintf("ECHO: echo_sent\n");	
 
   if (es->left > 0) {
     send_data(pcb, es);
@@ -178,6 +190,8 @@ static err_t
 echo_recv(void *arg, struct tcp_pcb *pcb, struct pbuf *p, err_t err)
 {
   struct echo_state *es = arg;
+  
+  myprintf("ECHO: echo_recv\n");	
 
   if(err == ERR_OK && p != NULL) {
 
@@ -198,9 +212,9 @@ echo_recv(void *arg, struct tcp_pcb *pcb, struct pbuf *p, err_t err)
   } else {
 
     if (err != ERR_OK) 
-      printf("error %d, connection closed \n", err);
+      myprintf("error %d, connection closed \n", err);
     if (!p)
-      printf("no data received, connection closed\n");
+      myprintf("no data received, connection closed\n");
     close_conn(pcb, es);
   }
 
@@ -211,6 +225,8 @@ static err_t
 echo_accept(void *arg, struct tcp_pcb *pcb, err_t err)
 {
   struct echo_state *es;
+  
+  myprintf("ECHO: echo_accept\n");
 
 //  tcp_setprio(pcb, TCP_PRIO_MIN);
 
@@ -219,7 +235,7 @@ echo_accept(void *arg, struct tcp_pcb *pcb, err_t err)
   es = mem_malloc(sizeof(struct echo_state));
 
   if(es == NULL) {
-//    printf("echo_accept: Out of memory\n");
+//    myprintf("echo_accept: Out of memory\n");
     return ERR_MEM;
   }
 
@@ -251,6 +267,8 @@ void
 echo_init(void)
 {
   struct tcp_pcb *pcb;
+
+	myprintf("ECHO: echo_init\n");
 
   pcb = tcp_new();
   tcp_bind(pcb, IP_ADDR_ANY, 7);

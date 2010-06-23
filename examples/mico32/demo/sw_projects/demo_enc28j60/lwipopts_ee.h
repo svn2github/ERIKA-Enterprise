@@ -10,6 +10,10 @@
 #ifndef __LWIPOPTS_EE_H__
 #define __LWIPOPTS_EE_H__
 
+#ifdef __LWIP_DEBUG__
+#define LWIP_DEBUG
+#endif
+
 /* ---------- Ethernet address and IP address macros ---------- */
 /* test6 */
 //#define MY_DEFAULT_MAC_BYTE1        (0x00)	
@@ -200,12 +204,12 @@
 //#define MEMP_DEBUG                      LWIP_DBG_OFF
 //#define SYS_DEBUG                       LWIP_DBG_OFF
 #define TCP_DEBUG                       LWIP_DBG_ON
-//#define TCP_INPUT_DEBUG                 LWIP_DBG_OFF
+#define TCP_INPUT_DEBUG                 LWIP_DBG_ON
 //#define TCP_FR_DEBUG                    LWIP_DBG_OFF
 //#define TCP_RTO_DEBUG                   LWIP_DBG_OFF
 //#define TCP_CWND_DEBUG                  LWIP_DBG_OFF
 //#define TCP_WND_DEBUG                   LWIP_DBG_OFF
-//#define TCP_OUTPUT_DEBUG                LWIP_DBG_OFF
+#define TCP_OUTPUT_DEBUG                LWIP_DBG_ON
 //#define TCP_RST_DEBUG                   LWIP_DBG_OFF
 //#define TCP_QLEN_DEBUG                  LWIP_DBG_OFF
 #define UDP_DEBUG                       LWIP_DBG_ON     // default is OFF

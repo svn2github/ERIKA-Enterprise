@@ -627,7 +627,7 @@
 
             <Parm Name="MASTER" Text="Master" Type="define" Value="def" isparm="true"/>
             <Parm Condition="MASTER" Name="SLAVE_NUMBER" Text="Number of Slaves" Type="Integer" Value="1" isparm="true"/>
-            <Parm Condition="MASTER" Name="CLOCK_SEL" OType="Integer" Text="SCLK Rate" Type="Integer" Value="3" isparm="true"/>
+            <Parm Condition="MASTER" Name="CLOCK_SEL" OType="Integer" Text="SCLK Rate" Type="Integer" Value="1" isparm="true"/>
             <Parm Condition="MASTER" Name="CLKCNT_WIDTH" OType="Integer" Text="Clock Counter Width" Type="Integer" Value="5" isparm="true"/>
             <Parm Condition="MASTER" Name="DELAY_TIME" OType="Integer" Text="TX Start Delay" Type="Integer" Value="1" ValueRange="0-63" istrue="true"/>
             <Parm Condition="MASTER" Name="INTERVAL_LENGTH" OType="Integer" Text="Tx Interframe Pause" Type="Integer" Value="2" ValueRange="0-63" isparm="true"/>
