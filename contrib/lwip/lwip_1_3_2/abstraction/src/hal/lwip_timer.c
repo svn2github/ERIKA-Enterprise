@@ -6,4 +6,10 @@
   Description: Timer library for LWIP.
 */
 
-// ...
+#include <hal/lwip_timer.h>
+
+#ifdef __LWIP_TIME_DEBUG__
+
+u32_t lwip_ts_buffer[LWIP_TS_BUFFER_SIZE];
+
+#endif

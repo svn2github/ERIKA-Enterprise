@@ -87,8 +87,9 @@ EE_SRCS += contrib/lwip/lwip_1_3_2/src/netif/ppp/randm.c
 EE_SRCS += contrib/lwip/lwip_1_3_2/src/netif/ppp/vj.c 
 endif
 
-# LWIP init
-EE_SRCS += contrib/lwip/lwip_1_3_2/abstraction/src/lwip_init.c
+# LWIP manager
+EE_SRCS += contrib/lwip/lwip_1_3_2/abstraction/src/ee_lwip.c
+EE_SRCS += contrib/lwip/lwip_1_3_2/abstraction/src/util/lwip_debug.c
 
 # Ethernet interface
 EE_SRCS += contrib/lwip/lwip_1_3_2/abstraction/src/hal/lwip_ethernet.c
@@ -102,10 +103,6 @@ endif
 # lm32
 ifeq ($(findstring __LM32__,$(EEOPT)) , __LM32__)
 EE_SRCS += contrib/lwip/lwip_1_3_2/abstraction/src/hal/lwip_timer_mico32.c
-endif
-
-ifeq ($(findstring __LWIP_DEBUG__,$(EEOPT)) , __LWIP_DEBUG__)
-EE_SRCS += contrib/lwip/lwip_1_3_2/abstraction/src/util/lwip_debug.c
 endif
 
 endif

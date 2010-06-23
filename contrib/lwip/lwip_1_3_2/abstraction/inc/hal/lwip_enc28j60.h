@@ -10,9 +10,9 @@
 #ifndef __lwip_ethernet_enc28j60_h__
 #define __lwip_ethernet_enc28j60_h__
 
+#include "ee_lwip.h"
 #include "enc28j60.h"
 #include <hal/lwip_compiler.h>
-#include <lwip/debug.h>
 
 /**
  * Helper struct to hold private data used to operate your ethernet interface.
@@ -84,10 +84,5 @@ __INLINE__ void __ALWAYS_INLINE__ mydevice_drop_packet(void)
 	LWIP_DEBUGF(NETIF_DEBUG | LWIP_DBG_TRACE, ("mydevice_drop_packet\n"));
 	EE_enc28j60_drop_packet();
 }
-
-#ifdef LWIP_DEBUG
-#include <util/lwip_debug.h> //TODO: REMOVE together with the sprintf() !!!!!
-//#include <stdio.h> //TODO: REMOVE together with the sprintf() !!!!!
-#endif
 
 #endif /* Header Protection */

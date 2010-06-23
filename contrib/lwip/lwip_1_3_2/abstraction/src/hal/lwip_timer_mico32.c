@@ -6,4 +6,9 @@
   Description: Timer library for LWIP.
 */
 
-// ...
+#include <hal/lwip_timer.h>
+#include "mcu/mico32/inc/ee_timer.h"
+
+#ifdef __LWIP_TIME_DEBUG__
+
+#endif

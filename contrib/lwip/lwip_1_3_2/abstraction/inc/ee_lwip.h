@@ -38,13 +38,38 @@
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
 
-#ifndef __CC_H__
-#define __CC_H__
- 
-#if defined __LM32__
-#include <arch/cc_mico32.h>
-#else			/* No timer */
-#error "LWIP_ARCH ERROR: cpu not specified!"
-#endif	/* End Selection */
+#include "lwip/opt.h"
+#include "lwip/def.h"
+#include "lwip/mem.h"
+#include "lwip/pbuf.h"
+#include "lwip/sys.h"
+#include <lwip/stats.h>
+#include <lwip/snmp.h>
+#include "netif/etharp.h"
+#include "netif/ppp_oe.h"
+#include "lwip/ip.h"
+#include "lwip/udp.h"
+#include "lwip/tcp.h"
+#include "lwip/init.h"
+#include "hal/lwip_ethernet.h"
+#include <lwip/netif.h>
+#include <util/lwip_debug.h>
+#include <hal/lwip_timer.h>
 
-#endif
+#ifndef __EE_LWIP_H__
+#define __EE_LWIP_H__
+
+#define LWIP_ALARM_OFFSET			(0)
+#define LWIP_ALARM_OFFSET_PERIOD	(250)
+
+/* Main network structure */
+extern struct netif lwip_netif; 
+
+/* Driver functions */
+void EE_lwip_init(void);
+void EE_lwip_handler(void);
+
+/* Utils */
+struct pbuf *pbuf_new(u8_t *data, u16_t len);
+
+#endif /* __EE_LWIP_H__ */

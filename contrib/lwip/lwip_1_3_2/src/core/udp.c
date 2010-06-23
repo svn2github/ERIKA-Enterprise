@@ -45,6 +45,52 @@
 
 /* @todo Check the use of '(struct udp_pcb).chksum_len_rx'!
  */
+ 
+ /* ###*B*###
+ * ERIKA Enterprise - a tiny RTOS for small microcontrollers
+ *
+ * Copyright (C) 2002-2010  Evidence Srl
+ *
+ * This file is part of ERIKA Enterprise.
+ *
+ * ERIKA Enterprise is free software; you can redistribute it
+ * and/or modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation,
+ * (with a special exception described below).
+ *
+ * Linking this code statically or dynamically with other modules is
+ * making a combined work based on this code.  Thus, the terms and
+ * conditions of the GNU General Public License cover the whole
+ * combination.
+ *
+ * As a special exception, the copyright holders of this library give you
+ * permission to link this code with independent modules to produce an
+ * executable, regardless of the license terms of these independent
+ * modules, and to copy and distribute the resulting executable under
+ * terms of your choice, provided that you also meet, for each linked
+ * independent module, the terms and conditions of the license of that
+ * module.  An independent module is a module which is not derived from
+ * or based on this library.  If you modify this code, you may extend
+ * this exception to your version of the code, but you are not
+ * obligated to do so.  If you do not wish to do so, delete this
+ * exception statement from your version.
+ *
+ * ERIKA Enterprise is distributed in the hope that it will be
+ * useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License version 2 for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * version 2 along with ERIKA Enterprise; if not, write to the
+ * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+ * Boston, MA 02110-1301 USA.
+ * ###*E*### */
+
+/*
+ * UDP protocol.
+ * Author: 2010,  Dario Di Stefano.
+ * Note: Added time analysis.
+ */
 
 #include "lwip/opt.h"
 
@@ -64,6 +110,11 @@
 #include "lwip/dhcp.h"
 
 #include <string.h>
+
+#ifdef __ERIKA__	/* Erika Abstract Compiler */
+/* Used with Erika Enterprise RTOS */
+#include <hal/lwip_timer.h>
+#endif
 
 /* The list of UDP PCBs */
 /* exported in udp.h (was static) */
@@ -91,6 +142,8 @@ udp_input(struct pbuf *p, struct netif *inp)
   u16_t src, dest;
   u8_t local_match;
   u8_t broadcast;
+  
+  EE_lwip_write_timestamp(LWIP_START_UDP_INPUT);
 
   PERF_START;
 
@@ -282,7 +335,9 @@ udp_input(struct pbuf *p, struct netif *inp)
       /* callback */
       if (pcb->recv != NULL) {
         /* now the recv function is responsible for freeing p */
+		EE_lwip_write_timestamp(LWIP_START_UDP_RX_CBK);
         pcb->recv(pcb->recv_arg, pcb, p, &iphdr->src, src);
+		EE_lwip_write_timestamp(LWIP_END_UDP_RX_CBK);
       } else {
         /* no recv function registered? then we have to free the pbuf! */
         pbuf_free(p);
@@ -312,6 +367,7 @@ udp_input(struct pbuf *p, struct netif *inp)
   }
 end:
   PERF_STOP("udp_input");
+  EE_lwip_write_timestamp(LWIP_END_UDP_INPUT);
 }
 
 /**
@@ -335,8 +391,13 @@ end:
 err_t
 udp_send(struct udp_pcb *pcb, struct pbuf *p)
 {
-  /* send to the packet using remote ip and port stored in the pcb */
-  return udp_sendto(pcb, p, &pcb->remote_ip, pcb->remote_port);
+	err_t err;
+	EE_lwip_write_timestamp(LWIP_START_UDP_SEND);
+	/* send to the packet using remote ip and port stored in the pcb */
+	err = udp_sendto(pcb, p, &pcb->remote_ip, pcb->remote_port);
+	EE_lwip_write_timestamp(LWIP_END_UDP_SEND);
+	return err;
+	
 }
 
 /**
@@ -362,14 +423,16 @@ udp_sendto(struct udp_pcb *pcb, struct pbuf *p,
 {
   struct netif *netif;
 
+  EE_lwip_write_timestamp(LWIP_START_UDP_SEND_IPROUTE);
   LWIP_DEBUGF(UDP_DEBUG | LWIP_DBG_TRACE, ("udp_send\n"));
-
   /* find the outgoing network interface for this packet */
 #if LWIP_IGMP
   netif = ip_route((ip_addr_ismulticast(dst_ip))?(&(pcb->multicast_ip)):(dst_ip));
 #else
   netif = ip_route(dst_ip);
 #endif /* LWIP_IGMP */
+
+  EE_lwip_write_timestamp(LWIP_END_UDP_SEND_IPROUTE);
 
   /* no outgoing network interface could be found? */
   if (netif == NULL) {
@@ -412,7 +475,7 @@ udp_sendto_if(struct udp_pcb *pcb, struct pbuf *p,
   /* broadcast filter? */
   if ( ((pcb->so_options & SOF_BROADCAST) == 0) && ip_addr_isbroadcast(dst_ip, netif) ) {
     LWIP_DEBUGF(UDP_DEBUG | LWIP_DBG_LEVEL_SERIOUS,
-      ("udp_sendto_if: SOF_BROADCAST not enabled on pcb %p\n", (void *)pcb));
+      ("udp_sendto_if: SOF_BROADCAST not enabled on pcb %p\n", (void *)pcb)); 
     return ERR_VAL;
   }
 #endif /* IP_SOF_BROADCAST */
@@ -553,6 +616,7 @@ udp_sendto_if(struct udp_pcb *pcb, struct pbuf *p,
   }
 
   UDP_STATS_INC(udp.xmit);
+  
   return err;
 }
 

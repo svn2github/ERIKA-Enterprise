@@ -21,13 +21,16 @@
 #ifndef __lwip_debug_h__
 #define __lwip_debug_h__
 
+#include "lwip/pbuf.h"
 #include <hal/lwip_compiler.h> 
 
+#define LWIP_DEBUG_ERR	-1
+#define LWIP_DEBUG_OK	0
+
+#ifdef __LWIP_DEBUG__
 #include <string.h>
 #include <stdio.h>
 #include <stdarg.h>
-
-#ifdef LWIP_DEBUG
 /* FIXME: chris: now this simbol is passed by the compiled -D option, 
  * we should have something automatically declared when the required contrib 
  * lib is included in the build. */
@@ -36,7 +39,7 @@
 #endif
 #include "console.h"	/* From the console contrib library. */
 /* Select the specific debug mechanism (port). */
-#ifdef LWIP_DEBUG_SERIAL		/* Serial Port */
+#ifdef __LWIP_DEBUG_SERIAL__		/* Serial Port */
 /* FIXME: chris: now this simbol is passed by the compiled -D option, 
  * we should have something automatically declared when the required contrib 
  * lib is included in the build. */
@@ -57,9 +60,9 @@
 #else	/* Unspecified Port */
 #error "LWIP_DEBUG: unselected debug mechanism."
 #endif	/* End Select Debug Port */
-#endif /* LWIP_DEBUG */
-
 #define LWIP_DEBUG_CONSOLE 0
+
+#endif /* LWIP_DEBUG */
 
 /** 
 * @brief Initialize the lwip debug port
@@ -83,5 +86,8 @@ s8_t lwip_debug_write(char *msg, u16_t len);
 
 /* Printf emulation */
 s8_t lwip_debug_printf(const char* s, ...);
+
+/* pbuf print */
+s8_t lwip_debug_print_pbuf(const char *name, struct pbuf *p);
 
 #endif /* Header Protection */

@@ -7,48 +7,51 @@
 */
 
 #include <util/lwip_debug.h>
-#include <string.h>
 
-#ifdef LWIP_DEBUG
-/* TODO: chris: shall waste memory for this check variable or not? */
+#define MAXCHARS 128
+
+#ifdef __LWIP_DEBUG__
 static uint8_t debug_initialized = 0; 
 #endif
 
 int8_t lwip_debug_init(void)
 {
-	#ifdef LWIP_DEBUG
+	#ifdef __LWIP_DEBUG__
 	debug_initialized = 0;
 	console_descriptor_t *des = NULL;
-	#ifdef LWIP_DEBUG_SERIAL 
+	#ifdef __LWIP_DEBUG_SERIAL__
 	des = console_serial_config(LWIP_DEBUG_SERIAL_PORT, 
 								LWIP_DEBUG_SERIAL_BAUDRATE,
 								LWIP_DEBUG_SERIAL_OPT);
 	#endif
 	if (des == NULL)
-		return -1;
+		return LWIP_DEBUG_ERR;
 	if (console_init(LWIP_DEBUG_CONSOLE, des) < 0)
-		return -1;
+		return LWIP_DEBUG_ERR;
 	debug_initialized = 1;
-	return console_open(LWIP_DEBUG_CONSOLE);
+	if(console_open(LWIP_DEBUG_CONSOLE) < 0)
+		return LWIP_DEBUG_ERR;
+	else
+		return LWIP_DEBUG_OK;
 	#else
-	return 1;
+	return LWIP_DEBUG_ERR;
 	#endif /* LWIP_DEBUG */
 }
 
 int8_t lwip_debug_write(char *msg, uint16_t len) 
 {
-	#ifdef LWIP_DEBUG
+	#ifdef __LWIP_DEBUG__
 	if (debug_initialized)
 		return console_write(LWIP_DEBUG_CONSOLE, (const uint8_t *)msg, len);
-	return -1;
+	return LWIP_DEBUG_ERR;
 	#else
-	return 0;
+	return LWIP_DEBUG_ERR;
 	#endif /* LWIP_DEBUG */
 }
 
 s8_t lwip_debug_printf(const char* format, ...)
 {
-	#define MAXCHARS 128
+#ifdef __LWIP_DEBUG__
 	char str[MAXCHARS];
 	
 	va_list args;
@@ -56,6 +59,31 @@ s8_t lwip_debug_printf(const char* format, ...)
 	vsnprintf(str, MAXCHARS, format, args);
 	va_end( args );
 	return lwip_debug_write(str, strlen(str));
+#else
+	return LWIP_DEBUG_ERR;
+#endif
+}
+
+s8_t lwip_debug_print_pbuf(const char *name, struct pbuf *p)
+{
+	#ifdef __LWIP_DEBUG__
+	int i;
+	struct pbuf *q;
+	
+	lwip_debug_printf(name);
+	for(q = p; q != NULL; q = q->next) 
+	{
+		lwip_debug_printf("\npayload: %x, len: %d\n", q->payload, q->len);
+		for(i=0; i<(q->len); i++)
+		{
+			lwip_debug_printf("q->payload[%d]:%x  ", i, ((u8_t*)q->payload)[i]);
+		}
+	}
+	lwip_debug_printf("\n");
+	return LWIP_DEBUG_OK;
+	#else
+	return LWIP_DEBUG_ERR;
+	#endif
 }
 
 #ifdef DO_CASE_STRCPY 	

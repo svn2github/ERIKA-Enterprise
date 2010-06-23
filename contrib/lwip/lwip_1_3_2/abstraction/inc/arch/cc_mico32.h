@@ -41,7 +41,7 @@
 #ifndef __CC_MICO32_H__
 #define __CC_MICO32_H__
 
-#include "util/lwip_debug.h"
+#include <hal/lwip_compiler.h>
 
 #ifndef BYTE_ORDER
 #define BYTE_ORDER BIG_ENDIAN
@@ -58,6 +58,7 @@
 #define abort()
 
 #ifdef LWIP_DEBUG
+	s8_t lwip_debug_printf(const char* s, ...);
 //    void Q_onAssert(char const * const file, int line);
 //    #define LWIP_PLATFORM_ASSERT(msg) Q_onAssert(msg, __LINE__)
 	#define LWIP_PLATFORM_ASSERT(msg) 	lwip_debug_printf("Assertion \"%s\" failed at line %d in %s\n", msg, __LINE__, __FILE__); \

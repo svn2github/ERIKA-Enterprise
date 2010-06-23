@@ -6,5 +6,8 @@
   Description: 	This file contains the enc28j60 abstraction layer for LWIP modules.
 */
 
+/* hw abstraction layer */
+#include "ee_lwip.h"
+
 /* Global variables */
 // ...
