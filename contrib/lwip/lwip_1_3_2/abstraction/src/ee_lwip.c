@@ -70,40 +70,7 @@ void EE_lwip_init(void)
     netif_set_default(&lwip_netif);				/* default settings */
     netif_set_up(&lwip_netif);					/* bring the interface up */
 	LWIP_DEBUGF(NETIF_DEBUG | LWIP_DBG_TRACE, ("netif initialization end!\n"));
-	
-	/* Periodic task for TCP and IP timers */
-	#ifdef __USE_LWIP_TIMER__
-	SetRelAlarm(LWIP_ALARM, LWIP_ALARM_OFFSET, LWIP_ALARM_OFFSET_PERIOD);
-	#endif
 }
 
-void EE_lwip_handler(void)
-{
-
-}
-
-TASK(LWIP_PERIODIC_TASK)
-{
-	tcp_tmr();
-}
-
-/*
-* Allocate a transport-layer pbuf and copies the provided data buffer 'data'
-* of length 'len' bytes into the payload(s) of the pbuf. The function takes
-* care of splitting the data into successive pbuf payloads, if necessary.
-* The function returns the newly created pbuf or NULL if the pbuf cannot
-* be allocated.
-*/
-struct pbuf *pbuf_new(u8_t *data, u16_t len) {
-    struct pbuf *p = pbuf_alloc(PBUF_TRANSPORT, len, PBUF_RAM);
-    struct pbuf *q = p;
-    while ((q != (struct pbuf *)0) && (len >= q->len)) {
-        memcpy(q->payload, data, q->len);         /* copy data into payload */
-        len  -= q->len;                                 /* remaining length */
-        data += q->len;                              /* remainig data chunk */
-        q = q->next;                                       /* get next pbuf */
-    }
-    return p;
-}
 
 
