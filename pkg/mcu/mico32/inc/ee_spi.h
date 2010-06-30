@@ -69,6 +69,7 @@ typedef struct st_MicoSPI{
 #define EE_spi_rx_polling(mode)				( !((mode) & EE_SPI_RX_ISR) )
 //#define EE_spi_bus_idle(status)
 //#define EE_spi_pend_for_TIP_done(status)
+#define EE_spi_clear_rx_overrun_error(status)	(status &= (~EE_SPI_STATUS_RX_ERR_MASK))
 #define EE_spi_tx_ready(status)				(status & EE_SPI_STATUS_TX_RDY_MASK)
 #define EE_spi_rx_ready(status)				(status & EE_SPI_STATUS_RX_RDY_MASK)
 #define EE_spi_tmt_ready(status)			(status & EE_SPI_STATUS_TMT_RDY_MASK)
@@ -79,6 +80,7 @@ typedef struct st_MicoSPI{
 //#define EE_spi_is_master(set)				(set & EE_SPI_MASTER_MASK)
 
 /* Internal functions */
+void myprintf(const char* format, ...);
 
 /*
 	int EE_hal_spi_wait_for_bus_idle(MicoSPI_t* spic);
@@ -100,63 +102,58 @@ int EE_hal_spi_write_byte_polling(MicoSPI_t* spic, EE_UINT8 data);
 	int EE_hal_spi_read_byte_polling(MicoSPI_t* spic);
 	Read a byte in polling mode.
 */
-int EE_hal_spi_read_byte_polling(MicoSPI_t* spic);
+int EE_hal_spi_read_byte_polling(MicoSPI_t *spic);
 
 /*
-	int EE_hal_spi_write_buffer_polling(MicoSPI_t* spic, EE_UINT8 *data, int len);
 	Write an array in polling mode.
 */
-int EE_hal_spi_write_buffer_polling(MicoSPI_t* spic, EE_UINT8 *data, int len);
+int EE_hal_spi_write_buffer_polling(MicoSPI_t *spic, const void *data, int len);
 
 /*
-	int EE_hal_spi_read_buffer_polling(MicoSPI_t* spic, EE_UINT8 *data, int len);
 	Read an array in polling mode.
 */
-int EE_hal_spi_read_buffer_polling(MicoSPI_t* spic, EE_UINT8 *data, int len);
+int EE_hal_spi_read_buffer_polling(MicoSPI_t *spic, void *data, int len);
 
 /* 
-	__INLINE__ int __ALWAYS_INLINE__ EE_hal_spi_set_SSO(MicoSPI_t* spic)		
+	__INLINE__ void __ALWAYS_INLINE__ EE_hal_spi_set_SSO(MicoSPI_t* spic)		
 	This function is used to set slave select register 
 */
-__INLINE__ int __ALWAYS_INLINE__ EE_hal_spi_set_SSO(MicoSPI_t* spic)		
+__INLINE__ void __ALWAYS_INLINE__ EE_hal_spi_set_SSO(MicoSPI_t* spic)		
 {
 	spic->control |= EE_SPI_CTL_SSO_MASK;
-	
-    return EE_SPI_OK;
 }
 
 /* 
-	__INLINE__ int __ALWAYS_INLINE__ EE_hal_spi_clear_SSO(MicoSPI_t* spic)
+	__INLINE__ void __ALWAYS_INLINE__ EE_hal_spi_clear_SSO(MicoSPI_t* spic)
 	This function is used to get slave select register 
 */
-__INLINE__ int __ALWAYS_INLINE__ EE_hal_spi_clear_SSO(MicoSPI_t* spic)		
+__INLINE__ void __ALWAYS_INLINE__ EE_hal_spi_clear_SSO(MicoSPI_t* spic)		
 {
+	/* wait the end of previous transmission */
+	while(!EE_spi_tx_ready(spic->status))		
+		;
+	while(!EE_spi_tmt_ready(spic->status))		
+		;
 	spic->control &= (~EE_SPI_CTL_SSO_MASK);
-
-    return EE_SPI_OK;
 }
 
 /* 
-	__INLINE__ int __ALWAYS_INLINE__ EE_hal_spi_set_slave(MicoSPI_t* spic, unsigned int mask)
+	__INLINE__ void __ALWAYS_INLINE__ EE_hal_spi_set_slave(MicoSPI_t* spic, unsigned int mask)
 	This function is used to set slave select register 
 */
-__INLINE__ int __ALWAYS_INLINE__ EE_hal_spi_set_slave(MicoSPI_t* spic, unsigned int mask)		
+__INLINE__ void __ALWAYS_INLINE__ EE_hal_spi_set_slave(MicoSPI_t* spic, unsigned int mask)		
 {
 	spic->sSelect = mask;
-	
-    return EE_SPI_OK;
 }
 
 /* 
-	__INLINE__ int __ALWAYS_INLINE__ EE_hal_spi_get_slave(MicoSPI_t* spic, unsigned int *pmask)	
+	__INLINE__ void __ALWAYS_INLINE__ EE_hal_spi_get_slave(MicoSPI_t* spic, unsigned int *pmask)	
 	This function is used to get slave select register 
 */
-__INLINE__ int __ALWAYS_INLINE__ EE_hal_spi_get_slave(MicoSPI_t* spic, unsigned int *pmask)		
+__INLINE__ void __ALWAYS_INLINE__ EE_hal_spi_get_slave(MicoSPI_t* spic, unsigned int *pmask)		
 {
 	if(pmask != 0)
         *pmask = spic->sSelect;
-
-    return EE_SPI_OK;
 }
 
 #ifdef __USE_SPI_IRQ__
@@ -228,16 +225,14 @@ int EE_hal_spi_write_byte_irq(EE_spi_st* spisp, EE_UINT8 data);
 int EE_hal_spi_read_byte_irq(EE_spi_st* spisp);
 
 /*
-	int EE_hal_spi_write_buffer_irq(EE_spi_st* spisp, EE_UINT8 *data, int len);
 	Write an array in irq mode.
 */
-int EE_hal_spi_write_buffer_irq(EE_spi_st* spisp, EE_UINT8 *data, int len);
+int EE_hal_spi_write_buffer_irq(EE_spi_st* spisp, const void *data, int len);
 
 /*
-	int EE_hal_spi_read_buffer_irq(EE_spi_st* spisp, EE_UINT8 *data, int len);
 	Read an array in irq mode.
 */	
-int EE_hal_spi_read_buffer_irq(EE_spi_st* spisp, EE_UINT8 *data, int len);
+int EE_hal_spi_read_buffer_irq(EE_spi_st* spisp, void *data, int len);
 
 /*
 	int EE_hal_spi_return_error(EE_spi_st* spisp);
@@ -246,56 +241,48 @@ int EE_hal_spi_read_buffer_irq(EE_spi_st* spisp, EE_UINT8 *data, int len);
 int EE_hal_spi_return_error(EE_spi_st* spisp);
 
 /*
-	__INLINE__ int __ALWAYS_INLINE__ EE_hal_spi_enable_IRQ(EE_spi_st *spisp)
+	__INLINE__ void __ALWAYS_INLINE__ EE_hal_spi_enable_IRQ(EE_spi_st *spisp)
 	Funtion to enable IRQ.
 */	
-__INLINE__ int __ALWAYS_INLINE__ EE_hal_spi_enable_IRQ(EE_spi_st *spisp)
+__INLINE__ void __ALWAYS_INLINE__ EE_hal_spi_enable_IRQ(EE_spi_st *spisp)
 {
 	MicoSPI_t* spic = spisp->base;
 	
 	spic->control = spisp->mode;
-	
-	return EE_SPI_OK;
 }
 
 /*
-	__INLINE__ int __ALWAYS_INLINE__ EE_hal_spi_disable_IRQ(EE_spi_st *spisp)
+	__INLINE__ void __ALWAYS_INLINE__ EE_hal_spi_disable_IRQ(EE_spi_st *spisp)
 	Funtion to disable IRQ.
 */	
-__INLINE__ int __ALWAYS_INLINE__ EE_hal_spi_disable_IRQ(EE_spi_st *spisp)
+__INLINE__ void __ALWAYS_INLINE__ EE_hal_spi_disable_IRQ(EE_spi_st *spisp)
 {
 	MicoSPI_t* spic = spisp->base;
 	
 	spic->control &= EE_SPI_CTL_ALL_INTR_DIS_MASK;
-	
-	return EE_SPI_OK;
 }
 
 /*
-	__INLINE__ int __ALWAYS_INLINE__ EE_hal_spi_enable(EE_spi_st *spisp)
+	__INLINE__ void __ALWAYS_INLINE__ EE_hal_spi_enable(EE_spi_st *spisp)
 	Funtion to enable the SPI module.
 */	
-__INLINE__ int __ALWAYS_INLINE__ EE_hal_spi_enable(EE_spi_st *spisp)
+__INLINE__ void __ALWAYS_INLINE__ EE_hal_spi_enable(EE_spi_st *spisp)
 {
 	MicoSPI_t* spic = spisp->base;
 	
 	spic->control = spisp->mode;
-	
-	return EE_SPI_OK;
 }
 
 /*
-	__INLINE__ int __ALWAYS_INLINE__ EE_hal_spi_disable(EE_spi_st *spisp)
+	__INLINE__ void __ALWAYS_INLINE__ EE_hal_spi_disable(EE_spi_st *spisp)
 	Funtion to disable the SPI module.
 */	
-__INLINE__ int __ALWAYS_INLINE__ EE_hal_spi_disable(EE_spi_st *spisp)
+__INLINE__ void __ALWAYS_INLINE__ EE_hal_spi_disable(EE_spi_st *spisp)
 {
 	MicoSPI_t* spic = spisp->base;
 	
 	while( !EE_spi_tmt_ready(spic->status) );
 	spic->control = 0;
-	
-	return EE_SPI_OK;
 }
 
 /*
@@ -328,50 +315,50 @@ __INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _set_tx_ISR_callback)(EE_ISR_call
 	return EE_hal_spi_set_tx_ISR_callback(& EE_ST_NAME(lc), txcbk); } \
 __INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _send_byte)(EE_UINT8 data){ \
 	int ret; \
-	if(EE_spi_tx_polling(EE_ST_NAME(lc).mode))\
+	if(EE_spi_tx_polling(EE_ST_NAME(lc).mode)) \
 		ret = EE_hal_spi_write_byte_polling((MicoSPI_t*)EE_BASE_ADD(uc), data); \
 	else \
 		ret = EE_hal_spi_write_byte_irq(& EE_ST_NAME(lc), data); \
 	return ret; } \
 __INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _receive_byte)(void){ \
 	int ret; \
-	if(EE_spi_rx_polling(EE_ST_NAME(lc).mode))\
+	if(EE_spi_rx_polling(EE_ST_NAME(lc).mode)) \
 		ret = EE_hal_spi_read_byte_polling((MicoSPI_t*)EE_BASE_ADD(uc)); \
 	else \
 		ret = EE_hal_spi_read_byte_irq(& EE_ST_NAME(lc)); \
 	return ret; } \
-__INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _send_buffer)(EE_UINT8* vet, int len){ \
+__INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _send_buffer)(const void* vet, int len){ \
 	int ret; \
-	if(EE_spi_tx_polling(EE_ST_NAME(lc).mode))\
+	if(EE_spi_tx_polling(EE_ST_NAME(lc).mode)) \
 		ret = EE_hal_spi_write_buffer_polling((MicoSPI_t*)EE_BASE_ADD(uc), vet, len); \
 	else \
 		ret = EE_hal_spi_write_buffer_irq(& EE_ST_NAME(lc), vet, len); \
 	return ret; } \
-__INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _receive_buffer)(EE_UINT8* vet, int len){ \
+__INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _receive_buffer)(void* vet, int len){ \
 	int ret; \
-	if(EE_spi_rx_polling(EE_ST_NAME(lc).mode))\
+	if(EE_spi_rx_polling(EE_ST_NAME(lc).mode)) \
 		ret = EE_hal_spi_read_buffer_polling((MicoSPI_t*)EE_BASE_ADD(uc), vet, len); \
 	else \
 		ret = EE_hal_spi_read_buffer_irq(& EE_ST_NAME(lc), vet, len); \
 	return ret; } \
-__INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _get_slave)(unsigned int *pmask){ \
-	return EE_hal_spi_get_slave((MicoSPI_t*)EE_BASE_ADD(uc), pmask); } \
-__INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _set_slave)(unsigned int mask){ \
-	return EE_hal_spi_set_slave((MicoSPI_t*)EE_BASE_ADD(uc), mask); } \
-__INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _set_SSO)(void){ \
-	return EE_hal_spi_set_SSO((MicoSPI_t*)EE_BASE_ADD(uc)); } \
-__INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _clear_SSO)(void){ \
-	return EE_hal_spi_clear_SSO((MicoSPI_t*)EE_BASE_ADD(uc)); } \
+__INLINE__ void __ALWAYS_INLINE__ cat3(EE_, lc, _get_slave)(unsigned int *pmask){ \
+	EE_hal_spi_get_slave((MicoSPI_t*)EE_BASE_ADD(uc), pmask); } \
+__INLINE__ void __ALWAYS_INLINE__ cat3(EE_, lc, _set_slave)(unsigned int mask){ \
+	EE_hal_spi_set_slave((MicoSPI_t*)EE_BASE_ADD(uc), mask); } \
+__INLINE__ void __ALWAYS_INLINE__ cat3(EE_, lc, _set_SSO)(void){ \
+	EE_hal_spi_set_SSO((MicoSPI_t*)EE_BASE_ADD(uc)); } \
+__INLINE__ void __ALWAYS_INLINE__ cat3(EE_, lc, _clear_SSO)(void){ \
+	EE_hal_spi_clear_SSO((MicoSPI_t*)EE_BASE_ADD(uc)); } \
 __INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _return_error)(void){ \
 	return EE_hal_spi_return_error(& EE_ST_NAME(lc)); } \
-__INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _enable_IRQ)(void){ \
-	return EE_hal_spi_enable_IRQ(& EE_ST_NAME(lc)); } \
-__INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _disable_IRQ)(void){ \
-	return EE_hal_spi_disable_IRQ(& EE_ST_NAME(lc)); } \
-__INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _enable)(void){ \
-	return EE_hal_spi_enable(& EE_ST_NAME(lc)); } \
-__INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _disable)(void){ \
-	return EE_hal_spi_disable(& EE_ST_NAME(lc)); } \
+__INLINE__ void __ALWAYS_INLINE__ cat3(EE_, lc, _enable_IRQ)(void){ \
+	EE_hal_spi_enable_IRQ(& EE_ST_NAME(lc)); } \
+__INLINE__ void __ALWAYS_INLINE__ cat3(EE_, lc, _disable_IRQ)(void){ \
+	EE_hal_spi_disable_IRQ(& EE_ST_NAME(lc)); } \
+__INLINE__ void __ALWAYS_INLINE__ cat3(EE_, lc, _enable)(void){ \
+	EE_hal_spi_enable(& EE_ST_NAME(lc)); } \
+__INLINE__ void __ALWAYS_INLINE__ cat3(EE_, lc, _disable)(void){ \
+	EE_hal_spi_disable(& EE_ST_NAME(lc)); } \
 __INLINE__ void __ALWAYS_INLINE__ cat3(EE_, lc, _wait_for_bus_idle)(void){ \
 	EE_hal_spi_wait_for_bus_idle((MicoSPI_t*)EE_BASE_ADD(uc)); }
 	
@@ -441,26 +428,21 @@ int EE_hal_spi_config(MicoSPI_t* spic, int settings);
 int EE_hal_spi_set_ISR_mode(MicoSPI_t* spic, int irqf, int mode);
 	
 /* 
-	__INLINE__ int __ALWAYS_INLINE__ EE_hal_spi_enable(MicoSPI_t* spic)
+	__INLINE__ void __ALWAYS_INLINE__ EE_hal_spi_enable(MicoSPI_t* spic)
 	This function is used to turn on spi controller 
 */
-__INLINE__ int __ALWAYS_INLINE__ EE_hal_spi_enable(MicoSPI_t* spic)
+__INLINE__ void __ALWAYS_INLINE__ EE_hal_spi_enable(MicoSPI_t* spic)
 {
-	// to do...
-	
-	return EE_SPI_OK;
 }
 
 /* 
-	__INLINE__ int __ALWAYS_INLINE__ EE_hal_spi_disable(MicoSPI_t* spic)
+	__INLINE__ void __ALWAYS_INLINE__ EE_hal_spi_disable(MicoSPI_t* spic)
 	This function is used to turn off spi controller 
 */
-__INLINE__ int __ALWAYS_INLINE__ EE_hal_spi_disable(MicoSPI_t* spic)
+__INLINE__ void __ALWAYS_INLINE__ EE_hal_spi_disable(MicoSPI_t* spic)
 {
 	while( !EE_spi_tmt_ready(spic->status) );
 	spic->control = 0;
-	
-	return EE_SPI_OK;
 }
 
 /* 
@@ -475,22 +457,22 @@ __INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _send_byte)(EE_UINT8 data){ \
 	return EE_hal_spi_write_byte_polling((MicoSPI_t*)EE_BASE_ADD(uc), data); } \
 __INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _receive_byte)(void){ \
 	return EE_hal_spi_read_byte_polling((MicoSPI_t*)EE_BASE_ADD(uc)); } \
-__INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _send_buffer)(EE_UINT8* vet, int len){ \
+__INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _send_buffer)(const void* vet, int len){ \
 	return EE_hal_spi_write_buffer_polling((MicoSPI_t*)EE_BASE_ADD(uc), vet, len); } \
-__INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _receive_buffer)( EE_UINT8* vet, int len){ \
+__INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _receive_buffer)( void* vet, int len){ \
 	return EE_hal_spi_read_buffer_polling((MicoSPI_t*)EE_BASE_ADD(uc), vet, len); } \
-__INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _disable)(void){ \
-	return EE_hal_spi_disable((MicoSPI_t*)EE_BASE_ADD(uc)); } \
-__INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _enable)(void){ \
-	return EE_hal_spi_enable((MicoSPI_t*)EE_BASE_ADD(uc)); } \
-__INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _set_SSO)(void){ \
-	return EE_hal_spi_set_SSO((MicoSPI_t*)EE_BASE_ADD(uc)); } \
-__INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _clear_SSO)(void){ \
-	return EE_hal_spi_clear_SSO((MicoSPI_t*)EE_BASE_ADD(uc)); } \
-__INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _set_slave)(unsigned int mask){ \
-	return EE_hal_spi_set_slave((MicoSPI_t*)EE_BASE_ADD(uc), mask); } \
-__INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _get_slave)(unsigned int *pmask ){ \
-	return EE_hal_spi_get_slave((MicoSPI_t*)EE_BASE_ADD(uc), pmask); }
+__INLINE__ void __ALWAYS_INLINE__ cat3(EE_, lc, _disable)(void){ \
+	EE_hal_spi_disable((MicoSPI_t*)EE_BASE_ADD(uc)); } \
+__INLINE__ void __ALWAYS_INLINE__ cat3(EE_, lc, _enable)(void){ \
+	EE_hal_spi_enable((MicoSPI_t*)EE_BASE_ADD(uc)); } \
+__INLINE__ void __ALWAYS_INLINE__ cat3(EE_, lc, _set_SSO)(void){ \
+	EE_hal_spi_set_SSO((MicoSPI_t*)EE_BASE_ADD(uc)); } \
+__INLINE__ void __ALWAYS_INLINE__ cat3(EE_, lc, _clear_SSO)(void){ \
+	EE_hal_spi_clear_SSO((MicoSPI_t*)EE_BASE_ADD(uc)); } \
+__INLINE__ void __ALWAYS_INLINE__ cat3(EE_, lc, _set_slave)(unsigned int mask){ \
+	EE_hal_spi_set_slave((MicoSPI_t*)EE_BASE_ADD(uc), mask); } \
+__INLINE__ void __ALWAYS_INLINE__ cat3(EE_, lc, _get_slave)(unsigned int *pmask ){ \
+	EE_hal_spi_get_slave((MicoSPI_t*)EE_BASE_ADD(uc), pmask); }
 	
 #endif //#ifdef __USE_SPI_IRQ__
 

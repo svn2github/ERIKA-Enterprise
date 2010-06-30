@@ -68,79 +68,75 @@ void EE_spi_common_handler(int level)
 
 /******************************************************************************/
 /*                       Public Global Functions                              */
-/******************************************************************************/			
-int EE_hal_spi_write_byte_polling(MicoSPI_t* spic, EE_UINT8 data)
+/******************************************************************************/	
+int EE_hal_spi_read_byte_polling(MicoSPI_t *spic)
 {
-	EE_UINT8 rx_dummy = 0;
-	// EE_hal_spi_set_slave(spic, device);		
-	// EE_spi_set_SSO(spic->control);
-	spic->tx = data;						
-	while(!EE_spi_tmt_ready(spic->status))
-			;								
-	// EE_spi_clear_SSO(spic->control);
-	rx_dummy = spic->rx;
-		
-	return 1;	
-}
+	EE_UINT8 dummy;
 
-int EE_hal_spi_read_byte_polling(MicoSPI_t* spic)
-{
-	EE_UINT8 dummy = 0xFF;
-
-	// EE_hal_spi_set_slave(spic, device);		
-	// EE_spi_set_SSO(spic->control);
-	spic->tx = dummy;							
-	while(!EE_spi_tmt_ready(spic->status))
-			;
-	// EE_spi_clear_SSO(spic->control);				
+	/* wait the end of previous transmission */
+	while(!EE_spi_tmt_ready(spic->status))		
+		;
+	/* clean overrun and reception ready flags */
+	dummy = spic->rx;
 	
+	/* send a dummy byte on spi bus */
+	spic->tx = dummy;		
+	/* wait data to be received */
+	while(!EE_spi_rx_ready(spic->status))
+		;
 	return spic->rx;
 }
 
-int EE_hal_spi_write_buffer_polling(MicoSPI_t* spic, EE_UINT8* data, int len)
+int EE_hal_spi_read_buffer_polling(MicoSPI_t *spic, void *data, int len)
 {
 	int i;
-	int ret;
-	EE_UINT8 rx_dummy = 0;
-			
-	// EE_hal_spi_set_slave(spic, device);		
-	// EE_spi_set_SSO(spic->control);
-	for(i=0; i<len; i++)
-	{
-		spic->tx = data[i];
-		while(!EE_spi_tmt_ready(spic->status))
-			;
-		rx_dummy = spic->rx;
-	}
-	// EE_spi_clear_SSO(spic->control);			
-	ret = len;	
+	EE_UINT8 *buf = data;  
+	EE_UINT8 dummy;
 
-	return ret;
-}	
-
-int EE_hal_spi_read_buffer_polling(MicoSPI_t* spic, EE_UINT8* data, int len)
-{
-	int i;
-	int ret;
-	EE_UINT8 tx_dummy = 0x00;
+	/* wait the end of previous transmission */
+	while(!EE_spi_tmt_ready(spic->status))		
+		;
+	/* clean overrun and reception ready flags */
+	dummy = spic->rx;
 	
-	// EE_hal_spi_set_slave(spic, device);		
-	// EE_spi_set_SSO(spic->control);
 	for(i=0; i<len; i++)
 	{
-		spic->tx = tx_dummy;
-		while(!EE_spi_tmt_ready(spic->status))
-			;
+		/* send a dummy byte on spi bus */
+		spic->tx = dummy;
+		/* wait data to be received */
 		while(!EE_spi_rx_ready(spic->status))
 			;
-		data[i] = spic->rx;
-	}
-	// EE_spi_clear_SSO(spic->control);				
-	ret = len;	
-
-	return ret;
+		buf[i] = spic->rx;
+	}		
+	return len;
 }
-															
+
+int EE_hal_spi_write_buffer_polling(MicoSPI_t *spic, const void *data, int len)
+{
+	int i;
+	const EE_UINT8 *buf = data;   
+	EE_UINT8 preload;
+	
+	for(i=0; i<len; i++)
+	{
+		/* pre-load for speed optimization */
+		preload = buf[i];
+		while(!EE_spi_tx_ready(spic->status))		
+			;
+		spic->tx = preload;
+	}
+	return len;	
+
+}	
+
+int EE_hal_spi_write_byte_polling(MicoSPI_t *spic, EE_UINT8 data)
+{
+	while(!EE_spi_tx_ready(spic->status))		
+		;
+	spic->tx = data;
+		
+	return 1;
+}														
 #ifndef __USE_SPI_IRQ__
 
 int EE_hal_spi_config(MicoSPI_t* spic, int settings)
