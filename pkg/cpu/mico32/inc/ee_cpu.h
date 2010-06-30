@@ -80,6 +80,7 @@
 typedef EE_UINT32 EE_UREG;
 typedef EE_INT32  EE_SREG;
 typedef EE_UINT32 EE_FREG;
+#define EE_UREG_SIZE 4
 
 /* Thread IDs */
 typedef EE_INT32 EE_TID;
