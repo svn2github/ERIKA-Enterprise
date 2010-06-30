@@ -251,6 +251,7 @@ __INLINE__ float __ALWAYS_INLINE__ EE_temperature_get( void )
 #include "mcu/microchip_dspic/inc/ee_spi.h"
 
 extern void (*EE_miniflex_radio_mrf24j40_callback)(void);
+extern EE_INT8 EE_spi_init(EE_UINT8 port);
 
 __INLINE__ void __ALWAYS_INLINE__ EE_miniflex_radio_init( void(*isr_callback)(void))
 {
@@ -264,14 +265,8 @@ __INLINE__ void __ALWAYS_INLINE__ EE_miniflex_radio_init( void(*isr_callback)(vo
 	RPOR10bits.RP20R = 9; //SS1 on RP20
 	RPOR10bits.RP21R = 8; //SCK1 on RP21
 	RPOR11bits.RP22R = 7; //SDO1 on RP22
-
-	/* Assign UART1 input pins */
-	RPINR18bits.U1RXR = 25; //U1RX on RP25
-	/* Assign UART1 output pins */
-	RPOR12bits.RP24R = 3; //U1TX on RP24
-
+	
 	/* Lock pin configuration registers */
-
 	__builtin_write_OSCCONL(OSCCON | 0x40);
 
 	/* Initialize SPI and other pins controlling the transceiver */
@@ -295,7 +290,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_miniflex_radio_init( void(*isr_callback)(vo
 
 
 		//#if defined(HARDWARE_SPI)
-		EE_spi_init(EE_SPI_PORT_1); /* Initialize SPI1 */
+		EE_spi_init(0/*EE_SPI_PORT_1*/); /* Initialize SPI1 */
 		//#endif
 
 		INTCON2bits.INT1EP = 1;
