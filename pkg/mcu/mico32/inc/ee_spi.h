@@ -79,9 +79,6 @@ typedef struct st_MicoSPI{
 #define EE_spi_disable_rx_int(ctrl)			(ctrl &= (~EE_SPI_CTL_RX_INTR_EN_MASK))
 //#define EE_spi_is_master(set)				(set & EE_SPI_MASTER_MASK)
 
-/* Internal functions */
-void myprintf(const char* format, ...);
-
 /*
 	int EE_hal_spi_wait_for_bus_idle(MicoSPI_t* spic);
 	Write a byte in polling mode.
@@ -130,8 +127,6 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_spi_set_SSO(MicoSPI_t* spic)
 __INLINE__ void __ALWAYS_INLINE__ EE_hal_spi_clear_SSO(MicoSPI_t* spic)		
 {
 	/* wait the end of previous transmission */
-	while(!EE_spi_tx_ready(spic->status))		
-		;
 	while(!EE_spi_tmt_ready(spic->status))		
 		;
 	spic->control &= (~EE_SPI_CTL_SSO_MASK);
