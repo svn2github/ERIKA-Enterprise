@@ -183,7 +183,7 @@ $(OBJDIR)/%.o: %.c
 
 # Build .o files from .S files.
 $(OBJDIR)/%.o: %.S
-	$(VERBOSE_PRINTASM) $(EE_ASM) -c $(CPU_CONFIG) $(CFLAGS) $(CPPFLAGS) $< -o $@
+	$(VERBOSE_PRINTASM) $(EE_ASM) -c $(CPU_CONFIG) $(CFLAGS) $(CPPFLAGS) $(ASFLAGS) $< -o $@
 	$(VERBOSE_PRINTDEP) $(call make-depend,$<,$@,$(subst .o,.d,$@))
 
 # Objects depend on directories, but they are not remade if directories change
