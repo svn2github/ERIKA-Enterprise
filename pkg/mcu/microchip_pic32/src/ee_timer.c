@@ -19,7 +19,7 @@ static void (* volatile timer2_callback)(void) = NULL;
 #ifdef __USE_EE_TIMER_3__
 static void (* volatile timer3_callback)(void) = NULL;
 #endif
-#ifdef __USE_EE_TIMER_4__
+#if defined(__USE_EE_TIMER_4__) || defined(__USE_EE_TIMER_45__)
 static void (* volatile timer4_callback)(void) = NULL;
 #endif
 #ifdef __USE_EE_TIMER_5__
@@ -42,7 +42,7 @@ __INLINE__ void __ALWAYS_INLINE__ timer1_disable_IRQ(void)
 	IFS0CLR = _IFS0_T1IF_MASK;	// Clean Timer IRQ Flag
 }
 
-__INLINE__ void __ALWAYS_INLINE__ timer1_init(EE_UREG pr, EE_UINT8 tckps)
+__INLINE__ void __ALWAYS_INLINE__ timer1_init(EE_UINT32 pr, EE_UINT8 tckps)
 {
 	timer1_disable_IRQ();
 	IPC1CLR = _IPC1_T1IP_MASK;	// Clean IRQ Priority
@@ -86,7 +86,7 @@ __INLINE__ void __ALWAYS_INLINE__ timer3_disable_IRQ(void)
 	IFS0CLR = _IFS0_T3IF_MASK;	// Clean Timer IRQ Flag
 }
 
-__INLINE__ void __ALWAYS_INLINE__ timer3_init(EE_UREG pr, EE_UINT8 tckps)
+__INLINE__ void __ALWAYS_INLINE__ timer3_init(EE_UINT32 pr, EE_UINT8 tckps)
 {
 	IPC3CLR = _IPC3_T3IP_MASK;	// Clean IRQ Priority
 	IPC3SET = (2 << _IPC3_T3IP_POSITION); //TODO:change hardcoding Irq Prio?
@@ -109,14 +109,71 @@ __INLINE__ void __ALWAYS_INLINE__ timer3_stop(void)
 #endif /* __USE_EE_TIMER_3__ */
 
 
+/* FIXME Probably this check should be done in makefile instead */
+#if defined(__USE_EE_TIMER_45__) && \
+(defined(__USE_EE_TIMER_4__) || defined(__USE_EE_TIMER_5__))
+#error TIMER 45 cannot be used together with TIMER 4 or TIMER 5
+#endif
 
-#ifdef __USE_EE_TIMER_4__
-#error TIMER 4 not supported
-#endif /* __USE_EE_TIMER_4__ */
+#if defined(__USE_EE_TIMER_4__)
+#error TIMER 4 not tested and probably not fully supported
+#endif
+
+#if defined(__USE_EE_TIMER_4__) || defined(__USE_EE_TIMER_45__)
+__INLINE__ void __ALWAYS_INLINE__ timer4_enable_IRQ(void)
+{
+	IFS0CLR = _IFS0_T4IF_MASK;	// Clean Timer IRQ Flag
+	IEC0SET = _IEC0_T4IE_MASK;	// Enable Timer IRQ
+}
+	
+__INLINE__ void __ALWAYS_INLINE__ timer4_disable_IRQ(void)
+{
+	IEC0CLR = _IEC0_T4IE_MASK;	// Disable Timer IRQ
+	IFS0CLR = _IFS0_T4IF_MASK;	// Clean Timer IRQ Flag
+}
+
+__INLINE__ void __ALWAYS_INLINE__ timer4_init(EE_UINT32 pr, EE_UINT8 tckps)
+{
+	IPC4CLR = _IPC4_T4IP_MASK;	// Clean IRQ Priority
+	IPC4SET = (2 << _IPC4_T4IP_POSITION); //TODO:change hardcoding Irq Prio?
+	IPC4CLR = _IPC4_T4IS_MASK; //TODO:change hardcoding Irq Sub-Prio?
+	PR4 = pr;
+	TMR4 = 0;
+	T4CON = ((tckps & 0x03) << _T4CON_TCKPS_POSITION);
+}
+
+__INLINE__ void __ALWAYS_INLINE__ timer4_start(void) 
+{
+	T4CONSET = _T4CON_ON_MASK;	// Start Timer
+}
+
+__INLINE__ void __ALWAYS_INLINE__ timer4_stop(void) 
+{
+	T4CONCLR = _T4CON_ON_MASK;	// Stop Timer
+	timer4_disable_IRQ();
+}
+#endif /* __USE_EE_TIMER_4__ || __USE_EE_TIMER_45__ */
+
+
+#if defined(__USE_EE_TIMER_45__)
+__INLINE__ void __ALWAYS_INLINE__ timer45_init(EE_UINT32 pr, EE_UINT8 tckps)
+{
+	T4CON = 0;
+	T5CON = 0;
+	T4CONSET = _T2CON_T32_MASK | ((tckps & 0x03) << _T4CON_TCKPS_POSITION);
+	IPC4CLR = _IPC4_T4IP_MASK;	// Clean IRQ Priority
+	IPC4SET = (2 << _IPC4_T4IP_POSITION); //TODO:change hardcoding Irq Prio?
+	IPC4CLR = _IPC4_T4IS_MASK; //TODO:change hardcoding Irq Sub-Prio?
+	TMR4 = 0;
+	PR4 = pr;
+}
+#endif /* __USE_EE_TIMER_45__ */
+
 
 #ifdef __USE_EE_TIMER_5__
 #error TIMER 5 not supported
 #endif /* __USE_EE_TIMER_5__ */
+
 
 /******************************************************************************/
 /*                              TIMER ISRs                                    */
@@ -148,13 +205,13 @@ ISR2(_TIMER_1_VECTOR)
 /******************************************************************************/
 /*                       Public Global Functions                              */
 /******************************************************************************/
-EE_INT8 EE_timer_hard_init(EE_UINT8 id, EE_UINT16 period, EE_UINT8 prescale)
+EE_INT8 EE_timer_hard_init(EE_UINT8 id, EE_UINT32 period, EE_UINT8 prescale)
 {
 	
 	switch (id) {
 	#ifdef __USE_EE_TIMER_1__
 	case EE_TIMER_1 :
-		timer1_init((EE_UREG) period, prescale);
+		timer1_init(period, prescale);
 		break;
 	#endif 
 	#ifdef __USE_EE_TIMER_2__
@@ -163,7 +220,7 @@ EE_INT8 EE_timer_hard_init(EE_UINT8 id, EE_UINT16 period, EE_UINT8 prescale)
 	#endif 
 	#ifdef __USE_EE_TIMER_3__
 	case EE_TIMER_3 :	
-		timer3_init((EE_UREG) period, prescale);
+		timer3_init(period, prescale);
 		break; 
 	#endif 
 	#ifdef __USE_EE_TIMER_4__
@@ -174,6 +231,11 @@ EE_INT8 EE_timer_hard_init(EE_UINT8 id, EE_UINT16 period, EE_UINT8 prescale)
 	case EE_TIMER_5 :
 		return -EE_TIMER_ERR_UNIMPLEMENTED;
 	#endif 
+	#ifdef __USE_EE_TIMER_45__
+	case EE_TIMER_45 :
+		timer45_init(period, prescale);
+		break;
+	#endif
 	default:
 		return -EE_TIMER_ERR_BAD_TIMER_ID;
 	}
@@ -190,6 +252,18 @@ EE_INT8 EE_timer_soft_init(EE_UINT8 id, EE_UINT32 period_us)
 	EE_UINT16 prd; /* Period */
 	EE_UINT8 psc; /* Prescale */
 	const EE_UINT32 max_period = 0xffffU;
+	switch (id) {
+	#ifdef __USE_EE_TIMER_45__
+	case EE_TIMER_45:
+		return -EE_TIMER_ERR_UNIMPLEMENTED;
+	#endif
+	#ifdef __USE_EE_TIMER_23__
+	case EE_TIMER_23:
+		return -EE_TIMER_ERR_UNIMPLEMENTED;
+	#endif
+	default:
+		; /* Proceed */
+	}
 	if (ticks < max_period) {
 		prd = ticks;
 		psc = EE_TIMER_PRESCALE_1;
@@ -282,12 +356,19 @@ EE_INT8 EE_timer_start(EE_UINT8 id)
 	#endif 
 	#ifdef __USE_EE_TIMER_4__
 	case EE_TIMER_4 :
-		return -EE_TIMER_ERR_UNIMPLEMENTED;
+		timer4_start();
+		break;
 	#endif 
 	#ifdef __USE_EE_TIMER_5__
 	case EE_TIMER_5 :
 		return -EE_TIMER_ERR_UNIMPLEMENTED;
 	#endif 
+	#ifdef __USE_EE_TIMER_45__
+	case EE_TIMER_45 :
+		/* Timer 45 is controlled by timer 4 */
+		timer4_start();
+		break;
+	#endif
 	default:
 		return -EE_TIMER_ERR_BAD_TIMER_ID;
 	}
@@ -313,12 +394,19 @@ EE_INT8 EE_timer_stop(EE_UINT8 id)
 	#endif 
 	#ifdef __USE_EE_TIMER_4__
 	case EE_TIMER_4 :
-		return -EE_TIMER_ERR_UNIMPLEMENTED;
+		timer4_stop();
+		break;
 	#endif 
 	#ifdef __USE_EE_TIMER_5__
 	case EE_TIMER_5 :
 		return -EE_TIMER_ERR_UNIMPLEMENTED;
 	#endif 
+	#ifdef __USE_EE_TIMER_45__
+	case EE_TIMER_45 :
+		/* Timer 45 is controlled by timer 4 */
+		timer4_stop();
+		break;
+	#endif
 	default:
 		return -EE_TIMER_ERR_BAD_TIMER_ID;
 	}
@@ -355,6 +443,46 @@ EE_INT8 EE_timer_get_val(EE_UINT8 id, EE_UINT16 *v)
 	return EE_TIMER_NO_ERRORS;
 }
 
+
+EE_INT8 EE_timer_get_val32(EE_UINT8 id, EE_UINT32 *v)
+{
+	switch (id) {
+	#ifdef __USE_EE_TIMER_1__
+	case EE_TIMER_1 :
+		*v = TMR1;
+		break;
+	#endif 
+	#ifdef __USE_EE_TIMER_2__
+	case EE_TIMER_2 :
+		*v = TMR2;
+		break;
+	#endif 
+	#ifdef __USE_EE_TIMER_3__
+	case EE_TIMER_3 :
+		*v = TMR3;
+		break;
+	#endif 
+	#ifdef __USE_EE_TIMER_4__
+	case EE_TIMER_4 :
+		*v = TMR4;
+		break;
+	#endif 
+	#ifdef __USE_EE_TIMER_5__
+	case EE_TIMER_5 :
+		*v = TMR5;
+		break;
+	#endif 
+	#ifdef __USE_EE_TIMER_45__
+	case EE_TIMER_45 :
+		/* Timer 45 is controlled by timer 4 */
+		*v = TMR4;
+		break;
+	#endif 
+	default:
+		return -EE_TIMER_ERR_BAD_TIMER_ID;
+	}
+	return EE_TIMER_NO_ERRORS;
+}
 
 /*
   Local Variables:
