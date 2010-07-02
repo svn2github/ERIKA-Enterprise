@@ -48,7 +48,12 @@ EE_ASM = lm32-elf-gcc
 EE_LINK = lm32-elf-gcc
 EE_OBJDUMP = lm32-elf-objdump
 EE_ELF_SIZE = lm32-elf-size
-CFLAGS += -ffunction-sections -O2 -Wall
+ifeq ($(findstring __SPACE__,$(EEOPT)), __SPACE__)
+CFLAGS += -Os
+else
+CFLAGS += -O2
+endif
+CFLAGS += -ffunction-sections -Wall
 CPPFLAGS += $(DEFS_CC) $(addprefix -I, $(INCLUDE_PATH))
 LDFLAGS +=-Wl,--gc-sections
 DEFS_GCCASM := $(addprefix -D,$(EEOPT))
