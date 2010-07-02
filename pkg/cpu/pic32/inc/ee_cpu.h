@@ -32,10 +32,10 @@ do {				\
 typedef unsigned char EE_BIT; 
 typedef unsigned char EE_UINT8;
 typedef unsigned short int EE_UINT16;
-typedef unsigned long int EE_UINT32;
+typedef unsigned int EE_UINT32;
 typedef signed char EE_INT8;
 typedef signed short int EE_INT16;
-typedef signed long EE_INT32;
+typedef signed int EE_INT32;
 typedef EE_UINT32 EE_UREG;
 #define EE_UREG_SIZE 4
 typedef EE_INT32  EE_SREG;
