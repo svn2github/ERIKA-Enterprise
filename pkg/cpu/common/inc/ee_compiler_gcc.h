@@ -56,11 +56,13 @@
 
 #ifdef __NO_INLINE__
 #define __INLINE__ static
+/* Used to declare an inline function before the actual definition */
+#define __DECLARE_INLINE__ static
 #else
 #define __INLINE__ static inline
-#endif
 /* Used to declare an inline function before the actual definition */
 #define __DECLARE_INLINE__ static inline
+#endif
 
 #define __ALWAYS_INLINE__ __attribute__((always_inline))
 
