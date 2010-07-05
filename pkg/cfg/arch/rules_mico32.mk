@@ -173,6 +173,7 @@ define make-depend
 			-MT $2		\
 			$(CPU_CONFIG)	\
 			$(CPPFLAGS)	\
+			$(CFLAGS)	\
 			$1
 endef
 
