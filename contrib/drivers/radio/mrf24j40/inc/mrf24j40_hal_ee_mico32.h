@@ -120,16 +120,16 @@ __INLINE__ int __ALWAYS_INLINE__  EE_mrf24j40_spi_read(void){ \
 	return cat3(EE_, lc, _receive_byte)(); } \
 __INLINE__ int __ALWAYS_INLINE__  EE_mrf24j40_spi_read_buffer(EE_UINT8 *data, int len){ \
 	return cat3(EE_, lc, _receive_buffer)(data, len); } \
-__INLINE__ int __ALWAYS_INLINE__ EE_mrf24j40_spi_set_SSO(void){ \
-	return EE_hal_spi_set_SSO((MicoSPI_t*)EE_BASE_ADD(uc)); } \
-__INLINE__ int __ALWAYS_INLINE__ EE_mrf24j40_spi_clear_SSO(void){ \
-	return EE_hal_spi_clear_SSO((MicoSPI_t*)EE_BASE_ADD(uc)); } \
-__INLINE__ int __ALWAYS_INLINE__ EE_mrf24j40_spi_set_slave(unsigned int mask){ \
-	return EE_hal_spi_set_slave((MicoSPI_t*)EE_BASE_ADD(uc), mask); } \
-__INLINE__ int __ALWAYS_INLINE__ EE_mrf24j40_spi_get_slave(unsigned int *pmask ){ \
-	return EE_hal_spi_get_slave((MicoSPI_t*)EE_BASE_ADD(uc), pmask); } \
-__INLINE__ int __ALWAYS_INLINE__ EE_mrf24j40_spi_close(){ \
-	return EE_hal_spi_disable((MicoSPI_t*)EE_BASE_ADD(uc)); }
+__INLINE__ void __ALWAYS_INLINE__ EE_mrf24j40_spi_set_SSO(void){ \
+	EE_hal_spi_set_SSO((MicoSPI_t*)EE_BASE_ADD(uc)); } \
+__INLINE__ void __ALWAYS_INLINE__ EE_mrf24j40_spi_clear_SSO(void){ \
+	EE_hal_spi_clear_SSO((MicoSPI_t*)EE_BASE_ADD(uc)); } \
+__INLINE__ void __ALWAYS_INLINE__ EE_mrf24j40_spi_set_slave(unsigned int mask){ \
+	EE_hal_spi_set_slave((MicoSPI_t*)EE_BASE_ADD(uc), mask); } \
+__INLINE__ void __ALWAYS_INLINE__ EE_mrf24j40_spi_get_slave(unsigned int *pmask ){ \
+	EE_hal_spi_get_slave((MicoSPI_t*)EE_BASE_ADD(uc), pmask); } \
+__INLINE__ void __ALWAYS_INLINE__ EE_mrf24j40_spi_close(){ \
+	EE_hal_spi_disable((MicoSPI_t*)EE_BASE_ADD(uc)); }
 	
 ///* ZIGBEE API functions */
 DECLARE_FUNC_SPI_MRF24J40(EE_ZIGBEE_SPI_NAME_UC, EE_ZIGBEE_SPI_NAME_LC)
