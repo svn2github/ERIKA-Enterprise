@@ -11,8 +11,9 @@
 *
 */
 
-#ifdef UWL_DEBUG_LOG
 #include <util/uwl_debug.h>
+
+#ifdef UWL_DEBUG_LOG
 #include <string.h>
 
 #ifdef __STDIO_COMPILER_BUG__
