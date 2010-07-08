@@ -40,7 +40,11 @@ void hv7131gp_oc_hal_init(uint16_t period);
 void hv7131gp_oc_hal_start(void);
 void hv7131gp_oc_hal_stop(void);
 
-void hv7131gp_hal_delay_us(uint32_t delay_count);
+COMPILER_INLINE void hv7131gp_hal_delay_us(uint32_t delay_count)
+{
+	EE_delay_us(delay_count);
+}
+
 hv7131gp_status_t hv7131gp_i2c_hal_init(void);
 hv7131gp_status_t hv7131gp_i2c_hal_reg_write(hv7131gp_reg_t reg, uint8_t  val);
 hv7131gp_status_t hv7131gp_i2c_hal_reg_read(hv7131gp_reg_t reg, uint8_t *val);

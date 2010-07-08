@@ -108,11 +108,15 @@ do {						\
 /* ------------------------------ HAL APIs ---------------------------------- */
 
 int8_t	mrf24j40_hal_init(void);
-void	mrf24j40_hal_delay_us(uint16_t delay_count); 
 int8_t	mrf24j40_hal_spi_init(uint8_t port);
 int8_t	mrf24j40_hal_spi_close(void);
 int8_t	mrf24j40_hal_spi_write(uint8_t *data, uint16_t len);
 int8_t	mrf24j40_hal_spi_read(uint8_t *data, uint16_t len);
+
+COMPILER_INLINE void mrf24j40_hal_delay_us(uint16_t delay_count)
+{
+	EE_delay_us((uint32_t)delay_count);
+} 
 
 COMPILER_INLINE void mrf24j40_hal_retsetn_high(void)
 {

@@ -73,7 +73,10 @@
 * @ param[in]  delay_count number of us to be waited
 * 
 */
-void fm25h20_delay_us(uint16_t delay_count);
+COMPILER_INLINE void fm25h20_delay_us(uint16_t delay_count)
+{
+	EE_delay_us((uint32_t)delay_count);
+}
 
 /** 
 * @brief  Init the hardware. 

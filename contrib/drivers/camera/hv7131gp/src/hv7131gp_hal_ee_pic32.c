@@ -216,22 +216,6 @@ hv7131gp_status_t hv7131gp_dma_hal_init(uint8_t dma_ch){
 #endif // __USE_DMA__
 
 
-void hv7131gp_hal_delay_us(uint32_t delay_count)
-{
- 	asm volatile (  "add $t0, $zero, %0\n\t" 			  	
-			"1:\n\t"
-			"addi $t0, $t0, -1\n\t"
-			"nop\n\t"
-			"nop\n\t"
-			"nop\n\t"
-			"nop\n\t"
-			"nop\n\t"
-			"nop\n\t"
-			"nop\n\t"
-			"nop\n\t"
-			"bne $t0, $zero, 1b\n\t" : "+r"(delay_count));
-}
-
 hv7131gp_status_t hv7131gp_i2c_hal_init(void)
 {
 	if (EE_i2c_init(EE_I2C_PORT_1, DEFAULT_400KHZ_BRG, DEFAULT_FLAGS) != EE_I2C_SUCCESS)

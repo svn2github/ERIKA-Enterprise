@@ -16,18 +16,6 @@
 
 static uint8_t spi_port = 0;
  
-/* TODO: metterla come inline ?*/
-void fm25h20_delay_us(uint16_t delay_count) 
-{	/* Provide a delay with an accuracy of approx. 2% @ 80Mhz*/
-	asm volatile(	"add $t0, $a0, $zero\n\t"			  	
-			"1:\n\t"
-			"addi $t0, $t0, -1\n\t"
-			"nop\n\t"
-			"nop\n\t"
-			"nop\n\t"
-			"bne $t0, $zero, 1b\n\t");			
-}
-
 void fm25h20_hal_init(void)
 {
 	/* Set the IO pins direction */

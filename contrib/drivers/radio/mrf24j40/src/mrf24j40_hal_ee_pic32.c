@@ -14,18 +14,6 @@
 
 static uint8_t spi_port; 
 
-/* Provides a delay with an accuracy of approx. 1.6% @ 80Mhz*/
-void mrf24j40_hal_delay_us(uint16_t delay_count) 
-{	
-	asm volatile(	"add $t0, $a0, $zero\n\t"			  	
-			"1:\n\t"
-			"addi $t0, $t0, -1\n\t"
-			"nop\n\t"
-			"nop\n\t"
-			"nop\n\t"
-			"bne $t0, $zero, 1b\n\t");			
-}
-
 int8_t	mrf24j40_hal_init(void)
 {
 	/* Set the IO pins direction */
