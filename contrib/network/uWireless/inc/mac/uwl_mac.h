@@ -141,4 +141,6 @@ int8_t uwl_mac_set_on_rx_beacon_callback(void (* func)(void));
 
 int8_t uwl_mac_jammer_cap(uint8_t *data, uint8_t len);
 
+uint8_t uwl_mac_is_tx_gts_allocated(void);
+
 #endif /* Header Protection */

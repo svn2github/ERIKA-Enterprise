@@ -266,4 +266,13 @@ int8_t uwl_simple154_jam_cap(uint8_t *data, uint8_t len);
 */
 int8_t uwl_simple154_get_mac_error(void);
 
+/** 
+* @brief Check if TX GTS is allocated
+*
+* @return Zero if no TX GTS is allocated
+*/
+static inline uint8_t uwl_simple154_is_tx_gts_allocated(void) {
+	return uwl_mac_is_tx_gts_allocated();
+}
+
 #endif /* Header Protection */

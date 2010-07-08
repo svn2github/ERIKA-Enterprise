@@ -481,7 +481,7 @@ static void process_rx_beacon(void)
 	uwl_mac_superframe_resync();
 #ifdef UWL_SUPERFRAME_CALLBACKS
 	if (on_rx_beacon_callback)
-	on_rx_beacon_callback();
+		on_rx_beacon_callback();
 #endif
 }
 
@@ -1229,4 +1229,8 @@ daq_time_start(1); // FIXME: this is just for AVR time measurement!
 	default:
 		break;
 	}
+}
+
+uint8_t uwl_mac_is_tx_gts_allocated(void) {
+	return uwl_mac_gts_stat.tx_length;
 }
