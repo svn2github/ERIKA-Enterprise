@@ -93,8 +93,15 @@ endif
 # command-line macro in the compiler...
 
 # MUST be EEOPT, not EEALLOPT!!!
-DEFS_ASM = $(addprefix -D, $(EEOPT) )
-DEFS_CC  = $(addprefix -D, $(EEOPT) )
+#DEFS_ASM = $(addprefix -D, $(EEOPT) )
+#DEFS_CC  = $(addprefix -D, $(EEOPT) )
+# NOTE: the pic32 processors include files define the DEBUG symbol as register
+#       name, thus we CANNOT pass -DDEBUG from the compiler command line
+#       TODO: maybe we should do the same for all the architectures by simply
+#             renaming all DEBUG in the ERIKA tree with EE_DEBUG and adapting
+#             the RT-Druid. Do the same with VERBOSE?
+DEFS_ASM = $(addprefix -D, $(patsubst DEBUG, EE_DEBUG, $(EEOPT)))
+DEFS_CC  = $(addprefix -D, $(patsubst DEBUG, EE_DEBUG, $(EEOPT)))
 
 ifeq ($(findstring __BIN_DISTR,$(EEOPT)), __BIN_DISTR) 
 # Note: the defines used in EEOPT to compile the library
