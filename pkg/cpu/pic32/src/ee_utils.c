@@ -123,8 +123,8 @@ void EE_delay_us(EE_UINT32 delay)
         asm volatile("mtc0   %0,$13\n\tehb" : "+r"(r));
 	*/
         asm volatile("mfc0 %0, $9" : "=r"(r));
-	/* compare = delay + curr_cnt + (curr_cnt - prev_cnt) */
-	delay = (delay >> 1) + (2 * r) - prev; 
+	/* compare = delay + curr_cnt - (curr_cnt - prev_cnt) */
+	delay = (delay >> 1) + prev; 
 	if (delay < r)
 		while (r < 0xFFFFFFFF)
         		asm volatile("mfc0 %0, $9" : "=r"(r));
