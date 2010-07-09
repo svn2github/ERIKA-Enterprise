@@ -14,7 +14,7 @@ BINDIR_DEP := $(BINDIR_CYG)
 PIC32_DEPPREFIX :=
 
 ifndef EE_LINK
-EE_LINK:=$(BINDIR_BINUTILS)/$(PIC32_GCCPREFIX)gcc
+EE_LINK:=$(BINDIR_BINUTILS)/$(PIC32_GCCPREFIX)gcc 
 #EE_LINK:=$(BINDIR_BINUTILS)/$(PIC32_GCCPREFIX)ld
 endif
 
@@ -86,6 +86,15 @@ OPT_LINK =
 OPT_LINK += $(LDFLAGS)
 ifeq ($(findstring DEBUG,$(EEOPT)) , DEBUG)
 OPT_LINK += -mdebugger
+endif
+ifeq ($(findstring DEBUG,$(EEOPT)) , DEBUG)
+# NOTE: if the model is specified, use the specific linker script 
+#       NECESSARY to use more than 32K of ram in the new families (e.g 7xx)
+# FIXME: this generate some warning with the linux compiler (seems it has a
+#        redaclaration - necessary - with respect to the GENERIC linker script)
+ifneq ($(PIC32_MODEL),)
+OPT_LINK += --script $(PIC32_GCCDIR)/pic32mx/lib/proc/$(PIC32_MODEL)/procdefs.ld
+endif
 endif
 
 # Defining EEOPT Macros
