@@ -11,6 +11,8 @@
 
 #include <hal/uwl_timer.h>
 
+#define UWL_HAL_BUS_FREQ (EE_get_peripheral_clock() / 1000)
+
 
 #ifndef UWL_HAL_TIMER_ID
 #define UWL_HAL_TIMER_ID 5
