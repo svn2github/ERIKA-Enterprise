@@ -247,15 +247,9 @@ int8_t uwl_PD_DATA_indication(uint8_t psduLength, uint8_t *psdu,
 {
 	#ifdef UWL_DEBUG_LOG
 	char s[100];
-	#ifndef __LM32__
-	sprintf(s, "PD_DATA_indication(len=%u,*p=%u,lqi=%u)",
-		psduLength, (uint16_t) psdu, ppduLinkQuality);
+	sprintf(s, "PD_DATA_indication(len=%u,*p=%p,lqi=%u)",
+		psduLength, psdu, ppduLinkQuality);
 	uwl_debug_print(s);
-	#else
-	sprintf(s, "PD_DATA_indication(len=%u,*p=%u,lqi=%u)",
-		psduLength, (uint32_t) psdu, ppduLinkQuality);
-	uwl_debug_print(s);
-	#endif
 	#endif
 	/* TODO: use return value!!*/
 	uwl_mac_parse_received_mpdu(psdu, psduLength);

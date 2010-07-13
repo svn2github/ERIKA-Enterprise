@@ -1203,15 +1203,9 @@ daq_time_start(1); // FIXME: this is just for AVR time measurement!
 		break;
 	case UWL_MAC_TYPE_COMMAND:
 		#ifdef UWL_DEBUG_LOG
-		#ifndef __LM32__
-		sprintf(str, "uwl_mac_parse_received_mpdu(*p=%u,len=%u)",
-			 (uint16_t) psdu, len);
+		sprintf(str, "uwl_mac_parse_received_mpdu(*p=%p,len=%u)",
+			 psdu, len);
 		uwl_debug_print(str);
-		#else
-		sprintf(str, "uwl_mac_parse_received_mpdu(*p=%u,len=%u)",
-			 (uint32_t) psdu, len);
-		uwl_debug_print(str);
-		#endif	
 		#endif
 		if (uwl_kal_mutex_wait(MAC_RX_COMMAND_MUTEX) < 0)
 			return; /* TODO: manage error? */
