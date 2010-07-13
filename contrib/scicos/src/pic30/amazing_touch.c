@@ -6,6 +6,7 @@
 #include "mcu/microchip_dspic/inc/ee_uart.h"
 #include <machine.h>
 #include <scicos_block4.h>
+#include "amazing.h"
 
 #define ASCII_X	88
 #define ASCII_Y	89
