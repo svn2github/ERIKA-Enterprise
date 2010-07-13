@@ -27,10 +27,8 @@
 void system_timer_callback(void);
 int UDP_receive(BYTE* rxv);
 int UDP_send(BYTE* txv);
-void print_string(const char *s);
-void print_val(char* s, int val);
-void print_vals(char* s, int val1, int val2);
 void print_pbuf(const char *name, struct pbuf *p);
 void print_array(const char *name, BYTE* vet, int len);
+void myprintf(const char* format, ...);
 
 #endif //__TEST7_H__

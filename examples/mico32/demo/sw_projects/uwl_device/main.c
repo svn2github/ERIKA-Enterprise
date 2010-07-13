@@ -30,8 +30,8 @@
 
 #define MSG_LEN		90
 
-#define EE_led_off() EE_misc_gpio_write_bit_data(0, EE_DL3_BIT)
-#define EE_led_on() EE_misc_gpio_write_bit_data(1, EE_DL3_BIT)
+#define EE_led_off() 	EE_misc_gpio_write_bit_data(0, EE_DL3_BIT)
+#define EE_led_on() 	EE_misc_gpio_write_bit_data(1, EE_DL3_BIT)
 
 void system_timer_callback(void)
 {
@@ -137,7 +137,7 @@ int main(void)
 	/* Kernel timer configuration */
 	/* ------------------- */
 	EE_timer_set_ISR_callback(system_timer_callback);
-	EE_timer_init(MICROSECONDS_TO_TICKS(1000), MICO32_TIMER_CONTROL_INT_BIT_MASK | MICO32_TIMER_CONTROL_CONT_BIT_MASK | MICO32_TIMER_CONTROL_STOP_BIT_MASK);
+	EE_timer_init(MICROSECONDS_TO_TICKS(1000), MICO32_TIMER_CONTROL_INT_BIT_MASK | MICO32_TIMER_CONTROL_CONT_BIT_MASK);
 	
 	/* ------------------- */
 	/* Background activity */

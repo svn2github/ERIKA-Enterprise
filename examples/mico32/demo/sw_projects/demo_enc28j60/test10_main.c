@@ -24,6 +24,29 @@
 #include "MicoUtils.h"
 
 /* ----------------------------------------------------------- */
+/* Macros */
+/* ----------------------------------------------------------- */
+#define MY_PORT						(9760)
+#define MY_IPADDR_BYTE1 			(192)
+#define MY_IPADDR_BYTE2 			(168)
+#define MY_IPADDR_BYTE3 			(0)
+#define MY_IPADDR_BYTE4 			(2)
+#define MY_NETMASK_BYTE1 			(255)
+#define MY_NETMASK_BYTE2 			(255)
+#define MY_NETMASK_BYTE3 			(255)
+#define MY_NETMASK_BYTE4 			(0)
+#define MY_GATEWAY_ADDR_BYTE1 		(192)
+#define MY_GATEWAY_ADDR_BYTE2 		(168)
+#define MY_GATEWAY_ADDR_BYTE3 		(0)
+#define MY_GATEWAY_ADDR_BYTE4 		(10)
+#define MY_ETHERNETIF_MAC_BYTE1		(0x00)
+#define MY_ETHERNETIF_MAC_BYTE2		(0x04)
+#define MY_ETHERNETIF_MAC_BYTE3		(0xA3)
+#define MY_ETHERNETIF_MAC_BYTE4		(0x00)
+#define MY_ETHERNETIF_MAC_BYTE5		(0x00)
+#define MY_ETHERNETIF_MAC_BYTE6		(0x00)
+
+/* ----------------------------------------------------------- */
 /* Demo Variables */
 /* ----------------------------------------------------------- */
 /* UDP socket used in this demo */
@@ -86,21 +109,23 @@ void comm_write(const void *buf, uint32_t len)
 /* myTask1 */
 TASK(myTask1)
 {
+	#if 0
     /* Reception */
     if(EE_enc28j60_pending_interrupt())
     {
         myprintf("\ninterrupt signal! Reception in progress...\n");
         /* Elaborate the received packet */
-        ethernetif_input(&lwip_netif);
+        ethernetif_input(&EE_lwip_netif);
     }
     /* --------- */
+    #endif
     
     /* Transmission */
     #if 1   
     if (my_udp_socket->remote_port != (uint16_t)0)  
 	{ 
-    	while(1)
-	    	comm_write((const void*)SDRAM_BASE_ADDRESS, 8000); 
+	    comm_write((const void*)SDRAM_BASE_ADDRESS, 8000); 
+	    while(1);
 	}
 	#else
     /* if the udp socket is connected... */
@@ -161,18 +186,22 @@ int main(void)
     /* LWIP configuration  */
     /* ------------------- */
     myprintf("\n\n\nLWIP configuration in progress...");
-    EE_lwip_init();
+    struct ip_addr my_ipaddr, netmask, gw;
+    struct eth_addr my_ethaddr;
+	IP4_ADDR(&my_ipaddr, MY_IPADDR_BYTE1, MY_IPADDR_BYTE2, MY_IPADDR_BYTE3, MY_IPADDR_BYTE4);
+	IP4_ADDR(&netmask, MY_NETMASK_BYTE1, MY_NETMASK_BYTE2, MY_NETMASK_BYTE3, MY_NETMASK_BYTE4);
+	IP4_ADDR(&gw, MY_GATEWAY_ADDR_BYTE1, MY_GATEWAY_ADDR_BYTE2, MY_GATEWAY_ADDR_BYTE3, MY_GATEWAY_ADDR_BYTE4);
+	ETH_ADDR(&my_ethaddr, MY_ETHERNETIF_MAC_BYTE1, MY_ETHERNETIF_MAC_BYTE2, MY_ETHERNETIF_MAC_BYTE3, 
+				MY_ETHERNETIF_MAC_BYTE4, MY_ETHERNETIF_MAC_BYTE5, MY_ETHERNETIF_MAC_BYTE6);	
+    EE_lwip_init(&my_ipaddr, &netmask, &gw, &my_ethaddr);
     myprintf("Done!\n");
     
     /* ------------------- */
     /* My app initialization   */
     /* ------------------- */
     err_t ret;
-    struct ip_addr my_ipaddr;
-    
     my_udp_socket = udp_new();  /* Create an udp socket */
     myprintf("udp_new!\n");
-    IP4_ADDR(&my_ipaddr, MY_IPADDR_BYTE1, MY_IPADDR_BYTE2, MY_IPADDR_BYTE3, MY_IPADDR_BYTE4);
     ret = udp_bind(my_udp_socket, &my_ipaddr, MY_PORT); /* Bind the udp socket */ 
     myprintf("udp_bind return value: %d\n", ret);
     udp_recv(my_udp_socket, &udp_rx_handler, 0);        /* Set the rx callback for udp packets */ 
@@ -246,6 +275,7 @@ void print_time_results(void)
 	tsprintf("\n");
 	
 	tsprintf("Absolute time:\n");
+	#if 0
 	tsprintf("LWIP_START_ETH_OUT:      %u\n", EE_lwip_read_timestamp(LWIP_START_ETH_OUT));
 	tsprintf("LWIP_START_LOWLEV_OUT:   %u\n", EE_lwip_read_timestamp(LWIP_START_LOWLEV_OUT));
 	tsprintf("LWIP_START_UDP_SEND:     %u\n", EE_lwip_read_timestamp(LWIP_START_UDP_SEND));
@@ -264,6 +294,7 @@ void print_time_results(void)
 	tsprintf("LWIP_END_ETH_INPUT:      %u\n", EE_lwip_read_timestamp(LWIP_END_ETH_INPUT));
 	tsprintf("LWIP_END_UDP_INPUT:      %u\n", EE_lwip_read_timestamp(LWIP_END_UDP_INPUT));
 	tsprintf("LWIP_END_UDP_RX_CBK:     %u\n", EE_lwip_read_timestamp(LWIP_END_UDP_RX_CBK));
+	#endif
 	
 	tsprintf("Init time:\n");
 	tsprintf("LWIP_START_ETH_INIT - LWIP_END_ETH_INIT:         %u\n", lwip_time_diff_us(EE_lwip_read_timestamp(LWIP_START_ETH_INIT), EE_lwip_read_timestamp(LWIP_END_ETH_INIT)));
@@ -272,6 +303,8 @@ void print_time_results(void)
 	tsprintf("Transmission time:\n");
 	tsprintf("LWIP_START_UDP_SEND - LWIP_END_UDP_SEND:         %u\n", lwip_time_diff_us(EE_lwip_read_timestamp(LWIP_START_UDP_SEND), EE_lwip_read_timestamp(LWIP_END_UDP_SEND)));
 	tsprintf("LWIP_START_ETH_OUT - LWIP_END_ETH_OUT:           %u\n", lwip_time_diff_us(EE_lwip_read_timestamp(LWIP_START_ETH_OUT), EE_lwip_read_timestamp(LWIP_END_ETH_OUT)));
+	tsprintf("LWIP_START_UDP_CHECKSUM - LWIP_END_UDP_CHECKSUM: %u\n", lwip_time_diff_us(EE_lwip_read_timestamp(LWIP_START_UDP_CHECKSUM), EE_lwip_read_timestamp(LWIP_END_UDP_CHECKSUM)));
+	tsprintf("LWIP_START_IP_OUTPUT - LWIP_END_IP_BEFORE_NETIF_OUTPUT:              %u\n", lwip_time_diff_us(EE_lwip_read_timestamp(LWIP_START_IP_OUTPUT), EE_lwip_read_timestamp(LWIP_END_IP_BEFORE_NETIF_OUTPUT)));
 	tsprintf("LWIP_START_LOWLEV_OUT - LWIP_END_LOWLEV_OUT:     %u\n", lwip_time_diff_us(EE_lwip_read_timestamp(LWIP_START_LOWLEV_OUT), EE_lwip_read_timestamp(LWIP_END_LOWLEV_OUT)));
 	tsprintf("LWIP_START_UDP_SEND_IPROUTE - LWIP_END_UDP_SEND_IPROUTE:             %u\n", lwip_time_diff_us(EE_lwip_read_timestamp(LWIP_START_UDP_SEND_IPROUTE), EE_lwip_read_timestamp(LWIP_END_UDP_SEND_IPROUTE)));
 	tsprintf("LWIP_START_LOWLEV_INIT_TRANSFER - LWIP_END_LOWLEV_INIT_TRANSFER:     %u\n", lwip_time_diff_us(EE_lwip_read_timestamp(LWIP_START_LOWLEV_INIT_TRANSFER), EE_lwip_read_timestamp(LWIP_END_LOWLEV_INIT_TRANSFER)));

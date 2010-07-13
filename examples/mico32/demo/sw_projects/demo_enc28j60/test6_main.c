@@ -17,7 +17,13 @@
 #include <string.h>
 #include <stdio.h>
 #include "test6.h"
-#include "lwipopts_ee.h"
+
+#define MY_DEFAULT_MAC_BYTE1        (0x00)	// Use the default of
+#define MY_DEFAULT_MAC_BYTE2        (0x04)	// 00-04-A3-00-00-00 if using
+#define MY_DEFAULT_MAC_BYTE3        (0xA3)	// an ENCX24J600 or ZeroG ZG2100
+#define MY_DEFAULT_MAC_BYTE4        (0x00)	// and wish to use the internal
+#define MY_DEFAULT_MAC_BYTE5        (0x00)	// factory programmed MAC
+#define MY_DEFAULT_MAC_BYTE6        (0x00)	// address instead.
 
 /* ----------------------------------------------------------- */
 /* Variables */
@@ -115,7 +121,16 @@ int main(void)
 	/* MAC layer initialization */
 	/* ------------------------ */
 	print_string("\n\n\nDevice configuration in progress...");
-	EE_enc28j60_init();
+	
+	mac_addr myMACaddress;
+	myMACaddress.v[0] = MY_DEFAULT_MAC_BYTE1;
+	myMACaddress.v[1] = MY_DEFAULT_MAC_BYTE2;
+	myMACaddress.v[2] = MY_DEFAULT_MAC_BYTE3;
+	myMACaddress.v[3] = MY_DEFAULT_MAC_BYTE4;
+	myMACaddress.v[4] = MY_DEFAULT_MAC_BYTE5;
+	myMACaddress.v[5] = MY_DEFAULT_MAC_BYTE6;
+	EE_enc28j60_init(myMACaddress);
+
 	turn_on_led();
 	print_string("Done!\n\n\n");
 	

@@ -64,7 +64,7 @@ RTDRUID_OUTPUT = $(addprefix $(OUTPUT_DIR)/, \
 .PHONY: all clean
 
 all: $(RTDRUID_OUTPUT)
-	$(MAKE) --no-print-directory -f $(OUTPUT_DIR)/makefile all
+	@$(MAKE) --no-print-directory -f $(OUTPUT_DIR)/makefile all
 # Don't confuse people by printing the directory, as the current directory
 # is not changed
 
@@ -72,6 +72,16 @@ clean:
 	@echo cleaning...
 	rm -f -r $(OUTPUT_DIR)
 
+# If any target different from `all' or `clean' si given, try to invoke the
+# generated makefile. `force' is used to force the invocation of the child
+# makefile
+%: $(RTDRUID_OUTPUT) force
+	@$(MAKE) --no-print-directory -f $(OUTPUT_DIR)/makefile $@
+# Avoid triggering the catch-all rule
+.PHONY: force
+force: ;
+conf.oil: ;
+makefile: ;
 
 # Run RT-Druid
 $(RTDRUID_OUTPUT): conf.oil

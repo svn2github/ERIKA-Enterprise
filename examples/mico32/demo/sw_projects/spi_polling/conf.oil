@@ -10,7 +10,7 @@ CPU test_application {
 		LDFLAGS = ""; 
 
 		CPU_DATA = LM32 {
-			APP_SRC = "test2_main.c";
+			APP_SRC = "main.c";
 			MULTI_STACK = FALSE;
 			USESTANDALONEPRINTF = FALSE; // Optional, default is FALSE
 			USESMALLC = FALSE; // Optional, defautl is FALSE
@@ -22,6 +22,10 @@ CPU test_application {
 				PLATFORM_NAME = "test_base";
 				PLATFORM_BLD_CFG = "Release"; // Optional, default is ""
    			};
+   			
+   			DEVICE = TIMER{						
+					NAME = "freetimer";										
+			};
    			
    			DEVICE = UART{						
 					NAME = "uart";									
@@ -40,6 +44,26 @@ CPU test_application {
 					NAME = "net_spi";		
 			};
   		};	
+  		
+  		/* ********************************************************** */
+		/*                Contrib Library Inlcusion                   */
+		/* ********************************************************** */
+		EE_OPT = "__ADD_LIBS__";
+
+		/* CONSOLE */
+		LIB = ENABLE { NAME = "CONSOLE"; };	
+		EE_OPT = "USE_CONSOLE";
+		EE_OPT = "USE_CONSOLE_SERIAL";
+
+		/* ENC28J60 library (ethernet controller) */	
+		//EE_OPT = "__ENC28J60_DEBUG__";	
+		//EE_OPT = "__ENC28J60_DEBUG_SERIAL__";
+		EE_OPT = "__XP2_CAMERA_BOARD__";
+		EE_OPT = "__USE_ETHERNET_ENC28J60__";
+		EE_OPT = "__USE_ETHERNET_IRQ__";
+		EE_OPT = "__ENC28J60_TIME_DEBUG__";	
+		LIB = ENABLE { NAME = "ENC28J60"; };	
+  		
     };
     
     TASK myTask {

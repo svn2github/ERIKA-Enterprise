@@ -1,5 +1,5 @@
 /*
-  Name: test1_main.c
+  Name: test2_main.c
   Copyright: Evidence Srl
   Author: Dario Di Stefano
   Date: 29/03/10 18.23

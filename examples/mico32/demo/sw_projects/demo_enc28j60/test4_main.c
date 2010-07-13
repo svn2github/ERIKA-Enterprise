@@ -49,13 +49,21 @@ volatile int bank;
 /* ----------------------------------------------------------- */
 /* Macros */
 /* ----------------------------------------------------------- */
+
+#define MY_DEFAULT_MAC_BYTE1        (0x00)	// Use the default of
+#define MY_DEFAULT_MAC_BYTE2        (0x04)	// 00-04-A3-00-00-00 if using
+#define MY_DEFAULT_MAC_BYTE3        (0xA3)	// an ENCX24J600 or ZeroG ZG2100
+#define MY_DEFAULT_MAC_BYTE4        (0x00)	// and wish to use the internal
+#define MY_DEFAULT_MAC_BYTE5        (0x00)	// factory programmed MAC
+#define MY_DEFAULT_MAC_BYTE6        (0x00)	// address instead.
+
 #define SIZE_OF_ETH_HEADER 			(14)
 #define SIZE_OF_IP_HEADER 			(20)
 #define SIZE_OF_UDP_HEADER 			(8)
 #define SIZE_OF_PAYLOAD 			(4)
 #define ETHTYPE_ARP       			(0x0806)
 #define ETHTYPE_IP        			(0x0800)
-#if 0
+#if 1
 /* MICO32-PC simulation */
 #define DEST_MAC_BYTE1            	(0x00)	
 #define DEST_MAC_BYTE2            	(0x1E)	
@@ -207,7 +215,7 @@ int print_string(const char *s)
 	return EE_uart_send_buffer((EE_UINT8*)s,strlen(s));
 }
 
-TASK(myTask)
+TASK(myTask1)
 {
 	/**/
 //	BankSel(MAADR1);
@@ -230,6 +238,10 @@ TASK(myTask)
 	EE_enc28j60_write((BYTE*)&test_pkt, sizeof(test_pkt));
 	EE_enc28j60_signal(sizeof(test_pkt));
 	print_string("flush\n");
+}
+
+TASK(myTask2)
+{
 }
 
 /*
@@ -290,7 +302,7 @@ int main(void)
 	device_config();
 	print_string("Done!\n");
 	turn_on_led();
-	SetRelAlarm(myAlarm, 500, 1000);
+	SetRelAlarm(myAlarm1, 500, 1000);
 	EE_timer_on();
 		
 	while(1)
@@ -305,7 +317,16 @@ int main(void)
 
 void device_config(void)
 { 	
-	EE_enc28j60_init();
+	mac_addr myMACaddress;
+	
+	myMACaddress.v[0] = MY_DEFAULT_MAC_BYTE1;
+	myMACaddress.v[1] = MY_DEFAULT_MAC_BYTE2;
+	myMACaddress.v[2] = MY_DEFAULT_MAC_BYTE3;
+	myMACaddress.v[3] = MY_DEFAULT_MAC_BYTE4;
+	myMACaddress.v[4] = MY_DEFAULT_MAC_BYTE5;
+	myMACaddress.v[5] = MY_DEFAULT_MAC_BYTE6;
+	
+	EE_enc28j60_init(myMACaddress);
 }
 
 int device_write(int type)

@@ -24,6 +24,29 @@
 #include "test9.h"
 
 /* ----------------------------------------------------------- */
+/* Macros */
+/* ----------------------------------------------------------- */
+#define MY_PORT						(9760)
+#define MY_IPADDR_BYTE1 			(192)
+#define MY_IPADDR_BYTE2 			(168)
+#define MY_IPADDR_BYTE3 			(0)
+#define MY_IPADDR_BYTE4 			(2)
+#define MY_NETMASK_BYTE1 			(255)
+#define MY_NETMASK_BYTE2 			(255)
+#define MY_NETMASK_BYTE3 			(255)
+#define MY_NETMASK_BYTE4 			(0)
+#define MY_GATEWAY_ADDR_BYTE1 		(192)
+#define MY_GATEWAY_ADDR_BYTE2 		(168)
+#define MY_GATEWAY_ADDR_BYTE3 		(0)
+#define MY_GATEWAY_ADDR_BYTE4 		(10)
+#define MY_ETHERNETIF_MAC_BYTE1		(0x00)
+#define MY_ETHERNETIF_MAC_BYTE2		(0x04)
+#define MY_ETHERNETIF_MAC_BYTE3		(0xA3)
+#define MY_ETHERNETIF_MAC_BYTE4		(0x00)
+#define MY_ETHERNETIF_MAC_BYTE5		(0x00)
+#define MY_ETHERNETIF_MAC_BYTE6		(0x00)
+
+/* ----------------------------------------------------------- */
 /* Demo Variables */
 /* ----------------------------------------------------------- */
 /* Socket status structure */
@@ -51,6 +74,7 @@ struct tcp_pcb* my_tcp_socket;
 /* myTask1 */
 TASK(myTask1)
 {
+	#if 0
 	/* Reception */
 	if(EE_enc28j60_pending_interrupt())
 	{
@@ -61,13 +85,15 @@ TASK(myTask1)
 		
 	/* TCP Timer */
 	tcp_tmr();
+	#endif
 }
+
+u8_t msg[TCP_PAYLOAD_PKT_SIZE];
 
 /* myTask2 */
 TASK(myTask2)	// activated in tcp_connect_callback
 {
 	static int task2_counter = 0;
-	u8_t msg[TCP_PAYLOAD_PKT_SIZE];
 	
 	/* Create data to be transmitted... */
 	int i;
@@ -76,7 +102,8 @@ TASK(myTask2)	// activated in tcp_connect_callback
 	task2_counter++;
 	
 	/* Transmission */
-	struct pbuf *tx_p = pbuf_new(msg, TCP_PAYLOAD_PKT_SIZE);
+	struct pbuf* tx_p = pbuf_alloc(PBUF_TRANSPORT, TCP_PAYLOAD_PKT_SIZE, PBUF_REF);
+    tx_p->payload = msg;
 	if (tx_p != (struct pbuf *)0) 
 	{
 		myprintf("Transmission in progress...\n");
@@ -126,7 +153,14 @@ int main(void)
     /* LWIP configuration  */
     /* ------------------- */
     myprintf("\n\n\nLWIP configuration in progress...");
-    EE_lwip_init();
+    struct ip_addr my_ipaddr, netmask, gw;
+    struct eth_addr my_ethaddr;
+	IP4_ADDR(&my_ipaddr, MY_IPADDR_BYTE1, MY_IPADDR_BYTE2, MY_IPADDR_BYTE3, MY_IPADDR_BYTE4);
+	IP4_ADDR(&netmask, MY_NETMASK_BYTE1, MY_NETMASK_BYTE2, MY_NETMASK_BYTE3, MY_NETMASK_BYTE4);
+	IP4_ADDR(&gw, MY_GATEWAY_ADDR_BYTE1, MY_GATEWAY_ADDR_BYTE2, MY_GATEWAY_ADDR_BYTE3, MY_GATEWAY_ADDR_BYTE4);
+	ETH_ADDR(&my_ethaddr, MY_ETHERNETIF_MAC_BYTE1, MY_ETHERNETIF_MAC_BYTE2, MY_ETHERNETIF_MAC_BYTE3, 
+				MY_ETHERNETIF_MAC_BYTE4, MY_ETHERNETIF_MAC_BYTE5, MY_ETHERNETIF_MAC_BYTE6);	
+    EE_lwip_init(&my_ipaddr, &netmask, &gw, &my_ethaddr);
     myprintf("Done!\n");
 	
 	/* ------------------- */
@@ -134,8 +168,6 @@ int main(void)
 	/* ------------------- */
 	my_tcp_socket = tcp_new();	/* Create an tcp socket */
 	myprintf("tcp_new!\n");
-	struct ip_addr my_ipaddr;
-	IP4_ADDR(&my_ipaddr, MY_IPADDR_BYTE1, MY_IPADDR_BYTE2, MY_IPADDR_BYTE3, MY_IPADDR_BYTE4);
 	err_t ret = tcp_bind(my_tcp_socket, &my_ipaddr, MY_PORT);	/* Bind the tcp socket */ 
 	myprintf("tcp_bind return value: %d\n", ret);
 	#define REMOTE_PORT					(50001)

@@ -1,18 +1,18 @@
-//	LIGHT SENSOR TEST
+//	POWER TEST
 
 CPU test_application {
 
 	OS EE {		
 		EE_OPT = "DEBUG_STACK";
 		
-		CFLAGS = "-g2";
+		CFLAGS = "-I$(OO3_BASE) -g2";
 		ASFLAGS = "";
 		LDFLAGS = ""; 
 
 		CPU_DATA = LM32 {
 			APP_SRC = "test1_main.c";
-			MULTI_STACK = TRUE;
-			USESTANDALONEPRINTF = TRUE; // Optional, default is FALSE
+			MULTI_STACK = FALSE;
+			USESTANDALONEPRINTF = FALSE; // Optional, default is FALSE
 			USESMALLC = FALSE; // Optional, defautl is FALSE
 		};
 		
@@ -24,19 +24,12 @@ CPU test_application {
    			};
    			
    			DEVICE = GPIO{						
-					NAME = "misc_gpio";	
-			};
-			
-			DEVICE = I2C{						
-					NAME = "camera_i2c";	
+					NAME = "lcd_gpio";	
 			};
   		};
 
-		// Light sensor
-		EE_OPT = "__ADD_LIBS__";
-		EE_OPT = "__USE_LIGHTSENSOR_TSL2561T__";
-		LIB = ENABLE { NAME = "TSL2561T"; };	
-		
+		EE_OPT = "USE_POWER_BOARD";
+
 		BOARD_DATA = XP2_CAMERA_BOARD {
 			OPTIONS = TIMER;			
 			OPTIONS = TIMER_IRQ_SUPPORT;			

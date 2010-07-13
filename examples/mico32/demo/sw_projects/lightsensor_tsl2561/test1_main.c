@@ -15,40 +15,41 @@
 /* Lattice components */
 #include <MicoMacros.h>
 #include <string.h>
+#include <stdio.h>
+#include <stdarg.h>
 
-#define turn_on_led() 	EE_misc_gpio_write_bit_data(1,0)
-#define turn_off_led() 	EE_misc_gpio_write_bit_data(0,0)
+void myprintf(const char* format, ...);
 
-int print_string(const char* s)
+int EE_lightsensor_config(void)
 {
-	return EE_uart_send_buffer((EE_UINT8*)s, strlen(s));
+	int ret;
+	ret = tsl2561t_init(SELECT_ADDRESS_VDD);
+	if(ret < 0)
+	{
+		myprintf("tsl2561t_init error!\n");
+		while(1);
+	}
+	ret = tsl2561t_power_on(DEVICE_ADDRESS_VDD);
+	if(ret!=TSL2516T_NO_ERROR)
+	{
+		myprintf("tsl2561t_power error!\n");
+		while(1);
+	}
+	ret = tsl2561t_set_configuration(DEVICE_ADDRESS_VDD, TSL2561T_TIMING, 0);
+	if(ret!=TSL2516T_NO_ERROR)
+	{
+		myprintf("tsl2561t_set error!\n");
+		while(1);
+	}
+	myprintf("tsl2561t OK!\n");
+	return TSL2516T_NO_ERROR;
 }
 
-/* Write the decimal representation of `n' into `strbuf' as a null-terminated
- * string, and return the length of the string (not including the null).
- */
-static int int2str(char strbuf[], int n)
+uint32_t EE_lightsensor_read(void)
 {
-    int c = 0;
-    unsigned base = 1000*1000*1000;
-    unsigned num;
-    if (n < 0) {
-        strbuf[c++] = '-';
-        num = -n;
-    } else {
-        num = n;
-    }
-    while (base > num && base > 1)
-        base /= 10;
-    while (base > 1) {
-        unsigned d = num / base;
-        strbuf[c++] = '0' + d;
-        num = num % base;
-        base /= 10;
-    }
-    strbuf[c++] = '0' + num;
-    strbuf[c] = 0;
-    return c;
+	uint32_t lux;
+	tsl2561t_read_lux(DEVICE_ADDRESS_VDD, &lux);
+	return lux;
 }
 
 void system_timer_callback(void)
@@ -60,24 +61,12 @@ void system_timer_callback(void)
 TASK(myTask)
 {
 	static int read_count = 0;
-    char strbuf[20];
-    int light;
+    uint32_t light;
     
     read_count++;
     
     light = EE_lightsensor_read();
-    if(light<0)
-    {
-        print_string("Error while reading the measure");
-        return;
-    }
-    
-    int2str(strbuf, read_count);
-    print_string(strbuf);
-    print_string(": ");
-    int2str(strbuf, light);
-    print_string(strbuf);
-    print_string("\n");
+   	myprintf("%d: %d\n", read_count, light);
 }
 
 
@@ -101,10 +90,10 @@ int main(void)
     /* Light-sensor configuration */
     /* ------------------- */
     int ret;
-    ret = EE_lightsensor_config(100000, 0);
+    ret = EE_lightsensor_config();
     if (ret < 0) 
     {
-        print_string("Error while configuring light sensor");
+       myprintf("Error while configuring light sensor");
         while(1);
     }     
     
@@ -131,5 +120,17 @@ int main(void)
 		
 	return 0;
     
+}
+
+#define MAX_CHARS 128
+void myprintf(const char* format, ...)
+{
+	char str[MAX_CHARS];
+	
+	va_list args;
+	va_start( args, format );
+	vsnprintf(str, MAX_CHARS, format, args);
+	va_end( args );
+	EE_uart_send_buffer((EE_UINT8*)str, strlen(str));
 }
 

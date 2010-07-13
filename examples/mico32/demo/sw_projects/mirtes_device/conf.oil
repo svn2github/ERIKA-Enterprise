@@ -6,17 +6,13 @@ CPU mySystem {
 		EE_OPT = "DEBUG_STACK";
 		EE_OPT = "DEBUG";
 		
-		CFLAGS = "-g2";
+		CFLAGS = "-I$(MIRTES_BASE)/mirtes/inc/ -I$(MIRTES_BASE)/mirtes/ -I. -g2";
 		ASFLAGS = "";
 		LDFLAGS = ""; 
  
-		// This demo needs the follwing string in the makefile to compile without errors:
-		// INCLUDE_PATH += $(MIRTES_BASE)/mirtes/inc/ $(MIRTES_BASE)/mirtes/
-		// MIRTES_BASE is an environment variable and its value is the path of MIRTES folder.
-		
 		CPU_DATA = LM32 {
 			/* basic files */
-			APP_SRC = "$(MIRTES_BASE)/mirtes/src/code_mico32.c";
+			APP_SRC = "code_mico32.c";
 			APP_SRC = "$(MIRTES_BASE)/mirtes/src/mirtes.c";
 			/* utils */
 			APP_SRC = "$(MIRTES_BASE)/mirtes/src/utils/extra.c";
@@ -27,11 +23,15 @@ CPU mySystem {
 			APP_SRC = "$(MIRTES_BASE)/mirtes/src/db/db_ms/types/gen_aggr.c";
 			APP_SRC = "$(MIRTES_BASE)/mirtes/src/db/db_ms/types/float_type.c";
 			APP_SRC = "$(MIRTES_BASE)/mirtes/src/db/db_ms/types/uint16_type.c";	
+			APP_SRC = "$(MIRTES_BASE)/mirtes/src/db/db_ms/types/uint8_type.c";	
+			APP_SRC = "$(MIRTES_BASE)/mirtes/src/db/db_ms/types/uint32_type.c";	
+			APP_SRC = "$(MIRTES_BASE)/mirtes/src/db/db_ms/types/uint64_type.c";		
 			APP_SRC = "$(MIRTES_BASE)/mirtes/src/db/db_schema/mirtes_db_schema.c";
 			APP_SRC = "$(MIRTES_BASE)/mirtes/src/db/db_schema/sensors/sensors.c";
 			//APP_SRC = "$(MIRTES_BASE)/mirtes/src/db/db_schema/sensors/acceleration_sensor.c";
 			APP_SRC = "$(MIRTES_BASE)/mirtes/src/db/db_schema/sensors/illuminance_sensor.c";
 			//APP_SRC = "$(MIRTES_BASE)/mirtes/src/db/db_schema/sensors/temperature_sensor.c";
+			APP_SRC = "$(MIRTES_BASE)/mirtes/src/db/db_schema/sensors/ipermob_parking_sensor.c";
 			APP_SRC = "$(MIRTES_BASE)/mirtes/src/utils/mirtes_debug.c";		
 			/* coordinator */
 			//APP_SRC = "$(MIRTES_BASE)/mirtes/src/coord/coord_periodic_query_manager.c";
@@ -46,13 +46,11 @@ CPU mySystem {
 			APP_SRC = "$(MIRTES_BASE)/mirtes/src/device/device_remote_communication.c";
 			APP_SRC = "$(MIRTES_BASE)/mirtes/src/device/device_scheduler.c";
 			
+			
 			MULTI_STACK = FALSE;
 			USESTANDALONEPRINTF = FALSE; // Optional, default is FALSE
 			USESMALLC = FALSE; // Optional, defautl is FALSE
-		};
-		
-		// Light sensor
-		EE_OPT = "__USE_LIGHTSENSOR_TSL2561__";
+		};	
 		
 		MCU_DATA = LATTICE_PLATFORM {
    			MODEL = LIBRARY {
@@ -64,8 +62,11 @@ CPU mySystem {
 					NAME = "camera_i2c";	
 			};
 			DEVICE = TIMER{						
-					NAME = "timer1";
+					NAME = "timer_uwl";
 					OPTIONS = TIMER_IRQ_SUPPORT;							
+			};
+			DEVICE = GPIO{						
+					NAME = "lcd_gpio";							
 			};
   		};
   		
@@ -83,6 +84,10 @@ CPU mySystem {
 		/*                Contrib Library Inlcusion                   */
 		/* ********************************************************** */
 		EE_OPT = "__ADD_LIBS__";
+		
+		// Light sensor
+		EE_OPT = "__USE_LIGHTSENSOR_TSL2561T__";
+		LIB = ENABLE { NAME = "TSL2561T"; };
 
 		// Memory:
 		LIB = ENABLE { NAME = "MEMORY"; };	
@@ -100,27 +105,28 @@ CPU mySystem {
 		EE_OPT = "UWL_NO_DYN_ASS";
 		EE_OPT = "UWL_SUPERFRAME_CALLBACKS"; 
 		EE_OPT = "UWL_MAC_TICKS_BEFORE_TIMESLOT=20";
-		EE_OPT = "UWL_DEBUG";
-		EE_OPT = "UWL_DEBUG_LOG";
-		EE_OPT = "UWL_DEBUG_LOG_SERIAL";
-		EE_OPT = "UWL_DEBUG_LOG_SERIAL_PORT=CONSOLE_SERIAL_PORT_1";
-		EE_OPT = "UWL_DEBUG_LOG_SERIAL_BAUDRATE=115200"; 
-		EE_OPT = "UWL_DEBUG_LOG_HAS_PRINT";
+		//EE_OPT = "UWL_DEBUG";
+		//EE_OPT = "UWL_DEBUG_LOG";
+		//EE_OPT = "UWL_DEBUG_LOG_SERIAL";
+		//EE_OPT = "UWL_DEBUG_LOG_SERIAL_PORT=CONSOLE_SERIAL_PORT_1";
+		//EE_OPT = "UWL_DEBUG_LOG_SERIAL_BAUDRATE=115200"; 
+		//EE_OPT = "UWL_DEBUG_LOG_HAS_PRINT";
 
 		// Mirtes:
 		EE_OPT = "MIRTES_DEVICE_TYPE_SDEV";
-		EE_OPT = "MIRTES_DEBUG";
-		EE_OPT = "MIRTES_DEBUG_LOG";
-		EE_OPT = "MIRTES_DEBUG_LOG_SERIAL";
-		EE_OPT = "MIRTES_DEBUG_LOG_SERIAL_PORT=CONSOLE_SERIAL_PORT_1";
-		EE_OPT = "MIRTES_DEBUG_LOG_SERIAL_BAUDRATE=115200";
+		EE_OPT = "USE_POWER_BOARD";
+		//EE_OPT = "MIRTES_DEBUG";
+		//EE_OPT = "MIRTES_DEBUG_LOG";
+		//EE_OPT = "MIRTES_DEBUG_LOG_SERIAL";
+		//EE_OPT = "MIRTES_DEBUG_LOG_SERIAL_PORT=CONSOLE_SERIAL_PORT_1";
+		//EE_OPT = "MIRTES_DEBUG_LOG_SERIAL_BAUDRATE=115200";
 		//EE_OPT = "MIRTES_DEBUG_LOG_SERIAL_OPT=CONSOLE_SERIAL_FLAG_BIT8_NO | CONSOLE_SERIAL_FLAG_BIT_STOP1";
-		EE_OPT = "MIRTES_DEBUG_LOG_HAS_PRINT";
+		//EE_OPT = "MIRTES_DEBUG_LOG_HAS_PRINT";
 		
 		/* use transceiver MRF24J40 */
 		LIB = ENABLE { NAME = "MRF24J40"; };	
 		EE_OPT = "USE_MRF24J40";
-		EE_OPT = "MRF24J40_DEBUG";
+		//EE_OPT = "MRF24J40_DEBUG";
 		EE_OPT = "INT_POLARITY_HIGH";
 		EE_OPT = "ADD_RSSI_AND_LQI_TO_PACKET";
 //		EE_OPT = "MRF24J40_DISABLE_AUTOMATIC_ACK";
@@ -134,9 +140,9 @@ CPU mySystem {
 	/*                      ISR Handler setup                             */
 	/* ****************************************************************** */
 	
-	ISR Timer1 {
+	ISR Timer_Uwl {
 		CATEGORY = 2;
-		LEVEL = "TIMER1_IRQ";
+		LEVEL = "TIMER_UWL_IRQ";
 		HANDLER = "EE_timer_common_handler";
 	};
 	
@@ -160,8 +166,14 @@ CPU mySystem {
 
 	ALARM myAlarm {
 		COUNTER = "myCounter";
-	    ACTION = ACTIVATETASK { TASK = "analyzer"; };
+	    ACTION = ACTIVATETASK { TASK = "myTask"; };
 	};	
+	
+	TASK myTask {
+		PRIORITY = 2;
+		STACK = SHARED;
+		SCHEDULE = FULL;
+	};
 	
 	TASK serial_writer {
 		PRIORITY = 3;

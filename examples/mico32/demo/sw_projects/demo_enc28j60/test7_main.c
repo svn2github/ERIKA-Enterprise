@@ -16,10 +16,34 @@
 #include <MicoMacros.h>
 #include <string.h>
 #include <stdio.h>
+#include <stdarg.h>
 /* LWIP */
 #include "ee_lwip.h"
 /* Utilities */
 #include "test7.h"
+
+/* ----------------------------------------------------------- */
+/* Macros */
+/* ----------------------------------------------------------- */
+#define MY_PORT						(9760)
+#define MY_IPADDR_BYTE1 			(192)
+#define MY_IPADDR_BYTE2 			(168)
+#define MY_IPADDR_BYTE3 			(0)
+#define MY_IPADDR_BYTE4 			(2)
+#define MY_NETMASK_BYTE1 			(255)
+#define MY_NETMASK_BYTE2 			(255)
+#define MY_NETMASK_BYTE3 			(255)
+#define MY_NETMASK_BYTE4 			(0)
+#define MY_GATEWAY_ADDR_BYTE1 		(192)
+#define MY_GATEWAY_ADDR_BYTE2 		(168)
+#define MY_GATEWAY_ADDR_BYTE3 		(0)
+#define MY_GATEWAY_ADDR_BYTE4 		(10)
+#define MY_ETHERNETIF_MAC_BYTE1		(0x00)
+#define MY_ETHERNETIF_MAC_BYTE2		(0x04)
+#define MY_ETHERNETIF_MAC_BYTE3		(0xA3)
+#define MY_ETHERNETIF_MAC_BYTE4		(0x00)
+#define MY_ETHERNETIF_MAC_BYTE5		(0x00)
+#define MY_ETHERNETIF_MAC_BYTE6		(0x00)
 
 /* ----------------------------------------------------------- */
 /* Demo Variables */
@@ -38,21 +62,26 @@ EE_UINT8 udp_tx_data[UDP_BUFFER_SIZE*UDP_PAYLOAD_PKT_SIZE];
 /* UDP rx handler */
 void udp_rx_handler(void *arg, struct udp_pcb *upcb, struct pbuf *p, struct ip_addr *addr, u16_t port);
 void load_buffer(EE_buffer *buf, struct pbuf *p);
+u8_t msg[UDP_PAYLOAD_PKT_SIZE];
 
 /* myTask1 */
 TASK(myTask1)
 {
+	GetResource(LwipMutex);
+	
+	#if 0
     /* Reception */
     if(EE_enc28j60_pending_interrupt())
     {
-        print_string("\ninterrupt signal! Reception in progress...\n");
+        myprintf("\ninterrupt signal! Reception in progress...\n");
         /* Elaborate the received packet */
-        ethernetif_input(&lwip_netif);
+        ethernetif_input(&EE_lwip_netif);
     }
     /* --------- */
+    #endif    
+        
         
     /* Transmission */
-    u8_t msg[UDP_PAYLOAD_PKT_SIZE];
     if(!EE_buffer_isempty(&UDP_tx_buffer))
     {
         /* if the udp socket is connected... */
@@ -60,10 +89,11 @@ TASK(myTask1)
         {
             /* Extract one packet */
             EE_buffer_getmsg(&UDP_tx_buffer, (EE_UINT8*)msg);
-            struct pbuf *p = pbuf_new(msg, UDP_PAYLOAD_PKT_SIZE);
+            struct pbuf* p = pbuf_alloc(PBUF_TRANSPORT, UDP_PAYLOAD_PKT_SIZE, PBUF_REF);
+            p->payload = msg;
             if (p != (struct pbuf *)0) 
             {
-                print_string("\nTransmission in progress...\n");   
+                myprintf("\nTransmission in progress...\n");   
                 print_pbuf("tx_p", p);    
                 /* Send the extracted packet */
                 udp_send(my_udp_socket, p);
@@ -72,6 +102,8 @@ TASK(myTask1)
         }
     }
     /* --------- */
+    
+	ReleaseResource(LwipMutex);
 }
 
 /* myTask2 */
@@ -120,25 +152,29 @@ int main(void)
     /* ------------------- */
     /* LWIP configuration  */
     /* ------------------- */
-    print_string("\n\n\nLWIP configuration in progress...");
-    EE_lwip_init();
-    print_string("Done!\n");
+    myprintf("\n\n\nLWIP configuration in progress...");
+    struct ip_addr my_ipaddr, netmask, gw;
+    struct eth_addr my_ethaddr;
+	IP4_ADDR(&my_ipaddr, MY_IPADDR_BYTE1, MY_IPADDR_BYTE2, MY_IPADDR_BYTE3, MY_IPADDR_BYTE4);
+	IP4_ADDR(&netmask, MY_NETMASK_BYTE1, MY_NETMASK_BYTE2, MY_NETMASK_BYTE3, MY_NETMASK_BYTE4);
+	IP4_ADDR(&gw, MY_GATEWAY_ADDR_BYTE1, MY_GATEWAY_ADDR_BYTE2, MY_GATEWAY_ADDR_BYTE3, MY_GATEWAY_ADDR_BYTE4);
+	ETH_ADDR(&my_ethaddr, MY_ETHERNETIF_MAC_BYTE1, MY_ETHERNETIF_MAC_BYTE2, MY_ETHERNETIF_MAC_BYTE3, 
+				MY_ETHERNETIF_MAC_BYTE4, MY_ETHERNETIF_MAC_BYTE5, MY_ETHERNETIF_MAC_BYTE6);	
+    EE_lwip_init(&my_ipaddr, &netmask, &gw, &my_ethaddr);
+    myprintf("Done!\n");
     
     /* ------------------- */
     /* My app initialization   */
     /* ------------------- */
     err_t ret;
-    struct ip_addr my_ipaddr;
-    
     EE_buffer_init(&UDP_rx_buffer, UDP_PAYLOAD_PKT_SIZE, UDP_BUFFER_SIZE, udp_rx_data);
     EE_buffer_init(&UDP_tx_buffer, UDP_PAYLOAD_PKT_SIZE, UDP_BUFFER_SIZE, udp_tx_data);
     my_udp_socket = udp_new();  /* Create an udp socket */
-    print_string("udp_new!\n");
-    IP4_ADDR(&my_ipaddr, MY_IPADDR_BYTE1, MY_IPADDR_BYTE2, MY_IPADDR_BYTE3, MY_IPADDR_BYTE4);
+    myprintf("udp_new!\n");
     ret = udp_bind(my_udp_socket, &my_ipaddr, MY_PORT); /* Bind the udp socket */ 
-    print_val("udp_bind return value: %d\n", ret);
+    myprintf("udp_bind return value: %d\n", ret);
     udp_recv(my_udp_socket, &udp_rx_handler, 0);        /* Set the rx callback for udp packets */ 
-    print_string("udp_recv!\n");
+    myprintf("udp_recv!\n");
     
     /* ------------------- */
     /* Start demo */
@@ -165,7 +201,7 @@ int main(void)
 void udp_rx_handler(void *arg, struct udp_pcb *upcb,
                     struct pbuf *p, struct ip_addr *addr, u16_t port)
 {
-    print_string("\nudp_rx_handler!\n");
+    myprintf("\nudp_rx_handler!\n");
     /* connect to the remote host */
     udp_connect(upcb, addr, port);               
     /* UDP received packet print */
@@ -183,48 +219,23 @@ void system_timer_callback(void)
     CounterTick(myCounter);
 }
 
-void print_string(const char *s)
-{
-    #ifdef PRINT_ON 
-    EE_uart_send_buffer((EE_UINT8*)s,strlen(s));
-    #endif
-}
-
-void print_val(char* s, int val)
-{
-    #ifdef PRINT_ON 
-    char str[64];
-    sprintf(str, s, val);
-    print_string(str);
-    #endif
-}
-
-void print_vals(char* s, int val1, int val2)
-{
-    #ifdef PRINT_ON 
-    char str[64];
-    sprintf(str, s, val1, val2);
-    print_string(str);
-    #endif
-}
-
 void print_pbuf(const char *name, struct pbuf *p)
 {
 	#ifdef PRINT_ON 
 	int i;
 	struct pbuf *q;
 	
-	print_string(name);
-	print_val("\np->tot_len: %d\n", p->tot_len);
+	myprintf(name);
+	myprintf("\np->tot_len: %d\n", p->tot_len);
 	for(q = p; q != NULL; q = q->next) 
 	{
-		print_vals("payload: %x, len: %d\n", (unsigned int)q->payload, q->len);
+		myprintf("payload: %x, len: %d\n", (unsigned int)q->payload, q->len);
 		for(i=0; i<(q->len); i++)
 		{
-			print_vals("q->payload[%d]:%x  ", i, ((u8_t*)q->payload)[i]);
+			myprintf("q->payload[%d]:%x  ", i, ((u8_t*)q->payload)[i]);
 		}	
 	}
-	print_string("\n");
+	myprintf("\n");
 	#endif
 }
 
@@ -235,10 +246,10 @@ void print_array(const char *name, BYTE* vet, int len)
 	
 	for(i=0; i<len; i++)
 	{
-		print_string(name);
-		print_vals("[%d]:%x  ", i, vet[i]);
+		myprintf(name);
+		myprintf("[%d]:%x  ", i, vet[i]);
 	}
-	print_string("\n");
+	myprintf("\n");
 	#endif
 }
 
@@ -273,4 +284,18 @@ void load_buffer(EE_buffer *buf, struct pbuf *p)
     EE_buffer_putmsg(buf, (EE_UINT8*)rx_payload);
 }
 
+
+#define MAX_CHARS 128
+void myprintf(const char* format, ...)
+{
+#ifdef PRINT_ON 
+	char str[MAX_CHARS];
+	
+	va_list args;
+	va_start( args, format );
+	vsnprintf(str, MAX_CHARS, format, args);
+	va_end( args );
+	EE_uart_send_buffer((EE_UINT8*)str, strlen(str));
+#endif
+}
 

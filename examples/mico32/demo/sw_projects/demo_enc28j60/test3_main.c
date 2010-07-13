@@ -53,13 +53,14 @@ int print_string(const char *s)
 	return EE_uart_send_buffer((EE_UINT8*)s,strlen(s));
 }
 
-TASK(myTask)
+TASK(myTask1)
 {
 	//print_string("device_write: ERROR!\n");
 	
 	/* ---------------------------------------------------------------- */
 	/* ETH */
 	data = 0x09;
+	
 	address = ECON1;
 	
 	device_read(ETH_TYPE);
@@ -95,6 +96,10 @@ TASK(myTask)
 	res = _CalcIPBufferChecksum(3);
 	sprintf(str, "\nChecksum: 0x%x\n", res);
 	print_string(str);
+}
+
+TASK(myTask2)
+{
 }
 
 void system_timer_callback(void)
@@ -140,7 +145,7 @@ int main(void)
 	/* ------------------- */
 	device_config();
 	turn_on_led();
-	SetRelAlarm(myAlarm, 500, 2000);
+	SetRelAlarm(myAlarm1, 500, 2000);
 	EE_timer_on();
 		
 	while(1)

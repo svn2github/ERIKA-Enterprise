@@ -20,7 +20,6 @@
 /* My device driver */
 int device_write(int type);
 int device_read(int type);
-int device_print(void);
 #define turn_on_led() 		EE_misc_gpio_write_bit_data(1,EE_DL3_BIT)
 #define turn_off_led() 		EE_misc_gpio_write_bit_data(0,EE_DL3_BIT)
 #define device_config() 	EE_misc_gpio_write_bit_data(1, EE_GP1_BIT)
@@ -50,7 +49,7 @@ int print_string(const char *s)
 	return EE_uart_send_buffer((EE_UINT8*)s,strlen(s));
 }
 
-TASK(myTask)
+TASK(myTask1)
 {
 	//print_string("device_write: ERROR!\n");
 	
@@ -112,7 +111,37 @@ TASK(myTask)
 	address = PHLCON;
 	
 	device_write(PHY_TYPE);
-	//SetLEDConfig(0x3472);
+	print_string("\nWrite PHLCON:\n");
+	udata = 'x';
+	EE_uart_send_buffer((EE_UINT8*)&udata, 1);	
+	udata = '0' + ((phy_data&0xF000) >> 12);
+	EE_uart_send_buffer((EE_UINT8*)&udata, 1);	
+	udata = '0' + ((phy_data&0x0F00) >> 8);
+	EE_uart_send_buffer((EE_UINT8*)&udata, 1);
+	udata = '0' + ((phy_data&0x00F0) >> 4);
+	EE_uart_send_buffer((EE_UINT8*)&udata, 1);	
+	udata = '0' + (phy_data&0x000F);
+	EE_uart_send_buffer((EE_UINT8*)&udata, 1);	
+	
+	device_read(PHY_TYPE);
+	print_string("\nRead PHLCON:\n");
+	udata = 'x';
+	EE_uart_send_buffer((EE_UINT8*)&udata, 1);	
+	udata = '0' + ((ret_phy_data&0xF000) >> 12);
+	EE_uart_send_buffer((EE_UINT8*)&udata, 1);	
+	udata = '0' + ((ret_phy_data&0x0F00) >> 8);
+	EE_uart_send_buffer((EE_UINT8*)&udata, 1);
+	udata = '0' + ((ret_phy_data&0x00F0) >> 4);
+	EE_uart_send_buffer((EE_UINT8*)&udata, 1);	
+	udata = '0' + (ret_phy_data&0x000F);
+	EE_uart_send_buffer((EE_UINT8*)&udata, 1);
+	
+	/* ---------------------------------------------------------------- */
+	/* PHY */
+	phy_data = 0x3330;
+	address = PHLCON;
+	
+	device_write(PHY_TYPE);
 	print_string("\nWrite PHLCON:\n");
 	udata = 'x';
 	EE_uart_send_buffer((EE_UINT8*)&udata, 1);	
@@ -138,6 +167,10 @@ TASK(myTask)
 	udata = '0' + (ret_phy_data&0x000F);
 	EE_uart_send_buffer((EE_UINT8*)&udata, 1);
 
+}
+
+TASK(myTask2)
+{
 }
 
 void system_timer_callback(void)
@@ -183,7 +216,7 @@ int main(void)
 	/* ------------------- */
 	device_config();
 	turn_on_led();
-	SetRelAlarm(myAlarm, 500, 2000);
+	SetRelAlarm(myAlarm1, 500, 2000);
 	EE_timer_on();
 		
 	while(1)
@@ -249,18 +282,6 @@ int device_read(int type)
 	return ret_data;
 }
 
-int device_print(void)
-{
-	char *str1 = "\nWrite:\n";
-	char *str2 = "\nRead:\n";
-	
-	EE_uart_send_buffer((EE_UINT8 *)str1,strlen(str1));
-	EE_uart_send_buffer((EE_UINT8*)&data, 1);
-	EE_uart_send_buffer((EE_UINT8 *)str2,strlen(str2));
-	EE_uart_send_buffer((EE_UINT8*)&ret_data, 1);	
-	
-	return 0;
-}
 
 
 
