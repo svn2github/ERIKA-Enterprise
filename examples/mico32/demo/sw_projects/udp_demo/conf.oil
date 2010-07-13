@@ -2,17 +2,17 @@
 
 CPU test_application {
 
+	#include "conf.oil.lwip"
+	#include "conf.oil.enc28j60"
+
 	OS EE {		
 		CFLAGS = "-D__USE_LEDS__"; // Workaround for RT-Druid bug
-//		CFLAGS = "-DLWIP_DEBUG -DLWIP_DEBUG_SERIAL";
 		CFLAGS = "-g2";
 		ASFLAGS = "";
 		LDFLAGS = ""; 
 
-		EE_OPT = "BIG_ENDIAN"; // This shouldn't be here
 		CPU_DATA = LM32 {
 			APP_SRC = "main.c";
-			APP_SRC = "lwip.c";
 			MULTI_STACK = FALSE;
 			USESTANDALONEPRINTF = FALSE; // Optional, default is FALSE
 			USESMALLC = FALSE; // Optional, default is FALSE
@@ -53,11 +53,15 @@ CPU test_application {
 		/* ********************************************************** */
 		/*                Contrib Library Inclusion                   */
 		/* ********************************************************** */
+/* CONSOLE
 		EE_OPT = "__ADD_LIBS__";
+		LIB = ENABLE { NAME = "CONSOLE"; };
+		EE_OPT = "USE_CONSOLE";
+		EE_OPT = "USE_CONSOLE_SERIAL";
+*/
 
 	};
 
-	
 	/* ****************************************************************** */
 	/*                          Application                               */
 	/* ****************************************************************** */
@@ -80,58 +84,5 @@ CPU test_application {
 	ALARM SenderAlarm {
 		COUNTER = SenderCounter;
 		ACTION = ACTIVATETASK { TASK = "Sender"; };
-	};
-
-
-	/* ****************************************************************** */
-	/*                              lwIP                                  */
-	/* ****************************************************************** */
-
-	OS EE {
-		EE_OPT = "__ADD_LIBS__";
-
-		/* ENC28J60 library (ethernet controller) */
-		//EE_OPT = "ENC28J60_DEBUG";
-		//EE_OPT = "ENC28J60_DEBUG_SERIAL";
-		LIB = ENABLE { NAME = "ENC28J60"; };
-		
-//		/* CONSOLE */
-//		LIB = ENABLE { NAME = "CONSOLE"; };
-//		EE_OPT = "USE_CONSOLE";
-//		EE_OPT = "USE_CONSOLE_SERIAL";
-
-		EE_OPT = "__LWIP_IPV4__";
-//		EE_OPT = "__LWIP_DEBUG__";
-		LIB = ENABLE { NAME = "LWIP"; };
-	};
-	
-	ISR LwipTimer {
-		CATEGORY = 2;
-		LEVEL = "TIMER_UWL_IRQ";
-		HANDLER = "EE_timer_common_handler";
-	};
-	
-	ISR Gpio {
-		CATEGORY = 2;
-		LEVEL = "EE_ENC28J60_IRQ";
-		HANDLER = "EE_enc28j60_handler";
-	};
-	
-	
-	RESOURCE LwipMutex { RESOURCEPROPERTY = STANDARD; };
-	
-
-	TASK LwipReceive {
-		PRIORITY = 30;
-		STACK = SHARED;
-		SCHEDULE = FULL;
-		RESOURCE = "LwipMutex";
-	};
-
-	TASK LwipPeriodic {
-		PRIORITY = 35;
-		STACK = SHARED;
-		SCHEDULE = FULL;
-		RESOURCE = "LwipMutex";
 	};
 };

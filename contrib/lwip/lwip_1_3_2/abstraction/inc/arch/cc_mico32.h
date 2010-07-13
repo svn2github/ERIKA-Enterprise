@@ -52,7 +52,6 @@
 #define PACK_STRUCT_END
 #define PACK_STRUCT_FIELD(x) x
 
-#define PACK_STRUCT_USE_INCLUDES
 #define LWIP_PROVIDE_ERRNO
 
 #define abort()

@@ -545,11 +545,13 @@ udp_sendto_if(struct udp_pcb *pcb, struct pbuf *p,
     udphdr->len = htons(q->tot_len);
     /* calculate checksum */
 #if CHECKSUM_GEN_UDP
+	EE_lwip_write_timestamp(LWIP_START_UDP_CHECKSUM);
     if ((pcb->flags & UDP_FLAGS_NOCHKSUM) == 0) {
       udphdr->chksum = inet_chksum_pseudo(q, src_ip, dst_ip, IP_PROTO_UDP, q->tot_len);
       /* chksum zero must become 0xffff, as zero means 'no checksum' */
       if (udphdr->chksum == 0x0000) udphdr->chksum = 0xffff;
     }
+	EE_lwip_write_timestamp(LWIP_END_UDP_CHECKSUM);
 #endif /* CHECKSUM_CHECK_UDP */
     LWIP_DEBUGF(UDP_DEBUG, ("udp_send: UDP checksum 0x%04"X16_F"\n", udphdr->chksum));
     LWIP_DEBUGF(UDP_DEBUG, ("udp_send: ip_output_if (,,,,IP_PROTO_UDP,)\n"));

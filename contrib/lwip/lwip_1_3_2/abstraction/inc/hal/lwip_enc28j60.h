@@ -27,61 +27,84 @@ struct ethernetif {
   u16_t length;
 };
 
-/* MAC ADDRESS */
-// #define MY_DEFAULT_MAC_BYTE1            (0x00)	// Use the default of
-// #define MY_DEFAULT_MAC_BYTE2            (0x04)	// 00-04-A3-00-00-00 if using
-// #define MY_DEFAULT_MAC_BYTE3            (0xA3)	// an ENCX24J600 or ZeroG ZG2100
-// #define MY_DEFAULT_MAC_BYTE4            (0x00)	// and wish to use the internal
-// #define MY_DEFAULT_MAC_BYTE5            (0x00)	// factory programmed MAC
-// #define MY_DEFAULT_MAC_BYTE6            (0x00)	// address instead.
-
-__INLINE__ void __ALWAYS_INLINE__ mydevice_init()
+__INLINE__ int __ALWAYS_INLINE__ EE_ethernetif_hal_pending_interrupt(void)
 {
-	LWIP_DEBUGF(NETIF_DEBUG | LWIP_DBG_TRACE, ("mydevice_init\n"));
-	EE_enc28j60_init();
-	
+	return EE_enc28j60_pending_interrupt();
 }
 
-__INLINE__ void __ALWAYS_INLINE__ mydevice_initiate_transfer(void)
+__INLINE__ void __ALWAYS_INLINE__ EE_ethernetif_hal_init(struct netif *netif)
 {
-	LWIP_DEBUGF(NETIF_DEBUG | LWIP_DBG_TRACE, ("mydevice_initiate_transfer\n"));
+	struct ethernetif *ethernet_if;
+	mac_addr myMACaddress;
+	
+	LWIP_DEBUGF(NETIF_DEBUG | LWIP_DBG_TRACE, ("EE_ethernetif_hal_init\n"));
+	
+	/* Allocate memory for ethernetif */
+	ethernet_if = mem_malloc(sizeof(struct ethernetif));
+	if (ethernet_if == NULL)
+		LWIP_DEBUGF(NETIF_DEBUG, ("EE_ethernetif_hal_init: out of memory\n"));
+	
+	netif->state = ethernet_if;
+	ethernet_if->ethaddr = 	(struct eth_addr *)&(netif->hwaddr[0]);
+	ethernet_if->pkt_cnt = 	0; 
+	ethernet_if->length = 	0;
+	
+	myMACaddress.v[0] = netif->hwaddr[0];
+	myMACaddress.v[1] = netif->hwaddr[1];
+	myMACaddress.v[2] = netif->hwaddr[2];
+	myMACaddress.v[3] = netif->hwaddr[3];
+	myMACaddress.v[4] = netif->hwaddr[4];
+	myMACaddress.v[5] = netif->hwaddr[5];
+	
+	EE_enc28j60_init(myMACaddress);
+}
+
+__INLINE__ void __ALWAYS_INLINE__ EE_ethernetif_hal_initiate_transfer(void)
+{
+	LWIP_DEBUGF(NETIF_DEBUG | LWIP_DBG_TRACE, ("EE_ethernetif_hal_initiate_transfer\n"));
 	EE_enc28j60_transfer_init();
 }
 
-__INLINE__ void __ALWAYS_INLINE__ mydevice_write(u8_t* data, u16_t len)
+__INLINE__ void __ALWAYS_INLINE__ EE_ethernetif_hal_write(u8_t* data, u16_t len)
 {
-	LWIP_DEBUGF(NETIF_DEBUG | LWIP_DBG_TRACE, ("mydevice_write: %x, %d\n", data, len));
+	LWIP_DEBUGF(NETIF_DEBUG | LWIP_DBG_TRACE, ("EE_ethernetif_hal_write: %x, %d\n", data, len));
 	EE_enc28j60_write(data, len);
 }
 
-__INLINE__ void __ALWAYS_INLINE__ mydevice_signal(u16_t len)
+__INLINE__ void __ALWAYS_INLINE__ EE_ethernetif_hal_signal(u16_t len)
 {
-	LWIP_DEBUGF(NETIF_DEBUG | LWIP_DBG_TRACE, ("mydevice_signal: %d\n", len));
+	LWIP_DEBUGF(NETIF_DEBUG | LWIP_DBG_TRACE, ("EE_ethernetif_hal_signal: %d\n", len));
 	EE_enc28j60_signal(len);
 }
 
-__INLINE__ int __ALWAYS_INLINE__ mydevice_get_info(struct ethernetif *ethernetif)
+__INLINE__ int __ALWAYS_INLINE__ EE_ethernetif_hal_get_info(struct netif *netif)
 {
-	LWIP_DEBUGF(NETIF_DEBUG | LWIP_DBG_TRACE, ("mydevice_get_info: %x\n", ethernetif));
-	return EE_enc28j60_read_info(&ethernetif->pkt_cnt, &ethernetif->length);
+	struct ethernetif *ethernet_if = (struct ethernetif *)netif->state;
+	
+	LWIP_DEBUGF(NETIF_DEBUG | LWIP_DBG_TRACE, ("EE_ethernetif_hal_get_info: %x\n", ethernet_if));
+	
+	if(EE_enc28j60_read_info(&ethernet_if->pkt_cnt, &ethernet_if->length)<0)
+		return 0;
+	else
+		return ethernet_if->length;
 }
 
 
-__INLINE__ int __ALWAYS_INLINE__ mydevice_read(u8_t* data, u16_t len)
+__INLINE__ int __ALWAYS_INLINE__ EE_ethernetif_hal_read(u8_t* data, u16_t len)
 {
-	LWIP_DEBUGF(NETIF_DEBUG | LWIP_DBG_TRACE, ("mydevice_read: %x, %d\n", data, len));
+	LWIP_DEBUGF(NETIF_DEBUG | LWIP_DBG_TRACE, ("EE_ethernetif_hal_read: %x, %d\n", data, len));
 	return EE_enc28j60_read(data, len);
 }
 
-__INLINE__ void __ALWAYS_INLINE__ mydevice_ack(void)
+__INLINE__ void __ALWAYS_INLINE__ EE_ethernetif_hal_ack(void)
 {
-	LWIP_DEBUGF(NETIF_DEBUG | LWIP_DBG_TRACE, ("mydevice_ack\n"));
+	LWIP_DEBUGF(NETIF_DEBUG | LWIP_DBG_TRACE, ("EE_ethernetif_hal_ack\n"));
 	EE_enc28j60_ack();
 }
 
-__INLINE__ void __ALWAYS_INLINE__ mydevice_drop_packet(void)
+__INLINE__ void __ALWAYS_INLINE__ EE_ethernetif_hal_drop_packet(void)
 {
-	LWIP_DEBUGF(NETIF_DEBUG | LWIP_DBG_TRACE, ("mydevice_drop_packet\n"));
+	LWIP_DEBUGF(NETIF_DEBUG | LWIP_DBG_TRACE, ("EE_ethernetif_hal_drop_packet\n"));
 	EE_enc28j60_drop_packet();
 }
 

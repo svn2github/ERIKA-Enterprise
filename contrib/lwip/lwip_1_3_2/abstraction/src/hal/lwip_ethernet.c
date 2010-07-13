@@ -52,28 +52,6 @@ static err_t low_level_init(struct netif *netif);
 static err_t low_level_output(struct netif *netif, struct pbuf *p);
 
 /**
- * This function should be called by the program to service the network interface.
- * It calls the function low_level_rx() to do the actual input.
- *
- * @param netif the already initialized lwip network interface structure
- *        for this ethernetif
- */
-err_t ethernetif_service(struct netif *netif)
-{
-  err_t ret_code = 0;
-  //struct ethernetif* dev = (struct ethernetif*)netif->state;
-
-  LWIP_DEBUGF(NETIF_DEBUG | LWIP_DBG_TRACE, ("ethernetif_service()\n"));
-
-  /* Call the device input routine, passing the LWIP input handler */
-  ret_code = ethernetif_input(netif);
-
-  LWIP_DEBUGF(NETIF_DEBUG | LWIP_DBG_TRACE, ("ethernetif_service() returns = %d\n",ret_code));
-
-  return ret_code;
-}
-
-/**
  * In this function, the hardware should be initialized.
  * Called from ethernetif_init().
  *
@@ -82,31 +60,11 @@ err_t ethernetif_service(struct netif *netif)
  */
 static err_t low_level_init(struct netif *netif)
 {
-	//struct ethernetif *ethernetif = netif->state;
-	
 	EE_lwip_write_timestamp(LWIP_START_LOWLEV_INIT);
 	LWIP_DEBUGF(NETIF_DEBUG | LWIP_DBG_TRACE, ("low_level_init ( %#x)\n",netif));
 
-	/* set MAC hardware address length */
-	netif->hwaddr_len = ETHARP_HWADDR_LEN;
-
-	/* set MAC hardware address */
-	netif->hwaddr[0] = MY_DEFAULT_MAC_BYTE1;
-	netif->hwaddr[1] = MY_DEFAULT_MAC_BYTE2;
-	netif->hwaddr[2] = MY_DEFAULT_MAC_BYTE3;
-	netif->hwaddr[3] = MY_DEFAULT_MAC_BYTE4;
-	netif->hwaddr[4] = MY_DEFAULT_MAC_BYTE5;
-	netif->hwaddr[5] = MY_DEFAULT_MAC_BYTE6;
-	
-	/* maximum transfer unit */
-	netif->mtu = 1500;
-
-	/* device capabilities */
-	/* don't set NETIF_FLAG_ETHARP if this device is not an ethernet one */
-	netif->flags = NETIF_FLAG_BROADCAST | NETIF_FLAG_ETHARP | NETIF_FLAG_LINK_UP;
-
 	/* Do whatever else is needed to initialize interface. */  
-	mydevice_init();
+	EE_ethernetif_init(netif);
 	
 	EE_lwip_write_timestamp(LWIP_END_LOWLEV_INIT);
 	return ERR_OK;
@@ -124,53 +82,60 @@ static err_t low_level_init(struct netif *netif)
  *         ERR_MEM if private data couldn't be allocated
  *         any other err_t on error
  */
-err_t ethernetif_init(struct netif *netif)
+err_t EE_ethernet_init(struct netif *netif)
 {
-  struct ethernetif *ethernetif;
+	LWIP_ASSERT("netif != NULL", (netif != NULL));
+	LWIP_DEBUGF(NETIF_DEBUG | LWIP_DBG_TRACE, ("ethernetif_init ( %#x)\n",netif));
+	
+	EE_lwip_write_timestamp(LWIP_START_ETH_INIT);
+	
+	/**
+	 * Initialize netif structure.
+	 */
+	 
+	/* Initialize interface hostname */ 
+	#if LWIP_NETIF_HOSTNAME
+	netif->hostname = "lwip";
+	#endif /* LWIP_NETIF_HOSTNAME */
 
-  EE_lwip_write_timestamp(LWIP_START_ETH_INIT);
-  LWIP_ASSERT("netif != NULL", (netif != NULL));
-  LWIP_DEBUGF(NETIF_DEBUG | LWIP_DBG_TRACE, ("ethernetif_init ( %#x)\n",netif));
-    
-	// Allocate memory for ethernetif
-  ethernetif = mem_malloc(sizeof(struct ethernetif));
-  if (ethernetif == NULL) {
-    LWIP_DEBUGF(NETIF_DEBUG, ("ethernetif_init: out of memory\n"));
+	/*
+	* Initialize the snmp variables and counters inside the struct netif.
+	* The last argument should be replaced with your link speed, in units
+	* of bits per second.
+	*/
+	// NETIF_INIT_SNMP(netif, snmp_ifType_ethernet_csmacd, LINK_SPEED_OF_YOUR_NETIF_IN_BPS);
+
+	/* set MAC hardware address length */
+	netif->hwaddr_len = ETHARP_HWADDR_LEN;
+
+	/* set MAC hardware address */
+	netif->hwaddr[0] = ETHERNETIF_MAC_BYTE1;
+	netif->hwaddr[1] = ETHERNETIF_MAC_BYTE2;
+	netif->hwaddr[2] = ETHERNETIF_MAC_BYTE3;
+	netif->hwaddr[3] = ETHERNETIF_MAC_BYTE4;
+	netif->hwaddr[4] = ETHERNETIF_MAC_BYTE5;
+	netif->hwaddr[5] = ETHERNETIF_MAC_BYTE6;
+	
+	/* maximum transfer unit */
+	netif->mtu = 1500;
+
+	/* device capabilities */
+	/* don't set NETIF_FLAG_ETHARP if this device is not an ethernet one */
+	netif->flags = NETIF_FLAG_BROADCAST | NETIF_FLAG_ETHARP | NETIF_FLAG_LINK_UP;
+	netif->name[0] = IFNAME0;
+	netif->name[1] = IFNAME1;
+	/* We directly use etharp_output() here to save a function call.
+	* You can instead declare your own function an call etharp_output()
+	* from it if you have to do some checks before sending (e.g. if link
+	* is available...) */
+	netif->output = etharp_output;
+	netif->linkoutput = low_level_output;
+	
+	/* initialize the hardware */
+	low_level_init(netif);
+
 	EE_lwip_write_timestamp(LWIP_END_ETH_INIT);
-    return ERR_MEM;
-  }
-
-#if LWIP_NETIF_HOSTNAME
-  /* Initialize interface hostname */
-  netif->hostname = "lwip";
-#endif /* LWIP_NETIF_HOSTNAME */
-
-  /*
-   * Initialize the snmp variables and counters inside the struct netif.
-   * The last argument should be replaced with your link speed, in units
-   * of bits per second.
-   */
-  // NETIF_INIT_SNMP(netif, snmp_ifType_ethernet_csmacd, LINK_SPEED_OF_YOUR_NETIF_IN_BPS);
-
-  netif->state = ethernetif;
-  netif->name[0] = IFNAME0;
-  netif->name[1] = IFNAME1;
-  /* We directly use etharp_output() here to save a function call.
-   * You can instead declare your own function an call etharp_output()
-   * from it if you have to do some checks before sending (e.g. if link
-   * is available...) */
-  netif->output = etharp_output;
-  netif->linkoutput = low_level_output;
-  
-  ethernetif->ethaddr = (struct eth_addr *)&(netif->hwaddr[0]);
-  ethernetif->pkt_cnt = 0; 
-  ethernetif->length = 0;
-  
-  /* initialize the hardware */
-  low_level_init(netif);
-
-  EE_lwip_write_timestamp(LWIP_END_ETH_INIT);
-  return ERR_OK;
+	return ERR_OK;
 }
 
 /**
@@ -190,7 +155,6 @@ err_t ethernetif_init(struct netif *netif)
  */
 static err_t low_level_output(struct netif *netif, struct pbuf *p)
 {
-	//struct ethernetif *ethernetif = netif->state;
 	struct pbuf *q;
 	EE_lwip_write_timestamp(LWIP_START_LOWLEV_OUT);
 	
@@ -198,13 +162,14 @@ static err_t low_level_output(struct netif *netif, struct pbuf *p)
 	LWIP_DEBUGF(NETIF_DEBUG | LWIP_DBG_TRACE, ("low_level_output ( %#x)\n",p));
 
 	EE_lwip_write_timestamp(LWIP_START_LOWLEV_INIT_TRANSFER);
-	mydevice_initiate_transfer();
+	EE_ethernetif_initiate_transfer();
 	EE_lwip_write_timestamp(LWIP_END_LOWLEV_INIT_TRANSFER);
 	
 	#if ETH_PAD_SIZE
 	pbuf_header(p, -ETH_PAD_SIZE); /* drop the padding word */
 	#endif
 
+	EE_lwip_write_timestamp(LWIP_START_LOWLEV_WRITE);
 	for(q = p; q != NULL; q = q->next) {
 		/* Send the data from the pbuf to the interface, one pbuf at a
 		   time. The size of the data in each pbuf is kept in the ->len
@@ -214,15 +179,15 @@ static err_t low_level_output(struct netif *netif, struct pbuf *p)
 		// {	
 			// LWIP_DEBUGF(NETIF_DEBUG | LWIP_DBG_TRACE, ("q->payload[%d]:%x  ", i, ((u8_t*)q->payload)[i]));
 		// }
-		EE_lwip_write_timestamp(LWIP_START_LOWLEV_WRITE);
-		mydevice_write(q->payload, q->len);
-		EE_lwip_write_timestamp(LWIP_END_LOWLEV_WRITE);
+		
+		EE_ethernetif_write(q->payload, q->len);
 	}
+	EE_lwip_write_timestamp(LWIP_END_LOWLEV_WRITE);
 	
 	LWIP_DEBUGF(NETIF_DEBUG | LWIP_DBG_TRACE, ("low_level_output: signal length: %d\n", length));
 	
 	EE_lwip_write_timestamp(LWIP_START_LOWLEV_SIGNAL);
-	mydevice_signal(length);
+	EE_ethernetif_signal(length);
 	EE_lwip_write_timestamp(LWIP_END_LOWLEV_SIGNAL);
 	
 	#if ETH_PAD_SIZE
@@ -246,7 +211,7 @@ static err_t low_level_output(struct netif *netif, struct pbuf *p)
  * @param p buffer to be transmitted.
  * @param ipaddr ip address.
  */
-err_t ethernetif_output(struct netif *netif, struct pbuf *p, struct ip_addr *ipaddr)
+err_t EE_ethernet_output(struct netif *netif, struct pbuf *p, struct ip_addr *ipaddr)
 {
 	err_t ret;
 	
@@ -280,16 +245,23 @@ static struct pbuf *low_level_input(struct netif *netif)
 	u16_t len;
 
 	EE_lwip_write_timestamp(LWIP_START_LOWLEV_INPUT);
-	struct ethernetif *ethernetif = netif->state;
-	/* Obtain the size of the packet and put it into the "len"
-	variable. */
-	mydevice_get_info(ethernetif);
-    if(ethernetif->pkt_cnt==0)
+	
+	// /* Obtain the size of the packet and put it into the "len"
+	// variable. */
+	// EE_ethernetif_get_info(netif);
+    // if(netif->state->pkt_cnt==0)
+	// {
+		// EE_lwip_write_timestamp(LWIP_END_LOWLEV_INPUT);
+		// return (struct pbuf *)0;
+	// }	
+	// len = netif->state->length;
+	
+	len = EE_ethernetif_get_info(netif);
+	if( len == 0)
 	{
 		EE_lwip_write_timestamp(LWIP_END_LOWLEV_INPUT);
 		return (struct pbuf *)0;
-	}	
-	len = ethernetif->length;
+	}
 
 	#if ETH_PAD_SIZE
 	len += ETH_PAD_SIZE; /* allow room for Ethernet padding */
@@ -315,10 +287,10 @@ static struct pbuf *low_level_input(struct netif *netif)
 		* actually received size. In this case, ensure the tot_len member of the
 		* pbuf is the sum of the chained pbuf len members.
 		*/
-			mydevice_read(q->payload, q->len);
+			EE_ethernetif_read(q->payload, q->len);
 			LWIP_DEBUGF(NETIF_DEBUG | LWIP_DBG_TRACE, ("low_level_input: payload=0x%x, len=%d\n", q->payload, q->len));
 		}
-		mydevice_ack();
+		EE_ethernetif_ack();
 
 		#if ETH_PAD_SIZE
 		pbuf_header(p, ETH_PAD_SIZE); /* reclaim the padding word */
@@ -327,7 +299,7 @@ static struct pbuf *low_level_input(struct netif *netif)
 		LINK_STATS_INC(link.recv);
 	} 
 	else {
-		mydevice_drop_packet();
+		EE_ethernetif_drop_packet();
 		LINK_STATS_INC(link.memerr);
 		LINK_STATS_INC(link.drop);
 	}
@@ -345,16 +317,12 @@ static struct pbuf *low_level_input(struct netif *netif)
  *
  * @param netif the lwip network interface structure for this ethernetif
  */
-err_t ethernetif_input(struct netif *netif)
+err_t EE_ethernet_input(struct netif *netif)
 {
-	struct ethernetif *ethernetif;
 	struct eth_hdr *ethhdr;
 	struct pbuf *p;
 
 	EE_lwip_write_timestamp(LWIP_START_ETH_INPUT);
-	
-	ethernetif = netif->state;
-
 	/* move received packet into a new pbuf */
 	p = low_level_input(netif);
 	/* no packet could be read, silently ignore this */

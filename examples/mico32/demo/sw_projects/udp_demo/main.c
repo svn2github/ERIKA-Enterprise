@@ -10,13 +10,12 @@
 #include <system_conf.h>
 /* Standard library */
 #include <stdio.h>
-
-/* lwIP */
-#include <lwip/pbuf.h>
-#include <lwip/udp.h>
+#include <stdarg.h>
+#include <MicoMacros.h>
+/* LWIP */
+#include "ee_lwip.h"
 #include "lwip.h"
 
-#include <MicoMacros.h>
 
 /* Variables for UDP communication */
 static const u16_t my_port = 9760;
@@ -154,7 +153,7 @@ TASK(Sender)
         return;
     }
     IP4_ADDR(&ipaddr, MY_IPADDR_BYTE1, MY_IPADDR_BYTE2,
-        MY_IPADDR_BYTE3, MY_IPADDR_BYTE4 + 1);
+        MY_IPADDR_BYTE3, MY_IPADDR_BYTE4 - 1);
     udp_connect(socket, &ipaddr, remote_port);
 
     pb = pbuf_alloc(PBUF_TRANSPORT, size, PBUF_REF);
@@ -205,8 +204,15 @@ int main(void)
     EE_uart_set_ISR_mode(EE_UART_POLLING | EE_UART_RXTX_BLOCK);   
 
     /* Initialize lwIP */
-    init_lwip();
-
+    struct ip_addr my_ipaddr, netmask, gw;
+    struct eth_addr my_ethaddr;
+	IP4_ADDR(&my_ipaddr, MY_IPADDR_BYTE1, MY_IPADDR_BYTE2, MY_IPADDR_BYTE3, MY_IPADDR_BYTE4);
+	IP4_ADDR(&netmask, MY_NETMASK_BYTE1, MY_NETMASK_BYTE2, MY_NETMASK_BYTE3, MY_NETMASK_BYTE4);
+	IP4_ADDR(&gw, MY_GATEWAY_ADDR_BYTE1, MY_GATEWAY_ADDR_BYTE2, MY_GATEWAY_ADDR_BYTE3, MY_GATEWAY_ADDR_BYTE4);
+	ETH_ADDR(&my_ethaddr, MY_ETHERNETIF_MAC_BYTE1, MY_ETHERNETIF_MAC_BYTE2, MY_ETHERNETIF_MAC_BYTE3, 
+				MY_ETHERNETIF_MAC_BYTE4, MY_ETHERNETIF_MAC_BYTE5, MY_ETHERNETIF_MAC_BYTE6);	
+    EE_lwip_init(&my_ipaddr, &netmask, &gw, &my_ethaddr);
+    
     /* Sender timer */
     EE_timer_init(MILLISECONDS_TO_TICKS(1000),
         MICO32_TIMER_CONTROL_INT_BIT_MASK | MICO32_TIMER_CONTROL_CONT_BIT_MASK);

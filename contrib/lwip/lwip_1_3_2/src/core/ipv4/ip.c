@@ -10,6 +10,9 @@
  * Copyright (c) 2001-2004 Swedish Institute of Computer Science.
  * All rights reserved.
  *
+ * ERIKA Enterprise - a tiny RTOS for small microcontrollers
+ * Copyright (C) 2010  Evidence Srl
+ *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  *
@@ -35,6 +38,7 @@
  * This file is part of the lwIP TCP/IP stack.
  *
  * Author: Adam Dunkels <adam@sics.se>
+ * Author: 2010,  Dario Di Stefano (Added time analysis).
  *
  */
 
@@ -57,6 +61,11 @@
 #include "arch/perf.h"
 
 #include <string.h>
+
+#ifdef __ERIKA__	/* Erika Abstract Compiler */
+/* Used with Erika Enterprise RTOS */
+#include <hal/lwip_timer.h>
+#endif
 
 /**
  * The interface that provided the packet for the current callback
@@ -497,8 +506,12 @@ ip_output_if(struct pbuf *p, struct ip_addr *src, struct ip_addr *dest,
              u8_t ttl, u8_t tos,
              u8_t proto, struct netif *netif)
 {
+	err_t res;
+	EE_lwip_write_timestamp(LWIP_START_IP_OUTPUT);
 #if IP_OPTIONS_SEND
-  return ip_output_if_opt(p, src, dest, ttl, tos, proto, netif, NULL, 0);
+	res = ip_output_if_opt(p, src, dest, ttl, tos, proto, netif, NULL, 0);
+	EE_lwip_write_timestamp(LWIP_END_IP_OUTPUT);
+	return res; 
 }
 
 /**
@@ -531,6 +544,7 @@ err_t ip_output_if_opt(struct pbuf *p, struct ip_addr *src, struct ip_addr *dest
         LWIP_DEBUGF(IP_DEBUG | LWIP_DBG_LEVEL_SERIOUS, ("ip_output_if_opt: not enough room for IP options in pbuf\n"));
         IP_STATS_INC(ip.err);
         snmp_inc_ipoutdiscards();
+		EE_lwip_write_timestamp(LWIP_END_IP_OUTPUT);
         return ERR_BUF;
       }
       MEMCPY(p->payload, ip_options, optlen);
@@ -546,6 +560,7 @@ err_t ip_output_if_opt(struct pbuf *p, struct ip_addr *src, struct ip_addr *dest
 
       IP_STATS_INC(ip.err);
       snmp_inc_ipoutdiscards();
+	  EE_lwip_write_timestamp(LWIP_END_IP_OUTPUT);
       return ERR_BUF;
     }
 
@@ -589,18 +604,25 @@ err_t ip_output_if_opt(struct pbuf *p, struct ip_addr *src, struct ip_addr *dest
   if (ip_addr_cmp(dest, &netif->ip_addr)) {
     /* Packet to self, enqueue it for loopback */
     LWIP_DEBUGF(IP_DEBUG, ("netif_loop_output()"));
-    return netif_loop_output(netif, p, dest);
+	res = netif_loop_output(netif, p, dest);
+	EE_lwip_write_timestamp(LWIP_END_IP_OUTPUT);
+    return res;
   }
 #endif /* ENABLE_LOOPBACK */
 #if IP_FRAG
   /* don't fragment if interface has mtu set to 0 [loopif] */
   if (netif->mtu && (p->tot_len > netif->mtu)) {
-    return ip_frag(p,netif,dest);
+	res = ip_frag(p,netif,dest);
+	EE_lwip_write_timestamp(LWIP_END_IP_OUTPUT);
+    return res;
   }
 #endif
 
   LWIP_DEBUGF(IP_DEBUG, ("netif->output()"));
-  return netif->output(netif, p, dest);
+  EE_lwip_write_timestamp(LWIP_END_IP_BEFORE_NETIF_OUTPUT);
+  res = netif->output(netif, p, dest);
+  EE_lwip_write_timestamp(LWIP_END_IP_OUTPUT);
+  return res;
 }
 
 /**

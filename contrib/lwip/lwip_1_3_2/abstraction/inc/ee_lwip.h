@@ -51,8 +51,10 @@
 #include "lwip/udp.h"
 #include "lwip/tcp.h"
 #include "lwip/init.h"
-#include "hal/lwip_ethernet.h"
 #include <lwip/netif.h>
+
+/* Headers used for LWIP porting into Erika */
+#include "hal/lwip_ethernet.h"
 #include <util/lwip_debug.h>
 #include <hal/lwip_timer.h>
 
@@ -62,14 +64,26 @@
 #define LWIP_ALARM_OFFSET			(0)
 #define LWIP_ALARM_OFFSET_PERIOD	(250)
 
+#define ETH_ADDR(ethp, a, b, c, d, e, f) \
+	(ethp)->addr[0] = a; \
+	(ethp)->addr[1] = b; \
+	(ethp)->addr[2] = c; \
+	(ethp)->addr[3] = d; \
+	(ethp)->addr[4] = e; \
+	(ethp)->addr[5] = f;
+
+extern u8_t ETHERNETIF_MAC_BYTE1;
+extern u8_t ETHERNETIF_MAC_BYTE2;
+extern u8_t ETHERNETIF_MAC_BYTE3;
+extern u8_t ETHERNETIF_MAC_BYTE4;
+extern u8_t ETHERNETIF_MAC_BYTE5;
+extern u8_t ETHERNETIF_MAC_BYTE6;	
+	
 /* Main network structure */
-extern struct netif lwip_netif; 
+extern struct netif EE_lwip_netif; 
 
 /* Driver functions */
-void EE_lwip_init(void);
+void EE_lwip_init(struct ip_addr *my_ipaddr, struct ip_addr *netmask, struct ip_addr *gw, struct eth_addr *my_ethaddr);
 void EE_lwip_handler(void);
-
-/* Utils */
-struct pbuf *pbuf_new(u8_t *data, u16_t len);
 
 #endif /* __EE_LWIP_H__ */

@@ -243,20 +243,43 @@ typedef union {
 /*
  *	Mac layer API (enc28j60 driver)		
 */
+__INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_handler(int level)
+{
+	EE_enc28j60_hal_handler(level);
+}
+#define EE_enc28j60_enable()							EE_enc28j60_hal_enable()
+#define EE_enc28j60_disable()							EE_enc28j60_hal_disable()
+#define EE_enc28j60_spi_init()							EE_enc28j60_hal_spi_init()
+#define EE_enc28j60_disable_IRQ()						EE_enc28j60_hal_disable_IRQ()
+#define EE_enc28j60_mac_put_array(val, len)				EE_enc28j60_hal_put_array(val, len)
+#define EE_enc28j60_mac_put(val)						EE_enc28j60_hal_put(val)
+#define EE_enc28j60_mac_get_array(val, len)				EE_enc28j60_hal_get_array(val, len)
+#define EE_enc28j60_mac_get()							EE_enc28j60_hal_get()
+#define EE_enc28j60_software_reset() 									EE_enc28j60_hal_software_reset()
+#define EE_enc28j60_read_ETH_register(Address)							EE_enc28j60_hal_read_ETH_register(Address)
+#define EE_enc28j60_read_MAC_MII_register(Address)						EE_enc28j60_hal_read_MAC_MII_register(Address)
+#define EE_enc28j60_read_PHY_register(Register)							EE_enc28j60_hal_read_PHY_register(Register)
+#define EE_enc28j60_write_register(Address, Data)						EE_enc28j60_hal_write_register(Address, Data)
+#define EE_enc28j60_bit_field_clear_register(Address, Data)				EE_enc28j60_hal_bit_field_clear_register(Address, Data)
+#define EE_enc28j60_bit_field_set_register(Address, Data)		 		EE_enc28j60_hal_bit_field_set_register(Address, Data)
+#define EE_enc28j60_write_PHY_register(Register, Data)					EE_enc28j60_hal_write_PHY_register(Register, Data)
+#define EE_enc28j60_bank_select(Register)								EE_enc28j60_hal_bank_select(Register)
+#define EE_enc28j60_set_clkout(NewConfig)								EE_enc28j60_hal_set_clkout(NewConfig)
+#define EE_enc28j60_get_clkout()										EE_enc28j60_hal_get_clkout()
 #define SetRXHashTableEntry(DestMACAddr) 				EE_enc28j60_mac_set_rx_hash_table_entry(DestMACAddr)
-#define GetCLKOUT() 									EE_enc28j60_get_clkout()
-#define SetCLKOUT(NewConfig) 							EE_enc28j60_set_clkout(NewConfig)
+#define GetCLKOUT() 									EE_enc28j60_hal_get_clkout()
+#define SetCLKOUT(NewConfig) 							EE_enc28j60_hal_set_clkout(NewConfig)
 #define MACPowerUp()									EE_enc28j60_mac_power_up()
 #define MACPowerDown()									EE_enc28j60_mac_power_down()
-#define BankSel(Register)								EE_enc28j60_bank_select(Register)
-#define WritePHYReg(Register, Data)						EE_enc28j60_write_PHY_register(Register, Data)
-#define BFSReg(Address, Data)							EE_enc28j60_bit_field_set_register(Address, Data)
-#define BFCReg(Address, Data)							EE_enc28j60_bit_field_clear_register(Address, Data)
-#define WriteReg(Address, Data)							EE_enc28j60_write_register(Address, Data)
-#define ReadPHYReg(Register)							EE_enc28j60_read_PHY_register(Register)
-#define ReadMACReg(Address)								EE_enc28j60_read_MAC_MII_register(Address)
-#define ReadETHReg(Address)								EE_enc28j60_read_ETH_register(Address)
-#define SendSystemReset()								EE_enc28j60_software_reset()
+#define BankSel(Register)								EE_enc28j60_hal_bank_select(Register)
+#define WritePHYReg(Register, Data)						EE_enc28j60_hal_write_PHY_register(Register, Data)
+#define BFSReg(Address, Data)							EE_enc28j60_hal_bit_field_set_register(Address, Data)
+#define BFCReg(Address, Data)							EE_enc28j60_hal_bit_field_clear_register(Address, Data)
+#define WriteReg(Address, Data)							EE_enc28j60_hal_write_register(Address, Data)
+#define ReadPHYReg(Register)							EE_enc28j60_hal_read_PHY_register(Register)
+#define ReadMACReg(Address)								EE_enc28j60_hal_read_MAC_MII_register(Address)
+#define ReadETHReg(Address)								EE_enc28j60_hal_read_ETH_register(Address)
+#define SendSystemReset()								EE_enc28j60_hal_software_reset()
 #define MACPutArray(val, len)							EE_enc28j60_mac_put_array(val, len)
 #define MACPut(val)										EE_enc28j60_mac_put(val)
 #define MACGetArray(val, len)							EE_enc28j60_mac_get_array(val, len)
@@ -269,18 +292,13 @@ typedef union {
 #define MACSetWritePtr(address)							EE_enc28j60_mac_set_write_ptr(address)
 #define MACSetReadPtrInRx(offset)						EE_enc28j60_mac_set_read_ptr_inRx(offset)
 #define MACFlush()										EE_enc28j60_mac_flush()
-#define MACPutHeader(remote, type, dataLen)				EE_enc28j60_mac_put_header(remote, type, dataLen)
+#define MACPutHeader(remote, type, dataLen, mac)		EE_enc28j60_mac_put_header(remote, type, dataLen, mac)
 #define MACGetHeader(remote, type, pcnt, len)			EE_enc28j60_mac_get_header(remote, type, pcnt, len)
 #define MACGetFreeRxSize()								EE_enc28j60_mac_get_FreeRxSize()
 #define MACDiscardRx()									EE_enc28j60_mac_discard_rx()
 #define MACIsTxReady()									EE_enc28j60_mac_IsTxReady()
 #define MACIsLinked()									EE_enc28j60_mac_IsLinked()
-#define MACInit()										EE_enc28j60_mac_init()
-
-#define EE_enc28j60_mac_put_array(val, len)				EE_enc28j60_put_array(val, len)
-#define EE_enc28j60_mac_put(val)						EE_enc28j60_put(val)
-#define EE_enc28j60_mac_get_array(val, len)				EE_enc28j60_get_array(val, len)
-#define EE_enc28j60_mac_get()							EE_enc28j60_get()
+#define MACInit(mac)									EE_enc28j60_mac_init(mac)
 
 #if defined(__18CXX)
 #define EE_enc28j60_mac_put_ROM_array(val, len)			EE_enc28j60_put_ROM_array(val, len)
@@ -288,13 +306,13 @@ typedef union {
 void EE_enc28j60_mac_put_ROM_array(ROM BYTE *val, WORD len);
 #endif
 
-void EE_enc28j60_mac_init(void);
+void EE_enc28j60_mac_init(mac_addr myMACaddress);
 BOOL EE_enc28j60_mac_IsLinked(void);
 BOOL EE_enc28j60_mac_IsTxReady(void);
 void EE_enc28j60_mac_discard_rx(void);
 WORD EE_enc28j60_mac_get_FreeRxSize(void);
 BOOL EE_enc28j60_mac_get_header(mac_addr *remote, BYTE* type, BYTE* PacketCount, WORD* length);
-void EE_enc28j60_mac_put_header(mac_addr *remote, WORD type, WORD dataLen);
+void EE_enc28j60_mac_put_header(mac_addr *remote, WORD type, WORD dataLen, mac_addr myMACaddress);
 void EE_enc28j60_mac_flush(void);
 void EE_enc28j60_mac_set_read_ptr_inRx(WORD offset);
 WORD EE_enc28j60_mac_set_write_ptr(WORD address);
@@ -303,31 +321,33 @@ WORD EE_enc28j60_mac_CalcRxChecksum(WORD offset, WORD len);
 WORD EE_enc28j60_mac_CalcIPBufferChecksum(WORD len);
 void EE_enc28j60_mac_MemCopyAsync(WORD destAddr, WORD sourceAddr, WORD len);
 BOOL EE_enc28j60_mac_IsMemCopyDone(void);
-BYTE EE_enc28j60_mac_get();
-WORD EE_enc28j60_mac_get_array(BYTE *val, WORD len);
-void EE_enc28j60_mac_put(BYTE val);
-void EE_enc28j60_mac_put_array(BYTE *val, WORD len);
-void EE_enc28j60_software_reset(void);
-REG EE_enc28j60_read_ETH_register(BYTE Address);
-REG EE_enc28j60_read_MAC_MII_register(BYTE Address);
-PHYREG EE_enc28j60_read_PHY_register(BYTE Register);
-void EE_enc28j60_write_register(BYTE Address, BYTE Data);
-void EE_enc28j60_bit_field_clear_register(BYTE Address, BYTE Data);
-void EE_enc28j60_bit_field_set_register(BYTE Address, BYTE Data);
-void EE_enc28j60_write_PHY_register(BYTE Register, WORD Data);
-void EE_enc28j60_bank_select(WORD Register);
 void EE_enc28j60_mac_power_down(void);
 void EE_enc28j60_mac_power_up(void);
-void EE_enc28j60_set_clkout(BYTE NewConfig);
-BYTE EE_enc28j60_get_clkout(void);
+
+// BYTE EE_enc28j60_mac_get();
+// WORD EE_enc28j60_mac_get_array(BYTE *val, WORD len);
+// void EE_enc28j60_mac_put(BYTE val);
+// void EE_enc28j60_mac_put_array(BYTE *val, WORD len);
+// void EE_enc28j60_software_reset(void);
+// REG EE_enc28j60_read_ETH_register(BYTE Address);
+// REG EE_enc28j60_read_MAC_MII_register(BYTE Address);
+// PHYREG EE_enc28j60_read_PHY_register(BYTE Register);
+// void EE_enc28j60_write_register(BYTE Address, BYTE Data);
+// void EE_enc28j60_bit_field_clear_register(BYTE Address, BYTE Data);
+// void EE_enc28j60_bit_field_set_register(BYTE Address, BYTE Data);
+// void EE_enc28j60_write_PHY_register(BYTE Register, WORD Data);
+// void EE_enc28j60_bank_select(WORD Register);
+// void EE_enc28j60_set_clkout(BYTE NewConfig);
+// BYTE EE_enc28j60_get_clkout(void);
+
+
+
 #if 0
 void EE_enc28j60_mac_set_rx_hash_table_entry(mac_addr DestMACAddr);
 #endif
 WORD swaps(WORD v);
 
-
-/* MAC address macros defined by the application code */
-#include "lwipopts_ee.h"
+/* Variable to store the MAC address */
 extern mac_addr ee_myMACaddress;
 
 /* 	EE_enc28j60_debug_init
@@ -338,25 +358,24 @@ int8_t EE_enc28j60_debug_init(void);
 /* 	EE_enc28j60_init 
 	Function used to initialize the device
 */
-__INLINE__ WORD __ALWAYS_INLINE__ EE_enc28j60_init(void)
+__INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_init(mac_addr myMACaddress)
 {
-	int ret = 0;
-	
 	#ifdef __ENC28J60_DEBUG__
 	EE_enc28j60_debug_init();
 	#endif
 	
-	//int mode = 0;
-	//EE_enc28j60_config(mode);
-    EE_enc28j60_spi_init();	// SPI module configuration
-	// Release reset
-	EE_enc28j60_gpio_release_reset();
-	// Disable IRQ
-	mico32_disable_irq(EE_ENC28J60_IRQ);
-	EE_enc28j60_gpio_disable_IRQ();
-	// MAC layer initialization
-	EE_enc28j60_mac_init();
-	return ret;
+	/* Disable IRQ */
+	EE_enc28j60_disable_IRQ();
+	/* Hold in reset */
+	//EE_enc28j60_disable();
+	/* SPI initialization */
+	EE_enc28j60_spi_init();	// SPI module configuration
+	/* Release reset */
+	EE_enc28j60_enable();
+	/* MAC layer initialization */
+	EE_enc28j60_mac_init(myMACaddress);
+	/* Enable IRQ */
+	//EE_enc28j60_enable_IRQ();
 }
 
 /* 	EE_enc28j60_transfer_init

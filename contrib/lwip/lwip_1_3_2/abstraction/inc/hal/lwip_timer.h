@@ -9,23 +9,119 @@
 #ifndef __lwip_timer_h__
 #define __lwip_timer_h__
 
-#ifndef LWIP_HAL_EXTERNAL_TIMER		/* Check if no external HAL timer */
+/* Compiler specification */
 #include <hal/lwip_compiler.h>
-#if defined __LM32__
-#include <hal/lwip_timer_mico32.h>
-#else			/* No timer */
-#error "LWIP_HAL ERROR: timer hw interface not specified"
-#endif	/* End Selection */
-#endif /* lwip_HAL_EXTERNAL_TIMER */
-
-#define lwip_time_diff_ms(from,to)  ((EE_UINT32)((from) - (to)) / (EE_UINT32)(CPU_FREQUENCY / 1000))
-#define lwip_time_diff_us(from,to)  ((EE_UINT32)((from) - (to)) / (EE_UINT32)(CPU_FREQUENCY / 1000000))
-
-#ifdef __LWIP_TIME_DEBUG__
-
 /* Platform description */
 #include <system_conf.h>
 
+#include "lwip/tcp.h"
+#include <netif/etharp.h>
+
+/* HW specification */
+#if defined __LM32__
+#include <hal/lwip_timer_mico32.h>
+#else			/* No timer */
+#endif	/* End Selection */
+
+/* Macros for time analisys */
+#define lwip_time_diff_ms(from,to)  ((EE_UINT32)((from) - (to)) / (EE_UINT32)(CPU_FREQUENCY / 1000))
+#define lwip_time_diff_us(from,to)  ((EE_UINT32)((from) - (to)) / (EE_UINT32)(CPU_FREQUENCY / 1000000))
+
+/* Lwip timers configuration */
+#define EE_LWIP_TIMER_PERIOD_MS (2U)
+#define EE_LWIP_ARP_PERIOD      (ARP_TMR_INTERVAL / EE_LWIP_TIMER_PERIOD_MS)
+#define EE_LWIP_TCP_FAST_PERIOD (TCP_FAST_INTERVAL / EE_LWIP_TIMER_PERIOD_MS)
+#define EE_LWIP_TCP_SLOW_PERIOD (TCP_SLOW_INTERVAL / EE_LWIP_TIMER_PERIOD_MS)
+
+/* Masks for `pending' in struct ee_lwip_timers */
+#define EE_LWIP_TIMER_ARP       1
+#define EE_LWIP_TIMER_TCP_FAST  2
+#define EE_LWIP_TIMER_TCP_SLOW  4
+struct ee_lwip_timers
+{
+    EE_UINT16 arp_ticks;
+#if LWIP_TCP
+    EE_UINT16 tcp_fast_ticks;
+    EE_UINT16 tcp_slow_ticks;
+#endif
+    /** Bit mask indicating which timer callback is to be called */
+    volatile EE_UINT16 pending;
+};
+
+extern volatile int EE_lwip_irq_pending;
+extern struct ee_lwip_timers EE_lwip_timers;
+
+/* Callback used for Lwip timers */
+void EE_lwip_timer_tick(void);
+
+/* TCP timers */
+#if LWIP_TCP
+/** Update TCP timers, but don't modify the pending field in the struct. */
+__INLINE__ EE_UINT16 __ALWAYS_INLINE__ EE_lwip_update_tcp_timers(
+    struct ee_lwip_timers *tmrs, EE_UINT16 pending)
+{
+    tmrs->tcp_fast_ticks += 1;
+    if (tmrs->tcp_fast_ticks >= EE_LWIP_TCP_FAST_PERIOD) {
+        tmrs->tcp_fast_ticks = 0;
+        pending |= EE_LWIP_TIMER_TCP_FAST;
+    }
+    tmrs->tcp_slow_ticks += 1;
+    if (tmrs->tcp_slow_ticks >= EE_LWIP_TCP_SLOW_PERIOD) {
+        tmrs->tcp_slow_ticks = 0;
+        pending |= EE_LWIP_TIMER_TCP_SLOW;
+    }
+    return pending;
+}
+
+/** Call TCP timer callbacks if needed */
+__INLINE__ void __ALWAYS_INLINE__ EE_lwip_maybe_call_tcp_timers(
+    EE_UINT16 pending)
+{
+    if (pending & EE_LWIP_TIMER_TCP_FAST)
+        tcp_fasttmr();
+    if (pending & EE_LWIP_TIMER_TCP_SLOW)
+        tcp_slowtmr();
+}
+#else
+#define EE_lwip_update_tcp_timers(tmrs, pending) (pending)
+#define EE_lwip_maybe_call_tcp_timers(pending)
+#endif /* LWIP_TCP */
+
+/**
+ * @brief Increment timer ticks and update the pending status.
+ * This function must be called with interrupts disabled.
+ * @return the new pending status
+ */
+__INLINE__ EE_UINT16 EE_lwip_increment_timers(struct ee_lwip_timers *tmrs)
+{
+    /* Keep a copy of pending, which is volatile */
+    EE_UINT16 pending = tmrs->pending;
+    tmrs->arp_ticks += 1;
+    if (tmrs->arp_ticks >= EE_LWIP_ARP_PERIOD) {
+        tmrs->arp_ticks = 0;
+        pending |= EE_LWIP_TIMER_ARP;
+    }
+    pending = EE_lwip_update_tcp_timers(tmrs, pending);
+    tmrs->pending = pending;
+    return pending;
+}
+
+/** Call ARP timer callback if needed */
+__INLINE__ void __ALWAYS_INLINE__ EE_lwip_maybe_call_arp_timer(
+    EE_UINT16 pending)
+{
+    if (pending & EE_LWIP_TIMER_ARP)
+        etharp_tmr();
+}
+
+/* Function used for Lwip timers configuration */
+__INLINE__ void __ALWAYS_INLINE__ EE_lwip_timers_configuration(void)
+{
+	EE_hal_lwip_timers_configuration();
+}
+
+/* Time analisys for debug */
+#ifdef __LWIP_TIME_DEBUG__
 enum{	
 	LWIP_START_ETH_OUT,
 	LWIP_START_LOWLEV_OUT, 
@@ -40,6 +136,8 @@ enum{
 	LWIP_START_LOWLEV_INIT_TRANSFER,
 	LWIP_START_LOWLEV_WRITE,
 	LWIP_START_LOWLEV_SIGNAL,
+	LWIP_START_UDP_CHECKSUM,
+	LWIP_START_IP_OUTPUT,
 	
 	LWIP_END_ETH_OUT,
 	LWIP_END_LOWLEV_OUT,
@@ -54,6 +152,9 @@ enum{
 	LWIP_END_LOWLEV_INIT_TRANSFER,
 	LWIP_END_LOWLEV_WRITE,
 	LWIP_END_LOWLEV_SIGNAL,
+	LWIP_END_UDP_CHECKSUM,
+	LWIP_END_IP_OUTPUT,
+	LWIP_END_IP_BEFORE_NETIF_OUTPUT,
 	
 	LWIP_TS_BUFFER_SIZE };
 	
@@ -76,10 +177,12 @@ __INLINE__ void __ALWAYS_INLINE__ EE_lwip_reset_timestamp(void)
 		lwip_ts_buffer[i] = 0;
 }
 
-#else
+#else	
+
 #define EE_lwip_write_timestamp(id)
 #define EE_lwip_read_timestamp(id)	-1
 #define EE_lwip_reset_timestamp()
-#endif
+
+#endif	// __LWIP_TIME_DEBUG__
 
 #endif /* Header Protection */

@@ -100,165 +100,160 @@ extern EE_enc28j60_st ee_enc28j60_st;
 
 /* Macros for SPI-based ETHERNET functions */  
 #define DECLARE_FUNC_SPI_ENC28J60(uc, lc) \
-__INLINE__ int __ALWAYS_INLINE__ EE_enc28j60_spi_init(void){ \
+__INLINE__ int __ALWAYS_INLINE__ EE_enc28j60_hal_spi_init(void){ \
 	return cat3(EE_, lc, _config)(0); } \
-__INLINE__ int __ALWAYS_INLINE__  EE_enc28j60_write_byte(EE_UINT8 data){ \
+__INLINE__ int __ALWAYS_INLINE__  EE_enc28j60_hal_write_byte(EE_UINT8 data){ \
 	return cat3(EE_, lc, _send_byte)(data); } \
-__INLINE__ int __ALWAYS_INLINE__  EE_enc28j60_write_buffer(EE_UINT8 *data, int len){ \
+__INLINE__ int __ALWAYS_INLINE__  EE_enc28j60_hal_write_buffer(EE_UINT8 *data, int len){ \
 	return cat3(EE_, lc, _send_buffer)(data, len); } \
-__INLINE__ int __ALWAYS_INLINE__  EE_enc28j60_read_byte(void){ \
+__INLINE__ int __ALWAYS_INLINE__  EE_enc28j60_hal_read_byte(void){ \
 	return cat3(EE_, lc, _receive_byte)(); } \
-__INLINE__ int __ALWAYS_INLINE__  EE_enc28j60_read_buffer(EE_UINT8 *data, int len){ \
+__INLINE__ int __ALWAYS_INLINE__  EE_enc28j60_hal_read_buffer(EE_UINT8 *data, int len){ \
 	return cat3(EE_, lc, _receive_buffer)(data, len); } \
-__INLINE__ int __ALWAYS_INLINE__ EE_enc28j60_set_SSO(void){ \
-	return EE_hal_spi_set_SSO((MicoSPI_t*)EE_BASE_ADD(uc)); } \
-__INLINE__ int __ALWAYS_INLINE__ EE_enc28j60_clear_SSO(void){ \
-	return EE_hal_spi_clear_SSO((MicoSPI_t*)EE_BASE_ADD(uc)); } \
-__INLINE__ int __ALWAYS_INLINE__ EE_enc28j60_set_slave(unsigned int mask){ \
-	return EE_hal_spi_set_slave((MicoSPI_t*)EE_BASE_ADD(uc), mask); } \
-__INLINE__ int __ALWAYS_INLINE__ EE_enc28j60_get_slave(unsigned int *pmask ){ \
-	return EE_hal_spi_get_slave((MicoSPI_t*)EE_BASE_ADD(uc), pmask); }
+__INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_hal_set_SSO(void){ \
+	EE_hal_spi_set_SSO((MicoSPI_t*)EE_BASE_ADD(uc)); } \
+__INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_hal_clear_SSO(void){ \
+	EE_hal_spi_clear_SSO((MicoSPI_t*)EE_BASE_ADD(uc)); } \
+__INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_hal_set_slave(unsigned int mask){ \
+	EE_hal_spi_set_slave((MicoSPI_t*)EE_BASE_ADD(uc), mask); } \
+__INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_hal_get_slave(unsigned int *pmask ){ \
+	EE_hal_spi_get_slave((MicoSPI_t*)EE_BASE_ADD(uc), pmask); }
 
 ///* ETHERNET API functions */
 DECLARE_FUNC_SPI_ENC28J60(EE_ETHERNET_SPI_NAME_UC, EE_ETHERNET_SPI_NAME_LC)
 
+void EE_enc28j60_hal_handler(int level);
 #ifndef __STATIC_ISR_TABLE__
 /* This function records ISR handler */
-__INLINE__ void __ALWAYS_INLINE__ EE_hal_enc28j60_handler_setup(void)
+__INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_hal_handler_setup(void)
 {
     /* Register IRQ handler */
     EE_mico32_register_ISR(ee_enc28j60_st.irqf, EE_enc28j60_handler);	 
 }
 #else // __STATIC_ISR_TABLE__
-#define EE_hal_enc28j60_handler_setup()
+#define EE_enc28j60_hal_handler_setup()
 #endif // __STATIC_ISR_TABLE__
 
-#define EE_enc28j60_chip_select() 	EE_enc28j60_set_SSO()
-#define EE_enc28j60_chip_unselect() EE_enc28j60_clear_SSO()
+#define EE_enc28j60_hal_chip_select() 	EE_enc28j60_hal_set_SSO()
+#define EE_enc28j60_hal_chip_unselect() EE_enc28j60_hal_clear_SSO()
 
 /*
-	void EE_enc28j60_write_16(EE_UINT8 byte1, EE_UINT8 byte2);
+	void EE_enc28j60_hal_write_16(EE_UINT8 byte1, EE_UINT8 byte2);
 	This function writes 2 bytes on spi bus. 
 */
-__INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_write_16(EE_UINT8 byte1, EE_UINT8 byte2)
+__INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_hal_write_16(EE_UINT8 byte1, EE_UINT8 byte2)
 {
-	EE_enc28j60_write_byte(byte1);
-	EE_enc28j60_write_byte(byte2);
+	EE_enc28j60_hal_write_byte(byte1);
+	EE_enc28j60_hal_write_byte(byte2);
 }
 
 /*
-	void EE_enc28j60_delay_us(EE_UINT16 delay_count);
+	void EE_enc28j60_hal_delay_us(EE_UINT16 delay_count);
 	This function contains a delay loop. 
 */
-void EE_enc28j60_delay_us(unsigned int delay_count);
+void EE_enc28j60_hal_delay_us(unsigned int delay_count);
 
 /*
-	void EE_enc28j60_delay_ms(EE_UINT16 delay_count);
+	void EE_enc28j60_hal_delay_ms(EE_UINT16 delay_count);
 	This function contains a delay loop. 
 */
-void EE_enc28j60_delay_ms(unsigned int delay_count);
+void EE_enc28j60_hal_delay_ms(unsigned int delay_count);
 
 /* 
-	__INLINE__ int __ALWAYS_INLINE__ EE_enc28j60_config(int mode);
+	__INLINE__ int __ALWAYS_INLINE__ EE_enc28j60_hal_config(int mode);
 	This function configures SPI controller.
  */
-__INLINE__ int __ALWAYS_INLINE__ EE_enc28j60_config(int mode);
+__INLINE__ int __ALWAYS_INLINE__ EE_enc28j60_hal_config(int mode);
 
 /*
-	int EE_enc28j60_set_ISR_mode(int irqf);
+	int EE_enc28j60_hal_set_ISR_mode(int irqf);
 	This function is called by EE_enc28j60_set_mode(int mode) function.
 	It is used to configure the GPIO pin connected to ENC28J60 device.
 */
-int EE_hal_enc28j60_set_ISR_mode(int irqf);
+int EE_enc28j60_hal_set_ISR_mode(int irqf);
 
 /*
-	int EE_enc28j60_set_polling_mode(void);
+	int EE_enc28j60_hal_set_polling_mode(void);
 	This function is called by EE_enc28j60_set_mode(int mode) function.
 	It is used to configure ENC28J60 driver in polling mode.
 */
-int EE_hal_enc28j60_set_polling_mode(void);
+int EE_hal_enc28j60_hal_set_polling_mode(void);
 
 /*
-	__INLINE__ int __ALWAYS_INLINE__ EE_enc28j60_set_mode(int mode)
-	This function sets ENC28J60 driver operating mode.
-*/
-__INLINE__ int __ALWAYS_INLINE__ EE_enc28j60_set_ISR_mode(int mode);
-
-/*
-	REG EE_enc28j60_read_ETH_register(BYTE Address);
+	REG EE_enc28j60_hal_read_ETH_register(BYTE Address);
 	This function reads an ETH register.
 */
-REG EE_enc28j60_read_ETH_register(BYTE Address);
+REG EE_enc28j60_hal_read_ETH_register(BYTE Address);
 
 /*
-	REG EE_enc28j60_read_MAC_MII_register(BYTE Address);
+	REG EE_enc28j60_hal_read_MAC_MII_register(BYTE Address);
 	This function reads a MAC/MII register.
 */
-REG EE_enc28j60_read_MAC_MII_register(BYTE Address);
+REG EE_enc28j60_hal_read_MAC_MII_register(BYTE Address);
 
 /*
-	PHYREG EE_enc28j60_read_PHY_register(BYTE Register);
+	PHYREG EE_enc28j60_hal_read_PHY_register(BYTE Register);
 	This function reads a PHY register.
 */
-PHYREG EE_enc28j60_read_PHY_register(BYTE Register);
+PHYREG EE_enc28j60_hal_read_PHY_register(BYTE Register);
 
 /*
-	void EE_enc28j60_write_register(BYTE Address, BYTE Data);
+	void EE_enc28j60_hal_write_register(BYTE Address, BYTE Data);
 	This function writes on a generic register.
 */
-void EE_enc28j60_write_register(BYTE Address, BYTE Data);
+void EE_enc28j60_hal_write_register(BYTE Address, BYTE Data);
 
 /*
-	void EE_enc28j60_write_PHY_register(BYTE Register, WORD Data);
+	void EE_enc28j60_hal_write_PHY_register(BYTE Register, WORD Data);
 	This function writes on a PHY register.
 */
-void EE_enc28j60_write_PHY_register(BYTE Register, WORD Data);
+void EE_enc28j60_hal_write_PHY_register(BYTE Register, WORD Data);
 
 /*
-	BYTE EE_enc28j60_mac_get();
-	WORD EE_enc28j60_mac_get_array(BYTE *val, WORD len);
+	BYTE EE_enc28j60_hal_get();
+	WORD EE_enc28j60_hal_get_array(BYTE *val, WORD len);
 	These functions read from the ENC28J60 memory buffer.
 */
-BYTE EE_enc28j60_mac_get();
-WORD EE_enc28j60_mac_get_array(BYTE *val, WORD len);
+BYTE EE_enc28j60_hal_get();
+WORD EE_enc28j60_hal_get_array(BYTE *val, WORD len);
 
 /*
-	void EE_enc28j60_mac_put(BYTE val);
-	void EE_enc28j60_mac_put_array(BYTE *val, WORD len);
+	void EE_enc28j60_hal_put(BYTE val);
+	void EE_enc28j60_hal_put_array(BYTE *val, WORD len);
 	These functions write on the ENC28J60 memory buffer.
 */
-void EE_enc28j60_mac_put(BYTE val);
-void EE_enc28j60_mac_put_array(BYTE *val, WORD len);
+void EE_enc28j60_hal_put(BYTE val);
+void EE_enc28j60_hal_put_array(BYTE *val, WORD len);
 
 /* 
-	void EE_enc28j60_bit_field_set_register(BYTE Address, BYTE Data);
+	void EE_enc28j60_hal_bit_field_set_register(BYTE Address, BYTE Data);
 	This function sets up to 8 bits in a ETH register.
 */
-void EE_enc28j60_bit_field_set_register(BYTE Address, BYTE Data);
+void EE_enc28j60_hal_bit_field_set_register(BYTE Address, BYTE Data);
 
 /* 
-	void EE_enc28j60_bit_field_clear_register(BYTE Address, BYTE Data);
+	void EE_enc28j60_hal_bit_field_clear_register(BYTE Address, BYTE Data);
 	This function clears up to 8 bits in a ETH register.
 */
-void EE_enc28j60_bit_field_clear_register(BYTE Address, BYTE Data);
+void EE_enc28j60_hal_bit_field_clear_register(BYTE Address, BYTE Data);
 
 /*
-	void EE_enc28j60_software_reset(void);
+	void EE_enc28j60_hal_software_reset(void);
 	This function send a software reset command.
 */
-void EE_enc28j60_software_reset(void);
+void EE_enc28j60_hal_software_reset(void);
 
 /*
-	void EE_enc28j60_hardware_reset(void);
+	void EE_enc28j60_hal_hardware_reset(void);
 	This function resets the device (HW reset).
 */
-void EE_enc28j60_hardware_reset(void);
+void EE_enc28j60_hal_hardware_reset(void);
 
 /*
-	void EE_enc28j60_bank_select(WORD Register);
+	void EE_enc28j60_hal_bank_select(WORD Register);
 	This function selects the bank.
 */
-void EE_enc28j60_bank_select(WORD Register);
+void EE_enc28j60_hal_bank_select(WORD Register);
 
 /* ---------------- */
 /* INLINE functions */
@@ -268,113 +263,114 @@ void EE_enc28j60_bank_select(WORD Register);
 	REG EE_enc28j60_read_MAC_register(BYTE address);
 	This function reads a MAC register.
 */
-__INLINE__ REG __ALWAYS_INLINE__ EE_enc28j60_read_MAC_register(BYTE address)
+__INLINE__ REG __ALWAYS_INLINE__ EE_enc28j60_hal_read_MAC_register(BYTE address)
 {
-	return EE_enc28j60_read_MAC_MII_register(address);
+	return EE_enc28j60_hal_read_MAC_MII_register(address);
 }
 
 /*
 	int EE_enc28j60_read_MII_register(int address);
 	This function reads a MII register.
 */
-__INLINE__ REG __ALWAYS_INLINE__ EE_enc28j60_read_MII_register(BYTE address)
+__INLINE__ REG __ALWAYS_INLINE__ EE_enc28j60_hal_read_MII_register(BYTE address)
 {
-	return EE_enc28j60_read_MAC_MII_register(address);
+	return EE_enc28j60_hal_read_MAC_MII_register(address);
 }
 
 /*
 	void EE_enc28j60_write_ETH_register(BYTE address, BYTE data);
 	This function writes on a ETH register.
 */
-__INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_write_ETH_register(BYTE address, BYTE data)
+__INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_hal_write_ETH_register(BYTE address, BYTE data)
 {
-	return EE_enc28j60_write_register(address, data);
+	return EE_enc28j60_hal_write_register(address, data);
 }
 
 /*
 	void EE_enc28j60_write_MAC_register(BYTE address, BYTE data);
 	This function writes on a MAC register.
 */
-__INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_write_MAC_register(BYTE address, BYTE data)
+__INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_hal_write_MAC_register(BYTE address, BYTE data)
 {
-	return EE_enc28j60_write_register(address, data);
+	return EE_enc28j60_hal_write_register(address, data);
 }
 
 /*
 	void EE_enc28j60_write_MII_register(BYTE address, BYTE data);
 	This function writes on a MII register.
 */
-__INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_write_MII_register(BYTE address, BYTE data)
+__INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_hal_write_MII_register(BYTE address, BYTE data)
 {
-	return EE_enc28j60_write_register(address, data);
+	return EE_enc28j60_hal_write_register(address, data);
 }
 
 /*
-	__INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_enable(void);
+	__INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_hal_enable(void);
 	This function enables device by reset pin. 
 */
-__INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_enable(void)
+__INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_hal_enable(void)
 {
 	EE_enc28j60_gpio_release_reset();
 }
 
 /*
-	__INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_disable(void);
+	__INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_hal_disable(void);
 	This function disables device by reset pin. 
 */
-__INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_disable(void)
+__INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_hal_disable(void)
 {
 	EE_enc28j60_gpio_hold_in_reset();
 }
 
 /*
-	__INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_enable_IRQ(void);
+	__INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_hal_enable_IRQ(void);
 	This function enables ENC28J60 interrupts reception. 
 */
-__INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_enable_IRQ(void)
+__INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_hal_enable_IRQ(void)
 {
 	EE_enc28j60_gpio_enable_IRQ();
 }
 
 /*
-	__INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_disable_IRQ(void);
+	__INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_hal_disable_IRQ(void);
 	This function disables ENC28J60 interrupts reception. 
 */
-__INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_disable_IRQ(void)
+__INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_hal_disable_IRQ(void)
 {
+	mico32_disable_irq(EE_ENC28J60_IRQ);
 	EE_enc28j60_gpio_disable_IRQ();
 }
 
 /*
-	__INLINE__ int __ALWAYS_INLINE__ EE_enc28j60_IRQ_enabled(void);
+	__INLINE__ int __ALWAYS_INLINE__ EE_enc28j60_hal_IRQ_enabled(void);
 	This function returns ENC28J60 interrupts enable state. 
 */
-__INLINE__ int __ALWAYS_INLINE__ EE_enc28j60_IRQ_enabled(void)
+__INLINE__ int __ALWAYS_INLINE__ EE_enc28j60_hal_IRQ_enabled(void)
 {
 	return EE_enc28j60_gpio_IRQ_enabled();
 }
 
-/*
-	__INLINE__ int __ALWAYS_INLINE__ EE_enc28j60_set_ISR_mode(int mode)
-	This function configures ISR mode.
-*/
-__INLINE__ int __ALWAYS_INLINE__ EE_enc28j60_set_ISR_mode(int mode)
-{ 
-	return EE_hal_enc28j60_set_ISR_mode(mode); 
-} 
+// /*
+	// __INLINE__ int __ALWAYS_INLINE__ EE_enc28j60_set_ISR_mode(int mode)
+	// This function configures ISR mode.
+// */
+// __INLINE__ int __ALWAYS_INLINE__ EE_enc28j60_hal_set_ISR_mode(int mode)
+// { 
+	// return EE_hal_enc28j60_set_ISR_mode(mode); 
+// } 
 
 /*
 	__INLINE__ int __ALWAYS_INLINE__ EE_enc28j60_config(int mode)
 	This function configures the device.
 */
-__INLINE__ int __ALWAYS_INLINE__ EE_enc28j60_config(int mode)
+__INLINE__ int __ALWAYS_INLINE__ EE_enc28j60_hal_config(int mode)
 { 
 	//ee_enc28j60_GPIO_port = (EE_GPIO_data_bits_t*)(&(ee_enc28j60_st.base->data));
 	//ee_enc28j60_GPIO_intf = (EE_GPIO_data_bits_t*)(&(ee_enc28j60_st.base->edgeCapture));
 	//ee_enc28j60_GPIO_inte = (EE_GPIO_data_bits_t*)(&(ee_enc28j60_st.base->irqMask));
     //EE_enc28j60_set_ISR_mode(EE_ENC28J60_RXTX_ISR);
-	EE_enc28j60_spi_init();
-	return EE_enc28j60_set_ISR_mode(mode);
+	EE_enc28j60_hal_spi_init();
+	return EE_enc28j60_hal_set_ISR_mode(mode);
 	//return EE_enc28j60_enable();
 } 
 
