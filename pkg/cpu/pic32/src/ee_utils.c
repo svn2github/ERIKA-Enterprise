@@ -86,6 +86,13 @@ void EE_nop_delay_us_80mips(EE_UINT32 delay)
 			"       addi $a0, -1\n\t");
 }
 
+__INLINE__ EE_UREG get_core_timer_value(void)
+{
+	EE_UREG val;
+	asm volatile("mfc0 %0, $9" : "=r"(val));
+	return val;
+}
+
 void EE_delay_ticks(EE_UINT32 ticks)
 {
 	register EE_UREG r;
@@ -107,14 +114,16 @@ void EE_delay_ticks(EE_UINT32 ticks)
 void EE_delay_us(EE_UINT32 delay)
 {
 	
-	/* NOTE: the following functions works only for CPU_CLOCK >= 1 MHz */
+	/* NOTE: this function works only for CPU_CLOCK multiple of 1 MHz */
 	register EE_UREG r;
 	register EE_UREG prev;
+	EE_UREG delay_tick;
 
-        asm volatile("mfc0 %0, $9" : "=r"(prev));
+	prev = get_core_timer_value();
 	r = EE_get_system_clock(); /* Get system frequency [Hz] */
 	r = r / 1000000U; /* Transform frequency [MHz] */
-	delay = r * delay; /* count = delay[us] * frequency[MHz] */
+	/* Core timer frequency is half the CPU frequency */	   
+	delay_tick = r * delay / 2; /* count = delay[us] * frequency[MHz] / 2 */
 		
 	/* TODO: use this if the core-timer is OFF (at reset is ON)
 	register EE_UREG r;
@@ -122,14 +131,13 @@ void EE_delay_us(EE_UINT32 delay)
 	r |= 0x08000000;
         asm volatile("mtc0   %0,$13\n\tehb" : "+r"(r));
 	*/
-        asm volatile("mfc0 %0, $9" : "=r"(r));
-	/* compare = delay + curr_cnt - (curr_cnt - prev_cnt) */
-	delay = (delay >> 1) + prev; 
-	if (delay < r)
-		while (r < 0xFFFFFFFF)
-        		asm volatile("mfc0 %0, $9" : "=r"(r));
-	while (r < delay) 
-        	asm volatile("mfc0 %0, $9" : "=r"(r));
+	/* We could miss the exit condition only if we are preempted for more
+	 * than (2^32 - delay_tick) ticks, which is always larger than 2
+	 * billion ticks due to the divison by 2 above.  The subtraction handles
+	 * correctly any wrap-around. */
+	do {
+		r = get_core_timer_value();
+	} while (r - prev < delay_tick);
 }
 
 #ifdef __USE_EE_CORETIMER_ALARM__
