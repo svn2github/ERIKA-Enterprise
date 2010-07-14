@@ -8,20 +8,21 @@ EE_INT8 EE_spi_init(EE_UINT8 port)
 	 * Primary Prescale 1:1
 	 * Secondary Prescale 8:1
 	 * Note: with these prescale values the port works at 5 MHz. */
-	/* Note: because the chip select pin (SS1) 
-	   does not work properly, we drive this pin 
+	/* Note: because the chip select pin (SS1)
+	   does not work properly, we drive this pin
 	   directly setting it as a normal I/O pin.  */
 	if (port == EE_SPI_PORT_1) {
 		SPI1STATbits.SPIEN = 0; /* Disable the SPI module */
 		//SPI1CON1 = 0x23;
 		SPI1CON1 = 0x13E;
+		//SPI1CON1 = 0x2E;
 		SPI1CON2 = 0;
 		SPI1STATbits.SPIEN = 1; /* Enable the SPI module */
 		return 1;
 	} else if (port == EE_SPI_PORT_2) {
 		SPI2STATbits.SPIEN = 0; /* Disable the SPI module */
 		//SPI1CON1 = 0x23;
-		SPI2CON1 = 0x13E; 
+		SPI2CON1 = 0x13E;
 		SPI2CON2 = 0;
 		SPI2STATbits.SPIEN = 1; /* Enable the SPI module */
 		return 1;
@@ -102,7 +103,7 @@ EE_INT8 EE_spi_read_byte(EE_UINT8 port, EE_UINT8 *data)
    		while (!SPI1STATbits.SPIRBF);
    		SPI1STATbits.SPIROV = 0;
    		*data =  SPI1BUF & 0x00FF;
-		
+
    		return 1;
 	} else if (port == EE_SPI_PORT_2) {
    		/* wait until the tx buffer is empty */

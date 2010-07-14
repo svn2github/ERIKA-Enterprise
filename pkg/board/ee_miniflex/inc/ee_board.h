@@ -262,10 +262,10 @@ __INLINE__ void __ALWAYS_INLINE__ EE_miniflex_radio_init( void(*isr_callback)(vo
 	RPINR20bits.SDI1R = 23; //SDI1 on RP23
 
 	/* Assign SPI1 ouput pins */
-	RPOR10bits.RP20R = 9; //SS1 on RP20
+	//RPOR10bits.RP20R = 9; //SS1 on RP20
 	RPOR10bits.RP21R = 8; //SCK1 on RP21
 	RPOR11bits.RP22R = 7; //SDO1 on RP22
-	
+
 	/* Lock pin configuration registers */
 	__builtin_write_OSCCONL(OSCCON | 0x40);
 
@@ -273,37 +273,39 @@ __INLINE__ void __ALWAYS_INLINE__ EE_miniflex_radio_init( void(*isr_callback)(vo
 
 		TRISCbits.TRISC4 = 0; // PHY_CS_TRIS = 0;
 		LATCbits.LATC4 = 1; //PHY_CS = 1;
+
 		TRISAbits.TRISA7 = 0; //PHY_RESETn_TRIS = 0;
 		LATAbits.LATA7 = 1; //PHY_RESETn = 1;
-		PORTBbits.RB7 = 1; //RF_INT_TRIS = 1;
 
-		TRISCbits.TRISC6 = 1; //SDI_TRIS = 1;
-		TRISCbits.TRISC3 = 0; //SDO_TRIS = 0;
-		LATCbits.LATC5 = 0; //SCK_TRIS = 0;
-		LATCbits.LATC3 = 0; //SPI_SDO = 0;
+		TRISCbits.TRISC5 = 0; //SCK_TRIS = 0;
+		TRISCbits.TRISC7 = 1; //SDI_TRIS = 1;
+		TRISCbits.TRISC6 = 0; //SDO_TRIS = 0;
+
+
+		LATCbits.LATC6 = 0; //SPI_SDO = 0;
 		LATCbits.LATC5 = 0; //SPI_SCK = 0;
 
 		TRISAbits.TRISA8 = 0; //PHY_WAKE_TRIS = 0;
 		LATAbits.LATA8 = 1; //PHY_WAKE = 1;
 
 		/* Initialize the spi peripheral */
-
-
 		//#if defined(HARDWARE_SPI)
 		EE_spi_init(0/*EE_SPI_PORT_1*/); /* Initialize SPI1 */
 		//#endif
 
-		INTCON2bits.INT1EP = 1;
+		PORTBbits.RB7 = 1; /* RF_INT_TRIS = 1; (INT0)*/
+		INTCON2bits.INT0EP = 1; /* interrupt on negative edge*/
 
-		IFS1bits.INT1IF = 0; //RFIF = 0;
-		IEC1bits.INT1IE = 1; //RFIE = 1;
+		IFS0bits.INT0IF = 0; //RFIF = 0;
+		IEC0bits.INT0IE = 1; //RFIE = 1;
 
 		if(PORTBbits.RB7 == 0) { //if( RF_INT_PIN == 0 ) {
-			IFS1bits.INT1IF = 1;
+			IFS0bits.INT0IF = 1;
 		}
 
 		/* link the callback */
 		EE_miniflex_radio_mrf24j40_callback = isr_callback;
+
 }
 
 #endif

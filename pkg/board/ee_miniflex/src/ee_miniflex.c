@@ -54,8 +54,19 @@ EE_UINT8 EE_adc_init = 0;
 #ifdef __USE_ACCELEROMETER__
 EE_UINT8 EE_accelerometer_g = 6;
 #endif
+/* ************************************************************************* */
 
 #ifdef __USE_MRF24J40MA__
+
 void (*EE_miniflex_radio_mrf24j40_callback)(void);
+
+ISR2(_INT0Interrupt)
+{
+	if(IEC0bits.INT0IE && IFS0bits.INT0IF) { //if(RFIE && RFIF)
+		// Execute callback function
+		if (EE_miniflex_radio_mrf24j40_callback != NULL)
+			EE_miniflex_radio_mrf24j40_callback();
+	}
+}
+
 #endif
-/* ************************************************************************* */
