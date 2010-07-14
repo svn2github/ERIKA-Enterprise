@@ -90,10 +90,13 @@ endif
 ifeq ($(findstring DEBUG,$(EEOPT)) , DEBUG)
 # NOTE: if the model is specified, use the specific linker script 
 #       NECESSARY to use more than 32K of ram in the new families (e.g 7xx)
+# NOTE2: if the model is specified, it must be used passed also the specific
+# processor value to the linker script in order to work properly
 # FIXME: this generate some warning with the linux compiler (seems it has a
 #        redaclaration - necessary - with respect to the GENERIC linker script)
 ifneq ($(PIC32_MODEL),)
-OPT_LINK += --script $(PIC32_GCCDIR)/pic32mx/lib/proc/$(PIC32_MODEL)/procdefs.ld
+#OPT_LINK += --script $(PIC32_GCCDIR)/pic32mx/lib/proc/$(PIC32_MODEL)/procdefs.ld
+OPT_LINK += -mprocessor=$(PIC32_MODEL)
 endif
 endif
 
