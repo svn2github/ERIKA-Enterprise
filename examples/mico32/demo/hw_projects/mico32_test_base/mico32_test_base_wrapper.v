@@ -185,7 +185,7 @@ module mico32_test_base_wrapper(
                                .rtc_i2cSDA(rtc_i2cSDA), 
                                .rtc_i2cSCL(rtc_i2cSCL), 
                                .lcd_gpioPIO_IO(lcd_gpioPIO_IO), 
-                               .misc_gpioPIO_BOTH_IN(misc_gpioPIO_BOTH_IN), 
+                               .misc_gpioPIO_BOTH_IN({~misc_gpioPIO_BOTH_IN[1:0],misc_gpioPIO_BOTH_IN}), 
                                .misc_gpioPIO_BOTH_OUT(misc_gpioPIO_BOTH_OUT), 
                                .serparioSER_IN(serparioSER_IN),
                                .serparioSER_OUT(serparioSER_OUT),

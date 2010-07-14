@@ -212,7 +212,7 @@
           <Parm Name="InstanceName" Text="Instance Name" Type="string" Value="sram" isiname="true"/>
           <Parm Name="BASE_ADDRESS" Text="Base Address" Type="Integer" Value="0x02000000" isba="true"/>
           <Parm Enable="true" Name="SIZE" Text="Size" Type="Integer" Value="524288" issize="true"/>
-          <Parm Name="ADDRESS_LOCK" Text="Lock Address" Type="Define" Value="undef"/>
+          <Parm Name="ADDRESS_LOCK" Text="Lock Address" Type="Define" Value="def"/>
 	  <Parm Name="SHARED" Text="Share External Ports(for HPE_mini Board)" Type="Define" Value="undef" isShared="true"/>
           <Parm Name="DISABLE" Text="Disable Component" Type="Define" Value="undef" isuse="true"/>
           <Parm Name="READ_LATENCY" OType="Integer" Text="Read Latency" Type="Integer" Value="1" ValueRange="1-15" isparm="true"/>
@@ -335,7 +335,7 @@
 
 	  <Parm Name="ADDRESS_LOCK" Text="Lock Address" Type="Define" Value="undef"/>
 	  <Parm Name="DISABLE" Text="Disable Component" Type="Define" Value="undef" isuse="true"/>
-  </Parms>
+  <Parm Name="ADDRESS_LOCK" Text="Lock Address" Type="Define" Value="def"/></Parms>
   <GUIS Columns="4">
 	  <GUI Name="InstanceName" Span="1" Widget="Text"/>
 	  <GUI Columns="4" Name="MEMORY_PORT_SETTINGS" Span="4" Text="Data Port Settings" Widget="Group"/>
@@ -412,7 +412,7 @@
     <Parm Name="SDR_TDAL" OType="Integer" Text="SDR_TDAL" Type="Integer" Value="5"/>
     <Parm Name="SDR_TREFI" OType="Integer" Text="SDR_TREFI" Type="Integer" Value="15640"/>
     <Parm Name="T100US" OType="Integer" Text="T100US" Type="Integer" Value="10000"/>
-    <Parm Name="ADDRESS_LOCK" Text="Lock Address" Type="Define" Value="undef"/>
+    <Parm Name="ADDRESS_LOCK" Text="Lock Address" Type="Define" Value="def"/>
     <Parm Name="DISABLE" Text="Disable Component" Type="Define" Value="undef" isuse="true"/>
   </Parms>
   <GUIS Columns="2">
@@ -950,7 +950,7 @@
 		<Parm GROUP="XFER_MODE" Name="TRISTATE_PORTS" Text="Tristate Ports" Type="define" Value="undef" isparm="true"/>
 		<Parm GROUP="XFER_MODE" Name="BOTH_INPUT_AND_OUTPUT" Text="Both Input and Output" Type="define" Value="def" isparm="true"/>
 		<Parm Name="DATA_WIDTH" NotCondition="BOTH_INPUT_AND_OUTPUT" Text="Data Width" Type="Integer" Value="1" ValueRange="1-32" isparm="true"/>
-		<Parm Condition="BOTH_INPUT_AND_OUTPUT" Name="INPUT_WIDTH" Text="Input Width" Type="Integer" Value="4" ValueRange="1-32" isparm="true"/>
+		<Parm Condition="BOTH_INPUT_AND_OUTPUT" Name="INPUT_WIDTH" Text="Input Width" Type="Integer" Value="6" ValueRange="1-32" isparm="true"/>
 		<Parm Condition="BOTH_INPUT_AND_OUTPUT" Name="OUTPUT_WIDTH" Text="Output Width" Type="Integer" Value="3" ValueRange="1-32" isparm="true"/>
 		<Parm Name="IRQ_MODE" Text="IRQ Mode" Type="define" Value="def" isparm="true"/>
 		<Parm Condition="IRQ_MODE" GROUP="IMODE" Name="LEVEL" Text="Level" Type="define" Value="def" isparm="true"/>
@@ -1187,7 +1187,7 @@
 
 	  <Parm Name="ADDRESS_LOCK" Text="Lock Address" Type="Define" Value="undef"/>
 	  <Parm Name="DISABLE" Text="Disable Component" Type="Define" Value="undef" isuse="true"/>
-  </Parms>
+  <Parm Name="ADDRESS_LOCK" Text="Lock Address" Type="Define" Value="def"/><Parm Name="ADDRESS_LOCK" Text="Lock Address" Type="Define" Value="def"/><Parm Name="ADDRESS_LOCK" Text="Lock Address" Type="Define" Value="undef"/></Parms>
   <GUIS Columns="4">
 	  <GUI Name="InstanceName" Span="1" Widget="Text"/>
 	  <GUI Columns="4" Name="MEMORY_PORT_SETTINGS" Span="4" Text="Data Port Settings" Widget="Group"/>
