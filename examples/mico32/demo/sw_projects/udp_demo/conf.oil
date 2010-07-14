@@ -41,7 +41,6 @@ CPU test_application {
 		};
 
 		BOARD_DATA = XP2_CAMERA_BOARD {
-//			OPTIONS = TIMERS;  // This options is not complet yet
 			OPTIONS = RS232;
 			OPTIONS = ETHERNET;
 			OPTIONS = ETHERNET_IRQ_SUPPORT;

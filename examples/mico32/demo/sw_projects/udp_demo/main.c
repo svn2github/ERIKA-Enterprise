@@ -12,8 +12,8 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include <MicoMacros.h>
-/* LWIP */
-#include "ee_lwip.h"
+/* lwIP */
+#include <ee_lwip.h>
 #include "lwip.h"
 
 
@@ -201,16 +201,20 @@ int main(void)
     
     /* Initialize UART */
     EE_uart_config(115200, EE_UART_BIT8_NO | EE_UART_BIT_STOP_1);
-    EE_uart_set_ISR_mode(EE_UART_POLLING | EE_UART_RXTX_BLOCK);   
+    EE_uart_set_ISR_mode(EE_UART_POLLING | EE_UART_RXTX_BLOCK);
 
     /* Initialize lwIP */
     struct ip_addr my_ipaddr, netmask, gw;
     struct eth_addr my_ethaddr;
-	IP4_ADDR(&my_ipaddr, MY_IPADDR_BYTE1, MY_IPADDR_BYTE2, MY_IPADDR_BYTE3, MY_IPADDR_BYTE4);
-	IP4_ADDR(&netmask, MY_NETMASK_BYTE1, MY_NETMASK_BYTE2, MY_NETMASK_BYTE3, MY_NETMASK_BYTE4);
-	IP4_ADDR(&gw, MY_GATEWAY_ADDR_BYTE1, MY_GATEWAY_ADDR_BYTE2, MY_GATEWAY_ADDR_BYTE3, MY_GATEWAY_ADDR_BYTE4);
-	ETH_ADDR(&my_ethaddr, MY_ETHERNETIF_MAC_BYTE1, MY_ETHERNETIF_MAC_BYTE2, MY_ETHERNETIF_MAC_BYTE3, 
-				MY_ETHERNETIF_MAC_BYTE4, MY_ETHERNETIF_MAC_BYTE5, MY_ETHERNETIF_MAC_BYTE6);	
+    IP4_ADDR(&my_ipaddr, MY_IPADDR_BYTE1, MY_IPADDR_BYTE2, MY_IPADDR_BYTE3,
+        MY_IPADDR_BYTE4);
+    IP4_ADDR(&netmask, MY_NETMASK_BYTE1, MY_NETMASK_BYTE2, MY_NETMASK_BYTE3,
+        MY_NETMASK_BYTE4);
+    IP4_ADDR(&gw, MY_GATEWAY_ADDR_BYTE1, MY_GATEWAY_ADDR_BYTE2,
+        MY_GATEWAY_ADDR_BYTE3, MY_GATEWAY_ADDR_BYTE4);
+    ETH_ADDR(&my_ethaddr, MY_ETHERNETIF_MAC_BYTE1, MY_ETHERNETIF_MAC_BYTE2,
+        MY_ETHERNETIF_MAC_BYTE3, MY_ETHERNETIF_MAC_BYTE4,
+        MY_ETHERNETIF_MAC_BYTE5, MY_ETHERNETIF_MAC_BYTE6);
     EE_lwip_init(&my_ipaddr, &netmask, &gw, &my_ethaddr);
     
     /* Sender timer */
