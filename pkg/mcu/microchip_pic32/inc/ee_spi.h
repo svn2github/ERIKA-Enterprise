@@ -1,14 +1,34 @@
 /** 
 * @file ee_spi.h
-* @brief SPI interface for PIC32
+* @brief SPI interface for PIC32MX
 * @author Christian Nastasi
+* @author Ghibaudi Marco
 * @version 0.1
-* @date 2010-02-02
+* @date 2010-14-07
 */
 #ifndef __INCLUDE_MICROCHIP_PIC32_SPI_H__
 #define __INCLUDE_MICROCHIP_PIC32_SPI_H__
 
 #include "ee.h"
+
+
+/******************************************************************************/
+/*				 Port Definition			      */
+/******************************************************************************/
+
+
+
+#ifdef __32MX795F512L__
+enum {
+	EE_SPI_PORT_1 = 0,
+	EE_SPI_PORT_1A,
+	EE_SPI_PORT_2A,
+	EE_SPI_PORT_3A,
+	EE_SPI_PORT_N,
+};
+
+
+#else //not defined __32MX795F512L__
 
 enum {
 	EE_SPI_PORT_1  = 0,
@@ -16,20 +36,34 @@ enum {
 	EE_SPI_PORT_N,
 };
 
+#endif
+
+
+/******************************************************************************/
+/*				 Returned Messages			      */
+/******************************************************************************/
+
 #define EE_SPI_NO_ERRORS		1	//Used positive
 #define EE_SPI_ERR_BAD_PORT		1
 #define EE_SPI_ERR_BAD_ARGS		2
 #define EE_SPI_ERR_BUSY			3
+//#define EE_SPI_DMA_NOT_IMPLEMENTED	4
 #define EE_SPI_ERR_UNIMPLEMENTED	10
 
 #define EE_SPI_EVT_TX_DONE		1
 #define EE_SPI_EVT_RX_DONE		2
 
+
+
+/******************************************************************************/
+/*				 Configuration Flags			      */
+/******************************************************************************/
+
 /** 
 * @name SPI Configuration Flags
 * @{ */
 /* General Flags
-*  NOTE: this work under the assumption that SPI1 and SPI2 have the same 
+*  NOTE: this work under the assumption that all the SPI ports have the same 
 *  control register specification. See pic32mx family reference manual.
 */
 #define EE_SPI_MASTER			0x0020
@@ -40,12 +74,20 @@ enum {
 #define EE_SPI_DMA_TX			0x0001
 #define EE_SPI_DMA_RX			0x0002
 /* TODO: have more flags 
-#define EE_SPI_SIZE	Use twho bits of the flags to specify 8/16/32. This
+#define EE_SPI_SIZE	Use two bits of the flags to specify 8/16/32. This
 has to be done for DMA accordingly.
 */
 
 #define EE_SPI_DEFAULT	(EE_SPI_MASTER | EE_SPI_SDO_ON_CLOCK_TO_IDLE)
 /**  @} */
+
+
+
+/******************************************************************************/
+/*				 Functions Prototypes			      */
+/******************************************************************************/
+
+
 
 /**
 * @brief Initialize the SPI peripheral.
@@ -130,4 +172,4 @@ EE_INT8 EE_spi_read(EE_UINT8 port, EE_UINT8 *data, EE_UINT32 len);
 EE_INT8 EE_spi_cycle(EE_UINT8 port, EE_UINT8 *data_out, EE_UINT8 *data_in, 
 		     EE_UINT32 len);
 
-#endif
+#endif 
