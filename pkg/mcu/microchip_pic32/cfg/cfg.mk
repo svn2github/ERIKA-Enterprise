@@ -105,6 +105,10 @@ EE_SRCS += pkg/mcu/microchip_pic32/src/ee_oc.c
 endif
 
 
+ifeq ($(findstring __USE_DMA__,$(EEOPT)) , __USE_DMA__)
+EE_SRCS += pkg/mcu/microchip_pic32/src/ee_dma.c
+endif
+
 # typically empty, the __start function is typically provided by the
 # ASM32 Assembler
 # EE_BOOT_SRCS +=
