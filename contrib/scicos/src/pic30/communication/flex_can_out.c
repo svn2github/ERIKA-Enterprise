@@ -16,47 +16,67 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
 */
 
-/*
- * PRELIMINARY VERSION
- * from patch sent by Tizar Rizano (UNITN) and Roberto Bucher (SUPSI)
- */
-
 #include <machine.h>
 #include <scicos_block4.h>
 #include "ee.h"
 #include "mcu/microchip_dspic/inc/ee_ecan.h"
+#include "flex_can.h"
+#include <string.h>
 
-extern _t_ecan CanBuf[8];
+EE_UINT32 ecan1_tx_id;     /* contain the id for can messages */
+EE_UINT8 ecan1_tx_len;
+EE_UINT8 ecan1_tx_canid;
+EE_UINT8 ecan1_tx_div;
 
-static EE_UINT8 txbuffer[8] = { 1, 2, 3, 4, 5, 6, 7, 8 };
-static EE_UINT32 cantx_id;     /* contain the id for can messages */
-static EE_UINT8 n_byte;
+extern void (*EE_eCAN1_tx_cbk) (void);
+
+void EE_eCAN1_tx_service(void)
+{
+	/* Transmission interrupt (nothing to be done but clear flag) */
+	if(C1INTFbits.TBIF)
+    {
+    	C1INTFbits.TBIF = 0;
+    }
+}
 
 static void init(scicos_block *block)
 {
-  EE_Can_Dma_Init();
-  EE_Ecan1_Clk_Init();
-  EE_Ecan1_TxInit();
-  cantx_id=block->ipar[0];
-  n_byte=block->ipar[1];
+	int i;
+	
+	print_string("can init start!\n");
+	ecan1_tx_canid	=	1;	//block->ipar[2];
+	EE_eCAN1_tx_cbk = EE_eCAN1_tx_service;
+	if( (ecan1_tx_canid==1) && (ee_ecan1_initialized==0) )
+	{
+		EE_eCAN1_init();
+		ecan1_tx_id 	= 	block->ipar[0];							/* packet id */
+		ecan1_tx_len 	= 	16; //block->ipar[1];	  						/* number of float number */
+		ecan1_tx_div 	= 	1;//8; //ceil(((double)(block->ipar[1]))/2.0); 	/* number of packets */
+		for(i=0;i<CAN_PKT_LEN;i++)
+			scicosCAN1_tx_buffer[i] = 0;
+		for(i=0;i<CAN_PKT_LEN;i++)
+			scicosCAN1_rx_buffer[i] = 0;
+		ee_ecan1_initialized = 1;	
+	}
+	//else
+	//{
+	//}
+	print_string("can init end!\n");
 }
 
 static void inout(scicos_block *block)
 {
-  int i;
-  double * DATA = (double *) block->inptr[0];
-
-  for(i=0;i<(int)n_byte;i++) txbuffer[i]=(EE_UINT8) DATA[i];
-   
-  while ( C1TR01CONbits.TXREQ0 ==1){}
-   
-  EE_ecan_WriteMessage((EE_UINT16)&(CanBuf[0]),cantx_id,n_byte,0,(EE_UINT8 *)&txbuffer);
-  C1TR01CONbits.TXREQ0 = 1;  
+	int i;
+	print_string("can inout start!\n");
+	for(i = 0; i < ecan1_tx_len; i++)
+		memcpy(scicosCAN1_tx_buffer + i*SIZE_OF_ELEMENT, &u(i,0), SIZE_OF_ELEMENT);
+	for(i = 0; i < ecan1_tx_div; i++)
+		CAN_Buffer_Putmsg(&CAN1_tx_buffer, scicosCAN1_tx_buffer + i*CAN_PKT_LEN, CAN_BUF_SIZE);
+	print_string("can inout end!\n");
 }
 
 static void end(scicos_block *block)
 {
-  
 }
 
 void flex_can_out(scicos_block *block,int flag)

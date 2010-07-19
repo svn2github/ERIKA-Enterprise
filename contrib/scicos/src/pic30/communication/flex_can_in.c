@@ -26,77 +26,41 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
 #include <scicos_block4.h>
 #include "ee.h"
 #include "mcu/microchip_dspic/inc/ee_ecan.h"
+#include "flex_can.h"
+#include <string.h>
 
-extern _t_ecan CanBuf[8];
+static EE_UINT8 ecan1_rxbuffer[EE_CAN_BUF_SIZE];
+static ee_ecan_mID rx_ecan1message1;//RX message for id=1
+static ee_ecan_mID rx_ecan1message2;//RX message for id=2
+static ee_ecan_mID rx_ecan1message3;//RX message for id=3
+static ee_ecan_mID rx_ecan1message4;//RX message for id=99
+static EE_UINT32 ecan1_rx_id;     /* contain the id for can messages */
+static EE_UINT8 ecan1_rx_len;
+static int ecan1_rx_cnt = 0;
 
-
-static EE_UINT8 rxData[8] = { 0x91, 0x92, 0x93, 0x94, 0x95, 0x96, 0x97, 0x98 };
-static EE_UINT32 canrx_id;     /* contain the id for can messages */
-static EE_UINT8 can_dlc=0;
-static EE_UINT8 filterhit;
-static EE_UINT8 bufnr;
-static EE_UINT8 can_data_en=0;
-static EE_UINT8 n_byte;
-
-
-
-
-static EE_INT8 RXCan1(EE_UINT8 data)
-{
-  EE_UINT16 rec_buf;
-  filterhit = C1VECbits.FILHIT;
-  bufnr = C1VECbits.ICODE;
-  if (0 == (bufnr & 0x40))   //0x40 -> 0100 0000
-    {						 
-      if (can_data_en==0){
-	EE_ecan_ReadMessage((EE_UINT16)&CanBuf[(C1VEC & 0x1F)],&canrx_id,&can_dlc,(EE_UINT8 *)&rxData[0]);
-	can_data_en=1;
-    	  	
-      } 
-	
-	
-      //azzera il bit del buffer che ha generato l'interrupt
-      rec_buf = 1 << bufnr;
-      rec_buf ^= 0xFFFF;
-      C1RXFUL1 &= rec_buf;
-    
-      if (1 == C1INTFbits.RBOVIF) C1INTFbits.RBOVIF = 0;
-    }
-
-  return 0;
-}
-
+extern void (*EE_eCAN1_rx_cbk) (void);
 
 static void init(scicos_block *block)
 {   
-  EE_Can_Dma_Init();
-  EE_Ecan1_Clk_Init();
-  EE_Ecan1_RxInit(RXCan1);
-  n_byte=block->ipar[0];
+	EE_eCAN1_rx_cbk = EE_eCAN1_rx_service;
+	EE_eCAN1_init();
+	ecan1_rx_id 		= 	block->ipar[0];
+	ecan1_rx_len 		= 	block->ipar[1] * SIZE_OF_ELEMENT;
 }
 
 static void inout(scicos_block *block)
 {
-  int i;
-  double *enable = (double*) block->outptr[0];
-  double *DATA = (double*) block->outptr[1];
-
-  if (can_data_en==1){
-		
-    can_data_en=2;
-    if (can_dlc==n_byte){
-      for(i=0;i<can_dlc;i++) DATA[i]=(double) (rxData[i]);
-      enable[0]=1;}
-    can_data_en=0;
-		
-  }
-  else enable[0]=0;
-	
+	int i;
+	if(ecan1_rx_cnt >= ecan1_rx_len)
+	{
+		for(i=0;i<SCICOS_CAN_CHANNELS;i++)
+			memcpy(&y(i,0), ecan1_rxbuffer + i*SIZE_OF_ELEMENT, SIZE_OF_ELEMENT);
+		ecan1_rx_cnt = 0;
+	}
 }
 
 static void end(scicos_block *block)
 {
-  
 }
 
 void flex_can_in(scicos_block *block,int flag)
@@ -117,6 +81,80 @@ void flex_can_in(scicos_block *block,int flag)
       end(block);
       break;
   }
+}
+
+/* CAN bus 1 Interrupt, ISR2 type */
+void EE_eCAN1_rx_service(void)
+{
+	ee_ecan_mID *rx_ecan1message_p;
+	int i;
+
+	/*Reception interrupt, different code for different filtered id's */
+    if(C1INTFbits.RBIF)
+    {
+    	//Filter 1(id=ID_PLANT): Sensor to controller message
+    	if(C1RXFUL1bits.RXFUL1==1)
+	    {
+    		/* Tells rxECAN1 the buffer to pass from DMA to RAM */
+	    	rx_ecan1message1.buffer=1;
+
+	    	C1RXFUL1bits.RXFUL1=0;
+	    	EE_ecan1_Rx(&rx_ecan1message1);
+			C1INTFbits.RBIF = 0;
+	    }
+
+		//Filter 2(id=ID_PLANT+1): Controller to Actuator message
+		if(C1RXFUL1bits.RXFUL2==1)
+	    {
+			/*Tells rxECAN1 the buffer to pass from DMA to RAM */
+	    	rx_ecan1message2.buffer=2;
+
+	    	C1RXFUL1bits.RXFUL2=0;
+	    	EE_ecan1_Rx(&rx_ecan1message2);
+			C1INTFbits.RBIF = 0;
+	    }
+
+		//Filter 3(id=ID_PLANT+2): Controller updated reference (supervision)
+		if(C1RXFUL1bits.RXFUL3==1)
+	    {
+			/*Tells rxECAN1 the buffer to pass from DMA to RAM */
+	    	rx_ecan1message3.buffer=3;
+
+	    	C1RXFUL1bits.RXFUL3=0;
+	    	EE_ecan1_Rx(&rx_ecan1message3);
+			C1INTFbits.RBIF = 0;
+	    }
+
+		//Filter 4(id=99): Reserved for future improvements
+		if(C1RXFUL1bits.RXFUL4==1)
+	    {
+			/* Tells rxECAN1 the buffer to pass from DMA to RAM */
+	    	rx_ecan1message4.buffer=4;
+
+	    	C1RXFUL1bits.RXFUL4=0;
+	    	EE_ecan1_Rx(&rx_ecan1message4);
+			C1INTFbits.RBIF = 0;
+	    }
+		
+		/* Queueing */
+		if(ecan1_rx_id==1)
+			rx_ecan1message_p = &rx_ecan1message1;
+		else if (ecan1_rx_id==2)
+			rx_ecan1message_p = &rx_ecan1message2;
+		else if(ecan1_rx_id==3)
+			rx_ecan1message_p = &rx_ecan1message3;
+		else if(ecan1_rx_id==99)
+			rx_ecan1message_p = &rx_ecan1message4;
+		else
+			rx_ecan1message_p = 0;
+		if(rx_ecan1message_p!=0)
+		{
+			for(i=0; i<8; i++) {
+				ecan1_rxbuffer[ecan1_rx_cnt] = rx_ecan1message_p->data[i];
+				ecan1_rx_cnt++;
+			}
+		}
+	}
 }
 
 

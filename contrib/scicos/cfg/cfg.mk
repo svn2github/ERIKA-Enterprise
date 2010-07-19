@@ -64,6 +64,9 @@ ifeq ($(findstring __USE_UDP__,$(EEOPT)) , __USE_UDP__)
 EE_SRCS += contrib/scicos/src/pic30/communication/flex_udp.c
 endif
 
+ifeq ($(findstring __USE_CAN1__,$(EEOPT)) , __USE_CAN1__)
+EE_SRCS += contrib/scicos/src/pic30/communication/flex_can.c
+endif
 
 endif
 
