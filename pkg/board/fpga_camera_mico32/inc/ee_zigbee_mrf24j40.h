@@ -81,7 +81,8 @@ __INLINE__ void __ALWAYS_INLINE__ EE_mrf24j40_gpio_enable_IRQ(void){ \
 	cat3(EE_, lc, _write_bit_irqMask)(1, EE_INTPIN_BIT); \
 } \
 __INLINE__ void __ALWAYS_INLINE__ EE_mrf24j40_gpio_disable_IRQ(void){ \
-	cat3(EE_, lc, _write_bit_irqMask)(0, EE_INTPIN_BIT); \
+	cat3(EE_, lc, _write_bit_irqMask)(0, EE_INT2_BIT); \
+	cat3(EE_, lc, _write_bit_irqMask)(0, EE_NOT_INT2_BIT); \
 } \
 __INLINE__ int __ALWAYS_INLINE__ EE_mrf24j40_gpio_IRQ_enabled(void){ \
 	return (cat3(EE_, lc, _read_irqMask)() & EE_INTPIN_MASK); \
