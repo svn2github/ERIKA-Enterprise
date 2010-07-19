@@ -7,6 +7,12 @@
 #endif
 
 
+
+static EE_UINT32 oc_get_peripheral_clock(void) {
+	return EE_get_peripheral_clock();
+}	
+
+
 #ifdef __USE_EE_OC_1__
 __INLINE__ void __ALWAYS_INLINE__ oc1_init(void)
 {
@@ -301,12 +307,12 @@ EE_INT8 EE_oc_stop(EE_UINT8 id)
 	return EE_TIMER_NO_ERRORS;
 }
 
-#if (defined __USE_OC_CLOCK_GEN__ && defined __32MX795F512L__)
+#ifdef __32MX795F512L__
 
 EE_INT8 EE_oc_generate_clock_init(EE_UINT8 id, EE_UINT32 frequency)
 {
 	
-	EE_UINT32 period = (EE_get_peripheral_clock() / frequency) - 1; 
+	EE_UINT32 period = (oc_get_peripheral_clock() / frequency) - 1; 
 	EE_UINT32 duty_cycle = period >> 1;
 	
 
@@ -344,6 +350,58 @@ EE_INT8 EE_oc_generate_clock_init(EE_UINT8 id, EE_UINT32 frequency)
 	}
 	return EE_TIMER_NO_ERRORS;
 }
+
+#endif
+
+
+
+
+#ifdef __32MX360F512L__
+
+EE_INT8 EE_oc_generate_clock_init(EE_UINT8 id, EE_UINT32 frequency)
+{
+	
+	EE_UINT32 period = (oc_get_peripheral_clock() / (2 * frequency)) - 1; 
+	
+	if (period == 0)
+		return - EE_OC_ERR_TIMER_INIT;
+
+	switch (id) {
+	#ifdef __USE_EE_OC_1__
+	case EE_OC_1 :
+		oc1_setup(EE_OC_CONFIGURE_TOGGLE | EE_OC_TIMER_3, period, 
+							EE_TIMER_PRESCALE_1);
+		oc1_advanced_setup(0, 0, EE_OC_NO_ADVANCED_SET);
+		break;
+	#endif //__USE_EE_OC_1__
+	case EE_OC_2 :
+		return -EE_OC_ERR_UNIMPLEMENTED;	
+		break;
+	
+	case EE_OC_3 :
+		return -EE_OC_ERR_UNIMPLEMENTED;	
+		break;
+	#ifdef __USE_EE_OC_4__
+	case EE_OC_4 :
+		oc4_setup(EE_OC_CONFIGURE_TOGGLE | EE_OC_TIMER_3, period, 
+							EE_TIMER_PRESCALE_1);
+		oc4_advanced_setup( 0, 0, EE_OC_NO_ADVANCED_SET); 	
+		break;
+	#endif //__USE_EE_OC_4__
+	case EE_OC_5 :
+		return -EE_OC_ERR_UNIMPLEMENTED;	
+		break;
+	case EE_OC_N :
+		return -EE_OC_ERR_UNIMPLEMENTED;	
+		break;
+	default:
+		return -EE_TIMER_ERR_BAD_TIMER_ID;
+		break;
+	}
+	return EE_TIMER_NO_ERRORS;
+}
+
+#endif 
 
 
 
@@ -416,5 +474,4 @@ EE_INT8 EE_oc_generate_clock_stop(EE_UINT8 id)
 	return EE_TIMER_NO_ERRORS;
 }
 
-#endif //__USE_OC_CLOCK_GEN__
 
