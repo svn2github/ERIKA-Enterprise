@@ -20,11 +20,11 @@ EE_mrf24j40_st ee_mrf24j40_st = {
 
 void EE_mrf24j40_handler(int level)
 {
-	EE_gpio_common_handler(level);
-	
 	EE_mrf24j40_gpio_IRQ_pre_stub();
     MRF24J40_INTERRUPT_NAME();
 	EE_mrf24j40_gpio_IRQ_post_stub();
+
+	EE_gpio_common_handler(level);
 	
 	return;
 }

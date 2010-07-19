@@ -27,10 +27,6 @@
 #error "MRF24J40 HAL EE : The SPI module is required!"
 #endif // __USE_SPI__
 
-#ifndef INT_POLARITY_HIGH
-#error "mrf24j40 int polarity error! please, add INT_POLARITY_HIGH option."
-#endif
-
 #ifndef ISR2
 #define ISR2(f) void f(void)
 #endif
