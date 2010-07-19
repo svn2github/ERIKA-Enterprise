@@ -10,7 +10,7 @@
 #ifndef __lwip_ethernet_h__
 #define __lwip_ethernet_h__
 
-#include "ee_lwip.h"
+//#include "ee_lwip.h"
 #include <hal/lwip_compiler.h>
 
 #ifdef __USE_ETHERNET_ENC28J60__		/* Microchip enc28j60 ethernet controller */
@@ -20,6 +20,21 @@
 #endif	/* End ethernet Selection */
 
 /* Abstraction functions declarations. */
+__INLINE__ void __ALWAYS_INLINE__ EE_ethernetif_set_Rx_task(EE_TID task)
+{
+	EE_ethernetif_hal_set_Rx_task(task);
+}
+
+__INLINE__ void __ALWAYS_INLINE__ EE_ethernetif_enable_interrupt(void)
+{
+	EE_ethernetif_hal_enable_interrupt();
+}
+
+__INLINE__ void __ALWAYS_INLINE__ EE_ethernetif_disable_interrupt(void)
+{
+	EE_ethernetif_hal_disable_interrupt();
+}
+
 __INLINE__ int __ALWAYS_INLINE__ EE_ethernetif_pending_interrupt(void)
 {
 	return EE_ethernetif_hal_pending_interrupt();

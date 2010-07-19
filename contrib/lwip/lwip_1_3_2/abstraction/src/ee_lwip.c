@@ -57,6 +57,8 @@ void EE_lwip_init(struct ip_addr *my_ipaddr, struct ip_addr *netmask, struct ip_
 	/* Debug initialization */
 	lwip_debug_init();
 	#endif
+
+	LWIP_DEBUGF(EE_LWIP_DEBUG, ("EE_lwip_init start!\n"));
 	
 	/* Ethernet address */
 	ETHERNETIF_MAC_BYTE1 = my_ethaddr->addr[0];
@@ -65,6 +67,9 @@ void EE_lwip_init(struct ip_addr *my_ipaddr, struct ip_addr *netmask, struct ip_
 	ETHERNETIF_MAC_BYTE4 = my_ethaddr->addr[3];
 	ETHERNETIF_MAC_BYTE5 = my_ethaddr->addr[4];
 	ETHERNETIF_MAC_BYTE6 = my_ethaddr->addr[5];
+	
+	/* Set the RX callback */
+	EE_lwip_set_Rx_task(LwipReceive);
 	
 	/* LWIP stack initialization */
 	lwip_init();
@@ -78,13 +83,15 @@ void EE_lwip_init(struct ip_addr *my_ipaddr, struct ip_addr *netmask, struct ip_
 
 	/* Timers configuration */
 	EE_lwip_timers_configuration();
+	
+	LWIP_DEBUGF(EE_LWIP_DEBUG, ("EE_lwip_init end!\n"));
 }
 
 /* lwIP task for timers */
 TASK(LwipPeriodic)
 {
 	EE_UINT16 pending;
-
+	LWIP_DEBUGF(EE_LWIP_DEBUG, ("LwipPeriodic task start!\n"));
 	GetResource(LwipMutex);
 	/* The access to the `pending' field must be protected from
 	* interferences by the timer ISR */
@@ -95,11 +102,13 @@ TASK(LwipPeriodic)
 	EE_lwip_maybe_call_tcp_timers(pending);
 	EE_lwip_maybe_call_arp_timer(pending);
 	ReleaseResource(LwipMutex);
+	LWIP_DEBUGF(EE_LWIP_DEBUG, ("LwipPeriodic task end!\n"));
 }
 
 /* lwIP task for handling incoming packets */
 TASK(LwipReceive)
 {
+	LWIP_DEBUGF(EE_LWIP_DEBUG, ("LwipReceive task start!\n"));
 	GetResource(LwipMutex);
 	/* We are assuming that the only interrupt source is an incoming packet */
 	while (EE_ethernetif_pending_interrupt()) {
@@ -109,11 +118,25 @@ TASK(LwipReceive)
 	}
 	/* We should enable interrupts  */
 	/* EE_enc28j60_unmask_interrupts(); */
-	/* There is no race condition, as if an interrupt has become pending, it
-	will be served at the next timer tick */
-	EE_lwip_irq_pending = 0;
+	/* There is no race condition, as if an interrupt has become pending, it will be served at the next timer tick */
+	//EE_lwip_irq_pending = 0;
+	EE_lwip_rx_service(); /* For example you can re-enable interrupts */
 	ReleaseResource(LwipMutex);
+	LWIP_DEBUGF(EE_LWIP_DEBUG, ("LwipReceive task end!\n"));
 }
 
+void EE_lwip_rx_service(void)
+{
+	LWIP_DEBUGF(EE_LWIP_DEBUG, ("EE_lwip_rx_service start!\n"));
+	EE_lwip_hal_rx_service();
+	LWIP_DEBUGF(EE_LWIP_DEBUG, ("EE_lwip_rx_service end!\n"));
+}
+
+void EE_lwip_set_Rx_task(EE_TID task)
+{	
+	LWIP_DEBUGF(EE_LWIP_DEBUG, ("EE_lwip_set_Rx_task start!\n"));
+	EE_ethernetif_set_Rx_task(task);
+	LWIP_DEBUGF(EE_LWIP_DEBUG, ("EE_lwip_set_Rx_task end!\n"));
+}
 
 

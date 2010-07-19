@@ -243,14 +243,13 @@ typedef union {
 /*
  *	Mac layer API (enc28j60 driver)		
 */
-__INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_handler(int level)
-{
-	EE_enc28j60_hal_handler(level);
-}
+void EE_enc28j60_handler(int level);
+#define EE_enc28j60_set_rx_task(task)					EE_enc28j60_hal_set_rx_task(task)
 #define EE_enc28j60_enable()							EE_enc28j60_hal_enable()
 #define EE_enc28j60_disable()							EE_enc28j60_hal_disable()
 #define EE_enc28j60_spi_init()							EE_enc28j60_hal_spi_init()
 #define EE_enc28j60_disable_IRQ()						EE_enc28j60_hal_disable_IRQ()
+#define EE_enc28j60_enable_IRQ()						EE_enc28j60_hal_enable_IRQ()
 #define EE_enc28j60_mac_put_array(val, len)				EE_enc28j60_hal_put_array(val, len)
 #define EE_enc28j60_mac_put(val)						EE_enc28j60_hal_put(val)
 #define EE_enc28j60_mac_get_array(val, len)				EE_enc28j60_hal_get_array(val, len)
@@ -375,7 +374,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_init(mac_addr myMACaddress)
 	/* MAC layer initialization */
 	EE_enc28j60_mac_init(myMACaddress);
 	/* Enable IRQ */
-	//EE_enc28j60_enable_IRQ();
+	EE_enc28j60_enable_IRQ();
 }
 
 /* 	EE_enc28j60_transfer_init

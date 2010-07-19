@@ -21,7 +21,8 @@ void EE_lwip_timer_tick(void)
     EE_UINT16 pending = EE_lwip_increment_timers(&EE_lwip_timers);
     if (pending != 0)
         ActivateTask(LwipPeriodic);
-    if (EE_ethernetif_pending_interrupt()) {
+    #if 0
+	if (EE_ethernetif_pending_interrupt()) {
         /* We should mask ENC28J60 interrupts on the GPIO */
         /* EE_enc28j60_mask_interrupts(); */
         if (! EE_lwip_irq_pending) {
@@ -29,6 +30,7 @@ void EE_lwip_timer_tick(void)
             ActivateTask(LwipReceive);
         }
     }
+	#endif
 }
 
 

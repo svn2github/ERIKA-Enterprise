@@ -27,6 +27,26 @@ struct ethernetif {
   u16_t length;
 };
 
+__INLINE__ void __ALWAYS_INLINE__ EE_ethernetif_hal_set_Rx_task(EE_TID task)
+{
+	EE_enc28j60_set_rx_task(task);
+}
+
+__INLINE__ void __ALWAYS_INLINE__ EE_lwip_hal_rx_service(void)
+{
+	EE_enc28j60_enable_IRQ();
+}
+
+__INLINE__ void __ALWAYS_INLINE__ EE_ethernetif_hal_enable_interrupt(void)
+{
+	EE_enc28j60_enable_IRQ();
+}
+
+__INLINE__ void __ALWAYS_INLINE__ EE_ethernetif_hal_disable_interrupt(void)
+{
+	EE_enc28j60_disable_IRQ();
+}
+
 __INLINE__ int __ALWAYS_INLINE__ EE_ethernetif_hal_pending_interrupt(void)
 {
 	return EE_enc28j60_pending_interrupt();
@@ -55,7 +75,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_ethernetif_hal_init(struct netif *netif)
 	myMACaddress.v[3] = netif->hwaddr[3];
 	myMACaddress.v[4] = netif->hwaddr[4];
 	myMACaddress.v[5] = netif->hwaddr[5];
-	
+
 	EE_enc28j60_init(myMACaddress);
 }
 

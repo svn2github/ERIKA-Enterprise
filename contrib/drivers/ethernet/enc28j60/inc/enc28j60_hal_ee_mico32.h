@@ -36,8 +36,7 @@
 typedef struct {	
     MicoGPIO_t* base;					// GPIO controller base address
     int irqf;							// GPIO irq flag to register the handler
-    EE_ISR_callback rxcbk;				// rx callback
-    EE_ISR_callback txcbk;				// tx callback
+    EE_TID task;						// task called inside the interrupt handler
 } EE_enc28j60_st;
 
 /* ZIGBEE driver functions list */
@@ -138,6 +137,15 @@ __INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_hal_handler_setup(void)
 #define EE_enc28j60_hal_chip_unselect() EE_enc28j60_hal_clear_SSO()
 
 /*
+	This function sets the task should be called inside the interrupt handler.
+*/
+__INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_hal_set_rx_task(EE_TID task)
+{
+	ee_enc28j60_st.task = task;
+}
+
+
+/*
 	void EE_enc28j60_hal_write_16(EE_UINT8 byte1, EE_UINT8 byte2);
 	This function writes 2 bytes on spi bus. 
 */
@@ -163,7 +171,7 @@ void EE_enc28j60_hal_delay_ms(unsigned int delay_count);
 	__INLINE__ int __ALWAYS_INLINE__ EE_enc28j60_hal_config(int mode);
 	This function configures SPI controller.
  */
-__INLINE__ int __ALWAYS_INLINE__ EE_enc28j60_hal_config(int mode);
+//__INLINE__ int __ALWAYS_INLINE__ EE_enc28j60_hal_config(int mode);
 
 /*
 	int EE_enc28j60_hal_set_ISR_mode(int irqf);
@@ -328,6 +336,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_hal_disable(void)
 */
 __INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_hal_enable_IRQ(void)
 {
+	mico32_enable_irq(ee_enc28j60_st.irqf);
 	EE_enc28j60_gpio_enable_IRQ();
 }
 
@@ -337,8 +346,8 @@ __INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_hal_enable_IRQ(void)
 */
 __INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_hal_disable_IRQ(void)
 {
-	mico32_disable_irq(EE_ENC28J60_IRQ);
 	EE_enc28j60_gpio_disable_IRQ();
+	mico32_disable_irq(ee_enc28j60_st.irqf);
 }
 
 /*
@@ -350,29 +359,21 @@ __INLINE__ int __ALWAYS_INLINE__ EE_enc28j60_hal_IRQ_enabled(void)
 	return EE_enc28j60_gpio_IRQ_enabled();
 }
 
-// /*
-	// __INLINE__ int __ALWAYS_INLINE__ EE_enc28j60_set_ISR_mode(int mode)
-	// This function configures ISR mode.
-// */
-// __INLINE__ int __ALWAYS_INLINE__ EE_enc28j60_hal_set_ISR_mode(int mode)
-// { 
-	// return EE_hal_enc28j60_set_ISR_mode(mode); 
-// } 
+/*
+	int EE_enc28j60_hal_set_ISR_mode(int mode);
+	This function configures ISR mode.
+*/
+//int EE_enc28j60_hal_set_ISR_mode(int mode);
 
 /*
 	__INLINE__ int __ALWAYS_INLINE__ EE_enc28j60_config(int mode)
 	This function configures the device.
 */
-__INLINE__ int __ALWAYS_INLINE__ EE_enc28j60_hal_config(int mode)
-{ 
-	//ee_enc28j60_GPIO_port = (EE_GPIO_data_bits_t*)(&(ee_enc28j60_st.base->data));
-	//ee_enc28j60_GPIO_intf = (EE_GPIO_data_bits_t*)(&(ee_enc28j60_st.base->edgeCapture));
-	//ee_enc28j60_GPIO_inte = (EE_GPIO_data_bits_t*)(&(ee_enc28j60_st.base->irqMask));
-    //EE_enc28j60_set_ISR_mode(EE_ENC28J60_RXTX_ISR);
-	EE_enc28j60_hal_spi_init();
-	return EE_enc28j60_hal_set_ISR_mode(mode);
-	//return EE_enc28j60_enable();
-} 
+//__INLINE__ int __ALWAYS_INLINE__ EE_enc28j60_hal_config(int mode)
+//{ 
+//	EE_enc28j60_hal_spi_init();
+//	return EE_enc28j60_hal_set_ISR_mode(mode);
+//} 
 
 
 #endif //__ENC28J60_HAL_EE_MICO32_H__

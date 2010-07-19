@@ -10,27 +10,39 @@
 
 /* ---------------------- Global variables --------------------------------- */
 EE_enc28j60_st ee_enc28j60_st = {
-	.base= (MicoGPIO_t* )MISC_GPIO_BASE_ADDRESS,
-	.irqf= MISC_GPIO_IRQ, 
-	.rxcbk= EE_NULL_CBK, 
-	.txcbk= EE_NULL_CBK };
+	.base= (MicoGPIO_t* )EE_ENC28J60_BASE_ADDRESS,
+	.irqf= EE_ENC28J60_IRQ, 
+	.task= -1 };
 	
 /* ---------------------- Ethernet interrupt handler ------------------------- */
 
+/**
+ * The PKTIF bit can only be cleared by the host controller
+ * or by a Reset condition. In order to clear PKTIF, the
+ * EPKTCNT register must be decremented to 0. If the last
+ * data packet in the receive buffer is processed,
+ * EPKTCNT will become zero and the PKTIF bit will
+ * automatically be cleared.
+*/
+
 void EE_enc28j60_hal_handler(int level)
 {
+	EE_enc28j60_disable_IRQ();
+	
+	/* Clear GPIO irq pending flag */
 	EE_gpio_common_handler(level);
 	
-	EE_enc28j60_gpio_IRQ_pre_stub();
-    ENC28J60_INTERRUPT_NAME();
-	EE_enc28j60_gpio_IRQ_post_stub();
-	
+	/* Called task should re-enable IRQs */
+	if( ee_enc28j60_st.task >= 0)
+		 ActivateTask(ee_enc28j60_st.task);	
+		 
 	return;
 }
 
 /* ---------------------- Ethernet Library functions ------------------------- */
 
-int EE_enc28j60_hal_set_ISR_mode(int irqf)
+#if 0
+int EE_enc28j60_hal_set_ISR_mode(int mode)
 {
 	unsigned int intst;
 	
@@ -49,6 +61,7 @@ int EE_enc28j60_hal_set_ISR_mode(int irqf)
         
 	return ENC28J60_SUCCESS;
 }
+#endif
 
 void EE_enc28j60_hal_delay_us(unsigned int delay_count)
 {

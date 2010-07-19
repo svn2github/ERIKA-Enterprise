@@ -11,10 +11,10 @@
 #define MAXCHARS 128
 
 #ifdef __LWIP_DEBUG__
-static uint8_t debug_initialized = 0; 
+static u8_t debug_initialized = 0; 
 #endif
 
-int8_t lwip_debug_init(void)
+s8_t lwip_debug_init(void)
 {
 	#ifdef __LWIP_DEBUG__
 	debug_initialized = 0;
@@ -38,11 +38,11 @@ int8_t lwip_debug_init(void)
 	#endif /* LWIP_DEBUG */
 }
 
-int8_t lwip_debug_write(char *msg, uint16_t len) 
+s8_t lwip_debug_write(char *msg, u16_t len) 
 {
 	#ifdef __LWIP_DEBUG__
 	if (debug_initialized)
-		return console_write(LWIP_DEBUG_CONSOLE, (const uint8_t *)msg, len);
+		return console_write(LWIP_DEBUG_CONSOLE, (const u8_t *)msg, len);
 	return LWIP_DEBUG_ERR;
 	#else
 	return LWIP_DEBUG_ERR;

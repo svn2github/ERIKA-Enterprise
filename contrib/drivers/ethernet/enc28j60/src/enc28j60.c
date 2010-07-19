@@ -94,6 +94,11 @@
 #include "enc28j60.h"
 #include "string.h"
 
+void EE_enc28j60_handler(int level)
+{
+	EE_enc28j60_hal_handler(level);
+}
+
 /**
  * Variables used by Erika ENC28j60 debug functions. 
  */
