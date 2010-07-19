@@ -16,4 +16,11 @@ void EE_coretimer_hard_alarm(EE_UINT32 hw_ticks, void (*f)(void));
 void EE_coretimer_soft_alarm(EE_UINT32 period_us, void (*f)(void));
 #endif
 
+/******************************************************************************/
+/*				Macro Expansions			      */
+/******************************************************************************/	
+
+#define EE_ADDR_VIRTUAL_TO_PHYSICAL(a) (((EE_UREG)(a)) & 0x1FFFFFFF)
+
+
 #endif  /* __INCLUDE_PIC32_EE_UTILS_H__ */
