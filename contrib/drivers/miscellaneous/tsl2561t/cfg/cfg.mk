@@ -15,4 +15,8 @@ ifeq ($(findstring __MICROCHIP_PIC32__,$(EEOPT)) , __MICROCHIP_PIC32__)
 EE_SRCS += contrib/drivers/miscellaneous/tsl2561t/src/tsl2561t_hal_ee_pic32.c
 endif
 
+ifeq ($(findstring __LM32__,$(EEOPT)) , __LM32__)
+EE_SRCS += contrib/drivers/miscellaneous/tsl2561t/src/tsl2561t_hal_ee_mico32.c
+endif
+
 endif

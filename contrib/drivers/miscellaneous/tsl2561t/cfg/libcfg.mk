@@ -23,6 +23,7 @@ ALLINCPATH += -I"$(shell cygpath -w $(EEBASE)/contrib/drivers/miscellaneous/tsl2
 else
 ALLINCPATH += -I$(EEBASE)/contrib/drivers/miscellaneous/tsl2561t/inc
 endif
+INCLUDE_PATH += $(EEBASE)/contrib/drivers/miscellaneous/tsl2561t/inc
 
 ## Add each file individually
 EE_SRCS_TSL2561T +=

@@ -55,6 +55,9 @@
 /*				Inlinde Functions 			      */
 /******************************************************************************/
 
+COMPILER_INLINE EE_UINT32 tsl2561t_swap_32(EE_UINT32 le_val){
+	return le_val;
+}
 
 COMPILER_INLINE void tsl2561t_hal_set_ADDRESS_gnd(void){
 	TSL2561T_TRIS_ADD_PIN = 0;	// pin connected to ADD as output.
@@ -89,6 +92,28 @@ void tsl2561t_write_register(uint8_t device_address, uint8_t reg ,
 
 void tsl2561t_read_register(uint8_t device_address, uint8_t reg , 
 		uint8_t * value); 
+		
+COMPILER_INLINE void tsl2561t_read_buffer(uint8_t device_address, uint8_t reg , 
+		uint8_t *data, int len) {
+	
+	int i;
+
+	for(i=0; i<len; i++)
+	{
+		tsl2561t_read_register(device_address, reg+i, data+i);
+	}
+}
+
+COMPILER_INLINE void tsl2561t_write_buffer(EE_UINT8 device_address, EE_UINT8 reg , 
+		EE_UINT8 *data, int len) {
+		
+	int i;
+
+	for(i=0; i<len; i++)
+	{
+		tsl2561t_write_register(device_address, reg+i, *(data+i));
+	}
+}		
 
 #endif //__TSL2561T_HAL_EE_PIC32_H__
 

@@ -55,8 +55,8 @@ ifeq ($(findstring __USE_ETHERNET_ENC28J60__,$(EEOPT)) , __USE_ETHERNET_ENC28J60
 EE_SRCS += pkg/board/fpga_camera_mico32/src/ee_ethernet_enc28j60.c
 endif
 
-ifeq ($(findstring __USE_LIGHTSENSOR_TSL2561__,$(EEOPT)) , __USE_LIGHTSENSOR_TSL2561__)
-EE_SRCS += pkg/board/fpga_camera_mico32/src/ee_lightsensor_tsl2561.c
+ifeq ($(findstring __USE_LIGHTSENSOR_TSL2561__,$(EEOPT)) , __USE_LIGHTSENSOR_TSL2561T__)
+EE_SRCS += pkg/board/fpga_camera_mico32/src/ee_lightsensor_tsl2561t.c
 endif
 
 ifeq ($(findstring __USE_ZIGBEE_MRF24J40__,$(EEOPT)) , __USE_ZIGBEE_MRF24J40__)

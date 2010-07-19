@@ -27,8 +27,12 @@
 
 #if defined	__MICROCHIP_PIC32__
 #include <tsl2561t_hal_ee_pic32.h>
-#else		/* NO Architecture */
-#error "TSL2561T_HAL: Architecture not supported"
+#else
+	#if defined __LM32__
+	#include <tsl2561t_hal_ee_mico32.h>
+	#else /* NO Architecture */		
+	#error "TSL2561T_HAL: Architecture not supported"
+	#endif
 #endif
 
 #else			/* No OS */

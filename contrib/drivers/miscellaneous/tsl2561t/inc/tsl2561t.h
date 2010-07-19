@@ -32,6 +32,13 @@
 #define SELECT_ADDRESS_VDD 1
 #define SELECT_ADDRESS_FLOAT 2
 
+/* Driver Macros */
+#define TLS2561_READ_WORD       (2)
+#define TLS2561_WRITE_WORD      (2)
+#define TLS2561_COMMAND_BIT     (0x80)
+#define TLS2561_WORD_PROT       (0x20)
+#define TLS2561_WORD_COMMAND(x) (TLS2561_COMMAND_BIT | TLS2561_WORD_PROT | (x))
+
 /*	Register adresses		*/
 #define CONTROL_REGISTER 0X00
 #define TIMING_REGISTER 0X01

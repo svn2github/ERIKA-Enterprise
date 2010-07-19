@@ -56,15 +56,18 @@
 #endif // __USE_CAMERA_HV7131GP__
 
 #ifdef __USE_ETHERNET_ENC28J60__
-#include "enc28j60.h"
+//#include "enc28j60.h"
+#include "board/fpga_camera_mico32/inc/ee_ethernet_enc28j60.h"
 #endif // __USE_ETHERNET_ENC28J60__
 
 #ifdef __USE_ZIGBEE_MRF24J40__
-#include "mrf24j40.h"
+//#include "mrf24j40.h"
+#include "board/fpga_camera_mico32/inc/ee_zigbee_mrf24j40.h"
 #endif // __USE_ZIGBEE_MRF24J40__
 
-#ifdef __USE_LIGHTSENSOR_TSL2561__
-#include "board/fpga_camera_mico32/inc/ee_lightsensor_tsl2561.h"
+#ifdef __USE_LIGHTSENSOR_TSL2561T__
+//#include "tsl2561t.h"
+#include "board/fpga_camera_mico32/inc/ee_lightsensor_tsl2561t.h"
 #endif
 
 #if defined(__USE_LEDS__) || defined(__USE_SWITCHES__) || defined(__USE_TRANSISTORS__)

@@ -1,5 +1,5 @@
 /** 
-* @file tsl2561t.h
+* @file tsl2561t.c
 * @brief TSL2561T Light Sensor Driver
 * @author Marco Ghibaudi 
 * @date 2010-04-26
@@ -121,28 +121,14 @@ uint8_t tsl2561t_get_configuration(uint8_t address, uint8_t parameter, uint8_t *
 
 void tsl2561t_read_lux(uint8_t address_in_use, uint32_t *lux){
 
-	EE_UINT8 high_reg, low_reg;
-
-
 	uint32_t channel1;
 	uint32_t channel0;
 	uint32_t chScale;
 
-	tsl2561t_read_register(address_in_use, 
-		COMMAND_DATA0LOW_REGISTER, &low_reg);
-
-	tsl2561t_read_register(address_in_use, 
-		COMMAND_DATA0HIGH_REGISTER, &high_reg);
-	
-	channel0 = ((EE_UINT32) ( low_reg ) + (((EE_UINT32) high_reg) << 8)); 
-
-	tsl2561t_read_register(address_in_use, 
-		COMMAND_DATA1LOW_REGISTER, &low_reg);
-
-	tsl2561t_read_register(address_in_use, 
-		COMMAND_DATA1HIGH_REGISTER, &high_reg);
-
-	channel1 = ((EE_UINT32) ( low_reg ) + (((EE_UINT32) high_reg) << 8));
+	tsl2561t_read_buffer(address_in_use, TLS2561_WORD_COMMAND(DATA_0_LOW_REGISTER), (EE_UINT8 *)&channel0 , TLS2561_READ_WORD);	
+	channel0 = tsl2561t_swap_32(channel0);
+	tsl2561t_read_buffer(address_in_use, TLS2561_WORD_COMMAND(DATA_1_LOW_REGISTER) , (EE_UINT8 *)&channel1 , TLS2561_READ_WORD);	
+	channel1 = tsl2561t_swap_32(channel1);
 	
 	/* Calculation of the lux value */
 	
