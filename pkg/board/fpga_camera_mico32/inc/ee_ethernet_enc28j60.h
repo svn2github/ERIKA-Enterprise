@@ -80,9 +80,6 @@ __INLINE__ int __ALWAYS_INLINE__ EE_enc28j60_pending_interrupt(void){ \
 
 EE_ENC28J60_BOARD_FUNCTION(EE_ENC28J60_GPIO_NAME_UC, EE_ENC28J60_GPIO_NAME_LC)
 
-
-//#define EE_enc28j60_int_enable()			EE_misc_gpio_write_bit_irqMask(1, EE_INT2_BIT)
-//#define EE_enc28j60_int_disable()			EE_misc_gpio_write_bit_irqMask(0, EE_INT2_BIT)
 __INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_gpio_wake_active(void){
 	EE_enc28j60_gpio_wake_pin(1);
 }

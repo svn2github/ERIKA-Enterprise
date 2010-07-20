@@ -29,26 +29,31 @@ struct ethernetif {
 
 __INLINE__ void __ALWAYS_INLINE__ EE_ethernetif_hal_set_Rx_task(EE_TID task)
 {
+	LWIP_DEBUGF(NETIF_DEBUG | LWIP_DBG_TRACE, ("EE_ethernetif_hal_set_Rx_task\n"));
 	EE_enc28j60_set_rx_task(task);
 }
 
 __INLINE__ void __ALWAYS_INLINE__ EE_lwip_hal_rx_service(void)
 {
+	LWIP_DEBUGF(NETIF_DEBUG | LWIP_DBG_TRACE, ("EE_lwip_hal_rx_service\n"));
 	EE_enc28j60_enable_IRQ();
 }
 
 __INLINE__ void __ALWAYS_INLINE__ EE_ethernetif_hal_enable_interrupt(void)
 {
+	LWIP_DEBUGF(NETIF_DEBUG | LWIP_DBG_TRACE, ("EE_ethernetif_hal_enable_interrupt\n"));
 	EE_enc28j60_enable_IRQ();
 }
 
 __INLINE__ void __ALWAYS_INLINE__ EE_ethernetif_hal_disable_interrupt(void)
 {
+	LWIP_DEBUGF(NETIF_DEBUG | LWIP_DBG_TRACE, ("EE_ethernetif_hal_disable_interrupt\n"));
 	EE_enc28j60_disable_IRQ();
 }
 
 __INLINE__ int __ALWAYS_INLINE__ EE_ethernetif_hal_pending_interrupt(void)
 {
+	LWIP_DEBUGF(NETIF_DEBUG | LWIP_DBG_TRACE, ("EE_ethernetif_hal_pending_interrupt\n"));
 	return EE_enc28j60_pending_interrupt();
 }
 

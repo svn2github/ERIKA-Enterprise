@@ -41,28 +41,6 @@ void EE_enc28j60_hal_handler(int level)
 
 /* ---------------------- Ethernet Library functions ------------------------- */
 
-#if 0
-int EE_enc28j60_hal_set_ISR_mode(int mode)
-{
-	unsigned int intst;
-	
-	/* Disble IRQ */
-	intst = EE_mico32_disableIRQ();
-	
-	/* Register IRQ handler */
-	EE_enc28j60_hal_handler_setup();
-		
-	mico32_enable_irq(ee_enc28j60_st.irqf);
-	EE_enc28j60_hal_enable_IRQ();
-	
-	/* Enable IRQ */
-	if (EE_mico32_are_IRQs_enabled(intst))
-        EE_mico32_enableIRQ();
-        
-	return ENC28J60_SUCCESS;
-}
-#endif
-
 void EE_enc28j60_hal_delay_us(unsigned int delay_count)
 {
 	MicoSleepMicroSecs((unsigned int)delay_count);

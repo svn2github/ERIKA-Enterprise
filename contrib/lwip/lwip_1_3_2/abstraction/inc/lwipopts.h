@@ -9,34 +9,6 @@
 #ifndef __LWIPOPTS_H__
 #define __LWIPOPTS_H__
 
-// #include "lwipopts_ee.h"
-
-// #define MY_DEFAULT_MAC_BYTE1        (0x00)	// Use the default of
-// #define MY_DEFAULT_MAC_BYTE2        (0x04)	// 00-04-A3-00-00-00 if using
-// #define MY_DEFAULT_MAC_BYTE3        (0xA3)	// an ENCX24J600 or ZeroG ZG2100
-// #define MY_DEFAULT_MAC_BYTE4        (0x00)	// and wish to use the internal
-// #define MY_DEFAULT_MAC_BYTE5        (0x00)	// factory programmed MAC
-// #define MY_DEFAULT_MAC_BYTE6        (0x00)	// address instead.
-
-// #ifndef ETHERNETIF_MAC_BYTE1
-// #define ETHERNETIF_MAC_BYTE1 MY_DEFAULT_MAC_BYTE1
-// #endif
-// #ifndef ETHERNETIF_MAC_BYTE2
-// #define ETHERNETIF_MAC_BYTE2 MY_DEFAULT_MAC_BYTE2
-// #endif
-// #ifndef ETHERNETIF_MAC_BYTE3
-// #define ETHERNETIF_MAC_BYTE3 MY_DEFAULT_MAC_BYTE3
-// #endif
-// #ifndef ETHERNETIF_MAC_BYTE4
-// #define ETHERNETIF_MAC_BYTE4 MY_DEFAULT_MAC_BYTE4
-// #endif
-// #ifndef ETHERNETIF_MAC_BYTE5
-// #define ETHERNETIF_MAC_BYTE5 MY_DEFAULT_MAC_BYTE5
-// #endif
-// #ifndef ETHERNETIF_MAC_BYTE6
-// #define ETHERNETIF_MAC_BYTE6 MY_DEFAULT_MAC_BYTE6
-// #endif
-
 /* ---------- Checksum options ---------- */
 #ifndef CHECKSUM_CHECK_UDP
 #define CHECKSUM_CHECK_UDP		0
@@ -116,7 +88,9 @@
 /* ---------- IP options ---------- */
 //#define IP_FORWARD                      0
 //#define IP_OPTIONS_ALLOWED              1
+#ifndef IP_REASSEMBLY
 #define IP_REASSEMBLY                     0           // default is 1
+#endif
 //#define IP_FRAG                         0           // default is 1
 //#define IP_REASS_MAXAGE                 3
 //#define IP_REASS_MAX_PBUFS              10
@@ -129,7 +103,9 @@
 //#define ICMP_TTL                       (IP_DEFAULT_TTL)
 
 /* ---------- RAW options ---------- */
+#ifndef LWIP_RAW
 #define LWIP_RAW                          0
+#endif
 //#define RAW_TTL                        (IP_DEFAULT_TTL)
 
 /* ---------- DHCP options ---------- */

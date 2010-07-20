@@ -323,24 +323,6 @@ BOOL EE_enc28j60_mac_IsMemCopyDone(void);
 void EE_enc28j60_mac_power_down(void);
 void EE_enc28j60_mac_power_up(void);
 
-// BYTE EE_enc28j60_mac_get();
-// WORD EE_enc28j60_mac_get_array(BYTE *val, WORD len);
-// void EE_enc28j60_mac_put(BYTE val);
-// void EE_enc28j60_mac_put_array(BYTE *val, WORD len);
-// void EE_enc28j60_software_reset(void);
-// REG EE_enc28j60_read_ETH_register(BYTE Address);
-// REG EE_enc28j60_read_MAC_MII_register(BYTE Address);
-// PHYREG EE_enc28j60_read_PHY_register(BYTE Register);
-// void EE_enc28j60_write_register(BYTE Address, BYTE Data);
-// void EE_enc28j60_bit_field_clear_register(BYTE Address, BYTE Data);
-// void EE_enc28j60_bit_field_set_register(BYTE Address, BYTE Data);
-// void EE_enc28j60_write_PHY_register(BYTE Register, WORD Data);
-// void EE_enc28j60_bank_select(WORD Register);
-// void EE_enc28j60_set_clkout(BYTE NewConfig);
-// BYTE EE_enc28j60_get_clkout(void);
-
-
-
 #if 0
 void EE_enc28j60_mac_set_rx_hash_table_entry(mac_addr DestMACAddr);
 #endif
@@ -365,8 +347,6 @@ __INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_init(mac_addr myMACaddress)
 	
 	/* Disable IRQ */
 	EE_enc28j60_disable_IRQ();
-	/* Hold in reset */
-	//EE_enc28j60_disable();
 	/* SPI initialization */
 	EE_enc28j60_spi_init();	// SPI module configuration
 	/* Release reset */

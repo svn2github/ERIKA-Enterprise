@@ -84,8 +84,5 @@ extern struct netif EE_lwip_netif;
 
 /* Driver functions */
 void EE_lwip_init(struct ip_addr *my_ipaddr, struct ip_addr *netmask, struct ip_addr *gw, struct eth_addr *my_ethaddr);
-void EE_lwip_rx_service(void);
-void EE_lwip_set_Rx_task(EE_TID task);
-
 
 #endif /* __EE_LWIP_H__ */

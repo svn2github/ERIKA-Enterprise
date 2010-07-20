@@ -64,7 +64,7 @@ static err_t low_level_init(struct netif *netif)
 	LWIP_DEBUGF(NETIF_DEBUG | LWIP_DBG_TRACE, ("low_level_init ( %#x)\n",netif));
 
 	/* Do whatever else is needed to initialize interface. */  
-	EE_ethernetif_init(netif);
+	EE_ethernetif_hal_init(netif);
 	
 	EE_lwip_write_timestamp(LWIP_END_LOWLEV_INIT);
 	return ERR_OK;
@@ -162,7 +162,7 @@ static err_t low_level_output(struct netif *netif, struct pbuf *p)
 	LWIP_DEBUGF(NETIF_DEBUG | LWIP_DBG_TRACE, ("low_level_output ( %#x)\n",p));
 
 	EE_lwip_write_timestamp(LWIP_START_LOWLEV_INIT_TRANSFER);
-	EE_ethernetif_initiate_transfer();
+	EE_ethernetif_hal_initiate_transfer();
 	EE_lwip_write_timestamp(LWIP_END_LOWLEV_INIT_TRANSFER);
 	
 	#if ETH_PAD_SIZE
@@ -174,20 +174,14 @@ static err_t low_level_output(struct netif *netif, struct pbuf *p)
 		/* Send the data from the pbuf to the interface, one pbuf at a
 		   time. The size of the data in each pbuf is kept in the ->len
 		   variable. */
-		// LWIP_DEBUGF(NETIF_DEBUG | LWIP_DBG_TRACE, ("\npayload: %x, len: %d\n", q->payload, q->len));
-		// for(i=0; i<(q->len); i++)
-		// {	
-			// LWIP_DEBUGF(NETIF_DEBUG | LWIP_DBG_TRACE, ("q->payload[%d]:%x  ", i, ((u8_t*)q->payload)[i]));
-		// }
-		
-		EE_ethernetif_write(q->payload, q->len);
+		EE_ethernetif_hal_write(q->payload, q->len);
 	}
 	EE_lwip_write_timestamp(LWIP_END_LOWLEV_WRITE);
 	
 	LWIP_DEBUGF(NETIF_DEBUG | LWIP_DBG_TRACE, ("low_level_output: signal length: %d\n", length));
 	
 	EE_lwip_write_timestamp(LWIP_START_LOWLEV_SIGNAL);
-	EE_ethernetif_signal(length);
+	EE_ethernetif_hal_signal(length);
 	EE_lwip_write_timestamp(LWIP_END_LOWLEV_SIGNAL);
 	
 	#if ETH_PAD_SIZE
@@ -246,17 +240,7 @@ static struct pbuf *low_level_input(struct netif *netif)
 
 	EE_lwip_write_timestamp(LWIP_START_LOWLEV_INPUT);
 	
-	// /* Obtain the size of the packet and put it into the "len"
-	// variable. */
-	// EE_ethernetif_get_info(netif);
-    // if(netif->state->pkt_cnt==0)
-	// {
-		// EE_lwip_write_timestamp(LWIP_END_LOWLEV_INPUT);
-		// return (struct pbuf *)0;
-	// }	
-	// len = netif->state->length;
-	
-	len = EE_ethernetif_get_info(netif);
+	len = EE_ethernetif_hal_get_info(netif);
 	if( len == 0)
 	{
 		EE_lwip_write_timestamp(LWIP_END_LOWLEV_INPUT);
@@ -287,10 +271,10 @@ static struct pbuf *low_level_input(struct netif *netif)
 		* actually received size. In this case, ensure the tot_len member of the
 		* pbuf is the sum of the chained pbuf len members.
 		*/
-			EE_ethernetif_read(q->payload, q->len);
+			EE_ethernetif_hal_read(q->payload, q->len);
 			LWIP_DEBUGF(NETIF_DEBUG | LWIP_DBG_TRACE, ("low_level_input: payload=0x%x, len=%d\n", q->payload, q->len));
 		}
-		EE_ethernetif_ack();
+		EE_ethernetif_hal_ack();
 
 		#if ETH_PAD_SIZE
 		pbuf_header(p, ETH_PAD_SIZE); /* reclaim the padding word */
@@ -299,7 +283,7 @@ static struct pbuf *low_level_input(struct netif *netif)
 		LINK_STATS_INC(link.recv);
 	} 
 	else {
-		EE_ethernetif_drop_packet();
+		EE_ethernetif_hal_drop_packet();
 		LINK_STATS_INC(link.memerr);
 		LINK_STATS_INC(link.drop);
 	}

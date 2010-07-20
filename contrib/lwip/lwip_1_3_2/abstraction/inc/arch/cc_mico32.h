@@ -58,8 +58,6 @@
 
 #ifdef LWIP_DEBUG
 	s8_t lwip_debug_printf(const char* s, ...);
-//    void Q_onAssert(char const * const file, int line);
-//    #define LWIP_PLATFORM_ASSERT(msg) Q_onAssert(msg, __LINE__)
 	#define LWIP_PLATFORM_ASSERT(msg) 	lwip_debug_printf("Assertion \"%s\" failed at line %d in %s\n", msg, __LINE__, __FILE__); \
 										abort()
 	#define LWIP_PLATFORM_DIAG(msg) 	lwip_debug_printf msg
