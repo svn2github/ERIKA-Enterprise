@@ -22,8 +22,15 @@
 #include <ee.h>
 #include <mcu/microchip_pic32/inc/ee_spi.h>
 
+#ifdef  __32MX795F512L__
+#define MRF24J40_SPI_PORT_1	EE_SPI_PORT_1
+#define MRF24J40_SPI_PORT_1A	EE_SPI_PORT_1A
+#define MRF24J40_SPI_PORT_2A	EE_SPI_PORT_2A
+#define MRF24J40_SPI_PORT_3A	EE_SPI_PORT_3A
+#else 
 #define MRF24J40_SPI_PORT_1	EE_SPI_PORT_1
 #define MRF24J40_SPI_PORT_2	EE_SPI_PORT_2
+#endif
 
 /* ------------------------------ Pin Mapping ------------------------------- */
 #ifndef MRF24J40_RESETn
@@ -121,15 +128,27 @@ COMPILER_INLINE void mrf24j40_hal_delay_us(uint16_t delay_count)
 COMPILER_INLINE void mrf24j40_hal_retsetn_high(void)
 {
 	// chris: FIXME: This is due to the inverter of the elco v1 board!
-	//MRF24J40_RESETn = 1;
+	// markintosh: in the future it will be removed the elco v1 board bug
+	// as well as the need for the two different implementations
+
+	#ifdef MRF24J40MB_NOT_INVERTED_RESET	
+	MRF24J40_RESETn = 1;
+	#else	//not defined MRF24J40MB_NOT_INVERTED_RESET
 	MRF24J40_RESETn = 0;
+	#endif	
 }
 
 COMPILER_INLINE void mrf24j40_hal_retsetn_low(void)
 {
 	// chris: FIXME: This is due to the inverter of the elco v1 board!
-	//MRF24J40_RESETn = 0;
-	MRF24J40_RESETn = 1;
+	// markintosh: in the future it will be removed the elco v1 board bug
+	// as well as the need for the two different implementations
+	
+	#ifdef MRF24J40MB_NOT_INVERTED_RESET
+		MRF24J40_RESETn = 0;
+	#else	//not defined  MRF24J40MB_NOT_INVERTED_RESET
+		MRF24J40_RESETn = 1;
+	#endif
 }
 
 COMPILER_INLINE void mrf24j40_hal_csn_high(void)
