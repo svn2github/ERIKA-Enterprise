@@ -11,7 +11,7 @@ CPU test_application {
 		LDFLAGS = ""; 
 
 		CPU_DATA = LM32 {
-			APP_SRC = "test10_main.c";
+			APP_SRC = "test7_main.c";
 			//APP_SRC = "echo.c";
 			MULTI_STACK = FALSE;
 			USESTANDALONEPRINTF = FALSE; // Optional, default is FALSE
@@ -31,7 +31,11 @@ CPU test_application {
 			
 			DEVICE = TIMER{						
 					NAME = "timer_uwl";										
-			};  			
+			}; 
+			
+			//DEVICE = GPIO{						
+			//		NAME = "misc_gpio";										
+			//}; 			
   		};
   		
   		BOARD_DATA = XP2_CAMERA_BOARD {

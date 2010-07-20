@@ -124,6 +124,11 @@ TASK(myTask2)
     }
 }
 
+void gpio_cbk(void)
+{
+	myprintf("GPIO CBK!!!\n");  
+}
+
 /* MAIN (Background task) */
 int main(void)
 {
@@ -148,6 +153,8 @@ int main(void)
     /* Enable IRQ         */
     /* ------------------- */
     EE_mico32_enableIRQ();
+    
+    EE_misc_gpio_set_IRQ_callback(&gpio_cbk);
     
     /* ------------------- */
     /* LWIP configuration  */

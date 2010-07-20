@@ -15,6 +15,7 @@ void myprintf(const char* format, ...);
 EE_UINT8 demo_ipermob_parking_slot_id[8];
 EE_UINT8 demo_ipermob_parking_states[8];
 EE_UINT8 demo_ipermob_parking_ml = 8;
+unsigned long long demo_ipermob_parking_sid = 0x495045524d4f01ULL;
 #endif
 
 /* This is an ISR Type 2 which is attached to the Timer 1 peripheral IRQ pin

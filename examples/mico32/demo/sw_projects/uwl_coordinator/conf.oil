@@ -56,7 +56,7 @@ CPU test_application {
 		LIB = ENABLE { NAME = "MRF24J40"; };	
 		EE_OPT = "USE_MRF24J40";
 		EE_OPT = "INT_POLARITY_HIGH";
-		EE_OPT = "MRF24J40_DEBUG";
+		//EE_OPT = "MRF24J40_DEBUG";
 		EE_OPT = "ADD_RSSI_AND_LQI_TO_PACKET";
 		EE_OPT = "MRF24J40_DISABLE_AUTOMATIC_ACK";
 		EE_OPT = "MRF24J40_DISABLE_CSMA";
@@ -71,13 +71,14 @@ CPU test_application {
 		EE_OPT = "UWL_USE_SIMPLE_802154";
 		EE_OPT = "UWL_HAL_BUS_FREQ=40000";
 		EE_OPT = "UWL_GTS_MANIPULATION"; /* Makes sense if Coord. */
+		/*
 		EE_OPT = "UWL_DEBUG";
 		EE_OPT = "UWL_DEBUG_LOG";
 		EE_OPT = "UWL_DEBUG_LOG_SERIAL";
 		EE_OPT = "UWL_DEBUG_LOG_SERIAL_PORT=CONSOLE_SERIAL_PORT_1";
 		EE_OPT = "UWL_DEBUG_LOG_SERIAL_BAUDRATE=115200"; 
 		EE_OPT = "UWL_DEBUG_LOG_HAS_PRINT";
-		
+		*/
 	};
 	
 	/* ****************************************************************** */

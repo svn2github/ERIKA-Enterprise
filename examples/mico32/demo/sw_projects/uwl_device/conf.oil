@@ -55,7 +55,7 @@ CPU test_application {
 		/* use transceiver MRF24J40 */
 		LIB = ENABLE { NAME = "MRF24J40"; };	
 		EE_OPT = "USE_MRF24J40";
-		EE_OPT = "MRF24J40_DEBUG";
+		//EE_OPT = "MRF24J40_DEBUG";
 		EE_OPT = "INT_POLARITY_HIGH";
 		EE_OPT = "ADD_RSSI_AND_LQI_TO_PACKET";
 //		EE_OPT = "MRF24J40_DISABLE_AUTOMATIC_ACK";
@@ -63,6 +63,7 @@ CPU test_application {
 		EE_OPT = "MRF24J40_ZERO_MIN_BE";
 		EE_OPT = "MRF24J40_PROMISCUOUS_MODE";
 		EE_OPT = "MRF24J40_UWL_MODE";
+		EE_OPT = "MRF24J40MB";
 		
 		LIB = ENABLE { NAME = "MEMORY"; };
 
@@ -70,13 +71,16 @@ CPU test_application {
 		EE_OPT = "EE_TYPETICK=EE_INT32"; /* Mandatory! */
 		EE_OPT = "UWL_USE_SIMPLE_802154";
 		EE_OPT = "UWL_HAL_BUS_FREQ=40000";
+		EE_OPT = "UWL_NO_DYN_ASS";
+		/*
 		EE_OPT = "UWL_DEBUG";
 		EE_OPT = "UWL_DEBUG_LOG";
 		EE_OPT = "UWL_DEBUG_LOG_SERIAL";
 		EE_OPT = "UWL_DEBUG_LOG_SERIAL_PORT=CONSOLE_SERIAL_PORT_1";
 		EE_OPT = "UWL_DEBUG_LOG_SERIAL_BAUDRATE=115200"; 
 		EE_OPT = "UWL_DEBUG_LOG_HAS_PRINT";
-		EE_OPT = "UWL_NO_DYN_ASS";
+		*/
+		
 	};
 	
 	/* ****************************************************************** */
