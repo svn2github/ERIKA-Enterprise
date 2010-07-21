@@ -64,6 +64,7 @@ ISR2(_INT0Interrupt)
 {
 	if(IEC0bits.INT0IE && IFS0bits.INT0IF) { //if(RFIE && RFIF)
 		// Execute callback function
+		IFS0bits.INT0IF = 0; // clear the interrupt flag
 		if (EE_miniflex_radio_mrf24j40_callback != NULL)
 			EE_miniflex_radio_mrf24j40_callback();
 	}
