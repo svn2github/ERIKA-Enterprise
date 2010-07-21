@@ -158,36 +158,46 @@ hv7131gp_status_t hv7131gp_reg_update(hv7131gp_reg_t reg, uint8_t mask,
  ---------------------------------------------------------------------------- */
 hv7131gp_status_t hv7131gp_init(void)
 {
+
+	
 	if (HV7131GP_HAL_DRIVING_PINS) {
 		/* Initializing pins */
+		
 		HV7131GP_PIN_ENABLE_INIT();
 		HV7131GP_PIN_RESETB_INIT();
-		HV7131GP_PIN_MCLK_INIT(HV7131GP_MCLK_PERIOD);
+		
+		/*TODO: è concettualmente giusto che il valore della frequenza 
+			del MCLK venga pescato dall'hal?? */
+		HV7131GP_PIN_MCLK_INIT(HV7131GP_MCLK_FREQ);
 
 		HV7131GP_PIN_VSYNC_INIT_POSITIVE();
+		
 		HV7131GP_PIN_HSYNC_INIT();
 		HV7131GP_PIN_VCLK_INIT();
 		HV7131GP_PIN_EOF_INIT();
-
-		HV7131GP_PIN_Y_INIT();
-	}
 	
+		HV7131GP_PIN_Y_INIT();
+		
+	}
+
 	
 	/* Initialize the internal peripheral, setting the comunication 
 								protocol */
+		
 	if (hv7131gp_hal_init(0) != HV7131GP_SUCCESS)
 		return -HV7131GP_HAL_INIT_ERR;
-
-
+	
+	
 	if (HV7131GP_HAL_DRIVING_PINS) {
 		/* Start camera initialization sequence (see device refman) */
 		init_sequence();
 	}
+	
 	//The answer to the init procedure: Vsync interrupt
 	/*TODO: change this in future by mean of callbacks! */
 	if(init_ack() != HV7131GP_SUCCESS)
 		return HV7131GP_ERR_DEV_NOINIT;
-
+	
 	return hv7131gp_init_configure(); 
 }
 
@@ -214,7 +224,6 @@ hv7131gp_status_t hv7131gp_init_configure(void)
 
 	if (help != HV7131GP_SUCCESS)
 		return help;
-
 	//Resolution: 160x120
 	help = hv7131gp_configure_resolution(HV7131GP_1_16_SUB);
 
@@ -244,7 +253,7 @@ hv7131gp_status_t hv7131gp_init_configure(void)
 	frame_width = 160;
 	frame_height = 120;
 	update_frame_size();
-
+	
 	return HV7131GP_SUCCESS;
 }
 

@@ -27,7 +27,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "mcu/microchip_pic32/inc/ee_i2c.h"
 #include "mcu/microchip_pic32/inc/ee_oc.h"
+#include "mcu/microchip_pic32/inc/ee_dma.h"
 
+#include "cpu/pic32/inc/ee_utils.h"
 
 /******************************************************************************/
 /*                         Global Variables                                   */
@@ -46,40 +48,25 @@ volatile uint8_t *frame_buffer = NULL;
 /*                           Hardware Abstraction Layer                       */
 /******************************************************************************/
 /* ----------------------------------------------------------------------------
-|  Start OC1 Interface:                                                        |
+|  Start OCx Interface:                                                        |
 |                                                                              |
-|  OC1: Generate MasterClock for Sparkfun Camera (use Timer3)                  |
-|       - OC in Toggle Mode -> F_MasterClock = F_TMR/2                         |
+|  OCx: Generate MasterClock for Sparkfun Camera (use TimerY)                  |                       
  ---------------------------------------------------------------------------- */
-void hv7131gp_oc_hal_init(uint16_t period)
+void hv7131gp_oc_hal_init(uint32_t frequency)
 {
-	EE_oc_init(EE_OC_1);
-	/********************************/ 
-	/* Set:				*/
-	/* - Output Compare 1		*/
-	/* - Toggle mode		*/
-	/* - Timer3			*/
-	/* - Period			*/
-	/* - Divisor			*/
-	/********************************/	
-	EE_oc_setup(EE_OC_1,  EE_OC_CONFIGURE_TOGGLE | EE_OC_TIMER_3, period, 0x0); 
-	/********************************/ 
-	/* Set:				*/
-	/* - OC1R			*/
-	/* - OCR1S			*/
-	/* - mode, not implemented	*/	
-	/********************************/
-	EE_oc_advanced_setup(EE_OC_1, 0x0, 0x1, 0);  
+	EE_oc_generate_clock_init(HV7131GP_OC_PORT, frequency);
+	
 }
 
 void hv7131gp_oc_hal_start(void)
 {
-	EE_oc_start(EE_OC_1);
+	EE_oc_generate_clock_start(HV7131GP_OC_PORT);
+	
 }
 
 void hv7131gp_oc_hal_stop(void)
 {
-	EE_oc_stop(EE_OC_1);
+	EE_oc_generate_clock_stop(HV7131GP_OC_PORT);
 }
 
 /* ----------------------------------------------------------------------------
@@ -114,31 +101,43 @@ HV7131GP_EOF_INTERRUPT()
 #ifdef HV7131GP_HSYNC_INT_MODE
 HV7131GP_HSYNC_INTERRUPT()                
 {
-	#ifdef __USE_DMA__	
-	DCH0SSA = ADDR_VIRTUAL_TO_PHYSICAL((void *)HV7131GP_PIN_Y_ADDRESS);
-	DCH0DSA = ADDR_VIRTUAL_TO_PHYSICAL(&frame_buffer[frame_idx]);	
+#ifdef __USE_DMA__
+
+
+#ifdef __INT_DMA__
+if (HV7131GP_HSYNC_VALUE() == HV7131GP_HSYNC_RISING) {
+#endif	//__INT_DMA__
+
+
+	/* Set the DMA source pointer for reading the Y0-Y7 camera pins */	
+	HV7131GP_DMA_SOURCE_ADD_REG = 
+		EE_ADDR_VIRTUAL_TO_PHYSICAL((void *)HV7131GP_PIN_Y_ADDRESS);
+
+	/* Set the DMA destionation to the correct line of the stored frame */
+	
+	HV7131GP_DMA_DEST_ADD_REG = 
+			EE_ADDR_VIRTUAL_TO_PHYSICAL(frame_buffer + frame_idx);
+	
+	
+	/* Disable Interrupts */
 	HV7131GP_HAL_DISABLE_INTERRUPTS();
-	DCH0CONSET = _DCH0CON_CHEN_MASK;
+		
+	/* Enables the DMA Channel  */
+	HV7131GP_DMA_CH_ENABLE();
 
-	#ifdef __INT_DMA__ 	
-		//HV7131GP_PIN_VCLK_START();
-	#endif //DMA_INTERRUPT
-	
+
+	#ifndef __INT_DMA__	
 	while(HV7131GP_HSYNC_VALUE())
-	{	
-	#ifdef __INT_DMA__ //DMA Interrupt mode
-		Nop();
-	#else
-		while(PORTAbits.RA15) ;	//Pixel clock		
-			DCH0ECONSET = _DCH0ECON_CFORCE_MASK; 	// Force Tx Start 
-	#endif //DMA_INTERRUPT
+	{		
+		while( HV7131GP_VCLK_PIN_VALUE() ) ;	//Pixel clock			
+			HV7131GP_DMA_FORCE_START(); 	// Force Tx Start 
 	}	
-
-	#ifdef __INT_DMA__
-		//HV7131GP_PIN_VCLK_STOP();	
 	#endif
-	
-	//DCH0CONCLR = _DCH0CON_CHEN_MASK;
+		
+	#ifdef __INT_DMA__
+	} else {
+	#endif //__INT_DMA__
+
 	
 	frame_idx += DMA_MAX_WIDTH;
 	HV7131GP_HAL_ENABLE_INTERRUPTS();
@@ -151,10 +150,15 @@ HV7131GP_HSYNC_INTERRUPT()
 		HV7131GP_EOF_ACTIVATE_IF(); //Activate interrupt
 	}
 	HV7131GP_HSYNC_RESET_IF();			/* Reset CN interrupt flag */
-	#endif // __USE_DMA__
+	
+	
+	#ifdef __INT_DMA__
+	}
+	#endif	//__INT_DMA__
+
+#endif // __USE_DMA__
 }
 #endif
-
 
 
 /* ----------------------------------------------------------------------------
@@ -170,62 +174,45 @@ HV7131GP_HSYNC_INTERRUPT()
 
 HV7131GP_VSYNC_INTERRUPT()
 {	
-	//row_id 		= 0;
-	frame_idx 	= 0;
-
-	//Read the size of the picture
-	width 	= hv7131gp_get_width();
-	height 	= hv7131gp_get_height();
-	image_size = hv7131gp_get_size();
-
 	HV7131GP_PIN_HSYNC_START();
 	HV7131GP_VSYNC_RESET_IF();    /* Reset INT3 interrupt flag */
 }
 
 
 #ifdef __USE_DMA__
-hv7131gp_status_t hv7131gp_dma_hal_init(uint8_t dma_ch){
-	switch (dma_ch){
-	case 0: 
-		IEC1CLR = _IEC1_DMA0IE_MASK;  		
-		IFS1CLR = _IFS1_DMA0IF_MASK; 		
-		DMACONSET = _DMACON_ON_MASK; 
-		DCH0CON = 0x3;  
-		DCH0CONCLR = _DCH0CON_CHEN_MASK;
-		DCH0ECON = 0;
-		DCH0SSIZ = 1;
-		DCH0DSIZ = DMA_MAX_WIDTH; 
-		DCH0CSIZ = 1;
-		DCH0INTCLR= 0;
-		#ifdef __INT_DMA__
-		DCH0ECON = _DCH0ECON_SIRQEN_MASK | 
-			       (_EXTERNAL_4_IRQ  << _DCH0ECON_CHSIRQ_POSITION);
-		HV7131GP_PIN_VCLK_INIT();
-		#endif
-		
-		IPC9CLR = _IPC9_DMA0IP_MASK | _IPC9_DMA0IS_MASK; //SPI1_DMAIP_MASK | SPI1_DMAIS_MASK;
-		IPC9SET = ((5 <<_IPC9_DMA0IP_POSITION ) & _IPC9_DMA0IP_MASK)  |
-			  ((2 << _IPC9_DMA0IS_MASK) & _IPC9_DMA0IS_MASK);
-		break;
-	default:
-		return -HV7131GP_ERR_DMA_INIT; //Fare HV7131GP_DMA_PORT_UNINPLEMENTED;
-	}	
-	return HV7131GP_SUCCESS;
+hv7131gp_status_t hv7131gp_dma_hal_init(void){
 
+	/* Initialize the DMA channel 	*/
+	EE_dma_init(HV7131GP_DMA_CH);
+
+	/* Set the channel priority and some flags	*/
+	EE_dma_advanced_setup(HV7131GP_DMA_CH, HV7131GP_DMA_PRIORITY, 
+			HV7131GP_DMA_DEFAULT_FLAG);
+
+	/* Set the source, destination, cell sizes, the interrupt associated
+		and the priority  */
+
+	EE_dma_init_transfer(HV7131GP_DMA_CH, HV7131GP_DMA_SOURCE_SIZE,
+			HV7131GP_DMA_DESTINATION_SIZE, HV7131GP_DMA_CELL_SIZE,
+	HV7131GP_DMA_INT_SOURCE, HV7131GP_DMA_INT_PRIOR, 
+			HV7131GP_DMA_INT_SUB_PRIOR);
+	
+	return HV7131GP_SUCCESS;
+	
 };
 #endif // __USE_DMA__
 
 
 hv7131gp_status_t hv7131gp_i2c_hal_init(void)
 {
-	if (EE_i2c_init(EE_I2C_PORT_1, DEFAULT_400KHZ_BRG, DEFAULT_FLAGS) != EE_I2C_SUCCESS)
+	if (EE_i2c_init(HV7131GP_I2C_PORT, HV7131GP_I2C_CLOCK, EE_I2C_DEFAULT_FLAGS) != EE_I2C_SUCCESS)
 		return -HV7131GP_ERR_I2C_INIT;
 	return HV7131GP_SUCCESS;
 }
 
 hv7131gp_status_t hv7131gp_i2c_hal_reg_write(hv7131gp_reg_t reg, uint8_t val)
 {
-	if (EE_i2c_write_byte(EE_I2C_PORT_1, HV7131GP_DEVICE_ID, reg, val) !=  EE_I2C_SUCCESS)
+	if (EE_i2c_write_byte(HV7131GP_I2C_PORT, HV7131GP_DEVICE_ID, reg, val) !=  EE_I2C_SUCCESS)
 		return -HV7131GP_ERR_I2C_WRITE;
 	return HV7131GP_SUCCESS;
 }
@@ -233,7 +220,7 @@ hv7131gp_status_t hv7131gp_i2c_hal_reg_write(hv7131gp_reg_t reg, uint8_t val)
 hv7131gp_status_t hv7131gp_i2c_hal_reg_read(hv7131gp_reg_t reg, uint8_t *val)
 {
 	
-	if (EE_i2c_read_byte(EE_I2C_PORT_1, HV7131GP_DEVICE_ID, reg, val) !=  EE_I2C_SUCCESS)
+	if (EE_i2c_read_byte(HV7131GP_I2C_PORT, HV7131GP_DEVICE_ID, reg, val) !=  EE_I2C_SUCCESS)
 		return -HV7131GP_ERR_I2C_READ;
 	return HV7131GP_SUCCESS; 
 }
@@ -241,10 +228,12 @@ hv7131gp_status_t hv7131gp_i2c_hal_reg_read(hv7131gp_reg_t reg, uint8_t *val)
 
 hv7131gp_status_t hv7131gp_hal_init(uint8_t dma_channel){
 	
+	
 	if (hv7131gp_i2c_hal_init() != HV7131GP_SUCCESS)
 		return -HV7131GP_ERR_I2C_INIT;
 	#ifdef __USE_DMA__
-	if (hv7131gp_dma_hal_init(dma_channel) != HV7131GP_SUCCESS)
+		
+	if (hv7131gp_dma_hal_init() != HV7131GP_SUCCESS)
 		return -HV7131GP_ERR_DMA_INIT; 
 	#endif
 	return HV7131GP_SUCCESS;
@@ -258,6 +247,13 @@ hv7131gp_status_t hv7131gp_hal_init(uint8_t dma_channel){
  ---------------------------------------------------------------------------- */
 hv7131gp_status_t hv7131gp_hal_capture(uint8_t *image, hv7131gp_cback_t *func)
 {
+	frame_idx 	= 0;
+	//Read the size of the picture
+	width 	= hv7131gp_get_width();
+	height 	= hv7131gp_get_height();
+	image_size = hv7131gp_get_size();
+
+
 	frame_buffer = image;
 	capture_complete_func = func;
 

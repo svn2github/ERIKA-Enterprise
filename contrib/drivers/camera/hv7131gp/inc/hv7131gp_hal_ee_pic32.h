@@ -27,6 +27,23 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "hv7131gp_reg.h"
 #include "mcu/microchip_pic32/inc/ee_cn.h"
 
+
+
+/******************************************************************************/
+/*			Board Selection					      */
+/******************************************************************************/
+
+#if defined __USE_SINGLE_PIC_128K__
+
+#include "hv7131gp_hal_ee_board_single_128k.h"
+
+#else	//Standard ELCO_BOARD
+
+#include "hv7131gp_hal_ee_board_std_elco.h"
+
+#endif
+
+
 /******************************************************************************/
 /*                         Functions Prototypes                               */
 /******************************************************************************/
@@ -36,7 +53,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 hv7131gp_status_t hv7131gp_hal_init(uint8_t DMA_CH);
 
-void hv7131gp_oc_hal_init(uint16_t period);
+void hv7131gp_oc_hal_init(uint32_t frequency);
 void hv7131gp_oc_hal_start(void);
 void hv7131gp_oc_hal_stop(void);
 
@@ -48,8 +65,9 @@ COMPILER_INLINE void hv7131gp_hal_delay_us(uint32_t delay_count)
 hv7131gp_status_t hv7131gp_i2c_hal_init(void);
 hv7131gp_status_t hv7131gp_i2c_hal_reg_write(hv7131gp_reg_t reg, uint8_t  val);
 hv7131gp_status_t hv7131gp_i2c_hal_reg_read(hv7131gp_reg_t reg, uint8_t *val);
-hv7131gp_status_t hv7131gp_dma_hal_init(uint8_t dma_ch);
+hv7131gp_status_t hv7131gp_dma_hal_init();
 hv7131gp_status_t hv7131gp_hal_capture(uint8_t *image, hv7131gp_cback_t *func);
+
 
 
 /******************************************************************************/
@@ -64,12 +82,22 @@ hv7131gp_status_t hv7131gp_hal_capture(uint8_t *image, hv7131gp_cback_t *func);
 
 //Main clock speed
 
-#define SYSTEM_INSTRUCTION_CLOCK 80000000ul
-#define	HV7131GP_MCLK_PERIOD	0x02
+//#define SYSTEM_INSTRUCTION_CLOCK 80000000ul
+//#define	HV7131GP_MCLK_PERIOD	0x02
+
+#ifndef HV7131GP_MCLK_FREQ
+#define HV7131GP_MCLK_FREQ	HV7131GP_OC_FREQ 
+#endif
+
 
 #ifdef __32MX360F512L__
 #define HV7131GP_MAX_SIZE	19200	/**< For PIC32MX */
 #endif
+
+#ifdef __32MX795F512L__
+#define HV7131GP_MAX_SIZE	19200	/**< For PIC32MX */
+#endif
+
 
 #ifdef __USE_DMA__
 #ifndef DMA_MAX_WIDTH
@@ -78,183 +106,133 @@ hv7131gp_status_t hv7131gp_hal_capture(uint8_t *image, hv7131gp_cback_t *func);
 #endif //__USE_DMA__
 
 
+/******************************************************************************/
+/* 				OC specific definition			      */
+/******************************************************************************/
 
-/**
-* @name Enable pin
-* \brief Settings for D2 pin used like camera enable pin (see HV7131GP documentation)
-*/
-#define HV7131GP_PIN_ENABLE_INIT() 	TRISDbits.TRISD2=0	/* Init enable pin */
-#define HV7131GP_PIN_ENABLE_HIGH() 	LATDbits.LATD2=1	/* Set pin to high value*/
-#define HV7131GP_PIN_ENABLE_LOW() 	LATDbits.LATD2=0	/* Set pin to low value*/
-/**  @} */
+//TODO: implementare la logica di selezione tra le varie schede
 
-/**
-* @name Reset pin
-* \brief Settings for D1 pin used like camera reset pin (see HV7131GP documentation)
-*/
-#define HV7131GP_PIN_RESETB_INIT() 	TRISDbits.TRISD1=0	/* Init reset pin */
-#define HV7131GP_PIN_RESETB_HIGH() 	LATDbits.LATD1=1	/* Set pin to high value*/
-#define HV7131GP_PIN_RESETB_LOW() 	LATDbits.LATD1=0	/* Set pin to low value*/
-/**  @} */
+#ifndef HV7131GP_OC_FREQ
+#define HV7131GP_OC_FREQ 	20000000ul
+#endif
+
+/******************************************************************************/
+/* 				I2C specific definition			      */
+/******************************************************************************/
 
 
 
-/**
-* @name Vertical Sync
-*
-* INT3. Functions to set, reset, start, stop the vertical sync interrupt
-*
-* @{ */
-#define HV7131GP_PIN_VSYNC_INIT_POSITIVE()					\
-do { 										\
-	INTCONbits.INT3EP = 1;	/*  Extern Interrupt on positive edge */	\
-	IPC3bits.INT3IP  = 6;	/*  Set INT3 interrupt priority */		\
-} while (0)									\
+#ifndef HV7131GP_I2C_CLOCK
+#define HV7131GP_I2C_CLOCK 	EE_I2C_400KHZ
+#endif
 
-#define HV7131GP_PIN_VSYNC_INIT_NEGATIVE()					\
-do { 										\
-	INTCONbits.INT3EP = 0;	/*  Extern Interrupt on negative edge */	\
-	IPC3bits.INT3IP  = 6;	/*  Set INT3 interrupt priority */		\
-} while (0)									\
-
-#define HV7131GP_PIN_VSYNC_START()						\
-do { 										\
-	IEC0bits.INT3IE = 1;	/*  Enable INT3 interrupt */			\
-	IFS0bits.INT3IF = 0;	/*  Reset INT3 interrupt flag */	 	\
-} while (0)									\
-
-#define HV7131GP_PIN_VSYNC_STOP()						\
-do { 										\
-	IEC0bits.INT3IE = 0;	/*  Disable INT3 interrupt */			\
-	IFS0bits.INT3IF = 0;	/*  Reset INT3 interrupt flag */ 		\
-} while (0)									\
-
-#define HV7131GP_VSYNC_RESET_IF()						\
-do { 										\
-	IFS0bits.INT3IF = 0;	/*  Reset INT3 interrupt flag */	 	\
-} while (0)									\
-
-#define HV7131GP_VSYNC_IF_VALUE	IFS0bits.INT3IF /*  Return INT3 interrupt flag value*/
+/******************************************************************************/
+/* 				DMA specific definition			      */
+/******************************************************************************/
 
 
-#define HV7131GP_VSYNC_INTERRUPT()  void __attribute__((interrupt(ipl6))) \
-    	 __attribute__((vector(_EXTERNAL_3_VECTOR))) isr__EXTERNAL_3_VECTOR(void) \
+/* Registers exploited */
+#ifndef HV7131GP_DMA_CH
+#define HV7131GP_DMA_CH				EE_DMA_CH0
+#endif
 
 
-/**  @} */
+#if HV7131GP_DMA_CH == EE_DMA_CH0
 
-/**
-* @name Horizontal Sync
-*
-* CN15 (RD6). Functions to set, reset, start, stop the horizontal sync interrupt
-*
-* @{ */
-#define HV7131GP_PIN_HSYNC_INIT()	EE_cn_init(7, 3)
-#define HV7131GP_PIN_HSYNC_START()	EE_cn_enable(hv7131gp_cn15)
-#define HV7131GP_PIN_HSYNC_STOP()	EE_cn_disable(hv7131gp_cn15)
-#define HV7131GP_HSYNC_RESET_IF() 	
-#define HV7131GP_HSYNC_INTERRUPT() 	EE_CN_HANDLER(hv7131gp_cn15) 
-#define HV7131GP_HSYNC_VALUE() 		PORTDbits.RD6
-/**  @} */
+#define HV7131GP_DMA_DEST_ADD_REG		DCH0DSA				 
+#define HV7131GP_DMA_SOURCE_ADD_REG		DCH0SSA	
+#define HV7131GP_DMA_CH_ENABLE()		DCH0CONSET = _DCH0CON_CHEN_MASK
+#define HV7131GP_DMA_FORCE_START()		DCH0ECONSET = _DCH0ECON_CFORCE_MASK;				 
 
-/**
-* @name Video (Pixels) Clock
-*
-* INT4. It's the pixel interrupt: everytime this interrupt occurs a pixel is
-* captured.
-*
-* @{ */
-#define HV7131GP_PIN_VCLK_INIT()					\
-do { 									\
-	INTCONbits.INT4EP = 0;	/* Extern Interrupt on positive edge */	\
-	IPC4bits.INT4IP  = 6;	/* Set INT4 interrupt priority */	\
-} while (0)							
+#elif	HV7131GP_DMA_CH == EE_DMA_CH1					 
+
+#define HV7131GP_DMA_DEST_ADD_REG		DCH1DSA				 
+#define HV7131GP_DMA_SOURCE_ADD_REG		DCH1SSA	
+#define HV7131GP_DMA_CH_ENABLE()		DCH1CONSET = _DCH1CON_CHEN_MASK
+#define HV7131GP_DMA_FORCE_START()		DCH1ECONSET = _DCH1ECON_CFORCE_MASK;
+
+#elif	HV7131GP_DMA_CH == EE_DMA_CH2
+
+#define HV7131GP_DMA_DEST_ADD_REG		DCH2DSA				 
+#define HV7131GP_DMA_SOURCE_ADD_REG		DCH2SSA	
+#define HV7131GP_DMA_CH_ENABLE()		DCH2ONSET = _DCH2CON_CHEN_MASK
+#define HV7131GP_DMA_FORCE_START()		DCH2ECONSET = _DCH2ECON_CFORCE_MASK;
+
+
+#elif	HV7131GP_DMA_CH == EE_DMA_CH3
+
+#define HV7131GP_DMA_DEST_ADD_REG		DCH3DSA				 
+#define HV7131GP_DMA_SOURCE_ADD_REG		DCH3SSA	
+#define HV7131GP_DMA_CH_ENABLE()		DCH3CONSET = _DCH3CON_CHEN_MASK
+#define HV7131GP_DMA_FORCE_START()		DCH3ECONSET = _DCH3ECON_CFORCE_MASK;
+
+#elif	HV7131GP_DMA_CH == EE_DMA_CH4
+
+#define HV7131GP_DMA_DEST_ADD_REG		DCH4DSA				 
+#define HV7131GP_DMA_SOURCE_ADD_REG		DCH4SSA	
+#define HV7131GP_DMA_CH_ENABLE()		DCH4CONSET = _DCH4CON_CHEN_MASK
+#define HV7131GP_DMA_FORCE_START()		DCH4ECONSET = _DCH4ECON_CFORCE_MASK;
+
+#elif	HV7131GP_DMA_CH == EE_DMA_CH5
+
+#define HV7131GP_DMA_DEST_ADD_REG		DCH5DSA				 
+#define HV7131GP_DMA_SOURCE_ADD_REG		DCH5SSA	
+#define HV7131GP_DMA_CH_ENABLE()		DCH5CONSET = _DCH5CON_CHEN_MASK
+#define HV7131GP_DMA_FORCE_START()		DCH5ECONSET = _DCH5ECON_CFORCE_MASK;
+
+#elif	HV7131GP_DMA_CH == EE_DMA_CH6
+
+#define HV7131GP_DMA_DEST_ADD_REG		DCH6DSA				 
+#define HV7131GP_DMA_SOURCE_ADD_REG		DCH6SSA	
+#define HV7131GP_DMA_CH_ENABLE()		DCH6CONSET = _DCH6CON_CHEN_MASK
+#define HV7131GP_DMA_FORCE_START()		DCH6ECONSET = _DCH6ECON_CFORCE_MASK;
+
+
+#elif	HV7131GP_DMA_CH == EE_DMA_CH7
+
+#define HV7131GP_DMA_DEST_ADD_REG		DCH7DSA				 
+#define HV7131GP_DMA_SOURCE_ADD_REG		DCH7SSA	
+#define HV7131GP_DMA_CH_ENABLE()		DCH7CONSET = _DCH7CON_CHEN_MASK
+#define HV7131GP_DMA_FORCE_START()		DCH7ECONSET = _DCH7ECON_CFORCE_MASK;
+#else
+
+#endif
+
+
+/* Macro definitions used */
+
+#ifndef HV7131GP_DMA_PRIORITY
+#define HV7131GP_DMA_PRIORITY			3
+#endif
+
+#define HV7131GP_DMA_DEFAULT_FLAG		0
 	
-#define HV7131GP_PIN_VCLK_START()				\
-do { 								\
-	IEC0bits.INT4IE = 1;	/*Enable INT4 interrupt */	\
-	IFS0bits.INT4IF = 0;	/* Reset INT4 interrupt flag */	 \
-} while (0)							
 
-#define HV7131GP_PIN_VCLK_STOP()				\
-do { 								\
-	IEC0bits.INT4IE = 0;	/* Disable INT4 interrupt */	\
-	IFS0bits.INT4IF = 0;	/* Reset INT4 interrupt flag */	 \
-} while (0)							
-
-#define HV7131GP_VCLK_INTERRUPT()  void __attribute__((interrupt(ipl6))) \
-  	 __attribute__((vector(_EXTERNAL_4_VECTOR))) isr__EXTERNAL_4_VECTOR(void) 		
-
-#define HV7131GP_VCLK_RESET_IF() IFS0bits.INT4IF = 0
-#define HV7131GP_VCLK_IF_VALUE() IFS0bits.INT4IF
+#define HV7131GP_DMA_SOURCE_SIZE		1
 
 
+#ifndef HV7131GP_DMA_DESTINATION_SIZE
+#define HV7131GP_DMA_DESTINATION_SIZE		DMA_MAX_WIDTH
+#endif
 
-/**  @} */
+#define HV7131GP_DMA_CELL_SIZE			1
 
-/**
-* @name Master Clock
-*
-* OC1 with Timer3. The output of this pin is the master clock for HV7131GP camera.
-* The master clock is the time reference of the camera. It's set a master clock
-* with a frequency of 10MHz
-*
-* @{ */
+#ifndef	HV7131GP_DMA_INT_PRIOR
+#define HV7131GP_DMA_INT_PRIOR			5
+#endif
 
-#define HV7131GP_PIN_MCLK_INIT(p)	hv7131gp_oc_hal_init(p)	/* Init master clock */
-#define HV7131GP_PIN_MCLK_START()	hv7131gp_oc_hal_start()	/* Start master clock */
-#define HV7131GP_PIN_MCLK_STOP()	hv7131gp_oc_hal_stop()	/* Stop master clock */
-/**  @} */
+#ifndef HV7131GP_DMA_INT_SUB_PRIOR
+#define HV7131GP_DMA_INT_SUB_PRIOR		2
+#endif 
 
-/**
-* @name Pixel pins. In this set of 8 pins are received the 8 bits of each pixel.
-* The pixel reception is regulated by the pixel clock
-* @{ */
-#define HV7131GP_PIN_Y_INIT()	TRISESET = 0x00FF 	/* Init PORT_E */
-#define HV7131GP_PIN_Y_ADDRESS	(&PORTE)		/* Address PORT_E */
-/**  @} */
+#define HV7131GP_DMA_INT_SOURCE			HV7131GP_VCLK_INT_TABLE_POSITION
 
 
 
-/**
-* @name Software interrupt: end of frame acquisition
-*
-* PMP ISR. This interrupt is generated when an entire frame is captured. This
-* interrupt call inside his ISR the callback function passed on the capture
-* function
-* \see hv7131gp_capture
-*
-* @{ */
 
-
-#define HV7131GP_PIN_EOF_INIT()						\
-do { 									\
-	IPC7bits.PMPIP  = 5;	/* Set interrupt priority */	\
-	IPC7bits.PMPIS  = 0;	/* Set interrupt sub-priority */	\
-	IEC1bits.PMPIE = 1;	/* Enable interrupt */		\
-	IFS1bits.PMPIF = 0;	/* Reset interrupt flag */	 	\
-} while (0)								
-
-#define HV7131GP_PIN_EOF_STOP()						\
-do { 									\
-	IEC1bits.PMPIE = 0;	/* Disable INT0 interrupt */		\
-	IFS1bits.PMPIF = 0;	/* Reset INT0 interrupt flag */	 	\
-} while (0)								
-
-
-#define HV7131GP_EOF_INTERRUPT() ISR2(_PMP_VECTOR)
-#define HV7131GP_EOF_RESET_IF() IFS1bits.PMPIF = 0
-#define HV7131GP_EOF_ACTIVATE_IF() IFS1bits.PMPIF = 1
-
-
-
-/* Functions used by the DMA Controller */
-
-#ifdef __USE_DMA__
-#define ADDR_VIRTUAL_TO_PHYSICAL(a) (((EE_UREG)(a)) & 0x1FFFFFFF)
-#endif // __USE_DMA__
-/**  @} */
-
+/********************************************************/
+/* 		Interrupt Management Functions		*/
+/********************************************************/
 
 #define HV7131GP_HAL_DISABLE_INTERRUPTS() asm volatile("di")
 #define HV7131GP_HAL_ENABLE_INTERRUPTS() asm volatile("ei")
