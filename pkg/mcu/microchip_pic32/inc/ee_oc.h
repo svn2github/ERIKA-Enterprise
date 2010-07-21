@@ -41,7 +41,6 @@ enum {
 	EE_OC_3,
 	EE_OC_4,
 	EE_OC_5,
-	EE_OC_N,
 };
 
 

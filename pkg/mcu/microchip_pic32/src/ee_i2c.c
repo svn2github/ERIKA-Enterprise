@@ -11,25 +11,16 @@
 
 #ifdef __32MX795F512L__
 
-#ifdef __USE_I2C_PORT1__
+
 static EE_UINT8 i2c_HS_port1;
-#endif
 
-#ifdef __USE_I2C_PORT1A__
 static EE_UINT8 i2c_HS_port1a;
-#endif
 
-#ifdef __USE_I2C_PORT2__
 static EE_UINT8 i2c_HS_port2;
-#endif
 
-#ifdef __USE_I2C_PORT2A__
 static EE_UINT8 i2c_HS_port2a;
-#endif
 
-#ifdef __USE_I2C_PORT3A__
 static EE_UINT8 i2c_HS_port3a;
-#endif
  
 #else //not defined __32MX795F512L__ 
 
@@ -51,7 +42,6 @@ static EE_UINT8 i2c_HS_port2;
 /******************************************************************************/
 
 
-#ifdef __USE_I2C_PORT1__
 __INLINE__ void init_i2c_port_1(EE_UINT16 spibrg, EE_UINT16 flags) {
 	/* Stop I2C port */
 	I2C1CONbits.ON = 0;
@@ -92,11 +82,7 @@ __INLINE__ void init_i2c_port_1(EE_UINT16 spibrg, EE_UINT16 flags) {
 	/* Start I2C port */
 	I2C1CONbits.ON = 1;
 }
-#endif //__USE_I2C_PORT1__
 
-
-
-#ifdef __USE_I2C_PORT1A__
 __INLINE__ void init_i2c_port_1A(EE_UINT16 spibrg, EE_UINT16 flags) {
 	/* Stop I2C port */
 	I2C1ACONbits.ON = 0;
@@ -137,11 +123,7 @@ __INLINE__ void init_i2c_port_1A(EE_UINT16 spibrg, EE_UINT16 flags) {
 	/* Start I2C port */
 	I2C1ACONbits.ON = 1;
 }
-#endif //__USE_I2C_PORT1A__
 
-
-
-#ifdef __USE_I2C_PORT2__
 __INLINE__ void init_i2c_port_2(EE_UINT16 spibrg, EE_UINT16 flags) {
 	/*TODO: use the flags. */	
 	
@@ -180,11 +162,7 @@ __INLINE__ void init_i2c_port_2(EE_UINT16 spibrg, EE_UINT16 flags) {
 	/* Start I2C port */
 	I2C2CONbits.ON = 1;
 }
-#endif //__USE_I2C_PORT2__
 
-
-
-#ifdef __USE_I2C_PORT2A__
 __INLINE__ void init_i2c_port_2A(EE_UINT16 spibrg, EE_UINT16 flags) {
 	/*TODO: use the flags. */	
 	
@@ -224,11 +202,8 @@ __INLINE__ void init_i2c_port_2A(EE_UINT16 spibrg, EE_UINT16 flags) {
 	/* Start I2C port */
 	I2C2ACONbits.ON = 1;
 }
-#endif //__USE_I2C_PORT2A__
 
 
-
-#ifdef __USE_I2C_PORT3A__
 __INLINE__ void init_i2c_port_3A(EE_UINT16 spibrg, EE_UINT16 flags) {
 	/*TODO: use the flags. */	
 	
@@ -267,7 +242,7 @@ __INLINE__ void init_i2c_port_3A(EE_UINT16 spibrg, EE_UINT16 flags) {
 	/* Start I2C port */
 	I2C3ACONbits.ON = 1;
 }
-#endif //__USE_I2C_PORT3A__
+
 
 
 #else //not defined __32MX795F512L__
@@ -382,7 +357,7 @@ static EE_UINT16 i2c_calculate_brg(EE_UINT32 speed){
 /******************************************************************************/
 
 
-#ifdef __USE_I2C_PORT1__
+
 static EE_INT8 i2c_write_port_1(EE_UINT8 device, EE_UINT8 address,
 							EE_UINT8 data){
 	
@@ -456,10 +431,7 @@ static EE_INT8 i2c_write_port_1(EE_UINT8 device, EE_UINT8 address,
 
 	return EE_I2C_SUCCESS;
 }
-#endif //__USE_I2C_PORT1__
 
-
-#ifdef __USE_I2C_PORT1A__
 static EE_INT8 i2c_write_port_1A(EE_UINT8 device, EE_UINT8 address,
 							EE_UINT8 data){
 	
@@ -533,9 +505,7 @@ static EE_INT8 i2c_write_port_1A(EE_UINT8 device, EE_UINT8 address,
 
 	return EE_I2C_SUCCESS;
 }
-#endif //__USE_I2C_PORT1A__
 
-#ifdef __USE_I2C_PORT2__
 static EE_INT8 i2c_write_port_2(EE_UINT8 device, EE_UINT8 address, 
 							EE_UINT8 data){
 
@@ -610,10 +580,8 @@ static EE_INT8 i2c_write_port_2(EE_UINT8 device, EE_UINT8 address,
 	
 	return EE_I2C_SUCCESS;
 }
-#endif //__USE_I2C_PORT2__
 
 
-#ifdef __USE_I2C_PORT2A__
 static EE_INT8 i2c_write_port_2A(EE_UINT8 device, EE_UINT8 address, 
 							EE_UINT8 data){
 
@@ -689,10 +657,8 @@ static EE_INT8 i2c_write_port_2A(EE_UINT8 device, EE_UINT8 address,
 	
 	return EE_I2C_SUCCESS;
 }
-#endif //__USE_I2C_PORT2A__
 
 
-#ifdef __USE_I2C_PORT3A__
 static EE_INT8 i2c_write_port_3A(EE_UINT8 device, EE_UINT8 address, 
 							EE_UINT8 data){
 
@@ -767,7 +733,7 @@ static EE_INT8 i2c_write_port_3A(EE_UINT8 device, EE_UINT8 address,
 	
 	return EE_I2C_SUCCESS;
 }
-#endif //__USE_I2C_PORT3A__
+
 
 #else //not defined __32MX795F512L__
 
@@ -961,7 +927,7 @@ static EE_INT8 i2c_write_port_2(EE_UINT8 device, EE_UINT8 address,
 /*   	*********************************************************	      */
 /******************************************************************************/
 
-#ifdef __USE_I2C_PORT1__
+
 static EE_INT8 i2c_read_port_1(EE_UINT8 device, EE_UINT8 address, EE_UINT8 *data){
 	
 	unsigned int cto = 0;
@@ -1065,10 +1031,7 @@ static EE_INT8 i2c_read_port_1(EE_UINT8 device, EE_UINT8 address, EE_UINT8 *data
 
 	return EE_I2C_SUCCESS;			// return with data
 }
-#endif //__USE_I2C_PORT1__
 
-
-#ifdef __USE_I2C_PORT1__
 static EE_INT8 i2c_read_port_1A(EE_UINT8 device, EE_UINT8 address, EE_UINT8 *data){
 	
 	unsigned int cto = 0;
@@ -1170,10 +1133,10 @@ static EE_INT8 i2c_read_port_1A(EE_UINT8 device, EE_UINT8 address, EE_UINT8 *dat
 
 	return EE_I2C_SUCCESS;			// return with data
 }
-#endif //__USE_I2C_PORT1A__
 
 
-#ifdef __USE_I2C_PORT2__
+
+
 static EE_INT8 i2c_read_port_2(EE_UINT8 device, EE_UINT8 address , EE_UINT8 *data){
 	
 	unsigned int cto = 0;
@@ -1274,10 +1237,7 @@ static EE_INT8 i2c_read_port_2(EE_UINT8 device, EE_UINT8 address , EE_UINT8 *dat
 
 	return EE_I2C_SUCCESS;			// return with data
 }
-#endif //__USE_I2C_PORT2__
 
-
-#ifdef __USE_I2C_PORT2A__
 static EE_INT8 i2c_read_port_2A(EE_UINT8 device, EE_UINT8 address , EE_UINT8 *data){
 	
 	unsigned int cto = 0;
@@ -1378,12 +1338,12 @@ static EE_INT8 i2c_read_port_2A(EE_UINT8 device, EE_UINT8 address , EE_UINT8 *da
 
 	return EE_I2C_SUCCESS;			// return with data
 }
-#endif //__USE_I2C_PORT2A__
 
 
 
 
-#ifdef __USE_I2C_PORT3A__
+
+
 static EE_INT8 i2c_read_port_3A(EE_UINT8 device, EE_UINT8 address , EE_UINT8 *data){
 	
 	unsigned int cto = 0;
@@ -1484,7 +1444,7 @@ static EE_INT8 i2c_read_port_3A(EE_UINT8 device, EE_UINT8 address , EE_UINT8 *da
 
 	return EE_I2C_SUCCESS;			// return with data
 }
-#endif //__USE_I2C_PORT3A__
+
 
 
 
@@ -1715,14 +1675,18 @@ static EE_INT8 i2c_read_port_2(EE_UINT8 device, EE_UINT8 address , EE_UINT8 *dat
  * EE_i2c_init initializes the channel.
  */
 
+
+
 EE_INT8 EE_i2c_init(EE_UINT8 port, EE_UINT32 baudrate, EE_UINT16 flags)
 {	
+
 
 #ifdef __32MX795F512L__
 	
 	switch(port){
-	#ifdef __USE_I2C_PORT1__
+
 	case EE_I2C_PORT_1:
+	
 		switch (baudrate){
 		case EE_I2C_100KHZ:
 			i2c_HS_port1 = 0;
@@ -1734,10 +1698,10 @@ EE_INT8 EE_i2c_init(EE_UINT8 port, EE_UINT32 baudrate, EE_UINT16 flags)
 			return -EE_I2C_WRONG_SPEED;
 		}
 		init_i2c_port_1(i2c_calculate_brg(baudrate), flags);
+		
 		return EE_I2C_SUCCESS;
 	break;
-	#endif
-	#ifdef __USE_I2C_PORT1A__
+
 	case EE_I2C_PORT_1A:
 		switch (baudrate){
 		case EE_I2C_100KHZ:
@@ -1752,9 +1716,9 @@ EE_INT8 EE_i2c_init(EE_UINT8 port, EE_UINT32 baudrate, EE_UINT16 flags)
 		init_i2c_port_1A(i2c_calculate_brg(baudrate), flags);
 		return EE_I2C_SUCCESS;
 	break;
-	#endif
-	#ifdef __USE_I2C_PORT2__
+
 	case EE_I2C_PORT_2:
+		
 		switch (baudrate){
 		case EE_I2C_100KHZ:
 			i2c_HS_port2 = 0;
@@ -1765,11 +1729,12 @@ EE_INT8 EE_i2c_init(EE_UINT8 port, EE_UINT32 baudrate, EE_UINT16 flags)
 		default:
 			return -EE_I2C_WRONG_SPEED;
 		}
+			
 		init_i2c_port_2(i2c_calculate_brg(baudrate), flags);
+		
 		return EE_I2C_SUCCESS;
 	break;
-	#endif
-	#ifdef __USE_I2C_PORT2A__	
+	
 	case EE_I2C_PORT_2A:
 		switch (baudrate){
 		case EE_I2C_100KHZ:
@@ -1784,8 +1749,7 @@ EE_INT8 EE_i2c_init(EE_UINT8 port, EE_UINT32 baudrate, EE_UINT16 flags)
 		init_i2c_port_2A(i2c_calculate_brg(baudrate), flags);
 		return EE_I2C_SUCCESS;
 	break;
-	#endif
-	#ifdef __USE_I2C_PORT3A__
+
 	case EE_I2C_PORT_3A:
 		switch (baudrate){
 		case EE_I2C_100KHZ:
@@ -1800,7 +1764,7 @@ EE_INT8 EE_i2c_init(EE_UINT8 port, EE_UINT32 baudrate, EE_UINT16 flags)
 		init_i2c_port_3A(i2c_calculate_brg(baudrate), flags);
 		return EE_I2C_SUCCESS;
 	break;
-	#endif
+
 	default:
 		return -EE_I2C_ERR_BAD_PORT;
 	}		
@@ -1853,31 +1817,27 @@ EE_INT8 EE_i2c_idle(EE_UINT8 port){
 #ifdef __32MX795F512L__
 
 	switch(port){
-	#ifdef __USE_I2C_PORT1__
+
 	case EE_I2C_PORT_1:
 		return i2c_port1_idle();
 	break;
-	#endif
-	#ifdef __USE_I2C_PORT1A__
+
 	case EE_I2C_PORT_1A:
 		return i2c_port1A_idle();
 	break;
-	#endif
-	#ifdef __USE_I2C_PORT2__
+
 	case EE_I2C_PORT_2:
 		return i2c_port2_idle();
 	break;
-	#endif
-	#ifdef __USE_I2C_PORT2A__	
+
 	case EE_I2C_PORT_2A:
 		return i2c_port2A_idle();
 	break;
-	#endif
-	#ifdef __USE_I2C_PORT3A__
+
 	case EE_I2C_PORT_3A:
 		return i2c_port3A_idle();
 	break;
-	#endif
+
 	default:
 		return -EE_I2C_ERR_BAD_PORT;
 	}
@@ -1906,31 +1866,27 @@ EE_INT8 EE_i2c_read_byte (EE_UINT8 port, EE_UINT8 device, EE_UINT8 address,
 
 #ifdef __32MX795F512L__	
 	switch(port){
-	#ifdef __USE_I2C_PORT1__
+
 	case EE_I2C_PORT_1:
 		return i2c_read_port_1(device, address, data);
 	break;
-	#endif
-	#ifdef __USE_I2C_PORT1A__
+
 	case EE_I2C_PORT_1A:
 		return i2c_read_port_1A(device, address, data);
 	break;
-	#endif
-	#ifdef __USE_I2C_PORT2__
+
 	case EE_I2C_PORT_2:
 		return i2c_read_port_2(device, address, data);
 	break;
-	#endif
-	#ifdef __USE_I2C_PORT2A__	
+	
 	case EE_I2C_PORT_2A:
 		return i2c_read_port_2A(device, address, data);
 	break;
-	#endif
-	#ifdef __USE_I2C_PORT3A__
+
 	case EE_I2C_PORT_3A:
 		return i2c_read_port_3A(device, address, data);
 	break;
-	#endif
+
 	default:
 		return -EE_I2C_ERR_BAD_PORT;
 	}
@@ -1956,31 +1912,27 @@ EE_INT8 EE_i2c_write_byte(EE_UINT8 port, EE_UINT8 device, EE_UINT8 address,
 #ifdef __32MX795F512L__
 
 	switch(port){
-	#ifdef __USE_I2C_PORT1__
+
 	case EE_I2C_PORT_1:
 		return i2c_write_port_1(device, address, data);
 	break;
-	#endif
-	#ifdef __USE_I2C_PORT1A__
+
 	case EE_I2C_PORT_1A:
 		return i2c_write_port_1A(device, address, data);
 	break;
-	#endif
-	#ifdef __USE_I2C_PORT2__
+
 	case EE_I2C_PORT_2:
 		return i2c_write_port_2(device, address, data);
 	break;
-	#endif
-	#ifdef __USE_I2C_PORT2A__	
+	
 	case EE_I2C_PORT_2A:
 		return i2c_write_port_2A(device, address, data);
 	break;
-	#endif
-	#ifdef __USE_I2C_PORT3A__
+
 	case EE_I2C_PORT_3A:
 		return i2c_write_port_3A(device, address, data);
 	break;
-	#endif
+
 	default:
 		return -EE_I2C_ERR_BAD_PORT;
 	}

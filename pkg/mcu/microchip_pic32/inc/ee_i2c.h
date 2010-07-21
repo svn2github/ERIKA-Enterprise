@@ -46,6 +46,7 @@ enum {
 	EE_I2C_PORT_2,
 	EE_I2C_PORT_2A,
 	EE_I2C_PORT_3A,
+	EE_I2C_PORT_N,
 };
 
 #else //not defined __32MX795F512L__

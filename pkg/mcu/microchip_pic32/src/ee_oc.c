@@ -75,6 +75,7 @@ __INLINE__ void __ALWAYS_INLINE__ oc1_stop(void)
 #ifdef __USE_EE_OC_4__
 __INLINE__ void __ALWAYS_INLINE__ oc4_init(void)
 {
+	
 	TRISDbits.TRISD3 = 0;
 	IEC0bits.OC4IE = 0;
 	IFS0bits.OC4IF = 0;						
@@ -133,7 +134,7 @@ __INLINE__ void __ALWAYS_INLINE__ oc4_stop(void)
 
 EE_INT8 EE_oc_init(EE_UINT8 id)
 {
-
+	asm volatile ("SDBBP");
 	switch (id) {
 	#ifdef __USE_EE_OC_1__
 	case EE_OC_1 :
@@ -149,15 +150,14 @@ EE_INT8 EE_oc_init(EE_UINT8 id)
 		break;
 	#ifdef __USE_EE_OC_4__
 	case EE_OC_4 :
+		
 		oc4_init();	
 		break;
 	#endif // __USE_EE_OC_4__
 	case EE_OC_5 :
 		return -EE_OC_ERR_UNIMPLEMENTED;	
 		break;
-	case EE_OC_N :
-		return -EE_OC_ERR_UNIMPLEMENTED;	
-		break;
+
 	default:
 		return -EE_TIMER_ERR_BAD_TIMER_ID;
 		break;
@@ -191,9 +191,7 @@ EE_INT8 EE_oc_setup(EE_UINT8 id, EE_UINT16 configuration, EE_UINT16 period,
 	case EE_OC_5 :
 		return -EE_OC_ERR_UNIMPLEMENTED;	
 		break;
-	case EE_OC_N :
-		return -EE_OC_ERR_UNIMPLEMENTED;	
-		break;
+
 	default:
 		return -EE_TIMER_ERR_BAD_TIMER_ID;
 		break;
@@ -229,9 +227,7 @@ EE_INT8 EE_oc_advanced_setup(EE_UINT8 id, EE_UINT32 dreg, EE_UINT32 sdreg,
 	case EE_OC_5 :
 		return -EE_OC_ERR_UNIMPLEMENTED;	
 		break;
-	case EE_OC_N :
-		return -EE_OC_ERR_UNIMPLEMENTED;	
-		break;
+
 	default:
 		return -EE_TIMER_ERR_BAD_TIMER_ID;
 		break;
@@ -263,9 +259,7 @@ EE_INT8 EE_oc_start(EE_UINT8 id)
 	case EE_OC_5 :
 		return -EE_OC_ERR_UNIMPLEMENTED;	
 		break;
-	case EE_OC_N :
-		return -EE_OC_ERR_UNIMPLEMENTED;	
-		break;
+
 	default:
 		return -EE_TIMER_ERR_BAD_TIMER_ID;
 		break;
@@ -297,9 +291,7 @@ EE_INT8 EE_oc_stop(EE_UINT8 id)
 	case EE_OC_5 :
 		return -EE_OC_ERR_UNIMPLEMENTED;	
 		break;
-	case EE_OC_N :
-		return -EE_OC_ERR_UNIMPLEMENTED;	
-		break;
+
 	default:
 		return -EE_TIMER_ERR_BAD_TIMER_ID;
 		break;
@@ -315,35 +307,36 @@ EE_INT8 EE_oc_generate_clock_init(EE_UINT8 id, EE_UINT32 frequency)
 	EE_UINT32 period = (oc_get_peripheral_clock() / frequency) - 1; 
 	EE_UINT32 duty_cycle = period >> 1;
 	
-
 	switch (id) {
 	#ifdef __USE_EE_OC_1__
-	case EE_OC_1 :
+	case EE_OC_1:
+		oc1_init();
 		oc1_setup(EE_OC_PWM_NO_FAULT | EE_OC_TIMER_3, period, 
 							EE_TIMER_PRESCALE_1);
 		oc1_advanced_setup(duty_cycle, duty_cycle, EE_OC_NO_ADVANCED_SET);
+	 
 		break;
 	#endif //__USE_EE_OC_1__
-	case EE_OC_2 :
+	case EE_OC_2:
 		return -EE_OC_ERR_UNIMPLEMENTED;	
 		break;
 	
-	case EE_OC_3 :
+	case EE_OC_3:
 		return -EE_OC_ERR_UNIMPLEMENTED;	
 		break;
 	#ifdef __USE_EE_OC_4__
-	case EE_OC_4 :
+	case EE_OC_4:
+		oc4_init();
 		oc4_setup(EE_OC_PWM_NO_FAULT | EE_OC_TIMER_3, period, 
 							EE_TIMER_PRESCALE_1);
-		oc4_advanced_setup( duty_cycle, duty_cycle, EE_OC_NO_ADVANCED_SET); 	
+		oc4_advanced_setup( duty_cycle, duty_cycle, EE_OC_NO_ADVANCED_SET);
+					
 		break;
 	#endif //__USE_EE_OC_4__
-	case EE_OC_5 :
+	case EE_OC_5:
 		return -EE_OC_ERR_UNIMPLEMENTED;	
 		break;
-	case EE_OC_N :
-		return -EE_OC_ERR_UNIMPLEMENTED;	
-		break;
+
 	default:
 		return -EE_TIMER_ERR_BAD_TIMER_ID;
 		break;
@@ -369,6 +362,7 @@ EE_INT8 EE_oc_generate_clock_init(EE_UINT8 id, EE_UINT32 frequency)
 	switch (id) {
 	#ifdef __USE_EE_OC_1__
 	case EE_OC_1 :
+		oc1_init();
 		oc1_setup(EE_OC_CONFIGURE_TOGGLE | EE_OC_TIMER_3, period, 
 							EE_TIMER_PRESCALE_1);
 		oc1_advanced_setup(0, 0, EE_OC_NO_ADVANCED_SET);
@@ -383,15 +377,13 @@ EE_INT8 EE_oc_generate_clock_init(EE_UINT8 id, EE_UINT32 frequency)
 		break;
 	#ifdef __USE_EE_OC_4__
 	case EE_OC_4 :
+		oc4_init();
 		oc4_setup(EE_OC_CONFIGURE_TOGGLE | EE_OC_TIMER_3, period, 
 							EE_TIMER_PRESCALE_1);
 		oc4_advanced_setup( 0, 0, EE_OC_NO_ADVANCED_SET); 	
 		break;
 	#endif //__USE_EE_OC_4__
 	case EE_OC_5 :
-		return -EE_OC_ERR_UNIMPLEMENTED;	
-		break;
-	case EE_OC_N :
 		return -EE_OC_ERR_UNIMPLEMENTED;	
 		break;
 	default:
@@ -423,13 +415,10 @@ EE_INT8 EE_oc_generate_clock_start(EE_UINT8 id)
 		break;
 	#ifdef __USE_EE_OC_4__
 	case EE_OC_4 :
-		oc4_start(); 	
+		oc4_start(); 
 		break;
 	#endif //__USE_EE_OC_4__
 	case EE_OC_5 :
-		return -EE_OC_ERR_UNIMPLEMENTED;	
-		break;
-	case EE_OC_N :
 		return -EE_OC_ERR_UNIMPLEMENTED;	
 		break;
 	default:
@@ -464,9 +453,7 @@ EE_INT8 EE_oc_generate_clock_stop(EE_UINT8 id)
 	case EE_OC_5 :
 		return -EE_OC_ERR_UNIMPLEMENTED;	
 		break;
-	case EE_OC_N :
-		return -EE_OC_ERR_UNIMPLEMENTED;	
-		break;
+
 	default:
 		return -EE_TIMER_ERR_BAD_TIMER_ID;
 		break;
