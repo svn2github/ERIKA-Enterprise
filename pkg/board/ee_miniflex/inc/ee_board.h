@@ -151,6 +151,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_analog_start( void )
 
 // TODO!!! - Tune!
 #define VREF 3.3 // Battery Voltage acquired as 0x03FF
+#define VREF_SCALE (363.0 / 33.0) //see miniflex schematics
 
 __INLINE__ void __ALWAYS_INLINE__ EE_battery_monitor_init( void )
 {
@@ -184,7 +185,7 @@ __INLINE__ float __ALWAYS_INLINE__ EE_battery_monitor_get( void )
 	adcdata = ADC1BUF0;
 
 	/* Return conversion */
-	return (adcdata * VREF) / 1024;
+	return (adcdata * VREF * VREF_SCALE ) / 1024;
 }
 #endif
 
