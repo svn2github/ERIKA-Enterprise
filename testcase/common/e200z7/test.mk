@@ -42,7 +42,11 @@
 # Freescale e200z7 testcases
 #
 
+ifdef RTDRUID_ECLIPSE_HOME
+ECLIPSE_HOME = $(RTDRUID_ECLIPSE_HOME)
+else
 ECLIPSE_HOME ?= /opt/eclipse/
+endif
 LAUNCHER_JAR=$(shell ls $(ECLIPSE_HOME)/plugins/org.eclipse.equinox.launcher_*.jar)
 
 #
@@ -53,7 +57,7 @@ GLOBAL_RTDRUID += \
 	( if test -e tmp/e200z7_rtdruid_partial.xml; then \
 		cat common/rtdruid_common/script_prologue.xml tmp/e200z7_rtdruid_partial.xml common/rtdruid_common/script_epilogue.xml > tmp/build.xml; \
 		cp tmp/build.xml tmp/e200z7_rtdruid_global_build.xml; \
-		cd tmp; java -jar "$(LAUNCHER_JAR)" -application org.eclipse.ant.core.antRunner &>rtdruid_e200z7.log; \
+		cd tmp; java -jar "$(LAUNCHER_JAR)" -application org.eclipse.ant.core.antRunner >rtdruid_e200z7.log 2>&1; \
 	fi );
 
 #
@@ -98,7 +102,7 @@ CONF_e200z7_source = \
 # if the flag has been raised, generate the source distribution
 GLOBAL_CONF_e200z7_source = \
 	( if test -e tmp/e200z7_dist_src_buildsourcedistribution.flg; then \
-		make -C $${EEBASE}/dist/source DIST=e200z7_TESTCASE e200z7_MOVE=Y &>tmp/e200z7_dist_src_buildsourcedistribution.log; \
+		make -C $${EEBASE}/dist/source DIST=e200z7_TESTCASE e200z7_MOVE=Y >tmp/e200z7_dist_src_buildsourcedistribution.log 2>&1; \
 	fi );
 
 # Generate the rt-druid files...
@@ -108,7 +112,7 @@ RTDRUID_e200z7_source = \
 
 # take also a look to GLOBAL_RTDRUID at the top of the file!!!
 
-COMPILE_e200z7_source = +if $$(MAKE) $(PARAMETERS) NODEPS=1 -C $$(OUTDIR_PREFIX)$(1)/Debug &>$$(OUTDIR_PREFIX)$(1)/compile.log; then echo OK $$(EXPERIMENT) $$(OUTDIR_PREFIX)$(1) >>$$(TMPDIR)/ok.log; else echo ERROR $$(EXPERIMENT) $$(OUTDIR_PREFIX)$(1) >>$$(TMPDIR)/errors.log; fi
+COMPILE_e200z7_source = +if $$(MAKE) $(PARAMETERS) NODEPS=1 -C $$(OUTDIR_PREFIX)$(1)/Debug >$$(OUTDIR_PREFIX)$(1)/compile.log 2>&1; then echo OK $$(EXPERIMENT) $$(OUTDIR_PREFIX)$(1) >>$$(TMPDIR)/ok.log; else echo ERROR $$(EXPERIMENT) $$(OUTDIR_PREFIX)$(1) >>$$(TMPDIR)/errors.log; fi
 
 DEBUG_e200z7_source = \
 	@cp e200z7/t32.cmm $$(OUTDIR_PREFIX)$(1); \
