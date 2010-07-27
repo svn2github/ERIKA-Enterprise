@@ -105,4 +105,8 @@ ifeq ($(findstring __LM32__,$(EEOPT)) , __LM32__)
 EE_SRCS += contrib/lwip/lwip_1_3_2/abstraction/src/hal/lwip_timer_mico32.c
 endif
 
+ifeq ($(findstring __PIC32__,$(EEOPT)) , __PIC32__)
+EE_SRCS += contrib/lwip/lwip_1_3_2/abstraction/src/hal/lwip_timer_pic32.c
+endif
+
 endif

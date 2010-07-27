@@ -20,7 +20,10 @@
 /* HW specification */
 #if defined __LM32__
 #include <hal/lwip_timer_mico32.h>
+#elif defined __PIC32__
+#include <hal/lwip_timer_pic32.h>
 #else			/* No timer */
+#warning "No timer Specified"
 #endif	/* End Selection */
 
 /* Macros for time analisys */

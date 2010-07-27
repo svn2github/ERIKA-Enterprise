@@ -37,16 +37,33 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
-
-#ifndef __CC_H__
-#define __CC_H__
  
-#if defined __LM32__
-#include <arch/cc_mico32.h>
-#elif defined __PIC32__
-#include <arch/cc_pic32.h>
-#else			/* No timer */
-#error "LWIP_ARCH ERROR: cpu not specified!"
-#endif	/* End Selection */
+#ifndef __CC_PIC32_H__
+#define __CC_PIC32_H__
 
+#include <hal/lwip_compiler.h>
+
+#ifndef BYTE_ORDER
+#define BYTE_ORDER BIG_ENDIAN
 #endif
+
+#define PACK_STRUCT_BEGIN
+#define PACK_STRUCT_STRUCT __attribute__ ((__packed__))
+#define PACK_STRUCT_END
+#define PACK_STRUCT_FIELD(x) x
+
+#define LWIP_PROVIDE_ERRNO
+
+#define abort()
+
+#ifdef LWIP_DEBUG
+	s8_t lwip_debug_printf(const char* s, ...);
+	#define LWIP_PLATFORM_ASSERT(msg) 	lwip_debug_printf("Assertion \"%s\" failed at line %d in %s\n", msg, __LINE__, __FILE__); \
+										abort()
+	#define LWIP_PLATFORM_DIAG(msg) 	lwip_debug_printf msg
+#else
+    #define LWIP_PLATFORM_ASSERT(msg) ((void)0)
+	#define LWIP_PLATFORM_DIAG(msg) ((void)0)
+#endif
+
+#endif	//__CC_PIC32_H__
