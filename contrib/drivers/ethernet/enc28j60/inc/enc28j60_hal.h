@@ -21,6 +21,8 @@
 
 #if defined	__LM32__
 #include <enc28j60_hal_ee_mico32.h>
+#elif defined __PIC32__
+#include <enc28j60_hal_ee_pic32.h>
 #else		/* NO Architecture */
 #error "ENC28J60_HAL: Architecture not supported"
 #endif
