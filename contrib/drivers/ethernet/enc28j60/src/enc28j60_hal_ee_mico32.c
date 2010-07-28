@@ -65,7 +65,6 @@ BYTE EE_enc28j60_hal_get()
 WORD EE_enc28j60_hal_get_array(BYTE *val, WORD len)
 {
 	WORD num;
-	EE_mico32_disableIRQ();
 	EE_enc28j60_hal_set_slave(EE_ENC28J60_DEVICE_ID);	
 	EE_enc28j60_hal_chip_select();
 	EE_enc28j60_hal_write_byte(ENC28J60_RBM);
