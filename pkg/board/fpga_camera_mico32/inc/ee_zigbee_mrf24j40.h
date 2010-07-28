@@ -71,9 +71,6 @@ __INLINE__ void __ALWAYS_INLINE__ EE_mrf24j40_gpio_hold_in_reset(void){ \
 __INLINE__ void __ALWAYS_INLINE__ EE_mrf24j40_gpio_release_reset(void){ \
 	cat3(EE_, lc, _write_bit_data)(1, EE_GP1_BIT); \
 } \
-__INLINE__ void __ALWAYS_INLINE__ EE_mrf24j40_gpio_wake_pin(int val){ \
-	cat3(EE_, lc, _write_bit_data)(val, EE_INT1_BIT); \
-} \
 __INLINE__ void __ALWAYS_INLINE__ EE_mrf24j40_gpio_write_output_pins(int val){ \
 	cat3(EE_, lc, _write_data)(val); \
 } \
@@ -91,11 +88,9 @@ __INLINE__ int __ALWAYS_INLINE__ EE_mrf24j40_gpio_IRQ_enabled(void){ \
 EE_MRF24J40_BOARD_FUNCTION(EE_MRF24J40_GPIO_NAME_UC, EE_MRF24J40_GPIO_NAME_LC)
 
 __INLINE__ void __ALWAYS_INLINE__ EE_mrf24j40_gpio_wake_active(void){
-	EE_mrf24j40_gpio_wake_pin(1);
 }
 
 __INLINE__ void __ALWAYS_INLINE__ EE_mrf24j40_gpio_wake_inactive(void){
-	EE_mrf24j40_gpio_wake_pin(0);
 }
 
 #endif //__EE_ZIGBEE_MRF24J40_H__
