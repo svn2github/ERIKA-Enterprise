@@ -782,7 +782,7 @@ typedef EE_TYPEOSSERVICEID OSServiceIdType;
 #define OSServiceId_GetAlarmBase    12
 #define OSServiceId_GetAlarm        13
 #define OSServiceId_SetRelAlarm     14
-#define OSServiceId_SetAbsAlarm     14
+#define OSServiceId_SetAbsAlarm     15
 #define OSServiceId_CancelAlarm     16
 #define OSServiceId_CounterTick     17
 /* GetActiveApplicationMode, ShutdownOS never return an error */
@@ -792,7 +792,7 @@ typedef EE_TYPEOSSERVICEID OSServiceIdType;
 #ifdef __OO_SEM__
 /* InitSem, TryWaitSem, GetValueSem never return an error */
 #define OSServiceId_WaitSem         20
-#define OSServiceId_PostSem         20
+#define OSServiceId_PostSem         21
 #endif
 
 
