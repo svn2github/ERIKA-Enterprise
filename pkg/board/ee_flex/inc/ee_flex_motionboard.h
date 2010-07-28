@@ -296,6 +296,81 @@ __INLINE__ void __ALWAYS_INLINE__ EE_pwm_close(EE_UINT8 chan)
 
 /* TODO: Add second channel */
 
+extern EE_INT16 ee_encsw_poscnts;
+
+__INLINE__ void __ALWAYS_INLINE__ EE_encoder_SW_init(void)
+{
+	/**
+	 * Motion board encoder sw driver 
+	 * uses IC1 to raise interrupts.  
+	*/
+	TRISBbits.TRISB11 = 1; /*PIN CHB */
+ 	TRISDbits.TRISD8 = 1;  /*PIN CHA */
+
+	// set encoder bits as digital
+ 	AD1PCFGLbits.PCFG11 = 1; //permette di settare il bit RB11, che viene interpellato per capire se devo incrementare o decrementare come digitale questo significa che può assumere valore alto o basso
+ 	AD2PCFGLbits.PCFG11 = 1; 
+
+	// Reset position counter
+	ee_encsw_poscnts = 0;
+	
+	// Initialize Capture Module
+	//
+	//ICSIDL: Input Capture Module Stop in Idle Control bit
+	//1 = Input capture module will halt in CPU Idle mode
+	//0 = Input capture module will continue to operate in CPU Idle mode
+	IC1CONbits.ICSIDL = 0;
+
+	//ICTMR: Input Capture Timer Select bits
+	//1 = TMR2 contents are captured on capture event
+	//0 = TMR3 contents are captured on capture event
+	IC1CONbits.ICTMR= 1;
+
+	//ICI<1:0>: Select Number of Captures per Interrupt bits
+	//11 = Interrupt on every fourth capture event
+	//10 = Interrupt on every third capture event
+	//01 = Interrupt on every second capture event
+	//00 = Interrupt on every capture event
+	IC1CONbits.ICI= 0;  //VIENE GENERATO L'INTERRUPT OGNI EVENTO CAPTURE IL QUALE CORRISPONDE AD UN EVENTO DEL SEGNALE SETTATO PRECEDENTEMENTE
+
+	//ICM<2:0>: Input Capture Mode Select bits
+	//111 = Input Capture functions as interrupt pin only, when device is in Sleep or Idle mode
+	//      (Rising edge detect only, all other control bits are not applicable.)
+	//110 = Unused (module disabled)
+	//101 = Capture mode, every 16th rising edge
+	//100 = Capture mode, every 4th rising edge
+	//011 = Capture mode, every rising edge
+	//010 = Capture mode, every falling edge
+	//001 = Capture mode, every edge (rising and falling)
+	//      (ICI<1:0> does not control interrupt generation for this mode.)
+	//000 = Input capture module turned off
+	IC1CONbits.ICM= 0b001;    // Disable Input Capture 1 module  
+
+	// Enable Capture Interrupt
+	IPC0bits.IC1IP = 1;      // Setup IC1 interrupt priority level // HO SOLO UN INTERRUPT QUINDI PUò ESSERE MESSA COME VOGLIO
+	IFS0bits.IC1IF = 0;      // Clear IC1 Interrupt Status Flag// QUESTO REGISTRO VA ALTO QUANDO SCATTA L'INTERRUPT
+	IEC0bits.IC1IE = 1;      // Enable IC1 interrupt
+}
+
+__INLINE__ void __ALWAYS_INLINE__ EE_encoder_SW_close(void)
+{
+	// Turn off the IC1 module
+	IC1CONbits.ICM = 0;
+	// Disable Capture Interrupt
+	IEC0bits.IC1IE = 0;      // Enable IC1 interrupt
+	IFS0bits.IC1IF = 0;      // Clear IC1 Interrupt Status Flag
+}
+
+__INLINE__ EE_INT6 __ALWAYS_INLINE__ EE_encoder_SW_get_ticks(void)
+{
+	return ee_encsw_poscnts;
+}
+
+__INLINE__ float __ALWAYS_INLINE__ EE_encoder_SW_get_position(float sw_gain)
+{
+	return (float)EE_encoder_SW_get_ticks() * sw_gain;
+}
+
 #define QEI_TICK_PER_REV	500
 #define	QEI_MAX_CNT_PER_REV	0xffff
 
@@ -339,22 +414,9 @@ __INLINE__ EE_INT6 __ALWAYS_INLINE__ EE_encoder_get_ticks(void)
 	return ((EE_INT16)POSCNT);
 }
 
-//__INLINE__ EE_UINT16 __ALWAYS_INLINE__ EE_encoder_get_position(void)
-__INLINE__ float __ALWAYS_INLINE__ EE_encoder_get_position(void)
+__INLINE__ float __ALWAYS_INLINE__ EE_encoder_get_position(float hw_gain)
 {
-	EE_INT16 POSCNTcopy = 0;
-
-	POSCNTcopy = (EE_INT16)POSCNT;
-
-	if (POSCNTcopy < 0)
-		POSCNTcopy = -POSCNTcopy;
-
-	//AngPos[1] = AngPos[0];
-	//AngPos[0] = (unsigned int)(((unsigned long)POSCNTcopy * 2048)/125);
-	// 0 <= POSCNT <= 1999 to 0 <= AngPos <= 32752
-
-	//return (unsigned int)(((unsigned long)POSCNTcopy * 2048)/125);
-	return (float)(((EE_UINT32)POSCNTcopy*500)/360);
+	return (float)EE_encoder_get_ticks() * hw_gain; 
 }
 
 #endif

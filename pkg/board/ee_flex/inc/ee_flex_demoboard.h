@@ -1358,6 +1358,40 @@ __INLINE__ void __ALWAYS_INLINE__ EE_motor_init( void ) {
 
 #ifdef __USE_ENCODER__
 
+extern int ee_encsw_poscnts;
+
+__INLINE__ void __ALWAYS_INLINE__ EE_encoder_SW_init(void)
+{
+	ee_encsw_poscnts = 0;	// Reset position counter
+	IEC1bits.CNIE = 0;      // Disable interrupts on CN16
+	OC8CON = 0;				// Disable OC8 module
+	TRISDbits.TRISD7  = 1; 	// CN16/D7 input
+	AD1PCFGHbits.PCFG19 = 1; // digital input
+	TRISCbits.TRISC4  = 1; 	// C4 input
+    CNPU1 = 0;              // Disable all CN pull ups
+    CNEN1 = 0;           	// Disable all
+	CNEN2 = 0x01;           // Enable interrupts for CN16
+    IFS1bits.CNIF = 0;      // Clear interrupt flag
+    IEC1bits.CNIE = 1;      // Enable interrupts on CN16
+}
+
+__INLINE__ void __ALWAYS_INLINE__ EE_encoder_SW_close(void)
+{
+	IEC1bits.CNIE = 0;      // Disable interrupts on CN16
+	CNEN2 = 0;           	// Disable CN16
+}
+
+__INLINE__ int __ALWAYS_INLINE__ EE_encoder_SW_get_ticks(void)
+{
+	return ee_encsw_poscnts;
+}
+
+__INLINE__ float __ALWAYS_INLINE__ EE_encoder_SW_get_position(float sw_gain)
+{
+	return (float)EE_encoder_SW_get_ticks() * sw_gain;
+}
+
+
 #define QEI_TICK_PER_REV	500
 #define	QEI_MAX_CNT_PER_REV	0xffff
 
@@ -1401,22 +1435,9 @@ __INLINE__ EE_INT16 __ALWAYS_INLINE__ EE_encoder_get_ticks( void )
 	return ((EE_INT16)POSCNT);
 }
 
-//__INLINE__ EE_UINT16 __ALWAYS_INLINE__ EE_encoder_get_position( void )
-__INLINE__ float __ALWAYS_INLINE__ EE_encoder_get_position( void )
+__INLINE__ float __ALWAYS_INLINE__ EE_encoder_get_position(float hw_gain)
 {
-	EE_INT16 POSCNTcopy = 0;
-
-	POSCNTcopy = (int)POSCNT;
-
-	if (POSCNTcopy < 0)
-		POSCNTcopy = -POSCNTcopy;
-
-	//AngPos[1] = AngPos[0];
-	//AngPos[0] = (unsigned int)(((unsigned long)POSCNTcopy * 2048)/125);
-	// 0 <= POSCNT <= 1999 to 0 <= AngPos <= 32752
-
-	//return (unsigned int)(((unsigned long)POSCNTcopy * 2048)/125);
-	return (float)(((unsigned long)POSCNTcopy*500)/360);
+	return (float)EE_encoder_get_ticks() * hw_gain; 
 }
 
 #endif
