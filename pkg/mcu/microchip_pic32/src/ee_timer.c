@@ -69,7 +69,39 @@ __INLINE__ void __ALWAYS_INLINE__ timer1_stop(void)
 #endif /* __USE_EE_TIMER_1__ */
 
 #ifdef __USE_EE_TIMER_2__
-#error TIMER 2 not supported
+__INLINE__ void __ALWAYS_INLINE__ timer2_enable_IRQ(void)
+{
+	IFS0CLR = _IFS0_T2IF_MASK;	// Clean Timer IRQ Flag
+	IEC0SET = _IEC0_T2IE_MASK;	// Enable Timer IRQ
+}
+	
+__INLINE__ void __ALWAYS_INLINE__ timer2_disable_IRQ(void)
+{
+	IEC0CLR = _IEC0_T2IE_MASK;	// Disable Timer IRQ
+	IFS0CLR = _IFS0_T2IF_MASK;	// Clean Timer IRQ Flag
+}
+
+__INLINE__ void __ALWAYS_INLINE__ timer2_init(EE_UINT32 pr, EE_UINT8 tckps)
+{
+	timer2_disable_IRQ();
+	IPC2CLR = _IPC2_T2IP_MASK;	// Clean IRQ Priority
+	IPC2SET = (2 << _IPC2_T2IP_POSITION); //TODO:change hardcoding Irq Prio?
+	IPC2CLR = _IPC2_T2IS_MASK; //TODO:change hardcoding Irq Sub-Prio?
+	PR2 = pr;
+	TMR2 = 0;
+	T2CON = ((tckps & 0x03) << _T2CON_TCKPS_POSITION);
+}
+
+__INLINE__ void __ALWAYS_INLINE__ timer2_start(void) 
+{
+	T2CONSET = _T2CON_ON_MASK;	// Start Timer
+}
+
+__INLINE__ void __ALWAYS_INLINE__ timer2_stop(void) 
+{
+	T2CONCLR = _T2CON_ON_MASK;	// Stop Timer
+	timer2_disable_IRQ();
+}
 #endif /* __USE_EE_TIMER_2__ */
 
 
@@ -216,7 +248,8 @@ EE_INT8 EE_timer_hard_init(EE_UINT8 id, EE_UINT32 period, EE_UINT8 prescale)
 	#endif 
 	#ifdef __USE_EE_TIMER_2__
 	case EE_TIMER_2 :
-		return -EE_TIMER_ERR_UNIMPLEMENTED;
+		timer2_init(period, prescale);
+		break;
 	#endif 
 	#ifdef __USE_EE_TIMER_3__
 	case EE_TIMER_3 :	
@@ -347,7 +380,8 @@ EE_INT8 EE_timer_start(EE_UINT8 id)
 	#endif 
 	#ifdef __USE_EE_TIMER_2__
 	case EE_TIMER_2 :
-		return -EE_TIMER_ERR_UNIMPLEMENTED;
+		timer2_start();
+		break;
 	#endif 
 	#ifdef __USE_EE_TIMER_3__
 	case EE_TIMER_3 :
@@ -385,7 +419,8 @@ EE_INT8 EE_timer_stop(EE_UINT8 id)
 	#endif 
 	#ifdef __USE_EE_TIMER_2__
 	case EE_TIMER_2 :
-		return -EE_TIMER_ERR_UNIMPLEMENTED;
+		timer2_stop();
+		break;
 	#endif 
 	#ifdef __USE_EE_TIMER_3__
 	case EE_TIMER_3 :
@@ -423,7 +458,8 @@ EE_INT8 EE_timer_get_val(EE_UINT8 id, EE_UINT16 *v)
 	#endif 
 	#ifdef __USE_EE_TIMER_2__
 	case EE_TIMER_2 :
-		return -EE_TIMER_ERR_UNIMPLEMENTED;
+		*v = TMR2;
+		break;
 	#endif 
 	#ifdef __USE_EE_TIMER_3__
 	case EE_TIMER_3 :
