@@ -1,6 +1,5 @@
 /*
-  Name: enc28j60_hal_ee_mico32.h
-  Copyright: Evidence Srl
+  Name: enc28j60_hal_ee_pic32.h
   Author: Andrea Azzarà, Marco Ghibaudi
   Date: 29/03/10 18.23
   Description: ENC28J60 driver header file.
@@ -15,38 +14,28 @@
 #include "cpu/pic32/inc/ee_internal.h"
 #include "mcu/microchip_pic32/inc/ee_spi.h"
 
-#include "board/ipermob_mb_pic32/inc/ee_ethernet_enc28j60.h"
-
-
-
-
 
 /* Board header */
 #ifdef __IPERMOB_MB_PIC32__
-
-/* 	TODO	TODO	TODO	TODO	TODO	TODO	TODO	TODO	TODO */
-//#include "board/fpga_camera_mico32/inc/ee_internal.h"
-
-/* 	TODO	TODO	TODO	TODO	TODO	TODO	TODO	TODO	TODO */
+#include "board/ipermob_mb_pic32/inc/ee_ethernet_enc28j60.h"
 
 #else	/* NO board */
 #error "ENC28J60_HAL: No board selected!"
-#endif	
 
+#endif	
 
 
 #ifndef __USE_SPI__
 #error "ENC28J60 HAL EE : The SPI module from MCU is required!"
 #endif
+
 /* Types definition */
 #include "enc28j60_reg.h"
 #include "enc28j60_compiler.h"
 
 /* ENC28J60 structure (used in ISR mode) */
 typedef struct {	
-    //MicoGPIO_t* base;					// GPIO controller base address
-    //PIC32GPIO_t* base;	
-    int irqf;							// GPIO irq flag to register the handler
+    //int irqf;							// GPIO irq flag to register the handler
     EE_TID task;						// task called inside the interrupt handler
 } EE_enc28j60_st;
 
@@ -62,8 +51,8 @@ extern EE_enc28j60_st ee_enc28j60_st;
 #define ENC28J60_INTERRUPT_NAME()	
 
 /* Exit status for the EE_ETHERNET driver */
-#define	ENC28J60_SUCCESS 			(0)		/* no error */
-#define	ENC28J60_FAILURE			(-19)	/* generic error */
+#define	ENC28J60_SUCCESS 		(0)		/* no error */
+#define	ENC28J60_FAILURE		(-19)	/* generic error */
 #define	ENC28J60_ERR_SPI_INIT		(-20)	/* error in spi initialization */
 #define	ENC28J60_ERR_SPI_READ		(-21)	/* spi read error */
 #define	ENC28J60_ERR_SPI_WRITE		(-22)	/* spi write error */
@@ -73,9 +62,39 @@ extern EE_enc28j60_st ee_enc28j60_st;
 /* Pseudo functions (Wrapper) */
 #define ENC_CS_IO_f(p)				/* null definition */
 #define ENC_CS_TRIS_f(p)			/* null definition */
-#define DelayMs(ms)				EE_enc28j60_delay_ms(ms)
-#define Reset()					EE_enc28j60_hardware_reset() // to do... asm("RESET")
+#define DelayMs(ms)			EE_enc28j60_delay_ms(ms)
+#define Reset()				EE_enc28j60_hardware_reset() // to do... asm("RESET")
 #define ClearSPIDoneFlag()			/* null definition */					
+
+/* ISR handler for the external Interrupt */
+#define EE_enc28j60_hal_handler(p)		 
+
+#define EE_ENC28J60_INT_PRIO		 6
+#define EE_ENC28J60_INT_SUBPRIO		 3
+
+#define EE_ENC28J60_INT_POS_EDGE	 1
+#define EE_ENC28J60_INT_NEG_EDGE	 0
+
+#define EE_enc28j60_hal_handler_pic32()	 ISR1(EE_ENC28J60_INT_VEC_NAME)
+
+
+
+
+__INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_conf_hal_active() {
+	EE_ENC28J60_spi_cs_init();
+	EE_ENC28J60_hal_init_reset();  
+	EE_ENC28J60_hal_wake_pin_init();		       
+	EE_ENC28J60_hal_int_init(EE_ENC28J60_INT_PRIO, EE_ENC28J60_INT_SUBPRIO, 
+			EE_ENC28J60_INT_NEG_EDGE);
+	
+}
+
+/*TODO: implement a restoring function. It should be good to save the 
+	precondition of the ports and restore them. */ 
+#define EE_enc28j60_conf_hal_inactive() 	
+
+
+
 
 /* ------------------------------------------------------------------------------- */
 /* ETHERNET driver functions list */
@@ -85,11 +104,6 @@ extern EE_enc28j60_st ee_enc28j60_st;
 
 __INLINE__ int __ALWAYS_INLINE__ EE_enc28j60_hal_spi_init(void){
 	
-	//TODO: verificare correttezza della posizione in cui viene richiamata
-	// la init del TRIS del CS. Potrebbe essere sensato inizializzarla assieme
-	// al RESET.
-
-	EE_ENC28J60_spi_cs_init();
  	EE_spi_init(EE_ENC28J60_SPI_PORT, EE_ENC28J60_SPI_BAUDRATE, 
 		EE_ENC28J60_SPI_FLAGS); 
 	return ENC28J60_SUCCESS;
@@ -132,25 +146,19 @@ __INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_hal_clear_SSO(void){
 }
 
 
-void EE_enc28j60_hal_handler(int level);
 
-
-/*TODO: non dovrebbe essere mai chiamata per cui è stata tolta */
-//#define EE_enc28j60_hal_handler_setup()
+//void EE_enc28j60_hal_handler(int level);
 
 
 
+#define EE_enc28j60_hal_handler_setup()
 
 #define EE_ENC28J60_clear_irq_flag()	(EE_ENC28J60_IRQ_SPECIFIC_FLAG = 0)
 
-
-
-
-
-
-
 #define EE_enc28j60_hal_chip_select() 	EE_enc28j60_hal_set_SSO()
 #define EE_enc28j60_hal_chip_unselect() EE_enc28j60_hal_clear_SSO()
+
+
 
 /**
 	This function sets the task should be called inside the interrupt handler.
@@ -289,9 +297,11 @@ __INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_hal_write_MII_register(BYTE addres
 	This function enables device using reset pin (turn on). 
 */
 __INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_hal_enable(void)
-{
-		
-	EE_enc28j60_gpio_release_reset();
+{		
+	/* This function initialize the reset pin, the cs pin, and the 
+	interrupt pin for working with the ENC28J60 module */	
+	EE_enc28j60_conf_hal_active();
+	EE_ENC28J60_hal_release_reset();
 }
 
 /**
@@ -299,7 +309,10 @@ __INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_hal_enable(void)
 */
 __INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_hal_disable(void)
 {
-	EE_enc28j60_gpio_hold_in_reset();
+	EE_ENC28J60_hal_hold_in_reset();
+
+	/* This function restore the reset pin, the cs pin to a normal state */	
+	EE_enc28j60_conf_hal_inactive();
 }
 
 /**

@@ -1,7 +1,6 @@
 /*
-  Name: enc28j60_hal_ee_mico32.c
-  Copyright: Evidence Srl
-  Author: Dario Di Stefano
+  Name: enc28j60_hal_ee_pic32.c
+  Author: Andrea Azzarà, Marco Ghibaudi
   Date: 29/03/10 18.23
   Description: ENC28J60 driver source file.
 */
@@ -16,6 +15,7 @@ EE_enc28j60_st ee_enc28j60_st = {
 	//.irqf= EE_ENC28J60_IRQ, 
 	.task= -1 };
 	
+
 /* ---------------------- Ethernet interrupt handler ------------------------- */
 
 /**
@@ -28,8 +28,9 @@ EE_enc28j60_st ee_enc28j60_st = {
 */
 
 
-void EE_enc28j60_hal_handler(int level)
-{
+
+EE_enc28j60_hal_handler_pic32(){
+	
 	EE_enc28j60_disable_IRQ();
 
 	/* Clear GPIO irq pending flag */
@@ -40,8 +41,6 @@ void EE_enc28j60_hal_handler(int level)
 	/* Called task should re-enable IRQs */
 	if( ee_enc28j60_st.task >= 0)
 		 ActivateTask(ee_enc28j60_st.task);	
-		 
-	return;
 }
 
 /* ---------------------- Ethernet Library functions ------------------------- */
