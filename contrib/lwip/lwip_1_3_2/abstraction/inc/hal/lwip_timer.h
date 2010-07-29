@@ -1,7 +1,7 @@
 /*
   Name: lwip_timer.h
   Copyright: Evidence Srl
-  Author: Dario Di Stefano
+  Author: Dario Di Stefano, and Andrea Azzarà, Marco Ghibaudi
   Date: 29/03/10 18.23
   Description: Timer configurations functions for LWIP.
 */
@@ -12,7 +12,8 @@
 /* Compiler specification */
 #include <hal/lwip_compiler.h>
 /* Platform description */
-#include <system_conf.h>
+
+
 
 #include "lwip/tcp.h"
 #include <netif/etharp.h>
@@ -20,6 +21,10 @@
 /* HW specification */
 #if defined __LM32__
 #include <hal/lwip_timer_mico32.h>
+//FIXME: we moved this inclusion here but it should be probably deleted and
+// moved to the specific timer_hal files
+#include <system_conf.h>
+
 #elif defined __PIC32__
 #include <hal/lwip_timer_pic32.h>
 #else			/* No timer */

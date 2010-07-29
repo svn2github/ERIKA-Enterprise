@@ -38,17 +38,10 @@
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
  
-#ifndef __PERF_H__
-#define __PERF_H__
- 
-#include <hal/lwip_compiler.h> 
+#ifndef __PERF_PIC32_H__
+#define __PERF_PIC32_H__
 
-#if defined __LM32__
-#include <arch/perf_mico32.h>
-#elif defined __PIC32__			/* No timer */
-#include <arch/perf_pic32.h>
-#else
-#error "LWIP_ARCH ERROR: cpu not specified!"
-#endif	/* End Selection */
+#define PERF_START    /* null definition */
+#define PERF_STOP(x)  /* null definition */
 
-#endif                                                        /* __PERF_H__ */
+#endif                                                        /* __PERF_PIC32_H__ */
