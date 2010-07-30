@@ -6,7 +6,6 @@
 * \todo What is the global symbol for Erika Enterprise Kernel?
 */
 #ifdef __ERIKA__		/* Erika Abstract Compiler */
-#include <ee.h>
 #include <arch/mem_compiler_ee.h>
 #ifdef __C30__ 
 #ifndef COMPILER_ATTRIBUTE_FAR 

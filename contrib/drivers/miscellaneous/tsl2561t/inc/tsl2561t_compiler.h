@@ -18,7 +18,7 @@
 * \todo What is the global symbol for Erika Enterprise Kernel?
 */
 #ifdef __ERIKA__		/* Erika Abstract Compiler */
-#include <tsl2561t_compiler_ee.h>
+#include "tsl2561t_compiler_ee.h"
 
 #else			/* No compiler */
 #error "TSL2561T_HAL ERROR: compiler type not specified"
