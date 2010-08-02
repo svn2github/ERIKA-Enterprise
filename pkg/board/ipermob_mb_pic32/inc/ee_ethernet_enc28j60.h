@@ -113,7 +113,7 @@
 #define EE_ENC28J60_hal_int_init(p,s,e)	do { EE_ENC28J60_INT_ENABLE_CLR();         \
 						EE_ENC28J60_INT_PRIORITY = p;  \
 					 EE_ENC28J60_INT_SUBPRIORITY = s;    \
-					 EE_ENC28J60_INT_EDGE = e;}	while (1)		
+					 EE_ENC28J60_INT_EDGE = e;}	while (0)		
 
 #define EE_ENC28J60_hal_get_int_status()	EE_ENC28J60_INT_PORT
 
