@@ -27,6 +27,11 @@ CPU test_application {
 					NAME = "misc_gpio";	
 			};
 			
+			DEVICE = TIMER {
+				NAME = "timer";	
+				OPTIONS = TIMER_IRQ_SUPPORT;			
+			};
+
 			DEVICE = I2C{						
 					NAME = "camera_i2c";	
 			};
@@ -38,8 +43,6 @@ CPU test_application {
 		LIB = ENABLE { NAME = "TSL2561T"; };	
 		
 		BOARD_DATA = XP2_CAMERA_BOARD {
-			OPTIONS = TIMER;			
-			OPTIONS = TIMER_IRQ_SUPPORT;			
 			OPTIONS = RS232;							
 		};
     };
