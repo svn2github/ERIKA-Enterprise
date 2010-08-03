@@ -223,6 +223,12 @@ ISR2(_TIMER_1_VECTOR)
 #endif /* __USE_EE_TIMER_1__ */
 
 #ifdef __USE_EE_TIMER_2__
+ISR2(_TIMER_2_VECTOR)
+{
+	IFS0CLR = _IFS0_T2IF_MASK;
+	if (timer2_callback)
+		timer2_callback();
+}
 #endif /* __USE_EE_TIMER_2__ */
 
 #ifdef __USE_EE_TIMER_3__
