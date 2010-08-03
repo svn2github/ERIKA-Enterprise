@@ -118,7 +118,7 @@ __INLINE__ int __ALWAYS_INLINE__  EE_enc28j60_hal_write_buffer(EE_UINT8 *data, i
 } 
 
 __INLINE__ int __ALWAYS_INLINE__  EE_enc28j60_hal_read_byte(void){ 
-	EE_UINT8 *app_read = NULL; 
+	EE_UINT8 *app_read ; 
 	if ( EE_spi_read(EE_ENC28J60_SPI_PORT, app_read, 1) != 
 			EE_SPI_NO_ERRORS)	
 		return ENC28J60_ERR_SPI_READ;
@@ -302,6 +302,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_hal_enable(void)
 	interrupt pin for working with the ENC28J60 module */	
 	EE_enc28j60_conf_hal_active();
 	EE_ENC28J60_hal_release_reset();
+
 }
 
 /**
@@ -310,7 +311,6 @@ __INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_hal_enable(void)
 __INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_hal_disable(void)
 {
 	EE_ENC28J60_hal_hold_in_reset();
-
 	/* This function restore the reset pin, the cs pin to a normal state */	
 	EE_enc28j60_conf_hal_inactive();
 }
@@ -321,7 +321,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_hal_disable(void)
 __INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_hal_enable_IRQ(void)
 {
 	//mico32_enable_irq(ee_enc28j60_st.irqf);
-	EE_enc28j60_gpio_enable_IRQ();
+	EE_enc28j60_int_pin_enable_IRQ();
 }
 
 /**
@@ -329,7 +329,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_hal_enable_IRQ(void)
 */
 __INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_hal_disable_IRQ(void)
 {
-	EE_enc28j60_gpio_disable_IRQ();
+	EE_enc28j60_int_pin_disable_IRQ();
 }
 
 /**
@@ -337,7 +337,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_hal_disable_IRQ(void)
 */
 __INLINE__ int __ALWAYS_INLINE__ EE_enc28j60_hal_IRQ_enabled(void)
 {
-	return EE_enc28j60_gpio_IRQ_enabled();
+	return EE_enc28j60_int_pin_IRQ_enabled();
 }
 
 #endif //__ENC28J60_HAL_EE_PIC32_H__
