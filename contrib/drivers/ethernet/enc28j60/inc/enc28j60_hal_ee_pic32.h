@@ -34,16 +34,16 @@
 #include "enc28j60_compiler.h"
 
 /* ENC28J60 structure (used in ISR mode) */
-typedef struct {	
-    //int irqf;							// GPIO irq flag to register the handler
-    EE_TID task;						// task called inside the interrupt handler
+/*typedef struct {	
+    EE_TID task;		// task called inside the interrupt handler
 } EE_enc28j60_st;
+*/
+extern EE_TID enc28j60_task;
+//extern EE_enc28j60_st ee_enc28j60_st;
 
-extern EE_enc28j60_st ee_enc28j60_st;
-
-/* ------------------------------------------------------------------------------- */
+/* ---------------------------------------------------------------------------*/
 /* Macros used into the Ethernet driver functions */
-/* ------------------------------------------------------------------------------- */
+/* ---------------------------------------------------------------------------*/
 
 /* Symbols and macros */
 #define EE_ENC28J60_DEVICE_ID		(0x01)
@@ -63,14 +63,19 @@ extern EE_enc28j60_st ee_enc28j60_st;
 #define ENC_CS_IO_f(p)				/* null definition */
 #define ENC_CS_TRIS_f(p)			/* null definition */
 #define DelayMs(ms)			EE_enc28j60_delay_ms(ms)
-#define Reset()				EE_enc28j60_hardware_reset() // to do... asm("RESET")
+#define Reset()				EE_enc28j60_hardware_reset() //TODO asm("RESET")
 #define ClearSPIDoneFlag()			/* null definition */					
 
 /* ISR handler for the external Interrupt */
 #define EE_enc28j60_hal_handler(p)		 
 
+#ifndef EE_ENC28J60_INT_PRIO
 #define EE_ENC28J60_INT_PRIO		 6
+#endif //EE_ENC28J60_INT_PRIO
+
+#ifndef EE_ENC28J60_INT_SUBPRIO
 #define EE_ENC28J60_INT_SUBPRIO		 3
+#endif //EE_ENC28J60_INT_SUBPRIO
 
 #define EE_ENC28J60_INT_POS_EDGE	 1
 #define EE_ENC28J60_INT_NEG_EDGE	 0
@@ -81,6 +86,7 @@ extern EE_enc28j60_st ee_enc28j60_st;
 
 
 __INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_conf_hal_active() {
+	
 	EE_ENC28J60_spi_cs_init();
 	EE_ENC28J60_hal_init_reset();  
 	EE_ENC28J60_hal_wake_pin_init();		       
@@ -93,12 +99,9 @@ __INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_conf_hal_active() {
 	precondition of the ports and restore them. */ 
 #define EE_enc28j60_conf_hal_inactive() 	
 
-
-
-
-/* ------------------------------------------------------------------------------- */
+/* ---------------------------------------------------------------------------*/
 /* ETHERNET driver functions list */
-/* ------------------------------------------------------------------------------- */
+/* ---------------------------------------------------------------------------*/
 
 /* Macros for SPI-based ETHERNET functions */  
 
@@ -118,11 +121,11 @@ __INLINE__ int __ALWAYS_INLINE__  EE_enc28j60_hal_write_buffer(EE_UINT8 *data, i
 } 
 
 __INLINE__ int __ALWAYS_INLINE__  EE_enc28j60_hal_read_byte(void){ 
-	EE_UINT8 *app_read ; 
-	if ( EE_spi_read(EE_ENC28J60_SPI_PORT, app_read, 1) != 
+	EE_UINT8 app_read;
+	if ( EE_spi_read(EE_ENC28J60_SPI_PORT, &app_read, 1) != 
 			EE_SPI_NO_ERRORS)	
 		return ENC28J60_ERR_SPI_READ;
-	return *app_read; 
+	return (int) (app_read); 
 } 
 
 
@@ -145,12 +148,6 @@ __INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_hal_clear_SSO(void){
 	EE_ENC28J60_clear_CS(); 
 }
 
-
-
-//void EE_enc28j60_hal_handler(int level);
-
-
-
 #define EE_enc28j60_hal_handler_setup()
 
 #define EE_ENC28J60_clear_irq_flag()	(EE_ENC28J60_IRQ_SPECIFIC_FLAG = 0)
@@ -165,7 +162,8 @@ __INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_hal_clear_SSO(void){
 */
 __INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_hal_set_rx_task(EE_TID task)
 {
-	ee_enc28j60_st.task = task;
+	//ee_enc28j60_st.task = task;
+	enc28j60_task = task;
 }
 
 /**
