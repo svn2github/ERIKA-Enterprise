@@ -4,7 +4,9 @@
 
 
 #if defined __32MX360F512L__
+
 #define EE_ENC28J60_SPI_PORT		EE_SPI_PORT_2
+
 #define EE_ENC28J60_IRQ_SPECIFIC_FLAG	IFS0bits.INT2IF
 #define EE_ENC28J60_IRQ_SPECIFIC_ENABLE	IEC0bits.INT2IE
 	
@@ -39,9 +41,7 @@
 #define	EE_ENC28J60_INT_VEC_NAME 	_EXTERNAL_2_VECTOR
 
 
-#ifndef EE_ENC28J60_SPI_CS_TRIS	 
-#define EE_ENC28J60_SPI_CS_TRIS		(TRISDbits.TRISD1)
-#endif //EE_ENC28J60_WAKE_PIN_TRIS
+
 
 
 
@@ -61,6 +61,13 @@
 #ifndef EE_ENC28J60_SPI_CS 
 #define EE_ENC28J60_SPI_CS 		(PORTDbits.RD1)
 #endif
+
+
+#ifndef EE_ENC28J60_SPI_CS_TRIS	 
+#define EE_ENC28J60_SPI_CS_TRIS		(TRISDbits.TRISD1)
+#endif //EE_ENC28J60_SPI_CS_TRIS
+
+
 
 /* Used to initialize the TRIS register associated to the ENC28J60 Chip Select*/
 #define EE_ENC28J60_spi_cs_init()	(EE_ENC28J60_SPI_CS_TRIS = 0)	
@@ -97,8 +104,8 @@
 
 
 #define EE_ENC28J60_hal_init_reset()		EE_ENC28J60_RESET_TRIS = 0
-#define EE_ENC28J60_hal_hold_in_reset()		EE_ENC28J60_RESET_HIGH()
-#define	EE_ENC28J60_hal_release_reset() 	EE_ENC28J60_RESET_LOW()
+#define EE_ENC28J60_hal_hold_in_reset()		EE_ENC28J60_RESET_LOW() 
+#define	EE_ENC28J60_hal_release_reset() 	EE_ENC28J60_RESET_HIGH()
 
 /******************************************************************************/
 /* 			Interrupt PIN 					      */
@@ -110,10 +117,10 @@
 
 
 	
-#define EE_ENC28J60_hal_int_init(p,s,e)	do { EE_ENC28J60_INT_ENABLE_CLR();         \
+#define EE_ENC28J60_hal_int_init(p,s,e)	do { EE_ENC28J60_INT_ENABLE_CLR();     \
 						EE_ENC28J60_INT_PRIORITY = p;  \
-					 EE_ENC28J60_INT_SUBPRIORITY = s;    \
-					 EE_ENC28J60_INT_EDGE = e;}	while (0)		
+					 EE_ENC28J60_INT_SUBPRIORITY = s;      \
+					 EE_ENC28J60_INT_EDGE = e;}  while (0)		
 
 #define EE_ENC28J60_hal_get_int_status()	EE_ENC28J60_INT_PORT
 
@@ -135,18 +142,18 @@
 /******************************************************************************/
 
 
-__INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_gpio_enable_IRQ(void){ \
+__INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_int_pin_enable_IRQ(void){ \
 	EE_ENC28J60_INT_ENABLE_SET();
 }
 
 
 
-__INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_gpio_disable_IRQ(void){ \
+__INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_int_pin_disable_IRQ(void){ \
 	EE_ENC28J60_INT_ENABLE_CLR();
 }
 
 
-__INLINE__ int __ALWAYS_INLINE__ EE_enc28j60_gpio_IRQ_enabled(void){ \
+__INLINE__ int __ALWAYS_INLINE__ EE_enc28j60_int_pin_IRQ_enabled(void){ \
 	return EE_ENC28J60_INT_ENABLE_GET();	
 } 
 
