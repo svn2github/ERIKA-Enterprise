@@ -118,9 +118,11 @@ if (HV7131GP_HSYNC_VALUE() == HV7131GP_HSYNC_RISING) {
 	HV7131GP_DMA_DEST_ADD_REG = 
 			EE_ADDR_VIRTUAL_TO_PHYSICAL(frame_buffer + frame_idx);
 	
-	
+	#ifndef __INT_DMA__
 	/* Disable Interrupts */
 	HV7131GP_HAL_DISABLE_INTERRUPTS();
+	#endif// __INT_DMA__
+	
 		
 	/* Enables the DMA Channel  */
 	HV7131GP_DMA_CH_ENABLE();
@@ -135,12 +137,14 @@ if (HV7131GP_HSYNC_VALUE() == HV7131GP_HSYNC_RISING) {
 	#endif
 		
 	#ifdef __INT_DMA__
-	} else {
+} else {
 	#endif //__INT_DMA__
 
 	
 	frame_idx += DMA_MAX_WIDTH;
+	#ifndef __INT_DMA__
 	HV7131GP_HAL_ENABLE_INTERRUPTS();
+	#endif// __INT_DMA__
 	/* Check if last row is ready -> frame ready? */
 
 	if((frame_idx >= image_size) /*|| (++row_id >= height)*/){
@@ -150,8 +154,7 @@ if (HV7131GP_HSYNC_VALUE() == HV7131GP_HSYNC_RISING) {
 		HV7131GP_EOF_ACTIVATE_IF(); //Activate interrupt
 	}
 	HV7131GP_HSYNC_RESET_IF();			/* Reset CN interrupt flag */
-	
-	
+		
 	#ifdef __INT_DMA__
 	}
 	#endif	//__INT_DMA__
