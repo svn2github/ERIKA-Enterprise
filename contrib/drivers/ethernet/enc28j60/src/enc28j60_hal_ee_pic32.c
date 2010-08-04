@@ -28,18 +28,21 @@ EE_TID enc28j60_task = -1;
 
 
 EE_enc28j60_hal_handler_pic32(){
-	
+
 	EE_enc28j60_disable_IRQ();
+
 	/* Clear GPIO irq pending flag */
 
 	EE_ENC28J60_clear_irq_flag();	
+
 	//EE_gpio_common_handler(level);
 
 	/* Called task should re-enable IRQs */
-	//if( ee_enc28j60_st.task >= 0)
 	if (enc28j60_task >= 0) 	
 		 //ActivateTask(ee_enc28j60_st.task);	
 		ActivateTask(enc28j60_task);
+
+	return;
 }
 
 /* ---------------------- Ethernet Library functions ------------------------- */
