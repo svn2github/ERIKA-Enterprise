@@ -44,7 +44,7 @@
 #include <hal/lwip_compiler.h>
 
 #ifndef BYTE_ORDER
-#define BYTE_ORDER BIG_ENDIAN
+#define BYTE_ORDER LITTLE_ENDIAN
 #endif
 
 #define PACK_STRUCT_BEGIN
