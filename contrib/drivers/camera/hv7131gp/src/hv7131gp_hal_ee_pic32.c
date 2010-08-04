@@ -109,14 +109,7 @@ if (HV7131GP_HSYNC_VALUE() == HV7131GP_HSYNC_RISING) {
 #endif	//__INT_DMA__
 
 
-	/* Set the DMA source pointer for reading the Y0-Y7 camera pins */	
-	HV7131GP_DMA_SOURCE_ADD_REG = 
-		EE_ADDR_VIRTUAL_TO_PHYSICAL((void *)HV7131GP_PIN_Y_ADDRESS);
-
-	/* Set the DMA destionation to the correct line of the stored frame */
 	
-	HV7131GP_DMA_DEST_ADD_REG = 
-			EE_ADDR_VIRTUAL_TO_PHYSICAL(frame_buffer + frame_idx);
 	
 	#ifndef __INT_DMA__
 	/* Disable Interrupts */
@@ -142,10 +135,23 @@ if (HV7131GP_HSYNC_VALUE() == HV7131GP_HSYNC_RISING) {
 
 	
 	frame_idx += DMA_MAX_WIDTH;
+
+	
 	#ifndef __INT_DMA__
 	HV7131GP_HAL_ENABLE_INTERRUPTS();
 	#endif// __INT_DMA__
 	/* Check if last row is ready -> frame ready? */
+
+	/* Set the DMA source pointer for reading the Y0-Y7 camera pins */	
+	HV7131GP_DMA_SOURCE_ADD_REG = 
+		EE_ADDR_VIRTUAL_TO_PHYSICAL((void *)HV7131GP_PIN_Y_ADDRESS);
+
+	/* Set the DMA destionation to the correct line of the stored frame */
+	
+	HV7131GP_DMA_DEST_ADD_REG = 
+			EE_ADDR_VIRTUAL_TO_PHYSICAL(frame_buffer + frame_idx);
+
+
 
 	if((frame_idx >= image_size) /*|| (++row_id >= height)*/){
 		/* Stop row and frame syncs, notify capture complete */
@@ -194,7 +200,6 @@ hv7131gp_status_t hv7131gp_dma_hal_init(void){
 
 	/* Set the source, destination, cell sizes, the interrupt associated
 		and the priority  */
-
 	EE_dma_init_transfer(HV7131GP_DMA_CH, HV7131GP_DMA_SOURCE_SIZE,
 			HV7131GP_DMA_DESTINATION_SIZE, HV7131GP_DMA_CELL_SIZE,
 	HV7131GP_DMA_INT_SOURCE, HV7131GP_DMA_INT_PRIOR, 
@@ -251,6 +256,17 @@ hv7131gp_status_t hv7131gp_hal_init(uint8_t dma_channel){
 hv7131gp_status_t hv7131gp_hal_capture(uint8_t *image, hv7131gp_cback_t *func)
 {
 	frame_idx 	= 0;
+	
+	/* Set the DMA source pointer to the PIN_Y 8 bit BUS */
+	HV7131GP_DMA_SOURCE_ADD_REG = 
+	EE_ADDR_VIRTUAL_TO_PHYSICAL((void *)HV7131GP_PIN_Y_ADDRESS);
+
+	/* Set the DMA destionation pointer to the first line of the	*/
+	/* stored frame							*/
+	HV7131GP_DMA_DEST_ADD_REG = 
+			EE_ADDR_VIRTUAL_TO_PHYSICAL(frame_buffer);
+
+
 	//Read the size of the picture
 	width 	= hv7131gp_get_width();
 	height 	= hv7131gp_get_height();
