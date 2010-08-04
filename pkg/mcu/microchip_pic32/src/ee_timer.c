@@ -147,9 +147,7 @@ __INLINE__ void __ALWAYS_INLINE__ timer3_stop(void)
 #error TIMER 45 cannot be used together with TIMER 4 or TIMER 5
 #endif
 
-#if defined(__USE_EE_TIMER_4__)
-#error TIMER 4 not tested and probably not fully supported
-#endif
+
 
 #if defined(__USE_EE_TIMER_4__) || defined(__USE_EE_TIMER_45__)
 __INLINE__ void __ALWAYS_INLINE__ timer4_enable_IRQ(void)
@@ -203,7 +201,38 @@ __INLINE__ void __ALWAYS_INLINE__ timer45_init(EE_UINT32 pr, EE_UINT8 tckps)
 
 
 #ifdef __USE_EE_TIMER_5__
-#error TIMER 5 not supported
+__INLINE__ void __ALWAYS_INLINE__ timer5_enable_IRQ(void)
+{
+	IFS0CLR = _IFS0_T5IF_MASK;	// Clean Timer IRQ Flag
+	IEC0SET = _IEC0_T5IE_MASK;	// Enable Timer IRQ
+}
+	
+__INLINE__ void __ALWAYS_INLINE__ timer5_disable_IRQ(void)
+{
+	IEC0CLR = _IEC0_T5IE_MASK;	// Disable Timer IRQ
+	IFS0CLR = _IFS0_T5IF_MASK;	// Clean Timer IRQ Flag
+}
+
+__INLINE__ void __ALWAYS_INLINE__ timer5_init(EE_UINT32 pr, EE_UINT8 tckps)
+{
+	IPC5CLR = _IPC5_T5IP_MASK;	// Clean IRQ Priority
+	IPC5SET = (2 << _IPC5_T5IP_POSITION); //TODO:change hardcoding Irq Prio?
+	IPC5CLR = _IPC5_T5IS_MASK; //TODO:change hardcoding Irq Sub-Prio?
+	PR5 = pr;
+	TMR5 = 0;
+	T5CON = ((tckps & 0x03) << _T5CON_TCKPS_POSITION);
+}
+
+__INLINE__ void __ALWAYS_INLINE__ timer5_start(void) 
+{
+	T5CONSET = _T5CON_ON_MASK;	// Start Timer
+}
+
+__INLINE__ void __ALWAYS_INLINE__ timer5_stop(void) 
+{
+	T5CONCLR = _T5CON_ON_MASK;	// Stop Timer
+	timer5_disable_IRQ();
+}
 #endif /* __USE_EE_TIMER_5__ */
 
 
@@ -264,11 +293,13 @@ EE_INT8 EE_timer_hard_init(EE_UINT8 id, EE_UINT32 period, EE_UINT8 prescale)
 	#endif 
 	#ifdef __USE_EE_TIMER_4__
 	case EE_TIMER_4 :
-		return -EE_TIMER_ERR_UNIMPLEMENTED;
+		timer4_init(period, prescale);
+		break;
 	#endif 
 	#ifdef __USE_EE_TIMER_5__
 	case EE_TIMER_5 :
-		return -EE_TIMER_ERR_UNIMPLEMENTED;
+		timer5_init(period, prescale);
+		break;
 	#endif 
 	#ifdef __USE_EE_TIMER_45__
 	case EE_TIMER_45 :
@@ -356,9 +387,9 @@ EE_INT8 EE_timer_set_callback(EE_UINT8 id, void (*f)(void))
 	case EE_TIMER_4 :
 		timer4_callback = f;
 		if (f != NULL)
-			timer2_enable_IRQ();
+			timer4_enable_IRQ();
 		else
-			timer2_disable_IRQ();
+			timer4_disable_IRQ();
 		break;
 	#endif 
 	#ifdef __USE_EE_TIMER_5__
@@ -401,7 +432,8 @@ EE_INT8 EE_timer_start(EE_UINT8 id)
 	#endif 
 	#ifdef __USE_EE_TIMER_5__
 	case EE_TIMER_5 :
-		return -EE_TIMER_ERR_UNIMPLEMENTED;
+		timer5_start();
+		break;
 	#endif 
 	#ifdef __USE_EE_TIMER_45__
 	case EE_TIMER_45 :
@@ -440,7 +472,8 @@ EE_INT8 EE_timer_stop(EE_UINT8 id)
 	#endif 
 	#ifdef __USE_EE_TIMER_5__
 	case EE_TIMER_5 :
-		return -EE_TIMER_ERR_UNIMPLEMENTED;
+		timer5_stop();
+		break;
 	#endif 
 	#ifdef __USE_EE_TIMER_45__
 	case EE_TIMER_45 :
@@ -469,15 +502,18 @@ EE_INT8 EE_timer_get_val(EE_UINT8 id, EE_UINT16 *v)
 	#endif 
 	#ifdef __USE_EE_TIMER_3__
 	case EE_TIMER_3 :
-		return -EE_TIMER_ERR_UNIMPLEMENTED;
+		*v = TMR3;
+		break;
 	#endif 
 	#ifdef __USE_EE_TIMER_4__
 	case EE_TIMER_4 :
-		return -EE_TIMER_ERR_UNIMPLEMENTED;
+		*v = TMR4;
+		break;	
 	#endif 
 	#ifdef __USE_EE_TIMER_5__
 	case EE_TIMER_5 :
-		return -EE_TIMER_ERR_UNIMPLEMENTED;
+		*v = TMR5;
+		break;
 	#endif 
 	default:
 		return -EE_TIMER_ERR_BAD_TIMER_ID;
