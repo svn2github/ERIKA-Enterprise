@@ -15,10 +15,12 @@
 #define EE_ENC28J60_INT_EDGE		INTCONbits.INT2EP
 
 #define EE_ENC28J60_INT_PORT		PORTEbits.RE9
-
+#define EE_ENC28J60_INT_TRIS		TRISEbits.TRISE9
 		
 #elif defined __32MX795F512L__
-#define EE_ENC28J60_SPI_PORT		EE_SPI_PORT_2A	
+
+#define EE_ENC28J60_SPI_PORT		EE_SPI_PORT_2A
+	
 #define EE_ENC28J60_IRQ_SPECIFIC_FLAG	IFS0bits.INT2IF
 #define EE_ENC28J60_IRQ_SPECIFIC_ENABLE	IEC0bits.INT2IE
 
@@ -27,7 +29,8 @@
 #define EE_ENC28J60_INT_SUBPRIORITY	IPC2bits.INT2IS
 #define EE_ENC28J60_INT_EDGE		INTCONbits.INT2EP
 
-#define EE_ENC28J60_INT_PORT
+#define EE_ENC28J60_INT_PORT		PORTEbits.RE9
+#define EE_ENC28J60_INT_TRIS		TRISEbits.TRISE9
 
 #else
 #error "ENC28J60 mcu not supported"
@@ -111,11 +114,20 @@
 /* 			Interrupt PIN 					      */
 /******************************************************************************/
 
+
+
+#define EE_ENC28J60_IRQ_PIN_TRIS
+#define EE_ENC28J60_IRQ_PIN_VAL 	
+
+
 #define	EE_ENC28J60_INT_ENABLE_CLR()	(EE_ENC28J60_IRQ_SPECIFIC_ENABLE = 0)
 #define	EE_ENC28J60_INT_ENABLE_SET()	(EE_ENC28J60_IRQ_SPECIFIC_ENABLE = 1)
 #define	EE_ENC28J60_INT_ENABLE_GET()	(EE_ENC28J60_IRQ_SPECIFIC_ENABLE)
 
-
+#define	EE_ENC28J60_INT_PIN_RAISE()	do { 	EE_ENC28J60_INT_TRIS = 0;	\
+						EE_ENC28J60_INT_PORT = 1;	\
+						/*EE_ENC28J60_INT_TRIS = 1;*/	\
+					} while (0)
 	
 #define EE_ENC28J60_hal_int_init(p,s,e)	do { EE_ENC28J60_INT_ENABLE_CLR();     \
 						EE_ENC28J60_INT_PRIORITY = p;  \
@@ -157,9 +169,11 @@ __INLINE__ int __ALWAYS_INLINE__ EE_enc28j60_int_pin_IRQ_enabled(void){ \
 	return EE_ENC28J60_INT_ENABLE_GET();	
 } 
 
-/* TODO: verify this function if it is used in the correct way */
+
 __INLINE__ int __ALWAYS_INLINE__ EE_enc28j60_pending_interrupt(void){ \
-	return EE_ENC28J60_hal_get_int_status();
+	int app = EE_ENC28J60_hal_get_int_status();
+	EE_ENC28J60_INT_PIN_RAISE();
+	return app;		
 }
 
 __INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_gpio_wake_active(void){
