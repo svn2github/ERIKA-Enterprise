@@ -37,15 +37,19 @@
 #endif 
 
 
+/******************************************************************************/
+/*				Status Messages				      */
+/******************************************************************************/
+
+#define EE_ENC28J60_IPERMOB_MB_BOARD_NO_ERROR		1	//Used positive
+#define EE_ENC28J60_IPERMOB_MB_BOARD_FUNC_NOT_IMPL	1
+
+
 #define EE_ENC28J60_SPI_BAUDRATE	20000000ul
 #define EE_ENC28J60_SPI_FLAGS		EE_SPI_DEFAULT
 
 
 #define	EE_ENC28J60_INT_VEC_NAME 	_EXTERNAL_2_VECTOR
-
-
-
-
 
 
 #ifndef EE_ENC28J60_WAKE_PIN_LAT
@@ -114,6 +118,9 @@
 /* 			Interrupt PIN 					      */
 /******************************************************************************/
 
+#define EE_ENC28J60_IRQ_MANAGED		0
+#define EE_ENC28J60_IRQ_OCCURED		1	
+
 
 
 #define EE_ENC28J60_IRQ_PIN_TRIS
@@ -124,17 +131,13 @@
 #define	EE_ENC28J60_INT_ENABLE_SET()	(EE_ENC28J60_IRQ_SPECIFIC_ENABLE = 1)
 #define	EE_ENC28J60_INT_ENABLE_GET()	(EE_ENC28J60_IRQ_SPECIFIC_ENABLE)
 
-#define	EE_ENC28J60_INT_PIN_RAISE()	do { 	EE_ENC28J60_INT_TRIS = 0;	\
-						EE_ENC28J60_INT_PORT = 1;	\
-						/*EE_ENC28J60_INT_TRIS = 1;*/	\
-					} while (0)
-	
+
 #define EE_ENC28J60_hal_int_init(p,s,e)	do { EE_ENC28J60_INT_ENABLE_CLR();     \
 						EE_ENC28J60_INT_PRIORITY = p;  \
 					 EE_ENC28J60_INT_SUBPRIORITY = s;      \
 					 EE_ENC28J60_INT_EDGE = e;}  while (0)		
 
-#define EE_ENC28J60_hal_get_int_status()	EE_ENC28J60_INT_PORT
+//#define EE_ENC28J60_hal_get_int_status()	EE_ENC28J60_INT_PORT
 
 /******************************************************************************/
 /* 			Wake PIN FUNCTIONS				      */
@@ -149,32 +152,30 @@
 #define EE_ENC28J60_hal_wake_pin_clr()	
 
 
+
+
 /******************************************************************************/
 /* 				INLINE Functions			      */
 /******************************************************************************/
 
 
-__INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_int_pin_enable_IRQ(void){ \
+__INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_int_pin_enable_IRQ(void){ 
 	EE_ENC28J60_INT_ENABLE_SET();
 }
 
 
 
-__INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_int_pin_disable_IRQ(void){ \
+__INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_int_pin_disable_IRQ(void){ 
 	EE_ENC28J60_INT_ENABLE_CLR();
 }
 
 
-__INLINE__ int __ALWAYS_INLINE__ EE_enc28j60_int_pin_IRQ_enabled(void){ \
+__INLINE__ int __ALWAYS_INLINE__ EE_enc28j60_int_pin_IRQ_enabled(void){ 
 	return EE_ENC28J60_INT_ENABLE_GET();	
 } 
 
 
-__INLINE__ int __ALWAYS_INLINE__ EE_enc28j60_pending_interrupt(void){ \
-	int app = EE_ENC28J60_hal_get_int_status();
-	EE_ENC28J60_INT_PIN_RAISE();
-	return app;		
-}
+
 
 __INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_gpio_wake_active(void){
 	EE_ENC28J60_hal_wake_pin_set();

@@ -10,10 +10,11 @@
 
 
 /* ---------------------- Global variables --------------------------------- */
-/*EE_enc28j60_st ee_enc28j60_st = {
-	.task= -1 }; */
+EE_enc28j60_st ee_enc28j60_st = {
+	.irqf = 0,
+	.task= -1 }; 
 	
-EE_TID enc28j60_task = -1;
+
 /* ---------------------- Ethernet interrupt handler ------------------------- */
 
 /**
@@ -28,19 +29,22 @@ EE_TID enc28j60_task = -1;
 
 
 EE_enc28j60_hal_handler_pic32(){
-
+	
 	EE_enc28j60_disable_IRQ();
 
 	/* Clear GPIO irq pending flag */
 
-	EE_ENC28J60_clear_irq_flag();	
+	EE_enc28j60_clear_irq_flag();	
+	
+	/* Set the internal irqf to "interrupt occured" value  */
 
-	//EE_gpio_common_handler(level);
-
+	EE_enc28j60_irq_int_write(EE_ENC28J60_IRQ_OCCURED); 
+	
 	/* Called task should re-enable IRQs */
-	if (enc28j60_task >= 0) 	
-		 //ActivateTask(ee_enc28j60_st.task);	
-		ActivateTask(enc28j60_task);
+	
+	if (ee_enc28j60_st.task >= 0){
+		ActivateTask(ee_enc28j60_st.task);	
+	}
 
 	return;
 }
@@ -73,7 +77,9 @@ BYTE EE_enc28j60_hal_get()
 WORD EE_enc28j60_hal_get_array(BYTE *val, WORD len)
 {
 	WORD num;
-	EE_pic32_disableIRQ();
+	EE_pic32_disableIRQ();	//BIBO, TODO: in the Microchip driver at this  
+				// point the interrupts are not disabled. Is this
+				// approach the right one ??
 	EE_enc28j60_hal_chip_select();
 	EE_enc28j60_hal_write_byte(ENC28J60_RBM);
 	EE_enc28j60_write_timestamp(ENC28J60_START_GET_ARRAY);

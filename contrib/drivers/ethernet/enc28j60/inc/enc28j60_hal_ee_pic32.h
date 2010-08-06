@@ -34,12 +34,13 @@
 #include "enc28j60_compiler.h"
 
 /* ENC28J60 structure (used in ISR mode) */
-/*typedef struct {	
-    EE_TID task;		// task called inside the interrupt handler
+typedef struct {
+  	int irqf;	
+	EE_TID task;		// task called inside the interrupt handler
 } EE_enc28j60_st;
-*/
-extern EE_TID enc28j60_task;
-//extern EE_enc28j60_st ee_enc28j60_st;
+
+
+extern EE_enc28j60_st ee_enc28j60_st;
 
 /* ---------------------------------------------------------------------------*/
 /* Macros used into the Ethernet driver functions */
@@ -70,7 +71,7 @@ extern EE_TID enc28j60_task;
 #define EE_enc28j60_hal_handler(p)		 
 
 #ifndef EE_ENC28J60_INT_PRIO
-#define EE_ENC28J60_INT_PRIO		 6
+#define EE_ENC28J60_INT_PRIO		 7
 #endif //EE_ENC28J60_INT_PRIO
 
 #ifndef EE_ENC28J60_INT_SUBPRIO
@@ -80,12 +81,13 @@ extern EE_TID enc28j60_task;
 #define EE_ENC28J60_INT_POS_EDGE	 1
 #define EE_ENC28J60_INT_NEG_EDGE	 0
 
+
 #define EE_enc28j60_hal_handler_pic32()	 ISR1(EE_ENC28J60_INT_VEC_NAME)
 
 
 
 
-__INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_conf_hal_active() {
+__INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_conf_hal_active(void) {
 	
 	EE_ENC28J60_spi_cs_init();
 	EE_ENC28J60_hal_init_reset();  
@@ -150,7 +152,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_hal_clear_SSO(void){
 
 #define EE_enc28j60_hal_handler_setup()
 
-#define EE_ENC28J60_clear_irq_flag()	(EE_ENC28J60_IRQ_SPECIFIC_FLAG = 0)
+#define EE_enc28j60_clear_irq_flag()	(EE_ENC28J60_IRQ_SPECIFIC_FLAG = 0)
 
 #define EE_enc28j60_hal_chip_select() 	EE_enc28j60_hal_set_SSO()
 #define EE_enc28j60_hal_chip_unselect() EE_enc28j60_hal_clear_SSO()
@@ -158,12 +160,41 @@ __INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_hal_clear_SSO(void){
 
 
 /**
+	This function read the internal interrupt request flag
+*/
+__INLINE__ int __ALWAYS_INLINE__ EE_enc28j60_irq_int_read() {
+	return ee_enc28j60_st.irqf;
+}
+
+
+
+/**
+	This function read the internal interrupt request flag
+*/
+__INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_irq_int_write(int val) {
+	ee_enc28j60_st.irqf = val;
+}
+
+/**
+	This function provides, before resetting it, the status of the pending 
+	interrupt flag
+*/
+__INLINE__ int __ALWAYS_INLINE__ EE_enc28j60_pending_interrupt(void){ 
+		
+	int app = EE_enc28j60_irq_int_read();
+	EE_enc28j60_irq_int_write(EE_ENC28J60_IRQ_MANAGED);
+	return app;		
+	
+}
+
+
+/**
 	This function sets the task should be called inside the interrupt handler.
 */
 __INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_hal_set_rx_task(EE_TID task)
 {
-	//ee_enc28j60_st.task = task;
-	enc28j60_task = task;
+	ee_enc28j60_st.task = task;
+	//enc28j60_task = task;
 }
 
 /**
@@ -309,7 +340,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_hal_enable(void)
 __INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_hal_disable(void)
 {
 	EE_ENC28J60_hal_hold_in_reset();
-	/* This function restore the reset pin, the cs pin to a normal state */	
+	/* This function restore the reset pin and the cs pin to a normal state */	
 	EE_enc28j60_conf_hal_inactive();
 }
 
