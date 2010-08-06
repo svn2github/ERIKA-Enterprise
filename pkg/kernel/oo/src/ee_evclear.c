@@ -44,6 +44,7 @@
  */
 
 #include "ee_internal.h"
+#include "../inc/ee_kernel.h"
 
 /* ClearEvent:
    - can be called from an extended task
@@ -88,9 +89,9 @@ void EE_oo_ClearEvent(EventMaskType Mask)
       EE_oo_ErrorHook_ServiceID = OSServiceId_ClearEvent;
       EE_oo_ErrorHook_data.ClearEvent_prm.Mask = Mask;
 #endif
-      EE_ErrorHook_nested_flag = 1;
+      EE_ErrorHook_nested_flag = 1U;
       ErrorHook(E_OS_CALLEVEL);
-      EE_ErrorHook_nested_flag = 0;
+      EE_ErrorHook_nested_flag = 0U;
     }
     EE_hal_end_primitive();
 #endif
@@ -115,9 +116,9 @@ void EE_oo_ClearEvent(EventMaskType Mask)
       EE_oo_ErrorHook_ServiceID = OSServiceId_ClearEvent;
       EE_oo_ErrorHook_data.ClearEvent_prm.Mask = Mask;
 #endif
-      EE_ErrorHook_nested_flag = 1;
+      EE_ErrorHook_nested_flag = 1U;
       ErrorHook(E_OS_ACCESS);
-      EE_ErrorHook_nested_flag = 0;
+      EE_ErrorHook_nested_flag = 0U;
     }
     EE_hal_end_primitive();
 #endif

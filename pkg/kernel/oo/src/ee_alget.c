@@ -44,6 +44,7 @@
  */
 
 #include "ee_internal.h"
+#include "../inc/ee_kernel.h"
 
 /* GetAlarm
    - This function returns the relative value in ticks before the alarm
@@ -80,9 +81,9 @@ StatusType EE_oo_GetAlarm(AlarmType AlarmID, TickRefType Tick)
       EE_oo_ErrorHook_data.GetAlarm_prm.AlarmID = AlarmID;
       EE_oo_ErrorHook_data.GetAlarm_prm.Tick = Tick;
 #endif
-      EE_ErrorHook_nested_flag = 1;
+      EE_ErrorHook_nested_flag = 1U;
       ErrorHook(E_OS_ID);
-      EE_ErrorHook_nested_flag = 0;
+      EE_ErrorHook_nested_flag = 0U;
     }
     EE_hal_end_nested_primitive(flag);
 #endif
@@ -113,9 +114,9 @@ StatusType EE_oo_GetAlarm(AlarmType AlarmID, TickRefType Tick)
       EE_oo_ErrorHook_data.GetAlarm_prm.AlarmID = AlarmID;
       EE_oo_ErrorHook_data.GetAlarm_prm.Tick = Tick;
 #endif
-      EE_ErrorHook_nested_flag = 1;
+      EE_ErrorHook_nested_flag = 1U;
       ErrorHook(E_OS_NOFUNC);
-      EE_ErrorHook_nested_flag = 0;
+      EE_ErrorHook_nested_flag = 0U;
     }
 #endif
 

@@ -109,7 +109,7 @@ extern EE_UINT32 EE_terminate_data[];
 extern const EE_FADDR EE_terminate_real_th_body[];
 
 /* this is the stub that have to be put into the EE_th_body array */
-extern void EE_oo_thread_stub(void);
+void EE_oo_thread_stub(void);
 
 #endif /* __OO_BCCx__ */
 

@@ -44,6 +44,7 @@
  */
 
 #include "ee_internal.h"
+#include "../inc/ee_kernel.h"
 
 /* ChainTask: 
   - activate a task 
@@ -86,9 +87,9 @@ StatusType EE_oo_ChainTask(TaskType TaskID)
       EE_oo_ErrorHook_ServiceID = OSServiceId_ChainTask;
       EE_oo_ErrorHook_data.ChainTask_prm.TaskID = TaskID;
 #endif
-      EE_ErrorHook_nested_flag = 1;
+      EE_ErrorHook_nested_flag = 1U;
       ErrorHook(E_OS_CALLEVEL);
-      EE_ErrorHook_nested_flag = 0;
+      EE_ErrorHook_nested_flag = 0U;
     }
     EE_hal_end_primitive();
 #endif
@@ -102,7 +103,6 @@ StatusType EE_oo_ChainTask(TaskType TaskID)
 
   /* check if the task Id is valid */
   if (TaskID < 0 || TaskID >= EE_MAX_TASK) {
-	//if (TaskID >= EE_MAX_TASK) {
 #ifdef __OO_ORTI_LASTERROR__
     EE_ORTI_lasterror = E_OS_ID;
 #endif
@@ -114,9 +114,9 @@ StatusType EE_oo_ChainTask(TaskType TaskID)
       EE_oo_ErrorHook_ServiceID = OSServiceId_ChainTask;
       EE_oo_ErrorHook_data.ChainTask_prm.TaskID = TaskID;
 #endif
-      EE_ErrorHook_nested_flag = 1;
+      EE_ErrorHook_nested_flag = 1U;
       ErrorHook(E_OS_ID);
-      EE_ErrorHook_nested_flag = 0;
+      EE_ErrorHook_nested_flag = 0U;
     }
     EE_hal_end_primitive();
 #endif
@@ -141,9 +141,9 @@ StatusType EE_oo_ChainTask(TaskType TaskID)
       EE_oo_ErrorHook_ServiceID = OSServiceId_ChainTask;
       EE_oo_ErrorHook_data.ChainTask_prm.TaskID = TaskID;
 #endif
-      EE_ErrorHook_nested_flag = 1;
+      EE_ErrorHook_nested_flag = 1U;
       ErrorHook(E_OS_RESOURCE);
-      EE_ErrorHook_nested_flag = 0;
+      EE_ErrorHook_nested_flag = 0U;
     }
     EE_hal_end_primitive();
 #endif
@@ -167,7 +167,7 @@ StatusType EE_oo_ChainTask(TaskType TaskID)
      parameter inside ChainTask is the calling task; 
      see MODISTARC Test 9 */
   if (TaskID != current &&
-      EE_th_rnact[TaskID] == 0) {
+      EE_th_rnact[TaskID] == 0U) {
 #ifdef __OO_ORTI_LASTERROR__
     EE_ORTI_lasterror = E_OS_LIMIT;
 #endif
@@ -178,9 +178,9 @@ StatusType EE_oo_ChainTask(TaskType TaskID)
       EE_oo_ErrorHook_ServiceID = OSServiceId_ChainTask;
       EE_oo_ErrorHook_data.ChainTask_prm.TaskID = TaskID;
 #endif
-      EE_ErrorHook_nested_flag = 1;
+      EE_ErrorHook_nested_flag = 1U;
       ErrorHook(E_OS_LIMIT);
-      EE_ErrorHook_nested_flag = 0;
+      EE_ErrorHook_nested_flag = 0U;
     }
 #endif
 

@@ -62,22 +62,24 @@
 
 /* 13.2.3.5: BCC1, BCC2, ECC1, ECC2 */
 #ifndef __PRIVATE_GETTASKID__
-//#ifdef __OO_EXTENDED_STATUS__
-//StatusType EE_oo_GetTaskID(TaskRefType TaskID);
-//#else
+#if 0 && defined __OO_EXTENDED_STATUS__ /* Disabled! */
+StatusType EE_oo_GetTaskID(TaskRefType TaskID);
+#else
 __INLINE__ void __ALWAYS_INLINE__ EE_oo_GetTaskID(TaskRefType TaskID)
 {
 #ifdef __OO_ORTI_SERVICETRACE__
   EE_ORTI_servicetrace = EE_SERVICETRACE_GETTASKID+1;
 #endif
 
-  *TaskID = EE_stk_queryfirst();
+  if (TaskID != NULL) {
+    *TaskID = EE_stk_queryfirst();
+  }
 
 #ifdef __OO_ORTI_SERVICETRACE__
   EE_ORTI_servicetrace = EE_SERVICETRACE_GETTASKID;
 #endif
 }
-//#endif
+#endif /* __OO_EXTENDED_STATUS__ */
 #endif
 
 /* 13.2.3.6: BCC1, BCC2, ECC1, ECC2 */
@@ -90,14 +92,15 @@ __INLINE__ StatusType __ALWAYS_INLINE__ EE_oo_GetTaskState(TaskType TaskID, Task
 #endif
 
   if (TaskID < 0 || TaskID >= EE_MAX_TASK) {
-	//if (TaskID >= EE_MAX_TASK) {
 #ifdef __OO_ORTI_SERVICETRACE__
     EE_ORTI_servicetrace = EE_SERVICETRACE_GETTASKSTATE;
 #endif
     return E_OS_ID;
   }
 
-  *State = EE_th_status[TaskID];
+  if (State != NULL) {
+    *State = EE_th_status[TaskID];
+  }
 
 #ifdef __OO_ORTI_SERVICETRACE__
   EE_ORTI_servicetrace = EE_SERVICETRACE_GETTASKSTATE;
@@ -167,8 +170,9 @@ __INLINE__ void __ALWAYS_INLINE__ EE_oo_ResumeAllInterrupts(void)
 #endif
 
   EE_oo_IRQ_disable_count--;
-  if (!EE_oo_IRQ_disable_count)
+  if (!EE_oo_IRQ_disable_count) {
     EE_hal_enableIRQ();
+  }
 
 #ifdef __OO_ORTI_SERVICETRACE__
   EE_ORTI_servicetrace = EE_SERVICETRACE_RESUMEALLINTERRUPTS;
@@ -184,8 +188,9 @@ __INLINE__ void __ALWAYS_INLINE__ EE_oo_SuspendAllInterrupts(void)
   EE_ORTI_servicetrace = EE_SERVICETRACE_SUSPENDALLINTERRUPTS+1;
 #endif
 
-  if (!EE_oo_IRQ_disable_count)
+  if (!EE_oo_IRQ_disable_count) {
     EE_hal_disableIRQ();
+  }
   EE_oo_IRQ_disable_count++;
 
 #ifdef __OO_ORTI_SERVICETRACE__
@@ -203,8 +208,9 @@ __INLINE__ void __ALWAYS_INLINE__ EE_oo_ResumeOSInterrupts(void)
 #endif
 
   EE_oo_IRQ_disable_count--;
-  if (!EE_oo_IRQ_disable_count)
+  if (!EE_oo_IRQ_disable_count) {
     EE_hal_enableIRQ();
+  }
 
 #ifdef __OO_ORTI_SERVICETRACE__
   EE_ORTI_servicetrace = EE_SERVICETRACE_RESUMEOSINTERRUPTS;
@@ -220,8 +226,9 @@ __INLINE__ void __ALWAYS_INLINE__ EE_oo_SuspendOSInterrupts(void)
   EE_ORTI_servicetrace = EE_SERVICETRACE_SUSPENDOSINTERRUPTS+1;
 #endif
 
-  if (!EE_oo_IRQ_disable_count)
+  if (!EE_oo_IRQ_disable_count) {
     EE_hal_disableIRQ();
+  }
   EE_oo_IRQ_disable_count++;
 
 #ifdef __OO_ORTI_SERVICETRACE__

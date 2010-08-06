@@ -103,7 +103,6 @@ void EE_oo_SetEvent(TaskType TaskID, EventMaskType Mask)
 #ifdef __OO_EXTENDED_STATUS__    
   /* check if the task Id is valid */
   if (TaskID < 0 || TaskID >= EE_MAX_TASK) {
-	//if (TaskID >= EE_MAX_TASK) {
 #ifdef __OO_ORTI_LASTERROR__
     EE_ORTI_lasterror = E_OS_ID;
 #endif
@@ -116,9 +115,9 @@ void EE_oo_SetEvent(TaskType TaskID, EventMaskType Mask)
       EE_oo_ErrorHook_data.SetEvent_prm.TaskID = TaskID;
       EE_oo_ErrorHook_data.SetEvent_prm.Mask = Mask;
 #endif
-      EE_ErrorHook_nested_flag = 1;
+      EE_ErrorHook_nested_flag = 1U;
       ErrorHook(E_OS_ID);
-      EE_ErrorHook_nested_flag = 0;
+      EE_ErrorHook_nested_flag = 0U;
     }
     EE_hal_end_nested_primitive(flag);
 #endif
@@ -143,9 +142,9 @@ void EE_oo_SetEvent(TaskType TaskID, EventMaskType Mask)
       EE_oo_ErrorHook_data.SetEvent_prm.TaskID = TaskID;
       EE_oo_ErrorHook_data.SetEvent_prm.Mask = Mask;
 #endif
-      EE_ErrorHook_nested_flag = 1;
+      EE_ErrorHook_nested_flag = 1U;
       ErrorHook(E_OS_ACCESS);
-      EE_ErrorHook_nested_flag = 0;
+      EE_ErrorHook_nested_flag = 0U;
     }
     EE_hal_end_nested_primitive(flag);
 #endif
@@ -173,9 +172,9 @@ void EE_oo_SetEvent(TaskType TaskID, EventMaskType Mask)
       EE_oo_ErrorHook_data.SetEvent_prm.TaskID = TaskID;
       EE_oo_ErrorHook_data.SetEvent_prm.Mask = Mask;
 #endif
-      EE_ErrorHook_nested_flag = 1;
+      EE_ErrorHook_nested_flag = 1U;
       ErrorHook(E_OS_STATE);
-      EE_ErrorHook_nested_flag = 0;
+      EE_ErrorHook_nested_flag = 0U;
     }
 #endif
 
@@ -236,11 +235,11 @@ void EE_oo_SetEvent(TaskType TaskID, EventMaskType Mask)
 	  /* this code is valid either for ECC1 and ECC2 ;-) */
 	  tmp = EE_rq2stk_exchange();
 	  if (EE_th_waswaiting[tmp]) {
-	    EE_th_waswaiting[tmp] = 0;
+	    EE_th_waswaiting[tmp] = 0U;
 	    EE_hal_stkchange(tmp);
-	  }
-	  else
+	  } else {
 	    EE_hal_ready2stacked(tmp);
+          }
 
 #ifdef __OO_HAS_PRETASKHOOK__
 	  if (tmp_stacked != EE_NIL) {

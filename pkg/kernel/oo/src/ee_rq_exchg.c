@@ -54,9 +54,9 @@ EE_TID EE_rq2stk_exchange(void)
 
   temp = EE_rq_first;
   
-  // extract the first task from the ready queue
+  /* extract the first task from the ready queue */
   EE_rq_first = EE_th_next[temp]; 
-  // insert the extracted task on the topo of the stack
+  /* insert the extracted task on the topo of the stack */
   EE_th_next[temp] = EE_stkfirst;
   EE_stkfirst = temp;
 
@@ -74,10 +74,11 @@ EE_TID EE_rq2stk_exchange(void)
 #if defined(__OO_ECC2__)
   /* lookup at bits 15-9 */
   x = EE_rq_lookup[(EE_rq_bitmask & 0xFF00) >> 8];
-  if (x == -1)
+  if (x == -1) {
     x = EE_rq_lookup[EE_rq_bitmask];
-  else
+  } else {
     x += 8;
+  }
 #else
   x = EE_rq_lookup[EE_rq_bitmask];
 #endif
@@ -96,7 +97,7 @@ EE_TID EE_rq2stk_exchange(void)
   if (EE_rq_queues_head[x] == -1) {
     EE_rq_queues_tail[x] = -1;
     /* reset the (x)th bit in the bitfield */
-    EE_rq_bitmask &= ~(1<<x);
+    EE_rq_bitmask &= ~(1U<<x);
   }
 
   /* insert the extracted task on the top of the stack */

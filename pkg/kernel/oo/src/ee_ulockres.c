@@ -44,6 +44,7 @@
  */
 
 #include "ee_internal.h"
+#include "../inc/ee_kernel.h"
 
 /* ReleaseResource:
    - release a resource
@@ -99,9 +100,9 @@ void EE_oo_ReleaseResource(ResourceType ResID)
       EE_oo_ErrorHook_ServiceID = OSServiceId_ReleaseResource;
       EE_oo_ErrorHook_data.ReleaseResource_prm.ResID = ResID;
 #endif
-      EE_ErrorHook_nested_flag = 1;
+      EE_ErrorHook_nested_flag = 1U;
       ErrorHook(E_OS_ID);
-      EE_ErrorHook_nested_flag = 0;
+      EE_ErrorHook_nested_flag = 0U;
     }
     EE_hal_end_nested_primitive(flag);
 #endif
@@ -129,9 +130,9 @@ void EE_oo_ReleaseResource(ResourceType ResID)
       EE_oo_ErrorHook_ServiceID = OSServiceId_ReleaseResource;
       EE_oo_ErrorHook_data.ReleaseResource_prm.ResID = ResID;
 #endif
-      EE_ErrorHook_nested_flag = 1;
+      EE_ErrorHook_nested_flag = 1U;
       ErrorHook(E_OS_ACCESS);
-      EE_ErrorHook_nested_flag = 0;
+      EE_ErrorHook_nested_flag = 0U;
     }
     EE_hal_end_nested_primitive(flag);
 #endif
@@ -166,9 +167,9 @@ void EE_oo_ReleaseResource(ResourceType ResID)
       EE_oo_ErrorHook_ServiceID = OSServiceId_ReleaseResource;
       EE_oo_ErrorHook_data.ReleaseResource_prm.ResID = ResID;
 #endif
-      EE_ErrorHook_nested_flag = 1;
+      EE_ErrorHook_nested_flag = 1U;
       ErrorHook(E_OS_NOFUNC);
-      EE_ErrorHook_nested_flag = 0;
+      EE_ErrorHook_nested_flag = 0U;
     }
 #endif
 
@@ -190,7 +191,7 @@ void EE_oo_ReleaseResource(ResourceType ResID)
 
 #if defined(__OO_EXTENDED_STATUS__) || defined(__OO_ORTI_RES_ISLOCKED__)
   /* ok, we have to free that resource! */
-  EE_resource_locked[ResID] = 0;
+  EE_resource_locked[ResID] = 0U;
 #endif
 
 #ifdef __MSRP__
@@ -234,11 +235,11 @@ void EE_oo_ReleaseResource(ResourceType ResID)
 #if defined(__OO_ECC1__) || defined(__OO_ECC2__)
       rq = EE_rq2stk_exchange();
       if (EE_th_waswaiting[rq]) {
-	EE_th_waswaiting[rq] = 0;
+	EE_th_waswaiting[rq] = 0U;
 	EE_hal_stkchange(rq);
-      }
-      else
+      } else {
 	EE_hal_ready2stacked(rq);
+      }
 #else
       EE_hal_ready2stacked(EE_rq2stk_exchange());
 #endif

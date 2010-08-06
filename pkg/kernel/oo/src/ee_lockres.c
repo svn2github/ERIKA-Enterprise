@@ -44,6 +44,7 @@
  */
 
 #include "ee_internal.h"
+#include "../inc/ee_kernel.h"
 
 /* GetResource:
    - lock a resource
@@ -102,9 +103,9 @@ void EE_oo_GetResource(ResourceType ResID)
       EE_oo_ErrorHook_ServiceID = OSServiceId_GetResource;
       EE_oo_ErrorHook_data.GetResource_prm.ResID = ResID;
 #endif
-      EE_ErrorHook_nested_flag = 1;
+      EE_ErrorHook_nested_flag = 1U;
       ErrorHook(E_OS_ID);
-      EE_ErrorHook_nested_flag = 0;
+      EE_ErrorHook_nested_flag = 0U;
     }
     EE_hal_end_nested_primitive(flag);
 #endif
@@ -129,9 +130,9 @@ void EE_oo_GetResource(ResourceType ResID)
       EE_oo_ErrorHook_ServiceID = OSServiceId_GetResource;
       EE_oo_ErrorHook_data.GetResource_prm.ResID = ResID;
 #endif
-      EE_ErrorHook_nested_flag = 1;
+      EE_ErrorHook_nested_flag = 1U;
       ErrorHook(E_OS_ACCESS);
-      EE_ErrorHook_nested_flag = 0;
+      EE_ErrorHook_nested_flag = 0U;
     }
     EE_hal_end_nested_primitive(flag);
 #endif
@@ -164,7 +165,7 @@ void EE_oo_GetResource(ResourceType ResID)
 #endif /* __OO_EXTENDED_STATUS__ */
 
 #if defined(__OO_EXTENDED_STATUS__) || defined(__OO_ORTI_RES_ISLOCKED__)
-  EE_resource_locked[ResID] = 1;
+  EE_resource_locked[ResID] = 1U;
 #endif
 
 #ifdef __OO_ORTI_RES_LOCKER_TASK__

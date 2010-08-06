@@ -44,6 +44,7 @@
  */
 
 #include "ee_internal.h"
+#include "../inc/ee_kernel.h"
 
 #ifndef __PRIVATE_COUNTER_TICK__
 void EE_oo_alarm_insert(AlarmType AlarmID, TickType increment)
@@ -75,8 +76,9 @@ void EE_oo_alarm_insert(AlarmType AlarmID, TickType increment)
     } while(current != -1 && EE_alarm_RAM[current].delta <= increment);
 
     /* insert the alarm between previous and current */
-    if (current != -1)
+    if (current != -1) {
       EE_alarm_RAM[current].delta -= increment;
+    }
     EE_alarm_RAM[previous].next = AlarmID;
   }
 
@@ -136,7 +138,6 @@ void EE_oo_counter_tick(CounterType c)
 #ifdef __OO_EXTENDED_STATUS__    
 	/* check if the task Id is valid */
 	if (TaskID < 0 || TaskID >= EE_MAX_TASK) {
-	//if (TaskID >= EE_MAX_TASK) {
 #ifdef __OO_ORTI_LASTERROR__
 	  EE_ORTI_lasterror = E_OS_ID;
 #endif
@@ -150,9 +151,9 @@ void EE_oo_counter_tick(CounterType c)
 	    EE_oo_ErrorHook_data.CounterTick_prm.action =
 	      EE_alarm_ROM[current].action;
 #endif
-	    EE_ErrorHook_nested_flag = 1;
+	    EE_ErrorHook_nested_flag = 1U;
 	    ErrorHook(E_OS_ID);
-	    EE_ErrorHook_nested_flag = 0;
+	    EE_ErrorHook_nested_flag = 0U;
 	  }
 #endif
 	  break;
@@ -160,7 +161,7 @@ void EE_oo_counter_tick(CounterType c)
 #endif
 	
 	/* check for pending activations */
-	if (EE_th_rnact[TaskID] == 0) {
+	if (EE_th_rnact[TaskID] == 0U) {
 #ifdef __OO_ORTI_LASTERROR__
 	  EE_ORTI_lasterror = E_OS_LIMIT;
 #endif
@@ -174,9 +175,9 @@ void EE_oo_counter_tick(CounterType c)
 	    EE_oo_ErrorHook_data.CounterTick_prm.action =
 	      EE_alarm_ROM[current].action;
 #endif
-	    EE_ErrorHook_nested_flag = 1;
+	    EE_ErrorHook_nested_flag = 1U;
 	    ErrorHook(E_OS_LIMIT);
-	    EE_ErrorHook_nested_flag = 0;
+	    EE_ErrorHook_nested_flag = 0U;
 	  }
 #endif
 	  break;
@@ -191,13 +192,13 @@ void EE_oo_counter_tick(CounterType c)
 #ifdef __OO_ECC2__
 	  /* When an extended task is transferred from suspended state
 	     into ready state all its events are cleared*/
-	  EE_th_event_active[TaskID] = 0;
+	  EE_th_event_active[TaskID] = 0U;
 #endif
 	}
 #else
 	EE_th_status[TaskID] = READY;
 #ifdef __OO_ECC1__
-	EE_th_event_active[TaskID] = 0;
+	EE_th_event_active[TaskID] = 0U;
 #endif
 #endif
   
@@ -233,7 +234,6 @@ void EE_oo_counter_tick(CounterType c)
 #ifdef __OO_EXTENDED_STATUS__    
 	/* check if the task Id is valid */
 	if (TaskID < 0 || TaskID >= EE_MAX_TASK) {
-	//if (TaskID >= EE_MAX_TASK) {
 #ifdef __OO_ORTI_LASTERROR__
 	  EE_ORTI_lasterror = E_OS_ID;
 #endif
@@ -248,9 +248,9 @@ void EE_oo_counter_tick(CounterType c)
 	    EE_oo_ErrorHook_data.CounterTick_prm.action =
 	      EE_alarm_ROM[current].action;
 #endif
-	    EE_ErrorHook_nested_flag = 1;
+	    EE_ErrorHook_nested_flag = 1U;
 	    ErrorHook(E_OS_ID);
-	    EE_ErrorHook_nested_flag = 0;
+	    EE_ErrorHook_nested_flag = 0U;
 	  }
 #endif
 	  break;
@@ -273,9 +273,9 @@ void EE_oo_counter_tick(CounterType c)
 	    EE_oo_ErrorHook_data.CounterTick_prm.action =
 	      EE_alarm_ROM[current].action;
 #endif
-	    EE_ErrorHook_nested_flag = 1;
+	    EE_ErrorHook_nested_flag = 1U;
 	    ErrorHook(E_OS_ACCESS);
-	    EE_ErrorHook_nested_flag = 0;
+	    EE_ErrorHook_nested_flag = 0U;
 	  }
 #endif
 	  
@@ -298,9 +298,9 @@ void EE_oo_counter_tick(CounterType c)
 	    EE_oo_ErrorHook_data.CounterTick_prm.action =
 	      EE_alarm_ROM[current].action;
 #endif
-	    EE_ErrorHook_nested_flag = 1;
+	    EE_ErrorHook_nested_flag = 1U;
 	    ErrorHook(E_OS_STATE);
-	    EE_ErrorHook_nested_flag = 0;
+	    EE_ErrorHook_nested_flag = 0U;
 	  }
 #endif
 	  break;
@@ -335,7 +335,12 @@ void EE_oo_counter_tick(CounterType c)
       case EE_ALARM_ACTION_CALLBACK:
 	((void (*)(void))EE_alarm_ROM[current].f)();
 	break;
-      };
+
+      default:
+          /* Invalid action: this should never happen, as `action' is
+             initialized by RT-Druid */
+          break;
+      }
       
       /* remove the current entry */
       EE_counter_RAM[c].first = EE_alarm_RAM[current].next;
@@ -348,11 +353,13 @@ void EE_oo_counter_tick(CounterType c)
 	EE_oo_alarm_insert(current,EE_alarm_RAM[current].cycle);
       } else {
 	/* alarm no more used! */
-	EE_alarm_RAM[current].used = 0;
+	EE_alarm_RAM[current].used = 0U;
       }
       /* (*) here we need EE_counter_RAM[c].first again... */
       current = EE_counter_RAM[c].first;
-      if (current == -1) break;
+      if (current == -1) {
+          break;
+      }
     }
   }    
 

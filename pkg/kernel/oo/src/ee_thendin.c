@@ -96,7 +96,7 @@ void EE_thread_end_instance(void)
 #ifdef __OO_ECC2__
 	/* When an extended task is transferred from suspended state
 	   into ready state all its events are cleared*/
-	EE_th_event_active[TaskID] = 0;
+	EE_th_event_active[TaskID] = 0U;
 #endif
       }
 #else
@@ -104,7 +104,7 @@ void EE_thread_end_instance(void)
 #ifdef __OO_ECC1__
       /* When an extended task is transferred from suspended state
 	 into ready state all its events are cleared*/
-      EE_th_event_active[TaskID] = 0;
+      EE_th_event_active[TaskID] = 0U;
 #endif
 #endif
       /* insert the task in the ready queue */
@@ -147,14 +147,14 @@ void EE_thread_end_instance(void)
 	/* Note: I reused rqfirst! */
 	rqfirst = EE_rq2stk_exchange();
 	if (EE_th_waswaiting[rqfirst]) {
-	  EE_th_waswaiting[rqfirst] = 0;
+	  EE_th_waswaiting[rqfirst] = 0U;
 #ifdef __OO_HAS_PRETASKHOOK__
 	  PreTaskHook();
 #endif	
 	  EE_hal_endcycle_stacked(rqfirst);
-	}
-	else
+	} else {
 	  EE_hal_endcycle_ready(rqfirst);
+        }
 #else
 	EE_hal_endcycle_ready(EE_rq2stk_exchange());
 #endif

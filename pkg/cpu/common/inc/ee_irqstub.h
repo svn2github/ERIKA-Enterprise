@@ -54,7 +54,7 @@
 
 
 /* True if we are inside an interrupt-serving routine */
-#define EE_is_inside_ISR_call() (EE_IRQ_nesting_level > 0)
+#define EE_is_inside_ISR_call() (EE_IRQ_nesting_level > 0U)
 
 
 /* EE_decrement_IRQ_nesting_level() and EE_increment_IRQ_nesting_level() are
@@ -69,8 +69,8 @@
  *  the platform-dependent part, as they dependend on the particular way
  *  interrupts are handled by the CPU. */
 #else
-#define EE_decrement_IRQ_nesting_level() (EE_IRQ_nesting_level = 0)
-#define EE_increment_IRQ_nesting_level() (EE_IRQ_nesting_level = 1)
+#define EE_decrement_IRQ_nesting_level() (EE_IRQ_nesting_level = 0U)
+#define EE_increment_IRQ_nesting_level() (EE_IRQ_nesting_level = 1U)
 #define EE_std_enableIRQ_nested() ((void)0)
 #define EE_std_disableIRQ_nested() ((void)0)
 #endif
@@ -83,8 +83,9 @@
 __INLINE__ void __ALWAYS_INLINE__ EE_std_after_IRQ_schedule(void)
 {
     EE_IRQ_end_instance();
-    if (EE_std_need_context_change(EE_std_endcycle_next_tid))
+    if (EE_std_need_context_change(EE_std_endcycle_next_tid)) {
         EE_std_change_context(EE_std_endcycle_next_tid);
+    }
 }
 
 #endif /* __INCLUDE_CPU_COMMON_EE_IRQSTUB__ */

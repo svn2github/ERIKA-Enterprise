@@ -44,6 +44,7 @@
  */
 
 #include "ee_internal.h"
+#include "../inc/ee_kernel.h"
 
 /* GetAlarmBase
    - This function returns the base characteristics of a counter
@@ -63,8 +64,6 @@ void EE_oo_GetAlarmBase(AlarmType AlarmID, AlarmBaseRefType Info)
   EE_ORTI_servicetrace = EE_SERVICETRACE_GETALARMBASE+1;
 #endif
 
-  /* no need for kernel mutual exclusion! */
-  //EE_hal_begin_primitive();
 
 #ifdef __OO_EXTENDED_STATUS__
   if (AlarmID < 0 || AlarmID >= EE_MAX_ALARM) {
@@ -72,6 +71,7 @@ void EE_oo_GetAlarmBase(AlarmType AlarmID, AlarmBaseRefType Info)
     EE_ORTI_lasterror = E_OS_ID;
 #endif
 
+    /* Kernel mutual exclusion needed only here */
 #ifdef __OO_HAS_ERRORHOOK__
     EE_hal_begin_primitive();
     if (!EE_ErrorHook_nested_flag) {
@@ -80,9 +80,9 @@ void EE_oo_GetAlarmBase(AlarmType AlarmID, AlarmBaseRefType Info)
       EE_oo_ErrorHook_data.GetAlarmBase_prm.AlarmID = AlarmID;
       EE_oo_ErrorHook_data.GetAlarmBase_prm.Info = Info;
 #endif
-      EE_ErrorHook_nested_flag = 1;
+      EE_ErrorHook_nested_flag = 1U;
       ErrorHook(E_OS_ID);
-      EE_ErrorHook_nested_flag = 0;
+      EE_ErrorHook_nested_flag = 0U;
     }
     EE_hal_end_primitive();
 #endif
@@ -102,8 +102,6 @@ void EE_oo_GetAlarmBase(AlarmType AlarmID, AlarmBaseRefType Info)
 #ifdef __OO_EXTENDED_STATUS__
   Info->mincycle = c->mincycle;
 #endif
-
-  //EE_hal_end_primitive();
 
 #ifdef __OO_ORTI_SERVICETRACE__
   EE_ORTI_servicetrace = EE_SERVICETRACE_GETALARMBASE;

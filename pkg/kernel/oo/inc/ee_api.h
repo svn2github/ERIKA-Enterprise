@@ -196,8 +196,8 @@
 #define GetValueSem              EE_oo_GetValueSem
 #endif
 
-#endif // __OO_SEM__
+#endif /* __OO_SEM__ */
 
-#endif // BCC1...
+#endif /* BCC1... */
 
 #endif

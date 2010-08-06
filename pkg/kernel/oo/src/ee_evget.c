@@ -44,6 +44,7 @@
  */
 
 #include "ee_internal.h"
+#include "../inc/ee_kernel.h"
 
 /* GetEvent:
    - can be called from a task, from ISR, from error, pre e post taskhook
@@ -73,7 +74,6 @@ void EE_oo_GetEvent(TaskType TaskID, EventMaskRefType Event)
 #ifdef __OO_EXTENDED_STATUS__    
   /* check if the task Id is valid */
   if (TaskID < 0 || TaskID >= EE_MAX_TASK) {
-	//if (TaskID >= EE_MAX_TASK) {
 #ifdef __OO_ORTI_LASTERROR__
     EE_ORTI_lasterror = E_OS_ID;
 #endif
@@ -86,9 +86,9 @@ void EE_oo_GetEvent(TaskType TaskID, EventMaskRefType Event)
       EE_oo_ErrorHook_data.GetEvent_prm.TaskID = TaskID;
       EE_oo_ErrorHook_data.GetEvent_prm.Event = Event;
 #endif
-      EE_ErrorHook_nested_flag = 1;
+      EE_ErrorHook_nested_flag = 1U;
       ErrorHook(E_OS_ID);
-      EE_ErrorHook_nested_flag = 0;
+      EE_ErrorHook_nested_flag = 0U;
     }
     EE_hal_end_nested_primitive(flag);
 #endif
@@ -113,9 +113,9 @@ void EE_oo_GetEvent(TaskType TaskID, EventMaskRefType Event)
       EE_oo_ErrorHook_data.GetEvent_prm.TaskID = TaskID;
       EE_oo_ErrorHook_data.GetEvent_prm.Event = Event;
 #endif
-      EE_ErrorHook_nested_flag = 1;
+      EE_ErrorHook_nested_flag = 1U;
       ErrorHook(E_OS_ACCESS);
-      EE_ErrorHook_nested_flag = 0;
+      EE_ErrorHook_nested_flag = 0U;
     }
     EE_hal_end_nested_primitive(flag);
 #endif
@@ -143,9 +143,9 @@ void EE_oo_GetEvent(TaskType TaskID, EventMaskRefType Event)
       EE_oo_ErrorHook_data.GetEvent_prm.TaskID = TaskID;
       EE_oo_ErrorHook_data.GetEvent_prm.Event = Event;
 #endif
-      EE_ErrorHook_nested_flag = 1;
+      EE_ErrorHook_nested_flag = 1U;
       ErrorHook(E_OS_STATE);
-      EE_ErrorHook_nested_flag = 0;
+      EE_ErrorHook_nested_flag = 0U;
     }
 #endif
 

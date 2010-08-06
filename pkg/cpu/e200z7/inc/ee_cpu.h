@@ -102,7 +102,7 @@ extern EE_UREG EE_e200z7_active_tos;
  E200Z7 interrupt disabling/enabling
  *********************************************************************/
 
-#define MSR_EE	(1UL << 15)
+#define MSR_EE	(1U << 15)
 
 __INLINE__ EE_FREG EE_e200z7_are_IRQs_enabled(EE_FREG ie)
 {
@@ -115,7 +115,9 @@ __INLINE__ void __ALWAYS_INLINE__ EE_e200z7_enableIRQ(void)
 }
 
 #ifdef __DCC__
-asm volatile EE_FREG EE_e200z7_disableIRQ(void)
+EE_FREG EE_e200z7_disableIRQ(void); /* Prototype required by Misra */
+
+__asm EE_FREG EE_e200z7_disableIRQ(void)
 {
 ! "r3"
 	mfmsr	r3
@@ -153,8 +155,8 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_disableIRQ(void)
 	EE_e200z7_disableIRQ();
 }
 
-extern void EE_e200z7_setup_decrementer(unsigned long value);
-extern void EE_e200z7_setup_decrementer_oneshot(unsigned long value);
-extern void EE_e200z7_stop_decrementer(void);
+void EE_e200z7_setup_decrementer(unsigned long value);
+void EE_e200z7_setup_decrementer_oneshot(unsigned long value);
+void EE_e200z7_stop_decrementer(void);
 
 #endif /* __INCLUDE_E200Z7_EE_CPU_H__ */

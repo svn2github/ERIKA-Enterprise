@@ -44,6 +44,7 @@
  */
 
 #include "ee_internal.h"
+#include "../inc/ee_kernel.h"
 
 /* Force Scheduling: 
 
@@ -93,9 +94,9 @@ void EE_oo_ForceSchedule(void)
 #ifndef __OO_ERRORHOOK_NOMACROS__
       EE_oo_ErrorHook_ServiceID = OSServiceId_ForceSchedule;
 #endif
-      EE_ErrorHook_nested_flag = 1;
+      EE_ErrorHook_nested_flag = 1U;
       ErrorHook(E_OS_CALLEVEL);
-      EE_ErrorHook_nested_flag = 0;
+      EE_ErrorHook_nested_flag = 0U;
     }
     EE_hal_end_primitive();
 #endif
@@ -142,11 +143,11 @@ void EE_oo_ForceSchedule(void)
 #if defined(__OO_ECC1__) || defined(__OO_ECC2__)
       rq = EE_rq2stk_exchange();
       if (EE_th_waswaiting[rq]) {
-	EE_th_waswaiting[rq] = 0;
+	EE_th_waswaiting[rq] = 0U;
 	EE_hal_stkchange(rq); 
-      }
-      else
+      } else {
 	EE_hal_ready2stacked(rq);
+      }
 #else
       EE_hal_ready2stacked(EE_rq2stk_exchange());
 #endif

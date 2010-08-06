@@ -48,7 +48,7 @@
 #ifndef __PRIVATE_RQ_INSERT__
 
 #if defined(__OO_BCC1__) || defined(__OO_ECC1__)
-// this function inserts a task into the ready queue
+/* this function inserts a task into the ready queue */
 void EE_rq_insert(EE_TID t)
 {
   EE_TYPEPRIO prio;
@@ -63,10 +63,11 @@ void EE_rq_insert(EE_TID t)
     q = EE_th_next[q];
   }
 
-  if (p != EE_NIL)
+  if (p != EE_NIL) {
     EE_th_next[p] = t;
-  else
+  } else {
     EE_rq_first = t;
+  }
 
   EE_th_next[t] = q;
 }

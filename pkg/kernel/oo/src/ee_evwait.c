@@ -44,6 +44,7 @@
  */
 
 #include "ee_internal.h"
+#include "../inc/ee_kernel.h"
 
 /* WaitEvent:
    - can be called from an extended task only
@@ -90,9 +91,9 @@ void EE_oo_WaitEvent(EventMaskType Mask)
       EE_oo_ErrorHook_ServiceID = OSServiceId_WaitEvent;
       EE_oo_ErrorHook_data.WaitEvent_prm.Mask = Mask;
 #endif
-      EE_ErrorHook_nested_flag = 1;
+      EE_ErrorHook_nested_flag = 1U;
       ErrorHook(E_OS_CALLEVEL);
-      EE_ErrorHook_nested_flag = 0;
+      EE_ErrorHook_nested_flag = 0U;
     }
     EE_hal_end_primitive();
 #endif
@@ -118,9 +119,9 @@ void EE_oo_WaitEvent(EventMaskType Mask)
       EE_oo_ErrorHook_ServiceID = OSServiceId_WaitEvent;
       EE_oo_ErrorHook_data.WaitEvent_prm.Mask = Mask;
 #endif
-      EE_ErrorHook_nested_flag = 1;
+      EE_ErrorHook_nested_flag = 1U;
       ErrorHook(E_OS_RESOURCE);
-      EE_ErrorHook_nested_flag = 0;
+      EE_ErrorHook_nested_flag = 0U;
     }
     EE_hal_end_primitive();
 #endif
@@ -146,9 +147,9 @@ void EE_oo_WaitEvent(EventMaskType Mask)
       EE_oo_ErrorHook_ServiceID = OSServiceId_WaitEvent;
       EE_oo_ErrorHook_data.WaitEvent_prm.Mask = Mask;
 #endif
-      EE_ErrorHook_nested_flag = 1;
+      EE_ErrorHook_nested_flag = 1U;
       ErrorHook(E_OS_ACCESS);
-      EE_ErrorHook_nested_flag = 0;
+      EE_ErrorHook_nested_flag = 0U;
     }
     EE_hal_end_primitive();
 #endif
@@ -188,7 +189,7 @@ void EE_oo_WaitEvent(EventMaskType Mask)
 
     /* since the task blocks, it has to be woken up by another
        EE_hal_stkchange */
-    EE_th_waswaiting[current] = 1;
+    EE_th_waswaiting[current] = 1U;
 
     /* then, the task is not inserted in any queue! it will be woken
        up by a SetEvent using a EE_hal_stkchange... */
@@ -205,8 +206,9 @@ void EE_oo_WaitEvent(EventMaskType Mask)
         /* we have to schedule an interrupted thread that is on the top 
          * of its stack; the state is already STACKED! */
         tmp = EE_stk_queryfirst();
-	if (tmp != EE_NIL)
+	if (tmp != EE_NIL) {
 	  EE_th_status[tmp] = RUNNING;
+        }
         EE_hal_stkchange(tmp);
     }
     else { 
@@ -220,15 +222,15 @@ void EE_oo_WaitEvent(EventMaskType Mask)
 
 	tmp = EE_rq2stk_exchange();
 	if (EE_th_waswaiting[tmp]) {
-	  EE_th_waswaiting[tmp] = 0;
+	  EE_th_waswaiting[tmp] = 0U;
 	  EE_hal_stkchange(tmp);
-	}
-	else
+	} else {
 	  EE_hal_ready2stacked(tmp);
+        }
     }
 
     /* reset the waiting mask */
-    EE_th_event_waitmask[current] = 0;
+    EE_th_event_waitmask[current] = 0U;
 
     /* We do not have to set the thread priority bit in the
        system_ceiling, it will be set by the primitives that put the

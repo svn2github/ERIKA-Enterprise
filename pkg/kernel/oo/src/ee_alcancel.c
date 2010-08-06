@@ -44,6 +44,7 @@
  */
 
 #include "ee_internal.h"
+#include "../inc/ee_kernel.h"
 
 /* CancelAlarm
    - This function cancels the AlarmID
@@ -75,9 +76,9 @@ StatusType EE_oo_CancelAlarm(AlarmType AlarmID)
       EE_oo_ErrorHook_ServiceID = OSServiceId_CancelAlarm;
       EE_oo_ErrorHook_data.CancelAlarm_prm.AlarmID = AlarmID;
 #endif
-      EE_ErrorHook_nested_flag = 1;
+      EE_ErrorHook_nested_flag = 1U;
       ErrorHook(E_OS_ID);
-      EE_ErrorHook_nested_flag = 0;
+      EE_ErrorHook_nested_flag = 0U;
     }
     EE_hal_end_nested_primitive(flag);
 #endif
@@ -104,9 +105,9 @@ StatusType EE_oo_CancelAlarm(AlarmType AlarmID)
       EE_oo_ErrorHook_ServiceID = OSServiceId_CancelAlarm;
       EE_oo_ErrorHook_data.CancelAlarm_prm.AlarmID = AlarmID;
 #endif
-      EE_ErrorHook_nested_flag = 1;
+      EE_ErrorHook_nested_flag = 1U;
       ErrorHook(E_OS_NOFUNC);
-      EE_ErrorHook_nested_flag = 0;
+      EE_ErrorHook_nested_flag = 0U;
     }
 #endif
 
@@ -141,7 +142,7 @@ StatusType EE_oo_CancelAlarm(AlarmType AlarmID)
       EE_alarm_RAM[AlarmID].delta;
   }
 
-  EE_alarm_RAM[AlarmID].used = 0;
+  EE_alarm_RAM[AlarmID].used = 0U;
 
   EE_hal_end_nested_primitive(flag);
 

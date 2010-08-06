@@ -76,15 +76,20 @@
  */
 #ifdef __IRQ_STACK_NEEDED__
 void EE_e200z7_call_ISR_new_stack(int level, EE_e200z7_ISR_handler fun,
-							int nesting);
+							unsigned nesting);
 #else
-__ALWAYS_INLINE__ void EE_e200z7_call_ISR_new_stack(int level,
-			EE_e200z7_ISR_handler fun, int nesting)
+__INLINE__ void __ALWAYS_INLINE__ EE_e200z7_call_ISR_new_stack(int level,
+			EE_e200z7_ISR_handler fun, unsigned nesting)
 {
 	EE_std_enableIRQ_nested();
-	fun();
+	if (fun != NULL) {
+		fun();
+	}
 	EE_std_disableIRQ_nested();
 }
 #endif
+
+/* IRQ handler */
+void EE_e200z7_irq(int level);
 
 #endif

@@ -44,6 +44,7 @@
  */
 
 #include "ee_internal.h"
+#include "../inc/ee_kernel.h"
 
 /* StartOS
 
@@ -100,35 +101,35 @@ void EE_oo_StartOS(AppModeType Mode)
     return E_OS_SYS_INIT;
   }
 
-#else // __OO_EXTENDED_STATUS__
+#else /* __OO_EXTENDED_STATUS__ */
   /* in this case, there is no error or the error is ignored */
   EE_cpu_startos();
-#endif // __OO_EXTENDED_STATUS__
-#endif // __OO_CPU_HAS_STARTOS_ROUTINE__
+#endif /* __OO_EXTENDED_STATUS__ */
+#endif /* __OO_CPU_HAS_STARTOS_ROUTINE__ */
 
   flag = EE_hal_begin_nested_primitive();
 
   EE_ApplicationMode = Mode;
   
 #if defined(__OO_HAS_STARTUPHOOK__) || defined(__OO_AUTOSTART_TASK__) || defined(__OO_AUTOSTART_ALARM__)
-  EE_oo_no_preemption = 1;
+  EE_oo_no_preemption = 1U;
 
 #ifdef __OO_HAS_STARTUPHOOK__
   StartupHook();
 #endif
 
 #if defined(__OO_AUTOSTART_TASK__) || defined(__OO_AUTOSTART_ALARM__)
-  //if (Mode >= 0 && Mode < EE_MAX_APPMODE) {
 	if (Mode < EE_MAX_APPMODE) {
 #ifdef __OO_AUTOSTART_TASK__
     n = (EE_UINT8)(EE_oo_autostart_task_data[Mode].n);
-    for (t = 0; t<n; t++)
+    for (t = 0U; t<n; t++) {
       EE_oo_ActivateTask(EE_oo_autostart_task_data[Mode].task[t]);
+    }
 #endif
 
 #ifdef __OO_AUTOSTART_ALARM__
     n = (EE_UINT8)(EE_oo_autostart_alarm_data[Mode].n);
-    for (t = 0; t<n; t++) {
+    for (t = 0U; t<n; t++) {
       EE_TYPEALARM alarm_temp = EE_oo_autostart_alarm_data[Mode].alarm[t];
       EE_oo_SetRelAlarm(alarm_temp, 
 			EE_oo_autostart_alarm_increment[alarm_temp],
@@ -138,7 +139,7 @@ void EE_oo_StartOS(AppModeType Mode)
   }
 #endif
 
-  EE_oo_no_preemption = 0;
+  EE_oo_no_preemption = 0U;
 #endif
 
   /* check if there is a preemption */

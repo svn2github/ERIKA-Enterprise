@@ -83,7 +83,6 @@ StatusType EE_oo_ActivateTask(TaskType TaskID)
 #ifdef __OO_EXTENDED_STATUS__    
   /* check if the task Id is valid */
   if (TaskID < 0 || TaskID >= EE_MAX_TASK) {
-	//if (TaskID >= EE_MAX_TASK) {
 #ifdef __OO_ORTI_LASTERROR__
     EE_ORTI_lasterror = E_OS_ID;
 #endif
@@ -95,9 +94,9 @@ StatusType EE_oo_ActivateTask(TaskType TaskID)
       EE_oo_ErrorHook_ServiceID = OSServiceId_ActivateTask;
       EE_oo_ErrorHook_data.ActivateTask_prm.TaskID = TaskID;
 #endif
-      EE_ErrorHook_nested_flag = 1;
+      EE_ErrorHook_nested_flag = 1U;
       ErrorHook(E_OS_ID);
-      EE_ErrorHook_nested_flag = 0;
+      EE_ErrorHook_nested_flag = 0U;
     }
     EE_hal_end_nested_primitive(flag);
 #endif
@@ -113,7 +112,7 @@ StatusType EE_oo_ActivateTask(TaskType TaskID)
   flag = EE_hal_begin_nested_primitive();
   
   /* check for pending activations */
-  if (EE_th_rnact[TaskID] == 0) {
+  if (EE_th_rnact[TaskID] == 0U) {
 #ifdef __OO_ORTI_LASTERROR__
     EE_ORTI_lasterror = E_OS_LIMIT;
 #endif
@@ -124,9 +123,9 @@ StatusType EE_oo_ActivateTask(TaskType TaskID)
       EE_oo_ErrorHook_ServiceID = OSServiceId_ActivateTask;
       EE_oo_ErrorHook_data.ActivateTask_prm.TaskID = TaskID;
 #endif
-      EE_ErrorHook_nested_flag = 1;
+      EE_ErrorHook_nested_flag = 1U;
       ErrorHook(E_OS_LIMIT);
-      EE_ErrorHook_nested_flag = 0;
+      EE_ErrorHook_nested_flag = 0U;
     }
 #endif
 
@@ -153,7 +152,7 @@ StatusType EE_oo_ActivateTask(TaskType TaskID)
 #ifdef __OO_ECC2__
     /* When an extended task is transferred from suspended state
        into ready state all its events are cleared*/
-    EE_th_event_active[TaskID] = 0;
+    EE_th_event_active[TaskID] = 0U;
 #endif
   }
 #else
@@ -161,7 +160,7 @@ StatusType EE_oo_ActivateTask(TaskType TaskID)
 #ifdef __OO_ECC1__
   /* When an extended task is transferred from suspended state
      into ready state all its events are cleared*/
-  EE_th_event_active[TaskID] = 0;
+  EE_th_event_active[TaskID] = 0U;
 #endif
 #endif
   
@@ -204,11 +203,11 @@ StatusType EE_oo_ActivateTask(TaskType TaskID)
 #if defined(__OO_ECC1__) || defined(__OO_ECC2__)
 	tmp = EE_rq2stk_exchange();
 	if (EE_th_waswaiting[tmp]) {
-	  EE_th_waswaiting[tmp] = 0;
+	  EE_th_waswaiting[tmp] = 0U;
 	  EE_hal_stkchange(tmp);
-	}
-	else
+	} else {
 	  EE_hal_ready2stacked(tmp);
+	}
 #else
 	EE_hal_ready2stacked(EE_rq2stk_exchange());
 #endif

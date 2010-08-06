@@ -72,8 +72,9 @@ __INLINE__ EE_FREG __ALWAYS_INLINE__ EE_hal_begin_nested_primitive(void)
    an IRQ and in a task.  Enable IRQs if they were enabled before entering. */
 __INLINE__ void __ALWAYS_INLINE__ EE_hal_end_nested_primitive(EE_FREG f)
 {
-    if (EE_e200z7_are_IRQs_enabled(f))
-        EE_e200z7_enableIRQ();
+	if (EE_e200z7_are_IRQs_enabled(f)) {
+		EE_e200z7_enableIRQ();
+	}
 }
 
 

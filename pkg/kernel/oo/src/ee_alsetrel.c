@@ -85,9 +85,9 @@ StatusType EE_oo_SetRelAlarm(AlarmType AlarmID,
       EE_oo_ErrorHook_data.SetRelAlarm_prm.increment = increment;
       EE_oo_ErrorHook_data.SetRelAlarm_prm.cycle = cycle;
 #endif
-      EE_ErrorHook_nested_flag = 1;
+      EE_ErrorHook_nested_flag = 1U;
       ErrorHook(E_OS_ID);
-      EE_ErrorHook_nested_flag = 0;
+      EE_ErrorHook_nested_flag = 0U;
     }
     EE_hal_end_nested_primitive(flag);
 #endif
@@ -101,25 +101,29 @@ StatusType EE_oo_SetRelAlarm(AlarmType AlarmID,
   }
 #endif
 
-// New feature: you can configure alarm increment value and alarm cycle value inside the conf.oil and then 
-// call the function in this way: SetRelAlarm(alarm_id, EE_STATIC_ALARM_TIME, EE_STATIC_CYCLE_TIME);
+  /* New feature: you can configure alarm increment value and alarm cycle value
+   * inside the conf.oil and then call the function in this way:
+   * SetRelAlarm(alarm_id, EE_STATIC_ALARM_TIME, EE_STATIC_CYCLE_TIME);
+   */
 #ifdef __OO_AUTOSTART_ALARM__
-  if(increment==EE_STATIC_ALARM_TIME)
+  if(increment==EE_STATIC_ALARM_TIME) {
     increment = EE_oo_autostart_alarm_increment[AlarmID];
-  if(cycle==EE_STATIC_CYCLE_TIME)
+  }
+  if(cycle==EE_STATIC_CYCLE_TIME) {
     cycle = EE_oo_autostart_alarm_cycle[AlarmID];
-#endif // __OO_AUTOSTART_ALARM__
+  }
+#endif /* __OO_AUTOSTART_ALARM__ */
 
   /* let the system still work if the increment parameter is 0 note that 0
    * is still an invalid value, so I decided arbitrarily to let it
    * fire the next tick.
    */
-  if (increment==0)
-    increment = 1;
+  if (increment==0U) {
+    increment = 1U;
+  }
 
 #ifdef __OO_EXTENDED_STATUS__
-  if (increment < 0 || 
-      increment > EE_counter_ROM[EE_alarm_ROM[AlarmID].c].maxallowedvalue
+  if (increment > EE_counter_ROM[EE_alarm_ROM[AlarmID].c].maxallowedvalue
       || 
       (cycle && 
        (cycle < EE_counter_ROM[EE_alarm_ROM[AlarmID].c].mincycle ||
@@ -138,9 +142,9 @@ StatusType EE_oo_SetRelAlarm(AlarmType AlarmID,
       EE_oo_ErrorHook_data.SetRelAlarm_prm.increment = increment;
       EE_oo_ErrorHook_data.SetRelAlarm_prm.cycle = cycle;
 #endif
-      EE_ErrorHook_nested_flag = 1;
+      EE_ErrorHook_nested_flag = 1U;
       ErrorHook(E_OS_VALUE);
-      EE_ErrorHook_nested_flag = 0;
+      EE_ErrorHook_nested_flag = 0U;
     }
     EE_hal_end_nested_primitive(flag);
 #endif
@@ -169,9 +173,9 @@ StatusType EE_oo_SetRelAlarm(AlarmType AlarmID,
       EE_oo_ErrorHook_data.SetRelAlarm_prm.increment = increment;
       EE_oo_ErrorHook_data.SetRelAlarm_prm.cycle = cycle;
 #endif
-      EE_ErrorHook_nested_flag = 1;
+      EE_ErrorHook_nested_flag = 1U;
       ErrorHook(E_OS_STATE);
-      EE_ErrorHook_nested_flag = 0;
+      EE_ErrorHook_nested_flag = 0U;
     }
 #endif
 
@@ -185,7 +189,7 @@ StatusType EE_oo_SetRelAlarm(AlarmType AlarmID,
   }
 
   /* first, use the alarm and set the cycle */
-  EE_alarm_RAM[AlarmID].used = 1;
+  EE_alarm_RAM[AlarmID].used = 1U;
   EE_alarm_RAM[AlarmID].cycle = cycle;
 
   /* then, insert the task into the delta queue with a value = interval */

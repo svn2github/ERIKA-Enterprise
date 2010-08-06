@@ -85,20 +85,20 @@ void EE_IRQ_end_instance(void)
 #if defined(__OO_ECC1__) || defined(__OO_ECC2__)
       tmp = EE_rq2stk_exchange();
       if (EE_th_waswaiting[tmp]) {
-	EE_th_waswaiting[tmp] = 0;
+	EE_th_waswaiting[tmp] = 0U;
 #ifdef __OO_HAS_PRETASKHOOK__
 	PreTaskHook();
 #endif	
 	EE_hal_IRQ_stacked(tmp);
-      }
-      else
+      } else {
 	EE_hal_IRQ_ready(tmp);
+      }
 #else
       EE_hal_IRQ_ready(EE_rq2stk_exchange());
 #endif
-  }
-  else
+  } else {
     EE_hal_IRQ_stacked(EE_stk_queryfirst());
+  }
 }
 
 #endif /* __PRIVATE_IRQ_END_INSTANCE__ */

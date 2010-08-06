@@ -130,7 +130,12 @@ EE_TID EE_rq2stk_exchange(void);
 #endif
 
 #ifndef __PRIVATE_SHUTDOWN__
-__INLINE__ void __ALWAYS_INLINE__ EE_oo_shutdown(void) { for(;;); }
+__INLINE__ void __ALWAYS_INLINE__ EE_oo_shutdown(void)
+{
+  for(;;) {
+    ;
+  }
+}
 #endif
 
 /* This call terminates a thread instance. It must be called as the

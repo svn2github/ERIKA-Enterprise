@@ -44,6 +44,7 @@
  */
 
 #include "ee_internal.h"
+#include "../inc/ee_kernel.h"
 
 /* SetAbsAlarm
    - This function occupies the AlarmID setting an alarm when the counter 
@@ -85,9 +86,9 @@ StatusType EE_oo_SetAbsAlarm(AlarmType AlarmID,
       EE_oo_ErrorHook_data.SetAbsAlarm_prm.start = start;
       EE_oo_ErrorHook_data.SetAbsAlarm_prm.cycle = cycle;
 #endif
-      EE_ErrorHook_nested_flag = 1;
+      EE_ErrorHook_nested_flag = 1U;
       ErrorHook(E_OS_ID);
-      EE_ErrorHook_nested_flag = 0;
+      EE_ErrorHook_nested_flag = 0U;
     }
     EE_hal_end_nested_primitive(flag);
 #endif
@@ -104,12 +105,12 @@ StatusType EE_oo_SetAbsAlarm(AlarmType AlarmID,
    * is still an invalid value, so I decided arbitrarily to let it
    * fire the next tick.
    */
-  if (start==0)
-    start = 1;
+  if (start==0U) {
+    start = 1U;
+  }
 
 #ifdef __OO_EXTENDED_STATUS__
-  if (start < 0 || 
-      start > EE_counter_ROM[EE_alarm_ROM[AlarmID].c].maxallowedvalue
+  if (start > EE_counter_ROM[EE_alarm_ROM[AlarmID].c].maxallowedvalue
       || 
       (cycle && 
        (cycle < EE_counter_ROM[EE_alarm_ROM[AlarmID].c].mincycle ||
@@ -128,9 +129,9 @@ StatusType EE_oo_SetAbsAlarm(AlarmType AlarmID,
       EE_oo_ErrorHook_data.SetAbsAlarm_prm.start = start;
       EE_oo_ErrorHook_data.SetAbsAlarm_prm.cycle = cycle;
 #endif
-      EE_ErrorHook_nested_flag = 1;
+      EE_ErrorHook_nested_flag = 1U;
       ErrorHook(E_OS_VALUE);
-      EE_ErrorHook_nested_flag = 0;
+      EE_ErrorHook_nested_flag = 0U;
     }
     EE_hal_end_nested_primitive(flag);
 #endif
@@ -160,9 +161,9 @@ StatusType EE_oo_SetAbsAlarm(AlarmType AlarmID,
       EE_oo_ErrorHook_data.SetAbsAlarm_prm.start = start;
       EE_oo_ErrorHook_data.SetAbsAlarm_prm.cycle = cycle;
 #endif
-      EE_ErrorHook_nested_flag = 1;
+      EE_ErrorHook_nested_flag = 1U;
       ErrorHook(E_OS_STATE);
-      EE_ErrorHook_nested_flag = 0;
+      EE_ErrorHook_nested_flag = 0U;
     }
 #endif
 
@@ -176,7 +177,7 @@ StatusType EE_oo_SetAbsAlarm(AlarmType AlarmID,
   }
 
   /* first, use the alarm and set the cycle */
-  EE_alarm_RAM[AlarmID].used = 1;
+  EE_alarm_RAM[AlarmID].used = 1U;
   EE_alarm_RAM[AlarmID].cycle = cycle;
 
   EE_oo_alarm_insert(AlarmID, start - 

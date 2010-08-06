@@ -345,9 +345,9 @@ typedef struct {
 
 
 /* these are the different types of alarm notifications... */
-#define EE_ALARM_ACTION_TASK 0
-#define EE_ALARM_ACTION_CALLBACK 1
-#define EE_ALARM_ACTION_EVENT 2
+#define EE_ALARM_ACTION_TASK 0U
+#define EE_ALARM_ACTION_CALLBACK 1U
+#define EE_ALARM_ACTION_EVENT 2U
 
 /* initvalue: {a_valid_counter, a_valid_action, then you must put the correct
    parameters depending on the action } */
@@ -405,22 +405,22 @@ extern void EE_oo_thread_stub(void);
 #ifndef STATUSTYPEDEFINED
 #define STATUSTYPEDEFINED
 typedef unsigned char StatusType;
-#define E_OK                                 0
+#define E_OK                                 0U
 #endif
 
-#define E_OS_ACCESS   1
-#define E_OS_CALLEVEL 2
-#define E_OS_ID       3
-#define E_OS_LIMIT    4
-#define E_OS_NOFUNC   5
-#define E_OS_RESOURCE 6
-#define E_OS_STATE    7
-#define E_OS_VALUE    8
+#define E_OS_ACCESS   1U
+#define E_OS_CALLEVEL 2U
+#define E_OS_ID       3U
+#define E_OS_LIMIT    4U
+#define E_OS_NOFUNC   5U
+#define E_OS_RESOURCE 6U
+#define E_OS_STATE    7U
+#define E_OS_VALUE    8U
 
 /* Implementation specific errors */
 
 /* error during StartOS */
-#define E_OS_SYS_INIT 9
+#define E_OS_SYS_INIT 9U
 
 /* they must start with E_OS_SYS_* */
 
@@ -613,16 +613,16 @@ typedef EE_TYPESTATUS *TaskStateRefType;
 /* ----------------------------------------------------------------------- */
 
 /* Constant of data type TaskStateType for task state running. */
-#define RUNNING   0
+#define RUNNING   0U
 
 /* Constant of data type TaskStateType for task state waiting. */
-#define WAITING   1
+#define WAITING   1U
 
 /* Constant of data type TaskStateType for task state ready. */
-#define READY     2
+#define READY     2U
 
 /* Constant of data type TaskStateType for task state suspended. */
-#define SUSPENDED 3
+#define SUSPENDED 3U
 
 
 /***************************************************************************
@@ -764,35 +764,35 @@ typedef EE_TYPEOSSERVICEID OSServiceIdType;
 #ifndef __OO_ERRORHOOK_NOMACROS__
 
 /* unique identifier of system service xx */
-#define OSServiceId_ActivateTask     1
-#define OSServiceId_TerminateTask    2
-#define OSServiceId_ChainTask        3
-#define OSServiceId_Schedule         4
+#define OSServiceId_ActivateTask     1U
+#define OSServiceId_TerminateTask    2U
+#define OSServiceId_ChainTask        3U
+#define OSServiceId_Schedule         4U
 /* GetTaskID never returns an error */
-#define OSServiceId_GetTaskState     5
+#define OSServiceId_GetTaskState     5U
 /* DisableAllInterrupts, EnableAllInterrupts, SuspendAllInterrupts,
    ResumeAllInterrupts, SuspendOSInterrupts, ResumeOSInterrupts never
    return an error */
-#define OSServiceId_GetResource      6
-#define OSServiceId_ReleaseResource  7
-#define OSServiceId_SetEvent         8
-#define OSServiceId_ClearEvent       9
-#define OSServiceId_GetEvent        10
-#define OSServiceId_WaitEvent       11
-#define OSServiceId_GetAlarmBase    12
-#define OSServiceId_GetAlarm        13
-#define OSServiceId_SetRelAlarm     14
-#define OSServiceId_SetAbsAlarm     15
-#define OSServiceId_CancelAlarm     16
-#define OSServiceId_CounterTick     17
+#define OSServiceId_GetResource      6U
+#define OSServiceId_ReleaseResource  7U
+#define OSServiceId_SetEvent         8U
+#define OSServiceId_ClearEvent       9U
+#define OSServiceId_GetEvent        10U
+#define OSServiceId_WaitEvent       11U
+#define OSServiceId_GetAlarmBase    12U
+#define OSServiceId_GetAlarm        13U
+#define OSServiceId_SetRelAlarm     14U
+#define OSServiceId_SetAbsAlarm     15U
+#define OSServiceId_CancelAlarm     16U
+#define OSServiceId_CounterTick     17U
 /* GetActiveApplicationMode, ShutdownOS never return an error */
-#define OSServiceId_StartOS         18
-#define OSServiceId_ForceSchedule   19
+#define OSServiceId_StartOS         18U
+#define OSServiceId_ForceSchedule   19U
 
 #ifdef __OO_SEM__
 /* InitSem, TryWaitSem, GetValueSem never return an error */
-#define OSServiceId_WaitSem         20
-#define OSServiceId_PostSem         21
+#define OSServiceId_WaitSem         20U
+#define OSServiceId_PostSem         21U
 #endif
 
 

@@ -190,11 +190,11 @@ void EE_oo_ForceSchedule(void);
 
 /* 13.2.3.5: BCC1, BCC2, ECC1, ECC2 */
 #ifndef __PRIVATE_GETTASKID__
-//#ifdef __OO_EXTENDED_STATUS__
-//StatusType EE_oo_GetTaskID(TaskRefType TaskID);
-//#else
+#if 0 && defined __OO_EXTENDED_STATUS__ /* Disabled! */
+StatusType EE_oo_GetTaskID(TaskRefType TaskID);
+#else
 void EE_oo_GetTaskID(TaskRefType TaskID);
-//#endif
+#endif
 #endif
 
 /* 13.2.3.6: BCC1, BCC2, ECC1, ECC2 */
@@ -292,21 +292,23 @@ void EE_oo_SuspendOSInterrupts(void);
    comment.
 */
 
-//#ifdef __OO_ORTI_RUNNINGISR2__
-//#define ISR(t) void t##_ORTI(void); <backspace>
-//void t(void)                        <backspace>
-//{                                   <backspace>
-//  void *temp;                       <backspace>
-//  temp = EE_ORTI_runningisr2;       <backspace>
-//  EE_ORTI_runningisr2 = (void *)t;  <backspace>
-//  t##_ORTI();                       <backspace>
-//  EE_ORTI_runningisr2 = temp;       <backspace>
-//}                                   <backspace>
-//void t##_ORTI(void)
-//
-//#else
-//#define ISR(t) void t(void)
-//#endif
+#if 0 /* Disabled! */
+#ifdef __OO_ORTI_RUNNINGISR2__
+#define ISR(t) void t##_ORTI(void); \
+void t(void)                        \
+{                                   \
+  void *temp;                       \
+  temp = EE_ORTI_runningisr2;       \
+  EE_ORTI_runningisr2 = (void *)t;  \
+  t##_ORTI();                       \
+  EE_ORTI_runningisr2 = temp;       \
+}                                   \
+void t##_ORTI(void)
+
+#else
+#define ISR(t) void t(void)
+#endif
+#endif /* #if 0 */
 
 /***************************************************************************
  * 13.4 Resource management 
@@ -357,13 +359,15 @@ void EE_oo_ReleaseResource(ResourceType ResID);
 
 /* 13.4.4 Constants */
 
-// note: TYPEPRIO must be unsigned!!!
+/* note: TYPEPRIO must be unsigned!!! */
 
-// RES_SCHEDULER is defined only if USE_RESSCHEDULER is defined inside
-// the OIL file. In general its value is variable and depends on the
-// code that is automatically generated
+/* RES_SCHEDULER is defined only if USE_RESSCHEDULER is defined inside
+ * the OIL file. In general its value is variable and depends on the
+ * code that is automatically generated */
 
-// #define RES_SCHEDULER 0
+#if 0 /* Disabled! */
+#define RES_SCHEDULER 0
+#endif
 
 #endif
 
@@ -497,7 +501,7 @@ StatusType EE_oo_PostSem(SemRefType Sem);
 int EE_oo_GetValueSem(SemRefType Sem);
 #endif
 
-#endif // __OO_SEM__
+#endif /* __OO_SEM__ */
 
 
 
@@ -541,6 +545,9 @@ int EE_oo_GetValueSem(SemRefType Sem);
 */
 #ifndef __PRIVATE_COUNTER_TICK__
 void EE_oo_counter_tick(CounterType c);
+
+/* Helper function */
+void EE_oo_alarm_insert(AlarmType AlarmID, TickType increment);
 #endif
 
 /* 13.6.1 Data types                                                       */
@@ -596,21 +603,21 @@ StatusType EE_oo_CancelAlarm(AlarmType AlarmID);
    x is the counter */
 
 /* Maximum possible allowed value of counter x in ticks. */
-//#define OSMAXALLOWEDVALUE_x 
+/*#define OSMAXALLOWEDVALUE_x */
 
 /* Number of ticks required to reach a specific unit of counter x. */
-//#define OSTICKSPERBASE_x 
+/*#define OSTICKSPERBASE_x */
 /* Minimum allowed number of ticks for a cyclic alarm of counter x. */
-//#define OSMINCYCLE_x 
+/*#define OSMINCYCLE_x */
 /* Maximum possible allowed value of the system counter in ticks. */
-//#define OSMAXALLOWEDVALUE 
+/*#define OSMAXALLOWEDVALUE */
 /* Number of ticks required to reach a specific unit of the system counter. */
-//#define OSTICKSPERBASE 
+/*#define OSTICKSPERBASE */
 /* Minimum allowed number of ticks for a cyclic alarm of the system counter. */
-//#define OSMINCYCLE 
+/*#define OSMINCYCLE */
 
 /* Duration of a tick of the system counter in nanoseconds. */
-//#define OSTICKDURATION
+/*#define OSTICKDURATION */
 
 /* 13.6.5 Naming convention                                                */
 /* ----------------------------------------------------------------------- */
@@ -661,7 +668,7 @@ void EE_oo_ShutdownOS(StatusType Error);
 /* Default application mode, always a valid parameter to StartOS. 
    Note: because of this parameter, the constant EE_MAX_APPMODE should 
    be always >1 */
-#define OSDEFAULTAPPMODE 0 
+#define OSDEFAULTAPPMODE 0U
 
 /***************************************************************************
  * 13.8 Hook routines 

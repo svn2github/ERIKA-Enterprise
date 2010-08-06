@@ -56,8 +56,9 @@ void EE_e200z7_irq(int level)
 
 	EE_increment_IRQ_nesting_level();
 	f = EE_e200z7_ISR_table[level];
-	if (f)
+	if (f) {
 		EE_e200z7_call_ISR_new_stack(level, f, EE_IRQ_nesting_level);
+	}
 
 	EE_decrement_IRQ_nesting_level();
 	if (!EE_is_inside_ISR_call()) {
@@ -84,11 +85,13 @@ void EE_e200z7_register_ISR(int level, EE_e200z7_ISR_handler fun, EE_UINT8 pri)
 
 	EE_e200z7_ISR_table[level] = fun;
 
-	if (level >= 16)
+	if (level >= 16) {
 		INTC_PSR[level - 16] = pri;
+	}
 
-	if (EE_e200z7_are_IRQs_enabled(intst))
+	if (EE_e200z7_are_IRQs_enabled(intst)) {
 		EE_e200z7_enableIRQ();
+	}
 }
 
 #endif

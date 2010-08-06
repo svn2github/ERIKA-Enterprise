@@ -44,6 +44,7 @@
  */
 
 #include "ee_internal.h"
+#include "../inc/ee_kernel.h"
 
 /* TerminateTask:
    - The task is moved from the running state to the suspended state
@@ -80,9 +81,9 @@ StatusType EE_oo_TerminateTask(void)
 			#ifndef __OO_ERRORHOOK_NOMACROS__
       		EE_oo_ErrorHook_ServiceID = OSServiceId_TerminateTask;
 			#endif
-    		EE_ErrorHook_nested_flag = 1;
+    		EE_ErrorHook_nested_flag = 1U;
     		ErrorHook(E_OS_CALLEVEL);
-    		EE_ErrorHook_nested_flag = 0;
+    		EE_ErrorHook_nested_flag = 0U;
     	}
     	EE_hal_end_primitive();
 		#endif
@@ -110,9 +111,9 @@ StatusType EE_oo_TerminateTask(void)
 		#ifndef __OO_ERRORHOOK_NOMACROS__
       	EE_oo_ErrorHook_ServiceID = OSServiceId_TerminateTask;
 		#endif
-      	EE_ErrorHook_nested_flag = 1;
+      	EE_ErrorHook_nested_flag = 1U;
       	ErrorHook(E_OS_RESOURCE);
-      	EE_ErrorHook_nested_flag = 0;
+      	EE_ErrorHook_nested_flag = 0U;
     	}
     	EE_hal_end_primitive();
 		#endif
