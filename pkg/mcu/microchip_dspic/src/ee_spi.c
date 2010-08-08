@@ -13,10 +13,9 @@ EE_INT8 EE_spi_init(EE_UINT8 port)
 	   directly setting it as a normal I/O pin.  */
 	if (port == EE_SPI_PORT_1) {
 		SPI1STATbits.SPIEN = 0; /* Disable the SPI module */
-		#ifdef __PIC33FJ256MC710__
-		SPI1CON1 = 0x23;
-		#endif
 		#ifdef __PIC24FJ32GA004__
+		SPI1CON1 = 0x13E;
+		#else // !__PIC24FJ32GA004__
 		SPI1CON1 = 0x13E;
 		#endif
 		SPI1CON2 = 0;
@@ -24,13 +23,12 @@ EE_INT8 EE_spi_init(EE_UINT8 port)
 		return 1;
 	} else if (port == EE_SPI_PORT_2) {
 		SPI2STATbits.SPIEN = 0; /* Disable the SPI module */
-		#ifdef __PIC33FJ256MC710__
-		SPI2CON1 = 0x23;
-		#endif
 		#ifdef __PIC24FJ32GA004__
 		SPI2CON1 = 0x13E;
+		#else //!__PIC24FJ32GA004__
+		SPI2CON1 = 0x13E;
 		#endif
-		
+
 		SPI2CON2 = 0;
 		SPI2STATbits.SPIEN = 1; /* Enable the SPI module */
 		return 1;
