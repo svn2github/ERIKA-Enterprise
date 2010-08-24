@@ -4,9 +4,11 @@
 
 #ifdef EE_UART_PORT_1_ISR_ENABLE
 static void (*Rx1IsrFunction)(EE_UINT8 data) = NULL;
+static void (*Tx1IsrFunction)(void) = NULL;
 #endif
 #ifdef EE_UART_PORT_2_ISR_ENABLE
 static void (*Rx2IsrFunction)(EE_UINT8 data) = NULL;
+static void (*Tx2IsrFunction)(void) = NULL;
 #endif
 
 EE_INT8 EE_uart_init(EE_UINT8 port, EE_UINT32 baud, EE_UINT16 byte_format, 
@@ -135,15 +137,48 @@ EE_INT8 EE_uart_close(EE_UINT8 port)
 	return -EE_UART_ERR_BAD_PORT;
 }
 
+EE_INT8 EE_uart_set_tx_callback(EE_UINT8 port, void (*TxFunc)(void), 
+				EE_UINT16 txmode)
+{
+	if (port == EE_UART_PORT_1) {
+		#ifdef EE_UART_PORT_1_ISR_ENABLE
+		Tx1IsrFunction = TxFunc;
+		if (TxFunc) {
+			U1STA &= 0x5FFF;		
+			U1STA |= txmode & 0xA000;
+			IEC0bits.U1TXIE = 1;		
+			IFS0bits.U1TXIF = 0;	
+		}
+		return 1;
+		#else
+		return -EE_UART_ERR_INT_DISABLED;
+		#endif
+	} else if (port == EE_UART_PORT_2) {
+		#ifdef EE_UART_PORT_2_ISR_ENABLE
+		Tx2IsrFunction = TxFunc;
+		if (TxFunc) {
+			U2STA &= 0x5FFF;	
+			U2STA |= txmode & 0xA000;
+			IEC1bits.U2TXIE = 1;		
+			IFS1bits.U2TXIF = 0;	
+		}
+		return 1;
+		#else
+		return -EE_UART_ERR_INT_DISABLED;
+		#endif
+	}
+	return -EE_UART_ERR_BAD_PORT;
+}
+
 EE_INT8 EE_uart_set_rx_callback(EE_UINT8 port, void (*RxFunc)(EE_UINT8 data), 
-				EE_UINT8 rxmode)
+				EE_UINT16 rxmode)
 {
 	if (port == EE_UART_PORT_1) {
 		#ifdef EE_UART_PORT_1_ISR_ENABLE
 		Rx1IsrFunction = RxFunc;
 		if (RxFunc) {
-			U1STA &= 0x5FFF;		
-			U1STA |= rxmode & 0xA000;
+			U1STA &= 0xFF3F;		
+			U1STA |= rxmode & 0x00C0;
 			IEC0bits.U1RXIE = 1;		
 			IFS0bits.U1RXIF = 0;	
 		}
@@ -155,8 +190,8 @@ EE_INT8 EE_uart_set_rx_callback(EE_UINT8 port, void (*RxFunc)(EE_UINT8 data),
 		#ifdef EE_UART_PORT_2_ISR_ENABLE
 		Rx2IsrFunction = RxFunc;
 		if (RxFunc) {
-			U2STA &= 0x5FFF;	
-			U2STA |= rxmode & 0xA000;
+			U2STA &= 0xFF3F;	
+			U2STA |= rxmode & 0x00C0;
 			IEC1bits.U2RXIE = 1;		
 			IFS1bits.U2RXIF = 0;	
 		}
@@ -240,6 +275,15 @@ ISR2(_U1RXInterrupt)
 	}
 	IFS0bits.U1RXIF = 0;           
 }
+
+ISR2(_U1TXInterrupt)
+{
+	if (Tx1IsrFunction != NULL) {
+		/* Execute callback function */
+		Tx1IsrFunction();
+	}   
+	IFS0bits.U1TXIF = 0;   
+}
 #endif
 
 #ifdef EE_UART_PORT_2_ISR_ENABLE
@@ -250,6 +294,15 @@ ISR2(_U2RXInterrupt)
 		Rx2IsrFunction(U2RXREG & 0x00FF);
 	}
 	IFS1bits.U2RXIF = 0;           
+}
+
+ISR2(_U2TXInterrupt)
+{
+	if (Tx2IsrFunction != NULL) {
+		/* Execute callback function */
+		Tx2IsrFunction();
+	}
+	IFS1bits.U2TXIF = 0;           
 }
 #endif
 
