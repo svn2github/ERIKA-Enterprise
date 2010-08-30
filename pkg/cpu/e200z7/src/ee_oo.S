@@ -58,12 +58,14 @@ EE_hal_terminate_savestk:
 	rlwinm	r4, r3, 2, 0, 29
 
 	// r5 == EE_terminate_real_th_body[tid]
-	addis	r5, r4, EE_terminate_real_th_body@ha
+	addis	r5, 0, EE_terminate_real_th_body@ha
+	add	r5, r5, r4
 	lwz	r5, EE_terminate_real_th_body@l(r5)
 
 	/* Save the stack pointer (including space for registers) */
 	// r6 == & EE_terminate_data[tid]
-	addis	r6, r4, EE_terminate_data@ha
+	addis	r6, 0, EE_terminate_data@ha
+	add	r6, r6, r4
 	mfspr	r0, SPRG_LR
 	stwu	sp, -96(sp)
 	stw	sp, EE_terminate_data@l(r6)
@@ -94,7 +96,8 @@ EE_hal_terminate_task:
 	/* Restore the stack pointer */
 	// r5 == & EE_terminate_data[tid]
 	rlwinm	r4, r3, 2, 0, 29
-	addis	r5, r4, EE_terminate_data@ha
+	addis	r5, 0, EE_terminate_data@ha
+	add	r5, r5, r4
 	lwz	sp, EE_terminate_data@l(r5)
 
 	/* Restore the registers and return */

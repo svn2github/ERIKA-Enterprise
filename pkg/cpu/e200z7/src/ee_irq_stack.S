@@ -51,7 +51,7 @@ jmp_if_nested_reg: .macro reg, label
 	.endm
 
 jmp_if_nested: .macro label
-	lis	r5, EE_IRQ_nesting_level@ha
+	addis	r5, 0, EE_IRQ_nesting_level@ha
 	lwz	r0, EE_IRQ_nesting_level@l(r5)
 	cmpi	cr0, r0, 1
 	bne	label
@@ -108,10 +108,10 @@ EE_e200z7_call_ISR_new_stack:
 	jmp_if_nested_reg r5, skip_change
 
         /*	change_stacks(); */
-	lis	r3, EE_e200z7_tmp_tos@ha
+	addis	r3, 0, EE_e200z7_tmp_tos@ha
 	stw	sp, EE_e200z7_tmp_tos@l(r3)
 
-	lis	r3, EE_e200z7_IRQ_tos@ha
+	addis	r3, 0, EE_e200z7_IRQ_tos@ha
 	lwz	sp, EE_e200z7_IRQ_tos@l(r3)
 
 skip_change:
@@ -129,7 +129,7 @@ skip_change:
 	jmp_if_nested skip_change_back
 
 	/*     change_stacks_back(); */
-	lis	r3, EE_e200z7_tmp_tos@ha
+	addis	r3, 0, EE_e200z7_tmp_tos@ha
 	lwz	sp, EE_e200z7_tmp_tos@l(r3)
 
 skip_change_back:

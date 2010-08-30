@@ -75,7 +75,7 @@ EE_std_change_context:
 
 	/* tos_index = EE_std_thread_tos[tid+1]; */
 	// r5 == tos_index
-	lis	r4, EE_std_thread_tos@ha
+	addis	r4, 0, EE_std_thread_tos@ha
 	addi	r4, r4, EE_std_thread_tos@l
 	rlwinm	r5, r3, 2, 0, 29
 	add	r4, r4, r5
@@ -83,7 +83,7 @@ EE_std_change_context:
 
 	/* if is_not_the_current_stack(tos_index) { */
 	// r4 = & EE_e200z7_active_tos;
-	lis	r4, EE_e200z7_active_tos@ha
+	addis	r4, 0, EE_e200z7_active_tos@ha
 	addi	r4, r4, EE_e200z7_active_tos@l
 
 	// r6 = EE_e200z7_active_tos;
@@ -98,7 +98,7 @@ EE_std_change_context:
 	
 	/*     switch_stacks(tos_index); */
 	// r7 = & EE_e200z7_system_tos[0];
-	lis	r7, EE_e200z7_system_tos@ha
+	addis	r7, 0, EE_e200z7_system_tos@ha
 	addi	r7, r7, EE_e200z7_system_tos@l
 
 	// EE_e200z7_system_tos[r6] = sp;

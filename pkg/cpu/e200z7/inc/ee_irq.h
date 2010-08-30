@@ -46,15 +46,58 @@
 #ifndef __INCLUDE_E200Z7_IRQ_H__
 #define __INCLUDE_E200Z7_IRQ_H__
 
+#include "ee_internal.h"
+#include "cpu/common/inc/ee_irqstub.h"
+#include "cpu/e200z7/inc/ee_irq.h"
+#include "cpu/e200z7/inc/ee_internal.h"
+
 typedef void (*EE_e200z7_ISR_handler)(void);
 extern EE_e200z7_ISR_handler EE_e200z7_ISR_table[];
 
 /*
- * Register a handler with a given interrupt number; also enable the given
- * interrupt.  If `fun' is 0, disable the given interrupt.  When interrupt
- * nesting is enabled, it is safe to call this function from interrupt
- * handlers only for interrupts of higher level.
+ * Alternate ISR implementation, to be used when the user defines his own
+ * entry points for ISRs.
  */
-void EE_e200z7_register_ISR(int level, EE_e200z7_ISR_handler fun, EE_UINT8 pri);
+
+__asm static void EE_ISR1_prestub(void)
+{
+	wrteei	1
+}
+
+#define ISR1(f)								\
+void ISR1_ ## f(void);							\
+void f(void)								\
+{									\
+	EE_ISR1_prestub();						\
+	ISR1_ ## f();							\
+}									\
+void ISR1_ ## f(void)
+
+/*
+ * NOTE: The ISR2 stubs are independent from the architecture, we should
+ * move them to common/
+ */
+static inline void EE_ISR2_prestub(void)
+{
+	EE_increment_IRQ_nesting_level();
+}
+
+static inline void EE_ISR2_poststub(void)
+{
+	EE_decrement_IRQ_nesting_level();
+	if (!EE_is_inside_ISR_call()) {
+		EE_std_after_IRQ_schedule();
+	}
+}
+
+#define ISR2(f)								\
+void ISR2_ ## f(void);							\
+void f(void)								\
+{									\
+	EE_ISR2_prestub();						\
+	ISR2_ ## f();							\
+	EE_ISR2_poststub();						\
+}									\
+void ISR2_ ## f(void)
 
 #endif /*  __INCLUDE_E200Z7_IRQ_H__ */

@@ -49,7 +49,7 @@
 #include <cpu/e200z7/inc/ee_regs.h>
 
 set_ivor: .macro n,label
-	li	r0, label@l
+	addi	r0, 0, label@l
 	mtspr	SPRG_IVOR_BASE + n, r0
 	.endm
 
@@ -138,7 +138,7 @@ restore_registers:
 #include <mcu/freescale_mpc5674f/inc/ee_regs.h>
 
 external_input_handler:
-	lis	r3, INTC_IACKR@ha	/* ack the interrupt */
+	addis	r3, 0, INTC_IACKR@ha	/* ack the interrupt */
 	lwz	r0, INTC_IACKR@l(r3)
 
 	srawi	r3, r0, 2		/* calculate the irq number */
@@ -146,13 +146,13 @@ external_input_handler:
 
 	bl	EE_e200z7_irq		/* handle the interrupt */
 
-	lis	r3, INTC_EOIR@ha	/* send the EOI */
+	addis	r3, 0, INTC_EOIR@ha	/* send the EOI */
 	stw	r0, INTC_EOIR@l(r3)
 
 	vector_epilogue
 
 decrementer_handler:
-	lis	r0, (1 << TSR_DIS)@h
+	addis	r0, 0, (1 << TSR_DIS)@h
 	mtspr	tsr, r0
 	li	r3, 10
 	bl	EE_e200z7_irq
@@ -220,7 +220,7 @@ EE_e200z7_stop_decrementer:
 	andis.	r3, r3, ~(1 << TCR_DIE)@ha
 	mtspr	tcr, r3
 
-	lis	r3, (1 << TSR_DIS)@h
+	addis	r3, 0, (1 << TSR_DIS)@h
 	mtspr	tsr, r3
 
 	blr
@@ -244,12 +244,12 @@ cpu_setup:
 	set_ivor 13, data_tlb_error
 	set_ivor 14, instruction_tlb_error
 	set_ivor 15, debug_critical
-	sync
+	msync
 
-	lis	r0, vector_base@h
+	addis	r0, 0, vector_base@h
 	mtspr	ivpr, r0
 
-	li	r0, 0
+	addi	r0, 0, 0
 	mtspr	SPRG_TBL_W, r0
 	mtspr	SPRG_TBH_W, r0
 	mtspr	SPRG_TBL_W, r0
@@ -290,19 +290,19 @@ cpu_setup:
 #define TLB_VAL(num, mas)	TLB_&& ## num ## &&_MAS_ ## mas
 
 set_tlb: .macro entry
-	lis	r3, TLB_VAL(entry, 0)@ha
+	addis	r3, 0, TLB_VAL(entry, 0)@ha
 	addi	r3, r3, TLB_VAL(entry, 0)@l
 	mtspr	mas0, r3
 
-	lis	r3, TLB_VAL(entry, 1)@ha
+	addis	r3, 0, TLB_VAL(entry, 1)@ha
 	addi	r3, r3, TLB_VAL(entry, 1)@l
 	mtspr	mas1, r3
 
-	lis	r3, TLB_VAL(entry, 2)@ha
+	addis	r3, 0, TLB_VAL(entry, 2)@ha
 	addi	r3, r3, TLB_VAL(entry, 2)@l
 	mtspr	mas2, r3
 
-	lis	r3, TLB_VAL(entry, 3)@ha
+	addis	r3, 0, TLB_VAL(entry, 3)@ha
 	addi	r3, r3, TLB_VAL(entry, 3)@l
 	mtspr	mas3, r3
 
@@ -318,7 +318,7 @@ mmu_setup:
 	set_tlb	2
 	set_tlb	3
 	set_tlb	4
-	sync
+	msync
 #endif
 
 	blr
