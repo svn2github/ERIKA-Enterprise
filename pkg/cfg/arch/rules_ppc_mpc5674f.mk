@@ -60,8 +60,9 @@ endif
 OPT_LINK += loc_diab.dld -e __start
 LINKDEP = loc_diab.dld
 
+PPC_ARCH ?= PPCE200Z6NES:simple
 CRT0_SRCS := pkg/mcu/freescale_mpc5674f/src/ee_boot.S
-OPT_TARGET := -t PPCE200Z6NES:simple
+OPT_TARGET := -t $(PPC_ARCH)
 OPT_CC += $(OPT_TARGET)
 OPT_ASM += $(OPT_TARGET)
 OPT_LINK += $(OPT_TARGET)

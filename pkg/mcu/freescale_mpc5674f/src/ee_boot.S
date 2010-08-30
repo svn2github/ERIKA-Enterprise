@@ -57,14 +57,14 @@ __start:
 	bl	sram_setup
 	bl	pll_setup
 
-	lis	r8, _stack0@ha		/* setup the stack pointer */
+	addis	r8, 0, _stack0@ha	/* setup the stack pointer */
 	addi	sp, r8, _stack0@l
 
-	lis	r8, _load_ram@ha	/* load _load_ram into r8 */
+	addis	r8, 0, _load_ram@ha	/* load _load_ram into r8 */
 	addi	r8, r8, _load_ram@l
-	lis	r9, _sbss@ha		/* load _sbss into r9 */
+	addis	r9, 0, _sbss@ha		/* load _sbss into r9 */
 	addi	r9, r9, _sbss@l
-	lis	r10, _sdata@ha		/* load _sdata into r10 */
+	addis	r10, 0, _sdata@ha	/* load _sdata into r10 */
 	addi	r10, r10, _sdata@l
 
 	cmplw	cr0, r8, r10		/* check if we have to move data */
@@ -80,7 +80,7 @@ __start:
 	blt	1b
 
 2:
-	lis	r8, _ebss@ha		/* load _ebss into r8 (r9 is _sbss) */
+	addis	r8, 0, _ebss@ha		/* load _ebss into r8 (r9 is _sbss) */
 	addi	r8, r8, _ebss@l
 	li	r11, 0			/* load 0 in r11 */
 
@@ -90,11 +90,11 @@ __start:
 	cmplw	cr0, r9, r8
 	blt	1b
 
-	lis	r8, _estack@ha		/* load _estack into r8 */
+	addis	r8, 0, _estack@ha	/* load _estack into r8 */
 	addi	r8, r8, _estack@l
-	lis	r9, _sstack@ha		/* load _sstack into r9 */
+	addis	r9, 0, _sstack@ha	/* load _sstack into r9 */
 	addi	r9, r9, _sstack@l
-	lis	r11, 0xa5a5a5a5@ha	/* load the fill pattern in r11 */
+	addis	r11, 0, 0xa5a5a5a5@ha	/* load the fill pattern in r11 */
 	addi	r11, r11, 0xa5a5a5a5@l
 
 1:
@@ -103,9 +103,9 @@ __start:
 	cmplw	cr0, r9, r8
 	blt	1b
 
-	lis	r13, _SDA_BASE_@ha	/* load .sdata base into r13 */
+	addis	r13, 0, _SDA_BASE_@ha	/* load .sdata base into r13 */
 	addi	r13, r13, _SDA_BASE_@l
-	lis	r2, _SDA2_BASE_@ha	/* load .sdata2 base into r2 */
+	addis	r2, 0, _SDA2_BASE_@ha	/* load .sdata2 base into r2 */
 	addi	r2, r2, _SDA_BASE_@l
 
 	bl	flash_setup		/* reduce flash wait states */
@@ -248,14 +248,14 @@ _stack0:
 mcu_setup:
 	/* MCR = 0: VTES=0 (4 byte entries) HVEN=0 (SW vector mode) */
 	li	r0, 0
-	lis	r3, INTC_MCR@ha
+	addis	r3, 0, INTC_MCR@ha
 	stw	r0, INTC_MCR@l(r3)
 
 	/* init current priority */
 	stw	r0, INTC_CPR@l(r3)
 
 	/* init vector table base address */
-	lis	r4, VTBA@ha
+	addis	r4, 0, VTBA@ha
 	addi	r4, r4, VTBA@l
 	stw	r4, INTC_IACKR@l(r3)
 
