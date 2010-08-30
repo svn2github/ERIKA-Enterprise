@@ -160,7 +160,7 @@ all:: make_directories $(ALL_LIBS) $(TARGET) t32
 clean::
 	@printf "CLEAN\n" ;
 	@-rm -rf *.a *.ld *.dld *.map *.elf *.objdump deps deps.pre	\
-		debug.bat *.cmm obj *.men
+		debug.bat *.cmm obj *.men *.o *.cd *.src
 
 ##
 ## Lauterbach targets
