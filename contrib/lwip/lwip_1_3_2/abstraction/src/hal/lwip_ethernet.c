@@ -34,7 +34,15 @@
  *
  */
  
-/*
+/** 
+* @file lwip_ethernet.c
+* @brief LWIP ethernet interface library.
+* @author Dario Di Stefano
+* @version LWIP 1.3.2
+* @date 2010-07-12
+*/
+ 
+/**
  * This file is a skeleton for developing Ethernet network interface
  * drivers for lwIP. Add code to the low_level functions and do a
  * search-and-replace for the word "ethernetif" to replace it with
@@ -43,10 +51,15 @@
 
 #include "ee_lwip.h"
 
-/* Define those to better describe your network interface. */
+/** 
+ * Define those to better describe your network interface. 
+ */
 #define IFNAME0 'e'
 #define IFNAME1 'n'
 
+/**
+ * Low level functions
+ */
 static struct pbuf *low_level_input(struct netif *netif);
 static err_t low_level_init(struct netif *netif);
 static err_t low_level_output(struct netif *netif, struct pbuf *p);

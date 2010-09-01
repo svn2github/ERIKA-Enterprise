@@ -38,12 +38,31 @@
 * Boston, MA 02110-1301 USA.
 * ###*E*### */
 
+/** 
+* @file ee_lwip.c
+* @brief LWIP source file.
+* @author Dario Di Stefano
+* @version LWIP 1.3.2
+* @date 2010-07-12
+*/
+
+/** 
+* \mainpage LWIP porting for Erika Enterprise RTOS 
+*
+* \section intro_sec 	The porting is based on the LWIP 1.3.2 version. 
+*/
+
 #include "ee_lwip.h"
 #include <string.h>
 
-/* Main network structure */
+/** 
+ * Main LWIP network interface structure
+ */
 struct netif EE_lwip_netif;
 
+/**
+ * Device ethernet address.
+ */
 u8_t ETHERNETIF_MAC_BYTE1;
 u8_t ETHERNETIF_MAC_BYTE2;
 u8_t ETHERNETIF_MAC_BYTE3;
@@ -51,16 +70,23 @@ u8_t ETHERNETIF_MAC_BYTE4;
 u8_t ETHERNETIF_MAC_BYTE5;
 u8_t ETHERNETIF_MAC_BYTE6;
 
+/**
+ * @brief LWIP initialization function.
+ *
+ * This function initializes LWIP, configures the main NETIF and sets the timers. 
+ * @param my_ipaddr my ip address
+ * @param netmask sub-net mask
+ * @param gw gateway address
+ * @param my_ethaddr device ethernet address
+ */
 void EE_lwip_init(struct ip_addr *my_ipaddr, struct ip_addr *netmask, struct ip_addr *gw, struct eth_addr *my_ethaddr)
 {
 	#ifdef LWIP_DEBUG
-	/* Debug initialization */
 	lwip_debug_init();
 	#endif
 
 	LWIP_DEBUGF(EE_LWIP_DEBUG, ("EE_lwip_init start!\n"));
 	
-	/* Ethernet address */
 	ETHERNETIF_MAC_BYTE1 = my_ethaddr->addr[0];
 	ETHERNETIF_MAC_BYTE2 = my_ethaddr->addr[1];
 	ETHERNETIF_MAC_BYTE3 = my_ethaddr->addr[2];
@@ -68,26 +94,38 @@ void EE_lwip_init(struct ip_addr *my_ipaddr, struct ip_addr *netmask, struct ip_
 	ETHERNETIF_MAC_BYTE5 = my_ethaddr->addr[4];
 	ETHERNETIF_MAC_BYTE6 = my_ethaddr->addr[5];
 	
-	/* Set the RX callback */
+	/** 
+	 * Task to be called when the device receives a packet 
+	 */
 	EE_ethernetif_hal_set_Rx_task(LwipReceive);
 	
-	/* LWIP stack initialization */
+	/** 
+	 * LWIP stack initialization 
+	 */
 	lwip_init();
 
-	/* Initialize the main netif structure */
+	/** 
+	 * Initialize the main netif structure 
+	 */
 	LWIP_DEBUGF(EE_LWIP_DEBUG, ("netif initialization start!\n"));
 	netif_add(&EE_lwip_netif, my_ipaddr, netmask, gw, (void*)0, EE_ethernet_init, ethernet_input);
 	netif_set_default(&EE_lwip_netif);				/* default settings */
 	netif_set_up(&EE_lwip_netif);					/* bring the interface up */
 	LWIP_DEBUGF(EE_LWIP_DEBUG, ("netif initialization end!\n"));
 
-	/* Timers configuration */
+	/** 
+	 * Timers configuration for ARP and TCP 
+	 */
 	EE_lwip_timers_configuration();
 	
 	LWIP_DEBUGF(EE_LWIP_DEBUG, ("EE_lwip_init end!\n"));
 }
 
-/* lwIP task for timers */
+/**
+ * @brief LWIP timers task.
+ *
+ * This task calls ARP and TCP timers. 
+ */
 TASK(LwipPeriodic)
 {
 	EE_UINT16 pending;
@@ -105,19 +143,25 @@ TASK(LwipPeriodic)
 	LWIP_DEBUGF(EE_LWIP_DEBUG, ("LwipPeriodic task end!\n"));
 }
 
-/* lwIP task for handling incoming packets */
+/**
+ * @brief LWIP reception task. 
+ *
+ * This task handles incoming packets and re-enables interrupts (if needed). 
+ */
 TASK(LwipReceive)
 {
 	LWIP_DEBUGF(EE_LWIP_DEBUG, ("LwipReceive task start!\n"));
 	GetResource(LwipMutex);
 	
-	/* We are assuming that the only interrupt source is an incoming packet */
+	/** 
+	 * We are assuming that the only interrupt source is an incoming packet 
+	 */
 	while (EE_ethernetif_hal_pending_interrupt()) {
-		//LWIP_DEBUGF(EE_LWIP_DEBUG,
-		//    ("Got an Ethernet packet at 0x%04x\n", ReadETHReg(EIR).Val));
 		EE_ethernet_input(&EE_lwip_netif);
 	}
-	/* We should enable interrupts  */
+	/** 
+	 * We should enable interrupts if these are disabled.  
+	 */
 	EE_lwip_hal_rx_service();
 	
 	ReleaseResource(LwipMutex);

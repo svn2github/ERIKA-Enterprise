@@ -1,15 +1,17 @@
-/*
-  Name: lwipopts.h
-  Copyright: Evidence Srl
-  Author: Dario Di Stefano
-  Date: 29/03/10 18.23
-  Description: LWIP defines.
+/** 
+* @file lwipopts.h
+* @brief LWIP defualt options.
+* @author Dario Di Stefano
+* @version LWIP 1.3.2
+* @date 2010-07-12
 */
 
 #ifndef __LWIPOPTS_H__
 #define __LWIPOPTS_H__
 
-/* ---------- Checksum options ---------- */
+/** 
+ * ---------- Checksum options ---------- 
+ */
 #ifndef CHECKSUM_CHECK_UDP
 #define CHECKSUM_CHECK_UDP		0
 #endif
@@ -17,12 +19,16 @@
 #define CHECKSUM_GEN_UDP		0
 #endif
 
-/* ---------- Threads configuration ---------- */
+/** 
+ * ---------- Threads configuration ---------- 
+ */
 #ifndef NO_SYS
 #define NO_SYS                  1			/* single thread */
 #endif
 
-/* ---------- Memory options ---------- */
+/** 
+ * ---------- Memory options ---------- 
+ */
 #ifndef MEM_ALIGNMENT
 #define MEM_ALIGNMENT           4
 #endif
@@ -49,8 +55,10 @@
 //#define MEMP_NUM_TCPIP_MSG_INPKT        8
 //#define PBUF_POOL_SIZE                  16
 
-/* The following four are used only with the sequential API and can be
-   set to 0 if the application only will use the raw API. */
+/** 
+ * The following four are used only with the sequential API and can be
+ * set to 0 if the application only will use the raw API. 
+ */
 //#define MEMP_NUM_NETBUF                 2
 //#define MEMP_NUM_NETCONN                4
 #ifndef MEMP_NUM_NETBUF
@@ -62,7 +70,9 @@
 //#define MEMP_NUM_API_MSG        0
 //#define MEMP_NUM_TCPIP_MSG      0
 
-/* ---------- Pbuf options ---------- */
+/** 
+ * ---------- Pbuf options ---------- 
+ */
 #ifndef PBUF_POOL_SIZE
 #define PBUF_POOL_SIZE          32
 #endif
@@ -73,7 +83,9 @@
 #define PBUF_LINK_HLEN          16
 #endif
 
-/* ---------- ARP options ---------- */
+/** 
+ * ---------- ARP options ---------- 
+ */
 #ifndef ARP_QUEUEING
 #define ARP_QUEUEING            0
 #endif
@@ -85,7 +97,9 @@
 //#define ARP_QUEUEING                    1
 //#define ETHARP_TRUST_IP_MAC             1
 
-/* ---------- IP options ---------- */
+/** 
+ * ---------- IP options ---------- 
+ */
 //#define IP_FORWARD                      0
 //#define IP_OPTIONS_ALLOWED              1
 #ifndef IP_REASSEMBLY
@@ -98,28 +112,38 @@
 //#define IP_FRAG_MAX_MTU                 1500
 //#define IP_DEFAULT_TTL                  255
 
-/* ---------- ICMP options ---------- */
+/** 
+ * ---------- ICMP options ---------- 
+ */
 //#define LWIP_ICMP                       1
 //#define ICMP_TTL                       (IP_DEFAULT_TTL)
 
-/* ---------- RAW options ---------- */
+/** 
+ * ---------- RAW options ---------- 
+ */
 #ifndef LWIP_RAW
 #define LWIP_RAW                          0
 #endif
 //#define RAW_TTL                        (IP_DEFAULT_TTL)
 
-/* ---------- DHCP options ---------- */
+/** 
+ * ---------- DHCP options ---------- 
+ */
 #ifndef LWIP_DHCP
 #define LWIP_DHCP               		1
 #endif
 //#define DHCP_DOES_ARP_CHECK             ((LWIP_DHCP) && (LWIP_ARP))
 
-/* ---------- UDP options ---------- */
+/** 
+ * ---------- UDP options ---------- 
+ */
 #ifndef LWIP_UDP
 #define LWIP_UDP                0
 #endif
 
-/* ---------- TCP options ---------- */
+/** 
+ * ---------- TCP options ---------- 
+ */
 #ifndef LWIP_TCP
 #define LWIP_TCP                0
 #endif
@@ -127,41 +151,57 @@
 #define TCP_MSS                 1460
 #endif
 #ifndef TCP_SND_BUF
-#define TCP_SND_BUF             4096
+#define TCP_SND_BUF                     4*TCP_MSS
 #endif
 
-/* ---------- Callbacks ---------- */
+/** 
+ * ---------- Lwip Callbacks ---------- 
+ */
 #ifndef LWIP_CALLBACK_API
 #define LWIP_CALLBACK_API       1
 #endif
 
-/* ---------- Statistics options ---------- */
+/** 
+ * ---------- Statistics options ---------- 
+ */
 #ifndef LWIP_STATS
 #define LWIP_STATS              0
 #endif
 
-/* ---------- Netconn ---------- */
+/** 
+ * ---------- Netconn ---------- 
+ */
 #ifndef LWIP_NETCONN
 #define LWIP_NETCONN            0           // default is 1
 #endif
 
-/* ---------- Socket ---------- */
+/** 
+ * ---------- Socket ---------- 
+ */
 #ifndef LWIP_SOCKET
 #define LWIP_SOCKET             0           // default is 1
 #endif
 
-/* ---------- Ethernet ---------- */
+/** 
+ * ---------- Ethernet ---------- 
+ */
 #ifndef ETH_PAD_SIZE
 #define ETH_PAD_SIZE			2
 #endif
 
-/* ---------- UPNP options ---------- */
+/** 
+ * ---------- UPNP options ---------- 
+ */
 //#define LWIP_UPNP                       0
 
-/* ---------- PTPD options ---------- */
+/** 
+ * ---------- PTPD options ---------- 
+ */
 //#define LWIP_PTPD                       0
 
-/* ---------- DEBUG options ---------- */
+/** 
+ * ---------- DEBUG options ---------- 
+ */
 #ifdef __LWIP_DEBUG__
 #define LWIP_DEBUG // Lwip DEBUG symbol
 #endif

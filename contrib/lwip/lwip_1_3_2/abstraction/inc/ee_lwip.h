@@ -37,6 +37,14 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
+ 
+/** 
+* @file ee_lwip.h
+* @brief LWIP main header file.
+* @author Dario Di Stefano
+* @version LWIP 1.3.2
+* @date 2010-07-12
+*/
 
 #include "lwip/opt.h"
 #include "lwip/def.h"
@@ -53,16 +61,15 @@
 #include "lwip/init.h"
 #include <lwip/netif.h>
 
-/* Headers used for LWIP porting into Erika */
+/** 
+ * Headers used for LWIP porting into Erika 
+ */
 #include "hal/lwip_ethernet.h"
 #include <util/lwip_debug.h>
 #include <hal/lwip_timer.h>
 
 #ifndef __EE_LWIP_H__
 #define __EE_LWIP_H__
-
-#define LWIP_ALARM_OFFSET			(0)
-#define LWIP_ALARM_OFFSET_PERIOD	(250)
 
 #define ETH_ADDR(ethp, a, b, c, d, e, f) \
 	(ethp)->addr[0] = a; \
@@ -72,6 +79,9 @@
 	(ethp)->addr[4] = e; \
 	(ethp)->addr[5] = f;
 
+/**
+ * Device ethernet address
+ */
 extern u8_t ETHERNETIF_MAC_BYTE1;
 extern u8_t ETHERNETIF_MAC_BYTE2;
 extern u8_t ETHERNETIF_MAC_BYTE3;
@@ -79,10 +89,14 @@ extern u8_t ETHERNETIF_MAC_BYTE4;
 extern u8_t ETHERNETIF_MAC_BYTE5;
 extern u8_t ETHERNETIF_MAC_BYTE6;	
 	
-/* Main network structure */
+/** 
+ * Main network structure 
+ */
 extern struct netif EE_lwip_netif; 
 
-/* Driver functions */
+/**
+ * LWIP API for users 
+ */
 void EE_lwip_init(struct ip_addr *my_ipaddr, struct ip_addr *netmask, struct ip_addr *gw, struct eth_addr *my_ethaddr);
 
 #endif /* __EE_LWIP_H__ */
