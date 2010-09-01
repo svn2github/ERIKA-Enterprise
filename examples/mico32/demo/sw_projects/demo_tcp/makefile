@@ -38,64 +38,54 @@
 # Boston, MA 02110-1301 USA.
 # ###*E*###
 
-## Makefile to setup files used in the ActiveHDL simulator
+## Makefile for Erika Mico32 projects
 ## Author: 2010,  Bernardo  Dal Seno
 
 
-#
-# Environment variables
-#
+# Destination directory
+export OUTPUT_DIR = output
 
-# By default work with the simulator contained in the repository
-ifndef SIMUL_DIR
-SIMUL_DIR=../../hw_projects/simulation_mico32
+# Check the environment and use reasonable defaults
+ifndef RTDRUID_ECLIPSE_HOME
+RTDRUID_ECLIPSE_HOME = C:/Evidence/eclipse
+RTDRUID_SCRIPT_DIR =
+endif
+ifndef RTDRUID_SCRIPT_DIR
+RTDRUID_SCRIPT_DIR=$(RTDRUID_ECLIPSE_HOME)/evidence
+endif
+ifneq (ok,$(shell test -d "$(RTDRUID_ECLIPSE_HOME)" && echo ok ))
+$(error The variable RTDRUID_ECLIPSE_HOME must point to a valid Eclipse RT-Druid installation)
 endif
 
-# Set as default target
-.PHONY: meta-all
-meta-all: deploy globvars
 
+RTDRUID_OUTPUT = $(addprefix $(OUTPUT_DIR)/, \
+ makefile lattice.mk platform.mk eecfg.h eecfg.c crt0ram.S)
 
-#
-# Include the main makefile
-#
-include makefile
+.PHONY: all clean
 
-PROJECT_EXE=$(OUTPUT_DIR)/out.elf
+all: $(RTDRUID_OUTPUT)
+	@$(MAKE) --no-print-directory -f $(OUTPUT_DIR)/makefile all
+# Don't confuse people by printing the directory, as the current directory
+# is not changed
 
-# 'project_exe' forces always the remake of 'all' for 'deploy' and 'globvars'
-.PHONY: project_exe
-$(PROJECT_EXE) project_exe: all
+clean:
+	@echo cleaning...
+	rm -f -r $(OUTPUT_DIR)
 
-#
-# My rules
-#
-ifneq ($(findstring clean,$(MAKECMDGOALS)),clean)
-include $(OUTPUT_DIR)/platform.mk
-# '-include' for myrules.mk, as its rule is valid only if platform.mk
-# exists and is included
--include $(OUTPUT_DIR)/myrules.mk
-endif
+# If any target different from `all' or `clean' si given, try to invoke the
+# generated makefile. `force' is used to force the invocation of the child
+# makefile
+%: $(RTDRUID_OUTPUT) force
+	@$(MAKE) --no-print-directory -f $(OUTPUT_DIR)/makefile $@
+# Avoid triggering the catch-all rule
+.PHONY: force
+force: ;
+conf.oil: ;
+makefile: ;
 
-PLATFORM_LIB_MAKEFILE=$(PLATFORM_LIB_PATH)/$(PLATFORM_BLD_CFG)/makefile
-
-ifdef PLATFORM_LIB_PATH
-$(OUTPUT_DIR)/myrules.mk: $(PLATFORM_LIB_MAKEFILE)
-	grep -E '^(PLATFORM_FILE|PLATFORM_FILE_PATH|PLATFORM_PERL_FILE_PATH)[ ]*=' $< > $@
-endif
-
-REAL_PLATFORM_FILE_PATH=$(PLATFORM_LIB_PATH)/$(PLATFORM_BLD_CFG)/$(PLATFORM_FILE_PATH)
-
-PERLSCRIPTDIR=$(realpath $(PLATFORM_PERL_FILE_PATH)/..)
-PERLUTILDIR=$(realpath $(PERLSCRIPTDIR)/..)
-.PHONY: deploy globvars
-
-deploy: $(PROJECT_EXE) | project_exe
-	perl $(PERLSCRIPTDIR)/misc/multimem_deploy.pl $(PERLUTILDIR) $(abspath ../$(REAL_PLATFORM_FILE_PATH)/$(PLATFORM_FILE)) $< $(SIMUL_DIR)/ meminit
-
-GLOBVARSCRIPT=$(SIMUL_DIR)/global.do
-globvars: $(PROJECT_EXE) | project_exe
-	../../scripts/wavesymbol.py $< | sort >$(GLOBVARSCRIPT)
-
-printvalue = $(info $(1) is >$($(1))<)
-#$(call printvalue,CPPFLAGS)
+# Run RT-Druid
+$(RTDRUID_OUTPUT): conf.oil
+	@echo "Running RT-Druid..."
+	@ECLIPSE_HOME="$(RTDRUID_ECLIPSE_HOME)" ;\
+	export ECLIPSE_HOME ;\
+	exec sh $(RTDRUID_SCRIPT_DIR)/start_ant.sh -buildfile $(RTDRUID_SCRIPT_DIR)/build.xml -Din_conf_oil=$< -Dconf_output_dir=$(OUTPUT_DIR) compile

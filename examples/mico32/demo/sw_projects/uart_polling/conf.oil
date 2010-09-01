@@ -2,37 +2,30 @@
 
 CPU test_application {
 
+#include "conf.oil.test1"
+
 	OS EE {		
-		EE_OPT = "DEBUG_STACK";
-		
 		CFLAGS = "-g2";
 		ASFLAGS = "";
 		LDFLAGS = ""; 
 
-		CPU_DATA = LM32 {
-			APP_SRC = "test1_main.c";
-			MULTI_STACK = FALSE;
-			USESTANDALONEPRINTF = FALSE; // Optional, default is FALSE
-			USESMALLC = FALSE; // Optional, defautl is FALSE
-		};
-		
-
 		MCU_DATA = LATTICE_PLATFORM {
    			MODEL = LIBRARY {
-				PLATFORM_LIB_PATH = "../test_led_switch_lib";
-				PLATFORM_NAME = "test_led_switch";
+				PLATFORM_LIB_PATH = "../test_sram_lib";
+				PLATFORM_NAME = "test_base";
 				PLATFORM_BLD_CFG = "Release"; // Optional, default is ""
    			};
    			
-   			DEVICE = UART{						
-					NAME = "uart";										
-			};
-			
 			DEVICE = TIMER{						
 					NAME = "timer";	
 					OPTIONS = TIMER_IRQ_SUPPORT;									
 			};
   		};
+  		
+  		BOARD_DATA = XP2_CAMERA_BOARD {
+			OPTIONS = RS232;
+			OPTIONS = LEDS;
+		};
     };
     
     TASK myTask {

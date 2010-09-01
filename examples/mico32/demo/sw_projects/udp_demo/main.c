@@ -1,7 +1,12 @@
 /*
-  Copyright: 2010, Evidence Srl
-  Author: Bernardo  Dal Seno
-  Description: LWIP udp test.
+	Copyright: 2010, Evidence Srl
+	Author: Bernardo Dal Seno
+	Description: 	LWIP UDP test (with ENC28J60, see oil files).
+					User can use this demo to learn how to write LWIP UDP based applications. 
+					The demo requires a RS232 serial connection with user PC (115200 bps,8N1 configuration).
+					The demo requires a SPI bus to communicate with ENC28J60.
+					The demo requires a Ethernet connection with user PC.
+					
 */
 
 /* RT-Kernel */

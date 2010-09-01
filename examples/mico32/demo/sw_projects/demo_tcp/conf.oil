@@ -1,4 +1,4 @@
-//	ENC28J60 + lwIP UDP test
+//	ENC28J60 + lwIP TCP test
 
 CPU test_application {
 
@@ -24,18 +24,15 @@ CPU test_application {
 				PLATFORM_BLD_CFG = "Release"; // Optional, default is ""
 			};
 
+			/* used by LWIP */
 			DEVICE = TIMER {
-				NAME = "timer_uwl";				/* used by LWIP */
+				NAME = "timer_uwl";				
 				OPTIONS = TIMER_IRQ_SUPPORT;
 			};
 
+			/* used for time debug */
 			DEVICE = TIMER {
-				NAME = "freetimer";				/* used for time debug */
-			};
-
-			DEVICE = TIMER {
-				NAME = "timer";					/* used for tasks activations */
-				OPTIONS = TIMER_IRQ_SUPPORT;
+				NAME = "freetimer";				
 			};
 		};
 
@@ -51,12 +48,12 @@ CPU test_application {
 		/* ********************************************************** */
 		/*                Contrib Library Inclusion                   */
 		/* ********************************************************** */
-		/* CONSOLE library is used only for enc28j60 and lwip debug
+		/* CONSOLE library is used only for enc28j60 and lwip debug */
 		EE_OPT = "__ADD_LIBS__";
 		LIB = ENABLE { NAME = "CONSOLE"; };
 		EE_OPT = "USE_CONSOLE";
 		EE_OPT = "USE_CONSOLE_SERIAL";
-		*/
+		
 
 	};
 
@@ -64,27 +61,11 @@ CPU test_application {
 	/*                          Application                               */
 	/* ****************************************************************** */
 
-	/* ISRs list */
-	ISR Timer {
-		CATEGORY = 2;
-		LEVEL = "TIMER_IRQ";
-		HANDLER = "EE_timer_common_handler";
-	};
-
 	/* TASKs list */
 	TASK Sender {
 		PRIORITY = 8;
 		STACK = SHARED;
 		SCHEDULE = FULL;
 		RESOURCE = "LwipMutex";
-	};
-
-	/* COUNTERs list */
-	COUNTER SenderCounter;
-
-	/* ALARMs list */
-	ALARM SenderAlarm {
-		COUNTER = SenderCounter;
-		ACTION = ACTIVATETASK { TASK = "Sender"; };
 	};
 };

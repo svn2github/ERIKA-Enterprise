@@ -92,6 +92,8 @@
 #define __ENC28J60_C
 
 #include "enc28j60.h"
+#include "enc28j60_debug.h"
+#include "enc28j60_time_debug.h"
 #include "string.h"
 
 void EE_enc28j60_handler(int level)
@@ -247,6 +249,26 @@ WORD swaps_bytecount(WORD v)
 	return v;
 }
 #endif
+
+
+void EE_enc28j60_init(mac_addr myMACaddress)
+{
+	#ifdef __ENC28J60_DEBUG__
+	EE_enc28j60_debug_init();
+	#endif
+	
+	/* Disable IRQ */
+	EE_enc28j60_disable_IRQ();
+	/* SPI initialization */
+	EE_enc28j60_spi_init();	// SPI module configuration
+	/* Release reset */
+	EE_enc28j60_enable();
+	/* MAC layer initialization */
+	EE_enc28j60_mac_init(myMACaddress);
+	/* Enable IRQ */
+	EE_enc28j60_enable_IRQ();
+}
+
 
 /**
  * @brief ENC28J60 driver function to intialize the device.

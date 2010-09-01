@@ -3,7 +3,10 @@
   Copyright: Evidence Srl
   Author: Dario Di Stefano
   Date: 29/03/10 18.23
-  Description: Light sensor test.
+  Description: 	Light sensor test. 
+  				This demo reads and prints light value.
+  				The demo requires a RS232 serial connection
+  				with a 115200 bps,8N1 configuration. 
 */
 
 /* RT-Kernel */
@@ -18,57 +21,56 @@
 #include <stdio.h>
 #include <stdarg.h>
 
-void myprintf(const char* format, ...);
+#define MAX_CHARS 128
+#define die(a)			myprintf("\nError! code: %d\n", a)
 
-int EE_lightsensor_config(void)
+/* This function is used to send info by serial interface. */
+void myprintf(const char* format, ...)
+{
+	char str[MAX_CHARS];
+	
+	va_list args;
+	va_start( args, format );
+	vsnprintf(str, MAX_CHARS, format, args);
+	va_end( args );
+	EE_uart_send_buffer((EE_UINT8*)str, strlen(str));
+}
+
+/* This function is used for light sensor configuration. */
+int lightsensor_config(void)
 {
 	int ret;
-	ret = tsl2561t_init(SELECT_ADDRESS_VDD);
-	if(ret < 0)
-	{
-		myprintf("tsl2561t_init error!\n");
+	EE_lightsensor_init();
+	ret = EE_lightsensor_power_on();
+	if(ret!=TSL2516T_NO_ERROR){
+		die(1);
 		while(1);
 	}
-	ret = tsl2561t_power_on(DEVICE_ADDRESS_VDD);
-	if(ret!=TSL2516T_NO_ERROR)
-	{
-		myprintf("tsl2561t_power error!\n");
+	ret = EE_lightsensor_set_configuration(TSL2561T_TIMING, 0);
+	if(ret!=TSL2516T_NO_ERROR){
+		die(2);
 		while(1);
 	}
-	ret = tsl2561t_set_configuration(DEVICE_ADDRESS_VDD, TSL2561T_TIMING, 0);
-	if(ret!=TSL2516T_NO_ERROR)
-	{
-		myprintf("tsl2561t_set error!\n");
-		while(1);
-	}
-	myprintf("tsl2561t OK!\n");
 	return TSL2516T_NO_ERROR;
 }
 
-uint32_t EE_lightsensor_read(void)
-{
-	uint32_t lux;
-	tsl2561t_read_lux(DEVICE_ADDRESS_VDD, &lux);
-	return lux;
-}
-
+/* This function is the callback function called by the timer ISR. 
+ * It calls the function CounterTick used by EE for tasks periodic activation. */
 void system_timer_callback(void)
 {
 	CounterTick(myCounter);
 }
 
-/* demo task */
+/* The Task reads light measure and sends it to PC. */
 TASK(myTask)
 {
 	static int read_count = 0;
     uint32_t light;
     
     read_count++;
-    
-    light = EE_lightsensor_read();
+    EE_lightsensor_read_lux(&light);	// light = EE_lightsensor_read();
    	myprintf("%d: %d\n", read_count, light);
 }
-
 
 /*
  * MAIN TASK
@@ -89,12 +91,10 @@ int main(void)
     /* ------------------- */
     /* Light-sensor configuration */
     /* ------------------- */
-    int ret;
-    ret = EE_lightsensor_config();
-    if (ret < 0) 
-    {
-       myprintf("Error while configuring light sensor");
-        while(1);
+    int ret = lightsensor_config();
+    if (ret < 0){
+		die(3);
+		while(1);
     }     
     
     /* ------------------- */
@@ -120,17 +120,5 @@ int main(void)
 		
 	return 0;
     
-}
-
-#define MAX_CHARS 128
-void myprintf(const char* format, ...)
-{
-	char str[MAX_CHARS];
-	
-	va_list args;
-	va_start( args, format );
-	vsnprintf(str, MAX_CHARS, format, args);
-	va_end( args );
-	EE_uart_send_buffer((EE_UINT8*)str, strlen(str));
 }
 

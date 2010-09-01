@@ -3,8 +3,6 @@
 CPU test_application {
 
 	OS EE {		
-		EE_OPT = "DEBUG_STACK";
-		
 		CFLAGS = "-g2";
 		ASFLAGS = "";
 		LDFLAGS = ""; 

@@ -1,9 +1,17 @@
 /*
-  Name: test1_main.c
-  Copyright: Evidence Srl
-  Author: Dario Di Stefano
-  Date: 29/03/10 18.23
-  Description: Uart isr test(polling, blocking mode).
+	Name: test1_main.c
+	Copyright: Evidence Srl
+	Author: Dario Di Stefano
+	Date: 29/03/10 18.23
+	Description: 	Uart isr test(polling, blocking mode).
+					This demo shows how to use UART driver for
+					Lattice Mico32 device to send and receive characters. 
+					The UART controller is configured in polling mode and in blocking mode
+					but is enabled the UART IRQ support. 
+					The demo should wait one character when task calls EE_uart_receive_byte 
+					and should wait 5 characters when task calls EE_uart_receive_buffer.   
+					In case of error the application turns on the system led.
+					The demo requires a RS232 serial connection with a 115200 bps,8N1 configuration.
 */
 
 /* RT-Kernel */
@@ -23,16 +31,25 @@ TASK(myTask)
     /* Single byte test */
     myArray[0] = 'A';
     if( EE_uart_send_byte(myArray[0]) < 0 )
+    {
+    	EE_led_on(EE_SERIO_SYSTEM_LED);
 		while(1)
 			;
+    }
  	if( EE_uart_receive_byte(myArray) < 0 )
+ 	{
+ 		EE_led_on(EE_SERIO_SYSTEM_LED);
 		while(1)
 			;
+ 	}
     else
     	if( EE_uart_send_byte(myArray[0]) < 0 )
+    	{
+    		EE_led_on(EE_SERIO_SYSTEM_LED);
     		while(1)
     			;
-
+    	}
+    	
 	/* Array test */
 	myArray[0] = 'A';
 	myArray[1] = 'B';
@@ -40,15 +57,24 @@ TASK(myTask)
 	myArray[3] = 'D';
 	myArray[4] = 'E';
 	if( EE_uart_send_buffer(myArray, 5) < 0 )
+	{
+		EE_led_on(EE_SERIO_SYSTEM_LED);
 		while(1)
 			;
+	}
  	if( EE_uart_receive_buffer(myArray, 5) < 0 )
+ 	{
+ 		EE_led_on(EE_SERIO_SYSTEM_LED);
 		while(1)
 			;
+ 	}
     else
     	if( EE_uart_send_buffer(myArray, 5) < 0 )
+    	{
+    		EE_led_on(EE_SERIO_SYSTEM_LED);
     		while(1)
     			;
+    	}
 }
 
 int main(void)
@@ -67,6 +93,7 @@ int main(void)
 	/* ------------------- */
 	/* Background activity */
 	/* ------------------- */
+	EE_led_init();
 	while(1)
 		ActivateTask(myTask);
 

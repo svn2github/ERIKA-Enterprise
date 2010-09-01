@@ -59,6 +59,10 @@ COMPILER_INLINE EE_UINT32 tsl2561t_swap_32(EE_UINT32 le_val){
 	return le_val;
 }
 
+COMPILER_INLINE EE_UINT16 tsl2561t_swap_16(EE_UINT16 le_val){
+	return le_val;
+}
+
 COMPILER_INLINE void tsl2561t_hal_set_ADDRESS_gnd(void){
 	TSL2561T_TRIS_ADD_PIN = 0;	// pin connected to ADD as output.
 	TSL2561T_ADD_PIN = 0;	// pin connected to ADD set to Ground 

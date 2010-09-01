@@ -15,6 +15,7 @@
 #define __TSL2561T_H__
 
 #include "tsl2561t_compiler.h"
+#include "tsl2561t_hal.h"
 
 
 /******************************************************************************/
@@ -182,6 +183,10 @@
 
 
 uint8_t tsl2561t_init(uint8_t selection);
+__INLINE__ uint8_t __ALWAYS_INLINE__  EE_lightsensor_init(void)
+{
+    return tsl2561t_init(SELECT_ADDRESS_VDD);
+}
 
 /** 
 * @brief  Turn on the module 
@@ -195,6 +200,10 @@ uint8_t tsl2561t_init(uint8_t selection);
 
 
 uint8_t tsl2561t_power_on(uint8_t address_in_use);
+__INLINE__ uint8_t __ALWAYS_INLINE__  EE_lightsensor_power_on(void)
+{
+    return tsl2561t_power_on(DEVICE_ADDRESS_VDD);
+}
 
 /** 
 * @brief  Turn off the module 
@@ -205,6 +214,10 @@ uint8_t tsl2561t_power_on(uint8_t address_in_use);
 */
 
 void tsl2561t_power_off(uint8_t address_in_use);
+__INLINE__ void __ALWAYS_INLINE__  EE_lightsensor_power_off(void)
+{
+    tsl2561t_power_off(DEVICE_ADDRESS_VDD);
+}
 
 /** 
 * @brief  Read the lux value 
@@ -216,7 +229,10 @@ void tsl2561t_power_off(uint8_t address_in_use);
 */
 
 void tsl2561t_read_lux(uint8_t address_in_use, uint32_t *value_low);
-
+__INLINE__ void __ALWAYS_INLINE__  EE_lightsensor_read_lux(uint32_t *value_low)
+{
+    tsl2561t_read_lux(DEVICE_ADDRESS_VDD, value_low);
+}
 
 /** 
 * @brief  Configure the parameters of the device 
@@ -233,7 +249,11 @@ void tsl2561t_read_lux(uint8_t address_in_use, uint32_t *value_low);
 
 uint8_t tsl2561t_set_configuration(uint8_t address, uint8_t parameter, 
 						uint8_t value);
-
+__INLINE__ uint8_t __ALWAYS_INLINE__  EE_lightsensor_set_configuration(uint8_t parameter, 
+																		uint8_t value)
+{
+    return tsl2561t_set_configuration(DEVICE_ADDRESS_VDD, parameter, value);
+}
 
 
 /** 
@@ -251,7 +271,11 @@ uint8_t tsl2561t_set_configuration(uint8_t address, uint8_t parameter,
 
 uint8_t tsl2561t_get_configuration(uint8_t address, uint8_t parameter, 
 						uint8_t *value);
-
+__INLINE__ uint8_t __ALWAYS_INLINE__  EE_lightsensor_get_configuration(uint8_t parameter, 
+																		uint8_t *value)
+{
+    return tsl2561t_get_configuration(DEVICE_ADDRESS_VDD, parameter, value);
+}
 
 
 

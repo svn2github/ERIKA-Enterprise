@@ -3,8 +3,6 @@
 CPU test_application {
 
 	OS EE {		
-		EE_OPT = "DEBUG_STACK";
-		
 		CFLAGS = "-g2";
 		ASFLAGS = "";
 		LDFLAGS = ""; 
@@ -23,16 +21,18 @@ CPU test_application {
 				PLATFORM_BLD_CFG = "Release"; // Optional, default is ""
    			};
    			
-   			DEVICE = GPIO{						
-					NAME = "misc_gpio";	
+   			DEVICE = TIMER{						
+					NAME = "timer";	
+					OPTIONS = TIMER_IRQ_SUPPORT;									
 			};
+
   		};
 
-		BOARD_DATA = XP2_CAMERA_BOARD {
-			OPTIONS = TIMER;			
-			OPTIONS = TIMER_IRQ_SUPPORT;			
+		EE_OPT = "__ADD_LIBS__";
+		LIB = ENABLE { NAME = "PCF8583"; };
+		BOARD_DATA = XP2_CAMERA_BOARD {	
 			OPTIONS = RS232;					
-			OPTIONS = RTCLOCK;		
+			OPTIONS = RTCLOCK;	
 		};
     };
     

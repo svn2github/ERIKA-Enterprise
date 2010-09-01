@@ -1,9 +1,14 @@
 /*
-  Name: test1_main.c
-  Copyright: Evidence Srl
-  Author: Dario Di Stefano
-  Date: 29/03/10 18.23
-  Description: ENC28J60 driver function test (eth mac mii read and write, bank selection).
+	Name: test1_main.c
+	Copyright: Evidence Srl
+	Author: Dario Di Stefano
+	Date: 29/03/10 18.23
+	Description: 	ENC28J60 driver function test (eth mac mii read and write, bank selection).
+					User can use this demo to test if SPI communication works fine.
+					The demo uses eth, mac, mii read/write and bank selection functions of the 
+					ENC28J60 library.
+					The demo requires a RS232 serial connection with a 115200 bps,8N1 configuration.
+					The demo requires a SPI bus to communicate with the device.
 */
 
 /* RT-Kernel */
@@ -14,128 +19,88 @@
 #include <cpu/mico32/inc/ee_irq.h>
 /* Lattice components */
 #include <MicoMacros.h>
+/* Other libraries */
 #include <string.h>
+#include <stdio.h>
+#include <stdarg.h>
 
-/* ----------------- */
-/* My device driver */
-int device_write(int type);
-int device_read(int type);
-#define turn_on_led() 			EE_misc_gpio_write_bit_data(1,EE_DL3_BIT)
-#define turn_off_led() 			EE_misc_gpio_write_bit_data(0,EE_DL3_BIT)
-#define device_config() 		EE_misc_gpio_write_bit_data(1, EE_GP1_BIT)
+#define MAX_CHARS 128
+#define die(a)			myprintf("\nError! code: %d\n", a)
+
+/* This function is used to send info by serial interface. */
+void myprintf(const char* format, ...)
+{
+	char str[MAX_CHARS];
+	
+	va_list args;
+	va_start( args, format );
+	vsnprintf(str, MAX_CHARS, format, args);
+	va_end( args );
+	EE_uart_send_buffer((EE_UINT8*)str, strlen(str));
+}
+
+#define DEVICE_GPIO_BIT 1
+#define device_config() 		EE_misc_gpio_write_bit_data(1, DEVICE_GPIO_BIT)
 #define BANK0 0
 #define BANK1 1
 #define BANK2 2
 #define BANK3 3
-#define ETH_TYPE 0
-#define MAC_TYPE 1
-#define MII_TYPE 2
-#define BANK_TYPE 3
-volatile EE_UINT8 data = '0';
-volatile EE_UINT8 ret_data;
-volatile EE_UINT8 udata;
-volatile int address;
-volatile int bank;
-/* ----------------- */
-
-int print_string(const char *s)
-{
-	return EE_uart_send_buffer((EE_UINT8*)s,strlen(s));
-}
 
 TASK(myTask1)
 {
-	//print_string("device_write: ERROR!\n");
+	EE_UINT8 data;
 	
 	/* ---------------------------------------------------------------- */
 	/* BANK SELECTION */
-	bank = BANK0;
-	address = ECON1;
-	device_write(BANK_TYPE);
-	print_string("\nWrite bank:\n");
-	udata = '0' + bank;
-	EE_uart_send_buffer((EE_UINT8*)&udata, 1);
-	
-	address = ECON1;
-	device_read(ETH_TYPE);
-	print_string("\nRead ECON1:\n");
-	udata = '0' + ret_data;
-	EE_uart_send_buffer((EE_UINT8*)&udata, 1);
-	
-	address = ERXSTL;
-	device_read(ETH_TYPE);
-	print_string("\nRead ERXSTL:\n");
-	udata = '0' + ret_data;
-	EE_uart_send_buffer((EE_UINT8*)&udata, 1);	
-	
-	address = EDMADSTL;
-	device_read(ETH_TYPE);
-	print_string("\nRead EDMADSTL:\n");
-	udata = '0' + ret_data;
-	EE_uart_send_buffer((EE_UINT8*)&udata, 1);	
-	
+	EE_enc28j60_bank_select(ECON1);
+	myprintf("\nWrite bank: %d\n", 		BANK0);
+	myprintf("\nRead ECON1: %d\n", 		EE_enc28j60_read_ETH_register(ECON1).Val);
+	myprintf("\nRead ERXSTL:%d\n", 		EE_enc28j60_read_ETH_register(ERXSTL).Val);
+	myprintf("\nRead EDMADSTL:%d\n", 	EE_enc28j60_read_ETH_register(EDMADSTL).Val);
+
 	/* ---------------------------------------------------------------- */
 	/* ETH */
-	data = 0x01;
-	address = ETXNDL;
-	device_write(ETH_TYPE);
-	print_string("\nWrite ETXNDL:\n");
-	udata = '0' + data;
-	EE_uart_send_buffer((EE_UINT8*)&udata, 1);	
-	
-	device_read(ETH_TYPE);
-	print_string("\nRead ETXNDL:\n");
-	udata = '0' + ret_data;
-	EE_uart_send_buffer((EE_UINT8*)&udata, 1);	
+	data = 0x09;
+	EE_enc28j60_write_register(ETXNDL, data);
+	myprintf("\nWrite ETXNDL:%d\n", data);
+	myprintf("\nRead ETXNDL:%d\n", EE_enc28j60_read_ETH_register(ETXNDL).Val);
+	EE_UINT8 mask = 0x0A; 
+	EE_enc28j60_bit_field_clear_register(ETXNDL, mask); /* BFC */
+	myprintf("\nBFC, ETXNDL expected:%d\n", 	data & ~mask);
+	myprintf("\nRead ETXNDL:%d\n", EE_enc28j60_read_ETH_register(ETXNDL).Val);
+	mask = 0x08;
+	EE_enc28j60_bit_field_set_register(ETXNDL, mask); /* BFS */
+	myprintf("\nBFS, ETXNDL expected:%d\n", 	data);
+	myprintf("\nRead ETXNDL:%d\n", EE_enc28j60_read_ETH_register(ETXNDL).Val);
 	
 	/* ---------------------------------------------------------------- */
 	/* BANK SELECTION */
-	bank = BANK2;
-	address = MACLCON1;
-	device_write(BANK_TYPE);
-	print_string("\nWrite bank:\n");
-	udata = '0' + bank;
-	EE_uart_send_buffer((EE_UINT8*)&udata, 1);
-	
-	address = ECON1;
-	device_read(ETH_TYPE);
-	print_string("\nRead ECON1:\n");
-	udata = '0' + ret_data;
-	EE_uart_send_buffer((EE_UINT8*)&udata, 1);	
+	EE_enc28j60_bank_select(MACLCON1);
+	myprintf("\nWrite bank:%d\n", BANK2);
+	myprintf("\nRead ECON1:%d\n", EE_enc28j60_read_ETH_register(ECON1).Val);
 	
 	/* ---------------------------------------------------------------- */
 	/* MAC */
 	data = 0x02;
-	address = MACLCON1;
-	device_write(MAC_TYPE);
-	print_string("\nWrite MACLCON1:\n");
-	udata = '0' + data;
-	EE_uart_send_buffer((EE_UINT8*)&udata, 1);	
-	
-	device_read(MAC_TYPE);
-	print_string("\nRead MACLCON1:\n");
-	udata = '0' + ret_data;
-	EE_uart_send_buffer((EE_UINT8*)&udata, 1);	
+	EE_enc28j60_write_register((BYTE)MACLCON1, data);
+	myprintf("\nWrite MACLCON1:%d\n", data);
+	myprintf("\nRead MACLCON1:%d\n", EE_enc28j60_read_MAC_MII_register((BYTE)MACLCON1).Val);
 	
 	/* ---------------------------------------------------------------- */
 	/* MII */
 	data = 0x03;
-	address = MIREGADR;
-	device_write(MII_TYPE);
-	print_string("\nWrite MIREGADR:\n");
-	udata = '0' + data;
-	EE_uart_send_buffer((EE_UINT8*)&udata, 1);	
-	
-	device_read(MII_TYPE);
-	print_string("\nRead MIREGADR:\n");
-	udata = '0' + ret_data;
-	EE_uart_send_buffer((EE_UINT8*)&udata, 1);	
+	EE_enc28j60_write_register((BYTE)MIREGADR, data);
+	myprintf("\nWrite MIREGADR:%d\n", data);
+	myprintf("\nRead MIREGADR:%d\n", EE_enc28j60_read_MAC_MII_register((BYTE)MIREGADR).Val);
+
 	/* ---------------------------------------------------------------- */
+	/* PHY */
+	EE_UINT32 phy_data = 0x3332;
 
-}
-
-TASK(myTask2)
-{
+	EE_enc28j60_write_PHY_register(PHLCON, phy_data);
+	myprintf("\nWrite PHLCON:%x\n", phy_data);
+	myprintf("\nRead PHLCON:%x\n", EE_enc28j60_read_PHY_register((BYTE)PHLCON).Val);
+	
 }
 
 void system_timer_callback(void)
@@ -159,7 +124,7 @@ int main(void)
 	/* -------------------------- */
 	EE_uart_config(115200, EE_UART_BIT8_NO | EE_UART_BIT_STOP_1);
 	EE_uart_set_ISR_mode(EE_UART_POLLING | EE_UART_RXTX_BLOCK); // polling, blocking mode  
-	
+
 	/* -------------------------- */
 	/* SPI configuration         */
 	/* -------------------------- */
@@ -180,7 +145,6 @@ int main(void)
 	/* Background activity */
 	/* ------------------- */
 	device_config();
-	turn_on_led();
 	SetRelAlarm(myAlarm1, 1000, 1000);
 	EE_timer_on();
 		
@@ -190,46 +154,6 @@ int main(void)
     return 0;
 }
 
-/* ------------------------------------------------------- */
-/* Device driver functions                                 */
-/* ------------------------------------------------------- */
-
-int device_write(int type)
-{
-	if(type!=BANK_TYPE)
-		WriteReg(address, data);
-	else 
-		BankSel(address);
-		
-	return 0;
-}
-
-int device_read(int type)
-{
-	REG r;
-	
-	if(type==ETH_TYPE)
-	{
-		r = ReadETHReg(address);
-		ret_data = r.Val; // = EE_enc28j60_read_ETH_register(address);
-	}
-	else 
-		if(type==MAC_TYPE)
-		{
-			r = ReadMACReg(address);
-			ret_data = r.Val; // = EE_enc28j60_read_MAC_register(address);
-		}
-		else
-			if(type==MII_TYPE)
-			{
-				r = ReadMACReg(address);
-				ret_data = r.Val; // = EE_enc28j60_read_MII_register(address);
-			}
-			else
-				ret_data = -100;
-	
-	return ret_data;
-}
 
 
 

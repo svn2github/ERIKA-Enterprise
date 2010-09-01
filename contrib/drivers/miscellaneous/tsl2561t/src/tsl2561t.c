@@ -31,7 +31,7 @@ EE_UINT8 tsl2561t_power_on(EE_UINT8 address_in_use) {
 }
 
 
-void power_off_light_sensor(uint8_t address_in_use)
+void ptsl2561t_power_off(uint8_t address_in_use)
 {
 	tsl2561t_write_register(address_in_use, 
 			  COMMAND_CONTROL_REGISTER, POWER_OFF);
@@ -118,17 +118,18 @@ uint8_t tsl2561t_get_configuration(uint8_t address, uint8_t parameter, uint8_t *
 }
 
 
-
 void tsl2561t_read_lux(uint8_t address_in_use, uint32_t *lux){
 
 	uint32_t channel1;
 	uint32_t channel0;
+	uint16_t ch0;
+	uint16_t ch1;
 	uint32_t chScale;
 
-	tsl2561t_read_buffer(address_in_use, TLS2561_WORD_COMMAND(DATA_0_LOW_REGISTER), (EE_UINT8 *)&channel0 , TLS2561_READ_WORD);	
-	channel0 = tsl2561t_swap_32(channel0);
-	tsl2561t_read_buffer(address_in_use, TLS2561_WORD_COMMAND(DATA_1_LOW_REGISTER) , (EE_UINT8 *)&channel1 , TLS2561_READ_WORD);	
-	channel1 = tsl2561t_swap_32(channel1);
+	tsl2561t_read_buffer(address_in_use, TLS2561_WORD_COMMAND(DATA_0_LOW_REGISTER), (EE_UINT8 *)&ch0 , TLS2561_READ_WORD);	
+	channel0 = tsl2561t_swap_16(ch0);
+	tsl2561t_read_buffer(address_in_use, TLS2561_WORD_COMMAND(DATA_1_LOW_REGISTER) , (EE_UINT8 *)&ch1 , TLS2561_READ_WORD);
+	channel1 = tsl2561t_swap_16(ch1);
 	
 	/* Calculation of the lux value */
 	
@@ -153,19 +154,13 @@ void tsl2561t_read_lux(uint8_t address_in_use, uint32_t *lux){
 	channel0 = (channel0* chScale) >> CH_SCALE;
 	channel1 = (channel1* chScale) >> CH_SCALE;
 
-
 	EE_UINT32 ratio1 = 0;
 	if (channel0 != 0) 
 		ratio1 = (channel1 << (RATIO_SCALE+1)) / channel0;
-	
-
 	EE_UINT32 ratio = (ratio1 + 1) >> 1;
 	
 	// is ratio <= eachBreak ?
 	EE_UINT32 b, m;
-
-        
-
 	if ((ratio >= 0) && (ratio <= K1T)){
 		b=B1T; 
 		m=M1T;

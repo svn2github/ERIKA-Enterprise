@@ -1,9 +1,14 @@
 /*
-  Name: test1_main.c
-  Copyright: Evidence Srl
-  Author: Dario Di Stefano
-  Date: 29/03/10 18.23
-  Description: RTC test.
+	Name: test1_main.c
+	Copyright: Evidence Srl
+	Author: Dario Di Stefano
+	Date: 29/03/10 18.23
+	Description: 
+	Description: 	RTC PCF8583 driver test.
+					This demo shows how to use RTC PCF8583 driver written for
+					Lattice Mico32 device.
+					The demo requires a RS232 serial connection with a 115200 bps,8N1 configuration.
+					The demo requires a I2C connection with the RTC PCF8583 device.
 */
 
 /* RT-Kernel */
@@ -14,17 +19,27 @@
 #include <cpu/mico32/inc/ee_irq.h>
 /* Lattice components */
 #include <MicoMacros.h>
+/* Other libraries */
 #include <string.h>
+#include <stdio.h>
+#include <stdarg.h>
 
-#define turn_on_led() 	EE_misc_gpio_write_bit_data(1,0)
-#define turn_off_led() 	EE_misc_gpio_write_bit_data(0,0)
+#define MAX_CHARS 128
+#define die(a)			myprintf("\nError! code: %d\n", a)
+
+/* This function is used to send info by serial interface. */
+void myprintf(const char* format, ...)
+{
+	char str[MAX_CHARS];
+	
+	va_list args;
+	va_start( args, format );
+	vsnprintf(str, MAX_CHARS, format, args);
+	va_end( args );
+	EE_uart_send_buffer((EE_UINT8*)str, strlen(str));
+}
 
 int rtc_display_time(TTime *TimeRead);
-
-int print_string(const char *s)
-{
-	return EE_uart_send_buffer(s,strlen(s));
-}
 
 TASK(myTask)
 {
@@ -32,19 +47,19 @@ TASK(myTask)
 	TTime now;
 	    
 	ret = EE_rtc_read_time(&now);
-	if(ret == EE_I2C_OK)
+	if(ret == RTC_NO_ERROR)
 	{
-		print_string("Time:\n");
+		myprintf("Time:\n");
 		ret = rtc_display_time(&now); 
 		if(ret<0)
 		{
-			print_string("I2C error in rtc_display_time\n");
+			die(1);
 			while(1);
 		}
   	}
   	else
   	{
-		print_string("EE_rtc_read_time: Error\n");
+		die(2);
   		while(1);
   	}
 
@@ -88,12 +103,12 @@ int main(void)
 	tt.seconds = 0;
 	tt.hundredths = 0;
 	ret = EE_rtc_write_time(&tt);
-	if(ret != EE_I2C_OK)
+	if(ret != RTC_NO_ERROR)
 	{
-		print_string("EE_rtc_write_time: Error\n");
+		die(3);
 		while(1);
 	}
-
+	
 	/* ------------------- */
 	/* Kernel timer configuration */
 	/* ------------------- */

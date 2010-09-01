@@ -1,19 +1,19 @@
-//	I2C POLLING TEST
-
-CPU test_application {
+/* TEST 1 */
 
 	OS EE {		
-		CFLAGS = "-g2";
-		ASFLAGS = "";
-		LDFLAGS = ""; 
-
+		
+		/* Flags */
+		CFLAGS = "";
+		
+		/* CPU configuration and sources list */
 		CPU_DATA = LM32 {
 			APP_SRC = "test1_main.c";
 			MULTI_STACK = FALSE;
 			USESTANDALONEPRINTF = FALSE; // Optional, default is FALSE
 			USESMALLC = FALSE; // Optional, defautl is FALSE
 		};
-
+		
+		/* Library specification and HW modules selection */
 		MCU_DATA = LATTICE_PLATFORM {
    			MODEL = LIBRARY {
 				PLATFORM_LIB_PATH = "../test_sram_lib";
@@ -21,40 +21,42 @@ CPU test_application {
 				PLATFORM_BLD_CFG = "Release"; // Optional, default is ""
    			};
    			
-			DEVICE = TIMER{						
+   			DEVICE = TIMER{						
 					NAME = "timer";	
 					OPTIONS = TIMER_IRQ_SUPPORT;									
+			};	
+			
+			DEVICE = TIMER{						
+					NAME = "freetimer";		// for time debug								
 			};
 			
-			DEVICE = I2C{						
-					NAME = "rtc_i2c";
-			};
+			DEVICE = UART{						
+					NAME = "uart";						
+			};		
   		};
-  		
-  		BOARD_DATA = XP2_CAMERA_BOARD {
-			OPTIONS = RS232;
-			OPTIONS = LEDS;
-		};
-    };
-    
-    TASK myTask {
-		PRIORITY = 10;
-		STACK = SHARED;
-		SCHEDULE = FULL;
 	};
 	
+	/* ISRs list */
 	ISR Timer {
 		CATEGORY = 2;
 		LEVEL = "TIMER_IRQ";
 		HANDLER = "EE_timer_common_handler";
 	};
 	
+	/* TASKs list */
+	TASK myTask1 {
+		PRIORITY = 2;
+		STACK = SHARED;
+		SCHEDULE = FULL;
+	};
+	
+	/* COUNTERs list */
 	COUNTER myCounter;
 
- 	ALARM myAlarm {
+	/* ALARMs list */
+ 	ALARM myAlarm1 {
   		COUNTER = "myCounter";
-    	ACTION = ACTIVATETASK { TASK = "myTask"; };
+    	ACTION = ACTIVATETASK { TASK = "myTask1"; };
     };
-
-    OS EE { KERNEL_TYPE = FP; }; 	
-};
+    
+    

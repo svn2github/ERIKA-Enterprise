@@ -1,9 +1,16 @@
 /*
-  Name: test3_main.c
-  Copyright: Evidence Srl
-  Author: Dario Di Stefano
-  Date: 29/03/10 18.23
-  Description: Uart isr test(isr, blocking mode).
+	Name: test3_main.c
+	Copyright: Evidence Srl
+	Author: Dario Di Stefano
+	Date: 29/03/10 18.23
+  	Description: 	Uart isr test(isr, blocking mode).
+					This demo shows how to use UART driver for
+					Lattice Mico32 device to send and receive characters. 
+					The UART controller is configured in ISR mode and in 
+					blocking mode for tx and rx.
+					The demo is as shown in test1 but the led is turned on/off
+					in the ISR callbacks. 
+					The demo requires a RS232 serial connection with a 115200 bps,8N1 configuration.
 */
 
 /* RT-Kernel */
@@ -18,9 +25,6 @@
 volatile int rx_cbk_counter = 0;
 volatile int tx_cbk_counter = 0;
 	
-#define turn_on_led() 	EE_misc_gpio_write_bit_data(1,0)
-#define turn_off_led() 	EE_misc_gpio_write_bit_data(0,0)
-
 TASK(myTask)
 {
     EE_UINT8 myArray[5];
@@ -58,13 +62,13 @@ TASK(myTask)
 
 void rx_cbk(void)
 {
-	turn_off_led();
+	EE_led_off(EE_SERIO_SYSTEM_LED);
 	rx_cbk_counter++; 
 }
 
 void tx_cbk(void)
 {
-	turn_on_led();
+	EE_led_on(EE_SERIO_SYSTEM_LED);
 	tx_cbk_counter++; 
 }
 
@@ -89,6 +93,7 @@ int main(void)
 	/* ------------------- */
 	/* Background activity */
 	/* ------------------- */
+	EE_led_init();
 	while(1)
 		ActivateTask(myTask);
 

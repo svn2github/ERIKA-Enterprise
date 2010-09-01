@@ -11,12 +11,12 @@
 
 #include "cpu/mico32/inc/ee_internal.h"
 #include "mcu/mico32/inc/ee_internal.h"
-#include "board/fpga_camera_mico32/inc/ee_internal.h"
 #include <cpu/mico32/inc/ee_irq.h>
 #include "mcu/mico32/inc/ee_i2c.h"
 #include "MicoUtils.h"
 
 #ifdef __XP2_CAMERA_BOARD__
+#include "board/fpga_camera_mico32/inc/ee_internal.h"
 #include "board/fpga_camera_mico32/inc/ee_lightsensor_tsl2561t.h"
 #else	/* NO board */
 #error "MRF24J40_HAL: Board specification is required!"
@@ -146,11 +146,22 @@ COMPILER_INLINE EE_UINT32 tsl2561t_swap_32(EE_UINT32 le_val){
 	return be_val;
 }
 
+COMPILER_INLINE EE_UINT16 tsl2561t_swap_16(EE_UINT16 le_val){
+	EE_UINT16 be_val;
+	EE_UINT8 *p8 = (EE_UINT8*)&le_val;
+	EE_UINT8 *q8 = (EE_UINT8*)&be_val;
+	
+	q8[0] = p8[1];
+	q8[1] = p8[0];
+	
+	return be_val;
+}
+
 /******************************************************************************/
 /*				Function Prototipes			      */
 /******************************************************************************/
 
 EE_UINT8 tsl2561t_hal_i2c_init(void);
 
-#endif //__TSL2561T_HAL_EE_PIC32_H__
+#endif //__TSL2561T_HAL_EE_MICO32_H__
 

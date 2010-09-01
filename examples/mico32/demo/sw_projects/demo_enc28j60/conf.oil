@@ -2,101 +2,23 @@
 
 CPU test_application {
 
-	#include "conf.oil.lwip"
 	#include "conf.oil.enc28j60"
+	
+	/* TEST selection */
+	#include "conf.oil.test1"
 
-	OS EE {		
-		CFLAGS = "-I. -g2";
+	OS EE {
+	
+		/* Flags */
+		CFLAGS = "-g2";
 		ASFLAGS = "";
 		LDFLAGS = ""; 
-
-		CPU_DATA = LM32 {
-			APP_SRC = "test7_main.c";
-			//APP_SRC = "echo.c";
-			MULTI_STACK = FALSE;
-			USESTANDALONEPRINTF = FALSE; // Optional, default is FALSE
-			USESMALLC = FALSE; // Optional, defautl is FALSE
-		};
 		
-		MCU_DATA = LATTICE_PLATFORM {
-   			MODEL = LIBRARY {
-				PLATFORM_LIB_PATH = "../test_sram_lib";
-				PLATFORM_NAME = "test_base";
-				PLATFORM_BLD_CFG = "Release"; // Optional, default is ""
-   			};
-   			
-   			DEVICE = TIMER{						
-					NAME = "freetimer";										
-			};
-			
-			DEVICE = TIMER{						
-					NAME = "timer_uwl";										
-			}; 
-			
-			//DEVICE = GPIO{						
-			//		NAME = "misc_gpio";										
-			//}; 			
-  		};
-  		
-  		BOARD_DATA = XP2_CAMERA_BOARD {
-
-			OPTIONS = TIMER;				
-			OPTIONS = TIMER_IRQ_SUPPORT;			
-			OPTIONS = RS232;	
-			OPTIONS = ETHERNET;
-			OPTIONS = ETHERNET_IRQ_SUPPORT;
-		};
-		
+		/* Kernel algorithm */
 		KERNEL_TYPE = FP;
-		
-		/* ********************************************************** */
-		/*                Contrib Library Inlcusion                   */
-		/* ********************************************************** */
-		EE_OPT = "__ADD_LIBS__";
-
-		/* CONSOLE */
-		LIB = ENABLE { NAME = "CONSOLE"; };	
-		EE_OPT = "USE_CONSOLE";
-		EE_OPT = "USE_CONSOLE_SERIAL";
 	};
 	
-	/* ****************************************************************** */
-	/*                      ISR Handler setup                             */
-	/* ****************************************************************** */
 
-	ISR Timer {
-		CATEGORY = 2;
-		LEVEL = "TIMER_IRQ";
-		HANDLER = "EE_timer_common_handler";
-	};
-
-	/* ****************************************************************** */
-	/*                      Application TASKs                             */
-	/* ****************************************************************** */
-	TASK myTask1 {
-		PRIORITY = 2;
-		STACK = SHARED;
-		SCHEDULE = FULL;
-		RESOURCE = "LwipMutex";
-	};
-	
-	TASK myTask2 {
-		PRIORITY = 2;
-		STACK = SHARED;
-		SCHEDULE = FULL;
-	};
-	
-	COUNTER myCounter;
-
- 	ALARM myAlarm1 {
-  		COUNTER = "myCounter";
-    	ACTION = ACTIVATETASK { TASK = "myTask1"; };
-    };
-    
-    ALARM myAlarm2 {
-  		COUNTER = "myCounter";
-    	ACTION = ACTIVATETASK { TASK = "myTask2"; };
-    };
 };
 
 

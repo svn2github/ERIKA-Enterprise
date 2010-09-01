@@ -1,0 +1,12 @@
+//	SPI POLLING TEST1
+
+	OS EE {		
+		CPU_DATA = LM32 {
+			APP_SRC = "test1_main.c";
+			MULTI_STACK = FALSE;
+			USESTANDALONEPRINTF = FALSE; // Optional, default is FALSE
+			USESMALLC = FALSE; // Optional, defautl is FALSE
+		};
+	};
+
+		

@@ -61,8 +61,6 @@
 #define __ENC28J60_H
 
 #include "enc28j60_hal.h"
-#include "enc28j60_debug.h"
-#include "enc28j60_time_debug.h"
 
 /* @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ */
 /* WRAPPER */
@@ -339,23 +337,7 @@ int8_t EE_enc28j60_debug_init(void);
 /* 	EE_enc28j60_init 
 	Function used to initialize the device
 */
-__INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_init(mac_addr myMACaddress)
-{
-	#ifdef __ENC28J60_DEBUG__
-	EE_enc28j60_debug_init();
-	#endif
-	
-	/* Disable IRQ */
-	EE_enc28j60_disable_IRQ();
-	/* SPI initialization */
-	EE_enc28j60_spi_init();	// SPI module configuration
-	/* Release reset */
-	EE_enc28j60_enable();
-	/* MAC layer initialization */
-	EE_enc28j60_mac_init(myMACaddress);
-	/* Enable IRQ */
-	EE_enc28j60_enable_IRQ();
-}
+void EE_enc28j60_init(mac_addr myMACaddress);
 
 /* 	EE_enc28j60_transfer_init
 	Function used to initialize the transfer of a packet

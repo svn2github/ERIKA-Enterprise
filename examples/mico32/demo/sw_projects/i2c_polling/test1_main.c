@@ -1,9 +1,17 @@
 /*
-  Name: test1_main.c
-  Copyright: Evidence Srl
-  Author: Dario Di Stefano
-  Date: 29/03/10 18.23
-  Description: I2C polling test.
+ 	Name: test1_main.c
+	Copyright: Evidence Srl
+	Author: Dario Di Stefano
+	Date: 29/03/10 18.23
+	Description: 	I2C polling test.
+					This demo shows how to use I2C driver for
+					Lattice Mico32 device.
+					I2C driver supports only polling and blocking mode. 
+					In this demo is shown how to use I2C driver functions to 
+					develop a new device driver (RTC PCF8583 in this example).
+					In case of error the application turns off the system led.
+					The demo requires a RS232 serial connection with a 115200 bps,8N1 configuration.
+					The demo requires a I2C connection with the RTC PCF8583 device.
 */
 
 /* RT-Kernel */
@@ -14,10 +22,25 @@
 #include <cpu/mico32/inc/ee_irq.h>
 /* Lattice components */
 #include <MicoMacros.h>
+/* Other libraries */
 #include <string.h>
+#include <stdio.h>
+#include <stdarg.h>
 
-#define turn_on_led() 	EE_misc_gpio_write_bit_data(1,0)
-#define turn_off_led() 	EE_misc_gpio_write_bit_data(0,0)
+#define MAX_CHARS 128
+#define die(a)			myprintf("\nError! code: %d\n", a)
+
+/* This function is used to send info by serial interface. */
+void myprintf(const char* format, ...)
+{
+	char str[MAX_CHARS];
+	
+	va_list args;
+	va_start( args, format );
+	vsnprintf(str, MAX_CHARS, format, args);
+	va_end( args );
+	EE_uart_send_buffer((EE_UINT8*)str, strlen(str));
+}
 
 /* ----------------- */
 /* My device driver */
@@ -34,11 +57,6 @@ struct myStruct TimeToWrite, TimeRead;
 EE_UINT8 retvalue;
 /* ----------------- */
 
-int print_string(const char *s)
-{
-	return EE_uart_send_buffer(s,strlen(s));
-}
-
 /*
  * Task 1
  */
@@ -53,15 +71,15 @@ TASK(myTask)
 		ret = device_print(); 
 		if(ret<0)
 		{
-			print_string("rtc_display: ERROR!\n");
-			turn_off_led();
+			myprintf("rtc_display: ERROR!\n");
+			EE_led_off(EE_SERIO_SYSTEM_LED);
 			while(1);
 		}
    	}
    	else
    	{
-   		print_string("rtc_read: ERROR!\n");
-   		turn_off_led();
+   		myprintf("rtc_read: ERROR!\n");
+   		EE_led_off(EE_SERIO_SYSTEM_LED);
    		while(1);
    	}
 	
@@ -108,18 +126,18 @@ int main(void)
 	/* ------------------- */
 	/* Background activity */
 	/* ------------------- */
-	int ret;
-	ret = device_write();
+	EE_led_init();
+	int ret = device_write();
 	if(ret == EE_I2C_OK)
 	{
-		turn_on_led();
+		EE_led_on(EE_SERIO_SYSTEM_LED);
 		SetRelAlarm(myAlarm, 1000, 1000);
 		EE_timer_on();
 	}
 	else
 	{
-		turn_off_led();
-		print_string("rtc_write: ERROR!\n");
+		EE_led_off(EE_SERIO_SYSTEM_LED);
+		die(0);
 	}
 		
 	while(1)
@@ -154,7 +172,7 @@ int device_write(void) {
    	
    	if(retvalue!= EE_I2C_OK) 
    	{
-   		print_string("error(1):\n");
+   		die(1);
    		EE_uart_send_buffer(&retvalue,1);
    		return -1;
    	}
@@ -164,7 +182,7 @@ int device_write(void) {
    	retvalue = EE_rtc_i2c_send_byte(device, address, tx_data[0]);	
    	if(retvalue!= EE_I2C_OK)
    	{
-   		print_string("error(2):\n");
+   		die(2);
    		EE_uart_send_buffer(&retvalue,1);
    		return -2;
    	}
@@ -174,7 +192,7 @@ int device_write(void) {
    	retvalue = EE_rtc_i2c_send_byte(device, address, tx_data[0]);	
    	if(retvalue!= EE_I2C_OK)
    	{
-   		print_string("error(3):\n");
+   		die(3);
    		EE_uart_send_buffer(&retvalue,1);	
    		return -3;
    	}
@@ -193,7 +211,7 @@ int device_read(void)
    	retvalue = EE_rtc_i2c_receive_buffer(device, address, rx_data, 5);	
    	if(retvalue!= EE_I2C_OK)
    	{
-   		print_string("error(4):\n");
+   		die(4);
    		EE_uart_send_buffer(&retvalue,1);
    		return -4;
    	}
@@ -216,7 +234,7 @@ int device_read(void)
 	retvalue = rx_data[0];
    	if(retvalue < 0)
    	{
-   		print_string("error(5):\n");
+   		die(5);
    		EE_uart_send_buffer(&retvalue,1);
    		return -5;
    	}
@@ -230,7 +248,7 @@ int device_read(void)
    		retvalue = EE_rtc_i2c_send_byte(device, address, tx_data[0]);	
    		if(retvalue!= EE_I2C_OK)
    		{
-	   		print_string("error(6):\n");
+	   		die(6);
    			EE_uart_send_buffer(&retvalue,1);
 	   		return -6;
    		}

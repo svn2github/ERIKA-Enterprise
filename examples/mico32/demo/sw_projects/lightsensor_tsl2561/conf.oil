@@ -3,16 +3,14 @@
 CPU test_application {
 
 	OS EE {		
-		EE_OPT = "DEBUG_STACK";
-		
 		CFLAGS = "-g2";
 		ASFLAGS = "";
 		LDFLAGS = ""; 
 
 		CPU_DATA = LM32 {
 			APP_SRC = "test1_main.c";
-			MULTI_STACK = TRUE;
-			USESTANDALONEPRINTF = TRUE; // Optional, default is FALSE
+			MULTI_STACK = FALSE;
+			USESTANDALONEPRINTF = FALSE; // Optional, default is FALSE
 			USESMALLC = FALSE; // Optional, defautl is FALSE
 		};
 		
@@ -23,10 +21,6 @@ CPU test_application {
 				PLATFORM_BLD_CFG = "Release"; // Optional, default is ""
    			};
    			
-   			DEVICE = GPIO{						
-					NAME = "misc_gpio";	
-			};
-			
 			DEVICE = TIMER {
 				NAME = "timer";	
 				OPTIONS = TIMER_IRQ_SUPPORT;			
@@ -43,6 +37,10 @@ CPU test_application {
 		LIB = ENABLE { NAME = "TSL2561T"; };	
 		
 		BOARD_DATA = XP2_CAMERA_BOARD {
+			OPTIONS = LIGHTSENSOR; 	// il druido deve essere modificato. Il simbolo inserito nel makefile è quello
+									// vecchio relativo al driver vecchio. Il nuovo driver, usato anche dal pic32,
+									// si trova in contrib, richiede simboli diversi, e deve essere compilato usando
+									// i simboli delle librerie.  
 			OPTIONS = RS232;							
 		};
     };

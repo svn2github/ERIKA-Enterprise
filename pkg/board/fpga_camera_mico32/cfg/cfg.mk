@@ -43,10 +43,6 @@ ifeq ($(findstring __LM32__,$(EEOPT)) , __LM32__)
 # *** IPERMOB camera board ***
 ifeq ($(findstring __XP2_CAMERA_BOARD__,$(EEOPT)) , __XP2_CAMERA_BOARD__)
 
-ifeq ($(findstring __USE_RTC_PCF8583__,$(EEOPT)) ,__USE_RTC_PCF8583__)
-EE_SRCS += pkg/board/fpga_camera_mico32/src/ee_rtc_pcf8583.c
-endif
-
 ifeq ($(findstring __USE_CAMERA_HV7131GP__,$(EEOPT)) , __USE_CAMERA_HV7131GP__)
 EE_SRCS += pkg/board/fpga_camera_mico32/src/ee_camera_hv7131gp.c
 endif
