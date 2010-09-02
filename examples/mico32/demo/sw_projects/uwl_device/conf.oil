@@ -21,16 +21,20 @@ CPU test_application {
 				PLATFORM_BLD_CFG = "Release"; // Optional, default is ""
    			};
    			
+   			/* Used by uWIRELESS */
 			DEVICE = TIMER{						
-					NAME = "timer_uwl";							
+					NAME = "timer_uwl";	
+					OPTIONS = TIMER_IRQ_SUPPORT;						
+			};
+			
+			DEVICE = TIMER{						
+					NAME = "timer";	
+					OPTIONS = TIMER_IRQ_SUPPORT;						
 			};
 			
   		};
 
-		BOARD_DATA = XP2_CAMERA_BOARD {
-
-			OPTIONS = TIMER;				
-			OPTIONS = TIMER_IRQ_SUPPORT;			
+		BOARD_DATA = XP2_CAMERA_BOARD {		
 			OPTIONS = RS232;						
 			OPTIONS = ZIGBEE;			
 			OPTIONS = ZIGBEE_IRQ_SUPPORT;
@@ -38,53 +42,50 @@ CPU test_application {
 						
 		KERNEL_TYPE = FP;
 		
-		/* ********************************************************** */
-		/*                Contrib Library Inlcusion                   */
-		/* ********************************************************** */
+		/* Contrib Library Inlcusion */
 		EE_OPT = "__ADD_LIBS__";
 
-		/* Console library using serial as output device */	
+		/* Console library using serial interface as output device */	
 		LIB = ENABLE {
 			NAME = "CONSOLE";
 		};	
-		EE_OPT = "USE_CONSOLE";
-		EE_OPT = "USE_CONSOLE_SERIAL";
+		CFLAGS = "-DUSE_CONSOLE";
+		CFLAGS = "-DUSE_CONSOLE_SERIAL";
 
 		/* use transceiver MRF24J40 */
 		LIB = ENABLE { NAME = "MRF24J40"; };	
-		EE_OPT = "USE_MRF24J40";
-		//EE_OPT = "MRF24J40_DEBUG";
-		EE_OPT = "INT_POLARITY_HIGH";
-		EE_OPT = "ADD_RSSI_AND_LQI_TO_PACKET";
-//		EE_OPT = "MRF24J40_DISABLE_AUTOMATIC_ACK";
-//		EE_OPT = "MRF24J40_DISABLE_CSMA";
-		EE_OPT = "MRF24J40_ZERO_MIN_BE";
-		EE_OPT = "MRF24J40_PROMISCUOUS_MODE";
-		EE_OPT = "MRF24J40_UWL_MODE";
-		EE_OPT = "MRF24J40MB";
+		CFLAGS = "-DUSE_MRF24J40";
+		//CFLAGS= "-DMRF24J40_DEBUG";
+		CFLAGS = "-DINT_POLARITY_HIGH";
+		CFLAGS = "-DADD_RSSI_AND_LQI_TO_PACKET";
+		//CFLAGS= "-DMRF24J40_DISABLE_AUTOMATIC_ACK";
+		//CFLAGS = "-DMRF24J40_DISABLE_CSMA";
+		CFLAGS = "-DMRF24J40_ZERO_MIN_BE";
+		CFLAGS = "-DMRF24J40_PROMISCUOUS_MODE";
+		CFLAGS = "-DMRF24J40_UWL_MODE";
+		CFLAGS = "-DMRF24J40MB";
 		
+		/* Memory library */
 		LIB = ENABLE { NAME = "MEMORY"; };
 
+		/* uWIRELESS library */
 		LIB = ENABLE { NAME = "UWIRELESS"; };	
-		EE_OPT = "EE_TYPETICK=EE_INT32"; /* Mandatory! */
 		EE_OPT = "UWL_USE_SIMPLE_802154";
-		EE_OPT = "UWL_HAL_BUS_FREQ=40000";
-		EE_OPT = "UWL_NO_DYN_ASS";
+		CFLAGS = "-DEE_TYPETICK=EE_INT32"; /* Mandatory! */
+		CFLAGS = "-DUWL_HAL_BUS_FREQ=40000";
+		CFLAGS = "-DUWL_NO_DYN_ASS";
 		/*
-		EE_OPT = "UWL_DEBUG";
-		EE_OPT = "UWL_DEBUG_LOG";
-		EE_OPT = "UWL_DEBUG_LOG_SERIAL";
-		EE_OPT = "UWL_DEBUG_LOG_SERIAL_PORT=CONSOLE_SERIAL_PORT_1";
-		EE_OPT = "UWL_DEBUG_LOG_SERIAL_BAUDRATE=115200"; 
-		EE_OPT = "UWL_DEBUG_LOG_HAS_PRINT";
+		CFLAGS = "-DUWL_DEBUG";
+		CFLAGS = "-DUWL_DEBUG_LOG";
+		CFLAGS = "-DUWL_DEBUG_LOG_SERIAL";
+		CFLAGS = "-DUWL_DEBUG_LOG_SERIAL_PORT=CONSOLE_SERIAL_PORT_1";
+		CFLAGS = "-DUWL_DEBUG_LOG_SERIAL_BAUDRATE=115200"; 
+		CFLAGS = "-DUWL_DEBUG_LOG_HAS_PRINT";
 		*/
 		
 	};
 	
-	/* ****************************************************************** */
-	/*                      ISR Handler setup                             */
-	/* ****************************************************************** */
-	
+	/* ISR Handler setup */
 	ISR Timer1 {
 		CATEGORY = 2;
 		LEVEL = "TIMER_UWL_IRQ";
@@ -103,16 +104,13 @@ CPU test_application {
 		HANDLER = "EE_mrf24j40_handler";
 	};
 	
-	/* ****************************************************************** */
-	/*                      Application TASKs                             */
-	/* ****************************************************************** */
+	/* Application TASKs */
 	COUNTER TASK_COUNTER;
 	
 	ALARM TASK_ALARM {
 		COUNTER = "TASK_COUNTER";
 		ACTION = ACTIVATETASK {TASK="SEND_TASK";};
 	};	
-	
 	
 	TASK SEND_TASK {
 		PRIORITY = 10;
@@ -122,30 +120,6 @@ CPU test_application {
 		RESOURCE ="UWL_EE_RESOURCE_MAC_MUTEX";
 	};
 	
-	/*
-	TASK DEBUG_TASK_1 {
-		PRIORITY = 30;
-		STACK = SHARED;
-		SCHEDULE = FULL;
-		RESOURCE = "UWL_EE_RESOURCE_MAC_RX_BEACON_MUTEX";
-		RESOURCE = "UWL_EE_RESOURCE_MAC_RX_DATA_MUTEX";
-		RESOURCE = "UWL_EE_RESOURCE_MAC_RX_COMMAND_MUTEX";
-		RESOURCE ="UWL_EE_RESOURCE_MAC_SEND_MUTEX";
-	};
-
-	TASK DEBUG_TASK_2 {
-		PRIORITY = 25;
-		STACK = SHARED;
-		SCHEDULE = FULL;
-		RESOURCE = "UWL_EE_RESOURCE_MAC_RX_BEACON_MUTEX";
-	};
-	*/
-	
-	/* ****************************************************************** */
-	/*                    Resources Declaration                           */
-	/* ****************************************************************** */
-
-
 	/* -------------------------------------------------------------------- 
 	|                  --  uWireless OIL Section  --                       |
 	|                                                                      |
@@ -234,9 +208,7 @@ CPU test_application {
 		ACTION = ACTIVATETASK {TASK="UWL_EE_TASK_MAC_GTS_SEND";};
 	};
 
-	/* ****************************************************************** */
-	/*                    Resources Declaration                           */
-	/* ****************************************************************** */
+	/* Resources Declaration */
 	RESOURCE UWL_EE_RESOURCE_MAC_MUTEX { 
 		RESOURCEPROPERTY = STANDARD; 
 	};

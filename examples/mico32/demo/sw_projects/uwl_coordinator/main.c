@@ -1,9 +1,12 @@
 /*
-  Name: main.c
-  Copyright: Evidence Srl
-  Author: Dario Di Stefano
-  Date: 29/03/10 18.23
-  Description: UWL coordinator test.
+	Name: main.c
+	Copyright: Evidence Srl
+	Author: Dario Di Stefano
+  	Description: 	UWL coordinator test.
+  					This demo shows how to configure a coordinator node in a
+  					ZIGBEE net. The stack si based on the uWIRELESS library.
+  					The demo requires a RS232 serial connection with a 115200 bps,8N1 configuration.
+					The demo requires a SPI connection with the MRF24J40MA/MB device. 
 */
 
 
@@ -11,12 +14,27 @@
 #include "uwl_ieee802154.h"	
 #include "kal/uwl_kal.h"	
 #include <MicoMacros.h>
+/* Other libraries */
 #include <string.h>
 #include <stdio.h>
+#include <stdarg.h>
 
-#define EE_led_off() EE_misc_gpio_write_bit_data(0, EE_DL3_BIT)
-#define EE_led_on() EE_misc_gpio_write_bit_data(1, EE_DL3_BIT)
+#define MAX_CHARS 128
+#define die(a)			myprintf("\nError! code: %d\n", a)
 
+/* This function is used to send info by serial interface. */
+void myprintf(const char* format, ...)
+{
+	char str[MAX_CHARS];
+	
+	va_list args;
+	va_start( args, format );
+	vsnprintf(str, MAX_CHARS, format, args);
+	va_end( args );
+	EE_uart_send_buffer((EE_UINT8*)str, strlen(str));
+}
+
+/* Constants */
 #define TEST_PANID			0x000A
 #define TEST_COORD_ADDR		0x0001
 #define TEST_CHANNEL		0x0D
@@ -26,48 +44,33 @@
 #define USE_GTS				1
 #define DO_NOT_USE_GTS		0
 
+/* Global variables */
 static EE_UINT8 last_msg[MAX_PCK_LEN];
 static EE_UINT8 last_msg_len = 0;
 static EE_UINT16 last_sender = 0;
-
-int print_string(char* s)
-{
-	return EE_uart_send_buffer((EE_UINT8*)s, strlen(s));
-}
 
 /* RX callback */
 void rx_callback(EE_INT8 err, EE_UINT8* msg, EE_UINT8 len, EE_UINT16 addr)
 {
 	int i = 0;
-	char s[64];
 	
-	EE_led_on();
-	
-	sprintf(s,"rx_cbk!\n err: %d, len: %d, addr: %d\n", err, len, addr);
-	print_string(s);
-	
+	myprintf("rx_cbk!\n err: %d, len: %d, addr: %d\n", err, len, addr);
 	if (len > MAX_PCK_LEN)
 		len = MAX_PCK_LEN;
 	for (i = 0; i < len; i++) {
 		last_msg[i] = msg[i];
-		sprintf(s, "msg[%d]:0x%02x  ", i, msg[i]);
-		print_string(s);
+		myprintf("msg[%d]:0x%02x  ", i, msg[i]);
 	}
-	sprintf(s, "\n");
-	print_string(s);
-	
+	myprintf("\n");
 	last_msg_len = len;
 	last_sender = addr;
-	
 	ActivateTask(myTask);
 }
 
 /* myTask */
 TASK(myTask)
 {
-	EE_led_on();
 	uwl_simple154_send(last_msg, last_msg_len, last_sender, DO_NOT_USE_GTS);
-	EE_led_off();
 }
 
 /* Main */
@@ -92,34 +95,25 @@ int main(void)
 	/* -------------------------- */
 	/* Coordinator initialization */
 	/* -------------------------- */
-	char s[128];
 	int ret;
 	uwl_simple154_init_coordinator(	TEST_COORD_ADDR, TEST_PANID,
 									TEST_CHANNEL, TEST_BO, TEST_SO);
 	uwl_simple154_set_rx_callback(&rx_callback);
 	ret = uwl_simple154_gts_add(0x0022, 2, 0);
-	sprintf(s, "0x0022 ret: %d!\n", ret);
-	print_string(s);
+	myprintf("0x0022 ret: %d!\n", ret);
 	ret = uwl_simple154_gts_add(0x0023, 2, 0);
-	sprintf(s, "0x0023 ret: %d!\n", ret);
-	print_string(s);
+	myprintf("0x0023 ret: %d!\n", ret);
 	ret = uwl_simple154_gts_add(0x0024, 2, 0);
-	sprintf(s, "0x0024 ret: %d!\n", ret);
-	print_string(s);
+	myprintf("0x0024 ret: %d!\n", ret);
 	ret = uwl_simple154_gts_add(0x0025, 2, 0);
-	sprintf(s, "0x0025 ret: %d!\n", ret);
-	print_string(s);
+	myprintf("0x0025 ret: %d!\n", ret);
 	ret = uwl_simple154_gts_add(0x0026, 2, 0);
-	sprintf(s, "0x0026 ret: %d!\n", ret);
-	print_string(s);
+	myprintf("0x0026 ret: %d!\n", ret);
 	ret = uwl_simple154_gts_add(0x0027, 2, 0);
-	sprintf(s, "0x0027 ret: %d!\n", ret);
-	print_string(s);
+	myprintf("0x0027 ret: %d!\n", ret);
 	ret = uwl_simple154_gts_add(0x0028, 2, 0);
-	sprintf(s, "0x0028 ret: %d!\n", ret);
-	print_string(s);
-	sprintf(s, "Init coordinator...Done!\n");
-	print_string(s);
+	myprintf("0x0028 ret: %d!\n", ret);
+	myprintf("Init coordinator...Done!\n");
 	
 	/* ------------------- */
 	/* Background activity */

@@ -1,9 +1,12 @@
 /*
-  Name: main.c
-  Copyright: Evidence Srl
-  Author: Dario Di Stefano
-  Date: 29/03/10 18.23
-  Description: UWL device test.
+	Name: main.c
+	Copyright: Evidence Srl
+	Author: Dario Di Stefano
+  	Description: 	UWL device test.
+  					This demo shows how to configure a device node in a
+  					ZIGBEE net. The stack si based on the uWIRELESS library.
+  					The demo requires a RS232 serial connection with a 115200 bps,8N1 configuration.
+					The demo requires a SPI connection with the MRF24J40MA/MB device. 
 */
 
 #include "uwl_ieee802154.h"	
@@ -11,48 +14,49 @@
 #include "ee.h"
 #include "console_serial.h"
 #include <MicoMacros.h>
+/* Other libraries */
 #include <string.h>
 #include <stdio.h>
+#include <stdarg.h>
 
-/******************************************************************************/
-/*                         Constant Definitions                               */
-/******************************************************************************/
+#define MAX_CHARS 128
+#define die(a)			myprintf("\nError! code: %d\n", a)
+
+/* This function is used to send info by serial interface. */
+void myprintf(const char* format, ...)
+{
+	char str[MAX_CHARS];
+	
+	va_list args;
+	va_start( args, format );
+	vsnprintf(str, MAX_CHARS, format, args);
+	va_end( args );
+	EE_uart_send_buffer((EE_UINT8*)str, strlen(str));
+}
+
+/* Constant Definitions */
 #define TEST_PANID			0x000A
 #define TEST_COORD_ADDR		0x0001
 #define TEST_CHANNEL		0x0D
 #define TEST_BO				6
 #define TEST_SO				6
 #define TEST_DEVICE_ADDR	0x0028
-
 #define MAX_PCK_LEN			127
 #define USE_GTS				1
 #define DO_NOT_USE_GTS		0
-
-#define MSG_LEN		90
-
-#define EE_led_off() 	EE_misc_gpio_write_bit_data(0, EE_DL3_BIT)
-#define EE_led_on() 	EE_misc_gpio_write_bit_data(1, EE_DL3_BIT)
+#define MSG_LEN				90
 
 void system_timer_callback(void)
 {
 	CounterTick(TASK_COUNTER);
 }
 
-int print_string(char* s)
-{
-	return EE_uart_send_buffer((EE_UINT8*)s, strlen(s));
-}
-
-/******************************************************************************/
-/*                                  TASKs                                     */
-/******************************************************************************/
+/* TASKs */
 TASK(SEND_TASK)
 {
 	EE_UINT8 msg[MSG_LEN];
 	static int sw = 0;
 	int i = 0;
-	
-	EE_led_on();
 	
 	for (i = 0; i < MSG_LEN; i++) {
 		msg[i] = i;
@@ -61,24 +65,21 @@ TASK(SEND_TASK)
 	// CAP send
 	sw ^= 1;
 	if (sw){
-		print_string("uwl_simple154_send without GTS \n");
+		myprintf("uwl_simple154_send without GTS \n");
 		uwl_simple154_send(msg, MSG_LEN, TEST_COORD_ADDR, DO_NOT_USE_GTS);
 		
 	}
 	else {
-		print_string("uwl_simple154_send with GTS \n");
+		myprintf("uwl_simple154_send with GTS \n");
 		// GTS send
 		uwl_simple154_send(msg, 10, TEST_COORD_ADDR, USE_GTS);
 		
 	}
-
-	EE_led_off();
 }
 
 /* Main */
 int main(void)
 {
-	char debug_string[128];
 	EE_INT8 retv;
 	
 	/* ------------ */
@@ -101,14 +102,19 @@ int main(void)
 	console_descriptor_t *cons;    
 	cons = console_serial_config(1, 115200, CONSOLE_SERIAL_FLAG_BIT8_NO | CONSOLE_SERIAL_FLAG_BIT_STOP1);
 	if (!cons)
+	{
+		die(1);
 		for (;;) 
 			; // Fatal Error
+	}
 	console_init(0, cons);
 	if (console_open(0) < 0)
+	{
+		die(2);
 		for (;;) 
 			; // Fatal Error
-	print_string("Serial console configuration...Done!\n");
-	
+	}
+	myprintf("Serial console configuration...Done!\n");
 	
 	/* ------------------- */
 	/* Enable IRQ */
@@ -118,19 +124,14 @@ int main(void)
 	/* ------------------- */
 	/* DEVICE init */
 	/* ------------------- */
-	print_string("\nDevice init...");
-	EE_led_off();
+	myprintf("\nDevice init...");
 	retv = uwl_simple154_init_device(TEST_DEVICE_ADDR, TEST_COORD_ADDR, TEST_PANID, TEST_CHANNEL);
 	if (retv < 0) {
-		print_string("Error!\n");
-		sprintf(debug_string, "retv: %d\n", retv);
-		print_string(debug_string);
+		die(retv);
 		while (1)
 			;
 	} else {
-		print_string("Done!\n");
-		sprintf(debug_string, "retv: %d\n", retv);
-		print_string(debug_string);
+		myprintf("Done!\n");
 	}
 	
 	/* ------------------- */
