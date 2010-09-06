@@ -7,7 +7,8 @@
 
 #include "enc28j60.h"
 #include "cpu/pic32/inc/ee_utils.h"
-
+#include "enc28j60_debug.h"
+#include "enc28j60_time_debug.h"
 
 /* ---------------------- Global variables --------------------------------- */
 EE_enc28j60_st ee_enc28j60_st = {
