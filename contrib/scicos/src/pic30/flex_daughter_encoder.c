@@ -27,26 +27,39 @@
 */
 
 #define EE_scicos_encoder_get_enc_id() block->ipar[0]
-#define EE_scicos_encoder_get_gain() block->rpar[0]
+//#define EE_scicos_encoder_get_gain() block->rpar[0]
 
 #define EE_ENCODER_HW 		0
 #define EE_ENCODER_SW 		1
+#define Deg_2_Rad			1.745329251994330e-002F
+#define EE_ENCODER_HW_GAIN	Deg_2_Rad
+#define EE_ENCODER_SW_GAIN	Deg_2_Rad*2	// TODO: check this value...
 
 #ifdef __USE_DEMOBOARD__
 #define EE_ENCODER_SW_PINA	PORTDbits.RD7 	// CN16
 #define EE_ENCODER_SW_PINB	PORTCbits.RC4	// digital input
 #define EE_ENCODER_SW_ISR()	ISR2(_CNInterrupt) //interrupt handler
-#define EE_encoder_clear_ISR_flag() IFS1bits.CNIF = 0
+#define EE_encoder_SW_clear_ISR_flag() IFS1bits.CNIF = 0
 #else
 #ifdef __USE_MOTIONBOARD__
 #define EE_ENCODER_SW_PINA	PORTDbits.RD8 	// IC1
 #define EE_ENCODER_SW_PINB	PORTBbits.RB11	// digital input
 #define EE_ENCODER_SW_ISR()	ISR2(_IC1Interrupt)	//interrupt handler
-#define EE_encoder_clear_ISR_flag() IFS0bits.IC1IF = 0
+#define EE_encoder_SW_clear_ISR_flag() IFS0bits.IC1IF = 0
 #endif
 #endif
 
 int ee_encsw_poscnts = 0;
+
+static float EE_encoder_SW_get_position(float sw_gain)
+{
+	return (float)EE_encoder_SW_get_ticks() * sw_gain;
+}
+
+static float EE_encoder_get_position(float hw_gain)
+{
+	return (float)EE_encoder_get_ticks() * hw_gain;
+}
 
 static void init(scicos_block *block)
 {
@@ -60,7 +73,7 @@ static void init(scicos_block *block)
 		* The QEI module provides the interface to incremental
 		* encoders for obtaining mechanical position data.
 		*/
-		EE_encoder_init(); //** encoder initialization 
+		EE_encoder_init(1, 1); //** encoder initialization 
 	}
 	else // id==2
 	{
@@ -86,11 +99,11 @@ static void inout(scicos_block *block)
 		//** in order to keep the signed comp. 2' bynary rapresentation.
 		//** the scaling to degree/radian/centesimal/mm will be done 
 		//** in a later release.
-		y[0] = (float) EE_encoder_get_position(EE_scicos_encoder_get_gain());
+		y[0] = (float) EE_encoder_get_position(EE_ENCODER_HW_GAIN);
 	}
 	else // id==2
 	{
-		y[0] = (float) EE_encoder_SW_get_position(EE_scicos_encoder_get_gain());
+		y[0] = (float) EE_encoder_SW_get_position(EE_ENCODER_SW_GAIN);
 	}
 }
 
@@ -120,7 +133,7 @@ void flex_daughter_encoder(scicos_block *block,int flag)
 
 EE_ENCODER_SW_ISR()
 {
-	EE_encoder_clear_ISR_flag();
+	EE_encoder_SW_clear_ISR_flag();
 	if(EE_ENCODER_SW_PINA)			// if 1, means rising edge
 	{
 		if(EE_ENCODER_SW_PINB)		// reverse - PhaseA lags PhaseB

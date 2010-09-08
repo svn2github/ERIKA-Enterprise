@@ -420,5 +420,188 @@ void EE_pwm_set_duty_f( EE_UINT8 chan , float duty )
 }
 #endif // __USE_PWM__
 
+/******************************************************************************/
+/*                                   DC-Motor PWM Out                         */
+/******************************************************************************/
+#ifdef __USE_DCM_PWM__
+
+int EE_dcm_pwm_init(EE_UINT8 chan, EE_UINT32 pwm_freq, EE_UINT16 init_duty, EE_INT8 dir)
+{
+	/* PWM tri-state */
+	EE_DCM_EN_M1_TRIS = 	    0;		    // pwm enable pin configuration	(D7/OC8 for L293D, EN_M1)
+	EE_DCM_EN_M2_TRIS = 	    0;		    // pwm enable pin configuration (D6/OC7 for L293D, EN_M2)
+
+	if(PTCONbits.PTEN==0)
+	{
+		EE_UINT16 ptper = (EE_UINT32)(40000000) / pwm_freq;	
+		
+		if( (ptper <= 1) || (init_duty > 100) )
+			return -1;
+
+		PTCONbits.PTEN = 	0;
+		PTCONbits.PTSIDL = 	0;		//PWM time base runs in CPU Idle mode
+		PTCONbits.PTOPS = 	0b0000;	//1:1 postscale
+		PTCONbits.PTCKPS = 	0b00;	//PWM time base input clock period is TCY (1:1 prescale)
+		PTCONbits.PTMOD = 	0b00;	//PWM time base operates in a Free-Running mode
+		PTMRbits.PTMR = 	0;
+		PTPER = 			ptper - 1;	// prescaler == 1
+		SEVTCMP = 			0;
+		
+		PWMCON1bits.PMOD4 = 1;	    //PWM I/O pin pair is in Independent PWM Output mode
+		PWMCON1bits.PMOD3 = 1;	    //PWM I/O pin pair is in Independent PWM Output mode
+		PWMCON1bits.PMOD2 = 1;	    //PWM I/O pin pair is in Independent PWM Output mode
+		PWMCON1bits.PMOD1 = 1;	    //PWM I/O pin pair is in Independent PWM Output mode
+		PWMCON1bits.PEN4H = 0;	    //PWMxy pin is disabled for PWM output
+		PWMCON1bits.PEN4L = 0;	    //PWMxy pin is disabled for PWM output
+		PWMCON1bits.PEN3H = 0;	    //PWMxy pin is disabled for PWM output
+		PWMCON1bits.PEN3L = 0;	    //PWMxy pin is disabled for PWM output
+		PWMCON1bits.PEN2H = 1;		//PWMxy pin is enabled for PWM output
+		PWMCON1bits.PEN2L = 1;		//PWMxy pin is enabled for PWM output
+		PWMCON1bits.PEN1H = 1;		//PWMxy pin is enabled for PWM output
+		PWMCON1bits.PEN1L = 1;		//PWMxy pin is enabled for PWM output
+	
+		PWMCON2bits.SEVOPS = 0b0000;
+		PWMCON2bits.IUE = 	0;
+		PWMCON2bits.OSYNC = 1;
+		PWMCON2bits.UDIS = 	0;
+
+		DTCON1 = 			0;
+		DTCON2 = 			0;	
+		FLTACON = 			0;
+		FLTBCON = 			0;
+
+		OVDCONbits.POUT4H = 0;	 
+		OVDCONbits.POUT4L = 0;	 
+		OVDCONbits.POUT3H = 0; 
+		OVDCONbits.POUT3L = 0; 
+		OVDCONbits.POUT2H = 0; 
+		OVDCONbits.POUT2L = 0; 
+		OVDCONbits.POUT1H = 0; 
+		OVDCONbits.POUT1L = 0;
+		OVDCONbits.POVD4H = 0;	
+		OVDCONbits.POVD4L = 0;	
+		OVDCONbits.POVD3H = 0; 	
+		OVDCONbits.POVD3L = 0;	
+		OVDCONbits.POVD2H = 0;      // OVERRIDE
+		OVDCONbits.POVD2L = 0; 	    // OVERRIDE
+		OVDCONbits.POVD1H = 0; 	    // OVERRIDE
+		OVDCONbits.POVD1L = 0;	    // OVERRIDE
+		
+		PDC1 = 0<<1;	
+		PDC2 = 0<<1;
+		PDC3 = 0<<1;
+		PDC4 = 0<<1;
+		
+		EE_dcm_pwm_enable_chan(chan);
+		EE_dcm_pwm_set_direction(chan, dir);
+		EE_dcm_pwm_set_duty(chan, init_duty);
+		
+		IEC3bits.FLTAIE = 	0;
+		IEC3bits.PWMIE = 	0;
+		IEC4bits.FLTBIE = 	0; 
+		PTCONbits.PTEN = 	1;
+    }
+	else
+	{
+		EE_dcm_pwm_enable_chan(chan);
+		EE_dcm_pwm_set_direction(chan, dir);
+		EE_dcm_pwm_set_duty(chan, init_duty);
+	}
+	return 1;
+}
+
+void EE_dcm_pwm_enable_chan(EE_UINT8 chan)
+{
+	switch (chan) {
+		case EE_DCM_PORT1:
+			EE_DCM_EN_M1 = 1;
+			break;
+		case EE_DCM_PORT2:			
+			EE_DCM_EN_M2 = 1;
+			break;
+	}
+}
+
+void EE_dcm_pwm_disable_chan(EE_UINT8 chan)
+{
+	switch (chan) {
+		case EE_DCM_PORT1:
+			EE_DCM_EN_M1 = 0;
+			break;
+		case EE_DCM_PORT2:			
+			EE_DCM_EN_M2 = 0;
+			break;
+	}
+}
+
+void EE_dcm_pwm_set_duty(EE_UINT8 chan, EE_UINT32 duty)
+{
+	switch (chan) {
+		case EE_DCM_PORT1:
+			PDC1 = (EE_UINT16)(((EE_UINT32)duty * (EE_UINT32)(PTPER+1))/((EE_UINT32)100)) << 1;	// please, note the shift operation...
+			break;
+		case EE_DCM_PORT2:			
+			PDC2 = (EE_UINT16)(((EE_UINT32)duty * (EE_UINT32)(PTPER+1))/((EE_UINT32)100)) << 1;	// please, note the shift operation...
+			break;
+	}
+}
+
+void EE_dcm_pwm_set_direction(EE_UINT8 chan , EE_INT8 dir)
+{
+	switch (chan) {
+		case EE_DCM_PORT1:
+			if(dir > 0){
+				OVDCONbits.POVD1H = 1; 	    // PWM
+				OVDCONbits.POVD1L = 0;	    // OVERRIDE
+			}
+			else if(dir < 0){
+				OVDCONbits.POVD1H = 0; 	    // OVERRIDE
+				OVDCONbits.POVD1L = 1;	    // PWM
+			}
+			else{ // dir==0 
+				OVDCONbits.POVD1H = 0; 	    // OVERRIDE
+				OVDCONbits.POVD1L = 0;	    // OVERRIDE
+			}
+			break;
+		case EE_DCM_PORT2:			
+			if(dir > 0)
+			{
+				OVDCONbits.POVD2H = 1;      // PWM
+				OVDCONbits.POVD2L = 0; 	    // OVERRIDE
+			}
+			else if(dir < 0)
+			{
+				OVDCONbits.POVD2H = 0;      // OVERRIDE
+				OVDCONbits.POVD2L = 1; 	    // PWM
+			}
+			else{ // dir==0 
+				OVDCONbits.POVD2H = 0;      // OVERRIDE
+				OVDCONbits.POVD2L = 0; 	    // OVERRIDE
+			}
+			break;
+	}
+}
+
+void EE_dcm_pwm_close(void)
+{
+	PTCONbits.PTEN = 0;
+}
+
+#endif // __USE_DCM_PWM__
+
+#ifdef __USE_ENCODER__
+
+void (*QEI_cbk)(void);
+
+void __attribute__ ((interrupt, no_auto_psv)) _QEIInterrupt(void)
+{
+	IFS3bits.QEIIF = 0; 
+	
+	if(QEI_cbk!=0)
+		QEI_cbk();
+}
+
+#endif // __USE_ENCODER__ 
+
 #endif // __USE_MOTIONBOARD__
 

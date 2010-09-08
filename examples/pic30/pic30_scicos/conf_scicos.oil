@@ -112,6 +112,19 @@ CPU mySystem {
 		};
 	};
 
+#ifdef __USE_CAN1__
+	TASK CAN1_TASK {
+		PRIORITY = 2;
+		STACK = SHARED;
+		SCHEDULE = FULL;
+	};
+	
+	ALARM AlarmCan {
+		COUNTER = "sciCounter";
+		ACTION = ACTIVATETASK { TASK = "CAN1_TASK"; };
+	};
+#endif	
+	
 #ifdef __USE_LCD__
  	TASK rt_LCD {
 		PRIORITY = 3;
@@ -126,11 +139,22 @@ CPU mySystem {
 #endif // __USE_LCD__
 
 #ifdef __USE_TOUCH__
-	TASK TASK_TOUCH_MANAGER {
+	//TASK TASK_TOUCH_MANAGER {
+	//	PRIORITY = 3;
+	//	STACK = SHARED;
+	//	SCHEDULE = FULL;
+	//};
+	TASK TASK_TOUCH_MANAGER_1 {
 		PRIORITY = 3;
 		STACK = SHARED;
 		SCHEDULE = FULL;
 	};
+	TASK TASK_TOUCH_MANAGER_2 {
+		PRIORITY = 3;
+		STACK = SHARED;
+		SCHEDULE = FULL;
+	};
+	
 #endif// __USE_TOUCH__
 
 #ifdef __USE_USB__
