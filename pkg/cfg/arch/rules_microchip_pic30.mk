@@ -356,7 +356,7 @@ $(OBJDIR)/%.o: %.S ee_pic30regs.inc
 else
 # produce the object file from assembly code in a single step
 $(OBJDIR)/%.o: %.S ee_pic30regs.inc
-	$(VERBOSE_PRINTCPP) $(EE_CC) $(COMPUTED_ALLINCPATH) $(DEFS_ASM) -c "$(SOURCEFILE)" -o $(TARGETFILE)
+	$(VERBOSE_PRINTCPP) $(EE_CC) $(COMPUTED_ALLINCPATH) $(DEFS_ASM) -mcpu=$(PIC30_MODEL) -c "$(SOURCEFILE)" -o $(TARGETFILE)
 endif
 
 ifeq ($(findstring BUILDSRC,$(EEALLOPT)), BUILDSRC)
