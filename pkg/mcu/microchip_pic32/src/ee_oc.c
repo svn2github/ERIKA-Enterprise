@@ -134,7 +134,7 @@ __INLINE__ void __ALWAYS_INLINE__ oc4_stop(void)
 
 EE_INT8 EE_oc_init(EE_UINT8 id)
 {
-	asm volatile ("SDBBP");
+	
 	switch (id) {
 	#ifdef __USE_EE_OC_1__
 	case EE_OC_1 :
