@@ -4,7 +4,7 @@
 <MemorySections Deployflag="false" UCflag="true">
 <Section DEPLOY="yes" Load="false" Name=".text" Value="sram"/>
 <Section Load="false" Name=".rodata" Value="sram"/>
-<Section Load="false" Name=".data" Value="sram"/>
+<Section Load="false" Name=".data" Value="sdram"/>
 </MemorySections>
 <LinkerSettings>
 <Param Name="UserDefinedLinkerFile" Value=""/>

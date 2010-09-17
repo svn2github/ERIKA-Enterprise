@@ -2,16 +2,21 @@
 
 CPU test_application {
 
-#include "conf.oil.test4"
-
 	OS EE {		
 		CFLAGS = "-g2";
 		ASFLAGS = "";
 		LDFLAGS = ""; 
 
+		CPU_DATA = LM32 {
+			APP_SRC = "test4_main.c";
+			MULTI_STACK = FALSE;
+			USESTANDALONEPRINTF = FALSE; // Optional, default is FALSE
+			USESMALLC = FALSE; // Optional, defautl is FALSE
+		};
+
 		MCU_DATA = LATTICE_PLATFORM {
    			MODEL = LIBRARY {
-				PLATFORM_LIB_PATH = "../test_sram_lib";
+				PLATFORM_LIB_PATH = "../../test_sram_lib";
 				PLATFORM_NAME = "test_base";
 				PLATFORM_BLD_CFG = "Release"; // Optional, default is ""
    			};

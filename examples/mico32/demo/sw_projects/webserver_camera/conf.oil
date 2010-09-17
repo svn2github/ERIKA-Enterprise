@@ -1,0 +1,73 @@
+//	CAMERA BASED WEB SERVER 
+
+CPU test_application {
+
+	#include "conf.oil.lwip"
+	#include "conf.oil.enc28j60"
+
+	OS EE {		
+		CFLAGS = "-g2";
+		ASFLAGS = "";
+		LDFLAGS = ""; 
+
+		CPU_DATA = LM32 {
+			APP_SRC = "main.c";
+			APP_SRC = "fs.c";
+			APP_SRC = "httpd.c";
+			APP_SRC = "lodepng.c";
+			APP_SRC = "color_model_conversion.c";
+			MULTI_STACK = FALSE;
+			USESTANDALONEPRINTF = FALSE; // Optional, default is FALSE
+			USESMALLC = FALSE; // Optional, default is FALSE
+		};
+		
+		MCU_DATA = LATTICE_PLATFORM {
+			MODEL = LIBRARY {
+				PLATFORM_LIB_PATH = "../test_sram_lib";
+				PLATFORM_NAME = "test_base";
+				PLATFORM_BLD_CFG = "Release"; // Optional, default is ""
+			};
+			
+			DEVICE = TIMER {
+				NAME = "timer";
+				OPTIONS = TIMER_IRQ_SUPPORT;
+			};
+
+			DEVICE = TIMER {
+				NAME = "timer_uwl";
+				OPTIONS = TIMER_IRQ_SUPPORT;
+			};
+
+			DEVICE = TIMER {
+				NAME = "freetimer";
+			};
+		};
+
+		BOARD_DATA = XP2_CAMERA_BOARD {
+			OPTIONS = CAMERA;
+			OPTIONS = RS232;
+			OPTIONS = ETHERNET;
+			OPTIONS = ETHERNET_IRQ_SUPPORT;
+			OPTIONS = LEDS;
+		};
+		
+		KERNEL_TYPE = FP;
+		
+		/* ********************************************************** */
+		/*                Contrib Library Inclusion                   */
+		/* ********************************************************** */
+		EE_OPT = "__ADD_LIBS__";
+
+		LIB = ENABLE {
+			NAME = "HV7131GP";
+		};
+		EE_OPT = "USE_HV7131GP";
+		
+	};
+	
+	ISR Camera {
+		CATEGORY = 2;
+		LEVEL = "CAMERA_IRQ";
+		HANDLER = "EE_hv7131gp_handler";
+	};
+};

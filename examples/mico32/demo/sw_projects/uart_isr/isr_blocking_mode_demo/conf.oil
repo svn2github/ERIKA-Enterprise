@@ -1,0 +1,63 @@
+//	UART ISR TEST
+
+CPU test_application {
+
+	OS EE {		
+		CFLAGS = "-g2";
+		ASFLAGS = "";
+		LDFLAGS = ""; 
+
+		CPU_DATA = LM32 {
+			APP_SRC = "test3_main.c";
+			MULTI_STACK = FALSE;
+			USESTANDALONEPRINTF = FALSE; // Optional, default is FALSE
+			USESMALLC = FALSE; // Optional, defautl is FALSE
+		};
+
+		MCU_DATA = LATTICE_PLATFORM {
+   			MODEL = LIBRARY {
+				PLATFORM_LIB_PATH = "../../test_sram_lib";
+				PLATFORM_NAME = "test_base";
+				PLATFORM_BLD_CFG = "Release"; // Optional, default is ""
+   			};
+   			
+			DEVICE = TIMER{						
+					NAME = "timer";	
+					OPTIONS = TIMER_IRQ_SUPPORT;									
+			};
+  		};
+  		
+  		BOARD_DATA = XP2_CAMERA_BOARD {
+			OPTIONS = RS232;
+			OPTIONS = RS232_IRQ_SUPPORT;
+			OPTIONS = LEDS;
+		};
+    };
+    
+    ISR Uart {
+		CATEGORY = 2;
+		LEVEL = "UART_IRQ";
+		HANDLER = "EE_uart_common_handler";
+	};
+	
+	ISR Timer {
+		CATEGORY = 2;
+		LEVEL = "TIMER_IRQ";
+		HANDLER = "EE_timer_common_handler";
+	};
+	
+    TASK myTask {
+		PRIORITY = 10;
+		STACK = SHARED;
+		SCHEDULE = FULL;
+	};
+	
+	COUNTER myCounter;
+
+ 	ALARM myAlarm {
+  		COUNTER = "myCounter";
+    	ACTION = ACTIVATETASK { TASK = "myTask"; };
+    };
+
+    OS EE { KERNEL_TYPE = FP; }; 	
+};
