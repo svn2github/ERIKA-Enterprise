@@ -1219,10 +1219,8 @@
 	  <GUI Name="SPI_PWD_UP" Span="1" Widget="Text"/>
 	  <GUI Name="SPI_DEV_ID" Span="1" Widget="Text"/>
   </GUIS>
-</Component><Component Access="" Custom="true" DRCError="false" Help="" Name="serpario" PlatformScheme="Shared Bus (Default)" Text="Serial/Parallel IO" Type="IO" Ver="0.1">
-  <MasterSlavePorts>
-    <SlavePort ACK="WB_ACK_O" ADR="WB_ADR_I" BTE="WB_BTE_I" CTI="WB_CTI_I" CYC="WB_CYC_I" DAT1="WB_DAT_I" DAT2="WB_DAT_O" ERR="WB_ERR_O" LOCK="WB_LOCK_I" Name="SerPar IO Port" Prefix="serpario" RTY="WB_RTY_O" SEL="WB_SEL_I" STB="WB_STB_I" WE="WB_WE_I"><Connections><Connection InstanceName="LM32" MasterPort="D" Priority="0"/></Connections></SlavePort>
-  </MasterSlavePorts>
+</Component><Component Access="" Custom="true" DRCError="false" Help="" Name="serpario" PlatformScheme="Shared Bus (Default)" Text="Serial/Parallel IO" Type="IO" Ver="0.2">
+  
   <ClockPort Name="CLK_I" UPort="CLK_I"/>
   <ResetPort Name="RST_I" UPort="RST_I"/>
   <ExternalPorts>
@@ -1243,27 +1241,18 @@
     <Software>
     </Software>
   </DeviceDriver>
-  <Parms>
-    <Parm Name="InstanceName" Text="Instance Name" Type="string" Value="serpario" isiname="true"/>
-    <Parm Name="BASE_ADDRESS" Text="Base Address" Type="Integer" Value="0x80006000" isba="true"/>
-    <Parm Enable="true" Name="SIZE" Text="Address Width" Type="Integer" Value="32" issize="true"/>
-    <Parm Name="ADDRESS_LOCK" Text="Lock Address" Type="Define" Value="undef"/>
-    <Parm Name="DISABLE" Text="Disable" Type="Define" Value="undef" isuse="true"/>
-    <Parm Name="INPUT_WIDTH" Text="Input width" Type="Integer" Value="9" isparm="true"/>
-    <Parm Name="OUTPUT_WIDTH" Text="Output width" Type="Integer" Value="16" isparm="true"/>
-    <Parm Name="CLOCK_DIV" Text="Clock divisor (x2)" Type="Integer" Value="10" isparm="true"/>
-    <Parm Name="LOG2_POLLING_PERIOD" Text="Log2 of polling period" Type="Integer" Value="14" isparm="true"/>
-  </Parms>
+  
   <GUIS Columns="2">
     <GUI Name="InstanceName" Span="1" Widget="Text"/>
     <GUI Name="BASE_ADDRESS" Span="1" Widget="Text"/>
     <GUI Name="SIZE" Span="1" Widget="Text"/>
     <GUI Name="INPUT_WIDTH" Span="1" Widget="Text"/>
     <GUI Name="OUTPUT_WIDTH" Span="1" Widget="Text"/>
+    <GUI Name="OUT_INITIAL_VALUE" Span="1" Widget="Text"/>
     <GUI Name="CLOCK_DIV" Span="1" Widget="Text"/>
     <GUI Name="LOG2_POLLING_PERIOD" Span="1" Widget="Text"/>
   </GUIS>
-</Component><Component Help="timer\document\timer.htm" Hide="false" Name="timer" PlatformScheme="Shared Bus (Default)" Text="Timer" Type="IO" Ver="3.0">
+<MasterSlavePorts><SlavePort ACK="WB_ACK_O" ADR="WB_ADR_I" BTE="WB_BTE_I" CTI="WB_CTI_I" CYC="WB_CYC_I" DAT1="WB_DAT_I" DAT2="WB_DAT_O" ERR="WB_ERR_O" LOCK="WB_LOCK_I" Name="SerPar IO Port" Prefix="serpario" RTY="WB_RTY_O" SEL="WB_SEL_I" STB="WB_STB_I" WE="WB_WE_I"><Connections><Connection InstanceName="LM32" MasterPort="D" Priority="0"/></Connections></SlavePort></MasterSlavePorts><Parms><Parm Name="InstanceName" Text="Instance Name" Type="string" Value="serpario" isiname="true"/><Parm Name="BASE_ADDRESS" Text="Base Address" Type="Integer" Value="0x80006000" isba="true"/><Parm Enable="true" Name="SIZE" Text="Address Width" Type="Integer" Value="32" issize="true"/><Parm Name="ADDRESS_LOCK" Text="Lock Address" Type="Define" Value="undef"/><Parm Name="DISABLE" Text="Disable" Type="Define" Value="undef" isuse="true"/><Parm Name="INPUT_WIDTH" Text="Input width" Type="Integer" Value="9" isparm="true"/><Parm Name="OUTPUT_WIDTH" Text="Output width" Type="Integer" Value="16" isparm="true"/><Parm Name="OUT_INITIAL_VALUE" Text="Output initial value" Type="Integer" Value="0x4000" isparm="true"/><Parm Name="CLOCK_DIV" Text="Clock divisor (x2)" Type="Integer" Value="10" isparm="true"/><Parm Name="LOG2_POLLING_PERIOD" Text="Log2 of polling period" Type="Integer" Value="14" isparm="true"/></Parms></Component><Component Help="timer\document\timer.htm" Hide="false" Name="timer" PlatformScheme="Shared Bus (Default)" Text="Timer" Type="IO" Ver="3.0">
 	<MasterSlavePorts>
 		<SlavePort Name="S Port" Prefix="S" Type="DATA"><Connections><Connection InstanceName="LM32" MasterPort="D" Priority="0"/></Connections></SlavePort>
 	</MasterSlavePorts>
