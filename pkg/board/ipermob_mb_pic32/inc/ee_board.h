@@ -9,6 +9,8 @@
 
 #if IPERMOB_MB_PIC32_VERSION == 0
 
+
+
 #ifdef __USE_LEDS__
 __INLINE__ void __ALWAYS_INLINE__ EE_leds_init(void)
 {
@@ -16,23 +18,50 @@ __INLINE__ void __ALWAYS_INLINE__ EE_leds_init(void)
 	LATECLR = 0X0F;
 }
 
+#define MB_PIC32_CAT3(x,y,z) x ## y ## z
+
 #define EE_led_0_on	(LATESET = 0x01)
 #define EE_led_1_on	(LATESET = 0x02)
 #define EE_led_2_on	(LATESET = 0x04)
 #define EE_led_3_on	(LATESET = 0x08)
-#define EE_led_on(n)	EE_led_##n##_on
+#define EE_led_on(n)	MB_PIC32_CAT3(EE_led_,n,_on)
 
 #define EE_led_0_off	(LATECLR = 0x01)
 #define EE_led_1_off	(LATECLR = 0x02)
 #define EE_led_2_off	(LATECLR = 0x04)
 #define EE_led_3_off	(LATECLR = 0x08)
-#define EE_led_off(n)	EE_led_##n##_off
+#define EE_led_off(n)	MB_PIC32_CAT3(EE_led_,n,_off)
 
 #define EE_led_0_toggle		(LATEINV = 0x01)
 #define EE_led_1_toggle		(LATEINV = 0x02)
 #define EE_led_2_toggle		(LATEINV = 0x04)
 #define EE_led_3_toggle		(LATEINV = 0x08)
-#define EE_led_toggle(n)	EE_led_##n##_toggle
+#define EE_led_toggle(n)	MB_PIC32_CAT3(EE_led_,n,_toggle)
+
+__INLINE__ void __ALWAYS_INLINE__ EE_leds_on(void) 
+{
+	EE_led_0_on;
+	EE_led_1_on;
+	EE_led_2_on;
+	EE_led_3_on;
+}
+
+__INLINE__ void __ALWAYS_INLINE__ EE_leds_off(void) 
+{
+	EE_led_0_off;
+	EE_led_1_off;
+	EE_led_2_off;
+	EE_led_3_off;
+}
+
+__INLINE__ void __ALWAYS_INLINE__ EE_leds_toggle(void) 
+{
+	EE_led_0_toggle;
+	EE_led_1_toggle;
+	EE_led_2_toggle;
+	EE_led_3_toggle;
+}
+
 
 #endif	/* __USE_LEDS__ */
 
