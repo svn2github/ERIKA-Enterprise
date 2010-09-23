@@ -57,7 +57,7 @@ EE_TYPEASSERTVALUE EE_assert(EE_TYPEASSERT id,
   }
 
   if (test) {
-    if (prev != EE_ASSERT_NIL)
+    if (prev != EE_ASSERT_NIL) {
       if (EE_assertions[prev] == EE_ASSERT_YES) {
 	/* test is true and the prev assertion is YES */
 	EE_assertions[id] = EE_ASSERT_YES;
@@ -68,7 +68,7 @@ EE_TYPEASSERTVALUE EE_assert(EE_TYPEASSERT id,
 	EE_assertions[id] = EE_ASSERT_NO;
 	return EE_ASSERT_NO;
       }
-    else {
+    } else {
       /* test is true and prev is EE_ASSERT_NIL */
       EE_assertions[id] = EE_ASSERT_YES;
       return EE_ASSERT_YES;
@@ -134,11 +134,12 @@ EE_TYPEASSERTVALUE EE_assert_range(EE_TYPEASSERT id,
 {
   EE_TYPEASSERT i;
 
-  for (i=begin; i<=end; i++)
+  for (i=begin; i<=end; i++) {
     if (EE_assertions[i] != EE_ASSERT_YES) {
       EE_assertions[id] = EE_ASSERT_NO;
       return EE_ASSERT_NO;
     }
+  }
   
   EE_assertions[id] = EE_ASSERT_YES;
   return EE_ASSERT_YES;
