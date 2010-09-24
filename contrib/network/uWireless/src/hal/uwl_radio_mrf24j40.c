@@ -105,7 +105,15 @@ int8_t uwl_radio_init(void)
 	mrf24j40_set_tx_finished_callback(&tx_finished_func);
 	#if defined(__USE_MOTIONBOARD__) || defined(UWL_USE_SPI_PORT_1)
 	return mrf24j40_init(0xF6, 11, MRF24J40_SPI_PORT_1);
-	#else
+	#elif defined(UWL_USE_SPI_PORT_1A) && defined(__32MX795F512L__)
+	return mrf24j40_init(0xF6, 11, MRF24J40_SPI_PORT_1A);	
+	#elif defined(UWL_USE_SPI_PORT_2A) && defined (__32MX795F512L__)
+	return mrf24j40_init(0xF6, 11, MRF24J40_SPI_PORT_2A);
+	#elif defined(UWL_USE_SPI_PORT_3A) && defined (__32MX795F512L__)
+	return mrf24j40_init(0xF6, 11, MRF24J40_SPI_PORT_3A);
+	#elif defined(UWL_USE_SPI_PORT_2) && defined (__32MX795F512L__)
+	return mrf24j40_init(0xF6, 11, MRF24J40_SPI_PORT_2);
+	#else //Original Default Behaviour
 	return mrf24j40_init(0xF6, 11, MRF24J40_SPI_PORT_2);
 	#endif
 
