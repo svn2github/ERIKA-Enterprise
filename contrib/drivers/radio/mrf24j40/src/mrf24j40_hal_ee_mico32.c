@@ -1,9 +1,52 @@
-/*
-  Name: mrf24j40_hal_ee_mico32.c
-  Copyright: Evidence Srl
-  Author: Dario Di Stefano
-  Date: 29/03/10 18.23
-  Description: MRF24J40 Hw Abstraction Layer using Erika OS over Lattice mico32.
+/* ###*B*###
+ * ERIKA Enterprise - a tiny RTOS for small microcontrollers
+ *
+ * Copyright (C) 2002-2008  Evidence Srl
+ *
+ * This file is part of ERIKA Enterprise.
+ *
+ * ERIKA Enterprise is free software; you can redistribute it
+ * and/or modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation, 
+ * (with a special exception described below).
+ *
+ * Linking this code statically or dynamically with other modules is
+ * making a combined work based on this code.  Thus, the terms and
+ * conditions of the GNU General Public License cover the whole
+ * combination.
+ *
+ * As a special exception, the copyright holders of this library give you
+ * permission to link this code with independent modules to produce an
+ * executable, regardless of the license terms of these independent
+ * modules, and to copy and distribute the resulting executable under
+ * terms of your choice, provided that you also meet, for each linked
+ * independent module, the terms and conditions of the license of that
+ * module.  An independent module is a module which is not derived from
+ * or based on this library.  If you modify this code, you may extend
+ * this exception to your version of the code, but you are not
+ * obligated to do so.  If you do not wish to do so, delete this
+ * exception statement from your version.
+ *
+ * ERIKA Enterprise is distributed in the hope that it will be
+ * useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License version 2 for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * version 2 along with ERIKA Enterprise; if not, write to the
+ * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+ * Boston, MA 02110-1301 USA.
+ * ###*E*### */
+ 
+/** 
+* @file 	mrf24j40_hal_ee_mico32.c
+* @brief 	MRF24J40 driver HAL for Mico32
+			This file is part of Microchip MRF24J40 radio transceiver
+			driver developed by Gianluca Franchino, Retis Lab. 
+			Scuola Superiore Sant'Anna. Pisa (Italy), 02/27/2008.
+			Contacts: g.franchino@sssup.it; gianluca@evidence.eu.com
+* @author 	Dario Di Stefano
+* @date 	2010
 */
 
 #include "mrf24j40.h"
@@ -16,8 +59,7 @@ EE_mrf24j40_st ee_mrf24j40_st = {
 	.rxcbk= EE_NULL_CBK, 
 	.txcbk= EE_NULL_CBK };
 	
-/* ---------------------- Ethernet interrupt handler ------------------------- */
-
+/* MRF24J40 driver interrupt handler */
 void EE_mrf24j40_handler(int level)
 {
 	EE_mrf24j40_gpio_IRQ_pre_stub();
@@ -29,8 +71,7 @@ void EE_mrf24j40_handler(int level)
 	return;
 }
 
-/* ---------------------- Ethernet Library functions ------------------------- */
-
+/* This function sets MRF24J40 driver operating mode */
 int EE_hal_mrf24j40_set_ISR_mode(int mode)
 {
 	int old_mode;
@@ -47,20 +88,12 @@ int EE_hal_mrf24j40_set_ISR_mode(int mode)
 	EE_hal_mrf24j40_handler_setup();
 	ee_mrf24j40_st.mode = mode; 	
 	
-	/* Buffer initialization */
-	// if (EE_mrf24j40_need_init_rx_buf(old_mode, mode))
-		// EE_buffer_init(&ee_mrf24j40_st.rxbuf, EE_MRF24J40_MSGSIZE, EE_MRF24J40_BUFSIZE, ee_mrf24j40_st.rxbuf.data);
-	// if (EE_mrf24j40_need_init_tx_buf(old_mode, mode))
-		// EE_buffer_init(&ee_mrf24j40_st.txbuf, EE_MRF24J40_MSGSIZE, EE_MRF24J40_BUFSIZE, ee_mrf24j40_st.txbuf.data);
-		
 	/* IRQ settings */
-    if(EE_mrf24j40_need_enable_int(mode))
-	{
+    if(EE_mrf24j40_need_enable_int(mode)){
 		mico32_enable_irq(ee_mrf24j40_st.irqf);
 		EE_mrf24j40_enable_IRQ();
 	}
-	else
-	{
+	else{
 		mico32_disable_irq(ee_mrf24j40_st.irqf);
 		EE_mrf24j40_disable_IRQ();
 	}
@@ -72,10 +105,7 @@ int EE_hal_mrf24j40_set_ISR_mode(int mode)
 	return MRF24J40_SUCCESS;
 }
 
-/*
-	__INLINE__ int __ALWAYS_INLINE__ EE_mrf24j40_set_rx_ISR_callback(EE_ISR_callback rxcbk)
-	This function sets ISR rx callback.
-*/
+/* This function sets MRF24J40 driver ISR rx callback. */
 int EE_mrf24j40_set_rx_ISR_callback(EE_ISR_callback rxcbk)
 {
 	ee_mrf24j40_st.rxcbk = rxcbk;
@@ -84,16 +114,14 @@ int EE_mrf24j40_set_rx_ISR_callback(EE_ISR_callback rxcbk)
 	return MRF24J40_SUCCESS;
 }
 
-/*
-	__INLINE__ int __ALWAYS_INLINE__ EE_mrf24j40_set_tx_ISR_callback(EE_ISR_callback txcbk)
-	This function sets ISR tx callback.
-*/
+/* This function sets MRF24J40 driver ISR tx callback (for UWL). */
 void EE_mrf24j40_txfcbk(uint8_t tx_status)
 {
 	ee_mrf24j40_st.status = tx_status;
 	ee_mrf24j40_st.txcbk();
 }
 
+/* This function sets MRF24J40 driver ISR tx callback. */
 int EE_mrf24j40_set_tx_ISR_callback(EE_ISR_callback txcbk)
 {
 	ee_mrf24j40_st.txcbk = txcbk;
@@ -102,8 +130,7 @@ int EE_mrf24j40_set_tx_ISR_callback(EE_ISR_callback txcbk)
 	return MRF24J40_SUCCESS;
 }
 
-
-
+/* This function reads MRF24J40 short address register. */
 int EE_mrf24j40_read_short_address_register(int address)
 {
 	// int ret;
@@ -125,6 +152,7 @@ int EE_mrf24j40_read_short_address_register(int address)
 	return mrf24j40_get_short_add_mem(address);
 }
 
+/* This function reads MRF24J40 long address register. */
 int EE_mrf24j40_read_long_address_register(int address)
 {
 	// int ret;
@@ -146,6 +174,7 @@ int EE_mrf24j40_read_long_address_register(int address)
 	return mrf24j40_get_long_add_mem(address);
 }
 
+/* This function writes MRF24J40 short address register. */
 int EE_mrf24j40_write_short_address_register(int address, EE_UINT8 data)
 {
 	// int ret;
@@ -165,6 +194,7 @@ int EE_mrf24j40_write_short_address_register(int address, EE_UINT8 data)
 	return MRF24J40_SUCCESS;
 }
 
+/* This function reads MRF24J40 long address register. */
 int EE_mrf24j40_write_long_address_register(int address, EE_UINT8 data)
 {
 	// int ret;
@@ -184,29 +214,13 @@ int EE_mrf24j40_write_long_address_register(int address, EE_UINT8 data)
 	return MRF24J40_SUCCESS;
 }
 
-int EE_mrf24j40_read_buffer_memory(EE_UINT8 *data, int len)
-{
-	int ret = MRF24J40_SUCCESS;
-	
-	// to do...
-	
-	return ret;
-}
-
-int EE_mrf24j40_write_buffer_memory(EE_UINT8 *data, int len)
-{
-	int ret = MRF24J40_SUCCESS;
-	
-	// to do...
-	
-	return ret;
-}
-
+/* This function implements a delay in micro-seconds */
 void EE_mrf24j40_delay_us(unsigned int delay_count)
 {
 	MicoSleepMicroSecs((unsigned int)delay_count);
 }
 
+/* This function resets the tranceiver via software */
 int EE_mrf24j40_software_reset(void)
 {
 	EE_mrf24j40_write_short_address_register(MRF24J40_SOFTRST, MRF24J40_SOFTRST_MASK);
@@ -214,10 +228,7 @@ int EE_mrf24j40_software_reset(void)
 	return MRF24J40_SUCCESS;
 }
 
-/*
-	int EE_mrf24j40_hardware_reset(void);
-	This function send a hardware reset command.
-*/
+/* This function resets the tranceiver via hardware */
 int EE_mrf24j40_hardware_reset(void)
 {
     EE_mrf24j40_disable();
@@ -228,10 +239,7 @@ int EE_mrf24j40_hardware_reset(void)
     return MRF24J40_SUCCESS;
 }
 
-/*
-	int EE_mrf24j40_enable(void);
-	This function enables device by reset pin. 
-*/
+/* This function enables the tranceiver releasing reset pin. */
 int EE_mrf24j40_enable(void)
 {
 	EE_mrf24j40_gpio_release_reset();
@@ -240,10 +248,7 @@ int EE_mrf24j40_enable(void)
     return MRF24J40_SUCCESS;
 }
 
-/*
-	int EE_mrf24j40_disable(void);
-	This function disables device by reset pin. 
-*/
+/* This function disables the tranceiver holding reset */
 int EE_mrf24j40_disable(void)
 {
 	EE_mrf24j40_gpio_hold_in_reset();
@@ -252,8 +257,9 @@ int EE_mrf24j40_disable(void)
 }
 
 
-/* ++++++++++++++++++++++++++++++++++++++++++++++++++++++ */
+/* MRF24J40 driver functions used by UWL */
 
+/* This function initializes Mico32 GPIO pins. */
 int8_t	mrf24j40_hal_init(void)
 {
     EE_mrf24j40_init();
@@ -261,6 +267,7 @@ int8_t	mrf24j40_hal_init(void)
 	return 1;
 } 
 
+/* This function initializes Mico32 spi controller. */
 int8_t	mrf24j40_hal_spi_init(uint8_t port)
 {
     EE_mrf24j40_spi_config(0, EE_SPI_POLLING | EE_SPI_RXTX_BLOCK);
@@ -268,6 +275,7 @@ int8_t	mrf24j40_hal_spi_init(uint8_t port)
     return 1;
 }
 
+/* This function closes Mico32 spi controller. */
 int8_t	mrf24j40_hal_spi_close(void)
 {
     EE_mrf24j40_spi_close();
@@ -275,6 +283,7 @@ int8_t	mrf24j40_hal_spi_close(void)
     return 1;
 }
 
+/* This function writes an array of bytes using spi interface. */
 int8_t	mrf24j40_hal_spi_write(uint8_t *data, uint16_t len)
 {
     EE_mrf24j40_spi_write_buffer(data, len);
@@ -282,6 +291,7 @@ int8_t	mrf24j40_hal_spi_write(uint8_t *data, uint16_t len)
     return 1;
 }
 
+/* This function reads an array of bytes using spi interface. */
 int8_t	mrf24j40_hal_spi_read(uint8_t *data, uint16_t len)
 {
     EE_mrf24j40_spi_read_buffer(data, len);

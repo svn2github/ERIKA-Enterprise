@@ -57,6 +57,15 @@
  *									(DS39662B)
  ********************************************************************/
 
+/** 
+* @file 	enc28j60_reg.h
+* @brief 	ENC28J60 library (can be used with LWIP)
+			This file is taken from Microchip TCPIP stack. 
+* @author 	Dario Di Stefano, Evidence Srl
+* @version 	see Microchip documentation
+* @date 	2010-07-12
+*/
+ 
 #ifndef __ENC28J60_REG_H
 #define __ENC28J60_REG_H
 

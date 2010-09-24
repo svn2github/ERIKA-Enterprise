@@ -1,10 +1,54 @@
-/*
-  Name: mrf24j40_hal_ee_mico32.h
-  Copyright: Evidence Srl
-  Author: Dario Di Stefano
-  Date: 29/03/10 18.23
-  Description: mico32 internal functions for u-wireless (zigbee) protocol
+/* ###*B*###
+ * ERIKA Enterprise - a tiny RTOS for small microcontrollers
+ *
+ * Copyright (C) 2002-2008  Evidence Srl
+ *
+ * This file is part of ERIKA Enterprise.
+ *
+ * ERIKA Enterprise is free software; you can redistribute it
+ * and/or modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation, 
+ * (with a special exception described below).
+ *
+ * Linking this code statically or dynamically with other modules is
+ * making a combined work based on this code.  Thus, the terms and
+ * conditions of the GNU General Public License cover the whole
+ * combination.
+ *
+ * As a special exception, the copyright holders of this library give you
+ * permission to link this code with independent modules to produce an
+ * executable, regardless of the license terms of these independent
+ * modules, and to copy and distribute the resulting executable under
+ * terms of your choice, provided that you also meet, for each linked
+ * independent module, the terms and conditions of the license of that
+ * module.  An independent module is a module which is not derived from
+ * or based on this library.  If you modify this code, you may extend
+ * this exception to your version of the code, but you are not
+ * obligated to do so.  If you do not wish to do so, delete this
+ * exception statement from your version.
+ *
+ * ERIKA Enterprise is distributed in the hope that it will be
+ * useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License version 2 for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * version 2 along with ERIKA Enterprise; if not, write to the
+ * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+ * Boston, MA 02110-1301 USA.
+ * ###*E*### */
+ 
+/** 
+* @file 	mrf24j40_hal_ee_mico32.h
+* @brief 	MRF24J40 driver HAL for Mico32
+			This file is part of Microchip MRF24J40 radio transceiver
+			driver developed by Gianluca Franchino, Retis Lab. 
+			Scuola Superiore Sant'Anna. Pisa (Italy), 02/27/2008.
+			Contacts: g.franchino@sssup.it; gianluca@evidence.eu.com
+* @author 	Dario Di Stefano
+* @date 	2010
 */
+
 
 #ifndef __mrf24j40_hal_ee_mico32_h__
 #define __mrf24j40_hal_ee_mico32_h__
@@ -127,134 +171,105 @@ __INLINE__ void __ALWAYS_INLINE__ EE_mrf24j40_spi_get_slave(unsigned int *pmask 
 __INLINE__ void __ALWAYS_INLINE__ EE_mrf24j40_spi_close(){ \
 	EE_hal_spi_disable((MicoSPI_t*)EE_BASE_ADD(uc)); }
 	
-///* ZIGBEE API functions */
+/* ZIGBEE API functions */
+
+/* SPI functions */
 DECLARE_FUNC_SPI_MRF24J40(EE_ZIGBEE_SPI_NAME_UC, EE_ZIGBEE_SPI_NAME_LC)
 
-/* API */
-/*
-	void EE_mrf24j40_delay_us(EE_UINT16 delay_count);
-	This function contains a delay loop. 
+/**
+	@brief This function contains a delay loop in micro-seconds. 
 */
 void EE_mrf24j40_delay_us(unsigned int delay_count);
 
-/*
-	__INLINE__ int __ALWAYS_INLINE__ EE_mrf24j40_set_rx_ISR_callback(EE_ISR_callback rxcbk)
-	This function sets ISR rx callback.
+/**
+	@brief This function sets ISR rx callback.
 */
 int EE_mrf24j40_set_rx_ISR_callback(EE_ISR_callback rxcbk);
 
-/*
-	__INLINE__ int __ALWAYS_INLINE__ EE_mrf24j40_set_tx_ISR_callback(EE_ISR_callback txcbk)
-	This function sets ISR tx callback.
+/**
+	@brief This function sets ISR tx callback.
 */
 int EE_mrf24j40_set_tx_ISR_callback(EE_ISR_callback txcbk);
 
-/*
-int EE_hal_mrf24j40_set_ISR_mode(int mode);
-	This function is called by EE_mrf24j40_set_mode(int mode) function.
-	It is used to configure the GPIO pin connected to mrf24j40 device.
+/**
+	@brief This function sets the driver operating mode (polling, ISR).
 */
 int EE_hal_mrf24j40_set_ISR_mode(int mode);
 
-/*
-	int EE_mrf24j40_read_short_address_register(int address);
-	This function reads the content of a short address register.
+/**
+	@brief This function reads the content of a short address register.
 */
 int EE_mrf24j40_read_short_address_register(int address);
 
-/*
-	int EE_mrf24j40_read_long_address_register(int address);
-	This function reads the content of a long address register.
+/**
+	@brief This function reads the content of a long address register.
 */
 int EE_mrf24j40_read_long_address_register(int address);
 
-/*
-	int EE_mrf24j40_write_short_address_register(int address);
-	This function reads the content of a short address register.
+/**
+	@brief This function writes on a short address register.
 */
 int EE_mrf24j40_write_short_address_register(int address, EE_UINT8 data);
 
-/*
-	int EE_mrf24j40_write_long_address_register(int address);
-	This function reads the content of a long address register.
+/**
+	@brief This function writes on a long address register.
 */
 int EE_mrf24j40_write_long_address_register(int address, EE_UINT8 data);
 
-/*
-	int EE_mrf24j40_read_buffer_memory(EE_UINT8 *data, int len);
-	This function reads from the mrf24j40 memory buffer.
-*/
-int EE_mrf24j40_read_buffer_memory(EE_UINT8 *data, int len);
-
-/*
-	int EE_mrf24j40_write_buffer_memory(EE_UINT8 *data, int len);
-	This function writes on the mrf24j40 memory buffer.
-*/
-int EE_mrf24j40_write_buffer_memory(EE_UINT8 *data, int len);
-
-/*
-	int EE_mrf24j40_software_reset(void);
-	This function send a software reset command.
+/**
+	@brief This function resets the tranceiver via software.
 */
 int EE_mrf24j40_software_reset(void);
 
-/*
-	int EE_mrf24j40_hardware_reset(void);
-	This function send a hardware reset command.
+/**
+	@brief This function resets the tranceiver via hardware.
 */
 int EE_mrf24j40_hardware_reset(void);
 
-/*
-	int EE_mrf24j40_enable(void);
-	This function enables device by reset pin. 
+/**
+	@brief This function turns on the tranceiver releasing reset.
 */
 int EE_mrf24j40_enable(void);
 
-/*
-	int EE_mrf24j40_disable(void);
-	This function disables device by reset pin. 
+/**
+	@brief This function turns off the tranceiver holding reset.
 */
 int EE_mrf24j40_disable(void);
 
-/*
-	int EE_mrf24j40_enable_IRQ(void);
-	This function enables mrf24j40 interrupts reception. 
+/**
+	@brief This function enables GPIO IRQ.
 */
 __INLINE__ void __ALWAYS_INLINE__ EE_mrf24j40_enable_IRQ(void)
 {
 	EE_mrf24j40_gpio_enable_IRQ();
 }
 
-/*
-	int EE_mrf24j40_disable_IRQ(void);
-	This function disables mrf24j40 interrupts reception. 
+/**
+	@brief This function disables GPIO IRQ.
 */
 __INLINE__ void __ALWAYS_INLINE__ EE_mrf24j40_disable_IRQ(void)
 {
 	EE_mrf24j40_gpio_disable_IRQ();
 }
 
-/*
-	int EE_mrf24j40_IRQ_enabled(void);
-	This function returns mrf24j40 interrupts enable state. 
+/**
+	@brief This function returns GPIO IRQ enabling status.
 */
 __INLINE__ int __ALWAYS_INLINE__ EE_mrf24j40_IRQ_enabled(void)
 {
 	return EE_mrf24j40_gpio_IRQ_enabled();
 }
 
-/*
-	__INLINE__ int __ALWAYS_INLINE__ EE_mrf24j40_set_mode(int mode)
-	This function sets mrf24j40 driver operating mode.
+/**
+	@brief This function sets the driver operating mode.
 */
 __INLINE__ int __ALWAYS_INLINE__ EE_mrf24j40_set_ISR_mode(int mode)
 { 
 	return EE_hal_mrf24j40_set_ISR_mode(mode); 
 } 
 
-/*
-	__INLINE__ int __ALWAYS_INLINE__ EE_mrf24j40_init(void)
-	This function configures mrf24j40 gpio pins.
+/**
+	@brief This function turns off the tranceiver and resets Mico32 GPIO pins.
 */
 __INLINE__ int __ALWAYS_INLINE__ EE_mrf24j40_init(void)
 { 
@@ -264,9 +279,9 @@ __INLINE__ int __ALWAYS_INLINE__ EE_mrf24j40_init(void)
 	return MRF24J40_SUCCESS;
 } 
 
-/*
-	__INLINE__ int __ALWAYS_INLINE__ EE_mrf24j40_config(void)
-	This function configures mrf24j40 driver.
+/**
+	@brief 	This function turns on the tranceiver, initializes Mico32 spi controller 
+			and configures driver operating mode.
 */
 __INLINE__ int __ALWAYS_INLINE__ EE_mrf24j40_config(void)
 { 
@@ -281,14 +296,15 @@ __INLINE__ int __ALWAYS_INLINE__ EE_mrf24j40_config(void)
 	#endif // __USE_ZIGBEE_IRQ__
 } 
 
-/*
-	void EE_mrf24j40_handler(int level);
-	MRF24J40 driver ISR handler. 
+/**
+	@brief 	This function is the MRF24j40 driver interrupt handler.
 */
 void EE_mrf24j40_handler(int level);
 
 #ifndef __STATIC_ISR_TABLE__
-/* This function records ISR handler */
+/**
+	@brief 	This function registers the MRF24j40 driver interrupt handler.
+*/
 __INLINE__ void __ALWAYS_INLINE__ EE_hal_mrf24j40_handler_setup(void)
 {
     /* Register IRQ handler */
@@ -300,96 +316,88 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_mrf24j40_handler_setup(void)
 
 
 /*
-	Functions used by UWL
+	HAL API functions for UWL
 */
 
-/*
-	void mrf24j40_set_rx_callback(void (*func)(void));
-	This function sets the rx callback.
+/**
+	@brief This function sets the rx ISR callback (for UWL).
 */
 void mrf24j40_set_rx_callback(void (*func)(void));
 
-/*
-	void mrf24j40_set_tx_finished_callback(void (*tx_finished_func)(uint8_t tx_status));
-	This function sets the tx finished callback.
+/**
+	@brief This function sets the tx-finished ISR callback (for UWL).
 */
 void mrf24j40_set_tx_finished_callback(void (*tx_finished_func)(uint8_t tx_status));
 
-/*
-	Driver internal callback. It's called by the true handler. 
-	Note, it is not the registered handler function. 
+/**
+	@brief 	This function is the driver internal callback (for UWL).
+			It's called by the true handler. 
+			Note, it is not the registered handler function. 
 */
 ISR2(MRF24J40_INTERRUPT_NAME);
 
-/*
-	int8_t	mrf24j40_hal_init(void);
-	This function calls the function EE_mrf24j40_init();
+/**
+	@brief 	This function initializes and resets Mico32 GPIO pins (for UWL).
 */
 int8_t	mrf24j40_hal_init(void);
 
-/*
-	int8_t	mrf24j40_hal_spi_init(uint8_t port);
-	This function initializes spi port.
+/**
+	@brief 	This function initializes Mico32 spi controller (for UWL).
 */
 int8_t	mrf24j40_hal_spi_init(uint8_t port);
 
-/*
-	int8_t	mrf24j40_hal_spi_close(void);
-	This function closes spi port
+/**
+	@brief 	This function closes Mico32 spi controller (for UWL).
 */
 int8_t	mrf24j40_hal_spi_close(void);
 
-/*
-	int8_t	mrf24j40_hal_spi_write(uint8_t *data, uint16_t len);
-	This function is used to write on the spi bus.
+/**
+	@brief 	This function writes an array of bytes 
+			using Mico32 spi controller (for UWL).
 */
 int8_t	mrf24j40_hal_spi_write(uint8_t *data, uint16_t len);
 
-/*
-	int8_t	mrf24j40_hal_spi_read(uint8_t *data, uint16_t len);
-	This function is used to read on the spi bus.
+/**
+	@brief 	This function reads an array of bytes 
+			using Mico32 spi controller (for UWL).
 */
 int8_t	mrf24j40_hal_spi_read(uint8_t *data, uint16_t len);
 
-/*
-	COMPILER_INLINE void mrf24j40_hal_delay_us(uint16_t delay_count)
-	This function implements a delay.
+/**
+	@brief 	This function implements a delay in micro-seconds.
 */
 COMPILER_INLINE void mrf24j40_hal_delay_us(uint16_t delay_count)
 {
 	EE_mrf24j40_delay_us((unsigned int)delay_count);
 }
 
-/*
-	COMPILER_INLINE void mrf24j40_hal_retsetn_high(void)
-	This function is used to release reset condition.
+/**
+	@brief 	This function releases reset pin.
 */
 COMPILER_INLINE void mrf24j40_hal_retsetn_high(void)
 {
 	EE_mrf24j40_gpio_release_reset();
 }
 
-/*
-	COMPILER_INLINE void mrf24j40_hal_retsetn_low(void)
-	This function is used to hold reset condition.
+/**
+	@brief 	This function holds reset.
 */
 COMPILER_INLINE void mrf24j40_hal_retsetn_low(void)
 {
 	EE_mrf24j40_gpio_hold_in_reset();
 }
 
-/*
-	COMPILER_INLINE void mrf24j40_hal_csn_high(void)
-	This function is used to release CSN signal.
+/**
+	@brief 	This function terminates spi communication.
 */
 COMPILER_INLINE void mrf24j40_hal_csn_high(void)
 {
 	EE_mrf24j40_spi_clear_SSO();
 }
 
-/*
-	COMPILER_INLINE void mrf24j40_hal_csn_low(void)
-	This function is used to select the slave and configure CSN pin.
+/**
+	@brief 	This function selects the slave and configures SS pin
+			to have a data transfer longer than the transmit and receive registers.
 */
 COMPILER_INLINE void mrf24j40_hal_csn_low(void)
 {
@@ -397,58 +405,53 @@ COMPILER_INLINE void mrf24j40_hal_csn_low(void)
 	EE_mrf24j40_spi_set_SSO(); // ss is low when transmission begins...
 }
 
-/*
-	COMPILER_INLINE void mrf24j40_hal_irq_clean(void)
-	This function is void. Kept for compatibility.
+/**
+	@brief 	This function is void. Kept for compatibility.
 */
 COMPILER_INLINE void mrf24j40_hal_irq_clean(void)
 {
 	return;
 }
 
-/*
-	COMPILER_INLINE void mrf24j40_hal_irq_enable(void)
-	This function calls EE_mico32_enableIRQ().
+/**
+	@brief 	This function enables Mico32 IRQ.
 */
 COMPILER_INLINE void mrf24j40_hal_irq_enable(void)
 {
-	EE_mico32_enableIRQ(); //EE_mrf24j40_enable_IRQ();
+	EE_mico32_enableIRQ(); 
 }
 
-/*
-	COMPILER_INLINE void mrf24j40_hal_irq_disable(void)
-	This function calls EE_mico32_disableIRQ().
+/**
+	@brief 	This function disables Mico32 IRQ.
 */
 COMPILER_INLINE void mrf24j40_hal_irq_disable(void)
 {
-	EE_mico32_disableIRQ(); //EE_mrf24j40_disable_IRQ();
+	EE_mico32_disableIRQ(); 
 }
 
-/*
-	COMPILER_INLINE uint8_t mrf24j40_hal_irq_status(void)
-	Thsi function calls EE_mico32_get_IRQ_enabled().
+/**
+	@brief 	This function returns Mico32 IRQ enabling status.
 */
 COMPILER_INLINE uint8_t mrf24j40_hal_irq_status(void)
 {
 	return EE_mico32_get_IRQ_enabled(); 
 }
 
-/*
-	COMPILER_INLINE uint8_t mrf24j40_hal_int_enable(void)
-	This function is used to register the handler and enable IRQ. 
+/**
+	@brief 	This function registers the GPIO interrupt handler 
+			and enables MRF24J40 driver GPIO IRQ. 
 */
 COMPILER_INLINE uint8_t mrf24j40_hal_int_enable(void)
 {
-	mico32_clear_ip_mask(1<<EE_MRF24J40_IRQ); 	// clear bit in ip register
-	EE_hal_mrf24j40_handler_setup(); 			//EE_mico32_register_ISR(ee_mrf24j40_st.irqf, EE_mrf24j40_handler);	
+	mico32_clear_ip_mask(1<<EE_MRF24J40_IRQ); 	
+	EE_hal_mrf24j40_handler_setup(); 			
 	mico32_enable_irq(ee_mrf24j40_st.irqf);
-	EE_mrf24j40_enable_IRQ();	 		//EE_mrf24j40_set_ISR_mode(EE_MRF24J40_RXTX_ISR); //(EE_MRF24J40_RXTX_ISR); //(EE_MRF24J40_POLLING | EE_MRF24J40_RXTX_BLOCK);;
+	EE_mrf24j40_enable_IRQ();	 				
 	return MRF24J40_SUCCESS;
 }
 
-/*
-	COMPILER_INLINE uint8_t mrf24j40_hal_int_disable(void)
-	This function calls EE_mrf24j40_disable_IRQ().
+/**
+	@brief 	This function disables MRF24J40 driver GPIO IRQ. 
 */
 COMPILER_INLINE uint8_t mrf24j40_hal_int_disable(void)
 {
@@ -456,9 +459,9 @@ COMPILER_INLINE uint8_t mrf24j40_hal_int_disable(void)
 	return MRF24J40_SUCCESS;
 }
 
-/*
-	CCOMPILER_INLINE uint8_t mrf24j40_hal_int_status(void)
-	This function calls EE_mrf24j40_IRQ_enabled().
+/**
+	@brief 	This function returns MRF24J40 driver GPIO IRQ
+			enabling status. 
 */
 COMPILER_INLINE uint8_t mrf24j40_hal_int_status(void)
 {

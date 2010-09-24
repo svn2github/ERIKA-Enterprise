@@ -1,10 +1,49 @@
-/*
-  Name: enc28j60_hal_ee_mico32.c
-  Copyright: Evidence Srl
-  Author: Dario Di Stefano
-  Date: 29/03/10 18.23
-  Description: ENC28J60 driver source file.
-*/
+/* ###*B*###
+ * ERIKA Enterprise - a tiny RTOS for small microcontrollers
+ *
+ * Copyright (C) 2002-2008  Evidence Srl
+ *
+ * This file is part of ERIKA Enterprise.
+ *
+ * ERIKA Enterprise is free software; you can redistribute it
+ * and/or modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation, 
+ * (with a special exception described below).
+ *
+ * Linking this code statically or dynamically with other modules is
+ * making a combined work based on this code.  Thus, the terms and
+ * conditions of the GNU General Public License cover the whole
+ * combination.
+ *
+ * As a special exception, the copyright holders of this library give you
+ * permission to link this code with independent modules to produce an
+ * executable, regardless of the license terms of these independent
+ * modules, and to copy and distribute the resulting executable under
+ * terms of your choice, provided that you also meet, for each linked
+ * independent module, the terms and conditions of the license of that
+ * module.  An independent module is a module which is not derived from
+ * or based on this library.  If you modify this code, you may extend
+ * this exception to your version of the code, but you are not
+ * obligated to do so.  If you do not wish to do so, delete this
+ * exception statement from your version.
+ *
+ * ERIKA Enterprise is distributed in the hope that it will be
+ * useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License version 2 for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * version 2 along with ERIKA Enterprise; if not, write to the
+ * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+ * Boston, MA 02110-1301 USA.
+ * ###*E*### */
+ 
+/** 
+* @file 	enc28j60_hal_ee_mico32.c
+* @brief 	ENC28J60 driver - HAL for Lattice Mico32
+* @author 	Dario Di Stefano
+* @date 	2010
+*/ 
 
 #include "enc28j60.h"
 #include "enc28j60_debug.h"
@@ -27,6 +66,7 @@ EE_enc28j60_st ee_enc28j60_st = {
  * automatically be cleared.
 */
 
+/* This function is the ENC28J60 interrupt handler */
 void EE_enc28j60_hal_handler(int level)
 {
 	EE_enc28j60_disable_IRQ();
@@ -43,16 +83,19 @@ void EE_enc28j60_hal_handler(int level)
 
 /* ---------------------- Ethernet Library functions ------------------------- */
 
+/* This function implements a delay in micro-seconds */
 void EE_enc28j60_hal_delay_us(unsigned int delay_count)
 {
 	MicoSleepMicroSecs((unsigned int)delay_count);
 }
 
+/* This function implements a delay in milli-seconds */
 void EE_enc28j60_hal_delay_ms(unsigned int delay_count)
 {
 	MicoSleepMilliSecs((unsigned int)delay_count);
 }
 
+/* This function reads a byte from ENC28J60 buffer memory (for MAC layer) */
 BYTE EE_enc28j60_hal_get()
 {
 	BYTE Result;
@@ -64,6 +107,7 @@ BYTE EE_enc28j60_hal_get()
 	return Result;
 }//end MACGet
 
+/* This function reads an array of bytes from ENC28J60 buffer memory (for MAC layer) */
 WORD EE_enc28j60_hal_get_array(BYTE *val, WORD len)
 {
 	WORD num;
@@ -77,6 +121,7 @@ WORD EE_enc28j60_hal_get_array(BYTE *val, WORD len)
     return num;
 }//end MACGetArray
 
+/* This function writes a byte to ENC28J60 buffer memory (for MAC layer) */
 void EE_enc28j60_hal_put(BYTE val)
 {
 	EE_enc28j60_hal_set_slave(EE_ENC28J60_DEVICE_ID);	
@@ -85,6 +130,7 @@ void EE_enc28j60_hal_put(BYTE val)
 	EE_enc28j60_hal_chip_unselect();
 }//end MACPut
 
+/* This function writes an array of bytes to ENC28J60 buffer memory (for MAC layer) */
 void EE_enc28j60_hal_put_array(BYTE *val, WORD len)
 {
 	EE_enc28j60_hal_set_slave(EE_ENC28J60_DEVICE_ID);	
@@ -96,6 +142,7 @@ void EE_enc28j60_hal_put_array(BYTE *val, WORD len)
 	EE_enc28j60_hal_chip_unselect();
 }//end MACPutArray
 
+/* This function implements a sw reset */
 void EE_enc28j60_hal_software_reset(void)
 {
 	// Note: The power save feature may prevent the reset from executing, so
@@ -111,6 +158,7 @@ void EE_enc28j60_hal_software_reset(void)
     EE_enc28j60_hal_delay_us(1000);
 }//end SendSystemReset
 
+/* This function implements a hw reset */
 void EE_enc28j60_hal_hardware_reset(void)
 {
 	EE_enc28j60_hal_disable();
@@ -118,6 +166,7 @@ void EE_enc28j60_hal_hardware_reset(void)
 	EE_enc28j60_hal_enable();
 }
 
+/* This function reads a ENC28J60 ETH type register */
 REG EE_enc28j60_hal_read_ETH_register(BYTE Address)
 {
     REG r;
@@ -131,6 +180,7 @@ REG EE_enc28j60_hal_read_ETH_register(BYTE Address)
     return r;
 }//end ReadETHReg
 
+/* This function reads a ENC28J60 MAC type or MII type register */
 REG EE_enc28j60_hal_read_MAC_MII_register(BYTE Address)
 {
     REG r;
@@ -145,6 +195,7 @@ REG EE_enc28j60_hal_read_MAC_MII_register(BYTE Address)
     return r;
 }//end ReadMACReg
 
+/* This function reads a ENC28J60 PHY type register */
 PHYREG EE_enc28j60_hal_read_PHY_register(BYTE Register)
 {
     PHYREG Result;
@@ -169,6 +220,7 @@ PHYREG EE_enc28j60_hal_read_PHY_register(BYTE Register)
     return Result;
 }//end ReadPHYReg
 
+/* This function writes on a specified ENC28J60 register */
 void EE_enc28j60_hal_write_register(BYTE Address, BYTE Data)
 {
 	EE_enc28j60_hal_set_slave(EE_ENC28J60_DEVICE_ID);	
@@ -177,6 +229,7 @@ void EE_enc28j60_hal_write_register(BYTE Address, BYTE Data)
 	EE_enc28j60_hal_chip_unselect();
 }//end WriteReg
 
+/* This function implements a binary AND on a ENC28J60 register using a mask */
 void EE_enc28j60_hal_bit_field_clear_register(BYTE Address, BYTE Data)
 {
 	EE_enc28j60_hal_set_slave(EE_ENC28J60_DEVICE_ID);	
@@ -185,6 +238,7 @@ void EE_enc28j60_hal_bit_field_clear_register(BYTE Address, BYTE Data)
 	EE_enc28j60_hal_chip_unselect();
 }//end BFCReg
 
+/* This function implements a binary OR on a ENC28J60 register using a mask */
 void EE_enc28j60_hal_bit_field_set_register(BYTE Address, BYTE Data)
 {
 	EE_enc28j60_hal_set_slave(EE_ENC28J60_DEVICE_ID);	
@@ -193,6 +247,7 @@ void EE_enc28j60_hal_bit_field_set_register(BYTE Address, BYTE Data)
 	EE_enc28j60_hal_chip_unselect();
 }//end BFSReg
 
+/* This function writes on a ENC28J60 PHY type register */
 void EE_enc28j60_hal_write_PHY_register(BYTE Register, WORD Data)
 {
     // Write the register address
@@ -212,6 +267,7 @@ void EE_enc28j60_hal_write_PHY_register(BYTE Register, WORD Data)
     BankSel(ERDPTL);    // Return to Bank 0
 }//end WritePHYReg
 
+/* This function selects the bank */
 void EE_enc28j60_hal_bank_select(WORD Register)
 {
 	BFCReg(ECON1, ECON1_BSEL1 | ECON1_BSEL0);
@@ -219,6 +275,7 @@ void EE_enc28j60_hal_bank_select(WORD Register)
 	
 }//end BankSel
 
+/* This function sets CLKOUT */
 void EE_enc28j60_hal_set_clkout(BYTE NewConfig)
 {
     BankSel(ECOCON);
@@ -226,6 +283,7 @@ void EE_enc28j60_hal_set_clkout(BYTE NewConfig)
     BankSel(ERDPTL);
 }//end SetCLKOUT
 
+/* This function gets CLKOUT */
 BYTE EE_enc28j60_hal_get_clkout(void)
 {
     BYTE i;

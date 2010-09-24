@@ -1,13 +1,48 @@
+/* ###*B*###
+ * ERIKA Enterprise - a tiny RTOS for small microcontrollers
+ *
+ * Copyright (C) 2002-2008  Evidence Srl
+ *
+ * This file is part of ERIKA Enterprise.
+ *
+ * ERIKA Enterprise is free software; you can redistribute it
+ * and/or modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation, 
+ * (with a special exception described below).
+ *
+ * Linking this code statically or dynamically with other modules is
+ * making a combined work based on this code.  Thus, the terms and
+ * conditions of the GNU General Public License cover the whole
+ * combination.
+ *
+ * As a special exception, the copyright holders of this library give you
+ * permission to link this code with independent modules to produce an
+ * executable, regardless of the license terms of these independent
+ * modules, and to copy and distribute the resulting executable under
+ * terms of your choice, provided that you also meet, for each linked
+ * independent module, the terms and conditions of the license of that
+ * module.  An independent module is a module which is not derived from
+ * or based on this library.  If you modify this code, you may extend
+ * this exception to your version of the code, but you are not
+ * obligated to do so.  If you do not wish to do so, delete this
+ * exception statement from your version.
+ *
+ * ERIKA Enterprise is distributed in the hope that it will be
+ * useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License version 2 for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * version 2 along with ERIKA Enterprise; if not, write to the
+ * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+ * Boston, MA 02110-1301 USA.
+ * ###*E*### */
+
 /** 
-* @file pcf8583.h
-* @brief PCF8583 real time clock Driver
-* @author Dario Di Stefano 
-* @date 2010-08-30
-*
-* This file is the definition of the hardware abstraction layer used by the 
-* pcf8583 device driver 
-*
-* \todo Write something about the supported compilers.
+* @file 	pcf8583.h
+* @brief 	PCF8583 real time clock Driver main header file.
+* @author 	Dario Di Stefano 
+* @date 	2010
 */
 
 #ifndef __PCF8583_H__
@@ -15,132 +50,61 @@
 
 #include "pcf8583_compiler.h"
 #include "pcf8583_hal.h"
+#include "pcf8583_reg.h"
 
 /* Time structure */
 typedef struct {
     uint8_t year, month, day, hours, minutes, seconds, hundredths;
 } TTime;
 
-/******************************************************************************/
-/*				Registers Definition 			      */
-/******************************************************************************/
-
-/*	Slave device addresses		*/
-#define RTC_DEVICE_ADDRESS      (0xA0)
-
-/* Driver Macros */
-#define RTC_OFF                 (0x80)
-#define RTC_ON                  (0x00)
-
-/*	Register adresses		*/
-#define RTC_CSR_ADD             (0x00)
-#define RTC_HSECONDS_ADD        (0x01)
-#define RTC_SECONDS_ADD         (0x02)
-#define RTC_MINUTES_ADD         (0x03)
-#define RTC_HOURS_ADD           (0x04)
-#define RTC_DAYS_ADD            (0x05)
-#define RTC_MONTHS_ADD          (0x06)
-#define RTC_TIMER_ADD           (0x07)
-#define RTC_YEAR_ADD            (0x10)
-#define RTC_FREE_RAM_ADD        (0x11)
-
 /*	Operation Status		*/
 #define RTC_NO_ERROR		1	//returned as positive
 
-/******************************************************************************/
-/* 			Constants			      */
-/******************************************************************************/
-
-
-/******************************************************************************/
-/*				 Inline Functions 			      */
-/******************************************************************************/
 /**
- * \brief RTC driver initialization.
- *
- * It configures the I2C bus.
- */
+	@brief	This function initializes Mico32 i2c interface
+			using default settings.  
+*/
 __INLINE__ void __ALWAYS_INLINE__ EE_rtc_init(void)
 {
     EE_rtc_hal_init();
 }
 
-/* Probably, EE_rtc_init() makes this obsolete */
+/**
+	@brief	This function initializes Mico32 i2c interface.
+*/
 __INLINE__ void __ALWAYS_INLINE__  EE_rtc_config(uint32_t baudrate, uint32_t settings)
 {
     EE_rtc_hal_config(baudrate, settings);
 }
 
-/*
-		This function is used to turn on the rt-clock. 
-		Arguments: 
-			- none 
-		Actions: 
-			- turn on the rt-clock
-		Return values:
-			- the function return the result:	EE_I2C_ERR_DEV_ACK if ACK is not received after slave address transmission
-												EE_I2C_ERR_ADD_ACK if ACK is not received after memory address transmission
-												EE_I2C_ERR_DATA_ACK if ACK is not received after data transmission
-												EE_I2C_ERR_ARB_LOST if arbitration is lost
-												EE_I2C_OK if no errors found							
+/**
+	@brief		This function turns on rt-clock counters. 						
 */
 __INLINE__ void __ALWAYS_INLINE__  EE_rtc_start(void)
 {
     EE_rtc_hal_start();
 }
 
-/*
-		This function is used to turn off the rt-clock. 
-		Arguments: 
-			- none 
-		Actions: 
-			- turn off the rt-clock
-		Return values:
-			- the function return the result:	EE_I2C_ERR_DEV_ACK if ACK is not received after slave address transmission
-												EE_I2C_ERR_ADD_ACK if ACK is not received after memory address transmission
-												EE_I2C_ERR_DATA_ACK if ACK is not received after data transmission
-												EE_I2C_ERR_ARB_LOST if arbitration is lost
-												EE_I2C_OK if no errors found							
+/**
+	@brief		This function turns off rt-clock counters. 						
 */
 __INLINE__ void __ALWAYS_INLINE__  EE_rtc_shutdown(void)
 {
     EE_rtc_hal_shutdown();
 }
 
-
-/*
-		This function is used to store one byte in the rt-clock RAM. 
-		Arguments: 
-			- EE_UINT8 address: memory address in rt-clock RAM
-			- EE_UINT8 data: byte to be stored 
-		Actions: 
-			- store one byte in the rt-clock RAM.
-		Return values:
-			- the function return the result:	EE_I2C_ERR_DEV_ACK if ACK is not received after slave address transmission
-												EE_I2C_ERR_ADD_ACK if ACK is not received after memory address transmission
-												EE_I2C_ERR_DATA_ACK if ACK is not received after data transmission
-												EE_I2C_ERR_ARB_LOST if arbitration is lost
-												EE_I2C_OK if no errors found							
+/**
+	@brief		This function writes a byte to RTC RAM
+				using Mico32 i2c interface. 						
 */
 __INLINE__ void __ALWAYS_INLINE__  EE_rtc_write_byte(uint8_t address, uint8_t data)
 {
     EE_rtc_hal_write_byte(address, data);
 }
 
-/*
-		This function is used to store one byte in the rt-clock RAM. 
-		Arguments: 
-			- EE_UINT8 address: memory address in rt-clock RAM
-			- EE_UINT8 data: address of the first byte to be stored 
-			- int len: number of bytes to be written
-		Actions: 
-			- store bytes in the rt-clock RAM.
-		Return values:
-			- the function return the result:	EE_I2C_ERR_DEV_ACK if ACK is not received after slave address transmission
-												EE_I2C_ERR_ADD_ACK if ACK is not received after memory address transmission
-												EE_I2C_ERR_DATA_ACK if ACK is not received after data transmission
-												EE_I2C_ERR_ARB_LOST if arbitration is lost
-												EE_I2C_OK if no errors found							
+/**
+	@brief		This function writes an array of bytes to RTC RAM
+				using Mico32 i2c interface. 						
 */
 __INLINE__ void __ALWAYS_INLINE__  EE_rtc_write_buffer(uint8_t address, const uint8_t *data, uint32_t len)
 {
@@ -148,79 +112,46 @@ __INLINE__ void __ALWAYS_INLINE__  EE_rtc_write_buffer(uint8_t address, const ui
 }
 
 
-/*
-		This function is used to read one byte from the rt-clock RAM. 
-		Arguments: 
-			- EE_UINT8 address: memory address in rt-clock RAM to be read
-		Actions: 
-			- read one byte from the rt-clock RAM.
-		Return values:
-			- the function return the result:	EE_I2C_ERR_DEV_ACK if ACK is not received after slave address transmission
-												EE_I2C_ERR_ADD_ACK if ACK is not received after memory address transmission
-												EE_I2C_ERR_DATA_ACK if ACK is not received after data transmission
-												EE_I2C_ERR_ARB_LOST if arbitration is lost
-												EE_I2C_OK if no errors found							
+/**
+	@brief		This function reads a byte from RTC RAM
+				using Mico32 i2c interface. 						
 */
 __INLINE__ int __ALWAYS_INLINE__  EE_rtc_read_byte(uint8_t address)
 {
     return EE_rtc_hal_read_byte(address);
 }
 
-/*
-		This function is used to store one byte in the rt-clock RAM. 
-		Arguments: 
-			- EE_UINT8 address: memory address of the first location in rt-clock RAM to be read
-			- EE_UINT8 *data: memory address of the first location of the array used to store received bytes
-			- int len: number of bytes to be read
-		Actions: 
-			- read a number of bytes from the rt-clock RAM.
-		Return values:
-			- the function return the result:	EE_I2C_ERR_DEV_ACK if ACK is not received after slave address transmission
-												EE_I2C_ERR_ADD_ACK if ACK is not received after memory address transmission
-												EE_I2C_ERR_DATA_ACK if ACK is not received after data transmission
-												EE_I2C_ERR_ARB_LOST if arbitration is lost
-												EE_I2C_OK if no errors found							
+/**
+	@brief		This function reads an array of bytes from RTC RAM
+				using Mico32 i2c interface. 						
 */
 __INLINE__ void __ALWAYS_INLINE__  EE_rtc_read_buffer(uint8_t address, uint8_t *data, uint32_t len)
 {
     EE_rtc_hal_read_buffer(address, data, len);
 }
 
-
-
-
-
-/******************************************************************************/
-/*				 Prototipes	 			      */
-/******************************************************************************/
-
-/*
-		This function is used to change the rt-clock internal time. 
-		Arguments: 
-			- const TTime *ttw: pointer to the TTime structure with the time to be written; 
-		Actions: 
-			- send i2c commands to turn off the clock, write new time and then turn on the clock;
-		Return values:
-			- the function return the result:	EE_I2C_ERR_DEV_ACK if ACK is not received after slave address transmission
-												EE_I2C_ERR_ADD_ACK if ACK is not received after memory address transmission
-												EE_I2C_ERR_DATA_ACK if ACK is not received after data transmission
-												EE_I2C_ERR_ARB_LOST if arbitration is lost
-												EE_I2C_OK if no errors found							
+/**
+	@brief 		This function updates rt-clock internal time.
+				It sends i2c commands to: turn off the clock, write new time 
+				and turn on the clock;
+	@param ttw	pointer to the TTime structure with the time to be written; 
+	@return		EE_I2C_ERR_DEV_ACK if ACK is not received after slave address transmission\n
+				EE_I2C_ERR_ADD_ACK if ACK is not received after memory address transmission\n
+				EE_I2C_ERR_DATA_ACK if ACK is not received after data transmission\n
+				EE_I2C_ERR_ARB_LOST if arbitration is lost\n
+				EE_I2C_OK if no errors found (see ee_i2c.h for more info)
+				
 */
 int EE_rtc_write_time(const TTime *ttw);
 
-/*
-		This function is used to read the rt-clock internal time. 
-		Arguments: 
-			- TTime *ttr: pointer to the TTime structure with the time to be read; 
-		Actions: 
-			- send i2c commands to read the time;
-		Return values:
-			- the function return the result:	EE_I2C_ERR_DEV_ACK if ACK is not received after slave address transmission
-												EE_I2C_ERR_ADD_ACK if ACK is not received after memory address transmission
-												EE_I2C_ERR_DATA_ACK if ACK is not received after data transmission
-												EE_I2C_ERR_ARB_LOST if arbitration is lost
-												EE_I2C_OK if no errors found							
+/**
+	@brief 		This function reads the rt-clock internal time. 
+	@param ttr	pointer to the TTime structure to copy to 
+	@return		EE_I2C_ERR_DEV_ACK if ACK is not received after slave address transmission\n
+				EE_I2C_ERR_ADD_ACK if ACK is not received after memory address transmission\n
+				EE_I2C_ERR_DATA_ACK if ACK is not received after data transmission\n
+				EE_I2C_ERR_ARB_LOST if arbitration is lost\n
+				EE_I2C_OK if no errors found (see ee_i2c.h for more info)				
 */
 int EE_rtc_read_time(TTime *ttr); 
 

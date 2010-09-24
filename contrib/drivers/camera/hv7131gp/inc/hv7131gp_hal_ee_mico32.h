@@ -1,3 +1,43 @@
+/* ###*B*###
+ * ERIKA Enterprise - a tiny RTOS for small microcontrollers
+ *
+ * Copyright (C) 2002-2008  Evidence Srl
+ *
+ * This file is part of ERIKA Enterprise.
+ *
+ * ERIKA Enterprise is free software; you can redistribute it
+ * and/or modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation, 
+ * (with a special exception described below).
+ *
+ * Linking this code statically or dynamically with other modules is
+ * making a combined work based on this code.  Thus, the terms and
+ * conditions of the GNU General Public License cover the whole
+ * combination.
+ *
+ * As a special exception, the copyright holders of this library give you
+ * permission to link this code with independent modules to produce an
+ * executable, regardless of the license terms of these independent
+ * modules, and to copy and distribute the resulting executable under
+ * terms of your choice, provided that you also meet, for each linked
+ * independent module, the terms and conditions of the license of that
+ * module.  An independent module is a module which is not derived from
+ * or based on this library.  If you modify this code, you may extend
+ * this exception to your version of the code, but you are not
+ * obligated to do so.  If you do not wish to do so, delete this
+ * exception statement from your version.
+ *
+ * ERIKA Enterprise is distributed in the hope that it will be
+ * useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License version 2 for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * version 2 along with ERIKA Enterprise; if not, write to the
+ * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+ * Boston, MA 02110-1301 USA.
+ * ###*E*### */
+ 
 /*
 Copyright (C) 2009, 2010 -  Claudio Salvadori and Christian Nastasi, Evidence Srl
 This program is free software; you can redistribute it and/or
@@ -15,14 +55,12 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
-/*
-  Name: hv7131gp_hal_ee_mico32.h
-  Copyright: Evidence Srl
-  Author: Dario Di Stefano
-  Date: 29/03/10 18.28
-  Description: camera driver hal for mico32.
-
-  Modified by Bernardo  Dal Seno, 2010.
+/** 
+* @file 	hv7131gp_hal_ee_mico32.h
+* @brief 	HV7131GP camera driver HAL for Lattice Mico32
+* @author 	Bernardo  Dal Seno
+* @author	Dario Di Stefano 
+* @date 	2010
 */
 
 #ifndef HV7131GP_HAL_EE_MICO32_H_
@@ -35,7 +73,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <MicoCamera.h>
 /* Other used libraries: */
 #include <mcu/mico32/inc/ee_i2c.h>
-
+/* Include board dependent header file */
 #ifdef __XP2_CAMERA_BOARD__
 #include <board/fpga_camera_mico32/inc/ee_camera_hv7131gp.h>
 #endif
@@ -72,16 +110,33 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 /* Callback function called by camera driver handler  */
 extern hv7131gp_cback_t *ee_hv7131gp_cbk;
 
-/* Functions */
+/**
+	@brief This function initializes Mico32 i2c and camera controllers
+*/
 hv7131gp_status_t hv7131gp_hal_init_mico32(void);
 #define hv7131gp_hal_init(x) hv7131gp_hal_init_mico32()
-hv7131gp_status_t hv7131gp_hal_init_ack(void);
-hv7131gp_status_t hv7131gp_i2c_hal_init(void);
-hv7131gp_status_t hv7131gp_i2c_hal_reg_write(hv7131gp_reg_t reg, uint8_t  val);
-hv7131gp_status_t hv7131gp_i2c_hal_reg_read(hv7131gp_reg_t reg, uint8_t *val);
-#define hv7131gp_hal_capture(image, func) EE_hv7131gp_capture(image, func)
 
-/* Macros for Camera functions */  
+/**
+	@brief This function waits for ack
+*/
+hv7131gp_status_t hv7131gp_hal_init_ack(void);
+
+/**
+	@brief This function initializes Mico32 i2c controller
+*/
+hv7131gp_status_t hv7131gp_i2c_hal_init(void);
+
+/**
+	@brief This function writes on a camera register
+*/
+hv7131gp_status_t hv7131gp_i2c_hal_reg_write(hv7131gp_reg_t reg, uint8_t  val);
+
+/**
+	@brief This function reads a camera register
+*/
+hv7131gp_status_t hv7131gp_i2c_hal_reg_read(hv7131gp_reg_t reg, uint8_t *val);
+
+/* Mico32 HV7131GP Camera controller API */  
 #define DECLARE_FUNC_HV7131GP(uc, lc) \
 __INLINE__ void __ALWAYS_INLINE__ EE_hv7131gp_init(int irqmode){ \
     if(irqmode) \
@@ -117,7 +172,7 @@ __INLINE__ int __ALWAYS_INLINE__ EE_camera_read_divisor(void){ \
 __INLINE__ int __ALWAYS_INLINE__ EE_camera_frame_terminated(void){ \
     return Mico_camera_frame_terminated((MicoCamera_t*)EE_BASE_ADD(uc)); }
 
-/* Macros for I2C-based Camera functions */  
+/* I2C-based Camera API */  
 #define DECLARE_FUNC_I2C_HV7131GP(uc, lc) \
 __INLINE__ int __ALWAYS_INLINE__ EE_hv7131gp_i2c_config(int baudrate,int settings){ \
     return cat3(EE_, lc, _config)(baudrate, settings); } \
@@ -130,121 +185,189 @@ __INLINE__ int __ALWAYS_INLINE__  EE_hv7131gp_i2c_read_byte(EE_UINT8 address){ \
 __INLINE__ int __ALWAYS_INLINE__  EE_hv7131gp_i2c_read_buffer(EE_UINT8 address, EE_UINT8 *data, int len){ \
     return cat3(EE_, lc, _receive_buffer)(EE_HV7131GP_DEVICE_ID, address, data, len); }
 
-/* Camera initialization */
+/**
+	@brief 	This function sets the Mico32 camera controller 
+			in ISR operating mode
+*/
 void EE_hv7131gp_ISR_init(MicoCamera_t* cam, int irqf);
+
+/**
+	@brief 	This function sets the Mico32 camera controller 
+			in polling operating mode
+*/
 void EE_hv7131gp_polling_init(MicoCamera_t* cam);
 
-/* Set configuration */
+/**
+	@brief 	This function sets camera configuration
+*/
 int EE_hv7131gp_set_configuration(int div, int fmt, int res, int w, int h, int x, int y, int hb, int vb);
 
-/* Set default configuration */
+/**
+	@brief 	This function sets camera default configuration
+*/
 int EE_hv7131gp_set_default_configuration(void);
 
-/* Set width */
+/**
+	@brief 	This function sets camera window width
+*/
 int EE_hv7131gp_set_width(int width);
 
-/* Get width */
+/**
+	@brief 	This function reads camera window width
+*/
 int EE_hv7131gp_get_width(void);
 
-/* Set height */
+/**
+	@brief 	This function sets camera window height
+*/
 int EE_hv7131gp_set_height(int height);
 
-/* Get height */
+/**
+	@brief 	This function reads camera window height
+*/
 int EE_hv7131gp_get_height(void);
 
-/* Get size */
+/**
+	@brief 	This function reads camera window size
+*/
 int EE_hv7131gp_get_size(void);
 
-/* Set x position */
+/**
+	@brief 	This function sets camera window X position
+*/
 int EE_hv7131gp_set_xpos(int x);
 
-/* Get x position */
+/**
+	@brief 	This function reads camera window X position
+*/
 int EE_hv7131gp_get_xpos(void);
 
-/* Set y position */
+/**
+	@brief 	This function sets camera window Y position
+*/
 int EE_hv7131gp_set_ypos(int y);
 
-/* Get y position */
+/**
+	@brief 	This function reads camera window Y position
+*/
 int EE_hv7131gp_get_ypos(void);
 
-/* Set hblank */
+/**
+	@brief 	This function sets camera hblank
+*/
 int EE_hv7131gp_set_hblank(int hb);
 
-/* Get hblank */
+/**
+	@brief 	This function gets camera hblank
+*/
 int EE_hv7131gp_get_hblank(void);
 
-/* Set vblank */
+/**
+	@brief 	This function sets camera vblank
+*/
 int EE_hv7131gp_set_vblank(int vb);
 
-/* Get vblank */
+/**
+	@brief 	This function gets camera vblank
+*/
 int EE_hv7131gp_get_vblank(void);
 
-/* Set window */
+/**
+	@brief 	This function sets camera window
+*/
 int EE_hv7131gp_set_window(int width, int height, int x, int y);
 
-/* Capture an image */
+/**
+	@brief 	This function sens capture image signal to the camera and
+			sets the callback to call at the end of the capture
+*/
 int EE_hv7131gp_capture(void *image, hv7131gp_cback_t *cam_cbk);
+#define hv7131gp_hal_capture(image, func) EE_hv7131gp_capture(image, func)
 
-/* Set sleep mode */
+/**
+	@brief 	This function sets camera sleep mode
+*/
 int EE_hv7131gp_set_sleep_status(void);
 
-/* Set active mode */
+/**
+	@brief 	This function sets camera active mode
+*/
 int EE_hv7131gp_set_active_status(void);
 
 DECLARE_FUNC_I2C_HV7131GP(CAMERA_I2C, camera_i2c)
 DECLARE_FUNC_HV7131GP(CAMERA, camera)
 
-/* Set time divisor */
+/* INLINE functions */
+
+/**
+	@brief 	This function sets camera time divisor
+*/
 __INLINE__ int __ALWAYS_INLINE__  EE_hv7131gp_set_time_divisor(int div)
 {
     return EE_hv7131gp_i2c_write_byte(HV7131GP_REG_SCTRB, div);
 }
 
-/* Set format */
+/**
+	@brief 	This function sets camera format
+*/
 __INLINE__ int __ALWAYS_INLINE__ EE_hv7131gp_set_format(EE_UINT8 val)
 {
     //HV7131GP_OUTFMT_DEFAULT & (~HV7131GP_8BIT_OUTPUT)
     return EE_hv7131gp_i2c_write_byte(HV7131GP_REG_OUTFMT, val);
 }
 
-/* Get format */
+/**
+	@brief 	This function gets camera format
+*/
 __INLINE__ int __ALWAYS_INLINE__ EE_hv7131gp_get_format(void)
 {
     //HV7131GP_OUTFMT_DEFAULT & (~HV7131GP_8BIT_OUTPUT)
     return EE_hv7131gp_i2c_read_byte(HV7131GP_REG_OUTFMT);
 }
 
-/* Set resolution */
+/**
+	@brief 	This function sets camera resolution
+*/
 __INLINE__ int __ALWAYS_INLINE__ EE_hv7131gp_set_resolution(EE_UINT8 val)
 {
     //HV7131GP_REG_SCTRA, res | HV7131GP_X_FLIP
     return EE_hv7131gp_i2c_write_byte(HV7131GP_REG_SCTRA, val);
 }
 
-/* Get resolution */
+/**
+	@brief 	This function gets camera resolution
+*/
 __INLINE__ int __ALWAYS_INLINE__ EE_hv7131gp_get_resolution(void)
 {
     //HV7131GP_REG_SCTRA, res | HV7131GP_X_FLIP
     return EE_hv7131gp_i2c_read_byte(HV7131GP_REG_SCTRA);
 }
 
-/* Get Y average */
+/**
+	@brief 	This function gets camera Y average info
+*/
 __INLINE__ int __ALWAYS_INLINE__ EE_hv7131gp_get_Y_average(void)
 {
     return EE_hv7131gp_i2c_read_byte(HV7131GP_REG_YFMEAN);
 }
 
+/**
+	@brief 	This function is the interrupt handler
+*/
 void EE_hv7131gp_handler(int level);
+
 #ifndef __STATIC_ISR_TABLE__
+/**
+	@brief 	This function sets (registers) the interrupt handler
+*/
 __INLINE__ void __ALWAYS_INLINE__ EE_hal_hv7131gp_handler_setup(int irqf)
 {
-    /* Register IRQ handler */
     EE_mico32_register_ISR(irqf, EE_hv7131gp_handler);
 }
 #else // __STATIC_ISR_TABLE__
+/* This function just enable (unmask) camera controller IRQ */
 __INLINE__ void __ALWAYS_INLINE__ EE_hal_hv7131gp_handler_setup(int irqf)
 {
-    /* Just unmask the IRQ */
     mico32_enable_irq(irqf);
 }
 #endif // __STATIC_ISR_TABLE__

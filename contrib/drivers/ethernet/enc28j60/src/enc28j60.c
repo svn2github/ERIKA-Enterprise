@@ -1,9 +1,10 @@
 /** 
-* @file enc28j60.c
-* @brief ENC28J60 library (for usage with LWIP)
-* @author Dario Di Stefano
-* @version see Microchip documentation
-* @date 2010-07-12
+* @file 	enc28j60.c
+* @brief 	ENC28J60 library (can be used with LWIP)
+			This file is taken from Microchip TCPIP stack. 
+* @author 	Dario Di Stefano
+* @version 	see Microchip documentation
+* @date 	2010-07-12
 */
 
 /** 
@@ -250,7 +251,8 @@ WORD swaps_bytecount(WORD v)
 }
 #endif
 
-
+/* 	This function initializes Mico32 spi interface, Mico32 GPIO pins
+	used by the driver and ENC28J60 device. */
 void EE_enc28j60_init(mac_addr myMACaddress)
 {
 	#ifdef __ENC28J60_DEBUG__

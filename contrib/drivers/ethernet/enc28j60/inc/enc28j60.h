@@ -57,6 +57,14 @@
  *									(DS39662B)
  ********************************************************************/
 
+/** 
+* @file 	enc28j60.h
+* @brief 	ENC28J60 driver.
+			This file is taken from Microchip TCPIP stack. 
+* @author 	Dario Di Stefano
+* @date 	2010
+*/ 
+ 
 #ifndef __ENC28J60_H
 #define __ENC28J60_H
 
@@ -241,7 +249,15 @@ typedef union {
 /*
  *	Mac layer API (enc28j60 driver)		
 */
+
+/**
+	@brief	This functions is the ENC28J60 interrupt handler.
+*/
 void EE_enc28j60_handler(int level);
+
+/**
+	@brief	macros to create the new API.
+*/
 #define EE_enc28j60_set_rx_task(task)					EE_enc28j60_hal_set_rx_task(task)
 #define EE_enc28j60_enable()							EE_enc28j60_hal_enable()
 #define EE_enc28j60_disable()							EE_enc28j60_hal_disable()
@@ -263,6 +279,10 @@ void EE_enc28j60_handler(int level);
 #define EE_enc28j60_bank_select(Register)								EE_enc28j60_hal_bank_select(Register)
 #define EE_enc28j60_set_clkout(NewConfig)								EE_enc28j60_hal_set_clkout(NewConfig)
 #define EE_enc28j60_get_clkout()										EE_enc28j60_hal_get_clkout()
+
+/**
+	@brief Macros for compatibility with the old Microchip API. 
+*/
 #define SetRXHashTableEntry(DestMACAddr) 				EE_enc28j60_mac_set_rx_hash_table_entry(DestMACAddr)
 #define GetCLKOUT() 									EE_enc28j60_hal_get_clkout()
 #define SetCLKOUT(NewConfig) 							EE_enc28j60_hal_set_clkout(NewConfig)
@@ -296,29 +316,112 @@ void EE_enc28j60_handler(int level);
 #define MACIsTxReady()									EE_enc28j60_mac_IsTxReady()
 #define MACIsLinked()									EE_enc28j60_mac_IsLinked()
 #define MACInit(mac)									EE_enc28j60_mac_init(mac)
-
 #if defined(__18CXX)
 #define EE_enc28j60_mac_put_ROM_array(val, len)			EE_enc28j60_put_ROM_array(val, len)
 #define MACPutROMArray(val, len)						EE_enc28j60_mac_put_ROM_array(val, len)
 void EE_enc28j60_mac_put_ROM_array(ROM BYTE *val, WORD len);
 #endif
 
+/**
+	@brief 	ENC28J60 driver - mac layer for TCPIP stack
+			Device initialization.
+*/
 void EE_enc28j60_mac_init(mac_addr myMACaddress);
+
+/**
+	@brief 	ENC28J60 driver - mac layer for TCPIP stack
+			Link status.
+*/
 BOOL EE_enc28j60_mac_IsLinked(void);
+
+/**
+	@brief 	ENC28J60 driver - mac layer for TCPIP stack
+			Tx status.
+*/
 BOOL EE_enc28j60_mac_IsTxReady(void);
+
+/**
+	@brief 	ENC28J60 driver - mac layer for TCPIP stack
+			Discard rx packet.
+*/
 void EE_enc28j60_mac_discard_rx(void);
+
+/**
+	@brief 	ENC28J60 driver - mac layer for TCPIP stack
+			Free rx size.
+*/
 WORD EE_enc28j60_mac_get_FreeRxSize(void);
+
+/**
+	@brief 	ENC28J60 driver - mac layer for TCPIP stack
+			Get rx packet header.
+*/
 BOOL EE_enc28j60_mac_get_header(mac_addr *remote, BYTE* type, BYTE* PacketCount, WORD* length);
+
+/**
+	@brief 	ENC28J60 driver - mac layer for TCPIP stack
+			Write header.
+*/
 void EE_enc28j60_mac_put_header(mac_addr *remote, WORD type, WORD dataLen, mac_addr myMACaddress);
+
+/**
+	@brief 	ENC28J60 driver - mac layer for TCPIP stack
+			Transmit a packet.
+*/
 void EE_enc28j60_mac_flush(void);
+
+/**
+	@brief 	ENC28J60 driver - mac layer for TCPIP stack
+			Read RX pointer.
+*/
 void EE_enc28j60_mac_set_read_ptr_inRx(WORD offset);
+
+/**
+	@brief 	ENC28J60 driver - mac layer for TCPIP stack
+			Write pointer.
+*/
 WORD EE_enc28j60_mac_set_write_ptr(WORD address);
+
+/**
+	@brief 	ENC28J60 driver - mac layer for TCPIP stack
+			Read pointer.
+*/
 WORD EE_enc28j60_mac_set_read_ptr(WORD address);
+
+/**
+	@brief 	ENC28J60 driver - mac layer for TCPIP stack
+			Calculate RX checksum. 
+*/
 WORD EE_enc28j60_mac_CalcRxChecksum(WORD offset, WORD len);
+
+/**
+	@brief 	ENC28J60 driver - mac layer for TCPIP stack
+			Calculate IP buffer checksum. 
+*/
 WORD EE_enc28j60_mac_CalcIPBufferChecksum(WORD len);
+
+/**
+	@brief 	ENC28J60 driver - mac layer for TCPIP stack
+			Copy memory. 
+*/
 void EE_enc28j60_mac_MemCopyAsync(WORD destAddr, WORD sourceAddr, WORD len);
+
+/**
+	@brief 	ENC28J60 driver - mac layer for TCPIP stack
+			Copy memory status. 
+*/
 BOOL EE_enc28j60_mac_IsMemCopyDone(void);
+
+/**
+	@brief 	ENC28J60 driver - mac layer for TCPIP stack
+			Power down.
+*/
 void EE_enc28j60_mac_power_down(void);
+
+/**
+	@brief 	ENC28J60 driver - mac layer for TCPIP stack
+			Power up.
+*/
 void EE_enc28j60_mac_power_up(void);
 
 #if 0
@@ -329,18 +432,21 @@ WORD swaps(WORD v);
 /* Variable to store the MAC address */
 extern mac_addr ee_myMACaddress;
 
-/* 	EE_enc28j60_debug_init
-	Function used to configure the console used for debugging.
+/** 	
+	@brief 	ENC28J60 driver - mac layer for TCPIP stack
+			Function used to configure the console used for debugging.
 */
 int8_t EE_enc28j60_debug_init(void);
 
-/* 	EE_enc28j60_init 
-	Function used to initialize the device
+/** 	
+	@brief 	ENC28J60 driver - mac layer for TCPIP stack
+			Function used to initialize the device and Mico32 modules.
 */
 void EE_enc28j60_init(mac_addr myMACaddress);
 
-/* 	EE_enc28j60_transfer_init
-	Function used to initialize the transfer of a packet
+/**
+	@brief 	ENC28J60 driver - mac layer for TCPIP stack
+			Function used to initialize the transfer of a packet.
 */
 __INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_transfer_init(void)
 {
@@ -349,16 +455,18 @@ __INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_transfer_init(void)
     WriteReg(EWRPTH, HIGH(TXSTART+1));
 }
 
-/* 	EE_enc28j60_write
-	Function used to transmit a packet
+/**
+	@brief 	ENC28J60 driver - mac layer for TCPIP stack
+			Function used to transmit a packet
 */
 __INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_write(BYTE* data, WORD len)
 {
 	MACPutArray(data, len);
 }
 
-/* 	EE_enc28j60_signal
-	Function used to signal the end of a packet transfer
+/**
+	@brief 	ENC28J60 driver - mac layer for TCPIP stack
+			Function used to signal the end of a packet transfer
 */
 __INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_signal(WORD dataLen)
 {
@@ -369,30 +477,34 @@ __INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_signal(WORD dataLen)
 	MACFlush();
 }
 
-/* 	EE_enc28j60_read_length
-	Function used to read the length of the receive packet
+/** 	
+	@brief 	ENC28J60 driver - mac layer for TCPIP stack
+			Function used to read the length of the receive packet
 */
 int EE_enc28j60_read_info(BYTE* PacketCount, WORD* length);
 
 
-/* 	EE_enc28j60_read
-	Function used to receive a packet
+/** 
+	@brief 	ENC28J60 driver - mac layer for TCPIP stack
+			Function used to receive a packet.
 */
 __INLINE__ int __ALWAYS_INLINE__ EE_enc28j60_read(BYTE* data, WORD len)
 {
 	return MACGetArray(data, len);
 }
 
-/* 	EE_enc28j60_ack
-	Function used to acknowledge a packet reception
+/**
+	@brief 	ENC28J60 driver - mac layer for TCPIP stack
+			Function used to acknowledge a packet reception
 */
 __INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_ack(void)
 {
 	MACDiscardRx();
 }
 
-/* 	EE_enc28j60_drop_packet
-	Function used to drop a packet
+/**
+	@brief 	ENC28J60 driver - mac layer for TCPIP stack.
+			Function used to drop a packet (not yet supported).
 */
 __INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_drop_packet(void)
 {

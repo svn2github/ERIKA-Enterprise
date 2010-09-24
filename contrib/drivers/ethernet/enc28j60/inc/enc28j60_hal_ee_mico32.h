@@ -1,10 +1,49 @@
-/*
-  Name: enc28j60_hal_ee_mico32.h
-  Copyright: Evidence Srl
-  Author: Dario Di Stefano
-  Date: 29/03/10 18.23
-  Description: ENC28J60 driver header file.
-*/
+/* ###*B*###
+ * ERIKA Enterprise - a tiny RTOS for small microcontrollers
+ *
+ * Copyright (C) 2002-2008  Evidence Srl
+ *
+ * This file is part of ERIKA Enterprise.
+ *
+ * ERIKA Enterprise is free software; you can redistribute it
+ * and/or modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation, 
+ * (with a special exception described below).
+ *
+ * Linking this code statically or dynamically with other modules is
+ * making a combined work based on this code.  Thus, the terms and
+ * conditions of the GNU General Public License cover the whole
+ * combination.
+ *
+ * As a special exception, the copyright holders of this library give you
+ * permission to link this code with independent modules to produce an
+ * executable, regardless of the license terms of these independent
+ * modules, and to copy and distribute the resulting executable under
+ * terms of your choice, provided that you also meet, for each linked
+ * independent module, the terms and conditions of the license of that
+ * module.  An independent module is a module which is not derived from
+ * or based on this library.  If you modify this code, you may extend
+ * this exception to your version of the code, but you are not
+ * obligated to do so.  If you do not wish to do so, delete this
+ * exception statement from your version.
+ *
+ * ERIKA Enterprise is distributed in the hope that it will be
+ * useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License version 2 for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * version 2 along with ERIKA Enterprise; if not, write to the
+ * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+ * Boston, MA 02110-1301 USA.
+ * ###*E*### */
+ 
+/** 
+* @file 	enc28j60_hal_ee_mico32.h
+* @brief 	ENC28J60 driver - HAL for Lattice Mico32.
+* @author 	Dario Di Stefano
+* @date 	2010
+*/ 
 
 #ifndef __ENC28J60_HAL_EE_MICO32_H__
 #define __ENC28J60_HAL_EE_MICO32_H__
@@ -91,15 +130,21 @@ __INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_hal_set_slave(unsigned int mask){ 
 __INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_hal_get_slave(unsigned int *pmask ){ \
 	EE_hal_spi_get_slave((MicoSPI_t*)EE_BASE_ADD(uc), pmask); }
 
-/* ETHERNET API functions */
+/** 
+	@brief	SPI functions 
+*/
 DECLARE_FUNC_SPI_ENC28J60(EE_ETHERNET_SPI_NAME_UC, EE_ETHERNET_SPI_NAME_LC)
 
+/**
+	@brief	ENC28J60 driver GPIO interrupt handler.
+*/
 void EE_enc28j60_hal_handler(int level);
 #ifndef __STATIC_ISR_TABLE__
-/* This function records ISR handler */
+/** 
+	@brief	This function registers GPIO ISR handler. 
+*/
 __INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_hal_handler_setup(void)
 {
-    /* Register IRQ handler */
     EE_mico32_register_ISR(ee_enc28j60_st.irqf, EE_enc28j60_handler);	 
 }
 #else // __STATIC_ISR_TABLE__
@@ -110,7 +155,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_hal_handler_setup(void)
 #define EE_enc28j60_hal_chip_unselect() EE_enc28j60_hal_clear_SSO()
 
 /**
-	This function sets the task should be called inside the interrupt handler.
+	@brief	This function sets the task should be called inside the interrupt handler.
 */
 __INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_hal_set_rx_task(EE_TID task)
 {
@@ -118,7 +163,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_hal_set_rx_task(EE_TID task)
 }
 
 /**
-	This function writes 2 bytes on spi bus. 
+	@brief	This function writes 2 bytes on spi bus. 
 */
 __INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_hal_write_16(EE_UINT8 byte1, EE_UINT8 byte2)
 {
@@ -127,83 +172,90 @@ __INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_hal_write_16(EE_UINT8 byte1, EE_UI
 }
 
 /**
-	This function contains a delay loop. 
+	@brief	This function contains a delay loop in micro-seconds. 
 */
 void EE_enc28j60_hal_delay_us(unsigned int delay_count);
 
 /**
-	This function contains a delay loop. 
+	@brief	This function contains a delay loop in milli-seconds. . 
 */
 void EE_enc28j60_hal_delay_ms(unsigned int delay_count);
 
 /**
-	This function reads an ETH register.
+	@brief	This function reads an ETH register.
 */
 REG EE_enc28j60_hal_read_ETH_register(BYTE Address);
 
 /**
-	This function reads a MAC/MII register.
+	@brief	This function reads a MAC/MII register.
 */
 REG EE_enc28j60_hal_read_MAC_MII_register(BYTE Address);
 
 /**
-	This function reads a PHY register.
+	@brief	This function reads a PHY register.
 */
 PHYREG EE_enc28j60_hal_read_PHY_register(BYTE Register);
 
 /**
-	This function writes on a generic register.
+	@brief	This function writes on a generic register.
 */
 void EE_enc28j60_hal_write_register(BYTE Address, BYTE Data);
 
 /**
-	This function writes on a PHY register.
+	@brief	This function writes on a PHY register.
 */
 void EE_enc28j60_hal_write_PHY_register(BYTE Register, WORD Data);
 
 /**
-	These functions read from the ENC28J60 memory buffer.
+	@brief	This function reads a byte from the ENC28J60 memory buffer.
 */
 BYTE EE_enc28j60_hal_get();
+
+/**
+	@brief	This function reads an array of bytes from the ENC28J60 memory buffer.
+*/
 WORD EE_enc28j60_hal_get_array(BYTE *val, WORD len);
 
 /**
-	These functions write on the ENC28J60 memory buffer.
+	@brief	This function writes a byte to the ENC28J60 memory buffer.
 */
 void EE_enc28j60_hal_put(BYTE val);
+
+/**
+	@brief	This function writes an array of bytes to the ENC28J60 memory buffer.
+*/
 void EE_enc28j60_hal_put_array(BYTE *val, WORD len);
 
 /**
-	This function sets up to 8 bits in a ETH register.
+	@brief	This function implements a binary OR on a register.
 */
 void EE_enc28j60_hal_bit_field_set_register(BYTE Address, BYTE Data);
 
-/** 
-	This function clears up to 8 bits in a ETH register.
+/**
+	@brief	This function implements a binary AND on a register.
 */
 void EE_enc28j60_hal_bit_field_clear_register(BYTE Address, BYTE Data);
 
 /**
-	This function send a software reset command.
+	@brief	This function send a software reset command.
 */
 void EE_enc28j60_hal_software_reset(void);
 
 /**
-	This function resets the device (HW reset).
+	@brief	This function resets the device (HW reset).
 */
 void EE_enc28j60_hal_hardware_reset(void);
 
 /**
-	This function selects the bank.
+	@brief	This function selects the bank.
 */
 void EE_enc28j60_hal_bank_select(WORD Register);
 
-/* ---------------- */
+
 /* INLINE functions */
-/* ---------------- */
 
 /**
-	This function reads a MAC register.
+	@brief	This function reads a MAC register.
 */
 __INLINE__ REG __ALWAYS_INLINE__ EE_enc28j60_hal_read_MAC_register(BYTE address)
 {
@@ -211,7 +263,7 @@ __INLINE__ REG __ALWAYS_INLINE__ EE_enc28j60_hal_read_MAC_register(BYTE address)
 }
 
 /**
-	This function reads a MII register.
+	@brief	This function reads a MII register.
 */
 __INLINE__ REG __ALWAYS_INLINE__ EE_enc28j60_hal_read_MII_register(BYTE address)
 {
@@ -219,7 +271,7 @@ __INLINE__ REG __ALWAYS_INLINE__ EE_enc28j60_hal_read_MII_register(BYTE address)
 }
 
 /**
-	This function writes on a ETH register.
+	@brief	This function writes on a ETH register.
 */
 __INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_hal_write_ETH_register(BYTE address, BYTE data)
 {
@@ -227,7 +279,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_hal_write_ETH_register(BYTE addres
 }
 
 /**
-	This function writes on a MAC register.
+	@brief	This function writes on a MAC register.
 */
 __INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_hal_write_MAC_register(BYTE address, BYTE data)
 {
@@ -235,7 +287,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_hal_write_MAC_register(BYTE addres
 }
 
 /**
-	This function writes on a MII register.
+	@brief	This function writes on a MII register.
 */
 __INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_hal_write_MII_register(BYTE address, BYTE data)
 {
@@ -243,7 +295,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_hal_write_MII_register(BYTE addres
 }
 
 /**
-	This function enables device using reset pin (turn on). 
+	@brief	This function enables device using reset pin (turn on). 
 */
 __INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_hal_enable(void)
 {
@@ -251,7 +303,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_hal_enable(void)
 }
 
 /**
-	This function disables device using reset pin (turn off). 
+	@brief	This function disables device using reset pin (turn off). 
 */
 __INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_hal_disable(void)
 {
@@ -259,7 +311,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_hal_disable(void)
 }
 
 /**
-	This function enables ENC28J60 reception interrupts. 
+	@brief	This function enables ENC28J60 reception interrupts. 
 */
 __INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_hal_enable_IRQ(void)
 {
@@ -268,7 +320,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_hal_enable_IRQ(void)
 }
 
 /**
-	This function disables ENC28J60 reception interrupts. 
+	@brief	This function disables ENC28J60 reception interrupts. 
 */
 __INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_hal_disable_IRQ(void)
 {
@@ -276,7 +328,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_hal_disable_IRQ(void)
 }
 
 /**
-	This function returns ENC28J60 reception interrupts enabling status. 
+	@brief	This function returns ENC28J60 reception interrupts enabling status. 
 */
 __INLINE__ int __ALWAYS_INLINE__ EE_enc28j60_hal_IRQ_enabled(void)
 {
