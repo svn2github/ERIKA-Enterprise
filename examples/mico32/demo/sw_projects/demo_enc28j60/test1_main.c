@@ -1,14 +1,53 @@
-/*
-	Name: test1_main.c
-	Copyright: Evidence Srl
-	Author: Dario Di Stefano
-	Date: 29/03/10 18.23
-	Description: 	ENC28J60 driver function test (eth mac mii read and write, bank selection).
-					User can use this demo to test if SPI communication works fine.
-					The demo uses eth, mac, mii read/write and bank selection functions of the 
-					ENC28J60 library.
-					The demo requires a RS232 serial connection with a 115200 bps,8N1 configuration.
-					The demo requires a SPI bus to communicate with the device.
+/* ###*B*###
+ * ERIKA Enterprise - a tiny RTOS for small microcontrollers
+ *
+ * Copyright (C) 2002-2010  Evidence Srl
+ *
+ * This file is part of ERIKA Enterprise.
+ *
+ * ERIKA Enterprise is free software; you can redistribute it
+ * and/or modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation, 
+ * (with a special exception described below).
+ *
+ * Linking this code statically or dynamically with other modules is
+ * making a combined work based on this code.  Thus, the terms and
+ * conditions of the GNU General Public License cover the whole
+ * combination.
+ *
+ * As a special exception, the copyright holders of this library give you
+ * permission to link this code with independent modules to produce an
+ * executable, regardless of the license terms of these independent
+ * modules, and to copy and distribute the resulting executable under
+ * terms of your choice, provided that you also meet, for each linked
+ * independent module, the terms and conditions of the license of that
+ * module.  An independent module is a module which is not derived from
+ * or based on this library.  If you modify this code, you may extend
+ * this exception to your version of the code, but you are not
+ * obligated to do so.  If you do not wish to do so, delete this
+ * exception statement from your version.
+ *
+ * ERIKA Enterprise is distributed in the hope that it will be
+ * useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License version 2 for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * version 2 along with ERIKA Enterprise; if not, write to the
+ * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+ * Boston, MA 02110-1301 USA.
+ * ###*E*### */
+ 
+/** 
+    @file      test1_main.c
+    @brief     ENC28J60 driver function test (eth mac mii read and write, bank selection).
+               User can use this demo to test if SPI communication works fine.
+               The demo uses eth, mac, mii read/write and bank selection functions of the 
+               ENC28J60 library.
+               The demo requires a RS232 serial connection with a 115200 bps,8N1 configuration.
+               The demo requires a SPI bus to communicate with the device.
+    @author    Dario Di Stefano
+    @date      2010
 */
 
 /* RT-Kernel */
@@ -25,10 +64,9 @@
 #include <stdarg.h>
 
 #define MAX_CHARS 128
-#define die(a)			myprintf("\nError! code: %d\n", a)
 
 /* This function is used to send info by serial interface. */
-void myprintf(const char* format, ...)
+void myprintf(const char *format, ...)
 {
 	char str[MAX_CHARS];
 	
@@ -53,10 +91,10 @@ TASK(myTask1)
 	/* ---------------------------------------------------------------- */
 	/* BANK SELECTION */
 	EE_enc28j60_bank_select(ECON1);
-	myprintf("\nWrite bank: %d\n", 		BANK0);
-	myprintf("\nRead ECON1: %d\n", 		EE_enc28j60_read_ETH_register(ECON1).Val);
-	myprintf("\nRead ERXSTL:%d\n", 		EE_enc28j60_read_ETH_register(ERXSTL).Val);
-	myprintf("\nRead EDMADSTL:%d\n", 	EE_enc28j60_read_ETH_register(EDMADSTL).Val);
+	myprintf("\nWrite bank: %d\n",      BANK0);
+	myprintf("\nRead ECON1: %d\n",      EE_enc28j60_read_ETH_register(ECON1).Val);
+	myprintf("\nRead ERXSTL:%d\n",      EE_enc28j60_read_ETH_register(ERXSTL).Val);
+	myprintf("\nRead EDMADSTL:%d\n",    EE_enc28j60_read_ETH_register(EDMADSTL).Val);
 
 	/* ---------------------------------------------------------------- */
 	/* ETH */
@@ -66,11 +104,11 @@ TASK(myTask1)
 	myprintf("\nRead ETXNDL:%d\n", EE_enc28j60_read_ETH_register(ETXNDL).Val);
 	EE_UINT8 mask = 0x0A; 
 	EE_enc28j60_bit_field_clear_register(ETXNDL, mask); /* BFC */
-	myprintf("\nBFC, ETXNDL expected:%d\n", 	data & ~mask);
+	myprintf("\nBFC, ETXNDL expected:%d\n", data & ~mask);
 	myprintf("\nRead ETXNDL:%d\n", EE_enc28j60_read_ETH_register(ETXNDL).Val);
 	mask = 0x08;
 	EE_enc28j60_bit_field_set_register(ETXNDL, mask); /* BFS */
-	myprintf("\nBFS, ETXNDL expected:%d\n", 	data);
+	myprintf("\nBFS, ETXNDL expected:%d\n", data);
 	myprintf("\nRead ETXNDL:%d\n", EE_enc28j60_read_ETH_register(ETXNDL).Val);
 	
 	/* ---------------------------------------------------------------- */
@@ -110,8 +148,8 @@ void system_timer_callback(void)
 }
 
 /*
- * MAIN TASK
- */
+* MAIN TASK
+*/
 int main(void)
 {
 	/* ------------------- */
@@ -147,11 +185,11 @@ int main(void)
 	device_config();
 	SetRelAlarm(myAlarm1, 1000, 1000);
 	EE_timer_on();
-		
+	
 	while(1)
-		;
-		
-    return 0;
+	;
+	
+	return 0;
 }
 
 

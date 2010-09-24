@@ -5,7 +5,7 @@ CPU test_application {
 	#include "conf.oil.lwip"
 	#include "conf.oil.enc28j60"
 
-	OS EE {		
+	OS EE {
 		CFLAGS = "-g2";
 		ASFLAGS = "";
 		LDFLAGS = ""; 

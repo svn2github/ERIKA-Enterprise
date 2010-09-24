@@ -1,70 +1,69 @@
-/*	LWIP OIL  */
+/* LWIP OIL  */
 
-	OS EE {
+OS EE {
 	
-		/* LWIP Flags */
-		CFLAGS = "-DLWIP_TCP=1";
-		CFLAGS = "-DLWIP_DHCP=0"; 
-		//CFLAGS = "-DTCP_MSS=536";
-		
-		/* LWIP debug */
-		CFLAGS = "-D__LWIP_DEBUG__"; 
-		CFLAGS = "-D__LWIP_DEBUG_SERIAL__";
-		CFLAGS = "-DTCP_DEBUG=LWIP_DBG_ON";
-		CFLAGS = "-DTCP_INPUT_DEBUG=LWIP_DBG_ON";
-		CFLAGS = "-DTCP_OUTPUT_DEBUG=LWIP_DBG_ON";
-		
-		/* Other unused flags...
-		CFLAGS = "-DEE_LWIP_DEBUG=LWIP_DBG_ON";
-		CFLAGS = "-D__LWIP_TIME_DEBUG__";
-		CFLAGS = "-DETHARP_DEBUG=LWIP_DBG_ON";
-		CFLAGS = "-DNETIF_DEBUG=LWIP_DBG_ON";
-		CFLAGS = "-DPBUF_DEBUG=LWIP_DBG_ON";
-		CFLAGS = "-DIP_DEBUG=LWIP_DBG_ON";
-		CFLAGS = "-DTCP_DEBUG=LWIP_DBG_ON";
-		CFLAGS = "-DTCP_INPUT_DEBUG=LWIP_DBG_ON";
-		CFLAGS = "-DTCP_OUTPUT_DEBUG=LWIP_DBG_ON";
-		CFLAGS = "-DUDP_DEBUG=LWIP_DBG_ON";
-		*/
+	/* LWIP Flags */
+	CFLAGS = "-DLWIP_TCP=1";
+	CFLAGS = "-DLWIP_DHCP=0"; 
+	//CFLAGS = "-DTCP_MSS=536";
 	
-		/* LWIP options */
-		EE_OPT = "__LWIP_IPV4__";
-		
-		/* LWIP library enabling */
-		EE_OPT = "__ADD_LIBS__";
-		LIB = ENABLE { NAME = "LWIP"; };	
-	};
-
-	/* ISRs list */
-	ISR Timer_Lwip {
-		CATEGORY = 2;
-		LEVEL = "TIMER_UWL_IRQ";
-		HANDLER = "EE_timer_common_handler";
-	};
+	/* LWIP debug */
+	CFLAGS = "-D__LWIP_DEBUG__"; 
+	CFLAGS = "-D__LWIP_DEBUG_SERIAL__";
+	CFLAGS = "-DTCP_DEBUG=LWIP_DBG_ON";
+	CFLAGS = "-DTCP_INPUT_DEBUG=LWIP_DBG_ON";
+	CFLAGS = "-DTCP_OUTPUT_DEBUG=LWIP_DBG_ON";
 	
-	/* RESOURCEs list */
-	RESOURCE LwipMutex { RESOURCEPROPERTY = STANDARD; };
+	/* Other unused flags...
+	CFLAGS = "-DEE_LWIP_DEBUG=LWIP_DBG_ON";
+	CFLAGS = "-D__LWIP_TIME_DEBUG__";
+	CFLAGS = "-DETHARP_DEBUG=LWIP_DBG_ON";
+	CFLAGS = "-DNETIF_DEBUG=LWIP_DBG_ON";
+	CFLAGS = "-DPBUF_DEBUG=LWIP_DBG_ON";
+	CFLAGS = "-DIP_DEBUG=LWIP_DBG_ON";
+	CFLAGS = "-DTCP_DEBUG=LWIP_DBG_ON";
+	CFLAGS = "-DTCP_INPUT_DEBUG=LWIP_DBG_ON";
+	CFLAGS = "-DTCP_OUTPUT_DEBUG=LWIP_DBG_ON";
+	CFLAGS = "-DUDP_DEBUG=LWIP_DBG_ON";
+	*/
 	
-	/* TASKs list */
-	TASK LwipReceive {
-		PRIORITY = 30;
-		STACK = SHARED;
-		SCHEDULE = FULL;
-		RESOURCE = "LwipMutex";
-	};
+	/* LWIP options */
+	EE_OPT = "__LWIP_IPV4__";
+	
+	/* LWIP library enabling */
+	EE_OPT = "__ADD_LIBS__";
+	LIB = ENABLE { NAME = "LWIP"; };
+};
 
-	TASK LwipPeriodic {
-		PRIORITY = 35;
-		STACK = SHARED;
-		SCHEDULE = FULL;
-		RESOURCE = "LwipMutex";
-	};
+/* ISRs list */
+ISR Timer_Lwip {
+	CATEGORY = 2;
+	LEVEL = "TIMER_UWL_IRQ";
+	HANDLER = "EE_timer_common_handler";
+};
+
+/* RESOURCEs list */
+RESOURCE LwipMutex { RESOURCEPROPERTY = STANDARD; };
+
+/* TASKs list */
+TASK LwipReceive {
+	PRIORITY = 30;
+	STACK = SHARED;
+	SCHEDULE = FULL;
+	RESOURCE = "LwipMutex";
+};
+
+TASK LwipPeriodic {
+	PRIORITY = 35;
+	STACK = SHARED;
+	SCHEDULE = FULL;
+	RESOURCE = "LwipMutex";
+};
 
 
 
-    
-    
-    
-    
-    
-   
+
+
+
+
+

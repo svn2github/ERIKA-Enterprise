@@ -2,7 +2,7 @@
 
 CPU test_application {
 
-	OS EE {		
+	OS EE {
 		CFLAGS = "-g2";
 		ASFLAGS = "";
 		LDFLAGS = ""; 
@@ -15,25 +15,25 @@ CPU test_application {
 		};
 
 		MCU_DATA = LATTICE_PLATFORM {
-   			MODEL = LIBRARY {
+			MODEL = LIBRARY {
 				PLATFORM_LIB_PATH = "../../test_sram_lib";
 				PLATFORM_NAME = "test_base";
 				PLATFORM_BLD_CFG = "Release"; // Optional, default is ""
-   			};
-   			
-			DEVICE = TIMER{						
-					NAME = "timer";	
-					OPTIONS = TIMER_IRQ_SUPPORT;									
 			};
-  		};
-  		
-  		BOARD_DATA = XP2_CAMERA_BOARD {
+			
+			DEVICE = TIMER{
+				NAME = "timer";
+				OPTIONS = TIMER_IRQ_SUPPORT;
+			};
+		};
+		
+		BOARD_DATA = XP2_CAMERA_BOARD {
 			OPTIONS = RS232;
 			OPTIONS = LEDS;
 		};
-    };
-    
-    TASK myTask {
+	};
+	
+	TASK myTask {
 		PRIORITY = 10;
 		STACK = SHARED;
 		SCHEDULE = FULL;
@@ -47,10 +47,10 @@ CPU test_application {
 	
 	COUNTER myCounter;
 
- 	ALARM myAlarm {
-  		COUNTER = "myCounter";
-    	ACTION = ACTIVATETASK { TASK = "myTask"; };
-    };
+	ALARM myAlarm {
+		COUNTER = "myCounter";
+		ACTION = ACTIVATETASK { TASK = "myTask"; };
+	};
 
-    OS EE { KERNEL_TYPE = FP; }; 	
+	OS EE { KERNEL_TYPE = FP; };
 };

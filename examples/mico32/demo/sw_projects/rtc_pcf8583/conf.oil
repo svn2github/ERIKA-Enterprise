@@ -2,7 +2,7 @@
 
 CPU test_application {
 
-	OS EE {		
+	OS EE {
 		CFLAGS = "-g2";
 		ASFLAGS = "";
 		LDFLAGS = ""; 
@@ -15,36 +15,36 @@ CPU test_application {
 		};
 		
 		MCU_DATA = LATTICE_PLATFORM {
-   			MODEL = LIBRARY {
+			MODEL = LIBRARY {
 				PLATFORM_LIB_PATH = "../test_sram_lib";
 				PLATFORM_NAME = "test_base";
 				PLATFORM_BLD_CFG = "Release"; // Optional, default is ""
-   			};
-   			
-   			DEVICE = TIMER{						
-					NAME = "timer";	
-					OPTIONS = TIMER_IRQ_SUPPORT;									
+			};
+			
+			DEVICE = TIMER{
+				NAME = "timer";
+				OPTIONS = TIMER_IRQ_SUPPORT;
 			};
 
-  		};
+		};
 
 		EE_OPT = "__ADD_LIBS__";
 		LIB = ENABLE { NAME = "PCF8583"; };
-		BOARD_DATA = XP2_CAMERA_BOARD {	
-			OPTIONS = RS232;					
-			OPTIONS = RTCLOCK;	
+		BOARD_DATA = XP2_CAMERA_BOARD {
+			OPTIONS = RS232;
+			OPTIONS = RTCLOCK;
 		};
-    };
-    
-    OS EE { KERNEL_TYPE = FP; }; 	
-    
-    ISR Timer {
+	};
+	
+	OS EE { KERNEL_TYPE = FP; };
+	
+	ISR Timer {
 		CATEGORY = 2;
 		LEVEL = "TIMER_IRQ";
 		HANDLER = "EE_timer_common_handler";
 	};
-    
-    /* ****************************************************************** */
+	
+	/* ****************************************************************** */
 	/*                      Application TASKs                             */
 	/* ****************************************************************** */
 	TASK myTask {
@@ -55,8 +55,8 @@ CPU test_application {
 	
 	COUNTER myCounter;
 
- 	ALARM myAlarm {
-  		COUNTER = "myCounter";
-    	ACTION = ACTIVATETASK { TASK = "myTask"; };
-    };
+	ALARM myAlarm {
+		COUNTER = "myCounter";
+		ACTION = ACTIVATETASK { TASK = "myTask"; };
+	};
 };

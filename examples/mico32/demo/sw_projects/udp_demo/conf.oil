@@ -5,7 +5,7 @@ CPU test_application {
 	#include "conf.oil.lwip"
 	#include "conf.oil.enc28j60"
 
-	OS EE {		
+	OS EE {
 		CFLAGS = "-g2";
 		ASFLAGS = "";
 		LDFLAGS = ""; 
@@ -25,16 +25,16 @@ CPU test_application {
 			};
 
 			DEVICE = TIMER {
-				NAME = "timer_uwl";				/* used by LWIP */
+				NAME = "timer_uwl";             /* used by LWIP */
 				OPTIONS = TIMER_IRQ_SUPPORT;
 			};
 
 			DEVICE = TIMER {
-				NAME = "freetimer";				/* used for time debug */
+				NAME = "freetimer";            /* used for time debug */
 			};
 
 			DEVICE = TIMER {
-				NAME = "timer";					/* used for tasks activations */
+				NAME = "timer";                /* used for tasks activations */
 				OPTIONS = TIMER_IRQ_SUPPORT;
 			};
 		};

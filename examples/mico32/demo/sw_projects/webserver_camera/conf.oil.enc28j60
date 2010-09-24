@@ -2,11 +2,11 @@
 
 	OS EE {
 		/* ENC28J60 */
-		//EE_OPT = "__ENC28J60_DEBUG__";	
+		//EE_OPT = "__ENC28J60_DEBUG__";
 		//EE_OPT = "__ENC28J60_DEBUG_SERIAL__";
-		//EE_OPT = "__ENC28J60_TIME_DEBUG__";	
+		//EE_OPT = "__ENC28J60_TIME_DEBUG__";
 		EE_OPT = "__ADD_LIBS__";
-		LIB = ENABLE { NAME = "ENC28J60"; };	
+		LIB = ENABLE { NAME = "ENC28J60"; };
 	};
 
 	ISR Gpio {

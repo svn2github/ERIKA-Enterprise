@@ -1,26 +1,25 @@
 /*	ENC28J60 OIL  */
 
-	OS EE {
-		/* ENC28J60 */
-		//CFLAGS = "__ENC28J60_DEBUG__";	
-		//CFLAGS = "__ENC28J60_DEBUG_SERIAL__";
-		//CFLAGS = "__ENC28J60_TIME_DEBUG__";	
-		EE_OPT = "__ADD_LIBS__";
-		LIB = ENABLE { NAME = "ENC28J60"; };	
-	};
+OS EE {
+	/* ENC28J60 */
+	//CFLAGS = "__ENC28J60_DEBUG__";
+	//CFLAGS = "__ENC28J60_DEBUG_SERIAL__";
+	//CFLAGS = "__ENC28J60_TIME_DEBUG__";
+	EE_OPT = "__ADD_LIBS__";
+	LIB = ENABLE { NAME = "ENC28J60"; };
+};
 
-	ISR Gpio {
-		CATEGORY = 2;
-		LEVEL = "EE_ENC28J60_IRQ";
-		HANDLER = "EE_enc28j60_handler";
-	};
-
-
+ISR Gpio {
+	CATEGORY = 2;
+	LEVEL = "EE_ENC28J60_IRQ";
+	HANDLER = "EE_enc28j60_handler";
+};
 
 
-    
-    
-    
-    
-    
-   
+
+
+
+
+
+
+

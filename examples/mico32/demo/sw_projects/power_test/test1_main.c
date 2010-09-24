@@ -8,7 +8,7 @@
 #include <stdarg.h>
 
 #define MAX_CHARS 128
-void myprintf(const char* format, ...)
+void myprintf(const char *format, ...)
 {
 	char str[MAX_CHARS];
 	

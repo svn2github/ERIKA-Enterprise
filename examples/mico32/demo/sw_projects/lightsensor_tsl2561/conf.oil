@@ -15,45 +15,42 @@ CPU test_application {
 		};
 		
 		MCU_DATA = LATTICE_PLATFORM {
-   			MODEL = LIBRARY {
+			MODEL = LIBRARY {
 				PLATFORM_LIB_PATH = "../test_sram_lib";
 				PLATFORM_NAME = "test_base";
 				PLATFORM_BLD_CFG = "Release"; // Optional, default is ""
-   			};
-   			
+			};
+			
 			DEVICE = TIMER {
 				NAME = "timer";	
-				OPTIONS = TIMER_IRQ_SUPPORT;			
+				OPTIONS = TIMER_IRQ_SUPPORT;
 			};
 
-			DEVICE = I2C{						
-					NAME = "camera_i2c";	
+			DEVICE = I2C{
+				NAME = "camera_i2c";
 			};
-  		};
+		};
 
 		// Light sensor
 		EE_OPT = "__ADD_LIBS__";
 		EE_OPT = "__USE_LIGHTSENSOR_TSL2561T__";
-		LIB = ENABLE { NAME = "TSL2561T"; };	
+		LIB = ENABLE { NAME = "TSL2561T"; };
 		
 		BOARD_DATA = XP2_CAMERA_BOARD {
-			OPTIONS = LIGHTSENSOR; 	// il druido deve essere modificato. Il simbolo inserito nel makefile è quello
-									// vecchio relativo al driver vecchio. Il nuovo driver, usato anche dal pic32,
-									// si trova in contrib, richiede simboli diversi, e deve essere compilato usando
-									// i simboli delle librerie.  
-			OPTIONS = RS232;							
+			OPTIONS = LIGHTSENSOR;
+			OPTIONS = RS232;
 		};
-    };
-    
-    OS EE { KERNEL_TYPE = FP; }; 	
-    
+	};
+	
+	OS EE { KERNEL_TYPE = FP; };
+	
 	ISR Timer {
 		CATEGORY = 2;
 		LEVEL = "TIMER_IRQ";
 		HANDLER = "EE_timer_common_handler";
 	};
 	
-    /* ****************************************************************** */
+	/* ****************************************************************** */
 	/*                      Application TASKs                             */
 	/* ****************************************************************** */
 	TASK myTask {
@@ -64,8 +61,8 @@ CPU test_application {
 	
 	COUNTER myCounter;
 
- 	ALARM myAlarm {
-  		COUNTER = "myCounter";
-    	ACTION = ACTIVATETASK { TASK = "myTask"; };
-    };
+	ALARM myAlarm {
+		COUNTER = "myCounter";
+		ACTION = ACTIVATETASK { TASK = "myTask"; };
+	};
 };

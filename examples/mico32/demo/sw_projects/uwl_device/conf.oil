@@ -2,7 +2,7 @@
 
 CPU test_application {
 
-	OS EE {		
+	OS EE {
 		CFLAGS = "-g2";
 		ASFLAGS = "";
 		LDFLAGS = ""; 
@@ -15,37 +15,37 @@ CPU test_application {
 		};
 		
 		MCU_DATA = LATTICE_PLATFORM {
-   			MODEL = LIBRARY {
+			MODEL = LIBRARY {
 				PLATFORM_LIB_PATH = "../test_sram_lib";
 				PLATFORM_NAME = "test_base";
 				PLATFORM_BLD_CFG = "Release"; // Optional, default is ""
-   			};
-   			
-   			/* Used by uWIRELESS */
-			DEVICE = TIMER{						
-					NAME = "timer_uwl";	
-					OPTIONS = TIMER_IRQ_SUPPORT;						
 			};
 			
-			DEVICE = TIMER{						
-					NAME = "timer";	
-					OPTIONS = TIMER_IRQ_SUPPORT;						
+			/* Used by uWIRELESS */
+			DEVICE = TIMER{
+				NAME = "timer_uwl";
+				OPTIONS = TIMER_IRQ_SUPPORT;
 			};
 			
-  		};
+			DEVICE = TIMER{
+				NAME = "timer";
+				OPTIONS = TIMER_IRQ_SUPPORT;
+			};
+			
+		};
 
-		BOARD_DATA = XP2_CAMERA_BOARD {		
-			OPTIONS = RS232;						
-			OPTIONS = ZIGBEE;			
+		BOARD_DATA = XP2_CAMERA_BOARD {
+			OPTIONS = RS232;
+			OPTIONS = ZIGBEE;
 			OPTIONS = ZIGBEE_IRQ_SUPPORT;
 		};
-						
+		
 		KERNEL_TYPE = FP;
 		
 		/* Contrib Library Inlcusion */
 		EE_OPT = "__ADD_LIBS__";
 
-		/* Console library using serial interface as output device */	
+		/* Console library using serial interface as output device */
 		LIB = ENABLE {
 			NAME = "CONSOLE";
 		};	
@@ -53,7 +53,7 @@ CPU test_application {
 		CFLAGS = "-DUSE_CONSOLE_SERIAL";
 
 		/* use transceiver MRF24J40 */
-		LIB = ENABLE { NAME = "MRF24J40"; };	
+		LIB = ENABLE { NAME = "MRF24J40"; };
 		CFLAGS = "-DUSE_MRF24J40";
 		//CFLAGS= "-DMRF24J40_DEBUG";
 		CFLAGS = "-DINT_POLARITY_HIGH";
@@ -69,7 +69,7 @@ CPU test_application {
 		LIB = ENABLE { NAME = "MEMORY"; };
 
 		/* uWIRELESS library */
-		LIB = ENABLE { NAME = "UWIRELESS"; };	
+		LIB = ENABLE { NAME = "UWIRELESS"; };
 		EE_OPT = "UWL_USE_SIMPLE_802154";
 		CFLAGS = "-DEE_TYPETICK=EE_INT32"; /* Mandatory! */
 		CFLAGS = "-DUWL_HAL_BUS_FREQ=40000";
@@ -127,7 +127,7 @@ CPU test_application {
 	|  - 1 PHY Task (read from radio)                                      |
 	|  - 7 MAC Tasks (superframe management + rx parsing)                  |
 	|  - 6 Resources (rx parsing tasks + general mac protection)           |
-	 -------------------------------------------------------------------- */
+	-------------------------------------------------------------------- */
 
 	COUNTER UWL_EE_TASK_COUNTER;
 	
@@ -213,8 +213,8 @@ CPU test_application {
 		RESOURCEPROPERTY = STANDARD; 
 	};
 	RESOURCE UWL_EE_RESOURCE_MAC_SEND_MUTEX {
-                RESOURCEPROPERTY = STANDARD;
-        };
+		RESOURCEPROPERTY = STANDARD;
+	};
 	RESOURCE UWL_EE_RESOURCE_MAC_GTS_SEND_MUTEX { 
 		RESOURCEPROPERTY = STANDARD; 
 	};
@@ -229,4 +229,3 @@ CPU test_application {
 	};
 };
 
- 

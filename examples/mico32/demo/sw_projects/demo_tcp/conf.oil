@@ -1,11 +1,11 @@
-//	ENC28J60 + lwIP TCP test
+// ENC28J60 + lwIP TCP test
 
 CPU test_application {
 
 	#include "conf.oil.lwip"
 	#include "conf.oil.enc28j60"
 
-	OS EE {		
+	OS EE {
 		CFLAGS = "-g2";
 		ASFLAGS = "";
 		LDFLAGS = ""; 
@@ -26,13 +26,13 @@ CPU test_application {
 
 			/* used by LWIP */
 			DEVICE = TIMER {
-				NAME = "timer_uwl";				
+				NAME = "timer_uwl";
 				OPTIONS = TIMER_IRQ_SUPPORT;
 			};
 
 			/* used for time debug */
 			DEVICE = TIMER {
-				NAME = "freetimer";				
+				NAME = "freetimer";
 			};
 		};
 
