@@ -16,23 +16,22 @@
 /******************************************************************************/
 
 #ifdef __32MX795F512L__
-enum {
-	EE_DMA_CH0 = 0,
-	EE_DMA_CH1,
-	EE_DMA_CH2,
-	EE_DMA_CH3,
-	EE_DMA_CH4,
-	EE_DMA_CH5,
-	EE_DMA_CH6,
-	EE_DMA_CH7,
-};
+
+#define	EE_DMA_CH0  	0
+#define	EE_DMA_CH1  	1
+#define	EE_DMA_CH2  	2
+#define	EE_DMA_CH3  	3
+#define	EE_DMA_CH4  	4
+#define	EE_DMA_CH5 	5
+#define	EE_DMA_CH6  	6
+#define	EE_DMA_CH7  	7
+
 #else 
-	enum {
-	EE_DMA_CH0 = 0,
-	EE_DMA_CH1,
-	EE_DMA_CH2,
-	EE_DMA_CH3,
-};
+
+#define	EE_DMA_CH0 	0
+#define	EE_DMA_CH1 	1
+#define	EE_DMA_CH2 	2
+#define	EE_DMA_CH3 	3
 
 #endif
 
