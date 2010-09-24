@@ -1,11 +1,165 @@
-/*
-  Name: ee_gpio.h
-  Copyright: Evidence Srl
-  Author: Dario Di Stefano
-  Date: 29/03/10 18.23
-  Description: GPIO library functions header file.
-*/
+/* ###*B*###
+ * ERIKA Enterprise - a tiny RTOS for small microcontrollers
+ *
+ * Copyright (C) 2002-2010  Evidence Srl
+ *
+ * This file is part of ERIKA Enterprise.
+ *
+ * ERIKA Enterprise is free software; you can redistribute it
+ * and/or modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation, 
+ * (with a special exception described below).
+ *
+ * Linking this code statically or dynamically with other modules is
+ * making a combined work based on this code.  Thus, the terms and
+ * conditions of the GNU General Public License cover the whole
+ * combination.
+ *
+ * As a special exception, the copyright holders of this library give you
+ * permission to link this code with independent modules to produce an
+ * executable, regardless of the license terms of these independent
+ * modules, and to copy and distribute the resulting executable under
+ * terms of your choice, provided that you also meet, for each linked
+ * independent module, the terms and conditions of the license of that
+ * module.  An independent module is a module which is not derived from
+ * or based on this library.  If you modify this code, you may extend
+ * this exception to your version of the code, but you are not
+ * obligated to do so.  If you do not wish to do so, delete this
+ * exception statement from your version.
+ *
+ * ERIKA Enterprise is distributed in the hope that it will be
+ * useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License version 2 for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * version 2 along with ERIKA Enterprise; if not, write to the
+ * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+ * Boston, MA 02110-1301 USA.
+ * ###*E*### */
 
+/** 
+	@file ee_gpio.h
+	@brief 	GPIO library header file.\n
+			GPIO API explanation:\n
+			API is generated with DECLARE_FUNC_GPIO(uc, lc) and only if the macros
+			EE_GPIO1_NAME_UC, EE_GPIO2_NAME_UC, EE_GPIO3_NAME_UC, EE_GPIO4_NAME_UC
+			are defined in "eecfg.h". 
+	@author Dario Di Stefano, Bernardo Dal Seno
+	@date 	2010
+	@example	
+			The name of the GPIO module specified inside the platform and
+			inside the conf.oil file is "User_Gpio".
+			
+			The macros generated in "eecfg.h" are:\n
+			\#define EE_GPIO1_NAME_LC user_gpio\n
+			\#define EE_GPIO1_NAME_UC USER_GPIO\n
+			
+			The user must use the lower case form of the name, "user_gpio", 
+			to call the functions of the GPIO API as shown in the following example list.
+	
+			Name: 				unsigned int EE_user_gpio_read_data(void);\n
+			Action: 			This function reads data register;\n
+			Return: 			data register.\n
+			
+			Name: 				unsigned int EE_user_gpio_read_data_out(void);\n
+			Action:				This function reads output data;\n
+			Return:				output data.\n
+			
+			Name: 				void EE_user_gpio_write_data(unsigned int val);\n
+			Action: 			This function writes data register;\n
+			Parameter val:		desired value for data register;\n
+			Return:				nothing.\n
+			
+			Name: 				void EE_user_gpio_write_bit_data(unsigned int val, unsigned char numbit);\n
+			Action: 			This function writes a bit in data register;\n
+			Parameter val:		value for the bit to be changed;\n
+			Parameter numbit:	Number of the bit; \n
+			Return:				nothing.\n
+			
+			Name: 				void EE_user_gpio_write_mask_data(unsigned int val, unsigned int mask);\n
+			Action: 			This function writes data register using a mask;\n
+			Parameter val:		value to be masked;\n
+			Parameter mask:		mask to be used;\n
+			Return:				nothing.\n
+			
+			Name: 				int EE_user_gpio_read_tristate(void);\n
+			Action: 			This function reads tristate register;\n
+			Return: 			tristate register.\n
+			
+			Name: 				void EE_user_gpio_write_tristate(unsigned int val);\n
+			Action: 			This function writes tristate register;\n
+			Parameter val:		desired value for tristate register;\n
+			Return:				nothing.\n
+			
+			Name: 				void EE_user_gpio_write_bit_tristate(unsigned int val, unsigned char numbit);\n
+			Action: 			This function writes a bit in tristate register;\n
+			Parameter val:		value for the bit to be changed;\n
+			Parameter numbit:	Number of the bit;\n
+			Return:				nothing.\n
+			
+			Name: 				void EE_user_gpio_write_mask_tristate(unsigned int val, unsigned int mask);\n
+			Action: 			This function writes tristate register using a mask;\n
+			Parameter val:		value to be masked;\n
+			Parameter mask:		mask to be used;\n
+			Return:				nothing.\n
+			
+			Name: 				int EE_user_gpio_read_irqMask(void);\n
+			Action: 			This function reads irqMask register;\n
+			Return: 			irqMask register.\n
+			
+			Name: 				void EE_user_gpio_write_irqMask(unsigned int val);\n
+			Action: 			This function writes irqMask register;\n
+			Parameter val:		desired value for irqMask register;\n
+			Return:				nothing.\n
+			
+			Name: 				void EE_user_gpio_write_bit_irqMask(unsigned int val, unsigned char numbit);\n
+			Action: 			This function writes a bit in irqMask register;\n
+			Parameter val:		value for the bit to be changed;\n
+			Parameter numbit:	Number of the bit;\n
+			Return:				nothing.\n
+			
+			Name: 				void EE_user_gpio_write_mask_irqMask(unsigned int val, unsigned int mask);\n
+			Action: 			This function writes irqMask register using a mask;\n
+			Parameter val:		value to be masked;\n
+			Parameter mask:		mask to be used;\n
+			Return:				nothing.\n
+			
+			Name: 				int EE_user_gpio_read_edgeCapture(void);\n
+			Action: 			This function read edgeCapture register;\n
+			Return: 			edgeCapture register.\n
+			
+			Name: 				void EE_user_gpio_write_edgeCapture(unsigned int val);\n
+			Action: 			This function writes edgeCapture register;\n
+			Parameter val:		desired value for edgeCapture register;\n
+			Return:				nothing.\n
+			
+			Name: 				void EE_user_gpio_write_bit_edgeCapture(unsigned int val, unsigned char numbit);\n
+			Action: 			This function writes a bit in edgeCapture register;\n
+			Parameter val:		value for the bit to be changed;\n
+			Parameter numbit:	Number of the bit;\n
+			Return:				nothing.\n
+			
+			Name: 				void EE_user_gpio_write_mask_edgeCapture(unsigned int val, unsigned int mask);\n
+			Action: 			This function writes edgeCapture register using a mask;\n
+			Parameter val:		value to be masked;\n
+			Parameter mask:		mask to be used;\n
+			Return:				nothing.\n
+			
+			Name: 				void EE_user_gpio_enable_IRQ(unsigned int ch);\n
+			Action:				This function enables GPIO IRQ;\n
+			Parameter ch:		GPIO channel to enable interrupt to;\n
+			Return:				nothing.\n
+			
+			Name: 				void EE_user_gpio_disable_IRQ(void);\n
+			Action:				This function disables GPIO IRQ;\n
+			Return:				nothing.\n
+			
+			Name: 				void EE_user_gpio_set_IRQ_callback(EE_ISR_callback cbk);\n
+			Action:				This function sets GPIO IRQ callback;\n 
+			Parameter cbk:		pointer to the callback;\n
+			Return:				nothing.\n
+*/
 
 #ifndef __INCLUDE_EEMCUMICO32_GPIO_H__
 #define __INCLUDE_EEMCUMICO32_GPIO_H__
@@ -48,7 +202,7 @@ typedef struct {
     volatile unsigned int data_copy;
 } EE_gpio_st;
 
-/* Macros for User functions (API) */  
+/* GPIO API */
 #define DECLARE_FUNC_GPIO(uc, lc)                                       \
 __INLINE__ unsigned int __ALWAYS_INLINE__ cat3(EE_, lc, _read_data)(void){ \
     return EE_hal_gpio_read_data((MicoGPIO_t*)EE_BASE_ADD(uc)); }       \
@@ -103,10 +257,17 @@ __INLINE__ unsigned int __ALWAYS_INLINE__ cat3(EE_, lc, _read_data)(void){ \
  __INLINE__ void __ALWAYS_INLINE__ cat3(EE_, lc, _set_IRQ_callback)(EE_ISR_callback cbk){ \
      EE_hal_gpio_set_IRQ_callback(& EE_ST_NAME(lc), cbk); }
 
-/* Interrupt handler */
+/**
+	@brief 			This function is GPIO IRQ handler.
+	@param level 	IRQ number
+*/
 void EE_gpio_common_handler(int level);
   
 #ifndef __STATIC_ISR_TABLE__
+/**
+	@brief 			This function sets the interrupt handler
+	@param gpio_sp 	Pointer to GPIO controller structure
+*/
 __INLINE__ void __ALWAYS_INLINE__ EE_hal_gpio_handler_setup(EE_gpio_st* gpio_sp)
 {
 	/* Register IRQ handler */
@@ -116,32 +277,66 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_gpio_handler_setup(EE_gpio_st* gpio_sp)
 #define EE_hal_gpio_handler_setup(gpio_sp)
 #endif // __STATIC_ISR_TABLE__
 
+/**
+	@brief 			This function reads data register
+	@param base 	Pointer to GPIO register structure
+	@return			data register
+*/
 __INLINE__ unsigned int __ALWAYS_INLINE__ EE_hal_gpio_read_data(MicoGPIO_t* base)
 {
     return base->data;
 }
  
+/**
+	@brief 			This function reads output data
+	@param base 	Pointer to GPIO register structure
+	@return			data register
+*/ 
 __INLINE__ unsigned int __ALWAYS_INLINE__ EE_hal_gpio_read_data_out(MicoGPIO_t* base)
 {
     return base->data;
 }
- 
+
+/**
+	@brief 			This function reads output data
+	@param gpio_sp 	Pointer to GPIO driver structure
+	@return			an internal copy of data register
+*/ 
 __INLINE__ unsigned int __ALWAYS_INLINE__ EE_hal_gpio_output_read_data_out(EE_gpio_st *gpio_sp)
 {
     return gpio_sp->data_copy;
 }
  
+/**
+	@brief 			This function writes on data register
+	@param base 	Pointer to GPIO driver structure
+	@param val		desired value for data register
+*/ 
 __INLINE__ void __ALWAYS_INLINE__ EE_hal_gpio_write_data(MicoGPIO_t *base, unsigned int val)
 {
     base->data = val;
 } 
 
+/**
+	@brief 			This function writes data and data_copy 
+					(called by EE_hal_gpio_output_write_data)
+	@param base 	Pointer to GPIO driver structure
+	@param val		desired value for data register
+	@param gpio_sp	Pointer to GPIO driver structure
+*/ 
 __INLINE__ void __ALWAYS_INLINE__ EE_hal_gpio_output_write_data_internal(MicoGPIO_t *base, unsigned int val, EE_gpio_st *gpio_sp)
 {
     gpio_sp->data_copy = val;
     base->data = val;
 } 
 
+/**
+	@brief 			This function writes data
+					(critical section protected by disabling IRQ)
+	@param base 	Pointer to GPIO driver structure
+	@param val		desired value for data register
+	@param gpio_sp	Pointer to GPIO driver structure
+*/ 
 __INLINE__ void __ALWAYS_INLINE__ EE_hal_gpio_output_write_data(MicoGPIO_t *base, unsigned int val, EE_gpio_st *gpio_sp)
 {
     EE_FREG irqstat;
@@ -152,6 +347,13 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_gpio_output_write_data(MicoGPIO_t *base
         EE_mico32_enableIRQ();
 } 
 
+/**
+	@brief 			This function writes a bit in data register
+					(critical section protected by disabling IRQ)
+	@param base 	Pointer to GPIO driver structure
+	@param val		desired value for the bit [1,0]
+	@param numbit	Number of the bit to be modified
+*/ 
 __INLINE__ void __ALWAYS_INLINE__ EE_hal_gpio_write_bit_data(MicoGPIO_t *base, unsigned int val, unsigned char numbit)
 {
     unsigned int mask = (1 << numbit);
@@ -167,7 +369,15 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_gpio_write_bit_data(MicoGPIO_t *base, u
     if (EE_mico32_are_IRQs_enabled(irqstat))
         EE_mico32_enableIRQ();
 } 
-                
+   
+/**
+	@brief 			This function writes a bit in data register
+					(critical section protected by disabling IRQ)
+	@param base 	Pointer to GPIO driver structure
+	@param val		desired value for the bit [1,0]
+	@param numbit	Number of the bit to be modified
+	@param gpio_sp	Pointer to GPIO driver structure
+*/   
 __INLINE__ void __ALWAYS_INLINE__ EE_hal_gpio_output_write_bit_data(
     MicoGPIO_t *base, unsigned int val, unsigned char numbit,
     EE_gpio_st *gpio_sp)
@@ -185,7 +395,14 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_gpio_output_write_bit_data(
     if (EE_mico32_are_IRQs_enabled(irqstat))
         EE_mico32_enableIRQ();
 } 
-                
+
+/**
+	@brief 			This function writes data register with a mask
+					(critical section protected by disabling IRQ)
+	@param base 	Pointer to GPIO driver structure
+	@param val		value to be masked
+	@param mask		Mask to be used
+*/      
 __INLINE__ void __ALWAYS_INLINE__ EE_hal_gpio_write_mask_data(MicoGPIO_t* base,
     unsigned int val, unsigned int mask)
 { 
@@ -198,7 +415,15 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_gpio_write_mask_data(MicoGPIO_t* base,
     if (EE_mico32_are_IRQs_enabled(irqstat))
         EE_mico32_enableIRQ();
 }
-        
+   
+/**
+	@brief 			This function writes data register with a mask
+					(critical section protected by disabling IRQ)
+	@param base 	Pointer to GPIO driver structure
+	@param val		value to be masked
+	@param mask		Mask to be used
+	@param gpio_sp	Pointer to GPIO driver structure
+*/    
 __INLINE__ void __ALWAYS_INLINE__ EE_hal_gpio_output_write_mask_data(
     MicoGPIO_t* base, unsigned int val, unsigned int mask, EE_gpio_st *gpio_sp)
 { 
@@ -212,19 +437,36 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_gpio_output_write_mask_data(
     if (EE_mico32_are_IRQs_enabled(irqstat))
         EE_mico32_enableIRQ();
 }
-        
+     
+/**
+	@brief 			This function reads tristate register
+	@param base 	Pointer to GPIO register structure
+	@return			tristate register
+*/ 	 
 __INLINE__ unsigned int __ALWAYS_INLINE__ EE_hal_gpio_read_tristate(
     MicoGPIO_t* base)
 { 
     return base->tristate;
 } 
-        
+ 
+/**
+	@brief 			This function writes tristate register
+	@param base 	Pointer to GPIO register structure
+	@param val 		desired value for tristate register
+*/ 	
 __INLINE__ void __ALWAYS_INLINE__ EE_hal_gpio_write_tristate(MicoGPIO_t* base,
     unsigned int val)
 { 
     base->tristate = val;
 } 
-        
+ 
+/**
+	@brief 			This function writes bit in tristate register
+					(critical section protected by disabling IRQ)
+	@param base 	Pointer to GPIO register structure
+	@param val 		desired value for tristate register
+	@param numbit	Number of the bit to be modified
+*/ 	
 __INLINE__ void __ALWAYS_INLINE__ EE_hal_gpio_write_bit_tristate(MicoGPIO_t* base, unsigned int val, unsigned char numbit)
 { 
     unsigned int mask = (1 << numbit);
@@ -240,7 +482,14 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_gpio_write_bit_tristate(MicoGPIO_t* bas
     if (EE_mico32_are_IRQs_enabled(irqstat))
         EE_mico32_enableIRQ();
 } 
-        
+   
+/**
+	@brief 			This function writes tristate register with a mask
+					(critical section protected by disabling IRQ)
+	@param base 	Pointer to GPIO register structure
+	@param val 		Value to be masked
+	@param mask		Mask to be used
+*/  
 __INLINE__ void __ALWAYS_INLINE__ EE_hal_gpio_write_mask_tristate(MicoGPIO_t* base, unsigned int val, unsigned int mask)
 { 
     unsigned int tristate;
@@ -252,17 +501,33 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_gpio_write_mask_tristate(MicoGPIO_t* ba
     if (EE_mico32_are_IRQs_enabled(irqstat))
         EE_mico32_enableIRQ();
 } 
-        
+     
+/**
+	@brief 			This function reads irqMask register
+	@param base 	Pointer to GPIO register structure
+	@return 		irqMask register
+*/   
 __INLINE__ unsigned int __ALWAYS_INLINE__ EE_hal_gpio_read_irqMask(MicoGPIO_t* base)
 { 
     return base->irqMask;
 } 
-        
+ 
+/**
+	@brief 			This function writes irqMask register
+	@param base 	Pointer to GPIO register structure
+	@param val		desired value for irqMask register
+*/  
 __INLINE__ void __ALWAYS_INLINE__ EE_hal_gpio_write_irqMask(MicoGPIO_t* base, unsigned int val)
 { 
     base->irqMask = val;
 }       
-        
+    
+/**
+	@brief 			This function writes a bit in irqMask register
+	@param base 	Pointer to GPIO register structure
+	@param val		desired value for the bit to be modified
+	@param numbit	number of the bit
+*/   
 __INLINE__ void __ALWAYS_INLINE__ EE_hal_gpio_write_bit_irqMask(MicoGPIO_t* base, unsigned int val, unsigned char numbit)
 { 
     unsigned int mask = (1 << numbit);
@@ -273,7 +538,13 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_gpio_write_bit_irqMask(MicoGPIO_t* base
     else
         base->irqMask = irqMask & (~mask);
 } 
-        
+  
+/**
+	@brief 			This function writes irqMask register with a mask 
+	@param base 	Pointer to GPIO register structure
+	@param val		value to be masked
+	@param mask		mask to be used
+*/     
 __INLINE__ void __ALWAYS_INLINE__ EE_hal_gpio_write_mask_irqMask(MicoGPIO_t* base, unsigned int val, unsigned int mask)
 { 
     unsigned int irqMask = base->irqMask;
@@ -281,15 +552,32 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_gpio_write_mask_irqMask(MicoGPIO_t* bas
     base->irqMask = (irqMask & (~mask)) | (val & mask);
 } 
         
+/**
+	@brief 			This function reads edgeCapture register
+	@param base 	Pointer to GPIO register structure
+	@return			edgeCapture register
+*/	
  __INLINE__ unsigned int __ALWAYS_INLINE__ EE_hal_gpio_read_edgeCapture(MicoGPIO_t* base)
 { 
     return base->edgeCapture;
 } 
 
+/**
+	@brief 			This function writes edgeCapture register
+	@param base 	Pointer to GPIO register structure
+	@param val		desired value for the edgeCapture register
+*/
 __INLINE__ void __ALWAYS_INLINE__ EE_hal_gpio_write_edgeCapture(MicoGPIO_t* base, unsigned int val)
 { 
     base->edgeCapture = val;
 } 
+
+/**
+	@brief 			This function writes a bit in edgeCapture register
+	@param base 	Pointer to GPIO register structure
+	@param val		desired value for the bit to be modified
+	@param numbit	number of the bit
+*/ 
 __INLINE__ void __ALWAYS_INLINE__ EE_hal_gpio_write_bit_edgeCapture(MicoGPIO_t* base, unsigned int val, unsigned char numbit)
 { 
     unsigned int mask = (1 << numbit);
@@ -301,6 +589,12 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_gpio_write_bit_edgeCapture(MicoGPIO_t* 
         base->edgeCapture = edgeCapture & (~mask);
 } 
 
+/**
+	@brief 			This function writes edgeCapture register with a mask 
+	@param base 	Pointer to GPIO register structure
+	@param val		value to be masked
+	@param mask		mask to be used
+*/ 
 __INLINE__ void __ALWAYS_INLINE__ EE_hal_gpio_write_mask_edgeCapture(MicoGPIO_t *base, unsigned int val, unsigned int mask)
 { 
     unsigned int edgeCapture = base->edgeCapture;
@@ -308,6 +602,12 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_gpio_write_mask_edgeCapture(MicoGPIO_t 
     base->edgeCapture = (edgeCapture & (~mask)) | (val & mask);
 }
 
+/**
+	@brief 			This function enables GPIO IRQ 
+	@param gpio_sp 	Pointer to GPIO driver structure
+	@param irq_mode	IRQ mode specified in system_conf.h
+	@param ch		GPIO channel
+*/ 
 __INLINE__ void __ALWAYS_INLINE__ EE_hal_gpio_enable_IRQ(EE_gpio_st *gpio_sp, int irq_mode, unsigned int ch)
 {
     if(ch!=0 && irq_mode!=0) {
@@ -319,12 +619,21 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_gpio_enable_IRQ(EE_gpio_st *gpio_sp, in
     EE_hal_gpio_write_irqMask(gpio_sp->base, ch);
 }
 
+/**
+	@brief 			This function disables GPIO IRQ 
+	@param gpio_sp 	Pointer to GPIO driver structure
+*/ 
 __INLINE__ void __ALWAYS_INLINE__ EE_hal_gpio_disable_IRQ(EE_gpio_st *gpio_sp)
 {
     mico32_disable_irq(gpio_sp->irqf);
     EE_hal_gpio_write_irqMask(gpio_sp->base, 0);
 }
 
+/**
+	@brief 			This function sets IRQ callback
+	@param gpio_sp 	Pointer to GPIO driver structure
+	@param cbk		pointer to the callback
+*/ 
 __INLINE__ void __ALWAYS_INLINE__ EE_hal_gpio_set_IRQ_callback(EE_gpio_st* gpio_sp, EE_ISR_callback cbk)
 {
     gpio_sp->cbk = cbk;
@@ -351,10 +660,13 @@ DECLARE_STRUCT_GPIO(EE_GPIO4_NAME_UC, EE_GPIO4_NAME_LC)
 DECLARE_FUNC_GPIO(EE_GPIO4_NAME_UC, EE_GPIO4_NAME_LC)
 #endif
 
-/* Return the GPIO structure for the componente associated with the given IRQ
- * level */
+/**
+	@brief 			This function is used inside the interrupt handler to determinate
+					the GPIO structure associated with the given IRQ level
+	@param level 	IRQ level
+    @return 		the pointer of the structure associated with the given IRQ level
+*/ 
 __DECLARE_INLINE__ EE_gpio_st *EE_get_gpio_st_from_level(int level);
-
 __INLINE__ EE_gpio_st * __ALWAYS_INLINE__ EE_get_gpio_st_from_level(int level)
 {
 	#ifdef EE_GPIO1_NAME_UC

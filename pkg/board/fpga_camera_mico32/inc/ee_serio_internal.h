@@ -37,13 +37,13 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
-
-/*
- * Driver for the parallel/serial IO components of the FPGA+Camera board
- * (private parts)
- * Author: 2010,  Bernardo  Dal Seno
- */
-
+ 
+/** 
+	@file ee_serio_internal.h
+	@brief Driver for the parallel/serial IO components of the FPGA+Camera board (private parts).
+	@author Bernardo  Dal Seno
+	@date 2010
+*/
 
 #ifndef __INCLUDE_FPGA_CAMERA_BOARD_SERIO_INTERNAL_H__
 #define __INCLUDE_FPGA_CAMERA_BOARD_SERIO_INTERNAL_H__
@@ -68,18 +68,27 @@ typedef struct
 static SerParIO_t * const serpario = (SerParIO_t *)SERPARIO_BASE_ADDRESS;
 
 
+/**
+	@brief			This function reads the status of switches and button.
+	@return			the status of switches and button (data_in register).	
+*/
 __INLINE__ EE_UINT32 __ALWAYS_INLINE__ EE_serio_read(void)
 {
     return serpario->data_in;
 }
 
-
+/**
+	@brief			This function writes data_out, the register to control leds & transistors.
+*/
 __INLINE__ void __ALWAYS_INLINE__ EE_serio_write(EE_UINT32 data)
 {
     serpario->data_out = data;
 }
 
-
+/**
+	@brief			This function reads data_out, the register to control leds & transistors.
+	@return			the status of leds & transistors (data_out register).
+*/
 __INLINE__ EE_UINT32 __ALWAYS_INLINE__ EE_serio_get_data_out(void)
 {
     return serpario->data_out;
@@ -105,23 +114,44 @@ __INLINE__ EE_UINT32 __ALWAYS_INLINE__ EE_serio_get_data_out(void)
 
 #define EE_SERIO_GPIO_LED_BIT  0
 #define EE_SERIO_GPIO_LED_MASK 1
+
+/**
+	@brief			This function controls the system led.
+	@param s		desired status for the system led.
+*/
 __INLINE__ void __ALWAYS_INLINE__ EE_serio_system_led_set(EE_UREG s)
 {
     EE_misc_gpio_write_bit_data(s, EE_SERIO_GPIO_LED_BIT);
 }
+
+/**
+	@brief			This function reads the status of the system led.
+	@return			1 if the system led is on, else 0.
+*/
 __INLINE__ EE_UREG __ALWAYS_INLINE__ EE_serio_system_led_get(void)
 {
     return EE_misc_gpio_read_data_out() & EE_SERIO_GPIO_LED_MASK;
 }
+
+/**
+	@brief			This function turns on the system led.
+*/
 __INLINE__ void __ALWAYS_INLINE__ EE_serio_system_led_on(void)
 {
     EE_serio_system_led_set(1);
 }
+
+/**
+	@brief			This function turns off the system led.
+*/
 __INLINE__ void __ALWAYS_INLINE__ EE_serio_system_led_off(void)
 {
     EE_serio_system_led_set(0);
 }
 
+/**
+	@brief			This function toggles the system led.
+*/
 __INLINE__ void __ALWAYS_INLINE__ EE_serio_system_led_toggle(void)
 {
     EE_serio_system_led_set (! EE_serio_system_led_get());

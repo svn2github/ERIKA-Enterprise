@@ -38,12 +38,14 @@
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
 
-/*
- * Stack switch for ISRs on Mico32
- * Implementation of EE_mico32_call_ISR_new_stack() as described in
- * pkg/cpu/mico32/inc/ee_irq_internal.h
- * Author: 2010,  Bernardo  Dal Seno
- */
+/** 
+	@file ee_irq_stack.S
+	@brief Stack switch for ISRs on Mico32. 
+	Implementation of EE_mico32_call_ISR_new_stack() as described in
+	pkg/cpu/mico32/inc/ee_irq_internal.h
+	@author Bernardo  Dal Seno
+	@date 2009-2010
+*/  
 
 #include <cpu/mico32/inc/ee_irq_asm.h>
 

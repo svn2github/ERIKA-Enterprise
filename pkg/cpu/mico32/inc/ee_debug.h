@@ -38,13 +38,16 @@
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
 
-/*
- * Some debugging facilities.  The content of this file is strictly connected
- * with the internals of the kernel and the HAL, so it is likely to change with
- * new releases of the OS.  It is meant to debug the HAL, the kernel, and to
- * help in finding some nasty bugs; it is not meant for generale use.
- * Author: 2010,  Bernardo  Dal Seno
- */
+/** 
+	@file ee_debug.h
+	@brief  Some debugging facilities.  The content of this file is strictly connected
+	with the internals of the kernel and the HAL, so it is likely to change with
+	new releases of the OS.  It is meant to debug the HAL, the kernel, and to
+	help in finding some nasty bugs; it is not meant for generale use.
+	@author Bernardo  Dal Seno
+	@date 2010
+*/  
+ 
 
 #ifndef __INCLUDE_MICO32_DEBUG_H__
 #define __INCLUDE_MICO32_DEBUG_H__
@@ -56,7 +59,7 @@
  */
 #ifdef DEBUG_STACK
 
-/*
+/**
  * This value is used as a canary (guard memory location) for stack overflow
  * detection.  This value has three interesting properties, which tend to cause
  * an exception if it's read and used by the processor:
@@ -93,7 +96,7 @@
 #define MICO32_STACK_DEBUG_LEN (PRE_STACK_CANARY_LEN+POST_STACK_CANARY_LEN)
 
 
-/*
+/**
  * Check that the canary below the stack is intact.  `base_tos' is the initial
  * value of the top-of-stack.  Return 0 if the canary is ok, and the offset (as
  * a positive number, measured in bytes) of the first corrupted location
@@ -110,7 +113,7 @@ __INLINE__ int __ALWAYS_INLINE__ check_pre_stack_canary(EE_ADDR base_tos)
 }
 
 
-/*
+/**
  * Check that the canaries before all stacks are intact.  Return 0 if the check
  * is passed, or a the index of the stack that failed the test.  The first stack
  * (index 0) is the system stack and has no canary, so it's not checked.  An
@@ -133,7 +136,7 @@ __INLINE__ int __ALWAYS_INLINE__ check_all_pre_stack_canaries(
 
 #ifdef __MULTI__
 
-/*
+/**
  * Return the current stack index (according to the HAL).
  */
 __INLINE__ EE_UREG __ALWAYS_INLINE__ get_current_tos_index()
@@ -142,7 +145,7 @@ __INLINE__ EE_UREG __ALWAYS_INLINE__ get_current_tos_index()
 }
 
 
-/*
+/**
  * Return the index of the stack used for the given task.
  */
 __INLINE__ EE_UREG __ALWAYS_INLINE__ get_tos_index_for_task(EE_TID tid)
@@ -151,7 +154,7 @@ __INLINE__ EE_UREG __ALWAYS_INLINE__ get_tos_index_for_task(EE_TID tid)
 }
 
 
-/*
+/**
  * Return the index of the stack more likely to be the current one.  If the
  * current stack pointer is corrupted, the result is unreliable; it could be
  * `-1' or any stack index.
@@ -175,7 +178,7 @@ __INLINE__ EE_UREG __ALWAYS_INLINE__ get_most_likely_tos_index(
 }
 
 
-/*
+/**
  * Check that all stacks are empty, by comparing the current top-of-stack values
  * with those given (which should have been obtained through get_base_toses()).
  * It must be called from main() (when no other task is running).  Return 0 if
@@ -193,7 +196,7 @@ __INLINE__ int __ALWAYS_INLINE__ check_toses(
 }
 
 
-/*
+/**
  * Retrieve the initial top-of-stack value.  Must be called from main() before
  * any task activation (or StartOS).
  */

@@ -38,11 +38,12 @@
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
 
-/*
- * Functions to save and restore registers for Osek TerminateTask() on Mico32
- * Author: 2010,  Bernardo  Dal Seno
- */
-
+ /** 
+	@file ee_oo.S
+	@brief Functions to save and restore registers for Osek TerminateTask() on Mico32
+	@author Bernardo  Dal Seno
+	@date 2010
+*/  
 
 #include <cpu/mico32/inc/ee_asm_util.h>
 

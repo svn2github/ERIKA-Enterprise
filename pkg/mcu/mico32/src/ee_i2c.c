@@ -1,9 +1,48 @@
-/*
-  Name: ee_i2c.c
-  Copyright: Evidence Srl
-  Author: Dario Di Stefano
-  Date: 29/03/10 18.28
-  Description: I2C library source file. 
+/* ###*B*###
+ * ERIKA Enterprise - a tiny RTOS for small microcontrollers
+ *
+ * Copyright (C) 2002-2008  Evidence Srl
+ *
+ * This file is part of ERIKA Enterprise.
+ *
+ * ERIKA Enterprise is free software; you can redistribute it
+ * and/or modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation, 
+ * (with a special exception described below).
+ *
+ * Linking this code statically or dynamically with other modules is
+ * making a combined work based on this code.  Thus, the terms and
+ * conditions of the GNU General Public License cover the whole
+ * combination.
+ *
+ * As a special exception, the copyright holders of this library give you
+ * permission to link this code with independent modules to produce an
+ * executable, regardless of the license terms of these independent
+ * modules, and to copy and distribute the resulting executable under
+ * terms of your choice, provided that you also meet, for each linked
+ * independent module, the terms and conditions of the license of that
+ * module.  An independent module is a module which is not derived from
+ * or based on this library.  If you modify this code, you may extend
+ * this exception to your version of the code, but you are not
+ * obligated to do so.  If you do not wish to do so, delete this
+ * exception statement from your version.
+ *
+ * ERIKA Enterprise is distributed in the hope that it will be
+ * useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License version 2 for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * version 2 along with ERIKA Enterprise; if not, write to the
+ * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+ * Boston, MA 02110-1301 USA.
+ * ###*E*### */
+
+/** 
+	@file ee_i2c.c
+	@brief I2C library source file. 
+	@author Dario Di Stefano
+	@date 2010
 */
 
 #include "mcu/mico32/inc/ee_i2c.h"
@@ -37,7 +76,7 @@ DEFINE_STRUCT_I2C(EE_I2C2_NAME_UC, EE_I2C2_NAME_LC)
 /******************************************************************************/
 #ifdef __USE_I2C_IRQ__
 
-/* EE SPI Interrupt handler */
+/* SPI Interrupt common handler */
 void EE_i2c_common_handler(int level)
 {
 	unsigned int uiValue;
@@ -109,7 +148,8 @@ int EE_hal_i2c_stop(OCI2CMDev_t* i2cc)		//note: stop condition manual or not???
 
     return EE_I2C_OK;
 }
-				
+		
+/* This function is used to write a byte (in polling mode) */		
 int EE_hal_i2c_write_byte_polling(OCI2CMDev_t* i2cc, EE_UINT8 device, EE_UINT8 address, EE_UINT8 data)
 {
 	int ret;
@@ -160,6 +200,7 @@ int EE_hal_i2c_write_byte_polling(OCI2CMDev_t* i2cc, EE_UINT8 device, EE_UINT8 a
 	return ret;	
 }
 
+/* This function is used to read a byte (in polling mode) */	
 int EE_hal_i2c_read_byte_polling(OCI2CMDev_t* i2cc, EE_UINT8 device, EE_UINT8 address)
 {
 	int ret;
@@ -218,6 +259,7 @@ int EE_hal_i2c_read_byte_polling(OCI2CMDev_t* i2cc, EE_UINT8 device, EE_UINT8 ad
 	return ret;
 }
 
+/* This function is used to write a buffer (in polling mode) */	
 int EE_hal_i2c_write_buffer_polling(OCI2CMDev_t* i2cc, EE_UINT8 device, EE_UINT8 address, const EE_UINT8 *data, int len)
 {
 	int i;
@@ -275,6 +317,7 @@ int EE_hal_i2c_write_buffer_polling(OCI2CMDev_t* i2cc, EE_UINT8 device, EE_UINT8
 	return ret;
 }	
 
+/* This function is used to read a buffer (in polling mode) */	
 int EE_hal_i2c_read_buffer_polling(OCI2CMDev_t* i2cc, EE_UINT8 device, EE_UINT8 address, EE_UINT8 *data, int len)
 {
 	int i;
@@ -346,6 +389,7 @@ int EE_hal_i2c_read_buffer_polling(OCI2CMDev_t* i2cc, EE_UINT8 device, EE_UINT8 
 															
 #ifndef __USE_I2C_IRQ__
 
+/* This function is used to configure i2c controller (in polling mode) */	
 int EE_hal_i2c_config(OCI2CMDev_t* i2cc, int baudrate, int settings)
 {
 	int prescale;
@@ -364,6 +408,7 @@ int EE_hal_i2c_config(OCI2CMDev_t* i2cc, int baudrate, int settings)
 
 }
 
+/* This function is used to set i2c controller operating mode (in polling mode) */
 int EE_hal_i2c_set_mode(OCI2CMDev_t* i2cc, int mode)
 {
 	int ret = EE_I2C_OK;
@@ -374,6 +419,8 @@ int EE_hal_i2c_set_mode(OCI2CMDev_t* i2cc, int mode)
 }
 
 #else
+
+/* This function is used to configure i2c controller (in interrupt mode) (not yet supported) */	
 int EE_hal_i2c_config(EE_i2c_st* i2csp, int baudrate, int setttings)
 {
 	OCI2CMDev_t *i2cc = i2csp->base; 
@@ -400,6 +447,7 @@ int EE_hal_i2c_config(EE_i2c_st* i2csp, int baudrate, int setttings)
 
 }
 
+/* This function is used to set i2c controller operating mode (in interrupt mode) (not yet supported) */
 int EE_hal_i2c_set_mode(EE_i2c_st* i2csp, int mode)
 {
 	int ret = EE_I2C_OK;
@@ -443,10 +491,7 @@ int EE_hal_i2c_set_mode(EE_i2c_st* i2csp, int mode)
 	return ret;
 }
 
-
-
-
-/* This function is used to set rx callback */
+/* This function is used to set rx callback (not yet supported) */
 int EE_hal_i2c_set_rx_callback(EE_i2c_st* i2csp, EE_ISR_callback isr_rx_callback)
 {
 	i2csp->rxcbk = isr_rx_callback;
@@ -454,7 +499,7 @@ int EE_hal_i2c_set_rx_callback(EE_i2c_st* i2csp, EE_ISR_callback isr_rx_callback
 	return EE_I2C_OK;
 }
 
-/* This function is used to set tx callback */
+/* This function is used to set tx callback (not yet supported) */
 int EE_hal_i2c_set_tx_callback(EE_i2c_st* i2csp, EE_ISR_callback isr_tx_callback)															
 {
 	i2csp->txcbk = isr_tx_callback;
@@ -462,7 +507,7 @@ int EE_hal_i2c_set_tx_callback(EE_i2c_st* i2csp, EE_ISR_callback isr_tx_callback
 	return EE_I2C_OK;
 }
 
-/* This function is used to send a byte on the bus */
+/* This function is used to send a byte on the bus (not yet supported) */
 int EE_hal_i2c_write_byte_irq(EE_i2c_st* i2csp, EE_UINT8 device, EE_UINT8 address, EE_UINT8 data)	// ATT! data is a message (packet)
 {
 	int ret = EE_I2C_OK;
@@ -481,7 +526,7 @@ int EE_hal_i2c_write_byte_irq(EE_i2c_st* i2csp, EE_UINT8 device, EE_UINT8 addres
 	return ret;
 }	
 	
-/* This function is used to read a byte from the bus */
+/* This function is used to read a byte from the bus (not yet supported) */
 int EE_hal_i2c_read_byte_irq(EE_i2c_st* i2csp, EE_UINT8 device, EE_UINT8 address)			// ATT! adddata is a pointer to message (packet)
 {
 	int ret = EE_I2C_OK;
@@ -499,6 +544,7 @@ int EE_hal_i2c_read_byte_irq(EE_i2c_st* i2csp, EE_UINT8 device, EE_UINT8 address
 	return ret;
 }
 	
+/* This function is used to write an array of bytes on the bus (not yet supported) */	
 int EE_hal_i2c_write_buffer_irq(EE_i2c_st* i2csp, EE_UINT8 device, EE_UINT8 address, const EE_UINT8 *data, int len)	// ATT! data is a vector of messages (packets)
 {
 	int ret = EE_I2C_OK;
@@ -516,6 +562,7 @@ int EE_hal_i2c_write_buffer_irq(EE_i2c_st* i2csp, EE_UINT8 device, EE_UINT8 addr
 	return ret;
 }
 
+/* This function is used to read an array of bytes (not yet supported) */
 int EE_hal_i2c_read_buffer_irq(EE_i2c_st* i2csp, EE_UINT8 device, EE_UINT8 address, EE_UINT8 *data, int len)	// ATT! data is a vector of messages (packets)
 {
 	int ret = EE_I2C_OK;
@@ -533,6 +580,7 @@ int EE_hal_i2c_read_buffer_irq(EE_i2c_st* i2csp, EE_UINT8 device, EE_UINT8 addre
 	return ret;
 }	
 
+/* This function is used to read the code of the last error condition recorded (not yet supported) */
 int EE_hal_i2c_return_error(EE_i2c_st* i2csp)
 {
 	return i2csp->err;

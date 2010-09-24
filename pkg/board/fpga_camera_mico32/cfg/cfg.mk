@@ -42,27 +42,7 @@ ifeq ($(findstring __LM32__,$(EEOPT)) , __LM32__)
 
 # *** IPERMOB camera board ***
 ifeq ($(findstring __XP2_CAMERA_BOARD__,$(EEOPT)) , __XP2_CAMERA_BOARD__)
-
-ifeq ($(findstring __USE_CAMERA_HV7131GP__,$(EEOPT)) , __USE_CAMERA_HV7131GP__)
-EE_SRCS += pkg/board/fpga_camera_mico32/src/ee_camera_hv7131gp.c
-endif
-
-ifeq ($(findstring __USE_ETHERNET_ENC28J60__,$(EEOPT)) , __USE_ETHERNET_ENC28J60__)
-EE_SRCS += pkg/board/fpga_camera_mico32/src/ee_ethernet_enc28j60.c
-endif
-
-ifeq ($(findstring __USE_LIGHTSENSOR_TSL2561__,$(EEOPT)) , __USE_LIGHTSENSOR_TSL2561T__)
-EE_SRCS += pkg/board/fpga_camera_mico32/src/ee_lightsensor_tsl2561t.c
-endif
-
-ifeq ($(findstring __USE_ZIGBEE_MRF24J40__,$(EEOPT)) , __USE_ZIGBEE_MRF24J40__)
-EE_SRCS += pkg/board/fpga_camera_mico32/src/ee_zigbee_mrf24j40.c
-ifneq ($(findstring __LIB_MRF24J40__,$(LIB_OPT)),__LIB_MRF24J40__)
-EE_SRCS += contrib/drivers/radio/mrf24j40/src/mrf24j40.c
-EE_SRCS += contrib/drivers/radio/mrf24j40/src/mrf24j40_hal_ee_mico32.c
-endif
-endif
-
+# no files
 endif #__XP2_CAMERA_BOARD__
 
 endif #__LM32__

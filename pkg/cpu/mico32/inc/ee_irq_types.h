@@ -38,11 +38,13 @@
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
 
-/*
- * IRQ-related stuff for Lattice Mico32; types and common definitions (used by
- * both ee_irq_internal.h and ee_irq.h)
- * Author: 2009-2010, Bernardo Dal Seno
- */
+/** 
+	@file ee_irq_types.h
+	@brief IRQ-related stuff for Lattice Mico32; types and common definitions 
+	(used by both ee_irq_internal.h and ee_irq.h)
+	@author Bernardo  Dal Seno
+	@date 2009 - 2010
+*/
 
 #ifndef __INCLUDE_MICO32_IRQ_TYPES_H__
 #define __INCLUDE_MICO32_IRQ_TYPES_H__

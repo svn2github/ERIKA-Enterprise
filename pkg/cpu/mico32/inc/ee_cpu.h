@@ -38,12 +38,13 @@
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
 
-/*
- * CPU-dependent part of HAL
- * Derived from pkg/cpu/pic30/inc/ee_cpu.h
- * Author: 2009-2010,  Bernardo  Dal Seno
- */
-
+/** 
+	@file ee_cpu.h
+	@brief CPU-dependent part of HAL. Derived from pkg/cpu/pic30/inc/ee_cpu.h
+	@author Bernardo  Dal Seno
+	@date 2009 - 2010
+*/ 
+ 
 
 #ifndef __INCLUDE_MICO32_EE_CPU_H__
 #define __INCLUDE_MICO32_EE_CPU_H__
@@ -113,7 +114,7 @@ extern EE_UREG EE_mico32_active_tos;
 #define EE_mico32_are_IRQs_enabled(ie) ((ie) & 1)
 
 
-/*
+/**
  * Enable interrupts
  */
 __INLINE__ void __ALWAYS_INLINE__ EE_mico32_enableIRQ(void)
@@ -125,7 +126,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_mico32_enableIRQ(void)
 }
 
 
-/*
+/**
  * Disable interrupts
  */
 __INLINE__ EE_FREG __ALWAYS_INLINE__ EE_mico32_disableIRQ(void)
@@ -138,7 +139,7 @@ __INLINE__ EE_FREG __ALWAYS_INLINE__ EE_mico32_disableIRQ(void)
 }
 
 
-/*
+/**
  * Return true (not 0) if IRQs are enabled, 0 (false) if IRQ are disabled.
  */
 __INLINE__ int __ALWAYS_INLINE__ EE_mico32_get_IRQ_enabled(void)
@@ -149,12 +150,12 @@ __INLINE__ int __ALWAYS_INLINE__ EE_mico32_get_IRQ_enabled(void)
 }
 
 
-/*
+/**
  * Invalidate data cache.  Do nothing if no data cache is configured.
  */
 __INLINE__ void __ALWAYS_INLINE__ EE_mico32_invalidate_dcache(void)
 {
-    /* The NOPs are needed to be sure that no load or store instruction
+    /** The NOPs are needed to be sure that no load or store instruction
        immediately precedes or follows the `wcsr' instruction, as recommended by
        the LatticeMico32 Processor Reference Manual, page 17.  "memory" forbids
        the compiler from caching global variables across this function. */
@@ -166,7 +167,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_mico32_invalidate_dcache(void)
 }
 
 
-/*
+/**
  * Invalidate instruction cache.  Do nothing if no instruction cache is
  * configured.
  */
@@ -193,18 +194,19 @@ __INLINE__ void __ALWAYS_INLINE__ EE_mico32_invalidate_icache(void)
  * Interrupt Handling
  */
 
-/* Disable/Enable Interrupts */
+/** Hal Enable Interrupts */
 __INLINE__ void __ALWAYS_INLINE__ EE_hal_enableIRQ(void)
 {
     EE_mico32_enableIRQ();
 }
 
+/** Hal Disable Interrupts */
 __INLINE__ void __ALWAYS_INLINE__ EE_hal_disableIRQ(void)
 {
     EE_mico32_disableIRQ();
 }
 
-/* Cache invalidation */
+/** Cache invalidation */
 #define EE_hal_invalidate_dcache EE_mico32_invalidate_dcache
 #define EE_hal_invalidate_icache EE_mico32_invalidate_icache
 

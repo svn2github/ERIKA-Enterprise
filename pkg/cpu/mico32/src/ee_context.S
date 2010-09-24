@@ -38,12 +38,14 @@
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
 
-/*
- * Context switch function for multistack on Mico32
- * Implementation of EE_std_change_context() as described in
- * pkg/cpu/common/inc/ee_context.h
- * Author: 2010,  Bernardo  Dal Seno
- */
+/** 
+	@file ee_context.S
+	@brief Context switch function for multistack on Mico32 
+	Implementation of EE_std_change_context() as described in
+	pkg/cpu/common/inc/ee_context.h
+	@author Bernardo  Dal Seno
+	@date 2010
+*/ 
 
 /*
 void EE_std_change_context_multi(EE_FADDR thread_addr, EE_UREG tos_index);

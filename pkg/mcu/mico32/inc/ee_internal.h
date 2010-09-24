@@ -38,18 +38,15 @@
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
 
-/*
-  Name: ee_internal.h 
-  Copyright: Evidence Srl
-  Author: Dario Di Stefano
-  Date: 29/03/10 18.28
-  Description: ee_internal.h in mcu folder
-*/ 
+ /** 
+	@file mcu\mico32\inc\ee_internal.h
+	@brief ee_internal.h for mcu.
+	@author Dario Di Stefano
+	@date 2010
+*/
  
 #ifndef __INCLUDE_MCUMICO32_INTERNAL_H__
 #define __INCLUDE_MCUMICO32_INTERNAL_H__
-
-//#include "mcu/mico32/inc/ee_mcu.h"
 
  /*
  * FRSH

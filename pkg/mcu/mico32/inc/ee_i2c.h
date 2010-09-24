@@ -1,9 +1,143 @@
-/*
-  Name: ee_i2c.h
-  Copyright: Evidence Srl
-  Author: Dario Di Stefano
-  Date: 29/03/10 18.28
-  Description: I2C header file. 
+/* ###*B*###
+ * ERIKA Enterprise - a tiny RTOS for small microcontrollers
+ *
+ * Copyright (C) 2002-2010  Evidence Srl
+ *
+ * This file is part of ERIKA Enterprise.
+ *
+ * ERIKA Enterprise is free software; you can redistribute it
+ * and/or modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation, 
+ * (with a special exception described below).
+ *
+ * Linking this code statically or dynamically with other modules is
+ * making a combined work based on this code.  Thus, the terms and
+ * conditions of the GNU General Public License cover the whole
+ * combination.
+ *
+ * As a special exception, the copyright holders of this library give you
+ * permission to link this code with independent modules to produce an
+ * executable, regardless of the license terms of these independent
+ * modules, and to copy and distribute the resulting executable under
+ * terms of your choice, provided that you also meet, for each linked
+ * independent module, the terms and conditions of the license of that
+ * module.  An independent module is a module which is not derived from
+ * or based on this library.  If you modify this code, you may extend
+ * this exception to your version of the code, but you are not
+ * obligated to do so.  If you do not wish to do so, delete this
+ * exception statement from your version.
+ *
+ * ERIKA Enterprise is distributed in the hope that it will be
+ * useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License version 2 for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * version 2 along with ERIKA Enterprise; if not, write to the
+ * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+ * Boston, MA 02110-1301 USA.
+ * ###*E*### */
+
+/** 
+	@file 	ee_i2c.h
+	@brief 	I2C library header file.\n
+			I2C API explanation:\n
+			API is generated with DECLARE_FUNC_I2C(uc, lc) and only if the macros
+			EE_I2C1_NAME_UC, EE_I2C2_NAME_UC are defined in "eecfg.h". 
+	@author Dario Di Stefano
+	@date 	2010
+	@example 	
+			The name of the I2C module specified inside the platform and
+			inside the conf.oil file is "User_I2c".
+			
+			The macros generated in "eecfg.h" are:\n
+			\#define EE_I2C1_NAME_LC user_i2c\n
+			\#define EE_I2C1_NAME_UC USER_I2C\n
+			
+			The user must use the lower case form of the name, "user_i2c", 
+			to call the functions of the I2C API as shown in the following example list.
+				
+			Name: 				int EE_user_i2c_config(int baudrate,int settings);\n
+			Action:				This function configures I2C controller (to change default parameters);\n
+			Parameter baudrate:	operating rate;\n
+			Parameter settings: binary OR of flags for special settings (see macros in ee_i2c.h);\n
+			Return:				EE_I2C_OK if no errors found, a negative number in case of errors.\n
+			
+			Name: 				int EE_user_i2c_set_mode(int mode);\n
+			Action:				This function configures I2C controller operating mode (to change default parameters);\n
+			Parameter mode:		operating mode (see macros in ee_i2c.h);\n
+			Return:				EE_I2C_OK if no errors found, a negative number in case of errors.\n
+			
+			Name: 				int EE_user_i2c_set_rx_callback(EE_ISR_callback rxcbk);\n
+			Action:				This function sets RX isr callback (interrupt mode only);\n
+			Parameter rxcbk:	pointer to the callback;\n
+			Return:				EE_I2C_OK if no errors found, a negative number in case of errors.\n
+			
+			Name: 				int EE_user_i2c_set_tx_callback(EE_ISR_callback txcbk);\n
+			Action:				This function sets TX isr callback (interrupt mode only);\n
+			Parameter txcbk:	pointer to the callback;\n
+			Return:				EE_I2C_OK if no errors found, a negative number in case of errors.\n
+			
+			Name: 				int EE_user_i2c_send_byte(EE_UINT8 device, EE_UINT8 address, EE_UINT8 data)\n
+			Action:				This function sends a byte;\n
+			Parameter device:	slave address;\n
+			Parameter address:	memory address;\n
+			Parameter data:		data to send;\n
+			Return:				EE_I2C_OK if no errors found, a negative number in case of errors.\n
+			
+			Name: 				int EE_user_i2c_receive_byte(EE_UINT8 device, EE_UINT8 address);\n
+			Action:				This function receives a byte;\n
+			Parameter device:	slave address;\n
+			Parameter address:	memory address;\n
+			Return:				EE_I2C_OK if no errors found, a negative number in case of errors.\n
+			
+			Name: 				int EE_user_i2c_send_buffer(EE_UINT8 device, EE_UINT8 address, const EE_UINT8 *vet, int len);\n
+			Action:				This function sends an array of bytes;\n
+			Parameter device:	slave address;\n
+			Parameter address:	memory address;\n
+			Parameter vet:		array of bytes to send;\n
+			Parameter len:		number of bytes to send;\n
+			Return:				EE_I2C_OK if no errors found, a negative number in case of errors.\n
+
+			Name: 				int EE_user_i2c_receive_buffer(EE_UINT8 device, EE_UINT8 address, const EE_UINT8 *vet, int len);\n
+			Action:				This function receives an array of bytes;\n
+			Parameter device:	slave address;\n
+			Parameter address:	memory address;\n
+			Parameter vet:		array to load with the received data;\n
+			Parameter len:		number of bytes to receive;\n
+			Return:				EE_I2C_OK if no errors found, a negative number in case of errors.\n
+			
+			Name: 				int EE_user_i2c_enable_IRQ(void);\n
+			Action:				This function enables I2C IRQ (interrupt mode only);\n
+			Return:				EE_I2C_OK if no errors found, a negative number in case of errors.\n
+			
+			Name: 				int EE_user_i2c_disable_IRQ(void);\n
+			Action:				This function disables I2C IRQ (interrupt mode only);\n
+			Return:				EE_I2C_OK if no errors found, a negative number in case of errors.\n
+			
+			Name: 				int EE_user_i2c_enable(void);\n
+			Action:				This function enables I2C driver control;\n
+			Return:				EE_I2C_OK if no errors found, a negative number in case of errors.\n
+			
+			Name: 				int EE_user_i2c_disable(void);\n
+			Action:				This function disables I2C driver control;\n
+			Return:				EE_I2C_OK if no errors found, a negative number in case of errors.\n
+			
+			Name: 				int EE_user_i2c_start(void);\n
+			Action:				This function sends an I2C start signal;\n
+			Return:				EE_I2C_OK if no errors found, a negative number in case of errors.\n
+			
+			Name: 				int EE_user_i2c_stop(void);\n
+			Action:				This function sends an I2C stop signal;\n
+			Return:				EE_I2C_OK if no errors found, a negative number in case of errors.\n
+			
+			Name: 				int EE_user_i2c_return_error(void);\n
+			Action:				This function reads the code of the last error condition occurred;\n
+			Return:				the code of the last error condition occurred.\n
+			
+			Name: 				int EE_user_i2c_is_idle(void);\n
+			Action:				This function verifies the status of the I2C bus;\n
+			Return:				1 if I2C bus is idle, else 0.\n
 */
 
 #ifndef __INCLUDE_EEMCUMICO32_I2C_H__
@@ -70,131 +204,100 @@
 #define EE_i2c_pend_for_TIP_done(status) { while((status) & OCI2CM_STATUS_TRANSFER); }
  
 /* Internal functions */
-/*
-	int EE_hal_i2c_write_byte_polling(OCI2CMDev_t* i2cc, EE_UINT8 device, EE_UINT8 address, EE_UINT8 data);	
-		This function is used to write one character on the i2c bus.
-		Arguments:
-			- OCI2CMDev_t* i2cc: I2C base address
-			- EE_UINT8 device: slave address
-			- EE_UINT8 address: slave memory address to be written
-			- EE_UINT8 data: data to be transmitted
-		Actions: 
-			- issue a start signal, transmit device address (write mode), transmit slave memory address, tranmsit data, issue a stop signal. 
-		Return values:
-			- the return values can be:	EE_I2C_ERR_DEV_ACK 	if ACK is not been received during device address transmission
-										EE_I2C_ERR_ADD_ACK 	if ACK is not been received during memory address transmission
-										EE_I2C_ERR_ARB_LOST if arbitration is been lost during transmission
-										EE_I2C_OK 			if all is ok
+
+/**
+	@brief 			This function writes one character on the i2c bus.
+					Issue a start signal, transmit device address (write mode), 
+					transmit slave memory address, tranmsit data, issue a stop signal. 
+	@param i2cc 	I2C base address
+	@param device 	slave address
+	@param address 	slave memory address to be written
+	@param data 	data to be transmitted
+	@return			EE_I2C_ERR_DEV_ACK 	if ACK is not been received during device address transmission
+					EE_I2C_ERR_ADD_ACK 	if ACK is not been received during memory address transmission
+					EE_I2C_ERR_ARB_LOST if arbitration is been lost during transmission
+					EE_I2C_OK 			if all is ok
 */
 int EE_hal_i2c_write_byte_polling(OCI2CMDev_t* i2cc, EE_UINT8 device, EE_UINT8 address, EE_UINT8 data);	
 
-/*
-	int EE_hal_i2c_read_byte_polling(OCI2CMDev_t* i2cc, EE_UINT8 device, EE_UINT8 address);
-		This function is used to read one character from the i2c bus.
-		Arguments:
-			- OCI2CMDev_t* i2cc: I2C base address
-			- EE_UINT8 device: slave address
-			- EE_UINT8 address: slave memory address to be read
-		Actions: 
-			- issue a start signal, transmit device address (write mode), transmit slave memory address, transmit device address (read mode), 
-				read data and transmit NACK, issue a stop signal. 
-		Return values:
-			- the return values can be:	EE_I2C_ERR_DEV_ACK 	if ACK is not been received during device address transmission
-										EE_I2C_ERR_ADD_ACK 	if ACK is not been received during memory address transmission
-										EE_I2C_ERR_ARB_LOST if arbitration is been lost during transmission
-										data 				if all is ok
+/**
+	@brief			This function reads one character from the i2c bus.
+					Issue a start signal, transmit device address (write mode), 
+					transmit slave memory address, transmit device address (read mode), 
+					read data and transmit NACK, issue a stop signal. 
+	@param i2cc 	I2C base address
+	@param device	slave address
+	@param address	slave memory address to be read
+	@return			EE_I2C_ERR_DEV_ACK 	if ACK is not been received during device address transmission
+					EE_I2C_ERR_ADD_ACK 	if ACK is not been received during memory address transmission
+					EE_I2C_ERR_ARB_LOST if arbitration is been lost during transmission
+					data 				if all is ok
 */
 int EE_hal_i2c_read_byte_polling(OCI2CMDev_t* i2cc, EE_UINT8 device, EE_UINT8 address);
 
 
 
-/*
-	int EE_hal_i2c_read_buffer_polling(OCI2CMDev_t* i2cc, EE_UINT8 device, EE_UINT8 address, EE_UINT8 *data, int len);	
-		This function is used to read mote than one characters from the i2c bus.
-		Arguments:
-			- OCI2CMDev_t* i2cc: I2C base address
-			- EE_UINT8 device: slave address
-			- EE_UINT8 address: slave memory address to be read
-			- EE_UINT8 *data: array to be loaded with the read characters
-			- int len: number of characters to be read
-		Actions: 
-			- issue a start signal, transmit device address (write mode), transmit slave memory address, transmit device address (read mode), 
-				read data and transmit ACK/NACK, issue a stop signal. 
-		Return values:
-			- the return values can be:	EE_I2C_ERR_DEV_ACK 	if ACK is not been received during device address transmission
-										EE_I2C_ERR_ADD_ACK 	if ACK is not been received during memory address transmission
-										EE_I2C_ERR_ARB_LOST if arbitration is been lost during transmission
-										EE_I2C_OK 				if all is ok
+/**
+	@brief			This function reads mote than one characters from the i2c bus.
+					Issue a start signal, transmit device address (write mode), 
+					transmit slave memory address, transmit device address (read mode), 
+					read data and transmit ACK/NACK, issue a stop signal. 
+	@param i2cc 	I2C base address
+	@param device 	slave address
+	@param address 	slave memory address to be read
+	@param data 	array to be loaded with the read characters
+	@param len 		number of characters to be read
+	@return 		EE_I2C_ERR_DEV_ACK 	if ACK is not been received during device address transmission
+					EE_I2C_ERR_ADD_ACK 	if ACK is not been received during memory address transmission
+					EE_I2C_ERR_ARB_LOST if arbitration is been lost during transmission
+					EE_I2C_OK 			if all is ok
 */
 int EE_hal_i2c_read_buffer_polling(OCI2CMDev_t* i2cc, EE_UINT8 device, EE_UINT8 address, EE_UINT8 *data, int len);		
 
 
-/*
-	int EE_hal_i2c_write_buffer_polling(OCI2CMDev_t* i2cc, EE_UINT8 device, EE_UINT8 address, EE_UINT8 *data, int len);	
-		This function is used to write more than one characters on the i2c bus.
-		Arguments:
-			- OCI2CMDev_t* i2cc: I2C base address
-			- EE_UINT8 device: slave address
-			- EE_UINT8 address: slave memory address to be written
-			- EE_UINT8 *data: array of characters to be transmitted
-			- int len: number of characters to be transmitted
-		Actions: 
-			- issue a start signal, transmit device address (write mode), transmit slave memory address, tranmsit all data, issue a stop signal. 
-		Return values:
-			- the return values can be:	EE_I2C_ERR_DEV_ACK 	if ACK is not been received during device address transmission
-										EE_I2C_ERR_ADD_ACK 	if ACK is not been received during memory address transmission
-										EE_I2C_ERR_ARB_LOST if arbitration is been lost during transmission
-										EE_I2C_OK 			if all is ok
+/**
+	@brief			This function writes more than one characters on the i2c bus.
+					Issue a start signal, transmit device address (write mode), 
+					transmit slave memory address, tranmsit all data, issue a stop signal. 
+	@param i2cc 	I2C base address
+	@param device 	slave address
+	@param address	slave memory address to be written
+	@param data		array of characters to be transmitted
+	@param len		number of characters to be transmitted
+	@return			EE_I2C_ERR_DEV_ACK 	if ACK is not been received during device address transmission
+					EE_I2C_ERR_ADD_ACK 	if ACK is not been received during memory address transmission
+					EE_I2C_ERR_ARB_LOST if arbitration is been lost during transmission
+					EE_I2C_OK 			if all is ok
 */
 int EE_hal_i2c_write_buffer_polling(OCI2CMDev_t* i2cc, EE_UINT8 device, EE_UINT8 address, const EE_UINT8 *data, int len);	
 
-/*
-	int EE_hal_i2c_start(OCI2CMDev_t* i2cc);
-		This function is used to issue only a start signal on the i2c bus.
-		Arguments:
-			- OCI2CMDev_t* i2cc: I2C base address
-		Actions: 
-			- issue only a start signal on the i2c bus.
-		Return values:
-			- the return values can be:	EE_I2C_ERR_ARB_LOST if arbitration is been lost during transmission
-										EE_I2C_OK 			if all is ok
+/**
+	@brief 			This function issues only a start signal on the i2c bus.
+	@param i2cc		I2C base address
+	@return			EE_I2C_ERR_ARB_LOST if arbitration is been lost during transmission
+					EE_I2C_OK 			if all is ok
 */
 int EE_hal_i2c_start(OCI2CMDev_t* i2cc);
 
-/*
-	int EE_hal_i2c_stop(OCI2CMDev_t* i2cc);
-		This function is used to issue only a stop signal on the i2c bus.
-		Arguments:
-			- OCI2CMDev_t* i2cc: I2C base address
-		Actions: 
-			- issue only a stop signal on the i2c bus.
-		Return values:
-			- the return values can be:	EE_I2C_OK 	
+/**
+	@brief 			This function issues only a stop signal on the i2c bus.
+	@param i2cc		I2C base address
+	@return			EE_I2C_OK 	
 */																	
 int EE_hal_i2c_stop(OCI2CMDev_t* i2cc);
 
 
-/*
-	int EE_hal_i2c_disable(OCI2CMDev_t* i2cc);	
-		This function is used to disable i2c core.
-		Arguments:
-			- OCI2CMDev_t* i2cc: I2C base address
-		Actions: 
-			- disable i2c core.
-		Return values:
-			- the return values can be:	EE_I2C_OK 	
+/**
+	@brief			This function disables i2c core.
+	@param i2cc		I2C base address
+	@return			EE_I2C_OK 	
 */	
 int EE_hal_i2c_disable(OCI2CMDev_t* i2cc);		
 	
-/*
-	__INLINE__ int __ALWAYS_INLINE__ EE_hal_i2c_enable(OCI2CMDev_t* i2cc);
-		This function is used to enable i2c core.
-		Arguments:
-			- OCI2CMDev_t* i2cc: I2C base address
-		Actions: 
-			- enable i2c core.
-		Return values:
-			- the return values can be:	EE_I2C_OK 	
+/**
+	@brief			This function enables i2c core.
+	@param i2cc		I2C base address
+	@return			EE_I2C_OK 		
 */														
 __INLINE__ int __ALWAYS_INLINE__ EE_hal_i2c_enable(OCI2CMDev_t* i2cc)
 {
@@ -202,15 +305,10 @@ __INLINE__ int __ALWAYS_INLINE__ EE_hal_i2c_enable(OCI2CMDev_t* i2cc)
 	return EE_I2C_OK;
 }
 
-/*
-	__INLINE__ int __ALWAYS_INLINE__ EE_hal_i2c_enable_IRQ(OCI2CMDev_t* i2cc)
-		This function is used to enable interrupts.
-		Arguments:
-			- OCI2CMDev_t* i2cc: I2C base address
-		Actions: 
-			- enable interrupts.
-		Return values:
-			- the return values can be:	EE_I2C_OK 	
+/**
+	@brief			This function enables interrupts.
+	@param i2cc		I2C base address
+	@return			EE_I2C_OK 
 */																
 __INLINE__ int __ALWAYS_INLINE__ EE_hal_i2c_enable_IRQ(OCI2CMDev_t* i2cc)
 {
@@ -218,15 +316,10 @@ __INLINE__ int __ALWAYS_INLINE__ EE_hal_i2c_enable_IRQ(OCI2CMDev_t* i2cc)
 	return EE_I2C_OK;	
 }
 
-/*
-	__INLINE__ int __ALWAYS_INLINE__ EE_hal_i2c_disable_IRQ(OCI2CMDev_t* i2cc)
-		This function is used to disable interrupts.
-		Arguments:
-			- OCI2CMDev_t* i2cc: I2C base address
-		Actions: 
-			- disable interrupts.
-		Return values:
-			- the return values can be:	EE_I2C_OK 	
+/**
+	@brief			This function disables interrupts.
+	@param i2cc		I2C base address
+	@return			EE_I2C_OK 
 */													
 __INLINE__ int __ALWAYS_INLINE__ EE_hal_i2c_disable_IRQ(OCI2CMDev_t* i2cc)
 {
@@ -234,15 +327,10 @@ __INLINE__ int __ALWAYS_INLINE__ EE_hal_i2c_disable_IRQ(OCI2CMDev_t* i2cc)
 	return EE_I2C_OK;
 }
 
-/*
-	__INLINE__ int __ALWAYS_INLINE__ EE_hal_i2c_idle(OCI2CMDev_t* i2cc)
-		This function is used to check if the i2c bus is idle.
-		Arguments:
-			- OCI2CMDev_t* i2cc: I2C base address
-		Actions: 
-			- check if the i2c bus is idle.
-		Return values:
-			- the return values can be:	1 if i2c bus is idle else 0	
+/**
+	@brief			This function checks if the i2c bus is idle.
+	@param i2cc		I2C base address
+	@return			1 if i2c bus is idle else 0	
 */	
 __INLINE__ int __ALWAYS_INLINE__ EE_hal_i2c_idle(OCI2CMDev_t* i2cc)
 {
@@ -250,7 +338,7 @@ __INLINE__ int __ALWAYS_INLINE__ EE_hal_i2c_idle(OCI2CMDev_t* i2cc)
 }
 
 
-#ifdef __USE_I2C_IRQ__
+#ifdef __USE_I2C_IRQ__ /* not yet supported */
 
 /* I2C structure (used in ISR mode) */
 typedef struct {
@@ -279,84 +367,101 @@ EE_i2c_st cat3(ee_, lc, _st) = { \
 EE_UINT8 EE_VETRX_NAME(lc)[EE_I2C_BUFSIZE]; \
 EE_UINT8 EE_VETTX_NAME(lc)[EE_I2C_BUFSIZE];  
 
-/*
-	int EE_hal_i2c_config(EE_i2c_st* i2csp, int baudrate);
-		This function is used to configure i2c controller.
-		Arguments:
-			- EE_i2c_st* i2csp: I2C structure
-			- int baudrate: transmission rate 
-		Actions: 
-			- configure i2c controller.
-		Return values:
-			- the return values can be:	EE_I2C_OK 	
+/**
+	@brief			This function configures i2c controller (not yet supported). 
+	@param i2csp	I2C structure
+	@param baudrate	transmission rate 
+	@return			EE_I2C_OK 	
 */					
 int EE_hal_i2c_config(EE_i2c_st* i2csp, int baudrate);
 
-/*
-	int EE_hal_i2c_set_mode(EE_i2c_st* i2csp, int mode);		
-		This function is used to set i2c controller mode.
-		Arguments:
-			- EE_i2c_st* i2csp: I2C structure
-			- int mode: desired mode
-		Actions: 
-			- set i2c controller mode.
-		Return values:
-			- the return values can be:	EE_I2C_OK 	
+/**
+	@brief			This function sets i2c controller mode (not yet supported).
+	@param i2csp	I2C structure
+	@param mode		desired mode
+	@return			EE_I2C_OK 	
 */	
 int EE_hal_i2c_set_mode(EE_i2c_st* i2csp, int mode);	
 
-/*
-	int EE_hal_i2c_set_rx_callback(EE_i2c_st* i2csp, EE_ISR_callback isr_rx_callback);		
-		This function is used to set rx callback.
-		Arguments:
-			- EE_i2c_st* i2csp: I2C structure
-			- EE_ISR_callback isr_rx_callback: rx callback pointer
-		Actions: 
-			- set rx callback.
-		Return values:
-			- the return values can be:	EE_I2C_OK 	
+/**
+	@brief			This function sets rx callback (not yet supported).
+	@param i2csp	I2C structure
+	@param isr_rx_callback	rx callback pointer
+	@return			EE_I2C_OK 	
 */	
 int EE_hal_i2c_set_rx_callback(EE_i2c_st* i2csp, EE_ISR_callback isr_rx_callback);	
 
-/*
-	int EE_hal_i2c_set_tx_callback(EE_i2c_st* i2csp, EE_ISR_callback isr_tx_callback);			
-		This function is used to set tx callback.
-		Arguments:
-			- EE_i2c_st* i2csp: I2C structure
-			- EE_ISR_callback isr_tx_callback: tx callback pointer
-		Actions: 
-			- set tx callback.
-		Return values:
-			- the return values can be:	EE_I2C_OK 	
-*/						
+/**
+	@brief			This function sets tx callback (not yet supported).
+	@param i2csp	I2C structure
+	@param isr_tx_callback	tx callback pointer
+	@return			EE_I2C_OK 	
+*/					
 int EE_hal_i2c_set_tx_callback(EE_i2c_st* i2csp, EE_ISR_callback isr_tx_callback);			
 
-/*
-	int EE_hal_i2c_return_error(EE_i2c_st* i2csp);				
-		This function is used to know the last error condition
-		Arguments:
-			- EE_i2c_st* i2csp: I2C structure
-		Actions: 
-			- return the last error condition
-		Return values:
-			- the return value is the last error condition
+/**
+	@brief			This function returns the code of the last error condition occurred (not yet supported).
+	@param i2csp	I2C structure
+	@return			code of the last error condition occurred
 */																								
 int EE_hal_i2c_return_error(EE_i2c_st* i2csp);			
 
-/* to do */
+/**
+	@brief			This function writes a byte with I2C interface 
+					configured in IRQ mode (not yet supported).
+	@param i2csp	I2C structure
+	@param device	slave address
+	@param address	memory address
+	@param data		data to be transmitted
+	@return			EE_I2C_OK if no error occurs else an error code.	
+*/	
 int EE_hal_i2c_write_byte_irq(EE_i2c_st* i2csp, EE_UINT8 device, EE_UINT8 address, EE_UINT8 data);	
-/* to do */
-int EE_hal_i2c_read_byte_irq(EE_i2c_st* i2csp, EE_UINT8 device, EE_UINT8 address);	
-/* to do */
-int EE_hal_i2c_read_buffer_irq(EE_i2c_st* i2csp, EE_UINT8 device, EE_UINT8 address, EE_UINT8 *data, int len);
-/* to do */	
-int EE_hal_i2c_write_buffer_irq(EE_i2c_st* i2csp, EE_UINT8 device, EE_UINT8 address, const EE_UINT8 *data, int len);
-/* to do */		
 
-/* Interrupt handler */
+/**
+	@brief			This function reads a byte with I2C interface 
+					configured in IRQ mode (not yet supported).
+	@param i2csp	I2C structure
+	@param device	slave address
+	@param address	memory address
+	@return			EE_I2C_OK if no error occurs else an error code.	
+*/	
+int EE_hal_i2c_read_byte_irq(EE_i2c_st* i2csp, EE_UINT8 device, EE_UINT8 address);	
+
+/**
+	@brief			This function reads an array of bytes with I2C interface 
+					configured in IRQ mode (not yet supported).
+	@param i2csp	I2C structure
+	@param device	slave address
+	@param address	memory address
+	@param data		array to be loaded with the received data
+	@param len		number of bytes to be received
+	@return			EE_I2C_OK if no error occurs else an error code.	
+*/
+int EE_hal_i2c_read_buffer_irq(EE_i2c_st* i2csp, EE_UINT8 device, EE_UINT8 address, EE_UINT8 *data, int len);
+
+/**
+	@brief			This function writes an array of bytes with I2C interface 
+					configured in IRQ mode (not yet supported).
+	@param i2csp	I2C structure
+	@param device	slave address
+	@param address	memory address
+	@param data		array of bytes to be transmitted
+	@param len		number of bytes to be transmitted
+	@return			EE_I2C_OK if no error occurs else an error code.	
+*/
+int EE_hal_i2c_write_buffer_irq(EE_i2c_st* i2csp, EE_UINT8 device, EE_UINT8 address, const EE_UINT8 *data, int len);
+	
+/**
+	@brief			This function is the I2C interrupt handler.
+	@param level	IRQ level	
+*/
 void EE_i2c_common_handler(int level);		
 
 #ifndef __STATIC_ISR_TABLE__
+/**
+	@brief 			This function sets the interrupt handler
+	@param i2csp 	I2C driver structure
+*/
 __INLINE__ void __ALWAYS_INLINE__ EE_hal_i2c_handler_setup(EE_i2c_st* i2csp)
 {
 	/* Register IRQ handler */
@@ -366,9 +471,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_i2c_handler_setup(EE_i2c_st* i2csp)
 #define EE_hal_i2c_handler_setup(i2csp)
 #endif // __STATIC_ISR_TABLE__															
 							
-/* 
-	Macros for I2C driver API generation (irq mode)
-*/ 
+/* Interrupt mode API */
 #define DECLARE_FUNC_I2C(uc, lc) \
 __INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _config)(int baudrate,int settings){ \
 	return EE_hal_i2c_config(& EE_ST_NAME(lc), baudrate, settings); } \
@@ -436,6 +539,11 @@ DECLARE_STRUCT_I2C(EE_I2C2_NAME_UC, EE_I2C2_NAME_LC)
  * level */
 __DECLARE_INLINE__ EE_i2c_st *EE_get_i2c_st_from_level(int level);
 
+/**
+	@brief 			This function is used inside the handler to get I2C structure pointer
+	@param level 	IRQ level
+    @return 		the pointer of the structure associated to the IRQ number passed as argument
+*/
 __INLINE__ EE_i2c_st * __ALWAYS_INLINE__ EE_get_i2c_st_from_level(int level)
 {
 	#ifdef EE_I2C1_NAME_UC
@@ -476,36 +584,24 @@ __INLINE__ EE_i2c_st * __ALWAYS_INLINE__ EE_get_i2c_st_from_level(int level)
 //	int mode;							// i2c operating mode (polling, isr, ...)
 //} EE_i2c_st;
 
-/*
-	int EE_hal_i2c_config(OCI2CMDev_t* i2cc, int baudrate, int setttings);
-		This function is used to configure i2c controller.
-		Arguments:
-			- OCI2CMDev_t* i2cc: i2c base address
-			- int baudrate: transmission rate 
-			- int settings: other i2c settings (to do...)
-		Actions: 
-			- configure i2c controller.
-		Return values:
-			- the return values can be:	EE_I2C_OK 	
-*/		
-int EE_hal_i2c_config(OCI2CMDev_t* i2cc, int baudrate, int setttings);
+/**
+	@brief			This function configures i2c controller. 
+	@param i2cc		address of the I2C registers structure
+	@param baudrate	transmission rate 
+	@param settings	special settings
+	@return			EE_I2C_OK if no error occurs, else an error code.	
+*/	
+int EE_hal_i2c_config(OCI2CMDev_t* i2cc, int baudrate, int settings);
 
-/*
-	int EE_hal_i2c_set_mode(OCI2CMDev_t* i2cc, int mode);		
-		This function is used to set i2c controller mode.
-		Arguments:
-			- OCI2CMDev_t* i2cc: i2c base address
-			- int mode: desired mode
-		Actions: 
-			- set i2c controller mode.
-		Return values:
-			- the return values can be:	EE_I2C_OK 	
+/**
+	@brief			This function sets i2c controller mode.
+	@param i2cc		address of the I2C registers structure
+	@param mode 	desired operating mode
+	@return			EE_I2C_OK if no error occurs, else an error code.	
 */	
 int EE_hal_i2c_set_mode(OCI2CMDev_t* i2cc, int mode);	
 
-/* 
-	Macros for I2C driver API generation (polling mode)
-*/ 
+/* Polling mode API */
 #define DECLARE_FUNC_I2C(uc, lc) \
 __INLINE__ int __ALWAYS_INLINE__ cat3(EE_, lc, _config)(int baudrate,int settings){ \
 	return EE_hal_i2c_config((OCI2CMDev_t*)EE_BASE_ADD(uc), baudrate, settings); } \

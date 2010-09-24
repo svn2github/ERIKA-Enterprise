@@ -38,10 +38,12 @@
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
 
-/*
- * Derived from cpu/pic30/inc/ee_internal.h
- * Author: 2009 Bernardo Dal Seno
- */
+/** 
+	@file cpu\mico32\inc\ee_internal.h
+	@brief Derived from cpu/pic30/inc/ee_internal.h
+	@author Bernardo  Dal Seno
+	@date 2009
+*/  
 
 #ifndef __INCLUDE_MICO32_INTERNAL_H__
 #define __INCLUDE_MICO32_INTERNAL_H__
@@ -60,7 +62,7 @@
 #include "cpu/common/inc/ee_primitives.h"
 
 
-/* called as _first_ function of a primitive that can be called in
+/** called as _first_ function of a primitive that can be called in
    an IRQ and in a task */
 __INLINE__ EE_FREG __ALWAYS_INLINE__ EE_hal_begin_nested_primitive(void)
 {
@@ -68,7 +70,7 @@ __INLINE__ EE_FREG __ALWAYS_INLINE__ EE_hal_begin_nested_primitive(void)
 }
 
 
-/* Called as _last_ function of a primitive that can be called in
+/** Called as _last_ function of a primitive that can be called in
    an IRQ and in a task.  Enable IRQs if they were enabled before entering. */
 __INLINE__ void __ALWAYS_INLINE__ EE_hal_end_nested_primitive(EE_FREG f)
 {
@@ -88,7 +90,7 @@ extern EE_UREG EE_mico32_active_tos;
 #endif
 #include "cpu/common/inc/ee_context.h"
 
-/* typically called at the end of an interrupt */
+/** typically called at the end of an interrupt */
 #define EE_hal_IRQ_stacked EE_hal_endcycle_stacked
 #define EE_hal_IRQ_ready EE_hal_endcycle_ready
 
@@ -100,11 +102,11 @@ extern EE_UREG EE_mico32_active_tos;
 
 #if defined(__OO_BCC1__) || defined(__OO_BCC2__) || defined(__OO_ECC1__) || defined(__OO_ECC2__)
 
-/* Save the context and call the body of the task `tid'.  Implemented in
+/** Save the context and call the body of the task `tid'.  Implemented in
  * assembly */
 void EE_hal_terminate_savestk(EE_TID tid);
 
-/* Restore the context saved by EE_hal_terminate_savestk() for the task `tid' and
+/** Restore the context saved by EE_hal_terminate_savestk() for the task `tid' and
  * return from EE_hal_terminate_savestk().  Implemented in assembly */
 void EE_hal_terminate_task(EE_TID tid) NORETURN;
 

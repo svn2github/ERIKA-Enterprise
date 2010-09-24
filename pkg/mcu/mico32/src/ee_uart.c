@@ -1,9 +1,48 @@
-/*
-  Name: ee_uart.c
-  Copyright: Evidence Srl
-  Author: Dario Di Stefano
-  Date: 29/03/10 18.28
-  Description: Uart library source file. 
+/* ###*B*###
+ * ERIKA Enterprise - a tiny RTOS for small microcontrollers
+ *
+ * Copyright (C) 2002-2008  Evidence Srl
+ *
+ * This file is part of ERIKA Enterprise.
+ *
+ * ERIKA Enterprise is free software; you can redistribute it
+ * and/or modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation, 
+ * (with a special exception described below).
+ *
+ * Linking this code statically or dynamically with other modules is
+ * making a combined work based on this code.  Thus, the terms and
+ * conditions of the GNU General Public License cover the whole
+ * combination.
+ *
+ * As a special exception, the copyright holders of this library give you
+ * permission to link this code with independent modules to produce an
+ * executable, regardless of the license terms of these independent
+ * modules, and to copy and distribute the resulting executable under
+ * terms of your choice, provided that you also meet, for each linked
+ * independent module, the terms and conditions of the license of that
+ * module.  An independent module is a module which is not derived from
+ * or based on this library.  If you modify this code, you may extend
+ * this exception to your version of the code, but you are not
+ * obligated to do so.  If you do not wish to do so, delete this
+ * exception statement from your version.
+ *
+ * ERIKA Enterprise is distributed in the hope that it will be
+ * useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License version 2 for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * version 2 along with ERIKA Enterprise; if not, write to the
+ * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+ * Boston, MA 02110-1301 USA.
+ * ###*E*### */
+
+/** 
+	@file ee_uart.c
+	@brief Uart library source file. 
+	@author Dario Di Stefano
+	@date 2010
 */
 
 #include "mcu/mico32/inc/ee_uart.h"
@@ -25,6 +64,7 @@ DEFINE_STRUCT_UART(EE_UART2_NAME_UC, EE_UART2_NAME_LC)
 #endif
 
 volatile int ee_uart_tip=0;
+
 #else	// #ifdef __USE_UART_IRQ__
 
 /* Vectors and uart structures definitions */
@@ -219,6 +259,7 @@ int EE_hal_uart_set_tx_callback(EE_uart_st* usp, EE_ISR_callback isr_tx_callback
 	return EE_UART_OK;
 }
 
+/* This functions enables tx IRQ */
 int EE_hal_uart_enable_tx_ISR(EE_uart_st* usp)
 {
 	unsigned int intst, mode = usp->mode;;
@@ -505,6 +546,7 @@ int EE_hal_uart_read_buffer(EE_uart_st* usp, void *buf, int len)
 
 #else // #ifdef __USE_UART_IRQ__
 
+/* This functions sets UART operating mode (blocking, non-blocking) */
 int EE_hal_uart_set_ISR_mode(EE_uart_st* usp, int mode)
 {
 	int old_mode;
@@ -531,6 +573,7 @@ int EE_hal_uart_set_ISR_mode(EE_uart_st* usp, int mode)
 	return EE_UART_OK;
 }					
 
+/* This functions write a byte */
 int EE_hal_uart_write_byte(EE_uart_st* usp, EE_UINT8 data)
 {
 	unsigned int uiValue, mode;
@@ -567,6 +610,7 @@ int EE_hal_uart_write_byte(EE_uart_st* usp, EE_UINT8 data)
 
 }								
 
+/* This functions read a byte */
 int EE_hal_uart_read_byte(EE_uart_st* usp, EE_UINT8 *data)
 {
 	unsigned int uiValue; 
@@ -604,6 +648,7 @@ int EE_hal_uart_read_byte(EE_uart_st* usp, EE_UINT8 *data)
 
 }						
 
+/* This functions read an array of bytes */
 int EE_hal_uart_read_buffer(EE_uart_st* usp, void *buf, int len)
 {
 	EE_UINT8 *vet = buf;
@@ -623,6 +668,7 @@ int EE_hal_uart_read_buffer(EE_uart_st* usp, void *buf, int len)
 		return i;	// number of bytes read.
 }					
 
+/* This functions write an array of bytes */
 int EE_hal_uart_write_buffer(EE_uart_st* usp, const void *buf, int len)
 {
 	const EE_UINT8 *vet = buf;

@@ -38,10 +38,12 @@
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
 
-/*
- * Author: 2010,  Dario  Di Stefano
- * Author: 2010,  Bernardo  Dal Seno
- */
+/** 
+	@file ee_board.h
+	@brief Main header file in board.
+	@author Dario Di Stefano, Bernardo  Dal Seno 
+	@date 2010
+*/
 
 #ifndef __INCLUDE_FPGA_CAMERA_BOARD_H__
 #define __INCLUDE_FPGA_CAMERA_BOARD_H__

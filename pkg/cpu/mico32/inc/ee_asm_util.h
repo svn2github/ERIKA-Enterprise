@@ -38,10 +38,12 @@
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
 
-/*
- * Useful assembly macros for Mico32
- * Author: 2010,  Bernardo  Dal Seno
- */
+/** 
+	@file ee_asm_util.h
+	@brief Useful assembly macros for Mico32
+	@author Bernardo  Dal Seno
+	@date 2009 - 2010
+*/
 
 #ifndef __INCLUDE_MICO32_ASM_UTIL_H__
 #define __INCLUDE_MICO32_ASM_UTIL_H__

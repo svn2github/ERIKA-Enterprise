@@ -1,9 +1,48 @@
-/*
-  Name: ee_buffer.h
-  Copyright: Evidence Srl
-  Author: Dario Di Stefano
-  Date: 29/03/10 18.28
-  Description: Buffers library header file. 
+/* ###*B*###
+ * ERIKA Enterprise - a tiny RTOS for small microcontrollers
+ *
+ * Copyright (C) 2002-2010  Evidence Srl
+ *
+ * This file is part of ERIKA Enterprise.
+ *
+ * ERIKA Enterprise is free software; you can redistribute it
+ * and/or modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation, 
+ * (with a special exception described below).
+ *
+ * Linking this code statically or dynamically with other modules is
+ * making a combined work based on this code.  Thus, the terms and
+ * conditions of the GNU General Public License cover the whole
+ * combination.
+ *
+ * As a special exception, the copyright holders of this library give you
+ * permission to link this code with independent modules to produce an
+ * executable, regardless of the license terms of these independent
+ * modules, and to copy and distribute the resulting executable under
+ * terms of your choice, provided that you also meet, for each linked
+ * independent module, the terms and conditions of the license of that
+ * module.  An independent module is a module which is not derived from
+ * or based on this library.  If you modify this code, you may extend
+ * this exception to your version of the code, but you are not
+ * obligated to do so.  If you do not wish to do so, delete this
+ * exception statement from your version.
+ *
+ * ERIKA Enterprise is distributed in the hope that it will be
+ * useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License version 2 for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * version 2 along with ERIKA Enterprise; if not, write to the
+ * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+ * Boston, MA 02110-1301 USA.
+ * ###*E*### */
+
+/** 
+	@file ee_buffer.h
+	@brief Buffers library header file. 
+	@author Dario Di Stefano
+	@date 2010
 */
 
 #ifndef __INCLUDE_EEMCUMICO32_BUFFER_H__
@@ -39,8 +78,7 @@ typedef struct {
 * Functions declarations
 ****************************************************/
 /*
-	int EE_buffer_init(EE_buffer *buf, int msgsize, int bufsize, EE_UINT8 *vet);
-		This function is used to initialize a buffer. 
+	This function is used to initialize a buffer. 
 		Arguments:
 			- EE_buffer *buf: buffer pointer
 			- int msgsize: size of a message
@@ -55,8 +93,7 @@ int EE_buffer_init(EE_buffer *buf, int msgsize, int bufsize, EE_UINT8 *vet);	// 
 
 
 /*
-	int EE_buffer_putmsg(EE_buffer *buf, EE_UINT8* msg);
-		This function puts a new message in the buffer.
+	This function puts a new message in the buffer.
 		Arguments:
 			- EE_buffer *buf: buffer pointer
 			- EE_UINT8 *msg: address of first location of the message to be loaded 
@@ -70,8 +107,7 @@ int EE_buffer_putmsg(EE_buffer *buf, EE_UINT8* msg);
 
 
 /*
-	int EE_buffer_getmsg(EE_buffer *buf, EE_UINT8* msg);
-		This function extracts a message from the buffer.
+	This function extracts a message from the buffer.
 		Arguments:
 			- EE_buffer *buf: buffer pointer
 			- EE_UINT8 *msg: address of first location of the message to be written with the extracted message 
@@ -84,8 +120,7 @@ int EE_buffer_putmsg(EE_buffer *buf, EE_UINT8* msg);
 int EE_buffer_getmsg(EE_buffer *buf, EE_UINT8* msg);
 
 /*
-	int EE_buffer_isempty(EE_buffer *buf);
-		This function can be used to check if the buffer is empty.
+	This function can be used to check if the buffer is empty.
 		Arguments:
 			- EE_buffer *buf: buffer pointer
 		Actions: 
@@ -97,8 +132,7 @@ int EE_buffer_getmsg(EE_buffer *buf, EE_UINT8* msg);
 int EE_buffer_isempty(EE_buffer *buf);
 
 /*
-	int EE_buffer_isfull(EE_buffer *buf);
-		This function can be used to check if the buffer is full.
+	This function can be used to check if the buffer is full.
 		Arguments:
 			- EE_buffer *buf: buffer pointer
 		Actions: 

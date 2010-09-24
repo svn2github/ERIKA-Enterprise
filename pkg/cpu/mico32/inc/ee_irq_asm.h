@@ -38,10 +38,12 @@
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
 
-/*
- * Assembly macros for IRQs on Lattice Mico32
- * Author: 2010,  Bernardo  Dal Seno
- */
+/** 
+	@file ee_irq_asm.h
+	@brief Assembly macros for IRQs on Lattice Mico32
+	@author Bernardo  Dal Seno
+	@date 2010
+*/  
 
 #ifndef __INCLUDE_MICO32_IRQ_ASM_H__
 #define __INCLUDE_MICO32_IRQ_ASM_H__

@@ -37,11 +37,13 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
-
-/*
- * IRQ-related stuff for Lattice Mico32; userland declarations
- * Author: 2009-2010,  Bernardo  Dal Seno
- */
+ 
+ /** 
+	@file ee_irq.h
+	@brief IRQ-related stuff for Lattice Mico32; userland declarations
+	@author Bernardo  Dal Seno
+	@date 2009-2010
+*/  
 
 #ifndef __INCLUDE_MICO32_IRQ_H__
 #define __INCLUDE_MICO32_IRQ_H__
@@ -53,14 +55,14 @@
 
 #ifndef __STATIC_ISR_TABLE__
 
-/* Register a handler with a given interrupt number; also enable the given
+/** Register a handler with a given interrupt number; also enable the given
  * interrupt.  If `fun' is 0, disable the given interrupt.
  * When interrupt nesting is enabled, it is safe to call this function from
  * interrupt handlers only for interrupts of higher level.
  */
 void EE_mico32_register_ISR(int level, EE_mico32_ISR_handler fun);
 
-/* Unregister the IRQ handler for the given interrupt and disable the given
+/** Unregister the IRQ handler for the given interrupt and disable the given
  * interrupt. */
 __INLINE__ void EE_mico32_unregister_ISR(int level)
 {
@@ -70,7 +72,7 @@ __INLINE__ void EE_mico32_unregister_ISR(int level)
 #endif /* __STATIC_ISR_TABLE__ */
 
 
-/* Enable the interrupts specified by the `mask' parameter. */
+/** Enable the interrupts specified by the `mask' parameter. */
 __INLINE__ void mico32_enable_irq_mask(int mask)
 {
     int im = mico32_get_reg_im();
@@ -78,7 +80,7 @@ __INLINE__ void mico32_enable_irq_mask(int mask)
 }
 
 
-/* Disable the interrupts specified by the `mask' parameter. */
+/** Disable the interrupts specified by the `mask' parameter. */
 __INLINE__ void mico32_disable_irq_mask(int mask)
 {
     int im = mico32_get_reg_im();
@@ -86,14 +88,14 @@ __INLINE__ void mico32_disable_irq_mask(int mask)
 }
 
 
-/* Enable the interrupt whose number is specified by the `irq' parameter. */
+/** Enable the interrupt whose number is specified by the `irq' parameter. */
 __INLINE__ void __ALWAYS_INLINE__ mico32_enable_irq(int irq)
 {
     mico32_enable_irq_mask(1 << irq);
 }
 
 
-/* Disable the interrupt whose number is specified by the `irq' parameter. */
+/** Disable the interrupt whose number is specified by the `irq' parameter. */
 __INLINE__ void __ALWAYS_INLINE__ mico32_disable_irq(int irq)
 {
     mico32_disable_irq_mask(1 << irq);

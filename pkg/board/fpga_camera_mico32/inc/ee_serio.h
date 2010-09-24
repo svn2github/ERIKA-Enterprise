@@ -37,11 +37,13 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
-
-/*
- * Driver for the parallel/serial IO components of the FPGA+Camera board
- * Author: 2010,  Bernardo  Dal Seno
- */
+ 
+/** 
+	@file ee_serio.h
+	@brief Driver for the parallel/serial IO components of the FPGA+Camera board.
+	@author Bernardo  Dal Seno
+	@date 2010
+*/
 
 
 #ifndef __INCLUDE_FPGA_CAMERA_BOARD_SERIO_H__
@@ -63,6 +65,10 @@
 
 #ifdef __USE_LEDS__
 
+/**
+	@brief			This function turns on a led of the XP2-CAMERA board. 
+	@param n		ID number of the led
+*/	
 __INLINE__ void __ALWAYS_INLINE__ EE_led_on(EE_UREG n)
 {
     if (n == EE_SERIO_SYSTEM_LED)
@@ -71,6 +77,10 @@ __INLINE__ void __ALWAYS_INLINE__ EE_led_on(EE_UREG n)
         EE_serio_write(EE_serio_get_data_out() | EE_SERIO_LED_MASK(n));
 }
 
+/**
+	@brief			This function turns off a led of the XP2-CAMERA board. 
+	@param n		ID number of the led
+*/	
 __INLINE__ void __ALWAYS_INLINE__ EE_led_off(EE_UREG n)
 {
     if (n == EE_SERIO_SYSTEM_LED)
@@ -79,6 +89,10 @@ __INLINE__ void __ALWAYS_INLINE__ EE_led_off(EE_UREG n)
         EE_serio_write(EE_serio_get_data_out() & ~EE_SERIO_LED_MASK(n));
 }
 
+/**
+	@brief			This function toggles a led of the XP2-CAMERA board. 
+	@param n		ID number of the led
+*/	
 __INLINE__ void __ALWAYS_INLINE__ EE_led_toggle(EE_UREG n)
 {
     if (n == EE_SERIO_SYSTEM_LED)
@@ -87,6 +101,11 @@ __INLINE__ void __ALWAYS_INLINE__ EE_led_toggle(EE_UREG n)
         EE_serio_write(EE_serio_get_data_out() ^ EE_SERIO_LED_MASK(n));
 }
 
+/**
+	@brief			This function turns on the leds of the XP2-CAMERA board
+					selected with the mask passed as argument. 
+	@param state	mask to select the leds to be turned on
+*/	
 __INLINE__ void __ALWAYS_INLINE__ EE_led_set_all(EE_UINT32 state)
 {
     EE_UINT32 old = EE_serio_get_data_out();
@@ -94,7 +113,10 @@ __INLINE__ void __ALWAYS_INLINE__ EE_led_set_all(EE_UINT32 state)
     EE_serio_system_led_set(state & (1 << EE_SERIO_SYSTEM_LED));
 }
 
-
+/**
+	@brief			This function gets the status of the leds of the XP2-CAMERA board.
+	@return 		the status of the leds
+*/	
 __INLINE__ EE_UINT32 __ALWAYS_INLINE__ EE_led_get_all(void)
 {
     EE_UINT32 state = EE_serio_get_data_out() & EE_SERIO_ALL_LEDS;
@@ -103,27 +125,36 @@ __INLINE__ EE_UINT32 __ALWAYS_INLINE__ EE_led_get_all(void)
     return state;
 }
 
-
+/**
+	@brief			This function turns off all the leds of the XP2-CAMERA board.
+*/	
 __INLINE__ void __ALWAYS_INLINE__ EE_led_all_off(void)
 {
     EE_led_set_all(0);
     EE_serio_system_led_off();
 }
 
-
+/**
+	@brief			This function turns on all the leds of the XP2-CAMERA board.
+*/	
 __INLINE__ void __ALWAYS_INLINE__ EE_led_all_on(void)
 {
     EE_led_set_all(EE_SERIO_ALL_LEDS);
     EE_serio_system_led_on();
 }
 
-
+/**
+	@brief			This function toggles all the leds of the XP2-CAMERA board.
+*/
 __INLINE__ void __ALWAYS_INLINE__ EE_led_all_toggle(void)
 {
     EE_serio_write(EE_serio_get_data_out() ^ EE_SERIO_ALL_LEDS);
     EE_serio_system_led_toggle();
 }
 
+/**
+	@brief			This function turns off all the leds of the XP2-CAMERA board.
+*/
 __INLINE__ void __ALWAYS_INLINE__ EE_led_init(void)
 {
     EE_led_all_off();
@@ -135,12 +166,20 @@ __INLINE__ void __ALWAYS_INLINE__ EE_led_init(void)
 /* Switches & button */
 
 #ifdef __USE_SWITCHES__
-
+/**
+	@brief			This function reads all the switches of the XP2-CAMERA board.
+	@return			the status of the switches
+*/
 __INLINE__ EE_UINT32 __ALWAYS_INLINE__ EE_switch_read_all(void)
 {
     return EE_serio_read();
 }
 
+/**
+	@brief			This function reads a particular switch of the XP2-CAMERA board.
+	@param n 		the number of the switch to read			
+	@return			the status of the switches
+*/
 __INLINE__ EE_UINT32 __ALWAYS_INLINE__ EE_switch_read(EE_UREG n)
 {
     return (EE_serio_read() & EE_SERIO_SWITCH_MASK(n)) != 0;
@@ -153,9 +192,13 @@ __INLINE__ EE_UINT32 __ALWAYS_INLINE__ EE_switch_read(EE_UREG n)
 
 #ifdef __USE_TRANSISTORS__
 
-/* Transistors are controlled with negative logic, with the exception of the
- * one powering the switch array. */
+/** Note: Transistors are controlled with negative logic, with the exception of the
+ *  one powering the switch array. */
 
+/**
+	@brief			This function turns on the transistors of the XP2-CAMERA board.
+	@param n 		the number of the transistor to turn on			
+*/
 __INLINE__ void __ALWAYS_INLINE__ EE_transistor_on(EE_UREG n)
 {
     if (n != EE_TRANSISTOR_SWITCHES)
@@ -164,6 +207,10 @@ __INLINE__ void __ALWAYS_INLINE__ EE_transistor_on(EE_UREG n)
         EE_serio_write(EE_serio_get_data_out() | EE_SERIO_TRANSISTOR_MASK(n));
 }
 
+/**
+	@brief			This function turns off the transistors of the XP2-CAMERA board.
+	@param n 		the number of the transistor to turn off			
+*/
 __INLINE__ void __ALWAYS_INLINE__ EE_transistor_off(EE_UREG n)
 {
     if (n != EE_TRANSISTOR_SWITCHES)
@@ -172,6 +219,11 @@ __INLINE__ void __ALWAYS_INLINE__ EE_transistor_off(EE_UREG n)
         EE_serio_write(EE_serio_get_data_out() & ~EE_SERIO_TRANSISTOR_MASK(n));
 }
 
+/**
+	@brief			This function reads the transistors of the XP2-CAMERA board.
+	@param n 		the number of the transistor to read	
+	@return			the status of the transistor	
+*/
 __INLINE__ EE_UREG __ALWAYS_INLINE__ EE_transistor_read(EE_UREG n)
 {
     unsigned sw;
@@ -182,12 +234,18 @@ __INLINE__ EE_UREG __ALWAYS_INLINE__ EE_transistor_read(EE_UREG n)
         return sw == 1;
 }
 
+/**
+	@brief			This function turns on all the transistors of the XP2-CAMERA board.
+*/
 __INLINE__ void __ALWAYS_INLINE__ EE_transistor_all_on(void)
 {
     EE_serio_write((EE_serio_get_data_out() & ~EE_SERIO_ALL_TRANSISTORS)
         | EE_SERIO_TRANSISTOR_MASK(EE_TRANSISTOR_SWITCHES));
 }
 
+/**
+	@brief			This function turns off all the transistors of the XP2-CAMERA board.
+*/
 __INLINE__ void __ALWAYS_INLINE__ EE_transistor_all_off(void)
 {
     EE_serio_write((EE_serio_get_data_out() | EE_SERIO_ALL_TRANSISTORS)

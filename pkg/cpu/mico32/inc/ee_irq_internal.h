@@ -38,11 +38,12 @@
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
 
-/*
- * IRQ-related stuff for Lattice Mico32; internals
- * Author: 2010,  Bernardo  Dal Seno
- */
-
+/** 
+	@file ee_irq_internal.h
+	@brief IRQ-related stuff for Lattice Mico32; internals
+	@author Bernardo  Dal Seno
+	@date 2010
+*/
 
 #ifndef __INCLUDE_MICO32_IRQ_INTERNAL_H__
 #define __INCLUDE_MICO32_IRQ_INTERNAL_H__

@@ -40,10 +40,6 @@
 
 ifeq ($(findstring __LM32__,$(EEOPT)) , __LM32__)
 
-#ifeq ($(findstring __FRSH__,$(EEOPT)) , __FRSH__)
-#EE_SRCS += pkg/mcu/mico32/src/ee_mico32frsh.c
-#endif
-
 MCU_BUF = NO
 
 ifeq ($(findstring __USE_TIMER__,$(EEOPT)) , __USE_TIMER__)

@@ -37,13 +37,13 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
-
-/*
- * Author: 2006 
- * CVS: $Id: ee_board.h,v 1.27 2008/08/29 11:21:08 francesco Exp $
- */
-
-//#include "board/fpga_camera_mico32/inc/ee_board.h"
+ 
+/** 
+	@file board\fpga_camera_mico32\inc\ee_internal.h
+	@brief Internal header file. 
+	@author Dario Di Stefano
+	@date 2010
+*/
 
 #ifndef __INCLUDE_FPGA_CAMERA_INTERNAL_H__
 #define __INCLUDE_FPGA_CAMERA_INTERNAL_H__

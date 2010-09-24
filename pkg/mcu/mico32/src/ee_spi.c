@@ -1,9 +1,48 @@
-/*
-  Name: ee_spi.c
-  Copyright: Evidence Srl
-  Author: Dario Di Stefano
-  Date: 29/03/10 18.23
-  Description: SPI library source file.
+/* ###*B*###
+ * ERIKA Enterprise - a tiny RTOS for small microcontrollers
+ *
+ * Copyright (C) 2002-2008  Evidence Srl
+ *
+ * This file is part of ERIKA Enterprise.
+ *
+ * ERIKA Enterprise is free software; you can redistribute it
+ * and/or modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation, 
+ * (with a special exception described below).
+ *
+ * Linking this code statically or dynamically with other modules is
+ * making a combined work based on this code.  Thus, the terms and
+ * conditions of the GNU General Public License cover the whole
+ * combination.
+ *
+ * As a special exception, the copyright holders of this library give you
+ * permission to link this code with independent modules to produce an
+ * executable, regardless of the license terms of these independent
+ * modules, and to copy and distribute the resulting executable under
+ * terms of your choice, provided that you also meet, for each linked
+ * independent module, the terms and conditions of the license of that
+ * module.  An independent module is a module which is not derived from
+ * or based on this library.  If you modify this code, you may extend
+ * this exception to your version of the code, but you are not
+ * obligated to do so.  If you do not wish to do so, delete this
+ * exception statement from your version.
+ *
+ * ERIKA Enterprise is distributed in the hope that it will be
+ * useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License version 2 for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * version 2 along with ERIKA Enterprise; if not, write to the
+ * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+ * Boston, MA 02110-1301 USA.
+ * ###*E*### */
+
+/** 
+	@file ee_spi.c
+	@brief SPI library source file.
+	@author Dario Di Stefano
+	@date 2010
 */
 
 #include "mcu/mico32/inc/ee_spi.h"
@@ -37,7 +76,7 @@ DEFINE_STRUCT_SPI(EE_SPI2_NAME_UC, EE_SPI2_NAME_LC)
 /******************************************************************************/
 #ifdef __USE_SPI_IRQ__
 
-/* EE SPI Interrupt handler */
+/* SPI Interrupt common handler */
 void EE_spi_common_handler(int level)
 {
 	unsigned int uiValue;
@@ -69,6 +108,8 @@ void EE_spi_common_handler(int level)
 /******************************************************************************/
 /*                       Public Global Functions                              */
 /******************************************************************************/	
+
+/* This function reads a byte (in polling mode) */
 int EE_hal_spi_read_byte_polling(MicoSPI_t *spic)
 {
 	EE_UINT8 dummy;
@@ -87,6 +128,7 @@ int EE_hal_spi_read_byte_polling(MicoSPI_t *spic)
 	return spic->rx;
 }
 
+/* This function reads an array of bytes (in polling mode) */
 int EE_hal_spi_read_buffer_polling(MicoSPI_t *spic, void *data, int len)
 {
 	int i;
@@ -111,6 +153,7 @@ int EE_hal_spi_read_buffer_polling(MicoSPI_t *spic, void *data, int len)
 	return len;
 }
 
+/* This function writes an array of bytes (in polling mode) */
 int EE_hal_spi_write_buffer_polling(MicoSPI_t *spic, const void *data, int len)
 {
 	int i;
@@ -129,6 +172,7 @@ int EE_hal_spi_write_buffer_polling(MicoSPI_t *spic, const void *data, int len)
 
 }	
 
+/* This function writes a byte (in polling mode) */
 int EE_hal_spi_write_byte_polling(MicoSPI_t *spic, EE_UINT8 data)
 {
 	while(!EE_spi_tx_ready(spic->status))		
@@ -136,47 +180,46 @@ int EE_hal_spi_write_byte_polling(MicoSPI_t *spic, EE_UINT8 data)
 	spic->tx = data;
 		
 	return 1;
-}														
+}		
+			
+			
 #ifndef __USE_SPI_IRQ__
 
+/* This function configures the spi controller (in polling mode) */
 int EE_hal_spi_config(MicoSPI_t* spic, int settings)
 {
 	EE_hal_spi_disable(spic);
-	/* if master, deselect all slaves */	
-	//    if(EE_spi_is_master(settings))								
+	/* if master, deselect all slaves */									
     spic->sSelect = 0;
 	spic->control = settings & EE_SPI_CTL_ALL_INTR_DIS_MASK;	
 	
 	return EE_SPI_OK;
 }
 
+/* This function sets SPI operating mode (in polling mode, mode available are blocking or non-blocking) */
 int EE_hal_spi_set_ISR_mode(MicoSPI_t* spic, int irqf, int mode)
 {
-	int ret = EE_SPI_OK;
-	
 	mico32_disable_irq(irqf);
-	// with mode you can choose blocking or non-blocking mode...
 	
-	return ret;
+	return EE_SPI_OK;
 }
 
 #else
 
+/* This function configures the spi controller (in interrupt mode) */
 int EE_hal_spi_config(EE_spi_st* spisp, int settings)
 {
 	MicoSPI_t *spic = spisp->base; 
 	
 	EE_hal_spi_disable(spisp);
-	///* Register IRQ handler */
-	//EE_hal_spi_handler_setup(spisp);
-	/* if master, deselect all slaves */	
-    //if(EE_spi_is_master(settings))								
+	/* if master, deselect all slaves */							
     spic->sSelect = 0;
 	spic->control = settings;	
 	
 	return EE_SPI_OK;
 }
 
+/* This function sets the SPI operating mode */
 int EE_hal_spi_set_ISR_mode(EE_spi_st* spisp, int mode)
 {
 	int ret = EE_SPI_OK;
@@ -234,68 +277,55 @@ int EE_hal_spi_set_tx_ISR_callback(EE_spi_st* spisp, EE_ISR_callback isr_tx_call
 	return EE_SPI_OK;
 }
 
-/* This function is used to send a byte on the bus */
+/* This function is used to send a byte on the bus (not yet supported) */
 int EE_hal_spi_write_byte_irq(EE_spi_st* spisp, EE_UINT8 data)	// ATT! data is a message (packet)
 {
-	int ret = EE_SPI_OK;
 	//MicoSPI_t *spic = spisp->base; 
-		
 	// EE_hal_spi_set_slave(spic, device);	
 	// EE_spi_set_SSO(spic->control);
-
 	// to do...
-	
 	// EE_spi_clear_SSO(spic->control);
 	
-	return ret;
+	return 0;
 }	
 	
-/* This function is used to read a byte from the bus */
+/* This function is used to read a byte from the bus (not yet supported) */
 int EE_hal_spi_read_byte_irq(EE_spi_st* spisp)					// ATT! adddata is a pointer to message (packet)
 {
-	int ret = EE_SPI_OK;
 	//MicoSPI_t *spic = spisp->base; 
-	
 	// EE_hal_spi_set_slave(spic, device);	
 	// EE_spi_set_SSO(spic->control);
-
 	// to do...
-	
 	// EE_spi_clear_SSO(spic->control);
 	
-	return ret;
+	return 0;
 }
 	
+/* This function is used to send an array of byte on the spi bus (not yet supported) */	
 int EE_hal_spi_write_buffer_irq(EE_spi_st* spisp, EE_UINT8* data, int len)	// ATT! data is a vector of messages (packets)
 {
-	int ret = EE_SPI_OK;
 	//MicoSPI_t *spic = spisp->base; 
-	
 	// EE_hal_spi_set_slave(spic, device);	
 	// EE_spi_set_SSO(spic->control);
-
 	// to do...
-	
 	// EE_spi_clear_SSO(spic->control);
 	
-	return ret;
+	return 0;
 }
 
+/* This function is used to reads an array of byte on the spi bus (not yet supported) */	
 int EE_hal_spi_read_buffer_irq(EE_spi_st* spisp, EE_UINT8* data, int len)	// ATT! data is a vector of messages (packets)
 {
-	int ret = EE_SPI_OK;
 	//MicoSPI_t *spic = spisp->base; 
-	
 	// EE_hal_spi_set_slave(spic, device);	
 	// EE_spi_set_SSO(spic->control);
-	
 	// to do...
-	
 	// EE_spi_clear_SSO(spic->control);
 	
-	return ret;
+	return 0;
 }	
 
+/* This function reads the code of the last error condition recorded (not yet supported) */
 int EE_hal_spi_return_error(EE_spi_st* spisp)
 {
 	return spisp->err;
