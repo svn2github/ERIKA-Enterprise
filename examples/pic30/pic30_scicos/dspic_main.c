@@ -239,33 +239,33 @@ TASK(TaskMiWiOP)
 
 #endif //__USE_MIWIP2P__ //End GF
 
-/* Program the Timer1 peripheral to raise interrupts */
-void T1_program(void)
+/* Program the Timer9 peripheral to raise interrupts */
+void T9_program(void)
 {
-	T1CON = 0;		/* Stops the Timer1 and reset control reg	*/
-	TMR1  = 0;		/* Clear contents of the timer register	*/
-	PR1   = 0x9c40;		/* 1ms @ 40Mhz */ //	PR1   = 0x07D0;		/* 1ms @ 2MHz */
-	IPC0bits.T1IP = 5;	/* Set Timer1 priority to 5		*/
-	IFS0bits.T1IF = 0;	/* Clear the Timer1 interrupt status flag	*/
-	IEC0bits.T1IE = 1;	/* Enable Timer1 interrupts		*/
-	T1CONbits.TON = 1;	/* Start Timer1 with prescaler settings at 1:1
+	T9CON = 0;		/* Stops the Timer9 and reset control reg	*/
+	TMR9  = 0;		/* Clear contents of the timer register	*/
+	PR9   = 0x9c40;		/* 1ms @ 40Mhz */ //	PR1   = 0x07D0;		/* 1ms @ 2MHz */
+	IPC13bits.T9IP = 5;	/* Set Timer9 priority to 5		*/
+	IFS3bits.T9IF = 0;	/* Clear the Timer9 interrupt status flag	*/
+	IEC3bits.T9IE = 1;	/* Enable Timer9 interrupts		*/
+	T9CONbits.TON = 1;	/* Start Timer9 with prescaler settings at 1:1
 				  * and clock source set to the internal 
 				  * instruction cycle			*/
 }
 
-/* Clear the Timer2 interrupt status flag */
-void T1_clear(void)
+/* Clear the Timer9 interrupt status flag */
+void T9_clear(void)
 {
-	IFS0bits.T1IF = 0;
+	IFS3bits.T9IF = 0;
 }
 
-/* This is an ISR Type 2 which is attached to the Timer2 peripheral IRQ pin
+/* This is an ISR Type 2 which is attached to the Timer9 peripheral IRQ pin
  * The ISR simply calls CounterTick to implement the timing reference
  */
-ISR2(_T1Interrupt)
+ISR2(_T9Interrupt)
 {
 	/* clear the interrupt source */
-	T1_clear();
+	T9_clear();
 
 	/* count the interrupts, waking up expired alarms */
 	CounterTick(sciCounter);
@@ -301,8 +301,8 @@ int main(void)
 
 	t = 0.0; //simulation time
   
-	/* Program Timer 1 to raise interrupts */
-	T1_program();
+	/* Program Timer9 to raise interrupts */
+	T9_program();
   
 	scicos_time = NAME(MODELNAME,_get_tsamp)();
 	dspic_time = (int) (1000*scicos_time);
