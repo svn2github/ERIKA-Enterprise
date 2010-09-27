@@ -162,7 +162,9 @@ int main(void)
 	myprintf("\nDevice init...");
 	retv = uwl_simple154_init_device(TEST_DEVICE_ADDR, TEST_COORD_ADDR, TEST_PANID, TEST_CHANNEL);
 	if (retv < 0)
+	{
 		die(retv);
+	}
 	else {
 		myprintf("Done!\n");
 	}

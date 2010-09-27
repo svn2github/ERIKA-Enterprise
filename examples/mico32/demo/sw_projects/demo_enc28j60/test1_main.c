@@ -62,6 +62,8 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdarg.h>
+/* enc28j60 driver */
+#include "enc28j60.h"
 
 #define MAX_CHARS 128
 

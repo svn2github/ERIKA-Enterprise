@@ -61,6 +61,9 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdarg.h>
+/* RTC driver */
+#include "pcf8583.h"
+
 
 #define MAX_CHARS 128
 

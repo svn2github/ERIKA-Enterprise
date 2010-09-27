@@ -59,6 +59,8 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdarg.h>
+/* Light sensor driver */
+#include "tsl2561t.h"
 
 #define MAX_CHARS 128
 
@@ -119,7 +121,7 @@ int main(void)
 	/* Disable IRQ  */
 	/* ------------ */
 	EE_mico32_disableIRQ();
-
+	
 	/* ------------------- */
 	/* UART configuration */
 	/* ------------------- */

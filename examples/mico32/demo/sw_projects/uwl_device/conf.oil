@@ -100,7 +100,7 @@ CPU test_application {
 	
 	ISR Gpio {
 		CATEGORY = 2;
-		LEVEL = "MISC_GPIO_IRQ";
+		LEVEL = "EE_MRF24J40_IRQ";
 		HANDLER = "EE_mrf24j40_handler";
 	};
 	
