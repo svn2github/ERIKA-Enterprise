@@ -59,9 +59,6 @@ else ifeq ($(findstring __USE_MCHP_TCPIP_525__,$(EEOPT)) , __USE_MCHP_TCPIP_525_
 include $(EEBASE)/contrib/microchip/tcpip_525/cfg/libcfg.mk
 else ifeq ($(findstring __LIB_SCICOS__,$(LIB_OPT)) , __LIB_SCICOS__)
 include $(EEBASE)/contrib/microchip/tcpip_510/cfg/libcfg.mk
-else
-$(error User must specify the library to be used! Insert the option __USE_MCHP_TCPIP_510__ to use\
-the old Microchip TCPIP stack version v5.10, otherwise insert the option __USE_MCHP_TCPIP_525__ to use the new library v5.25)
 endif
 
 endif
