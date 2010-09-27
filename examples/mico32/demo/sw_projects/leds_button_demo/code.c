@@ -1,7 +1,7 @@
 /* ###*B*###
  * ERIKA Enterprise - a tiny RTOS for small microcontrollers
  *
- * Copyright (C) 2002-2008  Evidence Srl
+ * Copyright (C) 2010  Evidence Srl
  *
  * This file is part of ERIKA Enterprise.
  *
@@ -40,7 +40,6 @@
 
 /*
  * Author: 2010 Alessandro Paolinelli
- * CVS: $Id: code.c,v 1.12 2007/03/15 15:37:02 nino Exp $
  */
 
 /* Use Erika */
