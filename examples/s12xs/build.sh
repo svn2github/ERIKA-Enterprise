@@ -5,9 +5,9 @@
 #########################################################################################
 
 DEBUG_DIRS=`find . -name "Debug"`
-#echo "${DEBUG_DIRS}"
+echo "${DEBUG_DIRS}"
 BASE_DIR=`pwd`
-#echo ${BASE_DIR}
+echo ${BASE_DIR}
 
 if [ $1 = "make" ]
 then

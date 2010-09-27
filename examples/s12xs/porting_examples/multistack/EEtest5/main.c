@@ -1,7 +1,7 @@
 /* ###*B*###
  * ERIKA Enterprise - a tiny RTOS for small microcontrollers
  *
- * Copyright (C) 2002-2008  Evidence Srl
+ * Copyright (C) 2009-2010  Evidence Srl
  *
  * This file is part of ERIKA Enterprise.
  *
@@ -38,10 +38,9 @@
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
 
-/*
- * Author: 2006 Paolo Gai
- * CVS: $Id: code.c,v 1.4 2007/03/16 14:21:17 nino Exp $
- */
+ /*
+	Author: 2009-2010 Dario Di Stefano
+*/ 
 
 #include "ee.h"
 #include "kernel/sem/inc/ee_sem.h"        							

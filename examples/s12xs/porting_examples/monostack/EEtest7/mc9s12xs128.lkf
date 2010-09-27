@@ -1,6 +1,6 @@
 ##################################################################################################
 #	*** Link command file for MC9HC12XS128 ***
-#	Author: ...
+#	Author: Dario Di Stefano
 #	Notes:
 #	.ftext 	-> executable code in paged area 			(@far)
 #	.text 	-> code (or program) section 				(@near)

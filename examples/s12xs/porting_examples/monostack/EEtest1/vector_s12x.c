@@ -1,6 +1,7 @@
 /*	INTERRUPT VECTORS TABLE S12X
  *	Copyright (c) 2004 by COSMIC Software
  */
+ 
 @interrupt @near void _stext(void);	/* startup routine */
 
 /*	dummy interrupt routine

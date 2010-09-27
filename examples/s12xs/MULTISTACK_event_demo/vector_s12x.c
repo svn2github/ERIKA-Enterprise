@@ -1,3 +1,7 @@
+/*	INTERRUPT VECTORS TABLE S12X
+ *	Copyright (c) 2004 by COSMIC Software
+ */
+ 
 //#include "stdlib.h"
 //#include <math.h>
 #include "ee.h"

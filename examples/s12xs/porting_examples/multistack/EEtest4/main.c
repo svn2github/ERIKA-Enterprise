@@ -1,7 +1,7 @@
 /* ###*B*###
  * ERIKA Enterprise - a tiny RTOS for small microcontrollers
  *
- * Copyright (C) 2002-2008  Evidence Srl
+ * Copyright (C) 2009-2010  Evidence Srl
  *
  * This file is part of ERIKA Enterprise.
  *
@@ -38,9 +38,9 @@
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
 
-/*
- * Author: 2002-2008 Paolo Gai
- */
+ /*
+	Author: 2009-2010 Dario Di Stefano
+*/ 
 
 #include "ee.h"
 #include "cpu/cosmic_hs12xs/inc/ee_irqstub.h"

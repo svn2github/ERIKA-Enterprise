@@ -8,7 +8,11 @@ set EE_BASH_PATH=C:\cygwin\bin\bash.exe
 
 if not exist %EE_BASH_PATH% goto error
 
-set EXAMPLES_PATH=C:\cygwin\home\Dario\repos\ee\trunk\ee\examples\s12xs
+rem ***************************************************************
+rem * Are you here because the script can not run?
+rem * Please insert the folder path changing the following line!
+rem ***************************************************************
+set EXAMPLES_PATH=C:\examples\s12xs
 
 :ok
 set OLDDIR=%CD%
