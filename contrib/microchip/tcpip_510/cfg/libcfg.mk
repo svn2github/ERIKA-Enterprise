@@ -19,20 +19,15 @@ ifeq ($(INCLUDE_TCPIP), YES)
 
 ## Add the inc path to the include pathlist
 ifeq ($(findstring __RTD_CYGWIN__,$(EEOPT)), __RTD_CYGWIN__) 
-ALLINCPATH += -I"$(shell cygpath -w $(EEBASE)/contrib/microchip/tcpip/inc)"
+ALLINCPATH += -I"$(shell cygpath -w $(EEBASE)/contrib/microchip/tcpip_510/inc)"
 else
-ALLINCPATH += -I$(EEBASE)/contrib/microchip/tcpip/inc
+ALLINCPATH += -I$(EEBASE)/contrib/microchip/tcpip_510/inc
 endif
 
 ## Add each file individually
-#EE_SRCS_TCPIP += contrib/tcpip/libsrc/cqueue.c
-#EE_SRCS_TCPIP += contrib/tcpip/libsrc/list.c
-SRC_FILES  := $(shell ls $(EEBASE)/contrib/microchip/tcpip/libsrc/*.c;)
-#SRC_TCP_FILES  := $(shell ls $(EEBASE)/contrib/microchip/tcpip/libsrc/TCPIP_Stack/*.c;)
-#$(info $(SRC_FILES)) 
+SRC_FILES  := $(shell ls $(EEBASE)/contrib/microchip/tcpip_510/libsrc/*.c;)
 EE_SRCS_TCPIP += $(SRC_FILES)
 EE_SRCS_TCPIP += $(SRC_TCP_FILES)
-
 
 ## If the file list is not empty, create the tcpip lib
 ifneq ($(EE_SRCS_TCPIP),)
