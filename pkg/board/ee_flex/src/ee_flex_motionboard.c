@@ -516,7 +516,7 @@ void EE_dcm_pwm_enable_chan(EE_UINT8 chan)
 		case EE_DCM_PORT1:
 			EE_DCM_EN_M1 = 1;
 			break;
-		case EE_DCM_PORT2:			
+		case EE_DCM_PORT2:
 			EE_DCM_EN_M2 = 1;
 			break;
 	}
@@ -528,7 +528,7 @@ void EE_dcm_pwm_disable_chan(EE_UINT8 chan)
 		case EE_DCM_PORT1:
 			EE_DCM_EN_M1 = 0;
 			break;
-		case EE_DCM_PORT2:			
+		case EE_DCM_PORT2:
 			EE_DCM_EN_M2 = 0;
 			break;
 	}
@@ -540,7 +540,7 @@ void EE_dcm_pwm_set_duty(EE_UINT8 chan, EE_UINT32 duty)
 		case EE_DCM_PORT1:
 			PDC1 = (EE_UINT16)(((EE_UINT32)duty * (EE_UINT32)(PTPER+1))/((EE_UINT32)100)) << 1;	// please, note the shift operation...
 			break;
-		case EE_DCM_PORT2:			
+		case EE_DCM_PORT2:
 			PDC2 = (EE_UINT16)(((EE_UINT32)duty * (EE_UINT32)(PTPER+1))/((EE_UINT32)100)) << 1;	// please, note the shift operation...
 			break;
 	}
@@ -551,32 +551,32 @@ void EE_dcm_pwm_set_direction(EE_UINT8 chan , EE_INT8 dir)
 	switch (chan) {
 		case EE_DCM_PORT1:
 			if(dir > 0){
-				OVDCONbits.POVD1H = 1; 	    // PWM
-				OVDCONbits.POVD1L = 0;	    // OVERRIDE
+				OVDCONbits.POVD1H = 1;      // PWM
+				OVDCONbits.POVD1L = 0;      // OVERRIDE
 			}
 			else if(dir < 0){
-				OVDCONbits.POVD1H = 0; 	    // OVERRIDE
-				OVDCONbits.POVD1L = 1;	    // PWM
+				OVDCONbits.POVD1H = 0;      // OVERRIDE
+				OVDCONbits.POVD1L = 1;      // PWM
 			}
 			else{ // dir==0 
-				OVDCONbits.POVD1H = 0; 	    // OVERRIDE
-				OVDCONbits.POVD1L = 0;	    // OVERRIDE
+				OVDCONbits.POVD1H = 0;      // OVERRIDE
+				OVDCONbits.POVD1L = 0;      // OVERRIDE
 			}
 			break;
-		case EE_DCM_PORT2:			
+		case EE_DCM_PORT2:
 			if(dir > 0)
 			{
 				OVDCONbits.POVD2H = 1;      // PWM
-				OVDCONbits.POVD2L = 0; 	    // OVERRIDE
+				OVDCONbits.POVD2L = 0;      // OVERRIDE
 			}
 			else if(dir < 0)
 			{
 				OVDCONbits.POVD2H = 0;      // OVERRIDE
-				OVDCONbits.POVD2L = 1; 	    // PWM
+				OVDCONbits.POVD2L = 1;      // PWM
 			}
 			else{ // dir==0 
 				OVDCONbits.POVD2H = 0;      // OVERRIDE
-				OVDCONbits.POVD2L = 0; 	    // OVERRIDE
+				OVDCONbits.POVD2L = 0;      // OVERRIDE
 			}
 			break;
 	}
@@ -591,9 +591,23 @@ void EE_dcm_pwm_close(void)
 
 #ifdef __USE_ENCODER__
 
-void (*QEI_cbk)(void);
+/* SW encoder */
+EE_INT16 ee_encsw_poscnts;
+EE_INT16 ee_encsw_swapped;
+EE_INT16 ee_encsw_maxcnt;
+ISR2(_IC1Interrupt)
+{
+	IFS0bits.IC1IF = 0;
+	
+	if(ee_encsw_swapped)
+		(!(EE_ENCODER_SW_PINA ^ EE_ENCODER_SW_PINB))?  ee_encsw_poscnts++: ee_encsw_poscnts--;
+	else
+		(EE_ENCODER_SW_PINA ^ EE_ENCODER_SW_PINB)?     ee_encsw_poscnts++: ee_encsw_poscnts--;
+}
 
-void __attribute__ ((interrupt, no_auto_psv)) _QEIInterrupt(void)
+/* HW encoder */
+void (*QEI_cbk)(void);
+ISR2(_QEIInterrupt)
 {
 	IFS3bits.QEIIF = 0; 
 	

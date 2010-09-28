@@ -69,7 +69,7 @@ union cn_st cn_st_old;
 void (*EE_picdemz_callback)(void);
 #endif
 
-#if defined (__USE_BUTTONS__) || (__USE_PICDEMZ_WITH_CN20INT__)
+#if defined (__USE_BUTTONS__) || (__USE_PICDEMZ_WITH_CN20INT__) || (__USE_ENCODER__)
 ISR2(_CNInterrupt)
 {
 	#ifdef __USE_BUTTONS__
@@ -102,7 +102,11 @@ ISR2(_CNInterrupt)
 			EE_picdemz_callback();
 		}
 	#endif
-
+	
+	#ifdef __USE_ENCODER__
+	// to increment/decrement sw encoder counter
+	EE_sw_encoder_callback();
+	#endif
 	/* reset CN interrupt flag */
 	IFS1bits.CNIF = 0;
 }
@@ -124,6 +128,37 @@ ISR2(_INT4Interrupt)
 #endif
 //End GF
 
+/* /\************************************************************************* */
+/*  ENCODER */
+/*  *************************************************************************\/ */
+
+#ifdef __USE_ENCODER__
+
+/* SW encoder */
+EE_INT16 ee_encsw_poscnts;
+EE_INT16 ee_encsw_swapped;
+EE_INT16 ee_encsw_maxcnt;
+void EE_sw_encoder_callback(void)
+{
+	IFS1bits.CNIF = 0;
+	
+	if(ee_encsw_swapped)
+		(!(EE_ENCODER_SW_PINA ^ EE_ENCODER_SW_PINB))?  ee_encsw_poscnts++: ee_encsw_poscnts--;
+	else
+		(EE_ENCODER_SW_PINA ^ EE_ENCODER_SW_PINB)?     ee_encsw_poscnts++: ee_encsw_poscnts--;
+}
+
+/* HW encoder */
+void (*QEI_cbk)(void);
+ISR2(_QEIInterrupt)
+{
+	IFS3bits.QEIIF = 0; 
+	
+	if(QEI_cbk!=0)
+		QEI_cbk();
+}
+
+#endif // __USE_ENCODER__ 
 
 /* /\************************************************************************* */
 /*  Analog input */

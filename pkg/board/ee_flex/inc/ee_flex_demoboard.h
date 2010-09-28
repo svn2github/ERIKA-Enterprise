@@ -1358,10 +1358,27 @@ __INLINE__ void __ALWAYS_INLINE__ EE_motor_init( void ) {
 
 #ifdef __USE_ENCODER__
 
-extern int ee_encsw_poscnts;
+#define EE_ENCODER_HW 		0
+#define EE_ENCODER_SW 		1
+#define EE_ENCODER_SW_PINA	PORTDbits.RD7                           // CN16
+#define EE_ENCODER_SW_PINB	PORTCbits.RC4                           // digital input
+#define QEI_TICK_PER_REV	500
+#define	QEI_MAX_CNT_PER_REV	0xffff
+#define	SWENC_MAX_CNT_PER_REV	0xffff
 
-__INLINE__ void __ALWAYS_INLINE__ EE_encoder_SW_init(void)
+extern EE_INT16 ee_encsw_poscnts;
+extern EE_INT16 ee_encsw_swapped;
+extern EE_INT16 ee_encsw_maxcnt;
+void EE_sw_encoder_callback(void);
+
+__INLINE__ void __ALWAYS_INLINE__ EE_encoder_SW_init(EE_UINT8 swap_on_off, EE_UINT8 irq_on_off)
 {
+	if(swap_on_off)
+		ee_encsw_swapped = 1;
+	else
+		ee_encsw_swapped = 0;
+	ee_encsw_maxcnt = SWENC_MAX_CNT_PER_REV;
+	
 	ee_encsw_poscnts = 0;	// Reset position counter
 	IEC1bits.CNIE = 0;      // Disable interrupts on CN16
 	OC8CON = 0;				// Disable OC8 module
@@ -1372,7 +1389,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_encoder_SW_init(void)
     CNEN1 = 0;           	// Disable all
 	CNEN2 = 0x01;           // Enable interrupts for CN16
     IFS1bits.CNIF = 0;      // Clear interrupt flag
-    IEC1bits.CNIE = 1;      // Enable interrupts on CN16
+    IEC1bits.CNIE = irq_on_off;      // Enable interrupts on CN16
 }
 
 __INLINE__ void __ALWAYS_INLINE__ EE_encoder_SW_close(void)
@@ -1391,12 +1408,11 @@ __INLINE__ float __ALWAYS_INLINE__ EE_encoder_SW_get_position(float sw_gain)
 	return (float)EE_encoder_SW_get_ticks() * sw_gain;
 }
 
-
-#define QEI_TICK_PER_REV	500
-#define	QEI_MAX_CNT_PER_REV	0xffff
-
-__INLINE__ void __ALWAYS_INLINE__ EE_encoder_init( void )
+__INLINE__ void __ALWAYS_INLINE__ EE_encoder_init(EE_UINT8 swap_on_off, EE_UINT8 irq_on_off)
 {
+	/* Default value */
+	QEICON = 0;
+	
 	/* set encoder bits as digital input */
  	AD1PCFGLbits.PCFG3 = 1;
  	AD1PCFGLbits.PCFG4 = 1;
@@ -1405,32 +1421,30 @@ __INLINE__ void __ALWAYS_INLINE__ EE_encoder_init( void )
  	AD2PCFGLbits.PCFG4 = 1;
  	AD2PCFGLbits.PCFG5 = 1;
 
-	// Disable QEI Module
-	QEICONbits.QEIM = 0;
-
-	// Clear any count errors
-	QEICONbits.CNTERR = 0;
-
+	// Swap channels
+	QEICONbits.SWPAB = swap_on_off;
 	// Count error interrupts disabled
 	DFLTCONbits.CEID = 1;
-
+	// Interrupts
+		// Interrupts
+	IPC14bits.QEIIP = 5;
+	IFS3bits.QEIIF = 0;
+	IEC3bits.QEIIE = irq_on_off;
 	// Reset position counter
 	POSCNT = 0;
-
 	// Set bound value
 	MAXCNT = QEI_MAX_CNT_PER_REV;
-
 	// X4 mode with position counter reset by MAXCNT
 	QEICONbits.QEIM = 7;
 }
 
-__INLINE__ void __ALWAYS_INLINE__ EE_encoder_close( void )
+__INLINE__ void __ALWAYS_INLINE__ EE_encoder_close(void)
 {
 	// Disable QEI Module
 	QEICONbits.QEIM = 0;
 }
 
-__INLINE__ EE_INT16 __ALWAYS_INLINE__ EE_encoder_get_ticks( void )
+__INLINE__ EE_INT16 __ALWAYS_INLINE__ EE_encoder_get_ticks(void)
 {
 	return ((EE_INT16)POSCNT);
 }
@@ -1438,6 +1452,17 @@ __INLINE__ EE_INT16 __ALWAYS_INLINE__ EE_encoder_get_ticks( void )
 __INLINE__ float __ALWAYS_INLINE__ EE_encoder_get_position(float hw_gain)
 {
 	return (float)EE_encoder_get_ticks() * hw_gain; 
+}
+
+__INLINE__ void __ALWAYS_INLINE__ EE_encoder_set_IRQ(EE_UINT8 irq_on_off)
+{
+	IEC3bits.QEIIE = irq_on_off;
+}
+
+extern void (*QEI_cbk)(void);
+__INLINE__ void __ALWAYS_INLINE__ EE_encoder_set_ISR_callback(void (*qei_cbk)(void))
+{
+	QEI_cbk = qei_cbk;
 }
 
 #endif
