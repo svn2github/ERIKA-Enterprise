@@ -102,9 +102,8 @@ __INLINE__ void __ALWAYS_INLINE__ EE_led_toggle(EE_UREG n)
 }
 
 /**
-	@brief			This function turns on the leds of the XP2-CAMERA board
-					selected with the mask passed as argument. 
-	@param state	mask to select the leds to be turned on
+	@brief			This function sets the state of the leds of the XP2-CAMERA board.
+	@param state	Bitmap of the new led state
 */	
 __INLINE__ void __ALWAYS_INLINE__ EE_led_set_all(EE_UINT32 state)
 {
@@ -114,8 +113,8 @@ __INLINE__ void __ALWAYS_INLINE__ EE_led_set_all(EE_UINT32 state)
 }
 
 /**
-	@brief			This function gets the status of the leds of the XP2-CAMERA board.
-	@return 		the status of the leds
+	@brief			This function gets the state of the leds of the XP2-CAMERA board.
+	@return 		the state of the leds
 */	
 __INLINE__ EE_UINT32 __ALWAYS_INLINE__ EE_led_get_all(void)
 {
@@ -153,7 +152,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_led_all_toggle(void)
 }
 
 /**
-	@brief			This function turns off all the leds of the XP2-CAMERA board.
+	@brief			This function initializes the led driver and turns off all the leds.
 */
 __INLINE__ void __ALWAYS_INLINE__ EE_led_init(void)
 {
@@ -168,7 +167,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_led_init(void)
 #ifdef __USE_SWITCHES__
 /**
 	@brief			This function reads all the switches of the XP2-CAMERA board.
-	@return			the status of the switches
+	@return			the state of the switches
 */
 __INLINE__ EE_UINT32 __ALWAYS_INLINE__ EE_switch_read_all(void)
 {
@@ -192,11 +191,11 @@ __INLINE__ EE_UINT32 __ALWAYS_INLINE__ EE_switch_read(EE_UREG n)
 
 #ifdef __USE_TRANSISTORS__
 
-/** Note: Transistors are controlled with negative logic, with the exception of the
+/* Note: Transistors are controlled with negative logic, with the exception of the
  *  one powering the switch array. */
 
 /**
-	@brief			This function turns on the transistors of the XP2-CAMERA board.
+	@brief			This function turns on a transistor of the XP2-CAMERA board.
 	@param n 		the number of the transistor to turn on			
 */
 __INLINE__ void __ALWAYS_INLINE__ EE_transistor_on(EE_UREG n)
@@ -208,7 +207,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_transistor_on(EE_UREG n)
 }
 
 /**
-	@brief			This function turns off the transistors of the XP2-CAMERA board.
+	@brief			This function turns off a transistor of the XP2-CAMERA board.
 	@param n 		the number of the transistor to turn off			
 */
 __INLINE__ void __ALWAYS_INLINE__ EE_transistor_off(EE_UREG n)
@@ -220,9 +219,9 @@ __INLINE__ void __ALWAYS_INLINE__ EE_transistor_off(EE_UREG n)
 }
 
 /**
-	@brief			This function reads the transistors of the XP2-CAMERA board.
+	@brief			This function reads a transistor state of the XP2-CAMERA board.
 	@param n 		the number of the transistor to read	
-	@return			the status of the transistor	
+	@return			the state of the transistor	
 */
 __INLINE__ EE_UREG __ALWAYS_INLINE__ EE_transistor_read(EE_UREG n)
 {

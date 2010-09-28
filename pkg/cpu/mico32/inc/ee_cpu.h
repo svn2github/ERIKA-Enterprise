@@ -155,7 +155,7 @@ __INLINE__ int __ALWAYS_INLINE__ EE_mico32_get_IRQ_enabled(void)
  */
 __INLINE__ void __ALWAYS_INLINE__ EE_mico32_invalidate_dcache(void)
 {
-    /** The NOPs are needed to be sure that no load or store instruction
+    /* The NOPs are needed to be sure that no load or store instruction
        immediately precedes or follows the `wcsr' instruction, as recommended by
        the LatticeMico32 Processor Reference Manual, page 17.  "memory" forbids
        the compiler from caching global variables across this function. */
@@ -206,8 +206,9 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_disableIRQ(void)
     EE_mico32_disableIRQ();
 }
 
-/** Cache invalidation */
+/** Invalidate data cache */
 #define EE_hal_invalidate_dcache EE_mico32_invalidate_dcache
+/** Invalidate instruction cache */
 #define EE_hal_invalidate_icache EE_mico32_invalidate_icache
 
 

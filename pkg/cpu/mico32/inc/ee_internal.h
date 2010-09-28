@@ -62,7 +62,7 @@
 #include "cpu/common/inc/ee_primitives.h"
 
 
-/** called as _first_ function of a primitive that can be called in
+/** Called as _first_ function of a primitive that can be called in
    an IRQ and in a task */
 __INLINE__ EE_FREG __ALWAYS_INLINE__ EE_hal_begin_nested_primitive(void)
 {
@@ -90,7 +90,7 @@ extern EE_UREG EE_mico32_active_tos;
 #endif
 #include "cpu/common/inc/ee_context.h"
 
-/** typically called at the end of an interrupt */
+/* typically called at the end of an interrupt */
 #define EE_hal_IRQ_stacked EE_hal_endcycle_stacked
 #define EE_hal_IRQ_ready EE_hal_endcycle_ready
 
