@@ -1,7 +1,7 @@
 # ###*B*###
 # ERIKA Enterprise - a tiny RTOS for small microcontrollers
 # 
-# Copyright (C) 2002-2008  Evidence Srl
+# Copyright (C) 2002-2010  Evidence Srl
 # 
 # This file is part of ERIKA Enterprise.
 # 
@@ -39,6 +39,7 @@
 # ###*E*###
 
 ## Author: 2009 Francesco Prosperi
+## Author: 2010 Dario Di Stefano
 
 # Add application-related files
 ifneq ($(ONLY_LIBS) , TRUE)
@@ -53,11 +54,9 @@ ifeq ($(ENABLE_LIBS), TRUE)
 
 include $(EEBASE)/contrib/microchip/dee_emulation/cfg/libcfg.mk
 
-ifeq ($(findstring __USE_MCHP_TCPIP_510__,$(EEOPT)) , __USE_MCHP_TCPIP_510__)
-include $(EEBASE)/contrib/microchip/tcpip_510/cfg/libcfg.mk
-else ifeq ($(findstring __USE_MCHP_TCPIP_525__,$(EEOPT)) , __USE_MCHP_TCPIP_525__)
+ifeq ($(findstring __USE_MCHP_TCPIP_525__,$(EEOPT)) , __USE_MCHP_TCPIP_525__)
 include $(EEBASE)/contrib/microchip/tcpip_525/cfg/libcfg.mk
-else ifeq ($(findstring __LIB_SCICOS__,$(LIB_OPT)) , __LIB_SCICOS__)
+else
 include $(EEBASE)/contrib/microchip/tcpip_510/cfg/libcfg.mk
 endif
 
