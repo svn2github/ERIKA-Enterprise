@@ -91,9 +91,6 @@
 
 #include "fs.h"
 
-/* A printf-like function */
-extern void myprintf(const char *format, ...);
-
 #if LWIP_TCP
 
 #ifndef HTTPD_DEBUG
@@ -466,15 +463,6 @@ http_write(struct tcp_pcb *pcb, const void* ptr, u16_t *length, u8_t apiflags)
    do {
      LWIP_DEBUGF(HTTPD_DEBUG | LWIP_DBG_TRACE, ("Sending %d bytes\n", len));
      err = tcp_write(pcb, ptr, len, apiflags);
-     myprintf("tcp_write: %d %d 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X \n\r",
-     												err,len,((char *) ptr)[0],
-     														((char *) ptr)[1],
-     														((char *) ptr)[2],
-     														((char *) ptr)[3],
-     														((char *) ptr)[4],
-     														((char *) ptr)[5],
-     														((char *) ptr)[6],
-     														((char *) ptr)[7]);
      if (err == ERR_MEM) {
        if ((tcp_sndbuf(pcb) == 0) ||
            (tcp_sndqueuelen(pcb) >= TCP_SND_QUEUELEN)) {
@@ -1635,8 +1623,6 @@ http_parse_request(struct pbuf **inp, struct http_state *hs, struct tcp_pcb *pcb
       u16_t left_len, uri_len;
       LWIP_DEBUGF(HTTPD_DEBUG | LWIP_DBG_TRACE, ("CRLF received, parsing request\n"));
       /* parse method */
-      //myprintf("http_parse_request STR: %s\n\r",data);
-      //myprintf("http_parse_request DIM: %d\n\r",data_len);
       if (!strncmp(data, "GET ", 4)) {
         sp1 = data + 3;
         /* received GET request */
@@ -1702,7 +1688,6 @@ http_parse_request(struct pbuf **inp, struct http_state *hs, struct tcp_pcb *pcb
         } else
 #endif /* LWIP_HTTPD_SUPPORT_POST */
         {
-          myprintf("http_find_file Uri: %s is_09 %d \n\r",uri,is_09);
           return http_find_file(hs, uri, is_09);
         }
       } else {
@@ -1831,7 +1816,6 @@ http_find_file(struct http_state *hs, const char *uri, int is_09)
 #endif /* LWIP_HTTPD_SSI */
   }
   
-  //myprintf("http_init_file: %s %02X %d \n\r", uri , file->data[0],file->len);
   return http_init_file(hs, file, is_09, uri);
 }
 
@@ -1910,8 +1894,6 @@ http_err(void *arg, err_t err)
 
   LWIP_DEBUGF(HTTPD_DEBUG, ("http_err: %s", lwip_strerr(err)));
   
-  myprintf("http_err: %d\n\r",err);
-
   if (hs != NULL) {
     http_state_free(hs);
   }
@@ -1929,8 +1911,6 @@ http_sent(void *arg, struct tcp_pcb *pcb, u16_t len)
   LWIP_DEBUGF(HTTPD_DEBUG | LWIP_DBG_TRACE, ("http_sent %p\n", (void*)pcb));
 
   LWIP_UNUSED_ARG(len);
-
-  myprintf("http_sent: %d\n\r",len);
 
   if (hs == NULL) {
     return ERR_OK;
@@ -1958,8 +1938,6 @@ http_poll(void *arg, struct tcp_pcb *pcb)
     (void*)pcb, (void*)hs, tcp_debug_state_str(pcb->state)));
 
 
-  myprintf("http_poll \n\r");
- 
   if (hs == NULL) {
     err_t closed;
     /* arg is null, close. */
@@ -2076,7 +2054,6 @@ http_recv(void *arg, struct tcp_pcb *pcb, struct pbuf *p, err_t err)
 #endif /* LWIP_HTTPD_SUPPORT_POST */
       {
         LWIP_DEBUGF(HTTPD_DEBUG | LWIP_DBG_TRACE, ("http_recv: data %p len %"S32_F"\n", hs->file, hs->left));
-        //myprintf("http_send_data: 0x%02X %d \n\r", hs->handle->data[0],hs->handle->len);
         http_send_data(pcb, hs);
       }
     } else if (parsed == ERR_ARG) {
@@ -2161,7 +2138,6 @@ httpd_init(void)
 #endif
   LWIP_DEBUGF(HTTPD_DEBUG, ("httpd_init\n"));
 
-  myprintf("httpd_init \n\r");		
   //httpd_init_addr(IP_ADDR_ANY);
   httpd_init_addr();
 }

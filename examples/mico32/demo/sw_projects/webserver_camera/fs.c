@@ -29,15 +29,20 @@
  * Author: Adam Dunkels <adam@sics.se>
  *
  */
+ 
+/*
+ * Copyright: 2010, Evidence Srl
+ * Modified by: Alessandro Paolinelli
+ * Description: Added camera support management in fs_open.
+ */
+ 
 #include "lwip/opt.h"
 #include "lwip/def.h"
 #include "fs.h"
 #include "fsdata.h"
 #include "hv7131gp.h"
-#include "lodepng.h"
-#include "color_model_conversion.h"
+#include "color_image.h"
 #include <string.h>
-#include <stdio.h>
 
 extern void myprintf(const char *format, ...);
 
@@ -102,65 +107,25 @@ fs_free(struct fs_file *file)
 }
 
 volatile unsigned char camera_image_ready = 0;
-
+unsigned char *buffer = NULL;
 void process_frame(hv7131gp_status_t status){
 	if (status != HV7131GP_SUCCESS) {
         camera_image_ready = 0;
-        myprintf("process_frame ERROR\n\r");
     } else {
         camera_image_ready = 1;
-		myprintf("process_frame %d\n\r",camera_image_ready);
     }
 }
 
-unsigned char* buffer = NULL;
-
-#define IMG_DIM		160
-#define IMG_OFFS	-40
-#define RGB_A		3
-unsigned char image[IMG_DIM*(IMG_DIM+IMG_OFFS)*RGB_A];
-  	
-void test_prepareImg(){
-	unsigned x,y;
-
-	for(y = 0; y < (IMG_DIM+IMG_OFFS); y++)
-	for(x = 0; x < IMG_DIM; x++)
-	{
-		image[RGB_A * IMG_DIM * y + RGB_A * x + 0] = 255 * !(x & y);
-		image[RGB_A * IMG_DIM * y + RGB_A * x + 1] = x ^ y;
-		image[RGB_A * IMG_DIM * y + RGB_A * x + 2] = x | y;
-		if(RGB_A==4)
-		 image[RGB_A * IMG_DIM * y + RGB_A * x + 3] = 255;
-	}
-}
-
-void test_lodePng(){
+extern unsigned char png_img[];
+extern unsigned char camera_image[];					         
+extern unsigned int png_size_avail[];
 	
-  	unsigned encode32_ret;
-  	size_t buffersize;
-  	
-  	if(buffer!= NULL){
-		my_free(buffer);
-		buffer = NULL;
-	}											
-	buffersize = 0;
-				
-	test_prepareImg();										
-	
-	encode32_ret = LodePNG_encode32(&buffer, &buffersize, 
-									image, IMG_DIM , IMG_DIM+IMG_OFFS);
-	  		
-	myprintf("LodePNG_encode32 RET: %d SIZE: %d \n\r",encode32_ret,buffersize);
-}
 /*-----------------------------------------------------------------------------------*/
 struct fs_file *
 fs_open(const char *name)
 {
   struct fs_file *file;
   const struct fsdata_file *f;
-  unsigned encode32_ret;
-  UChar_t* camera_rgb;
-  size_t buffersize;
 
   file = fs_malloc();
   if(file == NULL) {
@@ -174,50 +139,42 @@ fs_open(const char *name)
   }
   file->is_custom_file = 0;
 #endif /* LWIP_HTTPD_CUSTOM_FILES */
-
+  	
   for(f = FS_ROOT; f != NULL; f = f->next) {
 	if (!strcmp(name, (char *)f->name)) {
     	
-		file->data = (const char *)f->data;      	
+		file->data = (char *)f->data;      	
     	file->len = f->len;
 		file->index = f->len;
       
 		if(strstr(name,"camera") != NULL){
-	      	camera_image_ready = 0;
-	      	hv7131gp_capture(camera_image, process_frame);
-	      	myprintf("Waiting for camera image... %d\n\r",camera_image_ready);
-			while(!camera_image_ready);
-			myprintf("Camera image ready... %d %d\n\r",	hv7131gp_get_width(), 
-														hv7131gp_get_height());
-														
-			camera_rgb = color_model_conversion_yuv2rgb(camera_image,
-														hv7131gp_get_size()*2);
+			unsigned char png_size_index;
 			
-			if(buffer!= NULL){
-	  			my_free(buffer);
-	  			buffer = NULL;
-	    	}											
-			buffersize = 0;
+			/* Resolution 160 x 120 */
+			if(strstr(name,"160x120") != NULL){
+				hv7131gp_configure_subsampling(HV7131GP_1_16_SUB);
+			}
+		
+			/* Resolution 320 x 240 */
+			if(strstr(name,"320x240") != NULL){
+				hv7131gp_configure_subsampling(HV7131GP_1_4_SUB);
+			}
+				
+			/* Resolution 640 x 480 */
+			if(strstr(name,"640x480") != NULL){
+				hv7131gp_configure_subsampling(HV7131GP_NO_SUB);
+			}
+					
+			camera_image_ready = 0;
+			hv7131gp_capture(camera_image, process_frame);
+  			while(!camera_image_ready);
+
+			png_size_index = color_image_yuv2png(camera_image,hv7131gp_get_size(),hv7131gp_get_width());
 						
-			/*test_prepareImg();													
-			
-	  		encode32_ret = LodePNG_encode32(&buffer, &buffersize, 
-											image, IMG_DIM , IMG_DIM+IMG_OFFS);*/
-	  		
-	  		encode32_ret = LodePNG_encode32(&buffer, &buffersize, camera_rgb, 
-							 				hv7131gp_get_width(), hv7131gp_get_height());
-			
-			
-			myprintf("LodePNG_encode32 RET: %d SIZE: %d \n\r",encode32_ret,buffersize);
-		  
-		  	my_free(camera_rgb);
-		  	file->data = (const char *) buffer;
-		  	file->len = buffersize;
-			file->index = buffersize;
-        }
-      //file->data = (const char *)f->data;
-      //file->len = f->len;
-      //file->index = f->len;
+			file->data = (char *) &png_img;
+		  	file->len = png_size_avail[png_size_index];
+		  	file->index = png_size_avail[png_size_index];
+	    }
       file->pextension = NULL;
       file->http_header_included = f->http_header_included;
 #if HTTPD_PRECALCULATED_CHECKSUM

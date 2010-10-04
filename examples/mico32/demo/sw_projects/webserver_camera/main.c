@@ -1,56 +1,8 @@
-/* ###*B*###
- * ERIKA Enterprise - a tiny RTOS for small microcontrollers
- *
- * Copyright (C) 2010  Evidence Srl
- *
- * This file is part of ERIKA Enterprise.
- *
- * ERIKA Enterprise is free software; you can redistribute it
- * and/or modify it under the terms of the GNU General Public License
- * version 2 as published by the Free Software Foundation, 
- * (with a special exception described below).
- *
- * Linking this code statically or dynamically with other modules is
- * making a combined work based on this code.  Thus, the terms and
- * conditions of the GNU General Public License cover the whole
- * combination.
- *
- * As a special exception, the copyright holders of this library give you
- * permission to link this code with independent modules to produce an
- * executable, regardless of the license terms of these independent
- * modules, and to copy and distribute the resulting executable under
- * terms of your choice, provided that you also meet, for each linked
- * independent module, the terms and conditions of the license of that
- * module.  An independent module is a module which is not derived from
- * or based on this library.  If you modify this code, you may extend
- * this exception to your version of the code, but you are not
- * obligated to do so.  If you do not wish to do so, delete this
- * exception statement from your version.
- *
- * ERIKA Enterprise is distributed in the hope that it will be
- * useful, but WITHOUT ANY WARRANTY; without even the implied warranty
- * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License version 2 for more details.
- *
- * You should have received a copy of the GNU General Public License
- * version 2 along with ERIKA Enterprise; if not, write to the
- * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301 USA.
- * ###*E*### */
- 
-/** 
-    @file      main.c
-    @brief     Web server demo. 
-               This demo shows how to set up a LWIP-based web server.
-               Web page displays images captured by the hv7131gp camera.
-               Communication is based on the LWIP stack and uses ENC28J60 device.
-               The demo requires a RS232 serial connection (configured at 115200 bps,8N1).
-               The demo requires a SPI connection with the ENC28J60 device. 
-               The demo requires a I2C connection with the HV7131GP camera.
-               It also requires a library that uses SDRAM for read/write data. 
-    @author    Alessandro Paolinelli
-    @date      2010
-*/
+/*
+ * Copyright: 2010, Evidence Srl
+ * Author: Alessandro Paolinelli
+ * Description: Web Server with camera support.
+ */
 
 /* RT-Kernel */
 #include <ee.h>
@@ -68,9 +20,11 @@
 #include "lwip.h"
 #include "httpd.h"
 #include "hv7131gp.h"
+#include "color_image.h"
 
-extern void test_lodePng();
-extern void test_prepareImg();
+extern volatile unsigned char camera_image_ready;
+extern void process_frame(hv7131gp_status_t status);
+extern unsigned char camera_image[];
 
 /* A printf-like function */
 void myprintf(const char *format, ...)
@@ -94,10 +48,11 @@ void myprintf(const char *format, ...)
 
 int main(void)
 {
-    hv7131gp_Q_Value_t Quality  = HV7131GP_160x120_FAST;
-    hv7131gp_status_t camera_status;
+	hv7131gp_status_t init_camera_status =  HV7131GP_SUCCESS;
     EE_led_set_all(0x01);
-    test_prepareImg();
+    
+    /* Initialize PNG image */
+    color_image_rgb2png_init();
     
     /* Initialize UART */
     EE_uart_config(115200, EE_UART_BIT8_NO | EE_UART_BIT_STOP_1);
@@ -120,25 +75,60 @@ int main(void)
     /* Let's start everything: interrupts drive the application */
     EE_mico32_enableIRQ();
     
-    camera_status = hv7131gp_init();
-    
-    if (camera_status != HV7131GP_SUCCESS){
-        myprintf("hv7131gp_init %d \n\r",camera_status);
-        while(1);
-    }
-    
     /* Configure the camera device */
-    camera_status = hv7131gp_configure(Quality);
-    if (camera_status != HV7131GP_SUCCESS)
-    {
-        myprintf("hv7131gp_configure %d \n\r",camera_status);
-        while(1);
+    init_camera_status = hv7131gp_init();
+    if (init_camera_status != HV7131GP_SUCCESS){
+    	myprintf("hv7131gp_init %d \n\r",init_camera_status);
+    	while(1);
     }
+    
+    init_camera_status = hv7131gp_configure_time_divisor(HV7131GP_T_1);
+	if (init_camera_status != HV7131GP_SUCCESS)
+	{
+		myprintf("hv7131gp_configure_time_divisor %d \n\r",init_camera_status);
+    	while(1);
+	}
 
-    //hv7131gp_configure_time_divisor(HV7131GP_T_1);
-    hv7131gp_configure_color(1);
-
-    httpd_init();
+	init_camera_status = hv7131gp_configure_x_flip(0);
+	if (init_camera_status != HV7131GP_SUCCESS)
+	{
+		myprintf("hv7131gp_configure_x_flip %d \n\r",init_camera_status);
+    	while(1);
+	}
+	
+	switch(PNG_IMG_WIDTH_DEFAULT){
+		case 160:
+			// Resolution 160 x 120 
+			init_camera_status = hv7131gp_configure_subsampling(HV7131GP_1_16_SUB);
+		break;
+		case 320:
+			// Resolution 320 x 240 
+			init_camera_status = hv7131gp_configure_subsampling(HV7131GP_1_4_SUB);
+		break;
+		case 640:
+			// Resolution 640 x 480 
+			init_camera_status = hv7131gp_configure_subsampling(HV7131GP_NO_SUB);
+		break;
+		default:
+			myprintf("resolution not supported \n\r");
+    		while(1);
+		break;
+	}
+	if (init_camera_status != HV7131GP_SUCCESS)
+	{
+		myprintf("hv7131gp_configure_subsampling %d \n\r",init_camera_status);
+    	while(1);
+	}
+	
+	/* Color */
+	init_camera_status = hv7131gp_configure_color(1);
+	if (init_camera_status != HV7131GP_SUCCESS)
+	{
+		myprintf("hv7131gp_configure_color %d \n\r",init_camera_status);
+    	while(1);
+	}
+	
+	httpd_init();
 
     while(1);
 }

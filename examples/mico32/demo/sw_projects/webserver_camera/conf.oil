@@ -1,7 +1,7 @@
 /* ###*B*###
  * ERIKA Enterprise - a tiny RTOS for small microcontrollers
  *
- * Copyright (C) 2010  Evidence Srl
+ * Copyright (C) 2010 Evidence Srl
  *
  * This file is part of ERIKA Enterprise.
  *
@@ -37,19 +37,14 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
- 
- /** 
-    @file      conf.oil
-    @author    Dario Di Stefano
-    @date      2010
-*/
 
 CPU test_application {
 
 	#include "conf.oil.lwip"
 	#include "conf.oil.enc28j60"
 
-	OS EE {
+	OS EE {		
+		CFLAGS = "-D__USE_LEDS__"; // Workaround for RT-Druid bug
 		CFLAGS = "-g2";
 		ASFLAGS = "";
 		LDFLAGS = ""; 
@@ -58,8 +53,9 @@ CPU test_application {
 			APP_SRC = "main.c";
 			APP_SRC = "fs.c";
 			APP_SRC = "httpd.c";
-			APP_SRC = "lodepng.c";
-			APP_SRC = "color_model_conversion.c";
+			APP_SRC = "color_image.c";
+			APP_SRC = "crc32.c";
+			APP_SRC = "adler32.c";
 			MULTI_STACK = FALSE;
 			USESTANDALONEPRINTF = FALSE; // Optional, default is FALSE
 			USESMALLC = FALSE; // Optional, default is FALSE
@@ -114,4 +110,8 @@ CPU test_application {
 		LEVEL = "CAMERA_IRQ";
 		HANDLER = "EE_hv7131gp_handler";
 	};
+
+	/* ****************************************************************** */
+	/*                          Application                               */
+	/* ****************************************************************** */
 };
