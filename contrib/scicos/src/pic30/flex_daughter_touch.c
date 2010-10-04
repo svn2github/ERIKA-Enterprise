@@ -8,6 +8,13 @@
 #include <ee.h>
 #include "touch.h"
 
+#define touch_set_dimension(a, b)       touch_1_set_dimension(a, b) 
+#define touch_raw_init()                touch_1_raw_init()
+#define touch_start()                   touch_1_start()
+#define touch_wait_raw_position(a, b)   touch_1_wait_raw_position(a, b)
+#define touch_tune(a)                   touch_1_tune(a)
+#define touch_poll_s_position(a, b)     touch_1_poll_s_position(a, b)
+
 #define ASCII_X	88
 #define ASCII_Y	89
 

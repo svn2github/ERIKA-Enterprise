@@ -33,7 +33,9 @@ static void init(scicos_block *block)
 #endif
 		return; //** return if outside the allowed range
 
-	EE_buttons_init( NULL, 0 ); // Enable buttons without interrupt support
+	// Enable buttons without interrupt support
+	EE_button_S1_init(NULL);
+	EE_button_S2_init(NULL); 
 }
 
 static void inout(scicos_block *block)
