@@ -65,10 +65,6 @@
 
 #define MAX_CHARS 128
 
-/* In case of fatal error */
-#define die(a) myprintf("\nError! code: %d\n", a); \
-               while(1)
-
 /* This function is used to send info by serial interface. */
 void myprintf(const char *format, ...)
 {
@@ -79,6 +75,13 @@ void myprintf(const char *format, ...)
 	vsnprintf(str, MAX_CHARS, format, args);
 	va_end( args );
 	EE_uart_send_buffer((EE_UINT8*)str, strlen(str));
+}
+
+/* In case of fatal error */
+void die(int code)
+{
+	myprintf("\nError! code: %d\n", code);
+	while(1);
 }
 
 /* ----------------- */

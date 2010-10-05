@@ -96,8 +96,11 @@ void myprintf(const char *format, ...)
 }
 
 /* In case of fatal error */
-#define die(a) myprintf("\nError! code: %d\n", a); \
-               while(1)
+void die(int code)
+{
+	myprintf("\nError! code: %d\n", code);
+	while(1);
+}
 
 /* This function is used to display received packets on serial terminal */
 static void hex_dump(const void *base, int size)

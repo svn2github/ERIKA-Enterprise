@@ -61,9 +61,6 @@
 
 #define MAX_CHARS 128
 
-/* In case of fatal error */
-#define die(a) myprintf("\nError! code: %d\n", a); \
-               while(1)
 
 /* This function is used to send info by serial interface. */
 void myprintf(const char* format, ...)
@@ -75,6 +72,13 @@ void myprintf(const char* format, ...)
 	vsnprintf(str, MAX_CHARS, format, args);
 	va_end( args );
 	EE_uart_send_buffer((EE_UINT8*)str, strlen(str));
+}
+
+/* In case of fatal error */
+void die(int code)
+{
+	myprintf("\nError! code: %d\n", code);
+	while(1);
 }
 
 /* Constant Definitions */
@@ -106,6 +110,9 @@ TASK(SEND_TASK)
 	}
 	
 	// CAP send
+	myprintf("uwl_simple154_send without GTS \n");
+	uwl_simple154_send(msg, MSG_LEN, TEST_COORD_ADDR, DO_NOT_USE_GTS);
+	/*
 	sw ^= 1;
 	if (sw){
 		myprintf("uwl_simple154_send without GTS \n");
@@ -118,6 +125,7 @@ TASK(SEND_TASK)
 		uwl_simple154_send(msg, 10, TEST_COORD_ADDR, USE_GTS);
 		
 	}
+	*/
 }
 
 /* Main */
