@@ -8,7 +8,24 @@
 #define __list_h__
 
 #include <arch/mem_compiler.h>
+#ifdef __STDIO_COMPILER_BUG__
+#include <stddef.h>
+void	*memcpy	(void *, const void *, size_t);
+void	*memset	(void *, int , size_t);
+#else
 #include <string.h>
+#endif
+
+#ifdef L_EOL
+#undef L_EOL
+#endif
+#define L_EOL 0xFFFE
+
+#ifdef L_FREE
+#undef L_FREE
+#endif
+#define L_FREE 0xFFFF
+
 
 /** 
 * @brief Linked List
@@ -54,7 +71,7 @@ typedef struct list_t {
 static type list_data_##name[length] attribute;		\
 static uint16_t list_next_indexes_##name[length];	\
 list_t name = {						\
-	0, 						\
+	L_EOL, 						\
 	0, 						\
 	length, 					\
 	0, 						\
@@ -81,7 +98,7 @@ list_t name = {						\
 static type list_data_##name[length] attribute;			\
 static uint16_t list_next_indexes_##name[length];		\
 static list_t name = {						\
-	0, 							\
+	L_EOL, 							\
 	0, 							\
 	length, 						\
 	0, 							\
@@ -93,7 +110,7 @@ static list_t name = {						\
 #define LIST_DEFINE_EXTMEM(name, type, length, storage)	\
 static uint16_t list_next_indexes_##name[length];	\
 list_t name = {						\
-	0, 						\
+	L_EOL, 						\
 	0, 						\
 	length, 					\
 	0, 						\
@@ -105,7 +122,7 @@ list_t name = {						\
 #define LIST_DEFINE_EXTMEM_STATIC(name, type, length, storage)	\
 static uint16_t list_next_indexes_##name[length];		\
 static list_t name = {						\
-	0, 							\
+	L_EOL, 							\
 	0, 							\
 	length, 						\
 	0, 							\
@@ -121,15 +138,6 @@ static list_t name = {						\
 #define LIST_FULL 	2	/**< Full list. */
 /**  @} */
 
-#ifdef L_EOL
-#undef L_EOL
-#endif
-#define L_EOL 0xFFFE
-
-#ifdef L_FREE
-#undef L_FREE
-#endif
-#define L_FREE 0xFFFF
 
 /** 
 * @brief Clear the list
