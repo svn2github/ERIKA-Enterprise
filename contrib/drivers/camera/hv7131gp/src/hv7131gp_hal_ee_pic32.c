@@ -42,7 +42,7 @@ volatile uint8_t *frame_buffer = NULL;
 /******************************************************************************/
 /*                          Local Variables                                   */
 /******************************************************************************/
-/*static*/ volatile uint16_t  /*row_id,*/ frame_idx;
+/*static*/ volatile uint16_t row_id, frame_idx;
 /*static*/ volatile uint16_t  height, width, image_size;
 /******************************************************************************/
 /*                           Hardware Abstraction Layer                       */
@@ -153,7 +153,7 @@ if (HV7131GP_HSYNC_VALUE() == HV7131GP_HSYNC_RISING) {
 
 
 
-	if((frame_idx >= image_size) /*|| (++row_id >= height)*/){
+	if((frame_idx >= image_size) || (++row_id >= height)){
 		/* Stop row and frame syncs, notify capture complete */
 		HV7131GP_PIN_HSYNC_STOP();
 		HV7131GP_PIN_VSYNC_STOP();
@@ -256,7 +256,16 @@ hv7131gp_status_t hv7131gp_hal_init(uint8_t dma_channel){
 hv7131gp_status_t hv7131gp_hal_capture(uint8_t *image, hv7131gp_cback_t *func)
 {
 	frame_idx 	= 0;
+	row_id = 0;
 	
+	//Read the size of the picture
+	width 	= hv7131gp_get_width();
+	height 	= hv7131gp_get_height();
+	image_size = hv7131gp_get_size();
+	
+	frame_buffer = image;
+	capture_complete_func = func;
+
 	/* Set the DMA source pointer to the PIN_Y 8 bit BUS */
 	HV7131GP_DMA_SOURCE_ADD_REG = 
 	EE_ADDR_VIRTUAL_TO_PHYSICAL((void *)HV7131GP_PIN_Y_ADDRESS);
@@ -265,16 +274,6 @@ hv7131gp_status_t hv7131gp_hal_capture(uint8_t *image, hv7131gp_cback_t *func)
 	/* stored frame							*/
 	HV7131GP_DMA_DEST_ADD_REG = 
 			EE_ADDR_VIRTUAL_TO_PHYSICAL(frame_buffer);
-
-
-	//Read the size of the picture
-	width 	= hv7131gp_get_width();
-	height 	= hv7131gp_get_height();
-	image_size = hv7131gp_get_size();
-
-
-	frame_buffer = image;
-	capture_complete_func = func;
 
 	HV7131GP_VSYNC_RESET_IF();
 

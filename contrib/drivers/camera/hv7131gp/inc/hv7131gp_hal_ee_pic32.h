@@ -95,7 +95,9 @@ hv7131gp_status_t hv7131gp_hal_capture(uint8_t *image, hv7131gp_cback_t *func);
 #endif
 
 #ifdef __32MX795F512L__
+#ifndef HV7131GP_MAX_SIZE
 #define HV7131GP_MAX_SIZE	19200	/**< For PIC32MX */
+#endif //HV7131GP_MAX_SIZE
 #endif
 
 
@@ -110,7 +112,7 @@ hv7131gp_status_t hv7131gp_hal_capture(uint8_t *image, hv7131gp_cback_t *func);
 /* 				OC specific definition			      */
 /******************************************************************************/
 
-//TODO: implementare la logica di selezione tra le varie schede
+//TODO: Must be implemented a logic of selection between the available boards
 
 #ifndef HV7131GP_OC_FREQ
 #define HV7131GP_OC_FREQ 	20000000ul
@@ -137,21 +139,21 @@ hv7131gp_status_t hv7131gp_hal_capture(uint8_t *image, hv7131gp_cback_t *func);
 #endif
 
 
-#if HV7131GP_DMA_CH == EE_DMA_CH0
+#if (HV7131GP_DMA_CH == 0)
 
 #define HV7131GP_DMA_DEST_ADD_REG		DCH0DSA				 
 #define HV7131GP_DMA_SOURCE_ADD_REG		DCH0SSA	
 #define HV7131GP_DMA_CH_ENABLE()		DCH0CONSET = _DCH0CON_CHEN_MASK
 #define HV7131GP_DMA_FORCE_START()		DCH0ECONSET = _DCH0ECON_CFORCE_MASK;				 
 
-#elif	HV7131GP_DMA_CH == EE_DMA_CH1					 
+#elif	(HV7131GP_DMA_CH == 1)				 
 
 #define HV7131GP_DMA_DEST_ADD_REG		DCH1DSA				 
 #define HV7131GP_DMA_SOURCE_ADD_REG		DCH1SSA	
 #define HV7131GP_DMA_CH_ENABLE()		DCH1CONSET = _DCH1CON_CHEN_MASK
 #define HV7131GP_DMA_FORCE_START()		DCH1ECONSET = _DCH1ECON_CFORCE_MASK;
 
-#elif	HV7131GP_DMA_CH == EE_DMA_CH2
+#elif	(HV7131GP_DMA_CH == 2)
 
 #define HV7131GP_DMA_DEST_ADD_REG		DCH2DSA				 
 #define HV7131GP_DMA_SOURCE_ADD_REG		DCH2SSA	
@@ -159,28 +161,28 @@ hv7131gp_status_t hv7131gp_hal_capture(uint8_t *image, hv7131gp_cback_t *func);
 #define HV7131GP_DMA_FORCE_START()		DCH2ECONSET = _DCH2ECON_CFORCE_MASK;
 
 
-#elif	HV7131GP_DMA_CH == EE_DMA_CH3
+#elif	(HV7131GP_DMA_CH == 3)
 
 #define HV7131GP_DMA_DEST_ADD_REG		DCH3DSA				 
 #define HV7131GP_DMA_SOURCE_ADD_REG		DCH3SSA	
 #define HV7131GP_DMA_CH_ENABLE()		DCH3CONSET = _DCH3CON_CHEN_MASK
 #define HV7131GP_DMA_FORCE_START()		DCH3ECONSET = _DCH3ECON_CFORCE_MASK;
 
-#elif	HV7131GP_DMA_CH == EE_DMA_CH4
+#elif	(HV7131GP_DMA_CH == 4)
 
 #define HV7131GP_DMA_DEST_ADD_REG		DCH4DSA				 
 #define HV7131GP_DMA_SOURCE_ADD_REG		DCH4SSA	
 #define HV7131GP_DMA_CH_ENABLE()		DCH4CONSET = _DCH4CON_CHEN_MASK
 #define HV7131GP_DMA_FORCE_START()		DCH4ECONSET = _DCH4ECON_CFORCE_MASK;
 
-#elif	HV7131GP_DMA_CH == EE_DMA_CH5
+#elif	(HV7131GP_DMA_CH == 5)
 
 #define HV7131GP_DMA_DEST_ADD_REG		DCH5DSA				 
 #define HV7131GP_DMA_SOURCE_ADD_REG		DCH5SSA	
 #define HV7131GP_DMA_CH_ENABLE()		DCH5CONSET = _DCH5CON_CHEN_MASK
 #define HV7131GP_DMA_FORCE_START()		DCH5ECONSET = _DCH5ECON_CFORCE_MASK;
 
-#elif	HV7131GP_DMA_CH == EE_DMA_CH6
+#elif	(HV7131GP_DMA_CH == 6)
 
 #define HV7131GP_DMA_DEST_ADD_REG		DCH6DSA				 
 #define HV7131GP_DMA_SOURCE_ADD_REG		DCH6SSA	
@@ -188,13 +190,13 @@ hv7131gp_status_t hv7131gp_hal_capture(uint8_t *image, hv7131gp_cback_t *func);
 #define HV7131GP_DMA_FORCE_START()		DCH6ECONSET = _DCH6ECON_CFORCE_MASK;
 
 
-#elif	HV7131GP_DMA_CH == EE_DMA_CH7
+#elif	(HV7131GP_DMA_CH == 7)
 
 #define HV7131GP_DMA_DEST_ADD_REG		DCH7DSA				 
 #define HV7131GP_DMA_SOURCE_ADD_REG		DCH7SSA	
 #define HV7131GP_DMA_CH_ENABLE()		DCH7CONSET = _DCH7CON_CHEN_MASK
 #define HV7131GP_DMA_FORCE_START()		DCH7ECONSET = _DCH7ECON_CFORCE_MASK;
-#else
+
 
 #endif
 
