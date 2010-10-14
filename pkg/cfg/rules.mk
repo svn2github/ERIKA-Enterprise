@@ -302,6 +302,13 @@ ifeq ($(findstring __LM32__,$(EEALLOPT)) , __LM32__)
 include $(EEBASE)/pkg/cfg/arch/rules_mico32.mk
 endif
 
+##
+## eSi-RISC - gcc under Windows
+##########################################################################
+ifeq ($(findstring __ESI_RISC__,$(EEALLOPT)) , __ESI_RISC__)
+include $(EEBASE)/pkg/cfg/arch/rules_esi_risc.mk
+endif
+
 
 
 

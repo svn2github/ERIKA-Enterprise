@@ -7,7 +7,7 @@
  *
  * ERIKA Enterprise is free software; you can redistribute it
  * and/or modify it under the terms of the GNU General Public License
- * version 2 as published by the Free Software Foundation, 
+ * version 2 as published by the Free Software Foundation,
  * (with a special exception described below).
  *
  * Linking this code statically or dynamically with other modules is
@@ -68,7 +68,7 @@ extern "C" {
    */
 
  /* Freescale */
-#ifdef __COSMIC__ 
+#ifdef __COSMIC__
 #ifdef __HCS12XS__
 #include "cpu/cosmic_hs12xs/inc/ee_cpu.h"
 #endif
@@ -131,14 +131,18 @@ extern "C" {
 #include "cpu/e200z7/inc/ee_cpu.h"
 #endif
 
+#ifdef __ESI_RISC__
+#include "cpu/esi_risc/inc/ee_cpu.h"
+#endif
+
   /*
    *
    * MCU
    *
    */
-   
+
    /* Freescale */
-#ifdef __COSMIC__    
+#ifdef __COSMIC__
 #ifdef __HCS12XS__
 #include "mcu/cosmic_hs12xs/inc/ee_mcu.h"
 #endif
@@ -202,9 +206,9 @@ extern "C" {
    * BOARD
    *
    */
-   
+
     /* Freescale */
-#ifdef __COSMIC__     
+#ifdef __COSMIC__
 #ifdef __HCS12XS__
 #include "board/cosmic_hs12xs_demo9s12xsfame/inc/ee_board.h"
 #endif
@@ -271,6 +275,10 @@ extern "C" {
 
 #ifdef __TC1796__
 #include "board/infineon_tc1796b/inc/ee_board.h"
+#endif
+
+#ifdef __ESI_RISC__
+#include "board/esi_risc/inc/ee_board.h"
 #endif
 
   /*

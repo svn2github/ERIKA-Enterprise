@@ -7,7 +7,7 @@
  *
  * ERIKA Enterprise is free software; you can redistribute it
  * and/or modify it under the terms of the GNU General Public License
- * version 2 as published by the Free Software Foundation, 
+ * version 2 as published by the Free Software Foundation,
  * (with a special exception described below).
  *
  * Linking this code statically or dynamically with other modules is
@@ -67,7 +67,7 @@ extern "C" {
    */
 
  /* Freescale */
-#ifdef __COSMIC__ 
+#ifdef __COSMIC__
 #ifdef __HCS12XS__
 #include "cpu/cosmic_hs12xs/inc/ee_internal.h"
 #endif
@@ -122,6 +122,10 @@ extern "C" {
 #include "cpu/e200z7/inc/ee_internal.h"
 #endif
 
+#ifdef __ESI_RISC__
+#include "cpu/esi_risc/inc/ee_internal.h"
+#endif
+
   /*
    *
    * MCU
@@ -129,11 +133,11 @@ extern "C" {
    */
 
  /* Freescale */
-#ifdef __COSMIC__ 
+#ifdef __COSMIC__
 #ifdef __HCS12XS__
 #include "mcu/cosmic_hs12xs/inc/ee_internal.h"
-#endif 
-#endif 
+#endif
+#endif
 
   /* Atmel */
 #if defined __ATMEGA128__
@@ -196,11 +200,11 @@ extern "C" {
    */
 
  /* Freescale */
-#ifdef __COSMIC__ 
+#ifdef __COSMIC__
 #ifdef __HCS12XS__
 #include "board/cosmic_hs12xs_demo9s12xsfame/inc/ee_internal.h"
-#endif 
-#endif  
+#endif
+#endif
 
   /* Atmel */
 #ifdef __ATMEL_STK50X__
@@ -244,6 +248,10 @@ extern "C" {
 
 #ifdef __TC1796__
 #include "board/infineon_tc1796b/inc/ee_internal.h"
+#endif
+
+#ifdef __ESI_RISC__
+#include "board/esi_risc/inc/ee_board.h"
 #endif
 
   /*

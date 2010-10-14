@@ -53,3 +53,8 @@ EE_SRCS += pkg/cpu/common/src/ee_context.c
 endif
 endif
 
+ifeq ($(findstring __ESI_RISC__,$(EEOPT)) , __ESI_RISC__)
+EE_SRCS += pkg/cpu/common/src/ee_hal_structs.c
+EE_SRCS += pkg/cpu/common/src/ee_context.c
+endif
+
