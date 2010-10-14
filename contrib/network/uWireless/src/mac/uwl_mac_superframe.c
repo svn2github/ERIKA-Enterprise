@@ -122,7 +122,7 @@ COMPILER_INLINE void start_activations(uint32_t offset)
 	t = UWL_MAC_GET_TS(uwl_mac_pib.macSuperframeOrder);
 	/* FIXME: now I'm ignoring the return values! */
 	uwl_kal_set_activation(MAC_BEFORE_TIMESLOT,
-				offset - UWL_MAC_TICKS_BEFORE_TIMESLOT, t);
+				offset + t - UWL_MAC_TICKS_BEFORE_TIMESLOT, t);
 	uwl_kal_set_activation(MAC_TIMESLOT, offset, t);
 	uwl_kal_set_activation(MAC_BACKOFF_PERIOD, offset, 1);
 }
