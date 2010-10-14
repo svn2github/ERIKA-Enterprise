@@ -1,0 +1,38 @@
+CPU test_application {
+
+	OS EE {
+		EE_OPT = "DEBUG";
+		EE_OPT = "NODEPS";
+		EE_OPT = "__ASSERT__";
+
+		CFLAGS = "-msoc=esi3200_cycloneiiidemo -O2";
+		ASFLAGS = "-msoc=esi3200_cycloneiiidemo -O2";
+		LDFLAGS = "-msoc=esi3200_cycloneiiidemo -O2";
+
+		CPU_DATA = ESI_RISC {
+			APP_SRC = "main.c";
+			MULTI_STACK = FALSE;
+			ICD = TRUE;
+		};
+
+		STATUS = EXTENDED;
+		STARTUPHOOK = FALSE;
+		ERRORHOOK = FALSE;
+		SHUTDOWNHOOK = FALSE;
+		PRETASKHOOK = FALSE;
+		POSTTASKHOOK = FALSE;
+		USEGETSERVICEID = FALSE;
+		USEPARAMETERACCESS = FALSE;
+		USERESSCHEDULER = FALSE;
+    };
+    
+    /* this is the OIL part for the first task */
+    TASK Task1 {
+		PRIORITY = 0x01;   /* Low priority */
+		AUTOSTART = FALSE;
+		STACK = SHARED;
+		ACTIVATION = 1;    /* only one pending activation */
+	};	
+
+    OS EE { KERNEL_TYPE = FP; }; 	
+};

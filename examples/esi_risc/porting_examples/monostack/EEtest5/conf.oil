@@ -1,0 +1,66 @@
+CPU test_application {
+
+	OS EE {
+		EE_OPT = "DEBUG";
+		EE_OPT = "NODEPS";
+		EE_OPT = "__ASSERT__";
+		EE_OPT = "__S12XS_INCLUDE_REGS__";
+
+		CFLAGS = "-l +modf +fast +nowiden +warn +sprec";
+		ASFLAGS = "-c -v -l ";
+		LDFLAGS = "-p -sa -m mapfile.map"; 
+
+		CPU_DATA = MC9S12XS {
+			APP_SRC = "main.c";
+			MULTI_STACK = FALSE;
+			ICD = TRUE;
+		};
+		
+		MCU_DATA = S12XS {
+   			MODEL = CUSTOM{
+    			MODEL = "MC9S12XS128";
+    			LINKERSCRIPT = "mc9s12xs128.lkf";
+    			INCLUDE_H = "hs12xsregs.h";
+    			INCLUDE_C = "vector_s12x.c";
+    			INCLUDE_S = "crtsx.S";
+   			};
+  		};
+
+		STATUS = EXTENDED;
+		STARTUPHOOK = FALSE;
+		ERRORHOOK = FALSE;
+		SHUTDOWNHOOK = FALSE;
+		PRETASKHOOK = FALSE;
+		POSTTASKHOOK = FALSE;
+		USEGETSERVICEID = FALSE;
+		USEPARAMETERACCESS = FALSE;
+		USERESSCHEDULER = FALSE;
+		
+//		ORTI_SECTIONS = ALL;
+    };
+
+	/* this is the OIL part for the first task */
+    TASK Task1 {
+		PRIORITY = 0x02;   /* Low priority */
+		AUTOSTART = FALSE;
+		STACK = SHARED;
+		ACTIVATION = 1;    /* only one pending activation */
+		SCHEDULE = FULL;
+
+	};	
+	
+	/* this is the OIL part for the first task */
+    TASK Task2 {
+		PRIORITY = 0x01;   /* Low priority */
+		AUTOSTART = FALSE;
+		STACK = SHARED;
+		ACTIVATION = 1;    /* only one pending activation */
+		SCHEDULE = FULL;
+	};	
+
+    OS EE { 
+    	KERNEL_TYPE = FP{
+    		NESTED_IRQ = TRUE;
+   		}; 
+   	}; 	
+};
