@@ -108,9 +108,7 @@ HV7131GP_HSYNC_INTERRUPT()
 if (HV7131GP_HSYNC_VALUE() == HV7131GP_HSYNC_RISING) {
 #endif	//__INT_DMA__
 
-
-	
-	
+		
 	#ifndef __INT_DMA__
 	/* Disable Interrupts */
 	HV7131GP_HAL_DISABLE_INTERRUPTS();
@@ -133,31 +131,34 @@ if (HV7131GP_HSYNC_VALUE() == HV7131GP_HSYNC_RISING) {
 } else {
 	#endif //__INT_DMA__
 
+	#ifdef __INT_DMA__
+	/* Enables the DMA Channel  */
+	HV7131GP_DMA_CH_DISABLE();
+	#endif
 	
 	frame_idx += DMA_MAX_WIDTH;
 
-	
 	#ifndef __INT_DMA__
 	HV7131GP_HAL_ENABLE_INTERRUPTS();
 	#endif// __INT_DMA__
 	/* Check if last row is ready -> frame ready? */
 
-	/* Set the DMA source pointer for reading the Y0-Y7 camera pins */	
-	HV7131GP_DMA_SOURCE_ADD_REG = 
-		EE_ADDR_VIRTUAL_TO_PHYSICAL((void *)HV7131GP_PIN_Y_ADDRESS);
-
-	/* Set the DMA destionation to the correct line of the stored frame */
 	
-	HV7131GP_DMA_DEST_ADD_REG = 
-			EE_ADDR_VIRTUAL_TO_PHYSICAL(frame_buffer + frame_idx);
-
-
-
 	if((frame_idx >= image_size) || (++row_id >= height)){
 		/* Stop row and frame syncs, notify capture complete */
 		HV7131GP_PIN_HSYNC_STOP();
 		HV7131GP_PIN_VSYNC_STOP();
 		HV7131GP_EOF_ACTIVATE_IF(); //Activate interrupt
+	} else {
+		/* Set the DMA source pointer for reading the Y0-Y7 camera pins */	
+		HV7131GP_DMA_SOURCE_ADD_REG = 
+		EE_ADDR_VIRTUAL_TO_PHYSICAL((void *)HV7131GP_PIN_Y_ADDRESS);
+
+	/* Set the DMA destionation to the correct line of the stored frame */
+	
+		HV7131GP_DMA_DEST_ADD_REG = 
+			EE_ADDR_VIRTUAL_TO_PHYSICAL(frame_buffer + frame_idx);
+
 	}
 	HV7131GP_HSYNC_RESET_IF();			/* Reset CN interrupt flag */
 		
