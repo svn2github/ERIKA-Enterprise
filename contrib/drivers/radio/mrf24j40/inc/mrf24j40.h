@@ -205,7 +205,7 @@ int sprintf(char *, const char *, ...);
  *   mrf24j40_tx_pwr_set(TXPWRL_MINUS_20dB, TXPWRS_0dB 0x00).
  */
 #define MRF24J40_TX_PWR_SET(large_val, small_val)\
-	((large_val << 6) || (small_val << 3))
+	((large_val << 6) | (small_val << 3))
 
 #ifndef __LM32__
 typedef union _TX_status {
