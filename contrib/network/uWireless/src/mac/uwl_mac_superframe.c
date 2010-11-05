@@ -585,7 +585,7 @@ COMPILER_INLINE void start_beacon_interval(void)
 		return;
 	}
 	sf_flags.in_tx_gts = UWL_FALSE;
-	if (sf_flags.had_cfp == UWL_TRUE) {
+	if (sf_flags.had_cfp == UWL_TRUE && !uwl_mac_status.has_rx_beacon) {
 		sf_flags.had_cfp = UWL_FALSE;
 		uwl_kal_set_activation(MAC_BACKOFF_PERIOD, 0, 1);
 	} else {
