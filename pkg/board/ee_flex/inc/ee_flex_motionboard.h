@@ -142,6 +142,12 @@ __INLINE__ EE_UINT8 __ALWAYS_INLINE__ EE_button_get_S2(void)
 	return !(PORTDbits.RD9);
 }
 
+__INLINE__ void __ALWAYS_INLINE__ EE_buttons_init( void(*isr_callback1)(void), void(*isr_callback2)(void) )
+{
+	EE_button_S1_init(isr_callback1);
+	EE_button_S2_init(isr_callback2);
+}
+
 #endif
 
 /******************************************************************************/
@@ -260,7 +266,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_pwm_set_duty(EE_UINT8 chan, EE_UINT32 duty)
 	duty = ( (duty * 40) >> t_pre_scaler ) - 1;  
 	if (duty > PR2) 
 		return;
-	duty = PR2 - duty;
+	duty = PR2 - duty;    // board-dependent inversion.
 	switch(chan) {
 	case EE_PWM_PORT1:
 		OC8RS = (EE_UINT16)duty; /* Load OCRS: current pwm duty cycle */
