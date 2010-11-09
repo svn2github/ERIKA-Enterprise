@@ -102,6 +102,8 @@ ISR(timer1_irq_handler)
 	iprintf("INFO :  %s: START: sp=0x%x\n", __FUNCTION__, get_sp());
 
 	timer_irq_ack(timer1_device);
+	timer_stop(timer1_device);
+
 	esi_interrupt_enable();
 
 	++isr_low_fired;
@@ -135,6 +137,7 @@ ISR(timer0_irq_handler)
 		if(timer_fired==10)
 		{
 			finished = 1;
+		    timer_stop(timer0_device);
 		}
 		iprintf("INFO :    %s: END\n", __FUNCTION__);
 	}
@@ -176,8 +179,6 @@ int main(void)
 	{
 		//spin
 	}
-	timer_stop(timer0_device);
-	timer_stop(timer1_device);
 
 	EE_assert_range(0,1,5);
   	if (EE_assert_last() != EE_ASSERT_YES)
