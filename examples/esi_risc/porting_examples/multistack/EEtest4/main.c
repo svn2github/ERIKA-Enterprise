@@ -102,6 +102,8 @@ ISR(timer1_irq_handler)
 	iprintf("INFO :  %s: START: sp=0x%x\n", __FUNCTION__, get_sp());
 
 	timer_irq_ack(timer1_device);
+    timer_stop(timer1_device);
+
 	esi_interrupt_enable();
 
 	++isr_low_fired;
@@ -112,6 +114,7 @@ ISR(timer1_irq_handler)
 	while(1)
     	if(finished != 0)
     		break;
+
 	iprintf("INFO :  %s: END\n", __FUNCTION__);
 
 }
@@ -135,6 +138,7 @@ ISR(timer0_irq_handler)
 		if(timer_fired==10)
 		{
 			finished = 1;
+			timer_stop(timer0_device);
 		}
 		iprintf("INFO :    %s: END\n", __FUNCTION__);
 	}
@@ -153,17 +157,17 @@ int main(void)
 	iprintf("INFO : multistack EEtest4 - nested ISRs + ISR stack\n");
 
 	/* This test uses two timers, 0 and 1, with timer 0 needing to interrupt
-	 * at a rate of at least 20 x timer 1
+	 * at a rate of at least 50 x timer 1
 	 * Be careful - if the interrupt rate of timer 1 is too high it may
 	 * interrupt itself!
 	 */
-	timer_init(&timer0_device, 0, esi_get_frequency()/100, timer0_irq_handler);
+	timer_init(&timer0_device, 0, esi_get_frequency()/50, timer0_irq_handler);
 	if (timer0_device == 0)
 	{
 		iprintf("ERROR: Timer 0 not available.\n");
 		exit(EXIT_FAILURE);
 	}
-	timer_init(&timer1_device, 1, esi_get_frequency()/5,   timer1_irq_handler);
+	timer_init(&timer1_device, 1, esi_get_frequency(),   timer1_irq_handler);
 	if (timer1_device == 0)
 	{
 		iprintf("ERROR: Timer 1 not available.\n");
@@ -176,8 +180,6 @@ int main(void)
 	{
 		//spin
 	}
-	timer_stop(timer0_device);
-	timer_stop(timer1_device);
 
 	EE_assert_range(0,1,5);
   	if (EE_assert_last() != EE_ASSERT_YES)
