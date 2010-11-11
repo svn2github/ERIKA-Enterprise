@@ -262,7 +262,7 @@ COMPILER_INLINE int8_t uwl_radio_get_rx_data(uint8_t *msg, uint8_t *fcs_chk,
 	uint8_t buf[130];
 	/* len is the length of the packet with the appended LQI and RSSI plus
 	 * one (since the buffer contains the lenght itself */
-	uint8_t len = cc2420_get_fifo_msg(buf);
+	int16_t len = cc2420_get_fifo_msg(buf);
 	if (len < 2)
 		return -1;
 	/* Lenght does not consider the first byte (which is length itself) so
@@ -282,8 +282,9 @@ COMPILER_INLINE int8_t uwl_radio_get_rx_data(uint8_t *msg, uint8_t *fcs_chk,
 	int i = 0;
 	for (i = 0; i < len; i++) {
 		msg[i] = buf[i+1];
-	} 
-	return len;
+	}
+	// safe cast because len is always <= 127
+	return (int8_t) len;
 }
 
 
