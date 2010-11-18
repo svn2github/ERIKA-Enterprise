@@ -157,12 +157,13 @@
 /******************************************************************************/
 /* 				INLINE Functions			      */
 /******************************************************************************/
-
+__INLINE__ int __ALWAYS_INLINE__ EE_enc28j60_int_pin_status(void){ 
+	return EE_ENC28J60_INT_PORT;
+}
 
 __INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_int_pin_enable_IRQ(void){ 
 	EE_ENC28J60_INT_ENABLE_SET();
 }
-
 
 
 __INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_int_pin_disable_IRQ(void){ 
@@ -171,15 +172,14 @@ __INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_int_pin_disable_IRQ(void){
 
 
 __INLINE__ int __ALWAYS_INLINE__ EE_enc28j60_int_pin_IRQ_enabled(void){ 
-	return EE_ENC28J60_INT_ENABLE_GET();	
+	return EE_ENC28J60_INT_ENABLE_GET();
 } 
-
-
 
 
 __INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_gpio_wake_active(void){
 	EE_ENC28J60_hal_wake_pin_set();
 }
+
 
 __INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_gpio_wake_inactive(void){
 	EE_ENC28J60_hal_wake_pin_clr();
