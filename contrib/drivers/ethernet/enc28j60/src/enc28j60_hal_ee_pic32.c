@@ -27,26 +27,18 @@ EE_enc28j60_st ee_enc28j60_st = {
  * automatically be cleared.
 */
 
-
-
 EE_enc28j60_hal_handler_pic32(){
 	
 	EE_enc28j60_disable_IRQ();
-
 	/* Clear GPIO irq pending flag */
-
-	EE_enc28j60_clear_irq_flag();	
-	
+	EE_enc28j60_clear_irq_flag();
 	/* Set the internal irqf to "interrupt occured" value  */
-
 	EE_enc28j60_irq_int_write(EE_ENC28J60_IRQ_OCCURED); 
-	
-	/* Called task should re-enable IRQs */
-	
+	/* Called task should re-enable IRQs after that all packets are read
+	and int signal from enc28j60 is driven high */
 	if (ee_enc28j60_st.task >= 0){
-		ActivateTask(ee_enc28j60_st.task);	
+		ActivateTask(ee_enc28j60_st.task);
 	}
-
 	return;
 }
 

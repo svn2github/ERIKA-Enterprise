@@ -166,10 +166,8 @@ __INLINE__ int __ALWAYS_INLINE__ EE_enc28j60_irq_int_read() {
 	return ee_enc28j60_st.irqf;
 }
 
-
-
 /**
-	This function read the internal interrupt request flag
+	This function write the internal interrupt request flag
 */
 __INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_irq_int_write(int val) {
 	ee_enc28j60_st.irqf = val;
@@ -181,10 +179,10 @@ __INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_irq_int_write(int val) {
 */
 __INLINE__ int __ALWAYS_INLINE__ EE_enc28j60_pending_interrupt(void){ 
 		
-	int app = EE_enc28j60_irq_int_read();
-	EE_enc28j60_irq_int_write(EE_ENC28J60_IRQ_MANAGED);
-	return app;		
-	
+	//int app = EE_enc28j60_irq_int_read();
+	//EE_enc28j60_irq_int_write(EE_ENC28J60_IRQ_MANAGED);
+	//return app;		
+	return EE_enc28j60_int_pin_status() == 0;
 }
 
 
@@ -349,7 +347,6 @@ __INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_hal_disable(void)
 */
 __INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_hal_enable_IRQ(void)
 {
-	//mico32_enable_irq(ee_enc28j60_st.irqf);
 	EE_enc28j60_int_pin_enable_IRQ();
 }
 
