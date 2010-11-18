@@ -96,3 +96,5 @@ extern uint8_t ee_enc28j60_db_msg[ENC28J60_STRING_MAXSIZE];
 #endif	//ENC28J60_DEBUG
 
 #endif	//__ENC28J60_DEBUG_H__
+
+

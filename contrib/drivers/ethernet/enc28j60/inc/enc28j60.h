@@ -255,6 +255,7 @@ typedef union {
 */
 void EE_enc28j60_handler(int level);
 
+/* @{ */
 /**
 	@brief	macros to create the new API.
 */
@@ -279,7 +280,9 @@ void EE_enc28j60_handler(int level);
 #define EE_enc28j60_bank_select(Register)								EE_enc28j60_hal_bank_select(Register)
 #define EE_enc28j60_set_clkout(NewConfig)								EE_enc28j60_hal_set_clkout(NewConfig)
 #define EE_enc28j60_get_clkout()										EE_enc28j60_hal_get_clkout()
+/* @} */
 
+/* @{ */
 /**
 	@brief Macros for compatibility with the old Microchip API. 
 */
@@ -321,6 +324,7 @@ void EE_enc28j60_handler(int level);
 #define MACPutROMArray(val, len)						EE_enc28j60_mac_put_ROM_array(val, len)
 void EE_enc28j60_mac_put_ROM_array(ROM BYTE *val, WORD len);
 #endif
+/* @} */
 
 /**
 	@brief 	ENC28J60 driver - mac layer for TCPIP stack

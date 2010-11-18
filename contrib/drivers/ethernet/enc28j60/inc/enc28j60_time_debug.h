@@ -116,3 +116,5 @@ __INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_reset_timestamp(void)
 #endif
 
 #endif	//__ENC28J60_TIME_DEBUG_H__
+
+
