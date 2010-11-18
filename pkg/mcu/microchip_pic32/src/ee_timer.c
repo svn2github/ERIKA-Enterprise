@@ -336,16 +336,16 @@ EE_INT8 EE_timer_soft_init(EE_UINT8 id, EE_UINT32 period_us)
 	}
 	if (ticks < max_period) {
 		prd = ticks;
-		psc = EE_TIMER_PRESCALE_1;
+		psc = (id==EE_TIMER_1) ? EE_TIMER_PRESCALE_1 : EE_TIMERx_PRESCALE_1;
 	} else if (ticks / 8 < max_period) {
 		prd = ticks / 8;
-		psc = EE_TIMER_PRESCALE_8;
+		psc = (id==EE_TIMER_1) ? EE_TIMER_PRESCALE_8 : EE_TIMERx_PRESCALE_8;
 	} else if (ticks / 64 < max_period) {
 		prd = ticks / 64;
-		psc = EE_TIMER_PRESCALE_64;
+		psc = (id==EE_TIMER_1) ? EE_TIMER_PRESCALE_64 : EE_TIMERx_PRESCALE_64;
 	} else if (ticks / 256 < max_period) {
 		prd = ticks / 256;
-		psc = EE_TIMER_PRESCALE_256;
+		psc = (id==EE_TIMER_1) ? EE_TIMER_PRESCALE_256 : EE_TIMERx_PRESCALE_256;
 	} else {
 		return -EE_TIMER_ERR_BAD_ARGS;
 	}
