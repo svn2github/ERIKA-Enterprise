@@ -1,9 +1,7 @@
 /* ###*B*###
  * ERIKA Enterprise - a tiny RTOS for small microcontrollers
  *
- * Copyright (C) 2006-2010  Evidence Srl
- *
- * This file is part of ERIKA Enterprise.
+ * Copyright (C) 2006-2010  Simone Mannori, Roberto Bucher
  *
  * This file is part of ERIKA Enterprise.
  *
