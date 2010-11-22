@@ -38,9 +38,12 @@
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
 
-/*
- * Author: 2010 Dario Di Stefano
- */
+/** 
+	@file flex_daughter_dcm_pwm.c
+	@brief www.scicos.org, www.scicoslab.org
+	@author Dario Di Stefano, Evidence Srl
+	@date 2010
+*/
  
 #include <machine.h>
 #include <scicos_block4.h>

@@ -1,7 +1,7 @@
 /* ###*B*###
  * ERIKA Enterprise - a tiny RTOS for small microcontrollers
  *
- * Copyright (C) 2002-2008  Evidence Srl
+ * Copyright (C) 2006-2010  Evidence Srl
  *
  * This file is part of ERIKA Enterprise.
  *
@@ -37,6 +37,13 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
+
+/** 
+	@file scicos_USB.h
+	@brief www.scicos.org, www.scicoslab.org
+	@author Christian Nastasi, RetisLab, Pisa
+	@date 2006-2010
+*/
 
 #ifndef _scicos_USB_h_
 #define _scicos_USB_h_

@@ -1,4 +1,12 @@
-/*********************************************************************
+/* ###*B*###
+ * ERIKA Enterprise - a tiny RTOS for small microcontrollers
+ *
+ * Copyright (C) 2006-2010  Evidence Srl
+ *
+ * This file is part of ERIKA Enterprise.
+* ###*E*### */
+ 
+ /*********************************************************************
  *
  *	Hardware specific definitions
  *
@@ -49,6 +57,14 @@
  * Howard Schlunder		10/03/06	Original, copied from Compiler.h
  * Ken Hesky            07/01/08    Added ZG2100-specific features
  ********************************************************************/
+ 
+/** 
+	@file TCPIPConfig.h
+	@brief www.scicos.org, www.scicoslab.org
+	@author Dario Di Stefano, Evidence Srl
+	@date 2006-2010
+*/
+
 #ifndef __HARDWARE_PROFILE_H
 #define __HARDWARE_PROFILE_H
 

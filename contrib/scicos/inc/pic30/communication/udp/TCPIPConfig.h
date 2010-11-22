@@ -1,3 +1,11 @@
+/* ###*B*###
+ * ERIKA Enterprise - a tiny RTOS for small microcontrollers
+ *
+ * Copyright (C) 2006-2010  Evidence Srl
+ *
+ * This file is part of ERIKA Enterprise.
+* ###*E*### */
+
 /*********************************************************************
  *
  *	Microchip TCP/IP Stack Demo Application Configuration Header
@@ -50,6 +58,15 @@
  * Ken Hesky            07/01/2008  Added ZG2100-specific features
  * SG                   03/25/2009  Added ZGLinkMgrII specific features
  ********************************************************************/
+
+
+/** 
+	@file TCPIPConfig.h
+	@brief www.scicos.org, www.scicoslab.org
+	@author Dario Di Stefano, Evidence Srl
+	@date 2006-2010
+*/
+ 
 #ifndef __TCPIPCONFIG_H
 #define __TCPIPCONFIG_H
 

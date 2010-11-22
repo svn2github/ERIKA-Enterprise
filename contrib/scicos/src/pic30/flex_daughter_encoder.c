@@ -1,9 +1,50 @@
 /* ###*B*###
-* Copyright (C) Roberto Bucher (SUPSI- Lugano)
-*               Simone Mannori (Scilab / INRIA / DIGITEO)
-*
-* Copyright (C) METALAU Project (INRIA)
-* ###*E*### */
+ * ERIKA Enterprise - a tiny RTOS for small microcontrollers
+ *
+ * Copyright (C) 2006-2010  Evidence Srl
+ *
+ * This file is part of ERIKA Enterprise.
+ *
+ * ERIKA Enterprise is free software; you can redistribute it
+ * and/or modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation, 
+ * (with a special exception described below).
+ *
+ * Linking this code statically or dynamically with other modules is
+ * making a combined work based on this code.  Thus, the terms and
+ * conditions of the GNU General Public License cover the whole
+ * combination.
+ *
+ * As a special exception, the copyright holders of this library give you
+ * permission to link this code with independent modules to produce an
+ * executable, regardless of the license terms of these independent
+ * modules, and to copy and distribute the resulting executable under
+ * terms of your choice, provided that you also meet, for each linked
+ * independent module, the terms and conditions of the license of that
+ * module.  An independent module is a module which is not derived from
+ * or based on this library.  If you modify this code, you may extend
+ * this exception to your version of the code, but you are not
+ * obligated to do so.  If you do not wish to do so, delete this
+ * exception statement from your version.
+ *
+ * ERIKA Enterprise is distributed in the hope that it will be
+ * useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License version 2 for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * version 2 along with ERIKA Enterprise; if not, write to the
+ * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+ * Boston, MA 02110-1301 USA.
+ * ###*E*### */
+
+/** 
+	@file flex_daughter_encoder.c
+	@brief www.scicos.org, www.scicoslab.org
+	@author Roberto Bucher, SUPSI- Lugano
+	@author Simone Mannori, ScicosLab developer
+	@date 2006-2010
+*/
 
 
 //** 9 Feb 2008 : Revision notes by Simone Mannori 
@@ -73,7 +114,7 @@ static void inout(scicos_block *block)
 		* the scaling to degree/radian/centesimal/mm must be done 
 		* in the scicos diagram.
 		*/
-		y[0] = (float) EE_encoder_get_ticks();
+		y[0] = EE_encoder_get_ticks_f();
 	}
 	else // sw encoder
 	{
@@ -82,7 +123,7 @@ static void inout(scicos_block *block)
 		* to have the same behaviour of hw encoder. 
 		* TODO: 4x resolution in the next releases...
 		*/
-		y[0] = (float) EE_encoder_SW_get_ticks() * 2.0;
+		y[0] = EE_encoder_SW_get_ticks_f() * 2.0;
 	}
 }
 
