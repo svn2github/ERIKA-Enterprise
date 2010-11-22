@@ -55,6 +55,7 @@ include $(EEBASE)/contrib/drivers/touch/cfg/cfg.mk
 include $(EEBASE)/contrib/drivers/miscellaneous/tsl2561t/cfg/cfg.mk
 include $(EEBASE)/contrib/drivers/miscellaneous/pcf8583/cfg/cfg.mk
 include $(EEBASE)/contrib/drivers/ethernet/enc28j60/cfg/cfg.mk
+include $(EEBASE)/contrib/drivers/spi_flash/sst25/cfg/cfg.mk
 
 endif
 
@@ -70,5 +71,6 @@ include $(EEBASE)/contrib/drivers/touch/cfg/libcfg.mk
 include $(EEBASE)/contrib/drivers/miscellaneous/tsl2561t/cfg/libcfg.mk
 include $(EEBASE)/contrib/drivers/miscellaneous/pcf8583/cfg/libcfg.mk
 include $(EEBASE)/contrib/drivers/ethernet/enc28j60/cfg/libcfg.mk
+include $(EEBASE)/contrib/drivers/spi_flash/sst25/cfg/libcfg.mk
 
 endif
