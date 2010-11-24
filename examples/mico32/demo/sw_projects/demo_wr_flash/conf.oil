@@ -75,7 +75,7 @@ CPU test_application {
 		LIB = ENABLE {
 			NAME = "SPIFLASH";
 		};
-		EE_OPT = "__USE_SST25LF0X0A__"; //"__USE_SST25__";
+		EE_OPT = "__USE_SST25VF016B__"; //"__USE_SST25LF0X0A__"; //"__USE_SST25__";
 	};
 
 	OS EE { KERNEL_TYPE = FP; }; 	

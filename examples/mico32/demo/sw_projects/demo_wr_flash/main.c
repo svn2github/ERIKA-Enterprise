@@ -62,6 +62,12 @@
 #include <stdio.h>
 #include <stdarg.h>
 
+#define BUF_SIZE 		8200
+#define SPIFLASH_ID 	spi_flash_SPIFlash_boot	//spi_flash_SPIFlash
+#define TEST1_MAX 		13
+#define TEST2_MAX 		1239
+#define TEST3_MAX 		8197
+
 /* A printf-like function */
 void myprintf(const char *format, ...)
 {
@@ -91,20 +97,136 @@ int main(void)
 	EE_uart_config(115200, EE_UART_BIT8_NO | EE_UART_BIT_STOP_1);
 	EE_uart_set_ISR_mode(EE_UART_POLLING | EE_UART_RXTX_BLOCK);  
 	
-	/* Flash test */
-	#define BUF_SIZE 10
+	/* Demo variables */
+	int i, err=0;
 	EE_UINT32 buff[BUF_SIZE] = {0xABCDEF01,0xABCDEF02,0xABCDEF03,0xABCDEF04,
 		                        0xABCDEF05,0xABCDEF06,0xABCDEF07,0xABCDEF08,
 		                        0xABCDEF09,0xABCDEF0A};
-	spi_flash_erase_chip(spi_flash_SPIFlash.control_base);
-    spi_flash_write_buffer(spi_flash_SPIFlash.control_base, spi_flash_SPIFlash.memory_base, buff, BUF_SIZE*4);
+	const EE_UINT32 *flash_mem = (const EE_UINT32 *)(SPIFLASH_ID.memory_base);
+		                        
+	/* Flash test1 */
+	spi_flash_erase_chip(SPIFLASH_ID.control_base);
+    spi_flash_write_buffer(SPIFLASH_ID.control_base, SPIFLASH_ID.memory_base, buff, TEST1_MAX*4);
+    for(i=0; i<TEST1_MAX; i++)
+    {
+    	if(flash_mem[i]!=buff[i])
+    	{
+    		myprintf("flash_mem[%d]:%x\n", i, flash_mem[i]);	// Read memory...
+    		myprintf("flash test1 error: -1!\n");	
+    		err = 1;
+    		break;
+    	}
+    }
+    if(err==0)
+    	myprintf("flash test1 ok!\n");	
+    else
+    	while(1)
+    		;
     
- 	/* Test results */
-    int i;
-    const EE_UINT32 *flash_mem = (const EE_UINT32 *)(spi_flash_SPIFlash.memory_base);
-    for(i=0; i<BUF_SIZE; i++)
-    	myprintf("flash_mem[%d]:%x\n", i, flash_mem[i]);
-    
+    /* Flash test2 */
+    err = 0;
+    for(i=0; i<TEST2_MAX; i++)
+        buff[i] = i;   
+	spi_flash_erase_chip(SPIFLASH_ID.control_base);
+    spi_flash_write_buffer(SPIFLASH_ID.control_base, SPIFLASH_ID.memory_base, buff, TEST2_MAX*4);   
+    for(i=0; i<TEST2_MAX; i++)
+    {
+    	if(flash_mem[i]!=buff[i])
+    	{
+    		myprintf("flash_mem[%d]:%x\n", i, flash_mem[i]);	// Read memory...
+    		myprintf("flash test2 error: -1!\n");	
+    		err = 1;
+    		break;
+    	}
+    }
+    if(err==0)
+    {
+    	spi_flash_erase_sector(SPIFLASH_ID.control_base, 0); // erase 4KB
+    	for(i=0; i<TEST2_MAX; i++)
+    	{
+    		if(i<1024)
+    		{
+    			if(flash_mem[i]!=0xFFFFFFFF)
+    			{
+    				myprintf("flash_mem[%d]:%x\n", i, flash_mem[i]);	// Read memory...
+    				myprintf("flash test2 error: -2!\n");	
+    				err = 1;
+    				break;
+    			}
+    		}
+    		else
+    		{
+    			if(flash_mem[i]!=buff[i])
+    			{
+    				myprintf("flash_mem[%d]:%x\n", i, flash_mem[i]);	// Read memory...
+    				myprintf("flash test2 error: -3!\n");	
+    				err = 1;
+    				break;
+    			}
+    		}
+    	}
+    	if(err==0)
+    		myprintf("flash test2 ok!\n");
+    	else
+    		while(1)
+    			;	
+    }
+    else
+    	while(1)
+    		;	
+    			
+    /* Flash test3 */
+    err = 0;
+    for(i=0; i<TEST3_MAX; i++)
+        buff[i] = i;   
+	spi_flash_erase_chip(SPIFLASH_ID.control_base);
+    spi_flash_write_buffer(SPIFLASH_ID.control_base, SPIFLASH_ID.memory_base, buff, TEST3_MAX*4);   
+    for(i=0; i<TEST3_MAX; i++)
+    {
+    	if(flash_mem[i]!=buff[i])
+    	{
+    		myprintf("flash_mem[%d]:%x\n", i, flash_mem[i]);	// Read memory...
+    		myprintf("flash test3 error: -1!\n");	
+    		err = 1;
+    		break;
+    	}
+    }
+    if(err==0)
+    {
+    	spi_flash_erase_block(SPIFLASH_ID.control_base, 0); // erase 4KB
+    	for(i=0; i<TEST3_MAX; i++)
+    	{
+    		if(i<8192)
+    		{
+    			if(flash_mem[i]!=0xFFFFFFFF)
+    			{
+    				myprintf("flash_mem[%d]:%x\n", i, flash_mem[i]);	// Read memory...
+    				myprintf("flash test3 error: -2!\n");	
+    				err = 1;
+    				break;
+    			}
+    		}
+    		else
+    		{
+    			if(flash_mem[i]!=buff[i])
+    			{
+    				myprintf("flash_mem[%d]:%x\n", i, flash_mem[i]);	// Read memory...
+    				myprintf("flash test3 error: -3!\n");	
+    				err = 1;
+    				break;
+    			}
+    		}
+    	}
+    	if(err==0)
+    		myprintf("flash test3 ok!\n");	
+    	else
+    		while(1)
+    			;
+    }
+    else
+    	while(1)
+    		;
+    	
     /* Background activities */
     while(1)
     	;
