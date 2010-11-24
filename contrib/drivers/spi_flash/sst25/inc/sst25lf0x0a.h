@@ -54,7 +54,7 @@
 #define spi_flash_write_buffer    sst25lf0x0a_flash_write_buffer
 
 #include "sst25_generic.h"
-void sst25lf0x0a_flash_write_buffer(unsigned ctrl_base, EE_UINT32 addr,
+void sst25lf0x0a_flash_write_buffer(unsigned id, EE_UINT32 addr,
     const void *data, EE_UREG len);
 
 #endif /* SPI_FLASH_SST25LF0X0A_H */

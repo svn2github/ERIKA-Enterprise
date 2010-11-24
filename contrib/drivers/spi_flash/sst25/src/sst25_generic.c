@@ -46,25 +46,29 @@
 * @date     2010
 */ 
 
-#ifdef __USE_SST25__
+#if defined (__USE_SST25__) || defined (__USE_SST25VF016B__)
 
 #include <ee.h>
 #include "ee_spi_flash.h"
 
-void sst25_generic_flash_write_buffer(unsigned ctrl_base, EE_UINT32 addr,
+void sst25_generic_flash_write_buffer(unsigned id, EE_UINT32 addr,
     const void *data, EE_UREG len)
 {
     unsigned k;
     const EE_UINT8 *bdata = data;
     if (len == 0)
         return;
-    //debug_set_leds(STATE_LEDS_WRITING_FLASH);
-    for (k = 0; k < len; ++k) {
-        spi_flash_write_enable(ctrl_base);
-        long_spi_write(ctrl_base, SPI_FLASH_CMD_WR_BYTE,
-            ((addr + k) << 8) | bdata[k], 5);
-        spi_flash_wait_until_ready(ctrl_base);
+    
+    spi_flash_write_enable(id);
+    spi_long_write(id, (SPI_FLASH_CMD_AAI << 8) | ((addr >> 16)&0xFF), (addr << 16) | ((EE_UINT32)bdata[0] << 8) | bdata[1], 6);
+    spi_flash_wait_until_ready(id);
+    for (k = 2; k < len; k+=2) {
+        spi_short_write(id, (SPI_FLASH_CMD_AAI << 16) | ((EE_UINT32)bdata[k] << 8) | bdata[k+1], 3);
+        spi_flash_wait_until_ready(id);
     }
+    spi_flash_write_disable(id);    /* End the AAI sequence */
+    spi_flash_wait_until_ready(id);
+
 }
 
 #endif

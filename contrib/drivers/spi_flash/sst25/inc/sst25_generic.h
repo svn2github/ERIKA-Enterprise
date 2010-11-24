@@ -97,9 +97,17 @@
 #endif
 #ifndef spi_flash_write_buffer
 #define spi_flash_write_buffer    sst25_generic_flash_write_buffer
-void sst25_generic_flash_write_buffer(unsigned ctrl_base, EE_UINT32 addr,
+void sst25_generic_flash_write_buffer(unsigned id, EE_UINT32 addr,
     const void *data, EE_UREG len);
 #endif
+
+static const EE_UINT8 cmd_e_w_sr[] = { SPI_FLASH_CMD_EN_WR_SR };       /* Enable-Write-Status-Register */
+static const EE_UINT8 cmd_w_en[] = { SPI_FLASH_CMD_WRITE_EN };         /* Write-Enable */
+static const EE_UINT8 cmd_w_dis[] = { SPI_FLASH_CMD_WRITE_DIS };       /* Write-Disable */
+static const EE_UINT8 cmd_ch_erase[] = { SPI_FLASH_CMD_CHIP_ERASE };   /* Chip-Erase */
+static EE_UINT8 cmd_wr_sr[2] = { SPI_FLASH_CMD_WR_SR };                /* Write-Status-Register */
+static const EE_UINT8 cmd_sector_erase[] = { SPI_FLASH_CMD_4K_ERASE};  /* Sector-Erase */
+static const EE_UINT8 cmd_block_erase[] = { SPI_FLASH_CMD_32K_ERASE }; /* Block-Erase */
 
 #include "spi_flash_generic.h"
 
