@@ -39,22 +39,41 @@
  * ###*E*### */
  
 /** 
-* @file     sst25lf0x0a.h
-* @brief    SPI flash sst25lf0x0a driver.
+* @file     sst25vf016b.c
+* @brief    SPI flash sst25vf016b driver.
 * @author   Bernardo Dal Seno
 * @author   Dario Di Stefano
 * @date     2010
 */ 
 
-#ifndef SPI_FLASH_SST25LF0X0A_H
-#define SPI_FLASH_SST25LF0X0A_H
+#ifdef __USE_SST25VF016B__
 
-#define SPI_FLASH_CMD_AAI          0xAF
-#define SPI_FLASH_BP_MASK         (SPI_FLASH_BP0_MASK|SPI_FLASH_BP1_MASK)
-#define flash_spi_write_buffer    sst25lf0x0a_flash_write_buffer
+#include <ee.h>
+#include "ee_spi_flash.h"
 
-#include "sst25_generic.h"
-void sst25lf0x0a_flash_write_buffer(unsigned id, EE_UINT32 addr,
-    const void *data, EE_UREG len);
+void sst25vf016b_flash_write_buffer(unsigned id, EE_UINT32 addr,
+    const void *data, EE_UREG len)
+{
+    unsigned k;
+    const EE_UINT8 *bdata = data;
+    if (len < 2)
+        return;
+    
+    flash_spi_write_enable(id);
+    flash_spi_long_write(id, (SPI_FLASH_CMD_AAI << 8) | ((addr >> 16)&0xFF), 
+                             (addr << 16) | ((EE_UINT32)bdata[0] << 8) | bdata[1], 6);
+    flash_spi_wait_until_ready(id);
+    for (k = 2; k <= len-2; k+=2) {
+        flash_spi_short_write(id, (SPI_FLASH_CMD_AAI << 16) | ((EE_UINT32)bdata[k] << 8) | bdata[k+1], 3);
+        flash_spi_wait_until_ready(id);
+    }
+    flash_spi_write_disable(id);    /* End the AAI sequence */
+    flash_spi_wait_until_ready(id);
+    if (k < len) {
+        flash_spi_write_enable(id);
+        flash_spi_long_write(id, SPI_FLASH_CMD_WR_BYTE, ((addr + k) << 8) | bdata[k], 5);
+        flash_spi_wait_until_ready(id);
+    }
+}
 
-#endif /* SPI_FLASH_SST25LF0X0A_H */
+#endif

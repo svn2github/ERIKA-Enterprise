@@ -58,15 +58,15 @@ void sst25lf0x0a_flash_write_buffer(unsigned id, EE_UINT32 addr,
     const EE_UINT8 *bdata = data;
     if (len == 0)
         return;
-    spi_flash_write_enable(id);
-    spi_long_write(id, SPI_FLASH_CMD_AAI, (addr << 8) | bdata[0], 5);
-    spi_flash_wait_until_ready(id);
+    flash_spi_write_enable(id);
+    flash_spi_long_write(id, SPI_FLASH_CMD_AAI, (addr << 8) | bdata[0], 5);
+    flash_spi_wait_until_ready(id);
     for (k = 1; k < len; ++k) {
-        spi_short_write(id, (SPI_FLASH_CMD_AAI << 8) | bdata[k], 2);
-        spi_flash_wait_until_ready(id);
+        flash_spi_short_write(id, (SPI_FLASH_CMD_AAI << 8) | bdata[k], 2);
+        flash_spi_wait_until_ready(id);
     }
-    spi_flash_write_disable(id);    /* End the AAI sequence */
-    spi_flash_wait_until_ready(id);
+    flash_spi_write_disable(id);    /* End the AAI sequence */
+    flash_spi_wait_until_ready(id);
 }
 
 #endif

@@ -51,6 +51,10 @@
 
 #define SPI_FLASH_CMD_64K_ERASE    0xD8
 #define SPI_FLASH_CMD_RD_JED       0x9F
+#define flash_spi_write_buffer    sst25vf016b_flash_write_buffer
+
 #include "sst25_generic.h"
+void sst25vf016b_flash_write_buffer(unsigned id, EE_UINT32 addr,
+    const void *data, EE_UREG len);
 
 #endif /* SPI_FLASH_SST25VF016B_H */

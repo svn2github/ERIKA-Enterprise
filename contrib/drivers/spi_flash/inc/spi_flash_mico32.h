@@ -70,7 +70,7 @@ struct spi_flash_cmd {
  * @param data Data to be written.
  * @param len Number of bytes to be written.  
  */
-__INLINE__ void __ALWAYS_INLINE__ hal_spi_short_write(unsigned ctrl_base, EE_UINT32 data, EE_UREG len)
+__INLINE__ void __ALWAYS_INLINE__ flash_spi_short_write(unsigned ctrl_base, EE_UINT32 data, EE_UREG len)
 {
     struct spi_flash_cmd * const cmd_ctrl =
         (struct spi_flash_cmd *)(ctrl_base + 0x40);
@@ -89,7 +89,7 @@ __INLINE__ void __ALWAYS_INLINE__ hal_spi_short_write(unsigned ctrl_base, EE_UIN
  * @param data2 LSW of data to be written.
  * @param len Number of bytes to be written.  
  */
-__INLINE__ void __ALWAYS_INLINE__ hal_spi_long_write(unsigned ctrl_base, EE_UINT32 data1, EE_UINT32 data2, EE_UREG len)
+__INLINE__ void __ALWAYS_INLINE__ flash_spi_long_write(unsigned ctrl_base, EE_UINT32 data1, EE_UINT32 data2, EE_UREG len)
 {
     struct spi_flash_cmd * const cmd_ctrl =
         (struct spi_flash_cmd *)(ctrl_base + 0x40);
@@ -108,7 +108,7 @@ __INLINE__ void __ALWAYS_INLINE__ hal_spi_long_write(unsigned ctrl_base, EE_UINT
  * @param data Array of data to be written.
  * @param len Number of bytes to be written.  
  */
-__INLINE__ void __ALWAYS_INLINE__ hal_spi_write(unsigned ctrl_base, const void *data, unsigned len)
+__INLINE__ void __ALWAYS_INLINE__ flash_spi_write(unsigned ctrl_base, const void *data, unsigned len)
 {
     const EE_UINT8 *buf = data;
     EE_UINT32 data1, data2;
@@ -120,17 +120,10 @@ __INLINE__ void __ALWAYS_INLINE__ hal_spi_write(unsigned ctrl_base, const void *
         data2 = buf[4];
         for (l = 5; l < len && l < 8; ++l)
             data2 = (data2 << 8) | buf[l];
-        hal_spi_long_write(ctrl_base, data1, data2, len);
+        flash_spi_long_write(ctrl_base, data1, data2, len);
     } else {
-        hal_spi_short_write(ctrl_base, data1, len);
+        flash_spi_short_write(ctrl_base, data1, len);
     }
 }
-
-#if defined (__USE_SST25__) || defined (__USE_SST25LF0X0A__) || defined (__USE_SST25VF016B__)
-
-#define hal_spi_flash_erase_sector(i_d, ad)    hal_spi_short_write(i_d, ((EE_UINT32)(cmd_sector_erase[0]) << 24) | ad, 4) //sizeof(ad)+sizeof(cmd_sector_erase));
-#define hal_spi_flash_block_sector(i_d, ad)    hal_spi_short_write(i_d, ((EE_UINT32)(cmd_block_erase[0]) << 24) | ad, 4) //sizeof(ad)+sizeof(cmd_sector_erase));
-
-#endif
 
 #endif /* SPI_FLASH_MICO32_H */

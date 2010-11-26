@@ -16,7 +16,7 @@ EE_SRCS += contrib/drivers/spi_flash/sst25/src/sst25lf0x0a.c
 endif
 
 ifeq ($(findstring __USE_SST25VF016B__,$(EEOPT)) , __USE_SST25VF016B__)
-EE_SRCS += contrib/drivers/spi_flash/sst25/src/sst25_generic.c
+EE_SRCS += contrib/drivers/spi_flash/sst25/src/sst25vf016b.c
 endif
 
 endif
