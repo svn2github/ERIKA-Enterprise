@@ -104,9 +104,14 @@ typedef struct __attribute__((__packed__))
 // not compatible with most switches/routers.  If a dedicated network is used
 // where the duplex of the remote node can be manually configured, you may
 // change this configuration.  Otherwise, half duplex should always be used.
+#if defined(__ENC28J60_FULL_DUPLEX__)
+#define FULL_DUPLEX
+#elif defined(__ENC28J60_LEDB_DUPLEX__)
+#define LEDB_DUPLEX
+#else
 #define HALF_DUPLEX
-//#define FULL_DUPLEX
-//#define LEDB_DUPLEX
+#endif
+
 #define ETHER_IP    			(0x00u)
 #define ETHER_ARP   			(0x06u)
 
