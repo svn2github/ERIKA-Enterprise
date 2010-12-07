@@ -1825,7 +1825,7 @@ EE_INT8 EE_spi_read(EE_UINT8 port, EE_UINT8 *data, EE_UINT32 len)
 
 	#ifdef __USE_SPI_PORT1A__
 	case EE_SPI_PORT_1A:
-		if(IS_DMA_RX(port1_flags)) 
+		if(IS_DMA_RX(port1a_flags)) 
 			//	read write_dma_port1A(data, len);
 			return -EE_SPI_ERR_UNIMPLEMENTED;
 		return read_polling_port1A(data, len);
@@ -1843,7 +1843,7 @@ EE_INT8 EE_spi_read(EE_UINT8 port, EE_UINT8 *data, EE_UINT32 len)
 
 	#ifdef __USE_SPI_PORT3A__
 	case EE_SPI_PORT_3A:
-		if(IS_DMA_RX(port1_flags)) 
+		if(IS_DMA_RX(port3a_flags)) 
 			//	read write_dma_port3A(data, len);
 			return -EE_SPI_ERR_UNIMPLEMENTED;
 		return read_polling_port3A(data, len);
