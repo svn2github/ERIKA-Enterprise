@@ -16,6 +16,10 @@
 * @name Basic type representations.
 * @{ */
 
+#if defined(__PIC32__)
+/* When supported, include plib.h to avoid conflicting definitions for boolean types */
+#include <plib.h>
+#else
 #ifndef DEF_BOOL_TYPE
 #define DEF_BOOL_TYPE
 /* chris: FIXME: do we really need this!? */
@@ -25,6 +29,7 @@ typedef enum {
 } BOOL;
 typedef BOOL Boolean;
 #endif /* DEF_BOOL_TYPE */
+#endif
 
 /**  @} */
 
