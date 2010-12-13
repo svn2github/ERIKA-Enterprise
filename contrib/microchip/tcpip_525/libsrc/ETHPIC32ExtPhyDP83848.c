@@ -37,7 +37,15 @@
  * $Id: $
  ********************************************************************/
 
-#ifdef __PIC32__ 
+/** 
+	@file ETHPIC32ExtPhyDP83848.c
+	@brief Microchip TCPIP stack. External PHY functions.
+	@author Dario Di Stefano, Evidence Srl
+	@date 2010
+	@note Added check on __USE_PHY_DP83848__ for compiling purpose.
+*/ 
+ 
+#ifdef __USE_PHY_DP83848__
 
 #include <plib.h>
 
@@ -192,6 +200,6 @@ unsigned int EthPhyMIIMClock(void)
 
 #endif	// defined(__PIC32MX__) && defined(_ETH)
 
-#endif //#ifdef __PIC32__ 
+#endif //#ifdef __USE_PHY_DP83848__ 
 
 

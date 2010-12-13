@@ -37,6 +37,14 @@
  * $Id: $
  ********************************************************************/
 
+ /** 
+	@file ETHPIC32ExtPhy.c
+	@brief Microchip TCPIP stack. External PHY functions.
+	@author Dario Di Stefano, Evidence Srl
+	@date 2010
+	@note Removed weak attribute from functions since this file is put in an archive.
+*/
+ 
 #ifdef __PIC32__ 
 
 #include <plib.h>
@@ -118,7 +126,7 @@ static __inline__ eEthLinkStat __attribute__((always_inline)) _Phy2LinkStat(__BM
  *
  * Note:            None
  *****************************************************************************/
-eEthRes __attribute__((weak)) EthPhyInit(eEthOpenFlags oFlags, eEthPhyCfgFlags cFlags, eEthOpenFlags* pResFlags)
+eEthRes  EthPhyInit(eEthOpenFlags oFlags, eEthPhyCfgFlags cFlags, eEthOpenFlags* pResFlags)
 {
 	unsigned short	ctrlReg;
 	eEthPhyCfgFlags	hwFlags, swFlags;
@@ -333,7 +341,7 @@ eEthRes __attribute__((weak)) EthPhyInit(eEthOpenFlags oFlags, eEthPhyCfgFlags c
  *
  * Note:            None
  *****************************************************************************/
-eEthRes  __attribute__((weak)) EthPhyRestartNegotiation(void)
+eEthRes   EthPhyRestartNegotiation(void)
 {
 	eEthRes	res;
 	__BMSTATbits_t	phyCpbl;
@@ -374,7 +382,7 @@ eEthRes  __attribute__((weak)) EthPhyRestartNegotiation(void)
  *
  * Note:            None
  *****************************************************************************/
-eEthRes  __attribute__((weak)) EthPhyNegotiationComplete(int waitComplete)
+eEthRes   EthPhyNegotiationComplete(int waitComplete)
 {
 	__BMCONbits_t	phyBMCon;
 	__BMSTATbits_t	phyStat;
@@ -449,7 +457,7 @@ eEthRes  __attribute__((weak)) EthPhyNegotiationComplete(int waitComplete)
  *
  * Note:            If no negotiation possible/active/failed, most likely the flags are invalid!
  *****************************************************************************/
-eEthLinkStat  __attribute__((weak)) EthPhyGetNegotiationResult(eEthOpenFlags* pFlags, eMacPauseType* pPauseType)
+eEthLinkStat   EthPhyGetNegotiationResult(eEthOpenFlags* pFlags, eMacPauseType* pPauseType)
 {
 	eEthLinkStat	linkStat;
 	eEthOpenFlags	oFlags;
@@ -592,7 +600,7 @@ eEthLinkStat  __attribute__((weak)) EthPhyGetNegotiationResult(eEthOpenFlags* pF
  *
  * Note:            None
  *****************************************************************************/
-eEthLinkStat  __attribute__((weak)) EthPhyGetLinkStatus(int refresh)
+eEthLinkStat   EthPhyGetLinkStatus(int refresh)
 {
 	__BMSTATbits_t	phyStat;
 	
@@ -625,7 +633,7 @@ eEthLinkStat  __attribute__((weak)) EthPhyGetLinkStatus(int refresh)
  *
  * Note:            None
  *****************************************************************************/
-int  __attribute__((weak)) EthPhyReset(int waitComplete)
+int   EthPhyReset(int waitComplete)
 {
 
 	EthMIIMWriteReg(PHY_REG_BMCON, _BMCON_RESET_MASK, _PhyAdd);		// Soft Reset the PHY
@@ -674,7 +682,7 @@ int  __attribute__((weak)) EthPhyReset(int waitComplete)
  * Note:            Any PHY register can be subject of a scan.
  *                  The application should use the MIIM access functions of the Ethernet plib abd the specific PHY knowledge. 
  *****************************************************************************/
-void __attribute__((weak)) EthPhyScanLinkStart(void)
+void  EthPhyScanLinkStart(void)
 {
 	EthMIIMScanStart(PHY_REG_BMSTAT, _PhyAdd);
 }
@@ -698,7 +706,7 @@ void __attribute__((weak)) EthPhyScanLinkStart(void)
  *
  * Note:            None
  *****************************************************************************/
-eEthLinkStat __attribute__((weak)) EthPhyScanLinkRead(void)
+eEthLinkStat  EthPhyScanLinkRead(void)
 {
 	__BMSTATbits_t	phyStat;
 	
@@ -727,7 +735,7 @@ eEthLinkStat __attribute__((weak)) EthPhyScanLinkRead(void)
  *                  Therefore the scan operation should be stopped before initiating another
  *                  normal MIIM transaction
  *****************************************************************************/
-void __attribute__((weak)) EthPhyScanLinkStop(void)
+void  EthPhyScanLinkStop(void)
 {
 	EthMIIMScanStop();
 }

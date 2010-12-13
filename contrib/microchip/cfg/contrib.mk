@@ -45,6 +45,11 @@
 ifneq ($(ONLY_LIBS) , TRUE)
 
 include $(EEBASE)/contrib/microchip/dee_emulation/cfg/cfg.mk
+ifeq ($(findstring __USE_MCHP_TCPIP_525__,$(EEOPT)) , __USE_MCHP_TCPIP_525__)
+include $(EEBASE)/contrib/microchip/tcpip_525/cfg/cfg.mk
+else
+include $(EEBASE)/contrib/microchip/tcpip_510/cfg/cfg.mk
+endif
 
 endif
 

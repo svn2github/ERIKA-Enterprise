@@ -35,9 +35,17 @@
  * TO ANY DEFENSE THEREOF), OR OTHER SIMILAR COSTS.
  *
  ********************************************************************/
+
+/** 
+	@file ETHPIC32ExtPhySMSC8720.c
+	@brief Microchip TCPIP stack. External PHY functions.
+	@author Dario Di Stefano, Evidence Srl
+	@date 2010
+	@note Added check on __USE_PHY_SMSC8720__ for compiling purpose.
+*/ 
  
-#ifdef __PIC32__ 
- 
+#ifdef __USE_PHY_SMSC8720__
+
 #include <plib.h>
 
 
@@ -171,7 +179,7 @@ unsigned int EthPhyMIIMClock(void)
 
 #endif	// defined(__PIC32MX__) && defined(_ETH)
 
-#endif //#ifdef __PIC32__ 
+#endif //#ifdef __USE_PHY_SMSC8720__
 
 
 
