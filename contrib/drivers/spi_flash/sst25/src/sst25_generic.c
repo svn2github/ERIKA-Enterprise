@@ -59,10 +59,10 @@ void sst25_generic_flash_write_buffer(unsigned id, EE_UINT32 addr,
     if (len == 0)
         return;
     for (k = 0; k < len; ++k) {
-        flash_spi_write_enable(id);
-        flash_spi_long_write(id, SPI_FLASH_CMD_WR_BYTE,
+        spiflash_write_enable(id);
+        spiflash_long_write(id, SPI_FLASH_CMD_WR_BYTE,
             ((addr + k) << 8) | bdata[k], 5);
-        flash_spi_wait_until_ready(id);
+        spiflash_wait_until_ready(id);
     }
 }
 

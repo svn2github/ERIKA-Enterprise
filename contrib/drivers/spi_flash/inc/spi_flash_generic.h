@@ -57,7 +57,7 @@
 /**
  * Function to read the busy bit of the status register of the SPI-Flash memory
  */
-__INLINE__ int __ALWAYS_INLINE__ flash_spi_is_busy(EE_UINT8 status)
+__INLINE__ int __ALWAYS_INLINE__ spiflash_is_busy(EE_UINT8 status)
 {
     return (status & SPI_FLASH_BUSY_MASK) ? 1 : 0;
 }
@@ -65,7 +65,7 @@ __INLINE__ int __ALWAYS_INLINE__ flash_spi_is_busy(EE_UINT8 status)
 /**
  * Function to read the protection bit of the status register of the SPI-Flash memory
  */
-__INLINE__ int __ALWAYS_INLINE__ flash_spi_is_protected(EE_UINT8 status)
+__INLINE__ int __ALWAYS_INLINE__ spiflash_is_protected(EE_UINT8 status)
 {
     return (status & SPI_FLASH_BP_MASK) ? 1 : 0;
 }
@@ -73,7 +73,7 @@ __INLINE__ int __ALWAYS_INLINE__ flash_spi_is_protected(EE_UINT8 status)
 /**
  * Function to return the unprotected status of the SPI-Flash memory
  */
-__INLINE__ EE_UINT8 __ALWAYS_INLINE__ flash_spi_unprotected_status(EE_UINT8 status)
+__INLINE__ EE_UINT8 __ALWAYS_INLINE__ spiflash_unprotected_status(EE_UINT8 status)
 {
     return status & ~(SPI_FLASH_BP_MASK|SPI_FLASH_BPL_MASK);
 }
@@ -81,7 +81,7 @@ __INLINE__ EE_UINT8 __ALWAYS_INLINE__ flash_spi_unprotected_status(EE_UINT8 stat
 /**
  * Function to get the status register of the SPI-Flash memory
  */
-__INLINE__ EE_UINT8 __ALWAYS_INLINE__ flash_spi_get_status_reg(unsigned id)
+__INLINE__ EE_UINT8 __ALWAYS_INLINE__ spiflash_get_status_reg(unsigned id)
 {
     return SPI_CMD_STATUS_READ(id);
 }
@@ -89,93 +89,93 @@ __INLINE__ EE_UINT8 __ALWAYS_INLINE__ flash_spi_get_status_reg(unsigned id)
 /**
  * Function to wait until SPI-Flash memory is ready
  */
-__INLINE__ void __ALWAYS_INLINE__ flash_spi_wait_until_ready(unsigned id)
+__INLINE__ void __ALWAYS_INLINE__ spiflash_wait_until_ready(unsigned id)
 {
     EE_UINT8 s;
     do {
-        s = flash_spi_get_status_reg(id);
-    } while(flash_spi_is_busy(s));
+        s = spiflash_get_status_reg(id);
+    } while(spiflash_is_busy(s));
 }
 
 /**
  * Function to write the status register of the SPI-Flash memory
  */
-__INLINE__ void __ALWAYS_INLINE__ flash_spi_write_status(unsigned id, EE_UINT8 status)
+__INLINE__ void __ALWAYS_INLINE__ spiflash_write_status(unsigned id, EE_UINT8 status)
 {
     EE_UINT8 cmd_wr_sr[] = { SPI_FLASH_CMD_WR_SR, status};                /* Write-Status-Register */
-    flash_spi_write(id, cmd_wr_sr, sizeof(cmd_wr_sr));
+    spiflash_write(id, cmd_wr_sr, sizeof(cmd_wr_sr));
 }
 
 /**
  * Function to change the status register of the SPI-Flash memory
  * to unprotected
  */
-__INLINE__ void __ALWAYS_INLINE__ flash_spi_maybe_unprotect(unsigned id)
+__INLINE__ void __ALWAYS_INLINE__ spiflash_maybe_unprotect(unsigned id)
 {
     const EE_UINT8 cmd_e_w_sr[] = { SPI_FLASH_CMD_EN_WR_SR };       /* Enable-Write-Status-Register */
-    EE_UINT8 sr = flash_spi_get_status_reg(id);
-    if (flash_spi_is_protected(sr)) {
-        flash_spi_write(id, cmd_e_w_sr, sizeof(cmd_e_w_sr));
-        flash_spi_write_status(id, flash_spi_unprotected_status(sr));
+    EE_UINT8 sr = spiflash_get_status_reg(id);
+    if (spiflash_is_protected(sr)) {
+        spiflash_write(id, cmd_e_w_sr, sizeof(cmd_e_w_sr));
+        spiflash_write_status(id, spiflash_unprotected_status(sr));
     }
 }
 
 /**
  * Function to enable write
  */
-__INLINE__ void __ALWAYS_INLINE__ flash_spi_write_enable(unsigned id)
+__INLINE__ void __ALWAYS_INLINE__ spiflash_write_enable(unsigned id)
 {
     const EE_UINT8 cmd_w_en[] = { SPI_FLASH_CMD_WRITE_EN };         /* Write-Enable */
-    flash_spi_maybe_unprotect(id);
-    flash_spi_write(id, cmd_w_en, sizeof(cmd_w_en));
+    spiflash_maybe_unprotect(id);
+    spiflash_write(id, cmd_w_en, sizeof(cmd_w_en));
 }
 
 /**
  * Function to disable write
  */
-__INLINE__ void __ALWAYS_INLINE__ flash_spi_write_disable(unsigned id)
+__INLINE__ void __ALWAYS_INLINE__ spiflash_write_disable(unsigned id)
 {
     const EE_UINT8 cmd_w_dis[] = { SPI_FLASH_CMD_WRITE_DIS };       /* Write-Disable */
-    flash_spi_write(id, cmd_w_dis, sizeof(cmd_w_dis));
+    spiflash_write(id, cmd_w_dis, sizeof(cmd_w_dis));
 }
 
 /**
  * Function to erase chip (all bytes to 0xFF)
  */
-__INLINE__ void __ALWAYS_INLINE__ flash_spi_erase_chip(unsigned id)
+__INLINE__ void __ALWAYS_INLINE__ spiflash_erase_chip(unsigned id)
 {
     const EE_UINT8 cmd_ch_erase[] = { SPI_FLASH_CMD_CHIP_ERASE };   /* Chip-Erase */
-    flash_spi_write_enable(id);
-    flash_spi_write(id, cmd_ch_erase, sizeof(cmd_ch_erase));
-    flash_spi_wait_until_ready(id);
+    spiflash_write_enable(id);
+    spiflash_write(id, cmd_ch_erase, sizeof(cmd_ch_erase));
+    spiflash_wait_until_ready(id);
 }
 
 /**
  * Function to erase a sector (4 KB)
  */
-__INLINE__ void __ALWAYS_INLINE__ flash_spi_erase_sector(unsigned id, EE_UINT32 addr)
+__INLINE__ void __ALWAYS_INLINE__ spiflash_erase_sector(unsigned id, EE_UINT32 addr)
 {
     const EE_UINT8 cmd_sector_erase[] = { SPI_FLASH_CMD_4K_ERASE};  /* Sector-Erase */
-    flash_spi_write_enable(id);
+    spiflash_write_enable(id);
     flash_hal_spi_erase_sector(id, addr);
-    flash_spi_wait_until_ready(id);
+    spiflash_wait_until_ready(id);
 }
 
 /**
  * Function to erase a block (32 KB)
  */
-__INLINE__ void __ALWAYS_INLINE__ flash_spi_erase_block(unsigned id, EE_UINT32 addr)
+__INLINE__ void __ALWAYS_INLINE__ spiflash_erase_block(unsigned id, EE_UINT32 addr)
 {
     const EE_UINT8 cmd_block_erase[] = { SPI_FLASH_CMD_32K_ERASE }; /* Block-Erase */
-    flash_spi_write_enable(id);
+    spiflash_write_enable(id);
     flash_hal_spi_erase_block(id, addr);
-    flash_spi_wait_until_ready(id);
+    spiflash_wait_until_ready(id);
 }
 
-#ifndef flash_spi_write_buffer
-#error "SPI-Flash error: flash_spi_write_buffer not defined!"
+#ifndef spiflash_write_buffer
+#error "SPI-Flash error: spiflash_write_buffer not defined!"
 #else
-void flash_spi_write_buffer(unsigned id, EE_UINT32 addr,
+void spiflash_write_buffer(unsigned id, EE_UINT32 addr,
     const void *data, EE_UREG len);
 #endif
 

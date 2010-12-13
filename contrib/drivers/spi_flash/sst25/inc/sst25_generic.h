@@ -95,14 +95,14 @@
 #ifndef SPI_FLASH_BP_MASK
 #define SPI_FLASH_BP_MASK         (SPI_FLASH_BP0_MASK|SPI_FLASH_BP1_MASK|SPI_FLASH_BP2_MASK|SPI_FLASH_BP3_MASK)
 #endif
-#ifndef flash_spi_write_buffer
-#define flash_spi_write_buffer    sst25_generic_flash_write_buffer
+#ifndef spiflash_write_buffer
+#define spiflash_write_buffer    sst25_generic_flash_write_buffer
 void sst25_generic_flash_write_buffer(unsigned id, EE_UINT32 addr,
     const void *data, EE_UREG len);
 #endif
 
-#define flash_hal_spi_erase_sector(i_d, ad)    flash_spi_short_write(i_d, ((EE_UINT32)(cmd_sector_erase[0]) << 24) | ad, 4) //sizeof(ad)+sizeof(cmd_sector_erase));
-#define flash_hal_spi_erase_block(i_d, ad)     flash_spi_short_write(i_d, ((EE_UINT32)(cmd_block_erase[0]) << 24) | ad, 4) //sizeof(ad)+sizeof(cmd_sector_erase));
+#define flash_hal_spi_erase_sector(i_d, ad)    spiflash_short_write(i_d, ((EE_UINT32)(cmd_sector_erase[0]) << 24) | ad, 4) //sizeof(ad)+sizeof(cmd_sector_erase));
+#define flash_hal_spi_erase_block(i_d, ad)     spiflash_short_write(i_d, ((EE_UINT32)(cmd_block_erase[0]) << 24) | ad, 4) //sizeof(ad)+sizeof(cmd_sector_erase));
 
 #include "spi_flash_generic.h"
 

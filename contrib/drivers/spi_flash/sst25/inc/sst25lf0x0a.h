@@ -51,7 +51,7 @@
 
 #define SPI_FLASH_CMD_AAI          0xAF
 #define SPI_FLASH_BP_MASK         (SPI_FLASH_BP0_MASK|SPI_FLASH_BP1_MASK)
-#define flash_spi_write_buffer    sst25lf0x0a_flash_write_buffer
+#define spiflash_write_buffer    sst25lf0x0a_flash_write_buffer
 
 #include "sst25_generic.h"
 void sst25lf0x0a_flash_write_buffer(unsigned id, EE_UINT32 addr,

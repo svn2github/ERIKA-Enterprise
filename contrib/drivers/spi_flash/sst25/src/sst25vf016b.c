@@ -59,20 +59,20 @@ void sst25vf016b_flash_write_buffer(unsigned id, EE_UINT32 addr,
     if (len < 2)
         return;
     
-    flash_spi_write_enable(id);
-    flash_spi_long_write(id, (SPI_FLASH_CMD_AAI << 8) | ((addr >> 16)&0xFF), 
+    spiflash_write_enable(id);
+    spiflash_long_write(id, (SPI_FLASH_CMD_AAI << 8) | ((addr >> 16)&0xFF), 
                              (addr << 16) | ((EE_UINT32)bdata[0] << 8) | bdata[1], 6);
-    flash_spi_wait_until_ready(id);
+    spiflash_wait_until_ready(id);
     for (k = 2; k <= len-2; k+=2) {
-        flash_spi_short_write(id, (SPI_FLASH_CMD_AAI << 16) | ((EE_UINT32)bdata[k] << 8) | bdata[k+1], 3);
-        flash_spi_wait_until_ready(id);
+        spiflash_short_write(id, (SPI_FLASH_CMD_AAI << 16) | ((EE_UINT32)bdata[k] << 8) | bdata[k+1], 3);
+        spiflash_wait_until_ready(id);
     }
-    flash_spi_write_disable(id);    /* End the AAI sequence */
-    flash_spi_wait_until_ready(id);
+    spiflash_write_disable(id);    /* End the AAI sequence */
+    spiflash_wait_until_ready(id);
     if (k < len) {
-        flash_spi_write_enable(id);
-        flash_spi_long_write(id, SPI_FLASH_CMD_WR_BYTE, ((addr + k) << 8) | bdata[k], 5);
-        flash_spi_wait_until_ready(id);
+        spiflash_write_enable(id);
+        spiflash_long_write(id, SPI_FLASH_CMD_WR_BYTE, ((addr + k) << 8) | bdata[k], 5);
+        spiflash_wait_until_ready(id);
     }
 }
 

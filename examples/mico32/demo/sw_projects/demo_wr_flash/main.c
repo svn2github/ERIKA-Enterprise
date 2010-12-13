@@ -105,8 +105,8 @@ int main(void)
 	const EE_UINT32 *flash_mem = (const EE_UINT32 *)(SPIFLASH_ID.memory_base);
 		                        
 	/* Flash test1 */
-	flash_spi_erase_chip(SPIFLASH_ID.control_base);
-    flash_spi_write_buffer(SPIFLASH_ID.control_base, SPIFLASH_ID.memory_base, buff, TEST1_MAX*4);
+	spiflash_erase_chip(SPIFLASH_ID.control_base);
+    spiflash_write_buffer(SPIFLASH_ID.control_base, SPIFLASH_ID.memory_base, buff, TEST1_MAX*4);
     for(i=0; i<TEST1_MAX; i++)
     {
     	if(flash_mem[i]!=buff[i])
@@ -127,8 +127,8 @@ int main(void)
     err = 0;
     for(i=0; i<TEST2_MAX; i++)
         buff[i] = i;   
-	flash_spi_erase_chip(SPIFLASH_ID.control_base);
-    flash_spi_write_buffer(SPIFLASH_ID.control_base, SPIFLASH_ID.memory_base, buff, TEST2_MAX*4);   
+	spiflash_erase_chip(SPIFLASH_ID.control_base);
+    spiflash_write_buffer(SPIFLASH_ID.control_base, SPIFLASH_ID.memory_base, buff, TEST2_MAX*4);   
     for(i=0; i<TEST2_MAX; i++)
     {
     	if(flash_mem[i]!=buff[i])
@@ -141,7 +141,7 @@ int main(void)
     }
     if(err==0)
     {
-    	flash_spi_erase_sector(SPIFLASH_ID.control_base, 0); // erase 4KB
+    	spiflash_erase_sector(SPIFLASH_ID.control_base, 0); // erase 4KB
     	for(i=0; i<TEST2_MAX; i++)
     	{
     		if(i<1024)
@@ -179,8 +179,8 @@ int main(void)
     err = 0;
     for(i=0; i<TEST3_MAX; i++)
         buff[i] = i;   
-	flash_spi_erase_chip(SPIFLASH_ID.control_base);
-    flash_spi_write_buffer(SPIFLASH_ID.control_base, SPIFLASH_ID.memory_base, buff, TEST3_MAX*4);   
+	spiflash_erase_chip(SPIFLASH_ID.control_base);
+    spiflash_write_buffer(SPIFLASH_ID.control_base, SPIFLASH_ID.memory_base, buff, TEST3_MAX*4);   
     for(i=0; i<TEST3_MAX; i++)
     {
     	if(flash_mem[i]!=buff[i])
@@ -193,7 +193,7 @@ int main(void)
     }
     if(err==0)
     {
-    	flash_spi_erase_block(SPIFLASH_ID.control_base, 0); // erase 4KB
+    	spiflash_erase_block(SPIFLASH_ID.control_base, 0); // erase 4KB
     	for(i=0; i<TEST3_MAX; i++)
     	{
     		if(i<8192)
