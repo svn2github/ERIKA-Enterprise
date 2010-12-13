@@ -86,7 +86,7 @@
 			
 			Name: 				int EE_user_spi_receive_byte(void);\n
 			Action:				This function receives a byte;\n
-			Return:				1 if no errors found, a negative number in case of errors.\n
+			Return:				the received data, or a negative number in case of errors.\n
 			
 			Name: 				int EE_user_spi_send_buffer(const void* vet, int len);\n
 			Action:				This function sends an array of bytes;\n

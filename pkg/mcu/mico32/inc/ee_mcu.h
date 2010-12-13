@@ -45,10 +45,10 @@
 	@date 2010
 */
  
-#include "cpu/mico32/inc/ee_cpu.h" 
-
 #ifndef __INCLUDE_MCUMICO32_MCU_H__
 #define __INCLUDE_MCUMICO32_MCU_H__
+
+#include "cpu/mico32/inc/ee_cpu.h" 
 
 /*************************************************************************
  Time handling
