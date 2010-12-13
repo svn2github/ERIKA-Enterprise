@@ -27,10 +27,10 @@ enum {
 #define EE_TIMER_ERR_UNIMPLEMENTED	10
 
 /* See pic32mx family reference manual. */
-#define EE_TIMER_PRESCALE_1		0
-#define EE_TIMER_PRESCALE_8		1
-#define EE_TIMER_PRESCALE_64		2
-#define EE_TIMER_PRESCALE_256		3
+#define EE_TIMER1_PRESCALE_1		0
+#define EE_TIMER1_PRESCALE_8		1
+#define EE_TIMER1_PRESCALE_64		2
+#define EE_TIMER1_PRESCALE_256		3
 
 #define EE_TIMERx_PRESCALE_1		0
 #define EE_TIMERx_PRESCALE_2		1
