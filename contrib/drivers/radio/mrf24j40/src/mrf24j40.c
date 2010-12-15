@@ -376,7 +376,7 @@ int8_t mrf24j40_init(uint8_t int_setup, uint8_t ch, uint8_t port)
 
 void mrf24j40_disable_carrier_sense()
 {
-	mrf24j40_set_short_add_mem(MRF24J40_BBREG2, bbreg2 & 0x7F);
+	mrf24j40_set_short_add_mem(MRF24J40_BBREG2, 0x80);
 	mrf24j40_set_short_add_mem(MRF24J40_CCAEDTH, 0xFF);
 }
 

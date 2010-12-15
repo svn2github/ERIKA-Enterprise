@@ -14,8 +14,9 @@
 
 #include <hal/uwl_compiler.h>
 
-#define UWL_RADIO_ERR_NONE 		0
-#define UWL_RADIO_ERR_PHY_FAILURE 	1/**< The PHY layer issued a primitive 						      with a failure status. */
+#define UWL_RADIO_ERR_NONE          0
+#define UWL_RADIO_ERR_PHY_FAILURE   1 /**< The PHY layer issued a primitive with a failure status. */
+#define UWL_RADIO_ERR_TX_WAIT       2 /**< Used for tx_status while waiting for end of transmission */
 
 #ifdef USE_CC2420		/* Texas Instruments CC2420 */
 #include <hal/uwl_radio_cc2420.h>

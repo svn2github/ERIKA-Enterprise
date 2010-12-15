@@ -58,17 +58,12 @@ EE_mrf24j40_st ee_mrf24j40_st = {
 	.irqf= EE_MRF24J40_IRQ, 
 	.rxcbk= EE_NULL_CBK, 
 	.txcbk= EE_NULL_CBK };
-	
+
 /* MRF24J40 driver interrupt handler */
 void EE_mrf24j40_handler(int level)
 {
-	EE_mrf24j40_gpio_IRQ_pre_stub();
-    MRF24J40_INTERRUPT_NAME();
-	EE_mrf24j40_gpio_IRQ_post_stub();
-
+	MRF24J40_INTERRUPT_NAME();
 	EE_gpio_common_handler(level);
-	
-	return;
 }
 
 /* This function sets MRF24J40 driver operating mode */

@@ -43,8 +43,11 @@ static volatile uint8_t tx_status;
 /*                         Radio MAC Public Functions                         */
 /******************************************************************************/
 static void tx_finished_func(uint8_t status) {
-	tx_status = status;
-//	mrf24j40_enable_carrier_sense();
+	mrf24j40_enable_carrier_sense();
+	if (status)
+		tx_status = UWL_RADIO_ERR_PHY_FAILURE;
+	else
+		tx_status = UWL_RADIO_ERR_NONE;
 }
 
 /**
@@ -59,7 +62,11 @@ static void tx_finished_func(uint8_t status) {
 */
 int8_t uwl_radio_send(uint8_t *buf, uint8_t len)
 {
+	/** Carrier sense is disabled and Energy threshold is set to the maximum value.
+	The registers of the MRF24J40 transceiver are restored
+	to the initial values in tx_finished callback */
 	mrf24j40_disable_carrier_sense();
+	tx_status = UWL_RADIO_ERR_TX_WAIT;
 	uwl_debug_print("   uwl_radio_send(...)");// TODO: REMOVE
 	if (mrf24j40_store_norm_txfifo( buf, len) < 0)
 		return -1; // len is either less than 0 or
@@ -68,22 +75,12 @@ int8_t uwl_radio_send(uint8_t *buf, uint8_t len)
 	mrf24j40_set_tx();
 	uwl_debug_print("      Set TX OK!");// TODO: REMOVE
 	/* Wait until the transmission has finished. */
-
-	/*
-	tx_status = 255;
-	while (tx_status == 255);
-	*/
-	
-	while (mrf24j40_get_status() & 80);
+	while( tx_status == UWL_RADIO_ERR_TX_WAIT )
+		;
 	uwl_debug_print("      Loop 0x08 ok!");// TODO: REMOVE
 	uwl_debug_print("      returning OK!");// TODO: REMOVE
-	
 	/* Everything goes well. */
-	mrf24j40_enable_carrier_sense();
-	if (tx_status)
-		return UWL_RADIO_ERR_PHY_FAILURE;
-	else
-		return UWL_RADIO_ERR_NONE;
+	return tx_status;
 }
 
 
