@@ -126,6 +126,10 @@ extern "C" {
 #include "cpu/esi_risc/inc/ee_internal.h"
 #endif
 
+#ifdef __MSP430__
+#include "cpu/msp430/inc/ee_internal.h"
+#endif
+
   /*
    *
    * MCU

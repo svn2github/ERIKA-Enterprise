@@ -135,6 +135,10 @@ extern "C" {
 #include "cpu/esi_risc/inc/ee_cpu.h"
 #endif
 
+#ifdef __MSP430__
+#include "cpu/msp430/inc/ee_cpu.h"
+#endif
+
   /*
    *
    * MCU
@@ -200,6 +204,10 @@ extern "C" {
 #include "mcu/tc179x/inc/ee_mcu.h"
 #endif
 
+ /* MSP430 */
+#ifdef __MSP430__
+#include "mcu/msp430/inc/ee_mcu.h"
+#endif
 
   /*
    *
@@ -279,6 +287,10 @@ extern "C" {
 
 #ifdef __ESI_RISC__
 #include "board/esi_risc/inc/ee_board.h"
+#endif
+
+#ifdef __UTMOST__
+#include "board/utmost/inc/ee_board.h"
 #endif
 
   /*

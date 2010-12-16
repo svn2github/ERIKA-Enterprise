@@ -309,6 +309,12 @@ ifeq ($(findstring __ESI_RISC__,$(EEALLOPT)) , __ESI_RISC__)
 include $(EEBASE)/pkg/cfg/arch/rules_esi_risc.mk
 endif
 
+##
+## MSP430 - gcc under Linux
+##########################################################################
+ifeq ($(findstring __MSP430__,$(EEALLOPT)), __MSP430__) 
+  include $(EEBASE)/pkg/cfg/arch/rules_msp430.mk
+endif 
 
 
 

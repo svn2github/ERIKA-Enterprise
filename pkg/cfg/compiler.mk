@@ -101,3 +101,7 @@ endif
 ifeq ($(findstring __ESI_RISC__,$(EEALLOPT)) , __ESI_RISC__)
 include $(EEBASE)/pkg/cfg/arch/cc_esi_risc.mk
 endif
+
+ifeq ($(findstring __MSP430__,$(EEALLOPT)) , __MSP430__)
+include $(EEBASE)/pkg/cfg/arch/cc_msp430.mk
+endif

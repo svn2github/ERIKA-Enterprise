@@ -58,3 +58,9 @@ EE_SRCS += pkg/cpu/common/src/ee_hal_structs.c
 EE_SRCS += pkg/cpu/common/src/ee_context.c
 endif
 
+ifeq ($(findstring __MSP430__,$(EEOPT)) , __MSP430__)
+EE_SRCS += pkg/cpu/common/src/ee_hal_structs.c
+EE_SRCS += pkg/cpu/common/src/ee_context.c
+endif
+
+
