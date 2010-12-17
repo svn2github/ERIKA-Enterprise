@@ -23,34 +23,34 @@
 #endif
 
 //// portC
-//#define BIT_CN0 Cbits.RC14
-//#define BIT_CN1 PORTCbits.RC13
+#define BIT_CN0 PORTCbits.RC14
+#define BIT_CN1 PORTCbits.RC13
 //// portB
-//#define BIT_CN2 PORTBbits.RB0
-//#define BIT_CN3 PORTBbits.RB1
-//#define BIT_CN4 PORTBbits.RB2
-//#define BIT_CN5 PORTBbits.RB3
-//#define BIT_CN6 PORTBbits.RB4
-//#define BIT_CN7 PORTBbits.RB5
-//#define BIT_CN8 PORTBbits.RG6
-//#define BIT_CN9 PORTBbits.RG7
+#define BIT_CN2 PORTBbits.RB0
+#define BIT_CN3 PORTBbits.RB1
+#define BIT_CN4 PORTBbits.RB2
+#define BIT_CN5 PORTBbits.RB3
+#define BIT_CN6 PORTBbits.RB4
+#define BIT_CN7 PORTBbits.RB5
 //// portG
-//#define BIT_CN10 PORTGbits.RG8
-//#define BIT_CN11 PORTGbits.RG9
+#define BIT_CN8 PORTGbits.RG6
+#define BIT_CN9 PORTGbits.RG7
+#define BIT_CN10 PORTGbits.RG8
+#define BIT_CN11 PORTGbits.RG9
 //// portB (again)
-//#define BIT_CN12 PORTBbits.RB15
+#define BIT_CN12 PORTBbits.RB15
 //// portD
-//#define BIT_CN13 PORTDbits.RD4
-//#define BIT_CN14 PORTDbits.RD5
-//#define BIT_CN15 PORTDbits.RD6
-//#define BIT_CN16 PORTDbits.RD7
+#define BIT_CN13 PORTDbits.RD4
+#define BIT_CN14 PORTDbits.RD5
+#define BIT_CN15 PORTDbits.RD6
+#define BIT_CN16 PORTDbits.RD7
 //// portF
-//#define BIT_CN17 PORTFbits.RF4
-//#define BIT_CN18 PORTFbits.RF5
+#define BIT_CN17 PORTFbits.RF4
+#define BIT_CN18 PORTFbits.RF5
 //// portD (again)
-//#define BIT_CN19 PORTDbits.RD13
-//#define BIT_CN20 PORTDbits.RD14
-//#define BIT_CN21 PORTDbits.RD15
+#define BIT_CN19 PORTDbits.RD13
+#define BIT_CN20 PORTDbits.RD14
+#define BIT_CN21 PORTDbits.RD15
 //// port used: B C D G F
 
 union EE_cn_status_bits_t {
@@ -152,6 +152,43 @@ __INLINE__ EE_UINT8 EE_CN0_value(void)
 #endif /* EE_CN3 */
 
 #ifdef EE_CN4
+
+#define EE_CN4_enable 		EE_CN4(EE_cn_enable_)
+#define EE_CN4_disable 		EE_CN4(EE_cn_disable_)
+#define EE_CN4_status 		EE_CN4(EE_cn_status_)
+#define EE_CN4_value 		EE_CN4(EE_cn_value_)
+#define EE_CN4_handler 		EE_CN4(EE_cn_handler_)
+#define EE_CN4_PORTBIT		PORTBbits.RB2
+#define EE_CN4_SET_TRIS()			\
+do {						\
+	TRISBSET = _TRISB_TRISB2_MASK;		\
+	/* TODO: set the AD1PCFG if Required!*/	\
+} while (0)
+
+__INLINE__ void EE_CN4_enable(void)
+{
+	#ifdef EE_CN4_PULLUP
+	CNPUESET = _CNPUE_CNPUE4_MASK;
+	#endif
+	EE_cn_status_bits.CN4 = EE_CN4_PORTBIT;
+	CNENSET = _CNEN_CNEN4_MASK;
+}
+__INLINE__ void EE_CN4_disable(void)
+{
+	CNENCLR = _CNEN_CNEN4_MASK;
+	#ifdef EE_CN4_PULLUP
+	CNPUECLR = _CNPUE_CNPUE4_MASK;
+	#endif
+}
+__INLINE__ EE_UINT8 EE_CN4_status(void)
+{
+	return (CNEN & _CNEN_CNEN4_MASK);
+}
+__INLINE__ EE_UINT8 EE_CN4_value(void)
+{
+	return EE_cn_status_bits.CN4;
+}
+
 #else
 #define EE_CN4_SET_TRIS()
 #endif /* EE_CN4 */
