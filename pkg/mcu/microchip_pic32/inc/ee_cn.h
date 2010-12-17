@@ -1,7 +1,16 @@
-/**
- * @author Daniele Alessandrelli
- * @author Christian Nastasi
- */
+/** 
+* @file ee_cn.h
+* @brief Change Notify driver
+* @author Daniele Alessandrelli
+* @author Christian Nastasi
+* @version 0.1
+* @date 2009-04-26
+*
+* This file is the driver for the Change Notify units
+*
+*/
+
+ 
 
 #ifndef __INCLUDE_EE_CN_H__
 #define __INCLUDE_EE_CN_H__

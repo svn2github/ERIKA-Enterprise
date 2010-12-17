@@ -38,7 +38,7 @@ static void (*Rx2IsrFunction)(EE_UINT8 data) = NULL;
 
 
 
-static EE_UINT32 uart_get_peripheral_clock(void){
+__INLINE__ EE_UINT32 __ALWAYS_INLINE__ uart_get_peripheral_clock(void){
 	return EE_get_peripheral_clock();
 } 
 
@@ -760,10 +760,10 @@ EE_INT8 EE_uart_set_rx_callback(EE_UINT8 port, void (*RxFunc)(EE_UINT8 data),
 		Rx1IsrFunction = RxFunc;
 		if (RxFunc) {
 			// TODO: interrupt served
-			/*U1STA &= 0x5FFF;		
+			U1STA &= 0x5FFF;		
 			U1STA |= rxmode & 0xA000;
 			IEC0bits.U1RXIE = 1;		
-			IFS0bits.U1RXIF = 0;*/
+			IFS0bits.U1RXIF = 0;
 		}
 		return EE_UART_NO_ERROR;
 		#else
@@ -776,10 +776,10 @@ EE_INT8 EE_uart_set_rx_callback(EE_UINT8 port, void (*RxFunc)(EE_UINT8 data),
 		Rx2IsrFunction = RxFunc;
 		if (RxFunc) {
 			// TODO: interrupt served
-			/*U2STA &= 0x5FFF;	
+			U2STA &= 0x5FFF;	
 			U2STA |= rxmode & 0xA000;
 			IEC1bits.U2RXIE = 1;		
-			IFS1bits.U2RXIF = 0;*/
+			IFS1bits.U2RXIF = 0;
 		}
 		return EE_UART_NO_ERROR;
 		#else
