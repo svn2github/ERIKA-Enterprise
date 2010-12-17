@@ -139,7 +139,7 @@ __INLINE__ void __ALWAYS_INLINE__  EE_rtc_read_buffer(uint8_t address, uint8_t *
 				EE_I2C_ERR_ADD_ACK if ACK is not received after memory address transmission\n
 				EE_I2C_ERR_DATA_ACK if ACK is not received after data transmission\n
 				EE_I2C_ERR_ARB_LOST if arbitration is lost\n
-				EE_I2C_OK if no errors found (see ee_i2c.h for more info)
+				RTC_NO_ERROR if no errors found (see ee_i2c.h for more info)
 				
 */
 int EE_rtc_write_time(const TTime *ttw);
@@ -151,7 +151,7 @@ int EE_rtc_write_time(const TTime *ttw);
 				EE_I2C_ERR_ADD_ACK if ACK is not received after memory address transmission\n
 				EE_I2C_ERR_DATA_ACK if ACK is not received after data transmission\n
 				EE_I2C_ERR_ARB_LOST if arbitration is lost\n
-				EE_I2C_OK if no errors found (see ee_i2c.h for more info)				
+				RTC_NO_ERROR if no errors found (see ee_i2c.h for more info)				
 */
 int EE_rtc_read_time(TTime *ttr); 
 
