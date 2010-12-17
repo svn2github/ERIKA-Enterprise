@@ -263,13 +263,18 @@ extern "C" {
 #ifdef __EE_FLEX32__
 #include "board/ee_flex32/inc/ee_board.h"
 #endif
-
+ 
+ /* PIC32 */
 #ifdef __IPERMOB_MB_PIC32__
 #include "board/ipermob_mb_pic32/inc/ee_board.h"
 #endif
 
 #ifdef __IPERMOB_DB_PIC32__
 #include "board/ipermob_db_pic32/inc/ee_board.h"
+#endif
+
+#ifdef __IPERMOB_BOARD_V2__
+#include "board/ipermob_board_v2/inc/ee_board.h"
 #endif
 
  /* MICO32 */
