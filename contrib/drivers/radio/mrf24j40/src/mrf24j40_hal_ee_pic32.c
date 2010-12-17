@@ -20,7 +20,9 @@ int8_t	mrf24j40_hal_init(void)
 	MRF24J40_TRIS_RESETn = 0;
 	MRF24J40_TRIS_INT = 1;
 	MRF24J40_TRIS_CSn = 0;
+	#ifdef MRF24J40_TRIS_VREG_EN
 	MRF24J40_TRIS_VREG_EN = 0;
+	#endif	
 	/* Set interrupt registers */
 	mrf24j40_hal_irq_init();
 	mrf24j40_hal_irq_clean();
