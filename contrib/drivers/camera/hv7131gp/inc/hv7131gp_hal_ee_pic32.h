@@ -37,9 +37,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "hv7131gp_hal_ee_board_single_128k.h"
 
+#elif defined __USE_IPERMOB_BOARD_V2__
+
+#include "board/ipermob_board_v2/inc/ee_hv7131gp_camera_board.h"
+
 #else	//Standard ELCO_BOARD
 
-#include "hv7131gp_hal_ee_board_std_elco.h"
+#include "board/ipermob_db_pic32/inc/ee_hv7131gp_camera_board.h"
 
 #endif
 
