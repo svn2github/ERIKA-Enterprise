@@ -9,32 +9,33 @@
 #define IPERMOB_BOARD_V2_VERSION 0
 #endif
 
+
 #if IPERMOB_BOARD_V2_VERSION == 0
 
 #if defined __USE_LEDS__ 
 __INLINE__ void __ALWAYS_INLINE__ EE_leds_init(void)
 {
-	TRISCCLR = 0x06;
-	LATCCLR = 0X06;
+	TRISCCLR = 0x0C;
+	LATCCLR = 0X04;
+	LATCSET = 0X08;
 }
-
 
 
 #define IPERMOB_BOARD_V2_CAT3(x,y,z) x ## y ## z
 
 /*NOTE: Led0 works in a negated logic.*/
-#define EE_led_0_on	(LATCCLR = 0x04)
-#define EE_led_1_on	(LATCSET = 0x02)
+#define EE_led_0_on	(LATCCLR = 0x08)
+#define EE_led_1_on	(LATCSET = 0x04) 
 #define EE_led_on(n)	IPERMOB_BOARD_V2_CAT3(EE_led_,n,_on)
 
 /*NOTE: Led0 works in a negated logic.*/
-#define EE_led_0_off	(LATCSET = 0x04)
-#define EE_led_1_off	(LATCCLR = 0x02)
+#define EE_led_0_off	(LATCSET = 0x08)
+#define EE_led_1_off	(LATCCLR = 0x04)
 #define EE_led_off(n)	IPERMOB_BOARD_V2_CAT3(EE_led_,n,_off)
 
 /*NOTE: Led0 works in a negated logic.*/
-#define EE_led_0_toggle		(LATEINV = 0x04)
-#define EE_led_1_toggle		(LATEINV = 0x02)
+#define EE_led_0_toggle		(LATCINV = 0x08) 
+#define EE_led_1_toggle		(LATCINV = 0x04)
 #define EE_led_toggle(n)	IPERMOB_BOARD_V2_CAT3(EE_led_,n,_toggle)
 
 __INLINE__ void __ALWAYS_INLINE__ EE_leds_on(void) 
