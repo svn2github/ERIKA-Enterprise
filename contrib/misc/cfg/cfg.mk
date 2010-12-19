@@ -40,7 +40,7 @@
 
 # Author:  2010,  Bernardo  Dal Seno
 
-## Check the Console library selection
+## Check the library selection
 ifeq ($(findstring __LIB_MISC_NUM2STR__,$(LIB_OPT)),__LIB_MISC_NUM2STR__)
 
 ##
@@ -49,6 +49,9 @@ ifeq ($(findstring __LIB_MISC_NUM2STR__,$(LIB_OPT)),__LIB_MISC_NUM2STR__)
 
 EE_SRCS += contrib/misc/src/num2str.c
 
+endif # __LIB_MISC_NUM2STR__
+
+ifneq ($(findstring __LIB_MISC_NUM2STR__,$(LIB_OPT))$(findstring __LIB_MISC__,$(LIB_OPT)),)
 
 ## Add the inc path to the include pathlist
 INCLUDE_PATH += $(EEBASE)/contrib/misc/inc
@@ -62,4 +65,4 @@ ALLINCPATH += -I$(EEBASE)/contrib/misc/inc
 endif
 endif
 
-endif # __LIB_MISC_NUM2STR__
+endif # __LIB_MISC_NUM2STR__ || __LIB_MISC__
