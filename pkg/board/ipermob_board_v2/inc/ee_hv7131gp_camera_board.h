@@ -13,7 +13,6 @@
 #endif
 
 
-
 /**
 * @name Enable pin
 * \brief Settings for D2 pin used like camera enable pin (see HV7131GP documentation)
@@ -81,15 +80,15 @@ do { 										\
 /**
 * @name Horizontal Sync
 *
-* CN15 (RD6). Functions to set, reset, start, stop the horizontal sync interrupt
+* CN2 (RB0). Functions to set, reset, start, stop the horizontal sync interrupt
 *
 * @{ */
 #define HV7131GP_PIN_HSYNC_INIT()	EE_cn_init(7, 3)
-#define HV7131GP_PIN_HSYNC_START()	EE_cn_enable(hv7131gp_cn4)
-#define HV7131GP_PIN_HSYNC_STOP()	EE_cn_disable(hv7131gp_cn4)
+#define HV7131GP_PIN_HSYNC_START()	EE_cn_enable(hv7131gp_cn2)
+#define HV7131GP_PIN_HSYNC_STOP()	EE_cn_disable(hv7131gp_cn2)
 #define HV7131GP_HSYNC_RESET_IF() 	
-#define HV7131GP_HSYNC_INTERRUPT() 	EE_CN_HANDLER(hv7131gp_cn4) 
-#define HV7131GP_HSYNC_VALUE() 		PORTDbits.RD4
+#define HV7131GP_HSYNC_INTERRUPT() 	EE_CN_HANDLER(hv7131gp_cn2) 
+#define HV7131GP_HSYNC_VALUE() 		PORTBbits.RB0
 
 #define HV7131GP_HSYNC_RISING		EE_CN_POLARITY_POS			
 #define HV7131GP_HSYNC_FALLING		EE_CN_POLARITY_NEG	
@@ -110,7 +109,7 @@ do { 										\
 * @{ */
 #define HV7131GP_PIN_VCLK_INIT()					\
 do { 									\
-	TRISEbits.TRISE8 = 0;	/* TODO: understand why with this  */	\
+	TRISEbits.TRISE8 = 1;	/* TODO: understand why with this  */	\
 				/* the VCLK pin must be configured */	\
 				/* as an output			   */	\
 	INTCONbits.INT1EP = 0;	/* Extern Interrupt on negative edge */	\
