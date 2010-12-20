@@ -90,20 +90,19 @@ ISR2(_CHANGE_NOTICE_VECTOR)
 	}
 	#endif /* EE_CN15_DEDICATED */
 
-	#elif (defined EE_CN4)
-	#ifdef EE_CN4_DEDICATED
-	
-	EE_CN4_handler();
+	#elif (defined EE_CN2)
+	#ifdef EE_CN2_DEDICATED
+	EE_CN2_handler();
 	#else
-	if (EE_cn_status_bits.CN4 != EE_CN4_PORTBIT) { 
-		EE_cn_status_bits.CN4 ^= 1;
-		#ifdef EE_CN4_POLARITY
-		if (EE_cn_status_bits.CN4 == EE_CN4_POLARITY) 
+	if (EE_cn_status_bits.CN2 != EE_CN2_PORTBIT) { 
+		EE_cn_status_bits.CN2 ^= 1;
+		#ifdef EE_CN2_POLARITY
+		if (EE_cn_status_bits.CN2 == EE_CN2_POLARITY) 
 		#endif
-			EE_CN4_handler();
+			EE_CN2_handler();
 	}
-	#endif /* EE_CN4_DEDICATED */
-	#endif /* EE_CN4 */
+	#endif /* EE_CN2_DEDICATED */
+	#endif /* EE_CN2 */
 
 
 	IFS1CLR = _IFS1_CNIF_MASK;

@@ -142,6 +142,44 @@ __INLINE__ EE_UINT8 EE_CN0_value(void)
 #endif /* EE_CN1 */
 
 #ifdef EE_CN2
+
+#define EE_CN2_enable 		EE_CN2(EE_cn_enable_)
+#define EE_CN2_disable 		EE_CN2(EE_cn_disable_)
+#define EE_CN2_status 		EE_CN2(EE_cn_status_)
+#define EE_CN2_value 		EE_CN2(EE_cn_value_)
+#define EE_CN2_handler 		EE_CN2(EE_cn_handler_)
+#define EE_CN2_PORTBIT		PORTBbits.RB0
+#define EE_CN2_SET_TRIS()			\
+do {						\
+	TRISBSET = _TRISB_TRISB0_MASK;		\
+	AD1PCFGSET = _AD1PCFG_PCFG0_MASK;	\
+} while (0)
+
+__INLINE__ void EE_CN2_enable(void)
+{
+	#ifdef EE_CN2_PULLUP
+	CNPUESET = _CNPUE_CNPUE2_MASK;
+	#endif
+	EE_cn_status_bits.CN2 = EE_CN2_PORTBIT;
+	CNENSET = _CNEN_CNEN2_MASK;
+}
+__INLINE__ void EE_CN2_disable(void)
+{
+	CNENCLR = _CNEN_CNEN2_MASK;
+	#ifdef EE_CN2_PULLUP
+	CNPUECLR = _CNPUE_CNPUE2_MASK;
+	#endif
+}
+__INLINE__ EE_UINT8 EE_CN2_status(void)
+{
+	return (CNEN & _CNEN_CNEN2_MASK);
+}
+__INLINE__ EE_UINT8 EE_CN2_value(void)
+{
+	return EE_cn_status_bits.CN2;
+}
+
+
 #else
 #define EE_CN2_SET_TRIS()
 #endif /* EE_CN2 */
@@ -234,6 +272,43 @@ __INLINE__ EE_UINT8 EE_CN4_value(void)
 #endif /* EE_CN12 */
 
 #ifdef EE_CN13
+
+#define EE_CN13_enable 		EE_CN13(EE_cn_enable_)
+#define EE_CN13_disable 	EE_CN13(EE_cn_disable_)
+#define EE_CN13_status 		EE_CN13(EE_cn_status_)
+#define EE_CN13_value 		EE_CN13(EE_cn_value_)
+#define EE_CN13_handler 	EE_CN13(EE_cn_handler_)
+#define EE_CN13_PORTBIT		PORTDbits.RD4
+#define EE_CN13_SET_TRIS()			\
+do {						\
+	TRISDSET = _TRISD_TRISD4_MASK;		\
+	/* TODO: set the AD1PCFG if Required!*/	\
+} while (0)
+
+__INLINE__ void EE_CN13_enable(void)
+{
+	#ifdef EE_CN13_PULLUP 
+	CNPUESET = _CNPUE_CNPUE13_MASK;
+	#endif
+
+	EE_cn_status_bits.CN13 = EE_CN13_PORTBIT;
+	CNENSET = _CNEN_CNEN13_MASK;
+}
+__INLINE__ void EE_CN13_disable(void)
+{
+	CNENCLR = _CNEN_CNEN13_MASK;
+	#ifdef EE_CN13_PULLUP
+	CNPUECLR = _CNPUE_CNPUE13_MASK;
+	#endif
+}
+__INLINE__ EE_UINT8 EE_CN13_status(void)
+{
+	return (CNEN & _CNEN_CNEN13_MASK);
+}
+__INLINE__ EE_UINT8 EE_CN13_value(void)
+{
+	return EE_cn_status_bits.CN13;
+}
 #else
 #define EE_CN13_SET_TRIS()
 #endif /* EE_CN13 */
