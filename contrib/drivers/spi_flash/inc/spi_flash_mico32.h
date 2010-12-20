@@ -49,6 +49,7 @@
 #ifndef SPI_FLASH_MICO32_H
 #define SPI_FLASH_MICO32_H
 
+#include <ee.h>
 /* Platform configuration */
 #include <system_conf.h>
 #include <MicoSPIFlash.h>

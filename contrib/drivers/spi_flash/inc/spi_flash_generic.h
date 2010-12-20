@@ -155,9 +155,9 @@ __INLINE__ void __ALWAYS_INLINE__ spiflash_erase_chip(unsigned id)
  */
 __INLINE__ void __ALWAYS_INLINE__ spiflash_erase_sector(unsigned id, EE_UINT32 addr)
 {
-    const EE_UINT8 cmd_sector_erase[] = { SPI_FLASH_CMD_4K_ERASE};  /* Sector-Erase */
     spiflash_write_enable(id);
-    flash_hal_spi_erase_sector(id, addr);
+    spiflash_short_write(id,
+        ((EE_UINT32)(SPI_FLASH_CMD_SECTOR_ERASE) << 24) | addr, 4);
     spiflash_wait_until_ready(id);
 }
 
@@ -166,12 +166,28 @@ __INLINE__ void __ALWAYS_INLINE__ spiflash_erase_sector(unsigned id, EE_UINT32 a
  */
 __INLINE__ void __ALWAYS_INLINE__ spiflash_erase_block(unsigned id, EE_UINT32 addr)
 {
-    const EE_UINT8 cmd_block_erase[] = { SPI_FLASH_CMD_32K_ERASE }; /* Block-Erase */
     spiflash_write_enable(id);
-    flash_hal_spi_erase_block(id, addr);
+    spiflash_short_write(id,
+        ((EE_UINT32)(SPI_FLASH_CMD_BLOCK_ERASE) << 24) | addr, 4);
     spiflash_wait_until_ready(id);
 }
 
+
+/**
+ * @brief Erase a sector-aligned segment.
+ *
+ * This function erases a Flash segment by erasing a sequence of
+ * blocks and/or sectors (the fastest combination is selected).  The segment
+ * must be aligned to sector bounderies.
+ * @param id    Used to identify the Flash SPI port; architecture-dependent.
+ * @param addr  Address of the first byte of the segment.  It must be aligned to
+ * a sector (SPI_FLASH_SECTOR_SIZE bytes).
+ * @param len   Length of the segment.  It must be a multiple of
+ * SPI_FLASH_SECTOR_SIZE.
+ */
+void spiflash_erase(unsigned id, EE_UINT32 addr, EE_UINT32 len);
+
+    
 #ifndef spiflash_write_buffer
 #error "SPI-Flash error: spiflash_write_buffer not defined!"
 #else

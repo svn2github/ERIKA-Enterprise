@@ -39,73 +39,29 @@
  * ###*E*### */
  
 /** 
-* @file     sst25_generic.h
+* @file     spi_flash_generic.h
 * @brief    SPI flash driver. Generic functions.
 * @author   Bernardo Dal Seno
 * @author   Dario Di Stefano
 * @date     2010
 */ 
 
-#ifndef SPI_FLASH_SST25_GENERIC_H
-#define SPI_FLASH_SST25_GENERIC_H
+#include <ee_spi_flash.h>
 
-#define SPI_FLASH_BUSY_MASK       1
-#define SPI_FLASH_WEL_MASK        2
-#define SPI_FLASH_BP0_MASK        4
-#define SPI_FLASH_BP1_MASK        8
-#define SPI_FLASH_BP2_MASK        16
-#define SPI_FLASH_BP3_MASK        32
-#define SPI_FLASH_AAI_MASK        64
-#define SPI_FLASH_BPL_MASK        128
-
-/* Default macros like SST25VF016B */
-#ifndef SPI_FLASH_CMD_WR_BYTE
-#define SPI_FLASH_CMD_WR_BYTE      0x02
-#endif
-#ifndef SPI_FLASH_CMD_AAI
-#define SPI_FLASH_CMD_AAI          0xAD
-#endif
-#ifndef SPI_FLASH_CMD_WRITE_EN
-#define SPI_FLASH_CMD_WRITE_EN     0x06
-#endif
-#ifndef SPI_FLASH_CMD_WRITE_DIS
-#define SPI_FLASH_CMD_WRITE_DIS    0x04
-#endif
-#ifndef SPI_FLASH_CMD_GET_ID
-#define SPI_FLASH_CMD_GET_ID       0x90
-#endif
-#ifndef SPI_FLASH_CMD_EN_WR_SR
-#define SPI_FLASH_CMD_EN_WR_SR     0x50
-#endif
-#ifndef SPI_FLASH_CMD_WR_SR
-#define SPI_FLASH_CMD_WR_SR        0x01
-#endif
-#ifndef SPI_FLASH_CMD_RD_SR
-#define SPI_FLASH_CMD_RD_SR        0x05
-#endif
-#ifndef SPI_FLASH_CMD_CHIP_ERASE
-#define SPI_FLASH_CMD_CHIP_ERASE   0x60
-#endif
-#ifndef SPI_FLASH_CMD_4K_ERASE
-#define SPI_FLASH_CMD_4K_ERASE     0x20
-#endif
-#ifndef SPI_FLASH_CMD_32K_ERASE
-#define SPI_FLASH_CMD_32K_ERASE    0x52
-#endif
-#ifndef SPI_FLASH_BP_MASK
-#define SPI_FLASH_BP_MASK         (SPI_FLASH_BP0_MASK|SPI_FLASH_BP1_MASK|SPI_FLASH_BP2_MASK|SPI_FLASH_BP3_MASK)
-#endif
-#ifndef spiflash_write_buffer
-#define spiflash_write_buffer    sst25_generic_flash_write_buffer
-void sst25_generic_flash_write_buffer(unsigned id, EE_UINT32 addr,
-    const void *data, EE_UREG len);
-#endif
-
-#define SPI_FLASH_SECTOR_SIZE   (4U * 1024U)
-#define SPI_FLASH_BLOCK_SIZE    (32U * 1024U)
-#define SPI_FLASH_CMD_SECTOR_ERASE      SPI_FLASH_CMD_4K_ERASE
-#define SPI_FLASH_CMD_BLOCK_ERASE       SPI_FLASH_CMD_32K_ERASE
-
-#include "spi_flash_generic.h"
-
-#endif /* SPI_FLASH_SST25_GENERIC_H */
+void spiflash_erase(unsigned id, EE_UINT32 addr, EE_UINT32 len)
+{
+	EE_UINT32 lw = 0U;
+	while (lw < len) {
+		EE_UINT32 w;
+		w = len - lw;
+		if (w >= SPI_FLASH_BLOCK_SIZE) {
+			w = SPI_FLASH_BLOCK_SIZE;
+			spiflash_erase_block(id, addr);
+		} else {
+			w = SPI_FLASH_SECTOR_SIZE;
+			spiflash_erase_sector(id, addr);
+		}
+		addr += w;
+		lw += w;
+	}
+}

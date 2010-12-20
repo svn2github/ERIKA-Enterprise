@@ -32,7 +32,7 @@ INCLUDE_PATH += $(EEBASE)/contrib/drivers/spi_flash/sst25/inc
 ## Add each file individually
 EE_SRCS_SPIFLASH +=
 
-## If the file list is not empty, create the console lib
+## If the file list is not empty, create the SPIFLASH lib
 ifneq ($(EE_SRCS_SPIFLASH),)
 
 EE_OBJS_SPIFLASH := $(addprefix $(OBJDIR)/, $(patsubst %.c,%.o,$(patsubst %.S,%.o, $(EE_SRCS_SPIFLASH))))
