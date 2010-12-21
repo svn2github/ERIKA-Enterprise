@@ -106,7 +106,7 @@ int main(void)
 		                        
 	/* Flash test1 */
 	spiflash_erase_chip(SPIFLASH_ID.control_base);
-    spiflash_write_buffer(SPIFLASH_ID.control_base, SPIFLASH_ID.memory_base, buff, TEST1_MAX*4);
+    spiflash_write_buffer(SPIFLASH_ID.control_base, 0, buff, TEST1_MAX*4);
     for(i=0; i<TEST1_MAX; i++)
     {
     	if(flash_mem[i]!=buff[i])
@@ -128,7 +128,7 @@ int main(void)
     for(i=0; i<TEST2_MAX; i++)
         buff[i] = i;   
 	spiflash_erase_chip(SPIFLASH_ID.control_base);
-    spiflash_write_buffer(SPIFLASH_ID.control_base, SPIFLASH_ID.memory_base, buff, TEST2_MAX*4);   
+    spiflash_write_buffer(SPIFLASH_ID.control_base, 0, buff, TEST2_MAX*4);   
     for(i=0; i<TEST2_MAX; i++)
     {
     	if(flash_mem[i]!=buff[i])
@@ -180,7 +180,7 @@ int main(void)
     for(i=0; i<TEST3_MAX; i++)
         buff[i] = i;   
 	spiflash_erase_chip(SPIFLASH_ID.control_base);
-    spiflash_write_buffer(SPIFLASH_ID.control_base, SPIFLASH_ID.memory_base, buff, TEST3_MAX*4);   
+    spiflash_write_buffer(SPIFLASH_ID.control_base, 0, buff, TEST3_MAX*4);   
     for(i=0; i<TEST3_MAX; i++)
     {
     	if(flash_mem[i]!=buff[i])
