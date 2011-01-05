@@ -50,11 +50,7 @@ ifndef EE_BIN2HEX
 EE_BIN2HEX:=$(BINDIR_BINUTILS)/$(PIC32_GCCPREFIX)bin2hex
 endif
 
-ifeq ($(findstring __RTD_LINUX__,$(EEOPT)) , __RTD_LINUX__)
-INTERNAL_PKGBASEDIR := -I$(PKGBASE) -I$(APPBASE) -I.
-else
-INTERNAL_PKGBASEDIR := -I"$(shell cygpath -w $(PKGBASE))\\." -I"$(shell cygpath -w $(APPBASE))\\." -I.
-endif
+INTERNAL_PKGBASEDIR := -I$(call native_path,$(PKGBASE)) -I$(call native_path,$(APPBASE)) -I.
 ALLINCPATH += $(INTERNAL_PKGBASEDIR)
 
 ## OPT_CC are the options for compiler invocation
@@ -122,4 +118,19 @@ DEFS_ASM += -D__CONFIG_$(EELIB)__
 DEFS_CC  += -D__CONFIG_$(EELIB)__
 endif
 
-endif
+# Automatic dependency generation
+ifeq ($(call iseeopt, NODEPS), yes)
+DEPENDENCY_OPT = 
+make-depend =
+else # NODEPS
+ifeq ($(call iseeopt, __RTD_CYGWIN__), yes)
+# Dependencies on Windows need path translation
+DEPENDENCY_OPT = -MMD -MF $(call native_path,$(subst .o,.d_tmp,$@)) -MP -MT $@
+make-depend = @sed -e 's_\\\(.\)_/\1_g' -e 's_\<\([a-zA-Z]\):/_/cygdrive/\l\1/_g' < $3_tmp > $3 && rm $3_tmp
+else # __RTD_CYGWIN__
+DEPENDENCY_OPT = -MMD -MF $(subst .o,.d,$@) -MP -MT $@
+make-depend =
+endif # __RTD_CYGWIN__
+endif # NODEPS
+
+endif # __PIC32__

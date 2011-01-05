@@ -112,12 +112,14 @@ $(patsubst %.C, %.o,$(CXX_SRCS)))))\
 $(patsubst %.c, %.o, \
 $(patsubst %.S, %.o, $(patsubst %.s, %.o, $(SRCS))))))
 
+ALLOBJS = $(LIBEEOBJS) $(LIBOBJS) $(OBJS)
+
 # Final executable
 APP_OUTPUT_ELF = $(OUTPUT_DIR)/out.elf
 # Ultimate target: dissassembly
 TARGET= $(OUTPUT_DIR)/dump.txt
 
-OBJDIRS=$(sort $(dir $(OBJS)) $(dir $(LIBEEOBJS)) $(dir $(LIBOBJS)))
+OBJDIRS=$(sort $(dir $(ALLOBJS)))
 
 INCLUDE_PATH += $(PKGBASE) $(APPBASE) $(OUTPUT_DIR) $(PLATFORM_LIB_PATH)/$(PLATFORM_NAME)
 # ALLINCPATH includes the '-I' or '-i' flag, which depends on the compiler
@@ -161,34 +163,18 @@ $(APP_OUTPUT_ELF): $(OBJS) $(PLATFORM_RULES_MAKEFILE) $(LD_FILE) \
 ## Object file creation
 ##
 
-dependencies=$(subst .o,.d,$(LIBEEOBJS) $(OBJS))
+dependencies=$(subst .o,.d,$(ALLOBJS))
 ifneq ($(MAKECMDGOALS),clean)
 -include $(dependencies)
 endif
 
-define make-depend
-	$(EE_DEP)	-MM		\
-			-MF $3		\
-			-MP		\
-			-MT $2		\
-			$(CPU_CONFIG)	\
-			$(CPPFLAGS)	\
-			$(CFLAGS)	\
-			$1
-endef
-
 # Build .o files from .c files.
 $(OBJDIR)/%.o: %.c
-	$(VERBOSE_PRINTCPP) $(EE_CC) -c $(CPU_CONFIG) $(CFLAGS) $(CPPFLAGS) $< -o $@
-	$(VERBOSE_PRINTDEP) $(call make-depend,$<,$@,$(subst .o,.d,$@))
+	$(VERBOSE_PRINTCPP) $(EE_CC) -c $(CPU_CONFIG) $(CFLAGS) $(CPPFLAGS) $(DEPENDENCY_OPT) $< -o $@
 
 # Build .o files from .S files.
 $(OBJDIR)/%.o: %.S
-	$(VERBOSE_PRINTASM) $(EE_ASM) -c $(CPU_CONFIG) $(CFLAGS) $(CPPFLAGS) $(ASFLAGS) $< -o $@
-	$(VERBOSE_PRINTDEP) $(call make-depend,$<,$@,$(subst .o,.d,$@))
-
-# Objects depend on directories, but they are not remade if directories change
-$(OBJS) $(LIBEEOBJS): | make_directories
+	$(VERBOSE_PRINTASM) $(EE_ASM) -c $(CPU_CONFIG) $(CFLAGS) $(CPPFLAGS) $(DEPENDENCY_OPT) $(ASFLAGS) $< -o $@
 
 
 ##
@@ -205,6 +191,10 @@ $(ERIKALIB): $(LIBEEOBJS)
 ##
 
 .PHONY: make_directories
+
+# Objects depend on directories, but they are not remade if directories change
+$(ALLOBJS): | make_directories
+
 make_directories: $(OBJDIRS)
 
 # Directories are (re)created only when some of them don't exist already

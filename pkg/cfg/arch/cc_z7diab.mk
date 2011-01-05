@@ -41,33 +41,29 @@
 ##
 ## DCC for PPC
 ## Author: 2010 Fabio Checconi
+## 2010 Bernardo  Dal Seno
 ##
 
 # BINDIR is the directory of assembler, compiler, linker...
 BINDIR =
 
-# Host gcc and friends
+# Compilers
 EE_LINK ?= dld
 EE_ASM ?= das
 EE_CC ?= dcc
 EE_AR ?= dar
 
-# ALLINCPATH is a colon separated list of directories for source file searching
-# -I = adds directories to the source file search path (for both gcc and gas)
-ALLINCPATH = -I$(APPBASE) -I$(EEBASE)/pkg -I.
+
+OPT_INCLUDE = $(foreach d,$(INCLUDE_PATH),$(addprefix -I,$(call native_path,$d)))
 
 ## OPT_CC are the options for compiler invocation
 # -Xstruct-arg-warning: warn if a structure too big is passed by value
 # -Xkeywords=4: enable the inline keyword
-#
-#OPT_CC = -Xstruct-arg-warning -Xkeywords=4		\
-#	-Xstop-on-warning $(ALLINCPATH) -c $(CFLAGS)
 OPT_CC = -Xlicense-wait -Xstderr-fully-buffered -Xbss-common-off	\
 	-Xeieio -g3 -Xdebug-dwarf1 -XO -Xsavefpr-avoid \
 	-Xsmall-data=8 -Xswitch-table=0 -Xinline=40 -Xsmall-const=0 \
 	-Xenum-is-best -Xunroll=4 -Xunroll-size=5 -Xsize-opt -Xsemi-is-comment \
 	-Xstop-on-warning -Xkeywords=4 $(ALLINCPATH) -c $(CFLAGS)
-
 # -Xforce-prototypes 
 
 ifneq ($(findstring __BIN_DISTR,$(EEALLOPT)), __BIN_DISTR)
@@ -95,3 +91,20 @@ endif
 
 DEFS_ASM = $(addprefix -D, $(EEOPT) )
 DEFS_CC  = $(addprefix -D, $(EEOPT) )
+
+# Automatic dependency generation
+ifeq ($(call iseeopt, NODEPS), yes)
+DEPENDENCY_OPT = 
+make-depend =
+else # NODEPS
+ifeq ($(call iseeopt, __RTD_CYGWIN__), yes)
+# Create dependency for all headers, and add a target for each header
+DEPENDENCY_OPT = -Xmake-dependency=d -Xmake-dependency-target=$@ -Xmake-dependency-savefile=$(call native_path,$(subst .o,.d_tmp,$@))
+# Dependencies on Windows need path translation
+make-depend = @sed -e 's_\\\(.\)_/\1_g' -e 's_\<\([a-zA-Z]\):/_/cygdrive/\l\1/_g' < $3_tmp > $3 && rm $3_tmp
+else # __RTD_CYGWIN__
+# Create dependency for all headers, and add a target for each header
+DEPENDENCY_OPT = -Xmake-dependency=d -Xmake-dependency-target=$@ -Xmake-dependency-savefile=$(subst .o,.d,$@)
+make-depend =
+endif # __RTD_CYGWIN__
+endif # NODEPS

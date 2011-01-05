@@ -41,7 +41,24 @@
 ## Authors: 2001-2002 Paolo Gai, Enrico Bini, Alessandro Colantonio
 ## 2002- Paolo Gai
 ## 2005 Antonio Romano
+## 2010 Bernardo  Dal Seno
 ## CVS: $Id: rules.mk,v 1.33 2008/01/14 10:35:34 pj Exp $
+
+# Function to test EEOPT, useful in conditionals and in or/and expressions
+# Examples:
+#   ifeq ($(call iseeopt,__MULTI__), yes)
+#   ifeq ($(and $(call iseeopt,__MULTI__), $(call iseeopt,__IRQ_STACK_NEEDED__)), yes)
+#   ifneq ($(call iseeopt,__MULTI__), yes)
+iseeopt = $(if $(filter $1,$(EEOPT)),yes,)
+
+# `native_path' is used to convert Unix-style names to native names
+ifeq ($(call iseeopt, __RTD_CYGWIN__), yes)
+# Sed is used to remove trailing backslash and to double internal backslashes
+native_path = "$(shell cygpath -w $1 | sed -e 's/\\$$//' -e 's/\\/\\\\/g')"
+else
+native_path = $1
+endif
+
 
 ifeq ($(findstring app.mk,$(notdir $(wildcard $(APPBASE)/*.mk))), app.mk)
 include $(APPBASE)/app.mk
@@ -49,15 +66,15 @@ endif
 
 
 # Enable libs support
-ifeq ($(findstring __BUILD_ALL_LIBS__,$(EEOPT)) , __BUILD_ALL_LIBS__)
+ifeq ($(call iseeopt,__BUILD_ALL_LIBS__), yes)
 ENABLE_LIBS:=TRUE
 ONLY_LIBS:=TRUE
 endif
-ifeq ($(findstring __BUILD_LIBS__,$(EEOPT)) , __BUILD_LIBS__)
+ifeq ($(call iseeopt,__BUILD_LIBS__), yes)
 ENABLE_LIBS:=TRUE
 ONLY_LIBS:=TRUE
 endif
-ifeq ($(findstring __ADD_LIBS__,$(EEOPT)) , __ADD_LIBS__)
+ifeq ($(call iseeopt,__ADD_LIBS__), yes)
 ENABLE_LIBS:=TRUE
 endif
 

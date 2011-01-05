@@ -59,3 +59,6 @@ LDFLAGS +=-Wl,--gc-sections
 DEFS_GCCASM := $(addprefix -D,$(EEOPT))
 DEFS_CC := $(addprefix -D,$(EEOPT))
 EE_AR = $(AR)
+
+# Dependenciese are always generated, as they cost negligible time
+DEPENDENCY_OPT = -MMD -MP -MT $@
