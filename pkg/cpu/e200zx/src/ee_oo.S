@@ -66,7 +66,7 @@ EE_hal_terminate_savestk:
 	// r6 == & EE_terminate_data[tid]
 	addis	r6, 0, EE_terminate_data@ha
 	add	r6, r6, r4
-	mfspr	r0, SPRG_LR
+	mflr	r0
 	stwu	sp, -96(sp)
 	stw	sp, EE_terminate_data@l(r6)
 	
@@ -75,16 +75,16 @@ EE_hal_terminate_savestk:
 	stmw	r14, 12(sp)
 
 	/* Start the thread body */
-	mtspr	SPRG_LR, r5
+	mtlr	r5
 	blrl
 
 	/* The task terminated with a return: do the usual cleanup */
 	lwz	r0, 8(sp)
-	mtspr	SPRG_LR, r0
+	mtlr	r0
 	addi	sp, sp, 96
 
 	blr
-	
+
 	.size	EE_hal_terminate_savestk, .-EE_hal_terminate_savestk
 
 	.global EE_hal_terminate_task
@@ -102,7 +102,7 @@ EE_hal_terminate_task:
 
 	/* Restore the registers and return */
 	lwz	r0, 8(sp)
-	mtspr	SPRG_LR, r0
+	mtlr	r0
 	lmw	r14, 12(sp)
 
 	addi	sp, sp, 96

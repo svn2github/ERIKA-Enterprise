@@ -92,7 +92,7 @@ EE_std_change_context:
 	beq	end_change_stacks
 
 	/*     save_caller_saved_registers(); */
-	mfspr	r0, SPRG_LR
+	mflr	r0
 	stw	r0, -76(sp)
 	stmw	r14, -72(sp)
 	
@@ -117,7 +117,7 @@ EE_std_change_context:
         /*     restore_caller_saved_registers(); */
 	lmw	r14, -72(sp)
 	lwz	r0, -76(sp)
-	mtspr	SPRG_LR, r0
+	mtlr	r0
 
         /* } */
 end_change_stacks:
@@ -129,11 +129,11 @@ end_change_stacks:
 
 	stwu	sp, -16(sp)
 	/*     tid = EE_std_run_task_code(tid); */
-	mfspr	r0, SPRG_LR
+	mflr	r0
 	stw	r0, 20(sp)
 	bl	EE_std_run_task_code
 	lwz	r0, 20(sp)
-	mtspr	SPRG_LR, r0
+	mtlr	r0
 	addi	sp, sp, 16
 
 	// r3 == tid
