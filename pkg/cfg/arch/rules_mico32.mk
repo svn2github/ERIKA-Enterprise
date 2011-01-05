@@ -218,7 +218,7 @@ endif
 PLATFORM_LIB_MAKEFILE=$(PLATFORM_LIB_PATH)/$(PLATFORM_BLD_CFG)/makefile
 
 $(OUTPUT_DIR)/platform_vars.mk: $(PLATFORM_LIB_MAKEFILE)
-	grep -E '^(PLATFORM_FILE|PLATFORM_FILE_PATH|PLATFORM_PERL_FILE_PATH)[ ]*=' $< > $@
+	$(QUIET) grep -E '^(PLATFORM_FILE|PLATFORM_FILE_PATH|PLATFORM_PERL_FILE_PATH)[ ]*=' $< > $@
 
 REAL_PLATFORM_FILE_PATH=$(PLATFORM_LIB_PATH)/$(PLATFORM_FILE_PATH)
 
@@ -229,4 +229,4 @@ PERLUTILDIR=$(realpath $(PERLSCRIPTDIR)/..)
 # depend on the platform and library configurations)
 .PHONY: meminit
 meminit: $(APP_OUTPUT_ELF) $(TARGET)
-	perl $(PERLSCRIPTDIR)/misc/multimem_deploy.pl $(PERLUTILDIR) $(abspath $(REAL_PLATFORM_FILE_PATH)/$(PLATFORM_FILE)) $< $(DEPLOY_DIR)/ meminit
+	$(QUIET) perl $(PERLSCRIPTDIR)/misc/multimem_deploy.pl $(PERLUTILDIR) $(abspath $(REAL_PLATFORM_FILE_PATH)/$(PLATFORM_FILE)) $< $(DEPLOY_DIR)/ meminit

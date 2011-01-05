@@ -125,7 +125,7 @@ else # NODEPS
 ifeq ($(call iseeopt, __RTD_CYGWIN__), yes)
 # Dependencies on Windows need path translation
 DEPENDENCY_OPT = -MMD -MF $(call native_path,$(subst .o,.d_tmp,$@)) -MP -MT $@
-make-depend = @sed -e 's_\\\(.\)_/\1_g' -e 's_\<\([a-zA-Z]\):/_/cygdrive/\l\1/_g' < $3_tmp > $3 && rm $3_tmp
+make-depend = sed -e 's_\\\(.\)_/\1_g' -e 's_\<\([a-zA-Z]\):/_/cygdrive/\l\1/_g' < $3_tmp > $3 && rm $3_tmp
 else # __RTD_CYGWIN__
 DEPENDENCY_OPT = -MMD -MF $(subst .o,.d,$@) -MP -MT $@
 make-depend =

@@ -159,12 +159,12 @@ pic32.$(PIC32_EXTENSION): $(OBJS) $(LINKDEP) $(LIBDEP)
 #$(OBJDIR)/%.o: %.S ee_pic32regs.inc
 $(OBJDIR)/%.o: %.S
 	$(VERBOSE_PRINTCPP) $(EE_CC) $(COMPUTED_ALLINCPATH) $(DEFS_ASM) $(DEPENDENCY_OPT) -c $(SOURCEFILE) -o $(TARGETFILE)
-	$(call make-depend, $<, $@, $(subst .o,.d,$@))
+	$(QUIET) $(call make-depend, $<, $@, $(subst .o,.d,$@))
 
 # produce the object file from C code in a single step
 $(OBJDIR)/%.o: %.c ee_pic32regs.h
 	$(VERBOSE_PRINTCPP) $(EE_CC) $(COMPUTED_OPT_CC) $(COMPUTED_ALLINCPATH) $(DEFS_CC) $(DEPENDENCY_OPT) -c $(SOURCEFILE) -o $(TARGETFILE)
-	$(call make-depend, $<, $@, $(subst .o,.d,$@))
+	$(QUIET) $(call make-depend, $<, $@, $(subst .o,.d,$@))
 
 
 ##

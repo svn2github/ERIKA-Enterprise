@@ -202,11 +202,11 @@ t32.cmm:
 		"$(PKGBASE)/mcu/freescale_$(PPC_MCU_MODEL)/cfg/$(T32CMM_SRC)" > $@
 
 orti.cmm ortiperf.men: t32.cmm
-	@cp $(PKGBASE)/mcu/freescale_$(PPC_MCU_MODEL)/cfg/orti.cmm .
-	@cp $(PKGBASE)/mcu/freescale_$(PPC_MCU_MODEL)/cfg/ortiperf.men .
+	$(QUIET) cp $(PKGBASE)/mcu/freescale_$(PPC_MCU_MODEL)/cfg/orti.cmm .
+	$(QUIET) cp $(PKGBASE)/mcu/freescale_$(PPC_MCU_MODEL)/cfg/ortiperf.men .
 
 orti.men: $(T32GENMENU)
-	@$(T32GENMENU) system.orti
+	$(QUIET) $(T32GENMENU) system.orti
 
 ##
 ## ELF file creation
@@ -227,11 +227,11 @@ $(TARGET): $(CRT0) $(OBJS) $(LINKDEP) $(LIBDEP)
 $(OBJDIR)/%.o: %.S
 	$(VERBOSE_PRINTPRE)	$(EE_CC)  $(COMPUTED_OPT_INCLUDE) $(DEFS_ASM) $(DEPENDENCY_OPT) -E $(SOURCEFILE) > $(SRCFILE)
 	$(VERBOSE_PRINTASM)	$(EE_ASM) $(COMPUTED_OPT_ASM) -o $(TARGETFILE) $(SRCFILE)
-	$(call make-depend, $<, $@, $(subst .o,.d,$@))
+	$(QUIET) $(call make-depend, $<, $@, $(subst .o,.d,$@))
 
 $(OBJDIR)/%.o: %.c
 	$(VERBOSE_PRINTCC)  $(EE_CC) $(COMPUTED_OPT_CC) $(COMPUTED_OPT_INCLUDE) $(DEFS_CC) $(DEPENDENCY_OPT) -c $(SOURCEFILE) -o $(TARGETFILE)
-	$(call make-depend, $<, $@, $(subst .o,.d,$@))
+	$(QUIET) $(call make-depend, $<, $@, $(subst .o,.d,$@))
 
 
 ##
@@ -240,7 +240,7 @@ $(OBJDIR)/%.o: %.c
 
 loc_diab.dld: $(PKGBASE)/mcu/freescale_$(PPC_MCU_MODEL)/cfg/$(DLD)
 	@printf "LOC\n" ;
-	@cp $(PKGBASE)/mcu/freescale_$(PPC_MCU_MODEL)/cfg/$(DLD) loc_diab.dld
+	$(QUIET) cp $(PKGBASE)/mcu/freescale_$(PPC_MCU_MODEL)/cfg/$(DLD) loc_diab.dld
 
 ##
 ## EE Library
