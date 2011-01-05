@@ -60,5 +60,3 @@ ifeq ($(call iseeopt, __MSP430__), yes)
 EE_SRCS += pkg/cpu/common/src/ee_hal_structs.c
 EE_SRCS += pkg/cpu/common/src/ee_context.c
 endif
-
-
