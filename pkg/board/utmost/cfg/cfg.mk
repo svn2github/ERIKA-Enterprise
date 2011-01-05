@@ -41,7 +41,7 @@
 ## Author: 2010 Christian Grioli
 
 
-ifeq ($(findstring __UTMOST__,$(EEOPT)) , __UTMOST__)
+ifeq ($(call iseeopt, __UTMOST__), yes)
 
 
 endif

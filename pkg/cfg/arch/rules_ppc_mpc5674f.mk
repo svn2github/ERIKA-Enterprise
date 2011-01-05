@@ -42,7 +42,7 @@
 ## 2010 Bernardo  Dal Seno
 
 # Enable verbose output from EE_OPT
-ifeq ($(findstring VERBOSE,$(EEOPT)) , VERBOSE)
+ifeq ($(call iseeopt, VERBOSE), yes)
 VERBOSE = 1
 endif
 
@@ -50,7 +50,7 @@ include $(EEBASE)/pkg/cfg/dir.mk
 include $(PKGBASE)/cfg/verbose.mk
 include $(PKGBASE)/cfg/compiler.mk
 
-ifneq ($(findstring __E200Z7_EXECUTE_FROM_RAM__,$(EEOPT)),)
+ifeq ($(call iseeopt, __E200Z7_EXECUTE_FROM_RAM__), yes)
 DLD := ram.dld
 T32CMM_SRC := ram.cmm
 else
@@ -72,7 +72,7 @@ OPT_LINK += $(OPT_TARGET)
 ifneq ($(ONLY_LIBS), TRUE)
 
 # OPT_LIBS is used to link additional libraries (e.g., for C++ support)
-ifneq ($(findstring __BIN_DISTR,$(EEALLOPT)), __BIN_DISTR)
+ifneq ($(call iseeopt, __BIN_DISTR), yes)
 # the EE library is built in the current directory
 OPT_LIBS +=  -L . -lee
 LIBDEP = libee.a
@@ -89,7 +89,7 @@ LIBDEP += $(ALL_LIBS)
 LIBDEP += $(LDDEPS)
 
 # Add application file to dependencies
-ifneq ($(findstring __BUILD_LIBS__,$(EEOPT)) , __BUILD_LIBS__)
+ifneq ($(call iseeopt, __BUILD_LIBS__), yes)
 TARGET:=z7.elf
 endif
 
@@ -107,7 +107,7 @@ include $(wildcard $(PKGBASE)/cfg/cfg.mk)
 
 # Boot code containing _start should stay outside of the library in
 # case of normal compilation
-ifeq ($(findstring __BIN_DISTR,$(EEOPT)), __BIN_DISTR)
+ifeq ($(call iseeopt, __BIN_DISTR), yes)
 LIBSRCS += $(EE_BOOT_SRCS)
 else
 SRCS += $(EE_BOOT_SRCS)

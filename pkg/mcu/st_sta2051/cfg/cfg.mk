@@ -41,14 +41,14 @@
 ## Author: 2006 Paolo Gai
 ## CVS: $Id: cfg.mk,v 1.3 2006/11/03 11:03:26 pj Exp $
 
-ifeq ($(findstring __ST_STA2051__,$(EEOPT)) , __ST_STA2051__)
+ifeq ($(call iseeopt, __ST_STA2051__), yes)
 
-ifeq ($(findstring __ARM7GNU__,$(EEOPT)) , __ARM7GNU__)
+ifeq ($(call iseeopt, __ARM7GNU__), yes)
 EE_SRCS += pkg/mcu/st_sta2051/src/ee_irqvect.S
 EE_BOOT_SRCS += pkg/mcu/st_sta2051/src/ee_start.S
 endif
 
-ifeq ($(findstring __ARM7ADS__,$(EEOPT)) , __ARM7ADS__)
+ifeq ($(call iseeopt, __ARM7ADS__), yes)
 EE_SRCS += pkg/mcu/st_sta2051/src/ee_irqvect_ads.S
 EE_BOOT_SRCS += pkg/mcu/st_sta2051/src/ee_start_ads.S
 endif

@@ -1,4 +1,4 @@
-ifeq ($(findstring __PIC32__,$(EEALLOPT)), __PIC32__)
+ifeq ($(call iseeopt, __PIC32__), yes)
 
 PIC32_EXTENSION := elf
 PIC32_GCCPREFIX := pic32-
@@ -55,7 +55,7 @@ ALLINCPATH += $(INTERNAL_PKGBASEDIR)
 
 ## OPT_CC are the options for compiler invocation
 OPT_CC = -O2 -Wall -Winline -x c
-ifeq ($(findstring DEBUG,$(EEOPT)) , DEBUG)
+ifeq ($(call iseeopt, DEBUG), yes)
 OPT_CC += -ggdb 
 endif
 # Specific option from the application makefile
@@ -70,7 +70,7 @@ endif
 
 # #OPT_ASM are the options for asm invocation
 OPT_ASM = -Ifrommchp
-#ifeq ($(findstring DEBUG,$(EEOPT)) , DEBUG)
+#ifeq ($(call iseeopt, DEBUG), yes)
 #OPT_ASM += --gstabs
 #endif
 # Specific option from the application makefile
@@ -80,10 +80,10 @@ OPT_ASM += $(ASFLAGS)
 OPT_LINK = 
 # Specific option from the application makefile
 OPT_LINK += $(LDFLAGS)
-ifeq ($(findstring DEBUG,$(EEOPT)) , DEBUG)
+ifeq ($(call iseeopt, DEBUG), yes)
 OPT_LINK += -mdebugger
 endif
-ifeq ($(findstring DEBUG,$(EEOPT)) , DEBUG)
+ifeq ($(call iseeopt, DEBUG), yes)
 # NOTE: if the model is specified, use the specific linker script 
 #       NECESSARY to use more than 32K of ram in the new families (e.g 7xx)
 # NOTE2: if the model is specified, it must be used passed also the specific
@@ -100,7 +100,6 @@ endif
 # Each identifier that is listed in EEOPT is also inserted as a 
 # command-line macro in the compiler...
 
-# MUST be EEOPT, not EEALLOPT!!!
 #DEFS_ASM = $(addprefix -D, $(EEOPT) )
 #DEFS_CC  = $(addprefix -D, $(EEOPT) )
 # NOTE: the pic32 processors include files define the DEBUG symbol as register
@@ -111,7 +110,7 @@ endif
 DEFS_ASM = $(addprefix -D, $(patsubst DEBUG, EE_DEBUG, $(EEOPT)))
 DEFS_CC  = $(addprefix -D, $(patsubst DEBUG, EE_DEBUG, $(EEOPT)))
 
-ifeq ($(findstring __BIN_DISTR,$(EEOPT)), __BIN_DISTR) 
+ifeq ($(call iseeopt, __BIN_DISTR), yes) 
 # Note: the defines used in EEOPT to compile the library
 # are already added in the eecfg.h
 DEFS_ASM += -D__CONFIG_$(EELIB)__

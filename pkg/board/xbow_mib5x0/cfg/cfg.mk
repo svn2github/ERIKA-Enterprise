@@ -42,7 +42,7 @@
 ##         2005-2006 Antonio Romano
 ## CVS: $Id: cfg.mk,v 1.2 2007/07/16 14:34:42 romano Exp $
 
-ifeq ($(findstring __XBOW_MIB5X0__,$(EEOPT)) , __XBOW_MIB5X0__)
+ifeq ($(call iseeopt, __XBOW_MIB5X0__), yes)
 EE_SRCS += pkg/board/xbow_mib5x0/src/ee_board.c
 EE_SRCS += pkg/board/xbow_mib5x0/src/ee_led.S
 endif

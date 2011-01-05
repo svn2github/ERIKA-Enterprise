@@ -8,13 +8,13 @@ ifeq ($(findstring __LIB_HV7131GP__,$(LIB_OPT)),__LIB_HV7131GP__)
 ##
 
 EE_SRCS += contrib/drivers/camera/hv7131gp/src/hv7131gp.c
-ifeq ($(findstring __MICROCHIP_DSPIC30__,$(EEOPT)) , __MICROCHIP_DSPIC30__)
+ifeq ($(call iseeopt, __MICROCHIP_DSPIC30__), yes)
 EE_SRCS += contrib/drivers/camera/hv7131gp/src/hv7131gp_hal_ee_dspic.c
 endif
-ifeq ($(findstring __MICROCHIP_PIC32__,$(EEOPT)) , __MICROCHIP_PIC32__)
+ifeq ($(call iseeopt, __MICROCHIP_PIC32__), yes)
 EE_SRCS += contrib/drivers/camera/hv7131gp/src/hv7131gp_hal_ee_pic32.c
 endif
-ifeq ($(findstring __LM32__,$(EEOPT)) , __LM32__)
+ifeq ($(call iseeopt, __LM32__), yes)
 EE_SRCS += contrib/drivers/camera/hv7131gp/src/hv7131gp_hal_ee_mico32.c
 endif
 

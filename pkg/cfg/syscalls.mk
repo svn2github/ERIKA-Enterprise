@@ -57,7 +57,7 @@
 # the dependencies
 
 
-ifeq ($(findstring __PROTECTED__,$(EEOPT)) , __PROTECTED__)
+ifeq ($(call iseeopt, __PROTECTED__), yes)
 # note: I cannot generate ee_libapi.c inside out/syscall because it is
 # not created yet, so the makefile does not put it into VPATH!!!
 EE_SYSCALLS_PREREQUISITES = out/syscalls/ee_libapi.h

@@ -46,7 +46,7 @@
 ## TRICORE_GNU GCC compiler version 3
 ##
 
-ifeq ($(findstring __TRICORE_GNU__,$(EEALLOPT)), __TRICORE_GNU__)
+ifeq ($(call iseeopt, __TRICORE_GNU__), yes)
 
 ifeq ($(PLATFORM), LINUX)
 BINDIR = $(TRICORE1_GCCDIR)/bin
@@ -97,7 +97,7 @@ endif
 
 OPT_CC = -Wall -Winline -finline-functions -std=gnu99 -ggdb -O2
 
-ifeq ($(findstring __TC179x__,$(EEALLOPT)) , __TC179x__)
+ifeq ($(call iseeopt, __TC179x__), yes)
 OPT_CC += -mcpu=$(TRICORE1_MODEL)
 endif
 
@@ -110,14 +110,14 @@ OPT_CC += $(CFLAGS)
 
 OPT_ASM = -std=gnu99 -x assembler-with-cpp -c 
 
-ifeq ($(findstring DEBUG,$(EEOPT)) , DEBUG)
+ifeq ($(call iseeopt, DEBUG), yes)
 OPT_ASM += -Wa,--gdwarf2 
 endif
 
-ifeq ($(findstring __TC13__,$(EEALLOPT)) , __TC13__)
+ifeq ($(call iseeopt, __TC13__), yes)
 OPT_ASM += -mtc13 
 endif
-ifeq ($(findstring __TC131__,$(EEALLOPT)) , __TC131__)
+ifeq ($(call iseeopt, __TC131__), yes)
 OPT_ASM += -mtc131 
 endif
 
@@ -130,9 +130,9 @@ OPT_ASM += $(ASFLAGS)
 OPT_LINK = -Wall 
 
 
-ifneq ($(findstring __TSIM__,$(EEALLOPT)) , __TSIM__)
+ifneq ($(call iseeopt, __TSIM__), yes)
 
-ifeq ($(findstring __TC179x__,$(EEALLOPT)) , __TC179x__)
+ifeq ($(call iseeopt, __TC179x__), yes)
 OPT_LINK += -mcpu=$(TRICORE1_MODEL)
 endif
 
@@ -143,11 +143,11 @@ endif
 # auto-initialization.
 OPT_LINK += -u EE_link_ctors
 
-ifeq ($(findstring __INT__,$(EEALLOPT)) , __INT__)
+ifeq ($(call iseeopt, __INT__), yes)
 OPT_LINK += -u EE_int_vector
 endif
 
-ifeq ($(findstring __TRAP__,$(EEALLOPT)) , __TRAP__)
+ifeq ($(call iseeopt, __TRAP__), yes)
 OPT_LINK += -u EE_trap_vector
 endif
 
@@ -163,7 +163,7 @@ DEFS_ASM = $(addprefix -D, $(EEOPT) )
 DEFS_CC  = $(addprefix -D, $(EEOPT) )
 DEFS_TCC = $(addprefix -D, $(EEOPT) )
 
-ifeq ($(findstring __BIN_DISTR,$(EEOPT)), __BIN_DISTR) 
+ifeq ($(call iseeopt, __BIN_DISTR), yes) 
 # Note: the defines used in EEOPT to compile the library
 # are already added in the eecfg.h
 DEFS_ASM += -D__CONFIG_$(EELIB)__

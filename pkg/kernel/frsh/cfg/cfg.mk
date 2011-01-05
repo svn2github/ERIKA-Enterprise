@@ -41,7 +41,7 @@
 ## Author: 2004 Paolo Gai
 ## CVS: $Id: cfg.mk,v 1.3 2008/07/18 09:53:55 tiberipa Exp $
 
-ifeq ($(findstring __FRSH__,$(EEOPT)) , __FRSH__)
+ifeq ($(call iseeopt, __FRSH__), yes)
 
 INTERNAL_FRSH_PATH := -I"$(shell cygpath -w $(PKGBASE))\\."/kernel/frsh/frsh_include
 ALLINCPATH += $(INTERNAL_FRSH_PATH)
@@ -69,11 +69,11 @@ EE_SRCS += pkg/kernel/frsh/src/ee_thact.c
 EE_SRCS += pkg/kernel/frsh/src/ee_thendin.c
 
 
-ifeq ($(findstring __FRSH_SINGLEIRQ__,$(EEOPT)) , __FRSH_SINGLEIRQ__)
+ifeq ($(call iseeopt, __FRSH_SINGLEIRQ__), yes)
 EE_SRCS += pkg/kernel/frsh/src/ee_frsh_timers.c
 endif
 
-ifeq ($(findstring __FRSH_SYNCHOBJ__,$(EEOPT)) , __FRSH_SYNCHOBJ__)
+ifeq ($(call iseeopt, __FRSH_SYNCHOBJ__), yes)
 EE_SRCS +=pkg/kernel/frsh/src/ee_frsh_syncobj_signal.c
 EE_SRCS +=pkg/kernel/frsh/src/ee_frsh_syncobj_wait.c
 EE_SRCS +=pkg/kernel/frsh/src/ee_frsh_syncobj_waittimeout.c

@@ -1,12 +1,12 @@
-ifeq ($(findstring __IPERMOB_BOARD_V2__,$(EEOPT)) , __IPERMOB_BOARD_V2__)
+ifeq ($(call iseeopt, __IPERMOB_BOARD_V2__), yes)
 
-#ifeq ($(findstring __USE_BUTTONS__,$(EEOPT)) , __USE_BUTTONS__)
+#ifeq ($(call iseeopt, __USE_BUTTONS__), yes)
 #EE_SRCS += pkg/board/ipermob_mb_pic32/src/ee_board.c
 #endif
 
 
 
-#ifeq ($(findstring USE_HV7131GP,$(EEOPT)) , USE_HV7131GP)
+#ifeq ($(call iseeopt, USE_HV7131GP), yes)
 #EE_SRCS += pkg/board/ipermob_mb_pic32/src/ee_ethernet_enc28j60.c
 #endif
 

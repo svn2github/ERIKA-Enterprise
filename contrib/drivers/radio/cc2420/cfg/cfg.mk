@@ -14,7 +14,7 @@ EE_SRCS += contrib/drivers/radio/cc2420/src/cc2420_hal_ee.c
 
 
 ## Potentially, check the architecture
-#ifeq ($(findstring __PIC30__,$(EEOPT)) , __PIC30__)
+#ifeq ($(call iseeopt, __PIC30__), yes)
 ## Add each file individually
 #EE_SRCS += contrib/console/src/hal/pic30.c
 #endif

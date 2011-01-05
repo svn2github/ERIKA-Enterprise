@@ -41,7 +41,7 @@
 ## 
 ##
 
-ifeq ($(findstring __TC179x__,$(EEOPT)), __TC179x__)
+ifeq ($(call iseeopt, __TC179x__), yes)
 
 EE_SRCS += pkg/mcu/tc179x/src/ee_wdt.c   \
            pkg/mcu/tc179x/src/ee_stm.c   \

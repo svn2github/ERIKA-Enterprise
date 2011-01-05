@@ -42,21 +42,21 @@
 ## CVS: $Id: cfg.mk,v 1.3 2006/11/03 11:04:04 pj Exp $
 
 
-ifeq ($(findstring __AVR5__,$(EEOPT)) , __AVR5__)
+ifeq ($(call iseeopt, __AVR5__), yes)
 EE_SRCS += pkg/cpu/avr5/src/ee_hal.S 
 
 
 
-ifeq ($(findstring __OSEKOS_BCC1__,$(EEOPT)) , __OSEKOS_BCC1__)
+ifeq ($(call iseeopt, __OSEKOS_BCC1__), yes)
 CPU_OSEK=YES
 endif
-ifeq ($(findstring __OSEKOS_BCC2__,$(EEOPT)) , __OSEKOS_BCC2__)
+ifeq ($(call iseeopt, __OSEKOS_BCC2__), yes)
 CPU_OSEK=YES
 endif
-ifeq ($(findstring __OSEKOS_ECC1__,$(EEOPT)) , __OSEKOS_ECC1__)
+ifeq ($(call iseeopt, __OSEKOS_ECC1__), yes)
 CPU_OSEK=YES
 endif
-ifeq ($(findstring __OSEKOS_ECC2__,$(EEOPT)) , __OSEKOS_ECC2__)
+ifeq ($(call iseeopt, __OSEKOS_ECC2__), yes)
 CPU_OSEK=YES
 endif
 

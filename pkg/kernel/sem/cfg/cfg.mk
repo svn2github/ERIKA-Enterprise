@@ -41,9 +41,9 @@
 ## Author: 2004 Paolo Gai
 ## CVS: $Id: cfg.mk,v 1.3 2006/11/03 11:06:09 pj Exp $
 
-ifeq ($(findstring __SEM__,$(EEOPT)) , __SEM__)
+ifeq ($(call iseeopt, __SEM__), yes)
 
-ifeq ($(findstring __MONO__,$(EEOPT)) , __MONO__)
+ifeq ($(call iseeopt, __MONO__), yes)
 $(error Semaphores and Mono Stack HAL are not compatible!!!)
 endif
 

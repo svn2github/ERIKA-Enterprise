@@ -44,21 +44,21 @@
 #
 # GCC compiler for ARM
 #
-ifeq ($(findstring __ARM7GNU__,$(EEOPT)) , __ARM7GNU__)
+ifeq ($(call iseeopt, __ARM7GNU__), yes)
 EE_SRCS += pkg/cpu/arm7tdmi/src/ee_hal.S
 EE_SRCS += pkg/cpu/arm7tdmi/src/ee_hal_thumb.S
 EE_SRCS += pkg/cpu/arm7tdmi/src/ee_hal_c.c
 
-ifeq ($(findstring __OO_BCC1__,$(EEOPT)) , __OO_BCC1__)
+ifeq ($(call iseeopt, __OO_BCC1__), yes)
 CPU_OO=YES
 endif
-ifeq ($(findstring __OO_BCC2__,$(EEOPT)) , __OO_BCC2__)
+ifeq ($(call iseeopt, __OO_BCC2__), yes)
 CPU_OO=YES
 endif
-ifeq ($(findstring __OO_ECC1__,$(EEOPT)) , __OO_ECC1__)
+ifeq ($(call iseeopt, __OO_ECC1__), yes)
 CPU_OO=YES
 endif
-ifeq ($(findstring __OO_ECC2__,$(EEOPT)) , __OO_ECC2__)
+ifeq ($(call iseeopt, __OO_ECC2__), yes)
 CPU_OO=YES
 endif
 
@@ -71,22 +71,22 @@ endif
 #
 # ADS compiler for ARM
 #
-ifeq ($(findstring __ARM7ADS__,$(EEOPT)) , __ARM7ADS__)
+ifeq ($(call iseeopt, __ARM7ADS__), yes)
 EE_VPATH += $(EEBASE)
 EE_SRCS += pkg/cpu/arm7tdmi/src/ee_hal_ads.S
 EE_SRCS += pkg/cpu/arm7tdmi/src/ee_hal_thumb_ads.S
 EE_SRCS += pkg/cpu/arm7tdmi/src/ee_hal_c.c
 
-ifeq ($(findstring __OO_BCC1__,$(EEOPT)) , __OO_BCC1__)
+ifeq ($(call iseeopt, __OO_BCC1__), yes)
 CPU_OO=YES
 endif
-ifeq ($(findstring __OO_BCC2__,$(EEOPT)) , __OO_BCC2__)
+ifeq ($(call iseeopt, __OO_BCC2__), yes)
 CPU_OO=YES
 endif
-ifeq ($(findstring __OO_ECC1__,$(EEOPT)) , __OO_ECC1__)
+ifeq ($(call iseeopt, __OO_ECC1__), yes)
 CPU_OO=YES
 endif
-ifeq ($(findstring __OO_ECC2__,$(EEOPT)) , __OO_ECC2__)
+ifeq ($(call iseeopt, __OO_ECC2__), yes)
 CPU_OO=YES
 endif
 

@@ -41,24 +41,24 @@
 ## Author: 2009 Bernardo Dal Seno
 
 # Lattice Mico32
-ifeq ($(findstring __LM32__,$(EEOPT)) , __LM32__)
+ifeq ($(call iseeopt, __LM32__), yes)
 EE_SRCS += pkg/cpu/common/src/ee_hal_structs.c
 EE_SRCS += pkg/cpu/common/src/ee_context.c
 endif
 
-ifeq ($(findstring __PPCE200Z7__,$(EEALLOPT)) , __PPCE200Z7__)
-ifeq ($(findstring __MPC5674F__,$(EEALLOPT)) , __MPC5674F__)
+ifeq ($(call iseeopt, __PPCE200Z7__), yes)
+ifeq ($(call iseeopt, __MPC5674F__), yes)
 EE_SRCS += pkg/cpu/common/src/ee_hal_structs.c
 EE_SRCS += pkg/cpu/common/src/ee_context.c
 endif
 endif
 
-ifeq ($(findstring __ESI_RISC__,$(EEOPT)) , __ESI_RISC__)
+ifeq ($(call iseeopt, __ESI_RISC__), yes)
 EE_SRCS += pkg/cpu/common/src/ee_hal_structs.c
 EE_SRCS += pkg/cpu/common/src/ee_context.c
 endif
 
-ifeq ($(findstring __MSP430__,$(EEOPT)) , __MSP430__)
+ifeq ($(call iseeopt, __MSP430__), yes)
 EE_SRCS += pkg/cpu/common/src/ee_hal_structs.c
 EE_SRCS += pkg/cpu/common/src/ee_context.c
 endif

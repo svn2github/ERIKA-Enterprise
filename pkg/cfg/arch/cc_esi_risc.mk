@@ -43,7 +43,7 @@
 ## EnSilica GCC compiler
 ##
 
-ifeq ($(findstring __ESI_RISC__,$(EEALLOPT)), __ESI_RISC__)
+ifeq ($(call iseeopt, __ESI_RISC__), yes)
 
 ifndef EE_LINK
 EE_LINK:=esirisc-elf-gcc
@@ -80,7 +80,7 @@ GCC_ALLINCPATH := -I"$(shell cygpath -w $(PKGBASE))\\." -I"$(shell cygpath -w $(
 
 ## OPT_CC are the options for compiler invocation
 OPT_CC =
-#ifeq ($(findstring DEBUG,$(EEOPT)) , DEBUG)
+#ifeq ($(call iseeopt, DEBUG), yes)
 OPT_CC += -g
 #endif
 # Specific option from the application makefile
@@ -90,7 +90,7 @@ OPT_CC += $(CFLAGS)
 
 # #OPT_ASM are the options for asm invocation
 OPT_ASM =
-#ifeq ($(findstring DEBUG,$(EEOPT)) , DEBUG)
+#ifeq ($(call iseeopt, DEBUG), yes)
 OPT_ASM += -g
 #endif
 # Specific option from the application makefile
@@ -98,7 +98,7 @@ OPT_ASM += $(ASFLAGS)
 
 ## OPT_LINK represents the options for link invocation
 OPT_LINK =
-#ifeq ($(findstring DEBUG,$(EEOPT)) , DEBUG)
+#ifeq ($(call iseeopt, DEBUG), yes)
 OPT_LINK += -g
 #endif
 # Specific option from the application makefile
@@ -108,7 +108,6 @@ OPT_LINK += $(LDFLAGS)
 # Each identifier that is listed in EEOPT is also inserted as a
 # command-line macro in the compiler...
 
-# MUST be EEOPT, not EEALLOPT!!!
 DEFS_ASM = $(addprefix -D, $(EEOPT) )
 DEFS_GCCASM = $(addprefix -D, $(EEOPT) )
 DEFS_CC  = $(addprefix -D, $(EEOPT) )

@@ -42,7 +42,7 @@
 ## PIC30 GCC compiler version 3.3 dsPIC30, Microchip 1.32
 ##
 
-ifeq ($(findstring __PIC30__,$(EEALLOPT)), __PIC30__)
+ifeq ($(call iseeopt, __PIC30__), yes)
 
 # Select object file format
 # IMPORTANT NOTE:
@@ -64,10 +64,10 @@ BINDIR_CYG := /usr/bin
 
 # If Linux, force recompiled gcc usage
 
-ifeq ($(findstring __RTD_LINUX__,$(EEOPT)), __RTD_LINUX__) 
+ifeq ($(call iseeopt, __RTD_LINUX__), yes) 
 PIC30_USE_EEGCC_COMPILE := Y
 endif
-ifeq ($(findstring __RTD_CYGWIN__,$(EEOPT)), __RTD_CYGWIN__) 
+ifeq ($(call iseeopt, __RTD_CYGWIN__), yes) 
 ifeq ($(wildcard $(PIC30_GCCDIR)/bin/bin),)
 BINDIR_C30   := $(PIC30_GCCDIR)/bin
 else
@@ -79,7 +79,7 @@ endif
 # This is needed on some Cygwin installations, where both TEMP and TMP
 # variables are unset inside ".bashrc".  A reasonable default is chosen
 # after a check for the existence of the directory.
-ifeq ($(findstring __RTD_CYGWIN__,$(EEOPT)), __RTD_CYGWIN__)
+ifeq ($(call iseeopt, __RTD_CYGWIN__), yes)
 ifndef TMP
 ifndef TEMP
 ifneq (ok,$(shell test -d "/tmp" && echo ok ))
@@ -169,7 +169,7 @@ ALLINCPATH += $(INTERNAL_PKGBASEDIR)
 
 ## OPT_CC are the options for arm compiler invocation
 OPT_CC = -O2 -Wall -Winline
-ifeq ($(findstring DEBUG,$(EEOPT)) , DEBUG)
+ifeq ($(call iseeopt, DEBUG), yes)
 OPT_CC += -ggdb
 endif
 # Specific option from the application makefile
@@ -190,7 +190,7 @@ endif
 
 # #OPT_ASM are the options for asm invocation
 OPT_ASM = -Ifrommchp
-#ifeq ($(findstring DEBUG,$(EEOPT)) , DEBUG)
+#ifeq ($(call iseeopt, DEBUG), yes)
 #OPT_ASM += --gstabs
 #endif
 # Specific option from the application makefile
@@ -205,11 +205,10 @@ OPT_LINK += $(LDFLAGS)
 # Each identifier that is listed in EEOPT is also inserted as a 
 # command-line macro in the compiler...
 
-# MUST be EEOPT, not EEALLOPT!!!
 DEFS_ASM = $(addprefix -D, $(EEOPT) )
 DEFS_CC  = $(addprefix -D, $(EEOPT) )
 
-ifeq ($(findstring __BIN_DISTR,$(EEOPT)), __BIN_DISTR) 
+ifeq ($(call iseeopt, __BIN_DISTR), yes) 
 # Note: the defines used in EEOPT to compile the library
 # are already added in the eecfg.h
 DEFS_ASM += -D__CONFIG_$(EELIB)__

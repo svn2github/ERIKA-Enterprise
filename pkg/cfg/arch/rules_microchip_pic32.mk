@@ -1,5 +1,5 @@
 # Enable verbose output from EE_OPT
-ifeq ($(findstring VERBOSE,$(EEOPT)) , VERBOSE)
+ifeq ($(call iseeopt, VERBOSE), yes)
 VERBOSE = 1
 endif
 
@@ -19,7 +19,7 @@ PIC32_H_DIR := $(MCHP_SUPPORT_DIR)/include
 PIC32_LINKER_DIR := $(MCHP_SUPPORT_DIR)/lib/ldscripts
 
 ifneq ($(ONLY_LIBS), TRUE)
-ifneq ($(findstring __BIN_DISTR,$(EEALLOPT)), __BIN_DISTR) 
+ifneq ($(call iseeopt, __BIN_DISTR), yes) 
 OPT_LIBS += -lee -L .
 LIBDEP += libee.a
 else

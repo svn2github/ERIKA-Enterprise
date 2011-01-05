@@ -41,6 +41,6 @@
 ## Author: 2004 Paolo Gai
 ## CVS: $Id: cfg.mk,v 1.2 2006/11/03 11:02:55 pj Exp $
 
-ifeq ($(findstring __UNIBO_MPARM__,$(EEOPT)) , __UNIBO_MPARM__)
+ifeq ($(call iseeopt, __UNIBO_MPARM__), yes)
 EE_SRCS += pkg/board/unibo_mparm/src/ee_board.c
 endif

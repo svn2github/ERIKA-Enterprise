@@ -53,7 +53,7 @@ BINDIRCC = $(ECLIPSEBASE)/../../cygdrive/c/Programmi/AVRGCC\ 3.4.4/avrgcc/bin
 
 
 # OPT_LIBS is used to link additional libraries (e.g., for C++ support)
-ifneq ($(findstring __BIN_DISTR,$(EEALLOPT)), __BIN_DISTR) 
+ifneq ($(call iseeopt, __BIN_DISTR), yes) 
 # the EE library is built in the current directory
 OPT_LIBS += -lee -L . 
 LIBDEP = libee.a
@@ -141,7 +141,7 @@ atmega128.hex:atmega128.elf
 ## ELF file creation
 ##
 
-ifneq ($(findstring __BIN_DISTR ,$(EEALLOPT)), __BIN_DISTR)
+ifneq ($(call iseeopt, __BIN_DISTR), yes)
 
 atmega128.elf: $(OBJS) $(LIBDEP) 
 	@echo LD
@@ -170,7 +170,7 @@ endif
 %.o: %.c
 	$(VERBOSE_PRINTCC)
 	$(EE_CC) $(OPT_CC) $(DEFS_CC) $(SOURCEFILE) -o $(notdir $(TARGETFILE))
-ifeq ($(findstring DEBUG,$(EEOPT)) , DEBUG)
+ifeq ($(call iseeopt, DEBUG), yes)
 	$(VERBOSE_PRINTSRC)
 	$(EE_CC) $(OPT_CC) $(DEFS_CC) $(SOURCEFILE) -S -o $(notdir $(patsubst %.o,%.S,$(TARGETFILE)))
 endif
@@ -180,7 +180,7 @@ endif
 %.to: %.c
 	$(VERBOSE_PRINTTCC)
 	$(EE_TCC) $(OPT_TCC) $(DEFS_TCC) $(SOURCEFILE) -o $(notdir $(TARGETFILE))
-ifeq ($(findstring DEBUG,$(EEOPT)) , DEBUG)
+ifeq ($(call iseeopt, DEBUG), yes)
 	$(VERBOSE_PRINTSRC)
 	$(EE_TCC) $(OPT_TCC) $(DEFS_TCC) $(SOURCEFILE) -S -o $(notdir $(patsubst %.to,%.src,$(TARGETFILE)))
 endif

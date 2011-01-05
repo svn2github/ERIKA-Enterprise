@@ -44,7 +44,7 @@
 
 
 # Enable verbose output from EE_OPT
-ifeq ($(findstring VERBOSE,$(EEOPT)) , VERBOSE)
+ifeq ($(call iseeopt, VERBOSE), yes)
 VERBOSE = 1
 endif
 
@@ -59,7 +59,7 @@ ifneq ($(ONLY_LIBS), TRUE)
 
 
 ## OPT_LIBS is used to link additional libraries (e.g., for C++ support)
-ifneq ($(findstring __BIN_DISTR,$(EEALLOPT)), __BIN_DISTR) 
+ifneq ($(call iseeopt, __BIN_DISTR), yes) 
 # the EE library is built in the current directory
 OPT_LIBS += -lee -L. 
 LIBDEP += libee.a
@@ -79,7 +79,7 @@ LIBDEP += $(ALL_LIBS)
 LIBDEP += $(LDDEPS)
 
 # Add application file to dependencies
-ifneq ($(findstring __BUILD_LIBS__,$(EEOPT)) , __BUILD_LIBS__)
+ifneq ($(call iseeopt, __BUILD_LIBS__), yes)
 TARGET:=avr.lss avr.hex
 endif
 
@@ -100,7 +100,7 @@ include $(PKGBASE)/cfg/cfg.mk
 
 # Boot code containing _start should stay outside of the library in
 # case of normal compilation
-#ifeq ($(findstring __BIN_DISTR,$(EEOPT)), __BIN_DISTR)
+#ifeq ($(call iseeopt, __BIN_DISTR), yes)
 #LIBSRCS += $(EE_BOOT_SRCS)
 #else
 #SRCS += $(EE_BOOT_SRCS)
@@ -198,7 +198,7 @@ $(OBJDIR)/%.o: %.S
 	$(VERBOSE_PRINTPRE) $(EE_CC) $(COMPUTED_ALLINCPATH) $(DEFS_ASM) -E $(SOURCEFILE) > $(patsubst %.o,%.src,$(TARGETFILE))
 	$(VERBOSE_PRINTASM) $(EE_ASM) $(COMPUTED_OPT_ASM) $(patsubst %.o,%.src,$(TARGETFILE)) -o $(TARGETFILE)
 
-ifeq ($(findstring BUILDSRC,$(EEALLOPT)), BUILDSRC)
+ifeq ($(call iseeopt, BUILDSRC), yes)
 $(OBJDIR)/%.o: %.c
 	$(VERBOSE_PRINTCPP) $(EE_CC) $(COMPUTED_OPT_CC) $(COMPUTED_ALLINCPATH) $(DEFS_CC) $(SOURCEFILE) -S -o $(patsubst %.o,%.src,$(TARGETFILE))
 	$(VERBOSE_PRINTASM) $(EE_ASM) $(COMPUTED_OPT_ASM) $(patsubst %.o,%.src,$(TARGETFILE)) -o $(TARGETFILE)
@@ -285,7 +285,7 @@ $(OBJDIR)/.make_directories_flag:
 
 ifndef NODEPS
 ifneq ($(MAKECMDGOALS),clean)
-ifneq ($(findstring NODEPS,$(EEALLOPT)), NODEPS) 
+ifneq ($(call iseeopt, NODEPS), yes) 
 -include deps
 endif
 endif

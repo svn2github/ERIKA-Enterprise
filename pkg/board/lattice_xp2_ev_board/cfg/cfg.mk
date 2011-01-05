@@ -40,9 +40,9 @@
 
 ## Author: 2010,  Bernardo  Dal Seno
 
-ifeq ($(findstring __LATTICE_XP2_EV_BOARD__,$(EEOPT)) , __LATTICE_XP2_EV_BOARD__)
+ifeq ($(call iseeopt, __LATTICE_XP2_EV_BOARD__), yes)
 
-ifeq ($(findstring __USE_LEDS__,$(EEOPT)) , __USE_LEDS__)
+ifeq ($(call iseeopt, __USE_LEDS__), yes)
 EE_SRCS += $(EEBASE)/pkg/board/lattice_xp2_ev_board/src/ee_led.c
 endif 
 

@@ -88,7 +88,7 @@ ARM7TCC="$(BINDIR)/tcc.exe"	# 16-bit thumb C compiler
 # -c  = compile only (do not link)
 # -j  = adds directories to the source file search path
 OPTARM7CC = -O1 -c -j"$(ALLINCPATH)" -j- -apcs /interwork
-ifeq ($(findstring DEBUG,$(EEOPT)) , DEBUG)
+ifeq ($(call iseeopt, DEBUG), yes)
 OPTARM7CC += -g
 endif
 OPTARM7TCC = $(OPTARM7CC)
@@ -97,7 +97,7 @@ OPTARM7TCC = $(OPTARM7CC)
 # -g    = generate debug tables
 # -i    = adds directories to the source file search path
 OPTARM7ASM = -i "$(ALLINCPATH)" -apcs /interwork
-ifeq ($(findstring DEBUG,$(EEOPT)) , DEBUG)
+ifeq ($(call iseeopt, DEBUG), yes)
 OPTARM7ASM += -g
 endif
 
@@ -122,10 +122,10 @@ ALLSYMBOLS = DEBUG MONO MULTI FP_SCHED EDF_SCHED TIME_SUPPORT ALLOW_NESTED_IRQ \
 ## Because ADS does not accept a symbol that has the prefix '__' and
 ## it does not accept FP as a valid symbol, all the scheduler choice
 ## symbols are modified adding the '_SCHED' suffix
-ifeq ($(findstring __FP__,$(EEOPT)) , __FP__)
+ifeq ($(call iseeopt, __FP__), yes)
 TRUESYMBOLS = $(foreach SYM, $(subst __FP__,__FP_SCHED__,$(EEOPT)), $(subst __,,$(SYM)))
 endif
-ifeq ($(findstring __EDF__,$(EEOPT)) , __EDF__)
+ifeq ($(call iseeopt, __EDF__), yes)
 TRUESYMBOLS = $(foreach SYM, $(subst __EDF__,__EDF_SCHED__,$(EEOPT)), $(subst __,,$(SYM)))
 endif
 FALSESYMBOLS = $(foreach SYM, $(ALLSYMBOLS), $(filter-out $(TRUESYMBOLS), $(SYM)))
@@ -146,7 +146,7 @@ OPTARM7ASM += -i "$(shell cygpath -wsa "$(EEBASE)/src/arm7ads")" # for symbols.s
 
 
 # FP
-ifeq ($(findstring __FP__,$(EEOPT)) , __FP__)
+ifeq ($(call iseeopt, __FP__), yes)
 FP_VPATH = $(shell cygpath -wsa "$(EEBASE)/src/fp")
 FP_SRCS = gettime.c irq_act.c irq_sc.c mutex.c \
 	rq_exchg.c rq_inser.c schedule.c thact.c thendin.c thmkrdy.c
@@ -157,7 +157,7 @@ endif
 
 
 # EDF
-ifeq ($(findstring __EDF__,$(EEOPT)) , __EDF__)
+ifeq ($(call iseeopt, __EDF__), yes)
 EDF_VPATH = $(shell cygpath -wsa "$(EEBASE)/src/edf")
 EDF_SRCS = gettime.c irq_act.c irq_sc.c mutex.c \
 	rq_exchg.c rq_inser.c schedule.c thact.c thendin.c thmkrdy.c
@@ -174,14 +174,14 @@ endif
 
 # Libraries
 
-ifeq ($(findstring __CABS__,$(EEOPT)) , __CABS__)
+ifeq ($(call iseeopt, __CABS__), yes)
 LIB_SRCS += cabs.c
 LIB_VPATH += $(shell cygpath -wsa "$(EEBASE)/src/cabs")
 endif
 
-ifeq ($(findstring __SEM__,$(EEOPT)) , __SEM__)
+ifeq ($(call iseeopt, __SEM__), yes)
 
-ifeq ($(findstring __MONO__,$(EEOPT)) , __MONO__)
+ifeq ($(call iseeopt, __MONO__), yes)
 all::
 	$(error Semaphores and Mono Stack HAL are not compatible!!!)
 clean::

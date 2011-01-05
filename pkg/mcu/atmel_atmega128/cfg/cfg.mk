@@ -41,7 +41,7 @@
 ## Author: 2004 Paolo Gai
 ## CVS: $Id: cfg.mk,v 1.4 2007/06/22 13:56:30 romano Exp $
 
-ifeq ($(findstring __ATMEGA128__,$(EEOPT)),__ATMEGA128__)
+ifeq ($(call iseeopt, __ATMEGA128__), yes)
 
 # directory name containing the sources
 EE_VPATH += $(PKGBASE)/mcu/atmel_atmega128/src
@@ -50,14 +50,14 @@ EE_SRCS += ee_ic.c
 EE_SRCS += ee_external_int.S
 EE_SRCS += ee_timer.S
 
-ifeq ($(findstring __USE_UART__,$(EEOPT)) , __USE_UART__)
+ifeq ($(call iseeopt, __USE_UART__), yes)
 EE_SRCS += ee_uart.c
 else
 EE_SRCS += ee_uart_opt.S
 EE_SRCS += ee_uartApi.c
 endif
 
-ifeq ($(findstring __USE_SPI__,$(EEOPT)) , __USE_SPI__)
+ifeq ($(call iseeopt, __USE_SPI__), yes)
 EE_SRCS += ee_spi.c
 endif
 

@@ -38,19 +38,19 @@
 # Boston, MA 02110-1301 USA.
 # ###*E*###
 
-ifeq ($(findstring __EE_MINIFLEX__,$(EEOPT)) , __EE_MINIFLEX__)
+ifeq ($(call iseeopt, __EE_MINIFLEX__), yes)
 
 EE_SRCS += pkg/board/ee_miniflex/src/ee_miniflex.c
 
-ifeq ($(findstring __USE_DEMOBOARD__,$(EEOPT)) , __USE_DEMOBOARD__)
+ifeq ($(call iseeopt, __USE_DEMOBOARD__), yes)
 EE_SRCS += pkg/board/ee_miniflex/src/ee_miniflex_demoboard.c
 
 # check for the ISR routines
-ifeq ($(findstring __USE_BUTTONS__,$(EEOPT)) , __USE_BUTTONS__)
+ifeq ($(call iseeopt, __USE_BUTTONS__), yes)
 OPT_LINK += -u__CNInterrupt
 endif
 
-ifeq ($(findstring __USE_BUZZER__,$(EEOPT)) , __USE_BUZZER__)
+ifeq ($(call iseeopt, __USE_BUZZER__), yes)
 OPT_LINK += -u__T4Interrupt
 endif
 

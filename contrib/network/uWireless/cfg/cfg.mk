@@ -20,21 +20,21 @@ ifeq ($(findstring __LIB_MRF24J40__,$(LIB_OPT)),__LIB_MRF24J40__)
 EE_SRCS += contrib/network/uWireless/src/hal/uwl_radio_mrf24j40.c
 endif
 
-ifneq ($(findstring UWL_HAL_EXTERNAL_TIMER,$(EEOPT)), UWL_HAL_EXTERNAL_TIMER)
-ifeq ($(findstring __PIC30__,$(EEOPT)) , __PIC30__)
+ifneq ($(call iseeopt, UWL_HAL_EXTERNAL_TIMER), yes)
+ifeq ($(call iseeopt, __PIC30__), yes)
 EE_SRCS += contrib/network/uWireless/src/hal/uwl_timer_dspic30.c
 endif
-ifeq ($(findstring __PIC32__,$(EEOPT)) , __PIC32__)
+ifeq ($(call iseeopt, __PIC32__), yes)
 EE_SRCS += contrib/network/uWireless/src/hal/uwl_timer_pic32.c
 endif
-ifeq ($(findstring __LM32__,$(EEOPT)) , __LM32__)
+ifeq ($(call iseeopt, __LM32__), yes)
 EE_SRCS += contrib/network/uWireless/src/hal/uwl_timer_mico32.c
 endif
 endif
 
 EE_SRCS += contrib/network/uWireless/src/phy/uwl_phy.c
 
-ifneq ($(findstring UWL_USE_ONLY_802154_PHY,$(EEOPT)), UWL_USE_ONLY_802154_PHY)
+ifneq ($(call iseeopt, UWL_USE_ONLY_802154_PHY), yes)
 EE_SRCS += contrib/network/uWireless/src/mac/uwl_mac.c
 EE_SRCS += contrib/network/uWireless/src/mac/uwl_mac_mlme.c
 EE_SRCS += contrib/network/uWireless/src/mac/uwl_mac_mcps.c
@@ -42,8 +42,8 @@ EE_SRCS += contrib/network/uWireless/src/mac/uwl_mac_superframe.c
 EE_SRCS += contrib/network/uWireless/src/mac/uwl_mac_gts.c
 endif
 
-ifneq ($(findstring UWL_USE_ONLY_802154_MAC,$(EEOPT)), UWL_USE_ONLY_802154_MAC)
-ifeq ($(findstring UWL_USE_SIMPLE_802154,$(EEOPT)), UWL_USE_SIMPLE_802154)
+ifneq ($(call iseeopt, UWL_USE_ONLY_802154_MAC), yes)
+ifeq ($(call iseeopt, UWL_USE_SIMPLE_802154), yes)
 EE_SRCS += contrib/network/uWireless/src/net/uwl_simple154.c
 endif
 endif
@@ -56,7 +56,7 @@ endif
 
 
 ## Potentially, check the architecture
-#ifeq ($(findstring __PIC30__,$(EEOPT)) , __PIC30__)
+#ifeq ($(call iseeopt, __PIC30__), yes)
 ## Add each file individually
 #EE_SRCS += contrib/console/src/hal/pic30.c
 #endif

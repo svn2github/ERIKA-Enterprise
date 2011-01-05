@@ -47,7 +47,7 @@ include $(PKGBASE)/cfg/verbose.mk
 include $(PKGBASE)/cfg/compiler.mk
 
 # OPT_LIBS is used to link additional libraries (e.g., for C++ support)
-#ifneq ($(findstring __BIN_DISTR,$(EEALLOPT)), __BIN_DISTR) 
+#ifneq ($(call iseeopt, __BIN_DISTR), yes) 
 #OPT_LIBS += -lee -L $(APPBASE)/out
 #else
 #OPT_LIBS += -lee_$(EELIB) -L $(EEBASE)/lib
@@ -69,7 +69,7 @@ include $(wildcard $(PKGBASE)/cfg/cfg.mk)
 
 # Boot code containing _start should stay outside of the library in
 # case of normal compilation
-ifeq ($(findstring __BIN_DISTR,$(EEOPT)), __BIN_DISTR)
+ifeq ($(call iseeopt, __BIN_DISTR), yes)
 LIBSRCS += $(EE_BOOT_SRCS)
 else
 SRCS += $(EE_BOOT_SRCS)

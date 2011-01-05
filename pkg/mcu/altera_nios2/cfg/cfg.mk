@@ -41,9 +41,9 @@
 ## Author: 2004 Paolo Gai
 ## CVS: $Id: cfg.mk,v 1.2 2006/12/06 13:38:18 nino Exp $
 
-ifeq ($(findstring __ALTERA_NIOS2__,$(EEOPT)) , __ALTERA_NIOS2__)
+ifeq ($(call iseeopt, __ALTERA_NIOS2__), yes)
 
-ifeq ($(findstring __FRSH__,$(EEOPT)) , __FRSH__)
+ifeq ($(call iseeopt, __FRSH__), yes)
 # directory name containing the sources
 EE_VPATH += $(PKGBASE)/mcu/altera_nios2/src
 

@@ -9,11 +9,11 @@ ifeq ($(findstring __LIB_ENC28J60__,$(LIB_OPT)),__LIB_ENC28J60__)
 
 EE_SRCS += contrib/drivers/ethernet/enc28j60/src/enc28j60.c
 
-ifeq ($(findstring __LM32__,$(EEOPT)) , __LM32__)
+ifeq ($(call iseeopt, __LM32__), yes)
 EE_SRCS += contrib/drivers/ethernet/enc28j60/src/enc28j60_hal_ee_mico32.c
 endif
 
-ifeq ($(findstring __PIC32__,$(EEOPT)) , __PIC32__)
+ifeq ($(call iseeopt, __PIC32__), yes)
 EE_SRCS += contrib/drivers/ethernet/enc28j60/src/enc28j60_hal_ee_pic32.c
 endif
 

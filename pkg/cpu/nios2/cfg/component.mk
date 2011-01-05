@@ -54,17 +54,17 @@ CFLAGS += -I$(SOPC_KIT_NIOS2)/components/evidence_ee/ee/pkg
 VPATH += $(SOPC_KIT_NIOS2)/components/evidence_ee/
 
 
-ifeq ($(findstring __OO_BCC1__,$(EEOPT)) , __OO_BCC1__)
+ifeq ($(call iseeopt, __OO_BCC1__), yes)
 EE_OO=YES
 endif
-ifeq ($(findstring __OO_BCC2__,$(EEOPT)) , __OO_BCC2__)
+ifeq ($(call iseeopt, __OO_BCC2__), yes)
 EE_OO=YES
 endif
-ifeq ($(findstring __OO_ECC1__,$(EEOPT)) , __OO_ECC1__)
+ifeq ($(call iseeopt, __OO_ECC1__), yes)
 EE_OO=YES
 EE_OO_ECC=YES
 endif
-ifeq ($(findstring __OO_ECC2__,$(EEOPT)) , __OO_ECC2__)
+ifeq ($(call iseeopt, __OO_ECC2__), yes)
 EE_OO=YES
 EE_OO_ECC=YES
 endif
@@ -73,7 +73,7 @@ endif
 # CPU: __NIOS2__
 # ------------------------------------------------------------------------------------
 
-ifeq ($(findstring __NIOS2__,$(EEOPT)) , __NIOS2__)
+ifeq ($(call iseeopt, __NIOS2__), yes)
 
 EE_C_SRCS  += \
 	ee/pkg/cpu/nios2/src/ee_start.c \
@@ -110,19 +110,19 @@ EE_C_SRCS += \
 	ee/pkg/kernel/oo/src/ee_shtdown.c \
 	ee/pkg/kernel/oo/src/ee_startos.c
 
-ifneq ($(findstring __OO_NO_CHAINTASK__,$(EEOPT)) , __OO_NO_CHAINTASK__)
+ifneq ($(call iseeopt, __OO_NO_CHAINTASK__), yes)
 EE_C_SRCS += \
 	ee/pkg/kernel/oo/src/ee_chaintas.c
 endif
 
-ifneq ($(findstring __OO_NO_RESOURCES__,$(EEOPT)) , __OO_NO_RESOURCES__)
+ifneq ($(call iseeopt, __OO_NO_RESOURCES__), yes)
 EE_C_SRCS += \
 	ee/pkg/kernel/oo/src/ee_lockres.c \
 	ee/pkg/kernel/oo/src/ee_ulockres.c
 endif
 
 
-ifneq ($(findstring __OO_NO_ALARMS__,$(EEOPT)) , __OO_NO_ALARMS__)
+ifneq ($(call iseeopt, __OO_NO_ALARMS__), yes)
 EE_C_SRCS += \
 	ee/pkg/kernel/oo/src/ee_alcancel.c \
 	ee/pkg/kernel/oo/src/ee_algetbase.c \
@@ -140,7 +140,7 @@ EE_C_SRCS += \
 	ee/pkg/kernel/oo/src/ee_evwait.c 
 endif
 
-ifeq ($(findstring __BIN_DISTR,$(EEOPT)) , __BIN_DISTR)
+ifeq ($(call iseeopt, __BIN_DISTR), yes)
 EE_C_SRCS += \
 	ee/pkg/kernel/oo/src/ee_disableallinterrupts.c     \
 	ee/pkg/kernel/oo/src/ee_enableallinterrupts.c      \
@@ -153,7 +153,7 @@ EE_C_SRCS += \
 	ee/pkg/kernel/oo/src/ee_gettaskstate.c
 endif
 
-ifeq ($(findstring __OO_SEM__,$(EEOPT)) , __OO_SEM__)
+ifeq ($(call iseeopt, __OO_SEM__), yes)
 EE_C_SRCS += \
 	ee/pkg/kernel/oo/src/ee_sempost.c                  \
 	ee/pkg/kernel/oo/src/ee_semtrywait.c               \
@@ -169,7 +169,7 @@ endif
 # Kernel: __FP__
 # ------------------------------------------------------------------------------------
 
-ifeq ($(findstring __FP__,$(EEOPT)) , __FP__)
+ifeq ($(call iseeopt, __FP__), yes)
 
 EE_C_SRCS  += \
 	ee/pkg/kernel/fp/src/ee_irqsc.c \
@@ -179,7 +179,7 @@ EE_C_SRCS  += \
 	ee/pkg/kernel/fp/src/ee_thact.c \
 	ee/pkg/kernel/fp/src/ee_thendin.c \
 
-  ifneq ($(findstring __FP_NO_MUTEX__,$(EEOPT)) , __FP_NO_MUTEX__)
+  ifneq ($(call iseeopt, __FP_NO_MUTEX__), yes)
   EE_C_SRCS  += ee/pkg/kernel/fp/src/ee_mutex.c
   endif
 
@@ -188,7 +188,7 @@ endif
 # Kernel: __RN__
 # ------------------------------------------------------------------------------------
 
-ifeq ($(findstring __RN__,$(EEOPT)) , __RN__)
+ifeq ($(call iseeopt, __RN__), yes)
 EE_C_SRCS  += \
 	ee/pkg/kernel/rn/src/ee_rn.c \
 	ee/pkg/kernel/rn/src/ee_rnsend.c
@@ -197,7 +197,7 @@ endif
 # Kernel: __ALARMS__
 # ------------------------------------------------------------------------------------
 
-ifeq ($(findstring __ALARMS__,$(EEOPT)) , __ALARMS__)
+ifeq ($(call iseeopt, __ALARMS__), yes)
 EE_C_SRCS  += \
 	ee/pkg/kernel/alarms/src/ee_alcancel.c \
 	ee/pkg/kernel/alarms/src/ee_altick.c \
@@ -210,7 +210,7 @@ endif
 # COM: __CABS__
 # ------------------------------------------------------------------------------------
 
-ifeq ($(findstring __CABS__,$(EEOPT)) , __CABS__)
+ifeq ($(call iseeopt, __CABS__), yes)
 EE_C_SRCS  += \
 	ee/pkg/com/cabs/src/ee_cabs.c
 endif
@@ -218,7 +218,7 @@ endif
 # Test: __ASSERT__
 # ------------------------------------------------------------------------------------
 
-ifeq ($(findstring __ASSERT__,$(EEOPT)) , __ASSERT__)
+ifeq ($(call iseeopt, __ASSERT__), yes)
 EE_C_SRCS  += \
 	ee/pkg/test/assert/src/ee_assert.c
 endif
@@ -228,7 +228,7 @@ endif
 # Kernel: __FRSH__
 # ------------------------------------------------------------------------------------
 
-ifeq ($(findstring __FRSH__,$(EEOPT)) , __FRSH__)
+ifeq ($(call iseeopt, __FRSH__), yes)
 CFLAGS += -I$(SOPC_KIT_NIOS2)/components/evidence_ee/ee/pkg/kernel/frsh/frsh_include
 
 
@@ -255,12 +255,12 @@ EE_C_SRCS += \
 	ee/pkg/kernel/frsh/src/ee_thact.c \
 	ee/pkg/kernel/frsh/src/ee_thendin.c
 
-ifeq ($(findstring __FRSH_SINGLEIRQ__,$(EEOPT)) , __FRSH_SINGLEIRQ__)
+ifeq ($(call iseeopt, __FRSH_SINGLEIRQ__), yes)
 EE_C_SRCS += \
 	ee/pkg/kernel/frsh/src/ee_frsh_timers.c
 endif
 
-ifeq ($(findstring __FRSH_SYNCHOBJ__,$(EEOPT)) , __FRSH_SYNCHOBJ__)
+ifeq ($(call iseeopt, __FRSH_SYNCHOBJ__), yes)
 EE_C_SRCS += \
 	ee/pkg/kernel/frsh/src/ee_frsh_syncobj_signal.c \
 	ee/pkg/kernel/frsh/src/ee_frsh_syncobj_wait.c \
@@ -281,8 +281,8 @@ endif
 
 
 
-ifneq ($(findstring __BIN_DISTR_FULL__,$(EEOPT)) ,  __BIN_DISTR_FULL__)
-ifneq ($(findstring __BIN_DISTR_LIMITED__,$(EEOPT)) ,  __BIN_DISTR_LIMITED__)
+ifneq ($(call iseeopt, __BIN_DISTR_FULL__), yes)
+ifneq ($(call iseeopt, __BIN_DISTR_LIMITED__), yes)
 # This is not a binary distribution, we have to make a library
 C_LIBSRCS += $(EE_C_SRCS)
 ASM_LIBSRCS += $(EE_ASM_SRCS)

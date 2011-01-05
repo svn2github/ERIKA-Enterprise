@@ -41,7 +41,7 @@
 ## Author: 2004 Paolo Gai
 ## CVS: $Id: cfg.mk,v 1.2 2006/11/03 11:06:09 pj Exp $
 
-ifeq ($(findstring __RN__,$(EEOPT)) , __RN__)
+ifeq ($(call iseeopt, __RN__), yes)
 EE_SRCS += pkg/kernel/rn/src/ee_rn.c
 EE_SRCS += pkg/kernel/rn/src/ee_rnsend.c
 endif

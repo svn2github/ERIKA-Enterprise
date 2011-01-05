@@ -41,7 +41,7 @@
 ## Author: 2004 Paolo Gai
 ## CVS: $Id: cfg.mk,v 1.9 2006/12/03 22:04:56 pj Exp $
 
-ifeq ($(findstring __FP__,$(EEOPT)) , __FP__)
+ifeq ($(call iseeopt, __FP__), yes)
 EE_SRCS += pkg/kernel/fp/src/ee_irqsc.c
 EE_SRCS += pkg/kernel/fp/src/ee_rqexchg.c
 EE_SRCS += pkg/kernel/fp/src/ee_rqinsert.c
@@ -49,7 +49,7 @@ EE_SRCS += pkg/kernel/fp/src/ee_schedule.c
 EE_SRCS += pkg/kernel/fp/src/ee_thact.c
 EE_SRCS += pkg/kernel/fp/src/ee_thendin.c
 
-  ifneq ($(findstring __FP_NO_RESOURCE__,$(EEOPT)) , __FP_NO_RESOURCE__)
+  ifneq ($(call iseeopt, __FP_NO_RESOURCE__), yes)
   EE_SRCS += pkg/kernel/fp/src/ee_mutex.c
   endif
 

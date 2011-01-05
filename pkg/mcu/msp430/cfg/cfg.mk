@@ -42,14 +42,14 @@
 # Author: Christian Grioli,2010
  
 
-ifeq ($(findstring __MSP430__,$(EEOPT)) , __MSP430__)
+ifeq ($(call iseeopt, __MSP430__), yes)
 
-ifeq ($(findstring __MSP430_1611__,$(EEOPT)) ,__MSP430_1611__)
+ifeq ($(call iseeopt, __MSP430_1611__), yes)
 CFLAGS+= -mmcu=msp430x1611
 LDFLAGS+= -mmcu=msp430x1611
 endif
 
-ifeq ($(findstring __USE_UART__,$(EEOPT)) , __USE_UART__)
+ifeq ($(call iseeopt, __USE_UART__), yes)
 EE_SRCS += pkg/mcu/msp430/src/ee_uart.c
 endif
 

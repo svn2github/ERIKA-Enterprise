@@ -38,30 +38,30 @@
 # Boston, MA 02110-1301 USA.
 # ###*E*###
 
-ifeq ($(findstring __LM32__,$(EEOPT)) , __LM32__)
+ifeq ($(call iseeopt, __LM32__), yes)
 
 MCU_BUF = NO
 
-ifeq ($(findstring __USE_TIMER__,$(EEOPT)) , __USE_TIMER__)
+ifeq ($(call iseeopt, __USE_TIMER__), yes)
 EE_SRCS += pkg/mcu/mico32/src/ee_timer.c
 endif
 
-ifeq ($(findstring __USE_UART__,$(EEOPT)) , __USE_UART__)
+ifeq ($(call iseeopt, __USE_UART__), yes)
 EE_SRCS += pkg/mcu/mico32/src/ee_uart.c
 MCU_BUF = YES
 endif
 
-ifeq ($(findstring __USE_SPI__,$(EEOPT)) , __USE_SPI__)
+ifeq ($(call iseeopt, __USE_SPI__), yes)
 EE_SRCS += pkg/mcu/mico32/src/ee_spi.c
 MCU_BUF = YES
 endif
 
-ifeq ($(findstring __USE_I2C__,$(EEOPT)) , __USE_I2C__)
+ifeq ($(call iseeopt, __USE_I2C__), yes)
 EE_SRCS += pkg/mcu/mico32/src/ee_i2c.c
 MCU_BUF = YES
 endif
 
-ifeq ($(findstring __USE_GPIO__,$(EEOPT)) , __USE_GPIO__)
+ifeq ($(call iseeopt, __USE_GPIO__), yes)
 EE_SRCS += pkg/mcu/mico32/src/ee_gpio.c
 endif
 

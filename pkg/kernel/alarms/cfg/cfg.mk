@@ -41,7 +41,7 @@
 ## Author: 2004 Paolo Gai
 ## CVS: $Id: cfg.mk,v 1.6 2007/06/01 09:00:21 pj Exp $
 
-ifeq ($(findstring __ALARMS__,$(EEOPT)) , __ALARMS__)
+ifeq ($(call iseeopt, __ALARMS__), yes)
 EE_SRCS += pkg/kernel/alarms/src/ee_alcancel.c
 EE_SRCS += pkg/kernel/alarms/src/ee_altick.c
 EE_SRCS += pkg/kernel/alarms/src/ee_alget.c

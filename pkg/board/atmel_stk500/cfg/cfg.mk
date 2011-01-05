@@ -42,7 +42,7 @@
 ##         2005-2006 Antonio Romano
 ## CVS: $Id: cfg.mk,v 1.4 2007/07/16 14:34:42 romano Exp $
 
-ifeq ($(findstring __ATMEL_STK50X__,$(EEOPT)) , __ATMEL_STK50X__)
+ifeq ($(call iseeopt, __ATMEL_STK50X__), yes)
 EE_SRCS += pkg/board/atmel_stk500/src/ee_board.c
 EE_SRCS += pkg/board/atmel_stk500/src/ee_led.S
 endif

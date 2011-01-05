@@ -42,7 +42,7 @@
 ## CVS: $Id: cfg.mk,v 1.2 2006/11/03 11:05:21 pj Exp $
 
 ############ DATA LINK LAYER ###################
-ifeq ($(findstring __DLC_STANDARD__,$(EEOPT)) , __DLC_STANDARD__)
+ifeq ($(call iseeopt, __DLC_STANDARD__), yes)
 EE_SRCS += pkg/com/dlc/src/canst10.c
 EE_SRCS += pkg/com/dlc/src/can_handler.c
 EE_SRCS += pkg/com/dlc/src/can_driver.c

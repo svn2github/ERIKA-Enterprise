@@ -42,7 +42,7 @@
 ## ARM7ADS ARM ADS compiler
 ##
 
-ifeq ($(findstring __ARM7ADS__,$(EEALLOPT)), __ARM7ADS__)
+ifeq ($(call iseeopt, __ARM7ADS__), yes)
 
 ifeq ($(PLATFORM), LINUX)
 
@@ -95,8 +95,8 @@ endif
 # -c  = compile only (do not link)
 # -j  = adds directories to the source file search path
 OPT_CC = -O2 -c -j"$(ALLINCPATH)" -j- -apcs /interwork
-ifneq ($(findstring __BIN_DISTR,$(EEALLOPT)), __BIN_DISTR)
-ifeq ($(findstring DEBUG,$(EEOPT)) , DEBUG)
+ifneq ($(call iseeopt, __BIN_DISTR), yes)
+ifeq ($(call iseeopt, DEBUG), yes)
 OPT_CC += -g
 endif
 endif
@@ -109,8 +109,8 @@ OPT_TCC = $(OPT_CC)
 # -i    = adds directories to the source file search path
 OPT_ASM = -i "$(ALLINCPATH)" -apcs /interwork
 
-ifneq ($(findstring __BIN_DISTR,$(EEALLOPT)), __BIN_DISTR)
-ifeq ($(findstring DEBUG,$(EEOPT)) , DEBUG)
+ifneq ($(call iseeopt, __BIN_DISTR), yes)
+ifeq ($(call iseeopt, DEBUG), yes)
 OPT_ASM += -g
 endif
 endif
@@ -126,7 +126,7 @@ DEFS_ASM = $(addprefix -D, $(EEOPT) )
 DEFS_CC  = $(addprefix -D, $(EEOPT) )
 DEFS_TCC = $(addprefix -D, $(EEOPT) )
 
-ifeq ($(findstring __BIN_DISTR,$(EEOPT)), __BIN_DISTR) 
+ifeq ($(call iseeopt, __BIN_DISTR), yes) 
 # Note: the defines used in EEOPT to compile the library
 # are already added in the eecfg.h
 DEFS_ASM += -D__CONFIG_$(EELIB)__

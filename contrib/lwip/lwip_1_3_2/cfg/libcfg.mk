@@ -6,7 +6,7 @@ INCLUDE_LWIP = YES
 endif
 
 ## Check if it's selected all libs inclusion
-ifeq ($(findstring __BUILD_ALL_LIBS__,$(EEOPT)) , __BUILD_ALL_LIBS__)
+ifeq ($(call iseeopt, __BUILD_ALL_LIBS__), yes)
 INCLUDE_LWIP = YES
 endif
 
@@ -20,7 +20,7 @@ ifeq ($(INCLUDE_LWIP), YES)
 ##
 
 ## Add the inc path to the include pathlist
-ifeq ($(findstring __RTD_CYGWIN__,$(EEOPT)), __RTD_CYGWIN__) 
+ifeq ($(call iseeopt, __RTD_CYGWIN__), yes) 
 ALLINCPATH += -I"$(shell cygpath -w $(EEBASE)/contrib/lwip/lwip_1_3_2/src/include)"
 ALLINCPATH += -I"$(shell cygpath -w $(EEBASE)/contrib/lwip/lwip_1_3_2/src/include/ipv4)"
 ALLINCPATH += -I"$(shell cygpath -w $(EEBASE)/contrib/lwip/lwip_1_3_2/abstraction/inc)"

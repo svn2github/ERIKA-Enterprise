@@ -41,25 +41,25 @@
 ## Author: 2004 Paolo Gai
 ## CVS: $Id: cfg.mk,v 1.2 2006/12/06 13:38:18 nino Exp $
 
-ifeq ($(findstring __MICROCHIP_DSPIC30__,$(EEOPT)) , __MICROCHIP_DSPIC30__)
+ifeq ($(call iseeopt, __MICROCHIP_DSPIC30__), yes)
 
-ifeq ($(findstring __USE_CAN1__,$(EEOPT)) , __USE_CAN1__)
+ifeq ($(call iseeopt, __USE_CAN1__), yes)
 EE_SRCS += pkg/mcu/microchip_dspic/src/ee_ecan.c
 endif
 
-ifeq ($(findstring __FRSH__,$(EEOPT)) , __FRSH__)
+ifeq ($(call iseeopt, __FRSH__), yes)
 EE_SRCS += pkg/mcu/microchip_dspic/src/ee_pic30frsh.c
 endif
 
-ifeq ($(findstring __USE_UART__,$(EEOPT)) , __USE_UART__)
+ifeq ($(call iseeopt, __USE_UART__), yes)
 EE_SRCS += pkg/mcu/microchip_dspic/src/ee_uart.c
 endif
 
-ifeq ($(findstring __USE_SPI__,$(EEOPT)) , __USE_SPI__)
+ifeq ($(call iseeopt, __USE_SPI__), yes)
 EE_SRCS += pkg/mcu/microchip_dspic/src/ee_spi.c
 endif
 
-ifeq ($(findstring __USE_I2C__,$(EEOPT)) , __USE_I2C__)
+ifeq ($(call iseeopt, __USE_I2C__), yes)
 EE_SRCS += pkg/mcu/microchip_dspic/src/ee_i2c.c
 endif
 

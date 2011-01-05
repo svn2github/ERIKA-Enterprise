@@ -41,6 +41,6 @@
 ## Author: 2004 Paolo Gai
 ## CVS: $Id: cfg.mk,v 1.2 2006/11/03 11:02:55 pj Exp $
 
-ifeq ($(findstring __EVALUATOR7T__,$(EEOPT)) , __EVALUATOR7T__)
+ifeq ($(call iseeopt, __EVALUATOR7T__), yes)
 EE_SRCS += pkg/board/arm_evaluator7t/src/ee_board.c
 endif

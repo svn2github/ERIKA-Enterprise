@@ -6,7 +6,7 @@ INCLUDE_MIWIP2P = YES
 endif
 
 ## Check if it's selected all libs inclusion
-ifeq ($(findstring __BUILD_ALL_LIBS__,$(EEOPT)) , __BUILD_ALL_LIBS__)
+ifeq ($(call iseeopt, __BUILD_ALL_LIBS__), yes)
 INCLUDE_MIWIP2P = YES
 endif
 
@@ -20,7 +20,7 @@ ifeq ($(INCLUDE_MIWIP2P), YES)
 ##
 
 ## Add the inc path to the include pathlist
-ifeq ($(findstring __RTD_CYGWIN__,$(EEOPT)), __RTD_CYGWIN__) 
+ifeq ($(call iseeopt, __RTD_CYGWIN__), yes) 
 ALLINCPATH += -I"$(shell cygpath -w $(EEBASE)/contrib/MiWiP2P/inc)"
 else
 ALLINCPATH += -I$(EEBASE)/contrib/MiWiP2P/inc

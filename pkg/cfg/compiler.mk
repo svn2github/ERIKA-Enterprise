@@ -45,63 +45,63 @@
 ## Compiler related options
 ##
 
-ifeq ($(findstring __AVR5__,$(EEALLOPT)), __AVR5__)
+ifeq ($(call iseeopt, __AVR5__), yes)
 include $(PKGBASE)/cfg/arch/cc_avr5gnu.mk
 endif
 
 
-ifeq ($(findstring __ARM7GNU__,$(EEALLOPT)), __ARM7GNU__)
+ifeq ($(call iseeopt, __ARM7GNU__), yes)
 include $(PKGBASE)/cfg/arch/cc_arm7gnu.mk
 endif
 
-ifeq ($(findstring __ARM7ADS__,$(EEALLOPT)), __ARM7ADS__)
+ifeq ($(call iseeopt, __ARM7ADS__), yes)
 include $(PKGBASE)/cfg/arch/cc_arm7ads.mk
 endif
 
-ifeq ($(findstring __MPC5XX__,$(EEALLOPT)), __MPC5XX__)
+ifeq ($(call iseeopt, __MPC5XX__), yes)
 include $(PKGBASE)/cfg/arch/cc_ppcgnu.mk
 endif
 
-ifeq ($(findstring __MPC5PROTECTED__,$(EEALLOPT)), __MPC5PROTECTED__)
+ifeq ($(call iseeopt, __MPC5PROTECTED__), yes)
 include $(PKGBASE)/cfg/arch/cc_ppcgnu.mk
 endif
 
-ifeq ($(findstring __PPCE200Z7__,$(EEALLOPT)), __PPCE200Z7__)
-ifeq ($(findstring __DIAB__,$(EEALLOPT)), __DIAB__)
+ifeq ($(call iseeopt, __PPCE200Z7__), yes)
+ifeq ($(call iseeopt, __DIAB__), yes)
 include $(PKGBASE)/cfg/arch/cc_z7diab.mk
 endif
 endif
 
-ifeq ($(findstring __PIC30__,$(EEALLOPT)), __PIC30__)
+ifeq ($(call iseeopt, __PIC30__), yes)
 include $(PKGBASE)/cfg/arch/cc_pic30.mk
 endif
 
-ifeq ($(findstring __PIC32__,$(EEALLOPT)), __PIC32__)
+ifeq ($(call iseeopt, __PIC32__), yes)
 include $(PKGBASE)/cfg/arch/cc_pic32.mk
 endif
 
-ifeq ($(findstring __TRICORE1_TASKING__,$(EEALLOPT)), __TRICORE1_TASKING__)
+ifeq ($(call iseeopt, __TRICORE1_TASKING__), yes)
 include $(PKGBASE)/cfg/arch/cc_tricore_tasking.mk
 endif
 
-ifeq ($(findstring __TRICORE_GNU__,$(EEALLOPT)), __TRICORE_GNU__)
+ifeq ($(call iseeopt, __TRICORE_GNU__), yes)
 include $(PKGBASE)/cfg/arch/cc_tricore_gnu.mk
 endif
 
-ifeq ($(findstring __HCS12XS__,$(EEALLOPT)) , __HCS12XS__)
-ifeq ($(findstring __COSMIC__,$(EEALLOPT)), __COSMIC__)
+ifeq ($(call iseeopt, __HCS12XS__), yes)
+ifeq ($(call iseeopt, __COSMIC__), yes)
 include $(PKGBASE)/cfg/arch/cc_s12x_cosmic.mk
 endif
 endif
 
-ifeq ($(findstring __LM32__,$(EEALLOPT)) , __LM32__)
+ifeq ($(call iseeopt, __LM32__), yes)
 include $(EEBASE)/pkg/cfg/arch/cc_mico32.mk
 endif
 
-ifeq ($(findstring __ESI_RISC__,$(EEALLOPT)) , __ESI_RISC__)
+ifeq ($(call iseeopt, __ESI_RISC__), yes)
 include $(EEBASE)/pkg/cfg/arch/cc_esi_risc.mk
 endif
 
-ifeq ($(findstring __MSP430__,$(EEALLOPT)) , __MSP430__)
+ifeq ($(call iseeopt, __MSP430__), yes)
 include $(EEBASE)/pkg/cfg/arch/cc_msp430.mk
 endif

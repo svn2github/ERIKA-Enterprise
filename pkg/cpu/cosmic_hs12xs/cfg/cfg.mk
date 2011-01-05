@@ -41,22 +41,22 @@
 ## Author: 2004 Paolo Gai
 ## CVS: $Id: cfg.mk,v 1.4 2006/11/30 16:58:17 nino Exp $
 
-ifeq ($(findstring __HCS12XS__,$(EEOPT)) , __HCS12XS__)
+ifeq ($(call iseeopt, __HCS12XS__), yes)
 EE_SRCS += pkg/cpu/cosmic_hs12xs/src/ee_hal.S
 EE_SRCS += pkg/cpu/cosmic_hs12xs/src/ee_hal_c.c
 
 #$(info $(EE_SRCS)) 
 
-ifeq ($(findstring __OO_BCC1__,$(EEOPT)) , __OO_BCC1__)
+ifeq ($(call iseeopt, __OO_BCC1__), yes)
 CPU_OO=YES
 endif
-ifeq ($(findstring __OO_BCC2__,$(EEOPT)) , __OO_BCC2__)
+ifeq ($(call iseeopt, __OO_BCC2__), yes)
 CPU_OO=YES
 endif
-ifeq ($(findstring __OO_ECC1__,$(EEOPT)) , __OO_ECC1__)
+ifeq ($(call iseeopt, __OO_ECC1__), yes)
 CPU_OO=YES
 endif
-ifeq ($(findstring __OO_ECC2__,$(EEOPT)) , __OO_ECC2__)
+ifeq ($(call iseeopt, __OO_ECC2__), yes)
 CPU_OO=YES
 endif
 

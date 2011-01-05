@@ -48,8 +48,8 @@
 # To build a real application under Nios II, use the Altera development kit...
 ##################################################################################
 
-ifneq ($(findstring __BIN_DISTR_FULL__,$(EEOPT)) ,  __BIN_DISTR_FULL__)
-ifneq ($(findstring __BIN_DISTR_LIMITED__,$(EEOPT)) ,  __BIN_DISTR_LIMITED__)
+ifneq ($(call iseeopt, __BIN_DISTR_FULL__), yes)
+ifneq ($(call iseeopt, __BIN_DISTR_LIMITED__), yes)
 all:
 	@echo you can use this makefile only for building NIOS2 libraries!!!
 endif
@@ -84,15 +84,15 @@ COMPONENTS_PROCESSOR := $(EE_NIOS2_DIR)/components/altera_nios2
 COMPONENTS_OS := $(EE_NIOS2_DIR)/components/altera_hal \
 		$(EE_NIOS2_DIR)/components/evidence_ee 
 
-ifeq ($(findstring __NIOS2_SPIN_AVALON_MUTEX__,$(EEOPT)) , __NIOS2_SPIN_AVALON_MUTEX__)
+ifeq ($(call iseeopt, __NIOS2_SPIN_AVALON_MUTEX__), yes)
 COMPONENTS += $(EE_SOPC_DIR)/altera_avalon_mutex
 endif
 
-ifeq ($(findstring __NIOS2_SPIN_AVALON_MUTEX_DIRECT__,$(EEOPT)) , __NIOS2_SPIN_AVALON_MUTEX_DIRECT__)
+ifeq ($(call iseeopt, __NIOS2_SPIN_AVALON_MUTEX_DIRECT__), yes)
 COMPONENTS += $(EE_SOPC_DIR)/altera_avalon_mutex
 endif
 
-ifeq ($(findstring __NIOS2_IPIC_PIO__,$(EEOPT)) , __NIOS2_IPIC_PIO__)
+ifeq ($(call iseeopt, __NIOS2_IPIC_PIO__), yes)
 COMPONENTS += $(EE_SOPC_DIR)/altera_avalon_pio
 endif
 

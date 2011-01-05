@@ -44,7 +44,7 @@
 
 ########### FTT NETWORK LAYER ################
 ### FTT MASTER NODE ###
-ifeq ($(findstring __FTT_MASTER__,$(EEOPT)) , __FTT_MASTER__)
+ifeq ($(call iseeopt, __FTT_MASTER__), yes)
 EE_SRCS += pkg/src/com/ftt/master/ART_add.c
 EE_SRCS += pkg/src/com/ftt/master/ART_change.c
 EE_SRCS += pkg/src/com/ftt/master/ART_check.c
@@ -69,7 +69,7 @@ EE_SRCS += pkg/src/com/ftt/master/SRT_remove.c
 endif
 
 ### FTT SLAVE NODE ###
-ifeq ($(findstring __FTT_SLAVE__,$(EEOPT)) , __FTT_SLAVE__)
+ifeq ($(call iseeopt, __FTT_SLAVE__), yes)
 EE_SRCS += pkg/src/com/ftt/slave/activation.c
 EE_SRCS += pkg/src/com/ftt/slave/NRT_receive.c
 EE_SRCS += pkg/src/com/ftt/slave/NRT_send.c

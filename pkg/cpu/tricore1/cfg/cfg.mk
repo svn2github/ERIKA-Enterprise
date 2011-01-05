@@ -41,7 +41,7 @@
 ## 
 ##
 
-ifeq ($(findstring __TRICORE_GNU__,$(EEOPT)), __TRICORE_GNU__)
+ifeq ($(call iseeopt, __TRICORE_GNU__), yes)
 
 EE_SRCS += pkg/cpu/tricore1/src/ee_hal.c  \
            pkg/cpu/tricore1/src/ee_oo.c   \

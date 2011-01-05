@@ -13,24 +13,24 @@ EE_SRCS += $(EE_SRCS_CONSOLE_COMMON)
 
 
 ## Check the architecture
-ifeq ($(findstring __PIC30__,$(EEOPT)) , __PIC30__)
+ifeq ($(call iseeopt, __PIC30__), yes)
 EE_SRCS += contrib/console/src/hal/pic30.c
 endif
 
-ifeq ($(findstring __PIC32__,$(EEOPT)) , __PIC32__)
+ifeq ($(call iseeopt, __PIC32__), yes)
 EE_SRCS += contrib/console/src/hal/pic32.c
 endif
 
-ifeq ($(findstring __AVR5__,$(EEOPT)) , __AVR5__)
+ifeq ($(call iseeopt, __AVR5__), yes)
 EE_SRCS += contrib/console/src/hal/avr5.c
 endif
 
-ifeq ($(findstring __LM32__,$(EEOPT)) , __LM32__)
+ifeq ($(call iseeopt, __LM32__), yes)
 EE_SRCS += contrib/console/src/hal/mico32.c
 endif
 
-ifeq ($(findstring __HCS12XS__,$(EEOPT)) , __HCS12XS__)
-ifeq ($(findstring __MC9S12XS128__,$(EEOPT)) , __MC9S12XS128__)
+ifeq ($(call iseeopt, __HCS12XS__), yes)
+ifeq ($(call iseeopt, __MC9S12XS128__), yes)
 ALLINCPATH += -i"$(shell cygpath -w $(EEBASE)/contrib/console/inc)"
 EE_SRCS += contrib/console/src/hal/s12.c
 endif

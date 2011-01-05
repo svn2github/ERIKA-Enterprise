@@ -42,7 +42,7 @@
 ## Cosmic compiler
 ##
 
-ifeq ($(findstring __HCS12XS__,$(EEALLOPT)), __HCS12XS__)
+ifeq ($(call iseeopt, __HCS12XS__), yes)
 
 # Select object file format
 COSMIC_EXTENSION := xs12
@@ -112,7 +112,7 @@ GCC_ALLINCPATH := -I"$(shell cygpath -w $(PKGBASE))\\." -I"$(shell cygpath -w $(
 
 ## OPT_CC are the options for arm compiler invocation
 OPT_CC = 
-ifeq ($(findstring DEBUG,$(EEOPT)) , DEBUG)
+ifeq ($(call iseeopt, DEBUG), yes)
 OPT_CC += +debug
 endif
 # Specific option from the application makefile
@@ -122,7 +122,7 @@ OPT_CC_DEPS := $(OPT_CC) -sm
 
 # #OPT_ASM are the options for asm invocation
 OPT_ASM = 
-ifeq ($(findstring DEBUG,$(EEOPT)) , DEBUG)
+ifeq ($(call iseeopt, DEBUG), yes)
 OPT_ASM += -xx -x
 endif
 # Specific option from the application makefile
@@ -137,7 +137,6 @@ OPT_LINK += $(LDFLAGS)
 # Each identifier that is listed in EEOPT is also inserted as a 
 # command-line macro in the compiler...
 
-# MUST be EEOPT, not EEALLOPT!!!
 DEFS_ASM = $(addprefix -d, $(EEOPT) )
 DEFS_GCCASM = $(addprefix -D, $(EEOPT) )
 DEFS_CC  = $(addprefix -d, $(EEOPT) )

@@ -41,18 +41,18 @@
 ## Files specific to the MSP430
 ## Author: 2010 Christian Grioli
 
-ifeq ($(findstring __MSP430__,$(EEOPT)) , __MSP430__)
+ifeq ($(call iseeopt, __MSP430__), yes)
 
-ifeq ($(findstring __OO_BCC1__,$(EEOPT)) , __OO_BCC1__)
+ifeq ($(call iseeopt, __OO_BCC1__), yes)
 CPU_OO=YES
 endif
-ifeq ($(findstring __OO_BCC2__,$(EEOPT)) , __OO_BCC2__)
+ifeq ($(call iseeopt, __OO_BCC2__), yes)
 CPU_OO=YES
 endif
-ifeq ($(findstring __OO_ECC1__,$(EEOPT)) , __OO_ECC1__)
+ifeq ($(call iseeopt, __OO_ECC1__), yes)
 CPU_OO=YES
 endif
-ifeq ($(findstring __OO_ECC2__,$(EEOPT)) , __OO_ECC2__)
+ifeq ($(call iseeopt, __OO_ECC2__), yes)
 CPU_OO=YES
 endif
 
@@ -61,12 +61,12 @@ EE_SRCS += pkg/cpu/msp430/src/ee_oo.S
 endif
 
 
-ifeq ($(findstring __MULTI__,$(EEOPT)) , __MULTI__)
+ifeq ($(call iseeopt, __MULTI__), yes)
 EE_SRCS+= pkg/cpu/msp430/src/ee_context.S
 #EE_SRCS+= pkg/cpu/msp430/src/ee_context.c
 endif
 
-ifeq ($(findstring __LPMODE__,$(EEOPT)) , __LPMODE__)
+ifeq ($(call iseeopt, __LPMODE__), yes)
 EE_SRCS+= pkg/cpu/msp430/src/ee_utils.c
 endif
 

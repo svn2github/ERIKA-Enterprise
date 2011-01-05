@@ -41,22 +41,22 @@
 ## Author: 2004 Paolo Gai
 ## CVS: $Id: cfg.mk,v 1.2 2006/12/06 13:38:18 nino Exp $
 
-ifeq ($(findstring __HCS12XS__,$(EEOPT)) , __HCS12XS__)
+ifeq ($(call iseeopt, __HCS12XS__), yes)
 
-#ifeq ($(findstring __FRSH__,$(EEOPT)) , __FRSH__)
+#ifeq ($(call iseeopt, __FRSH__), yes)
 #EE_SRCS += pkg/mcu/cosmic_hs12xs/src/ee_s12xsfrsh.c
 #endif
 
-ifeq ($(findstring __OO_BCC1__,$(EEOPT)) , __OO_BCC1__)
+ifeq ($(call iseeopt, __OO_BCC1__), yes)
 MCU_OO=YES
 endif
-ifeq ($(findstring __OO_BCC2__,$(EEOPT)) , __OO_BCC2__)
+ifeq ($(call iseeopt, __OO_BCC2__), yes)
 MCU_OO=YES
 endif
-ifeq ($(findstring __OO_ECC1__,$(EEOPT)) , __OO_ECC1__)
+ifeq ($(call iseeopt, __OO_ECC1__), yes)
 MCU_OO=YES
 endif
-ifeq ($(findstring __OO_ECC2__,$(EEOPT)) , __OO_ECC2__)
+ifeq ($(call iseeopt, __OO_ECC2__), yes)
 MCU_OO=YES
 endif
 
@@ -64,11 +64,11 @@ ifeq ($(MCU_OO), YES)
 EE_SRCS += pkg/mcu/cosmic_hs12xs/src/ee_start.c
 endif
 
-ifeq ($(findstring __USE_SCI__,$(EEOPT)) , __USE_SCI__)
+ifeq ($(call iseeopt, __USE_SCI__), yes)
 EE_SRCS += pkg/mcu/cosmic_hs12xs/src/ee_sci.c
 endif
 
-ifeq ($(findstring __USE_PIT__,$(EEOPT)) , __USE_PIT__)
+ifeq ($(call iseeopt, __USE_PIT__), yes)
 EE_SRCS += pkg/mcu/cosmic_hs12xs/src/ee_pit.c
 endif
 

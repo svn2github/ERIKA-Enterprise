@@ -42,7 +42,7 @@
 ## ARM7GNU GCC compiler version 3
 ##
 
-ifeq ($(findstring __ARM7GNU__,$(EEALLOPT)), __ARM7GNU__)
+ifeq ($(call iseeopt, __ARM7GNU__), yes)
 
 # ARM7_GCCDIR is the base directory of development environment
 # it should be defined in your .bashrc
@@ -74,7 +74,7 @@ ifndef EE_CC
 EE_CC=$(DISTCC) $(BINDIR)/$(ARM7_GCCPREFIX)-gcc
 endif
 ifndef EE_TCC
-ifeq ($(findstring __UNIBO_MPARM__,$(EEALLOPT)) , __UNIBO_MPARM__)
+ifeq ($(call iseeopt, __UNIBO_MPARM__), yes)
 EE_TCC=$(EE_CC) -mthumb # 16-bit thumb C compiler
 else
 EE_TCC=$(EE_CC) # 16-bit thumb mode not supported, so use same compiler as for arm-32 mode
@@ -109,14 +109,14 @@ endif
 # -Wall		    = all compiling warning
 # -Winline	    = warn if a function does not expand inline
 # -finline-functions = make all simple functions inline
-ifeq ($(findstring __UNIBO_MPARM__,$(EEALLOPT)) , __UNIBO_MPARM__)
+ifeq ($(call iseeopt, __UNIBO_MPARM__), yes)
 OPT_CC = -march=armv4 -mno-thumb-interwork -O3 -Wall -Winline -c
 else
 OPT_CC = -mcpu=arm7tdmi -mthumb-interwork \
 	-O3 -Wall -Winline -c
 endif
-ifneq ($(findstring __BIN_DISTR,$(EEALLOPT)), __BIN_DISTR)
-ifeq ($(findstring DEBUG,$(EEOPT)) , DEBUG)
+ifneq ($(call iseeopt, __BIN_DISTR), yes)
+ifeq ($(call iseeopt, DEBUG), yes)
 OPT_CC += -ggdb
 endif
 endif
@@ -128,7 +128,7 @@ OPT_CC += $(CFLAGS)
 ## OPT_TCC are the options for thumb compiler invocation
 # -mcallee-super-interworking = switch to thumb mode after an arm header
 #OPT_TCC = $(OPT_CC) -mthumb-interwork -mcallee-super-interworking
-ifeq ($(findstring __UNIBO_MPARM__,$(EEALLOPT)) , __UNIBO_MPARM__)
+ifeq ($(call iseeopt, __UNIBO_MPARM__), yes)
 OPT_TCC = $(OPT_CC)
 else
 OPT_TCC = $(OPT_CC) -mcallee-super-interworking
@@ -138,15 +138,15 @@ endif
 # -marm7tdmi        = generate optimized code for ARM7TDMI processor
 # -mapcs-32	    = support APCS function calling standard
 # -mthumb-interwork = support arm/thumb interwork
-ifeq ($(findstring __UNIBO_MPARM__,$(EEALLOPT)) , __UNIBO_MPARM__)
+ifeq ($(call iseeopt, __UNIBO_MPARM__), yes)
 OPT_ASM = -march=armv4 -mapcs-32
 else
 #OPT_ASM = -marm7tdmi -mthumb-interwork -mapcs-32
 OPT_ASM = -mcpu=arm7tdmi -mthumb-interwork -mapcs-32
 endif
 
-ifneq ($(findstring __BIN_DISTR,$(EEALLOPT)), __BIN_DISTR)
-ifeq ($(findstring DEBUG,$(EEOPT)) , DEBUG)
+ifneq ($(call iseeopt, __BIN_DISTR), yes)
+ifeq ($(call iseeopt, DEBUG), yes)
 OPT_ASM += --gstabs
 endif
 endif
@@ -166,7 +166,7 @@ DEFS_ASM = $(addprefix -D, $(EEOPT) )
 DEFS_CC  = $(addprefix -D, $(EEOPT) )
 DEFS_TCC = $(addprefix -D, $(EEOPT) )
 
-ifeq ($(findstring __BIN_DISTR,$(EEOPT)), __BIN_DISTR) 
+ifeq ($(call iseeopt, __BIN_DISTR), yes) 
 # Note: the defines used in EEOPT to compile the library
 # are already added in the eecfg.h
 DEFS_ASM += -D__CONFIG_$(EELIB)__

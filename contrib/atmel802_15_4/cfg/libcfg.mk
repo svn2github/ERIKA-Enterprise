@@ -4,13 +4,13 @@
 ##
 ## Only for AVR5 cpu
 ##
-ifeq ($(findstring __AVR5__,$(EEOPT)) , __AVR5__)
+ifeq ($(call iseeopt, __AVR5__), yes)
 
 ifeq ($(findstring __LIB_ATMEL802154__,$(LIB_OPT)) , __LIB_ATMEL802154__)
 INCLUDE_ATMEL802154 = YES
 endif
 
-ifeq ($(findstring __BUILD_ALL_LIBS__,$(EEOPT)) , __BUILD_ALL_LIBS__)
+ifeq ($(call iseeopt, __BUILD_ALL_LIBS__), yes)
 INCLUDE_ATMEL802154 = YES
 endif
 
@@ -22,7 +22,7 @@ endif
 ifeq ($(INCLUDE_ATMEL802154), YES)
 
 ## Add the inc path to the include pathlist
-ifeq ($(findstring __RTD_CYGWIN__,$(EEOPT)), __RTD_CYGWIN__) 
+ifeq ($(call iseeopt, __RTD_CYGWIN__), yes) 
 ALLINCPATH += -I"$(shell cygpath -w $(EEBASE)/contrib/atmel802_15_4/inc)"
 ALLINCPATH += -I"$(shell cygpath -w $(EEBASE)/contrib/atmel802_15_4/libsrc/inc)"
 else

@@ -66,8 +66,8 @@ OPT_CC = -Xlicense-wait -Xstderr-fully-buffered -Xbss-common-off	\
 	-Xstop-on-warning -Xkeywords=4 $(ALLINCPATH) -c $(CFLAGS)
 # -Xforce-prototypes 
 
-ifneq ($(findstring __BIN_DISTR,$(EEALLOPT)), __BIN_DISTR)
-ifeq ($(findstring DEBUG,$(EEOPT)) , DEBUG)
+ifneq ($(call iseeopt, __BIN_DISTR), yes)
+ifeq ($(call iseeopt, DEBUG), yes)
 OPT_CC += -g
 endif
 endif
@@ -75,14 +75,14 @@ endif
 ## OPT_ASM are the options for asm invocation
 OPT_ASM =
 
-ifneq ($(findstring __BIN_DISTR,$(EEALLOPT)), __BIN_DISTR)
-ifeq ($(findstring DEBUG,$(EEOPT)) , DEBUG)
+ifneq ($(call iseeopt, __BIN_DISTR), yes)
+ifeq ($(call iseeopt, DEBUG), yes)
 OPT_ASM += -g
 endif
 endif
 
 # OPT_LINK represents the options for ld invocation
-ifeq ($(findstring __DEFAULT_LD_SCRIPT__,$(EEOPT)) , __DEFAULT_LD_SCRIPT__)
+ifeq ($(call iseeopt, __DEFAULT_LD_SCRIPT__), yes)
 OPT_LINK += out/loc_gnu.ld -e __start
 LINKDEP = out/loc_gnu.ld
 else

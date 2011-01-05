@@ -9,7 +9,7 @@
 ## Author: 2007 Mauro Marinoni
 ## CVS: $Id: libcfg.mk,v 1.5 2008/02/04 14:43:37 pj Exp $
 
-ifeq ($(findstring __BUILD_ALL_LIBS__,$(EEOPT)) , __BUILD_ALL_LIBS__)
+ifeq ($(call iseeopt, __BUILD_ALL_LIBS__), yes)
 INCLUDE_SCICOS = YES
 endif
 

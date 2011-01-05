@@ -45,7 +45,7 @@
 
 
 # Enable verbose output from EE_OPT
-ifeq ($(findstring VERBOSE,$(EEOPT)) , VERBOSE)
+ifeq ($(call iseeopt, VERBOSE), yes)
 VERBOSE = 1
 endif
 
@@ -68,7 +68,7 @@ ERIKALIB = $(OUTPUT_DIR)/libee.a
 ifneq ($(ONLY_LIBS), TRUE)
 
 ## OPT_LIBS is used to link additional libraries (e.g., for C++ support)
-ifneq ($(findstring __BIN_DISTR,$(EEALLOPT)), __BIN_DISTR) 
+ifneq ($(call iseeopt, __BIN_DISTR), yes) 
 # the EE library is built in the current directory
 OPT_LIBS += -lee -L $(OUTPUT_DIR)
 LIBDEP += $(ERIKALIB)

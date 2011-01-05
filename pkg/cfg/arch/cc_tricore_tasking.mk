@@ -42,7 +42,7 @@
 ## TASKING TRICORE Compiler
 ##
 
-ifeq ($(findstring __TRICORE1__,$(EEALLOPT)), __TRICORE1__)
+ifeq ($(call iseeopt, __TRICORE1__), yes)
 
 # TRICOREBASE is the base directory of development environment
 # it should be defined in your .bashrc
@@ -87,8 +87,8 @@ OPT_CC = --embedded -Ctc1775b -Wc-c99 -Wc-Ax -Wc-g --switch=auto -Wc--align=1 -W
 #-Wc-I"$(PRODDIR)\include"
 #-Wa-I"$(PRODDIR)\include"
 #-Wa-H"c:\program files\tasking\ctc v2.1\myprograms\benchmark\dhrystone\_dhrystone.inc"
-ifneq ($(findstring __BIN_DISTR,$(EEALLOPT)), __BIN_DISTR)
-ifeq ($(findstring DEBUG,$(EEOPT)) , DEBUG)
+ifneq ($(call iseeopt, __BIN_DISTR), yes)
+ifeq ($(call iseeopt, DEBUG), yes)
 #rimuovere le opzioni di debug!!!OPT_CC += -ggdb
 endif
 endif
@@ -98,8 +98,8 @@ endif
 ## OPT_ASM are the options for asm invocation
 #OPT_ASM = 
 
-ifneq ($(findstring __BIN_DISTR,$(EEALLOPT)), __BIN_DISTR)
-ifeq ($(findstring DEBUG,$(EEOPT)) , DEBUG)
+ifneq ($(call iseeopt, __BIN_DISTR), yes)
+ifeq ($(call iseeopt, DEBUG), yes)
 #OPT_ASM += --gstabs
 endif
 endif
@@ -122,7 +122,7 @@ OPT_LINK += --format=elf  -Ctc1775b -Wl-M -Wl-mcfklmoQrSU -Wl-OCDLSTXY
 
 DEFS_CC  = $(addprefix -D, $(EEOPT) )
 
-#ifeq ($(findstring __BIN_DISTR,$(EEOPT)), __BIN_DISTR) 
+#ifeq ($(call iseeopt, __BIN_DISTR), yes) 
 # Note: the defines used in EEOPT to compile the library
 # are already added in the eecfg.h
 #DEFS_ASM += -D__CONFIG_$(EELIB)__

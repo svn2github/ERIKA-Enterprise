@@ -8,7 +8,7 @@ ifeq ($(findstring __LIB_LWIP__,$(LIB_OPT)),__LIB_LWIP__)
 ##
 
 # core ipv4
-ifeq ($(findstring __LWIP_IPV4__,$(EEOPT)) , __LWIP_IPV4__)
+ifeq ($(call iseeopt, __LWIP_IPV4__), yes)
 EE_SRCS += contrib/lwip/lwip_1_3_2/src/core/ipv4/autoip.c  
 EE_SRCS += contrib/lwip/lwip_1_3_2/src/core/ipv4/icmp.c  
 EE_SRCS += contrib/lwip/lwip_1_3_2/src/core/ipv4/igmp.c  
@@ -20,7 +20,7 @@ EE_SRCS += contrib/lwip/lwip_1_3_2/src/core/ipv4/ip_frag.c
 endif
 
 # core ipv6
-ifeq ($(findstring __LWIP_IPV6__,$(EEOPT)) , __LWIP_IPV6__)
+ifeq ($(call iseeopt, __LWIP_IPV6__), yes)
 EE_SRCS += contrib/lwip/lwip_1_3_2/src/core/ipv6/icmp6.c  
 EE_SRCS += contrib/lwip/lwip_1_3_2/src/core/ipv6/inet6.c  
 EE_SRCS += contrib/lwip/lwip_1_3_2/src/core/ipv6/ip6.c  
@@ -71,7 +71,7 @@ EE_SRCS += contrib/lwip/lwip_1_3_2/src/core/tcp_out.c
 EE_SRCS += contrib/lwip/lwip_1_3_2/src/core/udp.c
 
 # ppp
-ifeq ($(findstring __LWIP_PPP_SUPPORT__,$(EEOPT)) , __LWIP_PPP_SUPPORT__)
+ifeq ($(call iseeopt, __LWIP_PPP_SUPPORT__), yes)
 EE_SRCS += contrib/lwip/lwip_1_3_2/src/netif/ppp/auth.c  
 EE_SRCS += contrib/lwip/lwip_1_3_2/src/netif/ppp/chap.c  
 EE_SRCS += contrib/lwip/lwip_1_3_2/src/netif/ppp/chpms.c  
@@ -101,11 +101,11 @@ EE_SRCS += contrib/lwip/lwip_1_3_2/abstraction/src/hal/lwip_enc28j60.c
 endif
 
 # lm32
-ifeq ($(findstring __LM32__,$(EEOPT)) , __LM32__)
+ifeq ($(call iseeopt, __LM32__), yes)
 EE_SRCS += contrib/lwip/lwip_1_3_2/abstraction/src/hal/lwip_timer_mico32.c
 endif
 
-ifeq ($(findstring __PIC32__,$(EEOPT)) , __PIC32__)
+ifeq ($(call iseeopt, __PIC32__), yes)
 EE_SRCS += contrib/lwip/lwip_1_3_2/abstraction/src/hal/lwip_timer_pic32.c
 endif
 

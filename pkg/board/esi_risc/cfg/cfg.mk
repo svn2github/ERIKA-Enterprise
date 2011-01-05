@@ -40,6 +40,6 @@
 
 # Author: Steve Langstaff, Pebble Bay Consulting Ltd, 2010
 
-ifeq ($(findstring __ESI_RISC__,$(EEOPT)) , __ESI_RISC__)
+ifeq ($(call iseeopt, __ESI_RISC__), yes)
 EE_SRCS += pkg/board/esi_risc/src/ee_board.c
 endif

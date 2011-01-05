@@ -40,7 +40,7 @@
 # ###*E*###
 
 # Enable verbose output from EE_OPT
-ifeq ($(findstring VERBOSE,$(EEOPT)) , VERBOSE)
+ifeq ($(call iseeopt, VERBOSE), yes)
 VERBOSE = 1
 endif
 
@@ -55,7 +55,7 @@ include $(PKGBASE)/cfg/compiler.mk
 OPT_LINK += 
 
 # OPT_LIBS is used to link additional libraries (e.g., for C++ support)
-ifneq ($(findstring __BIN_DISTR,$(EEALLOPT)), __BIN_DISTR) 
+ifneq ($(call iseeopt, __BIN_DISTR), yes) 
 # the EE library is built in the current directory
 OPT_LIBS += -lee -L .
 LIBDEP = libee.a
@@ -220,7 +220,7 @@ $(OBJDIR)/.make_directories_flag:
 
 ifndef NODEPS
 ifneq ($(MAKECMDGOALS),clean)
-ifneq ($(findstring NODEPS,$(EEALLOPT)), NODEPS) 
+ifneq ($(call iseeopt, NODEPS), yes) 
 #-include deps
 endif
 endif

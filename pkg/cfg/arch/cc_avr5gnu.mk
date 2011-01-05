@@ -49,7 +49,7 @@
 ## AVRGNU GCC compiler version 4.1.1
 ## Binutils Version AVR-as AVR-ld 2.17+
 
-ifeq ($(findstring __AVR5__,$(EEALLOPT)), __AVR5__)
+ifeq ($(call iseeopt, __AVR5__), yes)
 
 
 # BINDIR is the directory of assembler, linker, ... distributed with MPLAB IDE
@@ -150,7 +150,7 @@ OPT_CC += -DRF_BAND=BAND_2400 -DRF_CHANNEL=18
 OPT_CC += -DBOARD_TYPE=RDK230 -DAPP_TYPE=APP_L2  -DSPECIAL_PEER=0 -DDEVICE_TYPE=FD1_NOGTS -DCTRL_IF=UART1
 
 
-ifeq ($(findstring DEBUG,$(EEOPT)) , DEBUG)
+ifeq ($(call iseeopt, DEBUG), yes)
 OPT_CC += -gdwarf-2
 endif
 ifneq ($(AVR5_MODEL),)
@@ -165,7 +165,7 @@ OPT_CC += $(CFLAGS)
 ## -x assembler-with-cpp -Wa,-gdwarf2
 
 OPT_ASM = -c -mmcu=$(AVR5_MODEL) -std=gnu99 -x assembler-with-cpp -Wa, 
-ifeq ($(findstring DEBUG,$(EEOPT)) , DEBUG)
+ifeq ($(call iseeopt, DEBUG), yes)
 OPT_ASM += -gdwarf2 
 endif
 
@@ -178,11 +178,10 @@ OPT_LINK += $(LDFLAGS)
 # Each identifier that is listed in EEOPT is also inserted as a 
 # command-line macro in the compiler...
 
-# MUST be EEOPT, not EEALLOPT!!!
 DEFS_ASM = $(addprefix -D, $(EEOPT) )
 DEFS_CC  = $(addprefix -D, $(EEOPT) )
 
-ifeq ($(findstring __BIN_DISTR,$(EEOPT)), __BIN_DISTR) 
+ifeq ($(call iseeopt, __BIN_DISTR), yes) 
 # Note: the defines used in EEOPT to compile the library
 # are already added in the eecfg.h
 DEFS_ASM += -D__CONFIG_$(EELIB)__

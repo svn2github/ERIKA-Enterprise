@@ -48,7 +48,7 @@ EE_ASM = lm32-elf-gcc
 EE_LINK = lm32-elf-gcc
 EE_OBJDUMP = lm32-elf-objdump
 EE_ELF_SIZE = lm32-elf-size
-ifeq ($(findstring __SPACE__,$(EEOPT)), __SPACE__)
+ifeq ($(call iseeopt, __SPACE__), yes)
 CFLAGS += -Os
 else
 CFLAGS += -O2

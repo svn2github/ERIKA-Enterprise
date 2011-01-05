@@ -41,7 +41,7 @@
 ## Author: 2004 Paolo Gai
 ## CVS: $Id: cfg.mk,v 1.3 2008/02/07 14:05:30 nino Exp $
 
-ifeq ($(findstring __DEMO9S12XSFAME__,$(EEOPT)) , __DEMO9S12XSFAME__)
+ifeq ($(call iseeopt, __DEMO9S12XSFAME__), yes)
 
 EE_SRCS += pkg/board/cosmic_hs12xs_demo9s12xsfame/src/demo9s12xsfame_peripherals.c
 

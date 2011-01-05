@@ -60,7 +60,7 @@ ifeq ($(findstring __LIB_IEEE802154__,$(LIB_OPT)) , __LIB_IEEE802154__)
 INCLUDE_IEEE802154 = YES
 endif
 
-ifeq ($(findstring __BUILD_ALL_LIBS__,$(EEOPT)) , __BUILD_ALL_LIBS__)
+ifeq ($(call iseeopt, __BUILD_ALL_LIBS__), yes)
 INCLUDE_IEEE802154 = YES
 endif
 

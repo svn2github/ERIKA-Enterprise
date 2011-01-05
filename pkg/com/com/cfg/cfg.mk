@@ -42,7 +42,7 @@
 ## CVS: $Id: cfg.mk,v 1.3 2006/11/03 11:05:21 pj Exp $
 
 ########### COM CCCA #############
-ifeq ($(findstring __COM_CCCA__,$(EEOPT)) , __COM_CCCA__) 
+ifeq ($(call iseeopt, __COM_CCCA__), yes) 
 EE_SRCS += pkg/src/com/com/src/com.c
 EE_SRCS += pkg/src/com/com/src/msgreception.c
 EE_SRCS += pkg/src/com/com/src/filters.c
@@ -57,7 +57,7 @@ EE_SRCS += pkg/src/com/com/src/receivestatic.c
 endif
 
 ########### COM CCCB #############
-ifeq ($(findstring __COM_CCCB__,$(EEOPT)) , __COM_CCCB__) 
+ifeq ($(call iseeopt, __COM_CCCB__), yes) 
 EE_SRCS += pkg/src/com/com/src/com.c
 EE_SRCS += pkg/src/com/com/src/msgreception.c
 EE_SRCS += pkg/src/com/com/src/filters.c
@@ -73,7 +73,7 @@ EE_SRCS += pkg/src/com/com/src/msgstatus.c
 endif
 
 ########### COM CCC0 #############
-ifeq ($(findstring __COM_CCC0__,$(EEOPT)) , __COM_CCC0__) 
+ifeq ($(call iseeopt, __COM_CCC0__), yes) 
 EE_SRCS += pkg/src/com/com/src/com.c
 EE_SRCS += pkg/src/com/com/src/msgreception.c
 EE_SRCS += pkg/src/com/com/src/filters.c
@@ -91,7 +91,7 @@ EE_SRCS += pkg/src/com/com/src/dmonitor.c
 endif
 
 ########### COM CCC1 #############
-ifeq ($(findstring __COM_CCC1__,$(EEOPT)) , __COM_CCC1__) 
+ifeq ($(call iseeopt, __COM_CCC1__), yes) 
 EE_SRCS += pkg/src/com/com/src/com.c
 EE_SRCS += pkg/src/com/com/src/msgreception.c
 EE_SRCS += pkg/src/com/com/src/filters.c

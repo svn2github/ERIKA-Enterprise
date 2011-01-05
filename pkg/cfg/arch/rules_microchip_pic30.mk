@@ -42,7 +42,7 @@
 ## CVS: $Id: rules_microchip_pic30.mk,v 1.24 2008/10/14 22:21:06 nino Exp $
 
 # Enable verbose output from EE_OPT
-ifeq ($(findstring VERBOSE,$(EEOPT)) , VERBOSE)
+ifeq ($(call iseeopt, VERBOSE), yes)
 VERBOSE = 1
 endif
 
@@ -67,7 +67,7 @@ PIC30_CRT0 := $(EEBASE)/contrib/microchip/pic30/boot/src/crt0.s
 #C30_LONGPATH := $(shell $(EE_CC) --version 2>&1 | awk '/__C30_VERSION__/{split($$0,a,"== "); if (a[2]>=310) print 1; else print 0; }' )
 #
 ## Manual selection of C30 include path version
-#ifeq ($(findstring C30_LONGPATH,$(EEOPT)) , C30_LONGPATH)
+#ifeq ($(call iseeopt, C30_LONGPATH), yes)
 #C30_LONGPATH := 1
 #endif
 #
@@ -101,7 +101,7 @@ PIC30_CRT0 := $(EEBASE)/contrib/microchip/pic30/boot/src/crt0.s
 
 # MCHP_DATA_DIR refers to the location of Microchip libraries
 # Cygwin environment
-ifeq ($(findstring __RTD_CYGWIN__,$(EEOPT)), __RTD_CYGWIN__) 
+ifeq ($(call iseeopt, __RTD_CYGWIN__), yes) 
 MCHP_DATA_DIR := $(PIC30_GCCDIR)
 else
 # Linux environment
@@ -141,7 +141,7 @@ LINKDEP += loc_gnu.ld
 ifneq ($(ONLY_LIBS), TRUE)
 
 ## OPT_LIBS is used to link additional libraries (e.g., for C++ support)
-ifneq ($(findstring __BIN_DISTR,$(EEALLOPT)), __BIN_DISTR) 
+ifneq ($(call iseeopt, __BIN_DISTR), yes) 
 # the EE library is built in the current directory
 OPT_LIBS += -lee -L .
 LIBDEP += libee.a
@@ -197,7 +197,7 @@ OPT_LIBS += -lm -lc -ldsp
 OPT_LIBS += -l$(subst .a,,$(subst lib,,$(PIC30_DEV_LIB)))
 OPT_LIBS += -lpic30-$(PIC30_OFF)
 
-ifeq ($(findstring __RTD_CYGWIN__,$(EEOPT)), __RTD_CYGWIN__) 
+ifeq ($(call iseeopt, __RTD_CYGWIN__), yes) 
 OPT_LIBS += -L "`cygpath -w $(PIC30_LIB_DIR)`"
 # check if PIC30_LIBD_DIR is empty
 ifneq ($(PIC30_LIBD_DIR),)
@@ -270,7 +270,7 @@ EE_BOOT_SRCS := frommchp/crt0.S
 
 # Boot code containing _start should stay outside of the library in
 # case of normal compilation
-ifeq ($(findstring __BIN_DISTR,$(EEOPT)), __BIN_DISTR)
+ifeq ($(call iseeopt, __BIN_DISTR), yes)
 LIBSRCS += $(EE_BOOT_SRCS)
 else
 SRCS += $(EE_BOOT_SRCS)
@@ -348,7 +348,7 @@ pic30.$(PIC30_EXTENSION): $(OBJS) $(LINKDEP) $(LIBDEP)
                      -M > pic30.map
 
 					 
-ifeq ($(findstring BUILDSRC,$(EEALLOPT)), BUILDSRC)
+ifeq ($(call iseeopt, BUILDSRC), yes)
 # preprocess first the assembly code and then compile the object file
 $(OBJDIR)/%.o: %.S ee_pic30regs.inc
 	$(VERBOSE_PRINTPRE) $(EE_DEP) $(COMPUTED_ALLINCPATH) $(DEFS_ASM) -E "$(SOURCEFILE)" > $(SRCFILE)
@@ -359,7 +359,7 @@ $(OBJDIR)/%.o: %.S ee_pic30regs.inc
 	$(VERBOSE_PRINTCPP) $(EE_CC) $(COMPUTED_ALLINCPATH) $(DEFS_ASM) -mcpu=$(PIC30_MODEL) -c "$(SOURCEFILE)" -o $(TARGETFILE)
 endif
 
-ifeq ($(findstring BUILDSRC,$(EEALLOPT)), BUILDSRC)
+ifeq ($(call iseeopt, BUILDSRC), yes)
 # produce first the assembly from C code and then compile the object file
 $(OBJDIR)/%.o: %.c ee_pic30regs.h
 	$(VERBOSE_PRINTCPP) $(EE_CC) $(COMPUTED_OPT_CC) $(COMPUTED_ALLINCPATH) $(DEFS_CC) "$(SOURCEFILE)" -S -o $(SRCFILE)
@@ -521,7 +521,7 @@ generate_eeopt:
 
 ifndef NODEPS
 ifneq ($(MAKECMDGOALS),clean)
-ifneq ($(findstring NODEPS,$(EEALLOPT)), NODEPS) 
+ifneq ($(call iseeopt, NODEPS), yes) 
 -include deps
 endif
 endif

@@ -42,7 +42,7 @@
 ## CVS: $Id: rules_freescale_s12x_cosmic.mk,v 1.00 2009/11/11 22:21:06 Paolo Exp $
 
 # Enable verbose output from EE_OPT
-ifeq ($(findstring VERBOSE,$(EEOPT)) , VERBOSE)
+ifeq ($(call iseeopt, VERBOSE), yes)
 VERBOSE = 1
 endif
 
@@ -274,7 +274,7 @@ $(OBJDIR)/.make_directories_flag:
 
 ifndef NODEPS
 ifneq ($(MAKECMDGOALS),clean)
-ifneq ($(findstring NODEPS,$(EEALLOPT)), NODEPS) 
+ifneq ($(call iseeopt, NODEPS), yes) 
 #-include deps
 endif
 endif

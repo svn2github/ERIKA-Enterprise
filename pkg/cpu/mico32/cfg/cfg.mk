@@ -41,19 +41,19 @@
 ## Files specific to the Lattice Mico32 soft core
 ## Author: 2009 Bernardo Dal Seno
 
-ifeq ($(findstring __LM32__,$(EEOPT)) , __LM32__)
+ifeq ($(call iseeopt, __LM32__), yes)
 EE_SRCS += pkg/cpu/mico32/src/ee_irq.c
 
-ifeq ($(findstring __OO_BCC1__,$(EEOPT)) , __OO_BCC1__)
+ifeq ($(call iseeopt, __OO_BCC1__), yes)
 CPU_OO=YES
 endif
-ifeq ($(findstring __OO_BCC2__,$(EEOPT)) , __OO_BCC2__)
+ifeq ($(call iseeopt, __OO_BCC2__), yes)
 CPU_OO=YES
 endif
-ifeq ($(findstring __OO_ECC1__,$(EEOPT)) , __OO_ECC1__)
+ifeq ($(call iseeopt, __OO_ECC1__), yes)
 CPU_OO=YES
 endif
-ifeq ($(findstring __OO_ECC2__,$(EEOPT)) , __OO_ECC2__)
+ifeq ($(call iseeopt, __OO_ECC2__), yes)
 CPU_OO=YES
 endif
 
@@ -61,11 +61,11 @@ ifeq ($(CPU_OO), YES)
 EE_SRCS += pkg/cpu/mico32/src/ee_oo.S
 endif
 
-ifeq ($(findstring __MULTI__,$(EEOPT)) , __MULTI__)
+ifeq ($(call iseeopt, __MULTI__), yes)
 EE_SRCS += pkg/cpu/mico32/src/ee_context.S
 endif
 
-ifeq ($(findstring __IRQ_STACK_NEEDED__,$(EEOPT)) , __IRQ_STACK_NEEDED__)
+ifeq ($(call iseeopt, __IRQ_STACK_NEEDED__), yes)
 EE_SRCS += pkg/cpu/mico32/src/ee_irq_stack.S
 endif
 

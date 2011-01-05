@@ -6,7 +6,7 @@ INCLUDE_TOUCH = YES
 endif
 
 ## Check if it's selected all libs inclusion
-ifeq ($(findstring __BUILD_ALL_LIBS__,$(EEOPT)) , __BUILD_ALL_LIBS__)
+ifeq ($(call iseeopt, __BUILD_ALL_LIBS__), yes)
 INCLUDE_TOUCH = YES
 endif
 
@@ -20,7 +20,7 @@ ifeq ($(INCLUDE_TOUCH), YES)
 ##
 
 ## Add the inc path to the include pathlist
-ifeq ($(findstring __RTD_CYGWIN__,$(EEOPT)), __RTD_CYGWIN__) 
+ifeq ($(call iseeopt, __RTD_CYGWIN__), yes) 
 ALLINCPATH += -I"$(shell cygpath -w $(EEBASE)/contrib/drivers/touch/inc)"
 else
 ALLINCPATH += -I$(EEBASE)/contrib/drivers/touch/inc

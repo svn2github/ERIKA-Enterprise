@@ -41,23 +41,23 @@
 ## Author: 2004 Paolo Gai
 ## CVS: $Id: cfg.mk,v 1.3 2008/02/07 14:05:30 nino Exp $
 
-ifeq ($(findstring __EE_FLEX__,$(EEOPT)) , __EE_FLEX__)
+ifeq ($(call iseeopt, __EE_FLEX__), yes)
 
-ifeq ($(findstring __USE_DEMOBOARD__,$(EEOPT)) , __USE_DEMOBOARD__)
+ifeq ($(call iseeopt, __USE_DEMOBOARD__), yes)
 EE_SRCS += pkg/board/ee_flex/src/ee_flex_demoboard.c
 
 # check for the ISR routines
-ifeq ($(findstring __USE_BUTTONS__,$(EEOPT)) , __USE_BUTTONS__)
+ifeq ($(call iseeopt, __USE_BUTTONS__), yes)
 OPT_LINK += -u__CNInterrupt
 endif
 
-ifeq ($(findstring __USE_BUZZER__,$(EEOPT)) , __USE_BUZZER__)
+ifeq ($(call iseeopt, __USE_BUZZER__), yes)
 OPT_LINK += -u__T4Interrupt
 endif
 
 endif # __USE_DEMOBOARD__
 
-ifeq ($(findstring __USE_MOTIONBOARD__,$(EEOPT)) , __USE_MOTIONBOARD__)
+ifeq ($(call iseeopt, __USE_MOTIONBOARD__), yes)
 EE_SRCS += pkg/board/ee_flex/src/ee_flex_motionboard.c
 endif # __USE_MOTIONBOARD__
 

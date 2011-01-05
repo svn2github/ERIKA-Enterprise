@@ -85,87 +85,69 @@ endif
 
 
 # EEOPT is used to appropriately configure and compile the particular
-# application. Symbols specified in EEOPT are implicithy defined when
+# application. Symbols specified in EEOPT are implicitly defined when
 # compiling the application using the -D compiler option
-
-# EEALLOPT is used inside the makefile to contain the EEOPT symbols,
-# possibly plus the EEOPT symbols that were used to compile the
-# binary distribution.
-
-# EEOPT and EEALLOPT are DIFFERENT because only the symbols of EEOPT
-# are passed using -D to the compiler. EEALLOPT contains in general
-# also other symbols that are then defined in pkg/ee_libcfg.h of the
-# binary distributions.
 
 # The simbol __ERIKA__ in EE_OPT is used to check the OS in the
 # contrib libraries.
 
 EEOPT += __ERIKA__
 
-
-ifeq ($(strip $(EELIB)),)
-# this is not a binary distribution
-EEALLOPT:=$(EEOPT)
-else
-# this is a binary distribution
-include $(EEBASE)/pkg/cfg/options.mk
-EEALLOPT:=$(EEOPT) $($(EELIB))
-endif
+# EEALLOPT is deprecated (binary distributions have not been around for a while)
+# This definition should raise an error if its value is ever used
+EEALLOPT=$(error ERROR: use of EEALLOPT)
 
 
 ##
 ## default automatic inserted dependencies
 ##########################################################################
 
-ifeq ($(findstring __EDF__,$(EEOPT)) , __EDF__)
-ifeq ($(findstring __TIME_SUPPORT__,$(EEOPT)) , __TIME_SUPPORT__)
-else
+ifeq ($(call iseeopt, __EDF__), yes)
+ifneq ($(call iseeopt, __TIME_SUPPORT__), yes)
 EEOPT += __TIME_SUPPORT__
 endif
 endif
 
-#ifeq ($(findstring __MULTI__,$(EEOPT)) , __MULTI__)
-#ifeq ($(findstring __IRQ_STACK_NEEDED__,$(EEOPT)) , __IRQ_STACK_NEEDED__)
+#ifeq ($(call iseeopt, __MULTI__), yes)
+#ifeq ($(call iseeopt, __IRQ_STACK_NEEDED__), yes)
 #else
 #EEOPT += __IRQ_STACK_NEEDED__
 #endif
 #endif
 
-ifeq ($(findstring __IRQ_STACK_NEEDED__,$(EEOPT)) , __IRQ_STACK_NEEDED__)
-ifeq ($(findstring __MULTI__,$(EEOPT)) , __MULTI__)
-else
+ifeq ($(call iseeopt, __IRQ_STACK_NEEDED__), yes)
+ifneq ($(call iseeopt, __MULTI__), yes)
 EEOPT += __MULTI__
 endif
 endif
 
-ifeq ($(findstring __COM_CCC0__,$(EEOPT)) , __COM_CCC0__)
+ifeq ($(call iseeopt, __COM_CCC0__), yes)
 EEOPT += __ALARMS__
 endif
 
-ifeq ($(findstring __COM_CCC1__,$(EEOPT)) , __COM_CCC1__)
+ifeq ($(call iseeopt, __COM_CCC1__), yes)
 EEOPT += __ALARMS__
 endif
 
-ifeq ($(findstring __EVALUATOR7T__,$(EEOPT)) , __EVALUATOR7T__)
+ifeq ($(call iseeopt, __EVALUATOR7T__), yes)
 EEOPT += __SAMSUNG_KS32C50100__
 endif
 
-ifeq ($(findstring __MPC5PROTECTED__,$(EEOPT)) , __MPC5PROTECTED__)
+ifeq ($(call iseeopt, __MPC5PROTECTED__), yes)
 EEOPT += __PROTECTED__
 endif
 
 # Bugfix: to be removed!
-ifeq ($(findstring __unibo_mparm__,$(EEOPT)) , __unibo_mparm__)
+ifeq ($(call iseeopt, __unibo_mparm__), yes)
 EEOPT += __UNIBO_MPARM__
-EEALLOPT += __UNIBO_MPARM__
 endif
 
 # Bugfix: to be removed!
-ifeq ($(findstring __USE_DEMOBOARD__,$(EEOPT)) , __USE_DEMOBOARD__)
+ifeq ($(call iseeopt, __USE_DEMOBOARD__), yes)
 else
-ifeq ($(findstring __USE_MOTIONBOARD__,$(EEOPT)) , __USE_MOTIONBOARD__)
+ifeq ($(call iseeopt, __USE_MOTIONBOARD__), yes)
 else
-ifeq ($(findstring __USE_USB__,$(EEOPT)) , __USE_USB__)
+ifeq ($(call iseeopt, __USE_USB__), yes)
 EEOPT += __USE_MOTIONBOARD__
 EE_SRCS += pkg/board/ee_flex/src/ee_flex_motionboard.c
 endif # __USE_USB__
@@ -175,63 +157,58 @@ endif # __USE_DEMOBOARD__
 ##
 ## H8/300 - gcc under GNU/Linux
 ##########################################################################
-ifeq ($(findstring __H8__,$(EEALLOPT)), __H8__) 
+ifeq ($(call iseeopt, __H8__), yes) 
   include $(EEBASE)/pkg/cfg/arch/rules_lego_rcx.mk
 endif 
 
 ##
 ## MPC5XX - gcc under GNU/Linux
 ##########################################################################
-ifeq ($(findstring __MPC5XX__,$(EEALLOPT)) , __MPC5XX__)
-ifeq ($(findstring __MPC566EVB__,$(EEALLOPT)) , __MPC566EVB__) 
+ifeq ($(and $(call iseeopt, __MPC5XX__), $(call iseeopt, __MPC566EVB__)), yes) 
 include $(EEBASE)/pkg/cfg/arch/rules_axiom_mpc566evb.mk
-endif
 endif
 
-ifeq ($(findstring __MPC5PROTECTED__,$(EEALLOPT)) , __MPC5PROTECTED__)
-ifeq ($(findstring __MPC566EVB__,$(EEALLOPT)) , __MPC566EVB__)
+ifeq ($(and $(call iseeopt, __MPC5PROTECTED__), \
+	$(call iseeopt, __MPC566EVB__)), yes)
 include $(EEBASE)/pkg/cfg/arch/rules_axiom_mpc566evb.mk
-endif
 endif
 
 ##
 ## MPC5674F - diab under GNU/Linux
 ##########################################################################
-ifeq ($(findstring __PPCE200Z7__,$(EEALLOPT)) , __PPCE200Z7__)
-ifeq ($(findstring __MPC5674F__,$(EEALLOPT)) , __MPC5674F__)
+ifeq ($(and $(call iseeopt, __PPCE200Z7__), $(call iseeopt, __MPC5674F__)), yes)
 include $(EEBASE)/pkg/cfg/arch/rules_ppc_mpc5674f.mk
-endif
 endif
 
 ##
 ## ARM7TDMI - GNU gcc under GNU/Linux or Cygwin
 ##########################################################################
-ifeq ($(findstring __ARM7GNU__,$(EEALLOPT)) , __ARM7GNU__)
+ifeq ($(call iseeopt, __ARM7GNU__), yes)
 
-ifeq ($(findstring __EVALUATOR7T__,$(EEALLOPT)) , __EVALUATOR7T__)
+ifeq ($(call iseeopt, __EVALUATOR7T__), yes)
 include $(EEBASE)/pkg/cfg/arch/rules_arm_evaluator7t.mk
 endif
 
-ifeq ($(findstring __UNIBO_MPARM__,$(EEALLOPT)) , __UNIBO_MPARM__)
+ifeq ($(call iseeopt, __UNIBO_MPARM__), yes)
 include $(EEBASE)/pkg/cfg/arch/rules_unibo_mparm.mk
 endif
 
-ifeq ($(findstring __TRISCENDA7S__,$(EEALLOPT)) , __TRISCENDA7S__)
+ifeq ($(call iseeopt, __TRISCENDA7S__), yes)
 include $(EEBASE)/pkg/cfg/arch/rules_triscend_a7s.mak
 endif
 
-endif
+endif # __ARM7GNU__
 
 
 ##
 ## AVR5 
 ##########################################################################
-ifeq ($(findstring __AVR5__,$(EEALLOPT)), __AVR5__)
+ifeq ($(call iseeopt, __AVR5__), yes)
 
 ##
 ##  ATmega128 - GNU - stk500
 ##########################################################################
-ifeq ($(findstring __ATMEL_STK50X__,$(EEALLOPT)), __ATMEL_STK50X__)
+ifeq ($(call iseeopt, __ATMEL_STK50X__), yes)
 include $(EEBASE)/pkg/cfg/arch/rules_atmel_stk500.mk
 endif 
 
@@ -239,17 +216,17 @@ endif
 ##  ATmega128 - GNU - mica boarb mib510
 ##########################################################################
 
-ifeq ($(findstring __XBOW_MIB5X0__,$(EEALLOPT)), __XBOW_MIB5X0__)
+ifeq ($(call iseeopt, __XBOW_MIB5X0__), yes)
 include $(EEBASE)/pkg/cfg/arch/rules_xbow_mib5x0.mk
 endif 
 
-endif
+endif # __AVR5__
 
 
 ##
 ## ST10 - Tasking 6.0 under Windows
 ##########################################################################
-ifeq ($(findstring __ST10__,$(EEALLOPT)) , __ST10__)
+ifeq ($(call iseeopt, __ST10__), yes)
 include $(EEBASE)/pkg/cfg/arch/rules_ertec_eva167.mk
 endif
 
@@ -257,7 +234,7 @@ endif
 ##
 ## Altera NIOS2 - gcc under Windows
 ##########################################################################
-ifeq ($(findstring __NIOS2__,$(EEALLOPT)) , __NIOS2__)
+ifeq ($(call iseeopt, __NIOS2__), yes)
 include $(EEBASE)/pkg/cpu/nios2/cfg/rules.mk
 endif
 
@@ -265,7 +242,7 @@ endif
 ##
 ## Microchip DSPIC - gcc under Windows
 ##########################################################################
-ifeq ($(findstring __PIC30__,$(EEALLOPT)) , __PIC30__)
+ifeq ($(call iseeopt, __PIC30__), yes)
 include $(EEBASE)/pkg/cfg/arch/rules_microchip_pic30.mk
 endif
 
@@ -273,7 +250,7 @@ endif
 ##
 ## Microchip PIC32 - gcc
 ##########################################################################
-ifeq ($(findstring __PIC32__,$(EEALLOPT)) , __PIC32__)
+ifeq ($(call iseeopt, __PIC32__), yes)
 include $(EEBASE)/pkg/cfg/arch/rules_microchip_pic32.mk
 endif
 
@@ -281,22 +258,20 @@ endif
 ##
 ## Infineon Tricore 1 - Tasking under Windows
 ##########################################################################
-ifeq ($(findstring __TRICORE1_TASKING___,$(EEALLOPT)) , __TRICORE1_TASKING__)
-ifeq ($(findstring __TC1775B__,$(EEALLOPT)) , __TC1775B__)
+ifeq ($(and $(call iseeopt, __TRICORE1_TASKING___), \
+	$(call iseeopt, __TC1775B__)), yes)
 include $(EEBASE)/pkg/cfg/arch/rules_infineon_tc1775b.mk
-endif
 endif
 
 
 ##
 ## Infineon Tricore - GNU
 ##########################################################################
-ifeq ($(findstring __TRICORE_GNU__,$(EEALLOPT)) ,__TRICORE_GNU__)
-ifneq ($(filter __TC1796__ __TC1797__,$(EEALLOPT)),)
-  EEALLOPT := $(EEALLOPT) __TC179x__
-  EEOPT := $(EEOPT) __TC179x__
+ifeq ($(call iseeopt, __TRICORE_GNU__), yes)
+ifeq ($(or $(call iseeopt, __TC1796__), $(call iseeopt, __TC1797__)), yes)
+  EEOPT += __TC179x__
 endif
-ifeq ($(findstring __TC179x__,$(EEALLOPT)) , __TC179x__)
+ifeq ($(call iseeopt, __TC179x__), yes)
 include $(EEBASE)/pkg/cfg/arch/rules_infineon_tc179x.mk
 endif
 endif
@@ -305,8 +280,8 @@ endif
 ##
 ## Freescale S12X - Cosmic compiler under windows
 ##########################################################################
-ifeq ($(findstring __HCS12XS__,$(EEALLOPT)) , __HCS12XS__)
-ifeq ($(findstring __COSMIC__,$(EEALLOPT)) , __COSMIC__)
+ifeq ($(call iseeopt, __HCS12XS__), yes)
+ifeq ($(call iseeopt, __COSMIC__), yes)
 include $(EEBASE)/pkg/cfg/arch/rules_freescale_s12x_cosmic.mk
 endif
 endif
@@ -315,21 +290,21 @@ endif
 ##
 ## Lattice Mico32 - gcc under Windows or Linux
 ##########################################################################
-ifeq ($(findstring __LM32__,$(EEALLOPT)) , __LM32__)
+ifeq ($(call iseeopt, __LM32__), yes)
 include $(EEBASE)/pkg/cfg/arch/rules_mico32.mk
 endif
 
 ##
 ## eSi-RISC - gcc under Windows
 ##########################################################################
-ifeq ($(findstring __ESI_RISC__,$(EEALLOPT)) , __ESI_RISC__)
+ifeq ($(call iseeopt, __ESI_RISC__), yes)
 include $(EEBASE)/pkg/cfg/arch/rules_esi_risc.mk
 endif
 
 ##
 ## MSP430 - gcc under Linux
 ##########################################################################
-ifeq ($(findstring __MSP430__,$(EEALLOPT)), __MSP430__) 
+ifeq ($(call iseeopt, __MSP430__), yes) 
   include $(EEBASE)/pkg/cfg/arch/rules_msp430.mk
 endif 
 
@@ -339,15 +314,11 @@ endif
 ##
 ## error checking in EEOPT
 ##########################################################################
-ifeq ($(findstring __MONO__,$(EEOPT)) , __MONO__)
-ifeq ($(findstring __MULTI__,$(EEOPT)) , __MULTI__)
+ifeq ($(and $(call iseeopt, __MONO__), $(call iseeopt, __MULTI__)), yes)
 $(error __MULTI__ and __MONO__ options are not compatible)
 endif
-endif
 
-ifeq ($(findstring __IRQ_STACK_NEEDED__,$(EEOPT)) , __IRQ_STACK_NEEDED__)
-ifeq ($(findstring __MONO__,$(EEOPT)) , __MONO__)
+ifeq ($(and $(call iseeopt, __IRQ_STACK_NEEDED__), \
+	$(call iseeopt, __MONO__)), yes)
 $(error __MONO__ and __IRQ_STACK_NEEDED__ options are not compatible)
 endif
-endif
-

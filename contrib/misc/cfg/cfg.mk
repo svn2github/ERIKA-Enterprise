@@ -55,10 +55,10 @@ ifneq ($(findstring __LIB_MISC_NUM2STR__,$(LIB_OPT))$(findstring __LIB_MISC__,$(
 
 ## Add the inc path to the include pathlist
 INCLUDE_PATH += $(EEBASE)/contrib/misc/inc
-ifeq ($(findstring __COSMIC__,$(EEOPT)), __COSMIC__)
+ifeq ($(call iseeopt, __COSMIC__), yes)
 ALLINCPATH += -i"$(shell cygpath -w $(EEBASE)/contrib/misc/inc)"
 else
-ifeq ($(findstring __RTD_CYGWIN__,$(EEOPT)), __RTD_CYGWIN__) 
+ifeq ($(call iseeopt, __RTD_CYGWIN__), yes) 
 ALLINCPATH += -I"$(shell cygpath -w $(EEBASE)/contrib/misc/inc)"
 else
 ALLINCPATH += -I$(EEBASE)/contrib/misc/inc

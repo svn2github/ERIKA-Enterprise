@@ -17,7 +17,7 @@ EE_VPATH += $(EEBASE)/contrib/scicos/src/pic30/communication/udp
 EE_VPATH += $(EEBASE)/contrib/scicos/libsrc/rt
 EE_VPATH += $(EEBASE)/contrib/scicos/libsrc/core
 
-ifeq ($(findstring __RTD_CYGWIN__,$(EEOPT)), __RTD_CYGWIN__) 
+ifeq ($(call iseeopt, __RTD_CYGWIN__), yes) 
 ALLINCPATH += -I"$(shell cygpath -w $(EEBASE)/contrib/scicos/inc/core)"
 ALLINCPATH += -I"$(shell cygpath -w $(EEBASE)/contrib/scicos/inc/pic30/communication)"
 ALLINCPATH += -I"$(shell cygpath -w $(EEBASE)/contrib/scicos/inc/pic30/communication/udp)"
@@ -30,7 +30,7 @@ endif
 ## Application files
 ##
 
-ifeq ($(findstring __NIOS2__,$(EEOPT)) , __NIOS2__)
+ifeq ($(call iseeopt, __NIOS2__), yes)
 
 EE_SRCS +=      contrib/scicos/src/nios2/led.c \
 		contrib/scicos/src/nios2/button.c \
@@ -38,7 +38,7 @@ EE_SRCS +=      contrib/scicos/src/nios2/led.c \
 
 endif
 
-ifeq ($(findstring __EE_FLEX__,$(EEOPT)) , __EE_FLEX__)
+ifeq ($(call iseeopt, __EE_FLEX__), yes)
 
 #If the  blocks list (from Scicos Code Generation) is empty, compile all the pic30 block sources
 ifeq ($(EE_SRCS_SCICOS),)
@@ -60,11 +60,11 @@ else
 
 EE_SRCS += $(EE_SRCS_SCICOS)
 
-ifeq ($(findstring __USE_UDP__,$(EEOPT)) , __USE_UDP__)
+ifeq ($(call iseeopt, __USE_UDP__), yes)
 EE_SRCS += contrib/scicos/src/pic30/communication/flex_udp.c
 endif
 
-ifeq ($(findstring __USE_CAN1__,$(EEOPT)) , __USE_CAN1__)
+ifeq ($(call iseeopt, __USE_CAN1__), yes)
 EE_SRCS += contrib/scicos/src/pic30/communication/flex_can.c
 endif
 

@@ -4,7 +4,7 @@ INCLUDE_MEMORY = YES
 endif
 
 ## Check if it's selected all libs inclusion
-ifeq ($(findstring __BUILD_ALL_LIBS__,$(EEOPT)) , __BUILD_ALL_LIBS__)
+ifeq ($(call iseeopt, __BUILD_ALL_LIBS__), yes)
 INCLUDE_MEMORY = YES
 endif
 
@@ -18,7 +18,7 @@ ifeq ($(INCLUDE_MEMORY), YES)
 ##
 
 ## Add the inc path to the include pathlist
-ifeq ($(findstring __RTD_CYGWIN__,$(EEOPT)), __RTD_CYGWIN__) 
+ifeq ($(call iseeopt, __RTD_CYGWIN__), yes) 
 ALLINCPATH += -I"$(shell cygpath -w $(EEBASE)/contrib/memory/inc)"
 else
 ALLINCPATH += -I$(EEBASE)/contrib/memory/inc
@@ -34,7 +34,7 @@ ifneq ($(EE_SRCS_MEMORY),)
 EE_OBJS_MEMORY := $(addprefix $(OBJDIR)/, $(patsubst %.c,%.o,$(patsubst %.S,%.o, $(EE_SRCS_MEMORY))))
 LIBSRCS += $(EE_SRCS_MEMORY)
 
-ifneq ($(findstring __LM32__,$(EEOPT)), __LM32__) 
+ifneq ($(call iseeopt, __LM32__), yes) 
 libmemory.a: $(EE_OBJS_MEMORY)
 	@echo $(EE_SRC_MEMORY)
 	@printf "AR  libmemory.a\n" ;

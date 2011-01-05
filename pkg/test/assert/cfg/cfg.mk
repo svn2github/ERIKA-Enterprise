@@ -41,6 +41,6 @@
 ## Author: 2004 Paolo Gai
 ## CVS: $Id: cfg.mk,v 1.2 2006/11/03 11:04:39 pj Exp $
 
-ifeq ($(findstring __ASSERT__,$(EEOPT)) , __ASSERT__)
+ifeq ($(call iseeopt, __ASSERT__), yes)
 EE_SRCS += pkg/test/assert/src/ee_assert.c
 endif

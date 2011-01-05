@@ -38,7 +38,7 @@
 # Boston, MA 02110-1301 USA.
 # ###*E*###
 
-ifeq ($(findstring __MICROCHIP_PIC32__,$(EEOPT)) , __MICROCHIP_PIC32__)
+ifeq ($(call iseeopt, __MICROCHIP_PIC32__), yes)
 
 ifdef EE_SPI_PORT1_DMA_CHANNEL # NOTE: The variable is checked by RT-Druid
 EEOPT+="EE_SPI_PORT1_DCHCON(m)=DCH$(EE_SPI_PORT1_DMA_CHANNEL)CON\#\#m"
@@ -129,36 +129,36 @@ EEOPT+="EE_SPI_PORT3A_DMA_IP_POS=_IPC9_DMA$(EE_SPI_PORT3A_DMA_CHANNEL)IP_POSITIO
 EEOPT+="EE_SPI_PORT3A_DMA_IS_POS=_IPC9_DMA$(EE_SPI_PORT3A_DMA_CHANNEL)IS_POSITION"
 EEOPT+="EE_SPI_PORT3A_DMA_IRQ=_DMA$(EE_SPI_PORT3A_DMA_CHANNEL)_VECTOR"
 endif
-#ifeq ($(findstring __FRSH__,$(EEOPT)) , __FRSH__)
+#ifeq ($(call iseeopt, __FRSH__), yes)
 #EE_SRCS += pkg/mcu/microchip_pic32/src/ee_pic32frsh.c
 #endif
 
-ifeq ($(findstring __USE_CN__,$(EEOPT)) , __USE_CN__)
+ifeq ($(call iseeopt, __USE_CN__), yes)
 EE_SRCS += pkg/mcu/microchip_pic32/src/ee_cn.c
 endif
 
-ifeq ($(findstring __USE_TIMER__,$(EEOPT)) , __USE_TIMER__)
+ifeq ($(call iseeopt, __USE_TIMER__), yes)
 EE_SRCS += pkg/mcu/microchip_pic32/src/ee_timer.c
 endif
 
-ifeq ($(findstring __USE_UART__,$(EEOPT)) , __USE_UART__)
+ifeq ($(call iseeopt, __USE_UART__), yes)
 EE_SRCS += pkg/mcu/microchip_pic32/src/ee_uart.c
 endif
 
-ifeq ($(findstring __USE_SPI__,$(EEOPT)) , __USE_SPI__)
+ifeq ($(call iseeopt, __USE_SPI__), yes)
 EE_SRCS += pkg/mcu/microchip_pic32/src/ee_spi.c
 endif
 
-ifeq ($(findstring __USE_I2C__,$(EEOPT)) , __USE_I2C__)
+ifeq ($(call iseeopt, __USE_I2C__), yes)
 EE_SRCS += pkg/mcu/microchip_pic32/src/ee_i2c.c
 endif
 
-ifeq ($(findstring __USE_OC__,$(EEOPT)) , __USE_OC__)
+ifeq ($(call iseeopt, __USE_OC__), yes)
 EE_SRCS += pkg/mcu/microchip_pic32/src/ee_oc.c
 endif
 
 
-ifeq ($(findstring __USE_DMA__,$(EEOPT)) , __USE_DMA__)
+ifeq ($(call iseeopt, __USE_DMA__), yes)
 EE_SRCS += pkg/mcu/microchip_pic32/src/ee_dma.c
 endif
 

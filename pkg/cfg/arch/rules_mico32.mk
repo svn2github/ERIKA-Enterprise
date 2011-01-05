@@ -43,12 +43,12 @@
 ## Based on rules_microchip_pic30.mk and on Lattice Mico32 documentation
 
 # Enable verbose output from EE_OPT
-ifeq ($(findstring VERBOSE,$(EEOPT)) , VERBOSE)
+ifeq ($(call iseeopt, VERBOSE), yes)
 VERBOSE = 1
 endif
 
 # The __ALLOW_NESTED_IRQ__ option is unsupported:
-ifeq ($(findstring __ALLOW_NESTED_IRQ__,$(EEOPT)), __ALLOW_NESTED_IRQ__)
+ifeq ($(call iseeopt, __ALLOW_NESTED_IRQ__), yes)
 $(warning Mico32 does not currently support nested interrupts)
 $(warning The IRQ nesting option will be ignored by the HAL)
 endif
@@ -71,7 +71,7 @@ ERIKALIB = $(OUTPUT_DIR)/libee.a
 ifneq ($(ONLY_LIBS), TRUE)
 
 ## OPT_LIBS is used to link additional libraries (e.g., for C++ support)
-ifneq ($(findstring __BIN_DISTR,$(EEALLOPT)), __BIN_DISTR) 
+ifneq ($(call iseeopt, __BIN_DISTR), yes) 
 # the EE library is built in the current directory
 OPT_LIBS += -lee -L $(OUTPUT_DIR)
 LIBDEP += $(ERIKALIB)

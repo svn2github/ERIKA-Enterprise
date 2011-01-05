@@ -41,15 +41,15 @@
 ## Author: 2004 Paolo Gai
 ## CVS: $Id: cfg.mk,v 1.2 2007/01/25 15:10:57 nino Exp $
 
-ifeq ($(findstring __MICROCHIP_DSPICDEM11PLUS__,$(EEOPT)) , __MICROCHIP_DSPICDEM11PLUS__)
+ifeq ($(call iseeopt, __MICROCHIP_DSPICDEM11PLUS__), yes)
 EE_SRCS += pkg/board/microchip_dspicdem11plus/src/ee_board.c
 
 # check for the ISR routines
-ifeq ($(findstring __USE_ANALOG__,$(EEOPT)) , __USE_ANALOG__)
+ifeq ($(call iseeopt, __USE_ANALOG__), yes)
 OPT_LINK += -u__ADCInterrupt
 endif
 
-ifeq ($(findstring __USE_BUTTONS__,$(EEOPT)) , __USE_BUTTONS__)
+ifeq ($(call iseeopt, __USE_BUTTONS__), yes)
 OPT_LINK += -u__INT1Interrupt
 OPT_LINK += -u__INT2Interrupt
 OPT_LINK += -u__INT3Interrupt

@@ -8,7 +8,7 @@ ifeq ($(findstring __LIB_ATMEL802154__,$(LIB_OPT)),__LIB_ATMEL802154__)
 ## Application files
 ##
 
-ifeq ($(findstring __AT86RF230__,$(EEOPT)) , __AT86RF230__)
+ifeq ($(call iseeopt, __AT86RF230__), yes)
 
 EE_SRCS +=      
 

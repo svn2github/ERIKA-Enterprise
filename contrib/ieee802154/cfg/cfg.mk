@@ -60,7 +60,7 @@ ifeq ($(findstring __LIB_IEEE802154__,$(LIB_OPT)),__LIB_IEEE802154__)
 OPT_LIBS += -lieee802154
 
 # Add MYLIB inc directory to the include file path
-ifeq ($(findstring __RTD_CYGWIN__,$(EEOPT)), __RTD_CYGWIN__) 
+ifeq ($(call iseeopt, __RTD_CYGWIN__), yes) 
 INTERNAL_MYLIBINCPATH += -I"$(shell cygpath -w $(EEBASE)/contrib/ieee802154/inc)"
 else
 INTERNAL_MYLIBINCPATH += -I$(EEBASE)/contrib/ieee802154/inc

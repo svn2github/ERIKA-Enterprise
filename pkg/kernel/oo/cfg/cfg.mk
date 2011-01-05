@@ -41,18 +41,18 @@
 ## Author: 2004 Paolo Gai
 ## CVS: $Id: cfg.mk,v 1.4 2006/12/03 22:07:50 pj Exp $
 
-ifeq ($(findstring __OO_BCC1__,$(EEOPT)) , __OO_BCC1__)
+ifeq ($(call iseeopt, __OO_BCC1__), yes)
 OO=YES
 endif
-ifeq ($(findstring __OO_BCC2__,$(EEOPT)) , __OO_BCC2__)
+ifeq ($(call iseeopt, __OO_BCC2__), yes)
 OO=YES
 OO2=YES
 endif
-ifeq ($(findstring __OO_ECC1__,$(EEOPT)) , __OO_ECC1__)
+ifeq ($(call iseeopt, __OO_ECC1__), yes)
 OO=YES
 OO_ECC=YES
 endif
-ifeq ($(findstring __OO_ECC2__,$(EEOPT)) , __OO_ECC2__)
+ifeq ($(call iseeopt, __OO_ECC2__), yes)
 OO=YES
 OO_ECC=YES
 OO2=YES
@@ -76,17 +76,17 @@ ifeq ($(OO2), YES)
 EE_SRCS += pkg/kernel/oo/src/ee_rq_first.c
 endif
 
-ifneq ($(findstring __OO_NO_CHAINTASK__,$(EEOPT)) , __OO_NO_CHAINTASK__)
+ifneq ($(call iseeopt, __OO_NO_CHAINTASK__), yes)
 EE_SRCS += pkg/kernel/oo/src/ee_chaintas.c
 endif
 
-ifneq ($(findstring __OO_NO_RESOURCES__,$(EEOPT)) , __OO_NO_RESOURCES__)
+ifneq ($(call iseeopt, __OO_NO_RESOURCES__), yes)
 EE_SRCS += pkg/kernel/oo/src/ee_lockres.c
 EE_SRCS += pkg/kernel/oo/src/ee_ulockres.c
 endif
 
 
-ifneq ($(findstring __OO_NO_ALARMS__,$(EEOPT)) , __OO_NO_ALARMS__)
+ifneq ($(call iseeopt, __OO_NO_ALARMS__), yes)
 EE_SRCS += pkg/kernel/oo/src/ee_alcancel.c
 EE_SRCS += pkg/kernel/oo/src/ee_algetbase.c
 EE_SRCS += pkg/kernel/oo/src/ee_alget.c
@@ -102,7 +102,7 @@ EE_SRCS += pkg/kernel/oo/src/ee_evset.c
 EE_SRCS += pkg/kernel/oo/src/ee_evwait.c 
 endif
 
-ifeq ($(findstring __BIN_DISTR,$(EEOPT)) , __BIN_DISTR)
+ifeq ($(call iseeopt, __BIN_DISTR), yes)
 EE_SRCS += pkg/kernel/oo/src/ee_disableallinterrupts.c
 EE_SRCS += pkg/kernel/oo/src/ee_enableallinterrupts.c
 EE_SRCS += pkg/kernel/oo/src/ee_suspendallinterrupts.c
@@ -114,7 +114,7 @@ EE_SRCS += pkg/kernel/oo/src/ee_gettaskid.c
 EE_SRCS += pkg/kernel/oo/src/ee_gettaskstate.c
 endif
 
-ifeq ($(findstring __OO_SEM__,$(EEOPT)) , __OO_SEM__)
+ifeq ($(call iseeopt, __OO_SEM__), yes)
 EE_SRCS += pkg/kernel/oo/src/ee_sempost.c
 EE_SRCS += pkg/kernel/oo/src/ee_semtrywait.c
 EE_SRCS += pkg/kernel/oo/src/ee_semgetvalue.c

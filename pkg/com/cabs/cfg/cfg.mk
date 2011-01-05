@@ -41,6 +41,6 @@
 ## Author: 2004 Paolo Gai
 ## CVS: $Id: cfg.mk,v 1.2 2006/11/03 11:05:21 pj Exp $
 
-ifeq ($(findstring __CABS__,$(EEOPT)) , __CABS__)
+ifeq ($(call iseeopt, __CABS__), yes)
 EE_SRCS += pkg/com/cabs/src/ee_cabs.c
 endif

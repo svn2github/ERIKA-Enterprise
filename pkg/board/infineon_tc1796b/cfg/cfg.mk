@@ -42,7 +42,7 @@
 ## 
 ##
 
-ifeq ($(findstring __TC1796__,$(EEOPT)), __TC1796__)
+ifeq ($(call iseeopt, __TC1796__), yes)
 
 EE_SRCS += pkg/board/infineon_tc1796b/src/ee_board.c
 endif

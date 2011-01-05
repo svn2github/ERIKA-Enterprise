@@ -42,7 +42,7 @@
 ## CVS: $Id: cfg.mk,v 1.2 2006/11/03 11:05:21 pj Exp $
 
 ########### ISO15765 NETWORK LAYER ################
-ifeq ($(findstring __ISO15765__,$(EEOPT)) , __ISO15765__)
+ifeq ($(call iseeopt, __ISO15765__), yes)
 EE_SRCS += pkg/com/iso15765/src/init_net.c
 EE_SRCS += pkg/com/iso15765/src/request.c
 EE_SRCS += pkg/com/iso15765/src/confirm.c

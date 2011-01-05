@@ -38,10 +38,10 @@
 # Boston, MA 02110-1301 USA.
 # ###*E*###
 
-ifeq ($(findstring __LM32__,$(EEOPT)) , __LM32__)
+ifeq ($(call iseeopt, __LM32__), yes)
 
 # *** IPERMOB camera board ***
-ifeq ($(findstring __XP2_CAMERA_BOARD__,$(EEOPT)) , __XP2_CAMERA_BOARD__)
+ifeq ($(call iseeopt, __XP2_CAMERA_BOARD__), yes)
 # no files
 endif #__XP2_CAMERA_BOARD__
 

@@ -38,7 +38,7 @@
 # Boston, MA 02110-1301 USA.
 # ###*E*###
 
-ifeq ($(findstring __AXIOM_MPC5674FXMB__,$(EEOPT)) , __AXIOM_MPC5674FXMB__)
+ifeq ($(call iseeopt, __AXIOM_MPC5674FXMB__), yes)
 
 EE_SRCS += pkg/board/axiom_mpc5674fxmb/src/ee_board.c
 

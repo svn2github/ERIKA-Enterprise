@@ -41,7 +41,7 @@
 ## Author: 2004 Paolo Gai
 ## CVS: $Id: cfg.mk,v 1.1.1.1 2007/04/10 12:53:52 claudio Exp $
 
-ifeq ($(findstring __EDF__,$(EEOPT)) , __EDF__)
+ifeq ($(call iseeopt, __EDF__), yes)
 EE_SRCS += pkg/kernel/edf/src/ee_gettime.c
 EE_SRCS += pkg/kernel/edf/src/ee_irqsc.c
 EE_SRCS += pkg/kernel/edf/src/ee_rqexchg.c
@@ -50,7 +50,7 @@ EE_SRCS += pkg/kernel/edf/src/ee_schedule.c
 EE_SRCS += pkg/kernel/edf/src/ee_thact.c
 EE_SRCS += pkg/kernel/edf/src/ee_thendin.c
 
-  ifneq ($(findstring __EDF_NO_RESOURCE__,$(EEOPT)) , __EDF_NO_RESOURCE__)
+  ifneq ($(call iseeopt, __EDF_NO_RESOURCE__), yes)
   EE_SRCS += pkg/kernel/edf/src/ee_mutex.c
   endif
 endif
