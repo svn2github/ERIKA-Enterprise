@@ -66,11 +66,11 @@ ifeq ($(call iseeopt, __MPC5PROTECTED__), yes)
 include $(PKGBASE)/cfg/arch/cc_ppcgnu.mk
 endif
 
-ifeq ($(call iseeopt, __PPCE200Z7__), yes)
+ifeq ($(or $(call iseeopt, __PPCE200ZX__), $(call iseeopt, __PPCE200Z7__)), yes)
 ifeq ($(call iseeopt, __DIAB__), yes)
-include $(PKGBASE)/cfg/arch/cc_z7diab.mk
+include $(PKGBASE)/cfg/arch/cc_ppc_diab.mk
 endif
-endif
+endif # PPCE200ZX
 
 ifeq ($(call iseeopt, __PIC30__), yes)
 include $(PKGBASE)/cfg/arch/cc_pic30.mk

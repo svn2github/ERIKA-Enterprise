@@ -46,7 +46,7 @@
 
 
 #include <ee.h>
-#include <cpu/e200z7/inc/ee_irq.h>
+#include <cpu/e200zx/inc/ee_irq.h>
 /* Assertions */
 #include "test/assert/inc/ee_assert.h"
 

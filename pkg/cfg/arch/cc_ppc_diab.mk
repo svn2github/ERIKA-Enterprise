@@ -56,6 +56,15 @@ EE_AR ?= dar
 
 OPT_INCLUDE = $(foreach d,$(INCLUDE_PATH),$(addprefix -I,$(call native_path,$d)))
 
+ifndef PPC_ARCH
+ifeq ($(call iseeopt, __VLE__), yes)
+PPC_ARCH = PPC5534VEF:simple
+else
+PPC_ARCH = PPCE200Z6NES:simple
+endif
+endif # PPC_ARCH
+OPT_TARGET := -t $(PPC_ARCH)
+
 ## OPT_CC are the options for compiler invocation
 # -Xstruct-arg-warning: warn if a structure too big is passed by value
 # -Xkeywords=4: enable the inline keyword
@@ -63,7 +72,9 @@ OPT_CC = -Xlicense-wait -Xstderr-fully-buffered -Xbss-common-off	\
 	-Xeieio -g3 -Xdebug-dwarf1 -XO -Xsavefpr-avoid \
 	-Xsmall-data=8 -Xswitch-table=0 -Xinline=40 -Xsmall-const=0 \
 	-Xenum-is-best -Xunroll=4 -Xunroll-size=5 -Xsize-opt -Xsemi-is-comment \
-	-Xstop-on-warning -Xkeywords=4 $(ALLINCPATH) -c $(CFLAGS)
+	-Xstop-on-warning -Xkeywords=4 $(ALLINCPATH) -c $(CFLAGS) \
+	$(OPT_TARGET)
+
 # -Xforce-prototypes 
 
 ifneq ($(call iseeopt, __BIN_DISTR), yes)
@@ -73,7 +84,7 @@ endif
 endif
 
 ## OPT_ASM are the options for asm invocation
-OPT_ASM =
+OPT_ASM = $(OPT_TARGET)
 
 ifneq ($(call iseeopt, __BIN_DISTR), yes)
 ifeq ($(call iseeopt, DEBUG), yes)
@@ -82,6 +93,7 @@ endif
 endif
 
 # OPT_LINK represents the options for ld invocation
+OPT_LINK += $(OPT_TARGET)
 ifeq ($(call iseeopt, __DEFAULT_LD_SCRIPT__), yes)
 OPT_LINK += out/loc_gnu.ld -e __start
 LINKDEP = out/loc_gnu.ld

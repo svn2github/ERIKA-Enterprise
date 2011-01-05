@@ -46,7 +46,7 @@
 
 	.set noreorder
 
-#include <cpu/e200z7/inc/ee_regs.h>
+#include <cpu/e200zx/inc/ee_regs.h>
 
 set_ivor: .macro n,label
 	addi	r0, 0, label@l

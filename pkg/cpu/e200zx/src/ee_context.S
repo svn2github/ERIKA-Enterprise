@@ -45,7 +45,7 @@
  * Author: Fabio Checconi
  */
 
-#include <cpu/e200z7/inc/ee_regs.h>
+#include <cpu/e200zx/inc/ee_regs.h>
 
 /*
 void EE_std_change_context_multi(EE_FADDR thread_addr, EE_UREG tos_index);

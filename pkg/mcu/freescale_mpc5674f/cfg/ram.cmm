@@ -4,7 +4,7 @@
 ;
 ; For t32 ver (4/12/2009)
 ;
-&filename="z7.elf"
+&filename="ppc.elf"
 
 SYStem.RESet
 SYStem.BdmClock 4.0MHz

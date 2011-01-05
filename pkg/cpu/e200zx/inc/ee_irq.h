@@ -7,7 +7,7 @@
  *
  * ERIKA Enterprise is free software; you can redistribute it
  * and/or modify it under the terms of the GNU General Public License
- * version 2 as published by the Free Software Foundation, 
+ * version 2 as published by the Free Software Foundation,
  * (with a special exception described below).
  *
  * Linking this code statically or dynamically with other modules is
@@ -43,55 +43,61 @@
  * Author: 2010 Fabio Checconi
  */
 
-#include <ee_internal.h>
-#include <cpu/e200z7/inc/ee_irq.h>
-#include <cpu/e200z7/inc/ee_irq_internal.h>
-#include <cpu/common/inc/ee_irqstub.h>
+#ifndef __INCLUDE_E200Z7_IRQ_H__
+#define __INCLUDE_E200Z7_IRQ_H__
 
-#define EE_E200Z7_MAX_IRQ	488
+#include "ee_internal.h"
+#include "cpu/common/inc/ee_irqstub.h"
+#include "cpu/e200zx/inc/ee_irq.h"
+#include "cpu/e200zx/inc/ee_internal.h"
 
-void EE_e200z7_irq(int level)
+typedef void (*EE_e200z7_ISR_handler)(void);
+extern EE_e200z7_ISR_handler EE_e200z7_ISR_table[];
+
+/*
+ * Alternate ISR implementation, to be used when the user defines his own
+ * entry points for ISRs.
+ */
+
+__asm static void EE_ISR1_prestub(void)
 {
-	EE_e200z7_ISR_handler f;
+	wrteei	1
+}
 
+#define ISR1(f)								\
+void ISR1_ ## f(void);							\
+void f(void)								\
+{									\
+	EE_ISR1_prestub();						\
+	ISR1_ ## f();							\
+}									\
+void ISR1_ ## f(void)
+
+/*
+ * NOTE: The ISR2 stubs are independent from the architecture, we should
+ * move them to common/
+ */
+static inline void EE_ISR2_prestub(void)
+{
 	EE_increment_IRQ_nesting_level();
-	f = EE_e200z7_ISR_table[level];
-	if (f) {
-		EE_e200z7_call_ISR_new_stack(level, f, EE_IRQ_nesting_level);
-	}
+}
 
+static inline void EE_ISR2_poststub(void)
+{
 	EE_decrement_IRQ_nesting_level();
 	if (!EE_is_inside_ISR_call()) {
-		/*
-		 * Outer nesting level: call the scheduler.  If we have
-		 * also type-ISR1 interrupts, the scheduler should be
-		 * called only for type-ISR2 interrupts.
-		 * WTF?  It doesn't work, does it?
-		 */
 		EE_std_after_IRQ_schedule();
 	}
 }
 
-#ifndef __STATIC_ISR_TABLE__
+#define ISR2(f)								\
+void ISR2_ ## f(void);							\
+void f(void)								\
+{									\
+	EE_ISR2_prestub();						\
+	ISR2_ ## f();							\
+	EE_ISR2_poststub();						\
+}									\
+void ISR2_ ## f(void)
 
-EE_e200z7_ISR_handler EE_e200z7_ISR_table[EE_E200Z7_MAX_IRQ + 1];
-
-#define INTC_BASE	0xfff48000
-#define INTC_PSR	((volatile EE_UINT8 *)(INTC_BASE + 0x0040))
-
-void EE_e200z7_register_ISR(int level, EE_e200z7_ISR_handler fun, EE_UINT8 pri)
-{
-	EE_FREG intst = EE_e200z7_disableIRQ();
-
-	EE_e200z7_ISR_table[level] = fun;
-
-	if (level >= 16) {
-		INTC_PSR[level - 16] = pri;
-	}
-
-	if (EE_e200z7_are_IRQs_enabled(intst)) {
-		EE_e200z7_enableIRQ();
-	}
-}
-
-#endif
+#endif /*  __INCLUDE_E200Z7_IRQ_H__ */

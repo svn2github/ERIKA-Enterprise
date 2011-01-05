@@ -225,7 +225,7 @@ static void handle_timer_interrupt(void* context, alt_u32 id)
 #endif
 
 #if defined(__PPCE200Z7__)
-#include "cpu/e200z7/inc/ee_irq.h"
+#include "cpu/e200zx/inc/ee_irq.h"
 static void handle_timer_interrupt(void)
 {
   StatusType s;

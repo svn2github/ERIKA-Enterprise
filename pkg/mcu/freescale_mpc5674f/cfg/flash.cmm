@@ -34,7 +34,7 @@
 ;
 
 ; evi - ERIKA binary object
-&filename="z7.elf"
+&filename="ppc.elf"
 
 &flashbase=0x00000000
 &shadow0base=0x00ffc000

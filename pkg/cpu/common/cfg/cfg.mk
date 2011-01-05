@@ -46,11 +46,9 @@ EE_SRCS += pkg/cpu/common/src/ee_hal_structs.c
 EE_SRCS += pkg/cpu/common/src/ee_context.c
 endif
 
-ifeq ($(call iseeopt, __PPCE200Z7__), yes)
-ifeq ($(call iseeopt, __MPC5674F__), yes)
+ifeq ($(or $(call iseeopt, __PPCE200ZX__), $(call iseeopt, __PPCE200Z7__)), yes)
 EE_SRCS += pkg/cpu/common/src/ee_hal_structs.c
 EE_SRCS += pkg/cpu/common/src/ee_context.c
-endif
 endif
 
 ifeq ($(call iseeopt, __ESI_RISC__), yes)

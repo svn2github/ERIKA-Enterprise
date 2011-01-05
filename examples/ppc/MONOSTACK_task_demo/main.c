@@ -43,7 +43,7 @@
  */
 
 #include "ee.h"
-#include "cpu/e200z7/inc/ee_irq.h"
+#include "cpu/e200zx/inc/ee_irq.h"
 #include "myapp.h"
 #include "board/axiom_mpc5674fxmb/inc/ee_board.h"
 

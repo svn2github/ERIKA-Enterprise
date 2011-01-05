@@ -37,106 +37,61 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
+
 /*
- * IRQ low-level code, based on the mico32 version.
+ * Derived from the mico32 code.
  * Author: 2010 Fabio Checconi
  */
 
-#include <cpu/e200z7/inc/ee_regs.h>
+#include <ee_internal.h>
+#include <cpu/e200zx/inc/ee_irq.h>
+#include <cpu/e200zx/inc/ee_irq_internal.h>
+#include <cpu/common/inc/ee_irqstub.h>
 
-#ifdef __ALLOW_NESTED_IRQ__
-jmp_if_nested_reg: .macro reg, label
-	cmpi	cr0, reg, 1
-	bne	label
-	.endm
+#define EE_E200Z7_MAX_IRQ	488
 
-jmp_if_nested: .macro label
-	addis	r5, 0, EE_IRQ_nesting_level@ha
-	lwz	r0, EE_IRQ_nesting_level@l(r5)
-	cmpi	cr0, r0, 1
-	bne	label
-	.endm
+void EE_e200z7_irq(int level)
+{
+	EE_e200z7_ISR_handler f;
 
-enable_irq_nested: .macro
-	wrteei	1
-	.endm
+	EE_increment_IRQ_nesting_level();
+	f = EE_e200z7_ISR_table[level];
+	if (f) {
+		EE_e200z7_call_ISR_new_stack(level, f, EE_IRQ_nesting_level);
+	}
 
-disable_irq_nested: .macro
-	wrteei	0
-	.endm
-#else
-jmp_if_nested_reg: .macro reg, label
-	.endm
+	EE_decrement_IRQ_nesting_level();
+	if (!EE_is_inside_ISR_call()) {
+		/*
+		 * Outer nesting level: call the scheduler.  If we have
+		 * also type-ISR1 interrupts, the scheduler should be
+		 * called only for type-ISR2 interrupts.
+		 * WTF?  It doesn't work, does it?
+		 */
+		EE_std_after_IRQ_schedule();
+	}
+}
 
-jmp_if_nested: .macro label
-	.endm
+#ifndef __STATIC_ISR_TABLE__
 
-enable_irq_nested: .macro
-	.endm
+EE_e200z7_ISR_handler EE_e200z7_ISR_table[EE_E200Z7_MAX_IRQ + 1];
 
-disable_irq_nested: .macro
-	.endm
+#define INTC_BASE	0xfff48000
+#define INTC_PSR	((volatile EE_UINT8 *)(INTC_BASE + 0x0040))
+
+void EE_e200z7_register_ISR(int level, EE_e200z7_ISR_handler fun, EE_UINT8 pri)
+{
+	EE_FREG intst = EE_e200z7_disableIRQ();
+
+	EE_e200z7_ISR_table[level] = fun;
+
+	if (level >= 16) {
+		INTC_PSR[level - 16] = pri;
+	}
+
+	if (EE_e200z7_are_IRQs_enabled(intst)) {
+		EE_e200z7_enableIRQ();
+	}
+}
+
 #endif
-
-        .section .bss
-
-	.global	EE_e200z7_tmp_tos
-	.type	EE_e200z7_tmp_tos, @object
-	.balign	4
-EE_e200z7_tmp_tos:
-        .space  4
-	.size	EE_e200z7_tmp_tos, .-EE_e200z7_tmp_tos
-
-	.text
-
-	.global EE_e200z7_call_ISR_new_stack
-
-	.type EE_e200z7_call_ISR_new_stack, @function
-
-EE_e200z7_call_ISR_new_stack:
-	/*
-	 * r3 == irq_level
-	 * r4 == fun
-	 * r5 == nesting_level
-	 */
-
-	stwu	sp, -16(sp)
-	mfspr	r0, SPRG_LR
-	stw	r0, 20(sp)
-
-	/* if (nesting_level == 1) */
-	jmp_if_nested_reg r5, skip_change
-
-        /*	change_stacks(); */
-	addis	r3, 0, EE_e200z7_tmp_tos@ha
-	stw	sp, EE_e200z7_tmp_tos@l(r3)
-
-	addis	r3, 0, EE_e200z7_IRQ_tos@ha
-	lwz	sp, EE_e200z7_IRQ_tos@l(r3)
-
-skip_change:
-	/* EE_std_enableIRQ_nested(); */
-	enable_irq_nested
-
-	/* fun(); */
-	mtspr	SPRG_LR, r4
-	blrl
-
-	/* EE_std_disableIRQ_nested(); */
-	disable_irq_nested
-
-	/* if (nesting_level == 1) */
-	jmp_if_nested skip_change_back
-
-	/*     change_stacks_back(); */
-	addis	r3, 0, EE_e200z7_tmp_tos@ha
-	lwz	sp, EE_e200z7_tmp_tos@l(r3)
-
-skip_change_back:
-	lwz	r0, 20(sp)
-	addi	sp, sp, 16
-	mtspr	SPRG_LR, r0
-
-	blr
-
-	.size	EE_e200z7_call_ISR_new_stack, .-EE_e200z7_call_ISR_new_stack

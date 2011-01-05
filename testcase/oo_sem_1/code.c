@@ -131,7 +131,7 @@ void ErrorHook(StatusType Error)
 #endif
 
 #if defined(__PPCE200Z7__)
-	#include "cpu/e200z7/inc/ee_irq.h"
+	#include "cpu/e200zx/inc/ee_irq.h"
 	/* call the ERIKA Enterprise tick function for the Counter1 counter! */
 	static void handle_timer_interrupt(void)
 	{

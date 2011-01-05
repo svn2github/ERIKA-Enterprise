@@ -46,7 +46,7 @@
 
 
 #include <ee.h>
-#include <cpu/e200z7/inc/ee_irq.h>
+#include <cpu/e200zx/inc/ee_irq.h>
 #include "test/assert/inc/ee_assert.h"
 
 /* For time measurements */
@@ -153,7 +153,7 @@ asm volatile int get_IRQ_enabled(void)
 #ifndef DEBUG_STACK
 #define check_all_pre_stack_canaries(x,y)       0
 #endif
-#include <cpu/e200z7/inc/ee_debug.h>
+#include <cpu/e200zx/inc/ee_debug.h>
 /* These are used only for multistack; defined in this way so that asserts need
  * not to be rearranged */
 #define get_current_tos_index()                 0

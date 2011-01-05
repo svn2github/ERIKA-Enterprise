@@ -7,7 +7,7 @@
  *
  * ERIKA Enterprise is free software; you can redistribute it
  * and/or modify it under the terms of the GNU General Public License
- * version 2 as published by the Free Software Foundation,
+ * version 2 as published by the Free Software Foundation, 
  * (with a special exception described below).
  *
  * Linking this code statically or dynamically with other modules is
@@ -39,70 +39,74 @@
  * ###*E*### */
 
 /*
- * Derived from cpu/mico32/inc/ee_internal.h
- * Author: 2010 Fabio Checconi
+ * Functions to save and restore registers for Osek TerminateTask() on
+ * PPCE200Z7.
+ * Author: 2010,  Fabio Checconi
  */
 
-#ifndef __INCLUDE_E200Z7_INTERNAL_H__
-#define __INCLUDE_E200Z7_INTERNAL_H__
+#include <cpu/e200zx/inc/ee_regs.h>
 
-#include "cpu/e200z7/inc/ee_cpu.h"
+	.text
 
+	.global EE_hal_terminate_savestk
+	.type	EE_hal_terminate_savestk, @function
+/* void EE_hal_terminate_savestk(EE_TID tid); */
+EE_hal_terminate_savestk:
+	// r3 == tid
 
-/*************************************************************************
- Functions
- *************************************************************************/
+	// r4 == tid << 2
+	rlwinm	r4, r3, 2, 0, 29
 
-/*
- * Generic Primitives
- */
+	// r5 == EE_terminate_real_th_body[tid]
+	addis	r5, 0, EE_terminate_real_th_body@ha
+	add	r5, r5, r4
+	lwz	r5, EE_terminate_real_th_body@l(r5)
 
-#include "cpu/common/inc/ee_primitives.h"
+	/* Save the stack pointer (including space for registers) */
+	// r6 == & EE_terminate_data[tid]
+	addis	r6, 0, EE_terminate_data@ha
+	add	r6, r6, r4
+	mfspr	r0, SPRG_LR
+	stwu	sp, -96(sp)
+	stw	sp, EE_terminate_data@l(r6)
+	
+	/* Save all callee-saved registers */
+	stw	r0, 8(sp)
+	stmw	r14, 12(sp)
 
+	/* Start the thread body */
+	mtspr	SPRG_LR, r5
+	blrl
 
-/* called as _first_ function of a primitive that can be called in
-   an IRQ and in a task */
-__INLINE__ EE_FREG __ALWAYS_INLINE__ EE_hal_begin_nested_primitive(void)
-{
-    return EE_e200z7_disableIRQ();
-}
+	/* The task terminated with a return: do the usual cleanup */
+	lwz	r0, 8(sp)
+	mtspr	SPRG_LR, r0
+	addi	sp, sp, 96
 
+	blr
+	
+	.size	EE_hal_terminate_savestk, .-EE_hal_terminate_savestk
 
-/* Called as _last_ function of a primitive that can be called in
-   an IRQ and in a task.  Enable IRQs if they were enabled before entering. */
-__INLINE__ void __ALWAYS_INLINE__ EE_hal_end_nested_primitive(EE_FREG f)
-{
-	if (EE_e200z7_are_IRQs_enabled(f)) {
-		EE_e200z7_enableIRQ();
-	}
-}
+	.global EE_hal_terminate_task
+	.type	EE_hal_terminate_task, @function
+	/* void EE_hal_terminate_task(EE_TID tid) NORETURN; */
+EE_hal_terminate_task:
+	// r3 == tid
+	
+	/* Restore the stack pointer */
+	// r5 == & EE_terminate_data[tid]
+	rlwinm	r4, r3, 2, 0, 29
+	addis	r5, 0, EE_terminate_data@ha
+	add	r5, r5, r4
+	lwz	sp, EE_terminate_data@l(r5)
 
+	/* Restore the registers and return */
+	lwz	r0, 8(sp)
+	mtspr	SPRG_LR, r0
+	lmw	r14, 12(sp)
 
+	addi	sp, sp, 96
 
-/*
- * Context Handling
- */
+	blr
 
-#ifdef __MULTI__
-#define EE_hal_active_tos	EE_e200z7_active_tos
-#endif
-
-#include "cpu/common/inc/ee_context.h"
-
-/* typically called at the end of an interrupt */
-#define EE_hal_IRQ_stacked EE_hal_endcycle_stacked
-#define EE_hal_IRQ_ready EE_hal_endcycle_ready
-
-/*
- * OO TerminateTask related stuffs
- */
-
-#if defined(__OO_BCC1__) || defined(__OO_BCC2__) || defined(__OO_ECC1__) || defined(__OO_ECC2__)
-
-void EE_hal_terminate_savestk(EE_TID tid);
-void EE_hal_terminate_task(EE_TID tid) NORETURN;
-
-#endif /* __OO_BCCx */
-
-
-#endif /* __INCLUDE_E200Z7_INTERNAL_H__ */
+	.size	EE_hal_terminate_task, .-EE_hal_terminate_task

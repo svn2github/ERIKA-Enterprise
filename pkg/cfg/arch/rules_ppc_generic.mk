@@ -1,7 +1,7 @@
 # ###*B*###
 # ERIKA Enterprise - a tiny RTOS for small microcontrollers
 
-# Copyright (C) 2002-2010  Evidence Srl
+# Copyright (C) 2002-2011  Evidence Srl
 
 # This file is part of ERIKA Enterprise.
 
@@ -39,18 +39,30 @@
 # ###*E*###
 
 ## Author: 2010 Fabio Checconi
-## 2010 Bernardo  Dal Seno
+## 2010-2011 Bernardo  Dal Seno
 
 # Enable verbose output from EE_OPT
 ifeq ($(call iseeopt, VERBOSE), yes)
 VERBOSE = 1
 endif
 
+# MCU
+ifeq ($(call iseeopt, __MPC5674F__), yes)
+PPC_MCU_MODEL = mpc5674f
+T32_FLASH_BIN = c90fl5674.bin
+endif
+ifndef PPC_MCU_MODEL
+$(error No known PPC MCU model found in EE_OPT)
+endif
+# Read MCU-specif file, if it exists
+-include $(PKGBASE)/cfg/arch/rules_ppc_$(PPC_MCU_MODEL).mk
+
 include $(EEBASE)/pkg/cfg/dir.mk
 include $(PKGBASE)/cfg/verbose.mk
 include $(PKGBASE)/cfg/compiler.mk
 
-ifeq ($(call iseeopt, __E200Z7_EXECUTE_FROM_RAM__), yes)
+ifeq ($(or $(call iseeopt, __E200ZX_EXECUTE_FROM_RAM__), \
+	$(call iseeopt, __E200Z7_EXECUTE_FROM_RAM__)), yes)
 DLD := ram.dld
 T32CMM_SRC := ram.cmm
 else
@@ -61,12 +73,7 @@ endif
 OPT_LINK += loc_diab.dld -e __start
 LINKDEP = loc_diab.dld
 
-PPC_ARCH ?= PPCE200Z6NES:simple
-CRT0_SRCS := pkg/mcu/freescale_mpc5674f/src/ee_boot.S
-OPT_TARGET := -t $(PPC_ARCH)
-OPT_CC += $(OPT_TARGET)
-OPT_ASM += $(OPT_TARGET)
-OPT_LINK += $(OPT_TARGET)
+CRT0_SRCS := pkg/mcu/freescale_$(PPC_MCU_MODEL)/src/ee_boot.S
 
 # Add application file to dependencies
 ifneq ($(ONLY_LIBS), TRUE)
@@ -90,7 +97,7 @@ LIBDEP += $(LDDEPS)
 
 # Add application file to dependencies
 ifneq ($(call iseeopt, __BUILD_LIBS__), yes)
-TARGET:=z7.elf
+TARGET:=ppc.elf
 endif
 
 include $(wildcard $(PKGBASE)/cfg/cfg.mk)
@@ -176,7 +183,7 @@ clean:
 ## Lauterbach targets
 ##
 T32BASE ?= /opt/case/emulator/lauterbach/t32
-T32BIN ?= $(T32BASE)/demo/powerpc/flash/quad/c90fl5674.bin
+T32BIN ?= $(T32BASE)/demo/powerpc/flash/quad/$(T32_FLASH_BIN)
 T32GENMENU ?= $(T32BASE)/demo/kernel/orti/genmenu
 
 T32TARGETS := t32.cmm orti.cmm
@@ -192,11 +199,11 @@ t32: $(T32TARGETS)
 t32.cmm:
 	$(QUIET)sed -e 's:flashdriver=.*$$:flashdriver="$(T32BIN)":'	\
 		-e 's:ORTICMD:$(T32ORTISTR):'				\
-		"$(PKGBASE)/mcu/freescale_mpc5674f/cfg/$(T32CMM_SRC)" > $@
+		"$(PKGBASE)/mcu/freescale_$(PPC_MCU_MODEL)/cfg/$(T32CMM_SRC)" > $@
 
 orti.cmm ortiperf.men: t32.cmm
-	@cp $(PKGBASE)/mcu/freescale_mpc5674f/cfg/orti.cmm .
-	@cp $(PKGBASE)/mcu/freescale_mpc5674f/cfg/ortiperf.men .
+	@cp $(PKGBASE)/mcu/freescale_$(PPC_MCU_MODEL)/cfg/orti.cmm .
+	@cp $(PKGBASE)/mcu/freescale_$(PPC_MCU_MODEL)/cfg/ortiperf.men .
 
 orti.men: $(T32GENMENU)
 	@$(T32GENMENU) system.orti
@@ -208,7 +215,7 @@ orti.men: $(T32GENMENU)
 $(TARGET): $(CRT0) $(OBJS) $(LINKDEP) $(LIBDEP)
 	@printf "LD\n";
 	$(QUIET)$(EE_LINK) $(COMPUTED_OPT_LINK)				\
-		-o $(TARGETFILE) $(OPT_CRT0) $(OBJS) $(OPT_LIBS) -lc -m > z7.map
+		-o $(TARGETFILE) $(OPT_CRT0) $(OBJS) $(OPT_LIBS) -lc -m > ppc.map
 	@echo
 	@echo "Compilation terminated successfully"
 	@echo
@@ -231,9 +238,9 @@ $(OBJDIR)/%.o: %.c
 ## Locator files
 ##
 
-loc_diab.dld: $(PKGBASE)/mcu/freescale_mpc5674f/cfg/$(DLD)
+loc_diab.dld: $(PKGBASE)/mcu/freescale_$(PPC_MCU_MODEL)/cfg/$(DLD)
 	@printf "LOC\n" ;
-	@cp $(PKGBASE)/mcu/freescale_mpc5674f/cfg/$(DLD) loc_diab.dld
+	@cp $(PKGBASE)/mcu/freescale_$(PPC_MCU_MODEL)/cfg/$(DLD) loc_diab.dld
 
 ##
 ## EE Library

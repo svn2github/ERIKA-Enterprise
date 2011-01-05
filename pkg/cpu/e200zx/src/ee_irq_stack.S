@@ -37,76 +37,106 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
-
 /*
- * Functions to save and restore registers for Osek TerminateTask() on
- * PPCE200Z7.
- * Author: 2010,  Fabio Checconi
+ * IRQ low-level code, based on the mico32 version.
+ * Author: 2010 Fabio Checconi
  */
 
-#include <cpu/e200z7/inc/ee_regs.h>
+#include <cpu/e200zx/inc/ee_regs.h>
+
+#ifdef __ALLOW_NESTED_IRQ__
+jmp_if_nested_reg: .macro reg, label
+	cmpi	cr0, reg, 1
+	bne	label
+	.endm
+
+jmp_if_nested: .macro label
+	addis	r5, 0, EE_IRQ_nesting_level@ha
+	lwz	r0, EE_IRQ_nesting_level@l(r5)
+	cmpi	cr0, r0, 1
+	bne	label
+	.endm
+
+enable_irq_nested: .macro
+	wrteei	1
+	.endm
+
+disable_irq_nested: .macro
+	wrteei	0
+	.endm
+#else
+jmp_if_nested_reg: .macro reg, label
+	.endm
+
+jmp_if_nested: .macro label
+	.endm
+
+enable_irq_nested: .macro
+	.endm
+
+disable_irq_nested: .macro
+	.endm
+#endif
+
+        .section .bss
+
+	.global	EE_e200z7_tmp_tos
+	.type	EE_e200z7_tmp_tos, @object
+	.balign	4
+EE_e200z7_tmp_tos:
+        .space  4
+	.size	EE_e200z7_tmp_tos, .-EE_e200z7_tmp_tos
 
 	.text
 
-	.global EE_hal_terminate_savestk
-	.type	EE_hal_terminate_savestk, @function
-/* void EE_hal_terminate_savestk(EE_TID tid); */
-EE_hal_terminate_savestk:
-	// r3 == tid
+	.global EE_e200z7_call_ISR_new_stack
 
-	// r4 == tid << 2
-	rlwinm	r4, r3, 2, 0, 29
+	.type EE_e200z7_call_ISR_new_stack, @function
 
-	// r5 == EE_terminate_real_th_body[tid]
-	addis	r5, 0, EE_terminate_real_th_body@ha
-	add	r5, r5, r4
-	lwz	r5, EE_terminate_real_th_body@l(r5)
+EE_e200z7_call_ISR_new_stack:
+	/*
+	 * r3 == irq_level
+	 * r4 == fun
+	 * r5 == nesting_level
+	 */
 
-	/* Save the stack pointer (including space for registers) */
-	// r6 == & EE_terminate_data[tid]
-	addis	r6, 0, EE_terminate_data@ha
-	add	r6, r6, r4
+	stwu	sp, -16(sp)
 	mfspr	r0, SPRG_LR
-	stwu	sp, -96(sp)
-	stw	sp, EE_terminate_data@l(r6)
-	
-	/* Save all callee-saved registers */
-	stw	r0, 8(sp)
-	stmw	r14, 12(sp)
+	stw	r0, 20(sp)
 
-	/* Start the thread body */
-	mtspr	SPRG_LR, r5
+	/* if (nesting_level == 1) */
+	jmp_if_nested_reg r5, skip_change
+
+        /*	change_stacks(); */
+	addis	r3, 0, EE_e200z7_tmp_tos@ha
+	stw	sp, EE_e200z7_tmp_tos@l(r3)
+
+	addis	r3, 0, EE_e200z7_IRQ_tos@ha
+	lwz	sp, EE_e200z7_IRQ_tos@l(r3)
+
+skip_change:
+	/* EE_std_enableIRQ_nested(); */
+	enable_irq_nested
+
+	/* fun(); */
+	mtspr	SPRG_LR, r4
 	blrl
 
-	/* The task terminated with a return: do the usual cleanup */
-	lwz	r0, 8(sp)
+	/* EE_std_disableIRQ_nested(); */
+	disable_irq_nested
+
+	/* if (nesting_level == 1) */
+	jmp_if_nested skip_change_back
+
+	/*     change_stacks_back(); */
+	addis	r3, 0, EE_e200z7_tmp_tos@ha
+	lwz	sp, EE_e200z7_tmp_tos@l(r3)
+
+skip_change_back:
+	lwz	r0, 20(sp)
+	addi	sp, sp, 16
 	mtspr	SPRG_LR, r0
-	addi	sp, sp, 96
-
-	blr
-	
-	.size	EE_hal_terminate_savestk, .-EE_hal_terminate_savestk
-
-	.global EE_hal_terminate_task
-	.type	EE_hal_terminate_task, @function
-	/* void EE_hal_terminate_task(EE_TID tid) NORETURN; */
-EE_hal_terminate_task:
-	// r3 == tid
-	
-	/* Restore the stack pointer */
-	// r5 == & EE_terminate_data[tid]
-	rlwinm	r4, r3, 2, 0, 29
-	addis	r5, 0, EE_terminate_data@ha
-	add	r5, r5, r4
-	lwz	sp, EE_terminate_data@l(r5)
-
-	/* Restore the registers and return */
-	lwz	r0, 8(sp)
-	mtspr	SPRG_LR, r0
-	lmw	r14, 12(sp)
-
-	addi	sp, sp, 96
 
 	blr
 
-	.size	EE_hal_terminate_task, .-EE_hal_terminate_task
+	.size	EE_e200z7_call_ISR_new_stack, .-EE_e200z7_call_ISR_new_stack

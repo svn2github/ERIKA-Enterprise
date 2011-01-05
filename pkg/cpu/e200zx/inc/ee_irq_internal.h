@@ -48,8 +48,8 @@
 
 #include "ee_internal.h"
 #include "cpu/common/inc/ee_irqstub.h"
-#include "cpu/e200z7/inc/ee_irq.h"
-#include "cpu/e200z7/inc/ee_internal.h"
+#include "cpu/e200zx/inc/ee_irq.h"
+#include "cpu/e200zx/inc/ee_internal.h"
 
 #ifdef __ALLOW_NESTED_IRQ__
 #define EE_std_enableIRQ_nested()

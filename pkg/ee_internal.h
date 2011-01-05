@@ -119,7 +119,7 @@ extern "C" {
 #endif
 
 #ifdef __PPCE200Z7__
-#include "cpu/e200z7/inc/ee_internal.h"
+#include "cpu/e200zx/inc/ee_internal.h"
 #endif
 
 #ifdef __ESI_RISC__

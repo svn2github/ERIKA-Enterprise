@@ -174,11 +174,13 @@ include $(EEBASE)/pkg/cfg/arch/rules_axiom_mpc566evb.mk
 endif
 
 ##
-## MPC5674F - diab under GNU/Linux
+## PPC - diab under GNU/Linux or Cygwin
 ##########################################################################
-ifeq ($(and $(call iseeopt, __PPCE200Z7__), $(call iseeopt, __MPC5674F__)), yes)
-include $(EEBASE)/pkg/cfg/arch/rules_ppc_mpc5674f.mk
+ifeq ($(or $(call iseeopt, __PPCE200ZX__), $(call iseeopt, __PPCE200Z7__)), yes)
+ifeq ($(call iseeopt, __MPC5674F__), yes)
+include $(EEBASE)/pkg/cfg/arch/rules_ppc_generic.mk
 endif
+endif # __PPCE200ZX__
 
 ##
 ## ARM7TDMI - GNU gcc under GNU/Linux or Cygwin

@@ -50,7 +50,7 @@
 #ifndef __INCLUDE_E200Z7_DEBUG_H__
 #define __INCLUDE_E200Z7_DEBUG_H__
 
-#include <cpu/e200z7/inc/ee_internal.h>
+#include <cpu/e200zx/inc/ee_internal.h>
 
 /*
  * Stack debugging

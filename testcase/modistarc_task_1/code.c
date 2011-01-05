@@ -46,7 +46,7 @@
 #endif
 
 #ifdef __PPCE200Z7__
-#include "cpu/e200z7/inc/ee_irq.h"
+#include "cpu/e200zx/inc/ee_irq.h"
 #endif
 
 #define TRUE 1

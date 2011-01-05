@@ -39,65 +39,70 @@
  * ###*E*### */
 
 /*
- * Derived from the mico32 code.
+ * Derived from cpu/mico32/inc/ee_internal.h
  * Author: 2010 Fabio Checconi
  */
 
-#ifndef __INCLUDE_E200Z7_IRQ_H__
-#define __INCLUDE_E200Z7_IRQ_H__
+#ifndef __INCLUDE_E200Z7_INTERNAL_H__
+#define __INCLUDE_E200Z7_INTERNAL_H__
 
-#include "ee_internal.h"
-#include "cpu/common/inc/ee_irqstub.h"
-#include "cpu/e200z7/inc/ee_irq.h"
-#include "cpu/e200z7/inc/ee_internal.h"
+#include "cpu/e200zx/inc/ee_cpu.h"
 
-typedef void (*EE_e200z7_ISR_handler)(void);
-extern EE_e200z7_ISR_handler EE_e200z7_ISR_table[];
 
-/*
- * Alternate ISR implementation, to be used when the user defines his own
- * entry points for ISRs.
- */
-
-__asm static void EE_ISR1_prestub(void)
-{
-	wrteei	1
-}
-
-#define ISR1(f)								\
-void ISR1_ ## f(void);							\
-void f(void)								\
-{									\
-	EE_ISR1_prestub();						\
-	ISR1_ ## f();							\
-}									\
-void ISR1_ ## f(void)
+/*************************************************************************
+ Functions
+ *************************************************************************/
 
 /*
- * NOTE: The ISR2 stubs are independent from the architecture, we should
- * move them to common/
+ * Generic Primitives
  */
-static inline void EE_ISR2_prestub(void)
+
+#include "cpu/common/inc/ee_primitives.h"
+
+
+/* called as _first_ function of a primitive that can be called in
+   an IRQ and in a task */
+__INLINE__ EE_FREG __ALWAYS_INLINE__ EE_hal_begin_nested_primitive(void)
 {
-	EE_increment_IRQ_nesting_level();
+    return EE_e200z7_disableIRQ();
 }
 
-static inline void EE_ISR2_poststub(void)
+
+/* Called as _last_ function of a primitive that can be called in
+   an IRQ and in a task.  Enable IRQs if they were enabled before entering. */
+__INLINE__ void __ALWAYS_INLINE__ EE_hal_end_nested_primitive(EE_FREG f)
 {
-	EE_decrement_IRQ_nesting_level();
-	if (!EE_is_inside_ISR_call()) {
-		EE_std_after_IRQ_schedule();
+	if (EE_e200z7_are_IRQs_enabled(f)) {
+		EE_e200z7_enableIRQ();
 	}
 }
 
-#define ISR2(f)								\
-void ISR2_ ## f(void);							\
-void f(void)								\
-{									\
-	EE_ISR2_prestub();						\
-	ISR2_ ## f();							\
-	EE_ISR2_poststub();						\
-}									\
-void ISR2_ ## f(void)
 
-#endif /*  __INCLUDE_E200Z7_IRQ_H__ */
+
+/*
+ * Context Handling
+ */
+
+#ifdef __MULTI__
+#define EE_hal_active_tos	EE_e200z7_active_tos
+#endif
+
+#include "cpu/common/inc/ee_context.h"
+
+/* typically called at the end of an interrupt */
+#define EE_hal_IRQ_stacked EE_hal_endcycle_stacked
+#define EE_hal_IRQ_ready EE_hal_endcycle_ready
+
+/*
+ * OO TerminateTask related stuffs
+ */
+
+#if defined(__OO_BCC1__) || defined(__OO_BCC2__) || defined(__OO_ECC1__) || defined(__OO_ECC2__)
+
+void EE_hal_terminate_savestk(EE_TID tid);
+void EE_hal_terminate_task(EE_TID tid) NORETURN;
+
+#endif /* __OO_BCCx */
+
+
+#endif /* __INCLUDE_E200Z7_INTERNAL_H__ */
