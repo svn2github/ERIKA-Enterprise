@@ -16,7 +16,7 @@ SYStem.Option.WATCHDOG OFF
 SYStem.Up
 
 ; initialize SRAM
-Data.Set EA:0x40000000--0x40007fff %Quad 0
+Data.Set EA:0x40000000--0x4003ffff %Quad 0
 
 ; setup MMU for flash, RAM and register access
 MMU.TLB1.SET 0x1 0xC0000500 0xFFF0000A 0xFFF0003F

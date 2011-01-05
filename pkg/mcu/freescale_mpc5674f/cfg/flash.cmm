@@ -17,8 +17,9 @@
 ;   Shadow row 0 (flash A)      16 kByte
 ;                               0x00ffc000--0x00ffffff
 ; 
-; Internal SRAM                 32 kByte
+; Internal SRAM                 32 + 224 kByte
 ;                               0x40000000--0x40007fff 
+;                               0x40008000--0x4003ffff
 ;
 ; Flash register base address is 
 ;   Flash A                     0xc3f88000
@@ -70,7 +71,7 @@ if &optimize==1
 )
 
 ; initialize internal SRAM
-Data.Set EA:0x40000000--0x40007fff %quad 0
+Data.Set EA:0x40000000--0x4003ffff %quad 0
 
 ; setup MMU for flash, RAM and register access
 MMU.TLB1.SET 0x1 0xC0000500 0xFFF0000A 0xFFF0003F
