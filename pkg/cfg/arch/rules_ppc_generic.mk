@@ -46,6 +46,14 @@ ifeq ($(call iseeopt, VERBOSE), yes)
 VERBOSE = 1
 endif
 
+# VLE
+USE_VLE:=$(if $(call iseeopt, __VLE__),1,0)
+
+# For compatibility with old code
+ifeq ($(call iseeopt, __E200Z7_EXECUTE_FROM_RAM__), yes)
+EEOPT +=  __E200ZX_EXECUTE_FROM_RAM__
+endif
+
 # MCU
 ifeq ($(call iseeopt, __MPC5674F__), yes)
 PPC_MCU_MODEL = mpc5674f
@@ -61,8 +69,7 @@ include $(EEBASE)/pkg/cfg/dir.mk
 include $(PKGBASE)/cfg/verbose.mk
 include $(PKGBASE)/cfg/compiler.mk
 
-ifeq ($(or $(call iseeopt, __E200ZX_EXECUTE_FROM_RAM__), \
-	$(call iseeopt, __E200Z7_EXECUTE_FROM_RAM__)), yes)
+ifeq ($(call iseeopt, __E200ZX_EXECUTE_FROM_RAM__), yes)
 DLD := ram.dld
 T32CMM_SRC := ram.cmm
 else
@@ -183,10 +190,9 @@ clean:
 ## Lauterbach targets
 ##
 T32BASE ?= /opt/case/emulator/lauterbach/t32
-T32BIN ?= $(T32BASE)/demo/powerpc/flash/quad/$(T32_FLASH_BIN)
 T32GENMENU ?= $(T32BASE)/demo/kernel/orti/genmenu
 
-T32TARGETS := t32.cmm orti.cmm
+T32TARGETS := t32.cmm
 ifneq ($(wildcard system.orti),)
 T32TARGETS += orti.cmm orti.men ortiperf.men
 T32ORTISTR := do orti.cmm
@@ -196,17 +202,17 @@ endif
 
 t32: $(T32TARGETS)
 
-t32.cmm:
-	$(QUIET)sed -e 's:flashdriver=.*$$:flashdriver="$(T32BIN)":'	\
-		-e 's:ORTICMD:$(T32ORTISTR):'				\
-		"$(PKGBASE)/mcu/freescale_$(PPC_MCU_MODEL)/cfg/$(T32CMM_SRC)" > $@
+t32.cmm: $(PKGBASE)/mcu/freescale_$(PPC_MCU_MODEL)/cfg/$(T32CMM_SRC) $(MAKEFILE_LIST)
+	$(QUIET)sed -e 's:#ORTICMD#:$(T32ORTISTR):'			\
+		-e 's:#USE_VLE#:$(USE_VLE):g'				\
+		-e 's:#EXE_NAME#:$(TARGET):g'				\
+		$< > $@
 
-orti.cmm ortiperf.men: t32.cmm
-	$(QUIET) cp $(PKGBASE)/mcu/freescale_$(PPC_MCU_MODEL)/cfg/orti.cmm .
-	$(QUIET) cp $(PKGBASE)/mcu/freescale_$(PPC_MCU_MODEL)/cfg/ortiperf.men .
+orti.cmm ortiperf.men: %: $(PKGBASE)/mcu/freescale_$(PPC_MCU_MODEL)/cfg/%
+	$(QUIET) cp $< $@
 
-orti.men: $(T32GENMENU)
-	$(QUIET) $(T32GENMENU) system.orti
+orti.men: system.orti
+	$(QUIET) $(T32GENMENU) $<
 
 ##
 ## ELF file creation

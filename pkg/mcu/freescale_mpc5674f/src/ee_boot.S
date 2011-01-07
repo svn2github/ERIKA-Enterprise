@@ -119,7 +119,7 @@ __start:
 #define RAM_WORDS	0x00010000
 
 sram_setup:
-#ifndef __E200Z7_EXECUTE_FROM_RAM__
+#ifndef __E200ZX_EXECUTE_FROM_RAM__
 	addis	r8, 0, RAM_BASE@ha
 	addi	r8, r8, RAM_BASE@l
 	addis	r9, 0, RAM_WORDS@ha

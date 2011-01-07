@@ -34,8 +34,9 @@
 ; evi - 18.05.2010 Evidence Modifications, for t32 ver (4/12/2009)
 ;
 
-; evi - ERIKA binary object
-&filename="ppc.elf"
+; evi - ERIKA binary object and VLE setting (from the makefile)
+&filename="#EXE_NAME#"
+&use_vle=#USE_VLE#
 
 &flashbase=0x00000000
 &shadow0base=0x00ffc000
@@ -135,8 +136,11 @@ Data.LOAD &filename /VM
 
 if &progflash 
 (
-  ; evi - write RCHW and start address
-  d.set VM:0x0 %LONG 0x005A0000
+  ; evi - write RCHW and start address, VLE=0/1
+  if &use_vle==1
+    d.set VM:0x0 %LONG 0x015A0000
+  else
+    d.set VM:0x0 %LONG 0x005A0000
   d.set VM:0x4 %LONG __start
 
   FLASH.ReProgram ALL /Erase
@@ -148,6 +152,9 @@ if &progflash
 SYStem.BdmClock 4MHz
 
 ; evi - call orti.cmm if needed
-ORTICMD
+#ORTICMD#
+; evi - Set Disassembly mode
+if &use_vle==1
+  SYStem.Option.DISMODE VLE
 
 ENDDO

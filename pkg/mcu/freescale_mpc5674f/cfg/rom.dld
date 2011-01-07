@@ -58,6 +58,7 @@ SECTIONS
 	GROUP : {
 		.text : {
 			*(.text)
+			*(.text_vle)
 			*(.init)
 			*(.fini)
 			*(.rdata)

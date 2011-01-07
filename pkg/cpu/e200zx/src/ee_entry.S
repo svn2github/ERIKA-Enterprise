@@ -312,7 +312,7 @@ set_tlb: .macro entry
 	.global mmu_setup
 
 mmu_setup:
-#ifndef __E200Z7_EXECUTE_FROM_RAM__
+#ifndef __E200ZX_EXECUTE_FROM_RAM__
 	set_tlb	0
 	set_tlb	1
 	set_tlb	2
