@@ -43,8 +43,8 @@
  * Author: 2010 Fabio Checconi
  */
 
-#ifndef __INCLUDE_E200Z7_IRQ_INTERNAL_H__
-#define __INCLUDE_E200Z7_IRQ_INTERNAL_H__
+#ifndef __INCLUDE_E200ZX_IRQ_INTERNAL_H__
+#define __INCLUDE_E200ZX_IRQ_INTERNAL_H__
 
 #include "ee_internal.h"
 #include "cpu/common/inc/ee_irqstub.h"

@@ -45,8 +45,8 @@
  */
 
 
-#ifndef __INCLUDE_E200Z7_EE_CPU_H__
-#define __INCLUDE_E200Z7_EE_CPU_H__
+#ifndef __INCLUDE_E200ZX_EE_CPU_H__
+#define __INCLUDE_E200ZX_EE_CPU_H__
 
 #include "eecfg.h"
 #ifdef __GNUC__
@@ -159,4 +159,4 @@ void EE_e200z7_setup_decrementer(unsigned long value);
 void EE_e200z7_setup_decrementer_oneshot(unsigned long value);
 void EE_e200z7_stop_decrementer(void);
 
-#endif /* __INCLUDE_E200Z7_EE_CPU_H__ */
+#endif /* __INCLUDE_E200ZX_EE_CPU_H__ */

@@ -47,8 +47,8 @@
  * Author: 2010 Fabio Checconi
  */
 
-#ifndef __INCLUDE_E200Z7_DEBUG_H__
-#define __INCLUDE_E200Z7_DEBUG_H__
+#ifndef __INCLUDE_E200ZX_DEBUG_H__
+#define __INCLUDE_E200ZX_DEBUG_H__
 
 #include <cpu/e200zx/inc/ee_internal.h>
 
@@ -57,8 +57,8 @@
  */
 #ifdef DEBUG_STACK
 
-#define E200Z7_FILL_MEMORY      0xa5a5a5a5
-#define E200Z7_STACK_CANARY_LEN	32
+#define E200ZX_FILL_MEMORY      0xa5a5a5a5
+#define E200ZX_STACK_CANARY_LEN	32
 
 /*
  * Check that the canary below the stack is intact.  `base_tos' is the initial
@@ -71,7 +71,7 @@ __INLINE__ int __ALWAYS_INLINE__ check_pre_stack_canary(EE_ADDR base_tos)
     int i;
     int *addr = (int *)base_tos;
     for (i = 1; i <= PRE_STACK_CANARY_LEN; ++i)
-        if (addr[i] != E200Z7_FILL_MEMORY)
+        if (addr[i] != E200ZX_FILL_MEMORY)
             return i*4;
     return 0;
 }
@@ -183,4 +183,4 @@ __INLINE__ int __ALWAYS_INLINE__ get_base_toses(
 
 #endif /* __MULTI__ */
 
-#endif /* __INCLUDE_E200Z7_DEBUG_H__ */
+#endif /* __INCLUDE_E200ZX_DEBUG_H__ */

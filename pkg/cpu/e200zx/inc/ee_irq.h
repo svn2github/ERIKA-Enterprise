@@ -43,8 +43,8 @@
  * Author: 2010 Fabio Checconi
  */
 
-#ifndef __INCLUDE_E200Z7_IRQ_H__
-#define __INCLUDE_E200Z7_IRQ_H__
+#ifndef __INCLUDE_E200ZX_IRQ_H__
+#define __INCLUDE_E200ZX_IRQ_H__
 
 #include "ee_internal.h"
 #include "cpu/common/inc/ee_irqstub.h"
@@ -100,4 +100,4 @@ void f(void)								\
 }									\
 void ISR2_ ## f(void)
 
-#endif /*  __INCLUDE_E200Z7_IRQ_H__ */
+#endif /*  __INCLUDE_E200ZX_IRQ_H__ */

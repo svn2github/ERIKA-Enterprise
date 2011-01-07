@@ -43,8 +43,8 @@
  * Author: 2010 Fabio Checconi
  */
 
-#ifndef __INCLUDE_E200Z7_INTERNAL_H__
-#define __INCLUDE_E200Z7_INTERNAL_H__
+#ifndef __INCLUDE_E200ZX_INTERNAL_H__
+#define __INCLUDE_E200ZX_INTERNAL_H__
 
 #include "cpu/e200zx/inc/ee_cpu.h"
 
@@ -105,4 +105,4 @@ void EE_hal_terminate_task(EE_TID tid) NORETURN;
 #endif /* __OO_BCCx */
 
 
-#endif /* __INCLUDE_E200Z7_INTERNAL_H__ */
+#endif /* __INCLUDE_E200ZX_INTERNAL_H__ */
