@@ -49,6 +49,7 @@
 #include <cpu/e200zx/inc/ee_regs.h>
 
 set_ivor: .macro n,label
+	li	r0, 0
 	addi	r0, 0, label@l
 	mtspr	SPRG_IVOR_BASE + n, r0
 	.endm
@@ -249,7 +250,7 @@ cpu_setup:
 	addis	r0, 0, vector_base@h
 	mtspr	ivpr, r0
 
-	addi	r0, 0, 0
+	li	r0, 0
 	mtspr	SPRG_TBL_W, r0
 	mtspr	SPRG_TBH_W, r0
 	mtspr	SPRG_TBL_W, r0
