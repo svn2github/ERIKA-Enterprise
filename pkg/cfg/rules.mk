@@ -177,7 +177,7 @@ endif
 ## PPC - diab under GNU/Linux or Cygwin
 ##########################################################################
 ifeq ($(or $(call iseeopt, __PPCE200ZX__), $(call iseeopt, __PPCE200Z7__)), yes)
-ifeq ($(call iseeopt, __MPC5674F__), yes)
+ifeq ($(or $(call iseeopt, __MPC5674F__), $(call iseeopt, __MPC5668__)), yes)
 include $(EEBASE)/pkg/cfg/arch/rules_ppc_generic.mk
 endif
 endif # __PPCE200ZX__

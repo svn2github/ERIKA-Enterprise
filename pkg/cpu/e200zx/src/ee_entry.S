@@ -342,6 +342,7 @@ set_tlb: .macro entry
 	.global	mmu_setup
 	.type	mmu_setup, @function
 mmu_setup:
+#if 0 /* Use settings from BAM or Lauterbach script */
 #ifndef __E200ZX_EXECUTE_FROM_RAM__
 	set_tlb	0
 	set_tlb	1
@@ -349,6 +350,7 @@ mmu_setup:
 	set_tlb	3
 	set_tlb	4
 	msync
+#endif
 #endif
 
 	blr
