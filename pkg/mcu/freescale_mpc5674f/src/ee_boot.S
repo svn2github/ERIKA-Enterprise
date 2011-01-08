@@ -47,11 +47,12 @@
 	.section ".boot"
 
 	.extern	_load_ram, _sdata, _sbss, _ebss
-	.globl __start
 
 	.long	0			/* leave room for the BAM data */
 	.long	0
 
+	.global	__start
+	.type	__start, @function
 __start:
 	bl	mmu_setup
 	bl	sram_setup
@@ -114,10 +115,12 @@ __start:
 	wrteei	0
 1:
 	b	1b
+	.size	__start, .-__start
 
 #define RAM_BASE	0x40000000
 #define RAM_WORDS	0x00010000
 
+	.type	sram_setup, @function
 sram_setup:
 #ifndef __E200ZX_EXECUTE_FROM_RAM__
 	addis	r8, 0, RAM_BASE@ha
@@ -133,6 +136,8 @@ sram_setup:
 #endif
 
 	blr
+	.size	sram_setup, .-sram_setup
+
 
 	.section ".stack"
 	.align 4
@@ -152,6 +157,8 @@ _stack0:
 #define VTBA	0
 
 	.text
+
+	.type	mcu_setup, @function
 mcu_setup:
 	/* MCR = 0: VTES=0 (4 byte entries) HVEN=0 (SW vector mode) */
 	li	r0, 0
@@ -167,3 +174,4 @@ mcu_setup:
 	stw	r4, INTC_IACKR@l(r3)
 
 	blr
+	.size	mcu_setup, .-mcu_setup

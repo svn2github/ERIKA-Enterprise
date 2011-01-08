@@ -72,9 +72,11 @@ restore_all: .macro
 
 vector: .macro label,handler
 	.align 5
+	.type	label, @function
 label:
 	save_all
 	b	handler
+	.size	label, .-label
 	.endm
 
 vector_epilogue: .macro
@@ -82,6 +84,8 @@ vector_epilogue: .macro
 	rfi
 	.endm
 
+
+	.type	save_registers, @function
 save_registers:
 	stw	r3, 20(sp)
 	stw	r4, 24(sp)
@@ -106,7 +110,10 @@ save_registers:
 	stw	r0, 76(sp)
 
 	blr
+	.size	save_registers, .-save_registers
 
+
+	.type	restore_registers, @function
 restore_registers:
 	lwz	r0, 76(sp)
 	mtspr	xer, r0
@@ -131,6 +138,8 @@ restore_registers:
 	lwz	r3, 20(sp)
 
 	blr
+	.size	restore_registers, .-restore_registers
+
 
 /*
  * this belongs to the mcu code; we'd need a way to let the mcu code
@@ -138,6 +147,7 @@ restore_registers:
  */
 #include <mcu/freescale_mpc5674f/inc/ee_regs.h>
 
+	.type	external_input_handler, @function
 external_input_handler:
 	addis	r3, 0, INTC_IACKR@ha	/* ack the interrupt */
 	lwz	r0, INTC_IACKR@l(r3)
@@ -151,16 +161,24 @@ external_input_handler:
 	stw	r0, INTC_EOIR@l(r3)
 
 	vector_epilogue
+	.size	external_input_handler, .-external_input_handler
 
+
+	.type	decrementer_handler, @function
 decrementer_handler:
 	addis	r0, 0, (1 << TSR_DIS)@h
 	mtspr	tsr, r0
 	li	r3, 10
 	bl	EE_e200z7_irq
 	vector_epilogue
+	.size	decrementer_handler, .-decrementer_handler
 
+
+	.type	__empty_handler, @function
 __empty_handler:
 	b	__empty_handler
+	.size	__empty_handler, .-__empty_handler
+
 
 vector_base:
 vector critical_input, __empty_handler
@@ -180,8 +198,9 @@ vector data_tlb_error, __empty_handler
 vector instruction_tlb_error, __empty_handler
 vector debug_critical, __empty_handler
 
-	.global EE_e200z7_setup_decrementer
 
+	.global	EE_e200z7_setup_decrementer
+	.type	EE_e200z7_setup_decrementer, @function
 EE_e200z7_setup_decrementer:
 	mtspr	decar, r3
 	mtspr	dec, r3
@@ -192,9 +211,11 @@ EE_e200z7_setup_decrementer:
 	mtspr	tcr, r3
 
 	blr
+	.size	EE_e200z7_setup_decrementer, .-EE_e200z7_setup_decrementer
 
-	.global EE_e200z7_setup_decrementer_oneshot
 
+	.global	EE_e200z7_setup_decrementer_oneshot
+	.type	EE_e200z7_setup_decrementer_oneshot, @function
 EE_e200z7_setup_decrementer_oneshot:
 	mtspr	dec, r3
 
@@ -204,9 +225,11 @@ EE_e200z7_setup_decrementer_oneshot:
 	mtspr	tcr, r3
 
 	blr
+	.size	EE_e200z7_setup_decrementer_oneshot, .-EE_e200z7_setup_decrementer_oneshot
 
-	.global EE_e200z7_stop_decrementer
 
+	.global	EE_e200z7_stop_decrementer
+	.type	EE_e200z7_stop_decrementer, @function
 EE_e200z7_stop_decrementer:
 	li	r0, 0
 
@@ -225,9 +248,11 @@ EE_e200z7_stop_decrementer:
 	mtspr	tsr, r3
 
 	blr
+	.size	EE_e200z7_stop_decrementer, .-EE_e200z7_stop_decrementer
 
-	.global cpu_setup
 
+	.global	cpu_setup
+	.type	cpu_setup, @function
 cpu_setup:
 	set_ivor 0, critical_input
 	set_ivor 1, machine_check
@@ -260,6 +285,9 @@ cpu_setup:
 	mtspr	SPRG_HID0, r3
 
 	blr
+	.size	cpu_setup, .-cpu_setup
+
+
 
 	.section ".boot"
 
@@ -310,8 +338,9 @@ set_tlb: .macro entry
 	tlbwe
 	.endm
 
-	.global mmu_setup
 
+	.global	mmu_setup
+	.type	mmu_setup, @function
 mmu_setup:
 #ifndef __E200ZX_EXECUTE_FROM_RAM__
 	set_tlb	0
@@ -323,3 +352,4 @@ mmu_setup:
 #endif
 
 	blr
+	.size	mmu_setup, .-mmu_setup
