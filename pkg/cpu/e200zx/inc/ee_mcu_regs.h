@@ -1,7 +1,7 @@
 /* ###*B*###
  * ERIKA Enterprise - a tiny RTOS for small microcontrollers
  *
- * Copyright (C) 2002-2010  Evidence Srl
+ * Copyright (C) 2002-2011  Evidence Srl
  *
  * This file is part of ERIKA Enterprise.
  *
@@ -37,25 +37,23 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
+
 /*
- * Device registers for MPC5668
- * Author: 2010 Fabio Checconi
+ * MCU register map
+ * Author: 2011 Bernardo  Dal Seno
  */
 
-#ifndef __MCU_EE_REGS_H__
-#define __MCU_EE_REGS_H__
+#ifndef EE_E200ZX_MCU_REGS_H
+#define EE_E200ZX_MCU_REGS_H
 
-#define INTC_MCR	0xfff48000
-#define INTC_CPR0	0xfff48008
-#define INTC_CPR1	0xfff4800c
-#define INTC_IACKR0	0xfff48010
-#define INTC_IACKR1	0xfff4801c
-#define INTC_EOIR0	0xfff48018
-#define INTC_EOIR1	0xfff4801c
+/* Include the appropriate file according to the target MCU */
 
-/* For duplicated registers, pick the Z6 instance */
-#define INTC_CPR	INTC_CPR0
-#define INTC_IACKR	INTC_IACKR0
-#define INTC_EOIR	INTC_EOIR0
-
+#ifdef __MPC5668__
+#include <mcu/freescale_mpc5668/inc/ee_regs.h>
+#elif defined __MPC5674F__
+#include <mcu/freescale_mpc5674f/inc/ee_regs.h>
+#else
+#error "No known MCU found"
 #endif
+
+#endif /* EE_E200ZX_MCU_REGS_H */

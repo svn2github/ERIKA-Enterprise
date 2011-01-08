@@ -45,8 +45,6 @@
 #ifndef __MCU_EE_REGS_H__
 #define __MCU_EE_REGS_H__
 
-#include <cpu/e200zx/inc/ee_regs.h>
-
 #define INTC_MCR	0xfff48000
 #define INTC_CPR	0xfff48008
 #define INTC_IACKR	0xfff48010
