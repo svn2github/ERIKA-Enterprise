@@ -142,5 +142,9 @@ typedef int integer;
 
 
 
+/* for malloc/free. TODO: should be removed from here. Added to make the state space block work. */
+#include <stdlib.h>
+
+
 
 #endif /* MACHINE_H  */
