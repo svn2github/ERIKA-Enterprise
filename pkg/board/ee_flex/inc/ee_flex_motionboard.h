@@ -331,9 +331,21 @@ void EE_dcm_pwm_disable_chan(EE_UINT8 chan);
 #define	QEI_MAX_CNT_PER_REV	0xffff
 #define	SWENC_MAX_CNT_PER_REV	0xffff
 
-extern EE_INT16 ee_encsw_poscnts;
+extern EE_UINT16 ee_encsw_encdir;		// Count direction: 1 if +, 0 if -
+extern EE_UINT32 ee_encsw_poscnts_h;
+extern EE_UINT16 ee_encsw_poscnts;
 extern EE_INT16 ee_encsw_swapped;
 extern EE_INT16 ee_encsw_maxcnt;
+
+__INLINE__ EE_UINT32 __ALWAYS_INLINE__ EE_encoder_ISR_cbk(EE_UINT32 dir, EE_UINT16 posl, EE_UINT32 posh)
+{
+	if(dir==1 && posl==0)
+		return posh+1;
+	else if(dir==0 && posl==0xFFFF)
+		return posh-1;
+	else
+		return posh;
+}
 
 __INLINE__ void __ALWAYS_INLINE__ EE_encoder_SW_init(EE_UINT8 swap_on_off, EE_UINT8 irq_on_off)
 {
@@ -360,6 +372,8 @@ __INLINE__ void __ALWAYS_INLINE__ EE_encoder_SW_init(EE_UINT8 swap_on_off, EE_UI
 		Reset position counter
 	*/
 	ee_encsw_poscnts = 0;
+	ee_encsw_encdir = 0;
+	ee_encsw_poscnts_h = 0;
 	
 	/**
 		Initialize Capture Module
@@ -422,13 +436,28 @@ __INLINE__ EE_INT16 __ALWAYS_INLINE__ EE_encoder_SW_get_ticks(void)
 	return ee_encsw_poscnts;
 }
 
+__INLINE__ EE_INT32 __ALWAYS_INLINE__ EE_encoder_SW_get_ticks_32(void)
+{
+	return ((EE_INT32)ee_encsw_poscnts_h)*65535 + (EE_INT32)ee_encsw_poscnts;
+}
+
+__INLINE__ float __ALWAYS_INLINE__ EE_encoder_SW_get_ticks_f(void)
+{
+	return (float)((EE_INT32)ee_encsw_poscnts_h)*65535.0 + (float)ee_encsw_poscnts;
+}
+
 __INLINE__ float __ALWAYS_INLINE__ EE_encoder_SW_get_position(float sw_gain)
 {
-	return (float)EE_encoder_SW_get_ticks() * sw_gain;
+	return EE_encoder_SW_get_ticks_f() * sw_gain; 
 }
+
+extern EE_UINT32 ee_enchw_poscnts_h;
 
 __INLINE__ void __ALWAYS_INLINE__ EE_encoder_init(EE_UINT8 swap_on_off, EE_UINT8 irq_on_off)
 {
+	/* Reset counter */
+	ee_enchw_poscnts_h = 0;
+	
 	/* Default value */
 	QEICON = 0;
 	
@@ -465,12 +494,22 @@ __INLINE__ void __ALWAYS_INLINE__ EE_encoder_close(void)
 
 __INLINE__ EE_INT16 __ALWAYS_INLINE__ EE_encoder_get_ticks(void)
 {
-	return ((EE_INT16)POSCNT);
+	return POSCNT;
+}
+
+__INLINE__ EE_INT32 __ALWAYS_INLINE__ EE_encoder_get_ticks_32(void)
+{
+	return ((EE_INT32)ee_enchw_poscnts_h)*65535 + (EE_INT32)POSCNT;
+}
+
+__INLINE__ float __ALWAYS_INLINE__ EE_encoder_get_ticks_f(void)
+{
+	return (float)((EE_INT32)ee_enchw_poscnts_h)*65535.0 + (float)POSCNT;
 }
 
 __INLINE__ float __ALWAYS_INLINE__ EE_encoder_get_position(float hw_gain)
 {
-	return (float)EE_encoder_get_ticks() * hw_gain; 
+	return EE_encoder_get_ticks_f() * hw_gain; 
 }
 
 __INLINE__ void __ALWAYS_INLINE__ EE_encoder_set_IRQ(EE_UINT8 irq_on_off)

@@ -592,24 +592,42 @@ void EE_dcm_pwm_close(void)
 #ifdef __USE_ENCODER__
 
 /* SW encoder */
-EE_INT16 ee_encsw_poscnts;
+EE_UINT16 ee_encsw_poscnts;
 EE_INT16 ee_encsw_swapped;
 EE_INT16 ee_encsw_maxcnt;
+EE_UINT16 ee_encsw_encdir;
+EE_UINT32 ee_encsw_poscnts_h;
+
 ISR2(_IC1Interrupt)
 {
 	IFS0bits.IC1IF = 0;
 	
+	EE_pic30_disableIRQ();
 	if(ee_encsw_swapped)
-		(!(EE_ENCODER_SW_PINA ^ EE_ENCODER_SW_PINB))?  ee_encsw_poscnts++: ee_encsw_poscnts--;
+		ee_encsw_encdir = (!(EE_ENCODER_SW_PINA ^ EE_ENCODER_SW_PINB))?  1: 0;
 	else
-		(EE_ENCODER_SW_PINA ^ EE_ENCODER_SW_PINB)?     ee_encsw_poscnts++: ee_encsw_poscnts--;
+		ee_encsw_encdir = (EE_ENCODER_SW_PINA ^ EE_ENCODER_SW_PINB)?     1: 0;
+		
+	if(ee_encsw_encdir)
+		ee_encsw_poscnts++;
+	else
+		ee_encsw_poscnts--;
+		
+	ee_encsw_poscnts_h = EE_encoder_ISR_cbk(ee_encsw_encdir, ee_encsw_poscnts, ee_encsw_poscnts_h);
+	EE_pic30_enableIRQ();
 }
 
 /* HW encoder */
+
 void (*QEI_cbk)(void);
-ISR2(_QEIInterrupt)
+EE_UINT32 ee_enchw_poscnts_h;
+
+ISR2(_QEIInterrupt)	// High priority interrupt
 {
-	IFS3bits.QEIIF = 0; 
+	EE_pic30_disableIRQ();
+	IFS3bits.QEIIF = 0;
+	ee_enchw_poscnts_h = EE_encoder_ISR_cbk(QEICONbits.UPDN, POSCNT, ee_enchw_poscnts_h);
+	EE_pic30_enableIRQ();
 	
 	if(QEI_cbk!=0)
 		QEI_cbk();
