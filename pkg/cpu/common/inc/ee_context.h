@@ -109,7 +109,7 @@ void EE_std_change_context(EE_TID tid);
  defined(__OO_ECC1__) || defined(__OO_ECC2__)
 #define EE_call_task_body(tid)  EE_oo_thread_stub()
 #else
-#define EE_call_task_body(tid)  (((void (*)())EE_hal_thread_body[tid])())
+#define EE_call_task_body(tid)  (((void (*)(void))EE_hal_thread_body[tid])())
 #endif
 
 

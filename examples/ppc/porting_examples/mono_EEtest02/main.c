@@ -108,7 +108,7 @@ void timer_interrupt(void)
  */
 void init_timer(void)
 {
-	EE_e200z7_register_ISR(10, timer_interrupt);
+	EE_e200z7_register_ISR(10, timer_interrupt, 0);
 	EE_e200z7_setup_decrementer(500000);
 }
 

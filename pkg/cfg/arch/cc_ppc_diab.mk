@@ -73,9 +73,8 @@ OPT_CC = -Xlicense-wait -Xstderr-fully-buffered -Xbss-common-off	\
 	-Xsmall-data=8 -Xswitch-table=0 -Xinline=40 -Xsmall-const=0 \
 	-Xenum-is-best -Xunroll=4 -Xunroll-size=5 -Xsize-opt -Xsemi-is-comment \
 	-Xstop-on-warning -Xkeywords=4 $(ALLINCPATH) -c $(CFLAGS) \
-	$(OPT_TARGET)
+	-Xforce-prototypes $(OPT_TARGET)
 
-# -Xforce-prototypes 
 
 ifneq ($(call iseeopt, __BIN_DISTR), yes)
 ifeq ($(call iseeopt, DEBUG), yes)

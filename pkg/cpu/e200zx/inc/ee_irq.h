@@ -46,7 +46,8 @@
 #ifndef __INCLUDE_E200ZX_IRQ_H__
 #define __INCLUDE_E200ZX_IRQ_H__
 
-#include "ee_internal.h"
+/* Use angled parenthesis to include the main "ee_internal.h" */
+#include <ee_internal.h>
 #include "cpu/common/inc/ee_irqstub.h"
 #include "cpu/e200zx/inc/ee_irq.h"
 #include "cpu/e200zx/inc/ee_internal.h"
@@ -99,5 +100,10 @@ void f(void)								\
 	EE_ISR2_poststub();						\
 }									\
 void ISR2_ ## f(void)
+
+/*
+ * Register the handler `fun' for the IRQ `level', using priority `pri'
+ */
+void EE_e200z7_register_ISR(int level, EE_e200z7_ISR_handler fun, EE_UINT8 pri);
 
 #endif /*  __INCLUDE_E200ZX_IRQ_H__ */

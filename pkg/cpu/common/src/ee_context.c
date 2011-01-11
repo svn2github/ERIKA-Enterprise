@@ -44,10 +44,10 @@
  */
 
 
-#include "ee_internal.h"
+#include <ee_internal.h>
 
 /* This version should work for both the monostack and multistack versions of
- * the kernel, thanks to the macros defined in cpu/commmon/inc/ee_context.h.
+ * the kernel, thanks to the macros defined in cpu/common/inc/ee_context.h.
  * In the mono version, all the stack-related stuff is ignored. */
 EE_TID EE_std_run_task_code(EE_TID tid)
 {
