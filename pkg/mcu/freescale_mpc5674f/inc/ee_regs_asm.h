@@ -1,7 +1,7 @@
 /* ###*B*###
  * ERIKA Enterprise - a tiny RTOS for small microcontrollers
  *
- * Copyright (C) 2002-2011  Evidence Srl
+ * Copyright (C) 2002-2010  Evidence Srl
  *
  * This file is part of ERIKA Enterprise.
  *
@@ -37,23 +37,17 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
-
 /*
- * MCU register map
- * Author: 2011 Bernardo  Dal Seno
+ * Device registers for MPC5674F
+ * Author: 2010 Fabio Checconi
  */
 
-#ifndef EE_E200ZX_MCU_REGS_H
-#define EE_E200ZX_MCU_REGS_H
+#ifndef __MCU_EE_REGS_ASM_H__
+#define __MCU_EE_REGS_ASM_H__
 
-/* Include the appropriate file according to the target MCU */
+#define INTC_MCR	0xfff48000
+#define INTC_CPR	0xfff48008
+#define INTC_IACKR	0xfff48010
+#define INTC_EOIR	0xfff48018
 
-#ifdef __MPC5668__
-#include <mcu/freescale_mpc5668/inc/mpc5668.h>
-#elif defined __MPC5674F__
-#include <mcu/freescale_mpc5674f/inc/mpc5674f.h>
-#else
-#error "No known MCU found"
-#endif
-
-#endif /* EE_E200ZX_MCU_REGS_H */
+#endif /* __MCU_EE_REGS_ASM_H__ */

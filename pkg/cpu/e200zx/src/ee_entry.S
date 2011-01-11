@@ -145,7 +145,7 @@ restore_registers:
  * this belongs to the mcu code; we'd need a way to let the mcu code
  * define a couple of macros for us...
  */
-#include <cpu/e200zx/inc/ee_mcu_regs.h>
+#include <cpu/e200zx/inc/ee_mcu_regs_asm.h>
 
 	.type	external_input_handler, @function
 external_input_handler:

@@ -47,6 +47,8 @@
 #include <cpu/e200zx/inc/ee_irq.h>
 #include <cpu/e200zx/inc/ee_irq_internal.h>
 #include <cpu/common/inc/ee_irqstub.h>
+#include <cpu/e200zx/inc/ee_mcu_regs.h>
+
 
 #define EE_E200Z7_MAX_IRQ	488
 
@@ -76,9 +78,6 @@ void EE_e200z7_irq(int level)
 
 EE_e200z7_ISR_handler EE_e200z7_ISR_table[EE_E200Z7_MAX_IRQ + 1];
 
-#define INTC_BASE	0xfff48000
-#define INTC_PSR	((volatile EE_UINT8 *)(INTC_BASE + 0x0040))
-
 void EE_e200z7_register_ISR(int level, EE_e200z7_ISR_handler fun, EE_UINT8 pri)
 {
 	EE_FREG intst = EE_e200z7_disableIRQ();
@@ -86,7 +85,7 @@ void EE_e200z7_register_ISR(int level, EE_e200z7_ISR_handler fun, EE_UINT8 pri)
 	EE_e200z7_ISR_table[level] = fun;
 
 	if (level >= 16) {
-		INTC_PSR[level - 16] = pri;
+		INTC.PSR[level - 16].R = pri;
 	}
 
 	if (EE_e200z7_are_IRQs_enabled(intst)) {

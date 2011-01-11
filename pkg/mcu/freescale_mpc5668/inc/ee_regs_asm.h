@@ -42,8 +42,8 @@
  * Author: 2010 Fabio Checconi
  */
 
-#ifndef __MCU_EE_REGS_H__
-#define __MCU_EE_REGS_H__
+#ifndef __MCU_EE_REGS_ASM_H__
+#define __MCU_EE_REGS_ASM_H__
 
 #define INTC_MCR	0xfff48000
 #define INTC_CPR0	0xfff48008
@@ -58,4 +58,4 @@
 #define INTC_IACKR	INTC_IACKR0
 #define INTC_EOIR	INTC_EOIR0
 
-#endif
+#endif /* __MCU_EE_REGS_ASM_H__ */

@@ -42,7 +42,7 @@
  * Author: 2010 Fabio Checconi
  */
 
-#include <mcu/freescale_mpc5674f/inc/ee_regs.h>
+#include <mcu/freescale_mpc5674f/inc/ee_regs_asm.h>
 
 	.section ".boot"
 
