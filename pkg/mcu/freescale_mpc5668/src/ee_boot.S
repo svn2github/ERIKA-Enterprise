@@ -267,14 +267,12 @@ mcu_setup:
 	stw	r0, INTC_MCR@l(r3)
 
 	/* init current priority */
-	stw	r0, INTC_CPR0@l(r3)
-	stw	r0, INTC_CPR1@l(r3)
+	stw	r0, INTC_CPR@l(r3)
 
 	/* init vector table base address */
 	addis	r4, 0, VTBA@ha
 	addi	r4, r4, VTBA@l
-	stw	r4, INTC_IACKR0@l(r3)
-	stw	r4, INTC_IACKR1@l(r3)
+	stw	r4, INTC_IACKR@l(r3)
 
 	blr
 	.size	mcu_setup, .-mcu_setup
