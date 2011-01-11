@@ -81,9 +81,6 @@ DLD := rom.dld
 T32CMM_SRC := flash.cmm
 endif
 
-OPT_LINK += loc_diab.dld -e __start
-LINKDEP = loc_diab.dld
-
 CRT0_SRCS := pkg/mcu/freescale_$(PPC_MCU_MODEL)/src/ee_boot.S
 
 # Add application file to dependencies
@@ -248,9 +245,9 @@ $(OBJDIR)/%.o: %.c
 ## Locator files
 ##
 
-loc_diab.dld: $(PKGBASE)/mcu/freescale_$(PPC_MCU_MODEL)/cfg/$(DLD)
+$(LINK_SCRIPT): $(PKGBASE)/mcu/freescale_$(PPC_MCU_MODEL)/cfg/$(DLD)
 	@printf "LOC\n" ;
-	$(QUIET) cp $(PKGBASE)/mcu/freescale_$(PPC_MCU_MODEL)/cfg/$(DLD) loc_diab.dld
+	$(QUIET) cp $< $@
 
 ##
 ## EE Library
