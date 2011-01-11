@@ -139,7 +139,7 @@ endif
 
 pic32.objdump: pic32.$(PIC32_EXTENSION)
 	@printf "OBJDUMP\n";
-	$(QUIET)$(EE_OBJDUMP) -D pic32.$(PIC32_EXTENSION) > pic32.objdump
+	$(QUIET)$(EE_OBJDUMP) -d pic32.$(PIC32_EXTENSION) > pic32.objdump
 
 pic32.hex: pic32.$(PIC32_EXTENSION)
 	@printf "BIN2HEX\n";

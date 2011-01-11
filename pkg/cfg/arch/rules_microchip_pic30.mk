@@ -333,7 +333,7 @@ endif
 
 pic30.objdump: pic30.$(PIC30_EXTENSION)
 	@printf "OBJDUMP\n";
-	$(QUIET)$(EE_OBJDUMP) -D pic30.$(PIC30_EXTENSION) > pic30.objdump
+	$(QUIET)$(EE_OBJDUMP) -d pic30.$(PIC30_EXTENSION) > pic30.objdump
 
 ##
 ## Object file creation
