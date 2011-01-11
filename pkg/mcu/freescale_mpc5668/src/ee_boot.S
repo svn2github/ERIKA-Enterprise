@@ -112,7 +112,7 @@ __start:
 	bl	flash_setup		/* reduce flash wait states */
 
 	bl	cpu_setup		/* cpu-specific initialization */
-	bl	mcu_setup		/* mcu-specific initialization */
+	bl	intc_setup		/* mcu-specific initialization */
 	bl	main			/* jump to application code */
 
 	wrteei	0
@@ -244,11 +244,11 @@ sram_code:
 	.section ".stack"
 	.align 4
 
-	.space	504
+	.space	496
 
 	.global _stack0
 _stack0:
-	.space	8
+	.space	16
 
 /*
  * external interrupt handlers (the first 16 entries are for cpu vectors)
@@ -256,11 +256,12 @@ _stack0:
  * since we have a common entry point, by now use it.
  */
 /* #define VTBA		(16 * 4 + EE_e200z7_ISR_table) */
+/* VTBA = 0 -> Only offsets are read from INTC_IACKR_PRC */
 #define VTBA	0
 
 	.text
-	.type	mcu_setup, @function
-mcu_setup:
+	.type	intc_setup, @function
+intc_setup:
 	/* MCR = 0: VTES=0 (4 byte entries) HVEN=0 (SW vector mode) */
 	li	r0, 0
 	addis	r3, 0, INTC_MCR@ha
@@ -275,4 +276,4 @@ mcu_setup:
 	stw	r4, INTC_IACKR@l(r3)
 
 	blr
-	.size	mcu_setup, .-mcu_setup
+	.size	intc_setup, .-intc_setup

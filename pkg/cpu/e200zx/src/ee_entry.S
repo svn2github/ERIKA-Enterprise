@@ -71,7 +71,7 @@ restore_all: .macro
 	.endm
 
 vector: .macro label,handler
-	.align 5
+	.align	E200ZX_IRQ_ENTRY_ALIGN
 	.type	label, @function
 label:
 	save_all
@@ -180,6 +180,7 @@ __empty_handler:
 	.size	__empty_handler, .-__empty_handler
 
 
+	.align	E200ZX_IRQ_VECTOR_BASE_ALIGN
 vector_base:
 vector critical_input, __empty_handler
 vector machine_check, __empty_handler
@@ -280,6 +281,7 @@ cpu_setup:
 	mtspr	SPRG_TBH_W, r0
 	mtspr	SPRG_TBL_W, r0
 
+	/* Enable time base */
 	mfspr	r3, SPRG_HID0
 	ori	r3, r3, 1 << HID0_TBEN
 	mtspr	SPRG_HID0, r3

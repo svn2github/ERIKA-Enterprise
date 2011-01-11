@@ -42,8 +42,8 @@
  * Author: 2010 Fabio Checconi
  */
 
-#ifndef __EE_REGS_H__
-#define __EE_REGS_H__
+#ifndef __EE_CPU_E200ZX_REGS_H__
+#define __EE_CPU_E200ZX_REGS_H__
 
 #define SPRG_XER	1
 #define SPRG_LR		8
@@ -70,4 +70,10 @@
 
 #define HID0_TBEN	14
 
-#endif
+
+/* IRQ vector  */
+
+#define E200ZX_IRQ_VECTOR_BASE_ALIGN	E200ZX_IRQ_ENTRY_ALIGN
+#define E200ZX_IRQ_ENTRY_ALIGN	4
+
+#endif /* __EE_CPU_E200ZX_REGS_H__ */
