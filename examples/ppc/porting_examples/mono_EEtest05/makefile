@@ -54,12 +54,12 @@ ifndef RTDRUID_SCRIPT_DIR
 RTDRUID_SCRIPT_DIR=$(RTDRUID_ECLIPSE_HOME)/evidence
 endif
 
-RTDRUID_OUTPUT = $(addprefix $(OUTPUT_DIR)/, makefile dirty_regs.h dirty_regs.S main.c eecfg.c eecfg.h)
+RTDRUID_OUTPUT = $(addprefix $(OUTPUT_DIR)/, makefile eecfg.h eecfg.c)
 
 .PHONY: all clean
 
 all: $(RTDRUID_OUTPUT)
-	make -C $(OUTPUT_DIR) all
+	$(MAKE) -C $(OUTPUT_DIR) all
 
 clean:
 	@echo cleaning...

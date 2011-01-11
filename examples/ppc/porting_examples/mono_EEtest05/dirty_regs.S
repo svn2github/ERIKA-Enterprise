@@ -44,7 +44,8 @@
  */
 
 load_dirty_value: .macro reg,value
-	andi.	reg, r2, 0xffff
+	mr	reg, r4
+	andi.	reg, reg, 0xffff
 	oris	reg, reg, value
 	.endm
 
@@ -96,7 +97,7 @@ dirty_regs:
 	mfspr	r0, 8
 	stwu	sp, -96(sp)
 	stw	r0, 12(sp)
-	stmw	r14, 16(sp)
+	stmw	r14, 24(sp)
 
 	/* Dirty the stack. */
 	load_dirty_value r0, STACK_DIRT
@@ -131,13 +132,15 @@ dirty_regs:
 	load_dirty_value r30, R30_DIRT
 	load_dirty_value r31, R31_DIRT
 
-	cmpi	cr0, r3, 0
+	/* Test for zero; "cmpwi cr0, r3, 0" doesn't work in VLE */
+	and.	r3, r3, r3
 	beq	check_forever
 
 	/* Call the function */
+	stw	r4, 16(sp)
 	mtspr	8, r3
-
 	blrl
+	lwz	r4, 16(sp)
 
 	/* Check callee-saved registers */
 	bl	check_callee_saved_regs
@@ -148,7 +151,7 @@ dirty_regs:
 restore_and_return:
 	lwz	r0, 12(sp)
 	mtspr	8, r0
-	lmw	r14, 16(sp)
+	lmw	r14, 24(sp)
 	addi	sp, sp, 96
 
 	blr
@@ -156,6 +159,7 @@ restore_and_return:
 	/* Continuously check the registers for changes. Jump to
 	 * reg_wrong if a register changes */
 check_forever:
+	check_dirty_value r4, R4_DIRT
 	check_dirty_value r5, R5_DIRT
 	check_dirty_value r6, R6_DIRT
 	check_dirty_value r7, R7_DIRT

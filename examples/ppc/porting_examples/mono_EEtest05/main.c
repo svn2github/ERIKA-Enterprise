@@ -133,6 +133,7 @@ TASK(Task2)
 {
     task2_started = 1;
     error = dirty_regs(&task2_body, 56);
+    EE_assert(8, error == 0, 4);
     task2_started = 0;
     /* TerminateTask() is called implicitly */
 }
@@ -146,7 +147,6 @@ int main(void)
     started = 1;
     EE_assert(1, 1, EE_ASSERT_NIL);
     StartOS(OSDEFAULTAPPMODE);
-    EE_assert(8, error == 0, EE_ASSERT_NIL);
     EE_assert(9, task1_started == 1, EE_ASSERT_NIL);
     EE_assert(10, task2_started == 0, 2);
     EE_assert_range(0, 1, 10);

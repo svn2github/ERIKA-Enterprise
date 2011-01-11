@@ -7,22 +7,14 @@ CPU test_application {
 		ASFLAGS = "";
 		LDFLAGS = ""; 
 
-		CPU_DATA = LM32 {
+		EE_OPT = "__MPC5668__";
+//		EE_OPT = "__VLE__";
+		EE_OPT = "__E200ZX_EXECUTE_FROM_RAM__";
+		CPU_DATA = MPC5674F {
 			APP_SRC = "main.c";
 			MULTI_STACK = TRUE;
-			USESTANDALONEPRINTF = TRUE; // Optional, default is FALSE
-			USESMALLC = FALSE; // Optional, defautl is FALSE
 		};
 		
-
-		MCU_DATA = LATTICE_PLATFORM {
-   			MODEL = LIBRARY {
-				PLATFORM_LIB_PATH = "../onchipramtimer_lib";
-				PLATFORM_NAME = "onchipramtimer";
-				PLATFORM_BLD_CFG = "Release"; // Optional, default is ""
-   			};
-  		};
-
 		STATUS = EXTENDED;
 		STARTUPHOOK = FALSE;
 		ERRORHOOK = FALSE;

@@ -59,7 +59,7 @@ RTDRUID_OUTPUT = $(addprefix $(OUTPUT_DIR)/, makefile eecfg.h eecfg.c)
 .PHONY: all clean
 
 all: $(RTDRUID_OUTPUT)
-	make -C $(OUTPUT_DIR) all
+	$(MAKE) -C $(OUTPUT_DIR) all
 
 clean:
 	@echo cleaning...
