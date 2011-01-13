@@ -48,6 +48,7 @@ CPU test_application {
 		CPU_DATA = MSP430 {
 			APP_SRC = "main.c";
 			MULTI_STACK = FALSE;
+			USELPM=TRUE;
 		};
 		
 

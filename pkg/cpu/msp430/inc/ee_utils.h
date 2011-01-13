@@ -62,59 +62,36 @@
 
 #ifdef __LPMODE__
 
-extern EE_UINT16 EE_sr_on_stack;
+extern EE_UINT16* EE_sr_on_stack;
+extern EE_UINT16* EE_sr_nested;
 extern EE_UINT16 EE_msp430_choose_LPM(EE_UINT8 lpm);
 
 /*This function allows to modify R2 and set the lpm bits. 
-Usable in task and in interrupt*/
+Usable in the task and in the interrupt*/
 __INLINE__ void EE_msp430_enter_LPM(EE_UINT8 lpm){
 
 _BIS_SR(EE_msp430_choose_LPM(lpm));
 }
 
-/*Needed?*/
-/*This function allows to modify R2 and reset the lpm bits. 
-Usable in interrupt and modify its R2(and so its lpm state). 
-After that the mode lpm is deleting from R2*/
-
-__INLINE__ void EE_msp430_ISR_exit_LPM(EE_UINT8 lpm){
-
-_BIC_SR(EE_msp430_choose_LPM(lpm));
-}
-
 
 /*This function allows to modify R2 and reset the lpm bits of the one task. 
-Usable in interrupt, but modify R2 of task. 
+Usable in the interrupt, but modify R2 of task. 
 After that the mode lpm is deleting from R2 of task*/
 
 __INLINE__ void EE_msp430_exit_LPM(EE_UINT8 lpm){
 
-EE_sr_on_stack&=~EE_msp430_choose_LPM(lpm);
+(*EE_sr_on_stack)&=~EE_msp430_choose_LPM(lpm);
 
 
 
 }
 
-/*Needed?*/
 /*This function allows to modify R2 and modify the lpm bits. 
-Usable in interrupt and modify its R2(and so its lpm state). 
-After that the mode lpm is changing from R2*/
-__INLINE__ void EE_msp430_ISR_change_LPM(EE_UINT8 lpm){
-
-_BIC_SR(0x00F0);
-_BIS_SR(EE_msp430_choose_LPM(lpm));
-
-
-}
-
-/*This function allows to modify R2 and modify the lpm bits. 
-Usable in interrupt  but modify R2 of task. 
+Usable in the interrupt  but modify R2 of task. 
 After that the mode lpm is changing from R2 of task*/
 
 __INLINE__ void EE_msp430_change_LPM(EE_UINT8 lpm){
-
-EE_sr_on_stack&=~0x00F0;
-EE_sr_on_stack|=EE_msp430_choose_LPM(lpm);
+(*EE_sr_on_stack)|=EE_msp430_choose_LPM(lpm);
 }
 
 

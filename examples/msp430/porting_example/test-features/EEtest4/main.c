@@ -57,26 +57,35 @@ void delay(unsigned int d) {
    }
 }
 
-ISR2(TIMERA0_VECTOR){
+ISR2(TIMERA1_VECTOR){
 EE_leds_on();
-EE_led_0_off();
-EE_msp430_exit_LPM(LPMODE_0);
+EE_led_1_off();
+EE_msp430_exit_LPM(LPMODE_1);
+/*delay(0x4fff);
 delay(0x4fff);
-delay(0x4fff);
-
-
-
+*/
 }
-
 
 ISR2(TIMERB0_VECTOR){
 EE_leds_on();
 EE_led_1_off();
+delay(0x4fff);
+delay(0x4fff);
 EE_msp430_exit_LPM(LPMODE_1);
+}
+
+ISR2(TIMERA0_VECTOR){
+EE_leds_on();
+EE_led_0_off();
 delay(0x4fff);
 delay(0x4fff);
 
+EE_msp430_exit_LPM(LPMODE_0);
+
 }
+
+
+
 
 TASK(Task1)
 {

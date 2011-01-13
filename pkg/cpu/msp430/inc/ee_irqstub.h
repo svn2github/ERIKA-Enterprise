@@ -59,7 +59,7 @@
 
 
 
-
+extern void EE_IRQ_end_instance(void);
 
 #ifdef __ALLOW_NESTED_IRQ__
 
@@ -68,18 +68,44 @@
 
 #endif
 
-extern void EE_IRQ_end_instance(void);
 
 #include <cpu/common/inc/ee_irqstub.h>
 
 /*Function and macro for implementing of prestub and poststub*/
+
+
+#ifdef __LPMODE__
+
+extern EE_UINT16* EE_sr_on_stack; /*Save the address of the SR value saved on stack during ISR*/ 
+extern EE_UINT16* EE_sr_nested; /*Save the EE_sr_on_stack value, used with ISR nested*/
+
+
+/*Save in EE_sr_on_stack the address of SR on stack , if nesting is enable, save the preceding address*/
+#define EE_ISR2_prestub_LPM(name) EE_sr_nested=EE_sr_on_stack;\
+__asm__("mov r1,&EE_sr_on_stack"::);\
+__asm__("add #.L__FrameOffset_"#name", &EE_sr_on_stack"::);\
+if(EE_is_inside_ISR_call())\
+__asm__("push &EE_sr_nested"::);\
+
+/*Recharge the old value of EE_sr_on_stack*/
+#define EE_ISR2_poststub_LPM() __asm__("pop &EE_sr_on_stack"::);\
+
+
+#else
+
+
+#define EE_ISR2_prestub_LPM(name)
+#define EE_ISR2_poststub_LPM()
+
+#endif /*end __LPMODE__*/
+
 
 #ifdef __ALLOW_NESTED_IRQ__
 
 #define EE_irq_nesting_prestub() EE_std_enableIRQ_nested()
 #define EE_irq_nesting_poststub()  \
   if (EE_is_inside_ISR_call()) {\
-	EE_poststub_LPM();\
+	EE_ISR2_poststub_LPM();\
        /*In ISR Nesting, enable again interrupt*/\
 	EE_std_enableIRQ_nested();\
 	return;\
@@ -116,42 +142,10 @@ __asm__("mov EE_msp430_IRQ_tos,r1"::);\
 #endif /*end __MULTI__ && __IRQ_STACK_NEEDED__*/
 
 
-#ifdef __LPMODE__
-
-extern EE_UINT16 EE_sr_on_stack;
-extern EE_UINT16 EE_sr_nested;
-
-#define EE_prestub_LPM() if(EE_is_inside_ISR_call())\
-__asm__("push &EE_sr_on_stack"::);\
-EE_sr_on_stack=READ_SR;
-
-
-#define EE_poststub_LPM() __asm__("pop &EE_sr_nested"::);\
-	EE_set_LPM();\
-	EE_sr_on_stack=EE_sr_nested;
-
-
-/*Use gcc-macro for setting LPM, this macro depending by .L__FrameSize_Routine_NAMEISR so if modify sp with assembler inline or change stack, this function could set wrong value*/
-
-#define EE_set_LPM() _BIC_SR_IRQ(0x00f0);\
-_BIS_SR_IRQ(EE_LPM_info(EE_sr_on_stack));
-
-#else
-
-#define EE_set_LPM()
-#define EE_prestub_LPM()
-#define EE_poststub_LPM()
-
-#endif /*end __LPMODE__*/
-
 
 __INLINE__ void  __ALWAYS_INLINE__ EE_ISR2_prestub(void)
 {
 
-/*Disable interrupt*/
-  EE_msp430_disableIRQ();
-
-EE_prestub_LPM();
 /* See /common/ee_iqstub.h, this function set the correct value of IRQ nesting level in both case with IRQ nested allow or not*/ 
 EE_increment_IRQ_nesting_level();
 
@@ -173,8 +167,7 @@ EE_irq_nesting_poststub();
 
 
 /*Reload the preceding stack*/
-EE_change_stack_back();
-EE_set_LPM();
+EE_change_stack_back();;
 /*Call the scheduler*/
 EE_std_after_IRQ_schedule();
 
@@ -187,7 +180,10 @@ EE_std_after_IRQ_schedule();
 #define ISR2(f) \
 void ISR2_##f(void); \
  interrupt (f) routine_##f(void) \
-{ EE_ISR2_prestub(); \
+{ \
+  EE_msp430_disableIRQ();\
+  EE_ISR2_prestub_LPM(routine_##f);\
+  EE_ISR2_prestub(); \
   ISR2_##f(); \
   EE_ISR2_poststub(); \
 } \

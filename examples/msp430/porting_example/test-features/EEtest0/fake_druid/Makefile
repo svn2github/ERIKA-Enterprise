@@ -28,9 +28,7 @@ EEOPT += __MSP430_1611__
 EEOPT += __FP__
 EEOPT += __MONO__
 EEOPT += __ALARMS__
-EEOPT += __LPMODE__
 EEOPT += __USE_LEDS__
-EEOPT += __USE_UART__
 ifndef EEBASE
     EEBASE  := /extra/eclipse/plugins/com.eu.evidence.ee_1.0.0.201002181432/ee_base
 endif

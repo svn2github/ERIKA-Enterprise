@@ -49,8 +49,8 @@
 #include "cpu/msp430/inc/ee_cpu.h"
 
 
-EE_UINT16 EE_sr_on_stack=0;
-EE_UINT16 EE_sr_nested=0;
+EE_UINT16* EE_sr_on_stack=NULL;
+EE_UINT16* EE_sr_nested=NULL;
 
 EE_UINT16 EE_msp430_choose_LPM(EE_UINT8 lpm){
 
@@ -92,7 +92,7 @@ case LPMODE_4:
 
 case LPMODE_DEFAULT:
 {
-	lpm_bits=0x00F0;
+	lpm_bits=0x0000;
 	break;
 }
 case NO_LPMODE:{
@@ -103,7 +103,7 @@ case NO_LPMODE:{
 
 }
 default:{
-lpm_bits=0;
+lpm_bits=0x0000;
 }
 
 

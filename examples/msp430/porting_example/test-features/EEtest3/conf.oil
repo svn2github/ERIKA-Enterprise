@@ -48,13 +48,13 @@ CPU test_application {
 		CPU_DATA = MSP430 {
 			APP_SRC = "main.c";
 			MULTI_STACK = FALSE;
+			USELPM=TRUE;
 		};
 		
 
 		MCU_DATA =MSP430 {
    			MODEL=MSP430x1611;
   		};
-	
 		BOARD_DATA = UTMOST {
 			USELEDS = TRUE;
 		};

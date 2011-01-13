@@ -41,12 +41,12 @@
 /*
 * Author:2010, Christian Grioli
 * Testing options LPMODE. 
-* In this case two Tasks and one interrupt (multistack case).
+* In this case two Tasks and two different interrupts (monostack case).
 */
 
 
-#include "ee.h"
 
+#include "ee.h"
 
 /**
 Delay function.
@@ -62,16 +62,26 @@ void delay(unsigned int d) {
 ISR2(TIMERA0_VECTOR){
 EE_leds_on();
 EE_led_0_off();
-EE_msp430_exit_LPM(LPMODE_0);
+delay(0x4fff);
+delay(0x4fff);
+delay(0x4fff);
 
-delay(0x4fff);
-delay(0x4fff);
-delay(0x4fff);
+EE_msp430_exit_LPM(LPMODE_0);
 
 
 
 }
 
+
+ISR2(TIMERB0_VECTOR){
+EE_leds_on();
+EE_led_1_off();
+
+delay(0x4fff);
+delay(0x4fff);
+delay(0x4fff);
+EE_msp430_exit_LPM(LPMODE_1);
+}
 
 TASK(Task1)
 {
@@ -80,12 +90,9 @@ EE_led_0_on();
 delay(0x4fff);
 delay(0x4fff);
 delay(0x4fff);
-
-
 EE_msp430_enter_LPM(LPMODE_0);
 EE_leds_off();
 EE_led_0_on();
-
 delay(0x4fff);
 delay(0x4fff);
 delay(0x4fff);
@@ -96,19 +103,14 @@ TASK(Task2)
 {
 EE_leds_off();
 EE_led_1_on();
-
 delay(0x4fff);
 delay(0x4fff);
-delay(0x4fff);
-
-EE_msp430_enter_LPM(LPMODE_0);
+EE_msp430_enter_LPM(LPMODE_1);
 EE_leds_off();
 EE_led_1_on();
-
 delay(0x4fff);
 delay(0x4fff);
 delay(0x4fff);
-
 }
 
 
@@ -117,20 +119,23 @@ delay(0x4fff);
 Main function with some blinking leds
 */
 int main(void) {
+
 /*Stopping the watchdog*/
   EE_msp430_init();
   EE_leds_init();
   EE_leds_on();
 
 /*Set the timer A*/
-   TACCTL0=CCIE;   
-   TACTL=TASSEL_1+ MC_2;
-   
+   TACCTL0=CCIE;
+   TACCR0=0xFF00;	   
+   TACTL=TASSEL_1+ MC_1;
+   /*Set the timer B*/
+   TBCCTL0=CCIE;
+   TBCTL=TBSSEL_1+ MC_2;
 /*EnableInterrupt*/
-  eint();
-  ActivateTask(Task1);
-
-  ActivateTask(Task2);
-  for(;;);
+   eint();
+   ActivateTask(Task1);
+   ActivateTask(Task2);
+   for(;;);
 }
 
