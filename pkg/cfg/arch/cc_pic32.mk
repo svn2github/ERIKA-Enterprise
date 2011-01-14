@@ -61,8 +61,6 @@ endif
 # Specific option from the application makefile
 OPT_CC += $(CFLAGS)
 
-OPT_CC_DEPS := $(OPT_CC) -D__LANGUAGE_C__ 
-
 # target type, not used for dependencies if the Cygwin GCC is used
 ifneq ($(PIC32_MODEL),)
 OPT_CC += -mprocessor=$(PIC32_MODEL)
@@ -83,7 +81,7 @@ OPT_LINK += $(LDFLAGS)
 ifeq ($(call iseeopt, DEBUG), yes)
 OPT_LINK += -mdebugger
 endif
-ifeq ($(call iseeopt, DEBUG), yes)
+
 # NOTE: if the model is specified, use the specific linker script 
 #       NECESSARY to use more than 32K of ram in the new families (e.g 7xx)
 # NOTE2: if the model is specified, it must be used passed also the specific
@@ -93,7 +91,6 @@ ifeq ($(call iseeopt, DEBUG), yes)
 ifneq ($(PIC32_MODEL),)
 #OPT_LINK += --script $(PIC32_GCCDIR)/pic32mx/lib/proc/$(PIC32_MODEL)/procdefs.ld
 OPT_LINK += -mprocessor=$(PIC32_MODEL)
-endif
 endif
 
 # Defining EEOPT Macros

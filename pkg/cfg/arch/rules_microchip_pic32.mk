@@ -111,7 +111,6 @@ COMPUTED_ALLINCPATH := $(ALLINCPATH)
 COMPUTED_OPT_LINK := $(OPT_LINK)
 COMPUTED_OPT_ASM := $(OPT_ASM)
 COMPUTED_OPT_CC := $(OPT_CC)
-COMPUTED_OPT_CC_DEPS := $(OPT_CC_DEPS)
 
 ## Select input filename format ##
 SOURCEFILE = $(call native_path, $<)
