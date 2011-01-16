@@ -6,7 +6,6 @@
 #EEBASE = ../../..
 #APPBASE = .
 
-PLATFORM=LINUX
 ###
 ### Setting EEOPT variable:
 ###
@@ -19,8 +18,9 @@ EEOPT =
 # User options
 #
 ############################################################################
-EEOPT += DEBUG
-#EEOPT += NODEPS
+EEOPT += DEBUG_STACK
+EEOPT += __E200ZX_EXECUTE_FROM_RAM__
+
 
 ############################################################################
 #
@@ -30,10 +30,9 @@ EEOPT += DEBUG
 EEOPT += __MPC5674F__
 EEOPT += __PPCE200Z7__
 EEOPT += __DIAB__
-
 EEOPT += __FP__
 EEOPT += __MULTI__
-EEOPT += __ALARMS__
+EEOPT += __FP_NO_RESOURCES__
 
 
 ############################################################################
@@ -41,16 +40,12 @@ EEOPT += __ALARMS__
 # Freescale MPC5674F, PPC E200Z7
 #
 ############################################################################
+ifndef EEBASE
 EEBASE  := $(abspath $(shell dirname $$(pwd)/../../../../../../))
-APPBASE := $(abspath $(shell pwd))
-OUTBASE := Debug
+endif
+APPBASE := ..
+OUTBASE := output
 
-
-############################################################################
-#
-# Initialization (for Multiboot)
-#
-############################################################################
 
 
 ############################################################################
@@ -58,11 +53,11 @@ OUTBASE := Debug
 # Flags
 #
 ############################################################################
-CFLAGS  +=
-ASFLAGS +=
-LDFLAGS +=
-LDDEPS  +=
-LIBS    +=
+CFLAGS  += -g2
+ASFLAGS += 
+LDFLAGS += 
+LDDEPS  += 
+LIBS    += 
 
 
 
