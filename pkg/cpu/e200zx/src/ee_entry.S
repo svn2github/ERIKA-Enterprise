@@ -1,7 +1,7 @@
 /* ###*B*###
  * ERIKA Enterprise - a tiny RTOS for small microcontrollers
  *
- * Copyright (C) 2002-2010  Evidence Srl
+ * Copyright (C) 2002-2011  Evidence Srl
  *
  * This file is part of ERIKA Enterprise.
  *
@@ -38,8 +38,9 @@
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
 /*
- * Entry points for the Z7 cpu.
+ * Entry points for the e200zX CPUs.
  * Author: 2010 Fabio Checconi
+ *         2011 Bernardo  Dal Seno
  */
 
 	.text
@@ -54,39 +55,31 @@ set_ivor: .macro n,label
 	mtspr	SPRG_IVOR_BASE + n, r0
 	.endm
 
-save_all: .macro
-	addi	sp, sp, -80
-	stw	r0, 8(sp)
-	mfspr	r0, lr
-	stw	r0, 12(sp)
-	bl	save_registers
-	.endm
-
-restore_all: .macro
-	bl	restore_registers
-	lwz	r0, 12(sp)
-	mtspr	lr, r0
-	lwz	r0, 8(sp)
-	addi	sp, sp, 80
-	.endm
 
 vector: .macro label,handler
 	.align	E200ZX_IRQ_ENTRY_ALIGN
 	.type	label, @function
 label:
-	save_all
+	addi	sp, sp, -80
+	stw	r0, 8(sp)
+	mfspr	r0, lr
 	b	handler
 	.size	label, .-label
 	.endm
 
-vector_epilogue: .macro
-	restore_all
-	rfi
+
+handler_prologue: .macro
+	bl	save_registers
+	.endm
+
+handler_epilogue: .macro
+	b	restore_all_return
 	.endm
 
 
 	.type	save_registers, @function
 save_registers:
+	stw	r0, 12(sp)	/* LR, copied by the `vector' macro */
 	stw	r3, 20(sp)
 	stw	r4, 24(sp)
 	stw	r5, 28(sp)
@@ -113,8 +106,8 @@ save_registers:
 	.size	save_registers, .-save_registers
 
 
-	.type	restore_registers, @function
-restore_registers:
+	.type	restore_all_return, @function
+restore_all_return:
 	lwz	r0, 76(sp)
 	mtspr	xer, r0
 	lwz	r0, 72(sp)
@@ -136,9 +129,13 @@ restore_registers:
 	lwz	r5, 28(sp)
 	lwz	r4, 24(sp)
 	lwz	r3, 20(sp)
+	lwz	r0, 12(sp)
+	mtspr	lr, r0
+	lwz	r0, 8(sp)
+	addi	sp, sp, 80
+	rfi
 
-	blr
-	.size	restore_registers, .-restore_registers
+	.size	restore_all_return, .-restore_all_return
 
 
 /*
@@ -149,6 +146,7 @@ restore_registers:
 
 	.type	external_input_handler, @function
 external_input_handler:
+	handler_prologue
 	addis	r3, 0, INTC_IACKR@ha	/* ack the interrupt */
 	lwz	r0, INTC_IACKR@l(r3)
 
@@ -160,17 +158,18 @@ external_input_handler:
 	addis	r3, 0, INTC_EOIR@ha	/* send the EOI */
 	stw	r0, INTC_EOIR@l(r3)
 
-	vector_epilogue
+	handler_epilogue
 	.size	external_input_handler, .-external_input_handler
 
 
 	.type	decrementer_handler, @function
 decrementer_handler:
+	handler_prologue
 	addis	r0, 0, (1 << TSR_DIS)@h
 	mtspr	tsr, r0
 	li	r3, 10
 	bl	EE_e200z7_irq
-	vector_epilogue
+	handler_epilogue
 	.size	decrementer_handler, .-decrementer_handler
 
 
