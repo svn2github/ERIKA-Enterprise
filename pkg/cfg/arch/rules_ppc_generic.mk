@@ -66,10 +66,13 @@ endif
 ifndef PPC_MCU_MODEL
 $(error No known PPC MCU model found in EE_OPT)
 endif
-# Read MCU-specif file, if it exists
--include $(PKGBASE)/cfg/arch/rules_ppc_$(PPC_MCU_MODEL).mk
 
 include $(EEBASE)/pkg/cfg/dir.mk
+
+# Read MCU-specific file, if it exists, but don't make it
+-include $(PKGBASE)/cfg/arch/rules_ppc_$(PPC_MCU_MODEL).mk
+$(PKGBASE)/cfg/arch/rules_ppc_$(PPC_MCU_MODEL).mk: ;
+
 include $(PKGBASE)/cfg/verbose.mk
 include $(PKGBASE)/cfg/compiler.mk
 
@@ -178,6 +181,7 @@ SRCFILE = $(call native_path, $(patsubst %.o,%.src,$@))
 
 .PHONY: all clean t32
 
+.DEFAULT_GOAL := all
 all: $(TARGET) t32
 # The success message is printed by the $(TARGET) rule, so we get a "Nothing
 # do be done" message when everything is up to date
