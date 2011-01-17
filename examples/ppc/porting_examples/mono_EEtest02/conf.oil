@@ -6,12 +6,16 @@ CPU test_application {
 		ASFLAGS = "";
 		LDFLAGS = ""; 
 
-//		EE_OPT = "__MPC5668__";
-//		EE_OPT = "__VLE__";
 		EE_OPT = "__E200ZX_EXECUTE_FROM_RAM__";
-		CPU_DATA = MPC5674F {
+		CPU_DATA = PPCE200ZX {
+			MODEL = E200Z7;
 			APP_SRC = "main.c";
 			MULTI_STACK = FALSE;
+			VLE = TRUE;
+		};
+
+		MCU_DATA = PPCE200ZX {
+			MODEL = MPC5674F;
 		};
 
 		STATUS = EXTENDED;

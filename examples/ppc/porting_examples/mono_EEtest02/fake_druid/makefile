@@ -42,9 +42,11 @@ EEOPT += __ASSERT__
 # Freescale MPC5674F, PPC E200Z7
 #
 ############################################################################
+ifndef EEBASE
 EEBASE  := $(abspath $(shell dirname $$(pwd)/../../../../../../))
-APPBASE := $(abspath $(shell pwd))
-OUTBASE := Debug
+endif
+APPBASE := ..
+OUTBASE := output
 
 
 ############################################################################
