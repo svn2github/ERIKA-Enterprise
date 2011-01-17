@@ -42,6 +42,7 @@
  * Author: 2010 Fabio Checconi
  */
 
+#include <eecfg.h>
 #include <mcu/freescale_mpc5674f/inc/ee_regs_asm.h>
 
 	.section ".boot"
@@ -142,9 +143,13 @@ sram_setup:
 	.section ".stack"
 	.align 4
 
-	.space	496
+#ifndef EE_SYS_STACK_SIZE
+#define EE_SYS_STACK_SIZE	512
+#endif
+	.space	EE_SYS_STACK_SIZE-16
 
 	.global _stack0
+	.align 4
 _stack0:
 	.space	16
 
