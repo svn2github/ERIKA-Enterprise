@@ -212,15 +212,28 @@ typedef enum {
 /******************************************************************************/
 #define HV7131GP_DEVICE_ID 		0x22	/**< The I2C slave device ID */
 
+#define HV7131GP_PROD_ID_MASK		0xf0    /**< Mask for ID in DEVID */
+#define HV7131GP_PROD_ID_VALUE		0x40    /**< Product ID in DEVID */
+#define HV7131GP_REV_NUM_MASK		0x0f    /**< Revision number mask in
+                                                 * DEVID */
+#define HV7131GP_REV_NUM_VALUE		0x00    /**< Revision number in DEVID */
+
 #define HV7131GP_X_FLIP 		0x08	/**< Perform horizontal flip */
 #define HV7131GP_Y_FLIP 		0x04	/**< Perform vertical flip */
 
 
-#define	HV7131GP_VIDEO_MASK 		0x03 	/**< Mask for video mode */
+#define	HV7131GP_VIDEO_MASK 		0x03 	/**< Video mode mask in SCTRA */
 #define	HV7131GP_VIDEO_NORMAL 		0x03 	/**< 3x3 color interpolation */
 #define	HV7131GP_VIDEO_SUB_4 		0x02 	/**< 1/4 subsampling */
 #define	HV7131GP_VIDEO_SUB_16 		0x01 	/**< 1/16 subsampling */
 #define	HV7131GP_VIDEO_BAYER  		0x00 	/**< Bayer output format */
+
+#define	HV7131GP_OPMODE_MASK		0xf0 /**< Operation mode mask in SCTRA */
+#define	HV7131GP_OPMODE_NORMAL		0x00 /**< Normal operation mode */
+#define	HV7131GP_OPMODE_TEST_A0 	0x80 /**< Test A all-0 operation mode */
+#define	HV7131GP_OPMODE_TEST_A1		0x90 /**< Test A all-1 operation mode */
+#define	HV7131GP_OPMODE_TEST_C0		0xe0 /**< Test C all-1 operation mode */
+#define	HV7131GP_OPMODE_TEST_C1		0xd0 /**< Test C all-1 operation mode */
 
 #define HV7131GP_DCF_1			0x00	/**< Divided clock freq. DFC=MCF */
 #define HV7131GP_DCF_2			0x01	/**< Divided clock freq. DFC=MCF/2 */

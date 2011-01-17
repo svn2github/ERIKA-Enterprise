@@ -48,6 +48,7 @@ typedef enum {
 	HV7131GP_ERR_MEM_NULL,		/**< Invalid NULL memory address */
 	HV7131GP_ERR_DMA_INIT,	/**< Invalid NULL memory address */
 	HV7131GP_HAL_INIT_ERR,
+	HV7131GP_ERR_WRONG_PRODUCT	/**< Camera product ID doesn't match */
 } hv7131gp_status_t;
 
 /**
@@ -57,6 +58,7 @@ typedef enum {
 	HV7131GP_NO_SUB  	= 0x00,		/**< 640x480 pixel resolution*/
 	HV7131GP_1_4_SUB	= 0x01,		/**< 320x240 pixel resolution*/
 	HV7131GP_1_16_SUB	= 0x02,		/**< 160x120 pixel resolution */
+        HV7131GP_BAYER_SUB,                     /**< Raw bayer data */
 } hv7131gp_R_Value_t;
 
 /**

@@ -218,7 +218,14 @@ hv7131gp_status_t hv7131gp_init(void)
 hv7131gp_status_t hv7131gp_init_configure(void)
 {
 	hv7131gp_status_t help;
+	uint8_t ver;
 
+	help = hv7131gp_reg_read(HV7131GP_REG_DEVID, &ver);
+	if (help != HV7131GP_SUCCESS)
+		return help;
+	if (ver != (HV7131GP_PROD_ID_VALUE | HV7131GP_REV_NUM_VALUE))
+		return HV7131GP_ERR_WRONG_PRODUCT;
+	
 	//Time division: 16
 	help = hv7131gp_configure_time_divisor(HV7131GP_T_5);
 
@@ -440,6 +447,10 @@ hv7131gp_status_t hv7131gp_configure_subsampling(hv7131gp_R_Value_t res)
 		//Set the resolution value: 1/4 sub-sampling (160x120)
 		ssvalue = HV7131GP_VIDEO_SUB_16;
 		act_res = 4; //Divide the window sizes by 4 (160x120)
+		break;
+	case HV7131GP_BAYER_SUB:
+		ssvalue = HV7131GP_VIDEO_BAYER;
+		act_res = 1; // Raw Bayer data: no sub-sampling
 		break;
 	default:
 		return HV7131GP_FAILURE;
