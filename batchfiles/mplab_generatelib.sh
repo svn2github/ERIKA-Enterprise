@@ -15,8 +15,9 @@ export PARAM2=`echo ${EE_MPLAB_GENERATELIB_PARAM2} | awk '{ gsub(/"/, ""); print
 mkdir -p ${PARAM2}/Debug
 
 export PARAM2_DEBUG_WINNOSPACES=`echo ${PARAM2}/Debug | cygpath -ms -f -`
+export ECLIPSE_HOME=`cygpath -ms ${EE_INSTALLDIR}/eclipse`
 
-${EE_INSTALLDIR}/bin/rtdruid_launcher.bat --oil ${PARAM1_WINNOSPACES} --output ${PARAM2_DEBUG_WINNOSPACES}
+${EE_INSTALLDIR}/eclipse/evidence/rtd_launcher.bat --oil ${PARAM1_WINNOSPACES} --output ${PARAM2_DEBUG_WINNOSPACES}
 
 # add MPLABIDE command to the makefile
 echo GENERATE_MPLABIDE_LIBS:=TRUE > ${PARAM2}/Debug/makefile.temp
