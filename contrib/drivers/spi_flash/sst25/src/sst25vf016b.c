@@ -56,19 +56,23 @@ void sst25vf016b_flash_write_buffer(unsigned id, EE_UINT32 addr,
 {
     unsigned k;
     const EE_UINT8 *bdata = data;
-    if (len < 2)
-        return;
-    
-    spiflash_write_enable(id);
-    spiflash_long_write(id, (SPI_FLASH_CMD_AAI << 8) | ((addr >> 16)&0xFF), 
+
+    k = 0;
+    if (len >= 2) {
+        /* Fast write: due bytes at a time */
+        spiflash_write_enable(id);
+        spiflash_long_write(id, (SPI_FLASH_CMD_AAI << 8) | ((addr >> 16)&0xFF), 
                              (addr << 16) | ((EE_UINT32)bdata[0] << 8) | bdata[1], 6);
-    spiflash_wait_until_ready(id);
-    for (k = 2; k <= len-2; k+=2) {
-        spiflash_short_write(id, (SPI_FLASH_CMD_AAI << 16) | ((EE_UINT32)bdata[k] << 8) | bdata[k+1], 3);
+        spiflash_wait_until_ready(id);
+        for (k = 2; k <= len-2; k+=2) {
+            spiflash_short_write(id, (SPI_FLASH_CMD_AAI << 16)
+                | ((EE_UINT32)bdata[k] << 8) | bdata[k+1], 3);
+            spiflash_wait_until_ready(id);
+        }
+        spiflash_write_disable(id);    /* End the AAI sequence */
         spiflash_wait_until_ready(id);
     }
-    spiflash_write_disable(id);    /* End the AAI sequence */
-    spiflash_wait_until_ready(id);
+    /* An odd final byte must be written separately */
     if (k < len) {
         spiflash_write_enable(id);
         spiflash_long_write(id, SPI_FLASH_CMD_WR_BYTE, ((addr + k) << 8) | bdata[k], 5);
