@@ -477,6 +477,13 @@ hv7131gp_status_t hv7131gp_configure_x_flip(int status)
 }
 	
 
+hv7131gp_status_t hv7131gp_configure_y_flip(int status)
+{
+	return hv7131gp_reg_update(HV7131GP_REG_SCTRA, HV7131GP_Y_FLIP,
+		status != 0 ? HV7131GP_Y_FLIP : 0);
+}
+
+
 hv7131gp_status_t hv7131gp_configure_color(int status)
 {
 	/* Set 16-bit mode to turn off colors */

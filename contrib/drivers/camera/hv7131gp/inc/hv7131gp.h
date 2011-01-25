@@ -134,7 +134,7 @@ hv7131gp_status_t hv7131gp_configure_subsampling(hv7131gp_R_Value_t res);
 
 
 /**
-* @brief Enable horizontal flipping on HV7131GP Camera.
+* @brief Enable/disable horizontal flipping on HV7131GP Camera.
 *
 * \param status		A boolean indicating whether to turn flipping on or off
 *
@@ -142,6 +142,17 @@ hv7131gp_status_t hv7131gp_configure_subsampling(hv7131gp_R_Value_t res);
 *         otherwise a specific error code.
 */
 hv7131gp_status_t hv7131gp_configure_x_flip(int status);
+
+
+/**
+* @brief Enable/disable vertical flipping on HV7131GP Camera.
+*
+* \param status		A boolean indicating whether to turn flipping on or off
+*
+* @return Returns \c HV7131GP_SUCCESS if no error occurs,
+*         otherwise a specific error code.
+*/
+hv7131gp_status_t hv7131gp_configure_y_flip(int status);
 
 
 /**
