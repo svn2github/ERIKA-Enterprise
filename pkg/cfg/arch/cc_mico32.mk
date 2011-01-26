@@ -61,4 +61,5 @@ DEFS_CC := $(addprefix -D,$(EEOPT))
 EE_AR = $(AR)
 
 # Dependenciese are always generated, as they cost negligible time
-DEPENDENCY_OPT = -MMD -MP -MT $@
+DEPENDENCY_OPT = -MMD -MF $(subst .o,.d_tmp,$@) -MP -MT $@
+make-depend = mv $3_tmp $3

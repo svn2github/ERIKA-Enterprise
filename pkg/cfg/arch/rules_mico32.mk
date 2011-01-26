@@ -171,10 +171,12 @@ endif
 # Build .o files from .c files.
 $(OBJDIR)/%.o: %.c
 	$(VERBOSE_PRINTCPP) $(EE_CC) -c $(CPU_CONFIG) $(CFLAGS) $(CPPFLAGS) $(DEPENDENCY_OPT) $< -o $@
+	$(QUIET) $(call make-depend, $<, $@, $(subst .o,.d,$@))
 
 # Build .o files from .S files.
 $(OBJDIR)/%.o: %.S
 	$(VERBOSE_PRINTASM) $(EE_ASM) -c $(CPU_CONFIG) $(CFLAGS) $(CPPFLAGS) $(DEPENDENCY_OPT) $(ASFLAGS) $< -o $@
+	$(QUIET) $(call make-depend, $<, $@, $(subst .o,.d,$@))
 
 
 ##

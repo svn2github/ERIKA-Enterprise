@@ -116,7 +116,7 @@ DEPENDENCY_OPT = -Xmake-dependency=d -Xmake-dependency-target=$@ -Xmake-dependen
 make-depend = sed -e 's_\\\(.\)_/\1_g' -e 's_\<\([a-zA-Z]\):/_/cygdrive/\l\1/_g' < $3_tmp > $3 && rm $3_tmp
 else # __RTD_CYGWIN__
 # Create dependency for all headers, and add a target for each header
-DEPENDENCY_OPT = -Xmake-dependency=d -Xmake-dependency-target=$@ -Xmake-dependency-savefile=$(subst .o,.d,$@)
-make-depend =
+DEPENDENCY_OPT = -Xmake-dependency=d -Xmake-dependency-target=$@ -Xmake-dependency-savefile=$(subst .o,.d_tmp,$@)
+make-depend = mv $3_tmp $3
 endif # __RTD_CYGWIN__
 endif # NODEPS
