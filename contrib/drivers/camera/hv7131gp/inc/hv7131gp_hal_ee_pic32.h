@@ -105,13 +105,6 @@ hv7131gp_status_t hv7131gp_hal_capture(uint8_t *image, hv7131gp_cback_t *func);
 #endif
 
 
-#ifdef __USE_DMA__
-#ifndef DMA_MAX_WIDTH
-#define DMA_MAX_WIDTH		160
-#endif // DMA_MAX_WIDTH
-#endif //__USE_DMA__
-
-
 /******************************************************************************/
 /* 				OC specific definition			      */
 /******************************************************************************/
@@ -224,10 +217,6 @@ hv7131gp_status_t hv7131gp_hal_capture(uint8_t *image, hv7131gp_cback_t *func);
 
 #define HV7131GP_DMA_SOURCE_SIZE		1
 
-
-#ifndef HV7131GP_DMA_DESTINATION_SIZE
-#define HV7131GP_DMA_DESTINATION_SIZE		DMA_MAX_WIDTH
-#endif
 
 #define HV7131GP_DMA_CELL_SIZE			1
 

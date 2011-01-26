@@ -32,18 +32,17 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "cpu/pic32/inc/ee_utils.h"
 
 /******************************************************************************/
-/*                         Global Variables                                   */
-/******************************************************************************/
-volatile void (* capture_complete_func) (hv7131gp_status_t) = NULL;
-
-volatile uint8_t *frame_buffer = NULL;
-
-
-/******************************************************************************/
 /*                          Local Variables                                   */
 /******************************************************************************/
-/*static*/ volatile uint16_t row_id, frame_idx;
-/*static*/ volatile uint16_t  height, width, image_size;
+/* These variables are declared volatile, but probably there is no need for
+ * it.  Actually, most of them shouldn't modified concurrently, or the driver
+ * will fail anyway. */
+static void (* volatile capture_complete_func) (hv7131gp_status_t) = NULL;
+static uint8_t * volatile frame_buffer = NULL;
+static volatile uint16_t row_id;
+static volatile uint16_t height, width;
+static volatile uint32_t frame_idx, image_size;
+
 /******************************************************************************/
 /*                           Hardware Abstraction Layer                       */
 /******************************************************************************/
@@ -136,7 +135,7 @@ if (HV7131GP_HSYNC_VALUE() == HV7131GP_HSYNC_RISING) {
 	HV7131GP_DMA_CH_DISABLE();
 	#endif
 	
-	frame_idx += DMA_MAX_WIDTH;
+	frame_idx += width;
 
 	#ifndef __INT_DMA__
 	HV7131GP_HAL_ENABLE_INTERRUPTS();
@@ -202,13 +201,13 @@ hv7131gp_status_t hv7131gp_dma_hal_init(void){
 	/* Set the source, destination, cell sizes, the interrupt associated
 		and the priority  */
 	EE_dma_init_transfer(HV7131GP_DMA_CH, HV7131GP_DMA_SOURCE_SIZE,
-			HV7131GP_DMA_DESTINATION_SIZE, HV7131GP_DMA_CELL_SIZE,
+			width, HV7131GP_DMA_CELL_SIZE,
 	HV7131GP_DMA_INT_SOURCE, HV7131GP_DMA_INT_PRIOR, 
 			HV7131GP_DMA_INT_SUB_PRIOR);
 	
 	return HV7131GP_SUCCESS;
 	
-};
+}
 #endif // __USE_DMA__
 
 
@@ -264,6 +263,11 @@ hv7131gp_status_t hv7131gp_hal_capture(uint8_t *image, hv7131gp_cback_t *func)
 	height 	= hv7131gp_get_height();
 	image_size = hv7131gp_get_size();
 	
+	#ifdef __USE_DMA__
+	if (hv7131gp_dma_hal_init() != HV7131GP_SUCCESS)
+		return -HV7131GP_ERR_DMA_INIT;
+	#endif
+
 	frame_buffer = image;
 	capture_complete_func = func;
 
