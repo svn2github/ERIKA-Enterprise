@@ -44,6 +44,10 @@
 #include "ee_internal.h"
 #include "cpu/common/inc/ee_irqstub.h"
 
+#ifdef  __MULTI__
+extern void EE_esi_change_context(EE_TID tid);
+#endif
+
 #ifdef __IRQ_STACK_NEEDED__
 
 /* EE_std_IRQ_tos is the top of stack structure defined in eecfg.c */
@@ -187,7 +191,7 @@ void EE_std_change_context(EE_TID tid)
 extern struct EE_TOS EE_std_system_tos[];
 
 /* _user_init function is called before main */
-_user_init(void)
+void _user_init(void)
 {
 	int	i;
 	int	max_stacks=0;

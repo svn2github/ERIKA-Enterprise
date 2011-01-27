@@ -46,6 +46,7 @@
 
 #include "cpu/esi_risc/inc/ee_cpu.h"
 
+extern void EE_IRQ_end_instance(void);
 
 /*************************************************************************
  Functions
@@ -76,8 +77,8 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_end_nested_primitive(EE_FREG f)
 
 
 
-/* 
- * Context Handling  
+/*
+ * Context Handling
  */
 
 #ifdef __MULTI__
@@ -92,7 +93,7 @@ extern EE_UREG EE_esi_std_active_tos;
 
 
 
-/* 
+/*
  * OO TerminateTask related stuffs
  */
 
