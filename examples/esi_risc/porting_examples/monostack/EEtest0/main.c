@@ -47,6 +47,7 @@
 #include "ee.h"
 #include "test/assert/inc/ee_assert.h"
 
+#include <stdio.h>
 #include <stdlib.h>
 
 #define TRUE 1

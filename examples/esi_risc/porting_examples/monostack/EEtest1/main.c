@@ -47,6 +47,8 @@
 #include "ee.h"
 #include "test/assert/inc/ee_assert.h"
 
+#include <stdio.h>
+
 #define TRUE 1
 /* assertion data */
 EE_TYPEASSERTVALUE EE_assertions[10];

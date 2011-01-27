@@ -2,17 +2,24 @@ CPU test_application {
 
 	OS EE {
 		EE_OPT = "DEBUG";
-		EE_OPT = "NODEPS";
 		EE_OPT = "__ASSERT__";
-
-		CFLAGS = "-msoc=esi3200_cycloneiiidemo -O2";
-		ASFLAGS = "-msoc=esi3200_cycloneiiidemo -O2";
-		LDFLAGS = "-msoc=esi3200_cycloneiiidemo -O2";
+		
+		/* specify optimisation level */
+		CFLAGS = "-O2 -Wall";
+		ASFLAGS = "-O2";
+				
+		/* select lightweight startup code */
+		LDFLAGS = "-mcrt0s";
 
 		CPU_DATA = ESI_RISC {
 			APP_SRC = "main.c";
 			MULTI_STACK = FALSE;
-			ICD = TRUE;
+		};
+		
+		MCU_DATA = ESI_RISC {
+			MODEL = CUSTOM {
+				MODEL = "-msoc=esi3200_cycloneiiidemo";
+			};
 		};
 
 		STATUS = EXTENDED;
@@ -25,14 +32,17 @@ CPU test_application {
 		USEPARAMETERACCESS = FALSE;
 		USERESSCHEDULER = FALSE;
     };
-    
-    /* this is the OIL part for the first task */
+   
     TASK Task1 {
 		PRIORITY = 0x01;   /* Low priority */
 		AUTOSTART = FALSE;
-		STACK = SHARED;
+		STACK = PRIVATE;
 		ACTIVATION = 1;    /* only one pending activation */
 	};	
 
-    OS EE { KERNEL_TYPE = FP; }; 	
+    OS EE {
+    	KERNEL_TYPE = FP {
+    		NESTED_IRQ = FALSE;
+    	};
+    }; 	
 };

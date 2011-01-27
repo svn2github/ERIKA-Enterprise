@@ -48,6 +48,7 @@
 #include "cpu/esi_risc/inc/ee_irq.h"
 #include "test/assert/inc/ee_assert.h"
 
+#include <stdio.h>
 #include <stdlib.h>
 #include <esirisc/esirisc.h>
 

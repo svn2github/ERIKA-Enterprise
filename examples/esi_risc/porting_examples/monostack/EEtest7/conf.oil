@@ -2,29 +2,26 @@ CPU test_application {
 
 	OS EE {
 		EE_OPT = "DEBUG";
-		EE_OPT = "NODEPS";
 		EE_OPT = "__ASSERT__";
-		EE_OPT = "__S12XS_INCLUDE_REGS__";
+		EE_OPT = "__USE_TIMERS__";
+		
+		/* specify optimisation level */
+		CFLAGS = "-O2 -Wall";
+		ASFLAGS = "-O2";
+				
+		/* select lightweight startup code */
+		LDFLAGS = "-mcrt0s";
 
-		CFLAGS = "-l +modf +fast +nowiden +warn +sprec";
-		ASFLAGS = "-c -v -l ";
-		LDFLAGS = "-p -sa -m mapfile.map"; 
-
-		CPU_DATA = MC9S12XS {
+		CPU_DATA = ESI_RISC {
 			APP_SRC = "main.c";
 			MULTI_STACK = FALSE;
-			ICD = TRUE;
 		};
 		
-		MCU_DATA = S12XS {
-   			MODEL = CUSTOM{
-    			MODEL = "MC9S12XS128";
-    			LINKERSCRIPT = "mc9s12xs128.lkf";
-    			INCLUDE_H = "hs12xsregs.h";
-    			INCLUDE_C = "vector_s12x.c";
-    			INCLUDE_S = "crtsx.S";
-   			};
-  		};
+		MCU_DATA = ESI_RISC {
+			MODEL = CUSTOM {
+				MODEL = "-msoc=esi3200_cycloneiiidemo";
+			};
+		};
 
 		STATUS = EXTENDED;
 		STARTUPHOOK = FALSE;
@@ -35,28 +32,20 @@ CPU test_application {
 		USEGETSERVICEID = FALSE;
 		USEPARAMETERACCESS = FALSE;
 		USERESSCHEDULER = FALSE;
-		
-//		ORTI_SECTIONS = ALL;
     };
 
-	/* this is the OIL part for the first task */
     TASK Task1 {
-		PRIORITY = 0x01;   /* Low priority */
-		AUTOSTART = FALSE;
-		STACK = SHARED;
-		ACTIVATION = 1;    /* only one pending activation */
-		SCHEDULE = NON;
-	};	
-	
-	/* this is the OIL part for the task activated by the button press */
-    TASK Task2 {
-		PRIORITY = 0x02;   /* High priority */
-		SCHEDULE = FULL;
-		AUTOSTART = FALSE;	
-		STACK = SHARED;
-		ACTIVATION = 4;
+                PRIORITY = 0x01;
+                AUTOSTART = FALSE;
+                ACTIVATION = 1;
     };
 
-    OS EE { KERNEL_TYPE = BCC2; }; 
+    TASK Task2 {
+                PRIORITY = 0x02;
+                SCHEDULE = FULL;
+                AUTOSTART = FALSE;
+                ACTIVATION = 4;
+    };
 
+    OS EE { KERNEL_TYPE = BCC2; };
 };

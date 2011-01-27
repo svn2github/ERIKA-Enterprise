@@ -48,6 +48,7 @@
 #include "cpu/esi_risc/inc/ee_irq.h"
 #include "test/assert/inc/ee_assert.h"
 
+#include <stdio.h>
 #include <stdlib.h>
 #include <esirisc/esirisc.h>
 
@@ -67,6 +68,8 @@ volatile int task1_fired = 0;
 volatile int task2_fired = 0;
 volatile int timer_fired = 0;
 volatile int finished = 0;
+
+extern int get_sp(void);
 
 
 /* This is a high priority task that is activated by the low priority ISR
