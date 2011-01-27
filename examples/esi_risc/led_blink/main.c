@@ -29,7 +29,7 @@ This file provides a running light demo for EnSilica ERIKA Enterprise port.
 /* Information about the timer device, such as which interrupt it is using. */
 static void * timer0Device;
 
-static const kitt[] = {LED_0, LED_1, LED_2, LED_3, LED_2, LED_1 };
+static const unsigned char kitt[] = {LED_0, LED_1, LED_2, LED_3, LED_2, LED_1 };
 #define KITT_LIMIT    (sizeof(kitt)/sizeof(kitt[0]))
 
 /**************************************************************************//**
