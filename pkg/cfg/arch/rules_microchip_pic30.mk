@@ -54,7 +54,7 @@ include $(PKGBASE)/cfg/verbose.mk
 include $(PKGBASE)/cfg/compiler.mk
 
 # Recomplied Microchip GCC path in Linux and Cygwin environments
-EE_GCCDIR := /opt/mchp/pic30
+EE_GCCDIR := $(PIC30_GCCDIR)
 
 PIC30_CRT0 := $(EEBASE)/contrib/microchip/pic30/boot/src/crt0.s
 
@@ -105,7 +105,7 @@ ifeq ($(call iseeopt, __RTD_CYGWIN__), yes)
 MCHP_DATA_DIR := $(PIC30_GCCDIR)
 else
 # Linux environment
-MCHP_DATA_DIR := $(EE_GCCDIR)/pic30-nonfree
+MCHP_DATA_DIR := $(EE_GCCDIR)
 endif
 
 PIC30_LIB_DIR := $(MCHP_DATA_DIR)/lib

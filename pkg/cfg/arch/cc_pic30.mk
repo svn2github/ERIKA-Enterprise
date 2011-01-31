@@ -59,7 +59,7 @@ PIC30_GCCPREFIX := pic30-$(PIC30_OFF)-
 # BINDIR_CYG   - Cygwin gcc
 # BINDIR_EVI   - C30 compiler compiled from Microchip gcc source code
 
-BINDIR_EVI := /opt/mchp/pic30/bin
+BINDIR_EVI := $(PIC30_GCCDIR)/bin/bin
 BINDIR_CYG := /usr/bin
 
 # If Linux, force recompiled gcc usage
