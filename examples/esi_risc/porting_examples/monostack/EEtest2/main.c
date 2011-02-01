@@ -41,7 +41,7 @@
 
  /*
     Author: 2009-2010 Dario Di Stefano
-    Updates:     2010 Steve Langstaff, Pebble Bay Consulting Ltd.
+    Updates:2010-2011 Steve Langstaff, Pebble Bay Consulting Ltd.
 */
 
 #include "ee.h"

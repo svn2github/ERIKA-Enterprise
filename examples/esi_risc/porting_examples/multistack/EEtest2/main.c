@@ -41,21 +41,24 @@
 
  /*
     Author: 2009-2010 Dario Di Stefano
-    Updates:     2010 Steve Langstaff, Pebble Bay Consulting Ltd.
+    Updates:2010-2011 Steve Langstaff, Pebble Bay Consulting Ltd.
 */
 
 #include "ee.h"
 #include "cpu/esi_risc/inc/ee_irq.h"
 #include "test/assert/inc/ee_assert.h"
 
+#include <stdio.h>
 #include <stdlib.h>
 #include <esirisc/esirisc.h>
+
+extern int get_sp(void);
 
 /* Information about the timer device, such as which interrupt it is using. */
 static void * timer0_device;
 
-
 #define TRUE 1
+
 /* assertion data */
 EE_TYPEASSERTVALUE EE_assertions[10];
 /* insert a stub for the functions not directly supported by __FP__ */

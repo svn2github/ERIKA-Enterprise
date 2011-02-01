@@ -6,7 +6,7 @@
 * @author  Steve Langstaff
 *
 * @note
-* COPYRIGHT (C) 2010 Pebble Bay Consulting Ltd.  ALL RIGHTS RESERVED.
+* COPYRIGHT (C) 2010-2011 Pebble Bay Consulting Ltd.  ALL RIGHTS RESERVED.
 *
 * @par
 * This software is the property of Pebble Bay Consulting Ltd and/or its

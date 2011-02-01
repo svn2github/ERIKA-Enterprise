@@ -34,10 +34,10 @@ CPU test_application {
     };
    
     TASK Task1 {
-		PRIORITY = 0x01;   /* Low priority */
+		PRIORITY = 0x01;
 		AUTOSTART = FALSE;
 		STACK = PRIVATE;
-		ACTIVATION = 1;    /* only one pending activation */
+		ACTIVATION = 1;
 	};	
 
     OS EE {

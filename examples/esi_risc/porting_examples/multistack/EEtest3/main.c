@@ -41,15 +41,18 @@
 
  /*
     Author: 2009-2010 Dario Di Stefano
-    Updates:     2010 Steve Langstaff, Pebble Bay Consulting Ltd.
+    Updates:2010-2011 Steve Langstaff, Pebble Bay Consulting Ltd.
 */
 
 #include "ee.h"
 #include "cpu/esi_risc/inc/ee_irq.h"
 #include "test/assert/inc/ee_assert.h"
 
+#include <stdio.h>
 #include <stdlib.h>
 #include <esirisc/esirisc.h>
+
+extern int get_sp(void);
 
 #define TRUE 1
 

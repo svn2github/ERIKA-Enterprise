@@ -41,12 +41,14 @@
 
  /*
     Author: 2009-2010 Dario Di Stefano
-    Updates:     2010 Steve Langstaff, Pebble Bay Consulting Ltd.
+    Updates:2010-2011 Steve Langstaff, Pebble Bay Consulting Ltd.
 */
 
 #include "ee.h"
 #include "kernel/sem/inc/ee_sem.h"        							
 #include "test/assert/inc/ee_assert.h"
+
+#include <stdio.h>
 
 #define TRUE 1
 /* assertion data */
@@ -65,7 +67,6 @@ volatile int taskc_counter = 0;
 
 TASK(Task1)
 {
-	int i;
 	taskp_counter++;
 	EE_assert(2, taskp_counter==1, 1);
 	ActivateTask(Task2);
@@ -78,7 +79,6 @@ TASK(Task1)
 
 TASK(Task2)
 {
-	int i;
 	taskc_counter++;
 	EE_assert(3, taskc_counter==1, 2);
 	WaitSem(&V);

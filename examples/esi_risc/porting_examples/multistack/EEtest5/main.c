@@ -39,8 +39,8 @@
  * ###*E*### */
 
 /*
- * Author: 2006 Paolo Gai
- * CVS: $Id: code.c,v 1.4 2007/03/16 14:21:17 nino Exp $
+    Author: 2006 Paolo Gai
+    Updates:2010-2011 Steve Langstaff, Pebble Bay Consulting Ltd.
  */
 
 #include "ee.h"
@@ -66,7 +66,7 @@ volatile int taskc_counter = 0;
 TASK(Producer)
 {
 	int i;
-	static pcounter=0;
+	static int pcounter = 0;
 
 	taskp_counter++;
 
@@ -100,7 +100,7 @@ TASK(Producer)
 TASK(Consumer)
 {
 	int i;
-	static ccounter=0;
+	static int ccounter = 0;
 
 	taskc_counter++;
 	
