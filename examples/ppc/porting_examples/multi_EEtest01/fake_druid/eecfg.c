@@ -7,9 +7,9 @@
  * Stack definition for Freescale MPC5674F, PPC E200Z7
  *
  **************************************************************************/
-    #define STACK_1_SIZE 128 // size = 512 bytes 
+    #define STACK_1_SIZE 512 // size = 512 bytes
 
-    int EE_e200z7_stack_1[STACK_1_SIZE];	/* Task 0 (Task1) */
+    EE_STACK_T EE_STACK_ATTRIB EE_e200z7_stack_1[EE_STACK_WLEN(STACK_1_SIZE)];	/* Task 0 (Task1) */
 
     const EE_UREG EE_std_thread_tos[EE_MAX_TASK+1] = {
         0U,	 /* dummy*/
@@ -19,15 +19,11 @@
 
     struct EE_TOS EE_e200z7_system_tos[2] = {
         {0},	/* Task  (dummy), Task 1 (Task2) */
-        {(EE_ADDR)(&EE_e200z7_stack_1[STACK_1_SIZE - 2])} 	/* Task 0 (Task1) */
+        {(EE_ADDR)(&EE_e200z7_stack_1[EE_STACK_INITP(STACK_1_SIZE)])} 	/* Task 0 (Task1) */
     };
 
     EE_UREG EE_e200z7_active_tos = 0U; /* dummy */
 
-#ifdef __DCC__
-#pragma section STACK ".stack" ".stack" standard RW
-#pragma use_section STACK EE_e200z7_stack_1
-#endif
 #include "ee.h"
 
 

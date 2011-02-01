@@ -90,13 +90,29 @@ typedef EE_INT32 EE_TID;
 
 #ifdef __MULTI__
 
+/* Alignment and section for program stacks */
+#define EE_STACK_ALIGN 16
+#define EE_STACK_SEC ".stack"
+#define EE_STACK_ATTRIB		EE_COMPILER_ALIGN(EE_STACK_ALIGN)	\
+	EE_COMPILER_SECTION(EE_STACK_SEC)
+
+/* Word used to build user stacks */
+typedef EE_UINT32 EE_STACK_T;
+/* Stack length in words */
+#define EE_STACK_WLEN(bl) (((bl) + EE_STACK_ALIGN - 1) / EE_STACK_ALIGN * \
+	(EE_STACK_ALIGN / sizeof(EE_STACK_T)))
+/* Initial pointer (word offset) in user stacks */
+#define EE_STACK_INITP(bl) (EE_STACK_WLEN(bl) - \
+	EE_STACK_ALIGN / sizeof(EE_STACK_T))
+
 /* Top of each private stack. */
 extern struct EE_TOS EE_e200z7_system_tos[];
 
 /* Index of the current stack. */
 extern EE_UREG EE_e200z7_active_tos;
 
-#endif
+#endif /* __MULTI__ */
+
 
 /*********************************************************************
  E200Z7 interrupt disabling/enabling

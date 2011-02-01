@@ -68,4 +68,7 @@
 
 #define NORETURN  __attribute__ ((noreturn))
 
+#define EE_COMPILER_ALIGN(a) __attribute__((aligned(a)))
+#define EE_COMPILER_SECTION(s) __attribute__((section(s)))
+
 #endif /* __INCLUDE_CPU_COMMON_EE_COMPILER_GCC__ */
