@@ -39,21 +39,20 @@
  * ###*E*### */
 
 /*
- * MCU register map
+ * MPC5668 register map
  * Author: 2011 Bernardo  Dal Seno
  */
 
-#ifndef EE_E200ZX_MCU_REGS_H
-#define EE_E200ZX_MCU_REGS_H
+#ifndef EE_MCU_MPC5668_H
+#define EE_MCU_MPC5668_H
 
-/* Include the appropriate file according to the target MCU */
+#include "mpc5668.h"
 
-#ifdef __MPC5668__
-#include <mcu/freescale_mpc5668/inc/ee_mpc5668.h>
-#elif defined __MPC5674F__
-#include <mcu/freescale_mpc5674f/inc/ee_mpc5674f.h>
-#else
-#error "No known MCU found"
-#endif
+#define EE_E200ZX_MAX_EXT_IRQ 316
 
-#endif /* EE_E200ZX_MCU_REGS_H */
+/* For duplicated registers, pick the Z6 instance */
+#define INTC_CPR (INTC.CPR_PRC0)
+#define INTC_IACKR (INTC.IACKR_PRC0)
+#define INTC_EOIR (INTC.EOIR_PRC0)
+
+#endif /* EE_MCU_MPC5668_H */

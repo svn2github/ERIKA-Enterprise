@@ -50,8 +50,6 @@
 #include <cpu/e200zx/inc/ee_mcu_regs.h>
 
 
-#define EE_E200Z7_MAX_IRQ	488
-
 void EE_e200z7_irq(int level)
 {
 	EE_e200z7_ISR_handler f;
@@ -62,6 +60,10 @@ void EE_e200z7_irq(int level)
 		EE_e200z7_call_ISR_new_stack(level, f, EE_IRQ_nesting_level);
 	}
 
+	/* Pop priority for external interrupts */
+	if (level >= EE_E200ZX_MAX_CPU_EXCP) {
+		INTC_EOIR.R = 0;
+	}
 	EE_decrement_IRQ_nesting_level();
 	if (!EE_is_inside_ISR_call()) {
 		/*
@@ -76,7 +78,8 @@ void EE_e200z7_irq(int level)
 
 #ifndef __STATIC_ISR_TABLE__
 
-EE_e200z7_ISR_handler EE_e200z7_ISR_table[EE_E200Z7_MAX_IRQ + 1];
+EE_e200z7_ISR_handler EE_e200z7_ISR_table[EE_E200ZX_MAX_CPU_EXCP
+	+ EE_E200ZX_MAX_EXT_IRQ];
 
 void EE_e200z7_register_ISR(int level, EE_e200z7_ISR_handler fun, EE_UINT8 pri)
 {
@@ -84,8 +87,9 @@ void EE_e200z7_register_ISR(int level, EE_e200z7_ISR_handler fun, EE_UINT8 pri)
 
 	EE_e200z7_ISR_table[level] = fun;
 
-	if (level >= 16) {
-		INTC.PSR[level - 16].R = pri;
+	/* Set priority for external interrupts */
+	if (level >= EE_E200ZX_MAX_CPU_EXCP) {
+		INTC.PSR[level - EE_E200ZX_MAX_CPU_EXCP].R = pri;
 	}
 
 	if (EE_e200z7_are_IRQs_enabled(intst)) {

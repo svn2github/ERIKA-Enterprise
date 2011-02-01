@@ -73,6 +73,9 @@
 
 /* IRQ vector  */
 
+/* This is copied from ee_cpu.h */
+#define EE_E200ZX_MAX_CPU_EXCP 16
+
 #define E200ZX_IRQ_VECTOR_BASE_ALIGN	E200ZX_IRQ_ENTRY_ALIGN
 #define E200ZX_IRQ_ENTRY_ALIGN	4
 

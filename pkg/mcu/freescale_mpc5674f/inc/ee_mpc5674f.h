@@ -39,21 +39,21 @@
  * ###*E*### */
 
 /*
- * MCU register map
+ * MPC5674F register map
  * Author: 2011 Bernardo  Dal Seno
  */
 
-#ifndef EE_E200ZX_MCU_REGS_H
-#define EE_E200ZX_MCU_REGS_H
+#ifndef EE_MCU_MPC5674F_H
+#define EE_MCU_MPC5674F_H
 
-/* Include the appropriate file according to the target MCU */
+#include "mpc5674f.h"
 
-#ifdef __MPC5668__
-#include <mcu/freescale_mpc5668/inc/ee_mpc5668.h>
-#elif defined __MPC5674F__
-#include <mcu/freescale_mpc5674f/inc/ee_mpc5674f.h>
-#else
-#error "No known MCU found"
-#endif
+#define EE_E200ZX_MAX_EXT_IRQ 474
 
-#endif /* EE_E200ZX_MCU_REGS_H */
+/* For compatibility with multi-core CPUs */
+#define INTC_CPR (INTC.CPR)
+#define INTC_IACKR (INTC.IACKR)
+#define INTC_EOIR (INTC.EOIR)
+
+
+#endif /* EE_MCU_MPC5674F_H */

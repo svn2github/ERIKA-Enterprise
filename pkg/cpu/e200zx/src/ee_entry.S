@@ -151,12 +151,11 @@ external_input_handler:
 	lwz	r0, INTC_IACKR@l(r3)
 
 	srawi	r3, r0, 2		/* calculate the irq number */
-	addi	r3, r3, 16
+	addi	r3, r3, EE_E200ZX_MAX_CPU_EXCP
 
 	bl	EE_e200z7_irq		/* handle the interrupt */
 
-	addis	r3, 0, INTC_EOIR@ha	/* send the EOI */
-	stw	r0, INTC_EOIR@l(r3)
+	/* The EOI is issued by EE_e200z7_irq() */
 
 	handler_epilogue
 	.size	external_input_handler, .-external_input_handler

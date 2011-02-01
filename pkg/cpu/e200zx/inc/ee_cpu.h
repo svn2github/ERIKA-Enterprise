@@ -118,6 +118,8 @@ extern EE_UREG EE_e200z7_active_tos;
  E200Z7 interrupt disabling/enabling
  *********************************************************************/
 
+#define EE_E200ZX_MAX_CPU_EXCP 16
+
 #define MSR_EE	(1U << 15)
 
 __INLINE__ EE_FREG EE_e200z7_are_IRQs_enabled(EE_FREG ie)
