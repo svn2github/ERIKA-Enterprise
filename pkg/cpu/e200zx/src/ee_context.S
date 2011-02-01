@@ -124,7 +124,7 @@ end_change_stacks:
 
         /* if (is_not_marked_stacked(tid)) { */
 	// r3 == tid
-	cmpi	cr0, r3, 0 
+	cmpi	cr0, 0, r3, 0x0
 	blt	end_run_thread
 
 	stwu	sp, -16(sp)
