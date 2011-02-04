@@ -47,8 +47,14 @@ ifeq ($(call iseeopt, __PIC30__), yes)
 # Select object file format
 # IMPORTANT NOTE:
 # Due to a bug in MPLAB IDE, debug symbols are only supported in COFF
+ifeq ($(call iseeopt, __RTD_CYGWIN__), yes) 
 PIC30_OFF := coff
 PIC30_EXTENSION := cof
+else
+PIC30_OFF := elf
+PIC30_EXTENSION := elf
+endif
+
 
 # Prefix for GCC tools (prefix for deps below)
 PIC30_GCCPREFIX := pic30-$(PIC30_OFF)-
