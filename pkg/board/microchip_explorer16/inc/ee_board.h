@@ -46,7 +46,25 @@
 #ifndef __INCLUDE_MICROCHIP_EXPLORER16_BOARD_H__
 #define __INCLUDE_MICROCHIP_EXPLORER16_BOARD_H__
 
-#include "mcu/microchip_dspic/inc/ee_mcu.h"
+
+#if defined __PIC30__
+#include "board/microchip_explorer16/inc/ee_explorer16_pic30_hal.h"
+#elif defined __PIC32__
+#include "board/microchip_explorer16/inc/ee_explorer16_pic32_hal.h"
+#else
+#error "Unsupported pic on explorer16 board"
+#endif
+
+// S5 and D10 share the wire
+// only one could be active
+#if defined __USE_LED_D10__
+#define RA7_BUTTON 0
+#define RA7_MASK 0x00
+#else
+#define RA7_BUTTON 1
+#define RA7_MASK 0x80
+#endif
+
 
 /* /\************************************************************************* */
 /*  Buttons */
@@ -61,21 +79,21 @@ __INLINE__ void __ALWAYS_INLINE__ EE_buttons_init( void(*isr_callback)(void), EE
 	/* set BUTTON pins (S3/RD6-S4/RD13-S5/RA7-S6/RD7) as inputs */
 	TRISDbits.TRISD6  = 1; 
 	TRISDbits.TRISD13 = 1; 
-	TRISAbits.TRISA7  = 1; 
+	TRISAbits.TRISA7  = RA7_BUTTON; 
 	TRISDbits.TRISD7  = 1; 
 	/* ser AN23 as digital output */
- 	AD1PCFGHbits.PCFG23 = 1;
+ 	EE_explorer16_AD_Confict_Solve();
 
 	/* Enable Interrupt */
 	if (isr_callback != NULL) {
 		if (mask & 0x01)
-			CNEN1bits.CN15IE = 1;	// S3/RD6
+			EE_explorer16_cn_1_int_en();	// S3/RD6
 		if (mask & 0x02)
-			CNEN2bits.CN19IE = 1;	// S4/RD13
+			EE_explorer16_cn_2_int_en();	// S4/RD13
 		if (mask & 0x04)
-			CNEN2bits.CN23IE = 1;	// S5/RA7
+			EE_explorer16_cn_3_int_en();	// S5/RA7
 		if (mask & 0x08)
-			CNEN2bits.CN16IE = 1;	// S6/RD7
+			EE_explorer16_cn_4_int_en();	// S6/RD7
 		
 		IFS1bits.CNIF = 0;
 		IEC1bits.CNIE = 1;
@@ -121,9 +139,9 @@ __INLINE__ EE_UINT8 __ALWAYS_INLINE__ EE_button_get_S6( void ) {
 
 __INLINE__ void __ALWAYS_INLINE__ EE_leds_init(void) {
 	/* set LEDs (D3-D10/RA0-RA7) drive state low */
-	LATA &= 0xFF00; 
+  LATA &= 0xFF00 | RA7_MASK; 
 	/* set LED pins (D3-D10/RA0-RA7) as outputs */
-	TRISA &= 0xFF00; 
+	TRISA &= 0xFF00 | RA7_MASK; 
 }
 __INLINE__ void __ALWAYS_INLINE__ EE_leds_on(void)   { LATA |= 0x00FF; }
 __INLINE__ void __ALWAYS_INLINE__ EE_leds_off(void)  { LATA &= 0xFF00; }

@@ -44,9 +44,18 @@
  */
 
 #include "ee_internal.h"
+#include "board/microchip_explorer16/inc/ee_board.h"
+
+#if defined __PIC30__
 #include "cpu/pic30/inc/ee_irqstub.h"
 #include "mcu/microchip_dspic/inc/ee_mcu.h"
-#include "board/microchip_explorer16/inc/ee_board.h"
+#elif defined __PIC32__
+#include "cpu/pic32/inc/ee_irqstub.h"
+#include "mcu/microchip_pic32/inc/ee_mcu.h"
+#else
+#error "Unsupported pic on explorer16 board"
+#endif
+
 
 /* /\************************************************************************* */
 /*  Buttons */
@@ -57,7 +66,7 @@
 void (*EE_button_callback)(void);
 EE_UINT8 EE_button_mask;
 
-ISR2(_CNInterrupt)
+ISR2(EE_explorer16_IRQ_HANDLER_NAME)
 {
 	// Execute callback function
 	if (EE_button_callback != NULL) {
