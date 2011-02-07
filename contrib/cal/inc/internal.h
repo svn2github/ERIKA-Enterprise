@@ -39,7 +39,12 @@
 #define _INTERNAL_H
 
 #include <stdio.h>
+#ifndef __ERIKA__
 #include <semaphore.h>
+#else
+#include "cal_redefinitions.h"
+#endif
+
 
 /* make the header usable from C++ */
 #ifdef __cplusplus

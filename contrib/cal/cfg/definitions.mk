@@ -1,5 +1,9 @@
 # definitions.mk - Common definitions of actors-make makefiles
 # Overridden by any variable set on the command line
+#
+# Modified in order to integrate it in the Erika tree
+# Author: Antonio Marcello Catinella
+# Date:	  2011
 
 export SHELL=/bin/sh
 
@@ -7,12 +11,12 @@ export SHELL=/bin/sh
 # directories
 #
 
-export ACTORS_INCLUDE=/home/antonio/Evidence/svn/opendf/trunk/contrib/actorsproject/include
-export ACTORS_LIB=/home/antonio/Evidence/svn/opendf/trunk/contrib/actorsproject/lib
-export ACTORS_BIN=/home/antonio/Evidence/svn/opendf/trunk/contrib/actorsproject/bin
-export ACTORS_MAKE=/home/antonio/Evidence/svn/opendf/trunk/contrib/actorsproject/share/actors-make
-export ACTORS_JAR=/home/antonio/Evidence/svn/opendf/trunk/contrib/actorsproject/share/java
-export ACTORS_XSL=/home/antonio/Evidence/svn/opendf/trunk/contrib/actorsproject/share/xsl
+export ACTORS_INCLUDE=$(EEBASE)/contrib/cal/inc
+export ACTORS_LIB=
+export ACTORS_BIN=$(CAL_BASE)/bin
+export ACTORS_MAKE=$(CAL_BASE)/share/actors-make
+export ACTORS_JAR=$(CAL_BASE)/share/java
+export ACTORS_XSL=$(CAL_BASE)/share/xsl
 
 #
 # ACTORS-specific tools

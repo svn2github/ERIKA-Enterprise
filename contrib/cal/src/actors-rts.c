@@ -2,15 +2,21 @@
 #include <stdarg.h>
 #include <stdlib.h>
 #include <errno.h>
+#ifndef __ERIKA__
 #include <strings.h>
-#include <string.h>
-#include <sched.h>
-#include "actors-rts.h"
 #include <semaphore.h>
+#include <sched.h>
+#else
+#include <ee.h>
+#endif
+#include <string.h>
+#include "actors-rts.h"
 #include <pthread.h>
 #include <limits.h>
+#ifndef __ERIKA__
 #include "xmlTrace.h"
 #include "xmlParser.h"
+#endif
 #include "internal.h"
 
 #define DEFAULT_FIFO_LENGTH	4096
@@ -84,6 +90,7 @@ int rangeError(int x, int y, const char *filename, int line) {
   return 0;
 }
 
+#ifndef __ERIKA__
 static inline unsigned long long READ_TIMER()
 {
   unsigned long long result;
@@ -96,6 +103,14 @@ static inline unsigned long long READ_TIMER()
 #endif  
   return result;
 }
+#else
+static inline unsigned long long READ_TIMER(void)
+{
+  EE_UINT32 time1;
+  EE_freetimer_get_value(&time1);
+  return (~(EE_UINT32)0 - time1) / (CPU_FREQUENCY / 1000000);
+}
+#endif
 
 static void add_timer(art_timer_t *timer,
           time_base_t *tb)
@@ -129,6 +144,7 @@ unsigned int timestamp()
   return (unsigned int)now;
 }
 
+#ifndef __ERIKA__
 void enable_tracing(cpu_runtime_data_t *runtime, 
 		    int numInstances, 
 		    char *networkName)
@@ -158,13 +174,15 @@ void enable_tracing(cpu_runtime_data_t *runtime,
   xmlCloseTrace(netfile);
 
 }
-
+#endif
 
 /*
  * Create runtime instances for all needed special cases
  */
 
+#ifndef __ERIKA__
 static pthread_mutex_t mutex;
+#endif
 static int sleepers;
 static int curr_sleep_event;
 static int terminate;
@@ -183,6 +201,7 @@ static int terminate;
 #undef MUTEX_LOCK
 #undef MUTEX_UNLOCK
 
+#ifndef __ERIKA__
 #define EXECUTE_NETWORK multi_cpu_timed_execute_network
 #define READ_BARRIER() rmb()
 #define WRITE_BARRIER() wmb()
@@ -194,6 +213,7 @@ static int terminate;
 #undef WRITE_BARRIER
 #undef MUTEX_LOCK
 #undef MUTEX_UNLOCK
+#endif
 
 #undef TIMING_PROBES
 
@@ -209,6 +229,7 @@ static int terminate;
 #undef MUTEX_LOCK
 #undef MUTEX_UNLOCK
 
+#ifndef __ERIKA__
 #define EXECUTE_NETWORK multi_cpu_execute_network
 #define READ_BARRIER() rmb()
 #define WRITE_BARRIER() wmb()
@@ -220,6 +241,7 @@ static int terminate;
 #undef WRITE_BARRIER
 #undef MUTEX_LOCK
 #undef MUTEX_UNLOCK
+#endif
 
 /* 
  * We need to know processor affinity, etc before we allocate the true 
@@ -360,6 +382,7 @@ void setParameter(AbstractActorInstance *pInstance,
   }
 }
 
+#ifndef __ERIKA__
 static int nr_of_cpus(cpu_set_t *cpu_set)
 {
   int result, i;
@@ -369,6 +392,12 @@ static int nr_of_cpus(cpu_set_t *cpu_set)
   }
   return result;
 }
+#else
+static int nr_of_cpus(cpu_set_t *cpu_set)
+{
+  return 1;
+}
+#endif
 
 static int index_nodes(ActorInstance_1_t **instance,
 		       int numInstances)
@@ -427,6 +456,7 @@ static int set_affinity(ActorInstance_1_t **instance,
   return result;
 }
 
+#ifndef __ERIKA__
 static int set_instance_affinity(ActorInstance_1_t *instance,
 				 AffinityID *config,
 				 int numInstances)
@@ -446,6 +476,7 @@ static int set_instance_affinity(ActorInstance_1_t *instance,
   }
   return -1; // not found
 }
+
 
 /*
  * Sort the instances in the same order as they appear in the configuration
@@ -524,6 +555,7 @@ static ActorInstance_1_t **set_config(ActorInstance_1_t **instances,
 
   return sortedInstances;
 }
+#endif
 
 static int check_network(ActorInstance_1_t **instance,
 			 int numInstances,
@@ -586,6 +618,7 @@ static int check_network(ActorInstance_1_t **instance,
     }
 
   }
+#ifndef __ERIKA__
   {
     // Check that all needed cpus are present
     cpu_set_t old;
@@ -615,6 +648,9 @@ static int check_network(ActorInstance_1_t **instance,
   if (result == 0 && used_cpus) {
     *used_cpus = cpu_set;
   }
+#else
+  *used_cpus = 1;
+#endif
   return result;
 }
 
@@ -957,6 +993,7 @@ static void deallocate_network(cpu_runtime_data_t *runtime)
   
 }
 
+#ifndef __ERIKA__
 static void *run_with_affinity(void *arg) 
 {
   cpu_runtime_data_t *cpu = arg;
@@ -989,6 +1026,7 @@ static void run_threads(cpu_runtime_data_t *runtime,
     pthread_join(runtime[i].thread, NULL);
   }
 }
+#endif
 
 static void show_result(cpu_runtime_data_t *cpu, 
                         int show_statistics, 
@@ -1111,6 +1149,7 @@ static void generate_config(FILE *f,
     }
   }
   fprintf(f,"  </Partitioning>\n");
+#ifndef __ERIKA__
 //#ifdef RM  
   fprintf(f,"  <RMInterface name=\"%s\">\n",rmInterface.name);
   fprintf(f,"    <Category value=\"%s\"/>\n",get_category_string(rmInterface.categoryValue));
@@ -1137,6 +1176,7 @@ static void generate_config(FILE *f,
   fprintf(f,"    </ServiceLevels>\n");
   fprintf(f,"  </RMInterface>\n");
 //#endif
+#endif
   fprintf(f,"  <Scheduling type=\"RoundRobin\"/>\n");
   fprintf(f,"</Configuration>\n");
 }
@@ -1191,6 +1231,7 @@ int executeNetwork(int argc,
   int with_bandwidth=0;
   int terminationReport=0;
 
+
   for (i = 1 ; i < argc ; i++) {
     if (strcmp(argv[i], "--timing") == 0) {
       show_timing=1;
@@ -1237,6 +1278,7 @@ int executeNetwork(int argc,
     }
   }
 
+#ifndef __ERIKA__
   if (result == 0) {
     // Assign affinity and other params from config file
     if (configFilename) {
@@ -1244,6 +1286,7 @@ int executeNetwork(int argc,
       affinity_is_set=1;
     }
   }
+#endif
 
   if (result==0 && generateFileName) {
     generateFile=fopen(generateFileName,"w");
@@ -1269,8 +1312,10 @@ int executeNetwork(int argc,
 				    arg_fifo_size);
   }
   if (result == 0) {
+#ifndef __ERIKA__
     if (generate_trace)
       enable_tracing(runtime_data, numInstances, argv[0]);
+#endif
 
     if(cb_register_thread)
 	  cb_register_thread(0);
@@ -1281,23 +1326,29 @@ int executeNetwork(int argc,
 		cb_add_threads(0);  
     }
     switch (flags) {
+#ifndef __ERIKA__
       case 0: {
 	run_threads(runtime_data, multi_cpu_execute_network);
       } break;
+#endif
       case FLAG_SINGLE_CPU: {
 	single_cpu_execute_network(runtime_data, arg_loopmax);
       } break;
+#ifndef __ERIKA__
       case FLAG_TIMING: {
 	run_threads(runtime_data, multi_cpu_timed_execute_network);
       } break;
+#endif
       case FLAG_TIMING | FLAG_SINGLE_CPU: {
 	single_cpu_timed_execute_network(runtime_data, arg_loopmax);
       } break;
     }
   }
   if (result == 0) {
+#ifndef __ERIKA__
     if (buffer_report(runtime_data) || terminationReport)
       deadlock_report(runtime_data,numInstances,terminationReport);
+#endif
     run_destructors(runtime_data);
     show_result(runtime_data, show_statistics, show_timing);
   }
@@ -1312,6 +1363,7 @@ int executeNetwork(int argc,
   if (result == 0) {
     deallocate_network(runtime_data);
   }
+
   exit(result);
 }
 
