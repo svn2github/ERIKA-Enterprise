@@ -175,22 +175,7 @@ FLAGS=$(addsuffix /doneflag.txt,$(addprefix regression/,$(TEMPLATE_LIST)))
 all: $(FLAGS)
 
 regression/%/doneflag.txt:
-	@rm -rf regression/$*
-	@mkdir -p regression/$*
-	@printf "$*: START\n"
-	@printf "$*: START\n" >>regression/output.log
-	@printf "$*: template\n"
-	@printf "$*: template\n" >>regression/output.log
-	@cd regression/$*; export ECLIPSE_HOME=$(ECLIPSE_HOME); $(BATCH_TEMPLATE) --template $* --output . 2>&1 >>output.log
-	@printf "$*: OIL\n"
-	@printf "$*: OIL\n" >>regression/output.log
-	@cd regression/$*; export ECLIPSE_HOME=$(ECLIPSE_HOME); $(BATCH_GENERATOR) --template $* --output . 2>&1 >>output.log
-	@printf "$*: Compile\n"
-	@printf "$*: Compile\n" >>regression/output.log
-	@+make -C regression/$*/Debug 2>&1 >>regression/$*/output.log
-	@printf "$*: OK\n-------------------------------------\n"
-	@printf "$*: OK\n-------------------------------------\n" >>regression/output.log
-	@touch regression/$*/doneflag.txt
+	@./compile.sh $* $(ECLIPSE_HOME) $(BATCH_TEMPLATE) $(BATCH_GENERATOR) || true
 
 clean:
 	rm -rf regression
