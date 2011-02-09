@@ -46,6 +46,10 @@ ifneq ($(ONLY_LIBS) , TRUE)
 
 include $(EEBASE)/contrib/microchip/dee_emulation/cfg/cfg.mk
 
+
+ifeq ($(call iseeopt, __USE_MCHP_TCPIP_531__), yes)
+include $(EEBASE)/contrib/microchip/tcpip_531/cfg/cfg.mk
+else
 ifeq ($(call iseeopt, __USE_MCHP_TCPIP_525__), yes)
 include $(EEBASE)/contrib/microchip/tcpip_525/cfg/cfg.mk
 else
@@ -53,6 +57,7 @@ ifeq ($(call iseeopt, __USE_MCHP_TCPIP_520__), yes)
 include $(EEBASE)/contrib/microchip/tcpip_520/cfg/cfg.mk
 else
 include $(EEBASE)/contrib/microchip/tcpip_510/cfg/cfg.mk
+endif
 endif
 endif
 
@@ -64,6 +69,9 @@ ifeq ($(ENABLE_LIBS), TRUE)
 
 include $(EEBASE)/contrib/microchip/dee_emulation/cfg/libcfg.mk
 
+ifeq ($(call iseeopt, __USE_MCHP_TCPIP_531__), yes)
+include $(EEBASE)/contrib/microchip/tcpip_531/cfg/libcfg.mk
+else
 ifeq ($(call iseeopt, __USE_MCHP_TCPIP_525__), yes)
 include $(EEBASE)/contrib/microchip/tcpip_525/cfg/libcfg.mk
 else
@@ -71,6 +79,7 @@ ifeq ($(call iseeopt, __USE_MCHP_TCPIP_520__), yes)
 include $(EEBASE)/contrib/microchip/tcpip_520/cfg/libcfg.mk
 else
 include $(EEBASE)/contrib/microchip/tcpip_510/cfg/libcfg.mk
+endif
 endif
 endif
 
