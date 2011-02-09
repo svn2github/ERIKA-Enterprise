@@ -48,11 +48,20 @@ ifeq ($(call iseeopt, __PIC30__), yes)
 # IMPORTANT NOTE:
 # Due to a bug in MPLAB IDE, debug symbols are only supported in COFF
 ifeq ($(call iseeopt, __RTD_CYGWIN__), yes) 
-PIC30_OFF := coff
-PIC30_EXTENSION := cof
+
+ ifeq ($(call iseeopt, __USE_ELF__), yes) 
+  PIC30_OFF := elf
+  PIC30_EXTENSION := elf
+ else
+  # For Windows users using MPLABX IDE
+  PIC30_OFF := coff
+  PIC30_EXTENSION := cof
+ endif
+
 else
-PIC30_OFF := elf
-PIC30_EXTENSION := elf
+ # Non Windows OS use MPLAB X IDE
+ PIC30_OFF := elf
+ PIC30_EXTENSION := elf
 endif
 
 
