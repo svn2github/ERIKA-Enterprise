@@ -24,8 +24,7 @@
   <file     name="CustomSNMPApp.c"/>   
   <file     name="HardwareProfile.h"/>   
   <file     name="MainDemo.h"/>   
-  <file     name="TCPIPConfig.h"/>   
-  <file     name="template.xml"/> 
+  <file     name="TCPIPConfig.h"/>    
   <file     name="BerkeleyUDPClientDemo.c"/>   
   <file     name="CustomSSLCert.c"/>   
   <file     name="MPFSImg2.S"/>          
