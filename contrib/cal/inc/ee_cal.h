@@ -3,6 +3,6 @@
 
 void EE_cal_init();
 
-void EE_cal_start();
+void EE_cal_start(EE_TID task_id);
 
 #endif
