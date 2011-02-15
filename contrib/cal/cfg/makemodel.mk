@@ -16,7 +16,10 @@ srcdir?=.
 MODEL_PATH=$(SRCDIR_ABS):$(CAL_BASE)/share/sysactors/cal:$(EEBASE)/contrib/cal/src
 
 # Dependences of MODEL (re-generated if necessary)
-include $(OUTPUT_DIR)/$(MODEL).depend
+ifneq ($(findstring clean,$(MAKECMDGOALS)),clean)
+-include $(OUTPUT_DIR)/$(MODEL).depend
+endif
+
 
 # Default definitions of tools and directories
 include $(EEBASE)/contrib/cal/cfg/definitions.mk
@@ -57,15 +60,17 @@ $(LIBACTORS): $(SYS_ACTORS_OBJS)
 .SECONDARY: $(ACTOR_C_FILES)
 
 $(OUTPUT_DIR)/%.c : %.xlim
-	$(XLIM2C) $< $@
+	$(QUIET) $(XLIM2C) $< $@ $(VERBOSE_DEVNULL)
+
+SRCS +=$(addprefix $(OUTPUT_DIR)/, $(MODEL).c) $(ACTOR_C_FILES)
 
 #
 # Generate network configuration from .xdf
 #
-SRCS +=$(addprefix $(OUTPUT_DIR)/, $(MODEL).c) $(ACTOR_C_FILES)
 $(OUTPUT_DIR)/$(MODEL).c: $(MODEL_DEPEND)
-	$(SAXON8) -o $@.tmp $< $(GENERATECONFIG_XSL)
-	gawk '{$$0=gensub(/int main/,"void main_cal", "g");print $$0}' <$@.tmp > $@ && rm $@.tmp
+	@echo "CAL2C $(addsuffix .nl, $(MODEL))"
+	$(QUIET) $(SAXON8) -o $@.tmp $< $(GENERATECONFIG_XSL) $(VERBOSE_DEVNULL)
+	$(QUIET) gawk '{$$0=gensub(/int main/,"void main_cal", "g");print $$0}' <$@.tmp > $@ && rm $@.tmp
 
 #
 # If enabled, run model compiler
@@ -80,8 +85,10 @@ $(OUTPUT_DIR)/$(MODEL)_new.xdf: $(OUTPUT_DIR)/$(MODEL).xdf $(XLIM_FILES)
 # (dependence of .xlim on .cal and .par is given by $(OUTPUT_DIR)/$(MODEL).depend)
 #
 $(XLIM_FILES): %.xlim :
-	$(SSAGENERATOR) -mp "$(srcdir)" `cat $(basename $(@F)).par` $(<F)
-	mv $(basename $(<F)).xlim $@
+	@echo "CAL2C $(*F)"
+	@if ! [ -r $(OUTPUT_DIR)/$(MODEL).depend ]; then echo >&2 "Missing "; false; fi
+	$(QUIET) $(SSAGENERATOR) -mp "$(srcdir)" `cat $(basename $(@F)).par` $(<F) $(VERBOSE_DEVNULL)
+	$(QUIET) mv $(basename $(<F)).xlim $@
 
 
 #
@@ -92,14 +99,14 @@ $(XLIM_FILES): %.xlim :
 $(PAR_FILES): $(OUTPUT_DIR)/$(MODEL).timestamp
 
 $(OUTPUT_DIR)/$(MODEL).timestamp: $(OUTPUT_DIR)/$(MODEL).xdf
-	$(XDF2PAR) $<
+	$(QUIET) $(XDF2PAR) $< $(VERBOSE_DEVNULL)
 	@touch $@
 
 #
 # Generate dependences from .xdf
 #
 $(OUTPUT_DIR)/$(MODEL).depend: $(OUTPUT_DIR)/$(MODEL).xdf
-	$(SAXON8) -o $@ $< $(XDF2DEPEND_XSL)
+	$(QUIET) $(SAXON8) -o $@ $< $(XDF2DEPEND_XSL) $(VERBOSE_DEVNULL)
 
 
 #
@@ -108,5 +115,5 @@ $(OUTPUT_DIR)/$(MODEL).depend: $(OUTPUT_DIR)/$(MODEL).xdf
 #  given in $(OUTPUT_DIR)/$(MODEL).depend).
 #
 $(OUTPUT_DIR)/$(MODEL).xdf: $(srcdir)/$(MODEL).nl $(SUB_NETWORKS)
-	$(ELABORATOR) -mp $(MODEL_PATH) $(MODEL)
-	mv $(MODEL).xdf $(OUTPUT_DIR)
+	$(QUIET) $(ELABORATOR) -mp $(MODEL_PATH) $(MODEL) $(VERBOSE_DEVNULL)
+	$(QUIET) mv $(MODEL).xdf $(OUTPUT_DIR)

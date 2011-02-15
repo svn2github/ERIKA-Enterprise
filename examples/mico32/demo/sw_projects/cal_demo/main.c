@@ -57,6 +57,21 @@
 /* cal interface  */
 #include "ee_cal.h"
 
+int main_cal(int argc, char *argv[]);
+
+TASK(calTask)
+{
+  char *argv[] = { "",
+#ifdef CAL_STATISTICS
+  "--statistics"
+#else
+  ""
+#endif
+  };
+  int argc = sizeof(argv)/sizeof(argv[0]);
+  main_cal(argc, argv);
+}
+
 void system_timer_callback(void)
 {
   /* count the interrupts, waking up expired alarms */
@@ -75,7 +90,7 @@ int main(void)
   EE_timer_on();
 
   EE_cal_init();
-  EE_cal_start();
+  EE_cal_start(calTask);
 
   /* Forever loop: background activities (if any) should go here */
   for (;;);

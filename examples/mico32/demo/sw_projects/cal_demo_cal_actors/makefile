@@ -69,9 +69,11 @@ all: $(RTDRUID_OUTPUT)
 # is not changed
 
 clean:
-	@$(MAKE) --no-print-directory -f $(OUTPUT_DIR)/makefile clean
 	@echo cleaning...
-	rm -f -r $(OUTPUT_DIR)
+	@if [ -r $(OUTPUT_DIR)/makefile ]; then \
+	    $(MAKE) --no-print-directory -f $(OUTPUT_DIR)/makefile clean ;\
+	fi
+	@rm -f -r $(OUTPUT_DIR)
 
 # If any target different from `all' or `clean' si given, try to invoke the
 # generated makefile. `force' is used to force the invocation of the child
