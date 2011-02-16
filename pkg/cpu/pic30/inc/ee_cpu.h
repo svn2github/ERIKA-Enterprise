@@ -221,4 +221,10 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_disableIRQ(void)
  *************************************************************************/
 #include "cpu/pic30/inc/ee_irqstub.h"
 
+
+/*************************************************************************
+ Include the Utils 
+ *************************************************************************/
+#include "cpu/pic30/inc/ee_utils.h"
+
 #endif /* __INCLUDE_PIC30_ARCH_H__ */

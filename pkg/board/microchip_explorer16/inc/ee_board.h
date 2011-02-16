@@ -55,8 +55,8 @@
 #error "Unsupported pic on explorer16 board"
 #endif
 
-// S5 and D10 share the wire
-// only one could be active
+/* S5 and D10 share the wire */
+/* only one could be active */
 #if defined __USE_LED_D10__
 #define RA7_BUTTON 0
 #define RA7_MASK 0x00
@@ -66,9 +66,9 @@
 #endif
 
 
-/* /\************************************************************************* */
-/*  Buttons */
-/*  *************************************************************************\/ */
+/* ************************************************************************* */
+/* Buttons */
+/* ************************************************************************* */
 
 #ifdef __USE_BUTTONS__
 
@@ -77,28 +77,35 @@ extern EE_UINT8 EE_button_mask;
 
 __INLINE__ void __ALWAYS_INLINE__ EE_buttons_init( void(*isr_callback)(void), EE_UINT8 mask ) {
 	/* set BUTTON pins (S3/RD6-S4/RD13-S5/RA7-S6/RD7) as inputs */
-	TRISDbits.TRISD6  = 1; 
-	TRISDbits.TRISD13 = 1; 
-	TRISAbits.TRISA7  = RA7_BUTTON; 
-	TRISDbits.TRISD7  = 1; 
-	/* ser AN23 as digital output */
+	TRISDbits.TRISD6  = 1;
+	TRISDbits.TRISD13 = 1;
+	TRISAbits.TRISA7  = RA7_BUTTON;
+	TRISDbits.TRISD7  = 1;
+
+	/* Solve conflict againd AD module */
  	EE_explorer16_AD_Confict_Solve();
 
 	/* Enable Interrupt */
 	if (isr_callback != NULL) {
-		if (mask & 0x01)
-			EE_explorer16_cn_1_int_en();	// S3/RD6
-		if (mask & 0x02)
-			EE_explorer16_cn_2_int_en();	// S4/RD13
-		if (mask & 0x04)
-			EE_explorer16_cn_3_int_en();	// S5/RA7
-		if (mask & 0x08)
-			EE_explorer16_cn_4_int_en();	// S6/RD7
-		
-		IFS1bits.CNIF = 0;
-		IEC1bits.CNIE = 1;
+	  /* Enable Change Notice module */
+	  EE_explorer16_cn_pri();
+
+	  if (mask & 0x01)
+	    EE_explorer16_cn_1_int_en();	/* S3/RD6 */
+	  if (mask & 0x02)
+	    EE_explorer16_cn_2_int_en();	/* S4/RD13 */
+	  if (mask & 0x04)
+	    EE_explorer16_cn_3_int_en();	/* S5/RA7 */
+	  if (mask & 0x08)
+	    EE_explorer16_cn_4_int_en();	/* S6/RD7 */
+
+	  /* Set interrupt priority Level and Sublevel */
+	  EE_explorer16_cn_pri_lev();
+
+	  IFS1bits.CNIF = 1;
+	  IEC1bits.CNIE = 1;
 	}
-	
+
 	/* Save callback */
 	EE_button_callback = isr_callback;	
 } 
@@ -131,18 +138,19 @@ __INLINE__ EE_UINT8 __ALWAYS_INLINE__ EE_button_get_S6( void ) {
 #endif
 
 
-/* /\************************************************************************* */
+/* ************************************************************************* */
 /*  LEDs */
-/*  *************************************************************************\/ */
+/* ************************************************************************* */
 
 #ifdef __USE_LEDS__
 
 __INLINE__ void __ALWAYS_INLINE__ EE_leds_init(void) {
-	/* set LEDs (D3-D10/RA0-RA7) drive state low */
+  /* set LEDs (D3-D10/RA0-RA7) drive state low */
   LATA &= 0xFF00 | RA7_MASK; 
-	/* set LED pins (D3-D10/RA0-RA7) as outputs */
-	TRISA &= 0xFF00 | RA7_MASK; 
+  /* set LED pins (D3-D10/RA0-RA7) as outputs */
+  TRISA &= 0xFF00 | RA7_MASK;
 }
+
 __INLINE__ void __ALWAYS_INLINE__ EE_leds_on(void)   { LATA |= 0x00FF; }
 __INLINE__ void __ALWAYS_INLINE__ EE_leds_off(void)  { LATA &= 0xFF00; }
 
@@ -171,9 +179,9 @@ __INLINE__ void __ALWAYS_INLINE__ EE_led_10_off(void) { LATAbits.LATA7 = 0; }
 #endif
 
 
-/* /\************************************************************************* */
-/*  LCD */
-/*  *************************************************************************\/ */
+/************************************************************************** */
+/* LCD */
+/************************************************************************** */
 
 #ifdef __USE_LCD__
 /* 
@@ -184,22 +192,22 @@ __INLINE__ void __ALWAYS_INLINE__ EE_led_10_off(void) { LATAbits.LATA7 = 0; }
    DATA -> RE0 - RE7   
 */
 
-/* /\* Control signal data pins *\/ */
-#define  EE_LCD_RW  LATDbits.LATD5       // LCD R/W signal
-#define  EE_LCD_RS  LATBbits.LATB15      // LCD RS signal
-#define  EE_LCD_E   LATDbits.LATD4       // LCD E signal 
+/* Control signal data pins */
+#define  EE_LCD_RW  LATDbits.LATD5       /* LCD R/W signal */
+#define  EE_LCD_RS  LATBbits.LATB15      /* LCD RS signal */
+#define  EE_LCD_E   LATDbits.LATD4       /* LCD E signal */
 
-/* /\* Control signal pin direction *\/ */
+/* Control signal pin direction */
 #define  EE_LCD_RW_TRIS		TRISDbits.TRISD5 
 #define  EE_LCD_RS_TRIS		TRISBbits.TRISB15
 #define  EE_LCD_E_TRIS		TRISDbits.TRISD4
 
-/* /\* Data signals and pin direction *\/ */
-#define  EE_LCD_DATA      LATE           // Port for LCD data
-#define  EE_LCD_DATAPORT  PORTE
-#define  EE_LCD_TRISDATA  TRISE          // I/O setup for data Port
+/* Data signals and pin direction */
+#define  EE_LCD_DATA      LATE           /* Port for LCD data */
+#define  EE_LCD_DATAPORT  PORTE 
+#define  EE_LCD_TRISDATA  TRISE          /* I/O setup for data Port */
 
-/* /\* Send an impulse on the enable line.  *\/ */
+/* Send an impulse on the enable line.  */
 __INLINE__ void __ALWAYS_INLINE__ EE_lcd_pulse_enable( void )
 {
 	EE_LCD_E = 1;
@@ -209,7 +217,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_lcd_pulse_enable( void )
 	EE_LCD_E = 0;
 }
 
-/* /\* Send a command to the lcd.  *\/ */
+/* Send a command to the lcd. */
 __INLINE__ void __ALWAYS_INLINE__ EE_lcd_command( EE_UINT8 cmd )
 {
 	EE_LCD_DATA &= 0xFF00;
@@ -217,21 +225,23 @@ __INLINE__ void __ALWAYS_INLINE__ EE_lcd_command( EE_UINT8 cmd )
 	EE_LCD_RW = 0;
 	EE_LCD_RS = 0;
 	EE_lcd_pulse_enable();
-	//Delay_Us( Delay200uS_count );
+	EE_delay_us(EE_LDC_COM_DELAY);
 }
 
-/* /\* Initialize the display.  *\/ */
+/* Initialize the display. */
 __INLINE__ void __ALWAYS_INLINE__ EE_lcd_init(void) {
-	// 15mS delay after Vdd reaches nnVdc before proceeding with LCD initialization
-	// not always required and is based on system Vdd rise rate
-	// Todo!!!
-	//Delay(Delay_15mS_Cnt);
+  /* 15mS delay after Vdd reaches nnVdc before proceeding with LCD initialization */
+  /* not always required and is based on system Vdd rise rate */
+
+	EE_delay_us(150); 
 			
 	/* Initial values */
 	EE_LCD_DATA &= 0xFF00;	
 	EE_LCD_RW   = 0;
 	EE_LCD_RS   = 0;
 	EE_LCD_E    = 0;
+
+	EE_delay_us(400);
 
 	/* Set pins direction */
 	EE_LCD_TRISDATA &= 0xFF00;
@@ -243,26 +253,27 @@ __INLINE__ void __ALWAYS_INLINE__ EE_lcd_init(void) {
 	EE_LCD_DATA &= 0xFF00;
 	EE_LCD_DATA |= 0x0038;
 	EE_lcd_pulse_enable();
-   	//Delay(Delay_5mS_Cnt);
+
+	EE_delay_us(500);
       
 	/* Init - Step 2 */
 	EE_LCD_DATA &= 0xFF00;
 	EE_LCD_DATA |= 0x0038;
 	EE_lcd_pulse_enable();
-	//Delay_Us( Delay200uS_count );
+	EE_delay_us(200);
 
 	/* Init - Step 2 */
 	EE_LCD_DATA &= 0xFF00;
 	EE_LCD_DATA |= 0x0038;
 	EE_lcd_pulse_enable();
-	//Delay_Us( Delay200uS_count );
+	EE_delay_us(200);
 
-	EE_lcd_command( 0x38 );	// Function set
-	EE_lcd_command( 0x0C );	// Display on/off control, cursor blink off (0x0C)
-	EE_lcd_command( 0x06 );	// Entry mode set (0x06)
+	EE_lcd_command( 0x38 );	/* Function set */
+	EE_lcd_command( 0x0C );	/* Display on/off control, cursor blink off (0x0C) */
+	EE_lcd_command( 0x06 );	/* Entry mode set (0x06) */
 }
 
-/* /\* Send a data.  *\/ */
+/* Send a data.  */
 __INLINE__ void __ALWAYS_INLINE__ EE_lcd_putc( EE_INT8 data )
 {
 	EE_LCD_RW = 0;
@@ -271,10 +282,10 @@ __INLINE__ void __ALWAYS_INLINE__ EE_lcd_putc( EE_INT8 data )
 	EE_LCD_DATA |= data;
 	EE_lcd_pulse_enable();
 	EE_LCD_RS = 0;
-	//Delay_Us( Delay200uS_count );
+	EE_delay_us(200);
 }
 
-/* /\* Send a data.  *\/ */
+/* Send a data. */
 __INLINE__ EE_INT8 __ALWAYS_INLINE__ EE_lcd_getc( void )
 {
 	EE_INT8 buf;
@@ -283,14 +294,14 @@ __INLINE__ EE_INT8 __ALWAYS_INLINE__ EE_lcd_getc( void )
 	EE_LCD_RW = 1;
 	EE_LCD_RS = 1;
 	EE_lcd_pulse_enable();
-	//Delay_Us( Delay200uS_count );
+	EE_delay_us(200);
 	buf = EE_LCD_DATAPORT & 0x00FF;
 	EE_LCD_RS = 0;
 	EE_LCD_TRISDATA &= 0xFF00;
 	return ( buf );
 }
 
-/* /\* Send a string to the display.  *\/ */
+/* Send a string to the display. */
 __INLINE__ void __ALWAYS_INLINE__ EE_lcd_puts( EE_INT8 *buf )
 {
 	EE_UINT8 i = 0;
@@ -299,7 +310,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_lcd_puts( EE_INT8 *buf )
 		EE_lcd_putc(buf[i++]);
 }
 
-/* /\* Check if the display is busy.  *\/ */
+/* Check if the display is busy. */
 __INLINE__ unsigned char __ALWAYS_INLINE__ EE_lcd_busy( void )
 {
 	EE_INT8 buf;
@@ -308,7 +319,7 @@ __INLINE__ unsigned char __ALWAYS_INLINE__ EE_lcd_busy( void )
 	EE_LCD_RW = 0;
 	EE_LCD_RS = 1;
 	EE_lcd_pulse_enable();
-	//Delay_Us( Delay200uS_count );
+	EE_delay_us(200);
 	buf = EE_LCD_DATAPORT & 0x00FF;
 	EE_LCD_RS = 0;
 	EE_LCD_TRISDATA &= 0xFF00;
@@ -336,64 +347,11 @@ __INLINE__ void __ALWAYS_INLINE__ EE_lcd_goto (EE_UINT8 posx, EE_UINT8 posy)
 #endif
 
 
-/* /\************************************************************************* */
+/* ************************************************************************* */
 /*  Analog input */
-/*  *************************************************************************\/ */
+/* ************************************************************************* */
 
-#ifdef __USE_ANALOG__
-
-#define AVDD 3300
-
-extern EE_UINT16 EE_analog_raw_temperature;
-extern EE_UINT16 EE_analog_raw_potentiometer;
-
-__INLINE__ void __ALWAYS_INLINE__ EE_analog_init( void ) {
-	
-	/* Reset local variables */
-	EE_analog_raw_temperature = 0;
-	EE_analog_raw_potentiometer = 0;
-	
-	/* set configuration bits as ADC input */ 		
- 	AD1PCFGLbits.PCFG4 = 0;         // Temp Sensor  -> AN4/RB4
- 	AD1PCFGLbits.PCFG5 = 0;         // Potentiometer -> AN5/RB5
- 
-	/* Set control register 1 */
-	/* 12-bit, unsigned integer format, autoconvert, autosampling */
-	AD1CON1 = 0x04E4;
-	
-	/* Set control register 2 */
-	/* Vref = AVcc/AVdd, Scan Inputs */
-	AD1CON2 = 0x0000;
-	
-	/* Set Samples and bit conversion time */
-	/* AS = 16 Tad, Tad = 32 Tcy */
-	AD1CON3 = 0x1020;
-        	
-	/* set channel scanning here for AN4 and AN5 */
-	AD1CSSL = 0x0000;
-	
-	/* channel select AN4 and AN5 */
-	AD1CHS0 = 0x0004;
-	
-	/* reset ADC interrupt flag */
-	IFS0bits.AD1IF = 0;           
-
-	/* enable ADC interrupts, disable this interrupt if the DMA is enabled */	  
-	IEC0bits.AD1IE = 1;       
-
-	/* turn on ADC module */
-	AD1CON1bits.ADON = 1;          	
-} 
-
-__INLINE__ EE_UINT16 __ALWAYS_INLINE__ EE_analog_get_volt( void ) { return ((long)EE_analog_raw_potentiometer * AVDD) >> 12;  }
-__INLINE__ EE_UINT16 __ALWAYS_INLINE__ EE_analog_get_temp( void ) { return EE_analog_raw_temperature >> 2; }
-
-__INLINE__ void __ALWAYS_INLINE__ EE_analog_start( void ) { IEC0bits.AD1IE = 1; AD1CON1bits.ADON = 1; }
-__INLINE__ void __ALWAYS_INLINE__ EE_analog_stop ( void ) { IEC0bits.AD1IE = 0; AD1CON1bits.ADON = 0; }
-
-#endif
-
-
+/* Moved to the ee_explorer16_picXX_hal.h */
 
 /* ************************************************************************* */
 

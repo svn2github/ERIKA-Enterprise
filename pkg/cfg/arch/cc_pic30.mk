@@ -53,7 +53,7 @@ ifeq ($(call iseeopt, __RTD_CYGWIN__), yes)
   PIC30_OFF := elf
   PIC30_EXTENSION := elf
  else
-  # For Windows users using MPLABX IDE
+  # For Windows users using MPLAB X IDE
   PIC30_OFF := coff
   PIC30_EXTENSION := cof
  endif

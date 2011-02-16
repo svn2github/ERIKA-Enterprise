@@ -57,16 +57,16 @@
 #endif
 
 
-/* /\************************************************************************* */
-/*  Buttons */
-/*  *************************************************************************\/ */
+/* ************************************************************************* */
+/* Buttons */
+/* ************************************************************************* */
 
 #ifdef __USE_BUTTONS__
 
 void (*EE_button_callback)(void);
 EE_UINT8 EE_button_mask;
 
-ISR2(EE_explorer16_IRQ_HANDLER_NAME)
+ISR2(EE_EXPLORER16_IRQ_HANDLER_NAME)
 {
 	// Execute callback function
 	if (EE_button_callback != NULL) {
@@ -79,30 +79,31 @@ ISR2(EE_explorer16_IRQ_HANDLER_NAME)
 
 #endif
 
-/* /\************************************************************************* */
-/*  Analog input */
-/*  *************************************************************************\/ */
+/* ************************************************************************* */
+/* Analog input */
+/* ************************************************************************* */
 #ifdef __USE_ANALOG__
 
 EE_UINT16 EE_analog_channel = 0;
-EE_UINT16 EE_analog_raw_temperature = 0;
-EE_UINT16 EE_analog_raw_potentiometer = 0;
+EE_UINT16 EE_analog_raw_temperature = 1000;
+EE_UINT16 EE_analog_raw_potentiometer = 1000;
 
-ISR2(_ADC1Interrupt)
+ISR2(EE_EXPLORER16_INT_VECT)
 {
-	/* Store Temperature and Potentiometer data */
-	if (EE_analog_channel == 0) {
-		EE_analog_raw_temperature   = ADC1BUF0;
-		AD1CHS0 = 0x0005;
-		EE_analog_channel = 1;
-	} else {
-		EE_analog_raw_potentiometer = ADC1BUF0;             
-		AD1CHS0 = 0x0004;
-		EE_analog_channel = 0;
-	}
-	
-	/* reset ADC interrupt flag */
-	IFS0bits.AD1IF = 0;           
+  /* reset ADC interrupt flag */
+  EE_explorer16_int_reset();
+
+  /* Store Temperature and Potentiometer data */
+  if (EE_analog_channel == 0) {
+    EE_analog_raw_temperature = ADC1BUF0;
+    EE_explorer16_temp_conf();
+    EE_analog_channel = 1;
+  } 
+  else {
+    EE_analog_raw_potentiometer = ADC1BUF0;             
+    EE_explorer16_pot_conf();
+    EE_analog_channel = 0;
+  }
 }
 
 #endif

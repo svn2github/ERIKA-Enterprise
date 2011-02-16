@@ -45,6 +45,7 @@ ifeq ($(call iseeopt, __PIC30__), yes)
 EE_SRCS += pkg/cpu/pic30/src/ee_hal.S
 EE_SRCS += pkg/cpu/pic30/src/ee_hal_c.c
 #EE_SRCS += pkg/cpu/pic30/src/crt0.S
+EE_SRCS += pkg/cpu/pic30/src/ee_utils.c
 
 
 ifeq ($(call iseeopt, __OO_BCC1__), yes)

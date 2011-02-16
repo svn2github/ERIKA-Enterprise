@@ -140,7 +140,7 @@ TASK(TaskLCD)
 	EE_lcd_putc((volt%10)+'0');
 	EE_lcd_putc('V');
 	EE_lcd_putc(' ');
-	EE_lcd_putc(9+volt*6/AVDD);
+	EE_lcd_putc(' ');
 
 	EE_lcd_goto( 10, 1 );
 	
