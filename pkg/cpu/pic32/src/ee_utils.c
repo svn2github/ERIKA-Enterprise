@@ -86,13 +86,6 @@ void EE_nop_delay_us_80mips(EE_UINT32 delay)
 			"       addi $a0, -1\n\t");
 }
 
-__INLINE__ EE_UREG get_core_timer_value(void)
-{
-	EE_UREG val;
-	asm volatile("mfc0 %0, $9" : "=r"(val));
-	return val;
-}
-
 void EE_delay_ticks(EE_UINT32 ticks)
 {
 	register EE_UREG r;
@@ -119,7 +112,7 @@ void EE_delay_us(EE_UINT32 delay)
 	register EE_UREG prev;
 	EE_UREG delay_tick;
 
-	prev = get_core_timer_value();
+	prev = EE_pic32_get_core_timer_value();
 	r = EE_get_system_clock(); /* Get system frequency [Hz] */
 	r = r / 1000000U; /* Transform frequency [MHz] */
 	/* Core timer frequency is half the CPU frequency */	   
@@ -136,7 +129,7 @@ void EE_delay_us(EE_UINT32 delay)
 	 * billion ticks due to the divison by 2 above.  The subtraction handles
 	 * correctly any wrap-around. */
 	do {
-		r = get_core_timer_value();
+		r = EE_pic32_get_core_timer_value();
 	} while (r - prev < delay_tick);
 }
 

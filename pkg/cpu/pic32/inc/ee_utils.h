@@ -11,6 +11,13 @@ void EE_nop_delay_us_80mips(EE_UINT32 delay);
 void EE_delay_ticks(EE_UINT32 ticks);
 void EE_delay_us(EE_UINT32 delay);
 
+__INLINE__ EE_UREG EE_pic32_get_core_timer_value(void) 
+{
+	EE_UREG val;
+	asm volatile("mfc0 %0, $9" : "=r"(val));
+	return val;
+}
+
 #ifdef __USE_EE_CORETIMER_ALARM__
 void EE_coretimer_hard_alarm(EE_UINT32 hw_ticks, void (*f)(void));
 void EE_coretimer_soft_alarm(EE_UINT32 period_us, void (*f)(void));
