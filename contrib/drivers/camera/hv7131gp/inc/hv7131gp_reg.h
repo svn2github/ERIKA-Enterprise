@@ -210,6 +210,9 @@ typedef enum {
 /******************************************************************************/
 /*                           Macro Definitions                                */
 /******************************************************************************/
+
+/* DEVID register */
+
 #define HV7131GP_DEVICE_ID 		0x22	/**< The I2C slave device ID */
 
 #define HV7131GP_PROD_ID_MASK		0xf0    /**< Mask for ID in DEVID */
@@ -218,9 +221,11 @@ typedef enum {
                                                  * DEVID */
 #define HV7131GP_REV_NUM_VALUE		0x00    /**< Revision number in DEVID */
 
+/* SCTRA register */
+
+#define HV7131GP_SCTRA_DEFAULT		0x0b	/**< SCTRA default value */
 #define HV7131GP_X_FLIP 		0x08	/**< Perform horizontal flip */
 #define HV7131GP_Y_FLIP 		0x04	/**< Perform vertical flip */
-
 
 #define	HV7131GP_VIDEO_MASK 		0x03 	/**< Video mode mask in SCTRA */
 #define	HV7131GP_VIDEO_NORMAL 		0x03 	/**< 3x3 color interpolation */
@@ -232,8 +237,12 @@ typedef enum {
 #define	HV7131GP_OPMODE_NORMAL		0x00 /**< Normal operation mode */
 #define	HV7131GP_OPMODE_TEST_A0 	0x80 /**< Test A all-0 operation mode */
 #define	HV7131GP_OPMODE_TEST_A1		0x90 /**< Test A all-1 operation mode */
-#define	HV7131GP_OPMODE_TEST_C0		0xe0 /**< Test C all-1 operation mode */
+#define	HV7131GP_OPMODE_TEST_C0		0xe0 /**< Test C all-0 operation mode */
 #define	HV7131GP_OPMODE_TEST_C1		0xd0 /**< Test C all-1 operation mode */
+
+/* SCTRB register */
+
+#define HV7131GP_SCTRB_DEFAULT		0x00	/**< SCTRB default value */
 
 #define HV7131GP_DCF_1			0x00	/**< Divided clock freq. DFC=MCF */
 #define HV7131GP_DCF_2			0x01	/**< Divided clock freq. DFC=MCF/2 */
@@ -245,10 +254,12 @@ typedef enum {
 #define HV7131GP_DCF_128		0x07	/**< Divided clock freq. DFC=MCF/128 */
 
 #define	HV7131GP_AEAWB_SLEEP  		0x80 	/**< AE/AWB block disabled */
+#define HV7131GP_SLEEP_MODE		0x10	/**< Sleep mode or not */
+
+/* OUTFMT register */
 
 #define HV7131GP_OUTFMT_DEFAULT		0x39	/**< Default value for OUTFMT register*/
 #define HV7131GP_8BIT_OUTPUT		0x08	/**< Select 8 or 16 output mode */
-#define HV7131GP_SLEEP_MODE		0x10	/**< Sleep mode or not */
-
+#define HV7131GP_OUTFMT_BAYER_8BIT	0x40	/**< 8 or 10 bit for Bayer data */
 
 #endif /* HV7131GP_REG_H_ */

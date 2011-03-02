@@ -136,42 +136,6 @@ hv7131gp_status_t hv7131gp_i2c_hal_reg_write(hv7131gp_reg_t reg, uint8_t  val);
 */
 hv7131gp_status_t hv7131gp_i2c_hal_reg_read(hv7131gp_reg_t reg, uint8_t *val);
 
-/* Mico32 HV7131GP Camera controller API */  
-#define DECLARE_FUNC_HV7131GP(uc, lc) \
-__INLINE__ void __ALWAYS_INLINE__ EE_hv7131gp_init(int irqmode){ \
-    if(irqmode) \
-        EE_hv7131gp_ISR_init((MicoCamera_t*)EE_BASE_ADD(uc), (int)EE_IRQ_NAME(uc)); \
-    else \
-        EE_hv7131gp_polling_init((MicoCamera_t*)EE_BASE_ADD(uc)); } \
-__INLINE__ void* __ALWAYS_INLINE__ EE_camera_read_address(void){ \
-    return Mico_camera_read_address((MicoCamera_t*)EE_BASE_ADD(uc)); } \
-__INLINE__ void __ALWAYS_INLINE__ EE_camera_write_address(void* addr){ \
-    Mico_camera_write_address((MicoCamera_t*)EE_BASE_ADD(uc),addr); } \
-__INLINE__ int __ALWAYS_INLINE__ EE_camera_read_status_register(void) {\
-    return Mico_camera_read_status_register((MicoCamera_t*)EE_BASE_ADD(uc)); } \
-__INLINE__ int __ALWAYS_INLINE__ EE_camera_read_IF_flag(void){ \
-    return Mico_camera_read_IF_flag((MicoCamera_t*)EE_BASE_ADD(uc)); } \
-__INLINE__ int __ALWAYS_INLINE__ EE_camera_read_ERR_flag(void){ \
-    return Mico_camera_read_ERR_flag((MicoCamera_t*)EE_BASE_ADD(uc)); } \
-__INLINE__ void __ALWAYS_INLINE__ EE_camera_start(void){ \
-    Mico_camera_start((MicoCamera_t*)EE_BASE_ADD(uc)); } \
-__INLINE__ void __ALWAYS_INLINE__ EE_camera_clear_IRQ_flag(void){ \
-    Mico_camera_clear_IRQ_flag((MicoCamera_t*)EE_BASE_ADD(uc)); } \
-__INLINE__ void __ALWAYS_INLINE__ EE_camera_reset(void){ \
-    Mico_camera_reset((MicoCamera_t*)EE_BASE_ADD(uc)); } \
-__INLINE__ void __ALWAYS_INLINE__ EE_camera_enable_IRQ(void){ \
-    Mico_camera_enable_IRQ((MicoCamera_t*)EE_BASE_ADD(uc)); } \
-__INLINE__ void __ALWAYS_INLINE__ EE_camera_disable_IRQ(void){ \
-    Mico_camera_disable_IRQ((MicoCamera_t*)EE_BASE_ADD(uc)); } \
-__INLINE__ int __ALWAYS_INLINE__ EE_camera_IRQ_enabled(void){ \
-    return Mico_camera_IRQ_enabled((MicoCamera_t*)EE_BASE_ADD(uc)); } \
-__INLINE__ void __ALWAYS_INLINE__ EE_camera_write_divisor(unsigned int div){ \
-    Mico_camera_write_divisor((MicoCamera_t*)EE_BASE_ADD(uc), div); } \
-__INLINE__ int __ALWAYS_INLINE__ EE_camera_read_divisor(void){ \
-    return Mico_camera_read_divisor((MicoCamera_t*)EE_BASE_ADD(uc)); } \
-__INLINE__ int __ALWAYS_INLINE__ EE_camera_frame_terminated(void){ \
-    return Mico_camera_frame_terminated((MicoCamera_t*)EE_BASE_ADD(uc)); }
-
 /* I2C-based Camera API */  
 #define DECLARE_FUNC_I2C_HV7131GP(uc, lc) \
 __INLINE__ int __ALWAYS_INLINE__ EE_hv7131gp_i2c_config(int baudrate,int settings){ \
@@ -295,7 +259,114 @@ int EE_hv7131gp_set_sleep_status(void);
 int EE_hv7131gp_set_active_status(void);
 
 DECLARE_FUNC_I2C_HV7131GP(CAMERA_I2C, camera_i2c)
-DECLARE_FUNC_HV7131GP(CAMERA, camera)
+
+
+/* Mico32 HV7131GP Camera controller API */
+
+static MicoCamera_t * const camera_base = (MicoCamera_t*)EE_BASE_ADD(CAMERA);
+
+__INLINE__ void __ALWAYS_INLINE__ EE_hv7131gp_init(int irqmode)
+{
+    if(irqmode)
+        EE_hv7131gp_ISR_init(camera_base, EE_IRQ_NAME(CAMERA));
+    else
+        EE_hv7131gp_polling_init(camera_base);
+}
+
+__INLINE__ void * __ALWAYS_INLINE__ EE_camera_read_address(void)
+{
+    return Mico_camera_read_address(camera_base);
+}
+
+__INLINE__ void __ALWAYS_INLINE__ EE_camera_write_address(void *addr)
+{
+    Mico_camera_write_address(camera_base,addr);
+}
+
+__INLINE__ int __ALWAYS_INLINE__ EE_camera_read_status_register(void)
+{
+    return Mico_camera_read_status_register(camera_base);
+}
+
+__INLINE__ int __ALWAYS_INLINE__ EE_camera_read_IF_flag(void)
+{
+    return Mico_camera_read_IF_flag(camera_base);
+}
+
+__INLINE__ int __ALWAYS_INLINE__ EE_camera_read_ERR_flag(void)
+{
+    return Mico_camera_read_ERR_flag(camera_base);
+}
+
+__INLINE__ void __ALWAYS_INLINE__ EE_camera_start(void)
+{
+    Mico_camera_start(camera_base);
+}
+
+__INLINE__ void __ALWAYS_INLINE__ EE_camera_clear_IRQ_flag(void)
+{
+    Mico_camera_clear_IRQ_flag(camera_base);
+}
+
+__INLINE__ void __ALWAYS_INLINE__ EE_camera_reset(void)
+{
+    Mico_camera_reset(camera_base);
+}
+
+__INLINE__ void __ALWAYS_INLINE__ EE_camera_enable_IRQ(void)
+{
+    Mico_camera_enable_IRQ(camera_base);
+}
+
+__INLINE__ void __ALWAYS_INLINE__ EE_camera_disable_IRQ(void)
+{
+    Mico_camera_disable_IRQ(camera_base);
+}
+
+__INLINE__ int __ALWAYS_INLINE__ EE_camera_IRQ_enabled(void)
+{
+    return Mico_camera_IRQ_enabled(camera_base);
+}
+
+__INLINE__ void __ALWAYS_INLINE__ EE_camera_write_divisor(unsigned int div)
+{
+    Mico_camera_write_divisor(camera_base, div);
+}
+
+__INLINE__ int __ALWAYS_INLINE__ EE_camera_read_divisor(void)
+{
+    return Mico_camera_read_divisor(camera_base);
+}
+
+__INLINE__ int __ALWAYS_INLINE__ EE_camera_frame_terminated(void)
+{
+    return Mico_camera_frame_terminated(camera_base);
+}
+
+#if defined MICO_CAMERA_VER && MICO_CAMERA_VER >= 1
+__INLINE__ void __ALWAYS_INLINE__ EE_camera_write_size(unsigned int size)
+{
+    Mico_camera_write_size(camera_base, MICO_CAMERA_SIZE_WORDS(size));
+}
+
+__INLINE__ int __ALWAYS_INLINE__ EE_camera_read_size_err_flag(void)
+{
+    return Mico_camera_read_size_err_flag(camera_base);
+}
+
+#else /* #if defined MICO_CAMERA_VER && MICO_CAMERA_VER >= 1 */
+__INLINE__ void __ALWAYS_INLINE__ EE_camera_write_size(unsigned int size)
+{
+}
+
+__INLINE__ int __ALWAYS_INLINE__ EE_camera_read_size_err_flag(void)
+{
+    return 0;
+}
+
+#endif /* else #if defined MICO_CAMERA_VER && MICO_CAMERA_VER >= 1 */
+
+
 
 /* INLINE functions */
 

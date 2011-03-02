@@ -48,7 +48,10 @@ typedef enum {
 	HV7131GP_ERR_MEM_NULL,		/**< Invalid NULL memory address */
 	HV7131GP_ERR_DMA_INIT,	/**< Invalid NULL memory address */
 	HV7131GP_HAL_INIT_ERR,
-	HV7131GP_ERR_WRONG_PRODUCT	/**< Camera product ID doesn't match */
+	HV7131GP_ERR_WRONG_PRODUCT,	/**< Camera product ID doesn't match */
+	HV7131GP_ERR_DMA_SIZE,	/**< Wrong number of bytes transferred by DMA
+				 * (either a bus overrun or the camera sent
+				 * something wrong) */
 } hv7131gp_status_t;
 
 /**

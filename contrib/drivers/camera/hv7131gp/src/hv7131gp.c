@@ -201,6 +201,25 @@ hv7131gp_status_t hv7131gp_init(void)
 	return hv7131gp_init_configure(); 
 }
 
+hv7131gp_status_t hv7131gp_reset_regs(void)
+{
+	static const struct { hv7131gp_reg_t reg; uint8_t val; } reg_table[] = {
+		{ HV7131GP_REG_SCTRA, HV7131GP_SCTRA_DEFAULT },
+		{ HV7131GP_REG_SCTRB, HV7131GP_SCTRB_DEFAULT },
+		{ HV7131GP_REG_OUTFMT, HV7131GP_OUTFMT_DEFAULT },
+	};
+	const unsigned reg_tab_len = sizeof(reg_table) / sizeof(reg_table[0]);
+	unsigned i;
+	hv7131gp_status_t res = HV7131GP_SUCCESS;
+
+	for (i = 0; i < reg_tab_len; ++i) {
+		res = hv7131gp_reg_write(reg_table[i].reg, reg_table[i].val);
+		if (res != HV7131GP_SUCCESS)
+			break;
+	}
+	return res;
+}
+
 /* ----------------------------------------------------------------------------
 |  Starting configuration of HV7131GP Camera:                                  |
 |                                                                              |

@@ -84,6 +84,16 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 hv7131gp_status_t hv7131gp_init(void);
 
 /**
+ * @brief Reset camera registers to their default values
+ *
+ * Currently, just a few registers (the most important ones) are reset.
+ *
+ * @return Returns \c HV7131GP_SUCCESS if no error occurs,
+ *         otherwise a specific error code.
+ */
+hv7131gp_status_t hv7131gp_reset_regs(void);
+
+/**
 * @brief Reset the camera to the starting configuration
 *
 * @return Returns \c HV7131GP_SUCCESS if no error occurs,

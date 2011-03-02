@@ -67,6 +67,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include <ee.h>
 #include <hv7131gp_hal.h>
+#include <hv7131gp.h>
 
 
 /******************************************************************************/
@@ -125,7 +126,13 @@ void EE_hv7131gp_handler(int level)
 {
     hv7131gp_status_t status;
 
-    status = EE_camera_read_ERR_flag() ? HV7131GP_FAILURE : HV7131GP_SUCCESS;
+    if (! EE_camera_read_ERR_flag()) {
+	status = HV7131GP_SUCCESS;
+    } else if (EE_camera_read_size_err_flag()) {
+	status = HV7131GP_ERR_DMA_SIZE;
+    } else {
+	status = HV7131GP_FAILURE;
+    }
     EE_camera_clear_IRQ_flag();
     
     if(ee_hv7131gp_cbk != (hv7131gp_cback_t *)0)
@@ -474,6 +481,7 @@ int EE_hv7131gp_capture(void *image, hv7131gp_cback_t *cam_cbk)
 {
     EE_camera_write_address(image);     // image buffer
     ee_hv7131gp_cbk = cam_cbk;              // set the callback function
+    EE_camera_write_size(hv7131gp_get_size());
     EE_camera_start();                  // activate frame acquisition
     
     return HV7131GP_SUCCESS;
@@ -510,7 +518,7 @@ int EE_hv7131gp_set_active_status(void)
 /* This function waits for ack */
 hv7131gp_status_t hv7131gp_hal_init_ack(void)
 {
-    while(EE_camera_read_status_register() != 1)
+    while(EE_camera_read_status_register() != MICO_CAMERA_IDLE)
         ;
     /* TODO: add a timeout */
     return HV7131GP_SUCCESS;
