@@ -117,7 +117,6 @@ typedef __EE_INT32 int32_t;	/**< Signed 32 bit integer. */
 
 #ifndef UINT64_T
 #ifdef ULLONG_MAX
-#warning ULLONG_MAX
 #if ULLONG_MAX != 4294967295UL
 #define UINT64_T
 typedef unsigned long long uint64_t;	/**< Unsigned 64 bit integer. */

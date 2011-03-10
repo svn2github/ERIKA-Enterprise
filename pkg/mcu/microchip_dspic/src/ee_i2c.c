@@ -5,6 +5,13 @@
 /******************************************************************************/
 /*                            Local Macros                                    */
 /******************************************************************************/
+void tx_dump(EE_UINT8 data)
+{
+		while (U1STAbits.UTXBF) ;
+		U1TXREG = data;
+		while (!U1STAbits.TRMT) ;
+}
+
 #define ACTIVE_WAIT_ON(__FLAG__) cto = 0; \
 								while (__FLAG__)	\
 								{	\
@@ -25,11 +32,16 @@ unsigned int cto;
 //                                                                             |
 //---------------------------------------------------------------------------- */
 
-EE_INT8 EE_i2c_init(EE_UINT8 port) {
+EE_INT8 EE_i2c_init(
+		EE_UINT8 port,
+		EE_UINT32 baudrate,
+		EE_UINT16 flags)
+{
+
 	if( port == EE_I2C_PORT_1 ) {
-		i2c_init_port_1();
+		i2c_init_port_1(baudrate, flags);
 	} else if( port == EE_I2C_PORT_2 ) {
-		i2c_init_port_2();
+		i2c_init_port_2(baudrate, flags);
 	} else return -EE_I2C_BAD_PORT;
 
 	return EE_I2C_SUCCESS;
@@ -66,7 +78,7 @@ static EE_INT8 i2c_write_port_1(
 {
 
 	/* Ensure I2C module is idle */
-	ACTIVE_WAIT_ON(EE_i2c_idle(EE_I2C_PORT_1) != NULL);
+	ACTIVE_WAIT_ON(EE_i2c_idle(EE_I2C_PORT_1));
 
 	/* Transmit a Start condition, initiate Start on SDA and SCL pins */
 	I2C1CONbits.SEN = 1;
@@ -138,7 +150,7 @@ static EE_INT8 i2c_write_port_2(
 {
 
 	/* Ensure I2C module is idle */
-	ACTIVE_WAIT_ON(EE_i2c_idle(EE_I2C_PORT_2) != NULL);
+	ACTIVE_WAIT_ON(EE_i2c_idle(EE_I2C_PORT_2));
 
 	/* Transmit a Start condition, initiate Start on SDA and SCL pins */
 	I2C2CONbits.SEN = 1;
@@ -207,10 +219,13 @@ static EE_INT8 i2c_write_port_2(
 static EE_INT8 i2c_read_port_1(
 		EE_UINT8 device,
 		EE_UINT8 address,
-		EE_UINT8* data){
+		EE_UINT8 nbytes,
+		EE_UINT8* data)
+{
+	EE_UINT8	nb;
 
 	/*  Ensure I2C module is idle */
-	ACTIVE_WAIT_ON(EE_i2c_idle(EE_I2C_PORT_1) != NULL);
+	ACTIVE_WAIT_ON(EE_i2c_idle(EE_I2C_PORT_1));
 
 	// Transmit a Start condition on i2c1
 	I2C1CONbits.SEN = 1;		// initiate Start on SDA and SCL pins
@@ -221,7 +236,7 @@ static EE_INT8 i2c_read_port_1(
 	/* Write Slave address and set master for transmission
 	(R/W bit should be 0)*/
 	I2C1TRN = device;
-
+	
 	if(I2C1STATbits.IWCOL)		// If write collision occurs,return -1
 		return -EE_I2C_COLLISION;
 
@@ -259,34 +274,40 @@ static EE_INT8 i2c_read_port_1(
 	I2C1TRN = device+1;
 	if(I2C1STATbits.IWCOL)	// If write collision occurs,return -1
 		return -EE_I2C_COLLISION;
-
+		
 	/* Wait till address is transmitted */
 	ACTIVE_WAIT_ON(I2C1STATbits.TBF);
 
 	/* Test for ACK condition received */
 	ACTIVE_WAIT_ON(I2C1STATbits.ACKSTAT);
+	
+	for (nb = 0; nb<nbytes; nb++) 
+	{
+		/* Ensure I2C module is idle */
+		ACTIVE_WAIT_ON(EE_i2c_idle(EE_I2C_PORT_1));
 
-	/* Ensure I2C module is idle */
-	ACTIVE_WAIT_ON(EE_i2c_idle(EE_I2C_PORT_1));
+		/* Read the data byte */
+		I2C1CONbits.RCEN = 1;
 
-	/* Read the data byte */
-	I2C1CONbits.RCEN = 1;
+		ACTIVE_WAIT_ON(I2C1CONbits.RCEN);
 
-	ACTIVE_WAIT_ON(I2C1CONbits.RCEN);
+		I2C1STATbits.I2COV = 0;
+		*(data+nb) = I2C1RCV & 0xFF;
 
-	I2C1STATbits.I2COV = 0;
-	*data = I2C1RCV & 0xFF;
+		/* Ensure I2C module is idle */
+		ACTIVE_WAIT_ON(EE_i2c_idle(EE_I2C_PORT_1));
 
-	/* Ensure I2C module is idle */
-	ACTIVE_WAIT_ON(EE_i2c_idle(EE_I2C_PORT_1));
+		/* send (N)ACK condition back to the I2C slave indicating master received
+		the data byte */
+		if (nb == nbytes-1)
+			I2C1CONbits.ACKDT = 1;
+		else
+			I2C1CONbits.ACKDT = 0;
+		I2C1CONbits.ACKEN = 1;
 
-	/* send NACK condition back to the I2C slave indicating master received
-	the data byte */
-	I2C1CONbits.ACKDT = 1;
-	I2C1CONbits.ACKEN = 1;
-
-	/* wait until NACK sequence is over */
-	ACTIVE_WAIT_ON(I2C1CONbits.ACKEN);
+		/* wait until (N)ACK sequence is over */
+		ACTIVE_WAIT_ON(I2C1CONbits.ACKEN);
+	}
 
 	/* Ensure I2C module is idle */
 	ACTIVE_WAIT_ON(EE_i2c_idle(EE_I2C_PORT_1));
@@ -309,8 +330,11 @@ static EE_INT8 i2c_read_port_1(
 static EE_INT8 i2c_read_port_2(
 		EE_UINT8 device,
 		EE_UINT8 address,
-		EE_UINT8* data){
-
+		EE_UINT8 nbytes,
+		EE_UINT8* data)
+{
+	EE_UINT8	nb;
+	
 	/*  Ensure I2C module is idle */
 	ACTIVE_WAIT_ON(EE_i2c_idle(EE_I2C_PORT_2) != NULL);
 
@@ -368,28 +392,34 @@ static EE_INT8 i2c_read_port_2(
 	/* Test for ACK condition received */
 	ACTIVE_WAIT_ON(I2C2STATbits.ACKSTAT);
 
-	/* Ensure I2C module is idle */
-	ACTIVE_WAIT_ON(EE_i2c_idle(EE_I2C_PORT_2));
+	for (nb = 0; nb<nbytes; nb++)
+	{
+		/* Ensure I2C module is idle */
+		ACTIVE_WAIT_ON(EE_i2c_idle(EE_I2C_PORT_2));
 
-	/* Read the data byte */
-	I2C2CONbits.RCEN = 1;
+		/* Read the data byte */
+		I2C2CONbits.RCEN = 1;
 
-	ACTIVE_WAIT_ON(I2C2CONbits.RCEN);
+		ACTIVE_WAIT_ON(I2C2CONbits.RCEN);
 
-	I2C2STATbits.I2COV = 0;
-	*data = I2C2RCV & 0xFF;
+		I2C2STATbits.I2COV = 0;
+		*(data+nb) = I2C2RCV & 0xFF;
 
-	/* Ensure I2C module is idle */
-	ACTIVE_WAIT_ON(EE_i2c_idle(EE_I2C_PORT_2));
+		/* Ensure I2C module is idle */
+		ACTIVE_WAIT_ON(EE_i2c_idle(EE_I2C_PORT_2));
 
-	/* send NACK condition back to the I2C slave indicating master received
-		the data byte */
-	I2C2CONbits.ACKDT = 1;
-	I2C2CONbits.ACKEN = 1;
+		/* send (N)ACK condition back to the I2C slave indicating master received
+			the data byte */
+		if (nb == nbytes-1)
+			I2C2CONbits.ACKDT = 1;
+		else
+			I2C2CONbits.ACKDT = 0;
+		I2C2CONbits.ACKEN = 1;
 
-	/* wait until NACK sequence is over */
-	ACTIVE_WAIT_ON(I2C2CONbits.ACKEN);
-
+		/* wait until (N)ACK sequence is over */
+		ACTIVE_WAIT_ON(I2C2CONbits.ACKEN);
+	}
+	
 	/* Ensure I2C module is idle */
 	ACTIVE_WAIT_ON(EE_i2c_idle(EE_I2C_PORT_2));
 
@@ -430,9 +460,25 @@ EE_INT8 EE_i2c_read_byte(
 		EE_UINT8* data)
 {
 	if( port == EE_I2C_PORT_1 )
-		i2c_read_port_1( device, address, data );
+		i2c_read_port_1( device, address, 1, data );
 	else if( port == EE_I2C_PORT_2 )
-		i2c_read_port_2( device, address, data );
+		i2c_read_port_2( device, address, 1, data );
+	else return -EE_I2C_BAD_PORT;
+	
+	return EE_I2C_SUCCESS;
+}
+
+EE_INT8 EE_i2c_read_bytes(
+		EE_UINT8 port,
+		EE_UINT8 device,
+		EE_UINT8 address,
+		EE_UINT8 nbytes,
+		EE_UINT8* data)
+{
+	if( port == EE_I2C_PORT_1 )
+		i2c_read_port_1( device, address, nbytes, data );
+	else if( port == EE_I2C_PORT_2 )
+		i2c_read_port_2( device, address, nbytes, data );
 	else return -EE_I2C_BAD_PORT;
 	
 	return EE_I2C_SUCCESS;
