@@ -205,7 +205,7 @@ COMPILER_INLINE void *cqueue_last(cqueue_t *q)
 	if (q->count == 0)
 		return 0;
 	return (void *) (q->data + 
-	       (((q->front + q->count) % q->length) * q->data_size));
+	       (((q->front + q->count - 1) % q->length) * q->data_size));
 }
 
 /** 
@@ -249,6 +249,24 @@ COMPILER_INLINE void *cqueue_pop(cqueue_t *q)
 	q->front = (q->front + 1) % q->length;
 	q->count -= 1;
 	return p;
+}
+
+/** 
+* @brief Get an element at position 
+* 
+* Get the reference to the element of the queue at position p without removing.
+* 
+* @param[in] q The circular queue.
+* @param[in] p The index (from 0 to N-1).
+* 
+* @return A pointer to the element or 0 if the queue is empty. 
+*/
+COMPILER_INLINE void *cqueue_at(cqueue_t *q, uint16_t p) 
+{
+	if (q->count == 0 || p >= q->count)
+		return 0;
+	return (void *) (q->data + 
+	       (((q->front + p) % q->length) * q->data_size));
 }
 
 #endif /* Header Protection */
