@@ -61,7 +61,9 @@ MODSTYLE txmitt Normal
 MODSTYLE camera_50 Normal
 MODSTYLE lm32_ram Normal
 MODULE camera_50_wrapper.v
+MODSTYLE rst_shift_reg Normal
 MODSTYLE camera_50_wrapper Normal
+MODSTYLE pll_and_reset Normal
 SYNTHESIS_TOOL Synplify
 SIMULATOR_TOOL ActiveHDL
 AUTO_READ_DESIGN TRUE

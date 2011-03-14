@@ -371,58 +371,6 @@ __INLINE__ int __ALWAYS_INLINE__ EE_camera_read_size_err_flag(void)
 /* INLINE functions */
 
 /**
-	@brief 	This function sets camera time divisor
-*/
-__INLINE__ int __ALWAYS_INLINE__  EE_hv7131gp_set_time_divisor(int div)
-{
-    return EE_hv7131gp_i2c_write_byte(HV7131GP_REG_SCTRB, div);
-}
-
-/**
-	@brief 	This function sets camera format
-*/
-__INLINE__ int __ALWAYS_INLINE__ EE_hv7131gp_set_format(EE_UINT8 val)
-{
-    //HV7131GP_OUTFMT_DEFAULT & (~HV7131GP_8BIT_OUTPUT)
-    return EE_hv7131gp_i2c_write_byte(HV7131GP_REG_OUTFMT, val);
-}
-
-/**
-	@brief 	This function gets camera format
-*/
-__INLINE__ int __ALWAYS_INLINE__ EE_hv7131gp_get_format(void)
-{
-    //HV7131GP_OUTFMT_DEFAULT & (~HV7131GP_8BIT_OUTPUT)
-    return EE_hv7131gp_i2c_read_byte(HV7131GP_REG_OUTFMT);
-}
-
-/**
-	@brief 	This function sets camera resolution
-*/
-__INLINE__ int __ALWAYS_INLINE__ EE_hv7131gp_set_resolution(EE_UINT8 val)
-{
-    //HV7131GP_REG_SCTRA, res | HV7131GP_X_FLIP
-    return EE_hv7131gp_i2c_write_byte(HV7131GP_REG_SCTRA, val);
-}
-
-/**
-	@brief 	This function gets camera resolution
-*/
-__INLINE__ int __ALWAYS_INLINE__ EE_hv7131gp_get_resolution(void)
-{
-    //HV7131GP_REG_SCTRA, res | HV7131GP_X_FLIP
-    return EE_hv7131gp_i2c_read_byte(HV7131GP_REG_SCTRA);
-}
-
-/**
-	@brief 	This function gets camera Y average info
-*/
-__INLINE__ int __ALWAYS_INLINE__ EE_hv7131gp_get_Y_average(void)
-{
-    return EE_hv7131gp_i2c_read_byte(HV7131GP_REG_YFMEAN);
-}
-
-/**
 	@brief 	This function is the interrupt handler
 */
 void EE_hv7131gp_handler(int level);

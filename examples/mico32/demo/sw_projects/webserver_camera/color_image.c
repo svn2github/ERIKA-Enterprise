@@ -14,14 +14,8 @@ extern unsigned crc32(unsigned crc,unsigned char *buf, unsigned len);
 extern unsigned adler32(unsigned adler,unsigned char* buf, unsigned len);
 
 /*8 bytes PNG signature*/
-static const unsigned char png_signature[PNG_SIGNATURE_SIZE] = {137,
-															    80,
-																78,
-																71,
-																13,
-																10,
-																26,
-																10};
+static const unsigned char png_signature[PNG_SIGNATURE_SIZE] =
+    {137, 80, 78, 71, 13, 10, 26, 10};
 #pragma pack(1)
 typedef unsigned char length_t[PNG_CHUNK_LENGTH_FIELD];
 typedef unsigned char type_t[PNG_CHUNK_TYPE_FIELD];
@@ -55,14 +49,15 @@ unsigned int png_width_avail[CAMERA_RES_AVAIL] = {160,320,640};
 unsigned int png_height_avail[CAMERA_RES_AVAIL];
 unsigned int png_size_avail[CAMERA_RES_AVAIL];
 
-unsigned char png_img[PNG_SIGNATURE_SIZE+
+#define EXTERNAL_RAM __attribute__((section (".graph")))
+unsigned char EXTERNAL_RAM png_img[PNG_SIGNATURE_SIZE+
 					  PNG_IHDR_CHUNK_SIZE+
 					  /* Scanlines need a byte more for each row */
 					  PNG_IDAT_CHUNK_SIZE+PNG_ZLIB_DATA(PNG_ZLIB_BLOCKNUM(PNG_IMG_WIDTH,PNG_IMG_HEIGHT))+
 					  (PNG_IMG_HEIGHT*PNG_IMG_WIDTH*RGB_A)+PNG_IMG_HEIGHT+
 					  PNG_IEND_CHUNK_SIZE];
 					  
-unsigned char camera_image[PNG_IMG_WIDTH*PNG_IMG_HEIGHT*YCRYCB];
+unsigned char EXTERNAL_RAM camera_image[PNG_IMG_WIDTH*PNG_IMG_HEIGHT*YCRYCB];
 						
 static inline void color_image_32bit(unsigned char* buffer, unsigned value)
 {

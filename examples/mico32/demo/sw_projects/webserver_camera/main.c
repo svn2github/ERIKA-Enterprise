@@ -30,7 +30,7 @@ extern unsigned char camera_image[];
 void myprintf(const char *format, ...)
 {
 #define MAXCHARS 128
-    const char printf_trunc[] = "..[TRUNCATED]..\n\r";
+    const char printf_trunc[] = "..[TRUNCATED]..\r\n";
     char str[MAXCHARS];
     int len;
     va_list args;
@@ -85,14 +85,14 @@ int main(void)
     init_camera_status = hv7131gp_configure_time_divisor(HV7131GP_T_1);
 	if (init_camera_status != HV7131GP_SUCCESS)
 	{
-		myprintf("hv7131gp_configure_time_divisor %d \n\r",init_camera_status);
+		myprintf("hv7131gp_configure_time_divisor %d \r\n",init_camera_status);
     	while(1);
 	}
 
 	init_camera_status = hv7131gp_configure_x_flip(0);
 	if (init_camera_status != HV7131GP_SUCCESS)
 	{
-		myprintf("hv7131gp_configure_x_flip %d \n\r",init_camera_status);
+		myprintf("hv7131gp_configure_x_flip %d \r\n",init_camera_status);
     	while(1);
 	}
 	
@@ -110,13 +110,13 @@ int main(void)
 			init_camera_status = hv7131gp_configure_subsampling(HV7131GP_NO_SUB);
 		break;
 		default:
-			myprintf("resolution not supported \n\r");
+			myprintf("resolution not supported \r\n");
     		while(1);
 		break;
 	}
 	if (init_camera_status != HV7131GP_SUCCESS)
 	{
-		myprintf("hv7131gp_configure_subsampling %d \n\r",init_camera_status);
+		myprintf("hv7131gp_configure_subsampling %d \r\n",init_camera_status);
     	while(1);
 	}
 	
@@ -124,7 +124,7 @@ int main(void)
 	init_camera_status = hv7131gp_configure_color(1);
 	if (init_camera_status != HV7131GP_SUCCESS)
 	{
-		myprintf("hv7131gp_configure_color %d \n\r",init_camera_status);
+		myprintf("hv7131gp_configure_color %d \r\n",init_camera_status);
     	while(1);
 	}
 	

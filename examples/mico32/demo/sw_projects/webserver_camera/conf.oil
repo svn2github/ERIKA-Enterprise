@@ -44,10 +44,9 @@ CPU test_application {
 	#include "conf.oil.enc28j60"
 
 	OS EE {		
-		CFLAGS = "-D__USE_LEDS__"; // Workaround for RT-Druid bug
 		CFLAGS = "-g2";
 		ASFLAGS = "";
-		LDFLAGS = ""; 
+		LDFLAGS = "-T graph.ld";
 
 		CPU_DATA = LM32 {
 			APP_SRC = "main.c";
@@ -57,15 +56,15 @@ CPU test_application {
 			APP_SRC = "crc32.c";
 			APP_SRC = "adler32.c";
 			MULTI_STACK = FALSE;
-			USESTANDALONEPRINTF = FALSE; // Optional, default is FALSE
-			USESMALLC = FALSE; // Optional, default is FALSE
+			USESTANDALONEPRINTF = FALSE;
+			USESMALLC = FALSE;
 		};
 		
 		MCU_DATA = LATTICE_PLATFORM {
 			MODEL = LIBRARY {
-				PLATFORM_LIB_PATH = "../test_sram_lib";
-				PLATFORM_NAME = "test_base";
-				PLATFORM_BLD_CFG = "Release"; // Optional, default is ""
+				PLATFORM_LIB_PATH = "../lib_camera_50";
+				PLATFORM_NAME = "camera_50";
+				PLATFORM_BLD_CFG = "Release";
 			};
 			
 			DEVICE = TIMER {
