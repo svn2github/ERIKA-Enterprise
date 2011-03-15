@@ -42,6 +42,14 @@ ifeq ($(call iseeopt, __LM32__), yes)
 
 MCU_BUF = NO
 
+ifneq ($(call iseeopt, __USE_CUSTOM_CRT0__), yes)
+# Provide a default crt0, but don't overwrite it if it's been already defined
+# (by the board)
+ifndef CRT0_SRCS
+CRT0_SRCS := pkg/mcu/mico32/src/crt0ram.S
+endif # CRT0_SRCS
+endif #__USE_CUSTOM_CRT0__
+
 ifeq ($(call iseeopt, __USE_TIMER__), yes)
 EE_SRCS += pkg/mcu/mico32/src/ee_timer.c
 endif

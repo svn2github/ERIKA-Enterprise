@@ -40,9 +40,11 @@
 
 ifeq ($(call iseeopt, __LM32__), yes)
 
-# *** IPERMOB camera board ***
+# *** FPG-EYE board ***
 ifeq ($(call iseeopt, __XP2_CAMERA_BOARD__), yes)
-# no files
+ifneq ($(call iseeopt, __USE_CUSTOM_CRT0__), yes)
+CRT0_SRCS := pkg/board/fpga_camera_mico32/src/crt0ram.S
+endif #__USE_CUSTOM_CRT0__
 endif #__XP2_CAMERA_BOARD__
 
 endif #__LM32__

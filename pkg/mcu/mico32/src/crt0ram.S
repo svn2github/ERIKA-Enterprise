@@ -3,7 +3,9 @@
  * software, version 8.0. The heading below is taken verbatim from the original
  * file.
  *
- * Modified: 2010, Bernardo  Dal Seno
+ * Modified:
+ *    2010-2011, Bernardo  Dal Seno
+ *    Copyright (C) 2010-2011  Evidence Srl
  */
 
 
@@ -283,7 +285,7 @@ _crt0:
     mvi     r1, 0
     mvi     r2, 0
     mvi     r3, 0
-    calli   LatticeDDInit
+    calli   main
 #ifdef __LM32_USE_CPLUSPLUS__
     calli   _fini
 #endif
@@ -413,15 +415,3 @@ _restore_all_and_return:
     nop
     eret
         .size   _restore_all_and_return, .-_restore_all_and_return
-
-#if 0
-        .global _init
-        .type 	_init, @function
-	.global _fini
-	.type	_fini, @function
-_init:
-_fini:
-	ret
-	.size	_init, .-_init
-	.size	_fini, .-_fini
-#endif
