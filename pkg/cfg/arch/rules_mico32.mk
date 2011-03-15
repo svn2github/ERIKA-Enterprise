@@ -129,6 +129,33 @@ vpath %.c $(EE_VPATH) #$(APPBASE)
 vpath %.S $(EE_VPATH) #$(APPBASE)
 
 
+# Linker scripts
+PLATFORM_LINK_SCRIPT=$(PLATFORM_MAKEFILES_DIR)/linker.ld
+LINK_SCRIPT=$(OUTPUT_DIR)/ee_linker.ld
+
+ifndef PLATFORM_BLD_CFG
+ifeq ($(call iseeeopt, DEBUG), yes)
+PLATFORM_BLD_CFG=Debug
+else
+PLATFORM_BLD_CFG=Release
+endif
+endif
+
+# Where platform-dependent makefiles are located.
+PLATFORM_MAKEFILES_DIR = $(PLATFORM_LIB_PATH)/$(PLATFORM_NAME)/$(PLATFORM_BLD_CFG)
+
+# Platform library (relative path and name)
+PLATFORM_LIBRARY=$(PLATFORM_LIB_PATH)/$(PLATFORM_BLD_CFG)/$(PLATFORM_BLD_CFG)/lib$(PLATFORM_NAME).a
+
+# Platform_rules.mk contains CPU configuration.
+include $(PLATFORM_MAKEFILES_DIR)/platform_rules.mk
+
+# Remove the crt*.o files from the building process
+$(LINK_SCRIPT): $(PLATFORM_LINK_SCRIPT)
+	@echo "LOC"
+	$(QUIET) grep -v -E '^INPUT\(' $< > $@
+
+
 ##
 ## Main rules: all clean
 ##
@@ -151,10 +178,10 @@ $(TARGET): $(APP_OUTPUT_ELF)
 	@echo
 
 
-$(APP_OUTPUT_ELF): $(OBJS) $(PLATFORM_RULES_MAKEFILE) $(LD_FILE) \
+$(APP_OUTPUT_ELF): $(OBJS) $(PLATFORM_RULES_MAKEFILE) $(LINK_SCRIPT) \
  $(PLATFORM_LIBRARY) $(LIBDEP)
 	@echo LD
-	$(QUIET) $(EE_LINK) $(CPU_CONFIG) -T $(LD_FILE) -o $@ \
+	$(QUIET) $(EE_LINK) $(CPU_CONFIG) -T $(LINK_SCRIPT) -o $@ \
  $(OBJS) $(OPT_LIBS) $(PLATFORM_LIBRARY) -lm  $(C_LIB) -lgcc \
  $(PLATFORM_LIBRARY) -lnosys $(LDFLAGS)
 

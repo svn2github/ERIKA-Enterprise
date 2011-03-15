@@ -1,57 +1,91 @@
-
-# --- Variable part, automatically generated from 'conf.oil' ---
-
-CFLAGS = -g2
-ASFLAGS = 
-LDFLAGS = 
-
-# Application C/Asm source files
-APP_SRCS = main.c
-
-
-############################################################################
+# # Date             : 3/14/2011
+# RT-Druid version : 
 #
-# Setting EEOPT variable
-#
-############################################################################
+
+# these lines override the .bashrc definitions
+#EEBASE = ../../..
+#APPBASE = .
+
+###
+### Setting EEOPT variable:
+###
 
 EEOPT =
 
 
+############################################################################
 #
 # User options
 #
+############################################################################
 
-EEOPT += 
 
-
+############################################################################
 #
 # Automatic options
 #
-
+############################################################################
+EEOPT += __RTD_LINUX__
 EEOPT += __LM32__
 EEOPT += __FP__
 EEOPT += __MONO__
+EEOPT += __FP_NO_RESOURCES__
+
+
+############################################################################
+#
+# Lattice mico 32
+#
+############################################################################
+ifndef EEBASE
+    EEBASE  := ../../../../..
+endif
+APPBASE := ..
+OUTBASE := output
 
 
 
-# --- Fixed part ---
+############################################################################
+#
+# Flags
+#
+############################################################################
+CFLAGS  += -g2
+ASFLAGS += 
+LDFLAGS += 
+LDDEPS  += 
+LIBS    += 
 
-# Application directory
-APPBASE := .
 
-# Additional file sources
-SRCS = $(OUTPUT_DIR)/eecfg.c
-SRCS += $(OUTPUT_DIR)/crt0ram.S
-#SRCS += $(PLATFORM_LIB_PATH)/$(PLATFORM_NAME)/crt0ram.S
 
-LD_FILE = $(OUTPUT_DIR)/linker.ld
+############################################################################
+#
+# Sources
+#
+############################################################################
+APP_SRCS += $(OUTBASE)/eecfg.c $(OUTPUT_DIR)/crt0ram.S main.c
 
-include $(OUTPUT_DIR)/platform.mk
-include $(OUTPUT_DIR)/lattice.mk
+
+############################################################################
+#
+# More rules for Lattice mico 32
+#
+############################################################################
+#include $(OUTPUT_DIR)/platform.mk
+PLATFORM_NAME=onchipramtimer
+PLATFORM_LIB_PATH=../onchipramtimer_lib
+PLATFORM_BLD_CFG=Release
+#include $(OUTPUT_DIR)/lattice.mk
+# Use standalone printf implementation: -D_USE_LSCC_PRINTF_
+CFLAGS += -D_USE_LSCC_PRINTF_
+# C library to use.
+C_LIB := -lc
+
+
+
+############################################################################
+#
+# end
+#
+############################################################################
 include $(EEBASE)/pkg/cfg/rules.mk
-
-# Remove the crt*.o files from the building process
-$(LD_FILE): $(PLATFORM_LD_FILE)
-	@echo "Patching linker script"
-	$(QUIET) grep -v -E '^INPUT\(' $< > $@

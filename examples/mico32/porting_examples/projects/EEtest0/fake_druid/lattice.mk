@@ -1,8 +1,6 @@
-
-
 ############################################################################
 #
-# Settings for the Lattice building environement
+# Settings for the Lattice building environment
 # 
 # Automatically generated from 'conf.oil'
 #
