@@ -1,7 +1,7 @@
 /* ###*B*###
  * ERIKA Enterprise - a tiny RTOS for small microcontrollers
  *
- * Copyright (C) 2002-2010  Evidence Srl
+ * Copyright (C) 20011 Steve Langstaff
  *
  * This file is part of ERIKA Enterprise.
  *
@@ -39,23 +39,19 @@
  * ###*E*### */
 
 /*
- * Header file to include drivers header files needed.
- * Author: 2010,  Christian Grioli
- * Updates: 2011, Steve Langstaff
+ * Header file for watchdog functionality.
+ * Author: 2011, Steve Langstaff
  */
 
 
-#ifndef __INCLUDE_MSP430_MCU_H__
-#define __INCLUDE_MSP430_MCU_H__
+#ifndef __INCLUDE_MSP430_MCU_WATCHDOG_H__
+#define __INCLUDE_MSP430_MCU_WATCHDOG_H__
 
-#ifdef __USE_UART__
-#include "mcu/msp430/inc/ee_uart.h"
+#ifdef	__MSP430_HAS_WDT__
+__INLINE__ void __ALWAYS_INLINE__ EE_watchdog_disable(void)
+{
+    WDTCTL = WDTPW | WDTHOLD;
+}
 #endif
-
-#include "mcu/msp430/inc/ee_watchdog.h"
-
-#include "mcu/msp430/inc/ee_sysclk.h"
-
-#include "mcu/msp430/inc/ee_delay.h"
 
 #endif

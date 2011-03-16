@@ -1,13 +1,13 @@
 /* ###*B*###
  * ERIKA Enterprise - a tiny RTOS for small microcontrollers
  *
- * Copyright (C) 2002-2010  Evidence Srl
+ * Copyright (C) 2011 Steve Langstaff
  *
  * This file is part of ERIKA Enterprise.
  *
  * ERIKA Enterprise is free software; you can redistribute it
  * and/or modify it under the terms of the GNU General Public License
- * version 2 as published by the Free Software Foundation, 
+ * version 2 as published by the Free Software Foundation,
  * (with a special exception described below).
  *
  * Linking this code statically or dynamically with other modules is
@@ -39,23 +39,46 @@
  * ###*E*### */
 
 /*
- * Header file to include drivers header files needed.
- * Author: 2010,  Christian Grioli
- * Updates: 2011, Steve Langstaff
+ * Support for LEDs on the MSP430 LAUNCHPAD board.
+ * Author: 2011,  Steve Langstaff
  */
 
 
-#ifndef __INCLUDE_MSP430_MCU_H__
-#define __INCLUDE_MSP430_MCU_H__
+#ifndef __INCLUDE_MSP430_LAUNCHPAD_BOARD_BUTTON_H__
+#define __INCLUDE_MSP430_LAUNCHPAD_BOARD_BUTTON_H__
 
-#ifdef __USE_UART__
-#include "mcu/msp430/inc/ee_uart.h"
-#endif
+#define BUTTON_0 (1<<3)
+#define	ALL_BUTTONS	(BUTTON_0)
 
-#include "mcu/msp430/inc/ee_watchdog.h"
+__INLINE__ void __ALWAYS_INLINE__ EE_buttons_init(void)
+{
+	P1DIR &= ~ALL_BUTTONS;
+}
 
-#include "mcu/msp430/inc/ee_sysclk.h"
+__INLINE__ void __ALWAYS_INLINE__ EE_buttons_enable_interrupts (EE_UINT8 data)
+{
+	P1IE |= data;
+}
 
-#include "mcu/msp430/inc/ee_delay.h"
+__INLINE__ void __ALWAYS_INLINE__ EE_buttons_disable_interrupts (EE_UINT8 data)
+{
+	P1IE &= ~data;
+}
+
+__INLINE__ EE_UINT8 __ALWAYS_INLINE__ EE_buttons_interrupt (EE_UINT8 data)
+{
+	return (P1IFG & data);
+}
+
+__INLINE__ EE_UINT8 __ALWAYS_INLINE__ EE_buttons_get_state (EE_UINT8 data)
+{
+	/* button is active low, but we should return BUTTON_0 if pressed */
+	return ((~P1IN) & data);
+}
+
+__INLINE__ void __ALWAYS_INLINE__ EE_buttons_clear_ISRflag (EE_UINT8 data)
+{
+	P1IFG &= ~data;
+}
 
 #endif

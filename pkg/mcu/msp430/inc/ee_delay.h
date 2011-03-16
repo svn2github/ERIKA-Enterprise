@@ -1,7 +1,7 @@
 /* ###*B*###
  * ERIKA Enterprise - a tiny RTOS for small microcontrollers
  *
- * Copyright (C) 2002-2010  Evidence Srl
+ * Copyright (C) 2011 Steve Langstaff
  *
  * This file is part of ERIKA Enterprise.
  *
@@ -39,23 +39,25 @@
  * ###*E*### */
 
 /*
- * Header file to include drivers header files needed.
- * Author: 2010,  Christian Grioli
- * Updates: 2011, Steve Langstaff
+ * Header file for busy-wait delay function.
+ * Author: 2011, Steve Langstaff
  */
 
 
-#ifndef __INCLUDE_MSP430_MCU_H__
-#define __INCLUDE_MSP430_MCU_H__
+#ifndef __INCLUDE_MSP430_MCU_DELAY_H__
+#define __INCLUDE_MSP430_MCU_DELAY_H__
 
-#ifdef __USE_UART__
-#include "mcu/msp430/inc/ee_uart.h"
-#endif
-
-#include "mcu/msp430/inc/ee_watchdog.h"
-
-#include "mcu/msp430/inc/ee_sysclk.h"
-
-#include "mcu/msp430/inc/ee_delay.h"
+/* This function gives us a small busy-wait delay.
+ * Since the CPU is active during this busy wait, other methods should be used
+ * if lower power consumption is required.
+ */
+__INLINE__ void __ALWAYS_INLINE__ __delay_cycles(register unsigned int n)
+{
+    __asm__ __volatile__ (
+		"1: \n"
+		" dec	%[n] \n"
+		" jne	1b \n"
+        : [n] "+r"(n));
+}
 
 #endif

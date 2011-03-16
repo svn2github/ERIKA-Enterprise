@@ -298,6 +298,10 @@ extern "C" {
 #include "board/utmost/inc/ee_board.h"
 #endif
 
+#ifdef __MSP430_LAUNCHPAD__
+#include "board/msp430/launchpad/inc/ee_board.h"
+#endif
+
   /*
    *
    * Kernel

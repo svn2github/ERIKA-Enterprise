@@ -1,7 +1,7 @@
 /* ###*B*###
  * ERIKA Enterprise - a tiny RTOS for small microcontrollers
  *
- * Copyright (C) 2002-2010  Evidence Srl
+ * Copyright (C) 2011 Steve Langstaff
  *
  * This file is part of ERIKA Enterprise.
  *
@@ -39,23 +39,55 @@
  * ###*E*### */
 
 /*
- * Header file to include drivers header files needed.
- * Author: 2010,  Christian Grioli
- * Updates: 2011, Steve Langstaff
+ * Header file for system clock setting functions.
+ * Author: 2011, Steve Langstaff
  */
 
 
-#ifndef __INCLUDE_MSP430_MCU_H__
-#define __INCLUDE_MSP430_MCU_H__
+#ifndef __INCLUDE_MSP430_MCU_SYSCLK_H__
+#define __INCLUDE_MSP430_MCU_SYSCLK_H__
 
-#ifdef __USE_UART__
-#include "mcu/msp430/inc/ee_uart.h"
+/*
+ * We specify the clock rate in the function name so that we can check that
+ * the rate is supported at compile-time rather than run-time.
+ * The conditional compilation means that this function is only defined if
+ * the header file for the specific device variant has the relevant flash
+ * offsets defined.
+ *
+ * TODO: It seems that The ValueLine parts like those supplied with the
+ * LaunchPad development tool are calibrated for 1MHz operation but not
+ * other speeds - perhaps we should chop out the unsupported speeds somehow?
+ */
+#if (defined(CALBC1_1MHZ_) && defined(CALDCO_1MHZ_))
+__INLINE__ void __ALWAYS_INLINE__ EE_sysclk_init_1MHz(void)
+{
+    BCSCTL1 = CALBC1_1MHZ;
+    DCOCTL = CALDCO_1MHZ;
+}
 #endif
 
-#include "mcu/msp430/inc/ee_watchdog.h"
+#if (defined(CALBC1_8MHZ_) && defined(CALDCO_8MHZ_))
+__INLINE__ void __ALWAYS_INLINE__ EE_sysclk_init_8MHz(void)
+{
+    BCSCTL1 = CALBC1_8MHZ;
+    DCOCTL = CALDCO_8MHZ;
+}
+#endif
 
-#include "mcu/msp430/inc/ee_sysclk.h"
+#if (defined(CALBC1_12MHZ_) && defined(CALDCO_12MHZ_))
+__INLINE__ void __ALWAYS_INLINE__ EE_sysclk_init_12MHz(void)
+{
+    BCSCTL1 = CALBC1_12MHZ;
+    DCOCTL = CALDCO_12MHZ;
+}
+#endif
 
-#include "mcu/msp430/inc/ee_delay.h"
+#if (defined(CALBC1_16MHZ_) && defined(CALDCO_16MHZ_))
+__INLINE__ void __ALWAYS_INLINE__ EE_sysclk_init_16MHz(void)
+{
+    BCSCTL1 = CALBC1_16MHZ;
+    DCOCTL = CALDCO_16MHZ;
+}
+#endif
 
 #endif

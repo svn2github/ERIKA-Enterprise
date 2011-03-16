@@ -1,7 +1,7 @@
 /* ###*B*###
  * ERIKA Enterprise - a tiny RTOS for small microcontrollers
  *
- * Copyright (C) 2002-2010  Evidence Srl
+ * Copyright (C) 2011 Steve Langstaff
  *
  * This file is part of ERIKA Enterprise.
  *
@@ -38,24 +38,27 @@
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
 
+
 /*
- * Header file to include drivers header files needed.
- * Author: 2010,  Christian Grioli
- * Updates: 2011, Steve Langstaff
+ * Support for MSP430_LAUNCHPAD board.
+ * Author: 2011,  Steve Langstaff
+ *
  */
 
+#ifndef __INCLUDE_MSP430_LAUNCHPAD_EE_BOARD_H__
+#define __INCLUDE_MSP430_LAUNCHPAD_EE_BOARD_H__
 
-#ifndef __INCLUDE_MSP430_MCU_H__
-#define __INCLUDE_MSP430_MCU_H__
 
-#ifdef __USE_UART__
-#include "mcu/msp430/inc/ee_uart.h"
+/* /\************************************************************************* */
+/*  LEDs */
+/*  *************************************************************************\/ */
+
+#ifdef __USE_LEDS__
+#include "ee_led.h"
 #endif
 
-#include "mcu/msp430/inc/ee_watchdog.h"
-
-#include "mcu/msp430/inc/ee_sysclk.h"
-
-#include "mcu/msp430/inc/ee_delay.h"
-
+#ifdef __USE_BUTTONS__
+#include "ee_button.h"
 #endif
+
+#endif /* end ee_board.h*/
