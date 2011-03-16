@@ -120,11 +120,22 @@ TARGET= $(OUTPUT_DIR)/dumpMsp430.objdump
 
 OBJDIRS=$(sort $(dir $(OBJS)) $(dir $(LIBEEOBJS)) $(dir $(LIBOBJS)))
 
+# __RTD_MSP430__ is defined in the EE options by RT-Druid.
+# This sets up the compilation environment to build in:
+#     <project>/Debug
+# with source code and header files found either in:
+#     <project>/Debug or
+#     <project> 
+ifeq ($(call iseeopt, __RTD_MSP430__), yes)
+INCLUDE_PATH += $(PKGBASE) $(APPBASE) .
+vpath %.c $(EE_VPATH) $(APPBASE)
+vpath %.S $(EE_VPATH) $(APPBASE)
+else
 INCLUDE_PATH += $(PKGBASE) $(APPBASE) $(OUTPUT_DIR)
-
 # APPBASE is the current directory: not needed
 vpath %.c $(EE_VPATH) #$(APPBASE)
 vpath %.S $(EE_VPATH) #$(APPBASE)
+endif
 
 
 ##
