@@ -59,8 +59,6 @@ CPU test_application {
 			};
 		};
 		
-		EE_OPT = "__MSP430_CALIBRATED_1MHz__";
-		
 		/* TODO: make an MSP430_LAUNCHPAD board section handler */
 		EE_OPT = "__MSP430_LAUNCHPAD__";
 		
