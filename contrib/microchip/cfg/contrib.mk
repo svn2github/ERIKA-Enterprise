@@ -45,7 +45,7 @@
 ifneq ($(ONLY_LIBS) , TRUE)
 
 include $(EEBASE)/contrib/microchip/dee_emulation/cfg/cfg.mk
-
+include $(EEBASE)/contrib/microchip/mdd_filesystem/cfg/cfg.mk
 
 ifeq ($(call iseeopt, __USE_MCHP_TCPIP_531__), yes)
 include $(EEBASE)/contrib/microchip/tcpip_531/cfg/cfg.mk
@@ -68,6 +68,7 @@ endif
 ifeq ($(ENABLE_LIBS), TRUE)
 
 include $(EEBASE)/contrib/microchip/dee_emulation/cfg/libcfg.mk
+include $(EEBASE)/contrib/microchip/mdd_filesystem/cfg/libcfg.mk
 
 ifeq ($(call iseeopt, __USE_MCHP_TCPIP_531__), yes)
 include $(EEBASE)/contrib/microchip/tcpip_531/cfg/libcfg.mk
