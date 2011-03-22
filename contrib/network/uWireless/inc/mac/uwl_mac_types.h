@@ -68,6 +68,8 @@ enum uwl_mac_code_t {
 /* TODO complete this struc!!!! */
 enum uwl_mac_pib_id_t {
 	UWL_MAC_TODO,
+	UWL_MAC_COORD_SHORT_ADDRESS	= 0x4b,
+	UWL_MAC_PAN_ID				= 0x50,
 	UWL_MAC_SHORT_ADDRESS 		= 0x53,
 };
 

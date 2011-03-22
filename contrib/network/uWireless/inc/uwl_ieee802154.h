@@ -24,6 +24,8 @@
 #include <mac/uwl_mac.h>
 #elif 	defined UWL_USE_SIMPLE_802154
 #include <net/uwl_simple154.h>
+#elif 	defined LWP_USE_6LOWPAN
+#include <../../netInt/inc/net_int.h>
 #else
 #error "UWL IEEE 802.15.4: A valid API access method must be declared"
 #endif

@@ -223,4 +223,28 @@ int8_t uwl_MLME_ASSOCIATE_response(uwl_mac_dev_addr_extd_t DeviceAddress,
 	return 1;
 }
 
+int8_t uwl_MLME_GET_request(enum uwl_mac_pib_id_t PIBAttribute,
+	/*TODO: enough?*/   uint16_t PIBAttributeIndex)
+{
+	uint8_t status = UWL_MAC_SUCCESS;
+	void *value = NULL;
+
+	if (!uwl_mac_status.mac_initialized)
+		return -UWL_MAC_ERR_NOT_INITIALIZED;
+
+	switch (PIBAttribute) {
+	case UWL_MAC_SHORT_ADDRESS :
+		value = (void *) &(uwl_mac_pib.macShortAddress);
+		break;
+	case UWL_MAC_PAN_ID :
+		value =  (void *) &(uwl_mac_pib.macPANId);
+		break;
+	default:
+		status = UWL_MAC_UNSUPPORTED_ATTRIBUTE;
+		break;
+	}
+	uwl_MLME_GET_confirm(status, PIBAttribute, PIBAttributeIndex, value);
+	return UWL_MAC_ERR_NONE;
+}
+
 #endif /* UWL_RFD_DISABLE_OPTIONAL */
