@@ -129,10 +129,6 @@ vpath %.c $(EE_VPATH) #$(APPBASE)
 vpath %.S $(EE_VPATH) #$(APPBASE)
 
 
-# Linker scripts
-PLATFORM_LINK_SCRIPT=$(PLATFORM_MAKEFILES_DIR)/linker.ld
-LINK_SCRIPT=$(OUTPUT_DIR)/ee_linker.ld
-
 ifndef PLATFORM_BLD_CFG
 ifeq ($(call iseeeopt, DEBUG), yes)
 PLATFORM_BLD_CFG=Debug
@@ -150,10 +146,24 @@ PLATFORM_LIBRARY=$(PLATFORM_LIB_PATH)/$(PLATFORM_BLD_CFG)/$(PLATFORM_BLD_CFG)/li
 # Platform_rules.mk contains CPU configuration.
 include $(PLATFORM_MAKEFILES_DIR)/platform_rules.mk
 
+
+# Linker scripts (if not provided by the user)
+ifneq ($(call iseeopt, __USE_CUSTOM_LINKER_SCRIPT__), yes)
+PLATFORM_LINK_SCRIPT=$(PLATFORM_MAKEFILES_DIR)/linker.ld
+LINK_SCRIPT=$(OUTPUT_DIR)/ee_linker.ld
 # Remove the crt*.o files from the building process
 $(LINK_SCRIPT): $(PLATFORM_LINK_SCRIPT)
 	@echo "LOC"
 	$(QUIET) grep -v -E '^INPUT\(' $< > $@
+
+LINK_SCRIPT_OPT=-T $(LINK_SCRIPT)
+
+else # __USE_CUSTOM_LINKER_SCRIPT__
+LINK_SCRIPT=
+LINK_SCRIPT_OPT=
+
+endif # __USE_CUSTOM_LINKER_SCRIPT__
+
 
 # Add crt0 if not provided by the user
 ifneq ($(call iseeopt, __USE_CUSTOM_CRT0__), yes)
@@ -162,6 +172,7 @@ APP_SRCS0 := $(filter-out $(OUTPUT_DIR)/crt0ram.S, $(APP_SRCS))
 APP_SRCS = $(APP_SRCS0)
 APP_SRCS += $(CRT0_SRCS)
 endif # __USE_CUSTOM_CRT0__
+
 
 ##
 ## Main rules: all clean
@@ -188,7 +199,7 @@ $(TARGET): $(APP_OUTPUT_ELF)
 $(APP_OUTPUT_ELF): $(OBJS) $(PLATFORM_RULES_MAKEFILE) $(LINK_SCRIPT) \
  $(PLATFORM_LIBRARY) $(LIBDEP)
 	@echo LD
-	$(QUIET) $(EE_LINK) $(CPU_CONFIG) -T $(LINK_SCRIPT) -o $@ \
+	$(QUIET) $(EE_LINK) $(CPU_CONFIG) $(LINK_SCRIPT_OPT) -o $@ \
  $(OBJS) $(OPT_LIBS) $(PLATFORM_LIBRARY) -lm  $(C_LIB) -lgcc \
  $(PLATFORM_LIBRARY) -lnosys $(LDFLAGS)
 
