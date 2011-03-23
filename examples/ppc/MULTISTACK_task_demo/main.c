@@ -43,6 +43,7 @@
  */
 
 #include "ee.h"
+#include <cpu/e200zx/inc/ee_irq.h>
 #include "myapp.h"
 
 #define __USE_LEDS__
@@ -162,7 +163,7 @@ void timer_interrupt(void)
 }
 
 // MAIN function 
-int main()
+int main(void)
 { 
 	
   EE_assert(1, TRUE, EE_ASSERT_NIL);		
@@ -175,7 +176,7 @@ int main()
   StartOS(OSDEFAULTAPPMODE);
   
   EE_e200z7_enableIRQ();
-  EE_e200z7_register_ISR(10, timer_interrupt);
+  EE_e200z7_register_ISR(10, timer_interrupt, 0);
   EE_e200z7_setup_decrementer(500000);
 
   while(task1_fired==0);

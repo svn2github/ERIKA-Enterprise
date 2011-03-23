@@ -42,20 +42,26 @@ CPU test_application {
 
 	OS EE {
 		EE_OPT = "DEBUG";
-		EE_OPT = "NODEPS";
 		EE_OPT = "__ASSERT__";
+		EE_OPT = "__E200ZX_EXECUTE_FROM_RAM__";
 
 		CFLAGS = "-g2";
-//		ASFLAGS = "";
-//		LDFLAGS = ""; 
+		ASFLAGS = "";
+		LDFLAGS = ""; 
 
-		CPU_DATA = MPC5674F {
+		CPU_DATA = PPCE200ZX {
+			MODEL = E200Z7;
 			APP_SRC = "main.c";
 			MULTI_STACK = TRUE {
 				IRQ_STACK = TRUE {
 					SYS_SIZE=512;
 				};
 			};
+			VLE = TRUE;
+		};
+
+		MCU_DATA = PPCE200ZX {
+			MODEL = MPC5674F;
 		};
 
 		STATUS = EXTENDED;
@@ -71,7 +77,7 @@ CPU test_application {
         KERNEL_TYPE = ECC2;
 		
 		/* This generates the ORTI File used by lauterbach Trace32! */
-		//ORTI_SECTIONS = ALL;
+		ORTI_SECTIONS = ALL;
     };
 
     TASK Task1 {

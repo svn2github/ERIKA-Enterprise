@@ -237,7 +237,7 @@ void setup_interrupts(void)
 }
 
 // MAIN function 
-int main()
+int main(void)
 { 
   EE_assert(1, TRUE, EE_ASSERT_NIL);		
 	

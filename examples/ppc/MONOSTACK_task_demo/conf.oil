@@ -2,14 +2,20 @@ CPU test_application {
 
 	OS EE {
 		EE_OPT = "DEBUG";
-		EE_OPT = "NODEPS";
 		EE_OPT = "__ASSERT__";
 		EE_OPT = "__USE_LEDS__";
 		EE_OPT = "__USE_BUTTONS__";
+		EE_OPT = "__E200ZX_EXECUTE_FROM_RAM__";
 
-		CPU_DATA = MPC5674F {
+		CPU_DATA = PPCE200ZX {
+			MODEL = E200Z7;
 			APP_SRC = "main.c";
 			MULTI_STACK = FALSE;
+			VLE = TRUE;
+		};
+
+		MCU_DATA = PPCE200ZX {
+			MODEL = MPC5674F;
 		};
 		
 		STATUS = EXTENDED;
@@ -22,7 +28,7 @@ CPU test_application {
 		USEPARAMETERACCESS = FALSE;
 		USERESSCHEDULER = FALSE;
 		
-//		ORTI_SECTIONS = ALL;
+		ORTI_SECTIONS = ALL;
     };
 
 	/* this is the OIL part for the task displaying the christmas tree */
