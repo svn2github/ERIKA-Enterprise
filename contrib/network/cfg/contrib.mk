@@ -48,13 +48,6 @@
 ifneq ($(ONLY_LIBS) , TRUE)
 
 include $(EEBASE)/contrib/network/uWireless/cfg/cfg.mk
-#ifdef LWP_USE_6LOWPAN
-include $(EEBASE)/contrib/network/netInt/cfg/cfg.mk
-include $(EEBASE)/contrib/network/6lowpan/cfg/cfg.mk
-#endif
-#ifdef LWP_USE_COAP
-include $(EEBASE)/contrib/network/coap/cfg/cfg.mk
-#endif
 endif
 
 
@@ -62,11 +55,4 @@ endif
 ifeq ($(ENABLE_LIBS), TRUE)
 
 include $(EEBASE)/contrib/network/uWireless/cfg/libcfg.mk
-#ifdef LWP_USE_6LOWPAN
-include $(EEBASE)/contrib/network/netInt/cfg/libcfg.mk
-include $(EEBASE)/contrib/network/6lowpan/cfg/libcfg.mk
-#endif
-#ifdef LWP_USE_COAP
-include $(EEBASE)/contrib/network/coap/cfg/libcfg.mk
-#endif
 endif
