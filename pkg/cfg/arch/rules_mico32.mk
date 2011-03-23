@@ -165,11 +165,11 @@ LINK_SCRIPT_OPT=
 endif # __USE_CUSTOM_LINKER_SCRIPT__
 
 
-# Add crt0 if not provided by the user
-ifneq ($(call iseeopt, __USE_CUSTOM_CRT0__), yes)
-# First, remove the file added by old RT-Druid versions
+# First, remove the crt0 added by old RT-Druid versions
 APP_SRCS0 := $(filter-out $(OUTPUT_DIR)/crt0ram.S, $(APP_SRCS))
 APP_SRCS = $(APP_SRCS0)
+# Add crt0 if not provided by the user
+ifneq ($(call iseeopt, __USE_CUSTOM_CRT0__), yes)
 APP_SRCS += $(CRT0_SRCS)
 endif # __USE_CUSTOM_CRT0__
 
