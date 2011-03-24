@@ -1041,7 +1041,7 @@
  		<GUI Name="BASE_ADDRESS" Span="1" Widget="Text"/>
 		<GUI Name="SPEED" Span="1" Widget="Combo"/>
 	</GUIS>
-</Component><Component Access="" Custom="true" DRCError="false" Help="" Name="camera" PlatformScheme="Slave Side - Round Robin" Text="camera" Type="IO" Ver="v.0.995">
+</Component><Component Access="" Custom="true" DRCError="false" Help="" Name="camera" PlatformScheme="Slave Side - Round Robin" Text="camera" Type="IO" Ver="v.0.999">
   
   <ClockPort Name="CLK_I" UPort="w_clk"/>
   <ResetPort Name="RST_I" UPort="w_reset"/>
@@ -1059,11 +1059,11 @@
     <TopFile Name="camera_component"/>
     <File Name="../components/camera/rtl/verilog/camera.v"/>
     <File Name="../components/camera/rtl/verilog/comp_master.v"/>
+    <File Name="../components/camera/rtl/verilog/comp_camera_interface.v"/>
     <File Name="../components/camera/rtl/verilog/comp_slave.v"/>
     <File Name="../components/camera/rtl/verilog/mico_camera.v"/>
     <File Name="../components/camera/rtl/verilog/data_build.v"/>
     <File Name="../components/camera/rtl/verilog/comp_fsm.v"/>
-    <File Name="../components/camera/rtl/verilog/comp_camera_interface.v"/>
     <File Name="../components/camera/rtl/verilog/fifo_comp.v"/>
   </Files>
   <DeviceDriver InitRoutine="" StructName="">
