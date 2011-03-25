@@ -1,7 +1,7 @@
 # ###*B*###
 # ERIKA Enterprise - a tiny RTOS for small microcontrollers
 # 
-# Copyright (C) 2002-2010  Evidence Srl
+# Copyright (C) 2002-2011  Evidence Srl
 # 
 # This file is part of ERIKA Enterprise.
 # 
@@ -39,8 +39,11 @@
 # ###*E*###
 
 ## Variables for the GCC suite for Lattice Mico32
-## Author: 2010,  Bernardo  Dal Seno
+## Author: 2010-2011,  Bernardo  Dal Seno
 ## Based on cc_pic30.mk and on Lattice Mico32 documentation
+
+# Override native_path on Windows, as the compiler is a Cygwin application
+native_path = $1
 
 EE_CC = lm32-elf-gcc
 EE_DEP = lm32-elf-gcc
