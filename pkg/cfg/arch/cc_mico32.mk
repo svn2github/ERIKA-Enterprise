@@ -61,7 +61,7 @@ CPPFLAGS += $(DEFS_CC) $(addprefix -I, $(INCLUDE_PATH))
 LDFLAGS +=-Wl,--gc-sections
 DEFS_GCCASM := $(addprefix -D,$(EEOPT))
 DEFS_CC := $(addprefix -D,$(EEOPT))
-EE_AR = $(AR)
+EE_AR = lm32-elf-ar
 
 # Dependenciese are always generated, as they cost negligible time
 DEPENDENCY_OPT = -MMD -MF $(subst .o,.d_tmp,$@) -MP -MT $@

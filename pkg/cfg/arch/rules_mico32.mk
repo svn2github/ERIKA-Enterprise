@@ -230,7 +230,7 @@ $(OBJDIR)/%.o: %.S
 
 $(ERIKALIB): $(LIBEEOBJS)
 	@echo "AR    $(notdir $@)"
-	$(QUIET)$(AR) $(ARFLAGS) $@ $^ $(VERBOSE_DEVNULL)
+	$(QUIET)$(EE_AR) $(ARFLAGS) $@ $^ $(VERBOSE_DEVNULL)
 
 
 ##
