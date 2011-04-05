@@ -45,6 +45,12 @@ if [ $1 = "GCC" ]; then
 	exit
     fi
 
+    if test -d "${PROGRAMFILES}\Microchip\mplabc30\v3.25"; then
+	printf "...Using ${PROGRAMFILES}\\Microchip\\mplabc30\\v3.25\n" 1>&2
+	cygpath `cygpath -ms "${PROGRAMFILES}\Microchip\mplabc30\v3.25"`
+	exit
+    fi
+
     if test -d "c:\Program Files\Microchip\MPLAB C30"; then
 	printf "...Using c:\\Program Files\\Microchip\\MPLAB C30\n" 1>&2
 	cygpath `cygpath -ms "c:\Program Files\Microchip\MPLAB C30"`
