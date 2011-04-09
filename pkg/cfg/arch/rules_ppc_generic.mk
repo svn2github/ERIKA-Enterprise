@@ -96,7 +96,7 @@ ifneq ($(ONLY_LIBS), TRUE)
 # OPT_LIBS is used to link additional libraries (e.g., for C++ support)
 ifneq ($(call iseeopt, __BIN_DISTR), yes)
 # the EE library is built in the current directory
-OPT_LIBS +=  -L . -lee
+OPT_LIBS +=  -L. -lee
 LIBDEP = libee.a
 else
 OPT_LIBS += -L $(EEBASE)/lib -lee_$(EELIB)
@@ -114,6 +114,7 @@ LIBDEP += $(LDDEPS)
 ifneq ($(call iseeopt, __BUILD_LIBS__), yes)
 TARGET:=ppc.elf
 endif
+MAP_FILE = ppc.map
 
 include $(wildcard $(PKGBASE)/cfg/cfg.mk)
 
@@ -136,7 +137,7 @@ SRCS += $(EE_BOOT_SRCS)
 endif
 
 CRT0 := $(addprefix $(OBJDIR)/, $(patsubst %.c,%.o,$(patsubst %.S,%.o, $(CRT0_SRCS))))
-OPT_CRT0 := -L $(dir $(CRT0)) -l:$(notdir $(CRT0))
+OPT_CRT0 := $(CRT0)
 
 LIBEESRCS += $(EE_SRCS)
 LIBEEOBJS := $(addprefix $(OBJDIR)/, $(patsubst %.c,%.o,$(patsubst %.S,%.o,$(LIBEESRCS))))
@@ -230,7 +231,7 @@ orti.men: system.orti
 $(TARGET): $(CRT0) $(OBJS) $(LINKDEP) $(LIBDEP)
 	@printf "LD\n";
 	$(QUIET)$(EE_LINK) $(COMPUTED_OPT_LINK)				\
-		-o $(TARGETFILE) $(OPT_CRT0) $(OBJS) $(OPT_LIBS) -lc -m > ppc.map
+		-o $(TARGETFILE) $(OPT_CRT0) $(OBJS) $(OPT_LIBS) $(MAP_OPT)
 	@echo
 	@echo "Compilation terminated successfully"
 	@echo
@@ -240,8 +241,12 @@ $(TARGET): $(CRT0) $(OBJS) $(LINKDEP) $(LIBDEP)
 ##
 
 $(OBJDIR)/%.o: %.S
+ifdef PREPROC_ASM_2_PASS
 	$(VERBOSE_PRINTPRE)	$(EE_CC)  $(COMPUTED_OPT_INCLUDE) $(DEFS_ASM) $(DEPENDENCY_OPT) -E $(SOURCEFILE) > $(SRCFILE)
 	$(VERBOSE_PRINTASM)	$(EE_ASM) $(COMPUTED_OPT_ASM) -o $(TARGETFILE) $(SRCFILE)
+else
+	$(VERBOSE_PRINTASM)	$(EE_ASM) $(COMPUTED_OPT_INCLUDE) $(DEFS_ASM) $(DEPENDENCY_OPT) $(COMPUTED_OPT_ASM) -o $(TARGETFILE) $(SOURCEFILE)
+endif
 	$(QUIET) $(call make-depend, $<, $@, $(subst .o,.d,$@))
 
 $(OBJDIR)/%.o: %.c
@@ -263,7 +268,7 @@ $(LINK_SCRIPT): $(PKGBASE)/mcu/freescale_$(PPC_MCU_MODEL)/cfg/$(DLD)
 
 libee.a: $(LIBEEOBJS)
 	@printf "AR  libee.a\n" ;
-	$(QUIET)$(EE_AR) rs libee.a $(LIBEEOBJS)
+	$(QUIET)$(EE_AR) $(OPT_AR) libee.a $(LIBEEOBJS)
 
 ##
 ## Automatic Generation of dependencies

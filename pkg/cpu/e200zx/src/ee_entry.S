@@ -45,9 +45,9 @@
 
 	.text
 
-	.set noreorder
-
 #include <cpu/e200zx/inc/ee_regs.h>
+
+	ASM_REORDER_OFF
 
 set_ivor: .macro n,label
 	li	r0, 0
@@ -57,7 +57,7 @@ set_ivor: .macro n,label
 
 
 vector: .macro label,handler
-	.align	E200ZX_IRQ_ENTRY_ALIGN
+	.balign	E200ZX_IRQ_ENTRY_ALIGN
 	.type	label, @function
 label:
 	addi	sp, sp, -80
@@ -178,7 +178,7 @@ __empty_handler:
 	.size	__empty_handler, .-__empty_handler
 
 
-	.align	E200ZX_IRQ_VECTOR_BASE_ALIGN
+	.balign	E200ZX_IRQ_VECTOR_BASE_ALIGN
 vector_base:
 vector critical_input, __empty_handler
 vector machine_check, __empty_handler
@@ -289,7 +289,7 @@ cpu_setup:
 
 
 
-	.section ".boot"
+	.section .boot
 
 	.set TLB_0_MAS_0, 0x10050000
 	.set TLB_0_MAS_1, 0xc0000700

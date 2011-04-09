@@ -6,6 +6,11 @@ CPU test_application {
 		EE_OPT = "__USE_LEDS__";
 		EE_OPT = "__USE_BUTTONS__";
 		EE_OPT = "__E200ZX_EXECUTE_FROM_RAM__";
+		//EE_OPT = "__CODEWARRIOR__";
+
+		CFLAGS = "";
+		ASFLAGS = "";
+		LDFLAGS = "";
 
 		CPU_DATA = PPCE200ZX {
 			MODEL = E200Z7;

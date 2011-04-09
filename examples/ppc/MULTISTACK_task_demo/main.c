@@ -151,7 +151,7 @@ TASK(Task2)
   TerminateTask();
 }
  
-void timer_interrupt(void)
+static void timer_interrupt(void)
 {
 	ActivateTask(Task1);
 	timer_fired++;

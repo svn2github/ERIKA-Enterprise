@@ -53,6 +53,8 @@
 #include "cpu/common/inc/ee_compiler_gcc.h"
 #elif defined (__DCC__)
 #include "cpu/common/inc/ee_compiler_diab.h"
+#elif defined (__CWCC__)
+#include "cpu/common/inc/ee_compiler_codewarrior.h"
 #else
 #error Unsupported compiler
 #endif

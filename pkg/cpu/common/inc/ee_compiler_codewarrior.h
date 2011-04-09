@@ -37,59 +37,37 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
+
 /*
- * e200zX register mappings.
- * Author: 2010 Fabio Checconi
+ * Compiler-dependent definitions for Freescale CodeWarrior compiler
+ * Author: 2011 Bernardo DalSeno
  */
 
-#ifndef __EE_CPU_E200ZX_REGS_H__
-#define __EE_CPU_E200ZX_REGS_H__
+/* This file MUST contain only #defines, because it is also included
+   by the .S files */
 
-#ifdef __DCC__
-#define ASM_REORDER_OFF .set noreorder
-#define ASM_REORDER_ON .set reorder
+/*
+ * Compiler dependent interface
+ */
+
+#ifndef __INCLUDE_CPU_COMMON_EE_COMPILER_CODEWARRIOR__
+#define __INCLUDE_CPU_COMMON_EE_COMPILER_CODEWARRIOR__
+
+#ifdef __NO_INLINE__
+#define __INLINE__ static
+/* Used to declare an inline function before the actual definition */
+#define __DECLARE_INLINE__ static
 #else
-#define ASM_REORDER_OFF
-#define ASM_REORDER_ON
+#define __INLINE__ static inline
+/* Used to declare an inline function before the actual definition */
+#define __DECLARE_INLINE__ static inline
 #endif
 
-#ifdef __MWERKS__ /* CodeWarrior Assembly uses this deprecated macro */
-/* CodeWarrior doesn't recognize lower-case "sp" */
-#define sp r1
-#endif
+#define __ALWAYS_INLINE__
 
-#define SPRG_XER	1
-#define SPRG_LR		8
-#define SPRG_CTR	9
-#define SPRG_SRR0	26
-#define SPRG_SRR1	27
+#define NORETURN
 
-#define SPRG_IVOR_BASE	400
-#define SPRG_IVPR	63
+#define EE_COMPILER_ALIGN(a) __attribute__((aligned(a)))
+#define EE_COMPILER_SECTION(s) __declspec(section s)
 
-#define SPRG_DEC	22
-#define SPRG_DECAR	54
-#define SPRG_TBL_W	284
-#define SPRG_TBH_W	285
-#define SPRG_TCR	340
-#define SPRG_TSR	336
-
-#define SPRG_HID0	1008
-
-#define TCR_DIE		26
-#define TCR_ARE		22
-
-#define TSR_DIS		27
-
-#define HID0_TBEN	14
-
-
-/* IRQ vector  */
-
-/* This is copied from ee_cpu.h */
-#define EE_E200ZX_MAX_CPU_EXCP 16
-
-#define E200ZX_IRQ_VECTOR_BASE_ALIGN	E200ZX_IRQ_ENTRY_ALIGN
-#define E200ZX_IRQ_ENTRY_ALIGN	16
-
-#endif /* __EE_CPU_E200ZX_REGS_H__ */
+#endif /* __INCLUDE_CPU_COMMON_EE_COMPILER_CODEWARRIOR__ */

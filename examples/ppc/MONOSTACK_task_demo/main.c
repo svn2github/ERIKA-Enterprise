@@ -212,7 +212,7 @@ TASK(Task2)
   TerminateTask();
 }
  
-void Buttons_Interrupt(void)
+static void Buttons_Interrupt(void)
 {
   EE_buttons_disable_interrupts(BUTTON_0);
   button_fired++;
@@ -222,13 +222,13 @@ void Buttons_Interrupt(void)
   EE_buttons_clear_ISRflag(BUTTON_0);
 }
 
-void Counter_Interrupt(void)
+static void Counter_Interrupt(void)
 {
   timer_fired++;
   ActivateTask(Task1);
 }
 
-void setup_interrupts(void)
+static void setup_interrupts(void)
 {
   EE_e200z7_register_ISR(46 + 16, Buttons_Interrupt, 1);
   EE_e200z7_register_ISR(10, Counter_Interrupt, 0);

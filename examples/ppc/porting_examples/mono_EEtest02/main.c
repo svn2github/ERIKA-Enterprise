@@ -64,6 +64,8 @@ EE_TYPEASSERTVALUE result;
 /* Assertion */
 EE_TYPEASSERTVALUE EE_assertions[9];
 
+DeclareTask(Task1);
+
 
 /*
  * Task 1
@@ -81,7 +83,7 @@ TASK(Task1)
 /*
  * Interrupt handler for the timer
  */
-void timer_interrupt(void)
+static void timer_interrupt(void)
 {
     ++tick_counter;
     if (tick_counter & 1)
@@ -106,13 +108,14 @@ void timer_interrupt(void)
 /*
  * Low-level initialization of the timer
  */
-void init_timer(void)
+static void init_timer(void)
 {
 	EE_e200z7_register_ISR(10, timer_interrupt, 0);
 	EE_e200z7_setup_decrementer(500000);
 }
 
 extern void system_call(void);
+
 
 /*
  * MAIN TASK

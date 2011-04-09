@@ -55,6 +55,9 @@ volatile int counter1, counter1post, counter2;
 /* started: Set to 1 at the beginning of main() */
 int started;
 
+DeclareTask(Task1);
+DeclareTask(Task2);
+
 
 /*
  * Task 1

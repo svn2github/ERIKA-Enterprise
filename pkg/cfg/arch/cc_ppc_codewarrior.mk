@@ -1,7 +1,7 @@
 # ###*B*###
 # ERIKA Enterprise - a tiny RTOS for small microcontrollers
 
-# Copyright (C) 2002-2010  Evidence Srl
+# Copyright (C) 2002-2011  Evidence Srl
 
 # This file is part of ERIKA Enterprise.
 
@@ -39,73 +39,94 @@
 # ###*E*###
 
 ##
-## DCC for PPC
-## Author: 2010 Fabio Checconi
-## 2010 Bernardo  Dal Seno
+## Freescale (CodeWarrior) compiler for PPC
+## Author: 2011 Bernardo  Dal Seno
 ##
 
 # BINDIR is the directory of assembler, compiler, linker...
-BINDIR =
+MCUToolsBaseDirEnv ?= $(PPC_CW_BASEDIR)
+CW_SUPPORTDIR = $(MCUToolsBaseDirEnv)/PA_Support
+ifeq ($(call iseeopt, __RTD_CYGWIN__), yes)
+CW_TOOLSDIR = $(MCUToolsBaseDirEnv)/PowerPC_EABI_Tools
+else # RTD_CYGWIN
+CW_TOOLSDIR = $(MCUToolsBaseDirEnv)/PA_Tools
+endif # else RTD_CYGWIN
+BINDIR = $(CW_TOOLSDIR)/Command_Line_Tools/
+MWCIncludes ?= $(CW_SUPPORTDIR)/ewl/EWL_C/include
+MWLibraries ?= $(CW_SUPPORTDIR)/ewl/lib
+ifeq ($(call iseeopt, __PPCE200Z0__), yes)
+MW_LIB_FLAVOR = _E200z0_VLE
+else
+ifeq ($(or $(call iseeopt, __PPCE200Z6__), $(call iseeopt, __PPCE200Z7__)), yes)
+MW_LIB_FLAVOR = _E200z650
+endif
+ifndef MW_LIB_FLAVOR
+$(error CPU unsupported by know CodeWarrior libraries)
+endif
+ifeq ($(call iseeopt, __VLE__), yes)
+MW_LIB_FLAVOR := $(MW_LIB_FLAVOR)_VLE
+endif
+endif # PPCE200Z0
+# Apparently, libc_XXX works on Windows, librt_XXX on Linux
+ifeq ($(call iseeopt, __RTD_CYGWIN__), yes)
+MW_LIBS = $(addsuffix $(MW_LIB_FLAVOR), c m)
+else
+MW_LIBS = $(addsuffix $(MW_LIB_FLAVOR), rt m)
+endif
+
 
 # Compilers
-EE_LINK ?= dld
-EE_ASM ?= das
-EE_CC ?= dcc
-EE_AR ?= dar
+EE_LINK = $(BINDIR)mwldeppc
+EE_ASM = $(BINDIR)mwasmeppc
+EE_CC = $(BINDIR)mwcceppc
+EE_AR = $(EE_LINK)
 
-
+INCLUDE_PATH += $(MWCIncludes)
 OPT_INCLUDE = $(foreach d,$(INCLUDE_PATH),$(addprefix -I,$(call native_path,$d)))
 
-ifndef PPC_ARCH
+OPT_TARGET := -proc Zen
+# Defaults:
+# -abi eabi -model absolute -fp soft -big
 ifeq ($(call iseeopt, __VLE__), yes)
-PPC_ARCH = PPC5534VEF:simple
+VLE_OPT = -vle
+OPT_CC += -ppc_asm_to_vle
 else
-PPC_ARCH = PPCE200Z6NES:simple
+VLE_OPT =
 endif
-endif # PPC_ARCH
-OPT_TARGET := -t $(PPC_ARCH)
 
-## OPT_CC are the options for compiler invocation
-# -Xstruct-arg-warning: warn if a structure too big is passed by value
-# -Xkeywords=4: enable the inline keyword
-OPT_CC = -Xlicense-wait -Xstderr-fully-buffered -Xbss-common-off	\
-	-Xeieio -g3 -Xdebug-dwarf1 -XO -Xsavefpr-avoid \
-	-Xsmall-data=8 -Xswitch-table=0 -Xinline=40 -Xsmall-const=0 \
-	-Xenum-is-best -Xunroll=4 -Xunroll-size=5 -Xsize-opt -Xsemi-is-comment \
-	-Xstop-on-warning -Xkeywords=4 -c $(CFLAGS) \
-	-Xforce-prototypes $(OPT_TARGET)
-
-
-ifneq ($(call iseeopt, __BIN_DISTR), yes)
-ifeq ($(call iseeopt, DEBUG), yes)
-OPT_CC += -g
-endif
-endif
+## Candidate OPT_CC
+OPT_CC = $(CFLAGS) $(OPT_TARGET) $(VLE_OPT) -use_lmw_stmw on -RTTI off \
+ -Cpp_exceptions off -flag require_prototypes -msgstyle gcc -gccinc \
+ -char unsigned -nostdinc -rostr -O4 -ipa file -inline on,auto -schedule on \
+ -pragma "section RW \".stack\" \".ustack\""
 
 ## OPT_ASM are the options for asm invocation
-OPT_ASM = $(OPT_TARGET)
-
-ifneq ($(call iseeopt, __BIN_DISTR), yes)
-ifeq ($(call iseeopt, DEBUG), yes)
-OPT_ASM += -g
-endif
-endif
+OPT_ASM += $(OPT_TARGET) $(VLE_OPT) -msgstyle gcc -gccinc -gnu_mode
 
 # OPT_LINK represents the options for ld invocation
-LINK_SCRIPT = loc_diab.dld
-OPT_LINK += $(OPT_TARGET)
-OPT_LINK += $(LINK_SCRIPT) -e __start -lc
+LINK_SCRIPT = loc_codewarrior.lcf
+OPT_LINK += $(OPT_TARGET) -L$(call native_path,$(MWLibraries))
+OPT_LINK += $(addprefix -l, $(MW_LIBS))
+OPT_LINK += -lcf $(LINK_SCRIPT) -msgstyle gcc -nostdlib -char unsigned
 LINKDEP = $(LINK_SCRIPT)
-MAP_OPT = -m > $(MAP_FILE)
+MAP_OPT = -map $(native_path $(MAP_FILE))
 
 ifeq ($(call iseeopt, __DEFAULT_LD_SCRIPT__), yes)
 $(error "EEOPT __DEFAULT_LD_SCRIPT__ not supported")
 endif
 
-# OPT_AR: options for library generation
-OPT_AR = rs
+ifneq ($(call iseeopt, __BIN_DISTR), yes)
+ifeq ($(call iseeopt, DEBUG), yes)
+OPT_CC += -g
+OPT_ASM += -g
+OPT_LINK += -g
+endif
+endif
 
-PREPROC_ASM_2_PASS = 1
+
+# OPT_AR: options for library generation
+OPT_AR = -library -o
+
 DEFS_ASM = $(addprefix -D, $(EEOPT) )
 DEFS_CC  = $(addprefix -D, $(EEOPT) )
 
@@ -116,12 +137,13 @@ make-depend =
 else # NODEPS
 ifeq ($(call iseeopt, __RTD_CYGWIN__), yes)
 # Create dependency for all headers, and add a target for each header
-DEPENDENCY_OPT = -Xmake-dependency=d -Xmake-dependency-target=$@ -Xmake-dependency-savefile=$(call native_path,$(subst .o,.d_tmp,$@))
+DEPENDENCY_OPT = -MDfile $(call native_path,$(subst .o,.d_tmp,$@))
 # Dependencies on Windows need path translation
 make-depend = sed -e 's_\\\(.\)_/\1_g' -e 's_\<\([a-zA-Z]\):/_/cygdrive/\l\1/_g' < $3_tmp > $3 && rm $3_tmp
 else # __RTD_CYGWIN__
 # Create dependency for all headers, and add a target for each header
-DEPENDENCY_OPT = -Xmake-dependency=d -Xmake-dependency-target=$@ -Xmake-dependency-savefile=$(subst .o,.d_tmp,$@)
+DEPENDENCY_OPT = -MDfile $(subst .o,.d_tmp,$@)
+#-gccdep ??
 make-depend = mv $3_tmp $3
 endif # __RTD_CYGWIN__
 endif # NODEPS

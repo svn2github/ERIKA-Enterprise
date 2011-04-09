@@ -44,8 +44,9 @@ CPU test_application {
 		EE_OPT = "DEBUG";
 		EE_OPT = "__ASSERT__";
 		EE_OPT = "__E200ZX_EXECUTE_FROM_RAM__";
+		//EE_OPT = "__CODEWARRIOR__";
 
-		CFLAGS = "-g2";
+		CFLAGS = "";
 		ASFLAGS = "";
 		LDFLAGS = ""; 
 

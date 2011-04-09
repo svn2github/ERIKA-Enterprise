@@ -97,7 +97,7 @@ void led_blink(unsigned char theled)
 }
 
 /* BUTTON_0 interrupts activate Task2. */
-void Buttons_Interrupt(void)
+static void Buttons_Interrupt(void)
 {
   EE_buttons_disable_interrupts(BUTTON_0);
   button_fired++;
@@ -112,7 +112,7 @@ void Buttons_Interrupt(void)
   EE_buttons_clear_ISRflag(BUTTON_0);
 }
 
-void Counter_Interrupt(void)
+static void Counter_Interrupt(void)
 {
   timer_fired++;
   CounterTick(Counter1);

@@ -43,9 +43,10 @@
  */
 
 #include <eecfg.h>
+#include <cpu/e200zx/inc/ee_regs.h>
 #include <mcu/freescale_mpc5674f/inc/ee_regs_asm.h>
 
-	.section ".boot"
+	.section .boot
 
 	.extern	_load_ram, _sdata, _sbss, _ebss, sram_setup
 
@@ -124,8 +125,8 @@ __start:
 	.size	__start, .-__start
 
 
-	.section ".stack"
-	.align 4
+	.section .stack
+	.balign 16
 
 #ifndef EE_SYS_STACK_SIZE
 #define EE_SYS_STACK_SIZE	512
@@ -133,7 +134,7 @@ __start:
 	.space	EE_SYS_STACK_SIZE-16
 
 	.global _stack0
-	.align 4
+	.balign 16
 _stack0:
 	.space	16
 

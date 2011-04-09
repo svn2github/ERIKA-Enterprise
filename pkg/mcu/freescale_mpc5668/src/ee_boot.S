@@ -43,9 +43,10 @@
  */
 
 #include <eecfg.h>
+#include <cpu/e200zx/inc/ee_regs.h>
 #include <mcu/freescale_mpc5668/inc/ee_regs_asm.h>
 
-	.section ".boot"
+	.section .boot
 
 	.extern	_load_ram, _sdata, _sbss, _ebss, sram_setup
 
@@ -212,7 +213,7 @@ flash_setup:
 	.size	flash_setup, .-flash_setup
 
 #ifndef __E200ZX_EXECUTE_FROM_RAM__
-	.section ".sram_text"
+	.section .sram_text
 	.type	sram_code, @function
 sram_code:
 	addis	r8, 0, FLASH_BIUCR@ha
@@ -227,8 +228,8 @@ sram_code:
 #endif /* __E200ZX_EXECUTE_FROM_RAM__ */	
 
 	
-	.section ".stack"
-	.align 4
+	.section .stack
+	.balign 16
 
 #ifndef EE_SYS_STACK_SIZE
 #define EE_SYS_STACK_SIZE	512
@@ -236,7 +237,7 @@ sram_code:
 	.space	EE_SYS_STACK_SIZE-16
 
 	.global _stack0
-	.align 4
+	.balign 16
 _stack0:
 	.space	16
 

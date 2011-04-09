@@ -67,9 +67,13 @@ include $(PKGBASE)/cfg/arch/cc_ppcgnu.mk
 endif
 
 ifeq ($(or $(call iseeopt, __PPCE200ZX__), $(call iseeopt, __PPCE200Z7__)), yes)
+ifeq ($(call iseeopt, __CODEWARRIOR__), yes)
+include $(PKGBASE)/cfg/arch/cc_ppc_codewarrior.mk
+else # CODEWARRIOR
 ifeq ($(call iseeopt, __DIAB__), yes)
 include $(PKGBASE)/cfg/arch/cc_ppc_diab.mk
-endif
+endif # DIAB
+endif # CODEWARRIOR
 endif # PPCE200ZX
 
 ifeq ($(call iseeopt, __PIC30__), yes)
