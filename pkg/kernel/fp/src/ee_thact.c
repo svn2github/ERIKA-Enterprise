@@ -45,6 +45,7 @@
  */
 
 #include "ee_internal.h"
+#include "../inc/ee_kernel.h"
 
 #ifndef __PRIVATE_ACTIVATETASK__
 

@@ -44,6 +44,7 @@
  */
 
 #include "ee_internal.h"
+#include "../inc/ee_kernel.h"
 
 #ifndef __PRIVATE_GETRESOURCE__
 void EE_fp_GetResource(EE_TYPERESOURCE m)
