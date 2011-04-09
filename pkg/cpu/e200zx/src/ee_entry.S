@@ -38,7 +38,7 @@
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
 /*
- * Entry points for the e200zX CPUs.
+ * Exception entry points and hardware setup for the e200zX CPUs.
  * Author: 2010 Fabio Checconi
  *         2011 Bernardo  Dal Seno
  */
@@ -355,3 +355,31 @@ mmu_setup:
 
 	blr
 	.size	mmu_setup, .-mmu_setup
+
+
+
+#define RAM_BASE	0x40000000
+#define RAM_LEN		0x00040000
+
+	.global	sram_setup
+	.type	sram_setup, @function
+sram_setup:
+#ifndef __E200ZX_EXECUTE_FROM_RAM__
+	addis	r8, 0, RAM_BASE@ha
+	addi	r8, r8, RAM_BASE@l
+	addis	r9, 0, (RAM_LEN / 16)@ha
+	addi	r9, r9, (RAM_LEN / 16)@l
+	mtctr	r9
+	li	r31, 0
+	li	r30, 0
+	li	r29, 0
+	li	r28, 0
+1:
+	/* ECC SRAM must be initialized with 64-bit writes, hence stmw;
+	 * 16-btye alignment should work always */
+	stmw	r28, 0(r8)
+	addi	r8, r8, 16
+	bdnz	1b
+#endif
+	blr
+	.size	sram_setup, .-sram_setup

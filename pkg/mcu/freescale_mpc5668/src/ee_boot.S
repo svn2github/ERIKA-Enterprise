@@ -47,16 +47,21 @@
 
 	.section ".boot"
 
-	.extern	_load_ram, _sdata, _sbss, _ebss
+	.extern	_load_ram, _sdata, _sbss, _ebss, sram_setup
 
-	.long	0			/* leave room for the BAM data */
-	.long	0
+#ifdef __VLE__
+#define BAM_RCHW 0x15a0000
+#else
+#define BAM_RCHW 0x05a0000
+#endif
+	.long	BAM_RCHW		/* BAM data */
+	.long	__start
 
 	.global	__start
 	.type	__start, @function
 __start:
 	bl	mmu_setup
-	/* bl	sram_setup */
+	bl	sram_setup
 	/* bl	pll_setup */
 
 	addis	r8, 0, _stack0@ha	/* setup the stack pointer */
@@ -121,26 +126,6 @@ __start:
 	b	1b
 	.size	__start, .-__start
 
-#define RAM_BASE	0x40000000
-#define RAM_WORDS	0x00010000
-
-	.type	sram_setup, @function
-sram_setup:
-#ifndef __E200ZX_EXECUTE_FROM_RAM__
-	addis	r8, 0, RAM_BASE@ha
-	addi	r8, r8, RAM_BASE@l
-	addis	r9, 0, RAM_WORDS@ha
-	addi	r9, r9, RAM_WORDS@l
-	mtctr	r9
-
-1:
-	stw	r0, (r8)
-	addi	r8, r8,  4
-	bdnz	1b
-#endif
-
-	blr
-	.size	sram_setup, .-sram_setup
 
 #define FMPLL_BASE		0xc3f80000
 #define FMPLL_ESYNSR		0xc3f80004
