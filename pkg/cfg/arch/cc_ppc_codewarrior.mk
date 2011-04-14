@@ -108,6 +108,11 @@ LINK_SCRIPT = loc_codewarrior.lcf
 OPT_LINK += $(OPT_TARGET) -L$(call native_path,$(MWLibraries))
 OPT_LINK += $(addprefix -l, $(MW_LIBS))
 OPT_LINK += -lcf $(LINK_SCRIPT) -msgstyle gcc -nostdlib -char unsigned
+ifneq ($(call iseeopt, __E200ZX_EXECUTE_FROM_RAM__), yes)
+# Here we assume that ROM is always at address 0.  Maybe it's too strong
+# an assumption, and a variable should be set in an MCU-specific makefile
+OPT_LINK += -romaddr 0x0 -rambuffer 0x0
+endif
 LINKDEP = $(LINK_SCRIPT)
 MAP_OPT = -map $(native_path $(MAP_FILE))
 
