@@ -114,7 +114,7 @@ ifneq ($(call iseeopt, __E200ZX_EXECUTE_FROM_RAM__), yes)
 OPT_LINK += -romaddr 0x0 -rambuffer 0x0
 endif
 LINKDEP = $(LINK_SCRIPT)
-MAP_OPT = -map $(native_path $(MAP_FILE))
+MAP_OPT = -map $(call native_path,$(MAP_FILE))
 
 ifeq ($(call iseeopt, __DEFAULT_LD_SCRIPT__), yes)
 $(error "EEOPT __DEFAULT_LD_SCRIPT__ not supported")
