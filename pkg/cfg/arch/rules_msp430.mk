@@ -40,9 +40,9 @@
 
 ## Author: 2010  Christian Grioli
 ## Based on rules_mico32.mk and on MSP430 documentation
-
-#Variable for test
-
+##
+## Updated: 2011 Steve Langstaff
+## Added non-LINUX build platform support
 
 # Enable verbose output from EE_OPT
 ifeq ($(call iseeopt, VERBOSE), yes)
@@ -117,7 +117,6 @@ APP_OUTPUT_ELF = $(OUTPUT_DIR)/out.elf
 # Ultimate target: dissassembly
 TARGET= $(OUTPUT_DIR)/dumpMsp430.objdump 
 
-
 OBJDIRS=$(sort $(dir $(OBJS)) $(dir $(LIBEEOBJS)) $(dir $(LIBOBJS)))
 
 # __RTD_MSP430__ is defined in the EE options by RT-Druid.
@@ -127,7 +126,11 @@ OBJDIRS=$(sort $(dir $(OBJS)) $(dir $(LIBEEOBJS)) $(dir $(LIBOBJS)))
 #     <project>/Debug or
 #     <project> 
 ifeq ($(call iseeopt, __RTD_MSP430__), yes)
+ifeq ($(PLATFORM), WINDOWS)
+INCLUDE_PATH += "$(shell cygpath -w $(PKGBASE))" $(APPBASE) .
+else
 INCLUDE_PATH += $(PKGBASE) $(APPBASE) .
+endif
 vpath %.c $(EE_VPATH) $(APPBASE)
 vpath %.S $(EE_VPATH) $(APPBASE)
 else
@@ -166,6 +169,15 @@ $(APP_OUTPUT_ELF): $(OBJS) $(LD_FILE) $(LIBDEP)
 	$(QUIET) $(EE_LINK) $(CPU_CONFIG) -o $@ \
  $(OBJS) $(OPT_LIBS) $(LDFLAGS)
 
+## Select input filename format
+ifeq ($(PLATFORM), WINDOWS)
+SOURCEFILE = `cygpath -w $<`
+TARGETFILE = `cygpath -w $@`
+else
+SOURCEFILE = $<
+TARGETFILE = $@
+endif
+
 
 ##
 ## Object file creation
@@ -187,13 +199,13 @@ endef
 
 # Build .o files from .c files.
 $(OBJDIR)/%.o: %.c
-	$(VERBOSE_PRINTCPP) $(EE_CC) -c $(CFLAGS) $(CPPFLAGS) -c -o $@ $< 
-	$(VERBOSE_PRINTDEP) $(call make-depend,$<,$@,$(subst .o,.d,$@))
+	$(VERBOSE_PRINTCPP) $(EE_CC) -c $(CFLAGS) $(CPPFLAGS) -c -o $(TARGETFILE) $(SOURCEFILE) 
+	$(VERBOSE_PRINTDEP) $(call make-depend,$(SOURCEFILE),$(TARGETFILE),$(subst .o,.d,$(TARGETFILE)))
 
 # Build .o files from .S files.
 $(OBJDIR)/%.o: %.S
 	$(VERBOSE_PRINTASM) $(EE_ASM) -c $(CPU_CONFIG) $(CFLAGS) $(CPPFLAGS) $< -o $@
-	$(VERBOSE_PRINTDEP) $(call make-depend,$<,$@,$(subst .o,.d,$@))
+	$(VERBOSE_PRINTDEP) $(call make-depend,$(SOURCEFILE),$(TARGETFILE),$(subst .o,.d,$(TARGETFILE)))
 
 # Objects depend on directories, but they are not remade if directories change
 $(OBJS) $(LIBEEOBJS): | make_directories
@@ -218,5 +230,4 @@ make_directories: $(OBJDIRS)
 $(OBJDIRS):
 	@echo "MAKE_DIRECTORIES"
 	$(QUIET) mkdir -p $(OBJDIRS)
-
 

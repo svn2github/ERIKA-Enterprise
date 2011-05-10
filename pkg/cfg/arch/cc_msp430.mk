@@ -42,11 +42,11 @@
 ## Based on cc_mico32.mk and on MSP430 documentation
 
 
-EE_CC = msp430-gcc-4.4.3
-EE_DEP = msp430-gcc-4.4.3
+EE_CC = msp430-gcc
+EE_DEP = msp430-gcc
 #EE_ASM = msp430-as
-EE_ASM=msp430-gcc-4.4.3
-EE_LINK = msp430-gcc-4.4.3
+EE_ASM=msp430-gcc
+EE_LINK = msp430-gcc
 #EE_LINK = msp430-ld
 #EE_CC = msp430-gcc
 #EE_DEP = msp430-gcc
