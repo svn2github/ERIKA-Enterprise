@@ -40,7 +40,7 @@ static void (*Rx2IsrFunction)(EE_UINT8 data) = NULL;
 
 __INLINE__ EE_UINT32 __ALWAYS_INLINE__ uart_get_peripheral_clock(void){
 	return EE_get_peripheral_clock();
-} 
+}
 
 
 
@@ -65,49 +65,49 @@ __INLINE__ EE_UINT32 __ALWAYS_INLINE__ uart_get_peripheral_clock(void){
 /****************************************/
 
 #ifdef __USE_UART_PORT1A__
-static EE_INT8 uart_init_port1A (EE_UINT32 baud, EE_UINT16 byte_format, 
+static EE_INT8 uart_init_port1A (EE_UINT32 baud, EE_UINT16 byte_format,
 		     EE_UINT16 mode) {
 
 	// Stop UART port
-	U1AMODEbits.UARTEN = 0;		
-	
+	U1AMODEbits.UARTEN = 0;
+
 	// Disable Interrupts
 	EE_UART_PORT1A_RX_INT_ENABLE = 0;
 	EE_UART_PORT1A_TX_INT_ENABLE = 0;
-	EE_UART_PORT1A_ERR_INT_ENABLE = 0;	
- 		
-	// Reset Interrupt Flags	
+	EE_UART_PORT1A_ERR_INT_ENABLE = 0;
+
+	// Reset Interrupt Flags
 	EE_UART_PORT1A_RX_INT_FLAG = 0;
  	EE_UART_PORT1A_TX_INT_FLAG = 0;
 	EE_UART_PORT1A_ERR_INT_FLAG = 0;
 
-	// Choice between the two available divisors	
+	// Choice between the two available divisors
 	if ((mode & EE_UART_BRGH_MASK) == EE_UART_BRGH_NONE){
 		U1ABRG  = ((uart_get_peripheral_clock() / (16 * baud))) - 1;
 	}
-	else { 
-		U1ABRG  = ((uart_get_peripheral_clock() / (4 * baud))) - 1; 	
+	else {
+		U1ABRG  = ((uart_get_peripheral_clock() / (4 * baud))) - 1;
 	}
 
 	// Mode Register Reset
 	U1AMODE = 0;
-	
+
 	if ((mode & EE_UART_BRGH_MASK) == EE_UART_BRGH_NONE)
 		U1AMODEbits.BRGH = 0;
 	else
 		U1AMODEbits.BRGH = 1;
 
-	// Setup and port start				
+	// Setup and port start
 	U1AMODEbits.UARTEN = 1;
-	
-	if ((mode & EE_UART_CTRL_MASK) == EE_UART_CTRL_FLOW) {	
+
+	if ((mode & EE_UART_CTRL_MASK) == EE_UART_CTRL_FLOW) {
 		U1AMODEbits.RTSMD = 1;
 		U1AMODEbits.UEN = 0x10;
-	} else {	
+	} else {
 		U1AMODEbits.RTSMD = 0;
-		U1AMODEbits.UEN = 0;	
+		U1AMODEbits.UEN = 0;
 	}
-	
+
 	U1AMODE |= byte_format & 0x07;	// Number of bit, Parity and Stop bits
 
 	// Status bits
@@ -126,42 +126,42 @@ static EE_INT8 uart_init_port1A (EE_UINT32 baud, EE_UINT16 byte_format,
 /****************************************/
 
 #ifdef __USE_UART_PORT1B__
-static EE_INT8 uart_init_port1B (EE_UINT32 baud, EE_UINT16 byte_format, 
+static EE_INT8 uart_init_port1B (EE_UINT32 baud, EE_UINT16 byte_format,
 		     EE_UINT16 mode) {
 
 	// Stop UART port
-	U1BMODEbits.UARTEN = 0;		
-	
+	U1BMODEbits.UARTEN = 0;
+
 	// Disable Interrupts
 	EE_UART_PORT1B_RX_INT_ENABLE = 0;
 	EE_UART_PORT1B_TX_INT_ENABLE = 0;
-	EE_UART_PORT1B_ERR_INT_ENABLE = 0;	
- 		
-	// Reset Interrupt Flags	
+	EE_UART_PORT1B_ERR_INT_ENABLE = 0;
+
+	// Reset Interrupt Flags
 	EE_UART_PORT1B_RX_INT_FLAG = 0;
  	EE_UART_PORT1B_TX_INT_FLAG = 0;
 	EE_UART_PORT1B_ERR_INT_FLAG = 0;
 
 
-	// Choice between the two available divisors	
+	// Choice between the two available divisors
 	if ((mode & EE_UART_BRGH_MASK) == EE_UART_BRGH_NONE){
 		U1BBRG  = ((uart_get_peripheral_clock() / (16 * baud))) - 1;
 	}
-	else { 
-		U1BBRG  = ((uart_get_peripheral_clock() / (4 * baud))) - 1; 	
+	else {
+		U1BBRG  = ((uart_get_peripheral_clock() / (4 * baud))) - 1;
 	}
 
 	// Mode Register Reset
 	U1BMODE = 0;
-	
+
 	if ((mode & EE_UART_BRGH_MASK) == EE_UART_BRGH_NONE)
 		U1BMODEbits.BRGH = 0;
 	else
 		U1BMODEbits.BRGH = 1;
 
-	// Setup and port start				
+	// Setup and port start
 	U1BMODEbits.UARTEN = 1;
-		
+
 	U1BMODE |= byte_format & 0x07;	// Number of bit, Parity and Stop bits
 
 	// Status bits
@@ -179,50 +179,50 @@ static EE_INT8 uart_init_port1B (EE_UINT32 baud, EE_UINT16 byte_format,
 
 
 #ifdef __USE_UART_PORT2A__
-static EE_INT8 uart_init_port2A (EE_UINT32 baud, EE_UINT16 byte_format, 
+static EE_INT8 uart_init_port2A (EE_UINT32 baud, EE_UINT16 byte_format,
 		     EE_UINT16 mode) {
 
 	// Stop UART port
-	U2AMODEbits.UARTEN = 0;		
-	
+	U2AMODEbits.UARTEN = 0;
+
 	// Disable Interrupts
 	EE_UART_PORT2A_RX_INT_ENABLE = 0;
 	EE_UART_PORT2A_TX_INT_ENABLE = 0;
-	EE_UART_PORT2A_ERR_INT_ENABLE = 0;	
- 		
-	// Reset Interrupt Flags	
+	EE_UART_PORT2A_ERR_INT_ENABLE = 0;
+
+	// Reset Interrupt Flags
 	EE_UART_PORT2A_RX_INT_FLAG = 0;
  	EE_UART_PORT2A_TX_INT_FLAG = 0;
 	EE_UART_PORT2A_ERR_INT_FLAG = 0;
 
 
-	// Choice between the two available divisors	
+	// Choice between the two available divisors
 	if ((mode & EE_UART_BRGH_MASK) == EE_UART_BRGH_NONE){
 		U2ABRG  = ((uart_get_peripheral_clock() / (16 * baud))) - 1;
 	}
-	else { 
-		U2ABRG  = ((uart_get_peripheral_clock() / (4 * baud))) - 1; 	
+	else {
+		U2ABRG  = ((uart_get_peripheral_clock() / (4 * baud))) - 1;
 	}
 
 	// Mode Register Reset
 	U2AMODE = 0;
-	
+
 	if ((mode & EE_UART_BRGH_MASK) == EE_UART_BRGH_NONE)
 		U2AMODEbits.BRGH = 0;
 	else
 		U2AMODEbits.BRGH = 1;
 
-	// Setup and port start				
+	// Setup and port start
 	U2AMODEbits.UARTEN = 1;
-	
-	if ((mode & EE_UART_CTRL_MASK) == EE_UART_CTRL_FLOW) {	
+
+	if ((mode & EE_UART_CTRL_MASK) == EE_UART_CTRL_FLOW) {
 		U2AMODEbits.RTSMD = 1;
 		U2AMODEbits.UEN = 0x10;
-	} else {	
+	} else {
 		U2AMODEbits.RTSMD = 0;
-		U2AMODEbits.UEN = 0;	
+		U2AMODEbits.UEN = 0;
 	}
-	
+
 	U2AMODE |= byte_format & 0x07;	// Number of bit, Parity and Stop bits
 
 	// Status bits
@@ -241,42 +241,42 @@ static EE_INT8 uart_init_port2A (EE_UINT32 baud, EE_UINT16 byte_format,
 
 
 #ifdef __USE_UART_PORT2B__
-static EE_INT8 uart_init_port2B (EE_UINT32 baud, EE_UINT16 byte_format, 
+static EE_INT8 uart_init_port2B (EE_UINT32 baud, EE_UINT16 byte_format,
 		     EE_UINT16 mode) {
 
 	// Stop UART port
-	U2BMODEbits.UARTEN = 0;		
-	
+	U2BMODEbits.UARTEN = 0;
+
 	// Disable Interrupts
 	EE_UART_PORT2B_RX_INT_ENABLE = 0;
 	EE_UART_PORT2B_TX_INT_ENABLE = 0;
-	EE_UART_PORT2B_ERR_INT_ENABLE = 0;	
- 		
-	// Reset Interrupt Flags	
+	EE_UART_PORT2B_ERR_INT_ENABLE = 0;
+
+	// Reset Interrupt Flags
 	EE_UART_PORT2B_RX_INT_FLAG = 0;
  	EE_UART_PORT2B_TX_INT_FLAG = 0;
 	EE_UART_PORT2B_ERR_INT_FLAG = 0;
 
 
-	// Choice between the two available divisors	
+	// Choice between the two available divisors
 	if ((mode & EE_UART_BRGH_MASK) == EE_UART_BRGH_NONE){
 		U2BBRG  = ((uart_get_peripheral_clock() / (16 * baud))) - 1;
 	}
-	else { 
-		U2BBRG  = ((uart_get_peripheral_clock() / (4 * baud))) - 1; 	
+	else {
+		U2BBRG  = ((uart_get_peripheral_clock() / (4 * baud))) - 1;
 	}
 
 	// Mode Register Reset
 	U2BMODE = 0;
-	
+
 	if ((mode & EE_UART_BRGH_MASK) == EE_UART_BRGH_NONE)
 		U2BMODEbits.BRGH = 0;
 	else
 		U2BMODEbits.BRGH = 1;
 
-	// Setup and port start				
+	// Setup and port start
 	U2BMODEbits.UARTEN = 1;
-		
+
 	U2BMODE |= byte_format & 0x07;	// Number of bit, Parity and Stop bits
 
 	// Status bits
@@ -293,51 +293,51 @@ static EE_INT8 uart_init_port2B (EE_UINT32 baud, EE_UINT16 byte_format,
 
 
 #ifdef __USE_UART_PORT3A__
-static EE_INT8 uart_init_port3A (EE_UINT32 baud, EE_UINT16 byte_format, 
+static EE_INT8 uart_init_port3A (EE_UINT32 baud, EE_UINT16 byte_format,
 		     EE_UINT16 mode) {
 
-	
+
 	// Stop UART port
-	U3AMODEbits.UARTEN = 0;		
-	
+	U3AMODEbits.UARTEN = 0;
+
 	// Disable Interrupts
 	EE_UART_PORT3A_RX_INT_ENABLE = 0;
 	EE_UART_PORT3A_TX_INT_ENABLE = 0;
-	EE_UART_PORT3A_ERR_INT_ENABLE = 0;	
- 		
-	// Reset Interrupt Flags	
+	EE_UART_PORT3A_ERR_INT_ENABLE = 0;
+
+	// Reset Interrupt Flags
 	EE_UART_PORT3A_RX_INT_FLAG = 0;
  	EE_UART_PORT3A_TX_INT_FLAG = 0;
 	EE_UART_PORT3A_ERR_INT_FLAG = 0;
 
 
-	// Choice between the two available divisors	
+	// Choice between the two available divisors
 	if ((mode & EE_UART_BRGH_MASK) == EE_UART_BRGH_NONE){
 		U3ABRG  = ((uart_get_peripheral_clock() / (16 * baud))) - 1;
 	}
-	else { 
-		U3ABRG  = ((uart_get_peripheral_clock() / (4 * baud))) - 1; 	
+	else {
+		U3ABRG  = ((uart_get_peripheral_clock() / (4 * baud))) - 1;
 	}
 
 	// Mode Register Reset
 	U3AMODE = 0;
-	
+
 	if ((mode & EE_UART_BRGH_MASK) == EE_UART_BRGH_NONE)
 		U3AMODEbits.BRGH = 0;
 	else
 		U3AMODEbits.BRGH = 1;
 
-	// Setup and port start				
+	// Setup and port start
 	U3AMODEbits.UARTEN = 1;
-	
-	if ((mode & EE_UART_CTRL_MASK) == EE_UART_CTRL_FLOW) {	
+
+	if ((mode & EE_UART_CTRL_MASK) == EE_UART_CTRL_FLOW) {
 		U3AMODEbits.RTSMD = 1;
 		U3AMODEbits.UEN = 0x10;
-	} else {	
+	} else {
 		U3AMODEbits.RTSMD = 0;
-		U3AMODEbits.UEN = 0;	
+		U3AMODEbits.UEN = 0;
 	}
-	
+
 	U3AMODE |= byte_format & 0x07;	// Number of bit, Parity and Stop bits
 
 	// Status bits
@@ -355,40 +355,40 @@ static EE_INT8 uart_init_port3A (EE_UINT32 baud, EE_UINT16 byte_format,
 
 
 #ifdef __USE_UART_PORT3B__
-static EE_INT8 uart_init_port3B (EE_UINT32 baud, EE_UINT16 byte_format, 
+static EE_INT8 uart_init_port3B (EE_UINT32 baud, EE_UINT16 byte_format,
 		     EE_UINT16 mode) {
 
 	// Stop UART port
-	U3BMODEbits.UARTEN = 0;		
-	
+	U3BMODEbits.UARTEN = 0;
+
 	// Disable Interrupts
 	EE_UART_PORT3B_RX_INT_ENABLE = 0;
 	EE_UART_PORT3B_TX_INT_ENABLE = 0;
-	EE_UART_PORT3B_ERR_INT_ENABLE = 0;	
- 		
-	// Reset Interrupt Flags	
+	EE_UART_PORT3B_ERR_INT_ENABLE = 0;
+
+	// Reset Interrupt Flags
 	EE_UART_PORT3B_RX_INT_FLAG = 0;
  	EE_UART_PORT3B_TX_INT_FLAG = 0;
 	EE_UART_PORT3B_ERR_INT_FLAG = 0;
 
 
-	// Choice between the two available divisors	
+	// Choice between the two available divisors
 	if ((mode & EE_UART_BRGH_MASK) == EE_UART_BRGH_NONE){
 		U3BBRG  = ((uart_get_peripheral_clock() / (16 * baud))) - 1;
 	}
-	else { 
-		U3BBRG  = ((uart_get_peripheral_clock() / (4 * baud))) - 1; 	
+	else {
+		U3BBRG  = ((uart_get_peripheral_clock() / (4 * baud))) - 1;
 	}
 
 	// Mode Register Reset
 	U3BMODE = 0;
-	
+
 	if ((mode & EE_UART_BRGH_MASK) == EE_UART_BRGH_NONE)
 		U3BMODEbits.BRGH = 0;
 	else
 		U3BMODEbits.BRGH = 1;
 
-	// Setup and port start				
+	// Setup and port start
 	U3BMODEbits.UARTEN = 1;
 
 	U3BMODE |= byte_format & 0x07;	// Number of bit, Parity and Stop bits
@@ -411,81 +411,81 @@ static EE_INT8 uart_init_port3B (EE_UINT32 baud, EE_UINT16 byte_format,
 /******************************************************************************/
 
 
-static EE_INT8 uart_init_port1 (EE_UINT32 baud, EE_UINT16 byte_format, 
+static EE_INT8 uart_init_port1 (EE_UINT32 baud, EE_UINT16 byte_format,
 		     EE_UINT16 mode) {
 
 		// Stop UART port
-		U1MODEbits.UARTEN = 0;		
-		
+		U1MODEbits.UARTEN = 0;
+
 		// Disable Interrupts
-		EE_UART_PORT1_RX_INT_ENABLE = 0;		
+		EE_UART_PORT1_RX_INT_ENABLE = 0;
 		EE_UART_PORT1_TX_INT_ENABLE = 0;
-		EE_UART_PORT1_ERR_INT_ENABLE = 0;		
+		EE_UART_PORT1_ERR_INT_ENABLE = 0;
 
 		// Clean Interrupt flags
 		EE_UART_PORT1_RX_INT_FLAG = 0;
 		EE_UART_PORT1_TX_INT_FLAG = 0;
 		EE_UART_PORT1_ERR_INT_FLAG = 0;
-	
+
 		// Set-up for the control flow pins
-		if ((mode & EE_UART_CTRL_MASK) == EE_UART_CTRL_FLOW) {	
+		if ((mode & EE_UART_CTRL_MASK) == EE_UART_CTRL_FLOW) {
 			TRISDbits.TRISD14 = 1;	// Set In CTS Pin
 			TRISDbits.TRISD15 = 0;	// Set Out RTS Pin
 		}
-		
-		// Choice between the two available divisors	
+
+		// Choice between the two available divisors
 		if ((mode & EE_UART_BRGH_MASK) == EE_UART_BRGH_NONE){
 			U1BRG  = ((uart_get_peripheral_clock() / (16 * baud))) - 1;
 		}
-		else { 
-			U1BRG  = ((uart_get_peripheral_clock() / (4 * baud))) - 1; 	
+		else {
+			U1BRG  = ((uart_get_peripheral_clock() / (4 * baud))) - 1;
 		}
 
 		U1MODE = 0;
-	
+
 		if ((mode & EE_UART_BRGH_MASK) == EE_UART_BRGH_NONE)
 			U1MODEbits.BRGH = 0;
 		else
 			U1MODEbits.BRGH = 1;
 
-		// Setup and port start				
+		// Setup and port start
 		U1MODEbits.UARTEN = 1;
-	
-		if ((mode & EE_UART_CTRL_MASK) == EE_UART_CTRL_FLOW) {	
+
+		if ((mode & EE_UART_CTRL_MASK) == EE_UART_CTRL_FLOW) {
 			U1MODEbits.RTSMD = 1;
 			U1MODEbits.UEN = 0x10;
-		} else {	
+		} else {
 			U1MODEbits.RTSMD = 0;
-			U1MODEbits.UEN = 0;	
+			U1MODEbits.UEN = 0;
 		}
-		
+
 		// Number of bit, Parity and Stop bits
-		U1MODE |= byte_format & 0x07;	
+		U1MODE |= byte_format & 0x07;
 
 		// Status bits
 		U1STA = 0;			// TX & RX interrupt modes
 		U1STAbits.UTXEN = 1; 		//Enable Transmission
 		U1STAbits.URXEN = 1; 		//Enable Receiver
-	
+
 		return EE_UART_NO_ERROR;
 }
 
 
-static EE_INT8 uart_init_port2 (EE_UINT32 baud, EE_UINT16 byte_format, 
+static EE_INT8 uart_init_port2 (EE_UINT32 baud, EE_UINT16 byte_format,
 		     EE_UINT16 mode) {
 
 		// Stop UART port
-		U2MODEbits.UARTEN = 0;		
-		
+		U2MODEbits.UARTEN = 0;
+
 		// Disable Interrupts
-		EE_UART_PORT2_RX_INT_ENABLE = 0;		
+		EE_UART_PORT2_RX_INT_ENABLE = 0;
 		EE_UART_PORT2_TX_INT_ENABLE = 0;
-		EE_UART_PORT2_ERR_INT_ENABLE = 0;		
-		
+		EE_UART_PORT2_ERR_INT_ENABLE = 0;
+
 		// Clear Interrupts' Flag
 		EE_UART_PORT2_RX_INT_FLAG  = 0;
 		EE_UART_PORT2_TX_INT_FLAG = 0;
-		EE_UART_PORT2_ERR_INT_FLAG = 0;		
+		EE_UART_PORT2_ERR_INT_FLAG = 0;
 
 		// Set-up for the control flow pins
 		if ((mode & EE_UART_CTRL_MASK) == EE_UART_CTRL_FLOW) {
@@ -495,37 +495,37 @@ static EE_INT8 uart_init_port2 (EE_UINT32 baud, EE_UINT16 byte_format,
 
 		// Choice between the two available divisors
 		if ((mode & EE_UART_BRGH_MASK) == EE_UART_BRGH_NONE)
-			U2BRG = (uart_get_peripheral_clock() / (16 * baud)) - 1;				
+			U2BRG = (uart_get_peripheral_clock() / (16 * baud)) - 1;
 		else
-			U2BRG = (uart_get_peripheral_clock() / (4 * baud)) - 1;			
-	
+			U2BRG = (uart_get_peripheral_clock() / (4 * baud)) - 1;
+
 		U2MODE = 0;
-		
+
 		//Set-up of the BRG value;
 		if ((mode & EE_UART_BRGH_MASK) == EE_UART_BRGH_NONE)
 			U2MODEbits.BRGH = 0;
 		else
 			U2MODEbits.BRGH = 1;
-					
-		// Setup and port start	
+
+		// Setup and port start
 		U2MODEbits.UARTEN = 1;
-		
-		if ((mode & EE_UART_CTRL_MASK)  == EE_UART_CTRL_FLOW) {	
+
+		if ((mode & EE_UART_CTRL_MASK)  == EE_UART_CTRL_FLOW) {
 			U2MODEbits.RTSMD = 1;
 			U2MODEbits.UEN = 0x10;
 		} else {
 			U2MODEbits.RTSMD = 0;
-			U2MODEbits.UEN = 0;	
+			U2MODEbits.UEN = 0;
 		}
-		
+
 		// Number of bit, Parity and Stop bits
-		U2MODE |= byte_format & 0x07;	
-		
+		U2MODE |= byte_format & 0x07;
+
 		// Status bits
 		U2STA = 0;			// TX & RX interrupt modes
 		U2STAbits.UTXEN = 1;
 		U2STAbits.URXEN = 1; 		//Enable Receiver
-	
+
 		return EE_UART_NO_ERROR;
 }
 
@@ -545,13 +545,13 @@ static EE_INT8 uart_init_port2 (EE_UINT32 baud, EE_UINT16 byte_format,
 
 
 
-EE_INT8 EE_uart_init(EE_UINT8 port, EE_UINT32 baud, EE_UINT16 byte_format, 
+EE_INT8 EE_uart_init(EE_UINT8 port, EE_UINT32 baud, EE_UINT16 byte_format,
 		     EE_UINT16 mode)
 {
 #ifdef __32MX795F512L__
-	
+
 	switch (port){
-#ifdef __USE_UART_PORT1A__	
+#ifdef __USE_UART_PORT1A__
 	case EE_UART_PORT_1A:
 		return uart_init_port1A(baud, byte_format, mode);
 	break;
@@ -561,44 +561,44 @@ EE_INT8 EE_uart_init(EE_UINT8 port, EE_UINT32 baud, EE_UINT16 byte_format,
 		return uart_init_port1B(baud, byte_format, mode);
 	break;
 #endif //__USE_UART_PORT1B__
-#ifdef __USE_UART_PORT2A__	
+#ifdef __USE_UART_PORT2A__
 	case EE_UART_PORT_2A:
 		return uart_init_port2A(baud, byte_format, mode);
 	break;
 #endif //__USE_UART_PORT2A__
-#ifdef __USE_UART_PORT2B__	
+#ifdef __USE_UART_PORT2B__
 	case EE_UART_PORT_2B:
-		return uart_init_port2B(baud, byte_format, mode);	
+		return uart_init_port2B(baud, byte_format, mode);
 	break;
 #endif //__USE_UART_PORT2B__
 #ifdef __USE_UART_PORT3A__
 	case EE_UART_PORT_3A:
-		return uart_init_port3A(baud, byte_format, mode);	
+		return uart_init_port3A(baud, byte_format, mode);
 	break;
 #endif //__USE_UART_PORT3A__
 #ifdef __USE_UART_PORT3B__
 	case EE_UART_PORT_3B:
-		return uart_init_port3B(baud, byte_format, mode);	
+		return uart_init_port3B(baud, byte_format, mode);
 	break;
 #endif //__USE_UART_PORT3B__
 	default:
-		return -EE_UART_ERR_BAD_PORT;	
-	} 
+		return -EE_UART_ERR_BAD_PORT;
+	}
 
 #else //not defined __32MX795F512L__
 
 	switch (port){
-	
+
 	case EE_UART_PORT_1:
 		return uart_init_port1(baud, byte_format, mode);
 	break;
-	
+
 	case EE_UART_PORT_2:
 		return uart_init_port2(baud, byte_format, mode);
 	break;
 	default:
-		return -EE_UART_ERR_BAD_PORT;	
-	} 
+		return -EE_UART_ERR_BAD_PORT;
+	}
 #endif
 }
 
@@ -615,7 +615,7 @@ EE_INT8 EE_uart_close(EE_UINT8 port)
 
 
 	switch (port){
-#ifdef __USE_UART_PORT1A__	
+#ifdef __USE_UART_PORT1A__
 	case EE_UART_PORT_1A:
 		/* Bibo: TODO: Release something */
 		return -EE_UART_FUNCTION_NOT_IMPLEMENTED;
@@ -626,50 +626,50 @@ EE_INT8 EE_uart_close(EE_UINT8 port)
 		return -EE_UART_FUNCTION_NOT_IMPLEMENTED;
 	break;
 #endif //__USE_UART_PORT1B__
-#ifdef __USE_UART_PORT2A__	
+#ifdef __USE_UART_PORT2A__
 	case EE_UART_PORT_2A:
 		return -EE_UART_FUNCTION_NOT_IMPLEMENTED;
 	break;
 #endif //__USE_UART_PORT2A__
-#ifdef __USE_UART_PORT2B__	
+#ifdef __USE_UART_PORT2B__
 	case EE_UART_PORT_2B:
-		return -EE_UART_FUNCTION_NOT_IMPLEMENTED;	
+		return -EE_UART_FUNCTION_NOT_IMPLEMENTED;
 	break;
 #endif //__USE_UART_PORT2B__
 #ifdef __USE_UART_PORT3A__
 	case EE_UART_PORT_3A:
-		return -EE_UART_FUNCTION_NOT_IMPLEMENTED;	
+		return -EE_UART_FUNCTION_NOT_IMPLEMENTED;
 	break;
 #endif //__USE_UART_PORT3A__
 #ifdef __USE_UART_PORT3B__
 	case EE_UART_PORT_3B:
-		return -EE_UART_FUNCTION_NOT_IMPLEMENTED;	
+		return -EE_UART_FUNCTION_NOT_IMPLEMENTED;
 	break;
 #endif //__USE_UART_PORT3B__
 	default:
-		return -EE_UART_ERR_BAD_PORT;	
+		return -EE_UART_ERR_BAD_PORT;
 	}
 
- 
+
 #else //not defined __32MX795F512L__
 	switch (port){
-	
+
 	case EE_UART_PORT_1:
 		return -EE_UART_FUNCTION_NOT_IMPLEMENTED;
 	break;
-	
+
 	case EE_UART_PORT_2:
 		return -EE_UART_FUNCTION_NOT_IMPLEMENTED;
 	break;
 	default:
-		return -EE_UART_ERR_BAD_PORT;	
+		return -EE_UART_ERR_BAD_PORT;
 	}
 
 #endif
 }
 
 
-EE_INT8 EE_uart_set_rx_callback(EE_UINT8 port, void (*RxFunc)(EE_UINT8 data), 
+EE_INT8 EE_uart_set_rx_callback(EE_UINT8 port, void (*RxFunc)(EE_UINT8 data),
 				EE_UINT8 rxmode)
 {
 
@@ -680,9 +680,9 @@ EE_INT8 EE_uart_set_rx_callback(EE_UINT8 port, void (*RxFunc)(EE_UINT8 data),
 		Rx1aIsrFunction = RxFunc;
 		if (RxFunc) {
 			// TODO: interrupt served
-			/*U1STA &= 0x5FFF;		
+			/*U1STA &= 0x5FFF;
 			U1STA |= rxmode & 0xA000;
-			IEC0bits.U1RXIE = 1;		
+			IEC0bits.U1RXIE = 1;
 			IFS0bits.U1RXIF = 0;*/
 		}
 		return EE_UART_NO_ERROR;
@@ -694,7 +694,7 @@ EE_INT8 EE_uart_set_rx_callback(EE_UINT8 port, void (*RxFunc)(EE_UINT8 data),
 		#ifdef EE_UART_PORT_1B_ISR_ENABLE
 		Rx1bIsrFunction = RxFunc;
 		if (RxFunc) {
-			
+
 		}
 		return EE_UART_NO_ERROR;
 		#else
@@ -739,8 +739,11 @@ EE_INT8 EE_uart_set_rx_callback(EE_UINT8 port, void (*RxFunc)(EE_UINT8 data),
 		#ifdef EE_UART_PORT_3B_ISR_ENABLE
 		Rx3bIsrFunction = RxFunc;
 		if (RxFunc) {
-			// TODO: interrupt served
-
+			U3BSTA &= 0xFFFFFF3F; 
+			U3BSTA |= rxmode;
+			EE_UART_PORT3B_RX_INT_ENABLE = 1;
+			EE_UART_PORT3B_RX_INT_FLAG = 0;
+			IPC12 = 0x10000000; //Set priority 7, and sub-priority 3
 		}
 		return EE_UART_NO_ERROR;
 		#else
@@ -752,17 +755,17 @@ EE_INT8 EE_uart_set_rx_callback(EE_UINT8 port, void (*RxFunc)(EE_UINT8 data),
 	}
 
 #else //not defined __32MX795F512L__
-	
+
 	switch (port){
-	
+
 	case EE_UART_PORT_1:
 		#ifdef EE_UART_PORT_1_ISR_ENABLE
 		Rx1IsrFunction = RxFunc;
 		if (RxFunc) {
 			// TODO: interrupt served
-			U1STA &= 0x5FFF;		
+			U1STA &= 0x5FFF;
 			U1STA |= rxmode & 0xA000;
-			IEC0bits.U1RXIE = 1;		
+			IEC0bits.U1RXIE = 1;
 			IFS0bits.U1RXIF = 0;
 		}
 		return EE_UART_NO_ERROR;
@@ -770,15 +773,15 @@ EE_INT8 EE_uart_set_rx_callback(EE_UINT8 port, void (*RxFunc)(EE_UINT8 data),
 		return -EE_UART_ERR_INT_DISABLED;
 		#endif
 	break;
-	
+
 	case EE_UART_PORT_2:
 		#ifdef EE_UART_PORT_2_ISR_ENABLE
 		Rx2IsrFunction = RxFunc;
 		if (RxFunc) {
 			// TODO: interrupt served
-			U2STA &= 0x5FFF;	
+			U2STA &= 0x5FFF;
 			U2STA |= rxmode & 0xA000;
-			IEC1bits.U2RXIE = 1;		
+			IEC1bits.U2RXIE = 1;
 			IFS1bits.U2RXIF = 0;
 		}
 		return EE_UART_NO_ERROR;
@@ -787,7 +790,7 @@ EE_INT8 EE_uart_set_rx_callback(EE_UINT8 port, void (*RxFunc)(EE_UINT8 data),
 		#endif
 	break;
 	default:
-		return -EE_UART_ERR_BAD_PORT;	
+		return -EE_UART_ERR_BAD_PORT;
 	}
 
 #endif
@@ -802,7 +805,7 @@ EE_INT8 EE_uart_write_byte(EE_UINT8 port, EE_UINT8 data)
 #ifdef __32MX795F512L__
 
 	switch (port){
-	#ifdef __USE_UART_PORT1A__	
+	#ifdef __USE_UART_PORT1A__
 	case EE_UART_PORT_1A:
 		while (U1ASTAbits.UTXBF) ;
 		U1ATXREG = data;
@@ -818,7 +821,7 @@ EE_INT8 EE_uart_write_byte(EE_UINT8 port, EE_UINT8 data)
 		return EE_UART_NO_ERROR;
 	break;
 	#endif //__USE_UART_PORT1B__
-	#ifdef __USE_UART_PORT2A__	
+	#ifdef __USE_UART_PORT2A__
 	case EE_UART_PORT_2A:
 		while (U2ASTAbits.UTXBF) ;
 		U2ATXREG = data;
@@ -826,12 +829,12 @@ EE_INT8 EE_uart_write_byte(EE_UINT8 port, EE_UINT8 data)
 		return EE_UART_NO_ERROR;
 	break;
 	#endif //__USE_UART_PORT2A__
-	#ifdef __USE_UART_PORT2B__	
+	#ifdef __USE_UART_PORT2B__
 	case EE_UART_PORT_2B:
 		while (U2BSTAbits.UTXBF) ;
 		U2BTXREG = data;
 		while (!U2BSTAbits.TRMT) ;
-		return EE_UART_NO_ERROR;	
+		return EE_UART_NO_ERROR;
 	break;
 	#endif //__USE_UART_PORT2B__
 	#ifdef __USE_UART_PORT3A__
@@ -839,7 +842,7 @@ EE_INT8 EE_uart_write_byte(EE_UINT8 port, EE_UINT8 data)
 		while (U3ASTAbits.UTXBF) ;
 		U3ATXREG = data;
 		while (!U3ASTAbits.TRMT) ;
-		return EE_UART_NO_ERROR;	
+		return EE_UART_NO_ERROR;
 	break;
 	#endif //__USE_UART_PORT3A__
 	#ifdef __USE_UART_PORT3B__
@@ -847,24 +850,24 @@ EE_INT8 EE_uart_write_byte(EE_UINT8 port, EE_UINT8 data)
 		while (U3BSTAbits.UTXBF) ;
 		U3BTXREG = data;
 		while (!U3BSTAbits.TRMT) ;
-		return EE_UART_NO_ERROR;	
+		return EE_UART_NO_ERROR;
 	break;
 	#endif //__USE_UART_PORT3B__
 	default:
-		return -EE_UART_ERR_BAD_PORT;	
+		return -EE_UART_ERR_BAD_PORT;
 	}
 
 #else //not defined __32MX795F512L__
 
 	switch (port){
-	
+
 	case EE_UART_PORT_1:
 		while (U1STAbits.UTXBF) ;
 		U1TXREG = data;
 		while (!U1STAbits.TRMT) ;
 		return EE_UART_NO_ERROR;
 	break;
-	
+
 	case EE_UART_PORT_2:
 		while (U2STAbits.UTXBF) ;
 		U2TXREG = data;
@@ -872,7 +875,7 @@ EE_INT8 EE_uart_write_byte(EE_UINT8 port, EE_UINT8 data)
 		return EE_UART_NO_ERROR;
 	break;
 	default:
-		return -EE_UART_ERR_BAD_PORT;	
+		return -EE_UART_ERR_BAD_PORT;
 	}
 
 #endif
@@ -888,7 +891,7 @@ EE_INT8 EE_uart_read_byte(EE_UINT8 port, EE_UINT8 *data)
 #ifdef __32MX795F512L__
 
 	switch (port){
-	#ifdef __USE_UART_PORT1A__	
+	#ifdef __USE_UART_PORT1A__
 	case EE_UART_PORT_1A:
 	#ifdef EE_UART_PORT_1A_ISR_ENABLE
 	if (Rx1aIsrFunction == NULL) {
@@ -932,7 +935,7 @@ EE_INT8 EE_uart_read_byte(EE_UINT8 port, EE_UINT8 *data)
 	break;
 	#endif //__USE_UART_PORT1B__
 
-	#ifdef __USE_UART_PORT2A__	
+	#ifdef __USE_UART_PORT2A__
 	case EE_UART_PORT_2A:
 	#ifdef EE_UART_PORT_2A_ISR_ENABLE
 	if (Rx2aIsrFunction == NULL) {
@@ -954,7 +957,7 @@ EE_INT8 EE_uart_read_byte(EE_UINT8 port, EE_UINT8 *data)
 	break;
 	#endif //__USE_UART_PORT2A__
 
-	#ifdef __USE_UART_PORT2B__	
+	#ifdef __USE_UART_PORT2B__
 	case EE_UART_PORT_2B:
 	#ifdef EE_UART_PORT_2A_ISR_ENABLE
 	if (Rx2bIsrFunction == NULL) {
@@ -994,7 +997,7 @@ EE_INT8 EE_uart_read_byte(EE_UINT8 port, EE_UINT8 *data)
 	#ifdef EE_UART_PORT_3A_ISR_ENABLE
 	}
 	return -EE_UART_ERR_INT_MODE;
-	#endif	//EE_UART_PORT_3A_ISR_ENABLE	
+	#endif	//EE_UART_PORT_3A_ISR_ENABLE
 	break;
 	#endif //__USE_UART_PORT3A__
 
@@ -1016,18 +1019,18 @@ EE_INT8 EE_uart_read_byte(EE_UINT8 port, EE_UINT8 *data)
 	#ifdef EE_UART_PORT_3B_ISR_ENABLE
 	}
 	return -EE_UART_ERR_INT_MODE;
-	#endif	//EE_UART_PORT_3B_ISR_ENABLE	
+	#endif	//EE_UART_PORT_3B_ISR_ENABLE
 	break;
 	#endif //__USE_UART_PORT3B__
 
 	default:
-		return -EE_UART_ERR_BAD_PORT;	
-	} 
+		return -EE_UART_ERR_BAD_PORT;
+	}
 
 #else //not defined __32MX795F512L__
-	
+
 	switch (port){
-	
+
 	case EE_UART_PORT_1:
 		#ifdef EE_UART_PORT_1_ISR_ENABLE
 		if (Rx1IsrFunction == NULL) {
@@ -1047,7 +1050,7 @@ EE_INT8 EE_uart_read_byte(EE_UINT8 port, EE_UINT8 *data)
 		return -EE_UART_ERR_INT_MODE;
 		#endif
 	break;
-	
+
 	case EE_UART_PORT_2:
 		#ifdef EE_UART_PORT_2_ISR_ENABLE
 		if (Rx2IsrFunction == NULL) {
@@ -1068,7 +1071,7 @@ EE_INT8 EE_uart_read_byte(EE_UINT8 port, EE_UINT8 *data)
 		#endif
 	break;
 	default:
-		return -EE_UART_ERR_BAD_PORT;	
+		return -EE_UART_ERR_BAD_PORT;
 	}
 
 #endif
@@ -1093,7 +1096,7 @@ ISR2( /*TODO: use right interrupt name */)
 		/* Execute callback function */
 		//Rx1IsrFunction(U1RXREG & 0x00FF);
 	}
-	//IFS0bits.U1RXIF = 0;           
+	//IFS0bits.U1RXIF = 0;
 }
 #endif
 
@@ -1106,7 +1109,7 @@ ISR2( /*TODO: use right interrupt name */)
 		/* Execute callback function */
 		//Rx1IsrFunction(U1RXREG & 0x00FF);
 	}
-	//IFS0bits.U1RXIF = 0;           
+	//IFS0bits.U1RXIF = 0;
 }
 #endif
 
@@ -1121,7 +1124,7 @@ ISR2( /*TODO: use right interrupt name */)
 		/* Execute callback function */
 		//Rx1IsrFunction(U1RXREG & 0x00FF);
 	}
-	//IFS0bits.U1RXIF = 0;           
+	//IFS0bits.U1RXIF = 0;
 }
 #endif
 
@@ -1133,7 +1136,7 @@ ISR2( /*TODO: use right interrupt name */)
 		/* Execute callback function */
 		//Rx1IsrFunction(U1RXREG & 0x00FF);
 	}
-	//IFS0bits.U1RXIF = 0;           
+	//IFS0bits.U1RXIF = 0;
 }
 #endif
 
@@ -1145,19 +1148,21 @@ ISR2( /*TODO: use right interrupt name */)
 		/* Execute callback function */
 		//Rx1IsrFunction(U1RXREG & 0x00FF);
 	}
-	//IFS0bits.U1RXIF = 0;           
+	//IFS0bits.U1RXIF = 0;
 }
 #endif
 
 #ifdef EE_UART_PORT_3B_ISR_ENABLE
 // TODO: ISR management!!!
-ISR2( /*TODO: use right interrupt name */)
+ISR2(_UART_3B_VECTOR)
 {
-	if (Rx1IsrFunction != NULL) {
+	EE_UART_PORT3B_RX_INT_FLAG = 0;
+
+	if (Rx3bIsrFunction != NULL) {
 		/* Execute callback function */
-		//Rx1IsrFunction(U1RXREG & 0x00FF);
+		Rx3bIsrFunction(U3BRXREG);
 	}
-	//EE_UART_RESET_INTFLAG(EE_UART_PORT_3B, 0, 0, 0);           
+
 }
 #endif
 
@@ -1178,7 +1183,7 @@ ISR2(_U1RXInterrupt)
 		/* Execute callback function */
 		//Rx1IsrFunction(U1RXREG & 0x00FF);
 	}
-	//IFS0bits.U1RXIF = 0;           
+	//IFS0bits.U1RXIF = 0;
 }
 #endif
 
@@ -1190,7 +1195,7 @@ ISR2(_U2RXInterrupt)
 		/* Execute callback function */
 		//Rx2IsrFunction(U2RXREG & 0x00FF);
 	}
-	//IFS1bits.U2RXIF = 0;           
+	//IFS1bits.U2RXIF = 0;
 }
 #endif
 
