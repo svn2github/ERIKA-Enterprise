@@ -144,8 +144,8 @@ restore_all_return:
  */
 #include <cpu/e200zx/inc/ee_mcu_regs_asm.h>
 
-	.type	external_input_handler, @function
-external_input_handler:
+	.type	EE_e200zx_external_input_handler, @function
+EE_e200zx_external_input_handler:
 	handler_prologue
 	addis	r3, 0, INTC_IACKR@ha	/* ack the interrupt */
 	lwz	r0, INTC_IACKR@l(r3)
@@ -158,18 +158,18 @@ external_input_handler:
 	/* The EOI is issued by EE_e200z7_irq() */
 
 	handler_epilogue
-	.size	external_input_handler, .-external_input_handler
+	.size	EE_e200zx_external_input_handler, .-EE_e200zx_external_input_handler
 
 
-	.type	decrementer_handler, @function
-decrementer_handler:
+	.type	EE_e200zx_decrementer_handler, @function
+EE_e200zx_decrementer_handler:
 	handler_prologue
 	addis	r0, 0, (1 << TSR_DIS)@h
 	mtspr	tsr, r0
 	li	r3, 10
 	bl	EE_e200z7_irq
 	handler_epilogue
-	.size	decrementer_handler, .-decrementer_handler
+	.size	EE_e200zx_decrementer_handler, .-EE_e200zx_decrementer_handler
 
 
 	.type	__empty_handler, @function
@@ -180,22 +180,22 @@ __empty_handler:
 
 	.balign	E200ZX_IRQ_VECTOR_BASE_ALIGN
 vector_base:
-vector critical_input, __empty_handler
-vector machine_check, __empty_handler
-vector data_storage, __empty_handler
-vector instruction_storage, __empty_handler
-vector external_input, external_input_handler
-vector alignment, __empty_handler
-vector program, __empty_handler
-vector float_unavailable, __empty_handler
-vector system_call, __empty_handler
-vector auxiliary_unavailable, __empty_handler
-vector decrementer, decrementer_handler
-vector interval_timer, __empty_handler
-vector watchdog_timer, __empty_handler
-vector data_tlb_error, __empty_handler
-vector instruction_tlb_error, __empty_handler
-vector debug_critical, __empty_handler
+vector EE_e200zx_critical_input, __empty_handler
+vector EE_e200zx_machine_check, __empty_handler
+vector EE_e200zx_data_storage, __empty_handler
+vector EE_e200zx_instruction_storage, __empty_handler
+vector EE_e200zx_external_input, EE_e200zx_external_input_handler
+vector EE_e200zx_alignment, __empty_handler
+vector EE_e200zx_program, __empty_handler
+vector EE_e200zx_float_unavailable, __empty_handler
+vector EE_e200zx_system_call, __empty_handler
+vector EE_e200zx_auxiliary_unavailable, __empty_handler
+vector EE_e200zx_decrementer, EE_e200zx_decrementer_handler
+vector EE_e200zx_interval_timer, __empty_handler
+vector EE_e200zx_watchdog_timer, __empty_handler
+vector EE_e200zx_data_tlb_error, __empty_handler
+vector EE_e200zx_instruction_tlb_error, __empty_handler
+vector EE_e200zx_debug_critical, __empty_handler
 
 
 	.global	EE_e200z7_setup_decrementer
@@ -253,22 +253,22 @@ EE_e200z7_stop_decrementer:
 	.global	cpu_setup
 	.type	cpu_setup, @function
 cpu_setup:
-	set_ivor 0, critical_input
-	set_ivor 1, machine_check
-	set_ivor 2, data_storage
-	set_ivor 3, instruction_storage
-	set_ivor 4, external_input
-	set_ivor 5, alignment
-	set_ivor 6, program
-	set_ivor 7, float_unavailable
-	set_ivor 8, system_call
-	set_ivor 9, auxiliary_unavailable
-	set_ivor 10, decrementer
-	set_ivor 11, interval_timer
-	set_ivor 12, watchdog_timer
-	set_ivor 13, data_tlb_error
-	set_ivor 14, instruction_tlb_error
-	set_ivor 15, debug_critical
+	set_ivor 0, EE_e200zx_critical_input
+	set_ivor 1, EE_e200zx_machine_check
+	set_ivor 2, EE_e200zx_data_storage
+	set_ivor 3, EE_e200zx_instruction_storage
+	set_ivor 4, EE_e200zx_external_input
+	set_ivor 5, EE_e200zx_alignment
+	set_ivor 6, EE_e200zx_program
+	set_ivor 7, EE_e200zx_float_unavailable
+	set_ivor 8, EE_e200zx_system_call
+	set_ivor 9, EE_e200zx_auxiliary_unavailable
+	set_ivor 10, EE_e200zx_decrementer
+	set_ivor 11, EE_e200zx_interval_timer
+	set_ivor 12, EE_e200zx_watchdog_timer
+	set_ivor 13, EE_e200zx_data_tlb_error
+	set_ivor 14, EE_e200zx_instruction_tlb_error
+	set_ivor 15, EE_e200zx_debug_critical
 	msync
 
 	addis	r0, 0, vector_base@h

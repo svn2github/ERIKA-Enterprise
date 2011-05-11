@@ -88,7 +88,9 @@ DLD := rom.dld
 T32CMM_SRC := flash.cmm
 endif
 
-CRT0_SRCS := pkg/mcu/freescale_$(PPC_MCU_MODEL)/src/ee_boot.S
+ifneq ($(call iseeopt, __USE_CUSTOM_CRT0__), yes)
+EE_CRT0_SRCS := pkg/mcu/freescale_$(PPC_MCU_MODEL)/src/ee_boot.S
+endif
 
 # Add application file to dependencies
 ifneq ($(ONLY_LIBS), TRUE)
@@ -136,19 +138,16 @@ else
 SRCS += $(EE_BOOT_SRCS)
 endif
 
-CRT0 := $(addprefix $(OBJDIR)/, $(patsubst %.c,%.o,$(patsubst %.S,%.o, $(CRT0_SRCS))))
-OPT_CRT0 := $(CRT0)
-
 LIBEESRCS += $(EE_SRCS)
 LIBEEOBJS := $(addprefix $(OBJDIR)/, $(patsubst %.c,%.o,$(patsubst %.S,%.o,$(LIBEESRCS))))
 
 LIBEESRCS += $(LIB_SRCS)
 LIBOBJS := $(addprefix $(OBJDIR)/, $(patsubst %.c,%.o,$(patsubst %.S,%.o,$(LIBSRCS))))
 
-SRCS += $(APP_SRCS)
+SRCS += $(APP_SRCS) $(EE_CRT0_SRCS)
 OBJS := $(addprefix $(OBJDIR)/, $(patsubst %.c,%.o,$(patsubst %.S,%.o, $(SRCS))))
 
-ALLOBJS = $(LIBEEOBJS) $(LIBOBJS) $(OBJS) $(CRT0)
+ALLOBJS = $(LIBEEOBJS) $(LIBOBJS) $(OBJS)
 
 OBJDIRS=$(sort $(dir $(ALLOBJS)))
 
@@ -228,10 +227,10 @@ orti.men: system.orti
 ## ELF file creation
 ##
 
-$(TARGET): $(CRT0) $(OBJS) $(LINKDEP) $(LIBDEP)
+$(TARGET): $(OBJS) $(LINKDEP) $(LIBDEP)
 	@printf "LD\n";
 	$(QUIET)$(EE_LINK) $(COMPUTED_OPT_LINK)				\
-		-o $(TARGETFILE) $(OPT_CRT0) $(OBJS) $(OPT_LIBS) $(MAP_OPT)
+		-o $(TARGETFILE) $(OBJS) $(OPT_LIBS) $(MAP_OPT)
 	@echo
 	@echo "Compilation terminated successfully"
 	@echo
@@ -258,9 +257,11 @@ $(OBJDIR)/%.o: %.c
 ## Locator files
 ##
 
-$(LINK_SCRIPT): $(PKGBASE)/mcu/freescale_$(PPC_MCU_MODEL)/cfg/$(DLD)
+ifdef EE_LINK_SCRIPT
+$(EE_LINK_SCRIPT): $(PKGBASE)/mcu/freescale_$(PPC_MCU_MODEL)/cfg/$(DLD)
 	@printf "LOC\n" ;
 	$(QUIET) cp $< $@
+endif
 
 ##
 ## EE Library

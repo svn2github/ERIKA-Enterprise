@@ -104,17 +104,24 @@ OPT_CC = $(CFLAGS) $(OPT_TARGET) $(VLE_OPT) -use_lmw_stmw on -RTTI off \
 OPT_ASM += $(OPT_TARGET) $(VLE_OPT) -msgstyle gcc -gccinc -gnu_mode
 
 # OPT_LINK represents the options for ld invocation
-LINK_SCRIPT = loc_codewarrior.lcf
-OPT_LINK += $(OPT_TARGET) -L$(call native_path,$(MWLibraries))
+OPT_LINK += $(LDFLAGS) $(OPT_TARGET) -L$(call native_path,$(MWLibraries))
 OPT_LINK += $(addprefix -l, $(MW_LIBS))
-OPT_LINK += -lcf $(LINK_SCRIPT) -msgstyle gcc -nostdlib -char unsigned
+OPT_LINK += -msgstyle gcc -nostdlib -char unsigned
 ifneq ($(call iseeopt, __E200ZX_EXECUTE_FROM_RAM__), yes)
 # Here we assume that ROM is always at address 0.  Maybe it's too strong
 # an assumption, and a variable should be set in an MCU-specific makefile
 OPT_LINK += -romaddr 0x0 -rambuffer 0x0
 endif
-LINKDEP = $(LINK_SCRIPT)
 MAP_OPT = -map $(call native_path,$(MAP_FILE))
+# Linker script
+ifneq ($(call iseeopt, __USE_CUSTOM_LINKER_SCRIPT__), yes)
+EE_LINK_SCRIPT = loc_codewarrior.lcf
+LINKDEP = $(EE_LINK_SCRIPT)
+OPT_LINK +=  -lcf $(EE_LINK_SCRIPT)
+else
+EE_LINK_SCRIPT =
+LINKDEP =
+endif
 
 ifeq ($(call iseeopt, __DEFAULT_LD_SCRIPT__), yes)
 $(error "EEOPT __DEFAULT_LD_SCRIPT__ not supported")

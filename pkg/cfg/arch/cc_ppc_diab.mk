@@ -92,11 +92,18 @@ endif
 endif
 
 # OPT_LINK represents the options for ld invocation
-LINK_SCRIPT = loc_diab.dld
-OPT_LINK += $(OPT_TARGET)
-OPT_LINK += $(LINK_SCRIPT) -e __start -lc
-LINKDEP = $(LINK_SCRIPT)
+OPT_LINK += $(LDFLAGS) $(OPT_TARGET)
+OPT_LINK += -e __start -lc
 MAP_OPT = -m > $(MAP_FILE)
+# Linker script
+ifneq ($(call iseeopt, __USE_CUSTOM_LINKER_SCRIPT__), yes)
+EE_LINK_SCRIPT = loc_diab.dld
+OPT_LINK += $(EE_LINK_SCRIPT)
+LINKDEP = $(EE_LINK_SCRIPT)
+else
+EE_LINK_SCRIPT =
+LINKDEP =
+endif
 
 ifeq ($(call iseeopt, __DEFAULT_LD_SCRIPT__), yes)
 $(error "EEOPT __DEFAULT_LD_SCRIPT__ not supported")
