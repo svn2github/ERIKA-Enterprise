@@ -122,9 +122,9 @@ endif
 
 ifneq ($(call iseeopt, __BIN_DISTR), yes)
 ifeq ($(call iseeopt, DEBUG), yes)
-OPT_CC += -g
-OPT_ASM += -g
-OPT_LINK += -g
+OPT_CC += -gdwarf-2
+OPT_ASM += -gdwarf-2
+OPT_LINK += -gdwarf-2
 endif
 endif
 
