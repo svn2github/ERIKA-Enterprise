@@ -112,7 +112,7 @@ ifneq ($(call iseeopt, __E200ZX_EXECUTE_FROM_RAM__), yes)
 # an assumption, and a variable should be set in an MCU-specific makefile
 OPT_LINK += -romaddr 0x0 -rambuffer 0x0
 endif
-MAP_OPT = -map $(call native_path,$(MAP_FILE))
+MAP_OPT = -map $(call native_path,$(MAP_FILE)) -listclosure
 # Linker script
 ifneq ($(call iseeopt, __USE_CUSTOM_LINKER_SCRIPT__), yes)
 EE_LINK_SCRIPT = loc_codewarrior.lcf
