@@ -20,7 +20,7 @@ EE_INT8 EE_uart_init(EE_UINT8 port, EE_UINT32 baud, EE_UINT16 byte_format,
 		IEC0bits.U1TXIE = 0;
 		IFS0bits.U1RXIF = 0;		/* Clear Interrupt flag bits */
 		IFS0bits.U1TXIF = 0;
-		#ifndef __PIC24FJ32GA004__
+		#if !defined (__PIC24FJ32GA004__) && !defined (__PIC24FJ64GA004__) 
 		TRISFbits.TRISF2 = 1;		/* Set In RX Pin */
 		TRISFbits.TRISF3 = 0;		/* Set Out TX Pin */
 		if (mode == EE_UART_CTRL_FLOW) {	
@@ -30,7 +30,7 @@ EE_INT8 EE_uart_init(EE_UINT8 port, EE_UINT32 baud, EE_UINT16 byte_format,
 		#endif
 
 		/* baud rate */
-		#ifdef __PIC24FJ32GA004__
+		#if defined (__PIC24FJ32GA004__) || defined (__PIC24FJ64GA004__) 
 		if ( baud > 57600 )
 		/* EE_UART_INSTRUCTION_CLOCK  is computed considering Fcy = 16MHz*/
 			U1BRG  = (EE_UART_INSTRUCTION_CLOCK  / (4 * baud)) - 1;
@@ -73,7 +73,8 @@ EE_INT8 EE_uart_init(EE_UINT8 port, EE_UINT32 baud, EE_UINT16 byte_format,
 		IEC1bits.U2TXIE = 0;
 		IFS1bits.U2RXIF = 0;		/* Clear Interrupt flag bits */
 		IFS1bits.U2TXIF = 0;
-		#ifndef __PIC24FJ32GA004__
+		
+		#if !defined (__PIC24FJ32GA004__) && !defined (__PIC24FJ64GA004__) 
 		TRISFbits.TRISF4 = 1;		/* Set In RX Pin */
 		TRISFbits.TRISF5 = 0;		/* Set Out TX Pin */
 
@@ -84,7 +85,7 @@ EE_INT8 EE_uart_init(EE_UINT8 port, EE_UINT32 baud, EE_UINT16 byte_format,
 		#endif
 
 		/* baud rate */
-		#ifdef __PIC24FJ32GA004__
+		#if defined (__PIC24FJ32GA004__) || defined (__PIC24FJ64GA004__)
 		if ( baud > 57600 )
 		/* EE_UART_INSTRUCTION_CLOCK  is computed considering Fcy = 16MHz*/
 			U2BRG  = (EE_UART_INSTRUCTION_CLOCK  / (4 * baud)) - 1;
@@ -98,7 +99,7 @@ EE_INT8 EE_uart_init(EE_UINT8 port, EE_UINT32 baud, EE_UINT16 byte_format,
 
 		U2MODE = 0;
 
-		#ifdef __PIC24FJ32GA004__
+		#if defined (__PIC24FJ32GA004__) || defined (__PIC24FJ64GA004__)
 		if ( baud > 57600 )
 			U2MODEbits.BRGH = 1;
 		else

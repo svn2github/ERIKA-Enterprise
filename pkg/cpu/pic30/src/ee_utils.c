@@ -43,7 +43,8 @@
 
 EE_UINT16 temp_count __attribute__((near)) = 0;
 
-void EE_delay_us(EE_UINT32 delay)
+#if !defined (__PIC24FJ32GA004__) && !defined (__PIC24FJ64GA004__) 
+void EE_delay_us(EE_UINT32 delay)  
 {
   /* NOTE: this function simply produce a delay*/
   /* NOT the correct number of microseconds   */
@@ -57,3 +58,31 @@ void EE_delay_us(EE_UINT32 delay)
 	asm volatile("bra outer1");
 	asm volatile("done1:");
 }
+
+#else
+
+#warning "EE_delay_us(EE_UINT32 delay) does not work for PIC24. \
+The correct behaviour has to be implemented"
+
+void EE_delay_us(EE_UINT32 delay)
+{
+
+/*
+* asm volatile("do #1500, inner1" ); is available only with
+*  dsPIC33, not with PIC24.
+*
+*
+*/
+  /* NOTE: this function simply produce a delay*/
+  /* NOT the correct number of microseconds   */
+	temp_count = delay/100 +1;
+	asm volatile("outer1: dec _temp_count");
+	asm volatile("cp0 _temp_count");
+	asm volatile("bra z, done1");
+	//asm volatile("do #1500, inner1" );
+	asm volatile("nop");
+	asm volatile("inner1: nop");
+	asm volatile("bra outer1");
+	asm volatile("done1:");
+}
+#endif
