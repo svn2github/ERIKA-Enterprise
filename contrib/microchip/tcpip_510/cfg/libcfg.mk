@@ -1,17 +1,20 @@
+##Check if is the stack that we're asking for
+ifeq ($(call iseeopt, __USE_MCHP_TCPIP_510__), yes)
 ## Check the Console library selection
 ifeq ($(findstring __LIB_TCPIP__,$(LIB_OPT)) , __LIB_TCPIP__)
-INCLUDE_TCPIP = YES
+INCLUDE_TCPIP_510 = YES
 endif
 
 ## Check if it's selected all libs inclusion
 ifeq ($(call iseeopt, __BUILD_ALL_LIBS__), yes)
-INCLUDE_TCPIP = YES
+INCLUDE_TCPIP_510 = YES
+endif
 endif
 
 ##
 ## If the library is required
 ##
-ifeq ($(INCLUDE_TCPIP), YES)
+ifeq ($(INCLUDE_TCPIP_510), YES)
 
 ##
 ## Library code

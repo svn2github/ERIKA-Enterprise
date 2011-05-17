@@ -1,3 +1,5 @@
+##Check if is the stack that we're asking for
+ifeq ($(call iseeopt, __USE_MCHP_TCPIP_525__), yes)
 ## Check the Console library selection
 ifeq ($(findstring __LIB_TCPIP__,$(LIB_OPT)) , __LIB_TCPIP__)
 INCLUDE_TCPIP = YES
