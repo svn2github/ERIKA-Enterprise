@@ -209,8 +209,10 @@ $(APP_OUTPUT_ELF): $(OBJS) $(PLATFORM_RULES_MAKEFILE) $(LINK_SCRIPT) \
 ##
 
 dependencies=$(subst .o,.d,$(ALLOBJS))
+ifneq ($(call iseeopt, NODEPS), yes) 
 ifneq ($(MAKECMDGOALS),clean)
 -include $(dependencies)
+endif
 endif
 
 # Build .o files from .c files.

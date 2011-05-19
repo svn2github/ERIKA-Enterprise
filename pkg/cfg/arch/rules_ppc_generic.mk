@@ -279,7 +279,7 @@ libee.a: $(LIBEEOBJS)
 ##
 
 dependencies=$(subst .o,.d,$(ALLOBJS))
-ifndef NODEPS
+ifneq ($(call iseeopt, NODEPS), yes) 
 ifneq ($(MAKECMDGOALS),clean)
 -include $(dependencies)
 endif
