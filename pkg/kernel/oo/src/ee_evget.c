@@ -44,7 +44,6 @@
  */
 
 #include "ee_internal.h"
-#include "../inc/ee_kernel.h"
 
 /* GetEvent:
    - can be called from a task, from ISR, from error, pre e post taskhook

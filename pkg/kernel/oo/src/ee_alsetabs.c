@@ -44,7 +44,6 @@
  */
 
 #include "ee_internal.h"
-#include "../inc/ee_kernel.h"
 
 /* SetAbsAlarm
    - This function occupies the AlarmID setting an alarm when the counter 

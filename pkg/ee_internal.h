@@ -282,6 +282,8 @@ extern "C" {
 
 #if defined(__OO_BCC1__) || defined(__OO_BCC2__) || defined(__OO_ECC1__) || defined(__OO_ECC2__)
 #include "kernel/oo/inc/ee_internal.h"
+/* API prototypes should be visible when defining API functions */
+#include "kernel/oo/inc/ee_kernel.h"
 #endif
 
 #ifdef __SEM__

@@ -44,7 +44,6 @@
  */
 
 #include "ee_internal.h"
-#include "../inc/ee_kernel.h"
 
 /* ClearEvent:
    - can be called from an extended task

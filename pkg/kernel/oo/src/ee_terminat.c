@@ -44,7 +44,6 @@
  */
 
 #include "ee_internal.h"
-#include "../inc/ee_kernel.h"
 
 /* TerminateTask:
    - The task is moved from the running state to the suspended state

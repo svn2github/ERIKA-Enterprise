@@ -44,7 +44,6 @@
  */
 
 #include "ee_internal.h"
-#include "../inc/ee_kernel.h"
 
 /* ReleaseResource:
    - release a resource

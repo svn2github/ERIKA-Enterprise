@@ -44,7 +44,6 @@
  */
 
 #include "ee_internal.h"
-#include "../inc/ee_kernel.h"
 
 #ifndef __PRIVATE_COUNTER_TICK__
 void EE_oo_alarm_insert(AlarmType AlarmID, TickType increment)

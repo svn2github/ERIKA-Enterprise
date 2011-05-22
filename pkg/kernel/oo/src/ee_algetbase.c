@@ -44,7 +44,6 @@
  */
 
 #include "ee_internal.h"
-#include "../inc/ee_kernel.h"
 
 /* GetAlarmBase
    - This function returns the base characteristics of a counter

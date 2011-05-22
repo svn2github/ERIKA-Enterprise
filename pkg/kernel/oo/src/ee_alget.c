@@ -44,7 +44,6 @@
  */
 
 #include "ee_internal.h"
-#include "../inc/ee_kernel.h"
 
 /* GetAlarm
    - This function returns the relative value in ticks before the alarm
