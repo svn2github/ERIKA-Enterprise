@@ -62,6 +62,7 @@ volatile int wecanstart=0;
 SemType mySem = STATICSEM(0);
 SemType mySemMax = STATICSEM(EE_MAX_SEM_COUNTER);
 
+DeclareTask(BasTask);
 
 
 TASK(BasTask)

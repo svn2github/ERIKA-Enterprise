@@ -57,6 +57,9 @@ EE_TYPEASSERTVALUE EE_assertions[12];
 
 SemType mySem = STATICSEM(1);
 
+DeclareTask(ExtTask);
+DeclareTask(ExtTask2);
+DeclareTask(BasTask);
 
 TASK(ExtTask)
 {

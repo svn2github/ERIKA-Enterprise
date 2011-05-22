@@ -50,6 +50,11 @@ EE_TYPEASSERTVALUE EE_assertions[16];
 DeclareTask(Task1);
 DeclareTask(Task2);
 DeclareTask(Task3);
+DeclareTask(Task4);
+DeclareTask(Task5);
+DeclareTask(Task6);
+DeclareTask(Task7);
+DeclareTask(Task8);
 
 TASK(Task1)
 {

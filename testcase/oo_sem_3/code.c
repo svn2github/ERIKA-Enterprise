@@ -62,6 +62,10 @@ volatile int BasTaskLow_cancontinue=0;
 
 SemType mySem;
 
+DeclareTask(ExtTask);
+DeclareTask(BasTask);
+DeclareTask(BasTaskLow);
+DeclareTask(ExtTaskLow);
 
 TASK(ExtTask)
 {

@@ -61,7 +61,7 @@ volatile int ISR2_fired;
 
 #if defined(__NIOS2__)
 #include "sys/alt_alarm.h"
-void myISR2(void);
+static void myISR2(void);
 alt_u32 mycallback (void* arg)
 {
   myISR2();
@@ -78,7 +78,7 @@ _ISR2(myISR2)
 		#include "ee_hs12xsregs.h" 
 		ISR2(myISR2)
 	#else
-		void myISR2(void)
+		static void myISR2(void)
 	#endif
 #endif
 {

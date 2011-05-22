@@ -61,6 +61,9 @@ volatile int wecanstart=0;
 
 SemType mySem = STATICSEM(0);
 
+DeclareTask(ExtTask);
+DeclareTask(BasTask);
+
 
 TASK(ExtTask)
 {
