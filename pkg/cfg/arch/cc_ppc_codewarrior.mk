@@ -95,10 +95,12 @@ VLE_OPT =
 endif
 
 ## Candidate OPT_CC
-OPT_CC = $(CFLAGS) $(OPT_TARGET) $(VLE_OPT) -use_lmw_stmw on -RTTI off \
- -Cpp_exceptions off -flag require_prototypes -msgstyle gcc -gccinc \
- -char unsigned -nostdinc -rostr -O4 -ipa file -inline on,auto -schedule on \
- -pragma "section RW \".stack\" \".ustack\""
+OPT_CC = $(CFLAGS) $(OPT_TARGET) $(VLE_OPT) -RTTI off -Cpp_exceptions off \
+ -gccinc -char unsigned -nostdinc -pragma "section RW \".stack\" \".ustack\""
+ifneq ($(call iseeopt, __MINIMAL_CC_OPTIONS__), yes)
+OPT_CC += -use_lmw_stmw on -flag require_prototypes -msgstyle gcc -rostr \
+ -O4 -ipa file -inline on,auto -schedule on
+endif
 
 ## OPT_ASM are the options for asm invocation
 OPT_ASM += $(OPT_TARGET) $(VLE_OPT) -msgstyle gcc -gccinc -gnu_mode
