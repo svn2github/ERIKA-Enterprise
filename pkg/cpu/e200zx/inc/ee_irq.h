@@ -48,11 +48,8 @@
 
 /* Use angled parenthesis to include the main "ee_internal.h" */
 #include <ee_internal.h>
-#include "cpu/common/inc/ee_irqstub.h"
-#include "cpu/e200zx/inc/ee_irq.h"
-#include "cpu/e200zx/inc/ee_internal.h"
+#include "cpu/e200zx/inc/ee_irq_internal.h"
 
-typedef void (*EE_e200z7_ISR_handler)(void);
 extern EE_e200z7_ISR_handler EE_e200z7_ISR_table[];
 
 /*

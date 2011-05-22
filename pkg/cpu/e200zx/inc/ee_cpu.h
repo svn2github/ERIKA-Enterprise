@@ -90,6 +90,9 @@ typedef EE_INT32 EE_TID;
 /* Use the "standard" implementation */
 #include "cpu/common/inc/ee_hal_structs.h"
 
+/* Type pointing to an ISR */
+typedef void (*EE_e200z7_ISR_handler)(void);
+
 #ifdef __MULTI__
 
 /* Alignment and section for program stacks */
