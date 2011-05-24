@@ -25,5 +25,7 @@ ALLINCPATH += -I"$(shell cygpath -w $(EEBASE)/contrib/microchip/dee_emulation/in
 else
 ALLINCPATH += -I$(EEBASE)/contrib/microchip/dee_emulation/inc
 endif
+#New include mechanism
+INCLUDE_PATH += $(EEBASE)/contrib/microchip/dee_emulation/inc
 
 endif

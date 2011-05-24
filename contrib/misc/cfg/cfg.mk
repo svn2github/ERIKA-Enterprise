@@ -64,5 +64,7 @@ else
 ALLINCPATH += -I$(EEBASE)/contrib/misc/inc
 endif
 endif
+##New include mechanism
+INCLUDE_PATH += $(EEBASE)/contrib/misc/inc
 
 endif # __LIB_MISC_NUM2STR__ || __LIB_MISC__

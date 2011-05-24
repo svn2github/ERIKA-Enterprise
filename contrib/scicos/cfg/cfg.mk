@@ -26,6 +26,12 @@ ALLINCPATH += -I$(EEBASE)/contrib/scicos/inc/core
 ALLINCPATH += -I$(EEBASE)/contrib/scicos/inc/pic30/communication
 ALLINCPATH += -I$(EEBASE)/contrib/scicos/inc/pic30/communication/udp
 endif
+## New include mechanism
+INCLUDE_PATH += $(EEBASE)/contrib/scicos/inc/core
+INCLUDE_PATH += $(EEBASE)/contrib/scicos/inc/pic30/communication
+INCLUDE_PATH += $(EEBASE)/contrib/scicos/inc/pic30/communication/udp
+
+
 ##
 ## Application files
 ##

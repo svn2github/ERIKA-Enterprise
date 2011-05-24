@@ -27,6 +27,8 @@ ALLINCPATH += -I"$(shell cygpath -w $(EEBASE)/contrib/microchip/tcpip_531/inc)"
 else
 ALLINCPATH += -I$(EEBASE)/contrib/microchip/tcpip_531/inc
 endif
+##New include mechanism
+INCLUDE_PATH += $(EEBASE)/contrib/microchip/tcpip_531/inc
 
 ## Add each file individually
 #EE_SRCS_TCPIP_TMP = $(shell ls $(EEBASE)/contrib/microchip/tcpip_531/libsrc/*.c)

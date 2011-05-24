@@ -25,6 +25,8 @@ ALLINCPATH += -I"$(shell cygpath -w $(EEBASE)/contrib/drivers/radio/cc2420/inc)"
 else
 ALLINCPATH += -I$(EEBASE)/contrib/drivers/radio/cc2420/inc
 endif
+## New include mechanism
+INCLUDE_PATH += $(EEBASE)/contrib/drivers/radio/cc2420/inc
 
 ## Add each file individually
 #EE_SRCS_CC2420 += contrib/drivers/radio/cc2420/libsrc/libcc2420.c

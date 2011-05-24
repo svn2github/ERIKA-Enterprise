@@ -25,5 +25,7 @@ ALLINCPATH += -I"$(shell cygpath -w $(EEBASE)/contrib/amazing/inc)"
 else
 ALLINCPATH += -I$(EEBASE)/contrib/amazing/inc
 endif
+## New include mechanism
+INCLUDE_PATH += $(EEBASE)/contrib/amazing/inc
 
 endif

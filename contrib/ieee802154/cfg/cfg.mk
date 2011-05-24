@@ -67,5 +67,7 @@ INTERNAL_MYLIBINCPATH += -I$(EEBASE)/contrib/ieee802154/inc
 endif
 
 ALLINCPATH += $(INTERNAL_MYLIBINCPATH)
+#New Include mechanism
+INCLUDE_PATH += $(EEBASE)/contrib/ieee802154/inc
 
 endif

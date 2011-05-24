@@ -29,6 +29,9 @@ else
 ALLINCPATH += -I$(EEBASE)/contrib/atmel802_15_4/inc
 ALLINCPATH += -I$(EEBASE)/contrib/atmel802_15_4/libsrc/inc
 endif
+## New include mechanism
+INCLUDE_PATH += $(EEBASE)/contrib/atmel802_15_4/inc
+INCLUDE_PATH += $(EEBASE)/contrib/atmel802_15_4/libsrc/inc
 
 ##
 ## Library code

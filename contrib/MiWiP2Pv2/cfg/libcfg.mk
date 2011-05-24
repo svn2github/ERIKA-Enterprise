@@ -25,6 +25,8 @@ ALLINCPATH += -I"$(shell cygpath -w $(EEBASE)/contrib/MiWiP2Pv2/inc)"
 else
 ALLINCPATH += -I$(EEBASE)/contrib/MiWiP2Pv2/inc
 endif
+## New include mechanism
+INCLUDE_PATH += $(EEBASE)/contrib/MiWiP2Pv2/inc
 
 ## Add each file individually
 EE_SRCS_MIWIP2P_V2 +=

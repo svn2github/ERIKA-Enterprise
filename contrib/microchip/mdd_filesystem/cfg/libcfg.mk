@@ -25,6 +25,8 @@ ALLINCPATH += -I"$(shell cygpath -w $(EEBASE)/contrib/microchip/mdd_filesystem/i
 else
 ALLINCPATH += -I$(EEBASE)/contrib/microchip/mdd_filesystem/inc
 endif
+## New include mechanism
+INCLUDE_PATH += $(EEBASE)/contrib/microchip/mdd_filesystem/inc
 
 ## Add each file individually
 EE_SRCS_MDD_FILESYSTEM +=

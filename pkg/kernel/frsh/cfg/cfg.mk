@@ -45,6 +45,8 @@ ifeq ($(call iseeopt, __FRSH__), yes)
 
 INTERNAL_FRSH_PATH := -I"$(shell cygpath -w $(PKGBASE))\\."/kernel/frsh/frsh_include
 ALLINCPATH += $(INTERNAL_FRSH_PATH)
+## New Include mechanism
+INCLUDE_PATH = $(call native_path, $(PKGBASE))/kernel/frsh/frsh_include
 
 EE_SRCS += pkg/kernel/frsh/src/ee_cap.c
 EE_SRCS += pkg/kernel/frsh/src/ee_dlcheck.c

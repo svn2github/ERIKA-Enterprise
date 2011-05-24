@@ -25,5 +25,7 @@ ALLINCPATH += -I"$(shell cygpath -w $(EEBASE)/contrib/drivers/touch/inc)"
 else
 ALLINCPATH += -I$(EEBASE)/contrib/drivers/touch/inc
 endif
+## New include mechanism
+INCLUDE_PATH += $(EEBASE)/contrib/drivers/touch/inc
 
 endif

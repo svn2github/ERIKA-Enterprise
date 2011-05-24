@@ -23,6 +23,8 @@ ALLINCPATH += -I"$(shell cygpath -w $(EEBASE)/contrib/drivers/nvram/fm25h20/inc)
 else
 ALLINCPATH += -I$(EEBASE)/contrib/drivers/nvram/fm25h20/inc
 endif
+## New include mechanism
+INCLUDE_PATH += $(EEBASE)/contrib/drivers/nvram/fm25h20/inc
 
 ## Add each file individually
 #EE_SRCS_FM25H20 += contrib/drivers/nvram/fm25h20/libsrc/libfm25h20.c
