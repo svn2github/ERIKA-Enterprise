@@ -43,43 +43,38 @@
  */
 
 #include <cpu/e200zx/inc/ee_regs.h>
-
-#ifdef __ALLOW_NESTED_IRQ__
-jmp_if_nested_reg: .macro reg, label
-	cmpi	cr0, reg, 1
-	bne	label
-	.endm
-
-jmp_if_nested: .macro label
-	addis	r5, 0, EE_IRQ_nesting_level@ha
-	lwz	r0, EE_IRQ_nesting_level@l(r5)
-	cmpi	cr0, r0, 1
-	bne	label
-	.endm
-
-enable_irq_nested: .macro
-	wrteei	1
-	.endm
-
-disable_irq_nested: .macro
-	wrteei	0
-	.endm
-#else
-jmp_if_nested_reg: .macro reg, label
-	.endm
-
-jmp_if_nested: .macro label
-	.endm
-
-enable_irq_nested: .macro
-	.endm
-
-disable_irq_nested: .macro
-	.endm
+#ifdef __ASM_CONVERTED_TO_C__
+#include <cpu/e200zx/inc/ee_irq.h>
 #endif
 
-        .section .bss
+#ifdef __ALLOW_NESTED_IRQ__
+#define jmp_if_nested_reg(reg, label)	\
+	cmpi	cr0, reg, 1 \
+	bne	label
 
+#define jmp_if_nested(label)	\
+	addis	r5, 0, EE_IRQ_nesting_level@ha \
+	lwz	r0, EE_IRQ_nesting_level@l(r5) \
+	cmpi	cr0, r0, 1 \
+	bne	label
+
+#define disable_irq_nested	wrteei	1
+
+#define disable_irq_nested	wrteei	0
+
+#else
+#define jmp_if_nested_reg(reg, label)
+
+#define jmp_if_nested(label)
+
+#define enable_irq_nested
+
+#define disable_irq_nested
+
+#endif
+
+	/* CW-VAR-DEFINITION: EE_ADDR EE_e200z7_tmp_tos; */
+        .section .bss
 	.global	EE_e200z7_tmp_tos
 	.type	EE_e200z7_tmp_tos, @object
 	.balign	4
@@ -89,10 +84,9 @@ EE_e200z7_tmp_tos:
 
 	.text
 
+	/* CW-FUNC-DEFINITION: void EE_e200z7_call_ISR_new_stack(int level, EE_e200z7_ISR_handler fun, unsigned nesting) */
 	.global EE_e200z7_call_ISR_new_stack
-
 	.type EE_e200z7_call_ISR_new_stack, @function
-
 EE_e200z7_call_ISR_new_stack:
 	/*
 	 * r3 == irq_level
@@ -105,7 +99,7 @@ EE_e200z7_call_ISR_new_stack:
 	stw	r0, 20(sp)
 
 	/* if (nesting_level == 1) */
-	jmp_if_nested_reg r5, skip_change
+	jmp_if_nested_reg(r5, skip_change)
 
         /*	change_stacks(); */
 	addis	r3, 0, EE_e200z7_tmp_tos@ha
@@ -126,7 +120,7 @@ skip_change:
 	disable_irq_nested
 
 	/* if (nesting_level == 1) */
-	jmp_if_nested skip_change_back
+	jmp_if_nested(skip_change_back)
 
 	/*     change_stacks_back(); */
 	addis	r3, 0, EE_e200z7_tmp_tos@ha

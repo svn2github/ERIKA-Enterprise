@@ -50,6 +50,7 @@
 
 	ASM_REORDER_OFF
 
+	/* CW-FUNC-DEFINITION: void save_registers(void) */
 	.type	save_registers, @function
 save_registers:
 	stw	r0, 12(sp)	/* LR, copied by the `vector' macro */
@@ -79,6 +80,7 @@ save_registers:
 	.size	save_registers, .-save_registers
 
 
+	/* CW-FUNC-DEFINITION: void restore_all_return(void) */
 	.type	restore_all_return, @function
 restore_all_return:
 	lwz	r0, 76(sp)
@@ -117,6 +119,7 @@ restore_all_return:
  */
 #include <cpu/e200zx/inc/ee_mcu_regs_asm.h>
 
+	/* CW-FUNC-DEFINITION:  void EE_e200zx_external_input_handler(void) */
 	.global EE_e200zx_external_input_handler
 	.type	EE_e200zx_external_input_handler, @function
 EE_e200zx_external_input_handler:
@@ -135,6 +138,7 @@ EE_e200zx_external_input_handler:
 	.size	EE_e200zx_external_input_handler, .-EE_e200zx_external_input_handler
 
 
+	/* CW-FUNC-DEFINITION: void EE_e200zx_decrementer_handler(void) */
 	.global EE_e200zx_decrementer_handler
 	.type	EE_e200zx_decrementer_handler, @function
 EE_e200zx_decrementer_handler:
@@ -147,6 +151,7 @@ EE_e200zx_decrementer_handler:
 	.size	EE_e200zx_decrementer_handler, .-EE_e200zx_decrementer_handler
 
 
+	/* CW-FUNC-DEFINITION: void EE_e200z7_setup_decrementer(unsigned long value) */
 	.global	EE_e200z7_setup_decrementer
 	.type	EE_e200z7_setup_decrementer, @function
 EE_e200z7_setup_decrementer:
@@ -162,6 +167,7 @@ EE_e200z7_setup_decrementer:
 	.size	EE_e200z7_setup_decrementer, .-EE_e200z7_setup_decrementer
 
 
+	/* CW-FUNC-DEFINITION:  void EE_e200z7_setup_decrementer_oneshot(unsigned long value) */
 	.global	EE_e200z7_setup_decrementer_oneshot
 	.type	EE_e200z7_setup_decrementer_oneshot, @function
 EE_e200z7_setup_decrementer_oneshot:
@@ -176,6 +182,7 @@ EE_e200z7_setup_decrementer_oneshot:
 	.size	EE_e200z7_setup_decrementer_oneshot, .-EE_e200z7_setup_decrementer_oneshot
 
 
+	/* CW-FUNC-DEFINITION: void EE_e200z7_stop_decrementer(void) */
 	.global	EE_e200z7_stop_decrementer
 	.type	EE_e200z7_stop_decrementer, @function
 EE_e200z7_stop_decrementer:
@@ -199,6 +206,7 @@ EE_e200z7_stop_decrementer:
 	.size	EE_e200z7_stop_decrementer, .-EE_e200z7_stop_decrementer
 
 
+	/* CW-FUNC-DEFINITION: void cpu_setup(void) */
 	.global	cpu_setup
 	.type	cpu_setup, @function
 cpu_setup:
@@ -219,6 +227,7 @@ cpu_setup:
 
 	.section .boot
 
+	/* CW-FUNC-DEFINITION: void mmu_setup(void) */
 	.global	mmu_setup
 	.type	mmu_setup, @function
 mmu_setup:
@@ -231,6 +240,7 @@ mmu_setup:
 #define RAM_BASE	0x40000000
 #define RAM_LEN		0x00040000
 
+	/* CW-FUNC-DEFINITION: void sram_setup(void) */
 	.global	sram_setup
 	.type	sram_setup, @function
 sram_setup:

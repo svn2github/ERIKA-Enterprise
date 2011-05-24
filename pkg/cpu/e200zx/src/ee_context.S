@@ -66,6 +66,7 @@ Pseudo code for EE_std_change_context():
 
 	.text
 
+	/* CW-FUNC-DEFINITION: void EE_std_change_context(EE_TID tid) */
 	.global EE_std_change_context
 	.type	EE_std_change_context, @function
 

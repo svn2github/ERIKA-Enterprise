@@ -164,3 +164,8 @@ DEPENDENCY_OPT = -MDfile $(subst .o,.d_tmp,$@)
 make-depend = mv $3_tmp $3
 endif # __RTD_CYGWIN__
 endif # NODEPS
+
+NEED_ASM_TO_C_TRANSLATION = 1
+asm_to_c_filename = $(addprefix $(OBJDIR)/,$(subst .S,_asm.c,$1))
+asm_to_c_command = gawk -f $(EEBASE)/pkg/cfg/arch/ppc_codewarrior_vle.awk < $1 > $2 || rm $2
+EE_SRCS += $(call asm_to_c_filename,$(EE_CASM_SRCS))

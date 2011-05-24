@@ -135,3 +135,6 @@ DEPENDENCY_OPT = -Xmake-dependency=d -Xmake-dependency-target=$@ -Xmake-dependen
 make-depend = mv $3_tmp $3
 endif # __RTD_CYGWIN__
 endif # NODEPS
+
+EE_SRCS += $(EE_CASM_SRCS)
+NEED_ASM_TO_C_TRANSLATION = 0

@@ -46,8 +46,12 @@
 #include <eecfg.h>
 #include <cpu/e200zx/inc/ee_regs.h>
 #include <mcu/freescale_mpc5674f/inc/ee_regs_asm.h>
+#include <cpu/e200zx/inc/ee_cpu_asm.h>
 
-	.extern	_load_ram, _sdata, _sbss, _ebss, sram_setup
+	.extern	_load_ram, _sdata, _sbss, _ebss, sram_setup, main
+#ifdef __ASM_CONVERTED_TO_C__
+int main(void);
+#endif
 
 #ifndef __E200ZX_EXECUTE_FROM_RAM__
 #ifdef __VLE__
@@ -55,6 +59,12 @@
 #else
 #define BAM_RCHW 0x05a0000
 #endif
+	/* CW-VAR-DEFINITION:
+	#pragma section R ".bam_data"
+	const struct { EE_UINT32 rchw; void (*start)(void); }
+		EE_COMPILER_SECTION(".bam_data") bam_data =
+		{ BAM_RCHW, __start };
+	*/
 	.section .bam_data
 	.global	_bam_data
 	.type	_bam_data, @object
@@ -64,9 +74,12 @@ _bam_data:
 	.size	_bam_data, .-_bam_data
 #endif /* __E200ZX_EXECUTE_FROM_RAM__ */
 
+	.extern	EE_e200zx_sys_stack
+#define _stack0	(EE_e200zx_sys_stack + EE_SYS_STACK_SIZE - 16)
 
 	.section .boot
 
+	/* CW-FUNC-DEFINITION: void __start(void) */
 	.global	__start
 	.type	__start, @function
 __start:
@@ -134,19 +147,6 @@ __start:
 	.size	__start, .-__start
 
 
-	.section .stack
-	.balign 16
-
-#ifndef EE_SYS_STACK_SIZE
-#define EE_SYS_STACK_SIZE	512
-#endif
-	.space	EE_SYS_STACK_SIZE-16
-
-	.global _stack0
-	.balign 16
-_stack0:
-	.space	16
-
 /*
  * external interrupt handlers (the first 16 entries are for cpu vectors)
  * to use the full hw support we should let the INTC handle the multiplexing,
@@ -156,8 +156,7 @@ _stack0:
 /* VTBA = 0 -> Only offsets are read from INTC_IACKR_PRC */
 #define VTBA	0
 
-	.text
-
+	/* CW-FUNC-DEFINITION: static void intc_setup(void) */
 	.type	intc_setup, @function
 intc_setup:
 	/* MCR = 0: VTES=0 (4 byte entries) HVEN=0 (SW vector mode) */

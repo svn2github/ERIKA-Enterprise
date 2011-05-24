@@ -89,7 +89,13 @@ T32CMM_SRC := flash.cmm
 endif
 
 ifneq ($(call iseeopt, __USE_CUSTOM_CRT0__), yes)
-EE_CRT0_SRCS := pkg/mcu/freescale_$(PPC_MCU_MODEL)/src/ee_boot.S
+EE_CRT0_S := pkg/mcu/freescale_$(PPC_MCU_MODEL)/src/ee_boot.S
+ifeq ($(NEED_ASM_TO_C_TRANSLATION), 1)
+EE_CRT0_SRCS := $(call asm_to_c_filename,$(EE_CRT0_S))
+EE_CASM_SRCS += $(EE_CRT0_S)
+else
+EE_CRT0_SRCS := $(EE_CRT0_S)
+endif
 endif
 
 # Add application file to dependencies
@@ -152,7 +158,7 @@ OBJS := $(addprefix $(OBJDIR)/, $(patsubst %.c,%.o,$(patsubst %.S,%.o, $(SRCS)))
 
 ALLOBJS = $(LIBEEOBJS) $(LIBOBJS) $(OBJS) $(CRT0)
 
-OBJDIRS=$(sort $(dir $(ALLOBJS)))
+OBJDIRS=$(sort $(dir $(ALLOBJS) $(INTERMEDIATE_FILES)))
 
 # INCLUDE_PATH is a space-separated list of directories for header file searching
 # we consider the ee pkg directory and the application dir
@@ -254,6 +260,19 @@ endif
 $(OBJDIR)/%.o: %.c
 	$(VERBOSE_PRINTCC)  $(EE_CC) $(COMPUTED_OPT_CC) $(COMPUTED_OPT_INCLUDE) $(DEFS_CC) $(DEPENDENCY_OPT) -c $(SOURCEFILE) -o $(TARGETFILE)
 	$(QUIET) $(call make-depend, $<, $@, $(subst .o,.d,$@))
+
+
+##
+## Assembly-to-C translation (used for CodeWarrior VLE)
+##
+ifeq ($(NEED_ASM_TO_C_TRANSLATION), 1)
+EE_CASM_CFILES = $(call asm_to_c_filename,$(EE_CASM_SRCS))
+$(EE_CASM_CFILES): $(call asm_to_c_filename,%.S): %.S
+	@echo "ASM2C $(notdir $<) $@"
+	$(QUIET)$(call asm_to_c_command,$<,$@)
+$(EE_CASM_CFILES): | make_directories
+INTERMEDIATE_FILES += $(EE_CASM_CFILES)
+endif
 
 
 ##

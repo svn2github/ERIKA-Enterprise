@@ -39,9 +39,12 @@
 # ###*E*###
 
 ifeq ($(or $(call iseeopt, __PPCE200ZX__), $(call iseeopt, __PPCE200Z7__)), yes)
-EE_SRCS += pkg/cpu/e200zx/src/ee_entry.S
+# EE_CASM_SRCS is used for assembly files that have to be translated to C
+# for CodeWarrior FLE-to-VLE conversion to work
+EE_CASM_SRCS += pkg/cpu/e200zx/src/ee_entry.S
 EE_SRCS += pkg/cpu/e200zx/src/ee_ivor.S
 EE_SRCS += pkg/cpu/e200zx/src/ee_irq.c
+EE_SRCS += pkg/cpu/e200zx/src/ee_e200zx_cpu.c
 
 ifeq ($(call iseeopt, __OO_BCC1__), yes)
 CPU_OO=YES
@@ -57,16 +60,16 @@ CPU_OO=YES
 endif
 
 ifeq ($(CPU_OO), YES)
-EE_SRCS += pkg/cpu/e200zx/src/ee_oo.S
+EE_CASM_SRCS += pkg/cpu/e200zx/src/ee_oo.S
 endif
 
 ifeq ($(call iseeopt, __MULTI__), yes)
-EE_SRCS += pkg/cpu/e200zx/src/ee_context.S
+EE_CASM_SRCS += pkg/cpu/e200zx/src/ee_context.S
 EE_SRCS += pkg/cpu/common/src/ee_context.c
 endif
 
 ifeq ($(call iseeopt, __IRQ_STACK_NEEDED__), yes)
-EE_SRCS += pkg/cpu/e200zx/src/ee_irq_stack.S
+EE_CASM_SRCS += pkg/cpu/e200zx/src/ee_irq_stack.S
 endif
 
 endif # __PPCE200ZX__

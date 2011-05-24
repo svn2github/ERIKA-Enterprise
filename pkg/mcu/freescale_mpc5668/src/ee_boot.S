@@ -46,8 +46,12 @@
 #include <eecfg.h>
 #include <cpu/e200zx/inc/ee_regs.h>
 #include <mcu/freescale_mpc5668/inc/ee_regs_asm.h>
+#include <cpu/e200zx/inc/ee_cpu_asm.h>
 
-	.extern	_load_ram, _sdata, _sbss, _ebss, sram_setup
+	.extern	_load_ram, _sdata, _sbss, _ebss, sram_setup, main
+#ifdef __ASM_CONVERTED_TO_C__
+int main(void);
+#endif
 
 #ifndef __E200ZX_EXECUTE_FROM_RAM__
 #ifdef __VLE__
@@ -55,6 +59,12 @@
 #else
 #define BAM_RCHW 0x05a0000
 #endif
+	/* CW-VAR-DEFINITION:
+	#pragma section R ".bam_data"
+	const struct { EE_UINT32 rchw; void (*start)(void); }
+		EE_COMPILER_SECTION(".bam_data") bam_data =
+		{ BAM_RCHW, __start };
+	*/
 	.section .bam_data
 	.global	_bam_data
 	.type	_bam_data, @object
@@ -65,8 +75,12 @@ _bam_data:
 #endif /* __E200ZX_EXECUTE_FROM_RAM__ */
 
 
+	.extern	EE_e200zx_sys_stack
+#define _stack0	(EE_e200zx_sys_stack + EE_SYS_STACK_SIZE - 16)
+
 	.section .boot
 
+	/* CW-FUNC-DEFINITION: void __start(void) */
 	.global	__start
 	.type	__start, @function
 __start:
@@ -125,8 +139,6 @@ __start:
 	addis	r2, 0, _SDA2_BASE_@ha	/* load .sdata2 base into r2 */
 	addi	r2, r2, _SDA_BASE_@l
 
-	bl	flash_setup		/* reduce flash wait states */
-
 	bl	cpu_setup		/* cpu-specific initialization */
 	bl	intc_setup		/* mcu-specific initialization */
 	bl	main			/* jump to application code */
@@ -137,119 +149,6 @@ __start:
 	.size	__start, .-__start
 
 
-#define FMPLL_BASE		0xc3f80000
-#define FMPLL_ESYNSR		0xc3f80004
-#define FMPLL_ESYNCR1		0xc3f80008
-#define FMPLL_ESYNCR2		0xc3f8000c
-
-#ifdef F200MHZ
-#define FMPLL_ESYNCR1_VAL0	0x00050022
-#define FMPLL_ESYNCR2_VAL0	0x00000003
-#define FMPLL_ESYNCR1_VAL1	0x70050022
-#define FMPLL_ESYNCR2_VAL1	0x00000001
-#else
-#define FMPLL_ESYNCR1_VAL0	0x00050022
-#define FMPLL_ESYNCR2_VAL0	0x00000003
-#define FMPLL_ESYNCR1_VAL1	0x70050022
-#define FMPLL_ESYNCR2_VAL1	0x00000003
-#endif
-
-	.type	pll_setup, @function
-pll_setup:
-	addis	r8, 0, FMPLL_BASE@ha
-
-	/* setup PLL to 200Mhz */
-
-	addis	r9, 0, FMPLL_ESYNCR2_VAL0@h
-	addi	r9, r9, FMPLL_ESYNCR2_VAL0@l
-	stw	r9, FMPLL_ESYNCR2@l(r8)
-	msync
-
-	addis   r9,0, FMPLL_ESYNCR1_VAL0@h
-	addi	r9, r9, FMPLL_ESYNCR1_VAL0@l
-	stw	r9, FMPLL_ESYNCR1@l(r8)
-	msync
-
-	addis	r9, 0, FMPLL_ESYNCR1_VAL1@h
-	addi	r9, r9, FMPLL_ESYNCR1_VAL1@l
-	stw	r9, FMPLL_ESYNCR1@l(r8)
-	msync
-
-1:
-	/* wait for PLL to lock */
-	addis   r9, 0, 0
-	addi	r9, r9, 48000
-	mtctr	r9
-
-	/* load the lock bitmask in r9 */
-	addis   r9, 0, 0
-	addi	r9, r9, 8
-
-2:
-	bdnz	3f
-
-	/* timed out: should reset or do something smarter... */
-	b	1b
-
-3:
-	lwz	r10, FMPLL_ESYNSR@l(r8)
-	and.	r11, r9, r10
-	bne	2b
-
-	/* locked: return */
-	addis   r9, 0, FMPLL_ESYNCR2_VAL1@h
-	addi	r9, r9, FMPLL_ESYNCR2_VAL1@l
-	stw	r9, FMPLL_ESYNCR2@l(r8)
-	msync
-
-	blr
-	.size	pll_setup, .-pll_setup
-
-
-#define	FLASH_BIUCR	0
-#define FLASH_CFG	0
-
-	.type	flash_setup, @function
-flash_setup:
-#ifndef __E200ZX_EXECUTE_FROM_RAM__
-	mfspr	r10, lr
-#ifdef notyet
-	bl	sram_code
-#endif
-	mtspr	lr, r10
-#endif /* __E200ZX_EXECUTE_FROM_RAM__ */
-	blr
-	.size	flash_setup, .-flash_setup
-
-#ifndef __E200ZX_EXECUTE_FROM_RAM__
-	.section .sram_text
-	.type	sram_code, @function
-sram_code:
-	addis	r8, 0, FLASH_BIUCR@ha
-	addis	r9, 0, FLASH_CFG@ha
-	addi	r9, r9, FLASH_CFG@l
-
-	stw	r9, FLASH_BIUCR@l(r8)
-
-	isync
-	blr
-	.size	sram_code, .-sram_code
-#endif /* __E200ZX_EXECUTE_FROM_RAM__ */	
-
-	
-	.section .stack
-	.balign 16
-
-#ifndef EE_SYS_STACK_SIZE
-#define EE_SYS_STACK_SIZE	512
-#endif
-	.space	EE_SYS_STACK_SIZE-16
-
-	.global _stack0
-	.balign 16
-_stack0:
-	.space	16
-
 /*
  * external interrupt handlers (the first 16 entries are for cpu vectors)
  * to use the full hw support we should let the INTC handle the multiplexing,
@@ -259,7 +158,7 @@ _stack0:
 /* VTBA = 0 -> Only offsets are read from INTC_IACKR_PRC */
 #define VTBA	0
 
-	.text
+	/* CW-FUNC-DEFINITION: static void intc_setup(void) */
 	.type	intc_setup, @function
 intc_setup:
 	/* MCR = 0: VTES=0 (4 byte entries) HVEN=0 (SW vector mode) */

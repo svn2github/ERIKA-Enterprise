@@ -48,6 +48,7 @@
 
 	.text
 
+	/* CW-FUNC-DEFINITION: void EE_hal_terminate_savestk(EE_TID tid) */
 	.global EE_hal_terminate_savestk
 	.type	EE_hal_terminate_savestk, @function
 /* void EE_hal_terminate_savestk(EE_TID tid); */
@@ -87,6 +88,7 @@ EE_hal_terminate_savestk:
 
 	.size	EE_hal_terminate_savestk, .-EE_hal_terminate_savestk
 
+	/* CW-FUNC-DEFINITION: void EE_hal_terminate_task(EE_TID tid) */
 	.global EE_hal_terminate_task
 	.type	EE_hal_terminate_task, @function
 	/* void EE_hal_terminate_task(EE_TID tid) NORETURN; */

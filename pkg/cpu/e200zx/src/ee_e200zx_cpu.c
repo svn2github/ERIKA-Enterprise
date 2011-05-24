@@ -1,13 +1,13 @@
 /* ###*B*###
  * ERIKA Enterprise - a tiny RTOS for small microcontrollers
  *
- * Copyright (C) 2002-2010  Evidence Srl
+ * Copyright (C) 2002-2011  Evidence Srl
  *
  * This file is part of ERIKA Enterprise.
  *
  * ERIKA Enterprise is free software; you can redistribute it
  * and/or modify it under the terms of the GNU General Public License
- * version 2 as published by the Free Software Foundation,
+ * version 2 as published by the Free Software Foundation, 
  * (with a special exception described below).
  *
  * Linking this code statically or dynamically with other modules is
@@ -39,57 +39,9 @@
  * ###*E*### */
 
 /*
- * Derived from the mico32 code.
- * Author: 2010 Fabio Checconi
+ * Author: 2011  Bernardo  Dal Seno
  */
 
-#ifndef __INCLUDE_E200ZX_IRQ_INTERNAL_H__
-#define __INCLUDE_E200ZX_IRQ_INTERNAL_H__
+#include <ee_internal.h>
 
-#include "ee_internal.h"
-#include "cpu/common/inc/ee_irqstub.h"
-
-#ifdef __ALLOW_NESTED_IRQ__
-#define EE_std_enableIRQ_nested()
-#define EE_std_disableIRQ_nested()
-#endif
-
-/*
- * Call an ISR.  If the ISR is to be called on a new stack we need to
- * resort to the black magic of assembly programming, and here we're
- * left with just a declaration.  If the ISR doesn't need a new stack
- * we only need to enable the external interrupts and call it.
- *
- * The pseudocode for the full-fledged ISR call is the following:
- *
- * void EE_e200z7_call_ISR_new_stack(EE_e200z7_ISR_handler fun)
- * {
- *	if (EE_IRQ_nesting_level == 1)
- *		change_stacks();
- *	EE_std_enableIRQ_nested();	// Enable IRQs if nesting is allowed.
- *	fun();
- *	EE_std_disableIRQ_nested();	// Disable IRQs if nesting is allowed.
- *	if (EE_IRQ_nesting_level == 1)
- * 		change_stacks_back();
- */
-#ifdef __IRQ_STACK_NEEDED__
-extern struct EE_TOS EE_e200z7_IRQ_tos;
-
-void EE_e200z7_call_ISR_new_stack(int level, EE_e200z7_ISR_handler fun,
-							unsigned nesting);
-#else
-__INLINE__ void __ALWAYS_INLINE__ EE_e200z7_call_ISR_new_stack(int level,
-			EE_e200z7_ISR_handler fun, unsigned nesting)
-{
-	EE_std_enableIRQ_nested();
-	if (fun != NULL) {
-		fun();
-	}
-	EE_std_disableIRQ_nested();
-}
-#endif
-
-/* IRQ handler */
-void EE_e200z7_irq(int level);
-
-#endif
+EE_STACK_T EE_STACK_ATTRIB EE_e200zx_sys_stack[EE_STACK_WLEN(EE_SYS_STACK_SIZE)];

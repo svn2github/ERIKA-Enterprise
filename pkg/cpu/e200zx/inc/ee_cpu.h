@@ -73,6 +73,8 @@
 /* Primitive data types */
 #include "cpu/common/inc/ee_types.h"
 
+#include "ee_cpu_asm.h"
+
 typedef EE_UINT32 EE_UREG;
 typedef EE_INT32  EE_SREG;
 typedef EE_UINT32 EE_FREG;
@@ -93,10 +95,7 @@ typedef EE_INT32 EE_TID;
 /* Type pointing to an ISR */
 typedef void (*EE_e200z7_ISR_handler)(void);
 
-#ifdef __MULTI__
-
 /* Alignment and section for program stacks */
-#define EE_STACK_ALIGN 16
 #define EE_STACK_SEC ".stack"
 #define EE_STACK_ATTRIB		EE_COMPILER_ALIGN(EE_STACK_ALIGN)	\
 	EE_COMPILER_SECTION(EE_STACK_SEC)
@@ -109,6 +108,10 @@ typedef EE_UINT32 EE_STACK_T;
 /* Initial pointer (word offset) in user stacks */
 #define EE_STACK_INITP(bl) (EE_STACK_WLEN(bl) - \
 	EE_STACK_ALIGN / sizeof(EE_STACK_T))
+
+extern EE_STACK_T EE_STACK_ATTRIB EE_e200zx_sys_stack[EE_STACK_WLEN(EE_SYS_STACK_SIZE)];
+
+#ifdef __MULTI__
 
 /* Top of each private stack. */
 extern struct EE_TOS EE_e200z7_system_tos[];
@@ -181,5 +184,20 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_disableIRQ(void)
 void EE_e200z7_setup_decrementer(unsigned long value);
 void EE_e200z7_setup_decrementer_oneshot(unsigned long value);
 void EE_e200z7_stop_decrementer(void);
+
+/* Assembly functions */
+void __start(void);
+void intc_setup(void);
+void cpu_setup(void);
+void sram_setup(void);
+void mmu_setup(void);
+/* Symbols provided by the linker script */
+extern int _load_ram;
+extern int _sbss;
+extern int _sdata;
+extern int _ebss;
+extern int _SDA_BASE_;
+extern int _SDA2_BASE_;
+extern int _sstack, _estack;
 
 #endif /* __INCLUDE_E200ZX_EE_CPU_H__ */
