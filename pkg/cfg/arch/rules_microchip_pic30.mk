@@ -1,7 +1,7 @@
 # ###*B*###
 # ERIKA Enterprise - a tiny RTOS for small microcontrollers
 # 
-# Copyright (C) 2002-2008  Evidence Srl
+# Copyright (C) 2002-2010  Evidence Srl
 # 
 # This file is part of ERIKA Enterprise.
 # 
@@ -39,6 +39,7 @@
 # ###*E*###
 
 ## Author: 2005- Paolo Gai
+## 2010 Bernardo  Dal Seno
 ## CVS: $Id: rules_microchip_pic30.mk,v 1.24 2008/10/14 22:21:06 nino Exp $
 
 # Enable verbose output from EE_OPT
@@ -197,31 +198,15 @@ OPT_LIBS += -lm -lc -ldsp
 OPT_LIBS += -l$(subst .a,,$(subst lib,,$(PIC30_DEV_LIB)))
 OPT_LIBS += -lpic30-$(PIC30_OFF)
 
-ifeq ($(call iseeopt, __RTD_CYGWIN__), yes) 
-OPT_LIBS += -L "`cygpath -w $(PIC30_LIB_DIR)`"
+OPT_LIBS += -L $(call native_path, $(PIC30_LIB_DIR))
+
 # check if PIC30_LIBD_DIR is empty
 ifneq ($(PIC30_LIBD_DIR),)
-OPT_LIBS += -L "`cygpath -w $(PIC30_LIBD_DIR)`"
-endif
-else
-# Linux environment
-OPT_LIBS += -L $(PIC30_LIB_DIR)
-# check if PIC30_LIBD_DIR is empty
-ifneq ($(PIC30_LIBD_DIR),)
-OPT_LIBS += -L $(PIC30_LIBD_DIR)
-endif
+OPT_LIBS += -L $(call native_path, $(PIC30_LIBD_DIR))
 endif
 
 # #Includes from MC
-# INTERNAL_GCCINCLUDEDIR is used to avoid multiple calls to cygpath
-ifeq ($(findstring __RTD_CYGWIN__,$(EEOPT)), __RTD_CYGWIN__) 
-INTERNAL_GCCINCLUDEDIR := -I"`cygpath -w $(PIC30_INCLUDE_DIR)`"
-else
-# Linux environment
-INTERNAL_GCCINCLUDEDIR := -I$(PIC30_INCLUDE_DIR)
-endif
-
-ALLINCPATH += $(INTERNAL_GCCINCLUDEDIR)
+INCLUDE_PATH += $(PIC30_INCLUDE_DIR)
 
 ## PIC30-related directories
 # we should look if these need to be moved inside dir.mk
@@ -285,6 +270,12 @@ LIBOBJS := $(addprefix $(OBJDIR)/, $(patsubst %.c,%.o,$(patsubst %.S,%.o,$(LIBSR
 SRCS += $(APP_SRCS)
 OBJS := $(addprefix $(OBJDIR)/, $(patsubst %.c,%.o,$(patsubst %.S,%.o, $(SRCS))))
 
+# INCLUDE_PATH is a space-separated list of directories for header file searching
+# we consider the ee pkg directory and the application dir
+# we also consider the current directory because the app could be compiled
+# from the config files generated from eclipse...
+INCLUDE_PATH += $(PKGBASE) $(APPBASE) .
+
 vpath %.cd $(APPBASE)
 vpath %.Sd $(APPBASE)
 vpath %.c $(EE_VPATH) $(APPBASE)
@@ -294,22 +285,17 @@ vpath %.S $(EE_VPATH) $(APPBASE)
 ## Compute common variables
 ##
 
-COMPUTED_ALLINCPATH := $(ALLINCPATH)
+# Avoid multiple evaluations of OPT_INCLUDE, which may call `cygpath'
+COMPUTED_OPT_INCLUDE := $(OPT_INCLUDE)
 COMPUTED_OPT_LINK := $(OPT_LINK)
 COMPUTED_OPT_ASM := $(OPT_ASM)
 COMPUTED_OPT_CC := $(OPT_CC)
 COMPUTED_OPT_CC_DEPS := $(OPT_CC_DEPS)
 
 ## Select input filename format
-ifeq ($(findstring __RTD_CYGWIN__,$(EEOPT)), __RTD_CYGWIN__) 
-SOURCEFILE = `cygpath -w $<`
-TARGETFILE = `cygpath -w $@`
-SRCFILE = `cygpath -w $(patsubst %.o,%.src,$@)`
-else
-SOURCEFILE = $<
-TARGETFILE = $@
-SRCFILE = $(patsubst %.o,%.src,$(TARGETFILE))
-endif
+SOURCEFILE = $(call native_path, $<)
+TARGETFILE = $(call native_path, $@)
+SRCFILE = $(call native_path, $(patsubst %.o,%.src,$@))
 
 ##
 ## Main rules: all clean
@@ -351,23 +337,23 @@ pic30.$(PIC30_EXTENSION): $(OBJS) $(LINKDEP) $(LIBDEP)
 ifeq ($(call iseeopt, BUILDSRC), yes)
 # preprocess first the assembly code and then compile the object file
 $(OBJDIR)/%.o: %.S ee_pic30regs.inc
-	$(VERBOSE_PRINTPRE) $(EE_DEP) $(COMPUTED_ALLINCPATH) $(DEFS_ASM) -E "$(SOURCEFILE)" > $(SRCFILE)
+	$(VERBOSE_PRINTPRE) $(EE_DEP) $(COMPUTED_OPT_INCLUDE) $(DEFS_ASM) -E "$(SOURCEFILE)" > $(SRCFILE)
 	$(VERBOSE_PRINTASM) $(EE_ASM) $(COMPUTED_OPT_ASM) $(SRCFILE) -o $(TARGETFILE)
 else
 # produce the object file from assembly code in a single step
 $(OBJDIR)/%.o: %.S ee_pic30regs.inc
-	$(VERBOSE_PRINTCPP) $(EE_CC) $(COMPUTED_ALLINCPATH) $(DEFS_ASM) -mcpu=$(PIC30_MODEL) -c "$(SOURCEFILE)" -o $(TARGETFILE)
+	$(VERBOSE_PRINTCPP) $(EE_CC) $(COMPUTED_OPT_INCLUDE) $(DEFS_ASM) -mcpu=$(PIC30_MODEL) -c "$(SOURCEFILE)" -o $(TARGETFILE)
 endif
 
 ifeq ($(call iseeopt, BUILDSRC), yes)
 # produce first the assembly from C code and then compile the object file
 $(OBJDIR)/%.o: %.c ee_pic30regs.h
-	$(VERBOSE_PRINTCPP) $(EE_CC) $(COMPUTED_OPT_CC) $(COMPUTED_ALLINCPATH) $(DEFS_CC) "$(SOURCEFILE)" -S -o $(SRCFILE)
+	$(VERBOSE_PRINTCPP) $(EE_CC) $(COMPUTED_OPT_CC) $(COMPUTED_OPT_INCLUDE) $(DEFS_CC) "$(SOURCEFILE)" -S -o $(SRCFILE)
 	$(VERBOSE_PRINTASM) $(EE_ASM) $(COMPUTED_OPT_ASM) $(SRCFILE) -o $(TARGETFILE)
 else
 # produce the object file from C code in a single step
 $(OBJDIR)/%.o: %.c ee_pic30regs.h
-	$(VERBOSE_PRINTCPP) $(EE_CC) $(COMPUTED_OPT_CC) $(COMPUTED_ALLINCPATH) $(DEFS_CC) -c "$(SOURCEFILE)" -o $(TARGETFILE)
+	$(VERBOSE_PRINTCPP) $(EE_CC) $(COMPUTED_OPT_CC) $(COMPUTED_OPT_INCLUDE) $(DEFS_CC) -c "$(SOURCEFILE)" -o $(TARGETFILE)
 endif
 
 
@@ -452,14 +438,14 @@ deps.pre: $(addprefix $(OBJDIR)/, $(patsubst %.S,%.Sd,$(patsubst %.c,%.cd, $(SRC
 
 # generate dependencies for .c files and add "file.cd" to the target
 $(OBJDIR)/%.cd: %.c ee_pic30regs.h
-	$(VERBOSE_PRINTDEP) $(EE_DEP) $(COMPUTED_OPT_CC_DEPS) $(COMPUTED_ALLINCPATH) $(DEFS_CC) -M "$(SOURCEFILE)" > $(TARGETFILE).tmp
+	$(VERBOSE_PRINTDEP) $(EE_DEP) $(COMPUTED_OPT_CC_DEPS) $(COMPUTED_OPT_INCLUDE) $(DEFS_CC) -M "$(SOURCEFILE)" > $(TARGETFILE).tmp
 	@echo -n $(TARGETFILE) $(dir $(TARGETFILE)) | cat - $(TARGETFILE).tmp > $(TARGETFILE)
 	@rm -rf $(TARGETFILE).tmp
 	@test -s $(TARGETFILE) || rm -f $(TARGETFILE)
 
 # generate dependencies for .S files and add "file.Sd" to the target
 $(OBJDIR)/%.Sd: %.S ee_pic30regs.inc
-	$(VERBOSE_PRINTDEP) $(EE_DEP) $(COMPUTED_ALLINCPATH) $(DEFS_ASM) -M "$(SOURCEFILE)" > $(TARGETFILE).tmp
+	$(VERBOSE_PRINTDEP) $(EE_DEP) $(COMPUTED_OPT_INCLUDE) $(DEFS_ASM) -M "$(SOURCEFILE)" > $(TARGETFILE).tmp
 	@echo -n $(TARGETFILE) $(dir $(TARGETFILE)) | cat - $(TARGETFILE).tmp > $(TARGETFILE)
 	@rm -rf $(TARGETFILE).tmp
 	@test -s $(TARGETFILE) || rm -f $(TARGETFILE)
