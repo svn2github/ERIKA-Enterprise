@@ -39,7 +39,8 @@
 # ###*E*###
 
 ifeq ($(or $(call iseeopt, __PPCE200ZX__), $(call iseeopt, __PPCE200Z7__)), yes)
-EE_SRCS += pkg/cpu/e200zx/src/ee_entry.c
+EE_SRCS += pkg/cpu/e200zx/src/ee_entry.S
+EE_SRCS += pkg/cpu/e200zx/src/ee_ivor.S
 EE_SRCS += pkg/cpu/e200zx/src/ee_irq.c
 
 ifeq ($(call iseeopt, __OO_BCC1__), yes)

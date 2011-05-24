@@ -43,39 +43,12 @@
  *         2011 Bernardo  Dal Seno
  */
 
+#include <cpu/e200zx/inc/ee_regs.h>
+#include <cpu/e200zx/inc/ee_ivor.h>
+
 	.text
 
-#include <cpu/e200zx/inc/ee_regs.h>
-
 	ASM_REORDER_OFF
-
-set_ivor: .macro n,label
-	li	r0, 0
-	addi	r0, 0, label@l
-	mtspr	SPRG_IVOR_BASE + n, r0
-	.endm
-
-
-vector: .macro label,handler
-	.balign	E200ZX_IRQ_ENTRY_ALIGN
-	.type	label, @function
-label:
-	addi	sp, sp, -80
-	stw	r0, 8(sp)
-	mfspr	r0, lr
-	b	handler
-	.size	label, .-label
-	.endm
-
-
-handler_prologue: .macro
-	bl	save_registers
-	.endm
-
-handler_epilogue: .macro
-	b	restore_all_return
-	.endm
-
 
 	.type	save_registers, @function
 save_registers:
@@ -144,6 +117,7 @@ restore_all_return:
  */
 #include <cpu/e200zx/inc/ee_mcu_regs_asm.h>
 
+	.global EE_e200zx_external_input_handler
 	.type	EE_e200zx_external_input_handler, @function
 EE_e200zx_external_input_handler:
 	handler_prologue
@@ -161,6 +135,7 @@ EE_e200zx_external_input_handler:
 	.size	EE_e200zx_external_input_handler, .-EE_e200zx_external_input_handler
 
 
+	.global EE_e200zx_decrementer_handler
 	.type	EE_e200zx_decrementer_handler, @function
 EE_e200zx_decrementer_handler:
 	handler_prologue
@@ -170,32 +145,6 @@ EE_e200zx_decrementer_handler:
 	bl	EE_e200z7_irq
 	handler_epilogue
 	.size	EE_e200zx_decrementer_handler, .-EE_e200zx_decrementer_handler
-
-
-	.type	__empty_handler, @function
-__empty_handler:
-	b	__empty_handler
-	.size	__empty_handler, .-__empty_handler
-
-
-	.balign	E200ZX_IRQ_VECTOR_BASE_ALIGN
-vector_base:
-vector EE_e200zx_critical_input, __empty_handler
-vector EE_e200zx_machine_check, __empty_handler
-vector EE_e200zx_data_storage, __empty_handler
-vector EE_e200zx_instruction_storage, __empty_handler
-vector EE_e200zx_external_input, EE_e200zx_external_input_handler
-vector EE_e200zx_alignment, __empty_handler
-vector EE_e200zx_program, __empty_handler
-vector EE_e200zx_float_unavailable, __empty_handler
-vector EE_e200zx_system_call, __empty_handler
-vector EE_e200zx_auxiliary_unavailable, __empty_handler
-vector EE_e200zx_decrementer, EE_e200zx_decrementer_handler
-vector EE_e200zx_interval_timer, __empty_handler
-vector EE_e200zx_watchdog_timer, __empty_handler
-vector EE_e200zx_data_tlb_error, __empty_handler
-vector EE_e200zx_instruction_tlb_error, __empty_handler
-vector EE_e200zx_debug_critical, __empty_handler
 
 
 	.global	EE_e200z7_setup_decrementer
@@ -253,27 +202,6 @@ EE_e200z7_stop_decrementer:
 	.global	cpu_setup
 	.type	cpu_setup, @function
 cpu_setup:
-	set_ivor 0, EE_e200zx_critical_input
-	set_ivor 1, EE_e200zx_machine_check
-	set_ivor 2, EE_e200zx_data_storage
-	set_ivor 3, EE_e200zx_instruction_storage
-	set_ivor 4, EE_e200zx_external_input
-	set_ivor 5, EE_e200zx_alignment
-	set_ivor 6, EE_e200zx_program
-	set_ivor 7, EE_e200zx_float_unavailable
-	set_ivor 8, EE_e200zx_system_call
-	set_ivor 9, EE_e200zx_auxiliary_unavailable
-	set_ivor 10, EE_e200zx_decrementer
-	set_ivor 11, EE_e200zx_interval_timer
-	set_ivor 12, EE_e200zx_watchdog_timer
-	set_ivor 13, EE_e200zx_data_tlb_error
-	set_ivor 14, EE_e200zx_instruction_tlb_error
-	set_ivor 15, EE_e200zx_debug_critical
-	msync
-
-	addis	r0, 0, vector_base@h
-	mtspr	ivpr, r0
-
 	li	r0, 0
 	mtspr	SPRG_TBL_W, r0
 	mtspr	SPRG_TBH_W, r0
@@ -284,75 +212,17 @@ cpu_setup:
 	ori	r3, r3, 1 << HID0_TBEN
 	mtspr	SPRG_HID0, r3
 
-	blr
+	b	ivor_setup
 	.size	cpu_setup, .-cpu_setup
 
 
 
 	.section .boot
 
-	.set TLB_0_MAS_0, 0x10050000
-	.set TLB_0_MAS_1, 0xc0000700
-	.set TLB_0_MAS_2, 0x00000000
-	.set TLB_0_MAS_3, 0x0000003f
-
-	.set TLB_1_MAS_0, 0x10010000
-	.set TLB_1_MAS_1, 0xc0000500
-	.set TLB_1_MAS_2, 0xfff0000a
-	.set TLB_1_MAS_3, 0xfff0003f
-
-	.set TLB_2_MAS_0, 0x10020000
-	.set TLB_2_MAS_1, 0xc0000700
-	.set TLB_2_MAS_2, 0x20000000
-	.set TLB_2_MAS_3, 0x2000003f
-
-	.set TLB_3_MAS_0, 0x10030000
-	.set TLB_3_MAS_1, 0xc0000400
-	.set TLB_3_MAS_2, 0x40000008
-	.set TLB_3_MAS_3, 0x4000003f
-
-	.set TLB_4_MAS_0, 0x10040000
-	.set TLB_4_MAS_1, 0xc0000500
-	.set TLB_4_MAS_2, 0xc3f00008
-	.set TLB_4_MAS_3, 0xc3f0003f
-
-#define TLB_VAL(num, mas)	TLB_&& ## num ## &&_MAS_ ## mas
-
-set_tlb: .macro entry
-	addis	r3, 0, TLB_VAL(entry, 0)@ha
-	addi	r3, r3, TLB_VAL(entry, 0)@l
-	mtspr	mas0, r3
-
-	addis	r3, 0, TLB_VAL(entry, 1)@ha
-	addi	r3, r3, TLB_VAL(entry, 1)@l
-	mtspr	mas1, r3
-
-	addis	r3, 0, TLB_VAL(entry, 2)@ha
-	addi	r3, r3, TLB_VAL(entry, 2)@l
-	mtspr	mas2, r3
-
-	addis	r3, 0, TLB_VAL(entry, 3)@ha
-	addi	r3, r3, TLB_VAL(entry, 3)@l
-	mtspr	mas3, r3
-
-	tlbwe
-	.endm
-
-
 	.global	mmu_setup
 	.type	mmu_setup, @function
 mmu_setup:
-#if 0 /* Use settings from BAM or Lauterbach script */
-#ifndef __E200ZX_EXECUTE_FROM_RAM__
-	set_tlb	0
-	set_tlb	1
-	set_tlb	2
-	set_tlb	3
-	set_tlb	4
-	msync
-#endif
-#endif
-
+	/* Do nothing: Use settings from BAM or Lauterbach script */
 	blr
 	.size	mmu_setup, .-mmu_setup
 
