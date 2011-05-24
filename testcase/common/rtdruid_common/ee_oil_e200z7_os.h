@@ -49,6 +49,6 @@ MCU_DATA = PPCE200ZX {
 CPU_DATA = PPCE200ZX {
   MODEL = E200Z7;
   APP_SRC = "code.c";
-  //  APP_SRC = "T1.S"; should we put this file?
+  SYS_STACK_SIZE=2048;
   
 #endif
