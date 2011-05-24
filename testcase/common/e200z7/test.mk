@@ -117,10 +117,13 @@ COMPILE_e200z7_source = +if $$(MAKE) $(PARAMETERS) NODEPS=1 -C $$(OUTDIR_PREFIX)
 DEBUG_e200z7_source = \
 	@cp e200z7/t32.cmm $$(OUTDIR_PREFIX)$(1); \
 	$$(LOCKFILE) $$(FILE_LOCK); \
+		echo "&count=&count+1" >> $$(TMPDIR)/t32_jobs.cmm; \
 		echo chdir $$(OUTDIR_PREFIX)$(1) >> $$(TMPDIR)/t32_jobs.cmm; \
 		echo "write \#1 \"$$(OUTDIR_PREFIX)$(1)\"" >> $$(TMPDIR)/t32_jobs.cmm; \
 		echo area.select Messages >> $$(TMPDIR)/t32_jobs.cmm; \
 		echo print >> $$(TMPDIR)/t32_jobs.cmm; \
+		echo print '"Test no. "' '%Decimal' '&count' '" ("' '&failed' \
+		'" errors so far)"' >> $$(TMPDIR)/t32_jobs.cmm; \
 		echo print \"$$(OUTDIR_PREFIX)$(1)\" >> $$(TMPDIR)/t32_jobs.cmm; \
 		echo area.select A000 >> $$(TMPDIR)/t32_jobs.cmm; \
 		echo do t32.cmm >> $$(TMPDIR)/t32_jobs.cmm; \

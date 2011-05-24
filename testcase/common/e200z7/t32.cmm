@@ -28,7 +28,11 @@ B.Set EE_assert_last
 
 Go __start
 
-wait !run()
+wait !run() 5.s
+if run()
+(
+  break
+)
 
 b.delete
 
@@ -53,4 +57,5 @@ else
   print
   AREA.Select A000
   write #1 "Test Failed"
+  &failed=&failed+1
 )
