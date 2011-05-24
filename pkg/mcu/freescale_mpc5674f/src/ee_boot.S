@@ -40,23 +40,32 @@
 /*
  * Boot code for the MPC5674F board.
  * Author: 2010 Fabio Checconi
+           2011 Bernardo  Dal Seno
  */
 
 #include <eecfg.h>
 #include <cpu/e200zx/inc/ee_regs.h>
 #include <mcu/freescale_mpc5674f/inc/ee_regs_asm.h>
 
-	.section .boot
-
 	.extern	_load_ram, _sdata, _sbss, _ebss, sram_setup
 
+#ifndef __E200ZX_EXECUTE_FROM_RAM__
 #ifdef __VLE__
 #define BAM_RCHW 0x15a0000
 #else
 #define BAM_RCHW 0x05a0000
 #endif
+	.section .bam_data
+	.global	_bam_data
+	.type	_bam_data, @object
+_bam_data:
 	.long	BAM_RCHW		/* BAM data */
 	.long	__start
+	.size	_bam_data, .-_bam_data
+#endif /* __E200ZX_EXECUTE_FROM_RAM__ */
+
+
+	.section .boot
 
 	.global	__start
 	.type	__start, @function
