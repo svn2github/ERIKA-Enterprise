@@ -1,7 +1,7 @@
 # ###*B*###
 # ERIKA Enterprise - a tiny RTOS for small microcontrollers
 # 
-# Copyright (C) 2002-2008  Evidence Srl
+# Copyright (C) 2002-2010  Evidence Srl
 # 
 # This file is part of ERIKA Enterprise.
 # 
@@ -100,7 +100,7 @@ ifndef TEMP
 ifneq (ok,$(shell test -d "/tmp" && echo ok ))
 $(error Environment variables TMP and TEMP are unset, and Cygwin /tmp directory does not exist)
 endif
-export TEMP = $(shell cygpath -ws /tmp)
+export TEMP = $(shell $(call native_path, /tmp))
 endif
 endif
 endif
@@ -131,8 +131,8 @@ ifeq ($(PIC30_USE_EEGCC_DEPS), Y)
 BINDIR_DEP := $(BINDIR_EVI)
 PIC30_DEPPREFIX := pic30-$(PIC30_OFF)-
 else
-BINDIR_DEP := $(BINDIR_CYG)
-PIC30_DEPPREFIX :=
+BINDIR_DEP := $(BINDIR_C30)
+PIC30_DEPPREFIX := pic30-$(PIC30_OFF)-
 endif
 
 ifndef EE_LINK
@@ -167,20 +167,7 @@ ifndef EE_OBJDUMP
 EE_OBJDUMP:=$(BINDIR_BINUTILS)/$(PIC30_GCCPREFIX)objdump
 endif
 
-# ALLINCPATH is a colon separated list of directories for source file searching
-# -I = adds directories to the source file search path (for both gcc and gas)
-# we consider the ee pkg directory and the application dir
-# we also consider the current directory because the app could be compiled
-# from the config files generated from eclipse...
-# please note the final backslash sequence after the shell command to
-# avoid cygpath insering a trailing backslash
-# INTERNAL_PKGBASEDIR is used to avoid multiple calls to cygpath
-ifeq ($(findstring __RTD_CYGWIN__,$(EEOPT)), __RTD_CYGWIN__) 
-INTERNAL_PKGBASEDIR := -I"$(shell cygpath -w $(PKGBASE))\\." -I"$(shell cygpath -w $(APPBASE))\\." -I.
-else
-INTERNAL_PKGBASEDIR := -I$(PKGBASE) -I$(APPBASE) -I.
-endif
-ALLINCPATH += $(INTERNAL_PKGBASEDIR)
+OPT_INCLUDE = $(foreach d,$(INCLUDE_PATH),$(addprefix -I,$(call native_path,$d)))
 
 ## OPT_CC are the options for arm compiler invocation
 OPT_CC = -O2 -Wall -Winline
