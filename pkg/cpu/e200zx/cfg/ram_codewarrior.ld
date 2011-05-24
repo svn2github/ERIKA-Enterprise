@@ -1,7 +1,7 @@
 /* ###*B*###
  * ERIKA Enterprise - a tiny RTOS for small microcontrollers
  *
- * Copyright (C) 2002-2011  Evidence Srl
+ * Copyright (C) 2002-2010  Evidence Srl
  *
  * This file is part of ERIKA Enterprise.
  *
@@ -38,27 +38,16 @@
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
 /*
- * Default linker script, for regular executables running from flash.
+ * Linker script for Codewarrior compiler, for executables running from RAM.
  * Author: 2010 Fabio Checconi
  *         2011 Bernardo  Dal Seno
  */
-
-MEMORY
-{
-	boot:	org = 0x00000000, len = 0x00020000
-	iflash:	org = 0x00020000, len = 0x001c0000
-/* Use only 256 kB of RAM, as per MMU setting from the BAM */
-	isram:	org = 0x40000000, len = 0x00040000
-}
-
 SECTIONS
 {
 	GROUP : {
-		.boot LOAD(ADDR(boot)): { }
-	} > boot
+		.boot : { }
 
-	GROUP : {
-		.text LOAD(ADDR(iflash)): {
+		.text : {
 			*(.text)
 			*(.text_vle)
 			*(.init)
@@ -69,21 +58,16 @@ SECTIONS
 			*(extabindex)
 			*(.rdata)
 			*(.rodata)
-			_etext = . ;
 		}
 
-		.sdata2 LOAD(_etext): {
-			*(.sdata2)
-			*(.sbss2)
-		 }
-		_load_ram = . ;
-	} > iflash
+		.sram_text : { }
 
-	GROUP : {
+		.sdata2 : { }
+		.sbss2 : { }
+
+		_load_ram = . ;
 		_sdata = . ;
 		.data LOAD(_load_ram): { }
-
-		.sram_text LOAD(_load_ram + ADDR(.sram_text) - ADDR(.data)): { }
 
 		.sdata LOAD(_load_ram + ADDR(.sdata) - ADDR(.data)): { }
 
@@ -93,7 +77,7 @@ SECTIONS
 		_ebss = . ;
 
 		_sstack = . ;
-		.stack LOAD(ADDR(.stack)): {
+		.stack : {
 			*(.stack)
 			*(.ustack)
 		}

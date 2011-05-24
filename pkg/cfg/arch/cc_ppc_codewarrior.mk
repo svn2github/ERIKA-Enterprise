@@ -125,6 +125,9 @@ EE_LINK_SCRIPT =
 LINKDEP =
 endif
 
+BASE_LD_RAM_SCRIPT = ram_codewarrior.ld
+BASE_LD_ROM_SCRIPT = rom_codewarrior.ld
+
 ifeq ($(call iseeopt, __DEFAULT_LD_SCRIPT__), yes)
 $(error "EEOPT __DEFAULT_LD_SCRIPT__ not supported")
 endif

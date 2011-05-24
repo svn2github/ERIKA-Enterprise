@@ -81,10 +81,10 @@ include $(PKGBASE)/cfg/verbose.mk
 include $(PKGBASE)/cfg/compiler.mk
 
 ifeq ($(call iseeopt, __E200ZX_EXECUTE_FROM_RAM__), yes)
-DLD := ram.dld
+BASE_LD_SCRIPT := $(BASE_LD_RAM_SCRIPT)
 T32CMM_SRC := ram.cmm
 else
-DLD := rom.dld
+BASE_LD_SCRIPT := $(BASE_LD_ROM_SCRIPT)
 T32CMM_SRC := flash.cmm
 endif
 
@@ -261,9 +261,9 @@ $(OBJDIR)/%.o: %.c
 ##
 
 ifdef EE_LINK_SCRIPT
-$(EE_LINK_SCRIPT): $(PKGBASE)/mcu/freescale_$(PPC_MCU_MODEL)/cfg/$(DLD)
+$(EE_LINK_SCRIPT): $(PKGBASE)/mcu/freescale_$(PPC_MCU_MODEL)/cfg/memory.ld $(PKGBASE)/cpu/e200zx/cfg/$(BASE_LD_SCRIPT)
 	@printf "LOC\n" ;
-	$(QUIET) cp $< $@
+	$(QUIET) cat $^ > $@
 endif
 
 ##
