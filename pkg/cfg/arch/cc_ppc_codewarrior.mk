@@ -85,21 +85,22 @@ INCLUDE_PATH += $(MWCIncludes)
 OPT_INCLUDE = $(foreach d,$(INCLUDE_PATH),$(addprefix -I,$(call native_path,$d)))
 
 OPT_TARGET := -proc Zen
+## Candidate OPT_CC
 # Defaults:
 # -abi eabi -model absolute -fp soft -big
-ifeq ($(call iseeopt, __VLE__), yes)
-VLE_OPT = -vle
-OPT_CC += -ppc_asm_to_vle
-else
-VLE_OPT =
-endif
-
-## Candidate OPT_CC
 OPT_CC = $(CFLAGS) $(OPT_TARGET) $(VLE_OPT) -RTTI off -Cpp_exceptions off \
  -gccinc -char unsigned -nostdinc -pragma "section RW \".stack\" \".ustack\""
 ifneq ($(call iseeopt, __MINIMAL_CC_OPTIONS__), yes)
 OPT_CC += -use_lmw_stmw on -flag require_prototypes -msgstyle gcc -rostr \
  -O4 -ipa file -inline on,auto -schedule on
+endif
+
+# VLE support
+ifeq ($(call iseeopt, __VLE__), yes)
+VLE_OPT = -vle
+OPT_CC += -ppc_asm_to_vle
+else
+VLE_OPT =
 endif
 
 ## OPT_ASM are the options for asm invocation

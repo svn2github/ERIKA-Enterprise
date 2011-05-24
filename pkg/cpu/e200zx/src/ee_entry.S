@@ -225,7 +225,7 @@ cpu_setup:
 
 
 
-	.section .boot
+	text_section(.boot)
 
 	/* CW-FUNC-DEFINITION: void mmu_setup(void) */
 	.global	mmu_setup

@@ -47,6 +47,12 @@ SECTIONS
 	GROUP : {
 		.boot : { }
 
+		.text_vle (VLECODE) : {
+			*(.text)
+			*(.text_vle)
+			*(.init)
+			*(.fini)
+		}
 		.text : {
 			*(.text)
 			*(.text_vle)

@@ -51,7 +51,14 @@ SECTIONS
 	} > boot
 
 	GROUP : {
-		.text LOAD(ADDR(iflash)): {
+		.text_vle (VLECODE) LOAD(ADDR(iflash)): {
+			*(.text)
+			*(.text_vle)
+			*(.init)
+			*(.fini)
+			_etext_vle = . ;
+		}
+		.text LOAD(_etext_vle): {
 			*(.text)
 			*(.text_vle)
 			*(.init)

@@ -53,6 +53,14 @@
 #define ASM_REORDER_ON
 #endif
 
+#if defined(__VLE__) && defined(__MWERKS__)
+/* CodeWarrior Assembly uses the deprecated macro __MWERKS__ */
+#define text_section(name)	.section name,.text_vle
+#else
+#define text_section(name)	.section name
+#endif /* __VLE__ */
+
+
 #ifdef __MWERKS__ /* CodeWarrior Assembly uses this deprecated macro */
 /* CodeWarrior doesn't recognize lower-case "sp" */
 #define sp r1

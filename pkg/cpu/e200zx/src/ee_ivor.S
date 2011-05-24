@@ -43,16 +43,22 @@
  *         2011 Bernardo  Dal Seno
  */
 
-	.text
-
 #include <cpu/e200zx/inc/ee_regs.h>
+
+	text_section(.text)
 
 	ASM_REORDER_OFF
 
 set_ivor: .macro n,label
+#ifdef __VLE__
+	se_li	r0, 0
+	e_add16i r0, r0, label@l
+	mtspr	SPRG_IVOR_BASE + n, r0
+#else
 	li	r0, 0
 	addi	r0, 0, label@l
 	mtspr	SPRG_IVOR_BASE + n, r0
+#endif
 	.endm
 
 
@@ -60,17 +66,28 @@ vector: .macro label,handler
 	.balign	E200ZX_IRQ_ENTRY_ALIGN
 	.type	label, @function
 label:
+#ifdef __VLE__
+	e_add16i sp, sp, -80
+	e_stw	r0, 8(sp)
+	se_mflr	r0
+	e_b	handler
+#else
 	addi	sp, sp, -80
 	stw	r0, 8(sp)
 	mfspr	r0, lr
 	b	handler
+#endif
 	.size	label, .-label
 	.endm
 
 
 	.type	__empty_handler, @function
 __empty_handler:
+#ifdef __VLE__
+	se_b	__empty_handler
+#else
 	b	__empty_handler
+#endif
 	.size	__empty_handler, .-__empty_handler
 
 
@@ -115,8 +132,13 @@ ivor_setup:
 	set_ivor 15, EE_e200zx_debug_critical
 	msync
 
+#ifdef __VLE__
+	e_add2is r0, vector_base@h
+	mtspr	ivpr, r0
+	se_blr
+#else
 	addis	r0, 0, vector_base@h
 	mtspr	ivpr, r0
-
 	blr
+#endif
 	.size	ivor_setup, .-ivor_setup
