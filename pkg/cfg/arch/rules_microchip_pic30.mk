@@ -270,14 +270,15 @@ LIBOBJS := $(addprefix $(OBJDIR)/, $(patsubst %.c,%.o,$(patsubst %.S,%.o,$(LIBSR
 SRCS += $(APP_SRCS)
 OBJS := $(addprefix $(OBJDIR)/, $(patsubst %.c,%.o,$(patsubst %.S,%.o, $(SRCS))))
 
+# Variable used to import dependencies
+ALLOBJS = $(LIBEEOBJS) $(LIBOBJS) $(OBJS)
+
 # INCLUDE_PATH is a space-separated list of directories for header file searching
 # we consider the ee pkg directory and the application dir
 # we also consider the current directory because the app could be compiled
 # from the config files generated from eclipse...
 INCLUDE_PATH += $(PKGBASE) $(APPBASE) .
 
-vpath %.cd $(APPBASE)
-vpath %.Sd $(APPBASE)
 vpath %.c $(EE_VPATH) $(APPBASE)
 vpath %.S $(EE_VPATH) $(APPBASE)
 
@@ -290,7 +291,6 @@ COMPUTED_OPT_INCLUDE := $(OPT_INCLUDE)
 COMPUTED_OPT_LINK := $(OPT_LINK)
 COMPUTED_OPT_ASM := $(OPT_ASM)
 COMPUTED_OPT_CC := $(OPT_CC)
-COMPUTED_OPT_CC_DEPS := $(OPT_CC_DEPS)
 
 ## Select input filename format
 SOURCEFILE = $(call native_path, $<)
@@ -308,7 +308,7 @@ all:: make_directories $(ALL_LIBS) $(TARGET)
 	@printf "Compilation terminated successfully!\n"
 
 clean::
-	@-rm -rf *.a *.ld *.map *.$(PIC30_EXTENSION) *.objdump deps deps.pre obj
+	@-rm -rf *.a *.ld *.map *.$(PIC30_EXTENSION) *.objdump obj
 # to support "make clean all"
 ifeq ($(findstring all,$(MAKECMDGOALS)),all)
 	@printf "CLEAN (also \"all\" specified, frommchip directory not removed)\n"
@@ -342,18 +342,20 @@ $(OBJDIR)/%.o: %.S ee_pic30regs.inc
 else
 # produce the object file from assembly code in a single step
 $(OBJDIR)/%.o: %.S ee_pic30regs.inc
-	$(VERBOSE_PRINTCPP) $(EE_CC) $(COMPUTED_OPT_INCLUDE) $(DEFS_ASM) -mcpu=$(PIC30_MODEL) -c "$(SOURCEFILE)" -o $(TARGETFILE)
+	$(VERBOSE_PRINTCPP) $(EE_CC) $(COMPUTED_OPT_INCLUDE) $(DEFS_ASM) -mcpu=$(PIC30_MODEL) $(DEPENDENCY_OPT) -c "$(SOURCEFILE)" -o $(TARGETFILE)
+	$(QUIET) $(call make-depend, $<, $@, $(subst .o,.d,$@))
 endif
 
 ifeq ($(call iseeopt, BUILDSRC), yes)
 # produce first the assembly from C code and then compile the object file
 $(OBJDIR)/%.o: %.c ee_pic30regs.h
-	$(VERBOSE_PRINTCPP) $(EE_CC) $(COMPUTED_OPT_CC) $(COMPUTED_OPT_INCLUDE) $(DEFS_CC) "$(SOURCEFILE)" -S -o $(SRCFILE)
+	$(VERBOSE_PRINTCPP) $(EE_CC) $(COMPUTED_OPT_CC) $(DEFS_CC) "$(SOURCEFILE)" -S -o $(SRCFILE)
 	$(VERBOSE_PRINTASM) $(EE_ASM) $(COMPUTED_OPT_ASM) $(SRCFILE) -o $(TARGETFILE)
 else
 # produce the object file from C code in a single step
 $(OBJDIR)/%.o: %.c ee_pic30regs.h
-	$(VERBOSE_PRINTCPP) $(EE_CC) $(COMPUTED_OPT_CC) $(COMPUTED_OPT_INCLUDE) $(DEFS_CC) -c "$(SOURCEFILE)" -o $(TARGETFILE)
+	$(VERBOSE_PRINTCPP) $(EE_CC) $(COMPUTED_OPT_CC) $(COMPUTED_OPT_INCLUDE) $(DEFS_CC) $(DEPENDENCY_OPT) -c "$(SOURCEFILE)" -o $(TARGETFILE)
+	$(QUIET) $(call make-depend, $<, $@, $(subst .o,.d,$@))
 endif
 
 
@@ -423,34 +425,6 @@ libee.a: $(LIBEEOBJS)
 	@printf "AR  libee.a\n" ;
 	$(QUIET)$(EE_AR) rs libee.a $(LIBEEOBJS)
 
-
-##
-## Automatic Generation of dependencies
-##
-
-# deps depends on the flag and not on the PHONY rule!
-deps: $(OBJDIR)/.make_directories_flag deps.pre
-	@printf "GEN deps\n"
-	@sed "s/ \<\([A-Za-z]\):/ \/cygdrive\/\l\1/g" < deps.pre > deps
-
-deps.pre: $(addprefix $(OBJDIR)/, $(patsubst %.S,%.Sd,$(patsubst %.c,%.cd, $(SRCS) $(LIBEESRCS) $(LIBSRCS))))
-	@printf "GEN deps.pre\n" ; cat $^ > deps.pre
-
-# generate dependencies for .c files and add "file.cd" to the target
-$(OBJDIR)/%.cd: %.c ee_pic30regs.h
-	$(VERBOSE_PRINTDEP) $(EE_DEP) $(COMPUTED_OPT_CC_DEPS) $(COMPUTED_OPT_INCLUDE) $(DEFS_CC) -M "$(SOURCEFILE)" > $(TARGETFILE).tmp
-	@echo -n $(TARGETFILE) $(dir $(TARGETFILE)) | cat - $(TARGETFILE).tmp > $(TARGETFILE)
-	@rm -rf $(TARGETFILE).tmp
-	@test -s $(TARGETFILE) || rm -f $(TARGETFILE)
-
-# generate dependencies for .S files and add "file.Sd" to the target
-$(OBJDIR)/%.Sd: %.S ee_pic30regs.inc
-	$(VERBOSE_PRINTDEP) $(EE_DEP) $(COMPUTED_OPT_INCLUDE) $(DEFS_ASM) -M "$(SOURCEFILE)" > $(TARGETFILE).tmp
-	@echo -n $(TARGETFILE) $(dir $(TARGETFILE)) | cat - $(TARGETFILE).tmp > $(TARGETFILE)
-	@rm -rf $(TARGETFILE).tmp
-	@test -s $(TARGETFILE) || rm -f $(TARGETFILE)
-
-
 #
 # --------------------------------------------------------------------------
 #
@@ -505,10 +479,13 @@ generate_eeopt:
 # --------------------------------------------------------------------------
 #
 
-ifndef NODEPS
+##
+## Automatic Generation of dependencies
+##
+dependencies=$(subst .o,.d,$(ALLOBJS))
+#$(info dependencies=$(dependencies))
 ifneq ($(MAKECMDGOALS),clean)
 ifneq ($(call iseeopt, NODEPS), yes) 
--include deps
-endif
+-include $(dependencies)
 endif
 endif
