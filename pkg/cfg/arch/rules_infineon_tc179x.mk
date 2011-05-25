@@ -165,14 +165,8 @@ $(OBJDIR)/%.o: %.S
 	$(VERBOSE_PRINTASM) $(EE_ASM) $(COMPUTED_OPT_ASM) $(SRCFILE) -o $(TARGETFILE)
 
 
-ifeq ($(call iseeopt, BUILDSRC), yes)
-$(OBJDIR)/%.o: %.c
-	$(VERBOSE_PRINTCPP) $(EE_CC) $(COMPUTED_OPT_CC) $(COMPUTED_ALLINCPATH) $(DEFS_CC) $(SOURCEFILE) -S -o $(patsubst %.o,%.src,$(TARGETFILE))
-	$(VERBOSE_PRINTASM) $(EE_ASM) $(COMPUTED_OPT_ASM) $(patsubst %.o,%.src,$(TARGETFILE)) -o $(TARGETFILE)
-else
 $(OBJDIR)/%.o: %.c 
 	$(VERBOSE_PRINTCPP) $(EE_CC) $(COMPUTED_OPT_CC) $(COMPUTED_ALLINCPATH) $(DEFS_CC) -c $(SOURCEFILE) -o $(TARGETFILE)
-endif
 
 ##
 ## Locator files

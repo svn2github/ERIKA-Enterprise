@@ -334,30 +334,15 @@ pic30.$(PIC30_EXTENSION): $(OBJS) $(LINKDEP) $(LIBDEP)
                      -M > pic30.map
 
 					 
-ifeq ($(call iseeopt, BUILDSRC), yes)
-# preprocess first the assembly code and then compile the object file
-$(OBJDIR)/%.o: %.S ee_pic30regs.inc
-	$(VERBOSE_PRINTPRE) $(EE_DEP) $(COMPUTED_OPT_INCLUDE) $(DEFS_ASM) -E "$(SOURCEFILE)" > $(SRCFILE)
-	$(VERBOSE_PRINTASM) $(EE_ASM) $(COMPUTED_OPT_ASM) $(SRCFILE) -o $(TARGETFILE)
-else
 # produce the object file from assembly code in a single step
 $(OBJDIR)/%.o: %.S ee_pic30regs.inc
 	$(VERBOSE_PRINTCPP) $(EE_CC) $(COMPUTED_OPT_INCLUDE) $(DEFS_ASM) -mcpu=$(PIC30_MODEL) $(DEPENDENCY_OPT) -c "$(SOURCEFILE)" -o $(TARGETFILE)
 	$(QUIET) $(call make-depend, $<, $@, $(subst .o,.d,$@))
-endif
 
-ifeq ($(call iseeopt, BUILDSRC), yes)
-# produce first the assembly from C code and then compile the object file
-$(OBJDIR)/%.o: %.c ee_pic30regs.h
-	$(VERBOSE_PRINTCPP) $(EE_CC) $(COMPUTED_OPT_CC) $(DEFS_CC) "$(SOURCEFILE)" -S -o $(SRCFILE)
-	$(VERBOSE_PRINTASM) $(EE_ASM) $(COMPUTED_OPT_ASM) $(SRCFILE) -o $(TARGETFILE)
-else
 # produce the object file from C code in a single step
 $(OBJDIR)/%.o: %.c ee_pic30regs.h
 	$(VERBOSE_PRINTCPP) $(EE_CC) $(COMPUTED_OPT_CC) $(COMPUTED_OPT_INCLUDE) $(DEFS_CC) $(DEPENDENCY_OPT) -c "$(SOURCEFILE)" -o $(TARGETFILE)
 	$(QUIET) $(call make-depend, $<, $@, $(subst .o,.d,$@))
-endif
-
 
 $(OBJDIR)/frommchp/crt0.o: frommchp/crt0.s
 	$(VERBOSE_PRINTASM) $(EE_ASM) $(COMPUTED_OPT_ASM) $(SOURCEFILE) -o $(TARGETFILE)
