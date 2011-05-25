@@ -56,8 +56,14 @@
  * Howard Schlunder    10/10/06 Optimized swapl()
  * Elliott Wood		   11/20/07	Added leftRotateDWORD()
  ********************************************************************/
+ 
+ /**
+ *   Author: Dario Di Stefano, Evidence Srl, 2011
+ *   Brief: Timer set with the new macros defined in TCPIP.h
+ */
+ 
 #define __HELPERS_C
-
+ 
 #include "TCPIP_Stack/TCPIP.h"
 
 
@@ -295,16 +301,16 @@ DWORD GenerateRandomDWORD(void)
 	AD1CON1Save = AD1CON1;
 	AD1CON2Save = AD1CON2;
 	AD1CON3Save = AD1CON3;
-	T1CONSave = T1CON;
-	PR1Save = PR1;
+	T1CONSave = MTCP_TIMER_REG_CON;
+	PR1Save = MTCP_TIMER_REG_PERIOD;
 
 	// Set up Timer and A/D converter module
 	AD1CON1 = 0x0000;		// Turn off the ADC so we can write to it
 	AD1CON3 = 0x9F00;		// Frc A/D clock, 31 Tad acquisition
 	AD1CON2 = 0x003F;		// Interrupt after every 16th sample/convert
 	AD1CON1 = 0x80E4;		// Turn on the A/D module, auto-convert
-	T1CON = 0x8000;			// TON = 1, no prescalar
-	PR1 = 0xFFFF;			// Don't clear timer early
+	MTCP_TIMER_REG_CON = 0x8000;	// TON = 1, no prescalar
+	MTCP_TIMER_REG_PERIOD = 0xFFFF;	// Don't clear timer early
 	vBitCount = 0;
 	dwTotalTime = 0;
 	wLastValue = 0;
@@ -317,8 +323,8 @@ DWORD GenerateRandomDWORD(void)
 		#else
 			while(!IFS1bits.AD1IF);
 		#endif
-		wTime = TMR1;
-		TMR1 = 0x0000;
+		wTime = MTCP_TIMER_REG_TMR;
+		MTCP_TIMER_REG_TMR = 0x0000;
 
 		#if defined(__C30__)
 			IFS0bits.AD1IF = 0;
@@ -360,8 +366,8 @@ DWORD GenerateRandomDWORD(void)
 	AD1CON3 = AD1CON3Save;
 	AD1CON2 = AD1CON2Save;
 	AD1CON1 = AD1CON1Save;
-	T1CON = T1CONSave;
-	PR1 = PR1Save;
+	MTCP_TIMER_REG_CON = T1CONSave;
+	MTCP_TIMER_REG_PERIOD = PR1Save;
 }
 #endif
 

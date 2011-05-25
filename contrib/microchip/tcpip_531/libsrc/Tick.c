@@ -53,6 +53,12 @@
  * Howard Schlunder		6/13/07		Changed to use timer without 
  *									writing for perfect accuracy.
 ********************************************************************/
+
+ /**
+ *   Author: Dario Di Stefano, Evidence Srl, 2011
+ *   Brief: Timer set with the new macros defined in TCPIP.h
+ */
+
 #define __TICK_C
 
 #include "TCPIP_Stack/TCPIP.h"
@@ -110,25 +116,19 @@ void TickInit(void)
 #else
 	// Use Timer 1 for 16-bit and 32-bit processors
 	// 1:256 prescale
-	T1CONbits.TCKPS = 3;
+	MTCP_TIMER_REG_CONbits.TCKPS = 3;
 	// Base
-	PR1 = 0xFFFF;
+	MTCP_TIMER_REG_PERIOD = 0xFFFF;
 	// Clear counter
-	TMR1 = 0;
+	MTCP_TIMER_REG_TMR = 0;
 
 	// Enable timer interrupt
-	#if defined(__C30__)
-		IPC0bits.T1IP = 2;	// Interrupt priority 2 (low)
-		IFS0bits.T1IF = 0;
-		IEC0bits.T1IE = 1;
-	#else
-		IPC1bits.T1IP = 2;	// Interrupt priority 2 (low)
-		IFS0CLR = _IFS0_T1IF_MASK;
-		IEC0SET = _IEC0_T1IE_MASK;
-	#endif
+	MTCP_TIMER_INTERRUPT_PRIORITY = 2;	// Interrupt priority 2 (low)
+	MTCP_TIMER_INTERRUPT_FLAG_RESET();
+	MTCP_TIMER_INTERRUPT_SET_ENABLED();
 
 	// Start timer
-	T1CONbits.TON = 1;
+	MTCP_TIMER_REG_CONbits.TON = 1;
 #endif
 }
 
@@ -172,12 +172,12 @@ static void GetTickCopy(void)
 	{
 		DWORD dwTempTicks;
 		
-		IEC0bits.T1IE = 1;			// Enable interrupt
+		MTCP_TIMER_INTERRUPT_SET_ENABLED();			// Enable interrupt
 		Nop();
-		IEC0bits.T1IE = 0;			// Disable interrupt
+		MTCP_TIMER_INTERRUPT_SET_DISABLED();			// Disable interrupt
 
 		// Get low 2 bytes
-		((WORD*)vTickReading)[0] = TMR1;
+		((WORD*)vTickReading)[0] = MTCP_TIMER_REG_TMR;
 		
 		// Correct corner case where interrupt increments byte[4+] but 
 		// TMR1 hasn't rolled over to 0x0000 yet
@@ -190,19 +190,19 @@ static void GetTickCopy(void)
 		vTickReading[3] = ((BYTE*)&dwTempTicks)[1];
 		vTickReading[4] = ((BYTE*)&dwTempTicks)[2];
 		vTickReading[5] = ((BYTE*)&dwTempTicks)[3];
-	} while(IFS0bits.T1IF);
-	IEC0bits.T1IE = 1;				// Enable interrupt
+	} while(MTCP_TIMER_INTERRUPT_FLAG);
+	MTCP_TIMER_INTERRUPT_SET_ENABLED();				// Enable interrupt
 #else	// PIC32
 	do
 	{
 		DWORD dwTempTicks;
 		
-		IEC0SET = _IEC0_T1IE_MASK;	// Enable interrupt
+		MTCP_TIMER_INTERRUPT_SET_ENABLED();	// Enable interrupt
 		Nop();
-		IEC0CLR = _IEC0_T1IE_MASK;	// Disable interrupt
+		MTCP_TIMER_INTERRUPT_SET_DISABLED();	// Disable interrupt
 		
 		// Get low 2 bytes
-		((volatile WORD*)vTickReading)[0] = TMR1;
+		((volatile WORD*)vTickReading)[0] = MTCP_TIMER_REG_TMR;
 		
 		// Correct corner case where interrupt increments byte[4+] but 
 		// TMR1 hasn't rolled over to 0x0000 yet
@@ -226,8 +226,8 @@ static void GetTickCopy(void)
 		vTickReading[3] = ((BYTE*)&dwTempTicks)[1];
 		vTickReading[4] = ((BYTE*)&dwTempTicks)[2];
 		vTickReading[5] = ((BYTE*)&dwTempTicks)[3];
-	} while(IFS0bits.T1IF);
-	IEC0SET = _IEC0_T1IE_MASK;		// Enable interrupt
+	} while(MTCP_TIMER_INTERRUPT_FLAG));
+	MTCP_TIMER_INTERRUPT_SET_ENABLED();		// Enable interrupt
 #endif
 }
 
@@ -416,25 +416,25 @@ void TickUpdate(void)
   	None
   ***************************************************************************/
 #elif defined(__PIC32MX__)
-void __attribute((interrupt(ipl2), vector(_TIMER_1_VECTOR), nomips16)) _T1Interrupt(void)
+void __attribute((interrupt(ipl2), vector(MTCP_TIMER_INTERRUPT_VECTOR), nomips16)) MTCP_TIMER_INTERRUPT_NAME(void)
 {
 	// Increment internal high tick counter
 	dwInternalTicks++;
 
 	// Reset interrupt flag
-	IFS0CLR = _IFS0_T1IF_MASK;
+	MTCP_TIMER_INTERRUPT_FLAG_RESET();
 }
 #else
 #if __C30_VERSION__ >= 300
-void _ISR __attribute__((__no_auto_psv__)) _T1Interrupt(void)
+void _ISR __attribute__((__no_auto_psv__)) MTCP_TIMER_INTERRUPT_NAME(void)
 #else
-void _ISR _T1Interrupt(void)
+void _ISR MTCP_TIMER_INTERRUPT_NAME(void)
 #endif
 {
 	// Increment internal high tick counter
 	dwInternalTicks++;
 
 	// Reset interrupt flag
-	IFS0bits.T1IF = 0;
+	MTCP_TIMER_INTERRUPT_FLAG_RESET();
 }
 #endif

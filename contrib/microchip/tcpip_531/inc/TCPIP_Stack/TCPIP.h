@@ -48,6 +48,12 @@
  *~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  * Howard Schlunder		12/20/06	Original
  ********************************************************************/
+
+ /**
+ *   Author: Dario Di Stefano, Evidence Srl, 2011
+ *   Brief: Added macros to select the timer used by the Microchip TCPIP Stack.
+ */
+ 
 #ifndef __TCPIP_HITECH_WORKAROUND_H
 #define __TCPIP_HITECH_WORKAROUND_H
 
@@ -58,6 +64,35 @@
 #include "GenericTypeDefs.h"
 #include "Compiler.h"
 #include "HardwareProfile.h"
+
+/* Addition for use with EE */
+#ifndef MTCP_USE_CUSTOM_TIMER
+	#if defined(__C30__)
+		#define MTCP_TIMER_REG_CON     T6CON
+		#define MTCP_TIMER_REG_CONbits T6CONbits
+		#define MTCP_TIMER_REG_TMR     TMR6
+		#define MTCP_TIMER_REG_PERIOD  PR6
+		#define MTCP_TIMER_INTERRUPT_NAME _T6Interrupt
+		#define MTCP_TIMER_INTERRUPT_FLAG IFS2bits.T6IF
+		#define MTCP_TIMER_INTERRUPT_PRIORITY IPC11bits.T6IP
+		#define MTCP_TIMER_INTERRUPT_FLAG_RESET() IFS2bits.T6IF = 0
+		#define MTCP_TIMER_INTERRUPT_SET_ENABLED() IEC2bits.T6IE = 1
+		#define MTCP_TIMER_INTERRUPT_SET_DISABLED() IEC2bits.T6IE = 0
+	#elif defined(__PIC32MX__)
+		#define MTCP_TIMER_REG_CON     T1CON
+		#define MTCP_TIMER_REG_CONbits T1CONbits
+		#define MTCP_TIMER_REG_TMR     TMR1
+		#define MTCP_TIMER_REG_PERIOD  PR1
+		#define MTCP_TIMER_INTERRUPT_NAME _T1Interrupt
+		#define MTCP_TIMER_INTERRUPT_FLAG IFS0bits.T1IF
+		#define MTCP_TIMER_INTERRUPT_PRIORITY IPC1bits.T1IP
+		#define MTCP_TIMER_INTERRUPT_FLAG_RESET() IFS0CLR = _IFS0_T1IF_MASK
+		#define MTCP_TIMER_INTERRUPT_SET_ENABLED() IEC0SET = _IEC0_T1IE_MASK
+		#define MTCP_TIMER_INTERRUPT_SET_DISABLED() IEC0CLR = _IEC0_T1IE_MASK
+		#define MTCP_TIMER_INTERRUPT_VECTOR _TIMER_1_VECTOR
+	#endif
+#endif
+/* End addition */
 
 // RESERVED FEATURE -- do not change from current value of 1u as this is not 
 // fully implemented yet.
