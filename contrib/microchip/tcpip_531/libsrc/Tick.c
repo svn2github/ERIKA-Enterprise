@@ -226,7 +226,7 @@ static void GetTickCopy(void)
 		vTickReading[3] = ((BYTE*)&dwTempTicks)[1];
 		vTickReading[4] = ((BYTE*)&dwTempTicks)[2];
 		vTickReading[5] = ((BYTE*)&dwTempTicks)[3];
-	} while(MTCP_TIMER_INTERRUPT_FLAG));
+	} while(MTCP_TIMER_INTERRUPT_FLAG);
 	MTCP_TIMER_INTERRUPT_SET_ENABLED();		// Enable interrupt
 #endif
 }
