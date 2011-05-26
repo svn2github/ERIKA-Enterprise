@@ -14,13 +14,13 @@
     .include "p30fxxxx.inc"
 .endif
 .ifdecl __dsPIC33F
-    .include "p33fxxxx.inc"
+    .include "p33Fxxxx.inc"
 .endif
 .ifdecl __PIC24H
-    .include "p24hxxxx.inc"
+    .include "p24Hxxxx.inc"
 .endif
 .ifdecl __PIC24F
-    .include "p24fxxxx.inc"
+    .include "p24Fxxxx.inc"
 .endif
 .if VALID_ID <> 1
     .error "Processor ID not specified in generic include files.  New ASM30 assembler needs to be downloaded?"
