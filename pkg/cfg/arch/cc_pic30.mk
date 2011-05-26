@@ -100,7 +100,7 @@ ifndef TEMP
 ifneq (ok,$(shell test -d "/tmp" && echo ok ))
 $(error Environment variables TMP and TEMP are unset, and Cygwin /tmp directory does not exist)
 endif
-export TEMP = $(shell $(call native_path, /tmp))
+export TEMP = $(shell $(call native_path,/tmp))
 endif
 endif
 endif

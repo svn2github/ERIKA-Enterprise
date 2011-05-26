@@ -198,11 +198,11 @@ OPT_LIBS += -lm -lc -ldsp
 OPT_LIBS += -l$(subst .a,,$(subst lib,,$(PIC30_DEV_LIB)))
 OPT_LIBS += -lpic30-$(PIC30_OFF)
 
-OPT_LIBS += -L $(call native_path, $(PIC30_LIB_DIR))
+OPT_LIBS += -L $(call native_path,$(PIC30_LIB_DIR))
 
 # check if PIC30_LIBD_DIR is empty
 ifneq ($(PIC30_LIBD_DIR),)
-OPT_LIBS += -L $(call native_path, $(PIC30_LIBD_DIR))
+OPT_LIBS += -L $(call native_path,$(PIC30_LIBD_DIR))
 endif
 
 # #Includes from MC
@@ -293,9 +293,8 @@ COMPUTED_OPT_ASM := $(OPT_ASM)
 COMPUTED_OPT_CC := $(OPT_CC)
 
 ## Select input filename format
-SOURCEFILE = $(call native_path, $<)
-TARGETFILE = $(call native_path, $@)
-SRCFILE = $(call native_path, $(patsubst %.o,%.src,$@))
+SOURCEFILE = $(call native_path,$<)
+TARGETFILE = $(call native_path,$@)
 
 ##
 ## Main rules: all clean
@@ -336,12 +335,12 @@ pic30.$(PIC30_EXTENSION): $(OBJS) $(LINKDEP) $(LIBDEP)
 					 
 # produce the object file from assembly code in a single step
 $(OBJDIR)/%.o: %.S ee_pic30regs.inc
-	$(VERBOSE_PRINTCPP) $(EE_CC) $(COMPUTED_OPT_INCLUDE) $(DEFS_ASM) -mcpu=$(PIC30_MODEL) $(DEPENDENCY_OPT) -c "$(SOURCEFILE)" -o $(TARGETFILE)
+	$(VERBOSE_PRINTCPP) $(EE_CC) $(COMPUTED_OPT_INCLUDE) $(DEFS_ASM) -mcpu=$(PIC30_MODEL) $(DEPENDENCY_OPT) -c $(SOURCEFILE) -o $(TARGETFILE)
 	$(QUIET) $(call make-depend, $<, $@, $(subst .o,.d,$@))
 
 # produce the object file from C code in a single step
 $(OBJDIR)/%.o: %.c ee_pic30regs.h
-	$(VERBOSE_PRINTCPP) $(EE_CC) $(COMPUTED_OPT_CC) $(COMPUTED_OPT_INCLUDE) $(DEFS_CC) $(DEPENDENCY_OPT) -c "$(SOURCEFILE)" -o $(TARGETFILE)
+	$(VERBOSE_PRINTCPP) $(EE_CC) $(COMPUTED_OPT_CC) $(COMPUTED_OPT_INCLUDE) $(DEFS_CC) $(DEPENDENCY_OPT) -c $(SOURCEFILE) -o $(TARGETFILE)
 	$(QUIET) $(call make-depend, $<, $@, $(subst .o,.d,$@))
 
 $(OBJDIR)/frommchp/crt0.o: frommchp/crt0.s

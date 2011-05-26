@@ -113,9 +113,8 @@ COMPUTED_OPT_ASM := $(OPT_ASM)
 COMPUTED_OPT_CC := $(OPT_CC)
 
 ## Select input filename format ##
-SOURCEFILE = $(call native_path, $<)
-TARGETFILE = $(call native_path, $@)
-SRCFILE = $(call native_path, $(patsubst %.o,%.src,$@))
+SOURCEFILE = $(call native_path,$<)
+TARGETFILE = $(call native_path,$@)
 
 ###########################
 ###########################

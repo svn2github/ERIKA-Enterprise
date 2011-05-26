@@ -183,9 +183,9 @@ COMPUTED_OPT_CC_DEPS := $(OPT_CC_DEPS)
 COMPUTED_OPT_TCC := $(OPT_TCC)
 
 ## Select input filename format
-SOURCEFILE = $(call native_path, $<)
-TARGETFILE = $(call native_path, $@)
-SRCFILE = $(call native_path, $(patsubst %.o,%.src,$@))
+SOURCEFILE = $(call native_path,$<)
+TARGETFILE = $(call native_path,$@)
+SRCFILE = $(call native_path,$(patsubst %.o,%.src,$@))
 
 
 ##
