@@ -3,7 +3,7 @@
 
 #include "ee.h"
 
-/* Include a file with the registers from Microchip C30 distribution */ 
+/* Include a file with the registers from Microchip C30 distribution */
 #ifdef __PIC30_INCLUDE_REGS__
 #include "ee_pic30regs.h"
 #endif
@@ -37,16 +37,17 @@
 #define EE_UART_ERR_INT_DISABLED	5
 
 #ifndef EE_UART_INSTRUCTION_CLOCK
-	#ifdef __PIC24FJ32GA004__
+
+#if defined (__PIC24FJ32GA004__) || defined (__PIC24FJ64GA004__)
 		/* we are considering Fcy = 16 MHz */
-		#define EE_UART_INSTRUCTION_CLOCK	16000000ul
-	#else
-		#define EE_UART_INSTRUCTION_CLOCK	2500000ul
-	#endif
+#define EE_UART_INSTRUCTION_CLOCK	16000000ul
+#else
+#define EE_UART_INSTRUCTION_CLOCK	2500000ul
+#endif
 
 #endif
 
-EE_INT8 EE_uart_init(EE_UINT8 port, EE_UINT32 baud, EE_UINT16 byte_format, 
+EE_INT8 EE_uart_init(EE_UINT8 port, EE_UINT32 baud, EE_UINT16 byte_format,
 		     EE_UINT16 mode);
 EE_INT8 EE_uart_close(EE_UINT8 port);
 EE_INT8 EE_uart_write_byte(EE_UINT8 port, EE_UINT8 data);
