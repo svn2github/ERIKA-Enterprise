@@ -478,4 +478,8 @@ BYTE MDD_SDSPI_ShutdownMedia(void);
     extern DWORD ReadDWord( BYTE* pBuffer, WORD index );
 #endif
 
+
+//MMC_RESPONSE SendMMCCmdManual(BYTE cmd, DWORD address);
+//BYTE ReadMediaManual (void);
+
 #endif

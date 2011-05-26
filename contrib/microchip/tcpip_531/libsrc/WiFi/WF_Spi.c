@@ -177,9 +177,9 @@ void WF_SpiInit(void)
         // We'll let the module control the pins.
     #endif
 
-    #if !defined( SPI_IS_SHARED )
+	//#if !defined( SPI_IS_SHARED )
     ConfigureSpiMRF24WB0M();  
-    #endif
+    //#endif
     
     /* clear the completion flag */
     ClearSPIDoneFlag();

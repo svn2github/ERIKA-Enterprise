@@ -67,6 +67,8 @@
 //Start GF
 //#include "MDD File System/FSDefs.h"
 #include "FSDefs.h"
+#include "ascolta_debug.h" // XXXXXX:RS: RIMUOVERE!!!!!
+
 //End GF
 #ifdef ALLOW_FSFPRINTF
 #include "stdarg.h"
@@ -5103,23 +5105,25 @@ size_t FSfwrite(const void *ptr, size_t size, size_t n, FSFILE *stream)
     DWORD       seek, filesize;
     WORD        writeCount = 0;
 
+
     // see if the file was opened in a write mode
     if(!(stream->flags.write))
     {
-        FSerrno = CE_READONLY;
+         FSerrno = CE_READONLY;
         error = CE_WRITE_ERROR;
         return 0;
     }
 
-    if (count == 0)
+    if (count == 0){
         return 0;
-
+    }
     if (MDD_WriteProtectState())
     {
         FSerrno = CE_WRITE_PROTECTED;
         error = CE_WRITE_PROTECTED;
         return 0;
     }
+
 
     gBufferZeroed = FALSE;
     dsk = stream->dsk;

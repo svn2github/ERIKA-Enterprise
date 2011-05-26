@@ -62,6 +62,13 @@
 
 #include "TCPIP_Stack/TCPIP.h"
 
+#if defined(ASCOLTA_TIME_SYNC)
+ #include <time.h>
+ #if defined(TIME_DEBUG)
+  #include"ascolta_debug.h"
+ #endif
+#endif
+
 
 // Defines how frequently to resynchronize the date/time (default: 10 minutes)
 #define NTP_QUERY_INTERVAL		(10ull*60ull * TICK_SECOND)
@@ -86,14 +93,24 @@
 // pool server closest to your geography, but it will still work
 // if you use the global pool.ntp.org address or choose the wrong 
 // one or ship your embedded device to another geography.
+
+#if defined(ASCOLTA_TIME_SYNC)
+/* private NTP */
 //#define NTP_SERVER	"pool.ntp.org"
-#define NTP_SERVER	"europe.pool.ntp.org"
+#define NTP_SERVER	"www.ascolta.org"   
+//#define NTP_SERVER	"192.168.1.101"
+//define NTP_SERVER     "83.149.158.219"
+#else 
+/* public NTP */
+#define NTP_SERVER	"pool.ntp.org"
+//#define NTP_SERVER	"europe.pool.ntp.org"
 //#define NTP_SERVER	"asia.pool.ntp.org"
 //#define NTP_SERVER	"oceania.pool.ntp.org"
 //#define NTP_SERVER	"north-america.pool.ntp.org"
 //#define NTP_SERVER	"south-america.pool.ntp.org"
 //#define NTP_SERVER	"africa.pool.ntp.org"
 //#define NTP_SERVER	"192.168.1.101"
+#endif
 
 // Defines the structure of an NTP packet
 typedef struct
@@ -297,13 +314,37 @@ void SNTPClient(void)
 			{
 				break;	
 			}
-			
+
+ 			
 			// Set out local time to match the returned time
 			dwLastUpdateTick = TickGet();
 			dwSNTPSeconds = swapl(pkt.tx_ts_secs) - NTP_EPOCH;
 			// Do rounding.  If the partial seconds is > 0.5 then add 1 to the seconds count.
 			if(((BYTE*)&pkt.tx_ts_fraq)[0] & 0x80)
 				dwSNTPSeconds++;
+
+			#if defined (ASCOLTA_TIME_SYNC)
+			/* Syn RTC with NTP time */
+			{
+			  rtccTime tm1; 
+ 			  rtccDate dt1; 
+
+			  fromSNTPtoRTCC(dwSNTPSeconds,&tm1,&dt1);
+
+			  #if defined(TIME_DEBUG)
+			  sprintf(str, "\n\r\n\r Out Year: %X",dt1.year);
+			  CONSOLE_OUT(str);
+			  sprintf(str, "\n\r\n\r Out Mont: %X",dt1.mon);
+			  CONSOLE_OUT(str);
+			  sprintf(str, "\n\r\n\r Out mday: %X",dt1.mday);
+			  CONSOLE_OUT(str);
+			  //DelayMs(2000);
+			  #endif
+ 			  
+			  RtccSetTimeDate(tm1.l, dt1.l);
+			  while(RtccGetClkStat());
+			}
+			#endif
 
 			break;
 

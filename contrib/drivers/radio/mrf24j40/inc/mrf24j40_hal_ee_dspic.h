@@ -116,7 +116,7 @@
 #endif	
 #endif
 
-#ifdef __USE_DEMOBOARD__	/* Demoboard defaults */
+#if defined (__USE_DEMOBOARD__) && !defined (__EE_MINIFLEX__) /* Demoboard defaults */
 
 #ifndef MRF24J40_INTERRUPT_NAME	
 #define MRF24J40_INTERRUPT_NAME	_INT4Interrupt

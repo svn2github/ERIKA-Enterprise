@@ -288,7 +288,15 @@ void WF_EintInit(void)
 #if defined( MRF24WB0M_IN_SPI2 )
 void __attribute((interrupt(ipl3), vector(_EXTERNAL_3_VECTOR), nomips16)) _WFInterrupt(void)
 #else
+
+#if !defined(ASCOLTA_PROTOTYPE)
+/* explorer16 */
 void __attribute((interrupt(ipl3), vector(_EXTERNAL_1_VECTOR), nomips16)) _WFInterrupt(void)
+#else
+/* ascolta device */
+void __attribute((interrupt(ipl3), vector(_EXTERNAL_3_VECTOR), nomips16)) _WFInterrupt(void)
+#endif
+
 #endif
 {
     // clear EINT

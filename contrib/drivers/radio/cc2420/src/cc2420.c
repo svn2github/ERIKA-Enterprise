@@ -149,6 +149,7 @@ int8_t cc2420_radio_init(uint8_t port)
 
 	/* Flush the RX FIFO */
 	CC2420_RX_FIFO_FLUSH();
+	
 	return 1;
 }
 

@@ -84,7 +84,7 @@
 // undefined, the local caching will be disabled.  On PIC18 
 // products, this will improve TCP performance/throughput by 
 // approximately 15%.
-#define TCP_OPTIMIZE_FOR_SIZE
+// RS: eliminare nei commit #define TCP_OPTIMIZE_FOR_SIZE
 
 // For smallest size and best throughput, TCP_OPTIMIZE_FOR_SIZE 
 // should always be enabled on PIC24/dsPIC products.  On PIC32 

@@ -66,7 +66,7 @@
 // Also, HardwareProfile.h also needs to be included before the 
 // STACK_USE_UART2TCP_BRIDGE test.
 #define UART2TCPBRIDGE_PORT	9761
-#define BAUD_RATE			19200
+#define BAUD_RATE		19200
 
 
 #if defined(STACK_USE_UART2TCP_BRIDGE)
