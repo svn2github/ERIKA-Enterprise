@@ -38,7 +38,7 @@
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
 /*
- * Linker script for CodeWarrior compiler, for executables running from flash.
+ * Linker script for Diab compiler, for executables running from flash.
  * Author: 2010 Fabio Checconi
  *         2011 Bernardo  Dal Seno
  */
@@ -46,20 +46,21 @@
 SECTIONS
 {
 	GROUP : {
-		.bam_data LOAD(ADDR(boot)): { }
-		.boot LOAD(ADDR(.boot)): { }
+		.bam_data : { }
+		.boot : { }
 	} > boot
 
 	GROUP : {
-		.text LOAD(ADDR(iflash)): {
+		.text : {
 			*(.text)
 			*(.text_vle)
+			*(.init)
+			*(.fini)
 			*(.rdata)
 			*(.rodata)
-			_etext = . ;
 		}
 
-		.sdata2 LOAD(_etext): {
+		.sdata2 : {
 			*(.sdata2)
 			*(.sbss2)
 		 }
@@ -80,7 +81,7 @@ SECTIONS
 		_ebss = . ;
 
 		_sstack = . ;
-		.stack LOAD(ADDR(.stack)): {
+		.stack : {
 			*(.stack)
 		}
 		_estack = . ;

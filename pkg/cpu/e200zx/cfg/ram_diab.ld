@@ -51,6 +51,8 @@ SECTIONS
 		.text : {
 			*(.text)
 			*(.text_vle)
+			*(.init)
+			*(.fini)
 			*(.rdata)
 			*(.rodata)
 		}
