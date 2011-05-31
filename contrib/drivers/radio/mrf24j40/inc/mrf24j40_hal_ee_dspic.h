@@ -1,4 +1,4 @@
-/** 
+/**
 * @file mrf24j40_hal_ee_dspic.h
 * @brief MRF24J40 Hw Abstraction Layer using Erika OS over Microchip dsPIC
 * @author Gianluca Franchino
@@ -7,7 +7,7 @@
 * @date 2009-03-24
 *
 * This file is the definition of the hardware abstraction layer used by all the module
-* of the MRF24J40 library which uses the Erika kernel drivers. 
+* of the MRF24J40 library which uses the Erika kernel drivers.
 *
 * \todo Write something about the hal support.
 */
@@ -31,7 +31,7 @@
 #ifndef __EE_MINIFLEX__
 #define MRF24J40_RESETn	PORTGbits.RG0
 #else
-#define MRF24J40_RESETn	PORTAbits.RA7	
+#define MRF24J40_RESETn	PORTAbits.RA7
 #endif
 #endif
 
@@ -41,7 +41,7 @@
 	#endif
 #endif
 
-#ifndef __EE_MINIFLEX__	
+#ifndef __EE_MINIFLEX__
 #ifndef MRF24J40_FIFO
 #ifdef __USE_DEMOBOARD__	/* Demoboard defaults */
 #define MRF24J40_FIFO		PORTDbits.RD14
@@ -52,9 +52,9 @@
 #endif
 
 #ifndef MRF24J40_FIFOP
-	#ifdef __USE_DEMOBOARD__	/* Demoboard defaults */
+	#if defined (__USE_DEMOBOARD__) && !defined (__EE_MINIFLEX__) /* Demoboard defaults */
 	#define MRF24J40_FIFOP		PORTAbits.RA15
-	#else 
+	#else
 	#ifdef __EE_MINIFLEX__	/* MiniFlex board default*/
 	#define MRF24J40_FIFOP		PORTBbits.RB7
 	#else				/* Gianluca's board default*/
@@ -86,7 +86,7 @@
 #endif
 #endif
 
-#ifndef __EE_MINIFLEX__	
+#ifndef __EE_MINIFLEX__
 #ifndef MRF24J40_TRIS_FIFO
 #ifdef __USE_DEMOBOARD__	/* Demoboard defaults */
 #define MRF24J40_TRIS_FIFO	TRISDbits.TRISD14
@@ -97,7 +97,7 @@
 #endif
 
 #ifndef MRF24J40_TRIS_FIFOP
-#ifdef __USE_DEMOBOARD__	/* Demoboard defaults */
+#if defined__USE_DEMOBOARD__	&& !defined (__EE_MINIFLEX__) /* Demoboard defaults */
 #define MRF24J40_TRIS_FIFOP	TRISAbits.TRISA15
 #else
 #ifdef __EE_MINIFLEX__	/* MiniFlex board default*/
@@ -113,16 +113,16 @@
 #define MRF24J40_TRIS_CSn	TRISGbits.TRISG9
 #else
 #define MRF24J40_TRIS_CSn	TRISCbits.TRISC4
-#endif	
+#endif
 #endif
 
 #if defined (__USE_DEMOBOARD__) && !defined (__EE_MINIFLEX__) /* Demoboard defaults */
 
-#ifndef MRF24J40_INTERRUPT_NAME	
+#ifndef MRF24J40_INTERRUPT_NAME
 #define MRF24J40_INTERRUPT_NAME	_INT4Interrupt
 #endif
 
-#ifndef MRF24J40_INTERRUPT_FLAG	
+#ifndef MRF24J40_INTERRUPT_FLAG
 #define MRF24J40_INTERRUPT_FLAG	IFS3bits.INT4IF
 #endif
 
@@ -134,18 +134,17 @@
 #define MRF24J40_INTERRUPT_PRIORITY IPC13bits.INT4IP
 #endif
 
-#ifndef MRF24J40_INTERRUPT_EDGE_POLARITY	
+#ifndef MRF24J40_INTERRUPT_EDGE_POLARITY
 #define MRF24J40_INTERRUPT_EDGE_POLARITY	 INTCON2bits.INT4EP
 #endif
 
 #else /* Gianluca's board and MiniFlex default*/
 
-
-#ifndef MRF24J40_INTERRUPT_NAME	
+#ifndef MRF24J40_INTERRUPT_NAME
 #define MRF24J40_INTERRUPT_NAME	_INT0Interrupt
 #endif
 
-#ifndef MRF24J40_INTERRUPT_FLAG	
+#ifndef MRF24J40_INTERRUPT_FLAG
 #define MRF24J40_INTERRUPT_FLAG	IFS0bits.INT0IF
 #endif
 
@@ -157,7 +156,7 @@
 #define MRF24J40_INTERRUPT_PRIORITY IPC0bits.INT0IP
 #endif
 
-#ifndef MRF24J40_INTERRUPT_EDGE_POLARITY	
+#ifndef MRF24J40_INTERRUPT_EDGE_POLARITY
 #define MRF24J40_INTERRUPT_EDGE_POLARITY	 INTCON2bits.INT0EP
 #endif
 
@@ -166,7 +165,7 @@
 #define MRF24J40_HAL_ISR() ISR2(MRF24J40_INTERRUPT_NAME)
 
 int8_t	mrf24j40_hal_init(void);
-void	mrf24j40_hal_delay_us(uint16_t delay_count); 
+void	mrf24j40_hal_delay_us(uint16_t delay_count);
 int8_t	mrf24j40_hal_spi_init(uint8_t port);
 int8_t	mrf24j40_hal_spi_close(void);
 int8_t	mrf24j40_hal_spi_write(uint8_t *data, uint16_t len);

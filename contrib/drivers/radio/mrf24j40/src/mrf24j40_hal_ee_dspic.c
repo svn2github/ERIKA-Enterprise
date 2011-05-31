@@ -1,4 +1,4 @@
-/** 
+/**
 * @file mrf24j40_hal_ee_dspic.c
 * @brief MRF24J40 Hw Abstraction Layer using Erika OS over microchip dsPIC
 * @author Gianluca Franchino
@@ -7,7 +7,7 @@
 * @date 2009-03-24
 *
 * This file is the  hardware abstraction layer used by all the module
-* of the MRF24J40 library which uses the Erika kernel drivers. 
+* of the MRF24J40 library which uses the Erika kernel drivers.
 *
 * \todo Write something about the hal support.
 */
@@ -18,10 +18,10 @@
 
 static uint16_t temp_count = 0;
 
-void mrf24j40_hal_delay_us( uint16_t delay_count ) 
+void mrf24j40_hal_delay_us( uint16_t delay_count )
 {
 	temp_count = delay_count +1;
-	asm volatile("outer: dec _temp_count");	
+	asm volatile("outer: dec _temp_count");
 	asm volatile("cp0 _temp_count");
 	asm volatile("bra z, done");
 
@@ -30,8 +30,8 @@ void mrf24j40_hal_delay_us( uint16_t delay_count )
 	asm volatile("inner: dec w0, w0");
 	asm volatile("cp0 w0");
 	asm volatile("bra nz, inner");
-	#else 
-	asm volatile("do #1500, inner" );	
+	#else
+	asm volatile("do #1500, inner" );
 	asm volatile("nop");
 	asm volatile("inner: nop");
 	#endif
@@ -47,20 +47,22 @@ int8_t	mrf24j40_hal_init(void)
 	#ifndef __EE_MINIFLEX__
 	MRF24J40_TRIS_VREG_EN = 0;
 	#endif
-	#ifndef __EE_MINIFLEX__	
+	#ifndef __EE_MINIFLEX__
 	MRF24J40_TRIS_FIFO = 1;
-	MRF24J40_TRIS_FIFOP = 1;
 	#endif
+	
+	MRF24J40_TRIS_FIFOP = 1;
 	MRF24J40_TRIS_CSn = 0;
 	/* Set interrupt registers */
 	MRF24J40_INTERRUPT_PRIORITY = 1;
 	MRF24J40_INTERRUPT_EDGE_POLARITY = 0;
+
 	mrf24j40_hal_irq_clean();
 	mrf24j40_hal_irq_enable();
 	return 1;
 }
 
-static uint8_t spi_port; 
+static uint8_t spi_port;
 
 int8_t	mrf24j40_hal_spi_init(uint8_t port)
 {
