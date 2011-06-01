@@ -385,7 +385,13 @@ void init_MacPIB();
 	
 	//other functions declaration
 	EE_UINT8 calculate_ifs(EE_UINT8 pk_length);
-	EE_UINT8 min(EE_UINT8 val1, EE_UINT8 val2);
+	
+	#ifndef max
+	#define max(a,b) ((a) >= (b) ? (a) : (b))
+	#endif
+	#ifndef min
+	#define min(a,b) ((a) <= (b) ? (a) : (b))
+	#endif
 
 /*********************************************************************************/
 
@@ -2143,24 +2149,6 @@ void perform_csma_ca_slotted()
 	}
 return;
 }
-
-
-
-
-
-EE_UINT8 min(EE_UINT8 val1, EE_UINT8 val2)
-{
-	if (val1 < val2)
-	{
-		return val1;
-	}
-	else
-	{
-		return val2;
-	}
-}
-
-
 
 EE_UINT8 calculate_ifs(EE_UINT8 pk_length)
 {
