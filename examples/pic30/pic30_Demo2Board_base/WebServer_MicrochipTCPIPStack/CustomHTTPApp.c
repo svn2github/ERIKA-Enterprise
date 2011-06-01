@@ -2,7 +2,7 @@
  *
  *  Application to Demo HTTP2 Server
  *  Support for HTTP2 module in Microchip TCP/IP Stack
- *	 -Implements the application
+ *	 -Implements the application 
  *	 -Reference: RFC 1002
  *
  *********************************************************************
@@ -98,8 +98,8 @@
 #endif
 
 // Sticky status message variable.
-// This is used to indicated whether or not the previous POST operation was
-// successful.  The application uses these to store status messages when a
+// This is used to indicated whether or not the previous POST operation was 
+// successful.  The application uses these to store status messages when a 
 // POST operation redirects.  This lets the application provide status messages
 // after a redirect, when connection instance data has already been lost.
 static BOOL lastSuccess = FALSE;
@@ -111,11 +111,11 @@ static BOOL lastFailure = FALSE;
   Section:
 	Authorization Handlers
   ***************************************************************************/
-
+  
 /*****************************************************************************
   Function:
 	BYTE HTTPNeedsAuth(BYTE* cFile)
-
+	
   Internal:
   	See documentation in the TCP/IP Stack API or HTTP2.h for details.
   ***************************************************************************/
@@ -147,7 +147,7 @@ BYTE HTTPNeedsAuth(BYTE* cFile)
 /*****************************************************************************
   Function:
 	BYTE HTTPCheckAuth(BYTE* cUser, BYTE* cPass)
-
+	
   Internal:
   	See documentation in the TCP/IP Stack API or HTTP2.h for details.
   ***************************************************************************/
@@ -157,14 +157,14 @@ BYTE HTTPCheckAuth(BYTE* cUser, BYTE* cPass)
 	if(strcmppgm2ram((char *)cUser,(ROM char *)"admin") == 0
 		&& strcmppgm2ram((char *)cPass, (ROM char *)"microchip") == 0)
 		return 0x80;		// We accept this combination
-
+	
 	// You can add additional user/pass combos here.
-	// If you return specific "realm" values above, you can base this
+	// If you return specific "realm" values above, you can base this 
 	//   decision on what specific file or folder is being accessed.
-	// You could return different values (0x80 to 0xff) to indicate
+	// You could return different values (0x80 to 0xff) to indicate 
 	//   various users or groups, and base future processing decisions
 	//   in HTTPExecuteGet/Post or HTTPPrint callbacks on this value.
-
+	
 	return 0x00;			// Provided user/pass is invalid
 }
 #endif
@@ -173,11 +173,11 @@ BYTE HTTPCheckAuth(BYTE* cUser, BYTE* cPass)
   Section:
 	GET Form Handlers
   ***************************************************************************/
-
+  
 /*****************************************************************************
   Function:
 	HTTP_IO_RESULT HTTPExecuteGet(void)
-
+	
   Internal:
   	See documentation in the TCP/IP Stack API or HTTP2.h for details.
   ***************************************************************************/
@@ -185,11 +185,11 @@ HTTP_IO_RESULT HTTPExecuteGet(void)
 {
 	BYTE *ptr;
 	BYTE filename[20];
-
+	
 	// Load the file name
 	// Make sure BYTE filename[] above is large enough for your longest name
 	MPFSGetFilename(curHTTP.file, filename, 20);
-
+	
 	// If its the forms.htm page
 	if(!memcmppgm2ram(filename, "forms.htm", 9))
 	{
@@ -210,7 +210,7 @@ HTTP_IO_RESULT HTTPExecuteGet(void)
 		if(ptr)
 			LED1_IO = (*ptr == '1');
 	}
-
+	
 	// If it's the LED updater file
 	else if(!memcmppgm2ram(filename, "cookies.htm", 11))
 	{
@@ -221,14 +221,14 @@ HTTP_IO_RESULT HTTPExecuteGet(void)
 		// remember to also add a dynamic variable callback to control the printout.
 		curHTTP.hasArgs = 0x01;
 	}
-
-
+		
+	
 	// If it's the LED updater file
 	else if(!memcmppgm2ram(filename, "leds.cgi", 8))
 	{
 		// Determine which LED to toggle
 		ptr = HTTPGetROMArg(curHTTP.data, (ROM BYTE *)"led");
-
+		
 		// Toggle the specified LED
 		switch(*ptr) {
 			case '1':
@@ -253,9 +253,9 @@ HTTP_IO_RESULT HTTPExecuteGet(void)
 				LED7_IO ^= 1;
 				break;
 		}
-
+		
 	}
-
+	
 	return HTTP_IO_DONE;
 }
 
@@ -269,7 +269,7 @@ HTTP_IO_RESULT HTTPExecuteGet(void)
 /*****************************************************************************
   Function:
 	HTTP_IO_RESULT HTTPExecutePost(void)
-
+	
   Internal:
   	See documentation in the TCP/IP Stack API or HTTP2.h for details.
   ***************************************************************************/
@@ -277,11 +277,11 @@ HTTP_IO_RESULT HTTPExecutePost(void)
 {
 	// Resolve which function to use and pass along
 	BYTE filename[20];
-
+	
 	// Load the file name
 	// Make sure BYTE filename[] above is large enough for your longest name
 	MPFSGetFilename(curHTTP.file, filename, sizeof(filename));
-
+	
 #if defined(USE_LCD)
 	if(!memcmppgm2ram(filename, "forms.htm", 9))
 		return HTTPPostLCD();
@@ -302,10 +302,10 @@ HTTP_IO_RESULT HTTPExecutePost(void)
 #endif
 
 #if defined(STACK_USE_SMTP_CLIENT)
-	if(!strcmppgm2ram((char*)filename, (ROM char*)"email/index.htm"))
+	if(!strcmppgm2ram((char*)filename, "email/index.htm"))
 		return HTTPPostEmail();
 #endif
-
+	
 #if defined(STACK_USE_DYNAMICDNS_CLIENT)
 	if(!strcmppgm2ram((char*)filename, "dyndns/index.htm"))
 		return HTTPPostDDNSConfig();
@@ -324,15 +324,15 @@ HTTP_IO_RESULT HTTPExecutePost(void)
   Description:
 	Locates the 'lcd' parameter and uses it to update the text displayed
 	on the board's LCD display.
-
+	
 	This function has four states.  The first reads a name from the data
 	string returned as part of the POST request.  If a name cannot
-	be found, it returns, asking for more data.  Otherwise, if the name
-	is expected, it reads the associated value and writes it to the LCD.
-	If the name is not expected, the value is discarded and the next name
+	be found, it returns, asking for more data.  Otherwise, if the name 
+	is expected, it reads the associated value and writes it to the LCD.  
+	If the name is not expected, the value is discarded and the next name 
 	parameter is read.
-
-	In the case where the expected string is never found, this function
+	
+	In the case where the expected string is never found, this function 
 	will eventually return HTTP_IO_NEED_DATA when no data is left.  In that
 	case, the HTTP2 server will automatically trap the error and issue an
 	Internal Server Error to the browser.
@@ -352,43 +352,43 @@ HTTP_IO_RESULT HTTPExecutePost(void)
 static HTTP_IO_RESULT HTTPPostLCD(void)
 {
 	BYTE* cDest;
-
+	
 	#define SM_POST_LCD_READ_NAME		(0u)
 	#define SM_POST_LCD_READ_VALUE		(1u)
-
+	
 	switch(curHTTP.smPost)
 	{
 		// Find the name
 		case SM_POST_LCD_READ_NAME:
-
+		
 			// Read a name
 			if(HTTPReadPostName(curHTTP.data, HTTP_MAX_DATA_LEN) == HTTP_READ_INCOMPLETE)
 				return HTTP_IO_NEED_DATA;
 
 			curHTTP.smPost = SM_POST_LCD_READ_VALUE;
 			// No break...continue reading value
-
+		
 		// Found the value, so store the LCD and return
 		case SM_POST_LCD_READ_VALUE:
-
+					
 			// If value is expected, read it to data buffer,
-			// otherwise ignore it (by reading to NULL)
+			// otherwise ignore it (by reading to NULL)	
 			if(!strcmppgm2ram((char*)curHTTP.data, (ROM char*)"lcd"))
 				cDest = curHTTP.data;
 			else
 				cDest = NULL;
-
+			
 			// Read a value string
 			if(HTTPReadPostValue(cDest, HTTP_MAX_DATA_LEN) == HTTP_READ_INCOMPLETE)
 				return HTTP_IO_NEED_DATA;
-
+			
 			// If this was an unexpected value, look for a new name
 			if(!cDest)
 			{
 				curHTTP.smPost = SM_POST_LCD_READ_NAME;
 				break;
 			}
-
+			
 			// Copy up to 32 characters to the LCD
 			if(strlen((char*)cDest) < 32u)
 			{
@@ -400,13 +400,13 @@ static HTTP_IO_RESULT HTTPPostLCD(void)
 				memcpy(LCDText, (void *)cDest, 32);
 			}
 			LCDUpdate();
-
+			
 			// This is the only expected value, so callback is done
-			strcpypgm2ram((char*)curHTTP.data, (ROM void*)"/forms.htm");
+			strcpypgm2ram((char*)curHTTP.data, "/forms.htm");
 			curHTTP.httpStatus = HTTP_REDIRECT;
 			return HTTP_IO_DONE;
 	}
-
+	
 	// Default assumes that we're returning for state machine convenience.
 	// Function will be called again later.
 	return HTTP_IO_WAITING;
@@ -424,20 +424,20 @@ static HTTP_IO_RESULT HTTPPostLCD(void)
 	Accepts configuration parameters from the form, saves them to a
 	temporary location in RAM, then eventually saves the data to EEPROM or
 	external Flash.
-
+	
 	When complete, this function redirects to config/reboot.htm, which will
 	display information on reconnecting to the board.
 
-	This function creates a shadow copy of the AppConfig structure in
-	RAM and then overwrites incoming data there as it arrives.  For each
-	name/value pair, the name is first read to curHTTP.data[0:5].  Next, the
+	This function creates a shadow copy of the AppConfig structure in 
+	RAM and then overwrites incoming data there as it arrives.  For each 
+	name/value pair, the name is first read to curHTTP.data[0:5].  Next, the 
 	value is read to newAppConfig.  Once all data has been read, the new
-	AppConfig is saved back to EEPROM and the browser is redirected to
-	reboot.htm.  That file includes an AJAX call to reboot.cgi, which
+	AppConfig is saved back to EEPROM and the browser is redirected to 
+	reboot.htm.  That file includes an AJAX call to reboot.cgi, which 
 	performs the actual reboot of the machine.
-
-	If an IP address cannot be parsed, too much data is POSTed, or any other
-	parsing error occurs, the browser reloads config.htm and displays an error
+	
+	If an IP address cannot be parsed, too much data is POSTed, or any other 
+	parsing error occurs, the browser reloads config.htm and displays an error 
 	message at the top.
 
   Precondition:
@@ -457,39 +457,39 @@ static HTTP_IO_RESULT HTTPPostConfig(void)
 	BYTE *ptr;
 	BYTE i;
 
-	// Check to see if the browser is attempting to submit more data than we
-	// can parse at once.  This function needs to receive all updated
+	// Check to see if the browser is attempting to submit more data than we 
+	// can parse at once.  This function needs to receive all updated 
 	// parameters and validate them all before committing them to memory so that
-	// orphaned configuration parameters do not get written (for example, if a
-	// static IP address is given, but the subnet mask fails parsing, we
-	// should not use the static IP address).  Everything needs to be processed
+	// orphaned configuration parameters do not get written (for example, if a 
+	// static IP address is given, but the subnet mask fails parsing, we 
+	// should not use the static IP address).  Everything needs to be processed 
 	// in a single transaction.  If this is impossible, fail and notify the user.
-	// As a web devloper, if you add parameters to AppConfig and run into this
-	// problem, you could fix this by to splitting your update web page into two
-	// seperate web pages (causing two transactional writes).  Alternatively,
-	// you could fix it by storing a static shadow copy of AppConfig someplace
-	// in memory and using it instead of newAppConfig.  Lastly, you could
-	// increase the TCP RX FIFO size for the HTTP server.  This will allow more
+	// As a web devloper, if you add parameters to AppConfig and run into this 
+	// problem, you could fix this by to splitting your update web page into two 
+	// seperate web pages (causing two transactional writes).  Alternatively, 
+	// you could fix it by storing a static shadow copy of AppConfig someplace 
+	// in memory and using it instead of newAppConfig.  Lastly, you could 
+	// increase the TCP RX FIFO size for the HTTP server.  This will allow more 
 	// data to be POSTed by the web browser before hitting this limit.
 	if(curHTTP.byteCount > TCPIsGetReady(sktHTTP) + TCPGetRxFIFOFree(sktHTTP))
 		goto ConfigFailure;
-
-	// Ensure that all data is waiting to be parsed.  If not, keep waiting for
+	
+	// Ensure that all data is waiting to be parsed.  If not, keep waiting for 
 	// all of it to arrive.
 	if(TCPIsGetReady(sktHTTP) < curHTTP.byteCount)
 		return HTTP_IO_NEED_DATA;
-
-
+	
+	
 	// Use current config in non-volatile memory as defaults
 	#if defined(EEPROM_CS_TRIS)
-		XEEReadArray(0x0001, (BYTE*)&newAppConfig, sizeof(AppConfig));
+		XEEReadArray(sizeof(NVM_VALIDATION_STRUCT), (BYTE*)&newAppConfig, sizeof(newAppConfig));
 	#elif defined(SPIFLASH_CS_TRIS)
-		SPIFlashReadArray(0x0001, (BYTE*)&newAppConfig, sizeof(AppConfig));
+		SPIFlashReadArray(sizeof(NVM_VALIDATION_STRUCT), (BYTE*)&newAppConfig, sizeof(newAppConfig));
 	#endif
-
-	// Start out assuming that DHCP is disabled.  This is necessary since the
-	// browser doesn't submit this field if it is unchecked (meaning zero).
-	// However, if it is checked, this will be overridden since it will be
+	
+	// Start out assuming that DHCP is disabled.  This is necessary since the 
+	// browser doesn't submit this field if it is unchecked (meaning zero).  
+	// However, if it is checked, this will be overridden since it will be 
 	// submitted.
 	newAppConfig.Flags.bIsDHCPEnabled = 0;
 
@@ -500,17 +500,17 @@ static HTTP_IO_RESULT HTTPPostConfig(void)
 		// Read a form field name
 		if(HTTPReadPostName(curHTTP.data, 6) != HTTP_READ_OK)
 			goto ConfigFailure;
-
+			
 		// Read a form field value
 		if(HTTPReadPostValue(curHTTP.data + 6, sizeof(curHTTP.data)-6-2) != HTTP_READ_OK)
 			goto ConfigFailure;
-
+			
 		// Parse the value that was read
 		if(!strcmppgm2ram((char*)curHTTP.data, (ROM char*)"ip"))
 		{// Read new static IP Address
 			if(!StringToIPAddress(curHTTP.data+6, &newAppConfig.MyIPAddr))
 				goto ConfigFailure;
-
+				
 			newAppConfig.DefaultIPAddr.Val = newAppConfig.MyIPAddr.Val;
 		}
 		else if(!strcmppgm2ram((char*)curHTTP.data, (ROM char*)"gw"))
@@ -545,7 +545,7 @@ static HTTP_IO_RESULT HTTPPostConfig(void)
 
 			for(i = 0; i < 12u; i++)
 			{// Read the MAC address
-
+				
 				// Skip non-hex bytes
 				while( *ptr != 0x00u && !(*ptr >= '0' && *ptr <= '9') && !(*ptr >= 'A' && *ptr <= 'F') && !(*ptr >= 'a' && *ptr <= 'f') )
 					ptr++;
@@ -557,11 +557,11 @@ static HTTP_IO_RESULT HTTPPostConfig(void)
 						curHTTP.data[i] = '0';
 					break;
 				}
-
+				
 				// Save the MAC byte
 				curHTTP.data[i] = *ptr++;
 			}
-
+			
 			// Read MAC Address, one byte at a time
 			for(i = 0; i < 6u; i++)
 			{
@@ -584,34 +584,26 @@ static HTTP_IO_RESULT HTTPPostConfig(void)
 
 
 	// All parsing complete!  Save new settings and force a reboot
-	#if defined(EEPROM_CS_TRIS)
-		XEEBeginWrite(0x0000);
-		XEEWrite(0x60);
-		XEEWriteArray((BYTE*)&newAppConfig, sizeof(AppConfig));
-	#elif defined(SPIFLASH_CS_TRIS)
-		SPIFlashBeginWrite(0x0000);
-		SPIFlashWrite(0x60);
-		SPIFlashWriteArray((BYTE*)&newAppConfig, sizeof(AppConfig));
-	#endif
-
+	SaveAppConfig(&newAppConfig);
+	
 	// Set the board to reboot and display reconnecting information
-	strcpypgm2ram((char*)curHTTP.data, (ROM char*)"/protect/reboot.htm?");
+	strcpypgm2ram((char*)curHTTP.data, "/protect/reboot.htm?");
 	memcpy((void*)(curHTTP.data+20), (void*)newAppConfig.NetBIOSName, 16);
 	curHTTP.data[20+16] = 0x00;	// Force null termination
 	for(i = 20; i < 20u+16u; i++)
 	{
 		if(curHTTP.data[i] == ' ')
 			curHTTP.data[i] = 0x00;
-	}
-	curHTTP.httpStatus = HTTP_REDIRECT;
-
+	}		
+	curHTTP.httpStatus = HTTP_REDIRECT;	
+	
 	return HTTP_IO_DONE;
 
 
 ConfigFailure:
 	lastFailure = TRUE;
-	strcpypgm2ram((char*)curHTTP.data, (ROM char*)"/protect/config.htm");
-	curHTTP.httpStatus = HTTP_REDIRECT;
+	strcpypgm2ram((char*)curHTTP.data, "/protect/config.htm");
+	curHTTP.httpStatus = HTTP_REDIRECT;		
 
 	return HTTP_IO_DONE;
 }
@@ -624,24 +616,24 @@ static HTTP_IO_RESULT HTTPPostSNMPCommunity(void)
 
 	#define SM_CFG_SNMP_READ_NAME	(0u)
 	#define SM_CFG_SNMP_READ_VALUE	(1u)
-
+	
 	switch(curHTTP.smPost)
 	{
 		case SM_CFG_SNMP_READ_NAME:
 			// If all parameters have been read, end
 			if(curHTTP.byteCount == 0u)
 			{
-				SaveAppConfig();
+				SaveAppConfig(&AppConfig);
 				return HTTP_IO_DONE;
 			}
-
+		
 			// Read a name
 			if(HTTPReadPostName(curHTTP.data, sizeof(curHTTP.data)-2) == HTTP_READ_INCOMPLETE)
 				return HTTP_IO_NEED_DATA;
-
+				
 			// Move to reading a value, but no break
 			curHTTP.smPost = SM_CFG_SNMP_READ_VALUE;
-
+			
 		case SM_CFG_SNMP_READ_VALUE:
 			// Read a value
 			if(HTTPReadPostValue(curHTTP.data + 6, sizeof(curHTTP.data)-6-2) == HTTP_READ_INCOMPLETE)
@@ -650,9 +642,9 @@ static HTTP_IO_RESULT HTTPPostSNMPCommunity(void)
 			// Default action after this is to read the next name, unless there's an error
 			curHTTP.smPost = SM_CFG_SNMP_READ_NAME;
 
-			// See if this is a known parameter and legal (must be null
-			// terminator in 4th field name byte, string must no greater than
-			// SNMP_COMMUNITY_MAX_LEN bytes long, and SNMP_MAX_COMMUNITY_SUPPORT
+			// See if this is a known parameter and legal (must be null 
+			// terminator in 4th field name byte, string must no greater than 
+			// SNMP_COMMUNITY_MAX_LEN bytes long, and SNMP_MAX_COMMUNITY_SUPPORT 
 			// must not be violated.
 			vCommunityIndex = curHTTP.data[3] - '0';
 			if(vCommunityIndex >= SNMP_MAX_COMMUNITY_SUPPORT)
@@ -667,10 +659,10 @@ static HTTP_IO_RESULT HTTPPostSNMPCommunity(void)
 				break;
 			if(strlen((char*)curHTTP.data + 6) > SNMP_COMMUNITY_MAX_LEN)
 				break;
-
+			
 			// String seems valid, lets copy it to AppConfig
 			strcpy((char*)dest, (char*)curHTTP.data+6);
-			break;
+			break;			
 	}
 
 	return HTTP_IO_WAITING;		// Assume we're waiting to process more data
@@ -693,17 +685,17 @@ static HTTP_IO_RESULT HTTPPostSNMPCommunity(void)
 	all data has been received, the function calculates the MD5 sum and
 	stores it in curHTTP.data.
 
-	After the headers, the first line from the form will be the MIME
-	separator.  Following that is more headers about the file, which we
-	discard.  After another CRLFCRLF, the file data begins, and we read
+	After the headers, the first line from the form will be the MIME 
+	separator.  Following that is more headers about the file, which we 
+	discard.  After another CRLFCRLF, the file data begins, and we read 
 	it 16 bytes at a time and add that to the MD5 calculation.  The reading
-	terminates when the separator string is encountered again on its own
-	line.  Notice that the actual file data is trashed in this process,
-	allowing us to accept files of arbitrary size, not limited by RAM.
-	Also notice that the data buffer is used as an arbitrary storage array
-	for the result.  The ~uploadedmd5~ callback reads this data later to
+	terminates when the separator string is encountered again on its own 
+	line.  Notice that the actual file data is trashed in this process, 
+	allowing us to accept files of arbitrary size, not limited by RAM.  
+	Also notice that the data buffer is used as an arbitrary storage array 
+	for the result.  The ~uploadedmd5~ callback reads this data later to 
 	send back to the client.
-
+	
   Precondition:
 	None
 
@@ -720,12 +712,12 @@ static HTTP_IO_RESULT HTTPPostMD5(void)
 {
 	WORD lenA, lenB;
 	static HASH_SUM md5;			// Assume only one simultaneous MD5
-
+	
 	#define SM_MD5_READ_SEPARATOR	(0u)
 	#define SM_MD5_SKIP_TO_DATA		(1u)
 	#define SM_MD5_READ_DATA		(2u)
 	#define SM_MD5_POST_COMPLETE	(3u)
-
+	
 	// Don't care about curHTTP.data at this point, so use that for buffer
 	switch(curHTTP.smPost)
 	{
@@ -733,31 +725,31 @@ static HTTP_IO_RESULT HTTPPostMD5(void)
 		case SM_MD5_READ_SEPARATOR:
 			// Reset the MD5 calculation
 			MD5Initialize(&md5);
-
+			
 			// See if a CRLF is in the buffer
 			lenA = TCPFindROMArray(sktHTTP, (ROM BYTE*)"\r\n", 2, 0, FALSE);
 			if(lenA == 0xffff)
 			{//if not, ask for more data
 				return HTTP_IO_NEED_DATA;
 			}
-
+		
 			// If so, figure out where the last byte of data is
 			// Data ends at CRLFseparator--CRLF, so 6+len bytes
 			curHTTP.byteCount -= lenA + 6;
-
+			
 			// Read past the CRLF
 			curHTTP.byteCount -= TCPGetArray(sktHTTP, NULL, lenA+2);
-
+			
 			// Save the next state (skip to CRLFCRLF)
 			curHTTP.smPost = SM_MD5_SKIP_TO_DATA;
-
+			
 			// No break...continue reading the headers if possible
-
+				
 		// Skip the headers
 		case SM_MD5_SKIP_TO_DATA:
 			// Look for the CRLFCRLF
 			lenA = TCPFindROMArray(sktHTTP, (ROM BYTE*)"\r\n\r\n", 4, 0, FALSE);
-
+	
 			if(lenA != 0xffff)
 			{// Found it, so remove all data up to and including
 				lenA = TCPGetArray(sktHTTP, NULL, lenA+4);
@@ -768,20 +760,20 @@ static HTTP_IO_RESULT HTTPPostMD5(void)
 			{// Otherwise, remove as much as possible
 				lenA = TCPGetArray(sktHTTP, NULL, TCPIsGetReady(sktHTTP) - 4);
 				curHTTP.byteCount -= lenA;
-
+			
 				// Return the need more data flag
 				return HTTP_IO_NEED_DATA;
 			}
-
+			
 			// No break if we found the header terminator
-
+			
 		// Read and hash file data
 		case SM_MD5_READ_DATA:
 			// Find out how many bytes are available to be read
 			lenA = TCPIsGetReady(sktHTTP);
 			if(lenA > curHTTP.byteCount)
 				lenA = curHTTP.byteCount;
-
+	
 			while(lenA > 0u)
 			{// Add up to 64 bytes at a time to the sum
 				lenB = TCPGetArray(sktHTTP, curHTTP.data, (lenA < 64u)?lenA:64);
@@ -789,7 +781,7 @@ static HTTP_IO_RESULT HTTPPostMD5(void)
 				lenA -= lenB;
 				MD5AddData(&md5, curHTTP.data, lenB);
 			}
-
+					
 			// If we've read all the data
 			if(curHTTP.byteCount == 0u)
 			{// Calculate and copy result to curHTTP.data for printout
@@ -797,11 +789,11 @@ static HTTP_IO_RESULT HTTPPostMD5(void)
 				MD5Calculate(&md5, curHTTP.data);
 				return HTTP_IO_DONE;
 			}
-
+				
 			// Ask for more data
 			return HTTP_IO_NEED_DATA;
 	}
-
+	
 	return HTTP_IO_DONE;
 }
 #endif // #if defined(STACK_USE_HTTP_MD5_DEMO)
@@ -814,7 +806,7 @@ static HTTP_IO_RESULT HTTPPostMD5(void)
 	Processes the e-mail form on email/index.htm
 
   Description:
-	This function sends an e-mail message using the SMTP client and
+	This function sends an e-mail message using the SMTP client and 
 	optionally encrypts the connection to the SMTP server using SSL.  It
 	demonstrates the use of the SMTP client, waiting for asynchronous
 	processes in an HTTP callback, and how to send e-mail attachments using
@@ -822,14 +814,14 @@ static HTTP_IO_RESULT HTTPPostMD5(void)
 
 	Messages with attachments are sent using multipart/mixed MIME encoding,
 	which has three sections.  The first has no headers, and is only to be
-	displayed by old clients that cannot interpret the MIME format.  (The
+	displayed by old clients that cannot interpret the MIME format.  (The 
 	overwhelming majority of these clients have been obseleted, but the
-	so-called "ignored" section is still used.)  The second has a few
+	so-called "ignored" section is still used.)  The second has a few 
 	headers to indicate that it is the main body of the message in plain-
-	text encoding.  The third section has headers indicating an attached
+	text encoding.  The third section has headers indicating an attached 
 	file, along with its name and type.  All sections are separated by a
 	boundary string, which cannot appear anywhere else in the message.
-
+	
   Precondition:
 	None
 
@@ -863,9 +855,9 @@ static HTTP_IO_RESULT HTTPPostEmail(void)
 	#define SM_EMAIL_PUT_ATTACHMENT_DATA_POT	(8u)
 	#define SM_EMAIL_PUT_TERMINATOR				(9u)
 	#define SM_EMAIL_FINISHING					(10u)
-
+	
 	#define EMAIL_SPACE_REMAINING				(HTTP_MAX_DATA_LEN - (ptrData - curHTTP.data))
-
+	
 	switch(curHTTP.smPost)
 	{
 		case SM_EMAIL_CLAIM_MODULE:
@@ -876,26 +868,26 @@ static HTTP_IO_RESULT HTTPPostEmail(void)
 				SMTPClient.ROMPointers.Subject = 1;
 				SMTPClient.From.szROM = (ROM BYTE*)"\"SMTP Service\" <mchpboard@picsaregood.com>";
 				SMTPClient.ROMPointers.From = 1;
-
-				// The following two lines indicate to the receiving client that
+				
+				// The following two lines indicate to the receiving client that 
 				// this message has an attachment.  The boundary field *must not*
-				// be included anywhere in the content of the message.  In real
+				// be included anywhere in the content of the message.  In real 
 				// applications it is typically a long random string.
 				SMTPClient.OtherHeaders.szROM = (ROM BYTE*)"MIME-version: 1.0\r\nContent-type: multipart/mixed; boundary=\"frontier\"\r\n";
 				SMTPClient.ROMPointers.OtherHeaders = 1;
-
+				
 				// Move our state machine forward
 				ptrData = curHTTP.data;
 				szPort = NULL;
 				curHTTP.smPost = SM_EMAIL_READ_PARAM_NAME;
 			}
-			return HTTP_IO_WAITING;
-
+			return HTTP_IO_WAITING;			
+			
 		case SM_EMAIL_READ_PARAM_NAME:
 			// Search for a parameter name in POST data
 			if(HTTPReadPostName(cName, sizeof(cName)) == HTTP_READ_INCOMPLETE)
 				return HTTP_IO_NEED_DATA;
-
+			
 			// Try to match the name value
 			if(!strcmppgm2ram((char*)cName, (ROM char*)"server"))
 			{// Read the server name
@@ -941,7 +933,7 @@ static HTTP_IO_RESULT HTTPPostEmail(void)
 				if(SMTPClient.Password.szRAM)
 					if((*SMTPClient.Password.szRAM == 0x00u) || (SMTPClient.Username.szRAM == NULL))
 						SMTPClient.Password.szRAM = NULL;
-
+				
 				// Decode server port string if it exists
 				if(szPort)
 					if(*szPort)
@@ -953,7 +945,7 @@ static HTTP_IO_RESULT HTTPPostEmail(void)
 					if(*szUseSSL == '1')
 						SMTPClient.UseSSL = TRUE;
 				#endif
-
+				
 				// Start sending the message
 				SMTPSendMail();
 				curHTTP.smPost = SM_EMAIL_PUT_IGNORED;
@@ -963,62 +955,62 @@ static HTTP_IO_RESULT HTTPPostEmail(void)
 			{// Don't know what we're receiving
 				curHTTP.smPost = SM_EMAIL_READ_PARAM_VALUE;
 			}
-
+			
 			// No break...continue to try reading the value
-
+		
 		case SM_EMAIL_READ_PARAM_VALUE:
 			// Search for a parameter value in POST data
 			if(HTTPReadPostValue(ptrData, EMAIL_SPACE_REMAINING) == HTTP_READ_INCOMPLETE)
 				return HTTP_IO_NEED_DATA;
-
+				
 			// Move past the data that was just read
 			ptrData += strlen((char*)ptrData);
 			if(ptrData < curHTTP.data + HTTP_MAX_DATA_LEN - 1)
 				ptrData += 1;
-
+			
 			// Try reading the next parameter
 			curHTTP.smPost = SM_EMAIL_READ_PARAM_NAME;
 			return HTTP_IO_WAITING;
-
+			
 		case SM_EMAIL_PUT_IGNORED:
 			// This section puts a message that is ignored by compatible clients.
-			// This text will not display unless the receiving client is obselete
+			// This text will not display unless the receiving client is obselete 
 			// and does not understand the MIME structure.
 			// The "--frontier" indicates the start of a section, then any
 			// needed MIME headers follow, then two CRLF pairs, and then
 			// the actual content (which will be the body text in the next state).
-
+			
 			// Check to see if a failure occured
 			if(!SMTPIsBusy())
 			{
 				curHTTP.smPost = SM_EMAIL_FINISHING;
 				return HTTP_IO_WAITING;
 			}
-
+		
 			// See if we're ready to write data
 			if(SMTPIsPutReady() < 90u)
 				return HTTP_IO_WAITING;
-
-			// Write the ignored text
+				
+			// Write the ignored text				
 			SMTPPutROMString((ROM BYTE*)"This is a multi-part message in MIME format.\r\n");
 			SMTPPutROMString((ROM BYTE*)"--frontier\r\nContent-type: text/plain\r\n\r\n");
 			SMTPFlush();
-
+			
 			// Move to the next state
 			curHTTP.smPost = SM_EMAIL_PUT_BODY;
-
+			
 		case SM_EMAIL_PUT_BODY:
 			// Write as much body text as is available from the TCP buffer
 			// return HTTP_IO_NEED_DATA or HTTP_IO_WAITING
 			// On completion, => PUT_ATTACHMENT_HEADER and continue
-
+			
 			// Check to see if a failure occurred
 			if(!SMTPIsBusy())
 			{
 				curHTTP.smPost = SM_EMAIL_FINISHING;
 				return HTTP_IO_WAITING;
 			}
-
+			
 			// Loop as long as data remains to be read
 			while(curHTTP.byteCount)
 			{
@@ -1026,18 +1018,18 @@ static HTTP_IO_RESULT HTTPPostEmail(void)
 				len = SMTPIsPutReady();
 				if(len == 0u)
 					return HTTP_IO_WAITING;
-
+				
 				// See if data is ready to be read
 				rem = TCPIsGetReady(sktHTTP);
 				if(rem == 0u)
 					return HTTP_IO_NEED_DATA;
-
+				
 				// Only write as much as we can handle
 				if(len > rem)
 					len = rem;
 				if(len > HTTP_MAX_DATA_LEN - 2)
 					len = HTTP_MAX_DATA_LEN - 2;
-
+				
 				// Read the data from HTTP POST buffer and send it to SMTP
 				curHTTP.byteCount -= TCPGetArray(sktHTTP, curHTTP.data, len);
 				curHTTP.data[len] = '\0';
@@ -1045,10 +1037,10 @@ static HTTP_IO_RESULT HTTPPostEmail(void)
 				SMTPPutString(curHTTP.data);
 				SMTPFlush();
 			}
-
+			
 			// We're done with the POST data, so continue
 			curHTTP.smPost = SM_EMAIL_PUT_ATTACHMENT_HEADER;
-
+						
 		case SM_EMAIL_PUT_ATTACHMENT_HEADER:
 			// This section writes the attachment to the message.
 			// This portion generally will not display in the reader, but
@@ -1061,39 +1053,39 @@ static HTTP_IO_RESULT HTTPPostEmail(void)
 			// binary data.  If binary data is to be sent, the data should
 			// be encoded using Base64 and a MIME header should be added:
 			// Content-transfer-encoding: base64
-
+			
 			// Check to see if a failure occurred
 			if(!SMTPIsBusy())
 			{
 				curHTTP.smPost = SM_EMAIL_FINISHING;
 				return HTTP_IO_WAITING;
 			}
-
+			
 			// See if we're ready to write data
 			if(SMTPIsPutReady() < 100u)
 				return HTTP_IO_WAITING;
-
+			
 			// Write the attachment header
 			SMTPPutROMString((ROM BYTE*)"\r\n--frontier\r\nContent-type: text/csv\r\nContent-Disposition: attachment; filename=\"status.csv\"\r\n\r\n");
 			SMTPFlush();
-
+			
 			// Move to the next state
 			curHTTP.smPost = SM_EMAIL_PUT_ATTACHMENT_DATA_BTNS;
-
+			
 		case SM_EMAIL_PUT_ATTACHMENT_DATA_BTNS:
 			// The following states output the system status as a CSV file.
-
+			
 			// Check to see if a failure occurred
 			if(!SMTPIsBusy())
 			{
 				curHTTP.smPost = SM_EMAIL_FINISHING;
 				return HTTP_IO_WAITING;
 			}
-
+			
 			// See if we're ready to write data
 			if(SMTPIsPutReady() < 36u)
 				return HTTP_IO_WAITING;
-
+				
 			// Write the header and button strings
 			SMTPPutROMString((ROM BYTE*)"SYSTEM STATUS\r\n");
 			SMTPPutROMString((ROM BYTE*)"Buttons:,");
@@ -1107,7 +1099,7 @@ static HTTP_IO_RESULT HTTPPostEmail(void)
 			SMTPPut('\r');
 			SMTPPut('\n');
 			SMTPFlush();
-
+			
 			// Move to the next state
 			curHTTP.smPost = SM_EMAIL_PUT_ATTACHMENT_DATA_LEDS;
 
@@ -1118,11 +1110,11 @@ static HTTP_IO_RESULT HTTPPostEmail(void)
 				curHTTP.smPost = SM_EMAIL_FINISHING;
 				return HTTP_IO_WAITING;
 			}
-
+			
 			// See if we're ready to write data
 			if(SMTPIsPutReady() < 30u)
 				return HTTP_IO_WAITING;
-
+				
 			// Write the header and button strings
 			SMTPPutROMString((ROM BYTE*)"LEDs:,");
 			SMTPPut(LED0_IO + '0');
@@ -1154,7 +1146,7 @@ static HTTP_IO_RESULT HTTPPostEmail(void)
 				curHTTP.smPost = SM_EMAIL_FINISHING;
 				return HTTP_IO_WAITING;
 			}
-
+			
 			// See if we're ready to write data
 			if(SMTPIsPutReady() < 16u)
 				return HTTP_IO_WAITING;
@@ -1178,10 +1170,10 @@ static HTTP_IO_RESULT HTTPPostEmail(void)
 			SMTPPut('\r');
 			SMTPPut('\n');
 			SMTPFlush();
-
+			
 			// Move to the next state
 			curHTTP.smPost = SM_EMAIL_PUT_TERMINATOR;
-
+			
 		case SM_EMAIL_PUT_TERMINATOR:
 			// This section finishes the message
 			// This consists of two dashes, the boundary, and two more dashes
@@ -1193,19 +1185,19 @@ static HTTP_IO_RESULT HTTPPostEmail(void)
 				curHTTP.smPost = SM_EMAIL_FINISHING;
 				return HTTP_IO_WAITING;
 			}
-
+		
 			// See if we're ready to write data
 			if(SMTPIsPutReady() < 16u)
 				return HTTP_IO_WAITING;
-
-			// Write the ignored text
+				
+			// Write the ignored text				
 			SMTPPutROMString((ROM BYTE*)"--frontier--\r\n");
 			SMTPPutDone();
 			SMTPFlush();
-
+			
 			// Move to the next state
 			curHTTP.smPost = SM_EMAIL_FINISHING;
-
+		
 		case SM_EMAIL_FINISHING:
 			// Wait for status
 			if(!SMTPIsBusy())
@@ -1216,16 +1208,16 @@ static HTTP_IO_RESULT HTTPPostEmail(void)
 					lastSuccess = TRUE;
 				else
 					lastFailure = TRUE;
-
+									
 				// Redirect to the page
-				strcpypgm2ram((char*)curHTTP.data, (ROM void*)"/email/index.htm");
+				strcpypgm2ram((char*)curHTTP.data, "/email/index.htm");
 				curHTTP.httpStatus = HTTP_REDIRECT;
 				return HTTP_IO_DONE;
 			}
-
+			
 			return HTTP_IO_WAITING;
 	}
-
+	
 	return HTTP_IO_DONE;
 }
 #endif	// #if defined(STACK_USE_SMTP_CLIENT)
@@ -1233,19 +1225,19 @@ static HTTP_IO_RESULT HTTPPostEmail(void)
 /****************************************************************************
   Function:
     HTTP_IO_RESULT HTTPPostDDNSConfig(void)
-
+    
   Summary:
     Parsing and collecting http data received from http form.
 
   Description:
     This routine will be excuted every time the Dynamic DNS Client
-    configuration form is submitted.  The http data is received
+    configuration form is submitted.  The http data is received 
     as a string of the variables seperated by '&' characters in the TCP RX
-    buffer.  This data is parsed to read the required configuration values,
-    and those values are populated to the global array (DDNSData) reserved
+    buffer.  This data is parsed to read the required configuration values, 
+    and those values are populated to the global array (DDNSData) reserved 
     for this purpose.  As the data is read, DDNSPointers is also populated
     so that the dynamic DNS client can execute with the new parameters.
-
+    
   Precondition:
      curHTTP is loaded.
 
@@ -1255,7 +1247,7 @@ static HTTP_IO_RESULT HTTPPostEmail(void)
   Return Values:
     HTTP_IO_DONE 		-  Finished with procedure
     HTTP_IO_NEED_DATA	-  More data needed to continue, call again later
-    HTTP_IO_WAITING 	-  Waiting for asynchronous process to complete,
+    HTTP_IO_WAITING 	-  Waiting for asynchronous process to complete, 
     						call again later
   ***************************************************************************/
 #if defined(STACK_USE_DYNAMICDNS_CLIENT)
@@ -1284,7 +1276,7 @@ static HTTP_IO_RESULT HTTPPostDDNSConfig(void)
 			DDNSClient.ROMPointers.Username = 0;
 			DDNSClient.ROMPointers.Password = 0;
 			curHTTP.smPost++;
-
+			
 		// Searches out names and handles them as they arrive
 		case SM_DDNS_READ_NAME:
 			// If all parameters have been read, end
@@ -1293,11 +1285,11 @@ static HTTP_IO_RESULT HTTPPostDDNSConfig(void)
 				curHTTP.smPost = SM_DDNS_DONE;
 				break;
 			}
-
+		
 			// Read a name
 			if(HTTPReadPostName(curHTTP.data, HTTP_MAX_DATA_LEN) == HTTP_READ_INCOMPLETE)
 				return HTTP_IO_NEED_DATA;
-
+			
 			if(!strcmppgm2ram((char *)curHTTP.data, (ROM char*)"service"))
 			{
 				// Reading the service (numeric)
@@ -1310,50 +1302,50 @@ static HTTP_IO_RESULT HTTPPostDDNSConfig(void)
 				DDNSClient.Password.szRAM = ptrDDNS;
 			else if(!strcmppgm2ram((char *)curHTTP.data, (ROM char*)"host"))
 				DDNSClient.Host.szRAM = ptrDDNS;
-
+			
 			// Move to reading the value for user/pass/host
 			curHTTP.smPost++;
-
+			
 		// Reads in values and assigns them to the DDNS RAM
 		case SM_DDNS_READ_VALUE:
 			// Read a name
 			if(HTTPReadPostValue(ptrDDNS, DDNS_SPACE_REMAINING) == HTTP_READ_INCOMPLETE)
 				return HTTP_IO_NEED_DATA;
-
+				
 			// Move past the data that was just read
 			ptrDDNS += strlen((char*)ptrDDNS);
 			if(ptrDDNS < DDNSData + sizeof(DDNSData) - 1)
-				ptrDDNS += 1;
-
+				ptrDDNS += 1;			
+			
 			// Return to reading names
 			curHTTP.smPost = SM_DDNS_READ_NAME;
 			break;
-
+		
 		// Reads in a service ID
 		case SM_DDNS_READ_SERVICE:
 			// Read the integer id
 			if(HTTPReadPostValue(curHTTP.data, HTTP_MAX_DATA_LEN) == HTTP_READ_INCOMPLETE)
 				return HTTP_IO_NEED_DATA;
-
+			
 			// Convert to a service ID
 			DDNSSetService((BYTE)atol((char*)curHTTP.data));
 
 			// Return to reading names
 			curHTTP.smPost = SM_DDNS_READ_NAME;
 			break;
-
+			
 		// Sets up the DDNS client for an update
 		case SM_DDNS_DONE:
 			// Since user name and password changed, force an update immediately
 			DDNSForceUpdate();
-
+			
 			// Redirect to prevent POST errors
 			lastSuccess = TRUE;
-			strcpypgm2ram((char*)curHTTP.data, (ROM void*)"/dyndns/index.htm");
+			strcpypgm2ram((char*)curHTTP.data, "/dyndns/index.htm");
 			curHTTP.httpStatus = HTTP_REDIRECT;
-			return HTTP_IO_DONE;
+			return HTTP_IO_DONE;				
 	}
-
+	
 	return HTTP_IO_WAITING;		// Assume we're waiting to process more data
 }
 #endif	// #if defined(STACK_USE_DYNAMICDNS_CLIENT)
@@ -1369,7 +1361,7 @@ static HTTP_IO_RESULT HTTPPostDDNSConfig(void)
 /*****************************************************************************
   Function:
 	void HTTPPrint_varname(void)
-
+	
   Internal:
   	See documentation in the TCP/IP Stack API or HTTP2.h for details.
   ***************************************************************************/
@@ -1379,7 +1371,7 @@ void HTTPPrint_builddate(void)
 	curHTTP.callbackPos = 0x01;
 	if(TCPIsPutReady(sktHTTP) < strlenpgm((ROM char*)__DATE__" "__TIME__))
 		return;
-
+	
 	curHTTP.callbackPos = 0x00;
 	TCPPutROMString(sktHTTP, (ROM void*)__DATE__" "__TIME__);
 }
@@ -1420,7 +1412,7 @@ void HTTPPrint_btn(WORD num)
 	TCPPutROMString(sktHTTP, (num?HTML_UP_ARROW:HTML_DOWN_ARROW));
 	return;
 }
-
+	
 void HTTPPrint_led(WORD num)
 {
 	// Determine which LED
@@ -1493,7 +1485,7 @@ void HTTPPrint_ledSelected(WORD num, WORD state)
 		default:
 			num = 0;
 	}
-
+	
 	// Print output if TRUE and ON or if FALSE and OFF
 	if((state && num) || (!state && !num))
 		TCPPutROMString(sktHTTP, (ROM BYTE*)"SELECTED");
@@ -1531,12 +1523,12 @@ void HTTPPrint_lcdtext(void)
 
 	// Determine how many bytes we can write
 	len = TCPIsPutReady(sktHTTP);
-
+	
 	#if defined(USE_LCD)
 	// If just starting, set callbackPos
 	if(curHTTP.callbackPos == 0u)
 		curHTTP.callbackPos = 32;
-
+	
 	// Write a byte at a time while we still can
 	// It may take up to 12 bytes to write a character
 	// (spaces and newlines are longer)
@@ -1563,9 +1555,9 @@ void HTTPPrint_lcdtext(void)
 void HTTPPrint_hellomsg(void)
 {
 	BYTE *ptr;
-
+	
 	ptr = HTTPGetROMArg(curHTTP.data, (ROM BYTE*)"name");
-
+	
 	// We omit checking for space because this is the only data being written
 	if(ptr != NULL)
 	{
@@ -1579,14 +1571,14 @@ void HTTPPrint_hellomsg(void)
 void HTTPPrint_cookiename(void)
 {
 	BYTE *ptr;
-
+	
 	ptr = HTTPGetROMArg(curHTTP.data, (ROM BYTE*)"name");
-
+	
 	if(ptr)
 		TCPPutString(sktHTTP, ptr);
 	else
 		TCPPutROMString(sktHTTP, (ROM BYTE*)"not set");
-
+	
 	return;
 }
 
@@ -1596,7 +1588,7 @@ void HTTPPrint_uploadedmd5(void)
 
 	// Set a flag to indicate not finished
 	curHTTP.callbackPos = 1;
-
+	
 	// Make sure there's enough output space
 	if(TCPIsPutReady(sktHTTP) < 32u + 37u + 5u)
 		return;
@@ -1610,9 +1602,9 @@ void HTTPPrint_uploadedmd5(void)
 		curHTTP.callbackPos = 0;
 		return;
 	}
-
+	
 	TCPPutROMString(sktHTTP, (ROM BYTE*)"<b>Uploaded File's MD5 was:</b><br />");
-
+	
 	// Write a byte of the md5 sum at a time
 	for(i = 0; i < 16u; i++)
 	{
@@ -1621,7 +1613,7 @@ void HTTPPrint_uploadedmd5(void)
 		if((i & 0x03) == 3u)
 			TCPPut(sktHTTP, ' ');
 	}
-
+	
 	curHTTP.callbackPos = 0x00;
 	return;
 }
@@ -1632,7 +1624,7 @@ void HTTPPrintIP(IP_ADDR ip)
 {
 	BYTE digits[4];
 	BYTE i;
-
+	
 	for(i = 0; i < 4u; i++)
 	{
 		if(i)
@@ -1688,13 +1680,13 @@ void HTTPPrint_config_dns2(void)
 void HTTPPrint_config_mac(void)
 {
 	BYTE i;
-
+	
 	if(TCPIsPutReady(sktHTTP) < 18u)
 	{//need 17 bytes to write a MAC
 		curHTTP.callbackPos = 0x01;
 		return;
-	}
-
+	}	
+	
 	// Write each byte
 	for(i = 0; i < 6u; i++)
 	{
@@ -1703,7 +1695,7 @@ void HTTPPrint_config_mac(void)
 		TCPPut(sktHTTP, btohexa_high(AppConfig.MyMACAddr.v[i]));
 		TCPPut(sktHTTP, btohexa_low(AppConfig.MyMACAddr.v[i]));
 	}
-
+	
 	// Indicate that we're done
 	curHTTP.callbackPos = 0x00;
 	return;
@@ -1714,11 +1706,11 @@ void HTTPPrint_config_mac(void)
 void HTTPPrint_read_comm(WORD num)
 {
 	#if defined(STACK_USE_SNMP_SERVER)
-	// Ensure no one tries to read illegal memory addresses by specifying
+	// Ensure no one tries to read illegal memory addresses by specifying 
 	// illegal num values.
 	if(num >= SNMP_MAX_COMMUNITY_SUPPORT)
 		return;
-
+		
 	// Send proper string
 	TCPPutString(sktHTTP, AppConfig.readCommunity[num]);
 	#endif
@@ -1728,11 +1720,11 @@ void HTTPPrint_read_comm(WORD num)
 void HTTPPrint_write_comm(WORD num)
 {
 	#if defined(STACK_USE_SNMP_SERVER)
-	// Ensure no one tries to read illegal memory addresses by specifying
+	// Ensure no one tries to read illegal memory addresses by specifying 
 	// illegal num values.
 	if(num >= SNMP_MAX_COMMUNITY_SUPPORT)
 		return;
-
+		
 	// Send proper string
 	TCPPutString(sktHTTP, AppConfig.writeCommunity[num]);
 	#endif
@@ -1749,7 +1741,7 @@ void HTTPPrint_reboot(void)
 
 void HTTPPrint_rebootaddr(void)
 {// This is the expected address of the board upon rebooting
-	TCPPutString(sktHTTP, curHTTP.data);
+	TCPPutString(sktHTTP, curHTTP.data);	
 }
 
 void HTTPPrint_ddns_user(void)
@@ -1854,7 +1846,7 @@ void HTTPPrint_ddns_status_msg(void)
 	#else
 	TCPPutROMString(sktHTTP, (ROM BYTE*)"The Dynamic DNS Client is not enabled.");
 	#endif
-
+	
 	curHTTP.callbackPos = 0x00;
 }
 

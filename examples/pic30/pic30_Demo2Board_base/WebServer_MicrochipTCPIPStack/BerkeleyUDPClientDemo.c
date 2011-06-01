@@ -82,9 +82,9 @@
 // These are normally available network time servers.
 // The actual IP returned from the pool will vary every
 // minute so as to spread the load around stratum 1 timeservers.
-// For best accuracy and network overhead you should locate the
+// For best accuracy and network overhead you should locate the 
 // pool server closest to your geography, but it will still work
-// if you use the global pool.ntp.org address or choose the wrong
+// if you use the global pool.ntp.org address or choose the wrong 
 // one or ship your embedded device to another geography.
 #define NTP_SERVER	"pool.ntp.org"
 //#define NTP_SERVER	"europe.pool.ntp.org"
@@ -146,7 +146,7 @@ static DWORD dwLastUpdateTick = 0;
 
   Returns:
   	None
-
+  	
   Remarks:
 	This function requires once available UDP socket while processing, but
 	frees that socket when the SNTP module is idle.
@@ -188,9 +188,9 @@ void BerkeleyUDPClientDemo(void)
 
 		case SM_NAME_RESOLVE:
 			// Wait for DNS resolution to complete
-			if(!DNSIsResolved((IP_ADDR*)&dwServerIP))
+			if(!DNSIsResolved((IP_ADDR*)&dwServerIP)) 
 			{
-				if((TickGet() - dwTimer) > (5 * TICK_SECOND))
+				if((TickGet() - dwTimer) > (5 * TICK_SECOND)) 
 				{
 					DNSEndUsage();
 					dwTimer = TickGetDiv64K();
@@ -198,17 +198,17 @@ void BerkeleyUDPClientDemo(void)
 				}
 				break;
 			}
-
+			
 			// Obtain DNS resolution result
 			if(!DNSEndUsage())
 			{
-				// No valid IP address was returned from the DNS
+				// No valid IP address was returned from the DNS 
 				// server.  Quit and fail for a while if host is not valid.
 				dwTimer = TickGetDiv64K();
 				SNTPState = SM_SHORT_WAIT;
 				break;
 			}
-
+			
 			SNTPState = SM_CREATE_SOCKET;
 			// No break needed
 
@@ -217,13 +217,13 @@ void BerkeleyUDPClientDemo(void)
 			if(bsdUdpClient == INVALID_SOCKET)
 				return;
 
-// No explicit binding is necessary since we are going to be the first one
-// sending a UDP packet.  sendto() will do implicit binding.  Explicit binding
-// is necessary only when creating UDP servers that will be receiving the first
+// No explicit binding is necessary since we are going to be the first one 
+// sending a UDP packet.  sendto() will do implicit binding.  Explicit binding 
+// is necessary only when creating UDP servers that will be receiving the first 
 // packet.
 //			SNTPState = SM_BIND;
 //			// No break needed
-//
+//			
 //		case SM_BIND:
 //            udpaddr.sin_port = 0;
 //            udpaddr.sin_addr.S_un.S_addr = IP_ADDR_ANY;
@@ -232,7 +232,7 @@ void BerkeleyUDPClientDemo(void)
 //
             SNTPState = SM_UDP_SEND;
             // No break needed
-
+            
 		case SM_UDP_SEND:
             // Transmit a time request packet
 			memset(&pkt, 0, sizeof(pkt));
@@ -279,13 +279,13 @@ void BerkeleyUDPClientDemo(void)
 		case SM_SHORT_WAIT:
 			// Attempt to requery the NTP server after a specified NTP_FAST_QUERY_INTERVAL time (ex: 8 seconds) has elapsed.
 			if(TickGetDiv64K() - dwTimer > (NTP_FAST_QUERY_INTERVAL/65536ull))
-				SNTPState = SM_HOME;
+				SNTPState = SM_HOME;	
 			break;
 
 		case SM_WAIT:
 			// Requery the NTP server after a specified NTP_QUERY_INTERVAL time (ex: 10 minutes) has elapsed.
 			if(TickGetDiv64K() - dwTimer > (NTP_QUERY_INTERVAL/65536ull))
-				SNTPState = SM_HOME;
+				SNTPState = SM_HOME;	
 
 			break;
 	}
@@ -305,7 +305,7 @@ void BerkeleyUDPClientDemo(void)
 	Obtains the current time from the SNTP module.
 
   Description:
-	This function obtains the current time as reported by the SNTP module.
+	This function obtains the current time as reported by the SNTP module.  
 	Use this value for absolute time stamping.  The value returned is (by
 	default) the number of seconds since 01-Jan-1970 00:00:00.
 
@@ -317,7 +317,7 @@ void BerkeleyUDPClientDemo(void)
 
   Returns:
   	The number of seconds since the Epoch.  (Default 01-Jan-1970 00:00:00)
-
+  	
   Remarks:
 	Do not use this function for time difference measurements.  The Tick
 	module is more appropriate for those requirements.
@@ -327,7 +327,7 @@ DWORD BerkeleySNTPGetUTCSeconds(void)
 	DWORD dwTickDelta;
 	DWORD dwTick;
 
-	// Update the dwSNTPSeconds variable with the number of seconds
+	// Update the dwSNTPSeconds variable with the number of seconds 
 	// that has elapsed
 	dwTick = TickGet();
 	dwTickDelta = dwTick - dwLastUpdateTick;
@@ -336,7 +336,7 @@ DWORD BerkeleySNTPGetUTCSeconds(void)
 		dwSNTPSeconds++;
 		dwTickDelta -= TICK_SECOND;
 	}
-
+	
 	// Save the tick and residual fractional seconds for the next call
 	dwLastUpdateTick = dwTick - dwTickDelta;
 

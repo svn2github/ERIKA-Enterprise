@@ -1,9 +1,9 @@
 /*********************************************************************
  *
  *  Berekely TCP server demo application.
- *  This application uses the BSD socket APIs and starts a server
- *  listening on TCP port 9764.  All data sent to a connection on
- *  this port will be echoed back to the sender.  By default, this
+ *  This application uses the BSD socket APIs and starts a server 
+ *  listening on TCP port 9764.  All data sent to a connection on 
+ *  this port will be echoed back to the sender.  By default, this 
  *  demo supports 3 simultaneous connections.
  *
  *********************************************************************
@@ -51,8 +51,8 @@
  *~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  * Aseem Swalah         4/21/08  	Original
  ********************************************************************/
-
-#include "TCPIPConfig.h"
+ 
+#include "TCPIPConfig.h" 
 
 #if defined(STACK_USE_BERKELEY_API)
 
@@ -80,7 +80,7 @@
  ********************************************************************/
 void BerkeleyTCPServerDemo(void)
 {
-    static SOCKET bsdServerSocket;
+    static SOCKET bsdServerSocket;   
     static SOCKET ClientSock[MAX_CLIENT];
     struct sockaddr_in addr;
     struct sockaddr_in addRemote;
@@ -100,20 +100,20 @@ void BerkeleyTCPServerDemo(void)
     switch(BSDServerState)
     {
 	    case BSD_INIT:
-        	// Initialize all client socket handles so that we don't process
+        	// Initialize all client socket handles so that we don't process 
         	// them in the BSD_OPERATION state
         	for(i = 0; i < MAX_CLIENT; i++)
         		ClientSock[i] = INVALID_SOCKET;
-
+        		
         	BSDServerState = BSD_CREATE_SOCKET;
         	// No break needed
-
+	    
         case BSD_CREATE_SOCKET:
             // Create a socket for this server to listen and accept connections on
             bsdServerSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
             if(bsdServerSocket == INVALID_SOCKET)
                 return;
-
+            
             BSDServerState = BSD_BIND;
             // No break needed
 
@@ -123,36 +123,36 @@ void BerkeleyTCPServerDemo(void)
             addr.sin_addr.S_un.S_addr = IP_ADDR_ANY;
             if( bind( bsdServerSocket, (struct sockaddr*)&addr, addrlen ) == SOCKET_ERROR )
                 return;
-
+            
             BSDServerState = BSD_LISTEN;
             // No break needed
-
+         
       case BSD_LISTEN:
             if(listen(bsdServerSocket, MAX_CLIENT) == 0)
 	            BSDServerState = BSD_OPERATION;
 
-			// No break.  If listen() returns SOCKET_ERROR it could be because
-			// MAX_CLIENT is set to too large of a backlog than can be handled
-			// by the underlying TCP socket count (TCP_PURPOSE_BERKELEY_SERVER
-			// type sockets in TCPIPConfig.h).  However, in this case, it is
-			// possible that some of the backlog is still handleable, in which
-			// case we should try to accept() connections anyway and proceed
+			// No break.  If listen() returns SOCKET_ERROR it could be because 
+			// MAX_CLIENT is set to too large of a backlog than can be handled 
+			// by the underlying TCP socket count (TCP_PURPOSE_BERKELEY_SERVER 
+			// type sockets in TCPIPConfig.h).  However, in this case, it is 
+			// possible that some of the backlog is still handleable, in which 
+			// case we should try to accept() connections anyway and proceed 
 			// with normal operation.
-
+         
       case BSD_OPERATION:
             for(i=0; i<MAX_CLIENT; i++)
             {
 	            // Accept any pending connection requests, assuming we have a place to store the socket descriptor
                 if(ClientSock[i] == INVALID_SOCKET)
                     ClientSock[i] = accept(bsdServerSocket, (struct sockaddr*)&addRemote, &addrlen);
-
+                
                 // If this socket is not connected then no need to process anything
                 if(ClientSock[i] == INVALID_SOCKET)
                 	continue;
 
 	            // For all connected sockets, receive and send back the data
                 length = recv( ClientSock[i], bfr, sizeof(bfr), 0);
-
+         
                 if( length > 0 )
                 {
                     bfr[length] = '\0';
@@ -165,7 +165,7 @@ void BerkeleyTCPServerDemo(void)
                 }
             }
             break;
-
+         
         default:
             return;
     }

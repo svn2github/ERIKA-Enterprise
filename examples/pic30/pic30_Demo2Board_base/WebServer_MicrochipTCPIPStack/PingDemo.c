@@ -66,15 +66,15 @@
 
   Summary:
 	Demonstrates use of the ICMP (Ping) client.
-
+	
   Description:
 	This function implements a simple ICMP client.  The function is called
-	periodically by the stack, and it checks if BUTTON0 has been pressed.
+	periodically by the stack, and it checks if BUTTON0 has been pressed.  
 	If the button is pressed, the function sends an ICMP Echo Request (Ping)
 	to a Microchip web server.  The round trip time is displayed on the UART
 	when the response is received.
-
-	This function can be used as a model for applications requiring Ping
+	
+	This function can be used as a model for applications requiring Ping 
 	capabilities to check if a host is reachable.
 
   Precondition:
@@ -108,7 +108,7 @@ void PingDemo(void)
 					// Obtain ownership of the ICMP module
 					if(!ICMPBeginUsage())
 						break;
-
+					
 					// Update anti-ping flood timer
 					Timer = TickGet();
 
@@ -122,10 +122,10 @@ void PingDemo(void)
 				}
 			}
 			break;
-
+			
 		case SM_GET_ICMP_RESPONSE:
 			// Get the status of the ICMP module
-			ret = ICMPGetReply();
+			ret = ICMPGetReply();					
 			if(ret == -2)
 			{
 				// Do nothing: still waiting for echo
@@ -155,12 +155,12 @@ void PingDemo(void)
 				#if defined(USE_LCD)
 				memcpypgm2ram((void*)&LCDText[16], (ROM void *)"Reply: ", 7);
 				uitoa((WORD)TickConvertToMilliseconds((DWORD)ret), &LCDText[16+7]);
-				strcatpgm2ram((char*)&LCDText[16+7], (ROM char*)"ms");
+				strcatpgm2ram((char*)&LCDText[16+7], "ms");
 				LCDUpdate();
 				#endif
 				PingState = SM_HOME;
 			}
-
+			
 			// Finished with the ICMP module, release it so other apps can begin using it
 			ICMPEndUsage();
 			break;

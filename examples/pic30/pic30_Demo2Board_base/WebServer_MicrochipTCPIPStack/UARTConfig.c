@@ -101,13 +101,13 @@ void DoUARTConfig(void)
 	    putrsUART("\r\n\t9: Download MPFS image.");
 	    putrsUART("\r\n\t0: Save & Quit.");
 	    putrsUART("\r\nEnter a menu choice: ");
-
-
+	
+	
 		// Wait for the user to press a key
 	    while(!DataRdyUART());
-
+	
 		putrsUART((ROM char*)"\r\n");
-
+	
 		// Execute the user selection
 	    switch(ReadUART())
 	    {
@@ -120,7 +120,7 @@ void DoUARTConfig(void)
 		    	    AppConfig.MyMACAddr.v[5] = wvTemp.v[0];
 				}
 		        break;
-
+		
 			case '2':
 				putrsUART("New setting: ");
 		        ReadStringUART(response, sizeof(response) > sizeof(AppConfig.NetBIOSName) ? sizeof(AppConfig.NetBIOSName) : sizeof(response));
@@ -130,53 +130,53 @@ void DoUARTConfig(void)
 			        FormatNetBIOSName(AppConfig.NetBIOSName);
 				}
 				break;
-
+		
 		    case '3':
 		        destIPValue = &AppConfig.MyIPAddr;
 		        goto ReadIPConfig;
-
+		
 		    case '4':
 		        destIPValue = &AppConfig.MyGateway;
 		        goto ReadIPConfig;
-
+		
 		    case '5':
 		        destIPValue = &AppConfig.MyMask;
 		        goto ReadIPConfig;
-
+		
 		    case '6':
 		        destIPValue = &AppConfig.PrimaryDNSServer;
 		        goto ReadIPConfig;
-
+	
 			case '7':
 		        destIPValue = &AppConfig.SecondaryDNSServer;
 		        goto ReadIPConfig;
-
+		
 ReadIPConfig:
 				putrsUART("New setting: ");
 		        ReadStringUART(response, sizeof(response));
-
+		
 		        if(StringToIPAddress(response, &tempIPValue))
 		            destIPValue->Val = tempIPValue.Val;
 				else
 		            putrsUART("Invalid input.\r\n");
 
 		        break;
-
-
+		
+		
 		    case '8':
 		        AppConfig.Flags.bIsDHCPEnabled = !AppConfig.Flags.bIsDHCPEnabled;
 		        break;
-
+		
 		    case '9':
 				#if defined(MPFS_USE_EEPROM) && defined(STACK_USE_MPFS)
 		        	DownloadMPFS();
 				#endif
 		        break;
-
+		
 		    case '0':
 			    bQuit = TRUE;
 				#if defined(EEPROM_CS_TRIS) || defined(SPIFLASH_CS_TRIS)
-		        	SaveAppConfig();
+		        	SaveAppConfig(&AppConfig);
 					putrsUART("Settings saved.\r\n");
 				#else
 					putrsUART("External EEPROM/Flash not present -- settings will be lost at reset.\r\n");

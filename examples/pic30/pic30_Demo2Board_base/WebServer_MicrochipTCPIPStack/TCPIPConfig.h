@@ -80,6 +80,7 @@
 //#define STACK_USE_FTP_SERVER			// File Transfer Protocol (old)
 #define STACK_USE_SMTP_CLIENT			// Simple Mail Transfer Protocol for sending email
 //#define STACK_USE_SNMP_SERVER			// Simple Network Management Protocol v2C Community Agent
+//#define STACK_USE_SNMPV3_SERVER			// Simple Network Management Protocol v3 Agent
 //#define STACK_USE_TFTP_CLIENT			// Trivial File Transfer Protocol client
 //#define STACK_USE_GENERIC_TCP_CLIENT_EXAMPLE	// HTTP Client example in GenericTCPClient.c
 //#define STACK_USE_GENERIC_TCP_SERVER_EXAMPLE	// ToUpper server example in GenericTCPServer.c
@@ -155,11 +156,11 @@
  */
 #define MY_DEFAULT_HOST_NAME			"MCHPBOARD"
 
-#define MY_DEFAULT_MAC_BYTE1            (0x00)	// Use the default of
-#define MY_DEFAULT_MAC_BYTE2            (0x04)	// 00-04-A3-00-00-00 if using
-#define MY_DEFAULT_MAC_BYTE3            (0xA3)	// an ENCX24J600 or MRF24WB0M
-#define MY_DEFAULT_MAC_BYTE4            (0x00)	// and wish to use the internal
-#define MY_DEFAULT_MAC_BYTE5            (0x00)	// factory programmed MAC
+#define MY_DEFAULT_MAC_BYTE1            (0x00)	// Use the default of 00-04-A3-00-00-00
+#define MY_DEFAULT_MAC_BYTE2            (0x04)	// if using an ENCX24J600, MRF24WB0M, or
+#define MY_DEFAULT_MAC_BYTE3            (0xA3)	// PIC32MX6XX/7XX internal Ethernet
+#define MY_DEFAULT_MAC_BYTE4            (0x00)	// controller and wish to use the
+#define MY_DEFAULT_MAC_BYTE5            (0x00)	// internal factory programmed MAC
 #define MY_DEFAULT_MAC_BYTE6            (0x00)	// address instead.
 
 /*
@@ -212,8 +213,6 @@
 #define MY_DEFAULT_SECONDARY_DNS_BYTE2	(168ul)
 #define MY_DEFAULT_SECONDARY_DNS_BYTE3	(0ul)
 #define MY_DEFAULT_SECONDARY_DNS_BYTE4	(10ul)
-
-
 
 // =======================================================================
 //   PIC32MX7XX/6XX MAC Layer Options
@@ -335,7 +334,7 @@
  *   or not to include a checksum on packets being transmitted.
  */
 #define MAX_UDP_SOCKETS     (10u)
-#define UDP_USE_TX_CHECKSUM		// This slows UDP TX performance by nearly 50%, except when using the ENCX24J600, which has a super fast DMA and incurs virtually no speed pentalty.
+#define UDP_USE_TX_CHECKSUM		// This slows UDP TX performance by nearly 50%, except when using the ENCX24J600 or PIC32MX6XX/7XX, which have a super fast DMA and incurs virtually no speed pentalty.
 
 
 /* Berkeley API Sockets Configuration
@@ -361,6 +360,16 @@
 	// Each connection consumes 2 bytes of RAM and a TCP socket
 	#define MAX_HTTP_CONNECTIONS	(2u)
 
+	// Optional setting to use PIC RAM instead of Ethernet/Wi-Fi RAM for
+	// storing HTTP Connection Context variables (HTTP_CONN structure for each
+	// HTTP connection).  Undefining this macro results in the Ethernet/Wi-Fi
+	// RAM being used (minimum PIC RAM usage, lower performance).  Defining
+	// this macro results in PIC RAM getting used (higher performance, but uses
+	// PIC RAM).  This option should not be enabled on PIC18 devices.  The
+	// performance increase of having this option defined is only apparent when
+	// the HTTP server is servicing multiple connections simultaneously.
+	//#define HTTP_SAVE_CONTEXT_IN_PIC_RAM
+
 	// Indicate what file to serve when no specific one is requested
 	#define HTTP_DEFAULT_FILE		"index.htm"
 	#define HTTPS_DEFAULT_FILE		"index.htm"
@@ -381,9 +390,6 @@
 	#define HTTP_USE_AUTHENTICATION			// Enable basic authentication support
 
 	//#define HTTP_NO_AUTH_WITHOUT_SSL		// Uncomment to require SSL before requesting a password
-	#define HTTP_SSL_ONLY_CHAR		(0xFF)	// Files beginning with this character will only be served over HTTPS
-											// Set to 0x00 to require for all files
-											// Set to 0xff to require for no files
 
     // Define the listening port for the HTTP server
   	#define HTTP_PORT               (80u)
@@ -450,6 +456,11 @@
 	// Comment following line if SNMP TRAP support is needed
 	//#define SNMP_TRAP_DISABLED
 
+	//#define SNMP_STACK_USE_V2_TRAP
+	#if defined(STACK_USE_SNMPV3_SERVER)
+		#define SNMP_V1_V2_TRAP_WITH_SNMPV3
+	#endif
+
 	// This is the maximum length for community string.
 	// Application must ensure that this length is observed.
 	// SNMP module adds one byte extra after SNMP_COMMUNITY_MAX_LEN
@@ -475,6 +486,5 @@
 	#define END_OF_SNMP_READ_COMMUNITIES
 	#define SNMP_WRITE_COMMUNITIES     	{"private", "write", "public"}
 	#define END_OF_SNMP_WRITE_COMMUNITIES
-	#define SNMP_STACK_USE_V2_TRAP
 #endif
 

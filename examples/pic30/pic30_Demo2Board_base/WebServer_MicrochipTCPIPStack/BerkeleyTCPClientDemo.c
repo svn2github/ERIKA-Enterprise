@@ -49,7 +49,7 @@
  * Aseem Swalah         4/17/08  	Original
  ********************************************************************/
 
-#include "TCPIPConfig.h"
+#include "TCPIPConfig.h" 
 
 #if defined(STACK_USE_BERKELEY_API)
 
@@ -84,7 +84,7 @@ void BerkeleyTCPClientDemo(void)
     char recvBuffer[9];
     int i;
     int addrlen;
-
+   
     static enum
     {
 	    DNS_START_RESOLUTION = 0,
@@ -106,11 +106,11 @@ void BerkeleyTCPClientDemo(void)
 		    	BSDClientState = DNS_GET_RESULT;
 		    }
 	    	break;
-
+	    
 	    case DNS_GET_RESULT:
 	    	if(!DNSIsResolved((IP_ADDR*)&addr.sin_addr.S_un.S_addr))
 	    		break;
-
+	    		
 	    	if(!DNSEndUsage())
 	    	{
 				#if defined(STACK_USE_UART)
@@ -120,21 +120,21 @@ void BerkeleyTCPClientDemo(void)
 		    	break;
 		    }
 
-	    	BSDClientState = BSD_START;
+	    	BSDClientState = BSD_START;			
 	    	// No break; here.
-
+	    
         case BSD_START:
-            // Create a socket for this client to connect with
+            // Create a socket for this client to connect with 
             if((bsdClientSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) == INVALID_SOCKET )
                 return;
-
+         
 			#if defined(STACK_USE_UART)
 			putrsUART((ROM char*)"\r\n\r\nConnecting using Berkeley Sockets TCP API...\r\n");
 			putrsUART((ROM char*)"   Note: this demo will do nothing if an underlying TCP_PURPOSE_BERKELEY_CLIENT type \r\n"
 								 "   socket is unavailable, as declared by the TCPSocketInitializer[] array in \r\n"
 								 "   TCPIPConfig.h.\r\n\r\n");
 			#endif
-
+         	         
             BSDClientState = BSD_CONNECT;
             break;
 
@@ -150,10 +150,10 @@ void BerkeleyTCPClientDemo(void)
 
         case BSD_SEND:
             //send TCP data
-            send(bsdClientSocket, (const char*)sendRequest, strlen((char*)sendRequest), 0);
+            send(bsdClientSocket, (const char*)sendRequest, strlen((char*)sendRequest), 0);  
             BSDClientState = BSD_OPERATION;
             break;
-
+        
         case BSD_OPERATION:
             // Obtian and print the server reply
             while(1)
@@ -162,13 +162,13 @@ void BerkeleyTCPClientDemo(void)
 
                 if(i == 0)
 					break;
-
+                
                 if(i< 0) //error condition
                 {
                     BSDClientState = BSD_CLOSE;
                     break;
                 }
-
+                
                 #if defined(STACK_USE_UART)
                 recvBuffer[i] = '\0';	// Null terminate data
                 putsUART((char*)recvBuffer);
@@ -178,17 +178,17 @@ void BerkeleyTCPClientDemo(void)
                     break;
             }
             break;
-
+         
         case BSD_CLOSE:
             closesocket(bsdClientSocket);
             BSDClientState = BSD_DONE;
             // No break needed
-
+            
         case BSD_DONE:
             if(BUTTON2_IO == 0u)
             	BSDClientState = DNS_START_RESOLUTION;
             break;
-
+         
         default:
             return;
     }
