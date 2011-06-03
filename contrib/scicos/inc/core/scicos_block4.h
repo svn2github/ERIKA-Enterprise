@@ -159,8 +159,12 @@ void Set_Jacobian_flag(int flag);
 
 /* define min max for win32 */
 #ifndef WIN32
+	#ifndef max
 	#define max(a,b) ((a) >= (b) ? (a) : (b))
+	#endif
+	#ifndef min
 	#define min(a,b) ((a) <= (b) ? (a) : (b))
+	#endif
 #endif
 
 extern int s_copy();
