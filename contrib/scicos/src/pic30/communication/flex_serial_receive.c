@@ -62,6 +62,7 @@ void flex_serial_receive(scicos_block *block,int flag)
 	EE_UINT8 serial_port= block->ipar[0];
 	EE_UINT32 baudrate = block->rpar[0];
 	EE_UINT8 serial_data;
+	EE_INT8 res;
 
   float *y = block->outptr[0];
 
@@ -76,8 +77,11 @@ void flex_serial_receive(scicos_block *block,int flag)
       break;
 
     case StateUpdate: 
-			EE_uart_read_byte(serial_port-1,&serial_data);
-			y[0] = (float)serial_data;
+			res = EE_uart_read_byte(serial_port-1,&serial_data);
+			if (res == -EE_UART_ERR_NO_DATA)
+				y[0] = -1.0;
+			else
+				y[0] = (float)serial_data;
 			break;
 		
 		case 4:	/* initialisation */
