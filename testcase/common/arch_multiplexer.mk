@@ -61,9 +61,8 @@ include ../$(EXPERIMENT)/conf.in
 # - conf       the configurations of the EXPERIMENT that have to be tested
 # - worksfor   the architectures for which the EXPERIMENT has been tested
 
-#Note: since 060902 the architecture must be an exact match!
-archs := $(filter $(ARCH)%,$(worksfor))
-#archs := $(filter $(ARCH)%,$(worksfor))
+#Note: the architecture must be an exact match!
+archs := $(filter $(ARCH),$(worksfor))
 
 MUX = $(EEBASE)/testcase/common/confparser/confparser_mux
 

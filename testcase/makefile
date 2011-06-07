@@ -192,3 +192,8 @@ include $(wildcard common/*/test.mk)
 help::
 	@cat readme
 	@$(foreach t, $(TESTLIST), echo make ARCH=$(t);)
+
+# If the architecture is not in the list and the goal is not equal to "supported"
+ifneq ($(and $(filter-out $(TESTLIST),$(ARCH)),$(filter-out $(MAKECMDGOALS),supported)),)
+$(error Unknow architecture $(ARCH))
+endif
