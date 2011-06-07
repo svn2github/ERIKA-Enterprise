@@ -68,14 +68,14 @@ GLOBAL_RTDRUID += \
 
 # s12xs
 TESTLIST 				+= s12xs
-OUTDIR_COMMANDS_s12xs 	= OUTDIR_COMMANDS_s12xs_source
-CONF_s12xs             	= CONF_s12xs_source
+OUTDIR_COMMANDS_s12xs 	= $(OUTDIR_COMMANDS_s12xs_source)
+CONF_s12xs             	= $(CONF_s12xs_source)
 GLOBAL_CONF 			+=
 DIST_s12xs            	=
-RTDRUID_s12xs           = RTDRUID_s12xs_source
+RTDRUID_s12xs           = $(RTDRUID_s12xs_source)
 CLEAN_s12xs           	=
-COMPILE_s12xs         	= COMPILE_s12xs_source
-DEBUG_s12xs           	= DEBUG_s12xs_source
+COMPILE_s12xs         	= $(COMPILE_s12xs_source)
+DEBUG_s12xs           	= $(DEBUG_s12xs_source)
 
 ## s12xs
 #TESTLIST 				+= s12xs

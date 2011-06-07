@@ -66,14 +66,14 @@ GLOBAL_RTDRUID += \
 
 # e200z7
 TESTLIST 		+= e200z7
-OUTDIR_COMMANDS_e200z7 	= OUTDIR_COMMANDS_e200z7_source
-CONF_e200z7            	= CONF_e200z7_source
+OUTDIR_COMMANDS_e200z7 	= $(OUTDIR_COMMANDS_e200z7_source)
+CONF_e200z7            	= $(CONF_e200z7_source)
 GLOBAL_CONF 		+=
 DIST_e200z7            	=
-RTDRUID_e200z7		= RTDRUID_e200z7_source
+RTDRUID_e200z7		= $(RTDRUID_e200z7_source)
 CLEAN_e200z7           	=
-COMPILE_e200z7         	= COMPILE_e200z7_source
-DEBUG_e200z7           	= DEBUG_e200z7_source
+COMPILE_e200z7         	= $(COMPILE_e200z7_source)
+DEBUG_e200z7           	= $(DEBUG_e200z7_source)
 
 # -------------------------------------------------------------------
 

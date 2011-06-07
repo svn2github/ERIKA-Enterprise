@@ -63,27 +63,27 @@ GLOBAL_RTDRUID += \
 
 # nios2_dist_src
 TESTLIST += nios2_dist_src
-OUTDIR_COMMANDS_nios2_dist_src = OUTDIR_COMMANDS_nios2
-CONF_nios2_dist_src             = CONF_nios2_source
+OUTDIR_COMMANDS_nios2_dist_src = $(OUTDIR_COMMANDS_nios2)
+CONF_nios2_dist_src             = $(CONF_nios2_source)
 GLOBAL_CONF += $(GLOBAL_CONF_nios2_source)
 DIST_nios2_dist_src            =
-RTDRUID_nios2_dist_src            = RTDRUID_nios2_source
+RTDRUID_nios2_dist_src            = $(RTDRUID_nios2_source)
 CLEAN_nios2_dist_src           =
-COMPILE_nios2_dist_src         = COMPILE_nios2_source
-DEBUG_nios2_dist_src           = DEBUG_nios2
+COMPILE_nios2_dist_src         = $(COMPILE_nios2_source)
+DEBUG_nios2_dist_src           = $(DEBUG_nios2)
 
 # nios2_dist_bin_full
 TESTLIST += nios2_dist_bin_full
-OUTDIR_COMMANDS_nios2_dist_bin_full = OUTDIR_COMMANDS_nios2
-CONF_nios2_dist_bin_full             = CONF_nios2_binfull
+OUTDIR_COMMANDS_nios2_dist_bin_full = $(OUTDIR_COMMANDS_nios2)
+CONF_nios2_dist_bin_full             = $(CONF_nios2_binfull)
 GLOBAL_CONF += $(GLOBAL_CONF_nios2_binfull)
 DIST_nios2_dist_bin_full            =
 #DIST_nios2_dist_bin_full            = DIST_nios2_binfull
-RTDRUID_nios2_dist_bin_full            = RTDRUID_nios2_binfull
+RTDRUID_nios2_dist_bin_full            = $(RTDRUID_nios2_binfull)
 CLEAN_nios2_dist_bin_full           =
-COMPILE_nios2_dist_bin_full         = COMPILE_nios2_source
+COMPILE_nios2_dist_bin_full         = $(COMPILE_nios2_source)
 DEBUG_nios2_dist_bin_full           =
-DEBUG_nios2_dist_bin_full           = DEBUG_nios2
+DEBUG_nios2_dist_bin_full           = $(DEBUG_nios2)
 
 # # nios2_dist_bin_lim
 # TESTLIST += nios2_dist_bin_lim
@@ -96,14 +96,14 @@ DEBUG_nios2_dist_bin_full           = DEBUG_nios2
 
 # nios2_dist_trace
 TESTLIST += nios2_dist_trace
-OUTDIR_COMMANDS_nios2_dist_trace = OUTDIR_COMMANDS_nios2
-CONF_nios2_dist_trace             = CONF_nios2_source
+OUTDIR_COMMANDS_nios2_dist_trace = $(OUTDIR_COMMANDS_nios2)
+CONF_nios2_dist_trace             = $(CONF_nios2_source)
 # No GLOBAL_CONF, reusing the one of nios2_dist_src
 DIST_nios2_dist_trace            =
-RTDRUID_nios2_dist_trace            = RTDRUID_nios2_source
+RTDRUID_nios2_dist_trace            = $(RTDRUID_nios2_source)
 CLEAN_nios2_dist_trace           =
-COMPILE_nios2_dist_trace         = COMPILE_nios2_source
-DEBUG_nios2_dist_trace           = DEBUG_nios2_trace
+COMPILE_nios2_dist_trace         = $(COMPILE_nios2_source)
+DEBUG_nios2_dist_trace           = $(DEBUG_nios2_trace)
 
 
 

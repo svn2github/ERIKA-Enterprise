@@ -63,25 +63,25 @@ GLOBAL_RTDRUID += \
 
 # e7t_dist_src
 TESTLIST += e7t_dist_src
-OUTDIR_COMMANDS_e7t_dist_src = OUTDIR_COMMANDS_e7t
-CONF_e7t_dist_src             = CONF_e7t_source
+OUTDIR_COMMANDS_e7t_dist_src = $(OUTDIR_COMMANDS_e7t)
+CONF_e7t_dist_src             = $(CONF_e7t_source)
 GLOBAL_CONF += $(GLOBAL_CONF_e7t_source)
 DIST_e7t_dist_src            =
-RTDRUID_e7t_dist_src            = RTDRUID_e7t_source
+RTDRUID_e7t_dist_src            = $(RTDRUID_e7t_source)
 CLEAN_e7t_dist_src           =
-COMPILE_e7t_dist_src         = COMPILE_e7t_source
-DEBUG_e7t_dist_src           = DEBUG_e7t
+COMPILE_e7t_dist_src         = $(COMPILE_e7t_source)
+DEBUG_e7t_dist_src           = $(DEBUG_e7t)
 
 # e7t_dist_bin_full
 TESTLIST += e7t_dist_bin_full
-OUTDIR_COMMANDS_e7t_dist_bin_full = OUTDIR_COMMANDS_e7t
-CONF_e7t_dist_bin_full             = CONF_e7t_binfull
+OUTDIR_COMMANDS_e7t_dist_bin_full = $(OUTDIR_COMMANDS_e7t)
+CONF_e7t_dist_bin_full             = $(CONF_e7t_binfull)
 GLOBAL_CONF += $(GLOBAL_CONF_e7t_binfull)
 DIST_e7t_dist_bin_full            =
-RTDRUID_e7t_dist_bin_full            = RTDRUID_e7t_binfull
+RTDRUID_e7t_dist_bin_full            = $(RTDRUID_e7t_binfull)
 CLEAN_e7t_dist_bin_full           =
-COMPILE_e7t_dist_bin_full         = COMPILE_e7t_source
-DEBUG_e7t_dist_bin_full           = DEBUG_e7t
+COMPILE_e7t_dist_bin_full         = $(COMPILE_e7t_source)
+DEBUG_e7t_dist_bin_full           = $(DEBUG_e7t)
 
 # -------------------------------------------------------------------
 

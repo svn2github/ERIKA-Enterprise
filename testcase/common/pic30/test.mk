@@ -63,24 +63,24 @@ GLOBAL_RTDRUID += \
 
 # pic30_dist_src
 TESTLIST += pic30_dist_src
-OUTDIR_COMMANDS_pic30_dist_src = OUTDIR_COMMANDS_pic30
-CONF_pic30_dist_src             = CONF_pic30_source
+OUTDIR_COMMANDS_pic30_dist_src = $(OUTDIR_COMMANDS_pic30)
+CONF_pic30_dist_src             = $(CONF_pic30_source)
 GLOBAL_CONF += $(GLOBAL_CONF_pic30_source)
 DIST_pic30_dist_src            =
-RTDRUID_pic30_dist_src            = RTDRUID_pic30_source
+RTDRUID_pic30_dist_src            = $(RTDRUID_pic30_source)
 CLEAN_pic30_dist_src           =
-COMPILE_pic30_dist_src         = COMPILE_pic30_source
+COMPILE_pic30_dist_src         = $(COMPILE_pic30_source)
 #DEBUG_pic30_dist_src           =
 
 # pic30_dist_bin_full
 TESTLIST += pic30_dist_bin_full
-OUTDIR_COMMANDS_pic30_dist_bin_full = OUTDIR_COMMANDS_pic30
-CONF_pic30_dist_bin_full             = CONF_pic30_binfull
+OUTDIR_COMMANDS_pic30_dist_bin_full = $(OUTDIR_COMMANDS_pic30)
+CONF_pic30_dist_bin_full             = $(CONF_pic30_binfull)
 GLOBAL_CONF += $(GLOBAL_CONF_pic30_binfull)
 DIST_pic30_dist_bin_full            =
-RTDRUID_pic30_dist_bin_full            = RTDRUID_pic30_binfull
+RTDRUID_pic30_dist_bin_full            = $(RTDRUID_pic30_binfull)
 CLEAN_pic30_dist_bin_full           =
-COMPILE_pic30_dist_bin_full         = COMPILE_pic30_source
+COMPILE_pic30_dist_bin_full         = $(COMPILE_pic30_source)
 #DEBUG_pic30_dist_bin_full           = DEBUG_pic30
 
 # -------------------------------------------------------------------

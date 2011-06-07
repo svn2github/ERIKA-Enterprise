@@ -101,11 +101,11 @@ define all_template
 all_$(1): $$(OUTDIRS)
 	@echo EXPERIMENT $$(EXPERIMENT) $(PARAMETERS)
 	@echo CLEAN      $$(EXPERIMENT) $(PARAMETERS)
-	@$($(CLEAN_$(thearch)))
+	@$(CLEAN_$(thearch))
 	@echo COMPILE    $$(EXPERIMENT) $(PARAMETERS)
-	@$($(COMPILE_$(thearch)))
+	@$(COMPILE_$(thearch))
 	@echo DEBUGGER   $$(EXPERIMENT) $(PARAMETERS)
-	@$($(DEBUG_$(thearch)))
+	@$(DEBUG_$(thearch))
 endef
 
 $(foreach c,$(confs),$(eval $(call all_template,$(c))))
@@ -123,7 +123,7 @@ define rtdruid_template
 .PHONY: rtdruid_$(1)
 rtdruid_$(1): $$(OUTDIRS)
 	@echo dummy > /dev/null
-	@$($(RTDRUID_$(thearch)))
+	@$(RTDRUID_$(thearch))
 endef
 
 $(foreach c,$(confs),$(eval $(call rtdruid_template,$(c))))
@@ -142,7 +142,7 @@ define dist_template
 .PHONY: dist_$(1)
 dist_$(1): $$(OUTDIRS)
 	@echo dummy > /dev/null
-	@$($(DIST_$(thearch)))
+	@$(DIST_$(thearch))
 endef
 
 $(foreach c,$(confs),$(eval $(call dist_template,$(c))))
@@ -160,7 +160,7 @@ define conf_template
 .PHONY: conf_$(1)
 conf_$(1): $$(OUTDIRS)
 	@echo dummy > /dev/null
-	@$($(CONF_$(thearch)))
+	@$(CONF_$(thearch))
 endef
 
 $(foreach c,$(confs),$(eval $(call conf_template,$(c))))
@@ -172,4 +172,4 @@ $(foreach c,$(confs),$(eval $(call conf_template,$(c))))
 $(OUTDIRS):
 	@echo OUT $(notdir $@)
 	@mkdir $@
-	@$($(OUTDIR_COMMANDS_$(thearch)))
+	@$(OUTDIR_COMMANDS_$(thearch))
