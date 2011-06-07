@@ -268,7 +268,7 @@ $(OBJDIR)/%.o: %.c
 ifeq ($(NEED_ASM_TO_C_TRANSLATION), 1)
 EE_CASM_CFILES = $(call asm_to_c_filename,$(EE_CASM_SRCS))
 $(EE_CASM_CFILES): $(call asm_to_c_filename,%.S): %.S
-	@echo "ASM2C $(notdir $<) $@"
+	@echo "ASM2C $(notdir $<)"
 	$(QUIET)$(call asm_to_c_command,$<,$@)
 $(EE_CASM_CFILES): | make_directories
 INTERMEDIATE_FILES += $(EE_CASM_CFILES)
