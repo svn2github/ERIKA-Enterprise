@@ -94,39 +94,38 @@ OUTDIR_COMMANDS_e200zx_source = \
 
 # this simply parses the OIL file and then raises a flag if there is need to generate a source distribution
 CONF_e200zx_source = \
-	@echo TMPDIR=$(TMPDIR) \
-	@echo CONF $$(OUTDIR_PREFIX)$(1); \
-	cat $$(OUTDIR_PREFIX)$(1)/appl.oil | gcc -c - -E -P -I$$(EEBASE)/pkg $$(addprefix -D, $$(shell $$(DEMUX2) $(1))) -D$$(thearch) -o - >$$(OUTDIR_PREFIX)$(1)/ee.oil; \
-	touch $$(TMPDIR)/e200zx_dist_src_buildsourcedistribution.flg;
+	echo CONF $(OUTDIR_PREFIX)$*; \
+	cat $(OUTDIR_PREFIX)$*/appl.oil | gcc -c - -E -P -I$(EEBASE)/pkg $(addprefix -D, $(shell $(DEMUX2) $*)) -D$(thearch) -o - >$(OUTDIR_PREFIX)$*/ee.oil; \
+	touch $(TMPDIR)/e200zx_dist_src_buildsourcedistribution.flg;
 
 # if the flag has been raised, generate the source distribution
 GLOBAL_CONF_e200zx_source = \
 	( if test -e tmp/e200zx_dist_src_buildsourcedistribution.flg; then \
-		make -C $${EEBASE}/dist/source DIST=e200zx_TESTCASE e200zx_MOVE=Y >tmp/e200zx_dist_src_buildsourcedistribution.log 2>&1; \
+		make -C ${EEBASE}/dist/source DIST=e200zx_TESTCASE e200zx_MOVE=Y >tmp/e200zx_dist_src_buildsourcedistribution.log 2>&1; \
 	fi );
 
 # Generate the rt-druid files...
 RTDRUID_e200zx_source = \
-	@echo RTDRUID $$(OUTDIR_PREFIX)$(1); \
-	echo \<rtdruid.Oil.Configurator inputfile=\"$$(OUTDIR_PREFIX)$(1)/ee.oil\" outputdir=\"$$(OUTDIR_PREFIX)$(1)/Debug\" /\> >> $$(TMPDIR)/e200zx_rtdruid_partial.xml;
+	@echo RTDRUID $(OUTDIR_PREFIX)$*; \
+	echo \<rtdruid.Oil.Configurator inputfile=\"$(OUTDIR_PREFIX)$*/ee.oil\" outputdir=\"$(OUTDIR_PREFIX)$*/Debug\" /\> >> $(TMPDIR)/e200zx_rtdruid_partial.xml;
 
 # take also a look to GLOBAL_RTDRUID at the top of the file!!!
 
-COMPILE_e200zx_source = +if $$(MAKE) $(PARAMETERS) NODEPS=1 -C $$(OUTDIR_PREFIX)$(1)/Debug >$$(OUTDIR_PREFIX)$(1)/compile.log 2>&1; then echo OK $$(EXPERIMENT) $$(OUTDIR_PREFIX)$(1) >>$$(TMPDIR)/ok.log; else echo ERROR $$(EXPERIMENT) $$(OUTDIR_PREFIX)$(1) >>$$(TMPDIR)/errors.log; fi
+COMPILE_e200zx_source = +if $(MAKE) $(PARAMETERS) NODEPS=1 -C $(OUTDIR_PREFIX)$*/Debug >$(OUTDIR_PREFIX)$*/compile.log 2>&1; then echo OK $(EXPERIMENT) $(OUTDIR_PREFIX)$* >>$(TMPDIR)/ok.log; else echo ERROR $(EXPERIMENT) $(OUTDIR_PREFIX)$* >>$(TMPDIR)/errors.log; fi
 
 DEBUG_e200zx_source = \
-	@cp e200zx/t32.cmm $$(OUTDIR_PREFIX)$(1); \
-	$$(LOCKFILE) $$(FILE_LOCK); \
-		echo "&count=&count+1" >> $$(TMPDIR)/t32_jobs.cmm; \
-		echo chdir $$(OUTDIR_PREFIX)$(1) >> $$(TMPDIR)/t32_jobs.cmm; \
-		echo "write \#1 \"$$(OUTDIR_PREFIX)$(1)\"" >> $$(TMPDIR)/t32_jobs.cmm; \
-		echo area.select Messages >> $$(TMPDIR)/t32_jobs.cmm; \
-		echo print >> $$(TMPDIR)/t32_jobs.cmm; \
+	@cp e200zx/t32.cmm $(OUTDIR_PREFIX)$*; \
+	$(LOCKFILE) $(FILE_LOCK); \
+		echo "&count=&count+1" >> $(TMPDIR)/t32_jobs.cmm; \
+		echo chdir $(OUTDIR_PREFIX)$* >> $(TMPDIR)/t32_jobs.cmm; \
+		echo "write \#1 \"$(OUTDIR_PREFIX)$*\"" >> $(TMPDIR)/t32_jobs.cmm; \
+		echo area.select Messages >> $(TMPDIR)/t32_jobs.cmm; \
+		echo print >> $(TMPDIR)/t32_jobs.cmm; \
 		echo print '"Test no. "' '%Decimal' '&count' '" ("' '&failed' \
-		'" errors so far)"' >> $$(TMPDIR)/t32_jobs.cmm; \
-		echo print \"$$(OUTDIR_PREFIX)$(1)\" >> $$(TMPDIR)/t32_jobs.cmm; \
-		echo area.select A000 >> $$(TMPDIR)/t32_jobs.cmm; \
-		echo do t32.cmm >> $$(TMPDIR)/t32_jobs.cmm; \
-		cp -u e200zx/t32_quit.cmm $$(TMPDIR)/t32.cmm; \
-	rm -f $$(FILE_LOCK);
+		'" errors so far)"' >> $(TMPDIR)/t32_jobs.cmm; \
+		echo print \"$(OUTDIR_PREFIX)$*\" >> $(TMPDIR)/t32_jobs.cmm; \
+		echo area.select A000 >> $(TMPDIR)/t32_jobs.cmm; \
+		echo do t32.cmm >> $(TMPDIR)/t32_jobs.cmm; \
+		cp -u e200zx/t32_quit.cmm $(TMPDIR)/t32.cmm; \
+	rm -f $(FILE_LOCK);
 

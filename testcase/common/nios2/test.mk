@@ -126,44 +126,44 @@ OUTDIR_COMMANDS_nios2 = cd $@; cp -sf ../*.* .
 # This piece of commented code is to put an if to the generation code
 # in ARCH_MK_CONF
 
-#if test ! -e $$(OUTDIR_PREFIX)$(1)/ee.oil; then \
+#if test ! -e $(OUTDIR_PREFIX)$*/ee.oil; then \
 #fi;\
-#if test -n `grep $$(OUTDIR_PREFIX)$(1)/ee.oil $$(TMPDIR)/rtdruid_ant_partial.xml`; then \
+#if test -n `grep $(OUTDIR_PREFIX)$*/ee.oil $(TMPDIR)/rtdruid_ant_partial.xml`; then \
 #fi;
 
 # CONF_nios2 = \
-# 	@echo CONF $$(OUTDIR_PREFIX)$(1); \
-# 	cat $$(OUTDIR_PREFIX)$(1)/appl.oil | gcc -c - -E -P -I$$(EEBASE)/pkg $$(addprefix -D, $$(shell $$(DEMUX2) $(1))) -D$$(thearch) -o - >$$(OUTDIR_PREFIX)$(1)/ee.oil; \
-# 	echo \<rtdruid.Oil.Configurator inputfile=\"$$(OUTDIR_PREFIX)$(1)/ee.oil\" outputdir=\"$$(OUTDIR_PREFIX)$(1)\"/\> >> $$(TMPDIR)/rtdruid_ant_partial.xml;
+# 	@echo CONF $(OUTDIR_PREFIX)$*; \
+# 	cat $(OUTDIR_PREFIX)$*/appl.oil | gcc -c - -E -P -I$(EEBASE)/pkg $(addprefix -D, $(shell $(DEMUX2) $*)) -D$(thearch) -o - >$(OUTDIR_PREFIX)$*/ee.oil; \
+# 	echo \<rtdruid.Oil.Configurator inputfile=\"$(OUTDIR_PREFIX)$*/ee.oil\" outputdir=\"$(OUTDIR_PREFIX)$*\"/\> >> $(TMPDIR)/rtdruid_ant_partial.xml;
 
-# COMPILE_nios2 = +@$$(MAKE) $(PARAMETERS) NODEPS=1 -C $$(OUTDIR_PREFIX)$(1)
+# COMPILE_nios2 = +@$(MAKE) $(PARAMETERS) NODEPS=1 -C $(OUTDIR_PREFIX)$*
 
 
 
 DEBUG_nios2 = \
-	cp nios2/testcase.cmm $$(OUTDIR_PREFIX)$(1)/Debug; \
-	$$(LOCKFILE) $$(FILE_LOCK); \
-		echo chdir `cygpath -w $$(OUTDIR_PREFIX)$(1)/Debug` >> $$(TMPDIR)/t32_jobs.cmm; \
-		echo area.select Messages >> $$(TMPDIR)/t32_jobs.cmm; \
-		echo print >> $$(TMPDIR)/t32_jobs.cmm; \
-		echo print \"`cygpath -w $$(OUTDIR_PREFIX)$(1)/Debug`\" >> $$(TMPDIR)/t32_jobs.cmm; \
-		echo area.select A000 >> $$(TMPDIR)/t32_jobs.cmm; \
-		echo do testcase.cmm >> $$(TMPDIR)/t32_jobs.cmm; \
-		cp -u nios2/t32.cmm $$(TMPDIR)/t32.cmm; \
-	rm -f $$(FILE_LOCK); \
+	cp nios2/testcase.cmm $(OUTDIR_PREFIX)$*/Debug; \
+	$(LOCKFILE) $(FILE_LOCK); \
+		echo chdir `cygpath -w $(OUTDIR_PREFIX)$*/Debug` >> $(TMPDIR)/t32_jobs.cmm; \
+		echo area.select Messages >> $(TMPDIR)/t32_jobs.cmm; \
+		echo print >> $(TMPDIR)/t32_jobs.cmm; \
+		echo print \"`cygpath -w $(OUTDIR_PREFIX)$*/Debug`\" >> $(TMPDIR)/t32_jobs.cmm; \
+		echo area.select A000 >> $(TMPDIR)/t32_jobs.cmm; \
+		echo do testcase.cmm >> $(TMPDIR)/t32_jobs.cmm; \
+		cp -u nios2/t32.cmm $(TMPDIR)/t32.cmm; \
+	rm -f $(FILE_LOCK); \
 
 
 DEBUG_nios2_trace = \
-	cp nios2/testcase_trace.cmm $$(OUTDIR_PREFIX)$(1)/Debug; \
-	$$(LOCKFILE) $$(FILE_LOCK); \
-		echo chdir `cygpath -w $$(OUTDIR_PREFIX)$(1)/Debug` >> $$(TMPDIR)/t32_jobs.cmm; \
-		echo area.select Messages >> $$(TMPDIR)/t32_jobs.cmm; \
-		echo print >> $$(TMPDIR)/t32_jobs.cmm; \
-		echo print \"`cygpath -w $$(OUTDIR_PREFIX)$(1)/Debug`\" >> $$(TMPDIR)/t32_jobs.cmm; \
-		echo area.select A000 >> $$(TMPDIR)/t32_jobs.cmm; \
-		echo do testcase_trace.cmm >> $$(TMPDIR)/t32_jobs.cmm; \
-		cp -u nios2/t32.cmm $$(TMPDIR)/t32.cmm; \
-	rm -f $$(FILE_LOCK); \
+	cp nios2/testcase_trace.cmm $(OUTDIR_PREFIX)$*/Debug; \
+	$(LOCKFILE) $(FILE_LOCK); \
+		echo chdir `cygpath -w $(OUTDIR_PREFIX)$*/Debug` >> $(TMPDIR)/t32_jobs.cmm; \
+		echo area.select Messages >> $(TMPDIR)/t32_jobs.cmm; \
+		echo print >> $(TMPDIR)/t32_jobs.cmm; \
+		echo print \"`cygpath -w $(OUTDIR_PREFIX)$*/Debug`\" >> $(TMPDIR)/t32_jobs.cmm; \
+		echo area.select A000 >> $(TMPDIR)/t32_jobs.cmm; \
+		echo do testcase_trace.cmm >> $(TMPDIR)/t32_jobs.cmm; \
+		cp -u nios2/t32.cmm $(TMPDIR)/t32.cmm; \
+	rm -f $(FILE_LOCK); \
 
 
 
@@ -174,28 +174,28 @@ DEBUG_nios2_trace = \
 
 # this simply parses the OIL file and then raises a flag if there is need to generate a source distribution
 CONF_nios2_source = \
-	@echo CONF $$(OUTDIR_PREFIX)$(1); \
-	cat $$(OUTDIR_PREFIX)$(1)/appl.oil | gcc -c - -E -P -I$$(EEBASE)/pkg $$(addprefix -D, $$(shell $$(DEMUX2) $(1))) -D$$(thearch) -o - >$$(OUTDIR_PREFIX)$(1)/ee.oil; \
-	touch $$(TMPDIR)/nios2_dist_src_buildsourcedistribution.flg;
+	@echo CONF $(OUTDIR_PREFIX)$*; \
+	cat $(OUTDIR_PREFIX)$*/appl.oil | gcc -c - -E -P -I$(EEBASE)/pkg $(addprefix -D, $(shell $(DEMUX2) $*)) -D$(thearch) -o - >$(OUTDIR_PREFIX)$*/ee.oil; \
+	touch $(TMPDIR)/nios2_dist_src_buildsourcedistribution.flg;
 
 # if the flag has been raised, generate the source distribution
 GLOBAL_CONF_nios2_source = \
 	( if test -e tmp/nios2_dist_src_buildsourcedistribution.flg; then \
-		make -C $${EEBASE}/dist/source DIST=NIOS2_TESTCASE NIOS2_MOVE=Y; \
+		make -C ${EEBASE}/dist/source DIST=NIOS2_TESTCASE NIOS2_MOVE=Y; \
 	fi );
 
-#COMPILE_nios2_source = +$$(MAKE) $(PARAMETERS) NODEPS=1 EEBASE=$$(OUTDIR_PREFIX)$(1)/ee_RTDRUID -C $$(OUTDIR_PREFIX)$(1)
+#COMPILE_nios2_source = +$(MAKE) $(PARAMETERS) NODEPS=1 EEBASE=$(OUTDIR_PREFIX)$*/ee_RTDRUID -C $(OUTDIR_PREFIX)$*
 
 # workaround for a bug in RT-Druid that does not generate the results in the right directory
 # moreover the make version in Nios II is a 3.80. To call it we use the script mymake.sh
 # we cannot use make 3.81 shipped with cygwin because it does not support windows pathnames in the directory name
 # we cannot use make380 in cygwin because of the CR-LF problem
 # I also had to make a symbolic link in /home in the nios2 cygwin installation
-COMPILE_nios2_source = mkdir $$(OUTDIR_PREFIX)$(1)/Debug; mv $$(OUTDIR_PREFIX)$(1)/makefile $$(OUTDIR_PREFIX)$(1)/Debug; mv $$(OUTDIR_PREFIX)$(1)/default_cpu $$(OUTDIR_PREFIX)$(1)/Debug; mv $$(OUTDIR_PREFIX)$(1)/common.mk $$(OUTDIR_PREFIX)$(1)/Debug; $(EEBASE)/testcase/common/nios2/mymake.sh $(PARAMETERS) NODEPS=1 EEBASE=$$(OUTDIR_PREFIX)$(1)/ee_RTDRUID -C $$(OUTDIR_PREFIX)$(1)/Debug
+COMPILE_nios2_source = mkdir $(OUTDIR_PREFIX)$*/Debug; mv $(OUTDIR_PREFIX)$*/makefile $(OUTDIR_PREFIX)$*/Debug; mv $(OUTDIR_PREFIX)$*/default_cpu $(OUTDIR_PREFIX)$*/Debug; mv $(OUTDIR_PREFIX)$*/common.mk $(OUTDIR_PREFIX)$*/Debug; $(EEBASE)/testcase/common/nios2/mymake.sh $(PARAMETERS) NODEPS=1 EEBASE=$(OUTDIR_PREFIX)$*/ee_RTDRUID -C $(OUTDIR_PREFIX)$*/Debug
 
 RTDRUID_nios2_source = \
-	@echo RTDRUID $$(OUTDIR_PREFIX)$(1); \
-	echo \<rtdruid.Oil.Configurator inputfile=\"`cygpath -m $$(OUTDIR_PREFIX)$(1)/ee.oil`\" outputdir=\"`cygpath -m $$(OUTDIR_PREFIX)$(1)`\" /\> >> $$(TMPDIR)/nios2_rtdruid_partial.xml;
+	@echo RTDRUID $(OUTDIR_PREFIX)$*; \
+	echo \<rtdruid.Oil.Configurator inputfile=\"`cygpath -m $(OUTDIR_PREFIX)$*/ee.oil`\" outputdir=\"`cygpath -m $(OUTDIR_PREFIX)$*`\" /\> >> $(TMPDIR)/nios2_rtdruid_partial.xml;
 
 # take also a look to GLOBAL_RTDRUID at the top of the file!
 
@@ -205,12 +205,12 @@ RTDRUID_nios2_source = \
 # These are the commands used by nios2_dist_bin_full
 
 CONF_nios2_binfull = \
-	@echo CONF $$(OUTDIR_PREFIX)$(1); \
-	cat $$(OUTDIR_PREFIX)$(1)/appl.oil | gcc -c - -E -P -I$$(EEBASE)/pkg $$(addprefix -D, $$(shell $$(DEMUX2) $(1))) -D$$(thearch) -o - >$$(OUTDIR_PREFIX)$(1)/ee.oil; \
-	echo \<rtdruid.Oil.DistributionBuilder inputfile=\"`cygpath -m $$(OUTDIR_PREFIX)$(1)/ee.oil`\" outputFile=\"`cygpath -m $$(TMPDIR)/bindistrfull_partial.mk`\" DistributionName=\"$$(subst /,,$$(EXPERIMENT))_$(1)\" DistributionType=\"full\"/\> >> $$(TMPDIR)/nios2_ant_partial.xml;
+	@echo CONF $(OUTDIR_PREFIX)$*; \
+	cat $(OUTDIR_PREFIX)$*/appl.oil | gcc -c - -E -P -I$(EEBASE)/pkg $(addprefix -D, $(shell $(DEMUX2) $*)) -D$(thearch) -o - >$(OUTDIR_PREFIX)$*/ee.oil; \
+	echo \<rtdruid.Oil.DistributionBuilder inputfile=\"`cygpath -m $(OUTDIR_PREFIX)$*/ee.oil`\" outputFile=\"`cygpath -m $(TMPDIR)/bindistrfull_partial.mk`\" DistributionName=\"$(subst /,,$(EXPERIMENT))_$*\" DistributionType=\"full\"/\> >> $(TMPDIR)/nios2_ant_partial.xml;
 
 # non serve perchè fa append
-#	echo $$(OUTDIR_PREFIX)$(1)/bindistrfull.mk >> $$(TMPDIR)/nios2_bindistrfull_list.txt
+#	echo $(OUTDIR_PREFIX)$*/bindistrfull.mk >> $(TMPDIR)/nios2_bindistrfull_list.txt
 #questo era dopo nella parte global		cat `cat tmp/nios2_bindistrfull_list.txt` > tmp/nios2_bindistrfull.mk2; \
 
 
@@ -223,13 +223,13 @@ GLOBAL_CONF_nios2_binfull = \
 		echo "ALL_DISTRIBUTIONS += RTDRUID" > tmp/nios2_bindistrfull.mk; \
 		cat tmp/bindistrfull_partial.mk >> tmp/nios2_bindistrfull.mk; \
 		false; \
-		make -C $${EEBASE}/dist/binary DISTFILE=$${EEBASE}/testcase/tmp/nios2_bindistrfull.mk DIST=RTDRUID NIOS2_MOVE=Y; \
+		make -C ${EEBASE}/dist/binary DISTFILE=${EEBASE}/testcase/tmp/nios2_bindistrfull.mk DIST=RTDRUID NIOS2_MOVE=Y; \
 	fi );
 
 RTDRUID_nios2_binfull = \
-	@echo RTDRUID $$(OUTDIR_PREFIX)$(1); \
-	echo \<rtdruid.Oil.Configurator inputfile=\"`cygpath -m $$(OUTDIR_PREFIX)$(1)/ee.oil`\" outputdir=\"`cygpath -m $$(OUTDIR_PREFIX)$(1)`\" Signatures_file=\"`cygpath -m $$(EE_NIOS2_IDE_BASE)/../../components/evidence_ee/ee/signature/signature.xml`\" /\> >> $$(TMPDIR)/nios2_rtdruid_partial.xml;
-#binDistrSignatures_file=\"`cygpath -m $$(EE_NIOS2_IDE_BASE)/../../components/evidence_ee/ee/signature/signature.xml`\"
+	@echo RTDRUID $(OUTDIR_PREFIX)$*; \
+	echo \<rtdruid.Oil.Configurator inputfile=\"`cygpath -m $(OUTDIR_PREFIX)$*/ee.oil`\" outputdir=\"`cygpath -m $(OUTDIR_PREFIX)$*`\" Signatures_file=\"`cygpath -m $(EE_NIOS2_IDE_BASE)/../../components/evidence_ee/ee/signature/signature.xml`\" /\> >> $(TMPDIR)/nios2_rtdruid_partial.xml;
+#binDistrSignatures_file=\"`cygpath -m $(EE_NIOS2_IDE_BASE)/../../components/evidence_ee/ee/signature/signature.xml`\"
 
 # take also a look to GLOBAL_RTDRUID at the top of the file!
 
@@ -241,15 +241,15 @@ RTDRUID_nios2_binfull = \
 # # These are the commands used by nios2_dist_bin_lim
 
 # CONF_nios2_binlim = \
-# 	@echo CONF $$(OUTDIR_PREFIX)$(1); \
-# 	cat $$(OUTDIR_PREFIX)$(1)/appl.oil | gcc -c - -E -P -I$$(EEBASE)/pkg $$(addprefix -D, $$(shell $$(DEMUX2) $(1))) -D$$(thearch) -o - >$$(OUTDIR_PREFIX)$(1)/ee.oil; \
-# 	echo \<rtdruid.Oil.Configurator inputfile=\"$$(OUTDIR_PREFIX)$(1)/ee.oil\" outputdir=\"$$(OUTDIR_PREFIX)$(1)\" bindistrlimited_file=\"bindistrlimited.mk\" /\> >> $$(TMPDIR)/rtdruid_ant_partial.xml;
+# 	@echo CONF $(OUTDIR_PREFIX)$*; \
+# 	cat $(OUTDIR_PREFIX)$*/appl.oil | gcc -c - -E -P -I$(EEBASE)/pkg $(addprefix -D, $(shell $(DEMUX2) $*)) -D$(thearch) -o - >$(OUTDIR_PREFIX)$*/ee.oil; \
+# 	echo \<rtdruid.Oil.Configurator inputfile=\"$(OUTDIR_PREFIX)$*/ee.oil\" outputdir=\"$(OUTDIR_PREFIX)$*\" bindistrlimited_file=\"bindistrlimited.mk\" /\> >> $(TMPDIR)/rtdruid_ant_partial.xml;
 
 # DIST_nios2_binlim = \
-# 	@echo DIST $$(OUTDIR_PREFIX)$(1); \
-# 	$$(LOCKFILE) $$(DIST_LOCK); \
-# 		make -C $$(EEBASE)/dist/binary DISTFILE=$$(OUTDIR_PREFIX)$(1)/bindistrlimited.mk DIST=RTDRUID; \
-# 		mv $$(EEBASE)/dist/binary/ee_RTDRUID $$(OUTDIR_PREFIX)$(1); \
-# 		make -C $$(EEBASE)/dist/binary clean; \
-# 	rm -rf $$(DIST_LOCK)
+# 	@echo DIST $(OUTDIR_PREFIX)$*; \
+# 	$(LOCKFILE) $(DIST_LOCK); \
+# 		make -C $(EEBASE)/dist/binary DISTFILE=$(OUTDIR_PREFIX)$*/bindistrlimited.mk DIST=RTDRUID; \
+# 		mv $(EEBASE)/dist/binary/ee_RTDRUID $(OUTDIR_PREFIX)$*; \
+# 		make -C $(EEBASE)/dist/binary clean; \
+# 	rm -rf $(DIST_LOCK)
 

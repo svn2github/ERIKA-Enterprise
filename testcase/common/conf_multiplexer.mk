@@ -49,7 +49,7 @@ include ../$(EXPERIMENT)/conf.in
 # architecture that have to be tested for a particular EXPERIMENT
 # directory
 #
-# This makefile uses the macros defined in the $(thearch)/arch.mk
+# This makefile uses the macros defined in the $(thearch)/test.mk
 # makefile on a custom directory to handle compilation and testing of
 # the particular EXPERIMENT for the particular $(theconf)iguration.
 
@@ -58,14 +58,6 @@ include ../$(EXPERIMENT)/conf.in
 # from arch_multiplexer.mk
 # - thearch    the architecture I am testing (e.g., ee_manual)
 
-#
-# Note for writing an arch.mk file:
-#
-# ARCH_OUTDIR_COMMANDS is the only ARCH_* macro that is NOT called
-# inside a template!!!!
-#
-# PARAMETERS is used inside a template BUT IT DOES NOT NEED A $$, only a $
-
 MUX = $(EEBASE)/testcase/common/confparser/confparser_mux
 DEMUX = $(EEBASE)/testcase/common/confparser/confparser_demux
 DEMUX2 = $(EEBASE)/testcase/common/confparser/confparser_demux2
@@ -73,7 +65,7 @@ DEMUX2 = $(EEBASE)/testcase/common/confparser/confparser_demux2
 # Note: the existence of MUX is checked in arch_multiplexer
 confs := $(shell test -e $(MUX) && $(MUX) $(conf))
 
-PARAMETERS = $$(shell $$(DEMUX) $(1))
+PARAMETERS = $(shell $(DEMUX) $*)
 
 # note: do not use "." in the OUTDIR name...
 OUTDIR_PREFIX = $(EEBASE)/testcase/$(EXPERIMENT)out_$(thearch)_
@@ -96,19 +88,15 @@ all_confs := $(addprefix all_, $(confs))
 all: $(all_confs)
 	@echo dummy > /dev/null
 
-define all_template
-.PHONY: all_$(1)
-all_$(1): $$(OUTDIRS)
-	@echo EXPERIMENT $$(EXPERIMENT) $(PARAMETERS)
-	@echo CLEAN      $$(EXPERIMENT) $(PARAMETERS)
+.PHONY: $(all_confs)
+$(all_confs): all_%: $(OUTDIRS)
+	@echo EXPERIMENT $(EXPERIMENT) $(PARAMETERS)
+	@echo CLEAN      $(EXPERIMENT) $(PARAMETERS)
 	@$(CLEAN_$(thearch))
-	@echo COMPILE    $$(EXPERIMENT) $(PARAMETERS)
+	@echo COMPILE    $(EXPERIMENT) $(PARAMETERS)
 	@$(COMPILE_$(thearch))
-	@echo DEBUGGER   $$(EXPERIMENT) $(PARAMETERS)
+	@echo DEBUGGER   $(EXPERIMENT) $(PARAMETERS)
 	@$(DEBUG_$(thearch))
-endef
-
-$(foreach c,$(confs),$(eval $(call all_template,$(c))))
 
 
 #
@@ -119,14 +107,10 @@ rtdruid_confs := $(addprefix rtdruid_, $(confs))
 rtdruid: $(rtdruid_confs)
 	@echo dummy > /dev/null
 
-define rtdruid_template
-.PHONY: rtdruid_$(1)
-rtdruid_$(1): $$(OUTDIRS)
+.PHONY: $(rtdruid_confs)
+$(rtdruid_confs): rtdruid_%: $(OUTDIRS)
 	@echo dummy > /dev/null
 	@$(RTDRUID_$(thearch))
-endef
-
-$(foreach c,$(confs),$(eval $(call rtdruid_template,$(c))))
 
 
 
@@ -138,14 +122,10 @@ dist_confs := $(addprefix dist_, $(confs))
 dist: $(dist_confs)
 	@echo dummy > /dev/null
 
-define dist_template
-.PHONY: dist_$(1)
-dist_$(1): $$(OUTDIRS)
+.PHONY: $(dist_confs)
+$(dist_confs): dist_%: $(OUTDIRS)
 	@echo dummy > /dev/null
 	@$(DIST_$(thearch))
-endef
-
-$(foreach c,$(confs),$(eval $(call dist_template,$(c))))
 
 
 #
@@ -156,17 +136,9 @@ conf_confs := $(addprefix conf_, $(confs))
 conf: $(conf_confs)
 	@echo dummy > /dev/null
 
-define conf_template
-.PHONY: conf_$(1)
-conf_$(1): $$(OUTDIRS)
+$(conf_confs): conf_%: $(OUTDIRS)
 	@echo dummy > /dev/null
 	@$(CONF_$(thearch))
-endef
-
-$(foreach c,$(confs),$(eval $(call conf_template,$(c))))
-
-
-
 
 
 $(OUTDIRS):

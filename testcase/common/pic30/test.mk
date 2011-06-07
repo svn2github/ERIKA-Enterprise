@@ -105,23 +105,23 @@ OUTDIR_COMMANDS_pic30 = cd $@; cp -sf ../*.* .
 # this simply parses the OIL file and then raises a flag if there is need to generate a source distribution
 CONF_pic30_source = \
 	@echo TMPDIR=$(TMPDIR) \
-	@echo CONF $$(OUTDIR_PREFIX)$(1); \
-	cat $$(OUTDIR_PREFIX)$(1)/appl.oil | gcc -c - -E -P -I$$(EEBASE)/pkg $$(addprefix -D, $$(shell $$(DEMUX2) $(1))) -D$$(thearch) -o - >$$(OUTDIR_PREFIX)$(1)/ee.oil; \
-	touch $$(TMPDIR)/pic30_dist_src_buildsourcedistribution.flg;
+	@echo CONF $(OUTDIR_PREFIX)$*; \
+	cat $(OUTDIR_PREFIX)$*/appl.oil | gcc -c - -E -P -I$(EEBASE)/pkg $(addprefix -D, $(shell $(DEMUX2) $*)) -D$(thearch) -o - >$(OUTDIR_PREFIX)$*/ee.oil; \
+	touch $(TMPDIR)/pic30_dist_src_buildsourcedistribution.flg;
 
 # if the flag has been raised, generate the source distribution
 GLOBAL_CONF_pic30_source = \
 	( if test -e tmp/pic30_dist_src_buildsourcedistribution.flg; then \
-		make -C $${EEBASE}/dist/source DIST=PIC30_TESTCASE PIC30_MOVE=Y &>tmp/pic30_dist_src_buildsourcedistribution.log; \
+		make -C ${EEBASE}/dist/source DIST=PIC30_TESTCASE PIC30_MOVE=Y &>tmp/pic30_dist_src_buildsourcedistribution.log; \
 	fi );
 
 RTDRUID_pic30_source = \
-	@echo RTDRUID $$(OUTDIR_PREFIX)$(1); \
-	echo \<rtdruid.Oil.Configurator inputfile=\"`cygpath -m $$(OUTDIR_PREFIX)$(1)/ee.oil`\" outputdir=\"`cygpath -m $$(OUTDIR_PREFIX)$(1)`/Debug\" /\> >> $$(TMPDIR)/pic30_rtdruid_partial.xml;
+	@echo RTDRUID $(OUTDIR_PREFIX)$*; \
+	echo \<rtdruid.Oil.Configurator inputfile=\"`cygpath -m $(OUTDIR_PREFIX)$*/ee.oil`\" outputdir=\"`cygpath -m $(OUTDIR_PREFIX)$*`/Debug\" /\> >> $(TMPDIR)/pic30_rtdruid_partial.xml;
 
 # take also a look to GLOBAL_RTDRUID at the top of the file!
 
-COMPILE_pic30_source = +if $$(MAKE) $(PARAMETERS) NODEPS=1 -C $$(OUTDIR_PREFIX)$(1)/Debug &>$$(OUTDIR_PREFIX)$(1)/compile.log; then echo OK $$(EXPERIMENT) $$(OUTDIR_PREFIX)$(1) >>$$(TMPDIR)/ok.log; else echo ERROR $$(EXPERIMENT) $$(OUTDIR_PREFIX)$(1) >>$$(TMPDIR)/errors.log; fi
+COMPILE_pic30_source = +if $(MAKE) $(PARAMETERS) NODEPS=1 -C $(OUTDIR_PREFIX)$*/Debug &>$(OUTDIR_PREFIX)$*/compile.log; then echo OK $(EXPERIMENT) $(OUTDIR_PREFIX)$* >>$(TMPDIR)/ok.log; else echo ERROR $(EXPERIMENT) $(OUTDIR_PREFIX)$* >>$(TMPDIR)/errors.log; fi
 
 
 # -------------------------------------------------------------------
@@ -129,9 +129,9 @@ COMPILE_pic30_source = +if $$(MAKE) $(PARAMETERS) NODEPS=1 -C $$(OUTDIR_PREFIX)$
 # These are the commands used by pic30_dist_bin_full
 
 CONF_pic30_binfull = \
-	@echo CONF $$(OUTDIR_PREFIX)$(1); \
-	cat $$(OUTDIR_PREFIX)$(1)/appl.oil | gcc -c - -E -P -I$$(EEBASE)/pkg $$(addprefix -D, $$(shell $$(DEMUX2) $(1))) -D$$(thearch) -o - >$$(OUTDIR_PREFIX)$(1)/ee.oil; \
-	echo \<rtdruid.Oil.DistributionBuilder inputfile=\"`cygpath -m $$(OUTDIR_PREFIX)$(1)/ee.oil`\" outputFile=\"`cygpath -m $$(TMPDIR)/bindistrfull_partial.mk`\" DistributionName=\"$$(subst /,,$$(EXPERIMENT))_$(1)\" DistributionType=\"full\"/\> >> $$(TMPDIR)/pic30_ant_partial.xml;
+	@echo CONF $(OUTDIR_PREFIX)$*; \
+	cat $(OUTDIR_PREFIX)$*/appl.oil | gcc -c - -E -P -I$(EEBASE)/pkg $(addprefix -D, $(shell $(DEMUX2) $*)) -D$(thearch) -o - >$(OUTDIR_PREFIX)$*/ee.oil; \
+	echo \<rtdruid.Oil.DistributionBuilder inputfile=\"`cygpath -m $(OUTDIR_PREFIX)$*/ee.oil`\" outputFile=\"`cygpath -m $(TMPDIR)/bindistrfull_partial.mk`\" DistributionName=\"$(subst /,,$(EXPERIMENT))_$*\" DistributionType=\"full\"/\> >> $(TMPDIR)/pic30_ant_partial.xml;
 
 
 GLOBAL_CONF_pic30_binfull = \
@@ -142,13 +142,13 @@ GLOBAL_CONF_pic30_binfull = \
 		echo "ALL_DISTRIBUTIONS += RTDRUID" > tmp/pic30_bindistrfull.mk; \
 		cat tmp/bindistrfull_partial.mk >> tmp/pic30_bindistrfull.mk; \
 		false; \
-		make -C $${EEBASE}/dist/binary DISTFILE=$${EEBASE}/testcase/tmp/pic30_bindistrfull.mk DIST=RTDRUID PIC30_MOVE=Y; \
+		make -C ${EEBASE}/dist/binary DISTFILE=${EEBASE}/testcase/tmp/pic30_bindistrfull.mk DIST=RTDRUID PIC30_MOVE=Y; \
 	fi );
 
 RTDRUID_pic30_binfull = \
-	@echo RTDRUID $$(OUTDIR_PREFIX)$(1); \
-	echo \<rtdruid.Oil.Configurator inputfile=\"`cygpath -m $$(OUTDIR_PREFIX)$(1)/ee.oil`\" outputdir=\"`cygpath -m $$(OUTDIR_PREFIX)$(1)`\" Signatures_file=\"`cygpath -m $$(EE_PIC30_IDE_BASE)/../../components/evidence_ee/ee/signature/signature.xml`\" /\> >> $$(TMPDIR)/pic30_rtdruid_partial.xml;
-#binDistrSignatures_file=\"`cygpath -m $$(EE_PIC30_IDE_BASE)/../../components/evidence_ee/ee/signature/signature.xml`\"
+	@echo RTDRUID $(OUTDIR_PREFIX)$*; \
+	echo \<rtdruid.Oil.Configurator inputfile=\"`cygpath -m $(OUTDIR_PREFIX)$*/ee.oil`\" outputdir=\"`cygpath -m $(OUTDIR_PREFIX)$*`\" Signatures_file=\"`cygpath -m $(EE_PIC30_IDE_BASE)/../../components/evidence_ee/ee/signature/signature.xml`\" /\> >> $(TMPDIR)/pic30_rtdruid_partial.xml;
+#binDistrSignatures_file=\"`cygpath -m $(EE_PIC30_IDE_BASE)/../../components/evidence_ee/ee/signature/signature.xml`\"
 
 # take also a look to GLOBAL_RTDRUID at the top of the file!
 
@@ -160,7 +160,7 @@ RTDRUID_pic30_binfull = \
 # # These are the commands used by pic30_dist_bin_lim
 
 # CONF_pic30_binlim = \
-# 	@echo CONF $$(OUTDIR_PREFIX)$(1); \
-# 	cat $$(OUTDIR_PREFIX)$(1)/appl.oil | gcc -c - -E -P -I$$(EEBASE)/pkg $$(addprefix -D, $$(shell $$(DEMUX2) $(1))) -D$$(thearch) -o - >$$(OUTDIR_PREFIX)$(1)/ee.oil; \
-# 	echo \<rtdruid.Oil.Configurator inputfile=\"$$(OUTDIR_PREFIX)$(1)/ee.oil\" outputdir=\"$$(OUTDIR_PREFIX)$(1)\" bindistrlimited_file=\"bindistrlimited.mk\" /\> >> $$(TMPDIR)/rtdruid_ant_partial.xml;
+# 	@echo CONF $(OUTDIR_PREFIX)$*; \
+# 	cat $(OUTDIR_PREFIX)$*/appl.oil | gcc -c - -E -P -I$(EEBASE)/pkg $(addprefix -D, $(shell $(DEMUX2) $*)) -D$(thearch) -o - >$(OUTDIR_PREFIX)$*/ee.oil; \
+# 	echo \<rtdruid.Oil.Configurator inputfile=\"$(OUTDIR_PREFIX)$*/ee.oil\" outputdir=\"$(OUTDIR_PREFIX)$*\" bindistrlimited_file=\"bindistrlimited.mk\" /\> >> $(TMPDIR)/rtdruid_ant_partial.xml;
 
