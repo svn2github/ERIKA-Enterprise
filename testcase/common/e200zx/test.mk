@@ -67,13 +67,46 @@ GLOBAL_RTDRUID += \
 # e200zx
 TESTLIST 		+= e200zx
 OUTDIR_COMMANDS_e200zx 	= $(OUTDIR_COMMANDS_e200zx_source)
-CONF_e200zx            	= $(CONF_e200zx_source)
+CONF_e200zx            	= $(call CONF_e200zx_source_template,diab,fle)
 GLOBAL_CONF 		+=
 DIST_e200zx            	=
 RTDRUID_e200zx		= $(RTDRUID_e200zx_source)
 CLEAN_e200zx           	=
 COMPILE_e200zx         	= $(COMPILE_e200zx_source)
-DEBUG_e200zx           	= $(DEBUG_e200zx_source)
+DEBUG_e200zx           	= $(call DEBUG_e200zx_source_template,fle)
+
+# e200zx_diab_vle
+TESTLIST 		+= e200zx_diab_vle
+OUTDIR_COMMANDS_e200zx_diab_vle = $(OUTDIR_COMMANDS_e200zx_source)
+CONF_e200zx_diab_vle            = $(call CONF_e200zx_source_template,diab,vle)
+GLOBAL_CONF 		+=
+DIST_e200zx_diab_vle    =
+RTDRUID_e200zx_diab_vle = $(RTDRUID_e200zx_source)
+CLEAN_e200zx_diab_vle   =
+COMPILE_e200zx_diab_vle = $(COMPILE_e200zx_source)
+DEBUG_e200zx_diab_vle   = $(call DEBUG_e200zx_source_template,vle)
+
+# e200zx_codewarrior_vle
+TESTLIST 		+= e200zx_codewarrior_vle
+OUTDIR_COMMANDS_e200zx_codewarrior_vle = $(OUTDIR_COMMANDS_e200zx_source)
+CONF_e200zx_codewarrior_vle = $(call CONF_e200zx_source_template,codewarrior,vle)
+GLOBAL_CONF 		+=
+DIST_e200zx_codewarrior_vle =
+RTDRUID_e200zx_codewarrior_vle = $(RTDRUID_e200zx_source)
+CLEAN_e200zx_codewarrior_vle =
+COMPILE_e200zx_codewarrior_vle = $(COMPILE_e200zx_source)
+DEBUG_e200zx_codewarrior_vle = $(call DEBUG_e200zx_source_template,vle)
+
+# e200zx_codewarrior_fle
+TESTLIST 		+= e200zx_codewarrior_fle
+OUTDIR_COMMANDS_e200zx_codewarrior_fle = $(OUTDIR_COMMANDS_e200zx_source)
+CONF_e200zx_codewarrior_fle = $(call CONF_e200zx_source_template,diab,fle)
+GLOBAL_CONF 		+=
+DIST_e200zx_codewarrior_fle =
+RTDRUID_e200zx_codewarrior_fle = $(RTDRUID_e200zx_source)
+CLEAN_e200zx_codewarrior_fle =
+COMPILE_e200zx_codewarrior_fle = $(COMPILE_e200zx_source)
+DEBUG_e200zx_codewarrior_fle = $(call DEBUG_e200zx_source_template,fle)
 
 # -------------------------------------------------------------------
 
@@ -93,10 +126,15 @@ OUTDIR_COMMANDS_e200zx_source = \
 # # These are the commands used by e200zx_dist_src
 
 # this simply parses the OIL file and then raises a flag if there is need to generate a source distribution
-CONF_e200zx_source = \
+# The template receives two arguments (in any order):
+# - instruction set: can be either vle or fle
+# - compiler: can be either codewarrior or diab
+CONF_e200zx_source_template = \
 	echo CONF $(OUTDIR_PREFIX)$*; \
-	cat $(OUTDIR_PREFIX)$*/appl.oil | gcc -c - -E -P -I$(EEBASE)/pkg $(addprefix -D, $(shell $(DEMUX2) $*)) -D$(thearch) -o - >$(OUTDIR_PREFIX)$*/ee.oil; \
+	cat $(OUTDIR_PREFIX)$*/appl.oil | gcc -c - -E -P -I$(EEBASE)/pkg $(addprefix -D, $(shell $(DEMUX2) $*)) -De200zx $(e200zx_compiler_def) $(e200zx_vle_def) -o - >$(OUTDIR_PREFIX)$*/ee.oil; \
 	touch $(TMPDIR)/e200zx_dist_src_buildsourcedistribution.flg;
+e200zx_compiler_def=$(if $(filter codewarrior,$1 $2),-DUSE_CODEWARRIOR,$(if $(filter diab,$1 $2),-DUSE_DIAB,$(error Neither "codewarrior" nor "diab" found in arguments of CONF_e200zx_source_template)))
+e200zx_vle_def=$(if $(filter vle,$1 $2),-DUSE_VLE,$(if $(filter fle,$1 $2),-DUSE_FLE,$(error Neither "fle" nor "vle" found in arguments of CONF_e200zx_source_template)))
 
 # if the flag has been raised, generate the source distribution
 GLOBAL_CONF_e200zx_source = \
@@ -113,8 +151,11 @@ RTDRUID_e200zx_source = \
 
 COMPILE_e200zx_source = +if $(MAKE) $(PARAMETERS) NODEPS=1 -C $(OUTDIR_PREFIX)$*/Debug >$(OUTDIR_PREFIX)$*/compile.log 2>&1; then echo OK $(EXPERIMENT) $(OUTDIR_PREFIX)$* >>$(TMPDIR)/ok.log; else echo ERROR $(EXPERIMENT) $(OUTDIR_PREFIX)$* >>$(TMPDIR)/errors.log; fi
 
-DEBUG_e200zx_source = \
-	@cp e200zx/t32.cmm $(OUTDIR_PREFIX)$*; \
+
+# The template receives one argument
+# - instruction set: can be either vle or fle
+DEBUG_e200zx_source_template = \
+	sed -e 's:\#USE_VLE\#:$(e200zx_vle_debug):g' < e200zx/t32.cmm > $(OUTDIR_PREFIX)$*/t32.cmm; \
 	$(LOCKFILE) $(FILE_LOCK); \
 		echo "&count=&count+1" >> $(TMPDIR)/t32_jobs.cmm; \
 		echo chdir $(OUTDIR_PREFIX)$* >> $(TMPDIR)/t32_jobs.cmm; \
@@ -128,4 +169,4 @@ DEBUG_e200zx_source = \
 		echo do t32.cmm >> $(TMPDIR)/t32_jobs.cmm; \
 		cp -u e200zx/t32_quit.cmm $(TMPDIR)/t32.cmm; \
 	rm -f $(FILE_LOCK);
-
+e200zx_vle_debug = $(if $(filter vle,$1),1,$(if $(filter fle,$1),0,$(error Neither "fle" nor "vle" found in arguments of DEBUG_e200zx_source_template)))

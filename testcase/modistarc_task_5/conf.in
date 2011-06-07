@@ -2,4 +2,4 @@ conf = CONF=E1,E2 STATUS=STD,EXT
 worksfor = e7t_rtdruid e7t_dist_src e7t_dist_bin_full e7t_dist_bin_lim
 worksfor += nios2_dist_bin_full nios2_dist_src
 worksfor += pic30_dist_bin_full pic30_dist_src
-worksfor += s12xs e200zx
+worksfor += s12xs e200zx e200zx_diab_vle e200zx_codewarrior_vle e200zx_codewarrior_fle

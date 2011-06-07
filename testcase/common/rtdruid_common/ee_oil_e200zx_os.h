@@ -41,6 +41,9 @@
 #ifdef e200zx
 
 EE_OPT = "__E200ZX_EXECUTE_FROM_RAM__";
+#ifdef USE_CODEWARRIOR
+EE_OPT = "__CODEWARRIOR__";
+#endif
 
 MCU_DATA = PPCE200ZX {
   MODEL = MPC5674F;
@@ -49,6 +52,11 @@ MCU_DATA = PPCE200ZX {
 CPU_DATA = PPCE200ZX {
   MODEL = E200Z7;
   APP_SRC = "code.c";
+#ifdef USE_VLE
+  VLE = TRUE;
+#else
+  VLE = FALSE;
+#endif
   SYS_STACK_SIZE=2048;
   
 #endif
