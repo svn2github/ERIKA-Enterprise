@@ -38,7 +38,7 @@
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
 
-#ifdef e200z7
+#ifdef e200zx
 
 EE_OPT = "__E200ZX_EXECUTE_FROM_RAM__";
 

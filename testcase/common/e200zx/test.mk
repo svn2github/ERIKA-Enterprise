@@ -39,7 +39,7 @@
 # ###*E*###
 
 #
-# Freescale e200z7 testcases
+# Freescale PowerPc e200zX testcases
 #
 
 ifdef RTDRUID_ECLIPSE_HOME
@@ -54,68 +54,68 @@ LAUNCHER_JAR=$(shell ls $(ECLIPSE_HOME)/plugins/org.eclipse.equinox.launcher_*.j
 #
 
 GLOBAL_RTDRUID += \
-	( if test -e tmp/e200z7_rtdruid_partial.xml; then \
-		cat common/rtdruid_common/script_prologue.xml tmp/e200z7_rtdruid_partial.xml common/rtdruid_common/script_epilogue.xml > tmp/build.xml; \
-		cp tmp/build.xml tmp/e200z7_rtdruid_global_build.xml; \
-		cd tmp; java -jar "$(LAUNCHER_JAR)" -application org.eclipse.ant.core.antRunner >rtdruid_e200z7.log 2>&1; \
+	( if test -e tmp/e200zx_rtdruid_partial.xml; then \
+		cat common/rtdruid_common/script_prologue.xml tmp/e200zx_rtdruid_partial.xml common/rtdruid_common/script_epilogue.xml > tmp/build.xml; \
+		cp tmp/build.xml tmp/e200zx_rtdruid_global_build.xml; \
+		cd tmp; java -jar "$(LAUNCHER_JAR)" -application org.eclipse.ant.core.antRunner >rtdruid_e200zx.log 2>&1; \
 	fi );
 
 #
 # configurations
 #
 
-# e200z7
-TESTLIST 		+= e200z7
-OUTDIR_COMMANDS_e200z7 	= $(OUTDIR_COMMANDS_e200z7_source)
-CONF_e200z7            	= $(CONF_e200z7_source)
+# e200zx
+TESTLIST 		+= e200zx
+OUTDIR_COMMANDS_e200zx 	= $(OUTDIR_COMMANDS_e200zx_source)
+CONF_e200zx            	= $(CONF_e200zx_source)
 GLOBAL_CONF 		+=
-DIST_e200z7            	=
-RTDRUID_e200z7		= $(RTDRUID_e200z7_source)
-CLEAN_e200z7           	=
-COMPILE_e200z7         	= $(COMPILE_e200z7_source)
-DEBUG_e200z7           	= $(DEBUG_e200z7_source)
+DIST_e200zx            	=
+RTDRUID_e200zx		= $(RTDRUID_e200zx_source)
+CLEAN_e200zx           	=
+COMPILE_e200zx         	= $(COMPILE_e200zx_source)
+DEBUG_e200zx           	= $(DEBUG_e200zx_source)
 
 # -------------------------------------------------------------------
 
 TMPDIR = $(EEBASE)/testcase/tmp
-FILE_LOCK = $(TMPDIR)/e200z7_manual.lock
+FILE_LOCK = $(TMPDIR)/e200zx_manual.lock
 RTDRUID_GENERATE_LOCK = $(TMPDIR)/rtdruid_generate_lock.lock
 LOCKFILE= lockfile -1 -r-1
 DIST_LOCK = $(TMPDIR)/dist.lock
 
 # -------------------------------------------------------------------
 
-OUTDIR_COMMANDS_e200z7_source = \
+OUTDIR_COMMANDS_e200zx_source = \
 	( cd $@; cp -sf ../*.* .; \
 	);
 
 # -------------------------------------------------------------------
-# # These are the commands used by e200z7_dist_src
+# # These are the commands used by e200zx_dist_src
 
 # this simply parses the OIL file and then raises a flag if there is need to generate a source distribution
-CONF_e200z7_source = \
+CONF_e200zx_source = \
 	@echo TMPDIR=$(TMPDIR) \
 	@echo CONF $$(OUTDIR_PREFIX)$(1); \
 	cat $$(OUTDIR_PREFIX)$(1)/appl.oil | gcc -c - -E -P -I$$(EEBASE)/pkg $$(addprefix -D, $$(shell $$(DEMUX2) $(1))) -D$$(thearch) -o - >$$(OUTDIR_PREFIX)$(1)/ee.oil; \
-	touch $$(TMPDIR)/e200z7_dist_src_buildsourcedistribution.flg;
+	touch $$(TMPDIR)/e200zx_dist_src_buildsourcedistribution.flg;
 
 # if the flag has been raised, generate the source distribution
-GLOBAL_CONF_e200z7_source = \
-	( if test -e tmp/e200z7_dist_src_buildsourcedistribution.flg; then \
-		make -C $${EEBASE}/dist/source DIST=e200z7_TESTCASE e200z7_MOVE=Y >tmp/e200z7_dist_src_buildsourcedistribution.log 2>&1; \
+GLOBAL_CONF_e200zx_source = \
+	( if test -e tmp/e200zx_dist_src_buildsourcedistribution.flg; then \
+		make -C $${EEBASE}/dist/source DIST=e200zx_TESTCASE e200zx_MOVE=Y >tmp/e200zx_dist_src_buildsourcedistribution.log 2>&1; \
 	fi );
 
 # Generate the rt-druid files...
-RTDRUID_e200z7_source = \
+RTDRUID_e200zx_source = \
 	@echo RTDRUID $$(OUTDIR_PREFIX)$(1); \
-	echo \<rtdruid.Oil.Configurator inputfile=\"$$(OUTDIR_PREFIX)$(1)/ee.oil\" outputdir=\"$$(OUTDIR_PREFIX)$(1)/Debug\" /\> >> $$(TMPDIR)/e200z7_rtdruid_partial.xml;
+	echo \<rtdruid.Oil.Configurator inputfile=\"$$(OUTDIR_PREFIX)$(1)/ee.oil\" outputdir=\"$$(OUTDIR_PREFIX)$(1)/Debug\" /\> >> $$(TMPDIR)/e200zx_rtdruid_partial.xml;
 
 # take also a look to GLOBAL_RTDRUID at the top of the file!!!
 
-COMPILE_e200z7_source = +if $$(MAKE) $(PARAMETERS) NODEPS=1 -C $$(OUTDIR_PREFIX)$(1)/Debug >$$(OUTDIR_PREFIX)$(1)/compile.log 2>&1; then echo OK $$(EXPERIMENT) $$(OUTDIR_PREFIX)$(1) >>$$(TMPDIR)/ok.log; else echo ERROR $$(EXPERIMENT) $$(OUTDIR_PREFIX)$(1) >>$$(TMPDIR)/errors.log; fi
+COMPILE_e200zx_source = +if $$(MAKE) $(PARAMETERS) NODEPS=1 -C $$(OUTDIR_PREFIX)$(1)/Debug >$$(OUTDIR_PREFIX)$(1)/compile.log 2>&1; then echo OK $$(EXPERIMENT) $$(OUTDIR_PREFIX)$(1) >>$$(TMPDIR)/ok.log; else echo ERROR $$(EXPERIMENT) $$(OUTDIR_PREFIX)$(1) >>$$(TMPDIR)/errors.log; fi
 
-DEBUG_e200z7_source = \
-	@cp e200z7/t32.cmm $$(OUTDIR_PREFIX)$(1); \
+DEBUG_e200zx_source = \
+	@cp e200zx/t32.cmm $$(OUTDIR_PREFIX)$(1); \
 	$$(LOCKFILE) $$(FILE_LOCK); \
 		echo "&count=&count+1" >> $$(TMPDIR)/t32_jobs.cmm; \
 		echo chdir $$(OUTDIR_PREFIX)$(1) >> $$(TMPDIR)/t32_jobs.cmm; \
@@ -127,6 +127,6 @@ DEBUG_e200z7_source = \
 		echo print \"$$(OUTDIR_PREFIX)$(1)\" >> $$(TMPDIR)/t32_jobs.cmm; \
 		echo area.select A000 >> $$(TMPDIR)/t32_jobs.cmm; \
 		echo do t32.cmm >> $$(TMPDIR)/t32_jobs.cmm; \
-		cp -u e200z7/t32_quit.cmm $$(TMPDIR)/t32.cmm; \
+		cp -u e200zx/t32_quit.cmm $$(TMPDIR)/t32.cmm; \
 	rm -f $$(FILE_LOCK);
 

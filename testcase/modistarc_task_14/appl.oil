@@ -69,7 +69,7 @@ CPU test_application {
 #include "../common/rtdruid_common/ee_oil_nios2_os.h"
 #include "../common/rtdruid_common/ee_oil_pic30_os.h"
 #include "../common/rtdruid_common/ee_oil_s12xs_os.h"
-#include "../common/rtdruid_common/ee_oil_e200z7_os.h"
+#include "../common/rtdruid_common/ee_oil_e200zx_os.h"
 
 
 
@@ -92,7 +92,7 @@ CPU test_application {
 /* Multi Stack */
 			MULTI_STACK = TRUE {
 				IRQ_STACK = FALSE;
-#if !defined(pic30) && !defined(s12xs) && !defined(e200z7)
+#if !defined(pic30) && !defined(s12xs) && !defined(e200zx)
 				DUMMY_STACK = SHARED;
 #endif
 			};
@@ -149,7 +149,7 @@ CPU test_application {
 			SYS_SIZE = 0x100;
 		};
 #endif
-#ifdef e200z7
+#ifdef e200zx
 		STACK = PRIVATE {
 			SYS_SIZE = 0x200;
 		};
@@ -196,7 +196,7 @@ CPU test_application {
 			SYS_SIZE = 0x100;
 		};
 #endif
-#ifdef e200z7
+#ifdef e200zx
 		STACK = PRIVATE {
 			SYS_SIZE = 0x200;
 		};
@@ -242,7 +242,7 @@ CPU test_application {
 			SYS_SIZE = 0x100;
 		};
 #endif
-#ifdef e200z7
+#ifdef e200zx
 		STACK = PRIVATE {
 			SYS_SIZE = 0x200;
 		};
@@ -288,7 +288,7 @@ CPU test_application {
 			SYS_SIZE = 0x100;
 		};
 #endif
-#ifdef e200z7
+#ifdef e200zx
 		STACK = PRIVATE {
 			SYS_SIZE = 0x200;
 		};
@@ -334,7 +334,7 @@ CPU test_application {
 			SYS_SIZE = 0x100;
 		};
 #endif
-#ifdef e200z7
+#ifdef e200zx
 		STACK = PRIVATE {
 			SYS_SIZE = 0x200;
 		};
@@ -380,7 +380,7 @@ CPU test_application {
 			SYS_SIZE = 0x100;
 		};
 #endif
-#ifdef e200z7
+#ifdef e200zx
 		STACK = PRIVATE {
 			SYS_SIZE = 0x200;
 		};
@@ -426,7 +426,7 @@ CPU test_application {
 			SYS_SIZE = 0x100;
 		};
 #endif
-#ifdef e200z7
+#ifdef e200zx
 		STACK = PRIVATE {
 			SYS_SIZE = 0x200;
 		};
@@ -472,7 +472,7 @@ CPU test_application {
 			SYS_SIZE = 0x100;
 		};
 #endif
-#ifdef e200z7
+#ifdef e200zx
 		STACK = PRIVATE {
 			SYS_SIZE = 0x200;
 		};
@@ -518,7 +518,7 @@ CPU test_application {
 			SYS_SIZE = 0x100;
 		};
 #endif
-#ifdef e200z7
+#ifdef e200zx
 		STACK = PRIVATE {
 			SYS_SIZE = 0x200;
 		};
@@ -564,7 +564,7 @@ CPU test_application {
 			SYS_SIZE = 0x100;
 		};
 #endif
-#ifdef e200z7
+#ifdef e200zx
 		STACK = PRIVATE {
 			SYS_SIZE = 0x200;
 		};
@@ -610,7 +610,7 @@ CPU test_application {
 			SYS_SIZE = 0x100;
 		};
 #endif
-#ifdef e200z7
+#ifdef e200zx
 		STACK = PRIVATE {
 			SYS_SIZE = 0x200;
 		};
@@ -656,7 +656,7 @@ CPU test_application {
 			SYS_SIZE = 0x100;
 		};
 #endif
-#ifdef e200z7
+#ifdef e200zx
 		STACK = PRIVATE {
 			SYS_SIZE = 0x200;
 		};
@@ -702,7 +702,7 @@ CPU test_application {
 			SYS_SIZE = 0x100;
 		};
 #endif
-#ifdef e200z7
+#ifdef e200zx
 		STACK = PRIVATE {
 			SYS_SIZE = 0x200;
 		};
@@ -748,7 +748,7 @@ CPU test_application {
 			SYS_SIZE = 0x100;
 		};
 #endif
-#ifdef e200z7
+#ifdef e200zx
 		STACK = PRIVATE {
 			SYS_SIZE = 0x200;
 		};
@@ -794,7 +794,7 @@ CPU test_application {
 			SYS_SIZE = 0x100;
 		};
 #endif
-#ifdef e200z7
+#ifdef e200zx
 		STACK = PRIVATE {
 			SYS_SIZE = 0x200;
 		};
@@ -840,7 +840,7 @@ CPU test_application {
 			SYS_SIZE = 0x100;
 		};
 #endif
-#ifdef e200z7
+#ifdef e200zx
 		STACK = PRIVATE {
 			SYS_SIZE = 0x200;
 		};
