@@ -78,14 +78,10 @@ COMPILER_INLINE int8_t uwl_radio_init(void)
 			solution!)*/
 
 
-	#ifdef __USE_MOTIONBOARD_TWO__
+	#if defined (__UWL_USE_SPI_PORT_2__) || !defined (__UWL_USE_SPI_PORT_1__) 
 	return cc2420_radio_init(CC2420_SPI_PORT_2);
-	#endif
-
-	#ifdef __USE_MOTIONBOARD__
-	return cc2420_radio_init(CC2420_SPI_PORT_1);
 	#else
-	return cc2420_radio_init(CC2420_SPI_PORT_2);
+	return cc2420_radio_init(CC2420_SPI_PORT_1);
 	#endif
 }
 

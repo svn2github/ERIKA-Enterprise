@@ -100,7 +100,7 @@ int8_t uwl_radio_init(void)
 	* 0 = '0' = Enables the TX Normal FIFO transmission interrupt	
 	*/
 	mrf24j40_set_tx_finished_callback(&tx_finished_func);
-	#if defined(__USE_MOTIONBOARD__) || defined(UWL_USE_SPI_PORT_1)
+	#if defined(UWL_USE_SPI_PORT_1)
 	return mrf24j40_init(0xF6, 11, MRF24J40_SPI_PORT_1);
 	#elif defined(UWL_USE_SPI_PORT_1A) && defined(__32MX795F512L__)
 	return mrf24j40_init(0xF6, 11, MRF24J40_SPI_PORT_1A);	

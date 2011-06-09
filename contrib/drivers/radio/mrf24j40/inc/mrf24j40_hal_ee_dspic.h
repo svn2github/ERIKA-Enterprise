@@ -41,26 +41,30 @@
 	#endif
 #endif
 
-#ifndef __EE_MINIFLEX__
 #ifndef MRF24J40_FIFO
-#ifdef __USE_DEMOBOARD__	/* Demoboard defaults */
+
+#ifndef __EE_MINIFLEX__
+
+#if defined (__USE_DEMOBOARD__) || defined (__USE_MOTIONBOARD__)	/* Demoboard defaults */
 #define MRF24J40_FIFO		PORTDbits.RD14
 #else				/* Gianluca's board default*/
 #define MRF24J40_FIFO		PORTEbits.RE9
 #endif
+
 #endif
+
 #endif
 
 #ifndef MRF24J40_FIFOP
-	#if defined (__USE_DEMOBOARD__) && !defined (__EE_MINIFLEX__) /* Demoboard defaults */
-	#define MRF24J40_FIFOP		PORTAbits.RA15
-	#else
-	#ifdef __EE_MINIFLEX__	/* MiniFlex board default*/
-	#define MRF24J40_FIFOP		PORTBbits.RB7
-	#else				/* Gianluca's board default*/
-	#define MRF24J40_FIFOP		PORTFbits.RF6
-	#endif
-	#endif
+#ifndef __EE_MINIFLEX__
+#if defined (__USE_DEMOBOARD__) || defined (__USE_MOTIONBOARD__) /* Demoboard defaults */
+#define MRF24J40_FIFOP		PORTAbits.RA15
+#else				/* Gianluca's board default*/
+#define MRF24J40_FIFOP		PORTFbits.RF6
+#endif
+#else
+#define MRF24J40_FIFOP		PORTBbits.RB7 //Miniflex conf.
+#endif
 #endif
 
 #ifndef MRF24J40_CSn
@@ -80,15 +84,15 @@
 #endif
 #endif
 
-#ifndef __EE_MINIFLEX__
 #ifndef MRF24J40_TRIS_VREG_EN
+#ifndef __EE_MINIFLEX__
 #define MRF24J40_TRIS_VREG_EN	TRISGbits.TRISG12
 #endif
 #endif
 
-#ifndef __EE_MINIFLEX__
 #ifndef MRF24J40_TRIS_FIFO
-#ifdef __USE_DEMOBOARD__	/* Demoboard defaults */
+#ifndef __EE_MINIFLEX__
+#if defined (__USE_DEMOBOARD__) || defined (__USE_MOTIONBOARD__)	/* Demoboard defaults */
 #define MRF24J40_TRIS_FIFO	TRISDbits.TRISD14
 #else				/* Gianluca's board default*/
 #define MRF24J40_TRIS_FIFO	TRISEbits.TRISE9
@@ -97,14 +101,15 @@
 #endif
 
 #ifndef MRF24J40_TRIS_FIFOP
-#if defined__USE_DEMOBOARD__	&& !defined (__EE_MINIFLEX__) /* Demoboard defaults */
+#ifndef __EE_MINIFLEX__
+
+#if defined (__USE_DEMOBOARD__) || defined (__USE_MOTIONBOARD__) /* Demoboard defaults */
 #define MRF24J40_TRIS_FIFOP	TRISAbits.TRISA15
-#else
-#ifdef __EE_MINIFLEX__	/* MiniFlex board default*/
-#define MRF24J40_TRIS_FIFOP	TRISBbits.TRISB7
 #else				/* Gianluca's board default*/
 #define MRF24J40_TRIS_FIFOP	TRISFbits.TRISF6
 #endif
+#else	/* MiniFlex board default*/
+#define MRF24J40_TRIS_FIFOP	TRISBbits.TRISB7
 #endif
 #endif
 
@@ -116,7 +121,8 @@
 #endif
 #endif
 
-#if defined (__USE_DEMOBOARD__) && !defined (__EE_MINIFLEX__) /* Demoboard defaults */
+#ifndef __EE_MINIFLEX__
+#if defined (__USE_DEMOBOARD__) //|| defined (__USE_MOTIONBOARD__) /* Demoboard defaults */
 
 #ifndef MRF24J40_INTERRUPT_NAME
 #define MRF24J40_INTERRUPT_NAME	_INT4Interrupt
@@ -138,8 +144,36 @@
 #define MRF24J40_INTERRUPT_EDGE_POLARITY	 INTCON2bits.INT4EP
 #endif
 
-#else /* Gianluca's board and MiniFlex default*/
+#endif
 
+#if defined (__USE_MOTIONBOARD__)
+
+#ifndef MRF24J40_INTERRUPT_NAME
+#define MRF24J40_INTERRUPT_NAME	_IC8Interrupt
+#endif
+
+#ifndef MRF24J40_INTERRUPT_FLAG
+#define MRF24J40_INTERRUPT_FLAG	IFS1bits.IC8IF
+#endif
+
+#ifndef MRF24J40_INTERRUPT_ENABLE
+#define MRF24J40_INTERRUPT_ENABLE IEC1bits.IC8IE
+#endif
+
+#ifndef MRF24J40_INTERRUPT_PRIORITY
+#define MRF24J40_INTERRUPT_PRIORITY IPC5bits.IC8IP
+#endif
+/*
+#ifndef MRF24J40_INTERRUPT_EDGE_POLARITY
+#define MRF24J40_INTERRUPT_EDGE_POLARITY	 INTCON2bits.INT4EP
+#endif
+*/
+#endif
+
+#endif //#ifndef __EE_MINIFLEX__
+
+//#else /* Gianluca's board and MiniFlex default*/
+#if defined (__EE_MINIFLEX__) || (!defined (__USE_DEMOBOARD__) && !defined (__USE_MOTIONBOARD__))
 #ifndef MRF24J40_INTERRUPT_NAME
 #define MRF24J40_INTERRUPT_NAME	_INT0Interrupt
 #endif
@@ -160,7 +194,8 @@
 #define MRF24J40_INTERRUPT_EDGE_POLARITY	 INTCON2bits.INT0EP
 #endif
 
-#endif	/* End default booard selection for ISR */
+#endif	
+/* End default booard selection for ISR */
 
 #define MRF24J40_HAL_ISR() ISR2(MRF24J40_INTERRUPT_NAME)
 
