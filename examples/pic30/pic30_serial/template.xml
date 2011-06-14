@@ -10,7 +10,7 @@
  </small_descr>
 
  <long_descr>
- This example can be used to test the serial communication on RS232 ports. In polling mode it uses 2 functions to send and receive bytes. In interrupt modes the send function put data in a queue and the uses is acknowledged through a callback function. Another callback is in charge of incoming data.
+ This example can be used to test the serial communication on RS232 ports. In polling mode it uses 2 functions to send and receive bytes. In interrupt modes the send function put data in a queue and the uses is acknowledged through a callback function. Another callback is in charge of incoming data. The demo supports both UART1 and UART2, and it works on the FLEX Multibus, Demo, and Motion board.
  </long_descr>
 
  <file_section>

@@ -42,6 +42,22 @@
 #include "cpu/pic30/inc/ee_irqstub.h"
 
 #include "eeuart.h"
+
+// *****************************************************
+// IMPORTANT: please check which board you are using
+// and select the proper define below
+// the Demo board uses UART2
+// the Multibus board may use both, please check what is connected
+// the Motion board / Demo2 board uses UART1
+// *****************************************************
+
+// motion board, multibus board
+#define USE_UART1
+// demo board, multibus board
+//#define USE_UART2
+
+
+
 // Primary (XT, HS, EC) Oscillator without PLL
 _FOSCSEL(FNOSC_PRIPLL);
 // OSC2 Pin Function: OSC2 is Clock Output - Primary Oscillator Mode: XT Crystanl
@@ -92,9 +108,17 @@ TASK(TaskSend)
 {
 	//LATBbits.LATB14 ^= 1;
 
+#ifdef USE_UART1
 	EE_UART1_Send('<');
 	EE_UART1_Send('H');
 	EE_UART1_Send('>');
+#endif
+
+#ifdef USE_UART2
+	EE_UART2_Send('<');
+	EE_UART2_Send('H');
+	EE_UART2_Send('>');
+#endif
 }
 
 /* Get a character from the UART buffer
@@ -103,11 +127,21 @@ TASK(TaskReceive)
 {
 	LATBbits.LATB14 ^= 1;
 	
+#ifdef USE_UART1
 	if (EE_UART1_Receive(&RXBuff) == 0) {
 		EE_UART1_Send('<');
 		EE_UART1_Send(RXBuff);
 		EE_UART1_Send('>');
 	}	
+#endif
+
+#ifdef USE_UART2
+	if (EE_UART2_Receive(&RXBuff) == 0) {
+		EE_UART2_Send('<');
+		EE_UART2_Send(RXBuff);
+		EE_UART2_Send('>');
+	}	
+#endif
 }
 
 int main(void)
@@ -127,8 +161,14 @@ int main(void)
 	/* Init led */
 	EE_leds_init();
 
-	/* Applicatio Init */
+	/* UART Init */
+#ifdef USE_UART1
 	EE_UART1_Init(115200, BIT8_NO | BIT_STOP_1, CTRL_SIMPLE);
+#endif
+
+#ifdef USE_UART2
+	EE_UART2_Init(115200, BIT8_NO | BIT_STOP_1, CTRL_SIMPLE);
+#endif
 
 	/* Program a cyclic alarm which will fire after an offset of 10 counter 
 	* ticks, and after that periodically every 500 ticks */
