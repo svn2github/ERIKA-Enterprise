@@ -367,7 +367,7 @@ int main(void)
 	T1_program();
 	
 	/* Init devices */
-	EE_buttons_init(&my_button, 0x01);
+	EE_buttons_init(&my_button, 0x04);
   
 	/* Init leds */
 	EE_leds_init();
