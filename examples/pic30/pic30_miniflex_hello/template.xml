@@ -10,7 +10,7 @@
  </small_descr>
 
  <long_descr>
- This is a demo that prints "Hello World" on UART1
+ This is a demo that prints "Hello World" on UART1, uses the accelerometer, the buzzer, timers, ...
  </long_descr>
 
  <file_section>
