@@ -210,6 +210,12 @@ OPT_LINK += $(LDFLAGS)
 DEFS_ASM = $(addprefix -D, $(EEOPT) )
 DEFS_CC  = $(addprefix -D, $(EEOPT) )
 
+# Set the right Debug macro for compiler
+ifeq ($(call iseeopt, DEBUG), yes)
+DEFS_ASM += -D__DEBUG
+DEFS_CC += -D__DEBUG
+endif
+
 ifeq ($(call iseeopt, __BIN_DISTR), yes) 
 # Note: the defines used in EEOPT to compile the library
 # are already added in the eecfg.h

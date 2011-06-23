@@ -54,63 +54,10 @@ include $(EEBASE)/pkg/cfg/dir.mk
 include $(PKGBASE)/cfg/verbose.mk
 include $(PKGBASE)/cfg/compiler.mk
 
-# Recomplied Microchip GCC path in Linux and Cygwin environments
-EE_GCCDIR := $(PIC30_GCCDIR)
-
 PIC30_CRT0 := $(EEBASE)/contrib/microchip/pic30/boot/src/crt0.s
 
-###########################################
-## OLD Automatic selection of C30 version
-###########################################
-##C30_VERSION := $(shell $(EE_CC) -v 2>&1)
-##C30_LONGPATH := $(if $(findstring Microchip 3.10,$(C30_VERSION)),1)
-#C30_VERSION := $(shell $(EE_CC) --version 2>&1 | awk '/__C30_VERSION__/{split($$0,a,"== "); print a[2]; }' )
-#C30_LONGPATH := $(shell $(EE_CC) --version 2>&1 | awk '/__C30_VERSION__/{split($$0,a,"== "); if (a[2]>=310) print 1; else print 0; }' )
-#
-## Manual selection of C30 include path version
-#ifeq ($(call iseeopt, C30_LONGPATH), yes)
-#C30_LONGPATH := 1
-#endif
-#
-# Set include subdirectory for GCC
-#ifeq ($(C30_LONGPATH), 1)
-#C30SUBDIR :=
-#ifeq ($(findstring 30F,$(PIC30_MODEL)) , 30F)
-#C30SUBDIR := /dsPIC30F
-#endif
-#ifeq ($(findstring 33F,$(PIC30_MODEL)) , 33F)
-#C30SUBDIR := /dsPIC33F
-#endif
-#ifeq ($(findstring 24H,$(PIC30_MODEL)) , 24H)
-#C30SUBDIR := /PIC24H
-#endif
-#ifeq ($(findstring 24F,$(PIC30_MODEL)) , 24F)
-#C30SUBDIR := /PIC24F
-#endif
-#else
-#C30SUBDIR :=
-#endif
-
-##if PIC30_GCCDIR is defined
-#ifneq ($(PIC30_GCCDIR),)
-#PIC30_LINKERDIR := $(PIC30_GCCDIR)/Support$(C30SUBDIR)/gld
-#else
-#PIC30_LINKERDIR := $(PIC30_ASMDIR)/Support$(C30SUBDIR)/gld
-#endif
-###############################################
-###############################################
-
-# MCHP_DATA_DIR refers to the location of Microchip libraries
-# Cygwin environment
-ifeq ($(call iseeopt, __RTD_CYGWIN__), yes) 
-MCHP_DATA_DIR := $(PIC30_GCCDIR)
-else
-# Linux environment
-MCHP_DATA_DIR := $(EE_GCCDIR)
-endif
-
-PIC30_LIB_DIR := $(MCHP_DATA_DIR)/lib
-PIC30_INCLUDE_DIR := $(MCHP_DATA_DIR)/include
+PIC30_LIB_DIR := $(PIC30_GCCDIR)/lib
+#EG: PIC30_INCLUDE_DIR := $(PIC30_GCCDIR)/include
 
 # If PIC30_LIB_DIR has subdirectories... (since 3.10) 
 ifneq ($(shell find $(PIC30_LIB_DIR) -mindepth 1 -type d),)
@@ -118,15 +65,15 @@ SHORT_MODEL := $(shell echo $(PIC30_MODEL) | awk '{ a = substr($$0,1,3); print a
 
 #search for PIC24F
 ifeq ($(findstring 24,$(SHORT_MODEL)), 24)
-MCHP_SUPPORT_DIR := $(MCHP_DATA_DIR)/support/PIC$(SHORT_MODEL)
+MCHP_SUPPORT_DIR := $(PIC30_GCCDIR)/support/PIC$(SHORT_MODEL)
 PIC30_LIBD_DIR := $(PIC30_LIB_DIR)/PIC$(SHORT_MODEL)
 else
-MCHP_SUPPORT_DIR := $(MCHP_DATA_DIR)/support/dsPIC$(SHORT_MODEL)
+MCHP_SUPPORT_DIR := $(PIC30_GCCDIR)/support/dsPIC$(SHORT_MODEL)
 PIC30_LIBD_DIR := $(PIC30_LIB_DIR)/dsPIC$(SHORT_MODEL)
 endif
 
 else
-MCHP_SUPPORT_DIR := $(MCHP_DATA_DIR)/support
+MCHP_SUPPORT_DIR := $(PIC30_GCCDIR)/support
 PIC30_LIBD_DIR :=
 endif
 
@@ -160,40 +107,7 @@ LIBDEP += $(ALL_LIBS)
 # Specific option from the application makefile
 LIBDEP += $(LDDEPS)
 
-################################################
-## OLD Stuff (cont.)
-################################################
-## Libraries from MC
-#ifneq ($(PIC30_GCCDIR),)
-#OPT_LIBS += -lm -lc -ldsp -l$(subst .a,,$(subst lib,,$(PIC30_DEV_LIB))) -lpic30-$(PIC30_OFF)
-#
-#ifeq ($(PLATFORM), LINUX)
-#OPT_LIBS += -L $(PIC30_GCCDIR)/lib
-#ifeq ($(C30_LONGPATH), 1)
-#OPT_LIBS += -L $(PIC30_GCCDIR)/lib$(C30SUBDIR)
-#endif
-#else
-#OPT_LIBS += -L "`cygpath -w $(PIC30_GCCDIR)/lib`"
-#ifeq ($(C30_LONGPATH), 1)
-#OPT_LIBS += -L "`cygpath -w $(PIC30_GCCDIR)/lib$(C30SUBDIR)`"
-#endif
-#endif
-#endif
-## Includes from MC
-# only if PIC30_GCCDIR is defined
-#ifneq ($(PIC30_GCCDIR),)
-# INTERNAL_GCCINCLUDEDIR is used to avoid multiple calls to cygpath
-#ifeq ($(PLATFORM), LINUX)
-#INTERNAL_GCCINCLUDEDIR := -I$(PIC30_GCCDIR)/include)
-#else
-#INTERNAL_GCCINCLUDEDIR := -I"$(shell cygpath -w $(PIC30_GCCDIR)/include)"
-#endif
-#ALLINCPATH += $(INTERNAL_GCCINCLUDEDIR)
-#endif
-################################################
-################################################
-
-## Libraries from MC
+# Libraries from MC
 OPT_LIBS += -lm -lc -ldsp
 OPT_LIBS += -l$(subst .a,,$(subst lib,,$(PIC30_DEV_LIB)))
 OPT_LIBS += -lpic30-$(PIC30_OFF)
@@ -204,9 +118,6 @@ OPT_LIBS += -L $(call native_path,$(PIC30_LIB_DIR))
 ifneq ($(PIC30_LIBD_DIR),)
 OPT_LIBS += -L $(call native_path,$(PIC30_LIBD_DIR))
 endif
-
-# #Includes from MC
-INCLUDE_PATH += $(PIC30_INCLUDE_DIR)
 
 ## PIC30-related directories
 # we should look if these need to be moved inside dir.mk
@@ -239,7 +150,6 @@ endif
 
 include $(PKGBASE)/cfg/cfg.mk
 
-
 #
 # --------------------------------------------------------------------------
 #
@@ -250,7 +160,6 @@ include $(PKGBASE)/cfg/cfg.mk
 ## TODO - Select if compile crt0.s or link libpic30-$(PIC30_OFF).a
 ##
 
-# Add crt0.s from MC
 EE_BOOT_SRCS := frommchp/crt0.S
 
 # Boot code containing _start should stay outside of the library in
@@ -272,6 +181,9 @@ OBJS := $(addprefix $(OBJDIR)/, $(patsubst %.c,%.o,$(patsubst %.S,%.o, $(SRCS)))
 
 # Variable used to import dependencies
 ALLOBJS = $(LIBEEOBJS) $(LIBOBJS) $(OBJS)
+
+# Variable used to create all needed directories
+OBJDIRS=$(sort $(dir $(ALLOBJS))) frommchp
 
 # INCLUDE_PATH is a space-separated list of directories for header file searching
 # we consider the ee pkg directory and the application dir
@@ -365,7 +277,6 @@ ee_pic30regs.h: frommchp/$(PIC30_INCLUDE_C)
 ee_pic30regs.inc: frommchp/$(PIC30_INCLUDE_S)
 	@printf "GEN ee_pic30regs.inc\n"
 	@printf "; Automatically generated from Makefile\n" > ee_pic30regs.inc
-	@printf "	.equ __$(PIC30_MODEL), 1 \n" >> ee_pic30regs.inc
 	@printf "	.include \"frommchp/$(PIC30_INCLUDE_S)\" \n" >> ee_pic30regs.inc
 
 #frommchp/$(PIC30_INCLUDE_C): $(PIC30_GCCDIR)/support$(C30SUBDIR)/h/$(PIC30_INCLUDE_C)
@@ -411,29 +322,22 @@ libee.a: $(LIBEEOBJS)
 
 #
 # --------------------------------------------------------------------------
-#
 
-# interesting read: http://www.cmcrossroads.com/content/view/6936/120/
+##
+## Directories
+##
 
-# this forces the directory creation when issuing the "make all"
-# rule. there is need for this rule because it may be that the user
-# asks for a "make clean all". "clean" removes the directories which
-# are then needed for "all", so that when "all" arrives the
-# directories must be recreated. We cannot use a flag file like in the
-# rule just after because when there is a "clean all" the check for
-# prerequisites is not done again when doing "all".
 .PHONY: make_directories
-make_directories:
-ifneq ($(findstring clean,$(MAKECMDGOALS)),clean)
-	@printf "MAKE_DIRECTORIES (after a clean)\n"
-	$(QUIET)mkdir -p $(dir $(basename $(addprefix $(OBJDIR)/, $(SRCS) $(LIBEESRCS) $(LIBSRCS)))) frommchp obj/frommchp
-endif
 
-# this checks but not forces the directory creation when creating dependencies
-$(OBJDIR)/.make_directories_flag:
-	@printf "MAKE_DIRECTORIES\n"
-	$(QUIET)mkdir -p $(dir $(basename $(addprefix $(OBJDIR)/, $(SRCS) $(LIBEESRCS) $(LIBSRCS)))) frommchp obj/frommchp
-	$(QUIET)touch $(TARGETFILE)
+# Objects depend on directories, but they are not remade if directories change
+$(ALLOBJS): | make_directories
+
+make_directories: $(OBJDIRS)
+
+# Directories are (re)created only when some of them don't exist already
+$(OBJDIRS):
+	@echo "MAKE_DIRECTORIES"
+	$(QUIET) mkdir -p $(OBJDIRS)
 
 #
 # --------------------------------------------------------------------------
@@ -467,7 +371,6 @@ generate_eeopt:
 ## Automatic Generation of dependencies
 ##
 dependencies=$(subst .o,.d,$(ALLOBJS))
-#$(info dependencies=$(dependencies))
 ifneq ($(MAKECMDGOALS),clean)
 ifneq ($(call iseeopt, NODEPS), yes) 
 -include $(dependencies)
