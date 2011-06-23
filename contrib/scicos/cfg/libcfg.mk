@@ -9,11 +9,6 @@
 ## Author: 2007 Mauro Marinoni
 ## CVS: $Id: libcfg.mk,v 1.5 2008/02/04 14:43:37 pj Exp $
 
-## New include mechanism
-INCLUDE_PATH += $(EEBASE)/contrib/scicos/inc/core
-INCLUDE_PATH += $(EEBASE)/contrib/scicos/inc/pic30/communication
-INCLUDE_PATH += $(EEBASE)/contrib/scicos/inc/pic30/communication/udp
-
 ifeq ($(call iseeopt, __BUILD_ALL_LIBS__), yes)
 INCLUDE_SCICOS = YES
 endif
