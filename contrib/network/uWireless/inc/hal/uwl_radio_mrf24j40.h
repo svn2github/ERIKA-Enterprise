@@ -456,5 +456,9 @@ COMPILER_INLINE uint8_t uwl_radio_get_cca(void)
 	return UWL_RADIO_ERR_PHY_FAILURE; 
 }
 
+/**
+ * This function returns the status of the last packet transmission. 
+ */
+uint8_t uwl_last_tx_status(void);
 
 #endif /* Header Protection */

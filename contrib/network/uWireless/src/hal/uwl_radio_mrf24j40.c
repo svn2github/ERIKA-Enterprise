@@ -42,6 +42,11 @@ static volatile uint8_t tx_status;
 /******************************************************************************/
 /*                         Radio MAC Public Functions                         */
 /******************************************************************************/
+uint8_t uwl_last_tx_status(void)
+{
+	return tx_status;
+}
+
 static void tx_finished_func(uint8_t status) {
 	mrf24j40_enable_carrier_sense();
 	if (status)
