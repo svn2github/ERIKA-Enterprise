@@ -75,59 +75,89 @@ enum {
 	 * of the compiler will rise, substitute these registers with the
 	 *right ones. */
 
-#ifdef _IEC0_I2C1AEIE_POSITION
+#if defined (_IEC0_I2C1AEIE_POSITION)
+    #define __I2C1AEIE__  I2C1AEIE
+    #define __I2C1ARXIE__ I2C1ARXIE
+    #define __I2C1ATXIE__ I2C1ATXIE
+#elif defined (_IEC0_I2C3BIE_POSITION)
+    #define __I2C1AEIE__  I2C3BIE
+    #define __I2C1ARXIE__ I2C3SIE
+    #define __I2C1ATXIE__ I2C3MIE
+#elif defined (_IEC0_I2C1ABIE_POSITION)
+    #define __I2C1AEIE__  I2C1ABIE
+    #define __I2C1ARXIE__ I2C1ASIE
+    #define __I2C1ATXIE__ I2C1AMIE
+#endif
 
-#define __I2C1AEIE__  I2C1AEIE
-#define __I2C1ARXIE__ I2C1ARXIE
-#define __I2C1ATXIE__ I2C1ATXIE
+#if defined (_IEC1_I2C2AEIE_POSITION)
+    #define __I2C2AEIE__  I2C2AEIE
+    #define __I2C2ARXIE__ I2C2ARXIE
+    #define __I2C2ATXIE__ I2C2ATXIE
+#elif defined (_IEC1_I2C4BIE_POSITION)
+    #define __I2C2AEIE__  I2C4BIE
+    #define __I2C2ARXIE__ I2C4SIE
+    #define __I2C2ATXIE__ I2C4MIE
+#elif defined (_IEC1_I2C2ABIE_POSITION)
+    #define __I2C2AEIE__  I2C2ABIE
+    #define __I2C2ARXIE__ I2C2ASIE
+    #define __I2C2ATXIE__ I2C2AMIE
+#endif
 
-#define __I2C2AEIE__  I2C2AEIE
-#define __I2C2ARXIE__ I2C2ARXIE
-#define __I2C2ATXIE__ I2C2ATXIE
+#if defined (_IEC1_I2C3AEIE_POSITION)
+    #define __I2C3AEIE__  I2C3AEIE
+    #define __I2C3ARXIE__ I2C3ARXIE
+    #define __I2C3ATXIE__ I2C3ATXIE
+#elif defined (_IEC1_I2C5BIE_POSITION)
+    #define __I2C3AEIE__  I2C5BIE
+    #define __I2C3ARXIE__ I2C5SIE
+    #define __I2C3ATXIE__ I2C5MIE
+#elif defined (_IEC1_I2C3ABIE_POSITION)
+    #define __I2C3AEIE__  I2C3ABIE
+    #define __I2C3ARXIE__ I2C3ASIE
+    #define __I2C3ATXIE__ I2C3AMIE
+#endif
 
-#define __I2C3AEIE__  I2C3AEIE
-#define __I2C3ARXIE__ I2C3ARXIE
-#define __I2C3ATXIE__ I2C3ATXIE
+#if defined (_IFS0_I2C1AEIF_POSITION)
+    #define __I2C1AEIF__  I2C1AEIF
+    #define __I2C1ARXIF__ I2C1ARXIF
+    #define __I2C1ATXIF__ I2C1ATXIF
+#elif defined (_IFS0_I2C3BIF_POSITION)
+    #define __I2C1AEIF__  I2C3BIF
+    #define __I2C1ARXIF__ I2C3SIF
+    #define __I2C1ATXIF__ I2C3MIF
+#elif defined (_IFS0_I2C1ABIF_POSITION)
+    #define __I2C1AEIF__  I2C1ABIF
+    #define __I2C1ARXIF__ I2C1ASIF
+    #define __I2C1ATXIF__ I2C1AMIF
+#endif
 
-#define __I2C1AEIF__  I2C1AEIF
-#define __I2C1ARXIF__ I2C1ARXIF
-#define __I2C1ATXIF__ I2C1ATXIF
+#if defined (_IFS1_I2C2AEIF_POSITION)
+    #define __I2C2AEIF__  I2C2AEIF
+    #define __I2C2ARXIF__ I2C2ARXIF
+    #define __I2C2ATXIF__ I2C2ATXIF
+#elif defined (_IFS1_I2C4BIF_POSITION)
+    #define __I2C2AEIF__  I2C4BIF
+    #define __I2C2ARXIF__ I2C4SIF
+    #define __I2C2ATXIF__ I2C4MIF
+#elif defined (_IFS1_I2C2ABIF_POSITION)
+    #define __I2C2AEIF__  I2C2ABIF
+    #define __I2C2ARXIF__ I2C2ASIF
+    #define __I2C2ATXIF__ I2C2AMIF
+#endif
 
-#define __I2C2AEIF__  I2C2AEIF
-#define __I2C2ARXIF__ I2C2ARXIF
-#define __I2C2ATXIF__ I2C2ATXIF
-
-#define __I2C3AEIF__  I2C3AEIF
-#define __I2C3ARXIF__ I2C3ARXIF
-#define __I2C3ATXIF__ I2C3ATXIF
-
-#else
-
-#define __I2C1AEIE__  I2C3BIE
-#define __I2C1ARXIE__ I2C3SIE
-#define __I2C1ATXIE__ I2C3MIE
-
-#define __I2C2AEIE__  I2C4BIE
-#define __I2C2ARXIE__ I2C4SIE
-#define __I2C2ATXIE__ I2C4MIE
-
-#define __I2C3AEIE__  I2C5BIE
-#define __I2C3ARXIE__ I2C5SIE
-#define __I2C3ATXIE__ I2C5MIE
-
-#define __I2C1AEIF__  I2C3BIF
-#define __I2C1ARXIF__ I2C3SIF
-#define __I2C1ATXIF__ I2C3MIF
-
-#define __I2C2AEIF__  I2C4BIF
-#define __I2C2ARXIF__ I2C4SIF
-#define __I2C2ATXIF__ I2C4MIF
-
-#define __I2C3AEIF__  I2C5BIF
-#define __I2C3ARXIF__ I2C5SIF
-#define __I2C3ATXIF__ I2C5MIF
-
-#endif     
+#if defined (_IFS1_I2C3AEIF_POSITION)
+    #define __I2C3AEIF__  I2C3AEIF
+    #define __I2C3ARXIF__ I2C3ARXIF
+    #define __I2C3ATXIF__ I2C3ATXIF
+#elif defined (_IFS1_I2C5BIF_POSITION)
+    #define __I2C3AEIF__  I2C5BIF
+    #define __I2C3ARXIF__ I2C5SIF
+    #define __I2C3ATXIF__ I2C5MIF
+#elif defined (_IFS1_I2C3ABIF_POSITION)
+    #define __I2C3AEIF__  I2C3ABIF
+    #define __I2C3ARXIF__ I2C3ASIF
+    #define __I2C3ATXIF__ I2C3AMIF
+#endif    
      
 /* 	Interrupt Enable registers	*/
 
