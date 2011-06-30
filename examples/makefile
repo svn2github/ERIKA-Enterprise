@@ -163,19 +163,31 @@ help:
 	@echo 6 - produce an XML output compatible with Hudson
 	@echo "      make xml ARCH=PIC30"
 
+ECLIPSE_HOME?="C:\\Evidence\\eclipse"
+BATCH_DIR?=/cygdrive/c/Evidence/eclipse/evidence
 
-BATCH_DIR=/cygdrive/c/Evidence/eclipse/evidence
-BATCH_TEMPLATE=$(BATCH_DIR)/template_launcher.bat
-BATCH_GENERATOR=$(BATCH_DIR)/rtd_launcher.bat
+OLD_BATCH_FILES=$(shell if [ -f "$(BATCH_DIR)/template_launcher.bat" ]; \
+then echo "true"; \
+else echo "false"; \
+fi)
 
-ECLIPSE_HOME="C:\\Evidence\\eclipse"
+ifeq ($(OLD_BATCH_FILES), true)
+	BATCH_TEMPLATE=$(BATCH_DIR)/template_launcher.bat
+	BATCH_GENERATOR=$(BATCH_DIR)/rtd_launcher.bat
+	COMPILE_SCRIPT=./old_compile.sh
+else
+	BATCH_TEMPLATE=$(BATCH_DIR)/instantiate_template.sh
+	BATCH_GENERATOR=$(BATCH_DIR)/generate_code.sh
+	COMPILE_SCRIPT=./compile.sh
+endif
+
 
 FLAGS=$(addsuffix /doneflag.txt,$(addprefix regression/,$(TEMPLATE_LIST)))
 
 all: $(FLAGS)
 
 regression/%/doneflag.txt:
-	@./compile.sh $* $(ECLIPSE_HOME) $(BATCH_TEMPLATE) $(BATCH_GENERATOR) || true
+	@$(COMPILE_SCRIPT) $* $(ECLIPSE_HOME) $(BATCH_TEMPLATE) $(BATCH_GENERATOR) || true
 
 clean:
 	rm -rf regression
