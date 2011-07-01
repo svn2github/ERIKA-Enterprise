@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<evidence_example version="1" ID="pic30_Demo2Board_base">
+<evidence_example version="1" ID="pic30_Demo2Board_WebServer">
 
  <category>pic30/FLEX Demo2 Board</category>
  <title>Web server Demo</title>
