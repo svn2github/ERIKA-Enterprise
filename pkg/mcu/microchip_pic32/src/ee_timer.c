@@ -50,7 +50,7 @@ __INLINE__ void __ALWAYS_INLINE__ timer1_init(EE_UINT32 pr, EE_UINT8 tckps)
 	IPC1CLR = _IPC1_T1IS_MASK; //TODO:change hardcoding Irq Sub-Prio?
 	PR1 = pr;
 	TMR1 = 0;
-	T1CON = ((tckps & 0x03) << _T1CON_TCKPS_POSITION);
+	T1CON = ((tckps) << _T1CON_TCKPS_POSITION);
 }
 
 __INLINE__ void __ALWAYS_INLINE__ timer1_start(void) 
@@ -89,7 +89,7 @@ __INLINE__ void __ALWAYS_INLINE__ timer2_init(EE_UINT32 pr, EE_UINT8 tckps)
 	IPC2CLR = _IPC2_T2IS_MASK; //TODO:change hardcoding Irq Sub-Prio?
 	PR2 = pr;
 	TMR2 = 0;
-	T2CON = ((tckps & 0x03) << _T2CON_TCKPS_POSITION);
+	T2CON = ((tckps) << _T2CON_TCKPS_POSITION);
 }
 
 __INLINE__ void __ALWAYS_INLINE__ timer2_start(void) 
@@ -125,7 +125,7 @@ __INLINE__ void __ALWAYS_INLINE__ timer3_init(EE_UINT32 pr, EE_UINT8 tckps)
 	IPC3CLR = _IPC3_T3IS_MASK; //TODO:change hardcoding Irq Sub-Prio?
 	PR3 = pr;
 	TMR3 = 0;
-	T3CON = ((tckps & 0x03) << _T3CON_TCKPS_POSITION);
+	T3CON = ((tckps) << _T3CON_TCKPS_POSITION);
 }
 
 __INLINE__ void __ALWAYS_INLINE__ timer3_start(void) 
@@ -169,7 +169,7 @@ __INLINE__ void __ALWAYS_INLINE__ timer4_init(EE_UINT32 pr, EE_UINT8 tckps)
 	IPC4CLR = _IPC4_T4IS_MASK; //TODO:change hardcoding Irq Sub-Prio?
 	PR4 = pr;
 	TMR4 = 0;
-	T4CON = ((tckps & 0x03) << _T4CON_TCKPS_POSITION);
+	T4CON = ((tckps) << _T4CON_TCKPS_POSITION);
 }
 
 __INLINE__ void __ALWAYS_INLINE__ timer4_start(void) 
@@ -220,7 +220,7 @@ __INLINE__ void __ALWAYS_INLINE__ timer5_init(EE_UINT32 pr, EE_UINT8 tckps)
 	IPC5CLR = _IPC5_T5IS_MASK; //TODO:change hardcoding Irq Sub-Prio?
 	PR5 = pr;
 	TMR5 = 0;
-	T5CON = ((tckps & 0x03) << _T5CON_TCKPS_POSITION);
+	T5CON = ((tckps) << _T5CON_TCKPS_POSITION);
 }
 
 __INLINE__ void __ALWAYS_INLINE__ timer5_start(void) 
