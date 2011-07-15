@@ -2,7 +2,7 @@
 #define __mem_compiler_ee_h__
 
 #include <ee.h>
-#include "../contrib/misc/inc/ee_stdint.h"
+#include "../../../misc/inc/ee_stdint.h"
 
 #ifndef COMPILER_INLINE 
 #define COMPILER_INLINE __INLINE__
