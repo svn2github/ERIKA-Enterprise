@@ -285,12 +285,15 @@ endif
 
 
 ##
-## Freescale S12X - Cosmic compiler under windows
+## Freescale S12X - Cosmic compiler or CodeWarrior compiler
 ##########################################################################
 ifeq ($(call iseeopt, __HCS12XS__), yes)
-ifeq ($(call iseeopt, __COSMIC__), yes)
-include $(EEBASE)/pkg/cfg/arch/rules_freescale_s12x_cosmic.mk
-endif
+ ifeq ($(call iseeopt, __COSMIC__), yes)
+  include $(EEBASE)/pkg/cfg/arch/rules_freescale_s12x_cosmic.mk
+ endif
+ ifeq ($(call iseeopt, __CODEWARRIOR__), yes)
+  include $(EEBASE)/pkg/cfg/arch/rules_freescale_s12x_codewarrior.mk
+ endif
 endif
 
 

@@ -50,10 +50,16 @@
 // * Compiler dependent interface
 // */
 
-#ifdef __NO_INLINE__
-#define __INLINE__ static
+#ifdef __COSMIC__
+ #define INLINE_KEYWORD @inline
 #else
-#define __INLINE__ static @inline
+ #define INLINE_KEYWORD inline
+#endif
+
+#ifdef __NO_INLINE__
+ #define __INLINE__ static
+#else
+ #define __INLINE__ static INLINE_KEYWORD
 #endif
 
 #define __ALWAYS_INLINE__ 

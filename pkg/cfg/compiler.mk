@@ -93,9 +93,12 @@ include $(PKGBASE)/cfg/arch/cc_tricore_gnu.mk
 endif
 
 ifeq ($(call iseeopt, __HCS12XS__), yes)
-ifeq ($(call iseeopt, __COSMIC__), yes)
-include $(PKGBASE)/cfg/arch/cc_s12x_cosmic.mk
-endif
+ ifeq ($(call iseeopt, __COSMIC__), yes)
+  include $(PKGBASE)/cfg/arch/cc_s12x_cosmic.mk
+ endif
+ ifeq ($(call iseeopt, __CODEWARRIOR__), yes)
+  include $(PKGBASE)/cfg/arch/cc_s12x_codewarrior.mk
+ endif
 endif
 
 ifeq ($(call iseeopt, __LM32__), yes)

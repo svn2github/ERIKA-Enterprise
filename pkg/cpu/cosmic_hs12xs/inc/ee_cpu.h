@@ -102,11 +102,6 @@ typedef @far EE_UINT32 *EE_ADDR;		// N.B. 16-bit for @near pointer and 32-bit fo
 typedef EE_UINT16 *EE_DADD;				// N.B. for data pointer you can use only 16 bit 
 #define EE_FADDR EE_ADDR
 
-typedef EE_BIT Bool;
-#define FALSE 0
-#define TRUE 1
-
-
 /* EE_TYPEIRQ is defined inside the MCU */
 
 /* Note: EE_TIME is defined for ARM7 into the drivers.h file,

@@ -97,8 +97,12 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_IRQ_end_primitive(void)
 __INLINE__ EE_FREG __ALWAYS_INLINE__ EE_hal_begin_nested_primitive(void)
 {
   register EE_FREG retvalue;
-  //retvalue = DISICNT;
+  #ifdef __COSMIC__ 
   retvalue = _asm("tfr ccr,b\n");	// save CCR register (I bit)
+  #elif defined (__CODEWARRIOR__)
+  __asm tfr ccr,b;
+  __asm std retvalue;
+  #endif
   EE_hal_disableIRQ();
   
   return retvalue;
