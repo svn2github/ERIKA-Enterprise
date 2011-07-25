@@ -1,13 +1,13 @@
 /* ###*B*###
  * ERIKA Enterprise - a tiny RTOS for small microcontrollers
  *
- * Copyright (C) 2002-2008  Evidence Srl
+ * Copyright (C) 2002-2011  Evidence Srl
  *
  * This file is part of ERIKA Enterprise.
  *
  * ERIKA Enterprise is free software; you can redistribute it
  * and/or modify it under the terms of the GNU General Public License
- * version 2 as published by the Free Software Foundation, 
+ * version 2 as published by the Free Software Foundation,
  * (with a special exception described below).
  *
  * Linking this code statically or dynamically with other modules is
@@ -38,17 +38,47 @@
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
 
-/*
- * Author: 2006 Paolo Gai
- * CVS: $Id: ee_internal.h,v 1.8 2008/07/18 09:53:55 tiberipa Exp $
- */
-
-#include "mcu/microchip_dspic/inc/ee_mcu.h"
+/** 
+    @file   ee_internal.h
+    @brief  This header contains internal API for drivers.
+            The API here collected should not be directly called by users.
+            Right now you can find here some implementation for 
+            fresh scheduler (FRSH) and some API for configurable pins.
+    @author Errico Guidieri
+    @date   2011
+*/
 
 #ifndef __INCLUDE_MICROCHIP_DSPIC_INTERNAL_H__
 #define __INCLUDE_MICROCHIP_DSPIC_INTERNAL_H__
 
+#include "mcu/microchip_dspic/inc/ee_mcu.h"
 
+/*************************************************************************
+ Configurable signals
+**************************************************************************/
+
+/* Output Signals */
+#define U1TX_SIGNAL  0x03
+#define U1RTS_SIGNAL 0x04 /* UART 1. Ready to send */
+#define U2TX_SIGNAL  0x05
+#define U2RTS_SIGNAL 0x06
+
+/* Input Signals */
+#define U1RX_SIGNAL  0
+#define U1CTS_SIGNAL 1 /* UART 1. Clear to send */
+#define U2RX_SIGNAL  2
+#define U2CTS_SIGNAL 3
+
+#define EE_INTERNAL_ERR_INVALID_PIN    -1
+#define EE_INTERNAL_ERR_INVALID_SIGNAL -2
+
+#ifdef _RP0R0 /* Register Programmable Pin 0 (chosen to as proof of programmable I/O) */
+EE_INT8 EE_conf_dspic_pin_in(EE_UINT8 pin, EE_UINT8 signal);
+EE_INT8 EE_conf_dspic_pin_out(EE_UINT8 pin, EE_UINT8 signal);
+#else
+__INLINE__ EE_INT8 EE_conf_dspic_pin_in(EE_UINT8 pin, EE_UINT8 signal);
+__INLINE__ EE_INT8 EE_conf_dspic_pin_out(EE_UINT8 pin, EE_UINT8 signal);
+#endif /* Programmable I/O */
 /*************************************************************************
  Timers
  *************************************************************************/
@@ -68,6 +98,80 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_stop_budget_timer(void)
   T6CONbits.TON = 0;
 }
 
-#endif
+#endif /* __FRSH__ */
 
-#endif
+#ifndef _RP0R0 /* Implementation for model that don't have riconfigurable pins */
+#if defined(__dsPIC33F__)  || defined(__PIC24H__) || defined(__dsPIC33E__) || defined(__PIC24E__) || \
+    defined(__dsPIC30F1010__) || defined(__dsPIC30F2020__) || defined(__dsPIC30F2023__)
+
+__INLINE__ EE_INT8 EE_conf_dspic_pin_in(EE_UINT8 pin, EE_UINT8 signal){
+    switch (signal) {
+        case U1RX_SIGNAL:
+            TRISFbits.TRISF2 = 1;     /* Set UART1 In RX Pin */
+        break;
+        case U1CTS_SIGNAL:
+            TRISDbits.TRISD14 = 1;    /* Set UART1 In CTS Pin */
+        break;
+        case U2RX_SIGNAL:
+            TRISFbits.TRISF4 = 1;     /* Set UART2 In RX Pin */
+        break;
+        case U2CTS_SIGNAL:
+            TRISFbits.TRISF12 = 1;    /* Set UART2 In CTS Pin */
+        break;
+        /* TODO: add all possible configurable INs */
+        default:
+            return EE_INTERNAL_ERR_INVALID_SIGNAL;
+    }
+    return 0;
+}
+__INLINE__ EE_INT8 EE_conf_dspic_pin_out(EE_UINT8 pin, EE_UINT8 signal){
+    switch (signal) {
+        case U1TX_SIGNAL:
+            TRISFbits.TRISF3 = 0;        /* Set UART1 Out TX Pin */
+        break;
+        case U1RTS_SIGNAL:
+            TRISDbits.TRISD15 = 0;       /* Set UART1 Out RTS Pin */
+        break;
+        case U2TX_SIGNAL:
+            TRISFbits.TRISF5 = 0;        /* Set UART2 Out TX Pin */
+        case U2RTS_SIGNAL:
+            TRISFbits.TRISF13 = 0;       /* Set UART2 Out RTS Pin */
+        break;
+        /* TODO: add all possible configurable OUTs */
+        default:
+            return EE_INTERNAL_ERR_INVALID_SIGNAL;
+    }
+    return 0;
+}
+#elif defined(__dsPIC30F__)
+__INLINE__ EE_INT8 EE_conf_dspic_pin_in(EE_UINT8 pin, EE_UINT8 signal){
+    switch (signal) {
+        case U1RX_SIGNAL:
+            TRISFbits.TRISF2 = 1;     /* Set UART1 In RX Pin */
+        break;
+        case U2RX_SIGNAL:
+            TRISFbits.TRISF4 = 1;     /* Set UART2 In RX Pin */
+        break;
+        /* TODO: add all possible configurable INs */
+        default:
+            return EE_INTERNAL_ERR_INVALID_SIGNAL;
+    }
+    return 0;
+}
+__INLINE__ EE_INT8 EE_conf_dspic_pin_out(EE_UINT8 pin, EE_UINT8 signal){
+    switch (signal) {
+        case U1TX_SIGNAL:
+            TRISFbits.TRISF3 = 0;        /* Set UART1 Out TX Pin */
+        break;
+        case U2TX_SIGNAL:
+            TRISFbits.TRISF5 = 0;        /* Set UART2 Out TX Pin */
+        /* TODO: add all possible configurable OUTs */
+        default:
+            return EE_INTERNAL_ERR_INVALID_SIGNAL;
+    }
+    return 0;
+}
+#endif /* __dsPIC30F__ ... */
+
+#endif /* _RP0R0 */
+#endif /* __INCLUDE_MICROCHIP_DSPIC_INTERNAL_H__ */

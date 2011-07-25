@@ -296,6 +296,10 @@ extern "C" {
 #include "board/msp430/launchpad/inc/ee_board.h"
 #endif
 
+#ifdef __EE_EASYLAB__
+#include "board/ee_easylab/inc/ee_board.h"
+#endif
+
   /*
    *
    * Kernel

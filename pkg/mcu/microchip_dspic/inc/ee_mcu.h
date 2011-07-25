@@ -7,7 +7,7 @@
  *
  * ERIKA Enterprise is free software; you can redistribute it
  * and/or modify it under the terms of the GNU General Public License
- * version 2 as published by the Free Software Foundation, 
+ * version 2 as published by the Free Software Foundation,
  * (with a special exception described below).
  *
  * Linking this code statically or dynamically with other modules is
@@ -49,6 +49,41 @@
 #define __INCLUDE_MICROCHIP_DSPIC_MCU_H__
 
 /*************************************************************************
+Macros to define programmable PIN In/Out values
+**************************************************************************/
+#ifdef _RP0R /* Register Programmable Pin Reference 0 (chosen to as proof of programmable I/O) */
+#define EE_PROGRAMMABLE_IO
+
+#define EE_PIN_RP0   0
+#define EE_PIN_RP1   1
+#define EE_PIN_RP2   2
+#define EE_PIN_RP3   3
+#define EE_PIN_RP4   4
+#define EE_PIN_RP5   5
+#define EE_PIN_RP6   6
+#define EE_PIN_RP7   7
+#define EE_PIN_RP8   8
+#define EE_PIN_RP9   9
+#define EE_PIN_RP10  10
+#define EE_PIN_RP11  11
+#define EE_PIN_RP12  12
+#define EE_PIN_RP13  13
+#define EE_PIN_RP14  14
+#define EE_PIN_RP15  15
+#define EE_PIN_RP16  16
+#define EE_PIN_RP17  17
+#define EE_PIN_RP18  18
+#define EE_PIN_RP19  19
+#define EE_PIN_RP20  20
+#define EE_PIN_RP21  21
+#define EE_PIN_RP22  22
+#define EE_PIN_RP23  23
+#define EE_PIN_RP24  24
+#define EE_PIN_RP25  25
+#else
+#define EE_NO_PROGRAMMABLE_PIN 0xFF
+#endif /* programmable I/O */
+/*************************************************************************
  Time handling
  *************************************************************************/
 
@@ -60,7 +95,7 @@
 /* Time types
  *
  * This is the type used to store the circular timer. It is in the MCU
- * because it highly depends on the hardware timers which are present 
+ * because it highly depends on the hardware timers which are present
  * in a particular microcontroller version.
  *
  * There are two TIME types, an unsigned type, typically used to store
@@ -92,17 +127,17 @@
 #ifndef __PRIVATE_TIME_INIT__
 __INLINE__ void __ALWAYS_INLINE__ EE_time_init(void)
 {
-  T8CON = 0;          /* Stops the Timer8 and reset control reg	*/
+  T8CON = 0;          /* Stops the Timer8 and reset control reg    */
   T8CONbits.T32 = 1;  /* Set Timer8 in 32bit mode */
-  TMR8  = 0;          /* Clear contents of the timer registers	*/
+  TMR8  = 0;          /* Clear contents of the timer registers    */
   TMR9  = 0;
   PR8   = 0xffff;     /* Load the Period registers wit the value 0xffffffff */
   PR9   = 0xffff;
-  IFS3bits.T9IF  = 0; /* Clear the Timer9 interrupt status flag	*/
-  IEC3bits.T9IE  = 0; /* Clear Timer9 interrupts		*/
+  IFS3bits.T9IF  = 0; /* Clear the Timer9 interrupt status flag    */
+  IEC3bits.T9IE  = 0; /* Clear Timer9 interrupts        */
   T8CONbits.TON  = 1; /* Start Timer8 with prescaler settings at 1:1
-		       * and clock source set to the internal 
-		       * instruction cycle			*/
+               * and clock source set to the internal
+               * instruction cycle            */
 }
 
 #endif
@@ -120,10 +155,10 @@ __INLINE__ EE_TIME __ALWAYS_INLINE__ EE_hal_gettime(void)
     struct { EE_UREG low, hi; } lowhi;
     EE_TIME time;
   } retvalue;
-  
-  // I split the reading to guarantee that in any case TMR8 will be
-  // read before TMR9. In this way, the TMR9 hold register will be
-  // read correctly!
+
+  /* I split the reading to guarantee that in any case TMR8 will be
+     read before TMR9. In this way, the TMR9 hold register will be
+     read correctly! */
 
   retvalue.lowhi.low = TMR8;
   retvalue.lowhi.hi = TMR9;
@@ -138,19 +173,19 @@ __INLINE__ EE_TIME __ALWAYS_INLINE__ EE_hal_gettime(void)
  */
 __INLINE__ void __ALWAYS_INLINE__ EE_frsh_time_init(void)
 {
-  T4CON = 0; 
-  T4CONbits.T32 = 1;  /* Set Timer6 in 32bit mode */ 
-  TMR4  = 0;          /* Clear contents of the timer registers	*/
+  T4CON = 0;
+  T4CONbits.T32 = 1;  /* Set Timer6 in 32bit mode */
+  TMR4  = 0;          /* Clear contents of the timer registers    */
   TMR5  = 0;
-  IFS1bits.T5IF  = 0; /* Clear the Timer9 interrupt status flag	*/
-  _T5IE = 1; // Enable interrupt for Timer 4/5
-  
-  T6CON = 0;          /* Stops the Timer6 and reset control reg	*/
+  IFS1bits.T5IF  = 0; /* Clear the Timer9 interrupt status flag    */
+  _T5IE = 1;          /* Enable interrupt for Timer 4/5 */
+
+  T6CON = 0;          /* Stops the Timer6 and reset control reg    */
   T6CONbits.T32 = 1;  /* Set Timer6 in 32bit mode */
-  TMR6  = 0;          /* Clear contents of the timer registers	*/
+  TMR6  = 0;          /* Clear contents of the timer registers    */
   TMR7  = 0;
-  IFS3bits.T7IF  = 0; /* Clear the Timer7 interrupt status flag	*/
-  _T7IE = 1; // Enable interrupt for Timer 6/7
+  IFS3bits.T7IF  = 0; /* Clear the Timer7 interrupt status flag    */
+  _T7IE = 1;           /* Enable interrupt for Timer 6/7 */
 }
 
 #endif
@@ -169,11 +204,11 @@ __INLINE__ void __ALWAYS_INLINE__ EE_frsh_time_init(void)
 
 #endif
 
-/* 
+/*
  * Hard timers related stuffs
  * with hard alarms the logical timer identifier 0
  * corresponds to the TMR8/9 (system timer) and TMR 4/5
- * for the hard alarm interrupt   
+ * for the hard alarm interrupt
  */
 #ifdef __HARD_ALARMS__
 #if (1 < EE_N_HARD_ALARMS)
@@ -182,20 +217,20 @@ __INLINE__ void __ALWAYS_INLINE__ EE_frsh_time_init(void)
 
 __INLINE__ EE_TIME __ALWAYS_INLINE__ EE_hal_init_timer()
 {
-  T8CON = 0;          /* Stops the Timer8 and reset control reg	*/
+  T8CON = 0;          /* Stops the Timer8 and reset control reg   */
   T8CONbits.T32 = 1;  /* Set Timer8 in 32bit mode */
-  TMR8  = 0;          /* Clear contents of the timer registers	*/
+  TMR8  = 0;          /* Clear contents of the timer registers    */
   TMR9  = 0;
-  IFS3bits.T9IF  = 0; /* Clear the Timer9 interrupt status flag	*/
-  IEC3bits.T9IE  = 0; /* Clear Timer9 interrupts		*/
+  IFS3bits.T9IF  = 0; /* Clear the Timer9 interrupt status flag   */
+  IEC3bits.T9IE  = 0; /* Clear Timer9 interrupts        */
   T8CONbits.TON  = 1; /* Start Timer8 with prescaler settings at 1:1 */
-  
-  T4CON = 0;  
-  TMR4  = 0;          /* Clear contents of the timer registers	*/
+
+  T4CON = 0;
+  TMR4  = 0;          /* Clear contents of the timer registers    */
   TMR5  = 0;
-  PR4 = PR5 = 0xFFFF; 
-  T4CON = 0x0008;  // Timer 4/5 as a 32 bit timer. Timer stop.
-  _T5IE = 1; // Enable interrupt for Timer 4/5
+  PR4 = PR5 = 0xFFFF;
+  T4CON = 0x0008;     /* Timer 4/5 as a 32 bit timer. Timer stop. */
+  _T5IE = 1;          /* Enable interrupt for Timer 4/5 */
 }
 
 __INLINE__ EE_TIME __ALWAYS_INLINE__ EE_hal_read_timer (EE_SREG timer)
@@ -207,17 +242,17 @@ __INLINE__ EE_TIME __ALWAYS_INLINE__ EE_hal_read_timer (EE_SREG timer)
         struct { EE_UREG low, hi; } lowhi;
         EE_TIME time;
       } retvalue;
-  
-  // I split the reading to guarantee that in any case TMR8 will be
-  // read before TMR9. In this way, the TMR9 hold register will be
-  // read correctly!
+
+    /* I split the reading to guarantee that in any case TMR8 will be
+       read before TMR9. In this way, the TMR9 hold register will be
+       read correctly! */
 
       retvalue.lowhi.low = TMR8;
       retvalue.lowhi.hi = TMR9;
       return retvalue.time;
     }
     break;
-    case 1:; //TODO
+    case 1:; /* TODO */
   }
 }
 
@@ -225,7 +260,7 @@ __INLINE__ EE_TIME __ALWAYS_INLINE__ EE_hal_read_timer (EE_SREG timer)
  * if there isn't an already set interrupt flag
  * with hard alarms the logical timer identifier 0
  * corresponds to the TMR8/9 (system timer) and TMR 4/5
- * for the hard alarm interrupt    
+ * for the hard alarm interrupt
  */
 __INLINE__ void __ALWAYS_INLINE__ EE_hal_set_timer (EE_SREG timer, EE_TIME value)
 {
@@ -236,11 +271,11 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_set_timer (EE_SREG timer, EE_TIME value
       PR5 = value >> 16;
       TMR4 = 0;
       TMR5 = 0;
-      _T5IE = 1; // Enable interrupt for Timer 4/5
-      T4CONbits.TON = 1; // Start Timer 4/5;
+      _T5IE = 1;         /* Enable interrupt for Timer 4/5 */
+      T4CONbits.TON = 1; /* Start Timer 4/5; */
     }
     break;
-    case 1:; //TODO 
+    case 1:; /* TODO */
   }
 }
 #endif

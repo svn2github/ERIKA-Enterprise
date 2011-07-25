@@ -50,6 +50,7 @@
 #include "eecfg.h"
 #include "cpu/pic30/inc/ee_compiler.h"
 #include "ee_pic30regs.h"
+#include "cpu/common/inc/ee_types.h"
 
 #ifndef __INCLUDE_PIC30_EE_CPU_H__
 #define __INCLUDE_PIC30_EE_CPU_H__
@@ -76,27 +77,12 @@
  HAL Types
  *************************************************************************/
 
-
-/* Primitive data types */
-/* TODO: it is worth for THUMB?!? */
-
-typedef unsigned char EE_BIT;
-typedef unsigned char EE_UINT8;
-typedef unsigned int EE_UINT16;
-typedef unsigned long EE_UINT32;
-typedef signed char EE_INT8;
-typedef signed int EE_INT16;
-typedef signed long EE_INT32;
-
 typedef EE_UINT16 EE_UREG;
 typedef EE_INT16  EE_SREG;
 typedef EE_UINT16 EE_FREG;
 
 /* Thread IDs */
 typedef EE_UINT32 EE_TID;
-
-/* Addresses (that have the same size of a pointer) */
-typedef EE_UINT32 *EE_ADDR;
 
 /* Code addresses (same size of function pointers) */
 /* For an easy upgrade path, we use a define instead of the typedef:

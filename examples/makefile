@@ -39,6 +39,7 @@ TEMPLATE_LIST_PIC30 += pic30_Demo2Board_WebServer
 TEMPLATE_LIST_PIC30 += pic30_miniflex_hello
 TEMPLATE_LIST_PIC30 += pic30_rs485_multibus
 TEMPLATE_LIST_PIC30 += pic30_MultibusBoard_udp_demo
+TEMPLATE_LIST_PIC30 += pic30_easylab_demo
 #TEMPLATE_LIST_PIC30 += eicaslab_flex
 #TEMPLATE_LIST_PIC30 += board_flex
 #TEMPLATE_LIST_PIC30 += board_flex_proto

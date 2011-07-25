@@ -43,6 +43,13 @@
 
 ifeq ($(call iseeopt, __MICROCHIP_DSPIC30__), yes)
 
+EE_SRCS += pkg/mcu/microchip_dspic/src/ee_internal.c
+EE_SRCS += pkg/mcu/microchip_dspic/src/ee_utils.c
+
+ifeq ($(call iseeopt, __USE_TIMER__), yes)
+EE_SRCS += pkg/mcu/microchip_dspic/src/ee_timer.c
+endif
+
 ifeq ($(call iseeopt, __USE_CAN1__), yes)
 EE_SRCS += pkg/mcu/microchip_dspic/src/ee_ecan.c
 endif
@@ -61,6 +68,14 @@ endif
 
 ifeq ($(call iseeopt, __USE_I2C__), yes)
 EE_SRCS += pkg/mcu/microchip_dspic/src/ee_i2c.c
+endif
+
+ifeq ($(call iseeopt, __USE_ADC__), yes)
+EE_SRCS += pkg/mcu/microchip_dspic/src/ee_adc.c
+endif
+
+ifeq ($(call iseeopt, __USE_PWM__), yes)
+EE_SRCS += pkg/mcu/microchip_dspic/src/ee_pwm.c
 endif
 
 # typically empty, the crt0.S function is typically provided by the

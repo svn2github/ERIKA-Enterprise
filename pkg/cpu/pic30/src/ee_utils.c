@@ -43,26 +43,25 @@
 
 EE_UINT16 temp_count __attribute__((near)) = 0;
 
-
 void EE_delay_us(EE_UINT32 delay)
 {
-  /* NOTE: this function simply produce a delay*/
-  /* NOT the correct number of microseconds   */
-	temp_count = delay/100 +1;
-	asm volatile("outer1: dec _temp_count");
-	asm volatile("cp0 _temp_count");
-	asm volatile("bra z, done1");
-	/* Fcy=16MHz, Tcy =62,5 ns */
-#if defined (__PIC24FJ32GA004__) || defined (__PIC24FJ64GA004__)
-	asm volatile("mov #600, w0");
-	asm volatile("inner: dec w0, w0");
-	asm volatile("cp0 w0");
-	asm volatile("bra nz, inner");
-	#else
-	asm volatile("do #1500, inner" );
-	asm volatile("nop");
-	asm volatile("inner: nop");
-	#endif
-	asm volatile("bra outer1");
-	asm volatile("done1:");
+    /* NOTE: this function simply produce a delay*/
+    /* NOT the correct number of microseconds   */
+    temp_count = delay/100 +1;
+    asm volatile("outer1: dec _temp_count");
+    asm volatile("cp0 _temp_count");
+    asm volatile("bra z, done1");
+    /* Fcy=16MHz, Tcy =62,5 ns */
+#if defined (__PIC24FJ32GA004__) || defined (__PIC24FJ64GA004__) || defined(__PIC24H__)
+    asm volatile("mov #600, w0");
+    asm volatile("inner: dec w0, w0");
+    asm volatile("cp0 w0");
+    asm volatile("bra nz, inner");
+#else
+    asm volatile("do #1500, inner" );
+    asm volatile("nop");
+    asm volatile("inner: nop");
+#endif
+    asm volatile("bra outer1");
+    asm volatile("done1:");
 }
