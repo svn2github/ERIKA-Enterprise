@@ -43,7 +43,7 @@
 */ 
 
 #include "ee.h"
-#include "cpu/cosmic_hs12xs/inc/ee_irqstub.h"
+#include "cpu/hs12xs/inc/ee_irqstub.h"
 #include "myapp.h"
 #include "console_serial.h"
 #include "ee_hs12xsregs.h"
