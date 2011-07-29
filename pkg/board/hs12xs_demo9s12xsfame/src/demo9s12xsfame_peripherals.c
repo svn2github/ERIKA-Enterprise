@@ -39,22 +39,41 @@
  * ###*E*### */
 
 /*
- * Author: 2006 Mauro Marinoni
- * CVS: $Id: ee_board.h,v 1.27 2008/08/29 11:21:08 francesco Exp $
+ * Author: 20065 Mauro Marinoni
+ * CVS: $Id: ee_board.c,v 1.11 2008/08/29 11:21:08 francesco Exp $
  */
 
-#ifndef __INCLUDE_S12XS_BOARD_H__
-#define __INCLUDE_S12XS_BOARD_H__
-
-#include "mcu/cosmic_hs12xs/inc/ee_mcu.h"
+#include "ee_internal.h"
 
 /* /\************************************************************************* */
-/* Check if the DemoBoard has been selected */
+/* Check if the Flex DemoBoard has been selected */
 /* /\************************************************************************* */
 
 #ifdef __DEMO9S12XSFAME__
-#include "board\cosmic_hs12xs_demo9s12xsfame\inc\demo9s12xsfame_peripherals.h"
+
+#include "cpu/hs12xs/inc/ee_irqstub.h"
+
+//Start GF
+/* /\************************************************************************* */
+/*  Buttons and PICDEM Z */
+/*  *************************************************************************\/ */
+
+#ifdef __USE_BUTTONS__
+volatile EE_UINT8 EE_buttons_initialized = 0;
+#endif
+
+/* /\************************************************************************* */
+/*  Analog input */
+/*  *************************************************************************\/ */
+volatile EE_UINT8 EE_adc_init = 0;
+#if defined(__USE_POTENTIOMETER__) || defined(__USE_ADC__) || defined(__USE_LIGHT_SENSOR__)
+
+#endif
+
+/* ************************************************************************* */
+
+/* ************************************************************************* */
+
 #endif // __DEMO9S12XSFAME__
 
 /* ************************************************************************* */
-#endif
