@@ -46,7 +46,7 @@
  * CVS: $Id: ee_internal.h,v 1.11 2008/07/16 15:01:38 francesco Exp $
  */
 
-#include "cpu/cosmic_hs12xs/inc/ee_cpu.h"
+#include "cpu/hs12xs/inc/ee_cpu.h"
 
 #ifndef __INCLUDE_S12XS_INTERNAL_H__
 #define __INCLUDE_S12XS_INTERNAL_H__
@@ -97,12 +97,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_IRQ_end_primitive(void)
 __INLINE__ EE_FREG __ALWAYS_INLINE__ EE_hal_begin_nested_primitive(void)
 {
   register EE_FREG retvalue;
-  #ifdef __COSMIC__ 
-  retvalue = _asm("tfr ccr,b\n");	// save CCR register (I bit)
-  #elif defined (__CODEWARRIOR__)
-  __asm tfr ccr,b;
-  __asm std retvalue;
-  #endif
+  retvalue = EE_READ_CCR();
   EE_hal_disableIRQ();
   
   return retvalue;
@@ -139,12 +134,21 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_ready2stacked(EE_TID thread)
 #endif
 
 #ifdef __MULTI__
-void EE_s12xs_hal_ready2stacked(EE_ADDR thread_addr, EE_UREG tos_index); /* in ASM */
-__INLINE__ void __ALWAYS_INLINE__ EE_hal_ready2stacked(EE_TID thread)
-{
-    EE_s12xs_hal_ready2stacked(EE_hal_thread_body[thread],
-			         EE_s12xs_thread_tos[thread+1]);
-}
+#ifdef __CODEWARRIOR__
+ //void EE_s12xs_hal_ready2stacked(EE_ADDR thread_addr, EE_UREG tos_index); /* in ASM */
+ void EE_s12xs_hal_ready2stacked(EE_UREG tos_index, EE_ADDR thread_addr); /* in ASM */
+ __INLINE__ void __ALWAYS_INLINE__ EE_hal_ready2stacked(EE_TID thread)
+ {
+	//EE_s12xs_hal_ready2stacked(EE_hal_thread_body[thread], EE_s12xs_thread_tos[thread+1]);
+	EE_s12xs_hal_ready2stacked(EE_s12xs_thread_tos[thread+1], EE_hal_thread_body[thread]);
+ }
+#else
+ void EE_s12xs_hal_ready2stacked(EE_ADDR thread_addr, EE_UREG tos_index); /* in ASM */
+ __INLINE__ void __ALWAYS_INLINE__ EE_hal_ready2stacked(EE_TID thread)
+ {
+	EE_s12xs_hal_ready2stacked(EE_hal_thread_body[thread], EE_s12xs_thread_tos[thread+1]);
+ }
+#endif
 #endif
 
 

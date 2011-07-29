@@ -48,7 +48,7 @@
 
 
 #include "eecfg.h"
-#include "cpu/cosmic_hs12xs/inc/ee_compiler.h"
+#include "cpu/hs12xs/inc/ee_compiler.h"
 
 #ifndef __INCLUDE_S12XS_EE_IRQSTUB_H__
 #define __INCLUDE_S12XS_EE_IRQSTUB_H__
@@ -65,7 +65,11 @@ void EE_IRQ_end_instance(void);
 void EE_s12xs_hal_ready2stacked(EE_ADDR thread_addr);
 #endif
 #ifdef __MULTI__
-void EE_s12xs_hal_ready2stacked(EE_ADDR thread_addr, EE_UREG tos_index);
+ #ifdef __CODEWARRIOR__
+  void EE_s12xs_hal_ready2stacked(EE_UREG tos_index, EE_ADDR thread_addr);
+ #else
+  void EE_s12xs_hal_ready2stacked(EE_ADDR thread_addr, EE_UREG tos_index);
+ #endif
 void EE_s12xs_hal_stkchange(EE_UREG tos_index);
 //void EE_s12xs_hal_stkchange(EE_ADDR thread_addr, EE_UREG tos_index); /* in ASM */
 #endif
@@ -77,33 +81,86 @@ extern const struct EE_TOS EE_s12xs_system_splim[];
 #endif
 #endif
 
-__INLINE__ void __ALWAYS_INLINE__ EE_ISR2_prestub(void)
-{
 #ifdef __ALLOW_NESTED_IRQ__
-  EE_IRQ_nesting_level++;
+ #define EE_INC_NESTING_LEVEL() EE_IRQ_nesting_level++
+ #define EE_DEC_NESTING_LEVEL()\
+                        EE_IRQ_nesting_level--;\
+                        if (EE_IRQ_nesting_level!=0)\
+                                    return
+#else
+ #define EE_INC_NESTING_LEVEL() EE_IRQ_nesting_level=1
+ #define EE_DEC_NESTING_LEVEL() EE_IRQ_nesting_level=0
+#endif
 
 #ifdef __MULTI__
-#ifdef __IRQ_STACK_NEEDED__
-  if (EE_IRQ_nesting_level==1) {
-    EE_s12xs_temp_tos = (EE_DADD)(_asm("tfr  s, d"));                              //_asm("movw  w15, _EE_s12xs_temp_tos");
-//#ifdef __S12XS_SPLIM__
-//    _asm("mov    _SPLIM, sp");
-//    _asm("mov.w  sp, _EE_s12xs_temp_splim");
-//    _asm("mov	_EE_s12xs_IRQ_splim, sp");
-//    _asm("mov	sp, _SPLIM");
-//    // the next operation cannot do an access based on w15
-//#endif
-    _asm("tfr d, s",EE_s12xs_IRQ_tos.SYS_tos);                               //_asm("mov.w _EE_s12xs_IRQ_tos, w15");
-  }
-#endif
-#endif
-  EE_s12xs_enableIRQ();
-#else
-  EE_IRQ_nesting_level=1;
-#endif
-}
+ #ifdef __IRQ_STACK_NEEDED__
+  #define EE_PRESTUB_CHANGE_STACK_POINTER() \
+                     if (EE_IRQ_nesting_level==1) {\
+                         EE_s12xs_temp_tos =  EE_READ_SP();\
+                         EE_WRITE_SP( EE_s12xs_IRQ_tos.SYS_tos ); }
+						 
+						 
+  #define EE_POSTSTUB_CHANGE_STACK_POINTER() EE_WRITE_SP( EE_s12xs_temp_tos )
+ #else
+  #define EE_PRESTUB_CHANGE_STACK_POINTER() 
+  #define EE_POSTSTUB_CHANGE_STACK_POINTER()
+ #endif
+ #define EE_S12XS_HAL_READY2STACKED() EE_s12xs_hal_ready2stacked(EE_hal_endcycle_next_tos, EE_hal_endcycle_next_thread)
+ #define EE_S12XS_HAL_STKCHANGE_CHECK()\
+                         else {\
+                            if (EE_hal_endcycle_next_tos != EE_s12xs_active_tos) {\
+                                 EE_WRITE_CCRH(0x0000);\
+                                 EE_s12xs_hal_stkchange(EE_hal_endcycle_next_tos); } }
 
-__INLINE__ void __ALWAYS_INLINE__ EE_ISR2_poststub(void)
+#else
+  #define EE_PRESTUB_CHANGE_STACK_POINTER()
+  #define EE_POSTSTUB_CHANGE_STACK_POINTER()
+  #define EE_S12XS_HAL_READY2STACKED() EE_s12xs_hal_ready2stacked(EE_hal_endcycle_next_thread)
+  #define EE_S12XS_HAL_STKCHANGE_CHECK()
+#endif
+
+#ifdef __CODEWARRIOR__
+    #define EE_ISR2_prestub()\
+                   EE_INC_NESTING_LEVEL();\
+                   EE_PRESTUB_CHANGE_STACK_POINTER();\
+                   EE_s12xs_enableIRQ()
+#else
+	__INLINE__ void __ALWAYS_INLINE__ EE_ISR2_prestub(void)
+	{
+	#ifdef __ALLOW_NESTED_IRQ__
+	  EE_IRQ_nesting_level++;
+
+	#ifdef __MULTI__
+	#ifdef __IRQ_STACK_NEEDED__
+	  if (EE_IRQ_nesting_level==1) {
+		EE_s12xs_temp_tos =  EE_READ_SP();         /* save the stack pointer */
+		EE_WRITE_SP( EE_s12xs_IRQ_tos.SYS_tos );   /* change the stack pointer */  
+	  }
+	#endif
+	#endif
+	  EE_s12xs_enableIRQ();
+	#else
+	  EE_IRQ_nesting_level=1;
+	#endif
+	}
+#endif
+
+#ifdef __CODEWARRIOR__
+    #define EE_ISR2_poststub()\
+                    EE_s12xs_disableIRQ();\
+                    EE_DEC_NESTING_LEVEL();\
+                    EE_POSTSTUB_CHANGE_STACK_POINTER();\
+                    EE_IRQ_end_instance();\
+                    if (EE_hal_endcycle_next_thread) {\
+                                        EE_WRITE_CCRH(0x0000); \
+                                        EE_S12XS_HAL_READY2STACKED(); }\
+                    EE_S12XS_HAL_STKCHANGE_CHECK()\
+                    EE_WRITE_CCRH(0x0600);\
+                    EE_s12xs_enableIRQ()
+
+#else
+
+__INLINE__ void __ALWAYS_INLINE__ EE_ISR2_poststub(void) 
 {
 #ifdef __ALLOW_NESTED_IRQ__
   EE_s12xs_disableIRQ();
@@ -117,12 +174,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_ISR2_poststub(void)
 
 #ifdef __MULTI__
 #ifdef __IRQ_STACK_NEEDED__
-//#ifdef __S12XS_SPLIM__
-//  _asm("mov.w _EE_s12xs_temp_splim, sp");
-//  _asm("mov	sp, _SPLIM");
-//  // the next operation cannot do an access based on w15
-//#endif
-  _asm("tfr d, s", EE_s12xs_temp_tos);
+  EE_WRITE_SP( EE_s12xs_temp_tos );        /* change the stack pointer */  
 #endif
 #endif
 
@@ -134,52 +186,49 @@ __INLINE__ void __ALWAYS_INLINE__ EE_ISR2_poststub(void)
   
   if (EE_hal_endcycle_next_thread) {
     // enable interrupt and CPU priority to 0
-    _asm("tfr a,ccrh\n", 0x0000);		//_asm("BCLR.B 0x0042, #0x7");
-    								//_asm("BCLR.B 0x0042, #0x6");
-    								//_asm("BCLR.B 0x0042, #0x5");
+    EE_WRITE_CCRH(0x0000);
 #ifdef __MONO__
     EE_s12xs_hal_ready2stacked(EE_hal_endcycle_next_thread);
 #endif
 #ifdef __MULTI__
-    EE_s12xs_hal_ready2stacked(EE_hal_endcycle_next_thread, EE_hal_endcycle_next_tos);
+	 EE_s12xs_hal_ready2stacked(EE_hal_endcycle_next_thread, EE_hal_endcycle_next_tos);
 #endif
   }
   else {
 #ifdef __MULTI__
     if (EE_hal_endcycle_next_tos != EE_s12xs_active_tos) {
-      // enable interrupt and CPU priority to 0
-      _asm("tfr a,ccrh\n", 0x0000);	//_asm("BCLR.B 0x0042, #0x7");
-      								//_asm("BCLR.B 0x0042, #0x6");
-      								//_asm("BCLR.B 0x0042, #0x5");
-		EE_s12xs_hal_stkchange(EE_hal_endcycle_next_tos);
-      	//EE_s12xs_hal_stkchange(EE_hal_endcycle_next_thread, EE_hal_endcycle_next_tos);
+        // enable interrupt and CPU priority to 0
+        EE_WRITE_CCRH(0x0000);
+        EE_s12xs_hal_stkchange(EE_hal_endcycle_next_tos);
+        //EE_s12xs_hal_stkchange(EE_hal_endcycle_next_thread, EE_hal_endcycle_next_tos);
     }
 #endif
   }
 
   //  Set CPU priority to 6 and enable interrupt with disi
   //  retfie will restore the right priority level
-  _asm("tfr a,ccrh\n", 0x0600);	//_asm("BSET.B 0x0042, #0x7");
-  								//_asm("BSET.B 0x0042, #0x6");
-  								//_asm("BCLR.B 0x0042, #0x5");
+  EE_WRITE_CCRH(0x0600);
   EE_s12xs_enableIRQ();
 }
 
-
-//void __attribute__((__interrupt__,__auto_psv__)) f(void) \
-
-
-
+#endif
 
 //#define ISR2(f) void f(void)
+
+#ifdef __CODEWARRIOR__
+ #define EE_S12_ISR @interrupt
+#else
+ #define EE_S12_ISR @interrupt @near
+#endif
+
 #define ISR2(f)\
-void ISR2_##f(void);\
-@interrupt @near void f(void)\
+static void ISR2_##f(void);\
+EE_S12_ISR void f(void)\
 {\
   EE_ISR2_prestub();\
   ISR2_##f();\
   EE_ISR2_poststub();\
 }\
-void ISR2_##f(void)
+static void ISR2_##f(void)
 
 #endif

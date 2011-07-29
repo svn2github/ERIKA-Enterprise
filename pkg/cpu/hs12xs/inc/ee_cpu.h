@@ -48,59 +48,11 @@
 
 
 #include "eecfg.h"
-#include "cpu/cosmic_hs12xs/inc/ee_compiler.h"
+#include "cpu/hs12xs/inc/ee_compiler.h"
 //#include "ee_hs12xsregs.h"
 
 #ifndef __INCLUDE_S12XS_EE_CPU_H__
 #define __INCLUDE_S12XS_EE_CPU_H__
-
-// Macro for interrupts disabling
-#define ASM_DIS_INT      do {\
-  _asm("sei"); \
-  }while(0)
-  
-// Macro for interrupts enabling  
-#define ASM_EN_INT      do {\
-  _asm("cli"); \
-  }while(0)
-  
-/*************************************************************************
- HAL Constants
- *************************************************************************/
-
-
-/* invalid pointer */
-#ifndef NULL
-#define NULL 0
-#endif
-
-/*************************************************************************
- HAL Types
- *************************************************************************/
-
-
-/* Primitive data types */
-/* TODO: it is worth for THUMB?!? */ 
-
-typedef unsigned char EE_BIT;
-typedef unsigned char EE_UINT8;
-typedef unsigned int EE_UINT16;
-typedef unsigned long EE_UINT32;
-typedef signed char EE_INT8;
-typedef signed int EE_INT16;
-typedef signed long EE_INT32;
-
-typedef EE_UINT16 EE_UREG;
-typedef EE_INT16  EE_SREG;
-typedef EE_UINT16 EE_FREG;
-
-/* Thread IDs */
-typedef EE_UINT32 EE_TID;
-
-/* Addresses (that have the same size of a pointer) */
-typedef @far EE_UINT32 *EE_ADDR;		// N.B. 16-bit for @near pointer and 32-bit for @far pointer
-typedef EE_UINT16 *EE_DADD;				// N.B. for data pointer you can use only 16 bit 
-#define EE_FADDR EE_ADDR
 
 /* EE_TYPEIRQ is defined inside the MCU */
 

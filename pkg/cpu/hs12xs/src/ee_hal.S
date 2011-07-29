@@ -49,26 +49,37 @@
 #define __EECFG_THIS_IS_ASSEMBLER__
 //#include "eecfg.h"
 
-#ifdef __COSMIC__
- #define EE_THREAD_INSTANCE_NAME f_EE_thread_end_instance
- #define TEXT_SECTION_NAME .ftext:	section	.text
- #define PPAGE_NAME _PPAGE
- #define STACK_POINTER s
+#ifdef __CODEWARRIOR__
+ #define EE_THREAD_INSTANCE_NAME     EE_thread_end_instance
+ #define PPAGE_NAME                  PPAGE
+ #define STACK_POINTER               SP
+ #define NEXT_THREAD_NAME            EE_hal_endcycle_next_thread
+ #define OFFSET_VALUE                0
+ #define _EE_s12xs_system_tos        EE_s12xs_system_tos
+ #define _EE_s12xs_active_tos        EE_s12xs_active_tos 
+ #define _EE_hal_endcycle_next_tos   EE_hal_endcycle_next_tos
+ #define _EE_s12xs_change_to_irq_tos EE_s12xs_change_to_irq_tos
+ #define _EE_s12xs_change_from_irq_tos EE_s12xs_change_from_irq_tos
+ #define _EE_s12xs_temp_tos          EE_s12xs_temp_tos
 #else
- #define EE_THREAD_INSTANCE_NAME EE_thread_end_instance
- #define TEXT_SECTION_NAME //.text:	SECTION
- #define PPAGE_NAME PPAGE
- #define STACK_POINTER SP
+ #define EE_THREAD_INSTANCE_NAME     f_EE_thread_end_instance
+ #define PPAGE_NAME                  _PPAGE
+ #define STACK_POINTER               s
+ #define NEXT_THREAD_NAME            _EE_hal_endcycle_next_thread
+ #define OFFSET_VALUE                0
 #endif
 
 
 	xref 	EE_THREAD_INSTANCE_NAME
-	//xref    _wreg
 
-TEXT_SECTION_NAME
+#ifdef __CODEWARRIOR__
+.text: SECTION
+#else // CODEWARRIOR
+.ftext:	section	.text
+#endif
 
 	xref	PPAGE_NAME
-	xref 	_EE_hal_endcycle_next_thread	
+	xref 	NEXT_THREAD_NAME
 
 	//--------------------------------------------------------------------------------
 	//
@@ -85,12 +96,12 @@ TEXT_SECTION_NAME
 	#ifdef __MULTI__
 
 		#ifdef __IRQ_STACK_NEEDED__
-			xdef	_EE_s12xs_change_to_irq_tos
-			xdef	_EE_s12xs_change_from_irq_tos
+			//xdef	_EE_s12xs_change_to_irq_tos
+			//xdef	_EE_s12xs_change_from_irq_tos
 			xref 	_EE_s12xs_temp_tos
 		#endif
 	
-		xdef	_EE_s12xs_hal_stkchange
+		//xdef	_EE_s12xs_hal_stkchange
 		xref	_EE_s12xs_system_tos
 		xref	_EE_s12xs_active_tos
 		xref 	_EE_hal_endcycle_next_tos
@@ -176,26 +187,42 @@ TEXT_SECTION_NAME
 	//
 	//--------------------------------------------------------------------------------
 
+#ifdef __CODEWARRIOR__
+	xdef EE_s12xs_hal_ready2stacked
+EE_s12xs_hal_ready2stacked:
+#else
 	xdef f_EE_s12xs_hal_ready2stacked
 f_EE_s12xs_hal_ready2stacked:
+#endif
+
+#ifdef __CODEWARRIOR__
+		pshx
+		pshd
+		leas	1,STACK_POINTER				// remove one byte from the stack (d,x previously pushed...)
+		pulx
+		pula
+		clrb
+#endif
+
 LAB1:	
-	OFST:	set	0							// set offset = zero
+	OFST:	set	OFFSET_VALUE							// set offset
 
 	#ifdef __MULTI__
-		std _EE_hal_endcycle_next_thread+2
-		stx _EE_hal_endcycle_next_thread
+		std NEXT_THREAD_NAME+2
+		stx NEXT_THREAD_NAME
 		// now x and d are saved and they can be used by the MULTISTACK macros
 		EE_CHANGE_TOS_MACRO	_EE_s12xs_active_tos, _EE_s12xs_system_tos, PPAGE_NAME			// (eventually) switch to the TOS of the new thread
-		ldx _EE_hal_endcycle_next_thread
-		ldd _EE_hal_endcycle_next_thread+2
+		ldx NEXT_THREAD_NAME
+		ldd NEXT_THREAD_NAME+2
 	#endif
 
 LAB2:	
 		// le push stanno qui perché 1) la call necessita di un indirizzo con offset relativo 2) non possono stare all'inizio della funzione perché lo stack frame di ready2stacked deve essere compatibile con lo stackframe di stkchange
 		pshd
 		pshx
+		
 		cli									// enable interrupts
-		// non posso usare _EE_hal_endcycle_next_thread perchè qualcuno potrebbe farmi preemption dopo la cli
+		// non posso usare NEXT_THREAD_NAME perchè qualcuno potrebbe farmi preemption dopo la cli
 		call	[OFST+0,STACK_POINTER]					// call the thread from sp reading the content of the pointer (because d,x saved in sp)
 		leas	4,STACK_POINTER							// remove four bytes from the stack (d,x previously pushed...)
 		sei									// disable interrupts
@@ -207,29 +234,29 @@ LAB2:
 			std	OFST+3,STACK_POINTER					// put the value in the stack to replace the previous one...
 		#endif
 		
-		//ldd	_EE_hal_endcycle_next_thread+2	// the first word loaded in d register
+		//ldd	NEXT_THREAD_NAME+2	// the first word loaded in d register
 		//std	OFST+2,STACK_POINTER						// change the first argument word (the first address word) storing d in sp
 		//std _wreg+2
-		//ldd	_EE_hal_endcycle_next_thread	// the second word loaded in d register
+		//ldd	NEXT_THREAD_NAME	// the second word loaded in d register
 		//std	OFST+0,STACK_POINTER						// change the second argument word (the second address word) storing d in sp
 		//std _wreg
 		//ldd	OFST+0,STACK_POINTER						// check the address (first part)
 		//ldd _wreg
-		//ldd	_EE_hal_endcycle_next_thread
+		//ldd	NEXT_THREAD_NAME
 		//bne	L21								// if not equal to zero -> branch
 		//ldd	OFST+2,STACK_POINTER						// check the address (second part)
 		//ldd _wreg+2
-		//ldd	_EE_hal_endcycle_next_thread+2
+		//ldd	NEXT_THREAD_NAME+2
 	    //L21:	
 		//bne	L3								// if not equal to zero -> branch
 	    //bra LAB4								// go to label: LAB4    
-			
+
 		//leggere EE_hal_endcycle_next_thread
-		ldx _EE_hal_endcycle_next_thread
+		ldx NEXT_THREAD_NAME
 		bne LAB3
-		ldd _EE_hal_endcycle_next_thread+2
+		ldd NEXT_THREAD_NAME+2
 		bne LAB1
-		
+
 		#ifdef __MULTI__
 			EE_CHANGE_TOS_MACRO	_EE_s12xs_active_tos, _EE_s12xs_system_tos, PPAGE_NAME				// macro to return ... (e.g. to dummy stack)
 		#endif
@@ -237,7 +264,7 @@ LAB2:
 		rtc									// return from call(with PPAGE change)
 
 LAB3:
-		ldd _EE_hal_endcycle_next_thread+2
+		ldd NEXT_THREAD_NAME+2
 		bra LAB1
 		
 
@@ -263,10 +290,14 @@ LAB3:
 	//--------------------------------------------------------------------------------
 
 	#ifdef __MULTI__
-	
+
+#ifdef __CODEWARRIOR__
+	xdef EE_s12xs_hal_stkchange
+EE_s12xs_hal_stkchange:
+#else
 	xdef f_EE_s12xs_hal_stkchange
 f_EE_s12xs_hal_stkchange:
-	
+#endif
 		// EE_s12xs_system_tos[EE_s12xs_active_tos] = stack pointer;
 		tfr	STACK_POINTER,x									// I can use d because tos_index has been saved in the stack... 
 		ldy	_EE_s12xs_active_tos

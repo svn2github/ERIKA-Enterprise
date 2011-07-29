@@ -42,8 +42,8 @@
 ## CVS: $Id: cfg.mk,v 1.4 2006/11/30 16:58:17 nino Exp $
 
 ifeq ($(call iseeopt, __HCS12XS__), yes)
-EE_SRCS += pkg/cpu/cosmic_hs12xs/src/ee_hal.S
-EE_SRCS += pkg/cpu/cosmic_hs12xs/src/ee_hal_c.c
+EE_SRCS += pkg/cpu/hs12xs/src/ee_hal.S
+EE_SRCS += pkg/cpu/hs12xs/src/ee_hal_c.c
 
 #$(info $(EE_SRCS)) 
 
@@ -61,8 +61,8 @@ CPU_OO=YES
 endif
 
 ifeq ($(CPU_OO), YES)
-EE_SRCS += pkg/cpu/cosmic_hs12xs/src/ee_oo.S
-#EE_SRCS += pkg/cpu/cosmic_hs12xs/src/ee_start.c
+EE_SRCS += pkg/cpu/hs12xs/src/ee_oo.S
+#EE_SRCS += pkg/cpu/hs12xs/src/ee_start.c
 endif
 
 
