@@ -45,9 +45,9 @@
 ifeq ($(call iseeopt, __HCS12XS__), yes)
 
 # Select object file format
-COSMIC_EXTENSION := xs12
+HCS12_EXTENSION := xs12
 
-BINDIR_COSMIC   := $(COSMIC_CCDIR)
+BINDIR_HCS12   := $(COSMIC_CCDIR)
 
 # Bin directories used for compilation
 # BINDIR_ASM      - directory of the Assembler
@@ -55,10 +55,10 @@ BINDIR_COSMIC   := $(COSMIC_CCDIR)
 # BINDIR_DEP      - directory of the C compiler used for dependencies
 # BINDIR_BINUTILS - directory of the binutils
 
-BINDIR_ASM      := $(BINDIR_COSMIC)
-BINDIR_CC       := $(BINDIR_COSMIC)
-BINDIR_BINUTILS := $(BINDIR_COSMIC)
-BINDIR_DEP      := $(BINDIR_COSMIC)
+BINDIR_ASM      := $(BINDIR_HCS12)
+BINDIR_CC       := $(BINDIR_HCS12)
+BINDIR_BINUTILS := $(BINDIR_HCS12)
+BINDIR_DEP      := $(BINDIR_HCS12)
 
 ifndef EE_LINK
 EE_LINK:=$(BINDIR_BINUTILS)/clnk.exe

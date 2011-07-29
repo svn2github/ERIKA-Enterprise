@@ -47,20 +47,18 @@
 ifeq ($(call iseeopt, __HCS12XS__), yes)
 
 # Select object file format
-CW_EXTENSION := elf
+HCS12_EXTENSION := elf
 
-BINDIR_CW   := $(CW_CCDIR)/Prog
+BINDIR_HCS12   := $(COSMIC_CCDIR)/Prog
 
 # Bin directories used for compilation
 # BINDIR_ASM      - directory of the Assembler
 # BINDIR_CC       - directory of the C compiler
-# BINDIR_DEP      - directory of the C compiler used for dependencies
 # BINDIR_BINUTILS - directory of the binutils
 
-BINDIR_ASM      := $(BINDIR_CW)
-BINDIR_CC       := $(BINDIR_CW)
-BINDIR_BINUTILS := $(BINDIR_CW)
-BINDIR_DEP      := $(BINDIR_CW)
+BINDIR_ASM      := $(BINDIR_HCS12)
+BINDIR_CC       := $(BINDIR_HCS12)
+BINDIR_BINUTILS := $(BINDIR_HCS12)
 
 ifndef EE_LINK
  EE_LINK:=$(BINDIR_BINUTILS)/piper.exe linker.exe
@@ -72,10 +70,6 @@ endif
 
 ifndef EE_CC
  EE_CC:=$(BINDIR_CC)/piper.exe chc12.exe
-endif
-
-ifndef EE_DEP
- EE_DEP:=$(BINDIR_DEP)/piper.exe chc12.exe
 endif
 
 ifndef EE_PREP
@@ -98,20 +92,11 @@ endif
 # EE_CLABS:=$(BINDIR_BINUTILS)/... todo
 #endif
 
-# ALLINCPATH is a list of directories for source file searching
-# -I = adds directories to the source file search path 
-# we consider the ee pkg directory and the application dir
-# we also consider the current directory because the app could be compiled
-# from the config files generated from eclipse...
-# please note the final backslash sequence after the shell command to
-# avoid cygpath insering a trailing backslash
-# INTERNAL_PKGBASEDIR is used to avoid multiple calls to cygpath
-
-GCC_ALLINCPATH := -I"$(shell cygpath -w $(PKGBASE))\\." -I"$(shell cygpath -w $(APPBASE))\\." -I.
-ALLINCPATH += $(GCC_ALLINCPATH)
-
 ## OPT_CC are the options for compiler invocation
-OPT_CC = -C++e -Ccx -Cppc -WmsgNu=a
+OPT_CC = -CpuHCS12X -D__NO_FLOAT__ -Mb -F2 -Ccx -WmsgNu=abcde -W1
+ifeq ($(call iseeopt, __EMBEDDED_CPP_SUPPORT__ ), yes)
+OPT_CC += -C++e -Cppc
+endif
 ifeq ($(call iseeopt, DEBUG), yes)
  OPT_CC += 
 else
@@ -120,12 +105,9 @@ endif
 # User specific options from the application makefile
 OPT_CC += $(CFLAGS)
 #-Lm=mymake.txt
-# Options for the generation of dependency 
-OPT_CC_DEPS := $(OPT_CC) -LpX -LmCfg=l 
 
 #OPT_ASM are the options for asm invocation
-OPT_ASM = 
-#-WmsgNu=a
+OPT_ASM = -CpuHCS12X -D__NO_FLOAT__ -Mb -F2 -WmsgNu=abcde -W1
 ifeq ($(call iseeopt, DEBUG), yes)
  OPT_ASM += 
 else
@@ -135,14 +117,34 @@ endif
 OPT_ASM += $(ASFLAGS)
 
 ## OPT_LINK represents the options for armlink invocation
-OPT_LINK = 
+OPT_LINK = -WmsgNu=abcde
 # User specific options from the application makefile
 OPT_LINK += $(LDFLAGS)
+
+OPT_AR = -WmsgNu=abcde
+OPT_OBJDUMP = -WmsgNu=abcde
 
 # Defining EEOPT Macros
 # Each identifier that is listed in EEOPT is also inserted as a 
 # command-line macro in the compiler...
 DEFS_ASM = $(addprefix -D, $(EEOPT) )
 DEFS_CC  = $(addprefix -D, $(EEOPT) )
+
+# Automatic dependency generation
+ifeq ($(call iseeopt, NODEPS), yes)
+DEPENDENCY_OPT = 
+make-depend =
+else # NODEPS
+ifeq ($(call iseeopt, __RTD_CYGWIN__), yes)
+# Dependencies on Windows need path translation
+DEPENDENCY_OPT = -LmCfg=ilmo -Lm=$(call native_path,$(subst .o,.d_tmp,$@))
+#-MMD -MF $(call native_path,$(subst .o,.d_tmp,$@)) -MP -MT $@
+make-depend = sed -e 's_\\\(.\)_/\1_g' -e 's_\<\([a-zA-Z]\):/_/cygdrive/\l\1/_g' < $3_tmp > $3 && rm $3_tmp
+else # __RTD_CYGWIN__
+DEPENDENCY_OPT = 
+make-depend = 
+endif # __RTD_CYGWIN__
+endif # NODEPS
+
 
 endif

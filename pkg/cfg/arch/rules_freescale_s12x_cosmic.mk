@@ -53,14 +53,14 @@ include $(EEBASE)/pkg/cfg/dir.mk
 include $(PKGBASE)/cfg/verbose.mk
 include $(PKGBASE)/cfg/compiler.mk
 
-#COSMIC_CRT0 := $(BINDIR_COSMIC)/HS12x/crtsx.S
+#HCS12_CRT0 := $(BINDIR_HCS12)/HS12x/crtsx.S
 
-# COSMIC_DATA_DIR refers to the location of COSMIC libraries
-COSMIC_DATA_DIR := $(COSMIC_CCDIR)
+# HCS12_DATA_DIR refers to the location of HCS12 libraries
+HCS12_DATA_DIR := $(COSMIC_CCDIR)
 
-COSMIC_LIB_DIR := $(COSMIC_DATA_DIR)/Lib
-#COSMIC_INCLUDE_DIR := $(COSMIC_DATA_DIR)/HS12x
-#COSMIC_LINKER_DIR := $(COSMIC_DATA_DIR)/Link_files
+HCS12_LIB_DIR := $(HCS12_DATA_DIR)/Lib
+#HCS12_INCLUDE_DIR := $(HCS12_DATA_DIR)/HS12x
+#HCS12_LINKER_DIR := $(HCS12_DATA_DIR)/Link_files
 
 # Add linker dependencies
 OPT_LINK += 
@@ -73,22 +73,22 @@ LIBDEP += $(ALL_LIBS)
 LIBDEP += $(LDDEPS)
 
 # path for libraries
-OPT_LIBS += -l "`cygpath -w $(COSMIC_LIB_DIR)`"
+OPT_LIBS += -l "`cygpath -w $(HCS12_LIB_DIR)`"
 OPT_LIBS += -l "`cygpath -w $(shell pwd)`"
 
 
 # INTERNAL_CCINCLUDEDIR is used to avoid multiple calls to cygpath
-#INTERNAL_CCINCLUDEDIR := -i"`cygpath -w $(COSMIC_INCLUDE_DIR)`"
+#INTERNAL_CCINCLUDEDIR := -i"`cygpath -w $(HCS12_INCLUDE_DIR)`"
 #ALLINCPATH += $(INTERNAL_CCINCLUDEDIR)
 
 
-## COSMIC-related directories
+## HCS12-related directories
 # we should look if these need to be moved inside dir.mk
 
 #if COSMIC_CCDIR is defined
 ifneq ($(COSMIC_CCDIR),)
-DEFS_CC += -d__COSMIC_INCLUDE_REGS__
-COSMIC_INCLUDE_REGS=__COSMIC_INCLUDE_REGS__
+DEFS_CC += -d__HCS12_INCLUDE_REGS__
+HCS12_INCLUDE_REGS=__HCS12_INCLUDE_REGS__
 endif
 
 include $(PKGBASE)/cfg/cfg.mk
@@ -103,7 +103,7 @@ include $(PKGBASE)/cfg/cfg.mk
 ##
 
 # Add crtsx.s from MC
-#EE_BOOT_SRCS := fromcosmic/crtsx.S
+#EE_BOOT_SRCS := fromHCS12/crtsx.S
 
 SRCS += 
 
@@ -151,7 +151,7 @@ all:: make_directories $(ALL_LIBS) $(TARGET)
 	@printf "Compilation terminated successfully!\n"
 
 clean::
-	@-rm -rf *.a *.ls *.ld *.map *.elf *.$(COSMIC_EXTENSION) *.objdump deps deps.pre obj *.x12
+	@-rm -rf *.a *.ls *.ld *.map *.elf *.$(HCS12_EXTENSION) *.objdump deps deps.pre obj *.x12
 # to support "make clean all"
 ifeq ($(findstring all,$(MAKECMDGOALS)),all)
 	@printf "CLEAN (also \"all\" specified)\n"
@@ -159,18 +159,18 @@ else
 	@printf "CLEAN\n";
 endif
 
-hs12xs.objdump: hs12xs.$(COSMIC_EXTENSION)
+hs12xs.objdump: hs12xs.$(HCS12_EXTENSION)
 	@printf "OBJDUMP\n";
-	$(QUIET)$(EE_CLABS) -v hs12xs.$(COSMIC_EXTENSION) > hs12xs.objdump
+	$(QUIET)$(EE_CLABS) -v hs12xs.$(HCS12_EXTENSION) > hs12xs.objdump
 	@printf "ELF\n";
-	$(QUIET)$(EE_CVDWARF) hs12xs.$(COSMIC_EXTENSION)
+	$(QUIET)$(EE_CVDWARF) hs12xs.$(HCS12_EXTENSION)
 
 ##
 ## Object file creation
 ##
 
 # ATT!!! tolta l'opzione -m > hs12xs.map
-hs12xs.$(COSMIC_EXTENSION): $(OBJS) $(LINKDEP) $(LIBDEP) 
+hs12xs.$(HCS12_EXTENSION): $(OBJS) $(LINKDEP) $(LIBDEP) 
 	@printf "LD\n";
 	$(QUIET)$(EE_LINK) $(COMPUTED_OPT_LINK) \
                      -o $(TARGETFILE) $(OPT_LIBS) $(LINKDEP) $(OBJS) $(LIBDEP) \
