@@ -68,7 +68,7 @@ extern "C" {
 
  /* Freescale */
 #ifdef __HCS12XS__
- #include "cpu/cosmic_hs12xs/inc/ee_internal.h"
+ #include "cpu/hs12xs/inc/ee_internal.h"
 #endif
 
 #ifdef __AVR5__
@@ -135,7 +135,7 @@ extern "C" {
 
  /* Freescale */
 #ifdef __HCS12XS__
- #include "mcu/cosmic_hs12xs/inc/ee_internal.h"
+ #include "mcu/hs12xs/inc/ee_internal.h"
 #endif
 
   /* Atmel */
@@ -200,7 +200,7 @@ extern "C" {
 
  /* Freescale */
 #ifdef __HCS12XS__
- #include "board/cosmic_hs12xs_demo9s12xsfame/inc/ee_internal.h"
+ #include "board/hs12xs_demo9s12xsfame/inc/ee_internal.h"
 #endif
 
   /* Atmel */

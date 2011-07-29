@@ -48,8 +48,6 @@
 
 #include "eecfg.h"
 
-
-
 #if defined(__cplusplus)
 extern "C" {
 #endif
@@ -69,7 +67,7 @@ extern "C" {
 
  /* Freescale */
 #ifdef __HCS12XS__
- #include "cpu/cosmic_hs12xs/inc/ee_cpu.h"
+ #include "cpu/hs12xs/inc/ee_cpu.h"
 #endif
 
 #ifdef __ST10__
@@ -145,7 +143,7 @@ extern "C" {
 
    /* Freescale */
 #ifdef __HCS12XS__
- #include "mcu/cosmic_hs12xs/inc/ee_mcu.h"
+ #include "mcu/hs12xs/inc/ee_mcu.h"
 #endif
 
   /* Atmel */
@@ -213,7 +211,7 @@ extern "C" {
 
     /* Freescale */
 #ifdef __HCS12XS__
- #include "board/cosmic_hs12xs_demo9s12xsfame/inc/ee_board.h"
+ #include "board/hs12xs_demo9s12xsfame/inc/ee_board.h"
 #endif
 
   /* Atmel */

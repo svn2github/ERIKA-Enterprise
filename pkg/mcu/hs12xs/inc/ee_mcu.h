@@ -122,7 +122,11 @@ extern unsigned int EE_TIMER_PERIOD; 	// ms
 #define EE_TIMER0_STEP 			(((unsigned long int)(EE_BUS_CLOCK))/((unsigned long int)(EE_TIMER_PRESCALER))*((unsigned long int)(EE_TIMER_PERIOD)))/((unsigned long int)(1000))	///es. 250
 
 //#ifndef __EECFG_THIS_IS_ASSEMBLER__
+#ifdef __CODEWARRIOR__
+static int EE_s12xs_hal_cpu_startos( void )
+#else
 static @inline int EE_s12xs_hal_cpu_startos( void )
+#endif
 {
 		TSCR1 = 0;							// turn off Timer0 module
 		TFLG1 = 0x01;						// clear isr flag
