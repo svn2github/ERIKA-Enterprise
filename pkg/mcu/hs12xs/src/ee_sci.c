@@ -1,8 +1,8 @@
 #ifdef __USE_SCI__
 
-//#include "cpu/cosmic_hs12xs/inc/ee_cpu.h"
+//#include "cpu/hs12xs/inc/ee_cpu.h"
 #include "ee_internal.h"
-#include "cpu/cosmic_hs12xs/inc/ee_irqstub.h"
+#include "cpu/hs12xs/inc/ee_irqstub.h"
 
 #ifdef EE_SCI_PORT_0_ISR_ENABLE
 static void (*Rx0IsrFunction)(EE_UINT8 data) = NULL;

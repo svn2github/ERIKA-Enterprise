@@ -43,7 +43,7 @@
  * CVS: $Id: ee_internal.h,v 1.8 2008/07/18 09:53:55 tiberipa Exp $
  */
 
-#include "mcu/cosmic_hs12xs/inc/ee_mcu.h"
+#include "mcu/hs12xs/inc/ee_mcu.h"
 
 #ifndef __INCLUDE_FREESCALE_S12XS_INTERNAL_H__
 #define __INCLUDE_FREESCALE_S12XS_INTERNAL_H__

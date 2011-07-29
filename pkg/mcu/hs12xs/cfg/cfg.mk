@@ -44,7 +44,7 @@
 ifeq ($(call iseeopt, __HCS12XS__), yes)
 
 #ifeq ($(call iseeopt, __FRSH__), yes)
-#EE_SRCS += pkg/mcu/cosmic_hs12xs/src/ee_s12xsfrsh.c
+#EE_SRCS += pkg/mcu/hs12xs/src/ee_s12xsfrsh.c
 #endif
 
 ifeq ($(call iseeopt, __OO_BCC1__), yes)
@@ -61,15 +61,15 @@ MCU_OO=YES
 endif
 
 ifeq ($(MCU_OO), YES)
-EE_SRCS += pkg/mcu/cosmic_hs12xs/src/ee_start.c
+EE_SRCS += pkg/mcu/hs12xs/src/ee_start.c
 endif
 
 ifeq ($(call iseeopt, __USE_SCI__), yes)
-EE_SRCS += pkg/mcu/cosmic_hs12xs/src/ee_sci.c
+EE_SRCS += pkg/mcu/hs12xs/src/ee_sci.c
 endif
 
 ifeq ($(call iseeopt, __USE_PIT__), yes)
-EE_SRCS += pkg/mcu/cosmic_hs12xs/src/ee_pit.c
+EE_SRCS += pkg/mcu/hs12xs/src/ee_pit.c
 endif
 
 # typically empty, the crts.S function is typically provided by the

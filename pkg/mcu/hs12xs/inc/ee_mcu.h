@@ -43,19 +43,28 @@
  * CVS: $Id: ee_mcu.h,v 1.9 2008/07/14 10:40:17 pj Exp $
  */
 
-//#include "mcu/cosmic_hs12xs/inc/ee_mcuregs.h"
+//#include "mcu/hs12xs/inc/ee_mcuregs.h"
 #include "eecfg.h"
-#include "cpu/cosmic_hs12xs/inc/ee_cpu.h"
+#include "cpu/hs12xs/inc/ee_cpu.h"
 
 #ifndef __INCLUDE_FREESCALE_S12XS_MCU_H__
 #define __INCLUDE_FREESCALE_S12XS_MCU_H__
 
+/* Include a file with the registers of the s12 micro-controller */ 
+#ifdef __S12XS_INCLUDE_REGS__
+ #ifdef __CODEWARRIOR__
+  #include "mc9s12xs128.h" 
+ #else
+  #include "ee_hs12xsregs.h"
+ #endif
+#endif
+
 #ifdef __USE_PIT__
-#include "mcu/cosmic_hs12xs/inc/ee_pit.h"
+#include "mcu/hs12xs/inc/ee_pit.h"
 #endif
 
 #ifdef __USE_SCI__
-#include "mcu/cosmic_hs12xs/inc/ee_sci.h"
+#include "mcu/hs12xs/inc/ee_sci.h"
 #endif
 
 /*************************************************************************
@@ -87,10 +96,7 @@ void EE_cpu_startos(void);
  */
 
 #ifndef EE_TIMER0_COUNTER
-/* Include a file with the registers of the s12 micro-controller */ 
-#ifdef __S12XS_INCLUDE_REGS__
-#include "ee_hs12xsregs.h"
-#endif
+
 ///*
 //*	Timer0 module
 //*/
