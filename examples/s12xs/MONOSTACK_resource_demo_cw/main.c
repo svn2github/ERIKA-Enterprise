@@ -119,6 +119,7 @@ TASK(Task1)
 	EE_sci_send_byte(SCI_0,' ');
   }
   EE_led_0_off();
+  EE_sci_send_byte(SCI_0,'\r');
   EE_sci_send_byte(SCI_0,'\n');
   
   /* Release the lock */
@@ -164,6 +165,7 @@ TASK(Task2)
   EE_sci_send_byte(SCI_0,byte);
   byte = (mycounter%10)+'0';
   EE_sci_send_byte(SCI_0,byte);
+  EE_sci_send_byte(SCI_0,'\r');
   EE_sci_send_byte(SCI_0,'\n');
 
   EE_led_1_off();
@@ -215,6 +217,7 @@ void message(char* msg)
 {
 	//char * msg = ;
 	EE_sci_send_bytes(SCI_0, msg,ALL);
+	EE_sci_send_byte(SCI_0,'\r');
 	EE_sci_send_byte(SCI_0,'\n');
 	return;	
 }

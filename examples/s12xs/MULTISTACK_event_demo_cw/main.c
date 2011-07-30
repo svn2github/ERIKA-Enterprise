@@ -189,6 +189,7 @@ int main(void)
 //{
 //	char * msg = "I Love OSEK and Erika Enterprise!!!";
 //	EE_SCISendChars(SCI_0, msg,ALL);
+//  EE_sci_send_byte(SCI_0,'\r');
 //	EE_SCISendBuffer(SCI_0,'\n');
 //	return;	
 //}

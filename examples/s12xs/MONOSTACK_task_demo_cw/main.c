@@ -214,6 +214,7 @@ TASK(Task2)
   byte = (task2_fired%10)+'0';
   EE_sci_send_byte(SCI_0,byte);
 
+  EE_sci_send_byte(SCI_0,'\r');
   EE_sci_send_byte(SCI_0,'\n');
 
   TerminateTask();
@@ -257,5 +258,6 @@ void message(void)
 {
 	char * msg = "I Love OSEK and Erika Enterprise!!!";
 	EE_sci_send_bytes(SCI_0, msg,ALL);
+	EE_sci_send_byte(SCI_0,'\r');
 	EE_sci_send_byte(SCI_0,'\n');
 }

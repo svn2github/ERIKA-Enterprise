@@ -23,12 +23,14 @@
  </long_descr>
 
  <file_section>
-  <file     name="mc9s12xs128.lkf"/> 
+  <file     name="SofTec_HCS12_linker.prm"/> 
   <file     name="conf.oil"/>
-  <file     name="crtsx.S"/>
-  <file     name="hs12xsregs.h"/>
+  <file     name="Start12.c"/>
+  <file     name="readme.txt"/>
   <file     name="main.c"/>
-  <file     name="vector_s12x.c"/>
+  <file     name="CPU12ISRs.c"/>
+  <file     name="CPU12ISRs.h"/>
+  <file     name="Vectors.c"/>
   <file     name="Full_Chip_Simulation.ini"/>
   <file     name="SofTec_HCS12.ini"/>
   <file     name="C_Layout.hwl"/>

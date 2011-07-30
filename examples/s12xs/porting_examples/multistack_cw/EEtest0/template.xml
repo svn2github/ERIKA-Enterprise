@@ -17,16 +17,15 @@
  command inside the Debug folder of the project.
  The Debug folder can be created manually if you don't have the oil-based generator. 
  The Debug folder must contain at least the following files (suitably modified...):
- ee_hs12xsregs.h, eecfg.h, eecfg.c and the makefile (see the examples of different architectures to begin...) 
+ eecfg.h, eecfg.c and the makefile (see the examples of different architectures to begin...) 
  </long_descr>
 
  <file_section>
-  <file     name="mc9s12xs128.lkf"/> 
+  <file     name="SofTec_HCS12_linker.prm"/> 
   <file     name="conf.oil"/>
-  <file     name="crtsx.S"/>
-  <file     name="hs12xsregs.h"/>
+  <file     name="Start12.c"/>
+  <file     name="readme.txt"/>
   <file     name="main.c"/>
-  <file     name="vector_s12x.c"/>
   <file     name="myapp.h"/>
   <file     name="Full_Chip_Simulation.ini"/>
   <file     name="SofTec_HCS12.ini"/>
