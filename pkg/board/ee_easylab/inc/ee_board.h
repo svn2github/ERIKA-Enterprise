@@ -255,9 +255,9 @@ __INLINE__ void EE_led10_toggle(void){
     
     Start the buzzer. These Buzzer API use Timer2 of dspic mcu.
     
-    @param period (EE_UINT16): output square wave period
+    @param freq (EE_UINT16): output square wave frequency, that drive the buzzer (Hz)
 **/
-void EE_buzzer_start(EE_UINT16 period);
+void EE_buzzer_start(EE_UINT16 freq);
 
 /** 
     @brief Togle the status of the GPIO pin that driver the buzzer 
@@ -334,7 +334,7 @@ __INLINE__ EE_INT8 EE_easylab_adc_start ( ) {
         Otherwise appropriate error value (negative value).
 
  **/
-__INLINE__ EE_INT8 EE_easylab_adc_stop ( EE_Adc_Coverter_Id adc_id){
+__INLINE__ EE_INT8 EE_easylab_adc_stop (void){
     return EE_adc_stop(EE_ADC_1);
 }
 
@@ -389,7 +389,7 @@ EE_INT16 EE_easylab_pwm_close(EE_UINT8 pwm_pin);
     @brief Set PWM pin duty cicle and if, this value is not 0, start it.
     
     @param pwm_pin (EE_UINT8): pwm pin's Id.
-    @param pwm_freq (EE_UINT32): pwm duty cycle
+    @param pwm_freq (EE_UINT32): pwm duty cycle [0, 100]
     
     @return an error value (negative integer) if someting happened
 **/

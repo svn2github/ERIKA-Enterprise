@@ -70,15 +70,23 @@ void EE_buzzer_toggle(void)
     LATAbits.LATA2 = ~LATAbits.LATA2;
 }
 
-void EE_buzzer_start(EE_UINT16 period)
+void EE_buzzer_start(EE_UINT16 freq)
 {
-    /* to get the desired period I have to half the given value */
-    period /= 2;
-    TRISAbits.TRISA2 = 0; /* output */
-    LATAbits.LATA2 = 0;
-    EE_timer_set_callback(EE_TIMER_2, EE_buzzer_toggle);
-    EE_timer_soft_init(EE_TIMER_2, period);
-    EE_timer_start(EE_TIMER_2);
+    /*
+     * period (us) = 1000000UL / freq (Hz);
+     */
+    if ((freq > 100) && (freq < 48000)) {
+        TRISAbits.TRISA2 = 0; /* output */
+        LATAbits.LATA2 = 0;
+        /* to get the desired period I have to half the given 
+         * value becauze the timer call back is a toggle function so 
+         * a period is 2 * Tisr long (Tisr: Interrupt Period).
+         */
+        EE_UINT16 period = 1000000UL / (freq * 2);
+        EE_timer_set_callback(EE_TIMER_2, EE_buzzer_toggle);
+        EE_timer_soft_init(EE_TIMER_2, period);
+        EE_timer_start(EE_TIMER_2);
+    }
 }
 
 void EE_buzzer_stop(void)
