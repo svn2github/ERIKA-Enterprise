@@ -1,3 +1,43 @@
+/* ###*B*###
+ * ERIKA Enterprise - a tiny RTOS for small microcontrollers
+ *
+ * Copyright (C) 2002-2011  Evidence Srl
+ *
+ * This file is part of ERIKA Enterprise.
+ *
+ * ERIKA Enterprise is free software; you can redistribute it
+ * and/or modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation, 
+ * (with a special exception described below).
+ *
+ * Linking this code statically or dynamically with other modules is
+ * making a combined work based on this code.  Thus, the terms and
+ * conditions of the GNU General Public License cover the whole
+ * combination.
+ *
+ * As a special exception, the copyright holders of this library give you
+ * permission to link this code with independent modules to produce an
+ * executable, regardless of the license terms of these independent
+ * modules, and to copy and distribute the resulting executable under
+ * terms of your choice, provided that you also meet, for each linked
+ * independent module, the terms and conditions of the license of that
+ * module.  An independent module is a module which is not derived from
+ * or based on this library.  If you modify this code, you may extend
+ * this exception to your version of the code, but you are not
+ * obligated to do so.  If you do not wish to do so, delete this
+ * exception statement from your version.
+ *
+ * ERIKA Enterprise is distributed in the hope that it will be
+ * useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License version 2 for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * version 2 along with ERIKA Enterprise; if not, write to the
+ * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+ * Boston, MA 02110-1301 USA.
+ * ###*E*### */
+
 #include "ee.h"
 #include "mcu/microchip_dspic/inc/ee_uart.h"
 #include "mcu/microchip_dspic/inc/ee_internal.h"
@@ -220,10 +260,12 @@ EE_INT8 EE_uart_set_tx_callback(EE_UINT8 port, void (*TxFunc)(void),
         #ifdef EE_UART_PORT_1_ISR_ENABLE
         Tx1IsrFunction = TxFunc;
         if (TxFunc) {
+            IEC0bits.U1TXIE = 0;
+            U1TXREG = 0;
             U1STA &= 0x5FFF;
             U1STA |= txmode & 0xA000;
             IEC0bits.U1TXIE = 1;
-            IFS0bits.U1TXIF = 0;
+            /* IFS0bits.U1TXIF = 0; EG: this is done in interrupt handler*/
         }
         return 1;
         #else
@@ -233,10 +275,12 @@ EE_INT8 EE_uart_set_tx_callback(EE_UINT8 port, void (*TxFunc)(void),
         #ifdef EE_UART_PORT_2_ISR_ENABLE
         Tx2IsrFunction = TxFunc;
         if (TxFunc) {
+            IEC1bits.U2TXIE = 0;
+            U2TXREG = 0;
             U2STA &= 0x5FFF;
             U2STA |= txmode & 0xA000;
             IEC1bits.U2TXIE = 1;
-            IFS1bits.U2TXIF = 0;
+            /* IFS1bits.U2TXIF = 0; EG: this is done in interrupt handler*/
         }
         return 1;
         #else
@@ -253,10 +297,12 @@ EE_INT8 EE_uart_set_rx_callback(EE_UINT8 port, void (*RxFunc)(EE_UINT8 data),
         #ifdef EE_UART_PORT_1_ISR_ENABLE
         Rx1IsrFunction = RxFunc;
         if (RxFunc) {
+            IEC0bits.U1RXIE = 0;
+            U1RXREG = 0;
             U1STA &= 0xFF3F;
             U1STA |= rxmode & 0x00C0;
             IEC0bits.U1RXIE = 1;
-            IFS0bits.U1RXIF = 0;
+            /* IFS0bits.U1RXIF = 0; EG: this is done in interrupt handler*/
         }
         return 1;
         #else
@@ -266,10 +312,12 @@ EE_INT8 EE_uart_set_rx_callback(EE_UINT8 port, void (*RxFunc)(EE_UINT8 data),
         #ifdef EE_UART_PORT_2_ISR_ENABLE
         Rx2IsrFunction = RxFunc;
         if (RxFunc) {
+            IEC1bits.U2RXIE = 0;
+            U2RXREG = 0;
             U2STA &= 0xFF3F;
             U2STA |= rxmode & 0x00C0;
             IEC1bits.U2RXIE = 1;
-            IFS1bits.U2RXIF = 0;
+            /* IFS1bits.U2RXIF = 0; EG: this is done in interrupt handler*/
         }
         return 1;
         #else
@@ -323,7 +371,7 @@ EE_INT8 EE_uart_read_byte(EE_UINT8 port, EE_UINT8 *data)
             }
             if (U1STAbits.URXDA) {
                 *data = U1RXREG & 0x00FF;
-                U1STAbits.URXDA = 0;
+                /* U1STAbits.URXDA = 0; EG: URXDA is a read only bit!!!*/
                 return 1;
             }
             return EE_UART_ERR_NO_DATA;
@@ -341,7 +389,7 @@ EE_INT8 EE_uart_read_byte(EE_UINT8 port, EE_UINT8 *data)
                 return EE_UART_ERR_OVERFLOW;
             }
             if (U2STAbits.URXDA) {
-                U2STAbits.URXDA = 0;
+                /* U2STAbits.URXDA = 0; EG: URXDA is a read only bit!!!*/
                 *data = U2RXREG & 0x00FF;
                 return 1;
             }
@@ -352,6 +400,46 @@ EE_INT8 EE_uart_read_byte(EE_UINT8 port, EE_UINT8 *data)
         #endif
     }
     return EE_UART_ERR_BAD_PORT;
+}
+
+EE_INT8 EE_uart_write_byte_async(EE_UINT8 port, EE_UINT8 data)
+{
+    EE_INT8 error = EE_UART_OK;
+    if (port == EE_UART_PORT_1) {
+        U1TXREG = data;
+    } else if (port == EE_UART_PORT_2) {
+        U2TXREG = data;
+    } else {
+        error = EE_UART_ERR_BAD_PORT;
+    }
+    return error;
+}
+
+EE_INT8 EE_uart_read_byte_async(EE_UINT8 port, EE_UINT8 *data)
+{
+    EE_INT8 error = EE_UART_OK;
+    if (port == EE_UART_PORT_1) {
+        if (U1STAbits.OERR) {
+            U1STAbits.OERR = 0;
+            error = EE_UART_ERR_OVERFLOW;
+        } else if (U1STAbits.URXDA) {
+            *data = ((EE_UINT8)U1RXREG & 0x00FF);
+        } else {
+            error =  EE_UART_ERR_NO_DATA;
+        }
+    } else if (port == EE_UART_PORT_2) {
+        if (U2STAbits.OERR) {
+            U2STAbits.OERR = 0;
+            error = EE_UART_ERR_OVERFLOW;
+        } else if (U2STAbits.URXDA) {
+            *data = U2RXREG & 0x00FF;
+        } else {
+            error = EE_UART_ERR_NO_DATA;
+        }
+    } else {
+        error = EE_UART_ERR_BAD_PORT;
+    }
+    return error;
 }
 
 
@@ -373,7 +461,42 @@ ISR2(_U1TXInterrupt)
     }
     IFS0bits.U1TXIF = 0;
 }
-#endif
+
+/* UART error interrupt. Clears the receive buffer and resets the error bit */
+#if (defined __DEBUG) || (defined DEBUG)
+volatile EE_UINT32 uart_errcnt  = 0;
+volatile EE_UINT32 uart_ferrcnt = 0;
+#endif /* DEBUG */
+void __attribute__((__interrupt__,__auto_psv__)) _U1ErrInterrupt(void)
+{
+    EE_UINT8 data_in = 0;
+
+    /* Clear interrupt flag */
+    IFS4bits.U1EIF = 0;
+
+    #if (defined __DEBUG) || (defined DEBUG)
+    if(U1STAbits.FERR == 1)
+        uart_ferrcnt++;
+    #endif
+
+    if(U1STAbits.OERR == 1){
+        /* Clear error flag */
+        U1STAbits.OERR = 0;
+
+        #if (defined __DEBUG) || (defined DEBUG)
+        uart_errcnt++;
+        #endif
+
+        do{
+            data_in = ((EE_UINT8)U1RXREG & 0x00FF);
+            if (Rx1IsrFunction != NULL) {
+                /* Execute callback function */
+                Rx1IsrFunction(data_in);
+            }
+        }while(U1STAbits.URXDA == 1);
+    }
+}
+#endif /*EE_UART_PORT_1_ISR_ENABLE*/
 
 #ifdef EE_UART_PORT_2_ISR_ENABLE
 ISR2(_U2RXInterrupt)

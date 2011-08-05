@@ -60,6 +60,9 @@ endif
 
 ifeq ($(call iseeopt, __USE_UART__), yes)
 EE_SRCS += pkg/mcu/microchip_dspic/src/ee_uart.c
+ifeq ($(or $(call iseeopt,__EE_UART_PORT1_CBUFFER__), $(call iseeopt, __EE_UART_PORT2_CBUFFER__)), yes)
+EE_SRCS += pkg/mcu/microchip_dspic/src/ee_uart_cbuffer.c
+endif
 endif
 
 ifeq ($(call iseeopt, __USE_SPI__), yes)
