@@ -116,7 +116,7 @@ EE_INT16 EE_pwm_close(EE_PwmId pwm_ch);
     @brief Set PWM channel's duty cicle and if, this value is not 0, start it.
     
     @param pwm_ch (EE_PwmId): pwm channel's Id.
-    @param pwm_freq (EE_UINT32): pwm duty cycle
+    @param pwm_freq (EE_UINT32): pwm duty cycle [0, 100]
     
     @return an error value (negative integer) if someting happened
 **/

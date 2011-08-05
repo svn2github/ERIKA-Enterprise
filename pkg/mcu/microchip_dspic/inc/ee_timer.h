@@ -55,7 +55,7 @@
 #ifndef __INCLUDE_MICROCHIP_DSPIC_TIMER_H__
 #define __INCLUDE_MICROCHIP_DSPIC_TIMER_H__
 
-#include "mcu/microchip_dspic/inc/ee_mcu.h"
+#include "ee.h"
 
 /** Utility Macro that convert an amount of ms in number of ticks of a given 
     frequency **/
@@ -125,7 +125,17 @@ EE_INT8 EE_timer_soft_init(EE_TimerId id, EE_UINT32 period_us);
     
     @return EE_TIMER_NO_ERRORS
 */
-EE_INT8 EE_timer_set_callback(EE_TimerId id, EE_ISR_callback func); 
+EE_INT8 EE_timer_set_callback(EE_TimerId id, EE_ISR_callback func);
+
+/**
+    @brief Alternatively of setting callback you can tie the timer with a Counter
+    
+    @param id (EE_TimerId): id timer to set the callback of 
+    @param counterId (CounterType): ID of the counter to drive
+    
+    @return EE_TIMER_NO_ERRORS
+**/
+EE_INT8 EE_timer_set_counter(EE_TimerId id, CounterType counterId);
 
 /** 
     @brief Start a timer.
