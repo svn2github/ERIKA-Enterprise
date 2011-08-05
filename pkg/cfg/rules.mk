@@ -60,7 +60,7 @@ else
 native_path = $(strip $1)
 endif
 
-
+# Add scicos generated make
 ifeq ($(findstring app.mk,$(notdir $(wildcard $(APPBASE)/*.mk))), app.mk)
 include $(APPBASE)/app.mk
 endif

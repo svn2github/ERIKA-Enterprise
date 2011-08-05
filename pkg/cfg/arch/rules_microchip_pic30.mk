@@ -57,7 +57,6 @@ include $(PKGBASE)/cfg/compiler.mk
 PIC30_CRT0 := $(EEBASE)/contrib/microchip/pic30/boot/src/crt0.s
 
 PIC30_LIB_DIR := $(PIC30_GCCDIR)/lib
-#EG: PIC30_INCLUDE_DIR := $(PIC30_GCCDIR)/include
 
 # If PIC30_LIB_DIR has subdirectories... (since 3.10) 
 ifneq ($(shell find $(PIC30_LIB_DIR) -mindepth 1 -type d),)
