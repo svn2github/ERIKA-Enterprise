@@ -39,8 +39,8 @@ INCLUDE_PATH += $(EEBASE)/contrib/scicos/inc/pic30/communication/udp
 ifeq ($(call iseeopt, __NIOS2__), yes)
 
 EE_SRCS +=      contrib/scicos/src/nios2/led.c \
-		contrib/scicos/src/nios2/button.c \
-		contrib/scicos/src/nios2/sevenseg.c 
+        contrib/scicos/src/nios2/button.c \
+        contrib/scicos/src/nios2/sevenseg.c 
 
 endif
 
@@ -77,6 +77,17 @@ endif
 endif
 
 endif
+
+#Add support for Easylab
+ifeq ($(call iseeopt, __EE_EASYLAB__), yes)
+
+EE_SRCS += $(EE_SRCS_SCICOS)
+
+ifeq ($(call iseeopt, __USE_UART__), yes)
+EE_SRCS += contrib/scicos/src/pic30/communication/easylab_serial.c
+endif #__USE_UART__
+
+endif #__EE_EASYLAB__
 
 endif
 
