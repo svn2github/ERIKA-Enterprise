@@ -28,6 +28,7 @@ INCLUDE_PATH += $(EEBASE)/contrib/memory/inc
 ## Add each file individually
 #EE_SRCS_MEMORY += contrib/memory/libsrc/cqueue.c
 EE_SRCS_MEMORY += contrib/memory/libsrc/list.c
+EE_SRCS_MEMORY += contrib/memory/libsrc/ee_cbuffer.c
 
 ## If the file list is not empty, create the memory lib
 ifneq ($(EE_SRCS_MEMORY),)
