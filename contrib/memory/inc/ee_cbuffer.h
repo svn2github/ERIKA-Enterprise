@@ -178,6 +178,20 @@ EE_CBufferError EE_cbuffer_last(EE_CBuffer *cbuffer, void * ele, EE_UINT16 ele_l
 **/
 EE_CBufferError EE_cbuffer_access(EE_CBuffer *cbuffer, EE_UINT16 index, void * ele, EE_UINT16 ele_length);
 
+
+/**
+    @brief Remove without read n bytes from the head of C-Buffer.
+
+    Remove without read n bytes from the head of C-Buffer    
+    
+    @param cbuffer: c-buffer struct pointer
+    @param bytes_to_skip: number of bytes to be skipped;
+    
+    @return EE_CBUFF_OK if no errors found
+            EE_CBUFF_ERR_FEW if the bites in buffer are not enough to be skipped
+**/
+EE_CBufferError EE_cbuffer_skip(EE_CBuffer *cbuffer, EE_UINT16 bytes_to_skip);
+
 /**
     @brief Check if the buffer is empty.
 

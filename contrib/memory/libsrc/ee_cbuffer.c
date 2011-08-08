@@ -183,3 +183,20 @@ EE_CBufferError EE_cbuffer_access(EE_CBuffer *cbuffer, EE_UINT16 index, void * e
     return EE_cbuffer_access_impl(cbuffer, index, ele, data_length);
 }
 
+EE_CBufferError EE_cbuffer_skip(EE_CBuffer *cbuffer, EE_UINT16 bytes_to_skip)
+{
+    EE_CBufferError error = EE_CBUFF_OK;
+
+    if(cbuffer == EE_NULL_CBUFF)
+        error =  EE_CBUFF_ERR_NULL;
+    
+    if(!error && (bytes_to_skip > 0)){
+        if(!EE_cbuffer_contains(cbuffer, bytes_to_skip)){
+            error = EE_CBUFF_ERR_TOO_FEW;
+        } else {
+            EE_cbuffer_pop_and_get_read_addr(cbuffer, bytes_to_skip);
+        }
+    }
+    
+    return error;
+}
