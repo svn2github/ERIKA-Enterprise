@@ -56,19 +56,25 @@
    handle UART CBuffer driver, this central point is easylab_serial module
  */
 
+/* Last valid parameter received */
+extern volatile float received_param1;
+/* Last valid parameter received */
+extern volatile float received_param2;
+ 
 static void init(scicos_block *block)
 {
     /* initialize UART C-Buffer with default values */
     EE_UINT32 baudrate = block->ipar[0];
     if((baudrate != 9600) && (baudrate != 19200) && (baudrate != 57600) && (baudrate != 115200))
         return;
-
     EE_easylab_serial_init(baudrate);
 }
 
 static void inout(scicos_block *block)
 {
-    /* EG: TODO: what this block could do! Or rather said wich protocol should I implement here ? */
+    /* Set output: I propagate received floats */
+    block->outptr[0] = (float *)&received_param1;
+    block->outptr[1] = (float *)&received_param2;
 }
 
 static void end(scicos_block *block)
@@ -76,7 +82,7 @@ static void end(scicos_block *block)
     EE_easylab_serial_close();
 }
 
-void easylab_serial_send(scicos_block *block,int flag)
+void easylab_serial_receive(scicos_block *block,int flag)
 {
  switch (flag) {
     case OutputUpdate:  /* set output */

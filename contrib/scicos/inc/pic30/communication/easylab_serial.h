@@ -58,7 +58,6 @@
 
 /** Initialize CBuffer-UART driver for easylab **/
 EE_INT8 EE_easylab_serial_init(EE_UINT32 baudrate);
-//EE_uart_cbuffer_complete_init(NULL, NULL, baudrate, EE_UART_BIT_STOP_1 | EE_UART_BIT8_NO, EE_UART_CTRL_SIMPLE);
     
 __INLINE__ EE_CBufferError EE_easylab_serial_tx(char serial_packet[])
 {
@@ -71,5 +70,4 @@ __INLINE__ EE_INT8 EE_easylab_serial_close()
 {
     return EE_uart_cbuffer_close();
 }
-
 #endif /* __INCLUDE_SCICOS_EASYLAB_SERIAL_H__ */

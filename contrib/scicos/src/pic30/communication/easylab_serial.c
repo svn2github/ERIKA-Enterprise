@@ -44,22 +44,114 @@
     @author Errico Guidieri, Evidence Srl
     @date 2006-2011
 */
-
+#include <string.h>
 #include "easylab_serial.h"
+#include "ee_internal.h"
 
-/* Shared status */
+/* Shared initialization status */
 static volatile EE_BIT ee_cbuffer_uart_driver_initialized = 0;
+
+
+#ifdef __INCLUDE_SCICOS_EASYLAB_SERIAL_H__
+
+/* Shared receiving task active status*/
+static volatile EE_BIT receiving_task_active = 0;
+
+/* Last valid parameter received */
+volatile float received_param1 = 0.0f;
+/* Last valid parameter received */
+volatile float received_param2 = 0.0f;
+
+void receiving_from_uart_callback( EE_UINT8 data )
+{
+    if((EE_uart_cbuffer_rx_buffuer_contains() >= EASYLAB_PACKET_SIZE)
+        && !receiving_task_active)
+    {
+        receiving_task_active = 1;
+        ActivateTask(receiving_from_uart);
+    }
+}
+
+TASK(receiving_from_uart)
+{
+    EE_UINT16 rx_bytes;
+    /* Start critical section */
+    EE_hal_disableIRQ();
+    while((rx_bytes = EE_uart_cbuffer_rx_buffuer_contains()) >= EASYLAB_PACKET_SIZE){
+        /* I make the read buffer of same size of receiving buffer so 
+           I can read all bytes in one step (less memory access) */
+        char read_buffer[UART_CBUFFER_RX_BUFFER_SIZE];
+        unsigned int i,j;
+        /* I directly access rx_buffer because i don't want pop bytes yet,
+           because i don't know how many of them I'm going to use.
+        */
+        EE_CBuffer * rx_buffer = EE_uart_cbuffer_get_rx_buffer();
+        EE_cbuffer_first(rx_buffer, &read_buffer, rx_bytes);        
+
+        /* End critical section */
+        EE_hal_enableIRQ();
+        
+        /* Parsing condition is remaining bytes are more than packet length */
+        for(i = 0; (rx_bytes - i) >= EASYLAB_PACKET_SIZE; ){
+            char crc = 0;
+            /*I need i incremented from this point */
+            ++i;
+            /* Start byte check */
+            if(read_buffer[i] != '\0')
+                continue;
+            
+            /* Parsing inner loop */
+            for(j = i; ; ++j){
+                /* Check end of crc condition */
+                if(j == (i + EASYLAB_PACKET_SIZE - 1)){
+                    if(read_buffer[j] == crc){
+                        /* valid packet read: I populate received variables */
+                        memcpy((void *)&received_param1, read_buffer + i, sizeof(float));
+                        memcpy((void *)&received_param2, read_buffer + i + sizeof(float), sizeof(float));
+                        /* Valid packet I restart parsing after this one */
+                        i = j + 1;
+                    }
+                    break;
+                } else {
+                    /*loop to evaluate crc */
+                    crc ^= read_buffer[j];
+                }
+            }
+        }
+        
+        /* Start critical section*/
+        EE_hal_disableIRQ();
+        /* Skip used bytes(pop without reading, already done).
+           N.B i point to next byte to check, so  i- 1 is last used 
+           byte 
+        */
+        EE_cbuffer_skip(rx_buffer, (i - 1));
+    }
+    /* End task flag to re-arm the ISR behaviour */
+    receiving_task_active = 0;
+    /* WARNING:
+       I don't renable interrupt: I defer this to the kernel scheduler, 
+       because I know his implementation.
+       I do this to eliminate the needing of pending attivation handling
+       for this task that could appen between status changing + ISR enabling 
+       and task ending
+     */
+}
+#else
+#define receiving_from_uart_callback NULL
+#endif /*__INCLUDE_SCICOS_EASYLAB_SERIAL_H__*/
 
 EE_INT8 EE_easylab_serial_init(EE_UINT32 baudrate)
 {
     EE_INT8 error = EE_CBUFFER_UART_ERR_ALREADY_INIT;
     if(!ee_cbuffer_uart_driver_initialized){
-        error = EE_uart_cbuffer_complete_init(NULL, NULL, baudrate, EE_UART_BIT_STOP_1 | EE_UART_BIT8_NO, EE_UART_CTRL_SIMPLE);
+        error = EE_uart_cbuffer_complete_init(receiving_from_uart_callback, NULL, 
+            baudrate, EE_UART_BIT_STOP_1 | EE_UART_BIT8_NO, EE_UART_CTRL_SIMPLE);
         /*UART driver doesn't have a good error handling so i don't check it */
         ee_cbuffer_uart_driver_initialized = 1;
     }
     return error;
-}    
+}
 
 
 

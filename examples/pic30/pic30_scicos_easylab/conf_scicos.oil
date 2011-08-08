@@ -93,6 +93,14 @@ CPU mySystem {
         SCHEDULE = FULL;
     };
     
+#ifdef __RECEIVING_FROM_UART__
+    TASK receiving_from_uart {
+        PRIORITY = 1;
+        STACK = SHARED;
+        SCHEDULE = FULL;
+    };
+#endif
+
     COUNTER sciCounter;
 
     ALARM AlarmSci {
