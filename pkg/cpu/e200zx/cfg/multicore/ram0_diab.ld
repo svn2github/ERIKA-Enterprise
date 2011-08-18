@@ -1,7 +1,7 @@
 /* ###*B*###
  * ERIKA Enterprise - a tiny RTOS for small microcontrollers
  *
- * Copyright (C) 2002-2010  Evidence Srl
+ * Copyright (C) 2002-2011  Evidence Srl
  *
  * This file is part of ERIKA Enterprise.
  *
@@ -70,11 +70,11 @@ SECTIONS
 		_sdata = . ;
 		.data LOAD(_load_ram): { }
 
-		.sdata LOAD(_load_ram + ADDR(.sdata) - ADDR(.data)): { }
-
 		_smcglobald = . ;
 		.mcglobald LOAD(_load_ram + ADDR(.mcglobald) - ADDR(.data)): { }
 		_emcglobald = . ;
+
+		.sdata LOAD(_load_ram + ADDR(.sdata) - ADDR(.data)): { }
 
 		_sbss = . ;
 		.sbss : { }

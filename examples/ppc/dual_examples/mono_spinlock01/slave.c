@@ -75,6 +75,9 @@ enum assertions {
 };
 EE_TYPEASSERTVALUE EE_assertions[asr_dim];
 
+DeclareTask(TaskZ0);
+
+
 static int check_shared_value(int val)
 {
 	int ret = 1;

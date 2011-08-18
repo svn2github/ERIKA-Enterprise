@@ -1,7 +1,7 @@
 /* ###*B*###
  * ERIKA Enterprise - a tiny RTOS for small microcontrollers
  *
- * Copyright (C) 2002-2010  Evidence Srl
+ * Copyright (C) 2002-2011  Evidence Srl
  *
  * This file is part of ERIKA Enterprise.
  *
@@ -37,37 +37,58 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
-
 /*
- * Compiler-dependent definitions for DCC
- * Derived from pkg/cpu/mico32/inc/ee_compiler.h
+ * Linker script for CodeWarrior compiler, for executables running from RAM
+ * on CPU 1.
  * Author: 2010 Fabio Checconi
+ *         2011 Bernardo  Dal Seno
  */
 
-/* This file MUST contain only #defines, because it is also included
-   by the .S files */
+SECTIONS
+{
+	GROUP : {
+		.boot : { }
 
-/*
- * Compiler dependent interface
- */
+		.text_vle (VLECODE) : {
+			*(.text)
+			*(.text_vle)
+			*(.init)
+			*(.fini)
+		}
+		.text : {
+			*(.text)
+			*(.text_vle)
+			*(.init)
+			*(.fini)
+			*(.ctors)
+			*(.dtors)
+			*(extab)
+			*(extabindex)
+			*(.rdata)
+			*(.rodata)
+		}
 
-#ifndef __INCLUDE_CPU_COMMON_EE_COMPILER_DIAB__
-#define __INCLUDE_CPU_COMMON_EE_COMPILER_DIAB__
+		.sram_text : { }
 
-#ifdef __NO_INLINE__
-#define __INLINE__ static
-#else
-#define __INLINE__ static inline
-#endif
-/* Used to declare an inline function before the actual definition */
-#define __DECLARE_INLINE__ static
+		.sdata2 : { }
+		.sbss2 : { }
 
-#define __ALWAYS_INLINE__
+		_load_ram = . ;
+		_sdata = . ;
+		.data LOAD(_load_ram): { }
 
-#define NORETURN
+		.sdata LOAD(_load_ram + ADDR(.sdata) - ADDR(.data)): { }
 
-#define EE_COMPILER_ALIGN(a) __attribute__((aligned(a)))
-#define EE_COMPILER_SECTION(s) __attribute__((section(s)))
-#define EE_COMPILER_KEEP
+		_sbss = . ;
+		.sbss : { }
+		.bss : { }
+		_ebss = . ;
 
-#endif /* __INCLUDE_CPU_COMMON_EE_COMPILER_DIAB__ */
+		_sstack = . ;
+		.stack : {
+			*(.stack)
+			*(.ustack)
+		}
+		_estack = . ;
+	} > isram
+}

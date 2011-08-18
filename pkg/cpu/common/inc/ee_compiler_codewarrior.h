@@ -69,5 +69,6 @@
 
 #define EE_COMPILER_ALIGN(a) __attribute__((aligned(a)))
 #define EE_COMPILER_SECTION(s) __declspec(section s)
+#define EE_COMPILER_KEEP __attribute((force_export))
 
 #endif /* __INCLUDE_CPU_COMMON_EE_COMPILER_CODEWARRIOR__ */

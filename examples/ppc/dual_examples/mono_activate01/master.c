@@ -72,6 +72,10 @@ enum assertions {
 };
 EE_TYPEASSERTVALUE EE_assertions[asr_dim];
 
+DeclareTask(TaskZ6);
+DeclareTask(TaskZ6b);
+DeclareTask(TaskZ6c);
+
 
 TASK(TaskZ6)
 {

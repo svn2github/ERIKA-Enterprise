@@ -53,7 +53,7 @@
 int main(void);
 #endif
 
-#ifndef __E200ZX_EXECUTE_FROM_RAM__
+#if ! defined(__E200ZX_EXECUTE_FROM_RAM__) && ! defined(__SLAVE_CPU__)
 #ifdef __VLE__
 #define BAM_RCHW 0x15a0000
 #else
@@ -72,7 +72,7 @@ _bam_data:
 	.long	BAM_RCHW		/* BAM data */
 	.long	__start
 	.size	_bam_data, .-_bam_data
-#endif /* __E200ZX_EXECUTE_FROM_RAM__ */
+#endif /* ! __E200ZX_EXECUTE_FROM_RAM__ && ! __SLAVE_CPU__ */
 
 
 	.extern	EE_e200zx_sys_stack

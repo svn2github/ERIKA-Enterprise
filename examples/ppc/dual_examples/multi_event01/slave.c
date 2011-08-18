@@ -53,6 +53,9 @@
 /* Communication between TaskZ0Main and TaskZ0Bkg */
 static volatile int event_state;
 
+DeclareTask(TaskZ0Main);
+DeclareTask(TaskZ0Bkg);
+
 TASK(TaskZ0Main)
 {
 	EE_assert(asr_taskz0main, 1, asr_startz0);

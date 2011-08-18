@@ -65,6 +65,8 @@ EE_TYPEASSERTVALUE result;
 EE_TYPEASSERTVALUE EE_assertions[9];
 
 
+DeclareTask(TaskMaster);
+
 /*
  * Task 1
  */
@@ -81,12 +83,12 @@ TASK(TaskMaster)
 /*
  * Interrupt handler for the timer
  */
-void timer_interrupt(void)
+static void timer_interrupt(void)
 {
     EE_mpc5668_signal_cpu(0);
     EE_mpc5668_signal_cpu(1);
 }
-void timer_h(void)
+static void timer_h(void)
 {
     ++tick_counter;
     if (tick_counter & 1)
@@ -108,7 +110,7 @@ void timer_h(void)
 }
 
 
-void ipc_interrupt(void)
+static void ipc_interrupt(void)
 {
     EE_mpc5668_ack_signal(0);
     timer_h();
@@ -117,14 +119,12 @@ void ipc_interrupt(void)
 /*
  * Low-level initialization of the timer
  */
-void init_timer(void)
+static void init_timer(void)
 {
 	EE_e200z7_register_ISR(10, timer_interrupt, 1);
 	EE_e200z7_register_ISR(EE_MPC5668_INTER_IRQ_LEVEL(0), ipc_interrupt, 1);
 	EE_e200z7_setup_decrementer(500000);
 }
-
-extern void system_call(void);
 
 /*
  * MAIN TASK

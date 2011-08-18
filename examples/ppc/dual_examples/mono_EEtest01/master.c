@@ -47,6 +47,7 @@
 #include <ee.h>
 #include <mcu/freescale_mpc5668/inc/ee_dual.h>
 
+DeclareTask(TaskMaster);
 
 /* Needed to avoid compilation errors */
 TASK(TaskMaster)

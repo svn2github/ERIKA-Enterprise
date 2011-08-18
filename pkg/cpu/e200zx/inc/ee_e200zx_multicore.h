@@ -80,7 +80,12 @@ typedef struct ee_barrier {
 	volatile EE_UINT32 value;
 } EE_TYPEBARRIER;
 
-/* Sartup barrier data */
+/* Synchronize on the given barrier.  Wait until all CPUs have called this
+ * function on the same barrier. */
+void EE_e200zx_sync_barrier(EE_TYPEBARRIER *bar);
+
+
+/* Startup barrier data */
 extern EE_TYPEBARRIER EE_SHARED_UDATA EE_e200zx_start_barrier;
 
 

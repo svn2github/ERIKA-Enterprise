@@ -90,7 +90,7 @@ $(MASTER_ELF): CPU_MASTER-all
 
 $(GLOBAL_LINKSCRIPT): $(MASTER_ELF)
 	@echo Building shared symbol table
-	$(QUIET)objdump -t -w -j .mcglobalc -j .mcglobald $< |		\
-		awk '/^[0-9a-fA-F]+ ......O/ {				\
+	$(QUIET)objdump -t -w -j .mcglobalc -j .mcglobald -j .mcglobalu $< \
+		| awk '/^[0-9a-fA-F]+ ......O/ {			\
 			match($$0, "^([0-9a-fA-F]+) .+ ([^ ]+)$$", m);	\
 			printf("%s = 0x%s;\n", m[2], m[1]) }' > $@

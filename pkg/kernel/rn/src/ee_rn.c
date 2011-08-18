@@ -52,7 +52,7 @@
 
 /* this INTERNAL function is called to execute a notification procedure */
 #ifndef __PRIVATE_RN_EXECUTE__
-void EE_rn_execute(EE_TYPERN rn, EE_UINT8 sw)
+static void EE_rn_execute(EE_TYPERN rn, EE_UINT8 sw)
 {
 #if defined(__RN_COUNTER__) || defined(__RN_TASK__) || defined(__RN_FUNC__)
   register EE_UREG pend;

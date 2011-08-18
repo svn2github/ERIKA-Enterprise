@@ -10,7 +10,7 @@
 
 # Erika base directory
 ifndef EEBASE
-    EEBASE  := /extra/eclipse_mm/plugins/com.eu.evidence.ee_1.6.0.MM_201102010010/ee_base
+    EEBASE  := ../../../../..
 endif
 
 
@@ -22,6 +22,7 @@ endif
 EEOPT += 
 EEOPT += __ASSERT__
 EEOPT += __E200ZX_EXECUTE_FROM_RAM__
+EEOPT += DEBUG
 EEOPT += __RTD_LINUX__
 EEOPT += __MSRP__
 EEOPT += __PPCE200ZX__
@@ -38,7 +39,7 @@ EEOPT += __OO_HAS_USERESSCHEDULER__
 # Flags
 #
 ############################################################################
-CFLAGS   = -g2
+CFLAGS   = 
 
 ASFLAGS  = 
 

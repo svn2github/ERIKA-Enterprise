@@ -2,11 +2,12 @@ CPU test_application {
 
 	OS EE {
 		EE_OPT = "__ASSERT__";
-		CFLAGS = "-g2";
+		CFLAGS = "";
 		ASFLAGS = "";
 		LDFLAGS = "";
 
 		EE_OPT = "__E200ZX_EXECUTE_FROM_RAM__";
+		EE_OPT = "DEBUG";
 
 		MASTER_CPU = "master";
 

@@ -141,9 +141,9 @@ typedef EE_UINT32 EE_TYPESPIN;
 
 /* Shared data use separate sections; potentially, three different sections
  * could be used for constant, unitialized, and initialized data */
-#define EE_SHARED_CDATA  EE_COMPILER_SECTION(".mcglobalc")
-#define EE_SHARED_UDATA  EE_COMPILER_SECTION(".mcglobald")
-#define EE_SHARED_IDATA  EE_COMPILER_SECTION(".mcglobald")
+#define EE_SHARED_CDATA  EE_COMPILER_SECTION(".mcglobalc") EE_COMPILER_KEEP
+#define EE_SHARED_UDATA  EE_COMPILER_SECTION(".mcglobald") EE_COMPILER_KEEP
+#define EE_SHARED_IDATA  EE_COMPILER_SECTION(".mcglobald") EE_COMPILER_KEEP
 
 #if 0  /* Shared code, resources and mutex not working yet */
 #define EE_SHARED_CODE(x) EE_SHARED_CODE_##x

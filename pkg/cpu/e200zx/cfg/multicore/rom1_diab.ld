@@ -46,21 +46,20 @@
 SECTIONS
 {
 	GROUP : {
-		.boot LOAD(ADDR(boot)): { }
+		.boot : { }
 	} > boot
 
 	GROUP : {
-		.text LOAD(ADDR(iflash)): {
+		.text : {
 			*(.text)
 			*(.text_vle)
 			*(.init)
 			*(.fini)
 			*(.rdata)
 			*(.rodata)
-			_etext = . ;
 		}
 
-		.sdata2 LOAD(_etext): {
+		.sdata2 : {
 			*(.sdata2)
 			*(.sbss2)
 		 }
@@ -81,7 +80,7 @@ SECTIONS
 		_ebss = . ;
 
 		_sstack = . ;
-		.stack LOAD(ADDR(.stack)): {
+		.stack : {
 			*(.stack)
 		}
 		_estack = . ;

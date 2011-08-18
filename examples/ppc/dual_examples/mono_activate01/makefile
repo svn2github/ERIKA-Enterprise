@@ -84,7 +84,7 @@ $(RTDRUID_OUTPUT): conf.oil
 else
 # Simulate RT-Druid
 ifndef EEBASE
-EEBASE=../../../../
+EEBASE=../../../../..
 endif
 
 $(RTDRUID_OUTPUT): $(OUTPUT_DIR)/% : fake_druid/%

@@ -50,6 +50,7 @@
 /* Assertions */
 #include "test/assert/inc/ee_assert.h"
 
+DeclareTask(TaskZ6);
 
 TASK(TaskZ6)
 {

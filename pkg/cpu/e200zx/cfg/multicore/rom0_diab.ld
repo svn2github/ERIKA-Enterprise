@@ -46,25 +46,25 @@
 SECTIONS
 {
 	GROUP : {
-		.boot LOAD(ADDR(boot)): { }
+		.bam_data : { }
+		.boot : { }
 	} > boot
 
 	GROUP : {
-		.text LOAD(ADDR(iflash)): {
+		.text : {
 			*(.text)
 			*(.text_vle)
 			*(.init)
 			*(.fini)
 			*(.rdata)
 			*(.rodata)
-			_etext = . ;
 		}
 
 		_smcglobalc = . ;
 		.mcglobalc : { }
 		_emcglobalc = . ;
 
-		.sdata2 LOAD(_etext): {
+		.sdata2 : {
 			*(.sdata2)
 			*(.sbss2)
 		 }
@@ -77,11 +77,11 @@ SECTIONS
 
 		.sram_text LOAD(_load_ram + ADDR(.sram_text) - ADDR(.data)): { }
 
-		.sdata LOAD(_load_ram + ADDR(.sdata) - ADDR(.data)): { }
-
 		_smcglobald = . ;
 		.mcglobald LOAD(_load_ram + ADDR(.mcglobald) - ADDR(.data)): { }
 		_emcglobald = . ;
+
+		.sdata LOAD(_load_ram + ADDR(.sdata) - ADDR(.data)): { }
 
 		_sbss = . ;
 		.sbss : { }
@@ -89,7 +89,7 @@ SECTIONS
 		_ebss = . ;
 
 		_sstack = . ;
-		.stack LOAD(ADDR(.stack)): {
+		.stack : {
 			*(.stack)
 		}
 		_estack = . ;

@@ -55,14 +55,16 @@ BINDIR = $(CW_TOOLSDIR)/Command_Line_Tools/
 MWCIncludes ?= $(CW_SUPPORTDIR)/ewl/EWL_C/include
 MWLibraries ?= $(CW_SUPPORTDIR)/ewl/lib
 ifeq ($(call iseeopt, __PPCE200Z0__), yes)
-MW_LIB_FLAVOR = _E200z0_VLE
+MW_LIB_FLAVOR = _E200z0_VLE_Soft
 else
 ifeq ($(or $(call iseeopt, __PPCE200Z6__), $(call iseeopt, __PPCE200Z7__)), yes)
 MW_LIB_FLAVOR = _E200z650
 endif
+ifneq ($(__BASE_MAKEFILE__), yes)
 ifndef MW_LIB_FLAVOR
 $(error CPU unsupported by know CodeWarrior libraries)
 endif
+endif # __BASE_MAKEFILE__
 ifeq ($(call iseeopt, __VLE__), yes)
 MW_LIB_FLAVOR := $(MW_LIB_FLAVOR)_VLE
 endif
@@ -93,6 +95,10 @@ OPT_CC = $(CFLAGS) $(OPT_TARGET) $(VLE_OPT) -RTTI off -Cpp_exceptions off \
 ifneq ($(call iseeopt, __MINIMAL_CC_OPTIONS__), yes)
 OPT_CC += -use_lmw_stmw on -flag require_prototypes -msgstyle gcc -rostr \
  -O4 -ipa file -inline on,auto -schedule on
+endif
+ifeq ($(call iseeopt, __MSRP__), yes)
+OPT_CC += -pragma "section RW \".mcglobald\" \".mcglobalu\"" \
+ -pragma "section R \".mcglobalc\" \".mcglobalc\""
 endif
 
 # VLE support
