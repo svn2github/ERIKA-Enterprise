@@ -64,15 +64,20 @@ $(foreach c, $(CPU_LIST), $(eval $(call all-clean-template,$c)))
 
 $(foreach s, $(SLAVE_CPUS), $(s)-all): $(GLOBAL_LINKSCRIPT)
 
-start.sh config-mc.t32: \
+start.sh: \
  %: $(PKGBASE)/mcu/freescale_$(PPC_MCU_MODEL)/cfg/multicore/%
 	@echo CP $@
 	$(QUIET) cp $< $@
 
+config-mc.t32: \
+ %: $(PKGBASE)/mcu/freescale_$(PPC_MCU_MODEL)/cfg/multicore/%
+	@echo GEN $@
+	$(QUIET) sed -e 's:#T32SYS#:$(T32SYS):g'  $< > $@
+
 # This rule works on the assumption that there is one slave CPU
 start-mc.cmm: \
  %: $(PKGBASE)/mcu/freescale_$(PPC_MCU_MODEL)/cfg/multicore/% $(MAKEFILE_LIST)
-	@echo CP $@
+	@echo GEN $@
 	$(QUIET)sed -e 's:#MASTER_DIR#:$(CPU_MASTER_DIR):g'		\
 		$(foreach s, $(SLAVE_CPUS),				\
 			-e 's:#CPU1_DIR#:$($(s)_DIR):g'			\

@@ -227,8 +227,9 @@ clean:
 ##
 ## Lauterbach targets
 ##
-T32BASE ?= /opt/case/emulator/lauterbach/t32
-T32GENMENU ?= $(T32BASE)/demo/kernel/orti/genmenu
+# T32SYS is the environemnt variable recognized by Trace32
+T32SYS ?= /opt/case/emulator/lauterbach/t32
+T32GENMENU ?= $(T32SYS)/demo/kernel/orti/genmenu
 
 T32TARGETS := t32.cmm
 ifneq ($(wildcard system.orti),)

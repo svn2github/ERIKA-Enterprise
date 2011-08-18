@@ -6,7 +6,7 @@ PORT=${1}
 OS=
 ID=T32${1}
 TMP=/tmp/
-SYS=/opt/case/emulator/lauterbach/t32/
+SYS=#T32SYS#
 
 PBI=
 ${3}
