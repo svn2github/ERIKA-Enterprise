@@ -197,6 +197,12 @@ __INLINE__ EE_FREG __ALWAYS_INLINE__ EE_e200z7_disableIRQ(void)
  Functions
  *************************************************************************/
 
+__INLINE__ void __ALWAYS_INLINE__ EE_e200zx_isync(void)
+{
+	asm volatile ("isync");
+}
+
+
 /*
  * Interrupt Handling
  */
