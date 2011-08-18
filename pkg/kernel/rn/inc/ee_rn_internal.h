@@ -1,7 +1,7 @@
 /* ###*B*###
  * ERIKA Enterprise - a tiny RTOS for small microcontrollers
  *
- * Copyright (C) 2002-2008  Evidence Srl
+ * Copyright (C) 2002-2011  Evidence Srl
  *
  * This file is part of ERIKA Enterprise.
  *
@@ -40,7 +40,7 @@
 
 /*
  * Author: 2003- Paolo Gai
- * CVS: $Id: ee_rn_internal.h,v 1.5 2007/06/01 09:00:21 pj Exp $
+ *         2011 Bernardo  Dal Seno
  */
 
 
@@ -62,7 +62,7 @@
 #define EE_RN_SWITCH_COPY      1
 #define EE_RN_SWITCH_INSIDEIRQ 2
 #define EE_RN_SWITCH_NEWRN     4
-extern EE_TYPERN_SWITCH EE_rn_switch[];
+extern EE_TYPERN_SWITCH EE_SHARED_IDATA EE_rn_switch[];
 
 
 
@@ -98,5 +98,5 @@ extern int EE_rn_send(EE_TYPERN rn, EE_TYPERN t, EE_TYPERN_PARAM par);
 extern void EE_rn_handler(void);
 #endif
 
-#endif // __RN__
-#endif
+#endif /* __RN__ */
+#endif /* __KERNEL_RN_RN_INTERNAL_H__ */

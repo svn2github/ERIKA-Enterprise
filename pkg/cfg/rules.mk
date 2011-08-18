@@ -177,7 +177,8 @@ endif
 ##
 ## PPC - diab under GNU/Linux or Cygwin
 ##########################################################################
-ifeq ($(or $(call iseeopt, __PPCE200Z6__), $(call iseeopt, __PPCE200Z7__)), yes)
+ifeq ($(or $(call iseeopt, __PPCE200Z6__), $(call iseeopt, __PPCE200Z7__), \
+	$(call iseeopt, __PPCE200Z0__)), yes)
 EEOPT +=  __PPCE200ZX__
 endif
 ifeq ($(call iseeopt, __PPCE200ZX__), yes)

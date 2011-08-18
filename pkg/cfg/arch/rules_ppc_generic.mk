@@ -80,13 +80,24 @@ $(PKGBASE)/cfg/arch/rules_ppc_$(PPC_MCU_MODEL).mk: ;
 include $(PKGBASE)/cfg/verbose.mk
 include $(PKGBASE)/cfg/compiler.mk
 
-ifeq ($(call iseeopt, __E200ZX_EXECUTE_FROM_RAM__), yes)
-BASE_LD_SCRIPT := $(BASE_LD_RAM_SCRIPT)
-T32CMM_SRC := ram.cmm
-else
-BASE_LD_SCRIPT := $(BASE_LD_ROM_SCRIPT)
-T32CMM_SRC := flash.cmm
+ifeq ($(call iseeopt, __MSRP__), yes)
+SCRIPT_SUBPATH := multicore/
 endif
+ifeq ($(call iseeopt, __E200ZX_EXECUTE_FROM_RAM__), yes)
+BASE_LD_SCRIPT := $(SCRIPT_SUBPATH)$(BASE_LD_RAM_SCRIPT)
+T32CMM_SRC := $(SCRIPT_SUBPATH)ram$(CPU_NUMID).cmm
+else
+BASE_LD_SCRIPT := $(SCRIPT_SUBPATH)$(BASE_LD_ROM_SCRIPT)
+T32CMM_SRC := $(SCRIPT_SUBPATH)flash$(CPU_NUMID).cmm
+endif
+
+# The above part is needed for the base makefile for multicore building
+# The part below containes rules for `all' and `clean', and will interfere
+# with the rules that handle the per-cpu building process
+ifeq ($(and $(call iseeopt, __MSRP__), \
+	$(__BASE_MAKEFILE__)), yes)
+include $(PKGBASE)/cfg/arch/rules_ppc_multi_base.mk
+else
 
 ifneq ($(call iseeopt, __USE_CUSTOM_CRT0__), yes)
 EE_CRT0_S := pkg/mcu/freescale_$(PPC_MCU_MODEL)/src/ee_boot.S
@@ -119,8 +130,9 @@ LIBDEP += $(ALL_LIBS)
 LIBDEP += $(LDDEPS)
 
 # Add application file to dependencies
+ELFNAME ?= ppc.elf
 ifneq ($(call iseeopt, __BUILD_LIBS__), yes)
-TARGET:=ppc.elf
+TARGET:=$(ELFNAME)
 endif
 MAP_FILE = ppc.map
 
@@ -165,6 +177,14 @@ OBJDIRS=$(sort $(dir $(ALLOBJS) $(INTERMEDIATE_FILES)))
 # we also consider the current directory because the app could be compiled
 # from the config files generated from eclipse...
 INCLUDE_PATH += $(APPBASE) $(PKGBASE) .
+
+# Slave CPU: add linkerscript with global shared symbols
+ifeq ($(call iseeopt, __MSRP__), yes)
+ifneq ($(CPU_NUMID), 0)
+OPT_LINK += $(GLOBAL_LINKSCRIPT)
+LINKDEP += $(GLOBAL_LINKSCRIPT)
+endif
+endif
 
 
 vpath %.c $(EE_VPATH) $(APPBASE)
@@ -280,7 +300,7 @@ endif
 ##
 
 ifdef EE_LINK_SCRIPT
-$(EE_LINK_SCRIPT): $(PKGBASE)/mcu/freescale_$(PPC_MCU_MODEL)/cfg/memory.ld $(PKGBASE)/cpu/e200zx/cfg/$(BASE_LD_SCRIPT)
+$(EE_LINK_SCRIPT): $(PKGBASE)/mcu/freescale_$(PPC_MCU_MODEL)/cfg/$(SCRIPT_SUBPATH)memory$(CPU_NUMID).ld $(PKGBASE)/cpu/e200zx/cfg/$(BASE_LD_SCRIPT)
 	@printf "LOC\n" ;
 	$(QUIET) cat $^ > $@
 endif
@@ -320,3 +340,5 @@ make_directories: $(OBJDIRS)
 $(OBJDIRS):
 	@echo "MAKE_DIRECTORIES"
 	$(QUIET) mkdir -p $(OBJDIRS)
+
+endif  # __MSRP__ and __BASE_MAKEFILE__

@@ -49,6 +49,24 @@
 
 	ASM_REORDER_OFF
 
+	/* Compute a suitable value for IVPR, depending on the CPU */
+	/* Don't use r0 as `reg' */
+load_ivpr: .macro reg, lab
+#ifdef __PPCE200Z0__
+	e_lis	reg, lab@ha
+	e_add16i reg, reg, lab@l
+#elif defined __PPCE200Z6__ || defined __PPCE200Z7__
+#ifdef __VLE__
+	e_lis	reg, lab@ha
+#else
+	addis	reg, 0, lab@h
+#endif
+#else
+#error "Unknown CPU"
+#endif
+	.endm
+
+
 set_ivor: .macro n,label
 #ifdef __VLE__
 	se_li	r0, 0
@@ -114,6 +132,8 @@ vector EE_e200zx_debug_critical, __empty_handler
 	.global	ivor_setup
 	.type	ivor_setup, @function
 ivor_setup:
+	/* Z0 has hard-wired IVORs */
+#ifndef __PPCE200Z0__
 	set_ivor 0, EE_e200zx_critical_input
 	set_ivor 1, EE_e200zx_machine_check
 	set_ivor 2, EE_e200zx_data_storage
@@ -131,14 +151,13 @@ ivor_setup:
 	set_ivor 14, EE_e200zx_instruction_tlb_error
 	set_ivor 15, EE_e200zx_debug_critical
 	msync
+#endif /* ifndef __PPCE200Z0__ */
 
+	load_ivpr r3, vector_base
+	mtspr	ivpr, r3
 #ifdef __VLE__
-	e_add2is r0, vector_base@h
-	mtspr	ivpr, r0
 	se_blr
 #else
-	addis	r0, 0, vector_base@h
-	mtspr	ivpr, r0
 	blr
 #endif
 	.size	ivor_setup, .-ivor_setup

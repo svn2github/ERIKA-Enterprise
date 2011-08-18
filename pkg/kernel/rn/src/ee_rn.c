@@ -1,7 +1,7 @@
 /* ###*B*###
  * ERIKA Enterprise - a tiny RTOS for small microcontrollers
  *
- * Copyright (C) 2002-2008  Evidence Srl
+ * Copyright (C) 2002-2011  Evidence Srl
  *
  * This file is part of ERIKA Enterprise.
  *
@@ -40,10 +40,10 @@
 
 /*
  * Author: 2001, 2002 Paolo Gai
- * CVS: $Id: ee_rn.c,v 1.13 2007/06/01 09:00:21 pj Exp $
+ *         2001 Bernardo  Dal Seno
  */
 
-/* for EE_thread_activate */
+/* for ActivateTask() */
 #include "ee.h"
 
 #include "ee_internal.h"
@@ -88,7 +88,7 @@ void EE_rn_execute(EE_TYPERN rn, EE_UINT8 sw)
 	 pend;
 	 pend--) {
 #if defined(__FP__) || defined(__EDF__)
-      EE_thread_activate(EE_rn_task[rn]);
+      EE_fp_ActivateTask(EE_rn_task[rn]);
 #endif
 #if defined(__OO_BCC1__) || defined(__OO_BCC2__) || defined(__OO_ECC1__) || defined(__OO_ECC2__)
       EE_oo_ActivateTask(EE_rn_task[rn]);
@@ -245,6 +245,6 @@ void EE_rn_handler(void)
 	EE_hal_IRQ_end_primitive();
   } while (redo);
 }
-#endif
+#endif /* __PRIVATE_RN_HANDLER__ */
 
-#endif
+#endif /* __RN__ */

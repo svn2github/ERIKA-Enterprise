@@ -1,7 +1,7 @@
 /* ###*B*###
  * ERIKA Enterprise - a tiny RTOS for small microcontrollers
  *
- * Copyright (C) 2002-2010  Evidence Srl
+ * Copyright (C) 2002-2011  Evidence Srl
  *
  * This file is part of ERIKA Enterprise.
  *
@@ -42,6 +42,7 @@
  * CPU-dependent part of HAL
  * Derived from pkg/cpu/mico32/inc/ee_cpu.h
  * Author: 2010 Fabio Checconi
+ *         2011 Bernardo  Dal Seno
  */
 
 
@@ -120,6 +121,36 @@ extern struct EE_TOS EE_e200z7_system_tos[];
 extern EE_UREG EE_e200z7_active_tos;
 
 #endif /* __MULTI__ */
+
+
+/*********************************************************************
+ Multicore and multiprocessor support
+ *********************************************************************/
+
+#ifdef __MSRP__
+
+/* the MSB in a MUTEX type indicates if a resource is global (1) or
+   local (0) to a processor */
+#define EE_GLOBAL_MUTEX 0x80000000U
+
+/* Type for spinlocks: an ID */
+typedef EE_UINT32 EE_TYPESPIN;
+
+/* For compatibilty with old code */
+#define EE_SHARED_DATA(x) x
+
+/* Shared data use separate sections; potentially, three different sections
+ * could be used for constant, unitialized, and initialized data */
+#define EE_SHARED_CDATA  EE_COMPILER_SECTION(".mcglobalc")
+#define EE_SHARED_UDATA  EE_COMPILER_SECTION(".mcglobald")
+#define EE_SHARED_IDATA  EE_COMPILER_SECTION(".mcglobald")
+
+#if 0  /* Shared code, resources and mutex not working yet */
+#define EE_SHARED_CODE(x) EE_SHARED_CODE_##x
+#define EE_SHARED_RES(name,var) EE_SHARED_RES_##name(var)
+#endif
+
+#endif /* __MSRP__ */
 
 
 /*********************************************************************

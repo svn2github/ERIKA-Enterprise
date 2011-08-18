@@ -1,7 +1,7 @@
 /* ###*B*###
  * ERIKA Enterprise - a tiny RTOS for small microcontrollers
  *
- * Copyright (C) 2002-2008  Evidence Srl
+ * Copyright (C) 2002-2011  Evidence Srl
  *
  * This file is part of ERIKA Enterprise.
  *
@@ -40,7 +40,7 @@
 
 /*
  * Author: 2003- Paolo Gai
- * CVS: $Id: ee_rn.h,v 1.9 2006/06/08 20:40:42 pj Exp $
+ *         2011 Bernardo  Dal Seno
  */
 
 
@@ -130,55 +130,55 @@
 
 
 /* For each RN: The CPU to which the RN is related to */
-extern const EE_UINT8 EE_rn_cpu[];
+extern const EE_UINT8 EE_SHARED_CDATA EE_rn_cpu[];
 
 /* For each RN: The type of notification that must be used
    initvalue: 0
 */
-extern EE_TYPERN_NOTIFY EE_rn_type[][2];
+extern EE_TYPERN_NOTIFY EE_SHARED_IDATA EE_rn_type[][2];
        
 /* For each RN: The counter number if EE_RN_COUNTER, or -1 */
 #ifdef __RN_COUNTER__
-extern const EE_TYPECOUNTER EE_rn_counter[];
+extern const EE_TYPECOUNTER EE_SHARED_CDATA EE_rn_counter[];
 #endif
 
 /* For each RN, 2 times: all 0 (this data structures will contain the
    event mask set by rn_send */
 #ifdef __RN_EVENT__ 
-extern EE_TYPEEVENTMASK EE_rn_event[][2];
+extern EE_TYPEEVENTMASK EE_SHARED_IDATA EE_rn_event[][2];
 #endif
 
 /* For each RN: a TID */
 #if defined( __RN_EVENT__ ) || defined( __RN_TASK__ ) || defined( __RN_BIND__ ) || defined( __RN_UNBIND )
-extern const EE_TID EE_rn_task[];
+extern const EE_TID EE_SHARED_CDATA EE_rn_task[];
 #endif
 
 /* For each RN: EE_VRES_NIL */
 #if defined( __RN_BIND__ )
-extern EE_TYPECONTRACT EE_rn_vres[][2];
+extern EE_TYPECONTRACT EE_SHARED_IDATA EE_rn_vres[][2];
 #endif
 
 /* For each RN: a function name if EE_RN_FUNC or -1 */
 #ifdef __RN_FUNC__
-extern const EE_ADDR EE_rn_func[];
+extern const EE_ADDR EE_SHARED_CDATA EE_rn_func[];
 #endif
 
 /* For each RN, 2 times: -1 */
-extern EE_TYPERN EE_rn_next[][2];
+extern EE_TYPERN EE_SHARED_IDATA EE_rn_next[][2];
 
 /* For each RN: Number of pending notifications. Init value all 0 */
-extern EE_UREG EE_rn_pending[][2];
+extern EE_UREG EE_SHARED_IDATA EE_rn_pending[][2];
 
 /* For each CPU: -1 */
-extern EE_TYPERN EE_rn_first[][2];
+extern EE_TYPERN EE_SHARED_IDATA EE_rn_first[][2];
 
 /* For each CPU: an index of the spin lock to use (may be different
    for each CPU, or may be the same; the value is a valid index that
    must work with EE_hal_spin_in/out */
-extern const EE_TYPESPIN EE_rn_spin[];
+extern const EE_TYPESPIN EE_SHARED_CDATA EE_rn_spin[];
 
 /* For each CPU: initialized to 0 */
-extern EE_TYPERN_SWITCH EE_rn_switch[];
+extern EE_TYPERN_SWITCH EE_SHARED_IDATA EE_rn_switch[];
 
 #endif // __RN__
 #endif

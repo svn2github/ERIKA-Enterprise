@@ -1,7 +1,7 @@
 /* ###*B*###
  * ERIKA Enterprise - a tiny RTOS for small microcontrollers
  *
- * Copyright (C) 2002-2010  Evidence Srl
+ * Copyright (C) 2002-2011  Evidence Srl
  *
  * This file is part of ERIKA Enterprise.
  *
@@ -40,7 +40,7 @@
 /*
  * Boot code for the MPC5668 board.
  * Author: 2010 Fabio Checconi
-           2011 Bernardo  Dal Seno
+ *         2011 Bernardo  Dal Seno
  */
 
 #include <eecfg.h>
@@ -85,8 +85,10 @@ _bam_data:
 	.type	__start, @function
 __start:
 	bl	mmu_setup
+#ifndef __SLAVE_CPU__
 	bl	sram_setup
 	/* bl	pll_setup */
+#endif /* __SLAVE_CPU__ */
 
 	addis	r8, 0, _stack0@ha	/* setup the stack pointer */
 	addi	sp, r8, _stack0@l
@@ -164,7 +166,9 @@ intc_setup:
 	/* MCR = 0: VTES=0 (4 byte entries) HVEN=0 (SW vector mode) */
 	li	r0, 0
 	addis	r3, 0, INTC_MCR@ha
+#ifndef __SLAVE_CPU__
 	stw	r0, INTC_MCR@l(r3)
+#endif
 
 	/* init current priority */
 	stw	r0, INTC_CPR@l(r3)

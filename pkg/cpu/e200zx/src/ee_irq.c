@@ -1,7 +1,7 @@
 /* ###*B*###
  * ERIKA Enterprise - a tiny RTOS for small microcontrollers
  *
- * Copyright (C) 2002-2010  Evidence Srl
+ * Copyright (C) 2002-2011  Evidence Srl
  *
  * This file is part of ERIKA Enterprise.
  *
@@ -41,6 +41,7 @@
 /*
  * Derived from the mico32 code.
  * Author: 2010 Fabio Checconi
+ *         2011 Bernardo  Dal Seno
  */
 
 #include <ee_internal.h>
@@ -83,13 +84,15 @@ EE_e200z7_ISR_handler EE_e200z7_ISR_table[EE_E200ZX_MAX_CPU_EXCP
 
 void EE_e200z7_register_ISR(int level, EE_e200z7_ISR_handler fun, EE_UINT8 pri)
 {
+	EE_UINT8 proc;
 	EE_FREG intst = EE_e200z7_disableIRQ();
 
 	EE_e200z7_ISR_table[level] = fun;
 
 	/* Set priority for external interrupts */
 	if (level >= EE_E200ZX_MAX_CPU_EXCP) {
-		INTC.PSR[level - EE_E200ZX_MAX_CPU_EXCP].R = pri;
+		proc = (0 == EE_CURRENTCPU) ? 0x0 : 0xc0;
+		INTC.PSR[level - EE_E200ZX_MAX_CPU_EXCP].R = proc | pri;
 	}
 
 	if (EE_e200z7_are_IRQs_enabled(intst)) {

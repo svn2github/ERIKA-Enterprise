@@ -1,7 +1,7 @@
 /* ###*B*###
  * ERIKA Enterprise - a tiny RTOS for small microcontrollers
  *
- * Copyright (C) 2002-2010  Evidence Srl
+ * Copyright (C) 2002-2011  Evidence Srl
  *
  * This file is part of ERIKA Enterprise.
  *
@@ -40,22 +40,36 @@
 /*
  * Device registers for MPC5668
  * Author: 2010 Fabio Checconi
+ *         2011 Bernardo  Dal Seno
  */
 
 #ifndef __MCU_EE_REGS_ASM_H__
 #define __MCU_EE_REGS_ASM_H__
 
+#include <eecfg.h>
+
+#if defined(EE_CURRENTCPU) && EE_CURRENTCPU != 0
+#define __SLAVE_CPU__ 1
+#endif
+
 #define INTC_MCR	0xfff48000
 #define INTC_CPR0	0xfff48008
 #define INTC_CPR1	0xfff4800c
 #define INTC_IACKR0	0xfff48010
-#define INTC_IACKR1	0xfff4801c
+#define INTC_IACKR1	0xfff48014
 #define INTC_EOIR0	0xfff48018
 #define INTC_EOIR1	0xfff4801c
 
+#ifndef __SLAVE_CPU__
 /* For duplicated registers, pick the Z6 instance */
 #define INTC_CPR	INTC_CPR0
 #define INTC_IACKR	INTC_IACKR0
 #define INTC_EOIR	INTC_EOIR0
+#else /* ifdef __SLAVE_CPU__ */
+/* For duplicated registers, pick the Z0 instance */
+#define INTC_CPR	INTC_CPR1
+#define INTC_IACKR	INTC_IACKR1
+#define INTC_EOIR	INTC_EOIR1
+#endif /* __SLAVE_CPU__ */
 
 #endif /* __MCU_EE_REGS_ASM_H__ */

@@ -72,4 +72,8 @@ ifeq ($(call iseeopt, __IRQ_STACK_NEEDED__), yes)
 EE_CASM_SRCS += pkg/cpu/e200zx/src/ee_irq_stack.S
 endif
 
+ifeq ($(call iseeopt, __MSRP__), yes)
+EE_SRCS += pkg/cpu/e200zx/src/ee_e200zx_multicore.c
+endif
+
 endif # __PPCE200ZX__

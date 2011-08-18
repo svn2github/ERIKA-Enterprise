@@ -40,6 +40,7 @@
 /*
  * e200zX register mappings.
  * Author: 2010 Fabio Checconi
+ *         2011 Bernardo  Dal Seno
  */
 
 #ifndef __EE_CPU_E200ZX_REGS_H__
@@ -97,7 +98,25 @@
 /* This is copied from ee_cpu.h */
 #define EE_E200ZX_MAX_CPU_EXCP 16
 
+#ifdef __PPCE200Z0__
+#define E200ZX_IRQ_VECTOR_BASE_ALIGN	4096
+/* Z0 has fixed IVORs, at 16-byte intervals */
+#define E200ZX_IRQ_ENTRY_ALIGN	16
+
+#elif defined __PPCE200Z6__ || defined __PPCE200Z7__
 #define E200ZX_IRQ_VECTOR_BASE_ALIGN	E200ZX_IRQ_ENTRY_ALIGN
 #define E200ZX_IRQ_ENTRY_ALIGN	16
+
+#else
+#error "Unknown CPU"
+#endif
+
+
+#ifdef __PPCE200Z0__
+/* Z0 doesn't have any internal timer */
+#define E200ZX_CPU_HAS_TB	0
+#else
+#define E200ZX_CPU_HAS_TB	1
+#endif
 
 #endif /* __EE_CPU_E200ZX_REGS_H__ */

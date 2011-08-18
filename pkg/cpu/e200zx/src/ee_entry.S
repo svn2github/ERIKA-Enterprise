@@ -210,6 +210,7 @@ EE_e200z7_stop_decrementer:
 	.global	cpu_setup
 	.type	cpu_setup, @function
 cpu_setup:
+#if E200ZX_CPU_HAS_TB
 	li	r0, 0
 	mtspr	SPRG_TBL_W, r0
 	mtspr	SPRG_TBH_W, r0
@@ -219,7 +220,7 @@ cpu_setup:
 	mfspr	r3, SPRG_HID0
 	ori	r3, r3, 1 << HID0_TBEN
 	mtspr	SPRG_HID0, r3
-
+#endif /* E200ZX_CPU_HAS_TB */
 	b	ivor_setup
 	.size	cpu_setup, .-cpu_setup
 
