@@ -1,13 +1,13 @@
 /* ###*B*###
  * ERIKA Enterprise - a tiny RTOS for small microcontrollers
  *
- * Copyright (C) 2002-2008  Evidence Srl
+ * Copyright (C) 2002-2011  Evidence Srl
  *
  * This file is part of ERIKA Enterprise.
  *
  * ERIKA Enterprise is free software; you can redistribute it
  * and/or modify it under the terms of the GNU General Public License
- * version 2 as published by the Free Software Foundation, 
+ * version 2 as published by the Free Software Foundation,
  * (with a special exception described below).
  *
  * Linking this code statically or dynamically with other modules is
@@ -37,29 +37,32 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
+/*
+ * IRQ functions used in test cases for PPC e200zX
+ * Author: 2011 Bernardo  Dal Seno
+ */
 
-#ifdef e200zx
 
-EE_OPT = "__E200ZX_EXECUTE_FROM_RAM__";
-#ifdef USE_CODEWARRIOR
-EE_OPT = "__CODEWARRIOR__";
-#endif
+#include "../test_common.h"
+#include <cpu/e200zx/inc/ee_mcu_regs.h>
+#include <cpu/e200zx/inc/ee_irq.h>
 
-MCU_DATA = PPCE200ZX {
-  MODEL = MPC5674F;
-};
+#define E200ZX_TEST_IRQ0 0
 
-CPU_DATA = PPCE200ZX {
-  MODEL = E200Z7;
-  APP_SRC = "code.c";
-#ifdef USEIRQ
-  APP_SRC = "$(EEBASE)/testcase/common/e200z7/test_irq.c";
-#endif
-#ifdef USE_VLE
-  VLE = TRUE;
-#else
-  VLE = FALSE;
-#endif
-  SYS_STACK_SIZE=2048;
-  
-#endif
+static void test_isr(void)
+{
+	INTC.SSCIR[E200ZX_TEST_IRQ0].R = 1; /* Ack the IRQ */
+	isr_callback();
+}
+
+void test_setup_irq(void)
+{
+	INTC.PSR[E200ZX_TEST_IRQ0].R = 0;
+	EE_e200z7_register_ISR(16 + E200ZX_TEST_IRQ0, test_isr, 1);
+}
+
+void test_fire_irq(void)
+{
+	INTC.SSCIR[E200ZX_TEST_IRQ0].R = 2;
+	EE_e200zx_isync();
+}

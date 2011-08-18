@@ -1,7 +1,7 @@
 /* ###*B*###
  * ERIKA Enterprise - a tiny RTOS for small microcontrollers
  *
- * Copyright (C) 2002-2008  Evidence Srl
+ * Copyright (C) 2002-2011  Evidence Srl
  *
  * This file is part of ERIKA Enterprise.
  *
@@ -38,28 +38,13 @@
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
 
-#ifdef e200zx
+/* Setup an IRQ source */
+void test_setup_irq(void);
 
-EE_OPT = "__E200ZX_EXECUTE_FROM_RAM__";
-#ifdef USE_CODEWARRIOR
-EE_OPT = "__CODEWARRIOR__";
-#endif
+/* Fire an IRQ.  When this function returns, an IRQ is guaranteed to have fired
+ * once. */
+void test_fire_irq(void);
 
-MCU_DATA = PPCE200ZX {
-  MODEL = MPC5674F;
-};
-
-CPU_DATA = PPCE200ZX {
-  MODEL = E200Z7;
-  APP_SRC = "code.c";
-#ifdef USEIRQ
-  APP_SRC = "$(EEBASE)/testcase/common/e200z7/test_irq.c";
-#endif
-#ifdef USE_VLE
-  VLE = TRUE;
-#else
-  VLE = FALSE;
-#endif
-  SYS_STACK_SIZE=2048;
-  
-#endif
+/* Callback function, defined in the test code.  It must be called by the
+ * ISR. */
+void isr_callback(void);

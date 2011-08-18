@@ -38,28 +38,82 @@
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
 
-#ifdef e200zx
+#include "../common/rtdruid_common/ee_oil_defs.h"
 
-EE_OPT = "__E200ZX_EXECUTE_FROM_RAM__";
-#ifdef USE_CODEWARRIOR
-EE_OPT = "__CODEWARRIOR__";
+CPU test_application {
+
+    OS EE {
+        EE_OPT = "__ASSERT__";
+        EE_OPT = "DEBUG";
+
+		STATUS = EXTENDED;
+
+		STARTUPHOOK = FALSE;
+		ERRORHOOK = FALSE;
+		SHUTDOWNHOOK = FALSE;
+		PRETASKHOOK = FALSE;
+		POSTTASKHOOK = FALSE;
+		USEGETSERVICEID = FALSE;
+		USEPARAMETERACCESS = FALSE;
+		USERESSCHEDULER = TRUE;
+
+#ifdef evaluator7t
+	MCU_DATA = SAMSUNG_KS32C50100;
 #endif
 
-MCU_DATA = PPCE200ZX {
-  MODEL = MPC5674F;
+#ifdef s12xs
+			EE_OPT = "__S12_TMR0_ISR2_CODEc__";
+#endif
+
+#include "../common/rtdruid_common/ee_oil_e7t_os.h"
+#include "../common/rtdruid_common/ee_oil_janus_os.h"
+#include "../common/rtdruid_common/ee_oil_nios2_os.h"
+#include "../common/rtdruid_common/ee_oil_pic30_os.h"
+#include "../common/rtdruid_common/ee_oil_s12xs_os.h"
+#include "../common/rtdruid_common/ee_oil_e200z7_os.h"
+
+
+
+/* Mono Stack */
+#if defined(B1) || defined(B2)
+		MULTI_STACK = FALSE;
+#endif
+
+/* Multi Stack */
+#if defined(E1) || defined(E2)
+			MULTI_STACK = TRUE {
+				IRQ_STACK = FALSE;
+#if !defined(pic30) && !defined(s12xs) && !defined (e200z7)
+				DUMMY_STACK = SHARED;
+#endif
+			};
+#endif
+
+		};
+
+
+#ifdef B1
+        KERNEL_TYPE = BCC1;
+#endif
+#ifdef B2
+        KERNEL_TYPE = BCC2;
+#endif
+#ifdef E1
+        KERNEL_TYPE = ECC1;
+#endif
+#ifdef E2
+        KERNEL_TYPE = ECC2;
+#endif
+
+
+    };
+
+    TASK Task1 {
+		PRIORITY = 1;
+		ACTIVATION = 1;
+		SCHEDULE = FULL;
+		AUTOSTART = FALSE;
+		STACK = SHARED;
+    };
 };
 
-CPU_DATA = PPCE200ZX {
-  MODEL = E200Z7;
-  APP_SRC = "code.c";
-#ifdef USEIRQ
-  APP_SRC = "$(EEBASE)/testcase/common/e200z7/test_irq.c";
-#endif
-#ifdef USE_VLE
-  VLE = TRUE;
-#else
-  VLE = FALSE;
-#endif
-  SYS_STACK_SIZE=2048;
-  
-#endif

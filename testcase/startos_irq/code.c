@@ -1,7 +1,7 @@
 /* ###*B*###
  * ERIKA Enterprise - a tiny RTOS for small microcontrollers
  *
- * Copyright (C) 2002-2008  Evidence Srl
+ * Copyright (C) 2002-2011  Evidence Srl
  *
  * This file is part of ERIKA Enterprise.
  *
@@ -38,28 +38,46 @@
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
 
-#ifdef e200zx
+#include "ee.h"
+#include "test/assert/inc/ee_assert.h"
+#include "../../common/test_common.h"
 
-EE_OPT = "__E200ZX_EXECUTE_FROM_RAM__";
-#ifdef USE_CODEWARRIOR
-EE_OPT = "__CODEWARRIOR__";
-#endif
+#define TRUE 1
 
-MCU_DATA = PPCE200ZX {
-  MODEL = MPC5674F;
+/* Assertion data */
+enum assertions {
+	ASSERT_INIT = 1,
+	ASSERT_CALL_STARTOS,
+	ASSERT_IRQ_FIRED,
+	ASSERT_DIM
 };
+EE_TYPEASSERTVALUE EE_assertions[ASSERT_DIM];
 
-CPU_DATA = PPCE200ZX {
-  MODEL = E200Z7;
-  APP_SRC = "code.c";
-#ifdef USEIRQ
-  APP_SRC = "$(EEBASE)/testcase/common/e200z7/test_irq.c";
-#endif
-#ifdef USE_VLE
-  VLE = TRUE;
-#else
-  VLE = FALSE;
-#endif
-  SYS_STACK_SIZE=2048;
-  
-#endif
+
+void isr_callback(void)
+{
+	EE_assert(ASSERT_IRQ_FIRED, TRUE, ASSERT_CALL_STARTOS);
+	EE_assert_range(0, 1, ASSERT_DIM - 1);
+	EE_assert_last();
+}
+
+int main(void)
+{
+	EE_assert(ASSERT_INIT, TRUE, EE_ASSERT_NIL);
+
+	/* Setup and queue an interrupt request; StartOS() should enable IRQs, so
+	   the request is served */
+	test_setup_irq();
+	test_fire_irq();
+	EE_assert(ASSERT_CALL_STARTOS, TRUE, ASSERT_INIT);
+	StartOS(OSDEFAULTAPPMODE);
+
+	while (1)
+		;
+}
+
+DeclareTask(Task1);
+
+TASK(Task1)
+{
+}
