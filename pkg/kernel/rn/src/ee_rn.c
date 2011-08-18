@@ -155,7 +155,7 @@ static void EE_rn_execute(EE_TYPERN rn, EE_UINT8 sw)
 
 /* this function can be used into an interrupt handler to handle
    pending notifications. It will execute all the pending
-   notification. Execution order may not respect the original
+   notifications. Execution order may not respect the original
    notification order. */
 #ifndef __PRIVATE_RN_HANDLER__
 void EE_rn_handler(void)

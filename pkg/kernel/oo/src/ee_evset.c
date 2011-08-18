@@ -82,8 +82,8 @@ void EE_oo_SetEvent(TaskType TaskID, EventMaskType Mask)
 
 #ifdef __RN_EVENT__
   if (TaskID & EE_REMOTE_TID) {
-    /* forward the request to another CPU whether the thread do
-       not become to the current CPU */
+    /* forward the request to another CPU when the task does
+       not belong to the current CPU */
     register EE_TYPERN_PARAM par;
     par.ev = Mask;
     EE_rn_send(TaskID & ~EE_REMOTE_TID, EE_RN_EVENT, par );

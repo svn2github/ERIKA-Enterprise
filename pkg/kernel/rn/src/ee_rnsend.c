@@ -94,8 +94,8 @@ int EE_rn_send(EE_TYPERN rn, EE_TYPERN t, EE_TYPERN_PARAM par)
 
     /* Check if we should raise a new Interprocessor Interrupt 
      *
-     * That is, noone is inside the IIRQ interrupt handler, and noone
-     * is already queued on the current data structure
+     * That is, the target CPU is not inside the IIRQ interrupt handler, and
+     * nothing is already queued on the current data structure
      */
     newIRQ = !(EE_rn_switch[cpu] & EE_RN_SWITCH_INSIDEIRQ) && 
       EE_rn_first[cpu][sw] == -1;
