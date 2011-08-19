@@ -65,7 +65,6 @@ endif
 
 ifeq ($(call iseeopt, __MULTI__), yes)
 EE_CASM_SRCS += pkg/cpu/e200zx/src/ee_context.S
-EE_SRCS += pkg/cpu/common/src/ee_context.c
 endif
 
 ifeq ($(call iseeopt, __IRQ_STACK_NEEDED__), yes)

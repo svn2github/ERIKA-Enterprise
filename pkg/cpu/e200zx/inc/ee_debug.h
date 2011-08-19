@@ -102,7 +102,7 @@ __INLINE__ int __ALWAYS_INLINE__ check_all_pre_stack_canaries(
 /*
  * Return the current stack index (according to the HAL).
  */
-__INLINE__ EE_UREG __ALWAYS_INLINE__ get_current_tos_index()
+__INLINE__ EE_UREG __ALWAYS_INLINE__ get_current_tos_index(void)
 {
     return EE_e200z7_active_tos;
 }
@@ -171,13 +171,13 @@ __INLINE__ int __ALWAYS_INLINE__ get_base_toses(
     EE_ADDR base_toses[EE_MAX_TASK+1] )
 {
     int i, max_stack = 0;
-    extern int _stack0;     /* Address defined in the linker script */
     for (i = 0; i < EE_MAX_TASK+1; ++i)
         if (EE_std_thread_tos[i] > max_stack) {
             max_stack = EE_std_thread_tos[i];
             base_toses[max_stack] = EE_e200z7_system_tos[max_stack].SYS_tos;
         }
-    base_toses[0] = (EE_ADDR)&_stack0;
+    base_toses[0] = (EE_ADDR)((char *)EE_e200zx_sys_stack
+	    + EE_SYS_STACK_SIZE - 16);
     return max_stack+1;
 }
 

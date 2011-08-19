@@ -314,7 +314,8 @@ endif # EE_LINK_SCRIPT
 
 libee.a: $(LIBEEOBJS)
 	@printf "AR  libee.a\n" ;
-	$(QUIET)$(EE_AR) $(OPT_AR) libee.a $(LIBEEOBJS)
+	$(QUIET)rm -f $@
+	$(QUIET)$(EE_AR) $(OPT_AR) $@ $(LIBEEOBJS)
 
 ##
 ## Automatic Generation of dependencies
