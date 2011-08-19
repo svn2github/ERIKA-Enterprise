@@ -72,4 +72,10 @@
 #define EE_COMPILER_SECTION(s) __attribute__((section(s)))
 #define EE_COMPILER_KEEP __attribute((used))
 
+/* Macros used to encapsulate # and ## operators; used to enforce the expected
+ * evaluation order of arguments */
+#define EE_PREPROC_JOIN(a,b) a ## b
+#define EE_PREPROC_STRING(s) # s
+#define EE_PREPROC_EVAL(e) e
+
 #endif /* __INCLUDE_CPU_COMMON_EE_COMPILER_GCC__ */
