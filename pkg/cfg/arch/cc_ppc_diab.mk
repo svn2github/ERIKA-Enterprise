@@ -105,8 +105,7 @@ EE_LINK_SCRIPT =
 LINKDEP =
 endif
 
-BASE_LD_RAM_SCRIPT = ram$(CPU_NUMID)_diab.ld
-BASE_LD_ROM_SCRIPT = rom$(CPU_NUMID)_diab.ld
+CC_LD_SUFFIX = _diab.ld
 
 ifeq ($(call iseeopt, __DEFAULT_LD_SCRIPT__), yes)
 $(error "EEOPT __DEFAULT_LD_SCRIPT__ not supported")
