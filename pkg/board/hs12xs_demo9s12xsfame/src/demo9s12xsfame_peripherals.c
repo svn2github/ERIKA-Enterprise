@@ -39,8 +39,7 @@
  * ###*E*### */
 
 /*
- * Author: 20065 Mauro Marinoni
- * CVS: $Id: ee_board.c,v 1.11 2008/08/29 11:21:08 francesco Exp $
+ * Author: Dario Di Stefano
  */
 
 #include "ee_internal.h"
@@ -53,7 +52,6 @@
 
 #include "cpu/hs12xs/inc/ee_irqstub.h"
 
-//Start GF
 /* /\************************************************************************* */
 /*  Buttons and PICDEM Z */
 /*  *************************************************************************\/ */

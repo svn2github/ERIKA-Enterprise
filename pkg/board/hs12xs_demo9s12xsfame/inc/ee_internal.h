@@ -39,8 +39,7 @@
  * ###*E*### */
 
 /*
- * Author: 2006 Paolo Gai
- * CVS: $Id: ee_internal.h,v 1.1 2006/12/21 14:49:49 nino Exp $
+ * Author: Dario Di Stefano
  */
 
 #include "board/hs12xs_demo9s12xsfame/inc/ee_board.h"

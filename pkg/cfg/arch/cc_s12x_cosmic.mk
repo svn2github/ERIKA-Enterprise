@@ -77,7 +77,6 @@ EE_DEP:=$(BINDIR_DEP)/cxs12x.exe
 endif
 
 ifndef EE_PREP
-#EE_PREP:= $(shell cygpath `cygpath -ms "C:\cygwin\bin"`)/gcc
 EE_PREP:= $(BINDIR_CC)/cps12x.exe
 endif
 
@@ -108,19 +107,18 @@ endif
 
 INTERNAL_PKGBASEDIR := -i"$(shell cygpath -w $(PKGBASE))\\." -i"$(shell cygpath -w $(APPBASE))\\." -i.
 ALLINCPATH += $(INTERNAL_PKGBASEDIR)
-GCC_ALLINCPATH := -I"$(shell cygpath -w $(PKGBASE))\\." -I"$(shell cygpath -w $(APPBASE))\\." -I.
 
-## OPT_CC are the options for arm compiler invocation
-OPT_CC = 
+## OPT_CC are the options for Cosmic C-compiler invocation
 ifeq ($(call iseeopt, DEBUG), yes)
 OPT_CC += +debug
 endif
 # Specific option from the application makefile
 OPT_CC += $(CFLAGS)
 
+## OPT_CC_DEPS are the options for dependencies calculation
 OPT_CC_DEPS := $(OPT_CC) -sm
 
-# #OPT_ASM are the options for asm invocation
+## OPT_ASM are the options for Cosmic assembler invocation
 OPT_ASM = 
 ifeq ($(call iseeopt, DEBUG), yes)
 OPT_ASM += -xx -x
@@ -128,7 +126,7 @@ endif
 # Specific option from the application makefile
 OPT_ASM += $(ASFLAGS)
 
-## OPT_LINK represents the options for armlink invocation
+## OPT_LINK represents the options for Cosmic linker invocation
 OPT_LINK = 
 # Specific option from the application makefile
 OPT_LINK += $(LDFLAGS)
@@ -139,6 +137,24 @@ OPT_LINK += $(LDFLAGS)
 
 DEFS_ASM = $(addprefix -d, $(EEOPT) )
 DEFS_GCCASM = $(addprefix -D, $(EEOPT) )
-DEFS_CC  = $(addprefix -d, $(EEOPT) )
+DEFS_CC  = $(addprefix -d, $(EEOPT) ) 
+
+# Automatic dependency generation
+ifeq ($(call iseeopt, NODEPS), yes)
+DEPENDENCY_OPT =
+DEPENDENCY_OPT_CPS12X =
+make-depend =
+else # NODEPS
+ifeq ($(call iseeopt, __RTD_CYGWIN__), yes)
+# Dependencies on Windows need path translation
+DEPENDENCY_OPT = -sm
+DEPENDENCY_OPT_CPS12X = -md
+make-depend = sed -e 's_\\\(.\)_/\1_g' -e 's_\<\([a-zA-Z]\):/_/cygdrive/\l\1/_g' < $3_tmp > $3 && rm $3_tmp
+else # __RTD_CYGWIN__
+DEPENDENCY_OPT = 
+DEPENDENCY_OPT_CPS12X =
+make-depend = 
+endif # __RTD_CYGWIN__
+endif # NODEPS
 
 endif

@@ -39,10 +39,7 @@
 // * ###*E*### */
 
 ///*
-// * Author: 2005 Michele Cirinei
-// *         2006- Paolo Gai
-// *
-// * CVS: $Id: ee_hal.S,v 1.7 2008/06/16 14:26:31 francesco Exp $
+// * Author: Dario Di Stefano
 // */
 
 ///* the define is needed for binary distributions */

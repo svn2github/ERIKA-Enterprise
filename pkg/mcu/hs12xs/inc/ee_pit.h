@@ -3,20 +3,13 @@
 #ifndef __INCLUDE_FREESCALE_S12XS_PIT_H__
 #define __INCLUDE_FREESCALE_S12XS_PIT_H__
 
-/* Include a file with the registers of the s12 micro-controller 
-#ifdef __S12XS_INCLUDE_REGS__
-#include "ee_hs12xsregs.h"
-#endif
-*/ 
-
 extern volatile EE_UINT8 EE_pit0_initialized;
 
 __INLINE__ void __ALWAYS_INLINE__ EE_pit0_init( unsigned char pitmtld0, unsigned char pitld0, unsigned char prio )
 {
 	if(EE_pit0_initialized==1)
 		return;
-	/*	PIT Module
- 	*/
+	/*	PIT Module */
 	  PITCFLMT      = 0x00;        //@0x340;	/* PIT control micro timer register */
 	  PITFLT        = 0x00;        //@0x341;	/* PIT force load timer register */
 	  PITCE         = 0x01;        //@0x342;	/* PIT channel enable register */
@@ -35,7 +28,6 @@ __INLINE__ void __ALWAYS_INLINE__ EE_pit0_init( unsigned char pitmtld0, unsigned
 	  PITCNT3       = 0x00;        //@0x356;	/* PIT count register 3 */
 	  PITCFLMT      = 0x80;        //@0x340;	/* PIT control micro timer register */
 	  
-	  // IVBR = 0xff;      // 0xFF default value
 	  _asm("cli");
 	  INT_CFADDR = 0x7A;
 	  INT_CFDATA0 = prio;
@@ -46,7 +38,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_pit0_init( unsigned char pitmtld0, unsigned
 
 __INLINE__ void __ALWAYS_INLINE__ EE_pit0_close( void )
 {
-	PITCFLMT      = 0x00;        //@0x340;	/* PIT control micro timer register */
+	PITCFLMT      = 0x00;        /* PIT control micro timer register */
 	EE_pit0_initialized = 0;
 }
 

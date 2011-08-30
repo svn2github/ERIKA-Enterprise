@@ -39,61 +39,29 @@
  * ###*E*### */
 
 /*
- * Author: 2004 Paolo Gai
- * CVS: $Id: ee_start.c,v 1.17 2006/04/23 12:45:49 pj Exp $
+ * Author: Dario Di Stefano
  */
 
-//#include "ee.h"
 #include "ee_internal.h"
-//#include "cpu/hs12xs/inc/ee_irqstub.h"
-//#include "ee_utils.h"
 
-/* Include a file with the registers of the s12 micro-controller 
-#ifdef __S12XS_INCLUDE_REGS__
-#include "ee_hs12xsregs.h"
-#endif
-*/ 
-
-#if(EE_MAX_COUNTER>0)
-volatile EE_UINT8 EE_timer0_initialized = 1;
-
-//#define EE_TIMER0_STEP 250
 #ifdef __OO_EXTENDED_STATUS__
 int EE_cpu_startos(void)
 #else
 void EE_cpu_startos(void)
 #endif
 {
-		///*	Timer0 Module
-//		*/
-//		TSCR1 = 0;
-//		TFLG1 = 0x01;
-//		//TCNT = 0;
-//		TIOS |= 0x01;
-//		TCTL2 &= 0xFC;
-//		TCTL4 &= 0xFC;
-//		TIE |= 0x01; 
-//		OCPD |= 0x01;
-//		_asm("cli");
-//		INT_CFADDR = 0xEE;
-//		INT_CFDATA0 = 0x01; 
-//		TC0 = (int)(EE_TIMER0_STEP);		// 1ms -> Freq: 64MHz, Bus_clock: 32MHz, -> 32MHz/prescaler*1ms
-//		TSCR2 = 0x03;	// prescaler 128
-//		TSCR1 = 0x80; 
-//		#ifdef __OO_EXTENDED_STATUS__
-//  		return 0;
-//		#endif
-		#ifdef __OO_EXTENDED_STATUS__
-			return EE_s12xs_hal_cpu_startos();	// 0 OK, 1 ERROR
-		#else
-			EE_s12xs_hal_cpu_startos();
-		#endif	
+	#ifdef __OO_EXTENDED_STATUS__
+		return EE_s12xs_hal_cpu_startos();
+	#else
+		EE_s12xs_hal_cpu_startos();
+	#endif
 }
 
+/*
 //ISR2(T0_ISR)
 //{
 //	int val = TC0;
-//	/* clear the interrupt source */
+//	// clear the interrupt source
 //	TFLG1 = 0x01;	// Clear interrupt flag
 //
 //	if (  ((signed)(TCNT-TC0)) > 0) 	// to avoid spurious interrupts...
@@ -111,8 +79,11 @@ void EE_cpu_startos(void)
 //ISR2(T0_ISR)
 //{
 //}
+*/
 
-#else
+#if(EE_MAX_COUNTER>0)
+volatile EE_UINT8 EE_timer0_initialized = 1;
+#else /* #if(EE_MAX_COUNTER>0) */
 volatile EE_UINT8 EE_timer0_initialized = 0;
+#endif /* #if(EE_MAX_COUNTER>0) */
 
-#endif

@@ -70,7 +70,7 @@ CPU test_application {
    			MODEL = CUSTOM{
     			MODEL = "MC9S12XS128";
     			LINKERSCRIPT = "SofTec_HCS12_linker.prm";
-    			INCLUDE_H = "";
+    			INCLUDE_H = "mc9s12xs128.h";
     			INCLUDE_C = "Start12.c";
     			INCLUDE_S = "";
    			};

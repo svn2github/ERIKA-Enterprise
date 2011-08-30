@@ -39,8 +39,7 @@
  * ###*E*### */
 
 /*
- * Author: 
- * CVS: $Id: ee_mcuregs.h,v 1.7 2007/08/31 08:21:10 pj Exp $
+ * Author: Dario Di Stefano
  */
 
 #include "cpu/hs12xs/inc/ee_cpu.h"
@@ -49,11 +48,8 @@
 #define __INCLUDE_MCU_FREESCALE_S12XS_MCUREGS__
 
 /* This file should contain the definition of the registers available
-   on the particular dsPIC being used */
-   
-///* Include a file with the registers of the s12 micro-controller */ 
-//#ifdef __S12XS_INCLUDE_REGS__
-//#include "ee_hs12xsregs.h"
-//#endif
+   on the particular device being used */
+/* Include a file with the registers of the s12 micro-controller */ 
+#include "ee_hs12xsregs.h"
 
 #endif

@@ -39,7 +39,7 @@
 // * ###*E*### */
 
 ///*
-// * Author: Dario Di Stefano, 2011
+// * Author: Dario Di Stefano
 // */
 
 //#include "cpu/hs12xs/inc/ee_compiler.h"

@@ -39,11 +39,9 @@
  * ###*E*### */
 
 /*
- * Author: 2006 Paolo Gai
- * CVS: $Id: ee_mcu.h,v 1.9 2008/07/14 10:40:17 pj Exp $
+ * Author: Dario Di Stefano
  */
-
-//#include "mcu/hs12xs/inc/ee_mcuregs.h"
+ 
 #include "eecfg.h"
 #include "cpu/hs12xs/inc/ee_cpu.h"
 
@@ -51,18 +49,14 @@
 #define __INCLUDE_FREESCALE_S12XS_MCU_H__
 
 /* Include a file with the registers of the s12 micro-controller */ 
-#ifdef __S12XS_INCLUDE_REGS__
- #ifdef __CODEWARRIOR__
-  #include "mc9s12xs128.h" 
- #else
-  #include "ee_hs12xsregs.h"
- #endif
-#endif
+#include "mcu/hs12xs/inc/ee_mcuregs.h"
 
+/* PIT module */
 #ifdef __USE_PIT__
 #include "mcu/hs12xs/inc/ee_pit.h"
 #endif
 
+/* SCI module */
 #ifdef __USE_SCI__
 #include "mcu/hs12xs/inc/ee_sci.h"
 #endif
@@ -70,13 +64,9 @@
 /*************************************************************************
  System startup
  *************************************************************************/
-
-#if(EE_MAX_COUNTER>0)
-/* defining this let the StartOS routine to call this function */
-#ifndef __OO_CPU_HAS_STARTOS_ROUTINE__
-#define __OO_CPU_HAS_STARTOS_ROUTINE__	// Symbol defined in eeopt.h
-#endif
-/* This function starts ths system,
+#ifdef __OO_CPU_HAS_STARTOS_ROUTINE__
+ 
+ /* This function starts ths system,
  * register the IPIC and synchronize the CPUs 
  * returns 1 in case of error (typically a mutex name error)
  */
@@ -84,7 +74,15 @@
 int EE_cpu_startos(void);
 #else
 void EE_cpu_startos(void);
-#endif	// __OO_EXTENDED_STATUS__
+#endif	/* __OO_EXTENDED_STATUS__ */
+
+
+#if(EE_MAX_COUNTER>0)
+/* defining this let the StartOS routine to call this function 
+#ifndef __OO_CPU_HAS_STARTOS_ROUTINE__
+#define __OO_CPU_HAS_STARTOS_ROUTINE__
+#endif
+*/
 
 /*************************************************************************
  Time handling
@@ -97,9 +95,7 @@ void EE_cpu_startos(void);
 
 #ifndef EE_TIMER0_COUNTER
 
-///*
-//*	Timer0 module
-//*/
+/* Timer0 module */
 #define EE_TIMER0_COUNTER
 #define EE_PRESCALE_FACTOR_128 		7
 #define EE_PRESCALE_FACTOR_64 		6
@@ -110,45 +106,49 @@ void EE_cpu_startos(void);
 #define EE_PRESCALE_FACTOR_2 		1
 #define EE_PRESCALE_FACTOR_1 		0
 
-//EE_TIMER_PRESCALER		es. 128
+/* EE_TIMER_PRESCALER		es. 128 */
 extern unsigned int EE_TIMER_PRESCALER;
-//EE_PRESCALE_FACTOR		es. EE_PRESCALE_FACTOR_128
+/* EE_PRESCALE_FACTOR		es. EE_PRESCALE_FACTOR_128 */
 extern unsigned int EE_PRESCALE_FACTOR;
-//EE_BUS_CLOCK				es. 32000000
+/* EE_BUS_CLOCK				es. 32000000 */
 extern unsigned long int EE_BUS_CLOCK; 
-//EE_TIMER_PERIOD			es. 1 in ms
-extern unsigned int EE_TIMER_PERIOD; 	// ms
+/* EE_TIMER_PERIOD			es. 1 in ms */
+extern unsigned int EE_TIMER_PERIOD;
 
-#define EE_TIMER0_STEP 			(((unsigned long int)(EE_BUS_CLOCK))/((unsigned long int)(EE_TIMER_PRESCALER))*((unsigned long int)(EE_TIMER_PERIOD)))/((unsigned long int)(1000))	///es. 250
+#define EE_TIMER0_STEP 			(((unsigned long int)(EE_BUS_CLOCK))/((unsigned long int)(EE_TIMER_PRESCALER))*((unsigned long int)(EE_TIMER_PERIOD)))/((unsigned long int)(1000))	/* es. 250 */
 
-//#ifndef __EECFG_THIS_IS_ASSEMBLER__
 #ifdef __CODEWARRIOR__
 static int EE_s12xs_hal_cpu_startos( void )
 #else
 static @inline int EE_s12xs_hal_cpu_startos( void )
 #endif
 {
-		TSCR1 = 0;							// turn off Timer0 module
-		TFLG1 = 0x01;						// clear isr flag
-		TCNT = 0;							// clear Timer0 counter
-		TIOS |= 0x01;						// output compare mode
-		TCTL2 &= 0xFC;						// do not use pins
-		TCTL4 &= 0xFC;						// do not use pins
-		TIE |= 0x01; 						// enable interrupt
-		OCPD |= 0x01;						// disable Timer0 channel port 
-		_asm("cli");						// cli
-		INT_CFADDR = 0xE0;					// set base address
-		INT_CFDATA7 = 0x01; 				// set priority
-		TC0 = (unsigned int)(EE_TIMER0_STEP);			// 1ms -> Freq: 64MHz, Bus_clock: 32MHz, -> 32MHz/prescaler*1ms
-		TSCR2 = (unsigned char)(EE_PRESCALE_FACTOR);	// prescaler 128
-		TSCR1 = 0x80; 						// turn on Timer0 module
+		TSCR1 = 0;							/* turn off Timer0 module */
+		TFLG1 = 0x01;						/* clear isr flag */
+		TCNT = 0;							/* clear Timer0 counter */
+		TIOS |= 0x01;						/* output compare mode */
+		TCTL2 &= 0xFC;						/* do not use pins */
+		TCTL4 &= 0xFC;						/* do not use pins */
+		TIE |= 0x01; 						/* enable interrupt */
+		OCPD |= 0x01;						/* disable Timer0 channel port  */
+		_asm("cli");						/* cli */
+		INT_CFADDR = 0xE0;					/* set base address */
+		INT_CFDATA7 = 0x01; 				/* set priority */
+		TC0 = (unsigned int)(EE_TIMER0_STEP);			/* 1ms -> Freq: 64MHz, Bus_clock: 32MHz, -> 32MHz/prescaler*1ms */
+		TSCR2 = (unsigned char)(EE_PRESCALE_FACTOR);	/* prescaler 128 */
+		TSCR1 = 0x80; 						/* turn on Timer0 module */
 
   		return 0;
 }
-//#endif	//__EECFG_THIS_IS_ASSEMBLER__
 
-#endif	//TIMER0_COUNTER
+#endif	/* TIMER0_COUNTER */
 
-#endif	//EE_MAX_COUNTER>0
+#else	/* EE_MAX_COUNTER>0 */
+  #define EE_s12xs_hal_cpu_startos() 0 
+#endif	/* EE_MAX_COUNTER>0 */
 
-#endif	//__INCLUDE_FREESCALE_S12XS_MCU_H__
+#else	/* __OO_CPU_HAS_STARTOS_ROUTINE__ */
+  #define EE_s12xs_hal_cpu_startos() 0 
+#endif	/* __OO_CPU_HAS_STARTOS_ROUTINE__ */
+
+#endif	/* __INCLUDE_FREESCALE_S12XS_MCU_H__ */

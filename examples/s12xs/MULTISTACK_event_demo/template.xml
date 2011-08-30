@@ -20,7 +20,7 @@
  </long_descr>
 
  <file_section>
-  <file     name="mc9s12xs128.lkf"/> 
+  <file     name="mc9s12xs128_lkf_template"/> 
   <file     name="conf.oil"/>
   <file     name="crtsx.S"/>
   <file     name="hs12xsregs.h"/>

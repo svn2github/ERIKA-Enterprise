@@ -53,14 +53,17 @@ include $(EEBASE)/pkg/cfg/dir.mk
 include $(PKGBASE)/cfg/verbose.mk
 include $(PKGBASE)/cfg/compiler.mk
 
-#HCS12_CRT0 := $(BINDIR_HCS12)/HS12x/crtsx.S
+# Path used for HCS12 libraries and headers search:
+HCS12_LIB_DIR := $(COSMIC_CCDIR)/Lib
+HCS12_INCLUDE_DIR := $(COSMIC_CCDIR)/HS12x
 
-# HCS12_DATA_DIR refers to the location of HCS12 libraries
-HCS12_DATA_DIR := $(COSMIC_CCDIR)
+# options related to the libraries paths 
+OPT_LIBS += -l "`cygpath -w $(HCS12_LIB_DIR)`"
+OPT_LIBS += -l "`cygpath -w $(shell pwd)`"
 
-HCS12_LIB_DIR := $(HCS12_DATA_DIR)/Lib
-#HCS12_INCLUDE_DIR := $(HCS12_DATA_DIR)/HS12x
-#HCS12_LINKER_DIR := $(HCS12_DATA_DIR)/Link_files
+# INTERNAL_CCINCLUDEDIR is used to avoid multiple calls to cygpath
+INTERNAL_CCINCLUDEDIR := -i"`cygpath -w $(HCS12_INCLUDE_DIR)`"
+ALLINCPATH += $(INTERNAL_CCINCLUDEDIR)
 
 # Add linker dependencies
 OPT_LINK += 
@@ -72,25 +75,6 @@ LIBDEP += $(ALL_LIBS)
 # Specific option from the application makefile
 LIBDEP += $(LDDEPS)
 
-# path for libraries
-OPT_LIBS += -l "`cygpath -w $(HCS12_LIB_DIR)`"
-OPT_LIBS += -l "`cygpath -w $(shell pwd)`"
-
-
-# INTERNAL_CCINCLUDEDIR is used to avoid multiple calls to cygpath
-#INTERNAL_CCINCLUDEDIR := -i"`cygpath -w $(HCS12_INCLUDE_DIR)`"
-#ALLINCPATH += $(INTERNAL_CCINCLUDEDIR)
-
-
-## HCS12-related directories
-# we should look if these need to be moved inside dir.mk
-
-#if COSMIC_CCDIR is defined
-ifneq ($(COSMIC_CCDIR),)
-DEFS_CC += -d__HCS12_INCLUDE_REGS__
-HCS12_INCLUDE_REGS=__HCS12_INCLUDE_REGS__
-endif
-
 include $(PKGBASE)/cfg/cfg.mk
 
 
@@ -101,23 +85,29 @@ include $(PKGBASE)/cfg/cfg.mk
 ##
 ## Source files and paths
 ##
-
-# Add crtsx.s from MC
-#EE_BOOT_SRCS := fromHCS12/crtsx.S
-
 SRCS += 
 
 LIBEESRCS += $(EE_SRCS)
 LIBEEOBJS := $(addprefix $(OBJDIR)/, $(patsubst %.c,%.o,$(patsubst %.S,%.o,$(LIBEESRCS))))
-
-#LIBEESRCS += $(LIBSRCS)
-#LIBOBJS := $(addprefix $(OBJDIR)/, $(patsubst %.c,%.o,$(patsubst %.S,%.o,$(LIBSRCS))))
-
 SRCS += $(APP_SRCS)
-#SRCS += $(EE_SRCS)
 OBJS := $(addprefix $(OBJDIR)/, $(patsubst %.c,%.o,$(patsubst %.S,%.o, $(SRCS))))
+ALLOBJS = $(LIBEEOBJS) $(OBJS)
 
-LIBDEP += libee.x12
+# Cosmic compiler libraries list (to be added in the linker script)
+COSMIC_LIBDEP += $(shell cygpath -m $(COSMIC_CCDIR))/Lib/libe.x12 \
+                 $(shell cygpath -m $(COSMIC_CCDIR))/Lib/libf.x12 \
+                 $(shell cygpath -m $(COSMIC_CCDIR))/Lib/libi.x12 \
+                 $(shell cygpath -m $(COSMIC_CCDIR))/Lib/libm.x12
+
+# Check if clib.exe exists in the compiler directory
+RES_CLIB_CHECK := $(if $(wildcard $(COSMIC_CCDIR)/clib.exe),PASSED,FAILED)
+ifeq ($(RES_CLIB_CHECK),FAILED)
+ # CLIB.EXE does not exists...
+ LIBDEP += $(LIBEEOBJS)
+else
+ # CLIB.EXE exists (an archive will be created)...
+ LIBDEP += libee.x12
+endif
 
 vpath %.cd $(APPBASE)
 vpath %.Sd $(APPBASE)
@@ -151,7 +141,7 @@ all:: make_directories $(ALL_LIBS) $(TARGET)
 	@printf "Compilation terminated successfully!\n"
 
 clean::
-	@-rm -rf *.a *.ls *.ld *.map *.elf *.$(HCS12_EXTENSION) *.objdump deps deps.pre obj *.x12
+	@-rm -rf *.list *.a *.ls *.ld *.map *.elf *.$(HCS12_EXTENSION) *.objdump deps deps.pre obj *.x12
 # to support "make clean all"
 ifeq ($(findstring all,$(MAKECMDGOALS)),all)
 	@printf "CLEAN (also \"all\" specified)\n"
@@ -161,7 +151,8 @@ endif
 
 hs12xs.objdump: hs12xs.$(HCS12_EXTENSION)
 	@printf "OBJDUMP\n";
-	$(QUIET)$(EE_CLABS) -v hs12xs.$(HCS12_EXTENSION) > hs12xs.objdump
+	$(QUIET)$(EE_CLABS) hs12xs.$(HCS12_EXTENSION) 
+	@cat `find . -type f -name "*.la"` > hs12xs.objdump
 	@printf "ELF\n";
 	$(QUIET)$(EE_CVDWARF) hs12xs.$(HCS12_EXTENSION)
 
@@ -170,82 +161,61 @@ hs12xs.objdump: hs12xs.$(HCS12_EXTENSION)
 ##
 
 # ATT!!! tolta l'opzione -m > hs12xs.map
-hs12xs.$(HCS12_EXTENSION): $(OBJS) $(LINKDEP) $(LIBDEP) 
+hs12xs.$(HCS12_EXTENSION): $(OBJS) $(LIBDEP) 
 	@printf "LD\n";
-	$(QUIET)$(EE_LINK) $(COMPUTED_OPT_LINK) \
-                     -o $(TARGETFILE) $(OPT_LIBS) $(LINKDEP) $(OBJS) $(LIBDEP) \
-                     
-                    
+# create a file with the EE-objs list
+	$(QUIET)rm -rf eeobjs.list $(LINKDEP)
+	$(QUIET)for x in $(LIBDEP); do \
+	  echo \"$${x}\"      >> eeobjs.list; \
+	done;
+	$(QUIET)for x in $(COSMIC_LIBDEP); do \
+	  echo \"$${x}\"      >> eeobjs.list; \
+	done;
+# create the linker script
+	$(QUIET)cat ../mc9s12xs128_lkf_template eeobjs.list > $(LINKDEP)
+	$(QUIET)$(EE_LINK) $(COMPUTED_OPT_LINK) -o $(TARGETFILE) $(OPT_LIBS) $(LINKDEP) $(OBJS) $(LIBDEP)
 
-# preprocess first the assembly code and then compile the object file
-#$(OBJDIR)/%.o: %.S
-#	$(VERBOSE_PRINTPRE) $(EE_PREP) $(GCC_ALLINCPATH) $(DEFS_GCCASM) -E -P "$(SOURCEFILE)" > $(SRCFILE)
-#	$(VERBOSE_PRINTASM) $(EE_ASM) $(COMPUTED_OPT_ASM) -o $(TARGETFILE) $(SRCFILE) 
-
-# preprocess first the assembly code and then compile the object file
+# preprocess first the assembly code and then compile the resulting file to obtain the object file
 $(OBJDIR)/%.o: %.S
+ifneq ($(call iseeopt, NODEPS), yes)
+	@echo "$(TARGETFILE): \\" > $(call native_path,$(subst .o,.d_tmp,$@))
+	$(QUIET) $(EE_PREP) $(COMPUTED_ALLINCPATH) $(DEFS_CC) $(DEPENDENCY_OPT_CPS12X) "$(SOURCEFILE)"  >> $(call native_path,$(subst .o,.d_tmp,$@))
+	$(QUIET) $(call make-depend, $<, $@, $(subst .o,.d,$@))
+endif
 	$(VERBOSE_PRINTPRE) $(EE_PREP) $(COMPUTED_ALLINCPATH) $(DEFS_CC) -e "$(SOURCEFILE)" > $(SRCFILE)
 	$(VERBOSE_PRINTASM) $(EE_ASM) $(COMPUTED_OPT_ASM) -o $(TARGETFILE) $(SRCFILE) 
 
-# produce the object file from assembly code in a single step ATT!!!
-#$(OBJDIR)/%.o: %.S
-#	$(VERBOSE_PRINTCPP) $(EE_CC) $(COMPUTED_ALLINCPATH) $(DEFS_ASM) -a"-o $(TARGETFILE)" "$(SOURCEFILE)" 
-
-# produce the object file from C code in a single step	ATT!!! tolta opzione -c!!! e tolta l'opzione -o $(TARGETFILE) 
+# produce the object file from C code
 $(OBJDIR)/%.o: %.c ee_hs12xsregs.h  
+ifneq ($(call iseeopt, NODEPS), yes)
+	@echo "$(TARGETFILE): \\" > $(call native_path,$(subst .o,.d_tmp,$@))
+	$(QUIET) $(EE_PREP) $(COMPUTED_ALLINCPATH) $(DEFS_CC) $(DEPENDENCY_OPT_CPS12X) "$(SOURCEFILE)"  >> $(call native_path,$(subst .o,.d_tmp,$@))
+	$(QUIET) $(call make-depend, $<, $@, $(subst .o,.d,$@))
+endif
 	$(VERBOSE_PRINTCPP) $(EE_CC) $(COMPUTED_OPT_CC) $(COMPUTED_ALLINCPATH) $(DEFS_CC) -a"-o $(TARGETFILE)" "$(SOURCEFILE)" 
 
 ##
 ## EE Library
 ##
-
-
 libee.x12: $(LIBEEOBJS)
 	@printf "AR  libee.x12\n" ;
 	$(QUIET)$(EE_AR) -c libee.x12 $(LIBEEOBJS)
-	@echo
-	$(QUIET)$(EE_AR) -t -s libee.x12
-	@echo
-
-
-##
-## Automatic Generation of dependencies
-##
-
-# deps depends on the flag and not on the PHONY rule!
-deps: $(OBJDIR)/.make_directories_flag deps.pre
-	@printf "GEN deps\n"
-	@sed "s/ \<\([A-Za-z]\):/ \/cygdrive\/\l\1/g" < deps.pre > deps
-
-deps.pre: $(addprefix $(OBJDIR)/, $(patsubst %.S,%.Sd,$(patsubst %.c,%.cd, $(SRCS) $(LIBEESRCS) $(LIBSRCS))))
-	@printf "GEN deps.pre\n" ; cat $^ > deps.pre
-
-# generate dependencies for .c files and add "file.cd" to the target
-$(OBJDIR)/%.cd: %.c ee_hs12xsregs.h
-	$(VERBOSE_PRINTDEP) $(EE_DEP) $(COMPUTED_OPT_CC_DEPS) $(COMPUTED_ALLINCPATH) $(DEFS_CC) -M "$(SOURCEFILE)" > $(TARGETFILE).tmp
-	@echo -n $(TARGETFILE) $(dir $(TARGETFILE)) | cat - $(TARGETFILE).tmp > $(TARGETFILE)
-	@rm -rf $(TARGETFILE).tmp
-	@test -s $(TARGETFILE) || rm -f $(TARGETFILE)
-
-# generate dependencies for .S files and add "file.Sd" to the target
-$(OBJDIR)/%.Sd: %.S
-	$(VERBOSE_PRINTDEP) $(EE_DEP) $(COMPUTED_ALLINCPATH) $(DEFS_ASM) -M "$(SOURCEFILE)" > $(TARGETFILE).tmp
-	@echo -n $(TARGETFILE) $(dir $(TARGETFILE)) | cat - $(TARGETFILE).tmp > $(TARGETFILE)
-	@rm -rf $(TARGETFILE).tmp
-	@test -s $(TARGETFILE) || rm -f $(TARGETFILE)
-
 
 ee_hs12xsregs.h: $(APPBASE)/$(COSMIC_INCLUDE_H)
 	@printf "GEN ee_hs12xsregs.h\n"
 	@printf "/* Automatically generated from Makefile */\n" > ee_hs12xsregs.h
 	@printf "#include \"$(APPBASE)/$(COSMIC_INCLUDE_H)\"\n" >> ee_hs12xsregs.h
 
+##
+## Automatic Generation of dependencies
+##
 
-#
-# --------------------------------------------------------------------------
-#
-
-# interesting read: http://www.cmcrossroads.com/content/view/6936/120/
+dependencies=$(subst .o,.d,$(ALLOBJS))
+ifneq ($(call iseeopt, NODEPS), yes) 
+ifneq ($(MAKECMDGOALS),clean)
+-include $(dependencies)
+endif
+endif
 
 # this forces the directory creation when issuing the "make all"
 # rule. there is need for this rule because it may be that the user
@@ -261,20 +231,4 @@ ifneq ($(findstring clean,$(MAKECMDGOALS)),clean)
 	$(QUIET)mkdir -p $(dir $(basename $(addprefix $(OBJDIR)/, $(SRCS) $(LIBEESRCS) $(LIBSRCS))))
 endif
 
-# this checks but not forces the directory creation when creating dependencies
-$(OBJDIR)/.make_directories_flag:
-	@printf "MAKE_DIRECTORIES\n"
-	$(QUIET)mkdir -p $(dir $(basename $(addprefix $(OBJDIR)/, $(SRCS) $(LIBEESRCS) $(LIBSRCS))))
-	$(QUIET)touch $(TARGETFILE)
 
-#
-# --------------------------------------------------------------------------
-#
-
-ifndef NODEPS
-ifneq ($(MAKECMDGOALS),clean)
-ifneq ($(call iseeopt, NODEPS), yes) 
-#-include deps
-endif
-endif
-endif

@@ -119,7 +119,7 @@ void ErrorHook(StatusType Error)
 #endif
 
 #if defined(__HCS12XS__)
-	#include "cpu/cosmic_hs12xs/inc/ee_irqstub.h"
+	#include "cpu/hs12xs/inc/ee_irqstub.h"
 	#include "ee_hs12xsregs.h" 
 	ISR2(myISR2)
 	{

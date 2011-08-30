@@ -38,8 +38,7 @@
 # Boston, MA 02110-1301 USA.
 # ###*E*###
 
-## Author: 2004 Paolo Gai
-## CVS: $Id: cfg.mk,v 1.3 2008/02/07 14:05:30 nino Exp $
+## Author: Dario Di Stefano
 
 ifeq ($(call iseeopt, __DEMO9S12XSFAME__), yes)
 

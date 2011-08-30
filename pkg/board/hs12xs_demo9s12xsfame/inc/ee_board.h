@@ -39,8 +39,7 @@
  * ###*E*### */
 
 /*
- * Author: 2006 Mauro Marinoni
- * CVS: $Id: ee_board.h,v 1.27 2008/08/29 11:21:08 francesco Exp $
+ * Author: Dario Di Stefano
  */
 
 #ifndef __INCLUDE_S12XS_BOARD_H__
@@ -54,7 +53,7 @@
 
 #ifdef __DEMO9S12XSFAME__
 #include "board\hs12xs_demo9s12xsfame\inc\demo9s12xsfame_peripherals.h"
-#endif // __DEMO9S12XSFAME__
+#endif /* __DEMO9S12XSFAME__ */
 
 /* ************************************************************************* */
 #endif

@@ -75,8 +75,6 @@ OPT_ENV += -envOBJPATH=$(OBJDIR) -envGENPATH=$(HCS12_SRC_DIR)
 # please note the final backslash sequence after the shell command to
 # avoid cygpath insering a trailing backslash
 # INTERNAL_PKGBASEDIR is used to avoid multiple calls to cygpath
-
-#ALLINCPATH += -I"$(shell cygpath -w $(PKGBASE))\\." -I"$(shell cygpath -w $(APPBASE))\\." -I.
 ALLINCPATH += -I$(call native_path,$(PKGBASE)) -I$(call native_path,$(APPBASE)) -I. -I$(call native_path,$(COSMIC_CCDIR)/lib/HC12c/include)
  
 # Linker script should be inside each project (so user can modify it)
@@ -89,12 +87,7 @@ LIBDEP += $(ALL_LIBS)
 LIBDEP += $(LDDEPS)
 
 # path for libraries
-#OPT_LIBS += -envOBJPATH=\sources\obj
-#OPT_LIBS += -l "`cygpath -w $(shell pwd)`"
 OPT_LIBS += -L$(HCS12_LIB_DIR)
-
-## HCS12-related directories
-# we should look if these need to be moved inside dir.mk
 
 include $(PKGBASE)/cfg/cfg.mk
 
@@ -147,6 +140,9 @@ SOURCEFILE = `cygpath -w $<`
 TARGETFILE = `cygpath -w $@`
 TARGET := hs12xs.lst
 SRCFILE = `cygpath -w $(patsubst %.o,%.src,$@)`
+SRCFILE_U = $(patsubst %.o,%.src,$@)
+TMPFILE_U = $(patsubst %.o,%.tmp,$@)
+
 
 ##
 ## Main rules: all clean
@@ -180,22 +176,17 @@ hs12xs.$(HCS12_EXTENSION): $(OBJS) $(LINKDEP) $(LIBDEP)
 	$(QUIET)$(EE_LINK) $(LINKDEP) $(LINK_OBJS) $(LINK_LIBS) $(COMPUTED_OPT_LINK) -o$(TARGETFILE) 
 
 # preprocess first the assembly code and then compile the object file
-#$(OBJDIR)/%.o: %.S
-#	$(VERBOSE_PRINTPRE) $(EE_PREP) $(GCC_ALLINCPATH) $(DEFS_GCCASM) -E -P "$(SOURCEFILE)" > $(SRCFILE)
-#	$(VERBOSE_PRINTASM) $(EE_ASM) $(COMPUTED_OPT_ASM) -o $(TARGETFILE) $(SRCFILE) 
-
-# produce the object file from assembly code in a single step ATT!!!
-#$(OBJDIR)/%.o: %.S
-#	$(VERBOSE_PRINTCPP) $(EE_CC) $(COMPUTED_ALLINCPATH) $(DEFS_ASM) -a"-o $(TARGETFILE)" "$(SOURCEFILE)" 
-
-# preprocess first the assembly code and then compile the object file
-$(OBJDIR)/%.o: %.S
+$(OBJDIR)/%.o: %.S ee_hs12xsregs.h
 	$(VERBOSE_PRINTPRE) $(EE_PREP) $(COMPUTED_OPT_CC) $(DEPENDENCY_OPT) $(COMPUTED_ALLINCPATH) $(DEFS_CC) -I$(dir $(shell cygpath -ms "$(SOURCEFILE)")) -LpCfg=cms "$(SOURCEFILE)" -Lp=$(SRCFILE)
+ifeq ($(call iseeopt, CW_EVAL_VERSION), yes)
+	$(QUIET)sed "s/\/\*/;\/\*/g" <$(SRCFILE_U) > $(TMPFILE_U)
+	$(QUIET)mv $(TMPFILE_U) $(SRCFILE_U)
+endif
 	$(VERBOSE_PRINTASM) $(EE_ASM) $(COMPUTED_OPT_ASM) $(COMPUTED_ALLINCPATH) -objn$(TARGETFILE) $(SRCFILE) 
 	$(QUIET) $(call make-depend, $<, $@, $(subst .o,.d,$@))
 	
 # produce the object file from C code in a single step	ATT!!! tolta opzione -c!!! e tolta l'opzione -o $(TARGETFILE) 
-$(OBJDIR)/%.o: %.c
+$(OBJDIR)/%.o: %.c ee_hs12xsregs.h
 	$(VERBOSE_PRINTCPP) $(EE_CC) $(COMPUTED_OPT_CC) $(DEPENDENCY_OPT) $(COMPUTED_ALLINCPATH) $(DEFS_CC) -I$(dir $(shell cygpath -ms "$(SOURCEFILE)")) -objn="$(TARGETFILE)" "$(SOURCEFILE)" 
 	$(QUIET) $(call make-depend, $<, $@, $(subst .o,.d,$@))
 
@@ -208,6 +199,11 @@ libee.a: $(LIBEEOBJS)
 	$(QUIET)$(EE_AR) $(COMPUTED_OPT_AR) -Cmd\( $(LIBEEOBJS) = libee.a\)
 	@echo
 
+ee_hs12xsregs.h: 
+	@printf "GEN ee_hs12xsregs.h\n"
+	@printf "/* Automatically generated from Makefile */\n" > ee_hs12xsregs.h
+	@printf "#include \"$(COSMIC_INCLUDE_H)\"\n" >> ee_hs12xsregs.h
+
 ##
 ## Automatic Generation of dependencies
 ##
@@ -218,34 +214,6 @@ ifneq ($(MAKECMDGOALS),clean)
 -include $(dependencies)
 endif
 endif
-
-# deps depends on the flag and not on the PHONY rule!
-#deps: $(OBJDIR)/.make_directories_flag deps.pre
-#	@printf "GEN deps\n"
-#	@sed "s/ \<\([A-Za-z]\):/ \/cygdrive\/\l\1/g" < deps.pre > deps
-
-#deps.pre: $(addprefix $(OBJDIR)/, $(patsubst %.S,%.Sd,$(patsubst %.c,%.cd, $(SRCS) $(LIBEESRCS) $(LIBSRCS))))
-#	@printf "GEN deps.pre\n" ; cat $^ > deps.pre
-
-# generate dependencies for .c files and add "file.cd" to the target
-#$(OBJDIR)/%.cd: %.c
-#	$(VERBOSE_PRINTDEP) $(EE_DEP) $(COMPUTED_OPT_CC_DEPS) $(COMPUTED_ALLINCPATH) $(DEFS_CC) -M "$(SOURCEFILE)" > $(TARGETFILE).tmp
-#	@echo -n $(TARGETFILE) $(dir $(TARGETFILE)) | cat - $(TARGETFILE).tmp > $(TARGETFILE)
-#	@rm -rf $(TARGETFILE).tmp
-#	@test -s $(TARGETFILE) || rm -f $(TARGETFILE)
-
-# generate dependencies for .S files and add "file.Sd" to the target
-#$(OBJDIR)/%.Sd: %.S
-#	$(VERBOSE_PRINTDEP) $(EE_DEP) $(COMPUTED_ALLINCPATH) $(DEFS_ASM) -M "$(SOURCEFILE)" > $(TARGETFILE).tmp
-#	@echo -n $(TARGETFILE) $(dir $(TARGETFILE)) | cat - $(TARGETFILE).tmp > $(TARGETFILE)
-#	@rm -rf $(TARGETFILE).tmp
-#	@test -s $(TARGETFILE) || rm -f $(TARGETFILE)
-
-#
-# --------------------------------------------------------------------------
-#
-
-# interesting read: http://www.cmcrossroads.com/content/view/6936/120/
 
 # this forces the directory creation when issuing the "make all"
 # rule. there is need for this rule because it may be that the user
@@ -260,14 +228,4 @@ ifneq ($(findstring clean,$(MAKECMDGOALS)),clean)
 	@printf "MAKE_DIRECTORIES (after a clean)\n"
 	$(QUIET)mkdir -p $(dir $(basename $(addprefix $(OBJDIR)/, $(SRCS) $(LIBEESRCS) $(LIBSRCS))))
 endif
-
-# this checks but not forces the directory creation when creating dependencies
-#$(OBJDIR)/.make_directories_flag:
-#	@printf "MAKE_DIRECTORIES\n"
-#	$(QUIET)mkdir -p $(dir $(basename $(addprefix $(OBJDIR)/, $(SRCS) $(LIBEESRCS) $(LIBSRCS))))
-#	$(QUIET)touch $(TARGETFILE)
-
-#
-# --------------------------------------------------------------------------
-#
 

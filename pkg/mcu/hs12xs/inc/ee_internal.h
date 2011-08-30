@@ -39,8 +39,7 @@
  * ###*E*### */
 
 /*
- * Author: 2006 Paolo Gai
- * CVS: $Id: ee_internal.h,v 1.8 2008/07/18 09:53:55 tiberipa Exp $
+ * Author: Dario Di Stefano
  */
 
 #include "mcu/hs12xs/inc/ee_mcu.h"

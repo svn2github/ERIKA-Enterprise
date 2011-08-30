@@ -71,24 +71,14 @@
 /* EE_demo9s12xsfame_leds_init: demo9s12xsfame red leds initialization  */
 __INLINE__ void __ALWAYS_INLINE__ EE_demo9s12xsfame_leds_init(void) {
 	
-	PORTA = (unsigned char)0x00;	// values                                             
-  	DDRA = (unsigned char)0x0F;		// configured in output mode
+	PORTA = (unsigned char)0x00;
+	DDRA = (unsigned char)0x0F;		/* configured in output mode */
 }
 
 /* EE_leds: turn on a demo9s12xsfame red led */
 __INLINE__ void __ALWAYS_INLINE__ EE_demo9s12xsfame_leds( EE_UINT8 data ) {
-//	unsigned char led = 0;
+
 	PORTA = (EE_UINT8)(data & ((EE_UINT8)0x0F));
-	
-	//data += 1;
-//	if(data<3)
-//		led = data;
-//	else if(data==3)
-//		led = 4;
-//	else if(data==4)
-//		led = 8;
-//	if(led!=0)
-//		PORTA |= led;
 }
 
 __INLINE__ void __ALWAYS_INLINE__ EE_demo9s12xsfame_led_0_on(void)   { PORTA |= 0x01; }
@@ -129,7 +119,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_demo9s12xsfame_buttons_init( EE_UINT8 bx, E
 	
 	if(EE_buttons_initialized == 1)
 		return;
-	DDRP = (unsigned char)0x00;		// configured in input mode
+	DDRP = (unsigned char)0x00;		/* configured in input mode */
 	PIEP = (EE_UINT8)(bx+1);
 	_asm("cli");
 	INT_CFADDR = 0x8E;
@@ -220,16 +210,12 @@ __INLINE__ void __ALWAYS_INLINE__ EE_demo9s12xsfame_adc_init( unsigned char res,
 	
 	if(numconvseq >= 16)
 		numconvseq = 0;
-	// Configures the ATD peripheral
-  	// 8 bit data resolution
-  	ATD0CTL1 = (unsigned char)(0x10 + (res<<5)); 
-  	// Right justified data, 2 conversion sequence and non-FIFO mode
-  	ATD0CTL3 = (unsigned char)(0x03 + ((numconvseq & 0x0F)<<3));
-  	// fBUS=2MHz, fATDCLK = 1 MHz (PRESCLAER = 0) Select 24 Sample Time
-  	ATD0CTL4 = 0xE0;
-	
-	/* set ADC as configured */
-	EE_adc_init = 1;
+
+	/* Configures the ATD peripheral */
+	ATD0CTL1 = (unsigned char)(0x10 + (res<<5));  /* 8 bit data resolution */
+	ATD0CTL3 = (unsigned char)(0x03 + ((numconvseq & 0x0F)<<3));	/* Right justified data, 2 conversion sequence and non-FIFO mode */
+	ATD0CTL4 = 0xE0; /* fBUS=2MHz, fATDCLK = 1 MHz (PRESCLAER = 0) Select 24 Sample Time */
+	EE_adc_init = 1; /* set ADC as configured */
 }
 
 /* EE_adc_convert: to start conversion */

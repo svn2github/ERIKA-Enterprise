@@ -46,11 +46,13 @@
 # Global scripts
 #
 
+LAUNCHER_JAR=$(shell ls $(ECLIPSE_HOME)/plugins/org.eclipse.equinox.launcher_*.jar)
+
 GLOBAL_RTDRUID += \
 	( if test -e tmp/s12xs_rtdruid_partial.xml; then \
 		cat common/rtdruid_common/script_prologue.xml tmp/s12xs_rtdruid_partial.xml common/rtdruid_common/script_epilogue.xml > tmp/build.xml; \
 		cp tmp/build.xml tmp/s12xs_rtdruid_global_build.xml; \
-		cd tmp; java -jar "$(ECLIPSE_HOME)/plugins/$(LAUNCHER_JAR)" -application org.eclipse.ant.core.antRunner &>rtdruid_s12xs.log; \
+		cd tmp; java -jar "$(LAUNCHER_JAR)" -application org.eclipse.ant.core.antRunner &>rtdruid_s12xs.log; \
 	fi );
 
 #java -jar "$ECLIPSE_HOME/plugins/$LAUNCHER_JAR" -application org.eclipse.ant.core.antRunner  -Dbuild_numer=`date +"%Y%m%d_%H%M"` $@	
@@ -111,7 +113,7 @@ DIST_LOCK = $(TMPDIR)/dist.lock
 
 OUTDIR_COMMANDS_s12xs_source = \
 	( cd $@; cp -sf ../*.* .; \
-	cp ../../common/s12xs/hs12xsregs.h ../../common/s12xs/vector_s12x.c ../../common/s12xs/crtsx.S ../../common/s12xs/mc9s12xs128.lkf .; \
+	cp ../../common/s12xs/hs12xsregs.h ../../common/s12xs/vector_s12x.c ../../common/s12xs/crtsx.S ../../common/s12xs/mc9s12xs128_lkf_template .; \
 	cp ../../common/s12xs/Full_Chip_Simulation.ini ../../common/s12xs/C_Layout.hwl ../../common/s12xs/SofTec_HCS12.ini .; );
 
 # -------------------------------------------------------------------

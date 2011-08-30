@@ -66,10 +66,6 @@ CPU test_application {
 	MCU_DATA = SAMSUNG_KS32C50100;
 #endif
 
-#ifdef s12xs
-			EE_OPT = "__S12_TMR0_ISR2_CODEc__";
-#endif
-
 
 #include "../common/rtdruid_common/ee_oil_e7t_os.h"
 #include "../common/rtdruid_common/ee_oil_janus_os.h"

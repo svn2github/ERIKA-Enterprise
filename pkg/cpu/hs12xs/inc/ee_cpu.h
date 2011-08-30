@@ -39,11 +39,7 @@
  * ###*E*### */
 
 /*
- * Author: 2005 Michele Cirinei
- *         2006- Paolo Gai
- *         2008- Paolo & Francesco: change interrupt disabling/enabling
- *         procedure, now with DISI instruction   
- * CVS: $Id: ee_cpu.h,v 1.7 2008/07/16 15:01:38 francesco Exp $
+ * Author: Dario Di Stefano
  */
 
 

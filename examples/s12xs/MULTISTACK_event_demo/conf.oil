@@ -46,7 +46,7 @@ CPU test_application {
 
 	OS EE {
 		EE_OPT = "DEBUG";
-		EE_OPT = "NODEPS";
+		
 		EE_OPT = "__ASSERT__";
 		EE_OPT = "__S12XS_INCLUDE_REGS__";
 		EE_OPT = "__OO_CPU_HAS_STARTOS_ROUTINE__";

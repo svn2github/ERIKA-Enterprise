@@ -43,13 +43,6 @@
 
 #define TRUE 1
 
-#if defined(__HCS12XS__)
-	unsigned int EE_TIMER_PRESCALER = 128;
-	unsigned int EE_PRESCALE_FACTOR = EE_PRESCALE_FACTOR_128;
-	unsigned long int EE_BUS_CLOCK = 2e6; 
-	unsigned int EE_TIMER_PERIOD = 10;	//ms 
-#endif
-
 /* assertion data */
 EE_TYPEASSERTVALUE EE_assertions[6];
 
@@ -90,31 +83,6 @@ TASK(Task2)
 
   TerminateTask();
 }
-
-#if defined(__HCS12XS__)
-#include "cpu/cosmic_hs12xs/inc/ee_irqstub.h"
-volatile int timer_fired=0;
-ISR2(CounterISR)
-{
-	unsigned int val = TC0;
-	int diff;
-	timer_fired++;
-	/* clear the interrupt source */
-	TFLG1 = 0x01;	// Clear interrupt flag
-
-	//if (  ((signed)(TCNT-TC0)) >= 0) 	// to avoid spurious interrupts...
-	if (  ((signed)(TCNT-TC0)) >= 0)
-	{
-		do
-		{
-			CounterTick(Counter1);	
-			val += (unsigned int)(EE_TIMER0_STEP);
-   			TC0 = val;					// to manage critical courses...
-   			diff=((signed)(TCNT-val));
-		}while( diff >= 0);
-	}
-}
-#endif
 
 int main(int argc, char **argv)
 {

@@ -38,8 +38,7 @@
 # Boston, MA 02110-1301 USA.
 # ###*E*###
 
-## Author: 2004 Paolo Gai
-## CVS: $Id: cfg.mk,v 1.4 2006/11/30 16:58:17 nino Exp $
+## Author: Dario Di Stefano
 
 ifeq ($(call iseeopt, __HCS12XS__), yes)
 EE_SRCS += pkg/cpu/hs12xs/src/ee_hal.S

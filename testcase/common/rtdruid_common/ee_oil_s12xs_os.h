@@ -40,10 +40,8 @@
 
 #ifdef s12xs
 
-	EE_OPT = "NODEPS";
 	EE_OPT = "DEBUG";
 	EE_OPT = "__S12XS_INCLUDE_REGS__";
-	//EE_OPT = "__OO_CPU_HAS_STARTOS_ROUTINE__";
 
 	CFLAGS = "-l +modf +fast +nowiden +warn +sprec";
 	ASFLAGS = "-c -v -l ";

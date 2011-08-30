@@ -39,8 +39,7 @@
  * ###*E*### */
 
 /*
- * Author: 2005 Paolo Gai
- * CVS: $Id: ee_hal_c.c,v 1.5 2006/04/08 21:03:58 pj Exp $
+ * Author: Dario Di Stefano
  */
 
 

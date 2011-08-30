@@ -39,8 +39,7 @@
 // * ###*E*### */
 //
 ///*
-// * Author: Paolo Gai
-// * CVS: $Id: ee_compiler.h,v 1.2 2006/04/08 21:03:58 pj Exp $
+// * Author: Dario Di Stefano
 // */
 //
 ///* This file MUST contain only #defines, because it is also included
