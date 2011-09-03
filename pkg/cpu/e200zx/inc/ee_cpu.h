@@ -257,4 +257,55 @@ extern int _SDA_BASE_;
 extern int _SDA2_BASE_;
 extern int _sstack, _estack;
 
+
+/*************************************************************************
+ MMU
+ *************************************************************************/
+
+typedef struct {
+	EE_UREG mas1;
+	EE_UREG mas2;
+	EE_UREG mas3;
+} EE_MMU_ENTRY_T;
+
+#define EE_E200ZX_MMU_TLBSEL1	0x10000000U
+#define EE_E200ZX_MMU_VALID	0x80000000U
+#define EE_E200ZX_MMU_IPROT	0x40000000U
+
+#define EE_E200ZX_MMU_SIZE_256M	0x00000900U
+#define EE_E200ZX_MMU_SIZE_64M	0x00000800U
+#define EE_E200ZX_MMU_SIZE_16M	0x00000700U
+#define EE_E200ZX_MMU_SIZE_4M	0x00000600U
+#define EE_E200ZX_MMU_SIZE_1M	0x00000500U
+#define EE_E200ZX_MMU_SIZE_256K	0x00000400U
+#define EE_E200ZX_MMU_SIZE_64K	0x00000300U
+#define EE_E200ZX_MMU_SIZE_16K	0x00000200U
+#define EE_E200ZX_MMU_SIZE_4K	0x00000100U
+
+#define EE_E200ZX_MMU_FLAG_GUARD 0x00000002U	/* Guarded access */
+#define EE_E200ZX_MMU_FLAG_CE	0x00000000U	/* Cache enabled */
+#define EE_E200ZX_MMU_FLAG_CD	0x00000008U	/* Cache disabled */
+#define EE_E200ZX_MMU_FLAG_FLE	0x00000000U	/* Fixed-length encoding */
+#define EE_E200ZX_MMU_FLAG_VLE	0x00000020U	/* Variable-length encoding */
+
+#define EE_E200ZX_MMU_PROT_UR	0x02U
+#define EE_E200ZX_MMU_PROT_UW	0x08U
+#define EE_E200ZX_MMU_PROT_UX	0x20U
+#define EE_E200ZX_MMU_PROT_SR	0x01U
+#define EE_E200ZX_MMU_PROT_SW	0x04U
+#define EE_E200ZX_MMU_PROT_SX	0x10U
+#define EE_E200ZX_MMU_PROT_SRWX	0x15U
+#define EE_E200ZX_MMU_PROT_URWX	0x2aU
+#define EE_E200ZX_MMU_PROT_CODE	(EE_E200ZX_MMU_PROT_SX | EE_E200ZX_MMU_PROT_UX \
+	| EE_E200ZX_MMU_PROT_SR | EE_E200ZX_MMU_PROT_UR)
+
+/* MMU initialization.  This is a C function, so RAM and stack must be
+ * initialized already before calling this function. */
+void EE_e200zx_mmu_setup(const EE_MMU_ENTRY_T *entries, unsigned count);
+
+#ifdef __EE_CRT0_INIT_MMU__
+extern const EE_MMU_ENTRY_T EE_e200zx_mmu_entries[];
+extern const unsigned EE_e200zx_mmu_num_entries;
+#endif /* __EE_CRT0_INIT_MMU__ */
+
 #endif /* __INCLUDE_E200ZX_EE_CPU_H__ */

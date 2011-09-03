@@ -228,15 +228,6 @@ cpu_setup:
 
 	text_section(.boot)
 
-	/* CW-FUNC-DEFINITION: void mmu_setup(void) */
-	.global	mmu_setup
-	.type	mmu_setup, @function
-mmu_setup:
-	/* Do nothing: Use settings from BAM or Lauterbach script */
-	blr
-	.size	mmu_setup, .-mmu_setup
-
-
 
 #define RAM_BASE	0x40000000
 #define RAM_LEN		0x00040000

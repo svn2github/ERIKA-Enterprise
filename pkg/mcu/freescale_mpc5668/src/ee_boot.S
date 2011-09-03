@@ -49,6 +49,7 @@
 #include <cpu/e200zx/inc/ee_cpu_asm.h>
 
 	.extern	_load_ram, _sdata, _sbss, _ebss, sram_setup, main
+	.extern EE_e200zx_mmu_entries, EE_e200zx_mmu_num_entries
 #ifdef __ASM_CONVERTED_TO_C__
 int main(void);
 #endif
@@ -84,7 +85,6 @@ _bam_data:
 	.global	__start
 	.type	__start, @function
 __start:
-	bl	mmu_setup
 #ifndef __SLAVE_CPU__
 	bl	sram_setup
 	/* bl	pll_setup */
@@ -141,6 +141,15 @@ __start:
 	addis	r2, 0, _SDA2_BASE_@ha	/* load .sdata2 base into r2 */
 	addi	r2, r2, _SDA_BASE_@l
 
+#if defined(__EE_CRT0_INIT_MMU__) && ! defined(__SLAVE_CPU__)
+	/* mmu initialization */
+	addis	r3, 0, EE_e200zx_mmu_entries@ha
+	addi	r3, r3, EE_e200zx_mmu_entries@l
+	addis	r4, 0, EE_e200zx_mmu_num_entries@ha
+	addi	r4, r4, EE_e200zx_mmu_num_entries@l
+	lwz	r4, 0(r4)
+	bl	EE_e200zx_mmu_setup
+#endif /* __EE_CRT0_INIT_MMU__ && ! __SLAVE_CPU__ */
 	bl	cpu_setup		/* cpu-specific initialization */
 	bl	intc_setup		/* mcu-specific initialization */
 	bl	main			/* jump to application code */

@@ -40,8 +40,70 @@
 
 /*
  * Author: 2011  Bernardo  Dal Seno
+ *         2010  Fabio Checconi
  */
 
 #include <ee_internal.h>
 
 EE_STACK_T EE_STACK_ATTRIB EE_e200zx_sys_stack[EE_STACK_WLEN(EE_SYS_STACK_SIZE)];
+
+
+/*
+ * MMU setup
+ *
+ * MMU is normally initialized by BAM.  A different configuration can be
+ * programmed with EE_e200zx_mmu_setup().
+ */
+
+#ifdef __EE_USE_MMU__
+
+#define MMU_MAS0	624
+#define MMU_MAS1	625
+#define MMU_MAS2	626
+#define MMU_MAS3	627
+
+
+#ifdef __DCC__
+
+__asm volatile void mmu_write_mas(int mas, unsigned long val)
+{
+% reg val; con mas;
+!
+	mtspr	mas, val
+}
+
+__asm volatile void mmu_write_sync(void)
+{
+!
+	tlbwe
+	msync
+}
+
+#else /* if __DCC__ */
+
+#define mmu_write_mas(mas, val) asm volatile ("mtspr	(" \
+	EE_PREPROC_STRING(mas) "), %0" : : "r"(val))
+
+__INLINE__ void __ALWAYS_INLINE__ mmu_write_sync(void)
+{
+	asm volatile ("tlbwe	\n\t"
+		"msync");
+}
+
+#endif /* else if __DCC__ */
+
+
+void EE_e200zx_mmu_setup(const EE_MMU_ENTRY_T *entries, unsigned count)
+{
+	unsigned i;
+
+	for (i = 0U; i < count; i++) {
+		mmu_write_mas(MMU_MAS0, EE_E200ZX_MMU_TLBSEL1 | (i << 16));
+		mmu_write_mas(MMU_MAS1, entries[i].mas1);
+		mmu_write_mas(MMU_MAS2, entries[i].mas2);
+		mmu_write_mas(MMU_MAS3, entries[i].mas3);
+		mmu_write_sync();
+	}
+}
+
+#endif /* __EE_USE_MMU__ */
