@@ -46,6 +46,9 @@
 #ifndef __INCLUDE_E200ZX_EE_CPU_ASM_H__
 #define __INCLUDE_E200ZX_EE_CPU_ASM_H__
 
+/* Needed for EE_SYS_STACK_SIZE */
+#include "eecfg.h"
+
 /* Stack alignment and default size */
 #define EE_STACK_ALIGN 16
 #ifndef EE_SYS_STACK_SIZE
