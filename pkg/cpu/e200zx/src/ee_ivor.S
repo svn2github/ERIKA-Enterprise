@@ -122,7 +122,7 @@ vector EE_e200zx_float_unavailable, __empty_handler
 vector EE_e200zx_system_call, __empty_handler
 vector EE_e200zx_auxiliary_unavailable, __empty_handler
 vector EE_e200zx_decrementer, EE_e200zx_decrementer_handler
-vector EE_e200zx_interval_timer, __empty_handler
+vector EE_e200zx_interval_timer, EE_e200zx_fixed_intv_handler
 vector EE_e200zx_watchdog_timer, __empty_handler
 vector EE_e200zx_data_tlb_error, __empty_handler
 vector EE_e200zx_instruction_tlb_error, __empty_handler

@@ -177,8 +177,6 @@ typedef EE_UINT32 EE_TYPESPIN;
  E200Z7 interrupt disabling/enabling
  *********************************************************************/
 
-#define EE_E200ZX_MAX_CPU_EXCP 16
-
 #define MSR_EE	(1U << 15)
 
 __INLINE__ EE_FREG EE_e200z7_are_IRQs_enabled(EE_FREG ie)
@@ -214,6 +212,38 @@ __INLINE__ EE_FREG __ALWAYS_INLINE__ EE_e200z7_disableIRQ(void)
 
 
 /*************************************************************************
+ Access to CPU registers
+ *************************************************************************/
+
+#ifdef __DCC__
+__asm EE_UREG EE_e200zx_get_tcr(void)
+{
+! "r3"
+	mfspr	r3, tcr
+}
+
+__asm void EE_e200zx_set_tcr(EE_UREG val)
+{
+% reg val
+!
+	mtspr	tcr, val
+}
+#else /* if __DCC__ */
+__INLINE__ EE_UREG EE_e200zx_get_tcr(void)
+{
+	EE_UREG tcr;
+	asm volatile ("mfspr %0, tcr" : "=r"(tcr));
+	return tcr;
+}
+
+__INLINE__ void EE_e200zx_set_tcr(EE_UREG val)
+{
+	asm volatile ("mtspr tcr, %0" :: "r"(val) );
+}
+#endif /* else __DCC__ */
+
+
+/*************************************************************************
  Functions
  *************************************************************************/
 
@@ -237,6 +267,13 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_disableIRQ(void)
 {
 	EE_e200z7_disableIRQ();
 }
+
+/* Enable the fixed-interval interrupt.  bitpos (0-63) is the bit of the time
+ * base register that triggers the interrupt; 0 is the most significant bit of
+ * the register.  See the Book E manual for details on this interrupt.  */
+void EE_e200zx_setup_fixed_intv(EE_UREG bitpos);
+/* Disable the fixed-interval interrupt */
+void EE_e200zx_stop_fixed_intv(void);
 
 void EE_e200z7_setup_decrementer(unsigned long value);
 void EE_e200z7_setup_decrementer_oneshot(unsigned long value);

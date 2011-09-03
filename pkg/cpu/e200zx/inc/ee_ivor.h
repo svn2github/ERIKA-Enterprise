@@ -55,6 +55,7 @@ void restore_all_return(void);
 void ivor_setup(void);
 void EE_e200zx_external_input_handler(void);
 void EE_e200zx_decrementer_handler(void);
+void EE_e200zx_fixed_intv_handler(void);
 void cpu_setup(void);
 void mmu_setup(void);
 void sram_setup(void);

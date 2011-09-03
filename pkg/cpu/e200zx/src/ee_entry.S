@@ -44,6 +44,7 @@
  */
 
 #include <cpu/e200zx/inc/ee_regs.h>
+#include <cpu/e200zx/inc/ee_cpu_asm.h>
 #include <cpu/e200zx/inc/ee_ivor.h>
 
 	.text
@@ -149,6 +150,19 @@ EE_e200zx_decrementer_handler:
 	bl	EE_e200z7_irq
 	handler_epilogue
 	.size	EE_e200zx_decrementer_handler, .-EE_e200zx_decrementer_handler
+
+
+	/* CW-FUNC-DEFINITION: void EE_e200zx_fixed_intv_handler(void) */
+	.global EE_e200zx_fixed_intv_handler
+	.type	EE_e200zx_fixed_intv_handler, @function
+EE_e200zx_fixed_intv_handler:
+	handler_prologue
+	addis	r0, 0, (1 << TSR_FIS)@h
+	mtspr	tsr, r0
+	li	r3, 11
+	bl	EE_e200z7_irq
+	handler_epilogue
+	.size	EE_e200zx_fixed_intv_handler, .-EE_e200zx_fixed_intv_handler
 
 
 	/* CW-FUNC-DEFINITION: void EE_e200z7_setup_decrementer(unsigned long value) */

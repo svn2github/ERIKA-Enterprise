@@ -95,18 +95,8 @@
 
 #define SPRG_HID0	1008
 
-#define TCR_DIE		26
-#define TCR_ARE		22
-
-#define TSR_DIS		27
-
-#define HID0_TBEN	14
-
 
 /* IRQ vector  */
-
-/* This is copied from ee_cpu.h */
-#define EE_E200ZX_MAX_CPU_EXCP 16
 
 #ifdef __PPCE200Z0__
 #define E200ZX_IRQ_VECTOR_BASE_ALIGN	4096

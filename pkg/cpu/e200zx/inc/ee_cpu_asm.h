@@ -55,5 +55,22 @@
 #define EE_SYS_STACK_SIZE	512
 #endif
 
+/* Number of CPU exceptions */
+#define EE_E200ZX_MAX_CPU_EXCP 16
+
+/* TCR register bits */
+#define TCR_DIE		26
+#define TCR_FIE		23
+#define TCR_ARE		22
+#define TCR_FP		24
+#define TCR_FPEXT	13
+#define TCR_FPALL_MASK	((0x3U << TCR_FP) | (0xfU << TCR_FPEXT))
+
+/* TSR register bits */
+#define TSR_DIS		27
+#define TSR_FIS		26
+
+/* HID0 register bits */
+#define HID0_TBEN	14
 
 #endif /* __INCLUDE_E200ZX_EE_CPU_ASM_H__ */
