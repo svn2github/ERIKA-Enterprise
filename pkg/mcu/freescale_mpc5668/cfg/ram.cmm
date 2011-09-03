@@ -23,20 +23,22 @@ SYStem.Up
 Data.Set EA:0x40000000--0x40093fff %Quad 0
 
 ; setup MMU for flash, RAM and register access, as BAM does
-if &use_vle==1
-  &vle_flag=0x20
-else
-  &vle_flag=0
-MMU.TLB1.SET 0x0 0xC0000500 0xFFF0002A 0xFFF0003F
-MMU.TLB1.SET 0x1 0xC0000900 0x00000000+&vle_flag 0x0000003F
-MMU.TLB1.SET 0x2 0xC0000900 0x20000000+&vle_flag 0x2000003F
-MMU.TLB1.SET 0x3 0xC0000400 0x40000008+&vle_flag 0x4000003F
+GOSUB setup_mmu &use_vle
 
 d.load.elf &filename /PlusVM
 
 #ORTICMD#
-; evi - Set Disassembly mode
-if &use_vle==1
-  SYStem.Option.DISMODE VLE
 
 ENDDO
+
+setup_mmu:
+	ENTRY &set_vle
+	if &set_vle==1
+		&vle_flag=0x20
+	else
+		&vle_flag=0
+	MMU.TLB1.SET 0x0 0xC0000500 0xFFF0002A 0xFFF0003F
+	MMU.TLB1.SET 0x1 0xC0000900 0x00000000+&vle_flag 0x0000003F
+	MMU.TLB1.SET 0x2 0xC0000900 0x20000000+&vle_flag 0x2000003F
+	MMU.TLB1.SET 0x3 0xC0000400 0x40000008+&vle_flag 0x4000003F
+	RETURN

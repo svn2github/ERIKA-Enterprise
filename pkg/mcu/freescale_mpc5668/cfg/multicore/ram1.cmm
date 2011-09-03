@@ -14,8 +14,5 @@
 d.load.elf &filename /NOCODE
 
 #ORTICMD#
-; evi - Set Disassembly mode
-if &use_vle==1
-  SYStem.Option.DISMODE VLE
 
 ENDDO

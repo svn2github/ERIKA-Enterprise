@@ -54,11 +54,21 @@
 #define ASM_REORDER_ON
 #endif
 
-#if defined(__VLE__) && defined(__MWERKS__)
+#ifdef __MWERKS__
 /* CodeWarrior Assembly uses the deprecated macro __MWERKS__ */
+#ifdef __VLE__
 #define text_section(name)	.section name,.text_vle
-#else
-#define text_section(name)	.section name
+#else /* __VLE__ */
+#define text_section(name)	.section name,.text
+#endif /* __VLE__ */
+#else /* __MWERKS */
+#define text_section(name)	.section name, , c
+#endif /* __MWERKS */
+
+
+#if defined(__VLE__)
+/* Diab doesn't map the bctr instruction to its VLE equivalent */
+#define bctr se_bctr
 #endif /* __VLE__ */
 
 

@@ -77,7 +77,7 @@ _bam_data:
 	.extern	EE_e200zx_sys_stack
 #define _stack0	(EE_e200zx_sys_stack + EE_SYS_STACK_SIZE - 16)
 
-	.section .boot
+	.section .boot, , c
 
 	/* CW-FUNC-DEFINITION: void __start(void) */
 	.global	__start
