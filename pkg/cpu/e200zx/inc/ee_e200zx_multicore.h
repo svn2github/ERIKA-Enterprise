@@ -55,26 +55,11 @@
 #define EE_hal_IRQ_interprocessor(cpu) EE_mpc5668_signal_cpu(cpu)
 #define EE_E200ZX_INTER_IRQ_LEVEL(cpu) EE_MPC5668_INTER_IRQ_LEVEL(cpu)
 #endif /* __MPC5668G__ */
-#endif /* __MSRP__ */
 
 
 /*************************************************************************
  System startup
  *************************************************************************/
-
-#define __OO_CPU_HAS_STARTOS_ROUTINE__
-
-#ifndef __MSRP__
-/* Nothing to do for single-core */
-__INLINE__ int __ALWAYS_INLINE__ EE_cpu_startos(void)
-{
-	return 0;
-}
-
-#else /* ifndef __MSRP__ */
-
-/* On multi-core this is used also as a synchronization point */
-int EE_cpu_startos(void);
 
 typedef struct ee_barrier {
 	volatile EE_UINT32 value;
@@ -89,6 +74,6 @@ void EE_e200zx_sync_barrier(EE_TYPEBARRIER *bar);
 extern EE_TYPEBARRIER EE_SHARED_UDATA EE_e200zx_start_barrier;
 
 
-#endif /* else ifndef __MSRP__ */
+#endif /* __MSRP__ */
 
 #endif /* __INCLUDE_E200ZX_MULTICORE_H__ */

@@ -123,6 +123,26 @@ extern EE_UREG EE_e200z7_active_tos;
 #endif /* __MULTI__ */
 
 
+/*************************************************************************
+ System startup
+ *************************************************************************/
+
+#define __OO_CPU_HAS_STARTOS_ROUTINE__
+
+#ifdef __MSRP__
+/* On multi-core this is used also as a synchronization point */
+int EE_cpu_startos(void);
+
+#else /* ifdef __MSRP__ */
+/* Nothing to do for single-core */
+__INLINE__ int __ALWAYS_INLINE__ EE_cpu_startos(void)
+{
+	return 0;
+}
+
+#endif /* else ifdef __MSRP__ */
+
+
 /*********************************************************************
  Multicore and multiprocessor support
  *********************************************************************/
