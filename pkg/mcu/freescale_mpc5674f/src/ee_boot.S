@@ -75,6 +75,7 @@ _bam_data:
 	.size	_bam_data, .-_bam_data
 #endif /* __E200ZX_EXECUTE_FROM_RAM__ */
 
+
 	.extern	EE_e200zx_sys_stack
 #define _stack0	(EE_e200zx_sys_stack + EE_SYS_STACK_SIZE - 16)
 
@@ -85,6 +86,7 @@ _bam_data:
 	.type	__start, @function
 __start:
 	bl	sram_setup
+	/* bl	pll_setup */
 
 	addis	r8, 0, _stack0@ha	/* setup the stack pointer */
 	addi	sp, r8, _stack0@l

@@ -83,10 +83,9 @@ EE_hal_terminate_savestk:
 	lwz	r0, 8(sp)
 	mtlr	r0
 	addi	sp, sp, 96
-
 	blr
-
 	.size	EE_hal_terminate_savestk, .-EE_hal_terminate_savestk
+
 
 	/* CW-FUNC-DEFINITION: void EE_hal_terminate_task(EE_TID tid) */
 	.global EE_hal_terminate_task
@@ -106,9 +105,6 @@ EE_hal_terminate_task:
 	lwz	r0, 8(sp)
 	mtlr	r0
 	lmw	r14, 12(sp)
-
 	addi	sp, sp, 96
-
 	blr
-
 	.size	EE_hal_terminate_task, .-EE_hal_terminate_task

@@ -151,7 +151,7 @@ __start:
 	bl	EE_e200zx_mmu_setup
 #endif /* __EE_CRT0_INIT_MMU__ && ! __SLAVE_CPU__ */
 	bl	cpu_setup		/* cpu-specific initialization */
-	bl	intc_setup		/* mcu-specific initialization */
+	bl	intc_setup		/* interrupt controller */
 	bl	main			/* jump to application code */
 
 	wrteei	0
