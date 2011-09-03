@@ -52,5 +52,8 @@
     #define TaskZ6b (rn_TaskZ6b|EE_REMOTE_TID)
     #define TaskZ6c (rn_TaskZ6c|EE_REMOTE_TID)
 
+    /* System stack size */
+    #define EE_SYS_STACK_SIZE     4096
+
 #endif
 

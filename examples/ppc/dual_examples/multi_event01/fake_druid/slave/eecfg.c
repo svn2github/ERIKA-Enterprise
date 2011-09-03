@@ -1,3 +1,4 @@
+
 #include "ee.h"
 
 
@@ -12,12 +13,12 @@
 
     const EE_UREG EE_std_thread_tos[EE_MAX_TASK+1] = {
         0U,	 /* dummy*/
-        1U, 	 /* TaskZ0Main*/
+        1U,	 /* TaskZ0Main*/
         0U 	 /* TaskZ0Bkg*/
     };
 
     struct EE_TOS EE_e200z7_system_tos[2] = {
-        {0}, 	/* Task  (dummy), Task 1 (TaskZ0Bkg) */
+        {0},	/* Task  (dummy), Task 1 (TaskZ0Bkg) */
         {(EE_ADDR)(&EE_stack_1[EE_STACK_INITP(STACK_1_SIZE)])} 	/* Task 0 (TaskZ0Main) */
     };
 

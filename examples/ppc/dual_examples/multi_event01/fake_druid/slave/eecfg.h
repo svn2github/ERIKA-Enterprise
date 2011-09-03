@@ -50,5 +50,8 @@
     /* remote threads */
     #define TaskZ6 (rn_TaskZ6|EE_REMOTE_TID)
 
+    /* System stack size */
+    #define EE_SYS_STACK_SIZE     4096
+
 #endif
 

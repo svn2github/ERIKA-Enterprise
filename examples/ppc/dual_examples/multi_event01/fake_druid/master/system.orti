@@ -156,7 +156,7 @@ TASK TaskZ6 {
 STACK Stack0 {
     SIZE = "512";
     STACKDIRECTION = "DOWN";
-    BASEADDRESS = "(unsigned int *)( (int)&_stack0 - 504 )";
+    BASEADDRESS = "(unsigned int *)( (int)&EE_e200zx_sys_stack )";
     FILLPATTERN = "0xA5A5A5A5";
 };
 
