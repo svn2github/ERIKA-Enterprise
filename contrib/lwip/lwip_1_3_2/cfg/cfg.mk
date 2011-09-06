@@ -100,6 +100,13 @@ ifeq ($(findstring __LIB_ENC28J60__,$(LIB_OPT)),__LIB_ENC28J60__)
 EE_SRCS += contrib/lwip/lwip_1_3_2/abstraction/src/hal/lwip_enc28j60.c
 endif
 
+# smsc8720
+ifeq ($(findstring __LIB_MAC_EXTPHY__,$(LIB_OPT)),__LIB_MAC_EXTPHY__)
+ifeq ($(call iseeopt, __PIC32__), yes)
+EE_SRCS += contrib/lwip/lwip_1_3_2/abstraction/src/hal/lwip_pic32mac.c
+endif
+endif
+
 # lm32
 ifeq ($(call iseeopt, __LM32__), yes)
 EE_SRCS += contrib/lwip/lwip_1_3_2/abstraction/src/hal/lwip_timer_mico32.c

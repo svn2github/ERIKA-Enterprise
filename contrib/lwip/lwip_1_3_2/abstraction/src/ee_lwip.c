@@ -122,6 +122,31 @@ void EE_lwip_init(struct ip_addr *my_ipaddr, struct ip_addr *netmask, struct ip_
 }
 
 /**
+ * Reception - Polling mode 
+ */
+#ifdef LWIP_RX_POLLING
+
+__INLINE__ int __ALWAYS_INLINE__ EE_lwip_maybe_activate_rx_task(void)
+{
+    static int lwip_periodic_counter = 0;
+    lwip_periodic_counter++;
+    if(lwip_periodic_counter >= EE_LWIP_RX_POLLING_PERIOD) {
+        lwip_periodic_counter = 0; 
+        return 1;
+    }
+    else
+        return 0;
+}
+
+#else
+
+__INLINE__ int __ALWAYS_INLINE__ EE_lwip_maybe_activate_rx_task(void) {
+    return 0;
+}
+
+#endif
+
+/**
  * @brief LWIP timers task.
  *
  * This task calls ARP and TCP timers. 
@@ -129,7 +154,6 @@ void EE_lwip_init(struct ip_addr *my_ipaddr, struct ip_addr *netmask, struct ip_
 TASK(LwipPeriodic)
 {
 	EE_UINT16 pending;
-	LWIP_DEBUGF(EE_LWIP_DEBUG, ("LwipPeriodic task start!\n"));
 	GetResource(LwipMutex);
 	/* The access to the `pending' field must be protected from
 	* interferences by the timer ISR */
@@ -139,8 +163,11 @@ TASK(LwipPeriodic)
 	EE_hal_enableIRQ();
 	EE_lwip_maybe_call_tcp_timers(pending);
 	EE_lwip_maybe_call_arp_timer(pending);
+	EE_lwip_maybe_call_link_check(pending);
 	ReleaseResource(LwipMutex);
-	LWIP_DEBUGF(EE_LWIP_DEBUG, ("LwipPeriodic task end!\n"));
+	/* In polling mode, RX task is activated */
+	if( EE_lwip_maybe_activate_rx_task() )
+		ActivateTask(LwipReceive);
 }
 
 /**
@@ -152,18 +179,19 @@ TASK(LwipReceive)
 {
 	LWIP_DEBUGF(EE_LWIP_DEBUG, ("LwipReceive task start!\n"));
 	GetResource(LwipMutex);
-	
+
 	/** 
 	 * We are assuming that the only interrupt source is an incoming packet 
 	 */
 	while (EE_ethernetif_hal_pending_interrupt()) {
 		EE_ethernet_input(&EE_lwip_netif);
 	}
+
 	/** 
 	 * We should enable interrupts if these are disabled.  
 	 */
 	EE_lwip_hal_rx_service();
-	
+
 	ReleaseResource(LwipMutex);
 	LWIP_DEBUGF(EE_LWIP_DEBUG, ("LwipReceive task end!\n"));
 }

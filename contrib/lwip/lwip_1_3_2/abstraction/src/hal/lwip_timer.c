@@ -12,7 +12,6 @@
 u32_t lwip_ts_buffer[LWIP_TS_BUFFER_SIZE];
 #endif
 
-volatile int EE_lwip_irq_pending;
 struct ee_lwip_timers EE_lwip_timers;
 
 /* Timer interrupt callback */
@@ -21,16 +20,6 @@ void EE_lwip_timer_tick(void)
     EE_UINT16 pending = EE_lwip_increment_timers(&EE_lwip_timers);
     if (pending != 0)
         ActivateTask(LwipPeriodic);
-    #if 0
-	if (EE_ethernetif_pending_interrupt()) {
-        /* We should mask ENC28J60 interrupts on the GPIO */
-        /* EE_enc28j60_mask_interrupts(); */
-        if (! EE_lwip_irq_pending) {
-            EE_lwip_irq_pending = 1;
-            ActivateTask(LwipReceive);
-        }
-    }
-	#endif
 }
 
 

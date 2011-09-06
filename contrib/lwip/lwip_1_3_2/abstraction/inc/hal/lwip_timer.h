@@ -11,9 +11,6 @@
 
 /* Compiler specification */
 #include <hal/lwip_compiler.h>
-/* Platform description */
-
-
 
 #include "lwip/tcp.h"
 #include <netif/etharp.h>
@@ -27,24 +24,52 @@
 
 #elif defined __PIC32__
 #include <hal/lwip_timer_pic32.h>
+#include "eth_api.h"
+
 #else			/* No timer */
 #warning "No timer Specified"
 #endif	/* End Selection */
 
-/* Macros for time analisys */
+/* Macros and functions for time analisys */
 #define lwip_time_diff_ms(from,to)  ((EE_UINT32)((from) - (to)) / (EE_UINT32)(CPU_FREQUENCY / 1000))
 #define lwip_time_diff_us(from,to)  ((EE_UINT32)((from) - (to)) / (EE_UINT32)(CPU_FREQUENCY / 1000000))
 
+__INLINE__ EE_UINT32 __ALWAYS_INLINE__ EE_lwip_elapsed(EE_UINT32 from, EE_UINT32 to)
+{
+	return to - from;
+}
+
+__INLINE__ EE_UINT32 __ALWAYS_INLINE__ EE_lwip_get_time_stamp(void)
+{
+    return EE_lwip_get_core_timer_value();
+}
+
+__INLINE__ void __ALWAYS_INLINE__ EE_lwip_sleep_ms(EE_UINT32 ms)
+{
+	EE_UINT32 start, curr;
+	EE_UINT32 cpu_freq = EE_get_peripheral_clock();
+	start = EE_lwip_get_time_stamp();
+	do {
+		curr = EE_lwip_get_time_stamp();
+	} while (EE_lwip_elapsed(start, curr) < (ms * (cpu_freq / 1000U)));
+}
+
 /* Lwip timers configuration */
-#define EE_LWIP_TIMER_PERIOD_MS (2U)
+#ifndef EE_LWIP_TIMER_PERIOD_MS
+#define EE_LWIP_TIMER_PERIOD_MS (5U)
+#endif
 #define EE_LWIP_ARP_PERIOD      (ARP_TMR_INTERVAL / EE_LWIP_TIMER_PERIOD_MS)
 #define EE_LWIP_TCP_FAST_PERIOD (TCP_FAST_INTERVAL / EE_LWIP_TIMER_PERIOD_MS)
 #define EE_LWIP_TCP_SLOW_PERIOD (TCP_SLOW_INTERVAL / EE_LWIP_TIMER_PERIOD_MS)
+#define EE_LWIP_LINK_PERIOD     (20U) /* 100 ms */
+#define EE_LWIP_RX_POLLING_PERIOD  (40U) /* 200 ms */
 
 /* Masks for `pending' in struct ee_lwip_timers */
 #define EE_LWIP_TIMER_ARP       1
 #define EE_LWIP_TIMER_TCP_FAST  2
 #define EE_LWIP_TIMER_TCP_SLOW  4
+#define EE_LWIP_TIMER_LINK      8
+
 struct ee_lwip_timers
 {
     EE_UINT16 arp_ticks;
@@ -52,11 +77,11 @@ struct ee_lwip_timers
     EE_UINT16 tcp_fast_ticks;
     EE_UINT16 tcp_slow_ticks;
 #endif
+    EE_UINT16 link_ticks;
     /** Bit mask indicating which timer callback is to be called */
     volatile EE_UINT16 pending;
 };
 
-extern volatile int EE_lwip_irq_pending;
 extern struct ee_lwip_timers EE_lwip_timers;
 
 /* Callback used for Lwip timers */
@@ -104,12 +129,21 @@ __INLINE__ EE_UINT16 EE_lwip_increment_timers(struct ee_lwip_timers *tmrs)
 {
     /* Keep a copy of pending, which is volatile */
     EE_UINT16 pending = tmrs->pending;
+    /* ARP timer */
     tmrs->arp_ticks += 1;
     if (tmrs->arp_ticks >= EE_LWIP_ARP_PERIOD) {
         tmrs->arp_ticks = 0;
         pending |= EE_LWIP_TIMER_ARP;
     }
+    /* TCP timer */
     pending = EE_lwip_update_tcp_timers(tmrs, pending);
+    /* LINK timer */
+    tmrs->link_ticks += 1;
+    if (tmrs->link_ticks >= EE_LWIP_LINK_PERIOD) {
+        tmrs->link_ticks = 0;
+        pending |= EE_LWIP_TIMER_LINK;
+    }
+    /* store flags */
     tmrs->pending = pending;
     return pending;
 }
@@ -120,6 +154,14 @@ __INLINE__ void __ALWAYS_INLINE__ EE_lwip_maybe_call_arp_timer(
 {
     if (pending & EE_LWIP_TIMER_ARP)
         etharp_tmr();
+}
+
+/** Call LINK timer callback if needed */
+__INLINE__ void __ALWAYS_INLINE__ EE_lwip_maybe_call_link_check(
+    EE_UINT16 pending)
+{
+    if (pending & EE_LWIP_TIMER_LINK)
+        EE_hal_lwip_maybe_call_link_tmr();
 }
 
 /* Function used for Lwip timers configuration */

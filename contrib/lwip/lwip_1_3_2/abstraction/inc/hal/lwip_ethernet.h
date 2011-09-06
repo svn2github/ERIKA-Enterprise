@@ -13,11 +13,17 @@
 //#include "ee_lwip.h"
 #include <hal/lwip_compiler.h>
 
-#ifdef __USE_ETHERNET_ENC28J60__		/* Microchip enc28j60 ethernet controller */
-#include <hal/lwip_enc28j60.h>
+#if defined (__USE_ETHERNET_ENC28J60__)
+  #include <hal/lwip_enc28j60.h>
+#elif defined (__USE_PHY_SMSC8720__)
+  #ifdef __PIC32__
+    #include <hal/lwip_pic32mac.h>
+  #else
+    #error "LWIP_HAL ERROR: device not supported! (valid devices list: PIC32)"
+  #endif
 #else
-#error "LWIP_HAL ERROR: ethernet controller not specified!"
-#endif	/* End ethernet Selection */
+  #error "LWIP_HAL ERROR: ethernet controller not specified! (valid controllers list: ENC28J60 (mac/phy), SMSC8720 (phy))"
+#endif	 /* End ethernet Selection */
 
 /* Forward declarations. */
 err_t EE_ethernet_input(struct netif *netif);

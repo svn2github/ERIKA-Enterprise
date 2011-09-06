@@ -23,7 +23,7 @@
  * ---------- Threads configuration ---------- 
  */
 #ifndef NO_SYS
-#define NO_SYS                  1			/* single thread */
+#define NO_SYS                  1  /* single thread */
 #endif
 
 /** 
@@ -59,8 +59,8 @@
  * The following four are used only with the sequential API and can be
  * set to 0 if the application only will use the raw API. 
  */
-//#define MEMP_NUM_NETBUF                 2
-//#define MEMP_NUM_NETCONN                4
+//#define MEMP_NUM_NETBUF         2
+//#define MEMP_NUM_NETCONN        4
 #ifndef MEMP_NUM_NETBUF
 #define MEMP_NUM_NETBUF         0
 #endif
@@ -87,7 +87,7 @@
  * ---------- ARP options ---------- 
  */
 #ifndef ARP_QUEUEING
-#define ARP_QUEUEING            0
+#define ARP_QUEUEING                      0
 #endif
 #ifndef LWIP_ARP
 #define LWIP_ARP                          1
@@ -122,7 +122,7 @@
  * ---------- RAW options ---------- 
  */
 #ifndef LWIP_RAW
-#define LWIP_RAW                          0
+#define LWIP_RAW                0
 #endif
 //#define RAW_TTL                        (IP_DEFAULT_TTL)
 
@@ -130,7 +130,7 @@
  * ---------- DHCP options ---------- 
  */
 #ifndef LWIP_DHCP
-#define LWIP_DHCP               		1
+#define LWIP_DHCP               1
 #endif
 //#define DHCP_DOES_ARP_CHECK             ((LWIP_DHCP) && (LWIP_ARP))
 
@@ -151,7 +151,7 @@
 #define TCP_MSS                 1460
 #endif
 #ifndef TCP_SND_BUF
-#define TCP_SND_BUF                     4*TCP_MSS
+#define TCP_SND_BUF             4*TCP_MSS
 #endif
 
 /** 
@@ -192,12 +192,12 @@
 /** 
  * ---------- UPNP options ---------- 
  */
-//#define LWIP_UPNP                       0
+//#define LWIP_UPNP             0
 
 /** 
  * ---------- PTPD options ---------- 
  */
-//#define LWIP_PTPD                       0
+//#define LWIP_PTPD             0
 
 /** 
  * ---------- DEBUG options ---------- 
