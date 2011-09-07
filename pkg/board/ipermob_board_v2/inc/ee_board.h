@@ -9,8 +9,13 @@
 #define IPERMOB_BOARD_V2_VERSION 0
 #endif
 
-
 #if IPERMOB_BOARD_V2_VERSION == 0
+
+__INLINE__ void __ALWAYS_INLINE__ EE_board_power_1V2_init(int on_off)
+{
+	TRISCbits.TRISC14 = 0;     /* pin configured as output */
+	LATCbits.LATC14 = on_off;
+}
 
 #if defined __USE_LEDS__ 
 __INLINE__ void __ALWAYS_INLINE__ EE_leds_init(void)
