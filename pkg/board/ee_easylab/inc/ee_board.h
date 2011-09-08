@@ -389,7 +389,7 @@ EE_INT16 EE_easylab_pwm_close(EE_UINT8 pwm_pin);
     @brief Set PWM pin duty cicle and if, this value is not 0, start it.
     
     @param pwm_pin (EE_UINT8): pwm pin's Id.
-    @param pwm_freq (EE_UINT32): pwm duty cycle [0, 100]
+    @param pwm_freq (EE_UINT32): pwm duty cycle [0, EE_PWM_DUTY_MAX]
     
     @return an error value (negative integer) if someting happened
 **/

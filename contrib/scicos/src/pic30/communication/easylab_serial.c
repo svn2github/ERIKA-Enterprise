@@ -94,18 +94,16 @@ TASK(receiving_from_uart)
         /* Parsing condition is remaining bytes are more than packet length */
         for(i = 0; (rx_bytes - i) >= EASYLAB_PACKET_SIZE; ){
             char crc = 0;
-            /*I need i incremented from this point */
-            ++i;
-            /* Start byte check */
-            if(read_buffer[i] != '\0')
+            /* Start byte check. I need 'i' incremented after this point */
+            if(read_buffer[i++] != '\0')
                 continue;
             
             /* Parsing inner loop */
             for(j = i; ; ++j){
-                /* Check end of crc condition */
-                if(j == (i + EASYLAB_PACKET_SIZE - 1)){
+                /* Check end of crc condition (-2 because 'i' is already incremented)*/
+                if(j == (i + EASYLAB_PACKET_SIZE - 2)){
                     if(read_buffer[j] == crc){
-                        /* valid packet read: I populate received variables */
+                        /* Valid packet read: I populate received variables */
                         memcpy((void *)&received_param1, read_buffer + i, sizeof(float));
                         memcpy((void *)&received_param2, read_buffer + i + sizeof(float), sizeof(float));
                         /* Valid packet I restart parsing after this one */
@@ -113,16 +111,16 @@ TASK(receiving_from_uart)
                     }
                     break;
                 } else {
-                    /*loop to evaluate crc */
+                    /* Loop to evaluate crc */
                     crc ^= read_buffer[j];
                 }
             }
         }
         
-        /* Start critical section*/
+        /* Start critical section */
         EE_hal_disableIRQ();
         /* Skip used bytes(pop without reading, already done).
-           N.B i point to next byte to check, so  i- 1 is last used 
+           N.B 'i' points to next byte to check, so  i - 1 is last used 
            byte 
         */
         EE_cbuffer_skip(rx_buffer, (i - 1));

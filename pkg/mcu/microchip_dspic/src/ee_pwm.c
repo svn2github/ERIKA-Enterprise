@@ -129,7 +129,10 @@ EE_INT16 EE_pwm1_init(EE_UINT32 pwm_freq, EE_UINT16 init_duty, char dir)
     {
         EE_UINT16 ptper = EE_get_peripheral_clock() / pwm_freq;    
         
-        if( (ptper <= 1) || (init_duty > 100) )
+        if(ptper <= 1)
+            return EE_PWM_ERROR_INVALID_FREQ;
+        
+        if(init_duty > EE_PWM_DUTY_MAX)
             return EE_PWM_ERROR_INVALID_DUTY;
 
         P1TCONbits.PTEN =   0;

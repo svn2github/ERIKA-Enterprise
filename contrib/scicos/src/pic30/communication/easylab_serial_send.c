@@ -67,16 +67,17 @@ static void inout(scicos_block *block)
     char crc = 0;
     serial_packet[0] = '\0';
     
-    /* Data copy */
+    /* Data copy (I start from serial_packet + 1 address) */
     for(i = 0; i < EASYLAB_SERIAL_CHANNELS; ++i)
-        memcpy(serial_packet + (i * EASYLAB_CHANNEL_DATA_SIZE), block->inptr[i], EASYLAB_CHANNEL_DATA_SIZE);
+        memcpy(serial_packet + 1 + (i * EASYLAB_CHANNEL_DATA_SIZE), block->inptr[i], EASYLAB_CHANNEL_DATA_SIZE);
     
     /* CRC evaluation */
     for(i = 1; i < EASYLAB_PACKET_SIZE - 1; ++i)
         crc ^= serial_packet[i];
+
     serial_packet[EASYLAB_PACKET_SIZE - 1] = crc;
     
-    /*Send through CBuffer Uart */
+    /* Send through CBuffer Uart */
     EE_easylab_serial_tx(serial_packet);
 }
 

@@ -41,7 +41,7 @@
 /** 
     @file easylab_serial_send.c
     @brief www.scicos.org, www.scicoslab.org
-    @author Errico Guidieri, SUPSI- Lugano
+    @author Errico Guidieri, Evidence Srl, Pisa
     @date 2006-2011
 */
 

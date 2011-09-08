@@ -86,8 +86,7 @@ static void init(scicos_block *block)
 
 static void inout(scicos_block *block)
 {
-    EE_UINT16 value;
-    float adcdata;
+    EE_UINT16 adcdata;
     float * y = block->outptr[0];
 
     EE_UINT16 adc_ch = block->ipar[0];
@@ -98,9 +97,9 @@ static void inout(scicos_block *block)
     }
 
     EE_AdcChId adc_ch_id = getAdcChId(adc_ch);
-    EE_easylab_adc_get_ch_uint(adc_ch_id, &value);
-    adcdata = ((float)value * EE_ADC_VDD_mV) / EE_ADC_RES_MAX;
-    y[0] = adcdata ;
+    EE_easylab_adc_get_ch_uint(adc_ch_id, &adcdata);
+    adcdata = (adcdata * EE_ADC_VDD_mV) / EE_ADC_RES_MAX;
+    y[0] = adcdata * 0.001f;
 }
 
 static void end(scicos_block *block)

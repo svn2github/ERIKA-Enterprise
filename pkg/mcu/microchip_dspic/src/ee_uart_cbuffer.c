@@ -113,7 +113,7 @@ static void uart_eot_callback_wrapper(void)
 {
     EE_UINT8 data_out;
     if(uart_status == UART_STATUS_TX_ON){
-        if(EE_cbuffer_contains(&rx_buffer, sizeof(EE_UINT8))){
+        if(EE_cbuffer_contains(&tx_buffer, sizeof(EE_UINT8))){
             /* Transmit buffer still has data available, send frontmost byte */
             EE_cbuffer_pop(&tx_buffer, &data_out, sizeof(EE_UINT8));
             EE_uart_write_byte_async(EE_UART_PORT_1, data_out);

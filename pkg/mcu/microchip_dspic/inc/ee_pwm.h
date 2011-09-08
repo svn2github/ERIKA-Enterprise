@@ -86,6 +86,7 @@ Include device header
 #define EE_PWM_NO_ERROR             0
 #define EE_PWM_ERROR_INVALID_CH_ID  -1
 #define EE_PWM_ERROR_INVALID_DUTY   -2
+#define EE_PWM_ERROR_INVALID_FREQ   -3
 /** @} **/
 
 /** Type for PWM channel IDs **/
@@ -116,7 +117,7 @@ EE_INT16 EE_pwm_close(EE_PwmId pwm_ch);
     @brief Set PWM channel's duty cicle and if, this value is not 0, start it.
     
     @param pwm_ch (EE_PwmId): pwm channel's Id.
-    @param pwm_freq (EE_UINT32): pwm duty cycle [0, 100]
+    @param pwm_freq (EE_UINT32): pwm duty cycle [0, EE_PWM_DUTY_MAX]
     
     @return an error value (negative integer) if someting happened
 **/

@@ -81,8 +81,8 @@ static void inout(scicos_block *block)
     
     if ((pwm_ch < 1) || (pwm_ch > 4))
         return;
-    /*Express duty in percentage */
-    EE_easylab_pwm_set_duty(pwm_ch, (EE_UINT32)(duty * 100));
+    /* Express duty relative to MAX VALUE */
+    EE_easylab_pwm_set_duty(pwm_ch, (EE_UINT32)(duty * EE_PWM_DUTY_MAX));
 }
 
 static void end(scicos_block *block)
