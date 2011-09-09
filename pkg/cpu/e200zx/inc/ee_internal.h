@@ -106,5 +106,29 @@ void EE_hal_terminate_task(EE_TID tid) NORETURN;
 
 #endif /* __OO_BCCx */
 
+#ifdef __ASM_CONVERTED_TO_C__
+/* Prototypes are included only for Erika source files, but they could be useful
+ * also for user C code.  In that case, a further condition should be added. */
+/* Assembly functions */
+void __start(void);
+void intc_setup(void);
+void cpu_setup(void);
+void sram_setup(void);
+void save_registers(void);
+void restore_all_return(void);
+void ivor_setup(void);
+void EE_e200zx_external_input_handler(void);
+void EE_e200zx_decrementer_handler(void);
+void EE_e200zx_fixed_intv_handler(void);
+/* Symbols provided by the linker script */
+extern int _load_ram;
+extern int _sbss;
+extern int _sdata;
+extern int _ebss;
+extern int _SDA_BASE_;
+extern int _SDA2_BASE_;
+extern int _sstack, _estack;
+#endif
+
 
 #endif /* __INCLUDE_E200ZX_INTERNAL_H__ */

@@ -282,21 +282,6 @@ void EE_e200z7_setup_decrementer_oneshot(unsigned long value);
 /* Stop the decrementer from generating interrupts */
 void EE_e200z7_stop_decrementer(void);
 
-/* Assembly functions */
-void __start(void);
-void intc_setup(void);
-void cpu_setup(void);
-void sram_setup(void);
-void mmu_setup(void);
-/* Symbols provided by the linker script */
-extern int _load_ram;
-extern int _sbss;
-extern int _sdata;
-extern int _ebss;
-extern int _SDA_BASE_;
-extern int _SDA2_BASE_;
-extern int _sstack, _estack;
-
 
 /*************************************************************************
  MMU

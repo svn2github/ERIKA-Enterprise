@@ -47,18 +47,7 @@
 #define __EE_CPU_E200ZX_IVOR_H__
 
 #ifdef __ASM_CONVERTED_TO_C__
-/* Prototypes are included only for Erika source files, but they could be useful
- * also for user C code.  In that case, a further condition should be added. */
 #include <cpu/e200zx/inc/ee_irq_internal.h>
-void save_registers(void);
-void restore_all_return(void);
-void ivor_setup(void);
-void EE_e200zx_external_input_handler(void);
-void EE_e200zx_decrementer_handler(void);
-void EE_e200zx_fixed_intv_handler(void);
-void cpu_setup(void);
-void mmu_setup(void);
-void sram_setup(void);
 #endif
 
 #define handler_prologue	bl	save_registers
