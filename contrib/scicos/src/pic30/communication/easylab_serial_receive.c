@@ -73,8 +73,8 @@ static void init(scicos_block *block)
 static void inout(scicos_block *block)
 {
     /* Set output: I propagate received floats */
-    block->outptr[0] = (float *)&received_param1;
-    block->outptr[1] = (float *)&received_param2;
+    *(float *)(block->outptr[0]) = received_param1;
+    *(float *)(block->outptr[1]) = received_param2;
 }
 
 static void end(scicos_block *block)

@@ -64,7 +64,7 @@ volatile float received_param2 = 0.0f;
 
 void receiving_from_uart_callback( EE_UINT8 data )
 {
-    if((EE_uart_cbuffer_rx_buffuer_contains() >= EASYLAB_PACKET_SIZE)
+    if((EE_uart_cbuffer_rx_buffer_contains() >= EASYLAB_PACKET_SIZE)
         && !receiving_task_active)
     {
         receiving_task_active = 1;
@@ -77,7 +77,7 @@ TASK(receiving_from_uart)
     EE_UINT16 rx_bytes;
     /* Start critical section */
     EE_hal_disableIRQ();
-    while((rx_bytes = EE_uart_cbuffer_rx_buffuer_contains()) >= EASYLAB_PACKET_SIZE){
+    while((rx_bytes = EE_uart_cbuffer_rx_buffer_contains()) >= EASYLAB_PACKET_SIZE){
         /* I make the read buffer of same size of receiving buffer so 
            I can read all bytes in one step (less memory access) */
         char read_buffer[UART_CBUFFER_RX_BUFFER_SIZE];

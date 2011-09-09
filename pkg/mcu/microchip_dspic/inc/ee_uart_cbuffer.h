@@ -148,7 +148,7 @@ __INLINE__ EE_BIT EE_uart_cbuffer_rx_buffer_isempty(void)
 
     @return number of pending reading bytes    
 **/
-__INLINE__ EE_UINT16 EE_uart_cbuffer_rx_buffuer_contains(void)
+__INLINE__ EE_UINT16 EE_uart_cbuffer_rx_buffer_contains(void)
 {
     return EE_uart_cbuffer_get_rx_buffer()->counter;
 }
