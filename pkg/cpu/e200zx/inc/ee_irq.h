@@ -98,9 +98,16 @@ void f(void)								\
 }									\
 void ISR2_ ## f(void)
 
+#ifndef __STATIC_ISR_TABLE__
 /*
- * Register the handler `fun' for the IRQ `level', using priority `pri'
+ * Register the handler `fun' for the IRQ `level', using priority `pri'.  If
+ * `fun' is 0, disable the given interrupt.  Levels 0-15 are used for the
+ * primary interrupt sources for the e200 core, while levels greater than 15 are
+ * used for external interrupt sources connected to the interrupt controller.
+ * This function is available only if the system is configured to use a dynamic
+ * interrupt table (i.e., the EEOPT __STATIC_ISR_TABLE__ is not defined).
  */
 void EE_e200z7_register_ISR(int level, EE_e200z7_ISR_handler fun, EE_UINT8 pri);
+#endif /* ! __STATIC_ISR_TABLE__ */
 
 #endif /*  __INCLUDE_E200ZX_IRQ_H__ */

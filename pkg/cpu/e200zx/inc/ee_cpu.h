@@ -275,8 +275,11 @@ void EE_e200zx_setup_fixed_intv(EE_UREG bitpos);
 /* Disable the fixed-interval interrupt */
 void EE_e200zx_stop_fixed_intv(void);
 
+/* Configure the decrementer to raise an interrupt every `delay' cycles */
 void EE_e200z7_setup_decrementer(unsigned long value);
+/* Configure the decrementer to raise an interrupt once after `delay' cycles */
 void EE_e200z7_setup_decrementer_oneshot(unsigned long value);
+/* Stop the decrementer from generating interrupts */
 void EE_e200z7_stop_decrementer(void);
 
 /* Assembly functions */
@@ -299,16 +302,23 @@ extern int _sstack, _estack;
  MMU
  *************************************************************************/
 
+/* TLB entry specification.  Values to be loaded in the MAS1, MAS2, and MAS3
+ * registers.  You can use the constants below to build such values.  Please
+ * refer to the Book E or Freescale manuals for details.  */
 typedef struct {
 	EE_UREG mas1;
 	EE_UREG mas2;
 	EE_UREG mas3;
 } EE_MMU_ENTRY_T;
 
-#define EE_E200ZX_MMU_TLBSEL1	0x10000000U
-#define EE_E200ZX_MMU_VALID	0x80000000U
-#define EE_E200ZX_MMU_IPROT	0x40000000U
+/* Masks used for MAS0 */
+#define EE_E200ZX_MMU_TLBSEL1	0x10000000U	/* Use TLB1 */
 
+/* Masks used for MAS1 */
+#define EE_E200ZX_MMU_VALID	0x80000000U	/* TLB entry is valid */
+#define EE_E200ZX_MMU_IPROT	0x40000000U	/* TLB entry is protected */
+
+/* Page sizes (MAS1) */
 #define EE_E200ZX_MMU_SIZE_256M	0x00000900U
 #define EE_E200ZX_MMU_SIZE_64M	0x00000800U
 #define EE_E200ZX_MMU_SIZE_16M	0x00000700U
@@ -319,29 +329,35 @@ typedef struct {
 #define EE_E200ZX_MMU_SIZE_16K	0x00000200U
 #define EE_E200ZX_MMU_SIZE_4K	0x00000100U
 
+/* Masks used for MAS2 */
 #define EE_E200ZX_MMU_FLAG_GUARD 0x00000002U	/* Guarded access */
 #define EE_E200ZX_MMU_FLAG_CE	0x00000000U	/* Cache enabled */
 #define EE_E200ZX_MMU_FLAG_CD	0x00000008U	/* Cache disabled */
 #define EE_E200ZX_MMU_FLAG_FLE	0x00000000U	/* Fixed-length encoding */
 #define EE_E200ZX_MMU_FLAG_VLE	0x00000020U	/* Variable-length encoding */
 
-#define EE_E200ZX_MMU_PROT_UR	0x02U
-#define EE_E200ZX_MMU_PROT_UW	0x08U
-#define EE_E200ZX_MMU_PROT_UX	0x20U
-#define EE_E200ZX_MMU_PROT_SR	0x01U
-#define EE_E200ZX_MMU_PROT_SW	0x04U
-#define EE_E200ZX_MMU_PROT_SX	0x10U
-#define EE_E200ZX_MMU_PROT_SRWX	0x15U
-#define EE_E200ZX_MMU_PROT_URWX	0x2aU
+/* Masks used for MAS3 */
+#define EE_E200ZX_MMU_PROT_UR	0x02U		/* User read access */
+#define EE_E200ZX_MMU_PROT_UW	0x08U		/* User write access */
+#define EE_E200ZX_MMU_PROT_UX	0x20U		/* User execute access */
+#define EE_E200ZX_MMU_PROT_SR	0x01U		/* Supervisor read access */
+#define EE_E200ZX_MMU_PROT_SW	0x04U		/* Supervisor write access */
+#define EE_E200ZX_MMU_PROT_SX	0x10U		/* Supervisor execute access */
+#define EE_E200ZX_MMU_PROT_SRWX	0x15U		/* All supervisor access */
+#define EE_E200ZX_MMU_PROT_URWX	0x2aU		/* All user access */
+/* Permission for code: read + execute in both modes */
 #define EE_E200ZX_MMU_PROT_CODE	(EE_E200ZX_MMU_PROT_SX | EE_E200ZX_MMU_PROT_UX \
 	| EE_E200ZX_MMU_PROT_SR | EE_E200ZX_MMU_PROT_UR)
 
-/* MMU initialization.  This is a C function, so RAM and stack must be
+/* MMU initialization.  Load `count' entries specified in `entries' in the first
+ * `count' entries of the TLB.  This is a C function, so RAM and stack must be
  * initialized already before calling this function. */
 void EE_e200zx_mmu_setup(const EE_MMU_ENTRY_T *entries, unsigned count);
 
 #ifdef __EE_CRT0_INIT_MMU__
+/* Entries to be loaded by the crt0 */
 extern const EE_MMU_ENTRY_T EE_e200zx_mmu_entries[];
+/* Number of entries to be loaded by the crt0 */
 extern const unsigned EE_e200zx_mmu_num_entries;
 #endif /* __EE_CRT0_INIT_MMU__ */
 

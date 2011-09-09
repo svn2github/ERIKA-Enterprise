@@ -56,22 +56,26 @@
 	((cpu) + EE_MPC5668_INTER_IRQ_VBA_BASE + 16)
 
 
+/* Enable the Z0 CPU, which starts executing the code pointed by `f' */
 __INLINE__ void EE_mpc5668_start_z0(void (*f)(void))
 {
 	CRP.Z0VEC.R = (uint32_t)f;
 }
 
+/* Setup the intercore IRQs used by ERIKA for multicore support */
 __INLINE__ void EE_mpc5668_setup_inter_irqs(void)
 {
 	INTC.PSR[EE_MPC5668_INTER_IRQ_BASE + 0].R = 0;
 	INTC.PSR[EE_MPC5668_INTER_IRQ_BASE + 1].R = 0xc0;
 }
 
+/* Signal the core `cpu' (0/1) by sending an IIRQ */
 __INLINE__ void EE_mpc5668_signal_cpu(int cpu)
 {
 	INTC.SSCIR[EE_MPC5668_INTER_IRQ_BASE + cpu].R = 2;
 }
 
+/* Acknowledge the signal riceved by the core `cpu' (0/1) */
 __INLINE__ void EE_mpc5668_ack_signal(int cpu)
 {
 	INTC.SSCIR[EE_MPC5668_INTER_IRQ_BASE + cpu].R = 1;
