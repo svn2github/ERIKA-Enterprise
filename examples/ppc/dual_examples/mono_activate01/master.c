@@ -116,7 +116,7 @@ int main(void)
 	EE_assert(asr_init, 1, EE_ASSERT_NIL);
 
 	/* Start Z0 from RAM */
-	EE_mpc5668_start_z0((void (*)(void))0x40020008);
+	EE_mpc5668_start_z0((void (*)(void))0x40020000);
 	EE_assert(asr_startz0, 1, asr_init);
 
 	EE_e200z7_enableIRQ();

@@ -61,7 +61,7 @@ TASK(TaskMaster)
 int main(void)
 {
     /* Start Z0 from Ram */
-    EE_mpc5668_start_z0((void (*)(void))0x40020008);
+    EE_mpc5668_start_z0((void (*)(void))0x40020000);
     /* StartOS call needed to unlock the barrier for the other core */
     StartOS(OSDEFAULTAPPMODE);
     while (1) {

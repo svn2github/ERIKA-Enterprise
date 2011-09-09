@@ -132,7 +132,7 @@ static void init_timer(void)
 int main(void)
 {
     /* Start Z0 from RAM */
-    EE_mpc5668_start_z0((void (*)(void))0x40020008);
+    EE_mpc5668_start_z0((void (*)(void))0x40020000);
     
     started = 1;
     EE_assert(1, 1, EE_ASSERT_NIL);

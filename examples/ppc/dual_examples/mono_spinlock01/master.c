@@ -109,7 +109,7 @@ TASK(TaskZ6)
 	/* Setup interprocessor irqs */
 	EE_mpc5668_setup_inter_irqs();
 	/* Start Z0 from RAM */
-	EE_mpc5668_start_z0((void (*)(void))0x40020008);
+	EE_mpc5668_start_z0((void (*)(void))0x40020000);
 	EE_assert(asr_startz0, 1, asr_init);
 
 	/* Test shared memory */
