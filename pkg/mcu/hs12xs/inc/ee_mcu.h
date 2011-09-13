@@ -137,8 +137,7 @@ static @inline int EE_s12xs_hal_cpu_startos( void )
 		TC0 = (unsigned int)(EE_TIMER0_STEP);			/* 1ms -> Freq: 64MHz, Bus_clock: 32MHz, -> 32MHz/prescaler*1ms */
 		TSCR2 = (unsigned char)(EE_PRESCALE_FACTOR);	/* prescaler 128 */
 		TSCR1 = 0x80; 						/* turn on Timer0 module */
-
-  		return 0;
+		return 0;
 }
 
 #endif	/* TIMER0_COUNTER */

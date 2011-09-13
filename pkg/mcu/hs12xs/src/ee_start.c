@@ -57,33 +57,9 @@ void EE_cpu_startos(void)
 	#endif
 }
 
-/*
-//ISR2(T0_ISR)
-//{
-//	int val = TC0;
-//	// clear the interrupt source
-//	TFLG1 = 0x01;	// Clear interrupt flag
-//
-//	if (  ((signed)(TCNT-TC0)) > 0) 	// to avoid spurious interrupts...
-//	{
-//		do
-//		{
-//			CounterTick(SystemTimer);	// SystemTimer is a symbol defined in EE_utils.h
-//			val += (int)(EE_TIMER0_STEP);
-//   			TC0 = val;					// to manage critical courses...
-//		}while( ((signed) (TCNT-val) ) >= 0);
-//	}
-//}
-//
-//#else
-//ISR2(T0_ISR)
-//{
-//}
-*/
-
 #if(EE_MAX_COUNTER>0)
 volatile EE_UINT8 EE_timer0_initialized = 1;
-#else /* #if(EE_MAX_COUNTER>0) */
+#else    /* #if(EE_MAX_COUNTER>0) */
 volatile EE_UINT8 EE_timer0_initialized = 0;
-#endif /* #if(EE_MAX_COUNTER>0) */
+#endif   /* #if(EE_MAX_COUNTER>0) */
 
