@@ -250,12 +250,15 @@ __INLINE__ void EE_led10_toggle(void){
 
 #ifdef __USE_BUZZER__
 
+#define EE_EASYLAB_BUZZER_MAX_FREQ 48000U
+#define EE_EASYLAB_BUZZER_MIN_FREQ 100U
 /**
     @brief Start the buzzer
     
     Start the buzzer. These Buzzer API use Timer2 of dspic mcu.
     
-    @param freq (EE_UINT16): output square wave frequency, that drive the buzzer (Hz)
+    @param freq (EE_UINT16): output square wave frequency, that drive the buzzer 
+        between [100, 48000] Hz 
 **/
 void EE_buzzer_start(EE_UINT16 freq);
 

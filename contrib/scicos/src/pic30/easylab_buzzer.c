@@ -66,9 +66,14 @@ static void end(scicos_block *block)
 
 static void inout(scicos_block *block)
 {
+    const EE_UINT16 amplitude = (EE_EASYLAB_BUZZER_MAX_FREQ - EE_EASYLAB_BUZZER_MIN_FREQ)/2U;
+    const EE_UINT16 center    = amplitude + EE_EASYLAB_BUZZER_MIN_FREQ;
+    
     float new_freq_f = *(float *)block->inptr[0];
-    /* Period in microseconds */
-    EE_UINT16 new_freq = abs(new_freq_f);
+    
+    /* Frequency in Hz */    
+    EE_INT32 span = new_freq_f * amplitude;
+    EE_UINT32 new_freq = span + center;
     EE_buzzer_stop();
     EE_buzzer_start(new_freq);
 }

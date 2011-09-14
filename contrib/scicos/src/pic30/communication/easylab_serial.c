@@ -44,15 +44,18 @@
     @author Errico Guidieri, Evidence Srl
     @date 2006-2011
 */
-#include <string.h>
+
+#include "ee.h"
 #include "easylab_serial.h"
 #include "ee_internal.h"
+
+#include <string.h>
 
 /* Shared initialization status */
 static volatile EE_BIT ee_cbuffer_uart_driver_initialized = 0;
 
 
-#ifdef __INCLUDE_SCICOS_EASYLAB_SERIAL_H__
+#ifdef __RECEIVING_FROM_UART__
 
 /* Shared receiving task active status*/
 static volatile EE_BIT receiving_task_active = 0;
@@ -137,7 +140,7 @@ TASK(receiving_from_uart)
 }
 #else
 #define receiving_from_uart_callback NULL
-#endif /*__INCLUDE_SCICOS_EASYLAB_SERIAL_H__*/
+#endif /*__RECEIVING_FROM_UART__*/
 
 EE_INT8 EE_easylab_serial_init(EE_UINT32 baudrate)
 {
