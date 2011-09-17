@@ -38,30 +38,52 @@
 # Boston, MA 02110-1301 USA.
 # ###*E*###
 
-## Author: 2009 Bernardo Dal Seno
-
-# Lattice Mico32
-ifeq ($(call iseeopt, __LM32__), yes)
-EE_SRCS += pkg/cpu/common/src/ee_hal_structs.c
-EE_SRCS += pkg/cpu/common/src/ee_context.c
-endif
-
-ifeq ($(or $(call iseeopt, __PPCE200ZX__), $(call iseeopt, __PPCE200Z7__)), yes)
-EE_SRCS += pkg/cpu/common/src/ee_hal_structs.c
-EE_SRCS += pkg/cpu/common/src/ee_context.c
-endif
-
-ifeq ($(call iseeopt, __ESI_RISC__), yes)
-EE_SRCS += pkg/cpu/common/src/ee_hal_structs.c
-EE_SRCS += pkg/cpu/common/src/ee_context.c
-endif
-
-ifeq ($(call iseeopt, __MSP430__), yes)
-EE_SRCS += pkg/cpu/common/src/ee_hal_structs.c
-EE_SRCS += pkg/cpu/common/src/ee_context.c
-endif
+## Files specific to the CORTEX M0
+## Author: 2011 Gianluca Franchino
 
 ifeq ($(call iseeopt, __CORTEX_M0__), yes)
-EE_SRCS += pkg/cpu/common/src/ee_hal_structs.c
-EE_SRCS += pkg/cpu/common/src/ee_context.c
+EE_SRCS += pkg/cpu/cortex_m0/src/ee_utils.c
+
+ifeq ($(call iseeopt, __IAR__), yes)
+EE_SRCS += pkg/cpu/cortex_m0/src/ee_iar_change_context_isr.s
 endif
+
+ifeq ($(call iseeopt, __OO_BCC1__), yes)
+CPU_OO=YES
+endif
+
+ifeq ($(call iseeopt, __OO_BCC2__), yes)
+CPU_OO=YES
+endif
+
+ifeq ($(call iseeopt, __OO_ECC1__), yes)
+CPU_OO=YES
+endif
+
+ifeq ($(call iseeopt, __OO_ECC2__), yes)
+CPU_OO=YES
+endif
+
+ifeq ($(CPU_OO), YES)
+EE_SRCS += pkg/cpu/cortex_m0/src/ee_iar_oo.s
+endif
+
+ifeq ($(call iseeopt, __MULTI__), yes)
+
+ifeq ($(call iseeopt, __IAR__), yes)
+EE_SRCS += pkg/cpu/cortex_m0/src/ee_iar_multi_context.s
+endif
+
+else
+
+EE_SRCS += pkg/cpu/cortex_m0/src/ee_context.c
+
+endif
+
+ifeq ($(call iseeopt, __IRQ_STACK_NEEDED__), yes)
+ifeq ($(call iseeopt, __IAR__), yes)
+EE_SRCS += pkg/cpu/cortex_m0/src/ee_iar_irq_stack.s
+endif
+endif
+
+endif # __CORTEX_M0__

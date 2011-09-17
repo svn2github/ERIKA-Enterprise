@@ -135,6 +135,10 @@ extern "C" {
 #include "cpu/msp430/inc/ee_cpu.h"
 #endif
 
+#ifdef __CORTEX_M0__
+#include "cpu/cortex_m0/inc/ee_cpu.h"
+#endif
+
   /*
    *
    * MCU
@@ -201,6 +205,11 @@ extern "C" {
  /* MSP430 */
 #ifdef __MSP430__
 #include "mcu/msp430/inc/ee_mcu.h"
+#endif
+
+ /* CORTEX M0 */
+#ifdef __CORTEX_M0__
+#include "mcu/cortex_m0/inc/ee_mcu.h"
 #endif
 
   /*

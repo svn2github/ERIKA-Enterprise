@@ -127,6 +127,11 @@ extern "C" {
 #include "cpu/msp430/inc/ee_internal.h"
 #endif
 
+/* ARM */
+#ifdef __CORTEX_M0__
+#include "cpu/cortex_m0/inc/ee_internal.h"
+#endif
+
   /*
    *
    * MCU
@@ -189,6 +194,11 @@ extern "C" {
 /* Tricore1 */
 #ifdef __TC179x__
 #include "mcu/tc179x/inc/ee_internal.h"
+#endif
+
+/* ARM */
+#ifdef __CORTEX_M0__
+#include "mcu/cortex_m0/inc/ee_internal.h"
 #endif
 
 

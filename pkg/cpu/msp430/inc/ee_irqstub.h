@@ -167,7 +167,7 @@ EE_irq_nesting_poststub();
 
 
 /*Reload the preceding stack*/
-EE_change_stack_back();;
+EE_change_stack_back();
 /*Call the scheduler*/
 EE_std_after_IRQ_schedule();
 

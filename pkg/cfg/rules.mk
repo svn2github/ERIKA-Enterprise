@@ -318,8 +318,12 @@ ifeq ($(call iseeopt, __MSP430__), yes)
   include $(EEBASE)/pkg/cfg/arch/rules_msp430.mk
 endif 
 
-
-
+##
+## CORTEX M0 - IAR compiler under windows
+##########################################################################
+ifeq ($(call iseeopt, __CORTEX_M0__), yes)
+	include $(EEBASE)/pkg/cfg/arch/rules_cortex_m0.mk
+endif
 
 ##
 ## error checking in EEOPT

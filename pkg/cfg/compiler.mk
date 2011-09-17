@@ -111,3 +111,8 @@ endif
 ifeq ($(call iseeopt, __MSP430__), yes)
 include $(EEBASE)/pkg/cfg/arch/cc_msp430.mk
 endif
+
+ifeq ($(call iseeopt, __CORTEX_M0__), yes)
+include $(EEBASE)/pkg/cfg/arch/cc_cortex_m0_iar.mk
+endif
+
