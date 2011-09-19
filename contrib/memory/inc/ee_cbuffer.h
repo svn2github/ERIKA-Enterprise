@@ -118,7 +118,7 @@ EE_CBufferError EE_cbuffer_init(EE_CBuffer * cbuffer, EE_UINT16 buffer_length, v
     @return EE_CBUFF_OK if no errors found
             EE_CBUFF_ERR_TOO_MANY if there's not enough space in the buffer    
 **/
-EE_CBufferError EE_cbuffer_push(EE_CBuffer *cbuffer, void * ele, EE_UINT16 ele_length);
+EE_CBufferError EE_cbuffer_push(EE_CBuffer *cbuffer, const void * ele, EE_UINT16 ele_length);
 
 /**
     @brief Extracts first element from the buffer.
@@ -146,7 +146,7 @@ EE_CBufferError EE_cbuffer_pop(EE_CBuffer *cbuffer, void * ele, EE_UINT16 ele_le
     @return EE_CBUFF_OK if no errors found
             EE_CBUFF_ERR_FEW if the bites in buffer are not enough to fill the element   
 **/
-EE_CBufferError EE_cbuffer_first(EE_CBuffer *cbuffer, void * ele, EE_UINT16 ele_length);
+EE_CBufferError EE_cbuffer_first(const EE_CBuffer *cbuffer, void * ele, EE_UINT16 ele_length);
 
 /**
     @brief Read last element in the buffer.
@@ -160,7 +160,7 @@ EE_CBufferError EE_cbuffer_first(EE_CBuffer *cbuffer, void * ele, EE_UINT16 ele_
     @return EE_CBUFF_OK if no errors found
             EE_CBUFF_ERR_FEW if the bites in buffer are not enough to fill the element    
 **/
-EE_CBufferError EE_cbuffer_last(EE_CBuffer *cbuffer, void * ele, EE_UINT16 ele_length);
+EE_CBufferError EE_cbuffer_last(const EE_CBuffer *cbuffer, void * ele, EE_UINT16 ele_length);
 
 /**
     @brief Read last element in the buffer.
@@ -176,7 +176,7 @@ EE_CBufferError EE_cbuffer_last(EE_CBuffer *cbuffer, void * ele, EE_UINT16 ele_l
             EE_CBUFF_ERR_FEW if the bites in buffer are not enough to fill the element
             EE_CBUFF_ERR_OOB if index is >= C-buffer number of actual elements (counter)
 **/
-EE_CBufferError EE_cbuffer_access(EE_CBuffer *cbuffer, EE_UINT16 index, void * ele, EE_UINT16 ele_length);
+EE_CBufferError EE_cbuffer_access(const EE_CBuffer *cbuffer, EE_UINT16 index, void * ele, EE_UINT16 ele_length);
 
 
 /**
@@ -203,7 +203,7 @@ EE_CBufferError EE_cbuffer_skip(EE_CBuffer *cbuffer, EE_UINT16 bytes_to_skip);
     @return 1 if buffer contains more or equal bytes of num_bytes
             0 otherwise    
 **/
-__INLINE__ EE_BIT EE_cbuffer_contains(EE_CBuffer *cbuffer, EE_UINT16 num_bytes){
+__INLINE__ EE_BIT EE_cbuffer_contains(const EE_CBuffer *cbuffer, EE_UINT16 num_bytes){
     return (cbuffer->counter >= num_bytes);
 }
 
@@ -216,7 +216,7 @@ __INLINE__ EE_BIT EE_cbuffer_contains(EE_CBuffer *cbuffer, EE_UINT16 num_bytes){
     @return 1 if in buffer are available more or equal bytes of num_bytes
             0 otherwise     
 **/
-__INLINE__ EE_BIT EE_cbuffer_available(EE_CBuffer *cbuffer, EE_UINT16 num_bytes){
+__INLINE__ EE_BIT EE_cbuffer_available(const EE_CBuffer *cbuffer, EE_UINT16 num_bytes){
     return ((cbuffer->buffer_length - cbuffer->counter) >= num_bytes);
 }
 

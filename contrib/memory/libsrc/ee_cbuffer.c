@@ -7,7 +7,7 @@
  *
  * ERIKA Enterprise is free software; you can redistribute it
  * and/or modify it under the terms of the GNU General Public License
- * version 2 as published by the Free Software Foundation, 
+ * version 2 as published by the Free Software Foundation,
  * (with a special exception described below).
  *
  * Linking this code statically or dynamically with other modules is
@@ -38,17 +38,17 @@
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
 
-/** 
+/**
     @file ee_cbuffer.c
     @brief Cicular Buffers library source file.
-    @brief Buffer library source file. 
+    @brief Buffer library source file.
     @author Errico Guidieri
     @date 2011
 **/
 
 #include "ee_cbuffer.h"
 
-#include <string.h> 
+#include <string.h>
 
 /*===========================================================
             Static Functions (Private Implementation)
@@ -75,7 +75,7 @@ static void * EE_cbuffer_pop_and_get_read_addr(EE_CBuffer *cbuffer, EE_UINT16 da
     return read_addr;
 }
 
-static EE_CBufferError EE_cbuffer_access_impl(EE_CBuffer *cbuffer, EE_UINT16 index, void * ele, EE_UINT16 data_length)
+static EE_CBufferError EE_cbuffer_access_impl(const EE_CBuffer *cbuffer, EE_UINT16 index, void * ele, EE_UINT16 data_length)
 {
     EE_CBufferError error = EE_CBUFF_OK;
 
@@ -92,13 +92,25 @@ static EE_CBufferError EE_cbuffer_access_impl(EE_CBuffer *cbuffer, EE_UINT16 ind
             /* Circular arithmetic to evaluate "access index" */
             EE_UINT16 access_index = (cbuffer->head + index) % cbuffer->buffer_length;
             void * access_addr = (char *)cbuffer->memory + access_index;
-            if(data_length > 1)
-                memcpy(ele, access_addr, data_length);
-            else
+            if(data_length > 1){
+                const int offset = (char *)access_addr - (char *)cbuffer->memory;
+
+                /* read in array boundaries */
+                if((offset + data_length) <= cbuffer->buffer_length){
+                    memcpy(ele, access_addr, data_length);
+                } else { /* read outside array boundaries */
+                    const int bytes_before_the_end = cbuffer->buffer_length - offset;
+                    const int remaining_bytes      = data_length - bytes_before_the_end;
+
+                    memcpy(ele, access_addr, bytes_before_the_end);
+                    memcpy((char *)ele + bytes_before_the_end, cbuffer->memory, remaining_bytes);
+                }
+            } else {
                 ((char *)ele)[0] = ((char *)access_addr)[0];
+            }
         }
     }
-    
+
     return error;
 }
 
@@ -109,7 +121,7 @@ static EE_CBufferError EE_cbuffer_access_impl(EE_CBuffer *cbuffer, EE_UINT16 ind
 EE_CBufferError EE_cbuffer_init(EE_CBuffer * cbuffer, EE_UINT16 buffer_length, void * memory)
 {
     EE_CBufferError error = EE_CBUFF_OK;
-    
+
     if(cbuffer == EE_NULL_CBUFF)
         error =  EE_CBUFF_ERR_NULL;
 
@@ -120,29 +132,41 @@ EE_CBufferError EE_cbuffer_init(EE_CBuffer * cbuffer, EE_UINT16 buffer_length, v
         cbuffer->memory         = memory;
     }
 
-    return error;          
+    return error;
 }
 
 /* This functions puts a message in the buffer (push in queue) */
-EE_CBufferError EE_cbuffer_push(EE_CBuffer * cbuffer, void * ele, EE_UINT16 data_length)
+EE_CBufferError EE_cbuffer_push(EE_CBuffer * cbuffer, const void * ele, EE_UINT16 data_length)
 {
     EE_CBufferError error = EE_CBUFF_OK;
 
     if((cbuffer == EE_NULL_CBUFF) || (ele == NULL) || (data_length == 0))
         error = EE_CBUFF_ERR_NULL;
-    
+
     if(!error){
         if(!EE_cbuffer_available(cbuffer, data_length)){
             error = EE_CBUFF_ERR_TOO_MANY;
         } else {
             void * write_addr = EE_cbuffer_push_and_get_write_addr(cbuffer, data_length);
-            if(data_length > 1)
-                memcpy(write_addr, ele, data_length);
-            else
+            if(data_length > 1) {
+                const int offset = (char *)write_addr - (char *)cbuffer->memory;
+
+                /* write in array boundaries */
+                if((offset + data_length) <= cbuffer->buffer_length){
+                    memcpy(write_addr, ele, data_length);
+                } else { /* write outside array boundaries */
+                    const int bytes_before_the_end = cbuffer->buffer_length - offset;
+                    const int remaining_bytes      = data_length - bytes_before_the_end;
+
+                    memcpy(write_addr, ele, bytes_before_the_end);
+                    memcpy(cbuffer->memory, (char *)ele + bytes_before_the_end, remaining_bytes);
+                }
+            } else {
                 ((char *)write_addr)[0] = ((char *)ele)[0];
+            }
         }
     }
-    
+
     return error;
 }
 
@@ -152,33 +176,45 @@ EE_CBufferError EE_cbuffer_pop(EE_CBuffer *cbuffer, void * ele, EE_UINT16 data_l
 
     if((cbuffer == EE_NULL_CBUFF) || (ele == NULL) || (data_length == 0))
         error =  EE_CBUFF_ERR_NULL;
-    
+
     if(!error){
         if(!EE_cbuffer_contains(cbuffer, data_length)){
             error = EE_CBUFF_ERR_TOO_FEW;
         } else {
             void * read_addr = EE_cbuffer_pop_and_get_read_addr(cbuffer, data_length);
-            if(data_length > 1)
-                memcpy(ele, read_addr, data_length);
-            else
+            if(data_length > 1){
+                const int offset = (char *)read_addr - (char *)cbuffer->memory;
+
+                /* read in array boundaries */
+                if((offset + data_length) <= cbuffer->buffer_length){
+                    memcpy(ele, read_addr, data_length);
+                } else { /* read outside array boundaries */
+                    const int bytes_before_the_end = cbuffer->buffer_length - offset;
+                    const int remaining_bytes      = data_length - bytes_before_the_end;
+
+                    memcpy(ele, read_addr, bytes_before_the_end);
+                    memcpy((char *)ele + bytes_before_the_end, cbuffer->memory, remaining_bytes);
+                }
+            } else {
                 ((char *)ele)[0] = ((char *)read_addr)[0];
+            }
         }
     }
-    
+
     return error;
 }
 
-EE_CBufferError EE_cbuffer_first(EE_CBuffer *cbuffer, void * ele, EE_UINT16 data_length)
+EE_CBufferError EE_cbuffer_first(const EE_CBuffer *cbuffer, void * ele, EE_UINT16 data_length)
 {
     return EE_cbuffer_access_impl(cbuffer, 0, ele, data_length);
 }
 
-EE_CBufferError EE_cbuffer_last(EE_CBuffer *cbuffer, void * ele, EE_UINT16 data_length)
+EE_CBufferError EE_cbuffer_last(const EE_CBuffer *cbuffer, void * ele, EE_UINT16 data_length)
 {
     return EE_cbuffer_access_impl(cbuffer, (cbuffer->counter - data_length), ele, data_length);
 }
 
-EE_CBufferError EE_cbuffer_access(EE_CBuffer *cbuffer, EE_UINT16 index, void * ele, EE_UINT16 data_length)
+EE_CBufferError EE_cbuffer_access(const EE_CBuffer *cbuffer, EE_UINT16 index, void * ele, EE_UINT16 data_length)
 {
     return EE_cbuffer_access_impl(cbuffer, index, ele, data_length);
 }
@@ -189,7 +225,7 @@ EE_CBufferError EE_cbuffer_skip(EE_CBuffer *cbuffer, EE_UINT16 bytes_to_skip)
 
     if(cbuffer == EE_NULL_CBUFF)
         error =  EE_CBUFF_ERR_NULL;
-    
+
     if(!error && (bytes_to_skip > 0)){
         if(!EE_cbuffer_contains(cbuffer, bytes_to_skip)){
             error = EE_CBUFF_ERR_TOO_FEW;
@@ -197,6 +233,6 @@ EE_CBufferError EE_cbuffer_skip(EE_CBuffer *cbuffer, EE_UINT16 bytes_to_skip)
             EE_cbuffer_pop_and_get_read_addr(cbuffer, bytes_to_skip);
         }
     }
-    
+
     return error;
 }
