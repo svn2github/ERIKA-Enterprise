@@ -118,7 +118,7 @@ EE_CBuffer * EE_uart_cbuffer_get_rx_buffer(void);
 EE_CBuffer * EE_uart_cbuffer_get_tx_buffer(void);
 
 /** @brief Add data to uart tx buffer. **/
-EE_CBufferError EE_uart_cbuffer_push_tx(void * tx_data, EE_UINT16 data_length);
+EE_CBufferError EE_uart_cbuffer_push_tx(const void * tx_data, EE_UINT16 data_length);
 
 /** @brief Triggers transmission.
 

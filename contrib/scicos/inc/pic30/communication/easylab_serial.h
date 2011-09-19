@@ -59,7 +59,7 @@
 /** Initialize CBuffer-UART driver for easylab **/
 EE_INT8 EE_easylab_serial_init(EE_UINT32 baudrate);
     
-__INLINE__ EE_CBufferError EE_easylab_serial_tx(char serial_packet[])
+__INLINE__ EE_CBufferError EE_easylab_serial_tx(unsigned char serial_packet[])
 {
     EE_CBufferError error = EE_uart_cbuffer_push_tx(serial_packet, EASYLAB_PACKET_SIZE);
     EE_uart_cbuffer_trigger_tx();

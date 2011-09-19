@@ -102,21 +102,17 @@ TASK(receiving_from_uart)
                 continue;
             
             /* Parsing inner loop */
-            for(j = i; ; ++j){
-                /* Check end of crc condition (-2 because 'i' is already incremented)*/
-                if(j == (i + EASYLAB_PACKET_SIZE - 2)){
-                    if(read_buffer[j] == crc){
-                        /* Valid packet read: I populate received variables */
-                        memcpy((void *)&received_param1, read_buffer + i, sizeof(float));
-                        memcpy((void *)&received_param2, read_buffer + i + sizeof(float), sizeof(float));
-                        /* Valid packet I restart parsing after this one */
-                        i = j + 1;
-                    }
-                    break;
-                } else {
-                    /* Loop to evaluate crc */
-                    crc ^= read_buffer[j];
-                }
+            for(j = i; j < (i + EASYLAB_PACKET_SIZE - 2); ++j){
+                /* Loop to evaluate crc */
+                crc ^= read_buffer[j];
+            }
+            /* Check end of crc condition (-2 because 'i' is already incremented)*/
+            if(read_buffer[i + EASYLAB_PACKET_SIZE - 2] == crc){
+                /* Valid packet read: I populate received variables */
+                memcpy((void *)&received_param1, read_buffer + i, sizeof(float));
+                memcpy((void *)&received_param2, read_buffer + i + sizeof(float), sizeof(float));
+                /* Valid packet I restart parsing after this one */
+                i += EASYLAB_PACKET_SIZE - 1;
             }
         }
         

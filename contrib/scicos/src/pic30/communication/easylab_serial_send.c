@@ -63,8 +63,8 @@ static void init(scicos_block *block)
 static void inout(scicos_block *block)
 {
     int i;
-    char serial_packet[EASYLAB_PACKET_SIZE];
-    char crc = 0;
+    unsigned char serial_packet[EASYLAB_PACKET_SIZE];
+    unsigned char crc = 0;
     serial_packet[0] = '\0';
     
     /* Data copy (I start from serial_packet + 1 address) */

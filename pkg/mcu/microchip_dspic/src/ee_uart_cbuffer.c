@@ -82,23 +82,20 @@ static void push_rx_buffer(EE_UINT8 data_in)
 */
 static void uart_rx_callback_wrapper (EE_UINT8 data_in)
 {
-    /* push received byte in buffer */
-    push_rx_buffer(data_in);
-
-    /* If needed: asynchronous notification */
-    if(uart_rx_callback != NULL)
-        uart_rx_callback(data_in);
-
-    /* Read data from hardware's uart buffer until data are available */
-    while(EE_uart_byte_available(EE_UART_PORT_1)){
-        EE_uart_read_byte_async(EE_UART_PORT_1, &data_in);
+    do {
         /* push received byte in buffer */
         push_rx_buffer(data_in);
 
         /* If needed: asynchronous notification */
         if(uart_rx_callback != NULL)
             uart_rx_callback(data_in);
-    }
+            
+        /* Read data from hardware's uart buffer until data are available */
+        if(EE_uart_byte_available(EE_UART_PORT_1))
+            EE_uart_read_byte_async(EE_UART_PORT_1, &data_in);
+        else
+            break;
+    } while(1);
 }
 
 /*
@@ -176,7 +173,7 @@ EE_CBuffer * EE_uart_cbuffer_get_tx_buffer(void)
 }
 
 
-EE_CBufferError EE_uart_cbuffer_push_tx(void * tx_data, EE_UINT16 data_length)
+EE_CBufferError EE_uart_cbuffer_push_tx(const void * tx_data, EE_UINT16 data_length)
 {
     EE_CBufferError error = EE_CBUFF_OK;
 
