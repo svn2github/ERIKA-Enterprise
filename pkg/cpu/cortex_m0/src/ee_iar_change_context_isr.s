@@ -39,7 +39,7 @@
  * ###*E*### */
 
 /** 
-	@file ee_iar_multi_context.s
+	@file ee_iar_change_context_isr.s
 	@brief Functions to active and manage the context switch for Cortex_M0 
 	@author Gianluca Franchino
 	@date 2011
@@ -52,8 +52,6 @@
 	; Functions declared in this file 
 	PUBLIC	EE_switch_context ; void EE_switch_context(void)
 	PUBLIC  PendSV_Handler    ; void PendSV_Handler(void);
-	PUBLIC	exitPendSV	; void exitPendSV(void);
-	PUBLIC	exit_EE_cortex_m0_change_context ; void exit_EE_cortex_m0_change_context(void);
 	PUBLIC	EE_set_switch_context_pri ; void EE_set_switch_context_pri(void)
 	
 	EXTERN  EE_cortex_m0_change_context
@@ -184,7 +182,6 @@ exit_EE_cortex_m0_change_context:
 	CPSIE i ; Enable interrupts (clear PRIMASK)
 	POP {R0, PC}; Move stack pointer getting again R0 and return
 				; updating PC 
-	;POP {PC} ; Return
-     
+				
     END	
 	
