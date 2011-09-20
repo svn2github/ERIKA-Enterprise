@@ -81,7 +81,7 @@ void EE_oo_GetResource(ResourceType ResID)
 #ifdef __MSRP__
   /* mask off the MSB, that indicates whether this is a global or a
      local resource */
-  isGlobal = ResID & EE_GLOBAL_MUTEX;
+  isGlobal = ((ResID & EE_GLOBAL_MUTEX) != 0U);
   ResID = ResID & ~EE_GLOBAL_MUTEX;
 #endif
 
@@ -183,7 +183,9 @@ void EE_oo_GetResource(ResourceType ResID)
 
 #ifdef __MSRP__
   /* if this is a global resource, lock the others CPUs */
-  if (isGlobal) EE_hal_spin_in(ResID);
+  if (isGlobal) {
+    EE_hal_spin_in((EE_TYPESPIN)ResID);
+  }
 #endif
 
   EE_hal_end_nested_primitive(flag);

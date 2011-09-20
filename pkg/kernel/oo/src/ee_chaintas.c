@@ -196,7 +196,7 @@ StatusType EE_oo_ChainTask(TaskType TaskID)
   if (TaskID & EE_REMOTE_TID) 
     {
       EE_TYPERN_PARAM par;
-      par.pending = 1;
+      par.pending = 1U;
       /* forward the request to another CPU */
       EE_rn_send(TaskID & ~EE_REMOTE_TID, EE_RN_TASK, par );
       /* like in TerminateTask, we do not have to activate any other task */

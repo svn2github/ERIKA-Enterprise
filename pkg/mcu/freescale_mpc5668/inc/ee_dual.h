@@ -53,7 +53,7 @@
 #define EE_MPC5668_INTER_IRQ_VBA_BASE EE_MPC5668_INTER_IRQ_BASE
 /* Interprocessor IRQ vector number, from CPU id */
 #define EE_MPC5668_INTER_IRQ_LEVEL(cpu) \
-	((cpu) + EE_MPC5668_INTER_IRQ_VBA_BASE + 16)
+	((EE_SREG)(cpu) + EE_MPC5668_INTER_IRQ_VBA_BASE + 16)
 
 
 /* Enable the Z0 CPU, which starts executing the code pointed by `f' */
@@ -65,20 +65,20 @@ __INLINE__ void EE_mpc5668_start_z0(void (*f)(void))
 /* Setup the intercore IRQs used by ERIKA for multicore support */
 __INLINE__ void EE_mpc5668_setup_inter_irqs(void)
 {
-	INTC.PSR[EE_MPC5668_INTER_IRQ_BASE + 0].R = 0;
-	INTC.PSR[EE_MPC5668_INTER_IRQ_BASE + 1].R = 0xc0;
+	INTC.PSR[EE_MPC5668_INTER_IRQ_BASE + 0].R = 0U;
+	INTC.PSR[EE_MPC5668_INTER_IRQ_BASE + 1].R = 0xc0U;
 }
 
 /* Signal the core `cpu' (0/1) by sending an IIRQ */
-__INLINE__ void EE_mpc5668_signal_cpu(int cpu)
+__INLINE__ void EE_mpc5668_signal_cpu(EE_UINT8 cpu)
 {
-	INTC.SSCIR[EE_MPC5668_INTER_IRQ_BASE + cpu].R = 2;
+	INTC.SSCIR[EE_MPC5668_INTER_IRQ_BASE + (EE_SREG)cpu].R = 2U;
 }
 
 /* Acknowledge the signal riceved by the core `cpu' (0/1) */
-__INLINE__ void EE_mpc5668_ack_signal(int cpu)
+__INLINE__ void EE_mpc5668_ack_signal(EE_UINT8 cpu)
 {
-	INTC.SSCIR[EE_MPC5668_INTER_IRQ_BASE + cpu].R = 1;
+	INTC.SSCIR[EE_MPC5668_INTER_IRQ_BASE + (EE_SREG)cpu].R = 1U;
 }
 
 /* Acquire the spin lock `spin_id' */
@@ -86,7 +86,8 @@ __INLINE__ void EE_mpc5668_spin_in(EE_TYPESPIN spin_id)
 {
 	/* The same value as EE_CURRENTCPU can be obtained at run-time by
 	 * reading from special register PIR (286) */
-	int locked_val = EE_CURRENTCPU + 1;
+	uint8_t locked_val = (uint8_t)EE_CURRENTCPU;
+	locked_val += (uint8_t)1U;
 	do {
 		SEMA4.GATE[spin_id].R = locked_val;
 	} while (SEMA4.GATE[spin_id].R != locked_val);
@@ -95,7 +96,7 @@ __INLINE__ void EE_mpc5668_spin_in(EE_TYPESPIN spin_id)
 /* Release the spin lock `spin_id' */
 __INLINE__ void EE_mpc5668_spin_out(EE_TYPESPIN spin_id)
 {
-	SEMA4.GATE[spin_id].R = 0;
+	SEMA4.GATE[spin_id].R = 0U;
 }
 
 

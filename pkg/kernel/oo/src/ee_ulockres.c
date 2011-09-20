@@ -78,7 +78,7 @@ void EE_oo_ReleaseResource(ResourceType ResID)
 #ifdef __MSRP__
   /* mask off the MSB, that indicates whether this is a global or a
      local resource */
-  isGlobal = ResID & EE_GLOBAL_MUTEX;
+  isGlobal = ((ResID & EE_GLOBAL_MUTEX) != 0U);
   ResID = ResID & ~EE_GLOBAL_MUTEX;
 #endif
 
@@ -195,7 +195,9 @@ void EE_oo_ReleaseResource(ResourceType ResID)
 
 #ifdef __MSRP__
   /* if this is a global resource, unlock the others CPUs */
-  if (isGlobal) EE_hal_spin_out(ResID);
+  if (isGlobal) {
+    EE_hal_spin_out((EE_TYPESPIN)ResID);
+  }
 #endif
 
   /* there is no need to store that the resource has no more lockers,

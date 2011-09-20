@@ -55,7 +55,7 @@
 */
 
 #ifndef __PRIVATE_RN_SEND__
-int EE_rn_send(EE_TYPERN rn, EE_TYPERN t, EE_TYPERN_PARAM par)
+int EE_rn_send(EE_TYPERN rn, EE_TYPERN_NOTIFY t, EE_TYPERN_PARAM par)
 {
   register EE_UINT8 cpu;
   register EE_TYPERN_SWITCH sw;
@@ -74,7 +74,7 @@ int EE_rn_send(EE_TYPERN rn, EE_TYPERN t, EE_TYPERN_PARAM par)
 
   cpu = EE_rn_cpu[rn];
 
-  if (cpu == EE_CURRENTCPU) {
+  if (cpu == (EE_UINT8)EE_CURRENTCPU) {
     /* THIS SHOULD NEVER HAPPEN!!!
        Local notification not allowed 
        CHECK YOUR CONFIGURATION FOR THE REMOTE NOTIFICATIONS!!!
@@ -101,8 +101,9 @@ int EE_rn_send(EE_TYPERN rn, EE_TYPERN t, EE_TYPERN_PARAM par)
       EE_rn_first[cpu][sw] == -1;
 
     /* the interrupt handler have to do the cycle again */
-    if (EE_rn_switch[cpu] & EE_RN_SWITCH_INSIDEIRQ)
+    if (EE_rn_switch[cpu] & EE_RN_SWITCH_INSIDEIRQ) {
       EE_rn_switch[cpu] |= EE_RN_SWITCH_NEWRN;
+    }
 
     /* Queuing request */
     if (!EE_rn_type[rn][sw]) {
@@ -166,8 +167,9 @@ int EE_rn_send(EE_TYPERN rn, EE_TYPERN t, EE_TYPERN_PARAM par)
     -1. anyway, it's not worth to add this test on the Janus
     architecture.
     */
-    if (newIRQ)
+    if (newIRQ) {
       EE_hal_IRQ_interprocessor(cpu);
+    }
   }
   
   EE_hal_end_nested_primitive(flag);

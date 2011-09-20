@@ -153,7 +153,7 @@ __INLINE__ int __ALWAYS_INLINE__ EE_cpu_startos(void)
 
 /* the MSB in a MUTEX type indicates if a resource is global (1) or
    local (0) to a processor */
-#define EE_GLOBAL_MUTEX 0x80000000U
+#define EE_GLOBAL_MUTEX ((ResourceType)0x80000000U)
 
 /* Type for spinlocks: an ID */
 typedef EE_UINT32 EE_TYPESPIN;

@@ -105,27 +105,27 @@
 
 /* Notification types */
 #ifdef __RN_COUNTER__
-#define EE_RN_COUNTER   1
+#define EE_RN_COUNTER   ((EE_TYPERN_NOTIFY)1U)
 #endif
        
 #ifdef __RN_EVENT__
-#define EE_RN_EVENT     2
+#define EE_RN_EVENT     ((EE_TYPERN_NOTIFY)2U)
 #endif
 
 #ifdef __RN_TASK__
-#define EE_RN_TASK      4
+#define EE_RN_TASK      ((EE_TYPERN_NOTIFY)4U)
 #endif
 
 #ifdef __RN_FUNC__
-#define EE_RN_FUNC      8
+#define EE_RN_FUNC      ((EE_TYPERN_NOTIFY)8U)
 #endif
 
 #ifdef __RN_BIND__
-#define EE_RN_BIND     16
+#define EE_RN_BIND     ((EE_TYPERN_NOTIFY)16U)
 #endif
 
 #ifdef __RN_UNBIND__
-#define EE_RN_UNBIND   32
+#define EE_RN_UNBIND   ((EE_TYPERN_NOTIFY)32U)
 #endif
 
 
@@ -180,5 +180,5 @@ extern const EE_TYPESPIN EE_SHARED_CDATA EE_rn_spin[];
 /* For each CPU: initialized to 0 */
 extern EE_TYPERN_SWITCH EE_SHARED_IDATA EE_rn_switch[];
 
-#endif // __RN__
+#endif /* __RN__ */
 #endif

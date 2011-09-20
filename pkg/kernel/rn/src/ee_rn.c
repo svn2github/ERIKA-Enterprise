@@ -52,7 +52,7 @@
 
 /* this INTERNAL function is called to execute a notification procedure */
 #ifndef __PRIVATE_RN_EXECUTE__
-static void EE_rn_execute(EE_TYPERN rn, EE_UINT8 sw)
+static void EE_rn_execute(EE_TYPERN rn, EE_TYPERN_SWITCH sw)
 {
 #if defined(__RN_COUNTER__) || defined(__RN_TASK__) || defined(__RN_FUNC__)
   register EE_UREG pend;
@@ -91,13 +91,14 @@ static void EE_rn_execute(EE_TYPERN rn, EE_UINT8 sw)
       EE_fp_ActivateTask(EE_rn_task[rn]);
 #endif
 #if defined(__OO_BCC1__) || defined(__OO_BCC2__) || defined(__OO_ECC1__) || defined(__OO_ECC2__)
-      EE_oo_ActivateTask(EE_rn_task[rn]);
+      /* Any error is ignored and not reported back to the originating core */
+      (void)EE_oo_ActivateTask(EE_rn_task[rn]);
 #endif
 #if defined(__FRSH__)
       EE_frsh_thread_activate(EE_rn_task[rn]);
 #endif
     }
-    EE_rn_pending[rn][sw] = 0;
+    EE_rn_pending[rn][sw] = 0U;
 
     EE_rn_type[rn][sw] &= ~EE_RN_TASK;
   }
@@ -174,7 +175,7 @@ void EE_rn_handler(void)
 
   do {
 
-    sw = EE_rn_switch[EE_CURRENTCPU] & EE_RN_SWITCH_COPY;
+      sw = EE_rn_switch[EE_CURRENTCPU] & EE_RN_SWITCH_COPY;
 
       EE_hal_IRQ_begin_primitive();
       
@@ -234,15 +235,16 @@ void EE_rn_handler(void)
 	/* set that we are no more inside the interrupt */
 	EE_rn_switch[EE_CURRENTCPU] &= ~EE_RN_SWITCH_INSIDEIRQ;
 
-	EE_hal_IRQ_interprocessor_served(EE_CURRENTCPU);
+	EE_hal_IRQ_interprocessor_served((EE_UINT8)EE_CURRENTCPU);
       }
 
       /* Spin Lock release */
       EE_hal_spin_out(EE_rn_spin[EE_CURRENTCPU]);
 
       /* note: we end the handler with interrupt disabled! */
-      if (redo)
+      if (redo) {
 	EE_hal_IRQ_end_primitive();
+      }
   } while (redo);
 }
 #endif /* __PRIVATE_RN_HANDLER__ */

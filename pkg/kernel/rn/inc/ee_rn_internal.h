@@ -59,10 +59,9 @@
    - bit 2 a new remote notification arrived while inside an interrupt handler
 */
 
-#define EE_RN_SWITCH_COPY      1
-#define EE_RN_SWITCH_INSIDEIRQ 2
-#define EE_RN_SWITCH_NEWRN     4
-extern EE_TYPERN_SWITCH EE_SHARED_IDATA EE_rn_switch[];
+#define EE_RN_SWITCH_COPY      ((EE_TYPERN_SWITCH)1U)
+#define EE_RN_SWITCH_INSIDEIRQ ((EE_TYPERN_SWITCH)2U)
+#define EE_RN_SWITCH_NEWRN     ((EE_TYPERN_SWITCH)4U)
 
 
 
@@ -87,7 +86,7 @@ typedef union {
    Returned values: >0 if there is an error 
 */
 #ifndef __PRIVATE_RN_SEND__
-extern int EE_rn_send(EE_TYPERN rn, EE_TYPERN t, EE_TYPERN_PARAM par);
+extern int EE_rn_send(EE_TYPERN rn, EE_TYPERN_NOTIFY t, EE_TYPERN_PARAM par);
 #endif
 
 /* this function can be used into an interrupt handler to handle
