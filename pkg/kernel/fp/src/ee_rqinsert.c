@@ -46,7 +46,7 @@
 #include "ee_internal.h"
 
 #ifndef __PRIVATE_RQ_INSERT__
-// this function inserts a task into the ready queue
+/* this function inserts a task into the ready queue */
 void EE_rq_insert(EE_TID t)
 {
   EE_TYPEPRIO prio;
@@ -61,10 +61,11 @@ void EE_rq_insert(EE_TID t)
     q = EE_th_next[q];
   }
 
-  if (p != EE_NIL)
+  if (p != EE_NIL) {
     EE_th_next[p] = t;
-  else
+  } else {
     EE_rqfirst = t;
+  }
 
   EE_th_next[t] = q;
 }

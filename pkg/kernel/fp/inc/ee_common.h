@@ -97,14 +97,14 @@
  Kernel Variables
  *************************************************************************/
 
-// ROM
+/* ROM */
 extern const EE_TYPEPRIO   EE_th_ready_prio[];	  /* ready priority (for preemption) */
 extern const EE_TYPEPRIO   EE_th_dispatch_prio[]; /* dispatch priority (when running) */
 #ifndef __FP_NO_RESOURCE__
 extern const EE_TYPEPRIO   EE_resource_ceiling[]; /* resource ceiling */
 #endif
 
-// RAM
+/* RAM */
 #if defined(__MULTI__) || defined(__WITH_STATUS__)
 extern EE_TYPESTATUS EE_th_status[];	         /* task status (Init: 0) */
 #endif

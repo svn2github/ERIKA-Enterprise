@@ -47,7 +47,7 @@
 #include "../inc/ee_kernel.h"
 
 #ifndef __PRIVATE_GETRESOURCE__
-void EE_fp_GetResource(EE_TYPERESOURCE m)
+void EE_fp_GetResource(ResourceType m)
 {
 #ifdef __MSRP__
     register EE_TYPERESOURCE tmp;
@@ -80,7 +80,7 @@ void EE_fp_GetResource(EE_TYPERESOURCE m)
 
 
 #ifndef __PRIVATE_RELEASERESOURCE__
-void EE_fp_ReleaseResource(EE_TYPERESOURCE m)
+void EE_fp_ReleaseResource(ResourceType m)
 {
 #ifdef __MSRP__
   register EE_TYPERESOURCE tmp;

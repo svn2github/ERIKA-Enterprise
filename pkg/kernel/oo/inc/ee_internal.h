@@ -43,11 +43,11 @@
  * CVS: $Id: ee_internal.h,v 1.6 2006/12/03 22:07:50 pj Exp $
  */
 
-#include "kernel/oo/inc/ee_common.h"
-#include "kernel/oo/inc/ee_intfunc.h"
-
 #ifndef __INCLUDE_OO_INTERNAL_H__
 #define __INCLUDE_OO_INTERNAL_H__
+
+#include "kernel/oo/inc/ee_common.h"
+#include "kernel/oo/inc/ee_intfunc.h"
 
 /*************************************************************************
  HAL extensions
@@ -153,96 +153,6 @@ void EE_thread_end_instance(void);
    - if there are other interrupts on the stack the IRQ end_instance should do nothing
 */
 void EE_IRQ_end_instance(void);
-#endif
-
-
-
-/* 13.2.3 System services                                                  */
-/* ----------------------------------------------------------------------- */
-
-/* used by Startos */
-/* 13.2.3.1: BCC1, BCC2, ECC1, ECC2 */
-#ifndef __PRIVATE_ACTIVATETASK__
-StatusType EE_oo_ActivateTask(TaskType TaskID);
-#endif
-
-
-/***************************************************************************
- * 13.5 Event control 
- ***************************************************************************/
-
-/* 13.5.3 System services                                                  */
-/* ----------------------------------------------------------------------- */
-
-/* see ee_kernel.h - this function is here because used by the rn */
-/* 13.5.3.1: ECC1, ECC2 */
-#if defined(__OO_ECC1__) || defined(__OO_ECC2__)
-#ifndef __PRIVATE_SETEVENT__
-#ifdef __OO_EXTENDED_STATUS__
-StatusType EE_oo_SetEvent(TaskType TaskID, EventMaskType Mask);
-#else
-void EE_oo_SetEvent(TaskType TaskID, EventMaskType Mask);
-#endif
-#endif
-#endif
-
-
-/***************************************************************************
- * 13.6 Alarms 
- ***************************************************************************/
-
-#ifndef __OO_NO_ALARMS__
-
-/*
-  This function is used by Remote Notifications
-  see ee_kernel.h
-*/
-#ifndef __PRIVATE_COUNTER_TICK__
-void EE_oo_counter_tick(EE_TYPECOUNTER c);
-#endif
-
-
-/* 13.6.3 System services                                                  */
-/* ----------------------------------------------------------------------- */
-
-/* used by Startos */
-/* 13.6.3.3 BCC1, BCC2, ECC1, ECC2; Events only ECC1, ECC2 */
-#ifndef __PRIVATE_SETRELALARM__
-StatusType EE_oo_SetRelAlarm(AlarmType AlarmID, TickType increment, TickType cycle);
-#endif
-
-#endif
-
-
-
-/* 13.8.2 System services                                                  */
-/* ----------------------------------------------------------------------- */
-
-/* These declarations are duplicated into ee_kernel.h */
-
-/* 13.8.2.1: BCC1, BCC2, ECC1, ECC2 */
-#ifdef __OO_HAS_ERRORHOOK__
-void ErrorHook(StatusType Error);
-#endif
-
-/* 13.8.2.2: BCC1, BCC2, ECC1, ECC2 */
-#ifdef __OO_HAS_PRETASKHOOK__
-void PreTaskHook(void);
-#endif
-
-/* 13.8.2.3: BCC1, BCC2, ECC1, ECC2 */
-#ifdef __OO_HAS_POSTTASKHOOK__
-void PostTaskHook(void);
-#endif
-
-/* 13.8.2.4: BCC1, BCC2, ECC1, ECC2 */
-#ifdef __OO_HAS_STARTUPHOOK__
-void StartupHook(void);
-#endif
-
-/* 13.8.2.5: BCC1, BCC2, ECC1, ECC2 */
-#ifdef __OO_HAS_SHUTDOWNHOOK__
-void ShutdownHook(StatusType Error);
 #endif
 
 

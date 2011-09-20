@@ -42,11 +42,10 @@
  * CVS: $Id: ee_internal.h,v 1.7 2006/05/14 17:49:02 pj Exp $
  */
 
-#include "kernel/fp/inc/ee_common.h"
-
 #ifndef __INCLUDE_FP_INTERNAL_H__
 #define __INCLUDE_FP_INTERNAL_H__
 
+#include "kernel/fp/inc/ee_common.h"
 
 /*************************************************************************
  Kernel Constants

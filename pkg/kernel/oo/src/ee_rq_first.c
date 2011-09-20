@@ -54,11 +54,11 @@ EE_TID EE_rq_queryfirst(void)
 
 #if defined(__OO_ECC2__)
   /* lookup at bits 15-9 */
-  x = EE_rq_lookup[(EE_rq_bitmask & 0xFF00) >> 8];
+  x = EE_rq_lookup[(EE_rq_bitmask & 0xFF00U) >> 8];
   if (x == -1) {
     x = EE_rq_lookup[EE_rq_bitmask];
   } else {
-    x += 8;
+    x += (EE_INT8)8;
   }
 #else
   x = EE_rq_lookup[EE_rq_bitmask];

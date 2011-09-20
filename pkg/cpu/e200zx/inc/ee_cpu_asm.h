@@ -64,7 +64,7 @@
 #define TCR_ARE		22
 #define TCR_FP		24
 #define TCR_FPEXT	13
-#define TCR_FPALL_MASK	((0x3U << TCR_FP) | (0xfU << TCR_FPEXT))
+#define TCR_FPALL_MASK	(((EE_UREG)0x3 << TCR_FP) | ((EE_UREG)0xf << TCR_FPEXT))
 
 /* TSR register bits */
 #define TSR_DIS		27

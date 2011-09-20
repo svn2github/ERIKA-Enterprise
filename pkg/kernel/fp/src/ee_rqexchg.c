@@ -52,9 +52,9 @@ EE_TID EE_rq2stk_exchange(void)
 
   temp = EE_rqfirst;
   
-  // extract the first task from the ready queue
+  /* extract the first task from the ready queue */
   EE_rqfirst = EE_th_next[temp]; 
-  // insert the extracted task on the topo of the stack
+  /* insert the extracted task on the topo of the stack */
   EE_th_next[temp] = EE_stkfirst;
   EE_stkfirst = temp;
 

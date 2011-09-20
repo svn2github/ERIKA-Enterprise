@@ -57,8 +57,6 @@
      E_OS_VALUE if the parameters are incorrect
 */
 
-void EE_oo_alarm_insert(AlarmType AlarmID, TickType increment);
-
 #ifndef __PRIVATE_SETABSALARM__
 StatusType EE_oo_SetAbsAlarm(AlarmType AlarmID, 
 				  TickType start, 

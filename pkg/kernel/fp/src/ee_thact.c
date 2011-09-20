@@ -49,7 +49,7 @@
 
 #ifndef __PRIVATE_ACTIVATETASK__
 
-void EE_fp_ActivateTask(EE_TID t)
+void EE_fp_ActivateTask(TaskType t)
 {
   register EE_TID tmp;
   register EE_FREG flag;
@@ -67,7 +67,7 @@ void EE_fp_ActivateTask(EE_TID t)
     flag = EE_hal_begin_nested_primitive();
     
     /* check for first activation */
-    if (EE_th_nact[t] == 0) {
+    if (EE_th_nact[t] == 0U) {
 #if defined(__MULTI__) || defined(__WITH_STATUS__)
       EE_th_status[t] = EE_READY;
 #endif
@@ -75,8 +75,9 @@ void EE_fp_ActivateTask(EE_TID t)
     }
     
     /* activate the task avoiding the counter wraparound */
-    if (EE_th_nact[t] != EE_MAX_NACT)
+    if (EE_th_nact[t] != EE_MAX_NACT) {
       EE_th_nact[t] ++;
+    }
     
     /* check for preemption */
     if (!EE_hal_get_IRQ_nesting_level()) {

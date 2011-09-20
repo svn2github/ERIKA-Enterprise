@@ -63,24 +63,24 @@ __asm static void EE_ISR1_prestub(void)
 }
 
 #define ISR1(f)								\
-void ISR1_ ## f(void);							\
+void EE_PREPROC_JOIN(ISR1_,f)(void);					\
 void f(void)								\
 {									\
 	EE_ISR1_prestub();						\
-	ISR1_ ## f();							\
+	EE_PREPROC_JOIN(ISR1_,f)();					\
 }									\
-void ISR1_ ## f(void)
+void EE_PREPROC_JOIN(ISR1_,f)(void)
 
 /*
  * NOTE: The ISR2 stubs are independent from the architecture, we should
  * move them to common/
  */
-static inline void EE_ISR2_prestub(void)
+__INLINE__ void EE_ISR2_prestub(void)
 {
 	EE_increment_IRQ_nesting_level();
 }
 
-static inline void EE_ISR2_poststub(void)
+__INLINE__ void EE_ISR2_poststub(void)
 {
 	EE_decrement_IRQ_nesting_level();
 	if (!EE_is_inside_ISR_call()) {
@@ -89,14 +89,14 @@ static inline void EE_ISR2_poststub(void)
 }
 
 #define ISR2(f)								\
-void ISR2_ ## f(void);							\
+void EE_PREPROC_JOIN(ISR2_,f)(void);					\
 void f(void)								\
 {									\
 	EE_ISR2_prestub();						\
-	ISR2_ ## f();							\
+	EE_PREPROC_JOIN(ISR2_,f)();					\
 	EE_ISR2_poststub();						\
 }									\
-void ISR2_ ## f(void)
+void EE_PREPROC_JOIN(ISR2_,f)(void)
 
 #ifndef __STATIC_ISR_TABLE__
 /*

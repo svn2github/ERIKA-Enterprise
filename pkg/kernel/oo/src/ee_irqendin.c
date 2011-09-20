@@ -61,7 +61,7 @@ void EE_IRQ_end_instance(void)
   tmp = EE_rq_queryfirst();
   tmp_stacked = EE_stk_queryfirst();
 
-  if (tmp != EE_NIL && EE_sys_ceiling < EE_th_ready_prio[tmp]) {
+  if ((tmp != EE_NIL) && (EE_sys_ceiling < EE_th_ready_prio[tmp])) {
       /* we have to schedule a ready thread */
 
       if (tmp_stacked != EE_NIL) {

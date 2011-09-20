@@ -59,7 +59,7 @@ void EE_fp_Schedule(void)
   if (t != EE_NIL) {
     current = EE_stk_queryfirst();
     if (EE_th_ready_prio[current] < EE_th_ready_prio[t]) {
-      // we have to schedule a ready task
+      /* we have to schedule a ready task */
 #if defined(__MULTI__)
       register int flag;
 

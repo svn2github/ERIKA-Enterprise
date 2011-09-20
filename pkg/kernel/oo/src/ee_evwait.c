@@ -78,7 +78,7 @@ void EE_oo_WaitEvent(EventMaskType Mask)
   /* check for a call at interrupt level:
    * Note: this must be the FIRST error check!!!
    */
-  if (EE_hal_get_IRQ_nesting_level() || current==EE_NIL) {
+  if (EE_hal_get_IRQ_nesting_level() || (current==EE_NIL)) {
 #ifdef __OO_ORTI_LASTERROR__
     EE_ORTI_lasterror = E_OS_CALLEVEL;
 #endif
@@ -199,8 +199,8 @@ void EE_oo_WaitEvent(EventMaskType Mask)
      */
     tmp = EE_rq_queryfirst();
 
-    if (tmp == EE_NIL ||
-        EE_sys_ceiling >= EE_th_ready_prio[tmp])
+    if ((tmp == EE_NIL) ||
+        (EE_sys_ceiling >= EE_th_ready_prio[tmp]))
     {
         /* we have to schedule an interrupted thread that is on the top 
          * of its stack; the state is already STACKED! */

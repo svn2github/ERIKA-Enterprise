@@ -51,10 +51,10 @@ void EE_e200zx_setup_fixed_intv(EE_UREG bitpos)
 {
 	EE_UREG tcr;
 	tcr = EE_e200zx_get_tcr();
-	tcr |= (1U << TCR_FIE);
-	tcr &= ~TCR_FPALL_MASK;
-	tcr |= ((bitpos & 0x3U) << TCR_FP)
-		| (((bitpos >> 2) & 0xfU) << TCR_FPEXT);
+	tcr |= ((EE_UREG)1 << TCR_FIE);
+	tcr &= ~(EE_UREG)TCR_FPALL_MASK;
+	tcr |= ((bitpos & (EE_UREG)0x3) << TCR_FP)
+		| (((bitpos >> 2) & (EE_UREG)0xf) << TCR_FPEXT);
 	EE_e200zx_set_tcr(tcr);
 }
 
@@ -62,7 +62,7 @@ void EE_e200zx_stop_fixed_intv(void)
 {
 	EE_UREG tcr;
 	tcr = EE_e200zx_get_tcr();
-	tcr &= ~(1U << TCR_FIE);
+	tcr &= ~((EE_UREG)1 << TCR_FIE);
 	EE_e200zx_set_tcr(tcr);
 }
 

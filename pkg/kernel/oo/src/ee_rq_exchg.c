@@ -73,11 +73,11 @@ EE_TID EE_rq2stk_exchange(void)
 
 #if defined(__OO_ECC2__)
   /* lookup at bits 15-9 */
-  x = EE_rq_lookup[(EE_rq_bitmask & 0xFF00) >> 8];
+  x = EE_rq_lookup[(EE_rq_bitmask & 0xFF00U) >> 8];
   if (x == -1) {
     x = EE_rq_lookup[EE_rq_bitmask];
   } else {
-    x += 8;
+    x += (EE_INT8)8;
   }
 #else
   x = EE_rq_lookup[EE_rq_bitmask];
@@ -96,8 +96,8 @@ EE_TID EE_rq2stk_exchange(void)
   
   if (EE_rq_queues_head[x] == -1) {
     EE_rq_queues_tail[x] = -1;
-    /* reset the (x)th bit in the bitfield */
-    EE_rq_bitmask &= ~(1U<<x);
+    /* reset the (x)th bit in the bitfield; casts are for MISRA compliance */
+    EE_rq_bitmask &= (EE_TYPE_RQ_MASK)~((EE_TYPE_RQ_MASK)((EE_TYPE_RQ_MASK)1U << x));
   }
 
   /* insert the extracted task on the top of the stack */

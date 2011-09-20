@@ -93,7 +93,7 @@ void EE_rq_insert(EE_TID t)
   if (EE_rq_queues_tail[p] == -1) {
     /* no tasks in this priority queue */
     /* set the bit field to say that a task is in the right queue */
-    EE_rq_bitmask |= EE_th_ready_prio[t];
+    EE_rq_bitmask |= (EE_TYPE_RQ_MASK)EE_th_ready_prio[t];
     EE_rq_queues_head[p] = temp;
   } else {
     EE_rq_pairs_next[EE_rq_queues_tail[p]] = temp;

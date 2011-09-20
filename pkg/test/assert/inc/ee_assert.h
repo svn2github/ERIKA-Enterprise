@@ -135,10 +135,10 @@
 #define EE_ASSERT_NIL      ((EE_TYPEASSERT)(-1))
 
 /* these are the results of each assertion test */
-#define EE_ASSERT_INITVALUE   0
-#define EE_ASSERT_YES         1
-#define EE_ASSERT_NO          2
-#define EE_ASSERT_ALREADYUSED 3
+#define EE_ASSERT_INITVALUE   ((EE_TYPEASSERTVALUE)0)
+#define EE_ASSERT_YES         ((EE_TYPEASSERTVALUE)1)
+#define EE_ASSERT_NO          ((EE_TYPEASSERTVALUE)2)
+#define EE_ASSERT_ALREADYUSED ((EE_TYPEASSERTVALUE)3)
 
 /* the assertion array */
 extern EE_TYPEASSERTVALUE EE_assertions[];

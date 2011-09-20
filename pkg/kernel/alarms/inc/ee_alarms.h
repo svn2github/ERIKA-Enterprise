@@ -85,8 +85,8 @@ typedef struct {
 } EE_counter_RAM_type;
 
 /* these are the different types of alarm notifications... */
-#define EE_ALARM_ACTION_TASK 0
-#define EE_ALARM_ACTION_CALLBACK 1
+#define EE_ALARM_ACTION_TASK 0U
+#define EE_ALARM_ACTION_CALLBACK 1U
 
 /* initvalue: {a_valid_counter, a_valid_action, then you must put the correct
    parameters depending on the action } */
@@ -169,5 +169,8 @@ void EE_alarm_SetAbsAlarm(AlarmType AlarmID,
 #ifndef __PRIVATE_ALARM_CANCEL__
 void EE_alarm_CancelAlarm(AlarmType AlarmID);
 #endif
+
+/* Internal function */
+void EE_alarm_insert(AlarmType AlarmID, TickType increment);
 
 #endif

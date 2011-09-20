@@ -84,7 +84,7 @@ EE_e200z7_tmp_tos:
 
 	.text
 
-	/* CW-FUNC-DEFINITION: void EE_e200z7_call_ISR_new_stack(int level, EE_e200z7_ISR_handler fun, unsigned nesting) */
+	/* CW-FUNC-DEFINITION: void EE_e200z7_call_ISR_new_stack(EE_SREG level, EE_e200z7_ISR_handler fun, EE_UREG nesting) */
 	.global EE_e200z7_call_ISR_new_stack
 	.type EE_e200z7_call_ISR_new_stack, @function
 EE_e200z7_call_ISR_new_stack:

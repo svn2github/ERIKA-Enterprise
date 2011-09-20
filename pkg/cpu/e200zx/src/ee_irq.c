@@ -51,7 +51,7 @@
 #include <cpu/e200zx/inc/ee_mcu_regs.h>
 
 
-void EE_e200z7_irq(int level)
+void EE_e200z7_irq(EE_SREG level)
 {
 	EE_e200z7_ISR_handler f;
 
@@ -63,7 +63,7 @@ void EE_e200z7_irq(int level)
 
 	/* Pop priority for external interrupts */
 	if (level >= EE_E200ZX_MAX_CPU_EXCP) {
-		INTC_EOIR.R = 0;
+		INTC_EOIR.R = 0U;
 	}
 	EE_decrement_IRQ_nesting_level();
 	if (!EE_is_inside_ISR_call()) {
@@ -91,8 +91,9 @@ void EE_e200z7_register_ISR(int level, EE_e200z7_ISR_handler fun, EE_UINT8 pri)
 
 	/* Set priority for external interrupts */
 	if (level >= EE_E200ZX_MAX_CPU_EXCP) {
-		proc = (0 == EE_CURRENTCPU) ? 0x0 : 0xc0;
-		INTC.PSR[level - EE_E200ZX_MAX_CPU_EXCP].R = proc | pri;
+		proc = EE_E200ZX_INTC_CURRPROC;
+		INTC.PSR[level - EE_E200ZX_MAX_CPU_EXCP].R
+			= (uint8_t)(proc | pri);
 	}
 
 	if (EE_e200z7_are_IRQs_enabled(intst)) {

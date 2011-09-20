@@ -45,8 +45,6 @@
 
 #include "ee_internal.h"
 
-void EE_alarm_insert(AlarmType AlarmID, TickType increment);
-
 #ifndef __PRIVATE_ALARM_SETABS__
 void EE_alarm_SetAbsAlarm(AlarmType AlarmID, 
 			  TickType start, 

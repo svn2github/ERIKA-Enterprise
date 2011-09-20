@@ -70,6 +70,6 @@
 #define CancelAlarm                  EE_alarm_CancelAlarm
 #endif
 
-#endif // __ALARMS__
+#endif /* __ALARMS__ */
 
 #endif

@@ -75,11 +75,11 @@
 #ifdef __IRQ_STACK_NEEDED__
 extern struct EE_TOS EE_e200z7_IRQ_tos;
 
-void EE_e200z7_call_ISR_new_stack(int level, EE_e200z7_ISR_handler fun,
-							unsigned nesting);
+void EE_e200z7_call_ISR_new_stack(EE_SREG level, EE_e200z7_ISR_handler fun,
+							EE_UREG nesting);
 #else
-__INLINE__ void __ALWAYS_INLINE__ EE_e200z7_call_ISR_new_stack(int level,
-			EE_e200z7_ISR_handler fun, unsigned nesting)
+__INLINE__ void __ALWAYS_INLINE__ EE_e200z7_call_ISR_new_stack(EE_SREG level,
+			EE_e200z7_ISR_handler fun, EE_UREG nesting)
 {
 	EE_std_enableIRQ_nested();
 	if (fun != NULL) {
@@ -90,6 +90,6 @@ __INLINE__ void __ALWAYS_INLINE__ EE_e200z7_call_ISR_new_stack(int level,
 #endif
 
 /* IRQ handler */
-void EE_e200z7_irq(int level);
+void EE_e200z7_irq(EE_SREG level);
 
 #endif

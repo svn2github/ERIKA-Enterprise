@@ -52,24 +52,24 @@
 #define __SLAVE_CPU__ 1
 #endif
 
-#define INTC_MCR	0xfff48000
-#define INTC_CPR0	0xfff48008
-#define INTC_CPR1	0xfff4800c
-#define INTC_IACKR0	0xfff48010
-#define INTC_IACKR1	0xfff48014
-#define INTC_EOIR0	0xfff48018
-#define INTC_EOIR1	0xfff4801c
+#define INTC_MCR_ADDR    0xfff48000
+#define INTC_CPR0_ADDR   0xfff48008
+#define INTC_CPR1_ADDR   0xfff4800c
+#define INTC_IACKR0_ADDR 0xfff48010
+#define INTC_IACKR1_ADDR 0xfff48014
+#define INTC_EOIR0_ADDR  0xfff48018
+#define INTC_EOIR1_ADDR  0xfff4801c
 
 #ifndef __SLAVE_CPU__
 /* For duplicated registers, pick the Z6 instance */
-#define INTC_CPR	INTC_CPR0
-#define INTC_IACKR	INTC_IACKR0
-#define INTC_EOIR	INTC_EOIR0
+#define INTC_CPR_ADDR   INTC_CPR0_ADDR
+#define INTC_IACKR_ADDR INTC_IACKR0_ADDR
+#define INTC_EOIR_ADDR  INTC_EOIR0_ADDR
 #else /* ifdef __SLAVE_CPU__ */
 /* For duplicated registers, pick the Z0 instance */
-#define INTC_CPR	INTC_CPR1
-#define INTC_IACKR	INTC_IACKR1
-#define INTC_EOIR	INTC_EOIR1
+#define INTC_CPR_ADDR   INTC_CPR1_ADDR
+#define INTC_IACKR_ADDR INTC_IACKR1_ADDR
+#define INTC_EOIR_ADDR  INTC_EOIR1_ADDR
 #endif /* __SLAVE_CPU__ */
 
 #endif /* __MCU_EE_REGS_ASM_H__ */

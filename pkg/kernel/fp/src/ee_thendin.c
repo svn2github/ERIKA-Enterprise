@@ -69,7 +69,7 @@ void EE_thread_end_instance(void)
   /* extract the task from the stk data structure */
   EE_stk_getfirst();
   
-  if (EE_th_nact[current] > 0) {
+  if (EE_th_nact[current] > 0U) {
     /* there are pending activations...  */
     /* we have to reinsert the task into the ready queue before
      * rescheduling!!! */

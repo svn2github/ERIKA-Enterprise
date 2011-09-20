@@ -46,6 +46,10 @@
 #ifndef EE_MCU_MPC5668_H
 #define EE_MCU_MPC5668_H
 
+/* ISO int types used by mpc5668.h */
+#define __EE_STDINT_SKIP_64BIT__
+#include <cpu/common/inc/ee_stdint.h>
+
 #include "mpc5668.h"
 
 #define EE_E200ZX_MAX_EXT_IRQ 316
@@ -55,12 +59,17 @@
 #define INTC_CPR (INTC.CPR_PRC0)
 #define INTC_IACKR (INTC.IACKR_PRC0)
 #define INTC_EOIR (INTC.EOIR_PRC0)
+/* Target CPU for external interrupts: Z6 */
+#define EE_E200ZX_INTC_CURRPROC 0U
 
 #else /* if EE_CURRENTCPU != 0 */
 /* For duplicated registers, pick the Z0 instance */
 #define INTC_CPR (INTC.CPR_PRC1)
 #define INTC_IACKR (INTC.IACKR_PRC1)
 #define INTC_EOIR (INTC.EOIR_PRC1)
+/* Target CPU for external interrupts: Z0 */
+#define EE_E200ZX_INTC_CURRPROC 0xc0U
+
 #endif /* EE_CURRENTCPU */
 
 #endif /* EE_MCU_MPC5668_H */

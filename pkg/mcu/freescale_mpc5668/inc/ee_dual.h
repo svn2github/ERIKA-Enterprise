@@ -45,7 +45,7 @@
 #ifndef EE_MCU_MPC5668_DUAL_H
 #define EE_MCU_MPC5668_DUAL_H
 
-#include "mpc5668.h"
+#include "ee_mpc5668.h"
 
 /* First software IRQ used for interprocessor communication  */
 #define EE_MPC5668_INTER_IRQ_BASE 6

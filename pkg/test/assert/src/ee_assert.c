@@ -92,8 +92,8 @@ EE_TYPEASSERTVALUE EE_assert_or(EE_TYPEASSERT id,
     return EE_ASSERT_ALREADYUSED;
   }
 
-  if (EE_assertions[prev1] == EE_ASSERT_YES ||
-      EE_assertions[prev2] == EE_ASSERT_YES) {
+  if ((EE_assertions[prev1] == EE_ASSERT_YES) ||
+      (EE_assertions[prev2] == EE_ASSERT_YES)) {
     EE_assertions[id] = EE_ASSERT_YES;
     return EE_ASSERT_YES;
   }
@@ -115,8 +115,8 @@ EE_TYPEASSERTVALUE EE_assert_and(EE_TYPEASSERT id,
     return EE_ASSERT_ALREADYUSED;
   }
 
-  if (EE_assertions[prev1] == EE_ASSERT_YES &&
-      EE_assertions[prev2] == EE_ASSERT_YES) {
+  if ((EE_assertions[prev1] == EE_ASSERT_YES) &&
+      (EE_assertions[prev2] == EE_ASSERT_YES)) {
     EE_assertions[id] = EE_ASSERT_YES;
     return EE_ASSERT_YES;
   }

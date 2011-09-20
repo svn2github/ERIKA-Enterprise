@@ -45,9 +45,9 @@
 #ifndef __MCU_EE_REGS_ASM_H__
 #define __MCU_EE_REGS_ASM_H__
 
-#define INTC_MCR	0xfff48000
-#define INTC_CPR	0xfff48008
-#define INTC_IACKR	0xfff48010
-#define INTC_EOIR	0xfff48018
+#define INTC_MCR_ADDR   0xfff48000
+#define INTC_CPR_ADDR   0xfff48008
+#define INTC_IACKR_ADDR 0xfff48010
+#define INTC_EOIR_ADDR  0xfff48018
 
 #endif /* __MCU_EE_REGS_ASM_H__ */

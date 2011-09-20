@@ -45,6 +45,8 @@
  */
 
 
+#ifndef __INCLUDE_PKG_EE_H__
+#define __INCLUDE_PKG_EE_H__
 
 #include "eecfg.h"
 
@@ -360,3 +362,5 @@ extern "C" {
 #if defined(__cplusplus)
 };
 #endif
+
+#endif /* __INCLUDE_PKG_EE_H__ */

@@ -45,9 +45,6 @@
 #ifndef FREESCALE_TYPEDEFS_H
 #define FREESCALE_TYPEDEFS_H
 
-#define __EE_STDINT_SKIP_64BIT__
-#include <cpu/common/inc/ee_stdint.h>
-
 typedef volatile int8_t vint8_t;
 typedef volatile uint8_t vuint8_t;
 

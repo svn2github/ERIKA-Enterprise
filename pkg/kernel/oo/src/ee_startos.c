@@ -75,7 +75,7 @@ void EE_oo_StartOS(AppModeType Mode)
   if (EE_cpu_startos()) {
 #ifdef __OO_ORTI_LASTERROR__
     EE_ORTI_lasterror = E_OS_SYS_INIT;
-#endif // __OO_ORTI_LASTERROR__
+#endif /* __OO_ORTI_LASTERROR__ */
 
 #ifdef __OO_HAS_ERRORHOOK__
     EE_hal_begin_primitive();
@@ -83,13 +83,13 @@ void EE_oo_StartOS(AppModeType Mode)
 #ifndef __OO_ERRORHOOK_NOMACROS__
       EE_oo_ErrorHook_ServiceID = OSServiceId_StartOS;
       EE_oo_ErrorHook_data.StartOS_prm.Mode = Mode;
-#endif // __OO_ERRORHOOK_NOMACROS__
-      EE_ErrorHook_nested_flag = 1;
+#endif /* __OO_ERRORHOOK_NOMACROS__ */
+      EE_ErrorHook_nested_flag = 1U;
       ErrorHook(E_OS_SYS_INIT);
-      EE_ErrorHook_nested_flag = 0;
+      EE_ErrorHook_nested_flag = 0U;
     }
     EE_hal_end_primitive();
-#endif // __OO_HAS_ERRORHOOK__
+#endif /* __OO_HAS_ERRORHOOK__ */
 
 #ifdef __OO_ORTI_SERVICETRACE__
     EE_ORTI_servicetrace = EE_SERVICETRACE_STARTOS;
@@ -120,7 +120,7 @@ void EE_oo_StartOS(AppModeType Mode)
 #ifdef __OO_AUTOSTART_TASK__
     n = (EE_UINT8)(EE_oo_autostart_task_data[Mode].n);
     for (t = 0U; t<n; t++) {
-      EE_oo_ActivateTask(EE_oo_autostart_task_data[Mode].task[t]);
+      (void)EE_oo_ActivateTask(EE_oo_autostart_task_data[Mode].task[t]);
     }
 #endif
 
@@ -128,7 +128,7 @@ void EE_oo_StartOS(AppModeType Mode)
     n = (EE_UINT8)(EE_oo_autostart_alarm_data[Mode].n);
     for (t = 0U; t<n; t++) {
       EE_TYPEALARM alarm_temp = EE_oo_autostart_alarm_data[Mode].alarm[t];
-      EE_oo_SetRelAlarm(alarm_temp, 
+      (void)EE_oo_SetRelAlarm(alarm_temp,
 			EE_oo_autostart_alarm_increment[alarm_temp],
 			EE_oo_autostart_alarm_cycle[alarm_temp]);
     }

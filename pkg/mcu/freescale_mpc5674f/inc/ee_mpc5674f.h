@@ -46,14 +46,19 @@
 #ifndef EE_MCU_MPC5674F_H
 #define EE_MCU_MPC5674F_H
 
+/* ISO int types used by mpc5674f.h */
+#define __EE_STDINT_SKIP_64BIT__
+#include <cpu/common/inc/ee_stdint.h>
+
 #include "mpc5674f.h"
 
 #define EE_E200ZX_MAX_EXT_IRQ 474
 
-/* For compatibility with multi-core CPUs */
+/* These are used for compatibility with multi-core CPUs */
 #define INTC_CPR (INTC.CPR)
 #define INTC_IACKR (INTC.IACKR)
 #define INTC_EOIR (INTC.EOIR)
+#define EE_E200ZX_INTC_CURRPROC 0U
 
 
 #endif /* EE_MCU_MPC5674F_H */

@@ -222,10 +222,11 @@ extern EE_TID EE_rq_first;
 
 /* bit mask with 16 or 8 priority levels (Initvalue = 0) */
 #if defined(__OO_BCC2__)
-extern EE_UINT8  EE_rq_bitmask;
+typedef EE_UINT8 EE_TYPE_RQ_MASK;
 #else
-extern EE_UINT16 EE_rq_bitmask;
+typedef EE_UINT16 EE_TYPE_RQ_MASK;
 #endif
+extern EE_TYPE_RQ_MASK EE_rq_bitmask;
 
 /* The following data structure gives the link between a task and its
    priority queue.  The values of this data structure are the same of
@@ -405,22 +406,22 @@ extern void EE_oo_thread_stub(void);
 #ifndef STATUSTYPEDEFINED
 #define STATUSTYPEDEFINED
 typedef unsigned char StatusType;
-#define E_OK                                 0U
+#define E_OK                                 ((StatusType)0U)
 #endif
 
-#define E_OS_ACCESS   1U
-#define E_OS_CALLEVEL 2U
-#define E_OS_ID       3U
-#define E_OS_LIMIT    4U
-#define E_OS_NOFUNC   5U
-#define E_OS_RESOURCE 6U
-#define E_OS_STATE    7U
-#define E_OS_VALUE    8U
+#define E_OS_ACCESS   ((StatusType)1U)
+#define E_OS_CALLEVEL ((StatusType)2U)
+#define E_OS_ID       ((StatusType)3U)
+#define E_OS_LIMIT    ((StatusType)4U)
+#define E_OS_NOFUNC   ((StatusType)5U)
+#define E_OS_RESOURCE ((StatusType)6U)
+#define E_OS_STATE    ((StatusType)7U)
+#define E_OS_VALUE    ((StatusType)8U)
 
 /* Implementation specific errors */
 
 /* error during StartOS */
-#define E_OS_SYS_INIT 9U
+#define E_OS_SYS_INIT ((StatusType)9U)
 
 /* they must start with E_OS_SYS_* */
 
@@ -613,16 +614,16 @@ typedef EE_TYPESTATUS *TaskStateRefType;
 /* ----------------------------------------------------------------------- */
 
 /* Constant of data type TaskStateType for task state running. */
-#define RUNNING   0U
+#define RUNNING   ((EE_TYPESTATUS)0U)
 
 /* Constant of data type TaskStateType for task state waiting. */
-#define WAITING   1U
+#define WAITING   ((EE_TYPESTATUS)1U)
 
 /* Constant of data type TaskStateType for task state ready. */
-#define READY     2U
+#define READY     ((EE_TYPESTATUS)2U)
 
 /* Constant of data type TaskStateType for task state suspended. */
-#define SUSPENDED 3U
+#define SUSPENDED ((EE_TYPESTATUS)3U)
 
 
 /***************************************************************************

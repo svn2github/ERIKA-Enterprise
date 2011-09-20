@@ -69,8 +69,9 @@ void EE_alarm_insert(AlarmType AlarmID, TickType increment)
     } while(current != -1 && EE_alarm_RAM[current].delta <= increment);
 
     /* insert the alarm between previous and current */
-    if (current != -1)
+    if (current != -1) {
       EE_alarm_RAM[current].delta -= increment;
+    }
     EE_alarm_RAM[previous].next = AlarmID;
   }
 
@@ -79,7 +80,7 @@ void EE_alarm_insert(AlarmType AlarmID, TickType increment)
 }
 
 #ifndef __PRIVATE_COUNTER_TICK__
-void EE_alarm_CounterTick(EE_TYPECOUNTER c)
+void EE_alarm_CounterTick(CounterType c)
 {
   register EE_TYPEALARM current;
   register EE_TID t;
@@ -133,9 +134,9 @@ void EE_alarm_CounterTick(EE_TYPECOUNTER c)
 	      EE_th[t].nact++;
 	    }
 #else
-	    if (EE_th_nact[t] == 0) {
+	    if (EE_th_nact[t] == 0U) {
 #ifdef __EDF__
-	      // compute the deadline 
+	      /* compute the deadline */
 	      EE_th_absdline[t] = EE_hal_gettime()+EE_th_reldline[t];
 #endif
 #if defined(__MULTI__) || defined(__WITH_STATUS__)
@@ -158,7 +159,11 @@ void EE_alarm_CounterTick(EE_TYPECOUNTER c)
       case EE_ALARM_ACTION_CALLBACK:
 	((void (*)(void))EE_alarm_ROM[current].f)();
 	break;
-      };
+      default:
+        /* Invalid action: this should never happen, as `action' is
+           initialized by RT-Druid */
+        break;
+      }
       
       /* remove the current entry */
       EE_counter_RAM[c].first = EE_alarm_RAM[current].next;
@@ -171,7 +176,9 @@ void EE_alarm_CounterTick(EE_TYPECOUNTER c)
 	EE_alarm_insert(current,EE_alarm_RAM[current].cycle);
       }
       /* (*) here we need EE_counter_RAM[c].first again... */
-      if ((current = EE_counter_RAM[c].first) == -1) break;
+      if ((current = EE_counter_RAM[c].first) == -1) {
+          break;
+      }
     }
   }    
 

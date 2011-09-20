@@ -102,7 +102,7 @@ void EE_oo_SetEvent(TaskType TaskID, EventMaskType Mask)
 
 #ifdef __OO_EXTENDED_STATUS__    
   /* check if the task Id is valid */
-  if (TaskID < 0 || TaskID >= EE_MAX_TASK) {
+  if ((TaskID < 0) || (TaskID >= EE_MAX_TASK)) {
 #ifdef __OO_ORTI_LASTERROR__
     EE_ORTI_lasterror = E_OS_ID;
 #endif
@@ -199,8 +199,8 @@ void EE_oo_SetEvent(TaskType TaskID, EventMaskType Mask)
    * two times the same setevent... the first time the task must go in
    * the ready queue, the second time NOT!!!
    */
-  if (EE_th_event_waitmask[TaskID] & Mask &&
-      EE_th_status[TaskID] == WAITING) {
+  if ((EE_th_event_waitmask[TaskID] & Mask) &&
+      (EE_th_status[TaskID] == WAITING)) {
     /* if yes, the task must go back into the READY state */
     EE_th_status[TaskID] = READY;
     /* insert the task in the ready queue */

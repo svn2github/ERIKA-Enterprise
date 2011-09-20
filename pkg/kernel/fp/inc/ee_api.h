@@ -66,6 +66,6 @@
 #define ReleaseResource 	EE_fp_ReleaseResource
 #endif
 
-#endif // __FP__
+#endif /* __FP__ */
 
 #endif

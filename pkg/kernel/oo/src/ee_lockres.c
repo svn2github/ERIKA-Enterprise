@@ -117,7 +117,7 @@ void EE_oo_GetResource(ResourceType ResID)
   }
 
   if (EE_resource_locked[ResID] ||
-      EE_th_ready_prio[EE_stk_queryfirst()] > EE_resource_ceiling[ResID]) {
+      (EE_th_ready_prio[EE_stk_queryfirst()] > EE_resource_ceiling[ResID])) {
 #ifdef __OO_ORTI_LASTERROR__
     EE_ORTI_lasterror = E_OS_ACCESS;
 #endif

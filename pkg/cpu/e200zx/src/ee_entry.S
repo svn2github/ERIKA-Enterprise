@@ -125,8 +125,8 @@ restore_all_return:
 	.type	EE_e200zx_external_input_handler, @function
 EE_e200zx_external_input_handler:
 	handler_prologue
-	addis	r3, 0, INTC_IACKR@ha	/* ack the interrupt */
-	lwz	r0, INTC_IACKR@l(r3)
+	addis	r3, 0, INTC_IACKR_ADDR@ha	/* ack the interrupt */
+	lwz	r0, INTC_IACKR_ADDR@l(r3)
 
 	srawi	r3, r0, 2		/* calculate the irq number */
 	addi	r3, r3, EE_E200ZX_MAX_CPU_EXCP
@@ -165,7 +165,7 @@ EE_e200zx_fixed_intv_handler:
 	.size	EE_e200zx_fixed_intv_handler, .-EE_e200zx_fixed_intv_handler
 
 
-	/* CW-FUNC-DEFINITION: void EE_e200z7_setup_decrementer(unsigned long value) */
+	/* CW-FUNC-DEFINITION: void EE_e200z7_setup_decrementer(EE_UINT32 value) */
 	.global	EE_e200z7_setup_decrementer
 	.type	EE_e200z7_setup_decrementer, @function
 EE_e200z7_setup_decrementer:
@@ -181,7 +181,7 @@ EE_e200z7_setup_decrementer:
 	.size	EE_e200z7_setup_decrementer, .-EE_e200z7_setup_decrementer
 
 
-	/* CW-FUNC-DEFINITION:  void EE_e200z7_setup_decrementer_oneshot(unsigned long value) */
+	/* CW-FUNC-DEFINITION:  void EE_e200z7_setup_decrementer_oneshot(EE_UINT32 value) */
 	.global	EE_e200z7_setup_decrementer_oneshot
 	.type	EE_e200z7_setup_decrementer_oneshot, @function
 EE_e200z7_setup_decrementer_oneshot:

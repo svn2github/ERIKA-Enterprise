@@ -682,8 +682,6 @@ void EE_oo_ShutdownOS(StatusType Error);
 /* 13.8.2 System services                                                  */
 /* ----------------------------------------------------------------------- */
 
-/* These declarations are duplicated into ee_internal.h */
-
 /* 13.8.2.1: BCC1, BCC2, ECC1, ECC2 */
 #ifdef __OO_HAS_ERRORHOOK__
 void ErrorHook(StatusType Error);

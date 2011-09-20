@@ -104,11 +104,13 @@ typedef void (*EE_e200z7_ISR_handler)(void);
 /* Word used to build user stacks */
 typedef EE_UINT32 EE_STACK_T;
 /* Stack length in words */
-#define EE_STACK_WLEN(bl) (((bl) + EE_STACK_ALIGN - 1) / EE_STACK_ALIGN * \
-	(EE_STACK_ALIGN / sizeof(EE_STACK_T)))
+#define EE_STACK_WLEN(bl) ((((EE_UREG)(bl) +			\
+			(EE_UREG)EE_STACK_ALIGN - 1U)		\
+		/ (EE_UREG)EE_STACK_ALIGN)				\
+	* ((EE_UREG)EE_STACK_ALIGN / sizeof(EE_STACK_T)))
 /* Initial pointer (word offset) in user stacks */
-#define EE_STACK_INITP(bl) (EE_STACK_WLEN(bl) - \
-	EE_STACK_ALIGN / sizeof(EE_STACK_T))
+#define EE_STACK_INITP(bl) (EE_STACK_WLEN(bl) -	\
+	(EE_UREG)EE_STACK_ALIGN / sizeof(EE_STACK_T))
 
 extern EE_STACK_T EE_STACK_ATTRIB EE_e200zx_sys_stack[EE_STACK_WLEN(EE_SYS_STACK_SIZE)];
 
@@ -177,7 +179,7 @@ typedef EE_UINT32 EE_TYPESPIN;
  E200Z7 interrupt disabling/enabling
  *********************************************************************/
 
-#define MSR_EE	(1U << 15)
+#define MSR_EE	((EE_FREG)1U << 15)
 
 __INLINE__ EE_FREG EE_e200z7_are_IRQs_enabled(EE_FREG ie)
 {
@@ -190,8 +192,6 @@ __INLINE__ void __ALWAYS_INLINE__ EE_e200z7_enableIRQ(void)
 }
 
 #ifdef __DCC__
-EE_FREG EE_e200z7_disableIRQ(void); /* Prototype required by Misra */
-
 __asm EE_FREG EE_e200z7_disableIRQ(void)
 {
 ! "r3"
@@ -265,7 +265,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_enableIRQ(void)
 
 __INLINE__ void __ALWAYS_INLINE__ EE_hal_disableIRQ(void)
 {
-	EE_e200z7_disableIRQ();
+	(void)EE_e200z7_disableIRQ();
 }
 
 /* Enable the fixed-interval interrupt.  bitpos (0-63) is the bit of the time
@@ -276,9 +276,9 @@ void EE_e200zx_setup_fixed_intv(EE_UREG bitpos);
 void EE_e200zx_stop_fixed_intv(void);
 
 /* Configure the decrementer to raise an interrupt every `delay' cycles */
-void EE_e200z7_setup_decrementer(unsigned long value);
+void EE_e200z7_setup_decrementer(EE_UINT32 value);
 /* Configure the decrementer to raise an interrupt once after `delay' cycles */
-void EE_e200z7_setup_decrementer_oneshot(unsigned long value);
+void EE_e200z7_setup_decrementer_oneshot(EE_UINT32 value);
 /* Stop the decrementer from generating interrupts */
 void EE_e200z7_stop_decrementer(void);
 
@@ -337,7 +337,7 @@ typedef struct {
 /* MMU initialization.  Load `count' entries specified in `entries' in the first
  * `count' entries of the TLB.  This is a C function, so RAM and stack must be
  * initialized already before calling this function. */
-void EE_e200zx_mmu_setup(const EE_MMU_ENTRY_T *entries, unsigned count);
+void EE_e200zx_mmu_setup(const EE_MMU_ENTRY_T *entries, EE_UREG count);
 
 #ifdef __EE_CRT0_INIT_MMU__
 /* Entries to be loaded by the crt0 */
