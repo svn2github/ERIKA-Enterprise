@@ -147,7 +147,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_std_change_context(EE_TID tid)
     } while (EE_std_need_context_change(tid));
 }
 
-#endif
+#endif /* __MONO__ */
 
 
 #ifdef __MULTI__
@@ -160,7 +160,7 @@ __INLINE__ int __ALWAYS_INLINE__ EE_std_need_context_change(EE_TID tid)
     /* FIXME: "tid+1" can be used as an index for arrays even when marked if
      * EE_TID is defined as an int.  Otherwise, the mark will cause a memory
      * access violation!  */
-    return (((tid) >= 0) || (EE_hal_active_tos != EE_std_thread_tos[tid+1]));
+    return ((tid >= 0) || (EE_hal_active_tos != EE_std_thread_tos[tid+1]));
 }
 
 __INLINE__ void __ALWAYS_INLINE__ EE_hal_stkchange(EE_TID tid)
@@ -168,7 +168,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_stkchange(EE_TID tid)
     EE_std_change_context(EE_std_mark_tid_stacked(tid));
 }
 
-#endif
+#endif /* __MULTI__ */
 
 
 /* The functions below should work for both the monostack and multistack
