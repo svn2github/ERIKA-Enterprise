@@ -68,7 +68,7 @@ void EE_oo_WaitEvent(EventMaskType Mask)
   TaskType current, tmp;
 
 #ifdef __OO_ORTI_SERVICETRACE__
-  EE_ORTI_servicetrace = EE_SERVICETRACE_WAITEVENT+1;
+  EE_ORTI_servicetrace = EE_SERVICETRACE_WAITEVENT+1U;
 #endif
 
   current = EE_stk_queryfirst();
@@ -183,7 +183,7 @@ void EE_oo_WaitEvent(EventMaskType Mask)
     /* the ready priority is not touched, it is not the same as Schedule! */
 
 #ifdef __OO_ORTI_PRIORITY__
-    EE_ORTI_th_priority[current] = 0;
+    EE_ORTI_th_priority[current] = 0U;
 #endif
 
     /* since the task blocks, it has to be woken up by another

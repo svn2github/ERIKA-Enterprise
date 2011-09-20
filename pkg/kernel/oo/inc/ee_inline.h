@@ -68,7 +68,7 @@ StatusType EE_oo_GetTaskID(TaskRefType TaskID);
 __INLINE__ void __ALWAYS_INLINE__ EE_oo_GetTaskID(TaskRefType TaskID)
 {
 #ifdef __OO_ORTI_SERVICETRACE__
-  EE_ORTI_servicetrace = EE_SERVICETRACE_GETTASKID+1;
+  EE_ORTI_servicetrace = EE_SERVICETRACE_GETTASKID+1U;
 #endif
 
   if (TaskID != NULL) {
@@ -88,7 +88,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_oo_GetTaskID(TaskRefType TaskID)
 __INLINE__ StatusType __ALWAYS_INLINE__ EE_oo_GetTaskState(TaskType TaskID, TaskStateRefType State)
 {
 #ifdef __OO_ORTI_SERVICETRACE__
-  EE_ORTI_servicetrace = EE_SERVICETRACE_GETTASKSTATE+1;
+  EE_ORTI_servicetrace = EE_SERVICETRACE_GETTASKSTATE+1U;
 #endif
 
   if (TaskID < 0 || TaskID >= EE_MAX_TASK) {
@@ -111,7 +111,7 @@ __INLINE__ StatusType __ALWAYS_INLINE__ EE_oo_GetTaskState(TaskType TaskID, Task
 __INLINE__ void __ALWAYS_INLINE__ EE_oo_GetTaskState(TaskType TaskID, TaskStateRefType State)
 {
 #ifdef __OO_ORTI_SERVICETRACE__
-  EE_ORTI_servicetrace = EE_SERVICETRACE_GETTASKSTATE+1;
+  EE_ORTI_servicetrace = EE_SERVICETRACE_GETTASKSTATE+1U;
 #endif
 
   *State = EE_th_status[TaskID];
@@ -134,7 +134,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_oo_GetTaskState(TaskType TaskID, TaskStateR
 __INLINE__ void __ALWAYS_INLINE__ EE_oo_EnableAllInterrupts(void)
 {
 #ifdef __OO_ORTI_SERVICETRACE__
-  EE_ORTI_servicetrace = EE_SERVICETRACE_ENABLEALLINTERRUPTS+1;
+  EE_ORTI_servicetrace = EE_SERVICETRACE_ENABLEALLINTERRUPTS+1U;
 #endif
 
   EE_hal_enableIRQ();
@@ -150,7 +150,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_oo_EnableAllInterrupts(void)
 __INLINE__ void __ALWAYS_INLINE__ EE_oo_DisableAllInterrupts(void)
 {
 #ifdef __OO_ORTI_SERVICETRACE__
-  EE_ORTI_servicetrace = EE_SERVICETRACE_DISABLEALLINTERRUPTS+1;
+  EE_ORTI_servicetrace = EE_SERVICETRACE_DISABLEALLINTERRUPTS+1U;
 #endif
 
   EE_hal_disableIRQ();
@@ -166,7 +166,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_oo_DisableAllInterrupts(void)
 __INLINE__ void __ALWAYS_INLINE__ EE_oo_ResumeAllInterrupts(void)
 {
 #ifdef __OO_ORTI_SERVICETRACE__
-  EE_ORTI_servicetrace = EE_SERVICETRACE_RESUMEALLINTERRUPTS+1;
+  EE_ORTI_servicetrace = EE_SERVICETRACE_RESUMEALLINTERRUPTS+1U;
 #endif
 
   EE_oo_IRQ_disable_count--;
@@ -185,7 +185,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_oo_ResumeAllInterrupts(void)
 __INLINE__ void __ALWAYS_INLINE__ EE_oo_SuspendAllInterrupts(void)
 {
 #ifdef __OO_ORTI_SERVICETRACE__
-  EE_ORTI_servicetrace = EE_SERVICETRACE_SUSPENDALLINTERRUPTS+1;
+  EE_ORTI_servicetrace = EE_SERVICETRACE_SUSPENDALLINTERRUPTS+1U;
 #endif
 
   if (!EE_oo_IRQ_disable_count) {
@@ -204,7 +204,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_oo_SuspendAllInterrupts(void)
 __INLINE__ void __ALWAYS_INLINE__ EE_oo_ResumeOSInterrupts(void)
 {
 #ifdef __OO_ORTI_SERVICETRACE__
-  EE_ORTI_servicetrace = EE_SERVICETRACE_RESUMEOSINTERRUPTS+1;
+  EE_ORTI_servicetrace = EE_SERVICETRACE_RESUMEOSINTERRUPTS+1U;
 #endif
 
   EE_oo_IRQ_disable_count--;
@@ -223,7 +223,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_oo_ResumeOSInterrupts(void)
 __INLINE__ void __ALWAYS_INLINE__ EE_oo_SuspendOSInterrupts(void)
 {
 #ifdef __OO_ORTI_SERVICETRACE__
-  EE_ORTI_servicetrace = EE_SERVICETRACE_SUSPENDOSINTERRUPTS+1;
+  EE_ORTI_servicetrace = EE_SERVICETRACE_SUSPENDOSINTERRUPTS+1U;
 #endif
 
   if (!EE_oo_IRQ_disable_count) {
@@ -255,7 +255,7 @@ __INLINE__ AppModeType __ALWAYS_INLINE__ EE_oo_GetActiveApplicationMode(void)
      exit from getactiveapplicationmode.
      Note that the variable is volatile, so both the writings succeeds
   */
-  EE_ORTI_servicetrace = EE_SERVICETRACE_GETACTIVEAPPLICATIONMODE+1;
+  EE_ORTI_servicetrace = EE_SERVICETRACE_GETACTIVEAPPLICATIONMODE+1U;
   EE_ORTI_servicetrace = EE_SERVICETRACE_GETACTIVEAPPLICATIONMODE;
 #endif
 

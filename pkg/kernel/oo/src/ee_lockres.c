@@ -75,7 +75,7 @@ void EE_oo_GetResource(ResourceType ResID)
   register EE_FREG flag;
   
 #ifdef __OO_ORTI_SERVICETRACE__
-  EE_ORTI_servicetrace = EE_SERVICETRACE_GETRESOURCE+1;
+  EE_ORTI_servicetrace = EE_SERVICETRACE_GETRESOURCE+1U;
 #endif
 
 #ifdef __MSRP__
@@ -176,8 +176,9 @@ void EE_oo_GetResource(ResourceType ResID)
 
 #ifdef __OO_ORTI_PRIORITY__
   EE_ORTI_resource_oldpriority[ResID] = EE_ORTI_th_priority[current];
-  if (EE_ORTI_th_priority[current] < EE_resource_ceiling[ResID])
+  if (EE_ORTI_th_priority[current] < EE_resource_ceiling[ResID]) {
     EE_ORTI_th_priority[current] = EE_resource_ceiling[ResID];
+  }
 #endif
 
 #ifdef __MSRP__

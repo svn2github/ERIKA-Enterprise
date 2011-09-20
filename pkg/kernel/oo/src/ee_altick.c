@@ -96,7 +96,7 @@ void EE_oo_counter_tick(CounterType c)
   register EE_FREG flag;
 
 #ifdef __OO_ORTI_SERVICETRACE__
-  EE_ORTI_servicetrace = EE_SERVICETRACE_COUNTERTICK+1;
+  EE_ORTI_servicetrace = EE_SERVICETRACE_COUNTERTICK+1U;
 #endif
 
   flag = EE_hal_begin_nested_primitive();

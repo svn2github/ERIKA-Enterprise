@@ -56,7 +56,7 @@
 void EE_oo_ResumeAllInterrupts(void)
 {
 #ifdef __OO_ORTI_SERVICETRACE__
-  EE_ORTI_servicetrace = EE_SERVICETRACE_RESUMEALLINTERRUPTS+1;
+  EE_ORTI_servicetrace = EE_SERVICETRACE_RESUMEALLINTERRUPTS+1U;
 #endif
 
   EE_oo_IRQ_disable_count--;

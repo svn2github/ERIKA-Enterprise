@@ -68,7 +68,7 @@ void EE_oo_ShutdownOS(StatusType Error)
 #endif
 
 #ifdef __OO_ORTI_SERVICETRACE__
-  EE_ORTI_servicetrace = EE_SERVICETRACE_SHUTDOWNOS+1;
+  EE_ORTI_servicetrace = EE_SERVICETRACE_SHUTDOWNOS+1U;
 #endif
 
 #ifdef __OO_HAS_POSTTASKHOOK__

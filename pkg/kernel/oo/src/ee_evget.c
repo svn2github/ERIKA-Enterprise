@@ -67,7 +67,7 @@ void EE_oo_GetEvent(TaskType TaskID, EventMaskRefType Event)
   register EE_FREG flag;
   
 #ifdef __OO_ORTI_SERVICETRACE__
-  EE_ORTI_servicetrace = EE_SERVICETRACE_GETEVENT+1;
+  EE_ORTI_servicetrace = EE_SERVICETRACE_GETEVENT+1U;
 #endif
 
 #ifdef __OO_EXTENDED_STATUS__    

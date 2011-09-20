@@ -52,7 +52,7 @@ int EE_oo_GetValueSem(SemRefType Sem)
   register EE_FREG flag;
   
 #ifdef __OO_ORTI_SERVICETRACE__
-  EE_ORTI_servicetrace = EE_SERVICETRACE_GETVALUESEM+1;
+  EE_ORTI_servicetrace = EE_SERVICETRACE_GETVALUESEM+1U;
 #endif
 	
   flag = EE_hal_begin_nested_primitive();

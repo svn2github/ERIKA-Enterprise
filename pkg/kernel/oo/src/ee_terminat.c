@@ -61,7 +61,7 @@
 StatusType EE_oo_TerminateTask(void)
 {
 	#ifdef __OO_ORTI_SERVICETRACE__
-  	EE_ORTI_servicetrace = EE_SERVICETRACE_TERMINATETASK+1;
+	EE_ORTI_servicetrace = EE_SERVICETRACE_TERMINATETASK+1U;
 	#endif
 
 	/* check for a call at interrupt level 
@@ -88,7 +88,7 @@ StatusType EE_oo_TerminateTask(void)
 		#endif
 
 		#ifdef __OO_ORTI_SERVICETRACE__
-    	EE_ORTI_servicetrace = EE_SERVICETRACE_TERMINATETASK;
+	EE_ORTI_servicetrace = EE_SERVICETRACE_TERMINATETASK;
 		#endif
 
     	return E_OS_CALLEVEL;
@@ -149,7 +149,7 @@ void EE_oo_TerminateTask(void)
 	#ifdef __OO_ORTI_SERVICETRACE__
   	/* both assignment to enable smart debuggers to notice the entry and
      exit from terminatetask */
-  	EE_ORTI_servicetrace = EE_SERVICETRACE_TERMINATETASK+1;
+	EE_ORTI_servicetrace = EE_SERVICETRACE_TERMINATETASK+1U;
 	#endif
 
 	#ifndef __OO_NO_CHAINTASK__

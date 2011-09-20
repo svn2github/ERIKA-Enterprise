@@ -72,7 +72,7 @@ void EE_oo_ReleaseResource(ResourceType ResID)
   register EE_FREG flag;
   
 #ifdef __OO_ORTI_SERVICETRACE__
-  EE_ORTI_servicetrace = EE_SERVICETRACE_RELEASERESOURCE+1;
+  EE_ORTI_servicetrace = EE_SERVICETRACE_RELEASERESOURCE+1U;
 #endif
 
 #ifdef __MSRP__

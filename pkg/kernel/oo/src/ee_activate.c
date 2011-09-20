@@ -63,7 +63,7 @@ StatusType EE_oo_ActivateTask(TaskType TaskID)
   register EE_FREG flag;
   
 #ifdef __OO_ORTI_SERVICETRACE__
-  EE_ORTI_servicetrace = EE_SERVICETRACE_ACTIVATETASK+1;
+  EE_ORTI_servicetrace = EE_SERVICETRACE_ACTIVATETASK+1U;
 #endif
 
 #ifdef __RN_TASK__

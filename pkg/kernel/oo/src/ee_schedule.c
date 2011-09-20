@@ -67,7 +67,7 @@ void EE_oo_Schedule(void)
   EE_TID current, rq;
 
 #ifdef __OO_ORTI_SERVICETRACE__
-  EE_ORTI_servicetrace = EE_SERVICETRACE_SCHEDULE+1;
+  EE_ORTI_servicetrace = EE_SERVICETRACE_SCHEDULE+1U;
 #endif
 
   current = EE_stk_queryfirst();

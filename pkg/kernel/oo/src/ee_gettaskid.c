@@ -59,7 +59,7 @@
 void EE_oo_GetTaskID(TaskRefType TaskID)
 {
 #ifdef __OO_ORTI_SERVICETRACE__
-  EE_ORTI_servicetrace = EE_SERVICETRACE_GETTASKID+1;
+  EE_ORTI_servicetrace = EE_SERVICETRACE_GETTASKID+1U;
 #endif
 
   *TaskID = EE_stk_queryfirst();

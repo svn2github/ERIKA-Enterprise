@@ -68,7 +68,7 @@ void EE_oo_WaitSem(SemRefType Sem)
   TaskType current, tmp;
 
 #ifdef __OO_ORTI_SERVICETRACE__
-  EE_ORTI_servicetrace = EE_SERVICETRACE_WAITSEM+1;
+  EE_ORTI_servicetrace = EE_SERVICETRACE_WAITSEM+1U;
 #endif
 
   current = EE_stk_queryfirst();

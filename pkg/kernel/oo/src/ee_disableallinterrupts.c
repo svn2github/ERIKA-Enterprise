@@ -56,7 +56,7 @@
 __INLINE__ void __ALWAYS_INLINE__ EE_oo_DisableAllInterrupts(void)
 {
 #ifdef __OO_ORTI_SERVICETRACE__
-  EE_ORTI_servicetrace = EE_SERVICETRACE_DISABLEALLINTERRUPTS+1;
+  EE_ORTI_servicetrace = EE_SERVICETRACE_DISABLEALLINTERRUPTS+1U;
 #endif
 
   EE_hal_disableIRQ();

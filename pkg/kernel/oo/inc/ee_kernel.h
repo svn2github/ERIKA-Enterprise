@@ -457,7 +457,7 @@ void EE_oo_WaitEvent(EventMaskType Mask);
 __INLINE__ void __ALWAYS_INLINE__ EE_oo_InitSem(SemRefType Sem, int value)
 {
 #ifdef __OO_ORTI_SERVICETRACE__
-  EE_ORTI_servicetrace = EE_SERVICETRACE_INITSEM+1;
+  EE_ORTI_servicetrace = EE_SERVICETRACE_INITSEM+1U;
 #endif
 
   (Sem)->count = (value);

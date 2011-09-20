@@ -66,7 +66,7 @@ StatusType EE_oo_ChainTask(TaskType TaskID)
   register TaskType current;
 
 #ifdef __OO_ORTI_SERVICETRACE__
-  EE_ORTI_servicetrace = EE_SERVICETRACE_CHAINTASK+1;
+  EE_ORTI_servicetrace = EE_SERVICETRACE_CHAINTASK+1U;
 #endif
 
   current = EE_stk_queryfirst();

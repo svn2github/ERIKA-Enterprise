@@ -77,7 +77,7 @@ void EE_oo_SetEvent(TaskType TaskID, EventMaskType Mask)
 
 
 #ifdef __OO_ORTI_SERVICETRACE__
-  EE_ORTI_servicetrace = EE_SERVICETRACE_SETEVENT+1;
+  EE_ORTI_servicetrace = EE_SERVICETRACE_SETEVENT+1U;
 #endif
 
 #ifdef __RN_EVENT__

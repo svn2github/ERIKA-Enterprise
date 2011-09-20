@@ -65,7 +65,7 @@ StatusType EE_oo_SetAbsAlarm(AlarmType AlarmID,
   register EE_FREG flag;
 
 #ifdef __OO_ORTI_SERVICETRACE__
-  EE_ORTI_servicetrace = EE_SERVICETRACE_SETABSALARM+1;
+  EE_ORTI_servicetrace = EE_SERVICETRACE_SETABSALARM+1U;
 #endif
 
 #ifdef __OO_EXTENDED_STATUS__

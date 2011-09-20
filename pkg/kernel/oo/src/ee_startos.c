@@ -66,7 +66,7 @@ void EE_oo_StartOS(AppModeType Mode)
 #endif
 
 #ifdef __OO_ORTI_SERVICETRACE__
-  EE_ORTI_servicetrace = EE_SERVICETRACE_STARTOS+1;
+  EE_ORTI_servicetrace = EE_SERVICETRACE_STARTOS+1U;
 #endif
 
 #ifdef __OO_CPU_HAS_STARTOS_ROUTINE__

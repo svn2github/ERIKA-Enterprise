@@ -56,7 +56,7 @@
 void EE_oo_EnableAllInterrupts(void)
 {
 #ifdef __OO_ORTI_SERVICETRACE__
-  EE_ORTI_servicetrace = EE_SERVICETRACE_ENABLEALLINTERRUPTS+1;
+  EE_ORTI_servicetrace = EE_SERVICETRACE_ENABLEALLINTERRUPTS+1U;
 #endif
 
   EE_hal_enableIRQ();

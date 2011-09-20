@@ -62,7 +62,7 @@ AppModeType EE_oo_GetActiveApplicationMode(void)
 #ifdef __OO_ORTI_SERVICETRACE__
   /* both assignment to enable smart debuggers to notice the entry and
      exit from getactiveapplicationmode */
-  EE_ORTI_servicetrace = EE_SERVICETRACE_GETACTIVEAPPLICATIONMODE+1;
+  EE_ORTI_servicetrace = EE_SERVICETRACE_GETACTIVEAPPLICATIONMODE+1U;
   EE_ORTI_servicetrace = EE_SERVICETRACE_GETACTIVEAPPLICATIONMODE;
 #endif
 

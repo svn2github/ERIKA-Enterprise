@@ -71,7 +71,7 @@ void EE_thread_end_instance(void)
     EE_sys_ceiling &= ~EE_th_dispatch_prio[current];
 
 #ifdef __OO_ORTI_PRIORITY__
-    EE_ORTI_th_priority[current] = 0;
+    EE_ORTI_th_priority[current] = 0U;
 #endif
 
     /* extract the task from the stk data structure */

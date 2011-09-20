@@ -60,7 +60,7 @@ void EE_oo_GetAlarmBase(AlarmType AlarmID, AlarmBaseRefType Info)
   register const EE_oo_counter_ROM_type *c;
 
 #ifdef __OO_ORTI_SERVICETRACE__
-  EE_ORTI_servicetrace = EE_SERVICETRACE_GETALARMBASE+1;
+  EE_ORTI_servicetrace = EE_SERVICETRACE_GETALARMBASE+1U;
 #endif
 
 

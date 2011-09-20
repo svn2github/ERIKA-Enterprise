@@ -61,7 +61,7 @@ int EE_oo_TryWaitSem(SemRefType Sem)
   register EE_FREG flag;
 
 #ifdef __OO_ORTI_SERVICETRACE__
-  EE_ORTI_servicetrace = EE_SERVICETRACE_TRYWAITSEM+1;
+  EE_ORTI_servicetrace = EE_SERVICETRACE_TRYWAITSEM+1U;
 #endif
 
   flag = EE_hal_begin_nested_primitive();

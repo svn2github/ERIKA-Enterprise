@@ -66,7 +66,7 @@ void EE_oo_ClearEvent(EventMaskType Mask)
   EE_TID current;
 
 #ifdef __OO_ORTI_SERVICETRACE__
-  EE_ORTI_servicetrace = EE_SERVICETRACE_CLEAREVENT+1;
+  EE_ORTI_servicetrace = EE_SERVICETRACE_CLEAREVENT+1U;
 #endif
 
   current = EE_stk_queryfirst();

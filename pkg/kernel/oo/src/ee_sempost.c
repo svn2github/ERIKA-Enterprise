@@ -71,7 +71,7 @@ StatusType EE_oo_PostSem(SemRefType Sem)
 
 
 #ifdef __OO_ORTI_SERVICETRACE__
-  EE_ORTI_servicetrace = EE_SERVICETRACE_POSTSEM+1;
+  EE_ORTI_servicetrace = EE_SERVICETRACE_POSTSEM+1U;
 #endif
 
   flag = EE_hal_begin_nested_primitive();
@@ -187,7 +187,7 @@ StatusType EE_oo_PostSem(SemRefType Sem)
 
 
 #ifdef __OO_ORTI_SERVICETRACE__
-  EE_ORTI_servicetrace = EE_SERVICETRACE_POSTSEM+1;
+  EE_ORTI_servicetrace = EE_SERVICETRACE_POSTSEM+1U;
 #endif
 
   flag = EE_hal_begin_nested_primitive();

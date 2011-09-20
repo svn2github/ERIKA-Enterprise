@@ -77,7 +77,7 @@ void EE_oo_ForceSchedule(void)
   EE_TID current, rq;
 
 #ifdef __OO_ORTI_SERVICETRACE__
-  EE_ORTI_servicetrace = EE_SERVICETRACE_FORCESCHEDULE+1;
+  EE_ORTI_servicetrace = EE_SERVICETRACE_FORCESCHEDULE+1U;
 #endif
 
 #ifdef __OO_EXTENDED_STATUS__

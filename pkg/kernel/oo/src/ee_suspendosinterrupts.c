@@ -56,7 +56,7 @@
 void EE_oo_SuspendOSInterrupts(void)
 {
 #ifdef __OO_ORTI_SERVICETRACE__
-  EE_ORTI_servicetrace = EE_SERVICETRACE_SUSPENDOSINTERRUPTS+1;
+  EE_ORTI_servicetrace = EE_SERVICETRACE_SUSPENDOSINTERRUPTS+1U;
 #endif
 
   if (!EE_oo_IRQ_disable_count)
