@@ -110,7 +110,7 @@ typedef struct {
   
   EE_TID TaskID;
 
-  EE_ADDR f;
+  EE_VOID_CALLBACK f;
 } EE_alarm_ROM_type;
 
 /* initvalue: all zeroes --> no initialization! */

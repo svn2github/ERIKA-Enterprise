@@ -87,7 +87,7 @@ typedef EE_UINT32 EE_FREG;
 typedef EE_INT32 EE_TID;
 
 /* Addresses (that have the same size of a pointer) */
-typedef EE_UINT32 *EE_ADDR;
+typedef void *EE_ADDR;
 
 /* EE_TYPEIRQ is defined inside the MCU */
 

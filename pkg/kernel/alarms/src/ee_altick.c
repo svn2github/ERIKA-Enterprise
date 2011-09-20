@@ -157,7 +157,7 @@ void EE_alarm_CounterTick(CounterType c)
   	break;
 
       case EE_ALARM_ACTION_CALLBACK:
-	((void (*)(void))EE_alarm_ROM[current].f)();
+	(EE_alarm_ROM[current].f)();
 	break;
       default:
         /* Invalid action: this should never happen, as `action' is

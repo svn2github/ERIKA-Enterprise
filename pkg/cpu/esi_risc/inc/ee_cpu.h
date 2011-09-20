@@ -88,10 +88,13 @@ typedef EE_INT16  EE_SREG;
 typedef EE_UINT16 EE_FREG;
 
 /* Data addresses (that have the same size of a pointer) */
-typedef EE_UINT16 *EE_ADDR;
+typedef void *EE_ADDR;
+
+/* Callbacks with no parameters nor return value */
+typedef void (*EE_VOID_CALLBACK)(void);
 
 /* Code addresses (same size of function pointers) */
-typedef EE_UINT16 *EE_FADDR;
+typedef void *EE_FADDR;
 
 /* Thread IDs */
 typedef EE_INT16 EE_TID;
@@ -111,10 +114,13 @@ typedef EE_INT32  EE_SREG;
 typedef EE_UINT32 EE_FREG;
 
 /* Data addresses (that have the same size of a pointer) */
-typedef EE_UINT32 *EE_ADDR;
+typedef void *EE_ADDR;
+
+/* Callbacks with no parameters nor return value */
+typedef void (*EE_VOID_CALLBACK)(void);
 
 /* Code addresses (same size of function pointers) */
-typedef EE_UINT32 *EE_FADDR;
+typedef void *EE_FADDR;
 
 /* Thread IDs */
 typedef EE_INT32 EE_TID;

@@ -75,6 +75,7 @@ typedef unsigned int EE_UINT16;
 typedef unsigned long EE_UINT32;
 typedef unsigned char EE_UREG;
 typedef int EE_ADDR;
+typedef void (*EE_VOID_CALLBACK)(void);
 /* Code addresses (same size of function pointers) */
 /* For an easy upgrade path, we use a define instead of the typedef:
    typedef void (*EE_FADDR)(void); */

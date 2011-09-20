@@ -84,11 +84,6 @@ typedef EE_UINT16 EE_FREG;
 /* Thread IDs */
 typedef EE_UINT32 EE_TID;
 
-/* Code addresses (same size of function pointers) */
-/* For an easy upgrade path, we use a define instead of the typedef:
-   typedef void (*EE_FADDR)(void); */
-#define EE_FADDR EE_ADDR
-
 /* EE_TYPEIRQ is defined inside the MCU */
 
 /* Note: EE_TIME is defined for ARM7 into the drivers.h file,
@@ -122,7 +117,7 @@ struct EE_TOS {
  *************************************************************************/
 
 /* Thread function body pointer */
-extern const EE_ADDR EE_hal_thread_body[];
+extern const EE_FADDR EE_hal_thread_body[];
 
 
 #ifdef __MULTI__
@@ -151,7 +146,7 @@ extern EE_UINT32 EE_terminate_data[];
 
 /* this is the real thread body that is called if the thread use the
    TerminateTask function */
-extern const EE_ADDR EE_terminate_real_th_body[];
+extern const EE_FADDR EE_terminate_real_th_body[];
 
 /* this is the stub that have to be put into the EE_th_body array */
 extern void EE_oo_thread_stub(void);

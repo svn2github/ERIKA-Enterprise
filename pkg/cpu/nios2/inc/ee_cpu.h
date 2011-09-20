@@ -139,7 +139,10 @@ typedef int EE_FREG;
 typedef EE_INT32 EE_TID;
 
 /* Addresses (that have the same size of a pointer) */
-typedef EE_UINT32 *EE_ADDR;
+typedef void *EE_ADDR;
+
+/* Callbacks with no parameters nor return value */
+typedef void (*EE_VOID_CALLBACK)(void);
 
 /* Code addresses (same size of function pointers) */
 /* For an easy upgrade path, we use a define instead of the typedef:

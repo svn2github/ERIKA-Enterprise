@@ -73,14 +73,21 @@ typedef unsigned int EE_UINT32;
 #error Unknow/unsupported architecture
 #endif
 
+/* HAL may need to declare pointers using keywords such as `far'... */
+#ifndef __EE_HAL_CUSTOM_POINTERS__
 
 /* Data addresses (that have the same size of a pointer) */
-typedef EE_UINT32 *EE_ADDR;
+typedef void *EE_ADDR;
 
 /* Code addresses (same size of function pointers) */
 typedef void (*EE_FADDR)(void);
 
-/* Callback function called by driver handlers  */
-typedef void (*EE_ISR_callback)(void);
+/* Callbacks with no parameters nor return value */
+typedef void (*EE_VOID_CALLBACK)(void);
+
+/* Callback function called by driver handlers */
+typedef EE_VOID_CALLBACK EE_ISR_callback;
+
+#endif /* __EE_HAL_CUSTOM_POINTERS__ */
 
 #endif /* __INCLUDE_CPU_COMMON_EE_TYPES__ */

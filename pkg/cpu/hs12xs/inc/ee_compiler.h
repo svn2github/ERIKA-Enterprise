@@ -72,9 +72,11 @@ typedef EE_UINT16 EE_FREG;
 typedef EE_UINT32 EE_TID;
 
 // Addresses (that have the same size of a pointer)
-typedef @far EE_UINT32 *EE_ADDR;		// N.B. 16-bit for @near pointer and 32-bit for @far pointer
-typedef EE_UINT16 *EE_DADD;				// N.B. for data pointer you can use only 16 bit 
+typedef @far void *EE_ADDR;		// N.B. 16-bit for @near pointer and 32-bit for @far pointer
+typedef EE_UINT16 *EE_DADD;		// N.B. for data pointer you can use only 16 bit 
 #define EE_FADDR EE_ADDR
+/* Callbacks with no parameters nor return value */
+typedef @far void (*EE_VOID_CALLBACK)(void);
 
 #ifndef NULL     // invalid pointer
 #define NULL 0 

@@ -76,11 +76,14 @@ typedef EE_UINT32 EE_FREG;
 /* Thread IDs */
 typedef EE_INT32 EE_TID;
 
+/* Callbacks with no parameters nor return value */
+typedef void (*EE_VOID_CALLBACK)(void);
+
 /* Function addresses (that have the same size of a pointer) */
-typedef EE_UINT32 *EE_FADDR;
+typedef void *EE_FADDR;
 
 /* Addresses (that have the same size of a pointer) */
-typedef EE_UINT32 *EE_ADDR;
+typedef void *EE_ADDR;
 
 /* A thread function pointer */
 typedef void (*EE_THREAD_PTR)(void);

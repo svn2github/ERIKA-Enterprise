@@ -361,7 +361,7 @@ typedef struct {
 #if defined(__OO_ECC1__) || defined(__OO_ECC2__)
   EE_TYPEEVENTMASK Mask;
 #endif
-  EE_ADDR f;
+  EE_VOID_CALLBACK f;
 } EE_oo_alarm_ROM_type;
 
 /* initvalue: all zeroes --> no initialization! */

@@ -332,7 +332,7 @@ void EE_oo_counter_tick(CounterType c)
 
       
       case EE_ALARM_ACTION_CALLBACK:
-	((void (*)(void))EE_alarm_ROM[current].f)();
+	(EE_alarm_ROM[current].f)();
 	break;
 
       default:

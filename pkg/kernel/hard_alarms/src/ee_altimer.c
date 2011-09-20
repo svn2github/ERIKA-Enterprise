@@ -135,7 +135,7 @@ void EE_alarm_timer(EE_TYPECOUNTER c)
       break;
 
       case EE_ALARM_ACTION_CALLBACK:
-        ((void (*)(void))EE_alarm_ROM[current].f)();
+        (EE_alarm_ROM[current].f)();
         break;
     };
       
