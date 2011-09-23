@@ -32,11 +32,4 @@
 void amazing_reset_body(void);
 void amazing_tuner_body(EE_UINT16,EE_UINT16);
 
-#define touch_set_dimension(a, b)		touch_1_set_dimension(a, b) 
-#define touch_raw_init()				touch_1_raw_init()
-#define touch_start()					touch_1_start()
-#define touch_wait_raw_position(a, b)	touch_1_wait_raw_position(a, b)
-#define touch_tune(a)					touch_1_tune(a)
-#define touch_poll_s_position(a, b) 	touch_1_poll_s_position(a, b)
-
 #endif // __AMAZING_H__

@@ -116,4 +116,11 @@ COMPILER_INLINE void touch_2_stop(void)
 }
 #endif // __USE_TOUCH_2__
 
+#define touch_set_dimension(a, b)		touch_1_set_dimension(a, b) 
+#define touch_raw_init()				touch_1_raw_init()
+#define touch_start()					touch_1_start()
+#define touch_wait_raw_position(a, b)	touch_1_wait_raw_position(a, b)
+#define touch_tune(a)					touch_1_tune(a)
+#define touch_poll_s_position(a, b) 	touch_1_poll_s_position(a, b)
+
 #endif // __TOUCH_H__

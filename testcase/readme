@@ -10,6 +10,7 @@ Full documentation of the testcase architecture is inside common/readme.txt
 usage:
 
 make ARCH=prefix
+make ARCH=prefix DIRS=<list of examples you want to test>
 make clean
 make supported ARCH=prefix
 
