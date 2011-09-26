@@ -145,9 +145,11 @@ int EE_rn_send(EE_TYPERN rn, EE_TYPERN_NOTIFY t, EE_TYPERN_PARAM par)
       }
     } else
 #endif
+    {
       /* if it is counter, task, func */
       /* increase the pending counter */
       EE_rn_pending[rn][sw] += par.pending;
+    }
 
 
     /* set the type in the remote notification */

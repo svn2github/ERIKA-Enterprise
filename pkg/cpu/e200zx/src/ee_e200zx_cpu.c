@@ -83,7 +83,7 @@ void EE_e200zx_stop_fixed_intv(void)
 
 #ifdef __DCC__
 
-__asm volatile void mmu_write_mas(int mas, unsigned long val)
+__asm volatile void mmu_write_mas(EE_SREG mas, EE_UREG val)
 {
 % reg val; con mas;
 !
@@ -111,9 +111,9 @@ __INLINE__ void __ALWAYS_INLINE__ mmu_write_sync(void)
 #endif /* else if __DCC__ */
 
 
-void EE_e200zx_mmu_setup(const EE_MMU_ENTRY_T *entries, unsigned count)
+void EE_e200zx_mmu_setup(const EE_MMU_ENTRY_T *entries, EE_UREG count)
 {
-	unsigned i;
+	EE_UREG i;
 
 	for (i = 0U; i < count; i++) {
 		mmu_write_mas(MMU_MAS0, EE_E200ZX_MMU_TLBSEL1 | (i << 16));

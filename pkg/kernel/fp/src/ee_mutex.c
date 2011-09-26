@@ -64,7 +64,9 @@ void EE_fp_GetResource(ResourceType m)
     EE_sys_ceiling |= EE_resource_ceiling[tmp];
 
     /* if this is a global resource, lock the others CPUs */
-    if (m & EE_GLOBAL_MUTEX) EE_hal_spin_in(tmp);
+    if (m & EE_GLOBAL_MUTEX) {
+      EE_hal_spin_in((EE_TYPESPIN)tmp);
+    }
 
 #else
     
@@ -94,7 +96,9 @@ void EE_fp_ReleaseResource(ResourceType m)
   tmp = m & ~EE_GLOBAL_MUTEX;
 
   /* if this is a global resource, unlock the others CPUs */
-  if (m & EE_GLOBAL_MUTEX) EE_hal_spin_out(tmp);
+  if (m & EE_GLOBAL_MUTEX) {
+    EE_hal_spin_out((EE_TYPESPIN)tmp);
+  }
   
   EE_sys_ceiling = EE_resource_oldceiling[tmp];
 #else

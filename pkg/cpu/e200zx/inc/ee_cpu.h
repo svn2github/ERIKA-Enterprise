@@ -104,13 +104,13 @@ typedef void (*EE_e200z7_ISR_handler)(void);
 /* Word used to build user stacks */
 typedef EE_UINT32 EE_STACK_T;
 /* Stack length in words */
-#define EE_STACK_WLEN(bl) ((((EE_UREG)(bl) +			\
-			(EE_UREG)EE_STACK_ALIGN - 1U)		\
+#define EE_STACK_WLEN(bl) (((((EE_UREG)(bl) +				\
+			(EE_UREG)EE_STACK_ALIGN) - 1U)			\
 		/ (EE_UREG)EE_STACK_ALIGN)				\
 	* ((EE_UREG)EE_STACK_ALIGN / sizeof(EE_STACK_T)))
 /* Initial pointer (word offset) in user stacks */
 #define EE_STACK_INITP(bl) (EE_STACK_WLEN(bl) -	\
-	(EE_UREG)EE_STACK_ALIGN / sizeof(EE_STACK_T))
+	((EE_UREG)EE_STACK_ALIGN / sizeof(EE_STACK_T)))
 
 extern EE_STACK_T EE_STACK_ATTRIB EE_e200zx_sys_stack[EE_STACK_WLEN(EE_SYS_STACK_SIZE)];
 
@@ -297,7 +297,7 @@ typedef struct {
 } EE_MMU_ENTRY_T;
 
 /* Masks used for MAS0 */
-#define EE_E200ZX_MMU_TLBSEL1	0x10000000U	/* Use TLB1 */
+#define EE_E200ZX_MMU_TLBSEL1	((EE_UREG)0x10000000U)	/* Use TLB1 */
 
 /* Masks used for MAS1 */
 #define EE_E200ZX_MMU_VALID	0x80000000U	/* TLB entry is valid */

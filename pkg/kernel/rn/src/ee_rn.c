@@ -109,9 +109,10 @@ static void EE_rn_execute(EE_TYPERN rn, EE_TYPERN_SWITCH sw)
 #ifdef __RN_EVENT__
   if (EE_rn_type[rn][sw] & EE_RN_EVENT) {
     if (EE_rn_event[rn][sw]) {
-      EE_oo_SetEvent(EE_rn_task[rn], EE_rn_event[rn][sw]);
+      /* Any error is ignored and not reported back to the originating core */
+      (void)EE_oo_SetEvent(EE_rn_task[rn], EE_rn_event[rn][sw]);
       /* we have to reset the event mask! */
-      EE_rn_event[rn][sw] = 0;
+      EE_rn_event[rn][sw] = 0U;
     }
 
     EE_rn_type[rn][sw] &= ~EE_RN_EVENT;
@@ -202,7 +203,7 @@ void EE_rn_handler(void)
       
       /* executing requests */
       for (current = EE_rn_first[EE_CURRENTCPU][sw];
-	   current != -1;
+	   current != (EE_TYPERN)-1;
 	   current = EE_rn_next[current][sw]) {
 	
 	EE_rn_execute(current,sw);
