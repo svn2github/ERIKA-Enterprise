@@ -48,71 +48,130 @@
 #ifndef CAN_SCICOS_H_
 #define CAN_SCICOS_H_
 
-#define EE_CAN_BUF_SIZE 64
-#define SCICOS_CAN_CHANNELS 16
-#define SIZE_OF_ELEMENT 4
+/* max number of i/o block lines */
+#define SCICOS_CAN_CHANNELS  16
+/* Length of a buffer */
+#define EE_CAN_BUF_SIZE (SCICOS_CAN_CHANNELS*sizeof(float))
+/* Size of the data field */
+#define CAN_DATA_LEN 8
+/* CAN buffer dimension */
+#define CAN_BUF_SIZE 20
+/* Debug print functions */
+#define CAN_DEBUG_TEST_NUM 100
+
+/* Macros to read input/output ports */
 #define u(i,j) ((double *)block->inptr[i])[j]
 #define y(i,j) ((double *)block->outptr[i])[j]
 
-#define CAN_PKT_LEN 8
-#define CAN_BUF_SIZE 20
-
 #ifndef CAN_DEBUG
-#define can_debug_print_string(a)
-#define can_debug_print_val(a,b)
-#else
-void can_debug_print_string(char *str);
-void can_debug_print_val(char *str, int val);
-#endif
 
-/* CAN scicos types */
-typedef char CAN_message[CAN_PKT_LEN];
-typedef struct {
-    int g;			// get index: points to the first packet to be extracted
-	int p;			// put index: points to the next empty location
-	int counter;	// counter: to make difference between full queue and empty queue...
-	CAN_message data[CAN_BUF_SIZE];
-} CAN_buffer;
+#define EESCI_can_debug_print_string(a)
+#define EESCI_can_debug_print_val(a,b)
+#define EESCI_can_debug_print_vals(a,b,c)
+#define EESCI_can_debug_insert_val(rx,cnt)
+#define EESCI_can_debug_print_results()
+#define DECL_EXT_TEST_VARS()
+#define DEF_TEST_VARS()
 
+#else /* CAN_DEBUG */
+
+#include "mcu/microchip_dspic/inc/ee_uart.h"
+#include "string.h"
+#include "stdio.h"
+#define DECL_EXT_TEST_VARS() extern volatile unsigned int eesci_can_debug_rx_test_vet[CAN_DEBUG_TEST_NUM]; \
+                             extern volatile int eesci_can_debug_initialized
+#define DEF_TEST_VARS()      volatile unsigned int eesci_can_debug_rx_test_vet[CAN_DEBUG_TEST_NUM]; \
+                             volatile int eesci_can_debug_initialized = 0
+
+/* Declaration of extern variables used in TEST mode */
+DECL_EXT_TEST_VARS();
+
+__INLINE__ void EESCI_can_debug_init()
+{
+	EE_uart_init(EE_UART_PORT_1, 115200, EE_UART_BIT8_NO | EE_UART_BIT_STOP_1, EE_UART_CTRL_SIMPLE);
+	eesci_can_debug_initialized = 1;
+}
+
+__INLINE__ void EESCI_can_debug_print_string(char *str)
+{
+	if(eesci_can_debug_initialized==0)
+		EESCI_can_debug_init();
+	int len, i;
+	len = strlen(str);
+	for(i=0; i<len; i++)
+		EE_uart_write_byte(EE_UART_PORT_1, str[i]);
+}
+__INLINE__ void EESCI_can_debug_print_val(char *str, int val)
+{
+	if(eesci_can_debug_initialized==0)
+		EESCI_can_debug_init();
+	char str_val[64];
+	sprintf(str_val,str,val);
+	EESCI_can_debug_print_string(str_val);
+}
+
+__INLINE__ void EESCI_can_debug_print_vals(char *str, int val1, int val2)
+{
+	if(eesci_can_debug_initialized==0)
+		EESCI_can_debug_init();
+	char str_val[64];
+	sprintf(str_val,str,val1,val2);
+	EESCI_can_debug_print_string(str_val);
+}
+
+__INLINE__ void EESCI_can_debug_print_results(void)
+{
+	IEC2bits.C1IE = 0;
+	int i;
+	char str_val[64];
+	for(i=0; i<CAN_DEBUG_TEST_NUM; i++ ) {
+		sprintf(str_val, "rx_test_vet[%d]:%x\r\n", i, eesci_can_debug_rx_test_vet[i]);
+		EESCI_can_debug_print_string(str_val);
+	}
+	while(1)
+		;
+}
+
+__INLINE__ void EESCI_can_debug_insert_val(EE_UINT8* rx_data, int val_cnt)
+{
+	eesci_can_debug_rx_test_vet[val_cnt] =  ((unsigned int)rx_data[6])<<8 | ((unsigned int)rx_data[7]); 
+}
+#endif /* CAN_DEBUG */
+
+
+
+/* -------------------------------------------- */
 /* Global variables used in the CAN scicos code */
-/* buffer */
-extern EE_UINT8 scicosCAN1_rx_buffer[CAN_PKT_LEN];	// buffer for CAN reception
-extern EE_UINT8 scicosCAN1_tx_buffer[CAN_PKT_LEN];	// buffer for CAN transmission
-extern CAN_buffer CAN1_rx_buffer;
-extern CAN_buffer CAN1_tx_buffer;
-/* tx */
-extern EE_UINT8 ecan1_tx_initialized;
-extern EE_UINT32 ecan1_tx_id;     /* contain the id for can messages */
-extern EE_UINT8 ecan1_tx_len;
-extern EE_UINT8 ecan_tx_canid;
-extern EE_UINT8 ecan1_tx_div;
-extern void (*EE_eCAN1_tx_cbk) (void);
-/* rx */
-extern EE_UINT8 ecan1_rx_initialized;
-extern void (*EE_eCAN1_rx_cbk) (void);
-extern EE_UINT8 ecan_rx_canid;
-extern ee_ecan_mID rx_ecan1message1;//RX message for id=1
-extern ee_ecan_mID rx_ecan1message2;//RX message for id=2
-extern ee_ecan_mID rx_ecan1message3;//RX message for id=3
-extern ee_ecan_mID rx_ecan1message4;//RX message for id=99
-extern EE_UINT32 ecan1_rx_id;     /* contain the id for can messages */
-extern EE_UINT8 ecan1_rx_len;
-extern EE_UINT8 ecan1_rx_div;
+/* -------------------------------------------- */
 
-/* CAN buffer library  */
-void CAN_Buffer_Init(CAN_buffer *buf);
-int CAN_Buffer_Putmsg(CAN_buffer *buf, EE_UINT8* msg, int dim);
-int CAN_Buffer_Getmsg(CAN_buffer *buf, EE_UINT8* msg, int dim);
-void CAN_Buffer_Close(CAN_buffer *buf);
-int CAN_Buffer_Isempty(CAN_buffer *buf);
-int CAN_Buffer_Isfull(CAN_buffer *buf, int dim);
-int CAN_Buffer_count(CAN_buffer *buf);
+/*
+#define CAN1_BLOCK_TX_NUM 5
+typedef struct {
+    EE_UINT8 index;
+    EE_UINT32 id;
+    EE_UINT8 len;
+} CAN1_tx_block;
+extern CAN1_tx_block CAN1_tx_blocks[CAN1_BLOCK_TX_NUM];
+*/
+
+#define CAN1_BLOCK_RX_NUM 5
+typedef struct {
+    EE_UINT32 id;
+    ee_ecan_mID rx_ecan1message;
+} CAN1_rx_block;
+extern CAN1_rx_block CAN1_rx_blocks[CAN1_BLOCK_RX_NUM];
+
+/* buffer */
+extern EE_UINT8 scicosCAN1_rx_buffer[CAN_DATA_LEN];
+extern EE_UINT8 scicosCAN1_tx_buffer[CAN_DATA_LEN];
+extern volatile EE_UINT8 ee_ecan1_initialized;
 
 /* CAN scicos blocks library */
-void EE_eCAN1_cbk(int flag);
-void EE_eCAN1_init(void);
-void EE_eCAN1_send(EE_UINT8 *data, int len, int id);
-void EE_eCAN1_tx_service(void);
-void EE_eCAN1_rx_service(void);
+void EESCI_eCAN1_cbk(void);
+void EESCI_eCAN1_init(void);
+void EESCI_eCAN1_send(EE_UINT8 *data, int len, int id);
+void EESCI_eCAN1_tx_service(void);
+void EESCI_eCAN1_rx_service(void);
+int EESCI_eCAN1_get_rx_block(EE_UINT32 can_id);
 
 #endif /* CAN_SCICOS_H_ */

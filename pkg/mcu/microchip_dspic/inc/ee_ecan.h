@@ -126,7 +126,6 @@ void EE_ecan1_Initialize(void);
 void EE_ecan1_SendMessage(ee_ecan_mID *M2S);
 
 #define EE_ECAN1_NULL_CBK ((EE_ISR_callback)0)
-typedef void (*EE_ISR_callback)(int flag);
 void EE_ecan1_set_ISR_callback(EE_ISR_callback isr_cbk);
  
 #endif

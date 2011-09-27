@@ -129,7 +129,8 @@ void EE_ecan1_Init(void)
 
 	EE_ecan1_ClkInit();
 
-	C1FCTRLbits.DMABS=0;// 4 CAN Message Buffers in DMA RAM
+	/* 6 CAN Message Buffers in DMA RAM */
+	C1FCTRLbits.DMABS = 0b001; 
 
 	/*	Filter Configuration
 	ecan1WriteRxAcptFilter(int n, long identifier, unsigned int exide,
@@ -149,9 +150,9 @@ void EE_ecan1_Init(void)
 	maskSel = 1	->	Acceptance Mask 1 register contains mask
 	maskSel = 2	->	Acceptance Mask 2 register contains mask
 	maskSel = 3	->	No Mask Selection
-*/
-
-	EE_ecan1_WriteRxAcptFilter(1,0x1FFEFFFF,1,1,0);
+	
+	usage: EE_ecan1_WriteRxAcptFilter(1,0x1FFEFFFF,1,1,0);
+	*/
 
 	/*	Mask Configuration
 	ecan1WriteRxAcptMask(int m, long identifierMask, unsigned int mide,
@@ -168,21 +169,20 @@ void EE_ecan1_Init(void)
 
 	exide = 0 -> Match messages with standard identifier addresses
 	exide = 1 -> Match messages with extended identifier addresses
-*/
 
-	EE_ecan1_WriteRxAcptMask(1,0x1FFFFFFF,1,1);
-
+	usage: EE_ecan1_WriteRxAcptMask(1,0x1FFFFFFF,1,1);
+	*/
+	
 	/* Enter Normal Mode */
 	C1CTRL1bits.REQOP=0;
 	while(C1CTRL1bits.OPMODE!=0);
 
 	/* ECAN transmit/receive message control */
 	C1RXFUL1=C1RXFUL2=C1RXOVF1=C1RXOVF2=0x0000;
-	//C1TR01CONbits.TXEN0=1;			/* ECAN1, Buffer 0 is a Transmit Buffer */
-	C1TR01CONbits.TXEN0=0;  			/* ECAN1, Buffer 0 is a Receive Buffer */
-	C1TR01CONbits.TXEN1=0;				/* ECAN1, Buffer 1 is a Receive Buffer */
-	C1TR01CONbits.TX0PRI=3;  			/* Message Buffer 0 Priority Level */
-	C1TR01CONbits.TX1PRI=3; 			/* Message Buffer 1 Priority Level */
+	/* ECAN1, Buffer 0 is a Transmit Buffer */
+	C1TR01CONbits.TXEN0=1;
+	/* Message Buffer 0 Priority Level */
+	C1TR01CONbits.TX0PRI=0b11;
 }
 
 
@@ -605,7 +605,7 @@ void EE_ecan1_ClearIntrFlags(void){
 
 
 //------------------------------------------------------------------------------
-//    DMA interrupt handlers
+//    DMA and CAN interrupt handlers
 //------------------------------------------------------------------------------
 
 ISR2(_DMA2Interrupt)
@@ -619,6 +619,26 @@ ISR2(_DMA3Interrupt)
 	IFS2bits.DMA3IF = 0;          // Clear the DMA4 Interrupt Flag;
 }
 
+/* Callback function called by driver handlers  */
+EE_ISR_callback ee_ecan1_ISR_cbk;
+
+void EE_ecan1_set_ISR_callback(EE_ISR_callback isr_cbk)
+{
+	ee_ecan1_ISR_cbk = isr_cbk;
+}
+
+/* CAN bus 1 Interrupt, ISR2 type */
+ISR2(_C1Interrupt)
+{
+	IFS2bits.C1IF = 0; // clear interrupt flag
+	
+	if(ee_ecan1_ISR_cbk != EE_ECAN1_NULL_CBK)
+		ee_ecan1_ISR_cbk();
+}
+
+//------------------------------------------------------------------------------
+//    API for users
+//------------------------------------------------------------------------------
 
 void EE_ecan1_Initialize()
 {
@@ -636,12 +656,6 @@ void EE_ecan1_Initialize()
 	IEC2bits.C1IE = 1;
 	C1INTEbits.TBIE = 1;
 	C1INTEbits.RBIE = 1;
-
-	/* Write a Message in ECAN1 Transmit Buffer
-	Request Message Transmission			*/
-	//EE_ecan1_WriteMessage();
-	//C1TR01CONbits.TXREQ0=1;
-	//C1TR01CONbits.TXEN0=0;  //// /* ECAN1, Buffer 1 is a Receive Buffer */
 }
 
 
@@ -657,21 +671,3 @@ void EE_ecan1_SendMessage(ee_ecan_mID *M2S)
 	((*M2S).data[7]<<8) + (*M2S).data[6]);
 	C1TR01CONbits.TXREQ0=1;
 }
-
-/* Callback function called by driver handlers  */
-EE_ISR_callback ee_ecan1_ISR_cbk;
-
-void EE_ecan1_set_ISR_callback(EE_ISR_callback isr_cbk)
-{
-	ee_ecan1_ISR_cbk = isr_cbk;
-}
-
-/* CAN bus 1 Interrupt, ISR2 type */
-ISR2(_C1Interrupt)
-{
-	IFS2bits.C1IF = 0; // clear interrupt flag
-	
-	if(ee_ecan1_ISR_cbk != EE_ECAN1_NULL_CBK)
-		ee_ecan1_ISR_cbk(0);
-}
-

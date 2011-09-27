@@ -39,10 +39,10 @@
  * ###*E*### */
  
  /** 
-	@file flex_udp.c
-	@brief www.scicos.org, www.scicoslab.org
-	@author Daniele Alessandrelli, RetisLab, Pisa
-	@date 2009
+    @file flex_udp.c
+    @brief www.scicos.org, www.scicoslab.org
+    @author Daniele Alessandrelli, RetisLab, Pisa
+    @date 2009
 */
 
 /*
@@ -58,44 +58,45 @@
 /******************************************************************************/
 /*                              Global variables                              */
 /******************************************************************************/
-volatile unsigned long int UDP_flex_port = 9760;		// FLEX SERVER PORT NUMBER
-volatile unsigned long int UDP_pc_port = 9761;			// PC SERVER PORT NUMBER
-volatile unsigned char UDP_is_initialized = 0;			// udp initialization flag
-NODE_INFO UDP_remote;
 UDP_buffer UDP_rx_buffer;
 UDP_buffer UDP_tx_buffer;
-BYTE scicosUDP_rx_buffer[UDP_PKG_LEN];					// buffer for UDP reception
-BYTE scicosUDP_tx_buffer[UDP_PKG_LEN];					// buffer for UDP transmission
+volatile int UDP_num_rx_channels = 0; /* 0 == disabled */
+volatile int UDP_num_tx_channels = 0; /* 0 == disabled */
+volatile UDP_message tx_msg[EE_UDP_BUF_SIZE];
+volatile UDP_message rx_msg[EE_UDP_BUF_SIZE];
 
-unsigned long int MY_DEFAULT_IP_ADDR_BYTE1;	// #define MY_DEFAULT_IP_ADDR_BYTE1        (192ul)
-unsigned long int MY_DEFAULT_IP_ADDR_BYTE2;	// #define MY_DEFAULT_IP_ADDR_BYTE2        (168ul)
-unsigned long int MY_DEFAULT_IP_ADDR_BYTE3; 	// #define MY_DEFAULT_IP_ADDR_BYTE3        (0ul)
-unsigned long int MY_DEFAULT_IP_ADDR_BYTE4; 	// #define MY_DEFAULT_IP_ADDR_BYTE4        (2ul)
+volatile unsigned long int UDP_flex_port;        /* FLEX UDP socket port */
+volatile unsigned long int UDP_pc_port;            /* PC UDP socket port */
+NODE_INFO UDP_remote;                            /* PC IP address */
 
-unsigned long int MY_DEFAULT_MASK_BYTE1;		// #define MY_DEFAULT_MASK_BYTE1           (255ul)
-unsigned long int MY_DEFAULT_MASK_BYTE2;		// #define MY_DEFAULT_MASK_BYTE2           (255ul)
-unsigned long int MY_DEFAULT_MASK_BYTE3; 		// #define MY_DEFAULT_MASK_BYTE3           (255ul)
-unsigned long int MY_DEFAULT_MASK_BYTE4;		// #define MY_DEFAULT_MASK_BYTE4           (0ul)
+unsigned long int MY_DEFAULT_IP_ADDR_BYTE1;
+unsigned long int MY_DEFAULT_IP_ADDR_BYTE2;
+unsigned long int MY_DEFAULT_IP_ADDR_BYTE3;
+unsigned long int MY_DEFAULT_IP_ADDR_BYTE4;
 
-unsigned long int MY_DEFAULT_GATE_BYTE1; 		// #define MY_DEFAULT_GATE_BYTE1           (192ul)
-unsigned long int MY_DEFAULT_GATE_BYTE2;		// #define MY_DEFAULT_GATE_BYTE2           (168ul)
-unsigned long int MY_DEFAULT_GATE_BYTE3;		// #define MY_DEFAULT_GATE_BYTE3           (0ul)
-unsigned long int MY_DEFAULT_GATE_BYTE4;		// #define MY_DEFAULT_GATE_BYTE4           (1ul)
+unsigned long int MY_DEFAULT_MASK_BYTE1;
+unsigned long int MY_DEFAULT_MASK_BYTE2;
+unsigned long int MY_DEFAULT_MASK_BYTE3;
+unsigned long int MY_DEFAULT_MASK_BYTE4;
 
-unsigned long int MY_DEFAULT_PRIMARY_DNS_BYTE1;	// #define MY_DEFAULT_PRIMARY_DNS_BYTE1	(192ul)
-unsigned long int MY_DEFAULT_PRIMARY_DNS_BYTE2;	// #define MY_DEFAULT_PRIMARY_DNS_BYTE2	(168ul)
-unsigned long int MY_DEFAULT_PRIMARY_DNS_BYTE3;	// #define MY_DEFAULT_PRIMARY_DNS_BYTE3	(0ul)
-unsigned long int MY_DEFAULT_PRIMARY_DNS_BYTE4;	// #define MY_DEFAULT_PRIMARY_DNS_BYTE4	(1ul)
+unsigned long int MY_DEFAULT_GATE_BYTE1;
+unsigned long int MY_DEFAULT_GATE_BYTE2;
+unsigned long int MY_DEFAULT_GATE_BYTE3;
+unsigned long int MY_DEFAULT_GATE_BYTE4;
 
-unsigned long int MY_DEFAULT_SECONDARY_DNS_BYTE1;	// #define MY_DEFAULT_SECONDARY_DNS_BYTE1	(0ul)
-unsigned long int MY_DEFAULT_SECONDARY_DNS_BYTE2;	// #define MY_DEFAULT_SECONDARY_DNS_BYTE2	(0ul)
-unsigned long int MY_DEFAULT_SECONDARY_DNS_BYTE3;	// #define MY_DEFAULT_SECONDARY_DNS_BYTE3	(0ul)
-unsigned long int MY_DEFAULT_SECONDARY_DNS_BYTE4;	// #define MY_DEFAULT_SECONDARY_DNS_BYTE4	(0ul)
+unsigned long int MY_DEFAULT_PRIMARY_DNS_BYTE1;
+unsigned long int MY_DEFAULT_PRIMARY_DNS_BYTE2;
+unsigned long int MY_DEFAULT_PRIMARY_DNS_BYTE3;
+unsigned long int MY_DEFAULT_PRIMARY_DNS_BYTE4;
 
-// Declare AppConfig structure and some other supporting stack variables
+unsigned long int MY_DEFAULT_SECONDARY_DNS_BYTE1;
+unsigned long int MY_DEFAULT_SECONDARY_DNS_BYTE2;
+unsigned long int MY_DEFAULT_SECONDARY_DNS_BYTE3;
+unsigned long int MY_DEFAULT_SECONDARY_DNS_BYTE4;
+
+/* Declare AppConfig structure and some other supporting stack variables */
 APP_CONFIG AppConfig;
 static UDP_SOCKET MySocket;
-//static void (*rx_callback)(BYTE *, unsigned int len);
 static ROM BYTE SerializedMACAddress[6] = { MY_DEFAULT_MAC_BYTE1,
                 MY_DEFAULT_MAC_BYTE2, MY_DEFAULT_MAC_BYTE3,
                 MY_DEFAULT_MAC_BYTE4, MY_DEFAULT_MAC_BYTE5,
@@ -147,7 +148,7 @@ static void InitAppConfig(void)
                         | MY_DEFAULT_SECONDARY_DNS_BYTE3 << 16ul
                         | MY_DEFAULT_SECONDARY_DNS_BYTE4 << 24ul;
 
-        // Load the default NetBIOS Host Name
+        /*  Load the default NetBIOS Host Name*/
         memcpypgm2ram(AppConfig.NetBIOSName, (ROM void*)MY_DEFAULT_HOST_NAME, 16);
         FormatNetBIOSName(AppConfig.NetBIOSName);
 }
@@ -158,159 +159,163 @@ static void InitAppConfig(void)
 
 void UDP_Buffer_Init(UDP_buffer *buf, int dim)
 {
-  	buf->g = 0;
-  	buf->p = 0;
-  	buf->counter = 0;
-  	return;
+    buf->g = 0;
+    buf->p = 0;
+    buf->counter = 0;
 }
 
 void UDP_Buffer_Close(UDP_buffer *buf)
 {
-	buf->g = 0;
-  	buf->p = 0;
-  	buf->counter = 0;
-	return;
+    buf->g = 0;
+    buf->p = 0;
+    buf->counter = 0;
 }
 
-int UDP_Buffer_Putmsg(UDP_buffer *buf, BYTE* msg, int dim)
+int UDP_Buffer_Putmsg(UDP_buffer *buf, BYTE* msg)
 {
-	int i=0;
-	EE_hal_disableIRQ();
-	if((buf->g == buf->p) && (buf->counter==dim)) //if( ((buf->p+1) % dim) == buf->g )	
-	{
-		EE_hal_enableIRQ();	
-		return 0; 	
-	}
-	for(i=0;i<UDP_PKG_LEN;i++)	
-    	buf->data[buf->p][i] = msg[i];
+    int i=0;
+    int dim  = sizeof(buf->data)/sizeof(UDP_message);
+    
+    EE_hal_disableIRQ();
+    if((buf->g == buf->p) && (buf->counter==dim)) //if( ((buf->p+1) % dim) == buf->g )    
+    {
+        EE_hal_enableIRQ();    
+        return 0;     
+    }
+    for(i=0; i<sizeof(UDP_message); i++)    
+        buf->data[buf->p][i] = msg[i];
     buf->p++;
     //if (buf->p == BUFFSIZE) buf->p = 0;
     buf->p = (buf->p % dim);
     buf->counter++;
-    EE_hal_enableIRQ();	
+    EE_hal_enableIRQ();    
     return 1;
 }
 
-int UDP_Buffer_Getmsg(UDP_buffer *buf, BYTE* msg, int dim)
+int UDP_Buffer_Getmsg(UDP_buffer *buf, BYTE* msg)
 {
-	int i=0;
-	EE_hal_disableIRQ();
-	if((buf->g == buf->p) && (buf->counter==0)) //if(buf->g == buf->p)
-	{
-		EE_hal_enableIRQ();	
-		return 0; 	
-	}
-  	for(i=0;i<UDP_PKG_LEN;i++)	
-    	msg[i] = buf->data[buf->g][i];
-  	buf->g++;
-  	//if (buf->g == BUFFSIZE) buf->g = 0;
-  	buf->g = (buf->g % dim);
-  	buf->counter--;
-  	EE_hal_enableIRQ();	
-  	return 1;
+    int i=0;
+    int dim  = sizeof(buf->data)/sizeof(UDP_message);
+    
+    EE_hal_disableIRQ();
+    if((buf->g == buf->p) && (buf->counter==0)) //if(buf->g == buf->p)
+    {
+        EE_hal_enableIRQ();    
+        return 0;     
+    }
+    for(i=0; i<sizeof(UDP_message); i++)    
+      msg[i] = buf->data[buf->g][i];
+    buf->g++;
+    //if (buf->g == BUFFSIZE) buf->g = 0;
+    buf->g = (buf->g % dim);
+    buf->counter--;
+    EE_hal_enableIRQ();    
+    return 1;
 }
 
 int UDP_Buffer_Isempty(UDP_buffer *buf)
 {
-	int retvalue;
-	EE_hal_disableIRQ();
-	if((buf->g == buf->p) && (buf->counter==0))
-		retvalue = 1;
-	else
-		retvalue = 0; 	
-	EE_hal_enableIRQ();	
-	return retvalue;
+    int retvalue;
+    EE_hal_disableIRQ();
+    if((buf->g == buf->p) && (buf->counter==0))
+        retvalue = 1;
+    else
+        retvalue = 0;     
+    EE_hal_enableIRQ();    
+    return retvalue;
 }
 
-int UDP_Buffer_Isfull(UDP_buffer *buf, int dim)
+int UDP_Buffer_Isfull(UDP_buffer *buf)
 {
-	int retvalue;
-	EE_hal_disableIRQ();
-	//if( ((buf->p+1) % dim) == buf->g )	
-	//	retvalue = 1;
-	if((buf->g == buf->p) && (buf->counter==dim))
-		retvalue = 1;
-	else
-		retvalue = 0;
-	EE_hal_enableIRQ();		
-	return retvalue;
+    int retvalue;
+    int dim  = sizeof(buf->data)/sizeof(UDP_message);
+    
+    EE_hal_disableIRQ();
+    //if( ((buf->p+1) % dim) == buf->g )    
+    //    retvalue = 1;
+    if((buf->g == buf->p) && (buf->counter==dim))
+        retvalue = 1;
+    else
+        retvalue = 0;
+    EE_hal_enableIRQ();        
+    return retvalue;
 }
+
+int UDP_Buffer_count(UDP_buffer *buf)
+{
+    int retvalue;
+    EE_hal_disableIRQ();
+    retvalue = buf->counter;
+    EE_hal_enableIRQ();    
+    return retvalue;
+}
+
+
+
+
+
 
 /******************************************************************************/
-/*                          UDP TASKs			                              */
+/*                          UDP TASKs                                          */
 /******************************************************************************/
 
 TASK(UDP_TASK)
 {
-	WORD wMaxGet;						//! Variable to hold available RX data count
-    BYTE msg[UDP_PKG_LEN];
-    static int arp_flag=0;
+    //static int arp_flag=0;
     
-    // Initialize stack-related hardware components that may be
-    // required by the UART configuration routines
+    /* Initialize stack-related hardware components that may be
+       required by the UART configuration routines */
     TickInit();
-    // Initialize Stack and application related NV variables into AppConfig.
+    /* Initialize Stack and application related NV variables into AppConfig. */
     InitAppConfig();
-    // Initialize core stack layers (MAC, ARP, TCP, UDP)
+    /* Initialize core stack layers (MAC, ARP, TCP, UDP) */
     StackInit();
-    	
-	// Open the UDP socket
+    
     MySocket = UDPOpen(UDP_flex_port, &UDP_remote, UDP_pc_port);
     if (MySocket == INVALID_UDP_SOCKET)
-    	return;
+        return;
         
-    // Main: ActivateTask(UDP_TASK)    
-	for(;;)
-	{
+    for(;;) {
         StackTask();
         
         /***  Reception ***/
-        // Figure out how many bytes have been received and set the currently active socket
-        wMaxGet = UDPIsGetReady(MySocket); // Get TCP RX FIFO byte count
-        if(wMaxGet == UDP_PKG_LEN) 
-		{
-                // Copy data from internal buffer to application buffer
-                UDPGetArray(msg, wMaxGet);
-                // ...metti il pacchetto nella coda rx... (la coda rx è una sezione critica!!!)
-                UDP_Buffer_Putmsg(&UDP_rx_buffer,msg,UDP_BUF_SIZE);
+        /* This section implements a "polling" approach for reception */
+        /* The next version should be based on ISR */
+        if( UDP_num_rx_channels) {
+            /* Figure out how many bytes have been received and set the currently active socket. */
+            WORD wMaxGet = UDPIsGetReady(MySocket); /* Get UDP RX FIFO byte count */
+            if(wMaxGet == EE_UDP_BUF_SIZE) {
+                /* Copy data from internal buffer to application buffer */
+                UDPGetArray((BYTE*)rx_msg, EE_UDP_BUF_SIZE);
+                int i;
+                for(i=0; i<UDP_num_rx_channels; i++)
+                    UDP_Buffer_Putmsg(&UDP_rx_buffer, (BYTE*)rx_msg + i*sizeof(UDP_message) );
+            }
         }
         
-        /***  Arp resolving ***/
-        if(arp_flag==0)
-        {
-        	if(ARPIsResolved(&UDP_remote.IPAddr,&UDP_remote.MACAddr))
-        	    arp_flag=2;
-        	else
-        	{
-        		ARPResolve(&UDP_remote.IPAddr);
-        		arp_flag=1;
-        	}
-        }
-        else
-        	if(arp_flag==1)
-			{
-        		if(ARPIsResolved(&UDP_remote.IPAddr,&UDP_remote.MACAddr))
-        			arp_flag=2;
-        		else
-        			ARPResolve(&UDP_remote.IPAddr);
-			}
-			
         /***  Transmission ***/
-		if((arp_flag==2)&&(!UDP_Buffer_Isempty(&UDP_tx_buffer)))
-		{	
-				//ReleaseResource(MTCPIP_STACK_TASK_MUTEX);
-            	if(UDPIsPutReady(MySocket)>=UDP_PKG_LEN)
-            	{
-					// estraggo un pacchetto dalla coda e lo spedisco...
-					UDP_Buffer_Getmsg(&UDP_tx_buffer, msg, UDP_BUF_SIZE);
-                	UDPPutArray(msg, UDP_PKG_LEN);	// Load UDP segment in the internal buffer
-                	// UDPFlush must be called before returning to the main stack
-                	// loop. There is no auto transmit for UDP segments.
-                	UDPSocketInfo[MySocket].localPort = UDP_flex_port;
-                	UDPSocketInfo[MySocket].remotePort = UDP_pc_port;
-					UDPSocketInfo[MySocket].remoteNode = UDP_remote;
-                	UDPFlush();	// Transmit UDP segment
-				}
-        }    		
-	}	
+        if( UDP_num_tx_channels && 
+           (ARPIsResolved(&UDP_remote.IPAddr,&UDP_remote.MACAddr)==TRUE) && 
+           (!UDP_Buffer_Isempty(&UDP_tx_buffer)) ) {
+            //ReleaseResource(MTCPIP_STACK_TASK_MUTEX);
+            if( UDPIsPutReady(MySocket) >= EE_UDP_BUF_SIZE ) {
+                int i;
+                for(i=0; i<UDP_num_tx_channels; i++)
+                    UDP_Buffer_Getmsg(&UDP_tx_buffer, (BYTE*)tx_msg + i*sizeof(UDP_message) );
+                /* Load UDP segment in the internal buffer. */
+                /* Data size is: sizeof(UDP_message)*UDP_num_tx_channels */
+                /* UDP packet size is EE_UDP_BUF_SIZE for compatibility with other boards. */
+                UDPPutArray((BYTE*)tx_msg, EE_UDP_BUF_SIZE); 
+                /* Set the destination socket */
+                UDPSocketInfo[MySocket].localPort = UDP_flex_port;
+                UDPSocketInfo[MySocket].remotePort = UDP_pc_port;
+                UDPSocketInfo[MySocket].remoteNode = UDP_remote;
+                /* UDPFlush must be called before returning to the main stack loop. */
+                /* There is no auto transmit for UDP segments. */
+                UDPFlush();    /* Tx signal to start transmission of the UDP segment. */
+            }
+        }
+        else if( UDP_num_tx_channels && ARPIsResolved(&UDP_remote.IPAddr,&UDP_remote.MACAddr)==FALSE )
+            ARPResolve(&UDP_remote.IPAddr);
+    }
 }

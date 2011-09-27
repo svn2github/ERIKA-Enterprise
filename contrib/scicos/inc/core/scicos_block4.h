@@ -444,6 +444,11 @@ extern int s_cmp();
 #define GetIparPtrs(blk) (blk->ipar)
 
 /**
+   \brief Get value from the integer parameters register
+*/
+#define GetIparVal(blk, ind) (blk->ipar[ind-1])
+
+/**
    \brief Get number of real parameters.
 */
 #define GetNrpar(blk) (blk->nrpar)

@@ -53,34 +53,28 @@
 #include <string.h>
 
 static void init(scicos_block *block)
-{	
-	can_debug_print_string("can_tx init start!\n");
-	/* to do: add eCAN2 support */
-	ecan_tx_canid	=	1;	//block->ipar[2];
-	if( ecan_tx_canid==1 ) 
-	{
-		ecan1_tx_id 	= 	block->ipar[0];							/* packet id */
-		ecan1_tx_len 	= 	block->ipar[1];	  						/* number of floats */
-		can_debug_print_val("can_tx block->ipar[0]: %d\n", block->ipar[0]);
-		can_debug_print_val("can_tx block->ipar[1]: %d\n", block->ipar[1]);
-		if(ecan1_tx_len & 0x01)
-			ecan1_tx_div = ecan1_tx_len/2 + 1;	/* number of packets, odd case */
-		else
-			ecan1_tx_div = ecan1_tx_len/2;		/* number of packets, even case */
-		ecan1_tx_initialized = 1;
-	}
-	can_debug_print_string("can_tx init end!\n");
+{
+	/* 
+        to do: add eCAN2 support 
+        ecan_tx_canid = block->ipar[2];
+    */
+	EESCI_can_debug_print_string("can_tx init start!\n");
+	EESCI_can_debug_print_val("can_tx block->ipar[0]: %d\n", block->ipar[0]);
+	EESCI_can_debug_print_val("can_tx block->ipar[1]: %d\n", block->ipar[1]);
+	EESCI_can_debug_print_string("can_tx init end!\n");
 }
 
 static void inout(scicos_block *block)
 {
+	EE_UINT32 id =  block->ipar[0]; /* packet id */
+	EE_UINT8 len =  block->ipar[1]; /* number of floats */
+	EESCI_can_debug_print_string("can_tx inout start!\n");
 	int i;
-	can_debug_print_string("can_tx inout start!\n");
-	for(i = 0; i < ecan1_tx_len; i++)
-		memcpy(scicosCAN1_tx_buffer + i*SIZE_OF_ELEMENT, &u(i,0), SIZE_OF_ELEMENT);
-	for(i = 0; i < ecan1_tx_div; i++)
-		CAN_Buffer_Putmsg(&CAN1_tx_buffer, scicosCAN1_tx_buffer + i*CAN_PKT_LEN, CAN_BUF_SIZE);
-	can_debug_print_string("can_tx inout end!\n");
+	for(i = 0; i < len; i++) { 
+		memcpy(scicosCAN1_tx_buffer + i*sizeof(float), &u(i,0), sizeof(float));
+	}
+	EESCI_eCAN1_send(scicosCAN1_tx_buffer, CAN_DATA_LEN, id);
+	EESCI_can_debug_print_string("can_tx inout end!\n");
 }
 
 static void end(scicos_block *block)

@@ -39,12 +39,11 @@
  * ###*E*### */
 
 /** 
-	@file flex_can_in.c
+	@file flex_can_out.c
 	@brief www.scicos.org, www.scicoslab.org
 	@author Dario Di Stefano, Evidence Srl
 	@date 2006-2010
 */
-
 
 #include <machine.h>
 #include <scicos_block4.h>
@@ -54,61 +53,33 @@
 #include <string.h>
 
 static void init(scicos_block *block)
-{
-    /* 
-        to do: add eCAN2 support 
-        ecan_rx_canid	=	block->ipar[2];
-    */
-	EESCI_can_debug_print_string("can_rx init start!\n");
-	EESCI_can_debug_print_val("can_rx block->ipar[0]: %d\n", block->ipar[0]);
-	EESCI_can_debug_print_val("can_rx block->ipar[1]: %d\n", block->ipar[1]);
-	EESCI_can_debug_print_string("can_rx init end!\n");
+{	
+	EESCI_can_debug_print_string("can_config init start!\n");
+	
+	/* to do: add standard id support...(add a flag for the choice) */
+	
+	if(ee_ecan1_initialized==0) {
+		CAN1_rx_blocks[0].id = block->ipar[0];
+		CAN1_rx_blocks[1].id = block->ipar[1];
+		CAN1_rx_blocks[2].id = block->ipar[2];
+		CAN1_rx_blocks[3].id = block->ipar[3];
+		CAN1_rx_blocks[4].id = block->ipar[4];
+		EESCI_eCAN1_init();
+		ee_ecan1_initialized = 1;
+	}
+	
+	EESCI_can_debug_print_string("can_config init end!\n");
 }
-
-
-extern volatile int eesci_can_debug_rx_service_flag;
 
 static void inout(scicos_block *block)
 {
-	static int eesci_can_debug_counter=0;
-
-	EE_UINT32 id  = block->ipar[0]; /* packet id */
-	EE_UINT8 len = block->ipar[1]; /* number of floats */
-	//EE_UINT8 div = (len & 0x01)? len/2 + 1: len/2; /* number of CAN packets for this id (max 1 packet is supported) */
-	int ind = EESCI_eCAN1_get_rx_block(id);
-	if(ind >= 0)
-	{
-		int i;
-		CAN1_rx_block can1b = CAN1_rx_blocks[ind];
-		
-		EE_hal_disableIRQ();
-		for(i=0; i<CAN_DATA_LEN; i++)
-			scicosCAN1_rx_buffer[i] = can1b.rx_ecan1message.data[i];
-		EE_hal_enableIRQ();
-		
-		/* Received data is saved for testing */
-		if( (eesci_can_debug_counter < CAN_DEBUG_TEST_NUM) && (eesci_can_debug_rx_service_flag!=0) ) {
-				EESCI_can_debug_insert_val(scicosCAN1_rx_buffer, eesci_can_debug_counter);
-				eesci_can_debug_counter++;
-				eesci_can_debug_rx_service_flag = 0;
-		}
-		else if(eesci_can_debug_counter >= CAN_DEBUG_TEST_NUM) {
-			/* This function is blocking in TEST mode */
-			EESCI_can_debug_print_results();
-		}
-		
-		for(i=0; i<len; i++)
-			memcpy(&y(i,0), scicosCAN1_rx_buffer + i*sizeof(float), sizeof(float)); /* move data to output */
-	}
-	else
-		EESCI_can_debug_print_string("can_rx inout error: ind<0!\n");
 }
 
 static void end(scicos_block *block)
 {
 }
 
-void flex_can_in(scicos_block *block,int flag)
+void flex_can_config(scicos_block *block,int flag)
 {
  switch (flag) {
     case OutputUpdate:  /* set output */
@@ -127,7 +98,5 @@ void flex_can_in(scicos_block *block,int flag)
       break;
   }
 }
-
-
 
 
