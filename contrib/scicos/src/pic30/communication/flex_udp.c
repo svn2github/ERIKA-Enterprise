@@ -62,11 +62,11 @@ UDP_buffer UDP_rx_buffer;
 UDP_buffer UDP_tx_buffer;
 volatile int UDP_num_rx_channels = 0; /* 0 == disabled */
 volatile int UDP_num_tx_channels = 0; /* 0 == disabled */
-volatile UDP_message tx_msg[EE_UDP_BUF_SIZE];
-volatile UDP_message rx_msg[EE_UDP_BUF_SIZE];
+volatile UDP_message tx_msg[EESCI_UDP_BUFFER_LENGTH];
+volatile UDP_message rx_msg[EESCI_UDP_BUFFER_LENGTH];
 
 volatile unsigned long int UDP_flex_port;        /* FLEX UDP socket port */
-volatile unsigned long int UDP_pc_port;            /* PC UDP socket port */
+volatile unsigned long int UDP_pc_port;          /* PC UDP socket port */
 NODE_INFO UDP_remote;                            /* PC IP address */
 
 unsigned long int MY_DEFAULT_IP_ADDR_BYTE1;
@@ -261,8 +261,6 @@ int UDP_Buffer_count(UDP_buffer *buf)
 
 TASK(UDP_TASK)
 {
-    //static int arp_flag=0;
-    
     /* Initialize stack-related hardware components that may be
        required by the UART configuration routines */
     TickInit();
