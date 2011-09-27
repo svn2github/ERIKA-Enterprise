@@ -128,6 +128,8 @@ extern int _ebss;
 extern int _SDA_BASE_;
 extern int _SDA2_BASE_;
 extern int _sstack, _estack;
+extern int isram_base;
+extern int isram_len;
 #endif
 
 

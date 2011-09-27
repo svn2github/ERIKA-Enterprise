@@ -243,18 +243,17 @@ cpu_setup:
 	text_section(.boot)
 
 
-#define RAM_BASE	0x40000000
-#define RAM_LEN		0x00040000
 
 	/* CW-FUNC-DEFINITION: void sram_setup(void) */
 	.global	sram_setup
 	.type	sram_setup, @function
 sram_setup:
 #ifndef __E200ZX_EXECUTE_FROM_RAM__
-	addis	r8, 0, RAM_BASE@ha
-	addi	r8, r8, RAM_BASE@l
-	addis	r9, 0, (RAM_LEN / 16)@ha
-	addi	r9, r9, (RAM_LEN / 16)@l
+	addis	r8, 0, isram_base@ha
+	addi	r8, r8, isram_base@l
+	addis	r9, 0, isram_len@ha
+	addi	r9, r9, isram_len@l
+	srawi	r9, r9, (0x4)
 	mtctr	r9
 	li	r31, 0
 	li	r30, 0
