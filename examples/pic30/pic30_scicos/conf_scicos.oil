@@ -114,19 +114,6 @@ CPU mySystem {
 #endif // __USE_AMAZING__
 		};
 	};
-
-#ifdef __USE_CAN1__
-	TASK CAN1_TASK {
-		PRIORITY = 2;
-		STACK = SHARED;
-		SCHEDULE = FULL;
-	};
-	
-	ALARM AlarmCan {
-		COUNTER = "sciCounter";
-		ACTION = ACTIVATETASK { TASK = "CAN1_TASK"; };
-	};
-#endif	
 	
 #ifdef __USE_LCD__
  	TASK rt_LCD {

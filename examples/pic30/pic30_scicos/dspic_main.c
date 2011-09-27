@@ -329,10 +329,6 @@ int main(void)
 	ActivateTask(UDP_TASK);
 #endif
 
-#ifdef __USE_CAN1__
-	SetRelAlarm(AlarmCan, 5, 100);
-#endif
-
 	/* Forever loop: background activities (if any) should go here */
 	for (;;);
 	
