@@ -715,7 +715,7 @@
 
 	  <Parm Name="ADDRESS_LOCK" Text="Lock Address" Type="Define" Value="undef"/>
 	  <Parm Name="DISABLE" Text="Disable Component" Type="Define" Value="undef" isuse="true"/>
-  </Parms>
+  <Parm Name="ADDRESS_LOCK" Text="Lock Address" Type="Define" Value="def"/><Parm Name="ADDRESS_LOCK" Text="Lock Address" Type="Define" Value="def"/><Parm Name="ADDRESS_LOCK" Text="Lock Address" Type="Define" Value="undef"/><Parm Name="ADDRESS_LOCK" Text="Lock Address" Type="Define" Value="undef"/></Parms>
   <GUIS Columns="4">
 	  <GUI Name="InstanceName" Span="1" Widget="Text"/>
 	  <GUI Columns="4" Name="MEMORY_PORT_SETTINGS" Span="4" Text="Data Port Settings" Widget="Group"/>
@@ -1041,40 +1041,51 @@
  		<GUI Name="BASE_ADDRESS" Span="1" Widget="Text"/>
 		<GUI Name="SPEED" Span="1" Widget="Combo"/>
 	</GUIS>
-</Component><Component Access="" Custom="true" DRCError="false" Help="" Name="camera" PlatformScheme="Slave Side - Round Robin" Text="camera" Type="IO" Ver="v.0.999">
-  
-  <ClockPort Name="CLK_I" UPort="w_clk"/>
-  <ResetPort Name="RST_I" UPort="w_reset"/>
-  
+</Component><Component Access="" Custom="true" DRCError="false" Help="" Name="mico32_camera" PlatformScheme="Slave Side - Round Robin" Text="mico32_camera" Type="IO" Ver="v.1.001">
+  <MasterSlavePorts>
+    <SlavePort ACK="slv_ACK_O" ADR="slv_ADR_I" BTE="" CTI="" CYC="slv_CYC_I" DAT1="slv_DAT_I" DAT2="slv_DAT_O" ERR="slv_ERR_O" LOCK="" Name="slave_port" Prefix="slv" RTY="slv_RTY_O" SEL="slv_SEL_I" STB="slv_STB_I" WE="slv_WE_I"><Connections><Connection InstanceName="LM32" MasterPort="D" Priority="0"/></Connections></SlavePort>
+    <MasterPort ACK="mst_ACK_I" ADR="mst_ADR_O" BTE="mst_BTE_O" CTI="mst_CTI_O" CYC="mst_CYC_O" DAT1="mst_DAT_O" DAT2="" ERR="mst_ERR_I" LOCK="mst_LOCK_O" Name="master_port" Prefix="mst" Priority="0" RTY="mst_RTY_I" SEL="mst_SEL_O" STB="mst_STB_O" WE="mst_WE_O"/>
+  </MasterSlavePorts>
+  <ClockPort Name="CLK_I" UPort="CLK_I"/>
+  <ResetPort Name="RST_I" UPort="RST_I"/>
+  <Interrupt Active="High" IRQ="3" Name="INTR_O" UPort="INTR_O"/>
   <ExternalPorts>
-    <ExternalPort Name="cam_y" Type="input" UPort="y" Width="8"/>
-    <ExternalPort Name="cam_pclk" Type="input" UPort="pclk" Width="1"/>
-    <ExternalPort Name="cam_hsync" Type="input" UPort="hsync" Width="1"/>
-    <ExternalPort Name="cam_vsync" Type="input" UPort="vsync" Width="1"/>
-    <ExternalPort Name="cam_mclk" Type="output" UPort="mclk" Width="1"/>
-    <ExternalPort Name="cam_rst" Type="output" UPort="rst" Width="1"/>
-    <ExternalPort Name="cam_enb" Type="output" UPort="enb" Width="1"/>
+    <ExternalPort Name="cam_y" Type="input" UPort="cam_y" Width="8"/>
+    <ExternalPort Name="cam_pclk" Type="input" UPort="cam_pclk" Width="1"/>
+    <ExternalPort Name="cam_hsync" Type="input" UPort="cam_hsync" Width="1"/>
+    <ExternalPort Name="cam_vsync" Type="input" UPort="cam_vsync" Width="1"/>
+    <ExternalPort Name="cam_mclk" Type="output" UPort="cam_mclk" Width="1"/>
+    <ExternalPort Name="cam_rst" Type="output" UPort="cam_rst" Width="1"/>
+    <ExternalPort Name="cam_enb" Type="output" UPort="cam_enb" Width="1"/>
   </ExternalPorts>
   <Files>
-    <TopFile Name="camera_component"/>
-    <File Name="../components/camera/rtl/verilog/camera.v"/>
-    <File Name="../components/camera/rtl/verilog/comp_master.v"/>
-    <File Name="../components/camera/rtl/verilog/comp_camera_interface.v"/>
-    <File Name="../components/camera/rtl/verilog/comp_slave.v"/>
-    <File Name="../components/camera/rtl/verilog/mico_camera.v"/>
-    <File Name="../components/camera/rtl/verilog/data_build.v"/>
-    <File Name="../components/camera/rtl/verilog/comp_fsm.v"/>
-    <File Name="../components/camera/rtl/verilog/fifo_comp.v"/>
+    <TopFile Name="camera"/>
+    <File Name="../components/mico32_camera/rtl/verilog/mico32_camera.v"/>
+    <File Name="../components/mico32_camera/rtl/verilog/camera.v"/>
+    <File Name="../components/mico32_camera/rtl/verilog/mico_camera_wp.v"/>
   </Files>
   <DeviceDriver InitRoutine="" StructName="">
-    <DDInclude Include="MicoCamera.h"/>
     <DDstruct>
+      <DDSElem MemberName="lookupReg" MemberType="DeviceReg_t" Type="uninitialized" Value=""/>
     </DDstruct>
     <Software>
-      <SoftFile Name="MicoCamera.h" Type="Structure Header"/>
+      <SoftFile Name="MicoCamera.h" Type="Header"/>
     </Software>
   </DeviceDriver>
-  
+  <Parms>
+    <Parm Name="InstanceName" Text="Instance Name" Type="string" Value="camera" isiname="true"/>
+    <Parm Name="BASE_ADDRESS" Text="Base Address" Type="Integer" Value="0x80005800" isba="true"/>
+    <Parm Enable="true" Name="SIZE" Text="Address Width" Type="Integer" Value="128" issize="true"/>
+    <Parm Name="ADDRESS_LOCK" Text="Lock Address" Type="Define" Value="undef"/>
+    <Parm Name="DISABLE" Text="Disable" Type="Define" Value="undef" isuse="true"/>
+    <Parm Name="CAMERA_FIFO_DEPTH_2" Text="Fifo depth 2" Type="Define" Value="undef"/>
+    <Parm Name="CAMERA_FIFO_DEPTH_4" Text="Fifo depth 4" Type="Define" Value="undef"/>
+    <Parm Name="CAMERA_FIFO_DEPTH_8" Text="Fifo depth 8" Type="Define" Value="undef"/>
+    <Parm Name="CAMERA_FIFO_DEPTH_16" Text="Fifo depth 16" Type="Define" Value="def"/>
+    <Parm Name="CAMERA_FIFO_DEPTH_32" Text="Fifo depth 32" Type="Define" Value="undef"/>
+    <Parm Name="CAMERA_FIFO_DEPTH_64" Text="Fifo depth 64" Type="Define" Value="undef"/>
+    <Parm Name="CAMERA_FIFO_DEPTH_128" Text="Fifo depth 128" Type="Define" Value="undef"/>
+  </Parms>
   <GUIS Columns="2">
     <GUI Name="InstanceName" Span="1" Widget="Text"/>
     <GUI Name="BASE_ADDRESS" Span="1" Widget="Text"/>
@@ -1087,7 +1098,7 @@
     <GUI Name="CAMERA_FIFO_DEPTH_64" Span="2" Widget="Radio"/>
     <GUI Name="CAMERA_FIFO_DEPTH_128" Span="2" Widget="Radio"/>
   </GUIS>
-<MasterSlavePorts><SlavePort ACK="slv_ack" ADR="slv_addr" BTE="" CTI="" CYC="slv_cyc" DAT1="slv_datai" DAT2="slv_datao" ERR="slv_err" LOCK="" Name="slave_port" Prefix="slv" RTY="slv_rty" SEL="slv_sel" STB="slv_stb" WE="slv_we"><Connections><Connection InstanceName="LM32" MasterPort="D" Priority="0"/></Connections></SlavePort><MasterPort ACK="mst_ack" ADR="mst_addr" BTE="mst_bte" CTI="mst_cti" CYC="mst_cyc" DAT1="mst_data" DAT2="" ERR="mst_err" LOCK="mst_lock" Name="master_port" Prefix="mst" Priority="0" RTY="mst_rty" SEL="mst_sel" STB="mst_stb" WE="mst_we"/></MasterSlavePorts><Interrupt Active="High" IRQ="3" Name="INTR_O" UPort="w_irq"/><Parms><Parm Name="InstanceName" Text="Instance Name" Type="string" Value="camera" isiname="true"/><Parm Name="BASE_ADDRESS" Text="Base Address" Type="Integer" Value="0x80005800" isba="true"/><Parm Enable="true" Name="SIZE" Text="Address Width" Type="Integer" Value="128" issize="true"/><Parm Name="ADDRESS_LOCK" Text="Lock Address" Type="Define" Value="undef"/><Parm Name="DISABLE" Text="Disable" Type="Define" Value="undef" isuse="true"/><Parm Name="CAMERA_FIFO_DEPTH_2" Text="Fifo depth 2" Type="Define" Value="undef"/><Parm Name="CAMERA_FIFO_DEPTH_4" Text="Fifo depth 4" Type="Define" Value="undef"/><Parm Name="CAMERA_FIFO_DEPTH_8" Text="Fifo depth 8" Type="Define" Value="undef"/><Parm Name="CAMERA_FIFO_DEPTH_16" Text="Fifo depth 16" Type="Define" Value="def"/><Parm Name="CAMERA_FIFO_DEPTH_32" Text="Fifo depth 32" Type="Define" Value="undef"/><Parm Name="CAMERA_FIFO_DEPTH_64" Text="Fifo depth 64" Type="Define" Value="undef"/><Parm Name="CAMERA_FIFO_DEPTH_128" Text="Fifo depth 128" Type="Define" Value="undef"/></Parms></Component><Component Help="gpio\document\gpio.htm" Name="gpio" PlatformScheme="Slave Side - Round Robin" Text="GPIO" Type="IO" Ver="3.1">
+</Component><Component Help="gpio\document\gpio.htm" Name="gpio" PlatformScheme="Slave Side - Round Robin" Text="GPIO" Type="IO" Ver="3.1">
 	<MasterSlavePorts>
 		<SlavePort Name="GP I/O Port" Prefix="GPIO" Type="DATA,DMAR,DMAW"><Connections><Connection InstanceName="LM32" MasterPort="D" Priority="0"/></Connections></SlavePort>
 	</MasterSlavePorts>
