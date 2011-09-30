@@ -62,8 +62,8 @@ CPU test_application {
 		
 		MCU_DATA = LATTICE_PLATFORM {
 			MODEL = LIBRARY {
-				PLATFORM_LIB_PATH = "../lib_camera_50";
-				PLATFORM_NAME = "camera_50";
+				PLATFORM_LIB_PATH = "../../platforms/camera_debug_50/library";
+				PLATFORM_NAME = "camera_debug_50";
 				PLATFORM_BLD_CFG = "Release";
 			};
 			
