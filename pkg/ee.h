@@ -281,8 +281,8 @@ extern "C" {
 #endif
 
  /* MICO32 */
-#ifdef __XP2_CAMERA_BOARD__
-#include "board/fpga_camera_mico32/inc/ee_board.h"
+#ifdef __FPG_EYE__
+#include "board/fpg-eye/inc/ee_board.h"
 #endif
 
 #ifdef __LATTICE_XP2_EV_BOARD__

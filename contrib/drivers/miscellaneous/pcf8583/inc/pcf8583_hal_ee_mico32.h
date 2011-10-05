@@ -52,12 +52,12 @@
 #include "pcf8583_compiler.h"
 #include "mcu/mico32/inc/ee_i2c.h"
 
-#ifdef __XP2_CAMERA_BOARD__
-#include "board/fpga_camera_mico32/inc/ee_internal.h"
-#include "board/fpga_camera_mico32/inc/ee_rtc_pcf8583.h"
+#ifdef __FPG_EYE__
+#include "board/fpg-eye/inc/ee_internal.h"
+#include "board/fpg-eye/inc/ee_rtc_pcf8583.h"
 #else	/* NO board */
 #error "MRF24J40_HAL: Board specification is required!"
-#endif	//#ifdef __XP2_CAMERA_BOARD__
+#endif	//#ifdef __FPG_EYE__
 
 #ifndef __USE_I2C__
 #error "PCF8583 HAL EE : The I2C module from MCU is required!"

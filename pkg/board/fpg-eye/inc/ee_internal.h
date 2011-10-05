@@ -39,7 +39,7 @@
  * ###*E*### */
  
 /** 
-	@file board\fpga_camera_mico32\inc\ee_internal.h
+	@file board\fpg-eye\inc\ee_internal.h
 	@brief Internal header file. 
 	@author Dario Di Stefano
 	@date 2010

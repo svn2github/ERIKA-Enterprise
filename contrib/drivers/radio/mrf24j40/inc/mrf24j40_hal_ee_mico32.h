@@ -55,17 +55,17 @@
 
 #include "cpu/mico32/inc/ee_internal.h"
 #include "mcu/mico32/inc/ee_internal.h"
-#include "board/fpga_camera_mico32/inc/ee_internal.h"
+#include "board/fpg-eye/inc/ee_internal.h"
 #include <cpu/mico32/inc/ee_irq.h>
 #include "mcu/mico32/inc/ee_spi.h"
 #include "mcu/mico32/inc/ee_gpio.h"
 #include "MicoUtils.h"
 
-#ifdef __XP2_CAMERA_BOARD__
-#include "board/fpga_camera_mico32/inc/ee_zigbee_mrf24j40.h"
+#ifdef __FPG_EYE__
+#include "board/fpg-eye/inc/ee_zigbee_mrf24j40.h"
 #else	/* NO board */
 #error "MRF24J40_HAL: No board selected!"
-#endif	//#ifdef __XP2_CAMERA_BOARD__
+#endif	//#ifdef __FPG_EYE__
 
 #ifndef __USE_SPI__
 #error "MRF24J40 HAL EE : The SPI module is required!"

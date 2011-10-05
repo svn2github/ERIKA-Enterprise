@@ -74,8 +74,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 /* Other used libraries: */
 #include <mcu/mico32/inc/ee_i2c.h>
 /* Include board dependent header file */
-#ifdef __XP2_CAMERA_BOARD__
-#include <board/fpga_camera_mico32/inc/ee_camera_hv7131gp.h>
+#ifdef __FPG_EYE__
+#include <board/fpg-eye/inc/ee_camera_hv7131gp.h>
 #endif
 
 

@@ -41,10 +41,10 @@
 ifeq ($(call iseeopt, __LM32__), yes)
 
 # *** FPG-EYE board ***
-ifeq ($(call iseeopt, __XP2_CAMERA_BOARD__), yes)
+ifeq ($(call iseeopt, __FPG_EYE__), yes)
 ifneq ($(call iseeopt, __USE_CUSTOM_CRT0__), yes)
-CRT0_SRCS := pkg/board/fpga_camera_mico32/src/crt0ram.S
+CRT0_SRCS := pkg/board/fpg-eye/src/crt0ram.S
 endif #__USE_CUSTOM_CRT0__
-endif #__XP2_CAMERA_BOARD__
+endif #__FPG_EYE__
 
 endif #__LM32__

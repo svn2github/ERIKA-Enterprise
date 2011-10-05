@@ -82,7 +82,7 @@ CPU test_application {
 			};
 		};
 
-		BOARD_DATA = XP2_CAMERA_BOARD {
+		BOARD_DATA = FPG_EYE {
 			OPTIONS = CAMERA;
 			OPTIONS = RS232;
 			OPTIONS = ETHERNET;

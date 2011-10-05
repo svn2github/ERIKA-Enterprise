@@ -6,7 +6,7 @@
   Description: HV7131gp camera driver source file (MICO32 CAMERA board dependent). 
 */
 
-#include "board/fpga_camera_mico32/inc/ee_camera_hv7131gp.h"
+#include "board/fpg-eye/inc/ee_camera_hv7131gp.h"
 
 // board dependent features
 // void

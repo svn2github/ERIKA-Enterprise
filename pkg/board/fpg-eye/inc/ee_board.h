@@ -48,22 +48,22 @@
 #ifndef __INCLUDE_FPGA_CAMERA_BOARD_H__
 #define __INCLUDE_FPGA_CAMERA_BOARD_H__
 
-#ifdef __XP2_CAMERA_BOARD__
+#ifdef __FPG_EYE__
 
 #ifdef __USE_ETHERNET_ENC28J60__
-#include "board/fpga_camera_mico32/inc/ee_ethernet_enc28j60.h"
+#include "board/fpg-eye/inc/ee_ethernet_enc28j60.h"
 #endif 
 
 #ifdef __USE_ZIGBEE_MRF24J40__
-#include "board/fpga_camera_mico32/inc/ee_zigbee_mrf24j40.h"
+#include "board/fpg-eye/inc/ee_zigbee_mrf24j40.h"
 #endif 
 
 #ifdef __USE_LIGHTSENSOR_TSL2561T__
-#include "board/fpga_camera_mico32/inc/ee_lightsensor_tsl2561t.h"
+#include "board/fpg-eye/inc/ee_lightsensor_tsl2561t.h"
 #endif 
 
 #ifdef __USE_RTC_PCF8583__
-#include "board/fpga_camera_mico32/inc/ee_rtc_pcf8583.h"
+#include "board/fpg-eye/inc/ee_rtc_pcf8583.h"
 #endif 
 
 #if defined(__USE_SST25VF016B__) || defined(__USE_SST25LF0X0A__)

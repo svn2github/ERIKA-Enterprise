@@ -58,12 +58,12 @@
 #include "mcu/mico32/inc/ee_i2c.h"
 #include "MicoUtils.h"
 
-#ifdef __XP2_CAMERA_BOARD__
-#include "board/fpga_camera_mico32/inc/ee_internal.h"
-#include "board/fpga_camera_mico32/inc/ee_lightsensor_tsl2561t.h"
+#ifdef __FPG_EYE__
+#include "board/fpg-eye/inc/ee_internal.h"
+#include "board/fpg-eye/inc/ee_lightsensor_tsl2561t.h"
 #else	/* NO board */
 #error "TSL2561T_HAL: Board specification is required!"
-#endif	//#ifdef __XP2_CAMERA_BOARD__
+#endif	//#ifdef __FPG_EYE__
 
 #ifndef __USE_I2C__
 #error "TSL2561T HAL EE : The I2C module from MCU is required!"

@@ -82,7 +82,7 @@ CPU test_application {
 		LIB = ENABLE {
 		    NAME = "CAL";
 		};
-		BOARD_DATA = XP2_CAMERA_BOARD {
+		BOARD_DATA = FPG-EYE {
 			OPTIONS = RS232;
 			OPTIONS = SWITCHES;
 			OPTIONS = LEDS;

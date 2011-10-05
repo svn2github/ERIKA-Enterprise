@@ -60,13 +60,13 @@ CPU test_application {
 		
 		MCU_DATA = LATTICE_PLATFORM {
    			MODEL = LIBRARY {
-   				PLATFORM_LIB_PATH = "$(EEBASE)/examples/mico32/demo/sw_projects/test_sram_lib";
-				PLATFORM_NAME = "test_base";
+   				PLATFORM_LIB_PATH = "../../platforms/camera_debug_50/library";
+				PLATFORM_NAME = "camera_debug_50";
 				PLATFORM_BLD_CFG = "Release"; // Optional, default is ""
    			};
   		};
   		
-  		BOARD_DATA = XP2_CAMERA_BOARD {
+  		BOARD_DATA = FPG_EYE {
 			OPTIONS = RS232;
 			OPTIONS = LEDS;
 		};

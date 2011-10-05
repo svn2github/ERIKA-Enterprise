@@ -16,8 +16,8 @@ CPU test_application {
 		
 		MCU_DATA = LATTICE_PLATFORM {
    			MODEL = LIBRARY {
-				PLATFORM_LIB_PATH = "../test_sram_lib";
-				PLATFORM_NAME = "test_base";
+				PLATFORM_LIB_PATH = "../../platforms/camera_debug_50/library";
+				PLATFORM_NAME = "camera_debug_50";
 				PLATFORM_BLD_CFG = "Release"; // Optional, default is ""
    			};
    			
@@ -28,7 +28,7 @@ CPU test_application {
 
 		EE_OPT = "USE_POWER_BOARD";
 
-		BOARD_DATA = XP2_CAMERA_BOARD {
+		BOARD_DATA = FPG-EYE {
 			OPTIONS = TIMER;			
 			OPTIONS = TIMER_IRQ_SUPPORT;			
 			OPTIONS = RS232;							

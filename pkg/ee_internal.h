@@ -250,7 +250,7 @@ extern "C" {
 
  /* MICO32 */
 #ifdef __LM32__
-#include "board/fpga_camera_mico32/inc/ee_internal.h"
+#include "board/fpg-eye/inc/ee_internal.h"
 #endif
 
 #ifdef __TC1796__

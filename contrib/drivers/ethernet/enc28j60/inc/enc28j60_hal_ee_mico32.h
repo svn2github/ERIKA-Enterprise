@@ -55,9 +55,9 @@
 #include "mcu/mico32/inc/ee_spi.h"
 #include "mcu/mico32/inc/ee_gpio.h"
 /* Board header */
-#ifdef __XP2_CAMERA_BOARD__
-#include "board/fpga_camera_mico32/inc/ee_internal.h"
-#include "board/fpga_camera_mico32/inc/ee_ethernet_enc28j60.h"
+#ifdef __FPG_EYE__
+#include "board/fpg-eye/inc/ee_internal.h"
+#include "board/fpg-eye/inc/ee_ethernet_enc28j60.h"
 #else	/* NO board */
 #error "ENC28J60_HAL: No board selected!"
 #endif	
