@@ -46,7 +46,7 @@
 
 #include "ee_internal.h"
 
-#ifdef __MONO__
+
 void EE_cortex_m0_change_context(EE_TID tid)
 {
 
@@ -55,4 +55,3 @@ void EE_cortex_m0_change_context(EE_TID tid)
     } while (EE_std_need_context_change(tid));
 
 }
-#endif

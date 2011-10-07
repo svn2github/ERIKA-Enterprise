@@ -91,8 +91,8 @@ LIBDEP += $(LDDEPS)
 
 
 #Includes from IAR
-INTERNAL_IARINCLUDEDIR := -I$(call native_path,$(IAR_INCLUDE_DIR))
-ALLINCPATH += $(INTERNAL_IARINCLUDEDIR)
+INTERNAL_IARINCLUDEDIR := $(call native_path,$(IAR_INCLUDE_DIR))
+INCLUDE_PATH += $(INTERNAL_IARINCLUDEDIR)
 
 ifneq ($(ONLY_LIBS), TRUE)
 TARGET := c_m0.hex c_m0.out
@@ -149,15 +149,13 @@ ALLOBJS = $(LIBEEOBJS) $(LIBOBJS) $(OBJS)
 
 OBJDIRS=$(sort $(dir $(ALLOBJS))) fromiar
 
-INCLUDE_PATH += $(APPBASE) $(PKGBASE)
-
+INCLUDE_PATH += $(PKGBASE) $(APPBASE) $(OUTBASE)
 
 vpath %.c $(EE_VPATH) $(APPBASE)
 vpath %.s $(EE_VPATH) $(APPBASE)
 
 ## Compute common variables ##
-
-COMPUTED_ALLINCPATH := $(ALLINCPATH)
+COMPUTED_INCLUDE_PATH := $(addprefix -I, $(INCLUDE_PATH))
 COMPUTED_OPT_LINK := $(OPT_LINK)
 COMPUTED_OPT_ASM := $(OPT_ASM)
 COMPUTED_OPT_CC := $(OPT_CC)
@@ -209,12 +207,12 @@ c_m0.$(IAR_EXTENSION): $(OBJS) $(LINKDEP) $(LIBDEP)
 # produce the object file from assembly code in a single step
 #$(OBJDIR)/%.o: %.s fromiar/$(CRT0_SRCS)
 $(OBJDIR)/%.o: %.s
-	$(VERBOSE_PRINTASM) $(EE_ASM) $(COMPUTED_OPT_ASM) $(COMPUTED_ALLINCPATH) $(DEFS_ASM) $(SOURCEFILE) -o $(TARGETFILE)
+	$(VERBOSE_PRINTASM) $(EE_ASM) $(COMPUTED_OPT_ASM) $(COMPUTED_INCLUDE_PATH) $(DEFS_ASM) $(SOURCEFILE) -o $(TARGETFILE)
 #$(QUIET) $(call make-depend, $<, $@, $(subst .o,.d,$@))
 
 # produce the object file from C code in a single step
 $(OBJDIR)/%.o: %.c
-	$(VERBOSE_PRINTCC) $(EE_CC) $(COMPUTED_OPT_CC) $(COMPUTED_ALLINCPATH) $(DEFS_CC) $(DEPENDENCY_OPT) $(SOURCEFILE) -o $(TARGETFILE)
+	$(VERBOSE_PRINTCC) $(EE_CC) $(COMPUTED_OPT_CC) $(COMPUTED_INCLUDE_PATH) $(DEFS_CC) $(DEPENDENCY_OPT) $(SOURCEFILE) -o $(TARGETFILE)
 	$(QUIET) $(call make-depend, $<, $@, $(subst .o,.d,$@))
 
 

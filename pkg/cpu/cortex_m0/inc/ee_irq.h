@@ -63,91 +63,75 @@ extern struct EE_TOS EE_cortex_m0_IRQ_tos;
 
 #endif /* end __ALLOW_NESTED_IRQ__*/
 
-#define ISR1(f)								\
-void ISR1_ ## f(void);							\
-void f(void)								\
-{									\						\
-	ISR1_ ## f();							\
-}									\
-void ISR1_ ## f(void)
- 
-
-#define ISR2(f)								\
-void ISR2_ ## f(void);							\
-void f(void)								\
-{									\
-	EE_ISR2_prestub();						\
-	ISR2_ ## f();							\
-	EE_ISR2_poststub();						\
-}									\
-void ISR2_ ## f(void)
-
-
 #if defined(__MULTI__) && defined(__IRQ_STACK_NEEDED__)
 
 EE_ADDR EE_cortex_m0_tmp_tos;
 /*save the stack pointer*/ /*Load new stack pointer*/
-#define EE_cortex_m0_change_stack() if(EE_IRQ_nesting_level==1){\
+#define EE_cortex_m0_change_stack() do {\
+	if(EE_IRQ_nesting_level==1) {\
 	EE_cortex_m0_change_IRQ_stack();\
-}
+	}\
+} while(0)
 
 #define EE_cortex_m0_stack_back()\
 	EE_cortex_m0_change_IRQ_stack_back()
 	
 #else
 
-#define EE_cortex_m0_change_stack()
-#define EE_cortex_m0_stack_back()
+#define EE_cortex_m0_change_stack() ((void)0)
+#define EE_cortex_m0_stack_back() ((void)0)
 
 #endif /*end __MULTI__ && __IRQ_STACK_NEEDED__*/
  
-static inline void EE_ISR2_prestub(void)
-{
-	EE_cortex_m0_disableIRQ();
-	
-	EE_increment_IRQ_nesting_level();
+#define EE_ISR2_prestub(void)\
+do {\
+	EE_cortex_m0_disableIRQ();\
+	EE_increment_IRQ_nesting_level();\
+	EE_cortex_m0_change_stack();\
+	EE_std_enableIRQ_nested();\
+}\
+while(0)\
 
-	/*Change the stack*/
-	EE_cortex_m0_change_stack();
-	
-	//EE_cortex_m0_enableIRQ();
-	/* Enable IRQ if nesting  is allowed */
-	EE_std_enableIRQ_nested();
+extern EE_UREG	EE_cortex_m0_change_context_active;
 
-}
+#define EE_ISR2_poststub(void)\
+do{\
+	EE_std_disableIRQ_nested();\
+	EE_decrement_IRQ_nesting_level();\
+	if (!EE_is_inside_ISR_call()) {\
+		EE_cortex_m0_stack_back();\
+		if (! EE_cortex_m0_change_context_active) {\
+			EE_IRQ_end_instance();\
+			if (EE_std_need_context_change(EE_std_endcycle_next_tid)) {\
+				EE_cortex_m0_IRQ_active_change_context();\
+				EE_cortex_m0_change_context_active = 1;\
+			}\
+		}\
+	}\
+	EE_cortex_m0_enableIRQ();\
+}\
+while(0)\
 
-EE_UREG	EE_cortex_m0_change_context_active;
 
-static inline void EE_ISR2_poststub(void)
-{
-	/* Disabled IRQ if nesting is allowed.
-	Note: if nesting is not allowed, the IRQs are already disabled
-	*/
-	EE_std_disableIRQ_nested();
 
-	EE_decrement_IRQ_nesting_level();
+#define ISR1(f)			\
+void ISR1_ ## f(void);	\
+void f(void)			\
+{						\
+	ISR1_ ## f();		\
+}						\
+void ISR1_ ## f(void)
 
-	/*
-	* If the ISR at the lowest level is ended, restore the stack pointer
-	* and active the change context procedure if needed ( call the scheduler).
-	*/
-	if (!EE_is_inside_ISR_call()) {
-		/*Reload the preceding stack*/
-		EE_cortex_m0_stack_back();
-		
-		//EE_std_after_IRQ_schedule();
-		if (! EE_cortex_m0_change_context_active) {
-			EE_IRQ_end_instance();
-			if (EE_std_need_context_change(EE_std_endcycle_next_tid)) {
-				//EE_std_change_context(EE_std_endcycle_next_tid);
-				EE_cortex_m0_IRQ_active_change_context();
-				EE_cortex_m0_change_context_active = 1;
-			}
-		}
-	}
-		
-	EE_cortex_m0_enableIRQ();
-	
-}
+
+#define ISR2(f)			\
+void ISR2_ ## f(void);	\
+void f(void)			\
+{						\
+	EE_ISR2_prestub();	\
+	ISR2_ ## f();		\
+	EE_ISR2_poststub();	\
+}						\
+void ISR2_ ## f(void)
+
 
 #endif /* __INCLUDE_CORTEX_M0_IRQ_H__ */

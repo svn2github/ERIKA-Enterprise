@@ -53,13 +53,10 @@
 	PUBLIC	EE_switch_context ; void EE_switch_context(void)
 	PUBLIC  PendSV_Handler    ; void PendSV_Handler(void);
 	PUBLIC	EE_set_switch_context_pri ; void EE_set_switch_context_pri(void)
+	PUBLIC	EE_cortex_m0_change_context_active
 	
-	EXTERN  EE_cortex_m0_change_context
-	EXTERN	EE_std_endcycle_next_tid
-	EXTERN	EE_cortex_m0_change_context_active
-
-    SECTION    CODE:CODE(2)
-    THUMB
+	EXTERN	EE_cortex_m0_change_context
+	EXTERN	EE_std_endcycle_next_tid	
 
 ;*******************************************************************************
 ;                              EQUATES
@@ -72,6 +69,19 @@ NVIC_PENDSVSET  EQU     0x10000000      ; Value to trigger PendSV exception
 NVIC_PENDSVCLEAR  EQU   0x10000000      ; Value to trigger PendSV exception
 
 EPSR_T_BIT_VAL	EQU 0x01000000			; Value to set the T-bit in EPSR (always Thumb mode)
+
+;*******************************************************************************
+;                              DATA SECTION
+;*******************************************************************************	
+	SECTION	CHN_C_DATA : DATA:NOROOT (2)
+EE_cortex_m0_change_context_active: DS32 1	; EE_UREG EE_cortex_m0_change_context_active;
+
+;*******************************************************************************
+;                              CODE SECTION
+;*******************************************************************************	
+    SECTION    CODE : CODE(2)
+    THUMB
+
 
 ; void EE_set_switch_context_pri(void)
 EE_set_switch_context_pri:

@@ -64,7 +64,7 @@ BINDIR_BINUTILS := $(BINDIR_IAR)
 BINDIR_DEP      := $(BINDIR_IAR)
 
 
-OPT_INCLUDE = $(foreach d,$(INCLUDE_PATH),$(addprefix -I,$(call native_path,$d)))
+#OPT_INCLUDE = $(foreach d,$(INCLUDE_PATH),$(addprefix -I,$(call native_path,$d)))
 
 
 ifndef EE_ASM
@@ -110,7 +110,7 @@ ifndef EE_ROM_EXPORT_SYM
 EE_ROM_EXPORT_SYM:=$(BINDIR_BINUTILS)/isymexport.exe
 endif
 
-# ALLINCPATH is a colon separated list of directories for source file searching
+# INCLUDE_PATH is a colon separated list of directories for source file searching
 # -I = adds directories to the source file search path (for both gcc and gas)
 # we consider the ee pkg directory and the application dir
 # we also consider the current directory because the app could be compiled
@@ -119,12 +119,12 @@ endif
 # avoid cygpath insering a trailing backslash
 # INTERNAL_PKGBASEDIR is used to avoid multiple calls to cygpath
 
-INTERNAL_PKGBASEDIR := -I"$(shell cygpath -w $(PKGBASE))\\." -I"$(shell cygpath -w $(APPBASE))\\." -I.
-ALLINCPATH += $(INTERNAL_PKGBASEDIR)
+INTERNAL_PKGBASEDIR := "$(shell cygpath -w $(PKGBASE))\\." "$(shell cygpath -w $(APPBASE))\\." .
+INCLUDE_PATH += $(INTERNAL_PKGBASEDIR)
 
 ifeq ($(call iseeopt, __USE_CMSI_IAR__), yes)
 IAR_CMSIS_INCPATH := $(IAR_CCDIR)/CMSIS/Include
-ALLINCPATH += -I$(call native_path,$(IAR_CMSIS_INCPATH))
+INCLUDE_PATH += $(call native_path,$(IAR_CMSIS_INCPATH))
 endif
 
 ## OPT_CC are the options for iar compiler invocation

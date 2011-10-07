@@ -1,7 +1,7 @@
 /* ###*B*###
  * ERIKA Enterprise - a tiny RTOS for small microcontrollers
  *
- * Copyright (C) 2002-2009  Evidence Srl
+ * Copyright (C) 2002-2011  Evidence Srl
  *
  * This file is part of ERIKA Enterprise.
  *
@@ -44,7 +44,7 @@
  */
 
 /* This file MUST contain only #defines, because it is also included
-   by the .S files */
+   by the .s files */
 
 /*
  * Compiler dependent interface
@@ -65,14 +65,15 @@
 #define __DECLARE_INLINE__ static inline
 #endif
 
-//#define __ALWAYS_INLINE__ __attribute__((always_inline))
-#define __ALWAYS_INLINE__  //__intrinsic
+/*#define __ALWAYS_INLINE__ __attribute__((always_inline))*/
+#define __ALWAYS_INLINE__  /* __attribute__ does not exist under IAR*/
+							/* we should use #pragma inline=forced */
 #define __ASM __asm
 
 #define NORETURN __noreturn
 
-//#define EE_COMPILER_ALIGN(a) __attribute__((aligned(a)))
-//#define EE_COMPILER_SECTION(s) __attribute__((section(s)))
+/*#define EE_COMPILER_ALIGN(a) __attribute__((aligned(a))) */
+/*#define EE_COMPILER_SECTION(s) __attribute__((section(s)))*/
 
 
 #endif /* __INCLUDE_CPU_COMMON_EE_COMPILER_IAR__ */

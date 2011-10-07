@@ -81,7 +81,7 @@ EE_hal_terminate_savestk:
 	PUSH {R4-R7} ; Store R8, R9, R10, R11 onto stack
 	PUSH {LR} ; Store link register (return address)
 	
-	;Start the thread bosy
+	;Start the thread body
 	BX	R1
 
 	;The task terminated with a return: do the usual cleanup
