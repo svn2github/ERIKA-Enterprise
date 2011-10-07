@@ -67,7 +67,8 @@ extern struct EE_TOS EE_cortex_m0_IRQ_tos;
 
 EE_ADDR EE_cortex_m0_tmp_tos;
 /*save the stack pointer*/ /*Load new stack pointer*/
-#define EE_cortex_m0_change_stack() do {\
+#define EE_cortex_m0_change_stack()\
+do {\
 	if(EE_IRQ_nesting_level==1) {\
 	EE_cortex_m0_change_IRQ_stack();\
 	}\
@@ -88,19 +89,27 @@ do {\
 	EE_cortex_m0_disableIRQ();\
 	EE_increment_IRQ_nesting_level();\
 	EE_cortex_m0_change_stack();\
+	/* Enable IRQ if nesting  is allowed */\
 	EE_std_enableIRQ_nested();\
 }\
-while(0)\
+while(0)
 
 extern EE_UREG	EE_cortex_m0_change_context_active;
 
 #define EE_ISR2_poststub(void)\
 do{\
+/* Disabled IRQ if nesting is allowed.\
+ * Note: if nesting is not allowed, the IRQs are already disabled\
+ */\
 	EE_std_disableIRQ_nested();\
 	EE_decrement_IRQ_nesting_level();\
+/*\
+* If the ISR at the lowest level is ended, restore the stack pointer\
+* and active the change context procedure if needed ( call the scheduler).\
+*/\
 	if (!EE_is_inside_ISR_call()) {\
 		EE_cortex_m0_stack_back();\
-		if (! EE_cortex_m0_change_context_active) {\
+		if (!EE_cortex_m0_change_context_active) {\
 			EE_IRQ_end_instance();\
 			if (EE_std_need_context_change(EE_std_endcycle_next_tid)) {\
 				EE_cortex_m0_IRQ_active_change_context();\
@@ -110,7 +119,7 @@ do{\
 	}\
 	EE_cortex_m0_enableIRQ();\
 }\
-while(0)\
+while(0)
 
 
 

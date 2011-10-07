@@ -107,7 +107,7 @@ EE_cortex_m0_change_context:
 	
 	;!!!!!!!!!!!!!!!
 	; At this point the non scratch registers (R4...R11) are pushed into stack,
-	;hence I can use them in the follow
+	; hence I can use them in the following.
 	;!!!!!!!!!!!!!!!!
 	
 	;switch_stacks(tos_index);
