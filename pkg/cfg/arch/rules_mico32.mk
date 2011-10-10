@@ -53,6 +53,11 @@ $(warning Mico32 does not currently support nested interrupts)
 $(warning The IRQ nesting option will be ignored by the HAL)
 endif
 
+# This EEOPT is added as retro compatibility fix for board old name
+ifeq ($(call iseeopt, __XP2_CAMERA_BOARD__), yes)
+EEOPT += __FPG_EYE__
+endif #__XP2_CAMERA_BOARD__
+
 EEOPT += __BIG_ENDIAN__
 
 # Initial definition of target `all' as predefined
