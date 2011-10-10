@@ -62,9 +62,9 @@ CPU test_application {
 		
 		MCU_DATA = LATTICE_PLATFORM {
 			MODEL = LIBRARY {
-				PLATFORM_LIB_PATH = "../../platforms/camera_debug_50/library";
+				PLATFORM_LIB_PATH = "../../platforms/camera_debug_50/library/camera_debug_50";
 				PLATFORM_NAME = "camera_debug_50";
-				PLATFORM_BLD_CFG = "Release";
+				PLATFORM_BLD_CFG = "Debug";
 			};
 			
 			DEVICE = TIMER {

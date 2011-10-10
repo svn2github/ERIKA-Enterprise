@@ -59,7 +59,7 @@ endif
 
 
 RTDRUID_OUTPUT = $(addprefix $(OUTPUT_DIR)/, \
- makefile lattice.mk platform.mk eecfg.h eecfg.c)
+ makefile)
 
 .PHONY: all clean
 

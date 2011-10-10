@@ -102,7 +102,7 @@ void system_timer_callback(void)
 TASK(SEND_TASK)
 {
 	EE_UINT8 msg[MSG_LEN];
-	static int sw = 0;
+	/* static int sw = 0; */
 	int i = 0;
 	
 	for (i = 0; i < MSG_LEN; i++) {
