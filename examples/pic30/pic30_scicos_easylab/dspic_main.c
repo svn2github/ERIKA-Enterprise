@@ -60,13 +60,13 @@ _FWDT(FWDTEN_OFF);
 _FGS(GCP_OFF);
 
 /* Period Ts specified in Scicos top diagram by clock block */
-static double scicos_period;
+static double       scicos_period;
 /* as above, expressed in (int) milliseconds */
-static int    dspic_period;  
+static EE_UINT16    dspic_period;  
 
 /* simple time */
 static double actTime; /* current run time (sec) */
-static int dspic_tick; /* current tick (+1 at each isr) */
+static EE_UINT32    dspic_tick; /* current tick (+1 at each isr) */
 
 extern int    NAME(MODELNAME,_init)(void);
 extern double NAME(MODELNAME,_get_tsamp)(void);
@@ -83,12 +83,12 @@ double get_scicos_period()
     return(scicos_period);
 }
 
-int    get_dspic_period()
+EE_UINT16   get_dspic_period()
 {
     return(dspic_period);
 }
 
-int get_dspic_tick()
+EE_UINT32   get_dspic_tick()
 {
     return(dspic_tick);
 }
@@ -108,18 +108,19 @@ int main(void)
     /* Set timer1 callback to increment counter */
     EE_timer_set_callback(EE_TIMER_1, sciCounter);
 
-    /* reset the counter */
+    /* reset the timer and put tic period at 1 ms */
     EE_timer_soft_init(EE_TIMER_1, 1000U);
     EE_timer_start(EE_TIMER_1);
-
-    NAME(MODELNAME,_init)(); 
     
     /* simulation time */
     actTime = 0.0; dspic_tick = 0; 
 
     /* recover the cycle period Ts */
     scicos_period = NAME(MODELNAME,_get_tsamp)();
-    dspic_period = (int) (1000 * scicos_period);
+    dspic_period = (EE_UINT16) (1000U * scicos_period);
+
+    /* Blocks initialization */
+    NAME(MODELNAME,_init)();
     
     /* Set the isr period */
     SetRelAlarm(AlarmSci, dspic_period, dspic_period);
@@ -127,7 +128,7 @@ int main(void)
     /* Forever loop: background activities (if any) should go here */
     while(1)
     {
-      //** put your code here :-) 
+      /* put your code here :-) */
     }
     
     return 0;
