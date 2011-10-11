@@ -170,13 +170,19 @@ help:
 	@echo 6 - produce an XML output compatible with Hudson
 	@echo "      make xml ARCH=PIC30"
 
+ifdef RTDRUID_ECLIPSE_HOME
+ECLIPSE_HOME = $(RTDRUID_ECLIPSE_HOME)
+BATCH_DIR = $(RTDRUID_ECLIPSE_HOME)/evidence
+else
 ECLIPSE_HOME?="C:\\Evidence\\eclipse"
 BATCH_DIR?=/cygdrive/c/Evidence/eclipse/evidence
+endif
 
-OLD_BATCH_FILES=$(shell if [ -f "$(BATCH_DIR)/template_launcher.bat" ]; \
-then echo "true"; \
-else echo "false"; \
-fi)
+ifneq ($(realpath $(BATCH_DIR)/instantiate_template.sh),)
+OLD_BATCH_FILES = false
+else
+OLD_BATCH_FILES = true
+endif
 
 ifeq ($(OLD_BATCH_FILES), true)
 	BATCH_TEMPLATE=$(BATCH_DIR)/template_launcher.bat
