@@ -91,6 +91,9 @@ BASE_LD_SCRIPT := $(SCRIPT_SUBPATH)rom$(CPU_NUMID)$(CC_LD_SUFFIX)
 T32CMM_SRC := $(SCRIPT_SUBPATH)flash$(CPU_NUMID).cmm
 endif
 
+# T32SYS is the environemnt variable recognized by Trace32
+T32SYS ?= /opt/case/emulator/lauterbach/t32
+
 # The above part is needed for the base makefile for multicore building
 # The part below containes rules for `all' and `clean', and will interfere
 # with the rules that handle the per-cpu building process
@@ -226,8 +229,6 @@ clean:
 ##
 ## Lauterbach targets
 ##
-# T32SYS is the environemnt variable recognized by Trace32
-T32SYS ?= /opt/case/emulator/lauterbach/t32
 T32GENMENU ?= $(T32SYS)/demo/kernel/orti/genmenu
 
 T32TARGETS := t32.cmm
