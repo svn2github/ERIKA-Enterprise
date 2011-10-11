@@ -45,6 +45,17 @@
 
 #include "ee_internal.h"
 
+#if defined(RTDRUID_CONFIGURATOR_NUMBER) \
+ && (RTDRUID_CONFIGURATOR_NUMBER >= RTDRUID_CONFNUM_NO_ORTI_VARS)
+
+/* ORTI variables */
+
+#ifdef __OO_ORTI_ALARMTIME__
+EE_TYPETICK EE_ORTI_alarmtime[EE_MAX_ALARM];
+#endif
+
+#endif /* RTDRUID_CONFIGURATOR_NUMBER */
+
 #ifndef __PRIVATE_COUNTER_TICK__
 void EE_oo_alarm_insert(AlarmType AlarmID, TickType increment)
 {

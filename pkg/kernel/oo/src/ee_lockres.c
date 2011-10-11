@@ -45,6 +45,21 @@
 
 #include "ee_internal.h"
 
+#if defined(RTDRUID_CONFIGURATOR_NUMBER) \
+ && (RTDRUID_CONFIGURATOR_NUMBER >= RTDRUID_CONFNUM_NO_ORTI_VARS)
+
+/* ORTI variables */
+
+#ifdef __OO_ORTI_PRIORITY__
+EE_TYPEPRIO EE_ORTI_resource_oldpriority[EE_MAX_RESOURCE];
+#endif
+
+#ifdef __OO_ORTI_RES_LOCKER_TASK__
+EE_TID EE_ORTI_res_locker[EE_MAX_RESOURCE];
+#endif
+
+#endif /* RTDRUID_CONFIGURATOR_NUMBER */
+
 /* GetResource:
    - lock a resource
    - lock/unlock on the same function level

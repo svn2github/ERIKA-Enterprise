@@ -48,6 +48,7 @@
 
 #include "eecfg.h"
 
+#include "ee_rtdruid_versions.h"
 
 #if defined(__cplusplus)
 extern "C" {

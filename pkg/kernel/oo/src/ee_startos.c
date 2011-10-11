@@ -45,6 +45,25 @@
 
 #include "ee_internal.h"
 
+#if defined(RTDRUID_CONFIGURATOR_NUMBER) \
+ && (RTDRUID_CONFIGURATOR_NUMBER >= RTDRUID_CONFNUM_NO_ORTI_VARS)
+
+/* ORTI variables */
+
+#ifdef __OO_ORTI_LASTERROR__
+StatusType EE_ORTI_lasterror = E_OK;
+#endif
+
+#ifdef __OO_ORTI_SERVICETRACE__
+volatile EE_UINT8 EE_ORTI_servicetrace;
+#endif
+
+#ifdef __OO_ORTI_PRIORITY__
+EE_TYPEPRIO EE_ORTI_th_priority[EE_MAX_TASK];
+#endif
+
+#endif /* RTDRUID_CONFIGURATOR_NUMBER */
+
 /* StartOS
 
   - called to start the operating system in a specific Application

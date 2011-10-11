@@ -519,8 +519,13 @@ extern EE_TYPETICK EE_ORTI_alarmtime[];
 /* This is task that has currently locked the resource. 
    Initvalue: all 0
 */
+#if defined(RTDRUID_CONFIGURATOR_NUMBER) \
+ && (RTDRUID_CONFIGURATOR_NUMBER >= RTDRUID_CONFNUM_NO_ORTI_VARS)
+extern EE_TID EE_ORTI_res_locker[];
+#else
 extern EE_UREG EE_ORTI_res_locker[];
 #endif
+#endif /* __OO_ORTI_RES_LOCKER_TASK__ */
 
 /***************************************************************************
  * Autostart Features inside StartOS()
