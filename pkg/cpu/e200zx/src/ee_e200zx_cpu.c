@@ -47,6 +47,9 @@
 
 EE_STACK_T EE_STACK_ATTRIB EE_e200zx_sys_stack[EE_STACK_WLEN(EE_SYS_STACK_SIZE)];
 
+#ifndef __PPCE200Z0__
+/* e200z0 has no internal timer, so the functions below are not defined */
+
 void EE_e200zx_setup_fixed_intv(EE_UREG bitpos)
 {
 	EE_UREG tcr;
@@ -76,6 +79,8 @@ void EE_e200zx_delay(EE_UINT32 ticks)
 		/* Wait */
 	}
 }
+
+#endif /* ! __PPCE200Z0__ */
 
 
 /*

@@ -285,6 +285,9 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_disableIRQ(void)
 	(void)EE_e200z7_disableIRQ();
 }
 
+#ifndef __PPCE200Z0__
+/* e200z0 has no internal timer, so the functions below are not defined */
+
 /* Enable the fixed-interval interrupt.  bitpos (0-63) is the bit of the time
  * base register that triggers the interrupt; 0 is the most significant bit of
  * the register.  See the Book E manual for details on this interrupt.  */
@@ -301,6 +304,8 @@ void EE_e200z7_stop_decrementer(void);
 
 /* Wait a number of ticks as counted by the CPU time base */
 void EE_e200zx_delay(EE_UINT32 ticks);
+
+#endif /* ! __PPCE200Z0__ */
 
 
 /*************************************************************************
