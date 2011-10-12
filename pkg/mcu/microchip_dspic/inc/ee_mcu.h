@@ -140,7 +140,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_time_init(void)
                * instruction cycle            */
 }
 
-#endif
+#endif /* __PRIVATE_TIME_INIT__ of __PIC30_HAS_TMR8__ */
 
 /*
  * The function gets the current time by concatenating two timer values.
@@ -164,7 +164,7 @@ __INLINE__ EE_TIME __ALWAYS_INLINE__ EE_hal_gettime(void)
   retvalue.lowhi.hi = TMR9;
   return retvalue.time;
 }
-#endif
+#endif /* __PRIVATE_HAL_GETTIME__ of __PIC30_HAS_TMR8__ */
 
 #if defined(__FRSH__)
 
@@ -188,9 +188,105 @@ __INLINE__ void __ALWAYS_INLINE__ EE_frsh_time_init(void)
   _T7IE = 1;           /* Enable interrupt for Timer 6/7 */
 }
 
-#endif
+#endif /* __FRSH__ of __PIC30_HAS_TMR8__ */
 
-#else
+#elif defined(__DSPIC_EDF_TMR23__) && defined(__EDF__)
+
+/* This function initializes the timer T2 and T3 as freerunning.
+   Timer T2 and T3 will be used to get the timing reference for the
+   circular timer in EDF.
+*/
+#ifndef __PRIVATE_TIME_INIT__
+__INLINE__ void __ALWAYS_INLINE__ EE_time_init(void)
+{
+  T2CON = 0;          /* Stops the Timer2 and reset control reg    */
+  T2CONbits.T32 = 1;  /* Set Timer2 in 32bit mode */
+  TMR2  = 0;          /* Clear contents of the timer registers    */
+  TMR3  = 0;
+  PR2   = 0xffff;     /* Load the Period registers wit the value 0xffffffff */
+  PR3   = 0xffff;
+  IFS0bits.T3IF  = 0; /* Clear the Timer3 interrupt status flag    */
+  IEC0bits.T3IE  = 0; /* Clear Timer3 interrupts        */
+  T2CONbits.TON  = 1; /* Start Timer3 with prescaler settings at 1:1
+                       * and clock source set to the internal
+                       * instruction cycle            */
+}
+
+#endif /* __PRIVATE_TIME_INIT__ of __DSPIC_EDF_TMR23__ && __EDF__ */
+
+/*
+ * The function gets the current time by concatenating two timer values.
+ *
+ * Note: we must take care of the correctness of the value in case of
+ * overflow!
+ */
+#ifndef __PRIVATE_HAL_GETTIME__
+__INLINE__ EE_TIME __ALWAYS_INLINE__ EE_hal_gettime(void)
+{
+  union {
+    struct { EE_UREG low, hi; } lowhi;
+    EE_TIME time;
+  } retvalue;
+
+  /* I split the reading to guarantee that in any case TMR2 will be
+     read before TMR3. In this way, the TMR3 hold register will be
+     read correctly! */
+
+  retvalue.lowhi.low = TMR2;
+  retvalue.lowhi.hi = TMR3HLD;
+  return retvalue.time;
+}
+#endif /* __PRIVATE_TIME_INIT__ of __DSPIC_EDF_TMR23__ && __EDF__ */
+
+#elif defined(__DSPIC_EDF_TMR45__) && defined(__EDF__)
+
+/* This function initializes the timer T4 and T5 as freerunning.
+   Timer T4 and T5 will be used to get the timing reference for the
+   circular timer in EDF.
+*/
+#ifndef __PRIVATE_TIME_INIT__
+__INLINE__ void __ALWAYS_INLINE__ EE_time_init(void)
+{
+  T4CON = 0;          /* Stops the Timer4 and reset control reg    */
+  T4CONbits.T32 = 1;  /* Set Timer4 in 32bit mode */
+  TMR4  = 0;          /* Clear contents of the timer registers    */
+  TMR5  = 0;
+  PR4   = 0xffff;     /* Load the Period registers wit the value 0xffffffff */
+  PR5   = 0xffff;
+  IFS1bits.T5IF  = 0; /* Clear the Timer5 interrupt status flag    */
+  IEC1bits.T5IE  = 0; /* Clear Timer5 interrupts        */
+  T4CONbits.TON  = 1; /* Start Timer4 with prescaler settings at 1:1
+                       * and clock source set to the internal
+                       * instruction cycle            */
+}
+
+#endif /* __PRIVATE_TIME_INIT__ of __DSPIC_EDF_TMR45__ && __EDF__ */
+
+/*
+ * The function gets the current time by concatenating two timer values.
+ *
+ * Note: we must take care of the correctness of the value in case of
+ * overflow!
+ */
+#ifndef __PRIVATE_HAL_GETTIME__
+__INLINE__ EE_TIME __ALWAYS_INLINE__ EE_hal_gettime(void)
+{
+  union {
+    struct { EE_UREG low, hi; } lowhi;
+    EE_TIME time;
+  } retvalue;
+
+  /* I split the reading to guarantee that in any case TMR4 will be
+     read before TMR5. In this way, the TMR4 hold register will be
+     read correctly! */
+
+  retvalue.lowhi.low = TMR4;
+  retvalue.lowhi.hi = TMR5HLD;
+  return retvalue.time;
+}
+#endif /* __PRIVATE_TIME_INIT__ of __DSPIC_EDF_TMR45__ && __EDF__ */
+
+#else /* __DSPIC_EDF_TMR45__ && __EDF__ */
 
 /* If you are using EDF with a MCU without TMR8, then put a warning! */
 #ifdef __EDF__
