@@ -92,4 +92,4 @@ __INLINE__ void __ALWAYS_INLINE__ EE_e200z7_call_ISR_new_stack(EE_SREG level,
 /* IRQ handler */
 void EE_e200z7_irq(EE_SREG level);
 
-#endif
+#endif /* __INCLUDE_E200ZX_IRQ_INTERNAL_H__ */

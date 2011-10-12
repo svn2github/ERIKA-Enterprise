@@ -290,20 +290,24 @@ void EE_oo_SuspendOSInterrupts(void);
    the MCU layer, because it depends a lot on the particular
    microcontroller. For this reason, the following is reported as a
    comment.
+
+   Please note that EE_ORTI_get_runningisr2() and EE_ORTI_set_runningisr2() do
+   not produce any code when the macro  __OO_ORTI_RUNNINGISR2__ is not defined,
+   so the example below could be written with no "#ifdef".
 */
 
-#if 0 /* Disabled! */
+#if 0 /* This is just an example! */
 #ifdef __OO_ORTI_RUNNINGISR2__
-#define ISR(t) void t##_ORTI(void); \
-void t(void)                        \
-{                                   \
-  void *temp;                       \
-  temp = EE_ORTI_runningisr2;       \
-  EE_ORTI_runningisr2 = (void *)t;  \
-  t##_ORTI();                       \
-  EE_ORTI_runningisr2 = temp;       \
-}                                   \
-void t##_ORTI(void)
+#define ISR(t) static void t##_ORTI(void);  \
+void t(void)                                \
+{                                           \
+  EE_ORTI_runningisr2_type ortiold          \
+  ortiold = EE_ORTI_get_runningisr2();      \
+  EE_ORTI_set_runningisr2(t);               \
+  t##_ORTI();                               \
+  EE_ORTI_set_runningisr2(ortiold);         \
+}                                           \
+static void t##_ORTI(void)
 
 #else
 #define ISR(t) void t(void)

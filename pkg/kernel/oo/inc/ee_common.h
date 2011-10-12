@@ -504,7 +504,7 @@ extern EE_TYPEPRIO EE_ORTI_resource_oldpriority[];
    generated for the particular ISR handler 
    Initvalue: 0
 */
-extern EE_ADDR EE_ORTI_runningisr2;
+extern volatile EE_ORTI_runningisr2_type EE_ORTI_runningisr2;
 #endif
 
 #ifdef __OO_ORTI_ALARMTIME__

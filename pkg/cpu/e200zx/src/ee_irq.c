@@ -50,15 +50,29 @@
 #include <cpu/common/inc/ee_irqstub.h>
 #include <cpu/e200zx/inc/ee_mcu_regs.h>
 
+#ifdef __FP__
+/* No ORTI support for the FP kernel */
+__INLINE__ EE_ORTI_runningisr2_type EE_ORTI_get_runningisr2(void)
+{
+	return (EE_ORTI_runningisr2_type)0;
+}
+__INLINE__ EE_ORTI_set_runningisr2(EE_ORTI_runningisr2_type isr2)
+{
+}
+#endif /* __FP__ */
 
 void EE_e200z7_irq(EE_SREG level)
 {
 	EE_e200z7_ISR_handler f;
+	EE_ORTI_runningisr2_type ortiold;
 
 	EE_increment_IRQ_nesting_level();
 	f = EE_e200z7_ISR_table[level];
 	if (f) {
+		ortiold = EE_ORTI_get_runningisr2();
+		EE_ORTI_set_runningisr2(f);
 		EE_e200z7_call_ISR_new_stack(level, f, EE_IRQ_nesting_level);
+		EE_ORTI_set_runningisr2(ortiold);
 	}
 
 	/* Pop priority for external interrupts */

@@ -45,10 +45,12 @@
 
 #include "ee_internal.h"
 
+/*
+ * ORTI variables
+ */
+
 #if defined(RTDRUID_CONFIGURATOR_NUMBER) \
  && (RTDRUID_CONFIGURATOR_NUMBER >= RTDRUID_CONFNUM_NO_ORTI_VARS)
-
-/* ORTI variables */
 
 #ifdef __OO_ORTI_LASTERROR__
 StatusType EE_ORTI_lasterror = E_OK;
@@ -63,6 +65,10 @@ EE_TYPEPRIO EE_ORTI_th_priority[EE_MAX_TASK];
 #endif
 
 #endif /* RTDRUID_CONFIGURATOR_NUMBER */
+
+#ifdef __OO_ORTI_RUNNINGISR2__
+volatile EE_ORTI_runningisr2_type EE_ORTI_runningisr2;
+#endif
 
 /* StartOS
 
@@ -88,6 +94,9 @@ void EE_oo_StartOS(AppModeType Mode)
   EE_ORTI_servicetrace = EE_SERVICETRACE_STARTOS+1U;
 #endif
 
+  /* Initialize ORTI variables, so the debugger can see their initial value */
+  EE_ORTI_set_runningisr2(NULL);
+  
 #ifdef __OO_CPU_HAS_STARTOS_ROUTINE__
   /* the CPU initialization can return an error; 0 if all ok */
 #ifdef __OO_EXTENDED_STATUS__

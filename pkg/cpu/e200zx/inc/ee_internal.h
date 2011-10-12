@@ -106,6 +106,32 @@ void EE_hal_terminate_task(EE_TID tid) NORETURN;
 
 #endif /* __OO_BCCx */
 
+/*
+ * ORTI OTM support
+ */
+
+/* Probably, some parts of the OTM code below does not depend on the
+ * architecture.  They should be moved into pkg/oo/inc/ee_internal.h if this
+ * turns out to be the case. */
+
+#define EE_ORTI_OTM_ID_RUNNINGISR2 1
+
+#ifdef __OO_ORTI_USE_OTM__
+void EE_e200zx_send_otm32(EE_UINT8 id, EE_UINT32 data);
+#else /* if __OO_ORTI_USE_OTM__ */
+__INLINE__ void EE_e200zx_send_otm32(EE_UINT8 id, EE_UINT32 data)
+{
+}
+#endif /* else __OO_ORTI_USE_OTM__ */
+
+#ifdef __OO_ORTI_RUNNINGISR2__
+__INLINE__ void EE_ORTI_send_otm_runningisr2(EE_ORTI_runningisr2_type isr2)
+{
+	EE_e200zx_send_otm32(EE_ORTI_OTM_ID_RUNNINGISR2, (EE_UINT32)isr2);
+}
+#endif /* __OO_ORTI_RUNNINGISR2__ */
+
+
 #ifdef __ASM_CONVERTED_TO_C__
 /* Prototypes are included only for Erika source files, but they could be useful
  * also for user C code.  In that case, a further condition should be added. */
