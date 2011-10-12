@@ -66,6 +66,18 @@ void EE_e200zx_stop_fixed_intv(void)
 	EE_e200zx_set_tcr(tcr);
 }
 
+void EE_e200zx_delay(EE_UINT32 ticks)
+{
+	EE_UINT32 start;
+	start = EE_e200zx_get_tbl();
+	/* (EE_e200zx_get_tbl() - start) is always the number of ticks from the
+	 * beginning, even if a wrap-around has occurred. */
+	while (EE_e200zx_get_tbl() - start < ticks) {
+		/* Wait */
+	}
+}
+
+
 /*
  * MMU setup
  *

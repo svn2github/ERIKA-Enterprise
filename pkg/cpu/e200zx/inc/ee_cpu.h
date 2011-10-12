@@ -228,6 +228,13 @@ __asm void EE_e200zx_set_tcr(EE_UREG val)
 !
 	mtspr	tcr, val
 }
+
+__asm EE_UINT32 EE_e200zx_get_tbl(void)
+{
+! "r3"
+	mfspr	r3, tbl
+}
+
 #else /* if __DCC__ */
 __INLINE__ EE_UREG EE_e200zx_get_tcr(void)
 {
@@ -239,6 +246,13 @@ __INLINE__ EE_UREG EE_e200zx_get_tcr(void)
 __INLINE__ void EE_e200zx_set_tcr(EE_UREG val)
 {
 	asm volatile ("mtspr tcr, %0" :: "r"(val) );
+}
+
+__INLINE__ EE_UINT32 EE_e200zx_get_tbl(void)
+{
+	EE_UINT32 tbl;
+	asm volatile ("mfspr %0, tbl" : "=r"(tbl));
+	return tbl;
 }
 #endif /* else __DCC__ */
 
@@ -281,6 +295,9 @@ void EE_e200z7_setup_decrementer(EE_UINT32 value);
 void EE_e200z7_setup_decrementer_oneshot(EE_UINT32 value);
 /* Stop the decrementer from generating interrupts */
 void EE_e200z7_stop_decrementer(void);
+
+/* Wait a number of ticks as counted by the CPU time base */
+void EE_e200zx_delay(EE_UINT32 ticks);
 
 
 /*************************************************************************
