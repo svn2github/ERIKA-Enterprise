@@ -7,7 +7,7 @@
  *
  * ERIKA Enterprise is free software; you can redistribute it
  * and/or modify it under the terms of the GNU General Public License
- * version 2 as published by the Free Software Foundation, 
+ * version 2 as published by the Free Software Foundation,
  * (with a special exception described below).
  *
  * Linking this code statically or dynamically with other modules is
@@ -51,6 +51,43 @@
 extern void EE_IRQ_end_budget(void);
 extern void EE_IRQ_end_recharging(void);
 
+#if defined(__DSPIC_FRSH__) && defined(__FRSH__)
+
+/*
+ * These two interrupts are used in the FRSH implementation to handle the
+ * timer interrupts for budget exaustion and for the recharging.
+ */
+
+/* Budget exaustion */
+ISR2(_T5Interrupt)
+{
+	/* clear the interrupt source */
+	IFS1bits.T5IF = 0;
+	T4CONbits.TON = 0;
+	EE_frsh_IRQ_timer_multiplexer();
+}
+
+
+
+/* This function set the capacity timer to raise in t ticks. */
+void EE_hal_set_budget_timer(EE_STIME t)
+{
+  if (t > 0) {
+    PR4 = t & 0xFFFF;
+    PR5 = t >> 16;
+    TMR4 = 0;
+    TMR5 = 0;
+    IFS1bits.T5IF = 0;
+    T4CONbits.TON = 1; // Start Timer 4/5;
+  } else {
+    // Stop the timer
+    IFS1bits.T5IF = 0;
+    T4CONbits.TON = 0;
+  }
+}
+
+#else /* __DSPIC_FRSH__ && __FRSH__ */
+
 /*
  * These two interrupts are used in the FRSH implementation to handle the
  * timer interrupts for budget exaustion and for the recharging.
@@ -68,8 +105,8 @@ ISR2(_T7Interrupt)
 
 
 /* This function set the capacity timer to raise in t ticks. */
-void EE_hal_set_budget_timer(EE_STIME t) 
-{   
+void EE_hal_set_budget_timer(EE_STIME t)
+{
   if (t > 0) {
     PR6 = t & 0xFFFF;
     PR7 = t >> 16;
@@ -82,4 +119,6 @@ void EE_hal_set_budget_timer(EE_STIME t)
     IFS3bits.T7IF = 0;
     T6CONbits.TON = 0;
   }
-} 
+}
+
+#endif /* else of __DSPIC_FRSH__ && __FRSH__ */

@@ -286,7 +286,68 @@ __INLINE__ EE_TIME __ALWAYS_INLINE__ EE_hal_gettime(void)
 }
 #endif /* __PRIVATE_TIME_INIT__ of __DSPIC_EDF_TMR45__ && __EDF__ */
 
-#else /* __DSPIC_EDF_TMR45__ && __EDF__ */
+#elif defined(__DSPIC_FRSH__) && defined (__FRSH__)
+
+/* This function initializes the timer T2 and T3 as freerunning.
+   Timer T2 and T3 will be used to get the timing reference for the
+   circular timer in EDF.
+*/
+#ifndef __PRIVATE_TIME_INIT__
+__INLINE__ void __ALWAYS_INLINE__ EE_time_init(void)
+{
+  T2CON = 0;          /* Stops the Timer2 and reset control reg    */
+  T2CONbits.T32 = 1;  /* Set Timer2 in 32bit mode */
+  TMR2  = 0;          /* Clear contents of the timer registers    */
+  TMR3  = 0;
+  PR2   = 0xffff;     /* Load the Period registers wit the value 0xffffffff */
+  PR3   = 0xffff;
+  IFS0bits.T3IF  = 0; /* Clear the Timer3 interrupt status flag    */
+  IEC0bits.T3IE  = 0; /* Clear Timer3 interrupts        */
+  T2CONbits.TON  = 1; /* Start Timer3 with prescaler settings at 1:1
+                       * and clock source set to the internal
+                       * instruction cycle            */
+}
+
+#endif /* __PRIVATE_TIME_INIT__ of __DSPIC_FRSH__ && __FRSH__*/
+
+/*
+ * The function gets the current time by concatenating two timer values.
+ *
+ * Note: we must take care of the correctness of the value in case of
+ * overflow!
+ */
+#ifndef __PRIVATE_HAL_GETTIME__
+__INLINE__ EE_TIME __ALWAYS_INLINE__ EE_hal_gettime(void)
+{
+  union {
+    struct { EE_UREG low, hi; } lowhi;
+    EE_TIME time;
+  } retvalue;
+
+  /* I split the reading to guarantee that in any case TMR2 will be
+     read before TMR3. In this way, the TMR3 hold register will be
+     read correctly! */
+
+  retvalue.lowhi.low = TMR2;
+  retvalue.lowhi.hi = TMR3HLD;
+  return retvalue.time;
+}
+#endif /* __PRIVATE_HAL_GETTIME__ of __DSPIC_FRSH__ && __FRSH__*/
+
+__INLINE__ void __ALWAYS_INLINE__ EE_frsh_time_init(void)
+{
+
+  T5CON = 0;          /* Stops the Timer5 and reset control reg */
+  T4CON = 0;          /* Stops the Timer4 and reset control reg */
+  T4CONbits.T32 = 1;  /* Set Timer4 in 32bit mode */
+  TMR4  = 0;          /* Clear contents of the timer registers */
+  TMR5  = 0;
+  IFS1bits.T5IF = 0;  /* Clear the Timer5 interrupt status flag */
+  IEC1bits.T5IE = 1;  /* Enable interrupt for Timer 4/5 */
+
+}
+
+#else /* __DSPIC_FRSH__ && __FRSH__*/
 
 /* If you are using EDF with a MCU without TMR8, then put a warning! */
 #ifdef __EDF__

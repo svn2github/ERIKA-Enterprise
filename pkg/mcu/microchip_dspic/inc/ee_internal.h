@@ -38,11 +38,11 @@
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
 
-/** 
+/**
     @file   ee_internal.h
     @brief  This header contains internal API for drivers.
             The API here collected should not be directly called by users.
-            Right now you can find here some implementation for 
+            Right now you can find here some implementation for
             fresh scheduler (FRSH) and some API for configurable pins.
     @author Errico Guidieri
     @date   2011
@@ -87,7 +87,16 @@ __INLINE__ EE_INT8 EE_conf_dspic_pin_out(EE_UINT8 pin, EE_UINT8 signal);
  * FRSH
  */
 
-#if defined(__FRSH__)
+#if defined(__DSPIC_FRSH__) && defined(__FRSH__)
+/* This function set the capacity timer to raise in t ticks. */
+void EE_hal_set_budget_timer(EE_STIME t);
+
+__INLINE__ void __ALWAYS_INLINE__ EE_hal_stop_budget_timer(void)
+{
+  IFS1bits.T5IF = 0;
+  T4CONbits.TON = 0;
+}
+#elif defined(__FRSH__)
 
 /* This function set the capacity timer to raise in t ticks. */
 void EE_hal_set_budget_timer(EE_STIME t);
