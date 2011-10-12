@@ -176,7 +176,7 @@ __INLINE__ void EE_ORTI_set_runningisr2(EE_ORTI_runningisr2_type isr2)
 
 __INLINE__ EE_ORTI_runningisr2_type EE_ORTI_get_runningisr2(void)
 {
-	return NULL;
+	return (EE_ORTI_runningisr2_type)NULL;
 }
 
 __INLINE__ void EE_ORTI_set_runningisr2(EE_ORTI_runningisr2_type isr2)
