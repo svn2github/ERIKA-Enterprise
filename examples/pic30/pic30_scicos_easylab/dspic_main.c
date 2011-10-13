@@ -105,8 +105,8 @@ int main(void)
     /* Set the system clock frequency to 80 Mhz (means microcontroller instructions frequency 40 MIPS) */
     EE_set_system_clock(80000000UL);
     
-    /* Set timer1 callback to increment counter */
-    EE_timer_set_callback(EE_TIMER_1, sciCounter);
+    /* Tie timer1 to sciCounter each interrupt correspond to a tick */
+    EE_timer_set_counter(EE_TIMER_1, sciCounter);
 
     /* reset the timer and put tic period at 1 ms */
     EE_timer_soft_init(EE_TIMER_1, 1000U);
