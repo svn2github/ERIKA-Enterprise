@@ -50,6 +50,9 @@
 
 #include <ee.h>
 
+float CPU_load_get(void);
+double get_scicos_period();
+
 /*  from ee_board di easylab    */
 /*  EE_EASYLAB_PWM1 : 1   */
 /*  EE_EASYLAB_PWM2 : 2   */  
@@ -74,13 +77,20 @@ static void inout(scicos_block *block)
 {
     /* Get the PWM number [1,2,3,4]     */
     EE_UINT16 pwm_ch = block->ipar[0];
-
-    /* Get duty cycle from Scicos block */
-    float duty = *(float *)block->inptr[0];
-        
+    float duty;
     
     if ((pwm_ch < 1) || (pwm_ch > 4))
         return;
+    
+    if( GetNin(block) == 0 ) {
+        /* Calculate duty form CPU load */
+        duty = CPU_load_get() / get_scicos_period();
+    }
+    else {
+        /* Get duty cycle from Scicos block */
+        duty = *(float *)block->inptr[0];
+    }
+    
     /* Express duty relative to MAX VALUE */
     EE_easylab_pwm_set_duty(pwm_ch, (EE_UINT32)(duty * EE_PWM_DUTY_MAX));
 }

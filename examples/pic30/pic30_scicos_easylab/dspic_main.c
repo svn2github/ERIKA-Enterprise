@@ -68,6 +68,36 @@ static EE_UINT16    dspic_period;
 static double actTime; /* current run time (sec) */
 static EE_UINT32    dspic_tick; /* current tick (+1 at each isr) */
 
+/* CPU load analyzer */
+static float CPU_load = 0.0;
+volatile EE_UINT8 easylab_CPUload_gpout_mask = 0;
+void (*CPU_load_test_gpout_func) (EE_UINT8, float);
+
+static EE_UINT16 start_time_ticks; /* based on tmr1, range [0,40000], initialized over the range */
+static EE_UINT16 start_time_ms;    /* based on sciCounter, not initialized */
+
+void CPU_load_test_start(void) {
+	if( CPU_load_test_gpout_func != NULL )
+		CPU_load_test_gpout_func(easylab_CPUload_gpout_mask, 1.0);
+	start_time_ticks = TMR1;
+	start_time_ms = EE_counter_RAM[sciCounter].value;
+}
+
+void CPU_load_test_end(void) {
+	if( CPU_load_test_gpout_func != NULL )
+		CPU_load_test_gpout_func(easylab_CPUload_gpout_mask, 0.0);
+	EE_UINT16 end_time_ticks = TMR1;
+	EE_UINT16 end_time_ms = EE_counter_RAM[sciCounter].value;
+	float us = (float)(end_time_ticks - start_time_ticks)/40.0;
+	float ms = end_time_ms - start_time_ms;
+	CPU_load = ms/1e3 + us/1e6;
+}
+
+float CPU_load_get(void)
+{
+	return CPU_load;
+}
+
 extern int    NAME(MODELNAME,_init)(void);
 extern double NAME(MODELNAME,_get_tsamp)(void);
 extern int    NAME(MODELNAME,_isr)(double);
@@ -95,9 +125,11 @@ EE_UINT32   get_dspic_tick()
 
 TASK(rt_sci)
 {
+    CPU_load_test_start();
     NAME(MODELNAME,_isr)(actTime);
     actTime += scicos_period;
     dspic_tick++;
+    CPU_load_test_end();
 }
 
 int main(void)

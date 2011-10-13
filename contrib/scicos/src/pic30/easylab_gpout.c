@@ -63,12 +63,24 @@ Pin=7      GPIO7       RB7       3
 Pin=8      GPIO8       RB6       4
 */
 
+void easylab_gpout_update(int pin, float u);
+void easylab_gpout_update_mask(EE_UINT8 mask, float u);
+extern volatile EE_UINT8 easylab_CPUload_gpout_mask; 
+extern void (*CPU_load_test_gpout_func) (EE_UINT8, float);
+
 static void init(scicos_block *block)
 {
     EE_INT16 pin = block->ipar[0];
     
     if ( (pin < 1) || (pin > 8) )
         return;
+    
+    /* CPU load GPOUT mask */
+    if( GetNin(block) == 0 ) {
+        easylab_CPUload_gpout_mask = easylab_CPUload_gpout_mask | (0x01 << (pin-1));
+        CPU_load_test_gpout_func = easylab_gpout_update_mask;
+    }
+
     switch(pin){
         case 1:
             TRISAbits.TRISA3 = 0; /* is an output */
@@ -113,7 +125,52 @@ static void inout(scicos_block *block)
     if ( (pin < 1) || (pin > 8) )
         /* return if outside the allowed range */
         return; 
+
+    if( GetNin(block) != 0 )
+        easylab_gpout_update(pin, u);
+
+}
+
+static void end(scicos_block *block)
+{
+    int pin = block->ipar[0];
     
+    if ( (pin < 1) || (pin > 8) )
+        return;
+
+    easylab_gpout_update(pin, 0.0);
+}
+
+void easylab_gpout(scicos_block *block,int flag)
+{
+ switch (flag) {
+    case OutputUpdate:  /* set output */
+      inout(block);
+      break;
+
+    case StateUpdate: /* get input */
+      break;
+
+    case Initialization:  /* initialisation */
+      init(block);
+      break;
+
+    case Ending:  /* ending */
+      end(block);
+      break;
+  }
+}
+
+void easylab_gpout_update_mask(EE_UINT8 mask, float u)
+{
+    int i = 0;
+    for (i=0; i<8; i++)
+        if ( (mask >> i) & 0x01 )
+            easylab_gpout_update(i+1, u);
+}
+
+void easylab_gpout_update(int pin, float u)
+{
     /* threshold is fixed to 0.5 STATIC */
     switch(pin){
         case 1:
@@ -165,60 +222,4 @@ static void inout(scicos_block *block)
                 LATBbits.LATB6   = 0; /* output value is 0*/
         break;
     }
-
-}
-
-static void end(scicos_block *block)
-{
-    int pin = block->ipar[0];
-    
-    if ( (pin < 1) || (pin > 8) )
-        return;
-    /* Set the output to the 0 at the end */
-    switch(pin){
-        case 1:
-            LATAbits.LATA3   = 0; /* output value is 0*/
-        break;
-        case 2:
-            LATBbits.LATB4   = 0; /* output value is 0*/
-        break;
-        case 3:
-            LATAbits.LATA4   = 0; /* output value is 0*/
-        break;
-        case 4:
-            LATBbits.LATB5   = 0; /* output value is 0*/
-        break;
-        case 5:
-            LATBbits.LATB12   = 0; /* output value is 0*/
-        break;
-        case 6:
-            LATBbits.LATB13   = 0; /* output value is 0*/
-        break;
-        case 7:
-            LATBbits.LATB7   = 0; /* output value is 0*/
-        break;
-        case 8:
-            LATBbits.LATB6   = 0; /* output value is 0*/
-        break;
-    }
-}
-
-void easylab_gpout(scicos_block *block,int flag)
-{
- switch (flag) {
-    case OutputUpdate:  /* set output */
-      inout(block);
-      break;
-
-    case StateUpdate: /* get input */
-      break;
-
-    case Initialization:  /* initialisation */
-      init(block);
-      break;
-
-    case Ending:  /* ending */
-      end(block);
-      break;
-  }
 }
