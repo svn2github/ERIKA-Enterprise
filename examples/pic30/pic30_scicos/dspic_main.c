@@ -75,7 +75,7 @@ _FWDT(FWDTEN_OFF);
 // Disable Code Protection
 _FGS(GCP_OFF);            							
 
-static double scicos_time; //simple time
+static double scicos_period; //simple time
 static int dspic_time;
 static double t;
 static double actTime;
@@ -93,6 +93,11 @@ extern int NAME(MODELNAME,_end)(void);
 double get_scicos_time()
 {
 	return(actTime);
+}
+
+double get_scicos_period()
+{
+    return(scicos_period);
 }
 
 /* LCD update functions
@@ -275,7 +280,7 @@ TASK(rt_sci)
 {
 	actTime=t;
 	NAME(MODELNAME,_isr)(actTime);
-	t += scicos_time;
+	t += scicos_period;
 }
 
 int main(void)
@@ -304,8 +309,8 @@ int main(void)
 	/* Program Timer 1 to raise interrupts */
 	T1_program();
   
-	scicos_time = NAME(MODELNAME,_get_tsamp)();
-	dspic_time = (int) (1000*scicos_time);
+	scicos_period = NAME(MODELNAME,_get_tsamp)();
+	dspic_time = (int) (1000*scicos_period);
 	SetRelAlarm(AlarmSci, dspic_time, dspic_time);
 		
 #ifdef __USE_LCD__
