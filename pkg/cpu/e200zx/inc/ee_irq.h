@@ -57,6 +57,8 @@ extern EE_e200z7_ISR_handler EE_e200z7_ISR_table[];
  * entry points for ISRs.
  */
 
+#ifdef __EE_USE_CUSTOM_ISR__
+
 __asm static void EE_ISR1_prestub(void)
 {
 	wrteei	1
@@ -97,6 +99,9 @@ void f(void)								\
 	EE_ISR2_poststub();						\
 }									\
 void EE_PREPROC_JOIN(ISR2_,f)(void)
+
+#endif /*  __EE_USE_CUSTOM_ISR__ */
+
 
 #ifndef __STATIC_ISR_TABLE__
 /*

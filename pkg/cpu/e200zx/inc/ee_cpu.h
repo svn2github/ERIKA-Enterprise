@@ -100,6 +100,8 @@ typedef void (*EE_e200z7_ISR_handler)(void);
 #define EE_STACK_SEC ".stack"
 #define EE_STACK_ATTRIB		EE_COMPILER_ALIGN(EE_STACK_ALIGN)	\
 	EE_COMPILER_SECTION(EE_STACK_SEC)
+#define EE_STACK_ATTRIB_NAME(n)	EE_COMPILER_ALIGN(EE_STACK_ALIGN)	\
+	EE_COMPILER_SECTION(EE_STACK_SEC "_" EE_PREPROC_STRING(n))
 
 /* Word used to build user stacks */
 typedef EE_UINT32 EE_STACK_T;
@@ -134,18 +136,20 @@ extern EE_UREG EE_e200z7_active_tos;
 
 #define __OO_CPU_HAS_STARTOS_ROUTINE__
 
-#ifdef __MSRP__
+#if defined(__MSRP__) || (defined(__EE_MEMORY_PROTECTION__) \
+	&& (defined(__OO_BCC1__) || defined(__OO_BCC2__)    \
+		|| defined(__OO_ECC1__) || defined(__OO_ECC2__)))
 /* On multi-core this is used also as a synchronization point */
 int EE_cpu_startos(void);
 
-#else /* ifdef __MSRP__ */
-/* Nothing to do for single-core */
+#else /* if __MSRP__ || __EE_MEMORY_PROTECTION__ ... */
+/* Nothing to do */
 __INLINE__ int __ALWAYS_INLINE__ EE_cpu_startos(void)
 {
 	return 0;
 }
 
-#endif /* else ifdef __MSRP__ */
+#endif /* else if __MSRP__ || __EE_MEMORY_PROTECTION__ ... */
 
 
 /*********************************************************************
@@ -213,6 +217,14 @@ __INLINE__ EE_FREG __ALWAYS_INLINE__ EE_e200z7_disableIRQ(void)
 }
 #endif
 
+#ifdef __EE_MEMORY_PROTECTION__
+
+#define EE_HAL_IRQSTATE_INVALID ((EE_FREG)0U)
+#define EE_hal_set_irq_valid_flag(f) ((f) | (MSR_EE << 1))
+#define EE_hal_clear_irq_flag(f) ((f) & ~MSR_EE)
+#define EE_hal_copy_irq_flag(from, to) (((to) & ~MSR_EE) | ((from) & MSR_EE))
+
+#endif /* __EE_MEMORY_PROTECTION__ */
 
 /*************************************************************************
  Access to CPU registers
@@ -370,5 +382,96 @@ extern const EE_MMU_ENTRY_T EE_e200zx_mmu_entries[];
 /* Number of entries to be loaded by the crt0 */
 extern const unsigned EE_e200zx_mmu_num_entries;
 #endif /* __EE_CRT0_INIT_MMU__ */
+
+
+/*************************************************************************
+ Memory Protection
+ *************************************************************************/
+
+#if defined(__EE_MEMORY_PROTECTION__)
+extern EE_UREG EE_SysCall0(EE_UREG id);
+extern EE_UREG EE_SysCall1(EE_UREG id, EE_UREG arg0);
+extern EE_UREG EE_SysCall2(EE_UREG id, EE_UREG arg0, EE_UREG arg1);
+extern EE_UREG EE_SysCall3(EE_UREG id, EE_UREG arg0,
+			   EE_UREG arg1, EE_UREG arg2);
+
+typedef EE_MMU_ENTRY_T EE_MEMPROT_ENTRY_T;
+
+#define EE_MEMPROT_USR_DATA	(EE_E200ZX_MMU_PROT_SW | EE_E200ZX_MMU_PROT_SR \
+	| EE_E200ZX_MMU_PROT_UW | EE_E200ZX_MMU_PROT_UR)
+#define EE_MEMPROT_SYS_DATA	(EE_E200ZX_MMU_PROT_SW | EE_E200ZX_MMU_PROT_SR)
+#define EE_MEMPROT_TRUST_DATA	(EE_E200ZX_MMU_PROT_SW | EE_E200ZX_MMU_PROT_SR)
+#define EE_MEMPROT_ROM_CODE	(EE_E200ZX_MMU_PROT_SX | EE_E200ZX_MMU_PROT_UX \
+	| EE_E200ZX_MMU_PROT_SR | EE_E200ZX_MMU_PROT_UR)
+#define EE_MEMPROT_RAM_CODE	(EE_E200ZX_MMU_PROT_SX | EE_E200ZX_MMU_PROT_UX \
+	| EE_E200ZX_MMU_PROT_SR | EE_E200ZX_MMU_PROT_UR | EE_E200ZX_MMU_PROT_SW)
+#define EE_MEMPROT_HW_REG	(EE_E200ZX_MMU_PROT_SW | EE_E200ZX_MMU_PROT_SR \
+	| ((EE_E200ZX_MMU_FLAG_CD | EE_E200ZX_MMU_FLAG_GUARD) << 16))
+
+#ifdef __VLE__
+#define EE_MEMPROT_USE_VLE EE_E200ZX_MMU_FLAG_VLE
+#else
+#define EE_MEMPROT_USE_VLE 0U
+#endif
+
+#define EE_MEMPROT_USER_ENTRY(appid, base, size, log2size, type)	\
+	{ 0xc0000000U | ((EE_UREG)(appid) << 16)			\
+		  | ((((EE_UREG)(log2size) - 10U) / 2U) << 8),		\
+		(base) | EE_MEMPROT_USE_VLE				\
+		  | ((EE_UREG)(((type) & 0xffff0000U) >> 16) & 0xffffU), \
+		(base) | ((EE_UREG)(type) & 0xffffU) }
+
+#define EE_MEMPROT_SYSTEM_ENTRY	\
+	{ EE_E200ZX_MMU_VALID | EE_E200ZX_MMU_IPROT | EE_E200ZX_MMU_SIZE_1M,	\
+		0xfff00000U | EE_E200ZX_MMU_FLAG_CD | EE_E200ZX_MMU_FLAG_GUARD, \
+		0xfff00000U | EE_E200ZX_MMU_PROT_SRWX },		\
+	{ EE_E200ZX_MMU_VALID | EE_E200ZX_MMU_IPROT | EE_E200ZX_MMU_SIZE_16M,	\
+		/*0x00000000U |*/ EE_E200ZX_MMU_FLAG_CE | EE_MEMPROT_USE_VLE,	\
+		/*0x00000000U |*/ EE_E200ZX_MMU_PROT_SR | EE_E200ZX_MMU_PROT_SX \
+		| EE_E200ZX_MMU_PROT_UR | EE_E200ZX_MMU_PROT_UX },	\
+	{ EE_E200ZX_MMU_VALID | EE_E200ZX_MMU_IPROT | EE_E200ZX_MMU_SIZE_1M,	\
+		0xc3f00000U | EE_E200ZX_MMU_FLAG_CD | EE_E200ZX_MMU_FLAG_GUARD, \
+		0xc3f00000U | EE_E200ZX_MMU_PROT_SR | EE_E200ZX_MMU_PROT_SW },	\
+	{ EE_E200ZX_MMU_VALID | EE_E200ZX_MMU_IPROT | EE_E200ZX_MMU_SIZE_64K,	\
+		0x40000000U | EE_E200ZX_MMU_FLAG_CE,			\
+		0x40000000U | EE_E200ZX_MMU_PROT_SR | EE_E200ZX_MMU_PROT_SW }
+
+#define EE_HAL_MEMPROT_ENTRIES(numapps)	((numapps) + 4U)
+
+extern const EE_MEMPROT_ENTRY_T EE_hal_memprot_entries[EE_HAL_MEMPROT_ENTRIES(EE_MAX_APP)];
+
+/* SR value for trusted and unstrusted code */
+#define EE_MEMPROT_TRUST_MODE 0x8000U
+#define EE_MEMPROT_USR_MODE 0xc000U
+
+/* Information about sections of each application */
+typedef struct {
+	/* Inizialized data section, Flash address */
+	const void *data_flash;
+	/* Inizialized data section, RAM address.  Its end coincides with BSS
+	 * start. */
+	void *data_ram;
+	/* BSS section start */
+	void *bss_start;
+	/* BSS section end (address of the byte after the section) */
+	void *bss_end;
+} EE_APP_SEC_INFO_T;
+
+/* Initialize the memory sections (initialized data and BSS) of an application */
+void EE_hal_app_init(const EE_APP_SEC_INFO_T *app_info);
+
+#endif /* __EE_MEMORY_PROTECTION__ */
+
+/*
+ * Markers for application private areas
+ */
+/* Application private constant data (read-only) */
+#define EE_APPLICATION_CDATA(app)  EE_COMPILER_SECTION(".rodata")
+/* Application private uninitialized data (BSS) */
+#define EE_APPLICATION_UDATA(app)  \
+	EE_COMPILER_SECTION(".bss_" EE_PREPROC_STRING(app))
+/* Application private initialized data */
+#define EE_APPLICATION_IDATA(app)  \
+	EE_COMPILER_SECTION(".data_" EE_PREPROC_STRING(app))
 
 #endif /* __INCLUDE_E200ZX_EE_CPU_H__ */

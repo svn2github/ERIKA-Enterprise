@@ -62,7 +62,13 @@
  * EE_std_enableIRQ_nested() and EE_std_disableIRQ_nested() are used to control
  * when IRQ nesting is enabled.
  */
-#ifdef __ALLOW_NESTED_IRQ__
+#if defined(__AS_SC4__)
+/* For SC4 the nesting level is updated inside the prestub and postub */
+#define EE_decrement_IRQ_nesting_level() ((void)0)
+#define EE_increment_IRQ_nesting_level() ((void)0)
+#define EE_std_enableIRQ_nested() ((void)0)
+#define EE_std_disableIRQ_nested() ((void)0)
+#elif defined(__ALLOW_NESTED_IRQ__)
 #define EE_decrement_IRQ_nesting_level() (--EE_IRQ_nesting_level)
 #define EE_increment_IRQ_nesting_level() (++EE_IRQ_nesting_level)
 /*  EE_std_enableIRQ_nested() and EE_std_disableIRQ_nested() must be defined in

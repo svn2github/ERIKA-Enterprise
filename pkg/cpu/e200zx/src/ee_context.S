@@ -115,6 +115,21 @@ EE_std_change_context:
 	add	r6, r6, r7
 	lwz	sp, 0(r6)
 
+#ifdef __EE_MEMORY_PROTECTION__
+	/* Load application ID */
+	/* The two `isync' make sure that 1. the previous register saving won't
+	 * raise any exception when changing the ID, and 2. register restoring
+	 * is performed in the new context */
+	isync
+	/* pid0 = EE_th_app[r3 + 1] */
+	addis   r4, r0, (EE_th_app + 4)@ha
+	addi    r4, r4, (EE_th_app + 4)@l
+	slwi    r5, r3, 2
+	lwzx    r0, r4, r5
+	mtpid0  r0
+	isync
+#endif /* __EE_MEMORY_PROTECTION__ */
+
         /*     restore_caller_saved_registers(); */
 	lmw	r14, -72(sp)
 	lwz	r0, -76(sp)

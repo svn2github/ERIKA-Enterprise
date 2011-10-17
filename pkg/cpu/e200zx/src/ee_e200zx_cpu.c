@@ -83,6 +83,51 @@ void EE_e200zx_delay(EE_UINT32 ticks)
 #endif /* ! __PPCE200Z0__ */
 
 
+#if defined(__EE_MEMORY_PROTECTION__) && defined(__OO_CPU_HAS_STARTOS_ROUTINE__)
+int EE_cpu_startos(void)
+{
+	EE_UREG i;
+	for (i = 0U; i < EE_MAX_APP; i++) {
+		EE_hal_app_init(&(EE_as_Application_ROM[i].sec_info));
+	}
+	/* When the MMU is set up, access to an application space is permitted
+	 * only if the CPU PID matches the application; so application memory is
+	 * initialized before configuring the MMU. */
+	EE_e200zx_mmu_setup(EE_hal_memprot_entries,
+		EE_HAL_MEMPROT_ENTRIES(EE_MAX_APP));
+	return 0;
+}
+#endif /* __EE_MEMORY_PROTECTION__ && __OO_CPU_HAS_STARTOS_ROUTINE__ */
+
+
+#ifdef __EE_MEMORY_PROTECTION__
+void EE_hal_app_init(const EE_APP_SEC_INFO_T *app_info)
+{
+	const EE_UINT32 *src_data;
+	EE_UINT32 *dest_data;
+	EE_UINT32 *dest_end;
+	EE_UINT32 *bss;
+	EE_UINT32 *bss_end;
+
+	src_data = (const EE_UINT32 *)(app_info->data_flash);
+	dest_data = (EE_UINT32 *)(app_info->data_ram);
+	dest_end = (EE_UINT32 *)(app_info->bss_start);
+	while (dest_data < dest_end) {
+		*dest_data = *src_data;
+		dest_data++;
+		src_data++;
+	}
+
+	bss = (EE_UINT32 *)(app_info->bss_start);
+	bss_end = (EE_UINT32 *)(app_info->bss_end);
+	while (bss < bss_end) {
+		*bss = 0U;
+		bss++;
+	}
+}
+#endif /* __EE_MEMORY_PROTECTION__ */
+
+
 /*
  * MMU setup
  *

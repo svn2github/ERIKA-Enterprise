@@ -119,7 +119,9 @@ vector EE_e200zx_external_input, EE_e200zx_external_input_handler
 vector EE_e200zx_alignment, __empty_handler
 vector EE_e200zx_program, __empty_handler
 vector EE_e200zx_float_unavailable, __empty_handler
+#if ! defined(__EE_MEMORY_PROTECTION__)
 vector EE_e200zx_system_call, __empty_handler
+#endif
 vector EE_e200zx_auxiliary_unavailable, __empty_handler
 vector EE_e200zx_decrementer, EE_e200zx_decrementer_handler
 vector EE_e200zx_interval_timer, EE_e200zx_fixed_intv_handler

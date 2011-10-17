@@ -86,8 +86,12 @@
 #endif
 
 #if defined(__OO_BCC1__) || defined(__OO_BCC2__) || defined(__OO_ECC1__) || defined(__OO_ECC2__)
+#ifdef __EE_MEMORY_PROTECTION__
+#include "kernel/as/inc/ee_api.h"
+#else /* if __EE_MEMORY_PROTECTION__ */
 #include "kernel/oo/inc/ee_api.h"
-#endif
+#endif /* else __EE_MEMORY_PROTECTION__ */
+#endif /* __OO_XXXX__ */
 
 #ifdef __EDF__
 #include "kernel/edf/inc/ee_api.h"

@@ -130,7 +130,8 @@ __INLINE__ void __ALWAYS_INLINE__ EE_oo_GetTaskState(TaskType TaskID, TaskStateR
 
 
 /* 13.3.2.1: BCC1, BCC2, ECC1, ECC2 */
-#ifndef __PRIVATE_ENABLEALLINTERRUPTS__
+#if ! defined(__PRIVATE_ENABLEALLINTERRUPTS__) \
+ && ! defined(__EE_MEMORY_PROTECTION__)
 __INLINE__ void __ALWAYS_INLINE__ EE_oo_EnableAllInterrupts(void)
 {
 #ifdef __OO_ORTI_SERVICETRACE__
@@ -146,7 +147,8 @@ __INLINE__ void __ALWAYS_INLINE__ EE_oo_EnableAllInterrupts(void)
 #endif
 
 /* 13.3.2.2: BCC1, BCC2, ECC1, ECC2 */
-#ifndef __PRIVATE_DISABLEALLINTERRUPTS__
+#if ! defined(__PRIVATE_DISABLEALLINTERRUPTS__) \
+ && ! defined(__EE_MEMORY_PROTECTION__)
 __INLINE__ void __ALWAYS_INLINE__ EE_oo_DisableAllInterrupts(void)
 {
 #ifdef __OO_ORTI_SERVICETRACE__
@@ -159,10 +161,11 @@ __INLINE__ void __ALWAYS_INLINE__ EE_oo_DisableAllInterrupts(void)
   EE_ORTI_servicetrace = EE_SERVICETRACE_DISABLEALLINTERRUPTS;
 #endif
 }
-#endif
+#endif /* ! __PRIVATE_DISABLEALLINTERRUPTS__) && ! __EE_MEMORY_PROTECTION__ */
 
 /* 13.3.2.3: BCC1, BCC2, ECC1, ECC2 */
-#ifndef __PRIVATE_RESUMEALLINTERRUPTS__
+#if ! defined(__PRIVATE_RESUMEALLINTERRUPTS__) \
+ && ! defined(__EE_MEMORY_PROTECTION__)
 __INLINE__ void __ALWAYS_INLINE__ EE_oo_ResumeAllInterrupts(void)
 {
 #ifdef __OO_ORTI_SERVICETRACE__
@@ -178,10 +181,11 @@ __INLINE__ void __ALWAYS_INLINE__ EE_oo_ResumeAllInterrupts(void)
   EE_ORTI_servicetrace = EE_SERVICETRACE_RESUMEALLINTERRUPTS;
 #endif
 }
-#endif
+#endif /* ! __PRIVATE_RESUMEALLINTERRUPTS__ && ! __EE_MEMORY_PROTECTION__ */
 
 /* 13.3.2.4: BCC1, BCC2, ECC1, ECC2 */
-#ifndef __PRIVATE_SUSPENDALLINTERRUPTS__
+#if ! defined(__PRIVATE_SUSPENDALLINTERRUPTS__) \
+ && ! defined(__EE_MEMORY_PROTECTION__)
 __INLINE__ void __ALWAYS_INLINE__ EE_oo_SuspendAllInterrupts(void)
 {
 #ifdef __OO_ORTI_SERVICETRACE__
@@ -197,10 +201,11 @@ __INLINE__ void __ALWAYS_INLINE__ EE_oo_SuspendAllInterrupts(void)
   EE_ORTI_servicetrace = EE_SERVICETRACE_SUSPENDALLINTERRUPTS;
 #endif
 }
-#endif
+#endif /* ! __PRIVATE_SUSPENDALLINTERRUPTS__ && ! __EE_MEMORY_PROTECTION__ */
 
 /* 13.3.2.5: BCC1, BCC2, ECC1, ECC2 */
-#ifndef __PRIVATE_RESUMEOSINTERRUPTS__
+#if ! defined(__PRIVATE_RESUMEOSINTERRUPTS__) \
+ && ! defined(__EE_MEMORY_PROTECTION__)
 __INLINE__ void __ALWAYS_INLINE__ EE_oo_ResumeOSInterrupts(void)
 {
 #ifdef __OO_ORTI_SERVICETRACE__
@@ -216,10 +221,11 @@ __INLINE__ void __ALWAYS_INLINE__ EE_oo_ResumeOSInterrupts(void)
   EE_ORTI_servicetrace = EE_SERVICETRACE_RESUMEOSINTERRUPTS;
 #endif
 }
-#endif
+#endif /* ! __PRIVATE_RESUMEOSINTERRUPTS__ && ! __EE_MEMORY_PROTECTION__ */
 
 /* 13.3.2.6: BCC1, BCC2, ECC1, ECC2 */
-#ifndef __PRIVATE_SUSPENDOSINTERRUPTS__
+#if ! defined(__PRIVATE_SUSPENDOSINTERRUPTS__) \
+ && ! defined(__EE_MEMORY_PROTECTION__)
 __INLINE__ void __ALWAYS_INLINE__ EE_oo_SuspendOSInterrupts(void)
 {
 #ifdef __OO_ORTI_SERVICETRACE__
@@ -235,7 +241,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_oo_SuspendOSInterrupts(void)
   EE_ORTI_servicetrace = EE_SERVICETRACE_SUSPENDOSINTERRUPTS;
 #endif
 }
-#endif
+#endif /* ! __PRIVATE_SUSPENDOSINTERRUPTS__ && ! __EE_MEMORY_PROTECTION__ */
 
 
 /***************************************************************************

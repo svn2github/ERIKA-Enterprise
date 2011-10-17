@@ -44,6 +44,7 @@
  * Author: 2010,  Fabio Checconi
  */
 
+#include <eecfg.h>
 #include <cpu/e200zx/inc/ee_regs.h>
 
 	.text
@@ -77,13 +78,30 @@ EE_hal_terminate_savestk:
 
 	/* Start the thread body */
 	mtlr	r5
+#if !defined(__EE_MEMORY_PROTECTION__)
 	blrl
-
 	/* The task terminated with a return: do the usual cleanup */
 	lwz	r0, 8(sp)
 	mtlr	r0
 	addi	sp, sp, 96
 	blr
+#else /* !defined(__EE_MEMORY_PROTECTION__) */
+	/* pid0 = EE_th_app[r3 + 1] */
+	addis	r4, r0, (EE_th_app + 4)@ha
+	addi	r4, r4, (EE_th_app + 4)@l
+	slwi	r3, r3, 2
+	lwzx	r0, r4, r3
+	addis	r4, r0, EE_as_Application_RAM@ha
+	addi	r4, r4, EE_as_Application_RAM@l
+	slwi	r0, r0, 4
+	add	r4, r4, r0
+	lwz	r0, 4(r4)
+	mtmsr	r0
+	blrl
+	/* Call TerminateTask(), which never returns */
+	li	r0, EE_ID_TerminateTask
+	sc
+#endif /* else !defined(__EE_MEMORY_PROTECTION__) */
 	.size	EE_hal_terminate_savestk, .-EE_hal_terminate_savestk
 
 

@@ -116,3 +116,15 @@ void EE_e200z7_register_ISR(int level, EE_e200z7_ISR_handler fun, EE_UINT8 pri)
 }
 
 #endif
+
+#ifdef __AS_SC4__
+/*
+ * Expansion of the inline function in the common layer.  We have asm
+ * post-IRQ stubs that need to call it.
+ */
+void EE_e200zx_after_IRQ_schedule(void);
+void EE_e200zx_after_IRQ_schedule(void)
+{
+	EE_std_after_IRQ_schedule();
+}
+#endif

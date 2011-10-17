@@ -333,7 +333,7 @@ extern "C" {
 #endif
 
 /* OO */
-#if defined(__OO_BCC1__) || defined(__OO_BCC2__) || defined(__OO_ECC1__) || defined(__OO_ECC2__)
+#if defined(__OO_BCC1__) || defined(__OO_BCC2__) || defined(__OO_ECC1__) || defined(__OO_ECC2__) || defined(__AS_SC4__)
 #include "kernel/oo/inc/ee_kernel.h"
 #endif
 
@@ -360,6 +360,19 @@ extern "C" {
 
 #include "ee_api.h"
 
+#if defined(__AS_SC4__)
+#include "kernel/as/inc/ee_os.h"
+#include "kernel/as/inc/ee_os_internal.h"
+
+/*
+ * Some autosar functionalities are implemented as architecture-dependent
+ * macros, but they need the definitions in the above header files.
+ */
+#ifdef __PPCE200ZX__
+#include "cpu/e200zx/inc/ee_as_cpu.h"
+#endif
+
+#endif /* __AS_SC4__ */
 
 #if defined(__cplusplus)
 };
