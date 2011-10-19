@@ -70,7 +70,7 @@ void EE_e200z7_irq(EE_SREG level)
 	f = EE_e200z7_ISR_table[level];
 	if (f != (EE_e200z7_ISR_handler)0) {
 		ortiold = EE_ORTI_get_runningisr2();
-		EE_ORTI_set_runningisr2(f);
+		EE_ORTI_set_runningisr2(EE_ORTI_build_isr2id(level, f));
 		EE_e200z7_call_ISR_new_stack(level, f, EE_IRQ_nesting_level);
 		EE_ORTI_set_runningisr2(ortiold);
 	}

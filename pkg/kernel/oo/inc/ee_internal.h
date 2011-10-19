@@ -174,6 +174,9 @@ __INLINE__ void EE_ORTI_set_runningisr2(EE_ORTI_runningisr2_type isr2)
 
 #else /* if __OO_ORTI_RUNNINGISR2__ */
 
+/* EE_ORTI_runningisr2_type is defined by the CPU layer only when needed */
+typedef EE_UREG EE_ORTI_runningisr2_type;
+
 __INLINE__ EE_ORTI_runningisr2_type EE_ORTI_get_runningisr2(void)
 {
 	return (EE_ORTI_runningisr2_type)NULL;
