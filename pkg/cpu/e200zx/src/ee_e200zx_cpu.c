@@ -69,6 +69,40 @@ void EE_e200zx_stop_fixed_intv(void)
 	EE_e200zx_set_tcr(tcr);
 }
 
+void EE_e200z7_setup_decrementer(EE_UINT32 value)
+{
+	EE_UREG tcr;
+	EE_e200zx_set_decar(value);
+	EE_e200zx_set_dec(value);
+	tcr = EE_e200zx_get_tcr();
+	tcr |= ((EE_UREG)1 << TCR_DIE) | ((EE_UREG)1 << TCR_ARE);
+	EE_e200zx_set_tcr(tcr);
+}
+
+void EE_e200z7_setup_decrementer_oneshot(EE_UINT32 value)
+{
+	EE_UREG tcr;
+	EE_e200zx_set_dec(value);
+	tcr = EE_e200zx_get_tcr();
+	tcr |= ((EE_UREG)1 << TCR_DIE);
+	tcr &= ~((EE_UREG)1 << TCR_ARE);
+	EE_e200zx_set_tcr(tcr);
+}
+
+void EE_e200z7_stop_decrementer(void)
+{
+	EE_UREG tcr;
+	tcr = EE_e200zx_get_tcr();
+	tcr &= ~((EE_UREG)1 << TCR_ARE);
+	EE_e200zx_set_tcr(tcr);
+	EE_e200zx_set_dec(0U);
+	EE_e200zx_set_decar(0U);
+	tcr = EE_e200zx_get_tcr();
+	tcr &= ~((EE_UREG)1 << TCR_DIE);
+	EE_e200zx_set_tcr(tcr);
+	EE_e200zx_set_tsr((EE_UREG)1 << TSR_DIS);
+}
+
 void EE_e200zx_delay(EE_UINT32 ticks)
 {
 	EE_UINT32 start;

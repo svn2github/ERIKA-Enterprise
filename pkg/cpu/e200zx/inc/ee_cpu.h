@@ -250,6 +250,33 @@ __asm void EE_e200zx_set_tcr(EE_UREG val)
 	mtspr	tcr, val
 }
 
+__asm EE_UREG EE_e200zx_get_tsr(void)
+{
+! "r3"
+	mfspr	r3, tsr
+}
+
+__asm void EE_e200zx_set_tsr(EE_UREG val)
+{
+% reg val
+!
+	mtspr	tsr, val
+}
+
+__asm void EE_e200zx_set_dec(EE_UREG val)
+{
+% reg val
+!
+	mtspr	dec, val
+}
+
+__asm void EE_e200zx_set_decar(EE_UREG val)
+{
+% reg val
+!
+	mtspr	decar, val
+}
+
 __asm EE_UINT32 EE_e200zx_get_tbl(void)
 {
 ! "r3"
@@ -267,6 +294,28 @@ __INLINE__ EE_UREG EE_e200zx_get_tcr(void)
 __INLINE__ void EE_e200zx_set_tcr(EE_UREG val)
 {
 	asm volatile ("mtspr tcr, %0" :: "r"(val) );
+}
+
+__INLINE__ EE_UREG EE_e200zx_get_tsr(void)
+{
+	EE_UREG tsr;
+	asm volatile ("mfspr %0, tsr" : "=r"(tcr));
+	return tsr;
+}
+
+__INLINE__ void EE_e200zx_set_tsr(EE_UREG val)
+{
+	asm volatile ("mtspr tsr, %0" :: "r"(val) );
+}
+
+__INLINE__ void EE_e200zx_set_dec(EE_UREG val)
+{
+	asm volatile ("mtspr dec, %0" :: "r"(val) );
+}
+
+__INLINE__ void EE_e200zx_set_decar(EE_UREG val)
+{
+	asm volatile ("mtspr decar, %0" :: "r"(val) );
 }
 
 __INLINE__ EE_UINT32 EE_e200zx_get_tbl(void)

@@ -165,61 +165,6 @@ EE_e200zx_fixed_intv_handler:
 	.size	EE_e200zx_fixed_intv_handler, .-EE_e200zx_fixed_intv_handler
 
 
-	/* CW-FUNC-DEFINITION: void EE_e200z7_setup_decrementer(EE_UINT32 value) */
-	.global	EE_e200z7_setup_decrementer
-	.type	EE_e200z7_setup_decrementer, @function
-EE_e200z7_setup_decrementer:
-	mtspr	decar, r3
-	mtspr	dec, r3
-
-	mfspr	r3, tcr
-	oris	r3, r3, (1 << TCR_DIE)@ha
-	oris	r3, r3, (1 << TCR_ARE)@ha
-	mtspr	tcr, r3
-
-	blr
-	.size	EE_e200z7_setup_decrementer, .-EE_e200z7_setup_decrementer
-
-
-	/* CW-FUNC-DEFINITION:  void EE_e200z7_setup_decrementer_oneshot(EE_UINT32 value) */
-	.global	EE_e200z7_setup_decrementer_oneshot
-	.type	EE_e200z7_setup_decrementer_oneshot, @function
-EE_e200z7_setup_decrementer_oneshot:
-	mtspr	dec, r3
-
-	mfspr	r3, tcr
-	oris	r3, r3, (1 << TCR_DIE)@ha
-	andis.	r3, r3, ~(1 << TCR_ARE)@ha
-	mtspr	tcr, r3
-
-	blr
-	.size	EE_e200z7_setup_decrementer_oneshot, .-EE_e200z7_setup_decrementer_oneshot
-
-
-	/* CW-FUNC-DEFINITION: void EE_e200z7_stop_decrementer(void) */
-	.global	EE_e200z7_stop_decrementer
-	.type	EE_e200z7_stop_decrementer, @function
-EE_e200z7_stop_decrementer:
-	li	r0, 0
-
-	mfspr	r3, tcr
-	andis.	r3, r3, ~(1 << TCR_ARE)@ha
-	mtspr	tcr, r3
-
-	mtspr	decar, r0
-	mtspr	dec, r0
-
-	mfspr	r3, tcr
-	andis.	r3, r3, ~(1 << TCR_DIE)@ha
-	mtspr	tcr, r3
-
-	addis	r3, 0, (1 << TSR_DIS)@h
-	mtspr	tsr, r3
-
-	blr
-	.size	EE_e200z7_stop_decrementer, .-EE_e200z7_stop_decrementer
-
-
 	/* CW-FUNC-DEFINITION: void cpu_setup(void) */
 	.global	cpu_setup
 	.type	cpu_setup, @function
