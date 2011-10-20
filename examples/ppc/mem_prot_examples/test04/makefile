@@ -54,7 +54,8 @@ ifndef RTDRUID_SCRIPT_DIR
 RTDRUID_SCRIPT_DIR=$(RTDRUID_ECLIPSE_HOME)/evidence
 endif
 
-RTDRUID_OUTPUT = $(addprefix $(OUTPUT_DIR)/, makefile eecfg.c eecfg.h apps.conf)
+RTDRUID_OUTPUT = $(addprefix $(OUTPUT_DIR)/, makefile eecfg.c eecfg.h apps.conf \
+ system.orti)
 
 .PHONY: all clean
 

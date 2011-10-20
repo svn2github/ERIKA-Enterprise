@@ -530,4 +530,46 @@ void EE_hal_app_init(const EE_APP_SEC_INFO_T *app_info);
 #define EE_APPLICATION_IDATA(app)  \
 	EE_COMPILER_SECTION(".data_" EE_PREPROC_STRING(app))
 
+
+/*************************************************************************
+ CPU-dependent ORT support (mainly OTM)
+ *************************************************************************/
+
+/* Probably, some parts of the OTM code below does not depend on the
+ * architecture.  They should be moved somewhere into pkg/cpu/common if this
+ * turns out to be the case. */
+
+#define EE_ORTI_OTM_ID_RUNNINGISR2 1
+#define EE_ORTI_OTM_ID_SERVICETRACE 2
+
+#ifdef __OO_ORTI_USE_OTM__
+void EE_e200zx_send_otm8(EE_UINT8 id, EE_UINT8 data);
+void EE_e200zx_send_otm32(EE_UINT8 id, EE_UINT32 data);
+
+#else /* if __OO_ORTI_USE_OTM__ */
+__INLINE__ void EE_e200zx_send_otm8(EE_UINT8 id, EE_UINT8 data)
+{
+	/* OTM disabled */
+}
+
+__INLINE__ void EE_e200zx_send_otm32(EE_UINT8 id, EE_UINT32 data)
+{
+	/* OTM disabled */
+}
+#endif /* else __OO_ORTI_USE_OTM__ */
+
+#ifdef __OO_ORTI_RUNNINGISR2__
+__INLINE__ void EE_ORTI_send_otm_runningisr2(EE_ORTI_runningisr2_type isr2)
+{
+	EE_e200zx_send_otm32(EE_ORTI_OTM_ID_RUNNINGISR2, (EE_UINT32)isr2);
+}
+#endif /* __OO_ORTI_RUNNINGISR2__ */
+
+#ifdef __OO_ORTI_SERVICETRACE__
+__INLINE__ void EE_ORTI_send_otm_servicetrace(EE_UINT8 srv)
+{
+	EE_e200zx_send_otm8(EE_ORTI_OTM_ID_SERVICETRACE, srv);
+}
+#endif /* __OO_ORTI_SERVICETRACE__ */
+
 #endif /* __INCLUDE_E200ZX_EE_CPU_H__ */

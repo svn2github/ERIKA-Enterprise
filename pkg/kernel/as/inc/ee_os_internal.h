@@ -100,4 +100,14 @@ typedef struct {
 
 extern EE_as_Application_RAM_type EE_as_Application_RAM[EE_MAX_APP+1U];
 
+#ifdef __OO_ORTI_SERVICETRACE__
+__INLINE__ void  EE_ORTI_ext_set_service(EE_UINT8 srv)
+{
+#if defined(RTDRUID_CONFIGURATOR_NUMBER) \
+ && RTDRUID_CONFIGURATOR_NUMBER >= RTDRUID_CONFNUM_ORTI_SERVICE_API
+	EE_SysCall1(srv, EE_ID_ORTI_ext_set_service);
+#endif /* RTDRUID_CONFNUM_ORTI_SERVICE_API */
+}
+#endif /* __OO_ORTI_SERVICETRACE__ */
+
 #endif /* __INCLUDE_AS_EE_OS_INTERNAL_H__ */

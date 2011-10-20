@@ -2,7 +2,7 @@
 #define __EECFG_H__
 
 
-#define RTDRUID_CONFIGURATOR_NUMBER 1272
+#define RTDRUID_CONFIGURATOR_NUMBER 1274
 
 
 
@@ -83,7 +83,6 @@
 #define EE_ID_SuspendAllInterrupts                     3
 #define EE_ID_ResumeOSInterrupts                       4
 #define EE_ID_SuspendOSInterrupts                      5
-#define EE_ID_interrupts_last                          5
 #define EE_ID_ActivateTask                             6
 #define EE_ID_TerminateTask                            7
 #define EE_ID_ChainTask                                8
@@ -95,8 +94,12 @@
 #define EE_ID_StartOS                                 14
 #define EE_ID_ShutdownOS                              15
 #define EE_ID_TerminateISR2                           16
+#ifdef __OO_ORTI_SERVICETRACE__
+#define EE_ID_ORTI_ext_set_service                    17
+#endif __OO_ORTI_SERVICETRACE__
 
-#define EE_MAX_SYS_SERVICEID		17
-#define EE_SYSCALL_NR			17
+#define EE_ID_interrupts_last                          5
+#define EE_MAX_SYS_SERVICEID                          18
+#define EE_SYSCALL_NR                                 18
 #endif
 

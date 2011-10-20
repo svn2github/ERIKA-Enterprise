@@ -479,7 +479,39 @@ extern StatusType EE_ORTI_lasterror;
 #endif
 
 extern volatile EE_UINT8 EE_ORTI_servicetrace;
-#endif
+
+__INLINE__ void EE_ORTI_set_service(EE_UINT8 srv)
+{
+	EE_ORTI_servicetrace = srv;
+	EE_ORTI_send_otm_servicetrace(srv);
+}
+
+#else /* __OO_ORTI_SERVICETRACE__ */
+
+#define EE_ORTI_set_service(srv) ((void)0)
+#define EE_ORTI_ext_set_service(srv) ((void)0)
+
+#endif /* else __OO_ORTI_SERVICETRACE__ */
+
+/*
+ * EE_ORTI_ext_set_service_in() and EE_ORTI_ext_set_service_out() are used in
+ * system services that are executed in user space when memory protection is
+ * enabled (the macro is mapped to a syscall in that case).
+ * EE_ORTI_set_service_in() and EE_ORTI_set_service_out() are used in all the
+ * other system services.
+ */
+#ifdef __EE_MEMORY_PROTECTION__
+#define EE_ORTI_ext_set_service_in(id) EE_ORTI_ext_set_service((id) + 1U)
+#define EE_ORTI_ext_set_service_out(id) EE_ORTI_ext_set_service(id)
+
+#else /* __EE_MEMORY_PROTECTION__ */
+#define EE_ORTI_ext_set_service_in(id) EE_ORTI_set_service((id) + 1U)
+#define EE_ORTI_ext_set_service_out(id) EE_ORTI_set_service(id)
+#endif /* else __EE_MEMORY_PROTECTION__ */
+
+#define EE_ORTI_set_service_in(id) EE_ORTI_set_service((id) + 1U)
+#define EE_ORTI_set_service_out(id) EE_ORTI_set_service(id)
+
 
 #ifdef __OO_ORTI_PRIORITY__
 /* This flag enables the visualization of the current task priority in ORTI

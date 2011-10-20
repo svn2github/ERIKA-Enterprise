@@ -127,6 +127,8 @@
 
 #endif /* __OO_SEM__ */
 
+/* EE_ORTI_ext_set_service() is defined in ee_os_internal.h */
+
 #endif /* __EE_MEMORY_PROTECTION__ */
 
 #endif /* __INCLUDE_KERNEL_AS_EE_API__ */

@@ -25,4 +25,7 @@
 /* ORTI variables are no longer defined inside eecfg.c */
 #define RTDRUID_CONFNUM_NO_ORTI_VARS 1273
 
+/* Added syscall for ORTI service tracing  */
+#define RTDRUID_CONFNUM_ORTI_SERVICE_API 1274
+
 #endif /* EE_RTDRUID_VERSIONS_H */

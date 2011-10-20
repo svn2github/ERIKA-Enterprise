@@ -66,40 +66,53 @@ static EE_FREG EE_oo_res_all_irq_prev_state;
 
 EE_FREG EE_as_DisableAllInterrupts(EE_FREG prev)
 {
+	EE_FREG next;
+	EE_ORTI_set_service_in(EE_SERVICETRACE_DISABLEALLINTERRUPTS);
 	EE_oo_all_irq_prev_state = EE_hal_set_irq_valid_flag(prev);
-	return EE_hal_clear_irq_flag(prev);
+	next = EE_hal_clear_irq_flag(prev);
+	EE_ORTI_set_service_out(EE_SERVICETRACE_DISABLEALLINTERRUPTS);
+	return next;
 }
 
 
 EE_FREG EE_as_EnableAllInterrupts(EE_FREG prev)
 {
-	EE_FREG next = prev;
-	EE_FREG prev_state = EE_oo_all_irq_prev_state;
+	EE_FREG next;
+	EE_FREG prev_state;
+	EE_ORTI_set_service_in(EE_SERVICETRACE_ENABLEALLINTERRUPTS);
+	next = prev;
+	prev_state = EE_oo_all_irq_prev_state;
 	if (prev_state == EE_HAL_IRQSTATE_INVALID) {
 		/* No previous DisableAllInterrupts(): do nothing */
 	} else {
 		EE_oo_all_irq_prev_state = EE_HAL_IRQSTATE_INVALID;
 		next = EE_hal_copy_irq_flag(prev_state, next);
 	}
+	EE_ORTI_set_service_out(EE_SERVICETRACE_ENABLEALLINTERRUPTS);
 	return next;
 }
 
 
 EE_FREG EE_as_SuspendAllInterrupts(EE_FREG prev)
 {
-	EE_FREG next = prev;
+	EE_FREG next;
+	EE_ORTI_set_service_in(EE_SERVICETRACE_SUSPENDALLINTERRUPTS);
+	next = prev;
 	if (EE_oo_IRQ_disable_count == 0U) {
 		next = EE_hal_clear_irq_flag(next);
 		EE_oo_res_all_irq_prev_state = prev;
 	}
 	++EE_oo_IRQ_disable_count;
+	EE_ORTI_set_service_out(EE_SERVICETRACE_SUSPENDALLINTERRUPTS);
 	return next;
 }
 
 
 EE_FREG EE_as_ResumeAllInterrupts(EE_FREG prev)
 {
-	EE_FREG next = prev;
+	EE_FREG next;
+	EE_ORTI_set_service_in(EE_SERVICETRACE_RESUMEALLINTERRUPTS);
+	next = prev;
 	if (EE_oo_IRQ_disable_count == 0U) {
 		/* No previous SuspendAllInterrupts(): do nothing */
 	} else {
@@ -109,6 +122,7 @@ EE_FREG EE_as_ResumeAllInterrupts(EE_FREG prev)
 				EE_oo_res_all_irq_prev_state, next);
 		}
 	}
+	EE_ORTI_set_service_out(EE_SERVICETRACE_RESUMEALLINTERRUPTS);
 	return next;
 }
 
@@ -124,3 +138,14 @@ EE_FREG EE_as_ResumeOSInterrupts(EE_FREG prev)
 {
 	return EE_as_ResumeAllInterrupts(prev);
 }
+
+
+
+#ifdef __OO_ORTI_SERVICETRACE__
+void EE_as_ORTI_set_service(EE_UINT8 srv)
+{
+	/* No check is done on the parameter, as this call is used for
+	 * debugging, and an invalid value doesn't break the kernel */
+	EE_ORTI_set_service(srv);
+}
+#endif /* __OO_ORTI_SERVICETRACE__ */

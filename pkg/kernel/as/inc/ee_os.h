@@ -224,6 +224,11 @@ EE_FREG EE_as_ResumeOSInterrupts(EE_FREG prev);
 #define TerminateISR2 EE_as_TerminateISR2
 StatusType TerminateISR2(void);
 
+/* Used to set the ORTI service inside APIs that are normally executed in user
+ * mode */
+#ifdef __OO_ORTI_SERVICETRACE__
+void EE_as_ORTI_set_service(EE_UINT8 srv);
+#endif
 
 #endif /* defined(__AS_SC4__) */
 

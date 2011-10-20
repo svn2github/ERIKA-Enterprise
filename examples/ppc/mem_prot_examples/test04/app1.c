@@ -24,7 +24,10 @@ TASK(App1Task)
 {
 	DisableAllInterrupts();
 	state2 = 0;
+	/* Simulate the calling of an API in the ORTI tracer */
+	EE_ORTI_ext_set_service_in(EE_SERVICETRACE_GETRESOURCE);
 	EE_e200zx_delay(55000);
+	EE_ORTI_ext_set_service_out(EE_SERVICETRACE_GETRESOURCE);
 	if (state2 != 0) {
 		/* Error: state2 has changed while interrupts were disabled */
 		error(err_disable_irq_fail);

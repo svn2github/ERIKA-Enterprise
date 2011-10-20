@@ -146,6 +146,7 @@ const EE_FADDR EE_syscall_table[EE_SYSCALL_NR] = {
     (EE_FADDR)EE_oo_StartOS,
     (EE_FADDR)EE_oo_ShutdownOS,
     (EE_FADDR)EE_as_TerminateISR2,
+    (EE_FADDR)EE_as_ORTI_set_service,
 };
 
 
