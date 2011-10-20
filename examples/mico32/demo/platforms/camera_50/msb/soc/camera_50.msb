@@ -539,7 +539,7 @@
 	    <GUI Name="STDOUT_SIM" Span="2" Widget="Check"/>
 	    <GUI Name="STDOUT_SIMFAST" Span="2" Widget="Check"/>
       </GUIS>
-</Component><Component Access="" Custom="true" DRCError="false" Help="" Name="serpario" PlatformScheme="Slave Side - Round Robin" Text="Serial/Parallel IO" Type="IO" Ver="0.2">
+</Component><Component Access="" Custom="true" DRCError="false" Help="" Name="serpario" PlatformScheme="Slave Side - Round Robin" Text="Serial/Parallel IO" Type="IO" Ver="0.3">
   
   <ClockPort Name="CLK_I" UPort="CLK_I"/>
   <ResetPort Name="RST_I" UPort="RST_I"/>
@@ -555,8 +555,9 @@
     <File Name="../components/serpario/rtl/verilog/serpario.v"/>
     <File Name="../components/serpario/rtl/verilog/serial_io.v"/>
   </Files>
-  <DeviceDriver InitRoutine="" StructName="">
+  <DeviceDriver InitRoutine="" StructName="serialpar_unused_str">
     <DDstruct>
+      <DDSElem MemberName="lookupReg" MemberType="DeviceReg_t" Type="uninitialized" Value=""/>
     </DDstruct>
     <Software>
     </Software>
