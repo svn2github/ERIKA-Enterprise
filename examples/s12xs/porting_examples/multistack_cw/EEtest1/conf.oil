@@ -49,7 +49,11 @@ CPU test_application {
 		EE_OPT = "__ASSERT__";
 		EE_OPT = "__S12XS_INCLUDE_REGS__";
 
-		EE_OPT = "__CODEWARRIOR__";
+		EE_OPT = "__CODEWARRIOR__"; 
+		/* If the compiler license is expired use this 
+		   option to avoid syntax errors during the compilation:
+		   EE_OPT = "CW_EVAL_VERSION"; 
+		*/
 		
 		CFLAGS = "-D__FAR_DATA -Onf";
 		ASFLAGS = "";
