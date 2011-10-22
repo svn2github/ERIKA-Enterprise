@@ -28,4 +28,7 @@
 /* Added syscall for ORTI service tracing  */
 #define RTDRUID_CONFNUM_ORTI_SERVICE_API 1274
 
+/* Added stack address in EE_APP_SEC_INFO_T */
+#define RTDRUID_CONFNUM_STACK_IN_APP_SEC_INFO 1275
+
 #endif /* EE_RTDRUID_VERSIONS_H */

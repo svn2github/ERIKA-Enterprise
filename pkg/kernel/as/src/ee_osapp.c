@@ -39,34 +39,34 @@
  * ###*E*### */
 
 /*
- * CPU-dependent part of Autosar API (stubs only, currently)
- * Author: 2010 Fabio Checconi
+ * Autosar API related to OS-applications
+ * Author: 2011, Bernardo  Dal Seno
  */
-#include "ee.h"
+
+#include <ee_internal.h>
 
 ApplicationType GetApplicationID(void)
 {
-	return 0;
+	ApplicationType app;
+	EE_UREG irqnest;
+	EE_ORTI_ext_set_service_in(EE_SERVICETRACE_GETAPPLICATIONID);
+	irqnest = EE_hal_get_IRQ_nesting_level();
+	if (irqnest > 0U) {
+		/* Inside an IRQ handler */
+		ISRType irq;
+		irq = EE_as_ISR_stack[irqnest - 1U].ISR_Terminated;
+		app = EE_as_ISR_ROM[irq].ApplID;
+	} else {
+		EE_TID t = EE_stk_queryfirst();
+		/* if t == INVALID_TASK the result is still correct */
+		app = EE_th_app[t + 1];
+	}
+	EE_ORTI_ext_set_service_out(EE_SERVICETRACE_GETAPPLICATIONID);
+	return app;
 }
 
-ISRType GetISRID(void)
-{
-	return 0;
-}
 
-AccessType
-CheckISRMemoryAccess(ISRType ISRID, MemoryStartAddressType Address,
-		     MemorySizeType Size)
-{
-	return 0;
-}
-
-AccessType
-CheckTaskMemoryAccess(TaskType ISRID, MemoryStartAddressType Address,
-		      MemorySizeType Size)
-{
-	return 0;
-}
+/* Only stubs here: */
 
 ObjectAccessType
 CheckObjectAccess(ApplicationType ApplID, ObjectTypeType ObjectType,

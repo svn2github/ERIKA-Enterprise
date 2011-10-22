@@ -38,46 +38,54 @@
 # Boston, MA 02110-1301 USA.
 # ###*E*###
 
-ifeq ($(or $(call iseeopt, __PPCE200ZX__), $(call iseeopt, __PPCE200Z7__)), yes)
-# EE_CASM_SRCS is used for assembly files that have to be translated to C
-# for CodeWarrior FLE-to-VLE conversion to work
-EE_CASM_SRCS += pkg/cpu/e200zx/src/ee_entry.S
-EE_SRCS += pkg/cpu/e200zx/src/ee_ivor.S
-EE_SRCS += pkg/cpu/e200zx/src/ee_irq.c
-EE_SRCS += pkg/cpu/e200zx/src/ee_e200zx_cpu.c
+## Makefile for Erika PPC projects
+## Author: 2010,  Bernardo  Dal Seno
 
-ifeq ($(call iseeopt, __OO_BCC1__), yes)
-CPU_OO=YES
+
+# Destination directory
+export OUTPUT_DIR = output
+
+# Check the environment and use reasonable defaults
+ifndef RTDRUID_ECLIPSE_HOME
+RTDRUID_ECLIPSE_HOME = C:/Evidence/Evidence/eclipse
+RTDRUID_SCRIPT_DIR =
 endif
-ifeq ($(call iseeopt, __OO_BCC2__), yes)
-CPU_OO=YES
-endif
-ifeq ($(call iseeopt, __OO_ECC1__), yes)
-CPU_OO=YES
-endif
-ifeq ($(call iseeopt, __OO_ECC2__), yes)
-CPU_OO=YES
+ifndef RTDRUID_SCRIPT_DIR
+RTDRUID_SCRIPT_DIR=$(RTDRUID_ECLIPSE_HOME)/evidence
 endif
 
-ifeq ($(CPU_OO), YES)
-EE_CASM_SRCS += pkg/cpu/e200zx/src/ee_oo.S
+RTDRUID_OUTPUT = $(addprefix $(OUTPUT_DIR)/, makefile eecfg.c eecfg.h apps.conf \
+ system.orti)
+
+.PHONY: all clean
+
+all: $(RTDRUID_OUTPUT)
+	$(MAKE) -C $(OUTPUT_DIR) all
+
+clean:
+	@echo cleaning...
+	rm -f -r $(OUTPUT_DIR)
+
+
+ifeq ($(RUN_RTDRUID),1)
+ifneq (ok,$(shell test -d "$(RTDRUID_ECLIPSE_HOME)" && echo ok ))
+$(error The variable RTDRUID_ECLIPSE_HOME must point to a valid Eclipse RT-Druid installation)
 endif
 
-ifeq ($(call iseeopt, __MULTI__), yes)
-EE_CASM_SRCS += pkg/cpu/e200zx/src/ee_context.S
+# Run RT-Druid
+$(RTDRUID_OUTPUT): conf.oil
+	@echo "Running RT-Druid..."
+	exec sh $(RTDRUID_SCRIPT_DIR)/generate_code.sh \
+	$(RTDRUID_ECLIPSE_HOME) $< $(OUTPUT_DIR) \
+
+else
+# Simulate RT-Druid
+ifndef EEBASE
+EEBASE=../../../..
 endif
 
-ifeq ($(call iseeopt, __IRQ_STACK_NEEDED__), yes)
-EE_CASM_SRCS += pkg/cpu/e200zx/src/ee_irq_stack.S
+$(RTDRUID_OUTPUT): $(OUTPUT_DIR)/% : fake_druid/%
+	@echo "Substituing RT-Druid in generating $@..."
+	@mkdir -p $(dir $@)
+	cp $< $@
 endif
-
-ifeq ($(call iseeopt, __MSRP__), yes)
-EE_SRCS += pkg/cpu/e200zx/src/ee_e200zx_multicore.c
-endif
-
-ifeq ($(call iseeopt, __EE_MEMORY_PROTECTION__), yes)
-EE_SRCS += pkg/cpu/e200zx/src/ee_memp_syscall.S
-EE_SRCS += pkg/cpu/e200zx/src/ee_e200zx_mem_prot.c
-endif
-
-endif # __PPCE200ZX__

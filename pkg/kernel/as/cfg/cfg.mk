@@ -41,4 +41,6 @@
 
 ifeq ($(call iseeopt, __AS_SC4__), yes)
 EE_SRCS += pkg/kernel/as/src/ee_mem_prot.c
+EE_SRCS += pkg/kernel/as/src/ee_as_base.c
+EE_SRCS += pkg/kernel/as/src/ee_osapp.c
 endif

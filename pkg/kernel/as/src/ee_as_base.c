@@ -37,92 +37,26 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
+
 /*
- * Linker script template for Diab compiler, when memory protection is active.
- * Author: 2010 Fabio Checconi
- *         2011 Bernardo  Dal Seno
+ * Basic Autosar API, common to all SCs
+ * Author: 2011, Bernardo  Dal Seno
  */
 
-SECTIONS
+#include <ee_internal.h>
+
+ISRType GetISRID(void)
 {
-	GROUP : {
-		.bam_data : { }
-		.boot : { }
-	} > boot
-
-	GROUP : {
-		_stext = . ;
-		.text : {
-			*(.text)
-			*(.text_vle)
-			*(.init)
-			*(.fini)
-		}
-
-		_srodata = . ;
-		.rodata : {
-			*(.rdata)
-			*(.rodata)
-		}
-
-		.sdata2 : {
-			*(.sdata2)
-			*(.sbss2)
-		 }
-		_load_ram = . ;
-	} > iflash
-
-	GROUP : {
-		/* The stack is put at the beginning of the RAM,
-		 * so that stack overflows are caught by the memory
-		 * protection system */
-		_sstack = . ;
-		.stack : { *(.stack) }
-		_estack = . ;
-
-		_sdata = . ;
-		.data LOAD(_load_ram): { }
-
-		.sram_text LOAD(_load_ram + ADDR(.sram_text) - ADDR(.data)): { }
-
-		.sdata LOAD(_load_ram + ADDR(.sdata) - ADDR(.data)): { }
-
-		_sbss = . ;
-		.sbss : { }
-		.bss : { }
-		_ebss = . ;
-
-FOR_EACH_APP
-		_load_data_${APP_NAME} = _load_ram + (_ebss - _sdata)
-INNER_FOR_EACH_PREV_APP
-				+ (_sbss_${APP_NAME} - _sdata_${APP_NAME})
-INNER_END_EACH_PREV_APP
-				;
-		. = ${APP_BASE} ;
-		_data_${APP_NAME}_start = . ;
-		/* The stack is put at the beginning of the application space,
-		 * so that stack overflows are caught by the memory
-		 * protection system */
-		.stack_${APP_NAME} : {
-			_sstack_${APP_NAME} = . ;
-			*(.stack_${APP_NAME})
-			_estack_${APP_NAME} = . ;
-		}
-		.data_${APP_NAME} LOAD(_load_data_${APP_NAME}) : {
-			_sdata_${APP_NAME} = . ;
-			*(.data_${APP_NAME})
-		}
-		.sdata_${APP_NAME} LOAD(_load_data_${APP_NAME}
-				+ ADDR(.sdata_${APP_NAME}) - _sdata_${APP_NAME}) : {
-			*(.sdata_${APP_NAME})
-		}
-		_sbss_${APP_NAME} = . ;
-		.sbss_${APP_NAME} : { }
-		.bss_${APP_NAME} : { }
-		_ebss_${APP_NAME} = . ;
-		ASSERT(_ebss_${APP_NAME} <= ${APP_BASE} + ${APP_SIZE})
-		_data_${APP_NAME}_end = . ;
-
-END_EACH_APP
-	} > isram
+	ISRType irq;
+	EE_UREG irqnest;
+	EE_ORTI_ext_set_service_in(EE_SERVICETRACE_GETISRID);
+	irqnest = EE_hal_get_IRQ_nesting_level();
+	if (irqnest > 0) {
+		/* Inside an IRQ handler */
+		irq = EE_as_ISR_stack[irqnest - 1U].ISR_Terminated;
+	} else {
+		irq = INVALID_ISR;
+	}
+	EE_ORTI_ext_set_service_out(EE_SERVICETRACE_GETISRID);
+	return irq;
 }

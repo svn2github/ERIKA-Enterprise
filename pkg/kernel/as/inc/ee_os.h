@@ -70,10 +70,10 @@
 /*
  * 8.2 Macros
  */
-#define OSMEMORY_IS_READABLE 0
-#define OSMEMORY_IS_WRITABLE 0
-#define OSMEMORY_IS_EXECUTABLE 0
-#define OSMEMORY_IS_STACKSPACE 0
+#define OSMEMORY_IS_READABLE(acc) (((acc) & EE_ACCESS_READ) != (AccessType)0)
+#define OSMEMORY_IS_WRITEABLE(acc) (((acc) & EE_ACCESS_WRITE) != (AccessType)0)
+#define OSMEMORY_IS_EXECUTABLE(acc) (((acc) & EE_ACCESS_EXEC) != (AccessType)0)
+#define OSMEMORY_IS_STACKSPACE(acc) (((acc) & EE_ACCESS_STACK) != (AccessType)0)
 
 /*
  * 8.3 Type definitions
@@ -81,7 +81,7 @@
 
 /* This data type identifies the OS-Application. */
 typedef	EE_TID	ApplicationType;
-#define INVALID_OSAPPLICATION	((ApplicationType)-1)
+#define INVALID_OSAPPLICATION	((ApplicationType)0)
 
 /* This data type identifies the state of an OS-Application. */
 typedef enum {
@@ -103,6 +103,11 @@ typedef void *TrustedFunctionParameterRefType;
 
 /* This type holds information how a specific memory region can be accessed. */
 typedef EE_UREG	AccessType;
+/* AccessType is a mask made by ORing together a subset of these bits: */
+#define EE_ACCESS_READ ((AccessType)0x1)
+#define EE_ACCESS_WRITE ((AccessType)0x2)
+#define EE_ACCESS_EXEC ((AccessType)0x4)
+#define EE_ACCESS_STACK ((AccessType)0x8)
 
 /* This data type identifies if an OS-Application has access to an object. */
 typedef EE_INT8	ObjectAccessType;
@@ -126,8 +131,8 @@ typedef EE_ADDR	MemoryStartAddressType;
 typedef EE_UREG	MemorySizeType;
 
 /* This data type identifies an interrupt service routine (ISR). */
-typedef EE_TID	ISRType;
-#define INVALID_ISR		((ISRType)-1)
+typedef EE_UREG	ISRType;
+#define INVALID_ISR		((ISRType)~(ISRType)0)
 
 /* This data type identifies a schedule table. */
 typedef EE_TID	ScheduleTableType;
@@ -165,15 +170,16 @@ typedef EE_INT8	RestartType;
 /*
  * 8.4 Function definitions
  */
-#if 0	/* Defined as macros */
 ApplicationType	GetApplicationID(void);
 ISRType		GetISRID(void);
-StatusType	CallTrustedFunction(TrustedFunctionIndexType FunctionIndex,
-			 TrustedFunctionParameterRefType FunctionParams);
 AccessType	CheckISRMemoryAccess(ISRType ISRID, MemoryStartAddressType
 			Address, MemorySizeType Size);
 AccessType	CheckTaskMemoryAccess(TaskType ISRID, MemoryStartAddressType
 			Address, MemorySizeType Size);
+
+#if 0	/* Defined as macros */
+StatusType	CallTrustedFunction(TrustedFunctionIndexType FunctionIndex,
+			 TrustedFunctionParameterRefType FunctionParams);
 ObjectAccessType CheckObjectAccess(ApplicationType ApplID, ObjectTypeType
 			ObjectType, EE_TID ObjectID);
 ApplicationType CheckObjectOwnership(ObjectTypeType ObjectType, EE_TID Object);

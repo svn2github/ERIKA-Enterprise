@@ -504,6 +504,11 @@ extern const EE_MEMPROT_ENTRY_T EE_hal_memprot_entries[EE_HAL_MEMPROT_ENTRIES(EE
 typedef struct {
 	/* Inizialized data section, Flash address */
 	const void *data_flash;
+#if defined(RTDRUID_CONFIGURATOR_NUMBER) \
+ && RTDRUID_CONFIGURATOR_NUMBER >= RTDRUID_CONFNUM_STACK_IN_APP_SEC_INFO
+	/* Stack section.  Its end coincides with data start */
+	void *stack_start;
+#endif /* RTDRUID_CONFNUM_STACK_IN_APP_SEC_INFO */
 	/* Inizialized data section, RAM address.  Its end coincides with BSS
 	 * start. */
 	void *data_ram;

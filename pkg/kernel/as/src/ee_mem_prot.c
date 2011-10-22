@@ -140,6 +140,43 @@ EE_FREG EE_as_ResumeOSInterrupts(EE_FREG prev)
 }
 
 
+AccessType CheckTaskMemoryAccess(TaskType TaskID, MemoryStartAddressType Address,
+	MemorySizeType Size)
+{
+	AccessType ret;
+
+	EE_ORTI_ext_set_service_in(EE_SERVICETRACE_CHECKTASKMEMORYACCESS);
+	if (TaskID < 0 || TaskID >= EE_MAX_TASK) {
+		/* Invalid TaskID: no permission */
+		ret = (AccessType)0;
+	} else {
+		ApplicationType app;
+		app = EE_th_app[TaskID + 1];
+		ret = EE_hal_get_app_mem_access(app, Address, Size);
+	}
+	EE_ORTI_ext_set_service_out(EE_SERVICETRACE_CHECKTASKMEMORYACCESS);
+	return ret;
+}
+
+
+AccessType CheckISRMemoryAccess(ISRType ISRID, MemoryStartAddressType Address,
+	MemorySizeType Size)
+{
+	AccessType ret;
+
+	EE_ORTI_ext_set_service_in(EE_SERVICETRACE_CHECKISRMEMORYACCESS);
+	if (ISRID < 0 || ISRID >= EE_MAX_ISR) {
+		/* Invalid ISRID: no permission */
+		ret = (AccessType)0;
+	} else {
+		ApplicationType app;
+		app = EE_as_ISR_ROM[ISRID].ApplID;
+		ret = EE_hal_get_app_mem_access(app, Address, Size);
+	}
+	EE_ORTI_ext_set_service_out(EE_SERVICETRACE_CHECKISRMEMORYACCESS);
+	return ret;
+}
+
 
 #ifdef __OO_ORTI_SERVICETRACE__
 void EE_as_ORTI_set_service(EE_UINT8 srv)

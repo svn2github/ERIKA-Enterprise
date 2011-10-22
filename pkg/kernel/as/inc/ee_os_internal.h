@@ -65,7 +65,7 @@ typedef struct {
  */
 typedef struct {
 	MemoryStartAddressType	TerminationTOS;
-	EE_UREG			ISR_Terminated;
+	ISRType			ISR_Terminated;
 } EE_as_ISR_RAM_type;
 
 /*
@@ -98,9 +98,31 @@ typedef struct {
 #define EE_APP_RAM_INIT(stack, mode) { ((MemoryStartAddressType)(stack)), \
 	(mode), APPLICATION_ACCESSIBLE, 0U }
 
+/* Run-time info about applications. The first entry (INVALID_ISR) of this array
+ * is empty. */
 extern EE_as_Application_RAM_type EE_as_Application_RAM[EE_MAX_APP+1U];
 
+/* LIFO list of running ISRs.  The current record is given by
+ * (EE_hal_get_IRQ_nesting_level() - 1U), when an ISR is running. */
+extern EE_as_ISR_RAM_type EE_as_ISR_stack[EE_MAX_NESTING_LEVEL];
+
+/* Mapping from tasks to applications */
+extern const ApplicationType EE_th_app[EE_MAX_TASK + 1];
+
+/* Mapping from ISRs to applications */
+extern const EE_as_ISR_ROM_type EE_as_ISR_ROM[EE_MAX_ISR];
+
+/* Return the access permission for the given memory area.  Defined in the CPU
+ * layer. */
+AccessType EE_hal_get_app_mem_access(ApplicationType app,
+	MemoryStartAddressType beg, MemorySizeType size);
+
 #ifdef __OO_ORTI_SERVICETRACE__
+#define EE_SERVICETRACE_CHECKTASKMEMORYACCESS    68U
+#define EE_SERVICETRACE_CHECKISRMEMORYACCESS     70U
+#define EE_SERVICETRACE_GETAPPLICATIONID         72U
+#define EE_SERVICETRACE_GETISRID                 74U
+
 __INLINE__ void  EE_ORTI_ext_set_service(EE_UINT8 srv)
 {
 #if defined(RTDRUID_CONFIGURATOR_NUMBER) \
@@ -108,6 +130,7 @@ __INLINE__ void  EE_ORTI_ext_set_service(EE_UINT8 srv)
 	EE_SysCall1(srv, EE_ID_ORTI_ext_set_service);
 #endif /* RTDRUID_CONFNUM_ORTI_SERVICE_API */
 }
+
 #endif /* __OO_ORTI_SERVICETRACE__ */
 
 #endif /* __INCLUDE_AS_EE_OS_INTERNAL_H__ */
