@@ -102,7 +102,12 @@ include $(PKGBASE)/cfg/cfg.mk
 
 # Add crt0 if not provided by the user
 ifneq ($(call iseeopt, __USE_CUSTOM_CRT0__), yes)
-CORTEX_M0_STARTUP := $(EEBASE)/pkg/mcu/cortex_m0/src/$(CRT0_SRCS)
+
+ifeq ($(call iseeopt, __IAR__), yes)
+CORTEX_M0_STARTUP := $(EEBASE)/pkg/mcu/cortex_m0/src/iar/$(CRT0_SRCS)
+else
+$(Error Compiler not defined (As today, only the IAR compiler is supported!!!)
+endif
 # Add startup file from ARM library
 EE_BOOT_SRCS := fromiar/$(CRT0_SRCS)
 endif
@@ -239,15 +244,11 @@ endif
 
 # Check if the MCU model has been defined
 ifneq ($(CORTEX_M0_MODEL),)
-
 fromiar/$(CORTEX_M0_INCLUDE_C): $(APPBASE)/CM0/DeviceSupport/NXP/LPC12xx/$(CORTEX_M0_INCLUDE_C) | make_directories
 	@echo "CP $(CORTEX_M0_INCLUDE_C)"
 	$(QUIET)cat $< > $@
-
 else
-
 $(error Cortex_m0 model not defined!!!)
-
 endif
 	
 ###
