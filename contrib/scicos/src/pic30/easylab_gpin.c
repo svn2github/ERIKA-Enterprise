@@ -45,10 +45,10 @@
     @date 2006-2011
 */
 
+#include <ee.h>
+
 #include <machine.h>
 #include <scicos_block4.h>
-
-#include <ee.h>
 
 /* GPIO bit allocation 
 
@@ -71,28 +71,44 @@ static void init(scicos_block *block)
         return;
     switch(pin){
         case 1:
-            TRISAbits.TRISA3 = 1; /* is an input */
+            /* TRISAbits.TRISA3 = 1; */ 
+            /* is an input */
+            EE_dio1_configure(1);
         break;
         case 2:
-            TRISBbits.TRISB4 = 1; /* is an input */
+            /* TRISBbits.TRISB4 = 1; */
+            /* is an input */
+            EE_dio2_configure(1);
         break;
         case 3:
-            TRISAbits.TRISA4 = 1; /* is an input */
+            /* TRISAbits.TRISA4 = 1;  */
+            /* is an input */
+            EE_dio3_configure(1);
         break;
         case 4:
-            TRISBbits.TRISB5 = 1; /* is an input */
+            /* TRISBbits.TRISB5 = 1; */
+            /* is an input */
+            EE_dio4_configure(1);
         break;
         case 5:
-            TRISBbits.TRISB12 = 1; /* is an input */
+            /* TRISBbits.TRISB12 = 1; */
+            /* is an input */
+            EE_dio5_configure(1);
         break;
         case 6:
-            TRISBbits.TRISB13 = 1; /* is an input */
+            /* TRISBbits.TRISB13 = 1; */
+            /* is an input */
+            EE_dio6_configure(1);
         break;
         case 7:
-            TRISBbits.TRISB7 = 1; /* is an input */
+            /* TRISBbits.TRISB7 = 1; */ 
+            /* is an input */
+            EE_dio7_configure(1);
         break;
         case 8:
-            TRISBbits.TRISB6 = 1; /* is an input */
+            /* TRISBbits.TRISB6 = 1; */
+            /* is an input */
+            EE_dio8_configure(1);
         break;
     }
 }
@@ -107,28 +123,36 @@ static void inout(scicos_block *block)
 
     switch(pin){
         case 1:
-            *y = (PORTAbits.RA3)? 1.0f: 0.0f; 
+            /*PORTAbits.RA3*/
+            *y = (EE_dio1_read())? 1.0f: 0.0f; 
         break;
         case 2:
-            *y = (PORTBbits.RB4)? 1.0f: 0.0f;
+            /*PORTBbits.RB4*/
+            *y = (EE_dio2_read())? 1.0f: 0.0f;
         break;
         case 3:
-            *y = (PORTAbits.RA4)? 1.0f: 0.0f;
+            /*PORTAbits.RA4*/
+            *y = (EE_dio3_read())? 1.0f: 0.0f;
         break;
         case 4:
-            *y = (PORTBbits.RB5)? 1.0f: 0.0f;
+            /*PORTBbits.RB5*/
+            *y = (EE_dio4_read())? 1.0f: 0.0f;
         break;
         case 5:
-            *y = (PORTBbits.RB12)? 1.0f: 0.0f;
+            /*PORTBbits.RB12*/
+            *y = (EE_dio5_read())? 1.0f: 0.0f;
         break;
         case 6:
-            *y = (PORTBbits.RB13)? 1.0f: 0.0f;
+            /*PORTBbits.RB13*/
+            *y = (EE_dio6_read())? 1.0f: 0.0f;
         break;
         case 7:
-            *y = (PORTBbits.RB7)? 1.0f: 0.0f;
+            /*PORTBbits.RB7*/
+            *y = (EE_dio7_read())? 1.0f: 0.0f;
         break;
         case 8:
-            *y = (PORTBbits.RB6)? 1.0f: 0.0f;
+            /*PORTBbits.RB6*/
+            *y = (EE_dio8_read())? 1.0f: 0.0f;
         break;
     }
 }

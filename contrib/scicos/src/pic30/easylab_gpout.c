@@ -83,36 +83,52 @@ static void init(scicos_block *block)
 
     switch(pin){
         case 1:
-            TRISAbits.TRISA3 = 0; /* is an output */
-            LATAbits.LATA3   = 0; /* output value is 0*/
+            /* TRISAbits.TRISA3 = 0; is an output */
+            EE_dio1_configure(0);
+            /* LATAbits.LATA3   = 0; output value is 0*/
+            EE_dio1_write(0);
         break;
         case 2:
-            TRISBbits.TRISB4 = 0; /* is an output */
-            LATBbits.LATB4   = 0; /* output value is 0*/
+            /* TRISBbits.TRISB4 = 0; is an output */
+            EE_dio2_configure(0);
+            /* LATBbits.LATB4   = 0; output value is 0*/
+            EE_dio2_write(0);
         break;
         case 3:
-            TRISAbits.TRISA4 = 0; /* is an output */
-            LATAbits.LATA4   = 0; /* output value is 0*/
+            /* TRISAbits.TRISA4 = 0; is an output */
+            EE_dio3_configure(0);
+            /* LATAbits.LATA4   = 0; output value is 0*/
+            EE_dio3_write(0);
         break;
         case 4:
-            TRISBbits.TRISB5 = 0; /* is an output */
-            LATBbits.LATB5   = 0; /* output value is 0*/
+            /* TRISBbits.TRISB5 = 0; is an output */
+            EE_dio4_configure(0);
+            /* LATBbits.LATB5   = 0; output value is 0*/
+            EE_dio4_write(0);
         break;
         case 5:
-            TRISBbits.TRISB12 = 0; /* is an output */
-            LATBbits.LATB12   = 0; /* output value is 0*/
+            /* TRISBbits.TRISB12 = 0; is an output */
+            EE_dio5_configure(0);
+            /* LATBbits.LATB12   = 0; output value is 0*/
+            EE_dio5_write(0);
         break;
         case 6:
-            TRISBbits.TRISB13 = 0; /* is an output */
-            LATBbits.LATB13   = 0; /* output value is 0*/
+            /* TRISBbits.TRISB13 = 0; is an output */
+            EE_dio6_configure(0);
+            /* LATBbits.LATB13   = 0; output value is 0*/
+            EE_dio6_write(0);
         break;
         case 7:
-            TRISBbits.TRISB7 = 0; /* is an output */
-            LATBbits.LATB7   = 0; /* output value is 0*/
+            /* TRISBbits.TRISB7 = 0; is an output */
+            EE_dio7_configure(0);
+            /* LATBbits.LATB7   = 0; output value is 0*/
+            EE_dio7_write(0);
         break;
         case 8:
-            TRISBbits.TRISB6 = 0; /* is an output */
-            LATBbits.LATB6   = 0; /* output value is 0*/
+            /* TRISBbits.TRISB6 = 0; is an output */
+            EE_dio8_configure(0);
+            /* LATBbits.LATB6   = 0; output value is 0*/
+            EE_dio8_write(0);
         break;
     }
 }
@@ -175,51 +191,67 @@ void easylab_gpout_update(int pin, float u)
     switch(pin){
         case 1:
             if (u > 0.5)      
-                LATAbits.LATA3   = 1; 
+                /* LATAbits.LATA3  = 1; */
+                EE_dio1_write(1);
             else
-                LATAbits.LATA3   = 0;
+                /* LATAbits.LATA3   = 0; */
+                EE_dio1_write(0);
         break;
         case 2:
             if (u > 0.5)
-                LATBbits.LATB4   = 1;
+                /* LATBbits.LATB4   = 1; */
+                EE_dio2_write(1);
             else
-                LATBbits.LATB4   = 0; /* output value is 0*/
+                /* LATBbits.LATB4   = 0; */
+                EE_dio2_write(0);
         break;
         case 3:
             if (u > 0.5)
-                LATAbits.LATA4   = 1;
+                /* LATAbits.LATA4   = 1; */
+                EE_dio3_write(1);
             else
-                LATAbits.LATA4   = 0; /* output value is 0*/
+                /* LATAbits.LATA4   = 0; */
+                EE_dio3_write(0);
         break;
         case 4:
             if (u > 0.5)
-                LATBbits.LATB5   = 1;
+                /* LATBbits.LATB5   = 1; */
+                EE_dio4_write(1);
             else
-                LATBbits.LATB5   = 0; /* output value is 0*/
+                /* LATBbits.LATB5   = 0; */
+                EE_dio4_write(0);
         break;
         case 5:
             if (u > 0.5)
-                LATBbits.LATB12   = 1;
+                /* LATBbits.LATB12   = 1; */
+                EE_dio5_write(1);
             else
-                LATBbits.LATB12   = 0; /* output value is 0*/
+                /* LATBbits.LATB12   = 0; */
+                EE_dio5_write(0);
         break;
         case 6:
             if (u > 0.5)
-                LATBbits.LATB13   = 1;
+                /* LATBbits.LATB13   = 1; */
+                EE_dio6_write(1);
             else
-                LATBbits.LATB13   = 0; /* output value is 0*/
+                /* LATBbits.LATB13   = 0; */
+                EE_dio6_write(0);
         break;
         case 7:
             if (u > 0.5)
-                LATBbits.LATB7   = 1;
+                /* LATBbits.LATB7   = 1; */
+                EE_dio7_write(1);
             else
-                LATBbits.LATB7   = 0; /* output value is 0*/
+                /* LATBbits.LATB7   = 0; */
+                EE_dio7_write(0);
         break;
         case 8:
             if (u > 0.5)
-                LATBbits.LATB6   = 1;
+                /* LATBbits.LATB6   = 1; */
+                EE_dio8_write(1);
             else
-                LATBbits.LATB6   = 0; /* output value is 0*/
+                /* LATBbits.LATB6   = 0; */
+                EE_dio8_write(0);
         break;
     }
 }

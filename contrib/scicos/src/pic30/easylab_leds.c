@@ -60,7 +60,32 @@ static void init(scicos_block *block)
         return; 
     }
 
-    EE_leds_init();
+    switch (pin) {
+        case 1:
+            EE_led1_init();
+        break;
+        case 2:
+            EE_led2_init();
+        break;
+        case 3:
+            EE_led3_init();
+        break;
+        case 4:
+            EE_led4_init();
+        break;
+        case 7:
+            EE_led7_init();
+        break;
+        case 8:
+            EE_led8_init();
+        break;
+        case 9:
+            EE_led9_init();
+        break;
+        case 10:
+            EE_led10_init();
+        break;
+    }
 }
 
 static void inout(scicos_block *block)
@@ -132,7 +157,33 @@ static void inout(scicos_block *block)
 
 static void end(scicos_block *block)
 {
-    EE_leds_disable();
+    EE_INT16 pin = block->ipar[0];
+    switch (pin) {
+        case 1:
+            EE_led1_off();
+        break;
+        case 2:
+            EE_led2_off();
+        break;
+        case 3:
+            EE_led3_off();
+        break;
+        case 4:
+            EE_led4_off();
+        break;
+        case 7:
+            EE_led7_off();
+        break;
+        case 8:
+            EE_led8_off();
+        break;
+        case 9:
+            EE_led9_off();
+        break;
+        case 10:
+            EE_led10_off();
+        break;
+    }
 }
 
 void easylab_leds(scicos_block *block,int flag)

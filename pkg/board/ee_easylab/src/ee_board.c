@@ -42,26 +42,6 @@
 #include "mcu/microchip_dspic/inc/ee_utils.h"
 
 #ifdef __dsPIC33FJ64MC802__
-#ifdef __USE_LEDS__
-
-void EE_leds_init(void){
-    /* Inizializzione LED pins regA */
-    TRISAbits.TRISA3 = 0;
-    TRISAbits.TRISA4 = 0;
-
-    /* Inizializzione LED pins regB */
-    TRISBbits.TRISB4  = 0;
-    TRISBbits.TRISB5  = 0;
-    TRISBbits.TRISB6  = 0;
-    TRISBbits.TRISB7  = 0;
-    TRISBbits.TRISB12 = 0;
-    TRISBbits.TRISB13 = 0;
-    
-    /* Inizializzazione system LED (the one on microstick) */ 
-    TRISBbits.TRISB15 = 0;    
-}
-
-#endif /* __USE_LEDS__ */
 
 #ifdef __USE_BUZZER__
 

@@ -37,22 +37,22 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
- 
+
  /**
     @file   ee_board.h
     @brief  easylab board header file.
-        
-    Header file taht contains board's API declaration, and defines 
+
+    Header file taht contains board's API declaration, and defines
     for remap mcu drivers on board layout.
-        
+
     @author Errico Guidieri
     @date   2011
   */
- 
+
 #ifndef __INCLUDE_EASYLAB_BOARD_H__
 #define __INCLUDE_EASYLAB_BOARD_H__
 
-/******************************* 
+/*******************************
 Include device header
 ********************************/
 #include "mcu/microchip_dspic/inc/ee_mcu.h"
@@ -65,9 +65,41 @@ Include device header
 #endif /* __USE_UART__ */
 
 #ifdef __USE_LEDS__
-void EE_leds_init(void);
 
 #ifdef __dsPIC33FJ64MC802__
+
+/* DIO bit allocation
+
+Board     dsPIC     LED
+DIO1       RA3       7
+DIO2       RB4       8
+DIO3       RA4       9
+DIO4       RB5       10
+DIO5       RB12      1
+DIO6       RB13      2
+DIO7       RB7       3
+DIO8       RB6       4
+           RB15      sys
+*/
+
+/** @brief Initialize all LEDS **/
+__INLINE__ void EE_leds_init(void){
+    /* Inizializzione LED pins regA */
+    TRISAbits.TRISA3 = 0;
+    TRISAbits.TRISA4 = 0;
+
+    /* Inizializzione LED pins regB */
+    TRISBbits.TRISB4  = 0;
+    TRISBbits.TRISB5  = 0;
+    TRISBbits.TRISB6  = 0;
+    TRISBbits.TRISB7  = 0;
+    TRISBbits.TRISB12 = 0;
+    TRISBbits.TRISB13 = 0;
+
+    /* Inizializzazione system LED (the one on microstick) */
+    TRISBbits.TRISB15 = 0;
+}
+
 /** @brief Enable all LEDS **/
 __INLINE__ void EE_leds_enable(void){
     /* Abilitazione LED pins regA */
@@ -99,13 +131,19 @@ __INLINE__ void EE_leds_disable(void){
     LATBbits.LATB7  = 0;
     LATBbits.LATB12 = 0;
     LATBbits.LATB13 = 0;
-    
+
     /* system LED (the one on microstick) */
     LATBbits.LATB15 = 0;
 }
 
+/** @brief Inizializzazione system LED (the one on microstick) **/
+__INLINE__ void EE_sys_led_init(void)
+{
+    TRISBbits.TRISB15 = 0;
+}
+
 /** @brief Enable system led (the one on microstick) **/
-static inline void EE_sys_led_on(void){
+__INLINE__ void EE_sys_led_on(void){
     LATBbits.LATB15 = 1;
 }
 
@@ -119,6 +157,11 @@ __INLINE__ void EE_sys_led_toggle(void){
     LATBbits.LATB15 = ~LATBbits.LATB15;
 }
 
+/** @brief Initialize led 1 **/
+__INLINE__ void EE_led1_init(void)
+{
+    TRISBbits.TRISB12 = 0;
+}
 
 /** @brief Enable led1 **/
 static inline void EE_led1_on(void){
@@ -133,6 +176,12 @@ __INLINE__ void EE_led1_off(void){
 /** @brief Toogle led 1 **/
 __INLINE__ void EE_led1_toggle(void){
     LATBbits.LATB12 = ~LATBbits.LATB12;
+}
+
+/** @brief Initialize led 2 **/
+__INLINE__ void EE_led2_init(void)
+{
+    TRISBbits.TRISB13 = 0;
 }
 
 /** @brief Enable led 2 **/
@@ -150,6 +199,12 @@ __INLINE__ void EE_led2_toggle(void){
     LATBbits.LATB13 = ~LATBbits.LATB13;
 }
 
+/** @brief Initialize led 3 **/
+__INLINE__ void EE_led3_init(void)
+{
+    TRISBbits.TRISB7 = 0;
+}
+
 /** @brief Enable led 3 */
 __INLINE__ void EE_led3_on(void){
     LATBbits.LATB7 = 1;
@@ -163,6 +218,12 @@ __INLINE__ void EE_led3_off(void){
 /** @brief Toggle led 3 **/
 __INLINE__ void EE_led3_toggle(void){
     LATBbits.LATB7 = ~LATBbits.LATB7;
+}
+
+/** @brief Initialize led 4 **/
+__INLINE__ void EE_led4_init(void)
+{
+    TRISBbits.TRISB6 = 0;
 }
 
 /** @brief Enable led 4 **/
@@ -180,6 +241,12 @@ __INLINE__ void EE_led4_toggle(void){
     LATBbits.LATB6 = ~LATBbits.LATB6;
 }
 
+/** @brief Initialize led 7 **/
+__INLINE__ void EE_led7_init(void)
+{
+    TRISAbits.TRISA3 = 0;
+}
+
 /** @brief Enable led 7 **/
 __INLINE__ void EE_led7_on(void){
     LATAbits.LATA3 = 1;
@@ -193,6 +260,12 @@ __INLINE__ void EE_led7_off(void){
 /** @brief Toggle led 7 **/
 __INLINE__ void EE_led7_toggle(void){
     LATAbits.LATA3 = ~LATAbits.LATA3;
+}
+
+/** @brief Initialize led 8 **/
+__INLINE__ void EE_led8_init(void)
+{
+    TRISBbits.TRISB4 = 0;
 }
 
 /** @brief Enable led 8 */
@@ -210,6 +283,12 @@ __INLINE__ void EE_led8_toggle(void){
     LATBbits.LATB4 = ~LATBbits.LATB4;
 }
 
+/** @brief Initialize led 9 **/
+__INLINE__ void EE_led9_init(void)
+{
+    TRISAbits.TRISA4 = 0;
+}
+
 /** @brief Enable led 9 **/
 __INLINE__ void EE_led9_on(void){
     LATAbits.LATA4 = 1;
@@ -223,6 +302,12 @@ __INLINE__ void EE_led9_off(void){
 /** @brief Toogle led 9 **/
 __INLINE__ void EE_led9_toggle(void){
     LATAbits.LATA4 = ~LATAbits.LATA4;
+}
+
+/** @brief Initialize led 10 **/
+__INLINE__ void EE_led10_init(void)
+{
+    TRISBbits.TRISB5 = 0;
 }
 
 /** @brief Enable led 10 **/
@@ -244,8 +329,238 @@ __INLINE__ void EE_led10_toggle(void){
 
 #ifdef __USE_DIO__
 #ifdef __dsPIC33FJ64MC802__
-/* TODO */
+/* DIO bit allocation
+
+Board     dsPIC     LED
+DIO1       RA3       7
+DIO2       RB4       8
+DIO3       RA4       9
+DIO4       RB5       10
+DIO5       RB12      1
+DIO6       RB13      2
+DIO7       RB7       3
+DIO8       RB6       4
+           RB15      sys
+*/
+
 #endif /*__dsPIC33FJ64MC802__ */
+
+/**
+    @brief configure DIO1
+    @param in: TRUE if the pin is a IN, FALSE if it is an OUT
+**/
+__INLINE__ void EE_dio1_configure(EE_BIT in)
+{
+    TRISAbits.TRISA3 = in;
+}
+
+/**
+    @brief write on DIO1
+    @param bit: value to set on pin
+**/
+__INLINE__ void EE_dio1_write(EE_BIT bit)
+{
+    LATAbits.LATA3 = bit;
+}
+
+/**
+    @brief read DIO1
+    @return value set on pin
+**/
+__INLINE__ EE_BIT EE_dio1_read(void)
+{
+    return PORTAbits.RA3;
+}
+
+/**
+    @brief configure DIO2
+    @param in: TRUE if the pin is a IN, FALSE if it is an OUT
+**/
+__INLINE__ void EE_dio2_configure(EE_BIT in)
+{
+    TRISBbits.TRISB4 = in;
+}
+
+/**
+    @brief write on DIO2
+    @param bit: value to set on pin
+**/
+__INLINE__ void EE_dio2_write(EE_BIT bit)
+{
+    LATBbits.LATB4 = bit;
+}
+
+/**
+    @brief read DIO2
+    @return value set on pin
+**/
+__INLINE__ EE_BIT EE_dio2_read(void)
+{
+    return PORTBbits.RB4;
+}
+
+/**
+    @brief configure DIO3
+    @param in: TRUE if the pin is a IN, FALSE if it is an OUT
+**/
+__INLINE__ void EE_dio3_configure(EE_BIT in)
+{
+    TRISAbits.TRISA4 = in;
+}
+
+/**
+    @brief write on DIO3
+    @param bit: value to set on pin
+**/
+__INLINE__ void EE_dio3_write(EE_BIT bit)
+{
+    LATAbits.LATA4 = bit;
+}
+
+/**
+    @brief read DIO3
+    @return value set on pin
+**/
+__INLINE__ EE_BIT EE_dio3_read(void)
+{
+    return PORTAbits.RA4;
+}
+
+/**
+    @brief configure DIO4
+    @param in: TRUE if the pin is a IN, FALSE if it is an OUT
+**/
+__INLINE__ void EE_dio4_configure(EE_BIT in)
+{
+    TRISBbits.TRISB5 = in;
+}
+
+/**
+    @brief write on DIO4
+    @param bit: value to set on pin
+**/
+__INLINE__ void EE_dio4_write(EE_BIT bit)
+{
+    LATBbits.LATB5 = bit;
+}
+
+/**
+    @brief read DIO4
+    @return value set on pin
+**/
+__INLINE__ EE_BIT EE_dio4_read(void)
+{
+    return PORTBbits.RB5;
+}
+
+/**
+    @brief configure DIO5
+    @param in: TRUE if the pin is a IN, FALSE if it is an OUT
+**/
+__INLINE__ void EE_dio5_configure(EE_BIT in)
+{
+    TRISBbits.TRISB12 = in;
+}
+
+/**
+    @brief write on DIO5
+    @param bit: value to set on pin
+**/
+__INLINE__ void EE_dio5_write(EE_BIT bit)
+{
+    LATBbits.LATB12 = bit;
+}
+
+/**
+    @brief read DIO5
+    @return value set on pin
+**/
+__INLINE__ EE_BIT EE_dio5_read(void)
+{
+    return PORTBbits.RB12;
+}
+
+/**
+    @brief configure DIO6
+    @param in: TRUE if the pin is a IN, FALSE if it is an OUT
+**/
+__INLINE__ void EE_dio6_configure(EE_BIT in)
+{
+    TRISBbits.TRISB13 = in;
+}
+
+/**
+    @brief write on DIO6
+    @param bit: value to set on pin
+**/
+__INLINE__ void EE_dio6_write(EE_BIT bit)
+{
+    LATBbits.LATB13 = bit;
+}
+
+/**
+    @brief read DIO6
+    @return value set on pin
+**/
+__INLINE__ EE_BIT EE_dio6_read(void)
+{
+    return PORTBbits.RB13;
+}
+
+/**
+    @brief configure DIO7
+    @param in: TRUE if the pin is a IN, FALSE if it is an OUT
+**/
+__INLINE__ void EE_dio7_configure(EE_BIT in)
+{
+    TRISBbits.TRISB7 = in;
+}
+
+/**
+    @brief write on DIO7
+    @param bit: value to set on pin
+**/
+__INLINE__ void EE_dio7_write(EE_BIT bit)
+{
+    LATBbits.LATB7 = bit;
+}
+
+/**
+    @brief read DIO7
+    @return value set on pin
+**/
+__INLINE__ EE_BIT EE_dio7_read(void)
+{
+    return PORTBbits.RB7;
+}
+
+/**
+    @brief configure DIO7
+    @param in: TRUE if the pin is a IN, FALSE if it is an OUT
+**/
+__INLINE__ void EE_dio8_configure(EE_BIT in)
+{
+    TRISBbits.TRISB6 = in;
+}
+
+/** 
+    @brief write on DIO8 
+    @param bit: value to set on pin 
+**/
+__INLINE__ void EE_dio8_write(EE_BIT bit)
+{
+    LATBbits.LATB6 = bit;
+}
+
+/**
+    @brief read DIO8
+    @return value set on pin
+**/
+__INLINE__ EE_BIT EE_dio8_read(void)
+{
+    return PORTBbits.RB6;
+}
+
 #endif /*__USE_DIO__ */
 
 #ifdef __USE_BUZZER__
@@ -254,17 +569,17 @@ __INLINE__ void EE_led10_toggle(void){
 #define EE_EASYLAB_BUZZER_MIN_FREQ 100U
 /**
     @brief Start the buzzer
-    
+
     Start the buzzer. These Buzzer API use Timer2 of dspic mcu.
-    
-    @param freq (EE_UINT16): output square wave frequency, that drive the buzzer 
-        between [100, 48000] Hz 
+
+    @param freq (EE_UINT16): output square wave frequency, that drive the buzzer
+        between [100, 48000] Hz
 **/
 void EE_buzzer_start(EE_UINT16 freq);
 
-/** 
-    @brief Togle the status of the GPIO pin that driver the buzzer 
-        (used as callback for the 
+/**
+    @brief Togle the status of the GPIO pin that driver the buzzer
+        (used as callback for the
 **/
 void EE_buzzer_toggle(void);
 
@@ -279,8 +594,8 @@ void EE_buzzer_stop(void);
 
 #ifdef __USE_ADC__
 
-/** 
-    Remap ADC channels IDs on right pins 
+/**
+    Remap ADC channels IDs on right pins
     @{
 **/
 #define EE_ADC_AN1   EE_ADC_PIN0
@@ -292,37 +607,37 @@ void EE_buzzer_stop(void);
 #include "mcu/microchip_dspic/inc/ee_adc.h"
 
 /** @brief Initialize ADC driver.
-    
+
     @param adc_ch_id (EE_AdcChId): channel's ID to initialize
     @param volt_ref (EE_Adc_VoltageRef): a voltage reference pair enum values
     @param bit_res (EE_Adc_BitResolution): desired ADc bit resolution
-    
-    @return 0 if no errors happend. 
+
+    @return 0 if no errors happend.
         Otherwise appropriate error value (negative value).
 **/
-__INLINE__ EE_INT8 EE_easylab_adc_init_ch(EE_AdcChId adc_ch_id, EE_Adc_VoltageRef volt_ref, 
+__INLINE__ EE_INT8 EE_easylab_adc_init_ch(EE_AdcChId adc_ch_id, EE_Adc_VoltageRef volt_ref,
     EE_Adc_BitResolution bit_res)
 {
     return EE_adc_init_ch(EE_ADC_1, adc_ch_id, volt_ref, bit_res);
 }
 
 /**
-    @brief Get channel value as uint 
-    
+    @brief Get channel value as uint
+
     @param adc_ch_id (EE_AdcChId): channel's ID to acquire.
     @param value  (EE_UINT16 *): return value pointer.
-    
-    @return 0 if no errors happend. 
+
+    @return 0 if no errors happend.
         Otherwise appropriate error value (negative value).
 **/
 __INLINE__ EE_INT8 EE_easylab_adc_get_ch_uint(EE_AdcChId adc_ch_id, EE_UINT16 * value ){
     return EE_adc_get_ch_uint(EE_ADC_1, adc_ch_id, value);
 }
 
-/** 
-    @brief Start ADC sampling 
-    
-    @return 0 if no errors happend. 
+/**
+    @brief Start ADC sampling
+
+    @return 0 if no errors happend.
         Otherwise appropriate error value (negative value).
 
  **/
@@ -330,10 +645,10 @@ __INLINE__ EE_INT8 EE_easylab_adc_start ( ) {
     return EE_adc_start(EE_ADC_1);
 }
 
-/** 
-    @brief Stop ADC sampling 
-    
-    @return 0 if no errors happend. 
+/**
+    @brief Stop ADC sampling
+
+    @return 0 if no errors happend.
         Otherwise appropriate error value (negative value).
 
  **/
@@ -346,12 +661,12 @@ __INLINE__ EE_INT8 EE_easylab_adc_stop (void){
 
 #ifdef __USE_PWM__
 
-/** 
+/**
     Easylab Pins define for PWM
-    @{    
+    @{
 **/
 #define EE_EASYLAB_PWM1     1
-#define EE_EASYLAB_PWM2     2  
+#define EE_EASYLAB_PWM2     2
 #define EE_EASYLAB_PWM3     3
 #define EE_EASYLAB_PWM4     4
 /* if you want activate PWM over both pins 1 e 2 you should use these pin's ID */
@@ -362,8 +677,8 @@ __INLINE__ EE_INT8 EE_easylab_adc_stop (void){
 
 #include "mcu/microchip_dspic/inc/ee_pwm.h"
 
-/** 
-    Easylab PWM API error codes 
+/**
+    Easylab PWM API error codes
     @{
  **/
 #define EE_EASYLAB_PWM_ERROR_INVALID_PIN_ID     -1
@@ -381,19 +696,19 @@ EE_INT16 EE_easylab_pwm_init(EE_UINT8 pwm_pin, EE_UINT32 pwm_freq);
 
 /**
     @brief Close a PWM pin.
-    
+
     @param pwm_ch (EE_UINT8): pwm pin's Id.
-    
+
     @return an error value (negative integer) if someting happened
 **/
 EE_INT16 EE_easylab_pwm_close(EE_UINT8 pwm_pin);
 
 /**
     @brief Set PWM pin duty cicle and if, this value is not 0, start it.
-    
+
     @param pwm_pin (EE_UINT8): pwm pin's Id.
     @param pwm_freq (EE_UINT32): pwm duty cycle [0, EE_PWM_DUTY_MAX]
-    
+
     @return an error value (negative integer) if someting happened
 **/
 EE_INT16 EE_easylab_pwm_set_duty(EE_UINT8 pwm_pin, EE_UINT16 duty);
