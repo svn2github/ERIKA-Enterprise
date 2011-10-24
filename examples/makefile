@@ -5,7 +5,7 @@
 # ---------------------------------------------------------
 
 # list of all architectures
-ARCH_LIST = PIC30 ARM7 AVR5 ESI_RISC NIOS2 E200ZX S12XS TRICORE
+ARCH_LIST = PIC30 ARM7 AVR5 ESI_RISC NIOS2 E200ZX S12XS TRICORE MICO32
 
 # PIC30 templates
 # -----------------------------------------------------------
@@ -129,8 +129,27 @@ TEMPLATE_LIST_S12XS += S12XS_COSMIC_EE_TEST6_MULTISTACK
 TEMPLATE_LIST_TRICORE += tricore_hello
 TEMPLATE_LIST_TRICORE += tricore_base_isr
 
-
+# MICO32 templates
 # -----------------------------------------------------------
+TEMPLATE_LIST_MICO32 += mico32_camera_debug_50_demo_enc28j60
+TEMPLATE_LIST_MICO32 += mico32_camera_debug_50_demo_tcp
+TEMPLATE_LIST_MICO32 += mico32_camera_debug_50_demo_wr_flash
+TEMPLATE_LIST_MICO32 += mico32_camera_debug_50_i2c_polling
+TEMPLATE_LIST_MICO32 += mico32_camera_debug_50_leds_button
+TEMPLATE_LIST_MICO32 += mico32_camera_debug_50_lightsensor_tsl2561
+TEMPLATE_LIST_MICO32 += mico32_camera_debug_50_rtc_pcf8583
+TEMPLATE_LIST_MICO32 += mico32_camera_debug_50_spi_polling
+TEMPLATE_LIST_MICO32 += mico32_camera_debug_50_uart_isr_isr_blocking
+TEMPLATE_LIST_MICO32 += mico32_camera_debug_50_uart_isr_isr_nonblocking
+TEMPLATE_LIST_MICO32 += mico32_camera_debug_50_uart_isr_polling_blocking
+TEMPLATE_LIST_MICO32 += mico32_camera_debug_50_uart_isr_polling_nonblocking
+TEMPLATE_LIST_MICO32 += mico32_camera_debug_50_uart_polling_blocking
+TEMPLATE_LIST_MICO32 += mico32_camera_debug_50_uart_polling_nonblocking
+TEMPLATE_LIST_MICO32 += mico32_camera_debug_50_udp
+TEMPLATE_LIST_MICO32 += mico32_camera_debug_50_uwl_coordinator
+TEMPLATE_LIST_MICO32 += mico32_camera_debug_50_uwl_device
+TEMPLATE_LIST_MICO32 += mico32_camera_debug_50_webserver
+
 # -----------------------------------------------------------
 # -----------------------------------------------------------
 # -----------------------------------------------------------
@@ -140,7 +159,9 @@ TEMPLATE_LIST := $(TEMPLATE_LIST_$(ARCH))
 endif
 
 ifndef TEMPLATE_LIST_IGNORE
-TEMPLATE_LIST_IGNORE := $(foreach a, $(ARCH_LIST), $(TEMPLATE_LIST_IGNORE_$(a))) $(foreach a, $(filter-out $(ARCH),$(ARCH_LIST)), $(TEMPLATE_LIST_$(a)))
+TEMPLATE_LIST_IGNORE := \
+	$(foreach a, $(ARCH_LIST), $(TEMPLATE_LIST_IGNORE_$(a))) \
+	$(foreach a, $(filter-out $(ARCH),$(ARCH_LIST)), $(TEMPLATE_LIST_$(a)))
 endif
 
 .PHONY: help all clean list listmissing witherrors
@@ -161,6 +182,9 @@ help:
 	@echo "      make -j 4 all ARCH=PIC30"
 	@echo ""
 	@echo "    - architecture list: $(ARCH_LIST)"
+	@echo "    - MICO32 architecture variables:"
+	@echo "      - LM32_PATH: LatticeMico32 System Installation ABSOLUTE Path"
+	@echo "      - MICO32_PLATFORM_LIB_PATH: Platform Library ABSOLUTE Path"
 	@echo 3 - list all available templates
 	@echo "      make list"
 	@echo 4 - list all templates not tested during this session
@@ -194,13 +218,19 @@ else
 	COMPILE_SCRIPT=./compile.sh
 endif
 
+ifeq ($(ARCH), MICO32)
+	COMPILE_SCRIPT=./compile_mico32.sh
+endif
 
-FLAGS=$(addsuffix /doneflag.txt,$(addprefix regression/,$(TEMPLATE_LIST)))
+FLAGS=$(addsuffix /doneflag.txt, $(addprefix regression/, $(TEMPLATE_LIST)))
 
 all: $(FLAGS)
 
 regression/%/doneflag.txt:
-	@$(COMPILE_SCRIPT) $* $(ECLIPSE_HOME) $(BATCH_TEMPLATE) $(BATCH_GENERATOR) || true
+	@$(COMPILE_SCRIPT) $* $(ECLIPSE_HOME) $(BATCH_TEMPLATE) \
+		$(BATCH_GENERATOR) $(MICO32_PLATFORM_LIB_PATH) $(LM32_PATH)
+
+# || true
 
 clean:
 	rm -rf regression
@@ -261,7 +291,7 @@ ignored: regression/current_ignored_tests
 
 .PHONY: xml regression/results.xml
 regression/results.xml: regression/templatelist regression/current_ok_tests regression/current_witherrors_tests regression/current_ignored_tests
-	@rm regression/results.xml
+	-@rm regression/results.xml
 	@echo "<report name=""regression_tests"" categ=""$(ARCH)"">" >regression/results.xml
 	@for t in `cat regression/templatelist`; do echo XML processing $${t}; ./xmltest.sh $${t} >>regression/results.xml; done
 	@echo "</report>" >>regression/results.xml
