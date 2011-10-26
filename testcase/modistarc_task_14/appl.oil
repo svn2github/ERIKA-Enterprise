@@ -70,6 +70,7 @@ CPU test_application {
 #include "../common/rtdruid_common/ee_oil_pic30_os.h"
 #include "../common/rtdruid_common/ee_oil_s12xs_os.h"
 #include "../common/rtdruid_common/ee_oil_e200zx_os.h"
+#include "../common/rtdruid_common/ee_oil_cortex_m0_os.h"
 
 
 
@@ -92,7 +93,7 @@ CPU test_application {
 /* Multi Stack */
 			MULTI_STACK = TRUE {
 				IRQ_STACK = FALSE;
-#if !defined(pic30) && !defined(s12xs) && !defined(e200zx)
+#if !defined(pic30) && !defined(s12xs) && !defined(e200zx) && !defined(cortex_m0)
 				DUMMY_STACK = SHARED;
 #endif
 			};
@@ -154,6 +155,11 @@ CPU test_application {
 			SYS_SIZE = 0x200;
 		};
 #endif
+#ifdef cortex_m0
+		STACK = PRIVATE {
+			SYS_SIZE = 0x20;
+		};
+#endif
     };
 
     TASK Task2 {
@@ -199,6 +205,11 @@ CPU test_application {
 #ifdef e200zx
 		STACK = PRIVATE {
 			SYS_SIZE = 0x200;
+		};
+#endif
+#ifdef cortex_m0
+		STACK = PRIVATE {
+			SYS_SIZE = 0x20;
 		};
 #endif
     };
@@ -247,6 +258,11 @@ CPU test_application {
 			SYS_SIZE = 0x200;
 		};
 #endif
+#ifdef cortex_m0
+		STACK = PRIVATE {
+			SYS_SIZE = 0x20;
+		};
+#endif
     };
     TASK Task4 {
 		PRIORITY = 13;
@@ -291,6 +307,11 @@ CPU test_application {
 #ifdef e200zx
 		STACK = PRIVATE {
 			SYS_SIZE = 0x200;
+		};
+#endif
+#ifdef cortex_m0
+		STACK = PRIVATE {
+			SYS_SIZE = 0x20;
 		};
 #endif
     };
@@ -339,6 +360,11 @@ CPU test_application {
 			SYS_SIZE = 0x200;
 		};
 #endif
+#ifdef cortex_m0
+		STACK = PRIVATE {
+			SYS_SIZE = 0x20;
+		};
+#endif
     };
     TASK Task6 {
 		PRIORITY = 11;
@@ -383,6 +409,11 @@ CPU test_application {
 #ifdef e200zx
 		STACK = PRIVATE {
 			SYS_SIZE = 0x200;
+		};
+#endif
+#ifdef cortex_m0
+		STACK = PRIVATE {
+			SYS_SIZE = 0x20;
 		};
 #endif
     };
@@ -431,6 +462,11 @@ CPU test_application {
 			SYS_SIZE = 0x200;
 		};
 #endif
+#ifdef cortex_m0
+		STACK = PRIVATE {
+			SYS_SIZE = 0x20;
+		};
+#endif
     };
     TASK Task8 {
 		PRIORITY = 9;
@@ -475,6 +511,11 @@ CPU test_application {
 #ifdef e200zx
 		STACK = PRIVATE {
 			SYS_SIZE = 0x200;
+		};
+#endif
+#ifdef cortex_m0
+		STACK = PRIVATE {
+			SYS_SIZE = 0x20;
 		};
 #endif
     };
@@ -523,6 +564,11 @@ CPU test_application {
 			SYS_SIZE = 0x200;
 		};
 #endif
+#ifdef cortex_m0
+		STACK = PRIVATE {
+			SYS_SIZE = 0x20;
+		};
+#endif
     };
     TASK Task10 {
 		PRIORITY = 7;
@@ -567,6 +613,11 @@ CPU test_application {
 #ifdef e200zx
 		STACK = PRIVATE {
 			SYS_SIZE = 0x200;
+		};
+#endif
+#ifdef cortex_m0
+		STACK = PRIVATE {
+			SYS_SIZE = 0x20;
 		};
 #endif
     };
@@ -615,6 +666,11 @@ CPU test_application {
 			SYS_SIZE = 0x200;
 		};
 #endif
+#ifdef cortex_m0
+		STACK = PRIVATE {
+			SYS_SIZE = 0x20;
+		};
+#endif
     };
     TASK Task12 {
 		PRIORITY = 5;
@@ -659,6 +715,11 @@ CPU test_application {
 #ifdef e200zx
 		STACK = PRIVATE {
 			SYS_SIZE = 0x200;
+		};
+#endif
+#ifdef cortex_m0
+		STACK = PRIVATE {
+			SYS_SIZE = 0x20;
 		};
 #endif
     };
@@ -707,6 +768,11 @@ CPU test_application {
 			SYS_SIZE = 0x200;
 		};
 #endif
+#ifdef cortex_m0
+		STACK = PRIVATE {
+			SYS_SIZE = 0x20;
+		};
+#endif
     };
     TASK Task14 {
 		PRIORITY = 3;
@@ -751,6 +817,11 @@ CPU test_application {
 #ifdef e200zx
 		STACK = PRIVATE {
 			SYS_SIZE = 0x200;
+		};
+#endif
+#ifdef cortex_m0
+		STACK = PRIVATE {
+			SYS_SIZE = 0x20;
 		};
 #endif
     };
@@ -799,6 +870,11 @@ CPU test_application {
 			SYS_SIZE = 0x200;
 		};
 #endif
+#ifdef cortex_m0
+		STACK = PRIVATE {
+			SYS_SIZE = 0x20;
+		};
+#endif
     };
     TASK Task16 {
 		PRIORITY = 1;
@@ -843,6 +919,11 @@ CPU test_application {
 #ifdef e200zx
 		STACK = PRIVATE {
 			SYS_SIZE = 0x200;
+		};
+#endif
+#ifdef cortex_m0
+		STACK = PRIVATE {
+			SYS_SIZE = 0x20;
 		};
 #endif
 	};

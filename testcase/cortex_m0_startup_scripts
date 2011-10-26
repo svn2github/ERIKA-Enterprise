@@ -1,0 +1,6 @@
+#!/bin/sh
+# This script is needed to compile a distribution for Cortex M0.
+# Execute it using ". ./filename" before to run compilation of testcases.
+
+export EEBASE=/cygdrive/c/Evidence/eclipse/plugins/com.eu.evidence.ee_1.6.0.201106072202/ee_base
+export ECLIPSE_HOME=C:/Evidence/eclipse

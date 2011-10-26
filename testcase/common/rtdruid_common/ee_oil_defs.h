@@ -83,6 +83,14 @@
 #define pic30
 #endif
 
+#ifdef cortex_m0_dist_bin_full
+#define cortex_m0
+#endif
+
+#ifdef cortex_m0_dist_src
+#define cortex_m0
+#endif
+
 //#ifdef s12xs_...
 //#define s12xs
 //#endif
