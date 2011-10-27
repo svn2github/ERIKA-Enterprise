@@ -48,7 +48,7 @@ fi
 # update environment
 ################################################################
 
-PATH=$micoPath/gtools/bin:$micoPath/jre/bin:$PATH
+PATH=$PATH:$micoPath/gtools/bin
 #~ PATH=$ispvmPath:$PATH
 export PATH
 

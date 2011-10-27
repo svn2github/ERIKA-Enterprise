@@ -228,7 +228,7 @@ all: $(FLAGS)
 
 regression/%/doneflag.txt:
 	@$(COMPILE_SCRIPT) $* $(ECLIPSE_HOME) $(BATCH_TEMPLATE) \
-		$(BATCH_GENERATOR) $(MICO32_PLATFORM_LIB_PATH) $(LM32_PATH)
+	$(BATCH_GENERATOR) $(MICO32_PLATFORM_LIB_PATH) $(LM32_PATH) || true
 
 # || true
 
