@@ -37,25 +37,45 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
- 
-#ifndef	__VARIABLE_H__
-#define	__VARIABLE_H__
 
-extern unsigned char	__uart1_rx_buf[SIZE_OF_UART1_RX_BUF];
-extern unsigned char	__uart1_tx_buf[SIZE_OF_UART1_TX_BUF];
-extern unsigned char	__uart2_rx_buf[SIZE_OF_UART2_RX_BUF];
-extern unsigned char	__uart2_tx_buf[SIZE_OF_UART2_TX_BUF];
-extern unsigned char	__debug_cmd_buf[SIZE_OF_DEBUG_CMD_BUF];
+/**
+    Author: Dario Di Stefano, 2011, Evidence Srl
+*/
 
-extern RingBuf	UART1RXBuf;
-extern RingBuf	UART1TXBuf;
-extern RingBuf	UART2RXBuf;
-extern RingBuf	UART2TXBuf;
-extern RingBuf	DebugCmdBuf;
+CPU mySystem {
 
-extern unsigned char	UART1TX_INT_Enabled;
-extern unsigned char	UART2TX_INT_Enabled;
+	OS myOs {
+		LDFLAGS = "--heap=512";
+		EE_OPT = "DEBUG";
+		
+		CPU_DATA = PIC30 {
+			APP_SRC = "code_sender.c";
+			MULTI_STACK = FALSE;
+			ICD2 = TRUE;
+		};
 
-extern void InitVariables();
+		MCU_DATA = PIC30 {
+			MODEL = PIC33FJ256MC710;
+		};
 
-#endif
+		BOARD_DATA = EE_FLEX {
+			USELEDS = TRUE;
+		};
+
+		EE_OPT = "__USE_CAN1__";
+		KERNEL_TYPE = FP;
+	};
+
+	TASK TaskSend {
+		PRIORITY = 3;
+		STACK = SHARED;
+		SCHEDULE = FULL;
+	};
+
+	COUNTER myCounter;
+	
+	ALARM AlarmSend {
+		COUNTER = "myCounter";
+		ACTION = ACTIVATETASK { TASK = "TaskSend"; };
+	};
+}; 

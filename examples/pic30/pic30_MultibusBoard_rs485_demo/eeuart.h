@@ -1,7 +1,7 @@
 /* ###*B*###
  * ERIKA Enterprise - a tiny RTOS for small microcontrollers
  *
- * Copyright (C) 2002-2008  Evidence Srl
+ * Copyright (C) 2002-2011  Evidence Srl
  *
  * This file is part of ERIKA Enterprise.
  *
@@ -33,7 +33,7 @@
  * GNU General Public License version 2 for more details.
  *
  * You should have received a copy of the GNU General Public License
- * version 2 along with ERIKA Enterprise; if not, write to the
+ * version 2 along with ERIKA Enerprise; if not, write to the
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
