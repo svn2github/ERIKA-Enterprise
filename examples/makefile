@@ -292,7 +292,7 @@ ignored: regression/current_ignored_tests
 .PHONY: xml regression/results.xml
 regression/results.xml: regression/templatelist regression/current_ok_tests regression/current_witherrors_tests regression/current_ignored_tests
 	-@rm regression/results.xml
-	@echo "<report name=""regression_tests"" categ=""$(ARCH)"">" >regression/results.xml
+	@echo "<report name=\"regression_tests\" categ=\"$(ARCH)\">" >regression/results.xml
 	@for t in `cat regression/templatelist`; do echo XML processing $${t}; ./xmltest.sh $${t} >>regression/results.xml; done
 	@echo "</report>" >>regression/results.xml
 
