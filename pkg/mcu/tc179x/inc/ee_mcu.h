@@ -1,4 +1,5 @@
-/* ###*B*### ERIKA Enterprise - a tiny RTOS for small microcontrollers
+/* ###*B*###
+ * ERIKA Enterprise - a tiny RTOS for small microcontrollers
  *
  * Copyright (C) 2010, TU Dortmund University, Faculty of Computer Science 12
  *
