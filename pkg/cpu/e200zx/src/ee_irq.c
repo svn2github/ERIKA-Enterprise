@@ -52,6 +52,7 @@
 
 #ifdef __FP__
 /* No ORTI support for the FP kernel */
+typedef int EE_ORTI_runningisr2_type;
 __INLINE__ EE_ORTI_runningisr2_type EE_ORTI_get_runningisr2(void)
 {
 	return (EE_ORTI_runningisr2_type)0;
