@@ -565,6 +565,10 @@ __INLINE__ EE_BIT EE_dio8_read(void)
 
 #ifdef __USE_BUZZER__
 
+#ifndef __USE_TIMER__
+#error "You must define EE_OPT = __USE_TIMER__ easylab buzzer"
+#endif
+
 #define EE_EASYLAB_BUZZER_MAX_FREQ 48000U
 #define EE_EASYLAB_BUZZER_MIN_FREQ 100U
 /**

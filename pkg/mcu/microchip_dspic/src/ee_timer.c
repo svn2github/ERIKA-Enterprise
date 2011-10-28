@@ -51,6 +51,11 @@
 #include "mcu/microchip_dspic/inc/ee_utils.h"
 
 
+/* Following API make sense only if alarms are defined */
+#if defined(__ALARMS__) | ( defined(__OO_BCC1__) | defined( __OO_BCC2__) | defined(__OO_ECC1__) | defined(__OO_ECC2__) & !defined(__OO_NO_ALARMS__) )
+
+static void EE_timer1_set_callback(EE_ISR_callback func);
+static void EE_timer2_set_callback(EE_ISR_callback func);
 
 static volatile CounterType counter_timer1 = 0;
 static volatile CounterType counter_timer2 = 0;
@@ -72,6 +77,36 @@ static void EE_timer2_tick_routine(void)
 
 static volatile EE_ISR_callback t1_cbk = EE_timer1_tick_routine;
 static volatile EE_ISR_callback t2_cbk = EE_timer2_tick_routine;
+
+EE_INT8 EE_timer_set_counter(EE_TimerId id, CounterType counterId)
+{
+    EE_INT8 error = EE_TIMER_NO_ERRORS;
+    switch(id){
+        case EE_TIMER_1:
+            EE_timer1_set_callback(EE_timer1_tick_routine);
+            counter_timer1 = counterId;
+        break;
+        case EE_TIMER_2:
+            EE_timer2_set_callback(EE_timer2_tick_routine);
+            counter_timer2 = counterId;
+        break;
+        case EE_TIMER_3:
+        case EE_TIMER_23:
+            /* TODO implement those timers at least */
+            error = EE_TIMER_ERR_UNIMPLEMENTED;
+        break;
+        default:
+            error = EE_TIMER_ERR_BAD_ARGS;
+    }
+    return error;
+}
+#else
+#define EE_timer1_tick_routine NULL
+#define EE_timer2_tick_routine NULL
+
+static volatile EE_ISR_callback t1_cbk;
+static volatile EE_ISR_callback t2_cbk;
+#endif /* defined(__ALARMS__) | ( defined(__OO_BCC1__) | defined( __OO_BCC2__) | defined(__OO_ECC1__) | defined(__OO_ECC2__) & !defined(__OO_NO_ALARMS__) ) */
 
 static void EE_timer1_init(EE_UINT16 t1_period, EE_TimerPrescaleFactor ps)
 {
@@ -221,29 +256,6 @@ EE_INT8 EE_timer_set_callback(EE_TimerId id, EE_ISR_callback func)
                 EE_timer2_set_callback(EE_timer2_tick_routine);
             else
                 EE_timer2_set_callback(func);
-        break;
-        case EE_TIMER_3:
-        case EE_TIMER_23:
-            /* TODO implement those timers at least */
-            error = EE_TIMER_ERR_UNIMPLEMENTED;
-        break;
-        default:
-            error = EE_TIMER_ERR_BAD_ARGS;
-    }
-    return error;
-}
-
-EE_INT8 EE_timer_set_counter(EE_TimerId id, CounterType counterId)
-{
-    EE_INT8 error = EE_TIMER_NO_ERRORS;
-    switch(id){
-        case EE_TIMER_1:
-            EE_timer1_set_callback(EE_timer1_tick_routine);
-            counter_timer1 = counterId;
-        break;
-        case EE_TIMER_2:
-            EE_timer2_set_callback(EE_timer2_tick_routine);
-            counter_timer2 = counterId;
         break;
         case EE_TIMER_3:
         case EE_TIMER_23:

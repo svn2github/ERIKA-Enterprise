@@ -50,7 +50,7 @@
 
 static void init(scicos_block *block)
 {
-    EE_leds_init();
+    EE_sys_led_init();
 }
 
 static void inout(scicos_block *block)
@@ -64,6 +64,7 @@ static void inout(scicos_block *block)
 
 static void end(scicos_block *block)
 {
+    EE_sys_led_off();
 }
 
 void easylab_sys_led(scicos_block *block,int flag)
@@ -76,7 +77,7 @@ void easylab_sys_led(scicos_block *block,int flag)
     case StateUpdate: /* get input */
       break;
 
-    case Initialization:  /* initialisation */
+    case Initialization: /* initialisation */
       init(block);
       break;
 

@@ -38,12 +38,13 @@
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
 #include "board/ee_easylab/inc/ee_board.h"
-#include "mcu/microchip_dspic/inc/ee_timer.h"
 #include "mcu/microchip_dspic/inc/ee_utils.h"
 
 #ifdef __dsPIC33FJ64MC802__
 
 #ifdef __USE_BUZZER__
+
+#include "mcu/microchip_dspic/inc/ee_timer.h"
 
 void EE_buzzer_toggle(void)
 {

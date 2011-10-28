@@ -7,7 +7,7 @@
  *
  * ERIKA Enterprise is free software; you can redistribute it
  * and/or modify it under the terms of the GNU General Public License
- * version 2 as published by the Free Software Foundation, 
+ * version 2 as published by the Free Software Foundation,
  * (with a special exception described below).
  *
  * Linking this code statically or dynamically with other modules is
@@ -38,14 +38,14 @@
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
 
-/** 
+/**
     @file easylab_buzzer.c
     @brief www.scicos.org, www.scicoslab.org
     @author Errico Guidieri
     @date 2006-2011
 */
- 
- 
+
+
 #include <machine.h>
 #include <scicos_block4.h>
 #include <math.h>
@@ -66,16 +66,23 @@ static void end(scicos_block *block)
 
 static void inout(scicos_block *block)
 {
-    const EE_UINT16 amplitude = (EE_EASYLAB_BUZZER_MAX_FREQ - EE_EASYLAB_BUZZER_MIN_FREQ)/2U;
-    const EE_UINT16 center    = amplitude + EE_EASYLAB_BUZZER_MIN_FREQ;
-    
-    float new_freq_f = *(float *)block->inptr[0];
-    
-    /* Frequency in Hz */    
-    EE_INT32 span = new_freq_f * amplitude;
-    EE_UINT32 new_freq = span + center;
+    static const EE_UINT16 frequency_span = EE_EASYLAB_BUZZER_MAX_FREQ - EE_EASYLAB_BUZZER_MIN_FREQ;
+
+    /* Stop the buzzer as first thing */
     EE_buzzer_stop();
-    EE_buzzer_start(new_freq);
+
+    /* Evaluate new frequency. If IN is equal to Zero don't start it */
+    float new_freq_f = ((float *)block->inptr[0])[0];
+    if(new_freq_f > 0.0F)
+    {
+        /* Saturate IN to 1.0 */
+        if(new_freq_f > 1.0F)
+            new_freq_f = 1.0F;
+        /* Frequency in Hz */
+        EE_UINT32 new_span = new_freq_f * frequency_span;
+        EE_UINT32 new_freq = new_span + EE_EASYLAB_BUZZER_MIN_FREQ;
+        EE_buzzer_start(new_freq);
+    }
 }
 
 void easylab_buzzer(scicos_block *block,int flag)

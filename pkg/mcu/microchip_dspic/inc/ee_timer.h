@@ -127,16 +127,6 @@ EE_INT8 EE_timer_soft_init(EE_TimerId id, EE_UINT32 period_us);
 */
 EE_INT8 EE_timer_set_callback(EE_TimerId id, EE_ISR_callback func);
 
-/**
-    @brief Alternatively of setting callback you can tie the timer with a Counter
-    
-    @param id (EE_TimerId): id timer to set the callback of 
-    @param counterId (CounterType): ID of the counter to drive
-    
-    @return EE_TIMER_NO_ERRORS
-**/
-EE_INT8 EE_timer_set_counter(EE_TimerId id, CounterType counterId);
-
 /** 
     @brief Start a timer.
     @param id (EE_TimerId): id timer to start
@@ -152,8 +142,21 @@ EE_INT8 EE_timer_start(EE_TimerId id);
     @return EE_TIMER_NO_ERRORS
 */
 EE_INT8 EE_timer_stop(EE_TimerId id);
+
+/* Following API make sense only if alarms are defined */
+#if defined(__ALARMS__) | ( defined(__OO_BCC1__) | defined( __OO_BCC2__) | defined(__OO_ECC1__) | defined(__OO_ECC2__) & !defined(__OO_NO_ALARMS__) )
+/**
+    @brief Alternatively of setting callback you can tie the timer with a Counter
+    
+    @param id (EE_TimerId): id timer to set the callback of 
+    @param counterId (CounterType): ID of the counter to drive
+    
+    @return EE_TIMER_NO_ERRORS
+**/
+EE_INT8 EE_timer_set_counter(EE_TimerId id, CounterType counterId);
+#endif /* defined(__ALARMS__) | ( defined(__OO_BCC1__) | defined( __OO_BCC2__) | defined(__OO_ECC1__) | defined(__OO_ECC2__) & !defined(__OO_NO_ALARMS__) ) */
+
 /* TODO EE_INT8 EE_timer_get_val(EE_TimerId id, EE_UINT16 *v); */
 /* TODO EE_INT8 EE_timer_get_val32(EE_TimerId id, EE_UINT32 *v); */
-
 #endif /* __INCLUDE_MICROCHIP_DSPIC_TIMER_H__ */
 
