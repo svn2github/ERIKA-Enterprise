@@ -122,15 +122,6 @@ AccessType EE_hal_get_app_mem_access(ApplicationType app,
 #define EE_SERVICETRACE_CHECKISRMEMORYACCESS     70U
 #define EE_SERVICETRACE_GETAPPLICATIONID         72U
 #define EE_SERVICETRACE_GETISRID                 74U
-
-__INLINE__ void  EE_ORTI_ext_set_service(EE_UINT8 srv)
-{
-#if defined(RTDRUID_CONFIGURATOR_NUMBER) \
- && RTDRUID_CONFIGURATOR_NUMBER >= RTDRUID_CONFNUM_ORTI_SERVICE_API
-	EE_SysCall1(srv, EE_ID_ORTI_ext_set_service);
-#endif /* RTDRUID_CONFNUM_ORTI_SERVICE_API */
-}
-
 #endif /* __OO_ORTI_SERVICETRACE__ */
 
 #endif /* __INCLUDE_AS_EE_OS_INTERNAL_H__ */

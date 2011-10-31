@@ -178,6 +178,16 @@ AccessType CheckISRMemoryAccess(ISRType ISRID, MemoryStartAddressType Address,
 }
 
 
+StatusType CallTrustedFunction(TrustedFunctionIndexType FunctionIndex,
+	TrustedFunctionParameterRefType FunctionParams)
+{
+	if (FunctionIndex < (TrustedFunctionIndexType)EE_MAX_SYS_SERVICEID) {
+		return E_OS_SERVICEID;
+	}
+	return EE_as_raw_call_trusted_func(FunctionIndex, FunctionParams);
+}
+
+
 #ifdef __OO_ORTI_SERVICETRACE__
 void EE_as_ORTI_set_service(EE_UINT8 srv)
 {

@@ -444,12 +444,6 @@ extern const unsigned EE_e200zx_mmu_num_entries;
  *************************************************************************/
 
 #if defined(__EE_MEMORY_PROTECTION__)
-extern EE_UREG EE_SysCall0(EE_UREG id);
-extern EE_UREG EE_SysCall1(EE_UREG id, EE_UREG arg0);
-extern EE_UREG EE_SysCall2(EE_UREG id, EE_UREG arg0, EE_UREG arg1);
-extern EE_UREG EE_SysCall3(EE_UREG id, EE_UREG arg0,
-			   EE_UREG arg1, EE_UREG arg2);
-
 typedef EE_MMU_ENTRY_T EE_MEMPROT_ENTRY_T;
 
 #define EE_MEMPROT_USR_DATA	(EE_E200ZX_MMU_PROT_SW | EE_E200ZX_MMU_PROT_SR \
@@ -535,6 +529,15 @@ void EE_hal_app_init(const EE_APP_SEC_INFO_T *app_info);
 #define EE_APPLICATION_IDATA(app)  \
 	EE_COMPILER_SECTION(".data_" EE_PREPROC_STRING(app))
 
+__asm EE_UINT8 EE_as_raw_call_trusted_func(EE_UINT32 FunctionIndex,
+	void *FunctionParams)
+{
+% reg FunctionIndex, FunctionParams
+! "r0","r3","r4","r5","r6","r7","r8","r9","r10","r11","r12","ctr"
+	mr	r3, FunctionParams
+	mr	r0, FunctionIndex
+	sc
+}
 
 /*************************************************************************
  CPU-dependent ORT support (mainly OTM)
@@ -575,6 +578,27 @@ __INLINE__ void EE_ORTI_send_otm_servicetrace(EE_UINT8 srv)
 {
 	EE_e200zx_send_otm8(EE_ORTI_OTM_ID_SERVICETRACE, srv);
 }
+
+#if defined(__EE_MEMORY_PROTECTION__)
+#if defined(RTDRUID_CONFIGURATOR_NUMBER) \
+ && RTDRUID_CONFIGURATOR_NUMBER >= RTDRUID_CONFNUM_ORTI_SERVICE_API
+#if defined __DCC__
+__asm void EE_ORTI_ext_set_service(EE_UINT8 srv)
+{
+% reg srv
+! "r0","r3","r4","r5","r6","r7","r8","r9","r10","r11","r12","ctr"
+	mr	r3, srv
+	li	r0, EE_ID_ORTI_ext_set_service
+	sc
+}
+#endif /* __DCC__ */
+#else /* RTDRUID_CONFNUM_ORTI_SERVICE_API */
+__INLINE__ void EE_ORTI_ext_set_service(EE_UINT8 srv)
+{
+}
+#endif /* else RTDRUID_CONFNUM_ORTI_SERVICE_API */
+#endif /* __EE_MEMORY_PROTECTION__ */
+
 #endif /* __OO_ORTI_SERVICETRACE__ */
 
 #endif /* __INCLUDE_E200ZX_EE_CPU_H__ */

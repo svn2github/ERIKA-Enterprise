@@ -255,39 +255,6 @@ ISR2_terminate:
 	.size	EE_as_TerminateISR2, .-EE_as_TerminateISR2
 
 
-	.global EE_SysCall0
-	.type	EE_SysCall0, @function
-EE_SysCall0:
-	mr	r0, r3
-	sc
-	blr
-	.size	EE_SysCall0, .-EE_SysCall0
-
-	.global EE_SysCall1
-	.type	EE_SysCall1, @function
-EE_SysCall1:
-	mr	r0, r4
-	sc
-	blr
-	.size	EE_SysCall1, .-EE_SysCall1
-
-	.global EE_SysCall2
-	.type	EE_SysCall2, @function
-EE_SysCall2:
-	mr	r0, r5
-	sc
-	blr
-	.size	EE_SysCall2, .-EE_SysCall2
-
-	.global EE_SysCall3
-	.type	EE_SysCall3, @function
-EE_SysCall3:
-	mr	r0, r6
-	sc
-	blr
-	.size	EE_SysCall3, .-EE_SysCall3
-
-
 	.data
 	.balign 4
 	.global EE_e200zx_ISR_stksave

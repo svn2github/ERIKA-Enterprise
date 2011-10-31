@@ -176,10 +176,10 @@ AccessType	CheckISRMemoryAccess(ISRType ISRID, MemoryStartAddressType
 			Address, MemorySizeType Size);
 AccessType	CheckTaskMemoryAccess(TaskType ISRID, MemoryStartAddressType
 			Address, MemorySizeType Size);
-
-#if 0	/* Defined as macros */
 StatusType	CallTrustedFunction(TrustedFunctionIndexType FunctionIndex,
 			 TrustedFunctionParameterRefType FunctionParams);
+
+#if 0	/* Defined as macros */
 ObjectAccessType CheckObjectAccess(ApplicationType ApplID, ObjectTypeType
 			ObjectType, EE_TID ObjectID);
 ApplicationType CheckObjectOwnership(ObjectTypeType ObjectType, EE_TID Object);

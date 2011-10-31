@@ -47,15 +47,271 @@
 #ifndef __EE_AS_CPU_H__
 #define __EE_AS_CPU_H__
 
-__INLINE__ StatusType
-CallTrustedFunction(TrustedFunctionIndexType FunctionIndex,
-		    TrustedFunctionParameterRefType FunctionParams)
+#ifdef __DCC__
+/* In-line system calls for Diab compiler */
+__asm StatusType ActivateTask(TaskType TaskID)
 {
-	if (FunctionIndex < (TrustedFunctionIndexType)EE_MAX_SYS_SERVICEID) {
-		return E_OS_SERVICEID;
-	}
-	return (StatusType)EE_SysCall1((EE_UREG)FunctionParams,
-		(EE_UREG)FunctionIndex);
+% reg TaskID
+! "r0","r3","r4","r5","r6","r7","r8","r9","r10","r11","r12","ctr"
+	mr	r3, TaskID
+	li	r0, EE_ID_ActivateTask
+	sc
 }
+__asm StatusType TerminateTask(void)
+{
+! "r0","r3","r4","r5","r6","r7","r8","r9","r10","r11","r12","ctr"
+	li	r0, EE_ID_TerminateTask
+	sc
+}
+__asm StatusType ChainTask(TaskType TaskID)
+{
+% reg TaskID
+! "r0","r3","r4","r5","r6","r7","r8","r9","r10","r11","r12","ctr"
+	mr	r3, TaskID
+	li	r0, EE_ID_ChainTask
+	sc
+}
+__asm StatusType Schedule(void)
+{
+! "r0","r3","r4","r5","r6","r7","r8","r9","r10","r11","r12","ctr"
+	li	r0, EE_ID_Schedule
+	sc
+}
+__asm StatusType ForceSchedule(void)
+{
+! "r0","r3","r4","r5","r6","r7","r8","r9","r10","r11","r12","ctr"
+	li	r0, EE_ID_ForceSchedule
+	sc
+}
+__asm StatusType GetTaskID(TaskRefType TaskID)
+{
+% reg TaskID
+! "r0","r3","r4","r5","r6","r7","r8","r9","r10","r11","r12","ctr"
+	mr	r3, TaskID
+	li	r0, EE_ID_GetTaskID
+	sc
+}
+__asm StatusType GetTaskState(TaskType TaskID, TaskStateRefType State)
+{
+% reg TaskID, State
+! "r0","r3","r4","r5","r6","r7","r8","r9","r10","r11","r12","ctr"
+	mr	r3, TaskID
+	mr	r4, State
+	li	r0, EE_ID_GetTaskState
+	sc
+}
+__asm void EnableAllInterrupts(void)
+{
+! "r0","r3","r4","r5","r6","r7","r8","r9","r10","r11","r12","ctr"
+	li	r0, EE_ID_EnableAllInterrupts
+	sc
+}
+__asm void DisableAllInterrupts(void)
+{
+! "r0","r3","r4","r5","r6","r7","r8","r9","r10","r11","r12","ctr"
+	li	r0, EE_ID_DisableAllInterrupts
+	sc
+}
+__asm void ResumeAllInterrupts(void)
+{
+! "r0","r3","r4","r5","r6","r7","r8","r9","r10","r11","r12","ctr"
+	li	r0, EE_ID_ResumeAllInterrupts
+	sc
+}
+__asm void SuspendAllInterrupts(void)
+{
+! "r0","r3","r4","r5","r6","r7","r8","r9","r10","r11","r12","ctr"
+	li	r0, EE_ID_SuspendAllInterrupts
+	sc
+}
+__asm void ResumeOSInterrupts(void)
+{
+! "r0","r3","r4","r5","r6","r7","r8","r9","r10","r11","r12","ctr"
+	li	r0, EE_ID_ResumeOSInterrupts
+	sc
+}
+__asm void SuspendOSInterrupts(void)
+{
+! "r0","r3","r4","r5","r6","r7","r8","r9","r10","r11","r12","ctr"
+	li	r0, EE_ID_SuspendOSInterrupts
+	sc
+}
+#ifndef __OO_NO_RESOURCES__
+__asm StatusType GetResource(ResourceType ResID)
+{
+% reg ResID
+! "r0","r3","r4","r5","r6","r7","r8","r9","r10","r11","r12","ctr"
+	mr	r3, ResID
+	li	r0, EE_ID_GetResource
+	sc
+}
+__asm StatusType ReleaseResource(ResourceType ResID)
+{
+% reg ResID
+! "r0","r3","r4","r5","r6","r7","r8","r9","r10","r11","r12","ctr"
+	mr	r3, ResID
+	li	r0, EE_ID_ReleaseResource
+	sc
+}
+#endif /* ! __OO_NO_RESOURCES__ */
+#ifndef __OO_NO_EVENTS__
+__asm StatusType SetEvent(TaskType TaskID, EventMaskType Mask)
+{
+% reg TaskID, Mask
+! "r0","r3","r4","r5","r6","r7","r8","r9","r10","r11","r12","ctr"
+	mr	r3, TaskID
+	mr	r4, Mask
+	li	r0, EE_ID_SetEvent
+	sc
+}
+__asm StatusType ClearEvent(EventMaskType Mask)
+{
+% reg Mask
+! "r0","r3","r4","r5","r6","r7","r8","r9","r10","r11","r12","ctr"
+	mr	r3, Mask
+	li	r0, EE_ID_ClearEvent
+	sc
+}
+__asm StatusType GetEvent(TaskType TaskID, EventMaskRefType Event)
+{
+% reg TaskID, Event
+! "r0","r3","r4","r5","r6","r7","r8","r9","r10","r11","r12","ctr"
+	mr	r3, TaskID
+	mr	r4, Event
+	li	r0, EE_ID_GetEvent
+	sc
+}
+__asm StatusType WaitEvent(EventMaskType Mask)
+{
+% reg Mask
+! "r0","r3","r4","r5","r6","r7","r8","r9","r10","r11","r12","ctr"
+	mr	r3, Mask
+	li	r0, EE_ID_WaitEvent
+	sc
+}
+#endif /* ! __OO_NO_EVENTS__ */
+#ifndef __OO_NO_ALARMS__
+__asm void CounterTick(CounterType c)
+{
+% reg c
+! "r0","r3","r4","r5","r6","r7","r8","r9","r10","r11","r12","ctr"
+	mr	r3, c
+	li	r0, EE_ID_counter_tick
+	sc
+}
+__asm StatusType GetAlarmBase(AlarmType AlarmID, AlarmBaseRefType Info)
+{
+% reg AlarmID, Info
+! "r0","r3","r4","r5","r6","r7","r8","r9","r10","r11","r12","ctr"
+	mr	r3, AlarmID
+	mr	r4, Info
+	li	r0, EE_ID_GetAlarmBase
+	sc
+}
+__asm StatusType GetAlarm(AlarmType AlarmID, TickRefType Tick)
+{
+% reg AlarmID, Tick
+! "r0","r3","r4","r5","r6","r7","r8","r9","r10","r11","r12","ctr"
+	mr	r3, AlarmID
+	mr	r4, Tick
+	li	r0, EE_ID_GetAlarm
+	sc
+}
+__asm StatusType SetRelAlarm(AlarmType AlarmID, TickType increment, TickType cycle)
+{
+% reg AlarmID, increment, cycle
+! "r0","r3","r4","r5","r6","r7","r8","r9","r10","r11","r12","ctr"
+	mr	r3, AlarmID
+	mr	r4, increment
+	mr	r5, cycle
+	li	r0, EE_ID_SetRelAlarm
+	sc
+}
+__asm StatusType SetAbsAlarm(AlarmType AlarmID, TickType start, TickType cycle)
+{
+% reg AlarmID, start, cycle
+! "r0","r3","r4","r5","r6","r7","r8","r9","r10","r11","r12","ctr"
+	mr	r3, AlarmID
+	mr	r4, start
+	mr	r5, cycle
+	li	r0, EE_ID_SetAbsAlarm
+	sc
+}
+__asm StatusType CancelAlarm(AlarmType AlarmID)
+{
+% reg AlarmID
+! "r0","r3","r4","r5","r6","r7","r8","r9","r10","r11","r12","ctr"
+	mr	r3, AlarmID
+	li	r0, EE_ID_CancelAlarm
+	sc
+}
+#endif /* ! __OO_NO_ALARMS__ */
+__asm AppModeType GetActiveApplicationMode(void)
+{
+! "r0","r3","r4","r5","r6","r7","r8","r9","r10","r11","r12","ctr"
+	li	r0, EE_ID_GetActiveApplicationMode
+	sc
+}
+__asm StatusType StartOS(AppModeType Mode)
+{
+% reg Mode
+! "r0","r3","r4","r5","r6","r7","r8","r9","r10","r11","r12","ctr"
+	mr	r3, Mode
+	li	r0, EE_ID_StartOS
+	sc
+}
+__asm void ShutdownOS(StatusType Error)
+{
+% reg Error
+! "r0","r3","r4","r5","r6","r7","r8","r9","r10","r11","r12","ctr"
+	mr	r3, Error
+	li	r0, EE_ID_ShutdownOS
+	sc
+}
+#ifdef __OO_SEM__
+__asm StatusType WaitSem(SemRefType Sem)
+{
+% reg Sem
+! "r0","r3","r4","r5","r6","r7","r8","r9","r10","r11","r12","ctr"
+	mr	r3, Sem
+	li	r0, EE_ID_WaitSem
+	sc
+}
+__asm void WaitSem(SemRefType Sem)
+{
+% reg Sem
+! "r0","r3","r4","r5","r6","r7","r8","r9","r10","r11","r12","ctr"
+	mr	r3, Sem
+	li	r0, EE_ID_WaitSem
+	sc
+}
+__asm int TryWaitSem(SemRefType Sem)
+{
+% reg Sem
+! "r0","r3","r4","r5","r6","r7","r8","r9","r10","r11","r12","ctr"
+	mr	r3, Sem
+	li	r0, EE_ID_TryWaitSem
+	sc
+}
+__asm StatusType PostSem(SemRefType Sem)
+{
+% reg Sem
+! "r0","r3","r4","r5","r6","r7","r8","r9","r10","r11","r12","ctr"
+	mr	r3, Sem
+	li	r0, EE_ID_PostSem
+	sc
+}
+__asm int GetValueSem(SemRefType Sem)
+{
+% reg Sem
+! "r0","r3","r4","r5","r6","r7","r8","r9","r10","r11","r12","ctr"
+	mr	r3, Sem
+	li	r0, EE_ID_GetValueSem
+	sc
+}
+#endif /* __OO_SEM__ */
+#else /* __DCC__ */
+#error "Compiler not supported"
+#endif /* else __DCC__ */
 
 #endif /* __EE_AS_CPU_H__ */
