@@ -191,10 +191,14 @@ __asm void EE_ISR2_prestub(int toid, int isrid)
 #if 0 /* Arbitrary TerminateIsr() not supported */
 	stw	sp, (r9)			# tos->TerminationTOS <= sp
 #endif
+	/* `isync' is needed for pid0 update */
+	isync
 	mtpid0	toid				# switch app
 
 	lwz	r0, 4(r8)			# r0 <= to->Mode
 	mtmsr	r0				# switch appmode
+	/* `isync' is needed for both pid0 and msr updates */
+	isync
 	.set reorder
 }
 

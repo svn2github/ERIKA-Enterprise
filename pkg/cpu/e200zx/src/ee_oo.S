@@ -97,6 +97,7 @@ EE_hal_terminate_savestk:
 	add	r4, r4, r0
 	lwz	r0, 4(r4)
 	mtmsr	r0
+	isync
 	blrl
 	/* Call TerminateTask(), which never returns */
 	li	r0, EE_ID_TerminateTask
