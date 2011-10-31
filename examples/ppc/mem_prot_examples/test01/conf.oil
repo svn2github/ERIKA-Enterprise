@@ -29,6 +29,7 @@ CPU PerfTestApp {
 
 		KERNEL_TYPE = SC4;
 
+		EE_OPT = "DEBUG";
 //		ORTI_SECTIONS = ALL;
 	};
 
