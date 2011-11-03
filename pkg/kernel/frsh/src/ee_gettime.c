@@ -50,9 +50,10 @@
 EE_TIME EE_frsh_sys_gettime()
 {
   EE_TIME t;
-  EE_hal_begin_primitive();
+  register EE_FREG flags;
+  flags = EE_hal_begin_nested_primitive();
   t = EE_hal_gettime();
-  EE_hal_end_primitive();
+  EE_hal_end_nested_primitive(flags);
   return t;
 }
 #endif

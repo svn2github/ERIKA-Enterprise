@@ -52,7 +52,8 @@ void EE_frsh_GetResource(EE_TYPERESOURCE m)
   register EE_TYPERESOURCE tmp;
 #endif
   
-  EE_hal_begin_primitive();
+  register EE_FREG flag;
+  flag = EE_hal_begin_nested_primitive();
   
 #ifdef __MSRP__
   /* mask off the MSB, that indicates whether this is a global or a
@@ -71,7 +72,7 @@ void EE_frsh_GetResource(EE_TYPERESOURCE m)
   
   EE_th[EE_exec].lockedcounter++;
   
-  EE_hal_end_primitive();
+  EE_hal_end_nested_primitive(flag);
 }
 #endif /* __PRIVATE_MUTEX_LOCK__ */
 
