@@ -64,6 +64,7 @@
 StatusType EE_oo_ChainTask(TaskType TaskID)
 {
   register TaskType current;
+  register EE_FREG np_flags;
 
 #ifdef __OO_ORTI_SERVICETRACE__
   EE_ORTI_servicetrace = EE_SERVICETRACE_CHAINTASK+1U;
@@ -80,7 +81,7 @@ StatusType EE_oo_ChainTask(TaskType TaskID)
 #endif
 
 #ifdef __OO_HAS_ERRORHOOK__
-    EE_hal_begin_primitive();
+    np_flags = EE_hal_begin_nested_primitive();
     if (!EE_ErrorHook_nested_flag) {
 #ifndef __OO_ERRORHOOK_NOMACROS__
       EE_oo_ErrorHook_ServiceID = OSServiceId_ChainTask;
@@ -90,7 +91,7 @@ StatusType EE_oo_ChainTask(TaskType TaskID)
       ErrorHook(E_OS_CALLEVEL);
       EE_ErrorHook_nested_flag = 0U;
     }
-    EE_hal_end_primitive();
+    EE_hal_end_nested_primitive(np_flags);
 #endif
 
 #ifdef __OO_ORTI_SERVICETRACE__
@@ -107,7 +108,7 @@ StatusType EE_oo_ChainTask(TaskType TaskID)
 #endif
 
 #ifdef __OO_HAS_ERRORHOOK__
-    EE_hal_begin_primitive();
+    np_flags = EE_hal_begin_nested_primitive();
     if (!EE_ErrorHook_nested_flag) {
 #ifndef __OO_ERRORHOOK_NOMACROS__
       EE_oo_ErrorHook_ServiceID = OSServiceId_ChainTask;
@@ -117,7 +118,7 @@ StatusType EE_oo_ChainTask(TaskType TaskID)
       ErrorHook(E_OS_ID);
       EE_ErrorHook_nested_flag = 0U;
     }
-    EE_hal_end_primitive();
+    EE_hal_end_nested_primitive(np_flags);
 #endif
 
 #ifdef __OO_ORTI_SERVICETRACE__
@@ -134,7 +135,7 @@ StatusType EE_oo_ChainTask(TaskType TaskID)
 #endif
 
 #ifdef __OO_HAS_ERRORHOOK__
-    EE_hal_begin_primitive();
+    np_flags = EE_hal_begin_nested_primitive();
     if (!EE_ErrorHook_nested_flag) {
 #ifndef __OO_ERRORHOOK_NOMACROS__
       EE_oo_ErrorHook_ServiceID = OSServiceId_ChainTask;
@@ -144,7 +145,7 @@ StatusType EE_oo_ChainTask(TaskType TaskID)
       ErrorHook(E_OS_RESOURCE);
       EE_ErrorHook_nested_flag = 0U;
     }
-    EE_hal_end_primitive();
+    EE_hal_end_nested_primitive(np_flags);
 #endif
 
 #ifdef __OO_ORTI_SERVICETRACE__
@@ -160,7 +161,7 @@ StatusType EE_oo_ChainTask(TaskType TaskID)
 
 
 
-  EE_hal_begin_primitive();
+  np_flags = EE_hal_begin_nested_primitive();
 
   /* check for pending activations; works also if the task passed as
      parameter inside ChainTask is the calling task; 
@@ -183,7 +184,7 @@ StatusType EE_oo_ChainTask(TaskType TaskID)
     }
 #endif
 
-    EE_hal_end_primitive();
+    EE_hal_end_nested_primitive(np_flags);
 
 #ifdef __OO_ORTI_SERVICETRACE__
     EE_ORTI_servicetrace = EE_SERVICETRACE_CHAINTASK;

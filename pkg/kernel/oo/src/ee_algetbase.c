@@ -58,6 +58,9 @@ void EE_oo_GetAlarmBase(AlarmType AlarmID, AlarmBaseRefType Info)
 #endif
 {
   register const EE_oo_counter_ROM_type *c;
+#ifdef __OO_HAS_ERRORHOOK__
+  register EE_FREG np_flags;
+#endif
 
 #ifdef __OO_ORTI_SERVICETRACE__
   EE_ORTI_servicetrace = EE_SERVICETRACE_GETALARMBASE+1U;
@@ -72,7 +75,7 @@ void EE_oo_GetAlarmBase(AlarmType AlarmID, AlarmBaseRefType Info)
 
     /* Kernel mutual exclusion needed only here */
 #ifdef __OO_HAS_ERRORHOOK__
-    EE_hal_begin_primitive();
+    np_flags = EE_hal_begin_nested_primitive();
     if (!EE_ErrorHook_nested_flag) {
 #ifndef __OO_ERRORHOOK_NOMACROS__
       EE_oo_ErrorHook_ServiceID = OSServiceId_GetAlarmBase;
@@ -83,7 +86,7 @@ void EE_oo_GetAlarmBase(AlarmType AlarmID, AlarmBaseRefType Info)
       ErrorHook(E_OS_ID);
       EE_ErrorHook_nested_flag = 0U;
     }
-    EE_hal_end_primitive();
+    EE_hal_end_nested_primitive(np_flags);
 #endif
 
 #ifdef __OO_ORTI_SERVICETRACE__

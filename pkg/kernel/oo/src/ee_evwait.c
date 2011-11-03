@@ -66,6 +66,7 @@ void EE_oo_WaitEvent(EventMaskType Mask)
 #endif
 {
   TaskType current, tmp;
+  register EE_FREG np_flags;
 
 #ifdef __OO_ORTI_SERVICETRACE__
   EE_ORTI_servicetrace = EE_SERVICETRACE_WAITEVENT+1U;
@@ -84,7 +85,7 @@ void EE_oo_WaitEvent(EventMaskType Mask)
 #endif
 
 #ifdef __OO_HAS_ERRORHOOK__
-    EE_hal_begin_primitive();
+    np_flags = EE_hal_begin_nested_primitive();
     if (!EE_ErrorHook_nested_flag) {
 #ifndef __OO_ERRORHOOK_NOMACROS__
       EE_oo_ErrorHook_ServiceID = OSServiceId_WaitEvent;
@@ -94,7 +95,7 @@ void EE_oo_WaitEvent(EventMaskType Mask)
       ErrorHook(E_OS_CALLEVEL);
       EE_ErrorHook_nested_flag = 0U;
     }
-    EE_hal_end_primitive();
+    EE_hal_end_nested_primitive(np_flags);
 #endif
 
 #ifdef __OO_ORTI_SERVICETRACE__
@@ -112,7 +113,7 @@ void EE_oo_WaitEvent(EventMaskType Mask)
 #endif
 
 #ifdef __OO_HAS_ERRORHOOK__
-    EE_hal_begin_primitive();
+    np_flags = EE_hal_begin_nested_primitive();
     if (!EE_ErrorHook_nested_flag) {  
 #ifndef __OO_ERRORHOOK_NOMACROS__
       EE_oo_ErrorHook_ServiceID = OSServiceId_WaitEvent;
@@ -122,7 +123,7 @@ void EE_oo_WaitEvent(EventMaskType Mask)
       ErrorHook(E_OS_RESOURCE);
       EE_ErrorHook_nested_flag = 0U;
     }
-    EE_hal_end_primitive();
+    EE_hal_end_nested_primitive(np_flags);
 #endif
 
 #ifdef __OO_ORTI_SERVICETRACE__
@@ -140,7 +141,7 @@ void EE_oo_WaitEvent(EventMaskType Mask)
 #endif
 
 #ifdef __OO_HAS_ERRORHOOK__
-    EE_hal_begin_primitive();
+    np_flags = EE_hal_begin_nested_primitive();
     if (!EE_ErrorHook_nested_flag) {
 #ifndef __OO_ERRORHOOK_NOMACROS__
       EE_oo_ErrorHook_ServiceID = OSServiceId_WaitEvent;
@@ -150,7 +151,7 @@ void EE_oo_WaitEvent(EventMaskType Mask)
       ErrorHook(E_OS_ACCESS);
       EE_ErrorHook_nested_flag = 0U;
     }
-    EE_hal_end_primitive();
+    EE_hal_end_nested_primitive(np_flags);
 #endif
 
 #ifdef __OO_ORTI_SERVICETRACE__
@@ -161,7 +162,7 @@ void EE_oo_WaitEvent(EventMaskType Mask)
   }
 #endif
 
-  EE_hal_begin_primitive();
+  np_flags = EE_hal_begin_nested_primitive();
 
   /* check if we have to wait */
   if (!(EE_th_event_active[current] & Mask)) {
@@ -239,7 +240,7 @@ void EE_oo_WaitEvent(EventMaskType Mask)
     PreTaskHook();
 #endif	
   }
-  EE_hal_end_primitive();
+  EE_hal_end_nested_primitive(np_flags);
   
 #ifdef __OO_ORTI_SERVICETRACE__
   EE_ORTI_servicetrace = EE_SERVICETRACE_WAITEVENT;

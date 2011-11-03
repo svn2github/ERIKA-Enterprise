@@ -66,6 +66,7 @@ void EE_oo_WaitSem(SemRefType Sem)
 #endif
 {
   TaskType current, tmp;
+  register EE_FREG np_flags;
 
 #ifdef __OO_ORTI_SERVICETRACE__
   EE_ORTI_servicetrace = EE_SERVICETRACE_WAITSEM+1U;
@@ -84,7 +85,7 @@ void EE_oo_WaitSem(SemRefType Sem)
 #endif
 
 #ifdef __OO_HAS_ERRORHOOK__
-    EE_hal_begin_primitive();
+    np_flags = EE_hal_begin_nested_primitive();
     if (!EE_ErrorHook_nested_flag) {
 #ifndef __OO_ERRORHOOK_NOMACROS__
       EE_oo_ErrorHook_ServiceID = OSServiceId_WaitSem;
@@ -94,7 +95,7 @@ void EE_oo_WaitSem(SemRefType Sem)
       ErrorHook(E_OS_CALLEVEL);
       EE_ErrorHook_nested_flag = 0;
     }
-    EE_hal_end_primitive();
+    EE_hal_end_nested_primitive(np_flags);
 #endif
 
 #ifdef __OO_ORTI_SERVICETRACE__
@@ -112,7 +113,7 @@ void EE_oo_WaitSem(SemRefType Sem)
 #endif
 
 #ifdef __OO_HAS_ERRORHOOK__
-    EE_hal_begin_primitive();
+    np_flags = EE_hal_begin_nested_primitive();
     if (!EE_ErrorHook_nested_flag) {  
 #ifndef __OO_ERRORHOOK_NOMACROS__
       EE_oo_ErrorHook_ServiceID = OSServiceId_WaitSem;
@@ -122,7 +123,7 @@ void EE_oo_WaitSem(SemRefType Sem)
       ErrorHook(E_OS_RESOURCE);
       EE_ErrorHook_nested_flag = 0;
     }
-    EE_hal_end_primitive();
+    EE_hal_end_nested_primitive(np_flags);
 #endif
 
 #ifdef __OO_ORTI_SERVICETRACE__
@@ -140,7 +141,7 @@ void EE_oo_WaitSem(SemRefType Sem)
 #endif
 
 #ifdef __OO_HAS_ERRORHOOK__
-    EE_hal_begin_primitive();
+    flags = EE_hal_begin_nested_primitive();
     if (!EE_ErrorHook_nested_flag) {
 #ifndef __OO_ERRORHOOK_NOMACROS__
       EE_oo_ErrorHook_ServiceID = OSServiceId_WaitSem;
@@ -150,7 +151,7 @@ void EE_oo_WaitSem(SemRefType Sem)
       ErrorHook(E_OS_ACCESS);
       EE_ErrorHook_nested_flag = 0;
     }
-    EE_hal_end_primitive();
+    EE_hal_end_nested_primitive(np_flags);
 #endif
 
 #ifdef __OO_ORTI_SERVICETRACE__
@@ -161,7 +162,7 @@ void EE_oo_WaitSem(SemRefType Sem)
   }
 #endif
 
-  EE_hal_begin_primitive();
+  np_flags = EE_hal_begin_nested_primitive();
 
   /* handle a local semaphore queue */
   /* check if we have to wait */
@@ -247,7 +248,7 @@ void EE_oo_WaitSem(SemRefType Sem)
     PreTaskHook();
 #endif	
   }
-  EE_hal_end_primitive();
+  EE_hal_end_nested_primitive(np_flags);
   
 #ifdef __OO_ORTI_SERVICETRACE__
   EE_ORTI_servicetrace = EE_SERVICETRACE_WAITSEM;

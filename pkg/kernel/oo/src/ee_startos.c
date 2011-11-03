@@ -89,6 +89,7 @@ void EE_oo_StartOS(AppModeType Mode)
 #if defined(__OO_AUTOSTART_TASK__) || defined(__OO_AUTOSTART_ALARM__)
   register EE_UINT8 t, n;
 #endif
+  register EE_FREG np_flags;
 
 #ifdef __OO_ORTI_SERVICETRACE__
   EE_ORTI_servicetrace = EE_SERVICETRACE_STARTOS+1U;
@@ -106,7 +107,7 @@ void EE_oo_StartOS(AppModeType Mode)
 #endif /* __OO_ORTI_LASTERROR__ */
 
 #ifdef __OO_HAS_ERRORHOOK__
-    EE_hal_begin_primitive();
+    np_flags = EE_hal_begin_nested_primitive();
     if (!EE_ErrorHook_nested_flag) {
 #ifndef __OO_ERRORHOOK_NOMACROS__
       EE_oo_ErrorHook_ServiceID = OSServiceId_StartOS;
@@ -116,7 +117,7 @@ void EE_oo_StartOS(AppModeType Mode)
       ErrorHook(E_OS_SYS_INIT);
       EE_ErrorHook_nested_flag = 0U;
     }
-    EE_hal_end_primitive();
+    EE_hal_end_nested_primitive(np_flags);
 #endif /* __OO_HAS_ERRORHOOK__ */
 
 #ifdef __OO_ORTI_SERVICETRACE__
@@ -132,7 +133,7 @@ void EE_oo_StartOS(AppModeType Mode)
 #endif /* __OO_EXTENDED_STATUS__ */
 #endif /* __OO_CPU_HAS_STARTOS_ROUTINE__ */
 
-  EE_hal_begin_primitive();
+  np_flags = EE_hal_begin_nested_primitive();
 
   EE_ApplicationMode = Mode;
   
@@ -187,7 +188,7 @@ void EE_oo_StartOS(AppModeType Mode)
       EE_hal_ready2stacked(EE_rq2stk_exchange());
 #endif
   }
-  EE_hal_end_primitive();
+  EE_hal_end_nested_primitive(np_flags);
 
 #ifdef __OO_ORTI_SERVICETRACE__
   EE_ORTI_servicetrace = EE_SERVICETRACE_STARTOS;

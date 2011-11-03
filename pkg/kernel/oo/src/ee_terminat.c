@@ -60,6 +60,8 @@
 
 StatusType EE_oo_TerminateTask(void)
 {
+	register EE_FREG np_flags;
+
 	#ifdef __OO_ORTI_SERVICETRACE__
 	EE_ORTI_servicetrace = EE_SERVICETRACE_TERMINATETASK+1U;
 	#endif
@@ -74,7 +76,7 @@ StatusType EE_oo_TerminateTask(void)
 		#endif
 
 		#ifdef __OO_HAS_ERRORHOOK__
-    	EE_hal_begin_primitive();
+    	np_flags = EE_hal_begin_nested_primitive();
     	if (!EE_ErrorHook_nested_flag) 
 		{
 			#ifndef __OO_ERRORHOOK_NOMACROS__
@@ -84,7 +86,7 @@ StatusType EE_oo_TerminateTask(void)
     		ErrorHook(E_OS_CALLEVEL);
     		EE_ErrorHook_nested_flag = 0U;
     	}
-    	EE_hal_end_primitive();
+    	EE_hal_end_nested_primitive(np_flags);
 		#endif
 
 		#ifdef __OO_ORTI_SERVICETRACE__
@@ -104,7 +106,7 @@ StatusType EE_oo_TerminateTask(void)
 		#endif
 
 		#ifdef __OO_HAS_ERRORHOOK__
-    	EE_hal_begin_primitive();
+    	np_flags = EE_hal_begin_nested_primitive();
     	if (!EE_ErrorHook_nested_flag) 
 		{
 		#ifndef __OO_ERRORHOOK_NOMACROS__
@@ -114,7 +116,7 @@ StatusType EE_oo_TerminateTask(void)
       	ErrorHook(E_OS_RESOURCE);
       	EE_ErrorHook_nested_flag = 0U;
     	}
-    	EE_hal_end_primitive();
+    	EE_hal_end_nested_primitive(np_flags);
 		#endif
 
 		#ifdef __OO_ORTI_SERVICETRACE__
@@ -125,7 +127,7 @@ StatusType EE_oo_TerminateTask(void)
   	}
 	#endif
 
-  	EE_hal_begin_primitive();
+  	np_flags = EE_hal_begin_nested_primitive();
 
 	#ifndef __OO_NO_CHAINTASK__
   	EE_th_terminate_nextask[EE_stk_queryfirst()] = EE_NIL;

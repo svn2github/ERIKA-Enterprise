@@ -64,6 +64,7 @@ void EE_oo_ClearEvent(EventMaskType Mask)
 #endif
 {
   EE_TID current;
+  register EE_FREG np_flags;
 
 #ifdef __OO_ORTI_SERVICETRACE__
   EE_ORTI_servicetrace = EE_SERVICETRACE_CLEAREVENT+1U;
@@ -82,7 +83,7 @@ void EE_oo_ClearEvent(EventMaskType Mask)
 #endif
 
 #ifdef __OO_HAS_ERRORHOOK__
-    EE_hal_begin_primitive();
+    np_flags = EE_hal_begin_nested_primitive();
     if (!EE_ErrorHook_nested_flag) {  
 #ifndef __OO_ERRORHOOK_NOMACROS__
       EE_oo_ErrorHook_ServiceID = OSServiceId_ClearEvent;
@@ -92,7 +93,7 @@ void EE_oo_ClearEvent(EventMaskType Mask)
       ErrorHook(E_OS_CALLEVEL);
       EE_ErrorHook_nested_flag = 0U;
     }
-    EE_hal_end_primitive();
+    EE_hal_end_nested_primitive(np_flags);
 #endif
 
 #ifdef __OO_ORTI_SERVICETRACE__
@@ -109,7 +110,7 @@ void EE_oo_ClearEvent(EventMaskType Mask)
 #endif
 
 #ifdef __OO_HAS_ERRORHOOK__
-    EE_hal_begin_primitive();
+    np_flags = EE_hal_begin_nested_primitive();
     if (!EE_ErrorHook_nested_flag) {  
 #ifndef __OO_ERRORHOOK_NOMACROS__
       EE_oo_ErrorHook_ServiceID = OSServiceId_ClearEvent;
@@ -119,7 +120,7 @@ void EE_oo_ClearEvent(EventMaskType Mask)
       ErrorHook(E_OS_ACCESS);
       EE_ErrorHook_nested_flag = 0U;
     }
-    EE_hal_end_primitive();
+    EE_hal_end_nested_primitive(np_flags);
 #endif
 
 #ifdef __OO_ORTI_SERVICETRACE__
@@ -131,12 +132,12 @@ void EE_oo_ClearEvent(EventMaskType Mask)
 #endif
 
 
-  EE_hal_begin_primitive();
+  np_flags = EE_hal_begin_nested_primitive();
 
   /* clear the event */
   EE_th_event_active[current] &= ~Mask;
 
-  EE_hal_end_primitive();
+  EE_hal_end_nested_primitive(np_flags);
 
 #ifdef __OO_ORTI_SERVICETRACE__
   EE_ORTI_servicetrace = EE_SERVICETRACE_CLEAREVENT;
