@@ -62,15 +62,16 @@ void EE_cab_init(const struct EE_cab_ROM_desc *c)
 void EE_cab_reserve(const struct EE_cab_ROM_desc *c, void **msg, EE_CAB_INDEX *msg_num)
 {
   EE_CAB_INDEX i;
+  register EE_FREG flags;
 
-  EE_hal_begin_primitive();
+  flags = EE_hal_begin_nested_primitive();
     
   i = --(c->ram_desc->free);
 
   *msg = (void *)(c->msgs + i*c->dim_msg);
   *msg_num = c->freestk[i];
 
-  EE_hal_end_primitive();
+  EE_hal_end_nested_primitive(flags);
 }
 #endif
 
@@ -78,8 +79,9 @@ void EE_cab_reserve(const struct EE_cab_ROM_desc *c, void **msg, EE_CAB_INDEX *m
 void EE_cab_putmes(const struct EE_cab_ROM_desc *c, EE_CAB_INDEX msg_num)
 {
   EE_CAB_INDEX old;
+  register EE_FREG flags;
 
-  EE_hal_begin_primitive();
+  flags = EE_hal_begin_nested_primitive();
 
   old = c->ram_desc->mrd;
 
@@ -89,7 +91,7 @@ void EE_cab_putmes(const struct EE_cab_ROM_desc *c, EE_CAB_INDEX msg_num)
   
   c->ram_desc->mrd = msg_num;
 
-  EE_hal_end_primitive();
+  EE_hal_end_nested_primitive(flags);
 }
 #endif
 
@@ -97,8 +99,9 @@ void EE_cab_putmes(const struct EE_cab_ROM_desc *c, EE_CAB_INDEX msg_num)
 void EE_cab_getmes(const struct EE_cab_ROM_desc *c, void **msg, EE_CAB_INDEX *msg_num)
 {
   EE_CAB_INDEX mrd;
+  register EE_FREG flags;
 
-  EE_hal_begin_primitive();
+  flags = EE_hal_begin_nested_primitive();
 
   mrd = c->ram_desc->mrd;
   c->used[mrd]++;
@@ -106,14 +109,15 @@ void EE_cab_getmes(const struct EE_cab_ROM_desc *c, void **msg, EE_CAB_INDEX *ms
   *msg = (void *)(c->msgs + mrd*c->dim_msg);
   *msg_num = mrd;
 
-  EE_hal_end_primitive();
+  EE_hal_end_nested_primitive(flags);
 }
 #endif
 
 #ifndef __PRIVATE_CAB_UNGET__
 void EE_cab_unget(const struct EE_cab_ROM_desc *c, EE_CAB_INDEX msg_num)
 {
-  EE_hal_begin_primitive();
+  register EE_FREG flags;
+  flags = EE_hal_begin_nested_primitive();
 
   c->used[msg_num]--;
 
@@ -121,6 +125,6 @@ void EE_cab_unget(const struct EE_cab_ROM_desc *c, EE_CAB_INDEX msg_num)
     c->freestk[c->ram_desc->free++] = msg_num;
   }
 
-  EE_hal_end_primitive();
+  EE_hal_end_nested_primitive(flags);
 }
 #endif
