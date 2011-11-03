@@ -51,7 +51,8 @@ void EE_edf_Schedule(void)
   register EE_TID tmp_rq;
   register EE_TID tmp_stk;
   
-  EE_hal_begin_primitive();
+  register EE_FREG np_flags;
+  np_flags = EE_hal_begin_nested_primitive();
   
   tmp_rq = EE_rq_queryfirst();
   tmp_stk = EE_stk_queryfirst();
@@ -91,6 +92,6 @@ void EE_edf_Schedule(void)
     EE_sys_ceiling |= EE_th_dispatch_prio[tmp_stk];
   }
   
-  EE_hal_end_primitive();
+  EE_hal_end_nested_primitive(np_flags);
 }
 #endif
