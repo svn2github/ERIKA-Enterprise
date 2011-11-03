@@ -48,43 +48,28 @@
  
 #include <machine.h>
 #include <scicos_block4.h>
-
 #include <ee.h>
 #include "mcu/microchip_dspic/inc/ee_uart.h"
 
-/* TODO: the initialization check should be done among the send and receive 
-         blocks, so that a global variable is required for all of them
-*/
-static EE_UINT8 serial_initialized = 0;
+extern volatile EE_UINT8  scicos_uart_port;
+extern volatile EE_UINT32 scicos_uart_baudrate;
 
 void flex_serial_send(scicos_block *block,int flag)
 {
-	EE_UINT8 serial_port = block->ipar[0];
-	EE_UINT32 baudrate = block->rpar[0];
-	float * u = block->inptr[0];
-
-	if ((serial_port < 1) || (serial_port > 2))
-	  return;
-	if ((baudrate != 9600) && (baudrate != 19200) && (baudrate != 57600) && (baudrate != 115200))
-		return;
+	unsigned char * u = block->inptr[0];
 
 	switch(flag) {
-		case OutputUpdate:	/* set output */
-			EE_uart_write_byte(serial_port-1,(EE_UINT8)u[0]);
+		case OutputUpdate:	
+			EE_uart_write_byte(scicos_uart_port-1,(EE_UINT8)u[0]);
 			break;
 
-		case StateUpdate:	/* get input */
+		case StateUpdate:	
 			break;
 		
-		case Initialization:	/* initialisation */
-			if (serial_initialized)
-				break;
-			EE_uart_init(serial_port-1,baudrate,EE_UART_BIT8_NO|EE_UART_BIT_STOP_1|EE_UART_CTRL_SIMPLE,0);
-			serial_initialized = 1;
+		case Initialization:	
 			break;
 		
-		case Ending:	/* ending */
-			EE_uart_close(serial_port-1);
+		case Ending:	
 			break;
 	}
 }

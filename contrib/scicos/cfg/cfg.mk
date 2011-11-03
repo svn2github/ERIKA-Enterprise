@@ -84,7 +84,9 @@ ifeq ($(call iseeopt, __EE_EASYLAB__), yes)
 EE_SRCS += $(EE_SRCS_SCICOS)
 
 ifeq ($(call iseeopt, __USE_UART__), yes)
-EE_SRCS += contrib/scicos/src/pic30/communication/easylab_serial.c
+  ifeq ($(call iseeopt, __EE_UART_PORT1_CBUFFER__), yes)
+    EE_SRCS += contrib/scicos/src/pic30/communication/easylab_serial.c
+  endif #__EE_UART_PORT1_CBUFFER__
 endif #__USE_UART__
 
 endif #__EE_EASYLAB__

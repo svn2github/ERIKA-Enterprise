@@ -39,7 +39,7 @@
  * ###*E*### */
 
 /** 
-	@file flex_serial_receive.c
+	@file flex_serial_send.c
 	@brief www.scicos.org, www.scicoslab.org
 	@author Roberto Bucher, SUPSI- Lugano
 	@author Simone Mannori, ScicosLab developer
@@ -48,36 +48,31 @@
  
 #include <machine.h>
 #include <scicos_block4.h>
+
 #include <ee.h>
 #include "mcu/microchip_dspic/inc/ee_uart.h"
 
-extern volatile EE_UINT8  scicos_uart_port;
-extern volatile EE_UINT32 scicos_uart_baudrate;
+volatile EE_UINT8  scicos_uart_port;
+volatile EE_UINT32 scicos_uart_baudrate;
 
-void flex_serial_receive(scicos_block *block,int flag)
+void flex_serial_config(scicos_block *block,int flag)
 {
-	EE_UINT8 serial_data;
-	EE_INT8 res;
+	scicos_uart_port = block->ipar[0];
+	scicos_uart_baudrate = block->rpar[0];
 
-    unsigned char *y = block->outptr[0];
-
-	switch (flag) {
-
-		case OutputUpdate:
-			res = EE_uart_read_byte(scicos_uart_port-1, &serial_data);
-			if (res == EE_UART_ERR_NO_DATA)
-				y[0] = '\0';
-			else
-				y[0] = serial_data;
+	switch(flag) {
+		case OutputUpdate:	
 			break;
 
-		case StateUpdate: 
+		case StateUpdate:	
 			break;
 		
-		case Initialization:
+		case Initialization:	
+			EE_uart_init(scicos_uart_port-1, scicos_uart_baudrate, EE_UART_BIT8_NO|EE_UART_BIT_STOP_1|EE_UART_CTRL_SIMPLE, 0);
 			break;
 		
 		case Ending:	
+			EE_uart_close(scicos_uart_port-1);
 			break;
 	}
 }
