@@ -50,7 +50,8 @@ void EE_sem_WaitSem(SemRefType s)
 {
   EE_TID current;
 
-  EE_hal_begin_primitive();
+  register EE_FREG np_flags;
+  np_flags = EE_hal_begin_nested_primitive();
 
   if (s->count)
     s->count--;
@@ -133,6 +134,6 @@ void EE_sem_WaitSem(SemRefType s)
     }
   }
   
-  EE_hal_end_primitive();
+  EE_hal_end_nested_primitive(np_flags);
 }
 #endif
