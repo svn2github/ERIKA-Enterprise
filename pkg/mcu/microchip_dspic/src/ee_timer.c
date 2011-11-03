@@ -7,7 +7,7 @@
  *
  * ERIKA Enterprise is free software; you can redistribute it
  * and/or modify it under the terms of the GNU General Public License
- * version 2 as published by the Free Software Foundation, 
+ * version 2 as published by the Free Software Foundation,
  * (with a special exception described below).
  *
  * Linking this code statically or dynamically with other modules is
@@ -38,7 +38,7 @@
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
 
-/** 
+/**
     @file     ee_timer.c
     @brief     TIMER library source file.\n
     @author Errico Guidieri
@@ -52,7 +52,7 @@
 
 
 /* Following API make sense only if alarms are defined */
-#if defined(__ALARMS__) | ( defined(__OO_BCC1__) | defined( __OO_BCC2__) | defined(__OO_ECC1__) | defined(__OO_ECC2__) & !defined(__OO_NO_ALARMS__) )
+#if defined(__ALARMS__) | ( ( defined(__OO_BCC1__) | defined( __OO_BCC2__) | defined(__OO_ECC1__) | defined(__OO_ECC2__) ) & !defined(__OO_NO_ALARMS__) )
 
 static void EE_timer1_set_callback(EE_ISR_callback func);
 static void EE_timer2_set_callback(EE_ISR_callback func);
@@ -121,15 +121,15 @@ static void EE_timer1_init(EE_UINT16 t1_period, EE_TimerPrescaleFactor ps)
     T1CONbits.TCKPS = ps;           /* select Timer1 Input Clock Prescale */
 }
 
-static void EE_timer1_start() 
+static void EE_timer1_start()
 {
     IFS0bits.T1IF = 0;              /* reset Timer 1 interrupt flag */
-    T1CONbits.TON = 1;              /* enable Timer 1 and start the count */ 
+    T1CONbits.TON = 1;              /* enable Timer 1 and start the count */
 }
 
 void EE_timer1_stop( void )
 {
-    T1CONbits.TON = 0;              /* enable Timer 1 and start the count */ 
+    T1CONbits.TON = 0;              /* enable Timer 1 and start the count */
     IEC0bits.T1IE = 0;              /* disable Timer 1 interrupt */
 }
 
@@ -157,7 +157,7 @@ static void EE_timer2_init(EE_UINT16 t2_period, EE_TimerPrescaleFactor ps)
     TMR2 = 0x00;                      /* Clear timer register */
     PR2 = t2_period;                  /* set Timer 2 period register */
     T2CONbits.TCKPS = ps;             /* select Timer 2 Input Clock Prescale */
-    T2CONbits.TON = 1;                /* enable Timer 2 and start the count */ 
+    T2CONbits.TON = 1;                /* enable Timer 2 and start the count */
 }
 
 static void EE_timer2_start()
@@ -168,7 +168,7 @@ static void EE_timer2_start()
 
 static void EE_timer2_stop( void )
 {
-    T2CONbits.TON = 0;                /* enable Timer 2 and start the count */ 
+    T2CONbits.TON = 0;                /* enable Timer 2 and start the count */
     IEC0bits.T2IE = 0;                /* disable Timer 2 interrupt */
 }
 
@@ -217,7 +217,7 @@ EE_INT8 EE_timer_soft_init(EE_TimerId id, EE_UINT32 period_us)
     volatile EE_UINT32 baseFreq = g_baseFreq;
     g_ticks = MICROSECONDS_TO_TICKS(period_us, baseFreq);
     volatile EE_UINT32 ticks = g_ticks;
-    
+
     EE_UINT32 const max_period  = 0xffffUL;
     EE_UINT16 prd; /* Period */
     EE_UINT8  psc; /* Prescale */

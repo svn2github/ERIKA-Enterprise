@@ -7,7 +7,7 @@
  *
  * ERIKA Enterprise is free software; you can redistribute it
  * and/or modify it under the terms of the GNU General Public License
- * version 2 as published by the Free Software Foundation, 
+ * version 2 as published by the Free Software Foundation,
  * (with a special exception described below).
  *
  * Linking this code statically or dynamically with other modules is
@@ -38,15 +38,15 @@
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
 
-/** 
+/**
     @file   ee_timer.h
     @brief  TIMER library header file.
-            
+
     Simple TIMER API. With this API you can supply a period (in us or directly in tics),
-    start a free running timer and receive a notification through a given callback, 
+    start a free running timer and receive a notification through a given callback,
     every period.
     Only EE_TIMER_1 and EE_TIMER_2 are already implemented.
-    
+
     @author Errico Guidieri
     @date   2011
 
@@ -57,12 +57,12 @@
 
 #include "ee.h"
 
-/** Utility Macro that convert an amount of ms in number of ticks of a given 
+/** Utility Macro that convert an amount of ms in number of ticks of a given
     frequency **/
 #define MILLISECONDS_TO_TICKS(X_MS, REF_FREQ_HZ)                            \
     ((X_MS) * ((REF_FREQ_HZ) / 1000UL))
 
-/** Utility Macro that convert an amount of us in number of ticks of a given 
+/** Utility Macro that convert an amount of us in number of ticks of a given
     frequency **/
 #define MICROSECONDS_TO_TICKS(X_MICROSECS, REF_FREQ_HZ)                     \
     (((X_MICROSECS) / 1000UL)?                                              \
@@ -96,41 +96,41 @@ typedef enum _EE_TimerId {
 
 /**
     @brief Initialization timer procedure, with explicit ticks period value.
-    
+
     @param id (EE_TimerId): id timer to configure
     @param period (EE_UINT32): period value as number of clock ticks
     @param ps (EE_TimerPrescaleFactor): prescale factor values
-    
-    @return EE_TIMER_NO_ERRORS if no errors happend. 
+
+    @return EE_TIMER_NO_ERRORS if no errors happend.
         Otherwise appropriate error value.
  */
-EE_INT8 EE_timer_hard_init(EE_TimerId id, EE_UINT32 period, EE_TimerPrescaleFactor ps); 
+EE_INT8 EE_timer_hard_init(EE_TimerId id, EE_UINT32 period, EE_TimerPrescaleFactor ps);
 
 /**
     @brief Initialization timer procedure, with period in microseconds.
-    
+
     @param id (EE_TimerId): id timer to configure
     @param period_us (EE_UINT32): period value as number of microseconds
     @param ps (EE_TimerPrescaleFactor): prescale factor values
-    
-    @return EE_TIMER_NO_ERRORS if no errors happend. 
+
+    @return EE_TIMER_NO_ERRORS if no errors happend.
         Otherwise appropriate error value.
  */
 EE_INT8 EE_timer_soft_init(EE_TimerId id, EE_UINT32 period_us);
- 
+
 /** @brief Set a timer's callback.
-    
-    @param id (EE_TimerId): id timer to set the callback of 
+
+    @param id (EE_TimerId): id timer to set the callback of
     @param func (EE_ISR_callback): timer callback callback, called every end of period.
-    
+
     @return EE_TIMER_NO_ERRORS
 */
 EE_INT8 EE_timer_set_callback(EE_TimerId id, EE_ISR_callback func);
 
-/** 
+/**
     @brief Start a timer.
     @param id (EE_TimerId): id timer to start
-    
+
     @return EE_TIMER_NO_ERRORS
 */
 EE_INT8 EE_timer_start(EE_TimerId id);
@@ -138,19 +138,19 @@ EE_INT8 EE_timer_start(EE_TimerId id);
 /**
     @brief Stop a timer
     @param id (EE_TimerId): id timer to start
-    
+
     @return EE_TIMER_NO_ERRORS
 */
 EE_INT8 EE_timer_stop(EE_TimerId id);
 
 /* Following API make sense only if alarms are defined */
-#if defined(__ALARMS__) | ( defined(__OO_BCC1__) | defined( __OO_BCC2__) | defined(__OO_ECC1__) | defined(__OO_ECC2__) & !defined(__OO_NO_ALARMS__) )
+#if defined(__ALARMS__) | ( ( defined(__OO_BCC1__) | defined( __OO_BCC2__) | defined(__OO_ECC1__) | defined(__OO_ECC2__) ) & !defined(__OO_NO_ALARMS__) )
 /**
     @brief Alternatively of setting callback you can tie the timer with a Counter
-    
-    @param id (EE_TimerId): id timer to set the callback of 
+
+    @param id (EE_TimerId): id timer to set the callback of
     @param counterId (CounterType): ID of the counter to drive
-    
+
     @return EE_TIMER_NO_ERRORS
 **/
 EE_INT8 EE_timer_set_counter(EE_TimerId id, CounterType counterId);
