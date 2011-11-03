@@ -52,7 +52,8 @@ void EE_fp_Schedule(void)
 {
   register EE_TID t, current;
 
-  EE_hal_begin_primitive();
+  register EE_FREG np_flags;
+  np_flags = EE_hal_begin_nested_primitive();
 
   t = EE_rq_queryfirst();
 
@@ -88,6 +89,6 @@ void EE_fp_Schedule(void)
     }
   }
 
-  EE_hal_end_primitive();
+  EE_hal_end_nested_primitive(np_flags);
 }
 #endif

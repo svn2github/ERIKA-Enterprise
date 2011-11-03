@@ -53,7 +53,8 @@ void EE_fp_GetResource(ResourceType m)
     register EE_TYPERESOURCE tmp;
 #endif
     
-    EE_hal_begin_primitive();
+    register EE_FREG np_flags;
+    np_flags = EE_hal_begin_nested_primitive();
 
 #ifdef __MSRP__
     /* mask off the MSB, that indicates whether this is a global or a
@@ -75,7 +76,7 @@ void EE_fp_GetResource(ResourceType m)
     
 #endif
 
-    EE_hal_end_primitive();
+    EE_hal_end_nested_primitive(np_flags);
 }
 #endif /* __PRIVATE_GETRESOURCE__ */
 
@@ -90,7 +91,8 @@ void EE_fp_ReleaseResource(ResourceType m)
 
   register EE_TID t;
 
-  EE_hal_begin_primitive();
+  register EE_FREG np_flags;
+  np_flags = EE_hal_begin_nested_primitive();
   
 #ifdef __MSRP__
   tmp = m & ~EE_GLOBAL_MUTEX;
@@ -134,6 +136,6 @@ void EE_fp_ReleaseResource(ResourceType m)
     }
   }
   
-  EE_hal_end_primitive();
+  EE_hal_end_nested_primitive(np_flags);
 }		   
 #endif /* __PRIVATE_RELEASERESOURCE__ */
