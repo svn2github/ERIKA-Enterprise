@@ -7,7 +7,7 @@
  *
  * ERIKA Enterprise is free software; you can redistribute it
  * and/or modify it under the terms of the GNU General Public License
- * version 2 as published by the Free Software Foundation, 
+ * version 2 as published by the Free Software Foundation,
  * (with a special exception described below).
  *
  * Linking this code statically or dynamically with other modules is
@@ -42,118 +42,90 @@
  * Author: 2005 Michele Cirinei
  *         2006- Paolo Gai
  *         2008- Paolo & Francesco: change interrupt disabling/enabling
- *         procedure, now with DISI instruction  
+ *         procedure, now with DISI instruction
+ *         2011- Giuseppe Serano: pkg/cpu/common integration
  * CVS: $Id: ee_irqstub.h,v 1.8 2008/07/16 15:01:38 francesco Exp $
  */
 
+#ifndef	__INCLUDE_PIC30_EE_IRQSTUB_H__
+#define	__INCLUDE_PIC30_EE_IRQSTUB_H__
 
-#include "eecfg.h"
-#include "cpu/pic30/inc/ee_compiler.h"
+#include	"eecfg.h"
+#include	"cpu/pic30/inc/ee_compiler.h"
 
-#ifndef __INCLUDE_PIC30_EE_IRQSTUB_H__
-#define __INCLUDE_PIC30_EE_IRQSTUB_H__
+#include	"cpu/common/inc/ee_context.h"
+#include	"cpu/common/inc/ee_primitives.h"
 
+extern void EE_IRQ_end_instance(void);
 
-/* from ee_internal.h */
-extern EE_ADDR EE_hal_endcycle_next_thread;
-extern EE_UREG EE_hal_endcycle_next_tos;
-extern EE_ADDR EE_pic30_temp_tos;
-extern EE_UREG EE_IRQ_nesting_level;
-void EE_IRQ_end_instance(void);
-#ifdef __MONO__
-void EE_pic30_hal_ready2stacked(EE_ADDR thread_addr);
-#endif
-#ifdef __MULTI__
-void EE_pic30_hal_ready2stacked(EE_ADDR thread_addr, EE_UREG tos_index);
-void EE_pic30_hal_stkchange(EE_UREG tos_index);
-#endif
-
-
-#ifdef __MULTI__
-#ifdef __PIC30_SPLIM__
-extern const struct EE_TOS EE_pic30_system_splim[];
-#endif
-#endif
+#include	"cpu/common/inc/ee_irqstub.h"
 
 __INLINE__ void __ALWAYS_INLINE__ EE_ISR2_prestub(void)
 {
-  EE_pic30_disableIRQ();
-#ifdef __ALLOW_NESTED_IRQ__
-  EE_IRQ_nesting_level++;
 
-#ifdef __MULTI__
-#ifdef __IRQ_STACK_NEEDED__
+  EE_pic30_disableIRQ();
+
+  EE_increment_IRQ_nesting_level();
+
+#ifdef	__ALLOW_NESTED_IRQ__
+
+#ifdef	__MULTI__
+#ifdef	__IRQ_STACK_NEEDED__
   if (EE_IRQ_nesting_level==1) {
-    asm("mov.w  w15, _EE_pic30_temp_tos");
-#ifdef __PIC30_SPLIM__
-    asm("mov    _SPLIM, w15");
-    asm("mov.w  w15, _EE_pic30_temp_splim");
-    asm("mov	_EE_pic30_IRQ_splim,w15");
+    asm("mov	w15, _EE_pic30_temp_tos");
+#ifdef	__PIC30_SPLIM__
+    asm("mov	_SPLIM, w15");
+    asm("mov	w15, _EE_pic30_temp_splim");
+    asm("mov	_EE_pic30_IRQ_splim, w15");
     asm("mov	w15, _SPLIM");
     // the next operation cannot do an access based on w15
-#endif
-    asm("mov.w _EE_pic30_IRQ_tos, w15");
+#endif	// __PIC30_SPLIM__
+    asm("mov	_EE_pic30_IRQ_tos, w15");
   }
-#endif
-#endif
+#endif	// __IRQ_STACK_NEEDED__
+#endif	// __MULTI__
   EE_pic30_enableIRQ();
-#else
-  EE_IRQ_nesting_level=1;
-#endif
+
+#endif	// __ALLOW_NESTED_IRQ__
+
 }
 
 __INLINE__ void __ALWAYS_INLINE__ EE_ISR2_poststub(void)
 {
-#ifdef __ALLOW_NESTED_IRQ__
+#ifdef	__ALLOW_NESTED_IRQ__
   EE_pic30_disableIRQ();
-  EE_IRQ_nesting_level--;
+  EE_decrement_IRQ_nesting_level();
 
-  if (EE_IRQ_nesting_level!=0) return;
+  if (EE_is_inside_ISR_call()) {
+    EE_pic30_enableIRQ();
+    return;
+  }
 
-#ifdef __MULTI__
-#ifdef __IRQ_STACK_NEEDED__
-#ifdef __PIC30_SPLIM__
-  asm("mov.w _EE_pic30_temp_splim, w15");
+#ifdef	__MULTI__
+#ifdef	__IRQ_STACK_NEEDED__
+#ifdef	__PIC30_SPLIM__
+  asm("mov	_EE_pic30_temp_splim, w15");
   asm("mov	w15, _SPLIM");
   // the next operation cannot do an access based on w15
-#endif
-  asm("mov.w _EE_pic30_temp_tos, w15");
-#endif
-#endif
+#endif	// __PIC30_SPLIM__
+  asm("mov	_EE_pic30_temp_tos, w15");
+#endif	// __IRQ_STACK_NEEDED__
+#endif	// __MULTI__
 
-#else // not __ALLOW_NESTED_IRQ__
+#else	// __ALLOW_NESTED_IRQ__
   EE_IRQ_nesting_level=0;
-#endif // __ALLOW_NESTED_IRQ__
+#endif	// __ALLOW_NESTED_IRQ__
 
-  EE_IRQ_end_instance();
-  
-  if (EE_hal_endcycle_next_thread) {
-    // enable interrupt and CPU priority to 0
-    asm("BCLR.B 0x0042, #0x7");
-    asm("BCLR.B 0x0042, #0x6");
-    asm("BCLR.B 0x0042, #0x5");
-#ifdef __MONO__
-    EE_pic30_hal_ready2stacked(EE_hal_endcycle_next_thread);
-#endif
-#ifdef __MULTI__
-    EE_pic30_hal_ready2stacked(EE_hal_endcycle_next_thread, EE_hal_endcycle_next_tos);
-#endif
-  }
-  else {
-#ifdef __MULTI__
-    if (EE_hal_endcycle_next_tos != EE_pic30_active_tos) {
-      // enable interrupt and CPU priority to 0
-      asm("BCLR.B 0x0042, #0x7");
-      asm("BCLR.B 0x0042, #0x6");
-      asm("BCLR.B 0x0042, #0x5");
+  /* Set CPU priority [IPL<2:0> bits (SR<7:5> bits)] to 0 and launch the
+     scheduler.
+     Note: SR register mapped in memory at 0x0042. */
+  asm("BCLR.B 0x0042, #0x7");
+  asm("BCLR.B 0x0042, #0x6");
+  asm("BCLR.B 0x0042, #0x5");
+  EE_std_after_IRQ_schedule();
 
-      EE_pic30_hal_stkchange(EE_hal_endcycle_next_tos);
-    }
-#endif
-  }
-
-  //  Set CPU priority to 6 and enable interrupt with disi
-  //  retfie will restore the right priority level
+  /* Set CPU priority to 6 and enable interrupt with disi.
+     RETFIE instruction will restore the right priority level */
   asm("BSET.B 0x0042, #0x7");
   asm("BSET.B 0x0042, #0x6");
   asm("BCLR.B 0x0042, #0x5");
@@ -170,4 +142,4 @@ void __attribute__((__interrupt__,__auto_psv__)) f(void) \
 } \
 void ISR2_##f(void)
 
-#endif
+#endif	/* __INCLUDE_PIC30_EE_IRQSTUB_H__ */

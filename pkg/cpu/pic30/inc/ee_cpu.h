@@ -7,7 +7,7 @@
  *
  * ERIKA Enterprise is free software; you can redistribute it
  * and/or modify it under the terms of the GNU General Public License
- * version 2 as published by the Free Software Foundation, 
+ * version 2 as published by the Free Software Foundation,
  * (with a special exception described below).
  *
  * Linking this code statically or dynamically with other modules is
@@ -42,118 +42,91 @@
  * Author: 2005 Michele Cirinei
  *         2006- Paolo Gai
  *         2008- Paolo & Francesco: change interrupt disabling/enabling
- *         procedure, now with DISI instruction   
+ *         procedure, now with DISI instruction
+ *         2011- Giuseppe Serano: pkg/cpu/common integration
  * CVS: $Id: ee_cpu.h,v 1.7 2008/07/16 15:01:38 francesco Exp $
  */
 
+#ifndef	__INCLUDE_PIC30_EE_CPU_H__
+#define	__INCLUDE_PIC30_EE_CPU_H__
 
-#include "eecfg.h"
-#include "cpu/pic30/inc/ee_compiler.h"
-#include "ee_pic30regs.h"
-#include "cpu/common/inc/ee_types.h"
+#include	"eecfg.h"
+#include	"cpu/pic30/inc/ee_compiler.h"
+#include	"ee_pic30regs.h"
 
-#ifndef __INCLUDE_PIC30_EE_CPU_H__
-#define __INCLUDE_PIC30_EE_CPU_H__
-
-#define ASM_DIS_INT      do {\
+#define	ASM_DIS_INT	do {\
   asm("DISI #0x3FFF");\
   }while(0)
-  
-#define ASM_EN_INT      do {\
+
+#define	ASM_EN_INT	do {\
   asm("DISI #0x0000");\
   }while(0)
-  
-/*************************************************************************
- HAL Constants
- *************************************************************************/
 
+/******************************************************************************
+ HAL Types and Structures
+ ******************************************************************************/
 
-/* invalid pointer */
-#ifndef NULL
-#define NULL 0
-#endif
+/* Primitive data types */
+#include	"cpu/common/inc/ee_types.h"
 
-/*************************************************************************
- HAL Types
- *************************************************************************/
-
-typedef EE_UINT16 EE_UREG;
-typedef EE_INT16  EE_SREG;
-typedef EE_UINT16 EE_FREG;
+typedef	EE_UINT16 EE_UREG;
+typedef	EE_INT16  EE_SREG;
+typedef	EE_UINT16 EE_FREG;
 
 /* Thread IDs */
-typedef EE_UINT32 EE_TID;
+typedef	EE_SREG EE_TID;
+#define	TID_IS_STACKED_MARK	0x8000
 
-/* EE_TYPEIRQ is defined inside the MCU */
+/* EE_TYPEIRQ is currently unused */
 
-/* Note: EE_TIME is defined for ARM7 into the drivers.h file,
-   because arm7 do not have a common specification of the timer
-   values, because they basically depend on the particular
-   microcontroller implementation. */
+/* Use the "standard" implementation */
+#include "cpu/common/inc/ee_hal_structs.h"
 
-
-/*
- * This structure is used by the Multistack HAL to contain the
- * information about a "stack", that is composed by a user stack
- * (SYS-mode) and a system stack (IRQ-mode). This type is
- * used internally by the HAL and is not used by the Kernels.
- */
-#ifdef __MULTI__
-struct EE_TOS {
-    EE_ADDR SYS_tos;
-};
-#endif
-
-/*************************************************************************
+/******************************************************************************
  Application dependent data types
- *************************************************************************/
+ ******************************************************************************/
 
-#ifdef __HAS_TYPES_H__
-#include "types.h"
+#ifdef	__HAS_TYPES_H__
+#include	"types.h"
 #endif
 
-/*************************************************************************
+/******************************************************************************
  HAL Variables
- *************************************************************************/
+ ******************************************************************************/
 
-/* Thread function body pointer */
-extern const EE_FADDR EE_hal_thread_body[];
+#ifdef	__MULTI__
 
+/* Top-Of-Stacks (tos) structure defined by RT-Druid in eecfg.c */
 
-#ifdef __MULTI__
-
-/* each task use a system (IRQ) stack and a user (SYS) stack */
-extern struct EE_TOS EE_pic30_system_tos[];
-
-/* pic30_system_tos[] index that point to the thread tos (one for each thread) */
-extern EE_UREG EE_pic30_thread_tos[];
-
-/* pic30_system_tos[] index that point to the active thread tos */
-extern EE_UREG EE_pic30_active_tos;
+extern	EE_UREG EE_pic30_active_tos;
+#define	EE_hal_active_tos EE_pic30_active_tos
+extern	struct EE_TOS EE_pic30_system_tos[];
+#define	EE_std_system_tos EE_pic30_system_tos
+extern	EE_UREG EE_pic30_thread_tos[];
+#define	EE_std_thread_tos EE_pic30_thread_tos
 
 /* stack used by IRQ handlers */
 #ifdef __IRQ_STACK_NEEDED__
-extern struct EE_TOS EE_pic30_IRQ_tos;
+extern	struct EE_TOS EE_pic30_IRQ_tos;
 #endif
 
-#endif /* __MULTI__ */
+#endif	/* __MULTI__ */
 
-#if defined(__OO_BCC1__) || defined(__OO_BCC2__) || defined(__OO_ECC1__) || defined(__OO_ECC2__)
+#if defined(__OO_BCC1__) || defined(__OO_BCC2__) || \
+    defined(__OO_ECC1__) || defined(__OO_ECC2__)
 
 /* this is a safe place to put sp_sys when EE_hal_terminate_savestk
    is called into EE_oo_thread_stub */
-extern EE_UINT32 EE_terminate_data[];
+extern	EE_UINT32 EE_terminate_data[];
 
 /* this is the real thread body that is called if the thread use the
    TerminateTask function */
-extern const EE_FADDR EE_terminate_real_th_body[];
+extern	const EE_FADDR EE_terminate_real_th_body[];
 
 /* this is the stub that have to be put into the EE_th_body array */
-extern void EE_oo_thread_stub(void);
+extern	void EE_oo_thread_stub(void);
 
 #endif
-
-
 
 /*********************************************************************
  PIC30 interrupt disabling/enabling
@@ -177,12 +150,11 @@ __INLINE__ void __ALWAYS_INLINE__ EE_pic30_disableIRQ(void)
   ASM_DIS_INT;
 }
 
-
 /*************************************************************************
  Functions
  *************************************************************************/
 
-/* 
+/*
  * Interrupt Handling
  */
 
@@ -200,12 +172,13 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_disableIRQ(void)
 /*************************************************************************
  Include the IRQ stub: ISR2
  *************************************************************************/
-#include "cpu/pic30/inc/ee_irqstub.h"
 
+#include	"cpu/pic30/inc/ee_irqstub.h"
 
 /*************************************************************************
- Include the Utils 
+ Include the Utils
  *************************************************************************/
-#include "cpu/pic30/inc/ee_utils.h"
+
+#include	"cpu/pic30/inc/ee_utils.h"
 
 #endif /* __INCLUDE_PIC30_ARCH_H__ */

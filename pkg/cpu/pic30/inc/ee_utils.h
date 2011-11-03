@@ -7,7 +7,7 @@
  *
  * ERIKA Enterprise is free software; you can redistribute it
  * and/or modify it under the terms of the GNU General Public License
- * version 2 as published by the Free Software Foundation, 
+ * version 2 as published by the Free Software Foundation,
  * (with a special exception described below).
  *
  * Linking this code statically or dynamically with other modules is
@@ -39,11 +39,11 @@
  * ###*E*### */
 
 
-#ifndef __INCLUDE_PIC30_EE_UTILS_H__
-#define __INCLUDE_PIC30_EE_UTILS_H__
+#ifndef	__INCLUDE_PIC30_EE_UTILS_H__
+#define	__INCLUDE_PIC30_EE_UTILS_H__
 
-#include "cpu/pic30/inc/ee_compiler.h"
+#include	"cpu/pic30/inc/ee_compiler.h"
 
 void EE_delay_us(EE_UINT32 delay);
 
-#endif  /* __INCLUDE_PIC30_EE_UTILS_H__ */
+#endif	/* __INCLUDE_PIC30_EE_UTILS_H__ */

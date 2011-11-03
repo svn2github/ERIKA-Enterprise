@@ -7,7 +7,7 @@
  *
  * ERIKA Enterprise is free software; you can redistribute it
  * and/or modify it under the terms of the GNU General Public License
- * version 2 as published by the Free Software Foundation, 
+ * version 2 as published by the Free Software Foundation,
  * (with a special exception described below).
  *
  * Linking this code statically or dynamically with other modules is
@@ -40,6 +40,7 @@
 
 /*
  * Author: Paolo Gai
+ *         2011- Giuseppe Serano: pkg/cpu/common integration
  * CVS: $Id: ee_compiler.h,v 1.2 2006/04/08 21:03:58 pj Exp $
  */
 
@@ -50,12 +51,13 @@
  * Compiler dependent interface
  */
 
-#ifdef __NO_INLINE__
-#define __INLINE__ static
-#else
-#define __INLINE__ static inline
+#include	"cpu/common/inc/ee_compiler_gcc.h"
+
+#ifdef	__ALWAYS_INLINE__
+#undef	__ALWAYS_INLINE__
 #endif
+#define	__ALWAYS_INLINE__
 
-#define __ALWAYS_INLINE__ 
-
-#define NORETURN  __attribute__ ((noreturn))
+#ifdef	EE_COMPILER_KEEP
+#undef	EE_COMPILER_KEEP
+#endif

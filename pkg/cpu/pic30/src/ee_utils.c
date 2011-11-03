@@ -38,8 +38,7 @@
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
 
-
-#include "ee_internal.h"
+#include	"ee_internal.h"
 
 EE_UINT16 temp_count __attribute__((near)) = 0;
 
@@ -52,7 +51,9 @@ void EE_delay_us(EE_UINT32 delay)
     asm volatile("cp0 _temp_count");
     asm volatile("bra z, done1");
     /* Fcy=16MHz, Tcy =62,5 ns */
-#if defined (__PIC24FJ32GA004__) || defined (__PIC24FJ64GA004__) || defined(__PIC24H__)
+#if	defined (__PIC24FJ32GA004__) || \
+	defined (__PIC24FJ64GA004__) || \
+	defined(__PIC24H__)
     asm volatile("mov #600, w0");
     asm volatile("inner: dec w0, w0");
     asm volatile("cp0 w0");

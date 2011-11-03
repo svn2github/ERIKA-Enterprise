@@ -7,7 +7,7 @@
  *
  * ERIKA Enterprise is free software; you can redistribute it
  * and/or modify it under the terms of the GNU General Public License
- * version 2 as published by the Free Software Foundation, 
+ * version 2 as published by the Free Software Foundation,
  * (with a special exception described below).
  *
  * Linking this code statically or dynamically with other modules is
@@ -44,18 +44,18 @@
  * CVS: $Id: ee_oo.S,v 1.3 2008/06/17 12:33:47 pj Exp $
  */
 
-#include "cpu/pic30/inc/ee_compiler.h"
+#include	"cpu/pic30/inc/ee_compiler.h"
 
 	.global	_EE_pic30_terminate_task
 	.global _EE_pic30_terminate_savestk
-	
+
 	.text
 
 	// w0 = &terminate_data[t]
 	// w1 = terminate_real_th_body[t]()
 	// .type	EE_pic30_terminate_savestk, #function
 _EE_pic30_terminate_savestk:
-	// save some registers:	
+	// save some registers:
 	// - w0-w7 do not need to be saved (caller saved)
 	// - w8-w14 have to be saved (callee saved)
 	// Please note that the interrupt are ENABLED
@@ -70,10 +70,10 @@ _EE_pic30_terminate_savestk:
 	// save ourselves in the case the user forgets a TerminateTask
 	// at the end of the task body (first part)
 	mov	w0, w8
-	
+
 	// jmp terminate_real_th_body[t]
 	call w1
-	
+
 	// save ourselves in the case the user forgets a TerminateTask
 	// at the end of the task body (second part)
 	mov	w8, w0
@@ -83,7 +83,7 @@ _EE_pic30_terminate_savestk:
 	// r0 = &terminate_data[t]
 	//.type	EE_pic30_terminate_task, #function
 _EE_pic30_terminate_task:
-	// reload sp from terminate_data[t]	
+	// reload sp from terminate_data[t]
 	mov [w0], w15
 	// reload the registers saved before
         mov     [--w15],w14
@@ -93,5 +93,5 @@ _EE_pic30_terminate_task:
 	// return back to the caller
 	return
 	//.size	EE_pic30_terminate_task, . - EE_pic30_terminate_task
-	
+
 	.end

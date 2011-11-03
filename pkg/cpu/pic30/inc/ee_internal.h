@@ -7,7 +7,7 @@
  *
  * ERIKA Enterprise is free software; you can redistribute it
  * and/or modify it under the terms of the GNU General Public License
- * version 2 as published by the Free Software Foundation, 
+ * version 2 as published by the Free Software Foundation,
  * (with a special exception described below).
  *
  * Linking this code statically or dynamically with other modules is
@@ -42,54 +42,27 @@
  * Author: 2005 Michele Cirinei
  *         2006- Paolo Gai
  *         2008- Paolo & Francesco: change interrupt disabling/enabling
- *         procedure, now with DISI instruction   
- * CVS: $Id: ee_internal.h,v 1.11 2008/07/16 15:01:38 francesco Exp $
+ *         procedure, now with DISI instruction
+ *         2011- Giuseppe Serano: pkg/cpu/common integration
  */
 
-#include "cpu/pic30/inc/ee_cpu.h"
+#ifndef	__INCLUDE_PIC30_INTERNAL_H__
+#define	__INCLUDE_PIC30_INTERNAL_H__
 
-#ifndef __INCLUDE_PIC30_INTERNAL_H__
-#define __INCLUDE_PIC30_INTERNAL_H__
+#include	"cpu/pic30/inc/ee_cpu.h"
 
-/*************************************************************************
+/******************************************************************************
  Functions
- *************************************************************************/
+ ******************************************************************************/
 
 /*
  * Generic Primitives
  */
 
-/* called to start a generic primitive */
-__INLINE__ void __ALWAYS_INLINE__ EE_hal_begin_primitive(void) 
-{
-  EE_hal_disableIRQ();
-}
-
-/* called as _last_ function of a generic primitive */
-__INLINE__ void __ALWAYS_INLINE__ EE_hal_end_primitive(void)
-{
-    EE_hal_enableIRQ();
-}
-
-/* called to start a primitive called into an IRQ handler */
-__INLINE__ void __ALWAYS_INLINE__ EE_hal_IRQ_begin_primitive(void)
-{
-#ifdef __ALLOW_NESTED_IRQ__
-    EE_hal_disableIRQ();
-#endif
-}
-
-/* called as _first_ function of a primitive called into an IRQ handler */
-__INLINE__ void __ALWAYS_INLINE__ EE_hal_IRQ_end_primitive(void)
-{
-#ifdef __ALLOW_NESTED_IRQ__
-    EE_hal_enableIRQ();
-#endif
-}
+#include	"cpu/common/inc/ee_primitives.h"
 
 /* we should make an include file with all the registers of a PIC30 CPU
    the file is typically provided by the compiler distribution */
-//extern EE_FREG DISICNT;
 extern volatile EE_FREG DISICNT __attribute__((__sfr__));
 
 /* called as _first_ function of a primitive that can be called into
@@ -115,110 +88,32 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_end_nested_primitive(EE_FREG f)
     EE_hal_enableIRQ();
 }
 
-
-
-/* 
- * Context Handling  
+/*
+ * Context Handling
  */
 
-extern EE_ADDR EE_hal_endcycle_next_thread;
-extern EE_UREG EE_hal_endcycle_next_tos;
-
-
-/* typically called into a generic primitive to implement preemption */
-/* NOTE: pic30_thread_tos[0]=dummy, pic30_thread_tos[1]=thread0, ... */
-#ifdef __MONO__
-void EE_pic30_hal_ready2stacked(EE_ADDR thread_addr); /* in ASM */
-__INLINE__ void __ALWAYS_INLINE__ EE_hal_ready2stacked(EE_TID thread)
-{
-    EE_pic30_hal_ready2stacked(EE_hal_thread_body[thread]);
-}
-#endif
-#ifdef __MULTI__
-void EE_pic30_hal_ready2stacked(EE_ADDR thread_addr, EE_UREG tos_index); /* in ASM */
-__INLINE__ void __ALWAYS_INLINE__ EE_hal_ready2stacked(EE_TID thread)
-{
-    EE_pic30_hal_ready2stacked(EE_hal_thread_body[thread],
-			         EE_pic30_thread_tos[thread+1]);
-}
-#endif
-
-
-/* typically called at the end of a thread instance */
-#ifdef __MONO__
-__INLINE__ void __ALWAYS_INLINE__ EE_hal_endcycle_stacked(EE_TID thread)
-{
-  EE_hal_endcycle_next_thread = 0;
-  /* TID is useless */
-}
-#endif
-#ifdef __MULTI__
-__INLINE__ void __ALWAYS_INLINE__ EE_hal_endcycle_stacked(EE_TID thread)
-{
-  EE_hal_endcycle_next_tos = EE_pic30_thread_tos[thread+1];
-  EE_hal_endcycle_next_thread = 0;
-}
-#endif
-
-
-
-#ifdef __MONO__
-__INLINE__ void __ALWAYS_INLINE__ EE_hal_endcycle_ready(EE_TID thread)
-{
-  EE_hal_endcycle_next_thread = EE_hal_thread_body[thread];
-}
-#endif
-#ifdef __MULTI__
-__INLINE__ void __ALWAYS_INLINE__ EE_hal_endcycle_ready(EE_TID thread)
-{
-  EE_hal_endcycle_next_tos = EE_pic30_thread_tos[thread+1];
-  EE_hal_endcycle_next_thread = EE_hal_thread_body[thread];
-}
-#endif
+#include	"cpu/common/inc/ee_context.h"
 
 /* typically called at the end of an interrupt */
-#define EE_hal_IRQ_stacked EE_hal_endcycle_stacked
-#define EE_hal_IRQ_ready EE_hal_endcycle_ready
-
-
-/* called to change the active stack, typically inside blocking primitives */
-/* there is no mono version for this primitive...*/
-#ifdef __MULTI__
-void EE_pic30_hal_stkchange(EE_UREG tos_index); /* in ASM */
-__INLINE__ void __ALWAYS_INLINE__ EE_hal_stkchange(EE_TID thread)
-{
-    EE_pic30_hal_stkchange(EE_pic30_thread_tos[thread+1]);
-}
-#endif
-
-
+#define	EE_hal_IRQ_stacked	EE_hal_endcycle_stacked
+#define	EE_hal_IRQ_ready	EE_hal_endcycle_ready
 
 /*
- * Nested Interrupts Handling
- */
-
-/* can be called with interrupt enabled */
-extern EE_UREG EE_IRQ_nesting_level;
-
-__INLINE__ EE_UREG __ALWAYS_INLINE__ EE_hal_get_IRQ_nesting_level(void)
-{
-  return EE_IRQ_nesting_level;
-}
-
-
-/* 
  * OO TerminateTask related stuffs
  */
 
-#if defined(__OO_BCC1__) || defined(__OO_BCC2__) || defined(__OO_ECC1__) || defined(__OO_ECC2__)
+#if	defined(__OO_BCC1__) || defined(__OO_BCC2__) || \
+	defined(__OO_ECC1__) || defined(__OO_ECC2__)
 
 void EE_pic30_terminate_savestk(EE_ADDR sp, EE_ADDR realbody);
 void EE_pic30_terminate_task(EE_ADDR sp) NORETURN;
 
 __INLINE__ void __ALWAYS_INLINE__ EE_hal_terminate_savestk(EE_TID t)
 {
-  EE_pic30_terminate_savestk(&EE_terminate_data[t],
-			       (EE_ADDR)EE_terminate_real_th_body[t]);
+  EE_pic30_terminate_savestk(
+    &EE_terminate_data[t],
+    (EE_ADDR)EE_terminate_real_th_body[t]
+  );
 }
 
 __INLINE__ void __ALWAYS_INLINE__ EE_hal_terminate_task(EE_TID t)
@@ -228,5 +123,4 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_terminate_task(EE_TID t)
 
 #endif
 
-
-#endif
+#endif	/* __INCLUDE_PIC30_INTERNAL_H__ */
