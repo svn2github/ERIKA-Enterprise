@@ -141,7 +141,7 @@ void EE_oo_WaitSem(SemRefType Sem)
 #endif
 
 #ifdef __OO_HAS_ERRORHOOK__
-    flags = EE_hal_begin_nested_primitive();
+    np_flags = EE_hal_begin_nested_primitive();
     if (!EE_ErrorHook_nested_flag) {
 #ifndef __OO_ERRORHOOK_NOMACROS__
       EE_oo_ErrorHook_ServiceID = OSServiceId_WaitSem;
