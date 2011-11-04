@@ -108,10 +108,10 @@ int main(void)
 	If your board mounts a 12MHz cristal oscillator, i.e. Fin=12MHz,
 	then the default system clock frequency is CF = 12 MHz * P /M= 24MHZ.
 
-	See "system_LPC12xx.c" in <lpc12cc_cmsis_driver_library> 
+	See "system_LPC12xx.c" in <contrib/nxp/lpc12xx_cmsis_v2_0> 
 	for further informations.
 	To modify the system setup, use functions provided by 
-	"lpc12xx_sysctrl.c" in <lpc12cc_cmsis_driver_library>
+	"lpc12xx_sysctrl.c" in <contrib/nxp/lpc12xx_cmsis_v2_0>
 	*/
 	SystemInit();
 	
