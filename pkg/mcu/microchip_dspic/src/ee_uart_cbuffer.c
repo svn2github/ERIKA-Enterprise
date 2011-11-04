@@ -91,8 +91,8 @@ static void uart_rx_callback_wrapper (EE_UINT8 data_in)
             uart_rx_callback(data_in);
             
         /* Read data from hardware's uart buffer until data are available */
-        if(EE_uart_byte_available(EE_UART_PORT_1))
-            EE_uart_read_byte_async(EE_UART_PORT_1, &data_in);
+        if(EE_uart_byte_available(EE_CBUF_UART_PORT))
+            EE_uart_read_byte_async(EE_CBUF_UART_PORT, &data_in);
         else
             break;
     } while(1);
@@ -113,7 +113,7 @@ static void uart_eot_callback_wrapper(void)
         if(EE_cbuffer_contains(&tx_buffer, sizeof(EE_UINT8))){
             /* Transmit buffer still has data available, send frontmost byte */
             EE_cbuffer_pop(&tx_buffer, &data_out, sizeof(EE_UINT8));
-            EE_uart_write_byte_async(EE_UART_PORT_1, data_out);
+            EE_uart_write_byte_async(EE_CBUF_UART_PORT, data_out);
         } else {
             /* Transmit buffer is empty, end transmission */
             uart_status = UART_STATUS_TX_OFF;
@@ -148,9 +148,9 @@ EE_INT8 EE_uart_cbuffer_complete_init(EE_UART_CBuffer_callback_Rx uart_rx, EE_UA
     EE_cbuffer_init(&tx_buffer, UART_CBUFFER_TX_BUFFER_SIZE, uart_tx_data);
 
     /* UART initialization */
-    EE_uart_init(EE_UART_PORT_1, baud, byte_format, mode);
-    EE_uart_set_rx_callback(EE_UART_PORT_1, uart_rx_callback_wrapper, EE_UART_RX_INT_SINGLE);
-    EE_uart_set_tx_callback(EE_UART_PORT_1, uart_eot_callback_wrapper, EE_UART_TX_INT_SINGLE);
+    EE_uart_init(EE_CBUF_UART_PORT, baud, byte_format, mode);
+    EE_uart_set_rx_callback(EE_CBUF_UART_PORT, uart_rx_callback_wrapper, EE_UART_RX_INT_SINGLE);
+    EE_uart_set_tx_callback(EE_CBUF_UART_PORT, uart_eot_callback_wrapper, EE_UART_TX_INT_SINGLE);
 
     return 0;
 }
@@ -194,7 +194,7 @@ void EE_uart_cbuffer_trigger_tx( void ){
             /* Enable and start transmition */
             uart_status = UART_STATUS_TX_ON;
             EE_cbuffer_pop(&tx_buffer, &data_out, sizeof(EE_UINT8));
-            EE_uart_write_byte_async(EE_UART_PORT_1, data_out);
+            EE_uart_write_byte_async(EE_CBUF_UART_PORT, data_out);
         }
     }
     CRITICAL_SECTION_UART1_TXEND();

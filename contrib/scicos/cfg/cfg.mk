@@ -74,6 +74,15 @@ ifeq ($(call iseeopt, __USE_CAN1__), yes)
 EE_SRCS += contrib/scicos/src/pic30/communication/flex_can.c
 endif
 
+ifeq ($(call iseeopt, __USE_UART__), yes)
+  ifeq ($(call iseeopt, __EE_UART_PORT1_CBUFFER__), yes)
+    EE_SRCS += contrib/scicos/src/pic30/communication/easylab_serial.c
+  endif #__EE_UART_PORT1_CBUFFER__
+  ifeq ($(call iseeopt, __EE_UART_PORT2_CBUFFER__), yes)
+    EE_SRCS += contrib/scicos/src/pic30/communication/easylab_serial.c
+  endif #__EE_UART_PORT2_CBUFFER__
+endif #__USE_UART__
+
 endif
 
 endif

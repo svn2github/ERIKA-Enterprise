@@ -46,8 +46,7 @@
     with interrupts.
     
     == ATTENTION ==
-    This driver stack up to Erika dsPIC UART driver (defined by ee_uart.h) and 
-    it'll use port1 of this one (EE_UART_PORT_1).
+    This driver stack up to Erika dsPIC UART driver (defined by ee_uart.h)
     
     @author Errico Guidieri
     @date 2011
@@ -58,8 +57,22 @@
 
 #if defined(__EE_UART_PORT1_CBUFFER__)
 
+#define EE_CBUF_UART_PORT EE_UART_PORT_1
 #if !defined(EE_UART_PORT_1_ISR_ENABLE)
 #error "You must define EE_UART_PORT_1_ISR_ENABLE as compilation define to work with ee_uart_cbuffer driver"
+#endif
+
+#elif defined(__EE_UART_PORT2_CBUFFER__)
+
+#define EE_CBUF_UART_PORT EE_UART_PORT_2
+#if !defined(EE_UART_PORT_2_ISR_ENABLE)
+#error "You must define EE_UART_PORT_2_ISR_ENABLE as compilation define to work with ee_uart_cbuffer driver"
+#endif
+
+#else
+
+#error "UART port not specified or not supported by CBUFFER!"
+
 #endif
 
 #ifndef UART_CBUFFER_RX_BUFFER_SIZE
@@ -105,7 +118,7 @@ EE_INT8 EE_uart_cbuffer_complete_init(EE_UART_CBuffer_callback_Rx uart_rx, EE_UA
 
     /** @brief Stop UART C-Buffer driver **/    
 __INLINE__ EE_INT8 EE_uart_cbuffer_close(){
-    return EE_uart_close(EE_UART_PORT_1);
+    return EE_uart_close(EE_CBUF_UART_PORT);
 }
 
 /** @brief reset the receive buffer **/
@@ -158,7 +171,6 @@ __INLINE__ EE_UINT16 EE_uart_cbuffer_rx_buffer_contains(void)
 EE_UINT16 EE_uart_cbuffer_printf(char *fmt, ...);
 #endif
 
-#endif /* __EE_UART_PORT1_CBUFFER__ */
 #endif /*__INCLUDE_MICROCHIP_DSPIC_UART_CBUFFER_H__ */
 
 

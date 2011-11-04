@@ -98,10 +98,12 @@ CPU mySystem {
 			NAME = "ieee802154";
 #endif // __USE_ZIGBEE__
 #ifdef __USE_SIMPLE802154__
-			NAME = "MEMORY";
 			NAME = "CC2420";
 			NAME = "UWIRELESS";
 #endif // __USE_SIMPLE802154__
+#if defined(__USE_SIMPLE802154__) | defined(__EE_UART_PORT1_CBUFFER__) |  defined(__EE_UART_PORT2_CBUFFER__)
+			NAME = "MEMORY";
+#endif
 #ifdef __USE_MIWIP2P__	//Start GF		
 			NAME = "MIWIP2P";
 #endif // __USE_MIWIP2P__ //End GF
@@ -115,6 +117,14 @@ CPU mySystem {
 		};
 	};
 	
+#ifdef __RECEIVING_FROM_UART__
+    TASK receiving_from_uart {
+        PRIORITY = 1;
+        STACK = SHARED;
+        SCHEDULE = FULL;
+    };
+#endif
+
 #ifdef __USE_LCD__
  	TASK rt_LCD {
 		PRIORITY = 3;
