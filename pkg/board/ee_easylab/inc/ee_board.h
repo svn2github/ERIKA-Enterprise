@@ -160,169 +160,169 @@ __INLINE__ void EE_sys_led_toggle(void){
 /** @brief Initialize led 1 **/
 __INLINE__ void EE_led1_init(void)
 {
-    TRISBbits.TRISB12 = 0;
+    TRISAbits.TRISA3 = 0;
 }
 
-/** @brief Enable led1 **/
-static inline void EE_led1_on(void){
-    LATBbits.LATB12 = 1;
+/** @brief Enable led 1 **/
+__INLINE__ void EE_led1_on(void){
+    LATAbits.LATA3 = 1;
 }
 
 /** @brief Disable led 1 **/
 __INLINE__ void EE_led1_off(void){
-    LATBbits.LATB12 = 0;
+    LATAbits.LATA3 = 0;
 }
 
-/** @brief Toogle led 1 **/
+/** @brief Toggle led 1 **/
 __INLINE__ void EE_led1_toggle(void){
-    LATBbits.LATB12 = ~LATBbits.LATB12;
+    LATAbits.LATA3 = ~LATAbits.LATA3;
 }
 
 /** @brief Initialize led 2 **/
 __INLINE__ void EE_led2_init(void)
 {
-    TRISBbits.TRISB13 = 0;
+    TRISBbits.TRISB4 = 0;
 }
 
 /** @brief Enable led 2 **/
 __INLINE__ void EE_led2_on(void){
-    LATBbits.LATB13 = 1;
+    LATBbits.LATB4 = 1;
 }
 
 /** @brief Disable led 2 **/
 __INLINE__ void EE_led2_off(void){
-    LATBbits.LATB13 = 0;
+    LATBbits.LATB4 = 0;
 }
 
 /** @brief Toggle led 2 **/
 __INLINE__ void EE_led2_toggle(void){
-    LATBbits.LATB13 = ~LATBbits.LATB13;
+    LATBbits.LATB4 = ~LATBbits.LATB4;
 }
 
 /** @brief Initialize led 3 **/
 __INLINE__ void EE_led3_init(void)
 {
-    TRISBbits.TRISB7 = 0;
+    TRISAbits.TRISA4 = 0;
 }
 
-/** @brief Enable led 3 */
+/** @brief Enable led 3 **/
 __INLINE__ void EE_led3_on(void){
-    LATBbits.LATB7 = 1;
+    LATAbits.LATA4 = 1;
 }
 
 /** @brief Disable led 3 **/
 __INLINE__ void EE_led3_off(void){
-    LATBbits.LATB7 = 0;
+    LATAbits.LATA4 = 0;
 }
 
-/** @brief Toggle led 3 **/
+/** @brief Toogle led 3 **/
 __INLINE__ void EE_led3_toggle(void){
-    LATBbits.LATB7 = ~LATBbits.LATB7;
+    LATAbits.LATA4 = ~LATAbits.LATA4;
 }
 
 /** @brief Initialize led 4 **/
 __INLINE__ void EE_led4_init(void)
 {
-    TRISBbits.TRISB6 = 0;
+    TRISBbits.TRISB5 = 0;
 }
 
 /** @brief Enable led 4 **/
 __INLINE__ void EE_led4_on(void){
-    LATBbits.LATB6 = 1;
+    LATBbits.LATB5 = 1;
 }
 
 /** @brief Disable led 4 **/
 __INLINE__ void EE_led4_off(void){
-    LATBbits.LATB6 = 0;
+    LATBbits.LATB5 = 0;
 }
 
 /** @brief Toggle led 4 **/
 __INLINE__ void EE_led4_toggle(void){
-    LATBbits.LATB6 = ~LATBbits.LATB6;
+    LATBbits.LATB5 = ~LATBbits.LATB5;
+}
+
+/** @brief Initialize led 5 **/
+__INLINE__ void EE_led5_init(void)
+{
+    TRISBbits.TRISB12 = 0;
+}
+
+/** @brief Enable led5 **/
+__INLINE__ void EE_led5_on(void){
+    LATBbits.LATB12 = 1;
+}
+
+/** @brief Disable led 5 **/
+__INLINE__ void EE_led5_off(void){
+    LATBbits.LATB12 = 0;
+}
+
+/** @brief Toogle led 5 **/
+__INLINE__ void EE_led5_toggle(void){
+    LATBbits.LATB12 = ~LATBbits.LATB12;
+}
+
+/** @brief Initialize led 6 **/
+__INLINE__ void EE_led6_init(void)
+{
+    TRISBbits.TRISB13 = 0;
+}
+
+/** @brief Enable led 6 **/
+__INLINE__ void EE_led6_on(void){
+    LATBbits.LATB13 = 1;
+}
+
+/** @brief Disable led 6 **/
+__INLINE__ void EE_led6_off(void){
+    LATBbits.LATB13 = 0;
+}
+
+/** @brief Toggle led 6 **/
+__INLINE__ void EE_led6_toggle(void){
+    LATBbits.LATB13 = ~LATBbits.LATB13;
 }
 
 /** @brief Initialize led 7 **/
 __INLINE__ void EE_led7_init(void)
 {
-    TRISAbits.TRISA3 = 0;
+    TRISBbits.TRISB7 = 0;
 }
 
 /** @brief Enable led 7 **/
 __INLINE__ void EE_led7_on(void){
-    LATAbits.LATA3 = 1;
+    LATBbits.LATB7 = 1;
 }
 
 /** @brief Disable led 7 **/
 __INLINE__ void EE_led7_off(void){
-    LATAbits.LATA3 = 0;
+    LATBbits.LATB7 = 0;
 }
 
 /** @brief Toggle led 7 **/
 __INLINE__ void EE_led7_toggle(void){
-    LATAbits.LATA3 = ~LATAbits.LATA3;
+    LATBbits.LATB7 = ~LATBbits.LATB7;
 }
 
 /** @brief Initialize led 8 **/
 __INLINE__ void EE_led8_init(void)
 {
-    TRISBbits.TRISB4 = 0;
+    TRISBbits.TRISB6 = 0;
 }
 
-/** @brief Enable led 8 */
+/** @brief Enable led 8 **/
 __INLINE__ void EE_led8_on(void){
-    LATBbits.LATB4 = 1;
+    LATBbits.LATB6 = 1;
 }
 
 /** @brief Disable led 8 **/
 __INLINE__ void EE_led8_off(void){
-    LATBbits.LATB4 = 0;
+    LATBbits.LATB6 = 0;
 }
 
 /** @brief Toggle led 8 **/
 __INLINE__ void EE_led8_toggle(void){
-    LATBbits.LATB4 = ~LATBbits.LATB4;
-}
-
-/** @brief Initialize led 9 **/
-__INLINE__ void EE_led9_init(void)
-{
-    TRISAbits.TRISA4 = 0;
-}
-
-/** @brief Enable led 9 **/
-__INLINE__ void EE_led9_on(void){
-    LATAbits.LATA4 = 1;
-}
-
-/** @brief Disable led 9 **/
-__INLINE__ void EE_led9_off(void){
-    LATAbits.LATA4 = 0;
-}
-
-/** @brief Toogle led 9 **/
-__INLINE__ void EE_led9_toggle(void){
-    LATAbits.LATA4 = ~LATAbits.LATA4;
-}
-
-/** @brief Initialize led 10 **/
-__INLINE__ void EE_led10_init(void)
-{
-    TRISBbits.TRISB5 = 0;
-}
-
-/** @brief Enable led 10 **/
-__INLINE__ void EE_led10_on(void){
-    LATBbits.LATB5 = 1;
-}
-
-/** @brief Disable led 10 **/
-__INLINE__ void EE_led10_off(void){
-    LATBbits.LATB5 = 0;
-}
-
-/** @brief Toggle led 10 **/
-__INLINE__ void EE_led10_toggle(void){
-    LATBbits.LATB5 = ~LATBbits.LATB5;
+    LATBbits.LATB6 = ~LATBbits.LATB6;
 }
 #endif /* __dsPIC33FJ64MC802__ */
 #endif /* __USE_LEDS__ */
@@ -331,16 +331,15 @@ __INLINE__ void EE_led10_toggle(void){
 #ifdef __dsPIC33FJ64MC802__
 /* DIO bit allocation
 
-Board     dsPIC     LED
-DIO1       RA3       7
-DIO2       RB4       8
-DIO3       RA4       9
-DIO4       RB5       10
-DIO5       RB12      1
-DIO6       RB13      2
-DIO7       RB7       3
-DIO8       RB6       4
-           RB15      sys
+Board     dsPIC
+DIO1       RA3
+DIO2       RB4
+DIO3       RA4
+DIO4       RB5
+DIO5       RB12
+DIO6       RB13
+DIO7       RB7
+DIO8       RB6
 */
 
 #endif /*__dsPIC33FJ64MC802__ */

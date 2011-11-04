@@ -55,7 +55,7 @@ static void init(scicos_block *block)
 {
     EE_INT16 pin = block->ipar[0];
     
-    if ( (pin < 1) || (pin > 10) || (pin == 5) || pin == 6){
+    if ( pin < 1 || pin > 8) {
         /* return if outside the allowed range */
         return; 
     }
@@ -73,17 +73,17 @@ static void init(scicos_block *block)
         case 4:
             EE_led4_init();
         break;
+        case 5:
+            EE_led5_init();
+        break;
+        case 6:
+            EE_led6_init();
+        break;
         case 7:
             EE_led7_init();
         break;
         case 8:
             EE_led8_init();
-        break;
-        case 9:
-            EE_led9_init();
-        break;
-        case 10:
-            EE_led10_init();
         break;
     }
 }
@@ -92,7 +92,7 @@ static void inout(scicos_block *block)
 {
     EE_INT16 pin = block->ipar[0];
 
-    if ( (pin < 1) || (pin > 10) || (pin == 5) || pin == 6){
+    if ( pin < 1 || pin > 8) {
         /* return if outside the allowed range */
         return;
     }
@@ -128,6 +128,18 @@ static void inout(scicos_block *block)
             else
                 EE_led4_off();
             break;
+        case 5:
+            if (u > led_threshold)
+                EE_led5_on();
+            else
+                EE_led5_off();
+            break;
+        case 6:
+            if (u > led_threshold)
+                EE_led6_on();
+            else
+                EE_led6_off();
+            break;
         case 7:
             if (u > led_threshold)
                 EE_led7_on();
@@ -139,18 +151,6 @@ static void inout(scicos_block *block)
                 EE_led8_on();
             else
                 EE_led8_off();
-            break;
-        case 9:
-            if (u > led_threshold)
-                EE_led9_on();
-            else
-                EE_led9_off();
-            break;
-        case 10:
-            if (u > led_threshold)
-                EE_led10_on();
-            else
-                EE_led10_off();
             break;
     }
 }
@@ -171,17 +171,17 @@ static void end(scicos_block *block)
         case 4:
             EE_led4_off();
         break;
+        case 5:
+            EE_led5_off();
+        break;
+        case 6:
+            EE_led6_off();
+        break;
         case 7:
             EE_led7_off();
         break;
         case 8:
             EE_led8_off();
-        break;
-        case 9:
-            EE_led9_off();
-        break;
-        case 10:
-            EE_led10_off();
         break;
     }
 }
