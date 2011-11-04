@@ -39,9 +39,12 @@
 # ###*E*###
 
 ##
-## IAR compiler
+## Cortex M0 compilation rules
 ##
 ## Author: 2011,  Gianluca Franchino
+##
+## TODO: Rules and variables are too much related to IAR compiler. They should 
+## be changed, making them more general to support other compiler tools.
 ##
 
 
@@ -109,7 +112,7 @@ else
 $(Error Compiler not defined (As today, only the IAR compiler is supported!!!)
 endif
 # Add startup file from ARM library
-EE_BOOT_SRCS := fromiar/$(CRT0_SRCS)
+EE_BOOT_SRCS := fromcmsis/$(CRT0_SRCS)
 endif
 
 # Boot code containing _start should stay outside of the library in
@@ -124,7 +127,6 @@ endif
 ifeq ($(call iseeopt, __USE_CUSTOM_LINKER_SCRIPT__), yes)
 OPT_LINK += --config $(CORTEX_M0_LINKERSCRIPT)
 else
-#OPT_LINK += --config $(IAR_CCDIR)/$(CORTEX_M0_LINKERSCRIPT)
 OPT_LINK += --config $(CORTEX_M0_LINKERSCRIPT)
 endif 
 
@@ -152,7 +154,7 @@ $(patsubst %.S, %.o, $(patsubst %.s, %.o, $(SRCS))))))
 ALLOBJS = $(LIBEEOBJS) $(LIBOBJS) $(OBJS) 
 
 
-OBJDIRS=$(sort $(dir $(ALLOBJS))) fromiar
+OBJDIRS=$(sort $(dir $(ALLOBJS))) fromcmsis
 
 INCLUDE_PATH += $(PKGBASE) $(APPBASE) $(OUTBASE)
 
@@ -181,10 +183,10 @@ clean:
 	@-rm -rf *.a *.map *.sim *.$(IAR_EXTENSION) *.objdump *.hex deps deps.pre obj ee_c_m0regs.h
 # to support "make clean all"
 ifeq ($(findstring all,$(MAKECMDGOALS)),all)
-	@echo "CLEAN (also \"all\" specified, fromiar directory not removed)"
+	@echo "CLEAN (also \"all\" specified, fromcmsis directory not removed)"
 else
 	@echo "CLEAN";
-	@-rm -rf fromiar
+	@-rm -rf fromcmsis
 endif
 
 c_m0.objdump: c_m0.$(IAR_EXTENSION)
@@ -198,19 +200,15 @@ c_m0.hex: c_m0.$(IAR_EXTENSION)
 	
 ## Object file creation ###
 c_m0.$(IAR_EXTENSION): $(OBJS) $(LINKDEP) $(LIBDEP) 
-#@echo "OBJS = $(OBJS)";
 	@echo "LD";
 	$(QUIET)$(EE_LINK) $(COMPUTED_OPT_LINK) -o $@ $(OBJS) $(OPT_LIBS) --map c_m0.map
 	@echo "************************************"
 	@echo "Compilation terminated successfully!"
-
-#	-o $(TARGETFILE) $(OBJS) $(OPT_LIBS) \
-		
 		
 #--start-group $(OPT_LIBS) --end-group 
 
 # produce the object file from assembly code in a single step
-#$(OBJDIR)/%.o: %.s fromiar/$(CRT0_SRCS)
+#$(OBJDIR)/%.o: %.s fromcmsis/$(CRT0_SRCS)
 $(OBJDIR)/%.o: %.s
 	$(VERBOSE_PRINTASM) $(EE_ASM) $(COMPUTED_OPT_ASM) $(COMPUTED_INCLUDE_PATH) $(DEFS_ASM) $(SOURCEFILE) -o $(TARGETFILE)
 #$(QUIET) $(call make-depend, $<, $@, $(subst .o,.d,$@))
@@ -219,35 +217,30 @@ $(OBJDIR)/%.o: %.s
 $(OBJDIR)/%.o: %.c
 	$(VERBOSE_PRINTCC) $(EE_CC) $(COMPUTED_OPT_CC) $(COMPUTED_INCLUDE_PATH) $(DEFS_CC) $(DEPENDENCY_OPT) $(SOURCEFILE) -o $(TARGETFILE)
 	$(QUIET) $(call make-depend, $<, $@, $(subst .o,.d,$@))
-
-
-#$(OBJDIR)/fromiar/cstartup_M.o: fromiar/$(CRT0_SRCS)
-##	$(VERBOSE_PRINTASM) $(EE_ASM) $(COMPUTED_OPT_ASM) $(SOURCEFILE) -o $(TARGETFILE)
-#	
-#$(OBJDIR)/fromiar/cstartup_M.o: fromiar/cstartup_M.s
-#$(OBJDIR)/fromiar/$(patsubst %.s, %.o, $(CRT0_SRCS)): fromiar/$(CRT0_SRCS)
-#$(VERBOSE_PRINTASM) $(EE_ASM) $(COMPUTED_OPT_ASM) $(SOURCEFILE) -o $(TARGETFILE)
 	
 ##
-## IAR CORTEX_M0 (NXP LPC1227) files
+## CMSIS CORTEX_M0 files
+## Note, default Cortex M0 startup is only for LPC12xx
 ##
 
 ifneq ($(call iseeopt, __USE_CUSTOM_CRT0__), yes)
- 
-fromiar/$(CRT0_SRCS): $(CORTEX_M0_STARTUP) 
-	@echo "CP default startup file $(CRT0_SRCS)"; cat $< > $@
 
+ifeq ($(CORTEX_M0_MODEL), LPC12xx) 
+fromcmsis/$(CRT0_SRCS): $(CORTEX_M0_STARTUP) 
+	@echo "CP default startup file $(CRT0_SRCS)";
+	$(QUIET)cat $< > $@
+else
+$(error MCU model not supported. Default startup code ($(CRT0_SRCS)) is for \
+LPC12xx. Use a custom startup file for your MCU)
+endif
+		
 else
 $(CRT0_SRCS):
 	@echo "Start up file provided by the user";
 endif
 
 # Check if the MCU model has been defined
-ifneq ($(CORTEX_M0_MODEL),)
-fromiar/$(CORTEX_M0_INCLUDE_C): $(APPBASE)/CM0/DeviceSupport/NXP/LPC12xx/$(CORTEX_M0_INCLUDE_C) | make_directories
-	@echo "CP $(CORTEX_M0_INCLUDE_C)"
-	$(QUIET)cat $< > $@
-else
+ifeq ($(CORTEX_M0_MODEL),)
 $(error Cortex_m0 model not defined!!!)
 endif
 	
