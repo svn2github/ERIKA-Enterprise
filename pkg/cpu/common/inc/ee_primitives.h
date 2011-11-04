@@ -50,19 +50,6 @@
 #define __INCLUDE_CPU_COMMON_EE_PRIMITIVES__
 
 
-/* called to start a generic primitive */
-__INLINE__ void __ALWAYS_INLINE__ EE_hal_begin_primitive(void) 
-{
-    EE_hal_disableIRQ();
-}
-
-/* called as the _last_ function of a generic primitive */
-__INLINE__ void __ALWAYS_INLINE__ EE_hal_end_primitive(void)
-{
-    EE_hal_enableIRQ();
-}
-
-
 /* called to start a primitive called in an IRQ handler */
 __INLINE__ void __ALWAYS_INLINE__ EE_hal_IRQ_begin_primitive(void)
 {
