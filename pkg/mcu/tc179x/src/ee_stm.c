@@ -21,7 +21,8 @@ void EE_tc179x_stm_init(void)
 
 void EE_tc179x_stm_cmp0_init(EE_UINT8 iv, EE_UINT32 match)
 {
-    EE_hal_begin_primitive();
+    register EE_FREG flags;
+    flags = EE_hal_begin_nested_primitive();
     
     /* Clear pending interrupts at STM */
     EE_tc179x_stm_isrr.bits.CMP0IRR = 1;
@@ -66,7 +67,7 @@ void EE_tc179x_stm_cmp0_init(EE_UINT8 iv, EE_UINT32 match)
      * clearing. The internal state changes nevertheless.
      */
 
-    EE_hal_end_primitive();
+    EE_hal_end_nested_primitive(flags);
 }
 
 

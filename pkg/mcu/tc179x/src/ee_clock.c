@@ -35,7 +35,8 @@ void EE_tc179x_init_clock()
     if (EE_tc179x_pll_clc.bits.BYPPIN)
         return;
     
-    EE_hal_begin_primitive();
+    register EE_FREG flags;
+    flags = EE_hal_begin_nested_primitive();
 
     clc.reg = 0;
     clc.bits.VCOBYP = 1;
@@ -58,7 +59,7 @@ void EE_tc179x_init_clock()
     EE_tc179x_pll_clc.bits.VCOBYP = 0;    /* Disable VCO bypass */
     EE_wdt_lock();
 
-    EE_hal_end_primitive();
+    EE_hal_end_nested_primitive(flags);
 }
 
 

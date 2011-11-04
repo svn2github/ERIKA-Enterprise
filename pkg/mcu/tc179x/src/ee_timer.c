@@ -9,9 +9,10 @@
 #ifndef __PRIVATE_TIMEINIT__
 void EE_time_init(void)
 {
-    EE_hal_begin_primitive();
+    register EE_FREG flags;
+    flags = EE_hal_begin_nested_primitive();
     EE_tc179x_stm_init();
-    EE_hal_end_primitive();
+    EE_hal_end_nested_primitive(flags);
 }
 #endif
 
