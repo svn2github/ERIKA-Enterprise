@@ -83,7 +83,7 @@ TASK(receiving_from_uart)
     while((rx_bytes = EE_uart_cbuffer_rx_buffer_contains()) >= EASYLAB_PACKET_SIZE){
         /* I make the read buffer of same size of receiving buffer so 
            I can read all bytes in one step (less memory access) */
-        char read_buffer[UART_CBUFFER_RX_BUFFER_SIZE];
+        unsigned char read_buffer[UART_CBUFFER_RX_BUFFER_SIZE];
         unsigned int i,j;
         /* I directly access rx_buffer because i don't want pop bytes yet,
            because i don't know how many of them I'm going to use.
@@ -98,7 +98,7 @@ TASK(receiving_from_uart)
         for(i = 0; (rx_bytes - i) >= EASYLAB_PACKET_SIZE; ){
             char crc = 0;
             /* Start byte check. I need 'i' incremented after this point */
-            if(read_buffer[i++] != '\0')
+            if(read_buffer[i++] != 0xAA)
                 continue;
             
             /* Parsing inner loop */

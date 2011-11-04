@@ -65,7 +65,7 @@ static void inout(scicos_block *block)
     int i;
     unsigned char serial_packet[EASYLAB_PACKET_SIZE];
     unsigned char crc = 0;
-    serial_packet[0] = '\0';
+    serial_packet[0] = 0xAA;
     
     /* Data copy (I start from serial_packet + 1 address) */
     for(i = 0; i < EASYLAB_SERIAL_CHANNELS; ++i)
