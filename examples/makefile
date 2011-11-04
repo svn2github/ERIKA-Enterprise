@@ -169,6 +169,9 @@ endif
 help:
 	@echo Regression makefile
 	@echo -----------------------------------------
+	@echo By default test Erika files and Templates
+	@echo provided with RT-Druid.
+	@echo -----------------------------------------
 	@echo Usage:
 	@echo 1 - Cleaning the repository
 	@echo "      make clean"
@@ -177,6 +180,8 @@ help:
 	@echo "    - will create a regression directory"
 	@echo "    - already done examples will not be compiled"
 	@echo "    - use -j to speed up!"
+	@echo "    - use ERIKA_FILES to change the path of Erika sources"
+	@echo "    - use RTDRUID_TEMPLATES_PATH to add additional templates"
 	@echo
 	@echo "      make -j 4 all TEMPLATE_LIST=templatename"
 	@echo "      make -j 4 all ARCH=PIC30"
@@ -254,9 +259,9 @@ regression/current_missing_tests: regression/templatelist regression/current_ok_
 listmissing: regression/current_missing_tests
 	@cat regression/current_missing_tests
 
-# difference between the directory listing and the tests which are ok
+# difference between the directory listing and the tests which are ok. Note that the last grep may fail if no error is found
 regression/current_witherrors_tests: regression/current_ok_tests
-	@find regression -maxdepth 1 -type d | grep "regression/" | sed "s/regression\\///" | grep -v -f regression/current_ok_tests > regression/current_witherrors_tests
+	@find regression -maxdepth 1 -type d | grep "regression/" | sed "s/regression\\///" | grep -v -f regression/current_ok_tests > regression/current_witherrors_tests || true
 
 witherrors: regression/current_witherrors_tests
 	@cat regression/current_witherrors_tests
