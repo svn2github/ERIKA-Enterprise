@@ -53,7 +53,7 @@ CPU_DATA = PPCE200ZX {
   MODEL = E200Z7;
   APP_SRC = "code.c";
 #ifdef USEIRQ
-  APP_SRC = "$(EEBASE)/testcase/common/e200z7/test_irq.c";
+  APP_SRC = "$(EEBASE)/testcase/common/e200zx/test_irq.c";
 #endif
 #ifdef USE_VLE
   VLE = TRUE;
