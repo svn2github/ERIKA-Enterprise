@@ -100,7 +100,7 @@ DEBUG_e200zx_codewarrior_vle = $(call DEBUG_e200zx_source_template,vle)
 # e200zx_codewarrior_fle
 TESTLIST 		+= e200zx_codewarrior_fle
 OUTDIR_COMMANDS_e200zx_codewarrior_fle = $(OUTDIR_COMMANDS_e200zx_source)
-CONF_e200zx_codewarrior_fle = $(call CONF_e200zx_source_template,diab,fle)
+CONF_e200zx_codewarrior_fle = $(call CONF_e200zx_source_template,codewarrior,fle)
 GLOBAL_CONF 		+=
 DIST_e200zx_codewarrior_fle =
 RTDRUID_e200zx_codewarrior_fle = $(RTDRUID_e200zx_source)
