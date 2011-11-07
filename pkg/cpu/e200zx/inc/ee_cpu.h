@@ -529,6 +529,7 @@ void EE_hal_app_init(const EE_APP_SEC_INFO_T *app_info);
 #define EE_APPLICATION_IDATA(app)  \
 	EE_COMPILER_SECTION(".data_" EE_PREPROC_STRING(app))
 
+#ifdef __DCC__
 __asm EE_UINT8 EE_as_raw_call_trusted_func(EE_UINT32 FunctionIndex,
 	void *FunctionParams)
 {
@@ -538,6 +539,15 @@ __asm EE_UINT8 EE_as_raw_call_trusted_func(EE_UINT32 FunctionIndex,
 	mr	r0, FunctionIndex
 	sc
 }
+#else
+__INLINE__ EE_UINT8 EE_as_raw_call_trusted_func(EE_UINT32 FunctionIndex,
+	void *FunctionParams)
+{
+	asm volatile ("mr r3, %0" :: "r"(FunctionParams) );
+	asm volatile ("mr r0, %0" :: "r"(FunctionIndex) );
+	asm volatile ("sc");
+}
+#endif
 
 /*************************************************************************
  CPU-dependent ORT support (mainly OTM)
