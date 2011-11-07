@@ -14,6 +14,10 @@
 # this makefile simply call common/makefile.in recursively for each
 # subdirectory that contains a conf.in file
 
+ifdef ERIKA_FILES
+export EEBASE = $(ERIKA_FILES)
+endif
+
 ifndef ARCH
 help::
 endif
