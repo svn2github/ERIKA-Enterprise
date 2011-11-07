@@ -299,7 +299,7 @@ __INLINE__ void EE_e200zx_set_tcr(EE_UREG val)
 __INLINE__ EE_UREG EE_e200zx_get_tsr(void)
 {
 	EE_UREG tsr;
-	asm volatile ("mfspr %0, tsr" : "=r"(tcr));
+	asm volatile ("mfspr %0, tsr" : "=r"(tsr));
 	return tsr;
 }
 
