@@ -40,11 +40,15 @@
 
 #ifdef pic30
 
+MCU_DATA = PIC30 {
+  MODEL = PIC33FJ64MC802;
+};
+
 CPU_DATA = PIC30 {
   APP_SRC = "code.c";
   //  APP_SRC = "T1.S"; should we put this file?
   
   ICD2 = TRUE;
   ENABLE_SPLIM = TRUE;	
-  LINKER_SCRIPT = "p30f2010.gld";
+  //LINKER_SCRIPT = "p30f2010.gld";
 #endif

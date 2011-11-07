@@ -42,6 +42,13 @@
 # dsPIC PIC30 testcases
 #
 
+ifdef RTDRUID_ECLIPSE_HOME
+ECLIPSE_HOME = $(RTDRUID_ECLIPSE_HOME)
+else
+ECLIPSE_HOME ?= /opt/eclipse/
+endif
+LAUNCHER_JAR=$(shell ls $(ECLIPSE_HOME)/plugins/org.eclipse.equinox.launcher_*.jar)
+
 #
 # Global scripts
 #
@@ -50,7 +57,7 @@ GLOBAL_RTDRUID += \
 	( if test -e tmp/pic30_rtdruid_partial.xml; then \
 		cat common/rtdruid_common/script_prologue.xml tmp/pic30_rtdruid_partial.xml common/rtdruid_common/script_epilogue.xml > tmp/build.xml; \
 		cp tmp/build.xml tmp/pic30_rtdruid_global_build.xml; \
-		cd tmp; java org.eclipse.core.launcher.Main -application org.eclipse.ant.core.antRunner &>rtdruid_pic30.log; \
+		cd tmp; java -jar "$(LAUNCHER_JAR)" -application org.eclipse.ant.core.antRunner >rtdruid_pic30.log 2>&1; \
 	fi );
 
 
@@ -95,7 +102,9 @@ DIST_LOCK = $(TMPDIR)/dist.lock
 
 # -------------------------------------------------------------------
 
-OUTDIR_COMMANDS_pic30 = cd $@; cp -sf ../*.* .
+OUTDIR_COMMANDS_pic30 = \
+	( cd $@; cp -sf ../*.* .; \
+	);
 
 # -------------------------------------------------------------------
 
@@ -112,16 +121,16 @@ CONF_pic30_source = \
 # if the flag has been raised, generate the source distribution
 GLOBAL_CONF_pic30_source = \
 	( if test -e tmp/pic30_dist_src_buildsourcedistribution.flg; then \
-		make -C ${EEBASE}/dist/source DIST=PIC30_TESTCASE PIC30_MOVE=Y &>tmp/pic30_dist_src_buildsourcedistribution.log; \
+		make -C ${EEBASE}/dist/source DIST=PIC30_TESTCASE PIC30_MOVE=Y >tmp/pic30_dist_src_buildsourcedistribution.log 2>&1; \
 	fi );
 
 RTDRUID_pic30_source = \
 	@echo RTDRUID $(OUTDIR_PREFIX)$*; \
-	echo \<rtdruid.Oil.Configurator inputfile=\"`cygpath -m $(OUTDIR_PREFIX)$*/ee.oil`\" outputdir=\"`cygpath -m $(OUTDIR_PREFIX)$*`/Debug\" /\> >> $(TMPDIR)/pic30_rtdruid_partial.xml;
+	echo \<rtdruid.Oil.Configurator inputfile=\"$(OUTDIR_PREFIX)$*/ee.oil\" outputdir=\"$(OUTDIR_PREFIX)$*/Debug\" /\> >> $(TMPDIR)/pic30_rtdruid_partial.xml;
 
 # take also a look to GLOBAL_RTDRUID at the top of the file!
 
-COMPILE_pic30_source = +if $(MAKE) $(PARAMETERS) NODEPS=1 -C $(OUTDIR_PREFIX)$*/Debug &>$(OUTDIR_PREFIX)$*/compile.log; then echo OK $(EXPERIMENT) $(OUTDIR_PREFIX)$* >>$(TMPDIR)/ok.log; else echo ERROR $(EXPERIMENT) $(OUTDIR_PREFIX)$* >>$(TMPDIR)/errors.log; fi
+COMPILE_pic30_source = +if $(MAKE) $(PARAMETERS) NODEPS=1 -C $(OUTDIR_PREFIX)$*/Debug >$(OUTDIR_PREFIX)$*/compile.log 2>&1; then echo OK $(EXPERIMENT) $(OUTDIR_PREFIX)$* >>$(TMPDIR)/ok.log; else echo ERROR $(EXPERIMENT) $(OUTDIR_PREFIX)$* >>$(TMPDIR)/errors.log; fi
 
 
 # -------------------------------------------------------------------
@@ -131,14 +140,14 @@ COMPILE_pic30_source = +if $(MAKE) $(PARAMETERS) NODEPS=1 -C $(OUTDIR_PREFIX)$*/
 CONF_pic30_binfull = \
 	@echo CONF $(OUTDIR_PREFIX)$*; \
 	cat $(OUTDIR_PREFIX)$*/appl.oil | gcc -c - -E -P -I$(EEBASE)/pkg $(addprefix -D, $(shell $(DEMUX2) $*)) -D$(thearch) -o - >$(OUTDIR_PREFIX)$*/ee.oil; \
-	echo \<rtdruid.Oil.DistributionBuilder inputfile=\"`cygpath -m $(OUTDIR_PREFIX)$*/ee.oil`\" outputFile=\"`cygpath -m $(TMPDIR)/bindistrfull_partial.mk`\" DistributionName=\"$(subst /,,$(EXPERIMENT))_$*\" DistributionType=\"full\"/\> >> $(TMPDIR)/pic30_ant_partial.xml;
+	echo \<rtdruid.Oil.DistributionBuilder inputfile=\"$(OUTDIR_PREFIX)$*/ee.oil\" outputFile=\"$(TMPDIR)/bindistrfull_partial.mk\" DistributionName=\"$(subst /,,$(EXPERIMENT))_$*\" DistributionType=\"full\"/\> >> $(TMPDIR)/pic30_ant_partial.xml;
 
 
 GLOBAL_CONF_pic30_binfull = \
 	( if test pic30_dist_bin_full = $(ARCH); then \
 		cat common/rtdruid_common/script_prologue.xml tmp/pic30_ant_partial.xml common/rtdruid_common/script_epilogue.xml > tmp/build.xml; \
 		cp tmp/build.xml tmp/pic30_ant_global_build.xml; \
-		cd tmp; java org.eclipse.core.launcher.Main -application org.eclipse.ant.core.antRunner; cd ..; \
+		cd tmp; java -jar "$(LAUNCHER_JAR)" -application org.eclipse.ant.core.antRunner; cd ..; \
 		echo "ALL_DISTRIBUTIONS += RTDRUID" > tmp/pic30_bindistrfull.mk; \
 		cat tmp/bindistrfull_partial.mk >> tmp/pic30_bindistrfull.mk; \
 		false; \
@@ -147,7 +156,7 @@ GLOBAL_CONF_pic30_binfull = \
 
 RTDRUID_pic30_binfull = \
 	@echo RTDRUID $(OUTDIR_PREFIX)$*; \
-	echo \<rtdruid.Oil.Configurator inputfile=\"`cygpath -m $(OUTDIR_PREFIX)$*/ee.oil`\" outputdir=\"`cygpath -m $(OUTDIR_PREFIX)$*`\" Signatures_file=\"`cygpath -m $(EE_PIC30_IDE_BASE)/../../components/evidence_ee/ee/signature/signature.xml`\" /\> >> $(TMPDIR)/pic30_rtdruid_partial.xml;
+	echo \<rtdruid.Oil.Configurator inputfile=\"$(OUTDIR_PREFIX)$*/ee.oil\" outputdir=\"$(OUTDIR_PREFIX)$*\" Signatures_file=\"$(EE_PIC30_IDE_BASE)/../../components/evidence_ee/ee/signature/signature.xml\" /\> >> $(TMPDIR)/pic30_rtdruid_partial.xml;
 #binDistrSignatures_file=\"`cygpath -m $(EE_PIC30_IDE_BASE)/../../components/evidence_ee/ee/signature/signature.xml`\"
 
 # take also a look to GLOBAL_RTDRUID at the top of the file!

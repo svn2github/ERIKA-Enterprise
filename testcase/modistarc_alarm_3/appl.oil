@@ -127,7 +127,7 @@ CPU test_application {
 		};
 #endif
 #ifdef pic30
-		STACK = PRIVATE_PIC30 {
+		STACK = PRIVATE {
 			SYS_SIZE = 0x50;
 		};
 #endif
