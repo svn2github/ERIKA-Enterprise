@@ -52,7 +52,7 @@
 
 
 /* Following API make sense only if alarms are defined */
-#if defined(__ALARMS__) | ( ( defined(__OO_BCC1__) | defined( __OO_BCC2__) | defined(__OO_ECC1__) | defined(__OO_ECC2__) ) & !defined(__OO_NO_ALARMS__) )
+#if defined(__ALARMS__) || ( ( defined(__OO_BCC1__) || defined( __OO_BCC2__) || defined(__OO_ECC1__) || defined(__OO_ECC2__) ) && !defined(__OO_NO_ALARMS__) )
 
 static void EE_timer1_set_callback(EE_ISR_callback func);
 static void EE_timer2_set_callback(EE_ISR_callback func);
@@ -106,7 +106,7 @@ EE_INT8 EE_timer_set_counter(EE_TimerId id, CounterType counterId)
 
 static volatile EE_ISR_callback t1_cbk;
 static volatile EE_ISR_callback t2_cbk;
-#endif /* defined(__ALARMS__) | ( defined(__OO_BCC1__) | defined( __OO_BCC2__) | defined(__OO_ECC1__) | defined(__OO_ECC2__) & !defined(__OO_NO_ALARMS__) ) */
+#endif /* defined(__ALARMS__) || ( defined(__OO_BCC1__) || defined( __OO_BCC2__) || defined(__OO_ECC1__) || defined(__OO_ECC2__) && !defined(__OO_NO_ALARMS__) ) */
 
 static void EE_timer1_init(EE_UINT16 t1_period, EE_TimerPrescaleFactor ps)
 {

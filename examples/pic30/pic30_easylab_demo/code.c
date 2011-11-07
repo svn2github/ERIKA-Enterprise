@@ -508,7 +508,7 @@ static void easylab_led_demo(void)
 {
     typedef void (*op)(void);
     op const operations[] = {EE_led1_toggle, EE_led2_toggle, EE_led3_toggle, EE_led4_toggle,
-        EE_led7_toggle, EE_led8_toggle, EE_led9_toggle, EE_led10_toggle
+        EE_led5_toggle, EE_led6_toggle, EE_led7_toggle, EE_led8_toggle
     };
     unsigned const op_size = sizeof(operations)/sizeof(op);
     /*     Initialize Leds */
