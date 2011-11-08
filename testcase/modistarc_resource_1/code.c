@@ -49,6 +49,11 @@
 #include "cpu/e200zx/inc/ee_irq.h"
 #endif
 
+#ifdef __PIC30__
+#include "cpu/pic30/inc/ee_irqstub.h"
+#include "mcu/microchip_dspic/inc/ee_timer.h"
+#endif
+
 #define TRUE 1
 #define FALSE 0
 
@@ -221,6 +226,12 @@ int main(int argc, char **argv)
 #if defined(__PPCE200Z7__)
   EE_e200z7_register_ISR(10, myISR2, 0);
   EE_e200z7_setup_decrementer(3000000);
+#endif
+
+#if defined(__PIC30__)
+  EE_timer_soft_init(EE_TIMER_1, 3000000);
+  EE_timer_set_callback(EE_TIMER_1, (EE_ISR_callback)myISR2);
+  EE_timer_start(EE_TIMER_1);
 #endif
 
   StartOS(OSDEFAULTAPPMODE);
