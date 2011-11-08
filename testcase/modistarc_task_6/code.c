@@ -112,7 +112,7 @@ int main(int argc, char **argv)
 
   EE_assert_range(0,1,11);
 
-  EE_assert_last();ù
+  EE_assert_last();
 
   return 0;
 }
