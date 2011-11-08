@@ -18,12 +18,14 @@ ifdef ERIKA_FILES
 ifdef EEBASE
 	$(warning EEBASE is set, but it has been overridden by ERIKA_FILES)
 endif
-EEBASE := $(ERIKA_FILES)
+export EEBASE := $(ERIKA_FILES)
 
 else # ERIKA_FILES
 
 ifdef EEBASE
 	$(warning The usage of EEBASE is deprecated. Please use ERIKA_FILES)
+else
+	$(error ERIKA_FILES undefined)
 endif
 endif # ERIKA_FILES
 # ERIKA_FILES has fulfilled its role. Make sure it's not used inside Erika makefiles 
