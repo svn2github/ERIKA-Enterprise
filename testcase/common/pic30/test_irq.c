@@ -1,13 +1,13 @@
 /* ###*B*###
  * ERIKA Enterprise - a tiny RTOS for small microcontrollers
  *
- * Copyright (C) 2002-2008  Evidence Srl
+ * Copyright (C) 2002-2011  Evidence Srl
  *
  * This file is part of ERIKA Enterprise.
  *
  * ERIKA Enterprise is free software; you can redistribute it
  * and/or modify it under the terms of the GNU General Public License
- * version 2 as published by the Free Software Foundation, 
+ * version 2 as published by the Free Software Foundation,
  * (with a special exception described below).
  *
  * Linking this code statically or dynamically with other modules is
@@ -37,84 +37,24 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
-
-#include "../common/rtdruid_common/ee_oil_defs.h"
-
-CPU test_application {
-
-    OS EE {
-        EE_OPT = "__ASSERT__";
-        EE_OPT = "DEBUG";
-
-		STATUS = EXTENDED;
-
-		STARTUPHOOK = FALSE;
-		ERRORHOOK = FALSE;
-		SHUTDOWNHOOK = FALSE;
-		PRETASKHOOK = FALSE;
-		POSTTASKHOOK = FALSE;
-		USEGETSERVICEID = FALSE;
-		USEPARAMETERACCESS = FALSE;
-		USERESSCHEDULER = TRUE;
-
-#ifdef pic30
-	EE_OPT = "__USE_TIMER__";
-#endif
-
-#ifdef evaluator7t
-	MCU_DATA = SAMSUNG_KS32C50100;
-#endif
-
-#include "../common/rtdruid_common/ee_oil_e7t_os.h"
-#include "../common/rtdruid_common/ee_oil_janus_os.h"
-#include "../common/rtdruid_common/ee_oil_nios2_os.h"
-#include "../common/rtdruid_common/ee_oil_pic30_os.h"
-#include "../common/rtdruid_common/ee_oil_s12xs_os.h"
-#include "../common/rtdruid_common/ee_oil_e200zx_os.h"
-#include "../common/rtdruid_common/ee_oil_cortex_m0_os.h"
+/*
+ * IRQ functions used in test cases for PIC30
+ * Author: 2011 Giuseppe Serano
+ */
 
 
+#include "../test_common.h"
+#include <ee.h>
+#include <cpu/pic30/inc/ee_irqstub.h>
+#include <mcu/microchip_dspic/inc/ee_timer.h>
 
-/* Mono Stack */
-#if defined(B1) || defined(B2)
-		MULTI_STACK = FALSE;
-#endif
+void test_setup_irq(void)
+{
+  EE_timer_soft_init(EE_TIMER_1, 3000000);
+  EE_timer_set_callback(EE_TIMER_1, (EE_ISR_callback)isr_callback);
+  EE_timer_start(EE_TIMER_1);
+}
 
-/* Multi Stack */
-#if defined(E1) || defined(E2)
-			MULTI_STACK = TRUE {
-				IRQ_STACK = FALSE;
-#if !defined(pic30) && !defined(s12xs) && !defined (e200zx) && !defined(cortex_m0)
-				DUMMY_STACK = SHARED;
-#endif
-			};
-#endif
-
-		};
-
-
-#ifdef B1
-        KERNEL_TYPE = BCC1;
-#endif
-#ifdef B2
-        KERNEL_TYPE = BCC2;
-#endif
-#ifdef E1
-        KERNEL_TYPE = ECC1;
-#endif
-#ifdef E2
-        KERNEL_TYPE = ECC2;
-#endif
-
-
-    };
-
-    TASK Task1 {
-		PRIORITY = 1;
-		ACTIVATION = 1;
-		SCHEDULE = FULL;
-		AUTOSTART = FALSE;
-		STACK = SHARED;
-    };
-};
-
+void test_fire_irq(void)
+{
+}
