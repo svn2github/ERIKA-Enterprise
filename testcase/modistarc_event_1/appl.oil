@@ -69,6 +69,10 @@ CPU test_application {
         	EE_OPT = "__TIMER_0_USED__";
 #endif
 
+#ifdef pic30
+		EE_OPT = "__USE_TIMER__";
+#endif
+
 #ifdef s12xs
 			EE_OPT = "__S12_PIT0_ISR2_CODEc__";
 #endif
