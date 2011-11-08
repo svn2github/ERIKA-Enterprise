@@ -33,5 +33,14 @@ where
 - the "supported" rule prints for each testcase if the particular ARCHitecture
   is supported
 
+Environment:
+- "RTDRUID_ECLIPSE_HOME" is the path of RT-Druid Code Generator.
+- "ERIKA_FILES" is the path of Erika Enterprise sources.
+		If setted, indicates the path used to find both test-sources
+		and Erika-sources.
+		If not setted, the path used to find the test-sources is the
+		current path, while the RT-Druid generates automatically the
+		Erika sources path.
+
 Examples:
 
