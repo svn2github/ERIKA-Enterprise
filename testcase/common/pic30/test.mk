@@ -42,12 +42,10 @@
 # dsPIC PIC30 testcases
 #
 
-ifdef RTDRUID_ECLIPSE_HOME
-ECLIPSE_HOME = $(RTDRUID_ECLIPSE_HOME)
-else
-ECLIPSE_HOME ?= /opt/eclipse/
+ifndef RTDRUID_ECLIPSE_HOME
+RTDRUID_ECLIPSE_HOME ?= /opt/eclipse/
 endif
-LAUNCHER_JAR=$(shell ls $(ECLIPSE_HOME)/plugins/org.eclipse.equinox.launcher_*.jar)
+LAUNCHER_JAR=$(shell ls $(RTDRUID_ECLIPSE_HOME)/plugins/org.eclipse.equinox.launcher_*.jar)
 
 #
 # Global scripts
@@ -68,27 +66,8 @@ GLOBAL_RTDRUID += \
 #
 
 
-# pic30_dist_src
-TESTLIST += pic30_dist_src
-OUTDIR_COMMANDS_pic30_dist_src = $(OUTDIR_COMMANDS_pic30)
-CONF_pic30_dist_src             = $(CONF_pic30_source)
-GLOBAL_CONF += $(GLOBAL_CONF_pic30_source)
-DIST_pic30_dist_src            =
-RTDRUID_pic30_dist_src            = $(RTDRUID_pic30_source)
-CLEAN_pic30_dist_src           =
-COMPILE_pic30_dist_src         = $(COMPILE_pic30_source)
-#DEBUG_pic30_dist_src           =
-
-# pic30_dist_bin_full
-TESTLIST += pic30_dist_bin_full
-OUTDIR_COMMANDS_pic30_dist_bin_full = $(OUTDIR_COMMANDS_pic30)
-CONF_pic30_dist_bin_full             = $(CONF_pic30_binfull)
-GLOBAL_CONF += $(GLOBAL_CONF_pic30_binfull)
-DIST_pic30_dist_bin_full            =
-RTDRUID_pic30_dist_bin_full            = $(RTDRUID_pic30_binfull)
-CLEAN_pic30_dist_bin_full           =
-COMPILE_pic30_dist_bin_full         = $(COMPILE_pic30_source)
-#DEBUG_pic30_dist_bin_full           = DEBUG_pic30
+TESTLIST += pic30
+GLOBAL_CONF += $(GLOBAL_CONF_pic30)
 
 # -------------------------------------------------------------------
 
@@ -109,67 +88,20 @@ OUTDIR_COMMANDS_pic30 = \
 # -------------------------------------------------------------------
 
 
-# # These are the commands used by pic30_dist_src
+# # These are the commands used by pic30
 
 # this simply parses the OIL file and then raises a flag if there is need to generate a source distribution
-CONF_pic30_source = \
-	@echo TMPDIR=$(TMPDIR) \
+CONF_pic30 = \
 	@echo CONF $(OUTDIR_PREFIX)$*; \
-	cat $(OUTDIR_PREFIX)$*/appl.oil | gcc -c - -E -P -I$(EEBASE)/pkg $(addprefix -D, $(shell $(DEMUX2) $*)) -D$(thearch) -o - >$(OUTDIR_PREFIX)$*/ee.oil; \
-	touch $(TMPDIR)/pic30_dist_src_buildsourcedistribution.flg;
+	cat $(OUTDIR_PREFIX)$*/appl.oil | gcc -c - -E -P -I$(EEBASE)/pkg $(addprefix -D, $(shell $(DEMUX2) $*)) -D$(thearch) -o - >$(OUTDIR_PREFIX)$*/ee.oil;
 
-# if the flag has been raised, generate the source distribution
-GLOBAL_CONF_pic30_source = \
-	( if test -e tmp/pic30_dist_src_buildsourcedistribution.flg; then \
-		make -C ${EEBASE}/dist/source DIST=PIC30_TESTCASE PIC30_MOVE=Y >tmp/pic30_dist_src_buildsourcedistribution.log 2>&1; \
-	fi );
-
-RTDRUID_pic30_source = \
+RTDRUID_pic30 = \
 	@echo RTDRUID $(OUTDIR_PREFIX)$*; \
 	echo \<rtdruid.Oil.Configurator inputfile=\"$(OUTDIR_PREFIX)$*/ee.oil\" outputdir=\"$(OUTDIR_PREFIX)$*/Debug\" /\> >> $(TMPDIR)/pic30_rtdruid_partial.xml;
 
 # take also a look to GLOBAL_RTDRUID at the top of the file!
 
-COMPILE_pic30_source = +if $(MAKE) $(PARAMETERS) NODEPS=1 -C $(OUTDIR_PREFIX)$*/Debug >$(OUTDIR_PREFIX)$*/compile.log 2>&1; then echo OK $(EXPERIMENT) $(OUTDIR_PREFIX)$* >>$(TMPDIR)/ok.log; else echo ERROR $(EXPERIMENT) $(OUTDIR_PREFIX)$* >>$(TMPDIR)/errors.log; fi
-
-
-# -------------------------------------------------------------------
-
-# These are the commands used by pic30_dist_bin_full
-
-CONF_pic30_binfull = \
-	@echo CONF $(OUTDIR_PREFIX)$*; \
-	cat $(OUTDIR_PREFIX)$*/appl.oil | gcc -c - -E -P -I$(EEBASE)/pkg $(addprefix -D, $(shell $(DEMUX2) $*)) -D$(thearch) -o - >$(OUTDIR_PREFIX)$*/ee.oil; \
-	echo \<rtdruid.Oil.DistributionBuilder inputfile=\"$(OUTDIR_PREFIX)$*/ee.oil\" outputFile=\"$(TMPDIR)/bindistrfull_partial.mk\" DistributionName=\"$(subst /,,$(EXPERIMENT))_$*\" DistributionType=\"full\"/\> >> $(TMPDIR)/pic30_ant_partial.xml;
-
-
-GLOBAL_CONF_pic30_binfull = \
-	( if test pic30_dist_bin_full = $(ARCH); then \
-		cat common/rtdruid_common/script_prologue.xml tmp/pic30_ant_partial.xml common/rtdruid_common/script_epilogue.xml > tmp/build.xml; \
-		cp tmp/build.xml tmp/pic30_ant_global_build.xml; \
-		cd tmp; java -jar "$(LAUNCHER_JAR)" -application org.eclipse.ant.core.antRunner; cd ..; \
-		echo "ALL_DISTRIBUTIONS += RTDRUID" > tmp/pic30_bindistrfull.mk; \
-		cat tmp/bindistrfull_partial.mk >> tmp/pic30_bindistrfull.mk; \
-		false; \
-		make -C ${EEBASE}/dist/binary DISTFILE=${EEBASE}/testcase/tmp/pic30_bindistrfull.mk DIST=RTDRUID PIC30_MOVE=Y; \
-	fi );
-
-RTDRUID_pic30_binfull = \
-	@echo RTDRUID $(OUTDIR_PREFIX)$*; \
-	echo \<rtdruid.Oil.Configurator inputfile=\"$(OUTDIR_PREFIX)$*/ee.oil\" outputdir=\"$(OUTDIR_PREFIX)$*\" Signatures_file=\"$(EE_PIC30_IDE_BASE)/../../components/evidence_ee/ee/signature/signature.xml\" /\> >> $(TMPDIR)/pic30_rtdruid_partial.xml;
-#binDistrSignatures_file=\"`cygpath -m $(EE_PIC30_IDE_BASE)/../../components/evidence_ee/ee/signature/signature.xml`\"
-
-# take also a look to GLOBAL_RTDRUID at the top of the file!
-
-
-
-
-# -------------------------------------------------------------------
-
-# # These are the commands used by pic30_dist_bin_lim
-
-# CONF_pic30_binlim = \
-# 	@echo CONF $(OUTDIR_PREFIX)$*; \
-# 	cat $(OUTDIR_PREFIX)$*/appl.oil | gcc -c - -E -P -I$(EEBASE)/pkg $(addprefix -D, $(shell $(DEMUX2) $*)) -D$(thearch) -o - >$(OUTDIR_PREFIX)$*/ee.oil; \
-# 	echo \<rtdruid.Oil.Configurator inputfile=\"$(OUTDIR_PREFIX)$*/ee.oil\" outputdir=\"$(OUTDIR_PREFIX)$*\" bindistrlimited_file=\"bindistrlimited.mk\" /\> >> $(TMPDIR)/rtdruid_ant_partial.xml;
+COMPILE_pic30 = \
+	+unset EEBASE;\
+	if $(MAKE) $(PARAMETERS) NODEPS=1 -C $(OUTDIR_PREFIX)$*/Debug >$(OUTDIR_PREFIX)$*/compile.log 2>&1; then echo OK $(EXPERIMENT) $(OUTDIR_PREFIX)$* >>$(TMPDIR)/ok.log; else echo ERROR $(EXPERIMENT) $(OUTDIR_PREFIX)$* >>$(TMPDIR)/errors.log; fi
 
