@@ -112,7 +112,9 @@ int main(int argc, char **argv)
 
   EE_assert_range(0,1,11);
 
-  EE_assert_last();
+  EE_assert_last();ù
+
+  return 0;
 }
 
 #ifdef __JANUS__

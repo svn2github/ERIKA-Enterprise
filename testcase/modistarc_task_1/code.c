@@ -229,6 +229,8 @@ int main(int argc, char **argv)
 
   EE_assert_range(0,1,18);
   EE_assert_last();
+
+  return 0;
 }
 
 

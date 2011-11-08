@@ -104,6 +104,8 @@ int main(int argc, char **argv)
 
   EE_assert_range(0,1,6);
   EE_assert_last();
+
+  return 0;
 }
 
 #ifdef __JANUS__

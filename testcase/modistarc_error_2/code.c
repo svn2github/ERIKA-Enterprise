@@ -78,6 +78,8 @@ int main(int argc, char **argv)
 #endif
 
   StartOS(OSDEFAULTAPPMODE);
+
+  return 0;
 }
 
 #ifdef __JANUS__
