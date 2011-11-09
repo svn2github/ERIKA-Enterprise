@@ -190,6 +190,8 @@ void EE_oo_StartOS(AppModeType Mode)
   }
   EE_hal_end_nested_primitive(np_flags);
 
+  EE_hal_enableIRQ();
+
 #ifdef __OO_ORTI_SERVICETRACE__
   EE_ORTI_servicetrace = EE_SERVICETRACE_STARTOS;
 #endif
