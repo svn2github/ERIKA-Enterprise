@@ -41,6 +41,8 @@
 # Author: 2004, Paolo Gai
 
 # CONF multiplexer
+
+include common.mk
 include ../$(EXPERIMENT)/conf.in
 
 

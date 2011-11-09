@@ -45,7 +45,7 @@ SDIRS = $(addsuffix /,$(subst /,,$(sort $(DIRS))))
 
 .PHONY: help clean
 
-
+include common/common.mk
 
 #
 # The sequence of compilation for each target is the following:

@@ -42,6 +42,7 @@
 
 # ARCH multiplexer
 
+include common.mk
 include ../$(EXPERIMENT)/conf.in
 
 # PURPOSE OF THIS MAKEFILE
