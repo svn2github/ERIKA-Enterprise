@@ -14,27 +14,13 @@
 # this makefile simply call common/makefile.in recursively for each
 # subdirectory that contains a conf.in file
 
-ifdef ERIKA_FILES
-ifdef EEBASE
-       $(warning EEBASE is set, but it has been overridden by ERIKA_FILES)
-endif
-export EEBASE := $(ERIKA_FILES)
-
-else # ERIKA_FILES
-
-ifndef EEBASE
-export EEBASE := $(PWD)/..
-else
-        $(warning The usage of EEBASE is deprecated. Please use ERIKA_FILES)
-endif
-endif # ERIKA_FILES
-# ERIKA_FILES has fulfilled its role. Make sure it's not used inside Erika makefiles 
+include common/common.mk
 
 ifndef ARCH
 help::
 endif
 
-NOPRINTDIR = --no-print-directory
+export NOPRINTDIR = --no-print-directory
 
 ifndef DIRS
 DIRS := $(dir $(wildcard */conf.in))
@@ -44,8 +30,6 @@ endif
 SDIRS = $(addsuffix /,$(subst /,,$(sort $(DIRS))))
 
 .PHONY: help clean
-
-include common/common.mk
 
 #
 # The sequence of compilation for each target is the following:
@@ -157,10 +141,6 @@ $(foreach d,$(SDIRS),$(eval $(call dist_template,$(d))))
 conf_dirs := $(addprefix conf_, $(SDIRS))
 conf: $(conf_dirs)
 	@echo CONF \(global\) started successfully!
-	@if test -e tmp/rtdruid_ant_partial.xml; then \
-		cat common/rtdruid_common/script_prologue.xml tmp/rtdruid_ant_partial.xml common/rtdruid_common/script_epilogue.xml > tmp/build.xml; \
-		cd tmp; java -cp $(RTDRUIDBASE)/startup.jar org.eclipse.core.launcher.Main -application org.eclipse.ant.core.antRunner &>rtdruid.log; \
-	fi
 	@$(GLOBAL_CONF)
 	@echo CONF \(global\) ended successfully!
 

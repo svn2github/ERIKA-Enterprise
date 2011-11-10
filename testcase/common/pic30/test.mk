@@ -42,11 +42,6 @@
 # dsPIC PIC30 testcases
 #
 
-ifndef RTDRUID_ECLIPSE_HOME
-RTDRUID_ECLIPSE_HOME ?= /opt/eclipse/
-endif
-LAUNCHER_JAR=$(shell ls $(RTDRUID_ECLIPSE_HOME)/plugins/org.eclipse.equinox.launcher_*.jar)
-
 #
 # Global scripts
 #
@@ -55,7 +50,8 @@ GLOBAL_RTDRUID += \
 	( if test -e tmp/pic30_rtdruid_partial.xml; then \
 		cat common/rtdruid_common/script_prologue.xml tmp/pic30_rtdruid_partial.xml common/rtdruid_common/script_epilogue.xml > tmp/build.xml; \
 		cp tmp/build.xml tmp/pic30_rtdruid_global_build.xml; \
-		cd tmp; java -jar "$(LAUNCHER_JAR)" -application org.eclipse.ant.core.antRunner >rtdruid_pic30.log 2>&1; \
+		echo "java -jar $(LAUNCHER_JAR)"; \
+		cd tmp; java -jar $(LAUNCHER_JAR) -application org.eclipse.ant.core.antRunner >rtdruid_pic30.log 2>&1; \
 	fi );
 
 
@@ -97,11 +93,11 @@ CONF_pic30 = \
 
 RTDRUID_pic30 = \
 	@echo RTDRUID $(OUTDIR_PREFIX)$*; \
-	echo \<rtdruid.Oil.Configurator inputfile=\"$(OUTDIR_PREFIX)$*/ee.oil\" outputdir=\"$(OUTDIR_PREFIX)$*/Debug\" /\> >> $(TMPDIR)/pic30_rtdruid_partial.xml;
+	echo \<rtdruid.Oil.Configurator inputfile=\"$(call native_path,$(OUTDIR_PREFIX)$*/ee.oil)\" outputdir=\"$(call native_path,$(OUTDIR_PREFIX)$*/Debug)\" /\> >> $(TMPDIR)/pic30_rtdruid_partial.xml;
 
 # take also a look to GLOBAL_RTDRUID at the top of the file!
 
 COMPILE_pic30 = \
-	+unset EEBASE;\
+	+@unset EEBASE; \
 	if $(MAKE) $(PARAMETERS) NODEPS=1 -C $(OUTDIR_PREFIX)$*/Debug >$(OUTDIR_PREFIX)$*/compile.log 2>&1; then echo OK $(EXPERIMENT) $(OUTDIR_PREFIX)$* >>$(TMPDIR)/ok.log; else echo ERROR $(EXPERIMENT) $(OUTDIR_PREFIX)$* >>$(TMPDIR)/errors.log; fi
 

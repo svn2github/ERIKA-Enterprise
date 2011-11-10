@@ -50,7 +50,7 @@ GLOBAL_RTDRUID += \
 	( if test -e tmp/e7t_rtdruid_partial.xml; then \
 		cat common/rtdruid_common/script_prologue.xml tmp/e7t_rtdruid_partial.xml common/rtdruid_common/script_epilogue.xml > tmp/build.xml; \
 		cp tmp/build.xml tmp/e7t_rtdruid_global_build.xml; \
-		cd tmp; java org.eclipse.core.launcher.Main -application org.eclipse.ant.core.antRunner &>rtdruid_e7t.log; \
+		cd tmp; java -jar $(LAUNCHER_JAR) -application org.eclipse.ant.core.antRunner >rtdruid_e7t.log 2>&1; \
 	fi );
 
 
@@ -61,27 +61,25 @@ GLOBAL_RTDRUID += \
 #
 
 
-# e7t_dist_src
-TESTLIST += e7t_dist_src
-OUTDIR_COMMANDS_e7t_dist_src = $(OUTDIR_COMMANDS_e7t)
-CONF_e7t_dist_src             = $(CONF_e7t_source)
-GLOBAL_CONF += $(GLOBAL_CONF_e7t_source)
-DIST_e7t_dist_src            =
-RTDRUID_e7t_dist_src            = $(RTDRUID_e7t_source)
-CLEAN_e7t_dist_src           =
-COMPILE_e7t_dist_src         = $(COMPILE_e7t_source)
-DEBUG_e7t_dist_src           = $(DEBUG_e7t)
+# e7t
+TESTLIST += e7t
+CONF_e7t             = $(CONF_e7t_source)
+DIST_e7t            =
+RTDRUID_e7t            = $(RTDRUID_e7t_source)
+CLEAN_e7t           =
+COMPILE_e7t         = $(COMPILE_e7t_source)
+DEBUG_e7t           = $(DEBUG_e7t)
 
 # e7t_dist_bin_full
-TESTLIST += e7t_dist_bin_full
-OUTDIR_COMMANDS_e7t_dist_bin_full = $(OUTDIR_COMMANDS_e7t)
-CONF_e7t_dist_bin_full             = $(CONF_e7t_binfull)
-GLOBAL_CONF += $(GLOBAL_CONF_e7t_binfull)
-DIST_e7t_dist_bin_full            =
-RTDRUID_e7t_dist_bin_full            = $(RTDRUID_e7t_binfull)
-CLEAN_e7t_dist_bin_full           =
-COMPILE_e7t_dist_bin_full         = $(COMPILE_e7t_source)
-DEBUG_e7t_dist_bin_full           = $(DEBUG_e7t)
+#TESTLIST += e7t_dist_bin_full
+#OUTDIR_COMMANDS_e7t_dist_bin_full = $(OUTDIR_COMMANDS_e7t)
+#CONF_e7t_dist_bin_full             = $(CONF_e7t_binfull)
+#GLOBAL_CONF += $(GLOBAL_CONF_e7t_binfull)
+#DIST_e7t_dist_bin_full            =
+#RTDRUID_e7t_dist_bin_full            = $(RTDRUID_e7t_binfull)
+#CLEAN_e7t_dist_bin_full           =
+#COMPILE_e7t_dist_bin_full         = $(COMPILE_e7t_source)
+#DEBUG_e7t_dist_bin_full           = $(DEBUG_e7t)
 
 # -------------------------------------------------------------------
 
@@ -118,48 +116,43 @@ DEBUG_e7t = \
 # this simply parses the OIL file and then raises a flag if there is need to generate a source distribution
 CONF_e7t_source = \
 	@echo CONF $(OUTDIR_PREFIX)$*; \
-	cat $(OUTDIR_PREFIX)$*/appl.oil | gcc -c - -E -P -I$(EEBASE)/pkg $(addprefix -D, $(shell $(DEMUX2) $*)) -D$(thearch) -o - >$(OUTDIR_PREFIX)$*/ee.oil; \
-	touch $(TMPDIR)/e7t_dist_src_buildsourcedistribution.flg;
-
-# if the flag has been raised, generate the source distribution
-GLOBAL_CONF_e7t_source = \
-	( if test -e tmp/e7t_dist_src_buildsourcedistribution.flg; then \
-		make -C ${EEBASE}/dist/source DIST=E7T_TESTCASE E7T_MOVE=Y &>tmp/e7t_dist_src_buildsourcedistribution.log; \
-	fi );
+	cat $(OUTDIR_PREFIX)$*/appl.oil | gcc -c - -E -P -I$(EEBASE)/pkg $(addprefix -D, $(shell $(DEMUX2) $*)) -D$(thearch) -o - >$(OUTDIR_PREFIX)$*/ee.oil;
 
 RTDRUID_e7t_source = \
 	@echo RTDRUID $(OUTDIR_PREFIX)$*; \
-	echo \<rtdruid.Oil.Configurator inputfile=\"`cygpath -m $(OUTDIR_PREFIX)$*/ee.oil`\" outputdir=\"`cygpath -m $(OUTDIR_PREFIX)$*`/Debug\" /\> >> $(TMPDIR)/e7t_rtdruid_partial.xml;
+	echo \<rtdruid.Oil.Configurator inputfile=\"$(call native_path,$(OUTDIR_PREFIX)$*/ee.oil)\" outputdir=\"$(call native_path,$(OUTDIR_PREFIX)$*/Debug)\" /\> >> $(TMPDIR)/e7t_rtdruid_partial.xml;
 
 # take also a look to GLOBAL_RTDRUID at the top of the file!
 
-COMPILE_e7t_source = +if $(MAKE) $(PARAMETERS) NODEPS=1 -C $(OUTDIR_PREFIX)$*/Debug &>$(OUTDIR_PREFIX)$*/compile.log; then echo OK $(EXPERIMENT) $(OUTDIR_PREFIX)$* >>$(TMPDIR)/ok.log; else echo ERROR $(EXPERIMENT) $(OUTDIR_PREFIX)$* >>$(TMPDIR)/errors.log; fi
+COMPILE_e7t_source = \
+	+@unset EEBASE; \
+	if $(MAKE) $(PARAMETERS) NODEPS=1 -C $(OUTDIR_PREFIX)$*/Debug >$(OUTDIR_PREFIX)$*/compile.log 2>&1; then echo OK $(EXPERIMENT) $(OUTDIR_PREFIX)$* >>$(TMPDIR)/ok.log; else echo ERROR $(EXPERIMENT) $(OUTDIR_PREFIX)$* >>$(TMPDIR)/errors.log; fi
 
 
 # -------------------------------------------------------------------
 
 # These are the commands used by e7t_dist_bin_full
 
-CONF_e7t_binfull = \
-	@echo CONF $(OUTDIR_PREFIX)$*; \
-	cat $(OUTDIR_PREFIX)$*/appl.oil | gcc -c - -E -P -I$(EEBASE)/pkg $(addprefix -D, $(shell $(DEMUX2) $*)) -D$(thearch) -o - >$(OUTDIR_PREFIX)$*/ee.oil; \
-	echo \<rtdruid.Oil.DistributionBuilder inputfile=\"`cygpath -m $(OUTDIR_PREFIX)$*/ee.oil`\" outputFile=\"`cygpath -m $(TMPDIR)/bindistrfull_partial.mk`\" DistributionName=\"$(subst /,,$(EXPERIMENT))_$*\" DistributionType=\"full\"/\> >> $(TMPDIR)/e7t_ant_partial.xml;
+#CONF_e7t_binfull = \
+#	@echo CONF $(OUTDIR_PREFIX)$*; \
+#	cat $(OUTDIR_PREFIX)$*/appl.oil | gcc -c - -E -P -I$(EEBASE)/pkg $(addprefix -D, $(shell $(DEMUX2) $*)) -D$(thearch) -o - >$(OUTDIR_PREFIX)$*/ee.oil; \
+#	echo \<rtdruid.Oil.DistributionBuilder inputfile=\"`cygpath -m $(OUTDIR_PREFIX)$*/ee.oil`\" outputFile=\"`cygpath -m $(TMPDIR)/bindistrfull_partial.mk`\" DistributionName=\"$(subst /,,$(EXPERIMENT))_$*\" DistributionType=\"full\"/\> >> $(TMPDIR)/e7t_ant_partial.xml;
 
 
-GLOBAL_CONF_e7t_binfull = \
-	( if test e7t_dist_bin_full = $(ARCH); then \
-		cat common/rtdruid_common/script_prologue.xml tmp/e7t_ant_partial.xml common/rtdruid_common/script_epilogue.xml > tmp/build.xml; \
-		cp tmp/build.xml tmp/e7t_ant_global_build.xml; \
-		cd tmp; java org.eclipse.core.launcher.Main -application org.eclipse.ant.core.antRunner; cd ..; \
-		echo "ALL_DISTRIBUTIONS += RTDRUID" > tmp/e7t_bindistrfull.mk; \
-		cat tmp/bindistrfull_partial.mk >> tmp/e7t_bindistrfull.mk; \
-		false; \
-		make -C ${EEBASE}/dist/binary DISTFILE=${EEBASE}/testcase/tmp/e7t_bindistrfull.mk DIST=RTDRUID E7T_MOVE=Y; \
-	fi );
+#GLOBAL_CONF_e7t_binfull = \
+#	( if test e7t_dist_bin_full = $(ARCH); then \
+#		cat common/rtdruid_common/script_prologue.xml tmp/e7t_ant_partial.xml common/rtdruid_common/script_epilogue.xml > tmp/build.xml; \
+#		cp tmp/build.xml tmp/e7t_ant_global_build.xml; \
+#		cd tmp; java org.eclipse.core.launcher.Main -application org.eclipse.ant.core.antRunner; cd ..; \
+#		echo "ALL_DISTRIBUTIONS += RTDRUID" > tmp/e7t_bindistrfull.mk; \
+#		cat tmp/bindistrfull_partial.mk >> tmp/e7t_bindistrfull.mk; \
+#		false; \
+#		make -C ${EEBASE}/dist/binary DISTFILE=${EEBASE}/testcase/tmp/e7t_bindistrfull.mk DIST=RTDRUID E7T_MOVE=Y; \
+#	fi );
 
-RTDRUID_e7t_binfull = \
-	@echo RTDRUID $(OUTDIR_PREFIX)$*; \
-	echo \<rtdruid.Oil.Configurator inputfile=\"`cygpath -m $(OUTDIR_PREFIX)$*/ee.oil`\" outputdir=\"`cygpath -m $(OUTDIR_PREFIX)$*`\" Signatures_file=\"`cygpath -m $(EE_E7T_IDE_BASE)/../../components/evidence_ee/ee/signature/signature.xml`\" /\> >> $(TMPDIR)/e7t_rtdruid_partial.xml;
+#RTDRUID_e7t_binfull = \
+#	@echo RTDRUID $(OUTDIR_PREFIX)$*; \
+#	echo \<rtdruid.Oil.Configurator inputfile=\"`cygpath -m $(OUTDIR_PREFIX)$*/ee.oil`\" outputdir=\"`cygpath -m $(OUTDIR_PREFIX)$*`\" Signatures_file=\"`cygpath -m $(EE_E7T_IDE_BASE)/../../components/evidence_ee/ee/signature/signature.xml`\" /\> >> $(TMPDIR)/e7t_rtdruid_partial.xml;
 #binDistrSignatures_file=\"`cygpath -m $(EE_E7T_IDE_BASE)/../../components/evidence_ee/ee/signature/signature.xml`\"
 
 # take also a look to GLOBAL_RTDRUID at the top of the file!

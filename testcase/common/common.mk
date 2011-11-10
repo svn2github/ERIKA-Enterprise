@@ -50,5 +50,50 @@ ifeq ($(findstring Linux, $(MYOS)), Linux)
 native_path = $(strip $1)
 else
 # Cygwin: Sed is used to remove trailing backslash and to double internal backslashes
-native_path = "$(shell cygpath -w $1 | sed -e 's/\\$$//' -e 's/\\/\\\\/g')"
+native_path = $(shell cygpath -w $1 | sed -e 's/\\$$//' -e 's/\\/\\\\/g')
 endif
+
+ifeq ($(findstring Linux, $(MYOS)), Linux)
+unix_path = $1
+else
+unix_path = $(shell cygpath $(shell cygpath -m -s "$1"))
+endif
+
+ifdef ERIKA_FILES
+
+ifdef EEBASE
+       $(warning EEBASE is set, but it has been overridden by ERIKA_FILES)
+endif
+
+EEBASE := $(call unix_path,$(ERIKA_FILES))
+
+else # ERIKA_FILES
+
+ifndef EEBASE
+EEBASE := $(call unix_path,$(PWD))
+else
+        $(warning The usage of EEBASE is deprecated. Please use ERIKA_FILES)
+endif
+
+endif # ERIKA_FILES
+# ERIKA_FILES has fulfilled its role. Make sure it's not used inside makefiles
+
+ifdef RTDRUID_ECLIPSE_HOME
+
+ifdef ECLIPSE_HOME
+       $(warning ECLIPSE_HOME is set, but it has been overridden by RTDRUID_ECLIPSE_HOME)
+endif
+
+ECLIPSE_HOME := $(call unix_path,$(RTDRUID_ECLIPSE_HOME))
+
+else #RTDRUID_ECLIPSE_HOME
+
+ifndef ECLIPSE_HOME
+ECLIPSE_HOME := /opt/eclipse/
+else
+        $(warning The usage of ECLIPSE_HOME is deprecated. Please use RTDRUID_ECLIPSE_HOME)
+endif
+
+endif # RTDRUID_ECLIPSE_HOME
+LAUNCHER_JAR := $(call native_path,$(shell ls $(ECLIPSE_HOME)/plugins/org.eclipse.equinox.launcher_*.jar))
+# RTDRUID_ECLIPSE_HOME has fulfilled its role. Make sure it's not used inside makefiles

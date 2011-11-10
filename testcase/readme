@@ -34,8 +34,8 @@ where
   is supported
 
 Environment:
-- "RTDRUID_ECLIPSE_HOME" is the path of RT-Druid Code Generator.
-- "ERIKA_FILES" is the path of Erika Enterprise sources.
+- "RTDRUID_ECLIPSE_HOME" is the "native" path of RT-Druid Code Generator.
+- "ERIKA_FILES" is the "native" path of Erika Enterprise sources.
 		If setted, indicates the path used to find both test-sources
 		and Erika-sources.
 		If not setted, the path used to find the test-sources is the

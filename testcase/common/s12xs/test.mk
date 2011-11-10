@@ -46,13 +46,12 @@
 # Global scripts
 #
 
-LAUNCHER_JAR=$(shell ls $(ECLIPSE_HOME)/plugins/org.eclipse.equinox.launcher_*.jar)
 
 GLOBAL_RTDRUID += \
 	( if test -e tmp/s12xs_rtdruid_partial.xml; then \
 		cat common/rtdruid_common/script_prologue.xml tmp/s12xs_rtdruid_partial.xml common/rtdruid_common/script_epilogue.xml > tmp/build.xml; \
 		cp tmp/build.xml tmp/s12xs_rtdruid_global_build.xml; \
-		cd tmp; java -jar "$(LAUNCHER_JAR)" -application org.eclipse.ant.core.antRunner &>rtdruid_s12xs.log; \
+		cd tmp; java -jar $(LAUNCHER_JAR) -application org.eclipse.ant.core.antRunner >rtdruid_s12xs.log 2>&1; \
 	fi );
 
 #java -jar "$ECLIPSE_HOME/plugins/$LAUNCHER_JAR" -application org.eclipse.ant.core.antRunner  -Dbuild_numer=`date +"%Y%m%d_%H%M"` $@	
@@ -121,25 +120,19 @@ OUTDIR_COMMANDS_s12xs_source = \
 
 # this simply parses the OIL file and then raises a flag if there is need to generate a source distribution
 CONF_s12xs_source = \
-	@echo TMPDIR=$(TMPDIR) \
 	@echo CONF $(OUTDIR_PREFIX)$*; \
-	cat $(OUTDIR_PREFIX)$*/appl.oil | gcc -c - -E -P -I$(EEBASE)/pkg $(addprefix -D, $(shell $(DEMUX2) $*)) -D$(thearch) -o - >$(OUTDIR_PREFIX)$*/ee.oil; \
-	touch $(TMPDIR)/s12xs_dist_src_buildsourcedistribution.flg;
-
-# if the flag has been raised, generate the source distribution
-GLOBAL_CONF_s12xs_source = \
-	( if test -e tmp/s12xs_dist_src_buildsourcedistribution.flg; then \
-		make -C ${EEBASE}/dist/source DIST=s12xs_TESTCASE s12xs_MOVE=Y &>tmp/s12xs_dist_src_buildsourcedistribution.log; \
-	fi );
+	cat $(OUTDIR_PREFIX)$*/appl.oil | gcc -c - -E -P -I$(EEBASE)/pkg $(addprefix -D, $(shell $(DEMUX2) $*)) -D$(thearch) -o - >$(OUTDIR_PREFIX)$*/ee.oil;
 
 # Generate the rt-druid files...
 RTDRUID_s12xs_source = \
 	@echo RTDRUID $(OUTDIR_PREFIX)$*; \
-	echo \<rtdruid.Oil.Configurator inputfile=\"`cygpath -m $(OUTDIR_PREFIX)$*/ee.oil`\" outputdir=\"`cygpath -m $(OUTDIR_PREFIX)$*`/Debug\" /\> >> $(TMPDIR)/s12xs_rtdruid_partial.xml;
+	echo \<rtdruid.Oil.Configurator inputfile=\"$(call native_path,$(OUTDIR_PREFIX)$*/ee.oil)\" outputdir=\"$(call native_path,$(OUTDIR_PREFIX)$*/Debug)\" /\> >> $(TMPDIR)/s12xs_rtdruid_partial.xml;
 
 # take also a look to GLOBAL_RTDRUID at the top of the file!!!
 
-COMPILE_s12xs_source = +if $(MAKE) $(PARAMETERS) NODEPS=1 -C $(OUTDIR_PREFIX)$*/Debug &>$(OUTDIR_PREFIX)$*/compile.log; then echo OK $(EXPERIMENT) $(OUTDIR_PREFIX)$* >>$(TMPDIR)/ok.log; else echo ERROR $(EXPERIMENT) $(OUTDIR_PREFIX)$* >>$(TMPDIR)/errors.log; fi
+COMPILE_s12xs_source = \
+	+@unset EEBASE; \
+	if $(MAKE) $(PARAMETERS) NODEPS=1 -C $(OUTDIR_PREFIX)$*/Debug >$(OUTDIR_PREFIX)$*/compile.log 2>&1; then echo OK $(EXPERIMENT) $(OUTDIR_PREFIX)$* >>$(TMPDIR)/ok.log; else echo ERROR $(EXPERIMENT) $(OUTDIR_PREFIX)$* >>$(TMPDIR)/errors.log; fi
 
 DEBUG_s12xs_source = \
 	cp s12xs/testcase.cmd $(OUTDIR_PREFIX)$*; \

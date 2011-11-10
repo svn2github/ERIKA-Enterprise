@@ -42,12 +42,6 @@
 # Freescale PowerPc e200zX testcases
 #
 
-ifdef RTDRUID_ECLIPSE_HOME
-ECLIPSE_HOME = $(RTDRUID_ECLIPSE_HOME)
-else
-ECLIPSE_HOME ?= /opt/eclipse/
-endif
-LAUNCHER_JAR=$(shell ls $(ECLIPSE_HOME)/plugins/org.eclipse.equinox.launcher_*.jar)
 
 #
 # Global scripts
@@ -57,7 +51,7 @@ GLOBAL_RTDRUID += \
 	( if test -e tmp/e200zx_rtdruid_partial.xml; then \
 		cat common/rtdruid_common/script_prologue.xml tmp/e200zx_rtdruid_partial.xml common/rtdruid_common/script_epilogue.xml > tmp/build.xml; \
 		cp tmp/build.xml tmp/e200zx_rtdruid_global_build.xml; \
-		cd tmp; java -jar "$(LAUNCHER_JAR)" -application org.eclipse.ant.core.antRunner >rtdruid_e200zx.log 2>&1; \
+		cd tmp; java -jar $(LAUNCHER_JAR) -application org.eclipse.ant.core.antRunner >rtdruid_e200zx.log 2>&1; \
 	fi );
 
 #
@@ -131,25 +125,20 @@ OUTDIR_COMMANDS_e200zx_source = \
 # - compiler: can be either codewarrior or diab
 CONF_e200zx_source_template = \
 	echo CONF $(OUTDIR_PREFIX)$*; \
-	cat $(OUTDIR_PREFIX)$*/appl.oil | gcc -c - -E -P -I$(EEBASE)/pkg $(addprefix -D, $(shell $(DEMUX2) $*)) -De200zx $(e200zx_compiler_def) $(e200zx_vle_def) -o - >$(OUTDIR_PREFIX)$*/ee.oil; \
-	touch $(TMPDIR)/e200zx_dist_src_buildsourcedistribution.flg;
+	cat $(OUTDIR_PREFIX)$*/appl.oil | gcc -c - -E -P -I$(EEBASE)/pkg $(addprefix -D, $(shell $(DEMUX2) $*)) -De200zx $(e200zx_compiler_def) $(e200zx_vle_def) -o - >$(OUTDIR_PREFIX)$*/ee.oil;
 e200zx_compiler_def=$(if $(filter codewarrior,$1 $2),-DUSE_CODEWARRIOR,$(if $(filter diab,$1 $2),-DUSE_DIAB,$(error Neither "codewarrior" nor "diab" found in arguments of CONF_e200zx_source_template)))
 e200zx_vle_def=$(if $(filter vle,$1 $2),-DUSE_VLE,$(if $(filter fle,$1 $2),-DUSE_FLE,$(error Neither "fle" nor "vle" found in arguments of CONF_e200zx_source_template)))
-
-# if the flag has been raised, generate the source distribution
-GLOBAL_CONF_e200zx_source = \
-	( if test -e tmp/e200zx_dist_src_buildsourcedistribution.flg; then \
-		make -C ${EEBASE}/dist/source DIST=e200zx_TESTCASE e200zx_MOVE=Y >tmp/e200zx_dist_src_buildsourcedistribution.log 2>&1; \
-	fi );
 
 # Generate the rt-druid files...
 RTDRUID_e200zx_source = \
 	@echo RTDRUID $(OUTDIR_PREFIX)$*; \
-	echo \<rtdruid.Oil.Configurator inputfile=\"$(OUTDIR_PREFIX)$*/ee.oil\" outputdir=\"$(OUTDIR_PREFIX)$*/Debug\" /\> >> $(TMPDIR)/e200zx_rtdruid_partial.xml;
+	echo \<rtdruid.Oil.Configurator inputfile=\"$(call native_path,$(OUTDIR_PREFIX)$*/ee.oil)\" outputdir=\"$(call native_path,$(OUTDIR_PREFIX)$*/Debug)\" /\> >> $(TMPDIR)/e200zx_rtdruid_partial.xml;
 
 # take also a look to GLOBAL_RTDRUID at the top of the file!!!
 
-COMPILE_e200zx_source = +if $(MAKE) $(PARAMETERS) NODEPS=1 -C $(OUTDIR_PREFIX)$*/Debug >$(OUTDIR_PREFIX)$*/compile.log 2>&1; then echo OK $(EXPERIMENT) $(OUTDIR_PREFIX)$* >>$(TMPDIR)/ok.log; else echo ERROR $(EXPERIMENT) $(OUTDIR_PREFIX)$* >>$(TMPDIR)/errors.log; fi
+COMPILE_e200zx_source = \
+	+@unset EEBASE; \
+	if $(MAKE) $(PARAMETERS) NODEPS=1 -C $(OUTDIR_PREFIX)$*/Debug >$(OUTDIR_PREFIX)$*/compile.log 2>&1; then echo OK $(EXPERIMENT) $(OUTDIR_PREFIX)$* >>$(TMPDIR)/ok.log; else echo ERROR $(EXPERIMENT) $(OUTDIR_PREFIX)$* >>$(TMPDIR)/errors.log; fi
 
 
 # The template receives one argument

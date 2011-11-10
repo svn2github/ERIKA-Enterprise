@@ -1,3 +1,3 @@
 conf = CONF=E1,E2 STATUS=STD,EXT 
-worksfor += nios2_dist_src e200zx e200zx_diab_vle e200zx_codewarrior_vle e200zx_codewarrior_fle
-worksfor += cortex_m0_dist_bin_full cortex_m0_dist_src cortex_m0
+worksfor += nios2e200zx e200zx_diab_vle e200zx_codewarrior_vle e200zx_codewarrior_fle
+worksfor += cortex_m0

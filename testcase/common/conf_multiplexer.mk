@@ -65,7 +65,7 @@ DEMUX = $(EEBASE)/testcase/common/confparser/confparser_demux
 DEMUX2 = $(EEBASE)/testcase/common/confparser/confparser_demux2
 
 # Note: the existence of MUX is checked in arch_multiplexer
-confs := $(shell test -e $(MUX) && $(MUX) $(conf))
+confs := $(shell $(MUX) $(conf))
 
 PARAMETERS = $(shell $(DEMUX) $*)
 

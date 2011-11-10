@@ -47,18 +47,11 @@
 #
 
 
-ifdef RTDRUID_ECLIPSE_HOME
-ECLIPSE_HOME = $(RTDRUID_ECLIPSE_HOME)
-else
-ECLIPSE_HOME ?= /opt/eclipse/
-endif
-LAUNCHER_JAR=$(shell ls $(ECLIPSE_HOME)/plugins/org.eclipse.equinox.launcher_*.jar)
-
 GLOBAL_RTDRUID += \
 	( if test -e tmp/cortex_m0_rtdruid_partial.xml; then \
 		cat common/rtdruid_common/script_prologue.xml tmp/cortex_m0_rtdruid_partial.xml common/rtdruid_common/script_epilogue.xml > tmp/build.xml; \
 		cp tmp/build.xml tmp/cortex_m0_rtdruid_global_build.xml; \
-		cd tmp; java -jar "$(LAUNCHER_JAR)" -application org.eclipse.ant.core.antRunner >rtdruid_cortex_m0.log 2>&1; \
+		cd tmp; java -jar $(LAUNCHER_JAR) -application org.eclipse.ant.core.antRunner >rtdruid_cortex_m0.log 2>&1; \
 	fi );
 
 
@@ -99,19 +92,13 @@ OUTDIR_COMMANDS_cortex_m0_source = \
 
 # this simply parses the OIL file and then raises a flag if there is need to generate a source distribution
 CONF_cortex_m0_source = \
-	@echo TMPDIR=$(TMPDIR) \
 	@echo CONF $(OUTDIR_PREFIX)$*; \
-	cat $(OUTDIR_PREFIX)$*/appl.oil | gcc -c - -E -P -I$(EEBASE)/pkg $(addprefix -D, $(shell $(DEMUX2) $*)) -D$(thearch) -o - >$(OUTDIR_PREFIX)$*/ee.oil; \
-	touch $(TMPDIR)/cortex_m0_dist_src_buildsourcedistribution.flg;
-
-# if the flag has been raised, generate the source distribution
-GLOBAL_CONF_cortex_m0_source = \
-	( if test -e tmp/cortex_m0_dist_src_buildsourcedistribution.flg; then \
-		make -C ${EEBASE}/dist/source DIST=cortex_m0_TESTCASE cortex_m0_MOVE=Y &>tmp/cortex_m0_dist_src_buildsourcedistribution.log; \
-	fi );
+	cat $(OUTDIR_PREFIX)$*/appl.oil | gcc -c - -E -P -I$(EEBASE)/pkg $(addprefix -D, $(shell $(DEMUX2) $*)) -D$(thearch) -o - >$(OUTDIR_PREFIX)$*/ee.oil;
 
 RTDRUID_cortex_m0_source = \
 	@echo RTDRUID $(OUTDIR_PREFIX)$*; \
-	echo \<rtdruid.Oil.Configurator inputfile=\"`cygpath -m $(OUTDIR_PREFIX)$*/ee.oil`\" outputdir=\"`cygpath -m $(OUTDIR_PREFIX)$*`/Debug\" /\> >> $(TMPDIR)/cortex_m0_rtdruid_partial.xml;
+	echo \<rtdruid.Oil.Configurator inputfile=\"$(call native_path,$(OUTDIR_PREFIX)$*/ee.oil)\" outputdir=\"$(call native_path,$(OUTDIR_PREFIX)$*/Debug)\" /\> >> $(TMPDIR)/cortex_m0_rtdruid_partial.xml;
 
-COMPILE_cortex_m0_source = +if $(MAKE) $(PARAMETERS) NODEPS=1 -C $(OUTDIR_PREFIX)$*/Debug &>$(OUTDIR_PREFIX)$*/compile.log; then echo OK $(EXPERIMENT) $(OUTDIR_PREFIX)$* >>$(TMPDIR)/ok.log; else echo ERROR $(EXPERIMENT) $(OUTDIR_PREFIX)$* >>$(TMPDIR)/errors.log; fi
+COMPILE_cortex_m0_source = \
+	+@unset EEBASE; \
+	if $(MAKE) $(PARAMETERS) NODEPS=1 -C $(OUTDIR_PREFIX)$*/Debug >$(OUTDIR_PREFIX)$*/compile.log 2>&1; then echo OK $(EXPERIMENT) $(OUTDIR_PREFIX)$* >>$(TMPDIR)/ok.log; else echo ERROR $(EXPERIMENT) $(OUTDIR_PREFIX)$* >>$(TMPDIR)/errors.log; fi
