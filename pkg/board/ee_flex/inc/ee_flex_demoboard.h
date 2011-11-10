@@ -1366,22 +1366,51 @@ __INLINE__ void __ALWAYS_INLINE__ EE_motor_init( void ) {
 #define	QEI_MAX_CNT_PER_REV	0xffff
 #define	SWENC_MAX_CNT_PER_REV	0xffff
 
+extern const EE_UINT16 ee_enc_poscnts_offset;
+
+/*
+__INLINE__ EE_UINT16 __ALWAYS_INLINE__ EE_encoder_ISR_cbk(EE_UINT16 dir, EE_UINT16 posl, EE_UINT32 posh, EE_INT8* runflag)
+{
+	if(dir==1 && posl==0) {
+		if (posh == 0x7FFFFFFF) // 2147483647
+			*runflag = 1;
+		return posh+1;
+	}
+	else if(dir==0 && posl==0xFFFF) {
+		if (posh == 0x80000000) // -2147483648
+			*runflag = -1;
+		return posh-1;
+	}
+	else {
+		*runflag = 0;
+		return posh;
+	}
+}
+*/
+__INLINE__ EE_INT16 __ALWAYS_INLINE__ EE_encoder_ISR_cbk(EE_UINT16 dir, EE_UINT16 posl, EE_UINT16 threshold, EE_INT8* runflag)
+{
+	// to do: support for posh if needed
+	if(dir==1 && posl==threshold) {
+		*runflag = 1;
+		return 1;
+	}
+	else if(dir==0 && posl==(threshold-1)) {
+		*runflag = -1;
+		return -1;
+	}
+	else {
+		*runflag = 0;
+		return 0;
+	}
+}
+
 void EE_sw_encoder_callback(void);
 extern EE_UINT16 ee_encsw_encdir;		// Count direction: 1 if +, 0 if -
-extern EE_UINT32 ee_encsw_poscnts_h;
+//extern EE_UINT32 ee_encsw_poscnts_h;
 extern EE_UINT16 ee_encsw_poscnts;
 extern EE_INT16 ee_encsw_swapped;
 extern EE_INT16 ee_encsw_maxcnt;
-
-__INLINE__ EE_UINT32 __ALWAYS_INLINE__ EE_encoder_ISR_cbk(EE_UINT32 dir, EE_UINT16 posl, EE_UINT32 posh)
-{
-	if(dir==1 && posl==0)
-		return posh+1;
-	else if(dir==0 && posl==0xFFFF)
-		return posh-1;
-	else
-		return posh;
-}
+extern EE_INT8 ee_encsw_over_under_flow;
 
 __INLINE__ void __ALWAYS_INLINE__ EE_encoder_SW_init(EE_UINT8 swap_on_off, EE_UINT8 irq_on_off)
 {
@@ -1394,7 +1423,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_encoder_SW_init(EE_UINT8 swap_on_off, EE_UI
 	/** Reset position counter */
 	ee_encsw_poscnts = 0;
 	ee_encsw_encdir = 0;
-	ee_encsw_poscnts_h = 0;
+	//ee_encsw_poscnts_h = 0;
 	
 	IEC1bits.CNIE = 0;      // Disable interrupts on CN16
 	OC8CON = 0;				// Disable OC8 module
@@ -1418,7 +1447,7 @@ __INLINE__ EE_INT16 __ALWAYS_INLINE__ EE_encoder_SW_get_ticks(void)
 {
 	return ee_encsw_poscnts;
 }
-
+/*
 __INLINE__ EE_INT32 __ALWAYS_INLINE__ EE_encoder_SW_get_ticks_32(void)
 {
 	return ((EE_INT32)ee_encsw_poscnts_h)*65535 + (EE_INT32)ee_encsw_poscnts;
@@ -1433,13 +1462,19 @@ __INLINE__ float __ALWAYS_INLINE__ EE_encoder_SW_get_position(float sw_gain)
 {
 	return EE_encoder_SW_get_ticks_f() * sw_gain; 
 }
+*/
+__INLINE__ float __ALWAYS_INLINE__ EE_encoder_SW_get_flag(void)
+{
+	return (float)ee_encsw_over_under_flow;
+}
 
-extern EE_UINT32 ee_enchw_poscnts_h;
+//extern EE_UINT32 ee_enchw_poscnts_h;
+extern EE_INT8 ee_enchw_over_under_flow;
 
 __INLINE__ void __ALWAYS_INLINE__ EE_encoder_init(EE_UINT8 swap_on_off, EE_UINT8 irq_on_off)
 {
 	/* Reset counter */
-	ee_enchw_poscnts_h = 0;
+	//ee_enchw_poscnts_h = 0;
 	
 	/* Default value */
 	QEICON = 0;
@@ -1462,7 +1497,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_encoder_init(EE_UINT8 swap_on_off, EE_UINT8
 	IFS3bits.QEIIF = 0;
 	IEC3bits.QEIIE = irq_on_off;
 	// Reset position counter
-	POSCNT = 0;
+	POSCNT = ee_enc_poscnts_offset;
 	// Set bound value
 	MAXCNT = QEI_MAX_CNT_PER_REV;
 	// X4 mode with position counter reset by MAXCNT
@@ -1477,9 +1512,9 @@ __INLINE__ void __ALWAYS_INLINE__ EE_encoder_close(void)
 
 __INLINE__ EE_INT16 __ALWAYS_INLINE__ EE_encoder_get_ticks(void)
 {
-	return POSCNT;
+	return POSCNT + ee_enc_poscnts_offset;
 }
-
+/*
 __INLINE__ EE_INT32 __ALWAYS_INLINE__ EE_encoder_get_ticks_32(void)
 {
 	return ((EE_INT32)ee_enchw_poscnts_h)*65535 + (EE_INT32)POSCNT;
@@ -1493,6 +1528,11 @@ __INLINE__ float __ALWAYS_INLINE__ EE_encoder_get_ticks_f(void)
 __INLINE__ float __ALWAYS_INLINE__ EE_encoder_get_position(float hw_gain)
 {
 	return EE_encoder_get_ticks_f() * hw_gain; 
+}
+*/
+__INLINE__ float __ALWAYS_INLINE__ EE_encoder_get_flag(void)
+{
+	return (float)ee_enchw_over_under_flow;
 }
 
 __INLINE__ void __ALWAYS_INLINE__ EE_encoder_set_IRQ(EE_UINT8 irq_on_off)

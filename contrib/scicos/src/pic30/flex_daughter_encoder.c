@@ -67,6 +67,9 @@
 	RC4 pin		 (channel B)
 */
 
+/* Macros to write on output ports */
+#define y(i,j) ((double *)block->outptr[i])[j]
+
 #define EE_scicos_encoder_get_enc_id() block->ipar[0]
 //#define EE_scicos_encoder_get_gain() block->rpar[0]
 //#define Deg_2_Rad			1.745329251994330e-002F
@@ -102,7 +105,6 @@ static void init(scicos_block *block)
 
 static void inout(scicos_block *block)
 {
-	float *y = block->outptr[0];
 	int id = EE_scicos_encoder_get_enc_id();
 	
 	if(id == EE_ENCODER_HW)
@@ -114,16 +116,18 @@ static void inout(scicos_block *block)
 		* the scaling to degree/radian/centesimal/mm must be done 
 		* in the scicos diagram.
 		*/
-		y[0] = EE_encoder_get_ticks_f();
+		y(0,0) = (float)EE_encoder_get_ticks();
+		y(1,0) = EE_encoder_get_flag();
 	}
 	else // sw encoder
 	{
 		/** 
 		* Because of 2x resolution, we have to double the number of counter ticks
-		* to have the same behaviour of hw encoder. 
+		* to have the same behaviour of hw encoder (see the encoder driver). 
 		* TODO: 4x resolution in the next releases...
 		*/
-		y[0] = EE_encoder_SW_get_ticks_f() * 2.0;
+		y(0,0) = (float)EE_encoder_SW_get_ticks();
+		y(1,0) = EE_encoder_SW_get_flag();
 	}
 }
 

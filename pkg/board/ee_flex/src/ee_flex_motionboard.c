@@ -596,7 +596,9 @@ EE_UINT16 ee_encsw_poscnts;
 EE_INT16 ee_encsw_swapped;
 EE_INT16 ee_encsw_maxcnt;
 EE_UINT16 ee_encsw_encdir;
-EE_UINT32 ee_encsw_poscnts_h;
+//EE_UINT16 ee_encsw_poscnts_h;
+EE_INT8 ee_encsw_over_under_flow;
+const EE_UINT16 ee_enc_poscnts_offset = 0x8000;
 
 ISR2(_IC1Interrupt)
 {
@@ -607,26 +609,37 @@ ISR2(_IC1Interrupt)
 		ee_encsw_encdir = (!(EE_ENCODER_SW_PINA ^ EE_ENCODER_SW_PINB))?  1: 0;
 	else
 		ee_encsw_encdir = (EE_ENCODER_SW_PINA ^ EE_ENCODER_SW_PINB)?     1: 0;
-		
-	if(ee_encsw_encdir)
-		ee_encsw_poscnts++;
-	else
-		ee_encsw_poscnts--;
-		
-	ee_encsw_poscnts_h = EE_encoder_ISR_cbk(ee_encsw_encdir, ee_encsw_poscnts, ee_encsw_poscnts_h);
+	if(ee_encsw_encdir) {
+		EE_INT8 rflag1 = 0, rflag2 = 0;
+		//ee_encsw_poscnts_h = EE_encoder_ISR_cbk(ee_encsw_encdir, ++ee_encsw_poscnts, ee_encsw_poscnts_h, &rflag1);
+		//ee_encsw_poscnts_h = EE_encoder_ISR_cbk(ee_encsw_encdir, ++ee_encsw_poscnts, ee_encsw_poscnts_h, &rflag2);
+		EE_encoder_ISR_cbk(ee_encsw_encdir, ++ee_encsw_poscnts, ee_enc_poscnts_offset, &rflag1);
+		EE_encoder_ISR_cbk(ee_encsw_encdir, ++ee_encsw_poscnts, ee_enc_poscnts_offset, &rflag2);
+		ee_encsw_over_under_flow = (rflag1)? rflag1 : rflag2;
+	}
+	else {
+		EE_INT8 rflag1 = 0, rflag2 = 0;
+		//ee_encsw_poscnts_h = EE_encoder_ISR_cbk(ee_encsw_encdir, --ee_encsw_poscnts, ee_encsw_poscnts_h, &rflag1);
+		//ee_encsw_poscnts_h = EE_encoder_ISR_cbk(ee_encsw_encdir, --ee_encsw_poscnts, ee_encsw_poscnts_h, &rflag2);
+		EE_encoder_ISR_cbk(ee_encsw_encdir, --ee_encsw_poscnts, ee_enc_poscnts_offset, &rflag1);
+		EE_encoder_ISR_cbk(ee_encsw_encdir, --ee_encsw_poscnts, ee_enc_poscnts_offset, &rflag2);
+		ee_encsw_over_under_flow = (rflag1)? rflag1 : rflag2;
+	}
 	EE_pic30_enableIRQ();
 }
 
 /* HW encoder */
 
 void (*QEI_cbk)(void);
-EE_UINT32 ee_enchw_poscnts_h;
+//EE_UINT16 ee_enchw_poscnts_h;
+EE_INT8 ee_enchw_over_under_flow;
 
 ISR2(_QEIInterrupt)	// High priority interrupt
 {
 	EE_pic30_disableIRQ();
 	IFS3bits.QEIIF = 0;
-	ee_enchw_poscnts_h = EE_encoder_ISR_cbk(QEICONbits.UPDN, POSCNT, ee_enchw_poscnts_h);
+	//ee_enchw_poscnts_h = EE_encoder_ISR_cbk(QEICONbits.UPDN, POSCNT, ee_enchw_poscnts_h, &ee_enchw_over_under_flow);
+	EE_encoder_ISR_cbk(QEICONbits.UPDN, POSCNT, 0, &ee_enchw_over_under_flow);
 	EE_pic30_enableIRQ();
 	
 	if(QEI_cbk!=0)
