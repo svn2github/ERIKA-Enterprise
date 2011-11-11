@@ -62,24 +62,12 @@ void EE_hal_stub_end_instance(void);
  * Generic Primitives
  */
 
-/* called to start a generic primitive */
-__INLINE__ void __ALWAYS_INLINE__ EE_hal_begin_primitive(void) 
-{
-  //EE_hal_disableIRQ();
-}
-
 /* called to start a primitive called into an IRQ handler */
 __INLINE__ void __ALWAYS_INLINE__ EE_hal_IRQ_begin_primitive(void)
 {
 #ifdef __ALLOW_NESTED_IRQ__
   //    EE_hal_disableIRQ();
 #endif
-}
-
-/* called as _last_ function of a generic primitive */
-__INLINE__ void __ALWAYS_INLINE__ EE_hal_end_primitive(void)
-{
-  //EE_hal_enableIRQ();
 }
 
 /* called as _first_ function of a primitive called into an IRQ handler */
