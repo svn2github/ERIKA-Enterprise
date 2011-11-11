@@ -122,21 +122,6 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_IRQ_stacked(EE_TID t)
  * Primitive definition
  */
 
-__INLINE__ void __ALWAYS_INLINE__ EE_hal_begin_primitive(void)
-{  
-    /* disable IRQ (I=1) */
-    __asm__(".align 1 ");
-    __asm__("orc #0x80, ccr ");
-           
-}
-
-__INLINE__ void __ALWAYS_INLINE__ EE_hal_end_primitive(void)
-{
-    /* enable IRQ (I=0) */  
-    __asm__(".align 1");
-    __asm__("andc #0x7F, ccr");	    
-}
-
 __INLINE__ void __ALWAYS_INLINE__ EE_hal_IRQ_begin_primitive(void)
 {
      // nothing to do! (nested irq not supported)
