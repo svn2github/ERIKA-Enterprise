@@ -54,7 +54,7 @@ native_path = $(shell cygpath -w $1 | sed -e 's/\\$$//' -e 's/\\/\\\\/g')
 endif
 
 ifeq ($(findstring Linux, $(MYOS)), Linux)
-unix_path = '$1'
+unix_path = $1
 else
 unix_path = $(shell cygpath $(shell cygpath -m -s '$1'))
 endif
