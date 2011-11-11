@@ -53,17 +53,6 @@
  * Generic Primitives
  */
 
-/* critical section for generic primitive called into a task */
-__INLINE__ void __ALWAYS_INLINE__ EE_hal_begin_primitive(void)
-{
-  EE_hal_disableIRQ();
-}
-
-__INLINE__ void __ALWAYS_INLINE__ EE_hal_end_primitive(void)
-{
-  EE_hal_enableIRQ();
-}
-
 /* critical section for generic primitive called into an ISR */
 __INLINE__ void __ALWAYS_INLINE__ EE_hal_IRQ_begin_primitive(void)
 {
