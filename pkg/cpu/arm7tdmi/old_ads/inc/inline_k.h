@@ -110,19 +110,6 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_disableIRQ(void)
  *       does nothing.
  */
 
-/* called as first function of a generic primitive */
-__INLINE__ void __ALWAYS_INLINE__ EE_hal_begin_primitive(void)
-{
-    EE_hal_disableIRQ();
-}
-
-
-/* called as first function of a generic primitive */
-__INLINE__ void __ALWAYS_INLINE__ EE_hal_end_primitive(void)
-{
-    EE_hal_enableIRQ();
-}
-
 /* called as first function of a primitive called into an IRQ handler */
 __INLINE__ void __ALWAYS_INLINE__ EE_hal_IRQ_begin_primitive(void)
 {
