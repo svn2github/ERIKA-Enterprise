@@ -50,7 +50,6 @@ GLOBAL_RTDRUID += \
 	( if test -e tmp/pic30_rtdruid_partial.xml; then \
 		cat common/rtdruid_common/script_prologue.xml tmp/pic30_rtdruid_partial.xml common/rtdruid_common/script_epilogue.xml > tmp/build.xml; \
 		cp tmp/build.xml tmp/pic30_rtdruid_global_build.xml; \
-		echo "java -jar $(LAUNCHER_JAR)"; \
 		cd tmp; java -jar $(LAUNCHER_JAR) -application org.eclipse.ant.core.antRunner >rtdruid_pic30.log 2>&1; \
 	fi );
 
@@ -63,7 +62,7 @@ GLOBAL_RTDRUID += \
 
 
 TESTLIST += pic30
-GLOBAL_CONF += $(GLOBAL_CONF_pic30)
+GLOBAL_CONF +=
 
 # -------------------------------------------------------------------
 
