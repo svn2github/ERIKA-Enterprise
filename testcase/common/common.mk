@@ -54,9 +54,9 @@ native_path = $(shell cygpath -w $1 | sed -e 's/\\$$//' -e 's/\\/\\\\/g')
 endif
 
 ifeq ($(findstring Linux, $(MYOS)), Linux)
-unix_path = $1
+unix_path = '$1'
 else
-unix_path = $(shell cygpath $(shell cygpath -m -s "$1"))
+unix_path = $(shell cygpath $(shell cygpath -m -s '$1'))
 endif
 
 ifdef ERIKA_FILES
@@ -70,7 +70,7 @@ EEBASE := $(call unix_path,$(ERIKA_FILES))
 else # ERIKA_FILES
 
 ifndef EEBASE
-EEBASE := $(call unix_path,$(PWD))
+EEBASE := $(call unix_path,$(PWD)/../)
 else
         $(warning The usage of EEBASE is deprecated. Please use ERIKA_FILES)
 endif
@@ -95,5 +95,5 @@ else
 endif
 
 endif # RTDRUID_ECLIPSE_HOME
-LAUNCHER_JAR := $(call native_path,$(shell ls $(ECLIPSE_HOME)/plugins/org.eclipse.equinox.launcher_*.jar))
+LAUNCHER_JAR := "$(call native_path,$(shell ls $(ECLIPSE_HOME)/plugins/org.eclipse.equinox.launcher_*.jar))"
 # RTDRUID_ECLIPSE_HOME has fulfilled its role. Make sure it's not used inside makefiles
