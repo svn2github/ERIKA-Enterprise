@@ -47,7 +47,7 @@ MCU_DATA = PIC30 {
 CPU_DATA = PIC30 {
   APP_SRC = "code.c";
 #ifdef USEIRQ
-  APP_SRC = "$(EEBASE)/testcase/common/pic30/test_irq.c";
+  APP_SRC = "../../common/pic30/test_irq.c";
 #endif
   //  APP_SRC = "T1.S"; should we put this file?
   
