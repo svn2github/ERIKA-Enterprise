@@ -174,9 +174,21 @@ int EE_hal_uart_config(EE_uart_st* usp, int baudrate, int settings)
     iir = uartc->iir;					// read iir register to clean ISR flags.	FARE PROVA!!!
 	/* set the control register */
     uartc->lcr = settings;    
-    /* Calculate clock-divisor */
-    uartc->div = (MICO32_CPU_CLOCK_MHZ)/baudrate;
-    
+    /* Calculate and set clock-divisor */
+	if ( sizeof(uartc->div) == sizeof(unsigned int) )
+		/** Clock-divisor settings for old UART component (v3.4) */
+		uartc->div = (MICO32_CPU_CLOCK_MHZ)/baudrate;
+	else if ( sizeof(uartc->div) == sizeof(unsigned short) ) {
+		/** Clock-divisor settings for UART component (v3.6) */
+		unsigned int divisor = (MICO32_CPU_CLOCK_MHZ)/baudrate;;
+		unsigned char *address = (unsigned char *)&(uartc->div);
+		*address = (unsigned char)(divisor);
+		address++;
+		*address = (unsigned char)(divisor >> 8);
+	}
+	else
+		return EE_UART_ERR_BAD_VALUE;
+
     /* ISR management */
     return EE_UART_OK;	//EE_uart_set_ISR_callback_base(base, irq_flag, ie_flag, isr_rx_callback, isr_tx_callback);
 }
