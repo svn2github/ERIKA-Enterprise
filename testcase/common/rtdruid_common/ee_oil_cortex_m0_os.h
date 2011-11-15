@@ -47,20 +47,20 @@
 	CFLAGS  = "-I ../CM0/DeviceSupport/NXP/LPC12xx"; 
 	CFLAGS  = "-I ../CM0/CoreSupport";
 	
-MCU_DATA = CORTEX_M0 {
-	MODEL = CUSTOM {
-		MODEL = "LPC1227";
-		LINKERSCRIPT = "../lpc12xx_flash.icf";
-		INCLUDE_H = "LPC12xx.h";
+	MCU_DATA = CORTEX_M0 {
+		MODEL = CUSTOM {
+			MODEL = "LPC12xx";
+			LINKERSCRIPT = "../lpc12xx_flash.icf";
+			INCLUDE_H = "LPC12xx.h";
+		};
 	};
-};
- 
-CPU_DATA = CORTEX_M0 {
-	APP_SRC = "code.c";
-	APP_SRC = "CM0/DeviceSupport/NXP/LPC12xx/system_LPC12xx.c";
+	
+	
+	CPU_DATA = CORTEX_M0 {
+		APP_SRC = "code.c";
+		APP_SRC = "CM0/DeviceSupport/NXP/LPC12xx/system_LPC12xx.c";
 	//*Use it if EE_OPT = "__USE_CUSTOM_CRT0__"; is not commented*/
 	/*APP_SRC = "CM0/DeviceSupport/NXP/LPC12xx/startup/iar/startup_LPC12xx.s";*/ 
-	JLINK = TRUE;
-	COMPILER_TYPE = IAR;
-	
+		JLINK = TRUE;
+		COMPILER_TYPE = IAR;
 #endif

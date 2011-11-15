@@ -85,6 +85,7 @@ OUTDIR_COMMANDS_cortex_m0_source = \
 	cp -rf ../../common/cortex_m0/CM0 .; \
 	cp -rf ../../common/cortex_m0/lpc12xx_flash.icf .; \
 	);\
+
 # -------------------------------------------------------------------
 
 
