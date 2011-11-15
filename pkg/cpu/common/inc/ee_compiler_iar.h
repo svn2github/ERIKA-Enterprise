@@ -53,6 +53,7 @@
 #ifndef __INCLUDE_CPU_COMMON_EE_COMPILER_IAR__
 #define __INCLUDE_CPU_COMMON_EE_COMPILER_IAR__
 
+#include <stdint.h>
 #include <cmsis_iar.h>
 
 #ifdef __NO_INLINE__
