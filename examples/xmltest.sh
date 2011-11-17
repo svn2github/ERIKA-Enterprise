@@ -8,36 +8,19 @@
 
 if (test `grep "^$1\$" regression/current_ok_tests`); then
     # the test completed successfully
-    echo "  <test name=\"$1\" executed=\"yes\">"
-    echo "    <result>"
-    echo "      <success passed=\"yes\" state=\"100\"/>"
-if [ "${BUILD_URL:-notset}" != "notset" ]; then
-	echo "      <log> <![CDATA[<a href=\"$BUILD_URL/artifact/ee/examples/regression/$1/output.log\">log</a>]]></log>"
-else
-    echo "      <log name=\"$PWD/regression/$1/output.log\"/>"
-fi
-    echo "    </result>"
-    echo "    <description>"
-    echo "      OK $1"
-    echo "    </description>"
-    echo "  </test>"
-    echo ""
+    echo "  <testsuite name=\"template_test_$ARCH\" tests=\"\" failures=\"\" errors=\"\" time=\"\">"
+    echo "    <testcase name=\"$1\" status=\"run\" time=\"\" classname=\"$ARCH.$1\">"
+    echo "    </testcase>"
+    echo "  </testsuite>"
 elif (test `grep "^$1\$" regression/current_witherrors_tests`); then
     # the test has an error
-    echo "  <test name=\"$1\" executed=\"yes\">"
-    echo "    <result>"
-    echo "      <success passed=\"no\" state=\"0\"/>"
-if [ "${BUILD_URL:-notset}" != "notset" ]; then
-	echo "      <log> <![CDATA[<a href=\"$BUILD_URL/artifact/ee/examples/regression/$1/output.log\">log</a>]]></log>"
-else
-    echo "      <log name=\"$PWD/regression/$1/output.log\"/>"
-fi
-    echo "    </result>"
-    echo "    <description>"
-    echo "      ERROR $1"
-    echo "    </description>"
-    echo "  </test>"
-    echo ""
+    echo "  <testsuite name=\"template_test_$ARCH\" tests=\"\" failures=\"\" errors=\"\" time=\"\">"
+    echo "    <testcase name=\"$1\" status=\"run\" time=\"\" classname=\"$ARCH.$1\">"
+    echo "      <failure type=\"java.lang.RuntimeException\"><![CDATA["
+    cat $PWD/regression/$1/output.log
+    echo "]]></failure>\n"
+    echo "    </testcase>"
+    echo "  </testsuite>"
 elif (test `grep "^$1\$" regression/current_ignored_tests`); then
     # the test has been ignored
     #echo "  <test name=\"$1\" executed=\"no\">"
