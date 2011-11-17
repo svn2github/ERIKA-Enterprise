@@ -46,7 +46,7 @@ def getInfoElements(String testName, def lines) {
 
 // Looking for all run tests and available directories 
 def allLinesTxt = []
-allLinesTxt = allLinesTxt+ getLines("tmp/error.log")
+allLinesTxt = allLinesTxt+ getLines("tmp/errors.log")
 allLinesTxt = allLinesTxt+ getLines("tmp/ok.log")
 def folders = getDirectories(".");
 folders.sort()
