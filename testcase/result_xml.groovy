@@ -93,4 +93,4 @@ folders.each {
 
 // Close the result to result.xml file
 globalResult << "</testsuites>\n"
-globalResult.close()
+
