@@ -162,12 +162,6 @@ extern struct EE_TOS EE_arm7_IRQ_tos;
  * Generic Primitives
  */
 
-/* called as _first_ function of a primitive called into an IRQ handler */
-__INLINE__ void __ALWAYS_INLINE__ EE_hal_IRQ_begin_primitive(void);
-
-/* called as _last_ function of a primitive called into an IRQ handler */
-__INLINE__ void __ALWAYS_INLINE__ EE_hal_IRQ_end_primitive(void);
-
 
 /* 
  * Context Handling  
