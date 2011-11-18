@@ -55,22 +55,6 @@
  * Generic Primitives
  */
 
-/* called to start a primitive called into an IRQ handler */
-__INLINE__ void __ALWAYS_INLINE__ EE_hal_IRQ_begin_primitive(void)
-{
-#ifdef __ALLOW_NESTED_IRQ__
-    EE_hal_disableIRQ();
-#endif
-}
-
-/* called as _first_ function of a primitive called into an IRQ handler */
-__INLINE__ void __ALWAYS_INLINE__ EE_hal_IRQ_end_primitive(void)
-{
-#ifdef __ALLOW_NESTED_IRQ__
-    EE_hal_enableIRQ();
-#endif
-}
-
 /* we should make an include file with all the registers of a S12XS CPU
    the file is typically provided by the compiler distribution */
 //extern EE_FREG DISICNT;
