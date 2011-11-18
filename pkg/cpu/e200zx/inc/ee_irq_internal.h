@@ -50,8 +50,8 @@
 #include "cpu/common/inc/ee_irqstub.h"
 
 #ifdef __ALLOW_NESTED_IRQ__
-#define EE_std_enableIRQ_nested()
-#define EE_std_disableIRQ_nested()
+#define EE_std_enableIRQ_nested()	EE_e200z7_enableIRQ()
+#define EE_std_disableIRQ_nested()	EE_e200z7_disableIRQ()
 #endif
 
 /*
