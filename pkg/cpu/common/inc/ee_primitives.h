@@ -49,24 +49,6 @@
 #ifndef __INCLUDE_CPU_COMMON_EE_PRIMITIVES__
 #define __INCLUDE_CPU_COMMON_EE_PRIMITIVES__
 
-
-/* called to start a primitive called in an IRQ handler */
-__INLINE__ void __ALWAYS_INLINE__ EE_hal_IRQ_begin_primitive(void)
-{
-#ifdef __ALLOW_NESTED_IRQ__
-    EE_hal_disableIRQ();
-#endif
-}
-
-/* called as _first_ function of a primitive called in an IRQ handler */
-__INLINE__ void __ALWAYS_INLINE__ EE_hal_IRQ_end_primitive(void)
-{
-#ifdef __ALLOW_NESTED_IRQ__
-    EE_hal_enableIRQ();
-#endif
-}
-
-
 /*
  * Nested Interrupts Handling
  */
