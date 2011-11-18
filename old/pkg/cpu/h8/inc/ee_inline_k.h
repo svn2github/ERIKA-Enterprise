@@ -122,16 +122,6 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_IRQ_stacked(EE_TID t)
  * Primitive definition
  */
 
-__INLINE__ void __ALWAYS_INLINE__ EE_hal_IRQ_begin_primitive(void)
-{
-     // nothing to do! (nested irq not supported)
-}
-
-__INLINE__ void __ALWAYS_INLINE__ EE_hal_IRQ_end_primitive(void)
-{
-     // nothing to do! (nested irq not supported)
-}
-
 __INLINE__ EE_FREG __ALWAYS_INLINE__ EE_hal_begin_nested_primitive(void)
 {
   register EE_UINT8 f;

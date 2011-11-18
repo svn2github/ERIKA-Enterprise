@@ -182,12 +182,6 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_IRQ_stacked(EE_TID t);
  * Generic Primitives
  */
 
-/* called as _first_ function of a primitive called into an IRQ handler */
-__INLINE__ void __ALWAYS_INLINE__ EE_hal_IRQ_begin_primitive(void);
-
-/* called as _last_ function of a primitive called into an IRQ handler */
-__INLINE__ void __ALWAYS_INLINE__ EE_hal_IRQ_end_primitive(void);
-
 /* called as _first_ function of a primitive that can be called into
    an IRQ and into a task */
 __INLINE__ EE_FREG __ALWAYS_INLINE__ EE_hal_begin_nested_primitive(void);
