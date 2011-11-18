@@ -172,13 +172,14 @@ void EE_rn_handler(void)
 
   register EE_TYPERN current;
   register EE_TYPERN_SWITCH sw;
+  register EE_FREG flag;
   int redo = 0;
 
   do {
 
       sw = EE_rn_switch[EE_CURRENTCPU] & EE_RN_SWITCH_COPY;
 
-      EE_hal_IRQ_begin_primitive();
+      flag = EE_hal_begin_nested_primitive();
       
       /* Spin Lock acquisition */
       EE_hal_spin_in(EE_rn_spin[EE_CURRENTCPU]);
@@ -191,7 +192,7 @@ void EE_rn_handler(void)
       /* Spin Lock release */
       EE_hal_spin_out(EE_rn_spin[EE_CURRENTCPU]);
       
-      EE_hal_IRQ_end_primitive();
+      EE_hal_end_nested_primitive(flag);
       
       
       /* Note: from now on, we can assume that all the data structures
@@ -220,7 +221,7 @@ void EE_rn_handler(void)
 	 disabled, and we have to be sure that we will exit the
 	 handler with INTERRUPT DISABLED. */
       
-      EE_hal_IRQ_begin_primitive();
+      flag = EE_hal_begin_nested_primitive();
       EE_hal_spin_in(EE_rn_spin[EE_CURRENTCPU]);
 
       /* if the other processor has queued another request */
@@ -244,7 +245,7 @@ void EE_rn_handler(void)
 
       /* note: we end the handler with interrupt disabled! */
       if (redo) {
-	EE_hal_IRQ_end_primitive();
+	EE_hal_end_nested_primitive(flag);
       }
   } while (redo);
 }
