@@ -92,22 +92,6 @@ void EE_cpu_startos(void);
  * Generic Primitives
  */
 
-/* called to start a primitive called into an IRQ handler */
-__INLINE__ void __ALWAYS_INLINE__ EE_hal_IRQ_begin_primitive(void)
-{
-#ifdef __ALLOW_NESTED_IRQ__
-    EE_hal_disableIRQ();
-#endif
-}
-
-/* called as _first_ function of a primitive called into an IRQ handler */
-__INLINE__ void __ALWAYS_INLINE__ EE_hal_IRQ_end_primitive(void)
-{
-#ifdef __ALLOW_NESTED_IRQ__
-    EE_hal_enableIRQ();
-#endif
-}
-
 /* Same as alt_irq_disable_all in altera_nios2/HAL/inc/sys/alt_irq.h */
 __INLINE__ EE_FREG __ALWAYS_INLINE__ EE_hal_begin_nested_primitive(void)
 {
