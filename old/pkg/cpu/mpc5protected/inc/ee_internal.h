@@ -62,22 +62,6 @@ void EE_hal_stub_end_instance(void);
  * Generic Primitives
  */
 
-/* called to start a primitive called into an IRQ handler */
-__INLINE__ void __ALWAYS_INLINE__ EE_hal_IRQ_begin_primitive(void)
-{
-#ifdef __ALLOW_NESTED_IRQ__
-  //    EE_hal_disableIRQ();
-#endif
-}
-
-/* called as _first_ function of a primitive called into an IRQ handler */
-__INLINE__ void __ALWAYS_INLINE__ EE_hal_IRQ_end_primitive(void)
-{
-#ifdef __ALLOW_NESTED_IRQ__
-  //    EE_hal_enableIRQ();
-#endif
-}
-
 /* This primitive shall be atomic.
    This primitive shall be inserted as the last function in an IRQ handler.
    If the HAL allow IRQ nesting the end_instance should work as follows:
