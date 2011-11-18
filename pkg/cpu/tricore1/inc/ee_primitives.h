@@ -56,24 +56,6 @@
  * Generic Primitives
  */
 
-/* Called to start a primitive called from within an IRQ handler. */
-__INLINE__ void __ALWAYS_INLINE__ EE_hal_IRQ_begin_primitive(void)
-{
-#ifdef __ALLOW_NESTED_IRQ__
-    EE_hal_disableIRQ();
-#endif
-}
-
-
-/* Called as _first_ function of a primitive called from within an IRQ
- * handler. */
-__INLINE__ void __ALWAYS_INLINE__ EE_hal_IRQ_end_primitive(void)
-{
-#ifdef __ALLOW_NESTED_IRQ__
-    EE_hal_enableIRQ();
-#endif
-}
-
 
 /* Called as _first_ function of a primitive that can be called from within
  * an IRQ and from within a task.
