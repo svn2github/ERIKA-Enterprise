@@ -47,32 +47,6 @@
 #include <cpu/e200zx/inc/ee_irq.h>
 #endif
 
-#ifdef __ALLOW_NESTED_IRQ__
-#define jmp_if_nested_reg(reg, label)	\
-	cmpi	cr0, reg, 1 \
-	bne	label
-
-#define jmp_if_nested(label)	\
-	addis	r5, 0, EE_IRQ_nesting_level@ha \
-	lwz	r0, EE_IRQ_nesting_level@l(r5) \
-	cmpi	cr0, r0, 1 \
-	bne	label
-
-#define disable_irq_nested	wrteei	1
-
-#define disable_irq_nested	wrteei	0
-
-#else
-#define jmp_if_nested_reg(reg, label)
-
-#define jmp_if_nested(label)
-
-#define enable_irq_nested
-
-#define disable_irq_nested
-
-#endif
-
 	/* CW-VAR-DEFINITION: EE_ADDR EE_e200z7_tmp_tos; */
         .section .bss
 	.global	EE_e200z7_tmp_tos
@@ -99,7 +73,15 @@ EE_e200z7_call_ISR_new_stack:
 	stw	r0, 20(sp)
 
 	/* if (nesting_level == 1) */
-	jmp_if_nested_reg(r5, skip_change)
+#ifdef	__ALLOW_NESTED_IRQ__
+
+#ifdef	__VLE__
+	e_cmpi	cr0, r5, 1
+#else
+	cmpi	cr0, r5, 1
+#endif
+	bne	skip_change
+#endif
 
         /*	change_stacks(); */
 	addis	r3, 0, EE_e200z7_tmp_tos@ha
@@ -110,17 +92,30 @@ EE_e200z7_call_ISR_new_stack:
 
 skip_change:
 	/* EE_std_enableIRQ_nested(); */
-	enable_irq_nested
+#ifdef	__ALLOW_NESTED_IRQ__
+	wrteei	1
+#endif
 
 	/* fun(); */
 	mtspr	SPRG_LR, r4
 	blrl
 
 	/* EE_std_disableIRQ_nested(); */
-	disable_irq_nested
+#ifdef	__ALLOW_NESTED_IRQ__
+	wrteei	0
+#endif
 
 	/* if (nesting_level == 1) */
-	jmp_if_nested(skip_change_back)
+#ifdef	__ALLOW_NESTED_IRQ__
+	addis	r5, 0, EE_IRQ_nesting_level@ha
+	lwz	r0, EE_IRQ_nesting_level@l(r5)
+#ifdef	__VLE__
+	e_cmpi	cr0, r0, 1
+#else
+	cmpi	cr0, r0, 1
+#endif
+	bne	skip_change_back
+#endif
 
 	/*     change_stacks_back(); */
 	addis	r3, 0, EE_e200z7_tmp_tos@ha
