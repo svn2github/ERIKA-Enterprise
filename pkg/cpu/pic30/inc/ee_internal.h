@@ -44,6 +44,9 @@
  *         2008- Paolo & Francesco: change interrupt disabling/enabling
  *         procedure, now with DISI instruction
  *         2011- Giuseppe Serano: pkg/cpu/common integration
+ *                                EE_hal_begin_nested_primitive() and
+ *                                EE_hal_end_nested_primitive() now call
+ *                                EE_hal_suspendIRQ() and EE_hal_resumeIRQ()
  */
 
 #ifndef	__INCLUDE_PIC30_INTERNAL_H__
@@ -61,31 +64,18 @@
 
 #include	"cpu/common/inc/ee_primitives.h"
 
-/* we should make an include file with all the registers of a PIC30 CPU
-   the file is typically provided by the compiler distribution */
-extern volatile EE_FREG DISICNT __attribute__((__sfr__));
-
 /* called as _first_ function of a primitive that can be called into
    an IRQ and into a task */
 __INLINE__ EE_FREG __ALWAYS_INLINE__ EE_hal_begin_nested_primitive(void)
 {
-  register EE_FREG retvalue;
-
-  retvalue = DISICNT;
-  EE_hal_disableIRQ();
-  return retvalue;
+  return EE_hal_suspendIRQ();
 }
 
 /* called as _last_ function of a primitive that can be called into
    an IRQ and into a task */
 __INLINE__ void __ALWAYS_INLINE__ EE_hal_end_nested_primitive(EE_FREG f)
 {
-  if(f)
-    /* We use DISI to disable interrupts, so it's better to reissue the
-     * instruction whenever we have the chance */
-    EE_hal_disableIRQ();
-  else
-    EE_hal_enableIRQ();
+  EE_hal_resumeIRQ(f);
 }
 
 /*

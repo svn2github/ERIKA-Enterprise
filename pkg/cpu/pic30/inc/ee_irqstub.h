@@ -44,6 +44,9 @@
  *         2008- Paolo & Francesco: change interrupt disabling/enabling
  *         procedure, now with DISI instruction
  *         2011- Giuseppe Serano: pkg/cpu/common integration
+ *                                EE_ISR2_prestub() and EE_ISR2_poststub() now
+ *                                call EE_pic30_suspendIRQ() and
+ *                                EE_pic30_resumeIRQ() to save/restore state.
  * CVS: $Id: ee_irqstub.h,v 1.8 2008/07/16 15:01:38 francesco Exp $
  */
 
@@ -63,7 +66,9 @@ extern void EE_IRQ_end_instance(void);
 __INLINE__ void __ALWAYS_INLINE__ EE_ISR2_prestub(void)
 {
 
-  EE_pic30_disableIRQ();
+  register EE_FREG flags;
+
+  flags = EE_pic30_suspendIRQ();
 
   EE_increment_IRQ_nesting_level();
 
@@ -84,7 +89,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_ISR2_prestub(void)
   }
 #endif	// __IRQ_STACK_NEEDED__
 #endif	// __MULTI__
-  EE_pic30_enableIRQ();
+  EE_pic30_resumeIRQ(flags);
 
 #endif	// __ALLOW_NESTED_IRQ__
 
@@ -93,11 +98,13 @@ __INLINE__ void __ALWAYS_INLINE__ EE_ISR2_prestub(void)
 __INLINE__ void __ALWAYS_INLINE__ EE_ISR2_poststub(void)
 {
 #ifdef	__ALLOW_NESTED_IRQ__
-  EE_pic30_disableIRQ();
+
+  register EE_FREG flags;
+  flags = EE_pic30_suspendIRQ();
   EE_decrement_IRQ_nesting_level();
 
   if (EE_is_inside_ISR_call()) {
-    EE_pic30_enableIRQ();
+    EE_pic30_resumeIRQ(flags);
     return;
   }
 
@@ -116,20 +123,8 @@ __INLINE__ void __ALWAYS_INLINE__ EE_ISR2_poststub(void)
   EE_IRQ_nesting_level=0;
 #endif	// __ALLOW_NESTED_IRQ__
 
-  /* Set CPU priority [IPL<2:0> bits (SR<7:5> bits)] to 0 and launch the
-     scheduler.
-     Note: SR register mapped in memory at 0x0042. */
-  asm("BCLR.B 0x0042, #0x7");
-  asm("BCLR.B 0x0042, #0x6");
-  asm("BCLR.B 0x0042, #0x5");
   EE_std_after_IRQ_schedule();
 
-  /* Set CPU priority to 6 and enable interrupt with disi.
-     RETFIE instruction will restore the right priority level */
-  asm("BSET.B 0x0042, #0x7");
-  asm("BSET.B 0x0042, #0x6");
-  asm("BCLR.B 0x0042, #0x5");
-  EE_pic30_enableIRQ();
 }
 
 #define ISR2(f) \

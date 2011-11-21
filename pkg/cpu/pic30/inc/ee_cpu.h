@@ -44,6 +44,8 @@
  *         2008- Paolo & Francesco: change interrupt disabling/enabling
  *         procedure, now with DISI instruction
  *         2011- Giuseppe Serano: pkg/cpu/common integration
+ *                                interrupt disable/enable via IPL
+ *                                adds interrupt suspend/resume hal APIs
  * CVS: $Id: ee_cpu.h,v 1.7 2008/07/16 15:01:38 francesco Exp $
  */
 
@@ -54,13 +56,8 @@
 #include	"cpu/pic30/inc/ee_compiler.h"
 #include	"ee_pic30regs.h"
 
-#define	ASM_DIS_INT	do {\
-  asm("DISI #0x3FFF");\
-  }while(0)
-
-#define	ASM_EN_INT	do {\
-  asm("DISI #0x0000");\
-  }while(0)
+#define	USER_INT_MAX_IPL	6
+#define	USER_INT_MIN_IPL	0
 
 /******************************************************************************
  HAL Types and Structures
@@ -138,7 +135,7 @@ extern	void EE_oo_thread_stub(void);
 
 __INLINE__ void __ALWAYS_INLINE__ EE_pic30_enableIRQ(void)
 {
-  ASM_EN_INT;
+  SRbits.IPL = USER_INT_MIN_IPL;
 }
 
 /*
@@ -147,7 +144,26 @@ __INLINE__ void __ALWAYS_INLINE__ EE_pic30_enableIRQ(void)
 
 __INLINE__ void __ALWAYS_INLINE__ EE_pic30_disableIRQ(void)
 {
-  ASM_DIS_INT;
+  SRbits.IPL = USER_INT_MAX_IPL;
+}
+
+/*
+ * Supend interrupts
+ */
+__INLINE__ EE_FREG __ALWAYS_INLINE__ EE_pic30_suspendIRQ()
+{
+  register EE_FREG sr;
+  sr = SR;
+  SRbits.IPL = USER_INT_MAX_IPL;
+  return sr;
+}
+
+/*
+ * Resume interrupts
+ */
+__INLINE__ void __ALWAYS_INLINE__ EE_pic30_resumeIRQ(EE_FREG sr)
+{
+  SR = sr;
 }
 
 /*************************************************************************
@@ -167,6 +183,17 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_enableIRQ(void)
 __INLINE__ void __ALWAYS_INLINE__ EE_hal_disableIRQ(void)
 {
     EE_pic30_disableIRQ();
+}
+
+/* Suspend/Resume Interrupts */
+__INLINE__ EE_FREG __ALWAYS_INLINE__ EE_hal_suspendIRQ(void)
+{
+    return EE_pic30_suspendIRQ();
+}
+
+__INLINE__ void __ALWAYS_INLINE__ EE_hal_resumeIRQ(EE_FREG flags)
+{
+    EE_pic30_resumeIRQ(flags);
 }
 
 /*************************************************************************
