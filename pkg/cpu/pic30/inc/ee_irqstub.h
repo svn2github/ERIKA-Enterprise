@@ -99,14 +99,10 @@ __INLINE__ void __ALWAYS_INLINE__ EE_ISR2_poststub(void)
 {
 #ifdef	__ALLOW_NESTED_IRQ__
 
-  register EE_FREG flags;
-  flags = EE_pic30_suspendIRQ();
+  EE_pic30_disableIRQ();
   EE_decrement_IRQ_nesting_level();
 
-  if (EE_is_inside_ISR_call()) {
-    EE_pic30_resumeIRQ(flags);
-    return;
-  }
+  if (EE_is_inside_ISR_call()) return;
 
 #ifdef	__MULTI__
 #ifdef	__IRQ_STACK_NEEDED__
