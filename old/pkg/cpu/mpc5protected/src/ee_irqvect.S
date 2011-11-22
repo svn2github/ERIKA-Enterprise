@@ -124,7 +124,40 @@
         stw     r0, 24(sp)        // ctr
         mfcr    r0
         stw     r0, 28(sp)        // cr
+#ifndef	DEBUG
         stmw    r2, 36(sp)
+#else
+	stw    r2, 36(sp)
+	stw    r3, 40(sp)
+	stw    r4, 44(sp)
+	stw    r5, 48(sp)
+	stw    r6, 52(sp)
+	stw    r7, 56(sp)
+	stw    r8, 60(sp)
+	stw    r9, 64(sp)
+	stw    r10, 68(sp)
+	stw    r11, 72(sp)
+	stw    r12, 76(sp)
+	stw    r13, 80(sp)
+	stw    r14, 84(sp)
+	stw    r15, 88(sp)
+	stw    r16, 92(sp)
+	stw    r17, 96(sp)
+	stw    r18, 100(sp)
+	stw    r19, 104(sp)
+	stw    r20, 108(sp)
+	stw    r21, 112(sp)
+	stw    r22, 116(sp)
+	stw    r23, 120(sp)
+	stw    r24, 124(sp)
+	stw    r25, 128(sp)
+	stw    r26, 132(sp)
+	stw    r27, 136(sp)
+	stw    r28, 140(sp)
+	stw    r29, 144(sp)
+	stw    r30, 148(sp)
+	stw    r31, 152(sp)
+#endif
                                                                                 
         // Devo salvare il _tos_ : non modifico r1
 	// Ho interrotto un thread o un handler?
@@ -216,7 +249,40 @@
 	stw	r0, 24(sp)	// ctr
 	mfcr	r0
 	stw	r0, 28(sp)	// cr
-	stmw	r2, 36(sp)
+#ifndef	DEBUG
+        stmw    r2, 36(sp)
+#else
+	stw    r2, 36(sp)
+	stw    r3, 40(sp)
+	stw    r4, 44(sp)
+	stw    r5, 48(sp)
+	stw    r6, 52(sp)
+	stw    r7, 56(sp)
+	stw    r8, 60(sp)
+	stw    r9, 64(sp)
+	stw    r10, 68(sp)
+	stw    r11, 72(sp)
+	stw    r12, 76(sp)
+	stw    r13, 80(sp)
+	stw    r14, 84(sp)
+	stw    r15, 88(sp)
+	stw    r16, 92(sp)
+	stw    r17, 96(sp)
+	stw    r18, 100(sp)
+	stw    r19, 104(sp)
+	stw    r20, 108(sp)
+	stw    r21, 112(sp)
+	stw    r22, 116(sp)
+	stw    r23, 120(sp)
+	stw    r24, 124(sp)
+	stw    r25, 128(sp)
+	stw    r26, 132(sp)
+	stw    r27, 136(sp)
+	stw    r28, 140(sp)
+	stw    r29, 144(sp)
+	stw    r30, 148(sp)
+	stw    r31, 152(sp)
+#endif
 
 	// Devo salvare il _tos_ : non modifico r1
 
@@ -532,7 +598,40 @@ restore:
 	lwz	r0, 28(sp)
 	mtcr	r0
 	lwz	r0, 32(sp)
+#ifndef	DEBUG
 	lmw	r2, 36(sp)
+#else
+	lwz	r2, 36(sp)
+	lwz	r3, 40(sp)
+	lwz	r4, 44(sp)
+	lwz	r5, 48(sp)
+	lwz	r6, 52(sp)
+	lwz	r7, 56(sp)
+	lwz	r8, 60(sp)
+	lwz	r9, 64(sp)
+	lwz	r10, 68(sp)
+	lwz	r11, 72(sp)
+	lwz	r12, 76(sp)
+	lwz	r13, 80(sp)
+	lwz	r14, 84(sp)
+	lwz	r15, 88(sp)
+	lwz	r16, 92(sp)
+	lwz	r17, 96(sp)
+	lwz	r18, 100(sp)
+	lwz	r19, 104(sp)
+	lwz	r20, 108(sp)
+	lwz	r21, 112(sp)
+	lwz	r22, 116(sp)
+	lwz	r23, 120(sp)
+	lwz	r24, 124(sp)
+	lwz	r25, 128(sp)
+	lwz	r26, 132(sp)
+	lwz	r27, 136(sp)
+	lwz	r28, 140(sp)
+	lwz	r29, 144(sp)
+	lwz	r30, 146(sp)
+	lwz	r31, 152(sp)
+#endif
 	lwz	sp, 0(sp)
 theend:
 	rfi
