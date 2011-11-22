@@ -93,7 +93,7 @@ OPT_TARGET := -proc Zen
 OPT_CC = $(CFLAGS) $(OPT_TARGET) $(VLE_OPT) -RTTI off -Cpp_exceptions off \
  -gccinc -char unsigned -nostdinc -pragma "section RW \".stack\" \".ustack\""
 ifneq ($(call iseeopt, __MINIMAL_CC_OPTIONS__), yes)
-OPT_CC += -use_lmw_stmw on -flag require_prototypes -msgstyle gcc -rostr \
+OPT_CC += -flag require_prototypes -msgstyle gcc -rostr \
  -O4 -ipa file -inline on,auto -schedule on
 endif
 ifeq ($(call iseeopt, __MSRP__), yes)
@@ -140,9 +140,17 @@ endif
 
 ifneq ($(call iseeopt, __BIN_DISTR), yes)
 ifeq ($(call iseeopt, DEBUG), yes)
-OPT_CC += -gdwarf-2
+OPT_CC += -gdwarf-2 -use_lmw_stmw off
 OPT_ASM += -gdwarf-2
 OPT_LINK += -gdwarf-2
+else
+ifneq ($(call iseeopt, __MINIMAL_CC_OPTIONS__), yes)
+OPT_CC += -use_lmw_stmw on
+endif
+endif
+else
+ifneq ($(call iseeopt, __MINIMAL_CC_OPTIONS__), yes)
+OPT_CC += -use_lmw_stmw on
 endif
 endif
 

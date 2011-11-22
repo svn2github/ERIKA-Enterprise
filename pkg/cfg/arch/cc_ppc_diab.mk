@@ -82,7 +82,7 @@ OPT_ASM = $(OPT_TARGET)
 
 ifneq ($(call iseeopt, __BIN_DISTR), yes)
 ifeq ($(call iseeopt, DEBUG), yes)
-OPT_CC += -g3
+OPT_CC += -g3 -Xstmw-slow
 OPT_ASM += -g
 endif
 endif
