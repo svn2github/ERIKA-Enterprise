@@ -95,7 +95,28 @@ EE_std_change_context:
 	/*     save_caller_saved_registers(); */
 	mflr	r0
 	stw	r0, -76(sp)
+#ifndef	DEBUG
 	stmw	r14, -72(sp)
+#else
+	stw	r14, -72(sp)
+	stw	r15, -68(sp)
+	stw	r16, -64(sp)
+	stw	r17, -60(sp)
+	stw	r18, -56(sp)
+	stw	r19, -52(sp)
+	stw	r20, -48(sp)
+	stw	r21, -44(sp)
+	stw	r22, -40(sp)
+	stw	r23, -36(sp)
+	stw	r24, -32(sp)
+	stw	r25, -28(sp)
+	stw	r26, -24(sp)
+	stw	r27, -20(sp)
+	stw	r28, -16(sp)
+	stw	r29, -12(sp)
+	stw	r30, -8(sp)
+	stw	r31, -4(sp)
+#endif
 	
 	/*     switch_stacks(tos_index); */
 	// r7 = & EE_e200z7_system_tos[0];
@@ -131,7 +152,28 @@ EE_std_change_context:
 #endif /* __EE_MEMORY_PROTECTION__ */
 
         /*     restore_caller_saved_registers(); */
+#ifndef	DEBUG
 	lmw	r14, -72(sp)
+#else
+	lwz	r31, -4(sp)
+	lwz	r30, -8(sp)
+	lwz	r29, -12(sp)
+	lwz	r28, -16(sp)
+	lwz	r27, -20(sp)
+	lwz	r26, -24(sp)
+	lwz	r25, -28(sp)
+	lwz	r24, -32(sp)
+	lwz	r23, -36(sp)
+	lwz	r22, -40(sp)
+	lwz	r21, -44(sp)
+	lwz	r20, -48(sp)
+	lwz	r19, -52(sp)
+	lwz	r18, -56(sp)
+	lwz	r17, -60(sp)
+	lwz	r16, -64(sp)
+	lwz	r15, -68(sp)
+	lwz	r14, -72(sp)
+#endif
 	lwz	r0, -76(sp)
 	mtlr	r0
 

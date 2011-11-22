@@ -74,7 +74,28 @@ EE_hal_terminate_savestk:
 	
 	/* Save all callee-saved registers */
 	stw	r0, 8(sp)
+#ifndef	DEBUG
 	stmw	r14, 12(sp)
+#else
+	stw	r14, 12(sp)
+	stw	r15, 16(sp)
+	stw	r16, 20(sp)
+	stw	r17, 24(sp)
+	stw	r18, 28(sp)
+	stw	r19, 32(sp)
+	stw	r20, 36(sp)
+	stw	r21, 40(sp)
+	stw	r22, 44(sp)
+	stw	r23, 48(sp)
+	stw	r24, 52(sp)
+	stw	r25, 56(sp)
+	stw	r26, 60(sp)
+	stw	r27, 64(sp)
+	stw	r28, 68(sp)
+	stw	r29, 72(sp)
+	stw	r30, 76(sp)
+	stw	r31, 80(sp)
+#endif
 
 	/* Start the thread body */
 	mtlr	r5
@@ -123,7 +144,28 @@ EE_hal_terminate_task:
 	/* Restore the registers and return */
 	lwz	r0, 8(sp)
 	mtlr	r0
+#ifndef	DEBUG
 	lmw	r14, 12(sp)
+#else
+	lwz	r31, 80(sp)
+	lwz	r30, 76(sp)
+	lwz	r29, 72(sp)
+	lwz	r28, 68(sp)
+	lwz	r27, 64(sp)
+	lwz	r26, 60(sp)
+	lwz	r25, 56(sp)
+	lwz	r24, 52(sp)
+	lwz	r23, 48(sp)
+	lwz	r22, 44(sp)
+	lwz	r21, 40(sp)
+	lwz	r20, 36(sp)
+	lwz	r19, 32(sp)
+	lwz	r18, 28(sp)
+	lwz	r17, 24(sp)
+	lwz	r16, 20(sp)
+	lwz	r15, 16(sp)
+	lwz	r14, 12(sp)
+#endif
 	addi	sp, sp, 96
 	blr
 	.size	EE_hal_terminate_task, .-EE_hal_terminate_task
