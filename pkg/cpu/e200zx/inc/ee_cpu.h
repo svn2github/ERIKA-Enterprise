@@ -194,30 +194,43 @@ typedef EE_UINT32 EE_TYPESPIN;
 
 #define MSR_EE	((EE_FREG)1U << 15)
 
-__INLINE__ EE_FREG EE_e200z7_are_IRQs_enabled(EE_FREG ie)
-{
-	return ie & MSR_EE;
-}
-
 __INLINE__ void __ALWAYS_INLINE__ EE_e200z7_enableIRQ(void)
 {
 	asm volatile ("wrteei 1\n");
 }
 
-#ifdef __DCC__
-__asm EE_FREG EE_e200z7_disableIRQ(void)
+__INLINE__ void __ALWAYS_INLINE__ EE_e200z7_disableIRQ(void)
+{
+	asm volatile ("wrteei 0\n");
+}
+
+#ifdef	__DCC__
+__asm void EE_e200z7_resumeIRQ(EE_FREG msr)
+{
+% reg msr
+	wrtee	msr
+}
+#else
+__INLINE__ void __ALWAYS_INLINE__ EE_e200z7_resumeIRQ(EE_FREG msr)
+{
+	asm volatile ("wrtee %0\n" :: "r"(msr));
+}
+#endif
+
+#ifdef	__DCC__
+__asm EE_FREG EE_e200z7_suspendIRQ(void)
 {
 ! "r3"
 	mfmsr	r3
 	wrteei	0
 }
 #else
-__INLINE__ EE_FREG __ALWAYS_INLINE__ EE_e200z7_disableIRQ(void)
+__INLINE__ EE_FREG __ALWAYS_INLINE__ EE_e200z7_suspendIRQ(void)
 {
 	EE_FREG msr;
 
-	asm volatile ("mfmsr %0		\n"
-		      "wrteei 0		\n"
+	asm volatile ("mfmsr %0\n"
+		      "wrteei 0\n"
 			: "=r"(msr));
 	return msr;
 }
@@ -349,7 +362,17 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_enableIRQ(void)
 
 __INLINE__ void __ALWAYS_INLINE__ EE_hal_disableIRQ(void)
 {
-	(void)EE_e200z7_disableIRQ();
+	EE_e200z7_disableIRQ();
+}
+
+__INLINE__ void __ALWAYS_INLINE__ EE_hal_resumeIRQ(EE_FREG flags)
+{
+	EE_e200z7_resumeIRQ(flags);
+}
+
+__INLINE__ EE_FREG __ALWAYS_INLINE__ EE_hal_suspendIRQ(void)
+{
+	return EE_e200z7_suspendIRQ();
 }
 
 #ifndef __PPCE200Z0__

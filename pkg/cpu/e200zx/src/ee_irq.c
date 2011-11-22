@@ -100,7 +100,7 @@ EE_e200z7_ISR_handler EE_e200z7_ISR_table[EE_E200ZX_MAX_CPU_EXCP
 void EE_e200z7_register_ISR(int level, EE_e200z7_ISR_handler fun, EE_UINT8 pri)
 {
 	EE_UINT8 proc;
-	EE_FREG intst = EE_e200z7_disableIRQ();
+	EE_FREG intst = EE_e200z7_suspendIRQ();
 
 	EE_e200z7_ISR_table[level] = fun;
 
@@ -111,9 +111,7 @@ void EE_e200z7_register_ISR(int level, EE_e200z7_ISR_handler fun, EE_UINT8 pri)
 			= (uint8_t)(proc | pri);
 	}
 
-	if (EE_e200z7_are_IRQs_enabled(intst)) {
-		EE_e200z7_enableIRQ();
-	}
+	EE_e200z7_resumeIRQ(intst);
 }
 
 #endif

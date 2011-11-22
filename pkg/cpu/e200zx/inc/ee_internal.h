@@ -66,7 +66,7 @@
    an IRQ and in a task */
 __INLINE__ EE_FREG __ALWAYS_INLINE__ EE_hal_begin_nested_primitive(void)
 {
-    return EE_e200z7_disableIRQ();
+	return EE_hal_suspendIRQ();
 }
 
 
@@ -74,9 +74,7 @@ __INLINE__ EE_FREG __ALWAYS_INLINE__ EE_hal_begin_nested_primitive(void)
    an IRQ and in a task.  Enable IRQs if they were enabled before entering. */
 __INLINE__ void __ALWAYS_INLINE__ EE_hal_end_nested_primitive(EE_FREG f)
 {
-	if (EE_e200z7_are_IRQs_enabled(f)) {
-		EE_e200z7_enableIRQ();
-	}
+	EE_hal_resumeIRQ(f);
 }
 
 
