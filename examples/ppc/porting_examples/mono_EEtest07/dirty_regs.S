@@ -97,7 +97,28 @@ dirty_regs:
 	mfspr	r0, 8
 	stwu	sp, -96(sp)
 	stw	r0, 12(sp)
+#ifndef	DEBUG
 	stmw	r14, 24(sp)
+#else
+	stw	r14, 24(sp)
+	stw	r15, 28(sp)
+	stw	r16, 32(sp)
+	stw	r17, 36(sp)
+	stw	r18, 40(sp)
+	stw	r19, 44(sp)
+	stw	r20, 48(sp)
+	stw	r21, 52(sp)
+	stw	r22, 56(sp)
+	stw	r23, 60(sp)
+	stw	r24, 64(sp)
+	stw	r25, 68(sp)
+	stw	r26, 72(sp)
+	stw	r27, 76(sp)
+	stw	r28, 80(sp)
+	stw	r29, 84(sp)
+	stw	r30, 88(sp)
+	stw	r31, 92(sp)
+#endif
 
 	/* Dirty the stack. */
 	load_dirty_value r0, STACK_DIRT
@@ -151,7 +172,28 @@ dirty_regs:
 restore_and_return:
 	lwz	r0, 12(sp)
 	mtspr	8, r0
+#ifndef	DEBUG
 	lmw	r14, 24(sp)
+#else
+	lwz	r14, 24(sp)
+	lwz	r15, 28(sp)
+	lwz	r16, 32(sp)
+	lwz	r17, 36(sp)
+	lwz	r18, 40(sp)
+	lwz	r19, 44(sp)
+	lwz	r20, 48(sp)
+	lwz	r21, 52(sp)
+	lwz	r22, 56(sp)
+	lwz	r23, 60(sp)
+	lwz	r24, 64(sp)
+	lwz	r25, 68(sp)
+	lwz	r26, 72(sp)
+	lwz	r27, 76(sp)
+	lwz	r28, 80(sp)
+	lwz	r29, 84(sp)
+	lwz	r30, 88(sp)
+	lwz	r31, 92(sp)
+#endif
 	addi	sp, sp, 96
 
 	blr
