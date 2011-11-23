@@ -172,6 +172,7 @@ tmp:
 
 clean:
 	rm -rf `ls -d */out*` tmp
+	$(MAKE) -C common/confparser $@
 
 ifdef ARCH
 supported:
