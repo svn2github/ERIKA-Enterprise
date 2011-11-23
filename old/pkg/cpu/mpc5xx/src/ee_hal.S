@@ -139,7 +139,28 @@ EE_mpc5_change_tos:
 	// not the stack change, the system will behave like the
 	// monostack version of the kernel
 	addi	sp, sp, -72
+#ifndef	DEBUG
 	stmw	r14, 0(sp)	
+#else
+	stw	r14, 0(sp)
+	stw	r15, 4(sp)
+	stw	r16, 8(sp)
+	stw	r17, 12(sp)
+	stw	r18, 16(sp)
+	stw	r19, 20(sp)
+	stw	r20, 24(sp)
+	stw	r21, 28(sp)
+	stw	r22, 32(sp)
+	stw	r23, 36(sp)
+	stw	r24, 40(sp)
+	stw	r25, 44(sp)
+	stw	r26, 48(sp)
+	stw	r27, 52(sp)
+	stw	r28, 56(sp)
+	stw	r29, 60(sp)
+	stw	r30, 64(sp)
+	stw	r31, 68(sp)
+#endif
 	
 	//
 	// Save current TOS
@@ -175,7 +196,28 @@ EE_mpc5_change_tos:
 	// stack previous change. If this is the first time we use the
 	// current stack, restoring is useless... (see also inithal.c
 	// into the directories erika/tests/mpc5xxxx)
+#ifndef	DEBUG
  	lmw	r14, 0(sp)
+#else
+	lwz	r14, 0(sp)
+	lwz	r15, 4(sp)
+	lwz	r16, 8(sp)
+	lwz	r17, 12(sp)
+	lwz	r18, 16(sp)
+	lwz	r19, 20(sp)
+	lwz	r20, 24(sp)
+	lwz	r21, 28(sp)
+	lwz	r22, 32(sp)
+	lwz	r23, 36(sp)
+	lwz	r24, 40(sp)
+	lwz	r25, 44(sp)
+	lwz	r26, 48(sp)
+	lwz	r27, 52(sp)
+	lwz	r28, 56(sp)
+	lwz	r29, 60(sp)
+	lwz	r30, 64(sp)
+	lwz	r31, 68(sp)
+#endif
 	addi	sp, sp, 72
 
 	blr
