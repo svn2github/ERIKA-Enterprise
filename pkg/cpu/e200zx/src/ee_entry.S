@@ -207,7 +207,14 @@ sram_setup:
 1:
 	/* ECC SRAM must be initialized with 64-bit writes, hence stmw;
 	 * 16-btye alignment should work always */
+#ifndef	DEBUG
 	stmw	r28, 0(r8)
+#else
+	stw	r28, 0(r8)
+	stw	r29, 4(r8)
+	stw	r30, 8(r8)
+	stw	r31, 12(r8)
+#endif
 	addi	r8, r8, 16
 	bdnz	1b
 #endif
