@@ -102,11 +102,11 @@ DEBUG_s12xs           	= $(DEBUG_s12xs_source)
 
 # -------------------------------------------------------------------
 
-TMPDIR = $(EEBASE)/testcase/tmp
-FILE_LOCK = $(TMPDIR)/s12xs_manual.lock
-RTDRUID_GENERATE_LOCK = $(TMPDIR)/rtdruid_generate_lock.lock
+EE_TMPDIR = $(EEBASE)/testcase/tmp
+FILE_LOCK = $(EE_TMPDIR)/s12xs_manual.lock
+RTDRUID_GENERATE_LOCK = $(EE_TMPDIR)/rtdruid_generate_lock.lock
 LOCKFILE= lockfile -1 -r-1
-DIST_LOCK = $(TMPDIR)/dist.lock
+DIST_LOCK = $(EE_TMPDIR)/dist.lock
 
 # -------------------------------------------------------------------
 
@@ -126,21 +126,21 @@ CONF_s12xs_source = \
 # Generate the rt-druid files...
 RTDRUID_s12xs_source = \
 	@echo RTDRUID $(OUTDIR_PREFIX)$*; \
-	echo \<rtdruid.Oil.Configurator inputfile=\"$(call native_path,$(OUTDIR_PREFIX)$*/ee.oil)\" outputdir=\"$(call native_path,$(OUTDIR_PREFIX)$*/Debug)\" /\> >> $(TMPDIR)/s12xs_rtdruid_partial.xml;
+	echo \<rtdruid.Oil.Configurator inputfile=\"$(call native_path,$(OUTDIR_PREFIX)$*/ee.oil)\" outputdir=\"$(call native_path,$(OUTDIR_PREFIX)$*/Debug)\" /\> >> $(EE_TMPDIR)/s12xs_rtdruid_partial.xml;
 
 # take also a look to GLOBAL_RTDRUID at the top of the file!!!
 
 COMPILE_s12xs_source = \
 	+@unset EEBASE; \
-	if $(MAKE) $(PARAMETERS) NODEPS=1 -C $(OUTDIR_PREFIX)$*/Debug >$(OUTDIR_PREFIX)$*/compile.log 2>&1; then echo OK $(EXPERIMENT) $(OUTDIR_PREFIX)$* >>$(TMPDIR)/ok.log; else echo ERROR $(EXPERIMENT) $(OUTDIR_PREFIX)$* >>$(TMPDIR)/errors.log; fi
+	if $(MAKE) $(PARAMETERS) NODEPS=1 -C $(OUTDIR_PREFIX)$*/Debug >$(OUTDIR_PREFIX)$*/compile.log 2>&1; then echo OK $(EXPERIMENT) $(OUTDIR_PREFIX)$* >>$(EE_TMPDIR)/ok.log; else echo ERROR $(EXPERIMENT) $(OUTDIR_PREFIX)$* >>$(EE_TMPDIR)/errors.log; fi
 
 DEBUG_s12xs_source = \
 	cp s12xs/testcase.cmd $(OUTDIR_PREFIX)$*; \
 	$(LOCKFILE) $(FILE_LOCK); \
-		echo "                                     " >> $(TMPDIR)/s12xs_jobs.cmd; \
-		echo "cd `cygpath -w $(OUTDIR_PREFIX)$*`" >> $(TMPDIR)/s12xs_jobs.cmd; \
-		echo "cf testcase.cmd                      " >> $(TMPDIR)/s12xs_jobs.cmd; \
-		cp -u s12xs/s12xs.cmd $(TMPDIR)/s12xs.cmd; \
+		echo "                                     " >> $(EE_TMPDIR)/s12xs_jobs.cmd; \
+		echo "cd `cygpath -w $(OUTDIR_PREFIX)$*`" >> $(EE_TMPDIR)/s12xs_jobs.cmd; \
+		echo "cf testcase.cmd                      " >> $(EE_TMPDIR)/s12xs_jobs.cmd; \
+		cp -u s12xs/s12xs.cmd $(EE_TMPDIR)/s12xs.cmd; \
 	rm -f $(FILE_LOCK); \
 
 
@@ -148,8 +148,8 @@ DEBUG_s12xs_source = \
 #DEBUG_s12xs_source = \
 #	cp s12xs/testcase.cmd $(OUTDIR_PREFIX)$*; \
 #	$(LOCKFILE) $(FILE_LOCK); \
-#		echo "cf `cygpath -w $(OUTDIR_PREFIX)$*`" >> $(TMPDIR)/s12xs_jobs.cmd; \
-#		cp -u s12xs/s12xs.cmd $(TMPDIR)/s12xs.cmd; \
+#		echo "cf `cygpath -w $(OUTDIR_PREFIX)$*`" >> $(EE_TMPDIR)/s12xs_jobs.cmd; \
+#		cp -u s12xs/s12xs.cmd $(EE_TMPDIR)/s12xs.cmd; \
 #	rm -f $(FILE_LOCK); \
 
 
@@ -160,7 +160,7 @@ DEBUG_s12xs_source = \
 #CONF_s12xs_binfull = \
 #	@echo CONF $(OUTDIR_PREFIX)$*; \
 #	cat $(OUTDIR_PREFIX)$*/appl.oil | gcc -c - -E -P -I$(EEBASE)/pkg $(addprefix -D, $(shell $(DEMUX2) $*)) -D$(thearch) -o - >$(OUTDIR_PREFIX)$*/ee.oil; \
-#	echo \<rtdruid.Oil.DistributionBuilder inputfile=\"`cygpath -m $(OUTDIR_PREFIX)$*/ee.oil`\" outputFile=\"`cygpath -m $(TMPDIR)/bindistrfull_partial.mk`\" DistributionName=\"$(subst /,,$(EXPERIMENT))_$*\" DistributionType=\"full\"/\> >> $(TMPDIR)/s12xs_ant_partial.xml;
+#	echo \<rtdruid.Oil.DistributionBuilder inputfile=\"`cygpath -m $(OUTDIR_PREFIX)$*/ee.oil`\" outputFile=\"`cygpath -m $(EE_TMPDIR)/bindistrfull_partial.mk`\" DistributionName=\"$(subst /,,$(EXPERIMENT))_$*\" DistributionType=\"full\"/\> >> $(EE_TMPDIR)/s12xs_ant_partial.xml;
 
 
 #GLOBAL_CONF_s12xs_binfull = \
@@ -176,7 +176,7 @@ DEBUG_s12xs_source = \
 
 #RTDRUID_s12xs_binfull = \
 #	@echo RTDRUID $(OUTDIR_PREFIX)$*; \
-#	echo \<rtdruid.Oil.Configurator inputfile=\"`cygpath -m $(OUTDIR_PREFIX)$*/ee.oil`\" outputdir=\"`cygpath -m $(OUTDIR_PREFIX)$*`\" Signatures_file=\"`cygpath -m $(EE_s12xs_IDE_BASE)/../../components/evidence_ee/ee/signature/signature.xml`\" /\> >> $(TMPDIR)/s12xs_rtdruid_partial.xml;
+#	echo \<rtdruid.Oil.Configurator inputfile=\"`cygpath -m $(OUTDIR_PREFIX)$*/ee.oil`\" outputdir=\"`cygpath -m $(OUTDIR_PREFIX)$*`\" Signatures_file=\"`cygpath -m $(EE_s12xs_IDE_BASE)/../../components/evidence_ee/ee/signature/signature.xml`\" /\> >> $(EE_TMPDIR)/s12xs_rtdruid_partial.xml;
 ##binDistrSignatures_file=\"`cygpath -m $(EE_s12xs_IDE_BASE)/../../components/evidence_ee/ee/signature/signature.xml`\"
 
 # take also a look to GLOBAL_RTDRUID at the top of the file!
@@ -188,5 +188,5 @@ DEBUG_s12xs_source = \
 # CONF_s12xs_binlim = \
 # 	@echo CONF $(OUTDIR_PREFIX)$*; \
 # 	cat $(OUTDIR_PREFIX)$*/appl.oil | gcc -c - -E -P -I$(EEBASE)/pkg $(addprefix -D, $(shell $(DEMUX2) $*)) -D$(thearch) -o - >$(OUTDIR_PREFIX)$*/ee.oil; \
-# 	echo \<rtdruid.Oil.Configurator inputfile=\"$(OUTDIR_PREFIX)$*/ee.oil\" outputdir=\"$(OUTDIR_PREFIX)$*\" bindistrlimited_file=\"bindistrlimited.mk\" /\> >> $(TMPDIR)/rtdruid_ant_partial.xml;
+# 	echo \<rtdruid.Oil.Configurator inputfile=\"$(OUTDIR_PREFIX)$*/ee.oil\" outputdir=\"$(OUTDIR_PREFIX)$*\" bindistrlimited_file=\"bindistrlimited.mk\" /\> >> $(EE_TMPDIR)/rtdruid_ant_partial.xml;
 

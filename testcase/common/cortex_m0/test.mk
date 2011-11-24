@@ -71,11 +71,11 @@ COMPILE_cortex_m0         	= $(COMPILE_cortex_m0_source)
 # -------------------------------------------------------------------
 
 
-TMPDIR = $(EEBASE)/testcase/tmp
-FILE_LOCK = $(TMPDIR)/cortex_m0_manual.lock
-RTDRUID_GENERATE_LOCK = $(TMPDIR)/rtdruid_generate_lock.lock
+EE_TMPDIR = $(EEBASE)/testcase/tmp
+FILE_LOCK = $(EE_TMPDIR)/cortex_m0_manual.lock
+RTDRUID_GENERATE_LOCK = $(EE_TMPDIR)/rtdruid_generate_lock.lock
 LOCKFILE= lockfile -1 -r-1
-DIST_LOCK = $(TMPDIR)/dist.lock
+DIST_LOCK = $(EE_TMPDIR)/dist.lock
 
 
 # -------------------------------------------------------------------
@@ -98,8 +98,8 @@ CONF_cortex_m0_source = \
 
 RTDRUID_cortex_m0_source = \
 	@echo RTDRUID $(OUTDIR_PREFIX)$*; \
-	echo \<rtdruid.Oil.Configurator inputfile=\"$(call native_path,$(OUTDIR_PREFIX)$*/ee.oil)\" outputdir=\"$(call native_path,$(OUTDIR_PREFIX)$*/Debug)\" /\> >> $(TMPDIR)/cortex_m0_rtdruid_partial.xml;
+	echo \<rtdruid.Oil.Configurator inputfile=\"$(call native_path,$(OUTDIR_PREFIX)$*/ee.oil)\" outputdir=\"$(call native_path,$(OUTDIR_PREFIX)$*/Debug)\" /\> >> $(EE_TMPDIR)/cortex_m0_rtdruid_partial.xml;
 
 COMPILE_cortex_m0_source = \
 	+@unset EEBASE; \
-	if $(MAKE) $(PARAMETERS) NODEPS=1 -C $(OUTDIR_PREFIX)$*/Debug >$(OUTDIR_PREFIX)$*/compile.log 2>&1; then echo OK $(EXPERIMENT) $(OUTDIR_PREFIX)$* >>$(TMPDIR)/ok.log; else echo ERROR $(EXPERIMENT) $(OUTDIR_PREFIX)$* >>$(TMPDIR)/errors.log; fi
+	if $(MAKE) $(PARAMETERS) NODEPS=1 -C $(OUTDIR_PREFIX)$*/Debug >$(OUTDIR_PREFIX)$*/compile.log 2>&1; then echo OK $(EXPERIMENT) $(OUTDIR_PREFIX)$* >>$(EE_TMPDIR)/ok.log; else echo ERROR $(EXPERIMENT) $(OUTDIR_PREFIX)$* >>$(EE_TMPDIR)/errors.log; fi

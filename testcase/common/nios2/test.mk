@@ -80,11 +80,11 @@ COMPILE_nios2_trace         = $(COMPILE_nios2_source)
 # -------------------------------------------------------------------
 
 
-TMPDIR = $(EEBASE)/testcase/tmp
-FILE_LOCK = $(TMPDIR)/nios2_manual.lock
-RTDRUID_GENERATE_LOCK = $(TMPDIR)/rtdruid_generate_lock.lock
+EE_TMPDIR = $(EEBASE)/testcase/tmp
+FILE_LOCK = $(EE_TMPDIR)/nios2_manual.lock
+RTDRUID_GENERATE_LOCK = $(EE_TMPDIR)/rtdruid_generate_lock.lock
 LOCKFILE= lockfile -1 -r-1
-DIST_LOCK = $(TMPDIR)/dist.lock
+DIST_LOCK = $(EE_TMPDIR)/dist.lock
 
 
 # -------------------------------------------------------------------
@@ -98,13 +98,13 @@ OUTDIR_COMMANDS_nios2 = cd $@; cp -sf ../*.* .
 
 #if test ! -e $(OUTDIR_PREFIX)$*/ee.oil; then \
 #fi;\
-#if test -n `grep $(OUTDIR_PREFIX)$*/ee.oil $(TMPDIR)/rtdruid_ant_partial.xml`; then \
+#if test -n `grep $(OUTDIR_PREFIX)$*/ee.oil $(EE_TMPDIR)/rtdruid_ant_partial.xml`; then \
 #fi;
 
 # CONF_nios2 = \
 # 	@echo CONF $(OUTDIR_PREFIX)$*; \
 # 	cat $(OUTDIR_PREFIX)$*/appl.oil | gcc -c - -E -P -I$(EEBASE)/pkg $(addprefix -D, $(shell $(DEMUX2) $*)) -D$(thearch) -o - >$(OUTDIR_PREFIX)$*/ee.oil; \
-# 	echo \<rtdruid.Oil.Configurator inputfile=\"$(OUTDIR_PREFIX)$*/ee.oil\" outputdir=\"$(OUTDIR_PREFIX)$*\"/\> >> $(TMPDIR)/rtdruid_ant_partial.xml;
+# 	echo \<rtdruid.Oil.Configurator inputfile=\"$(OUTDIR_PREFIX)$*/ee.oil\" outputdir=\"$(OUTDIR_PREFIX)$*\"/\> >> $(EE_TMPDIR)/rtdruid_ant_partial.xml;
 
 # COMPILE_nios2 = +@$(MAKE) $(PARAMETERS) NODEPS=1 -C $(OUTDIR_PREFIX)$*
 
@@ -113,26 +113,26 @@ OUTDIR_COMMANDS_nios2 = cd $@; cp -sf ../*.* .
 DEBUG_nios2 = \
 	cp nios2/testcase.cmm $(OUTDIR_PREFIX)$*/Debug; \
 	$(LOCKFILE) $(FILE_LOCK); \
-		echo chdir `cygpath -w $(OUTDIR_PREFIX)$*/Debug` >> $(TMPDIR)/t32_jobs.cmm; \
-		echo area.select Messages >> $(TMPDIR)/t32_jobs.cmm; \
-		echo print >> $(TMPDIR)/t32_jobs.cmm; \
-		echo print \"`cygpath -w $(OUTDIR_PREFIX)$*/Debug`\" >> $(TMPDIR)/t32_jobs.cmm; \
-		echo area.select A000 >> $(TMPDIR)/t32_jobs.cmm; \
-		echo do testcase.cmm >> $(TMPDIR)/t32_jobs.cmm; \
-		cp -u nios2/t32.cmm $(TMPDIR)/t32.cmm; \
+		echo chdir `cygpath -w $(OUTDIR_PREFIX)$*/Debug` >> $(EE_TMPDIR)/t32_jobs.cmm; \
+		echo area.select Messages >> $(EE_TMPDIR)/t32_jobs.cmm; \
+		echo print >> $(EE_TMPDIR)/t32_jobs.cmm; \
+		echo print \"`cygpath -w $(OUTDIR_PREFIX)$*/Debug`\" >> $(EE_TMPDIR)/t32_jobs.cmm; \
+		echo area.select A000 >> $(EE_TMPDIR)/t32_jobs.cmm; \
+		echo do testcase.cmm >> $(EE_TMPDIR)/t32_jobs.cmm; \
+		cp -u nios2/t32.cmm $(EE_TMPDIR)/t32.cmm; \
 	rm -f $(FILE_LOCK); \
 
 
 DEBUG_nios2_trace = \
 	cp nios2/testcase_trace.cmm $(OUTDIR_PREFIX)$*/Debug; \
 	$(LOCKFILE) $(FILE_LOCK); \
-		echo chdir `cygpath -w $(OUTDIR_PREFIX)$*/Debug` >> $(TMPDIR)/t32_jobs.cmm; \
-		echo area.select Messages >> $(TMPDIR)/t32_jobs.cmm; \
-		echo print >> $(TMPDIR)/t32_jobs.cmm; \
-		echo print \"`cygpath -w $(OUTDIR_PREFIX)$*/Debug`\" >> $(TMPDIR)/t32_jobs.cmm; \
-		echo area.select A000 >> $(TMPDIR)/t32_jobs.cmm; \
-		echo do testcase_trace.cmm >> $(TMPDIR)/t32_jobs.cmm; \
-		cp -u nios2/t32.cmm $(TMPDIR)/t32.cmm; \
+		echo chdir `cygpath -w $(OUTDIR_PREFIX)$*/Debug` >> $(EE_TMPDIR)/t32_jobs.cmm; \
+		echo area.select Messages >> $(EE_TMPDIR)/t32_jobs.cmm; \
+		echo print >> $(EE_TMPDIR)/t32_jobs.cmm; \
+		echo print \"`cygpath -w $(OUTDIR_PREFIX)$*/Debug`\" >> $(EE_TMPDIR)/t32_jobs.cmm; \
+		echo area.select A000 >> $(EE_TMPDIR)/t32_jobs.cmm; \
+		echo do testcase_trace.cmm >> $(EE_TMPDIR)/t32_jobs.cmm; \
+		cp -u nios2/t32.cmm $(EE_TMPDIR)/t32.cmm; \
 	rm -f $(FILE_LOCK); \
 
 
@@ -158,7 +158,7 @@ COMPILE_nios2_source = mkdir $(OUTDIR_PREFIX)$*/Debug; mv $(OUTDIR_PREFIX)$*/mak
 
 RTDRUID_nios2_source = \
 	@echo RTDRUID $(OUTDIR_PREFIX)$*; \
-	echo \<rtdruid.Oil.Configurator inputfile=\"$(call native_path,$(OUTDIR_PREFIX)$*/ee.oil)\" outputdir=\"$(call native_path,$(OUTDIR_PREFIX)$*)\" /\> >> $(TMPDIR)/nios2_rtdruid_partial.xml;
+	echo \<rtdruid.Oil.Configurator inputfile=\"$(call native_path,$(OUTDIR_PREFIX)$*/ee.oil)\" outputdir=\"$(call native_path,$(OUTDIR_PREFIX)$*)\" /\> >> $(EE_TMPDIR)/nios2_rtdruid_partial.xml;
 
 # take also a look to GLOBAL_RTDRUID at the top of the file!
 

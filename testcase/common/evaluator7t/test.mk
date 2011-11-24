@@ -84,11 +84,11 @@ DEBUG_e7t           = $(DEBUG_e7t)
 # -------------------------------------------------------------------
 
 
-TMPDIR = $(EEBASE)/testcase/tmp
-FILE_LOCK = $(TMPDIR)/e7t_manual.lock
-RTDRUID_GENERATE_LOCK = $(TMPDIR)/rtdruid_generate_lock.lock
+EE_TMPDIR = $(EEBASE)/testcase/tmp
+FILE_LOCK = $(EE_TMPDIR)/e7t_manual.lock
+RTDRUID_GENERATE_LOCK = $(EE_TMPDIR)/rtdruid_generate_lock.lock
 LOCKFILE= lockfile -1 -r-1
-DIST_LOCK = $(TMPDIR)/dist.lock
+DIST_LOCK = $(EE_TMPDIR)/dist.lock
 
 
 # -------------------------------------------------------------------
@@ -99,13 +99,13 @@ OUTDIR_COMMANDS_e7t = cd $@; cp -sf ../*.* .
 DEBUG_e7t = \
 	@cp evaluator7t/t32.cmm $(OUTDIR_PREFIX)$*; \
 	$(LOCKFILE) $(FILE_LOCK); \
-		echo chdir $(OUTDIR_PREFIX)$* >> $(TMPDIR)/t32_jobs.cmm; \
-		echo area.select Messages >> $(TMPDIR)/t32_jobs.cmm; \
-		echo print >> $(TMPDIR)/t32_jobs.cmm; \
-		echo print \"$(OUTDIR_PREFIX)$*\" >> $(TMPDIR)/t32_jobs.cmm; \
-		echo area.select A000 >> $(TMPDIR)/t32_jobs.cmm; \
-		echo do t32.cmm >> $(TMPDIR)/t32_jobs.cmm; \
-		cp -u evaluator7t/t32_quit.cmm $(TMPDIR)/t32.cmm; \
+		echo chdir $(OUTDIR_PREFIX)$* >> $(EE_TMPDIR)/t32_jobs.cmm; \
+		echo area.select Messages >> $(EE_TMPDIR)/t32_jobs.cmm; \
+		echo print >> $(EE_TMPDIR)/t32_jobs.cmm; \
+		echo print \"$(OUTDIR_PREFIX)$*\" >> $(EE_TMPDIR)/t32_jobs.cmm; \
+		echo area.select A000 >> $(EE_TMPDIR)/t32_jobs.cmm; \
+		echo do t32.cmm >> $(EE_TMPDIR)/t32_jobs.cmm; \
+		cp -u evaluator7t/t32_quit.cmm $(EE_TMPDIR)/t32.cmm; \
 	rm -f $(FILE_LOCK); \
 
 # -------------------------------------------------------------------
@@ -120,13 +120,13 @@ CONF_e7t_source = \
 
 RTDRUID_e7t_source = \
 	@echo RTDRUID $(OUTDIR_PREFIX)$*; \
-	echo \<rtdruid.Oil.Configurator inputfile=\"$(call native_path,$(OUTDIR_PREFIX)$*/ee.oil)\" outputdir=\"$(call native_path,$(OUTDIR_PREFIX)$*/Debug)\" /\> >> $(TMPDIR)/e7t_rtdruid_partial.xml;
+	echo \<rtdruid.Oil.Configurator inputfile=\"$(call native_path,$(OUTDIR_PREFIX)$*/ee.oil)\" outputdir=\"$(call native_path,$(OUTDIR_PREFIX)$*/Debug)\" /\> >> $(EE_TMPDIR)/e7t_rtdruid_partial.xml;
 
 # take also a look to GLOBAL_RTDRUID at the top of the file!
 
 COMPILE_e7t_source = \
 	+@unset EEBASE; \
-	if $(MAKE) $(PARAMETERS) NODEPS=1 -C $(OUTDIR_PREFIX)$*/Debug >$(OUTDIR_PREFIX)$*/compile.log 2>&1; then echo OK $(EXPERIMENT) $(OUTDIR_PREFIX)$* >>$(TMPDIR)/ok.log; else echo ERROR $(EXPERIMENT) $(OUTDIR_PREFIX)$* >>$(TMPDIR)/errors.log; fi
+	if $(MAKE) $(PARAMETERS) NODEPS=1 -C $(OUTDIR_PREFIX)$*/Debug >$(OUTDIR_PREFIX)$*/compile.log 2>&1; then echo OK $(EXPERIMENT) $(OUTDIR_PREFIX)$* >>$(EE_TMPDIR)/ok.log; else echo ERROR $(EXPERIMENT) $(OUTDIR_PREFIX)$* >>$(EE_TMPDIR)/errors.log; fi
 
 
 # -------------------------------------------------------------------
@@ -136,7 +136,7 @@ COMPILE_e7t_source = \
 #CONF_e7t_binfull = \
 #	@echo CONF $(OUTDIR_PREFIX)$*; \
 #	cat $(OUTDIR_PREFIX)$*/appl.oil | gcc -c - -E -P -I$(EEBASE)/pkg $(addprefix -D, $(shell $(DEMUX2) $*)) -D$(thearch) -o - >$(OUTDIR_PREFIX)$*/ee.oil; \
-#	echo \<rtdruid.Oil.DistributionBuilder inputfile=\"`cygpath -m $(OUTDIR_PREFIX)$*/ee.oil`\" outputFile=\"`cygpath -m $(TMPDIR)/bindistrfull_partial.mk`\" DistributionName=\"$(subst /,,$(EXPERIMENT))_$*\" DistributionType=\"full\"/\> >> $(TMPDIR)/e7t_ant_partial.xml;
+#	echo \<rtdruid.Oil.DistributionBuilder inputfile=\"`cygpath -m $(OUTDIR_PREFIX)$*/ee.oil`\" outputFile=\"`cygpath -m $(EE_TMPDIR)/bindistrfull_partial.mk`\" DistributionName=\"$(subst /,,$(EXPERIMENT))_$*\" DistributionType=\"full\"/\> >> $(EE_TMPDIR)/e7t_ant_partial.xml;
 
 
 #GLOBAL_CONF_e7t_binfull = \
@@ -152,7 +152,7 @@ COMPILE_e7t_source = \
 
 #RTDRUID_e7t_binfull = \
 #	@echo RTDRUID $(OUTDIR_PREFIX)$*; \
-#	echo \<rtdruid.Oil.Configurator inputfile=\"`cygpath -m $(OUTDIR_PREFIX)$*/ee.oil`\" outputdir=\"`cygpath -m $(OUTDIR_PREFIX)$*`\" Signatures_file=\"`cygpath -m $(EE_E7T_IDE_BASE)/../../components/evidence_ee/ee/signature/signature.xml`\" /\> >> $(TMPDIR)/e7t_rtdruid_partial.xml;
+#	echo \<rtdruid.Oil.Configurator inputfile=\"`cygpath -m $(OUTDIR_PREFIX)$*/ee.oil`\" outputdir=\"`cygpath -m $(OUTDIR_PREFIX)$*`\" Signatures_file=\"`cygpath -m $(EE_E7T_IDE_BASE)/../../components/evidence_ee/ee/signature/signature.xml`\" /\> >> $(EE_TMPDIR)/e7t_rtdruid_partial.xml;
 #binDistrSignatures_file=\"`cygpath -m $(EE_E7T_IDE_BASE)/../../components/evidence_ee/ee/signature/signature.xml`\"
 
 # take also a look to GLOBAL_RTDRUID at the top of the file!
@@ -167,7 +167,7 @@ COMPILE_e7t_source = \
 # CONF_e7t_binlim = \
 # 	@echo CONF $(OUTDIR_PREFIX)$*; \
 # 	cat $(OUTDIR_PREFIX)$*/appl.oil | gcc -c - -E -P -I$(EEBASE)/pkg $(addprefix -D, $(shell $(DEMUX2) $*)) -D$(thearch) -o - >$(OUTDIR_PREFIX)$*/ee.oil; \
-# 	echo \<rtdruid.Oil.Configurator inputfile=\"$(OUTDIR_PREFIX)$*/ee.oil\" outputdir=\"$(OUTDIR_PREFIX)$*\" bindistrlimited_file=\"bindistrlimited.mk\" /\> >> $(TMPDIR)/rtdruid_ant_partial.xml;
+# 	echo \<rtdruid.Oil.Configurator inputfile=\"$(OUTDIR_PREFIX)$*/ee.oil\" outputdir=\"$(OUTDIR_PREFIX)$*\" bindistrlimited_file=\"bindistrlimited.mk\" /\> >> $(EE_TMPDIR)/rtdruid_ant_partial.xml;
 
 
 
@@ -227,11 +227,11 @@ COMPILE_e7t_source = \
 # # -------------------------------------------------------------------
 
 
-# TMPDIR = $(EEBASE)/testcase/tmp
-# FILE_LOCK = $(TMPDIR)/e7t_manual.lock
-# RTDRUID_GENERATE_LOCK = $(TMPDIR)/rtdruid_generate_lock.lock
+# EE_TMPDIR = $(EEBASE)/testcase/tmp
+# FILE_LOCK = $(EE_TMPDIR)/e7t_manual.lock
+# RTDRUID_GENERATE_LOCK = $(EE_TMPDIR)/rtdruid_generate_lock.lock
 # LOCKFILE= lockfile -1 -r-1
-# DIST_LOCK = $(TMPDIR)/dist.lock
+# DIST_LOCK = $(EE_TMPDIR)/dist.lock
 
 
 # # -------------------------------------------------------------------
@@ -245,13 +245,13 @@ COMPILE_e7t_source = \
 
 # #if test ! -e $(OUTDIR_PREFIX)$*/ee.oil; then \
 # #fi;\
-# #if test -n `grep $(OUTDIR_PREFIX)$*/ee.oil $(TMPDIR)/rtdruid_ant_partial.xml`; then \
+# #if test -n `grep $(OUTDIR_PREFIX)$*/ee.oil $(EE_TMPDIR)/rtdruid_ant_partial.xml`; then \
 # #fi;
 
 # CONF_e7t = \
 # 	@echo CONF $(OUTDIR_PREFIX)$*; \
 # 	cat $(OUTDIR_PREFIX)$*/appl.oil | gcc -c - -E -P -I$(EEBASE)/pkg $(addprefix -D, $(shell $(DEMUX2) $*)) -D$(thearch) -o - >$(OUTDIR_PREFIX)$*/ee.oil; \
-# 	echo \<rtdruid.Oil.Configurator inputfile=\"$(OUTDIR_PREFIX)$*/ee.oil\" outputdir=\"$(OUTDIR_PREFIX)$*\"/\> >> $(TMPDIR)/rtdruid_ant_partial.xml;
+# 	echo \<rtdruid.Oil.Configurator inputfile=\"$(OUTDIR_PREFIX)$*/ee.oil\" outputdir=\"$(OUTDIR_PREFIX)$*\"/\> >> $(EE_TMPDIR)/rtdruid_ant_partial.xml;
 
 # COMPILE_e7t = +@$(MAKE) $(PARAMETERS) NODEPS=1 -C $(OUTDIR_PREFIX)$*
 
@@ -260,13 +260,13 @@ COMPILE_e7t_source = \
 # DEBUG_e7t = \
 # 	@cp evaluator7t/t32.cmm $(OUTDIR_PREFIX)$*; \
 # 	$(LOCKFILE) $(FILE_LOCK); \
-# 		echo chdir $(OUTDIR_PREFIX)$* >> $(TMPDIR)/t32_jobs.cmm; \
-# 		echo area.select Messages >> $(TMPDIR)/t32_jobs.cmm; \
-# 		echo print >> $(TMPDIR)/t32_jobs.cmm; \
-# 		echo print \"$(OUTDIR_PREFIX)$*\" >> $(TMPDIR)/t32_jobs.cmm; \
-# 		echo area.select A000 >> $(TMPDIR)/t32_jobs.cmm; \
-# 		echo do t32.cmm >> $(TMPDIR)/t32_jobs.cmm; \
-# 		cp -u evaluator7t/t32_quit.cmm $(TMPDIR)/t32.cmm; \
+# 		echo chdir $(OUTDIR_PREFIX)$* >> $(EE_TMPDIR)/t32_jobs.cmm; \
+# 		echo area.select Messages >> $(EE_TMPDIR)/t32_jobs.cmm; \
+# 		echo print >> $(EE_TMPDIR)/t32_jobs.cmm; \
+# 		echo print \"$(OUTDIR_PREFIX)$*\" >> $(EE_TMPDIR)/t32_jobs.cmm; \
+# 		echo area.select A000 >> $(EE_TMPDIR)/t32_jobs.cmm; \
+# 		echo do t32.cmm >> $(EE_TMPDIR)/t32_jobs.cmm; \
+# 		cp -u evaluator7t/t32_quit.cmm $(EE_TMPDIR)/t32.cmm; \
 # 	rm -f $(FILE_LOCK); \
 
 
@@ -287,7 +287,7 @@ COMPILE_e7t_source = \
 # CONF_e7t_source = \
 # 	@echo CONF $(OUTDIR_PREFIX)$*; \
 # 	cat $(OUTDIR_PREFIX)$*/appl.oil | gcc -c - -E -P -I$(EEBASE)/pkg $(addprefix -D, $(shell $(DEMUX2) $*)) -D$(thearch) -o - >$(OUTDIR_PREFIX)$*/ee.oil; \
-# 	echo \<rtdruid.Oil.Configurator inputfile=\"$(OUTDIR_PREFIX)$*/ee.oil\" outputdir=\"$(OUTDIR_PREFIX)$*\" sourcedistr_file=\"sourcedist.mk\" /\> >> $(TMPDIR)/rtdruid_ant_partial.xml;
+# 	echo \<rtdruid.Oil.Configurator inputfile=\"$(OUTDIR_PREFIX)$*/ee.oil\" outputdir=\"$(OUTDIR_PREFIX)$*\" sourcedistr_file=\"sourcedist.mk\" /\> >> $(EE_TMPDIR)/rtdruid_ant_partial.xml;
 
 # DIST_e7t_source = \
 # 	@echo DIST $(OUTDIR_PREFIX)$*; \
@@ -303,7 +303,7 @@ COMPILE_e7t_source = \
 # CONF_e7t_binfull = \
 # 	@echo CONF $(OUTDIR_PREFIX)$*; \
 # 	cat $(OUTDIR_PREFIX)$*/appl.oil | gcc -c - -E -P -I$(EEBASE)/pkg $(addprefix -D, $(shell $(DEMUX2) $*)) -D$(thearch) -o - >$(OUTDIR_PREFIX)$*/ee.oil; \
-# 	echo \<rtdruid.Oil.Configurator inputfile=\"$(OUTDIR_PREFIX)$*/ee.oil\" outputdir=\"$(OUTDIR_PREFIX)$*\" bindistrfull_file=\"bindistrfull.mk\" /\> >> $(TMPDIR)/rtdruid_ant_partial.xml;
+# 	echo \<rtdruid.Oil.Configurator inputfile=\"$(OUTDIR_PREFIX)$*/ee.oil\" outputdir=\"$(OUTDIR_PREFIX)$*\" bindistrfull_file=\"bindistrfull.mk\" /\> >> $(EE_TMPDIR)/rtdruid_ant_partial.xml;
 
 # DIST_e7t_binfull = \
 # 	@echo DIST $(OUTDIR_PREFIX)$*; \
@@ -320,7 +320,7 @@ COMPILE_e7t_source = \
 # CONF_e7t_binlim = \
 # 	@echo CONF $(OUTDIR_PREFIX)$*; \
 # 	cat $(OUTDIR_PREFIX)$*/appl.oil | gcc -c - -E -P -I$(EEBASE)/pkg $(addprefix -D, $(shell $(DEMUX2) $*)) -D$(thearch) -o - >$(OUTDIR_PREFIX)$*/ee.oil; \
-# 	echo \<rtdruid.Oil.Configurator inputfile=\"$(OUTDIR_PREFIX)$*/ee.oil\" outputdir=\"$(OUTDIR_PREFIX)$*\" bindistrlimited_file=\"bindistrlimited.mk\" /\> >> $(TMPDIR)/rtdruid_ant_partial.xml;
+# 	echo \<rtdruid.Oil.Configurator inputfile=\"$(OUTDIR_PREFIX)$*/ee.oil\" outputdir=\"$(OUTDIR_PREFIX)$*\" bindistrlimited_file=\"bindistrlimited.mk\" /\> >> $(EE_TMPDIR)/rtdruid_ant_partial.xml;
 
 # DIST_e7t_binlim = \
 # 	@echo DIST $(OUTDIR_PREFIX)$*; \

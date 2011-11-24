@@ -67,11 +67,11 @@ GLOBAL_CONF +=
 # -------------------------------------------------------------------
 
 
-TMPDIR = $(EEBASE)/testcase/tmp
-FILE_LOCK = $(TMPDIR)/pic30_manual.lock
-RTDRUID_GENERATE_LOCK = $(TMPDIR)/rtdruid_generate_lock.lock
+EE_TMPDIR = $(EEBASE)/testcase/tmp
+FILE_LOCK = $(EE_TMPDIR)/pic30_manual.lock
+RTDRUID_GENERATE_LOCK = $(EE_TMPDIR)/rtdruid_generate_lock.lock
 LOCKFILE= lockfile -1 -r-1
-DIST_LOCK = $(TMPDIR)/dist.lock
+DIST_LOCK = $(EE_TMPDIR)/dist.lock
 
 
 # -------------------------------------------------------------------
@@ -92,11 +92,11 @@ CONF_pic30 = \
 
 RTDRUID_pic30 = \
 	@echo RTDRUID $(OUTDIR_PREFIX)$*; \
-	echo \<rtdruid.Oil.Configurator inputfile=\"$(call native_path,$(OUTDIR_PREFIX)$*/ee.oil)\" outputdir=\"$(call native_path,$(OUTDIR_PREFIX)$*/Debug)\" /\> >> $(TMPDIR)/pic30_rtdruid_partial.xml;
+	echo \<rtdruid.Oil.Configurator inputfile=\"$(call native_path,$(OUTDIR_PREFIX)$*/ee.oil)\" outputdir=\"$(call native_path,$(OUTDIR_PREFIX)$*/Debug)\" /\> >> $(EE_TMPDIR)/pic30_rtdruid_partial.xml;
 
 # take also a look to GLOBAL_RTDRUID at the top of the file!
 
 COMPILE_pic30 = \
 	+@unset EEBASE; \
-	if $(MAKE) $(PARAMETERS) NODEPS=1 -C $(OUTDIR_PREFIX)$*/Debug >$(OUTDIR_PREFIX)$*/compile.log 2>&1; then echo OK $(EXPERIMENT) $(OUTDIR_PREFIX)$* >>$(TMPDIR)/ok.log; else echo ERROR $(EXPERIMENT) $(OUTDIR_PREFIX)$* >>$(TMPDIR)/errors.log; fi
+	if $(MAKE) $(PARAMETERS) NODEPS=1 -C $(OUTDIR_PREFIX)$*/Debug >$(OUTDIR_PREFIX)$*/compile.log 2>&1; then echo OK $(EXPERIMENT) $(OUTDIR_PREFIX)$* >>$(EE_TMPDIR)/ok.log; else echo ERROR $(EXPERIMENT) $(OUTDIR_PREFIX)$* >>$(EE_TMPDIR)/errors.log; fi
 

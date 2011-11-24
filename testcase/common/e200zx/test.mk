@@ -104,11 +104,11 @@ DEBUG_e200zx_codewarrior_fle = $(call DEBUG_e200zx_source_template,fle)
 
 # -------------------------------------------------------------------
 
-TMPDIR = $(EEBASE)/testcase/tmp
-FILE_LOCK = $(TMPDIR)/e200zx_manual.lock
-RTDRUID_GENERATE_LOCK = $(TMPDIR)/rtdruid_generate_lock.lock
+EE_TMPDIR = $(EEBASE)/testcase/tmp
+FILE_LOCK = $(EE_TMPDIR)/e200zx_manual.lock
+RTDRUID_GENERATE_LOCK = $(EE_TMPDIR)/rtdruid_generate_lock.lock
 LOCKFILE= lockfile -1 -r-1
-DIST_LOCK = $(TMPDIR)/dist.lock
+DIST_LOCK = $(EE_TMPDIR)/dist.lock
 
 # -------------------------------------------------------------------
 
@@ -132,13 +132,13 @@ e200zx_vle_def=$(if $(filter vle,$1 $2),-DUSE_VLE,$(if $(filter fle,$1 $2),-DUSE
 # Generate the rt-druid files...
 RTDRUID_e200zx_source = \
 	@echo RTDRUID $(OUTDIR_PREFIX)$*; \
-	echo \<rtdruid.Oil.Configurator inputfile=\"$(call native_path,$(OUTDIR_PREFIX)$*/ee.oil)\" outputdir=\"$(call native_path,$(OUTDIR_PREFIX)$*/Debug)\" /\> >> $(TMPDIR)/e200zx_rtdruid_partial.xml;
+	echo \<rtdruid.Oil.Configurator inputfile=\"$(call native_path,$(OUTDIR_PREFIX)$*/ee.oil)\" outputdir=\"$(call native_path,$(OUTDIR_PREFIX)$*/Debug)\" /\> >> $(EE_TMPDIR)/e200zx_rtdruid_partial.xml;
 
 # take also a look to GLOBAL_RTDRUID at the top of the file!!!
 
 COMPILE_e200zx_source = \
 	+@unset EEBASE; \
-	if $(MAKE) $(PARAMETERS) NODEPS=1 -C $(OUTDIR_PREFIX)$*/Debug >$(OUTDIR_PREFIX)$*/compile.log 2>&1; then echo OK $(EXPERIMENT) $(OUTDIR_PREFIX)$* >>$(TMPDIR)/ok.log; else echo ERROR $(EXPERIMENT) $(OUTDIR_PREFIX)$* >>$(TMPDIR)/errors.log; fi
+	if $(MAKE) $(PARAMETERS) NODEPS=1 -C $(OUTDIR_PREFIX)$*/Debug >$(OUTDIR_PREFIX)$*/compile.log 2>&1; then echo OK $(EXPERIMENT) $(OUTDIR_PREFIX)$* >>$(EE_TMPDIR)/ok.log; else echo ERROR $(EXPERIMENT) $(OUTDIR_PREFIX)$* >>$(EE_TMPDIR)/errors.log; fi
 
 
 # The template receives one argument
@@ -146,16 +146,16 @@ COMPILE_e200zx_source = \
 DEBUG_e200zx_source_template = \
 	sed -e 's:\#USE_VLE\#:$(e200zx_vle_debug):g' < e200zx/t32.cmm > $(OUTDIR_PREFIX)$*/t32.cmm; \
 	$(LOCKFILE) $(FILE_LOCK); \
-		echo "&count=&count+1" >> $(TMPDIR)/t32_jobs.cmm; \
-		echo chdir $(OUTDIR_PREFIX)$* >> $(TMPDIR)/t32_jobs.cmm; \
-		echo "write \#1 \"$(OUTDIR_PREFIX)$*\"" >> $(TMPDIR)/t32_jobs.cmm; \
-		echo area.select Messages >> $(TMPDIR)/t32_jobs.cmm; \
-		echo print >> $(TMPDIR)/t32_jobs.cmm; \
+		echo "&count=&count+1" >> $(EE_TMPDIR)/t32_jobs.cmm; \
+		echo chdir $(OUTDIR_PREFIX)$* >> $(EE_TMPDIR)/t32_jobs.cmm; \
+		echo "write \#1 \"$(OUTDIR_PREFIX)$*\"" >> $(EE_TMPDIR)/t32_jobs.cmm; \
+		echo area.select Messages >> $(EE_TMPDIR)/t32_jobs.cmm; \
+		echo print >> $(EE_TMPDIR)/t32_jobs.cmm; \
 		echo print '"Test no. "' '%Decimal' '&count' '" ("' '&failed' \
-		'" errors so far)"' >> $(TMPDIR)/t32_jobs.cmm; \
-		echo print \"$(OUTDIR_PREFIX)$*\" >> $(TMPDIR)/t32_jobs.cmm; \
-		echo area.select A000 >> $(TMPDIR)/t32_jobs.cmm; \
-		echo do t32.cmm >> $(TMPDIR)/t32_jobs.cmm; \
-		cp -u e200zx/t32_quit.cmm $(TMPDIR)/t32.cmm; \
+		'" errors so far)"' >> $(EE_TMPDIR)/t32_jobs.cmm; \
+		echo print \"$(OUTDIR_PREFIX)$*\" >> $(EE_TMPDIR)/t32_jobs.cmm; \
+		echo area.select A000 >> $(EE_TMPDIR)/t32_jobs.cmm; \
+		echo do t32.cmm >> $(EE_TMPDIR)/t32_jobs.cmm; \
+		cp -u e200zx/t32_quit.cmm $(EE_TMPDIR)/t32.cmm; \
 	rm -f $(FILE_LOCK);
 e200zx_vle_debug = $(if $(filter vle,$1),1,$(if $(filter fle,$1),0,$(error Neither "fle" nor "vle" found in arguments of DEBUG_e200zx_source_template)))
