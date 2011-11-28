@@ -62,7 +62,7 @@
 #define EE_COM_BOOLEAN EE_UINT8
 #define EE_COM_ENUM EE_UINT8
 
-#include "com/byteorder.h"
+#include "com/ee_byteorder.h"
     
 /****************************************/
 
@@ -110,7 +110,7 @@
 
 #if defined(__COM_CCCA__) || defined(__COM_CCCB__) || defined(__COM_CCC0__) || defined(__COM_CCC1__)
 
-  #include "com/com/com.h"
+  #include "com/com/inc/ee_com.h"
   
   #if defined(__COM_CCC0__) || defined(__COM_CCC1__)
   #include "alarms/alarms.h"

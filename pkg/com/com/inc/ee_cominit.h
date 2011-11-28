@@ -49,7 +49,7 @@
 #ifndef __COMINIT_H__
 #define __COMINIT_H__
 
-#include "com/com.h"
+#include "com/ee_com.h"
 
 
 /*************************************************************************
