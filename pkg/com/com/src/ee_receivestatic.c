@@ -1,4 +1,4 @@
-/* ###*B*###
+GetResource/* ###*B*###
  * ERIKA Enterprise - a tiny RTOS for small microcontrollers
  *
  * Copyright (C) 2002-2008  Evidence Srl
@@ -43,7 +43,7 @@
  * CVS: $Id: ee_receivestatic.c,v 1.2 2005/07/17 13:58:36 pj Exp $
  */
 
-#include "com/com7inc/ee_comprv.h"
+#include "com/com/inc/ee_comprv.h"
 
 /* 2.9.2.4.2 */
 #ifndef __PRIVATE_COM_RECEIVEMESSAGE__
@@ -53,6 +53,9 @@ StatusType EE_com_ReceiveMessage(SymbolicName Message,
   register struct EE_com_msg_RAM_TYPE * msg_RAM;
   register const struct EE_com_msg_ROM_TYPE * msg_ROM;
   StatusType ret_code;
+#ifdef __COM_HAS_ERRORHOOK__  	
+  register EE_FREG flags;
+#endif	
         
 #ifdef __EE_COM_EXTENDED__
   if ((Message > EE_COM_N_MSG) || 
@@ -64,7 +67,7 @@ StatusType EE_com_ReceiveMessage(SymbolicName Message,
   {
     EE_com_sys2user.service_error = COMServiceId_ReceiveMessage;
 #ifdef __COM_HAS_ERRORHOOK__ 
-    EE_hal_begin_nested_primitive();    
+    flags = EE_hal_begin_nested_primitive();    
       COMError_ReceiveMessage_Message = Message;
       COMError_ReceiveMessage_DataRef = DataRef;
   
@@ -74,7 +77,7 @@ StatusType EE_com_ReceiveMessage(SymbolicName Message,
         COMErrorHook(E_COM_ID);    
         EE_com_ErrorHook.already_executed = EE_COM_FALSE;
       }
-    EE_hal_end_nested_primitive();  
+    EE_hal_end_nested_primitive(flags);  
 #endif
     return E_COM_ID;
   }
@@ -88,9 +91,9 @@ StatusType EE_com_ReceiveMessage(SymbolicName Message,
   if (ret_code != E_COM_NOMSG) 
   {
     #if defined(__COM_CCC0__) || defined(__COM_CCC1__)
-    EE_mutex_lock (EE_MUTEX_COM_IPDU);
+    GetResource (EE_MUTEX_COM_IPDU);
     #endif
-    EE_mutex_lock (EE_MUTEX_COM_MSG);
+    GetResource (EE_MUTEX_COM_MSG);
     
 #if defined(__COM_CCCB__) || defined(__COM_CCC1__)
     if ((msg_RAM->property & EE_MASK_MSG_QUEUNQUE) 
@@ -125,9 +128,9 @@ StatusType EE_com_ReceiveMessage(SymbolicName Message,
       msg_RAM->property &= 0xfff8; /* E_OK */ 
     }
     
-    EE_mutex_unlock (EE_MUTEX_COM_MSG);
+    ReleaseResource (EE_MUTEX_COM_MSG);
     #if defined(__COM_CCC0__) || defined(__COM_CCC1__)
-    EE_mutex_unlock (EE_MUTEX_COM_IPDU);
+    ReleaseResource (EE_MUTEX_COM_IPDU);
     #endif
   }
    
@@ -144,7 +147,7 @@ StatusType EE_com_ReceiveMessage(SymbolicName Message,
   {
     EE_com_sys2user.service_error = COMServiceId_ReceiveMessage;
 #ifdef __COM_HAS_ERRORHOOK__    
-    EE_hal_begin_nested_primitive(); 
+    flags = EE_hal_begin_nested_primitive(); 
       COMError_ReceiveMessage_Message = Message;
       COMError_ReceiveMessage_DataRef = DataRef;
       if (!EE_com_ErrorHook.already_executed)
@@ -153,7 +156,7 @@ StatusType EE_com_ReceiveMessage(SymbolicName Message,
         COMErrorHook(ret_code);    
         EE_com_ErrorHook.already_executed = EE_COM_FALSE;
       }
-    EE_hal_end_nested_primitive();  
+    EE_hal_end_nested_primitive(flags);  
 #endif
   }
       

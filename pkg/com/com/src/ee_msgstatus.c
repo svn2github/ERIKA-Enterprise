@@ -1,4 +1,4 @@
-/* ###*B*###
+GetResource/* ###*B*###
  * ERIKA Enterprise - a tiny RTOS for small microcontrollers
  *
  * Copyright (C) 2002-2008  Evidence Srl
@@ -54,6 +54,9 @@ extern struct msg *msg_info[];
 StatusType EE_com_GetMessageStatus(SymbolicName Message)
 {  
   StatusType ret_code;
+#ifdef __COM_HAS_ERRORHOOK__  	
+	register EE_FREG flags;
+#endif
     
 #ifdef EE_COM_EXTENDED
   if ((Message > EE_COM_N_MSG) || 
@@ -61,7 +64,7 @@ StatusType EE_com_GetMessageStatus(SymbolicName Message)
   {
     EE_com_sys2user.service_error = COMServiceId_GetMessageStatus;
 #ifdef __COM_HAS_ERRORHOOK__  
-    EE_hal_begin_nested_primitive();   
+    flags = EE_hal_begin_nested_primitive();   
       COMError_GetMessageStatus_Message = Message;
       if (!EE_com_ErrorHook.already_executed)
       {        
@@ -69,17 +72,17 @@ StatusType EE_com_GetMessageStatus(SymbolicName Message)
         COMErrorHook(E_COM_ID);    
         EE_com_ErrorHook.already_executed = EE_COM_FALSE;
       }
-    EE_hal_end_nested_primitive();  
+    EE_hal_end_nested_primitive(flags);  
 #endif
     return E_COM_ID;
   }
 #endif
 
-  EE_mutex_lock(EE_MUTEX_COM_MSG);
+  GetResource(EE_MUTEX_COM_MSG);
   
   ret_code = EE_com_msg_RAM[Message]->property & EE_MASK_MSG_STAT;
       
-  EE_mutex_unlock(EE_MUTEX_COM_MSG);
+  ReleaseResource(EE_MUTEX_COM_MSG);
   return (ret_code);
 }  
 #endif

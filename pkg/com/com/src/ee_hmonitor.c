@@ -48,7 +48,7 @@
 #ifndef __PRIVATE_COM_HANDLER_MONITOR__
 void EE_com_monitor_handler (void)
 {
-  EE_mutex_lock (EE_MUTEX_COM_IPDU);
+  GetResource (EE_MUTEX_COM_IPDU);
   
   if (EE_com_sys.first_TM != EE_COM_NULL)
   {
@@ -73,7 +73,7 @@ void EE_com_monitor_handler (void)
   }
   #endif
   
-  EE_mutex_unlock (EE_MUTEX_COM_IPDU);
+  ReleaseResource (EE_MUTEX_COM_IPDU);
 }
 #endif
    

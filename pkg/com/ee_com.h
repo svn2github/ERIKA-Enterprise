@@ -49,6 +49,7 @@
 /* Definisco le strutture ed i parametri necessari per il passaggio di
    informazioni tra i livelli di rete */
 #include "ee.h"
+#include "ee_internal.h"
 
 #define EE_COM_OK 0
 #define EE_COM_ERROR 1

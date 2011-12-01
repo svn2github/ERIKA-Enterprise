@@ -47,12 +47,12 @@
    initialize the application COM data structures, include the
    cominit.h file instead of this one. */
 
-#ifndef __COM_H__
-#define __COM_H__
+#ifndef __EE_COM_H__
+#define __EE_COM_H__
 
 #include "ee.h"
-#include "com/com.h"
-#include "callout.h"
+#include "com/ee_com.h"
+#include "ee_callout.h"
 
 
 /*************************************************************************
@@ -61,6 +61,12 @@
 
 /* returns the number of bytes used by a bit stream */
 #define EE_com_bit2byte(bit) ((((bit)-1) >> 3)+1)
+
+
+/*GF: EE_COM_NULL already defined in con/ee_com.h as EE_COM_NULL 255 */
+#ifdef EE_COM_NULL
+#undef EE_COM_NULL
+#endif
 
 /* to end a message list into the next / next_ipdu field */
 #define EE_COM_NULL (SymbolicName)~0

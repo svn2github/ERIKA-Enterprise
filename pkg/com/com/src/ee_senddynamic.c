@@ -54,7 +54,10 @@ StatusType EE_com_SendDynamicMessage(SymbolicName Message,
 {
   const struct EE_com_msg_ROM_TYPE *MSG;
   StatusType code;
-  
+#ifdef __COM_HAS_ERRORHOOK__  	
+  register EE_FREG flags;
+#endif
+	
 #ifdef EE_COM_EXTENDED
   if ((Message > MAX_MSG) || 
       (Message == 0) || 
@@ -65,7 +68,7 @@ StatusType EE_com_SendDynamicMessage(SymbolicName Message,
   {
     EE_com_sys2user.service_error = COMServiceId_SendDynamicMessage;
 #ifdef __COM_HAS_ERRORHOOK__  
-    EE_hal_begin_nested_primitive();   
+    flags = EE_hal_begin_nested_primitive();   
       COMError_SendDynamicMessage_Message = Message;
       COMError_SendDynamicMessage_DataRef = DataRef;
       COMError_SendDynamicMessage_MsgLengthRef = msg_length;
@@ -75,7 +78,7 @@ StatusType EE_com_SendDynamicMessage(SymbolicName Message,
         COMErrorHook(E_COM_ID);    
         EE_com_ErrorHook.already_executed = EE_COM_FALSE;
       }
-    EE_hal_end_nested_primitive();  
+    EE_hal_end_nested_primitive(flags);  
 #endif
     return E_COM_ID;      
   }
@@ -84,7 +87,7 @@ StatusType EE_com_SendDynamicMessage(SymbolicName Message,
   {
     EE_com_sys2user.service_error = COMServiceId_SendDynamicMessage;
 #ifdef __COM_HAS_ERRORHOOK__  
-    EE_hal_begin_nested_primitive();   
+    flags = EE_hal_begin_nested_primitive();   
       COMError_SendDynamicMessage_Message = Message;
       COMError_SendDynamicMessage_DataRef = DataRef;
       COMError_SendDynamicMessage_MsgLengthRef = msg_length;
@@ -94,7 +97,7 @@ StatusType EE_com_SendDynamicMessage(SymbolicName Message,
         COMErrorHook(E_COM_LENGTH);    
         EE_com_ErrorHook.already_executed = EE_COM_FALSE;
       }
-    EE_hal_end_nested_primitive();  
+    EE_hal_end_nested_primitive(flags);  
 #endif
     return E_COM_LENGTH;      
   }
@@ -114,7 +117,7 @@ StatusType EE_com_SendDynamicMessage(SymbolicName Message,
   {
     EE_com_sys2user.service_error = COMServiceId_SendDynamicMessage;
 #ifdef __COM_HAS_ERRORHOOK__  
-    EE_hal_begin_nested_primitive();   
+    flags = EE_hal_begin_nested_primitive();   
       COMError_SendDynamicMessage_Message = Message;
       COMError_SendDynamicMessage_DataRef = DataRef;
       COMError_SendDynamicMessage_LengthRef = msg_length;
@@ -124,7 +127,7 @@ StatusType EE_com_SendDynamicMessage(SymbolicName Message,
         COMErrorHook(code);    
         EE_com_ErrorHook.already_executed = EE_COM_FALSE;
       }
-    EE_hal_end_nested_primitive();  
+    EE_hal_end_nested_primitive(flags);  
 #endif
   }
       

@@ -1,4 +1,4 @@
-/* ###*B*###
+ReleaseResource/* ###*B*###
  * ERIKA Enterprise - a tiny RTOS for small microcontrollers
  *
  * Copyright (C) 2002-2008  Evidence Srl
@@ -55,7 +55,10 @@ StatusType EE_com_ReceiveDynamicMessage(SymbolicName Message,
   struct EE_com_msg_RAM_TYPE *MSG_RAM;
   const struct EE_com_msg_ROM_TYPE *MSG_ROM;
   StatusType ret_code;
-   
+#ifdef __COM_HAS_ERRORHOOK__  	
+  register EE_FREG flags;
+#endif
+	
 #ifdef EE_COM_EXTENDED
   if ((Message > MAX_MSG) || (EE_com_msg_ROM[Message] == NULL) || 
       ((EE_com_msg_RAM[Message]->property & 0x8000) ==  0x0000) || 
@@ -65,7 +68,7 @@ StatusType EE_com_ReceiveDynamicMessage(SymbolicName Message,
   {
     EE_com_sys2user.service_error = COMServiceId_ReceiveDynamicMessage;
 #ifdef __COM_HAS_ERRORHOOK__    
-    EE_hal_begin_nested_primitive();   
+    flags = EE_hal_begin_nested_primitive();   
       COMError_ReceiveDynamicMessage_Message = Message;
       COMError_ReceiveDynamicMessage_DataRef = DataRef;
       COMError_ReceiveDynamicMessage_MsgLengthRef = msg_length;
@@ -75,7 +78,7 @@ StatusType EE_com_ReceiveDynamicMessage(SymbolicName Message,
         COMErrorHook(E_COM_ID);    
         EE_com_ErrorHook.already_executed = EE_COM_FALSE;
       }
-    EE_hal_end_nested_primitive();  
+    EE_hal_end_nested_primitive(flags);  
 #endif
     return E_COM_ID;      
   }
@@ -88,8 +91,8 @@ StatusType EE_com_ReceiveDynamicMessage(SymbolicName Message,
 
   if (ret_code != E_COM_NOMSG) 
   {
-    EE_mutex_lock (EE_MUTEX_COM_IPDU);
-    EE_mutex_lock (EE_MUTEX_COM_MSG);
+    GetResource (EE_MUTEX_COM_IPDU);
+    GetResource (EE_MUTEX_COM_MSG);
     
     /* First of all I have to read the message length... */
     EE_com_memo (MSG_ROM->ipdu_ROM->data,
@@ -101,8 +104,8 @@ StatusType EE_com_ReceiveDynamicMessage(SymbolicName Message,
             MSG_ROM->ipdu_pos+sizeof(EE_UINT8)*8,
             DataRef, 0, *msg_length);
             
-    EE_mutex_unlock (EE_MUTEX_COM_MSG);
-    EE_mutex_unlock (EE_MUTEX_COM_IPDU);
+    ReleaseResource (EE_MUTEX_COM_MSG);
+    ReleaseResource (EE_MUTEX_COM_IPDU);
      
 #ifndef __COM_CCCA__
     if ((MSG_RAM->property & EE_MASK_MSG_N_OK) == EE_COM_F_OK)  
@@ -118,7 +121,7 @@ StatusType EE_com_ReceiveDynamicMessage(SymbolicName Message,
   {
     EE_com_sys2user.service_error = COMServiceId_ReceiveDynamicMessage;
 #ifdef __COM_HAS_ERRORHOOK__  
-    EE_hal_begin_nested_primitive();   
+    flags = EE_hal_begin_nested_primitive();   
       COMError_SendDynamicMessage_Message = Message;
       COMError_SendDynamicMessage_DataRef = DataRef;
       COMError_SendDynamicMessage_LengthRef = msg_length;
@@ -128,7 +131,7 @@ StatusType EE_com_ReceiveDynamicMessage(SymbolicName Message,
         COMErrorHook(ret_code);    
         EE_com_ErrorHook.already_executed = EE_COM_FALSE;
       }
-    EE_hal_end_nested_primitive();  
+    EE_hal_end_nested_primitive(flags);  
 #endif
   }
         

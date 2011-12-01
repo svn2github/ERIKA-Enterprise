@@ -71,7 +71,9 @@ StatusType EE_com_StartCOM(COMApplicationModeType Mode)
   StatusType ret_code;
   EE_UINT8 j;
   SymbolicName i;
-  
+#ifdef __COM_HAS_ERRORHOOK__  	
+  register EE_FREG flags;
+#endif
   register struct EE_com_msg_RAM_TYPE *msg_RAM;
   register const struct EE_com_msg_ROM_TYPE *msg_ROM;
   
@@ -92,7 +94,7 @@ StatusType EE_com_StartCOM(COMApplicationModeType Mode)
   {
     EE_com_sys2user.service_error = COMServiceId_StartCOM;
 #ifdef __COM_HAS_ERRORHOOK__    
-    EE_hal_begin_nested_primitive();        
+    flags = EE_hal_begin_nested_primitive();        
       COMError_StartCOM_Mode = Mode;
       if (!EE_com_ErrorHook.already_executed)
       {        
@@ -100,7 +102,7 @@ StatusType EE_com_StartCOM(COMApplicationModeType Mode)
         COMErrorHook(E_COM_ID);    
         EE_com_ErrorHook.already_executed = EE_COM_FALSE;
       }
-    EE_hal_end_nested_primitive();        
+    EE_hal_end_nested_primitive(flags);        
 #endif
     return E_COM_ID;
   }
@@ -109,7 +111,7 @@ StatusType EE_com_StartCOM(COMApplicationModeType Mode)
   EE_com_sys2user.mode = EE_com_validmodes[Mode];
   ret_code = E_OK;
 
-  EE_mutex_lock(EE_MUTEX_COM_MSG);   
+  GetResource(EE_MUTEX_COM_MSG);   
 
   for (i=0; i<EE_COM_N_MSG; i++) 
   {
@@ -143,10 +145,10 @@ StatusType EE_com_StartCOM(COMApplicationModeType Mode)
     }
   }
 
-  EE_mutex_unlock(EE_MUTEX_COM_MSG);
+  ReleaseResource(EE_MUTEX_COM_MSG);
   
 #if defined(__COM_CCC0__) || defined(__COM_CCC1__)
-  EE_mutex_lock(EE_MUTEX_COM_IPDU);         
+  GetResource(EE_MUTEX_COM_IPDU);         
 
   for (i=0; i<EE_COM_N_IPDU; i++) 
   {  
@@ -171,7 +173,7 @@ StatusType EE_com_StartCOM(COMApplicationModeType Mode)
     } 
 #endif
   }  
-  EE_mutex_unlock(EE_MUTEX_COM_IPDU);         
+  ReleaseResource(EE_MUTEX_COM_IPDU);         
 #endif   
    
 #ifdef __USE_STARTCOM_EXTENSION__
@@ -187,7 +189,7 @@ StatusType EE_com_StartCOM(COMApplicationModeType Mode)
   {
     EE_com_sys2user.service_error = COMServiceId_StartCOM;
 #ifdef __COM_HAS_ERRORHOOK__    
-    EE_hal_begin_nested_primitive();        
+	flags = EE_hal_begin_nested_primitive();         
       COMError_StartCOM_Mode = Mode;
       if (!EE_com_ErrorHook.already_executed)
       {        
@@ -195,7 +197,7 @@ StatusType EE_com_StartCOM(COMApplicationModeType Mode)
         COMErrorHook(E_COM_ID);    
         EE_com_ErrorHook.already_executed = EE_COM_FALSE;
       }
-    EE_hal_end_nested_primitive();        
+    EE_hal_end_nested_primitive(flags);        
 #endif
   }
    

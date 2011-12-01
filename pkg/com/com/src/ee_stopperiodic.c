@@ -1,4 +1,4 @@
-/* ###*B*###
+ReleaseResource/* ###*B*###
  * ERIKA Enterprise - a tiny RTOS for small microcontrollers
  *
  * Copyright (C) 2002-2008  Evidence Srl
@@ -56,7 +56,7 @@ StatusType EE_com_StopPeriodic(void)
   EE_UINT8 i;
   register struct EE_com_ipdu_RAM_TYPE * IPDU_RAM;
   
-  EE_mutex_lock (EE_MUTEX_COM_IPDU);
+  GetResource(EE_MUTEX_COM_IPDU);
   
   EE_com_sys.first_PM = EE_COM_NULL;
    
@@ -74,7 +74,7 @@ StatusType EE_com_StopPeriodic(void)
         EE_com_remove_TM (EE_com_ipdu_ROM[i]->name);
   }
 
-  EE_mutex_unlock (EE_MUTEX_COM_IPDU);
+  ReleaseResource(EE_MUTEX_COM_IPDU);
 
   return E_OK;
 }

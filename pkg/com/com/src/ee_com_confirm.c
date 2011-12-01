@@ -57,7 +57,7 @@ void EE_com_confirm (EE_UINT8 * data_id, EE_UINT8 result)
   IPDU_RAM = EE_com_ipdu_RAM[i];
   IPDU_ROM = EE_com_ipdu_ROM[i];
 
-  EE_mutex_lock (EE_MUTEX_COM_IPDU);  
+  GetResource(EE_MUTEX_COM_IPDU);  
 #ifdef __COM_CCC1__
   EE_com_remove_DM (i);
   IPDU_RAM->property &= EE_RESET_IPDU_DM;
@@ -70,7 +70,7 @@ void EE_com_confirm (EE_UINT8 * data_id, EE_UINT8 result)
     IPDU_RAM->property |= EE_SET_IPDU_TM;
   }
   
-  EE_mutex_unlock (EE_MUTEX_COM_IPDU);
+  ReleaseResource(EE_MUTEX_COM_IPDU);
   
   MSG = IPDU_ROM->first;
   switch (result) 

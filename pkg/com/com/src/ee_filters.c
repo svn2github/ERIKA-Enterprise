@@ -43,7 +43,7 @@
  * CVS: $Id: ee_filters.c,v 1.2 2005/07/17 13:58:36 pj Exp $
  */
 
-#include "com/com.h"
+#include "com/ee_com.h"
 
 /*******************/
 /* FILTER ROUTINES */

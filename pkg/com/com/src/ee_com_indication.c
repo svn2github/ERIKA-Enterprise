@@ -69,7 +69,7 @@ void EE_com_indication (EE_UINT8 *data_id,
   {
     IPDU_ROM = EE_com_ipdu_ROM[i];    
     
-    EE_mutex_lock (EE_MUTEX_COM_IPDU);
+    GetResource (EE_MUTEX_COM_IPDU);
 #ifdef __COM_CCC1__
     if ((EE_com_ipdu_RAM[i]->property & 
         (EE_MASK_IPDU_TXRX | EE_MASK_IPDU_DPM)) 
@@ -79,7 +79,7 @@ void EE_com_indication (EE_UINT8 *data_id,
       EE_com_insert_PM(i, IPDU_ROM->reload_PM);
     }
 #endif
-    EE_mutex_unlock (EE_MUTEX_COM_IPDU);
+    ReleaseResource (EE_MUTEX_COM_IPDU);
 
     /* First of all, IPDU Message Callout */
     if ((IPDU_ROM->ipdu_callout != NULL) && 

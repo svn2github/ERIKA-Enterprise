@@ -1,4 +1,4 @@
-/* ###*B*###
+GetResource/* ###*B*###
  * ERIKA Enterprise - a tiny RTOS for small microcontrollers
  *
  * Copyright (C) 2002-2008  Evidence Srl
@@ -43,7 +43,7 @@
  * CVS: $Id: ee_stopcom.c,v 1.2 2005/07/17 13:58:36 pj Exp $
  */
 
-#include "com/com/inc/comprv.h"
+#include "com/com/inc/ee_comprv.h"
 
 /***********
  * STOPCOM *
@@ -59,13 +59,16 @@
 /* 2.9.2.2.2 */
 #ifndef __PRIVATE_COM_STOPCOM__
 StatusType EE_com_StopCOM(COMApplicationModeType Mode)
-{   
+{
+#ifdef __COM_HAS_ERRORHOOK__	
+	register EE_FREG flags;
+#endif
 #ifdef __EE_COM_EXTENDED__
   if (Mode != COM_SHUTDOWN_IMMEDIATE) 
   {
       EE_com_sys2user.service_error = COMServiceId_StopCOM;
 #ifdef __COM_HAS_ERRORHOOK__ 
-    EE_hal_begin_nested_primitive();        
+    flags = EE_hal_begin_nested_primitive();        
       COMError_StopCOM_Mode = Mode;   
       if (!EE_com_ErrorHook.already_executed)
       {        
@@ -73,7 +76,7 @@ StatusType EE_com_StopCOM(COMApplicationModeType Mode)
         COMErrorHook(E_COM_ID);    
         EE_com_ErrorHook.already_executed = EE_COM_FALSE;
       }
-    EE_hal_end_nested_primitive();        
+    EE_hal_end_nested_primitive(flags);        
 #endif
     return E_COM_ID;
   }
@@ -83,7 +86,7 @@ StatusType EE_com_StopCOM(COMApplicationModeType Mode)
   
   EE_alarm_cancel(EE_COM_ALARM);
   
-  EE_mutex_lock (EE_MUTEX_COM_IPDU);
+  GetResource (EE_MUTEX_COM_IPDU);
   
   EE_com_sys.first_TM = EE_COM_NULL;
 #ifdef __COM_CCC1__  
@@ -91,7 +94,7 @@ StatusType EE_com_StopCOM(COMApplicationModeType Mode)
   EE_com_sys.first_PM = EE_COM_NULL;
 #endif
 
-  EE_mutex_unlock (EE_MUTEX_COM_IPDU);
+  ReleaseResource(EE_MUTEX_COM_IPDU);
 #endif
    
   return E_OK;

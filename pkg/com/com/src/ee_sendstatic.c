@@ -1,4 +1,4 @@
-/* ###*B*###
+ReleaseResource/* ###*B*###
  * ERIKA Enterprise - a tiny RTOS for small microcontrollers
  *
  * Copyright (C) 2002-2008  Evidence Srl
@@ -51,7 +51,10 @@ StatusType EE_com_SendMessage(SymbolicName Message,
              ApplicationDataRef DataRef)
 {
   StatusType code;
-    
+#ifdef __COM_HAS_ERRORHOOK__ 
+  register EE_FREG flags;
+#endif
+	
 #ifdef __EE_COM_EXTENDED__
   if ((Message == 0) || 
       (Message > EE_COM_N_MSG) || 
@@ -64,7 +67,7 @@ StatusType EE_com_SendMessage(SymbolicName Message,
   {
     EE_com_sys2user.service_error = COMServiceId_SendMessage;
 #ifdef __COM_HAS_ERRORHOOK__   
-    EE_hal_begin_nested_primitive(); 
+    flags = EE_hal_begin_nested_primitive(); 
       COMError_SendMessage_Message = Message;
       COMError_SendMessage_DataRef = DataRef;
     
@@ -74,28 +77,28 @@ StatusType EE_com_SendMessage(SymbolicName Message,
         COMErrorHook(E_COM_ID);    
         EE_com_ErrorHook.already_executed = EE_COM_FALSE;
       }
-    EE_hal_end_nested_primitive();  
+    EE_hal_end_nested_primitive(flags);  
 #endif
     return E_COM_ID;      
   }
 #endif
 
   #if defined(__COM_CCC0__) || defined(__COM_CCC1__)
-  EE_mutex_lock (EE_MUTEX_COM_IPDU);
+  GetResource (EE_MUTEX_COM_IPDU);
   #endif
   
   code = EE_com_send (Message, DataRef, 
                  EE_com_msg_ROM[Message]->size);
                  
   #if defined(__COM_CCC0__) || defined(__COM_CCC1__)                 
-  EE_mutex_unlock (EE_MUTEX_COM_IPDU);               
+  ReleaseResource (EE_MUTEX_COM_IPDU);               
   #endif
    
   if (code != E_OK)
   {
     EE_com_sys2user.service_error = COMServiceId_SendMessage;
 #ifdef __COM_HAS_ERRORHOOK__    
-    EE_hal_begin_nested_primitive(); 
+    flags = EE_hal_begin_nested_primitive(); 
       COMError_SendMessage_Message = Message;
       COMError_SendMessage_DataRef = DataRef;
       if (!EE_com_ErrorHook.already_executed)
@@ -104,7 +107,7 @@ StatusType EE_com_SendMessage(SymbolicName Message,
         COMErrorHook(code);    
         EE_com_ErrorHook.already_executed = EE_COM_FALSE;
       }
-    EE_hal_end_nested_primitive();  
+    EE_hal_end_nested_primitive(flags);  
 #endif
   }
      

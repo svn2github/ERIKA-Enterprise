@@ -50,7 +50,7 @@
 #define __COMINIT_H__
 
 #include "com/ee_com.h"
-
+//#include "ee_com.h"
 
 /*************************************************************************
  Internal macros and constants
@@ -144,7 +144,6 @@ struct EE_com_ErrorHook_TYPE {
   union 
   {
     COMApplicationModeType Mode;
-  
     struct 
     {
       SymbolicName Message;

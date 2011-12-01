@@ -1,4 +1,4 @@
-/* ###*B*###
+GetResource/* ###*B*###
  * ERIKA Enterprise - a tiny RTOS for small microcontrollers
  *
  * Copyright (C) 2002-2008  Evidence Srl
@@ -51,7 +51,10 @@
 StatusType EE_com_SendZeroMessage (SymbolicName Message)
 {
   StatusType code;
-   
+#ifdef __COM_HAS_ERRORHOOK__  	
+  register EE_FREG flags;
+#endif
+	
 #ifdef EE_COM_EXTENDED
   if ((Message > MAX_MSG) || (Message == 0) || 
       (EE_COM_msg_ROM[Message] == NULL) || 
@@ -59,7 +62,7 @@ StatusType EE_com_SendZeroMessage (SymbolicName Message)
   {
     EE_com_sys2user.service_error = COMServiceId_SendZeroMessage;
 #ifdef __COM_HAS_ERRORHOOK__   
-    EE_hal_begin_nested_primitive(); 
+    flags = EE_hal_begin_nested_primitive(); 
       COMError_SendZeroMessage_Message = Message;
       
       if (!EE_com_ErrorHook.already_executed)
@@ -68,23 +71,23 @@ StatusType EE_com_SendZeroMessage (SymbolicName Message)
         COMErrorHook(E_COM_ID);    
         EE_com_ErrorHook.already_executed = EE_COM_FALSE;
       }
-    EE_hal_end_nested_primitive();  
+    EE_hal_end_nested_primitive(flags);  
 #endif
     return E_COM_ID;      
   }
 #endif
 
-  EE_mutex_lock (EE_MUTEX_COM_IPDU);
+  GetResource(EE_MUTEX_COM_IPDU);
   
   code = EE_com_send(Message, NULL, 0);
   
-  EE_mutex_unlock (EE_MUTEX_COM_IPDU);
+  ReleaseResource(EE_MUTEX_COM_IPDU);
    
   if (code != E_OK)
   {
     EE_com_sys2user.service_error = COMServiceId_SendZeroMessage;
 #ifdef __COM_HAS_ERRORHOOK__   
-    EE_hal_begin_nested_primitive(); 
+    flags = EE_hal_begin_nested_primitive(); 
       COMError_SendZeroMessage_Message = Message;      
       
       if (!EE_com_ErrorHook.already_executed)
@@ -93,7 +96,7 @@ StatusType EE_com_SendZeroMessage (SymbolicName Message)
         COMErrorHook(E_COM_ID);    
         EE_com_ErrorHook.already_executed = EE_COM_FALSE;
       }
-    EE_hal_end_nested_primitive();  
+    EE_hal_end_nested_primitive(flags);  
 #endif
     return E_COM_ID;      
   } 

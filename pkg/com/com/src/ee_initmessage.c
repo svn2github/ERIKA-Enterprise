@@ -1,4 +1,4 @@
-/* ###*B*###
+ReleaseResource/* ###*B*###
  * ERIKA Enterprise - a tiny RTOS for small microcontrollers
  *
  * Copyright (C) 2002-2008  Evidence Srl
@@ -66,6 +66,9 @@ StatusType EE_com_InitMessage(SymbolicName Message,
 {
   register struct EE_com_msg_RAM_TYPE * msg_RAM;
   register const struct EE_com_msg_ROM_TYPE * msg_ROM;
+#ifdef __COM_HAS_ERRORHOOK__  	
+	register EE_FREG flags;
+#endif
   
   #if defined(__COM_CCC0__) || defined(__COM_CCC1__)
   EE_UINT8 EE_com_temp_buffer[EE_com_bit2byte(EE_UINT8)];
@@ -78,7 +81,7 @@ StatusType EE_com_InitMessage(SymbolicName Message,
   {
     EE_com_sys2user.service_error = ComServiceId_InitMessage;
 #ifdef __COM_HAS_ERRORHOOK__ 
-    EE_hal_begin_nested_primitive();    
+    flags = EE_hal_begin_nested_primitive();    
       COMError_InitMessage_Message = Message;
       COMError_InitMessage_DataRef = DataRef;
       if (!EE_com_ErrorHook.already_executed)
@@ -87,7 +90,7 @@ StatusType EE_com_InitMessage(SymbolicName Message,
         COMErrorHook(E_COM_ID);    
         EE_com_ErrorHook.already_executed = EE_COM_FALSE;
       }
-    EE_hal_end_nested_primitive();  
+    EE_hal_end_nested_primitive(flags);  
 #endif
     return E_COM_ID;      
   }
@@ -96,7 +99,7 @@ StatusType EE_com_InitMessage(SymbolicName Message,
   msg_ROM = EE_com_msg_ROM[Message];
   msg_RAM = EE_com_msg_RAM[Message];
 
-  EE_mutex_lock(EE_MUTEX_COM_MSG);
+  GetResource(EE_MUTEX_COM_MSG);
 
   msg_RAM->property &= EE_SET_COM_MSG_OK;   /* set status to E_OK */
       
@@ -138,7 +141,7 @@ StatusType EE_com_InitMessage(SymbolicName Message,
       return EE_COM_FALSE;
 #endif
     /* Store initialization data into I-PDU */
-    EE_mutex_lock(EE_MUTEX_COM_IPDU);   
+    GetResource(EE_MUTEX_COM_IPDU);   
            
     if ((msg_RAM->property & EE_MASK_MSG_STDY) ==
           EE_COM_MSG_DYN) 
@@ -161,7 +164,7 @@ StatusType EE_com_InitMessage(SymbolicName Message,
         EE_com_memo(EE_com_temp_buffer, 0, 
               msg_ROM->ipdu_ROM->data, msg_ROM->ipdu_pos, msg_ROM->size);
             
-    EE_mutex_unlock(EE_MUTEX_COM_IPDU);         
+    ReleaseResource(EE_MUTEX_COM_IPDU);         
   } 
   else 
 #endif
@@ -205,16 +208,16 @@ StatusType EE_com_InitMessage(SymbolicName Message,
       if (msg_ROM->ipdu_ROM != NULL) 
       {
    / aggiorno anche l'ipdu collegata (superfluo per i messaggi dinamici) /
-   EE_mutex_lock(EE_MUTEX_COM_IPDU);   
+   GetResource(EE_MUTEX_COM_IPDU);   
    EE_com_memo(DataRef, 0, msg_ROM->ipdu_ROM->data, 
             msg_ROM->ipdu_pos, msg_ROM->size);
-   EE_mutex_unlock(EE_MUTEX_COM_IPDU);   
+   ReleaseResource(EE_MUTEX_COM_IPDU);   
       }
 #endif
 */
   }
    
-  EE_mutex_unlock(EE_MUTEX_COM_MSG); 
+  ReleaseResource(EE_MUTEX_COM_MSG); 
   return E_OK;
 }
 #endif

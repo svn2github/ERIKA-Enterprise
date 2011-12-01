@@ -47,9 +47,10 @@
 #define __COMPRV_H__
 
 #include "ee.h"
-#include "com/com.h"
-#include "callout.h"
-#include "cominit.h"
+
+#include "com/ee_com.h"
+#include "ee_callout.h"
+#include "ee_cominit.h"
 
 /*************************************************************************
  Internal data defined by the system
@@ -193,8 +194,8 @@ void EE_com_remove_PM (SymbolicName num);
 #define EE_MASK_MSG_TX_TYPE          0x8140
 
 #define EE_MASK_MSG_DIRECTION        0x8000
-
-/* Usefull ? / 
+*/
+/* Usefull ? *//* 
 //#define EE_MASK_IPDU_ACTIVE            0x02
 
 #define EE_MASK_IPDU_STATUS            0x0C
@@ -205,7 +206,7 @@ void EE_com_remove_PM (SymbolicName num);
 
 #define EE_MASK_ERROR_NOTIFY         0x0E00
 #define EE_MASK_OK_NOTIFY            0x7000
-
+*/
 /*************************************************************************
  set/reset and result
  *************************************************************************/
@@ -281,15 +282,18 @@ void EE_com_remove_PM (SymbolicName num);
 #define EE_COM_SET_PENDING         0x10
 #define EE_COM_RESET_PENDING       0xEF
 #define EE_COM_SET_PENDING         0x10
- 
-/* Usefull ? /
+*/
+
+/* Usefull ? */
+/*
 #define EE_COM_IPDU_RESET_ACTIVE   0xFD
 #define EE_COM_IPDU_SET_ACTIVE     0x02
-
+*/
 
 /*
  * Result
- /
+ */
+/*
 #define EE_COM_DMTM_CLEAR          0x00
 #define EE_COM_DM_CLEAR            0x00
 #define EE_COM_DM_SET              0x80
@@ -318,6 +322,7 @@ void EE_com_remove_PM (SymbolicName num);
 
 #define EE_COM_MSG_TX_TR         0x0000
 #define EE_COM_MSG_TX_EX         0x0000
+*/
 
 /*
  * Inline functions
@@ -345,7 +350,8 @@ void __ALWAYS_INLINE__ EE_com_notify_ok(const struct EE_com_msg_ROM_TYPE *msg_RO
     
     /* activate a task */
     case EE_COM_MSG_TSOK:
-    EE_thread_activate(*((EE_TID *)msg_ROM->notify_call));
+    /*EE_thread_activate(*((EE_TID *)msg_ROM->notify_call)); GF*/
+		 ActivateTask(*((EE_TID *)msg_ROM->notify_call));
     break; 
     
     /* Setting an event */
