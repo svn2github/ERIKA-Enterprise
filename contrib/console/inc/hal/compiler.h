@@ -10,7 +10,7 @@
 #ifdef __ERIKA__
 
 #include <ee.h>
-#include "../../../misc/inc/ee_stdint.h"
+#include "../../misc/inc/ee_stdint.h"
 
 #else /* __ERIKA__ */
 

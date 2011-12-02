@@ -29,12 +29,16 @@ ifeq ($(call iseeopt, __LM32__), yes)
 EE_SRCS += contrib/console/src/hal/mico32.c
 endif
 
-ifeq ($(call iseeopt, __HCS12XS__), yes)
-ifeq ($(call iseeopt, __MC9S12XS128__), yes)
-ALLINCPATH += -i"$(shell cygpath -w $(EEBASE)/contrib/console/inc)"
-EE_SRCS += contrib/console/src/hal/s12.c
+ifeq ($(call iseeopt, __MC9S12__), yes)
+EE_HC12_CONSOLE=YES
 endif
+ifeq ($(call iseeopt, __HCS12XS__), yes)
+EE_HC12_CONSOLE=YES
+endif
+ifeq ($(EE_HC12_CONSOLE), YES)
+EE_SRCS += contrib/console/src/hal/s12.c
 endif
 
 INCLUDE_PATH += $(EEBASE)/contrib/console/inc
+
 endif

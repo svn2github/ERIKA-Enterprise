@@ -11,11 +11,7 @@
 
 
 
-#include "mcu/cosmic_hs12xs/inc/ee_sci.h"
-
-
-extern double EE_BUS_CLOCK;
-
+#include "mcu/hs12xs/inc/ee_sci.h"
 
 //#ifdef __ERIKA__
 //

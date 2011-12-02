@@ -25,7 +25,7 @@ int8_t console_serial_hal_open(uint8_t port, uint32_t bdr, uint16_t flags)
 //	{
 //		bdr = ((uint32_t)9600);	//#error "Supported baud-rates: 9600"
 //	}
-	EE_sci_open(port,(uint32_t)EE_BUS_CLOCK,bdr);
+	EE_sci_open(port,bdr);
 	return 1;
 }
 
@@ -58,7 +58,7 @@ int8_t  console_serial_hal_read(uint8_t port, uint8_t *mesg, uint16_t length,
 	
 	/* TODO!!! - Buffer management in interrupt mode */
 	for (i = 0; i < length; i++) {
-		retv = EE_sci_get_byte(port, *(mesg + i));
+		retv = EE_sci_get_byte(port, mesg + i);
 		if (retv < 0)
 			return retv;
 	}
