@@ -39,31 +39,21 @@
  * ###*E*### */
  
 /** 
-* @file     ee_spi_flash.h
-* @brief    SPI flash selection header.
-* @author   Bernardo Dal Seno
-* @author   Dario Di Stefano
+* @file     sst25dvf016b.h
+* @brief    SPI flash sst25vf016b driver.
 * @author   Salvatore Marrapese
-* @date     2010
+* @date     2011
 */ 
 
-#ifndef __EE_SPI_FLASH_H__
-#define __EE_SPI_FLASH_H__
+#ifndef SPI_FLASH_SST25DVF016B_H
+#define SPI_FLASH_SST25DVF016_H
 
-#ifdef __USE_SST25__
+#define SPI_FLASH_CMD_64K_ERASE    0xD8
+#define SPI_FLASH_CMD_RD_JED       0x9F
+#define spiflash_write_buffer    sst25diamond_flash_write_buffer
+
 #include "sst25_generic.h"
-#endif
+void sst25diamond_flash_write_buffer(unsigned id, EE_UINT32 addr,
+    const void *data, EE_UREG len);
 
-#ifdef __USE_SST25LF0X0A__
-#include "sst25lf0x0a.h"
-#endif
-
-#if defined(__USE_SST25VF016B__) && !defined(__USE_DIAMOND__)
-#include "sst25vf016b.h"
-#endif
-
-#if defined(__USE_SST25VF016B__) && defined(__USE_DIAMOND__)
-#include "sst25dvf016b.h"
-#endif
-
-#endif /* __EE_SPI_FLASH_H__ */
+#endif /* SPI_FLASH_SST25DVF016_H */

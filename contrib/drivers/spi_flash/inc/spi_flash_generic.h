@@ -43,6 +43,7 @@
 * @brief    SPI flash driver. Generic functions.
 * @author   Bernardo Dal Seno
 * @author   Dario Di Stefano
+* @author   Salvatore Marrapese
 * @date     2010
 */ 
 
@@ -83,7 +84,13 @@ __INLINE__ EE_UINT8 __ALWAYS_INLINE__ spiflash_unprotected_status(EE_UINT8 statu
  */
 __INLINE__ EE_UINT8 __ALWAYS_INLINE__ spiflash_get_status_reg(unsigned id)
 {
-    return SPI_CMD_STATUS_READ(id);
+	#ifdef __USE_DIAMOND__
+	EE_UINT32 temp;
+	MICO_SPI_STATUS_READ(id, temp);
+	return temp;
+	#else
+	return SPI_CMD_STATUS_READ(id);
+	#endif
 }
 
 /**
@@ -125,9 +132,13 @@ __INLINE__ void __ALWAYS_INLINE__ spiflash_maybe_unprotect(unsigned id)
  */
 __INLINE__ void __ALWAYS_INLINE__ spiflash_write_enable(unsigned id)
 {
+	#ifdef __USE_DIAMOND__
+	MICO_SPI_WRITE_ENABLE(id);
+	#else
     const EE_UINT8 cmd_w_en[] = { SPI_FLASH_CMD_WRITE_EN };         /* Write-Enable */
     spiflash_maybe_unprotect(id);
     spiflash_write(id, cmd_w_en, sizeof(cmd_w_en));
+	#endif
 }
 
 /**
@@ -135,8 +146,12 @@ __INLINE__ void __ALWAYS_INLINE__ spiflash_write_enable(unsigned id)
  */
 __INLINE__ void __ALWAYS_INLINE__ spiflash_write_disable(unsigned id)
 {
+	#ifdef __USE_DIAMOND__
+	MICO_SPI_WRITE_DISABLE(id);
+	#else
     const EE_UINT8 cmd_w_dis[] = { SPI_FLASH_CMD_WRITE_DIS };       /* Write-Disable */
     spiflash_write(id, cmd_w_dis, sizeof(cmd_w_dis));
+	#endif
 }
 
 /**
@@ -144,9 +159,13 @@ __INLINE__ void __ALWAYS_INLINE__ spiflash_write_disable(unsigned id)
  */
 __INLINE__ void __ALWAYS_INLINE__ spiflash_erase_chip(unsigned id)
 {
+	#ifdef __USE_DIAMOND__
+	MICO_SPI_CHIP_ERASE(id);
+	#else
     const EE_UINT8 cmd_ch_erase[] = { SPI_FLASH_CMD_CHIP_ERASE };   /* Chip-Erase */
     spiflash_write_enable(id);
     spiflash_write(id, cmd_ch_erase, sizeof(cmd_ch_erase));
+	#endif
     spiflash_wait_until_ready(id);
 }
 
@@ -155,10 +174,14 @@ __INLINE__ void __ALWAYS_INLINE__ spiflash_erase_chip(unsigned id)
  */
 __INLINE__ void __ALWAYS_INLINE__ spiflash_erase_sector(unsigned id, EE_UINT32 addr)
 {
+	#ifdef __USE_DIAMOND__
+	MICO_SPI_BLOCK_ERASE_TYPE1(id, addr);
+	#else
     spiflash_write_enable(id);
     spiflash_short_write(id,
         ((EE_UINT32)(SPI_FLASH_CMD_SECTOR_ERASE) << 24) | addr, 4);
     spiflash_wait_until_ready(id);
+	#endif
 }
 
 /**
@@ -166,9 +189,13 @@ __INLINE__ void __ALWAYS_INLINE__ spiflash_erase_sector(unsigned id, EE_UINT32 a
  */
 __INLINE__ void __ALWAYS_INLINE__ spiflash_erase_block(unsigned id, EE_UINT32 addr)
 {
+	#ifdef __USE_DIAMOND__
+	MICO_SPI_BLOCK_ERASE_TYPE2(id, addr);
+	#else
     spiflash_write_enable(id);
     spiflash_short_write(id,
         ((EE_UINT32)(SPI_FLASH_CMD_BLOCK_ERASE) << 24) | addr, 4);
+	#endif
     spiflash_wait_until_ready(id);
 }
 

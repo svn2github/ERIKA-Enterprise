@@ -39,31 +39,37 @@
  * ###*E*### */
  
 /** 
-* @file     ee_spi_flash.h
-* @brief    SPI flash selection header.
-* @author   Bernardo Dal Seno
-* @author   Dario Di Stefano
+* @file     sst25diamond.c
+* @brief    SPI flash sst25diamond driver.
 * @author   Salvatore Marrapese
-* @date     2010
+* @date     2011
 */ 
 
-#ifndef __EE_SPI_FLASH_H__
-#define __EE_SPI_FLASH_H__
-
-#ifdef __USE_SST25__
-#include "sst25_generic.h"
-#endif
-
-#ifdef __USE_SST25LF0X0A__
-#include "sst25lf0x0a.h"
-#endif
-
-#if defined(__USE_SST25VF016B__) && !defined(__USE_DIAMOND__)
-#include "sst25vf016b.h"
-#endif
-
 #if defined(__USE_SST25VF016B__) && defined(__USE_DIAMOND__)
-#include "sst25dvf016b.h"
-#endif
 
-#endif /* __EE_SPI_FLASH_H__ */
+#include <ee.h>
+#include "ee_spi_flash.h"
+
+void sst25dvf016b_flash_write_buffer(unsigned id, EE_UINT32 addr,
+    const void *data, EE_UREG len)
+{
+	unsigned char* pun_flash = (unsigned char*) addr;
+	unsigned char* pun_data = (unsigned char*) data;
+	unsigned int value, k;
+	
+	spiflash_write_enable(id);
+	for(k = 0; k < len; k++){
+		*pun_flash = *pun_data;						
+		MICO_SPI_CMD_CFG_WR_BYTE_PROGRAM(id, *pun_flash);
+		do {
+			MICO_SPI_STATUS_READ (id, value);
+			if ((0x00000001 & value) == 0)
+				break;
+		} while (1);
+		pun_flash++;
+		pun_data++;
+	}
+	spiflash_write_disable(id);
+}
+
+#endif
