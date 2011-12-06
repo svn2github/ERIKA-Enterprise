@@ -43,8 +43,8 @@
  * CVS: $Id: ee_com.h,v 1.2 2005/07/16 13:19:58 pj Exp $
  */
 
-#ifndef __COM_H__
-#define __COM_H__
+#ifndef __EE_COM_H__
+#define __EE_COM_H__
 
 /* Definisco le strutture ed i parametri necessari per il passaggio di
    informazioni tra i livelli di rete */

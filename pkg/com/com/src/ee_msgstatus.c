@@ -1,4 +1,4 @@
-GetResource/* ###*B*###
+/* ###*B*###
  * ERIKA Enterprise - a tiny RTOS for small microcontrollers
  *
  * Copyright (C) 2002-2008  Evidence Srl

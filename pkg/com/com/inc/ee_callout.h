@@ -43,8 +43,8 @@
  * CVS: $Id: ee_callout.h,v 1.2 2005/07/17 13:58:36 pj Exp $
  */
 
-#ifndef __COM_CALLOUT_H__
-#define __COM_CALLOUT_H__
+#ifndef __EE_COM_CALLOUT_H__
+#define __EE_COM_CALLOUT_H__
 
 #if defined(__COM_CCC0__) || defined(__COM_CCC1__)
 #ifdef __ISO15765__

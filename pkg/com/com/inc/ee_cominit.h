@@ -46,11 +46,11 @@
 /* this file should be includede when defining the application data
    structures for the COM Library */
 
-#ifndef __COMINIT_H__
-#define __COMINIT_H__
+#ifndef __EE_COMINIT_H__
+#define __EE_COMINIT_H__
 
 #include "com/ee_com.h"
-//#include "ee_com.h"
+#include "ee_com.h"
 
 /*************************************************************************
  Internal macros and constants

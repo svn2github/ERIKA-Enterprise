@@ -43,8 +43,8 @@
  * CVS: $Id: ee_byteorder.h,v 1.1.1.1 2004/11/05 16:03:03 pj Exp $
  */
 
-#ifndef __BYTEORDER_C__
-#define __BYTEORDER_C__
+#ifndef __EE_BYTEORDER_C__
+#define __EE_BYTEORDER_C__
 
 /* byte ordering conversion 
  * function name EE_COM_xx_to_yyzz where:

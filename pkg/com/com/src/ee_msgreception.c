@@ -1,4 +1,4 @@
-ReleaseResource/* ###*B*###
+/* ###*B*###
  * ERIKA Enterprise - a tiny RTOS for small microcontrollers
  *
  * Copyright (C) 2002-2008  Evidence Srl
@@ -44,7 +44,6 @@ ReleaseResource/* ###*B*###
  */
 
 #include "com/com/inc/ee_comprv.h"
-
 
 /*********************************************************
  *       MSG RECEPTION                     
@@ -232,7 +231,7 @@ void EE_com_msg_reception (SymbolicName Message,
 #endif
 #endif
     
-    ReleaseResource (EE_MUTEX_COM_MSG);
+    ReleaseResource(EE_MUTEX_COM_MSG);
     
 #ifdef __COM_CCC1__
     if (temp == EE_COM_TRUE) 

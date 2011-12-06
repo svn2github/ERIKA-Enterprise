@@ -47,8 +47,8 @@
    initialize the application COM data structures, include the
    cominit.h file instead of this one. */
 
-#ifndef __EE_COM_H__
-#define __EE_COM_H__
+#ifndef __EE_COM_COM_H__
+#define __EE_COM_COM_H__
 
 #include "ee.h"
 #include "com/ee_com.h"

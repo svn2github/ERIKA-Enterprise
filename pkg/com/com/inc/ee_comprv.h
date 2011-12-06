@@ -43,10 +43,10 @@
  * CVS: $Id: ee_comprv.h,v 1.3 2006/04/08 21:15:23 pj Exp $
  */
 
-#ifndef __COMPRV_H__
-#define __COMPRV_H__
+#ifndef __EE_COMPRV_H__
+#define __EE_COMPRV_H__
 
-#include "ee.h"
+//#include "ee.h"
 
 #include "com/ee_com.h"
 #include "ee_callout.h"
