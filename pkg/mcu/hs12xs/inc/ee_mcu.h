@@ -90,10 +90,12 @@ void EE_cpu_startos(void);
  * 16 bit register value to have a bigger lifetime.
  */
 
-#ifndef EE_TIMER0_COUNTER
+#ifndef EE_TIMER_COUNTER
 
-/* Timer0 module */
-#define EE_TIMER0_COUNTER
+/* Timer module */
+#define EE_TIMER_COUNTER EE_TIMER_7
+#define EE_TIMER_PERIOD_REG EE_S12_TIMER_TC7_REG
+
 /*
 #define EE_PRESCALE_FACTOR_128 		7
 #define EE_PRESCALE_FACTOR_64 		6
@@ -113,41 +115,16 @@ void EE_cpu_startos(void);
 /* EE_TIMER_PERIOD			es. 1 in ms */
 extern unsigned int EE_TIMER_PERIOD;
 //#define EE_TIMER0_STEP 			(((unsigned long int)(EE_BUS_CLOCK))/((unsigned long int)(EE_TIMER_PRESCALER))*((unsigned long int)(EE_TIMER_PERIOD)))/((unsigned long int)(1000))	/* es. 250 */
-extern unsigned int EE_TIMER0_STEP;
+extern unsigned int EE_TIMER_STEP;
 
+/* enable Timer7 and TCRE bit to reset timer counter when match the period */
 #define EE_s12_hal_cpu_startos()\
-		EE_timer_init_ms(EE_TIMER_0, EE_TIMER_PERIOD, EE_TIMER_ISR_ON);\
-		EE_TIMER0_STEP = TC0;\
+		EE_timer_init_ms(EE_TIMER_7, EE_TIMER_PERIOD, EE_TIMER_ISR_ON);\
+		EE_TIMER_STEP = EE_S12_TIMER_TC7_REG;\
+		EE_S12_TIMER_SYSCTRL_REG2 |= 0x08;\
 		EE_timer_start()
 
-#if 0
-__INLINE__ int __ALWAYS_INLINE__ EE_s12_hal_cpu_startos( void )
-{
-	EE_timer_init_ms(EE_TIMER_0, EE_TIMER_PERIOD, EE_TIMER_ISR_ON);
-	EE_TIMER0_STEP = TC0;
-	EE_timer_start();
-	return 0;
-
-	TSCR1 = 0;							/* turn off Timer0 module */
-	TFLG1 = 0x01;						/* clear isr flag */
-	TCNT = 0;							/* clear Timer0 counter */
-	TIOS |= 0x01;						/* output compare mode */
-	TCTL2 &= 0xFC;						/* do not use pins */
-	TCTL4 &= 0xFC;						/* do not use pins */
-	TIE |= 0x01; 						/* enable interrupt */
-	OCPD |= 0x01;						/* disable Timer0 channel port  */
-	_asm("cli");						/* cli */
-	INT_CFADDR = 0xE0;					/* set base address */
-	INT_CFDATA7 = 0x01; 				/* set priority */
-	TC0 = (unsigned int)(EE_TIMER0_STEP);			/* 1ms -> Freq: 64MHz, Bus_clock: 32MHz, -> 32MHz/prescaler*1ms */
-	TSCR2 = (unsigned char)(EE_PRESCALE_FACTOR);	/* prescaler 128 */
-	TSCR1 = 0x80; 						/* turn on Timer0 module */
-	return 0;
-}
-#endif
-
-
-#endif	/* TIMER0_COUNTER */
+#endif	/* TIMER_COUNTER */
 
 #else	/* EE_MAX_COUNTER>0 */
   #define EE_s12_hal_cpu_startos() do{}while(0)

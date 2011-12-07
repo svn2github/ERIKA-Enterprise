@@ -53,8 +53,8 @@
 #define EE_TIMER_ISR_ON  1
 #define EE_TIMER_ISR_OFF 0
 
-#define EE_TIMER_SET_PERIOD(id, per) *(&TC0 + id) = per
-#define EE_TIMER_SET_PRESCALER(ps)   TSCR2=ps
+#define EE_TIMER_SET_PERIOD(id, per) *(&(EE_S12_TIMER_TC0_REG) + id) = per
+#define EE_TIMER_SET_PRESCALER(ps)   EE_S12_TIMER_SYSCTRL_REG2=ps
 
 #define EE_TIMER_PRESCALE_FACTOR_128 	7
 #define EE_TIMER_PRESCALE_FACTOR_64 	6
@@ -90,6 +90,14 @@
 #define EE_S12_OUTCMP_DIS_REG     OCPD
 #define EE_S12_OUTCMP_MASK_REG    OC7M
 #define EE_S12_OUTCMP_DATA_REG    OC7D
+#define EE_S12_TIMER_TC0_REG      TC0
+#define EE_S12_TIMER_TC1_REG      TC1
+#define EE_S12_TIMER_TC2_REG      TC2
+#define EE_S12_TIMER_TC3_REG      TC3
+#define EE_S12_TIMER_TC4_REG      TC4
+#define EE_S12_TIMER_TC5_REG      TC5
+#define EE_S12_TIMER_TC6_REG      TC6
+#define EE_S12_TIMER_TC7_REG      TC7
 
 #endif
 
@@ -157,10 +165,10 @@ __INLINE__ int __ALWAYS_INLINE__ EE_timer_init_us(EE_UINT16 tim_id, EE_UINT32 pe
 	}
 
 	EE_TIMER_SET_PERIOD( tim_id, (EE_UINT16)prd );
-	EE_TIMER_SET_PRESCALER(psc);
+	EE_TIMER_SET_PRESCALER(psc);					/* Prescaler should be the same for all the timers */
 
 	if( isr_mode ) {
-		EE_S12_TIMER_IE_REG |= (0x01 << tim_id);		/* enable interrupt */
+		EE_S12_TIMER_IE_REG |= (0x01 << tim_id);	/* enable interrupt */
 		EE_TIMER_SET_PRIORITY(isr_mode)
 	}
 	else {

@@ -56,9 +56,3 @@ void EE_cpu_startos(void) {
 }
 #endif
 
-#if(EE_MAX_COUNTER>0)
-volatile EE_UINT8 EE_timer0_initialized = 1;
-#else    /* #if(EE_MAX_COUNTER>0) */
-volatile EE_UINT8 EE_timer0_initialized = 0;
-#endif   /* #if(EE_MAX_COUNTER>0) */
-
