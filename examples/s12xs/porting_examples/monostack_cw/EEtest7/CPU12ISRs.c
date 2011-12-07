@@ -13,7 +13,7 @@
 //#include "main.h"
 #include "start12.h"		     /* to call the C-startup code */
 #include "CPU12ISRs.h"
-#include "mc9s12xs128.h"
+#include "ee_s12regs.h"
 
 #include "ee.h"
 

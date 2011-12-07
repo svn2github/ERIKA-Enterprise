@@ -13,11 +13,8 @@
 //#include "main.h"
 #include "start12.h"		     /* to call the C-startup code */
 #include "CPU12ISRs.h"
-#include "mc9s12xs128.h"
-
-#include "ee.h"
-#include "test/assert/inc/ee_assert.h"
 #include "myapp.h"
+#include "mcu/hs12xs/inc/ee_pit.h"
 
 /*
 #pragma CODE_SEG __NEAR_SEG NON_BANKED  // make sure this code is located in non banked 

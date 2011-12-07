@@ -6,11 +6,12 @@
 #include <math.h>
 #include "ee.h"
 #include "cpu/hs12xs/inc/ee_irqstub.h"
-#include "ee_hs12xsregs.h" 
+#include "ee_s12regs.h" 
 
 #include "myapp.h"
 #include "console_serial.h"
- 
+#include "mcu/hs12xs/inc/ee_pit.h"
+
 extern volatile int timer_fired;
 extern volatile int timer_divisor; 
 extern volatile int button_fired;

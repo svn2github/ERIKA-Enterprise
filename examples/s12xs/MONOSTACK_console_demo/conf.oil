@@ -63,14 +63,15 @@ CPU test_application {
 		MCU_DATA = S12XS {
    			MODEL = CUSTOM{
     			MODEL = "MC9S12XS128";
-    			LINKERSCRIPT = "mc9s12xs128.lkf";
-    			INCLUDE_H = "hs12xsregs.h";
+    			LINKERSCRIPT = "../mc9s12xs128.lkf";
+    			INCLUDE_H = "ioxs256.h";
     			INCLUDE_C = "vector_s12x.c";
     			INCLUDE_S = "crtsx.S";
    			};
    			SERIAL = TRUE;
    			TIMER = TRUE;
   		};
+		EE_OPT = "__EE_STDINT_SKIP_64BIT__";
 
 		BOARD_DATA = DEMO9S12XSFAME {
 				OPTIONS = ALL;

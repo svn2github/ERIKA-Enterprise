@@ -6,7 +6,7 @@
 #include <math.h>
 #include "ee.h"
 #include "cpu/hs12xs/inc/ee_irqstub.h"
-#include "ee_hs12xsregs.h" 
+#include "ee_s12regs.h" 
  
 @interrupt @near void _stext(void);	/* startup routine */
 

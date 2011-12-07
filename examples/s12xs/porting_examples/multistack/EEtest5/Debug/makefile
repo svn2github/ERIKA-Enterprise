@@ -1,16 +1,12 @@
-# # Date             : 1/18/2010
-# RT-Druid version : 
-#
+### Setting Erika's variables:
+# ERIKA_FILES= ../../..
+# APPBASE = .
+# 
+# EEOPT =
 
-# these lines override the .bashrc definitions
-#EEBASE = ../../..
-#APPBASE = .
 
-###
-### Setting EEOPT variable:
-###
+RTDRUID_CONFIGURATOR_NUMBER:=1275
 
-EEOPT =
 
 
 ############################################################################
@@ -19,7 +15,6 @@ EEOPT =
 #
 ############################################################################
 EEOPT += DEBUG
-EEOPT += NODEPS
 EEOPT += __SEM__
 EEOPT += __ASSERT__
 EEOPT += __S12XS_INCLUDE_REGS__
@@ -43,9 +38,33 @@ EEOPT += __USE_LEDS__
 EEOPT += __USE_LIGHT_SENSOR__
 EEOPT += __FP__
 EEOPT += __IRQ_STACK_NEEDED__
-EEOPT += __ALLOW_NESTED_IRQ__
 EEOPT += __MULTI__
 EEOPT += __FP_NO_RESOURCES__
+EEOPT += __ALLOW_NESTED_IRQ__
+EEOPT += __DISABLE_EEOPT_DEFINES__
+
+
+############################################################################
+#
+# Erika base directory
+#
+############################################################################
+ifdef ERIKA_FILES
+ifdef EEBASE
+    $(warning EEBASE is set, but it has been overridden by ERIKA_FILES)
+endif
+EEBASE := $(shell cygpath `cygpath -ms '${ERIKA_FILES}'`)
+
+else # ERIKA_FILES
+
+ifndef EEBASE
+        EEBASE := $(shell cygpath `cygpath -ms 'C:\Evidence\eclipse_160_old\plugins\com.eu.evidence.ee_1.6.0.20111115_1040\ee_files'`)
+else
+        $(warning The usage of EEBASE is deprecated. Please use ERIKA_FILES)
+endif
+endif # ERIKA_FILES
+# ERIKA_FILES has fulfilled its role. Make sure it's not used inside Erika makefiles
+ERIKA_FILES :=
 
 
 ############################################################################
@@ -53,13 +72,15 @@ EEOPT += __FP_NO_RESOURCES__
 # Freescale S12
 #
 ############################################################################
-EVIDENCEBASE := $(shell cygpath `cygpath -ms "C:\Evidence\Evidence\eclipse\plugins\com.eu.evidence.ee_1.0.0.200912021119"`)
-EEBASE  := $(shell cygpath `cygpath -ms "C:\Evidence\Evidence\eclipse\plugins\com.eu.evidence.ee_1.0.0.200912021119\ee_base"`)
-APPBASE := 
+APPBASE := ..
 OUTBASE := Debug
 
-COSMIC_ASMDIR := $(shell cygpath `cygpath -ms "c:\Programmi\COSMIC\EVAL12X"`)
-COSMIC_CCDIR := $(shell cygpath `cygpath -ms "c:\Programmi\COSMIC\EVAL12X"`)
+ifndef COSMIC_ASMDIR
+COSMIC_ASMDIR := $(shell cygpath `cygpath -ms 'c:\Programmi\COSMIC\EVAL12X'`)
+endif
+ifndef COSMIC_CCDIR
+COSMIC_CCDIR := $(shell cygpath `cygpath -ms 'c:\Programmi\COSMIC\EVAL12X'`)
+endif
 
 
 ############################################################################
@@ -68,8 +89,8 @@ COSMIC_CCDIR := $(shell cygpath `cygpath -ms "c:\Programmi\COSMIC\EVAL12X"`)
 #
 ############################################################################
 COSMIC_MODEL           := MC9S12XS128
-COSMIC_LINKERSCRIPT    := mc9s12xs128.lkf
-COSMIC_INCLUDE_H       := hs12xsregs.h
+COSMIC_LINKERSCRIPT    := ../mc9s12xs128.lkf
+COSMIC_INCLUDE_H       := ioxs256.h
 COSMIC_INCLUDE_C       := vector_s12x.c
 COSMIC_INCLUDE_S       := crtsx.S
 

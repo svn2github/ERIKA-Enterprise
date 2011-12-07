@@ -47,12 +47,13 @@ CPU test_application {
 	OS EE {
 		EE_OPT = "DEBUG";
 		EE_OPT = "__ASSERT__";
-		//EE_OPT = "__S12XS_INCLUDE_REGS__";
+		
 		EE_OPT = "__CODEWARRIOR__"; 
 		/* If the compiler license is expired use this 
 		   option to avoid syntax errors during the compilation:
 		   EE_OPT = "CW_EVAL_VERSION"; 
 		*/
+		EE_OPT = "CW_EVAL_VERSION";
 		
 		CFLAGS = "-D__FAR_DATA";
 		ASFLAGS = "";
@@ -60,6 +61,7 @@ CPU test_application {
 
 		CPU_DATA = MC9S12XS {
 			APP_SRC = "main.c";
+			APP_SRC = "Start12.c";
 			MULTI_STACK = FALSE;
 			ICD = TRUE;
 		};
@@ -67,9 +69,9 @@ CPU test_application {
 		MCU_DATA = S12XS {
    			MODEL = CUSTOM{
     			MODEL = "MC9S12XS128";
-    			LINKERSCRIPT = "SofTec_HCS12_linker.prm";
+    			LINKERSCRIPT = "../SofTec_HCS12_linker.prm";
     			INCLUDE_H = "mc9s12xs128.h";
-    			INCLUDE_C = "Start12.c";
+    			INCLUDE_C = "mc9s12xs128.c";
     			INCLUDE_S = "";
    			};
   		};
@@ -81,7 +83,7 @@ CPU test_application {
 		AUTOSTART = FALSE;
 		STACK = SHARED;
 		ACTIVATION = 1;    /* only one pending activation */
-	};	
+	};
 
-    OS EE { KERNEL_TYPE = FP; }; 	
+    OS EE { KERNEL_TYPE = FP; };
 };

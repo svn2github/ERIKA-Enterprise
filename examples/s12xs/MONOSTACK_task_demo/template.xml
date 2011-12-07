@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<evidence_example version="1" ID="S12XS_COSMIC_EE_TEST9_MONOSTACK_TASKDEMO">
+<evidence_example version="1" ID="S12XS_COSMIC_EE_MONOSTACK_TASKDEMO">
 
  <category>s12xs/cosmic</category>
  <title>monostack_task_demo</title>
@@ -22,10 +22,10 @@
  </long_descr>
 
  <file_section>
-  <file     name="mc9s12xs128_lkf_template"/> 
+  <file     name="mc9s12xs128.lkf"/> 
   <file     name="conf.oil"/>
   <file     name="crtsx.S"/>
-  <file     name="hs12xsregs.h"/>
+  
   <file     name="main.c"/>
   <file     name="vector_s12x.c"/>
   <file     name="myapp.h"/>

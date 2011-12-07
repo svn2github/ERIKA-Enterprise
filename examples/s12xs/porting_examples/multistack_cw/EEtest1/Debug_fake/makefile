@@ -1,16 +1,12 @@
-# # Date             : 1/18/2010
-# RT-Druid version : 
-#
+### Setting Erika's variables:
+# ERIKA_FILES= ../../..
+# APPBASE = .
+# 
+# EEOPT =
 
-# these lines override the .bashrc definitions
-#EEBASE = ../../..
-#APPBASE = .
 
-###
-### Setting EEOPT variable:
-###
+RTDRUID_CONFIGURATOR_NUMBER:=1275
 
-EEOPT =
 
 
 ############################################################################
@@ -19,10 +15,10 @@ EEOPT =
 #
 ############################################################################
 EEOPT += DEBUG
-EEOPT += NODEPS
 EEOPT += __ASSERT__
-EEOPT += __S12XS_INCLUDE_REGS__
 EEOPT += __CODEWARRIOR__
+EEOPT += CW_EVAL_VERSION
+
 
 ############################################################################
 #
@@ -30,7 +26,7 @@ EEOPT += __CODEWARRIOR__
 #
 ############################################################################
 EEOPT += __RTD_CYGWIN__
-EEOPT += __COSMIC__
+EEOPT += __CODEWARRIOR__
 EEOPT += __HCS12XS__
 EEOPT += __MC9S12XS128__
 EEOPT += __DEMO9S12XSFAME__
@@ -41,7 +37,30 @@ EEOPT += __USE_LEDS__
 EEOPT += __USE_LIGHT_SENSOR__
 EEOPT += __FP__
 EEOPT += __MULTI__
-EEOPT += __FP_NO_RESOURCES__
+EEOPT += __DISABLE_EEOPT_DEFINES__
+
+
+############################################################################
+#
+# Erika base directory
+#
+############################################################################
+ifdef ERIKA_FILES
+ifdef EEBASE
+    $(warning EEBASE is set, but it has been overridden by ERIKA_FILES)
+endif
+EEBASE := $(shell cygpath `cygpath -ms '${ERIKA_FILES}'`)
+
+else # ERIKA_FILES
+
+ifndef EEBASE
+        EEBASE := $(shell cygpath `cygpath -ms 'C:\Evidence\eclipse_160_old\plugins\com.eu.evidence.ee_1.6.0.20111115_1040\ee_files'`)
+else
+        $(warning The usage of EEBASE is deprecated. Please use ERIKA_FILES)
+endif
+endif # ERIKA_FILES
+# ERIKA_FILES has fulfilled its role. Make sure it's not used inside Erika makefiles
+ERIKA_FILES :=
 
 
 ############################################################################
@@ -49,11 +68,16 @@ EEOPT += __FP_NO_RESOURCES__
 # Freescale S12
 #
 ############################################################################
-APPBASE := 
-OUTBASE := Debug_fake
+APPBASE := ..
+OUTBASE := Debug
 
-COSMIC_ASMDIR := $(shell cygpath `cygpath -ms "C:\Programmi\Freescale\CWS12v5.1"`)
-COSMIC_CCDIR := $(shell cygpath `cygpath -ms "C:\Programmi\Freescale\CWS12v5.1"`)
+ifndef COSMIC_ASMDIR
+COSMIC_ASMDIR := $(shell cygpath `cygpath -ms 'c:\Programmi\Freescale\CWS12v5.1'`)
+endif
+ifndef COSMIC_CCDIR
+COSMIC_CCDIR := $(shell cygpath `cygpath -ms 'c:\Programmi\Freescale\CWS12v5.1'`)
+endif
+
 
 ############################################################################
 #
@@ -62,7 +86,9 @@ COSMIC_CCDIR := $(shell cygpath `cygpath -ms "C:\Programmi\Freescale\CWS12v5.1"`
 ############################################################################
 COSMIC_MODEL           := MC9S12XS128
 COSMIC_LINKERSCRIPT    := SofTec_HCS12_linker.prm
-COSMIC_INCLUDE_C       := Start12.c
+COSMIC_INCLUDE_H       := mc9s12xs128.h
+COSMIC_INCLUDE_C       := mc9s12xs128.c
+
 
 ############################################################################
 #
@@ -71,7 +97,7 @@ COSMIC_INCLUDE_C       := Start12.c
 ############################################################################
 CFLAGS  += -D__FAR_DATA -Onf
 ASFLAGS += 
-LDFLAGS += -addansixbi.lib 
+LDFLAGS += -addansixbi.lib
 LDDEPS  += 
 LIBS    += 
 
@@ -82,7 +108,7 @@ LIBS    +=
 # Sources
 #
 ############################################################################
-APP_SRCS += eecfg.c $(COSMIC_INCLUDE_C) $(COSMIC_INCLUDE_S) main.c
+APP_SRCS += eecfg.c Start12.c $(COSMIC_INCLUDE_C) $(COSMIC_INCLUDE_S) main.c
 
 
 ############################################################################

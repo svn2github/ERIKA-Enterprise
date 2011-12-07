@@ -45,7 +45,7 @@
 #include "ee.h"
 #include "kernel/sem/inc/ee_sem.h"        							
 #include "test/assert/inc/ee_assert.h"
-#include "ee_hs12xsregs.h" 
+#include "ee_s12regs.h" 
 #define TRUE 1
 /* assertion data */
 EE_TYPEASSERTVALUE EE_assertions[10];

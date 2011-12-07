@@ -1,6 +1,9 @@
 #include "ee.h"
 
 
+
+
+
 /***************************************************************************
  *
  * Kernel ( CPU 0 )
@@ -10,28 +13,28 @@
     DeclareTask(Task1);
     DeclareTask(Task2);
 
-    const EE_ADDR EE_hal_thread_body[EE_MAX_TASK] = {
-        (EE_ADDR)EE_oo_thread_stub,		 /* thread Task1 */
-        (EE_ADDR)EE_oo_thread_stub 		 /* thread Task2 */
+    const EE_FADDR EE_hal_thread_body[EE_MAX_TASK] = {
+        (EE_FADDR)EE_oo_thread_stub,		 /* thread Task1 */
+        (EE_FADDR)EE_oo_thread_stub 		 /* thread Task2 */
 
     };
 
     EE_UINT16 EE_terminate_data[EE_MAX_TASK];
 
     /* ip of each thread body (ROM) */
-    const EE_ADDR EE_terminate_real_th_body[EE_MAX_TASK] = {
-        (EE_ADDR)FuncTask1,
-        (EE_ADDR)FuncTask2
+    const EE_FADDR EE_terminate_real_th_body[EE_MAX_TASK] = {
+        (EE_FADDR)FuncTask1,
+        (EE_FADDR)FuncTask2
     };
     /* ready priority */
     const EE_TYPEPRIO EE_th_ready_prio[EE_MAX_TASK] = {
-        0x1,		 /* thread Task1 */
-        0x2 		 /* thread Task2 */
+        0x1U,		 /* thread Task1 */
+        0x2U 		 /* thread Task2 */
     };
 
     const EE_TYPEPRIO EE_th_dispatch_prio[EE_MAX_TASK] = {
-        0x2,		 /* thread Task1 */
-        0x2 		 /* thread Task2 */
+        0x2U,		 /* thread Task1 */
+        0x2U 		 /* thread Task2 */
     };
 
     /* thread status */
@@ -50,7 +53,7 @@
     EE_TID EE_stkfirst = EE_NIL;
 
     /* system ceiling */
-    EE_TYPEPRIO EE_sys_ceiling= 0x0000;
+    EE_TYPEPRIO EE_sys_ceiling= 0x0000U;
 
     /* The priority queues: (8 priorities maximum!) */
     EE_TYPEPAIR EE_rq_queues_head[8] =
@@ -58,19 +61,18 @@
     EE_TYPEPAIR EE_rq_queues_tail[8] =
         { -1, -1, -1, -1, -1, -1, -1, -1};
 
-    EE_UINT8  EE_rq_bitmask = 0;
+    EE_TYPE_RQ_MASK  EE_rq_bitmask = 0U;
 
     /* remaining nact: init= maximum pending activations of a Task */
     EE_TYPEPRIO EE_th_rnact[EE_MAX_TASK] = {
-        1,		 /* thread Task1 */
-        6		 /* thread Task2 */
+        1U,		 /* thread Task1 */
+        6U		 /* thread Task2 */
     };
 
     EE_TYPEPRIO EE_rq_link[EE_MAX_TASK] =
-        { 0, 1};
+        { 0U, 1U};
 
-    /* The pairs that are enqueued into the priority queues (7 is the
-       total number of task activations) */
+    /* The pairs that are enqueued into the priority queues (7 is the total number of task activations) */
     EE_TYPEPAIR EE_rq_pairs_next[] =
         { 1, 2, 3, 4, 5, 6, -1};
 
@@ -107,10 +109,6 @@
         { Task2 };
 
     const struct EE_oo_autostart_task_type EE_oo_autostart_task_data[EE_MAX_APPMODE] = {
-        { 1, EE_oo_autostart_task_mode_OSDEFAULTAPPMODE}
+        { 1U, EE_oo_autostart_task_mode_OSDEFAULTAPPMODE}
     };
-
-
-#include "ee.h"
-
 

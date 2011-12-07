@@ -46,8 +46,10 @@
 #include "cpu/hs12xs/inc/ee_irqstub.h"
 #include "myapp.h"
 #include "console_serial.h"
-#include "ee_hs12xsregs.h"
+#include "ee_s12regs.h"
 #include "test/assert/inc/ee_assert.h"
+#include "mcu/hs12xs/inc/ee_pit.h"
+
 #define TRUE 1
 /* assertion data */
 EE_TYPEASSERTVALUE EE_assertions[10];
@@ -73,9 +75,6 @@ __INLINE__ void __ALWAYS_INLINE__ StartOS(int i)
 {
 }
 #endif
-
-
-double EE_BUS_CLOCK = 2e6;
 
 /* Let's declare the tasks identifiers */
 DeclareTask(Task1);
@@ -219,7 +218,8 @@ TASK(Task2)
 // MAIN function 
 int main()
 { 
-  EE_assert(1, TRUE, EE_ASSERT_NIL);	
+  EE_set_peripheral_frequency_mhz(2);
+  EE_assert(1, TRUE, EE_ASSERT_NIL);
   ///* Program Timer 1 to raise interrupts */
   EE_pit0_init(99, 14, 2);
   /* Init devices */
@@ -250,7 +250,7 @@ int main()
   return 0;
 }
 
-Bool message(void)
+int message(void)
 {
 	unsigned char byte;
 	char* msg = "I Love OSEK and Erika Enterprise!!!     ";

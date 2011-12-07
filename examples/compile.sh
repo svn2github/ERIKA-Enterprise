@@ -22,7 +22,8 @@ cd ../..
 printf "$1: OIL\n"
 printf "$1: OIL\n" >>regression/output.log
 cd regression/$1
-$4 $2 conf.oil Debug >>output.log 2>&1 || exit
+#$4 $2 conf.oil Debug >>output.log 2>&1 || exit
+$4 $2 -buildfile $2/evidence/build.xml -Din_conf_oil=conf.oil -Dconf_output_dir=Debug compile >>output.log 2>&1 || exit
 cd ../..
 
 printf "$1: Compile\n"

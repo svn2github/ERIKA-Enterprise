@@ -1,16 +1,12 @@
-# # Date             : 11/30/2009
-# RT-Druid version : 
-#
+### Setting Erika's variables:
+# ERIKA_FILES= ../../..
+# APPBASE = .
+# 
+# EEOPT =
 
-# these lines override the .bashrc definitions
-#EEBASE = ../../..
-#APPBASE = .
 
-###
-### Setting EEOPT variable:
-###
+RTDRUID_CONFIGURATOR_NUMBER:=1275
 
-EEOPT =
 
 
 ############################################################################
@@ -19,8 +15,13 @@ EEOPT =
 #
 ############################################################################
 EEOPT += DEBUG
-EEOPT += NODEPS
 EEOPT += __ASSERT__
+EEOPT += __S12XS_INCLUDE_REGS__
+EEOPT += __EE_STDINT_SKIP_64BIT__
+EEOPT += __ADD_LIBS__
+EEOPT += USE_CONSOLE
+EEOPT += USE_CONSOLE_SERIAL
+
 
 ############################################################################
 #
@@ -30,45 +31,62 @@ EEOPT += __ASSERT__
 EEOPT += __RTD_CYGWIN__
 EEOPT += __COSMIC__
 EEOPT += __HCS12XS__
+EEOPT += __USE_SCI__
+EEOPT += __USE_PIT__
 EEOPT += __MC9S12XS128__
+EEOPT += __DEMO9S12XSFAME__
+EEOPT += __USE_POTENTIOMETER__
+EEOPT += __USE_ADC__
+EEOPT += __USE_BUTTONS__
+EEOPT += __USE_LEDS__
+EEOPT += __USE_LIGHT_SENSOR__
 EEOPT += __OO_BCC1__
-EEOPT += __ALLOW_NESTED_IRQ__
 EEOPT += __OO_EXTENDED_STATUS__
 EEOPT += __MONO__
 EEOPT += __OO_NO_ALARMS__
 EEOPT += __OO_NO_RESOURCES__
 EEOPT += __OO_AUTOSTART_TASK__
+EEOPT += __ALLOW_NESTED_IRQ__
+EEOPT += __DISABLE_EEOPT_DEFINES__
 
-EEOPT += __S12XS_INCLUDE_REGS__
 
-EEOPT += __USE_SCI__
-EEOPT += __USE_PIT__
-EEOPT += __DEMO9S12XSFAME__
-EEOPT += __USE_LEDS__
-EEOPT += __USE_BUTTONS__
-#EEOPT += __USE_POTENTIOMETER__
-#EEOPT += __USE_ADC__
-#EEOPT += __USE_LIGHT_SENSOR__
+############################################################################
+#
+# Erika base directory
+#
+############################################################################
+ifdef ERIKA_FILES
+ifdef EEBASE
+    $(warning EEBASE is set, but it has been overridden by ERIKA_FILES)
+endif
+EEBASE := $(shell cygpath `cygpath -ms '${ERIKA_FILES}'`)
 
-EEOPT += USE_CONSOLE
-EEOPT += USE_CONSOLE_SERIAL
-EEOPT += __ADD_LIBS__
+else # ERIKA_FILES
 
-LIB_OPT  += __LIB_CONSOLE__
+ifndef EEBASE
+        EEBASE := $(shell cygpath `cygpath -ms 'C:\Evidence\eclipse_160_old\plugins\com.eu.evidence.ee_1.6.0.20111115_1040\ee_files'`)
+else
+        $(warning The usage of EEBASE is deprecated. Please use ERIKA_FILES)
+endif
+endif # ERIKA_FILES
+# ERIKA_FILES has fulfilled its role. Make sure it's not used inside Erika makefiles
+ERIKA_FILES :=
+
 
 ############################################################################
 #
 # Freescale S12
 #
 ############################################################################
-#EVIDENCEBASE := $(shell cygpath `cygpath -ms "C:\Evidence\Evidence\eclipse\plugins\com.eu.evidence.ee_1.0.0.200911272111"`)
-#EEBASE  := $(shell cygpath `cygpath -ms "C:\Evidence\Evidence\eclipse\plugins\com.eu.evidence.ee_1.0.0.200911272111\ee_base"`)
-EEBASE  := $(shell cygpath `cygpath -ms "C:\cygwin\home\Dario\repos\ee\trunk\ee"`)
-APPBASE := 
+APPBASE := ..
 OUTBASE := Debug
 
-COSMIC_ASMDIR := $(shell cygpath `cygpath -ms "c:\Programmi\COSMIC\EVAL12X"`)
-COSMIC_CCDIR := $(shell cygpath `cygpath -ms "c:\Programmi\COSMIC\EVAL12X"`)
+ifndef COSMIC_ASMDIR
+COSMIC_ASMDIR := $(shell cygpath `cygpath -ms 'c:\Programmi\COSMIC\EVAL12X'`)
+endif
+ifndef COSMIC_CCDIR
+COSMIC_CCDIR := $(shell cygpath `cygpath -ms 'c:\Programmi\COSMIC\EVAL12X'`)
+endif
 
 
 ############################################################################
@@ -77,8 +95,8 @@ COSMIC_CCDIR := $(shell cygpath `cygpath -ms "c:\Programmi\COSMIC\EVAL12X"`)
 #
 ############################################################################
 COSMIC_MODEL           := MC9S12XS128
-COSMIC_LINKERSCRIPT    := mc9s12xs128.lkf
-COSMIC_INCLUDE_H       := hs12xsregs.h
+COSMIC_LINKERSCRIPT    := ../mc9s12xs128.lkf
+COSMIC_INCLUDE_H       := ioxs256.h
 COSMIC_INCLUDE_C       := vector_s12x.c
 COSMIC_INCLUDE_S       := crtsx.S
 
@@ -94,6 +112,7 @@ LDFLAGS += -p -sa -m mapfile.map
 LDDEPS  += 
 LIBS    += 
 
+LIB_OPT  += __LIB_CONSOLE__
 
 
 ############################################################################

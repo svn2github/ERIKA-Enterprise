@@ -6,9 +6,11 @@
 #include <math.h>
 #include "ee.h"
 #include "cpu/hs12xs/inc/ee_irqstub.h"
-#include "ee_hs12xsregs.h" 
+#include "ee_s12regs.h" 
 
 #include "myapp.h"
+#include "mcu/hs12xs/inc/ee_pit.h"
+#include "mcu/hs12xs/inc/ee_sci.h"
  
 extern volatile int timer_fired;
 extern volatile int timer_divisor; 

@@ -46,14 +46,14 @@
 #include "cpu/hs12xs/inc/ee_irqstub.h"
 #include "myapp.h"
 
-#include "ee_hs12xsregs.h"
+#include "ee_s12regs.h"
 #include "test/assert/inc/ee_assert.h"
+#include "mcu/hs12xs/inc/ee_pit.h"
+#include "mcu/hs12xs/inc/ee_sci.h"
+
 #define TRUE 1
 /* assertion data */
 EE_TYPEASSERTVALUE EE_assertions[10];
-
-
-double EE_BUS_CLOCK = 2e6;
 
 /* Let's declare the tasks identifiers */
 DeclareTask(Task1);
@@ -179,9 +179,10 @@ int main(void)
   char *dec = "Decrement mode when Task2 runs!!!";
   char *intro = "I Love OSEK and Erika Enterprise!!!";
 
+  EE_set_peripheral_frequency_mhz(2);
   EE_assert(1, TRUE, EE_ASSERT_NIL);		
 
-  EE_sci_open(SCI_0,(unsigned long int)EE_BUS_CLOCK,(unsigned long int)9600);
+  EE_sci_open(SCI_0,(unsigned long int)9600);
   EE_buttons_init(BUTTON_0,3);
   EE_leds_init();
   mydelay(10);

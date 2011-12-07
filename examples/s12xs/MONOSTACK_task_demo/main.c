@@ -46,7 +46,10 @@
 #include "cpu/hs12xs/inc/ee_irqstub.h"
 #include "myapp.h"
 
-#include "ee_hs12xsregs.h"
+#include "ee_s12regs.h"
+#include "mcu/hs12xs/inc/ee_sci.h"
+#include "mcu/hs12xs/inc/ee_pit.h"
+
 #include "test/assert/inc/ee_assert.h"
 #define TRUE 1
 /* assertion data */
@@ -73,8 +76,6 @@ __INLINE__ void __ALWAYS_INLINE__ StartOS(int i)
 {
 }
 #endif
-
-double EE_BUS_CLOCK = 2e6;
 
 /* Let's declare the tasks identifiers */
 DeclareTask(Task1);
@@ -218,13 +219,14 @@ TASK(Task2)
 // MAIN function 
 int main()
 { 
+  EE_set_peripheral_frequency_mhz(2);
   EE_assert(1, TRUE, EE_ASSERT_NIL);		
 	
   /* Analog to digital converter */
   //EE_adc_init( (unsigned char)ATDRES_8BIT, 0x02 );
   
   /* Serial interface */
-  EE_sci_open(SCI_0,(unsigned long int)EE_BUS_CLOCK,(unsigned long int)9600);
+  EE_sci_open(SCI_0,(unsigned long int)9600);
   
   ///* Program Timer 1 to raise interrupts */
   EE_pit0_init(99, 14, 2);

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<evidence_example version="1" ID="S12XS_CODEWARRIOR_EE_TEST9_MONOSTACK_TASKDEMO">
+<evidence_example version="1" ID="S12XS_CODEWARRIOR_EE_MONOSTACK_TASKDEMO">
 
  <category>s12xs/codewarrior</category>
  <title>monostack_task_demo</title>

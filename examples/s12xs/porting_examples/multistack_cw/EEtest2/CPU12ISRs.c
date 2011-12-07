@@ -13,10 +13,10 @@
 //#include "main.h"
 #include "start12.h"		     /* to call the C-startup code */
 #include "CPU12ISRs.h"
-#include "mc9s12xs128.h"
+#include "mcu/hs12xs/inc/ee_pit.h"
 
-#include "ee.h"
-#include "test/assert/inc/ee_assert.h"
+
+
 
 /*
 #pragma CODE_SEG __NEAR_SEG NON_BANKED  // make sure this code is located in non banked 
@@ -291,7 +291,7 @@ ISR2 ( CPU12PIT0ISR )
         ActivateTask(Task2);
         if(timer_fired==1)
         		EE_assert(2, timer_fired==1, 1);
-        if(timer_fired==10)
+        if(timer_fired==3)
         {
         		EE_pit0_close();
         		EE_assert_range(0,1,4);

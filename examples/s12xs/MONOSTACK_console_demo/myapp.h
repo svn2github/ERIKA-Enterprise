@@ -46,7 +46,7 @@
 #define __MYAPP__
 
 void mydelay(long int end);
-Bool message(void);
+int message(void);
 void led_blink(unsigned char theled);
 
 #define MY_FIRST_SERIAL 0

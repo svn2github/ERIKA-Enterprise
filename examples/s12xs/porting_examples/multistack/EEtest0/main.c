@@ -45,7 +45,7 @@
 #include "ee.h"
 #include "cpu/hs12xs/inc/ee_irqstub.h"
 #include "myapp.h"
-#include "ee_hs12xsregs.h" 
+#include "ee_s12regs.h" 
 #include "test/assert/inc/ee_assert.h"
 
 #define TRUE 1

@@ -69,6 +69,7 @@ TASK(Task1)
 {
     counter_taskS++;
     EE_assert(2, counter_taskS==1, 1);
+	PIT_Program();
     while(1)
     	if(counter_isr > 20)
     		break;
@@ -94,7 +95,6 @@ int main(void)
 	
 	Interrupt_Init();
 	Periph_Init();
-	PIT_Program();
 	ActivateTask(Task1);
 	counter++;
 	EE_assert(6, counter==1, 5);

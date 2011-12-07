@@ -45,7 +45,7 @@
 #include "ee.h"
 #include "cpu/hs12xs/inc/ee_irqstub.h"
 #include "test/assert/inc/ee_assert.h"
-#include "mc9s12xs128.h" 
+#include "ee_s12regs.h" 
 #define TRUE 1
 
 /* assertion data */

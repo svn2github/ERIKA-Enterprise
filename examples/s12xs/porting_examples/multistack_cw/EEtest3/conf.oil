@@ -47,12 +47,13 @@ CPU test_application {
 	OS EE {
 		EE_OPT = "DEBUG";
 		EE_OPT = "__ASSERT__";
-		EE_OPT = "__S12XS_INCLUDE_REGS__";
+
 		EE_OPT = "__CODEWARRIOR__"; 
 		/* If the compiler license is expired use this 
 		   option to avoid syntax errors during the compilation:
 		   EE_OPT = "CW_EVAL_VERSION"; 
 		*/
+		EE_OPT = "CW_EVAL_VERSION"; 
 		
 		CFLAGS = "-D__FAR_DATA -Onf";
 		ASFLAGS = "";
@@ -62,6 +63,7 @@ CPU test_application {
 			APP_SRC = "main.c";
 			APP_SRC = "CPU12ISRs.c";
 			APP_SRC = "Vectors.c";
+			APP_SRC = "Start12.c";
 			MULTI_STACK = TRUE {
 				IRQ_STACK = TRUE {
 					SYS_SIZE=512;
@@ -72,9 +74,9 @@ CPU test_application {
 		MCU_DATA = S12XS {
    			MODEL = CUSTOM{
     			MODEL = "MC9S12XS128";
-    			LINKERSCRIPT = "SofTec_HCS12_linker.prm";
+    			LINKERSCRIPT = "../SofTec_HCS12_linker.prm";
     			INCLUDE_H = "mc9s12xs128.h";
-    			INCLUDE_C = "Start12.c";
+    			INCLUDE_C = "mc9s12xs128.c";
     			INCLUDE_S = "";
    			};
 			TIMER = TRUE;
