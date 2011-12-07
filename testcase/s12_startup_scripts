@@ -1,0 +1,7 @@
+# This script is needed to compile a distribution for S12.
+# Execute it using ". ./filename" before to run compilation of testcases.
+export RTDRUID_ECLIPSE_HOME=C:/Evidence/eclipse
+
+# If you want to change repository use ERIKA_FILES
+export ERIKA_FILES=C:/Dario/EE_svn/repos/ee/trunk/ee
+

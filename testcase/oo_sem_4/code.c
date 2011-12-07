@@ -154,16 +154,15 @@ static void handle_timer_interrupt(void* context, alt_u32 id)
 }
 #endif
 
-#if defined(__HCS12XS__)
+#if defined(__HCS12XS__) || defined(__MC9S12__)
 	#include "cpu/hs12xs/inc/ee_irqstub.h"
-	#include "ee_hs12xsregs.h" 
-	ISR2(myISR2)
-	{
+	#include "ee_s12regs.h" 
+	#include "mcu/hs12xs/inc/ee_timer.h"
+	#define myISR2 CPU12TimerCh0ISR
+	ISR2(myISR2) {
 		
 		StatusType s;
   		unsigned int v;
-  
-  		PITTF         	= 0x01;
   
 	  /* SemPost chiamato in un ISR con contatore >=0 e nessuno bloccato 
 	   * --> contatore incrementato */
@@ -182,7 +181,9 @@ static void handle_timer_interrupt(void* context, alt_u32 id)
 	  EE_assert(5, (v = EE_MAX_SEM_COUNTER), 4);
 	
 	  wecanstart=1;
-  	  EE_pit0_close();
+	  EE_timer_clear_ISRflag(EE_TIMER_0); 
+	  EE_timer_disable_ISR(EE_TIMER_0);
+	  EE_timer_stop();
 	}
 #endif
 
@@ -227,8 +228,10 @@ void StartupHook(void)
     
   	alt_irq_register (HIGH_RES_TIMER_IRQ, NULL, handle_timer_interrupt);    
   	#endif
-  	#if defined(__HCS12XS__)
-  		EE_pit0_init(99, 140, 2);
+  	#if defined(__HCS12XS__) || defined(__MC9S12__)
+		EE_set_peripheral_frequency_mhz(8);
+		EE_timer_init_ms(EE_TIMER_0, 10, EE_TIMER_ISR_ON);
+		EE_timer_start();
 	#endif 
 	#if defined(__PPCE200Z7__)
 		EE_e200z7_register_ISR(10, handle_timer_interrupt, 0);
@@ -243,10 +246,6 @@ int main(void)
   StatusType s;
   unsigned int v;
   
-  
-	#if defined(__HCS12XS__)
-   	_asm("cli");
-	#endif
 	#if defined(__PPCE200Z7__)
 	EnableAllInterrupts();
 	#endif

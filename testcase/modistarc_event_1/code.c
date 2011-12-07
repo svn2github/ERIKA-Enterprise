@@ -78,9 +78,11 @@ alt_u32 mycallback (void* arg)
 #include "arm7gnu/janus/stub.h"
 _ISR2(myISR2)
 #else
-	#if defined(__HCS12XS__)
+	#if defined(__HCS12XS__) || defined(__MC9S12__)
 		#include "cpu/hs12xs/inc/ee_irqstub.h"
-		#include "ee_hs12xsregs.h" 
+		#include "ee_s12regs.h" 
+		#include "mcu/hs12xs/inc/ee_timer.h"
+		#define myISR2 CPU12TimerCh0ISR
 		ISR2(myISR2)
 	#else
 		static void myISR2(void)
@@ -102,9 +104,10 @@ _ISR2(myISR2)
   *OCCDEFINT &= ~INTF0B;
 #endif
 
-#if defined(__HCS12XS__)
-	PITTF         	= 0x01;
-	PITCE 			= 0;
+#if defined(__HCS12XS__) || defined(__MC9S12__)
+	EE_timer_clear_ISRflag(EE_TIMER_0); 
+	EE_timer_disable_ISR(EE_TIMER_0);
+	EE_timer_stop();
 #endif
 }
 
@@ -216,9 +219,11 @@ int main(int argc, char **argv)
 
 #endif
 
-#if defined(__HCS12XS__)
+#if defined(__HCS12XS__) || defined(__MC9S12__)
 
-  EE_pit0_init(99, 140, 2);
+  EE_set_peripheral_frequency_mhz(8);
+  EE_timer_init_ms(EE_TIMER_0, 10, EE_TIMER_ISR_ON);
+  EE_timer_start();
 
 #endif
 

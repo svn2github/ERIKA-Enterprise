@@ -68,7 +68,7 @@ CPU test_application {
 #include "../common/rtdruid_common/ee_oil_e7t_os.h"
 #include "../common/rtdruid_common/ee_oil_nios2_os.h"
 #include "../common/rtdruid_common/ee_oil_pic30_os.h"
-#include "../common/rtdruid_common/ee_oil_s12xs_os.h"
+#include "../common/rtdruid_common/ee_oil_s12_os.h"
 #include "../common/rtdruid_common/ee_oil_e200zx_os.h"
 #include "../common/rtdruid_common/ee_oil_cortex_m0_os.h"
 
@@ -93,7 +93,7 @@ CPU test_application {
 /* Multi Stack */
 			MULTI_STACK = TRUE {
 				IRQ_STACK = FALSE;
-#if !defined(pic30) && !defined(s12xs) && !defined(e200zx) && !defined(cortex_m0)
+#if !defined(pic30) && !defined(s12) && !defined(e200zx) && !defined(cortex_m0)
 				DUMMY_STACK = SHARED;
 #endif
 			};
@@ -145,7 +145,7 @@ CPU test_application {
 			SYS_SIZE = 0x100;
 		};
 #endif
-#ifdef s12xs
+#ifdef s12
 		STACK = PRIVATE {
 			SYS_SIZE = 0x100;
 		};
@@ -197,7 +197,7 @@ CPU test_application {
 			SYS_SIZE = 0x100;
 		};
 #endif
-#ifdef s12xs
+#ifdef s12
 		STACK = PRIVATE {
 			SYS_SIZE = 0x100;
 		};
@@ -248,7 +248,7 @@ CPU test_application {
 			SYS_SIZE = 0x100;
 		};
 #endif
-#ifdef s12xs
+#ifdef s12
 		STACK = PRIVATE {
 			SYS_SIZE = 0x100;
 		};
@@ -299,7 +299,7 @@ CPU test_application {
 			SYS_SIZE = 0x100;
 		};
 #endif
-#ifdef s12xs
+#ifdef s12
 		STACK = PRIVATE {
 			SYS_SIZE = 0x100;
 		};
@@ -350,7 +350,7 @@ CPU test_application {
 			SYS_SIZE = 0x100;
 		};
 #endif
-#ifdef s12xs
+#ifdef s12
 		STACK = PRIVATE {
 			SYS_SIZE = 0x100;
 		};
@@ -401,7 +401,7 @@ CPU test_application {
 			SYS_SIZE = 0x100;
 		};
 #endif
-#ifdef s12xs
+#ifdef s12
 		STACK = PRIVATE {
 			SYS_SIZE = 0x100;
 		};
@@ -452,7 +452,7 @@ CPU test_application {
 			SYS_SIZE = 0x100;
 		};
 #endif
-#ifdef s12xs
+#ifdef s12
 		STACK = PRIVATE {
 			SYS_SIZE = 0x100;
 		};
@@ -503,7 +503,7 @@ CPU test_application {
 			SYS_SIZE = 0x100;
 		};
 #endif
-#ifdef s12xs
+#ifdef s12
 		STACK = PRIVATE {
 			SYS_SIZE = 0x100;
 		};
@@ -554,7 +554,7 @@ CPU test_application {
 			SYS_SIZE = 0x100;
 		};
 #endif
-#ifdef s12xs
+#ifdef s12
 		STACK = PRIVATE {
 			SYS_SIZE = 0x100;
 		};
@@ -605,7 +605,7 @@ CPU test_application {
 			SYS_SIZE = 0x100;
 		};
 #endif
-#ifdef s12xs
+#ifdef s12
 		STACK = PRIVATE {
 			SYS_SIZE = 0x100;
 		};
@@ -656,7 +656,7 @@ CPU test_application {
 			SYS_SIZE = 0x100;
 		};
 #endif
-#ifdef s12xs
+#ifdef s12
 		STACK = PRIVATE {
 			SYS_SIZE = 0x100;
 		};
@@ -707,7 +707,7 @@ CPU test_application {
 			SYS_SIZE = 0x100;
 		};
 #endif
-#ifdef s12xs
+#ifdef s12
 		STACK = PRIVATE {
 			SYS_SIZE = 0x100;
 		};
@@ -758,7 +758,7 @@ CPU test_application {
 			SYS_SIZE = 0x100;
 		};
 #endif
-#ifdef s12xs
+#ifdef s12
 		STACK = PRIVATE {
 			SYS_SIZE = 0x100;
 		};
@@ -809,7 +809,7 @@ CPU test_application {
 			SYS_SIZE = 0x100;
 		};
 #endif
-#ifdef s12xs
+#ifdef s12
 		STACK = PRIVATE {
 			SYS_SIZE = 0x100;
 		};
@@ -860,7 +860,7 @@ CPU test_application {
 			SYS_SIZE = 0x100;
 		};
 #endif
-#ifdef s12xs
+#ifdef s12
 		STACK = PRIVATE {
 			SYS_SIZE = 0x100;
 		};
@@ -911,7 +911,7 @@ CPU test_application {
 			SYS_SIZE = 0x100;
 		};
 #endif
-#ifdef s12xs
+#ifdef s12
 		STACK = PRIVATE {
 			SYS_SIZE = 0x100;
 		};

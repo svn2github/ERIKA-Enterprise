@@ -72,8 +72,8 @@ CPU test_application {
 		EE_OPT = "__USE_TIMER__";
 #endif
 
-#ifdef s12xs
-			EE_OPT = "__S12_PIT0_ISR2_CODEc__";
+#ifdef s12
+			EE_OPT = "__USE_TIMER__";
 #endif
 
 // MCU_DATA and CPU_DATA
@@ -81,7 +81,7 @@ CPU test_application {
 #include "../common/rtdruid_common/ee_oil_janus_os.h"
 #include "../common/rtdruid_common/ee_oil_nios2_os.h"
 #include "../common/rtdruid_common/ee_oil_pic30_os.h"
-#include "../common/rtdruid_common/ee_oil_s12xs_os.h"
+#include "../common/rtdruid_common/ee_oil_s12_os.h"
 #include "../common/rtdruid_common/ee_oil_e200zx_os.h"
 #include "../common/rtdruid_common/ee_oil_cortex_m0_os.h"
 
@@ -94,7 +94,7 @@ CPU test_application {
 #if defined(E1) || defined(E2)
 			MULTI_STACK = TRUE {
 				IRQ_STACK = FALSE;
-#if !defined(pic30) && !defined(s12xs) && !defined(e200zx) && !defined(cortex_m0)
+#if !defined(pic30) && !defined(s12) && !defined(e200zx) && !defined(cortex_m0)
 				DUMMY_STACK = SHARED;
 #endif
 			};
@@ -116,10 +116,10 @@ CPU test_application {
 #endif
 
 		//ORTI_SECTIONS = ALL;
-		ORTI_SECTIONS = OS_SECTION;
-		ORTI_SECTIONS = TASK_SECTION;
-		ORTI_SECTIONS = RESOURCE_SECTION;
-		ORTI_SECTIONS = STACK_SECTION;
+		//ORTI_SECTIONS = OS_SECTION;
+		//ORTI_SECTIONS = TASK_SECTION;
+		//ORTI_SECTIONS = RESOURCE_SECTION;
+		//ORTI_SECTIONS = STACK_SECTION;
 		//ORTI_SECTIONS = ALARM_SECTION;
 
 

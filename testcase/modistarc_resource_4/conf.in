@@ -2,5 +2,5 @@ conf = CONF=B1,B2,E1,E2
 worksfor = e7t
 worksfor += nios2_dist_bin_full nios2_dist_src
 worksfor += pic30
-worksfor += s12xs e200zx e200zx_diab_vle e200zx_codewarrior_vle e200zx_codewarrior_fle
+worksfor += s12xs_cosmic s12xs_cw s12g_cw e200zx e200zx_diab_vle e200zx_codewarrior_vle e200zx_codewarrior_fle
 worksfor += cortex_m0

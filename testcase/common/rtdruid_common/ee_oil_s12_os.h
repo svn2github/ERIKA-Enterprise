@@ -38,7 +38,7 @@
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
 
-#ifdef s12xs
+#if defined(s12xs_cosmic)
 
 	EE_OPT = "DEBUG";
 	EE_OPT = "__S12XS_INCLUDE_REGS__";
@@ -48,21 +48,50 @@
 	LDFLAGS = "-p -sa -m mapfile.map";
 
 	MCU_DATA = S12XS {
-   			MODEL = CUSTOM{
-    			MODEL = "MC9S12XS128";
-    			LINKERSCRIPT = "mc9s12xs128.lkf";
-    			INCLUDE_H = "hs12xsregs.h";
-   			};
-   			TIMER = TRUE;
+		MODEL = CUSTOM{
+			MODEL = "MC9S12XS128";
+			LINKERSCRIPT = "../mc9s12xs128.lkf";
+			INCLUDE_H = "ioxs256.h";
+			INCLUDE_S = "crtsx.S";
+		};
 	};
-	
+
 	BOARD_DATA = DEMO9S12XSFAME {
-			OPTIONS = ALL;
+		OPTIONS = ALL;
 	};
 
 	CPU_DATA = MC9S12XS {
-  			APP_SRC = "code.c";
-  			APP_SRC = "crtsx.S";
-  			APP_SRC= "vector_s12x.c";
-  
+		APP_SRC = "code.c";
+		APP_SRC = "vector_s12x.c";
+
+#elif defined(s12xs_cw)
+
+// todo
+
+#elif defined(s12g_cw)
+
+	EE_OPT = "DEBUG";
+	EE_OPT = "__CODEWARRIOR__"; 
+	EE_OPT = "CW_EVAL_VERSION"; 
+
+	CFLAGS = "-D__FAR_DATA";
+	ASFLAGS = "";
+	LDFLAGS = "-addansibi.lib"; 
+
+	MCU_DATA = S12XS {
+		MODEL = CUSTOM{
+			MODEL = "MC9S12G128";
+			LINKERSCRIPT = "../mc9s12g128.prm";
+			INCLUDE_H = "mc9s12g128.h";
+			INCLUDE_C = "mc9s12g128.c";
+			INCLUDE_S = "";
+		};
+	};
+
+	CPU_DATA = MC9S12XS {
+		APP_SRC = "code.c";
+		APP_SRC = "Vectors.c";
+		APP_SRC = "CPU12ISRs.c";
+		APP_SRC = "Start12.c";
+
 #endif

@@ -61,8 +61,7 @@
 #
 +seg .ftext -b 0x7e0000 -o 0x8000 -w 0x4000 -n .ftext -f 0xFF -m 0x14000	# banked - 5th bank
 # Place obj files for the banked section here
-"obj\code.o"
-"obj\eecfg.o"
+"obj\main.o"
 
 #
 +seg .ftext -b 0x7f8000 -o 0x8000 -w 0x4000 -n .ftext -f 0xFF -m 0x4000		# banked - 6th bank
@@ -78,5 +77,11 @@
 +seg .text -b 0x7fc700 -ds14 -o 0xc700 -m 0x16ee -n .code2 -it -f 0xFF		# unbanked code
 
 # Place obj files for the unbanked section here
-"obj\crtsx.o"																# startup file                                            
+"obj\crtsx.o"
 # Place libraries and Erika RTOS obj-files list here
+"obj\eecfg.o"
+"libee.x12"
+"C:/PROGRA~1/COSMIC/EVAL12X/Lib/libe.x12"
+"C:/PROGRA~1/COSMIC/EVAL12X/Lib/libf.x12"
+"C:/PROGRA~1/COSMIC/EVAL12X/Lib/libi.x12"
+"C:/PROGRA~1/COSMIC/EVAL12X/Lib/libm.x12"

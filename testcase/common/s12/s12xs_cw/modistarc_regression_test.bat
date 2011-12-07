@@ -20,7 +20,6 @@ rem ***************************************************************
 rem Are you here because the script can not find the bash shell?
 rem Please change the following line!
 set EE_BASH_PATH=C:\cygwin\bin\bash.exe
-set TESTCASE_PATH=C:\cygwin\home\user\repos\ee\trunk\ee\testcase
 if not exist %EE_BASH_PATH% goto error
 
 rem ***************************************************************
@@ -31,7 +30,7 @@ IF "%1" EQU "hiwave" goto hiwave
 
 :ok
 set OLDDIR=%CD%
-cd %TESTCASE_PATH%
+cd %ERIKA_FILES%\testcase
 echo ...wait a moment, please, the selected operation is in progress...
 set SHELLOPTS=igncr
 %EE_BASH_PATH% -c "/bin/bash --login -c \"cd `/bin/cygpath/ -ms \"$PWD\"`; ./common/s12xs/modistarc_compile.sh %1 \""
@@ -53,8 +52,8 @@ goto end
 rem ***************************************************************
 
 :hiwave
-::C:\Programmi\Freescale\CodeWarriorHCS12V4_7\Prog\hiwave.exe -Prod=%TESTCASE_PATH%\common\s12xs\Full_Chip_Simulation.ini -c %TESTCASE_PATH%\tmp\s12xs.cmd
-C:\Programmi\Freescale\CodeWarriorHCS12V4_7\Prog\hiwave.exe -Prod=%TESTCASE_PATH%\common\s12xs\SofTec_HCS12.ini -c %TESTCASE_PATH%\tmp\s12xs.cmd -instance=softec
+::C:\Programmi\Freescale\CWS12v5.1\Prog\hiwave.exe -Prod=%ERIKA_FILES%\testcase\common\s12xs\Full_Chip_Simulation.ini -c %ERIKA_FILES%\testcase\tmp\s12.cmd
+C:\Programmi\Freescale\CWS12v5.1\Prog\hiwave.exe -Prod=%ERIKA_FILES%\testcase\common\s12\s12xs_cw\SofTec_HCS12.ini -c %ERIKA_FILES%\testcase\tmp\s12.cmd -instance=softec
 
 rem ***************************************************************
 

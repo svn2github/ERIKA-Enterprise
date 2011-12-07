@@ -1,8 +1,0 @@
-# This script is needed to compile a distribution for S12.
-# Execute it using ". ./filename" before to run compilation of testcases.
-
-export ECLIPSE_HOME=C:/Evidence/eclipse
-
-# If you want to change repository use EEBASE.
-#export EEBASE=/cygdrive/c/...
-

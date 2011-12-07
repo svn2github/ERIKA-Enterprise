@@ -6,11 +6,13 @@
 #include <math.h>
 #include "ee.h"
 #include "cpu/hs12xs/inc/ee_irqstub.h"
-#include "ee_hs12xsregs.h" 
+#include "ee_s12regs.h" 
+
+#define myISR2 CPU12TimerCh0ISR
 
 volatile int dummitISR_counter = 0;
 
-#ifdef __S12_PIT0_ISR2_CODEc__
+#ifdef __USE_TIMER__
 	@interrupt @near void myISR2(void);
 #else
 	@interrupt @near void myISR2(void)

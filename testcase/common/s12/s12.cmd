@@ -11,4 +11,4 @@ printf("MODISTARC regression tests in progress...")
 cf s12xs_jobs.cmd        
 printf("...Done!!!")
 nolf
-cd ..\common\s12xs
+cd ..\common\s12

@@ -41,10 +41,8 @@
 #include "ee.h"
 #include "test/assert/inc/ee_assert.h"
 
-#ifndef __HCS12XS__
 #define TRUE 1
 #define FALSE 1
-#endif
 
 /* assertion data */
 EE_TYPEASSERTVALUE EE_assertions[6];
