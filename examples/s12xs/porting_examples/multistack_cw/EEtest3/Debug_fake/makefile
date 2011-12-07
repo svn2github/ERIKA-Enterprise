@@ -88,7 +88,7 @@ endif
 #
 ############################################################################
 COSMIC_MODEL           := MC9S12XS128
-COSMIC_LINKERSCRIPT    := SofTec_HCS12_linker.prm
+COSMIC_LINKERSCRIPT    := ../SofTec_HCS12_linker.prm
 COSMIC_INCLUDE_H       := mc9s12xs128.h
 COSMIC_INCLUDE_C       := mc9s12xs128.c
 

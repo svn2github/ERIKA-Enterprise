@@ -13,11 +13,8 @@
 //#include "main.h"
 #include "start12.h"		     /* to call the C-startup code */
 #include "CPU12ISRs.h"
-#include "mc9s12xs128.h"
-
-#include "ee.h"
-#include "test/assert/inc/ee_assert.h"
 #include "myapp.h"
+
 
 /*
 #pragma CODE_SEG __NEAR_SEG NON_BANKED  // make sure this code is located in non banked 
@@ -1010,17 +1007,15 @@ ISR2 ( CPU12TimerOVISR )
 }	/* end CPU12TimerOVISR */
 
 /*************************************************************************************/
+extern volatile int timer_fired;
 
 ISR2 ( CPU12TimerCh7ISR )
 
  {
-  
- /* Variable Declarations */
-
- 
- /* Begin Function CPU12TimerCh7ISR() */
- 
- _asm("bgnd");
+	timer_fired++;
+	/* Clear interrupt flag */
+	EE_timer_clear_ISRflag(EE_TIMER_COUNTER);
+	CounterTick(Counter1);
  
 }	/* end CPU12TimerCh7ISR */
 
@@ -1115,30 +1110,17 @@ ISR2 ( CPU12TimerCh1ISR )
 }	/* end CPU12TimerCh1ISR */
 
 /*************************************************************************************/
-extern volatile int timer_fired;
 
 ISR2 ( CPU12TimerCh0ISR )
-
  {
- 
-	unsigned int val = TC0;
-	int diff;
-	timer_fired++;
-	/* clear the interrupt source */
-	TFLG1 = 0x01;	// Clear interrupt flag
-
-	//if (  ((signed)(TCNT-TC0)) >= 0) 	// to avoid spurious interrupts...
-	if (  ((signed)(TCNT-TC0)) >= 0)
-	{
-		do
-		{
-			CounterTick(Counter1);	
-			val += (unsigned int)(EE_TIMER0_STEP);
-   			TC0 = val;					// to manage critical courses...
-   			diff=((signed)(TCNT-val));
-		}while( diff >= 0);
-	}
   
+ /* Variable Declarations */
+
+ 
+ /* Begin Function CPU12TimerCh0ISR() */
+ 
+ _asm("bgnd");
+ 
 }	/* end CPU12TimerCh0ISR */
 
 /*************************************************************************************/

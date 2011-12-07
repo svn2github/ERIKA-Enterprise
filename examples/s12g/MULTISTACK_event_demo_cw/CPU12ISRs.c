@@ -146,9 +146,25 @@ ISR2 ( CPU12TimerOVISR ) {
  _asm("bgnd");
 }
 /*************************************************************************************/
+extern volatile int timer_divisor; 
+extern volatile int button_fired;
 
 ISR2 ( CPU12TimerCh7ISR ) {
- _asm("bgnd");
+
+	/* Clear interrupt flag */
+	EE_timer_clear_ISRflag(EE_TIMER_COUNTER);
+	
+	timer_divisor++;
+	if ( (timer_divisor%10==0) && (EE_button_get_B1()) ) {
+		button_fired++;
+		/* arm an alarm that will activated Task2 */ 
+		SetRelAlarm(AlarmTask2, EE_STATIC_ALARM_TIME, EE_STATIC_CYCLE_TIME);//SetRelAlarm(AlarmTask2, 1000, 0);
+		/* set an event to wake up Task1 */
+		SetEvent(Task1, ButtonEvent);
+	}
+	
+	CounterTick(Counter1);
+
 }
 /*************************************************************************************/
 
@@ -181,32 +197,9 @@ ISR2 ( CPU12TimerCh1ISR ) {
  _asm("bgnd");
 }
 /*************************************************************************************/
-extern volatile int timer_divisor; 
-extern volatile int button_fired;
+
 ISR2 (  CPU12TimerCh0ISR ) {
-	unsigned int val = TC0;
-	int diff;
-	
-	/* clear the interrupt source */
-	EE_timer_clear_ISRflag(EE_TIMER_0);
-	
-	timer_divisor++;
-	if ( (timer_divisor%10==0) && (EE_button_get_B1()) ) {
-		button_fired++;
-		/* arm an alarm that will activated Task2 */ 
-		SetRelAlarm(AlarmTask2, EE_STATIC_ALARM_TIME, EE_STATIC_CYCLE_TIME);//SetRelAlarm(AlarmTask2, 1000, 0);
-		/* set an event to wake up Task1 */
-		SetEvent(Task1, ButtonEvent);
-	}
-	
-	if (  ((signed)(TCNT-TC0)) >= 0) {
-		do {
-			CounterTick(Counter1);	
-			val += (unsigned int)(EE_TIMER0_STEP);
-   			TC0 = val;					// to manage critical courses...
-   			diff=((signed)(TCNT-val));
-		}while( diff >= 0);
-	}
+ _asm("bgnd");
 }
 /*************************************************************************************/
 

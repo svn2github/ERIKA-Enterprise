@@ -240,7 +240,7 @@ int main()
 	StartOS(OSDEFAULTAPPMODE);
 
 	/* Program Timer 1 to raise interrupts */
-	err = EE_timer_init_ms(EE_TIMER_0, 50, EE_TIMER_ISR_ON);
+	err = EE_timer_init_ms(EE_TIMER_7, 50, EE_TIMER_ISR_ON);
 	EE_assert(3, err >= 0, 2);
 	EE_assert_range(0,1,3);
 	result = EE_assert_last();

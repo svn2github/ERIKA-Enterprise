@@ -11,6 +11,7 @@
 #include "ee.h"
 #include "cpu/hs12xs/inc/ee_irqstub.h"
 #include "test/assert/inc/ee_assert.h"
+#include "mcu/hs12xs/inc/ee_timer.h"
 
 /*
 #pragma CODE_SEG __NEAR_SEG NON_BANKED  // make sure this code is located in non banked  

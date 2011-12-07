@@ -7,7 +7,7 @@
 #include "ee.h"
 #include "cpu/hs12xs/inc/ee_irqstub.h"
 #include "ee_s12regs.h" 
-//#include "ee_utils.h"
+#include "mcu/hs12xs/inc/ee_timer.h"
 #include "myapp.h"
  
 extern volatile int timer_fired;
@@ -32,23 +32,10 @@ ISR2(Buttons_Interrupt)
  
 ISR2(Counter_Interrupt)
 {
-	unsigned int val = TC0;
-	int diff;
 	timer_fired++;
-	/* clear the interrupt source */
-	TFLG1 = 0x01;	// Clear interrupt flag
-
-	//if (  ((signed)(TCNT-TC0)) >= 0) 	// to avoid spurious interrupts...
-	if (  ((signed)(TCNT-TC0)) >= 0)
-	{
-		do
-		{
-			CounterTick(Counter1);	
-			val += (unsigned int)(EE_TIMER0_STEP);
-   			TC0 = val;					// to manage critical courses...
-   			diff=((signed)(TCNT-val));
-		}while( diff >= 0);
-	}
+	/* Clear interrupt flag */
+	EE_timer_clear_ISRflag(EE_TIMER_COUNTER);
+	CounterTick(Counter1);
 }
  
 @interrupt @near void _stext(void);	/* startup routine */
@@ -138,14 +125,14 @@ static @interrupt @near void dummit(void)
   	dummit,			/* 0xFFDA  Pulse acc input edge      */
   	dummit,			/* 0xFFDC  Pulse acc A overflow      */
   	dummit,			/* 0xFFDE  Timer overflow            */
-  	dummit,			/* 0xFFE0  Timer channel 7           */
+  	Counter_Interrupt,	/* 0xFFE0  Timer channel 7           */
   	dummit,			/* 0xFFE2  Timer channel 6           */
   	dummit,			/* 0xFFE4  Timer channel 5           */
   	dummit,			/* 0xFFE6  Timer channel 4           */
   	dummit,			/* 0xFFE8  Timer channel 3           */
   	dummit,			/* 0xFFEA  Timer channel 2           */
   	dummit,			/* 0xFFEC  Timer channel 1           */
-  	Counter_Interrupt,			/* 0xFFEE  Timer channel 0           */
+  	dummit,			/* 0xFFEE  Timer channel 0           */
   	dummit,			/* 0xFFF0  Real Time Interrupt       */
   	dummit,			/* 0xFFF2  IRQ                       */
   	dummit,			/* 0xFFF4  XIRQ                      */

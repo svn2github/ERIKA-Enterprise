@@ -56,7 +56,7 @@ EE_TYPEASSERTVALUE result;
 //unsigned int EE_TIMER_PRESCALER = 128;
 //unsigned int EE_PRESCALE_FACTOR = EE_PRESCALE_FACTOR_128;
 unsigned int EE_TIMER_PERIOD = 10;
-unsigned int EE_TIMER0_STEP;
+unsigned int EE_TIMER_STEP;
 
 volatile unsigned int ERROR_FLAG = 0;
 

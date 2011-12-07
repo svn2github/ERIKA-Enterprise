@@ -55,7 +55,7 @@ EE_TYPEASSERTVALUE EE_assertions[10];
 EE_TYPEASSERTVALUE result;
 
 unsigned int EE_TIMER_PERIOD = 1;
-unsigned int EE_TIMER0_STEP;
+unsigned int EE_TIMER_STEP;
 
 volatile unsigned int ERROR_FLAG = 0;
 
@@ -159,7 +159,8 @@ void StartupHook(void)
 /* MAIN */
 int main(void)
 {
-  EE_assert(1, TRUE, EE_ASSERT_NIL);		
+  EE_set_peripheral_frequency_mhz(2);
+  EE_assert(1, TRUE, EE_ASSERT_NIL);
   /* Serial interface */
   //EE_SCIOpenCommunication(SCI_0);
 
@@ -169,7 +170,7 @@ int main(void)
   /* just a nice subliminal welcome message :-) */
   mydelay(1000);
   //message();
-	
+
   StartOS(OSDEFAULTAPPMODE);
   
   while(task2_fired==0);
