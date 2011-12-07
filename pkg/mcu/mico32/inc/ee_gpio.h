@@ -257,6 +257,27 @@ __INLINE__ unsigned int __ALWAYS_INLINE__ cat3(EE_, lc, _read_data)(void){ \
  __INLINE__ void __ALWAYS_INLINE__ cat3(EE_, lc, _set_IRQ_callback)(EE_ISR_callback cbk){ \
      EE_hal_gpio_set_IRQ_callback(& EE_ST_NAME(lc), cbk); }
 
+
+#ifdef __USE_DIAMOND__
+__INLINE__ unsigned int __ALWAYS_INLINE__ EE_hal_word_inversion(unsigned int word)
+{
+	unsigned int xw;
+	EE_UINT8* x = (EE_UINT8*)&xw;
+	x[0] = ((EE_UINT8*)&word)[3];
+	x[1] = ((EE_UINT8*)&word)[2];
+	x[2] = ((EE_UINT8*)&word)[1];
+	x[3] = ((EE_UINT8*)&word)[0];
+	return xw;
+}
+
+#else
+__INLINE__ unsigned int __ALWAYS_INLINE__ EE_hal_word_inversion(unsigned int word)
+{
+	return word;
+}
+
+#endif
+ 
 /**
 	@brief 			This function is GPIO IRQ handler.
 	@param level 	IRQ number
@@ -284,7 +305,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_gpio_handler_setup(EE_gpio_st* gpio_sp)
 */
 __INLINE__ unsigned int __ALWAYS_INLINE__ EE_hal_gpio_read_data(MicoGPIO_t* base)
 {
-    return base->data;
+    return EE_hal_word_inversion(base->data);
 }
  
 /**
@@ -294,7 +315,7 @@ __INLINE__ unsigned int __ALWAYS_INLINE__ EE_hal_gpio_read_data(MicoGPIO_t* base
 */ 
 __INLINE__ unsigned int __ALWAYS_INLINE__ EE_hal_gpio_read_data_out(MicoGPIO_t* base)
 {
-    return base->data;
+    return EE_hal_word_inversion(base->data);
 }
 
 /**
@@ -314,7 +335,7 @@ __INLINE__ unsigned int __ALWAYS_INLINE__ EE_hal_gpio_output_read_data_out(EE_gp
 */ 
 __INLINE__ void __ALWAYS_INLINE__ EE_hal_gpio_write_data(MicoGPIO_t *base, unsigned int val)
 {
-    base->data = val;
+    base->data = EE_hal_word_inversion(val);
 } 
 
 /**
@@ -326,8 +347,8 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_gpio_write_data(MicoGPIO_t *base, unsig
 */ 
 __INLINE__ void __ALWAYS_INLINE__ EE_hal_gpio_output_write_data_internal(MicoGPIO_t *base, unsigned int val, EE_gpio_st *gpio_sp)
 {
-    gpio_sp->data_copy = val;
-    base->data = val;
+	gpio_sp->data_copy = val;
+    base->data = EE_hal_word_inversion(val);
 } 
 
 /**
@@ -360,12 +381,14 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_gpio_write_bit_data(MicoGPIO_t *base, u
     unsigned int data;
     EE_FREG irqstat;
 
+	// --
     irqstat = EE_mico32_disableIRQ();
     data = EE_hal_gpio_read_data_out(base);
-    if(val)
+    if(val) {
         EE_hal_gpio_write_data(base, data | mask);
-    else
+    } else {
         EE_hal_gpio_write_data(base, data & (~mask));
+	}
     if (EE_mico32_are_IRQs_enabled(irqstat))
         EE_mico32_enableIRQ();
 } 
@@ -388,10 +411,11 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_gpio_output_write_bit_data(
 
     irqstat = EE_mico32_disableIRQ();
     data = EE_hal_gpio_output_read_data_out(gpio_sp);
-    if(val)
+    if(val) {
         EE_hal_gpio_output_write_data_internal(base, data | mask, gpio_sp);
-    else
+    } else {
         EE_hal_gpio_output_write_data_internal(base, data & (~mask), gpio_sp);
+	}	
     if (EE_mico32_are_IRQs_enabled(irqstat))
         EE_mico32_enableIRQ();
 } 
@@ -433,7 +457,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_gpio_output_write_mask_data(
     irqstat = EE_mico32_disableIRQ();
     data = EE_hal_gpio_output_read_data_out(gpio_sp);
     EE_hal_gpio_output_write_data_internal(base,
-        (data & (~mask)) | (val & mask), gpio_sp);
+        ((data & (~mask)) | (val & mask)), gpio_sp);
     if (EE_mico32_are_IRQs_enabled(irqstat))
         EE_mico32_enableIRQ();
 }
@@ -445,8 +469,8 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_gpio_output_write_mask_data(
 */ 	 
 __INLINE__ unsigned int __ALWAYS_INLINE__ EE_hal_gpio_read_tristate(
     MicoGPIO_t* base)
-{ 
-    return base->tristate;
+{
+	return EE_hal_word_inversion(base->tristate);
 } 
  
 /**
@@ -456,8 +480,8 @@ __INLINE__ unsigned int __ALWAYS_INLINE__ EE_hal_gpio_read_tristate(
 */ 	
 __INLINE__ void __ALWAYS_INLINE__ EE_hal_gpio_write_tristate(MicoGPIO_t* base,
     unsigned int val)
-{ 
-    base->tristate = val;
+{
+    base->tristate = EE_hal_word_inversion(val);
 } 
  
 /**
@@ -472,13 +496,13 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_gpio_write_bit_tristate(MicoGPIO_t* bas
     unsigned int mask = (1 << numbit);
     unsigned int tristate;
     EE_FREG irqstat;
-        
+    
     irqstat = EE_mico32_disableIRQ();
-        tristate = base->tristate;
+        tristate = EE_hal_word_inversion(base->tristate);
     if(val)
-        base->tristate = tristate | mask;
+        base->tristate = EE_hal_word_inversion(tristate | mask);
     else
-        base->tristate = tristate & (~mask);
+        base->tristate = EE_hal_word_inversion(tristate & (~mask));
     if (EE_mico32_are_IRQs_enabled(irqstat))
         EE_mico32_enableIRQ();
 } 
@@ -494,10 +518,10 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_gpio_write_mask_tristate(MicoGPIO_t* ba
 { 
     unsigned int tristate;
     EE_FREG irqstat;
-        
+    	
     irqstat = EE_mico32_disableIRQ();
-    tristate = base->tristate;
-    base->tristate = (tristate & (~mask)) | (val & mask);
+    tristate = EE_hal_word_inversion(base->tristate);
+    base->tristate = EE_hal_word_inversion((tristate & (~mask)) | (val & mask));
     if (EE_mico32_are_IRQs_enabled(irqstat))
         EE_mico32_enableIRQ();
 } 
@@ -509,7 +533,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_gpio_write_mask_tristate(MicoGPIO_t* ba
 */   
 __INLINE__ unsigned int __ALWAYS_INLINE__ EE_hal_gpio_read_irqMask(MicoGPIO_t* base)
 { 
-    return base->irqMask;
+    return EE_hal_word_inversion(base->irqMask);
 } 
  
 /**
@@ -519,7 +543,7 @@ __INLINE__ unsigned int __ALWAYS_INLINE__ EE_hal_gpio_read_irqMask(MicoGPIO_t* b
 */  
 __INLINE__ void __ALWAYS_INLINE__ EE_hal_gpio_write_irqMask(MicoGPIO_t* base, unsigned int val)
 { 
-    base->irqMask = val;
+	base->irqMask = EE_hal_word_inversion(val);
 }       
     
 /**
@@ -531,12 +555,12 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_gpio_write_irqMask(MicoGPIO_t* base, un
 __INLINE__ void __ALWAYS_INLINE__ EE_hal_gpio_write_bit_irqMask(MicoGPIO_t* base, unsigned int val, unsigned char numbit)
 { 
     unsigned int mask = (1 << numbit);
-    unsigned int irqMask = base->irqMask;
-    
+    unsigned int irqMask = EE_hal_word_inversion(base->irqMask);
+	
     if(val)
-        base->irqMask = irqMask | mask;
+        base->irqMask = EE_hal_word_inversion(irqMask | mask);
     else
-        base->irqMask = irqMask & (~mask);
+        base->irqMask = EE_hal_word_inversion(irqMask & (~mask));
 } 
   
 /**
@@ -547,9 +571,9 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_gpio_write_bit_irqMask(MicoGPIO_t* base
 */     
 __INLINE__ void __ALWAYS_INLINE__ EE_hal_gpio_write_mask_irqMask(MicoGPIO_t* base, unsigned int val, unsigned int mask)
 { 
-    unsigned int irqMask = base->irqMask;
-        
-    base->irqMask = (irqMask & (~mask)) | (val & mask);
+    unsigned int irqMask = EE_hal_word_inversion(base->irqMask);
+
+	base->irqMask = EE_hal_word_inversion((irqMask & (~mask)) | (val & mask));
 } 
         
 /**
@@ -559,7 +583,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_gpio_write_mask_irqMask(MicoGPIO_t* bas
 */	
  __INLINE__ unsigned int __ALWAYS_INLINE__ EE_hal_gpio_read_edgeCapture(MicoGPIO_t* base)
 { 
-    return base->edgeCapture;
+    return EE_hal_word_inversion(base->edgeCapture);
 } 
 
 /**
@@ -569,7 +593,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_gpio_write_mask_irqMask(MicoGPIO_t* bas
 */
 __INLINE__ void __ALWAYS_INLINE__ EE_hal_gpio_write_edgeCapture(MicoGPIO_t* base, unsigned int val)
 { 
-    base->edgeCapture = val;
+    base->edgeCapture = EE_hal_word_inversion(val);
 } 
 
 /**
@@ -581,12 +605,12 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_gpio_write_edgeCapture(MicoGPIO_t* base
 __INLINE__ void __ALWAYS_INLINE__ EE_hal_gpio_write_bit_edgeCapture(MicoGPIO_t* base, unsigned int val, unsigned char numbit)
 { 
     unsigned int mask = (1 << numbit);
-    unsigned int edgeCapture = base->edgeCapture;
-        
+    unsigned int edgeCapture = EE_hal_word_inversion(base->edgeCapture);
+	
     if(val)
-        base->edgeCapture = edgeCapture | mask;
+        base->edgeCapture = EE_hal_word_inversion(edgeCapture | mask);
     else
-        base->edgeCapture = edgeCapture & (~mask);
+        base->edgeCapture = EE_hal_word_inversion(edgeCapture & (~mask));
 } 
 
 /**
@@ -597,9 +621,8 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_gpio_write_bit_edgeCapture(MicoGPIO_t* 
 */ 
 __INLINE__ void __ALWAYS_INLINE__ EE_hal_gpio_write_mask_edgeCapture(MicoGPIO_t *base, unsigned int val, unsigned int mask)
 { 
-    unsigned int edgeCapture = base->edgeCapture;
-        
-    base->edgeCapture = (edgeCapture & (~mask)) | (val & mask);
+    unsigned int edgeCapture = EE_hal_word_inversion(base->edgeCapture); 
+	base->edgeCapture = EE_hal_word_inversion((edgeCapture & (~mask)) | (val & mask));
 }
 
 /**
