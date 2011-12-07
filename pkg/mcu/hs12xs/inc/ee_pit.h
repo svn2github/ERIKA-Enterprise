@@ -3,6 +3,9 @@
 #ifndef __INCLUDE_FREESCALE_S12XS_PIT_H__
 #define __INCLUDE_FREESCALE_S12XS_PIT_H__
 
+/* Include a file with the registers of the s12 micro-controller */ 
+#include "mcu/hs12xs/inc/ee_mcuregs.h"
+
 extern volatile EE_UINT8 EE_pit0_initialized;
 
 __INLINE__ void __ALWAYS_INLINE__ EE_pit0_init( unsigned char pitmtld0, unsigned char pitld0, unsigned char prio ) {

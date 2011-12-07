@@ -51,24 +51,15 @@
 // * Compiler dependent interface
 // */
 
-#ifndef __HC12_COMPILER_H__
-#define __HC12_COMPILER_H__
+#ifndef __HC12_COMPILER_COSMIC_H__
+#define __HC12_COMPILER_COSMIC_H__
 
-#ifdef __CODEWARRIOR__
-  #include "cpu/hs12xs/inc/ee_compiler_cw.h"
+#ifdef __NO_INLINE__
+ #define __INLINE__ static
+ #define __DECLARE_INLINE__ static
+#else
+ #define __INLINE__ static @inline
+ #define __DECLARE_INLINE__ static @inline
 #endif
 
-#ifdef __COSMIC__
-  #include "cpu/hs12xs/inc/ee_compiler_cosmic.h"
 #endif
-
-#ifdef __ALWAYS_INLINE__
-#undef __ALWAYS_INLINE__
-#endif
-#define __ALWAYS_INLINE__
-
-#ifdef EE_COMPILER_KEEP
-#undef EE_COMPILER_KEEP
-#endif
-
-#endif 

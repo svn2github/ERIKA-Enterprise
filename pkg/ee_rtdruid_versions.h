@@ -31,4 +31,7 @@
 /* Added stack address in EE_APP_SEC_INFO_T */
 #define RTDRUID_CONFNUM_STACK_IN_APP_SEC_INFO 1275
 
+/* Added support for S12G, S12XS CPU support based on the common folder */
+#define RTDRUID_CONFNUM_S12_COMMON_SUPPORT 1276
+
 #endif /* EE_RTDRUID_VERSIONS_H */

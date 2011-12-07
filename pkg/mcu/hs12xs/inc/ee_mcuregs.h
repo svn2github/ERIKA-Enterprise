@@ -42,14 +42,12 @@
  * Author: Dario Di Stefano
  */
 
-#include "cpu/hs12xs/inc/ee_cpu.h"
-
 #ifndef __INCLUDE_MCU_FREESCALE_S12XS_MCUREGS__
 #define __INCLUDE_MCU_FREESCALE_S12XS_MCUREGS__
 
 /* This file should contain the definition of the registers available
    on the particular device being used */
 /* Include a file with the registers of the s12 micro-controller */ 
-#include "ee_hs12xsregs.h"
+#include "ee_s12regs.h"
 
 #endif

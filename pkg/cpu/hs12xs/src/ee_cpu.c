@@ -7,7 +7,7 @@
  *
  * ERIKA Enterprise is free software; you can redistribute it
  * and/or modify it under the terms of the GNU General Public License
- * version 2 as published by the Free Software Foundation, 
+ * version 2 as published by the Free Software Foundation,
  * (with a special exception described below).
  *
  * Linking this code statically or dynamically with other modules is
@@ -39,38 +39,17 @@
  * ###*E*### */
 
 /*
- * Author: Dario Di Stefano
+ * Author: 2011 Dario Di Stefano
  */
-
 
 #include "ee_internal.h"
 
-//#ifdef __S12XS_ICD__
-//int _ICDRAM;
-//#endif
-
-/*
- * Endcycle Next thread, Endcycle Next tos, nesting level
- */
-
-EE_UREG EE_IRQ_nesting_level;
-
-EE_ADDR EE_hal_endcycle_next_thread;
-#ifdef __MULTI__
-EE_UREG EE_hal_endcycle_next_tos;
-#endif
-
-/*
- * thread_end_instance function
- */
-
-void EE_thread_end_instance(void);			
+volatile EE_TID ee_change_context_tid_par;
 
 #ifdef __IRQ_STACK_NEEDED__
-EE_DADD EE_s12xs_temp_tos;
-//#ifdef __S12XS_SPLIM__
-//EE_ADDR EE_s12xs_temp_splim;
-//#endif
+
+EE_DADD EE_s12_temp_tos;
+
 #endif
 
 

@@ -45,10 +45,13 @@
 ## Compiler related options
 ##
 
+# -------------------------------------------------------------
+
 ifeq ($(call iseeopt, __AVR5__), yes)
 include $(PKGBASE)/cfg/arch/cc_avr5gnu.mk
 endif
 
+# -------------------------------------------------------------
 
 ifeq ($(call iseeopt, __ARM7GNU__), yes)
 include $(PKGBASE)/cfg/arch/cc_arm7gnu.mk
@@ -57,6 +60,8 @@ endif
 ifeq ($(call iseeopt, __ARM7ADS__), yes)
 include $(PKGBASE)/cfg/arch/cc_arm7ads.mk
 endif
+
+# -------------------------------------------------------------
 
 ifeq ($(call iseeopt, __MPC5XX__), yes)
 include $(PKGBASE)/cfg/arch/cc_ppcgnu.mk
@@ -76,6 +81,8 @@ endif # DIAB
 endif # CODEWARRIOR
 endif # PPCE200ZX
 
+# -------------------------------------------------------------
+
 ifeq ($(call iseeopt, __PIC30__), yes)
 include $(PKGBASE)/cfg/arch/cc_pic30.mk
 endif
@@ -83,6 +90,8 @@ endif
 ifeq ($(call iseeopt, __PIC32__), yes)
 include $(PKGBASE)/cfg/arch/cc_pic32.mk
 endif
+
+# -------------------------------------------------------------
 
 ifeq ($(call iseeopt, __TRICORE1_TASKING__), yes)
 include $(PKGBASE)/cfg/arch/cc_tricore_tasking.mk
@@ -92,25 +101,43 @@ ifeq ($(call iseeopt, __TRICORE_GNU__), yes)
 include $(PKGBASE)/cfg/arch/cc_tricore_gnu.mk
 endif
 
+# -------------------------------------------------------------
+
+ifeq ($(call iseeopt, __MC9S12__), yes)
+EE_HC12_CC=YES
+endif
+
 ifeq ($(call iseeopt, __HCS12XS__), yes)
+EE_HC12_CC=YES
+endif
+
+ifeq ($(EE_HC12_CC), YES)
  ifeq ($(call iseeopt, __CODEWARRIOR__), yes)
-  include $(PKGBASE)/cfg/arch/cc_s12x_codewarrior.mk
+  include $(PKGBASE)/cfg/arch/cc_s12_codewarrior.mk
  else
-  include $(PKGBASE)/cfg/arch/cc_s12x_cosmic.mk
+  include $(PKGBASE)/cfg/arch/cc_s12_cosmic.mk
  endif
 endif
+
+# -------------------------------------------------------------
 
 ifeq ($(call iseeopt, __LM32__), yes)
 include $(EEBASE)/pkg/cfg/arch/cc_mico32.mk
 endif
 
+# -------------------------------------------------------------
+
 ifeq ($(call iseeopt, __ESI_RISC__), yes)
 include $(EEBASE)/pkg/cfg/arch/cc_esi_risc.mk
 endif
 
+# -------------------------------------------------------------
+
 ifeq ($(call iseeopt, __MSP430__), yes)
 include $(EEBASE)/pkg/cfg/arch/cc_msp430.mk
 endif
+
+# -------------------------------------------------------------
 
 ifeq ($(call iseeopt, __CORTEX_M0__), yes)
 include $(EEBASE)/pkg/cfg/arch/cc_cortex_m0_iar.mk

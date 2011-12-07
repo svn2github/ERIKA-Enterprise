@@ -57,13 +57,13 @@ include $(PKGBASE)/cfg/verbose.mk
 include $(PKGBASE)/cfg/compiler.mk
 
 # HCS12_LIB_DIR refers to the location of CodeWarrior libraries
-HCS12_LIB_DIR := "`cygpath -ms $(COSMIC_CCDIR)/lib/hc12c/lib`"
-HCS12_SRC_DIR := "`cygpath -ms $(COSMIC_CCDIR)/lib/hc12c/src`"
-HCS12_INC_DIR := "`cygpath -ms $(COSMIC_CCDIR)/lib/hc12c/include`"
+HCS12_LIB_DIR := "`cygpath -ms $(S12_CCDIR)/lib/hc12c/lib`"
+HCS12_SRC_DIR := "`cygpath -ms $(S12_CCDIR)/lib/hc12c/src`"
+HCS12_INC_DIR := "`cygpath -ms $(S12_CCDIR)/lib/hc12c/include`"
 
-HCS12_LIB_PATH = $(COSMIC_CCDIR)/lib/hc12c/lib
-HCS12_SRC_PATH = $(COSMIC_CCDIR)/lib/hc12c/src
-HCS12_INC_PATH = $(COSMIC_CCDIR)/lib/hc12c/include
+HCS12_LIB_PATH = $(S12_CCDIR)/lib/hc12c/lib
+HCS12_SRC_PATH = $(S12_CCDIR)/lib/hc12c/src
+HCS12_INC_PATH = $(S12_CCDIR)/lib/hc12c/include
 
 OPT_ENV += -envOBJPATH=$(OBJDIR) -envGENPATH=$(HCS12_SRC_DIR)
 
@@ -75,10 +75,21 @@ OPT_ENV += -envOBJPATH=$(OBJDIR) -envGENPATH=$(HCS12_SRC_DIR)
 # please note the final backslash sequence after the shell command to
 # avoid cygpath insering a trailing backslash
 # INTERNAL_PKGBASEDIR is used to avoid multiple calls to cygpath
-ALLINCPATH += -I$(call native_path,$(PKGBASE)) -I$(call native_path,$(APPBASE)) -I. -I$(call native_path,$(COSMIC_CCDIR)/lib/HC12c/include)
+ALLINCPATH += -I$(call native_path,$(PKGBASE)) -I$(call native_path,$(APPBASE)) -I. -I$(call native_path,$(S12_CCDIR)/lib/HC12c/include)
  
 # Linker script should be inside each project (so user can modify it)
-LINKDEP += $(APPBASE)/$(COSMIC_LINKERSCRIPT)
+
+ifneq "$(S12_LINKERSCRIPT)" ""
+  LINKDEP += $(S12_LINKERSCRIPT)
+else
+  # Set default linker script
+  ifeq ($(S12_MODEL), MC9S12XS128)
+    LINKDEP += $(EEBASE)/pkg/mcu/hs12xs/MC9S12XS128.prm
+  endif
+  ifeq ($(S12_MODEL), MC9S12G128)
+    LINKDEP += $(EEBASE)/pkg/mcu/hs12xs/MC9S12G128.prm
+  endif
+endif
 
 # Specific option from the libs dependencies
 LIBDEP += $(ALL_LIBS)
@@ -99,10 +110,8 @@ include $(PKGBASE)/cfg/cfg.mk
 ## Source files and paths
 ##
 
-SRCS += 
-ifeq ($(COSMIC_MODEL), MC9S12XS128)
-SRCS += $(COSMIC_CCDIR)/lib/hc12c/src/mc9s12xs128.c
-endif
+# Add s12 architecture file (e.g. for mc9s12xs128 add mc9s12xs129.c or a user-specified src file)
+SRCS += datapage.c
 
 LIBEESRCS += $(EE_SRCS)
 LIBEEOBJS := $(addprefix $(OBJDIR)/, $(patsubst %.c,%.o,$(patsubst %.S,%.o,$(LIBEESRCS))))
@@ -120,8 +129,8 @@ LINK_LIBS = $(foreach d,$(LIBDEP),$(addprefix -add,$d))
 
 vpath %.cd $(APPBASE)
 vpath %.Sd $(APPBASE)
-vpath %.c $(EE_VPATH) $(APPBASE)
-vpath %.S $(EE_VPATH) $(APPBASE)
+vpath %.c $(EE_VPATH) $(APPBASE) $(S12_CCDIR)/lib/hc12c/src
+vpath %.S $(EE_VPATH) $(APPBASE) $(S12_CCDIR)/lib/hc12c/src
 
 ##
 ## Compute common variables
@@ -138,7 +147,7 @@ COMPUTED_OPT_OBJDUMP := $(OPT_OBJDUMP) $(OPT_ENV)
 ## Select input filename format
 SOURCEFILE = `cygpath -w $<`
 TARGETFILE = `cygpath -w $@`
-TARGET := hs12xs.lst
+TARGET := s12.lst
 SRCFILE = `cygpath -w $(patsubst %.o,%.src,$@)`
 SRCFILE_U = $(patsubst %.o,%.src,$@)
 TMPFILE_U = $(patsubst %.o,%.tmp,$@)
@@ -155,7 +164,7 @@ all:: make_directories $(ALL_LIBS) $(TARGET)
 	@printf "Compilation terminated successfully!\n"
 
 clean::
-	@-rm -rf *.a *.ls *.ld *.map *.elf *.lst *.dbg EDOUT *.$(HCS12_EXTENSION) *.objdump deps deps.pre obj *.x12
+	@-rm -rf *.a *.ls *.ld *.map *.elf *.lst *.xpr *.log *.dbg EDOUT ee_s12regs.h *.$(HCS12_EXTENSION) *.objdump deps deps.pre obj *.x12
 # to support "make clean all"
 ifeq ($(findstring all,$(MAKECMDGOALS)),all)
 	@printf "CLEAN (also \"all\" specified)\n"
@@ -163,20 +172,20 @@ else
 	@printf "CLEAN\n";
 endif
 
-$(TARGET): hs12xs.$(HCS12_EXTENSION)
+$(TARGET): s12.$(HCS12_EXTENSION)
 	@printf "OBJDUMP\n";
-	$(QUIET)$(EE_OBJDUMP) $(COMPUTED_OPT_OBJDUMP) hs12xs.$(HCS12_EXTENSION)
+	$(QUIET)$(EE_OBJDUMP) $(COMPUTED_OPT_OBJDUMP) s12.$(HCS12_EXTENSION)
 
 ##
 ## Object file creation
 ##
 
-hs12xs.$(HCS12_EXTENSION): $(OBJS) $(LINKDEP) $(LIBDEP) 
+s12.$(HCS12_EXTENSION): $(OBJS) $(LINKDEP) $(LIBDEP) 
 	@printf "LD\n";
 	$(QUIET)$(EE_LINK) $(LINKDEP) $(LINK_OBJS) $(LINK_LIBS) $(COMPUTED_OPT_LINK) -o$(TARGETFILE) 
 
 # preprocess first the assembly code and then compile the object file
-$(OBJDIR)/%.o: %.S ee_hs12xsregs.h
+$(OBJDIR)/%.o: %.S ee_s12regs.h
 	$(VERBOSE_PRINTPRE) $(EE_PREP) $(COMPUTED_OPT_CC) $(DEPENDENCY_OPT) $(COMPUTED_ALLINCPATH) $(DEFS_CC) -I$(dir $(shell cygpath -ms "$(SOURCEFILE)")) -LpCfg=cms "$(SOURCEFILE)" -Lp=$(SRCFILE)
 ifeq ($(call iseeopt, CW_EVAL_VERSION), yes)
 	$(QUIET)sed "s/\/\*/;\/\*/g" <$(SRCFILE_U) > $(TMPFILE_U)
@@ -186,7 +195,7 @@ endif
 	$(QUIET) $(call make-depend, $<, $@, $(subst .o,.d,$@))
 	
 # produce the object file from C code in a single step	ATT!!! tolta opzione -c!!! e tolta l'opzione -o $(TARGETFILE) 
-$(OBJDIR)/%.o: %.c ee_hs12xsregs.h
+$(OBJDIR)/%.o: %.c ee_s12regs.h
 	$(VERBOSE_PRINTCPP) $(EE_CC) $(COMPUTED_OPT_CC) $(DEPENDENCY_OPT) $(COMPUTED_ALLINCPATH) $(DEFS_CC) -I$(dir $(shell cygpath -ms "$(SOURCEFILE)")) -objn="$(TARGETFILE)" "$(SOURCEFILE)" 
 	$(QUIET) $(call make-depend, $<, $@, $(subst .o,.d,$@))
 
@@ -199,10 +208,10 @@ libee.a: $(LIBEEOBJS)
 	$(QUIET)$(EE_AR) $(COMPUTED_OPT_AR) -Cmd\( $(LIBEEOBJS) = libee.a\)
 	@echo
 
-ee_hs12xsregs.h: 
-	@printf "GEN ee_hs12xsregs.h\n"
-	@printf "/* Automatically generated from Makefile */\n" > ee_hs12xsregs.h
-	@printf "#include \"$(COSMIC_INCLUDE_H)\"\n" >> ee_hs12xsregs.h
+ee_s12regs.h: 
+	@printf "GEN ee_s12regs.h\n"
+	@printf "/* Automatically generated from Makefile */\n" > ee_s12regs.h
+	@printf "#include \"$(S12_INCLUDE_H)\"\n" >> ee_s12regs.h
 
 ##
 ## Automatic Generation of dependencies

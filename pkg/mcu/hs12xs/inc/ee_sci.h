@@ -3,6 +3,10 @@
 #ifndef __INCLUDE_FREESCALE_S12XS_SCI_H__
 #define __INCLUDE_FREESCALE_S12XS_SCI_H__
 
+#include "mcu/hs12xs/inc/ee_mcu.h"
+/* Include a file with the registers of the s12 micro-controller */ 
+#include "mcu/hs12xs/inc/ee_mcuregs.h"
+
 #define SCI_0             0
 #define SCI_1             1
 #define ALL               65000
@@ -19,12 +23,12 @@
 #define SCIDRH            0x06
 #define SCIDRL            0x07
 
-struct EE_sci_peripheral {
+typedef struct EE_sci_peripheral_t {
 	int ena;
 	unsigned char *init_reg;
-};
+} EE_sci_peripheral;
 
-extern struct EE_sci_peripheral EE_sci[2];
+extern volatile EE_sci_peripheral EE_sci[2];
 
 /**
  * SCIOpenCommunication
@@ -36,10 +40,14 @@ extern struct EE_sci_peripheral EE_sci[2];
  * BR = 13 
  * Baud rate mismatch = 0.160 %
  */
-__INLINE__ void __ALWAYS_INLINE__ EE_sci_open(unsigned char sci_num, unsigned long int busclock, unsigned long int baudrate) {
+__INLINE__ int __ALWAYS_INLINE__ EE_sci_open(unsigned char sci_num, unsigned long int baudrate) {
 
 	unsigned int br = 0;
 	unsigned char *sci_pt;
+	unsigned long int busclock = EE_get_peripheral_frequency_mhz()*1000000ul;
+	
+	if(EE_get_peripheral_frequency_mhz()==0)
+		return -1;
 
 	EE_sci[sci_num].ena = 1;
 	sci_pt = EE_sci[sci_num].init_reg;
@@ -49,6 +57,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_sci_open(unsigned char sci_num, unsigned lo
 	sci_pt[SCIBDL] = (unsigned char)(br&0x00FF);
 	/* Trasmitter and Receiver Enable */
 	sci_pt[SCICR2] = 0x0C;
+	return 0;
 }
 
 /**
@@ -82,9 +91,9 @@ __INLINE__ void __ALWAYS_INLINE__ EE_sci_close(unsigned char sci_num) {
 /**
  *SCISendBuffer
  * --------------------------------------------------------------------------------------
- * SCI Transmit Data. True if the buffer has been transmitted.
+ * SCI Transmit Data. True if the byte has been transmitted.
  */
-__INLINE__ int __ALWAYS_INLINE__ EE_sci_send_byte(unsigned char sci_num, unsigned char buffer) {
+__INLINE__ int __ALWAYS_INLINE__ EE_sci_send_byte(unsigned char sci_num, unsigned char txbyte) {
 
 	unsigned char *sci_pt;
 
@@ -95,8 +104,8 @@ __INLINE__ int __ALWAYS_INLINE__ EE_sci_send_byte(unsigned char sci_num, unsigne
 	/* Wait until Transmit Data Register is empty. */
 	while (!(sci_pt[SCISR1] & 0x80))
 		;
-	/* Send Buffer and clear TDRE flag */
-	sci_pt[SCIDRL] = buffer;
+	/* Send byte and clear TDRE flag */
+	sci_pt[SCIDRL] = txbyte;
 	return 1;
 }
 

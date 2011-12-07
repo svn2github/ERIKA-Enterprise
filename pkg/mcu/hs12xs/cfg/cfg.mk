@@ -40,11 +40,15 @@
 
 ## Author: Dario Di Stefano
 
-ifeq ($(call iseeopt, __HCS12XS__), yes)
+ifeq ($(call iseeopt, __MC9S12__), yes)
+EE_HC12_MCU=YES
+endif
 
-#ifeq ($(call iseeopt, __FRSH__), yes)
-#EE_SRCS += pkg/mcu/hs12xs/src/ee_s12xsfrsh.c
-#endif
+ifeq ($(call iseeopt, __HCS12XS__), yes)
+EE_HC12_MCU=YES
+endif
+
+ifeq ($(EE_HC12_MCU), YES)
 
 ifeq ($(call iseeopt, __OO_BCC1__), yes)
 MCU_OO=YES
@@ -59,6 +63,8 @@ ifeq ($(call iseeopt, __OO_ECC2__), yes)
 MCU_OO=YES
 endif
 
+EE_SRCS += pkg/mcu/hs12xs/src/ee_mcu.c
+
 ifeq ($(MCU_OO), YES)
 EE_SRCS += pkg/mcu/hs12xs/src/ee_start.c
 endif
@@ -70,9 +76,5 @@ endif
 ifeq ($(call iseeopt, __USE_PIT__), yes)
 EE_SRCS += pkg/mcu/hs12xs/src/ee_pit.c
 endif
-
-# typically empty, the crts.S function is typically provided by the
-# ASM30 Assembler
-# EE_BOOT_SRCS +=
 
 endif

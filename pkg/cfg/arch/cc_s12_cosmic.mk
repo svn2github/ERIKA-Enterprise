@@ -42,12 +42,35 @@
 ## Cosmic compiler
 ##
 
-ifeq ($(call iseeopt, __HCS12XS__), yes)
+
+# Definitions to keep compatibility with previous versions
+# RTDRUID_CONFIGURATOR_NUMBER < 1276
+ifndef S12_ASMDIR
+S12_ASMDIR := $(COSMIC_ASMDIR)
+endif
+ifndef S12_CCDIR
+S12_CCDIR := $(COSMIC_CCDIR)
+endif
+ifndef S12_MODEL
+S12_MODEL := $(COSMIC_MODEL)
+endif
+ifndef S12_LINKERSCRIPT
+S12_LINKERSCRIPT := $(COSMIC_LINKERSCRIPT)
+endif
+ifndef S12_INCLUDE_C
+S12_INCLUDE_C := $(COSMIC_INCLUDE_C)
+endif
+ifndef S12_INCLUDE_S
+S12_INCLUDE_S := $(COSMIC_INCLUDE_S)
+endif
+ifndef S12_INCLUDE_H
+S12_INCLUDE_H := $(COSMIC_INCLUDE_H)
+endif
 
 # Select object file format
-HCS12_EXTENSION := xs12
+HCS12_EXTENSION := s12
 
-BINDIR_HCS12   := $(COSMIC_CCDIR)
+BINDIR_HCS12   := $(S12_CCDIR)
 
 # Bin directories used for compilation
 # BINDIR_ASM      - directory of the Assembler
@@ -157,4 +180,4 @@ make-depend =
 endif # __RTD_CYGWIN__
 endif # NODEPS
 
-endif
+

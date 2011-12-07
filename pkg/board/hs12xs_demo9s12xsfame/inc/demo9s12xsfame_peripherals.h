@@ -42,6 +42,8 @@
 #ifndef __INCLUDE_S12XS_DEMOBOARD_H__
 #define __INCLUDE_S12XS_DEMOBOARD_H__
 
+#include "mcu/hs12xs/inc/ee_mcu.h"
+
 #ifdef __DEMO9S12XSFAME__
 
 /* /\************************************************************************* */

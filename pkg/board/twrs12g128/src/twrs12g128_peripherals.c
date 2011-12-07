@@ -42,16 +42,28 @@
  * Author: Dario Di Stefano
  */
 
-#ifndef __INCLUDE_S12XS_BOARD_H__
-#define __INCLUDE_S12XS_BOARD_H__
+#include "ee_internal.h"
 
 /* /\************************************************************************* */
-/* Check if the DemoBoard has been selected */
+/* Check if the Flex DemoBoard has been selected */
 /* /\************************************************************************* */
 
-#ifdef __DEMO9S12XSFAME__
-#include "board\hs12xs_demo9s12xsfame\inc\demo9s12xsfame_peripherals.h"
-#endif /* __DEMO9S12XSFAME__ */
+#ifdef __TWRS12G128__
+
+#include "cpu/hs12xs/inc/ee_irqstub.h"
+
+/* /\************************************************************************* */
+/*  Buttons and PICDEM Z */
+/*  *************************************************************************\/ */
+
+#ifdef __USE_BUTTONS__
+volatile EE_UINT8 EE_buttons_initialized = 0;
+#endif
 
 /* ************************************************************************* */
-#endif
+
+/* ************************************************************************* */
+
+#endif // __TWRS12G128__
+
+/* ************************************************************************* */

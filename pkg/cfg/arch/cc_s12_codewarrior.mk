@@ -44,12 +44,34 @@
 ## CodeWarrior compiler
 ##
 
-ifeq ($(call iseeopt, __HCS12XS__), yes)
-
+# Definitions to keep compatibility with previous versions
+# RTDRUID_CONFIGURATOR_NUMBER < 1276
+ifndef S12_ASMDIR
+S12_ASMDIR := $(COSMIC_ASMDIR)
+endif
+ifndef S12_CCDIR
+S12_CCDIR := $(COSMIC_CCDIR)
+endif
+ifndef S12_MODEL
+S12_MODEL := $(COSMIC_MODEL)
+endif
+ifndef S12_LINKERSCRIPT
+S12_LINKERSCRIPT := $(COSMIC_LINKERSCRIPT)
+endif
+ifndef S12_INCLUDE_C
+S12_INCLUDE_C := $(COSMIC_INCLUDE_C)
+endif
+ifndef S12_INCLUDE_S
+S12_INCLUDE_S := $(COSMIC_INCLUDE_S)
+endif
+ifndef S12_INCLUDE_H
+S12_INCLUDE_H := $(COSMIC_INCLUDE_H)
+endif
+ 
 # Select object file format
 HCS12_EXTENSION := elf
 
-BINDIR_HCS12   := $(COSMIC_CCDIR)/Prog
+BINDIR_HCS12   := $(S12_CCDIR)/Prog
 
 # Bin directories used for compilation
 # BINDIR_ASM      - directory of the Assembler
@@ -92,8 +114,16 @@ endif
 # EE_CLABS:=$(BINDIR_BINUTILS)/... todo
 #endif
 
+# Set CPU model
+ifeq ($(S12_MODEL), MC9S12XS128)
+CW_CPU_MODEL = -CpuHCS12X
+endif
+ifeq ($(S12_MODEL), MC9S12G128)
+CW_CPU_MODEL = -CpuHCS12
+endif
+
 ## OPT_CC are the options for compiler invocation
-OPT_CC = -CpuHCS12X -D__NO_FLOAT__ -Mb -F2 -Ccx -WmsgNu=abcde -W1
+OPT_CC = $(CW_CPU_MODEL) -D__NO_FLOAT__ -Mb -F2 -Ccx -WmsgNu=abcde -W1
 ifeq ($(call iseeopt, __EMBEDDED_CPP_SUPPORT__ ), yes)
 OPT_CC += -C++e -Cppc
 endif
@@ -107,7 +137,7 @@ OPT_CC += $(CFLAGS)
 #-Lm=mymake.txt
 
 #OPT_ASM are the options for asm invocation
-OPT_ASM = -CpuHCS12X -D__NO_FLOAT__ -Mb -F2 -WmsgNu=abcde -W1
+OPT_ASM = $(CW_CPU_MODEL) -D__NO_FLOAT__ -Mb -F2 -WmsgNu=abcde -W1
 ifeq ($(call iseeopt, DEBUG), yes)
  OPT_ASM += 
 else
@@ -146,5 +176,3 @@ make-depend =
 endif # __RTD_CYGWIN__
 endif # NODEPS
 
-
-endif

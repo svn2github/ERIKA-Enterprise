@@ -42,16 +42,37 @@
  * Author: Dario Di Stefano
  */
 
-#ifndef __INCLUDE_S12XS_BOARD_H__
-#define __INCLUDE_S12XS_BOARD_H__
+#ifndef __INCLUDE_S12G_BOARD_H__
+#define __INCLUDE_S12G_BOARD_H__
+
+#include "mcu/hs12xs/inc/ee_mcu.h"
+
+/**********************************************************
+*	EE_set_clock_8MHz
+*	Setup clock module for PLL Engaged using External XTAL
+*	For 8MHz XTAL - 
+*	VCOCLK - 64MHz, Core Clk - 16MHz, Bus Clk - 8MHz
+**********************************************************/
+__INLINE__ void __ALWAYS_INLINE__ EE_set_clock_8MHz(void){
+
+	CPMUSYNR = 0x01;					// fVCO = 32MHz
+	CPMUREFDIV = 0x80;				// OSC input is 8MHz
+	CPMUPOSTDIV = 0x01;				// core clk - 16MHz, bus clk - 8MHz
+	
+	CPMUOSC_OSCE = 1;					// enable ext OSC
+	while(!CPMUFLG_UPOSC || !CPMUFLG_LOCK);
+											// wait for ext osc to stabilize and pll to lock
+	CPMUFLG = 0xFF;					// clear CMPMU int flags - not needed but good practice
+	EE_set_peripheral_frequency_mhz(8);
+}
 
 /* /\************************************************************************* */
 /* Check if the DemoBoard has been selected */
 /* /\************************************************************************* */
 
-#ifdef __DEMO9S12XSFAME__
-#include "board\hs12xs_demo9s12xsfame\inc\demo9s12xsfame_peripherals.h"
-#endif /* __DEMO9S12XSFAME__ */
+#ifdef __TWRS12G128__
+#include "board\twrs12g128\inc\twrs12g128_peripherals.h"
+#endif /* __TWRS12G128__ */
 
 /* ************************************************************************* */
 #endif

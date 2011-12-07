@@ -68,7 +68,7 @@ extern "C" {
    */
 
  /* Freescale */
-#ifdef __HCS12XS__
+#if defined(__MC9S12__) || defined(__HCS12XS__)
  #include "cpu/hs12xs/inc/ee_internal.h"
 #endif
 
@@ -140,7 +140,7 @@ extern "C" {
    */
 
  /* Freescale */
-#ifdef __HCS12XS__
+#if defined(__MC9S12__) || defined(__HCS12XS__)
  #include "mcu/hs12xs/inc/ee_internal.h"
 #endif
 
@@ -210,8 +210,13 @@ extern "C" {
    */
 
  /* Freescale */
-#ifdef __HCS12XS__
- #include "board/hs12xs_demo9s12xsfame/inc/ee_internal.h"
+#if defined(__MC9S12__) || defined(__HCS12XS__)
+  #ifdef __DEMO9S12XSFAME__
+    #include "board/hs12xs_demo9s12xsfame/inc/ee_internal.h"
+  #endif
+  #ifdef __TWRS12G128__
+    #include "board/twrs12g128/inc/ee_internal.h"
+  #endif
 #endif
 
   /* Atmel */

@@ -42,20 +42,19 @@
  * Author: Dario Di Stefano
  */
 
-#include "ee_internal.h"
+#include "mcu/hs12xs/inc/ee_mcu.h"
+#include "mcu/hs12xs/inc/ee_timer.h"
 
 #ifdef __OO_EXTENDED_STATUS__
-int EE_cpu_startos(void)
-#else
-void EE_cpu_startos(void)
-#endif
-{
-	#ifdef __OO_EXTENDED_STATUS__
-		return EE_s12xs_hal_cpu_startos();
-	#else
-		EE_s12xs_hal_cpu_startos();
-	#endif
+int EE_cpu_startos(void) {
+	EE_s12_hal_cpu_startos();
+	return 0; 
 }
+#else
+void EE_cpu_startos(void) {
+	EE_s12_hal_cpu_startos();
+}
+#endif
 
 #if(EE_MAX_COUNTER>0)
 volatile EE_UINT8 EE_timer0_initialized = 1;

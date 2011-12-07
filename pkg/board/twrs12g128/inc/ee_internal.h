@@ -7,7 +7,7 @@
  *
  * ERIKA Enterprise is free software; you can redistribute it
  * and/or modify it under the terms of the GNU General Public License
- * version 2 as published by the Free Software Foundation,
+ * version 2 as published by the Free Software Foundation, 
  * (with a special exception described below).
  *
  * Linking this code statically or dynamically with other modules is
@@ -42,16 +42,4 @@
  * Author: Dario Di Stefano
  */
 
-#ifndef __INCLUDE_S12XS_BOARD_H__
-#define __INCLUDE_S12XS_BOARD_H__
-
-/* /\************************************************************************* */
-/* Check if the DemoBoard has been selected */
-/* /\************************************************************************* */
-
-#ifdef __DEMO9S12XSFAME__
-#include "board\hs12xs_demo9s12xsfame\inc\demo9s12xsfame_peripherals.h"
-#endif /* __DEMO9S12XSFAME__ */
-
-/* ************************************************************************* */
-#endif
+#include "board/twrs12g128/inc/ee_board.h"

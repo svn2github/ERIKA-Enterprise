@@ -54,8 +54,8 @@ include $(PKGBASE)/cfg/verbose.mk
 include $(PKGBASE)/cfg/compiler.mk
 
 # Path used for HCS12 libraries and headers search:
-HCS12_LIB_DIR := $(COSMIC_CCDIR)/Lib
-HCS12_INCLUDE_DIR := $(COSMIC_CCDIR)/HS12x
+HCS12_LIB_DIR := $(S12_CCDIR)/Lib
+HCS12_INCLUDE_DIR := $(S12_CCDIR)/HS12x
 
 # options related to the libraries paths 
 OPT_LIBS += -l "`cygpath -w $(HCS12_LIB_DIR)`"
@@ -65,9 +65,23 @@ OPT_LIBS += -l "`cygpath -w $(shell pwd)`"
 INTERNAL_CCINCLUDEDIR := -i"`cygpath -w $(HCS12_INCLUDE_DIR)`"
 ALLINCPATH += $(INTERNAL_CCINCLUDEDIR)
 
+# Add crtsx.S if needed
+ifeq "$(S12_INCLUDE_S)" ""
+# A default startup script will be used
+STARTUP_SRC := pkg/mcu/hs12xs/src/crtsx.S
+STARTUP_OBJ := obj\\pkg\\mcu\\hs12xs\\src\\crtsx.o
+APP_SRCS += $(STARTUP_SRC)
+endif
+
 # Add linker dependencies
 OPT_LINK += 
-LINKDEP += $(APPBASE)/$(COSMIC_LINKERSCRIPT)
+ifeq "$(S12_LINKERSCRIPT)" ""
+# A linker-script will be created in the project folder 
+LINKDEP += $(APPBASE)/$(S12_MODEL).lkf
+else
+# User linker-script will be used
+LINKDEP += $(S12_LINKERSCRIPT)
+endif
 
 # Specific option from the libs dependencies
 LIBDEP += $(ALL_LIBS)
@@ -94,13 +108,13 @@ OBJS := $(addprefix $(OBJDIR)/, $(patsubst %.c,%.o,$(patsubst %.S,%.o, $(SRCS)))
 ALLOBJS = $(LIBEEOBJS) $(OBJS)
 
 # Cosmic compiler libraries list (to be added in the linker script)
-COSMIC_LIBDEP += $(shell cygpath -m $(COSMIC_CCDIR))/Lib/libe.x12 \
-                 $(shell cygpath -m $(COSMIC_CCDIR))/Lib/libf.x12 \
-                 $(shell cygpath -m $(COSMIC_CCDIR))/Lib/libi.x12 \
-                 $(shell cygpath -m $(COSMIC_CCDIR))/Lib/libm.x12
+COSMIC_LIBDEP += $(shell cygpath -m $(S12_CCDIR))/Lib/libe.x12 \
+                 $(shell cygpath -m $(S12_CCDIR))/Lib/libf.x12 \
+                 $(shell cygpath -m $(S12_CCDIR))/Lib/libi.x12 \
+                 $(shell cygpath -m $(S12_CCDIR))/Lib/libm.x12
 
 # Check if clib.exe exists in the compiler directory
-RES_CLIB_CHECK := $(if $(wildcard $(COSMIC_CCDIR)/clib.exe),PASSED,FAILED)
+RES_CLIB_CHECK := $(if $(wildcard $(S12_CCDIR)/clib.exe),PASSED,FAILED)
 ifeq ($(RES_CLIB_CHECK),FAILED)
  # CLIB.EXE does not exists...
  LIBDEP += $(LIBEEOBJS)
@@ -127,7 +141,7 @@ COMPUTED_OPT_CC_DEPS := $(OPT_CC_DEPS)
 ## Select input filename format
 SOURCEFILE = `cygpath -w $<`
 TARGETFILE = `cygpath -w $@`
-TARGET := hs12xs.objdump
+TARGET := $(S12_MODEL).objdump
 SRCFILE = `cygpath -w $(patsubst %.o,%.src,$@)`
 
 ##
@@ -141,7 +155,8 @@ all:: make_directories $(ALL_LIBS) $(TARGET)
 	@printf "Compilation terminated successfully!\n"
 
 clean::
-	@-rm -rf *.list *.a *.ls *.ld *.map *.elf *.$(HCS12_EXTENSION) *.objdump deps deps.pre obj *.x12
+	@-rm -rf *.list *.a *.ls *.ld *.map *.elf *.$(HCS12_EXTENSION) *.objdump deps deps.pre obj *.x12 ee_s12regs.h
+
 # to support "make clean all"
 ifeq ($(findstring all,$(MAKECMDGOALS)),all)
 	@printf "CLEAN (also \"all\" specified)\n"
@@ -149,22 +164,27 @@ else
 	@printf "CLEAN\n";
 endif
 
-hs12xs.objdump: hs12xs.$(HCS12_EXTENSION)
+$(TARGET): $(S12_MODEL).$(HCS12_EXTENSION)
 	@printf "OBJDUMP\n";
-	$(QUIET)$(EE_CLABS) hs12xs.$(HCS12_EXTENSION) 
-	@cat `find . -type f -name "*.la"` > hs12xs.objdump
+	$(QUIET)$(EE_CLABS) $(S12_MODEL).$(HCS12_EXTENSION) 
+	@cat `find . -type f -name "*.la"` > $(TARGET)
 	@printf "ELF\n";
-	$(QUIET)$(EE_CVDWARF) hs12xs.$(HCS12_EXTENSION)
+	$(QUIET)$(EE_CVDWARF) $(S12_MODEL).$(HCS12_EXTENSION)
 
 ##
 ## Object file creation
 ##
 
-# ATT!!! tolta l'opzione -m > hs12xs.map
-hs12xs.$(HCS12_EXTENSION): $(OBJS) $(LIBDEP) 
+# ATT!!! tolta l'opzione -m > $(S12_MODEL).map
+$(S12_MODEL).$(HCS12_EXTENSION): $(OBJS) $(LIBDEP)
 	@printf "LD\n";
+ifeq "$(S12_LINKERSCRIPT)" ""
 # create a file with the EE-objs list
-	$(QUIET)rm -rf eeobjs.list $(LINKDEP)
+	$(QUIET)rm -rf eeobjs.list $(APPBASE)/$(S12_MODEL).lkf
+	$(QUIET)echo "# Place obj files for the unbanked section here" > eeobjs.list;
+	$(QUIET)echo \"$(STARTUP_OBJ)\"    >> eeobjs.list;
+	$(QUIET)echo "# Place libraries and Erika RTOS obj-files list here" >> eeobjs.list;
+	$(QUIET)echo \"obj\\eecfg.o\"      >> eeobjs.list;
 	$(QUIET)for x in $(LIBDEP); do \
 	  echo \"$${x}\"      >> eeobjs.list; \
 	done;
@@ -172,7 +192,8 @@ hs12xs.$(HCS12_EXTENSION): $(OBJS) $(LIBDEP)
 	  echo \"$${x}\"      >> eeobjs.list; \
 	done;
 # create the linker script
-	$(QUIET)cat ../mc9s12xs128_lkf_template eeobjs.list > $(LINKDEP)
+	$(QUIET)cat $(EEBASE)/pkg/mcu/hs12xs/$(S12_MODEL).lkf eeobjs.list > $(APPBASE)/$(S12_MODEL).lkf
+endif
 	$(QUIET)$(EE_LINK) $(COMPUTED_OPT_LINK) -o $(TARGETFILE) $(OPT_LIBS) $(LINKDEP) $(OBJS) $(LIBDEP)
 
 # preprocess first the assembly code and then compile the resulting file to obtain the object file
@@ -186,7 +207,7 @@ endif
 	$(VERBOSE_PRINTASM) $(EE_ASM) $(COMPUTED_OPT_ASM) -o $(TARGETFILE) $(SRCFILE) 
 
 # produce the object file from C code
-$(OBJDIR)/%.o: %.c ee_hs12xsregs.h  
+$(OBJDIR)/%.o: %.c ee_s12regs.h  
 ifneq ($(call iseeopt, NODEPS), yes)
 	@echo "$(TARGETFILE): \\" > $(call native_path,$(subst .o,.d_tmp,$@))
 	$(QUIET) $(EE_PREP) $(COMPUTED_ALLINCPATH) $(DEFS_CC) $(DEPENDENCY_OPT_CPS12X) "$(SOURCEFILE)"  >> $(call native_path,$(subst .o,.d_tmp,$@))
@@ -201,10 +222,13 @@ libee.x12: $(LIBEEOBJS)
 	@printf "AR  libee.x12\n" ;
 	$(QUIET)$(EE_AR) -c libee.x12 $(LIBEEOBJS)
 
-ee_hs12xsregs.h: $(APPBASE)/$(COSMIC_INCLUDE_H)
-	@printf "GEN ee_hs12xsregs.h\n"
-	@printf "/* Automatically generated from Makefile */\n" > ee_hs12xsregs.h
-	@printf "#include \"$(APPBASE)/$(COSMIC_INCLUDE_H)\"\n" >> ee_hs12xsregs.h
+ee_s12regs.h: 
+	@printf "GEN ee_s12regs.h\n"
+	@printf "/* Automatically generated from Makefile */\n" > ee_s12regs.h
+	@printf "#ifndef __EE_S12REGS_H__\n" >> ee_s12regs.h
+	@printf "#define __EE_S12REGS_H__\n" >> ee_s12regs.h
+	@printf "#include \"$(S12_INCLUDE_H)\"\n" >> ee_s12regs.h
+	@printf "#endif\n" >> ee_s12regs.h
 
 ##
 ## Automatic Generation of dependencies

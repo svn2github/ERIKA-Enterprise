@@ -42,67 +42,54 @@
 // * Author: Dario Di Stefano
 // */
 
-//#include "cpu/hs12xs/inc/ee_compiler.h"
+///* the define is needed for binary distributions */
+#define __EECFG_THIS_IS_ASSEMBLER__
 
 #ifdef __CODEWARRIOR__
- #define STACK_POINTER SP
-#else
- #define STACK_POINTER s
-#endif
-
-#ifdef __CODEWARRIOR__
-	xdef EE_s12xs_terminate_savestk
-EE_s12xs_terminate_savestk:
-#else
-	xdef f_EE_s12xs_terminate_savestk
-f_EE_s12xs_terminate_savestk:
-#endif
-	
-#ifdef __CODEWARRIOR__
+	xdef EE_s12_terminate_savestk
+EE_s12_terminate_savestk:
 OFST:	set	0
 	pshx
 	pshd
-	tfr STACK_POINTER,d				// transfer stack pointer in d register
-	addd #$04						// add 2 (d+=2)
-	std [OFST+7,STACK_POINTER]		// Save the stack pointer (from d to the terminate_data vector saved in the stack pointer)    
-	call	[OFST+1,STACK_POINTER]	// Call the thread
+	tfr SP,d			// transfer stack pointer in d register
+	addd #$04			// add 2 (d+=2)
+	std [OFST+7,SP]		// Save the stack pointer (from d to the terminate_data vector saved in the stack pointer)    
+	call	[OFST+1,SP] // Call the thread
 	//puld				// Remove two bytes (the address of terminate_data) from the stack and put them in d (like a call, if the user doesnt'call the TerminateTask() function...)
 	//pulx
-	leas	4,STACK_POINTER				// remove 4 bytes from the stack (d,x previously pushed...)
-	pulx // prendo l'indirizzo di ritorno
-	pula // prendo l'indirizzo di ritorno
-	puly // prendo l'indirizzo dal quale leggere lo stack pointer
-	pshd 
+	leas	4,SP		// remove 4 bytes from the stack (d,x previously pushed...)
+	pulx				// prendo l'indirizzo di ritorno
+	pula				// prendo l'indirizzo di ritorno
+	puly				// prendo l'indirizzo dal quale leggere lo stack pointer
+	pshd
 	psha
 	pshx
 	tfr y,d
-#else
+#else // COSMIC COMPILER
+	xdef f_EE_s12_terminate_savestk
+f_EE_s12_terminate_savestk:
 	pshd				// Push (d, the first argument) in the stack the address of the memory location of the return stack pointer... 
 OFST:	set	0
-    //tfr STACK_POINTER,x			// transfer stack pointer in the register x
-    //addx #$02			// add 2 (x+=2)	
-    //tfr x,d			// transfer x in d
-    tfr STACK_POINTER,d				// transfer stack pointer in d register
-    addd #$02			// add 2 (d+=2)
-    std [OFST+0,STACK_POINTER]		// Save the stack pointer (from d to the terminate_data vector saved in the stack pointer)
-	call	[OFST+5,STACK_POINTER]	// Call the thread
+	//tfr s,x			// transfer stack pointer in the register x
+	//addx #$02			// add 2 (x+=2)
+	//tfr x,d			// transfer x in d
+	tfr s,d				// transfer stack pointer in d register
+	addd #$02			// add 2 (d+=2)
+	std [OFST+0,s]		// Save the stack pointer (from d to the terminate_data vector saved in the stack pointer)
+	call	[OFST+5,s]	// Call the thread
 	puld				// Remove two bytes (the address of terminate_data) from the stack and put them in d (like a call, if the user doesnt'call the TerminateTask() function...)
 #endif
 
 #ifdef __CODEWARRIOR__
-	xdef EE_s12xs_terminate_task
-EE_s12xs_terminate_task:
+	xdef EE_s12_terminate_task
+EE_s12_terminate_task:
 #else
-	xdef f_EE_s12xs_terminate_task
-f_EE_s12xs_terminate_task:
+	xdef f_EE_s12_terminate_task
+f_EE_s12_terminate_task:
 #endif
-	
 	tfr	d,y				// transfer d in y register
-	
 	//ldd	0,y			// transfer the content of y in d
-	//tfr	d,STACK_POINTER			// Change the stack pointer (transfer d in sp)
+	//tfr	d,STACK_POINTER // Change the stack pointer (transfer d in sp)
 	lds 0,y				// Change the stack pointer (transfer the content of y in sp)
-	
-    rtc					// Return in the thread stub (with ppage change)
-    
+	rtc					// Return in the thread stub (with ppage change)
 	end

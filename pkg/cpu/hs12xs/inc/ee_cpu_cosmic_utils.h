@@ -7,7 +7,7 @@
 // *
 // * ERIKA Enterprise is free software; you can redistribute it
 // * and/or modify it under the terms of the GNU General Public License
-// * version 2 as published by the Free Software Foundation, 
+// * version 2 as published by the Free Software Foundation,
 // * (with a special exception described below).
 // *
 // * Linking this code statically or dynamically with other modules is
@@ -44,31 +44,39 @@
 // *
 // */
 
-///* This file MUST contain only #defines, because it is also included
-//   by the .S files */
+#ifndef	__INCLUDE_HC12_EE_CPU_COSMIC_H__
+#define	__INCLUDE_HC12_EE_CPU_COSMIC_H__
 
-///*
-// * Compiler dependent interface
-// */
+#ifndef __EECFG_THIS_IS_ASSEMBLER__
 
-#ifndef __HC12_COMPILER_H__
-#define __HC12_COMPILER_H__
-
-#ifdef __CODEWARRIOR__
-  #include "cpu/hs12xs/inc/ee_compiler_cw.h"
+#define EE_READ_CCR()      _asm("tfr ccr,b\n")                  // save CCR register (I bit)
+#define EE_READ_SP()       (EE_DADD)(_asm("tfr  s, d"))         // save the stack pointer
+#define EE_WRITE_SP(var)   _asm("tfr d, s", var)                // change the stack pointer
+#define ASM_DIS_INT        _asm("sei")                          // Macro for interrupts disabling
+#define ASM_EN_INT         _asm("cli")                          // Macro for interrupts enabling  
+// write CCRH register
+#if defined (__MC9S12XS128__)
+  #define EE_WRITE_CCRH(var) _asm("tfr a,ccrh\n", var)
+#endif
+#if defined (__MC9S12G128__) // device not yet supported in case of Cosmic compiler
+  #define EE_WRITE_CCRH(var)    do {} while(0)
 #endif
 
-#ifdef __COSMIC__
-  #include "cpu/hs12xs/inc/ee_compiler_cosmic.h"
+#else //__EECFG_THIS_IS_ASSEMBLER__
+
+// Macro for ASM files:
+#define EE_THREAD_END_INSTANCE       f_EE_thread_end_instance
+#define EE_STD_CHANGE_CONTEXT        f_EE_std_change_context
+#define EE_STD_RUN_TASK_CODE         f_EE_std_run_task_code
+#define EE_HAL_ENDCYCLE_NEXT_THREAD  _EE_hal_endcycle_next_thread
+#define EE_S12_SYSTEM_TOS            _EE_s12_system_tos
+#define EE_S12_ACTIVE_TOS            _EE_s12_active_tos 
+#define EE_S12_THREAD_TOS            _EE_s12_thread_tos
+#define EE_CHANGE_CONTEXT_TID_PAR    _ee_change_context_tid_par
+
+#define PPAGE_NAME                   _PPAGE
+#define STACK_POINTER                s
+
 #endif
 
-#ifdef __ALWAYS_INLINE__
-#undef __ALWAYS_INLINE__
-#endif
-#define __ALWAYS_INLINE__
-
-#ifdef EE_COMPILER_KEEP
-#undef EE_COMPILER_KEEP
-#endif
-
-#endif 
+#endif // __INCLUDE_HC12_EE_CPU_COSMIC_H__

@@ -51,15 +51,12 @@
 /* Include a file with the registers of the s12 micro-controller */ 
 #include "mcu/hs12xs/inc/ee_mcuregs.h"
 
-/* PIT module */
-#ifdef __USE_PIT__
-#include "mcu/hs12xs/inc/ee_pit.h"
-#endif
+/* Functions and Utilities */
 
-/* SCI module */
-#ifdef __USE_SCI__
-#include "mcu/hs12xs/inc/ee_sci.h"
-#endif
+extern volatile unsigned int ee_s12_peripheral_frequency_mhz;
+#define EE_get_peripheral_frequency_mhz()    ee_s12_peripheral_frequency_mhz
+#define EE_set_peripheral_frequency_mhz(mhz) ee_s12_peripheral_frequency_mhz = mhz
+
 
 /*************************************************************************
  System startup
@@ -97,6 +94,7 @@ void EE_cpu_startos(void);
 
 /* Timer0 module */
 #define EE_TIMER0_COUNTER
+/*
 #define EE_PRESCALE_FACTOR_128 		7
 #define EE_PRESCALE_FACTOR_64 		6
 #define EE_PRESCALE_FACTOR_32 		5
@@ -105,49 +103,58 @@ void EE_cpu_startos(void);
 #define EE_PRESCALE_FACTOR_4 		2
 #define EE_PRESCALE_FACTOR_2 		1
 #define EE_PRESCALE_FACTOR_1 		0
-
+*/
 /* EE_TIMER_PRESCALER		es. 128 */
-extern unsigned int EE_TIMER_PRESCALER;
+//extern unsigned int EE_TIMER_PRESCALER;
 /* EE_PRESCALE_FACTOR		es. EE_PRESCALE_FACTOR_128 */
-extern unsigned int EE_PRESCALE_FACTOR;
+//extern unsigned int EE_PRESCALE_FACTOR;
 /* EE_BUS_CLOCK				es. 32000000 */
-extern unsigned long int EE_BUS_CLOCK; 
+//extern unsigned long int EE_BUS_CLOCK; 
 /* EE_TIMER_PERIOD			es. 1 in ms */
 extern unsigned int EE_TIMER_PERIOD;
+//#define EE_TIMER0_STEP 			(((unsigned long int)(EE_BUS_CLOCK))/((unsigned long int)(EE_TIMER_PRESCALER))*((unsigned long int)(EE_TIMER_PERIOD)))/((unsigned long int)(1000))	/* es. 250 */
+extern unsigned int EE_TIMER0_STEP;
 
-#define EE_TIMER0_STEP 			(((unsigned long int)(EE_BUS_CLOCK))/((unsigned long int)(EE_TIMER_PRESCALER))*((unsigned long int)(EE_TIMER_PERIOD)))/((unsigned long int)(1000))	/* es. 250 */
+#define EE_s12_hal_cpu_startos()\
+		EE_timer_init_ms(EE_TIMER_0, EE_TIMER_PERIOD, EE_TIMER_ISR_ON);\
+		EE_TIMER0_STEP = TC0;\
+		EE_timer_start()
 
-#ifdef __CODEWARRIOR__
-static int EE_s12xs_hal_cpu_startos( void )
-#else
-static @inline int EE_s12xs_hal_cpu_startos( void )
-#endif
+#if 0
+__INLINE__ int __ALWAYS_INLINE__ EE_s12_hal_cpu_startos( void )
 {
-		TSCR1 = 0;							/* turn off Timer0 module */
-		TFLG1 = 0x01;						/* clear isr flag */
-		TCNT = 0;							/* clear Timer0 counter */
-		TIOS |= 0x01;						/* output compare mode */
-		TCTL2 &= 0xFC;						/* do not use pins */
-		TCTL4 &= 0xFC;						/* do not use pins */
-		TIE |= 0x01; 						/* enable interrupt */
-		OCPD |= 0x01;						/* disable Timer0 channel port  */
-		_asm("cli");						/* cli */
-		INT_CFADDR = 0xE0;					/* set base address */
-		INT_CFDATA7 = 0x01; 				/* set priority */
-		TC0 = (unsigned int)(EE_TIMER0_STEP);			/* 1ms -> Freq: 64MHz, Bus_clock: 32MHz, -> 32MHz/prescaler*1ms */
-		TSCR2 = (unsigned char)(EE_PRESCALE_FACTOR);	/* prescaler 128 */
-		TSCR1 = 0x80; 						/* turn on Timer0 module */
-		return 0;
+	EE_timer_init_ms(EE_TIMER_0, EE_TIMER_PERIOD, EE_TIMER_ISR_ON);
+	EE_TIMER0_STEP = TC0;
+	EE_timer_start();
+	return 0;
+
+	TSCR1 = 0;							/* turn off Timer0 module */
+	TFLG1 = 0x01;						/* clear isr flag */
+	TCNT = 0;							/* clear Timer0 counter */
+	TIOS |= 0x01;						/* output compare mode */
+	TCTL2 &= 0xFC;						/* do not use pins */
+	TCTL4 &= 0xFC;						/* do not use pins */
+	TIE |= 0x01; 						/* enable interrupt */
+	OCPD |= 0x01;						/* disable Timer0 channel port  */
+	_asm("cli");						/* cli */
+	INT_CFADDR = 0xE0;					/* set base address */
+	INT_CFDATA7 = 0x01; 				/* set priority */
+	TC0 = (unsigned int)(EE_TIMER0_STEP);			/* 1ms -> Freq: 64MHz, Bus_clock: 32MHz, -> 32MHz/prescaler*1ms */
+	TSCR2 = (unsigned char)(EE_PRESCALE_FACTOR);	/* prescaler 128 */
+	TSCR1 = 0x80; 						/* turn on Timer0 module */
+	return 0;
 }
+#endif
+
 
 #endif	/* TIMER0_COUNTER */
 
 #else	/* EE_MAX_COUNTER>0 */
-  #define EE_s12xs_hal_cpu_startos() 0 
+  #define EE_s12_hal_cpu_startos() do{}while(0)
 #endif	/* EE_MAX_COUNTER>0 */
 
 #else	/* __OO_CPU_HAS_STARTOS_ROUTINE__ */
-  #define EE_s12xs_hal_cpu_startos() 0 
+  #define EE_s12_hal_cpu_startos() do{}while(0)
 #endif	/* __OO_CPU_HAS_STARTOS_ROUTINE__ */
 
 #endif	/* __INCLUDE_FREESCALE_S12XS_MCU_H__ */

@@ -7,7 +7,7 @@
 // *
 // * ERIKA Enterprise is free software; you can redistribute it
 // * and/or modify it under the terms of the GNU General Public License
-// * version 2 as published by the Free Software Foundation, 
+// * version 2 as published by the Free Software Foundation,
 // * (with a special exception described below).
 // *
 // * Linking this code statically or dynamically with other modules is
@@ -38,37 +38,77 @@
 // * Boston, MA 02110-1301 USA.
 // * ###*E*### */
 
-///*
+// /*
 // * Authors: Dario Di Stefano, 2010
 // *          Dario Di Stefano, 2011: pkg/cpu/common integration
 // *
 // */
 
-///* This file MUST contain only #defines, because it is also included
-//   by the .S files */
+#ifndef	__INCLUDE_HC12_EE_CPU_CW_H__
+#define	__INCLUDE_HC12_EE_CPU_CW_H__
 
-///*
-// * Compiler dependent interface
-// */
+#ifndef __EECFG_THIS_IS_ASSEMBLER__
 
-#ifndef __HC12_COMPILER_H__
-#define __HC12_COMPILER_H__
+// save CCR register (I bit)
+__INLINE__ EE_FREG __ALWAYS_INLINE__ EE_READ_CCR() {
+    EE_FREG rvar;
+    __asm tfr ccr,b;
+    __asm std rvar;
+    return rvar;
+}
+ 
+// save the stack pointer
+__INLINE__ EE_DADD __ALWAYS_INLINE__ EE_READ_SP() {
+    EE_DADD tos;
+    __asm tfr SP,d;
+    __asm addd #5;
+    __asm std tos;
+    return tos;
+}
+ 
+// change the stack pointer
+#define EE_WRITE_SP(tos) __asm ldd tos; __asm tfr d,SP;
+  
+// Macro for interrupts disabling
+#define ASM_DIS_INT __asm sei
+  
+// Macro for interrupts enabling  
+#define ASM_EN_INT  __asm cli
 
-#ifdef __CODEWARRIOR__
-  #include "cpu/hs12xs/inc/ee_compiler_cw.h"
+// write CCRH register
+#if defined (__MC9S12XS128__)
+  #define EE_WRITE_CCRH(rvar)    do {\
+     EE_UINT16 var = rvar;\
+     __asm ldd var;\
+     __asm tfr a,CCRH;\
+   }while(0)
+#endif
+#if defined (__MC9S12G128__)
+  #define EE_WRITE_CCRH(rvar)    do {\
+   }while(0)
 #endif
 
-#ifdef __COSMIC__
-  #include "cpu/hs12xs/inc/ee_compiler_cosmic.h"
+#else // __EECFG_THIS_IS_ASSEMBLER__
+
+// Macro for ASM files:
+#define EE_THREAD_END_INSTANCE        EE_thread_end_instance
+#define EE_HAL_ENDCYCLE_NEXT_THREAD   EE_hal_endcycle_next_thread
+#define EE_STD_CHANGE_CONTEXT         EE_std_change_context
+
+#define EE_S12_SYSTEM_TOS             EE_s12_system_tos
+#define EE_S12_ACTIVE_TOS             EE_s12_active_tos 
+#define EE_S12_THREAD_TOS             EE_s12_thread_tos 
+#define EE_CHANGE_CONTEXT_TID_PAR     ee_change_context_tid_par
+#define EE_STD_RUN_TASK_CODE          EE_std_run_task_code
+
+#define _EE_hal_endcycle_next_tos     EE_hal_endcycle_next_tos
+#define _EE_s12xs_change_to_irq_tos   EE_s12xs_change_to_irq_tos
+#define _EE_s12xs_change_from_irq_tos EE_s12xs_change_from_irq_tos
+#define _EE_s12xs_temp_tos            EE_s12xs_temp_tos
+
+#define PPAGE_NAME                    PPAGE
+#define STACK_POINTER                 SP
+
 #endif
 
-#ifdef __ALWAYS_INLINE__
-#undef __ALWAYS_INLINE__
-#endif
-#define __ALWAYS_INLINE__
-
-#ifdef EE_COMPILER_KEEP
-#undef EE_COMPILER_KEEP
-#endif
-
-#endif 
+#endif // __INCLUDE_HC12_EE_CPU_CW_H__
