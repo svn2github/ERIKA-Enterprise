@@ -17,11 +17,6 @@ RTDRUID_CONFIGURATOR_NUMBER:=1276
 EEOPT += DEBUG
 EEOPT += __ASSERT__
 EEOPT += __CODEWARRIOR__
-EEOPT += __TWRS12G128__
-EEOPT += __USE_TIMER__
-EEOPT += __USE_SCI__
-EEOPT += __USE_LEDS__
-EEOPT += __USE_BUTTONS__
 EEOPT += MYSCHEDULE
 
 
@@ -33,7 +28,12 @@ EEOPT += MYSCHEDULE
 EEOPT += __RTD_CYGWIN__
 EEOPT += __CODEWARRIOR__
 EEOPT += __MC9S12__
+EEOPT += __USE_SCI__
+EEOPT += __USE_TIMER__
 EEOPT += __MC9S12G128__
+EEOPT += __TWRS12G128__
+EEOPT += __USE_BUTTONS__
+EEOPT += __USE_LEDS__
 EEOPT += __OO_BCC2__
 EEOPT += __OO_EXTENDED_STATUS__
 EEOPT += __MONO__
@@ -58,7 +58,7 @@ EEBASE := $(shell cygpath `cygpath -ms '${ERIKA_FILES}'`)
 else # ERIKA_FILES
 
 ifndef EEBASE
-        EEBASE := $(shell cygpath `cygpath -ms 'C:\Evidence\eclipse\plugins\com.eu.evidence.ee_1.6.0.20111129_1220\ee_files'`)
+        EEBASE := $(shell cygpath `cygpath -ms 'C:\Dario\EE_svn\repos\ee\trunk\ee'`)
 else
         $(warning The usage of EEBASE is deprecated. Please use ERIKA_FILES)
 endif
@@ -72,7 +72,7 @@ ERIKA_FILES :=
 # Freescale S12
 #
 ############################################################################
-APPBASE := ..
+APPBASE := 
 OUTBASE := Debug
 
 ifndef S12_ASMDIR
@@ -85,13 +85,14 @@ endif
 
 ############################################################################
 #
-# Init MCU for S12 (CUSTOM)
+# Init MCU for S12 (MC9S12G128)
 #
 ############################################################################
 S12_MODEL           := MC9S12G128
-S12_LINKERSCRIPT    := ../Project.prm
+S12_LINKERSCRIPT    := 
 S12_INCLUDE_H       := mc9s12g128.h
 S12_INCLUDE_C       := mc9s12g128.c
+S12_INCLUDE_S       := 
 
 
 ############################################################################

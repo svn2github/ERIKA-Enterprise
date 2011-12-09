@@ -195,7 +195,7 @@ int main(void)
 	StartOS(startupmode);
 	
 	/* Program Timer 1 to raise interrupts */
-	err = EE_timer_init_ms(EE_TIMER_0, 50, EE_TIMER_ISR_ON);
+	err = EE_timer_init_ms(EE_TIMER_7, 50, EE_TIMER_ISR_ON);
 	EE_timer_start();
 
 	while(task1_fired==0)

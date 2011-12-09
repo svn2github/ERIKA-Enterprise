@@ -43,11 +43,6 @@
 /////////////////////////////////////////////////////////////////////////////
 #define __ASSERT__
 #define __CODEWARRIOR__
-#define __TWRS12G128__
-#define __USE_TIMER__
-#define __USE_SCI__
-#define __USE_LEDS__
-#define __USE_BUTTONS__
 #define MYSCHEDULE
 
 
@@ -59,7 +54,12 @@
 #define __RTD_CYGWIN__
 #define __CODEWARRIOR__
 #define __MC9S12__
+#define __USE_SCI__
+#define __USE_TIMER__
 #define __MC9S12G128__
+#define __TWRS12G128__
+#define __USE_BUTTONS__
+#define __USE_LEDS__
 #define __OO_BCC2__
 #define __OO_EXTENDED_STATUS__
 #define __MONO__

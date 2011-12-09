@@ -146,9 +146,22 @@ ISR2 ( CPU12TimerOVISR ) {
  _asm("bgnd");
 }
 /*************************************************************************************/
+extern volatile int timer_fired;
+extern volatile int timer_divisor;
+extern volatile int button_fired;
 
 ISR2 ( CPU12TimerCh7ISR ) {
- _asm("bgnd");
+	EE_timer_clear_ISRflag(EE_TIMER_7);
+	timer_divisor++;
+	if( (timer_divisor % 10) && EE_button_get_B1() ) {
+		button_fired++;
+		ActivateTask(Task2);
+	}
+	if (timer_divisor == 100) {
+		timer_divisor = 0;
+		timer_fired++;
+		ActivateTask(Task1);
+	}
 }
 /*************************************************************************************/
 
@@ -181,23 +194,11 @@ ISR2 ( CPU12TimerCh1ISR ) {
  _asm("bgnd");
 }
 /*************************************************************************************/
-extern volatile int timer_fired;
-extern volatile int timer_divisor; 
-extern volatile int button_fired;
 
 ISR2 (  CPU12TimerCh0ISR ) {
-	EE_timer_clear_ISRflag(EE_TIMER_0);
-	timer_divisor++;
-	if( (timer_divisor % 10) && EE_button_get_B1() ) {
-		button_fired++;
-		ActivateTask(Task2); 
-	}
-	if (timer_divisor == 100) {
-		timer_divisor = 0;
-		timer_fired++;
-		ActivateTask(Task1);
-	}
+ _asm("bgnd");
 }
+
 /*************************************************************************************/
 
 ISR2 ( CPU12RTIISR ) {

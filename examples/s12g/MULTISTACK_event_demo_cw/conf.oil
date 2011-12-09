@@ -59,7 +59,7 @@ CPU test_application {
 		ASFLAGS = "";
 		LDFLAGS = "-addansibi.lib"; 
 
-		CPU_DATA = MC9S12XS {
+		CPU_DATA = MC9S12 {
 			APP_SRC = "main.c";
 			APP_SRC = "Vectors.c";
 			APP_SRC = "CPU12ISRs.c";
@@ -70,22 +70,16 @@ CPU test_application {
 				};
 			};
 		};
-
-		MCU_DATA = S12XS {
-   			MODEL = CUSTOM{
-    			MODEL = "MC9S12G128";
-    			LINKERSCRIPT = "../Project.prm";
-    			INCLUDE_H = "mc9s12g128.h";
-    			INCLUDE_C = "mc9s12g128.c";
-    			INCLUDE_S = "";
-   			};
-  		};
 		
-		EE_OPT = "__TWRS12G128__";
-		EE_OPT = "__USE_TIMER__";
-		EE_OPT = "__USE_SCI__";
-		EE_OPT = "__USE_LEDS__";
-		EE_OPT = "__USE_BUTTONS__";
+		MCU_DATA = MC9S12 {
+   			MODEL = MC9S12G128;
+   			TIMER = TRUE;
+   			SERIAL = TRUE;
+  		};
+  		
+  		BOARD_DATA = TWRS12G128 {
+			OPTIONS = ALL;
+		};
 
 		STATUS = EXTENDED;
 		STARTUPHOOK = TRUE; // this demo is using the StartupHook!

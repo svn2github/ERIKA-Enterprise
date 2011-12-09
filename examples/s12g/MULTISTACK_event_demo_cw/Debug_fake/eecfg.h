@@ -53,11 +53,6 @@
 #define __S12XS_INCLUDE_REGS__
 #define __CODEWARRIOR__
 #define __OO_CPU_HAS_STARTOS_ROUTINE__
-#define __TWRS12G128__
-#define __USE_TIMER__
-#define __USE_SCI__
-#define __USE_LEDS__
-#define __USE_BUTTONS__
 
 
 //////////////////////////////////////////////////////////////////////////////
@@ -68,7 +63,12 @@
 #define __RTD_CYGWIN__
 #define __CODEWARRIOR__
 #define __MC9S12__
+#define __USE_SCI__
+#define __USE_TIMER__
 #define __MC9S12G128__
+#define __TWRS12G128__
+#define __USE_BUTTONS__
+#define __USE_LEDS__
 #define __OO_ECC2__
 #define __OO_EXTENDED_STATUS__
 #define __OO_HAS_STARTUPHOOK__
