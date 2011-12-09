@@ -71,6 +71,8 @@ ifeq "$(S12_INCLUDE_S)" ""
 STARTUP_SRC := pkg/mcu/hs12xs/src/crtsx.S
 STARTUP_OBJ := obj\\pkg\\mcu\\hs12xs\\src\\crtsx.o
 APP_SRCS += $(STARTUP_SRC)
+else
+STARTUP_OBJ := $(addprefix $(OBJDIR)\\, $(patsubst %.s,%.o,$(patsubst %.S,%.o, $(S12_INCLUDE_S))))
 endif
 
 # Add linker dependencies

@@ -182,7 +182,7 @@ $(TARGET): s12.$(HCS12_EXTENSION)
 
 s12.$(HCS12_EXTENSION): $(OBJS) $(LINKDEP) $(LIBDEP) 
 	@printf "LD\n";
-	$(QUIET)$(EE_LINK) $(LINKDEP) $(LINK_OBJS) $(LINK_LIBS) $(COMPUTED_OPT_LINK) -o$(TARGETFILE) 
+	$(QUIET)$(EE_LINK) $(shell cygpath -ms "$(LINKDEP)") $(LINK_OBJS) $(LINK_LIBS) $(COMPUTED_OPT_LINK) -o$(TARGETFILE) 
 
 # preprocess first the assembly code and then compile the object file
 $(OBJDIR)/%.o: %.S ee_s12regs.h
