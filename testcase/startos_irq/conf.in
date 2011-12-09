@@ -1,4 +1,4 @@
 # these are the configurations that have to be considered
 conf = CONF=B1,B2,E1,E2 STATUS=STD,EXT IRQ=USEIRQ
 worksfor = e200zx e200zx_diab_vle e200zx_codewarrior_vle e200zx_codewarrior_fle
-worksfor += pic30 s12xs_cosmic s12xs_cw s12g_cw
+worksfor += pic30
