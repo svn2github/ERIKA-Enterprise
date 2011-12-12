@@ -139,6 +139,10 @@ StatusType EE_oo_TerminateTask(void)
   
   	EE_hal_terminate_task(EE_stk_queryfirst());
 
+	/* This instruction prevent some compiler warning only, because
+	   hal_terminate_task does not return... */
+	EE_hal_end_nested_primitive(np_flags);
+
   	/* This return instruction usually is optimized by the compiler,
      because hal_terminate_task does not return... */
   	return E_OK;
