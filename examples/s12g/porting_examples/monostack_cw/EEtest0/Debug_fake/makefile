@@ -17,10 +17,9 @@ RTDRUID_CONFIGURATOR_NUMBER:=1276
 EEOPT += DEBUG
 EEOPT += __ASSERT__
 EEOPT += __CODEWARRIOR__
-EEOPT += CW_EVAL_VERSION
 EEOPT += __USE_TIMER__
 EEOPT += __USE_SCI__
-
+EEOPT += CW_EVAL_VERSION
 
 ############################################################################
 #

@@ -21,7 +21,7 @@ EEOPT += __S12XS_INCLUDE_REGS__
 EEOPT += __CODEWARRIOR__
 EEOPT += __USE_TIMER__
 EEOPT += __USE_SCI__
-
+EEOPT += CW_EVAL_VERSION
 
 ############################################################################
 #

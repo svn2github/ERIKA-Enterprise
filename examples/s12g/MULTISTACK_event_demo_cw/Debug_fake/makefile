@@ -19,7 +19,7 @@ EEOPT += __ASSERT__
 EEOPT += __S12XS_INCLUDE_REGS__
 EEOPT += __CODEWARRIOR__
 EEOPT += __OO_CPU_HAS_STARTOS_ROUTINE__
-
+EEOPT += CW_EVAL_VERSION
 
 ############################################################################
 #

@@ -53,6 +53,7 @@ CPU test_application {
 		   option to avoid syntax errors during the compilation:
 		   EE_OPT = "CW_EVAL_VERSION"; 
 		*/
+		EE_OPT = "CW_EVAL_VERSION"; 
 		CFLAGS = "-D__FAR_DATA -Onf";
 		ASFLAGS = "";
 		LDFLAGS = "-addansibi.lib"; 

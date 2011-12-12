@@ -54,7 +54,6 @@ CPU test_application {
 		   EE_OPT = "CW_EVAL_VERSION"; 
 		*/
 		EE_OPT = "CW_EVAL_VERSION"; 
-
 		CFLAGS = "-D__FAR_DATA";
 		ASFLAGS = "";
 		LDFLAGS = "-addansixbi.lib";

@@ -18,7 +18,7 @@ EEOPT += DEBUG
 EEOPT += __ASSERT__
 EEOPT += __CODEWARRIOR__
 EEOPT += MYSCHEDULE
-
+EEOPT += CW_EVAL_VERSION
 
 ############################################################################
 #

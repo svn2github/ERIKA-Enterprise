@@ -18,7 +18,7 @@ EEOPT += DEBUG
 EEOPT += __ASSERT__
 EEOPT += __S12XS_INCLUDE_REGS__
 EEOPT += __CODEWARRIOR__
-
+EEOPT += CW_EVAL_VERSION
 
 ############################################################################
 #
