@@ -61,7 +61,7 @@
 #
 +seg .ftext -b 0x7e0000 -o 0x8000 -w 0x4000 -n .ftext -f 0xFF -m 0x14000	# banked - 5th bank
 # Place obj files for the banked section here
-"obj\main.o"
+"obj\code.o"
 
 #
 +seg .ftext -b 0x7f8000 -o 0x8000 -w 0x4000 -n .ftext -f 0xFF -m 0x4000		# banked - 6th bank

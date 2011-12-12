@@ -21,15 +21,6 @@ volatile int dummitISR_counter = 0;
 	}
 #endif
 
-#ifdef __S12_TMR0_ISR2_CODEc__
-	@interrupt @near void CounterISR(void);
-#else
-	@interrupt @near void CounterISR(void)
-	{
-		dummitISR_counter++;
-	}
-#endif
-
 @interrupt @near void _stext(void);	/* startup routine */
 
 
@@ -71,7 +62,7 @@ static @interrupt @near void dummit(void)
   	dummit,			/* 0xFF74  Periodic Interrupt Timer  */
   	dummit,			/* 0xFF76  Periodic Interrupt Timer  */
   	dummit,			/* 0xFF78  Periodic Interrupt Timer  */
-  	myISR2,			/* 0xFF7A  Periodic Interrupt Timer  */
+  	dummit,			/* 0xFF7A  Periodic Interrupt Timer  */
   	dummit,			/* 0xFF7C  HTI                  */
   	dummit,			/* 0xFF7E  Autonomous Periodical Int */
 	dummit,			/* 0xFF80  Low Voltage Interrupt     */
@@ -129,7 +120,7 @@ static @interrupt @near void dummit(void)
   	dummit,			/* 0xFFE8  Timer channel 3           */
   	dummit,			/* 0xFFEA  Timer channel 2           */
   	dummit,			/* 0xFFEC  Timer channel 1           */
-  	CounterISR,			/* 0xFFEE  Timer channel 0           */
+  	myISR2,			/* 0xFFEE  Timer channel 0           */
   	dummit,			/* 0xFFF0  Real Time Interrupt       */
   	dummit,			/* 0xFFF2  IRQ                       */
   	dummit,			/* 0xFFF4  XIRQ                      */

@@ -1,5 +1,5 @@
 // Load the executable file
-load "Debug\s12.elf" AUTOERASEANDFLASH NOPRELOADCMD NOPOSTLOADCMD NORUNAFTERLOAD
+load "Debug\MC9S12XS128.elf" AUTOERASEANDFLASH NOPRELOADCMD NOPOSTLOADCMD NORUNAFTERLOAD
 // Set a breakpoint when the execution runs out from the main function...
 BS 0xC779 P E
 // Start execution...
