@@ -1,7 +1,7 @@
 // Load the executable file
 load "Debug\s12.elf" AUTOERASEANDFLASH NOPRELOADCMD NOPOSTLOADCMD NORUNAFTERLOAD
 // Set a breakpoint when the execution runs out from the main function...
-BS 0xC779 P E
+BS 0xC00B P E
 // Start execution...
 GO
 // Wait the breakpoint or a similar pause

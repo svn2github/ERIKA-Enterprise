@@ -66,7 +66,29 @@
 
 #elif defined(s12xs_cw)
 
-// todo
+	EE_OPT = "DEBUG";
+	EE_OPT = "__CODEWARRIOR__"; 
+	EE_OPT = "CW_EVAL_VERSION"; 
+
+	CFLAGS = "-D__FAR_DATA";
+	ASFLAGS = "";
+	LDFLAGS = "-addansixb.lib"; 
+
+	MCU_DATA = MC9S12 {
+		MODEL = CUSTOM{
+			MODEL = "MC9S12XS128";
+			LINKERSCRIPT = "../MC9S12XS128.prm";
+			INCLUDE_H = "mc9s12xs128.h";
+			INCLUDE_C = "mc9s12xs128.c";
+			INCLUDE_S = "";
+		};
+	};
+
+	CPU_DATA = MC9S12 {
+		APP_SRC = "code.c";
+		APP_SRC = "Vectors.c";
+		APP_SRC = "CPU12ISRs.c";
+		APP_SRC = "Start12.c";
 
 #elif defined(s12g_cw)
 
@@ -78,7 +100,7 @@
 	ASFLAGS = "";
 	LDFLAGS = "-addansibi.lib"; 
 
-	MCU_DATA = S12XS {
+	MCU_DATA = MC9S12 {
 		MODEL = CUSTOM{
 			MODEL = "MC9S12G128";
 			LINKERSCRIPT = "../mc9s12g128.prm";
@@ -88,7 +110,7 @@
 		};
 	};
 
-	CPU_DATA = MC9S12XS {
+	CPU_DATA = MC9S12 {
 		APP_SRC = "code.c";
 		APP_SRC = "Vectors.c";
 		APP_SRC = "CPU12ISRs.c";

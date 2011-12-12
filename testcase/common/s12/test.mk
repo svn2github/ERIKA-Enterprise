@@ -119,8 +119,8 @@ OUTDIR_COMMANDS_s12xs_cosmic_source = \
 
 OUTDIR_COMMANDS_s12xs_cw_source = \
 	( cd $@; cp -sf ../*.* .; \
-	cp ../../common/s12/s12xs_cw/hs12xsregs.h ../../common/s12/s12xs_cw/vector_s12x.c ../../common/s12/s12xs_cw/crtsx.S ../../common/s12/s12xs_cw/mc9s12xs128_lkf_template .; \
-	cp ../../common/s12/s12xs_cw/Full_Chip_Simulation.ini ../../common/s12/s12xs_cw/C_Layout.hwl ../../common/s12/s12xs_cw/SofTec_HCS12.ini .; );
+	cp ../../common/s12/s12xs_cw/Vectors.c ../../common/s12/s12xs_cw/CPU12ISRs.c ../../common/s12/s12xs_cw/CPU12ISRs.h ../../common/s12/s12xs_cw/MC9S12XS128.prm .; \
+	cp ../../common/s12/s12xs_cw/Start12.c ../../common/s12/s12xs_cw/Full_Chip_Simulation.ini ../../common/s12/s12xs_cw/C_Layout.hwl ../../common/s12/s12xs_cw/SofTec_HCS12.ini .; );
 
 OUTDIR_COMMANDS_s12g_cw_source = \
 	( cd $@; cp -sf ../*.* .; \
