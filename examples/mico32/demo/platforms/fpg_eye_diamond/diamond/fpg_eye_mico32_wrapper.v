@@ -2,7 +2,6 @@
 
 `define BOARD_FREQ 25
 `define PLATFORM_FREQ 50
-// Define Wrapping Module
 
 `include "../msb/soc/fpg_eye_mico32.v"
 
@@ -26,8 +25,6 @@ module fpg_eye_mico32_wrapper(
                             , sdramsdr_CLK
                             , uartSIN
                             , uartSOUT
-							, uart_debug_in
-							, uart_debug_out
                             , net_spiMISO_MASTER
                             , net_spiMOSI_MASTER
                             , net_spiSS_N_MASTER
@@ -36,7 +33,6 @@ module fpg_eye_mico32_wrapper(
                             , camera_i2cSCL
                             , rtc_i2cSDA
                             , rtc_i2cSCL
-                            //, lcd_gpioPIO_IO
                             , misc_gpioPIO_BOTH_IN
                             , misc_gpioPIO_BOTH_OUT
                             , serparioSER_IN
@@ -44,10 +40,6 @@ module fpg_eye_mico32_wrapper(
                             , serparioSH_CLK
                             , serparioSTORE
                             , serparioOUT_EN
-                            //, ext_spiMISO_MASTER
-                            //, ext_spiMOSI_MASTER
-                            //, ext_spiSS_N_MASTER
-                            //, ext_spiSCLK_MASTER
                             , spi_flash_hold_out
                             , SPIFlash_bootCEJ
                             , SPIFlash_bootSCK
@@ -65,12 +57,10 @@ module fpg_eye_mico32_wrapper(
     // Inputs
     input clk_i;
     input reset_n;
-    //input SPIFlashSO;
     input uartSIN;
     input net_spiMISO_MASTER;
     input [3:0] misc_gpioPIO_BOTH_IN;
     input serparioSER_IN;
-    //input ext_spiMISO_MASTER;
     input SPIFlash_bootSO;
 
     // Outputs
@@ -97,9 +87,6 @@ module fpg_eye_mico32_wrapper(
     output        serparioSH_CLK;
     output        serparioSTORE;
     output        serparioOUT_EN;
-    //output        ext_spiMOSI_MASTER;
-    //output [2:0]  ext_spiSS_N_MASTER;
-    //output        ext_spiSCLK_MASTER;
     output        SPIFlash_bootCEJ;
     output        SPIFlash_bootSCK;
     output        SPIFlash_bootSI;
@@ -107,11 +94,6 @@ module fpg_eye_mico32_wrapper(
     output        cameracam_mclk;
     output        cameracam_rst;
     output        cameracam_enb;							
-	
-	output        uart_debug_out;
-	input         uart_debug_in;
-
-
 
     // Input
     input [7:0]   cameracam_y;
@@ -126,13 +108,11 @@ module fpg_eye_mico32_wrapper(
     inout         camera_i2cSCL;
     inout         rtc_i2cSDA;
     inout         rtc_i2cSCL;
-    //inout [8:0]  lcd_gpioPIO_IO;
     
     wire          sram_addr_0;
 
     wire          main_clock;
     wire          main_reset_n;
-	//wire 		  watchdog;
 	wire 		  reset;
 
     pmi_pll_fp #(.pmi_freq_clki(`BOARD_FREQ),
@@ -176,8 +156,6 @@ module fpg_eye_mico32_wrapper(
                                .sdramsdr_CLK(sdramsdr_CLK), 
                                .uartSIN(uartSIN), 
                                .uartSOUT(uartSOUT),
-							   .uart_debugSIN(uart_debug_in),
-							   .uart_debugSOUT(uart_debug_out),
                                .net_spiMISO_MASTER(net_spiMISO_MASTER), 
                                .net_spiMOSI_MASTER(net_spiMOSI_MASTER), 
                                .net_spiSS_N_MASTER(net_spiSS_N_MASTER), 
@@ -186,7 +164,6 @@ module fpg_eye_mico32_wrapper(
                                .camera_i2cSCL(camera_i2cSCL), 
                                .rtc_i2cSDA(rtc_i2cSDA), 
                                .rtc_i2cSCL(rtc_i2cSCL), 
-                               //.lcd_gpioPIO_IO(lcd_gpioPIO_IO), 
                                .misc_gpioPIO_BOTH_IN({~misc_gpioPIO_BOTH_IN[1:0],misc_gpioPIO_BOTH_IN}), 
                                .misc_gpioPIO_BOTH_OUT(misc_gpioPIO_BOTH_OUT), 
                                .serparioSER_IN(serparioSER_IN),
@@ -194,10 +171,6 @@ module fpg_eye_mico32_wrapper(
                                .serparioSH_CLK(serparioSH_CLK),
                                .serparioSTORE(serparioSTORE),
                                .serparioOUT_EN(serparioOUT_EN),
-                               //.ext_spiMISO_MASTER(ext_spiMISO_MASTER), 
-                               //.ext_spiMOSI_MASTER(ext_spiMOSI_MASTER), 
-                               //.ext_spiSS_N_MASTER(ext_spiSS_N_MASTER), 
-                               //.ext_spiSCLK_MASTER(ext_spiSCLK_MASTER),
                                .SPIFlash_bootCEJ(SPIFlash_bootCEJ), 
                                .SPIFlash_bootSCK(SPIFlash_bootSCK), 
                                .SPIFlash_bootSI(SPIFlash_bootSI), 
@@ -209,10 +182,9 @@ module fpg_eye_mico32_wrapper(
 							   .cameracam_mclk(cameracam_mclk),
 							   .cameracam_rst(cameracam_rst),
 							   .cameracam_enb(cameracam_enb)
-							   //.watchdogwatchdog_o(watchdog)
                                );
 
     // Unblock SPI Flash
     assign spi_flash_hold_out = 1'b1;
-	//assign reset = main_reset_n & (~watchdog);
+	
 endmodule

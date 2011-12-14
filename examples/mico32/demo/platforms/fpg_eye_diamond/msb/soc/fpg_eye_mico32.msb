@@ -245,10 +245,8 @@
 	    	<GUI Columns="2" Span="2" Text="WISHBONE Configuration" Widget="Group"/>
 	    	<GUI Name="WB_DAT_WIDTH" Port="ASRAM" Span="1" Widget="Combo"/>
      	</GUIS>
-</Component><Component Access="RW" Device="All" Help="wb_sdr_ctrl\document\sdram.htm" LatticeFamily="All" Name="wb_sdr_ctrl" PlatformScheme="Slave Side - Round Robin" Processor="LM32" Text="SDRAM Controller" Type="Memory" Ver="3.5">
-  <MasterSlavePorts>
-    <SlavePort Name="SDRAM Port" Prefix="S"><Connections><Connection InstanceName="LM32" MasterPort="I" Priority="0"/><Connection InstanceName="LM32" MasterPort="D" Priority="1"/><Connection InstanceName="camera" MasterPort="mst" Priority="2"/></Connections></SlavePort>
-  </MasterSlavePorts>
+</Component><Component Access="RW" Device="All" Help="wb_sdr_ctrl\document\sdram.htm" LatticeFamily="All" Name="wb_sdr_ctrl" PlatformScheme="Slave Side - Round Robin" Processor="LM32" Text="SDRAM Controller" Type="Memory" Ver="3.6">
+  
     <ClockPort Description="Clock one" Name="CLK_I "/>
     <ResetPort Description="Reset" Name="RST_I "/>
   <ExternalPorts>
@@ -270,29 +268,7 @@
     <Module Name="pmi_fifo_dc"/>
     <Module Name="pmi_pll_fp"/>
   </PMIDef>
-  <Parms>
-    <Parm Name="InstanceName" Text="Instance Name" Type="string" Value="sdram" isiname="true"/>
-    <Parm Name="BASE_ADDRESS" Text="Base Address" Type="Integer" Value="0x04000000" isba="true"/>
-    <Parm ListValues="16384,32768,65536,131072,262144,524288,1048576,2097152,4194304,8388608,16777216,33554432,67108864,134217728" Name="SIZE" Text="Size" Type="List" Value="33554432" issize="true"/>
-    <Parm Hide="True" Name="SYS_FREQ" OType="String" Text="SYS_FREQ" Type="Frequency" isparm="true"/>
-    <Parm Enable="true" Name="SDRAM_FREQ" Text="SDRAM Frequency(MHz)" Type="String" Value="90" isparm="true"/>
-    <Parm Name="SDR_DATA_SIZE_32" Text="32bit Data Bus" Type="define" Value="undef"/>
-    <Parm Name="SDR_DATA_SIZE_16" Text="16bit Data Bus" Type="define" Value="def"/>
-    <Parm Name="SDR_DATA_SIZE_8" Text="8bit Data Bus" Type="define" Value="undef"/>
-    <Parm Name="SDR_DATA_SIZE_4" Text="4bit Data Bus" Type="define" Value="undef"/>
-    <Parm Name="SDR_ROW_WIDTH" OType="Integer" Text="Row Width" Type="Integer" Value="13" ValueRange="12-13"/>
-    <Parm Name="SDR_COL_WIDTH" OType="Integer" Text="Column Width" Type="Integer" Value="9" ValueRange="8-12"/>
-    <Parm Name="SDR_BNK_WDTH" OType="Integer" Text="Bank Width" Type="Integer" Value="2" ValueRange="1-2"/>
-    <Parm Name="SDR_TMRD" OType="Integer" Text="SDR_TMRD" Type="Integer" Value="2"/>
-    <Parm Name="SDR_TRP" OType="Integer" Text="SDR_TRP" Type="Integer" Value="2"/>
-    <Parm Name="SDR_TRFC" OType="Integer" Text="SDR_TRFC" Type="Integer" Value="6"/>
-    <Parm Name="SDR_TRCD" OType="Integer" Text="SDR_TRCD" Type="Integer" Value="2"/>
-    <Parm Name="SDR_TDAL" OType="Integer" Text="SDR_TDAL" Type="Integer" Value="6"/>
-    <Parm Name="SDR_TREFI" OType="Integer" Text="SDR_TREFI" Type="Integer" Value="5760000"/>
-    <Parm Name="T100US" OType="Integer" Text="T100US" Type="Integer" Value="9000"/>
-    <Parm Name="ADDRESS_LOCK" Text="Lock Address" Type="Define" Value="def"/>
-    <Parm Name="DISABLE" Text="Disable Component" Type="Define" Value="undef" isuse="true"/>
-  </Parms>
+  
   <GUIS Columns="2">
     <GUI Name="InstanceName" Span="1" Widget="Text"/>
     <GUI Name="BASE_ADDRESS" Span="1" Widget="Text"/>
@@ -317,7 +293,7 @@
     <GUI Name="T100US" Span="1" Widget="Text"/>
     <GUI Widget="EndGroup"/>
   </GUIS>
-</Component><Component Access="RW" Device="All" Help="wb_ebr_ctrl\document\onchipram.htm" LatticeFamily="All" Name="wb_ebr_ctrl" PlatformScheme="Slave Side - Round Robin" Processor="LM32,LM8" Text="On-Chip Memory" Type="Memory" Ver="3.4">
+<MasterSlavePorts><SlavePort Name="SDRAM Port" Prefix="S"><Connections><Connection InstanceName="LM32" MasterPort="I" Priority="0"/><Connection InstanceName="LM32" MasterPort="D" Priority="1"/><Connection InstanceName="camera" MasterPort="mst" Priority="2"/></Connections></SlavePort></MasterSlavePorts><Parms><Parm Name="InstanceName" Text="Instance Name" Type="string" Value="sdram" isiname="true"/><Parm Name="BASE_ADDRESS" Text="Base Address" Type="Integer" Value="0x04000000" isba="true"/><Parm ListValues="16384,32768,65536,131072,262144,524288,1048576,2097152,4194304,8388608,16777216,33554432,67108864,134217728" Name="SIZE" Text="Size" Type="List" Value="33554432" issize="true"/><Parm Hide="True" Name="SYS_FREQ" OType="String" Text="SYS_FREQ" Type="Frequency" Value="" isparm="true"/><Parm Enable="true" Name="SDRAM_FREQ" Text="SDRAM Frequency(MHz)" Type="String" Value="90" isparm="true"/><Parm Name="SDR_DATA_SIZE_32" Text="32bit Data Bus" Type="define" Value="undef"/><Parm Name="SDR_DATA_SIZE_16" Text="16bit Data Bus" Type="define" Value="def"/><Parm Name="SDR_DATA_SIZE_8" Text="8bit Data Bus" Type="define" Value="undef"/><Parm Name="SDR_DATA_SIZE_4" Text="4bit Data Bus" Type="define" Value="undef"/><Parm Name="SDR_ROW_WIDTH" OType="Integer" Text="Row Width" Type="Integer" Value="13" ValueRange="12-13"/><Parm Name="SDR_COL_WIDTH" OType="Integer" Text="Column Width" Type="Integer" Value="9" ValueRange="8-12"/><Parm Name="SDR_BNK_WDTH" OType="Integer" Text="Bank Width" Type="Integer" Value="2" ValueRange="1-2"/><Parm Name="SDR_TMRD" OType="Integer" Text="SDR_TMRD" Type="Integer" Value="2"/><Parm Name="SDR_TRP" OType="Integer" Text="SDR_TRP" Type="Integer" Value="2"/><Parm Name="SDR_TRFC" OType="Integer" Text="SDR_TRFC" Type="Integer" Value="6"/><Parm Name="SDR_TRCD" OType="Integer" Text="SDR_TRCD" Type="Integer" Value="2"/><Parm Name="SDR_TDAL" OType="Integer" Text="SDR_TDAL" Type="Integer" Value="6"/><Parm Name="SDR_TREFI" OType="Integer" Text="SDR_TREFI" Type="Integer" Value="5760000"/><Parm Name="T100US" OType="Integer" Text="T100US" Type="Integer" Value="9000"/><Parm Name="ADDRESS_LOCK" Text="Lock Address" Type="Define" Value="def"/><Parm Name="DISABLE" Text="Disable Component" Type="Define" Value="undef" isuse="true"/></Parms></Component><Component Access="RW" Device="All" Help="wb_ebr_ctrl\document\onchipram.htm" LatticeFamily="All" Name="wb_ebr_ctrl" PlatformScheme="Slave Side - Round Robin" Processor="LM32,LM8" Text="On-Chip Memory" Type="Memory" Ver="3.4">
 	<MasterSlavePorts>
 		<SlavePort Name="EBR Port" Prefix="EBR"><Connections><Connection InstanceName="LM32" MasterPort="I" Priority="0"/><Connection InstanceName="LM32" MasterPort="D" Priority="1"/></Connections></SlavePort>
 	</MasterSlavePorts>
@@ -337,11 +313,11 @@
         <Parms>
             <Parm Name="InstanceName" Text="Instance Name" Type="string" Value="ebr" isiname="true"/>
             <Parm Name="BASE_ADDRESS" Text="Base Address" Type="Integer" Value="0x06000000" isba="true"/>
-            <Parm Enable="true" Name="SIZE" OType="Integer" Text="Size of Memory (in Bytes)" Type="Integer" Value="8192" isparm="true" issize="true"/>
+            <Parm Enable="true" Name="SIZE" OType="Integer" Text="Size of Memory (in Bytes)" Type="Integer" Value="2048" isparm="true" issize="true"/>
             <Parm Name="ADDRESS_LOCK" Text="Lock Address" Type="Define" Value="def"/>
             <Parm Name="DISABLE" Text="Disable Component" Type="Define" Value="undef" isuse="true"/>
             <Parm ListValues="8,32" Name="WB_DAT_WIDTH" OType="Integer" Port="EBR" Text="WISHBONE Data Bus Width" Type="List" Value="32" isparm="true"/>
-            <Parm Name="INIT_FILE_NAME" OType="String" Text="Initialization File Name" Type="File" Value="meminit_ebr.mem" isparm="true"/>
+            <Parm Name="INIT_FILE_NAME" OType="String" Text="Initialization File Name" Type="File" Value="C:/Documents and Settings/Michael/Desktop/ee/examples/mico32/demo/platforms/fpg_eye_diamond/diamond/meminit_ebr.mem" isparm="true"/>
             <Parm ListValues="hex,binary" Name="INIT_FILE_FORMAT" Text="File Format" Type="String" Value="hex" isparm="true"/>
         </Parms>
       <GUIS Columns="2" Help="component_help\lm32.htm" Name="onchipram">
@@ -354,13 +330,11 @@
 	    <GUI Columns="2" Span="2" Text="WISHBONE Configuration" Widget="Group"/>
 	    <GUI Name="WB_DAT_WIDTH" Span="1" Widget="Combo"/>
      </GUIS>
-</Component><Component Device="All" Help="gpio\document\gpio.htm" LatticeFamily="All" Name="gpio" PlatformScheme="Slave Side - Round Robin" Processor="LM32,LM8" Text="GPIO" Type="IO" Ver="3.3">
-	<MasterSlavePorts>
-		<SlavePort Name="GP I/O Port" Prefix="GPIO" Type="DATA,DMAR,DMAW"><Connections><Connection InstanceName="LM32" MasterPort="D" Priority="0"/></Connections></SlavePort>
-	</MasterSlavePorts>
+</Component><Component Device="All" Help="gpio\document\gpio.htm" LatticeFamily="All" Name="gpio" PlatformScheme="Slave Side - Round Robin" Processor="LM32,LM8" Text="GPIO" Type="IO" Ver="3.4">
+	
 	<ClockPort Description="Clock     one" Name="CLK_I"/>
         <ResetPort Description="Reset" Name="RST_I"/>
-	<Interrupt Active="high" IRQ="2" Name="IRQ_O"/>
+	
 	<ExternalPorts>
 		<ExternalPort Condition="INPUT_PORTS_ONLY" Name="PIO_IN" Type="input" Width="DATA_WIDTH"/>
 		<ExternalPort Condition="BOTH_INPUT_AND_OUTPUT" Name="PIO_BOTH_IN" Type="input" Width="INPUT_WIDTH"/>
@@ -405,28 +379,7 @@
 	    <File Name="../components/gpio/rtl/verilog/gpio.v"/>
 	    <File Name="../components/gpio/rtl/verilog/tpio.v"/>
       </Files>
-	<Parms>
-		<Parm Name="InstanceName" Text="Instance Name" Type="string" Value="misc_gpio" isiname="true"/>
-		<Parm Name="BASE_ADDRESS" Text="Base Address" Type="Integer" Value="0x80004800" isba="true"/>
-		<Parm Enable="false" Name="SIZE" Text="Size" Type="Integer" Value="16" issize="true"/>
-		<Parm ListValues="8,32" Name="WB_DAT_WIDTH" OType="Integer" Port="GPIO" Text="WISHBONE Data Bus Width" Type="List" Value="32" isparm="true"/>
-		<Parm Name="WB_ADR_WIDTH" OType="Integer" Port="GPIO" Text="WISHBONE Address Bus Width" Type="Integer" Value="4" isparm="true"/>
-                <Parm Name="ADDRESS_LOCK" Text="Lock Address" Type="Define" Value="undef"/>
-		<Parm Name="DISABLE" Text="Disable Component" Type="Define" Value="undef" isuse="true"/>
-		<Parm GROUP="XFER_MODE" Name="OUTPUT_PORTS_ONLY" Text="Output Ports Only" Type="define" Value="undef" isparm="true"/>
-		<Parm GROUP="XFER_MODE" Name="INPUT_PORTS_ONLY" Text="Input Ports Only" Type="define" Value="undef" isparm="true"/>
-		<Parm GROUP="XFER_MODE" Name="TRISTATE_PORTS" Text="Tristate Ports" Type="define" Value="undef" isparm="true"/>
-		<Parm GROUP="XFER_MODE" Name="BOTH_INPUT_AND_OUTPUT" Text="Both Input and Output" Type="define" Value="def" isparm="true"/>
-		<Parm Name="DATA_WIDTH" NotCondition="BOTH_INPUT_AND_OUTPUT" Text="Data Width" Type="Integer" Value="1" ValueRange="1-32" isparm="true"/>
-		<Parm Condition="BOTH_INPUT_AND_OUTPUT" Name="INPUT_WIDTH" Text="Input Width" Type="Integer" Value="6" ValueRange="1-32" isparm="true"/>
-		<Parm Condition="BOTH_INPUT_AND_OUTPUT" Name="OUTPUT_WIDTH" Text="Output Width" Type="Integer" Value="3" ValueRange="1-32" isparm="true"/>
-		<Parm Name="IRQ_MODE" Text="IRQ Mode" Type="define" Value="def" isparm="true"/>
-		<Parm Condition="IRQ_MODE" GROUP="IMODE" Name="LEVEL" Text="Level Sensitive" Type="define" Value="def" isparm="true"/>
-		<Parm Condition="IRQ_MODE" GROUP="IMODE" Name="EDGE" Text="Edge Sensitive" Type="define" Value="undef" isparm="true"/>
-		<Parm Condition="EDGE" Group="EMODE" Name="EITHER_EDGE_IRQ" Text="Either Edge" Type="define" Value="undef" isparm="true"/>
-		<Parm Condition="EDGE" Group="EMODE" Name="POSE_EDGE_IRQ" Text="Postive Edge" Type="define" Value="def" isparm="true"/>
-		<Parm Condition="EDGE" Group="EMODE" Name="NEGE_EDGE_IRQ" Text="Negative Edge" Type="define" Value="undef" isparm="true"/>
-	</Parms>
+	
       <GUIS Columns="2" Help="component_help\lm32.htm" Name="GPIO">
             <GUI Name="InstanceName" Span="1" Widget="Text" Width="40"/>
             <GUI Name="BASE_ADDRESS" Span="1" Widget="Text"/>
@@ -455,7 +408,7 @@
 	    <GUI Columns="2" Span="2" Text="WISHBONE Configuration" Widget="Group"/>
 	    <GUI Name="WB_DAT_WIDTH" Port="GPIO" Span="1" Widget="Combo"/>
      </GUIS>
-</Component><Component Device="All" Help="uart_core\document\uart.htm" LatticeFamily="All" Name="uart_core" PlatformScheme="Slave Side - Round Robin" Processor="LM32,LM8" Text="UART" Type="IO" Ver="3.6">
+<MasterSlavePorts><SlavePort Name="GP I/O Port" Prefix="GPIO" Type="DATA,DMAR,DMAW"><Connections><Connection InstanceName="LM32" MasterPort="D" Priority="0"/></Connections></SlavePort></MasterSlavePorts><Interrupt Active="high" IRQ="2" Name="IRQ_O"/><Parms><Parm Name="InstanceName" Text="Instance Name" Type="string" Value="misc_gpio" isiname="true"/><Parm Name="BASE_ADDRESS" Text="Base Address" Type="Integer" Value="0x80004800" isba="true"/><Parm Enable="false" Name="SIZE" Text="Size" Type="Integer" Value="16" issize="true"/><Parm ListValues="8,32" Name="WB_DAT_WIDTH" OType="Integer" Port="GPIO" Text="WISHBONE Data Bus Width" Type="List" Value="32" isparm="true"/><Parm Name="WB_ADR_WIDTH" OType="Integer" Port="GPIO" Text="WISHBONE Address Bus Width" Type="Integer" Value="4" isparm="true"/><Parm Name="ADDRESS_LOCK" Text="Lock Address" Type="Define" Value="undef"/><Parm Name="DISABLE" Text="Disable Component" Type="Define" Value="undef" isuse="true"/><Parm GROUP="XFER_MODE" Name="OUTPUT_PORTS_ONLY" Text="Output Ports Only" Type="define" Value="undef" isparm="true"/><Parm GROUP="XFER_MODE" Name="INPUT_PORTS_ONLY" Text="Input Ports Only" Type="define" Value="undef" isparm="true"/><Parm GROUP="XFER_MODE" Name="TRISTATE_PORTS" Text="Tristate Ports" Type="define" Value="undef" isparm="true"/><Parm GROUP="XFER_MODE" Name="BOTH_INPUT_AND_OUTPUT" Text="Both Input and Output" Type="define" Value="def" isparm="true"/><Parm Name="DATA_WIDTH" NotCondition="BOTH_INPUT_AND_OUTPUT" Text="Data Width" Type="Integer" Value="1" ValueRange="1-32" isparm="true"/><Parm Condition="BOTH_INPUT_AND_OUTPUT" Name="INPUT_WIDTH" Text="Input Width" Type="Integer" Value="6" ValueRange="1-32" isparm="true"/><Parm Condition="BOTH_INPUT_AND_OUTPUT" Name="OUTPUT_WIDTH" Text="Output Width" Type="Integer" Value="3" ValueRange="1-32" isparm="true"/><Parm Name="IRQ_MODE" Text="IRQ Mode" Type="define" Value="def" isparm="true"/><Parm Condition="IRQ_MODE" GROUP="IMODE" Name="LEVEL" Text="Level Sensitive" Type="define" Value="def" isparm="true"/><Parm Condition="IRQ_MODE" GROUP="IMODE" Name="EDGE" Text="Edge Sensitive" Type="define" Value="undef" isparm="true"/><Parm Condition="EDGE" Group="EMODE" Name="EITHER_EDGE_IRQ" Text="Either Edge" Type="define" Value="undef" isparm="true"/><Parm Condition="EDGE" Group="EMODE" Name="POSE_EDGE_IRQ" Text="Postive Edge" Type="define" Value="def" isparm="true"/><Parm Condition="EDGE" Group="EMODE" Name="NEGE_EDGE_IRQ" Text="Negative Edge" Type="define" Value="undef" isparm="true"/></Parms></Component><Component Device="All" Help="uart_core\document\uart.htm" LatticeFamily="All" Name="uart_core" PlatformScheme="Slave Side - Round Robin" Processor="LM32,LM8" Text="UART" Type="IO" Ver="3.6">
 	<MasterSlavePorts>
 		<SlavePort Name="UART Port" Prefix="UART" Type="DATA,DMAR,DMAW"><Connections><Connection InstanceName="LM32" MasterPort="D" Priority="0"/></Connections></SlavePort>
 	</MasterSlavePorts>
@@ -1114,11 +1067,11 @@
  	  <Parm Name="SPI_READ" Text="Slow Read" Type="Integer" Value="3" isparm="true"/>
 	  <Parm Name="SPI_FAST_READ" Text="Fast Read" Type="Integer" Value="11" isparm="true"/>
 	  <Parm Name="SPI_BYTE_PRG" Text="Byte Program" Type="Integer" Value="2" isparm="true"/>
-	  <Parm Name="SPI_PAGE_PRG" Text="Page Program" Type="Integer" Value="2" isparm="true"/>
+	  <Parm Name="SPI_PAGE_PRG" Text="Page Program" Type="Integer" Value="173" isparm="true"/>
 	  <Parm Name="SPI_BLK1_ERS" Text="Block Erase Type 1 (4K Blocks)" Type="Integer" Value="32" isparm="true"/>
 	  <Parm Name="SPI_BLK2_ERS" Text="Block Erase Type 2 (32K Blocks)" Type="Integer" Value="82" isparm="true"/>
 	  <Parm Name="SPI_BLK3_ERS" Text="Block Erase Type 3 (64K Blocks)" Type="Integer" Value="216" isparm="true"/>
-	  <Parm Name="SPI_CHIP_ERS" Text="Chip Erase" Type="Integer" Value="96" isparm="true"/>
+	  <Parm Name="SPI_CHIP_ERS" Text="Chip Erase" Type="Integer" Value="199" isparm="true"/>
 	  <Parm Name="SPI_WRT_ENB" Text="Write Enable" Type="Integer" Value="6" isparm="true"/>
 	  <Parm Name="SPI_WRT_DISB" Text="Write Disable" Type="Integer" Value="4" isparm="true"/>
 	  <Parm Name="SPI_READ_STAT" Text="Read Status Register" Type="Integer" Value="5" isparm="true"/>

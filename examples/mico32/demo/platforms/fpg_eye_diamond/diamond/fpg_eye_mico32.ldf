@@ -2,7 +2,7 @@
 <BaliProject version="1.3" title="fpg_eye_mico32" device="LFXP2-17E-5QN208C" default_implementation="fpg_eye_mico32">
     <Options/>
     <Implementation title="fpg_eye_mico32" dir="fpg_eye_mico32" description="fpg_eye_mico32" default_strategy="Area">
-        <Options/>
+        <Options def_top="fpg_eye_mico32_wrapper"/>
         <Source name="fpg_eye_mico32_wrapper.v" type="Verilog" type_short="Verilog">
             <Options top_module="fpg_eye_mico32_wrapper"/>
         </Source>
