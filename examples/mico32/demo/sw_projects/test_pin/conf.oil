@@ -40,21 +40,12 @@
 
 CPU test_application {
 
-	#include "conf.oil.lwip"
-	#include "conf.oil.enc28j60"
-
 	OS EE {		
 		CFLAGS = "-g2";
 		ASFLAGS = "";
-		LDFLAGS = "-T graph.ld";
 
 		CPU_DATA = LM32 {
 			APP_SRC = "main.c";
-			APP_SRC = "fs.c";
-			APP_SRC = "httpd.c";
-			APP_SRC = "color_image.c";
-			APP_SRC = "crc32.c";
-			APP_SRC = "adler32.c";
 			MULTI_STACK = FALSE;
 			USESTANDALONEPRINTF = FALSE;
 			USESMALLC = FALSE;
@@ -83,10 +74,7 @@ CPU test_application {
 		};
 
 		BOARD_DATA = FPG_EYE {
-			OPTIONS = CAMERA;
 			OPTIONS = RS232;
-			OPTIONS = ETHERNET;
-			OPTIONS = ETHERNET_IRQ_SUPPORT;
 			OPTIONS = LEDS;
 		};
 		
@@ -96,22 +84,17 @@ CPU test_application {
 		/*                Contrib Library Inclusion                   */
 		/* ********************************************************** */
 		EE_OPT = "__ADD_LIBS__";
-		EE_OPT = "__USE_ETHERNET_IRQ__";
-
-		LIB = ENABLE {
-			NAME = "HV7131GP";
-		};
-		EE_OPT = "USE_HV7131GP";
 		EE_OPT = "__USE_DIAMOND__";
 		
 	};
 	
-	ISR Camera {
-		CATEGORY = 2;
-		LEVEL = "CAMERA_IRQ";
-		HANDLER = "EE_hv7131gp_handler";
-	};
-
+ ISR Gpio {
+  CATEGORY = 2;
+  LEVEL = "MISC_GPIO_IRQ";
+  HANDLER = "EE_gpio_common_handler";
+ };
+	
+	
 	/* ****************************************************************** */
 	/*                          Application                               */
 	/* ****************************************************************** */

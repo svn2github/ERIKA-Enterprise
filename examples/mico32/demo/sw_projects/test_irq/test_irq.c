@@ -66,6 +66,22 @@ void uart_send_buffer(char *str, unsigned int len)
 		put_byte(*str++);
 }
 
+void uart_print_bit(unsigned int str)
+{
+	unsigned char count = 31;
+	
+	while(count--){
+		if (str & 0x80000000)
+			put_byte('1');
+		else
+			put_byte('0');
+		str <<= 1;
+	}
+	put_byte('\r');
+	put_byte('\n');
+}
+
+
 /* A printf-like function */
 void myprintf(const char *format, ...)
 {
@@ -97,19 +113,22 @@ typedef struct st_MicoGPIO_t{
 void handler_irq_gpio(int i, void* pun)
 {
 	put_byte('B');
+	pin->edgeCapture = 0;	
 }
 
 void LatticeDDInit(void)
 {
 	MicoRegisterISR(2, NULL, handler_irq_gpio);
 	MicoEnableInterrupt(2);
+	pin->tristate = 0x00000000;
 	pin->irqMask = swap(0x00000020);
  	put_byte('A');
 	myprintf("Hello World\n");
 	while(1){
-		msleep(10);
+		//pin->irqMask = swap(0x00000020);
+		msleep(1000);
 		pin->data = swap(0x00000002);
-		msleep(10);
+		msleep(1000);
 		pin->data = swap(0x00000000);		
 	}
 }

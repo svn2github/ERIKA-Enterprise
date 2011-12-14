@@ -64,12 +64,6 @@ CPU test_application {
 				PLATFORM_LIB_PATH = "../../platforms/fpg_eye_diamond/library/";
 				PLATFORM_NAME = "fpg_eye_mico32";
 				PLATFORM_BLD_CFG = "Release";
-				/* MSB isplever */
-				/*
-				PLATFORM_LIB_PATH = "../../platforms/platforms/fpg_eye_isplever/library";
-				PLATFORM_NAME = "fpg_eye_mico32";
-				PLATFORM_BLD_CFG = "Release";
-				*/
    			};
   		};
   		
