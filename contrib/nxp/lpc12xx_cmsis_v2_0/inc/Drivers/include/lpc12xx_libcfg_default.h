@@ -45,7 +45,9 @@
 /* Un-comment the line below to compile the library in DEBUG mode, this will expanse
    the "CHECK_PARAM" macro in the FW library code */
 
+#ifndef DEBUG
 #define DEBUG
+#endif
 
 
 /******************* PERIPHERAL FW LIBRARY CONFIGURATION DEFINITIONS ***********************/
