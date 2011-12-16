@@ -402,6 +402,7 @@ static uint32_t __get_APSR(void)
 }
 #endif
 
+#if (__VER__) < 6020000
 /** \brief  Get xPSR Register
 
     This function returns the content of the xPSR Register.
@@ -412,6 +413,7 @@ static uint32_t __get_xPSR(void)
 {
   __ASM("mrs r0, psr");           // assembler does not know "xpsr"
 }
+#endif
 
 
 #if (__VER__) < 6020000
