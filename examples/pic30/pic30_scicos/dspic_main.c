@@ -106,63 +106,32 @@ double get_scicos_period()
 
 #ifdef __USE_LCD__
 
-/* defined in contrib/scicos/src/pic20/flex_dmb_lcd.c */
-volatile float scicos_lcd_value1 = 0.0;
-volatile float scicos_lcd_value2 = 0.0;
 volatile int scicos_lcd_used = 0;
-
-static char lcd_buf[17];
-
-/*
-* Output syntax: n:smmmmmmmmEsaa
-* where:	n is the input number (0/1);
-*	s is the signum (-/+);
-*	mmmmmmmm is the mantissa (max 8 chars);
-*	aaa is the exponent (max 3 chars).
-*/
-static void write_buf(float data)
-{
-	/* Conversion routine */
-	//** WARNING: 
-	//**          Two lines = 7.5 ms !
-	//** To DO: find a faster sprintf()
-	sprintf(lcd_buf,"%+.6E ",(double)data);
-}
+char ee_lcd_line1[17];
+char ee_lcd_line2[17];
 
 TASK(rt_LCD)
 {
-	static float oldvalue1 = 1.0; // something different from 0
-	static float oldvalue2 = 1.0; // something different from 0
-	float newvalue1;
-	float newvalue2;
+	int i;
+	char line1[17];
+	char line2[17];
 
 	/* check if we have to update the LCD */
 	EE_pic30_disableIRQ();
-	newvalue1 = scicos_lcd_value1;
-	newvalue2 = scicos_lcd_value2;	
+	for(i=0; i<16; i++) {
+		line1[i] = ee_lcd_line1[i];
+		line2[i] = ee_lcd_line2[i];
+	}
 	EE_pic30_enableIRQ();
-
-	/* stop if the data are the same */
-	if (newvalue1 == oldvalue1 && newvalue2 == oldvalue2)
-		return;
- 
-	/* save the new values */
-	oldvalue1 = newvalue1;
-	oldvalue2 = newvalue2;
 
 	/* Write 1st value on LCD */
 	EE_lcd_puts("1:");
-	write_buf(newvalue1);
-	EE_lcd_puts(lcd_buf);
-	
+	EE_lcd_puts(line1);
 	/* Move to second line */
 	EE_lcd_line2();
-	
 	/* Write 2nd value on LCD */
 	EE_lcd_puts("2:");
-	write_buf(newvalue2);
-	EE_lcd_puts(lcd_buf);	
-
+	EE_lcd_puts(line2);
 	/* Reset position for the next iteration */
 	EE_lcd_home();
 }
