@@ -83,6 +83,10 @@ ifeq ($(call iseeopt, __USE_UART__), yes)
   endif #__EE_UART_PORT2_CBUFFER__
 endif #__USE_UART__
 
+ifeq ($(call iseeopt, __SCICOS_SMCUBE__), yes)
+  EE_SRCS += $(shell ls -1 .. --ignore='*block.c' --ignore='*.h' | grep smcube_)
+endif
+
 endif
 
 endif
@@ -97,6 +101,10 @@ ifeq ($(call iseeopt, __USE_UART__), yes)
     EE_SRCS += contrib/scicos/src/pic30/communication/easylab_serial.c
   endif #__EE_UART_PORT1_CBUFFER__
 endif #__USE_UART__
+
+ifeq ($(call iseeopt, __SCICOS_SMCUBE__), yes)
+  EE_SRCS += $(shell ls -1 .. --ignore='*block.c' --ignore='*.h' | grep smcube_)
+endif
 
 endif #__EE_EASYLAB__
 
