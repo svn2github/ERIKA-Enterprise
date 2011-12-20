@@ -63,6 +63,7 @@ _FGS(GCP_OFF);
 static double       scicos_period;
 /* as above, expressed in (int) milliseconds */
 static EE_UINT16    dspic_period;  
+static EE_UINT16    dspic_delay;
 
 /* simple time */
 static double actTime; /* current run time (sec) */
@@ -100,6 +101,7 @@ float CPU_load_get(void)
 
 extern int    NAME(MODELNAME,_init)(void);
 extern double NAME(MODELNAME,_get_tsamp)(void);
+extern double NAME(MODELNAME,_get_tsamp_delay)(void);
 extern int    NAME(MODELNAME,_isr)(double);
 extern int    NAME(MODELNAME,_end)(void);
 
@@ -150,12 +152,13 @@ int main(void)
     /* recover the cycle period Ts */
     scicos_period = NAME(MODELNAME,_get_tsamp)();
     dspic_period = (EE_UINT16) (1000U * scicos_period);
+    dspic_delay = (int) (1000 * NAME(MODELNAME,_get_tsamp_delay)()) ;
 
     /* Blocks initialization */
     NAME(MODELNAME,_init)();
     
     /* Set the isr period */
-    SetRelAlarm(AlarmSci, dspic_period, dspic_period);
+    SetRelAlarm(AlarmSci, dspic_delay, dspic_period);
 
     /* Forever loop: background activities (if any) should go here */
     while(1)
