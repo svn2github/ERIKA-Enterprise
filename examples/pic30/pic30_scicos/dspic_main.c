@@ -77,6 +77,7 @@ _FGS(GCP_OFF);
 
 static double scicos_period; //simple time
 static int dspic_time;
+static int dspic_delay;
 static double t;
 static double actTime;
 
@@ -87,6 +88,7 @@ float scicosUSB_tx_buffer[SCICOS_USB_CHANNELS] __attribute__((far));
 
 extern int NAME(MODELNAME,_init)(void);
 extern double NAME(MODELNAME,_get_tsamp)(void);
+extern double NAME(MODELNAME,_get_tsamp_delay)(void);
 extern int NAME(MODELNAME,_isr)(double);
 extern int NAME(MODELNAME,_end)(void);
 
@@ -125,12 +127,10 @@ TASK(rt_LCD)
 	EE_pic30_enableIRQ();
 
 	/* Write 1st value on LCD */
-	EE_lcd_puts("1:");
 	EE_lcd_puts(line1);
 	/* Move to second line */
 	EE_lcd_line2();
 	/* Write 2nd value on LCD */
-	EE_lcd_puts("2:");
 	EE_lcd_puts(line2);
 	/* Reset position for the next iteration */
 	EE_lcd_home();
@@ -263,6 +263,17 @@ int main(void)
 	/* Wait for PLL to lock */
 	while(OSCCONbits.LOCK!=1);
 
+	/** scicos_period 
+	 *  Initialization of scicos_period used by get_scicos_period() 
+	 *  is done before the initialization of the blocks 
+	 */
+	scicos_period = NAME(MODELNAME,_get_tsamp)();
+	
+	/** Simulation time
+	 *  t is used to update actTime
+	 */
+	t = 0.0;
+	
 #ifdef __USE_LCD__
 	/* Init LCD */
 	EE_lcd_init();
@@ -271,23 +282,23 @@ int main(void)
 	EE_lcd_clear();
 #endif
 
+	/* Initialization code of the blocks */
 	NAME(MODELNAME,_init)(); 
 
-	t = 0.0; //simulation time
-  
 	/* Program Timer 1 to raise interrupts */
 	T1_program();
-  
-	scicos_period = NAME(MODELNAME,_get_tsamp)();
-	dspic_time = (int) (1000*scicos_period);
-	SetRelAlarm(AlarmSci, dspic_time, dspic_time);
-		
+
+	/* Start Scicos Alarm for blocks execution */
+	dspic_delay = (int) (1000 * NAME(MODELNAME,_get_tsamp_delay)()) ;
+	dspic_time =  (int) (1000 * scicos_period);
+	SetRelAlarm(AlarmSci, dspic_delay, dspic_time);
+
 #ifdef __USE_LCD__
-	SetRelAlarm(AlarmLcd, dspic_time, 500);
+	SetRelAlarm(AlarmLcd, dspic_delay, 100);
 #endif
 
 #ifdef __USE_USB__
-	SetRelAlarm(AlarmUSB, dspic_time, 100);
+	SetRelAlarm(AlarmUSB, dspic_delay, 100);
 #endif
 
 #ifdef __USE_MIWIP2P__	//Start GF	
