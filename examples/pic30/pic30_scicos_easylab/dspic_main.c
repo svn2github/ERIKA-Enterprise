@@ -158,7 +158,7 @@ int main(void)
     NAME(MODELNAME,_init)();
     
     /* Set the isr period */
-    SetRelAlarm(AlarmSci, dspic_delay, dspic_period);
+    SetRelAlarm(AlarmSci, dspic_period + dspic_delay, dspic_period);
 
     /* Forever loop: background activities (if any) should go here */
     while(1)

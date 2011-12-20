@@ -291,14 +291,14 @@ int main(void)
 	/* Start Scicos Alarm for blocks execution */
 	dspic_delay = (int) (1000 * NAME(MODELNAME,_get_tsamp_delay)()) ;
 	dspic_time =  (int) (1000 * scicos_period);
-	SetRelAlarm(AlarmSci, dspic_delay, dspic_time);
+	SetRelAlarm(AlarmSci, dspic_time + dspic_delay, dspic_time);
 
 #ifdef __USE_LCD__
-	SetRelAlarm(AlarmLcd, dspic_delay, 100);
+	SetRelAlarm(AlarmLcd, dspic_time + dspic_delay, 100);
 #endif
 
 #ifdef __USE_USB__
-	SetRelAlarm(AlarmUSB, dspic_delay, 100);
+	SetRelAlarm(AlarmUSB, dspic_time + dspic_delay, 100);
 #endif
 
 #ifdef __USE_MIWIP2P__	//Start GF	
