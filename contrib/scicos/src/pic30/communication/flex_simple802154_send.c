@@ -47,7 +47,7 @@
 
 #include <machine.h>
 #include <scicos_block4.h>
-#include "flex_simple802154.h"
+#include "pic30/communication/flex_simple802154.h"
 
 #if !( (defined __HAS_SIMPLE802154_C_CONFIG__) \
     || (defined __HAS_SIMPLE802154_D_CONFIG__))

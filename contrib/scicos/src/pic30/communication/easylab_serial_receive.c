@@ -50,7 +50,7 @@
 #include <machine.h>
 #include <scicos_block4.h>
 
-#include "easylab_serial.h"
+#include "pic30/communication/easylab_serial.h"
 
 /* N.B easylab_serial_{send,receive} bloks share same uart connection. So i need a central point where 
    handle UART CBuffer driver, this central point is easylab_serial module

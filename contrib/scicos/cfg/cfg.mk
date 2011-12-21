@@ -19,16 +19,16 @@ EE_VPATH += $(EEBASE)/contrib/scicos/libsrc/core
 
 ifeq ($(call iseeopt, __RTD_CYGWIN__), yes) 
 ALLINCPATH += -I"$(shell cygpath -w $(EEBASE)/contrib/scicos/inc/core)"
-ALLINCPATH += -I"$(shell cygpath -w $(EEBASE)/contrib/scicos/inc/pic30/communication)"
+ALLINCPATH += -I"$(shell cygpath -w $(EEBASE)/contrib/scicos/inc)"
 ALLINCPATH += -I"$(shell cygpath -w $(EEBASE)/contrib/scicos/inc/pic30/communication/udp)"
 else
 ALLINCPATH += -I$(EEBASE)/contrib/scicos/inc/core
-ALLINCPATH += -I$(EEBASE)/contrib/scicos/inc/pic30/communication
+ALLINCPATH += -I$(EEBASE)/contrib/scicos/inc
 ALLINCPATH += -I$(EEBASE)/contrib/scicos/inc/pic30/communication/udp
 endif
 ## New include mechanism
 INCLUDE_PATH += $(EEBASE)/contrib/scicos/inc/core
-INCLUDE_PATH += $(EEBASE)/contrib/scicos/inc/pic30/communication
+INCLUDE_PATH += $(EEBASE)/contrib/scicos/inc
 INCLUDE_PATH += $(EEBASE)/contrib/scicos/inc/pic30/communication/udp
 
 
@@ -65,6 +65,14 @@ OPT_LIBS += -lscicos
 else 
 
 EE_SRCS += $(EE_SRCS_SCICOS)
+
+ifeq ($(call iseeopt, __USE_DEMOBOARD__), yes)
+EE_SRCS += contrib/scicos/src/pic30/flex_daughter.c
+endif
+
+ifeq ($(call iseeopt, __USE_MOTIONBOARD__), yes)
+EE_SRCS += contrib/scicos/src/pic30/flex_daughter.c
+endif
 
 ifeq ($(call iseeopt, __USE_UDP__), yes)
 EE_SRCS += contrib/scicos/src/pic30/communication/flex_udp.c

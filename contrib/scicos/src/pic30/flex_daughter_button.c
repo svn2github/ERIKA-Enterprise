@@ -56,6 +56,7 @@
 #include <scicos_block4.h>
 
 #include <ee.h>
+#include "pic30/flex_daughter.h"
 
 /* Buttons bit allocation 
 
@@ -68,63 +69,20 @@ Pin=4	Button4	RD15
 
 static void init(scicos_block *block)
 {
-	unsigned int pin = block->ipar[0];
-#if defined(__USE_DEMOBOARD__)	
-	if ((pin < 1) || (pin > 4))
-#elif defined(__USE_MOTIONBOARD__)
-	if ((pin < 1) || (pin > 2))
-#endif
-		return; //** return if outside the allowed range
-
-	// Enable buttons without interrupt support
-	EE_buttons_init(NULL, NULL);
+	flex_daughter_button_init();
 }
 
 static void inout(scicos_block *block)
 {
 	float * y = block->outptr[0];
-
 	unsigned int pin = block->ipar[0];
-	
-#if defined(__USE_DEMOBOARD__)	
-	if ((pin < 1) || (pin > 4))
-#elif defined(__USE_MOTIONBOARD__)
-	if ((pin < 1) || (pin > 2))
-#endif
-		return; //** return if outside the allowed range
-	
-	switch(pin) {
-		case 1:
-			if (EE_button_get_S1())
-				y[0] = 1.0; //** the output of a input bit is "1.0"  
-			else
-				y[0] = 0.0; //** "0.0" (float)
-			break;
-		case 2:
-			if (EE_button_get_S2())
-				y[0] = 1.0; //** the output of a input bit is "1.0"  
-			else
-				y[0] = 0.0; //** "0.0" (float)
-			break;
-#if defined(__USE_DEMOBOARD__)	
-		case 3:
-			if (EE_button_get_S3())
-				y[0] = 1.0; //** the output of a input bit is "1.0"  
-			else
-				y[0] = 0.0; //** "0.0" (float)
-			break;
-		case 4:
-			if (EE_button_get_S4())
-				y[0] = 1.0; //** the output of a input bit is "1.0"  
-			else
-				y[0] = 0.0; //** "0.0" (float)
-			break;
-#endif // USE_DEMOBOARD__	
-	}
+
+	flex_daughter_button_inout(pin, (void *)y, SCITYPE_FLOAT);
 }
 
 static void end(scicos_block *block)
 {
+	flex_daughter_button_end();
 }
 
 void flex_daughter_button(scicos_block *block, int flag)

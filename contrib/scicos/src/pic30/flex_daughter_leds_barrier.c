@@ -52,6 +52,7 @@
 #include <scicos_block4.h>
 
 #include <ee.h>
+#include "pic30/flex_daughter.h"
 
 /* FLEX DMB LEDS allocation 
 
@@ -68,47 +69,24 @@ Pin=8	LED8	RD11
 
 void init(scicos_block *block)
 {
-	float led_threshold = block->rpar[0];
-	
-	if( led_threshold < 0.01 || led_threshold > 0.99 )
-		led_threshold = 0.5;
-	
-	EE_daughter_leds_init();
+	flex_daughter_leds_barrier_init();
 }
 
 void inout(scicos_block *block)
 {
-
 	int i;
-	unsigned char data = 0;
-
-	/* unsigned char data = 0;
-
-	float led_threshold = block->rpar[0];
-
-	//if( led_threshold < 0.01 || led_threshold > 0.99 )
-	//	led_threshold = 0.5;
-
-	for(i=7;i>=0;i--)
-	{
-		if(*(float *)(block->inptr[i]) >= led_threshold) data++;
-		data *= 2;
-}
-*/
-
-	for(i=7; i>=0; i--) {
-
-	if(*(float *)block->inptr[i] >= 0.5) data++;
-	data *= 2;
+	float ledv[8];
+	
+	for(i=0; i<8; i++) {
+		ledv[i] = *(float *)block->inptr[i];
 	}
-
-	EE_leds(data);
-
+	
+	flex_daughter_leds_barrier_inout(block->rpar[0], ledv);
 }
 
 static void end(scicos_block *block)
 {
-	EE_leds(0xFF); //** set the bit to zero at the ending 
+	flex_daughter_leds_barrier_end();
 }
 
 void flex_daughter_leds_barrier(scicos_block *block,int flag)

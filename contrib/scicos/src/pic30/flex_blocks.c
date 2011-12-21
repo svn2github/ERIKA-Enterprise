@@ -39,7 +39,7 @@
  * ###*E*### */
 
 /** 
-	@file flex_daughter_lcd.c
+	@file flex_blocks.c
 	@brief www.scicos.org, www.scicoslab.org
 	@author Roberto Bucher, SUPSI- Lugano
 	@author Simone Mannori, ScicosLab developer
@@ -47,9 +47,6 @@
 */ 
  
  
-//** 9 Feb 2008 : Revision notes by Simone Mannori 
-//**
-
 #include <machine.h>
 #include <scicos_block4.h>
 
@@ -57,20 +54,58 @@
 #include "pic30/flex_daughter.h"
 
 
-static void init(scicos_block *block) {
-	flex_daughter_lcd_init();
+#define FLEX_BLOCKS_TYPE_BUTTONS 0
+#define FLEX_BLOCKS_TYPE_LEDSLCD 1
+
+static void init(scicos_block *block)
+{
+	int type = block->ipar[0];
+	
+	if(type == FLEX_BLOCKS_TYPE_BUTTONS) {
+		flex_daughter_button_init();
+	}
+	else if(type == FLEX_BLOCKS_TYPE_LEDSLCD) {
+		flex_daughter_leds_init();
+		#if defined(__USE_DEMOBOARD__)
+		flex_daughter_lcd_init();
+		#endif
+	}
 }
 
-static void inout(scicos_block *block) {
-	int port_type = block->ipar[0];
-	flex_daughter_lcd_inout(port_type, block->inptr[0], block->inptr[1]);
+static void inout(scicos_block *block)
+{
+	int type = block->ipar[0];
+	
+	if(type == FLEX_BLOCKS_TYPE_BUTTONS) {
+		/* Buttons */
+		flex_daughter_button_inout(1, block->outptr[0], SCITYPE_INT8);
+		flex_daughter_button_inout(2, block->outptr[1], SCITYPE_INT8);
+		#if defined(__USE_DEMOBOARD__)
+		flex_daughter_button_inout(3, block->outptr[2], SCITYPE_INT8);
+		flex_daughter_button_inout(4, block->outptr[3], SCITYPE_INT8);
+		#endif
+	}
+	else if(type == FLEX_BLOCKS_TYPE_LEDSLCD) {
+		/* LEDs */
+		int i;
+		char data = 0;
+		for(i=7; i>=0; i--) {
+			if( *(char *)block->inptr[i] )
+				data |= 1 << i;
+		}
+		EE_leds(data);
+		/* LCD */
+		#if defined(__USE_DEMOBOARD__)
+		flex_daughter_lcd_inout(1, (unsigned char *)block->inptr[8], (unsigned char *)block->inptr[9]);
+		#endif
+	}
 }
 
 static void end(scicos_block *block)
 {
 }
 
-void flex_daughter_lcd(scicos_block *block,int flag)
+void flex_blocks(scicos_block *block,int flag)
 {
  switch (flag) {
     case OutputUpdate:  /* set output */
@@ -89,5 +124,3 @@ void flex_daughter_lcd(scicos_block *block,int flag)
       break;
   }
 }
-
-

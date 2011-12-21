@@ -46,7 +46,7 @@
 */
 
 #include "ee.h"
-#include "easylab_serial.h"
+#include "pic30/communication/easylab_serial.h"
 #include "ee_internal.h"
 
 #include <string.h>

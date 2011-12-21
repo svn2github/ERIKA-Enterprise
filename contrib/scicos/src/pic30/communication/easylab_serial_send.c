@@ -49,7 +49,7 @@
 #include <machine.h>
 #include <scicos_block4.h>
 
-#include "easylab_serial.h"
+#include "pic30/communication/easylab_serial.h"
 
 static void init(scicos_block *block)
 {

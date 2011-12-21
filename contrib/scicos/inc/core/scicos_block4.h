@@ -196,6 +196,16 @@ extern int s_cmp();
 #define SCSUINT32_COP unsigned long
 #define SCSUNKNOW_COP double
 
+/* Define type codes */
+#define SCITYPE_FLOAT   1
+#define SCITYPE_COMPLEX 2
+#define SCITYPE_INT32   3
+#define SCITYPE_INT16   4
+#define SCITYPE_INT8    5
+#define SCITYPE_UINT32  6
+#define SCITYPE_UINT16  7
+#define SCITYPE_UINT8   8
+
  /* scicos_block macros definition :
   *
   * 1  - GetNin(blk)

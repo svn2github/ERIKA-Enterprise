@@ -49,7 +49,7 @@
 #include <scicos_block4.h>
 #include "ee.h"
 #include "mcu/microchip_dspic/inc/ee_ecan.h"
-#include "flex_can.h"
+#include "pic30/communication/flex_can.h"
 
 /* initializagtion flag, used inside EE_eCAN1_init */
 volatile EE_UINT8 ee_ecan1_initialized = 0;

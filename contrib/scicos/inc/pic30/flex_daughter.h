@@ -39,7 +39,7 @@
  * ###*E*### */
 
 /** 
-	@file flex_daughter_lcd.c
+	@file flex_dmb.h
 	@brief www.scicos.org, www.scicoslab.org
 	@author Roberto Bucher, SUPSI- Lugano
 	@author Simone Mannori, ScicosLab developer
@@ -47,47 +47,31 @@
 */ 
  
  
-//** 9 Feb 2008 : Revision notes by Simone Mannori 
-//**
-
 #include <machine.h>
 #include <scicos_block4.h>
 
 #include <ee.h>
-#include "pic30/flex_daughter.h"
 
+#ifdef __USE_LCD__
+void flex_daughter_lcd_init(void);
+void flex_daughter_lcd_end(void);
+void EESCI_flexdmb_lcd_float_inout(float scicos_lcd_value1, float scicos_lcd_value2);
+void EESCI_flexdmb_lcd_uint8_inout(unsigned char* line1, unsigned char* line2);
+void flex_daughter_lcd_inout(int type, void* y_1, void* y_2);
+#endif
 
-static void init(scicos_block *block) {
-	flex_daughter_lcd_init();
-}
+#ifdef __USE_BUTTONS__
+void flex_daughter_button_init();
+void flex_daughter_button_end(void);
+void flex_daughter_button_float_output(int val, void *ptr_y, int ptr_type);
+void flex_daughter_button_inout(int pin, void *ptr_y, int ptr_type);
+#endif
 
-static void inout(scicos_block *block) {
-	int port_type = block->ipar[0];
-	flex_daughter_lcd_inout(port_type, block->inptr[0], block->inptr[1]);
-}
-
-static void end(scicos_block *block)
-{
-}
-
-void flex_daughter_lcd(scicos_block *block,int flag)
-{
- switch (flag) {
-    case OutputUpdate:  /* set output */
-      inout(block);
-      break;
-
-    case StateUpdate: /* get input */
-      break;
-
-    case Initialization:  /* initialisation */
-      init(block);
-      break;
-
-    case Ending:  /* ending */
-      end(block);
-      break;
-  }
-}
-
-
+#ifdef __USE_LEDS__
+void flex_daughter_leds_barrier_init(void);
+void flex_daughter_leds_barrier_inout(float threshold, float *leds_values);
+void flex_daughter_leds_barrier_end(void);
+void flex_daughter_leds_init(void);
+void flex_daughter_leds_inout(float threshold, float *leds_values);
+void flex_daughter_leds_end(void);
+#endif

@@ -47,7 +47,7 @@
 
 #include <machine.h>
 #include <scicos_block4.h>
-#include "flex_simple802154.h"
+#include "pic30/communication/flex_simple802154.h"
 
 #ifdef __HAS_SIMPLE802154_D_CONFIG__
 #error FLEX 802.15.4 ERROR: usage of coordinator and device blocks \

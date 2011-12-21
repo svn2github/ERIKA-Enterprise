@@ -53,7 +53,7 @@
 #define THIS_IS_STACK_APPLICATION
 
 #include "ee.h"
-#include "flex_udp.h"
+#include "pic30/communication/flex_udp.h"
 
 /******************************************************************************/
 /*                              Global variables                              */

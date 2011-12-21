@@ -49,7 +49,7 @@
 #include <scicos_block4.h>
 #include "ee.h"
 #include "mcu/microchip_dspic/inc/ee_ecan.h"
-#include "flex_can.h"
+#include "pic30/communication/flex_can.h"
 #include <string.h>
 
 static void init(scicos_block *block)

@@ -49,7 +49,7 @@
 #include <scicos_block4.h>
 #include <ee.h>
 #include "string.h"
-#include "flex_udp.h"
+#include "pic30/communication/flex_udp.h"
 
 static void init(scicos_block *block)
 {

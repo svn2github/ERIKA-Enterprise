@@ -49,7 +49,7 @@
 #include <scicos_block4.h>
 #include <ee.h>
 #include "string.h"
-#include "flex_udp.h"
+#include "pic30/communication/flex_udp.h"
 
 static volatile unsigned char UDP_is_initialized = 0;
 
