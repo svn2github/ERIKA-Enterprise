@@ -269,7 +269,6 @@ void TIM16_Init(LPC_CTxxBx_TypeDef *TIMx, uint8_t TimerCounterMode, void *TIM16_
 {
 
     TIM16_InitTypeDef *pTimeCfg;
-    TIM16_COUNTERTypeDef *pCounterCfg;
 
     CHECK_PARAM(PARAM_TIM16x(TIMx));
     CHECK_PARAM(PARAM_TIM16_MODE_OPT(TimerCounterMode));
@@ -305,8 +304,6 @@ void TIM16_Init(LPC_CTxxBx_TypeDef *TIMx, uint8_t TimerCounterMode, void *TIM16_
     }
     else
     {
-    
-    	pCounterCfg = (TIM16_COUNTERTypeDef *)TIM16_InitStruct;
     	TIMx->CCR  &= ~TIM16_CTCR_INPUT_MASK;
     }
     
