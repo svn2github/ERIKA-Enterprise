@@ -1,7 +1,7 @@
 # ###*B*###
 # ERIKA Enterprise - a tiny RTOS for small microcontrollers
 # 
-# Copyright (C) 2002-2009  Evidence Srl
+# Copyright (C) 2002-20011  Evidence Srl
 # 
 # This file is part of ERIKA Enterprise.
 # 
@@ -38,14 +38,20 @@
 # Boston, MA 02110-1301 USA.
 # ###*E*###
 
-## Files specific to the CORTEX M0
+## Files specific to the CORTEX MX
 ## Author: 2011 Gianluca Franchino
+##         2011 Giuseppe Serano
 
-ifeq ($(call iseeopt, __CORTEX_M0__), yes)
-EE_SRCS += pkg/cpu/cortex_m0/src/ee_utils.c
+ifeq ($(call iseeopt, __CORTEX_MX__), yes)
+EE_SRCS += pkg/cpu/cortex_mx/src/ee_utils.c
+
 
 ifeq ($(call iseeopt, __IAR__), yes)
-EE_SRCS += pkg/cpu/cortex_m0/src/ee_iar_change_context_isr.s
+EE_SRCS += pkg/cpu/cortex_mx/src/ee_iar_change_context_isr.s
+else
+ifeq ($(call iseeopt, __CCS__), yes)
+EE_SRCS += pkg/cpu/cortex_mx/src/ee_ccs_change_context_isr.s
+endif
 endif
 
 ifeq ($(call iseeopt, __OO_BCC1__), yes)
@@ -65,25 +71,48 @@ CPU_OO=YES
 endif
 
 ifeq ($(CPU_OO), YES)
-EE_SRCS += pkg/cpu/cortex_m0/src/ee_iar_oo.s
+ifeq ($(call iseeopt, __IAR__), yes)
+EE_SRCS += pkg/cpu/cortex_mx/src/ee_iar_oo.s
+else
+ifeq ($(call iseeopt, __CCS__), yes)
+EE_SRCS += pkg/cpu/cortex_mx/src/ee_ccs_oo.s
+endif
+endif
 endif
 
 ifeq ($(call iseeopt, __MULTI__), yes)
 
 ifeq ($(call iseeopt, __IAR__), yes)
-EE_SRCS += pkg/cpu/cortex_m0/src/ee_iar_multi_context.s
-endif
-
+EE_SRCS += pkg/cpu/cortex_mx/src/ee_iar_multi_context.s
 else
-
-EE_SRCS += pkg/cpu/cortex_m0/src/ee_context.c
-
+ifeq ($(call iseeopt, __CCS__), yes)
+EE_SRCS += pkg/cpu/cortex_mx/src/ee_ccs_multi_context.s
 endif
+endif
+
+else	# __MULTI__
+
+EE_SRCS += pkg/cpu/cortex_mx/src/ee_context.c
+
+endif	# !__MULTI__
 
 ifeq ($(call iseeopt, __IRQ_STACK_NEEDED__), yes)
+
 ifeq ($(call iseeopt, __IAR__), yes)
-EE_SRCS += pkg/cpu/cortex_m0/src/ee_iar_irq_stack.s
+EE_SRCS += pkg/cpu/cortex_mx/src/ee_iar_irq_stack.s
+else
+ifeq ($(call iseeopt, __CCS__), yes)
+EE_SRCS += pkg/cpu/cortex_mx/src/ee_ccs_irq_stack.s
 endif
 endif
 
-endif # __CORTEX_M0__
+endif	# __IRQ_STACK_NEEDED__
+
+
+ifeq ($(call iseeopt, __USE_SVC__), yes)
+ifeq ($(call iseeopt, __CCS__), yes)
+EE_SRCS += pkg/cpu/cortex_mx/src/ee_ccs_svc_isr.s
+endif
+endif
+
+endif	# __CORTEX_MX__

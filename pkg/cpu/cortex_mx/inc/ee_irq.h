@@ -1,7 +1,7 @@
 /* ###*B*###
  * ERIKA Enterprise - a tiny RTOS for small microcontrollers
  *
- * Copyright (C) 2002-2010  Evidence Srl
+ * Copyright (C) 2002-2011  Evidence Srl
  *
  * This file is part of ERIKA Enterprise.
  *
@@ -43,104 +43,113 @@
 	@file ee_irq.h
 	@brief Prestub and postub macros and related stuffs
 	@author Gianluca Franchino
+	@author Giuseppe Serano
 	@date 2011
 */ 
 
-#ifndef __INCLUDE_CORTEX_M0_IRQ_H__
-#define __INCLUDE_CORTEX_M0_IRQ_H__
+#ifndef __INCLUDE_CORTEX_MX_IRQ_H__
+#define __INCLUDE_CORTEX_MX_IRQ_H__
+
+#define EE_std_change_context(x) ((void)0)
 
 /* Use angled parenthesis to include the main "ee_internal.h" */
 #include <ee_internal.h>
-#include "cpu/cortex_m0/inc/ee_irq_cng_cont.h"
+#include "cpu/cortex_mx/inc/ee_irq_cng_cont.h"
 #include <cpu/common/inc/ee_irqstub.h>
 
 #ifdef __ALLOW_NESTED_IRQ__
 
-extern struct EE_TOS EE_cortex_m0_IRQ_tos;
+extern struct EE_TOS EE_cortex_mx_IRQ_tos;
 
-#define EE_std_enableIRQ_nested() EE_cortex_m0_enableIRQ()
-#define EE_std_disableIRQ_nested() EE_cortex_m0_disableIRQ()
+#define EE_std_enableIRQ_nested() EE_cortex_mx_enableIRQ()
+#define EE_std_disableIRQ_nested() EE_cortex_mx_disableIRQ()
+
+#else	/* else __ALLOW_NESTED_IRQ__*/
+
+#define EE_std_enableIRQ_nested() ((void)0)
+#define EE_std_disableIRQ_nested() ((void)0)
 
 #endif /* end __ALLOW_NESTED_IRQ__*/
 
 #if defined(__MULTI__) && defined(__IRQ_STACK_NEEDED__)
 
-EE_ADDR EE_cortex_m0_tmp_tos;
+extern void EE_cortex_mx_change_IRQ_stack(void);
+extern void EE_cortex_mx_change_IRQ_stack_back(void);
+
+EE_ADDR EE_cortex_mx_tmp_tos;
 /*save the stack pointer*/ /*Load new stack pointer*/
-#define EE_cortex_m0_change_stack()\
+#define EE_cortex_mx_change_stack()\
 do {\
 	if(EE_IRQ_nesting_level==1) {\
-	EE_cortex_m0_change_IRQ_stack();\
+	EE_cortex_mx_change_IRQ_stack();\
 	}\
 } while(0)
 
-#define EE_cortex_m0_stack_back()\
-	EE_cortex_m0_change_IRQ_stack_back()
-	
-#else
+#define EE_cortex_mx_stack_back()\
+	EE_cortex_mx_change_IRQ_stack_back()
 
-#define EE_cortex_m0_change_stack() ((void)0)
-#define EE_cortex_m0_stack_back() ((void)0)
+#else	/* else __MULTI__ && __IRQ_STACK_NEEDED__*/
 
-#endif /*end __MULTI__ && __IRQ_STACK_NEEDED__*/
+#define EE_cortex_mx_change_stack() ((void)0)
+#define EE_cortex_mx_stack_back() ((void)0)
+
+#endif	/* end __MULTI__ && __IRQ_STACK_NEEDED__*/
  
 #define EE_ISR2_prestub(void)\
 do {\
-	EE_cortex_m0_disableIRQ();\
+	EE_cortex_mx_disableIRQ();\
 	EE_increment_IRQ_nesting_level();\
-	EE_cortex_m0_change_stack();\
+	EE_cortex_mx_change_stack();\
 	/* Enable IRQ if nesting  is allowed */\
 	EE_std_enableIRQ_nested();\
 }\
 while(0)
 
-extern EE_UREG	EE_cortex_m0_change_context_active;
+extern EE_UREG	EE_cortex_mx_change_context_active;
 
 #define EE_ISR2_poststub(void)\
 do{\
 /* Disabled IRQ if nesting is allowed.\
  * Note: if nesting is not allowed, the IRQs are already disabled\
  */\
-	EE_std_disableIRQ_nested();\
-	EE_decrement_IRQ_nesting_level();\
+    EE_std_disableIRQ_nested();\
+    EE_decrement_IRQ_nesting_level();\
 /*\
 * If the ISR at the lowest level is ended, restore the stack pointer\
 * and active the change context procedure if needed ( call the scheduler).\
 */\
-	if (!EE_is_inside_ISR_call()) {\
-		EE_cortex_m0_stack_back();\
-		if (!EE_cortex_m0_change_context_active) {\
-			EE_IRQ_end_instance();\
-			if (EE_std_need_context_change(EE_std_endcycle_next_tid)) {\
-				EE_cortex_m0_IRQ_active_change_context();\
-				EE_cortex_m0_change_context_active = 1;\
-			}\
-		}\
+    if (!EE_is_inside_ISR_call()) {\
+	EE_cortex_mx_stack_back();\
+	if (!EE_cortex_mx_change_context_active) {\
+	    EE_IRQ_end_instance();\
+	    if (EE_std_need_context_change(EE_std_endcycle_next_tid)) {\
+		EE_cortex_mx_IRQ_active_change_context();\
+		EE_cortex_mx_change_context_active = 1;\
+	    }\
 	}\
-	EE_cortex_m0_enableIRQ();\
+    }\
+    EE_cortex_mx_enableIRQ();\
 }\
 while(0)
 
 
-
 #define ISR1(f)			\
-void ISR1_ ## f(void);	\
-void f(void)			\
-{						\
+void ISR1_ ## f(void);		\
+__IRQ void f(void)		\
+{				\
 	ISR1_ ## f();		\
-}						\
+}				\
 void ISR1_ ## f(void)
 
 
 #define ISR2(f)			\
-void ISR2_ ## f(void);	\
-void f(void)			\
-{						\
+void ISR2_ ## f(void);		\
+__IRQ void f(void)		\
+{				\
 	EE_ISR2_prestub();	\
 	ISR2_ ## f();		\
 	EE_ISR2_poststub();	\
-}						\
+}				\
 void ISR2_ ## f(void)
 
-
-#endif /* __INCLUDE_CORTEX_M0_IRQ_H__ */
+#endif /* __INCLUDE_CORTEX_MX_IRQ_H__ */

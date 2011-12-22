@@ -7,7 +7,7 @@
  *
  * ERIKA Enterprise is free software; you can redistribute it
  * and/or modify it under the terms of the GNU General Public License
- * version 2 as published by the Free Software Foundation, 
+ * version 2 as published by the Free Software Foundation,
  * (with a special exception described below).
  *
  * Linking this code statically or dynamically with other modules is
@@ -38,46 +38,34 @@
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
 
-/*
- * Compiler-dependent definitions for IAR compiler
- * Author: 2011 Gianluca Franchino
- */
+ /** 
+	
+	@file ee_svc.h
+	@brief Supervisor-calls routine
+	@author Giuseppe Serano
+	@date 2011
+*/ 
 
-/* This file MUST contain only #defines, because it is also included
-   by the .s files */
+#ifndef __INCLUDE_CORTEX_MX_SVC_H__
+#define __INCLUDE_CORTEX_MX_SVC_H__
 
-/*
- * Compiler dependent interface
- */
+#ifdef __USE_SVC__
 
-#ifndef __INCLUDE_CPU_COMMON_EE_COMPILER_IAR__
-#define __INCLUDE_CPU_COMMON_EE_COMPILER_IAR__
-
-#include "cpu/common/inc/ee_stdint.h"
-#include "cpu/common/inc/ee_types.h"
-#include <cmsis_iar.h>
-
-#ifdef __NO_INLINE__
-#define __INLINE__ static
-/* Used to declare an inline function before the actual definition */
-#define __DECLARE_INLINE__ static
+#ifdef __CCS__
+#include "cpu/common/inc/ee_compiler_ccs.h"
 #else
-#define __INLINE__ static inline
-/* Used to declare an inline function before the actual definition */
-#define __DECLARE_INLINE__ static inline
+#error Unsupported compiler
 #endif
 
-#define __ALWAYS_INLINE__	/* __attribute__ does not exist under IAR*/
-				/* we should use #pragma inline=forced */
-#define __ASM __asm
-#define __IRQ __irq
+__INLINE__ void __ALWAYS_INLINE__ EE_svc_0(void)	// svc #0
+{
+#ifndef __CCS__
+	 __ASM volatile("svc #0\n");
+#else
+	__ASM ("    svc    #0\n");
+#endif
+}
 
-#define NORETURN __noreturn
+#endif /* __USE_SVC__ */
 
-/* Macros used to encapsulate # and ## operators; used to enforce the expected
- * evaluation order of arguments */
-#define EE_PREPROC_JOIN(a,b) a ## b
-#define EE_PREPROC_STRING(s) # s
-#define EE_PREPROC_EVAL(e) e
-
-#endif /* __INCLUDE_CPU_COMMON_EE_COMPILER_IAR__ */
+#endif /* __INCLUDE_CORTEX_MX_SVC_H__ */

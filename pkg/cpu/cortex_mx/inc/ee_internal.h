@@ -1,7 +1,7 @@
 /* ###*B*###
  * ERIKA Enterprise - a tiny RTOS for small microcontrollers
  *
- * Copyright (C) 2002-2009  Evidence Srl
+ * Copyright (C) 2002-2011  Evidence Srl
  *
  * This file is part of ERIKA Enterprise.
  *
@@ -39,16 +39,18 @@
  * ###*E*### */
 
 /** 
-	@file cpu\cortex_m0\inc\ee_internal.h
+	@file ee_internal.h
 	@brief Derived from cpu/pic30/inc/ee_internal.h
 	@author Gianluca Franchino
+	@author Giuseppe Serano
 	@date 2011
 */  
 
-#ifndef __INCLUDE_CORTEX_M0_INTERNAL_H__
-#define __INCLUDE_CORTEX_M0_INTERNAL_H__
+#ifndef __INCLUDE_CORTEX_MX_INTERNAL_H__
+#define __INCLUDE_CORTEX_MX_INTERNAL_H__
 
-#include "cpu/cortex_m0/inc/ee_cpu.h"
+
+#include "cpu/cortex_mx/inc/ee_cpu.h"
 
 
 /*************************************************************************
@@ -66,7 +68,7 @@
    an IRQ and in a task */
 __INLINE__ EE_FREG __ALWAYS_INLINE__ EE_hal_begin_nested_primitive(void)
 {
-    return EE_cortex_m0_disableIRQ();
+    return EE_cortex_mx_suspendIRQ();
 }
 
 
@@ -74,22 +76,14 @@ __INLINE__ EE_FREG __ALWAYS_INLINE__ EE_hal_begin_nested_primitive(void)
    an IRQ and in a task.  Enable IRQs if they were enabled before entering. */
 __INLINE__ void __ALWAYS_INLINE__ EE_hal_end_nested_primitive(EE_FREG f)
 {
-    if (EE_cortex_m0_are_IRQs_enabled(f))
-        EE_cortex_m0_enableIRQ();
+    EE_cortex_mx_resumeIRQ(f);
 }
-
-
 
 /* 
  * Context Handling  
  */
 
- #ifdef __MULTI__
-extern EE_UREG EE_cortex_m0_active_tos;
-#define EE_hal_active_tos EE_cortex_m0_active_tos
-#endif
-
-#include "cpu/cortex_m0/inc/ee_context.h"
+#include "cpu/cortex_mx/inc/ee_context.h"
 
 /* Launch a new task on the current stack, clean up the task after it ends, and
  * call the scheduler.  Return the next task to launch, which is "marked as
@@ -97,10 +91,8 @@ extern EE_UREG EE_cortex_m0_active_tos;
 EE_TID EE_std_run_task_code(EE_TID tid);
 
 /* typically called at the end of an interrupt */
-#define EE_hal_IRQ_stacked EE_hal_endcycle_stacked
-#define EE_hal_IRQ_ready EE_hal_endcycle_ready
-
-
+#define EE_hal_IRQ_stacked	EE_hal_endcycle_stacked
+#define EE_hal_IRQ_ready	EE_hal_endcycle_ready
 
 /* 
  * OO TerminateTask related stuffs
@@ -119,4 +111,4 @@ NORETURN void EE_hal_terminate_task(EE_TID tid);
 #endif /* __OO_BCCx */
 
 
-#endif /* __INCLUDE_CORTEX_M0_INTERNAL_H__ */
+#endif /* __INCLUDE_CORTEX_MX_INTERNAL_H__ */

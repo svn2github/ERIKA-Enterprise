@@ -1,7 +1,7 @@
 /* ###*B*###
  * ERIKA Enterprise - a tiny RTOS for small microcontrollers
  *
- * Copyright (C) 2002-2009  Evidence Srl
+ * Copyright (C) 2002-2011  Evidence Srl
  *
  * This file is part of ERIKA Enterprise.
  *
@@ -38,20 +38,36 @@
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
 
-/*
- * Context switch functions used in HAL implementations
- * Author: 2011 Gianluca Franchino
- */
-
+/** 
+	@file ee_utils.c
+	@brief Functions to initialize the RTOS services
+	@author Gianluca Franchino
+	@author Giuseppe Serano
+	@date 2011
+*/ 
 
 #include "ee_internal.h"
 
+#ifdef __USE_SVC__
+extern void EE_set_sv_call_pri(void);
+#endif
 
-void EE_cortex_m0_change_context(EE_TID tid)
+extern void EE_set_switch_context_pri(void);
+
+/* Function used to calculate the initialize the system */
+void EE_system_init(void)
 {
+#ifdef __USE_SVC__
+	/* 
+	 * Set the priority of SVCall to the minimum one
+	 * SVCall is the software interrupt used for context switch
+	 */
+	EE_set_sv_call_pri();
+#endif
 
-    do {
-        tid = EE_std_run_task_code(tid);
-    } while (EE_std_need_context_change(tid));
-
+	/* 
+	 * Set the priority of PendSV to the minimum one
+	 * PendSV is the software interrupt used for context switch
+	 */
+	EE_set_switch_context_pri();
 }

@@ -1,7 +1,7 @@
 /* ###*B*###
  * ERIKA Enterprise - a tiny RTOS for small microcontrollers
  *
- * Copyright (C) 2002-2010  Evidence Srl
+ * Copyright (C) 2002-2011  Evidence Srl
  *
  * This file is part of ERIKA Enterprise.
  *
@@ -42,32 +42,33 @@
 	@file ee_cpu.h
 	@brief CPU-dependent part of HAL. Derived from pkg/cpu/pic30/inc/ee_cpu.h
 	@author Gianluca Franchino
+	@author Giuseppe Serano
 	@date 2011
 */ 
- 
 
-#ifndef __INCLUDE_CORTEX_M0_EE_CPU_H__
-#define __INCLUDE_CORTEX_M0_EE_CPU_H__
+#ifndef __INCLUDE_CORTEX_MX_EE_CPU_H__
+#define __INCLUDE_CORTEX_MX_EE_CPU_H__
 
 #include "eecfg.h"
 
 #ifdef __IAR__
 #include "cpu/common/inc/ee_compiler_iar.h"
 #else
+#ifdef __CCS__
+#include "cpu/common/inc/ee_compiler_ccs.h"
+#else
 #error Unsupported compiler
 #endif
-
-
-/* Initial stack offest (in words) */
-#ifndef CORTEX_M0_INIT_TOS_OFFSET
-#define CORTEX_M0_INIT_TOS_OFFSET 9
 #endif
 
+/* Initial stack offset (in words) */
+#ifndef CORTEX_MX_INIT_TOS_OFFSET
+#define CORTEX_MX_INIT_TOS_OFFSET 9
+#endif
 
 /*************************************************************************
  HAL Types and structures
  *************************************************************************/
-
 
 /* Primitive data types */
 #include "cpu/common/inc/ee_types.h"
@@ -89,76 +90,144 @@ typedef EE_INT32 EE_TID;
 /* Use the "standard" implementation */
 #include "cpu/common/inc/ee_hal_structs.h"
 
+/******************************************************************************
+ Application dependent data types
+ ******************************************************************************/
+
+#ifdef	__HAS_TYPES_H__
+#include	"types.h"
+#endif
+
+/******************************************************************************
+ HAL Variables
+ ******************************************************************************/
+
 #ifdef __MULTI__
 
 /* Top-of-stack of each private stack */
-extern struct EE_TOS EE_cortex_m0_system_tos[];
+extern struct EE_TOS EE_cortex_mx_system_tos[];
+//#define	EE_std_system_tos EE_cortex_mx_system_tos
 
 /* Index of the current stack */
-extern EE_UREG EE_cortex_m0_active_tos;
+extern EE_UREG EE_cortex_mx_active_tos;
+#define	EE_hal_active_tos EE_cortex_mx_active_tos
 
+/*extern	EE_UREG EE_pic30_thread_tos[];
+#define	EE_std_thread_tos EE_pic30_thread_tos */
 #endif /* __MULTI__ */
 
 /*********************************************************************
  Cortex M0 interrupt disabling/enabling
  *********************************************************************/
 
-
-/* Used to check the value returned by EE_cortex_m0_disableIRQ */
-#define EE_cortex_m0_are_IRQs_enabled(ie) ((ie) ^ 1)
-
+/* Used to check the value returned by EE_cortex_mx_disableIRQ */
+#define EE_cortex_mx_are_IRQs_enabled(ie) ((ie) ^ 1)
 
 /**
  * Enable interrupts
  */
-__INLINE__ void __ALWAYS_INLINE__ EE_cortex_m0_enableIRQ(void)
+__INLINE__ void __ALWAYS_INLINE__ EE_cortex_mx_enableIRQ(void)
 {
 #ifdef __IAR__
-	__ASM("cpsie i");
+	__ASM ("cpsie i");
 #else
+#ifndef __CCS__
 	 __ASM volatile("cpsie i");
+#else
+	__ASM ("    cpsie    i\n");
+#endif
 #endif
 }
-
 
 /**
  * Disable interrupts
  */
-__INLINE__ EE_FREG __ALWAYS_INLINE__ EE_cortex_m0_disableIRQ(void)
+__INLINE__ void __ALWAYS_INLINE__ EE_cortex_mx_disableIRQ(void)
 {
+#ifdef __IAR__
+	__ASM ("cpsid i");
+#else
+#ifndef __CCS__
+	 __ASM volatile("cpsid i");
+#else
+	__ASM ("    cpsid    i\n");
+#endif
+#endif
+}
+
+/**
+ * Resume interrupts
+ */
+__INLINE__ void __ALWAYS_INLINE__ EE_cortex_mx_resumeIRQ(EE_FREG f)
+{
+#ifdef __IAR__
+	__set_PRIMASK(f);
+#else
+#ifndef __CCS__
+	 __ASM volatile("msr primask, %0" :: "r" (f));
+#else
+	__ASM ("    msr    primask, r0\n");
+#endif
+#endif
+}
+
+/**
+ * Suspend interrupts
+ */
+__INLINE__ EE_FREG __ALWAYS_INLINE__ EE_cortex_mx_suspendIRQ(void)
+{
+#ifndef __CCS__
 	EE_FREG istat;
+#endif
 #ifdef __IAR__
 	 istat = __get_PRIMASK();
 	__ASM ("cpsid i");
-#else	
-	__ASM volatile ("MRS %0, primask" : "=r" (istat) );
+#else
+#ifndef __CCS__
+	__ASM volatile ("mrs %0, primask" : "=r" (istat) );
 	__ASM volatile ("cpsid i");
+#else
+	__ASM ("    mrs     r0, primask\n"
+	       "    cpsid   i\n"
+	       "    bx      lr\n");
 #endif
+#endif
+#ifdef __CCS__
+	return 0;
+#else
 	return istat;
+#endif
 }
 
- 
 /**
  * Return true (not 0) if IRQs are enabled, 0 (false) if IRQ are disabled.
  */
-__INLINE__ EE_UINT32 __ALWAYS_INLINE__ EE_cortex_m0_get_IRQ_enabled(void)
+__INLINE__ EE_UINT32 __ALWAYS_INLINE__ EE_cortex_mx_get_IRQ_enabled(void)
 {
+#ifndef __CCS__
 	 EE_UREG ie;
-	
+#endif
 #ifdef __IAR__
 	ie = __get_PRIMASK();
 #else
+#ifndef __CCS__
 	__ASM volatile ("MRS %0, primask" : "=r" (ie) );
+#else
+	__ASM ("    MRS     r0, PRIMASK\n"
+	       "    EOR     r0, #1n"
+	       "    bx      lr\n");
 #endif
-	
-  return EE_cortex_m0_are_IRQs_enabled(ie);
+#endif
+#ifdef __CCS__
+	return 0;
+#else
+	return EE_cortex_mx_are_IRQs_enabled(ie);
+#endif
 }
-
 
 /*************************************************************************
  Functions exported by the HAL to the kernel
  *************************************************************************/
-
 
 /* 
  * Interrupt Handling
@@ -167,14 +236,31 @@ __INLINE__ EE_UINT32 __ALWAYS_INLINE__ EE_cortex_m0_get_IRQ_enabled(void)
 /** Hal Enable Interrupts */
 __INLINE__ void __ALWAYS_INLINE__ EE_hal_enableIRQ(void)
 {
-    EE_cortex_m0_enableIRQ();
+    EE_cortex_mx_enableIRQ();
 }
 
 /** Hal Disable Interrupts */
 __INLINE__ void __ALWAYS_INLINE__ EE_hal_disableIRQ(void)
 {
-    EE_cortex_m0_disableIRQ();
+    EE_cortex_mx_disableIRQ();
 }
 
+/** Hal Resume Interrupts */
+__INLINE__ void __ALWAYS_INLINE__ EE_hal_resumeIRQ(EE_FREG f)
+{
+    EE_cortex_mx_resumeIRQ(f);
+}
 
-#endif /* __INCLUDE_CORTEX_M0_EE_CPU_H__ */
+/** Hal Suspend Interrupts */
+__INLINE__ EE_FREG __ALWAYS_INLINE__ EE_hal_suspendIRQ(void)
+{
+    return EE_cortex_mx_suspendIRQ();
+}
+
+/**************************************************************************
+ System Initialization
+***************************************************************************/
+
+void EE_system_init(void);
+
+#endif /* __INCLUDE_CORTEX_MX_EE_CPU_H__ */

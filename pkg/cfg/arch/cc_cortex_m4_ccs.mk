@@ -1,7 +1,7 @@
 # ###*B*###
 # ERIKA Enterprise - a tiny RTOS for small microcontrollers
 # 
-# Copyright (C) 2009  Evidence Srl
+# Copyright (C) 20011  Evidence Srl
 # 
 # This file is part of ERIKA Enterprise.
 # 
@@ -39,25 +39,37 @@
 # ###*E*###
 
 ##
-## IAR compiler
+## Texas Intruments Code Composer Studio TMS 470 compiler
 ##
-## Author: 2011,  Gianluca Franchino
-##                Giuseppe Serano
+## Author: 2011,  Giuseppe Serano
 ##
 
 # Select object file format
-IAR_EXTENSION := out
-CG_OUT_EXTENSION := $(IAR_EXTENSION)
+CG_OUT_EXTENSION := out
 CG_HEX_EXTENSION := hex
-CG_OBJBUMP_EXTENSION := objdump
+CG_BIN_EXTENSION := bin
+CG_OBJDUMP_EXTENSION := xml
 
-#IAR_CCDIR refers to the location of IAR libraries
 BINDIR_CYG := /usr/bin
-BINDIR_IAR := $(IAR_CCDIR)/bin
 
-CG_LIB_DIR := $(IAR_CCDIR)/lib
+#CCS_INSTALL_ROOT: Code Composer Studio Installation Root Folder.
+#                  Default "C:\Programmi\Texas Instruments\ccsv4".
+CG_TOOL_SUFFIX := 470
+CG_TOOL_ROOT := $(CCS_INSTALL_ROOT)/tools/compiler/tms$(CG_TOOL_SUFFIX)
 
-CG_INCLUDE_DIR := $(IAR_CCDIR)/inc/NXP
+CG_BIN_DIR := $(CG_TOOL_ROOT)/bin
+
+CG_BINUTILS_DIR := $(CCS_INSTALL_ROOT)/utils/tiobj2bin
+
+CG_LIB_DIR := $(CG_TOOL_ROOT)/lib
+
+CG_INCLUDE_DIR := $(CG_TOOL_ROOT)/include
+
+ifdef TMPDIR
+CG_TMPDIR := $(call native_path, $(TMPDIR))
+else
+CG_TMPDIR := $(call native_path, .)
+endif
 
 # Bin directories used for compilation
 # BINDIR_ASM      - directory of the Assembler
@@ -65,75 +77,59 @@ CG_INCLUDE_DIR := $(IAR_CCDIR)/inc/NXP
 # BINDIR_DEP      - directory of the C compiler used for dependencies
 # BINDIR_BINUTILS - directory of the binutils
 
-BINDIR_ASM      := $(BINDIR_IAR)
-BINDIR_CC       := $(BINDIR_IAR)
-BINDIR_BINUTILS := $(BINDIR_IAR)
-BINDIR_DEP      := $(BINDIR_IAR)
+BINDIR_ASM      := $(CG_BIN_DIR)
+BINDIR_CC       := $(CG_BIN_DIR)
+BINDIR_BINUTILS := $(CG_BINUTILS_DIR)
+BINDIR_DEP      := $(CG_BIN_DIR)
 
-
-OPT_INCLUDE = $(foreach d,$(INCLUDE_PATH),$(addprefix -I,$(call native_path,$d)))
-
+OPT_INCLUDE = $(foreach d,$(INCLUDE_PATH),$(addprefix --include_path=,$(call native_path,$d)))
 
 ifndef EE_ASM
-EE_ASM:=$(BINDIR_ASM)/iasmarm.exe
+EE_ASM:=$(BINDIR_ASM)/cl$(CG_TOOL_SUFFIX).exe
 endif
 
 ifndef EE_CC
-EE_CC:=$(BINDIR_CC)/iccarm.exe
+EE_CC:=$(BINDIR_CC)/cl$(CG_TOOL_SUFFIX).exe
 endif
 
 ifndef EE_LINK
-EE_LINK:=$(BINDIR_ASM)/ilinkarm.exe
+EE_LINK:=$(CG_BIN_DIR)/cl$(CG_TOOL_SUFFIX).exe
 endif
 
 ifndef EE_DEP
-EE_DEP:=$(BINDIR_DEP)/iccarm.exe
+EE_DEP:=$(BINDIR_DEP)/cl$(CG_TOOL_SUFFIX).exe
 endif
 
 ifndef EE_AR
-EE_AR:=$(BINDIR_BINUTILS)/iarchive.exe
-endif
-
-ifndef EE_BIN2HEX
-EE_BIN2HEX:=$(BINDIR_BINUTILS)/ielftool.exe
+EE_AR:=$(CG_BIN_DIR)/ar$(CG_TOOL_SUFFIX).exe
 endif
 
 ifndef EE_OBJDUMP
-EE_OBJDUMP:=$(BINDIR_BINUTILS)/ielfdumpar.exe
+EE_OBJDUMP:=$(CG_BIN_DIR)/ofd$(CG_TOOL_SUFFIX).exe
 endif
 
-#The IAR ELF Object Tool—iobjmanip—is used for performing low-level
-#manipulation of ELF object files
-
-ifndef EE_OBJMAN
-EE_OBJMAN:=$(BINDIR_BINUTILS)/iobjmanip.exe
+ifndef EE_OBJDUMP2HEX
+EE_OBJDUMP2HEX:=$(BINDIR_BINUTILS)/mkhex4bin.exe
 endif
 
-#The IAR Absolute Symbol Exporter—isymexport—exports absolute symbols
-#from a ROM image file, so that they can be used when linking an add-on
-#application.
-
-ifndef EE_ROM_EXPORT_SYM
-EE_ROM_EXPORT_SYM:=$(BINDIR_BINUTILS)/isymexport.exe
+ifndef EE_HEX2BIN
+EE_HEX2BIN:=$(CG_BIN_DIR)/hex$(CG_TOOL_SUFFIX).exe
 endif
 
 #Add application file to dependencies
 ifneq ($(ONLY_LIBS), TRUE)
 
 ## OPT_LIBS is used to link additional libraries (e.g., for C++ support)
-# the EE library is built in the current directory
-## Libraries from IAR. Put here the link options --search (instead of -L)
-## Option -l dooes not exist with IAR linker, just put the file name of the library
-##if we need to link any standard library
-OPT_LIBS += $(ERIKALIB)
+## Libraries from TI-CCS-TMS470. Put here the link options -i (instead of -L).
+OPT_LIBS += -l$(ERIKALIB) -i$(call native_path, $(CG_LIB_DIR))
 
 ifneq ($(call iseeopt, __BIN_DISTR), yes)
-OPT_LIBS += --search .
+OPT_LIBS += -i .
 else
-OPT_LIBS += --search $(EEBASE)/lib
+OPT_LIBS += -i $(EEBASE)/lib
 endif
 
-TARGET = $(TARGET_NAME).$(CG_HEX_EXTENSION) $(TARGET_NAME).$(CG_OUT_EXTENSION)
+TARGET = $(TARGET_NAME).$(CG_BIN_EXTENSION)
 
 endif	# ONLY_LIBS
 
@@ -149,52 +145,81 @@ endif	# ONLY_LIBS
 #INTERNAL_PKGBASEDIR := "$(shell cygpath -w $(PKGBASE))\\." "$(shell cygpath -w $(APPBASE))\\." .
 #INCLUDE_PATH += $(INTERNAL_PKGBASEDIR)
 
-ifeq ($(call iseeopt, __USE_CMSI_IAR__), yes)
-IAR_CMSIS_INCPATH := $(IAR_CCDIR)/CMSIS/Include
-INCLUDE_PATH += $(call native_path,$(IAR_CMSIS_INCPATH))
-endif
+# OPT_HEX2BIN: options for HEX2BIN
+OPT_HEX2BIN := -q -b -image
 
-# OPT_BIN2HEX: options for BIN2HEX
-OPT_BIN2HEX = --ihex
+# OPT_OBJDUMP2HEX: options for OBJDUMP2HEX
+OPT_OBJDUMP2HEX :=
 
 # OPT_OBJDUMP: options for OBJDUMP
-OPT_OBJDUMP = --code
+OPT_OBJDUMP := -x --xml_indent=0 --obj_display=none,sections,header,segments
 
 # OPT_AR: options for library generation
-OPT_AR = --create
+OPT_AR = r
 
-## OPT_CC are the options for iar compiler invocation
+## OPT_CC are the options for c compiler invocation
 #Note: all warnings are enabled by default
 #Note: C is the default language
-#Note: -e is to use language extentions as anonymous struct and union
-#which are used, for instance, in LPC12xx.h
 
-OPT_CC = -O -e --silent --diag_suppress Pa050 --diag_suppress Pe111
-ifeq ($(call iseeopt, DEBUG), yes)
-OPT_CC += --debug
+ifeq ($(call iseeopt, __CORTEX_M4__), yes)
+OPT_CC += -mv7M4
 endif
+
+ifeq ($(call iseeopt, DEBUG), yes)
+OPT_CC += -g
+else
+OPT_CC += -O2
+endif
+
+OPT_CC +=  -c --gcc --define=ccs --define=PART_LM4F232H5QD \
+	   --define=TARGET_IS_BLIZZARD_RA1 --diag_warning=225 -me \
+	   --gen_func_subsections=on --abi=eabi --code_state=16 \
+	   --float_support=FPv4SPD16 --ual --quiet \
+	   --temp_directory=$(CG_TMPDIR)
+
 # Specific option from the application makefile
 OPT_CC += $(CFLAGS)
-OPT_CC += --cpu=Cortex-M0
 
-##OPT_ASM are the options for asm invocation
-OPT_ASM =
-OPT_ASM += -S --cpu Cortex-M0 
+##OPT_ASM are the options for assembler invocation
+ifeq ($(call iseeopt, __CORTEX_M4__), yes)
+OPT_ASM += -mv7M4
+endif
 
 ifeq ($(call iseeopt, DEBUG), yes)
-OPT_ASM += -r
+OPT_ASM += -g
+else
+OPT_ASM += -O2
 endif 
+
+
+OPT_ASM += -c --gcc --define=ccs --define=PART_LM4F232H5QD \
+	   --define=TARGET_IS_BLIZZARD_RA1 --diag_warning=225 -me \
+	   --gen_func_subsections=on --abi=eabi --code_state=16 \
+	   --float_support=FPv4SPD16 --ual --quiet --asm_extension=.s \
+	   --temp_directory=$(CG_TMPDIR)
 
 # Specific option from the application makefile
 OPT_ASM += $(ASFLAGS)
 
-## OPT_LINK represents the options for iarlinker invocation
-OPT_LINK =
-ifeq ($(call iseeopt, DEBUG), yes)
-OPT_LINK += --semihosting
+## OPT_LINK represents the options for linker invocation
+ifeq ($(call iseeopt, __CORTEX_M4__), yes)
+OPT_LINK += -mv7M4
 endif
 
-OPT_LINK += --silent --cpu=CORTEX-M0
+ifeq ($(call iseeopt, DEBUG), yes)
+OPT_LINK += -g
+else
+OPT_LINK += -O2
+endif
+
+# FIXME: STACK_SIZE.
+OPT_LINK += -diag_warning=225 -me --gen_func_subsections=on --abi=eabi \
+	    --code_state=16 --float_support=FPv4SPD16 -z --define=ccs \
+	    --define=PART_LM4F232H5QD --define=TARGET_IS_BLIZZARD_RA1 \
+	    --quiet --reread_libs --rom_model --stack_size=512 --heap_size=0 \
+	    --warn_sections
+# TODO: Generate *.map file (OBJDUMP -> odf470)
+#	   -m$(call native_path, $(subst .$(CG_OUT_EXTENSION), .map, $@))
 
 # Specific option from the application makefile
 OPT_LINK += $(LDFLAGS)
@@ -204,8 +229,8 @@ OPT_LINK += $(LDFLAGS)
 # Each identifier that is listed in EEOPT is also inserted as a 
 # command-line macro in the compiler...
 
-DEFS_ASM = $(addprefix -D, $(EEOPT) )
-DEFS_CC  = $(addprefix -D, $(EEOPT) )
+DEFS_ASM = $(addprefix --define=, $(EEOPT))
+DEFS_CC  = $(addprefix --define=, $(EEOPT))
 
 
 # Automatic dependency generation
@@ -217,11 +242,15 @@ ifeq ($(call iseeopt, __RTD_CYGWIN__), yes)
 # Dependencies on Windows need path translation
 # THIS IS THE GNU COMPILER:
 #DEPENDENCY_OPT = -MMD -MF $(call native_path,$(subst .o,.d_tmp,$@)) -MP -MT $@
-DEPENDENCY_OPT = --dependencies=m $(call native_path,$(subst .o,.d_tmp,$@))  
-make-depend = sed -e 's_\\\(.\)_/\1_g' -e 's_\<\([a-zA-Z]\):/_/cygdrive/\l\1/_g' < $3_tmp > $3 && rm $3_tmp
-else #_RTD_CYGWIN__
+DEPENDENCY_OPT = --preproc_with_compile \
+		 --preproc_dependency=$(call native_path,$(subst .o,.d_tmp,$@))
+make-depend = sed -e 's_\\\(.\)_/\1_g' \
+	      -e 's_\<\([a-zA-Z]\):/_/cygdrive/\l\1/_g' < $3_tmp \
+	      > $3 && rm $3_tmp
+else # __RTD_CYGWIN__
 #DEPENDENCY_OPT = -MMD -MF $(subst .o,.d_tmp,$@) -MP -MT $@
-DEPENDENCY_OPT = --dependencies=m $(subst .o,.d_tmp,$@)
+DEPENDENCY_OPT = --preproc_with_compile \
+	         --preproc_dependency=$(subst .o,.d_tmp,$@)
 make-depend = mv $3_tmp $3
 endif # __RTD_CYGWIN__
 endif # NODEPS

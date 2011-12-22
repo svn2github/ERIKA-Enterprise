@@ -1,7 +1,7 @@
 /* ###*B*###
  * ERIKA Enterprise - a tiny RTOS for small microcontrollers
  *
- * Copyright (C) 2002-2010  Evidence Srl
+ * Copyright (C) 2002-2011  Evidence Srl
  *
  * This file is part of ERIKA Enterprise.
  *
@@ -38,46 +38,34 @@
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
 
-/** 
-	@file ee_iar_irq_stack.s
-	@brief Context switch function for multistack on Cortex_M0 
-	@brief Stack switch for ISRs on Cortex_M0. 
-	Implementation of EE_cortex_m0_call_ISR_new_stack() as described in
-	pkg/cpu/cortex_m0/inc/ee_irq_internal.h
+ /** 
+	
+	@file ee_irq_cng_cont.h
+	@brief Function active the context change interrupt
 	@author Gianluca Franchino
+	@author Giuseppe Serano
 	@date 2011
 */ 
 
+#ifndef __INCLUDE_CORTEX_MX_IRQ_CNG_CONTEXT_H__
+#define __INCLUDE_CORTEX_MX_IRQ_CNG_CONTEXT_H__
 
+#ifdef __IAR__
+#include "cpu/common/inc/ee_compiler_iar.h"
+#else
+#ifdef __CCS__
+#include "cpu/common/inc/ee_compiler_ccs.h"
+#else
+#error Unsupported compiler
+#endif
+#endif
 
-    SECTION    CODE:CODE(2)
-	
-	PUBLIC	EE_cortex_m0_change_IRQ_stack
-	PUBLIC	EE_cortex_m0_change_IRQ_stack_back
-	
-	EXTERN	EE_cortex_m0_tmp_tos
-	EXTERN	EE_cortex_m0_IRQ_tos
-	
-    THUMB
+extern void EE_switch_context(void);
 
-;void EE_cortex_m0_change_IRQ_stack(void);
+__INLINE__ void __ALWAYS_INLINE__ EE_cortex_mx_IRQ_active_change_context(void)
+{
+	EE_switch_context();
+}
 
-EE_cortex_m0_change_IRQ_stack:
-	MRS R0, MSP ; R0 = MSP (Main stack Pointer)
-	LDR R1, =EE_cortex_m0_tmp_tos; R1 = address of EE_cortex_m0_tmp_tos
-	STR R0, [R1]; Save MSP in EE_cortex_m0_tmp_tos
-	LDR R0, =EE_cortex_m0_IRQ_tos; R0 = address of EE_cortex_m0_IRQ_tos
-	LDR R0, [R0]; R0 = IRQ new stack pointer
-	MSR MSP, R0; change IRQ stack
-	
-	BX LR ; return
-	
-;void EE_cortex_m0_change_IRQ_stack_back(void);
-EE_cortex_m0_change_IRQ_stack_back:	
-	LDR R0, =EE_cortex_m0_tmp_tos; R0 = address of EE_cortex_m0_tmp_tos
-	LDR R0, [R0]; R0 = old MSP
-	MSR MSP, R0; Restore the stack pointer
-	
-	BX LR; return 
-	
-	END
+#endif //__INCLUDE_CORTEX_MX_IRQ_CNG_CONTEXT_H__
+

@@ -1,7 +1,7 @@
 /* ###*B*###
  * ERIKA Enterprise - a tiny RTOS for small microcontrollers
  *
- * Copyright (C) 2002-2010  Evidence Srl
+ * Copyright (C) 2002-2011  Evidence Srl
  *
  * This file is part of ERIKA Enterprise.
  *
@@ -41,15 +41,16 @@
 /** 
 	@file ee_iar_multi_context.s
 	@brief Context switch function for multistack on Cortex_M0 
-	Implementation of EE_cortex_m0_change_context as described in
+	Implementation of EE_cortex_mx_change_context as described in
 	pkg/cpu/common/inc/ee_context.h
 	@author Gianluca Franchino
+	@author Giuseppe Serano
 	@date 2011
 */ 
 
 /*
 
-Pseudo code for EE_cortex_m0_change_context():
+Pseudo code for EE_cortex_mx_change_context():
      begin:
       tos_index = EE_std_thread_tos[tid+1];
       if is_not_the_current_stack(tos_index) {
@@ -63,111 +64,111 @@ Pseudo code for EE_cortex_m0_change_context():
       }
 */
 
-    SECTION    CODE:CODE(2)
-	
-	PUBLIC	EE_cortex_m0_change_context
-	
+	SECTION    CODE:CODE(2)
+
+	PUBLIC	EE_cortex_mx_change_context
+
 	EXTERN	EE_std_run_task_code
 	EXTERN	EE_std_thread_tos
-	EXTERN	EE_cortex_m0_active_tos
-	EXTERN	EE_cortex_m0_system_tos
-	
-    THUMB
+	EXTERN	EE_cortex_mx_active_tos
+	EXTERN	EE_cortex_mx_system_tos
 
-;void EE_cortex_m0_change_context(EE_TID tid);
-EE_cortex_m0_change_context:
-	;R0 == tid
+	THUMB
+
+;void EE_cortex_mx_change_context(EE_TID tid);
+EE_cortex_mx_change_context:
+	; R0 == tid
 	; tos_index = EE_std_thread_tos[tid+1];
-	ADDS R1, R0, #1  ;R1 = tid+1
-	LSLS R1, R1, #2 ;R1 = (tid+1)*4= correct offset in  EE_std_thread_tos
-					;The last shift, also gets rid of the `stacked' mark
-	LDR	R2, =EE_std_thread_tos	
-	ADD R1, R2, R1
+	ADDS	R1, R0, #1		; R1 = tid+1
+	LSLS	R1, R1, #2		; R1 = (tid+1)*4= correct offset in  EE_std_thread_tos
+					; The last shift, also gets rid of the `stacked' mark
+	LDR	R2, =EE_std_thread_tos
+	ADD	R1, R2, R1
 	LDR	R1, [R1];R1 == tos_index
-	
+
 	;*
 	;* if is_not_the_current_stack(tos_index) { 
 	;*
-	LDR	R2, =EE_cortex_m0_active_tos ;R2 = & EE_cortex_m0_active_tos;
-	LDR R3, [R2] ;R3 = EE_cortex_m0_active_tos;
-	CMP R1, R3
-	BEQ  end_change_stacks
+	LDR	R2, =EE_cortex_mx_active_tos	;R2 = & EE_cortex_mx_active_tos;
+	LDR	R3, [R2]		; R3 = EE_cortex_mx_active_tos;
+	CMP	R1, R3
+	BEQ	end_change_stacks
 
 	;save_caller_saved_registers();
-	
+
 	;Save all callee-saved registers
 	;R0-R3 and R12 are scratch registers, R13 ->(MSP), R14 ->(LR), R15 -> (PC)
-	PUSH {R4-R7} ; Store R4, R5, R6, R7 onto stack 
-	MOV R4, R8
-	MOV R5, R9
-	MOV R6, R10
-	MOV R7, R11
-	PUSH {R4-R7} ; Store R8, R9, R10, R11 onto stack
-	PUSH {LR} ; Store link register (return address)
-	
+	PUSH	{R4-R7}			; Store R4, R5, R6, R7 onto stack 
+	MOV	R4, R8
+	MOV	R5, R9
+	MOV	R6, R10
+	MOV	R7, R11
+	PUSH	{R4-R7}			; Store R8, R9, R10, R11 onto stack
+	PUSH	{LR}			; Store link register (return address)
+
 	;!!!!!!!!!!!!!!!
 	; At this point the non scratch registers (R4...R11) are pushed into stack,
 	; hence I can use them in the following.
 	;!!!!!!!!!!!!!!!!
-	
-	;switch_stacks(tos_index);
-	LDR R4,  =EE_cortex_m0_system_tos ;R4 = & cortex_m0_system_tos[0];
-	;Note: although R4 is not a scratch register, it has been saved onto stack,
-	;therefore we can used it in the follow without problem
-	;EE_cortex_m0_system_tos[R3] = MSP;
-	LSLS R3, R3, #2
+
+	; switch_stacks(tos_index);
+	LDR	R4, =EE_cortex_mx_system_tos	; R4 = & cortex_mx_system_tos[0];
+	; Note: although R4 is not a scratch register, it has been saved onto stack,
+	; therefore we can used it in the follow without problem
+	; EE_cortex_mx_system_tos[R3] = MSP;
+	LSLS	R3, R3, #2
 	ADD	R3, R4, R3
 	MRS	R5, MSP
-	;Note STR can only use the register range -> R0 to R4.
-	STR	R5, [R3]; save stack pointer
-	
-	;EE_cortex_m0_active_tos = tos_index;
-	STR R1, [R2]
-	;MSP= EE_cortex_m0_system_tos[R1];
-	LSLS R1, R1, #2
+	; Note STR can only use the register range -> R0 to R4.
+	STR	R5, [R3]		; save stack pointer
+
+	; EE_cortex_mx_active_tos = tos_index;
+	STR	R1, [R2]
+	; MSP= EE_cortex_mx_system_tos[R1];
+	LSLS	R1, R1, #2
 	ADD	R1, R4, R1
-	LDR R1, [R1]
+	LDR	R1, [R1]
 	MSR	MSP, R1
-	;restore_caller_saved_registers();
-	POP {R1} 	; Get link register from stack
-	MOV LR, R1	; Restore the link register
-	;Restore R8, R9, R10, R11 from stack
-	POP {R4-R7}
-	MOV R8, R4
-	MOV R9, R5
-	MOV R10, R6
-	MOV R11, R7
-	POP {R4-R7} ;Restore R4, R5, R6, R7 from stack
-	;*
-	;* } 
-	;*
-	
+	; restore_caller_saved_registers();
+	POP	{R1}			; Get link register from stack
+	MOV	LR, R1			; Restore the link register
+	; Restore R8, R9, R10, R11 from stack
+	POP	{R4-R7}
+	MOV	R8, R4
+	MOV	R9, R5
+	MOV	R10, R6
+	MOV	R11, R7
+	POP	{R4-R7}			; Restore R4, R5, R6, R7 from stack
+	; *
+	; * } 
+	; *
+
 end_change_stacks:
-	;R0 == tid
-	
-	;*
-	;*if (is_not_marked_stacked(tid)) {
-	;*
-	
-	CMP R0, #0
+	; R0 == tid
+
+	; *
+	; *if (is_not_marked_stacked(tid)) {
+	; *
+
+	CMP	R0, #0
 	BLT	end_run_thread
-	
+
 	; tid = EE_std_run_task_code(tid);
-	PUSH {LR}
+	PUSH	{LR}
 	BL EE_std_run_task_code
-	;R0 == tid
+	; R0 == tid
 	POP {R1}
 	MOV LR, R1
-	
-	B EE_cortex_m0_change_context
-	;goto begin
-	
-	;*
-	;* } 
-	;*
-		
+
+	B EE_cortex_mx_change_context
+	; goto begin
+
+	; *
+	; * } 
+	; *
+
 end_run_thread:
 
-	BX LR ; Return
-	
+	BX	LR			; Return
+
 	END

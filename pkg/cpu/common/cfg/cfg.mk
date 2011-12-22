@@ -68,7 +68,7 @@ EE_SRCS += pkg/cpu/common/src/ee_hal_structs.c
 EE_SRCS += pkg/cpu/common/src/ee_context.c
 endif
 
-ifeq ($(call iseeopt, __CORTEX_M0__), yes)
+ifeq ($(call iseeopt, __CORTEX_MX__), yes)
 EE_SRCS += pkg/cpu/common/src/ee_hal_structs.c
 EE_SRCS += pkg/cpu/common/src/ee_context.c
 endif

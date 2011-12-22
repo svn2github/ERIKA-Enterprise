@@ -1,7 +1,7 @@
 /* ###*B*###
  * ERIKA Enterprise - a tiny RTOS for small microcontrollers
  *
- * Copyright (C) 2002-2010  Evidence Srl
+ * Copyright (C) 2002-2011  Evidence Srl
  *
  * This file is part of ERIKA Enterprise.
  *
@@ -38,32 +38,39 @@
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
 
-/*
- * Derived from cpu/common/inc/ee_context.h
- */
- /** 
-	
-	@file ee_context.h
-	@brief Functions to initialize the RTOS services
+/** 
+	@file ee_internal.h
+	@brief Derived from cpu/common/inc/ee_internal.h
 	@author Gianluca Franchino
+	@author Giuseppe Serano
 	@date 2011
-*/ 
+*/  
 
-#ifndef __INCLUDE_CPU_CORTEX_M0_EE_CONTEXT__
-#define __INCLUDE_CPU_CORTEX_M0_EE_CONTEXT__
+#ifndef __INCLUDE_CPU_CORTEX_MX_EE_CONTEXT__
+#define __INCLUDE_CPU_CORTEX_MX_EE_CONTEXT__
 
-/* Call a the body of a task */
-#if defined(__OO_BCC1__) || defined(__OO_BCC2__) || \
- defined(__OO_ECC1__) || defined(__OO_ECC2__)
-#define EE_call_task_body(tid)  EE_oo_thread_stub()
-#else
-#define EE_call_task_body(tid)  (((void (*)())EE_hal_thread_body[tid])())
-#endif
+/*
+ * Instructions
+ *
+ * The monostack part is complete (obviously, the functions to disable/enable
+ *  interrupts are not included here).  For the multistack part you have to
+ *  provide two additional things:
+ *  1. An assembly implementation of EE_std_change_context_multi(); see below.
+ *  2. A #define directive for EE_hal_active_tos, which is just an alias for the
+ *  actual architecture-dependent variable.  This variable contains the index of
+ *  the current stack.
+ */
 
+/* After a task terminates, the scheduler puts the id of the new task to launch
+ * or switch to in this variable.  If the is stacked, its id is marked so. */
 extern EE_TID EE_std_endcycle_next_tid;
 
-void EE_cortex_m0_change_context(EE_TID tid);
-
+/* The multistack version must be implemented in ASM; no standard
+ * implementation, sorry.  This is the only function that performs context
+ * switching.  The multistack version doesn't jump to the task body if its TID
+ * has been maked as stacked.  This is used to switch to a task that has been
+ * suspend by a previous call to EE_std_change_contex(). */
+void EE_cortex_mx_change_context(EE_TID tid);
 /* Pseudo code for EE_std_change_context_multi():
      begin:
       tos_index = EE_std_thread_tos[tid+1];
@@ -90,6 +97,14 @@ void EE_cortex_m0_change_context(EE_TID tid);
       switch_stacks() should also update EE_hal_active_tos.
 */
 
+/* Call a the body of a task */
+#if defined(__OO_BCC1__) || defined(__OO_BCC2__) || \
+ defined(__OO_ECC1__) || defined(__OO_ECC2__)
+#define EE_call_task_body(tid)  EE_oo_thread_stub()
+#else
+#define EE_call_task_body(tid)  (((void (*)(void))EE_hal_thread_body[tid])())
+#endif
+
 
 /* Launch a new task, possibly switching to a different stack, clean up the task
  * after it ends, and call the scheduler (and switch to other tasks/stacks)
@@ -104,10 +119,10 @@ __DECLARE_INLINE__ void EE_hal_ready2stacked(EE_TID tid);
 EE_TID EE_std_run_task_code(EE_TID tid);
 
 
-
 /*
  * Inline implementations
  */
+
 
 #ifdef __MONO__
 
@@ -118,7 +133,7 @@ EE_TID EE_std_run_task_code(EE_TID tid);
 
 #define EE_std_need_context_change(tid) ((tid) >= 0)
 
-#endif
+#endif /* __MONO__ */
 
 
 #ifdef __MULTI__
@@ -131,15 +146,15 @@ __INLINE__ int __ALWAYS_INLINE__ EE_std_need_context_change(EE_TID tid)
     /* FIXME: "tid+1" can be used as an index for arrays even when marked if
      * EE_TID is defined as an int.  Otherwise, the mark will cause a memory
      * access violation!  */
-    return (((tid) >= 0) || (EE_hal_active_tos != EE_std_thread_tos[tid+1]));
+    return ((tid >= 0) || (EE_hal_active_tos != EE_std_thread_tos[tid+1]));
 }
 
 __INLINE__ void __ALWAYS_INLINE__ EE_hal_stkchange(EE_TID tid)
 {
-    EE_cortex_m0_change_context(EE_std_mark_tid_stacked(tid));
+    EE_cortex_mx_change_context(EE_std_mark_tid_stacked(tid));
 }
 
-#endif
+#endif /* __MULTI__ */
 
 
 /* The functions below should work for both the monostack and multistack
@@ -149,7 +164,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_stkchange(EE_TID tid)
 
 __INLINE__ void EE_hal_ready2stacked(EE_TID tid)
 {
-    EE_cortex_m0_change_context(tid);
+    EE_cortex_mx_change_context(tid);
 }
 
 
@@ -164,4 +179,4 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_endcycle_stacked(EE_TID tid)
     EE_std_endcycle_next_tid = EE_std_mark_tid_stacked(tid);
 }
 
-#endif /* __INCLUDE_CPU_COMMON_EE_CONTEXT__ */
+#endif /* __INCLUDE_CPU_CORTEX_MX_EE_CONTEXT__ */

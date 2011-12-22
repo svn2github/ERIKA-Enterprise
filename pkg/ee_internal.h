@@ -129,8 +129,8 @@ extern "C" {
 #endif
 
 /* ARM */
-#ifdef __CORTEX_M0__
-#include "cpu/cortex_m0/inc/ee_internal.h"
+#ifdef __CORTEX_MX__
+#include "cpu/cortex_mx/inc/ee_internal.h"
 #endif
 
   /*
@@ -197,11 +197,15 @@ extern "C" {
 #include "mcu/tc179x/inc/ee_internal.h"
 #endif
 
-/* ARM */
-#ifdef __CORTEX_M0__
-#include "mcu/cortex_m0/inc/ee_internal.h"
+/* LPCXpresso */
+#if defined( __LPCXPRESSO__ ) && defined( __LPC12xx__ )
+#include "mcu/nxp_lpcxpresso_lpc12xx/inc/ee_internal.h"
 #endif
 
+/* Stellaris */
+#if defined( __STELLARIS__ ) && defined( __LM4F232xxx__ )
+#include "mcu/ti_stellaris_lm4f232xxxx/inc/ee_internal.h"
+#endif
 
   /*
    *
