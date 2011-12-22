@@ -88,15 +88,18 @@ static void inout(scicos_block *block)
 	else if(type == FLEX_BLOCKS_TYPE_LEDSLCD) {
 		/* LEDs */
 		int i;
-		char data = 0;
-		for(i=7; i>=0; i--) {
-			if( *(char *)block->inptr[i] )
-				data |= 1 << i;
+		unsigned char ledv[FLEX_DAUGHTER_NUM_LEDS];
+		for(i=0; i<FLEX_DAUGHTER_NUM_LEDS; i++) {
+			ledv[i] = *(unsigned char *)block->inptr[i];
 		}
-		EE_leds(data);
+		flex_daughter_leds_inout_uint8(ledv);
+
 		/* LCD */
 		#if defined(__USE_DEMOBOARD__)
-		flex_daughter_lcd_inout(1, (unsigned char *)block->inptr[8], (unsigned char *)block->inptr[9]);
+		int line1_type = block->ipar[2];
+		int line2_type = block->ipar[3];
+		flex_daughter_lcd_inout_line (1, line1_type, (void*)block->inptr[8], block->insz[2*block->nin - 2]);
+		flex_daughter_lcd_inout_line (2, line2_type, (void*)block->inptr[9], block->insz[2*block->nin - 1]);
 		#endif
 	}
 }

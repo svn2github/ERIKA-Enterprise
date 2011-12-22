@@ -54,6 +54,7 @@
 #include <scicos_block4.h>
 
 #include <ee.h>
+#include "pic30/flex_daughter.h"
 
 /* FLEX DMB LEDS allocation 
 
@@ -70,110 +71,24 @@ Pin=8	LED8	RD11
 
 static void init(scicos_block *block)
 {
-	int pin = block->ipar[0];
-	
-	float led_threshold = block->rpar[0];
-	
-
-#if defined(__USE_DEMOBOARD__)	
-	if ( (pin < 1) || (pin > 8) ) return; //** return if outside the allowed range
-#elif defined(__USE_MOTIONBOARD__)
-	if ( (pin < 1) || (pin > 2) ) return; //** return if outside the allowed range
-#endif
-
-
-	if( led_threshold < 0.01 || led_threshold > 0.99 )
-		led_threshold = 0.5;
-	
-	EE_daughter_leds_init();
+	flex_daughter_led_init();
 }
 
 static void inout(scicos_block *block)
 {
-  float *u = block->inptr[0];
-
+	float *u = block->inptr[0];
 	int pin = block->ipar[0];
-
 	float led_threshold = block->rpar[0];
 
-	if( led_threshold < 0.01 || led_threshold > 0.99 )
-		led_threshold = 0.5;
+	if ( (pin < 1) || (pin > FLEX_DAUGHTER_NUM_LEDS) ) 
+		return; //** return if outside the allowed range
 
-#if defined(__USE_DEMOBOARD__)	
-	if ( (pin < 1) || (pin > 8) ) return; //** return if outside the allowed range
-#elif defined(__USE_MOTIONBOARD__)
-	if ( (pin < 1) || (pin > 2) ) return; //** return if outside the allowed range
-#endif
-
-	if (u[0] > led_threshold) {     //** threshold is parametric 
-		switch (pin) { //** set the bit to one 
-			case 1:
-				EE_led_0_on();
-				break;
-			case 2:
-				EE_led_1_on();
-				break;
-#if defined(__USE_DEMOBOARD__)	
-			case 3:
-				EE_led_2_on();
-				break;
-			case 4:
-				EE_led_3_on();
-				break;
-			case 5:
-				EE_led_4_on();
-				break;
-			case 6:
-				EE_led_5_on();
-				break;
-			case 7:
-				EE_led_6_on();
-				break;
-			case 8:
-				EE_led_7_on();
-				break;
-#endif
-		}
-	} else {
-		switch (pin) { //** set the bit to zero 
-			case 1:
-				EE_led_0_off();
-				break;
-			case 2:
-				EE_led_1_off();
-				break;
-#if defined(__USE_DEMOBOARD__)	
-			case 3:
-				EE_led_2_off();
-				break;
-			case 4:
-				EE_led_3_off();
-				break;
-			case 5:
-				EE_led_4_off();
-				break;
-			case 6:
-				EE_led_5_off();
-				break;
-			case 7:
-				EE_led_6_off();
-				break;
-			case 8:
-				EE_led_7_off();
-				break;
-#endif
-		}
-	}
+	flex_daughter_led_inout (pin, led_threshold, u[0]);
 }
 
 static void end(scicos_block *block)
 {
-	int pin = block->ipar[0];
-	
-	if ( (pin < 1) || (pin > 8) )
-		return; //** return if outside the alowed range
-
-	EE_leds_off(); //** set the bit to zero at the ending 
+	flex_daughter_led_end();
 }
 
 void flex_daughter_leds(scicos_block *block,int flag)

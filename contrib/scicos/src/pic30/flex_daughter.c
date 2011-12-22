@@ -51,6 +51,7 @@
 #include <scicos_block4.h>
 
 #include <ee.h>
+#include "pic30/flex_daughter.h"
 
 #ifdef __USE_LCD__
 
@@ -70,6 +71,38 @@ void flex_daughter_lcd_end(void)
 {
 }
 
+void EESCI_flexdmb_lcd_float_inout_line (int line_id, float scicos_lcd_value) {
+	if (line_id == 1) {
+		EE_pic30_disableIRQ();
+		sprintf(ee_lcd_line1, "%+.6E", (double)scicos_lcd_value);
+		EE_pic30_enableIRQ();
+	} else if (line_id == 2) {
+		EE_pic30_disableIRQ();
+		sprintf(ee_lcd_line2, "%+.6E", (double)scicos_lcd_value);
+		EE_pic30_enableIRQ();
+	} else
+		return;
+}
+
+void EESCI_flexdmb_lcd_uint8_inout_line (int line_id, unsigned char* line, int size) {
+	int i;
+	
+	if (line_id == 1) {
+		EE_pic30_disableIRQ();
+		for (i=0; i<size; i++)
+			ee_lcd_line1[i] = line[i];
+		ee_lcd_line1[size] = '\0';
+		EE_pic30_enableIRQ();
+	} else if (line_id == 2) {
+		EE_pic30_disableIRQ();
+		for (i=0; i<size; i++)
+			ee_lcd_line2[i] = line[i];
+		ee_lcd_line2[size] = '\0';
+		EE_pic30_enableIRQ();
+	} else
+		return;
+}
+
 void EESCI_flexdmb_lcd_float_inout(float scicos_lcd_value1, float scicos_lcd_value2) {
 	EE_pic30_disableIRQ();
 	sprintf(ee_lcd_line1, "%+.6E", (double)scicos_lcd_value1);
@@ -77,21 +110,21 @@ void EESCI_flexdmb_lcd_float_inout(float scicos_lcd_value1, float scicos_lcd_val
 	EE_pic30_enableIRQ();
 }
 
-void EESCI_flexdmb_lcd_uint8_inout(unsigned char* line1, unsigned char* line2) {
+void EESCI_flexdmb_lcd_uint8_inout(unsigned char* line1, unsigned char* line2, int size) {
 	int i;
 	EE_pic30_disableIRQ();
-	for(i=0; i<16; i++) {
+	for(i=0; i<size; i++) {
 		ee_lcd_line1[i] = line1[i];
 		ee_lcd_line2[i] = line2[i];
 	}
-	ee_lcd_line1[16] = '\0';
-	ee_lcd_line2[16] = '\0';
+	ee_lcd_line1[size] = '\0';
+	ee_lcd_line2[size] = '\0';
 	EE_pic30_enableIRQ();
 }
 
-void flex_daughter_lcd_inout(int type, void* y_1, void* y_2)
+void flex_daughter_lcd_inout (int type, void* y_1, void* y_2, int size)
 {
-	if (type == 1) {
+	if (type == LCD_PRINT_FLOAT) {
 		float* y1 = (float *)y_1;
 		float* y2 = (float *)y_2;
 		EESCI_flexdmb_lcd_float_inout(y1[0], y2[0]);
@@ -99,7 +132,19 @@ void flex_daughter_lcd_inout(int type, void* y_1, void* y_2)
 	else {
 		unsigned char* y1 = (unsigned char *)y_1;
 		unsigned char* y2 = (unsigned char *)y_2;
-		EESCI_flexdmb_lcd_uint8_inout(y1, y2 );
+		EESCI_flexdmb_lcd_uint8_inout(y1, y2, size);
+	}
+}
+
+void flex_daughter_lcd_inout_line (int line_id, int type, void* u, int size)
+{
+	if (type == LCD_PRINT_FLOAT) {
+		float* u1 = (float *)u;
+		EESCI_flexdmb_lcd_float_inout_line (line_id, u1[0]);
+	}
+	else {
+		unsigned char* u1 = (unsigned char *)u;
+		EESCI_flexdmb_lcd_uint8_inout_line (line_id, u1, size);
 	}
 }
 
@@ -173,11 +218,53 @@ void flex_daughter_button_inout(int pin, void *ptr_y, int ptr_type)
 
 #ifdef __USE_LEDS__
 
-#if defined(__USE_DEMOBOARD__)
-#define FLEX_DAUGHTER_NUM_LEDS 8
-#elif defined(__USE_MOTIONBOARD__)
-#define FLEX_DAUGHTER_NUM_LEDS 2
-#endif
+void flex_daughter_led_switch_on (int i)
+{
+	switch (i) { //** set the bit to one 
+		case 1:
+			EE_led_0_on(); break;
+		case 2:
+			EE_led_1_on(); break;
+		#if defined(__USE_DEMOBOARD__)
+		case 3:
+			EE_led_2_on(); break;
+		case 4:
+			EE_led_3_on(); break;
+		case 5:
+			EE_led_4_on(); break;
+		case 6:
+			EE_led_5_on(); break;
+		case 7:
+			EE_led_6_on(); break;
+		case 8:
+			EE_led_7_on(); break;
+		#endif
+	}
+}
+
+void flex_daughter_led_switch_off (int i)
+{
+	switch (i) { //** set the bit to zero 
+		case 1:
+			EE_led_0_off(); break;
+		case 2:
+			EE_led_1_off(); break;
+		#if defined(__USE_DEMOBOARD__)
+		case 3:
+			EE_led_2_off(); break;
+		case 4:
+			EE_led_3_off(); break;
+		case 5:
+			EE_led_4_off(); break;
+		case 6:
+			EE_led_5_off(); break;
+		case 7:
+			EE_led_6_off(); break;
+		case 8:
+			EE_led_7_off(); break;
+		#endif
+	}
+}
 
 void flex_daughter_leds_barrier_init(void)
 {
@@ -192,49 +279,22 @@ void flex_daughter_leds_barrier_inout(float threshold, float *leds_values)
 		threshold = 0.5;
 		
 	for(i=FLEX_DAUGHTER_NUM_LEDS-1; i>=0; i--) {
-		if(leds_values[i] > threshold) {
-			switch (i) { //** set the bit to one 
-				case 1:
-					EE_led_0_on(); break;
-				case 2:
-					EE_led_1_on(); break;
-				#if defined(__USE_DEMOBOARD__)
-				case 3:
-					EE_led_2_on(); break;
-				case 4:
-					EE_led_3_on(); break;
-				case 5:
-					EE_led_4_on(); break;
-				case 6:
-					EE_led_5_on(); break;
-				case 7:
-					EE_led_6_on(); break;
-				case 8:
-					EE_led_7_on(); break;
-				#endif
-			}
-		} else {
-			switch (i) { //** set the bit to zero 
-				case 1:
-					EE_led_0_off(); break;
-				case 2:
-					EE_led_1_off(); break;
-				#if defined(__USE_DEMOBOARD__)
-				case 3:
-					EE_led_2_off(); break;
-				case 4:
-					EE_led_3_off(); break;
-				case 5:
-					EE_led_4_off(); break;
-				case 6:
-					EE_led_5_off(); break;
-				case 7:
-					EE_led_6_off(); break;
-				case 8:
-					EE_led_7_off(); break;
-				#endif
-			}
-		}
+		if(leds_values[i] > threshold)
+			flex_daughter_led_switch_on(i+1);
+		else
+			flex_daughter_led_switch_off(i+1);
+	}
+}
+
+void flex_daughter_leds_barrier_inout_uint8(unsigned char *leds_values)
+{
+	int i;
+
+	for (i=FLEX_DAUGHTER_NUM_LEDS-1; i>=0; i--) {
+		if (leds_values[i])
+			flex_daughter_led_switch_on(i+1);
+		else
+			flex_daughter_led_switch_off(i+1);
 	}
 }
 
@@ -253,11 +313,36 @@ void flex_daughter_leds_inout(float threshold, float *leds_values)
 	flex_daughter_leds_barrier_inout(threshold, leds_values);
 }
 
+void flex_daughter_leds_inout_uint8(unsigned char *leds_values)
+{
+	flex_daughter_leds_barrier_inout_uint8(leds_values);
+}
+
 void flex_daughter_leds_end(void)
 {
 	flex_daughter_leds_barrier_end();
 }
 
+void flex_daughter_led_init(void)
+{
+	EE_daughter_leds_init();
+}
+
+void flex_daughter_led_inout(int pin, float threshold, float led_value)
+{
+	if (threshold < 0.01 || threshold > 0.99)
+		threshold = 0.5;
+		
+	if (led_value > threshold)
+		flex_daughter_led_switch_on(pin);
+	else
+		flex_daughter_led_switch_off(pin);
+}
+
+void flex_daughter_led_end(void)
+{
+	EE_leds(0xFF); 
+}
 #endif
 
 

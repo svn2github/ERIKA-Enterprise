@@ -53,25 +53,39 @@
 #include <ee.h>
 
 #ifdef __USE_LCD__
-void flex_daughter_lcd_init(void);
-void flex_daughter_lcd_end(void);
-void EESCI_flexdmb_lcd_float_inout(float scicos_lcd_value1, float scicos_lcd_value2);
-void EESCI_flexdmb_lcd_uint8_inout(unsigned char* line1, unsigned char* line2);
-void flex_daughter_lcd_inout(int type, void* y_1, void* y_2);
+#define LCD_PRINT_FLOAT SCITYPE_FLOAT
+#define LCD_PRINT_CHARS SCITYPE_INT8
+void flex_daughter_lcd_init (void);
+void flex_daughter_lcd_end (void);
+void EESCI_flexdmb_lcd_float_inout (float scicos_lcd_value1, float scicos_lcd_value2);
+void EESCI_flexdmb_lcd_uint8_inout (unsigned char* line1, unsigned char* line2, int size);
+void EESCI_flexdmb_lcd_float_inout_line (int line_id, float scicos_lcd_value);
+void EESCI_flexdmb_lcd_uint8_inout_line (int line_id, unsigned char* line, int size);
+void flex_daughter_lcd_inout (int type, void* y_1, void* y_2, int size);
+void flex_daughter_lcd_inout_line (int line_id, int type, void* u, int size);
 #endif
 
 #ifdef __USE_BUTTONS__
-void flex_daughter_button_init();
-void flex_daughter_button_end(void);
-void flex_daughter_button_float_output(int val, void *ptr_y, int ptr_type);
-void flex_daughter_button_inout(int pin, void *ptr_y, int ptr_type);
+void flex_daughter_button_init ();
+void flex_daughter_button_end (void);
+void flex_daughter_button_float_output (int val, void *ptr_y, int ptr_type);
+void flex_daughter_button_inout (int pin, void *ptr_y, int ptr_type);
 #endif
 
 #ifdef __USE_LEDS__
-void flex_daughter_leds_barrier_init(void);
-void flex_daughter_leds_barrier_inout(float threshold, float *leds_values);
-void flex_daughter_leds_barrier_end(void);
-void flex_daughter_leds_init(void);
-void flex_daughter_leds_inout(float threshold, float *leds_values);
-void flex_daughter_leds_end(void);
+#if defined(__USE_DEMOBOARD__)
+#define FLEX_DAUGHTER_NUM_LEDS 8
+#elif defined(__USE_MOTIONBOARD__)
+#define FLEX_DAUGHTER_NUM_LEDS 2
+#endif
+void flex_daughter_leds_barrier_init (void);
+void flex_daughter_leds_barrier_inout (float threshold, float *leds_values);
+void flex_daughter_leds_barrier_end (void);
+void flex_daughter_leds_init (void);
+void flex_daughter_leds_inout (float threshold, float *leds_values);
+void flex_daughter_leds_inout_uint8(unsigned char *leds_values);
+void flex_daughter_leds_end (void);
+void flex_daughter_led_init (void);
+void flex_daughter_led_inout (int pin, float threshold, float led_value);
+void flex_daughter_led_end (void);
 #endif

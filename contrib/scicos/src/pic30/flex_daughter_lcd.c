@@ -63,7 +63,7 @@ static void init(scicos_block *block) {
 
 static void inout(scicos_block *block) {
 	int port_type = block->ipar[0];
-	flex_daughter_lcd_inout(port_type, block->inptr[0], block->inptr[1]);
+	flex_daughter_lcd_inout(port_type, block->inptr[0], block->inptr[1], block->insz[2*block->nin - 1]);
 }
 
 static void end(scicos_block *block)
