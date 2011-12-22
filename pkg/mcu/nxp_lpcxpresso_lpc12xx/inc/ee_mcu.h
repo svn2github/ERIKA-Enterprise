@@ -1,7 +1,7 @@
 /* ###*B*###
  * ERIKA Enterprise - a tiny RTOS for small microcontrollers
  *
- * Copyright (C) 2002-2008  Evidence Srl
+ * Copyright (C) 2002-2011  Evidence Srl
  *
  * This file is part of ERIKA Enterprise.
  *
@@ -38,40 +38,17 @@
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
 
-/*
- * Author: 2011 Gianluca Franchino
- */
+/** 
+	@file	ee_mcu.h
+	@brief	Header file to include drivers header files needed.
+	@author	Gianluca Franchino
+	@author	Giuseppe Serano
+	@date	2011
+*/
+ 
+#ifndef	__INCLUDE_LPCXPRESSO_LPC12XX_MCU_H__
+#define	__INCLUDE_LPCXPRESSO_LPC12XX_MCU_H__
 
-#include "mcu/cortex_m0/inc/ee_mcu.h"
+#include "cpu/cortex_mx/inc/ee_cpu.h" 
 
-#ifndef __INCLUDE_CORTEX_M0_INTERNAL_H__
-#define __INCLUDE_CORTEX_M0_INTERNAL_H__
-
-
-/*************************************************************************
- Timers
- *************************************************************************/
-
-/*
- * FRSH
- */
-
-#if defined(__FRSH__)
-#error "FRSH timer not yet implemented!!!!"
-
-/* This function set the capacity timer to raise in t ticks. */
-void EE_hal_set_budget_timer(EE_STIME t);
-
-__INLINE__ void __ALWAYS_INLINE__ EE_hal_stop_budget_timer(void)
-{
-/*
-  IFS3bits.T7IF = 0;
-  T6CONbits.TON = 0;
-  
- */
-
-}
-
-#endif
-
-#endif
+#endif	/* __INCLUDE_LPCXPRESSO_LPC12XX_MCU_H__ */

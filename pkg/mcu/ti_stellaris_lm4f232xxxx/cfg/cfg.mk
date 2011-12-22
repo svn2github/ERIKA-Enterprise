@@ -1,7 +1,7 @@
 # ###*B*###
 # ERIKA Enterprise - a tiny RTOS for small microcontrollers
 # 
-# Copyright (C) 2002-2008  Evidence Srl
+# Copyright (C) 2002-2011  Evidence Srl
 # 
 # This file is part of ERIKA Enterprise.
 # 
@@ -38,41 +38,41 @@
 # Boston, MA 02110-1301 USA.
 # ###*E*###
 
-ifeq ($(call iseeopt, __CORTEX_M0__), yes)
+ifeq ($(and $(call iseeopt, __STELLARIS__), $(call iseeopt, __LM4F232xxxx__)), yes)
 
-
-ifneq ($(call iseeopt, __USE_CUSTOM_CRT0__), yes)
 # Provide a default crt0, but don't overwrite it if it's been already defined
 # (by the board)
 
+ifeq ($(call iseeopt, __CCS__), yes)
+
 ifndef CRT0_SRCS
-CRT0_SRCS := startup_LPC12xx.s
-endif # CRT0_SRCS
+#CRT0_SRCS = pkg/mcu/ti_stellaris_lm4f232xxxx/src/ee_boot_ccs.s
+CRT0_SRCS = 
+endif	# CRT0_SRCS
 
-endif #__USE_CUSTOM_CRT0__
+EE_SRCS += pkg/mcu/ti_stellaris_lm4f232xxxx/src/ee_vtable_ccs.c
 
-ifeq ($(call iseeopt, __USE_TIMER__), yes)
-EE_SRCS += pkg/mcu/cortex_m0/src/ee_timer.c
-endif
+endif	# __CCS__
 
-ifeq ($(call iseeopt, __USE_UART__), yes)
-EE_SRCS += pkg/mcu/cortex_m0/src/ee_uart.c
-MCU_BUF = YES
-endif
+EE_SRCS += pkg/mcu/ti_stellaris_lm4f232xxxx/src/ee_isr.c
 
-ifeq ($(call iseeopt, __USE_SPI__), yes)
-EE_SRCS += pkg/mcu/cortex_m0/src/ee_spi.c
-MCU_BUF = YES
-endif
+#~ ifeq ($(call iseeopt, __USE_UART__), yes)
+#~ EE_SRCS += pkg/mcu/ti_stellaris_lm4f232xxxx/src/ee_uart.c
+#~ MCU_BUF = YES
+#~ endif
 
-ifeq ($(call iseeopt, __USE_I2C__), yes)
-EE_SRCS += pkg/mcu/cortex_m0/src/ee_i2c.c
-MCU_BUF = YES
-endif
+#~ ifeq ($(call iseeopt, __USE_SPI__), yes)
+#~ EE_SRCS += pkg/mcu/ti_stellaris_lm4f232xxxx/src/ee_spi.c
+#~ MCU_BUF = YES
+#~ endif
 
-ifeq ($(call iseeopt, __USE_GPIO__), yes)
-EE_SRCS += pkg/mcu/cortex_m0/src/ee_gpio.c
-endif
+#~ ifeq ($(call iseeopt, __USE_I2C__), yes)
+#~ EE_SRCS += pkg/mcu/ti_stellaris_lm4f232xxxx/src/ee_i2c.c
+#~ MCU_BUF = YES
+#~ endif
 
+#~ ifeq ($(call iseeopt, __USE_GPIO__), yes)
+#~ EE_SRCS += pkg/mcu/ti_stellaris_lm4f232xxxx/src/ee_gpio.c
+#~ endif
 
-endif #__CORTEX_M0__
+endif	# __STELLARIS__ && __LM4F232xxxx__

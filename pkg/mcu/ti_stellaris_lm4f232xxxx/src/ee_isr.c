@@ -1,7 +1,7 @@
 /* ###*B*###
  * ERIKA Enterprise - a tiny RTOS for small microcontrollers
  *
- * Copyright (C) 2002-2008  Evidence Srl
+ * Copyright (C) 2002-2011  Evidence Srl
  *
  * This file is part of ERIKA Enterprise.
  *
@@ -38,16 +38,45 @@
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
 
-/** 
-	@file ee_mcu.h
-	@brief Header file to include drivers header files needed.
-	@author Gianluca Franchino
-	@date 2011
-*/
- 
-#ifndef __INCLUDE_MCUCORTEX_M0_MCU_H__
-#define __INCLUDE_MCUCORTEX_M0_MCU_H__
+/*
+ * Context Interrupt Services Routines
+ * Author: 2011 Giuseppe Serano
+ */
 
-#include "cpu/cortex_m0/inc/ee_cpu.h" 
+#include "mcu/ti_stellaris_lm4f232xxxx/inc/ee_isr.h"
 
-#endif /*__INCLUDE_MCUCORTEX_M0_MCU_H__*/
+/*
+ * This is the code that gets called when the processor receives an unexpected
+ * interrupt.  This simply enters an infinite loop, preserving the system state
+ * for examination by a debugger.
+ */
+void EE_cortex_mx_default_ISR(void)
+{
+    //
+    // Go into an infinite loop.
+    //
+    while(1)
+    {
+    }
+}
+
+/*
+ * This is the code that gets called when the processor first starts execution
+ * following a reset event.  Only the absolutely necessary set is performed,
+ * after which the application supplied entry() routine is called.  Any fancy
+ * actions (such as making decisions based on the reset cause register, and
+ * resetting the bits in that register) are left solely in the hands of the
+ * application.
+ */
+void EE_cortex_mx_default_reset_ISR(void)
+{
+#ifdef __CCS__
+    //
+    // Jump to the CCS C Initialization Routine.
+    //
+    __asm("    .global _c_int00\n"
+          "    b.w     _c_int00");
+#else
+    EE_cortex_mx_default_ISR();
+#endif
+}
