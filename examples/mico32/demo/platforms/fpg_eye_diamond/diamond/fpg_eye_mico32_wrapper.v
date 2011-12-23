@@ -52,6 +52,10 @@ module fpg_eye_mico32_wrapper(
 							, cameracam_mclk
 							, cameracam_rst
 							, cameracam_enb
+							, gpio_flash_sdi
+							, gpio_flash_sdo
+							, gpio_flash_clk
+							, gpio_flash_cs
                             );
     
     // Inputs
@@ -62,8 +66,9 @@ module fpg_eye_mico32_wrapper(
     input [3:0] misc_gpioPIO_BOTH_IN;
     input serparioSER_IN;
     input SPIFlash_bootSO;
+	input gpio_flash_sdi;
 
-    // Outputs
+	// Outputs
     output        sramsram_wen;
     output [17:0] sramsram_addr;
     output        sramsram_csn;
@@ -94,7 +99,10 @@ module fpg_eye_mico32_wrapper(
     output        cameracam_mclk;
     output        cameracam_rst;
     output        cameracam_enb;							
-
+	output        gpio_flash_sdo;
+	output        gpio_flash_clk;
+	output        gpio_flash_cs;
+	
     // Input
     input [7:0]   cameracam_y;
     input         cameracam_pclk;
@@ -137,7 +145,6 @@ module fpg_eye_mico32_wrapper(
     fpg_eye_mico32 base_platform (
                                .clk_i(main_clock), 
                                .reset_n(main_reset_n), 
-							   //.reset_n(reset),
                                .sramsram_wen(sramsram_wen), 
                                .sramsram_data(sramsram_data), 
                                .sramsram_addr({sramsram_addr[17:0],sram_addr_0}),
@@ -171,10 +178,8 @@ module fpg_eye_mico32_wrapper(
                                .serparioSH_CLK(serparioSH_CLK),
                                .serparioSTORE(serparioSTORE),
                                .serparioOUT_EN(serparioOUT_EN),
-                               .SPIFlash_bootCEJ(SPIFlash_bootCEJ), 
-                               .SPIFlash_bootSCK(SPIFlash_bootSCK), 
-                               .SPIFlash_bootSI(SPIFlash_bootSI), 
-                               .SPIFlash_bootSO(SPIFlash_bootSO),
+							   .gpio_flashPIO_BOTH_IN(gpio_flash_sdi),
+							   .gpio_flashPIO_BOTH_OUT({gpio_flash_sdo, gpio_flash_clk, gpio_flash_cs}),
 							   .cameracam_y(cameracam_y),
 							   .cameracam_pclk(cameracam_pclk),
 							   .cameracam_hsync(cameracam_hsync),
