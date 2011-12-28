@@ -48,12 +48,11 @@
 
 #include "ee_s12regs.h"
 #include "test/assert/inc/ee_assert.h"
+#include "mcu/hs12xs/inc/ee_timer.h"
+
 #define TRUE 1
 /* assertion data */
 EE_TYPEASSERTVALUE EE_assertions[10];
-
-unsigned int EE_TIMER_PERIOD = 1;
-unsigned int EE_TIMER_STEP;
 
 volatile unsigned int ERROR_FLAG = 0;
 
@@ -153,6 +152,14 @@ void StartupHook(void)
   // ATT!!! Timer0 is configured in the StartOS using ee_utils.h
 }
 
+/* HAL StartOS: initialization routine */
+int EE_s12_hal_cpu_startos(void)
+{
+    EE_timer_init_ms(EE_TIMER_7, 10, EE_TIMER_ISR_ON);
+    EE_timer_counter_reset_enable();
+    EE_timer_start();
+    return 0;
+}
 
 /* MAIN */
 int main(void)

@@ -34,7 +34,7 @@ ISR2(Counter_Interrupt)
 {
 	timer_fired++;
 	/* Clear interrupt flag */
-	EE_timer_clear_ISRflag(EE_TIMER_COUNTER);
+	EE_timer_clear_ISRflag(EE_TIMER_7);
 	CounterTick(Counter1);
 }
  
