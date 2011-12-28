@@ -38,17 +38,25 @@
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
 
-/*
- * Author: Dario Di Stefano
- */
+/** 
+* \file ee_start.c
+* \brief EE_cpu_startos routine for OSEK, Erika HCS12 mcu.
+* \author Dario Di Stefano
+* \version 0.1
+* \date 2011-01-12
+*/
 
 #include "mcu/hs12xs/inc/ee_mcu.h"
 #include "mcu/hs12xs/inc/ee_timer.h"
 
 #ifdef __OO_EXTENDED_STATUS__
+/**
+ * \brief			This function is used to start the OSEK kernel timer.
+ * \return			Only in case of __OO_EXTENDED_STATUS__ the function returns
+                    the result of the initialization (0 if there is no error).
+*/
 int EE_cpu_startos(void) {
-	EE_s12_hal_cpu_startos();
-	return 0; 
+	return EE_s12_hal_cpu_startos(); 
 }
 #else
 void EE_cpu_startos(void) {

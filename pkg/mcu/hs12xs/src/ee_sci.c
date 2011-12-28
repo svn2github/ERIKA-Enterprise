@@ -38,16 +38,29 @@
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
 
-/*
- * Authors: Dario Di Stefano, 2010
- *
- */
+/** 
+* \file ee_sci.c
+* \brief SCI driver, Erika HCS12 mcu.
+* \author Dario Di Stefano
+* \version 0.1
+* \date 2011-01-12
+*/
 
  
 #ifdef __USE_SCI__
 
 #include "mcu/hs12xs/inc/ee_sci.h"
 
-volatile EE_sci_peripheral EE_sci[2] = {-1, &SCI0BDH, -1, &SCI1BDH};
+/**
+ * \brief			EE_sci: This structure is used in the Erika SCI driver.
+                    Only SCI0 and SCI1 are supported.
+*/
+#if defined (__MC9S12G96__) || defined (__MC9S12G128__)
+  volatile EE_sci_peripheral EE_sci[3] = {-1, &SCI0BDH, -1, &SCI1BDH, -1, &SCI2BDH};
+#elif defined (__MC9S12XS64__) || defined (__MC9S12XS128__) || defined (__MC9S12XS256__)
+  volatile EE_sci_peripheral EE_sci[2] = {-1, &SCI0BDH, -1, &SCI1BDH};
+#elif defined (__MC9S12GN16__) || defined (__MC9S12GN32__)
+  volatile EE_sci_peripheral EE_sci[1] = {-1, &SCI0BDH};
+#endif
 
 #endif

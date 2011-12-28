@@ -38,16 +38,24 @@
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
 
-/*
- * Author: Dario Di Stefano
- */
+/** 
+* \file ee_mcuregs.h
+* \brief Registers header inclusion for Erika HCS12 mcu.
+* \author Dario Di Stefano
+* \version 0.1
+* \date 2011-01-12
+*/
 
 #ifndef __INCLUDE_MCU_FREESCALE_S12XS_MCUREGS__
 #define __INCLUDE_MCU_FREESCALE_S12XS_MCUREGS__
 
-/* This file should contain the definition of the registers available
-   on the particular device being used */
-/* Include a file with the registers of the s12 micro-controller */ 
+/** 
+ *  A file with the definition of the registers of the s12 micro-controller is included.
+ *  This file should contain the definition of the registers available
+ *  on the particular device being used.
+ *  ee_s12regs.h is automatically generated and it includes the header file specified
+ *  in the INCLUDE_H field in MCU_DATA section of the "conf.oil".
+ */
 #include "ee_s12regs.h"
 
 #endif

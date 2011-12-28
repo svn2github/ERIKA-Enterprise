@@ -38,9 +38,13 @@
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
 
-/*
- * Author: Dario Di Stefano
- */
+/** 
+* \file ee_internal.h
+* \brief Internals, Erika HCS12 mcu.
+* \author Dario Di Stefano
+* \version 0.1
+* \date 2011-01-12
+*/
 
 #include "mcu/hs12xs/inc/ee_mcu.h"
 

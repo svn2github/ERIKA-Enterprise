@@ -38,9 +38,13 @@
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
 
-/*
- * Author: 2011 Dario Di Stefano
- */
+/** 
+* \file ee_cpu.c
+* \brief CPU section (common files for HAL have been integrated), Erika HCS12 cpu.
+* \author Dario Di Stefano
+* \version 0.1
+* \date 2011-01-12
+*/
 
 #include "ee_internal.h"
 

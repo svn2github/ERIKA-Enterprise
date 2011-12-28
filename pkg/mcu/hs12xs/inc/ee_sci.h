@@ -1,3 +1,52 @@
+/* ###*B*###
+ * ERIKA Enterprise - a tiny RTOS for small microcontrollers
+ *
+ * Copyright (C) 2002-2008  Evidence Srl
+ *
+ * This file is part of ERIKA Enterprise.
+ *
+ * ERIKA Enterprise is free software; you can redistribute it
+ * and/or modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation, 
+ * (with a special exception described below).
+ *
+ * Linking this code statically or dynamically with other modules is
+ * making a combined work based on this code.  Thus, the terms and
+ * conditions of the GNU General Public License cover the whole
+ * combination.
+ *
+ * As a special exception, the copyright holders of this library give you
+ * permission to link this code with independent modules to produce an
+ * executable, regardless of the license terms of these independent
+ * modules, and to copy and distribute the resulting executable under
+ * terms of your choice, provided that you also meet, for each linked
+ * independent module, the terms and conditions of the license of that
+ * module.  An independent module is a module which is not derived from
+ * or based on this library.  If you modify this code, you may extend
+ * this exception to your version of the code, but you are not
+ * obligated to do so.  If you do not wish to do so, delete this
+ * exception statement from your version.
+ *
+ * ERIKA Enterprise is distributed in the hope that it will be
+ * useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License version 2 for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * version 2 along with ERIKA Enterprise; if not, write to the
+ * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+ * Boston, MA 02110-1301 USA.
+ * ###*E*### */
+
+/** 
+* \file ee_sci.h
+* \brief SCI driver, Erika HCS12 mcu.
+* \author Dario Di Stefano
+* \version 0.1
+* \date 2011-01-12
+*/
+
+
 #ifdef __USE_SCI__
 
 #ifndef __INCLUDE_FREESCALE_S12XS_SCI_H__
@@ -7,8 +56,20 @@
 /* Include a file with the registers of the s12 micro-controller */ 
 #include "mcu/hs12xs/inc/ee_mcuregs.h"
 
-#define SCI_0             0
-#define SCI_1             1
+
+#if defined (__MC9S12G96__) || defined (__MC9S12G128__)
+  #define SCI_0             0
+  #define SCI_1             1
+  #define SCI_2             2
+#elif defined (__MC9S12XS64__) || defined (__MC9S12XS128__) || defined (__MC9S12XS256__)
+  #define SCI_0             0
+  #define SCI_1             1
+#elif defined (__MC9S12GN16__) || defined (__MC9S12GN32__)
+  #define SCI_0             0
+#else
+  #error SCI not supported for this derivative!
+#endif
+
 #define ALL               65000
 
 #define SCIBDH            0x00
@@ -28,18 +89,14 @@ typedef struct EE_sci_peripheral_t {
 	unsigned char *init_reg;
 } EE_sci_peripheral;
 
-extern volatile EE_sci_peripheral EE_sci[2];
+extern volatile EE_sci_peripheral EE_sci[];
 
 /**
- * SCIOpenCommunication
- * --------------------------------------------------------------------------------------
- * Configures SCI registers for Enable Transmit and Receive data
- * SCI BAUD RATE = BUSCLK/(16*BR)
- * BUSCLK = 2 MHz
- * BAUD RATE = 9600
- * BR = 13 
- * Baud rate mismatch = 0.160 %
- */
+ * \brief				This function is used to open the Serial Communication Interface.
+ * \param sci_num		Number of the SCIx to be used.
+ * \param baudrate		Serial communication baudrate (SCI BAUD RATE = BUSCLK/(16*BR)).
+ * \return				-1 in case of error, 0 if it returns successfully.
+*/
 __INLINE__ int __ALWAYS_INLINE__ EE_sci_open(unsigned char sci_num, unsigned long int baudrate) {
 
 	unsigned int br = 0;
@@ -61,10 +118,11 @@ __INLINE__ int __ALWAYS_INLINE__ EE_sci_open(unsigned char sci_num, unsigned lon
 }
 
 /**
- * SCICloseCommunication
- * --------------------------------------------------------------------------------------
- * Configures SCI (x) registers for disable Transmit and Receive data 
- */
+ * \brief				This function is used to close the Serial Communication Interface and
+                        disable transmit and receive data.
+ * \param sci_num		Number of the SCIx to be closed.
+ * \return				nothing.
+*/
 __INLINE__ void __ALWAYS_INLINE__ EE_sci_close(unsigned char sci_num) {
 
 	unsigned char *sci_pt;
@@ -89,10 +147,11 @@ __INLINE__ void __ALWAYS_INLINE__ EE_sci_close(unsigned char sci_num) {
 }
 
 /**
- *SCISendBuffer
- * --------------------------------------------------------------------------------------
- * SCI Transmit Data. True if the byte has been transmitted.
- */
+ * \brief				This function is used to transmit a byte through the Serial Communication Interface.
+ * \param sci_num		Number of the SCIx to be used.
+ * \param txbyte		Byte to transmit.
+ * \return				True if the byte has been transmitted.
+*/
 __INLINE__ int __ALWAYS_INLINE__ EE_sci_send_byte(unsigned char sci_num, unsigned char txbyte) {
 
 	unsigned char *sci_pt;
@@ -110,10 +169,12 @@ __INLINE__ int __ALWAYS_INLINE__ EE_sci_send_byte(unsigned char sci_num, unsigne
 }
 
 /**
- * SCISendString
- * --------------------------------------------------------------------------------------
- * SCI Transmit Data. True if the buffer has been transmitted.
- */
+ * \brief				This function is used to transmit a string through the Serial Communication Interface.
+ * \param sci_num		Number of the SCIx to be used.
+ * \param s			String to transmit.
+ * \param num			String length.
+ * \return				True if the string has been transmitted.
+*/
 __INLINE__ int __ALWAYS_INLINE__ EE_sci_send_string(unsigned char sci_num, const char* s, unsigned int num) {
 
 	unsigned int i = 0;
@@ -130,10 +191,12 @@ __INLINE__ int __ALWAYS_INLINE__ EE_sci_send_string(unsigned char sci_num, const
 }
 
 /**
- * SCISendChars
- * --------------------------------------------------------------------------------------
- * SCI Transmit Data. True if the buffer has been transmitted.
- */
+ * \brief				This function is used to transmit an array of chars through the Serial Communication Interface.
+ * \param sci_num		Number of the SCIx to be used.
+ * \param v			Array to transmit.
+ * \param num			Number of bytes.
+ * \return				True if the array has been transmitted.
+*/
 __INLINE__ int __ALWAYS_INLINE__ EE_sci_send_bytes(unsigned char sci_num, char* v, unsigned int num) {
 
 	unsigned int i = 0;
@@ -150,10 +213,11 @@ __INLINE__ int __ALWAYS_INLINE__ EE_sci_send_bytes(unsigned char sci_num, char* 
 }
 
 /**
- * SCIGetBuffer
- * --------------------------------------------------------------------------------------
- * SCI Receive Data, True if the buffer has been received
- */
+ * \brief				This function is used to receive a byte through the Serial Communication Interface.
+ * \param sci_num		Number of the SCIx to be used.
+ * \param buffer		Address to save the received byte.
+ * \return				True if the array has been received.
+*/
 __INLINE__ int __ALWAYS_INLINE__ EE_sci_get_byte(unsigned char sci_num, unsigned char *buffer) {
 
 	unsigned char *sci_pt;
@@ -171,11 +235,12 @@ __INLINE__ int __ALWAYS_INLINE__ EE_sci_get_byte(unsigned char sci_num, unsigned
 	return 1;
 }
 
+
 /**
- * SCICheckGetBuffer
- * --------------------------------------------------------------------------------------
- * SCI Check Receive Data, True if receiver data register (SCIDR) is full
- */
+ * \brief				This function is used to check data receive through the Serial Communication Interface.
+ * \param sci_num		Number of the SCIx to be used.
+ * \return				True if receiver data register (SCIDR) is full.
+*/
 __INLINE__ int __ALWAYS_INLINE__ EE_sci_getcheck(unsigned char sci_num) {
 
 	unsigned char *sci_pt;

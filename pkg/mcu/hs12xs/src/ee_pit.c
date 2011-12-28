@@ -1,13 +1,13 @@
 /* ###*B*###
  * ERIKA Enterprise - a tiny RTOS for small microcontrollers
  *
- * Copyright (C) 2002-2008  Evidence Srl
+ * Copyright (C) 2002-2011  Evidence Srl
  *
  * This file is part of ERIKA Enterprise.
  *
  * ERIKA Enterprise is free software; you can redistribute it
  * and/or modify it under the terms of the GNU General Public License
- * version 2 as published by the Free Software Foundation,
+ * version 2 as published by the Free Software Foundation, 
  * (with a special exception described below).
  *
  * Linking this code statically or dynamically with other modules is
@@ -37,11 +37,14 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
-
-/*
- * Authors: Dario Di Stefano, 2010
- *
- */
+ 
+/** 
+* \file ee_pit.c
+* \brief PIT driver, Erika HCS12 mcu.
+* \author Dario Di Stefano
+* \version 0.1
+* \date 2011-01-12
+*/
 
 #ifdef __USE_PIT__
 

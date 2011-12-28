@@ -66,7 +66,9 @@ endif
 EE_SRCS += pkg/mcu/hs12xs/src/ee_mcu.c
 
 ifeq ($(MCU_OO), YES)
+ifeq ($(call iseeopt, __OO_CPU_HAS_STARTOS_ROUTINE__), yes)
 EE_SRCS += pkg/mcu/hs12xs/src/ee_start.c
+endif
 endif
 
 ifeq ($(call iseeopt, __USE_SCI__), yes)

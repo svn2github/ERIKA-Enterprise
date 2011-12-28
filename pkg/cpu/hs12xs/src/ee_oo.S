@@ -1,4 +1,4 @@
-///* ###*B*###
+// /* ###*B*###
 // * ERIKA Enterprise - a tiny RTOS for small microcontrollers
 // *
 // * Copyright (C) 2002-2008  Evidence Srl
@@ -38,11 +38,22 @@
 // * Boston, MA 02110-1301 USA.
 // * ###*E*### */
 
-///*
-// * Author: Dario Di Stefano
-// */
+//! 
+//! \file ee_oo.S
+//! \brief EE_s12_terminate_savestk (read and save the stack pointer), EE_s12_terminate_task (write the stack pointer) implementation.
+//! \author Dario Di Stefano
+//! \version 0.1
+//! \date 2011-01-12
+//!
 
-///* the define is needed for binary distributions */
+//! \fn void EE_s12_terminate_savestk(EE_DADD sp, EE_ADDR realbody)
+//! \param sp			Pointer to a location used to save the stack pointer.
+//! \param realbody		Body of the thread to be called.
+
+//! \fn void EE_s12_terminate_task(EE_DADD sp)
+//! \param sp			New value for the stack pointer.
+
+// the define is needed for binary distributions 
 #define __EECFG_THIS_IS_ASSEMBLER__
 
 #ifdef __CODEWARRIOR__

@@ -38,11 +38,13 @@
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
 
-/*
- * Authors: Dario Di Stefano, 2010
- *          Dario Di Stefano, 2011: pkg/cpu/common integration
- *
- */
+/** 
+* \file ee_irqstub_cw.h
+* \brief Erika IRQ support for Codewarrior (common files for HAL have been integrated), Erika HCS12 cpu.
+* \author Dario Di Stefano
+* \version 0.1
+* \date 2011-01-12
+*/
 
 #ifndef	__INCLUDE_HC12_EE_IRQSTUB_CW_H__
 #define	__INCLUDE_HC12_EE_IRQSTUB_CW_H__
@@ -92,18 +94,17 @@ __INLINE__ void __ALWAYS_INLINE__ EE_ISR2_prestub(void) {
 #ifndef EE_s12_maybe_resumeIRQ
   #define EE_s12_maybe_resumeIRQ() do{}while(0)
 #endif
-/*
-#define EE_ISR2_prestub()\
-                   register EE_FREG flags;\
-                   flags = EE_s12_suspendIRQ();\
-                   EE_increment_IRQ_nesting_level();\
-                   EE_prestub_change_sp();\
-                   EE_s12_maybe_resumeIRQ(flags)
+
+/**
+ * \brief				This macro is the prestub of the IRQs.
+                        Actions: If needed this macro can call the context change and the
+                        resume of IRQ.
+ * \return				nothing.
 */
-#define EE_ISR2_prestub()\
+#define EE_ISR2_prestub() do {\
                    EE_increment_IRQ_nesting_level();\
                    EE_prestub_change_sp();\
-                   EE_s12_maybe_resumeIRQ()
+                   EE_s12_maybe_resumeIRQ(); } while(0) 
 
 /* -------------------------------------------------------- */
 
@@ -144,13 +145,19 @@ __INLINE__ void __ALWAYS_INLINE__ EE_ISR2_poststub(void) {
   #define EE_poststub_change_sp() do{}while(0)
 #endif
 
-#define EE_ISR2_poststub()\
+/**
+ * \brief				This macro is the poststub of the IRQs.
+                        Actions: If needed this macro can call the context change and the
+                        scheduler.
+ * \return				nothing.
+*/
+#define EE_ISR2_poststub() do {\
                     EE_s12_disableIRQ();\
                     EE_decrement_IRQ_nesting_level();\
                     if (EE_is_inside_ISR_call())\
                         return;\
                     EE_poststub_change_sp();\
-                    EE_std_after_IRQ_schedule()
+                    EE_std_after_IRQ_schedule(); } while(0)
 
 /* -------------------------------------------------------- */
 

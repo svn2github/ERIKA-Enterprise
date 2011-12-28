@@ -1,4 +1,4 @@
-///* ###*B*###
+// /* ###*B*###
 // * ERIKA Enterprise - a tiny RTOS for small microcontrollers
 // *
 // * Copyright (C) 2002-2008  Evidence Srl
@@ -38,11 +38,14 @@
 // * Boston, MA 02110-1301 USA.
 // * ###*E*### */
 
-// /*
-// * Authors: Dario Di Stefano, 2010
-// *          Dario Di Stefano, 2011: pkg/cpu/common integration
-// *
-// */
+//! 
+//! \file ee_cpu_cw_utils.h
+//! \brief Utils for Codewarrior (macros and inline assembly), Erika HCS12 cpu.
+//| This file is also included by the .S files.
+//! \author Dario Di Stefano
+//! \version 0.1
+//! \date 2011-01-12
+//!
 
 #ifndef	__INCLUDE_HC12_EE_CPU_CW_H__
 #define	__INCLUDE_HC12_EE_CPU_CW_H__
@@ -67,7 +70,8 @@ __INLINE__ EE_DADD __ALWAYS_INLINE__ EE_READ_SP() {
 }
  
 // change the stack pointer
-#define EE_WRITE_SP(tos) __asm ldd tos; __asm tfr d,SP;
+#define EE_WRITE_SP(tos) {__asm ldd tos;\
+                          __asm tfr d,SP;}
   
 // Macro for interrupts disabling
 #define ASM_DIS_INT __asm sei
@@ -76,14 +80,14 @@ __INLINE__ EE_DADD __ALWAYS_INLINE__ EE_READ_SP() {
 #define ASM_EN_INT  __asm cli
 
 // write CCRH register
-#if defined (__MC9S12XS128__)
+#if defined (__MC9S12XS64__) || defined (__MC9S12XS128__) || defined (__MC9S12XS256__)
   #define EE_WRITE_CCRH(rvar)    do {\
      EE_UINT16 var = rvar;\
      __asm ldd var;\
      __asm tfr a,CCRH;\
    }while(0)
 #endif
-#if defined (__MC9S12G128__)
+#if defined (__MC9S12G96__) || defined (__MC9S12G128__) || defined (__MC9S12GN16__) || defined (__MC9S12GN32__)
   #define EE_WRITE_CCRH(rvar)    do {\
    }while(0)
 #endif

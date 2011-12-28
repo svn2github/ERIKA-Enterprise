@@ -38,23 +38,51 @@
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
 
-/*
- * Author: Dario Di Stefano
- */
+/** 
+* \file ee_mcu.h
+* \brief Main header of Erika HCS12 mcu.
+* \author Dario Di Stefano
+* \version 0.1
+* \date 2011-01-12
+*/
  
+/** 
+* \mainpage Erika MCU for HCS12 
+*
+* \todo Other peripheral/controllers drivers for HCS12 micro-controllers.
+*
+* \section intro_sec This documentation describes the functions, the macros and the variables of the 
+* Erika peripherals drivers for Freescale HCS12. Current supported peripherals: Timer, SCI, PIT.
+* The Erika MCU for HCS12 contains also the default linker-scripts used if no linker-script is specified in
+* the OIL file.
+*/
+
 #include "eecfg.h"
 #include "cpu/hs12xs/inc/ee_cpu.h"
 
 #ifndef __INCLUDE_FREESCALE_S12XS_MCU_H__
 #define __INCLUDE_FREESCALE_S12XS_MCU_H__
 
-/* Include a file with the registers of the s12 micro-controller */ 
+/** Include a file with the registers of the s12 micro-controller */ 
 #include "mcu/hs12xs/inc/ee_mcuregs.h"
 
 /* Functions and Utilities */
-
+/**
+ * \brief			ee_s12_peripheral_frequency_mhz: This variables is used to save the peripheral frequency.
+ */
 extern volatile unsigned int ee_s12_peripheral_frequency_mhz;
+
+/**
+ * \brief			This macro is used to read the saved peripheral frequency.
+ * \return			the value saved in ee_s12_peripheral_frequency_mhz
+ */
 #define EE_get_peripheral_frequency_mhz()    ee_s12_peripheral_frequency_mhz
+
+/**
+ * \brief			This macro is used to save the peripheral frequency in ee_s12_peripheral_frequency_mhz.
+ * \param mhz		Frequency value in MHz.
+ * \return			the new value saved in ee_s12_peripheral_frequency_mhz
+ */
 #define EE_set_peripheral_frequency_mhz(mhz) ee_s12_peripheral_frequency_mhz = mhz
 
 
@@ -62,10 +90,16 @@ extern volatile unsigned int ee_s12_peripheral_frequency_mhz;
  System startup
  *************************************************************************/
 #ifdef __OO_CPU_HAS_STARTOS_ROUTINE__
- 
- /* This function starts ths system,
- * register the IPIC and synchronize the CPUs 
- * returns 1 in case of error (typically a mutex name error)
+
+/**
+ * \brief			This function is used to initialize the peripherals and start some activity inside the EE_cpu_startos.
+ * \return			the result of the initialization (0 if there is no error, !=0 otherwise).
+ */
+int EE_s12_hal_cpu_startos(void);
+
+/**
+ * \brief			This function is used to start the OSEK kernel timer.
+ * \return			Only in case of __OO_EXTENDED_STATUS__ the function returns the result of the timer initialization.
  */
 #ifdef __OO_EXTENDED_STATUS__
 int EE_cpu_startos(void);
@@ -73,65 +107,6 @@ int EE_cpu_startos(void);
 void EE_cpu_startos(void);
 #endif	/* __OO_EXTENDED_STATUS__ */
 
-
-#if(EE_MAX_COUNTER>0)
-/* defining this let the StartOS routine to call this function 
-#ifndef __OO_CPU_HAS_STARTOS_ROUTINE__
-#define __OO_CPU_HAS_STARTOS_ROUTINE__
-#endif
-*/
-
-/*************************************************************************
- Time handling
- *************************************************************************/
-
-/*
- * Time handling on the s12 is made by using timer T0 as a
- * 16 bit register value to have a bigger lifetime.
- */
-
-#ifndef EE_TIMER_COUNTER
-
-/* Timer module */
-#define EE_TIMER_COUNTER EE_TIMER_7
-#define EE_TIMER_PERIOD_REG EE_S12_TIMER_TC7_REG
-
-/*
-#define EE_PRESCALE_FACTOR_128 		7
-#define EE_PRESCALE_FACTOR_64 		6
-#define EE_PRESCALE_FACTOR_32 		5
-#define EE_PRESCALE_FACTOR_16 		4
-#define EE_PRESCALE_FACTOR_8 		3
-#define EE_PRESCALE_FACTOR_4 		2
-#define EE_PRESCALE_FACTOR_2 		1
-#define EE_PRESCALE_FACTOR_1 		0
-*/
-/* EE_TIMER_PRESCALER		es. 128 */
-//extern unsigned int EE_TIMER_PRESCALER;
-/* EE_PRESCALE_FACTOR		es. EE_PRESCALE_FACTOR_128 */
-//extern unsigned int EE_PRESCALE_FACTOR;
-/* EE_BUS_CLOCK				es. 32000000 */
-//extern unsigned long int EE_BUS_CLOCK; 
-/* EE_TIMER_PERIOD			es. 1 in ms */
-extern unsigned int EE_TIMER_PERIOD;
-//#define EE_TIMER0_STEP 			(((unsigned long int)(EE_BUS_CLOCK))/((unsigned long int)(EE_TIMER_PRESCALER))*((unsigned long int)(EE_TIMER_PERIOD)))/((unsigned long int)(1000))	/* es. 250 */
-extern unsigned int EE_TIMER_STEP;
-
-/* enable Timer7 and TCRE bit to reset timer counter when match the period */
-#define EE_s12_hal_cpu_startos()\
-		EE_timer_init_ms(EE_TIMER_7, EE_TIMER_PERIOD, EE_TIMER_ISR_ON);\
-		EE_TIMER_STEP = EE_S12_TIMER_TC7_REG;\
-		EE_S12_TIMER_SYSCTRL_REG2 |= 0x08;\
-		EE_timer_start()
-
-#endif	/* TIMER_COUNTER */
-
-#else	/* EE_MAX_COUNTER>0 */
-  #define EE_s12_hal_cpu_startos() do{}while(0)
-#endif	/* EE_MAX_COUNTER>0 */
-
-#else	/* __OO_CPU_HAS_STARTOS_ROUTINE__ */
-  #define EE_s12_hal_cpu_startos() do{}while(0)
 #endif	/* __OO_CPU_HAS_STARTOS_ROUTINE__ */
 
 #endif	/* __INCLUDE_FREESCALE_S12XS_MCU_H__ */

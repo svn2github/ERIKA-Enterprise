@@ -38,8 +38,12 @@
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
 
-/*
- * Author: Dario Di Stefano
- */
+/** 
+* \file ee_board.h
+* \brief Erika internals for the TWRS12G128 evaluation board.
+* \author Dario Di Stefano
+* \version 0.1
+* \date 2011-01-12
+*/
 
 #include "board/twrs12g128/inc/ee_board.h"

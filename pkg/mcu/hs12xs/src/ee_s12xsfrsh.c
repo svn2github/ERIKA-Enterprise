@@ -38,9 +38,13 @@
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
 
-/*
- * Author: Dario Di Stefano
- */
+/** 
+* \file ee_s12xsfrsh.c
+* \brief FRSH, Erika HCS12 mcu (not yet stable).
+* \author Dario Di Stefano
+* \version 0.1
+* \date 2011-01-12
+*/
 
 #include "ee_internal.h"
 
@@ -50,7 +54,8 @@
 extern void EE_IRQ_end_budget(void);
 extern void EE_IRQ_end_recharging(void);
 
-/*
- * TODO: Two interrupts used in the FRSH implementation to handle the
+/**
+ * TODO: Support for FRSH incomplete. Not tested. 
+ * Two interrupts used in the FRSH implementation to handle the
  * timer interrupts for budget exaustion and for the recharging.
  */

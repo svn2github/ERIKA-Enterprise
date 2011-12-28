@@ -38,11 +38,14 @@
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
 
-/*
- * Authors: Dario Di Stefano, 2010
- *          Dario Di Stefano, 2011: pkg/cpu/common integration
- *
- */
+/** 
+* \file ee_irqstub_cosmic.h
+* \brief Erika IRQ support for Cosmic (common files for HAL have been integrated), Erika HCS12 cpu.
+* \author Dario Di Stefano
+* \version 0.1
+* \date 2011-01-12
+*/
+
 
 #ifndef	__INCLUDE_HC12_EE_IRQSTUB_COSMIC_H__
 #define	__INCLUDE_HC12_EE_IRQSTUB_COSMIC_H__
@@ -50,6 +53,12 @@
 /* -------------------------------------------------------- */
 /* ------------------ PRESTUB ----------------------------- */
 
+/**
+ * \brief				This function is the prestub of the IRQs.
+                        Actions: If needed the function can call the context change and the
+                        resume of IRQ.
+ * \return				nothing.
+*/
 __INLINE__ void __ALWAYS_INLINE__ EE_ISR2_prestub(void) {
   //register EE_FREG flags;
   //flags = EE_s12_suspendIRQ();
@@ -96,6 +105,12 @@ __INLINE__ void __ALWAYS_INLINE__ EE_ISR2_prestub(void) {
 /* -------------------------------------------------------- */
 /* ------------------ POSTSTUB ---------------------------- */
 
+/**
+ * \brief				This function is the poststub of the IRQs.
+                        Actions: If needed this function can call the context change and the
+                        scheduler.
+ * \return				nothing.
+*/
 __INLINE__ void __ALWAYS_INLINE__ EE_ISR2_poststub(void) {
 #ifdef	__ALLOW_NESTED_IRQ__
   EE_s12_disableIRQ();

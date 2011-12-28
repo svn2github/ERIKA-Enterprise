@@ -38,21 +38,32 @@
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
 
-/*
- * Author: Dario Di Stefano
- */
+/** 
+* \file ee_board.h
+* \brief Drivers for the TWRS12G128 evaluation board.
+* \author Dario Di Stefano
+* \version 0.1
+* \date 2011-01-12
+*/
+
+/** 
+* \mainpage Erika support for the TWRS12G128 evaluation board.
+*
+* \section intro_sec This documentation describes the functions, the macros and the variables of the 
+* Erika support for the TWRS12G128 evaluation board. For further info see the examples and the demos.
+*/
 
 #ifndef __INCLUDE_S12G_BOARD_H__
 #define __INCLUDE_S12G_BOARD_H__
 
 #include "mcu/hs12xs/inc/ee_mcu.h"
 
-/**********************************************************
-*	EE_set_clock_8MHz
-*	Setup clock module for PLL Engaged using External XTAL
-*	For 8MHz XTAL - 
-*	VCOCLK - 64MHz, Core Clk - 16MHz, Bus Clk - 8MHz
-**********************************************************/
+/**
+ * \brief		Setup clock module for PLL Engaged using External XTAL
+ * This function automatically calls EE_set_peripheral_frequency_mhz(8).
+ * For 8MHz XTAL - 
+ * VCOCLK - 64MHz, Core Clk - 16MHz, Bus Clk - 8MHz
+*/
 __INLINE__ void __ALWAYS_INLINE__ EE_set_clock_8MHz(void){
 
 	CPMUSYNR = 0x01;					// fVCO = 32MHz

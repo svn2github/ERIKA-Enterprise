@@ -38,11 +38,13 @@
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
 
-/*
- * Authors: Dario Di Stefano, 2010
- *          Dario Di Stefano, 2011: pkg/cpu/common integration
- *
- */
+/** 
+* \file ee_irqstub.h
+* \brief Erika IRQ support, it is compiler dependent (common files for HAL have been integrated), Erika HCS12 cpu.
+* \author Dario Di Stefano
+* \version 0.1
+* \date 2011-01-12
+*/
 
 #ifndef	__INCLUDE_HC12_EE_IRQSTUB_H__
 #define	__INCLUDE_HC12_EE_IRQSTUB_H__

@@ -1,4 +1,4 @@
-///* ###*B*###
+// /* ###*B*###
 // * ERIKA Enterprise - a tiny RTOS for small microcontrollers
 // *
 // * Copyright (C) 2002-2008  Evidence Srl
@@ -38,18 +38,18 @@
 // * Boston, MA 02110-1301 USA.
 // * ###*E*### */
 
-///*
-// * Authors: Dario Di Stefano, 2010
-// *          Dario Di Stefano, 2011: pkg/cpu/common integration
-// *
-// */
+//! 
+//! \file ee_compiler_cosmic.h
+//! \brief Macros defined if Cosmic compiler is used.
+//| This file MUST contain only #defines, because it is also included by the .S files.
+//! \author Dario Di Stefano
+//! \version 0.1
+//! \date 2011-01-12
+//!
 
-///* This file MUST contain only #defines, because it is also included
-//   by the .S files */
-
-///*
-// * Compiler dependent interface
-// */
+// 
+// Compiler dependent interface
+// 
 
 #ifndef __HC12_COMPILER_COSMIC_H__
 #define __HC12_COMPILER_COSMIC_H__

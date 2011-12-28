@@ -1,4 +1,4 @@
-///* ###*B*###
+// /* ###*B*###
 // * ERIKA Enterprise - a tiny RTOS for small microcontrollers
 // *
 // * Copyright (C) 2002-2008  Evidence Srl
@@ -38,9 +38,26 @@
 // * Boston, MA 02110-1301 USA.
 // * ###*E*### */
 
-// /*
-//  * Author: Dario Di Stefano
-//  */
+//! 
+//! \file ee_context.S
+//! \brief EE_std_change_context (context change) implementation.\n
+//! \author Dario Di Stefano
+//! \version 0.1
+//! \date 2011-01-12
+//!
+
+//!  \fn void EE_std_change_context(void)
+//!  \brief Context change implementation.
+//!  Pseudo code for EE_std_change_context():\n
+//!  begin:\n
+//!     tos_index = EE_std_thread_tos[tid+1];\n
+//!     if is_not_the_current_stack(tos_index) {\n
+//!         EE_CHANGE_TOS_MACRO(EE_S12_ACTIVE_TOS, EE_S12_SYSTEM_TOS);\n
+//!     }\n
+//!     if (is_not_marked_stacked(tid)) {\n
+//!         tid = EE_std_run_task_code(tid);\n
+//!         goto begin;\n
+//!     }\n
 
 // the define is needed for binary distributions
 #define	__EECFG_THIS_IS_ASSEMBLER__

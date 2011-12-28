@@ -1,4 +1,4 @@
-///* ###*B*###
+// /* ###*B*###
 // * ERIKA Enterprise - a tiny RTOS for small microcontrollers
 // *
 // * Copyright (C) 2002-2008  Evidence Srl
@@ -38,11 +38,14 @@
 // * Boston, MA 02110-1301 USA.
 // * ###*E*### */
 
-///*
-// * Authors: Dario Di Stefano, 2010
-// *          Dario Di Stefano, 2011: pkg/cpu/common integration
-// *
-// */
+//! 
+//! \file ee_cpu_cosmic_utils.h
+//! \brief Utils for Cosmic (macros and inline assembly), Erika HCS12 cpu.
+//| This file is also included by the .S files.
+//! \author Dario Di Stefano
+//! \version 0.1
+//! \date 2011-01-12
+//!
 
 #ifndef	__INCLUDE_HC12_EE_CPU_COSMIC_H__
 #define	__INCLUDE_HC12_EE_CPU_COSMIC_H__
@@ -55,10 +58,10 @@
 #define ASM_DIS_INT        _asm("sei")                          // Macro for interrupts disabling
 #define ASM_EN_INT         _asm("cli")                          // Macro for interrupts enabling  
 // write CCRH register
-#if defined (__MC9S12XS128__)
+#if defined (__MC9S12XS64__) || defined (__MC9S12XS128__) || defined (__MC9S12XS256__)
   #define EE_WRITE_CCRH(var) _asm("tfr a,ccrh\n", var)
 #endif
-#if defined (__MC9S12G128__) // device not yet supported in case of Cosmic compiler
+#if defined (__MC9S12G96__) || defined (__MC9S12G128__) || defined (__MC9S12GN16__) || defined (__MC9S12GN32__) // derivatives not yet supported in case of Cosmic compiler
   #define EE_WRITE_CCRH(var)    do {} while(0)
 #endif
 

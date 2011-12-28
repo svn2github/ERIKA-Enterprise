@@ -37,10 +37,25 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
+ 
+/** 
+* \file ee_mcu.c
+* \brief Variables and functions used in Erika HCS12 mcu.
+* \author Dario Di Stefano
+* \version 0.1
+* \date 2011-01-12
+*/
+ 
+#include "ee.h"
 
-/*
- * Author: Dario Di Stefano
- */
- 
- 
+/**
+ * \brief			ee_s12_peripheral_frequency_mhz: This variables is used to save the peripheral frequency.
+*/
  volatile unsigned int ee_s12_peripheral_frequency_mhz = 0;
+
+#ifdef __USE_TIMER__
+#include "mcu/hs12xs/inc/ee_timer.h"
+volatile unsigned int ee_timer_periods[EE_TIMER_ID_MAX+1];
+#endif
+ 
+ 

@@ -38,11 +38,21 @@
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
 
-/*
- * Authors: Dario Di Stefano, 2010
- *          Dario Di Stefano, 2011: pkg/cpu/common integration
- *
- */
+/** 
+* \file ee_cpu.h
+* \brief CPU section main header (common files for HAL have been integrated), Erika HCS12 cpu.
+* \author Dario Di Stefano
+* \version 0.1
+* \date 2011-01-12
+*/
+
+/** 
+* \mainpage Erika CPU for HCS12 
+*
+* \section intro_sec This documentation describes the functions, the macros and the variables of the 
+* Erika CPU support for Freescale HCS12. For further info see the wiki page: 
+* http://erika.tuxfamily.org/wiki/index.php?title=Freescale_S12
+*/
 
 #ifndef	__INCLUDE_HC12_EE_CPU_H__
 #define	__INCLUDE_HC12_EE_CPU_H__
@@ -93,15 +103,12 @@ typedef EE_INT32 EE_TID;
 
 /* EE_TYPEIRQ is currently unused */
 
-/* Use the "standard" implementation */
-//#include "cpu/hs12xs/inc/ee_cpu_structs.h"
-
 /* invalid pointer */
 #ifndef NULL
 #define NULL 0
 #endif
 
-/*
+/**
  * This structure is used by the Multistack HAL to contain the
  * information about a "stack", that is composed by a user stack
  * (SYS-mode) and a system stack (IRQ-mode). This type is
@@ -165,27 +172,26 @@ extern	void EE_oo_thread_stub(void);
   #include "cpu/hs12xs/inc/ee_cpu_cosmic_utils.h"
 #endif
  
-/*
- * Enable interrupts
- */
-
+/**
+ * \brief				This function is used to enable I-bit maskable interrupts.
+*/
 __INLINE__ void __ALWAYS_INLINE__ EE_s12_enableIRQ(void)
 {
   ASM_EN_INT;
 }
 
-/*
- * Disable interrupts
- */
-
+/**
+ * \brief				This function is used to disable I-bit maskable interrupts.
+*/
 __INLINE__ void __ALWAYS_INLINE__ EE_s12_disableIRQ(void)
 {
   ASM_DIS_INT;
 }
 
-/*
- * Supend interrupts
- */
+/**
+ * \brief				This function is used to suspend (disable) I-bit maskable interrupts and read the old state.
+ * \return				CCR before the change.
+*/
 __INLINE__ EE_FREG __ALWAYS_INLINE__ EE_s12_suspendIRQ(void)
 {
   register EE_FREG retvalue;
@@ -194,9 +200,10 @@ __INLINE__ EE_FREG __ALWAYS_INLINE__ EE_s12_suspendIRQ(void)
   return retvalue;
 }
 
-/*
- * Resume interrupts
- */
+/**
+ * \brief				This function is used to resume (enable if needed) I-bit maskable interrupts.
+ * \param sr			CCR value returned by EE_s12_suspendIRQ().
+*/
 __INLINE__ void __ALWAYS_INLINE__ EE_s12_resumeIRQ(EE_FREG sr)
 {
   // check the I bit in CCR
