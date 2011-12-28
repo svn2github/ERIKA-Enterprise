@@ -507,15 +507,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_lcd_init(void) {
 }
 
 /* /\* Send a data.  *\/ */
-__INLINE__ void __ALWAYS_INLINE__ EE_lcd_putc( unsigned char data )
-{
-	EE_LCD_RS = 1;
-	EE_LCD_DATA &= 0xFF00;
-	EE_LCD_DATA |= data;
-	EE_lcd_pulse_enable();
-	EE_LCD_RS = 0;
-	Delay_Us( Delay200uS_count );
-}
+void EE_lcd_putc( unsigned char data );
 
 /* /\* Send a string to the display.  *\/ */
 __INLINE__ void __ALWAYS_INLINE__ EE_lcd_puts( char *buf )

@@ -235,6 +235,17 @@ void Delay_Us( unsigned int delayUs_count )
 	asm volatile("done1:");
 }
 
+void EE_lcd_putc( unsigned char data )
+{
+	EE_LCD_RS = 1;
+	EE_LCD_DATA &= 0xFF00;
+	EE_LCD_DATA |= data;
+	EE_lcd_pulse_enable();
+	EE_LCD_RS = 0;
+	Delay_Us( Delay200uS_count );
+}
+
+
 #endif
 
 /* /\************************************************************************* */
