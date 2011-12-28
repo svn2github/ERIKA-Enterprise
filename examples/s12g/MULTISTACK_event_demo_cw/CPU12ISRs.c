@@ -152,7 +152,7 @@ extern volatile int button_fired;
 ISR2 ( CPU12TimerCh7ISR ) {
 
 	/* Clear interrupt flag */
-	EE_timer_clear_ISRflag(EE_TIMER_COUNTER);
+	EE_timer_clear_ISRflag(EE_TIMER_7);
 	
 	timer_divisor++;
 	if ( (timer_divisor%10==0) && (EE_button_get_B1()) ) {

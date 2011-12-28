@@ -152,17 +152,20 @@ extern volatile int timer_divisor;
 extern volatile int button_fired;
 
 ISR2 ( CPU12TimerCh7ISR ) {
- 	EE_timer_clear_ISRflag(EE_TIMER_7);
+
+	EE_timer_clear_ISRflag(EE_TIMER_7);
 	timer_divisor++;
+
 	if( (timer_divisor % 10) && EE_button_get_B1() ) {
 		button_fired++;
 		ActivateTask(Task2); 
 	}
-	if (timer_divisor == 100) {
+	if (timer_divisor == 30) {
 		timer_divisor = 0;
 		timer_fired++;
 		ActivateTask(Task1);
 	}
+
 }
 /*************************************************************************************/
 

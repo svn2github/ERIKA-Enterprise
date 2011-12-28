@@ -89,7 +89,7 @@ TASK(Task1)
 	/* do a long loop, printing the numbers from 0 to 9 */
 	EE_led_1_on();
 	for (j=0; j<10; j++) {
-		mydelay((long int)30000);
+		mydelay((long int)10000);
 		EE_sci_send_byte(SCI_0,j+'0');
 		EE_sci_send_byte(SCI_0,' ');
 	}

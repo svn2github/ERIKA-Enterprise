@@ -157,7 +157,7 @@ ISR2 ( CPU12TimerCh7ISR ) {
 		button_fired++;
 		ActivateTask(Task2);
 	}
-	if (timer_divisor == 100) {
+	if (timer_divisor == 30) {
 		timer_divisor = 0;
 		timer_fired++;
 		ActivateTask(Task1);

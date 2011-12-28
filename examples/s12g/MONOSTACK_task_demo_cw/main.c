@@ -227,7 +227,7 @@ int main()
 	/* Init leds */
 	EE_leds_init();
 	
-	/* Init devices */
+		/* Init devices */
 	EE_buttons_init(BUTTON_1);
 	
 	/* Serial interface */
@@ -238,7 +238,7 @@ int main()
 	
 	/* let's start the multiprogramming environment...*/
 	StartOS(OSDEFAULTAPPMODE);
-
+	
 	/* Program Timer 1 to raise interrupts */
 	err = EE_timer_init_ms(EE_TIMER_7, 50, EE_TIMER_ISR_ON);
 	EE_assert(3, err >= 0, 2);
