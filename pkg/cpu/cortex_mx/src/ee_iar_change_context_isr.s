@@ -162,8 +162,7 @@ exit_EE_cortex_mx_change_context:
 	;mrs	r0, msp
 	MRS	R0, MSP			; Get the stack pointer
 
-	LDR	R1, [R0, #28]		; Status xPSR  in R1
-	MSR	PSR, R1			; Restore xPSR
+	LDR	R3, [R0, #28]		; Status xPSR  in R3
 
 	LDR	R2, [R0, #20]		; Load LR from stack
 	MOV	LR, R2			; Restore LR
@@ -174,6 +173,8 @@ exit_EE_cortex_mx_change_context:
 	STR	R1, [R0, #28]		; Store value of PC from stack has the
 					; first value on the stack frame. 
 					; This value is used as return address
+
+	MSR	PSR, R3			; Restore xPSR
 
 	LDR	R1, [R0]		; Get the value of R0 from the stack
 	STR	R1, [R0, #20]		; Store value of R0 from the stack
