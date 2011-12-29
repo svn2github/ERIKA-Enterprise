@@ -44,39 +44,9 @@
 
 #include "ee.h"
 #include "cpu/hs12xs/inc/ee_irqstub.h"
-#include "test/assert/inc/ee_assert.h"
 #include "mcu/hs12xs/inc/ee_timer.h"
 #include "mcu/hs12xs/inc/ee_sci.h"
-
-#define TRUE 1
-/* assertion data */
-EE_TYPEASSERTVALUE EE_assertions[10];
-
-/* Final result */
-EE_TYPEASSERTVALUE result;
-
-/* insert a stub for the functions not directly supported by __FP__ */
-#ifdef __FP__
-__INLINE__ void __ALWAYS_INLINE__ DisableAllInterrupts(void)
-{
-  EE_hal_disableIRQ();
-}
-
-__INLINE__ void __ALWAYS_INLINE__ EnableAllInterrupts(void)
-{
-  EE_hal_enableIRQ();
-}
-
-__INLINE__ void __ALWAYS_INLINE__ TerminateTask(void)
-{
-}
-
-#define OSDEFAULTAPPMODE 1
-__INLINE__ void __ALWAYS_INLINE__ StartOS(int i)
-{
-	_asm("cli");
-}
-#endif
+#include "inc/application.h"
 
 /* Let's declare the tasks identifiers */
 DeclareTask(Task1);
@@ -126,6 +96,7 @@ void led_blink(unsigned char theled)
 /* Task1: just call the ChristmasTree */
 TASK(Task1)
 {
+	StatusType res;
 	task1_fired++;
 
 	/* First half of the christmas tree */
@@ -133,12 +104,12 @@ TASK(Task1)
 	led_blink(LED_2);
 	/* CONFIGURATION 3 and 4: we put an additional Schedule() here! */
 #ifdef MYSCHEDULE
-	Schedule();
+	res = Schedule();
 #endif
 	/* Second half of the christmas tree */
 	led_blink(LED_3);
 
-	TerminateTask();
+	res = TerminateTask();
 }
 
 /* Task2: Print the counters on the JTAG UART */
@@ -149,6 +120,8 @@ TASK(Task2)
 	char *msg_btn =  "Button_1: ";
 	char *msg_tsk2 = "Task_2: ";
 	unsigned char byte = 0;
+	int res;
+	StatusType Res;
 
 	/* count the number of Task2 activations */
 	task2_fired++;
@@ -160,53 +133,54 @@ TASK(Task2)
 	* Note: after the first printf in main(), then only this task uses printf
 	* In this way we avoid raceconditions in the usage of stdout.
 	*/
-	EE_sci_send_bytes(SCI_0, msg_tmr,ALL);
+	res = EE_sci_send_bytes(SCI_0, msg_tmr,ALL);
 	byte = ((timer_fired%1000)/100)+'0';
-	EE_sci_send_byte(SCI_0,byte);
+	res = EE_sci_send_byte(SCI_0,byte);
 	byte = ((timer_fired%100)/10)+'0';
-	EE_sci_send_byte(SCI_0,byte);
+	res = EE_sci_send_byte(SCI_0,byte);
 	byte = (timer_fired%10)+'0';
-	EE_sci_send_byte(SCI_0,byte);
-	EE_sci_send_byte(SCI_0,' ');
+	res = EE_sci_send_byte(SCI_0,byte);
+	res = EE_sci_send_byte(SCI_0,' ');
 
-	EE_sci_send_bytes(SCI_0, msg_tsk1,ALL);
+	res = EE_sci_send_bytes(SCI_0, msg_tsk1,ALL);
 	byte = ((task1_fired%1000)/100)+'0';
-	EE_sci_send_byte(SCI_0,byte);
+	res = EE_sci_send_byte(SCI_0,byte);
 	byte = ((task1_fired%100)/10)+'0';
-	EE_sci_send_byte(SCI_0,byte);
+	res = EE_sci_send_byte(SCI_0,byte);
 	byte = (task1_fired%10)+'0';
-	EE_sci_send_byte(SCI_0,byte);
-	EE_sci_send_byte(SCI_0,' ');
+	res = EE_sci_send_byte(SCI_0,byte);
+	res = EE_sci_send_byte(SCI_0,' ');
 
-	EE_sci_send_bytes(SCI_0, msg_btn,ALL);
+	res = EE_sci_send_bytes(SCI_0, msg_btn,ALL);
 	byte = ((button_fired%1000)/100)+'0';
-	EE_sci_send_byte(SCI_0,byte);
+	res = EE_sci_send_byte(SCI_0,byte);
 	byte = ((button_fired%100)/10)+'0';
-	EE_sci_send_byte(SCI_0,byte);
+	res = EE_sci_send_byte(SCI_0,byte);
 	byte = (button_fired%10)+'0';
-	EE_sci_send_byte(SCI_0,byte);
-	EE_sci_send_byte(SCI_0,' ');
+	res = EE_sci_send_byte(SCI_0,byte);
+	res = EE_sci_send_byte(SCI_0,' ');
 
-	EE_sci_send_bytes(SCI_0, msg_tsk2,ALL);
+	res = EE_sci_send_bytes(SCI_0, msg_tsk2,ALL);
 	byte = ((task2_fired%1000)/100)+'0';
-	EE_sci_send_byte(SCI_0,byte);
+	res = EE_sci_send_byte(SCI_0,byte);
 	byte = ((task2_fired%100)/10)+'0';
-	EE_sci_send_byte(SCI_0,byte);
+	res = EE_sci_send_byte(SCI_0,byte);
 	byte = (task2_fired%10)+'0';
-	EE_sci_send_byte(SCI_0,byte);
+	res = EE_sci_send_byte(SCI_0,byte);
 
-	EE_sci_send_byte(SCI_0,'\r');
-	EE_sci_send_byte(SCI_0,'\n');
+	res = EE_sci_send_byte(SCI_0,'\r');
+	res = EE_sci_send_byte(SCI_0,'\n');
 
-	TerminateTask();
+	Res = TerminateTask();
 }
 
 void message(void)
 {
+	int res;
 	char * msg = "I Love OSEK and Erika Enterprise!!!";
-	EE_sci_send_bytes(SCI_0, msg,ALL);
-	EE_sci_send_byte(SCI_0,'\r');
-	EE_sci_send_byte(SCI_0,'\n');
+	res = EE_sci_send_bytes(SCI_0, msg,ALL);
+	res = EE_sci_send_byte(SCI_0,'\r');
+	res = EE_sci_send_byte(SCI_0,'\n');
 }
 
 void board_init(void)
@@ -218,12 +192,10 @@ void board_init(void)
 // MAIN function
 int main()
 {
+	StatusType Res;
 	int err;
 	
 	board_init();
-	
-	/* First assertion */
-	EE_assert(1, TRUE, EE_ASSERT_NIL);
 	
 	/* Init leds */
 	EE_leds_init();
@@ -233,22 +205,22 @@ int main()
 	
 	/* Serial interface */
 	err = EE_sci_open(SCI_0, (unsigned long int)9600);
-	EE_assert(2, err >= 0, 1);
 	mydelay(10);
 	message();
 	
 	/* let's start the multiprogramming environment...*/
-	StartOS(OSDEFAULTAPPMODE);
+	Res = StartOS(OSDEFAULTAPPMODE);
 	
 	/* Program Timer 1 to raise interrupts */
-	err = EE_timer_init_ms(EE_TIMER_7, 50, EE_TIMER_ISR_ON);
-	EE_assert(3, err >= 0, 2);
-	EE_assert_range(0,1,3);
-	result = EE_assert_last();
+	err = EE_timer_init_ms(EE_TIMER_0, 100, EE_TIMER_ISR_ON);
+	#ifdef __FP__
+	SetRelAlarm(SystemAlarm, 1, 30);
+	#endif
 	EE_timer_start();
 
 	/* now the background activities... */
 	while(1)
 		;
+	return 0;
 }
 
