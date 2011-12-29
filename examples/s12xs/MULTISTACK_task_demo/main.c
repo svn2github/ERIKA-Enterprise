@@ -71,6 +71,7 @@ __INLINE__ void __ALWAYS_INLINE__ TerminateTask(void)
 #define OSDEFAULTAPPMODE 1
 __INLINE__ void __ALWAYS_INLINE__ StartOS(int i)
 {
+	_asm("cli");
 }
 #endif
 
