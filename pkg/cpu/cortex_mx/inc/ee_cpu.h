@@ -53,13 +53,17 @@
 
 #ifdef __IAR__
 #include "cpu/common/inc/ee_compiler_iar.h"
-#else
+#else	/* __IAR__ */
 #ifdef __CCS__
 #include "cpu/common/inc/ee_compiler_ccs.h"
-#else
+#else	/* __CCS__ */
+#ifdef __KEIL__
+#include "cpu/common/inc/ee_compiler_keil.h"
+#else	/* __KEIL__ */
 #error Unsupported compiler
-#endif
-#endif
+#endif	/* !__KEIL__ */
+#endif	/* !__CCS__ */
+#endif	/* !__IAR__ */
 
 /* Initial stack offset (in words) */
 #ifndef CORTEX_MX_INIT_TOS_OFFSET
@@ -130,13 +134,17 @@ __INLINE__ void __ALWAYS_INLINE__ EE_cortex_mx_enableIRQ(void)
 {
 #ifdef __IAR__
 	__ASM ("cpsie i");
-#else
-#ifndef __CCS__
-	 __ASM volatile("cpsie i");
-#else
+#else	/* __IAR__ */
+#ifdef __CCS__
 	__ASM ("    cpsie    i\n");
-#endif
-#endif
+#else	/* __CCS__ */
+#ifdef __KEIL__
+	__enable_irq();
+#else	/* __KEIL__ */
+	__ASM volatile("cpsie i");
+#endif	/* !__KEIL__ */
+#endif	/* !__CCS__ */
+#endif	/* !__IAR__ */
 }
 
 /**
@@ -146,13 +154,17 @@ __INLINE__ void __ALWAYS_INLINE__ EE_cortex_mx_disableIRQ(void)
 {
 #ifdef __IAR__
 	__ASM ("cpsid i");
-#else
-#ifndef __CCS__
-	 __ASM volatile("cpsid i");
-#else
+#else	/* __IAR__ */
+#ifdef __CCS__
 	__ASM ("    cpsid    i\n");
-#endif
-#endif
+#else	/* __CCS__ */
+#ifdef __KEIL__
+	__disable_irq();
+#else	/* __KEIL__ */
+	__ASM volatile("cpsid i");
+#endif	/* !__KEIL__ */
+#endif	/* !__CCS__ */
+#endif	/* !__IAR__ */
 }
 
 /**
@@ -162,13 +174,18 @@ __INLINE__ void __ALWAYS_INLINE__ EE_cortex_mx_resumeIRQ(EE_FREG f)
 {
 #ifdef __IAR__
 	__set_PRIMASK(f);
-#else
-#ifndef __CCS__
-	 __ASM volatile("msr primask, %0" :: "r" (f));
-#else
+#else	/* __IAR__ */
+#ifdef __CCS__
 	__ASM ("    msr    primask, r0\n");
-#endif
-#endif
+#else	/* __CCS__ */
+#ifdef __KEIL__
+	register EE_FREG PRIMASK __ASM("primask");
+	PRIMASK = f;
+#else	/* __KEIL__ */
+	__ASM volatile("msr primask, %0" :: "r" (f));
+#endif	/* !__KEIL__ */
+#endif	/* !__CCS__ */
+#endif	/* !__IAR__ */
 }
 
 /**
@@ -182,16 +199,22 @@ __INLINE__ EE_FREG __ALWAYS_INLINE__ EE_cortex_mx_suspendIRQ(void)
 #ifdef __IAR__
 	 istat = __get_PRIMASK();
 	__ASM ("cpsid i");
-#else
-#ifndef __CCS__
-	__ASM volatile ("mrs %0, primask" : "=r" (istat) );
-	__ASM volatile ("cpsid i");
-#else
+#else	/* __IAR__ */
+#ifdef __CCS__
 	__ASM ("    mrs     r0, primask\n"
 	       "    cpsid   i\n"
 	       "    bx      lr\n");
-#endif
-#endif
+#else	/* __CCS__ */
+#ifdef __KEIL__
+	register EE_FREG PRIMASK __ASM("primask");
+	istat = PRIMASK;
+	__disable_irq();
+#else	/* __KEIL__ */
+	__ASM volatile ("mrs %0, primask" : "=r" (istat) );
+	__ASM volatile ("cpsid i");
+#endif	/* !__KEIL__ */
+#endif	/* !__CCS__ */
+#endif	/* !__IAR__ */
 #ifdef __CCS__
 	return 0;
 #else
@@ -205,19 +228,24 @@ __INLINE__ EE_FREG __ALWAYS_INLINE__ EE_cortex_mx_suspendIRQ(void)
 __INLINE__ EE_UINT32 __ALWAYS_INLINE__ EE_cortex_mx_get_IRQ_enabled(void)
 {
 #ifndef __CCS__
-	 EE_UREG ie;
+	EE_UREG ie;
 #endif
 #ifdef __IAR__
 	ie = __get_PRIMASK();
-#else
-#ifndef __CCS__
-	__ASM volatile ("MRS %0, primask" : "=r" (ie) );
-#else
+#else	/* __IAR__ */
+#ifdef __CCS__
 	__ASM ("    MRS     r0, PRIMASK\n"
 	       "    EOR     r0, #1n"
 	       "    bx      lr\n");
-#endif
-#endif
+#else	/* __CCS__ */
+#ifdef __KEIL__
+	register EE_FREG PRIMASK __ASM("primask");
+	ie = PRIMASK;
+#else	/* __KEIL__ */
+	__ASM volatile ("MRS %0, primask" : "=r" (ie) );
+#endif	/* !__KEIL__ */
+#endif	/* !__CCS__ */
+#endif	/* !__IAR__ */
 #ifdef __CCS__
 	return 0;
 #else

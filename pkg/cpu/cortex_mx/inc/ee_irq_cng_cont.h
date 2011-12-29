@@ -52,13 +52,17 @@
 
 #ifdef __IAR__
 #include "cpu/common/inc/ee_compiler_iar.h"
-#else
+#else	/* __IAR__ */
 #ifdef __CCS__
 #include "cpu/common/inc/ee_compiler_ccs.h"
-#else
+#else	/* __CCS__ */
+#ifdef __KEIL__
+#include "cpu/common/inc/ee_compiler_keil.h"
+#else	/* __KEIL__ */
 #error Unsupported compiler
-#endif
-#endif
+#endif	/* !__KEIL__ */
+#endif	/* !__CCS__ */
+#endif	/* !__IAR__ */
 
 extern void EE_switch_context(void);
 

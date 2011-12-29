@@ -48,11 +48,15 @@ EE_SRCS += pkg/cpu/cortex_mx/src/ee_utils.c
 
 ifeq ($(call iseeopt, __IAR__), yes)
 EE_SRCS += pkg/cpu/cortex_mx/src/ee_iar_change_context_isr.s
-else
+else	# __IAR__
 ifeq ($(call iseeopt, __CCS__), yes)
 EE_SRCS += pkg/cpu/cortex_mx/src/ee_ccs_change_context_isr.s
-endif
-endif
+else	# __CCS__
+ifeq ($(call iseeopt, __KEIL__), yes)
+EE_SRCS += pkg/cpu/cortex_mx/src/ee_keil_change_context_isr.s
+endif	# __KEIL__
+endif	# !__CCS__
+endif	# !__IAR__
 
 ifeq ($(call iseeopt, __OO_BCC1__), yes)
 CPU_OO=YES
@@ -76,6 +80,10 @@ EE_SRCS += pkg/cpu/cortex_mx/src/ee_iar_oo.s
 else
 ifeq ($(call iseeopt, __CCS__), yes)
 EE_SRCS += pkg/cpu/cortex_mx/src/ee_ccs_oo.s
+else
+ifeq ($(call iseeopt, __KEIL__), yes)
+EE_SRCS += pkg/cpu/cortex_mx/src/ee_keil_oo.s
+endif
 endif
 endif
 endif
@@ -87,6 +95,10 @@ EE_SRCS += pkg/cpu/cortex_mx/src/ee_iar_multi_context.s
 else
 ifeq ($(call iseeopt, __CCS__), yes)
 EE_SRCS += pkg/cpu/cortex_mx/src/ee_ccs_multi_context.s
+else
+ifeq ($(call iseeopt, __KEIL__), yes)
+EE_SRCS += pkg/cpu/cortex_mx/src/ee_keil_multi_context.s
+endif
 endif
 endif
 
@@ -103,6 +115,10 @@ EE_SRCS += pkg/cpu/cortex_mx/src/ee_iar_irq_stack.s
 else
 ifeq ($(call iseeopt, __CCS__), yes)
 EE_SRCS += pkg/cpu/cortex_mx/src/ee_ccs_irq_stack.s
+else
+ifeq ($(call iseeopt, __KEIL__), yes)
+EE_SRCS += pkg/cpu/cortex_mx/src/ee_keil_irq_stack.s
+endif
 endif
 endif
 
@@ -112,6 +128,10 @@ endif	# __IRQ_STACK_NEEDED__
 ifeq ($(call iseeopt, __USE_SVC__), yes)
 ifeq ($(call iseeopt, __CCS__), yes)
 EE_SRCS += pkg/cpu/cortex_mx/src/ee_ccs_svc_isr.s
+else
+ifeq ($(call iseeopt, __KEIL__), yes)
+EE_SRCS += pkg/cpu/cortex_mx/src/ee_keil_svc_isr.s
+endif
 endif
 endif
 

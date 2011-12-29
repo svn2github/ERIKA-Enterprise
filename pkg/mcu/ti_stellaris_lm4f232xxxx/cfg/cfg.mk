@@ -46,15 +46,21 @@ ifeq ($(and $(call iseeopt, __STELLARIS__), $(call iseeopt, __LM4F232xxxx__)), y
 ifeq ($(call iseeopt, __CCS__), yes)
 
 ifndef CRT0_SRCS
-#CRT0_SRCS = pkg/mcu/ti_stellaris_lm4f232xxxx/src/ee_boot_ccs.s
 CRT0_SRCS = 
 endif	# CRT0_SRCS
 
-EE_SRCS += pkg/mcu/ti_stellaris_lm4f232xxxx/src/ee_vtable_ccs.c
-
-endif	# __CCS__
-
+EE_SRCS += pkg/mcu/ti_stellaris_lm4f232xxxx/src/ee_vtable.c
 EE_SRCS += pkg/mcu/ti_stellaris_lm4f232xxxx/src/ee_isr.c
+
+else	# __CCS__
+ifeq ($(call iseeopt, __KEIL__), yes)
+
+ifndef CRT0_SRCS
+CRT0_SRCS = pkg/mcu/ti_stellaris_lm4f232xxxx/src/ee_startup_keil.s
+endif	# CRT0_SRCS
+
+endif	# __KEIL__
+endif	# !__CCS__
 
 #~ ifeq ($(call iseeopt, __USE_UART__), yes)
 #~ EE_SRCS += pkg/mcu/ti_stellaris_lm4f232xxxx/src/ee_uart.c

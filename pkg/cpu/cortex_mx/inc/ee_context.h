@@ -162,7 +162,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_stkchange(EE_TID tid)
  * version, all the stack-related stuff is ignored. */
 
 
-__INLINE__ void EE_hal_ready2stacked(EE_TID tid)
+__INLINE__ void __ALWAYS_INLINE__ EE_hal_ready2stacked(EE_TID tid)
 {
     EE_cortex_mx_change_context(tid);
 }

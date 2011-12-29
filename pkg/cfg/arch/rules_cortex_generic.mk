@@ -96,8 +96,14 @@ CORTEX_MCU_MODEL = $(STELLARIS_MODEL)
 CORTEX_MCU_STARTUP = $(STELLARIS_STARTUP)
 CORTEX_MCU_LINKERSCRIPT = $(STELLARIS_LINKERSCRIPT)
 else	# !__LM4F232xxxx__
-CORTEX_MCU_MODEL = LM4F232XXX
+CORTEX_MCU_MODEL = $(STELLARIS_MODEL)
+ifeq ($(call iseeopt, __CCS__), yes)
 CORTEX_MCU_LINKERSCRIPT = $(EEBASE)/pkg/mcu/ti_stellaris_lm4f232xxxx/src/ee_ld_script_ccs.cmd
+else	# __CCS__
+ifeq ($(call iseeopt, __KEIL__), yes)
+CORTEX_MCU_STARTUP = $(CRT0_SRCS)
+endif	# __KEIL__
+endif	# !__CCS__
 endif	# __LM4F232xxxx__
 TARGET_NAME = c_mX
 endif	# __STELLARIS__
@@ -179,7 +185,13 @@ COMPUTED_OPT_ASM := $(OPT_ASM)
 COMPUTED_OPT_CC := $(OPT_CC)
 COMPUTED_OPT_AR := $(OPT_AR)
 COMPUTED_OPT_OBJDUMP := $(OPT_OBJDUMP)
+ifeq ($(call iseeopt, __KEIL__), yes)
+ifdef CORTEX_MCU_LINKERSCRIPT
+COMPUTED_LINKERSCRIPT := --scatter $(call native_path, $(CORTEX_MCU_LINKERSCRIPT))
+endif	# CORTEX_MCU_LINKERSCRIPT
+else	# __KEIL__
 COMPUTED_LINKERSCRIPT := $(call native_path, $(CORTEX_MCU_LINKERSCRIPT))
+endif	# !__KEIL__
 
 ifeq ($(call iseeopt, __IAR__), yes)
 
@@ -187,8 +199,10 @@ COMPUTED_OPT_BIN2HEX := $(OPT_BIN2HEX)
 
 else	# __IAR__ (Default compiler toolchain)
 
+ifeq ($(call iseeopt, __CCS__), yes)
 COMPUTED_OPT_HEX2BIN := $(OPT_HEX2BIN)
 COMPUTED_OPT_OBJDUMP2HEX := $(OPT_OBJDUMP2HEX)
+endif	# __CCS__
 
 endif	# !__IAR__ (Default compiler toolchain)
 
@@ -228,6 +242,7 @@ $(TARGET_NAME).$(CG_HEX_EXTENSION): $(TARGET_NAME).$(CG_OUT_EXTENSION)
 
 else	# __IAR__ (Default compiler toolchain)
 
+ifeq ($(call iseeopt, __CCS__), yes)
 $(TARGET_NAME).$(CG_BIN_EXTENSION): $(TARGET_NAME).$(CG_OUT_EXTENSION) \
 				    $(TARGET_NAME).$(CG_HEX_EXTENSION)
 	@echo "HEX2BIN";
@@ -243,6 +258,7 @@ $(TARGET_NAME).$(CG_OBJDUMP_EXTENSION): $(TARGET_NAME).$(CG_OUT_EXTENSION)
 	@echo "OBJDUMP";
 	$(QUIET)$(EE_OBJDUMP) $(COMPUTED_OPT_OBJDUMP) \
 	$(SOURCEFILE) > $(TARGETFILE)
+endif
 
 endif	# __IAR__ (Default compiler toolchain)
 
@@ -251,15 +267,22 @@ $(TARGET_NAME).$(CG_OUT_EXTENSION): $(OBJS) $(LINKDEP) $(LIBDEP)
 ifeq ($(call iseeopt, __IAR__), yes)
 	$(QUIET)$(EE_LINK) $(COMPUTED_OPT_LINK) -o $@ $(OBJS) $(OPT_LIBS) \
 	--config $(COMPUTED_LINKERSCRIPT)
-else
-ifneq ($(call iseeopt, __CCS__), yes)
-	$(QUIET)$(EE_LINK) $(COMPUTED_OPT_LINK) -o $@ $(OBJS) $(OPT_LIBS)
-else
+else	# __IAR__
+ifeq ($(call iseeopt, __CCS__), yes)
 	$(QUIET)$(EE_LINK) $(COMPUTED_OPT_LINK) \
 	-m$(call native_path, $(patsubst %.$(CG_OUT_EXTENSION), %.map, $@)) \
 	-o $@ $(OBJS) $(OPT_LIBS) $(COMPUTED_LINKERSCRIPT)
-endif
-endif
+else	# __CCS__
+ifeq ($(call iseeopt, __KEIL__), yes)
+	$(QUIET)$(EE_LINK) $(COMPUTED_OPT_LINK) --list \
+	$(call native_path, $(patsubst %.$(CG_OUT_EXTENSION), %.map, $@)) \
+	$(COMPUTED_LINKERSCRIPT) --output $@ $(OBJS) $(OPT_LIBS)
+else	# __KEIL__
+	$(QUIET)$(EE_LINK) $(COMPUTED_OPT_LINK) -o $@ $(OBJS) $(OPT_LIBS) \
+	$(COMPUTED_LINKERSCRIPT)
+endif	# !__KEIL__
+endif	# !__CCS__
+endif	# !__IAR__
 
 ### Object file creation ###
 
@@ -270,7 +293,7 @@ ifneq ($(call iseeopt, __CCS__), yes)
 	$(COMPUTED_INCLUDE_PATH) $(DEFS_ASM) $(SOURCEFILE) -o $(TARGETFILE)
 else
 	$(VERBOSE_PRINTASM) $(EE_ASM) $(COMPUTED_OPT_ASM) \
-	$(COMPUTED_INCLUDE_PATH) $(DEFS_ASM) $(DEPENDENCY_OPT) $(SOURCEFILE) \
+	$(COMPUTED_INCLUDE_PATH) $(DEFS_ASM) $(SOURCEFILE) \
 	--output_file $(TARGETFILE)
 endif
 
@@ -278,12 +301,12 @@ endif
 $(OBJDIR)/%.o: %.c
 ifneq ($(call iseeopt, __CCS__), yes)
 	$(VERBOSE_PRINTCC) $(EE_CC) $(COMPUTED_OPT_CC) \
-	$(COMPUTED_INCLUDE_PATH) $(DEFS_CC) $(DEFS_ISR) $(DEPENDENCY_OPT) $(SOURCEFILE) \
-	-o $(TARGETFILE)
+	$(COMPUTED_INCLUDE_PATH) $(DEFS_CC) $(DEFS_ISR) $(DEPENDENCY_OPT) \
+	$(SOURCEFILE) -o $(TARGETFILE)
 else
 	$(VERBOSE_PRINTCC) $(EE_CC) $(COMPUTED_OPT_CC) \
-	$(COMPUTED_INCLUDE_PATH) $(DEFS_CC) $(DEFS_ISR) $(DEPENDENCY_OPT) $(SOURCEFILE) \
-	--output_file $(TARGETFILE)
+	$(COMPUTED_INCLUDE_PATH) $(DEFS_CC) $(DEFS_ISR) $(DEPENDENCY_OPT) \
+	$(SOURCEFILE) --output_file $(TARGETFILE)
 endif
 	$(QUIET)$(call make-depend, $<, $@, $(subst .o,.d,$@))
 

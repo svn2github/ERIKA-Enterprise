@@ -54,9 +54,16 @@
 #ifdef __CCS__
 #include "cpu/common/inc/ee_compiler_ccs.h"
 #else
+#ifdef __KEIL__
+#include "cpu/common/inc/ee_compiler_keil.h"
+#else
 #error Unsupported compiler
 #endif
+#endif
 
+#ifdef __KEIL__
+extern void EE_svc_0(void);	// svc #0
+#else
 __INLINE__ void __ALWAYS_INLINE__ EE_svc_0(void)	// svc #0
 {
 #ifndef __CCS__
@@ -65,6 +72,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_svc_0(void)	// svc #0
 	__ASM ("    svc    #0\n");
 #endif
 }
+#endif
 
 #endif /* __USE_SVC__ */
 
