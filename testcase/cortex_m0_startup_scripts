@@ -1,8 +1,0 @@
-#!/bin/sh
-# This script is needed to compile a distribution for Cortex M0.
-# Execute it using ". ./filename" before to run compilation of testcases.
-
-#If you need to set ERIKA_FILES, uncomment the following line changing the path accordingly the correct position of ee_files
-#export ERIKA_FILES=c:/Evidence/ee_files
-
-export ECLIPSE_HOME=C:/Evidence/eclipse

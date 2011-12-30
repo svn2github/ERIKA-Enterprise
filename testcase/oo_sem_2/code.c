@@ -137,6 +137,12 @@ void ErrorHook(StatusType Error)
 
 int main(void)
 {
+
+#if defined(__CORTEX_MX__)
+  /*Initializes Erika related stuffs*/
+  EE_system_init();
+#endif
+
   EE_assert(1, TRUE, EE_ASSERT_NIL);
 
   StartOS(OSDEFAULTAPPMODE);

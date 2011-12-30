@@ -1,3 +1,4 @@
 conf = CONF=E1,E2
 worksfor += nios2 e200zx e200zx_diab_vle e200zx_codewarrior_vle e200zx_codewarrior_fle
-worksfor += cortex_m0 s12xs_cosmic s12xs_cw s12g_cw
+worksfor += s12xs_cosmic s12xs_cw s12g_cw
+worksfor += cortex_m0_iar cortex_m4_ccs cortex_m4_keil

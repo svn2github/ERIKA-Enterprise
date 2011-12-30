@@ -100,6 +100,11 @@ int main(int argc, char **argv)
   EE_janus_IRQ_enable_EIC();
 #endif
 
+#if defined(__CORTEX_MX__)
+  /*Initializes Erika related stuffs*/
+  EE_system_init();
+#endif
+
   StartOS(OSDEFAULTAPPMODE);
 
   EE_assert_range(0,1,6);

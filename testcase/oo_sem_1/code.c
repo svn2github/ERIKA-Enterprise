@@ -49,6 +49,10 @@
 /* EE includes */
 #include "ee.h"
 
+#ifdef __CORTEX_M0__
+#include "lpc12xx_libcfg_default.h"
+#endif
+
 /* Assertions */
 #include "test/assert/inc/ee_assert.h"
 #define TRUE 1
@@ -151,6 +155,21 @@ void ErrorHook(StatusType Error)
 	}
 #endif
 
+#ifdef __CORTEX_MX__
+#include "cpu/cortex_mx/inc/ee_irq.h"
+ISR2(SysTick_Handler)
+{
+	StatusType s;
+	/* clear the interrupt */
+
+	/* WaitSem chiamata a livello IRQ --> E_OS_CALLEVEL */
+	s = WaitSem(&mySem);
+	EE_assert(2, (s==E_OS_CALLEVEL), 1);
+
+	wecanstart=1;
+}
+#endif
+
 void StartupHook(void)
 {
 	#if defined(__NIOS2__)	
@@ -171,6 +190,18 @@ void StartupHook(void)
 		EE_e200z7_register_ISR(10, handle_timer_interrupt, 0);
 		EE_e200z7_setup_decrementer(2000000);
 	#endif
+#if defined(__CORTEX_M0__)
+  /* Generate systemtick interrupt */
+  SysTick_Config(3000000); 
+  /* Priority SysTick = 00*/
+  NVIC_SetPriority(SysTick_IRQn, 0);
+#endif
+
+#if defined(__CORTEX_M4__)
+  EE_systick_set_period(3000000);
+  EE_systick_enable_int();
+  EE_systick_start();
+#endif
 }
 
 
@@ -178,6 +209,11 @@ void StartupHook(void)
 int main(void)
 {
   StatusType s;
+
+#if defined(__CORTEX_MX__)
+  /*Initializes Erika related stuffs*/
+  EE_system_init();
+#endif
 
 	#if defined(__PPCE200Z7__)
 	EnableAllInterrupts();

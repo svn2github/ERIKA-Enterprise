@@ -49,6 +49,10 @@
 /* EE includes */
 #include "ee.h"
 
+#ifdef __CORTEX_M0__
+#include "lpc12xx_libcfg_default.h"
+#endif
+
 /* Assertions */
 #include "test/assert/inc/ee_assert.h"
 #define TRUE 1
@@ -214,6 +218,33 @@ static void handle_timer_interrupt(void)
 }
 #endif
 
+#ifdef __CORTEX_MX__
+#include "cpu/cortex_mx/inc/ee_irq.h"
+ISR2(SysTick_Handler)
+{
+  StatusType s;
+  unsigned int v;
+  
+  /* SemPost chiamato in un ISR con contatore >=0 e nessuno bloccato 
+   * --> contatore incrementato */
+  s = PostSem(&mySem);
+  EE_assert(2, (s==E_OK), 1);
+  
+  v = GetValueSem(&mySem);
+  EE_assert(3, (v == 1), 2);
+ 
+  /* SemPost chiamato in un ISR con contatore =EE_MAX_SEM_COUNTER 
+   * e nessuno bloccato --> E_OS_VALUE */
+  s = PostSem(&mySemMax);
+  EE_assert(4, (s==E_OS_VALUE), 3);
+  
+  v = GetValueSem(&mySemMax);
+  EE_assert(5, (v = EE_MAX_SEM_COUNTER), 4);
+
+  wecanstart=1;
+}
+#endif
+
 void StartupHook(void)
 {
 	
@@ -237,6 +268,18 @@ void StartupHook(void)
 		EE_e200z7_register_ISR(10, handle_timer_interrupt, 0);
 		EE_e200z7_setup_decrementer(2000000);
 	#endif
+#if defined(__CORTEX_M0__)
+  /* Generate systemtick interrupt */
+  SysTick_Config(3000000); 
+  /* Priority SysTick = 00*/
+  NVIC_SetPriority(SysTick_IRQn, 0);
+#endif
+
+#if defined(__CORTEX_M4__)
+  EE_systick_set_period(3000000);
+  EE_systick_enable_int();
+  EE_systick_start();
+#endif
 }
 
 
@@ -245,7 +288,12 @@ int main(void)
 {
   StatusType s;
   unsigned int v;
-  
+
+#if defined(__CORTEX_MX__)
+  /*Initializes Erika related stuffs*/
+  EE_system_init();
+#endif
+
 	#if defined(__PPCE200Z7__)
 	EnableAllInterrupts();
 	#endif

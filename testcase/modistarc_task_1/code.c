@@ -54,6 +54,14 @@
 #include "mcu/microchip_dspic/inc/ee_timer.h"
 #endif
 
+#ifdef __CORTEX_MX__
+#include "cpu/cortex_mx/inc/ee_irq.h"
+#endif
+
+#ifdef __CORTEX_M0__
+#include "lpc12xx_libcfg_default.h"
+#endif
+
 #define TRUE 1
 
 /* assertion data */
@@ -147,7 +155,11 @@ alt_u32 mycallback (void* arg)
 		#define myISR2 CPU12TimerCh0ISR
 		ISR2(myISR2)
 	#else
+		#if defined(__CORTEX_MX__)
+		ISR2(SysTick_Handler)
+		#else
 		static void myISR2(void)
+		#endif
 	#endif
 #endif
 {
@@ -239,6 +251,24 @@ int main(int argc, char **argv)
   EE_timer_soft_init(EE_TIMER_1, 3000000);
   EE_timer_set_callback(EE_TIMER_1, (EE_ISR_callback)myISR2);
   EE_timer_start(EE_TIMER_1);
+#endif
+
+#if defined(__CORTEX_MX__)
+  /*Initializes Erika related stuffs*/
+  EE_system_init();
+#endif
+
+#if defined(__CORTEX_M0__)
+  /* Generate systemtick interrupt */
+  SysTick_Config(3000000); 
+  /* Priority SysTick = 00*/
+  NVIC_SetPriority(SysTick_IRQn, 0);
+#endif
+
+#if defined(__CORTEX_M4__)
+  EE_systick_set_period(3000000);
+  EE_systick_enable_int();
+  EE_systick_start();
 #endif
 
   StartOS(OSDEFAULTAPPMODE);

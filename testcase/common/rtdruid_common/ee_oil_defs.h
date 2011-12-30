@@ -83,12 +83,22 @@
 #define pic30
 #endif
 
-#ifdef cortex_m0_dist_bin_full
+#ifdef cortex_m0_iar
+#define cortex_mx
 #define cortex_m0
+#define iar
 #endif
 
-#ifdef cortex_m0_dist_src
-#define cortex_m0
+#ifdef cortex_m4_ccs
+#define cortex_mx
+#define cortex_m4
+#define ccs
+#endif
+
+#ifdef cortex_m4_keil
+#define cortex_mx
+#define cortex_m4
+#define keil
 #endif
 
 //#ifdef s12xs_...

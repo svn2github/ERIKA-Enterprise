@@ -53,16 +53,20 @@ CPU test_application {
 			EE_OPT = "__USE_TIMER__";
 		#endif
 		
+#ifdef cortex_m4
+		EE_OPT = "__USE_SYSTICK__";
+#endif
+
 #include "../common/rtdruid_common/ee_oil_nios2_os.h"
 #include "../common/rtdruid_common/ee_oil_s12_os.h"
 #include "../common/rtdruid_common/ee_oil_e200zx_os.h"
-#include "../common/rtdruid_common/ee_oil_cortex_m0_os.h"
+#include "../common/rtdruid_common/ee_oil_cortex_mx_os.h"
 
 			MULTI_STACK = TRUE {
 				IRQ_STACK = TRUE {
 					SYS_SIZE=512;
 				};
-#if !defined(pic30) && !defined(s12) && !defined(e200zx)  && !defined(cortex_m0)
+#if !defined(pic30) && !defined(s12) && !defined(e200zx)  && !defined(cortex_mx)
 						DUMMY_STACK = SHARED;
 #endif
 			};
@@ -145,5 +149,13 @@ CPU test_application {
 
 
     EVENT myEvent  { MASK = AUTO; };
+
+#ifdef cortex_m4
+	ISR SysTick_Handler {
+		CATEGORY = 2;
+		ENTRY = "SYSTICK";
+	};
+#endif
+
 };
 

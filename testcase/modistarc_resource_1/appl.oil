@@ -78,13 +78,17 @@ CPU test_application {
 			EE_OPT = "__USE_TIMER__";
 #endif
 
+#ifdef cortex_m4
+		EE_OPT = "__USE_SYSTICK__";
+#endif
+
 #include "../common/rtdruid_common/ee_oil_e7t_os.h"
 #include "../common/rtdruid_common/ee_oil_janus_os.h"
 #include "../common/rtdruid_common/ee_oil_nios2_os.h"
 #include "../common/rtdruid_common/ee_oil_pic30_os.h"
 #include "../common/rtdruid_common/ee_oil_s12_os.h"
 #include "../common/rtdruid_common/ee_oil_e200zx_os.h"
-#include "../common/rtdruid_common/ee_oil_cortex_m0_os.h"
+#include "../common/rtdruid_common/ee_oil_cortex_mx_os.h"
 
 
 
@@ -97,7 +101,7 @@ CPU test_application {
 #if defined(E1) || defined(E2)
 			MULTI_STACK = TRUE {
 				IRQ_STACK = FALSE;
-#if !defined(pic30) && !defined(s12) && !defined(e200zx) && !defined(cortex_m0)
+#if !defined(pic30) && !defined(s12) && !defined(e200zx) && !defined(cortex_mx)
 				DUMMY_STACK = SHARED;
 #endif
 			};
@@ -153,6 +157,13 @@ CPU test_application {
     RESOURCE Resource5 { RESOURCEPROPERTY = STANDARD; };
     RESOURCE Resource6 { RESOURCEPROPERTY = STANDARD; };
     RESOURCE ResourceA { RESOURCEPROPERTY = STANDARD; };
+
+#ifdef cortex_m4
+	ISR SysTick_Handler {
+		CATEGORY = 2;
+		ENTRY = "SYSTICK";
+	};
+#endif
 
 };
 

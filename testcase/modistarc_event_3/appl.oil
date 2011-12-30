@@ -71,13 +71,13 @@ CPU test_application {
 #include "../common/rtdruid_common/ee_oil_pic30_os.h"
 #include "../common/rtdruid_common/ee_oil_s12_os.h"
 #include "../common/rtdruid_common/ee_oil_e200zx_os.h"
-#include "../common/rtdruid_common/ee_oil_cortex_m0_os.h"
+#include "../common/rtdruid_common/ee_oil_cortex_mx_os.h"
 
 
 /* Multi Stack */
 			MULTI_STACK = TRUE {
 				IRQ_STACK = FALSE;
-#if !defined(pic30) && !defined(s12) && !defined(e200zx) && !defined(cortex_m0)
+#if !defined(pic30) && !defined(s12) && !defined(e200zx) && !defined(cortex_mx)
 				DUMMY_STACK = SHARED;
 #endif
 			};
@@ -141,7 +141,7 @@ CPU test_application {
 			SYS_SIZE = 0x200;
 		};
 #endif
-#ifdef cortex_m0
+#ifdef cortex_mx
 		STACK = PRIVATE {
 			SYS_SIZE = 0x200;
 		};

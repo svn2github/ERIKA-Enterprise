@@ -1,7 +1,7 @@
 # ###*B*###
 # ERIKA Enterprise - a tiny RTOS for small microcontrollers
 # 
-# Copyright (C) 2002-2008  Evidence Srl
+# Copyright (C) 2002-2011  Evidence Srl
 # 
 # This file is part of ERIKA Enterprise.
 # 
@@ -39,7 +39,7 @@
 # ###*E*###
 
 #
-# Cortex_m0 testcases
+# Cortex_mX testcases
 #
 
 #
@@ -48,10 +48,10 @@
 
 
 GLOBAL_RTDRUID += \
-	( if test -e tmp/cortex_m0_rtdruid_partial.xml; then \
-		cat common/rtdruid_common/script_prologue.xml tmp/cortex_m0_rtdruid_partial.xml common/rtdruid_common/script_epilogue.xml > tmp/build.xml; \
-		cp tmp/build.xml tmp/cortex_m0_rtdruid_global_build.xml; \
-		cd tmp; java -jar $(LAUNCHER_JAR) -application org.eclipse.ant.core.antRunner >rtdruid_cortex_m0.log 2>&1; \
+	( if test -e tmp/cortex_mx_rtdruid_partial.xml; then \
+		cat common/rtdruid_common/script_prologue.xml tmp/cortex_mx_rtdruid_partial.xml common/rtdruid_common/script_epilogue.xml > tmp/build.xml; \
+		cp tmp/build.xml tmp/cortex_mx_rtdruid_global_build.xml; \
+		cd tmp; java -jar $(LAUNCHER_JAR) -application org.eclipse.ant.core.antRunner >rtdruid_cortex_mx.log 2>&1; \
 	fi );
 
 
@@ -59,20 +59,41 @@ GLOBAL_RTDRUID += \
 # configurations
 #
 
-TESTLIST 		+= cortex_m0
-OUTDIR_COMMANDS_cortex_m0 	= $(OUTDIR_COMMANDS_cortex_m0_source)
-CONF_cortex_m0           	= $(CONF_cortex_m0_source)
-GLOBAL_CONF 		+=
-DIST_cortex_m0            	=
-RTDRUID_cortex_m0		= $(RTDRUID_cortex_m0_source)
-CLEAN_cortex_m0           	=
-COMPILE_cortex_m0         	= $(COMPILE_cortex_m0_source)
+# Cortex-M0 with IAR compiler toolchain
+TESTLIST 			+= cortex_m0_iar
+OUTDIR_COMMANDS_cortex_m0_iar 	= $(OUTDIR_COMMANDS_cortex_mx_source)
+CONF_cortex_m0_iar		= $(CONF_cortex_mx_source)
+GLOBAL_CONF 			+=
+DIST_cortex_m0_iar		=
+RTDRUID_cortex_m0_iar		= $(RTDRUID_cortex_mx_source)
+CLEAN_cortex_m0_iar		=
+COMPILE_cortex_m0_iar		= $(COMPILE_cortex_mx_source)
+
+# Cortex-M4 with TI CCS compiler toolchain
+TESTLIST 			+= cortex_m4_ccs
+OUTDIR_COMMANDS_cortex_m4_ccs 	= $(OUTDIR_COMMANDS_cortex_mx_source)
+CONF_cortex_m4_ccs		= $(CONF_cortex_mx_source)
+GLOBAL_CONF 			+=
+DIST_cortex_m4_ccs		=
+RTDRUID_cortex_m4_ccs		= $(RTDRUID_cortex_mx_source)
+CLEAN_cortex_m4_ccs		=
+COMPILE_cortex_m4_ccs		= $(COMPILE_cortex_mx_source)
+
+# Cortex-M4 with Keil uVision MDK-Lite compiler toolchain
+TESTLIST 			+= cortex_m4_keil
+OUTDIR_COMMANDS_cortex_m4_keil 	= $(OUTDIR_COMMANDS_cortex_mx_source)
+CONF_cortex_m4_keil		= $(CONF_cortex_mx_source)
+GLOBAL_CONF 			+=
+DIST_cortex_m4_keil		=
+RTDRUID_cortex_m4_keil		= $(RTDRUID_cortex_mx_source)
+CLEAN_cortex_m4_keil		=
+COMPILE_cortex_m4_keil		= $(COMPILE_cortex_mx_source)
 
 # -------------------------------------------------------------------
 
 
 EE_TMPDIR = $(EEBASE)/testcase/tmp
-FILE_LOCK = $(EE_TMPDIR)/cortex_m0_manual.lock
+FILE_LOCK = $(EE_TMPDIR)/cortex_mx_manual.lock
 RTDRUID_GENERATE_LOCK = $(EE_TMPDIR)/rtdruid_generate_lock.lock
 LOCKFILE= lockfile -1 -r-1
 DIST_LOCK = $(EE_TMPDIR)/dist.lock
@@ -80,26 +101,24 @@ DIST_LOCK = $(EE_TMPDIR)/dist.lock
 
 # -------------------------------------------------------------------
 
-OUTDIR_COMMANDS_cortex_m0_source = \
+OUTDIR_COMMANDS_cortex_mx_source = \
 	( cd $@; cp -sf ../*.* .; \
-	cp -rf ../../common/cortex_m0/CM0 .; \
-	cp -rf ../../common/cortex_m0/lpc12xx_flash.icf .; \
 	);\
 
 # -------------------------------------------------------------------
 
 
-# # These are the commands used by cortex_m0_dist_src
+# # These are the commands used by cortex_mx_dist_src
 
 # this simply parses the OIL file and then raises a flag if there is need to generate a source distribution
-CONF_cortex_m0_source = \
+CONF_cortex_mx_source = \
 	@echo CONF $(OUTDIR_PREFIX)$*; \
 	cat $(OUTDIR_PREFIX)$*/appl.oil | gcc -c - -E -P -I$(EEBASE)/pkg $(addprefix -D, $(shell $(DEMUX2) $*)) -D$(thearch) -o - >$(OUTDIR_PREFIX)$*/ee.oil;
 
-RTDRUID_cortex_m0_source = \
+RTDRUID_cortex_mx_source = \
 	@echo RTDRUID $(OUTDIR_PREFIX)$*; \
-	echo \<rtdruid.Oil.Configurator inputfile=\"$(call native_path,$(OUTDIR_PREFIX)$*/ee.oil)\" outputdir=\"$(call native_path,$(OUTDIR_PREFIX)$*/Debug)\" /\> >> $(EE_TMPDIR)/cortex_m0_rtdruid_partial.xml;
+	echo \<rtdruid.Oil.Configurator inputfile=\"$(call native_path,$(OUTDIR_PREFIX)$*/ee.oil)\" outputdir=\"$(call native_path,$(OUTDIR_PREFIX)$*/Debug)\" /\> >> $(EE_TMPDIR)/cortex_mx_rtdruid_partial.xml;
 
-COMPILE_cortex_m0_source = \
+COMPILE_cortex_mx_source = \
 	+@unset EEBASE; \
 	if $(MAKE) $(PARAMETERS) NODEPS=1 -C $(OUTDIR_PREFIX)$*/Debug >$(OUTDIR_PREFIX)$*/compile.log 2>&1; then echo OK $(EXPERIMENT) $(OUTDIR_PREFIX)$* >>$(EE_TMPDIR)/ok.log; else echo ERROR $(EXPERIMENT) $(OUTDIR_PREFIX)$* >>$(EE_TMPDIR)/errors.log; fi

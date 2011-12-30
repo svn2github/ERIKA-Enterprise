@@ -38,29 +38,57 @@
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
 
+#ifdef cortex_mx
+
 #ifdef cortex_m0
-
-	EE_OPT = "DEBUG";
-	/*EE_OPT = "__USE_CUSTOM_CRT0__";*/
-
-	CFLAGS  = "--no_warnings"; 
-	CFLAGS  = "-I ../CM0/DeviceSupport/NXP/LPC12xx"; 
-	CFLAGS  = "-I ../CM0/CoreSupport";
-	
-	MCU_DATA = CORTEX_M0 {
-		MODEL = CUSTOM {
-			MODEL = "LPC12xx";
-			LINKERSCRIPT = "../lpc12xx_flash.icf";
-			INCLUDE_H = "LPC12xx.h";
+		EE_OPT = "__ADD_LIBS__";
+		LIB = ENABLE {
+			NAME = "CMSIS";
 		};
-	};
-	
-	
-	CPU_DATA = CORTEX_M0 {
-		APP_SRC = "code.c";
-		APP_SRC = "CM0/DeviceSupport/NXP/LPC12xx/system_LPC12xx.c";
-	//*Use it if EE_OPT = "__USE_CUSTOM_CRT0__"; is not commented*/
-	/*APP_SRC = "CM0/DeviceSupport/NXP/LPC12xx/startup/iar/startup_LPC12xx.s";*/ 
-		JLINK = TRUE;
-		COMPILER_TYPE = IAR;
-#endif
+		EE_OPT = "__USE_LPC12XX_CMSIS_V2__";
+
+		MCU_DATA = LPCXPRESSO {
+			MODEL = LPC12xx;
+		};
+#else	/* cortex_m0 */
+
+#ifdef cortex_m4
+		MCU_DATA = STELLARIS {
+			MODEL = LM4F232xxxx;
+		};
+#endif	/* !cortex_m4 */
+
+#endif	/* !cortex_m0 */
+
+		CPU_DATA = CORTEX_MX {
+
+#ifdef cortex_m0
+			MODEL = M0;
+#else	/* cortex_m0 */
+
+#ifdef cortex_m4
+			MODEL = M4;
+#endif	/* cortex_m4 */
+
+#endif	/* !cortex_m0 */
+
+			APP_SRC = "code.c";
+
+#ifdef iar
+			JLINK = TRUE;
+			COMPILER_TYPE = IAR;
+#else	/* iar */
+
+#ifdef ccs
+			COMPILER_TYPE = CCS;
+#else	/* ccs */
+
+#ifdef keil
+			COMPILER_TYPE = KEIL;
+#endif	/* keil */
+
+#endif	/* !ccs */
+
+#endif	/* !iar */
+
+#endif	/* cortex_mx */
