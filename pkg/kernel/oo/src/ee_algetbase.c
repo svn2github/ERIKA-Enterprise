@@ -58,7 +58,7 @@ void EE_oo_GetAlarmBase(AlarmType AlarmID, AlarmBaseRefType Info)
 #endif
 {
   register const EE_oo_counter_ROM_type *c;
-#ifdef __OO_HAS_ERRORHOOK__
+#if defined (__OO_EXTENDED_STATUS__) && defined ( __OO_HAS_ERRORHOOK__)
   register EE_FREG np_flags;
 #endif
 
