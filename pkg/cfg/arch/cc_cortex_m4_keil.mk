@@ -132,8 +132,6 @@ endif
 
 ifeq ($(call iseeopt, DEBUG), yes)
 OPT_CC += -g
-else
-OPT_CC += --no_debug
 endif
 
 OPT_CC += -c -D__EVAL
@@ -149,8 +147,6 @@ endif
 
 ifeq ($(call iseeopt, DEBUG), yes)
 OPT_ASM += -g
-else
-OPT_ASM += --no_debug
 endif
 
 OPT_ASM += --pd "__EVAL SETA 1" --xref --cpreproc
@@ -166,8 +162,6 @@ endif
 
 ifeq ($(call iseeopt, DEBUG), yes)
 OPT_LINK += --debug
-else
-OPT_LINK += --no_debug
 endif
 
 ## Put here the link options --userlibpath (instead of -L).
