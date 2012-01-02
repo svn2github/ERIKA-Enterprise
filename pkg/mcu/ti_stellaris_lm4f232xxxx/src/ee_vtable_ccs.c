@@ -480,7 +480,6 @@ void (* const EE_cortex_mx_vtable[])(void) =
 #ifdef EE_CORTEX_MX_SVCALL_ISR		// SVCall handler
     EE_CORTEX_MX_SVCALL_ISR,
 #else
-#warning DEFAULT SVCALL ISR
     EE_cortex_mx_default_ISR,
 #endif
 #ifdef EE_CORTEX_MX_DEBUG_MONITOR_ISR	// Debug monitor handler
@@ -499,7 +498,6 @@ void (* const EE_cortex_mx_vtable[])(void) =
 #ifdef EE_CORTEX_MX_SYSTICK_ISR		// The SysTick handler
     EE_CORTEX_MX_SYSTICK_ISR,
 #else
-#warning DEFAULT SYSTICK ISR
     EE_cortex_mx_default_ISR,
 #endif
 #ifdef EE_CORTEX_MX_GPIO_A_ISR		// GPIO Port A
