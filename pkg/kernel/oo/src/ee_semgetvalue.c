@@ -61,7 +61,7 @@ int EE_oo_GetValueSem(SemRefType Sem)
   if (Sem->first == EE_NIL)
     returnvalue = Sem->count;
   else
-    returnvalue = -1;
+    returnvalue = (unsigned int) -1;
 #else
   returnvalue = Sem->count;
 #endif
