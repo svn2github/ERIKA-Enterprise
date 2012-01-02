@@ -49,7 +49,7 @@ ifndef CRT0_SRCS
 CRT0_SRCS = 
 endif	# CRT0_SRCS
 
-EE_SRCS += pkg/mcu/ti_stellaris_lm4f232xxxx/src/ee_vtable_css.c
+EE_SRCS += pkg/mcu/ti_stellaris_lm4f232xxxx/src/ee_vtable_ccs.c
 EE_SRCS += pkg/mcu/ti_stellaris_lm4f232xxxx/src/ee_isr.c
 
 else	# __CCS__
