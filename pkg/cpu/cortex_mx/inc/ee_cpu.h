@@ -291,4 +291,46 @@ __INLINE__ EE_FREG __ALWAYS_INLINE__ EE_hal_suspendIRQ(void)
 
 void EE_system_init(void);
 
+/*************************************************************************
+ CPU-dependent ORT support (mainly OTM)
+ *************************************************************************/
+
+/* Probably, some parts of the OTM code below does not depend on the
+ * architecture.  They should be moved somewhere into pkg/cpu/common if this
+ * turns out to be the case. */
+
+#define EE_ORTI_OTM_ID_RUNNINGISR2 1
+#define EE_ORTI_OTM_ID_SERVICETRACE 2
+
+#ifdef __OO_ORTI_USE_OTM__
+void EE_cortex_mx_send_otm8(EE_UINT8 id, EE_UINT8 data);
+void EE_cortex_mx_send_otm32(EE_UINT8 id, EE_UINT32 data);
+
+#else /* if __OO_ORTI_USE_OTM__ */
+__INLINE__ void EE_cortex_mx_send_otm8(EE_UINT8 id, EE_UINT8 data)
+{
+	/* OTM disabled */
+}
+
+__INLINE__ void EE_cortex_mx_send_otm32(EE_UINT8 id, EE_UINT32 data)
+{
+	/* OTM disabled */
+}
+#endif /* else __OO_ORTI_USE_OTM__ */
+
+#ifdef __OO_ORTI_RUNNINGISR2__
+__INLINE__ void EE_ORTI_send_otm_runningisr2(EE_ORTI_runningisr2_type isr2)
+{
+	EE_cortex_mx_send_otm32(EE_ORTI_OTM_ID_RUNNINGISR2, (EE_UINT32)isr2);
+}
+#endif /* __OO_ORTI_RUNNINGISR2__ */
+
+#ifdef __OO_ORTI_SERVICETRACE__
+__INLINE__ void EE_ORTI_send_otm_servicetrace(EE_UINT8 srv)
+{
+	EE_cortex_mx_send_otm8(EE_ORTI_OTM_ID_SERVICETRACE, srv);
+}
+
+#endif /* __OO_ORTI_SERVICETRACE__ */
+
 #endif /* __INCLUDE_CORTEX_MX_EE_CPU_H__ */
