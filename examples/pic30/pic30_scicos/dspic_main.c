@@ -117,7 +117,9 @@ TASK(rt_LCD)
 	int i;
 	char line1[17];
 	char line2[17];
-
+	
+	EE_lcd_clear();
+	Delay_Us( Delay500uS_count );
 	/* check if we have to update the LCD */
 	EE_pic30_disableIRQ();
 	for(i=0; i<16; i++) {
