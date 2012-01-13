@@ -53,6 +53,7 @@ CPU test_application {
 
 		CPU_DATA = LM32 {
 			APP_SRC = "main.c";
+			APP_SRC = "spi_flash_sw.c";
 			MULTI_STACK = FALSE;
 			USESTANDALONEPRINTF = FALSE;
 			USESMALLC = FALSE;
@@ -72,12 +73,7 @@ CPU test_application {
 			OPTIONS = LEDS;
 		};
 		
-		EE_OPT = "__ADD_LIBS__";
-		LIB = ENABLE {
-			NAME = "SPIFLASH";
-		};
 		EE_OPT = "__USE_DIAMOND__";
-		EE_OPT = "__USE_SST25VF016B__";
 	};
 
 	OS EE { KERNEL_TYPE = FP; }; 	

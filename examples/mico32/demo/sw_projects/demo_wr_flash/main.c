@@ -55,14 +55,13 @@
 #include <system_conf.h>
 /* Erika Mico32 interrupts */
 #include <cpu/mico32/inc/ee_irq.h>
-/* SPI flash library */
-#include "ee_spi_flash.h"
 /* Other libraries */
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdarg.h>
+#include "spi_flash_sw.h"
 
-#define BUF_SIZE 		8200
+#define BUF_SIZE 		40
 #define SPIFLASH_ID 	spi_flash_SPIFlash_boot	//spi_flash_SPIFlash
 #define TEST1_MAX 		13
 #define TEST2_MAX 		1239
@@ -97,132 +96,114 @@ int main(void)
 	EE_uart_config(115200, EE_UART_BIT8_NO | EE_UART_BIT_STOP_1);
 	EE_uart_set_ISR_mode(EE_UART_POLLING | EE_UART_RXTX_BLOCK);  
 	
+	sflash_init_sw();
+	myprintf("\r\n--- Flash Memory Test ---\r\n");
+	
+	sflash_block_disable();
+	sflash_chip_erase();
+	
 	/* Demo variables */
 	int i, err=0;
-	EE_UINT32 buff[BUF_SIZE] = {0xABCDEF01,0xABCDEF02,0xABCDEF03,0xABCDEF04,
-		                        0xABCDEF05,0xABCDEF06,0xABCDEF07,0xABCDEF08,
-		                        0xABCDEF09,0xABCDEF0A};
-	const EE_UINT32 *flash_mem = (const EE_UINT32 *)(SPIFLASH_ID.memory_base);
-		                        
+	EE_UINT8 wr_buff[BUF_SIZE] = {0xAB, 0xCD, 0xEF, 0x01, 0xAB, 0xCD, 0xEF, 0x02,
+		                          0xAB, 0xCD, 0xEF, 0x03, 0xAB, 0xCD, 0xEF, 0x04,
+		                          0xAB, 0xCD, 0xEF, 0x05, 0xAB, 0xCD, 0xEF, 0x06,
+		                          0xAB, 0xCD, 0xEF, 0x07, 0xAB, 0xCD, 0xEF, 0x08,
+		                          0xAB, 0xCD, 0xEF, 0x09, 0xAB, 0xCD, 0xEF, 0x0A};
+	EE_UINT8 rd_buff[BUF_SIZE];
+	 
 	/* Flash test1 */
-	spiflash_erase_chip(SPIFLASH_ID.control_base);
-    spiflash_write_buffer(SPIFLASH_ID.control_base, 0, buff, TEST1_MAX*4);
-    for(i=0; i<TEST1_MAX; i++)
+	myprintf("Start test1: ... ");
+	sflash_chip_erase();
+	sflash_write_aai(0, BUF_SIZE, (EE_UINT8*)wr_buff);
+	sflash_read_data(0, BUF_SIZE, (EE_UINT8*)rd_buff);
+	
+    for(i=0; i<BUF_SIZE; i++)
     {
-    	if(flash_mem[i]!=buff[i])
+    	if(rd_buff[i]!= wr_buff[i])
     	{
-    		myprintf("flash_mem[%d]:%x\n", i, flash_mem[i]);	// Read memory...
-    		myprintf("flash test1 error: -1!\n");	
+    		myprintf("\r\n");
+    		myprintf("write flash_mem[%d]:%x\r\n", i, wr_buff[i]);	// Read memory...    		
+    		myprintf("read  flash_mem[%d]:%x\r\n", i, rd_buff[i]);	// Read memory...
+    		myprintf("flash test1 error: -1!");	
     		err = 1;
     		break;
     	}
     }
     if(err==0)
-    	myprintf("flash test1 ok!\n");	
+    	myprintf("ok!\r\n");	
     else
     	while(1)
     		;
     
     /* Flash test2 */
+	myprintf("Start test2: ... ");
     err = 0;
-    for(i=0; i<TEST2_MAX; i++)
-        buff[i] = i;   
-	spiflash_erase_chip(SPIFLASH_ID.control_base);
-    spiflash_write_buffer(SPIFLASH_ID.control_base, 0, buff, TEST2_MAX*4);   
-    for(i=0; i<TEST2_MAX; i++)
+    for(i=0; i<BUF_SIZE; i++)
+        wr_buff[i] = i;   
+	sflash_chip_erase();
+	sflash_write_aai(0, BUF_SIZE, (EE_UINT8*)wr_buff);
+	sflash_read_data(0, BUF_SIZE, (EE_UINT8*)rd_buff);
+
+    for(i=0; i<BUF_SIZE; i++)
     {
-    	if(flash_mem[i]!=buff[i])
+     	if(rd_buff[i]!= wr_buff[i])
     	{
-    		myprintf("flash_mem[%d]:%x\n", i, flash_mem[i]);	// Read memory...
-    		myprintf("flash test2 error: -1!\n");	
+    		myprintf("\r\n");
+    		myprintf("write flash_mem[%d]:%x\r\n", i, wr_buff[i]);	// Read memory...    		
+    		myprintf("read  flash_mem[%d]:%x\r\n", i, rd_buff[i]);	// Read memory...
+    		myprintf("flash test2 error: -2!");	
     		err = 1;
     		break;
     	}
     }
     if(err==0)
-    {
-    	spiflash_erase_sector(SPIFLASH_ID.control_base, 0); // erase 4KB
-    	for(i=0; i<TEST2_MAX; i++)
-    	{
-    		if(i<1024)
-    		{
-    			if(flash_mem[i]!=0xFFFFFFFF)
-    			{
-    				myprintf("flash_mem[%d]:%x\n", i, flash_mem[i]);	// Read memory...
-    				myprintf("flash test2 error: -2!\n");	
-    				err = 1;
-    				break;
-    			}
-    		}
-    		else
-    		{
-    			if(flash_mem[i]!=buff[i])
-    			{
-    				myprintf("flash_mem[%d]:%x\n", i, flash_mem[i]);	// Read memory...
-    				myprintf("flash test2 error: -3!\n");	
-    				err = 1;
-    				break;
-    			}
-    		}
+    	myprintf("ok!\r\n");	
+    else
+    	while(1)
+    		;
+    
+    /* Flash test3 */
+	myprintf("Start test3: ... ");
+ 	sflash_chip_erase();
+	sflash_read_data(0, BUF_SIZE, (EE_UINT8*)rd_buff);
+    for(i=0; i < BUF_SIZE; i++) {
+    	if(rd_buff[i] != 0xFF) {
+    		myprintf("\r\n");
+    		myprintf("Read flash_mem[%d]:%x no 0xff\r\n", i, rd_buff[i]);	// Read memory...
+    		myprintf("flash test3 error: -3!");	
+    		err = 1;
+    		break;
     	}
-    	if(err==0)
-    		myprintf("flash test2 ok!\n");
-    	else
-    		while(1)
-    			;	
     }
+    if(err==0)
+    	myprintf("ok!\r\n");
     else
     	while(1)
     		;	
     			
-    /* Flash test3 */
+    /* Flash test4 */
+	myprintf("Start test4: ... ");
     err = 0;
-    for(i=0; i<TEST3_MAX; i++)
-        buff[i] = i;   
-	spiflash_erase_chip(SPIFLASH_ID.control_base);
-    spiflash_write_buffer(SPIFLASH_ID.control_base, 0, buff, TEST3_MAX*4);   
-    for(i=0; i<TEST3_MAX; i++)
+    for(i=0; i<BUF_SIZE; i++)
+        wr_buff[i] = i;   
+	sflash_chip_erase();
+	sflash_write_aai(0, BUF_SIZE, (EE_UINT8*)wr_buff);
+	sflash_read_data(0, BUF_SIZE, (EE_UINT8*)rd_buff);
+
+    for(i=0; i<BUF_SIZE; i++)
     {
-    	if(flash_mem[i]!=buff[i])
+     	if(rd_buff[i]!= wr_buff[i])
     	{
-    		myprintf("flash_mem[%d]:%x\n", i, flash_mem[i]);	// Read memory...
-    		myprintf("flash test3 error: -1!\n");	
+    		myprintf("\r\n");
+    		myprintf("write flash_mem[%d]:%x\r\n", i, wr_buff[i]);	// Read memory...    		
+    		myprintf("read  flash_mem[%d]:%x\r\n", i, rd_buff[i]);	// Read memory...
+    		myprintf("flash test4 error: -4!");	
     		err = 1;
     		break;
     	}
     }
     if(err==0)
-    {
-    	spiflash_erase_block(SPIFLASH_ID.control_base, 0); // erase 4KB
-    	for(i=0; i<TEST3_MAX; i++)
-    	{
-    		if(i<8192)
-    		{
-    			if(flash_mem[i]!=0xFFFFFFFF)
-    			{
-    				myprintf("flash_mem[%d]:%x\n", i, flash_mem[i]);	// Read memory...
-    				myprintf("flash test3 error: -2!\n");	
-    				err = 1;
-    				break;
-    			}
-    		}
-    		else
-    		{
-    			if(flash_mem[i]!=buff[i])
-    			{
-    				myprintf("flash_mem[%d]:%x\n", i, flash_mem[i]);	// Read memory...
-    				myprintf("flash test3 error: -3!\n");	
-    				err = 1;
-    				break;
-    			}
-    		}
-    	}
-    	if(err==0)
-    		myprintf("flash test3 ok!\n");	
-    	else
-    		while(1)
-    			;
-    }
+    	myprintf("ok!\r\n");	
     else
     	while(1)
     		;
@@ -230,6 +211,7 @@ int main(void)
     /* Background activities */
     while(1)
     	;
+    	
     return 0;
 }
 
