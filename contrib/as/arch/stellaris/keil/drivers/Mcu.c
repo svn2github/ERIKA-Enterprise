@@ -1,0 +1,512 @@
+/* ###*B*###
+ * ERIKA Enterprise - a tiny RTOS for small microcontrollers
+ *
+ * Copyright (C) 2002-2011  Evidence Srl
+ *
+ * This file is part of ERIKA Enterprise.
+ *
+ * ERIKA Enterprise is free software; you can redistribute it
+ * and/or modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation,
+ * (with a special exception described below).
+ *
+ * Linking this code statically or dynamically with other modules is
+ * making a combined work based on this code.  Thus, the terms and
+ * conditions of the GNU General Public License cover the whole
+ * combination.
+ *
+ * As a special exception, the copyright holders of this library give you
+ * permission to link this code with independent modules to produce an
+ * executable, regardless of the license terms of these independent
+ * modules, and to copy and distribute the resulting executable under
+ * terms of your choice, provided that you also meet, for each linked
+ * independent module, the terms and conditions of the license of that
+ * module.  An independent module is a module which is not derived from
+ * or based on this library.  If you modify this code, you may extend
+ * this exception to your version of the code, but you are not
+ * obligated to do so.  If you do not wish to do so, delete this
+ * exception statement from your version.
+ *
+ * ERIKA Enterprise is distributed in the hope that it will be
+ * useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License version 2 for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * version 2 along with ERIKA Enterprise; if not, write to the
+ * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+ * Boston, MA 02110-1301 USA.
+ * ###*E*### */
+
+/*
+ * Author:  2011,  Giuseppe Serano
+ */
+
+#define	MCU_AR_RELEASE_MAJOR_VERSION	4
+#define	MCU_AR_RELEASE_MINOR_VERSION	0
+
+#include "Mcu.h"
+
+/*
+ * MCU110:	For included (external) header files:
+ * 		- <MODULENAME>_AR_ RELEASE_MAJOR_VERSION
+ * 		- <MODULENAME>_AR_ RELEASE_MINOR_VERSION
+ * 		shall be verified.
+ */
+#if !defined( MCU_AR_MAJOR_VERSION ) || \
+    ( MCU_AR_MAJOR_VERSION != MCU_AR_RELEASE_MAJOR_VERSION )
+#error	Mcu: version mismatch.
+#endif
+
+#include "ee.h"
+
+#ifndef	ARRAY_SIZE
+#define	ARRAY_SIZE(_x)	(sizeof(_x)/sizeof((_x)[0]))
+#endif
+
+/* Development error macros. */
+#if ( MCU_DEV_ERROR_DETECT == STD_ON )
+
+#include "Det.h"
+#if defined(USE_DEM)
+#include "Dem.h"
+#endif
+
+#define VALIDATE(_exp,_api,_err ) \
+  if( !(_exp) ) { \
+    Det_ReportError(MCU_MODULE_ID,0,_api,_err); \
+    return; \
+  }
+
+#define VALIDATE_W_RV(_exp,_api,_err,_rv ) \
+  if( !(_exp) ) { \
+    Det_ReportError(MCU_MODULE_ID,0,_api,_err); \
+    return (_rv); \
+  }
+
+#else	/* MCU_DEV_ERROR_DETECT */
+
+#define VALIDATE(_exp,_api,_err ) \
+  if( !(_exp) ) { \
+    return; \
+  }
+#define VALIDATE_W_RV(_exp,_api,_err,_rv ) \
+  if( !(_exp) ) { \
+    return (_rv); \
+  }
+#endif	/* !MCU_DEV_ERROR_DETECT */
+
+/*
+ * Type that holds all global data for Mcu
+ */
+typedef struct
+{
+  boolean			Init;		/* MCU Driver Initialized? */
+
+  const Mcu_ConfigType *	ConfigPtr;	/* Actual Configuration */
+
+  Mcu_ClockType			ClockSetting;	/* Actual Clock Setting */
+
+} Mcu_GlobalType;
+
+
+// Global config
+Mcu_GlobalType Mcu_Global =
+{
+  FALSE,		/* Init		*/
+  NULL_PTR,		/* ConfigPtr	*/
+  MCU_MODE_NORMAL,	/* ClockSetting	*/
+};
+
+/*
+ * Supported Cores Identifitication Numbers
+ */
+#define	CORE_CPUID_CORTEX_M4	0x410FC241
+
+/*
+ * Core Informations Container Type
+ */
+typedef struct {
+  char		*Name;	/* Core Name String		*/
+  uint32	Id;	/* Core Identifier Number	*/
+} Mcu_CoreInfoType;
+
+/*
+ * Supported Cores Array
+ */
+Mcu_CoreInfoType Mcu_SupportedCoreArray[] =
+{
+  {
+    "CORE_ARM_CORTEX_M4",	/* .Name	*/
+    CORE_CPUID_CORTEX_M4,	/* .Id		*/
+  },
+};
+
+/*
+ * Supported Core Information Retrieval
+ */
+static Mcu_CoreInfoType * Mcu_GetSupportedCoreInfo(
+  uint32 Id
+)
+{
+  register uint32 i;
+  Mcu_CoreInfoType *info = NULL;
+  for (i = 0; i < ARRAY_SIZE(Mcu_SupportedCoreArray); i++) {
+    if (Mcu_SupportedCoreArray[i].Id == Id) {
+      info = &Mcu_SupportedCoreArray[i];
+    }
+  }
+  return info;
+}
+
+/*
+ * Identify the core, just to check that we have support for it.
+ */
+static boolean Mcu_CheckCore( void ) {
+  /* NVIC - System Control Block - Register 64: CPUID */
+  register uint32 Id = NVIC_CPUID_R;
+  Mcu_CoreInfoType *info = NULL;
+  info = Mcu_GetSupportedCoreInfo(Id);
+  return (info != NULL);
+}
+
+/*
+ * Mcu_Init implementation.
+ */
+void Mcu_Init(
+  const Mcu_ConfigType * ConfigPtr
+)
+{
+
+  VALIDATE( ( ConfigPtr != NULL), MCU_INIT_SERVICE_ID, MCU_E_PARAM_CONFIG );
+
+  VALIDATE( ( Mcu_CheckCore() != FALSE), MCU_INIT_SERVICE_ID, MCU_E_UNINIT );
+
+  Mcu_Global.ConfigPtr = ConfigPtr;
+  Mcu_Global.Init = TRUE;
+
+  EE_system_init();
+
+}
+
+/*
+ * Mcu_InitRamSection implementation
+ */
+Std_ReturnType Mcu_InitRamSection(
+  Mcu_RamSectionType RamSection
+)
+{
+
+  VALIDATE_W_RV(
+    ( Mcu_Global.Init == TRUE ),
+    MCU_INITRAMSECTION_SERVICE_ID,
+    MCU_E_UNINIT,
+    E_NOT_OK
+  );
+
+  VALIDATE_W_RV(
+    ( RamSection <= Mcu_Global.ConfigPtr->McuRamSectors ),
+    MCU_INITRAMSECTION_SERVICE_ID,
+    MCU_E_PARAM_RAMSECTION,
+    E_NOT_OK 
+  );
+
+  /* NOT SUPPORTED, reason: no support for external RAM */
+
+  return E_OK;
+
+}
+
+/*
+ * Mcu_InitClock implementation
+ */
+#if ( MCU_INIT_CLOCK == STD_ON )
+Std_ReturnType Mcu_InitClock(
+  Mcu_ClockType ClockSetting
+)
+{
+
+  register uint32 rccsrc;
+  register uint32 rcc2src;
+  register uint32 rccdst;
+  register uint32 rcc2dst;
+
+  VALIDATE_W_RV(
+    ( Mcu_Global.Init == TRUE ),
+    MCU_INITCLOCK_SERVICE_ID,
+    MCU_E_UNINIT,
+    E_NOT_OK
+  );
+
+  VALIDATE_W_RV(
+    ( ClockSetting <= MCU_CLOCK_MODE_NUMBER ),
+    MCU_INITCLOCK_SERVICE_ID,
+    MCU_E_PARAM_CLOCK,
+    E_NOT_OK
+  );
+
+  /* Configuring the microcontroller to run of a "raw" clock source */
+  SYSCTL_RCC_R |= SYSCTL_RCC_BYPASS;		/* Bypass PLL.		    */
+  SYSCTL_RCC2_R |= SYSCTL_RCC2_BYPASS2;
+  SYSCTL_RCC_R &= ~SYSCTL_RCC_USESYSDIV;	/* Turn-off System Divisor. */
+
+  rccsrc = Mcu_Global.ConfigPtr->McuClockSettingConfig[ClockSetting].McuRunModeClockConfiguration;
+  rcc2src = Mcu_Global.ConfigPtr->McuClockSettingConfig[ClockSetting].McuRunModeClockConfiguration2;
+
+  rccdst = SYSCTL_RCC_R;
+  rcc2dst = SYSCTL_RCC2_R;
+
+  /* Run-Mode Clock Configuration */
+
+  /* Set XTAL Frequency */
+  rccdst &= ~SYSCTL_RCC_XTAL_M;
+  rccdst |= (rccsrc & SYSCTL_RCC_XTAL_M);
+
+  /* Set Oscillator Source */
+  rccdst &= ~SYSCTL_RCC_OSCSRC_M;
+  rccdst |= rccsrc & SYSCTL_RCC_OSCSRC_M;
+
+  /* Enable PLL */
+  if (!(rccsrc & SYSCTL_RCC_PWRDN))
+    rccdst &= ~SYSCTL_RCC_PWRDN;
+
+  /* Set Clock System Divisor */
+  rccdst &= ~SYSCTL_RCC_SYSDIV_M;
+  rccdst |= rccsrc & SYSCTL_RCC_SYSDIV_M;
+
+  if (rcc2src & SYSCTL_RCC2_USERCC2) {
+
+    /* Run-Mode Clock Configuration 2 */
+    rcc2dst |= SYSCTL_RCC2_USERCC2;
+
+    /* Set Oscillator Source */
+    rcc2dst &= ~SYSCTL_RCC2_OSCSRC2_M;
+    rcc2dst |= rcc2src & SYSCTL_RCC2_OSCSRC2_M;
+
+    /* Enable PLL */
+    if (!(rcc2src & SYSCTL_RCC2_PWRDN2))
+      rcc2dst &= ~SYSCTL_RCC2_PWRDN2;
+
+    /* Set Clock System Divisor */
+    rcc2dst &= ~SYSCTL_RCC2_SYSDIV2_M;
+    rcc2dst |= rcc2src & SYSCTL_RCC2_SYSDIV2_M;
+
+  }
+
+  /* Enable Clock System Divisor */
+  if (rccsrc & SYSCTL_RCC_USESYSDIV)
+    rccdst |= SYSCTL_RCC_USESYSDIV;
+
+  SYSCTL_RCC_R = rccdst;
+  SYSCTL_RCC2_R = rcc2dst;
+
+  return E_OK;
+
+}
+#endif
+
+/*
+ * Mcu_DistributePllClock implementation
+ */
+#if ( MCU_NO_PLL == STD_OFF )
+void Mcu_DistributePllClock(
+  void
+)
+{
+
+  VALIDATE(
+    ( Mcu_Global.Init == TRUE ),
+    MCU_DISTRIBUTEPLLCLOCK_SERVICE_ID,
+    MCU_E_UNINIT
+  );
+
+  /* PLL undefined check */
+  VALIDATE(
+    (
+      ( SYSCTL_DC1_R & SYSCTL_DC1_PLL ) &&
+      !( SYSCTL_RCC_R & SYSCTL_RCC_PWRDN ) &&
+      !( SYSCTL_RCC2_R & SYSCTL_RCC2_PWRDN2 )
+    ),
+    MCU_DISTRIBUTEPLLCLOCK_SERVICE_ID,
+    MCU_E_PLL_UNDEFINED
+  );
+
+  /* PLL locked check */
+  VALIDATE(
+    ( SYSCTL_PLLSTAT_R & SYSCTL_PLLSTAT_LOCK ),
+    MCU_DISTRIBUTEPLLCLOCK_SERVICE_ID,
+    MCU_E_PLL_NOT_LOCKED
+  );
+
+  SYSCTL_RCC_R &= ~SYSCTL_RCC_BYPASS;
+  SYSCTL_RCC2_R &= ~SYSCTL_RCC2_BYPASS2;
+
+}
+#endif
+
+/*
+ * Mcu_GetPllStatus implementation
+ */
+Mcu_PllStatusType Mcu_GetPllStatus(
+  void
+)
+{
+
+  Mcu_PllStatusType ret;
+
+  VALIDATE_W_RV(
+    ( Mcu_Global.Init == TRUE ),
+    MCU_GETPLLSTATUS_SERVICE_ID,
+    MCU_E_UNINIT,
+    MCU_PLL_STATUS_UNDEFINED
+  );
+
+#if ( MCU_NO_PLL == STD_ON )
+  ret = MCU_PLL_STATUS_UNDEFINED;
+#else
+  /* PLL present and powered check. */
+  if ( !(SYSCTL_DC1_R & SYSCTL_DC1_PLL) || (SYSCTL_RCC_R & SYSCTL_RCC_PWRDN) )
+    ret = MCU_PLL_STATUS_UNDEFINED;
+  else if ( SYSCTL_PLLSTAT_R & SYSCTL_PLLSTAT_LOCK )
+    ret = MCU_PLL_LOCKED;
+  else
+    ret = MCU_PLL_UNLOCKED;
+#endif
+
+  return ret;
+
+}
+
+/*
+ * Mcu_GetResetReason implementation
+ */
+Mcu_ResetType Mcu_GetResetReason(
+  void
+) {
+
+  register uint32 resc;
+  Mcu_ResetType ret;
+
+  VALIDATE_W_RV(
+    ( Mcu_Global.Init == TRUE ),
+    MCU_GETRESETREASON_SERVICE_ID,
+    MCU_E_UNINIT,
+    MCU_RESET_UNDEFINED
+  );
+
+  resc = SYSCTL_RESC_R;
+
+  if ( (resc & SYSCTL_RESC_POR) )
+    ret = MCU_POWER_ON_RESET;
+  else if ( (resc & (SYSCTL_RESC_WDT1 | SYSCTL_RESC_WDT0)) )
+    ret = MCU_WATCHDOG_RESET;
+  else if ( (resc & SYSCTL_RESC_SW) )
+    ret = MCU_SW_RESET;
+  else ret = MCU_RESET_UNDEFINED;
+  
+  SYSCTL_RESC_R = 0x00000000;
+
+  return ret;
+
+}
+
+/*
+ * Mcu_GetResetRawValue implementation
+ */
+Mcu_RawResetType Mcu_GetResetRawValue(
+  void
+)
+{
+
+  Mcu_RawResetType ret;
+
+  VALIDATE_W_RV(
+    ( Mcu_Global.Init == TRUE ),
+    MCU_GETRESETREASON_SERVICE_ID,
+    MCU_E_UNINIT,
+    0x00000000
+  );
+
+  ret = SYSCTL_RESC_R;
+
+  SYSCTL_RESC_R = 0x000000000;
+
+  return ret;
+
+}
+
+#if ( MCU_PERFORM_RESET_API == STD_ON )
+/*
+ * Mcu_PerformReset implementation
+ */
+void Mcu_PerformReset(
+  void
+)
+{
+
+  register uint32 apint;
+
+  VALIDATE(
+    ( Mcu_Global.Init == TRUE ),
+    MCU_PERFORMRESET_SERVICE_ID,
+    MCU_E_UNINIT
+  );
+
+  /* 
+   * Ensure all outstanding memory accesses included buffered write are
+   * completed before reset
+   */
+  __dsb(0xF);
+
+  apint = NVIC_APINT_R;
+  NVIC_APINT_R = (
+    NVIC_APINT_VECTKEY |		/* Vector key 			 */
+    (apint & NVIC_APINT_PRIGROUP_M) |	/* Keep priority group unchanged */
+    NVIC_APINT_SYSRESETREQ		/* System Reset Request		 */
+  );
+
+  __dsb(0xF);	/* Ensure completion of memory access */
+
+  while(1);	/* Waiting for Reset to perform. */
+
+}
+#endif
+
+/*
+ * Mcu_SetMode implementation
+ */
+void Mcu_SetMode(
+  Mcu_ModeType McuMode
+)
+{
+
+  VALIDATE( ( Mcu_Global.Init == TRUE ), MCU_SETMODE_SERVICE_ID, MCU_E_UNINIT );
+
+  VALIDATE(
+    ( Mcu_Global.ConfigPtr->McuNumberOfMcuModes > McuMode ),
+    MCU_SETMODE_SERVICE_ID,
+    MCU_E_PARAM_MODE 
+  );
+
+  /* NOT SUPPORTED */
+
+  return;
+
+}
+
+/*
+ * Mcu_GetRamState implementation
+ */
+#if ( MCU_GET_RAM_STATE_API == STD_ON )
+Mcu_RamStateType Mcu_GetRamState(
+  void
+)
+{
+
+  /* NOT SUPPORTED */
+
+  return MCU_RAMSTATE_VALID;
+
+}
+#endif
+
