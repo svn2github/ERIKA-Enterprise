@@ -39,7 +39,7 @@
  * ###*E*### */
 
 /*
- * Author: 2003 Francesco Bertozzi, Paolo Gai
+ * Author: 2003 Francesco Bertozzi, Paolo Gai. 2012 Gianluca Franchino.
  * CVS: $Id: ee_com.h,v 1.2 2005/07/17 13:58:36 pj Exp $
  */
 
@@ -180,12 +180,24 @@ EE_UINT8 F_NewIsDifferent(void *new_data, void *old_data,
 typedef EE_TYPESTATUS StatusType;
 #define E_OK                                 0
 #endif
-
+/*GF: Since the message status is given by the firs 3 bits in 
+* EE_com_msg_RAM_TYPE->property, its better to use values in
+* the range [1; 7]. 
+*/
+/*
 #define E_COM_ID                            32
 #define E_COM_LENGTH                        33
 #define E_COM_LIMIT                         34
 #define E_COM_NOMSG                         35
 #define E_COM_SYS_DISCONNECTED              36
+*/
+/*GF: looking at Bertozzi'thesis, the following should be the corret values. */
+#define E_COM_ID                            1
+#define E_COM_LENGTH                        2
+#define E_COM_LIMIT                         3
+#define E_COM_NOMSG                         4
+#define E_COM_SYS_DISCONNECTED              5
+
 
 /* 2.9.2.1.2 */
 typedef EE_TYPESYMBOLICNAME SymbolicName;
@@ -302,7 +314,7 @@ StatusType EE_com_StopPeriodic(void);
 #define EE_COM_DEFINE_FLAG(name)   \
    extern FlagValue (name); \
    FlagValue ReadFlag_##name(void) { return (name); } \
-   void ResetFlag_##name(void) { (name)=COM_FALSE; }   \
+   void ResetFlag_##name(void) { (name)=EE_COM_FALSE; }   \
    FlagValue (name)=EE_COM_FALSE
 #endif
 

@@ -88,17 +88,14 @@ StatusType EE_com_ReceiveMessage(SymbolicName Message,
     
   ret_code = msg_RAM->property & EE_MASK_MSG_STAT;
 
-  if (ret_code != E_COM_NOMSG) 
-  {
+  if (ret_code != E_COM_NOMSG) {
     #if defined(__COM_CCC0__) || defined(__COM_CCC1__)
     GetResource (EE_MUTEX_COM_IPDU);
     #endif
     GetResource (EE_MUTEX_COM_MSG);
     
 #if defined(__COM_CCCB__) || defined(__COM_CCC1__)
-    if ((msg_RAM->property & EE_MASK_MSG_QUEUNQUE) 
-          == EE_COM_QUEUED) 
-    {  
+    if ((msg_RAM->property & EE_MASK_MSG_QUEUNQUE) == EE_COM_QUEUED) {  
       /* Message queued */
       register struct EE_COM_msg_queue *temp = 
             (struct EE_COM_msg_queue *)msg_ROM->data;
@@ -112,19 +109,20 @@ StatusType EE_com_ReceiveMessage(SymbolicName Message,
         temp->first = 0;
 
       temp->tot--;
-      if (temp->tot == 0) 
-      {
+      if (temp->tot == 0) {
         msg_RAM->property &= 0xfff8;
-        msg_RAM->property |= 0x0004; /* E_COM_NOMSG */
+		/*GF:The following statement looks wrong. E_COM_NOMSG is 0x23 (35 decimal value).*/
+        /*msg_RAM->property |= 0x0004;*/ /* E_COM_NOMSG */ 
+		/*GF: the correct instruction should be: */
+		msg_RAM->property |= E_COM_NOMSG;
       } 
-      else 
+	  else 
         msg_RAM->property &= 0xfff8; /* E_OK */
     }
     else
 #endif
     { /* Message unqueued */
-      EE_com_memo((EE_UINT8 *)msg_ROM->data, 0, 
-         DataRef, 0, msg_ROM->size);
+      EE_com_memo((EE_UINT8 *)msg_ROM->data, 0, DataRef, 0, msg_ROM->size);
       msg_RAM->property &= 0xfff8; /* E_OK */ 
     }
     
@@ -142,8 +140,8 @@ StatusType EE_com_ReceiveMessage(SymbolicName Message,
     *(FlagValue *)msg_ROM->error_call = EE_COM_FALSE;
 #endif
 #endif
-  
-  if (ret_code != E_OK)
+/*GF:   if (ret_code != E_OK)*/
+  if (ret_code !=  E_COM_NOMSG && ret_code != E_OK)
   {
     EE_com_sys2user.service_error = COMServiceId_ReceiveMessage;
 #ifdef __COM_HAS_ERRORHOOK__    

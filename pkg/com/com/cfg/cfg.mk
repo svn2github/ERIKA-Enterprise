@@ -64,18 +64,20 @@ endif
 
 ########### COM CCCB #############
 ifeq ($(call iseeopt, __COM_CCCB__), yes)
-EE_SRCS += pkg/com/com/src/com.c
-EE_SRCS += pkg/com/com/src/msgreception.c
-EE_SRCS += pkg/com/com/src/filters.c
-EE_SRCS += pkg/com/com/src/memo.c
-EE_SRCS += pkg/com/com/src/startcom.c
-EE_SRCS += pkg/com/com/src/stopcom.c
-EE_SRCS += pkg/com/com/src/initmessage.c
-EE_SRCS += pkg/com/com/src/getcomapplicationmode.c
-EE_SRCS += pkg/com/com/src/comerrorgetserviceid.c
-EE_SRCS += pkg/com/com/src/sendstatic.c
-EE_SRCS += pkg/com/com/src/receivestatic.c
-EE_SRCS += pkg/com/com/src/msgstatus.c
+#EE_SRCS += pkg/com/com/src/com.c
+EE_SRCS += pkg/com/com/src/ee_cominit.c
+EE_SRCS += pkg/com/com/src/ee_msgreception.c
+EE_SRCS += pkg/com/com/src/ee_filters.c
+EE_SRCS += pkg/com/com/src/ee_memo.c
+EE_SRCS += pkg/com/com/src/ee_startcom.c
+EE_SRCS += pkg/com/com/src/ee_stopcom.c
+EE_SRCS += pkg/com/com/src/ee_initmessage.c
+#EE_SRCS += pkg/com/com/src/getcomapplicationmode.c
+#EE_SRCS += pkg/com/com/src/comerrorgetserviceid.c
+EE_SRCS += pkg/com/com/src/ee_sendstatic.c
+EE_SRCS += pkg/com/com/src/ee_shared_send.c
+EE_SRCS += pkg/com/com/src/ee_receivestatic.c
+EE_SRCS += pkg/com/com/src/ee_msgstatus.c
 endif
 
 ########### COM CCC0 #############
