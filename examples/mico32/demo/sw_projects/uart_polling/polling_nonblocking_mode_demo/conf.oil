@@ -70,9 +70,10 @@ CPU test_application {
 				OPTIONS = TIMER_IRQ_SUPPORT;
 			};
 		};
-		
+
 		BOARD_DATA = FPG_EYE {
 			OPTIONS = RS232;
+			OPTIONS = LEDS;
 		};
 	};
 	
