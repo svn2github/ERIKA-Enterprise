@@ -63,6 +63,23 @@ void EESCI_flexdmb_lcd_float_inout_line (int line_id, float scicos_lcd_value);
 void EESCI_flexdmb_lcd_uint8_inout_line (int line_id, unsigned char* line, int size);
 void flex_daughter_lcd_inout (int type, void* y_1, void* y_2, int size);
 void flex_daughter_lcd_inout_line (int line_id, int type, void* u, int size);
+#else
+__INLINE__ void __ALWAYS_INLINE__ flex_daughter_lcd_init (void);
+{}
+__INLINE__ void __ALWAYS_INLINE__ flex_daughter_lcd_end (void)
+{}
+__INLINE__ void __ALWAYS_INLINE__ EESCI_flexdmb_lcd_float_inout (float scicos_lcd_value1, float scicos_lcd_value2)
+{}
+__INLINE__ void __ALWAYS_INLINE__ EESCI_flexdmb_lcd_uint8_inout (unsigned char* line1, unsigned char* line2, int size)
+{}
+__INLINE__ void __ALWAYS_INLINE__ EESCI_flexdmb_lcd_float_inout_line (int line_id, float scicos_lcd_value)
+{}
+__INLINE__ void __ALWAYS_INLINE__ EESCI_flexdmb_lcd_uint8_inout_line (int line_id, unsigned char* line, int size)
+{}
+__INLINE__ void __ALWAYS_INLINE__ flex_daughter_lcd_inout (int type, void* y_1, void* y_2, int size)
+{}
+__INLINE__ void __ALWAYS_INLINE__ flex_daughter_lcd_inout_line (int line_id, int type, void* u, int size)
+{}
 #endif
 
 #ifdef __USE_BUTTONS__
@@ -70,6 +87,15 @@ void flex_daughter_button_init ();
 void flex_daughter_button_end (void);
 void flex_daughter_button_float_output (int val, void *ptr_y, int ptr_type);
 void flex_daughter_button_inout (int pin, void *ptr_y, int ptr_type);
+#else
+__INLINE__ void __ALWAYS_INLINE__ flex_daughter_button_init ()
+{}
+__INLINE__ void __ALWAYS_INLINE__ flex_daughter_button_end (void)
+{}
+__INLINE__ void __ALWAYS_INLINE__ flex_daughter_button_float_output (int val, void *ptr_y, int ptr_type)
+{}
+__INLINE__ void __ALWAYS_INLINE__ flex_daughter_button_inout (int pin, void *ptr_y, int ptr_type)
+{}
 #endif
 
 #ifdef __USE_LEDS__
@@ -88,4 +114,25 @@ void flex_daughter_leds_end (void);
 void flex_daughter_led_init (void);
 void flex_daughter_led_inout (int pin, float threshold, float led_value);
 void flex_daughter_led_end (void);
+#else
+__INLINE__ void __ALWAYS_INLINE__ flex_daughter_leds_barrier_init (void)
+{}
+__INLINE__ void __ALWAYS_INLINE__ flex_daughter_leds_barrier_inout (float threshold, float *leds_values)
+{}
+__INLINE__ void __ALWAYS_INLINE__ flex_daughter_leds_barrier_end (void)
+{}
+__INLINE__ void __ALWAYS_INLINE__ flex_daughter_leds_init (void)
+{}
+__INLINE__ void __ALWAYS_INLINE__ flex_daughter_leds_inout (float threshold, float *leds_values)
+{}
+__INLINE__ void __ALWAYS_INLINE__ flex_daughter_leds_inout_uint8(unsigned char *leds_values)
+{}
+__INLINE__ void __ALWAYS_INLINE__ flex_daughter_leds_end (void)
+{}
+__INLINE__ void __ALWAYS_INLINE__ flex_daughter_led_init (void)
+{}
+__INLINE__ void __ALWAYS_INLINE__ flex_daughter_led_inout (int pin, float threshold, float led_value)
+{}
+__INLINE__ void __ALWAYS_INLINE__ flex_daughter_led_end (void)
+{}
 #endif

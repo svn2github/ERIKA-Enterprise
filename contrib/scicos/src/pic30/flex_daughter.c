@@ -86,7 +86,8 @@ void EESCI_flexdmb_lcd_float_inout_line (int line_id, float scicos_lcd_value) {
 
 void EESCI_flexdmb_lcd_uint8_inout_line (int line_id, unsigned char* line, int size) {
 	int i;
-	
+	if(size > 16)
+		size = 16;
 	if (line_id == 1) {
 		EE_pic30_disableIRQ();
 		for (i=0; i<size; i++)
@@ -112,6 +113,8 @@ void EESCI_flexdmb_lcd_float_inout(float scicos_lcd_value1, float scicos_lcd_val
 
 void EESCI_flexdmb_lcd_uint8_inout(unsigned char* line1, unsigned char* line2, int size) {
 	int i;
+	if(size > 16)
+		size = 16;
 	EE_pic30_disableIRQ();
 	for(i=0; i<size; i++) {
 		ee_lcd_line1[i] = line1[i];
