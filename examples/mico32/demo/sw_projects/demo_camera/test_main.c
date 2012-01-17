@@ -144,15 +144,12 @@ void init_camera_i2c(unsigned char demo)
 		
 	switch (demo) {
 		case 0:
-			myprintf("I2C TEST0\r\n");
 			break;
 		case 1:
-			myprintf("I2C TEST1\r\n");
 			hv7131gp_reg_write(HV7131GP_REG_SCTRA, 0x90);
  			hv7131gp_reg_write(HV7131GP_REG_OUTFMT, 0x48);
 			break;
 		case 2:
-			myprintf("I2C TEST2\r\n");
 			hv7131gp_reg_write(HV7131GP_REG_SCTRA, 0x80);
  			hv7131gp_reg_write(HV7131GP_REG_OUTFMT, 0x48);
 			break;
@@ -173,7 +170,6 @@ void send_image(volatile unsigned char* pun, unsigned int width, unsigned int he
 		myprintf("%d ", *pun);
 		++r;
 		pun += IMAGE_BYTES_PER_PIXEL;
-		//pun += 1;
 		if (r == width) {
 			r = 0;
 			myprintf("\r\n");
@@ -197,7 +193,8 @@ int main(void)
 	EE_uart_config(115200, EE_UART_BIT8_NO | EE_UART_BIT_STOP_1);
 	EE_uart_set_ISR_mode(EE_UART_POLLING | EE_UART_RXTX_BLOCK); // polling, blocking mode
 
-	myprintf("\r\n    ---- CAMERA DEMO ----\r\n");
+    read_byte();
+	myprintf("\r\n    ---- CAMERA DEMO ----\r\n\r\n");
 		
 	unsigned int state, turn;
 	myprintf("Reset Camera:... ");
@@ -242,6 +239,7 @@ int main(void)
     	myprintf("       Press a key to download the picture.\r\n");
     	read_byte();
     	send_image((volatile unsigned char*)(SDRAM_BASE_ADDRESS), 640, 480, 0);
+    	read_byte();
     		
 	} while(1);
 	
