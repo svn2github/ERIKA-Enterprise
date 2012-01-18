@@ -64,7 +64,7 @@ void EESCI_flexdmb_lcd_uint8_inout_line (int line_id, unsigned char* line, int s
 void flex_daughter_lcd_inout (int type, void* y_1, void* y_2, int size);
 void flex_daughter_lcd_inout_line (int line_id, int type, void* u, int size);
 #else
-__INLINE__ void __ALWAYS_INLINE__ flex_daughter_lcd_init (void);
+__INLINE__ void __ALWAYS_INLINE__ flex_daughter_lcd_init (void)
 {}
 __INLINE__ void __ALWAYS_INLINE__ flex_daughter_lcd_end (void)
 {}
