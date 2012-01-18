@@ -199,7 +199,14 @@ int main(void)
 	unsigned int state, turn;
 	myprintf("Reset Camera:... ");
 	Mico_camera_reset(camera);
+	turn = 0;
 	do {
+		msleep(10);
+        myprintf(".");
+		if (++turn == 300){
+			myprintf("    error timeout.\r\n");
+			break;
+		}			
 		state = Mico_camera_read_status_register(camera);
 	} while (state != MICO_CAMERA_IDLE);
 	myprintf("done.\r\n");	
@@ -223,19 +230,20 @@ int main(void)
 		Mico_camera_write_size(camera, 0);
 		Mico_camera_write_address(camera, (char *)SDRAM_BASE_ADDRESS);		
 		Mico_camera_start(camera);
-		turn = 0;
 		myprintf("       Start Acq:... ");
+		turn = 0;
 		do {
 			/* Wait end of the frame. */
 			state = Mico_camera_read_status_register(camera);
         	msleep(10);
+        	myprintf(".");
 			if (++turn == 300){
 				myprintf("    error timeout.\r\n");
 				break;
 			}	
 		} while (state != MICO_CAMERA_IDLE);	
 	 	EE_hal_invalidate_dcache();		
-		myprintf("done\r\n");
+		myprintf(" done\r\n");
     	myprintf("       Press a key to download the picture.\r\n");
     	read_byte();
     	send_image((volatile unsigned char*)(SDRAM_BASE_ADDRESS), 640, 480, 0);
