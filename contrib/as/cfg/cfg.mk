@@ -49,10 +49,9 @@ INCLUDE_PATH += $(EEBASE)/contrib/as/include
 ifeq ($(and $(call iseeopt, __STELLARIS__), $(call iseeopt, __KEIL__)), yes)
 
 INCLUDE_PATH += $(EEBASE)/contrib/as/arch/stellaris/keil/include
-INCLUDE_PATH += $(EEBASE)/contrib/as/boards/ti_stellaris_lm4f232xxxx/include
 
 ifeq ($(call iseeopt, __AS_MCU_DRIVER__), yes)
-EE_SRCS += $(EEBASE)/contrib/as/arch/stellaris/keil/drivers/Mcu.c
+EE_SRCS += contrib/as/arch/stellaris/keil/drivers/Mcu.c
 endif
 
 endif	# __STELLARIS__ && __KEIL__
