@@ -51,10 +51,12 @@ CPU test_application {
 
 		EE_OPT = "DEBUG";
 		EE_OPT = "__ASSERT__";
+		CFLAGS = "-I$(APPBASE)/fake_druid/";
 
 		CPU_DATA = CORTEX_MX {
 			MODEL = M4;
 			APP_SRC = "main.c";
+			APP_SRC = "fake_druid/Mcu_Cfg.c";
 			COMPILER_TYPE = KEIL;
 			MULTI_STACK = FALSE;
 		};

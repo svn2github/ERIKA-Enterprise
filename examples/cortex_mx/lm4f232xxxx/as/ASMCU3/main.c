@@ -91,6 +91,7 @@ TASK(Task1)
   if (counter == 1) {
     EE_assert(EE_ASSERT_TASK1_FIRED, counter == 1, EE_ASSERT_ISR_FIRED);
   }
+  EE_user_led_toggle();
 }
 
 /*
@@ -99,24 +100,31 @@ TASK(Task1)
 int main(void)
 {
 
+  Mcu_RawResetType reset;
+
   Mcu_Init(&Mcu_Config);
 
   EE_assert(EE_ASSERT_INIT, TRUE, EE_ASSERT_NIL);
 
   EE_user_led_init();
 
-  if (Mcu_GetResetReason() == MCU_POWER_ON_RESET) {
+  reset = Mcu_GetResetRawValue();
+
+  if ((reset & SYSCTL_RESC_POR) || (reset & SYSCTL_RESC_SW)) {
     Mcu_InitClock(MCU_CLOCK_MODE_NORMAL);
     EE_assert(EE_ASSERT_CLOCK_INIT, TRUE, EE_ASSERT_INIT);
     EE_assert(EE_ASSERT_PLL_LOCKED, TRUE, EE_ASSERT_CLOCK_INIT);
   }
   else {
 
-    Mcu_InitClock(MCU_CLOCK_MODE_PRIOSC_PLL);
+    Mcu_InitClock(MCU_CLOCK_MODE_PRIOSC_3_PLL);
     
     EE_assert(EE_ASSERT_CLOCK_INIT, TRUE, EE_ASSERT_INIT);
 
-    while (Mcu_GetPllStatus() != MCU_PLL_LOCKED);
+    while (Mcu_GetPllStatus() != MCU_PLL_LOCKED)
+    {
+      counter++;
+    }
 
     EE_assert(
       EE_ASSERT_PLL_LOCKED,
@@ -125,6 +133,9 @@ int main(void)
     );
 
     Mcu_DistributePllClock();
+
+    counter = 0;
+
   }
 
   EE_systick_set_period(NVIC_ST_RELOAD_M);
@@ -139,9 +150,10 @@ int main(void)
   /* Forever loop: background activities (if any) should go here */
   for (;result == 1;)
   {
-    while (counter % 100000) counter++;
-    EE_user_led_toggle();
-    counter++;
+    //~ while (counter % 1000000) counter++;
+    //~ EE_user_led_toggle();
+    //~ counter++;
+    ;
   }
 
 }
