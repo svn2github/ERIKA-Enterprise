@@ -218,6 +218,80 @@ Std_ReturnType Mcu_InitRamSection(
 }
 
 /*
+ *
+ */
+static void Mcu_InitSystemClock(Mcu_ClockSettingConfigType *ConfigPtr)
+{
+  register uint32 rccsrc;	/* Run-Mode Clock Configuration Source        */
+  register uint32 rcc2src;	/* Run-Mode Clock Configuration 2 Source      */
+  register uint32 rccdst;	/* Run-Mode Clock Configuration Destination   */
+  register uint32 rcc2dst;	/* Run-Mode Clock Configuration 2 Destination */
+
+  rccsrc = ConfigPtr->McuRunModeClockConfiguration;
+  rcc2src = ConfigPtr->McuRunModeClockConfiguration2;
+
+  /* Configuring the microcontroller to run of a "raw" clock source */
+  rccdst = SYSCTL_RCC_R;		/* Read RCC			      */
+  rccdst |= SYSCTL_RCC_BYPASS;		/* PLL Bypass			      */
+  rccdst |= SYSCTL_RCC_PWRDN;		/* PLL Power-Down		      */
+  rccdst &= ~SYSCTL_RCC_USESYSDIV;	/* Disable System Divisor	      */
+  rccdst |= SYSCTL_RCC_SYSDIV_M;	/* Reset System Divisor Configuration */
+  rccdst &= ~SYSCTL_RCC_XTAL_M;		/* Clear XTAL			      */
+  rccdst |= SYSCTL_RCC_XTAL_16MHZ;	/* 16MHz			      */
+  rccdst &= ~SYSCTL_RCC_OSCSRC_M;	/* Clear Oscillator Source	      */
+  rccdst |= SYSCTL_RCC_OSCSRC_INT;	/* Precision Internal Oscillator      */
+  rccdst &= ~SYSCTL_RCC_IOSCDIS;	/* Enable Internal Oscillator	      */
+  rccdst |= SYSCTL_RCC_MOSCDIS;		/* Disable Main Oscillator	      */
+  SYSCTL_RCC_R = rccdst;		/* Write RCC			      */
+  rcc2dst = SYSCTL_RCC2_R;		/* Read RCC2			      */
+  rcc2dst &= ~SYSCTL_RCC2_USERCC2;	/* Don't use RCC2		      */
+  rcc2dst &= ~SYSCTL_RCC2_DIV400;	/* Divide PLL as 200MHz		      */
+  rcc2dst |= SYSCTL_RCC2_SYSDIV2_M;	/* Reset System Divisor Configuration */
+  rcc2dst |= SYSCTL_RCC2_SYSDIV2LSB;	/* Set System Divisor LSB	      */
+  rcc2dst |= SYSCTL_RCC2_PWRDN2;	/* PLL Power-Down		      */
+  rcc2dst |= SYSCTL_RCC2_BYPASS2;	/* PLL Bypass			      */
+  rcc2dst &= ~SYSCTL_RCC2_OSCSRC2_M;	/* Clear Oscillator Source	      */
+  rcc2dst |= SYSCTL_RCC2_OSCSRC2_IO;	/* Precision Internal Oscillator      */
+  SYSCTL_RCC2_R = rcc2dst;		/* Write RCC2			      */
+
+  /* Set XTAL Frequency */
+  rccdst &= ~SYSCTL_RCC_XTAL_M;
+  rccdst |= (rccsrc & SYSCTL_RCC_XTAL_M);
+
+  /* Enable Selected Oscillator */
+  rccdst &= ~SYSCTL_RCC_MOSCDIS;
+  rccdst |= rccsrc & (SYSCTL_RCC_IOSCDIS | SYSCTL_RCC_MOSCDIS);
+
+  /* Enable System Divisor */
+  rccdst |= rccsrc & (SYSCTL_RCC_USESYSDIV);
+
+  if (rcc2src & SYSCTL_RCC2_USERCC2) {
+    SYSCTL_RCC_R = rccdst;		/* Write RCC			      */
+    rcc2dst = SYSCTL_RCC2_R;		/* Read RCC2			      */
+    rcc2dst |= SYSCTL_RCC2_USERCC2;	/* Use RCC2			      */
+    rcc2dst &= ~SYSCTL_RCC2_OSCSRC2_M;	/* Clear Oscillator Source	      */
+    rcc2dst |= (rcc2src & SYSCTL_RCC2_OSCSRC2_M); /* Set Oscillator Source    */
+    if (!(rcc2src & SYSCTL_RCC2_PWRDN2))
+      rcc2dst &= ~SYSCTL_RCC2_PWRDN2;	/* PLL Power-Up			      */
+    rcc2dst &= ~SYSCTL_RCC2_SYSDIV2_M;	/* Clear System Divisor Configuration */
+    rcc2dst |= (rcc2src & SYSCTL_RCC2_SYSDIV2_M); /* Set System Divisor	      */
+    SYSCTL_RCC2_R = rcc2dst;		/* Wriet RCC2			      */
+  }
+  else {
+    rccdst &= ~SYSCTL_RCC_OSCSRC_M;	/* Clear Oscillator Source	      */
+    rccdst |= (rccsrc & SYSCTL_RCC_OSCSRC_M); /* Set Oscillator Source	      */
+    if (!(rccsrc & SYSCTL_RCC_PWRDN))
+      rccdst &= ~SYSCTL_RCC_PWRDN;	/* PLL Power-Up			      */
+    rccdst &= ~SYSCTL_RCC_SYSDIV_M;	/* Clear System Divisor Configuration */
+    rccdst |= (rccsrc & SYSCTL_RCC_SYSDIV_M); /* Set System Divisor	      */
+    SYSCTL_RCC_R = rccdst;		/* Write RCC			      */
+    rcc2dst = SYSCTL_RCC2_R;		/* Read RCC2			      */
+    SYSCTL_RCC2_R = rcc2dst;		/* Wriet RCC2			      */
+  }
+
+}
+
+/*
  * Mcu_InitClock implementation
  */
 #if ( MCU_INIT_CLOCK == STD_ON )
@@ -225,11 +299,6 @@ Std_ReturnType Mcu_InitClock(
   Mcu_ClockType ClockSetting
 )
 {
-
-  register uint32 rccsrc;
-  register uint32 rcc2src;
-  register uint32 rccdst;
-  register uint32 rcc2dst;
 
   VALIDATE_W_RV(
     ( Mcu_Global.Init == TRUE ),
@@ -245,60 +314,9 @@ Std_ReturnType Mcu_InitClock(
     E_NOT_OK
   );
 
-  /* Configuring the microcontroller to run of a "raw" clock source */
-  SYSCTL_RCC_R |= SYSCTL_RCC_BYPASS;		/* Bypass PLL.		    */
-  SYSCTL_RCC2_R |= SYSCTL_RCC2_BYPASS2;
-  SYSCTL_RCC_R &= ~SYSCTL_RCC_USESYSDIV;	/* Turn-off System Divisor. */
-
-  rccsrc = Mcu_Global.ConfigPtr->McuClockSettingConfig[ClockSetting].McuRunModeClockConfiguration;
-  rcc2src = Mcu_Global.ConfigPtr->McuClockSettingConfig[ClockSetting].McuRunModeClockConfiguration2;
-
-  rccdst = SYSCTL_RCC_R;
-  rcc2dst = SYSCTL_RCC2_R;
-
-  /* Run-Mode Clock Configuration */
-
-  /* Set XTAL Frequency */
-  rccdst &= ~SYSCTL_RCC_XTAL_M;
-  rccdst |= (rccsrc & SYSCTL_RCC_XTAL_M);
-
-  /* Set Oscillator Source */
-  rccdst &= ~SYSCTL_RCC_OSCSRC_M;
-  rccdst |= rccsrc & SYSCTL_RCC_OSCSRC_M;
-
-  /* Enable PLL */
-  if (!(rccsrc & SYSCTL_RCC_PWRDN))
-    rccdst &= ~SYSCTL_RCC_PWRDN;
-
-  /* Set Clock System Divisor */
-  rccdst &= ~SYSCTL_RCC_SYSDIV_M;
-  rccdst |= rccsrc & SYSCTL_RCC_SYSDIV_M;
-
-  if (rcc2src & SYSCTL_RCC2_USERCC2) {
-
-    /* Run-Mode Clock Configuration 2 */
-    rcc2dst |= SYSCTL_RCC2_USERCC2;
-
-    /* Set Oscillator Source */
-    rcc2dst &= ~SYSCTL_RCC2_OSCSRC2_M;
-    rcc2dst |= rcc2src & SYSCTL_RCC2_OSCSRC2_M;
-
-    /* Enable PLL */
-    if (!(rcc2src & SYSCTL_RCC2_PWRDN2))
-      rcc2dst &= ~SYSCTL_RCC2_PWRDN2;
-
-    /* Set Clock System Divisor */
-    rcc2dst &= ~SYSCTL_RCC2_SYSDIV2_M;
-    rcc2dst |= rcc2src & SYSCTL_RCC2_SYSDIV2_M;
-
-  }
-
-  /* Enable Clock System Divisor */
-  if (rccsrc & SYSCTL_RCC_USESYSDIV)
-    rccdst |= SYSCTL_RCC_USESYSDIV;
-
-  SYSCTL_RCC_R = rccdst;
-  SYSCTL_RCC2_R = rcc2dst;
+  Mcu_InitSystemClock(
+    &Mcu_Global.ConfigPtr->McuClockSettingConfig[ClockSetting]
+  );
 
   return E_OK;
 
@@ -313,6 +331,8 @@ void Mcu_DistributePllClock(
   void
 )
 {
+  register uint32 rccdst;	/* Run-Mode Clock Configuration Destination   */
+  register uint32 rcc2dst;	/* Run-Mode Clock Configuration 2 Destination */
 
   VALIDATE(
     ( Mcu_Global.Init == TRUE ),
@@ -320,12 +340,23 @@ void Mcu_DistributePllClock(
     MCU_E_UNINIT
   );
 
+  rccdst = SYSCTL_RCC_R;	/* Read RCC	*/
+  rcc2dst = SYSCTL_RCC2_R;	/* Read RCC2	*/
+
   /* PLL undefined check */
   VALIDATE(
     (
       ( SYSCTL_DC1_R & SYSCTL_DC1_PLL ) &&
-      !( SYSCTL_RCC_R & SYSCTL_RCC_PWRDN ) &&
-      !( SYSCTL_RCC2_R & SYSCTL_RCC2_PWRDN2 )
+      (
+	(
+	  ( rcc2dst & SYSCTL_RCC2_USERCC2 ) && 
+	  !( rcc2dst & SYSCTL_RCC2_PWRDN2 )
+	) ||
+	!(
+	  ( SYSCTL_RCC2_R & SYSCTL_RCC2_USERCC2 ) ||
+	  ( SYSCTL_RCC_R & SYSCTL_RCC_PWRDN )
+	)
+      )
     ),
     MCU_DISTRIBUTEPLLCLOCK_SERVICE_ID,
     MCU_E_PLL_UNDEFINED
@@ -338,8 +369,20 @@ void Mcu_DistributePllClock(
     MCU_E_PLL_NOT_LOCKED
   );
 
-  SYSCTL_RCC_R &= ~SYSCTL_RCC_BYPASS;
-  SYSCTL_RCC2_R &= ~SYSCTL_RCC2_BYPASS2;
+  if (SYSCTL_RCC2_R & SYSCTL_RCC2_USERCC2) {
+    rccdst = SYSCTL_RCC_R;		/* Read RCC */
+    SYSCTL_RCC_R = rccdst;		/* Write RCC */
+    rcc2dst = SYSCTL_RCC2_R;		/* Read RCC2 */
+    rcc2dst &= ~SYSCTL_RCC2_BYPASS2;	/* Remove PLL Bypass */
+    SYSCTL_RCC2_R = rcc2dst;		/* Write RCC2 */
+  }
+  else {
+    rccdst = SYSCTL_RCC_R;		/* Read RCC */
+    rccdst &= ~SYSCTL_RCC_BYPASS;	/* Remove PLL Bypass */
+    SYSCTL_RCC_R = rccdst;		/* Write RCC */
+    rcc2dst = SYSCTL_RCC2_R;		/* Read RCC2 */
+    SYSCTL_RCC2_R = rcc2dst;		/* Write RCC2 */
+  }
 
 }
 #endif
@@ -365,7 +408,17 @@ Mcu_PllStatusType Mcu_GetPllStatus(
   ret = MCU_PLL_STATUS_UNDEFINED;
 #else
   /* PLL present and powered check. */
-  if ( !(SYSCTL_DC1_R & SYSCTL_DC1_PLL) || (SYSCTL_RCC_R & SYSCTL_RCC_PWRDN) )
+  if ( 
+    !( SYSCTL_DC1_R & SYSCTL_DC1_PLL ) ||
+    (
+      ( SYSCTL_RCC2_R & SYSCTL_RCC2_USERCC2 ) && 
+      ( SYSCTL_RCC2_R & SYSCTL_RCC2_PWRDN2 )
+    ) ||
+    (
+      !( SYSCTL_RCC2_R & SYSCTL_RCC2_USERCC2 ) && 
+      ( SYSCTL_RCC_R & SYSCTL_RCC_PWRDN )
+    )
+  )
     ret = MCU_PLL_STATUS_UNDEFINED;
   else if ( SYSCTL_PLLSTAT_R & SYSCTL_PLLSTAT_LOCK )
     ret = MCU_PLL_LOCKED;

@@ -154,101 +154,101 @@ Mcu_ClockSettingConfigType Mcu_ClockSettingConfigData[] =
     0x07C02D51,		/* Run-Mode Clock Configuration		*/
     0x07C02810,		/* Run-Mode Clock Configuration 2	*/
   },
-  /* MCU_CLOCK_MODE_PRIOSC_PLL */
+  /* MCU_CLOCK_MODE_PRIOSC_PLL - NOT VALID */
   {
     2E8,		/* McuClockReferencePointFrequency	*/
-    0x07800651,		/* Run-Mode Clock Configuration		*/
-    0x87C00010,		/* Run-Mode Clock Configuration 2	*/
+    0x07C00551,		/* Run-Mode Clock Configuration		*/
+    0x80400010,		/* Run-Mode Clock Configuration 2	*/
   },
-  /* MCU_CLOCK_MODE_PRIOSC_2_PLL */
+  /* MCU_CLOCK_MODE_PRIOSC_2_PLL - NOT VALID */
   {
     2E8,		/* McuClockReferencePointFrequency	*/
-    0x07800651,		/* Run-Mode Clock Configuration		*/
-    0x07C02810,		/* Run-Mode Clock Configuration 2	*/
+    0x07C00551,		/* Run-Mode Clock Configuration		*/
+    0x80C00010,		/* Run-Mode Clock Configuration 2	*/
   },
   /* MCU_CLOCK_MODE_PRIOSC_3_PLL */
   {
     6.67E7,		/* McuClockReferencePointFrequency	*/
-    0x01400651,		/* Run-Mode Clock Configuration		*/
-    0x07C02810,		/* Run-Mode Clock Configuration 2	*/
+    0x07C00551,		/* Run-Mode Clock Configuration		*/
+    0x81400010,		/* Run-Mode Clock Configuration 2	*/
   },
   /* MCU_CLOCK_MODE_PRIOSC_4_PLL */
   {
     5E7,		/* McuClockReferencePointFrequency	*/
-    0x01C00651,		/* Run-Mode Clock Configuration		*/
-    0x07C02810,		/* Run-Mode Clock Configuration 2	*/
+    0x07C00551,		/* Run-Mode Clock Configuration		*/
+    0x81C00010,		/* Run-Mode Clock Configuration 2	*/
   },
   /* MCU_CLOCK_MODE_PRIOSC_5_PLL */
   {
     4E7,		/* McuClockReferencePointFrequency	*/
-    0x02400651,		/* Run-Mode Clock Configuration		*/
-    0x07C02810,		/* Run-Mode Clock Configuration 2	*/
+    0x07C00551,		/* Run-Mode Clock Configuration		*/
+    0x82400010,		/* Run-Mode Clock Configuration 2	*/
   },
   /* MCU_CLOCK_MODE_PRIOSC_6_PLL */
   {
     3.33E7,		/* McuClockReferencePointFrequency	*/
-    0x02C00651,		/* Run-Mode Clock Configuration		*/
-    0x07C02810,		/* Run-Mode Clock Configuration 2	*/
+    0x07C00551,		/* Run-Mode Clock Configuration		*/
+    0x82C00010,		/* Run-Mode Clock Configuration 2	*/
   },
   /* MCU_CLOCK_MODE_PRIOSC_7_PLL */
   {
     2.86E7,		/* McuClockReferencePointFrequency	*/
-    0x03400651,		/* Run-Mode Clock Configuration		*/
-    0x07C02810,		/* Run-Mode Clock Configuration 2	*/
+    0x07C00551,		/* Run-Mode Clock Configuration		*/
+    0x83400010,		/* Run-Mode Clock Configuration 2	*/
   },
   /* MCU_CLOCK_MODE_PRIOSC_8_PLL */
   {
     2.5E7,		/* McuClockReferencePointFrequency	*/
-    0x03C00651,		/* Run-Mode Clock Configuration		*/
-    0x07C02810,		/* Run-Mode Clock Configuration 2	*/
+    0x07C00551,		/* Run-Mode Clock Configuration		*/
+    0x83C00010,		/* Run-Mode Clock Configuration 2	*/
   },
   /* MCU_CLOCK_MODE_PRIOSC_9_PLL */
   {
     2.22E7,		/* McuClockReferencePointFrequency	*/
-    0x04400651,		/* Run-Mode Clock Configuration		*/
-    0x07C02810,		/* Run-Mode Clock Configuration 2	*/
+    0x07C00551,		/* Run-Mode Clock Configuration		*/
+    0x84400010,		/* Run-Mode Clock Configuration 2	*/
   },
   /* MCU_CLOCK_MODE_PRIOSC_10_PLL */
   {
     2E7,		/* McuClockReferencePointFrequency	*/
-    0x04C00651,		/* Run-Mode Clock Configuration		*/
-    0x07C02810,		/* Run-Mode Clock Configuration 2	*/
+    0x07C00551,		/* Run-Mode Clock Configuration		*/
+    0x84C00010,		/* Run-Mode Clock Configuration 2	*/
   },
   /* MCU_CLOCK_MODE_PRIOSC_11_PLL */
   {
     1.81E7,		/* McuClockReferencePointFrequency	*/
-    0x05400651,		/* Run-Mode Clock Configuration		*/
-    0x07C02810,		/* Run-Mode Clock Configuration 2	*/
+    0x07C00551,		/* Run-Mode Clock Configuration		*/
+    0x85400010,		/* Run-Mode Clock Configuration 2	*/
   },
   /* MCU_CLOCK_MODE_PRIOSC_12_PLL */
   {
     1.67E7,		/* McuClockReferencePointFrequency	*/
-    0x05C00651,		/* Run-Mode Clock Configuration		*/
-    0x07C02810,		/* Run-Mode Clock Configuration 2	*/
+    0x07C00551,		/* Run-Mode Clock Configuration		*/
+    0x85C00010,		/* Run-Mode Clock Configuration 2	*/
   },
   /* MCU_CLOCK_MODE_PRIOSC_13_PLL */
   {
     1.54E7,		/* McuClockReferencePointFrequency	*/
-    0x06400651,		/* Run-Mode Clock Configuration		*/
-    0x07C02810,		/* Run-Mode Clock Configuration 2	*/
+    0x07C00551,		/* Run-Mode Clock Configuration		*/
+    0x86400010,		/* Run-Mode Clock Configuration 2	*/
   },
   /* MCU_CLOCK_MODE_PRIOSC_14_PLL */
   {
     1.43E7,		/* McuClockReferencePointFrequency	*/
-    0x06C00651,		/* Run-Mode Clock Configuration		*/
-    0x07C02810,		/* Run-Mode Clock Configuration 2	*/
+    0x07C00551,		/* Run-Mode Clock Configuration		*/
+    0x86C00010,		/* Run-Mode Clock Configuration 2	*/
   },
   /* MCU_CLOCK_MODE_PRIOSC_15_PLL */
   {
     1.33E7,		/* McuClockReferencePointFrequency	*/
-    0x07400651,		/* Run-Mode Clock Configuration		*/
-    0x07C02810,		/* Run-Mode Clock Configuration 2	*/
+    0x07C00551,		/* Run-Mode Clock Configuration		*/
+    0x87400010,		/* Run-Mode Clock Configuration 2	*/
   },
   /* MCU_CLOCK_MODE_PRIOSC_16_PLL */
   {
     1.25E7,		/* McuClockReferencePointFrequency	*/
-    0x07C00651,		/* Run-Mode Clock Configuration		*/
-    0x07C02810,		/* Run-Mode Clock Configuration 2	*/
+    0x07C00551,		/* Run-Mode Clock Configuration		*/
+    0x87C00010,		/* Run-Mode Clock Configuration 2	*/
   },
 };
 
