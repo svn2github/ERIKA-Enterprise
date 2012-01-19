@@ -63,6 +63,15 @@ void EESCI_flexdmb_lcd_float_inout_line (int line_id, float scicos_lcd_value);
 void EESCI_flexdmb_lcd_uint8_inout_line (int line_id, unsigned char* line, int size);
 void flex_daughter_lcd_inout (int type, void* y_1, void* y_2, int size);
 void flex_daughter_lcd_inout_line (int line_id, int type, void* u, int size);
+
+__INLINE__ void __ALWAYS_INLINE__ _fill_LCD_string(char* str, int len)
+{
+	int i;
+	for(i=len; i<16; i++)
+		str[i] = ' ';
+	str[16] = '\0';
+}
+
 #else
 __INLINE__ void __ALWAYS_INLINE__ flex_daughter_lcd_init (void)
 {}

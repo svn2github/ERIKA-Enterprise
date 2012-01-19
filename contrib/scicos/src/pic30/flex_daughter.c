@@ -56,6 +56,7 @@
 #ifdef __USE_LCD__
 
 #include "stdio.h"
+#include "string.h"
 
 // defined in the dspic_main template
 extern int scicos_lcd_used;
@@ -74,11 +75,13 @@ void flex_daughter_lcd_end(void)
 void EESCI_flexdmb_lcd_float_inout_line (int line_id, float scicos_lcd_value) {
 	if (line_id == 1) {
 		EE_pic30_disableIRQ();
-		sprintf(ee_lcd_line1, "%+.6E", (double)scicos_lcd_value);
+		snprintf(ee_lcd_line1, 16, "%+.6E", (double)scicos_lcd_value);
+		_fill_LCD_string(ee_lcd_line1, strlen(ee_lcd_line1));
 		EE_pic30_enableIRQ();
 	} else if (line_id == 2) {
 		EE_pic30_disableIRQ();
-		sprintf(ee_lcd_line2, "%+.6E", (double)scicos_lcd_value);
+		snprintf(ee_lcd_line2, 16, "%+.6E", (double)scicos_lcd_value);
+		_fill_LCD_string(ee_lcd_line2, strlen(ee_lcd_line2));
 		EE_pic30_enableIRQ();
 	} else
 		return;
@@ -93,12 +96,14 @@ void EESCI_flexdmb_lcd_uint8_inout_line (int line_id, unsigned char* line, int s
 		for (i=0; i<size; i++)
 			ee_lcd_line1[i] = line[i];
 		ee_lcd_line1[size] = '\0';
+		_fill_LCD_string(ee_lcd_line1, strlen(ee_lcd_line1));
 		EE_pic30_enableIRQ();
 	} else if (line_id == 2) {
 		EE_pic30_disableIRQ();
 		for (i=0; i<size; i++)
 			ee_lcd_line2[i] = line[i];
 		ee_lcd_line2[size] = '\0';
+		_fill_LCD_string(ee_lcd_line2, strlen(ee_lcd_line2));
 		EE_pic30_enableIRQ();
 	} else
 		return;
@@ -108,6 +113,8 @@ void EESCI_flexdmb_lcd_float_inout(float scicos_lcd_value1, float scicos_lcd_val
 	EE_pic30_disableIRQ();
 	sprintf(ee_lcd_line1, "%+.6E", (double)scicos_lcd_value1);
 	sprintf(ee_lcd_line2, "%+.6E", (double)scicos_lcd_value2);
+	_fill_LCD_string(ee_lcd_line1, strlen(ee_lcd_line1));
+	_fill_LCD_string(ee_lcd_line2, strlen(ee_lcd_line2));
 	EE_pic30_enableIRQ();
 }
 
@@ -122,6 +129,8 @@ void EESCI_flexdmb_lcd_uint8_inout(unsigned char* line1, unsigned char* line2, i
 	}
 	ee_lcd_line1[size] = '\0';
 	ee_lcd_line2[size] = '\0';
+	_fill_LCD_string(ee_lcd_line1, strlen(ee_lcd_line1));
+	_fill_LCD_string(ee_lcd_line2, strlen(ee_lcd_line2));
 	EE_pic30_enableIRQ();
 }
 
