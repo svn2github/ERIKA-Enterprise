@@ -45,38 +45,44 @@
 	@date 2006-2010
 */
  
- 
-#include "scicos_block.h"
-#include <math.h>
 
-#define max(a,b) ((a) >= (b) ? (a) : (b))
-#define min(a,b) ((a) <= (b) ? (a) : (b))
+#include <machine.h>
+#include <scicos_block4.h>
+
+#include <math.h>
+#include <string.h>
+
+#define GetRealInPortElem(blk,x,y) ((GetRealInPortPtrs(blk, x))[y-1])
+#define GetIparElem(blk,x) (GetIparPtrs(blk)[x-1])
 
 void  mswitch(scicos_block *block,int flag)
 {
   int i,j=0; // j=0 to remove compiler warning
-  i=block->ipar[1];
+  
+  i = GetIparElem(block,2);
   if (i==0) {
-    if (*block->inptr[0]>0) {
-      j=(int)floor(*block->inptr[0]);
+    if (GetRealInPortElem(block,1,1)>0) {
+      j=(int)floor( GetRealInPortElem(block,1,1) );
     }else{
-      j=(int)ceil(*block->inptr[0]);
+      j=(int)ceil( GetRealInPortElem(block,1,1) );
     }
   }else if (i==1) {
-    if (*block->inptr[0]>0) {
-      j=(int)floor(*block->inptr[0]+.5);
+    if (GetRealInPortElem(block,1,1)>0) {
+      j=(int)floor( GetRealInPortElem(block,1,1) +.5);
     }else{
-      j=(int)ceil(*block->inptr[0]-.5);
+      j=(int)ceil( GetRealInPortElem(block,1,1) -.5);
     }
   }else if (i==2) {
-    j=(int)ceil(*block->inptr[0]);
+    j=(int)ceil(  GetRealInPortElem(block,1,1) );
   }else if (i==3) {
-    j=(int)floor(*block->inptr[0]);
+    j=(int)floor( GetRealInPortElem(block,1,1) );
   }
-  j=j+1-block->ipar[0];
+  
+  j=j + 1 - GetIparElem(block,1);
   j=max(j,1);
-  j=min(j,block->nin-1);
-  for (i=0;i<block->insz[j];i++) {
-    block->outptr[0][i]=block->inptr[j][i];
-  }
+  j=min(j,GetNin(block)-1);
+  int num = GetInPortCols(block, j+1) * GetInPortRows(block, j+1) * GetSizeOfIn(block, j+1);
+  void *dst = GetOutPortPtrs(block, 1);
+  void *src = GetInPortPtrs(block, j+1);
+  memcpy( dst, src, num);
 }
