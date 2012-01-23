@@ -95,4 +95,15 @@
 #define	MCU_VAR_FAST
 #define	MCU_VAR
 
+#define	PORT_CODE
+#define	PORT_CONST
+#define	PORT_APPL_DATA
+#define	PORT_APPL_CONST
+#define	PORT_APPL_CODE
+#define	PORT_CALLOUT_CODE
+#define	PORT_VAR_NOINIT
+#define	PORT_VAR_POWER_ON_INIT
+#define	PORT_VAR_FAST
+#define	PORT_VAR
+
 #endif	/* COMPILER_CFG_H */

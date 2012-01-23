@@ -54,6 +54,10 @@ ifeq ($(call iseeopt, __AS_MCU_DRIVER__), yes)
 EE_SRCS += contrib/as/arch/stellaris/keil/drivers/Mcu.c
 endif
 
+ifeq ($(call iseeopt, __AS_PORT_DRIVER__), yes)
+EE_SRCS += contrib/as/arch/stellaris/keil/drivers/Port.c
+endif
+
 endif	# __STELLARIS__ && __KEIL__
 
 endif	# __AUTOSAR_R4_0__
