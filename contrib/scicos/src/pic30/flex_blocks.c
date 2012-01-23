@@ -88,9 +88,9 @@ static void inout(scicos_block *block)
 	else if(type == FLEX_BLOCKS_TYPE_LEDSLCD) {
 		/* LEDs */
 		int i;
-		unsigned char ledv[FLEX_DAUGHTER_NUM_LEDS];
+		unsigned char ledv = 0;
 		for(i=0; i<FLEX_DAUGHTER_NUM_LEDS; i++) {
-			ledv[i] = *(unsigned char *)block->inptr[i];
+			ledv |= (*(unsigned char *)block->inptr[i])? 0x01<<i : 0;
 		}
 		flex_daughter_leds_inout_uint8(ledv);
 

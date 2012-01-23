@@ -298,12 +298,12 @@ void flex_daughter_leds_barrier_inout(float threshold, float *leds_values)
 	}
 }
 
-void flex_daughter_leds_barrier_inout_uint8(unsigned char *leds_values)
+void flex_daughter_leds_barrier_inout_uint8(unsigned char leds_values)
 {
 	int i;
 
 	for (i=FLEX_DAUGHTER_NUM_LEDS-1; i>=0; i--) {
-		if (leds_values[i])
+		if (leds_values & (0x01<<i))
 			flex_daughter_led_switch_on(i+1);
 		else
 			flex_daughter_led_switch_off(i+1);
@@ -325,7 +325,7 @@ void flex_daughter_leds_inout(float threshold, float *leds_values)
 	flex_daughter_leds_barrier_inout(threshold, leds_values);
 }
 
-void flex_daughter_leds_inout_uint8(unsigned char *leds_values)
+void flex_daughter_leds_inout_uint8(unsigned char leds_values)
 {
 	flex_daughter_leds_barrier_inout_uint8(leds_values);
 }

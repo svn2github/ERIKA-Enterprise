@@ -107,18 +107,19 @@ __INLINE__ void __ALWAYS_INLINE__ flex_daughter_button_inout (int pin, void *ptr
 {}
 #endif
 
-#ifdef __USE_LEDS__
 #if defined(__USE_DEMOBOARD__)
 #define FLEX_DAUGHTER_NUM_LEDS 8
 #elif defined(__USE_MOTIONBOARD__)
 #define FLEX_DAUGHTER_NUM_LEDS 2
 #endif
+
+#ifdef __USE_LEDS__
 void flex_daughter_leds_barrier_init (void);
 void flex_daughter_leds_barrier_inout (float threshold, float *leds_values);
 void flex_daughter_leds_barrier_end (void);
 void flex_daughter_leds_init (void);
 void flex_daughter_leds_inout (float threshold, float *leds_values);
-void flex_daughter_leds_inout_uint8(unsigned char *leds_values);
+void flex_daughter_leds_inout_uint8(unsigned char leds_values);
 void flex_daughter_leds_end (void);
 void flex_daughter_led_init (void);
 void flex_daughter_led_inout (int pin, float threshold, float led_value);
@@ -134,7 +135,7 @@ __INLINE__ void __ALWAYS_INLINE__ flex_daughter_leds_init (void)
 {}
 __INLINE__ void __ALWAYS_INLINE__ flex_daughter_leds_inout (float threshold, float *leds_values)
 {}
-__INLINE__ void __ALWAYS_INLINE__ flex_daughter_leds_inout_uint8(unsigned char *leds_values)
+__INLINE__ void __ALWAYS_INLINE__ flex_daughter_leds_inout_uint8(unsigned char leds_values)
 {}
 __INLINE__ void __ALWAYS_INLINE__ flex_daughter_leds_end (void)
 {}
