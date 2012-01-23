@@ -97,7 +97,7 @@
 #endif	/* !PORT_DEV_ERROR_DETECT */
 
 /*
- * Type that holds all global data for Mcu
+ * Type that holds all global data for Port Driver
  */
 typedef struct
 {
@@ -346,7 +346,7 @@ static void Port_InitPortPin(
 }
 
 /*
- * Mcu_Init implementation.
+ * Port_Init implementation.
  */
 void Port_Init(
   const Port_ConfigType *	ConfigPtr
@@ -355,9 +355,9 @@ void Port_Init(
 
   register uint32 pin;
 
-  VALIDATE( ( ConfigPtr != NULL), MCU_INIT_SERVICE_ID, MCU_E_PARAM_CONFIG );
+  VALIDATE( ( ConfigPtr != NULL), PORT_INIT_SERVICE_ID, PORT_E_PARAM_CONFIG );
 
-  VALIDATE( ( Port_CheckCore() != FALSE), MCU_INIT_SERVICE_ID, MCU_E_UNINIT );
+  VALIDATE( ( Port_CheckCore() != FALSE), PORT_INIT_SERVICE_ID, PORT_E_UNINIT );
 
   Port_Global.ConfigPtr = ConfigPtr;
   Port_Global.Init = TRUE;
