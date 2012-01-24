@@ -87,7 +87,7 @@ volatile unsigned char led_status = 0;
 /* just a dummy delay */ 
 void mydelay(long int end)
 {
-  	long int i;
+  	volatile long int i;
   	for (i=0; i<end; i++);
     
   	return;  
@@ -143,89 +143,48 @@ TASK(Task1)
 TASK(Task2)
 {
   static int which_led = 0;
-  //char *msg_tmr =  "ISR_Timer: ";
-  //char *msg_tsk1 = "Task_1: ";
-  //char *msg_btn =  "Button_0: ";
-  //char *msg_tsk2 = "Task_2: ";
-  unsigned char byte = 0;
   
   /* count the number of Task2 activations */
   task2_fired++;
-  if(task2_fired==1)
-  	EE_assert(2, task2_fired==1, 1);
 
   /* let blink leds 6 or 7 */
   if (which_led) 
   {
-	led_status &= (~LED_3);
+    led_status &= (~LED_3);
     EE_led_3_off();
     which_led = 0;
   }
   else 
   {
-	led_status |= LED_3;
-	EE_led_3_on();
+    led_status |= LED_3;
+    EE_led_3_on();
     which_led = 1;
   }
 
-  /* prints a report
-   * Note: after the first printf in main(), then only this task uses printf
-   * In this way we avoid raceconditions in the usage of stdout.
-   */
-  
-  //EE_sci_send_bytes(SCI_0, msg_tmr,ALL);
-  byte = ((timer_fired%1000)/100)+'0';
-  //EE_sci_send_byte(SCI_0,byte);
-  byte = ((timer_fired%100)/10)+'0';
-  //EE_sci_send_byte(SCI_0,byte);
-  byte = (timer_fired%10)+'0';
-  //EE_sci_send_byte(SCI_0,byte);
-  //EE_sci_send_byte(SCI_0,' ');
-
-  //EE_sci_send_bytes(SCI_0, msg_tsk1,ALL);
-  byte = ((task1_fired%1000)/100)+'0';
-  //EE_sci_send_byte(SCI_0,byte);
-  byte = ((task1_fired%100)/10)+'0';
-  //EE_sci_send_byte(SCI_0,byte);
-  byte = (task1_fired%10)+'0';
-  //EE_sci_send_byte(SCI_0,byte);
-  //EE_sci_send_byte(SCI_0,' ');
-
-  //EE_sci_send_bytes(SCI_0, msg_btn,ALL);
-  byte = ((button_fired%1000)/100)+'0';
-  //EE_sci_send_byte(SCI_0,byte);
-  byte = ((button_fired%100)/10)+'0';
-  //EE_sci_send_byte(SCI_0,byte);
-  byte = (button_fired%10)+'0';
-  //EE_sci_send_byte(SCI_0,byte);
-  //EE_sci_send_byte(SCI_0,' ');
-
-  //EE_sci_send_bytes(SCI_0, msg_tsk2,ALL);
-  byte = ((task2_fired%1000)/100)+'0';
-  //EE_sci_send_byte(SCI_0,byte);
-  byte = ((task2_fired%100)/10)+'0';
-  //EE_sci_send_byte(SCI_0,byte);
-  byte = (task2_fired%10)+'0';
-  //EE_sci_send_byte(SCI_0,byte);
-
-  //EE_sci_send_byte(SCI_0,'\n');
   TerminateTask();
 }
  
 static void Buttons_Interrupt(void)
 {
-  EE_buttons_disable_interrupts(BUTTON_0);
-  button_fired++;
-  ActivateTask(Task2);
-  mydelay((long int)5000);
-  EE_buttons_enable_interrupts(BUTTON_0);
-  EE_buttons_clear_ISRflag(BUTTON_0);
+   button_fired++;
+   ActivateTask(Task2);
+   EE_buttons_clear_ISRflag(BUTTON_0);
 }
+
+volatile int timer_divisor = 0;
 
 static void Counter_Interrupt(void)
 {
-  timer_fired++;
-  ActivateTask(Task1);
+  timer_divisor++;
+
+  if (timer_divisor==4000) {
+    timer_divisor = 0;
+    timer_fired++;
+    ActivateTask(Task1);
+  }
+
+  /* reset the decrementer to fire again */
+  EE_e200z7_setup_decrementer(9400);
 }
 
 static void setup_interrupts(void)
@@ -238,43 +197,19 @@ static void setup_interrupts(void)
 
 // MAIN function 
 int main(void)
-{ 
-  EE_assert(1, TRUE, EE_ASSERT_NIL);		
-	
-  /* Analog to digital converter */
-  //EE_adc_init( (unsigned char)ATDRES_8BIT, 0x02 );
-  
-  /* Serial interface */
-  //EE_sci_open(SCI_0,(unsigned long int)EE_BUS_CLOCK,(unsigned long int)9600);
-  
+{
   /* Init devices */
   EE_buttons_init(BUTTON_0,3);
   
   /* Init leds */
   EE_leds_init();
-
-  mydelay(10);
-  
-  message();
   
   setup_interrupts();
   
   /* let's start the multiprogramming environment...*/
   StartOS(OSDEFAULTAPPMODE);
   
-  while(task1_fired==0);
-  EE_assert_range(0,1,3);
-  EE_assert_last();
-  
   /* now the background activities... */
   while(1);
   return 0;
-}
-
-void message(void)
-{
-	char * msg = "I Love OSEK and Erika Enterprise!!!";
-	//EE_sci_send_bytes(SCI_0, msg,ALL);
-	//EE_sci_send_byte(SCI_0,'\n');
-	return;	
 }
