@@ -47,11 +47,6 @@
 #include "myapp.h"
 #include "board/axiom_mpc5674fxmb/inc/ee_board.h"
 
-#include "test/assert/inc/ee_assert.h"
-#define TRUE 1
-/* assertion data */
-EE_TYPEASSERTVALUE EE_assertions[10];
-
 /* insert a stub for the functions not directly supported by __FP__ */
 #ifdef __FP__
 __INLINE__ void __ALWAYS_INLINE__ DisableAllInterrupts(void)
@@ -121,9 +116,7 @@ void led_blink(unsigned char theled)
 TASK(Task1)
 {
   task1_fired++;
-  if(task1_fired==1)
-  	EE_assert(3, task1_fired==1, 2);
-  
+
   /* First half of the christmas tree */
   led_blink(LED_0);
   led_blink(LED_1);
