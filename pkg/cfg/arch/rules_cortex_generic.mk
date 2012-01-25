@@ -120,7 +120,13 @@ CORTEX_MCU_STARTUP = $(LPCXPRESSO_STARTUP)
 CORTEX_MCU_LINKERSCRIPT = $(LPCXPRESSO_LINKERSCRIPT)
 else	# !__LPC12xx__
 CORTEX_MCU_MODEL = LPC12XX
+ifeq ($(call iseeopt, __IAR__), yes)
 CORTEX_MCU_LINKERSCRIPT = $(EEBASE)/pkg/mcu/nxp_lpcxpresso_lpc12xx/src/iar/lpc12xx_flash.icf
+else # __IAR__
+ifeq ($(call iseeopt, __KEIL__), yes)
+CORTEX_MCU_LINKERSCRIPT = $(EEBASE)/pkg/mcu/nxp_lpcxpresso_lpc12xx/src/keil/template.sct
+endif # __KEIL__
+endif # __IAR__
 CORTEX_MCU_STARTUP = $(CRT0_SRCS)
 endif	# __LPC12xx__
 TARGET_NAME = c_m0

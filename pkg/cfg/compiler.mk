@@ -139,9 +139,19 @@ endif
 
 # -------------------------------------------------------------
 
-ifeq ($(and $(call iseeopt, __CORTEX_M0__), $(call iseeopt, __IAR__)), yes)
+#ifeq ($(and $(call iseeopt, __CORTEX_M0__), $(call iseeopt, __IAR__)), yes)
+#include $(EEBASE)/pkg/cfg/arch/cc_cortex_m0_iar.mk
+#endif
+
+ifeq ($(call iseeopt, __CORTEX_M0__), yes)
+ifeq ($(call iseeopt, __IAR__), yes)
 include $(EEBASE)/pkg/cfg/arch/cc_cortex_m0_iar.mk
-endif
+else	# __IAR__
+ifeq ($(call iseeopt, __KEIL__), yes)
+include $(EEBASE)/pkg/cfg/arch/cc_cortex_m0_keil.mk
+endif	# __KEIL__
+endif	# !__IAR__
+endif	# __CORTEX_M0__
 
 ifeq ($(call iseeopt, __CORTEX_M4__), yes)
 ifeq ($(call iseeopt, __CCS__), yes)

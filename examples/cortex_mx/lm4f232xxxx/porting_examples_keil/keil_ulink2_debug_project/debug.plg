@@ -3,15 +3,7 @@
 <pre>
 <h1>µVision Build Log</h1>
 <h2>Project:</h2>
-C:\Erika_Enterprise\examples\cortex_mx\lm4f232xxxx\porting_examples_keil\keil_ulink2_debug_project\debug.uvproj
+F:\area_lavoro\ee\examples\cortex_mx\lm4f232xxxx\porting_examples_keil\keil_ulink2_debug_project\debug.uvproj
 Project File Date:  01/13/2012
 
 <h2>Output:</h2>
-Load "C:\\Erika_Enterprise\\examples\\cortex_mx\\lm4f232xxxx\\porting_examples_keil\\keil_ulink2_debug_project\\debug.AXF" 
-_____^
-*** error 56: cannot open file
-Load "C:\\Erika_Enterprise\\examples\\cortex_mx\\lm4f232xxxx\\porting_examples_keil\\keil_ulink2_debug_project\\debug.AXF" 
-Erase Done.
-Programming Done.
-Verify OK.
-Application running ...

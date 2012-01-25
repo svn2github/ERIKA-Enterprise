@@ -52,7 +52,11 @@
 
 	; Functions declared in this file 
 	EXPORT	EE_switch_context		; void EE_switch_context(void);
+#ifdef __CORTEX_M0__	
+	EXPORT	PendSV_Handler		; void EE_cortex_mx_pendsv_ISR(void);
+#else
 	EXPORT	EE_cortex_mx_pendsv_ISR		; void EE_cortex_mx_pendsv_ISR(void);
+#endif
 	EXPORT	EE_set_switch_context_pri	; void EE_set_switch_context_pri(void);
 	EXPORT	EE_cortex_mx_change_context_active	; EE_UREG EE_cortex_mx_change_context_active;
 
@@ -107,7 +111,11 @@ EE_switch_context
 	BX	LR
 
 ; void EE_cortex_mx_pendsv_ISR(void)
+#ifdef __CORTEX_M0__
+PendSV_Handler
+#else
 EE_cortex_mx_pendsv_ISR
+#endif
 	CPSID	I			; Disable all interrupts except NMI (set PRIMASK)
 					; Build a stack frame to jump into the EE_std_change_context(EE_TID)
 					; at the end of PendSV_Handler.

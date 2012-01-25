@@ -177,7 +177,7 @@ StatusType EE_com_StartCOM(COMApplicationModeType Mode)
 #endif   
    
 #ifdef __USE_STARTCOM_EXTENSION__
-  ret_code = StartCOMExtension();
+  ret_code = StartCOMExtension(); /*This is provided by the application*/
 #endif
    
 #if defined(__COM_CCC0__) || defined(__COM_CCC1__)
