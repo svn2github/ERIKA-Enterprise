@@ -84,6 +84,17 @@
  * 				that are initialized after every reset.
  */
 
+#define	DIO_CODE
+#define	DIO_CONST
+#define	DIO_APPL_DATA
+#define	DIO_APPL_CONST
+#define	DIO_APPL_CODE
+#define	DIO_CALLOUT_CODE
+#define	DIO_VAR_NOINIT
+#define	DIO_VAR_POWER_ON_INIT
+#define	DIO_VAR_FAST
+#define	DIO_VAR
+
 #define	MCU_CODE
 #define	MCU_CONST
 #define	MCU_APPL_DATA
