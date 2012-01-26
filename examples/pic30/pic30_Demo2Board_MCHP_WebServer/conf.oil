@@ -12,7 +12,6 @@ CPU mySystem {
 		EE_OPT = "__C30__";
 		EE_OPT = "__USE_MCHP_TCPIP_531__";
 		
-		CFLAGS = "-I $(PIC30_GCCDIR)/support/h";
 		CFLAGS = "-I ../.";
 		CFLAGS = "-Os";
 		ASFLAGS = "";
