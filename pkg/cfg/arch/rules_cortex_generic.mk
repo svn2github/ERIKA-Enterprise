@@ -153,6 +153,13 @@ endif
 # Add a custom linker script if provided by the user
 LINKDEP += $(CORTEX_MCU_LINKERSCRIPT)
 
+ifeq ($(call iseeopt, __NO_APP__), yes)
+TARGET := $(ERIKALIB) generate_eeopt
+
+# we put the eecfg.c inside the library
+LIBEESRCS += $(OUTBASE)/eecfg.c
+endif
+
 #
 # --------------------------------------------------------------------------
 #
@@ -217,7 +224,6 @@ SOURCEFILE = $(call native_path,$<)
 TARGETFILE = $(call native_path,$@)
 ## 
 
-
 ## Main rules: all clean ##
 
 .PHONY: all clean
@@ -227,7 +233,7 @@ all: make_directories $(ALL_LIBS) $(TARGET)
 	@echo "Compilation terminated successfully!"
 
 clean:
-	@-rm -rf obj *.a *.map *.sim *.$(CG_BIN_EXTENSION) \
+	@-rm -rf obj *.a *.map *.sim workspace *.htm *.$(CG_BIN_EXTENSION) \
 	*.$(CG_OUT_EXTENSION) *.$(CG_OBJDUMP_EXTENSION) *.$(CG_HEX_EXTENSION)
 # deps deps.pre ee_c_m0regs.h
 	@echo "CLEAN";
@@ -328,7 +334,7 @@ endif
 
 #libee.a: $(LIBEEOBJS)
 $(ERIKALIB): $(LIBEEOBJS)
-	@echo "AR  $(ERIKALIB)";
+	@echo "AR    $(ERIKALIB)";
 	$(QUIET)$(EE_AR) $(COMPUTED_OPT_AR) $@ $^
 
 ##
@@ -346,6 +352,20 @@ make_directories: $(OBJDIRS)
 $(OBJDIRS): 
 	@echo "MAKE_DIRECTORIES"
 	$(QUIET)mkdir -p $(OBJDIRS)
+
+# the eeopt file is generated when dealing with ONLY_LIBS!
+#
+# this is a phony because the source code does not depend on this file
+# and its content higly depends on the EEOPT variables...
+#
+.PHONY: generate_eeopt
+generate_eeopt:
+	@echo "GEN   eeopt.h"
+	$(QUIET)for x in $(EEOPT); do \
+		echo \#ifndef $${x}      >> eeopt.h; \
+		echo \#define $${x}      >> eeopt.h; \
+		echo \#endif             >> eeopt.h; \
+	done;
 
 ##
 ## Automatic Generation of dependencies
