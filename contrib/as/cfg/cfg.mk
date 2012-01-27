@@ -42,6 +42,8 @@
 ## Author:  2011,  Giuseppe Serano
 ##
 
+ifneq ($(ENABLE_LIBS), TRUE)
+
 ifeq ($(call iseeopt, __AUTOSAR_R4_0__), yes)
 
 INCLUDE_PATH += $(EEBASE)/contrib/as/include
@@ -65,3 +67,5 @@ endif
 endif	# __STELLARIS__ && __KEIL__
 
 endif	# __AUTOSAR_R4_0__
+
+endif	# ENABLE_LIBS
