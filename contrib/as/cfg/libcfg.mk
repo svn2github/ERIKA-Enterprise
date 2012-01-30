@@ -75,19 +75,40 @@ INCLUDE_PATH += $(EEBASE)/contrib/as/arch/stellaris/keil/include
 ## Add each file individually
 ifeq ($(call iseeopt, __AS_MCU_DRIVER__), yes)
 EE_SRCS_AUTOSAR += contrib/as/arch/stellaris/keil/drivers/Mcu.c
+ifeq ($(call iseeopt, __NO_APP__), yes)
+ifneq ($(filter %Mcu_Cfg.c, $(APP_SRCS)),)
+EE_SRCS_AUTOSAR += $(filter %Mcu_Cfg.c, $(APP_SRCS))
+else
+EE_SRCS_AUTOSAR += $(OUTBASE)/Mcu_Cfg.c
 endif
+endif	# __NO_APP__
+endif	# __AS_MCU_DRIVER__
 
 ifeq ($(call iseeopt, __AS_PORT_DRIVER__), yes)
 EE_SRCS_AUTOSAR += contrib/as/arch/stellaris/keil/drivers/Port.c
+ifeq ($(call iseeopt, __NO_APP__), yes)
+ifneq ($(filter %Port_Cfg.c, $(APP_SRCS)),)
+EE_SRCS_AUTOSAR += $(filter %Port_Cfg.c, $(APP_SRCS))
+else
+EE_SRCS_AUTOSAR += $(OUTBASE)/Port_Cfg.c
 endif
+endif	# __NO_APP__
+endif	# __AS_PORT_DRIVER__
 
 ifeq ($(call iseeopt, __AS_DIO_DRIVER__), yes)
 EE_SRCS_AUTOSAR += contrib/as/arch/stellaris/keil/drivers/Dio.c
-endif
-
 ifeq ($(call iseeopt, __NO_APP__), yes)
-EE_SRCS_AUTOSAR += $(APP_SRCS)
+ifneq ($(filter %Dio_Cfg.c, $(APP_SRCS)),)
+EE_SRCS_AUTOSAR += $(filter %Dio_Cfg.c, $(APP_SRCS))
+else
+EE_SRCS_AUTOSAR += $(OUTBASE)/Dio_Cfg.c
 endif
+endif	# __NO_APP__
+endif	# __AS_DIO_DRIVER__
+
+#~ ifeq ($(call iseeopt, __NO_APP__), yes)
+#~ EE_SRCS_AUTOSAR += $(filter-out eecfg.c, $(APP_SRCS))
+#~ endif
 
 EE_OBJS_AUTOSAR := $(addprefix $(OBJDIR)/, $(patsubst %.c,%.o,$(patsubst %.s,%.o,$(EE_SRCS_AUTOSAR))))
 LIBSRCS += $(EE_SRCS_AUTOSAR)
