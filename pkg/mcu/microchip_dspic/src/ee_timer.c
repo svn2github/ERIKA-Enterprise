@@ -204,19 +204,11 @@ EE_INT8 EE_timer_hard_init(EE_TimerId id, EE_UINT32 period, EE_TimerPrescaleFact
     return error;
 }
 
-volatile EE_UINT32 g_period_us = 0;
-volatile EE_UINT32 g_baseFreq  = 0;
-volatile EE_UINT32 g_ticks     = 0;
-
 EE_INT8 EE_timer_soft_init(EE_TimerId id, EE_UINT32 period_us)
 {
     EE_INT8   error    = EE_TIMER_NO_ERRORS;
-    g_period_us = period_us;
-    period_us   = g_period_us;
-    g_baseFreq  = EE_get_peripheral_clock();
-    volatile EE_UINT32 baseFreq = g_baseFreq;
-    g_ticks = MICROSECONDS_TO_TICKS(period_us, baseFreq);
-    volatile EE_UINT32 ticks = g_ticks;
+    EE_UINT32 baseFreq = EE_get_peripheral_clock();
+    EE_UINT32 ticks = MICROSECONDS_TO_TICKS(period_us, baseFreq);
 
     EE_UINT32 const max_period  = 0xffffUL;
     EE_UINT16 prd; /* Period */

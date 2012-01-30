@@ -253,10 +253,61 @@ void EE_lcd_putc( unsigned char data )
 /*  *************************************************************************\/ */
 
 #ifdef __USE_BUZZER__
+#include "mcu/microchip_dspic/inc/ee_utils.h"
+#include "mcu/microchip_dspic/inc/ee_timer.h"
 
-EE_UINT16 buzzer_freq;
-EE_UINT16 buzzer_ticks;
-EE_UINT16 count;
+EE_UINT32 buzzer_freq;
+
+void EE_buzzer_init( void ) {
+  EE_UINT16 period_us = 1000000UL / (2000);
+  // Initialize Output Compare Module
+  OC1CONbits.OCM = 0b000; // Disable Output Compare Module
+  OC1R = 0; // Write the duty cycle for the first PWM pulse
+  OC1RS = 0; // Write the duty cycle for the second PWM pulse
+  OC1CONbits.OCTSEL = 0; // Select Timer 2 as output compare time base
+  //OC1R = 1250; // Load the Compare Register Value
+  OC1CONbits.OCM = 0b110; // Select the Output Compare mode
+  
+  // Initialize and enable Timer2
+  T2CONbits.TON = 0;   // Disable Timer
+  T2CONbits.TCS = 0;   // Select internal instruction cycle clock
+  T2CONbits.TGATE = 0; // Disable Gated Timer mode
+  T2CONbits.TCKPS = 1; // timer 2 prescaler
+  TMR2 = 0x00;         // Clear timer register
+  EE_UINT32 baseFreq = EE_get_peripheral_clock();
+  EE_UINT32 ticks = MICROSECONDS_TO_TICKS(period_us, baseFreq);
+  PR2 = ticks;         // set timer 2 period 
+  OC1R = PR2 >> 1;     // Write the duty cycle for the first PWM pulse
+  OC1RS = PR2 >> 1;    // Write the duty cycle for the second PWM pulse
+  //EE_timer_start(EE_TIMER_2);
+  IEC0bits.T2IE = 0;   // Disable Timer 2 interrupt
+  buzzer_freq = 2000;
+}
+
+void EE_buzzer_start( EE_UINT32 new_freq ) {
+    if ((new_freq > EE_FLEX_BUZZER_MIN_FREQ) && (new_freq <= EE_FLEX_BUZZER_MAX_FREQ)) {
+        EE_UINT16 period = 1000000UL / (new_freq);
+        /* to get the desired period I have to half the given 
+         * value becauze the timer call back is a toggle function so 
+         * a period is 2 * Tisr long (Tisr: Interrupt Period).
+         */
+        buzzer_freq = new_freq;
+        EE_UINT32 baseFreq = EE_get_peripheral_clock();
+        EE_UINT32 ticks = MICROSECONDS_TO_TICKS(period, baseFreq);
+        PR2 = ticks;
+        OC1R = PR2 >> 1;  // Write the duty cycle for the first PWM pulse
+        OC1RS = PR2 >> 1; // Write the duty cycle for the second PWM pulse
+        T2CONbits.TON = 1;
+    } 
+    else {
+       EE_buzzer_stop();
+    }
+}
+
+void EE_buzzer_stop(void) {
+    buzzer_freq = 0;
+    T2CONbits.TON = 0;
+}
 
 #endif
 

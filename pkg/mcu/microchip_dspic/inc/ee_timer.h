@@ -57,18 +57,6 @@
 
 #include "ee.h"
 
-/** Utility Macro that convert an amount of ms in number of ticks of a given
-    frequency **/
-#define MILLISECONDS_TO_TICKS(X_MS, REF_FREQ_HZ)                            \
-    ((X_MS) * ((REF_FREQ_HZ) / 1000UL))
-
-/** Utility Macro that convert an amount of us in number of ticks of a given
-    frequency **/
-#define MICROSECONDS_TO_TICKS(X_MICROSECS, REF_FREQ_HZ)                     \
-    (((X_MICROSECS) / 1000UL)?                                              \
-        (MILLISECONDS_TO_TICKS(((X_MICROSECS) / 1000UL), (REF_FREQ_HZ))):   \
-        (MILLISECONDS_TO_TICKS((X_MICROSECS), (REF_FREQ_HZ)) / 1000UL))
-
 /** Timer Prescale Factors **/
 typedef enum _EE_TimerPrescaleFactor {
     EE_TIMER_PS1   = 0,

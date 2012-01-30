@@ -938,51 +938,18 @@ __INLINE__ float __ALWAYS_INLINE__ EE_accelerometer_getz( void )
 
 #ifdef __USE_BUZZER__
 
-extern EE_UINT16 buzzer_freq;
-extern EE_UINT16 buzzer_ticks;
-extern EE_UINT16 count;
+#define EE_FLEX_BUZZER_MAX_FREQ 20000UL
+#define EE_FLEX_BUZZER_MIN_FREQ 100UL
 
+extern EE_UINT32 buzzer_freq;
 
-__INLINE__ void __ALWAYS_INLINE__ EE_buzzer_init( void )
-{
-  count=0;
-
-  // Initialize Output Compare Module
-  OC1CONbits.OCM = 0b000; // Disable Output Compare Module
-  OC1R = 300; // Write the duty cycle for the first PWM pulse
-  OC1RS = 1250; // Write the duty cycle for the second PWM pulse
-  OC1CONbits.OCTSEL = 1; // Select Timer 3 as output compare time base
-  OC1R = 1250; // Load the Compare Register Value
-  OC1CONbits.OCM = 0b110; // Select the Output Compare mode
-  // Initialize and enable Timer3
-  T3CONbits.TON = 0; // Disable Timer
-  T3CONbits.TCS = 0; // Select internal instruction cycle clock
-  T3CONbits.TGATE = 0; // Disable Gated Timer mode
-  //T2CONbits.TCKPS = 0b00; // Select 1:1 Prescaler
-  	T3CONbits.TCKPS = 1;
-  TMR3 = 0x00; // Clear timer register
-  PR3 = 2500; // Load the period value
-  IPC2bits.T3IP = 0x01; // Set Timer 3 Interrupt Priority Level
-  IFS0bits.T3IF = 0; // Clear Timer 3 Interrupt Flag
-  IEC0bits.T3IE = 0; // Disable Timer 3 interrupt
-  T3CONbits.TON = 0; //
-}
+void EE_buzzer_start(EE_UINT32 freq);
+void EE_buzzer_stop(void);
+void EE_buzzer_init(void);
 
 __INLINE__ void __ALWAYS_INLINE__ EE_buzzer_set_freq( EE_UINT16 new_freq )
 {
-  buzzer_freq  = new_freq;
-  if ((new_freq > 100) && (new_freq < 48000)) {
-
-    buzzer_freq  = 5000000ul / buzzer_freq;
-    buzzer_ticks = buzzer_freq >> 1;
-
-    OC1R = buzzer_ticks;
-    OC1RS = buzzer_ticks;
-    PR3 = buzzer_freq;
-    if(!T3CONbits.TON)
-      T3CONbits.TON = 1; // Start Timer
-  }
-  else T3CONbits.TON = 0; // Start Timer
+	EE_buzzer_start(new_freq);
 }
 
 __INLINE__ EE_UINT16 __ALWAYS_INLINE__ EE_buzzer_get_freq( void ) {
@@ -990,24 +957,15 @@ __INLINE__ EE_UINT16 __ALWAYS_INLINE__ EE_buzzer_get_freq( void ) {
 }
 
 __INLINE__ void __ALWAYS_INLINE__ EE_buzzer_mute( void ) {
-	/* Stop Timer3 */
-	T3CONbits.TON = 0;
+	EE_buzzer_stop();
 }
 
 __INLINE__ void __ALWAYS_INLINE__ EE_buzzer_unmute( void ) {
-	/* Clear contents of the timer register */
-	TMR3 = 0;
-
-	/* Start Timer3 */
-	T3CONbits.TON = 1;
+	EE_buzzer_start(buzzer_freq);
 }
 
 __INLINE__ void __ALWAYS_INLINE__ EE_buzzer_close( void ) {
-	/* Stop Timer4 */
-	T3CONbits.TON = 0;
-
-	/* Disable Timer4 interrupts */
-	IEC0bits.T3IE = 0;
+	EE_buzzer_stop();
 }
 
 #endif

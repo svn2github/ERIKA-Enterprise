@@ -43,7 +43,8 @@
 	@brief www.scicos.org, www.scicoslab.org
 	@author Roberto Bucher, SUPSI- Lugano
 	@author Simone Mannori, ScicosLab developer
-	@date 2006-2010
+	@author Dario Di Stefano, Evidence Srl
+	@date 2006-2012
 */
  
  
@@ -62,16 +63,27 @@ static void init(scicos_block *block)
 
 static void inout(scicos_block *block)
 {
-	/* Get duty cycle from Scicos block */
-	float * freq = block->inptr[0];
-	
-	//** Set the frequency in Hz 
-	EE_buzzer_set_freq( freq[0] ); 
+    static const EE_UINT32 frequency_span = EE_FLEX_BUZZER_MAX_FREQ - EE_FLEX_BUZZER_MIN_FREQ;
+
+    /* Evaluate new frequency. If IN is equal to Zero don't start it */
+    float new_freq_f = ((float *)block->inptr[0])[0];
+    if(new_freq_f > 0.0F)
+    {
+        /* Saturate IN to 1.0 */
+        if(new_freq_f > 1.0F)
+            new_freq_f = 1.0F;
+        /* Frequency in Hz */
+        EE_UINT32 new_span = new_freq_f * frequency_span;
+        EE_UINT32 new_freq = new_span + EE_FLEX_BUZZER_MIN_FREQ;
+        EE_buzzer_start(new_freq);
+    }
+    else
+        EE_buzzer_stop();
 }
 
 static void end(scicos_block *block)
 {
-	EE_buzzer_close();
+    EE_buzzer_stop();
 }
 
 void flex_daughter_buzzer(scicos_block *block,int flag)
