@@ -75,12 +75,13 @@ void flex_daughter_lcd_end(void)
 void EESCI_flexdmb_lcd_float_inout_line (int line_id, float scicos_lcd_value) {
 	if (line_id == 1) {
 		EE_pic30_disableIRQ();
-		snprintf(ee_lcd_line1, 16, "%+.6E", (double)scicos_lcd_value);
+		//snprintf(ee_lcd_line1, 16, "%+.6E", (double)scicos_lcd_value);
+		snprintf(ee_lcd_line1, 16, "%f", (double)scicos_lcd_value);
 		_fill_LCD_string(ee_lcd_line1, strlen(ee_lcd_line1));
 		EE_pic30_enableIRQ();
 	} else if (line_id == 2) {
 		EE_pic30_disableIRQ();
-		snprintf(ee_lcd_line2, 16, "%+.6E", (double)scicos_lcd_value);
+		snprintf(ee_lcd_line2, 16, "%f", (double)scicos_lcd_value);
 		_fill_LCD_string(ee_lcd_line2, strlen(ee_lcd_line2));
 		EE_pic30_enableIRQ();
 	} else
@@ -111,8 +112,8 @@ void EESCI_flexdmb_lcd_uint8_inout_line (int line_id, unsigned char* line, int s
 
 void EESCI_flexdmb_lcd_float_inout(float scicos_lcd_value1, float scicos_lcd_value2) {
 	EE_pic30_disableIRQ();
-	sprintf(ee_lcd_line1, "%+.6E", (double)scicos_lcd_value1);
-	sprintf(ee_lcd_line2, "%+.6E", (double)scicos_lcd_value2);
+	snprintf(ee_lcd_line1, 16, "%f", (double)scicos_lcd_value1);
+	snprintf(ee_lcd_line2, 16, "%f", (double)scicos_lcd_value2);
 	_fill_LCD_string(ee_lcd_line1, strlen(ee_lcd_line1));
 	_fill_LCD_string(ee_lcd_line2, strlen(ee_lcd_line2));
 	EE_pic30_enableIRQ();
