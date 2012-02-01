@@ -582,7 +582,7 @@ void EE_buzzer_start(EE_UINT16 freq);
 
 /**
     @brief Togle the status of the GPIO pin that driver the buzzer
-        (used as callback for the
+        (used as callback for the timer handler)
 **/
 void EE_buzzer_toggle(void);
 
@@ -630,7 +630,7 @@ __INLINE__ EE_INT8 EE_easylab_adc_init_ch(EE_AdcChId adc_ch_id, EE_Adc_VoltageRe
     @param adc_ch_id (EE_AdcChId): channel's ID to acquire.
     @param value  (EE_UINT16 *): return value pointer.
 
-    @return 0 if no errors happend.
+    @return 0 if no errors happened.
         Otherwise appropriate error value (negative value).
 **/
 __INLINE__ EE_INT8 EE_easylab_adc_get_ch_uint(EE_AdcChId adc_ch_id, EE_UINT16 * value ){
@@ -640,7 +640,7 @@ __INLINE__ EE_INT8 EE_easylab_adc_get_ch_uint(EE_AdcChId adc_ch_id, EE_UINT16 * 
 /**
     @brief Start ADC sampling
 
-    @return 0 if no errors happend.
+    @return 0 if no errors happened.
         Otherwise appropriate error value (negative value).
 
  **/
@@ -651,7 +651,7 @@ __INLINE__ EE_INT8 EE_easylab_adc_start ( ) {
 /**
     @brief Stop ADC sampling
 
-    @return 0 if no errors happend.
+    @return 0 if no errors happened.
         Otherwise appropriate error value (negative value).
 
  **/
