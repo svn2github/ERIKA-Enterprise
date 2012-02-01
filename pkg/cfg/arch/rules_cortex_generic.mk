@@ -154,10 +154,10 @@ endif
 LINKDEP += $(CORTEX_MCU_LINKERSCRIPT)
 
 ifeq ($(call iseeopt, __NO_APP__), yes)
-TARGET := $(ERIKALIB) generate_eeopt
+TARGET := $(ERIKALIB)
 
 # we put the eecfg.c inside the library
-LIBEESRCS += $(OUTBASE)/eecfg.c
+LIBEESRCS += eecfg.c
 endif
 
 #
