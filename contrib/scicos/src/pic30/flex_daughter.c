@@ -313,7 +313,7 @@ void flex_daughter_leds_barrier_inout_uint8(unsigned char leds_values)
 
 void flex_daughter_leds_barrier_end(void)
 {
-	EE_leds(0xFF); 
+	EE_leds_off(); 
 }
 
 void flex_daughter_leds_init(void)
@@ -354,7 +354,7 @@ void flex_daughter_led_inout(int pin, float threshold, float led_value)
 
 void flex_daughter_led_end(void)
 {
-	EE_leds(0xFF); 
+	EE_leds_off(); 
 }
 #endif
 
