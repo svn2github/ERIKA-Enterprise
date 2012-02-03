@@ -3,7 +3,7 @@
 <evidence_example version="1" ID="E200Z7_EE_MONOSTACK_RESOURCE_DEMO">
 
  <category>e200z7</category>
- <title>monostack_resource_demo</title>
+ <title>resource demo</title>
    
  <small_descr>
  A minimal EE demo for the MONOSTACK case with the MPC5674 evaluation board.
@@ -21,7 +21,7 @@
 
  <file_section>
   <file     name="conf.oil"/>
-  <file     name="main.c"/>
+  <file     name="code.c"/>
   <file     name="variables.cmm"/>
  </file_section>
 
