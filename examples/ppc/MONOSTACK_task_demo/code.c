@@ -205,7 +205,6 @@ static void setup_interrupts(void)
   EE_e200z7_enableIRQ();
 }
 
-// MAIN function 
 int main(void)
 {
   /* Init devices */

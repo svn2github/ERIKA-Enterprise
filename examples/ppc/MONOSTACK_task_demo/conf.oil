@@ -42,7 +42,6 @@ CPU test_application {
 
 	OS EE {
 		EE_OPT = "DEBUG";
-		EE_OPT = "__ASSERT__";
 		EE_OPT = "__USE_LEDS__";
 		EE_OPT = "__USE_BUTTONS__";
 		EE_OPT = "__E200ZX_EXECUTE_FROM_RAM__";
