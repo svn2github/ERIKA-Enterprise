@@ -48,10 +48,17 @@
 #define SIU_BASE	0xc3f90000
 
 #define SIU_PCRS	((volatile EE_UINT16 *)SIU_BASE)
+
+/* Leds */
 #define SIU_PCR147	SIU_PCRS[179]
 #define SIU_PCR148	SIU_PCRS[180]
 #define SIU_PCR149	SIU_PCRS[181]
 #define SIU_PCR150	SIU_PCRS[182]
+#define SIU_PCR151	SIU_PCRS[183]
+#define SIU_PCR152	SIU_PCRS[184]
+#define SIU_PCR153	SIU_PCRS[185]
+#define SIU_PCR154	SIU_PCRS[186]
+/* Button */
 #define SIU_PCR450	SIU_PCRS[482]
 
 #define SIU_GPIO	((volatile EE_UINT8 *)(SIU_BASE + 0x0600))
@@ -73,6 +80,10 @@
 #define LED_1	2
 #define LED_2	4
 #define LED_3	8
+#define LED_4	16
+#define LED_5	32
+#define LED_6	64
+#define LED_7	128
 
 __INLINE__ void __ALWAYS_INLINE__ EE_leds_init(void)
 {
@@ -80,10 +91,18 @@ __INLINE__ void __ALWAYS_INLINE__ EE_leds_init(void)
 	SIU_PCR148 = 0x200;
 	SIU_PCR149 = 0x200;
 	SIU_PCR150 = 0x200;
+        SIU_PCR151 = 0x200;
+        SIU_PCR152 = 0x200;
+        SIU_PCR153 = 0x200;
+        SIU_PCR154 = 0x200;
 	SIU_GPIO[147] = 1;
 	SIU_GPIO[148] = 1;
 	SIU_GPIO[149] = 1;
 	SIU_GPIO[150] = 1;
+        SIU_GPIO[151] = 1;
+	SIU_GPIO[152] = 1;
+	SIU_GPIO[153] = 1;
+	SIU_GPIO[154] = 1;
 }
 
 __INLINE__ void __ALWAYS_INLINE__ EE_leds(EE_UREG led)
@@ -92,6 +111,10 @@ __INLINE__ void __ALWAYS_INLINE__ EE_leds(EE_UREG led)
 	SIU_GPIO[148] = (led >> 1) & 1;
 	SIU_GPIO[149] = (led >> 2) & 1;
 	SIU_GPIO[150] = (led >> 3) & 1;
+        SIU_GPIO[151] = (led >> 4) & 1;
+        SIU_GPIO[152] = (led >> 5) & 1;
+        SIU_GPIO[153] = (led >> 6) & 1;
+        SIU_GPIO[154] = (led >> 7) & 1;
 }
 
 __INLINE__ void __ALWAYS_INLINE__ EE_led_set(EE_UREG idx, EE_UREG val)
@@ -107,6 +130,14 @@ __INLINE__ void __ALWAYS_INLINE__ EE_led_set(EE_UREG idx, EE_UREG val)
 #define EE_led_2_off()	EE_led_set(2, 0);
 #define EE_led_3_on()	EE_led_set(3, 1);
 #define EE_led_3_off()	EE_led_set(3, 0);
+#define EE_led_4_on()	EE_led_set(4, 1);
+#define EE_led_4_off()	EE_led_set(4, 0);
+#define EE_led_5_on()	EE_led_set(5, 1);
+#define EE_led_5_off()	EE_led_set(5, 0);
+#define EE_led_6_on()	EE_led_set(6, 1);
+#define EE_led_6_off()	EE_led_set(6, 0);
+#define EE_led_7_on()	EE_led_set(7, 1);
+#define EE_led_7_off()	EE_led_set(7, 0);
 
 #endif
 
