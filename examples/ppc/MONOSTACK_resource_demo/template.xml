@@ -22,7 +22,7 @@
  <file_section>
   <file     name="conf.oil"/>
   <file     name="main.c"/>
-  <file     name="myapp.h"/>
+  <file     name="variables.cmm"/>
  </file_section>
 
 </evidence_example>
