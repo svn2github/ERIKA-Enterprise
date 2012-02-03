@@ -44,78 +44,67 @@
 
 #include "ee.h"
 #include "cpu/e200zx/inc/ee_irq.h"
-#include "myapp.h"
-#include "test/assert/inc/ee_assert.h"
 #include "board/axiom_mpc5674fxmb/inc/ee_board.h"
 
-#define TRUE 1
-/* assertion data */
-EE_TYPEASSERTVALUE EE_assertions[10];
-
 /* Let's declare the tasks identifiers */
-DeclareTask(Task1);
-DeclareTask(Task2);
+DeclareTask(HighTask);
+DeclareTask(LowTask);
 
-volatile int timer_fired=0;
-volatile int button_fired=0;
-volatile int task1_fired=0;
-volatile int task2_fired=0;
-volatile unsigned char led_status = 0;
+volatile int timer_fired;
+volatile int button_fired;
+volatile int taskhigh_fired;
+volatile int tasklow_fired;
+
+/* some prototypes... */
+void mydelay(long int end);
+
 volatile int mycounter=0;
 
 /* just a dummy delay */ 
 void mydelay(long int end)
 {
-  	long int i;
-  	for (i=0; i<end; i++);
-    
-  	return;  
+  volatile long i;
+  for (i=0; i<end; i++);
+  return;  
 }
 
-/* sets and resets a led configuration passed as parameter, leaving the other
- * bits unchanged
- * 
- * Note: led_blink is called both from Task1 and Task2. To avoid race 
- * conditions, we forced the atomicity of the led manipulation using IRQ
- * enabling/disabling. We did not use Resources in this case because the 
- * critical section is -really- small. An example of critical section using 
- * resources can be found in the osek_resource example.
+
+
+/*
+ * This is the Low priority task.
+ * When the task runs, it locks a resource for a -long- time, preventing 
+ * HighTask to preempt.
  */
-void led_blink(unsigned char theled)
+
+TASK(LowTask)
 {
-  DisableAllInterrupts();
-  led_status |= theled;
-  EE_leds(led_status);
-  EnableAllInterrupts();
-
-  mydelay((long int)120000);
-
-  DisableAllInterrupts();
-  led_status &= ~theled;
-  EE_leds(led_status);
-  EnableAllInterrupts();
-}
-
-TASK(Task1)
-{
-  unsigned char j;
-
-  task1_fired++;
-  if(task1_fired==1)
-  	EE_assert(3, task1_fired==1, 2);	
+  tasklow_fired++;
 
   /* Lock the resource */
   GetResource(Resource);
 
-  /* do a long loop, printing the numbers from 0 to 9 */
-  EE_led_0_on();
-  for (j=0; j<10; j++) {
-	mydelay((long int)10000);
-	//EE_sci_send_byte(SCI_0,j+'0');
-	//EE_sci_send_byte(SCI_0,' ');
-  }
-  EE_led_0_off();
-  //EE_sci_send_byte(SCI_0,'\n');
+  /* do something long */
+  EE_led_1_on();
+  mydelay((long int)300000);
+  EE_led_1_off();
+  EE_led_2_on();
+  mydelay((long int)300000);
+  EE_led_2_off();
+  EE_led_3_on();
+  mydelay((long int)300000);
+  EE_led_3_off();
+  EE_led_4_on();
+  mydelay((long int)300000);
+  EE_led_4_off();
+  EE_led_5_on();
+  mydelay((long int)300000);
+  EE_led_5_off();
+  EE_led_6_on();
+  mydelay((long int)300000);
+  EE_led_6_off();
+  EE_led_7_on();
+  mydelay((long int)300000);
+  EE_led_7_off();
   
   /* Release the lock */
   ReleaseResource(Resource);
@@ -125,27 +114,23 @@ TASK(Task1)
 
 
 /* High Priority Task.
- * This task simply decrements the counter depending on the current
+ * This task simply decrements the counter depending on the current 
  * applicationmode, and prints it using printf.
  */
-TASK(Task2)
+TASK(HighTask)
 {
   int i;
   AppModeType currentmode;
-  //char * msg = "My Counter: ";
-  unsigned char byte = 0;
   
-  task2_fired++;
-  if(task2_fired==1)
-  	EE_assert(2, task2_fired==1, 1);
-  
+  taskhigh_fired++;
+
   /* get the current application mode */
   currentmode = GetActiveApplicationMode();
   
   GetResource(Resource);
 
-  EE_led_1_on();
-  mydelay((long int)10000);
+  EE_led_0_on();
+  mydelay((long int)200000);
   
   /* decrement or increment the counter depending on the application mode */
   if ( currentmode==ModeIncrement )
@@ -153,34 +138,32 @@ TASK(Task2)
   else
     mycounter--;
   
-  //EE_sci_send_bytes(SCI_0, msg,ALL);
-  byte = ((mycounter%1000)/100)+'0';
-  //EE_sci_send_byte(SCI_0,byte);
-  byte = ((mycounter%100)/10)+'0';
-  //EE_sci_send_byte(SCI_0,byte);
-  byte = (mycounter%10)+'0';
-  //EE_sci_send_byte(SCI_0,byte);
-  //EE_sci_send_byte(SCI_0,'\n');
-
-  EE_led_1_off();
+  EE_led_0_off();
   ReleaseResource(Resource);
 
   TerminateTask();
 }
 
+volatile int timer_divisor = 0;
+
 static void Counter_Interrupt(void)
 {
-  timer_fired++;
-  ActivateTask(Task1);
+  timer_divisor++;
+
+  if (timer_divisor==4000) {
+    timer_divisor = 0;
+    timer_fired++;
+    ActivateTask(LowTask);
+  }
+
+  /* reset the decrementer to fire again */
+  EE_e200z7_setup_decrementer(40000);
 }
 
 static void Buttons_Interrupt(void)
 {
-  EE_buttons_disable_interrupts(BUTTON_0);
   button_fired++;
-  ActivateTask(Task2);
-  mydelay((long int)5000);
-  EE_buttons_enable_interrupts(BUTTON_0);
+  ActivateTask(HighTask);
   EE_buttons_clear_ISRflag(BUTTON_0);
 }
 
@@ -188,52 +171,31 @@ static void setup_interrupts(void)
 {
   EE_e200z7_register_ISR(46 + 16, Buttons_Interrupt, 1);
   EE_e200z7_register_ISR(10, Counter_Interrupt, 0);
-  EE_e200z7_setup_decrementer(5000000);
+  EE_e200z7_setup_decrementer(20000);
   EE_e200z7_enableIRQ();
 }
 
 int main(void)
 {
   AppModeType startupmode;
-  //char *inc = "Increment mode when Task2 runs!!!";
-  //char *dec = "Decrement mode when Task2 runs!!!";
-  //char *intro = "I Love OSEK and Erika Enterprise!!!";
 
-  EE_assert(1, TRUE, EE_ASSERT_NIL);		
-
-  //EE_sci_open(SCI_0,(unsigned long int)EE_BUS_CLOCK,(unsigned long int)9600);
   EE_buttons_init(BUTTON_0,3);
   EE_leds_init();
-  mydelay(10);
-  //message(intro);
+  EE_leds(0);
 
   /* check if the first button is pressed or not */
   if (EE_button_get_B0()) {
     /* the button is not pressed */
     startupmode = ModeIncrement;
-   // message(inc);
   }
   else {
     /* the button is pressed */
     startupmode = ModeDecrement;
     mycounter = 1000;
-    //message(dec);
   }
 
   setup_interrupts();
   StartOS(startupmode);
  
-  while(task1_fired==0);
-  EE_assert_range(0,1,3);
-  EE_assert_last();
-  
   for (;;);
-}
-
-void message(char* msg)
-{
-	//char * msg = ;
-	//EE_sci_send_bytes(SCI_0, msg,ALL);
-	//EE_sci_send_byte(SCI_0,'\n');
-	return;	
 }
