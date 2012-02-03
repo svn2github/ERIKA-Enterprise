@@ -44,17 +44,10 @@
 
 #include "ee.h"
 #include "cpu/e200zx/inc/ee_irq.h"
-#include "myapp.h"
 
 #define __USE_LEDS__
 #define __USE_BUTTONS__
 #include "board/axiom_mpc5674fxmb/inc/ee_board.h"
-
-#include "test/assert/inc/ee_assert.h"
-
-#define TRUE 1
-/* assertion data */
-EE_TYPEASSERTVALUE EE_assertions[10];
 
 volatile unsigned int ERROR_FLAG = 0;
 
@@ -63,18 +56,18 @@ DeclareTask(Task2);
 DeclareEvent(TimerEvent);
 DeclareEvent(ButtonEvent);
 
-volatile int task1_fired = 0;
-volatile int task2_fired = 0;
-volatile int timer_fired = 0;
-volatile int button_fired = 0;
-volatile int dummit_counter = 0;
+/* some prototypes... */
+void mydelay(unsigned long int del);
+void led_blink(unsigned char theled);
+
+
 volatile int led_status = 0;
 volatile int myErrorCounter;
 
 /* just a dummy delay */ 
 void mydelay(unsigned long int del)
 {
-  int i;
+  volatile long int i;
   for (i=0; i<del; i++);
 }
 
@@ -99,33 +92,27 @@ void led_blink(unsigned char theled)
 /* BUTTON_0 interrupts activate Task2. */
 static void Buttons_Interrupt(void)
 {
-  EE_buttons_disable_interrupts(BUTTON_0);
-  button_fired++;
-
   /* arm an alarm that will activate Task2 */
-  SetRelAlarm(AlarmTask2,EE_STATIC_ALARM_TIME,EE_STATIC_CYCLE_TIME);
+  SetRelAlarm(AlarmTask2,750,0);
 
   /* set an event to wake up Task1 */
   SetEvent(Task1, ButtonEvent);
-  mydelay((long int)3000);
 
   EE_buttons_clear_ISRflag(BUTTON_0);
 }
 
 static void Counter_Interrupt(void)
 {
-  timer_fired++;
   CounterTick(Counter1);
+
+  /* reset the decrementer to fire again */
+  EE_e200z7_setup_decrementer(200000);
 }
 
 TASK(Task1)
 {
   EventMaskType mask;
   
-  task1_fired++;
-  if(task1_fired==1)
-    EE_assert(2, task1_fired==1, 1);
-
   while (1) {
     EE_buttons_clear_ISRflag(BUTTON_0);	
     EE_buttons_enable_interrupts(BUTTON_0);	
@@ -147,11 +134,6 @@ TASK(Task1)
 
 TASK(Task2)
 {
-  /* count the number of Task2 activations */
-  task2_fired++;
-  if(task2_fired==1)
-    EE_assert(3, task2_fired==1, 2);	
-
   led_blink(0x04);
   TerminateTask();
 }
@@ -174,42 +156,21 @@ void StartupHook(void)
   EE_e200z7_register_ISR(46 + 16, Buttons_Interrupt, 1);
 
   EE_e200z7_register_ISR(10, Counter_Interrupt, 0);
-  EE_e200z7_setup_decrementer(100000);
+  EE_e200z7_setup_decrementer(200000);
 }
 
 
 /* MAIN */
 int main(void)
 {
-  EE_assert(1, TRUE, EE_ASSERT_NIL);		
-  /* Serial interface */
-  //EE_SCIOpenCommunication(SCI_0);
-
   /* Init leds */
   EE_leds_init();
 
-  /* just a nice subliminal welcome message :-) */
-  mydelay(1000);
-  //message();
-	
   StartOS(OSDEFAULTAPPMODE);
   EE_e200z7_enableIRQ();
-  
-  while(task2_fired==0);
-  EE_assert_range(0,1,3);
-  EE_assert_last();
 
   /* Background activities, none in this demo! */
-  while(1);
+  for (;;);
   
   return 0;
 }
-
-///* Other functions */
-//void message(void)
-//{
-//	char * msg = "I Love OSEK and Erika Enterprise!!!";
-//	EE_SCISendChars(SCI_0, msg,ALL);
-//	EE_SCISendBuffer(SCI_0,'\n');
-//	return;	
-//}
