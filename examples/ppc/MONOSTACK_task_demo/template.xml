@@ -23,6 +23,7 @@ The demo to tests the BCC1, BCC2, FP conformance class, TaskActivate, Schedule, 
  <file_section>
   <file     name="code.c"/> 
   <file     name="conf.oil"/>
+  <file     name="variables.cmm"/>
  </file_section>
 
 </evidence_example>

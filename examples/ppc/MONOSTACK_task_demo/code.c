@@ -120,7 +120,7 @@ void led_blink(unsigned char theled)
   EE_leds(led_status);
   EnableAllInterrupts();
 
-  mydelay((long int)600000);
+  mydelay((long int)300000);
 
   DisableAllInterrupts();
   led_status &= ~theled;
@@ -144,9 +144,10 @@ TASK(Task1)
 #endif
 
   /* Second half of the christmas tree */
-  led_blink(LED_3);
+  /* we use led 4 5 and 6 because the board has two rows of 4 leds each */
   led_blink(LED_4);
   led_blink(LED_5);
+  led_blink(LED_6);
   
   TerminateTask();
 }
@@ -159,16 +160,14 @@ TASK(Task2)
   /* count the number of Task2 activations */
   task2_fired++;
 
-  /* let blink leds 6 or 7 */
+  /* let blink leds 3 or 7 */
   if (which_led) {
-    led_status &= (~LED_6);
-    EE_led_6_off();
+    led_blink(LED_3);
     which_led = 0;
   }
   else 
   {
-    led_status |= LED_7;
-    EE_led_7_on();
+    led_blink(LED_7);
     which_led = 1;
   }
 
@@ -195,14 +194,14 @@ static void Counter_Interrupt(void)
   }
 
   /* reset the decrementer to fire again */
-  EE_e200z7_setup_decrementer(9400);
+  EE_e200z7_setup_decrementer(40000);
 }
 
 static void setup_interrupts(void)
 {
   EE_e200z7_register_ISR(46 + 16, Buttons_Interrupt, 1);
   EE_e200z7_register_ISR(10, Counter_Interrupt, 0);
-  EE_e200z7_setup_decrementer(100000);
+  EE_e200z7_setup_decrementer(20000);
   EE_e200z7_enableIRQ();
 }
 
