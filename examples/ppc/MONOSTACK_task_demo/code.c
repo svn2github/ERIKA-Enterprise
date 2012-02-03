@@ -44,7 +44,6 @@
 
 #include "ee.h"
 #include "cpu/e200zx/inc/ee_irq.h"
-#include "myapp.h"
 #include "board/axiom_mpc5674fxmb/inc/ee_board.h"
 
 /* insert a stub for the functions not directly supported by __FP__ */
@@ -69,15 +68,32 @@ __INLINE__ void __ALWAYS_INLINE__ StartOS(int i)
 }
 #endif
 
-/* Let's declare the tasks identifiers */
-DeclareTask(Task1);
-DeclareTask(Task2);
-
+/* A few counters incremented at each event 
+ * (alarm, button press or task activation...)
+ */
 volatile int timer_fired=0;
 volatile int button_fired=0;
 volatile int task1_fired=0;
 volatile int task2_fired=0;
+
+/* Let's remember the led status! 
+ * Mutual exclusion on this variable is not included in the demo to make it
+ * not too complicated; in general shared variables should be protected using
+ * GetResource/ReleaseResource calls
+ */
 volatile unsigned char led_status = 0;
+
+
+
+/* Let's declare the tasks identifiers */
+DeclareTask(Task1);
+DeclareTask(Task2);
+
+/* some other prototypes */
+void mydelay(long int end);
+void led_blink(unsigned char theled);
+
+
 
 /* just a dummy delay */ 
 void mydelay(long int end)
@@ -120,6 +136,7 @@ TASK(Task1)
   /* First half of the christmas tree */
   led_blink(LED_0);
   led_blink(LED_1);
+  led_blink(LED_2);
   
   /* CONFIGURATION 3 and 4: we put an additional Schedule() here! */
 #ifdef MYSCHEDULE
@@ -127,30 +144,31 @@ TASK(Task1)
 #endif
 
   /* Second half of the christmas tree */
-  led_blink(LED_2);
+  led_blink(LED_3);
+  led_blink(LED_4);
+  led_blink(LED_5);
   
   TerminateTask();
 }
+
 
 /* Task2: Print the counters on the JTAG UART */
 TASK(Task2)
 {
   static int which_led = 0;
-  
   /* count the number of Task2 activations */
   task2_fired++;
 
   /* let blink leds 6 or 7 */
-  if (which_led) 
-  {
-    led_status &= (~LED_3);
-    EE_led_3_off();
+  if (which_led) {
+    led_status &= (~LED_6);
+    EE_led_6_off();
     which_led = 0;
   }
   else 
   {
-    led_status |= LED_3;
-    EE_led_3_on();
+    led_status |= LED_7;
+    EE_led_7_on();
     which_led = 1;
   }
 
@@ -203,6 +221,7 @@ int main(void)
   StartOS(OSDEFAULTAPPMODE);
   
   /* now the background activities... */
-  while(1);
+  for (;;);
+  
   return 0;
 }

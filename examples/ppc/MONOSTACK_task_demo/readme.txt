@@ -8,5 +8,4 @@ Task demo
 
 The RT-DRUID project contains the following files:
 "conf.oil": Configuration file in OSEK implementation language specific for the application.
-"main.c": Main application file.
-"myapp.h": Header file required by the application. 
+"code.c": Main application file.
