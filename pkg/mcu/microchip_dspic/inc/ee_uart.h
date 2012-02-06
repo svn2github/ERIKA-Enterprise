@@ -108,6 +108,7 @@ __INLINE__ EE_BIT EE_uart_byte_available(EE_UINT8 port)
     @brief Critical Section macros
     @ {
 **/
+#ifdef USE_UART_CRITICAL_SECTIONS
 #if defined(__dsPIC33F__)
 #   define CRITICAL_SECTION_UART1_RXSTART()  do{ IEC0bits.U1RXIE = 0; }while(0)
 #   define CRITICAL_SECTION_UART1_RXEND()    do{ IEC0bits.U1RXIE = 1; }while(0)
@@ -116,6 +117,7 @@ __INLINE__ EE_BIT EE_uart_byte_available(EE_UINT8 port)
 #else 
 #   error "Unsupported Architecture"
 #endif
+#endif /* USE_UART_CRITICAL_SECTIONS */
 /** @} **/
 
 #endif /*__INCLUDE_MICROCHIP_DSPIC_UART_H__ */

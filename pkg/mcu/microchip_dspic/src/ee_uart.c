@@ -469,19 +469,23 @@ volatile EE_UINT32 uart_ferrcnt = 0;
 #endif /* DEBUG */
 void __attribute__((__interrupt__,__auto_psv__)) _U1ErrInterrupt(void)
 {
-    EE_UINT8 data_in = 0;
+    EE_UINT8 data_in = 0U;
 
     /* Clear interrupt flag */
-    IFS4bits.U1EIF = 0;
+#if defined(__dsPIC33F__)
+    IFS4bits.U1EIF = 0U;
+#elif defined(__PIC24F__)
+    IFS4bits.U1ERIF = 0U;
+#endif /* Because at microchip know how to make the things easy */
 
     #if (defined __DEBUG) || (defined DEBUG)
-    if(U1STAbits.FERR == 1)
+    if(U1STAbits.FERR == 1U)
         uart_ferrcnt++;
     #endif
 
-    if(U1STAbits.OERR == 1){
+    if(U1STAbits.OERR == 1U){
         /* Clear error flag */
-        U1STAbits.OERR = 0;
+        U1STAbits.OERR = 0U;
 
         #if (defined __DEBUG) || (defined DEBUG)
         uart_errcnt++;

@@ -58,22 +58,26 @@
 #if defined(__EE_UART_PORT1_CBUFFER__)
 
 #define EE_CBUF_UART_PORT EE_UART_PORT_1
-#if !defined(EE_UART_PORT_1_ISR_ENABLE)
-#error "You must define EE_UART_PORT_1_ISR_ENABLE as compilation define to work with ee_uart_cbuffer driver"
+
+#ifndef EE_UART_PORT_1_ISR_ENABLE
+#error "You MUST define EE_UART_PORT_1_ISR_ENABLE as compilation define\
+ to work with ee_uart_cbuffer driver in UART Port 1"
 #endif
 
 #elif defined(__EE_UART_PORT2_CBUFFER__)
 
 #define EE_CBUF_UART_PORT EE_UART_PORT_2
-#if !defined(EE_UART_PORT_2_ISR_ENABLE)
-#error "You must define EE_UART_PORT_2_ISR_ENABLE as compilation define to work with ee_uart_cbuffer driver"
+
+#ifndef EE_UART_PORT_2_ISR_ENABLE
+#error "You MUST define EE_UART_PORT_2_ISR_ENABLE as compilation define\
+ to work with ee_uart_cbuffer driver in UART Port 2"
 #endif
 
-#else
+#else /* !__EE_UART_PORT1_CBUFFER__ && !__EE_UART_PORT2_CBUFFER__ */
 
 #error "UART port not specified or not supported by CBUFFER!"
 
-#endif
+#endif /* __EE_UART_PORT1_CBUFFER__ || __EE_UART_PORT2_CBUFFER__ */
 
 #ifndef UART_CBUFFER_RX_BUFFER_SIZE
 #define UART_CBUFFER_RX_BUFFER_SIZE 64
@@ -82,6 +86,10 @@
 #ifndef UART_CBUFFER_TX_BUFFER_SIZE
 #define UART_CBUFFER_TX_BUFFER_SIZE 64
 #endif /* UART_CBUFFER_RX_BUFFER_SIZE */
+
+#ifndef USE_UART_CRITICAL_SECTIONS
+#define USE_UART_CRITICAL_SECTIONS
+#endif /* USE_UART_CRITICAL_SECTIONS */
 
 #include "ee_uart.h"
 #include "ee_cbuffer.h"
