@@ -38,13 +38,14 @@
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
 
-/*
- * AUTOSAR Standard Types Header File.
+/** @file	Std_Types.h
+ *  @brief	AUTOSAR Standard Types Header File.
  *
- * It contains all the types that are used across several modules of the basic
- * software and that are platform and compiler independend.
+ *  This file contains all the types that are used across several modules of the
+ *  basic software and that are platform and compiler independend.
  *
- * Author:  2011,  Giuseppe Serano
+ *  @author	Giuseppe Serano
+ *  @date	2011
  */
 
 
@@ -63,54 +64,89 @@
 #include "Platform_Types.h"
 #include "Compiler.h"
 
-/*
- * STD0005
+/** @brief	Standard Return Type
+ *
+ *  <b>STD005:</b> This type can be used as standard API return type which is
+ *  shared between the RTE and the BSW modules.
+ *
+ *  <b>STD011:</b> The <tt>Std_ReturnType</tt> shall normally be used with value
+ *  <tt>E_OK</tt> or <tt>E_NOT_OK</tt>. If those  return values are not
+ *  sufficient user specific values can be defined by using the 6 least specific
+ *  bits.
+ *
+ *  Layout of the <tt>Std_ReturnType</tt> shall be as stated in the RTE
+ *  specification. Bit 7 and Bit 8 are reserved and defined by the RTE
+ *  specification.
+ *
  */
 typedef	uint8	Std_ReturnType;
 
-/*
- * STD006:	Because E_OK is already defined within OSEKm the symbol E_OK has
- *		to be shared.
- */
 #ifndef	STATUSTYPEDEFINED
-#define	STATUSTYPEDEFINED
-#define	E_OK		0x00
+#define	STATUSTYPEDEFINED	/**< OSEK compliance */
+#define	E_OK		0x00	/**< OK		     */
+
+/** @brief	OSEK compliance
+ *
+ *  <b>STD006:</b> Because <tt>E_OK</tt> is already defined within OSEKm the
+ *  symbol <tt>E_OK</tt> has to be shared. To avoid name clashes and
+ *  redefinition problems, the symbols have to be defined in the following way
+ *  (approved within implementation):<br>
+ *  <code>
+ *    \#ifndef STATUSTYPEDEFINED<br>
+ *    \#define STATUSTYPEDEFINED<br>
+ *    \#define E_OK 0x00<br>
+ *    typedef unsigned char StatusType;<br>
+ *    \#endif<br>
+ *    \#define E_NOT_OK 0x01
+ *  </code>
+ */
 typedef	unsigned char	StatusType;	/* OSEK compliance */
 #endif
-#define	E_NOT_OK	0x01
+#define	E_NOT_OK	0x01	/**< NOT OK	      */
 
 /*
- * STD007
+ * STD007:	The symbols STD_HIGH and STD_LOW shall be defined as follows:
  */
-#define	STD_LOW		0x00	/* Physical state 0V         */
-#define	STD_HIGH	0x01	/* Physical state 5V or 3.3V */
+#define	STD_LOW		0x00	/**< Physical state 0V         */
+#define	STD_HIGH	0x01	/**< Physical state 5V or 3.3V */
 
 /*
- * STD010
+ * STD010:	The symbols STD_ON and STD_OFF shall be defined as follows:
  */
-#define	STD_OFF		0x00
-#define	STD_ON		0x01
-/*
- * STD013
- */
-#define	STD_IDLE	0x00	/* Logical state idle   */
-#define	STD_ACTIVE	0x01	/* Logical state active */
+#define	STD_OFF		0x00	/**< OFF */
+#define	STD_ON		0x01	/**< ON  */
 
 /*
- * STD015
+ * STD013	The symbols STD_ACTIVE and STD_IDLE shall be defined as follows:
+ */
+#define	STD_IDLE	0x00	/**< Logical state idle   */
+#define	STD_ACTIVE	0x01	/**< Logical state active */
+
+/** @brief	Standar Version Informations Type
+ *
+ *  <b>STD015:</b> This type shall be used to request the version of a BSW
+ *  module using the <tt>\<Module name\>_GetVersionInfo()</tt> function.
  */
 typedef	struct
 {
-  uint16	vendorID;
-  uint16	moduleID;
-  uint8		sw_major_version;
-  uint8		sw_minor_version;
-  uint8		sw_patch_version;
-/*  uint8		ar_major_version;
-  uint8		ar_minor_version;
-  uint8		ar_patch_version; */
+  uint16	vendorID;		/**< Vendor Identifier.		    */
+  uint16	moduleID;		/**< Module Identifier.		    */
+  uint8		sw_major_version;	/**< Software Version Major Number. */
+  uint8		sw_minor_version;	/**< Software Version Minor Number. */
+  uint8		sw_patch_version;	/**< Software Version Patch Number. */
 } Std_VersionInfoType;
 
+/*uint8		ar_major_version;*/	/* AUTOSAR Version Major Number. */
+/*uint8		ar_minor_version;*/	/* AUTOSAR Version Minor Number. */
+/*uint8		ar_patch_version;*/	/* AUTOSAR Version Patch Number. */
+
+
+/** @brief	Standard Version Informations Retrieval Macro Function.
+ *  @param	_vi	Standard Version Informations Type Pointer.
+ *  @param	_module	<tt>\<Module name\></tt> Macro.
+ *
+ *  Macro Function used to implement <tt>\<Module name\>_GetVersionInfo()</tt>.
+ */
 #define	STD_GET_VERSION_INFO(_vi,_module) \
 	if(_vi != NULL) \
 	{\
@@ -120,7 +156,9 @@ typedef	struct
 		((_vi)->sw_minor_version = _module ## _SW_MINOR_VERSION);\
 		((_vi)->sw_patch_version = _module ## _SW_PATCH_VERSION);\
 	}
-/*		((_vi)->ar_major_version = _module ## _AR_MAJOR_VERSION);\
+/*
+		((_vi)->ar_major_version = _module ## _AR_MAJOR_VERSION);\
 		((_vi)->ar_minor_version = _module ## _AR_MINOR_VERSION);\
-		((_vi)->ar_patch_version = _module ## _AR_PATCH_VERSION);\ */
+		((_vi)->ar_patch_version = _module ## _AR_PATCH_VERSION);\
+*/
 #endif	/* STD_TYPES_H */

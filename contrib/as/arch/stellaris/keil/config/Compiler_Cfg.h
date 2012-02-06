@@ -38,14 +38,16 @@
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
 
-/*
- * fake-druid AUTOSAR Compiler Configuration Header File.
+/** @file	Compiler_Cfg.h
+ *  @brief	fake-druid AUTOSAR Compiler Configuration Header File.
  *
- * COMPILER055
- * It contains all the module/component specific parameters (ptrclass and
- * memclass) that are passed to the macros defined in Compiler.h.
+ *  <b>COMPILER055:</b> This file contains all the module/component specific
+ *  parameters (<tt>ptrclass</tt> and <tt>memclass</tt>) that are passed to the
+ *  macros defined in Compiler.h for Texas Instruments Stellaris LM4F232XXXX and
+ *  Keil compiler.
  *
- * Author:  2011,  Giuseppe Serano
+ *  @author	Giuseppe Serano
+ *  @date	2011
  */
 
 #ifndef	COMPILER_CFG_H
@@ -59,7 +61,7 @@
 
 /*
  * <MSN>_CODE:			To be used for code.
- * <MSN>_CONST:			To be used for global or ststic constants.
+ * <MSN>_CONST:			To be used for global or static constants.
  * <MSN>_APPL_DATA:		To be used for references on application data
  * 				(expected to be in RAM or ROM) passed via API.
  * <MSN>_APPL_CONST:		To be used for references on application
