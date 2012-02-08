@@ -43,9 +43,7 @@ CPU mySystem {
     OS myOs {
 
     #ifndef __NO_MALLOC__
-        LDFLAGS = "--heap=8000";
-    #else
-        LDFLAGS = "--heap=512";
+        LDFLAGS = "--heap=2048";
     #endif // __NO_MALLOC__
 
         CPU_DATA = PIC30 {
