@@ -21,10 +21,4 @@ enum assertions {
 	asr_dim
 };
 
-/* Used for acknowledging events */
-extern volatile int EE_SHARED_UDATA send_event;
-
-/* Final result */
-extern int EE_SHARED_UDATA result;
-
 #endif /* SHARED_H */

@@ -75,6 +75,7 @@ typedef EE_UINT32 EE_FREG;
 
 /* Thread IDs */
 typedef EE_INT32 EE_TID;
+typedef EE_UINT32 EE_UTID;
 
 /* Callbacks with no parameters nor return value */
 typedef void (*EE_VOID_CALLBACK)(void);

@@ -58,15 +58,11 @@
 //#else
 void EE_oo_GetTaskID(TaskRefType TaskID)
 {
-#ifdef __OO_ORTI_SERVICETRACE__
-  EE_ORTI_servicetrace = EE_SERVICETRACE_GETTASKID+1U;
-#endif
+  EE_ORTI_set_service_in(EE_SERVICETRACE_GETTASKID);
 
   *TaskID = EE_stk_queryfirst();
 
-#ifdef __OO_ORTI_SERVICETRACE__
-  EE_ORTI_servicetrace = EE_SERVICETRACE_GETTASKID;
-#endif
+  EE_ORTI_set_service_out(EE_SERVICETRACE_GETTASKID);
 }
 //#endif
 #endif

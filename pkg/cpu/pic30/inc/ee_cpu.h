@@ -72,6 +72,7 @@ typedef	EE_UINT16 EE_FREG;
 
 /* Thread IDs */
 typedef	EE_SREG EE_TID;
+typedef	EE_UREG EE_UTID;
 #define	TID_IS_STACKED_MARK	0x8000
 
 /* EE_TYPEIRQ is currently unused */
@@ -118,7 +119,7 @@ extern	EE_UINT32 EE_terminate_data[];
 
 /* this is the real thread body that is called if the thread use the
    TerminateTask function */
-extern	const EE_FADDR EE_terminate_real_th_body[];
+extern const EE_THREAD_PTR EE_terminate_real_th_body[];
 
 /* this is the stub that have to be put into the EE_th_body array */
 extern	void EE_oo_thread_stub(void);

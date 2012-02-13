@@ -51,7 +51,7 @@ ISRType GetISRID(void)
 	EE_UREG irqnest;
 	EE_ORTI_ext_set_service_in(EE_SERVICETRACE_GETISRID);
 	irqnest = EE_hal_get_IRQ_nesting_level();
-	if (irqnest > 0) {
+	if (irqnest > 0U) {
 		/* Inside an IRQ handler */
 		irq = EE_as_ISR_stack[irqnest - 1U].ISR_Terminated;
 	} else {

@@ -55,7 +55,7 @@ EE_TID EE_rq_queryfirst(void)
 #if defined(__OO_ECC2__)
   /* lookup at bits 15-9 */
   x = EE_rq_lookup[(EE_rq_bitmask & 0xFF00U) >> 8];
-  if (x == -1) {
+  if (x == (EE_INT8)-1) {
     x = EE_rq_lookup[EE_rq_bitmask];
   } else {
     x += (EE_INT8)8;
@@ -65,7 +65,7 @@ EE_TID EE_rq_queryfirst(void)
 #endif
 
   /* now x contains the highest priority non-empty queue number */
-  if (x == -1) {
+  if (x == (EE_INT8)-1) {
     return EE_NIL;
   } else {
     return EE_rq_pairs_tid[EE_rq_queues_head[x]];

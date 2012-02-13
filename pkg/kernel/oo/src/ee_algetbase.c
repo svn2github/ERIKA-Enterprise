@@ -53,45 +53,27 @@
 #ifndef __PRIVATE_GETALARMBASE__
 #ifdef __OO_EXTENDED_STATUS__
 StatusType EE_oo_GetAlarmBase(AlarmType AlarmID, AlarmBaseRefType Info)
-#else
+#else /* __OO_EXTENDED_STATUS__ */
 void EE_oo_GetAlarmBase(AlarmType AlarmID, AlarmBaseRefType Info)
-#endif
+#endif /* __OO_EXTENDED_STATUS__ */
 {
   register const EE_oo_counter_ROM_type *c;
-#if defined (__OO_EXTENDED_STATUS__) && defined ( __OO_HAS_ERRORHOOK__)
-  register EE_FREG np_flags;
-#endif
+  register StatusType retVal;
+  register EE_FREG flag;
 
-#ifdef __OO_ORTI_SERVICETRACE__
-  EE_ORTI_servicetrace = EE_SERVICETRACE_GETALARMBASE+1U;
-#endif
-
+  EE_ORTI_set_service_in(EE_SERVICETRACE_GETALARMBASE);
 
 #ifdef __OO_EXTENDED_STATUS__
-  if (AlarmID < 0 || AlarmID >= EE_MAX_ALARM) {
-#ifdef __OO_ORTI_LASTERROR__
-    EE_ORTI_lasterror = E_OS_ID;
-#endif
+  if ((AlarmID < 0) || (AlarmID >= EE_MAX_ALARM)) {
 
+    EE_ORTI_set_lasterror(E_OS_ID);
+    
     /* Kernel mutual exclusion needed only here */
-#ifdef __OO_HAS_ERRORHOOK__
-    np_flags = EE_hal_begin_nested_primitive();
-    if (!EE_ErrorHook_nested_flag) {
-#ifndef __OO_ERRORHOOK_NOMACROS__
-      EE_oo_ErrorHook_ServiceID = OSServiceId_GetAlarmBase;
-      EE_oo_ErrorHook_data.GetAlarmBase_prm.AlarmID = AlarmID;
-      EE_oo_ErrorHook_data.GetAlarmBase_prm.Info = Info;
-#endif
-      EE_ErrorHook_nested_flag = 1U;
-      ErrorHook(E_OS_ID);
-      EE_ErrorHook_nested_flag = 0U;
-    }
-    EE_hal_end_nested_primitive(np_flags);
-#endif
+    flag = EE_hal_begin_nested_primitive();
+    EE_oo_notify_error_GetAlarmBase(AlarmID, Info, E_OS_ID);
+    EE_hal_end_nested_primitive(flag);
 
-#ifdef __OO_ORTI_SERVICETRACE__
-    EE_ORTI_servicetrace = EE_SERVICETRACE_GETALARMBASE;
-#endif
+    EE_ORTI_set_service_out(EE_SERVICETRACE_GETALARMBASE);
 
     return E_OS_ID;
   }
@@ -99,18 +81,33 @@ void EE_oo_GetAlarmBase(AlarmType AlarmID, AlarmBaseRefType Info)
 
   /* Fill the informations required */
   c = &EE_counter_ROM[EE_alarm_ROM[AlarmID].c];
-  Info->maxallowedvalue = c->maxallowedvalue;
-  Info->ticksperbase = c->ticksperbase;
-#ifdef __OO_EXTENDED_STATUS__
-  Info->mincycle = c->mincycle;
-#endif
 
-#ifdef __OO_ORTI_SERVICETRACE__
-  EE_ORTI_servicetrace = EE_SERVICETRACE_GETALARMBASE;
+  if (Info != (AlarmBaseRefType)NULL) {
+    Info->maxallowedvalue = c->maxallowedvalue;
+    Info->ticksperbase = c->ticksperbase;
+#ifdef __OO_EXTENDED_STATUS__
+    Info->mincycle = c->mincycle;
 #endif
+    retVal = E_OK;
+  } else {
+    /* OS566: The Operating System API shall check in extended mode all pointer
+        argument for NULL pointer and return OS_E_PARAMETER_POINTER 
+        if such argument is NULL.
+    */
+    EE_ORTI_set_lasterror(E_OS_PARAMETER_POINTER);
+
+    /* Kernel mutual exclusion needed only here */
+    flag = EE_hal_begin_nested_primitive();
+    EE_oo_notify_error_GetAlarmBase(AlarmID, Info, E_OS_PARAMETER_POINTER);
+    EE_hal_end_nested_primitive(flag);
+
+    retVal = E_OS_PARAMETER_POINTER;
+  }
+
+  EE_ORTI_set_service_out(EE_SERVICETRACE_GETALARMBASE);
 
 #ifdef __OO_EXTENDED_STATUS__
-  return E_OK;
+  return retVal;
 #endif
 }
-#endif
+#endif /* !__PRIVATE_GETALARMBASE__ */

@@ -45,7 +45,13 @@
 
 #include <ee_internal.h>
 
+#ifdef USE_PRAGMAS
+#pragma section PRAGMA_SECTION_BEGIN_SYS_STACK
+EE_STACK_T EE_e200zx_sys_stack[EE_STACK_WLEN(EE_SYS_STACK_SIZE)];
+#pragma section PRAGMA_SECTION_END_SYS_STACK
+#else
 EE_STACK_T EE_STACK_ATTRIB EE_e200zx_sys_stack[EE_STACK_WLEN(EE_SYS_STACK_SIZE)];
+#endif
 
 #ifndef __PPCE200Z0__
 /* e200z0 has no internal timer, so the functions below are not defined */
@@ -109,7 +115,7 @@ void EE_e200zx_delay(EE_UINT32 ticks)
 	start = EE_e200zx_get_tbl();
 	/* (EE_e200zx_get_tbl() - start) is always the number of ticks from the
 	 * beginning, even if a wrap-around has occurred. */
-	while (EE_e200zx_get_tbl() - start < ticks) {
+	while ((EE_e200zx_get_tbl() - start) < ticks) {
 		/* Wait */
 	}
 }
@@ -135,32 +141,82 @@ int EE_cpu_startos(void)
 
 
 #ifdef __EE_MEMORY_PROTECTION__
+/*
+ * MISRA NOTE: This function is a workaround to provide
+ * the capability to access arrays as a real arrays
+ * although it is declared as pointer.
+ * This solution prevents from misra error:
+ * "pointer arithmetic by increment or decrement used"
+ */
+#if defined(RTDRUID_CONFIGURATOR_NUMBER) \
+ && (RTDRUID_CONFIGURATOR_NUMBER >= RTDRUID_CONFNUM_STACK_IN_APP_SEC_INFO)
+static void copy_mem(EE_UINT32 dest_data[], const EE_UINT32 *dest_end, \
+		const EE_UINT32 src_data[], EE_UINT32 bss[], \
+                const EE_UINT32 *bss_end, EE_UINT32 stack[], \
+                const EE_UINT32 *stack_end)
+#else
+static void copy_mem(EE_UINT32 dest_data[], const EE_UINT32 *dest_end, \
+		const EE_UINT32 src_data[], EE_UINT32 bss[], \
+                const EE_UINT32 bss_end[])
+#endif
+{
+	EE_UINT32 i = 0U;
+        if ((dest_end != NULL) && (bss_end != NULL)) {
+	        while (&dest_data[i] < dest_end) {
+		        dest_data[i] = src_data[i];
+		        i++;
+	        }
+
+#if defined(RTDRUID_CONFIGURATOR_NUMBER) \
+ && (RTDRUID_CONFIGURATOR_NUMBER >= RTDRUID_CONFNUM_STACK_IN_APP_SEC_INFO)
+                i = 0U;
+                if (stack_end != NULL) {
+                        while (&stack[i] < stack_end) {
+                                /* Stack fill pattern */
+		                stack[i] = 0xa5a5a5a5U;
+		                i++;
+	                }
+                }
+#endif
+
+	        i = 0U;
+	        while (&bss[i] < bss_end) {
+		        bss[i] = 0U;
+		        i++;
+	        }
+        }
+}
+
 void EE_hal_app_init(const EE_APP_SEC_INFO_T *app_info)
 {
 	const EE_UINT32 *src_data;
 	EE_UINT32 *dest_data;
-	EE_UINT32 *dest_end;
+	const EE_UINT32 *dest_end;
 	EE_UINT32 *bss;
-	EE_UINT32 *bss_end;
+	const EE_UINT32 *bss_end;
+        
+	EE_UINT32 *stack_start;
+        const EE_UINT32 *stack_end;
 
-	src_data = (const EE_UINT32 *)(app_info->data_flash);
-	dest_data = (EE_UINT32 *)(app_info->data_ram);
-	dest_end = (EE_UINT32 *)(app_info->bss_start);
-	while (dest_data < dest_end) {
-		*dest_data = *src_data;
-		dest_data++;
-		src_data++;
-	}
+	if (app_info != NULL) {
+		src_data = (const EE_UINT32 *)(app_info->data_flash);
+		dest_data = (EE_UINT32 *)(app_info->data_ram);
+		dest_end = (EE_UINT32 *)(app_info->bss_start);
 
-	bss = (EE_UINT32 *)(app_info->bss_start);
-	bss_end = (EE_UINT32 *)(app_info->bss_end);
-	while (bss < bss_end) {
-		*bss = 0U;
-		bss++;
+		bss = (EE_UINT32 *)(app_info->bss_start);
+		bss_end = (EE_UINT32 *)(app_info->bss_end);
+#if defined(RTDRUID_CONFIGURATOR_NUMBER) \
+ && (RTDRUID_CONFIGURATOR_NUMBER >= RTDRUID_CONFNUM_STACK_IN_APP_SEC_INFO)
+                stack_start = (EE_UINT32 *)(app_info->stack_start);
+                stack_end = (EE_UINT32 *)(app_info->data_ram);
+                copy_mem(dest_data, dest_end, src_data, bss, bss_end, \
+                                stack_start, stack_end);
+#else
+		copy_mem(dest_data, dest_end, src_data, bss, bss_end);
+#endif
 	}
 }
 #endif /* __EE_MEMORY_PROTECTION__ */
-
 
 /*
  * MMU setup
@@ -207,7 +263,7 @@ __INLINE__ void __ALWAYS_INLINE__ mmu_write_sync(void)
 #endif /* else if __DCC__ */
 
 
-void EE_e200zx_mmu_setup(const EE_MMU_ENTRY_T *entries, EE_UREG count)
+void EE_e200zx_mmu_setup(const EE_MMU_ENTRY_T entries[], EE_UREG count)
 {
 	EE_UREG i;
 

@@ -23,6 +23,7 @@ EEOPT += DEBUG
 #
 ############################################################################
 EEOPT += __RTD_LINUX__
+EEOPT += USE_PRAGMAS
 EEOPT += __PPCE200ZX__
 EEOPT += __MPC5674F__
 EEOPT += __PPCE200Z7__

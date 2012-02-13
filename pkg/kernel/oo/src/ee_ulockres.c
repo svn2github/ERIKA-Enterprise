@@ -65,123 +65,64 @@ StatusType EE_oo_ReleaseResource(ResourceType ResID)
 void EE_oo_ReleaseResource(ResourceType ResID)
 #endif
 {
-  EE_TID rq, current;
+  register EE_TID current;
 #ifdef __MSRP__
-  EE_UREG isGlobal;
+  register EE_UREG isGlobal;
 #endif
   register EE_FREG flag;
-  
-#ifdef __OO_ORTI_SERVICETRACE__
-  EE_ORTI_servicetrace = EE_SERVICETRACE_RELEASERESOURCE+1U;
-#endif
+
+  EE_ORTI_set_service_in(EE_SERVICETRACE_RELEASERESOURCE);
 
 #ifdef __MSRP__
-  /* mask off the MSB, that indicates whether this is a global or a
-     local resource */
-  isGlobal = ((ResID & EE_GLOBAL_MUTEX) != 0U);
+  isGlobal = EE_oo_isGlobal(ResID);
   ResID = ResID & ~EE_GLOBAL_MUTEX;
 #endif
-
-
 
 #ifdef __OO_EXTENDED_STATUS__
   /* no comparison for ResID < 0, the type is unsigned! */
   if (ResID >= EE_MAX_RESOURCE) {
+    EE_ORTI_set_lasterror(E_OS_ID);
 
-#ifdef __OO_ORTI_LASTERROR__
-    EE_ORTI_lasterror = E_OS_ID;
-#endif
-
-#ifdef __OO_HAS_ERRORHOOK__
     flag = EE_hal_begin_nested_primitive();
-    if (!EE_ErrorHook_nested_flag) {
-#ifndef __OO_ERRORHOOK_NOMACROS__
-      EE_oo_ErrorHook_ServiceID = OSServiceId_ReleaseResource;
-      EE_oo_ErrorHook_data.ReleaseResource_prm.ResID = ResID;
-#endif
-      EE_ErrorHook_nested_flag = 1U;
-      ErrorHook(E_OS_ID);
-      EE_ErrorHook_nested_flag = 0U;
-    }
+    EE_oo_notify_error_ReleaseResource(ResID, E_OS_ID);
     EE_hal_end_nested_primitive(flag);
-#endif
 
-#ifdef __OO_ORTI_SERVICETRACE__
-    EE_ORTI_servicetrace = EE_SERVICETRACE_RELEASERESOURCE;
-#endif
+    EE_ORTI_set_service_out(EE_SERVICETRACE_RELEASERESOURCE);
 
     return E_OS_ID;
   }
-#endif
+#endif /* __OO_EXTENDED_STATUS__ */
 
   current = EE_stk_queryfirst();
 
 #ifdef __OO_EXTENDED_STATUS__
   if (EE_th_ready_prio[current] > EE_resource_ceiling[ResID]) {
-#ifdef __OO_ORTI_LASTERROR__
-    EE_ORTI_lasterror = E_OS_ACCESS;
-#endif
+    EE_ORTI_set_lasterror(E_OS_ACCESS);
 
-#ifdef __OO_HAS_ERRORHOOK__
     flag = EE_hal_begin_nested_primitive();
-    if (!EE_ErrorHook_nested_flag) {
-#ifndef __OO_ERRORHOOK_NOMACROS__
-      EE_oo_ErrorHook_ServiceID = OSServiceId_ReleaseResource;
-      EE_oo_ErrorHook_data.ReleaseResource_prm.ResID = ResID;
-#endif
-      EE_ErrorHook_nested_flag = 1U;
-      ErrorHook(E_OS_ACCESS);
-      EE_ErrorHook_nested_flag = 0U;
-    }
+    EE_oo_notify_error_ReleaseResource(ResID, E_OS_ACCESS);
     EE_hal_end_nested_primitive(flag);
-#endif
 
-#ifdef __OO_ORTI_SERVICETRACE__
-    EE_ORTI_servicetrace = EE_SERVICETRACE_RELEASERESOURCE;
-#endif
+    EE_ORTI_set_service_out(EE_SERVICETRACE_RELEASERESOURCE);
 
     return E_OS_ACCESS;
   }
-#endif
-
-
-
+#endif /* __OO_EXTENDED_STATUS__ */
 
   flag = EE_hal_begin_nested_primitive();
 
-
-
-
 #ifdef __OO_EXTENDED_STATUS__
-  if (!EE_resource_locked[ResID] || 
-      EE_th_resource_last[current] != ResID) {
+  if ((EE_resource_locked[ResID] == 0U) ||
+      (EE_th_resource_last[current] != ResID)) {
+    EE_ORTI_set_lasterror(E_OS_NOFUNC);
 
-#ifdef __OO_ORTI_LASTERROR__
-    EE_ORTI_lasterror = E_OS_NOFUNC;
-#endif
-
-#ifdef __OO_HAS_ERRORHOOK__
-    if (!EE_ErrorHook_nested_flag) {
-#ifndef __OO_ERRORHOOK_NOMACROS__
-      EE_oo_ErrorHook_ServiceID = OSServiceId_ReleaseResource;
-      EE_oo_ErrorHook_data.ReleaseResource_prm.ResID = ResID;
-#endif
-      EE_ErrorHook_nested_flag = 1U;
-      ErrorHook(E_OS_NOFUNC);
-      EE_ErrorHook_nested_flag = 0U;
-    }
-#endif
+    EE_oo_notify_error_ReleaseResource(ResID, E_OS_NOFUNC);
 
     EE_hal_end_nested_primitive(flag);
-
-#ifdef __OO_ORTI_SERVICETRACE__
-    EE_ORTI_servicetrace = EE_SERVICETRACE_RELEASERESOURCE;
-#endif
+    EE_ORTI_set_service_out(EE_SERVICETRACE_RELEASERESOURCE);
 
     return E_OS_NOFUNC;
   }
-
-
 
   /* remove the last entry from the data structure */
   EE_th_resource_last[current] = 
@@ -206,8 +147,6 @@ void EE_oo_ReleaseResource(ResourceType ResID)
   /*  EE_ORTI_res_locker[ResID] = EE_NIL; */
   /* #endif */
 
-  rq = EE_rq_queryfirst();
-
   EE_sys_ceiling = EE_resource_oldceiling[ResID];
 
 #ifdef __OO_ORTI_PRIORITY__
@@ -215,51 +154,14 @@ void EE_oo_ReleaseResource(ResourceType ResID)
 #endif
 
   /* check if there is a preemption */
-  if (rq != EE_NIL) {
-    if (EE_sys_ceiling < EE_th_ready_prio[rq]) {
-      /* we have to schedule a ready thread */
-#ifdef __OO_HAS_POSTTASKHOOK__
-      PostTaskHook();
-#endif	
-     
-      /* the running task is now suspended */
-      EE_th_status[current] = READY;
-      /* and another task is put into running state */
-      EE_th_status[rq] = RUNNING;
-      
-      EE_sys_ceiling |= EE_th_dispatch_prio[rq];
+  EE_oo_preemption_point();
 
-#ifdef __OO_ORTI_PRIORITY__
-      EE_ORTI_th_priority[rq] = EE_th_dispatch_prio[rq];
-#endif
-
-#if defined(__OO_ECC1__) || defined(__OO_ECC2__)
-      rq = EE_rq2stk_exchange();
-      if (EE_th_waswaiting[rq]) {
-	EE_th_waswaiting[rq] = 0U;
-	EE_hal_stkchange(rq);
-      } else {
-	EE_hal_ready2stacked(rq);
-      }
-#else
-      EE_hal_ready2stacked(EE_rq2stk_exchange());
-#endif
-
-#ifdef __OO_HAS_PRETASKHOOK__
-      PreTaskHook();
-#endif	
-    }
-  }
-  
   EE_hal_end_nested_primitive(flag); 
-
-#ifdef __OO_ORTI_SERVICETRACE__
-  EE_ORTI_servicetrace = EE_SERVICETRACE_RELEASERESOURCE;
-#endif
+  EE_ORTI_set_service_out(EE_SERVICETRACE_RELEASERESOURCE);
 
 #ifdef __OO_EXTENDED_STATUS__
   return E_OK;
 #endif
 }
 
-#endif
+#endif /* __PRIVATE_RELEASERESOURCE__ */

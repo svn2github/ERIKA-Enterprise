@@ -1,5 +1,5 @@
-
 #include "ee.h"
+
 
 
 /***************************************************************************
@@ -8,8 +8,9 @@
  *
  **************************************************************************/
     #define STACK_1_SIZE 512 /* size = 512 bytes */
-
-    EE_STACK_T EE_STACK_ATTRIB EE_stack_1[EE_STACK_WLEN(STACK_1_SIZE)];	/* Task 0 (TaskZ0Main) */
+    #pragma section PRAGMA_SECTION_BEGIN_SYS_STACK
+    static EE_STACK_T EE_stack_1[EE_STACK_WLEN(STACK_1_SIZE)];	/* Task 0 (TaskZ0Main) */
+    #pragma section PRAGMA_SECTION_END_SYS_STACK
 
     const EE_UREG EE_std_thread_tos[EE_MAX_TASK+1] = {
         0U,	 /* dummy*/
@@ -35,18 +36,18 @@
     DeclareTask(TaskZ0Main);
     DeclareTask(TaskZ0Bkg);
 
-    const EE_FADDR EE_hal_thread_body[EE_MAX_TASK] = {
-        (EE_FADDR)EE_oo_thread_stub,		 /* thread TaskZ0Main */
-        (EE_FADDR)EE_oo_thread_stub 		 /* thread TaskZ0Bkg */
+    const EE_THREAD_PTR EE_hal_thread_body[EE_MAX_TASK] = {
+        &EE_oo_thread_stub,		 /* thread TaskZ0Main */
+        &EE_oo_thread_stub 		 /* thread TaskZ0Bkg */
 
     };
 
     EE_UINT32 EE_terminate_data[EE_MAX_TASK];
 
     /* ip of each thread body (ROM) */
-    const EE_FADDR EE_terminate_real_th_body[EE_MAX_TASK] = {
-        (EE_FADDR)FuncTaskZ0Main,
-        (EE_FADDR)FuncTaskZ0Bkg
+    const EE_THREAD_PTR EE_terminate_real_th_body[EE_MAX_TASK] = {
+        &FuncTaskZ0Main,
+        &FuncTaskZ0Bkg
     };
     /* ready priority */
     const EE_TYPEPRIO EE_th_ready_prio[EE_MAX_TASK] = {
@@ -80,7 +81,7 @@
     /* remaining nact: init= maximum pending activations of a Task */
     /* MUST BE 1 for BCC1 and ECC1 */
     EE_TYPENACT   EE_th_rnact[EE_MAX_TASK] =
-        { 1, 1};
+        { 1U, 1U};
 
     /* First task in the ready queue (initvalue = EE_NIL) */
     EE_TID EE_rq_first  = EE_NIL;
@@ -171,27 +172,4 @@
     const struct EE_oo_autostart_task_type EE_oo_autostart_task_data[EE_MAX_APPMODE] = {
         { 1U, EE_oo_autostart_task_mode_OSDEFAULTAPPMODE}
     };
-
-
-
-/***************************************************************************
- *
- * ORTI
- *
- **************************************************************************/
-    #include "ee.h"
-
-    #ifdef __OO_ORTI_LASTERROR__
-        StatusType EE_ORTI_lasterror = E_OK;
-    #endif
-
-    #ifdef __OO_ORTI_SERVICETRACE__
-        volatile EE_UINT8 EE_ORTI_servicetrace;
-    #endif
-
-    EE_TYPEPRIO EE_ORTI_th_priority[2]; /* MAX_TASK = 2 */
-
-    EE_TYPEPRIO EE_ORTI_resource_oldpriority[1]; /* MAX_RESOURCE = 1 */
-
-    EE_UREG EE_ORTI_res_locker[1]; /* MAX_RESOURCE = 1 */
 

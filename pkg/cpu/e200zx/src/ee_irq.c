@@ -57,9 +57,7 @@ __INLINE__ EE_ORTI_runningisr2_type EE_ORTI_get_runningisr2(void)
 {
 	return (EE_ORTI_runningisr2_type)0;
 }
-__INLINE__ void EE_ORTI_set_runningisr2(EE_ORTI_runningisr2_type isr2)
-{
-}
+#define EE_ORTI_set_runningisr2(isr2)   ((void)0)
 #endif /* __FP__ */
 
 void EE_e200z7_irq(EE_SREG level)

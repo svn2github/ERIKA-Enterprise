@@ -60,38 +60,41 @@ SECTIONS
 			*(.rodata)
 		}
 
-		_smcglobalc = . ;
-		.mcglobalc : { }
-		_emcglobalc = . ;
+		ee_smcglobalc = . ;
+		ee_mcglobalc : { }
+		ee_emcglobalc = . ;
 
 		.sdata2 : {
 			*(.sdata2)
 			*(.sbss2)
 		 }
-		_load_ram = . ;
+		ee_load_ram = . ;
 	} > iflash
 
 	GROUP : {
-		_sdata = . ;
-		.data LOAD(_load_ram): { }
+		ee_sdata = . ;
+		.data LOAD(ee_load_ram): { }
 
-		.sram_text LOAD(_load_ram + ADDR(.sram_text) - ADDR(.data)): { }
+		.sram_text LOAD(ee_load_ram + ADDR(.sram_text) - ADDR(.data)): { }
 
-		_smcglobald = . ;
-		.mcglobald LOAD(_load_ram + ADDR(.mcglobald) - ADDR(.data)): { }
-		_emcglobald = . ;
+		ee_smcglobald = . ;
+		ee_mcglobald LOAD(ee_load_ram + ADDR(ee_mcglobald) - ADDR(.data)): { }
+                ee_fast_mcglobald LOAD(ee_load_ram + ADDR(ee_fast_mcglobald) - ADDR(.data)): { }
+		ee_emcglobald = . ;
 
-		.sdata LOAD(_load_ram + ADDR(.sdata) - ADDR(.data)): { }
+		.sdata LOAD(ee_load_ram + ADDR(.sdata) - ADDR(.data)): { }
 
-		_sbss = . ;
+		ee_sbss = . ;
 		.sbss : { }
+                ee_fast_mcglobalu LOAD(ee_load_ram + ADDR(ee_fast_mcglobalu) - ADDR(.data)): { }
 		.bss : { }
-		_ebss = . ;
+                ee_mcglobalu LOAD(ee_load_ram + ADDR(ee_mcglobald) - ADDR(.data)): { }
+		ee_ebss = . ;
 
-		_sstack = . ;
+		ee_sstack = . ;
 		.stack : {
 			*(.stack)
 		}
-		_estack = . ;
+		ee_estack = . ;
 	} > isram
 }

@@ -61,79 +61,49 @@ StatusType EE_oo_ActivateTask(TaskType TaskID)
 {
   register TaskType tmp,current;
   register EE_FREG flag;
-  
-#ifdef __OO_ORTI_SERVICETRACE__
-  EE_ORTI_servicetrace = EE_SERVICETRACE_ACTIVATETASK+1U;
-#endif
+
+  EE_ORTI_set_service_in(EE_SERVICETRACE_ACTIVATETASK);
 
 #ifdef __RN_TASK__
-  if (TaskID & EE_REMOTE_TID) {
+  if (EE_IS_TID_REMOTE(TaskID)) {
+    int rn_return_val;
     EE_TYPERN_PARAM par;
     par.pending = 1U;
     /* forward the request to another CPU */
-    EE_rn_send(TaskID & ~EE_REMOTE_TID, EE_RN_TASK, par );
+    rn_return_val = EE_rn_send((EE_SREG)EE_UNMARK_REMOTE_TID(TaskID),
+        EE_RN_TASK, par );
 
-#ifdef __OO_ORTI_SERVICETRACE__
-    EE_ORTI_servicetrace = EE_SERVICETRACE_ACTIVATETASK;
-#endif
+    EE_ORTI_set_service_out(EE_SERVICETRACE_ACTIVATETASK);
+
     return E_OK;
   }
-#endif
+#endif /* __RN_TASK__ */
   
 #ifdef __OO_EXTENDED_STATUS__    
   /* check if the task Id is valid */
-  if (TaskID < 0 || TaskID >= EE_MAX_TASK) {
-#ifdef __OO_ORTI_LASTERROR__
-    EE_ORTI_lasterror = E_OS_ID;
-#endif
+  if ((TaskID < 0) || (TaskID >= EE_MAX_TASK)) {
+    EE_ORTI_set_lasterror(E_OS_ID);
 
-#ifdef __OO_HAS_ERRORHOOK__
     flag = EE_hal_begin_nested_primitive();
-    if (!EE_ErrorHook_nested_flag) {
-#ifndef __OO_ERRORHOOK_NOMACROS__
-      EE_oo_ErrorHook_ServiceID = OSServiceId_ActivateTask;
-      EE_oo_ErrorHook_data.ActivateTask_prm.TaskID = TaskID;
-#endif
-      EE_ErrorHook_nested_flag = 1U;
-      ErrorHook(E_OS_ID);
-      EE_ErrorHook_nested_flag = 0U;
-    }
+    EE_oo_notify_error_ActivateTask(TaskID, E_OS_ID);
     EE_hal_end_nested_primitive(flag);
-#endif
 
-#ifdef __OO_ORTI_SERVICETRACE__
-    EE_ORTI_servicetrace = EE_SERVICETRACE_ACTIVATETASK;
-#endif
+    EE_ORTI_set_service_out(EE_SERVICETRACE_ACTIVATETASK);
 
     return E_OS_ID;
   }
 #endif
 
   flag = EE_hal_begin_nested_primitive();
-  
-  /* check for pending activations */
-  if (EE_th_rnact[TaskID] == 0U) {
-#ifdef __OO_ORTI_LASTERROR__
-    EE_ORTI_lasterror = E_OS_LIMIT;
-#endif
 
-#ifdef __OO_HAS_ERRORHOOK__
-    if (!EE_ErrorHook_nested_flag) {
-#ifndef __OO_ERRORHOOK_NOMACROS__
-      EE_oo_ErrorHook_ServiceID = OSServiceId_ActivateTask;
-      EE_oo_ErrorHook_data.ActivateTask_prm.TaskID = TaskID;
-#endif
-      EE_ErrorHook_nested_flag = 1U;
-      ErrorHook(E_OS_LIMIT);
-      EE_ErrorHook_nested_flag = 0U;
-    }
-#endif
+  /* check for pending activations */
+  if (EE_th_rnact[TaskID] == (EE_UREG)0U) {
+    EE_ORTI_set_lasterror(E_OS_LIMIT);
+
+    EE_oo_notify_error_ActivateTask(TaskID, E_OS_LIMIT);
 
     EE_hal_end_nested_primitive(flag);
-
-#ifdef __OO_ORTI_SERVICETRACE__
-    EE_ORTI_servicetrace = EE_SERVICETRACE_ACTIVATETASK;
-#endif
+    EE_ORTI_set_service_out(EE_SERVICETRACE_ACTIVATETASK);
 
     return E_OS_LIMIT;
   } 
@@ -146,90 +116,27 @@ StatusType EE_oo_ActivateTask(TaskType TaskID)
      - if the task is basic/BCC2 it can be that it is ready or 
      running. in that case we have to check and queue it anyway
   */
-#if defined(__OO_BCC2__) || defined(__OO_ECC2__)
-  if (EE_th_status[TaskID] == SUSPENDED) {
-    EE_th_status[TaskID] = READY;
-#ifdef __OO_ECC2__
-    /* When an extended task is transferred from suspended state
-       into ready state all its events are cleared*/
-    EE_th_event_active[TaskID] = 0U;
-#endif
-  }
-#else
-  EE_th_status[TaskID] = READY;
-#ifdef __OO_ECC1__
-  /* When an extended task is transferred from suspended state
-     into ready state all its events are cleared*/
-  EE_th_event_active[TaskID] = 0U;
-#endif
-#endif
-  
+  EE_oo_set_th_status_ready(TaskID);
+
   /* insert the task in the ready queue */
   EE_rq_insert(TaskID);
   
   /* check for preemption: 
      this test has to be done only if we are inside a task */ 
-  if (!EE_hal_get_IRQ_nesting_level()
-#if defined(__OO_HAS_STARTUPHOOK__) || defined(__OO_AUTOSTART_TASK__)
-      && !EE_oo_no_preemption
+  if ((EE_hal_get_IRQ_nesting_level() == 0U)
+#if (defined(__OO_HAS_STARTUPHOOK__)) || (defined(__OO_AUTOSTART_TASK__))
+      && (EE_oo_no_preemption == 0U)
 #endif
       ) {
+
     /* we are inside a task */
-    tmp = EE_rq_queryfirst();
-    if (tmp != EE_NIL) {
-      if (EE_sys_ceiling < EE_th_ready_prio[tmp]) {
-	/* we have to schedule a ready thread */
-	
-	current = EE_stk_queryfirst();
-	if (current != EE_NIL) { 
-	  /* the if is needed because this function can be called from
-	     the main task */
-#ifdef __OO_HAS_POSTTASKHOOK__
-	  PostTaskHook();
-#endif	
-	  /* the running task is now suspended */
-	  EE_th_status[current] = READY;
-	}
-
-	/* and another task is put into the running state */
-	EE_th_status[tmp] = RUNNING;
-	
-	EE_sys_ceiling |= EE_th_dispatch_prio[tmp];
-
-#ifdef __OO_ORTI_PRIORITY__
-	EE_ORTI_th_priority[tmp] = EE_th_dispatch_prio[tmp];
-#endif
-
-#if defined(__OO_ECC1__) || defined(__OO_ECC2__)
-	tmp = EE_rq2stk_exchange();
-	if (EE_th_waswaiting[tmp]) {
-	  EE_th_waswaiting[tmp] = 0U;
-	  EE_hal_stkchange(tmp);
-	} else {
-	  EE_hal_ready2stacked(tmp);
-	}
-#else
-	EE_hal_ready2stacked(EE_rq2stk_exchange());
-#endif
-
-#ifdef __OO_HAS_PRETASKHOOK__
-	/* the if is needed because this function can be called from
-	   the main task */
-	if (current != EE_NIL) {
-	  PreTaskHook();
-	}
-#endif	
-      }
-    }
+    EE_oo_preemption_point();
   }
-  
+
   EE_hal_end_nested_primitive(flag);
-  
-#ifdef __OO_ORTI_SERVICETRACE__
-    EE_ORTI_servicetrace = EE_SERVICETRACE_ACTIVATETASK;
-#endif
+  EE_ORTI_set_service_out(EE_SERVICETRACE_ACTIVATETASK);
 
   return E_OK;
 }
+#endif /* !__PRIVATE_ACTIVATETASK__ */
 
-#endif

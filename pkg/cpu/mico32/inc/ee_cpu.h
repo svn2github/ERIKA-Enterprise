@@ -85,6 +85,7 @@ typedef EE_UINT32 EE_FREG;
 
 /* Thread IDs */
 typedef EE_INT32 EE_TID;
+typedef EE_UINT32 EE_UTID;
 /* Used by the common layer to decide whether to start a new thread */
 #define TID_IS_STACKED_MARK 0x80000000
 

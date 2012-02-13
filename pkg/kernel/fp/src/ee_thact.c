@@ -53,21 +53,23 @@ void EE_fp_ActivateTask(TaskType t)
 {
   register EE_TID tmp;
   register EE_FREG flag;
+  int rn_return_val;
   
 #ifdef __RN_TASK__
-  if (t & EE_REMOTE_TID) {
+  if (EE_IS_TID_REMOTE(t)) {
     register EE_TYPERN_PARAM par;
     par.pending = 1U;
     /* forward the request to another CPU whether the task do
        not become to the current CPU */
-    EE_rn_send(t & ~EE_REMOTE_TID, EE_RN_TASK, par );
+    rn_return_val = EE_rn_send((EE_SREG)EE_MARK_REMOTE_TID(t),
+EE_RN_TASK, par );
   } else {
 #endif
     
     flag = EE_hal_begin_nested_primitive();
     
     /* check for first activation */
-    if (EE_th_nact[t] == 0U) {
+    if (EE_th_nact[t] == (EE_UREG)0U) {
 #if defined(__MULTI__) || defined(__WITH_STATUS__)
       EE_th_status[t] = EE_READY;
 #endif
@@ -80,7 +82,7 @@ void EE_fp_ActivateTask(TaskType t)
     }
     
     /* check for preemption */
-    if (!EE_hal_get_IRQ_nesting_level()) {
+    if (EE_hal_get_IRQ_nesting_level() == 0U) {
       tmp = EE_rq_queryfirst();
       if (tmp != EE_NIL) {
 	if (EE_sys_ceiling < EE_th_ready_prio[tmp]) {

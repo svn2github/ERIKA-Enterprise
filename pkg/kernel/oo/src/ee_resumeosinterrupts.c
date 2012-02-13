@@ -55,16 +55,12 @@
 #ifndef __PRIVATE_RESUMEOSINTERRUPTS__
 void EE_oo_ResumeOSInterrupts(void)
 {
-#ifdef __OO_ORTI_SERVICETRACE__
-  EE_ORTI_servicetrace = EE_SERVICETRACE_RESUMEOSINTERRUPTS+1U;
-#endif
+  EE_ORTI_set_service_in(EE_SERVICETRACE_RESUMEOSINTERRUPTS);
 
   EE_oo_IRQ_disable_count--;
   if (!EE_oo_IRQ_disable_count)
     EE_hal_enableIRQ();
 
-#ifdef __OO_ORTI_SERVICETRACE__
-  EE_ORTI_servicetrace = EE_SERVICETRACE_RESUMEOSINTERRUPTS;
-#endif
+  EE_ORTI_set_service_out(EE_SERVICETRACE_RESUMEOSINTERRUPTS);
 }
-#endif
+#endif /* __PRIVATE_RESUMEOSINTERRUPTS__ */

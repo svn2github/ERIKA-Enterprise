@@ -59,13 +59,12 @@
 /* by default there is only 6the default application mode defined!... */
 AppModeType EE_oo_GetActiveApplicationMode(void) 
 { 
-#ifdef __OO_ORTI_SERVICETRACE__
+
   /* both assignment to enable smart debuggers to notice the entry and
      exit from getactiveapplicationmode */
-  EE_ORTI_servicetrace = EE_SERVICETRACE_GETACTIVEAPPLICATIONMODE+1U;
-  EE_ORTI_servicetrace = EE_SERVICETRACE_GETACTIVEAPPLICATIONMODE;
-#endif
+  EE_ORTI_set_service_in(EE_SERVICETRACE_GETACTIVEAPPLICATIONMODE);
+  EE_ORTI_set_service_out(EE_SERVICETRACE_GETACTIVEAPPLICATIONMODE);
 
   return EE_ApplicationMode; 
 }
-#endif
+#endif /* __PRIVATE_GETACTIVEAPPLICATIONMODE__ */

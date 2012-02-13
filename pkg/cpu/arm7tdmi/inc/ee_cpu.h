@@ -85,6 +85,7 @@ typedef EE_UINT32 EE_FREG;
 
 /* Thread IDs */
 typedef EE_INT32 EE_TID;
+typedef EE_UINT32 EE_UTID;
 
 /* Addresses (that have the same size of a pointer) */
 typedef void *EE_ADDR;

@@ -46,120 +46,104 @@
 #include "ee_internal.h"
 
 #ifndef __PRIVATE_THREAD_END_INSTANCE__
-void EE_thread_end_instance(void)
-{
-    EE_TID current, rqfirst;
-#ifndef __OO_NO_CHAINTASK__
-    EE_TID TaskID;
-#endif
-
-    current = EE_stk_queryfirst();
-
-#ifdef __OO_HAS_POSTTASKHOOK__
-    PostTaskHook();
-#endif	
-
-    /* increase the remaining activations...*/
-    EE_th_rnact[current]++;
-
-    /* The task state switch from STACKED TO READY because it end its
-     * instance. Note that status=READY and nact=0 ==>> the task is
-     * suspended!!! */
-    EE_th_status[current] = SUSPENDED;
-
-    /* reset the thread priority bit in the system_ceiling */
-    EE_sys_ceiling &= ~EE_th_dispatch_prio[current];
-
-#ifdef __OO_ORTI_PRIORITY__
-    EE_ORTI_th_priority[current] = 0U;
-#endif
-
-    /* extract the task from the stk data structure */
-    EE_stk_getfirst();
-
-#ifndef __OO_NO_CHAINTASK__
-    /* if we called a ChainTask, 
-       EE_th_terminate_nextask[current] != NIL
-    */
-    TaskID = EE_th_terminate_nextask[current];
-    if (TaskID != EE_NIL) {
-      /* see also activate.c
-	 put the task in the ready state:
-	 - if the task is basic/BCC1 or extended it can be here only because
-	 it had rnact=1 before the call, and so it is in suspended state
-	 - if the task is basic/BCC2 it can be that it is ready or 
-	 running. in that case we have to check and queue it anyway
-      */
-#if defined(__OO_BCC2__) || defined(__OO_ECC2__)
-      if (EE_th_status[TaskID] == SUSPENDED) {
-	EE_th_status[TaskID] = READY;
-#ifdef __OO_ECC2__
-	/* When an extended task is transferred from suspended state
-	   into ready state all its events are cleared*/
-	EE_th_event_active[TaskID] = 0U;
-#endif
-      }
-#else
-      EE_th_status[TaskID] = READY;
-#ifdef __OO_ECC1__
-      /* When an extended task is transferred from suspended state
-	 into ready state all its events are cleared*/
-      EE_th_event_active[TaskID] = 0U;
-#endif
-#endif
-      /* insert the task in the ready queue */
-      EE_rq_insert(TaskID);
-    }
-#endif
-
-    /* check if there is to schedule a ready thread or pop a preempted
-     * thread */
-    rqfirst = EE_rq_queryfirst();
-    if (rqfirst == EE_NIL) {
-      /* No threads in the ready queue, return to the preempted thread (maybe main) */
-      if (EE_stk_queryfirst() != EE_NIL) {
-	EE_th_status[EE_stk_queryfirst()] = RUNNING;
-#ifdef __OO_HAS_PRETASKHOOK__
-	PreTaskHook();
-#endif	
-      }
-      EE_hal_endcycle_stacked(EE_stk_queryfirst());
-    }
-    else if (EE_sys_ceiling >= EE_th_ready_prio[rqfirst]) {
-	/* we have to schedule an interrupted thread (already on the
-	 * stack!!!) */
-	EE_th_status[EE_stk_queryfirst()] = RUNNING;
-#ifdef __OO_HAS_PRETASKHOOK__
-	PreTaskHook();
-#endif	
-	EE_hal_endcycle_stacked(EE_stk_queryfirst());
-    }
-    else { 
-	/* we have to schedule a ready thread */
-	EE_th_status[rqfirst] = RUNNING;
-	EE_sys_ceiling |= EE_th_dispatch_prio[rqfirst];
-
-#ifdef __OO_ORTI_PRIORITY__
-	EE_ORTI_th_priority[rqfirst] = EE_th_dispatch_prio[rqfirst];
-#endif
 
 #if defined(__OO_ECC1__) || defined(__OO_ECC2__)
-	/* Note: I reused rqfirst! */
-	rqfirst = EE_rq2stk_exchange();
-	if (EE_th_waswaiting[rqfirst]) {
-	  EE_th_waswaiting[rqfirst] = 0U;
-#ifdef __OO_HAS_PRETASKHOOK__
-	  PreTaskHook();
-#endif	
-	  EE_hal_endcycle_stacked(rqfirst);
-	} else {
-	  EE_hal_endcycle_ready(rqfirst);
-        }
-#else
-	EE_hal_endcycle_ready(EE_rq2stk_exchange());
-#endif
-    }
+static void EE_thread_endcycle_next(void)
+{
+  register EE_TID next;
+  next = EE_rq2stk_exchange();
+  if (EE_th_waswaiting[next]) {
+    EE_th_waswaiting[next] = 0U;
+    EE_oo_call_PreTaskHook();
+    EE_hal_endcycle_stacked(next);
+  } else {
+    EE_hal_endcycle_ready(next);
+  }
+  /* Remember: after hal_endcycle_XXX there MUST be NOTHING!!! */
+}
+#else /* __OO_ECC1__ || __OO_ECC2__ */
+static void EE_thread_endcycle_next(void)
+{
+  EE_hal_endcycle_ready(EE_rq2stk_exchange());
+  /* Remember: after hal_endcycle_XXX there MUST be NOTHING!!! */
+}
+#endif /* __OO_ECC1__ || __OO_ECC2__ */
 
-    /* Remember: after hal_endcycle_XXX there MUST be NOTHING!!! */
-}  
-#endif
+void EE_thread_end_instance(void)
+{
+  EE_TID current, rqfirst;
+#ifndef __OO_NO_CHAINTASK__
+  EE_TID TaskID;
+#endif /* __OO_NO_CHAINTASK__ */
+
+  current = EE_stk_queryfirst();
+
+  EE_oo_call_PostTaskHook();
+
+  /* increase the remaining activations...*/
+  EE_th_rnact[current]++;
+
+  /* The task state switch from STACKED TO READY because it end its
+   * instance. Note that status=READY and nact=0 ==>> the task is
+   * suspended!!! */
+  EE_th_status[current] = SUSPENDED;
+
+  /* reset the thread priority bit in the system_ceiling */
+  EE_sys_ceiling &= ~EE_th_dispatch_prio[current];
+
+  EE_ORTI_set_th_priority(current, 0U);
+
+  /* extract the task from the stk data structure */
+  EE_stk_getfirst();
+
+#ifndef __OO_NO_CHAINTASK__
+  /* if we called a ChainTask, 
+     EE_th_terminate_nextask[current] != NIL
+  */
+  TaskID = EE_th_terminate_nextask[current];
+  if (TaskID != EE_NIL) {
+
+    /* see also activate.c
+       put the task in the ready state:
+       - if the task is basic/BCC1 or extended it can be here only because
+         it had rnact=1 before the call, and so it is in suspended state
+       - if the task is basic/BCC2 it can be that it is ready or 
+         running. in that case we have to check and queue it anyway
+    */
+    EE_oo_set_th_status_ready(TaskID);
+
+    /* insert the task in the ready queue */
+    EE_rq_insert(TaskID);
+  }
+#endif /* __OO_NO_CHAINTASK__ */
+
+  /* check if there is to schedule a ready thread or pop a preempted
+   * thread */
+  rqfirst = EE_rq_queryfirst();
+  if (rqfirst == EE_NIL) {
+    /* No threads in the ready queue, return to the preempted thread (maybe main) */
+    if (EE_stk_queryfirst() != EE_NIL) {
+      EE_th_status[EE_stk_queryfirst()] = RUNNING;
+      EE_oo_call_PreTaskHook();
+    }
+    EE_hal_endcycle_stacked(EE_stk_queryfirst());
+  }
+  else if (EE_sys_ceiling >= EE_th_ready_prio[rqfirst]) {
+    /* we have to schedule an interrupted thread (already on the
+     * stack!!!) */
+    EE_th_status[EE_stk_queryfirst()] = RUNNING;
+    EE_oo_call_PreTaskHook();
+    EE_hal_endcycle_stacked(EE_stk_queryfirst());
+  }
+  else {
+    /* we have to schedule a ready thread */
+    EE_th_status[rqfirst] = RUNNING;
+    EE_sys_ceiling |= EE_th_dispatch_prio[rqfirst];
+
+    EE_ORTI_set_th_eq_dispatch_prio(rqfirst);
+
+    EE_thread_endcycle_next();
+  }
+  /* Remember: after hal_endcycle_XXX there MUST be NOTHING!!! */
+}
+#endif /* __PRIVATE_THREAD_END_INSTANCE__ */

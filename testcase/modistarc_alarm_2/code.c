@@ -81,21 +81,19 @@ TASK(Task1)
   s = SetAbsAlarm(Alarm1, 3, 0);
   EE_assert(7, (s==E_OS_STATE), 6);
 
-  EE_oo_counter_tick(Counter1);
 #ifdef __OO_EXTENDED_STATUS__
-  s = ForceSchedule();
+  s =   IncrementCounter(Counter1);
   EE_assert(9, (s==E_OK), 8);
 #else
-  ForceSchedule();
+  IncrementCounter(Counter1);
   EE_assert(9, (TRUE), 8);
 #endif
 
-  EE_oo_counter_tick(Counter1);
 #ifdef __OO_EXTENDED_STATUS__
-  s = ForceSchedule();
+  s = IncrementCounter(Counter1);
   EE_assert(11, (s==E_OK), 10);
 #else
-  ForceSchedule();
+  IncrementCounter(Counter1);
   EE_assert(11, (TRUE), 10);
 #endif
   
@@ -111,12 +109,11 @@ TASK(Task1)
   s = GetAlarm(Alarm1, &Tick);
   EE_assert(15, (s==E_OK && Tick==1), 14);
 
-  EE_oo_counter_tick(Counter1);
 #ifdef __OO_EXTENDED_STATUS__
-  s = ForceSchedule();
+  s = IncrementCounter(Counter1);
   EE_assert(17, (s==E_OK), 16);
 #else
-  ForceSchedule();
+  IncrementCounter(Counter1);
   EE_assert(17, (TRUE), 16);
 #endif
 

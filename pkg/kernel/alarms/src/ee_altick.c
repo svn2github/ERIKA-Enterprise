@@ -51,7 +51,7 @@ void EE_alarm_insert(AlarmType AlarmID, TickType increment)
 
   current = EE_counter_RAM[EE_alarm_ROM[AlarmID].c].first;
 
-  if (current == -1) {
+  if (current == (AlarmType)-1) {
     /* the alarm becomes the first into the delta queue */
     EE_counter_RAM[EE_alarm_ROM[AlarmID].c].first = AlarmID;
   } else if (EE_alarm_RAM[current].delta > increment) {
@@ -66,10 +66,10 @@ void EE_alarm_insert(AlarmType AlarmID, TickType increment)
       increment -= EE_alarm_RAM[current].delta;
       previous = current;
       current = EE_alarm_RAM[current].next;
-    } while(current != -1 && EE_alarm_RAM[current].delta <= increment);
+    } while((current != (AlarmType)-1) && (EE_alarm_RAM[current].delta <= increment));
 
     /* insert the alarm between previous and current */
-    if (current != -1) {
+    if (current != (AlarmType)-1) {
       EE_alarm_RAM[current].delta -= increment;
     }
     EE_alarm_RAM[previous].next = AlarmID;
@@ -85,6 +85,7 @@ void EE_alarm_CounterTick(CounterType c)
   register EE_TYPEALARM current;
   register EE_TID t;
   register EE_FREG flag;
+  int rn_return_val;
   
   flag = EE_hal_begin_nested_primitive();
 
@@ -92,13 +93,13 @@ void EE_alarm_CounterTick(CounterType c)
   EE_counter_RAM[c].value++;
 
   /* if there are queued alarms */
-  if (EE_counter_RAM[c].first != -1) {
+  if (EE_counter_RAM[c].first != (EE_TYPEALARM)-1) {
     /* decrement first queued alarm delta */
     EE_alarm_RAM[EE_counter_RAM[c].first].delta--;
 
     /* execute all the alarms with counter 0 */
     current = EE_counter_RAM[c].first;
-    while (!EE_alarm_RAM[current].delta) {
+    while (EE_alarm_RAM[current].delta == 0) {
       /* execute it */
       switch (EE_alarm_ROM[current].action) {
 
@@ -110,12 +111,13 @@ void EE_alarm_CounterTick(CounterType c)
 
 	/* this code is similar to the first part of thread_activate */
 #ifdef __RN_TASK__
-	  if (t & EE_REMOTE_TID) {
+	  if ((EE_UTID)t & (EE_UTID)EE_REMOTE_TID) {
 	    register EE_TYPERN_PARAM par;
 	    par.pending = 1U;
 	    /* forward the request to another CPU whether the thread do
 	       not become to the current CPU */
-	    EE_rn_send(t & ~EE_REMOTE_TID, EE_RN_TASK, par);
+	    rn_return_val = EE_rn_send((EE_SREG)EE_MARK_REMOTE_TID(t),
+EE_RN_TASK, par);
 	  } else {
 #endif
 
@@ -134,7 +136,7 @@ void EE_alarm_CounterTick(CounterType c)
 	      EE_th[t].nact++;
 	    }
 #else
-	    if (EE_th_nact[t] == 0U) {
+	    if (EE_th_nact[t] == (EE_TYPENACT)0U) {
 #ifdef __EDF__
 	      /* compute the deadline */
 	      EE_th_absdline[t] = EE_hal_gettime()+EE_th_reldline[t];
@@ -176,7 +178,7 @@ void EE_alarm_CounterTick(CounterType c)
 	EE_alarm_insert(current,EE_alarm_RAM[current].cycle);
       }
       /* (*) here we need EE_counter_RAM[c].first again... */
-      if ((current = EE_counter_RAM[c].first) == -1) {
+      if ((current = EE_counter_RAM[c].first) == (EE_TYPEALARM)-1) {
           break;
       }
     }

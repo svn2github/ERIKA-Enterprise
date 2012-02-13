@@ -56,16 +56,17 @@
 
 #define EE_AUTOSAR_E_BASE		E_OS_SYS_INIT
 
-#define E_OS_SERVICEID			(EE_AUTOSAR_E_BASE + 1U)
-#define E_OS_ILLEGAL_ADDRESS		(EE_AUTOSAR_E_BASE + 2U)
-#define E_OS_MISSINGEND			(EE_AUTOSAR_E_BASE + 3U)
-#define E_OS_DISABLEDINT		(EE_AUTOSAR_E_BASE + 4U)
-#define E_OS_STACKFAULT			(EE_AUTOSAR_E_BASE + 5U)
-#define E_OS_PROTECTION_MEMORY		(EE_AUTOSAR_E_BASE + 6U)
-#define E_OS_PROTECTION_TIME		(EE_AUTOSAR_E_BASE + 7U)
-#define E_OS_PROTECTION_ARRIVAL		(EE_AUTOSAR_E_BASE + 8U)
-#define E_OS_PROTECTION_LOCKED		(EE_AUTOSAR_E_BASE + 9U)
-#define E_OS_PROTECTION_EXCEPTION	(EE_AUTOSAR_E_BASE + 10U)
+#define E_OS_SERVICEID              (EE_AUTOSAR_E_BASE + 1U)
+#define E_OS_ILLEGAL_ADDRESS        (EE_AUTOSAR_E_BASE + 2U)
+#define E_OS_MISSINGEND             (EE_AUTOSAR_E_BASE + 3U)
+#define E_OS_DISABLEDINT            (EE_AUTOSAR_E_BASE + 4U)
+#define E_OS_STACKFAULT             (EE_AUTOSAR_E_BASE + 5U)
+#define E_OS_PARAMETER_POINTER      (EE_AUTOSAR_E_BASE + 6U)
+#define E_OS_PROTECTION_MEMORY      (EE_AUTOSAR_E_BASE + 7U)
+#define E_OS_PROTECTION_TIME        (EE_AUTOSAR_E_BASE + 8U)
+#define E_OS_PROTECTION_ARRIVAL     (EE_AUTOSAR_E_BASE + 9U)
+#define E_OS_PROTECTION_LOCKED      (EE_AUTOSAR_E_BASE + 10U)
+#define E_OS_PROTECTION_EXCEPTION   (EE_AUTOSAR_E_BASE + 11U)
 
 /*
  * 8.2 Macros
@@ -174,10 +175,22 @@ ApplicationType	GetApplicationID(void);
 ISRType		GetISRID(void);
 AccessType	CheckISRMemoryAccess(ISRType ISRID, MemoryStartAddressType
 			Address, MemorySizeType Size);
-AccessType	CheckTaskMemoryAccess(TaskType ISRID, MemoryStartAddressType
-			Address, MemorySizeType Size);
+AccessType	CheckTaskMemoryAccess(TaskType TaskID,
+			MemoryStartAddressType Address,
+			MemorySizeType Size);
 StatusType	CallTrustedFunction(TrustedFunctionIndexType FunctionIndex,
 			 TrustedFunctionParameterRefType FunctionParams);
+
+ObjectAccessType
+CheckObjectAccess(ApplicationType ApplID, ObjectTypeType ObjectType,
+		  EE_TID ObjectID);
+ApplicationType CheckObjectOwnership(ObjectTypeType ObjectType,
+				EE_TID Object);
+StatusType TerminateApplication(ApplicationType Application,
+				RestartType RestartOption);
+StatusType AllowAccess(void);
+/*StatusType GetApplicationState(const ApplicationType Application,
+			       const ApplicationStateRefType Value);*/
 
 #if 0	/* Defined as macros */
 ObjectAccessType CheckObjectAccess(ApplicationType ApplID, ObjectTypeType

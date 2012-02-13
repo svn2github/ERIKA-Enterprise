@@ -80,7 +80,8 @@ void EE_tc1_hal_terminate_task(EE_ADDR addr_stored_pcx)
 
 /* Saves a context "check point" to which we can return to with
  * TerminateTask. */
-void EE_tc1_hal_terminate_savestk(EE_ADDR addr_store_pcx, EE_FADDR realbody)
+void EE_tc1_hal_terminate_savestk(EE_ADDR addr_store_pcx,
+	EE_THREAD_PTR realbody)
 {
 
     /* FIXME: this can fairly well be done in plain C and functions

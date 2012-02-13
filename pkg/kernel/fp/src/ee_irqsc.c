@@ -58,7 +58,7 @@ void EE_IRQ_end_instance(void)
     register EE_TID t;
 
     t = EE_rq_queryfirst();
-    if (t != EE_NIL && EE_sys_ceiling < EE_th_ready_prio[t]) {
+    if ((t != EE_NIL) && (EE_sys_ceiling < EE_th_ready_prio[t])) {
 #if defined(__MULTI__)
       register int flag;
 

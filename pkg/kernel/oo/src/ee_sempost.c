@@ -46,11 +46,14 @@
 #include "ee_internal.h"
 
 /* PostSem:
-  - This primitive can be called from ISRs, Tasks, and from the background (main) task.
+  - This primitive can be called from ISRs, Tasks, and from the background
+    (main) task.
   - for BCC1 and BCC2, a smaller reduced version is provided.
   - The primitive implements the traditional counting Semaphore post operation.
-  - If there are tasks blocked on the Semaphore, then one of these tasks is awaken. In that case, the call enforces rescheduling.
-    If there are no tasks blocked on the Semaphore, the semaphore counter is incremented.
+  - If there are tasks blocked on the Semaphore, then one of these tasks is
+    awaken. In that case, the call enforces rescheduling.
+    If there are no tasks blocked on the Semaphore, the semaphore counter is
+    incremented.
   - Error value returned
     Standard:  No error, E_OK 
     E_OS_VALUE Semaphore counter has the maximum value
@@ -69,17 +72,14 @@ StatusType EE_oo_PostSem(SemRefType Sem)
   register TaskType tmp_stacked;
   register EE_FREG flag;
 
-
-#ifdef __OO_ORTI_SERVICETRACE__
-  EE_ORTI_servicetrace = EE_SERVICETRACE_POSTSEM+1U;
-#endif
+  EE_ORTI_set_service_in(EE_SERVICETRACE_POSTSEM);
 
   flag = EE_hal_begin_nested_primitive();
 
   /* check if the post on the semaphore wakes up someone */
   if (Sem->first != EE_NIL) {
 
-    // update the semaphore queue
+    /* update the semaphore queue */
     unlocked_tmp = Sem->first;
     if ((Sem->first = EE_th_next[unlocked_tmp]) == EE_NIL)
       Sem->last = EE_NIL;
@@ -92,71 +92,18 @@ StatusType EE_oo_PostSem(SemRefType Sem)
     /* and if I am at task level, check for preemption... */
     if (!EE_hal_get_IRQ_nesting_level()) {
       /* we are inside a task */
-      tmp = EE_rq_queryfirst();
-      if (tmp != EE_NIL) {
-	if (EE_sys_ceiling < EE_th_ready_prio[tmp]) {
-	  /* we have to schedule a ready thread */
-
-	  tmp_stacked = EE_stk_queryfirst();
-	  if (tmp_stacked != EE_NIL) {
-#ifdef __OO_HAS_POSTTASKHOOK__
-	    PostTaskHook();
-#endif	
-	    /* the running task is now suspended */
-	    EE_th_status[tmp_stacked] = READY;
-	  }
-
-	  /* and another task is put into the running state */
-	  EE_th_status[tmp] = RUNNING;
-	  
-	  EE_sys_ceiling |= EE_th_dispatch_prio[tmp];
-
-#ifdef __OO_ORTI_PRIORITY__
-	  EE_ORTI_th_priority[tmp] = EE_th_dispatch_prio[tmp];
-#endif
-
-	  /* this code is valid either for ECC1 and ECC2 ;-) */
-	  tmp = EE_rq2stk_exchange();
-	  if (EE_th_waswaiting[tmp]) {
-	    EE_th_waswaiting[tmp] = 0;
-	    EE_hal_stkchange(tmp);
-	  }
-	  else
-	    EE_hal_ready2stacked(tmp);
-
-#ifdef __OO_HAS_PRETASKHOOK__
-	  if (tmp_stacked != EE_NIL) {
-	    PreTaskHook();
-	  }
-#endif	
-	}
-      }
+      EE_oo_preemption_point();
     }
   }
   else {
     if (Sem->count == EE_MAX_SEM_COUNTER) {
-#ifdef __OO_ORTI_LASTERROR__
-      EE_ORTI_lasterror = E_OS_VALUE;
-#endif
+      EE_ORTI_set_lasterror(E_OS_VALUE);
 
-#ifdef __OO_HAS_ERRORHOOK__
-      if (!EE_ErrorHook_nested_flag) {
-#ifndef __OO_ERRORHOOK_NOMACROS__
-	EE_oo_ErrorHook_ServiceID = OSServiceId_PostSem;
-	EE_oo_ErrorHook_data.PostSem_prm.Sem = Sem;
-#endif
-	EE_ErrorHook_nested_flag = 1;
-	ErrorHook(E_OS_VALUE);
-	EE_ErrorHook_nested_flag = 0;
-      }
-#endif
-      
+      EE_oo_notify_error_PostSem(Sem, E_OS_VALUE);
+
       EE_hal_end_nested_primitive(flag);
-      
-#ifdef __OO_ORTI_SERVICETRACE__
-      EE_ORTI_servicetrace = EE_SERVICETRACE_POSTSEM;
-#endif
-      
+      EE_ORTI_set_service_out(EE_SERVICETRACE_POSTSEM);
+
       return E_OS_VALUE;
     }
 
@@ -164,16 +111,13 @@ StatusType EE_oo_PostSem(SemRefType Sem)
   }
 
   EE_hal_end_nested_primitive(flag);
-
-#ifdef __OO_ORTI_SERVICETRACE__
-  EE_ORTI_servicetrace = EE_SERVICETRACE_POSTSEM;
-#endif
+  EE_ORTI_set_service_out(EE_SERVICETRACE_POSTSEM);
 
   return E_OK;
 }
 
-#endif
-#endif // ECC1/ECC2
+#endif /* __PRIVATE_POSTSEM__ */
+#endif /* ECC1/ECC2 */
 
 
 /* This is a simplified version of PostSem */
@@ -185,50 +129,30 @@ StatusType EE_oo_PostSem(SemRefType Sem)
 {
   register EE_FREG flag;
 
-
-#ifdef __OO_ORTI_SERVICETRACE__
-  EE_ORTI_servicetrace = EE_SERVICETRACE_POSTSEM+1U;
-#endif
+  EE_ORTI_set_service_in(EE_SERVICETRACE_POSTSEM);
 
   flag = EE_hal_begin_nested_primitive();
 
   /* the wake up check is removed because there is no blocking wait! */
   if (Sem->count == EE_MAX_SEM_COUNTER) {
-#ifdef __OO_ORTI_LASTERROR__
-    EE_ORTI_lasterror = E_OS_VALUE;
-#endif
 
-#ifdef __OO_HAS_ERRORHOOK__
-    if (!EE_ErrorHook_nested_flag) {
-#ifndef __OO_ERRORHOOK_NOMACROS__
-      EE_oo_ErrorHook_ServiceID = OSServiceId_PostSem;
-      EE_oo_ErrorHook_data.PostSem_prm.Sem = Sem;
-#endif
-      EE_ErrorHook_nested_flag = 1;
-      ErrorHook(E_OS_VALUE);
-      EE_ErrorHook_nested_flag = 0;
-    }
-#endif
-    
+    EE_ORTI_set_lasterror(E_OS_VALUE);
+
+    EE_oo_notify_error_PostSem(Sem, E_OS_VALUE);
+
     EE_hal_end_nested_primitive(flag);
-    
-#ifdef __OO_ORTI_SERVICETRACE__
-    EE_ORTI_servicetrace = EE_SERVICETRACE_POSTSEM;
-#endif
-    
+    EE_ORTI_set_service_out(EE_SERVICETRACE_POSTSEM);
+
     return E_OS_VALUE;
   }
-  
+
   Sem->count++;
 
   EE_hal_end_nested_primitive(flag);
-
-#ifdef __OO_ORTI_SERVICETRACE__
-  EE_ORTI_servicetrace = EE_SERVICETRACE_POSTSEM;
-#endif
+  EE_ORTI_set_service_out(EE_SERVICETRACE_POSTSEM);
 
   return E_OK;
 }
 
-#endif
-#endif // BCC1/BCC2
+#endif /* __PRIVATE_POSTSEM__ */
+#endif /* BCC1/BCC2 */

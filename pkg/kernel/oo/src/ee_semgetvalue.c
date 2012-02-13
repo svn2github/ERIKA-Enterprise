@@ -50,10 +50,8 @@ int EE_oo_GetValueSem(SemRefType Sem)
 {
   unsigned int returnvalue;
   register EE_FREG flag;
-  
-#ifdef __OO_ORTI_SERVICETRACE__
-  EE_ORTI_servicetrace = EE_SERVICETRACE_GETVALUESEM+1U;
-#endif
+
+  EE_ORTI_set_service_in(EE_SERVICETRACE_GETVALUESEM);
 	
   flag = EE_hal_begin_nested_primitive();
 
@@ -61,16 +59,14 @@ int EE_oo_GetValueSem(SemRefType Sem)
   if (Sem->first == EE_NIL)
     returnvalue = Sem->count;
   else
-    returnvalue = (unsigned int) -1;
+    returnvalue = -1;
 #else
   returnvalue = Sem->count;
 #endif
 
   EE_hal_end_nested_primitive(flag);
 
-#ifdef __OO_ORTI_SERVICETRACE__
-  EE_ORTI_servicetrace = EE_SERVICETRACE_GETVALUESEM;
-#endif
+  EE_ORTI_set_service_out(EE_SERVICETRACE_GETVALUESEM);
 
   return returnvalue;
 }

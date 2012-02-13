@@ -58,6 +58,9 @@ EE_ORTI_SUPPORT := 1
 ############################################################################
 include common.mk
 
+export EEBASE
+__ERIKA_INNER_MAKEFILE_CALL__:=yes
+export __ERIKA_INNER_MAKEFILE_CALL__
 __BASE_MAKEFILE__ = yes
 include $(EEBASE)/pkg/cfg/rules.mk
 

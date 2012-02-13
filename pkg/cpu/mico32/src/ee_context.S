@@ -48,7 +48,7 @@
 */ 
 
 /*
-void EE_std_change_context_multi(EE_FADDR thread_addr, EE_UREG tos_index);
+void EE_std_change_context_multi(EE_THREAD_PTR thread_addr, EE_UREG tos_index);
 
 Pseudo code for EE_std_change_context():
      begin:

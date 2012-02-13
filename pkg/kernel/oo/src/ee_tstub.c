@@ -58,9 +58,7 @@ void EE_oo_thread_stub(void)
 {
   register EE_TID temp;
 
-#ifdef __OO_HAS_PRETASKHOOK__
-  PreTaskHook();
-#endif	
+  EE_oo_call_PreTaskHook();
 
   temp = EE_stk_queryfirst();
 
@@ -71,4 +69,4 @@ void EE_oo_thread_stub(void)
      with interrupts disabled.
   */
 }
-#endif
+#endif /* __PRIVATE_THREADSTUB__ */

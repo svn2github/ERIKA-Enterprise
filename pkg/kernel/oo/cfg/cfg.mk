@@ -62,10 +62,12 @@ ifeq ($(OO), YES)
 EE_SRCS += pkg/kernel/oo/src/ee_activate.c
 EE_SRCS += pkg/kernel/oo/src/ee_schedule.c
 EE_SRCS += pkg/kernel/oo/src/ee_force_schedule.c
+EE_SRCS += pkg/kernel/oo/src/ee_gettaskstate.c
 EE_SRCS += pkg/kernel/oo/src/ee_terminat.c
 EE_SRCS += pkg/kernel/oo/src/ee_thendin.c
 EE_SRCS += pkg/kernel/oo/src/ee_irqendin.c
 EE_SRCS += pkg/kernel/oo/src/ee_tstub.c
+EE_SRCS += pkg/kernel/oo/src/ee_tnterm.c
 EE_SRCS += pkg/kernel/oo/src/ee_lookup.c
 EE_SRCS += pkg/kernel/oo/src/ee_rq_exchg.c
 EE_SRCS += pkg/kernel/oo/src/ee_rq_inser.c
@@ -83,6 +85,7 @@ endif
 ifneq ($(call iseeopt, __OO_NO_RESOURCES__), yes)
 EE_SRCS += pkg/kernel/oo/src/ee_lockres.c
 EE_SRCS += pkg/kernel/oo/src/ee_ulockres.c
+EE_SRCS += pkg/kernel/oo/src/ee_tulockallres.c
 endif
 
 
@@ -93,6 +96,8 @@ EE_SRCS += pkg/kernel/oo/src/ee_alget.c
 EE_SRCS += pkg/kernel/oo/src/ee_alsetabs.c
 EE_SRCS += pkg/kernel/oo/src/ee_alsetrel.c
 EE_SRCS += pkg/kernel/oo/src/ee_altick.c
+EE_SRCS += pkg/kernel/oo/src/ee_getcountervalue.c
+EE_SRCS += pkg/kernel/oo/src/ee_getelapsedvalue.c
 endif
 
 ifeq ($(OO_ECC) , YES)
@@ -111,7 +116,6 @@ EE_SRCS += pkg/kernel/oo/src/ee_suspendosinterrupts.c
 EE_SRCS += pkg/kernel/oo/src/ee_resumeosinterrupts.c
 EE_SRCS += pkg/kernel/oo/src/ee_getactiveapplicationmode.c
 EE_SRCS += pkg/kernel/oo/src/ee_gettaskid.c
-EE_SRCS += pkg/kernel/oo/src/ee_gettaskstate.c
 endif
 
 ifeq ($(call iseeopt, __OO_SEM__), yes)

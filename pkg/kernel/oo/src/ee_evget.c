@@ -66,110 +66,61 @@ void EE_oo_GetEvent(TaskType TaskID, EventMaskRefType Event)
 {
   register EE_FREG flag;
   
-#ifdef __OO_ORTI_SERVICETRACE__
-  EE_ORTI_servicetrace = EE_SERVICETRACE_GETEVENT+1U;
-#endif
+  EE_ORTI_set_service_in(EE_SERVICETRACE_GETEVENT);
 
 #ifdef __OO_EXTENDED_STATUS__    
   /* check if the task Id is valid */
-  if (TaskID < 0 || TaskID >= EE_MAX_TASK) {
-#ifdef __OO_ORTI_LASTERROR__
-    EE_ORTI_lasterror = E_OS_ID;
-#endif
+  if ((TaskID < 0) || (TaskID >= EE_MAX_TASK)) {
+    EE_ORTI_set_lasterror(E_OS_ID);
 
-#ifdef __OO_HAS_ERRORHOOK__
     flag = EE_hal_begin_nested_primitive();
-    if (!EE_ErrorHook_nested_flag) {
-#ifndef __OO_ERRORHOOK_NOMACROS__
-      EE_oo_ErrorHook_ServiceID = OSServiceId_GetEvent;
-      EE_oo_ErrorHook_data.GetEvent_prm.TaskID = TaskID;
-      EE_oo_ErrorHook_data.GetEvent_prm.Event = Event;
-#endif
-      EE_ErrorHook_nested_flag = 1U;
-      ErrorHook(E_OS_ID);
-      EE_ErrorHook_nested_flag = 0U;
-    }
+    EE_oo_notify_error_GetEvent(TaskID, Event, E_OS_ID);
     EE_hal_end_nested_primitive(flag);
-#endif
 
-#ifdef __OO_ORTI_SERVICETRACE__
-    EE_ORTI_servicetrace = EE_SERVICETRACE_GETEVENT;
-#endif
+    EE_ORTI_set_service_out(EE_SERVICETRACE_GETEVENT);
 
     return E_OS_ID;
   }
 
-  if (!EE_th_is_extended[TaskID]) {
-#ifdef __OO_ORTI_LASTERROR__
-    EE_ORTI_lasterror = E_OS_ACCESS;
-#endif
+  if (EE_th_is_extended[TaskID] == 0U) {
+    EE_ORTI_set_lasterror(E_OS_ACCESS);
 
-#ifdef __OO_HAS_ERRORHOOK__
     flag = EE_hal_begin_nested_primitive();
-    if (!EE_ErrorHook_nested_flag) {
-#ifndef __OO_ERRORHOOK_NOMACROS__
-      EE_oo_ErrorHook_ServiceID = OSServiceId_GetEvent;
-      EE_oo_ErrorHook_data.GetEvent_prm.TaskID = TaskID;
-      EE_oo_ErrorHook_data.GetEvent_prm.Event = Event;
-#endif
-      EE_ErrorHook_nested_flag = 1U;
-      ErrorHook(E_OS_ACCESS);
-      EE_ErrorHook_nested_flag = 0U;
-    }
+    EE_oo_notify_error_GetEvent(TaskID, Event, E_OS_ACCESS);
     EE_hal_end_nested_primitive(flag);
-#endif
 
-#ifdef __OO_ORTI_SERVICETRACE__
-    EE_ORTI_servicetrace = EE_SERVICETRACE_GETEVENT;
-#endif
+    EE_ORTI_set_service_out(EE_SERVICETRACE_GETEVENT);
 
     return E_OS_ACCESS;
   }
-#endif
+#endif /* __OO_EXTENDED_STATUS__ */
 
   flag = EE_hal_begin_nested_primitive();
 
 #ifdef __OO_EXTENDED_STATUS__    
   if (EE_th_status[TaskID] == SUSPENDED) {
-#ifdef __OO_ORTI_LASTERROR__
-    EE_ORTI_lasterror = E_OS_STATE;
-#endif
+    EE_ORTI_set_lasterror(E_OS_STATE);
 
-#ifdef __OO_HAS_ERRORHOOK__
-    if (!EE_ErrorHook_nested_flag) {  
-#ifndef __OO_ERRORHOOK_NOMACROS__
-      EE_oo_ErrorHook_ServiceID = OSServiceId_GetEvent;
-      EE_oo_ErrorHook_data.GetEvent_prm.TaskID = TaskID;
-      EE_oo_ErrorHook_data.GetEvent_prm.Event = Event;
-#endif
-      EE_ErrorHook_nested_flag = 1U;
-      ErrorHook(E_OS_STATE);
-      EE_ErrorHook_nested_flag = 0U;
-    }
-#endif
+    EE_oo_notify_error_GetEvent(TaskID, Event, E_OS_STATE);
 
     EE_hal_end_nested_primitive(flag);
-
-#ifdef __OO_ORTI_SERVICETRACE__
-    EE_ORTI_servicetrace = EE_SERVICETRACE_GETEVENT;
-#endif
+    EE_ORTI_set_service_out(EE_SERVICETRACE_GETEVENT);
 
     return E_OS_STATE;
   }
-#endif
+#endif /* __OO_EXTENDED_STATUS__ */
 
-  *Event = EE_th_event_active[TaskID];
+  if (Event != (EventMaskRefType)NULL) {
+    *Event = EE_th_event_active[TaskID];
+  }
 
   EE_hal_end_nested_primitive(flag);
-
-#ifdef __OO_ORTI_SERVICETRACE__
-  EE_ORTI_servicetrace = EE_SERVICETRACE_GETEVENT;
-#endif
+  EE_ORTI_set_service_out(EE_SERVICETRACE_GETEVENT);
 
 #ifdef __OO_EXTENDED_STATUS__
   return E_OK;
 #endif
 }
 
-#endif
-#endif
+#endif /* __PRIVATE_GETEVENT__ */
+#endif /* #ifndef __PRIVATE_GETEVENT__ */

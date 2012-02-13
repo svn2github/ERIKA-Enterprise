@@ -43,12 +43,29 @@
  * Author: 2011  Bernardo  Dal Seno
  */
 
-
 #include "shared.h"
 #include <ee.h>
 #include <cpu/e200zx/inc/ee_irq.h>
 /* Assertions */
 #include "test/assert/inc/ee_assert.h"
+
+#ifdef USE_PRAGMAS
+
+#pragma section EE_SHARED_NOTINIT_BEGIN
+#pragma section EE_SHARED_FAST_NOTINIT_BEGIN
+extern EE_TYPEASSERTVALUE EE_assertions[asr_dim];
+extern volatile int send_event;
+extern int result;
+#pragma section EE_SHARED_END
+#pragma section EE_SHARED_FAST_OR_SLOW_END
+
+#else
+
+extern EE_TYPEASSERTVALUE EE_SHARED_UDATA EE_assertions[asr_dim];
+extern volatile int EE_SHARED_UDATA send_event;
+extern int EE_SHARED_UDATA result;
+
+#endif
 
 DeclareTask(TaskZ6);
 

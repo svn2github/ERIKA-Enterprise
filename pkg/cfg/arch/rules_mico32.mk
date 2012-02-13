@@ -54,9 +54,9 @@ $(warning The IRQ nesting option will be ignored by the HAL)
 endif
 
 # This EEOPT is added as retro compatibility fix for board old name
-ifeq ($(call iseeopt, __XP2_CAMERA_BOARD__), yes)
+ifeq ($(call iseeopt,  __XP2_CAMERA_BOARD__), yes)
 EEOPT += __FPG_EYE__
-endif #__XP2_CAMERA_BOARD__
+endif # __XP2_CAMERA_BOARD__
 
 EEOPT += __BIG_ENDIAN__
 

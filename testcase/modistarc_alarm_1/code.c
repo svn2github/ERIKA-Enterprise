@@ -44,7 +44,7 @@
 #define TRUE 1
 
 /* assertion data */
-EE_TYPEASSERTVALUE EE_assertions[16];
+EE_TYPEASSERTVALUE EE_assertions[18];
 
 DeclareTask(Task1);
 DeclareTask(Task2);
@@ -77,10 +77,10 @@ TASK(Task1)
   s = SetRelAlarm(Alarm1, AlarmBase.maxallowedvalue+1, 0);
   EE_assert(7, (s==E_OS_VALUE), 6);
 
-  s = SetRelAlarm(Alarm1, 0, AlarmBase.mincycle-1);
+  s = SetRelAlarm(Alarm1, 1, AlarmBase.mincycle-1);
   EE_assert(8, (s==E_OS_VALUE), 7);
 
-  s = SetRelAlarm(Alarm1, 0, AlarmBase.maxallowedvalue+1);
+  s = SetRelAlarm(Alarm1, 1, AlarmBase.maxallowedvalue+1);
   EE_assert(9, (s==E_OS_VALUE), 8);
 
   s = SetAbsAlarm(NoAlarm, 0, 0);
@@ -101,6 +101,15 @@ TASK(Task1)
   s = CancelAlarm(NoAlarm);
   EE_assert(15, (s==E_OS_ID), 14);
 
+  /*AS OS304: If in a call to SetRelAlarm() the parameter “increment” is set to
+    zero, the service shall return E_OS_VALUE in standard and extended status.
+  */
+  s = SetRelAlarm(Alarm1, 0, AlarmBase.mincycle);
+  EE_assert(16, (s==E_OS_VALUE), 15);
+
+  s = CancelAlarm(Alarm1);
+  EE_assert(17, (s==E_OS_NOFUNC), 16);
+
   TerminateTask();
 }
 
@@ -117,7 +126,7 @@ int main(int argc, char **argv)
 
   StartOS(OSDEFAULTAPPMODE);
 
-  EE_assert_range(0,1,15);
+  EE_assert_range(0,1,17);
   EE_assert_last();
 
   return 0;

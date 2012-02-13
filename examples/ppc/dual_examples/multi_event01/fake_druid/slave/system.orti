@@ -75,6 +75,10 @@ IMPLEMENTATION EE_cpu_1 {
             "OSDEFAULTAPPMODE" = 0
         ] CURRENTAPPMODE, "Current application mode";
 
+        ENUM "void *" [
+            "NO_ISR2" = 0
+        ] RUNNINGISR2, "Running ISR2";
+
         /* EE specific data structures */
         CTYPE "unsigned int" vs_EE_SYSCEILING, "EE system ceiling";
     }, "OS";
@@ -141,6 +145,7 @@ IMPLEMENTATION EE_cpu_1 {
 OS EE_arch {
     RUNNINGTASK = "EE_stkfirst";
     RUNNINGTASKPRIORITY = "(EE_stkfirst == -1) ? 0 : EE_ORTI_th_priority[EE_stkfirst]";
+    RUNNINGISR2 = "EE_ORTI_ISR2_magic";
     SERVICETRACE = "EE_ORTI_servicetrace";
     LASTERROR = "EE_ORTI_lasterror";
     CURRENTAPPMODE = "EE_ApplicationMode";
@@ -165,7 +170,7 @@ TASK TaskZ0Bkg {
 
         /* Stacks */
 STACK Stack0 {
-    SIZE = "512";
+    SIZE = "4096";
     STACKDIRECTION = "DOWN";
     BASEADDRESS = "(unsigned int *)( (int)&EE_e200zx_sys_stack )";
     FILLPATTERN = "0xA5A5A5A5";

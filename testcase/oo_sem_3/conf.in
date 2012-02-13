@@ -1,4 +1,4 @@
 conf = CONF=E1,E2 STATUS=STD,EXT 
-worksfor += nios2e200zx e200zx_diab_vle e200zx_codewarrior_vle e200zx_codewarrior_fle
+worksfor += nios2e200zx e200zx_diab_vle e200zx_codewarrior_vle e200zx_codewarrior_fle  e200zx_diab_5_8_vle e200zx_diab_5_8_fle
 worksfor += s12xs_cosmic s12xs_cw s12g_cw
 worksfor += cortex_m0_iar cortex_m4_ccs cortex_m4_keil

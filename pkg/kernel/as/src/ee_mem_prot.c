@@ -98,7 +98,7 @@ EE_FREG EE_as_SuspendAllInterrupts(EE_FREG prev)
 	EE_FREG next;
 	EE_ORTI_set_service_in(EE_SERVICETRACE_SUSPENDALLINTERRUPTS);
 	next = prev;
-	if (EE_oo_IRQ_disable_count == 0U) {
+	if (EE_oo_IRQ_disable_count == (EE_UREG)0U) {
 		next = EE_hal_clear_irq_flag(next);
 		EE_oo_res_all_irq_prev_state = prev;
 	}
@@ -113,11 +113,11 @@ EE_FREG EE_as_ResumeAllInterrupts(EE_FREG prev)
 	EE_FREG next;
 	EE_ORTI_set_service_in(EE_SERVICETRACE_RESUMEALLINTERRUPTS);
 	next = prev;
-	if (EE_oo_IRQ_disable_count == 0U) {
+	if (EE_oo_IRQ_disable_count == (EE_UREG)0U) {
 		/* No previous SuspendAllInterrupts(): do nothing */
 	} else {
 		--EE_oo_IRQ_disable_count;
-		if (EE_oo_IRQ_disable_count == 0U) {
+		if (EE_oo_IRQ_disable_count == (EE_UREG)0U) {
 			next = EE_hal_copy_irq_flag(
 				EE_oo_res_all_irq_prev_state, next);
 		}
@@ -146,7 +146,7 @@ AccessType CheckTaskMemoryAccess(TaskType TaskID, MemoryStartAddressType Address
 	AccessType ret;
 
 	EE_ORTI_ext_set_service_in(EE_SERVICETRACE_CHECKTASKMEMORYACCESS);
-	if (TaskID < 0 || TaskID >= EE_MAX_TASK) {
+	if ((TaskID < 0) || (TaskID >= EE_MAX_TASK)) {
 		/* Invalid TaskID: no permission */
 		ret = (AccessType)0;
 	} else {
@@ -165,7 +165,7 @@ AccessType CheckISRMemoryAccess(ISRType ISRID, MemoryStartAddressType Address,
 	AccessType ret;
 
 	EE_ORTI_ext_set_service_in(EE_SERVICETRACE_CHECKISRMEMORYACCESS);
-	if (ISRID < 0 || ISRID >= EE_MAX_ISR) {
+	if ((ISRID < (ISRType)0U) || (ISRID >= (ISRType)EE_MAX_ISR)) {
 		/* Invalid ISRID: no permission */
 		ret = (AccessType)0;
 	} else {
@@ -184,7 +184,7 @@ StatusType CallTrustedFunction(TrustedFunctionIndexType FunctionIndex,
 	if (FunctionIndex < (TrustedFunctionIndexType)EE_MAX_SYS_SERVICEID) {
 		return E_OS_SERVICEID;
 	}
-	return EE_as_raw_call_trusted_func(FunctionIndex, FunctionParams);
+	return (StatusType)EE_as_raw_call_trusted_func(FunctionIndex, FunctionParams);
 }
 
 

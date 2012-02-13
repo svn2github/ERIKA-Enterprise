@@ -88,83 +88,42 @@ void EE_oo_GetResource(ResourceType ResID)
 #endif
 
   register EE_FREG flag;
-  
-#ifdef __OO_ORTI_SERVICETRACE__
-  EE_ORTI_servicetrace = EE_SERVICETRACE_GETRESOURCE+1U;
-#endif
+
+  EE_ORTI_set_service_in(EE_SERVICETRACE_GETRESOURCE);
 
 #ifdef __MSRP__
-  /* mask off the MSB, that indicates whether this is a global or a
-     local resource */
-  isGlobal = ((ResID & EE_GLOBAL_MUTEX) != 0U);
+  isGlobal = EE_oo_isGlobal(ResID);
   ResID = ResID & ~EE_GLOBAL_MUTEX;
 #endif
-
-
-
 
 #ifdef __OO_EXTENDED_STATUS__
   /* no comparison for ResID < 0, the type is unsigned! */
   if (ResID >= EE_MAX_RESOURCE) {
-#ifdef __OO_ORTI_LASTERROR__
-    EE_ORTI_lasterror = E_OS_ID;
-#endif
 
-#ifdef __OO_HAS_ERRORHOOK__
+    EE_ORTI_set_lasterror(E_OS_ID);
+
     flag = EE_hal_begin_nested_primitive();
-    if (!EE_ErrorHook_nested_flag) {  
-#ifndef __OO_ERRORHOOK_NOMACROS__
-      EE_oo_ErrorHook_ServiceID = OSServiceId_GetResource;
-      EE_oo_ErrorHook_data.GetResource_prm.ResID = ResID;
-#endif
-      EE_ErrorHook_nested_flag = 1U;
-      ErrorHook(E_OS_ID);
-      EE_ErrorHook_nested_flag = 0U;
-    }
+    EE_oo_notify_error_GetResource(ResID, E_OS_ID);
     EE_hal_end_nested_primitive(flag);
-#endif
 
-#ifdef __OO_ORTI_SERVICETRACE__
-    EE_ORTI_servicetrace = EE_SERVICETRACE_GETRESOURCE;
-#endif
+    EE_ORTI_set_service_out(EE_SERVICETRACE_GETRESOURCE);
 
     return E_OS_ID;
   }
 
-  if (EE_resource_locked[ResID] ||
+  if ((EE_resource_locked[ResID] != 0U) ||
       (EE_th_ready_prio[EE_stk_queryfirst()] > EE_resource_ceiling[ResID])) {
-#ifdef __OO_ORTI_LASTERROR__
-    EE_ORTI_lasterror = E_OS_ACCESS;
-#endif
+    EE_ORTI_set_lasterror(E_OS_ACCESS);
 
-#ifdef __OO_HAS_ERRORHOOK__
     flag = EE_hal_begin_nested_primitive();
-    if (!EE_ErrorHook_nested_flag) {
-#ifndef __OO_ERRORHOOK_NOMACROS__
-      EE_oo_ErrorHook_ServiceID = OSServiceId_GetResource;
-      EE_oo_ErrorHook_data.GetResource_prm.ResID = ResID;
-#endif
-      EE_ErrorHook_nested_flag = 1U;
-      ErrorHook(E_OS_ACCESS);
-      EE_ErrorHook_nested_flag = 0U;
-    }
+    EE_oo_notify_error_GetResource(ResID, E_OS_ACCESS);
     EE_hal_end_nested_primitive(flag);
-#endif
 
-#ifdef __OO_ORTI_SERVICETRACE__
-    EE_ORTI_servicetrace = EE_SERVICETRACE_GETRESOURCE;
-#endif
+    EE_ORTI_set_service_out(EE_SERVICETRACE_GETRESOURCE);
 
     return E_OS_ACCESS;
   }
 #endif /* __OO_EXTENDED_STATUS__ */
-
-
-
-
-
-
-
 
   flag = EE_hal_begin_nested_primitive();
 
@@ -183,7 +142,7 @@ void EE_oo_GetResource(ResourceType ResID)
 #endif
 
 #ifdef __OO_ORTI_RES_LOCKER_TASK__
-  EE_ORTI_res_locker[ResID] = current;
+  EE_ORTI_res_locker[ResID] = (EE_TID)current;
 #endif
 
   EE_resource_oldceiling[ResID] = EE_sys_ceiling;
@@ -205,14 +164,12 @@ void EE_oo_GetResource(ResourceType ResID)
 
   EE_hal_end_nested_primitive(flag);
 
-#ifdef __OO_ORTI_SERVICETRACE__
-  EE_ORTI_servicetrace = EE_SERVICETRACE_GETRESOURCE;
-#endif
+  EE_ORTI_set_service_out(EE_SERVICETRACE_GETRESOURCE);
 
 #ifdef __OO_EXTENDED_STATUS__
   return E_OK;
 #endif
 }
 
-#endif
+#endif /* __PRIVATE_GETRESOURCE__ */
 

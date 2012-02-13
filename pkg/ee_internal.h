@@ -296,10 +296,11 @@ extern "C" {
 #include "kernel/frsh/inc/ee_internal.h"
 #endif
 
-#if defined(__OO_BCC1__) || defined(__OO_BCC2__) || defined(__OO_ECC1__) || defined(__OO_ECC2__)
-#include "kernel/oo/inc/ee_internal.h"
+#if defined(__OO_BCC1__) || defined(__OO_BCC2__) || defined(__OO_ECC1__) || \
+  defined(__OO_ECC2__)
 /* API prototypes should be visible when defining API functions */
 #include "kernel/oo/inc/ee_kernel.h"
+#include "kernel/oo/inc/ee_internal.h"
 #endif
 
 #ifdef __SEM__

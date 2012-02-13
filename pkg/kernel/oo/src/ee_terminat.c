@@ -60,116 +60,74 @@
 
 StatusType EE_oo_TerminateTask(void)
 {
-	register EE_FREG np_flags;
+  register EE_FREG np_flags;
 
-	#ifdef __OO_ORTI_SERVICETRACE__
-	EE_ORTI_servicetrace = EE_SERVICETRACE_TERMINATETASK+1U;
-	#endif
+  EE_ORTI_set_service_in(EE_SERVICETRACE_TERMINATETASK);
 
-	/* check for a call at interrupt level 
-	* This must be the FIRST Check!!!
-	*/
-  	if (EE_hal_get_IRQ_nesting_level()) 
-	{
-		#ifdef __OO_ORTI_LASTERROR__
-    	EE_ORTI_lasterror = E_OS_CALLEVEL;
-		#endif
+  /* check for a call at interrupt level
+   * This must be the FIRST Check!!!
+   */
+  if (EE_hal_get_IRQ_nesting_level()) 
+  {
+    EE_ORTI_set_lasterror(E_OS_CALLEVEL);
 
-		#ifdef __OO_HAS_ERRORHOOK__
-    	np_flags = EE_hal_begin_nested_primitive();
-    	if (!EE_ErrorHook_nested_flag) 
-		{
-			#ifndef __OO_ERRORHOOK_NOMACROS__
-      		EE_oo_ErrorHook_ServiceID = OSServiceId_TerminateTask;
-			#endif
-    		EE_ErrorHook_nested_flag = 1U;
-    		ErrorHook(E_OS_CALLEVEL);
-    		EE_ErrorHook_nested_flag = 0U;
-    	}
-    	EE_hal_end_nested_primitive(np_flags);
-		#endif
+    np_flags = EE_hal_begin_nested_primitive();
+    EE_oo_notify_error_service(OSServiceId_TerminateTask, E_OS_CALLEVEL);
+    EE_hal_end_nested_primitive(np_flags);
 
-		#ifdef __OO_ORTI_SERVICETRACE__
-	EE_ORTI_servicetrace = EE_SERVICETRACE_TERMINATETASK;
-		#endif
+    EE_ORTI_set_service_out(EE_SERVICETRACE_TERMINATETASK);
 
-    	return E_OS_CALLEVEL;
-  	}
+    return E_OS_CALLEVEL;
+  }
 
-	#ifndef __OO_NO_RESOURCES__
-  	/* check for busy resources */ 
-  	
-  	if (EE_th_resource_last[EE_stk_queryfirst()] != EE_UREG_MINUS1) 
-	{
-		#ifdef __OO_ORTI_LASTERROR__
-    	EE_ORTI_lasterror = E_OS_RESOURCE;
-		#endif
+#ifndef __OO_NO_RESOURCES__
+  /* check for busy resources */ 
 
-		#ifdef __OO_HAS_ERRORHOOK__
-    	np_flags = EE_hal_begin_nested_primitive();
-    	if (!EE_ErrorHook_nested_flag) 
-		{
-		#ifndef __OO_ERRORHOOK_NOMACROS__
-      	EE_oo_ErrorHook_ServiceID = OSServiceId_TerminateTask;
-		#endif
-      	EE_ErrorHook_nested_flag = 1U;
-      	ErrorHook(E_OS_RESOURCE);
-      	EE_ErrorHook_nested_flag = 0U;
-    	}
-    	EE_hal_end_nested_primitive(np_flags);
-		#endif
+  if (EE_th_resource_last[EE_stk_queryfirst()] != EE_UREG_MINUS1) 
+  {
+    EE_ORTI_set_lasterror(E_OS_RESOURCE);
 
-		#ifdef __OO_ORTI_SERVICETRACE__
-    	EE_ORTI_servicetrace = EE_SERVICETRACE_TERMINATETASK;
-		#endif
+    np_flags = EE_hal_begin_nested_primitive();
+    EE_oo_notify_error_service(OSServiceId_TerminateTask, E_OS_RESOURCE);
+    EE_hal_end_nested_primitive(np_flags);
 
-    	return E_OS_RESOURCE;
-  	}
-	#endif
+    EE_ORTI_set_service_out(EE_SERVICETRACE_TERMINATETASK);
 
-  	np_flags = EE_hal_begin_nested_primitive();
+    return E_OS_RESOURCE;
+  }
+#endif /* __OO_NO_RESOURCES__ */
 
-	#ifndef __OO_NO_CHAINTASK__
-  	EE_th_terminate_nextask[EE_stk_queryfirst()] = EE_NIL;
-	#endif
+  np_flags = EE_hal_begin_nested_primitive();
 
-	#ifdef __OO_ORTI_SERVICETRACE__
-  	EE_ORTI_servicetrace = EE_SERVICETRACE_TERMINATETASK;
-	#endif
-  
-  	EE_hal_terminate_task(EE_stk_queryfirst());
+#ifndef __OO_NO_CHAINTASK__
+  EE_th_terminate_nextask[EE_stk_queryfirst()] = EE_NIL;
+#endif
 
-	/* This instruction prevent some compiler warning only, because
-	   hal_terminate_task does not return... */
-	EE_hal_end_nested_primitive(np_flags);
+  EE_ORTI_set_service_out(EE_SERVICETRACE_TERMINATETASK);
 
-  	/* This return instruction usually is optimized by the compiler,
+  EE_hal_terminate_task(EE_stk_queryfirst());
+  /* This return instruction usually is optimized by the compiler,
      because hal_terminate_task does not return... */
-  	return E_OK;
+  return E_OK;
 }
 
-#else
+#else /* __OO_EXTENDED_STATUS__ */
 
 void EE_oo_TerminateTask(void)
 {
-	#ifdef __OO_ORTI_SERVICETRACE__
-  	/* both assignment to enable smart debuggers to notice the entry and
+  /* both assignment to enable smart debuggers to notice the entry and
      exit from terminatetask */
-	EE_ORTI_servicetrace = EE_SERVICETRACE_TERMINATETASK+1U;
-	#endif
+  EE_ORTI_set_service_in(EE_SERVICETRACE_TERMINATETASK);
 
-	#ifndef __OO_NO_CHAINTASK__
-  	EE_th_terminate_nextask[EE_stk_queryfirst()] = EE_NIL;
-	#endif
+#ifndef __OO_NO_CHAINTASK__
+  EE_th_terminate_nextask[EE_stk_queryfirst()] = EE_NIL;
+#endif
 
-	#ifdef __OO_ORTI_SERVICETRACE__
-  	EE_ORTI_servicetrace = EE_SERVICETRACE_TERMINATETASK;
-	#endif
+  EE_ORTI_set_service_out(EE_SERVICETRACE_TERMINATETASK);
 
-  	/* just terminate without any check */
-  	EE_hal_terminate_task(EE_stk_queryfirst());
+  /* just terminate without any check */
+  EE_hal_terminate_task(EE_stk_queryfirst());
 }
 
-
-#endif
-#endif
+#endif /* __OO_EXTENDED_STATUS__ */
+#endif /* __PRIVATE_TERMINATETASK__ */

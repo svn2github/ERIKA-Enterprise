@@ -85,6 +85,9 @@ typedef void (*EE_FADDR)(void);
 /* Callbacks with no parameters nor return value */
 typedef void (*EE_VOID_CALLBACK)(void);
 
+/* Thread body pointer (same size of function pointers) */
+typedef void (*EE_THREAD_PTR)(void);
+
 /* Callback function called by driver handlers */
 typedef EE_VOID_CALLBACK EE_ISR_callback;
 

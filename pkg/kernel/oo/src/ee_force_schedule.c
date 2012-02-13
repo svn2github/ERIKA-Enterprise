@@ -74,101 +74,37 @@ StatusType EE_oo_ForceSchedule(void)
 void EE_oo_ForceSchedule(void)
 #endif
 {
-  EE_TID current, rq;
   register EE_FREG np_flags;
 
-#ifdef __OO_ORTI_SERVICETRACE__
-  EE_ORTI_servicetrace = EE_SERVICETRACE_FORCESCHEDULE+1U;
-#endif
+  EE_ORTI_set_service_in(EE_SERVICETRACE_FORCESCHEDULE);
 
 #ifdef __OO_EXTENDED_STATUS__
   /* check for a call at interrupt level: This must be the FIRST check!*/
   if (EE_hal_get_IRQ_nesting_level()) {
-#ifdef __OO_ORTI_LASTERROR__
-    EE_ORTI_lasterror = E_OS_CALLEVEL;
-#endif
+    EE_ORTI_set_lasterror(E_OS_CALLEVEL);
 
-#ifdef __OO_HAS_ERRORHOOK__
     np_flags = EE_hal_begin_nested_primitive();
-    if (!EE_ErrorHook_nested_flag) {  
-#ifndef __OO_ERRORHOOK_NOMACROS__
-      EE_oo_ErrorHook_ServiceID = OSServiceId_ForceSchedule;
-#endif
-      EE_ErrorHook_nested_flag = 1U;
-      ErrorHook(E_OS_CALLEVEL);
-      EE_ErrorHook_nested_flag = 0U;
-    }
+    EE_oo_notify_error_service(OSServiceId_ForceSchedule ,E_OS_CALLEVEL);
     EE_hal_end_nested_primitive(np_flags);
-#endif
 
-#ifdef __OO_ORTI_SERVICETRACE__
-    EE_ORTI_servicetrace = EE_SERVICETRACE_FORCESCHEDULE;
-#endif
+    EE_ORTI_set_service_out(EE_SERVICETRACE_FORCESCHEDULE);
 
     return E_OS_CALLEVEL;
   }
-#endif
-
+#endif /* __OO_EXTENDED_STATUS__ */
 
   np_flags = EE_hal_begin_nested_primitive();
-  
-  current = EE_stk_queryfirst();
 
-  /* check if there is a preemption */
-  rq = EE_rq_queryfirst();
-  if (rq != EE_NIL) {
-    /* We check if the system ceiling is greater or not the first task
-       in the ready queue */
-    if (EE_sys_ceiling < EE_th_ready_prio[rq]) {
-      if (current != EE_NIL) { 
-#ifdef __OO_HAS_POSTTASKHOOK__
-	PostTaskHook();
-#endif	
-	/* we have to put the task in the ready status */
-	EE_th_status[current] = READY;
-	/* but not in the ready queue!!! 
-	   the task remains into the stacked queue!
-	*/
-      }
-      
-      /* get the new internal resource */
-      EE_sys_ceiling |= EE_th_dispatch_prio[rq];
-      /* put the task in running state */
-      EE_th_status[rq] = RUNNING;
+  EE_oo_preemption_point();
 
-#ifdef __OO_ORTI_PRIORITY__
-      EE_ORTI_th_priority[rq] = EE_th_dispatch_prio[rq];
-#endif
-      
-#if defined(__OO_ECC1__) || defined(__OO_ECC2__)
-      rq = EE_rq2stk_exchange();
-      if (EE_th_waswaiting[rq]) {
-	EE_th_waswaiting[rq] = 0U;
-	EE_hal_stkchange(rq); 
-      } else {
-	EE_hal_ready2stacked(rq);
-      }
-#else
-      EE_hal_ready2stacked(EE_rq2stk_exchange());
-#endif
-      
-#ifdef __OO_HAS_PRETASKHOOK__
-      PreTaskHook();
-#endif	
-
-    }
-  }
-  
   EE_hal_end_nested_primitive(np_flags);
 
-#ifdef __OO_ORTI_SERVICETRACE__
-  EE_ORTI_servicetrace = EE_SERVICETRACE_FORCESCHEDULE;
-#endif
+  EE_ORTI_set_service_out(EE_SERVICETRACE_FORCESCHEDULE);
   
 #ifdef __OO_EXTENDED_STATUS__
   return E_OK;
-#endif
+#endif /* __OO_EXTENDED_STATUS__ */
 }
 
-#endif
+#endif /* __PRIVATE_FORCESCHEDULE__ */
 

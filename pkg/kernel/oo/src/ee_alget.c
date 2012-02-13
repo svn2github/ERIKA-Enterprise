@@ -57,73 +57,33 @@
 StatusType EE_oo_GetAlarm(AlarmType AlarmID, TickRefType Tick)
 {
   register AlarmType current;
+  register StatusType retVal;
   register EE_FREG flag;
+
+  EE_ORTI_set_service_in(EE_SERVICETRACE_GETALARM);
   
-#ifdef __OO_ORTI_SERVICETRACE__
-  EE_ORTI_servicetrace = EE_SERVICETRACE_GETALARM+1U;
-#endif
-
-
-
-
 #ifdef __OO_EXTENDED_STATUS__
-  if (AlarmID < 0 || AlarmID >= EE_MAX_ALARM) {
-#ifdef __OO_ORTI_LASTERROR__
-    EE_ORTI_lasterror = E_OS_ID;
-#endif
+  if ((AlarmID < 0) || (AlarmID >= EE_MAX_ALARM)) {
+    EE_ORTI_set_lasterror(E_OS_ID);
 
-#ifdef __OO_HAS_ERRORHOOK__
     flag = EE_hal_begin_nested_primitive();
-    if (!EE_ErrorHook_nested_flag) {
-#ifndef __OO_ERRORHOOK_NOMACROS__
-      EE_oo_ErrorHook_ServiceID = OSServiceId_GetAlarm;
-      EE_oo_ErrorHook_data.GetAlarm_prm.AlarmID = AlarmID;
-      EE_oo_ErrorHook_data.GetAlarm_prm.Tick = Tick;
-#endif
-      EE_ErrorHook_nested_flag = 1U;
-      ErrorHook(E_OS_ID);
-      EE_ErrorHook_nested_flag = 0U;
-    }
+    EE_oo_notify_error_GetAlarm(AlarmID, Tick, E_OS_ID);
     EE_hal_end_nested_primitive(flag);
-#endif
 
-
-#ifdef __OO_ORTI_SERVICETRACE__
-    EE_ORTI_servicetrace = EE_SERVICETRACE_GETALARM;
-#endif
+    EE_ORTI_set_service_out(EE_SERVICETRACE_GETALARM);
 
     return E_OS_ID;
   }
-#endif
-
-
-
+#endif /* __OO_EXTENDED_STATUS__ */
 
   flag = EE_hal_begin_nested_primitive();
 
-  if (!EE_alarm_RAM[AlarmID].used) {
-#ifdef __OO_ORTI_LASTERROR__
-    EE_ORTI_lasterror = E_OS_NOFUNC;
-#endif
-
-#ifdef __OO_HAS_ERRORHOOK__
-    if (!EE_ErrorHook_nested_flag) {
-#ifndef __OO_ERRORHOOK_NOMACROS__
-      EE_oo_ErrorHook_ServiceID = OSServiceId_GetAlarm;
-      EE_oo_ErrorHook_data.GetAlarm_prm.AlarmID = AlarmID;
-      EE_oo_ErrorHook_data.GetAlarm_prm.Tick = Tick;
-#endif
-      EE_ErrorHook_nested_flag = 1U;
-      ErrorHook(E_OS_NOFUNC);
-      EE_ErrorHook_nested_flag = 0U;
-    }
-#endif
+  if (EE_alarm_RAM[AlarmID].used == 0U) {
+    EE_ORTI_set_lasterror(E_OS_NOFUNC);
+    EE_oo_notify_error_GetAlarm(AlarmID, Tick, E_OS_NOFUNC);
 
     EE_hal_end_nested_primitive(flag);
-
-#ifdef __OO_ORTI_SERVICETRACE__
-    EE_ORTI_servicetrace = EE_SERVICETRACE_GETALARM;
-#endif
+    EE_ORTI_set_service_out(EE_SERVICETRACE_GETALARM);
 
     return E_OS_NOFUNC;
   }
@@ -131,18 +91,29 @@ StatusType EE_oo_GetAlarm(AlarmType AlarmID, TickRefType Tick)
   /* to compute the relative value in ticks, we have to follow the counter
      delay chain */
   current = EE_counter_RAM[EE_alarm_ROM[AlarmID].c].first;
-  *Tick = EE_alarm_RAM[current].delta;
-  while (current != AlarmID) {
-    current = EE_alarm_RAM[current].next;
-    *Tick += EE_alarm_RAM[current].delta;
-  } 
+
+  if (Tick != (TickRefType)NULL) {
+    *Tick = EE_alarm_RAM[current].delta;
+    while (current != AlarmID) {
+      current = EE_alarm_RAM[current].next;
+      *Tick += EE_alarm_RAM[current].delta;
+    }
+    retVal = E_OK;
+  } else {
+    /* OS566: The Operating System API shall check in extended mode all pointer
+        argument for NULL pointer and return OS_E_PARAMETER_POINTER 
+        if such argument is NULL.
+    */
+    EE_ORTI_set_lasterror(E_OS_PARAMETER_POINTER);
+
+    EE_oo_notify_error_GetAlarm(AlarmID, Tick, E_OS_PARAMETER_POINTER);
+
+    retVal = E_OS_PARAMETER_POINTER;
+  }
 
   EE_hal_end_nested_primitive(flag);
+  EE_ORTI_set_service_out(EE_SERVICETRACE_GETALARM);
 
-#ifdef __OO_ORTI_SERVICETRACE__
-  EE_ORTI_servicetrace = EE_SERVICETRACE_GETALARM;
-#endif
-
-  return E_OK;
+  return retVal;
 }
-#endif
+#endif /* !__PRIVATE_GETALARM__ */

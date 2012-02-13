@@ -55,15 +55,11 @@
 #ifndef __PRIVATE_ENABLEALLINTERRUPTS__
 void EE_oo_EnableAllInterrupts(void)
 {
-#ifdef __OO_ORTI_SERVICETRACE__
-  EE_ORTI_servicetrace = EE_SERVICETRACE_ENABLEALLINTERRUPTS+1U;
-#endif
+  EE_ORTI_set_service_in(EE_SERVICETRACE_ENABLEALLINTERRUPT);
 
   EE_hal_enableIRQ();
 
-#ifdef __OO_ORTI_SERVICETRACE__
-  EE_ORTI_servicetrace = EE_SERVICETRACE_ENABLEALLINTERRUPTS;
-#endif
+  EE_ORTI_set_service_out(EE_SERVICETRACE_ENABLEALLINTERRUPTS);
 }
-#endif
+#endif /* __PRIVATE_ENABLEALLINTERRUPTS__ */
 

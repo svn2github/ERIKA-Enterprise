@@ -7,6 +7,8 @@
  * Stack definition for Freescale MPC5674F, PPC e200z7
  *
  **************************************************************************/
+#ifndef USE_PRAGMAS
+
     #define STACK_1_SIZE 512 /* size = 512 bytes */
     #define STACK_2_SIZE 512 /* size = 512 bytes */
     #define STACK_3_SIZE 512 /* size = 512 bytes */
@@ -22,6 +24,34 @@
     static EE_STACK_T EE_STACK_ATTRIB_NAME(TrustedApp) EE_stack_5[EE_STACK_WLEN(STACK_5_SIZE)];	/* ISR stack for TrustedApp */
     static EE_STACK_T EE_STACK_ATTRIB_NAME(App1) EE_stack_6[EE_STACK_WLEN(STACK_6_SIZE)];	/* ISR stack for App1 */
     static EE_STACK_T EE_STACK_ATTRIB_NAME(App2) EE_stack_7[EE_STACK_WLEN(STACK_7_SIZE)];	/* ISR stack for App2 */
+
+#else
+
+#define STACK_1_SIZE 512 /* size = 512 bytes */
+#define STACK_2_SIZE 512 /* size = 512 bytes */
+#define STACK_3_SIZE 512 /* size = 512 bytes */
+#define STACK_4_SIZE 512 /* size = 512 bytes */
+#define STACK_5_SIZE 512 /* size = 512 bytes */
+#define STACK_6_SIZE 512 /* size = 512 bytes */
+#define STACK_7_SIZE 512 /* size = 512 bytes */
+
+#pragma section DATA "ee_stack_TrustedApp" "ee_stack_TrustedApp"
+static EE_STACK_T EE_stack_1[EE_STACK_WLEN(STACK_1_SIZE)];
+static EE_STACK_T EE_stack_5[EE_STACK_WLEN(STACK_5_SIZE)];
+#pragma section DATA //EE_stack_1, EE_stack_5
+
+#pragma section DATA "ee_stack_App1" "ee_stack_App1"
+static EE_STACK_T EE_stack_2[EE_STACK_WLEN(STACK_2_SIZE)];
+static EE_STACK_T EE_stack_6[EE_STACK_WLEN(STACK_6_SIZE)];
+#pragma section DATA// APP1 EE_stack_2, EE_stack_6
+
+#pragma section DATA "ee_stack_App2" "ee_stack_App2"
+static EE_STACK_T EE_stack_3[EE_STACK_WLEN(STACK_3_SIZE)];
+static EE_STACK_T EE_stack_4[EE_STACK_WLEN(STACK_4_SIZE)];
+static EE_STACK_T EE_stack_7[EE_STACK_WLEN(STACK_7_SIZE)];
+#pragma section DATA// EE_stack_3, EE_stack_4, EE_stack_7
+
+#endif
 
     const EE_UREG EE_std_thread_tos[EE_MAX_TASK+1] = {
         0U,	 /* dummy*/
@@ -50,26 +80,26 @@
  * OS APPLICATIONS definition
  *
  **************************************************************************/
-    extern const int _load_data_TrustedApp;
-    extern int _sstack_TrustedApp;
-    extern int _sdata_TrustedApp;
-    extern int _sbss_TrustedApp;
-    extern int _ebss_TrustedApp;
-    extern const int _load_data_App1;
-    extern int _sstack_App1;
-    extern int _sdata_App1;
-    extern int _sbss_App1;
-    extern int _ebss_App1;
-    extern const int _load_data_App2;
-    extern int _sstack_App2;
-    extern int _sdata_App2;
-    extern int _sbss_App2;
-    extern int _ebss_App2;
+    extern const int ee_load_data_TrustedApp;
+    extern int ee_sstack_TrustedApp;
+    extern int ee_sdata_TrustedApp;
+    extern int ee_sbss_TrustedApp;
+    extern int ee_ebss_TrustedApp;
+    extern const int ee_load_data_App1;
+    extern int ee_sstack_App1;
+    extern int ee_sdata_App1;
+    extern int ee_sbss_App1;
+    extern int ee_ebss_App1;
+    extern const int ee_load_data_App2;
+    extern int ee_sstack_App2;
+    extern int ee_sdata_App2;
+    extern int ee_sbss_App2;
+    extern int ee_ebss_App2;
 
     const EE_as_Application_ROM_type EE_as_Application_ROM[EE_MAX_APP] = {
-	{{ &_load_data_TrustedApp, &_sstack_TrustedApp, &_sdata_TrustedApp, &_sbss_TrustedApp, &_ebss_TrustedApp }},
-        {{ &_load_data_App1, &_sstack_App1, &_sdata_App1, &_sbss_App1, &_ebss_App1 }},
-        {{ &_load_data_App2, &_sstack_App2, &_sdata_App2, &_sbss_App2, &_ebss_App2 }}
+	{{ &ee_load_data_TrustedApp, &ee_sstack_TrustedApp, &ee_sdata_TrustedApp, &ee_sbss_TrustedApp, &ee_ebss_TrustedApp }},
+        {{ &ee_load_data_App1, &ee_sstack_App1, &ee_sdata_App1, &ee_sbss_App1, &ee_ebss_App1 }},
+        {{ &ee_load_data_App2, &ee_sstack_App2, &ee_sdata_App2, &ee_sbss_App2, &ee_ebss_App2 }}
     };
 
 

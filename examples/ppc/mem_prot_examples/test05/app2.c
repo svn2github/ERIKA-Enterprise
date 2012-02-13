@@ -3,9 +3,20 @@
 #include "app.h"
 #include "error.h"
 
+#ifdef USE_PRAGMAS
+#pragma section BSS_APP2 "ee_bss_App2" "ee_bss_App2"
+#pragma use_section BSS_APP2 myid
+#pragma use_section BSS_APP2 var2
+
+#pragma section DATA_APP1 "ee_data_App1" "ee_data_App1"
+#pragma use_section DATA_APP1 counter1
+
+int var2;
+static ApplicationType myid;
+#else
 int EE_APPLICATION_UDATA(App2) var2;
 static ApplicationType EE_APPLICATION_UDATA(App2) myid;
-
+#endif
 
 ISR2(App2Isr)
 {

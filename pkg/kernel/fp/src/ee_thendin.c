@@ -78,8 +78,8 @@ void EE_thread_end_instance(void)
   
   /* check if there is to schedule a ready task pop a preempted
    * task   */
-  if (EE_rq_queryfirst() == EE_NIL ||
-      EE_sys_ceiling >= EE_th_ready_prio[EE_rq_queryfirst()]) {
+  if ((EE_rq_queryfirst() == EE_NIL) ||
+      (EE_sys_ceiling >= EE_th_ready_prio[EE_rq_queryfirst()])) {
     /* we have to schedule an interrupted task (already on the
      * stack!!!) the state is already STACKED! */
     EE_hal_endcycle_stacked(EE_stk_queryfirst());

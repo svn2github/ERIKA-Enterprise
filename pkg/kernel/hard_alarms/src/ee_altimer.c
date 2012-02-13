@@ -80,6 +80,7 @@ void EE_alarm_timer(EE_TYPECOUNTER c)
   register EE_FREG flag;
   register EE_SREG res;
   register EE_UREG inf;
+  int rn_return_val;
   
   flag = EE_hal_begin_nested_primitive();
   
@@ -100,13 +101,14 @@ void EE_alarm_timer(EE_TYPECOUNTER c)
     
       /* this code is similar to the first part of thread_activate */
 #ifdef __RN_TASK__
-        if (t & EE_REMOTE_TID) 
+        if (EE_IS_TID_REMOTE(t))
         { /* forward the request to another CPU whether the thread do
            * not become to the current CPU 
            */
 	  EE_TYPERN_PARAM par;
 	  par.pending = 1;
-          EE_rn_send(t & ~EE_REMOTE_TID, EE_RN_TASK, par );
+          rn_return_val = EE_rn_send((EE_SREG)EE_MARK_REMOTE_TID(t),
+EE_RN_TASK, par );
         } 
         else 
         {

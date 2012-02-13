@@ -52,6 +52,7 @@ void EE_edf_ActivateTask(EE_TID t)
   register EE_TID tmp_rq;
   register EE_TID tmp_stk;
   register EE_FREG flag;
+  int rn_ret_val;
  
 #ifdef __RN_TASK__
   if (t & EE_REMOTE_TID) {
@@ -59,7 +60,7 @@ void EE_edf_ActivateTask(EE_TID t)
     par.pending = 1;
     /* forward the request to another CPU whether the task do
        not become to the current CPU */
-    EE_rn_send(t & ~EE_REMOTE_TID, EE_RN_TASK, par);
+    rn_ret_val = EE_rn_send(t & ~EE_REMOTE_TID, EE_RN_TASK, par);
   } else {
 #endif
 	

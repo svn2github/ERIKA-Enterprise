@@ -66,14 +66,14 @@ void EE_tc1_hal_stkchange(EE_TID tid);
 
 #ifdef __MONO__
 /* Multistack variant to be found in ee_hal.c */
-__INLINE__ void __ALWAYS_INLINE__ EE_tc1_hal_ready2stacked(EE_FADDR thread)
+__INLINE__ void __ALWAYS_INLINE__ EE_tc1_hal_ready2stacked(EE_THREAD_PTR thread)
 {
     do {
         EE_hal_enableIRQ();
         ((EE_THREAD_PTR)thread)();
         EE_hal_disableIRQ();
         EE_thread_end_instance();  
-        thread = (EE_FADDR)EE_hal_endcycle_next_thread;
+        thread = EE_hal_endcycle_next_thread;
     } while (thread != 0);
 }
 #endif
@@ -184,7 +184,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_stkchange(EE_TID tid)
 __INLINE__ void __ALWAYS_INLINE__ EE_hal_terminate_savestk(EE_TID tid)
 {
     EE_tc1_hal_terminate_savestk(&EE_terminate_data[tid],
-                                 (EE_FADDR)EE_terminate_real_th_body[tid]);
+                                 EE_terminate_real_th_body[tid]);
 }
 
 

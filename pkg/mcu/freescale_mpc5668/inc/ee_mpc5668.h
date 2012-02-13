@@ -54,7 +54,7 @@
 
 #define EE_E200ZX_MAX_EXT_IRQ 316
 
-#if ! defined EE_CURRENTCPU || EE_CURRENTCPU == 0
+#if (! defined EE_CURRENTCPU) || (EE_CURRENTCPU == 0)
 /* For duplicated registers, pick the Z6 instance */
 #define INTC_CPR (INTC.CPR_PRC0)
 #define INTC_IACKR (INTC.IACKR_PRC0)

@@ -64,26 +64,26 @@ SECTIONS
 			*(.sdata2)
 			*(.sbss2)
 		 }
-		_load_ram = . ;
+		ee_load_ram = . ;
 	} > iflash
 
 	GROUP : {
-		_sdata = . ;
-		.data LOAD(_load_ram): { }
+		ee_sdata = . ;
+		.data LOAD(ee_load_ram): { }
 
-		.sram_text LOAD(_load_ram + ADDR(.sram_text) - ADDR(.data)): { }
+		.sram_text LOAD(ee_load_ram + ADDR(.sram_text) - ADDR(.data)): { }
 
-		.sdata LOAD(_load_ram + ADDR(.sdata) - ADDR(.data)): { }
+		.sdata LOAD(ee_load_ram + ADDR(.sdata) - ADDR(.data)): { }
 
-		_sbss = . ;
+		ee_sbss = . ;
 		.sbss : { }
 		.bss : { }
-		_ebss = . ;
+		ee_ebss = . ;
 
-		_sstack = . ;
+		ee_sstack = . ;
 		.stack : {
 			*(.stack)
 		}
-		_estack = . ;
+		ee_estack = . ;
 	} > isram
 }

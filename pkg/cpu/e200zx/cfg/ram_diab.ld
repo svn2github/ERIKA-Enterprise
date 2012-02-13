@@ -62,21 +62,21 @@ SECTIONS
 		.sdata2 : { }
 		.sbss2 : { }
 
-		_load_ram = . ;
-		_sdata = . ;
-		.data LOAD(_load_ram): { }
+		ee_load_ram = . ;
+		ee_sdata = . ;
+		.data LOAD(ee_load_ram): { }
 
-		.sdata LOAD(_load_ram + ADDR(.sdata) - ADDR(.data)): { }
+		.sdata LOAD(ee_load_ram + ADDR(.sdata) - ADDR(.data)): { }
 
-		_sbss = . ;
+		ee_sbss = . ;
 		.sbss : { }
 		.bss : { }
-		_ebss = . ;
+		ee_ebss = . ;
 
-		_sstack = . ;
+		ee_sstack = . ;
 		.stack : {
 			*(.stack)
 		}
-		_estack = . ;
+		ee_estack = . ;
 	} > isram
 }

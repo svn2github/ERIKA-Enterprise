@@ -82,7 +82,7 @@ struct EE_TOS {
  *************************************************************************/
 
 /* Thread function body pointer */
-extern const EE_FADDR EE_hal_thread_body[];
+extern const EE_THREAD_PTR EE_hal_thread_body[];
 
 #ifdef __MULTI__
 
@@ -106,7 +106,7 @@ extern EE_UINT32 EE_terminate_data[];
 
 /* this is the real thread body that is called if the thread use the
    TerminateTask function */
-extern const EE_FADDR EE_terminate_real_th_body[];
+extern const EE_THREAD_PTR EE_terminate_real_th_body[];
 
 #endif /* __OO_BCCx__ */
 

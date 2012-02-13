@@ -51,12 +51,13 @@ EE_UREG EE_oo_IRQ_disable_count = 0U;
 #ifdef __OO_HAS_ERRORHOOK__
 #ifndef __OO_ERRORHOOK_NOMACROS__
 OSServiceIdType EE_oo_ErrorHook_ServiceID;
-union EE_oo_ErrorHook_parameters EE_oo_ErrorHook_data;
+struct EE_oo_ErrorHook_parameters EE_oo_ErrorHook_data;
 #endif
 EE_TYPEBOOL EE_ErrorHook_nested_flag = 0U;
 #endif
 
-#if defined(__OO_HAS_STARTUPHOOK__) || defined(__OO_AUTOSTART_TASK__) || defined(__OO_AUTOSTART_ALARM__)
+#if defined(__OO_HAS_STARTUPHOOK__) || defined(__OO_AUTOSTART_TASK__) || \
+  defined(__OO_AUTOSTART_ALARM__)
 EE_TYPEBOOL EE_oo_no_preemption = 0U;
 #endif
 

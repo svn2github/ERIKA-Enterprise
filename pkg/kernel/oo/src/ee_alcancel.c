@@ -58,63 +58,30 @@ StatusType EE_oo_CancelAlarm(AlarmType AlarmID)
   register AlarmType current, previous;
   register EE_FREG flag;
   
-#ifdef __OO_ORTI_SERVICETRACE__
-  EE_ORTI_servicetrace = EE_SERVICETRACE_CANCELALARM+1U;
-#endif
+  EE_ORTI_set_service_in(EE_SERVICETRACE_CANCELALARM);
 
 #ifdef __OO_EXTENDED_STATUS__
-  if (AlarmID < 0 || AlarmID >= EE_MAX_ALARM) {
-#ifdef __OO_ORTI_LASTERROR__
-    EE_ORTI_lasterror = E_OS_ID;
-#endif
+  if ((AlarmID < 0) || (AlarmID >= EE_MAX_ALARM)) {
+    EE_ORTI_set_lasterror(E_OS_ID);
 
-#ifdef __OO_HAS_ERRORHOOK__
     flag = EE_hal_begin_nested_primitive();
-    if (!EE_ErrorHook_nested_flag) {
-#ifndef __OO_ERRORHOOK_NOMACROS__
-      EE_oo_ErrorHook_ServiceID = OSServiceId_CancelAlarm;
-      EE_oo_ErrorHook_data.CancelAlarm_prm.AlarmID = AlarmID;
-#endif
-      EE_ErrorHook_nested_flag = 1U;
-      ErrorHook(E_OS_ID);
-      EE_ErrorHook_nested_flag = 0U;
-    }
+    EE_oo_notify_error_CancelAlarm(AlarmID, E_OS_ID);
     EE_hal_end_nested_primitive(flag);
-#endif
 
-
-#ifdef __OO_ORTI_SERVICETRACE__
-    EE_ORTI_servicetrace = EE_SERVICETRACE_CANCELALARM;
-#endif
+    EE_ORTI_set_service_out(EE_SERVICETRACE_CANCELALARM);
 
     return E_OS_ID;
   }
 #endif
 
   flag = EE_hal_begin_nested_primitive();
+  if (EE_alarm_RAM[AlarmID].used == 0U) {
+    EE_ORTI_set_lasterror(E_OS_NOFUNC);
 
-  if (!EE_alarm_RAM[AlarmID].used) {
-#ifdef __OO_ORTI_LASTERROR__
-    EE_ORTI_lasterror = E_OS_NOFUNC;
-#endif
-
-#ifdef __OO_HAS_ERRORHOOK__
-    if (!EE_ErrorHook_nested_flag) {
-#ifndef __OO_ERRORHOOK_NOMACROS__
-      EE_oo_ErrorHook_ServiceID = OSServiceId_CancelAlarm;
-      EE_oo_ErrorHook_data.CancelAlarm_prm.AlarmID = AlarmID;
-#endif
-      EE_ErrorHook_nested_flag = 1U;
-      ErrorHook(E_OS_NOFUNC);
-      EE_ErrorHook_nested_flag = 0U;
-    }
-#endif
+    EE_oo_notify_error_CancelAlarm(AlarmID, E_OS_NOFUNC);
 
     EE_hal_end_nested_primitive(flag);
-
-#ifdef __OO_ORTI_SERVICETRACE__
-    EE_ORTI_servicetrace = EE_SERVICETRACE_CANCELALARM;
-#endif
+    EE_ORTI_set_service_out(EE_SERVICETRACE_CANCELALARM);
 
     return E_OS_NOFUNC;
   }
@@ -136,7 +103,7 @@ StatusType EE_oo_CancelAlarm(AlarmType AlarmID)
     EE_alarm_RAM[previous].next = EE_alarm_RAM[AlarmID].next;
   }
 
-  if (EE_alarm_RAM[AlarmID].next != -1) {
+  if (EE_alarm_RAM[AlarmID].next != (EE_SREG)-1) {
     EE_alarm_RAM[EE_alarm_RAM[AlarmID].next].delta +=
       EE_alarm_RAM[AlarmID].delta;
   }
@@ -144,11 +111,8 @@ StatusType EE_oo_CancelAlarm(AlarmType AlarmID)
   EE_alarm_RAM[AlarmID].used = 0U;
 
   EE_hal_end_nested_primitive(flag);
-
-#ifdef __OO_ORTI_SERVICETRACE__
-  EE_ORTI_servicetrace = EE_SERVICETRACE_CANCELALARM;
-#endif
+  EE_ORTI_set_service_out(EE_SERVICETRACE_CANCELALARM);
 
   return E_OK;
 }
-#endif
+#endif /* __PRIVATE_CANCELALARM__ */

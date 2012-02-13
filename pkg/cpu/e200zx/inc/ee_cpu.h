@@ -64,7 +64,7 @@
 /* This instruction should cause a trap when executed.  Handy to mark invalid
  * functions */
 /* XXX */
-#define INVALID_ASM_INSTR  asm volatile ( ".word 0xcccc" )
+#define INVALID_ASM_INSTR  __asm volatile ( ".word 0xcccc" )
 
 
 /*************************************************************************
@@ -83,8 +83,14 @@ typedef EE_UINT32 EE_FREG;
 /* Thread IDs */
 typedef EE_INT32 EE_TID;
 
+/* Thread IDs - unsigned version*/
+typedef EE_UINT32 EE_UTID;
+
 /* Flag (OR'ed to an EE_TID) to mark a task as stacked. */
-#define TID_IS_STACKED_MARK	0x80000000
+#define TID_IS_STACKED_MARK	0x80000000U
+
+/* Remote TID, to be used with Remote notifications */
+#define EE_REMOTE_TID 0x80000000U
 
 /* EE_TYPEIRQ is defined inside the MCU */
 
@@ -97,9 +103,10 @@ typedef EE_INT32 EE_TID;
 typedef void (*EE_e200z7_ISR_handler)(void);
 
 /* Alignment and section for program stacks */
-#define EE_STACK_SEC ".stack"
+#define EE_STACK_SEC "ee_stack"
+#define STACK_SEC ".stack"
 #define EE_STACK_ATTRIB		EE_COMPILER_ALIGN(EE_STACK_ALIGN)	\
-	EE_COMPILER_SECTION(EE_STACK_SEC)
+	EE_COMPILER_SECTION(STACK_SEC)
 #define EE_STACK_ATTRIB_NAME(n)	EE_COMPILER_ALIGN(EE_STACK_ALIGN)	\
 	EE_COMPILER_SECTION(EE_STACK_SEC "_" EE_PREPROC_STRING(n))
 
@@ -114,7 +121,13 @@ typedef EE_UINT32 EE_STACK_T;
 #define EE_STACK_INITP(bl) (EE_STACK_WLEN(bl) -	\
 	((EE_UREG)EE_STACK_ALIGN / sizeof(EE_STACK_T)))
 
+#ifdef USE_PRAGMAS
+#pragma section PRAGMA_SECTION_BEGIN_SYS_STACK
+extern EE_STACK_T EE_e200zx_sys_stack[EE_STACK_WLEN(EE_SYS_STACK_SIZE)];
+#pragma section PRAGMA_SECTION_END_SYS_STACK
+#else
 extern EE_STACK_T EE_STACK_ATTRIB EE_e200zx_sys_stack[EE_STACK_WLEN(EE_SYS_STACK_SIZE)];
+#endif
 
 /* ORTI types */
 #ifdef __OO_ORTI_RUNNINGISR2__
@@ -150,6 +163,7 @@ int EE_cpu_startos(void);
 
 #else /* if __MSRP__ || __EE_MEMORY_PROTECTION__ ... */
 /* Nothing to do */
+static int __ALWAYS_INLINE__ EE_cpu_startos(void);
 __INLINE__ int __ALWAYS_INLINE__ EE_cpu_startos(void)
 {
 	return 0;
@@ -176,9 +190,11 @@ typedef EE_UINT32 EE_TYPESPIN;
 
 /* Shared data use separate sections; potentially, three different sections
  * could be used for constant, unitialized, and initialized data */
-#define EE_SHARED_CDATA  EE_COMPILER_SECTION(".mcglobalc") EE_COMPILER_KEEP
-#define EE_SHARED_UDATA  EE_COMPILER_SECTION(".mcglobald") EE_COMPILER_KEEP
-#define EE_SHARED_IDATA  EE_COMPILER_SECTION(".mcglobald") EE_COMPILER_KEEP
+#ifndef USE_PRAGMAS
+#define EE_SHARED_CDATA  EE_COMPILER_SECTION("ee_mcglobalc") EE_COMPILER_KEEP
+#define EE_SHARED_UDATA  EE_COMPILER_SECTION("ee_mcglobald") EE_COMPILER_KEEP
+#define EE_SHARED_IDATA  EE_COMPILER_SECTION("ee_mcglobald") EE_COMPILER_KEEP
+#endif
 
 #if 0  /* Shared code, resources and mutex not working yet */
 #define EE_SHARED_CODE(x) EE_SHARED_CODE_##x
@@ -196,16 +212,41 @@ typedef EE_UINT32 EE_TYPESPIN;
 
 __INLINE__ void __ALWAYS_INLINE__ EE_e200z7_enableIRQ(void)
 {
-	asm volatile ("wrteei 1\n");
+	__asm volatile ("wrteei 1\n");
 }
 
 __INLINE__ void __ALWAYS_INLINE__ EE_e200z7_disableIRQ(void)
 {
-	asm volatile ("wrteei 0\n");
+	__asm volatile ("wrteei 0\n");
 }
 
 #ifdef	__DCC__
-__asm void EE_e200z7_resumeIRQ(EE_FREG msr)
+__asm static void EE_e200z7_set_int_prio(EE_UINT32 prio)
+{
+% reg prio
+! "r4"
+	/* set current priority to prio */
+        addis	r4, 0, INTC_CPR_ADDR@ha
+        addi	r4, r4, INTC_CPR_ADDR@l
+	stw	prio, 0(r4)
+        mbar    0
+}
+#else
+__INLINE__ void __ALWAYS_INLINE__ EE_e200z7_set_int_prio(EE_UINT32 prio)
+{
+        /*
+         * set current priority to prio
+         * 0xfff48008 corresponds to INTC_CPR_ADDR
+         */
+        __asm volatile ("addis	r4, 0, (0xfff48008)@ha\n\t"
+        "addi	r4, r4, (0xfff48008)@l\n\t"
+        "stw %0, 0(r4)\n"
+        "mbar 0" :: "r"(prio));
+}
+#endif
+
+#ifdef	__DCC__
+__asm static void EE_e200z7_resumeIRQ(EE_FREG msr)
 {
 % reg msr
 	wrtee	msr
@@ -213,12 +254,12 @@ __asm void EE_e200z7_resumeIRQ(EE_FREG msr)
 #else
 __INLINE__ void __ALWAYS_INLINE__ EE_e200z7_resumeIRQ(EE_FREG msr)
 {
-	asm volatile ("wrtee %0\n" :: "r"(msr));
+	__asm volatile ("wrtee %0\n" :: "r"(msr));
 }
 #endif
 
 #ifdef	__DCC__
-__asm EE_FREG EE_e200z7_suspendIRQ(void)
+__asm static EE_FREG EE_e200z7_suspendIRQ(void)
 {
 ! "r3"
 	mfmsr	r3
@@ -227,12 +268,33 @@ __asm EE_FREG EE_e200z7_suspendIRQ(void)
 #else
 __INLINE__ EE_FREG __ALWAYS_INLINE__ EE_e200z7_suspendIRQ(void)
 {
-	EE_FREG msr;
+  EE_FREG msr;
 
-	asm volatile ("mfmsr %0\n"
-		      "wrteei 0\n"
-			: "=r"(msr));
-	return msr;
+  __asm volatile ("mfmsr %0   \n"
+      "wrteei 0\n"
+      : "=r"(msr));
+  return msr;
+}
+#endif
+
+/* FIXME: In Erika HAL doesn't exit a method to check IRQ status! */
+#ifdef __DCC__
+__asm static EE_FREG EE_e200z7_isIRQEnabled(void)
+{
+! "r3"
+  mfmsr	r3
+  /* This istruction has been retro-engineered looking at the code generated
+     by CodeWarrior compiler! */
+  rlwinm   r3,r3,0x11,0x1F,0x1F
+}
+#else
+__INLINE__ EE_BIT __ALWAYS_INLINE__ EE_e200z7_isIRQEnabled(void)
+{
+  EE_FREG msr;
+
+  __asm volatile ("mfmsr %0   \n"
+      : "=r"(msr));
+  return ((msr & MSR_EE) != 0U);
 }
 #endif
 
@@ -250,47 +312,48 @@ __INLINE__ EE_FREG __ALWAYS_INLINE__ EE_e200z7_suspendIRQ(void)
  *************************************************************************/
 
 #ifdef __DCC__
-__asm EE_UREG EE_e200zx_get_tcr(void)
+
+__asm static EE_UREG EE_e200zx_get_tcr(void)
 {
 ! "r3"
 	mfspr	r3, tcr
 }
 
-__asm void EE_e200zx_set_tcr(EE_UREG val)
+__asm static void EE_e200zx_set_tcr(EE_UREG val)
 {
 % reg val
 !
 	mtspr	tcr, val
 }
 
-__asm EE_UREG EE_e200zx_get_tsr(void)
+__asm static EE_UREG EE_e200zx_get_tsr(void)
 {
 ! "r3"
 	mfspr	r3, tsr
 }
 
-__asm void EE_e200zx_set_tsr(EE_UREG val)
+__asm static void EE_e200zx_set_tsr(EE_UREG val)
 {
 % reg val
 !
 	mtspr	tsr, val
 }
 
-__asm void EE_e200zx_set_dec(EE_UREG val)
+__asm static void EE_e200zx_set_dec(EE_UREG val)
 {
 % reg val
 !
 	mtspr	dec, val
 }
 
-__asm void EE_e200zx_set_decar(EE_UREG val)
+__asm static void EE_e200zx_set_decar(EE_UREG val)
 {
 % reg val
 !
 	mtspr	decar, val
 }
 
-__asm EE_UINT32 EE_e200zx_get_tbl(void)
+__asm static EE_UINT32 EE_e200zx_get_tbl(void)
 {
 ! "r3"
 	mfspr	r3, tbl
@@ -300,41 +363,41 @@ __asm EE_UINT32 EE_e200zx_get_tbl(void)
 __INLINE__ EE_UREG EE_e200zx_get_tcr(void)
 {
 	EE_UREG tcr;
-	asm volatile ("mfspr %0, tcr" : "=r"(tcr));
+	__asm volatile ("mfspr %0, tcr" : "=r"(tcr));
 	return tcr;
 }
 
 __INLINE__ void EE_e200zx_set_tcr(EE_UREG val)
 {
-	asm volatile ("mtspr tcr, %0" :: "r"(val) );
+	__asm volatile ("mtspr tcr, %0" :: "r"(val) );
 }
 
 __INLINE__ EE_UREG EE_e200zx_get_tsr(void)
 {
 	EE_UREG tsr;
-	asm volatile ("mfspr %0, tsr" : "=r"(tsr));
+	__asm volatile ("mfspr %0, tsr" : "=r"(tsr));
 	return tsr;
 }
 
 __INLINE__ void EE_e200zx_set_tsr(EE_UREG val)
 {
-	asm volatile ("mtspr tsr, %0" :: "r"(val) );
+	__asm volatile ("mtspr tsr, %0" :: "r"(val) );
 }
 
 __INLINE__ void EE_e200zx_set_dec(EE_UREG val)
 {
-	asm volatile ("mtspr dec, %0" :: "r"(val) );
+	__asm volatile ("mtspr dec, %0" :: "r"(val) );
 }
 
 __INLINE__ void EE_e200zx_set_decar(EE_UREG val)
 {
-	asm volatile ("mtspr decar, %0" :: "r"(val) );
+	__asm volatile ("mtspr decar, %0" :: "r"(val) );
 }
 
 __INLINE__ EE_UINT32 EE_e200zx_get_tbl(void)
 {
 	EE_UINT32 tbl;
-	asm volatile ("mfspr %0, tbl" : "=r"(tbl));
+	__asm volatile ("mfspr %0, tbl" : "=r"(tbl));
 	return tbl;
 }
 #endif /* else __DCC__ */
@@ -346,7 +409,7 @@ __INLINE__ EE_UINT32 EE_e200zx_get_tbl(void)
 
 __INLINE__ void __ALWAYS_INLINE__ EE_e200zx_isync(void)
 {
-	asm volatile ("isync");
+	__asm volatile ("isync");
 }
 
 
@@ -522,7 +585,7 @@ typedef struct {
 	/* Inizialized data section, Flash address */
 	const void *data_flash;
 #if defined(RTDRUID_CONFIGURATOR_NUMBER) \
- && RTDRUID_CONFIGURATOR_NUMBER >= RTDRUID_CONFNUM_STACK_IN_APP_SEC_INFO
+ && (RTDRUID_CONFIGURATOR_NUMBER >= RTDRUID_CONFNUM_STACK_IN_APP_SEC_INFO)
 	/* Stack section.  Its end coincides with data start */
 	void *stack_start;
 #endif /* RTDRUID_CONFNUM_STACK_IN_APP_SEC_INFO */
@@ -540,6 +603,7 @@ void EE_hal_app_init(const EE_APP_SEC_INFO_T *app_info);
 
 #endif /* __EE_MEMORY_PROTECTION__ */
 
+#ifndef USE_PRAGMAS
 /*
  * Markers for application private areas
  */
@@ -547,13 +611,15 @@ void EE_hal_app_init(const EE_APP_SEC_INFO_T *app_info);
 #define EE_APPLICATION_CDATA(app)  EE_COMPILER_SECTION(".rodata")
 /* Application private uninitialized data (BSS) */
 #define EE_APPLICATION_UDATA(app)  \
-	EE_COMPILER_SECTION(".bss_" EE_PREPROC_STRING(app))
+	EE_COMPILER_SECTION("ee_bss_" EE_PREPROC_STRING(app))
 /* Application private initialized data */
 #define EE_APPLICATION_IDATA(app)  \
-	EE_COMPILER_SECTION(".data_" EE_PREPROC_STRING(app))
+	EE_COMPILER_SECTION("ee_data_" EE_PREPROC_STRING(app))
+#endif /* USE_PRAGMAS */
 
 #ifdef __DCC__
-__asm EE_UINT8 EE_as_raw_call_trusted_func(EE_UINT32 FunctionIndex,
+
+__asm static EE_UINT8 EE_as_raw_call_trusted_func(EE_UINT32 FunctionIndex,
 	void *FunctionParams)
 {
 % reg FunctionIndex, FunctionParams
@@ -588,23 +654,19 @@ void EE_e200zx_send_otm8(EE_UINT8 id, EE_UINT8 data);
 void EE_e200zx_send_otm32(EE_UINT8 id, EE_UINT32 data);
 
 #else /* if __OO_ORTI_USE_OTM__ */
-__INLINE__ void EE_e200zx_send_otm8(EE_UINT8 id, EE_UINT8 data)
-{
-	/* OTM disabled */
-}
-
-__INLINE__ void EE_e200zx_send_otm32(EE_UINT8 id, EE_UINT32 data)
-{
-	/* OTM disabled */
-}
+/* OTM disabled */
+#define EE_e200zx_send_otm8(id, data)   ((void)0)
+#define EE_e200zx_send_otm32(id, data)  ((void)0)
 #endif /* else __OO_ORTI_USE_OTM__ */
 
-#ifdef __OO_ORTI_RUNNINGISR2__
+#if defined(__OO_ORTI_RUNNINGISR2__) && defined(__OO_ORTI_USE_OTM__)
 __INLINE__ void EE_ORTI_send_otm_runningisr2(EE_ORTI_runningisr2_type isr2)
 {
 	EE_e200zx_send_otm32(EE_ORTI_OTM_ID_RUNNINGISR2, (EE_UINT32)isr2);
 }
-#endif /* __OO_ORTI_RUNNINGISR2__ */
+#else /* __OO_ORTI_RUNNINGISR2__ && __OO_ORTI_USE_OTM__ */
+#define EE_ORTI_send_otm_runningisr2(isr2)    ((void)0)
+#endif /* __OO_ORTI_RUNNINGISR2__ && __OO_ORTI_USE_OTM__ */
 
 #ifdef __OO_ORTI_SERVICETRACE__
 __INLINE__ void EE_ORTI_send_otm_servicetrace(EE_UINT8 srv)
@@ -613,10 +675,10 @@ __INLINE__ void EE_ORTI_send_otm_servicetrace(EE_UINT8 srv)
 }
 
 #if defined(__EE_MEMORY_PROTECTION__)
-#if defined(RTDRUID_CONFIGURATOR_NUMBER) \
- && RTDRUID_CONFIGURATOR_NUMBER >= RTDRUID_CONFNUM_ORTI_SERVICE_API
+#if (defined(RTDRUID_CONFIGURATOR_NUMBER)) \
+ && (RTDRUID_CONFIGURATOR_NUMBER >= RTDRUID_CONFNUM_ORTI_SERVICE_API)
 #if defined __DCC__
-__asm void EE_ORTI_ext_set_service(EE_UINT8 srv)
+__asm static void EE_ORTI_ext_set_service(EE_UINT8 srv)
 {
 % reg srv
 ! "r0","r3","r4","r5","r6","r7","r8","r9","r10","r11","r12","ctr"

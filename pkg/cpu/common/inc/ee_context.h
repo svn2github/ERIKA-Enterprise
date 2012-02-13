@@ -109,7 +109,7 @@ void EE_std_change_context(EE_TID tid);
  defined(__OO_ECC1__) || defined(__OO_ECC2__)
 #define EE_call_task_body(tid)  EE_oo_thread_stub()
 #else
-#define EE_call_task_body(tid)  (((void (*)(void))EE_hal_thread_body[tid])())
+#define EE_call_task_body(tid)  ((EE_hal_thread_body[tid])())
 #endif
 
 
@@ -153,7 +153,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_std_change_context(EE_TID tid)
 #ifdef __MULTI__
 
 /* TID_IS_STACKED_MARK must set the most significative bit */
-#define EE_std_mark_tid_stacked(tid) ((tid) | (EE_TID)TID_IS_STACKED_MARK)
+#define EE_std_mark_tid_stacked(tid) ((EE_UTID)(tid) | (EE_UTID)TID_IS_STACKED_MARK)
 
 __INLINE__ int __ALWAYS_INLINE__ EE_std_need_context_change(EE_TID tid)
 {
@@ -165,7 +165,8 @@ __INLINE__ int __ALWAYS_INLINE__ EE_std_need_context_change(EE_TID tid)
 
 __INLINE__ void __ALWAYS_INLINE__ EE_hal_stkchange(EE_TID tid)
 {
-    EE_std_change_context(EE_std_mark_tid_stacked(tid));
+    EE_UTID tmp = EE_std_mark_tid_stacked(tid);
+    EE_std_change_context((EE_TID)tmp);
 }
 
 #endif /* __MULTI__ */
@@ -190,7 +191,8 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_endcycle_ready(EE_TID tid)
 
 __INLINE__ void __ALWAYS_INLINE__ EE_hal_endcycle_stacked(EE_TID tid)
 {
-    EE_std_endcycle_next_tid = EE_std_mark_tid_stacked(tid);
+    EE_UTID utid_tmp = (EE_UTID)EE_std_mark_tid_stacked(tid);
+    EE_std_endcycle_next_tid = (EE_TID)utid_tmp;
 }
 
 #endif /* __INCLUDE_CPU_COMMON_EE_CONTEXT__ */

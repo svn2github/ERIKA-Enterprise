@@ -58,7 +58,7 @@
  * EE_thread_end_instance() ends; during this period it is
  * important to disable interrupts in order to avoid nested
  * EE_thread_end_instance() calls. */
-EE_FADDR EE_hal_endcycle_next_thread = 0;
+EE_THREAD_PTR EE_hal_endcycle_next_thread = 0;
 
 /* Counts nesting of interrupts
  * (PSW.CDC is reset upon each interrupt so we need to keep track
@@ -111,7 +111,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_tc1_thread_restore(EE_TID tid)
  * so we have direct access to the caller's CSA. 
  * The mono-stack variant is inlined (ee_context.h).
  */
-void EE_tc1_hal_ready2stacked(EE_TID tid, EE_FADDR thread)
+void EE_tc1_hal_ready2stacked(EE_TID tid, EE_THREAD_PTR thread)
 {
     EE_UREG tid_from = EE_tc1_active_tid;
     EE_UREG tos_from = EE_tos_of(tid_from);
@@ -130,7 +130,7 @@ void EE_tc1_hal_ready2stacked(EE_TID tid, EE_FADDR thread)
 
         tid = EE_hal_endcycle_next_tid;
         tos = EE_tos_of(tid);
-        thread = (EE_FADDR)EE_hal_endcycle_next_thread;
+        thread = EE_hal_endcycle_next_thread;
         tos_from = EE_tos_of(EE_tc1_active_tid);
     } while (thread != 0);
 

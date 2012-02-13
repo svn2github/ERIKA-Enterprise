@@ -119,13 +119,13 @@ void EE_e200zx_external_input_handler(void);
 void EE_e200zx_decrementer_handler(void);
 void EE_e200zx_fixed_intv_handler(void);
 /* Symbols provided by the linker script */
-extern int _load_ram;
-extern int _sbss;
-extern int _sdata;
-extern int _ebss;
+extern int ee_load_ram;
+extern int ee_sbss;
+extern int ee_sdata;
+extern int ee_ebss;
 extern int _SDA_BASE_;
 extern int _SDA2_BASE_;
-extern int _sstack, _estack;
+extern int ee_sstack, ee_estack;
 extern int isram_base;
 extern int isram_len;
 #endif

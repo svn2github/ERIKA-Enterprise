@@ -43,6 +43,7 @@ typedef EE_UINT32 EE_FREG;
 
 /* Thread IDs */
 typedef EE_UINT32 EE_TID;
+typedef EE_UINT32 EE_UTID;
 
 /* Addresses (that have the same size of a pointer) */
 typedef void *EE_ADDR;
@@ -54,6 +55,9 @@ typedef void (*EE_VOID_CALLBACK)(void);
 /* For an easy upgrade path, we use a define instead of the typedef:
    typedef void (*EE_FADDR)(void); */
 #define EE_FADDR EE_ADDR
+
+/* Thread body pointer (same size of function pointers) */
+#define EE_THREAD_PTR EE_ADDR
 
 /*************************************************************************
  Application dependent data types

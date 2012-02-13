@@ -102,6 +102,28 @@ CLEAN_e200zx_codewarrior_fle =
 COMPILE_e200zx_codewarrior_fle = $(COMPILE_e200zx_source)
 DEBUG_e200zx_codewarrior_fle = $(call DEBUG_e200zx_source_template,fle)
 
+# e200zx_diab_5_8_vle
+TESTLIST 		+= e200zx_diab_5_8_vle
+OUTDIR_COMMANDS_e200zx_diab_5_8_vle = $(OUTDIR_COMMANDS_e200zx_source)
+CONF_e200zx_diab_5_8_vle            = $(call CONF_e200zx_source_template,diab_5_8,vle)
+GLOBAL_CONF 		+=
+DIST_e200zx_diab_5_8_vle    =
+RTDRUID_e200zx_diab_5_8_vle = $(RTDRUID_e200zx_source)
+CLEAN_e200zx_diab_5_8_vle   =
+COMPILE_e200zx_diab_5_8_vle = $(COMPILE_e200zx_source)
+DEBUG_e200zx_diab_5_8_vle   = $(call DEBUG_e200zx_source_template,vle)
+
+# e200zx_diab_5_8_fle
+TESTLIST 		+= e200zx_diab_5_8_fle
+OUTDIR_COMMANDS_e200zx_diab_5_8_fle = $(OUTDIR_COMMANDS_e200zx_source)
+CONF_e200zx_diab_5_8_fle            = $(call CONF_e200zx_source_template,diab_5_8,fle)
+GLOBAL_CONF 		+=
+DIST_e200zx_diab_5_8_fle    =
+RTDRUID_e200zx_diab_5_8_fle = $(RTDRUID_e200zx_source)
+CLEAN_e200zx_diab_5_8_fle   =
+COMPILE_e200zx_diab_5_8_fle = $(COMPILE_e200zx_source)
+DEBUG_e200zx_diab_5_8_fle   = $(call DEBUG_e200zx_source_template,fle)
+
 # -------------------------------------------------------------------
 
 EE_TMPDIR = $(EEBASE)/testcase/tmp
@@ -126,7 +148,7 @@ OUTDIR_COMMANDS_e200zx_source = \
 CONF_e200zx_source_template = \
 	echo CONF $(OUTDIR_PREFIX)$*; \
 	cat $(OUTDIR_PREFIX)$*/appl.oil | gcc -c - -E -P -I$(EEBASE)/pkg $(addprefix -D, $(shell $(DEMUX2) $*)) -De200zx $(e200zx_compiler_def) $(e200zx_vle_def) -o - >$(OUTDIR_PREFIX)$*/ee.oil;
-e200zx_compiler_def=$(if $(filter codewarrior,$1 $2),-DUSE_CODEWARRIOR,$(if $(filter diab,$1 $2),-DUSE_DIAB,$(error Neither "codewarrior" nor "diab" found in arguments of CONF_e200zx_source_template)))
+e200zx_compiler_def=$(if $(filter codewarrior,$1 $2),-DUSE_CODEWARRIOR,$(if $(filter diab,$1 $2),-DUSE_DIAB,$(if $(filter diab_5_8,$1 $2),-DUSE_DIAB_5_8,$(error Neither "codewarrior" nor "diab" found in arguments of CONF_e200zx_source_template))))
 e200zx_vle_def=$(if $(filter vle,$1 $2),-DUSE_VLE,$(if $(filter fle,$1 $2),-DUSE_FLE,$(error Neither "fle" nor "vle" found in arguments of CONF_e200zx_source_template)))
 
 # Generate the rt-druid files...

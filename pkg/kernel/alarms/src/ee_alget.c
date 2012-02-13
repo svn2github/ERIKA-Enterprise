@@ -56,11 +56,14 @@ void EE_alarm_GetAlarm(AlarmType AlarmID, TickType *Tick)
   /* to compute the relative value in ticks, we have to follow the counter
      delay chain */
   current = EE_counter_RAM[EE_alarm_ROM[AlarmID].c].first;
-  *Tick = EE_alarm_RAM[current].delta;
-  while (current != AlarmID) {
-    current = EE_alarm_RAM[current].next;
-    *Tick += EE_alarm_RAM[current].delta;
-  } 
+
+  if (Tick != NULL) {
+    *Tick = EE_alarm_RAM[current].delta;
+    while (current != AlarmID) {
+      current = EE_alarm_RAM[current].next;
+      *Tick += EE_alarm_RAM[current].delta;
+    }
+  }
 
   EE_hal_end_nested_primitive(flag);
 }

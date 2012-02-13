@@ -4,11 +4,22 @@
 #include "trusted.h"
 #include "error.h"
 
+#ifdef USE_PRAGMAS
+#pragma section BSS_TRUSTEDAPP "ee_bss_TrustedApp" "ee_bss_TrustedApp"
+#pragma use_section BSS_TRUSTEDAPP gvar
+#pragma use_section BSS_TRUSTEDAPP myid
+
+#pragma section DATA_APP1 "ee_data_App1" "ee_data_App1"
+#pragma use_section DATA_APP1 counter1
+
+EE_UREG gvar;
+static ApplicationType myid;
+#else
 EE_UREG EE_APPLICATION_UDATA(TrustedApp) gvar;
+static ApplicationType EE_APPLICATION_UDATA(TrustedApp) myid;
+#endif
 /* flag1 is allocated in the OS segment */
 static volatile int flag1;
-static ApplicationType EE_APPLICATION_UDATA(TrustedApp) myid;
-
 
 TASK(MainTask)
 {

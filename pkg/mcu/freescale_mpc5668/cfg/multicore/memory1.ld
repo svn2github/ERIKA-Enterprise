@@ -7,3 +7,6 @@ MEMORY
 /* Use only 256 kB of RAM, as per MMU setting from the BAM */
 	isram:	org = 0x40020000, len = 0x00020000
 }
+
+isram_base = ADDR(isram);
+isram_len = SIZEOF(isram);

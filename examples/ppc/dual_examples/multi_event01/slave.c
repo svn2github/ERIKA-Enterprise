@@ -50,6 +50,24 @@
 /* Assertions */
 #include "test/assert/inc/ee_assert.h"
 
+#ifdef USE_PRAGMAS
+
+#pragma section EE_SHARED_NOTINIT_BEGIN
+#pragma section EE_SHARED_SLOW_NOTINIT_BEGIN
+extern EE_TYPEASSERTVALUE EE_assertions[asr_dim];
+extern int result;
+extern volatile int send_event;
+#pragma section EE_SHARED_END
+#pragma section EE_SHARED_FAST_OR_SLOW_END
+
+#else
+
+extern EE_TYPEASSERTVALUE EE_SHARED_UDATA EE_assertions[asr_dim];
+extern volatile int EE_SHARED_UDATA send_event;
+extern int EE_SHARED_UDATA result;
+
+#endif
+
 /* Communication between TaskZ0Main and TaskZ0Bkg */
 static volatile int event_state;
 

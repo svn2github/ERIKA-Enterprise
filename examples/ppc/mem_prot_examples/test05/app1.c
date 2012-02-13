@@ -3,9 +3,27 @@
 #include "error.h"
 #include "app.h"
 
+#ifdef USE_PRAGMAS
+#pragma section BSS_APP1 "ee_bss_App1" "ee_bss_App1"
+#pragma use_section BSS_APP1 myid
+
+#pragma section DATA_APP1 "ee_data_App1" "ee_data_App1"
+#pragma use_section DATA_APP1 counter1
+
+#pragma section RODATA ".rodata" ".rodata"
+#pragma use_section RODATA cvar1
+
+#pragma section BSS_APP2 "ee_bss_App2" "ee_bss_App2"
+#pragma use_section BSS_APP2 var2
+
+const int cvar1;
+volatile int counter1;
+static ApplicationType myid;
+#else
 const int EE_APPLICATION_CDATA(App1) cvar1;
 volatile int EE_APPLICATION_IDATA(App1) counter1;
 static ApplicationType EE_APPLICATION_UDATA(App1) myid;
+#endif
 
 ISR2(App1Isr)
 {

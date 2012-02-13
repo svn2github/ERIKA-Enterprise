@@ -97,8 +97,8 @@ int EE_rn_send(EE_TYPERN rn, EE_TYPERN_NOTIFY t, EE_TYPERN_PARAM par)
      * That is, the target CPU is not inside the IIRQ interrupt handler, and
      * nothing is already queued on the current data structure
      */
-    newIRQ = !(EE_rn_switch[cpu] & EE_RN_SWITCH_INSIDEIRQ) && 
-      EE_rn_first[cpu][sw] == -1;
+    newIRQ = ((EE_rn_switch[cpu] & EE_RN_SWITCH_INSIDEIRQ) == 0U) &&
+      (EE_rn_first[cpu][sw] == (EE_TYPERN)-1);
 
     /* the interrupt handler have to do the cycle again */
     if (EE_rn_switch[cpu] & EE_RN_SWITCH_INSIDEIRQ) {
@@ -106,7 +106,7 @@ int EE_rn_send(EE_TYPERN rn, EE_TYPERN_NOTIFY t, EE_TYPERN_PARAM par)
     }
 
     /* Queuing request */
-    if (!EE_rn_type[rn][sw]) {
+    if (EE_rn_type[rn][sw] == 0U) {
       /* request was not queued before */
 
       /* insert it into the pending requests */

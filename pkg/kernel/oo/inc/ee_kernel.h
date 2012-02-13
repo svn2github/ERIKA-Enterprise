@@ -120,8 +120,6 @@
 
 #include "kernel/oo/inc/ee_common.h"
 
-
-
 /***************************************************************************
  * 13.1 Common data types
  ***************************************************************************/
@@ -194,8 +192,13 @@ void EE_oo_ForceSchedule(void);
 StatusType EE_oo_GetTaskID(TaskRefType TaskID);
 #else
 void EE_oo_GetTaskID(TaskRefType TaskID);
-#endif
-#endif
+#endif /* 0 && defined */
+#endif /* __PRIVATE_GETTASKID__ */
+
+#else
+/* see ee_inline.h */
+#endif /* __BIN_DISTR_LIMITED__ || __BIN_DISTR_FULL__ */
+
 
 /* 13.2.3.6: BCC1, BCC2, ECC1, ECC2 */
 #ifndef __PRIVATE_GETTASKSTATE__
@@ -205,13 +208,6 @@ StatusType EE_oo_GetTaskState(TaskType TaskID, TaskStateRefType State);
 void EE_oo_GetTaskState(TaskType TaskID, TaskStateRefType State);
 #endif
 #endif
-
-#else
-/* see ee_inline.h */
-#endif
-
-
-
 
 /* 13.2.4 Constants                                                        */
 /* ----------------------------------------------------------------------- */
@@ -460,9 +456,7 @@ void EE_oo_WaitEvent(EventMaskType Mask);
 #ifndef __PRIVATE_INITSEM__
 __INLINE__ void __ALWAYS_INLINE__ EE_oo_InitSem(SemRefType Sem, int value)
 {
-#ifdef __OO_ORTI_SERVICETRACE__
-  EE_ORTI_servicetrace = EE_SERVICETRACE_INITSEM+1U;
-#endif
+  EE_ORTI_set_service_in(EE_SERVICETRACE_INITSEM);
 
   (Sem)->count = (value);
 #if defined(__OO_ECC1__) || defined(__OO_ECC2__)
@@ -470,10 +464,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_oo_InitSem(SemRefType Sem, int value)
   (Sem)->last = EE_NIL;
 #endif
 
-#ifdef __OO_ORTI_SERVICETRACE__
-  EE_ORTI_servicetrace = EE_SERVICETRACE_INITSEM;
-#endif
-
+  EE_ORTI_set_service_out(EE_SERVICETRACE_INITSEM);
 }
 #endif
 
@@ -532,6 +523,24 @@ int EE_oo_GetValueSem(SemRefType Sem);
 
 */
 
+/*
+   AS 4.0 OS SWS 8.4.16
+   AS OS requirement OS399:
+
+   This function notifies a tick to a counter. That is, the counter is
+   incremented by 1.
+
+   The function will also implement the notification of expired alarms
+   (calling an alarm callback, setting an event, or activating a
+   task). 
+
+   And DO RESCHEDULING.
+   see also internal.h
+*/
+#ifndef __PRIVATE_INCREMENTCOUNTER__
+StatusType EE_oo_IncrementCounter(CounterType CounterID);
+#endif  /* __PRIVATE_INCREMENTCOUNTER__ */
+
 /* This function notifies a tick to a counter. That is, the counter is
    incremented by 1.  It must be called into an ISR2 or into a
    task totify that the event linked to the counter occurred. 
@@ -548,11 +557,29 @@ int EE_oo_GetValueSem(SemRefType Sem);
    see also internal.h
 */
 #ifndef __PRIVATE_COUNTER_TICK__
-void EE_oo_counter_tick(CounterType c);
+void EE_oo_counter_tick(CounterType CounterID);
 
 /* Helper function */
 void EE_oo_alarm_insert(AlarmType AlarmID, TickType increment);
+#endif /* __PRIVATE_COUNTER_TICK__ */
+
+/*
+  AS 4.0 OS SWS 8.4.17 GetCounterValue
+  AS OS requirement OS383:
+ */
+#ifndef __PRIVATE_GETCOUNTERVALUE__
+StatusType EE_oo_GetCounterValue(CounterType CounterID, TickRefType Value);
 #endif
+
+/*
+  AS 4.0 OS SWS 8.4.18 GetElapsedValue
+  AS OS requirement OS392:
+ */
+#ifndef __PRIVATE_GETELAPSEDVALUE__
+StatusType EE_oo_GetElapsedValue(CounterType CounterID, TickRefType Value,
+    TickRefType ElapsedValue);
+#endif
+
 
 /* 13.6.1 Data types                                                       */
 /* ----------------------------------------------------------------------- */
@@ -654,11 +681,7 @@ AppModeType EE_oo_GetActiveApplicationMode(void);
 
 /* 13.7.2.2: BCC1, BCC2, ECC1, ECC2 */
 #ifndef __PRIVATE_STARTOS__
-#ifdef __OO_EXTENDED_STATUS__
 StatusType EE_oo_StartOS(AppModeType Mode);
-#else
-void EE_oo_StartOS(AppModeType Mode);
-#endif
 #endif
 
 /* 13.7.2.3: BCC1, BCC2, ECC1, ECC2 */
@@ -803,23 +826,47 @@ __INLINE__ TickType __ALWAYS_INLINE__ OSError_SetAbsAlarm_cycle(void)
 __INLINE__ AlarmType __ALWAYS_INLINE__ OSError_CancelAlarm_AlarmID(void)
 { return EE_oo_ErrorHook_data.CancelAlarm_prm.AlarmID; }
 
-__INLINE__ AlarmType __ALWAYS_INLINE__ OSError_CounterTick_AlarmID(void)
-{ return EE_oo_ErrorHook_data.CounterTick_prm.AlarmID; }
-__INLINE__ TaskType __ALWAYS_INLINE__ OSError_CounterTick_TaskID(void)
-{ return EE_oo_ErrorHook_data.CounterTick_prm.TaskID; }
+__INLINE__ AlarmType __ALWAYS_INLINE__ OSError_IncrementCounter_AlarmID(void)
+{ return EE_oo_ErrorHook_data.IncrementCounter_prm.AlarmID; }
+__INLINE__ TaskType __ALWAYS_INLINE__ OSError_IncrementCounter_TaskID(void)
+{ return EE_oo_ErrorHook_data.IncrementCounter_prm.TaskID; }
+
+__INLINE__ CounterType __ALWAYS_INLINE__ OSError_GetCounterValue_CounterID(void)
+{ return EE_oo_ErrorHook_data.GetCounterValue_prm.CounterID; }
+
+__INLINE__ TickRefType __ALWAYS_INLINE__ OSError_GetCounterValue_Value(void)
+{ return EE_oo_ErrorHook_data.GetCounterValue_prm.Value; }
+
+__INLINE__ CounterType __ALWAYS_INLINE__ OSError_GetElapsedValue_CounterID(void)
+{ return EE_oo_ErrorHook_data.GetElapsedValue_prm.CounterID; }
+
+__INLINE__ TickRefType __ALWAYS_INLINE__ OSError_GetElapsedValue_Value(void)
+{ return EE_oo_ErrorHook_data.GetElapsedValue_prm.Value; }
+
+__INLINE__ TickRefType __ALWAYS_INLINE__
+  OSError_GetElapsedValue_ElapsedValue(void)
+{ return EE_oo_ErrorHook_data.GetElapsedValue_prm.ElapsedValue; }
 
 #if defined(__OO_ECC1__) || defined(__OO_ECC2__)
-__INLINE__ EventMaskType __ALWAYS_INLINE__ OSError_CounterTick_Mask(void)
-{ return EE_oo_ErrorHook_data.CounterTick_prm.Mask; }
+__INLINE__ EventMaskType __ALWAYS_INLINE__ OSError_IncrementCounter_Mask(void)
+{ return EE_oo_ErrorHook_data.IncrementCounter_prm.Mask; }
 #endif
 
-__INLINE__ EE_TYPENOTIFY __ALWAYS_INLINE__ OSError_CounterTick_action(void)
-{ return EE_oo_ErrorHook_data.CounterTick_prm.action; }
+__INLINE__ EE_TYPENOTIFY __ALWAYS_INLINE__ OSError_IncrementCounter_action(void)
+{ return EE_oo_ErrorHook_data.IncrementCounter_prm.action; }
 
 #endif
 
 __INLINE__ AppModeType __ALWAYS_INLINE__ OSError_StartOS_Mode(void)
 { return EE_oo_ErrorHook_data.StartOS_prm.Mode; }
+
+#ifdef __OO_SEM__
+__INLINE__ SemRefType __ALWAYS_INLINE__ OSError_WaitSem_Sem(void)
+{ return EE_oo_ErrorHook_data.WaitSem_prm.Sem; }
+
+__INLINE__ SemRefType __ALWAYS_INLINE__ OSError_PostSem_Sem(void)
+{ return EE_oo_ErrorHook_data.PostSem_prm.Sem; }
+#endif /* __OO_SEM__ */
 
 #endif /* __OO_ERRORHOOK_NOMACROS__ */
 #endif /* __OO_HAS_ERRORHOOK__ */
@@ -829,7 +876,7 @@ __INLINE__ AppModeType __ALWAYS_INLINE__ OSError_StartOS_Mode(void)
  * Inline inclusions
  ***************************************************************************/
 
-#if !defined(__BIN_DISTR_LIMITED__) && !defined(__BIN_DISTR_FULL__)
+#if (!defined(__BIN_DISTR_LIMITED__)) && (!defined(__BIN_DISTR_FULL__))
 #include "kernel/oo/inc/ee_inline.h"
 #endif
 

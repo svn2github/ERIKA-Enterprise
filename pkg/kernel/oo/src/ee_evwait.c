@@ -65,12 +65,10 @@ StatusType EE_oo_WaitEvent(EventMaskType Mask)
 void EE_oo_WaitEvent(EventMaskType Mask)
 #endif
 {
-  TaskType current, tmp;
+  TaskType current;
   register EE_FREG np_flags;
 
-#ifdef __OO_ORTI_SERVICETRACE__
-  EE_ORTI_servicetrace = EE_SERVICETRACE_WAITEVENT+1U;
-#endif
+  EE_ORTI_set_service_in(EE_SERVICETRACE_WAITEVENT);
 
   current = EE_stk_queryfirst();
 
@@ -79,28 +77,14 @@ void EE_oo_WaitEvent(EventMaskType Mask)
   /* check for a call at interrupt level:
    * Note: this must be the FIRST error check!!!
    */
-  if (EE_hal_get_IRQ_nesting_level() || (current==EE_NIL)) {
-#ifdef __OO_ORTI_LASTERROR__
-    EE_ORTI_lasterror = E_OS_CALLEVEL;
-#endif
+  if ((EE_hal_get_IRQ_nesting_level() != 0U) || (current==EE_NIL)) {
+    EE_ORTI_set_lasterror(E_OS_CALLEVEL);
 
-#ifdef __OO_HAS_ERRORHOOK__
     np_flags = EE_hal_begin_nested_primitive();
-    if (!EE_ErrorHook_nested_flag) {
-#ifndef __OO_ERRORHOOK_NOMACROS__
-      EE_oo_ErrorHook_ServiceID = OSServiceId_WaitEvent;
-      EE_oo_ErrorHook_data.WaitEvent_prm.Mask = Mask;
-#endif
-      EE_ErrorHook_nested_flag = 1U;
-      ErrorHook(E_OS_CALLEVEL);
-      EE_ErrorHook_nested_flag = 0U;
-    }
+    EE_oo_notify_error_WaitEvent(Mask, E_OS_CALLEVEL);
     EE_hal_end_nested_primitive(np_flags);
-#endif
 
-#ifdef __OO_ORTI_SERVICETRACE__
-    EE_ORTI_servicetrace = EE_SERVICETRACE_WAITEVENT;
-#endif
+    EE_ORTI_set_service_out(EE_SERVICETRACE_WAITEVENT);
 
     return E_OS_CALLEVEL;
   }
@@ -108,68 +92,36 @@ void EE_oo_WaitEvent(EventMaskType Mask)
 #ifndef __OO_NO_RESOURCES__
   /* check for busy resources */ 
   if (EE_th_resource_last[current] != EE_UREG_MINUS1) {
-#ifdef __OO_ORTI_LASTERROR__
-    EE_ORTI_lasterror = E_OS_RESOURCE;
-#endif
+    EE_ORTI_set_lasterror(E_OS_RESOURCE);
 
-#ifdef __OO_HAS_ERRORHOOK__
     np_flags = EE_hal_begin_nested_primitive();
-    if (!EE_ErrorHook_nested_flag) {  
-#ifndef __OO_ERRORHOOK_NOMACROS__
-      EE_oo_ErrorHook_ServiceID = OSServiceId_WaitEvent;
-      EE_oo_ErrorHook_data.WaitEvent_prm.Mask = Mask;
-#endif
-      EE_ErrorHook_nested_flag = 1U;
-      ErrorHook(E_OS_RESOURCE);
-      EE_ErrorHook_nested_flag = 0U;
-    }
+    EE_oo_notify_error_WaitEvent(Mask, E_OS_RESOURCE);
     EE_hal_end_nested_primitive(np_flags);
-#endif
 
-#ifdef __OO_ORTI_SERVICETRACE__
-    EE_ORTI_servicetrace = EE_SERVICETRACE_WAITEVENT;
-#endif
+    EE_ORTI_set_service_out(EE_SERVICETRACE_WAITEVENT);
 
     return E_OS_RESOURCE;
   }
-#endif
+#endif /* __OO_NO_RESOURCES__ */
 
   /* check if the task is an extended task */
-  if (!EE_th_is_extended[current]) {
-#ifdef __OO_ORTI_LASTERROR__
-    EE_ORTI_lasterror = E_OS_ACCESS;
-#endif
+  if (EE_th_is_extended[current] == 0U) {
+    EE_ORTI_set_lasterror(E_OS_ACCESS);
 
-#ifdef __OO_HAS_ERRORHOOK__
     np_flags = EE_hal_begin_nested_primitive();
-    if (!EE_ErrorHook_nested_flag) {
-#ifndef __OO_ERRORHOOK_NOMACROS__
-      EE_oo_ErrorHook_ServiceID = OSServiceId_WaitEvent;
-      EE_oo_ErrorHook_data.WaitEvent_prm.Mask = Mask;
-#endif
-      EE_ErrorHook_nested_flag = 1U;
-      ErrorHook(E_OS_ACCESS);
-      EE_ErrorHook_nested_flag = 0U;
-    }
+    EE_oo_notify_error_WaitEvent(Mask, E_OS_ACCESS);
     EE_hal_end_nested_primitive(np_flags);
-#endif
 
-#ifdef __OO_ORTI_SERVICETRACE__
-    EE_ORTI_servicetrace = EE_SERVICETRACE_WAITEVENT;
-#endif
+    EE_ORTI_set_service_out(EE_SERVICETRACE_WAITEVENT);
 
     return E_OS_ACCESS;
   }
-#endif
+#endif /* __OO_EXTENDED_STATUS__ */
 
   np_flags = EE_hal_begin_nested_primitive();
 
   /* check if we have to wait */
-  if (!(EE_th_event_active[current] & Mask)) {
-#ifdef __OO_HAS_POSTTASKHOOK__
-    PostTaskHook();
-#endif	
-
+  if ((EE_th_event_active[current] & Mask) == 0U) {
     /* set the waiting mask */
     EE_th_event_waitmask[current] = Mask;
 
@@ -183,9 +135,8 @@ void EE_oo_WaitEvent(EventMaskType Mask)
     EE_sys_ceiling &= ~EE_th_dispatch_prio[current];
     /* the ready priority is not touched, it is not the same as Schedule! */
 
-#ifdef __OO_ORTI_PRIORITY__
-    EE_ORTI_th_priority[current] = 0U;
-#endif
+    /* reset ORTI priority */
+    EE_ORTI_set_th_priority(current, 0U);
 
     /* since the task blocks, it has to be woken up by another
        EE_hal_stkchange */
@@ -194,62 +145,23 @@ void EE_oo_WaitEvent(EventMaskType Mask)
     /* then, the task is not inserted in any queue! it will be woken
        up by a SetEvent using a EE_hal_stkchange... */
 
-
-    /* check if there is to schedule a ready thread or pop a preempted
+    /* Yeld to the next task:
+     * check if there is to schedule a ready thread or pop a preempted
      * thread 
      */
-    tmp = EE_rq_queryfirst();
-
-    if ((tmp == EE_NIL) ||
-        (EE_sys_ceiling >= EE_th_ready_prio[tmp]))
-    {
-        /* we have to schedule an interrupted thread that is on the top 
-         * of its stack; the state is already STACKED! */
-        tmp = EE_stk_queryfirst();
-	if (tmp != EE_NIL) {
-	  EE_th_status[tmp] = RUNNING;
-        }
-        EE_hal_stkchange(tmp);
-    }
-    else { 
-        /* we have to schedule a ready thread that is not yet on the stack */
-        EE_th_status[tmp] = RUNNING;
-        EE_sys_ceiling |= EE_th_dispatch_prio[tmp];
-
-#ifdef __OO_ORTI_PRIORITY__
-	EE_ORTI_th_priority[tmp] = EE_th_dispatch_prio[tmp];
-#endif
-
-	tmp = EE_rq2stk_exchange();
-	if (EE_th_waswaiting[tmp]) {
-	  EE_th_waswaiting[tmp] = 0U;
-	  EE_hal_stkchange(tmp);
-	} else {
-	  EE_hal_ready2stacked(tmp);
-        }
-    }
+    EE_oo_yeld();
 
     /* reset the waiting mask */
     EE_th_event_waitmask[current] = 0U;
-
-    /* We do not have to set the thread priority bit in the
-       system_ceiling, it will be set by the primitives that put the
-       task in the RUNNING state */
-
-#ifdef __OO_HAS_PRETASKHOOK__
-    PreTaskHook();
-#endif	
   }
+
   EE_hal_end_nested_primitive(np_flags);
-  
-#ifdef __OO_ORTI_SERVICETRACE__
-  EE_ORTI_servicetrace = EE_SERVICETRACE_WAITEVENT;
-#endif
+  EE_ORTI_set_service_out(EE_SERVICETRACE_WAITEVENT);
 
 #ifdef __OO_EXTENDED_STATUS__
   return E_OK;
 #endif
 }
 
-#endif
-#endif
+#endif /* __PRIVATE_WAITEVENT__ */
+#endif /* defined(__OO_ECC1__) || defined(__OO_ECC2__) */

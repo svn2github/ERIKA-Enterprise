@@ -64,111 +64,61 @@ StatusType EE_oo_SetAbsAlarm(AlarmType AlarmID,
 {
   register EE_FREG flag;
 
-#ifdef __OO_ORTI_SERVICETRACE__
-  EE_ORTI_servicetrace = EE_SERVICETRACE_SETABSALARM+1U;
-#endif
+  EE_ORTI_set_service_in(EE_SERVICETRACE_SETABSALARM);
 
 #ifdef __OO_EXTENDED_STATUS__
-  if (AlarmID < 0 || AlarmID >= EE_MAX_ALARM) {
-#ifdef __OO_ORTI_LASTERROR__
-    EE_ORTI_lasterror = E_OS_ID;
-#endif
+  if ((AlarmID < 0) || (AlarmID >= EE_MAX_ALARM)) {
 
-#ifdef __OO_HAS_ERRORHOOK__
+    EE_ORTI_set_lasterror(E_OS_ID);
+
     flag = EE_hal_begin_nested_primitive();
-    if (!EE_ErrorHook_nested_flag) {
-#ifndef __OO_ERRORHOOK_NOMACROS__
-      EE_oo_ErrorHook_ServiceID = OSServiceId_SetAbsAlarm;
-      EE_oo_ErrorHook_data.SetAbsAlarm_prm.AlarmID = AlarmID;
-      EE_oo_ErrorHook_data.SetAbsAlarm_prm.start = start;
-      EE_oo_ErrorHook_data.SetAbsAlarm_prm.cycle = cycle;
-#endif
-      EE_ErrorHook_nested_flag = 1U;
-      ErrorHook(E_OS_ID);
-      EE_ErrorHook_nested_flag = 0U;
-    }
+    EE_oo_notify_error_SetAbsAlarm(AlarmID, start, cycle, E_OS_ID);
     EE_hal_end_nested_primitive(flag);
-#endif
 
-#ifdef __OO_ORTI_SERVICETRACE__
-    EE_ORTI_servicetrace = EE_SERVICETRACE_SETABSALARM;
-#endif
+    EE_ORTI_set_service_out(EE_SERVICETRACE_SETABSALARM);
 
     return E_OS_ID;
   }
-#endif
+#endif /* __OO_EXTENDED_STATUS__ */
 
   /* let the system still work if the start parameter is 0 note that 0
    * is still an invalid value, so I decided arbitrarily to let it
    * fire the next tick.
    */
-  if (start==0U) {
+  if (start==(TickType)0U) {
     start = 1U;
   }
 
 #ifdef __OO_EXTENDED_STATUS__
-  if (start > EE_counter_ROM[EE_alarm_ROM[AlarmID].c].maxallowedvalue
+  if ((start > EE_counter_ROM[EE_alarm_ROM[AlarmID].c].maxallowedvalue)
       || 
-      (cycle && 
-       (cycle < EE_counter_ROM[EE_alarm_ROM[AlarmID].c].mincycle ||
-	cycle > EE_counter_ROM[EE_alarm_ROM[AlarmID].c].maxallowedvalue))
+      ((cycle != 0U) && 
+       ((cycle < EE_counter_ROM[EE_alarm_ROM[AlarmID].c].mincycle) ||
+	(cycle > EE_counter_ROM[EE_alarm_ROM[AlarmID].c].maxallowedvalue)))
       ) {
-#ifdef __OO_ORTI_LASTERROR__
-    EE_ORTI_lasterror = E_OS_VALUE;
-#endif
+    EE_ORTI_set_lasterror(E_OS_VALUE);
 
-#ifdef __OO_HAS_ERRORHOOK__
     flag = EE_hal_begin_nested_primitive();
-    if (!EE_ErrorHook_nested_flag) {
-#ifndef __OO_ERRORHOOK_NOMACROS__
-      EE_oo_ErrorHook_ServiceID = OSServiceId_SetAbsAlarm;
-      EE_oo_ErrorHook_data.SetAbsAlarm_prm.AlarmID = AlarmID;
-      EE_oo_ErrorHook_data.SetAbsAlarm_prm.start = start;
-      EE_oo_ErrorHook_data.SetAbsAlarm_prm.cycle = cycle;
-#endif
-      EE_ErrorHook_nested_flag = 1U;
-      ErrorHook(E_OS_VALUE);
-      EE_ErrorHook_nested_flag = 0U;
-    }
+    EE_oo_notify_error_SetAbsAlarm(AlarmID, start, cycle, E_OS_VALUE);
     EE_hal_end_nested_primitive(flag);
-#endif
 
-#ifdef __OO_ORTI_SERVICETRACE__
-    EE_ORTI_servicetrace = EE_SERVICETRACE_SETABSALARM;
-#endif
+    EE_ORTI_set_service_out(EE_SERVICETRACE_SETABSALARM);
 
     return E_OS_VALUE;
   }
-#endif
+#endif /* __OO_EXTENDED_STATUS__ */
 
 
 
   flag = EE_hal_begin_nested_primitive();
 
   if (EE_alarm_RAM[AlarmID].used) {
-#ifdef __OO_ORTI_LASTERROR__
-    EE_ORTI_lasterror = E_OS_STATE;
-#endif
+    EE_ORTI_set_lasterror(E_OS_STATE);
 
-#ifdef __OO_HAS_ERRORHOOK__
-    if (!EE_ErrorHook_nested_flag) {
-#ifndef __OO_ERRORHOOK_NOMACROS__
-      EE_oo_ErrorHook_ServiceID = OSServiceId_SetAbsAlarm;
-      EE_oo_ErrorHook_data.SetAbsAlarm_prm.AlarmID = AlarmID;
-      EE_oo_ErrorHook_data.SetAbsAlarm_prm.start = start;
-      EE_oo_ErrorHook_data.SetAbsAlarm_prm.cycle = cycle;
-#endif
-      EE_ErrorHook_nested_flag = 1U;
-      ErrorHook(E_OS_STATE);
-      EE_ErrorHook_nested_flag = 0U;
-    }
-#endif
+    EE_oo_notify_error_SetAbsAlarm(AlarmID, start, cycle, E_OS_STATE);
 
     EE_hal_end_nested_primitive(flag);
-
-#ifdef __OO_ORTI_SERVICETRACE__
-    EE_ORTI_servicetrace = EE_SERVICETRACE_SETABSALARM;
-#endif
+    EE_ORTI_set_service_out(EE_SERVICETRACE_SETABSALARM);
 
     return E_OS_STATE;
   }
@@ -178,14 +128,11 @@ StatusType EE_oo_SetAbsAlarm(AlarmType AlarmID,
   EE_alarm_RAM[AlarmID].cycle = cycle;
 
   EE_oo_alarm_insert(AlarmID, start - 
-			  EE_counter_RAM[EE_alarm_ROM[AlarmID].c].value);
-  
-  EE_hal_end_nested_primitive(flag);
+    EE_counter_RAM[EE_alarm_ROM[AlarmID].c].value);
 
-#ifdef __OO_ORTI_SERVICETRACE__
-  EE_ORTI_servicetrace = EE_SERVICETRACE_SETABSALARM;
-#endif
+  EE_hal_end_nested_primitive(flag);
+  EE_ORTI_set_service_out(EE_SERVICETRACE_SETABSALARM);
 
   return E_OK;
 }
-#endif
+#endif /* !__PRIVATE_SETABSALARM__ */

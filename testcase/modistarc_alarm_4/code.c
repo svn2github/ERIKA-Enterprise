@@ -62,8 +62,7 @@ TASK(Task1)
   s = SetRelAlarm(Alarm1, 1, 0);
   EE_assert(2, (s==E_OK), 1);
 
-  EE_oo_counter_tick(Counter1);
-  ForceSchedule();
+  IncrementCounter(Counter1);
   EE_assert(3, (TRUE), 2);
 
 #ifdef __OO_EXTENDED_STATUS__

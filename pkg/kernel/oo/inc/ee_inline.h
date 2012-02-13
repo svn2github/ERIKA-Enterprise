@@ -49,7 +49,6 @@
 #ifndef __INCLUDE_OO_INLINE_H__
 #define __INCLUDE_OO_INLINE_H__
 
-
 /***************************************************************************
  * Internal data structures and functions
  ***************************************************************************/
@@ -62,184 +61,115 @@
 
 /* 13.2.3.5: BCC1, BCC2, ECC1, ECC2 */
 #ifndef __PRIVATE_GETTASKID__
-#if 0 && defined __OO_EXTENDED_STATUS__ /* Disabled! */
+/*
+#if 0 && defined __OO_EXTENDED_STATUS__  Disabled! 
 StatusType EE_oo_GetTaskID(TaskRefType TaskID);
 #else
+*/
 __INLINE__ void __ALWAYS_INLINE__ EE_oo_GetTaskID(TaskRefType TaskID)
 {
-#ifdef __OO_ORTI_SERVICETRACE__
-  EE_ORTI_servicetrace = EE_SERVICETRACE_GETTASKID+1U;
-#endif
+  EE_ORTI_set_service_in(EE_SERVICETRACE_GETTASKID);
 
-  if (TaskID != NULL) {
+  if (TaskID != (TaskRefType)NULL) {
     *TaskID = EE_stk_queryfirst();
   }
 
-#ifdef __OO_ORTI_SERVICETRACE__
-  EE_ORTI_servicetrace = EE_SERVICETRACE_GETTASKID;
-#endif
+  EE_ORTI_set_service_out(EE_SERVICETRACE_GETTASKID);
 }
-#endif /* __OO_EXTENDED_STATUS__ */
+/*#endif*/ /* __OO_EXTENDED_STATUS__ */
 #endif
-
-/* 13.2.3.6: BCC1, BCC2, ECC1, ECC2 */
-#ifndef __PRIVATE_GETTASKSTATE__
-#ifdef __OO_EXTENDED_STATUS__
-__INLINE__ StatusType __ALWAYS_INLINE__ EE_oo_GetTaskState(TaskType TaskID, TaskStateRefType State)
-{
-#ifdef __OO_ORTI_SERVICETRACE__
-  EE_ORTI_servicetrace = EE_SERVICETRACE_GETTASKSTATE+1U;
-#endif
-
-  if (TaskID < 0 || TaskID >= EE_MAX_TASK) {
-#ifdef __OO_ORTI_SERVICETRACE__
-    EE_ORTI_servicetrace = EE_SERVICETRACE_GETTASKSTATE;
-#endif
-    return E_OS_ID;
-  }
-
-  if (State != NULL) {
-    *State = EE_th_status[TaskID];
-  }
-
-#ifdef __OO_ORTI_SERVICETRACE__
-  EE_ORTI_servicetrace = EE_SERVICETRACE_GETTASKSTATE;
-#endif
-  return E_OK;
-}
-#else
-__INLINE__ void __ALWAYS_INLINE__ EE_oo_GetTaskState(TaskType TaskID, TaskStateRefType State)
-{
-#ifdef __OO_ORTI_SERVICETRACE__
-  EE_ORTI_servicetrace = EE_SERVICETRACE_GETTASKSTATE+1U;
-#endif
-
-  *State = EE_th_status[TaskID];
-
-#ifdef __OO_ORTI_SERVICETRACE__
-  EE_ORTI_servicetrace = EE_SERVICETRACE_GETTASKSTATE;
-#endif
-}
-#endif
-#endif
-
 
 /***************************************************************************
  * 13.3 Interrupt handling 
  ***************************************************************************/
 
-
 /* 13.3.2.1: BCC1, BCC2, ECC1, ECC2 */
-#if ! defined(__PRIVATE_ENABLEALLINTERRUPTS__) \
- && ! defined(__EE_MEMORY_PROTECTION__)
+#if (! defined(__PRIVATE_ENABLEALLINTERRUPTS__)) \
+ && (! defined(__EE_MEMORY_PROTECTION__))
 __INLINE__ void __ALWAYS_INLINE__ EE_oo_EnableAllInterrupts(void)
 {
-#ifdef __OO_ORTI_SERVICETRACE__
-  EE_ORTI_servicetrace = EE_SERVICETRACE_ENABLEALLINTERRUPTS+1U;
-#endif
+  EE_ORTI_set_service_in(EE_SERVICETRACE_ENABLEALLINTERRUPTS);
 
   EE_hal_enableIRQ();
 
-#ifdef __OO_ORTI_SERVICETRACE__
-  EE_ORTI_servicetrace = EE_SERVICETRACE_ENABLEALLINTERRUPTS;
-#endif
+  EE_ORTI_set_service_out(EE_SERVICETRACE_ENABLEALLINTERRUPTS);
 }
 #endif
 
 /* 13.3.2.2: BCC1, BCC2, ECC1, ECC2 */
-#if ! defined(__PRIVATE_DISABLEALLINTERRUPTS__) \
- && ! defined(__EE_MEMORY_PROTECTION__)
+#if (! defined(__PRIVATE_DISABLEALLINTERRUPTS__)) \
+ && (! defined(__EE_MEMORY_PROTECTION__))
 __INLINE__ void __ALWAYS_INLINE__ EE_oo_DisableAllInterrupts(void)
 {
-#ifdef __OO_ORTI_SERVICETRACE__
-  EE_ORTI_servicetrace = EE_SERVICETRACE_DISABLEALLINTERRUPTS+1U;
-#endif
+  EE_ORTI_set_service_in(EE_SERVICETRACE_DISABLEALLINTERRUPTS);
 
   EE_hal_disableIRQ();
 
-#ifdef __OO_ORTI_SERVICETRACE__
-  EE_ORTI_servicetrace = EE_SERVICETRACE_DISABLEALLINTERRUPTS;
-#endif
+  EE_ORTI_set_service_out(EE_SERVICETRACE_DISABLEALLINTERRUPTS);
 }
 #endif /* ! __PRIVATE_DISABLEALLINTERRUPTS__) && ! __EE_MEMORY_PROTECTION__ */
 
 /* 13.3.2.3: BCC1, BCC2, ECC1, ECC2 */
-#if ! defined(__PRIVATE_RESUMEALLINTERRUPTS__) \
- && ! defined(__EE_MEMORY_PROTECTION__)
+#if (! defined(__PRIVATE_RESUMEALLINTERRUPTS__)) \
+ && (! defined(__EE_MEMORY_PROTECTION__))
 __INLINE__ void __ALWAYS_INLINE__ EE_oo_ResumeAllInterrupts(void)
 {
-#ifdef __OO_ORTI_SERVICETRACE__
-  EE_ORTI_servicetrace = EE_SERVICETRACE_RESUMEALLINTERRUPTS+1U;
-#endif
+  EE_ORTI_set_service_in(EE_SERVICETRACE_RESUMEALLINTERRUPTS);
 
   EE_oo_IRQ_disable_count--;
-  if (!EE_oo_IRQ_disable_count) {
+  if (EE_oo_IRQ_disable_count == 0U) {
     EE_hal_enableIRQ();
   }
 
-#ifdef __OO_ORTI_SERVICETRACE__
-  EE_ORTI_servicetrace = EE_SERVICETRACE_RESUMEALLINTERRUPTS;
-#endif
+  EE_ORTI_set_service_out(EE_SERVICETRACE_RESUMEALLINTERRUPTS);
 }
 #endif /* ! __PRIVATE_RESUMEALLINTERRUPTS__ && ! __EE_MEMORY_PROTECTION__ */
 
 /* 13.3.2.4: BCC1, BCC2, ECC1, ECC2 */
-#if ! defined(__PRIVATE_SUSPENDALLINTERRUPTS__) \
- && ! defined(__EE_MEMORY_PROTECTION__)
+#if (! defined(__PRIVATE_SUSPENDALLINTERRUPTS__)) \
+ && (! defined(__EE_MEMORY_PROTECTION__))
 __INLINE__ void __ALWAYS_INLINE__ EE_oo_SuspendAllInterrupts(void)
 {
-#ifdef __OO_ORTI_SERVICETRACE__
-  EE_ORTI_servicetrace = EE_SERVICETRACE_SUSPENDALLINTERRUPTS+1U;
-#endif
+  EE_ORTI_set_service_in(EE_SERVICETRACE_SUSPENDALLINTERRUPTS);
 
-  if (!EE_oo_IRQ_disable_count) {
+  if (EE_oo_IRQ_disable_count == 0U) {
     EE_hal_disableIRQ();
   }
   EE_oo_IRQ_disable_count++;
 
-#ifdef __OO_ORTI_SERVICETRACE__
-  EE_ORTI_servicetrace = EE_SERVICETRACE_SUSPENDALLINTERRUPTS;
-#endif
+  EE_ORTI_set_service_out(EE_SERVICETRACE_SUSPENDALLINTERRUPTS);
 }
 #endif /* ! __PRIVATE_SUSPENDALLINTERRUPTS__ && ! __EE_MEMORY_PROTECTION__ */
 
 /* 13.3.2.5: BCC1, BCC2, ECC1, ECC2 */
-#if ! defined(__PRIVATE_RESUMEOSINTERRUPTS__) \
- && ! defined(__EE_MEMORY_PROTECTION__)
+#if (! defined(__PRIVATE_RESUMEOSINTERRUPTS__)) \
+ && (! defined(__EE_MEMORY_PROTECTION__))
 __INLINE__ void __ALWAYS_INLINE__ EE_oo_ResumeOSInterrupts(void)
 {
-#ifdef __OO_ORTI_SERVICETRACE__
-  EE_ORTI_servicetrace = EE_SERVICETRACE_RESUMEOSINTERRUPTS+1U;
-#endif
+  EE_ORTI_set_service_in(EE_SERVICETRACE_RESUMEOSINTERRUPTS);
 
   EE_oo_IRQ_disable_count--;
-  if (!EE_oo_IRQ_disable_count) {
+  if (EE_oo_IRQ_disable_count == 0U) {
     EE_hal_enableIRQ();
   }
 
-#ifdef __OO_ORTI_SERVICETRACE__
-  EE_ORTI_servicetrace = EE_SERVICETRACE_RESUMEOSINTERRUPTS;
-#endif
+  EE_ORTI_set_service_out(EE_SERVICETRACE_RESUMEOSINTERRUPTS);
 }
 #endif /* ! __PRIVATE_RESUMEOSINTERRUPTS__ && ! __EE_MEMORY_PROTECTION__ */
 
 /* 13.3.2.6: BCC1, BCC2, ECC1, ECC2 */
-#if ! defined(__PRIVATE_SUSPENDOSINTERRUPTS__) \
- && ! defined(__EE_MEMORY_PROTECTION__)
+#if (! defined(__PRIVATE_SUSPENDOSINTERRUPTS__)) \
+ && (! defined(__EE_MEMORY_PROTECTION__))
 __INLINE__ void __ALWAYS_INLINE__ EE_oo_SuspendOSInterrupts(void)
 {
-#ifdef __OO_ORTI_SERVICETRACE__
-  EE_ORTI_servicetrace = EE_SERVICETRACE_SUSPENDOSINTERRUPTS+1U;
-#endif
+  EE_ORTI_set_service_in(EE_SERVICETRACE_SUSPENDOSINTERRUPTS);
 
-  if (!EE_oo_IRQ_disable_count) {
+  if (EE_oo_IRQ_disable_count == 0U) {
     EE_hal_disableIRQ();
   }
   EE_oo_IRQ_disable_count++;
 
-#ifdef __OO_ORTI_SERVICETRACE__
-  EE_ORTI_servicetrace = EE_SERVICETRACE_SUSPENDOSINTERRUPTS;
-#endif
+  EE_ORTI_set_service_out(EE_SERVICETRACE_SUSPENDOSINTERRUPTS);
 }
 #endif /* ! __PRIVATE_SUSPENDOSINTERRUPTS__ && ! __EE_MEMORY_PROTECTION__ */
 
@@ -256,20 +186,39 @@ __INLINE__ void __ALWAYS_INLINE__ EE_oo_SuspendOSInterrupts(void)
 /* by default there is only 6the default application mode defined!... */
 __INLINE__ AppModeType __ALWAYS_INLINE__ EE_oo_GetActiveApplicationMode(void) 
 { 
-#ifdef __OO_ORTI_SERVICETRACE__
   /* both assignment to enable smart debuggers to notice the entry and
      exit from getactiveapplicationmode.
      Note that the variable is volatile, so both the writings succeeds
   */
-  EE_ORTI_servicetrace = EE_SERVICETRACE_GETACTIVEAPPLICATIONMODE+1U;
-  EE_ORTI_servicetrace = EE_SERVICETRACE_GETACTIVEAPPLICATIONMODE;
-#endif
+  EE_ORTI_set_service_in(EE_SERVICETRACE_GETACTIVEAPPLICATIONMODE);
+  EE_ORTI_set_service_out(EE_SERVICETRACE_GETACTIVEAPPLICATIONMODE);
 
   return EE_ApplicationMode; 
 }
 #endif
 
+#ifdef __MSRP__
+__INLINE__ EE_UREG __ALWAYS_INLINE__ EE_oo_isGlobal(ResourceType ResID)
+{
+  register EE_UREG isGlobal, ureg_tmp1, ureg_tmp2;
+  EE_SREG sreg_tmp;
+/* mask off the MSB, that indicates whether this is a global or a
+     local resource */
 
+  /*
+   * This is the compact expression
+   * isGlobal = ((ResID & EE_GLOBAL_MUTEX) != (ResourceType)0U);
+   *
+   * The following is the extended version introduced to
+   * meet MISRA requirements
+   */
+  ureg_tmp1 = (ResID & EE_GLOBAL_MUTEX);
+  ureg_tmp2 = (ResourceType)0U;
+  sreg_tmp = (EE_SREG)(ureg_tmp1 != ureg_tmp2);
+  isGlobal = (EE_UREG)sreg_tmp;
 
-
+  return isGlobal;
+}
 #endif
+
+#endif /* __INCLUDE_OO_INLINE_H__ */

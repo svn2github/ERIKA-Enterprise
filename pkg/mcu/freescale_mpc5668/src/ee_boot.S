@@ -48,7 +48,7 @@
 #include <mcu/freescale_mpc5668/inc/ee_regs_asm.h>
 #include <cpu/e200zx/inc/ee_cpu_asm.h>
 
-	.extern	_load_ram, _sdata, _sbss, _ebss, sram_setup, main
+	.extern	ee_load_ram, ee_sdata, ee_sbss, ee_ebss, sram_setup, main
 	.extern EE_e200zx_mmu_entries, EE_e200zx_mmu_num_entries
 #ifdef __ASM_CONVERTED_TO_C__
 int main(void);
@@ -93,12 +93,12 @@ __start:
 	addis	r8, 0, _stack0@ha	/* setup the stack pointer */
 	addi	sp, r8, _stack0@l
 
-	addis	r8, 0, _load_ram@ha	/* load _load_ram into r8 */
-	addi	r8, r8, _load_ram@l
-	addis	r9, 0, _sbss@ha		/* load _sbss into r9 */
-	addi	r9, r9, _sbss@l
-	addis	r10, 0, _sdata@ha	/* load _sdata into r10 */
-	addi	r10, r10, _sdata@l
+	addis	r8, 0, ee_load_ram@ha	/* load _load_ram into r8 */
+	addi	r8, r8, ee_load_ram@l
+	addis	r9, 0, ee_sbss@ha		/* load _sbss into r9 */
+	addi	r9, r9, ee_sbss@l
+	addis	r10, 0, ee_sdata@ha	/* load _sdata into r10 */
+	addi	r10, r10, ee_sdata@l
 
 	cmplw	cr0, r8, r10		/* check if we have to move data */
 	beq	2f
@@ -113,8 +113,8 @@ __start:
 	blt	1b
 
 2:
-	addis	r8, 0, _ebss@ha		/* load _ebss into r8 (r9 is _sbss) */
-	addi	r8, r8, _ebss@l
+	addis	r8, 0, ee_ebss@ha		/* load _ebss into r8 (r9 is _sbss) */
+	addi	r8, r8, ee_ebss@l
 	li	r11, 0			/* load 0 in r11 */
 
 1:
@@ -123,10 +123,10 @@ __start:
 	cmplw	cr0, r9, r8
 	blt	1b
 
-	addis	r8, 0, _estack@ha	/* load _estack into r8 */
-	addi	r8, r8, _estack@l
-	addis	r9, 0, _sstack@ha	/* load _sstack into r9 */
-	addi	r9, r9, _sstack@l
+	addis	r8, 0, ee_estack@ha	/* load _estack into r8 */
+	addi	r8, r8, ee_estack@l
+	addis	r9, 0, ee_sstack@ha	/* load _sstack into r9 */
+	addi	r9, r9, ee_sstack@l
 	addis	r11, 0, 0xa5a5a5a5@ha	/* load the fill pattern in r11 */
 	addi	r11, r11, 0xa5a5a5a5@l
 

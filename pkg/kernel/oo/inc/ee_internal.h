@@ -62,6 +62,7 @@
       (for primitives that can be called both into a task and into an ISR2
     - EE_hal_terminate_task(EE_TID t)
     - EE_hal_terminate_savestk(EE_TID t)
+      EE_oo_preemption_point() execute task preemption if is needed
     - EE_oo_shutdown() if not redefined it does for(;;);
     - All the alarm constants listed in 13.6.4
  */
@@ -71,12 +72,41 @@
  * Internal data structures and functions
  ***************************************************************************/
 
-#ifdef __OO_HAS_ERRORHOOK__
-extern EE_TYPEBOOL EE_ErrorHook_nested_flag;
-#endif
+/*
+    Call Hooks utilities
+ */
+
+#ifdef __OO_HAS_PRETASKHOOK__
+__INLINE__ void __ALWAYS_INLINE__ EE_oo_call_PreTaskHook(void)
+{
+    PreTaskHook();
+}
+
+/* Call PreTaskHook only if given TaskID is not main task */
+__INLINE__ void __ALWAYS_INLINE__ EE_oo_call_with_nil_check_PreTaskHook(
+    TaskType TaskID)
+{
+    if (TaskID != EE_NIL) {
+        PreTaskHook();
+    }
+}
+#else /* __OO_HAS_PRETASKHOOK__ */
+#define EE_oo_call_PreTaskHook()                        ((void)0)
+#define EE_oo_call_with_nil_check_PreTaskHook(TaskID)   ((void)0)
+#endif /* __OO_HAS_PRETASKHOOK__ */
+
+#if defined(__OO_HAS_POSTTASKHOOK__)
+__INLINE__ void __ALWAYS_INLINE__ EE_oo_call_PostTaskHook(void)
+{
+    PostTaskHook();
+}
+#else /* __OO_HAS_POSTTASKHOOK__ */
+#define EE_oo_call_PostTaskHook()   ((void)0)
+#endif /* __OO_HAS_POSTTASKHOOK__ */
 
 /* a flag that says if we are inside the startupHook/autostart rutines or not */
-#if defined(__OO_HAS_STARTUPHOOK__) || defined(__OO_AUTOSTART_TASK__) || defined(__OO_AUTOSTART_ALARM__)
+#if defined(__OO_HAS_STARTUPHOOK__) || defined(__OO_AUTOSTART_TASK__) ||\
+  defined(__OO_AUTOSTART_ALARM__)
 /* this variable is defined into lookup.c! */
 extern EE_TYPEBOOL EE_oo_no_preemption;
 #endif
@@ -129,14 +159,34 @@ void EE_rq_insert(EE_TID t);
 EE_TID EE_rq2stk_exchange(void);
 #endif
 
-#ifndef __PRIVATE_SHUTDOWN__
-__INLINE__ void __ALWAYS_INLINE__ EE_oo_shutdown(void)
+#ifndef __OO_NO_RESOURCES__
+/*
+    Method to release all resources locked by a Thread,
+    used to fulfill AS requirement OS070
+ */
+#if (!defined(__OO_EXTENDED_STATUS__)) && (!defined(__PRIVATE_RELEASEALLRESOURCE__))
+__INLINE__ void __ALWAYS_INLINE__ EE_thread_release_all_resources(EE_TID tid)
 {
-  for(;;) {
-    ;
-  }
+  /* release the internal resource. a EE_TYPEPRIO is a bit mask with only one
+     bit set to one.
+     If i subtract one to this I obtain a bit mask with all
+     ones before the starting one and all zeros after 
+     (exactly what I want to release resources!)
+  */
+  EE_sys_ceiling &= (EE_th_dispatch_prio[tid] - 1U);
 }
-#endif
+#else
+void EE_thread_release_all_resources(EE_TID tid);
+#endif /* !__OO_EXTENDED_STATUS__ && !__PRIVATE_RELEASEALLRESOURCE__*/
+#else /* __OO_NO_RESOURCES__ */
+#define EE_thread_release_all_resources(tid)    ((void)0)
+#endif /* __OO_NO_RESOURCES__ */
+
+#ifndef __PRIVATE_THREANTERMINATED__
+/* this the function that will be called if a Task doesn't end calling
+   TerminateTask */
+void EE_thread_not_terminated(void);
+#endif /* __PRIVATE_THREANTERMINATED__ */
 
 /* This call terminates a thread instance. It must be called as the
    LAST function call BEFORE the `}' that ends a thread. If the
@@ -149,27 +199,27 @@ void EE_thread_end_instance(void);
 /* This primitive shall be atomic.
    This primitive shall be inserted as the last function in an IRQ handler.
    If the HAL allow IRQ nesting the C_end_instance should work as follows:
-   - it must implement the preemption test only if it is the last IRQ on the stack
-   - if there are other interrupts on the stack the IRQ end_instance should do nothing
+   - it must implement the preemption test only if it is the last IRQ on the
+     stack
+   - if there are other interrupts on the stack the IRQ end_instance should
+     do nothing
 */
 void EE_IRQ_end_instance(void);
 #endif
 
-
 /*
- * ORTI functions
+ * ORTI Macros
  */
-
 #ifdef __OO_ORTI_RUNNINGISR2__
 __INLINE__ EE_ORTI_runningisr2_type EE_ORTI_get_runningisr2(void)
 {
-	return EE_ORTI_runningisr2;
+    return EE_ORTI_runningisr2;
 }
 
 __INLINE__ void EE_ORTI_set_runningisr2(EE_ORTI_runningisr2_type isr2)
 {
-	EE_ORTI_runningisr2 = isr2;
-        EE_ORTI_send_otm_runningisr2(isr2);
+    EE_ORTI_runningisr2 = isr2;
+    EE_ORTI_send_otm_runningisr2(isr2);
 }
 
 #else /* if __OO_ORTI_RUNNINGISR2__ */
@@ -182,10 +232,167 @@ __INLINE__ EE_ORTI_runningisr2_type EE_ORTI_get_runningisr2(void)
 	return (EE_ORTI_runningisr2_type)NULL;
 }
 
-__INLINE__ void EE_ORTI_set_runningisr2(EE_ORTI_runningisr2_type isr2)
-{
-}
-
+#define EE_ORTI_set_runningisr2(isr2)    ((void)0)
 #endif /* else __OO_ORTI_RUNNINGISR2__ */
 
-#endif
+#if defined(__OO_ECC1__) || defined(__OO_ECC2__)
+/*
+    Reset Active Events  THREAD utility method.
+
+    When an extended task is transferred from suspended state
+    into ready state all its events have to be cleared cleared
+*/
+__INLINE__ void __ALWAYS_INLINE__ EE_oo_reset_th_event_active(TaskType TaskID)
+{
+    EE_th_event_active[TaskID] = 0U;
+}
+
+/* 
+  This method actually do a CONTEXT SWITCH, with the highest priority TASK
+*/
+__INLINE__ void __ALWAYS_INLINE__ EE_oo_run_next_task(void)
+{
+    register TaskType tmp;
+    /* swap from ready queue to stack queue */
+    tmp = EE_rq2stk_exchange();
+    if (EE_th_waswaiting[tmp]) {
+      /* if the task was waiting switch the context to restart it */
+      EE_th_waswaiting[tmp] = 0U;
+      EE_hal_stkchange(tmp);
+    } else {
+      /* the next task have to be started */
+      EE_hal_ready2stacked(tmp);
+    }
+}
+#else
+#define EE_oo_reset_th_event_active(TaskID)    ((void) 0)
+
+/* 
+  This method actually do a CONTEXT SWITCH, with the highest priority TASK
+*/
+__INLINE__ void __ALWAYS_INLINE__ EE_oo_run_next_task(void)
+{
+    EE_hal_ready2stacked(EE_rq2stk_exchange());
+}
+#endif /* defined(__OO_ECC1__) || defined(__OO_ECC2__) */
+
+
+#if defined(__OO_BCC2__) || defined(__OO_ECC2__)
+  /*
+    Set THREAD ready utility method.
+    If the task is BCC2/ECC2 it can be that it is ready or 
+    running. in that case we have to check and queue it anyway
+  */
+__INLINE__ void __ALWAYS_INLINE__ EE_oo_set_th_status_ready(TaskType TaskID)
+{
+    if (EE_th_status[TaskID] == SUSPENDED) {
+        EE_th_status[TaskID] = READY;
+        EE_oo_reset_th_event_active(TaskID);
+    }
+}
+#else
+  /*
+    Set THREAD ready utility method
+    If the task is BCC1/ECC1 it can be here only because
+    it had rnact=1 before the call, and so it is in suspended state
+  */
+__INLINE__ void __ALWAYS_INLINE__ EE_oo_set_th_status_ready(TaskType TaskID)
+{
+    EE_th_status[TaskID] = READY;
+    EE_oo_reset_th_event_active(TaskID);
+}
+#endif /* defined(__OO_BCC2__) || defined(__OO_ECC2__) */
+
+#endif /* __INCLUDE_OO_INTERNAL_H__ */
+
+
+/* Execute a preemption */
+#ifndef __PRIVATE_PREEMPTION_POINTS__
+/*
+  Moved preemption check implementation into an outside method because the
+  behaviour is common to EE_ActivateTask, EE_oo_ForceSchedule,
+  EE_oo_IncrementCounter, EE_oo_ReleaseResource, EE_oo_PostSem
+*/
+__INLINE__ void __ALWAYS_INLINE__ EE_oo_preemption_point(void)
+{
+  register EE_TID current, rq;
+
+  /* check if there is a preemption */
+  current = EE_stk_queryfirst();
+  rq      = EE_rq_queryfirst();
+
+  if (rq != EE_NIL) {
+    /* We check if the system ceiling is greater or not the first task
+       in the ready queue */
+    if (EE_sys_ceiling < EE_th_ready_prio[rq]) {
+      if (current != EE_NIL) { 
+        EE_oo_call_PostTaskHook();
+        /* we have to put the task in the ready status */
+        EE_th_status[current] = READY;
+        /* but not in the ready queue!!! 
+           the task remains into the stacked queue!
+         */
+      }
+
+      /* get the new internal resource */
+      EE_sys_ceiling |= EE_th_dispatch_prio[rq];
+      /* put the task in running state */
+      EE_th_status[rq] = RUNNING;
+
+      EE_ORTI_set_th_eq_dispatch_prio(rq);
+
+      /* Execute context SWITCH, this method return when we have a switch
+         back on the previous TASK contest.
+       */
+      EE_oo_run_next_task();
+
+      /* Call PreTaskHook in the first TASK context, after have checked that
+         the current TASK is not main.
+      */
+      EE_oo_call_with_nil_check_PreTaskHook(current);
+    }
+  }
+}
+
+#if defined(__OO_ECC1__) || defined(__OO_ECC2__)
+/*
+  Yeld to next TASK if Extended Task is configured
+ */
+__INLINE__ void __ALWAYS_INLINE__ EE_oo_yeld(void)
+{
+  register EE_TID next;
+
+  EE_oo_call_PostTaskHook();
+
+  next = EE_rq_queryfirst();
+  if ((next == EE_NIL) || (EE_sys_ceiling >= EE_th_ready_prio[next])) {
+    /* we have to schedule an interrupted thread that is on the top 
+     * of its stack; the state is already STACKED! */
+    next = EE_stk_queryfirst();
+    if (next != EE_NIL) {
+      EE_th_status[next] = RUNNING;
+    }
+
+    /* CONTEXT SWITCH to a previous stacked Task */
+    EE_hal_stkchange(next);
+  } else { 
+    /* we have to schedule a ready thread that is not yet on the stack */
+    EE_th_status[next] = RUNNING;
+    EE_sys_ceiling |= EE_th_dispatch_prio[next];
+
+    EE_ORTI_set_th_eq_dispatch_prio(next);
+
+    /* Execute context SWITCH, this method return when we have a switch
+       back on the previous TASK contest.
+     */
+    EE_oo_run_next_task();
+  }
+  /* We do not have to set the thread priority bit in the
+       system_ceiling, it will be set by the primitives that put the
+       task in the RUNNING state */
+
+  EE_oo_call_PreTaskHook();
+}
+#endif /* __OO_ECC1__ || __OO_ECC2__ */
+#endif /* __PRIVATE_PREEMPTION_POINTS__ */
+

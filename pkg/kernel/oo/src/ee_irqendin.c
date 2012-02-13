@@ -47,6 +47,27 @@
 
 
 #ifndef __PRIVATE_IRQ_END_INSTANCE__
+
+#if defined(__OO_ECC1__) || defined(__OO_ECC2__)
+static void EE_IRQ_run_next_task(void)
+{
+  register EE_TID next;
+  next = EE_rq2stk_exchange();
+  if (EE_th_waswaiting[next]) {
+    EE_th_waswaiting[next] = 0U;
+    EE_oo_call_PreTaskHook();
+    EE_hal_IRQ_stacked(next);
+  } else {
+    EE_hal_IRQ_ready(next);
+  }
+}
+#else /* __OO_ECC1__ || __OO_ECC2__ */
+static void EE_IRQ_run_next_task(void)
+{
+  EE_hal_IRQ_ready(EE_rq2stk_exchange());
+}
+#endif /* __OO_ECC1__ || __OO_ECC2__ */
+
 /* This primitive shall be atomic.
    This primitive shall be inserted as the last function in an IRQ handler.
    If the HAL allow IRQ nesting the C_end_instance should work as follows:
@@ -62,40 +83,24 @@ void EE_IRQ_end_instance(void)
   tmp_stacked = EE_stk_queryfirst();
 
   if ((tmp != EE_NIL) && (EE_sys_ceiling < EE_th_ready_prio[tmp])) {
-      /* we have to schedule a ready thread */
+    /* we have to schedule a ready thread */
 
-      if (tmp_stacked != EE_NIL) {
-#ifdef __OO_HAS_POSTTASKHOOK__
-	/* there is a post task hook only if there is a task that is running */
-	PostTaskHook();
-#endif	
-	/* the running task is now suspended */
-	EE_th_status[tmp_stacked] = READY;
-      }
+    if (tmp_stacked != EE_NIL) {
+      /* there is a post task hook only if there is a task that is running */
+      EE_oo_call_PostTaskHook();
 
-      /* and another task is put into the running state */
-      EE_th_status[tmp] = RUNNING;
-      
-      EE_sys_ceiling |= EE_th_dispatch_prio[tmp];
+      /* the running task is now suspended */
+      EE_th_status[tmp_stacked] = READY;
+    }
 
-#ifdef __OO_ORTI_PRIORITY__
-      EE_ORTI_th_priority[tmp] = EE_th_dispatch_prio[tmp];
-#endif
-      
-#if defined(__OO_ECC1__) || defined(__OO_ECC2__)
-      tmp = EE_rq2stk_exchange();
-      if (EE_th_waswaiting[tmp]) {
-	EE_th_waswaiting[tmp] = 0U;
-#ifdef __OO_HAS_PRETASKHOOK__
-	PreTaskHook();
-#endif	
-	EE_hal_IRQ_stacked(tmp);
-      } else {
-	EE_hal_IRQ_ready(tmp);
-      }
-#else
-      EE_hal_IRQ_ready(EE_rq2stk_exchange());
-#endif
+    /* and another task is put into the running state */
+    EE_th_status[tmp] = RUNNING;
+
+    EE_sys_ceiling |= EE_th_dispatch_prio[tmp];
+
+    EE_ORTI_set_th_eq_dispatch_prio(tmp);
+
+    EE_IRQ_run_next_task();
   } else {
     EE_hal_IRQ_stacked(EE_stk_queryfirst());
   }

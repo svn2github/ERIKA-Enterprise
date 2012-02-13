@@ -71,122 +71,71 @@ StatusType EE_oo_SetEvent(TaskType TaskID, EventMaskType Mask)
 void EE_oo_SetEvent(TaskType TaskID, EventMaskType Mask)
 #endif
 {
-  register TaskType tmp;
-  register TaskType tmp_stacked;
   register EE_FREG flag;
+  int rn_return_val;
 
-
-#ifdef __OO_ORTI_SERVICETRACE__
-  EE_ORTI_servicetrace = EE_SERVICETRACE_SETEVENT+1U;
-#endif
+  EE_ORTI_set_service_in(EE_SERVICETRACE_SETEVENT);
 
 #ifdef __RN_EVENT__
-  if (TaskID & EE_REMOTE_TID) {
+  if (EE_IS_TID_REMOTE(TaskID)) {
     /* forward the request to another CPU when the task does
        not belong to the current CPU */
     register EE_TYPERN_PARAM par;
     par.ev = Mask;
-    EE_rn_send(TaskID & ~EE_REMOTE_TID, EE_RN_EVENT, par );
+    rn_return_val = EE_rn_send((EE_SREG)EE_MARK_REMOTE_TID(TaskID),
+      EE_RN_TASK, par);
     
-#ifdef __OO_ORTI_SERVICETRACE__
-    EE_ORTI_servicetrace = EE_SERVICETRACE_SETEVENT;
-#endif
+    EE_ORTI_set_service_out(EE_SERVICETRACE_SETEVENT);
 
 #ifdef __OO_EXTENDED_STATUS__
     return E_OK;
 #else
     return;
-#endif
+#endif /* __OO_EXTENDED_STATUS__ */
   }
-#endif
+#endif /* __RN_EVENT__ */
 
 #ifdef __OO_EXTENDED_STATUS__    
   /* check if the task Id is valid */
   if ((TaskID < 0) || (TaskID >= EE_MAX_TASK)) {
-#ifdef __OO_ORTI_LASTERROR__
-    EE_ORTI_lasterror = E_OS_ID;
-#endif
+    EE_ORTI_set_lasterror(E_OS_ID);
 
-#ifdef __OO_HAS_ERRORHOOK__
     flag = EE_hal_begin_nested_primitive();
-    if (!EE_ErrorHook_nested_flag) {  
-#ifndef __OO_ERRORHOOK_NOMACROS__
-      EE_oo_ErrorHook_ServiceID = OSServiceId_SetEvent;
-      EE_oo_ErrorHook_data.SetEvent_prm.TaskID = TaskID;
-      EE_oo_ErrorHook_data.SetEvent_prm.Mask = Mask;
-#endif
-      EE_ErrorHook_nested_flag = 1U;
-      ErrorHook(E_OS_ID);
-      EE_ErrorHook_nested_flag = 0U;
-    }
+    EE_oo_notify_error_SetEvent(TaskID, Mask, E_OS_ID);
     EE_hal_end_nested_primitive(flag);
-#endif
 
-#ifdef __OO_ORTI_SERVICETRACE__
-    EE_ORTI_servicetrace = EE_SERVICETRACE_SETEVENT;
-#endif
+    EE_ORTI_set_service_out(EE_SERVICETRACE_SETEVENT);
 
     return E_OS_ID;
   }
 
-  if (!EE_th_is_extended[TaskID]) {
-#ifdef __OO_ORTI_LASTERROR__
-    EE_ORTI_lasterror = E_OS_ACCESS;
-#endif
+  if (EE_th_is_extended[TaskID] == 0U) {
+    EE_ORTI_set_lasterror(E_OS_ACCESS);
 
-#ifdef __OO_HAS_ERRORHOOK__
     flag = EE_hal_begin_nested_primitive();
-    if (!EE_ErrorHook_nested_flag) {
-#ifndef __OO_ERRORHOOK_NOMACROS__
-      EE_oo_ErrorHook_ServiceID = OSServiceId_SetEvent;
-      EE_oo_ErrorHook_data.SetEvent_prm.TaskID = TaskID;
-      EE_oo_ErrorHook_data.SetEvent_prm.Mask = Mask;
-#endif
-      EE_ErrorHook_nested_flag = 1U;
-      ErrorHook(E_OS_ACCESS);
-      EE_ErrorHook_nested_flag = 0U;
-    }
+    EE_oo_notify_error_SetEvent(TaskID, Mask, E_OS_ACCESS);
     EE_hal_end_nested_primitive(flag);
-#endif
 
-#ifdef __OO_ORTI_SERVICETRACE__
-    EE_ORTI_servicetrace = EE_SERVICETRACE_SETEVENT;
-#endif
+    EE_ORTI_set_service_out(EE_SERVICETRACE_SETEVENT);
 
     return E_OS_ACCESS;
   }
-#endif
+#endif /* __OO_EXTENDED_STATUS__ */
 
   flag = EE_hal_begin_nested_primitive();
 
-#ifdef __OO_EXTENDED_STATUS__    
+#ifdef __OO_EXTENDED_STATUS__
   if (EE_th_status[TaskID] == SUSPENDED) {
-#ifdef __OO_ORTI_LASTERROR__
-    EE_ORTI_lasterror = E_OS_STATE;
-#endif
+    EE_ORTI_set_lasterror(E_OS_STATE);
 
-#ifdef __OO_HAS_ERRORHOOK__
-    if (!EE_ErrorHook_nested_flag) {
-#ifndef __OO_ERRORHOOK_NOMACROS__
-      EE_oo_ErrorHook_ServiceID = OSServiceId_SetEvent;
-      EE_oo_ErrorHook_data.SetEvent_prm.TaskID = TaskID;
-      EE_oo_ErrorHook_data.SetEvent_prm.Mask = Mask;
-#endif
-      EE_ErrorHook_nested_flag = 1U;
-      ErrorHook(E_OS_STATE);
-      EE_ErrorHook_nested_flag = 0U;
-    }
-#endif
+    EE_oo_notify_error_SetEvent(TaskID, Mask, E_OS_STATE);
 
     EE_hal_end_nested_primitive(flag);
-
-#ifdef __OO_ORTI_SERVICETRACE__
-    EE_ORTI_servicetrace = EE_SERVICETRACE_SETEVENT;
-#endif
+    EE_ORTI_set_service_out(EE_SERVICETRACE_SETEVENT);
 
     return E_OS_STATE;
   }
-#endif
+#endif /* __OO_EXTENDED_STATUS__ */
 
   /* set the event mask */
   EE_th_event_active[TaskID] |= Mask;
@@ -199,68 +148,29 @@ void EE_oo_SetEvent(TaskType TaskID, EventMaskType Mask)
    * two times the same setevent... the first time the task must go in
    * the ready queue, the second time NOT!!!
    */
-  if ((EE_th_event_waitmask[TaskID] & Mask) &&
-      (EE_th_status[TaskID] == WAITING)) {
-    /* if yes, the task must go back into the READY state */
-    EE_th_status[TaskID] = READY;
-    /* insert the task in the ready queue */
-    EE_rq_insert(TaskID);
-  
-    /* and if I am at task level, check for preemption... */
-    if (!EE_hal_get_IRQ_nesting_level()) {
-      /* we are inside a task */
-      tmp = EE_rq_queryfirst();
-      if (tmp != EE_NIL) {
-	if (EE_sys_ceiling < EE_th_ready_prio[tmp]) {
-	  /* we have to schedule a ready thread */
+  if (EE_th_event_waitmask[TaskID] & Mask) {
+    if (EE_th_status[TaskID] == WAITING) {
+      /* if yes, the task must go back into the READY state */
+      EE_th_status[TaskID] = READY;
+      /* insert the task in the ready queue */
+      EE_rq_insert(TaskID);
 
-	  tmp_stacked = EE_stk_queryfirst();
-	  if (tmp_stacked != EE_NIL) {
-#ifdef __OO_HAS_POSTTASKHOOK__
-	    PostTaskHook();
-#endif	
-	    /* the running task is now suspended */
-	    EE_th_status[tmp_stacked] = READY;
-	  }
-
-	  /* and another task is put into the running state */
-	  EE_th_status[tmp] = RUNNING;
-	  
-	  EE_sys_ceiling |= EE_th_dispatch_prio[tmp];
-
-#ifdef __OO_ORTI_PRIORITY__
-	  EE_ORTI_th_priority[tmp] = EE_th_dispatch_prio[tmp];
-#endif
-
-	  /* this code is valid either for ECC1 and ECC2 ;-) */
-	  tmp = EE_rq2stk_exchange();
-	  if (EE_th_waswaiting[tmp]) {
-	    EE_th_waswaiting[tmp] = 0U;
-	    EE_hal_stkchange(tmp);
-	  } else {
-	    EE_hal_ready2stacked(tmp);
-          }
-
-#ifdef __OO_HAS_PRETASKHOOK__
-	  if (tmp_stacked != EE_NIL) {
-	    PreTaskHook();
-	  }
-#endif	
-	}
+      /* and if I am at task level, check for preemption... */
+      if (EE_hal_get_IRQ_nesting_level() == 0U) {
+        /* we are inside a task */
+        EE_oo_preemption_point();
       }
     }
-  }  
+  }
 
   EE_hal_end_nested_primitive(flag);
-
-#ifdef __OO_ORTI_SERVICETRACE__
-  EE_ORTI_servicetrace = EE_SERVICETRACE_SETEVENT;
-#endif
+  EE_ORTI_set_service_out(EE_SERVICETRACE_SETEVENT);
 
 #ifdef __OO_EXTENDED_STATUS__
   return E_OK;
 #endif
 }
 
-#endif
-#endif
+#endif /* __PRIVATE_SETEVENT__ */
+#endif /* defined(__OO_ECC1__) || defined(__OO_ECC2__) */
+

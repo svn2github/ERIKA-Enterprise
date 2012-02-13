@@ -76,4 +76,37 @@
 #define EE_PREPROC_STRING(s) # s
 #define EE_PREPROC_EVAL(e) e
 
+/* Diab Pragma Header/Footer for "pragma section" used in memory protection */
+#define PRAGMA_SECTION_BEGIN_SYS_STACK DATA ".stack" ".stack"
+#define PRAGMA_SECTION_END_SYS_STACK DATA
+
+/* Pragma macros for Multicore applications */
+/* for const variables */
+#define EE_SHARED_CONST_BEGIN CONST "ee_mcglobalc"
+#define EE_SHARED_SCONST_BEGIN SCONST "ee_mcglobalc"
+
+/* for variables inside the rapid access area (initialized data) */
+#define EE_SHARED_BEGIN DATA "ee_mcglobald" "ee_mcglobalu"
+#define EE_SHARED_FAST_BEGIN SDATA "ee_fast_mcglobald" "ee_fast_mcglobalu"
+
+/* for variables outside the rapid access area (initialized data) */
+#define EE_SHARED_SLOW_BEGIN \
+EE_PREPROC_JOIN(SDATA "ee_fast_mcglobald" "ee_fast_mcglobalu", far-absolute)
+
+/* for variables inside the rapid access area (uninitialized data) */
+#define EE_SHARED_NOTINIT_BEGIN DATA "" "ee_mcglobalu"
+#define EE_SHARED_FAST_NOTINIT_BEGIN SDATA "" "ee_fast_mcglobalu"
+
+/* for variables outside the rapid access area (uninitialized data) */
+#define EE_SHARED_SLOW_NOTINIT_BEGIN \
+EE_PREPROC_JOIN(SDATA "" "ee_fast_mcglobalu", far-absolute)
+
+/* Pragma section tail for DATA/SDATA classes */
+#define EE_SHARED_END DATA
+#define EE_SHARED_FAST_OR_SLOW_END SDATA
+
+/* Pragma section tail for CONST/SCONST classes */
+#define EE_SHARED_CONST_END CONST
+#define EE_SHARED_SCONST_END SCONST
+
 #endif /* __INCLUDE_CPU_COMMON_EE_COMPILER_DIAB__ */

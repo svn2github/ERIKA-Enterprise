@@ -96,10 +96,9 @@
 #define EE_TYPERN_NOTIFY EE_UREG
 #endif
 
-
-
-/* Remote TID, to be used with Remote notifications... */
-#define EE_REMOTE_TID (1<<(sizeof(EE_TID)*8-1))
+#define EE_MARK_REMOTE_TID(tid)   ((tid) + (EE_TID)EE_REMOTE_TID)
+#define EE_UNMARK_REMOTE_TID(tid) ((tid) - (EE_TID)EE_REMOTE_TID)
+#define EE_IS_TID_REMOTE(tid)     ((EE_UTID)tid & (EE_UTID)EE_REMOTE_TID)
 
 /* CPU numbers start from 0: 0,1,2,... */
 
@@ -130,55 +129,103 @@
 
 
 /* For each RN: The CPU to which the RN is related to */
+#ifdef USE_PRAGMAS
+extern const EE_UINT8 EE_rn_cpu[];
+#else
 extern const EE_UINT8 EE_SHARED_CDATA EE_rn_cpu[];
+#endif
 
 /* For each RN: The type of notification that must be used
    initvalue: 0
 */
+#ifdef USE_PRAGMAS
+extern EE_TYPERN_NOTIFY EE_rn_type[][2];
+#else
 extern EE_TYPERN_NOTIFY EE_SHARED_IDATA EE_rn_type[][2];
+#endif
        
 /* For each RN: The counter number if EE_RN_COUNTER, or -1 */
 #ifdef __RN_COUNTER__
+#ifdef USE_PRAGMAS
+extern const EE_TYPECOUNTER EE_rn_counter[];
+#else
 extern const EE_TYPECOUNTER EE_SHARED_CDATA EE_rn_counter[];
+#endif
 #endif
 
 /* For each RN, 2 times: all 0 (this data structures will contain the
    event mask set by rn_send */
-#ifdef __RN_EVENT__ 
+#ifdef __RN_EVENT__
+#ifdef USE_PRAGMAS
+extern EE_TYPEEVENTMASK EE_rn_event[][2];
+#else
 extern EE_TYPEEVENTMASK EE_SHARED_IDATA EE_rn_event[][2];
+#endif
 #endif
 
 /* For each RN: a TID */
 #if defined( __RN_EVENT__ ) || defined( __RN_TASK__ ) || defined( __RN_BIND__ ) || defined( __RN_UNBIND )
+#ifdef USE_PRAGMAS
+extern const EE_TID EE_rn_task[];
+#else
 extern const EE_TID EE_SHARED_CDATA EE_rn_task[];
+#endif
 #endif
 
 /* For each RN: EE_VRES_NIL */
 #if defined( __RN_BIND__ )
+#ifdef USE_PRAGMAS
+extern EE_TYPECONTRACT EE_rn_vres[][2];
+#else
 extern EE_TYPECONTRACT EE_SHARED_IDATA EE_rn_vres[][2];
+#endif
 #endif
 
 /* For each RN: a function name if EE_RN_FUNC or -1 */
 #ifdef __RN_FUNC__
+#ifdef USE_PRAGMAS
+extern const EE_ADDR EE_rn_func[];
+#else
 extern const EE_ADDR EE_SHARED_CDATA EE_rn_func[];
+#endif
 #endif
 
 /* For each RN, 2 times: -1 */
+#ifdef USE_PRAGMAS
+extern EE_TYPERN EE_rn_next[][2];
+#else
 extern EE_TYPERN EE_SHARED_IDATA EE_rn_next[][2];
+#endif
 
 /* For each RN: Number of pending notifications. Init value all 0 */
+#ifdef USE_PRAGMAS
+extern EE_UREG EE_rn_pending[][2];
+#else
 extern EE_UREG EE_SHARED_IDATA EE_rn_pending[][2];
+#endif
 
 /* For each CPU: -1 */
+#ifdef USE_PRAGMAS
+extern EE_TYPERN EE_rn_first[][2];
+#else
 extern EE_TYPERN EE_SHARED_IDATA EE_rn_first[][2];
+#endif
 
 /* For each CPU: an index of the spin lock to use (may be different
    for each CPU, or may be the same; the value is a valid index that
    must work with EE_hal_spin_in/out */
+#ifdef USE_PRAGMAS
+extern const EE_TYPESPIN EE_rn_spin[];
+#else
 extern const EE_TYPESPIN EE_SHARED_CDATA EE_rn_spin[];
+#endif
 
 /* For each CPU: initialized to 0 */
+#ifdef USE_PRAGMAS
+extern EE_TYPERN_SWITCH EE_rn_switch[];
+#else
 extern EE_TYPERN_SWITCH EE_SHARED_IDATA EE_rn_switch[];
+#endif
 
 #endif /* __RN__ */
 #endif

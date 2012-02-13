@@ -96,6 +96,7 @@ typedef void (*EE_VOID_CALLBACK)(void);
 
 /* Code addresses (same size of function pointers) */
 typedef void *EE_FADDR;
+typedef void (*EE_THREAD_PTR)(void);
 
 /* Thread IDs */
 typedef EE_INT16 EE_TID;
@@ -122,9 +123,11 @@ typedef void (*EE_VOID_CALLBACK)(void);
 
 /* Code addresses (same size of function pointers) */
 typedef void *EE_FADDR;
+typedef void (*EE_THREAD_PTR)(void);
 
 /* Thread IDs */
 typedef EE_INT32 EE_TID;
+typedef EE_UINT32 EE_UTID;
 
 /* Used by the common layer to decide whether to start a new thread */
 #define TID_IS_STACKED_MARK 0x80000000

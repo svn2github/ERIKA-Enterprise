@@ -56,7 +56,10 @@ EE_TYPETICK EE_ORTI_alarmtime[EE_MAX_ALARM];
 
 #endif /* RTDRUID_CONFIGURATOR_NUMBER */
 
+
+
 #ifndef __PRIVATE_COUNTER_TICK__
+
 void EE_oo_alarm_insert(AlarmType AlarmID, TickType increment)
 {
   register AlarmType current, previous;
@@ -64,18 +67,17 @@ void EE_oo_alarm_insert(AlarmType AlarmID, TickType increment)
 #ifdef __OO_ORTI_ALARMTIME__
   EE_ORTI_alarmtime[AlarmID] = increment + 
     EE_counter_RAM[EE_alarm_ROM[AlarmID].c].value;
-#endif
+#endif /* __OO_ORTI_ALARMTIME__ */
 
   current = EE_counter_RAM[EE_alarm_ROM[AlarmID].c].first;
 
-  if (current == -1) {
+  if (current == (AlarmType)-1) {
     /* the alarm becomes the first into the delta queue */
     EE_counter_RAM[EE_alarm_ROM[AlarmID].c].first = AlarmID;
   } else if (EE_alarm_RAM[current].delta > increment) {
     EE_counter_RAM[EE_alarm_ROM[AlarmID].c].first = AlarmID;
     EE_alarm_RAM[current].delta -= increment;
-  }
-  else {
+  } else {
     /* the alarm is not the first into the delta queue */
 
     /* follow the delta chain until I reach the right place */
@@ -83,10 +85,11 @@ void EE_oo_alarm_insert(AlarmType AlarmID, TickType increment)
       increment -= EE_alarm_RAM[current].delta;
       previous = current;
       current = EE_alarm_RAM[current].next;
-    } while(current != -1 && EE_alarm_RAM[current].delta <= increment);
+    } while((current != (AlarmType)-1) &&
+            (EE_alarm_RAM[current].delta <= increment));
 
     /* insert the alarm between previous and current */
-    if (current != -1) {
+    if (current != (AlarmType)-1) {
       EE_alarm_RAM[current].delta -= increment;
     }
     EE_alarm_RAM[previous].next = AlarmID;
@@ -96,283 +99,270 @@ void EE_oo_alarm_insert(AlarmType AlarmID, TickType increment)
   EE_alarm_RAM[AlarmID].next = current;
 }
 
+static void EE_handle_alarm_action_task(CounterType CounterID,
+  AlarmType current)
+{
+/* activate the task; NOTE: no preemption at all... 
+   This code was directly copied from ActivateTask */
+  register TaskType TaskID;
 
-void EE_oo_counter_tick(CounterType c)
+  TaskID = EE_alarm_ROM[current].TaskID;
+
+#ifdef __RN_TASK__
+  if (EE_IS_TID_REMOTE(TaskID)) {
+    register EE_TYPERN_PARAM par;
+    par.pending = 1U;
+    /* forward the request to another CPU whether the thread do
+       not become to the current CPU */
+    (void)EE_rn_send((EE_SREG)EE_UNMARK_REMOTE_TID(TaskID), EE_RN_TASK, par);
+    return;
+  }
+#endif
+
+#ifdef __OO_EXTENDED_STATUS__    
+  /* check if the task Id is valid */
+  if ((TaskID < 0) || (TaskID >= EE_MAX_TASK)) {
+    EE_ORTI_set_lasterror(E_OS_ID);
+    EE_oo_notify_error_IncrementCounter(CounterID, current, TaskID, 
+      EE_alarm_ROM[current].action, E_OS_ID);
+    return;
+  }
+#endif
+
+  /* check for pending activations */
+  if (EE_th_rnact[TaskID] == (EE_UREG)0U) {
+    EE_ORTI_set_lasterror(E_OS_LIMIT);
+    EE_oo_notify_error_IncrementCounter(CounterID, current, TaskID, 
+      EE_alarm_ROM[current].action, E_OS_LIMIT);
+    return;
+  }
+
+  EE_th_rnact[TaskID]--;
+
+  EE_oo_set_th_status_ready(TaskID);
+
+  /* insert the task in the ready queue */
+  EE_rq_insert(TaskID);
+}
+
+#if defined(__OO_ECC1__) || defined(__OO_ECC2__)
+static void EE_handle_alarm_action_event(CounterType CounterID,
+  AlarmType current)
+{
+  /* set an event for a task... NOTE: no preemption at all... 
+     This code was directly copied from SetEvent */
+  register TaskType TaskID;
+  register EventMaskType Mask;
+
+  TaskID = EE_alarm_ROM[current].TaskID;
+  Mask = EE_alarm_ROM[current].Mask;
+
+#ifdef __RN_EVENT__
+  if (EE_IS_TID_REMOTE(TaskID)) {
+    register EE_TYPERN_PARAM par;
+    par.ev = Mask;
+    /* forward the request to another CPU whether the thread do
+       not become to the current CPU */
+    (void)EE_rn_send((EE_SREG)EE_UNMARK_REMOTE_TID(TaskID), EE_RN_EVENT, par);
+
+    return;
+  }
+#endif /* __RN_EVENT__ */
+
+#ifdef __OO_EXTENDED_STATUS__    
+  /* check if the task Id is valid */
+  if ((TaskID < 0) || (TaskID >= EE_MAX_TASK)) {
+    EE_ORTI_set_lasterror(E_OS_ID);
+    EE_oo_notify_error_with_mask_IncrementCounter(CounterID, current,
+      TaskID, Mask, EE_alarm_ROM[current].action, E_OS_ID);
+    return;
+  }
+
+  if (EE_th_is_extended[TaskID] == 0U) {
+    EE_ORTI_set_lasterror(E_OS_ACCESS);
+    EE_oo_notify_error_with_mask_IncrementCounter(CounterID, current,
+      TaskID, Mask, EE_alarm_ROM[current].action, E_OS_ACCESS);
+    return;
+  }
+#endif /* __OO_EXTENDED_STATUS__ */
+
+  if (EE_th_status[TaskID] == SUSPENDED) {
+    EE_ORTI_set_lasterror(E_OS_STATE);
+    EE_oo_notify_error_with_mask_IncrementCounter(CounterID, current,
+      TaskID, Mask, EE_alarm_ROM[current].action, E_OS_STATE);
+    return;
+  }
+
+  /* set the event mask */
+  EE_th_event_active[TaskID] |= Mask;
+
+  /* check if the task was waiting for an event we just set
+   *
+   * WARNING:
+   * the test with status==WAITING is FUNDAMENTAL to avoid double
+   * insertion of the task in the ready queue!!! Example, when I call
+   * two times the same setevent... the first time the task must go in
+   * the ready queue, the second time NOT!!!
+   */
+  if (((EE_th_event_waitmask[TaskID] & Mask) != 0U) &&
+      (EE_th_status[TaskID] == WAITING))
+  {
+    /* if yes, the task must go back into the READY state */
+    EE_th_status[TaskID] = READY;
+    /* insert the task in the ready queue */
+    EE_rq_insert(TaskID);
+  }
+}
+#endif /* __OO_ECC1__ || __OO_ECC2__ */
+
+static void EE_oo_counter_tick_Impl(CounterType CounterID)
 {
   register AlarmType current;
-  register TaskType TaskID;
-#if defined(__OO_ECC1__) || defined(__OO_ECC2__)
-  register EventMaskType Mask;
-#endif
-  register EE_FREG flag;
-
-#ifdef __OO_ORTI_SERVICETRACE__
-  EE_ORTI_servicetrace = EE_SERVICETRACE_COUNTERTICK+1U;
-#endif
-
-  flag = EE_hal_begin_nested_primitive();
-  
-  /* increment the counter value */
-  EE_counter_RAM[c].value++;
+  /* Increment the counter value or reset it when overcome maxallowedvalue.
+     I need this behaviour for AS services GetCounterValue and GetElapsedValue
+   */
+  EE_counter_RAM[CounterID].value += 1U;
+  if(EE_counter_RAM[CounterID].value >
+      EE_counter_ROM[CounterID].maxallowedvalue)
+  {
+    EE_counter_RAM[CounterID].value = 0U;
+  }
 
   /* if there are queued alarms */
-  if (EE_counter_RAM[c].first != -1) {
+  if (EE_counter_RAM[CounterID].first != (EE_SREG)-1) {
     /* decrement first queued alarm delta */
-    EE_alarm_RAM[EE_counter_RAM[c].first].delta--;
+    EE_alarm_RAM[EE_counter_RAM[CounterID].first].delta--;
 
     /* execute all the alarms with counter 0 */
-    current = EE_counter_RAM[c].first;
-    while (!EE_alarm_RAM[current].delta) {
+    current = EE_counter_RAM[CounterID].first;
+    while (EE_alarm_RAM[current].delta == 0U) {
       /* execute it */
       switch (EE_alarm_ROM[current].action) {
 
+        case  EE_ALARM_ACTION_TASK:
+          /* activate the task */
+          EE_handle_alarm_action_task(CounterID, current);
+          break;
 
+        case EE_ALARM_ACTION_CALLBACK:
+          (EE_alarm_ROM[current].f)();
+          break;
 
-      case  EE_ALARM_ACTION_TASK:
-	/* activate the task; NOTE: no preemption at all... 
-	   This code was directly copied from ActivateTask */
-
-	TaskID = EE_alarm_ROM[current].TaskID;
-
-#ifdef __RN_TASK__
-	if (TaskID & EE_REMOTE_TID) {
-	  register EE_TYPERN_PARAM par;
-	  par.pending = 1U;
-	  /* forward the request to another CPU whether the thread do
-	     not become to the current CPU */
-	  EE_rn_send(TaskID & ~EE_REMOTE_TID, EE_RN_TASK, par );
-	  break;
-	}
-#endif
-
-#ifdef __OO_EXTENDED_STATUS__    
-	/* check if the task Id is valid */
-	if (TaskID < 0 || TaskID >= EE_MAX_TASK) {
-#ifdef __OO_ORTI_LASTERROR__
-	  EE_ORTI_lasterror = E_OS_ID;
-#endif
-	  
-#ifdef __OO_HAS_ERRORHOOK__
-	  if (!EE_ErrorHook_nested_flag) {
-#ifndef __OO_ERRORHOOK_NOMACROS__
-	    EE_oo_ErrorHook_ServiceID = OSServiceId_CounterTick;
-	    EE_oo_ErrorHook_data.CounterTick_prm.AlarmID = current;
-	    EE_oo_ErrorHook_data.CounterTick_prm.TaskID = TaskID;
-	    EE_oo_ErrorHook_data.CounterTick_prm.action =
-	      EE_alarm_ROM[current].action;
-#endif
-	    EE_ErrorHook_nested_flag = 1U;
-	    ErrorHook(E_OS_ID);
-	    EE_ErrorHook_nested_flag = 0U;
-	  }
-#endif
-	  break;
-	}
-#endif
-	
-	/* check for pending activations */
-	if (EE_th_rnact[TaskID] == 0U) {
-#ifdef __OO_ORTI_LASTERROR__
-	  EE_ORTI_lasterror = E_OS_LIMIT;
-#endif
-	  
-#ifdef __OO_HAS_ERRORHOOK__
-	  if (!EE_ErrorHook_nested_flag) {
-#ifndef __OO_ERRORHOOK_NOMACROS__
-   	    EE_oo_ErrorHook_ServiceID = OSServiceId_CounterTick;
-	    EE_oo_ErrorHook_data.CounterTick_prm.AlarmID = current;
-	    EE_oo_ErrorHook_data.CounterTick_prm.TaskID = TaskID;
-	    EE_oo_ErrorHook_data.CounterTick_prm.action =
-	      EE_alarm_ROM[current].action;
-#endif
-	    EE_ErrorHook_nested_flag = 1U;
-	    ErrorHook(E_OS_LIMIT);
-	    EE_ErrorHook_nested_flag = 0U;
-	  }
-#endif
-	  break;
-	} 
-
-
-	EE_th_rnact[TaskID]--;
-	
-#if defined(__OO_BCC2__) || defined(__OO_ECC2__)
-	if (EE_th_status[TaskID] == SUSPENDED) {
-	  EE_th_status[TaskID] = READY;
-#ifdef __OO_ECC2__
-	  /* When an extended task is transferred from suspended state
-	     into ready state all its events are cleared*/
-	  EE_th_event_active[TaskID] = 0U;
-#endif
-	}
-#else
-	EE_th_status[TaskID] = READY;
-#ifdef __OO_ECC1__
-	EE_th_event_active[TaskID] = 0U;
-#endif
-#endif
-  
-	/* insert the task in the ready queue */
-	EE_rq_insert(TaskID);
-
-  	break;
-
-
-
+        case EE_ALARM_ACTION_COUNTER:
+          /* recursive call */
+          EE_oo_counter_tick_Impl(EE_alarm_ROM[current].inccount);
+          break;
 
 #if defined(__OO_ECC1__) || defined(__OO_ECC2__)
-      case EE_ALARM_ACTION_EVENT:
-	/* set an event for a task... NOTE: no preemption at all... 
-	   This code was directly copied from SetEvent */
-	
-	TaskID = EE_alarm_ROM[current].TaskID;
-	Mask = EE_alarm_ROM[current].Mask;
+        case EE_ALARM_ACTION_EVENT:
+          /* set an event for a task */
+          EE_handle_alarm_action_event(CounterID, current);
+          break;
+#endif /* defined(__OO_ECC1__) || defined(__OO_ECC2__) */
 
-#ifdef __RN_EVENT__
-	if (TaskID & EE_REMOTE_TID) {
-	  register EE_TYPERN_PARAM par;
-	  par.ev = Mask;
-	  /* forward the request to another CPU whether the thread do
-	     not become to the current CPU */
-	  EE_rn_send(TaskID & ~EE_REMOTE_TID, EE_RN_EVENT, par );
-
-	  break;
-	}
-#endif
-	
-
-#ifdef __OO_EXTENDED_STATUS__    
-	/* check if the task Id is valid */
-	if (TaskID < 0 || TaskID >= EE_MAX_TASK) {
-#ifdef __OO_ORTI_LASTERROR__
-	  EE_ORTI_lasterror = E_OS_ID;
-#endif
-	  
-#ifdef __OO_HAS_ERRORHOOK__
-	  if (!EE_ErrorHook_nested_flag) {  
-#ifndef __OO_ERRORHOOK_NOMACROS__
-            EE_oo_ErrorHook_ServiceID = OSServiceId_CounterTick;
-	    EE_oo_ErrorHook_data.CounterTick_prm.AlarmID = current;
-	    EE_oo_ErrorHook_data.CounterTick_prm.TaskID = TaskID;
-	    EE_oo_ErrorHook_data.CounterTick_prm.Mask = Mask;
-	    EE_oo_ErrorHook_data.CounterTick_prm.action =
-	      EE_alarm_ROM[current].action;
-#endif
-	    EE_ErrorHook_nested_flag = 1U;
-	    ErrorHook(E_OS_ID);
-	    EE_ErrorHook_nested_flag = 0U;
-	  }
-#endif
-	  break;
-	}
-	
-
-
-	if (!EE_th_is_extended[TaskID]) {
-#ifdef __OO_ORTI_LASTERROR__
-	  EE_ORTI_lasterror = E_OS_ACCESS;
-#endif
-
-#ifdef __OO_HAS_ERRORHOOK__
-	  if (!EE_ErrorHook_nested_flag) {
-#ifndef __OO_ERRORHOOK_NOMACROS__
-            EE_oo_ErrorHook_ServiceID = OSServiceId_CounterTick;
-	    EE_oo_ErrorHook_data.CounterTick_prm.AlarmID = current;
-	    EE_oo_ErrorHook_data.CounterTick_prm.TaskID = TaskID;
-	    EE_oo_ErrorHook_data.CounterTick_prm.Mask = Mask;
-	    EE_oo_ErrorHook_data.CounterTick_prm.action =
-	      EE_alarm_ROM[current].action;
-#endif
-	    EE_ErrorHook_nested_flag = 1U;
-	    ErrorHook(E_OS_ACCESS);
-	    EE_ErrorHook_nested_flag = 0U;
-	  }
-#endif
-	  
-	  break;
-	}
-#endif
-
-	if (EE_th_status[TaskID] == SUSPENDED) {
-#ifdef __OO_ORTI_LASTERROR__
-	  EE_ORTI_lasterror = E_OS_STATE;
-#endif
-	  
-#ifdef __OO_HAS_ERRORHOOK__
-	  if (!EE_ErrorHook_nested_flag) {
-#ifndef __OO_ERRORHOOK_NOMACROS__
-            EE_oo_ErrorHook_ServiceID = OSServiceId_CounterTick;
-	    EE_oo_ErrorHook_data.CounterTick_prm.AlarmID = current;
-	    EE_oo_ErrorHook_data.CounterTick_prm.TaskID = TaskID;
-	    EE_oo_ErrorHook_data.CounterTick_prm.Mask = Mask;
-	    EE_oo_ErrorHook_data.CounterTick_prm.action =
-	      EE_alarm_ROM[current].action;
-#endif
-	    EE_ErrorHook_nested_flag = 1U;
-	    ErrorHook(E_OS_STATE);
-	    EE_ErrorHook_nested_flag = 0U;
-	  }
-#endif
-	  break;
-	}
-	
-
-	/* set the event mask */
-	EE_th_event_active[TaskID] |= Mask;
-	
-	/* check if the task was waiting for an event we just set
-	 *
-	 * WARNING:
-	 * the test with status==WAITING is FUNDAMENTAL to avoid double
-	 * insertion of the task in the ready queue!!! Example, when I call
-	 * two times the same setevent... the first time the task must go in
-	 * the ready queue, the second time NOT!!!
-	 */
-	if (EE_th_event_waitmask[TaskID] & Mask &&
-	    EE_th_status[TaskID] == WAITING) {
-	  /* if yes, the task must go back into the READY state */
-	  EE_th_status[TaskID] = READY;
-	  /* insert the task in the ready queue */
-	  EE_rq_insert(TaskID);
-	}  
-
-	break;
-#endif
-
-
-
-      
-      case EE_ALARM_ACTION_CALLBACK:
-	(EE_alarm_ROM[current].f)();
-	break;
-
-      default:
+        default:
           /* Invalid action: this should never happen, as `action' is
              initialized by RT-Druid */
           break;
       }
-      
+
       /* remove the current entry */
-      EE_counter_RAM[c].first = EE_alarm_RAM[current].next;
+      EE_counter_RAM[CounterID].first = EE_alarm_RAM[current].next;
 
       /* the alarm is cyclic? */
-      if (EE_alarm_RAM[current].cycle) {
-	/* enqueue it again 
-	   note: this can modify EE_counter_RAM[c].first!!! see (*)
-	*/
-	EE_oo_alarm_insert(current,EE_alarm_RAM[current].cycle);
+      if (EE_alarm_RAM[current].cycle > 0U) {
+        /* enqueue it again 
+           note: this can modify EE_counter_RAM[CounterID].first!!! see (*)
+         */
+        EE_oo_alarm_insert(current,EE_alarm_RAM[current].cycle);
       } else {
-	/* alarm no more used! */
-	EE_alarm_RAM[current].used = 0U;
+        /* alarm no more used! */
+        EE_alarm_RAM[current].used = 0U;
       }
-      /* (*) here we need EE_counter_RAM[c].first again... */
-      current = EE_counter_RAM[c].first;
-      if (current == -1) {
-          break;
+      /* (*) here we need EE_counter_RAM[CounterID].first again... */
+      current = EE_counter_RAM[CounterID].first;
+      if (current == (AlarmType)-1) {
+        break;
       }
     }
-  }    
+  }
+}
+/* Internal primitive */
+void EE_oo_counter_tick(CounterType CounterID)
+{
+  register EE_FREG flag;
 
+  flag = EE_hal_begin_nested_primitive();
+  EE_oo_counter_tick_Impl(CounterID);
   EE_hal_end_nested_primitive(flag);
 }
-#endif
+#endif /* __PRIVATE_COUNTER_TICK__ */
+
+#ifndef __PRIVATE_INCREMENTCOUNTER__
+
+/*
+  OS399: IncrementCounter
+*/
+static void EE_oo_IncrementCounter_Impl(CounterType CounterID)
+{
+  register EE_FREG flag;
+  flag = EE_hal_begin_nested_primitive();
+
+  /* Call to function that actually increment the counter */
+  EE_oo_counter_tick_Impl(CounterID);
+
+  /* After all counter updates check if I'm not in a ISR2 and then 
+     execute rescheduling.
+   */
+  if(EE_hal_get_IRQ_nesting_level() == 0U)
+  {
+    EE_oo_preemption_point();
+  }
+  EE_hal_end_nested_primitive(flag);
+}
+
+#ifdef __OO_EXTENDED_STATUS__
+StatusType EE_oo_IncrementCounter(CounterType CounterID)
+{
+  register AlarmType current;
+  register EE_FREG flag;
+
+  EE_ORTI_set_service_in(EE_SERVICETRACE_INCREMENTCOUNTER);
+
+  /* OS285: If the input parameter CounterID in a call of IncrementCounter() is
+      not valid OR the counter is a hardware counter, IncrementCounter() shall
+      return E_OS_ID.
+  */
+  if ((CounterID < 0) || (CounterID >= EE_MAX_COUNTER)) {
+    EE_ORTI_set_lasterror(E_OS_ID);
+    current = EE_counter_RAM[CounterID].first;
+
+    flag = EE_hal_begin_nested_primitive();
+    EE_oo_notify_error_IncrementCounter(CounterID, current, 
+      EE_alarm_ROM[current].TaskID, EE_alarm_ROM[current].action, E_OS_ID);
+    EE_hal_end_nested_primitive(flag);
+
+    EE_ORTI_set_service_out(EE_SERVICETRACE_INCREMENTCOUNTER);
+
+    return E_OS_ID;
+  }
+
+  EE_oo_IncrementCounter_Impl(CounterID);
+
+  EE_ORTI_set_service_out(EE_SERVICETRACE_INCREMENTCOUNTER);
+  return E_OK;
+}
+#else /* __OO_EXTENDED_STATUS__ */
+StatusType EE_oo_IncrementCounter(CounterType CounterID)
+{
+  EE_ORTI_set_service_in(EE_SERVICETRACE_INCREMENTCOUNTER);
+
+  EE_oo_IncrementCounter_Impl(CounterID);
+
+  EE_ORTI_set_service_out(EE_SERVICETRACE_INCREMENTCOUNTER);
+  return E_OK;
+}
+#endif /* __OO_EXTENDED_STATUS__ */
+
+#endif /* __PRIVATE_INCREMENTCOUNTER__ */
+

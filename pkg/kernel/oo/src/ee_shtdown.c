@@ -61,31 +61,45 @@
 
 
 #ifndef __PRIVATE_SHUTDOWNOS__
-void EE_oo_ShutdownOS(StatusType Error)
+
+static void EE_oo_shutdown(void)
 {
+  /* OS425: If ShutdownOS() is called and ShutdownHook() returns then the
+    operating system shall disable all interrupts and enter an endless loop.
+  */
+  EE_hal_disableIRQ();
+  for(;;) {
+    ;
+  }
+}
+
 #ifdef __OO_HAS_SHUTDOWNHOOK__
+static void EE_oo_call_ShutdownHook(StatusType Error)
+{
   register EE_FREG flag;
-#endif
-
-#ifdef __OO_ORTI_SERVICETRACE__
-  EE_ORTI_servicetrace = EE_SERVICETRACE_SHUTDOWNOS+1U;
-#endif
-
-#ifdef __OO_HAS_POSTTASKHOOK__
-  PostTaskHook();
-#endif	
-
-#ifdef __OO_HAS_SHUTDOWNHOOK__
   flag = EE_hal_begin_nested_primitive();
   ShutdownHook(Error);
   EE_hal_end_nested_primitive(flag);
+}
+#else
+#define EE_oo_call_ShutdownHook(Error)   ((void)0)
 #endif
 
-#ifdef __OO_ORTI_SERVICETRACE__
-  EE_ORTI_servicetrace = EE_SERVICETRACE_SHUTDOWNOS;
-#endif
+void EE_oo_ShutdownOS(StatusType Error)
+{
+
+  EE_ORTI_set_service_in(EE_SERVICETRACE_SHUTDOWNOS);
+
+  /* Autosar Requirement OS071: 
+      If the PostTaskHook() is configured, the Operating System shall not call
+      the hook if ShutdownOS() is called. */
+  /* EE_oo_call_PostTaskHook(); */
+
+  EE_oo_call_ShutdownHook(Error);
+
+  EE_ORTI_set_service_out(EE_SERVICETRACE_SHUTDOWNOS);
 
   EE_oo_shutdown();
 }
 
-#endif
+#endif /* __PRIVATE_SHUTDOWNOS__ */

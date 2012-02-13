@@ -71,7 +71,27 @@ void EE_e200zx_sync_barrier(EE_TYPEBARRIER *bar);
 
 
 /* Startup barrier data */
+#ifdef USE_PRAGMAS
+	#if EE_CURRENTCPU == 0
+
+	#pragma section EE_SHARED_NOTINIT_BEGIN
+	#pragma section EE_SHARED_FAST_NOTINIT_BEGIN
+	extern EE_TYPEBARRIER EE_e200zx_start_barrier;
+        #pragma section EE_SHARED_END
+        #pragma section EE_SHARED_FAST_OR_SLOW_END
+
+	#else
+
+        #pragma section EE_SHARED_NOTINIT_BEGIN
+	#pragma section EE_SHARED_SLOW_NOTINIT_BEGIN
+	extern EE_TYPEBARRIER EE_e200zx_start_barrier;
+        #pragma section EE_SHARED_END
+        #pragma section EE_SHARED_FAST_OR_SLOW_END
+
+	#endif
+#else
 extern EE_TYPEBARRIER EE_SHARED_UDATA EE_e200zx_start_barrier;
+#endif
 
 
 #endif /* __MSRP__ */

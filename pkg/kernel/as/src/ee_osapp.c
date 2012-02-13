@@ -83,16 +83,16 @@ ApplicationType CheckObjectOwnership(ObjectTypeType ObjectType, EE_TID Object)
 StatusType TerminateApplication(ApplicationType Application,
 				RestartType RestartOption)
 {
-	return 0;
+	return 0U;
 }
 
 StatusType AllowAccess(void)
 {
-	return 0;
+	return 0U;
 }
 
 StatusType GetApplicationState(ApplicationType Application,
 			       ApplicationStateRefType Value)
 {
-	return 0;
+	return 0U;
 }

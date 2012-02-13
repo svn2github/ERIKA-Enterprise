@@ -65,10 +65,9 @@ StatusType EE_oo_ChainTask(TaskType TaskID)
 {
   register TaskType current;
   register EE_FREG np_flags;
+  int rn_return_val;
 
-#ifdef __OO_ORTI_SERVICETRACE__
-  EE_ORTI_servicetrace = EE_SERVICETRACE_CHAINTASK+1U;
-#endif
+  EE_ORTI_set_service_in(EE_SERVICETRACE_CHAINTASK);
 
   current = EE_stk_queryfirst();
 
@@ -76,152 +75,91 @@ StatusType EE_oo_ChainTask(TaskType TaskID)
 
   /* check for a call at interrupt level: This must be the FIRST check! */
   if (EE_hal_get_IRQ_nesting_level()) {
-#ifdef __OO_ORTI_LASTERROR__
-    EE_ORTI_lasterror = E_OS_CALLEVEL;
-#endif
+    EE_ORTI_set_lasterror(E_OS_CALLEVEL);
 
-#ifdef __OO_HAS_ERRORHOOK__
     np_flags = EE_hal_begin_nested_primitive();
-    if (!EE_ErrorHook_nested_flag) {
-#ifndef __OO_ERRORHOOK_NOMACROS__
-      EE_oo_ErrorHook_ServiceID = OSServiceId_ChainTask;
-      EE_oo_ErrorHook_data.ChainTask_prm.TaskID = TaskID;
-#endif
-      EE_ErrorHook_nested_flag = 1U;
-      ErrorHook(E_OS_CALLEVEL);
-      EE_ErrorHook_nested_flag = 0U;
-    }
+    EE_oo_notify_error_ChainTask(TaskID, E_OS_CALLEVEL);
     EE_hal_end_nested_primitive(np_flags);
-#endif
 
-#ifdef __OO_ORTI_SERVICETRACE__
-    EE_ORTI_servicetrace = EE_SERVICETRACE_CHAINTASK;
-#endif
+    EE_ORTI_set_service_out(EE_SERVICETRACE_CHAINTASK);
 
     return E_OS_CALLEVEL;
   }
 
   /* check if the task Id is valid */
-  if (TaskID < 0 || TaskID >= EE_MAX_TASK) {
-#ifdef __OO_ORTI_LASTERROR__
-    EE_ORTI_lasterror = E_OS_ID;
-#endif
+  if ((TaskID < 0) || (TaskID >= EE_MAX_TASK)) {
+    EE_ORTI_set_lasterror(E_OS_ID);
 
-#ifdef __OO_HAS_ERRORHOOK__
     np_flags = EE_hal_begin_nested_primitive();
-    if (!EE_ErrorHook_nested_flag) {
-#ifndef __OO_ERRORHOOK_NOMACROS__
-      EE_oo_ErrorHook_ServiceID = OSServiceId_ChainTask;
-      EE_oo_ErrorHook_data.ChainTask_prm.TaskID = TaskID;
-#endif
-      EE_ErrorHook_nested_flag = 1U;
-      ErrorHook(E_OS_ID);
-      EE_ErrorHook_nested_flag = 0U;
-    }
+    EE_oo_notify_error_ChainTask(TaskID, E_OS_CALLEVEL);
     EE_hal_end_nested_primitive(np_flags);
-#endif
 
-#ifdef __OO_ORTI_SERVICETRACE__
-    EE_ORTI_servicetrace = EE_SERVICETRACE_CHAINTASK;
-#endif
+    EE_ORTI_set_service_out(EE_SERVICETRACE_CHAINTASK);
+
     return E_OS_ID;
   }
 
 #ifndef __OO_NO_RESOURCES__
   /* check for busy resources */ 
   if (EE_th_resource_last[current] != EE_UREG_MINUS1) {
-#ifdef __OO_ORTI_LASTERROR__
-    EE_ORTI_lasterror = E_OS_RESOURCE;
-#endif
+    EE_ORTI_set_lasterror(E_OS_RESOURCE);
 
-#ifdef __OO_HAS_ERRORHOOK__
     np_flags = EE_hal_begin_nested_primitive();
-    if (!EE_ErrorHook_nested_flag) {
-#ifndef __OO_ERRORHOOK_NOMACROS__
-      EE_oo_ErrorHook_ServiceID = OSServiceId_ChainTask;
-      EE_oo_ErrorHook_data.ChainTask_prm.TaskID = TaskID;
-#endif
-      EE_ErrorHook_nested_flag = 1U;
-      ErrorHook(E_OS_RESOURCE);
-      EE_ErrorHook_nested_flag = 0U;
-    }
+    EE_oo_notify_error_ChainTask(TaskID, E_OS_RESOURCE);
     EE_hal_end_nested_primitive(np_flags);
-#endif
 
-#ifdef __OO_ORTI_SERVICETRACE__
-    EE_ORTI_servicetrace = EE_SERVICETRACE_CHAINTASK;
-#endif
+    EE_ORTI_set_service_out(EE_SERVICETRACE_CHAINTASK);
 
     return E_OS_RESOURCE;
   }
-#endif
+#endif /* __OO_NO_RESOURCES__ */
 
-#endif
-
-
-
+#endif /* __OO_EXTENDED_STATUS__ */
 
   np_flags = EE_hal_begin_nested_primitive();
 
   /* check for pending activations; works also if the task passed as
      parameter inside ChainTask is the calling task; 
      see MODISTARC Test 9 */
-  if (TaskID != current &&
-      EE_th_rnact[TaskID] == 0U) {
-#ifdef __OO_ORTI_LASTERROR__
-    EE_ORTI_lasterror = E_OS_LIMIT;
-#endif
+  if ((TaskID != current) &&
+      (EE_th_rnact[TaskID] == (EE_UREG)0U)) {
+    EE_ORTI_set_lasterror(E_OS_LIMIT);
 
-#ifdef __OO_HAS_ERRORHOOK__
-    if (!EE_ErrorHook_nested_flag) {  
-#ifndef __OO_ERRORHOOK_NOMACROS__
-      EE_oo_ErrorHook_ServiceID = OSServiceId_ChainTask;
-      EE_oo_ErrorHook_data.ChainTask_prm.TaskID = TaskID;
-#endif
-      EE_ErrorHook_nested_flag = 1U;
-      ErrorHook(E_OS_LIMIT);
-      EE_ErrorHook_nested_flag = 0U;
-    }
-#endif
+    EE_oo_notify_error_ChainTask(TaskID, E_OS_RESOURCE);
 
     EE_hal_end_nested_primitive(np_flags);
-
-#ifdef __OO_ORTI_SERVICETRACE__
-    EE_ORTI_servicetrace = EE_SERVICETRACE_CHAINTASK;
-#endif
+    EE_ORTI_set_service_out(EE_SERVICETRACE_CHAINTASK);
 
     return E_OS_LIMIT;
-  } 
+  }
 
 #ifdef __RN_TASK__
-  if (TaskID & EE_REMOTE_TID) 
+  if (EE_IS_TID_REMOTE(TaskID))
     {
       EE_TYPERN_PARAM par;
       par.pending = 1U;
       /* forward the request to another CPU */
-      EE_rn_send(TaskID & ~EE_REMOTE_TID, EE_RN_TASK, par );
+      rn_return_val = EE_rn_send((EE_SREG)EE_MARK_REMOTE_TID(TaskID),
+        EE_RN_TASK, par);
       /* like in TerminateTask, we do not have to activate any other task */
       EE_th_terminate_nextask[EE_stk_queryfirst()] = EE_NIL;
     }
   else
-#endif
+#endif /* __RN_TASK__ */
     {
       /* Note: the decrement is done now, not in the endcycle! */
       EE_th_rnact[TaskID]--;  
       /* and we have to activate another task... */ 
       EE_th_terminate_nextask[current] = TaskID;
     }
-  
-#ifdef __OO_ORTI_SERVICETRACE__
-  EE_ORTI_servicetrace = EE_SERVICETRACE_CHAINTASK;
-#endif
 
   EE_hal_terminate_task(current);
+  EE_ORTI_set_service_out(EE_SERVICETRACE_CHAINTASK);
 
   /* This return instruction usually is optimized by the compiler,
      because hal_terminate_task does not return... */
   return E_OK;
 }
 
-#endif
-#endif
+#endif /* __PRIVATE_CHAINTASK__ */
+#endif /* __OO_NO_CHAINTASK__ */

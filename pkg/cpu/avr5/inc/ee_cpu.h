@@ -81,6 +81,9 @@ typedef void (*EE_VOID_CALLBACK)(void);
    typedef void (*EE_FADDR)(void); */
 #define EE_FADDR EE_ADDR
 
+/* Thread body pointer (same size of function pointers) */
+#define EE_THREAD_PTR EE_ADDR
+
 typedef signed char EE_INT8;
 typedef int EE_INT16;
 typedef long EE_INT32;
@@ -91,6 +94,7 @@ typedef unsigned long EE_FREG;
 
 /* Thread IDs */
 typedef unsigned long EE_TID;
+typedef unsigned long EE_UTID;
 
 
 

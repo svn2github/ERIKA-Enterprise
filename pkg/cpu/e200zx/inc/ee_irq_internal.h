@@ -49,7 +49,7 @@
 #include "ee_internal.h"
 #include "cpu/common/inc/ee_irqstub.h"
 
-#ifdef __ALLOW_NESTED_IRQ__
+#if defined(__ALLOW_NESTED_IRQ__) && (!defined(__AS_SC4__))
 #define EE_std_enableIRQ_nested()	EE_e200z7_enableIRQ()
 #define EE_std_disableIRQ_nested()	EE_e200z7_disableIRQ()
 #endif
@@ -72,7 +72,7 @@
  *	if (EE_IRQ_nesting_level == 1)
  * 		change_stacks_back();
  */
-#if defined(__IRQ_STACK_NEEDED__) && ! defined(__AS_SC4__)
+#if defined(__IRQ_STACK_NEEDED__) && (! defined(__AS_SC4__))
 extern struct EE_TOS EE_e200z7_IRQ_tos;
 
 /* For SC4 the stack is changed within the prestub and the postub */
@@ -83,7 +83,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_e200z7_call_ISR_new_stack(EE_SREG level,
 			EE_e200z7_ISR_handler fun, EE_UREG nesting)
 {
 	EE_std_enableIRQ_nested();
-	if (fun != NULL) {
+	if (fun != (EE_e200z7_ISR_handler)NULL) {
 		fun();
 	}
 	EE_std_disableIRQ_nested();
@@ -143,7 +143,7 @@ void EE_e200z7_irq(EE_SREG level);
 __asm void EE_ISR2_prestub(int toid, int isrid)
 {
 
-% reg toid, isrid;
+% reg toid, isrid; lab l1, l2
 ! "r6", "r7", "r8", "r9", "r10", "r11"
 
 	.set noreorder
@@ -170,24 +170,24 @@ __asm void EE_ISR2_prestub(int toid, int isrid)
 	mfpid0	r7				# r7 <= fromid
 
 	cmpli	cr0, 0, r10, 0
-	bne	1f
+	bne	l1
 
 	addis	r11, 0, EE_e200zx_ISR_stksave@ha
 	ori	r11, r11, EE_e200zx_ISR_stksave@l
-	stw	sp, (r11)
+	stw	sp, 0(r11)
 	stw	r7, 4(r11)
 
-	lwz	sp, (r8)			# sp <= to->ISRTOS
-	b	2f
-1:
+	lwz	sp, 0(r8)			# sp <= to->ISRTOS
+	b	l2
+l1:
 	cmpl	cr0, r7, toid
-	beq	2f
+	beq	l2
 
 	slwi	r7, r7, 4
 	stwx	sp, r6, r7			# from->ISRTOS <= sp
 
-	lwz	sp, (r8)			# sp <= to->ISRTOS
-2:
+	lwz	sp, 0(r8)			# sp <= to->ISRTOS
+l2:
 #if 0 /* Arbitrary TerminateIsr() not supported */
 	stw	sp, (r9)			# tos->TerminationTOS <= sp
 #endif

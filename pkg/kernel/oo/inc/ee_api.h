@@ -106,69 +106,81 @@
 /* ----- */
 
 #ifndef GetResource
-#define GetResource              EE_oo_GetResource
+#define GetResource               EE_oo_GetResource
 #endif
 
 #ifndef ReleaseResource
-#define ReleaseResource          EE_oo_ReleaseResource
+#define ReleaseResource           EE_oo_ReleaseResource
 #endif
 
 /* ----- */
 
 #ifndef SetEvent
-#define SetEvent                 EE_oo_SetEvent
+#define SetEvent                  EE_oo_SetEvent
 #endif
 
 #ifndef ClearEvent
-#define ClearEvent               EE_oo_ClearEvent
+#define ClearEvent                EE_oo_ClearEvent
 #endif
 
 #ifndef GetEvent
-#define GetEvent                 EE_oo_GetEvent
+#define GetEvent                  EE_oo_GetEvent
 #endif
 
 #ifndef WaitEvent
-#define WaitEvent                EE_oo_WaitEvent
+#define WaitEvent                 EE_oo_WaitEvent
 #endif
 
 /* ----- */
 
 #ifndef CounterTick
-#define CounterTick              EE_oo_counter_tick
+#define CounterTick               EE_oo_IncrementCounter
+#endif
+
+#ifndef IncrementCounter
+#define IncrementCounter          EE_oo_IncrementCounter
+#endif
+
+#ifndef GetCounterValue
+#define GetCounterValue           EE_oo_GetCounterValue
+#endif
+
+#ifndef GetElapsedValue
+#define GetElapsedValue           EE_oo_GetElapsedValue
 #endif
 
 #ifndef GetAlarmBase
-#define GetAlarmBase             EE_oo_GetAlarmBase
+#define GetAlarmBase              EE_oo_GetAlarmBase
 #endif
 
 #ifndef GetAlarm
-#define GetAlarm                 EE_oo_GetAlarm
+#define GetAlarm                  EE_oo_GetAlarm
 #endif
 
 #ifndef SetRelAlarm
-#define SetRelAlarm              EE_oo_SetRelAlarm
+#define SetRelAlarm               EE_oo_SetRelAlarm
 #endif
 
 #ifndef SetAbsAlarm
-#define SetAbsAlarm              EE_oo_SetAbsAlarm
+#define SetAbsAlarm               EE_oo_SetAbsAlarm
 #endif
 
 #ifndef CancelAlarm
-#define CancelAlarm              EE_oo_CancelAlarm
+#define CancelAlarm               EE_oo_CancelAlarm
 #endif
 
 /* ----- */
 
 #ifndef GetActiveApplicationMode
-#define GetActiveApplicationMode EE_oo_GetActiveApplicationMode
+#define GetActiveApplicationMode  EE_oo_GetActiveApplicationMode
 #endif
 
 #ifndef StartOS
-#define StartOS                  EE_oo_StartOS
+#define StartOS                   EE_oo_StartOS
 #endif
 
 #ifndef ShutdownOS
-#define ShutdownOS               EE_oo_ShutdownOS
+#define ShutdownOS                EE_oo_ShutdownOS
 #endif
 
 
@@ -177,23 +189,23 @@
 #ifdef __OO_SEM__
 
 #ifndef InitSem
-#define InitSem                  EE_oo_InitSem
+#define InitSem                   EE_oo_InitSem
 #endif
 
 #ifndef WaitSem
-#define WaitSem                  EE_oo_WaitSem
+#define WaitSem                   EE_oo_WaitSem
 #endif
 
 #ifndef TryWaitSem
-#define TryWaitSem               EE_oo_TryWaitSem
+#define TryWaitSem                EE_oo_TryWaitSem
 #endif
 
 #ifndef PostSem
-#define PostSem                  EE_oo_PostSem
+#define PostSem                   EE_oo_PostSem
 #endif
 
 #ifndef GetValueSem
-#define GetValueSem              EE_oo_GetValueSem
+#define GetValueSem               EE_oo_GetValueSem
 #endif
 
 #endif /* __OO_SEM__ */

@@ -1,0 +1,4 @@
+# these are the configurations that have to be considered
+conf = CONF=B1,B2,E1,E2 IRQ=USEIRQ
+worksfor = e200zx e200zx_diab_vle e200zx_codewarrior_vle e200zx_codewarrior_fle e200zx_diab_5_8_vle e200zx_diab_5_8_fle
+

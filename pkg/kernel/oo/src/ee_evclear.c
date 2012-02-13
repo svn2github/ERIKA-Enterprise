@@ -66,87 +66,47 @@ void EE_oo_ClearEvent(EventMaskType Mask)
   EE_TID current;
   register EE_FREG np_flags;
 
-#ifdef __OO_ORTI_SERVICETRACE__
-  EE_ORTI_servicetrace = EE_SERVICETRACE_CLEAREVENT+1U;
-#endif
+  EE_ORTI_set_service_in(EE_SERVICETRACE_CLEAREVENT);
 
   current = EE_stk_queryfirst();
-
-
 
 #ifdef __OO_EXTENDED_STATUS__
 
   /* check for a call at interrupt level; This must be the FIRST check! */
   if (EE_hal_get_IRQ_nesting_level()) {
-#ifdef __OO_ORTI_LASTERROR__
-    EE_ORTI_lasterror = E_OS_CALLEVEL;
-#endif
+    EE_ORTI_set_lasterror(E_OS_CALLEVEL);
 
-#ifdef __OO_HAS_ERRORHOOK__
-    np_flags = EE_hal_begin_nested_primitive();
-    if (!EE_ErrorHook_nested_flag) {  
-#ifndef __OO_ERRORHOOK_NOMACROS__
-      EE_oo_ErrorHook_ServiceID = OSServiceId_ClearEvent;
-      EE_oo_ErrorHook_data.ClearEvent_prm.Mask = Mask;
-#endif
-      EE_ErrorHook_nested_flag = 1U;
-      ErrorHook(E_OS_CALLEVEL);
-      EE_ErrorHook_nested_flag = 0U;
-    }
-    EE_hal_end_nested_primitive(np_flags);
-#endif
+    EE_oo_notify_error_ClearEvent(Mask, E_OS_CALLEVEL);
 
-#ifdef __OO_ORTI_SERVICETRACE__
-    EE_ORTI_servicetrace = EE_SERVICETRACE_CLEAREVENT;
-#endif
+    EE_ORTI_set_service_out(EE_SERVICETRACE_CLEAREVENT);
 
     return E_OS_CALLEVEL;
   }
   
   /* check if the task Id is valid */
-  if (!EE_th_is_extended[current]) {
-#ifdef __OO_ORTI_LASTERROR__
-    EE_ORTI_lasterror = E_OS_ACCESS;
-#endif
+  if (EE_th_is_extended[current] == 0U) {
+    EE_ORTI_set_lasterror(E_OS_ACCESS);
 
-#ifdef __OO_HAS_ERRORHOOK__
-    np_flags = EE_hal_begin_nested_primitive();
-    if (!EE_ErrorHook_nested_flag) {  
-#ifndef __OO_ERRORHOOK_NOMACROS__
-      EE_oo_ErrorHook_ServiceID = OSServiceId_ClearEvent;
-      EE_oo_ErrorHook_data.ClearEvent_prm.Mask = Mask;
-#endif
-      EE_ErrorHook_nested_flag = 1U;
-      ErrorHook(E_OS_ACCESS);
-      EE_ErrorHook_nested_flag = 0U;
-    }
-    EE_hal_end_nested_primitive(np_flags);
-#endif
+    EE_oo_notify_error_ClearEvent(Mask, E_OS_ACCESS);
 
-#ifdef __OO_ORTI_SERVICETRACE__
-    EE_ORTI_servicetrace = EE_SERVICETRACE_CLEAREVENT;
-#endif
+    EE_ORTI_set_service_out(EE_SERVICETRACE_CLEAREVENT);
 
     return E_OS_ACCESS;
   }
-#endif
-
+#endif /* __OO_EXTENDED_STATUS__ */
 
   np_flags = EE_hal_begin_nested_primitive();
 
   /* clear the event */
   EE_th_event_active[current] &= ~Mask;
 
+  EE_ORTI_set_service_out(EE_SERVICETRACE_CLEAREVENT);
   EE_hal_end_nested_primitive(np_flags);
-
-#ifdef __OO_ORTI_SERVICETRACE__
-  EE_ORTI_servicetrace = EE_SERVICETRACE_CLEAREVENT;
-#endif
 
 #ifdef __OO_EXTENDED_STATUS__
   return E_OK;
 #endif
 }
 
-#endif
-#endif
+#endif /* __PRIVATE_CLEAREVENT__ */
+#endif /* defined(__OO_ECC1__) || defined(__OO_ECC2__) */

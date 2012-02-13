@@ -58,7 +58,7 @@ void EE_alarm_CancelAlarm(AlarmType AlarmID)
   current = EE_counter_RAM[EE_alarm_ROM[AlarmID].c].first;
 
   /* check if there are alarms pending*/
-  if (current == -1) {
+  if (current == (AlarmType)-1) {
     /* alarm not present */
     EE_hal_end_nested_primitive(flag);
     return;
@@ -73,7 +73,7 @@ void EE_alarm_CancelAlarm(AlarmType AlarmID)
     do {
       previous = current;
       current = EE_alarm_RAM[current].next;
-      if (current == -1) {
+      if (current == (AlarmType)-1) {
 	/* alarm not present */
 	EE_hal_end_nested_primitive(flag);
 	return;
@@ -82,7 +82,7 @@ void EE_alarm_CancelAlarm(AlarmType AlarmID)
     EE_alarm_RAM[previous].next = EE_alarm_RAM[AlarmID].next;
   }
 
-  if (EE_alarm_RAM[AlarmID].next != -1) {
+  if (EE_alarm_RAM[AlarmID].next != (EE_TYPEALARM)-1) {
     EE_alarm_RAM[EE_alarm_RAM[AlarmID].next].delta +=
       EE_alarm_RAM[AlarmID].delta;
   }

@@ -51,7 +51,7 @@ SECTIONS
 	} > boot
 
 	GROUP : {
-		_stext = . ;
+		ee_stext = . ;
 		.text : {
 			*(.text)
 			*(.text_vle)
@@ -59,7 +59,7 @@ SECTIONS
 			*(.fini)
 		}
 
-		_srodata = . ;
+		ee_srodata = . ;
 		.rodata : {
 			*(.rdata)
 			*(.rodata)
@@ -69,59 +69,59 @@ SECTIONS
 			*(.sdata2)
 			*(.sbss2)
 		 }
-		_load_ram = . ;
+		ee_load_ram = . ;
 	} > iflash
 
 	GROUP : {
 		/* The stack is put at the beginning of the RAM,
 		 * so that stack overflows are caught by the memory
 		 * protection system */
-		_sstack = . ;
+		ee_sstack = . ;
 		.stack : { *(.stack) }
-		_estack = . ;
+		ee_estack = . ;
 
-		_sdata = . ;
-		.data LOAD(_load_ram): { }
+		ee_sdata = . ;
+		.data LOAD(ee_load_ram): { }
 
-		.sram_text LOAD(_load_ram + ADDR(.sram_text) - ADDR(.data)): { }
+		.sram_text LOAD(ee_load_ram + ADDR(.sram_text) - ADDR(.data)): { }
 
-		.sdata LOAD(_load_ram + ADDR(.sdata) - ADDR(.data)): { }
+		.sdata LOAD(ee_load_ram + ADDR(.sdata) - ADDR(.data)): { }
 
-		_sbss = . ;
+		ee_sbss = . ;
 		.sbss : { }
 		.bss : { }
-		_ebss = . ;
+		ee_ebss = . ;
 
 FOR_EACH_APP
-		_load_data_${APP_NAME} = _load_ram + (_ebss - _sdata)
+		ee_load_data_${APP_NAME} = ee_load_ram + (ee_ebss - ee_sdata)
 INNER_FOR_EACH_PREV_APP
-				+ (_sbss_${APP_NAME} - _sdata_${APP_NAME})
+				+ (ee_sbss_${APP_NAME} - ee_sdata_${APP_NAME})
 INNER_END_EACH_PREV_APP
 				;
 		. = ${APP_BASE} ;
-		_data_${APP_NAME}_start = . ;
+		ee_data_${APP_NAME}_start = . ;
 		/* The stack is put at the beginning of the application space,
 		 * so that stack overflows are caught by the memory
 		 * protection system */
-		.stack_${APP_NAME} : {
-			_sstack_${APP_NAME} = . ;
-			*(.stack_${APP_NAME})
-			_estack_${APP_NAME} = . ;
+		ee_stack_${APP_NAME} ALIGN(16): {
+			ee_sstack_${APP_NAME} = . ;
+			*(ee_stack_${APP_NAME})
+			ee_estack_${APP_NAME} = . ;
 		}
-		.data_${APP_NAME} LOAD(_load_data_${APP_NAME}) : {
-			_sdata_${APP_NAME} = . ;
-			*(.data_${APP_NAME})
+		ee_data_${APP_NAME} LOAD(ee_load_data_${APP_NAME}) : {
+			ee_sdata_${APP_NAME} = . ;
+			*(ee_data_${APP_NAME})
 		}
-		.sdata_${APP_NAME} LOAD(_load_data_${APP_NAME}
-				+ ADDR(.sdata_${APP_NAME}) - _sdata_${APP_NAME}) : {
-			*(.sdata_${APP_NAME})
+		ee_sdata_${APP_NAME} LOAD(ee_load_data_${APP_NAME}
+				+ ADDR(ee_sdata_${APP_NAME}) - ee_sdata_${APP_NAME}) : {
+			*(ee_sdata_${APP_NAME})
 		}
-		_sbss_${APP_NAME} = . ;
-		.sbss_${APP_NAME} : { }
-		.bss_${APP_NAME} : { }
-		_ebss_${APP_NAME} = . ;
-		ASSERT(_ebss_${APP_NAME} <= ${APP_BASE} + ${APP_SIZE})
-		_data_${APP_NAME}_end = . ;
+		ee_sbss_${APP_NAME} = . ;
+		ee_sbss_${APP_NAME} : { }
+		ee_bss_${APP_NAME} : { }
+		ee_ebss_${APP_NAME} = . ;
+		ASSERT(ee_ebss_${APP_NAME} <= ${APP_BASE} + ${APP_SIZE})
+		ee_data_${APP_NAME}_end = . ;
 
 END_EACH_APP
 	} > isram

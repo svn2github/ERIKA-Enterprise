@@ -52,20 +52,20 @@
 	/* CW-FUNC-DEFINITION: void EE_hal_terminate_savestk(EE_TID tid) */
 	.global EE_hal_terminate_savestk
 	.type	EE_hal_terminate_savestk, @function
-/* void EE_hal_terminate_savestk(EE_TID tid); */
+	/* void EE_hal_terminate_savestk(EE_TID tid); */
 EE_hal_terminate_savestk:
-	// r3 == tid
+	/* r3 == tid */
 
-	// r4 == tid << 2
+	/* r4 == tid << 2 */
 	rlwinm	r4, r3, 2, 0, 29
 
-	// r5 == EE_terminate_real_th_body[tid]
+	/* r5 == EE_terminate_real_th_body[tid] */
 	addis	r5, 0, EE_terminate_real_th_body@ha
 	add	r5, r5, r4
 	lwz	r5, EE_terminate_real_th_body@l(r5)
 
 	/* Save the stack pointer (including space for registers) */
-	// r6 == & EE_terminate_data[tid]
+	/* r6 == & EE_terminate_data[tid] */
 	addis	r6, 0, EE_terminate_data@ha
 	add	r6, r6, r4
 	mflr	r0
@@ -101,7 +101,19 @@ EE_hal_terminate_savestk:
 	mtlr	r5
 #if !defined(__EE_MEMORY_PROTECTION__)
 	blrl
-	/* The task terminated with a return: do the usual cleanup */
+#if defined(__OO_BCC1__) || defined(__OO_BCC2__) || \
+		defined(__OO_ECC1__) || defined(__OO_ECC2__)
+	/* The task terminated with a return:
+	 * jump to notification handler EE_thread_not_terminated,
+	 * which not return.
+	 * needed for AS requirements (OS052, OS069, OS070, OS239)
+	 */
+	bl	EE_thread_not_terminated
+#endif
+	/* The following code SHOULD not be executed, but for
+	 * conservative reason is
+	 * maintained (return to callee function)
+	 */
 	lwz	r0, 8(sp)
 	mtlr	r0
 	addi	sp, sp, 96
@@ -132,10 +144,10 @@ EE_hal_terminate_savestk:
 	.type	EE_hal_terminate_task, @function
 	/* void EE_hal_terminate_task(EE_TID tid) NORETURN; */
 EE_hal_terminate_task:
-	// r3 == tid
+	/* r3 == tid */
 	
 	/* Restore the stack pointer */
-	// r5 == & EE_terminate_data[tid]
+	/* r5 == & EE_terminate_data[tid] */
 	rlwinm	r4, r3, 2, 0, 29
 	addis	r5, 0, EE_terminate_data@ha
 	add	r5, r5, r4

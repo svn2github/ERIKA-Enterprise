@@ -102,8 +102,7 @@ TASK(Task3)
   s = SetRelAlarm(Alarm1, 1, 0);
   EE_assert(4, (s==E_OK), 3);
 
-  EE_oo_counter_tick(Counter1);
-  ForceSchedule();
+  IncrementCounter(Counter1);
   EE_assert(5, (TRUE), 4);
 
 #ifdef __EXTENDED_STATUS__
@@ -128,8 +127,7 @@ TASK(Task4)
   s = SetRelAlarm(Alarm1, 1, 0);
   EE_assert(10, (s==E_OK), 9);
 
-  EE_oo_counter_tick(Counter1);
-  ForceSchedule();
+  IncrementCounter(Counter1);
   EE_assert(11, (TRUE), 10);
 
 #ifdef __EXTENDED_STATUS__

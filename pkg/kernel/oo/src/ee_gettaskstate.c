@@ -43,8 +43,6 @@
  * CVS: $Id: ee_gettaskstate.c,v 1.1 2005/07/16 12:23:42 pj Exp $
  */
 
-/* This file is ONLY compiled when makking a BINARY DISTRIBUTION */
-
 #include "ee_internal.h"
 
 /***************************************************************************
@@ -53,40 +51,65 @@
 
 /* 13.2.3.6: BCC1, BCC2, ECC1, ECC2 */
 #ifndef __PRIVATE_GETTASKSTATE__
+
+static StatusType EE_oo_GetTaskState_Impl(TaskType TaskID,
+  TaskStateRefType State)
+{
+  register EE_FREG    flag;
+  register StatusType retVal;
+
+  flag = EE_hal_begin_nested_primitive();
+  if (State != (TaskStateRefType)NULL) {
+    *State = EE_th_status[TaskID];
+    retVal = E_OK;
+  } else {
+    /* OS566: The Operating System API shall check in extended mode all pointer
+        argument for NULL pointer and return OS_E_PARAMETER_POINTER
+        if such argument is NULL. */
+    EE_ORTI_set_lasterror(E_OS_PARAMETER_POINTER);
+
+    EE_oo_notify_error_GetTaskState(TaskID, State, E_OS_PARAMETER_POINTER);
+
+    retVal = E_OS_PARAMETER_POINTER;
+  }
+
+  EE_hal_end_nested_primitive(flag);
+  return retVal;
+}
+
 #ifdef __OO_EXTENDED_STATUS__
 StatusType EE_oo_GetTaskState(TaskType TaskID, TaskStateRefType State)
 {
-#ifdef __OO_ORTI_SERVICETRACE__
-  EE_ORTI_servicetrace = EE_SERVICETRACE_GETTASKSTATE+1U;
-#endif
+  register EE_FREG    flag;
+  register StatusType retVal;
 
-  if (TaskID < 0 || TaskID >= EE_MAX_TASK) {
-#ifdef __OO_ORTI_SERVICETRACE__
-    EE_ORTI_servicetrace = EE_SERVICETRACE_GETTASKSTATE;
-#endif
+  EE_ORTI_set_service_in(EE_SERVICETRACE_GETTASKSTATE);
+
+  if ((TaskID < 0) || (TaskID >= EE_MAX_TASK)) {
+    EE_ORTI_set_lasterror(E_OS_ID);
+
+    flag = EE_hal_begin_nested_primitive();
+    EE_oo_notify_error_GetTaskState(TaskID, State, E_OS_ID);
+    EE_hal_end_nested_primitive(flag);
+
+    EE_ORTI_set_service_out(EE_SERVICETRACE_GETTASKSTATE);
     return E_OS_ID;
   }
 
-  *State = EE_th_status[TaskID];
+  retVal = EE_oo_GetTaskState_Impl(TaskID, State);
 
-#ifdef __OO_ORTI_SERVICETRACE__
-  EE_ORTI_servicetrace = EE_SERVICETRACE_GETTASKSTATE;
-#endif
-  return E_OK;
+  EE_ORTI_set_service_out(EE_SERVICETRACE_GETTASKSTATE);
+  return   retVal;
 }
-#else
+#else /* __OO_EXTENDED_STATUS__ */
 void EE_oo_GetTaskState(TaskType TaskID, TaskStateRefType State)
 {
-#ifdef __OO_ORTI_SERVICETRACE__
-  EE_ORTI_servicetrace = EE_SERVICETRACE_GETTASKSTATE+1U;
-#endif
+  EE_ORTI_set_service_in(EE_SERVICETRACE_GETTASKSTATE);
 
-  *State = EE_th_status[TaskID];
+  (void)EE_oo_GetTaskState_Impl(TaskID, State);
 
-#ifdef __OO_ORTI_SERVICETRACE__
-  EE_ORTI_servicetrace = EE_SERVICETRACE_GETTASKSTATE;
-#endif
+  EE_ORTI_set_service_out(EE_SERVICETRACE_GETTASKSTATE);
 }
-#endif
-#endif
+#endif /* __OO_EXTENDED_STATUS__ */
+#endif /* __PRIVATE_GETTASKSTATE__ */
 

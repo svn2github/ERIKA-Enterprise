@@ -312,7 +312,7 @@ extern EE_UREG EE_th_resource_last[];
    task. there is one entry for each resource, initvalue = -1. the
    list of resources locked by a task is ended by -1. */
 extern EE_UREG EE_resource_stack[];		
-#endif
+#endif /* __OO_EXTENDED_STATUS__ */
 
 #if defined(__OO_EXTENDED_STATUS__) || defined(__OO_ORTI_RES_ISLOCKED__)
 /* Only in extended status or when using ORTI with resources; for each
@@ -321,9 +321,9 @@ extern EE_UREG EE_resource_stack[];
    previous two data structures. initvalue=0
 */
 extern EE_TYPEBOOL EE_resource_locked[];
-#endif
+#endif /*__OO_EXTENDED_STATUS__ || __OO_ORTI_RES_ISLOCKED__ */
 
-#endif
+#endif /* __OO_NO_RESOURCES__ */
 
 /* Alarms Handling */
 
@@ -340,28 +340,31 @@ typedef struct {
 
 /* initvalue: {0, -1} */
 typedef struct {
-  EE_TYPETICK value;              /* current value of the counter */
-  EE_TYPEALARM first;         /* first alarm queued on the counter */
+  EE_TYPETICK   value;         /* current value of the counter */
+  EE_TYPEALARM  first;         /* first alarm queued on the counter */
 } EE_oo_counter_RAM_type;
 
 
 /* these are the different types of alarm notifications... */
-#define EE_ALARM_ACTION_TASK 0U
-#define EE_ALARM_ACTION_CALLBACK 1U
-#define EE_ALARM_ACTION_EVENT 2U
+#define EE_ALARM_ACTION_TASK      0U
+#define EE_ALARM_ACTION_CALLBACK  1U
+#define EE_ALARM_ACTION_COUNTER   2U
+#define EE_ALARM_ACTION_EVENT     3U
 
 /* initvalue: {a_valid_counter, a_valid_action, then you must put the correct
    parameters depending on the action } */
 typedef struct {
   EE_TYPECOUNTER c;           /* the counter linked to the alarm */
 
-  EE_TYPENOTIFY action;       /* task=0 event=1 callb=2 */
+  EE_TYPENOTIFY action;       /* task=0 callb=1 event=2 counter=3 */
   
   EE_TID TaskID;
 #if defined(__OO_ECC1__) || defined(__OO_ECC2__)
   EE_TYPEEVENTMASK Mask;
 #endif
   EE_VOID_CALLBACK f;
+  /* Counter to increment when the alarm expire.*/
+  EE_TYPECOUNTER   inccount;
 } EE_oo_alarm_ROM_type;
 
 /* initvalue: all zeroes --> no initialization! */
@@ -390,12 +393,11 @@ extern const EE_oo_alarm_ROM_type   EE_alarm_ROM[];
    be set by alarm_insert when inserting the alarm in the queue */
 extern EE_oo_alarm_RAM_type         EE_alarm_RAM[];
 
-#endif
+#endif /* __OO_NO_ALARMS__ */
 
 
 /* this is the stub that have to be put into the EE_th_body array */
 extern void EE_oo_thread_stub(void);
-
 
 
 /***************************************************************************
@@ -409,21 +411,29 @@ typedef unsigned char StatusType;
 #define E_OK                                 ((StatusType)0U)
 #endif
 
-#define E_OS_ACCESS   ((StatusType)1U)
-#define E_OS_CALLEVEL ((StatusType)2U)
-#define E_OS_ID       ((StatusType)3U)
-#define E_OS_LIMIT    ((StatusType)4U)
-#define E_OS_NOFUNC   ((StatusType)5U)
-#define E_OS_RESOURCE ((StatusType)6U)
-#define E_OS_STATE    ((StatusType)7U)
-#define E_OS_VALUE    ((StatusType)8U)
+#define E_OS_ACCESS               ((StatusType)1U)
+#define E_OS_CALLEVEL             ((StatusType)2U)
+#define E_OS_ID                   ((StatusType)3U)
+#define E_OS_LIMIT                ((StatusType)4U)
+#define E_OS_NOFUNC               ((StatusType)5U)
+#define E_OS_RESOURCE             ((StatusType)6U)
+#define E_OS_STATE                ((StatusType)7U)
+#define E_OS_VALUE                ((StatusType)8U)
 
-/* Implementation specific errors */
-
+/* Implementation specific errors: they must start with E_OS_SYS_ */
 /* error during StartOS */
-#define E_OS_SYS_INIT ((StatusType)9U)
+#define E_OS_SYS_INIT             ((StatusType)9U)
 
-/* they must start with E_OS_SYS_* */
+/* Extended error values for AUTOSAR OS requirements
+   if Autosar kernel is usedof these errors are already defined 
+ */
+#if !defined(__AS_SC4__)
+/* for OS566 */
+#define E_OS_PARAMETER_POINTER    ((StatusType)10U)
+/* for OS069 */
+#define E_OS_MISSINGEND           ((StatusType)11U)
+#endif
+
 
 
 /***************************************************************************
@@ -437,7 +447,7 @@ extern StatusType EE_ORTI_lasterror;
 
 #ifdef __OO_ORTI_SERVICETRACE__
 /* the last OO service called by the application.  SERVICETRACE IDs
-   are odd numbers. The LSBit is used as a flag and it is set to 1
+   are even numbers. The LSBit is used as a flag and it is set to 1
    when the servce is entered, to 0 at exit.
 */
 
@@ -445,37 +455,39 @@ extern StatusType EE_ORTI_lasterror;
 #define EE_SERVICETRACE_TERMINATETASK             4U
 #define EE_SERVICETRACE_CHAINTASK                 6U
 #define EE_SERVICETRACE_SCHEDULE                  8U
-#define EE_SERVICETRACE_GETTASKID                10U
-#define EE_SERVICETRACE_GETTASKSTATE             12U
-#define EE_SERVICETRACE_DISABLEALLINTERRUPTS     14U
-#define EE_SERVICETRACE_ENABLEALLINTERRUPTS      16U
-#define EE_SERVICETRACE_SUSPENDALLINTERRUPTS     18U
-#define EE_SERVICETRACE_RESUMEALLINTERRUPTS      20U
-#define EE_SERVICETRACE_SUSPENDOSINTERRUPTS      22U
-#define EE_SERVICETRACE_RESUMEOSINTERRUPTS       24U
-#define EE_SERVICETRACE_GETRESOURCE              26U
-#define EE_SERVICETRACE_RELEASERESOURCE          28U
-#define EE_SERVICETRACE_SETEVENT                 30U
-#define EE_SERVICETRACE_CLEAREVENT               32U
-#define EE_SERVICETRACE_GETEVENT                 34U
-#define EE_SERVICETRACE_WAITEVENT                36U
-#define EE_SERVICETRACE_GETALARMBASE             38U
-#define EE_SERVICETRACE_GETALARM                 40U
-#define EE_SERVICETRACE_SETRELALARM              42U
-#define EE_SERVICETRACE_SETABSALARM              44U
-#define EE_SERVICETRACE_CANCELALARM              46U
-#define EE_SERVICETRACE_GETACTIVEAPPLICATIONMODE 48U
-#define EE_SERVICETRACE_STARTOS                  50U
-#define EE_SERVICETRACE_SHUTDOWNOS               52U
-#define EE_SERVICETRACE_FORCESCHEDULE            54U
-#define EE_SERVICETRACE_COUNTERTICK              56U
+#define EE_SERVICETRACE_GETTASKID                 10U
+#define EE_SERVICETRACE_GETTASKSTATE              12U
+#define EE_SERVICETRACE_DISABLEALLINTERRUPTS      14U
+#define EE_SERVICETRACE_ENABLEALLINTERRUPTS       16U
+#define EE_SERVICETRACE_SUSPENDALLINTERRUPTS      18U
+#define EE_SERVICETRACE_RESUMEALLINTERRUPTS       20U
+#define EE_SERVICETRACE_SUSPENDOSINTERRUPTS       22U
+#define EE_SERVICETRACE_RESUMEOSINTERRUPTS        24U
+#define EE_SERVICETRACE_GETRESOURCE               26U
+#define EE_SERVICETRACE_RELEASERESOURCE           28U
+#define EE_SERVICETRACE_SETEVENT                  30U
+#define EE_SERVICETRACE_CLEAREVENT                32U
+#define EE_SERVICETRACE_GETEVENT                  34U
+#define EE_SERVICETRACE_WAITEVENT                 36U
+#define EE_SERVICETRACE_GETALARMBASE              38U
+#define EE_SERVICETRACE_GETALARM                  40U
+#define EE_SERVICETRACE_SETRELALARM               42U
+#define EE_SERVICETRACE_SETABSALARM               44U
+#define EE_SERVICETRACE_CANCELALARM               46U
+#define EE_SERVICETRACE_GETACTIVEAPPLICATIONMODE  48U
+#define EE_SERVICETRACE_STARTOS                   50U
+#define EE_SERVICETRACE_SHUTDOWNOS                52U
+#define EE_SERVICETRACE_FORCESCHEDULE             54U
+#define EE_SERVICETRACE_INCREMENTCOUNTER          56U
+#define EE_SERVICETRACE_GETCOUNTERVALUE           58U
+#define EE_SERVICETRACE_GETELAPSEDVALUE           60U
 
 #ifdef __OO_SEM__
-#define EE_SERVICETRACE_INITSEM                  58U
-#define EE_SERVICETRACE_WAITSEM                  60U
-#define EE_SERVICETRACE_TRYWAITSEM               62U
-#define EE_SERVICETRACE_POSTSEM                  64U
-#define EE_SERVICETRACE_GETVALUESEM              66U
+#define EE_SERVICETRACE_INITSEM                   62U
+#define EE_SERVICETRACE_WAITSEM                   64U
+#define EE_SERVICETRACE_TRYWAITSEM                66U
+#define EE_SERVICETRACE_POSTSEM                   68U
+#define EE_SERVICETRACE_GETVALUESEM               70U
 #endif
 
 extern volatile EE_UINT8 EE_ORTI_servicetrace;
@@ -483,7 +495,9 @@ extern volatile EE_UINT8 EE_ORTI_servicetrace;
 __INLINE__ void EE_ORTI_set_service(EE_UINT8 srv)
 {
 	EE_ORTI_servicetrace = srv;
+#ifdef __OO_ORTI_USE_OTM__
 	EE_ORTI_send_otm_servicetrace(srv);
+#endif
 }
 
 #else /* __OO_ORTI_SERVICETRACE__ */
@@ -492,6 +506,13 @@ __INLINE__ void EE_ORTI_set_service(EE_UINT8 srv)
 #define EE_ORTI_ext_set_service(srv) ((void)0)
 
 #endif /* else __OO_ORTI_SERVICETRACE__ */
+
+#ifdef __OO_ORTI_LASTERROR__
+/* Macro to set lasterror value that can be used with ORTI */
+#define EE_ORTI_set_lasterror(ERR) (EE_ORTI_lasterror = (ERR))
+#else /* __OO_ORTI_LASTERROR__ */
+#define EE_ORTI_set_lasterror(ERR) ((void)0)
+#endif /* __OO_ORTI_LASTERROR__ */
 
 /*
  * EE_ORTI_ext_set_service_in() and EE_ORTI_ext_set_service_out() are used in
@@ -529,7 +550,19 @@ extern EE_TYPEPRIO EE_ORTI_th_priority[];
    InitValue: all 0
 */
 extern EE_TYPEPRIO EE_ORTI_resource_oldpriority[];
-#endif
+
+#define EE_ORTI_set_th_eq_dispatch_prio(tmp) \
+  (EE_ORTI_th_priority[(tmp)] = EE_th_dispatch_prio[(tmp)])
+
+__INLINE__ void __ALWAYS_INLINE__ EE_ORTI_set_th_priority(EE_TID index,
+    EE_TYPEPRIO prio)
+{
+    EE_ORTI_th_priority[index] = prio;
+}
+#else
+#define EE_ORTI_set_th_eq_dispatch_prio(tmp)    ((void)0)
+#define EE_ORTI_set_th_priority(index, prio)    ((void)0)
+#endif /*__OO_ORTI_PRIORITY__ */
 
 #ifdef __OO_ORTI_RUNNINGISR2__
 /* this variable stores 0 if no ISR is running, or the address of the ISR stub
@@ -769,7 +802,7 @@ typedef EE_TYPEALARM AlarmType;
 typedef EE_TYPECOUNTER CounterType;
 
 
-#endif
+#endif /* __OO_NO_ALARMS__ */
 
 
 /***************************************************************************
@@ -811,34 +844,39 @@ typedef EE_TYPEOSSERVICEID OSServiceIdType;
 /* DisableAllInterrupts, EnableAllInterrupts, SuspendAllInterrupts,
    ResumeAllInterrupts, SuspendOSInterrupts, ResumeOSInterrupts never
    return an error */
-#define OSServiceId_GetResource      6U
-#define OSServiceId_ReleaseResource  7U
-#define OSServiceId_SetEvent         8U
-#define OSServiceId_ClearEvent       9U
-#define OSServiceId_GetEvent        10U
-#define OSServiceId_WaitEvent       11U
-#define OSServiceId_GetAlarmBase    12U
-#define OSServiceId_GetAlarm        13U
-#define OSServiceId_SetRelAlarm     14U
-#define OSServiceId_SetAbsAlarm     15U
-#define OSServiceId_CancelAlarm     16U
-#define OSServiceId_CounterTick     17U
-/* GetActiveApplicationMode, ShutdownOS never return an error */
-#define OSServiceId_StartOS         18U
-#define OSServiceId_ForceSchedule   19U
+#define OSServiceId_GetResource       6U
+#define OSServiceId_ReleaseResource   7U
+#define OSServiceId_SetEvent          8U
+#define OSServiceId_ClearEvent        9U
+#define OSServiceId_GetEvent          10U
+#define OSServiceId_WaitEvent         11U
+#define OSServiceId_GetAlarmBase      12U
+#define OSServiceId_GetAlarm          13U
+#define OSServiceId_SetRelAlarm       14U
+#define OSServiceId_SetAbsAlarm       15U
+#define OSServiceId_CancelAlarm       16U
+#define OSServiceId_IncrementCounter  17U
+#define OSServiceId_GetCounterValue   18U
+#define OSServiceId_GetElapsedValue   19U
 
+/* GetActiveApplicationMode, ShutdownOS never return an error */
+#define OSServiceId_StartOS           20U
+#define OSServiceId_ForceSchedule     21U
 #ifdef __OO_SEM__
 /* InitSem, TryWaitSem, GetValueSem never return an error */
-#define OSServiceId_WaitSem         20U
-#define OSServiceId_PostSem         21U
-#endif
-
+#define OSServiceId_WaitSem           22U
+#define OSServiceId_PostSem           23U
+/* Special value to flag an error happened in the task body 
+   needed for AS requirement OS069
+*/
+#endif /* __OO_SEM__ */
+#define OSServiceId_TaskBody          24U
 
 
 /* 13.8.4 Macros                                                           */
 /* ----------------------------------------------------------------------- */
 
-union EE_oo_ErrorHook_parameters {
+struct EE_oo_ErrorHook_parameters {
   struct {
     TaskType TaskID;
   } ActivateTask_prm;
@@ -912,13 +950,25 @@ union EE_oo_ErrorHook_parameters {
   } CancelAlarm_prm;
 
   struct {
-    AlarmType AlarmID;
-    TaskType TaskID;
+    CounterType   CounterID;
+    AlarmType     AlarmID;
+    TaskType      TaskID;
 #if defined(__OO_ECC1__) || defined(__OO_ECC2__)
     EventMaskType Mask;
 #endif
     EE_TYPENOTIFY action;
-  } CounterTick_prm;
+  } IncrementCounter_prm;
+
+  struct {
+    CounterType CounterID; 
+    TickRefType Value;
+  } GetCounterValue_prm;
+
+  struct {
+    CounterType CounterID;
+    TickRefType Value;
+    TickRefType ElapsedValue;
+  } GetElapsedValue_prm;
 
 #endif
 
@@ -938,7 +988,7 @@ union EE_oo_ErrorHook_parameters {
 };
 
 extern OSServiceIdType EE_oo_ErrorHook_ServiceID;
-extern union EE_oo_ErrorHook_parameters EE_oo_ErrorHook_data;
+extern struct EE_oo_ErrorHook_parameters EE_oo_ErrorHook_data;
 
 #endif /* __OO_ERRORHOOK_NOMACROS__ */
 #endif /* __OO_HAS_ERRORHOOK__ */

@@ -45,6 +45,10 @@ EE_OPT = "__E200ZX_EXECUTE_FROM_RAM__";
 EE_OPT = "__CODEWARRIOR__";
 #endif
 
+#ifdef USE_DIAB_5_8
+EE_OPT = "EEOPT_DIAB_5_8";
+#endif
+
 MCU_DATA = PPCE200ZX {
   MODEL = MPC5674F;
 };

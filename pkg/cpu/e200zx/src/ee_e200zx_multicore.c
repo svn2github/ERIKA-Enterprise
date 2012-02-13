@@ -47,18 +47,28 @@
 #include <cpu/e200zx/inc/ee_irq.h>
 
 #if EE_CURRENTCPU == 0
+#ifdef USE_PRAGMAS
+#pragma section EE_SHARED_NOTINIT_BEGIN
+#pragma section EE_SHARED_FAST_NOTINIT_BEGIN
+EE_TYPEBARRIER EE_e200zx_start_barrier;
+#pragma section EE_SHARED_END
+#pragma section EE_SHARED_FAST_OR_SLOW_END
+#else
 EE_TYPEBARRIER EE_SHARED_UDATA EE_e200zx_start_barrier;
 #endif
-
+#endif
 
 void EE_e200zx_sync_barrier(EE_TYPEBARRIER *bar)
 {
 	EE_UINT32 all = ((EE_UINT32)1U << EE_MAX_CPU) - 1U;
-	EE_hal_spin_in(0U);
-	bar->value |= ((EE_UINT32)1U << EE_CURRENTCPU);
-	EE_hal_spin_out(0U);
-	while (bar->value != all) {
-		/* Wait for all other cores/CPUs */
+
+	if (bar != NULL) {
+		EE_hal_spin_in(0U);
+		bar->value |= ((EE_UINT32)1U << EE_CURRENTCPU);
+		EE_hal_spin_out(0U);
+		while (bar->value != all) {
+			/* Wait for all other cores/CPUs */
+		}
 	}
 }
 
@@ -66,7 +76,7 @@ void EE_e200zx_sync_barrier(EE_TYPEBARRIER *bar)
 static void EE_e200zx_setup_inter_irqs(void)
 {
 	EE_e200z7_register_ISR(EE_E200ZX_INTER_IRQ_LEVEL(EE_CURRENTCPU),
-		EE_rn_handler, 1U);
+		&EE_rn_handler, (EE_UINT8)1U);
 }
 
 
@@ -74,7 +84,6 @@ static void EE_e200zx_iirq_handler(void)
 {
 	EE_rn_handler();
 }
-
 
 int EE_cpu_startos(void)
 {
