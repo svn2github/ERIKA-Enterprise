@@ -175,24 +175,26 @@ TEMPLATE_LIST_TRICORE += tricore_base_isr
 
 # MICO32 templates
 # -----------------------------------------------------------
-TEMPLATE_LIST_MICO32 += mico32_camera_debug_50_demo_enc28j60
-TEMPLATE_LIST_MICO32 += mico32_camera_debug_50_demo_tcp
-TEMPLATE_LIST_MICO32 += mico32_camera_debug_50_demo_wr_flash
-TEMPLATE_LIST_MICO32 += mico32_camera_debug_50_i2c_polling
-TEMPLATE_LIST_MICO32 += mico32_camera_debug_50_leds_button
-TEMPLATE_LIST_MICO32 += mico32_camera_debug_50_lightsensor_tsl2561
-TEMPLATE_LIST_MICO32 += mico32_camera_debug_50_rtc_pcf8583
-TEMPLATE_LIST_MICO32 += mico32_camera_debug_50_spi_polling
-TEMPLATE_LIST_MICO32 += mico32_camera_debug_50_uart_isr_isr_blocking
-TEMPLATE_LIST_MICO32 += mico32_camera_debug_50_uart_isr_isr_nonblocking
-TEMPLATE_LIST_MICO32 += mico32_camera_debug_50_uart_isr_polling_blocking
-TEMPLATE_LIST_MICO32 += mico32_camera_debug_50_uart_isr_polling_nonblocking
-TEMPLATE_LIST_MICO32 += mico32_camera_debug_50_uart_polling_blocking
-TEMPLATE_LIST_MICO32 += mico32_camera_debug_50_uart_polling_nonblocking
-TEMPLATE_LIST_MICO32 += mico32_camera_debug_50_udp
-TEMPLATE_LIST_MICO32 += mico32_camera_debug_50_uwl_coordinator
-TEMPLATE_LIST_MICO32 += mico32_camera_debug_50_uwl_device
-TEMPLATE_LIST_MICO32 += mico32_camera_debug_50_webserver
+TEMPLATE_LIST_MICO32 += mico32_demo_wr_flash
+TEMPLATE_LIST_MICO32 += fpg_eye_demo_tcp
+TEMPLATE_LIST_MICO32 += fpg_eye_mico32_demo_camera
+TEMPLATE_LIST_MICO32 += fpg_eye_mico32_demo_enc28j60
+TEMPLATE_LIST_MICO32 += fpg_eye_mico32_flash_gpio
+TEMPLATE_LIST_MICO32 += fpg_eye_mico32_i2c_polling
+TEMPLATE_LIST_MICO32 += fpg_eye_mico32_leds_button
+TEMPLATE_LIST_MICO32 += fpg_eye_mico32_lightsensor_tsl2561
+TEMPLATE_LIST_MICO32 += fpg_eye_mico32_rtc_pcf8583
+TEMPLATE_LIST_MICO32 += fpg_eye_mico32_spi_polling
+TEMPLATE_LIST_MICO32 += fpg_eye_mico32_uart_isr_isr_blocking
+TEMPLATE_LIST_MICO32 += fpg_eye_mico32_uart_isr_isr_nonblocking
+TEMPLATE_LIST_MICO32 += fpg_eye_mico32_uart_isr_polling_blocking
+TEMPLATE_LIST_MICO32 += fpg_eye_mico32_uart_isr_polling_nonblocking
+TEMPLATE_LIST_MICO32 += fpg_eye_mico32_uart_polling_blocking
+TEMPLATE_LIST_MICO32 += fpg_eye_mico32_uart_polling_nonblocking
+TEMPLATE_LIST_MICO32 += fpg_eye_mico32_udp
+TEMPLATE_LIST_MICO32 += fpg_eye_mico32_uwl_coordinator
+TEMPLATE_LIST_MICO32 += fpg_eye_mico32_uwl_device
+TEMPLATE_LIST_MICO32 += fpg_eye_mico32_web_camera
 
 # -----------------------------------------------------------
 # -----------------------------------------------------------
