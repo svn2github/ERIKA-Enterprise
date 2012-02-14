@@ -15,7 +15,7 @@
 
  <file_section>
   <file     name="test_main.c"/>
-  <file     name="ctr0ram.S"/>
+  <file     name="crt0ram.S"/>
   <file     name="conf.oil"/>
   <file     name="makefile"/>
  </file_section>
