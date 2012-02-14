@@ -65,7 +65,6 @@ StatusType EE_oo_ChainTask(TaskType TaskID)
 {
   register TaskType current;
   register EE_FREG np_flags;
-  int rn_return_val;
 
   EE_ORTI_set_service_in(EE_SERVICETRACE_CHAINTASK);
 
@@ -139,7 +138,7 @@ StatusType EE_oo_ChainTask(TaskType TaskID)
       EE_TYPERN_PARAM par;
       par.pending = 1U;
       /* forward the request to another CPU */
-      rn_return_val = EE_rn_send((EE_SREG)EE_MARK_REMOTE_TID(TaskID),
+      (void)EE_rn_send((EE_SREG)EE_MARK_REMOTE_TID(TaskID),
         EE_RN_TASK, par);
       /* like in TerminateTask, we do not have to activate any other task */
       EE_th_terminate_nextask[EE_stk_queryfirst()] = EE_NIL;

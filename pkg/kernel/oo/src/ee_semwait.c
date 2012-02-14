@@ -65,7 +65,7 @@ StatusType EE_oo_WaitSem(SemRefType Sem)
 void EE_oo_WaitSem(SemRefType Sem)
 #endif
 {
-  TaskType current, tmp;
+  TaskType current;
   register EE_FREG np_flags;
 
   EE_ORTI_set_service_in(EE_SERVICETRACE_WAITSEM);
@@ -77,7 +77,7 @@ void EE_oo_WaitSem(SemRefType Sem)
   /* check for a call at interrupt level:
    * Note: this must be the FIRST error check!!!
    */
-  if (EE_hal_get_IRQ_nesting_level() || current==EE_NIL) {
+  if (EE_hal_get_IRQ_nesting_level() || (current == EE_NIL)) {
     EE_ORTI_set_lasterror(E_OS_CALLEVEL);
 
     np_flags = EE_hal_begin_nested_primitive();
@@ -122,7 +122,7 @@ void EE_oo_WaitSem(SemRefType Sem)
 
   /* handle a local semaphore queue */
   /* check if we have to wait */
-  if (Sem->count) {
+  if (Sem->count != 0U) {
     Sem->count--;
   }
   else {

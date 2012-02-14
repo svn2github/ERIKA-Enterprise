@@ -324,7 +324,9 @@ static void EE_oo_IncrementCounter_Impl(CounterType CounterID)
 #ifdef __OO_EXTENDED_STATUS__
 StatusType EE_oo_IncrementCounter(CounterType CounterID)
 {
+#if defined(__OO_HAS_ERRORHOOK__) && (!defined(__OO_ERRORHOOK_NOMACROS__))
   register AlarmType current;
+#endif /* __OO_HAS_ERRORHOOK__ && !__OO_ERRORHOOK_NOMACROS__ */
   register EE_FREG flag;
 
   EE_ORTI_set_service_in(EE_SERVICETRACE_INCREMENTCOUNTER);
@@ -335,12 +337,14 @@ StatusType EE_oo_IncrementCounter(CounterType CounterID)
   */
   if ((CounterID < 0) || (CounterID >= EE_MAX_COUNTER)) {
     EE_ORTI_set_lasterror(E_OS_ID);
+#if defined(__OO_HAS_ERRORHOOK__) && (!defined(__OO_ERRORHOOK_NOMACROS__))
     current = EE_counter_RAM[CounterID].first;
 
     flag = EE_hal_begin_nested_primitive();
-    EE_oo_notify_error_IncrementCounter(CounterID, current, 
+    EE_oo_notify_error_IncrementCounter(CounterID, current,
       EE_alarm_ROM[current].TaskID, EE_alarm_ROM[current].action, E_OS_ID);
     EE_hal_end_nested_primitive(flag);
+#endif /* __OO_HAS_ERRORHOOK__ && !__OO_ERRORHOOK_NOMACROS__ */
 
     EE_ORTI_set_service_out(EE_SERVICETRACE_INCREMENTCOUNTER);
 

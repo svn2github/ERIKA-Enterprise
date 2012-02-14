@@ -68,7 +68,7 @@
 
 StatusType EE_oo_PostSem(SemRefType Sem)
 {
-  register TaskType tmp, unlocked_tmp;
+  register TaskType unlocked_tmp;
   register TaskType tmp_stacked;
   register EE_FREG flag;
 

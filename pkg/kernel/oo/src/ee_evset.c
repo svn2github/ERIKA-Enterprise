@@ -72,7 +72,6 @@ void EE_oo_SetEvent(TaskType TaskID, EventMaskType Mask)
 #endif
 {
   register EE_FREG flag;
-  int rn_return_val;
 
   EE_ORTI_set_service_in(EE_SERVICETRACE_SETEVENT);
 
@@ -82,7 +81,7 @@ void EE_oo_SetEvent(TaskType TaskID, EventMaskType Mask)
        not belong to the current CPU */
     register EE_TYPERN_PARAM par;
     par.ev = Mask;
-    rn_return_val = EE_rn_send((EE_SREG)EE_MARK_REMOTE_TID(TaskID),
+    (void)EE_rn_send((EE_SREG)EE_MARK_REMOTE_TID(TaskID),
       EE_RN_TASK, par);
     
     EE_ORTI_set_service_out(EE_SERVICETRACE_SETEVENT);

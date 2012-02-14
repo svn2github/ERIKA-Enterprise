@@ -59,7 +59,7 @@
 #ifndef __PRIVATE_ACTIVATETASK__
 StatusType EE_oo_ActivateTask(TaskType TaskID)
 {
-  register TaskType tmp,current;
+  register TaskType current;
   register EE_FREG flag;
 
   EE_ORTI_set_service_in(EE_SERVICETRACE_ACTIVATETASK);

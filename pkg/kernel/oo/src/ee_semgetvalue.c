@@ -48,7 +48,7 @@
 #ifndef __PRIVATE_GETVALUESEM__
 int EE_oo_GetValueSem(SemRefType Sem)
 {
-  unsigned int returnvalue;
+  int      returnvalue;
   register EE_FREG flag;
 
   EE_ORTI_set_service_in(EE_SERVICETRACE_GETVALUESEM);

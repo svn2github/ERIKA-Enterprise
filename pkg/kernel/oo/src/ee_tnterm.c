@@ -54,9 +54,12 @@
 void EE_thread_not_terminated(void)
 {
   register EE_TID current;
-  register EE_FREG np_flags;
 
-  np_flags = EE_hal_begin_nested_primitive();
+  /* IRQ disabling for primitive atomicity (It doesn't make sense use 
+     EE_hal_begin_nested_primitive because at the end of the function I won't
+     call EE_hal_end_nested_primitive) */
+  EE_hal_disableIRQ();
+
   current = EE_stk_queryfirst();
 
   /* OS069: If a task returns from its entry function without making a 
@@ -67,7 +70,7 @@ void EE_thread_not_terminated(void)
       the RUNNING state.
   */
   EE_oo_notify_error_service(OSServiceId_TaskBody, E_OS_MISSINGEND);
-  
+
   /* OS070: If a task returns from the entry function without making a 
       TerminateTask() or ChainTask() call and still holds OSEK Resources, 
       the Operating System shall release them. 
