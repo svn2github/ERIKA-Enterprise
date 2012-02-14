@@ -196,7 +196,7 @@ endif
 
 $(TARGET): $(APP_OUTPUT_ELF)
 	@echo OBJDUMP
-	$(QUIET) $(EE_OBJDUMP) -d -r -S $< > $@.tmp  && mv $@.tmp $@
+	$(QUIET) $(EE_OBJDUMP) -d -r -S $< > $@.tmp  && mv $@.tmp $@ $(EE_IGNORE_MICO32_OBJDUMP_ERRORS_TXT)
 # The 'mv' above is needed so $@ is not created if the command fails
 	$(QUIET) $(EE_ELF_SIZE) $<
 	@echo
