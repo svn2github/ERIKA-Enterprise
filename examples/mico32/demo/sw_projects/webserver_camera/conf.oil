@@ -103,7 +103,7 @@ CPU test_application {
 		};
 		EE_OPT = "USE_HV7131GP";
 		EE_OPT = "__USE_DIAMOND__";
-		
+		EE_OPT = "EE_IGNORE_MICO32_OBJDUMP_ERRORS";
 	};
 	
 	ISR Camera {

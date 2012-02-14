@@ -189,6 +189,9 @@ all: $(TARGET)
 # do be done" message when everything is up to date
 
 # `clean' is performed by the project makefile; nothing to clean here
+ifeq ($(call iseeopt, EE_IGNORE_MICO32_OBJDUMP_ERRORS), yes)
+EE_IGNORE_MICO32_OBJDUMP_ERRORS_TXT :=|| echo "objdump failed "
+endif
 
 
 $(TARGET): $(APP_OUTPUT_ELF)
