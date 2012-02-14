@@ -98,6 +98,7 @@ typedef EE_INT16  EE_SREG;
 typedef EE_UINT16 EE_FREG;
 // Thread IDs
 typedef EE_INT32 EE_TID;
+typedef EE_UINT32 EE_UTID;
 
 #define	TID_IS_STACKED_MARK	0x8000
 
