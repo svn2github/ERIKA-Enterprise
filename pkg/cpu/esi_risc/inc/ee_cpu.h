@@ -100,6 +100,7 @@ typedef void (*EE_THREAD_PTR)(void);
 
 /* Thread IDs */
 typedef EE_INT16 EE_TID;
+typedef EE_UINT16 EE_UTID;
 
 /* Used by the common layer to decide whether to start a new thread */
 #define TID_IS_STACKED_MARK 0x8000
