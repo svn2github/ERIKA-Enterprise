@@ -59,9 +59,9 @@ void EE_oo_GetAlarmBase(AlarmType AlarmID, AlarmBaseRefType Info)
 {
 #ifdef __OO_EXTENDED_STATUS__
   register StatusType retVal;
+  register EE_FREG flag;
 #endif
   register const EE_oo_counter_ROM_type *c;
-  register EE_FREG flag;
 
   EE_ORTI_set_service_in(EE_SERVICETRACE_GETALARMBASE);
 

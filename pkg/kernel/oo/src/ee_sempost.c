@@ -69,7 +69,6 @@
 StatusType EE_oo_PostSem(SemRefType Sem)
 {
   register TaskType unlocked_tmp;
-  register TaskType tmp_stacked;
   register EE_FREG flag;
 
   EE_ORTI_set_service_in(EE_SERVICETRACE_POSTSEM);

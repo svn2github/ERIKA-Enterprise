@@ -326,8 +326,8 @@ StatusType EE_oo_IncrementCounter(CounterType CounterID)
 {
 #if defined(__OO_HAS_ERRORHOOK__) && (!defined(__OO_ERRORHOOK_NOMACROS__))
   register AlarmType current;
-#endif /* __OO_HAS_ERRORHOOK__ && !__OO_ERRORHOOK_NOMACROS__ */
   register EE_FREG flag;
+#endif /* __OO_HAS_ERRORHOOK__ && !__OO_ERRORHOOK_NOMACROS__ */
 
   EE_ORTI_set_service_in(EE_SERVICETRACE_INCREMENTCOUNTER);
 

@@ -59,18 +59,16 @@
 #ifndef __PRIVATE_ACTIVATETASK__
 StatusType EE_oo_ActivateTask(TaskType TaskID)
 {
-  register TaskType current;
   register EE_FREG flag;
 
   EE_ORTI_set_service_in(EE_SERVICETRACE_ACTIVATETASK);
 
 #ifdef __RN_TASK__
   if (EE_IS_TID_REMOTE(TaskID)) {
-    int rn_return_val;
     EE_TYPERN_PARAM par;
     par.pending = 1U;
     /* forward the request to another CPU */
-    rn_return_val = EE_rn_send((EE_SREG)EE_UNMARK_REMOTE_TID(TaskID),
+    (void)EE_rn_send((EE_SREG)EE_UNMARK_REMOTE_TID(TaskID),
         EE_RN_TASK, par );
 
     EE_ORTI_set_service_out(EE_SERVICETRACE_ACTIVATETASK);
