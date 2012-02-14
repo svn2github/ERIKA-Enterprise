@@ -76,7 +76,7 @@
 #include "frame_format.h"
 
 #include "nwl/Nwl.h"
-#include "phy/Phy.h"
+#include "phy/phy.h"
 #include "mac/mac_const.h"
 
 #include "mac/Mac.h"

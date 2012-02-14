@@ -92,7 +92,7 @@
 #include "string.h"
 
 //#include "hal/hal_defines.h"
-#include "phy/Phy.h"
+#include "phy/phy.h"
 #include "mac/Mac.h"
 #include "nwl/Nwl.h" /* TODO: used for notify sync at upper layer, in future the use a  common .h ? */
 

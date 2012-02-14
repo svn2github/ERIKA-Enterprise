@@ -69,7 +69,7 @@
 #include "mac/mac_const.h"
 #include "mac/mac_enumerations.h"
 
-#include "phy/Phy.h"
+#include "phy/phy.h"
 #include "phy/phy_enumerations.h"
 
 #include "ieee802154alarms/ieee802154alarms.h"

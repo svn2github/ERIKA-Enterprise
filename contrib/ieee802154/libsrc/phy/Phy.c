@@ -62,7 +62,7 @@
  */
 
 #include "ee.h"
-#include "phy/Phy.h"
+#include "phy/phy.h"
 #include "phy/phy_const.h"
 #include "phy/phy_enumerations.h"
 

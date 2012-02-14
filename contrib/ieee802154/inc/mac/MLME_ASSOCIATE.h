@@ -61,7 +61,7 @@
 
 #include "ee.h"
 
-#include "phy/Phy.h"
+#include "phy/phy.h"
 
 #include "mac/mac_const.h"
 #include "mac/mac_enumerations.h"
