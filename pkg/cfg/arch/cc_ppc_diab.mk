@@ -74,7 +74,7 @@ OPT_CC += -Xlicense-wait -Xstderr-fully-buffered -Xbss-common-off	\
 	-Xeieio -XO -Xsavefpr-avoid -Xsmall-data=8 -Xswitch-table=0	\
 	-Xinline=40 -Xsmall-const=8 -Xenum-is-best -Xunroll=4		\
 	-Xunroll-size=5 -Xsize-opt -Xsemi-is-comment -Xstop-on-warning	\
-	-Xforce-prototypes
+	-Xforce-prototypes -Xmacro-in-pragma
 endif # __MINIMAL_CC_OPTIONS__
 
 ## OPT_ASM are the options for asm invocation

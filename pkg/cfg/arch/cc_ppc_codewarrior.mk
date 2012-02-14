@@ -97,8 +97,8 @@ OPT_CC += -flag require_prototypes -msgstyle gcc -rostr \
  -O4 -ipa file -inline on,auto -schedule on
 endif
 ifeq ($(call iseeopt, __MSRP__), yes)
-OPT_CC += -pragma "section RW \".mcglobald\" \".mcglobalu\"" \
- -pragma "section R \".mcglobalc\" \".mcglobalc\""
+OPT_CC += -pragma "section RW \"ee_mcglobald\" \"ee_mcglobalu\"" \
+ -pragma "section R \"ee_mcglobalc\" \"ee_mcglobalc\""
 endif
 
 # VLE support
