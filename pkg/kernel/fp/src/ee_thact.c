@@ -53,9 +53,10 @@ void EE_fp_ActivateTask(TaskType t)
 {
   register EE_TID tmp;
   register EE_FREG flag;
-  int rn_return_val;
   
 #ifdef __RN_TASK__
+  int rn_return_val;
+
   if (EE_IS_TID_REMOTE(t)) {
     register EE_TYPERN_PARAM par;
     par.pending = 1U;
