@@ -119,6 +119,7 @@ $(OUT_DIR_BASE)%/out_lin.txt: $(OUT_DIR_BASE)%/make.list $(LIN_CONF)
 	 | grep -F '0 error(s) found.' >/dev/null && touch out_lin.txt
 
 # Compact LIN output
+# The awk script may cause problem to the output format in case of long ee path
 errors: $(LIN_FILES)
 	@echo Merging errors...
 	@gawk 'BEGIN {err = 0; msg = ""} '\
