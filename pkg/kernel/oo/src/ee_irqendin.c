@@ -45,6 +45,55 @@
 
 #include "ee_internal.h"
 
+#ifdef __OO_ISR2_RESOURCES__
+/* Index used to give ISR2 Temporary TID value and to access at
+   EE_isr2_nesting_level array */
+EE_UREG EE_isr2_index = EE_UREG_MINUS1;
+
+/* Assign a fake TID to an ISR2 to eventually handle resources clean-up */
+EE_TID EE_oo_assign_TID_to_ISR2(void) {
+  EE_UREG const actual_nesting = EE_hal_get_IRQ_nesting_level();
+
+  if(EE_isr2_index == EE_UREG_MINUS1) {
+    EE_isr2_index = 0U;
+    EE_isr2_nesting_level[0] = actual_nesting;
+  } else if (EE_isr2_nesting_level[EE_isr2_index] < actual_nesting) {
+    ++EE_isr2_index;
+    EE_isr2_nesting_level[EE_isr2_index] = actual_nesting;
+  }
+
+  return (EE_MAX_TASK + (EE_TID)EE_isr2_index);
+}
+
+/* OS369: If a Category 2 OsIsr calls GetResource() and ends (returns)
+    without calling the corresponding ReleaseResource(), the Operating System
+    shall perform the ReleaseResource() call and shall call the ErrorHook()
+    (if configured) with the status E_OS_RESOURCE.
+ */
+static void EE_IRQ_release_all_resources(void) {
+  /* Check if the index is valid -> at least one ISR2 got a resource */
+  if(EE_isr2_index != EE_UREG_MINUS1) {
+    /* N.B This method MUST be called at the end of IRQ post-stub but BEFORE
+       decrementing nesting. */
+    EE_UREG const actual_nesting = EE_hal_get_IRQ_nesting_level();
+
+    /* Check if this is the right level where do clean-up */
+    if(EE_isr2_nesting_level[EE_isr2_index] == actual_nesting) {
+      EE_UREG ResID = EE_oo_release_all_resources(EE_isr2_index + EE_MAX_TASK);
+      /* OS369 */
+      if(ResID != EE_UREG_MINUS1) {
+        EE_ORTI_set_lasterror(E_OS_RESOURCE);
+        EE_oo_notify_error_service(OSServiceId_ISR2Body, E_OS_RESOURCE);
+      }
+      /* Decrement ISR2 index (from 0U to EE_UREG_MINUS1 is handled by
+         unsigned wraparound) */
+      --EE_isr2_index;
+    }
+  }
+}
+#else
+#define EE_IRQ_release_all_resources()    ((void)0);
+#endif /*  __OO_ISR2_RESOURCES__ */
 
 #ifndef __PRIVATE_IRQ_END_INSTANCE__
 
@@ -71,14 +120,16 @@ static void EE_IRQ_run_next_task(void)
 /* This primitive shall be atomic.
    This primitive shall be inserted as the last function in an IRQ handler.
    If the HAL allow IRQ nesting the C_end_instance should work as follows:
-   - it must implement the preemption test only if it is the last IRQ on the stack
-   - if there are other interrupts on the stack the IRQ end_instance should do nothing
+   - it must implement the preemption test only if it is the last IRQ on the
+     stack
+   - if there are other interrupts on the stack the IRQ end_instance should do
+     nothing
 */
 void EE_IRQ_end_instance(void)
 {
   register EE_TID tmp;
   register EE_TID tmp_stacked;
-  
+
   tmp = EE_rq_queryfirst();
   tmp_stacked = EE_stk_queryfirst();
 
@@ -106,4 +157,37 @@ void EE_IRQ_end_instance(void)
   }
 }
 
+/* This primitive shall be atomic.
+   This primitive shall be inserted as the last function in an IRQ post-stub.
+    This primitive done needed clean-up as restting kernel interrupt nested
+    counters and release got resources if application forget to do that as
+    specified by Autosar standard.
+*/
+void EE_IRQ_end_post_stub(void) {
+  /* OS368: If a Category 2 OsIsr calls DisableAllInterupts()/
+      SuspendAllInterrupts()/SuspendOSInterrupts() and ends (returns)
+      without calling the corresponding EnableAllInterrupts()/
+      ResumeAllInterrupts() / ResumeOSInterrupts(),
+      the Operating System shall perform the missing service and shall call
+      the ErrorHook() (if configured) with the status E_OS_DISABLEDINT.
+  */
+
+  /* Only check and reset ISR flags an counters because ISR renabling is done in
+     CPU layer */
+  if (EE_oo_IRQ_disable_count != 0U) 
+  {
+    EE_oo_IRQ_disable_count = 0U;
+
+    EE_ORTI_set_lasterror(E_OS_DISABLEDINT);
+    EE_oo_notify_error_service(OSServiceId_ISR2Body, E_OS_DISABLEDINT);
+  }
+
+  /* OS369: If a Category 2 OsIsr calls GetResource() and ends (returns)
+      without calling the corresponding ReleaseResource(), the Operating System
+      shall perform the ReleaseResource() call and shall call the ErrorHook()
+      (if configured) with the status E_OS_RESOURCE.
+   */
+  EE_IRQ_release_all_resources();
+}
 #endif /* __PRIVATE_IRQ_END_INSTANCE__ */
+

@@ -49,7 +49,9 @@
   used to fulfill AS requirement OS070
 */
 
-#if (defined(__OO_EXTENDED_STATUS__)) && (!defined(__PRIVATE_RELEASEALLRESOURCE__))
+#if ((defined(__OO_EXTENDED_STATUS__)) || defined(__OO_ISR2_RESOURCES__)) && \
+    (!defined(__PRIVATE_RELEASEALLRESOURCE__))
+
 #if 0
 #ifdef __MSRP__
 #warning "MSRP multiprocessor kernel protocol is not completly supported!"
@@ -69,36 +71,46 @@ static void EE_oo_unlock_others(EE_UREG ResID)
 #endif /* __MSRP__ */
 #endif /* comment */
 
-void EE_thread_release_all_resources(EE_TID tid)
+EE_UREG EE_oo_release_all_resources(EE_TID tid)
 {
   /* ALLERT! this method have to be called only inside a critical section
      (e.g. interrupt disabled) */
-  register EE_TID current;
   register EE_UREG curRes, ResID = EE_UREG_MINUS1;
 
-  current = EE_stk_queryfirst();
-
-  while((curRes = EE_th_resource_last[current]) != EE_UREG_MINUS1) {
+  while((curRes = EE_th_resource_last[tid]) != EE_UREG_MINUS1) {
     ResID = curRes;
     /* remove the last entry from the data structure */
-    EE_th_resource_last[current] = 
+    EE_th_resource_last[tid] =
       EE_resource_stack[ResID];
+#ifdef __OO_EXTENDED_STATUS__
     /* free the resource */
     EE_resource_locked[ResID] = 0U;
-    /* TODO choose the fate of global resources */    
+#endif /* __OO_EXTENDED_STATUS__ */
+    /* TODO choose the fate of global resources */
     /* commented just to prevent from misra non-compliance */
     /*EE_oo_unlock_others(ResID);*/
   }
 
-  /* Restore the sys ceiling with the old value from the bottom of the resource
-     stack */
-  EE_sys_ceiling = EE_resource_oldceiling[ResID];
+  /* Check if at least one resource have been freed */
+  if(ResID != EE_UREG_MINUS1)
+  {
+    /* Restore the sys-ceiling with the old value from the bottom of the
+       resource stack */
+    EE_sys_ceiling = EE_resource_oldceiling[ResID];
+
+#ifdef __OO_ISR2_RESOURCES__
+    /* Restore the isr2 prio with the old value from the bottom of the
+       resource stack */
+    EE_hal_set_int_prio(EE_isr2_oldpriority[ResID]);
+#endif /* __OO_ISR2_RESOURCES__ */
 
 #ifdef __OO_ORTI_PRIORITY__
-  /* Restore the ORTI priority with the old value from the bottom of the
-     resource stack */
-  EE_ORTI_th_priority[current] = EE_ORTI_resource_oldpriority[ResID];
-#endif
+    /* Restore the ORTI priority with the old value from the bottom of the
+       resource stack */
+    EE_ORTI_th_priority[tid] = EE_ORTI_resource_oldpriority[ResID];
+#endif /* __OO_ORTI_PRIORITY__ */
+  }
+  return ResID;
 }
 
 #endif /* __OO_EXTENDED_STATUS__&& !__PRIVATE_RELEASEALLRESOURCE__ */

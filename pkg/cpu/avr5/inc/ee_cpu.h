@@ -240,4 +240,10 @@ __INLINE__ void EE_hal_IRQ_disableIRQ(void)
 #endif
 }
 
+/* This architecture doesn't support new HAL APIs for interrupt handling
+   look at pic30, e200zx, cortex_mx or hs12xs ee_cpu.h to look new APIs
+   signature and semantic.
+ */
+#define EE_OLD_HAL
+
 #endif /* __INCLUDE_AVR5_ARCH_H__ */

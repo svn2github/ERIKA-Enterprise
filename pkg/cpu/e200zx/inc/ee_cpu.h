@@ -75,6 +75,8 @@
 #include "cpu/common/inc/ee_types.h"
 
 #include "ee_cpu_asm.h"
+/* INTC symbols */
+#include "ee_mcu_regs.h"
 
 typedef EE_UINT32 EE_UREG;
 typedef EE_INT32  EE_SREG;
@@ -85,6 +87,9 @@ typedef EE_INT32 EE_TID;
 
 /* Thread IDs - unsigned version*/
 typedef EE_UINT32 EE_UTID;
+
+/* ISR Priority representation type */
+typedef EE_UREG EE_TYPEISR2PRIO;
 
 /* Flag (OR'ed to an EE_TID) to mark a task as stacked. */
 #define TID_IS_STACKED_MARK	0x80000000U
@@ -219,31 +224,6 @@ __INLINE__ void __ALWAYS_INLINE__ EE_e200z7_disableIRQ(void)
 {
 	__asm volatile ("wrteei 0\n");
 }
-
-#ifdef	__DCC__
-__asm static void EE_e200z7_set_int_prio(EE_UINT32 prio)
-{
-% reg prio
-! "r4"
-	/* set current priority to prio */
-        addis	r4, 0, INTC_CPR_ADDR@ha
-        addi	r4, r4, INTC_CPR_ADDR@l
-	stw	prio, 0(r4)
-        mbar    0
-}
-#else
-__INLINE__ void __ALWAYS_INLINE__ EE_e200z7_set_int_prio(EE_UINT32 prio)
-{
-        /*
-         * set current priority to prio
-         * 0xfff48008 corresponds to INTC_CPR_ADDR
-         */
-        __asm volatile ("addis	r4, 0, (0xfff48008)@ha\n\t"
-        "addi	r4, r4, (0xfff48008)@l\n\t"
-        "stw %0, 0(r4)\n"
-        "mbar 0" :: "r"(prio));
-}
-#endif
 
 #ifdef	__DCC__
 __asm static void EE_e200z7_resumeIRQ(EE_FREG msr)
@@ -412,6 +392,30 @@ __INLINE__ void __ALWAYS_INLINE__ EE_e200zx_isync(void)
 	__asm volatile ("isync");
 }
 
+__INLINE__ void __ALWAYS_INLINE__ EE_e200zx_mbar(void)
+{
+	__asm volatile("mbar 0\n");
+}
+
+__INLINE__ EE_TYPEISR2PRIO __ALWAYS_INLINE__ EE_e200zx_get_int_prio(void)
+{
+	return INTC_CPR.R;
+}
+
+__INLINE__ void __ALWAYS_INLINE__ EE_e200zx_set_int_prio(EE_TYPEISR2PRIO prio)
+{
+	/* To understand why all this synchronization is needed look at one of
+		 frescale ppc's reference manual at the following:
+		 9.3.1.2 INTC Current Priority Register NOTE
+		 9.5.5.2 Ensuring Coherency
+	*/
+	/* Execution syncronization -> all stores executed (for coherency: 9.5.5.2) */
+	EE_e200zx_mbar();
+	INTC_CPR.R = prio;
+	/* Context syncronization + INTC_CPR store executed */
+	EE_e200zx_mbar();
+	EE_e200zx_isync();
+}
 
 /*
  * Interrupt Handling

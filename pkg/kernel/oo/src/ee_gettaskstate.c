@@ -52,39 +52,13 @@
 /* 13.2.3.6: BCC1, BCC2, ECC1, ECC2 */
 #ifndef __PRIVATE_GETTASKSTATE__
 
-static StatusType EE_oo_GetTaskState_Impl(TaskType TaskID,
-  TaskStateRefType State)
-{
-  register EE_FREG    flag;
-  register StatusType retVal;
-
-  flag = EE_hal_begin_nested_primitive();
-  if (State != (TaskStateRefType)NULL) {
-    *State = EE_th_status[TaskID];
-    retVal = E_OK;
-  } else {
-    /* OS566: The Operating System API shall check in extended mode all pointer
-        argument for NULL pointer and return OS_E_PARAMETER_POINTER
-        if such argument is NULL. */
-    EE_ORTI_set_lasterror(E_OS_PARAMETER_POINTER);
-
-    EE_oo_notify_error_GetTaskState(TaskID, State, E_OS_PARAMETER_POINTER);
-
-    retVal = E_OS_PARAMETER_POINTER;
-  }
-
-  EE_hal_end_nested_primitive(flag);
-  return retVal;
-}
-
-#ifdef __OO_EXTENDED_STATUS__
 StatusType EE_oo_GetTaskState(TaskType TaskID, TaskStateRefType State)
 {
   register EE_FREG    flag;
   register StatusType retVal;
 
   EE_ORTI_set_service_in(EE_SERVICETRACE_GETTASKSTATE);
-
+#ifdef __OO_EXTENDED_STATUS__
   if ((TaskID < 0) || (TaskID >= EE_MAX_TASK)) {
     EE_ORTI_set_lasterror(E_OS_ID);
 
@@ -95,21 +69,30 @@ StatusType EE_oo_GetTaskState(TaskType TaskID, TaskStateRefType State)
     EE_ORTI_set_service_out(EE_SERVICETRACE_GETTASKSTATE);
     return E_OS_ID;
   }
+#endif /* __OO_EXTENDED_STATUS__ */
 
-  retVal = EE_oo_GetTaskState_Impl(TaskID, State);
+  flag = EE_hal_begin_nested_primitive();
+  if (State != (TaskStateRefType)NULL) {
+    *State = EE_th_status[TaskID];
+    retVal = E_OK;
+  } else {
+    /* OS566: The Operating System API shall check in extended mode all pointer
+        argument for NULL pointer and return OS_E_PARAMETER_POINTER
+        if such argument is NULL.
+       +
+       MISRA dictate NULL check for pointers always.
+    */
+    EE_ORTI_set_lasterror(E_OS_PARAMETER_POINTER);
 
+    EE_oo_notify_error_GetTaskState(TaskID, State, E_OS_PARAMETER_POINTER);
+
+    retVal = E_OS_PARAMETER_POINTER;
+  }
+
+  EE_hal_end_nested_primitive(flag);
   EE_ORTI_set_service_out(EE_SERVICETRACE_GETTASKSTATE);
+
   return   retVal;
 }
-#else /* __OO_EXTENDED_STATUS__ */
-void EE_oo_GetTaskState(TaskType TaskID, TaskStateRefType State)
-{
-  EE_ORTI_set_service_in(EE_SERVICETRACE_GETTASKSTATE);
-
-  (void)EE_oo_GetTaskState_Impl(TaskID, State);
-
-  EE_ORTI_set_service_out(EE_SERVICETRACE_GETTASKSTATE);
-}
-#endif /* __OO_EXTENDED_STATUS__ */
 #endif /* __PRIVATE_GETTASKSTATE__ */
 

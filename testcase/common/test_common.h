@@ -38,13 +38,13 @@
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
 
+typedef void (*SoftIRQHandler) (void);
+
 /* Setup an IRQ source */
-void test_setup_irq(void);
+void test_setup_irq(unsigned int irq, SoftIRQHandler handler,
+		unsigned int priority);
 
 /* Fire an IRQ.  When this function returns, an IRQ is guaranteed to have fired
  * once. */
-void test_fire_irq(void);
+void test_fire_irq(unsigned int irq);
 
-/* Callback function, defined in the test code.  It must be called by the
- * ISR. */
-void isr_callback(void);

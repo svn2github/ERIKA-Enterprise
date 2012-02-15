@@ -63,6 +63,7 @@ EE_SRCS += pkg/kernel/oo/src/ee_activate.c
 EE_SRCS += pkg/kernel/oo/src/ee_schedule.c
 EE_SRCS += pkg/kernel/oo/src/ee_force_schedule.c
 EE_SRCS += pkg/kernel/oo/src/ee_gettaskstate.c
+EE_SRCS += pkg/kernel/oo/src/ee_gettaskid.c
 EE_SRCS += pkg/kernel/oo/src/ee_terminat.c
 EE_SRCS += pkg/kernel/oo/src/ee_thendin.c
 EE_SRCS += pkg/kernel/oo/src/ee_irqendin.c
@@ -85,7 +86,7 @@ endif
 ifneq ($(call iseeopt, __OO_NO_RESOURCES__), yes)
 EE_SRCS += pkg/kernel/oo/src/ee_lockres.c
 EE_SRCS += pkg/kernel/oo/src/ee_ulockres.c
-EE_SRCS += pkg/kernel/oo/src/ee_tulockallres.c
+EE_SRCS += pkg/kernel/oo/src/ee_ulockallres.c
 endif
 
 
@@ -105,17 +106,6 @@ EE_SRCS += pkg/kernel/oo/src/ee_evclear.c
 EE_SRCS += pkg/kernel/oo/src/ee_evget.c
 EE_SRCS += pkg/kernel/oo/src/ee_evset.c
 EE_SRCS += pkg/kernel/oo/src/ee_evwait.c 
-endif
-
-ifeq ($(call iseeopt, __BIN_DISTR), yes)
-EE_SRCS += pkg/kernel/oo/src/ee_disableallinterrupts.c
-EE_SRCS += pkg/kernel/oo/src/ee_enableallinterrupts.c
-EE_SRCS += pkg/kernel/oo/src/ee_suspendallinterrupts.c
-EE_SRCS += pkg/kernel/oo/src/ee_resumeallinterrupts.c
-EE_SRCS += pkg/kernel/oo/src/ee_suspendosinterrupts.c
-EE_SRCS += pkg/kernel/oo/src/ee_resumeosinterrupts.c
-EE_SRCS += pkg/kernel/oo/src/ee_getactiveapplicationmode.c
-EE_SRCS += pkg/kernel/oo/src/ee_gettaskid.c
 endif
 
 ifeq ($(call iseeopt, __OO_SEM__), yes)

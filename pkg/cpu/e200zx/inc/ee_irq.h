@@ -50,6 +50,12 @@
 #include <ee_internal.h>
 #include "cpu/e200zx/inc/ee_irq_internal.h"
 
+#if (!defined(__OO_BCC1__)) && (!defined(__OO_BCC2__)) && \
+		(!defined(__OO_ECC1__)) && (!defined(__OO_ECC2__))
+/* no OO no IRQ clean-up */
+#define EE_std_end_IRQ_post_stub()  ((void)0)
+#endif /* !__OO_BCC1__ && !__OO_BCC2__ && !__OO_ECC1__ !__OO_ECC2__*/
+
 extern EE_e200z7_ISR_handler EE_e200z7_ISR_table[];
 
 /*
@@ -73,10 +79,6 @@ void f(void)								\
 }									\
 void EE_PREPROC_JOIN(ISR1_,f)(void)
 
-/*
- * NOTE: The ISR2 stubs are independent from the architecture, we should
- * move them to common/
- */
 __INLINE__ void EE_ISR2_prestub(void)
 {
 	EE_increment_IRQ_nesting_level();
@@ -84,6 +86,14 @@ __INLINE__ void EE_ISR2_prestub(void)
 
 __INLINE__ void EE_ISR2_poststub(void)
 {
+	/* ISR2 instance clean-up as requested by AS */
+	EE_std_end_IRQ_post_stub();
+	/*	Pop priority for external interrupts (the only that can be ISR2)
+			Look at reference manual:
+			9.4.3.1.2 End-of-Interrupt Exception Handler NOTE
+	*/
+	EE_e200zx_mbar();
+	INTC_EOIR.R = 0U;
 	EE_decrement_IRQ_nesting_level();
 	if (!EE_is_inside_ISR_call()) {
 		EE_std_after_IRQ_schedule();

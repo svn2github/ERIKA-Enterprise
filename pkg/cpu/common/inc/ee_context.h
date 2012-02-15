@@ -48,7 +48,6 @@
 #ifndef __INCLUDE_CPU_COMMON_EE_CONTEXT__
 #define __INCLUDE_CPU_COMMON_EE_CONTEXT__
 
-
 /*
  * Instructions
  *
@@ -152,15 +151,39 @@ __INLINE__ void __ALWAYS_INLINE__ EE_std_change_context(EE_TID tid)
 
 #ifdef __MULTI__
 
-/* TID_IS_STACKED_MARK must set the most significative bit */
-#define EE_std_mark_tid_stacked(tid) ((EE_UTID)(tid) | (EE_UTID)TID_IS_STACKED_MARK)
+/*  TID_IS_STACKED_MARK must set the most significative bit
+
+    #1
+    FIXME:
+    This works only with two's complements architecture. Casting beetween
+    signed/unsigned integer in C is defined by value not by representation and
+    only two's complements grant the the equivalence between the two.
+
+    Standard Section 4.7/2 [conv.integral]:
+
+    If the destination type is unsigned, the resulting value is the least
+    unsigned integer congruent to the source integer (modulo 2^n where n is
+    the number of bits used to represent the unsigned type).
+
+    Note: In a two’s complement representation, this conversion is conceptual
+    and there is no change in the bit pattern (if there is no truncation).
+ */
+#define EE_std_mark_tid_stacked(tid) \
+  ((EE_UTID)(tid) | (EE_UTID)TID_IS_STACKED_MARK)
 
 __INLINE__ int __ALWAYS_INLINE__ EE_std_need_context_change(EE_TID tid)
 {
-    /* FIXME: "tid+1" can be used as an index for arrays even when marked if
-     * EE_TID is defined as an int.  Otherwise, the mark will cause a memory
-     * access violation!  */
-    return ((tid >= 0) || (EE_hal_active_tos != EE_std_thread_tos[tid+1]));
+    EE_UTID utid;
+    int need_context_change = 1;
+    if (tid < 0) {
+      /* Unmark the tid to access the EE_std_thread_tos, otherwise undefined
+         behaviour. (Index out of arrays boundaries)
+         FIXME: #1
+      */
+      utid = (EE_UTID)tid & (~(EE_UTID)TID_IS_STACKED_MARK);
+      need_context_change = (EE_hal_active_tos != EE_std_thread_tos[utid + 1U]);
+    }
+    return need_context_change;
 }
 
 __INLINE__ void __ALWAYS_INLINE__ EE_hal_stkchange(EE_TID tid)

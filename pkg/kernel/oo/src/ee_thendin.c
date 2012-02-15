@@ -80,6 +80,9 @@ void EE_thread_end_instance(void)
 
   EE_oo_call_PostTaskHook();
 
+  /* reset ISRs counters */
+  EE_oo_IRQ_disable_count = 0U;
+
   /* increase the remaining activations...*/
   EE_th_rnact[current]++;
 

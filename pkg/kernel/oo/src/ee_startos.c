@@ -173,12 +173,12 @@ static void EE_oo_start_os(void)
 #endif /* __OO_STARTOS_AS__ */
 
 StatusType EE_oo_StartOS(AppModeType Mode)
-{ 
+{
+  /* Static flag to check if StartOS has been called already */
+  static EE_BIT EE_oo_start_os_flag;
+
   register EE_TID rq;
   register EE_FREG flag;
-
-  /* Static flag to check if StartOS has been already called */
-  static volatile EE_BIT EE_oo_start_os_flag;
 
   EE_ORTI_set_service_in(EE_SERVICETRACE_STARTOS);
 

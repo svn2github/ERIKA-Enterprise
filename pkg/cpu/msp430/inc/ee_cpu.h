@@ -158,6 +158,12 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_disableIRQ(void)
     EE_msp430_disableIRQ();
 }
 
+/* This architecture doesn't support new HAL APIs for interrupt handling
+   look at pic30, e200zx, cortex_mx or hs12xs ee_cpu.h to look new APIs
+   signature and semantic.
+ */
+#define EE_OLD_HAL
+
 #include "cpu/msp430/inc/ee_utils.h"
 #include "cpu/msp430/inc/ee_context.h"
 #include "cpu/msp430/inc/ee_irqstub.h"

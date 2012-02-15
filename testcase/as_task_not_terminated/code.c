@@ -47,17 +47,20 @@
 
 /* assertion data */
 #ifdef __OO_EXTENDED_STATUS__
-EE_TYPEASSERTVALUE EE_assertions[11];
+EE_TYPEASSERTVALUE EE_assertions[13];
 #else
-EE_TYPEASSERTVALUE EE_assertions[9];
+EE_TYPEASSERTVALUE EE_assertions[11];
 #endif /* __OO_EXTENDED_STATUS__ */
 
-volatile EE_TYPEPRIO    oldCeiling;
-volatile StatusType     errorId;
-volatile unsigned char  postTaskFlag;
-volatile unsigned char  irqCounter;
-volatile unsigned char  prevIrqDisi;
-TaskType                taskId;
+EE_TYPEPRIO    oldCeiling;
+
+StatusType     errorId;
+unsigned int   errorIdCounter;
+
+unsigned char  postTaskFlag;
+unsigned char  irqCounter;
+unsigned char  prevIrqDisi;
+TaskType       taskId;
 
 DeclareTask(Task1);
 DeclareTask(Task2);
@@ -77,9 +80,10 @@ TASK(Task1)
   /* I disable all interrupt and I check that the kernel re-enable them */
   DisableAllInterrupts();
   /* This should not call the isr_callback because interrupts are disabled */
-  test_fire_irq();
+  test_fire_irq(0U);
   prevIrqDisi = (irqCounter == 1);
   prevIrqDisi &= !EE_e200z7_isIRQEnabled();
+  prevIrqDisi &= EE_oo_IRQ_disable_count;
 
   /* I explicitally don't call TerminateTask. I'm testing that kernel is doing
      correct clean-up in this case */
@@ -96,6 +100,7 @@ void ErrorHook(StatusType Error)
   /* I cache error ID here to check that Error hook is called and that the
      right error is set*/
   errorId = Error;
+  ++errorIdCounter;
 }
 
 void PostTaskHook(void)
@@ -103,7 +108,7 @@ void PostTaskHook(void)
   postTaskFlag = TRUE;
 }
 
-void isr_callback(void)
+static void isr_callback(void)
 {
   ++irqCounter;
 }
@@ -115,8 +120,8 @@ int main(int argc, char **argv)
 
   /* Setup and queue an interrupt request; StartOS() should enable IRQs, so
      the request is served */
-  test_setup_irq();
-  test_fire_irq();
+  test_setup_irq(0U, isr_callback, 1U);
+  test_fire_irq(0U);
 
   StartOS(OSDEFAULTAPPMODE);
 
@@ -125,29 +130,34 @@ int main(int argc, char **argv)
   EE_assert(2, (irqCounter == 1), 1);
 
   ActivateTask(Task1);
-  /* I test that error hook has been called with rhe right error */
+  /* I test that error hook has been called with the right errors */
   EE_assert(3, (errorId == E_OS_MISSINGEND), 2);
+  EE_assert(4, (errorIdCounter == 1U), 3);
+
+  /* I test that all interrupt counters/flags are reset */
+  EE_assert(5, (EE_oo_IRQ_disable_count == 0U), 4);
+
   /* I test that PostTaskHook has been called */
-  EE_assert(4, (postTaskFlag == TRUE), 3);
+  EE_assert(6, (postTaskFlag == TRUE), 5);
   /* I test that the ceilig is reset at start value */
-  EE_assert(5, (EE_sys_ceiling == oldCeiling), 4);
+  EE_assert(7, (EE_sys_ceiling == oldCeiling), 6);
 
   /* Test that previously were disabled */
-  EE_assert(6, (prevIrqDisi == 1), 5);
+  EE_assert(8, (prevIrqDisi == 1), 7);
 
   /* I test that the IRQ are enabled */
   /* FIXME: In Erika HAL doesn't exit a method to check IRQ status! */
-  EE_assert(7, (irqCounter == 2), 6);
-  EE_assert(8, EE_e200z7_isIRQEnabled(), 7);
+  EE_assert(9, (irqCounter == 2), 8);
+  EE_assert(10, EE_e200z7_isIRQEnabled(), 9);
 
 
 #ifdef __OO_EXTENDED_STATUS__
-  EE_assert(9, (taskId != INVALID_TASK), 8);
+  EE_assert(11, (taskId != INVALID_TASK), 10);
   /* I Test that hold resource stack for the task is empty */
-  EE_assert(10, (EE_th_resource_last[taskId] == EE_UREG_MINUS1), 9);
-  EE_assert_range(0, 1, 10); 
+  EE_assert(12, (EE_th_resource_last[taskId] == EE_UREG_MINUS1), 11);
+  EE_assert_range(0, 1, 12); 
 #else
-  EE_assert_range(0, 1, 8);
+  EE_assert_range(0, 1, 10);
 #endif /* __OO_EXTENDED_STATUS__ */
 
   EE_assert_last();

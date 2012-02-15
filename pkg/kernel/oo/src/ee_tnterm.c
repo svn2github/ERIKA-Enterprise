@@ -69,17 +69,20 @@ void EE_thread_not_terminated(void)
        e.g. E_OS_RESOURCE) with status E_OS_MISSINGEND before the task leaves
       the RUNNING state.
   */
+  EE_ORTI_set_lasterror(E_OS_MISSINGEND);
   EE_oo_notify_error_service(OSServiceId_TaskBody, E_OS_MISSINGEND);
 
   /* OS070: If a task returns from the entry function without making a 
       TerminateTask() or ChainTask() call and still holds OSEK Resources, 
       the Operating System shall release them. 
   */
-  EE_thread_release_all_resources(current);
+  EE_oo_release_all_resources(current);
 
-  /* OS052: termite task + call PostTaskHook (In EE_thread_end_instance)
-     OS239: enable Interrupts is done by EE_std_run_task_code 
-      (cpu/common ee_context.c) */
+  /* OS052, OS239: terminate task + call PostTaskHook + ISRs counters reset
+     in EE_thread_end_instance. Interrupts enabling is done by
+     EE_std_run_task_code (cpu/common ee_context.c)
+  */
+
   EE_hal_terminate_task(current);
 }
 #endif /* PRIVATE_THREANTERMINATED */

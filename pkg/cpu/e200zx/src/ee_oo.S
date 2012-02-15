@@ -112,7 +112,7 @@ EE_hal_terminate_savestk:
 #endif
 	/* The following code SHOULD not be executed, but for
 	 * conservative reason is
-	 * maintained (return to callee function)
+	 * maintained (return to caller function)
 	 */
 	lwz	r0, 8(sp)
 	mtlr	r0

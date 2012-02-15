@@ -77,7 +77,54 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_end_nested_primitive(EE_FREG f)
 	EE_hal_resumeIRQ(f);
 }
 
+/* Used to get internal CPU priority. */
+__INLINE__ EE_TYPEISR2PRIO __ALWAYS_INLINE__ EE_hal_get_int_prio(void)
+{
+	return EE_e200zx_get_int_prio();
+}
 
+	/*
+		Used to set internal CPU priority.
+	*/
+__INLINE__ void __ALWAYS_INLINE__ EE_hal_set_int_prio(EE_TYPEISR2PRIO prio)
+{
+	EE_TYPEISR2PRIO prev_prio = EE_e200zx_get_int_prio();
+	/* I check for equality because changing INTC_CPR require alot of
+		 synchronization */
+	if(prev_prio != prio) {
+		EE_e200zx_set_int_prio(prio);
+	}
+}
+
+	/*
+		Used to change internal CPU priority and return a status flag mask.
+		N.B
+		EE_FREG param flag and return value needed only for according to HAL
+		interface.
+	*/
+__INLINE__ EE_FREG __ALWAYS_INLINE__ EE_hal_change_int_prio(
+		EE_TYPEISR2PRIO prio, EE_FREG flag)
+{
+	EE_hal_set_int_prio(prio);
+	return flag;
+}
+
+	/*
+		Used to raise internal CPU interrupt priority if param new_prio is greater
+		than actual priority.
+		N.B
+		EE_FREG param flag and return value needed only for according to HAL
+		interface.
+	*/
+__INLINE__ EE_FREG __ALWAYS_INLINE__
+		EE_hal_raise_int_prio_if_less(EE_TYPEISR2PRIO new_prio, EE_FREG flag)
+{
+	EE_TYPEISR2PRIO prev_prio = EE_e200zx_get_int_prio();
+	if(prev_prio < new_prio) {
+		EE_e200zx_set_int_prio(new_prio);
+	}
+	return flag;
+}
 
 /*
  * Context Handling

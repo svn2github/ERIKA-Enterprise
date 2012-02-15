@@ -74,8 +74,15 @@ void EE_e200z7_irq(EE_SREG level)
 		EE_ORTI_set_runningisr2(ortiold);
 	}
 
+	/* ISR2 instance clean-up as requested by AS */
+	EE_std_end_IRQ_post_stub();
+
 	/* Pop priority for external interrupts */
 	if (level >= EE_E200ZX_MAX_CPU_EXCP) {
+		/* Look at reference manual:
+			 9.4.3.1.2 End-of-Interrupt Exception Handler NOTE
+		*/
+		EE_e200zx_mbar();
 		INTC_EOIR.R = 0U;
 	}
 	EE_decrement_IRQ_nesting_level();

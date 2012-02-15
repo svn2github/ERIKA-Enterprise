@@ -51,16 +51,10 @@
 */
 
 #ifndef __PRIVATE_GETALARMBASE__
-#ifdef __OO_EXTENDED_STATUS__
 StatusType EE_oo_GetAlarmBase(AlarmType AlarmID, AlarmBaseRefType Info)
-#else /* __OO_EXTENDED_STATUS__ */
-void EE_oo_GetAlarmBase(AlarmType AlarmID, AlarmBaseRefType Info)
-#endif /* __OO_EXTENDED_STATUS__ */
 {
-#ifdef __OO_EXTENDED_STATUS__
-  register StatusType retVal;
   register EE_FREG flag;
-#endif
+  register StatusType retVal;
   register const EE_oo_counter_ROM_type *c;
 
   EE_ORTI_set_service_in(EE_SERVICETRACE_GETALARMBASE);
@@ -90,14 +84,14 @@ void EE_oo_GetAlarmBase(AlarmType AlarmID, AlarmBaseRefType Info)
     Info->ticksperbase = c->ticksperbase;
 #ifdef __OO_EXTENDED_STATUS__
     Info->mincycle = c->mincycle;
-    retVal = E_OK;
 #endif
-  }
-#ifdef __OO_EXTENDED_STATUS__
-  else {
+    retVal = E_OK;
+  } else {
     /* OS566: The Operating System API shall check in extended mode all pointer
         argument for NULL pointer and return OS_E_PARAMETER_POINTER 
         if such argument is NULL.
+      +
+      MISRA dictate NULL check for pointers always.
     */
     EE_ORTI_set_lasterror(E_OS_PARAMETER_POINTER);
 
@@ -107,12 +101,9 @@ void EE_oo_GetAlarmBase(AlarmType AlarmID, AlarmBaseRefType Info)
     EE_hal_end_nested_primitive(flag);
     retVal = E_OS_PARAMETER_POINTER;
   }
-#endif
 
   EE_ORTI_set_service_out(EE_SERVICETRACE_GETALARMBASE);
 
-#ifdef __OO_EXTENDED_STATUS__
   return retVal;
-#endif
 }
 #endif /* !__PRIVATE_GETALARMBASE__ */

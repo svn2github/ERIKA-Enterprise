@@ -70,6 +70,7 @@ void EE_oo_ReleaseResource(ResourceType ResID)
   register EE_UREG isGlobal;
 #endif
   register EE_FREG flag;
+  register EE_UREG inside_task;
 
   EE_ORTI_set_service_in(EE_SERVICETRACE_RELEASERESOURCE);
 
@@ -93,27 +94,39 @@ void EE_oo_ReleaseResource(ResourceType ResID)
   }
 #endif /* __OO_EXTENDED_STATUS__ */
 
+  /* I begin the primitive */
+  flag = EE_hal_begin_nested_primitive();
+
   current = EE_stk_queryfirst();
+  inside_task = (EE_hal_get_IRQ_nesting_level() == 0U);
 
 #ifdef __OO_EXTENDED_STATUS__
-  if (EE_th_ready_prio[current] > EE_resource_ceiling[ResID]) {
-    EE_ORTI_set_lasterror(E_OS_ACCESS);
+  /* If I'm really in a Task */
+  if(inside_task != 0U) {
+    if ((current == EE_NIL) ||
+        (EE_th_ready_prio[current] > EE_resource_ceiling[ResID])) {
+      EE_ORTI_set_lasterror(E_OS_ACCESS);
 
-    flag = EE_hal_begin_nested_primitive();
-    EE_oo_notify_error_ReleaseResource(ResID, E_OS_ACCESS);
-    EE_hal_end_nested_primitive(flag);
+      EE_oo_notify_error_ReleaseResource(ResID, E_OS_ACCESS);
+      EE_hal_end_nested_primitive(flag);
 
-    EE_ORTI_set_service_out(EE_SERVICETRACE_RELEASERESOURCE);
+      EE_ORTI_set_service_out(EE_SERVICETRACE_RELEASERESOURCE);
 
-    return E_OS_ACCESS;
+      return E_OS_ACCESS;
+    }
   }
 #endif /* __OO_EXTENDED_STATUS__ */
 
-  flag = EE_hal_begin_nested_primitive();
+#ifdef __OO_ISR2_RESOURCES__
+  /* If actually we are inside an ISR2 get the fake TID to access stack */
+  if(inside_task == 0U) {
+    current  = EE_oo_get_ISR2_TID();
+  }
+#endif /* __OO_ISR2_RESOURCES__ */
 
 #ifdef __OO_EXTENDED_STATUS__
-  if ((EE_resource_locked[ResID] == 0U) ||
-      (EE_th_resource_last[current] != ResID)) {
+  if ((current == EE_NIL) || ((EE_resource_locked[ResID] == 0U) ||
+      (EE_th_resource_last[current] != ResID))) {
     EE_ORTI_set_lasterror(E_OS_NOFUNC);
 
     EE_oo_notify_error_ReleaseResource(ResID, E_OS_NOFUNC);
@@ -123,11 +136,18 @@ void EE_oo_ReleaseResource(ResourceType ResID)
 
     return E_OS_NOFUNC;
   }
+#endif /* __OO_EXTENDED_STATUS__ */
 
+#ifdef __OO_ISR2_RESOURCES__
+  /* Restore old ISR2 priority */
+  flag = EE_hal_change_int_prio(EE_isr2_oldpriority[ResID], flag);
+#endif /* __OO_ISR2_RESOURCES__ */
+
+#if defined(__OO_EXTENDED_STATUS__) || defined(__OO_ISR2_RESOURCES__)
   /* remove the last entry from the data structure */
   EE_th_resource_last[current] = 
     EE_resource_stack[EE_th_resource_last[current]];
-#endif /* __OO_EXTENDED_STATUS__ */
+#endif /* __OO_EXTENDED_STATUS__ || __OO_ISR2_RESOURCES__ */
 
 #if defined(__OO_EXTENDED_STATUS__) || defined(__OO_ORTI_RES_ISLOCKED__)
   /* ok, we have to free that resource! */
@@ -153,8 +173,12 @@ void EE_oo_ReleaseResource(ResourceType ResID)
   EE_ORTI_th_priority[current] = EE_ORTI_resource_oldpriority[ResID];
 #endif
 
-  /* check if there is a preemption */
-  EE_oo_preemption_point();
+  /* Check if there is a preemption
+     this test has to be done only if we are inside a task */
+  if(inside_task) {
+    /* we are inside a task */
+    EE_oo_preemption_point();
+  }
 
   EE_hal_end_nested_primitive(flag); 
   EE_ORTI_set_service_out(EE_SERVICETRACE_RELEASERESOURCE);

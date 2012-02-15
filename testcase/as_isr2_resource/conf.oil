@@ -1,7 +1,7 @@
 /* ###*B*###
  * ERIKA Enterprise - a tiny RTOS for small microcontrollers
  *
- * Copyright (C) 2002-2008  Evidence Srl
+ * Copyright (C) 2002-2011  Evidence Srl
  *
  * This file is part of ERIKA Enterprise.
  *
@@ -38,29 +38,79 @@
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
 
-/*
- * Author: 2004 Paolo Gai
- * CVS: $Id: ee_resumeosinterrupts.c,v 1.1 2005/07/16 12:23:42 pj Exp $
- */
 
-/* This file is ONLY compiled when makking a BINARY DISTRIBUTION */
+CPU test_application {
 
-#include "ee_internal.h"
+  OS EE {
+    EE_OPT = "__ASSERT__";
+    EE_OPT = "DEBUG";
 
-/***************************************************************************
- * 13.3 Interrupt handling 
- ***************************************************************************/
+    STATUS = STANDARD;
 
-/* 13.3.2.5: BCC1, BCC2, ECC1, ECC2 */
-#ifndef __PRIVATE_RESUMEOSINTERRUPTS__
-void EE_oo_ResumeOSInterrupts(void)
-{
-  EE_ORTI_set_service_in(EE_SERVICETRACE_RESUMEOSINTERRUPTS);
+    STARTUPHOOK = FALSE;
+    ERRORHOOK = TRUE;
+    SHUTDOWNHOOK = FALSE;
+    PRETASKHOOK = FALSE;
+    POSTTASKHOOK = FALSE;
 
-  EE_oo_IRQ_disable_count--;
-  if (!EE_oo_IRQ_disable_count)
-    EE_hal_enableIRQ();
+    USEGETSERVICEID = FALSE;
+    USEPARAMETERACCESS = FALSE;
+    USERESSCHEDULER = FALSE;
 
-  EE_ORTI_set_service_out(EE_SERVICETRACE_RESUMEOSINTERRUPTS);
-}
-#endif /* __PRIVATE_RESUMEOSINTERRUPTS__ */
+    EE_OPT = "__E200ZX_EXECUTE_FROM_RAM__";
+    //EE_OPT = "__CODEWARRIOR__";
+    //EE_OPT = "EEOPT_DIAB_5_8";
+
+    MCU_DATA = PPCE200ZX {
+      MODEL = MPC5674F;
+    };
+
+    CPU_DATA = PPCE200ZX {
+      MODEL = E200Z7;
+      APP_SRC = "code.c";
+      APP_SRC = "testcase/common/e200zx/test_irq.c";
+      VLE = FALSE;
+      SYS_STACK_SIZE=2048;
+
+      MULTI_STACK = TRUE {
+        IRQ_STACK = FALSE;
+      };
+    };
+
+    KERNEL_TYPE = ECC1;
+  };
+
+  TASK Task1 {
+    PRIORITY = 1;
+    ACTIVATION = 1;
+    SCHEDULE = FULL;
+    AUTOSTART = FALSE;
+    STACK = SHARED;
+    RESOURCE = "Resource1";
+    RESOURCE = "ResourceA";
+    RESOURCE = "ResourceB";
+  };
+
+  ISR IsrLow {
+    CATEGORY = 2;
+    PRIORITY = 1;
+    RESOURCE = "ResourceA";
+    RESOURCE = "ResourceB";
+  };
+
+  ISR IsrMedium {
+    CATEGORY = 2;
+    PRIORITY = 2;
+  }
+
+  ISR IsrHigh {
+    CATEGORY = 2;
+    PRIORITY = 3;
+    RESOURCE = "ResourceB";
+  };
+
+  RESOURCE Resource1 { RESOURCEPROPERTY = STANDARD; };
+  RESOURCE ResourceA { RESOURCEPROPERTY = STANDARD; };
+  RESOURCE ResourceB { RESOURCEPROPERTY = STANDARD; };
+};
+

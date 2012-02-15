@@ -46,12 +46,20 @@
 #include "ee_internal.h"
 
 /* used for nested interrupt enabling/disabling */
-EE_UREG EE_oo_IRQ_disable_count = 0U;
+EE_UREG EE_oo_IRQ_disable_count;
+
+/***************************************************************************
+ * The simbol EE_OLD_HAL marks architecture that do not implement new
+ * HAL APIs (MUST be defined in the header ee_cpu.h of these architectures)
+ ***************************************************************************/
+#ifndef EE_OLD_HAL
+EE_FREG EE_oo_IRQ_suspend_status;
+#endif
 
 #ifdef __OO_HAS_ERRORHOOK__
 #ifndef __OO_ERRORHOOK_NOMACROS__
 OSServiceIdType EE_oo_ErrorHook_ServiceID;
-struct EE_oo_ErrorHook_parameters EE_oo_ErrorHook_data;
+union EE_oo_ErrorHook_parameters EE_oo_ErrorHook_data;
 #endif
 EE_TYPEBOOL EE_ErrorHook_nested_flag = 0U;
 #endif

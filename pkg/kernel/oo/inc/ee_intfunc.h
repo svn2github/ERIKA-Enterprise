@@ -48,9 +48,16 @@
 
 /* This file contains internal functions and data structures needed to
    inline some kernel functions. */
-
-
 extern EE_UREG EE_oo_IRQ_disable_count;
+
+/***************************************************************************
+ * The simbol EE_OLD_HAL marks architecture that do not implement new
+ * HAL APIs (MUST be defined in the header ee_cpu.h of these architectures)
+ ***************************************************************************/
+#ifndef EE_OLD_HAL
+extern EE_FREG EE_oo_IRQ_suspend_status;
+#endif
+
 extern EE_TYPEAPPMODE EE_ApplicationMode;
 
 /* return the first stacked task (the running task) without extracting it 
@@ -95,6 +102,13 @@ __INLINE__ void __ALWAYS_INLINE__ EE_oo_fill_error_data_ChainTask(TaskType
 #else /* __OO_NO_CHAINTASK__ */
 #define EE_oo_fill_error_data_ChainTask(TaskID)         ((void)0)
 #endif /* __OO_NO_CHAINTASK__ */
+
+__INLINE__ void __ALWAYS_INLINE__ EE_oo_fill_error_data_GetTaskID(TaskRefType
+    TaskID)
+{
+    EE_oo_ErrorHook_ServiceID = OSServiceId_GetTaskID;
+    EE_oo_ErrorHook_data.GetTaskID_prm.TaskID = TaskID;
+}
 
 __INLINE__ void __ALWAYS_INLINE__ EE_oo_fill_error_data_GetTaskState(TaskType
     TaskID, TaskStateRefType State)
@@ -297,6 +311,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_oo_fill_error_data_PostSem(SemRefType Sem)
 #define EE_oo_set_error_serviceid(ServiceID)                        ((void)0)
 #define EE_oo_fill_error_data_ActivateTask(TaskID)                  ((void)0)
 #define EE_oo_fill_error_data_ChainTask(TaskID)                     ((void)0)
+#define EE_oo_fill_error_data_GetTaskID(TaskID)                     ((void)0)
 #define EE_oo_fill_error_data_GetTaskState(TaskID, State)           ((void)0)
 #define EE_oo_fill_error_data_GetResource(ResID)                    ((void)0)
 #define EE_oo_fill_error_data_ReleaseResource(ResID)                ((void)0)
@@ -360,6 +375,17 @@ __INLINE__ void __ALWAYS_INLINE__ EE_oo_notify_error_ChainTask(TaskType TaskID,
 #else /* __OO_NO_CHAINTASK__ */
 #define EE_oo_notify_error_ChainTask(TaskID, Error)   ((void)0);
 #endif /* __OO_NO_CHAINTASK__ */
+
+__INLINE__ void __ALWAYS_INLINE__ EE_oo_notify_error_GetTaskID(TaskRefType
+    TaskID, StatusType Error)
+{
+    if (EE_ErrorHook_nested_flag == 0U) {
+        EE_oo_fill_error_data_GetTaskID(TaskID);
+        EE_ErrorHook_nested_flag = 1U;
+        ErrorHook(Error);
+        EE_ErrorHook_nested_flag = 0U;
+    }
+}
 
 __INLINE__ void __ALWAYS_INLINE__ EE_oo_notify_error_GetTaskState(TaskType
     TaskID, TaskStateRefType State, StatusType Error)
@@ -624,6 +650,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_oo_notify_error_PostSem(SemRefType Sem,
 #define EE_oo_notify_error_ActivateTask(TaskID, Error)          ((void)0)
 #define EE_oo_notify_error_ChainTask(TaskID, Error)             ((void)0)
 #define EE_oo_notify_error_TerminateTask                        ((void)0)
+#define EE_oo_notify_error_GetTaskID(TaskID, Error)             ((void)0)
 #define EE_oo_notify_error_GetTaskState(TaskID, State, Error)   ((void)0)
 #define EE_oo_notify_error_GetResource(ResID, Error)            ((void)0)
 #define EE_oo_notify_error_ReleaseResource(ResID, Error)        ((void)0)

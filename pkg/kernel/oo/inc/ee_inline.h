@@ -59,29 +59,145 @@
  * 13.2 Task management 
  ***************************************************************************/
 
-/* 13.2.3.5: BCC1, BCC2, ECC1, ECC2 */
-#ifndef __PRIVATE_GETTASKID__
-/*
-#if 0 && defined __OO_EXTENDED_STATUS__  Disabled! 
-StatusType EE_oo_GetTaskID(TaskRefType TaskID);
-#else
-*/
-__INLINE__ void __ALWAYS_INLINE__ EE_oo_GetTaskID(TaskRefType TaskID)
-{
-  EE_ORTI_set_service_in(EE_SERVICETRACE_GETTASKID);
-
-  if (TaskID != (TaskRefType)NULL) {
-    *TaskID = EE_stk_queryfirst();
-  }
-
-  EE_ORTI_set_service_out(EE_SERVICETRACE_GETTASKID);
-}
-/*#endif*/ /* __OO_EXTENDED_STATUS__ */
-#endif
-
 /***************************************************************************
  * 13.3 Interrupt handling 
  ***************************************************************************/
+
+/***************************************************************************
+ * The simbol EE_OLD_HAL marks architecture that doesn't not implement new
+ * HAL APIs (MUST be defined in the header ee_cpu.h of these architectures)
+ ***************************************************************************/
+#ifndef EE_OLD_HAL
+/* 13.3.2.1: BCC1, BCC2, ECC1, ECC2 */
+#if (! defined(__PRIVATE_ENABLEALLINTERRUPTS__)) \
+ && (! defined(__EE_MEMORY_PROTECTION__))
+__INLINE__ void __ALWAYS_INLINE__ EE_oo_EnableAllInterrupts(void)
+{
+  register volatile EE_FREG temp_suspend;
+  EE_ORTI_set_service_in(EE_SERVICETRACE_ENABLEALLINTERRUPTS);
+  /* I begin with the suspend for atomicity. */
+  temp_suspend = EE_hal_suspendIRQ();
+  /* OS299: If EnableAllInterrupts()/ResumeAllInterrupts()/   ResumeOSInterrupts()
+      are called and no corresponding DisableAllInterupts()/
+      SuspendAllInterrupts() / SuspendOSInterrupts() was done before,
+      the Operating System shall not perform this OS service. */
+  if(EE_oo_IRQ_disable_count > 0U) {
+    --EE_oo_IRQ_disable_count;
+    if(EE_oo_IRQ_disable_count == 0U) {
+      EE_hal_enableIRQ();
+    }
+  } else {
+    /* Revert What I did */
+    EE_hal_resumeIRQ(temp_suspend);
+  }
+  EE_ORTI_set_service_out(EE_SERVICETRACE_ENABLEALLINTERRUPTS);
+}
+#endif
+
+/* 13.3.2.2: BCC1, BCC2, ECC1, ECC2 */
+#if (! defined(__PRIVATE_DISABLEALLINTERRUPTS__)) \
+ && (! defined(__EE_MEMORY_PROTECTION__))
+__INLINE__ void __ALWAYS_INLINE__ EE_oo_DisableAllInterrupts(void)
+{
+  EE_ORTI_set_service_in(EE_SERVICETRACE_DISABLEALLINTERRUPTS);
+  /* I begin with the disable for atomicity. */
+  EE_hal_disableIRQ();
+  ++EE_oo_IRQ_disable_count;
+  EE_ORTI_set_service_out(EE_SERVICETRACE_DISABLEALLINTERRUPTS);
+}
+#endif /* ! __PRIVATE_DISABLEALLINTERRUPTS__ && ! __EE_MEMORY_PROTECTION__ */
+
+/* 13.3.2.3: BCC1, BCC2, ECC1, ECC2 */
+#if (! defined(__PRIVATE_RESUMEALLINTERRUPTS__)) \
+ && (! defined(__EE_MEMORY_PROTECTION__))
+__INLINE__ void __ALWAYS_INLINE__ EE_oo_ResumeAllInterrupts(void)
+{
+  register volatile EE_FREG temp_suspend;
+  EE_ORTI_set_service_in(EE_SERVICETRACE_RESUMEALLINTERRUPTS);
+  /* I begin with the suspend for atomicity. */
+  temp_suspend = EE_hal_suspendIRQ();
+  /* OS299: If EnableAllInterrupts()/ResumeAllInterrupts()/ResumeOSInterrupts()
+      are called and no corresponding DisableAllInterupts()/
+      SuspendAllInterrupts() / SuspendOSInterrupts() was done before,
+      the Operating System shall not perform this OS service. */
+  if (EE_oo_IRQ_disable_count > 0U) {
+    --EE_oo_IRQ_disable_count;
+    if(EE_oo_IRQ_disable_count == 0U) {
+      EE_hal_resumeIRQ(EE_oo_IRQ_suspend_status);
+    }
+  } else {
+    /* Revert What I did */
+    EE_hal_resumeIRQ(temp_suspend);
+  }
+
+  EE_ORTI_set_service_out(EE_SERVICETRACE_RESUMEALLINTERRUPTS);
+}
+#endif /* ! __PRIVATE_RESUMEALLINTERRUPTS__ && ! __EE_MEMORY_PROTECTION__ */
+
+/* 13.3.2.4: BCC1, BCC2, ECC1, ECC2 */
+#if (! defined(__PRIVATE_SUSPENDALLINTERRUPTS__)) \
+ && (! defined(__EE_MEMORY_PROTECTION__))
+__INLINE__ void __ALWAYS_INLINE__ EE_oo_SuspendAllInterrupts(void)
+{
+  register volatile EE_FREG temp_suspend;
+  EE_ORTI_set_service_in(EE_SERVICETRACE_SUSPENDALLINTERRUPTS);
+  /* I begin with the suspend for atomicity. */
+  temp_suspend = EE_hal_suspendIRQ();
+  if(EE_oo_IRQ_disable_count == 0U) {
+    EE_oo_IRQ_suspend_status = temp_suspend;
+  }
+  EE_oo_IRQ_disable_count++;
+
+  EE_ORTI_set_service_out(EE_SERVICETRACE_SUSPENDALLINTERRUPTS);
+}
+#endif /* ! __PRIVATE_SUSPENDALLINTERRUPTS__ && ! __EE_MEMORY_PROTECTION__ */
+
+/* 13.3.2.5: BCC1, BCC2, ECC1, ECC2 */
+#if (! defined(__PRIVATE_RESUMEOSINTERRUPTS__)) \
+ && (! defined(__EE_MEMORY_PROTECTION__))
+__INLINE__ void __ALWAYS_INLINE__ EE_oo_ResumeOSInterrupts(void)
+{
+  register volatile EE_FREG temp_suspend;
+  EE_ORTI_set_service_in(EE_SERVICETRACE_RESUMEOSINTERRUPTS);
+  /* I begin with the suspend for atomicity. */
+  temp_suspend = EE_hal_suspendIRQ();
+  /* OS299: If EnableAllInterrupts()/ResumeAllInterrupts()/ResumeOSInterrupts()
+      are called and no corresponding DisableAllInterupts()/
+      SuspendAllInterrupts() / SuspendOSInterrupts() was done before,
+      the Operating System shall not perform this OS service. */
+  if (EE_oo_IRQ_disable_count > 0U) {
+    --EE_oo_IRQ_disable_count;
+    if(EE_oo_IRQ_disable_count == 0U) {
+      EE_hal_resumeIRQ(EE_oo_IRQ_suspend_status);
+    }
+  } else {
+    /* Revert What I did */
+    EE_hal_resumeIRQ(temp_suspend);
+  }
+
+  EE_ORTI_set_service_out(EE_SERVICETRACE_RESUMEOSINTERRUPTS);
+}
+#endif /* ! __PRIVATE_RESUMEOSINTERRUPTS__ && ! __EE_MEMORY_PROTECTION__ */
+
+/* 13.3.2.6: BCC1, BCC2, ECC1, ECC2 */
+#if (! defined(__PRIVATE_SUSPENDOSINTERRUPTS__)) \
+ && (! defined(__EE_MEMORY_PROTECTION__))
+__INLINE__ void __ALWAYS_INLINE__ EE_oo_SuspendOSInterrupts(void)
+{
+  register volatile EE_FREG temp_suspend;
+  EE_ORTI_set_service_in(EE_SERVICETRACE_SUSPENDOSINTERRUPTS);
+  /* I begin with the suspend for atomicity. */
+  temp_suspend = EE_hal_suspendIRQ();
+  if(EE_oo_IRQ_disable_count == 0U) {
+    EE_oo_IRQ_suspend_status = temp_suspend;
+  }
+  EE_oo_IRQ_disable_count++;
+
+  EE_ORTI_set_service_out(EE_SERVICETRACE_SUSPENDOSINTERRUPTS);
+}
+#endif /* ! __PRIVATE_SUSPENDOSINTERRUPTS__ && ! __EE_MEMORY_PROTECTION__ */
+
+#else /* !!! OLD INTERRUPT HANDLING PRIMITIVES !!! */
 
 /* 13.3.2.1: BCC1, BCC2, ECC1, ECC2 */
 #if (! defined(__PRIVATE_ENABLEALLINTERRUPTS__)) \
@@ -173,6 +289,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_oo_SuspendOSInterrupts(void)
 }
 #endif /* ! __PRIVATE_SUSPENDOSINTERRUPTS__ && ! __EE_MEMORY_PROTECTION__ */
 
+#endif /* EE_OLD_HAL */
 
 /***************************************************************************
  * 13.7 Operating system execution control 

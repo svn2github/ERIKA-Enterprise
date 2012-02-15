@@ -94,8 +94,8 @@ int main(int argc, char **argv)
 
   /* Setup and queue an interrupt request; StartOS() should enable IRQs, so
      the request is served */
-  test_setup_irq();
-  test_fire_irq();
+  test_setup_irq(0U, isr_callback, 1U);
+  test_fire_irq(0U);
 
   StartOS(OSDEFAULTAPPMODE);
 
@@ -110,7 +110,7 @@ int main(int argc, char **argv)
   ActivateTask(Task1);
 
   IncrementCounter(Counter1);
-  test_fire_irq();
+  test_fire_irq(0U);
 
   /* Task 2 should be called before this */
   GetElapsedValue(Counter1, &Value, &ElapsedValue);

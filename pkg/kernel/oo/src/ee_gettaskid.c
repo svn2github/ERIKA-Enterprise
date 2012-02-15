@@ -53,16 +53,30 @@
 
 /* 13.2.3.5: BCC1, BCC2, ECC1, ECC2 */
 #ifndef __PRIVATE_GETTASKID__
-//#ifdef __OO_EXTENDED_STATUS__
-//StatusType EE_oo_GetTaskID(TaskRefType TaskID);
-//#else
-void EE_oo_GetTaskID(TaskRefType TaskID)
+StatusType EE_oo_GetTaskID(TaskRefType TaskID)
 {
+  register StatusType retVal;
+  register EE_FREG flag;
   EE_ORTI_set_service_in(EE_SERVICETRACE_GETTASKID);
 
-  *TaskID = EE_stk_queryfirst();
+  if (TaskID != (TaskRefType)NULL) {
+    *TaskID = EE_stk_queryfirst();
+    retVal = E_OK;
+  } else {
+    /* OS566: The Operating System API shall check in extended mode all pointer
+       argument for NULL pointer and return OS_E_PARAMETER_POINTER
+       if such argument is NULL. 
+       + 
+       MISRA dictate NULL check for pointers always.
+    */
+    EE_ORTI_set_lasterror(E_OS_PARAMETER_POINTER);
+    flag = EE_hal_begin_nested_primitive();
+    EE_oo_notify_error_GetTaskID(TaskID, E_OS_PARAMETER_POINTER);
+    EE_hal_end_nested_primitive(flag);
 
+    retVal = E_OS_PARAMETER_POINTER;
+  }
   EE_ORTI_set_service_out(EE_SERVICETRACE_GETTASKID);
+  return retVal;
 }
-//#endif
 #endif

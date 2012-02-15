@@ -49,12 +49,28 @@
  ***************************************************************************/
 
 #ifndef __PRIVATE_GETCOUNTERVALUE__
-
-static StatusType EE_oo_GetCounterValue_Impl(CounterType CounterID,
-  TickRefType Value)
+StatusType EE_oo_GetCounterValue(CounterType CounterID, TickRefType Value)
 {
   register EE_FREG flag;
   register StatusType retVal;
+
+  EE_ORTI_set_service_in(EE_SERVICETRACE_GETCOUNTERVALUE);
+#ifdef __OO_EXTENDED_STATUS__
+  /* OS376: If the input parameter <CounterID> in a call of GetElapsedValue()
+     is not valid GetElapsedValue() shall return E_OS_ID.
+     <Only in Extended Status: look at Return value in specifiation table>
+  */
+  if ((CounterID < 0) || (CounterID >= EE_MAX_COUNTER)) {
+    EE_ORTI_set_lasterror(E_OS_ID);
+
+    flag = EE_hal_begin_nested_primitive();
+    EE_oo_notify_error_GetCounterValue(CounterID, Value, E_OS_ID);
+    EE_hal_end_nested_primitive(flag);
+
+    EE_ORTI_set_service_out(EE_SERVICETRACE_GETCOUNTERVALUE);
+    return E_OS_ID;
+  }
+#endif
 
   /* OS377: If the input parameter <CounterID> in a call of GetCounterValue()
      is valid, GetCounterValue() shall return the current tick value of the
@@ -71,6 +87,8 @@ static StatusType EE_oo_GetCounterValue_Impl(CounterType CounterID,
     /* OS566: The Operating System API shall check in extended mode all pointer
         argument for NULL pointer and return OS_E_PARAMETER_POINTER
         if such argument is NULL.
+        +
+        MISRA dictate NULL check for pointers always.
     */
     EE_ORTI_set_lasterror(E_OS_PARAMETER_POINTER);
 
@@ -81,46 +99,7 @@ static StatusType EE_oo_GetCounterValue_Impl(CounterType CounterID,
   }
 
   EE_hal_end_nested_primitive(flag);
-
-  return retVal;
-}
-
-#ifdef __OO_EXTENDED_STATUS__
-StatusType EE_oo_GetCounterValue(CounterType CounterID, TickRefType Value)
-{
-  register EE_FREG flag;
-  register StatusType retVal;
-
-  EE_ORTI_set_service_in(EE_SERVICETRACE_GETCOUNTERVALUE);
-  /* OS381: If the input parameter <CounterID> in a call of GetElapsedValue()
-     is not valid GetElapsedValue() shall return E_OS_ID.
-  */
-  if ((CounterID < 0) || (CounterID >= EE_MAX_COUNTER)) {
-    EE_ORTI_set_lasterror(E_OS_ID);
-
-    flag = EE_hal_begin_nested_primitive();
-    EE_oo_notify_error_GetCounterValue(CounterID, Value, E_OS_ID);
-    EE_hal_end_nested_primitive(flag);
-
-    EE_ORTI_set_service_out(EE_SERVICETRACE_GETCOUNTERVALUE);
-    return E_OS_ID;
-  }
-
-  retVal = EE_oo_GetCounterValue_Impl(CounterID, Value);
-
   EE_ORTI_set_service_out(EE_SERVICETRACE_GETCOUNTERVALUE);
   return retVal;
 }
-#else /* __OO_EXTENDED_STATUS__ */
-StatusType EE_oo_GetCounterValue(CounterType CounterID, TickRefType Value)
-{
-  register StatusType retVal;
-  EE_ORTI_set_service_in(EE_SERVICETRACE_GETCOUNTERVALUE);
-
-  retVal = EE_oo_GetCounterValue_Impl(CounterID, Value);
-
-  EE_ORTI_set_service_out(EE_SERVICETRACE_GETCOUNTERVALUE);
-  return retVal;
-}
-#endif /* __OO_EXTENDED_STATUS__ */
 #endif /* __PRIVATE_GETCOUNTERVALUE__ */

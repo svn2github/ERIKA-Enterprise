@@ -164,8 +164,10 @@ EE_TID EE_rq2stk_exchange(void);
     Method to release all resources locked by a Thread,
     used to fulfill AS requirement OS070
  */
-#if (!defined(__OO_EXTENDED_STATUS__)) && (!defined(__PRIVATE_RELEASEALLRESOURCE__))
-__INLINE__ void __ALWAYS_INLINE__ EE_thread_release_all_resources(EE_TID tid)
+#if ((!defined(__OO_EXTENDED_STATUS__)) && \
+    (!defined(__PRIVATE_RELEASEALLRESOURCE__))) && \
+    (!defined(__OO_ISR2_RESOURCES__))
+__INLINE__ void __ALWAYS_INLINE__ EE_oo_release_all_resources(EE_TID tid)
 {
   /* release the internal resource. a EE_TYPEPRIO is a bit mask with only one
      bit set to one.
@@ -176,10 +178,10 @@ __INLINE__ void __ALWAYS_INLINE__ EE_thread_release_all_resources(EE_TID tid)
   EE_sys_ceiling &= (EE_th_dispatch_prio[tid] - 1U);
 }
 #else
-void EE_thread_release_all_resources(EE_TID tid);
-#endif /* !__OO_EXTENDED_STATUS__ && !__PRIVATE_RELEASEALLRESOURCE__*/
+EE_UREG EE_oo_release_all_resources(EE_TID tid);
+#endif /* !__OO_EXTENDED_STATUS__ && !__OO_ISR2_RESOURCES__ */
 #else /* __OO_NO_RESOURCES__ */
-#define EE_thread_release_all_resources(tid)    ((void)0)
+#define EE_oo_release_all_resources(tid)    ((void)0)
 #endif /* __OO_NO_RESOURCES__ */
 
 #ifndef __PRIVATE_THREANTERMINATED__
@@ -205,7 +207,29 @@ void EE_thread_end_instance(void);
      do nothing
 */
 void EE_IRQ_end_instance(void);
+/* This primitive shall be atomic.
+   This primitive shall be inserted as the last function in an IRQ post-stub.
+    This primitive done needed clean-up as restting kernel interrupt nested
+    counters and release got resources if application forget to do that as
+    specified by Autosar standard.
+*/
+void EE_IRQ_end_post_stub(void);
 #endif
+
+#ifdef __OO_ISR2_RESOURCES__
+/* Index used to give ISR2 Temporary TID value and to access at
+   EE_isr2_nesting_level array */
+extern EE_UREG EE_isr2_index;
+
+/* Assign a fake TID to an ISR2 to eventually handle resources clean-up */
+EE_TID  EE_oo_assign_TID_to_ISR2(void);
+
+/* Get the last assigned fake ISR2 TID */
+__INLINE__ EE_TID __ALWAYS_INLINE__ EE_oo_get_ISR2_TID(void) {
+  return (EE_isr2_index != EE_UREG_MINUS1)?
+    (EE_MAX_TASK + (EE_TID)EE_isr2_index): EE_NIL;
+}
+#endif /*  __OO_ISR2_RESOURCES__ */
 
 /*
  * ORTI Macros

@@ -181,32 +181,14 @@ void EE_oo_ForceSchedule(void);
 #endif
 #endif
 
-
-
-
-#if defined(__BIN_DISTR_LIMITED__) || defined(__BIN_DISTR_FULL__)
-
 /* 13.2.3.5: BCC1, BCC2, ECC1, ECC2 */
 #ifndef __PRIVATE_GETTASKID__
-#if 0 && defined __OO_EXTENDED_STATUS__ /* Disabled! */
 StatusType EE_oo_GetTaskID(TaskRefType TaskID);
-#else
-void EE_oo_GetTaskID(TaskRefType TaskID);
-#endif /* 0 && defined */
 #endif /* __PRIVATE_GETTASKID__ */
-
-#else
-/* see ee_inline.h */
-#endif /* __BIN_DISTR_LIMITED__ || __BIN_DISTR_FULL__ */
-
 
 /* 13.2.3.6: BCC1, BCC2, ECC1, ECC2 */
 #ifndef __PRIVATE_GETTASKSTATE__
-#ifdef __OO_EXTENDED_STATUS__
 StatusType EE_oo_GetTaskState(TaskType TaskID, TaskStateRefType State);
-#else
-void EE_oo_GetTaskState(TaskType TaskID, TaskStateRefType State);
-#endif
 #endif
 
 /* 13.2.4 Constants                                                        */
@@ -238,42 +220,7 @@ void EE_oo_GetTaskState(TaskType TaskID, TaskStateRefType State);
 /* 13.3.2 System services                                                  */
 /* ----------------------------------------------------------------------- */
 
-#if defined(__BIN_DISTR_LIMITED__) || defined(__BIN_DISTR_FULL__)
-
-/* 13.3.2.1: BCC1, BCC2, ECC1, ECC2 */
-#ifndef __PRIVATE_ENABLEALLINTERRUPTS__
-void EE_oo_EnableAllInterrupts(void);
-#endif
-
-/* 13.3.2.2: BCC1, BCC2, ECC1, ECC2 */
-#ifndef __PRIVATE_DISABLEALLINTERRUPTS__
-void EE_oo_DisableAllInterrupts(void);
-#endif
-
-/* 13.3.2.3: BCC1, BCC2, ECC1, ECC2 */
-#ifndef __PRIVATE_RESUMEALLINTERRUPTS__
-void EE_oo_ResumeAllInterrupts(void);
-#endif
-
-/* 13.3.2.4: BCC1, BCC2, ECC1, ECC2 */
-#ifndef __PRIVATE_SUSPENDALLINTERRUPTS__
-void EE_oo_SuspendAllInterrupts(void);
-#endif
-
-/* 13.3.2.5: BCC1, BCC2, ECC1, ECC2 */
-#ifndef __PRIVATE_RESUMEOSINTERRUPTS__
-void EE_oo_ResumeOSInterrupts(void);
-#endif
-
-/* 13.3.2.6: BCC1, BCC2, ECC1, ECC2 */
-#ifndef __PRIVATE_SUSPENDOSINTERRUPTS__
-void EE_oo_SuspendOSInterrupts(void);
-#endif
-
-#else
 /* (see ee_inline.h) */
-#endif
-
 
 /* 13.3.3 Naming convention                                                */
 /* ----------------------------------------------------------------------- */
@@ -599,11 +546,7 @@ StatusType EE_oo_GetElapsedValue(CounterType CounterID, TickRefType Value,
 
 /* 13.6.3.1 BCC1, BCC2, ECC1, ECC2 */
 #ifndef __PRIVATE_GETALARMBASE__
-#ifdef __OO_EXTENDED_STATUS__
 StatusType EE_oo_GetAlarmBase(AlarmType AlarmID, AlarmBaseRefType Info);
-#else
-void EE_oo_GetAlarmBase(AlarmType AlarmID, AlarmBaseRefType Info);
-#endif
 #endif
 
 /* 13.6.3.2 BCC1, BCC2, ECC1, ECC2 */
@@ -670,14 +613,7 @@ StatusType EE_oo_CancelAlarm(AlarmType AlarmID);
 /* ----------------------------------------------------------------------- */
 
 /* 13.7.2.1: BCC1, BCC2, ECC1, ECC2 */
-#if defined(__BIN_DISTR_LIMITED__) || defined(__BIN_DISTR_FULL__)
-#ifndef __PRIVATE_GETACTIVEAPPLICATIONMODE__
-/* by default there is only 6the default application mode defined!... */
-AppModeType EE_oo_GetActiveApplicationMode(void);
-#endif
-#else
 /* see ee_inline.h */
-#endif
 
 /* 13.7.2.2: BCC1, BCC2, ECC1, ECC2 */
 #ifndef __PRIVATE_STARTOS__
@@ -766,6 +702,9 @@ __INLINE__ TaskType __ALWAYS_INLINE__ OSError_ActivateTask_TaskID(void)
 __INLINE__ TaskType __ALWAYS_INLINE__ OSError_ChainTask_TaskID(void)
 { return EE_oo_ErrorHook_data.ChainTask_prm.TaskID; }
 #endif
+
+__INLINE__ TaskRefType __ALWAYS_INLINE__ OSError_GetTaskID_TaskID(void)
+{ return EE_oo_ErrorHook_data.GetTaskID_prm.TaskID; }
 
 __INLINE__ TaskType __ALWAYS_INLINE__ OSError_GetTaskState_TaskID(void)
 { return EE_oo_ErrorHook_data.GetTaskState_prm.TaskID; }
@@ -876,8 +815,6 @@ __INLINE__ SemRefType __ALWAYS_INLINE__ OSError_PostSem_Sem(void)
  * Inline inclusions
  ***************************************************************************/
 
-#if (!defined(__BIN_DISTR_LIMITED__)) && (!defined(__BIN_DISTR_FULL__))
 #include "kernel/oo/inc/ee_inline.h"
-#endif
 
 #endif

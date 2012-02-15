@@ -198,6 +198,12 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_end_nested_primitive(EE_FREG f);
 __INLINE__ void __ALWAYS_INLINE__ EE_hal_enableIRQ(void);
 __INLINE__ void __ALWAYS_INLINE__ EE_hal_disableIRQ(void);
 
+/* This architecture doesn't support new HAL APIs for interrupt handling
+   look at pic30, e200zx, cortex_mx or hs12xs ee_cpu.h to look new APIs
+   signature and semantic.
+ */
+#define EE_OLD_HAL
+
 
 #ifdef __TIME_SUPPORT__
 /* read current time (used by EDF scheduler) */

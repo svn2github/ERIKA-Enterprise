@@ -81,6 +81,17 @@
 #define EE_std_disableIRQ_nested() ((void)0)
 #endif
 
+#if defined(__OO_BCC1__) || defined(__OO_BCC2__) || defined(__OO_ECC1__) || \
+    defined(__OO_ECC2__)
+/* Function to be called at the end of a function service interrupt, to execute
+   clean-up specifiend in Autosar standard */
+__INLINE__ void __ALWAYS_INLINE__ EE_std_end_IRQ_post_stub(void)
+{
+  EE_IRQ_end_post_stub();
+}
+#else /* __OO_BCC1__ || __OO_BCC2__ || __OO_ECC1__ || __OO_ECC2__ */
+#define EE_std_end_IRQ_post_stub()  ((void)0)
+#endif /* __OO_BCC1__ || __OO_BCC2__ || __OO_ECC1__ || __OO_ECC2__ */
 
 /* Function to be called at the end of a function servicing an interrupt.  Call
  * the scheduler and launch a new scheduled task (if any), or change the current

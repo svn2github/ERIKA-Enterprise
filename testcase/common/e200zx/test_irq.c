@@ -42,27 +42,65 @@
  * Author: 2011 Bernardo  Dal Seno
  */
 
-
 #include "../test_common.h"
 #include <cpu/e200zx/inc/ee_mcu_regs.h>
 #include <cpu/e200zx/inc/ee_irq.h>
 
-#define E200ZX_TEST_IRQ0 0
+/* EXTRA Software IRQ support. I'll provide support only for software IRQ
+   from o to 5 because software because software IRQ 6 and 7 are used in
+   MPC5668 (Fado) for dual-core communication
+   (look at mcu/freescale_mpc5668/inc/ee_dual.h).
+*/
 
-static void test_isr(void)
-{
-	INTC.SSCIR[E200ZX_TEST_IRQ0].R = 1; /* Ack the IRQ */
-	isr_callback();
+#define E200ZX_SOFT_IRQ_NUM  6
+
+static SoftIRQHandler soft_irq_handlers[E200ZX_SOFT_IRQ_NUM];
+
+#define DEFINE_SOFT_IRQ_WRAPPER(IRQ)\
+static void handler_wrapper_isr##IRQ(void) \
+{ \
+	SoftIRQHandler real_handler = soft_irq_handlers[(IRQ)]; \
+	INTC.SSCIR[(IRQ)].R = 1; /* Ack the IRQ */ \
+	if(real_handler != NULL) { /* check if the real handler is null */ \
+		real_handler(); /* call the real handler */ \
+	} \
 }
 
-void test_setup_irq(void)
+#define SOFT_IRQ_WRAPPER(IRQ) handler_wrapper_isr##IRQ
+
+DEFINE_SOFT_IRQ_WRAPPER(0)
+DEFINE_SOFT_IRQ_WRAPPER(1)
+DEFINE_SOFT_IRQ_WRAPPER(2)
+DEFINE_SOFT_IRQ_WRAPPER(3)
+DEFINE_SOFT_IRQ_WRAPPER(4)
+DEFINE_SOFT_IRQ_WRAPPER(5)
+
+static SoftIRQHandler soft_irq_wrappers[] = {
+	SOFT_IRQ_WRAPPER(0),
+	SOFT_IRQ_WRAPPER(1),
+	SOFT_IRQ_WRAPPER(2),
+	SOFT_IRQ_WRAPPER(3),
+	SOFT_IRQ_WRAPPER(4),
+	SOFT_IRQ_WRAPPER(5)
+};
+
+void test_setup_irq(unsigned int irq, SoftIRQHandler handler,
+		unsigned int priority)
 {
-	INTC.PSR[E200ZX_TEST_IRQ0].R = 0;
-	EE_e200z7_register_ISR(16 + E200ZX_TEST_IRQ0, test_isr, 1);
+	if((irq > 5U) || (priority > 15U))
+		return;
+
+	soft_irq_handlers[irq] = handler;
+	EE_e200z7_register_ISR(EE_E200ZX_MAX_CPU_EXCP + irq, soft_irq_wrappers[irq],
+		priority);
 }
 
-void test_fire_irq(void)
+void test_fire_irq(unsigned int irq)
 {
-	INTC.SSCIR[E200ZX_TEST_IRQ0].R = 2;
-	EE_e200zx_isync();
+	if(irq > 5U)
+		return;
+
+	INTC.SSCIR[irq].R = 2;
+	EE_e200zx_mbar();
 }
+

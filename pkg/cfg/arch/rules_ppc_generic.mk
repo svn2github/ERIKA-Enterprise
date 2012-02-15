@@ -119,13 +119,9 @@ endif
 ifneq ($(ONLY_LIBS), TRUE)
 
 # OPT_LIBS is used to link additional libraries (e.g., for C++ support)
-ifneq ($(call iseeopt, __BIN_DISTR), yes)
 # the EE library is built in the current directory
 OPT_LIBS +=  -L. -lee
 LIBDEP = libee.a
-else
-OPT_LIBS += -L $(EEBASE)/lib -lee_$(EELIB)
-endif
 
 endif
 
@@ -156,11 +152,7 @@ include $(wildcard $(PKGBASE)/cfg/cfg.mk)
 
 # Boot code containing _start should stay outside of the library in
 # case of normal compilation
-ifeq ($(call iseeopt, __BIN_DISTR), yes)
-LIBSRCS += $(EE_BOOT_SRCS)
-else
 SRCS += $(EE_BOOT_SRCS)
-endif
 
 CRT0 := $(addprefix $(OBJDIR)/, $(patsubst %.c,%.o,$(patsubst %.S,%.o, $(EE_CRT0_SRCS))))
 OPT_CRT0 := $(CRT0)

@@ -70,8 +70,8 @@ in the following sections:
    - The resource identifiers declared with the macro
      DeclareResource (13.4.2.1)
    - The task identifiers declared with the macro TASK(TaskName) (13.2.5)
-   - The resource (RES_SCHEDULER) MUST have 
-     the maximum ceiling possible (~(~(TYPEPRIO)0 >> 1))
+   - The resource (RES_SCHEDULER) MUST have the maximum ceiling possible
+     for Tasks
 
    For the Extended status and ORTI support:
    - EE_MAX_TASK maximum number of tasks (used in TaskActivate
@@ -298,7 +298,20 @@ extern EE_TYPEBOOL EE_th_is_extended[];
 extern const EE_TYPEPRIO   EE_resource_ceiling[]; /* resource ceiling */
 extern EE_TYPEPRIO   EE_resource_oldceiling[];    /* old resource ceiling */
 
-#ifdef __OO_EXTENDED_STATUS__ 
+#ifdef __OO_ISR2_RESOURCES__
+/* New data structures to handle resource sharing with isr2 and isr2 hardware
+   priority ceiling.
+ */
+
+ /* Isr2 priority tied to an resource */
+extern const EE_TYPEISR2PRIO  EE_resource_isr2_priority[];
+/* old isr2 priority */
+extern EE_TYPEISR2PRIO        EE_isr2_oldpriority[];
+/* array to hold correposnding isr2 nesting levels */
+extern EE_UREG                EE_isr2_nesting_level[];
+#endif /* __OO_ISR2_RESOURCES__ */
+
+#if  defined( __OO_EXTENDED_STATUS__ ) || defined(__OO_ISR2_RESOURCES__)
 /* Only in extended status; for each task, we allocate a data
    structure that keeps track of the order in which every task has
    allocated a resource. This is needed to return a meaningful
@@ -312,7 +325,7 @@ extern EE_UREG EE_th_resource_last[];
    task. there is one entry for each resource, initvalue = -1. the
    list of resources locked by a task is ended by -1. */
 extern EE_UREG EE_resource_stack[];		
-#endif /* __OO_EXTENDED_STATUS__ */
+#endif /* __OO_EXTENDED_STATUS__ || __OO_ISR2_RESOURCES__ */
 
 #if defined(__OO_EXTENDED_STATUS__) || defined(__OO_ORTI_RES_ISLOCKED__)
 /* Only in extended status or when using ORTI with resources; for each
@@ -428,10 +441,15 @@ typedef unsigned char StatusType;
    if Autosar kernel is usedof these errors are already defined 
  */
 #if !defined(__AS_SC4__)
-/* for OS566 */
-#define E_OS_PARAMETER_POINTER    ((StatusType)10U)
+#define E_OS_SERVICEID            ((StatusType)10U)
+#define E_OS_ILLEGAL_ADDRESS      ((StatusType)11U)
 /* for OS069 */
-#define E_OS_MISSINGEND           ((StatusType)11U)
+#define E_OS_MISSINGEND           ((StatusType)12U)
+/* for OS368 */
+#define E_OS_DISABLEDINT          ((StatusType)13U)
+#define E_OS_STACKFAULT           ((StatusType)14U)
+/* for OS566 */
+#define E_OS_PARAMETER_POINTER    ((StatusType)15U)
 #endif
 
 
@@ -839,44 +857,47 @@ typedef EE_TYPEOSSERVICEID OSServiceIdType;
 #define OSServiceId_TerminateTask    2U
 #define OSServiceId_ChainTask        3U
 #define OSServiceId_Schedule         4U
-/* GetTaskID never returns an error */
-#define OSServiceId_GetTaskState     5U
+#define OSServiceId_GetTaskID        5U
+#define OSServiceId_GetTaskState     6U
 /* DisableAllInterrupts, EnableAllInterrupts, SuspendAllInterrupts,
    ResumeAllInterrupts, SuspendOSInterrupts, ResumeOSInterrupts never
    return an error */
-#define OSServiceId_GetResource       6U
-#define OSServiceId_ReleaseResource   7U
-#define OSServiceId_SetEvent          8U
-#define OSServiceId_ClearEvent        9U
-#define OSServiceId_GetEvent          10U
-#define OSServiceId_WaitEvent         11U
-#define OSServiceId_GetAlarmBase      12U
-#define OSServiceId_GetAlarm          13U
-#define OSServiceId_SetRelAlarm       14U
-#define OSServiceId_SetAbsAlarm       15U
-#define OSServiceId_CancelAlarm       16U
-#define OSServiceId_IncrementCounter  17U
-#define OSServiceId_GetCounterValue   18U
-#define OSServiceId_GetElapsedValue   19U
+#define OSServiceId_GetResource       7U
+#define OSServiceId_ReleaseResource   8U
+#define OSServiceId_SetEvent          9U
+#define OSServiceId_ClearEvent        10U
+#define OSServiceId_GetEvent          11U
+#define OSServiceId_WaitEvent         12U
+#define OSServiceId_GetAlarmBase      13U
+#define OSServiceId_GetAlarm          14U
+#define OSServiceId_SetRelAlarm       15U
+#define OSServiceId_SetAbsAlarm       16U
+#define OSServiceId_CancelAlarm       17U
+#define OSServiceId_IncrementCounter  18U
+#define OSServiceId_GetCounterValue   19U
+#define OSServiceId_GetElapsedValue   20U
 
 /* GetActiveApplicationMode, ShutdownOS never return an error */
-#define OSServiceId_StartOS           20U
-#define OSServiceId_ForceSchedule     21U
+#define OSServiceId_StartOS           21U
+#define OSServiceId_ForceSchedule     22U
 #ifdef __OO_SEM__
 /* InitSem, TryWaitSem, GetValueSem never return an error */
-#define OSServiceId_WaitSem           22U
-#define OSServiceId_PostSem           23U
-/* Special value to flag an error happened in the task body 
+#define OSServiceId_WaitSem           23U
+#define OSServiceId_PostSem           24U
+#endif /* __OO_SEM__ */
+/* Special value to flag an error happened in the Task body
    needed for AS requirement OS069
 */
-#endif /* __OO_SEM__ */
-#define OSServiceId_TaskBody          24U
-
+#define OSServiceId_TaskBody          25U
+/* Special value to flag an error happened in the ISR2 body
+   needed for AS requirement OS368
+*/
+#define OSServiceId_ISR2Body          26U
 
 /* 13.8.4 Macros                                                           */
 /* ----------------------------------------------------------------------- */
 
-struct EE_oo_ErrorHook_parameters {
+union EE_oo_ErrorHook_parameters {
   struct {
     TaskType TaskID;
   } ActivateTask_prm;
@@ -886,6 +907,10 @@ struct EE_oo_ErrorHook_parameters {
     TaskType TaskID;
   } ChainTask_prm;
 #endif
+
+  struct {
+    TaskRefType TaskID;
+  } GetTaskID_prm;
 
   struct {
     TaskType TaskID;
@@ -988,7 +1013,7 @@ struct EE_oo_ErrorHook_parameters {
 };
 
 extern OSServiceIdType EE_oo_ErrorHook_ServiceID;
-extern struct EE_oo_ErrorHook_parameters EE_oo_ErrorHook_data;
+extern union EE_oo_ErrorHook_parameters EE_oo_ErrorHook_data;
 
 #endif /* __OO_ERRORHOOK_NOMACROS__ */
 #endif /* __OO_HAS_ERRORHOOK__ */
