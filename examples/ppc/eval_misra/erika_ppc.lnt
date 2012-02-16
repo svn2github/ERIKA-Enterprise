@@ -32,5 +32,16 @@
 /* removes the error concerning the maximum conditional inclusion level. This value is provided by a bash script and is documented */
 -"esym(793, conditional inclusion levels)"
 
+/* New MISRA deviations will be added below */
+
+/* 
+ * No side effects for inline asm functions: added after merge from MM to Tuxfamily.
+ * These rules are not present in MM repository because the functions have been added after merge
+ * For this family of errors the policy is to remove them through the following rules
+ */
+-esym(522,EE_e200zx_mbar, EE_e200zx_isync)
+-sem(EE_e200zx_mbar, pure)
+-sem(EE_e200zx_isync, pure)
+
 
 
