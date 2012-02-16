@@ -122,7 +122,7 @@ void parse_commandline(int argc, char **argv)
     j = 0;
     ok = 0;
     do {
-      if (isalnum(argv[i][j]))
+      if (isalnum((int)argv[i][j]))
 	j++;
       else if (argv[i][j] == '=') {
 	argv[i][j] = 0; /* isolate the string */
@@ -146,7 +146,7 @@ void parse_commandline(int argc, char **argv)
     c = &argv[i][j];
     c_count=0;
     do {
-      if (isalnum(argv[i][j]))
+      if (isalnum((int)argv[i][j]))
 	j++, c_count++;
       else if (argv[i][j] == ',') {
 	argv[i][j] = 0; /* isolate the string */
