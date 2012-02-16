@@ -2,6 +2,7 @@
  * @file iedf.c
  * @brief Implicit-EDF Core (Implementation)
  * @author Simone Madeo
+ * @author Gianluca Franchino 2012
  * @version 0.1
  * @date 2011-10-10
  */
@@ -213,15 +214,18 @@ static uint8_t iedf_master_init_complete(uint8_t index)
         additional_init_packets : IEDF_MASTER_INIT_PACKETS;
     
     iedf_DEBUG_serial_int3(internal_state, master_packets, remaining_init_packets);
-    iedf_DEBUG_serial(" -- init_complete (slot, m_p_in_p, remaining_init)"); 
+    iedf_DEBUG_serial("\r\n -- init_complete (slot, m_p_in_p, remaining_init)"); 
     iedf_DEBUG_serial_int(iedf_master_init_total(num_nodes_next2));
     iedf_DEBUG_serial(" need"); 
     
     if (iedf_master_init_total(num_nodes_next2) > remaining_init_packets) {
-        iedf_DEBUG_serial(" --> non ci sto"); 
+        iedf_DEBUG_serial("\r\n --> Master packet train does not fit the\
+						  current hyper."); 
         return 0;
     }
-    iedf_DEBUG_serial(" --> ci sto"); 
+    
+	iedf_DEBUG_serial("\r\n --> Master packet train fits in the current hyper.");
+	
     return 1;
 }
 
@@ -363,13 +367,13 @@ static uint8_t iedf_scheduler_update(uint8_t check)
             recovery_timeout_ms = 0;
         iedf_notify(IEDF_CHANGE_TOTAL_NODES, NULL, 0, iedf_get_total_nodes(0));
         iedf_notify(IEDF_CHANGE_HYPERPERIOD, NULL, 0, iedf_get_hyperperiod(0));
-        iedf_DEBUG_print_db(0, "NUOVO DATABASE!");
+        iedf_DEBUG_print_db(0, "New database!");
         master_update = 0;
         ret = 1;
     } else {
-        iedf_DEBUG_serial("\r\n# # # # DB non modificato # # # #");
+        iedf_DEBUG_serial("\r\n# # # # DB not modified # # # #");
         if (master_update && !check && !is_master)
-            iedf_DEBUG_serial(" non completato il treno [**] !!!");
+            iedf_DEBUG_serial("\r\nPacket train not completed [**] !!!");
     }
     if (master_update2) {
         /* Overwriting next scheduling data structure */
@@ -458,7 +462,7 @@ static void iedf_scheduler_next(uint8_t master_turn)
     if (is_master) {
         if (master_packet_counter < IEDF_MASTER_INIT_PACKETS && master_turn) {
             iedf_master_requests();
-            iedf_DEBUG_serial("\r\npreparo build mpdu");
+            iedf_DEBUG_serial("\r\nPrepare build mpdu");
             iedf_master_build_mpdu_init((uint8_t*)&mpdu_init[0]);
         }
     }
@@ -501,13 +505,13 @@ static char* iedf_scheduler_manage(uint8_t master_exception)
         if (node_turn_activity == IEDF_ACTIVITY_MASTER_TX) {
             if (new_master_sync) {
                 new_master_sync = 0;
-                return "\r\ncancello recovery e buco e -NO- sched [SCHED MAS]";
+				return "\r\nI do erase recovery and hole and -NO- sched [SCHED MAS]";
             } else {
                 iedf_scheduler_cancel(1);
-                return "\r\ncancello recovery e buco e sched [SCHED MAS]";
+                return "\r\nI do erase recovery and hole and sched [SCHED MAS]";
             }
         } else
-            return "\r\ncancello recovery e buco [SCHED]";
+            return "\r\nI do erase recovery and hole [SCHED]";
     } else {
         if (node_turn_stored == IEDF_SLOT_FREE) {
             /* Holeslot anabled */
@@ -516,7 +520,7 @@ static char* iedf_scheduler_manage(uint8_t master_exception)
             iedf_recovery_cancel();
             iedf_kal_cancel_activation(IEDF_SCHEDULER_SET_RX_ON);
             holeslot_enabled = 1;
-            return "\r\ncancello recovery e sched [BUCO]";
+            return "\r\nI do erase recovery and sched [HOLE]";
         } else {
             /* Master synchronization */
             if (node_turn_stored == 0 && IEDF_DEBUG_USE_ENERGY)
@@ -524,7 +528,7 @@ static char* iedf_scheduler_manage(uint8_t master_exception)
             /* Recovery enabled */
             iedf_scheduler_cancel(0);
             iedf_scheduler_cancel(1);
-            return "\r\ncancello scheduler, imposto recovery [NONE]";
+            return "\r\nI do erase scheduler, set recovery [NONE]";
         }
     }
     
@@ -622,7 +626,7 @@ static char* iedf_master_send()
 {
     enum iedf_mac_frame_type type = IEDF_PACKET_INIT;
     
-    EE_led_1_on();
+    //EE_led_1_on();
     if (master_packet_counter < IEDF_MASTER_INIT_PACKETS) {
         /* Init packet */
         if (master_init_train_update)
@@ -640,7 +644,7 @@ static char* iedf_master_send()
         return "\r\n[ROUT]";
     } else {
         /* Note: master called uselessly */
-        EE_leds_on();
+        //EE_leds_on();
         iedf_DEBUG_serial("\r\n*** ERROR *** Unsynchronized master");
         for(;;);
         return "";
@@ -653,8 +657,9 @@ static void iedf_task_recovery()
     uint16_t turn = 0;
     uint16_t my_addr = iedf_get_my_nodeid();
 
-    if (init_status != IEDF_STATUS_SNIFFER)  
-        EE_led_6_on();
+    if (init_status != IEDF_STATUS_SNIFFER) {
+        //EE_led_6_on();
+	}
 
 	// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
     iedf_kal_mutex_wait(IEDF_DATA_MUTEX);
@@ -666,20 +671,20 @@ static void iedf_task_recovery()
 
     iedf_DEBUG_serial_int(internal_state);
     if (internal_state == 0)
-        iedf_DEBUG_serial(" @=@=@=@=@=@=@=@=@=@=@=@=@=@=@=@=@=@=@=@=@=@=@=@=");
+        iedf_DEBUG_serial("\r\n@=@=@=@=@=@=@=@=@=@=@=@=@=@=@=@=@=@=@=@=@=@=@=@=");
     else
         iedf_DEBUG_serial(" ================================");
     iedf_DEBUG_serial("\r\nRecovery");
    
     turn = node_turn_stored;
-
+	/*
     EE_led_0_off();
     EE_led_1_off();
     EE_led_2_on();
-
+	 */
     if (turn == 0 && is_master) {
         /* --- CSMA not used --- */
-        iedf_DEBUG_serial(" [C S M A]");
+        iedf_DEBUG_serial("\r\n[C S M A]");
         memset(&mpdu_recovery[0], 0xCC, IEDF_MAC_MPDU_SIZE);
         iedf_notify(IEDF_TIMESLOT, NULL, 0, internal_state);
         iedf_send((uint8_t*)&mpdu_recovery[0], IEDF_MAC_MPDU_SIZE,
@@ -704,7 +709,7 @@ static void iedf_task_recovery()
         /* --- Master has failed transmission --- */
         master_fails++;
         iedf_DEBUG_serial_int(master_fails);
-        iedf_DEBUG_serial(" *** MASTER FAILURE ***");
+        iedf_DEBUG_serial("\r\n *** MASTER FAILURE ***");
         if (master_fails >= IEDF_MAX_RECOVERY_TIMES) {
             iedf_DEBUG_serial("\r\n  *** NEW MASTER ***");
             /* Note: only current db is valid */
@@ -744,8 +749,10 @@ static void iedf_task_recovery()
             IEDF_PACKET_RECOVERY_MASTER, IEDF_ADDRESS_BROADCAST);
         }
     } else {
+		/*
         EE_led_3_on();
         EE_led_2_off();
+		 */
         memset(&mpdu_recovery[0], 0xAE, IEDF_MAC_MPDU_SIZE);
         iedf_notify(IEDF_TIMESLOT, NULL, 0, internal_state);
         iedf_send((uint8_t*)&mpdu_recovery[0], IEDF_MAC_MPDU_SIZE,
@@ -765,7 +772,7 @@ static void iedf_task_recovery()
 	iedf_kal_mutex_signal(IEDF_DATA_MUTEX);
 	// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
     
-    EE_led_6_off();
+    //EE_led_6_off();
     
 }
 
@@ -778,8 +785,9 @@ static void iedf_task_scheduler()
     char *msg2 = "";
     uint8_t tx[5];
 
-    if (init_status != IEDF_STATUS_SNIFFER)  
+    if (init_status != IEDF_STATUS_SNIFFER) { 
         EE_led_7_on();
+	}
     
 	// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 	iedf_kal_mutex_wait(IEDF_DATA_MUTEX);
@@ -793,18 +801,18 @@ static void iedf_task_scheduler()
     /* Set timer for next timeslot */
     iedf_scheduler_set(IEDF_SLOT_FREE);
     holeslot_enabled = 0;
-    
+    /*
     EE_led_0_off();
     EE_led_1_off();
     EE_led_2_off();
     EE_led_3_off();
     EE_led_4_off();
-
+	 */
     // TODO: (CCA)
     if ((node_turn_activity == IEDF_ACTIVITY_JOIN_FREE || node_turn_activity == 
     IEDF_ACTIVITY_JOIN_RESERVED) && iedf_phy_get_cca()) {
         /* Node has to perform join request in a free/reserved slot */
-        EE_led_6_on();
+        //EE_led_6_on();
         if (node_turn_activity == IEDF_ACTIVITY_JOIN_FREE) {
             iedf_send((uint8_t*)&my_params[0], 6, IEDF_PACKET_REQUEST, IEDF_ADDRESS_BROADCAST);
             msg1 = "\r\nJOIN REQUEST in free slot";
@@ -825,11 +833,11 @@ static void iedf_task_scheduler()
             msg1 = iedf_master_send();
         } else if (node_turn_activity == IEDF_ACTIVITY_NODE_TX) {
             /* *** Node's turn *** */
-            EE_led_0_on();
+            //EE_led_0_on();
             if (disable_data_tx) {
                 /* Node has to perform part request (in one's own slot) */
                 /* Pay attention: node does not perform data transfer anymore */
-                EE_led_6_off();
+                //EE_led_6_off();
                 msg1 = "\r\nSTOP REQUEST";
                 if (iedf_send((uint8_t*)&my_params[0], 6, IEDF_PACKET_STOP, IEDF_ADDRESS_BROADCAST) >= 0)
                     iedf_change_status(IEDF_STATUS_WAIT_STOP);
@@ -864,7 +872,7 @@ static void iedf_task_scheduler()
     else
         iedf_DEBUG_serial(" ================================");
     iedf_DEBUG_serial_int(msg_node);
-    iedf_DEBUG_serial(" Scheduled to transmit");
+    iedf_DEBUG_serial("\r\nScheduled to transmit");
     iedf_DEBUG_serial(msg1);
     iedf_DEBUG_serial(msg2);
     /*iedf_DEBUG_serial_int3(remaining_budget[0],remaining_budget[1],remaining_budget[2]);
@@ -878,7 +886,7 @@ static void iedf_task_scheduler()
 	iedf_kal_mutex_signal(IEDF_DATA_MUTEX);
 	// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
-    EE_led_7_off();
+    //EE_led_7_off();
 }
 
 /* Puts the radio on RX mode */
@@ -904,7 +912,7 @@ void iedf_test_miss(uint16_t src_addr, uint8_t recovery)
     if (internal_state == 0)
         internal_state = miss_hyperperiod;
     if (miss_wait_for_sync && internal_state == 1) {
-        EE_led_7_off();
+        //EE_led_7_off();
         miss_wait_for_sync = 0;
     }
     if (miss_wait_for_sync || miss_disable_sniffer)
@@ -933,7 +941,7 @@ void iedf_test_miss(uint16_t src_addr, uint8_t recovery)
     if ((internal_state - 1) % IEDF_MASTER_BLOCKING_PERIOD != 0 && !recovery) {
         if (miss_test_budget[src_addr - 1] == 0) {
             iedf_DEBUG_serial_int3(internal_state, src_addr, 88);
-            iedf_DEBUG_serial(" sniffer problem");
+            iedf_DEBUG_serial("\r\nsniffer problem");
         } else
             miss_test_budget[src_addr - 1]--;
     } //else
@@ -1029,7 +1037,7 @@ static void iedf_task_master_start()
         /* Generic node update */
         if (iedf_data_join(iedf_get_my_nodeid(), iedf_get_my_budget(),
         iedf_get_my_period(), NULL) == 0) {
-            EE_leds_on();
+            //EE_leds_on();
             return;
         }
     } else {
@@ -1081,7 +1089,7 @@ static void iedf_receive_init(uint8_t update, uint8_t bitmask, uint8_t *mpdu)
     counter = mpdu[2];
 
     iedf_DEBUG_serial_int3(init_counter, init_total, counter);
-    iedf_DEBUG_serial(" (init_counter, init_total, counter)");
+    iedf_DEBUG_serial("\r\n(init_counter, init_total, counter)");
 	
     // Note: new nodes are not synchronized
     if (init_status == IEDF_STATUS_WAIT_SCHEDULE)
@@ -1089,7 +1097,7 @@ static void iedf_receive_init(uint8_t update, uint8_t bitmask, uint8_t *mpdu)
         
 	else if (init_counter != next_init_expected) {
         iedf_DEBUG_serial_int3(init_counter, next_init_expected, 0);
-        iedf_DEBUG_serial("(cur, exp, 0) *** ERROR *** Fail sync in next_init_expected");
+        iedf_DEBUG_serial("\r\n(cur, exp, 0) *** ERROR *** Fail sync in next_init_expected");
         /* Disable recovery, scheduler and master election timer */
         iedf_recovery_cancel();
         iedf_scheduler_cancel(0);
@@ -1112,14 +1120,15 @@ static void iedf_receive_init(uint8_t update, uint8_t bitmask, uint8_t *mpdu)
             if (activate_request)
                 train_start_request = 1;
 			/* First packet of init train: reset internal database */
-            iedf_DEBUG_serial("\r\n    First init packet");
+            iedf_DEBUG_serial("\r\n First init packet");
 			found_myself = 0;
 			// TODO: varMastTotPack = &mpdu[3];
             /* Total nodes for next/next2 schedule */
 			memcpy((uint16_t*)&num_nodes_next, &mpdu[6], 2);
 			/* Check correct value interval (TODO) */
 			if (num_nodes_next < 1 || num_nodes_next > IEDF_MAX_NODES) {
-                iedf_DEBUG_serial("\r\n *** ERROR *** nodes dal master fuori scala");
+                iedf_DEBUG_serial("\r\n *** ERROR *** nodes of the master out\
+								  of scale.");
             }
 			// TODO: memcpy((uint16_t*)&block, &mpdu[4], 2);
 
@@ -1139,11 +1148,11 @@ static void iedf_receive_init(uint8_t update, uint8_t bitmask, uint8_t *mpdu)
             memcpy((uint32_t*)&hyper_period, &mpdu[8], 4);
             iedf_set_hyperperiod(index, hyper_period);
             iedf_DEBUG_serial_int3(num_nodes_next, hyper_period, index);
-            iedf_DEBUG_serial(" (num_nodes_next, hyper_period_next, NEXT/NEXT2)");
+            iedf_DEBUG_serial("\r\n(num_nodes_next, hyper_period_next, NEXT/NEXT2)");
             /* Last byte read */
 			pos = 11;
 		} else {
-            iedf_DEBUG_serial("\r\n    Other init packet");
+            iedf_DEBUG_serial("\r\n Other init packet");
 		}
         
         if (train_stored) {
@@ -1161,14 +1170,14 @@ static void iedf_receive_init(uint8_t update, uint8_t bitmask, uint8_t *mpdu)
 		if (init_counter + 1 == init_total) {
 			if (train_stored) {
                 partial_schedule = 0;
-                iedf_DEBUG_serial("\r\n!! train complete");
+                iedf_DEBUG_serial("\r\n!! Train complete");
                 if (init_status == IEDF_STATUS_PENDING_REQUEST) {
                     if (train_start_request) {
                         if (found_myself) {
                             /* Request accepted */
                             iedf_change_status(IEDF_STATUS_GRANTED);
                             iedf_DEBUG_serial("\r\nREQUEST ACCEPTED");
-                            EE_led_7_on();
+                            //EE_led_7_on();
                         } else {
                             /* Request rejected */
                             iedf_change_status(IEDF_STATUS_REJECTED);
@@ -1178,7 +1187,7 @@ static void iedf_receive_init(uint8_t update, uint8_t bitmask, uint8_t *mpdu)
                     }
                 } else if (init_status == IEDF_STATUS_WAIT_SCHEDULE) {
                     /* Node knows schedule info */
-                    EE_led_5_on();
+                    //EE_led_5_on();
                     iedf_change_status(IEDF_STATUS_WAIT_SCHEDULE_H);
                     iedf_DEBUG_serial("\r\nSchedule info downloaded");
                 } else if (!found_myself) {
@@ -1195,12 +1204,12 @@ static void iedf_receive_init(uint8_t update, uint8_t bitmask, uint8_t *mpdu)
                     }
                 }                
             } else
-                iedf_DEBUG_serial("\r\n!! Treno inutile");
+                iedf_DEBUG_serial("\r\n!! Unuseful packet train !!");
             train_stored = 0;
 		}
 
 	} else
-        iedf_DEBUG_serial("\r\nIl pacchetto INIT inutile");
+        iedf_DEBUG_serial("\r\nUnuseful Init packet!!");
 }
 
 /* **************************************************************************
@@ -1246,9 +1255,11 @@ int8_t iedf_init(uint8_t ch, uint16_t addr, uint8_t n_bytes, uint32_t period_ms)
             MISS_ITER = 0;
         }
         if (MISS_UMAX >= 10) {
+			/*
             EE_led_5_on();
             EE_led_6_on();
             EE_led_7_on();
+			 */
             for(;;);
         }
     }
@@ -1268,13 +1279,13 @@ int8_t iedf_init(uint8_t ch, uint16_t addr, uint8_t n_bytes, uint32_t period_ms)
         /* Set slotted period */
         iedf_set_my_period(period_ms / IEDF_WAIT_SCHEDULER_MS);
         iedf_DEBUG_serial_int3(iedf_get_my_budget(), iedf_get_my_period(), 0);
-        iedf_DEBUG_serial(" [C,T,0]");
+        iedf_DEBUG_serial("\r\n [C,T,0]");
     } else {
         /* Budget-period info passed by high layer */
         iedf_set_my_budget(n_bytes);
         iedf_set_my_period(period_ms);
         iedf_DEBUG_serial_int3(iedf_get_my_budget(), iedf_get_my_period(), 0);
-        iedf_DEBUG_serial(" [C,T,0] not converted");
+        iedf_DEBUG_serial("\r\n [C,T,0] not converted");
     }
     
     my_params[0] = iedf_get_my_nodeid();
@@ -1316,12 +1327,12 @@ int8_t iedf_init(uint8_t ch, uint16_t addr, uint8_t n_bytes, uint32_t period_ms)
     
     if (!IEDF_DEBUG_JOIN_EXEC && ch != 0) {
         iedf_DEBUG_serial_int(addr);
-        iedf_DEBUG_serial(" <--- Node correctly initialized");
+        iedf_DEBUG_serial("\r\n <--- Node correctly initialized");
     }
     
     if (init_status == IEDF_STATUS_SNIFFER) {
         /* Sniffer mode */
-        EE_leds_off();
+        /*EE_leds_off();
         switch (MISS_ITER) {
             case 0:
                 EE_led_0_on();
@@ -1347,7 +1358,7 @@ int8_t iedf_init(uint8_t ch, uint16_t addr, uint8_t n_bytes, uint32_t period_ms)
             case 7:
                 EE_led_7_on();
                 break;
-        }
+        }*/
         miss_disable_sniffer = 0;
         miss_expected = 1;
         miss_wait_for_sync = 1;
@@ -1356,8 +1367,10 @@ int8_t iedf_init(uint8_t ch, uint16_t addr, uint8_t n_bytes, uint32_t period_ms)
         miss_temp_final = (uint32_t)IEDF_DEBUG_MISS_SIMULATION_SEC * 1000 / IEDF_WAIT_SCHEDULER_MS;
         memset(miss_db, 0, IEDF_MAX_NODES * 2);
         memset(miss_test_budget, 0, IEDF_MAX_NODES * 2);
+		
         for (i = 0; i < miss_nodes; i++)
             miss_test_budget[i] = miss_test_db[i * 3 + 1];
+		
     } else if (IEDF_DEBUG_MISS_EXEC) {
         /* Deadline miss test mode */
         master_address = 1;
@@ -1407,9 +1420,9 @@ void iedf_phy2mac_cb(uint8_t psduLen, uint8_t *psdu, uint8_t ppduLQ)
     char *msg2 = "";
 
     if (init_status != IEDF_STATUS_SNIFFER) {
-        EE_led_4_on();
+        /*EE_led_4_on();
         EE_led_0_off();
-        EE_led_1_off();
+        EE_led_1_off();*/
     }
 
     /* Check reception status */
@@ -1421,8 +1434,8 @@ void iedf_phy2mac_cb(uint8_t psduLen, uint8_t *psdu, uint8_t ppduLQ)
     }
 
     if (init_status != IEDF_STATUS_SNIFFER) {
-        EE_led_4_off();
-        EE_led_5_on();
+        /*EE_led_4_off();
+        EE_led_5_on();*/
         /* Default behavior: sleep mode */
         if (IEDF_DEBUG_USE_ENERGY && !is_master) {
             iedf_phy_set_status(IEDF_PHY_FORCE_TRX_OFF);
@@ -1446,7 +1459,7 @@ void iedf_phy2mac_cb(uint8_t psduLen, uint8_t *psdu, uint8_t ppduLQ)
     init_status == IEDF_STATUS_TERMINATED) {
         iedf_DEBUG_serial("\r\nNode rejected or terminated");
         /* Node turned off */
-        EE_leds_on();
+        //EE_leds_on();
         for(;;);
     }
 
@@ -1457,8 +1470,9 @@ void iedf_phy2mac_cb(uint8_t psduLen, uint8_t *psdu, uint8_t ppduLQ)
         iedf_notify(IEDF_TEST_SYNC, NULL, 0, 0);
         iedf_init(0, my_params[0], my_params[1], my_params[2]);
         iedf_kal_mutex_signal(IEDF_DATA_MUTEX);
-        if (init_status != IEDF_STATUS_SNIFFER)
-            EE_led_5_off();
+        if (init_status != IEDF_STATUS_SNIFFER) {
+            //EE_led_5_off();
+		}
         return;
     }
     bitmask = psdu[4];                                  /* bitmask */
@@ -1527,11 +1541,11 @@ void iedf_phy2mac_cb(uint8_t psduLen, uint8_t *psdu, uint8_t ppduLQ)
         
     iedf_DEBUG_serial_int((internal_state == 0) ? 333 : internal_state - 1);
     if (internal_state == 0)
-        iedf_DEBUG_serial(" @=@=@=@=@=@=@=@=@=@=@=@=@=@=@=@=@=@=@=@=@=");
+        iedf_DEBUG_serial("\r\n@=@=@=@=@=@=@=@=@=@=@=@=@=@=@=@=@=@=@=@=@=");
     else
         iedf_DEBUG_serial(" ================================");
     iedf_DEBUG_serial_int(internal_state);
-    iedf_DEBUG_serial(" ricevuto");
+    iedf_DEBUG_serial("\r\nReceived!");
     iedf_DEBUG_serial(msg1);
     iedf_DEBUG_serial(msg2);
 
@@ -1575,10 +1589,10 @@ void iedf_phy2mac_cb(uint8_t psduLen, uint8_t *psdu, uint8_t ppduLQ)
 	iedf_kal_mutex_signal(IEDF_DATA_MUTEX);
 	// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
-    EE_led_5_off();
+    //EE_led_5_off();
 }
 
-void iedf_link_rx_cb(void (*func) (uint8_t, uint8_t*, uint8_t, uint16_t))
+void iedf_link_notify_cb(void (*func) (uint8_t, uint8_t*, uint8_t, uint16_t))
 {
 	iedf_notify = func;
 }

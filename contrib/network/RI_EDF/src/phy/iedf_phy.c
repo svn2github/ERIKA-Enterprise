@@ -1,3 +1,11 @@
+/**
+ * @file iedf_phy.c
+ * @brief Implicit-EDF physical layer
+ * @author Simone Madeo
+ * @author Gianluca Franchino 2012
+ * @version 0.1
+ * @date 2011-10-10
+ */
 #include "phy/iedf_phy.h"
 
 /**********************************************************************
@@ -107,12 +115,12 @@ int8_t iedf_phy_set_status(enum iedf_phy_code_t state)
 			if (iedf_radio_set_tx() < 0)
                 return -IEDF_PHY_ERROR_INIT;
 			phy_status.radio = IEDF_PHY_TX_ON;
-            EE_led_off();
+            //EE_led_off();
 			break;
 		case IEDF_PHY_FORCE_TRX_OFF :
 			if (iedf_radio_sleep() < 0)
                 return -IEDF_PHY_ERROR_INIT;
-            EE_led_off();
+            //EE_led_off();
 			phy_status.radio = IEDF_PHY_TRX_OFF;
 			break;
 		case IEDF_PHY_TRX_OFF :
@@ -124,14 +132,14 @@ int8_t iedf_phy_set_status(enum iedf_phy_code_t state)
                 return -IEDF_PHY_ERROR_INIT;
 			if (iedf_radio_sleep() < 0)
                 return -IEDF_PHY_ERROR_INIT;
-            EE_led_off();
+            //EE_led_off();
 			phy_status.radio = IEDF_PHY_TRX_OFF;
 			break;
 		case IEDF_PHY_RX_ON :
 			while (iedf_radio_busy_tx()) ;
 			if (iedf_radio_set_rx() < 0)
                 return -IEDF_PHY_ERROR_INIT;
-            EE_led_on();
+            //EE_led_on();
 			phy_status.radio = IEDF_PHY_RX_ON;
 			break;
 		default :

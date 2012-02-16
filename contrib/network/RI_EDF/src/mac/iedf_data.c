@@ -2,6 +2,7 @@
  * @file iedf_data.c
  * @brief Implicit-EDF Data structure (Implementation)
  * @author Simone Madeo
+ * @author Gianluca Franchino 2012
  * @version 0.1
  * @date 2011-10-10
  */
@@ -425,7 +426,7 @@ void iedf_master_data_failure_add(uint16_t address, uint8_t force_remove)
             data_failure[i].num_fails == IEDF_MAX_RECOVERY_TIMES) {
                 /* Prepare to remove failed node from next schedulation */
                 iedf_DEBUG_serial_int(address);
-                iedf_DEBUG_serial(" aggiunto a requests per rimozione");
+                iedf_DEBUG_serial("\r\nAdded to requests for removing");
                 data_failure[i].num_fails = IEDF_MAX_RECOVERY_TIMES + 1;
                 requests[pending_requests].node_id = address;
                 requests[pending_requests].budget = 0;
@@ -435,7 +436,7 @@ void iedf_master_data_failure_add(uint16_t address, uint8_t force_remove)
             && force_remove) {
                 /* Node removed from next schedulation */
                 iedf_DEBUG_serial_int(address);
-                iedf_DEBUG_serial(" rimosso dalla schedulazione next");
+                iedf_DEBUG_serial("\r\nNode removed from next schedulation");
                 data_failure[i].num_fails++;
             }
         }
@@ -456,14 +457,14 @@ void iedf_master_data_failure_remove(uint16_t address)
     
     if (address == 0 && num_nodes_failed > 0) {
         iedf_DEBUG_serial_int(num_nodes_failed);
-        iedf_DEBUG_serial(" ci sono dentro data_fail");
+        iedf_DEBUG_serial("\r\nInside nodes_failed");
         /* Clean old entries */
         for (i = num_nodes_failed - 1; ; i--) {
             iedf_DEBUG_serial_int(i);
             //iedf_DEBUG_serial(" sto analizzando l'entry i");
             if (data_failure[i].num_fails == IEDF_MAX_RECOVERY_TIMES + 2) {
                 iedf_DEBUG_serial_int3(i, data_failure[i].node_id, data_failure[i].num_fails);
-                iedf_DEBUG_serial(" [i,node,numfails] sto rimuovendo dalla struttura");
+                iedf_DEBUG_serial("\r\n[i,node,numfails] sto rimuovendo dalla struttura");
                 data_failure[i].node_id =
                     data_failure[num_nodes_failed - 1].node_id;
                 data_failure[i].num_fails =
@@ -535,9 +536,9 @@ uint8_t iedf_buffer_put(uint8_t *data, uint8_t len)
     last_slot_write = (last_slot_write + 1) % IEDF_MAX_SLOTS;
     
     iedf_DEBUG_serial_int3(len, data_to_write, write_pointer);
-    iedf_DEBUG_serial(" len,datatow,writepointer");
+    iedf_DEBUG_serial("\r\nlen,datatow,writepointer");
     iedf_DEBUG_serial_int3(slot_count, last_slot_write, 0);
-    iedf_DEBUG_serial(" slt_count, lst_slt_wrt, 0");
+    iedf_DEBUG_serial("\r\nslt_count, lst_slt_wrt, 0");
     
     return data_to_write;
 }
@@ -677,7 +678,7 @@ uint16_t *timing)
     if (budget == 0) {
         /* Node must be removed */
         iedf_DEBUG_serial_int(node_id);
-        iedf_DEBUG_serial("<--------------- DA RIMUOVERE");
+        iedf_DEBUG_serial("\r\n<--------------- To remove!");
         for (i = 0; i < num_nodes2; i++) {
             if (node_id == db[IEDF_DB_INDEX2 + i].node_id) {
                 to_remove = i;
@@ -717,7 +718,7 @@ uint16_t *timing)
         schedule[2].total_nodes = num_nodes2;
 
         iedf_DEBUG_serial_int3(schedule[2].total_nodes, schedule[2].total_budget, schedule[2].hyper_period);
-        iedf_DEBUG_serial(" ;;;; DB2 (num, budg, hyper)");
+        iedf_DEBUG_serial("\r\nDB2 (num, budg, hyper)");
     }
     
     else {
@@ -742,7 +743,7 @@ uint16_t *timing)
             if (tmp_hyper == 0) {
                 if (!IEDF_DEBUG_JOIN_EXEC) {
                     iedf_DEBUG_serial_int3(hyper_period2, period, 0);
-                    iedf_DEBUG_serial("(Hyp, new, 0) *** ERROR *** overflow attempted");
+                    iedf_DEBUG_serial("\r\n(Hyp, new, 0) *** ERROR *** overflow attempted");
                 }
                 return 0;
             }
@@ -750,11 +751,11 @@ uint16_t *timing)
                 tmp_hyper / period * budget;
             if (!IEDF_DEBUG_JOIN_EXEC) {
                 iedf_DEBUG_serial_int3(node_id, budget, period);
-                iedf_DEBUG_serial(" JOIN (n, b, p)");
+                iedf_DEBUG_serial("\r\nJOIN (n, b, p)");
                 iedf_DEBUG_serial_int3(num_nodes2, total_budget2, hyper_period2);
-                iedf_DEBUG_serial(" OLD (nodes, budget, period)");
+                iedf_DEBUG_serial("\r\nOLD (nodes, budget, period)");
                 iedf_DEBUG_serial_int3(0, tmp_total, tmp_hyper);
-                iedf_DEBUG_serial(" NEW (0, budget, period)");
+                iedf_DEBUG_serial("\r\nNEW (0, budget, period)");
             }
             if (tmp_total > tmp_hyper) {
                 /* Schedulation not feasible */
