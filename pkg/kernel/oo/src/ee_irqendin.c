@@ -92,7 +92,7 @@ static void EE_IRQ_release_all_resources(void) {
   }
 }
 #else
-#define EE_IRQ_release_all_resources()    ((void)0);
+#define EE_IRQ_release_all_resources()    ((void)0)
 #endif /*  __OO_ISR2_RESOURCES__ */
 
 #ifndef __PRIVATE_IRQ_END_INSTANCE__

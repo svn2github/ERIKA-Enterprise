@@ -76,7 +76,7 @@ void EE_thread_not_terminated(void)
       TerminateTask() or ChainTask() call and still holds OSEK Resources, 
       the Operating System shall release them. 
   */
-  EE_oo_release_all_resources(current);
+  (void)EE_oo_release_all_resources(current);
 
   /* OS052, OS239: terminate task + call PostTaskHook + ISRs counters reset
      in EE_thread_end_instance. Interrupts enabling is done by

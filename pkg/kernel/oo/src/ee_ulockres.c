@@ -70,7 +70,7 @@ void EE_oo_ReleaseResource(ResourceType ResID)
   register EE_UREG isGlobal;
 #endif
   register EE_FREG flag;
-  register EE_UREG inside_task;
+  register EE_SREG inside_task;
 
   EE_ORTI_set_service_in(EE_SERVICETRACE_RELEASERESOURCE);
 
@@ -102,7 +102,7 @@ void EE_oo_ReleaseResource(ResourceType ResID)
 
 #ifdef __OO_EXTENDED_STATUS__
   /* If I'm really in a Task */
-  if(inside_task != 0U) {
+  if(inside_task != 0) {
     if ((current == EE_NIL) ||
         (EE_th_ready_prio[current] > EE_resource_ceiling[ResID])) {
       EE_ORTI_set_lasterror(E_OS_ACCESS);
@@ -119,7 +119,7 @@ void EE_oo_ReleaseResource(ResourceType ResID)
 
 #ifdef __OO_ISR2_RESOURCES__
   /* If actually we are inside an ISR2 get the fake TID to access stack */
-  if(inside_task == 0U) {
+  if(inside_task == 0) {
     current  = EE_oo_get_ISR2_TID();
   }
 #endif /* __OO_ISR2_RESOURCES__ */
@@ -175,7 +175,7 @@ void EE_oo_ReleaseResource(ResourceType ResID)
 
   /* Check if there is a preemption
      this test has to be done only if we are inside a task */
-  if(inside_task) {
+  if(inside_task != 0) {
     /* we are inside a task */
     EE_oo_preemption_point();
   }
