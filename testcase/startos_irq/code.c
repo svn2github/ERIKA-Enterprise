@@ -42,6 +42,13 @@
 #include "test/assert/inc/ee_assert.h"
 #include "../../common/test_common.h"
 
+/* Map OLD names on new PPC IRQ API */
+#ifdef __PPCE200ZX__
+#define test_setup_irq() test_setup_irq(0U, isr_callback, 1U)
+#define test_fire_irq()  test_fire_irq(0U)
+#endif
+
+
 #define TRUE 1
 
 /* Assertion data */
@@ -54,7 +61,7 @@ enum assertions {
 EE_TYPEASSERTVALUE EE_assertions[ASSERT_DIM];
 
 
-static void isr_callback(void)
+void isr_callback(void)
 {
 	EE_assert(ASSERT_IRQ_FIRED, TRUE, ASSERT_CALL_STARTOS);
 	EE_assert_range(0, 1, ASSERT_DIM - 1);
@@ -67,8 +74,8 @@ int main(void)
 
 	/* Setup and queue an interrupt request; StartOS() should enable IRQs, so
 	   the request is served */
-	test_setup_irq(0U, isr_callback, 1U);
-	test_fire_irq(0U);
+	test_setup_irq();
+	test_fire_irq();
 	EE_assert(ASSERT_CALL_STARTOS, TRUE, ASSERT_INIT);
 	StartOS(OSDEFAULTAPPMODE);
 

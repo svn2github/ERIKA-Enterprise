@@ -38,6 +38,7 @@
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
 
+#ifdef __PPCE200ZX__
 typedef void (*SoftIRQHandler) (void);
 
 /* Setup an IRQ source */
@@ -47,4 +48,14 @@ void test_setup_irq(unsigned int irq, SoftIRQHandler handler,
 /* Fire an IRQ.  When this function returns, an IRQ is guaranteed to have fired
  * once. */
 void test_fire_irq(unsigned int irq);
+#else
+void test_setup_irq(void);
 
+/* Fire an IRQ.  When this function returns, an IRQ is guaranteed to have fired
+ * once. */
+void test_fire_irq(void);
+
+/* Callback function, defined in the test code.  It must be called by the
+* ISR. */
+void isr_callback(void);
+#endif
