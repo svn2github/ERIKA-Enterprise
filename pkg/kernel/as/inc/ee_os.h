@@ -189,8 +189,8 @@ ApplicationType CheckObjectOwnership(ObjectTypeType ObjectType,
 StatusType TerminateApplication(ApplicationType Application,
 				RestartType RestartOption);
 StatusType AllowAccess(void);
-StatusType GetApplicationState(const ApplicationType Application,
-			       const ApplicationStateRefType Value);
+StatusType GetApplicationState(ApplicationType Application,
+			       ApplicationStateRefType Value);
 
 #if 0	/* Defined as macros */
 ObjectAccessType CheckObjectAccess(ApplicationType ApplID, ObjectTypeType
