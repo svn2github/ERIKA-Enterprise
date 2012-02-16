@@ -22,8 +22,8 @@ CPU example {
 		EE_OPT = "__EE_USE_MMU__";
 		EE_OPT = "__EE_CRT0_INIT_MMU__";
 		//EE_OPT = "__CODEWARRIOR__";
-		EE_OPT = "VERBOSE";
-		EE_OPT = "EEOPT_USE_DIAB_5_8";
+		//EE_OPT = "VERBOSE";
+		//EE_OPT = "EEOPT_USE_DIAB_5_8";
 
 		CFLAGS = "";
 		ASFLAGS = "";
