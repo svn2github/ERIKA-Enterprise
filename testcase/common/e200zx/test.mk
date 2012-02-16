@@ -58,71 +58,71 @@ GLOBAL_RTDRUID += \
 # configurations
 #
 
-# e200zx
-TESTLIST 		+= e200zx
-OUTDIR_COMMANDS_e200zx 	= $(OUTDIR_COMMANDS_e200zx_source)
-CONF_e200zx            	= $(call CONF_e200zx_source_template,diab,fle)
-GLOBAL_CONF 		+=
-DIST_e200zx            	=
-RTDRUID_e200zx		= $(RTDRUID_e200zx_source)
-CLEAN_e200zx           	=
-COMPILE_e200zx         	= $(COMPILE_e200zx_source)
-DEBUG_e200zx           	= $(call DEBUG_e200zx_source_template,fle)
+# e200zx_diab_5_5_1_fle
+TESTLIST 		                += e200zx_diab_5_5_1_fle
+OUTDIR_COMMANDS_e200zx_diab_5_5_1_fle 	= $(OUTDIR_COMMANDS_e200zx_source)
+CONF_e200zx_diab_5_5_1_fle            	= $(call CONF_e200zx_source_template,diab_5_5_1,fle)
+GLOBAL_CONF 		                +=
+DIST_e200zx_diab_5_5_1_fle            	=
+RTDRUID_e200zx_diab_5_5_1_fle		= $(RTDRUID_e200zx_source)
+CLEAN_e200zx_diab_5_5_1_fle           	=
+COMPILE_e200zx_diab_5_5_1_fle         	= $(COMPILE_e200zx_source)
+DEBUG_e200zx_diab_5_5_1_fle           	= $(call DEBUG_e200zx_source_template,fle)
 
-# e200zx_diab_vle
-TESTLIST 		+= e200zx_diab_vle
-OUTDIR_COMMANDS_e200zx_diab_vle = $(OUTDIR_COMMANDS_e200zx_source)
-CONF_e200zx_diab_vle            = $(call CONF_e200zx_source_template,diab,vle)
-GLOBAL_CONF 		+=
-DIST_e200zx_diab_vle    =
-RTDRUID_e200zx_diab_vle = $(RTDRUID_e200zx_source)
-CLEAN_e200zx_diab_vle   =
-COMPILE_e200zx_diab_vle = $(COMPILE_e200zx_source)
-DEBUG_e200zx_diab_vle   = $(call DEBUG_e200zx_source_template,vle)
+# e200zx_diab_5_5_1_vle
+TESTLIST 		                += e200zx_diab_5_5_1_vle
+OUTDIR_COMMANDS_e200zx_diab_5_5_1_vle   = $(OUTDIR_COMMANDS_e200zx_source)
+CONF_e200zx_diab_5_5_1_vle              = $(call CONF_e200zx_source_template,diab_5_5_1,vle)
+GLOBAL_CONF 		                +=
+DIST_e200zx_diab_5_5_1_vle              =
+RTDRUID_e200zx_diab_5_5_1_vle           = $(RTDRUID_e200zx_source)
+CLEAN_e200zx_diab_5_5_1_vle             =
+COMPILE_e200zx_diab_5_5_1_vle           = $(COMPILE_e200zx_source)
+DEBUG_e200zx_diab_5_5_1_vle             = $(call DEBUG_e200zx_source_template,vle)
 
-# e200zx_codewarrior_vle
-TESTLIST 		+= e200zx_codewarrior_vle
-OUTDIR_COMMANDS_e200zx_codewarrior_vle = $(OUTDIR_COMMANDS_e200zx_source)
-CONF_e200zx_codewarrior_vle = $(call CONF_e200zx_source_template,codewarrior,vle)
-GLOBAL_CONF 		+=
-DIST_e200zx_codewarrior_vle =
-RTDRUID_e200zx_codewarrior_vle = $(RTDRUID_e200zx_source)
-CLEAN_e200zx_codewarrior_vle =
-COMPILE_e200zx_codewarrior_vle = $(COMPILE_e200zx_source)
-DEBUG_e200zx_codewarrior_vle = $(call DEBUG_e200zx_source_template,vle)
+# e200zx_codewarrior_10_0_2_vle
+TESTLIST 		                        += e200zx_codewarrior_10_0_2_vle
+OUTDIR_COMMANDS_e200zx_codewarrior_10_0_2_vle   = $(OUTDIR_COMMANDS_e200zx_source)
+CONF_e200zx_codewarrior_10_0_2_vle              = $(call CONF_e200zx_source_template,codewarrior_10_0_2,vle)
+GLOBAL_CONF 		                        +=
+DIST_e200zx_codewarrior_10_0_2_vle              =
+RTDRUID_e200zx_codewarrior_10_0_2_vle           = $(RTDRUID_e200zx_source)
+CLEAN_e200zx_codewarrior_10_0_2_vle             =
+COMPILE_e200zx_codewarrior_10_0_2_vle           = $(COMPILE_e200zx_source)
+DEBUG_e200zx_codewarrior_10_0_2_vle             = $(call DEBUG_e200zx_source_template,vle)
 
-# e200zx_codewarrior_fle
-TESTLIST 		+= e200zx_codewarrior_fle
-OUTDIR_COMMANDS_e200zx_codewarrior_fle = $(OUTDIR_COMMANDS_e200zx_source)
-CONF_e200zx_codewarrior_fle = $(call CONF_e200zx_source_template,codewarrior,fle)
-GLOBAL_CONF 		+=
-DIST_e200zx_codewarrior_fle =
-RTDRUID_e200zx_codewarrior_fle = $(RTDRUID_e200zx_source)
-CLEAN_e200zx_codewarrior_fle =
-COMPILE_e200zx_codewarrior_fle = $(COMPILE_e200zx_source)
-DEBUG_e200zx_codewarrior_fle = $(call DEBUG_e200zx_source_template,fle)
+# e200zx_codewarrior_10_0_2_fle
+TESTLIST 		                        += e200zx_codewarrior_10_0_2_fle
+OUTDIR_COMMANDS_e200zx_codewarrior_10_0_2_fle   = $(OUTDIR_COMMANDS_e200zx_source)
+CONF_e200zx_codewarrior_10_0_2_fle              = $(call CONF_e200zx_source_template,codewarrior_10_0_2,fle)
+GLOBAL_CONF 		                        +=
+DIST_e200zx_codewarrior_10_0_2_fle              =
+RTDRUID_e200zx_codewarrior_10_0_2_fle           = $(RTDRUID_e200zx_source)
+CLEAN_e200zx_codewarrior_10_0_2_fle             =
+COMPILE_e200zx_codewarrior_10_0_2_fle           = $(COMPILE_e200zx_source)
+DEBUG_e200zx_codewarrior_10_0_2_fle             = $(call DEBUG_e200zx_source_template,fle)
 
 # e200zx_diab_5_8_vle
-TESTLIST 		+= e200zx_diab_5_8_vle
-OUTDIR_COMMANDS_e200zx_diab_5_8_vle = $(OUTDIR_COMMANDS_e200zx_source)
-CONF_e200zx_diab_5_8_vle            = $(call CONF_e200zx_source_template,diab_5_8,vle)
-GLOBAL_CONF 		+=
-DIST_e200zx_diab_5_8_vle    =
-RTDRUID_e200zx_diab_5_8_vle = $(RTDRUID_e200zx_source)
-CLEAN_e200zx_diab_5_8_vle   =
-COMPILE_e200zx_diab_5_8_vle = $(COMPILE_e200zx_source)
-DEBUG_e200zx_diab_5_8_vle   = $(call DEBUG_e200zx_source_template,vle)
+TESTLIST 		                += e200zx_diab_5_8_vle
+OUTDIR_COMMANDS_e200zx_diab_5_8_vle     = $(OUTDIR_COMMANDS_e200zx_source)
+CONF_e200zx_diab_5_8_vle                = $(call CONF_e200zx_source_template,diab_5_8,vle)
+GLOBAL_CONF 		                +=
+DIST_e200zx_diab_5_8_vle                =
+RTDRUID_e200zx_diab_5_8_vle             = $(RTDRUID_e200zx_source)
+CLEAN_e200zx_diab_5_8_vle               =
+COMPILE_e200zx_diab_5_8_vle             = $(COMPILE_e200zx_source)
+DEBUG_e200zx_diab_5_8_vle               = $(call DEBUG_e200zx_source_template,vle)
 
 # e200zx_diab_5_8_fle
-TESTLIST 		+= e200zx_diab_5_8_fle
-OUTDIR_COMMANDS_e200zx_diab_5_8_fle = $(OUTDIR_COMMANDS_e200zx_source)
-CONF_e200zx_diab_5_8_fle            = $(call CONF_e200zx_source_template,diab_5_8,fle)
-GLOBAL_CONF 		+=
-DIST_e200zx_diab_5_8_fle    =
-RTDRUID_e200zx_diab_5_8_fle = $(RTDRUID_e200zx_source)
-CLEAN_e200zx_diab_5_8_fle   =
-COMPILE_e200zx_diab_5_8_fle = $(COMPILE_e200zx_source)
-DEBUG_e200zx_diab_5_8_fle   = $(call DEBUG_e200zx_source_template,fle)
+TESTLIST 		                += e200zx_diab_5_8_fle
+OUTDIR_COMMANDS_e200zx_diab_5_8_fle     = $(OUTDIR_COMMANDS_e200zx_source)
+CONF_e200zx_diab_5_8_fle                = $(call CONF_e200zx_source_template,diab_5_8,fle)
+GLOBAL_CONF 		                +=
+DIST_e200zx_diab_5_8_fle                =
+RTDRUID_e200zx_diab_5_8_fle             = $(RTDRUID_e200zx_source)
+CLEAN_e200zx_diab_5_8_fle               =
+COMPILE_e200zx_diab_5_8_fle             = $(COMPILE_e200zx_source)
+DEBUG_e200zx_diab_5_8_fle               = $(call DEBUG_e200zx_source_template,fle)
 
 # -------------------------------------------------------------------
 
@@ -148,7 +148,7 @@ OUTDIR_COMMANDS_e200zx_source = \
 CONF_e200zx_source_template = \
 	echo CONF $(OUTDIR_PREFIX)$*; \
 	cat $(OUTDIR_PREFIX)$*/appl.oil | gcc -c - -E -P -I$(EEBASE)/pkg $(addprefix -D, $(shell $(DEMUX2) $*)) -De200zx $(e200zx_compiler_def) $(e200zx_vle_def) -o - >$(OUTDIR_PREFIX)$*/ee.oil;
-e200zx_compiler_def=$(if $(filter codewarrior,$1 $2),-DUSE_CODEWARRIOR,$(if $(filter diab,$1 $2),-DUSE_DIAB,$(if $(filter diab_5_8,$1 $2),-DUSE_DIAB_5_8,$(error Neither "codewarrior" nor "diab" found in arguments of CONF_e200zx_source_template))))
+e200zx_compiler_def=$(if $(filter codewarrior_10_0_2,$1 $2),-DUSE_CODEWARRIOR,$(if $(filter diab_5_5_1,$1 $2),-DUSE_DIAB,$(if $(filter diab_5_8,$1 $2),-DUSE_DIAB_5_8,$(error Neither "codewarrior" nor "diab" found in arguments of CONF_e200zx_source_template))))
 e200zx_vle_def=$(if $(filter vle,$1 $2),-DUSE_VLE,$(if $(filter fle,$1 $2),-DUSE_FLE,$(error Neither "fle" nor "vle" found in arguments of CONF_e200zx_source_template)))
 
 # Generate the rt-druid files...
