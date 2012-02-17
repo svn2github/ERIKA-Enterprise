@@ -90,6 +90,7 @@ CPU mySystem {
 		USERESSCHEDULER = FALSE;
 		
 		KERNEL_TYPE = BCC1;
+                EE_OPT = "__OO_STARTOS_OLD__";
 		
 //		ORTI_SECTIONS = ALL;
     };
