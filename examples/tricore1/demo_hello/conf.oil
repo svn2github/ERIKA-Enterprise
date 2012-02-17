@@ -49,6 +49,7 @@ CPU mySystem {
 			MODEL = "tc1796"; 
 		}; 				
 		KERNEL_TYPE = BCC1;
+                EE_OPT = "__OO_STARTOS_OLD__";
 	}; 
 };
 
