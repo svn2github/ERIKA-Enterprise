@@ -92,6 +92,7 @@ CPU test_application {
 		USERESSCHEDULER = TRUE;
 
         KERNEL_TYPE = ECC2;
+        "__OO_STARTOS_OLD__";
 		
 		/* This generates the ORTI File used by lauterbach Trace32! */
 		//ORTI_SECTIONS = ALL;

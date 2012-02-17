@@ -123,7 +123,7 @@ CPU test_application {
 	 * Task 1 is full preemptive
 	 */
 
-    OS EE { KERNEL_TYPE = BCC1; }; 
+    OS EE { KERNEL_TYPE = BCC1; EE_OPT = "__OO_STARTOS_OLD__";}; 
 	TASK Task1 { SCHEDULE = FULL; };
 	TASK Task2 { ACTIVATION = 1; };
 		
@@ -134,7 +134,7 @@ CPU test_application {
 	 * Same as Configuration 1, BUT Task 1 is NON preemptive
 	 */
 
-    // OS EE { KERNEL_TYPE = BCC1; }; 
+    // OS EE { KERNEL_TYPE = BCC1; EE_OPT = "__OO_STARTOS_OLD__";}; 
 	// TASK Task1 { SCHEDULE = NON; };
 	// TASK Task2 { ACTIVATION = 1; };
 
@@ -148,7 +148,7 @@ CPU test_application {
 	 * the OS object.
 	 */
 
-    // OS EE { EE_OPT = "MYSCHEDULE"; KERNEL_TYPE = BCC1; }; 
+    // OS EE { EE_OPT = "MYSCHEDULE"; KERNEL_TYPE = BCC1; EE_OPT = "__OO_STARTOS_OLD__";}; 
 	// TASK Task1 { SCHEDULE = NON; };
 	// TASK Task2 { ACTIVATION = 1; };
 
@@ -162,7 +162,7 @@ CPU test_application {
 	 * (which includes only a BCC1 kernel)
 	 */
 
-    //OS EE { EE_OPT = "MYSCHEDULE"; KERNEL_TYPE = BCC2; }; 
+    //OS EE { EE_OPT = "MYSCHEDULE"; KERNEL_TYPE = BCC2; EE_OPT = "__OO_STARTOS_OLD__";}; 
 	//TASK Task1 { SCHEDULE = NON; };
 	//TASK Task2 { ACTIVATION = 6; };
 

@@ -113,7 +113,7 @@ CPU test_application {
     };
 
 
-    OS EE { KERNEL_TYPE = ECC1; }; 
+    OS EE { KERNEL_TYPE = ECC1; EE_OPT = "__OO_STARTOS_OLD__";}; 
 };
 
 

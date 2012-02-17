@@ -86,6 +86,7 @@ CPU test_application {
 		USEPARAMETERACCESS = FALSE;
 		USERESSCHEDULER = FALSE;
 		
+                EE_OPT = "__OO_STARTOS_OLD__";
 		KERNEL_TYPE = BCC1;
 		
 //		ORTI_SECTIONS = ALL;
