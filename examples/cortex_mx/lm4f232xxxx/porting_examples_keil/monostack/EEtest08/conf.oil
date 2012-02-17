@@ -67,6 +67,7 @@ CPU mySystem {
 		EE_OPT = "__USE_SYSTICK__";
 
 		KERNEL_TYPE = BCC1;
+                EE_OPT = "__OO_STARTOS_OLD__";
 
 		STATUS = EXTENDED;
 		STARTUPHOOK = FALSE;
