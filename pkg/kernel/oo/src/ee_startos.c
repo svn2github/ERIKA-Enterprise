@@ -164,7 +164,7 @@ static void EE_oo_call_StartupHook(void)
  * If __OO_STARTOS_OLD__ is defined, the StartOS() returns,
  * (this is the old behaviour before the Autosar compliance).
  */
-#define EE_oo_start_os()    return (E_OK)
+#define EE_oo_start_os()    return E_OK
 #else
 /*
  * If __OO_STARTOS_OLD__ is not defined the system behaves 
@@ -177,7 +177,7 @@ static void EE_oo_start_os(void)
     ;
   }
 }
-#endif /* __OO_STARTOS_AS__ */
+#endif /* __OO_STARTOS_OLD__ */
 
 StatusType EE_oo_StartOS(AppModeType Mode)
 {
