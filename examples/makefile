@@ -5,7 +5,7 @@
 # ---------------------------------------------------------
 
 # list of all architectures
-ARCH_LIST = PIC30 ARM7 AVR5 ESI_RISC NIOS2 E200ZX S12XS TRICORE MICO32 S12G_CW S12XS_CW S12XS_COSMIC
+ARCH_LIST = PIC30 ARM7 AVR5 ESI_RISC NIOS2 E200ZX S12XS TRICORE MICO32 S12G_CW S12XS_CW S12XS_COSMIC CORTEX_MX
 
 # PIC30 templates
 # -----------------------------------------------------------
@@ -194,6 +194,10 @@ TEMPLATE_LIST_MICO32 += fpg_eye_mico32_udp
 TEMPLATE_LIST_MICO32 += fpg_eye_mico32_uwl_coordinator
 TEMPLATE_LIST_MICO32 += fpg_eye_mico32_uwl_device
 TEMPLATE_LIST_MICO32 += fpg_eye_mico32_web_camera
+
+# CORTEX templates
+# -----------------------------------------------------------
+TEMPLATE_LIST_CORTEX_MX += lpc12xx_base_demo
 
 # -----------------------------------------------------------
 # -----------------------------------------------------------
