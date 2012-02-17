@@ -159,17 +159,24 @@ static void EE_oo_call_StartupHook(void)
 #define EE_oo_call_StartupHook()    ((void)0)
 #endif /* __OO_HAS_STARTUPHOOK__ */
 
-#if defined(__OO_STARTOS_AS__)
-#warning "You configured ERIKA to not return from StartOS, be aware that this\
-  is not the historical behaviour!"
+#if defined(__OO_STARTOS_OLD__)
+/*
+ * If __OO_STARTOS_OLD__ is defined, the StartOS() returns,
+ * (this is the old behaviour before the Autosar compliance).
+ */
+#define EE_oo_start_os()    return (E_OK)
+#else
+/*
+ * If __OO_STARTOS_OLD__ is not defined the system behaves 
+ * like Autosar requires: infinite loop (do not return).
+ * This is the standard solution.
+ */
 static void EE_oo_start_os(void)
 {
   for(;;) {
     ;
   }
 }
-#else
-#define EE_oo_start_os()    return (E_OK)
 #endif /* __OO_STARTOS_AS__ */
 
 StatusType EE_oo_StartOS(AppModeType Mode)
