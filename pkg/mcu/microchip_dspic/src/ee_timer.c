@@ -47,6 +47,7 @@
 
 */
 
+#include "cpu/pic30/inc/ee_irqstub.h"
 #include "mcu/microchip_dspic/inc/ee_timer.h"
 #include "mcu/microchip_dspic/inc/ee_utils.h"
 

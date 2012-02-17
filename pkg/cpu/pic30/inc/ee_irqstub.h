@@ -56,11 +56,8 @@
 #include	"eecfg.h"
 #include	"cpu/pic30/inc/ee_compiler.h"
 
-#include	"cpu/common/inc/ee_context.h"
-#include	"cpu/common/inc/ee_primitives.h"
-
-extern void EE_IRQ_end_instance(void);
-
+/* Angle brackets to include the root one (I need internal to bring UP kernel IRQ callback) */
+#include	<ee_internal.h>
 #include	"cpu/common/inc/ee_irqstub.h"
 
 __INLINE__ void __ALWAYS_INLINE__ EE_ISR2_prestub(void)
