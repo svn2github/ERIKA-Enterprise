@@ -58,6 +58,7 @@ CPU mySystem {
 			};
 		};
 		
+                EE_OPT = "__OO_STARTOS_OLD__";
 		KERNEL_TYPE = BCC1;
 		
 //              Put these lines when we'll build a library especially for EICASLab

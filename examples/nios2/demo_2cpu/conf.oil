@@ -117,6 +117,7 @@ CPU test_application {
 		NIOS2_MUTEX_BASE = "MUTEX_BASE";
 
 		KERNEL_TYPE = BCC1;
+                EE_OPT = "__OO_STARTOS_OLD__";
 	};
 
 	TASK task0 {
