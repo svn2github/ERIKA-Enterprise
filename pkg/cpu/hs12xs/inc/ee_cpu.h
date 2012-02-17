@@ -244,10 +244,4 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_resumeIRQ(EE_FREG flags)
     EE_s12_resumeIRQ(flags);
 }
 
-/*************************************************************************
- Include the IRQ stub: ISR2
- *************************************************************************/
-
-#include	"cpu/hs12xs/inc/ee_irqstub.h"
-
 #endif /* __INCLUDE_HC12_ARCH_H__ */

@@ -55,7 +55,8 @@
 #include	"cpu/common/inc/ee_context.h"
 #include	"cpu/common/inc/ee_primitives.h"
 
-extern void EE_IRQ_end_instance(void);
+/* Here we really need angle brackets: */
+#include <ee_internal.h>
 
 #include	"cpu/common/inc/ee_irqstub.h"
 
