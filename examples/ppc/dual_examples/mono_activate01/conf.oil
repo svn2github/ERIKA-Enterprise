@@ -47,6 +47,7 @@ CPU test_application {
 		ORTI_SECTIONS = ALL;
 
 		KERNEL_TYPE = BCC1;
+                EE_OPT = "__OO_STARTOS_OLD__";
 	};
 
 	TASK TaskZ6 {

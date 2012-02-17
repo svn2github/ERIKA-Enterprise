@@ -66,7 +66,7 @@ CPU test_application {
 		AUTOSTART = FALSE;
 	};
 
-	OS EE { KERNEL_TYPE = BCC1; };
+	OS EE { KERNEL_TYPE = BCC1; EE_OPT = "__OO_STARTOS_OLD__";};
 	TASK Task1 { SCHEDULE = NON; };
 	TASK Task2 { ACTIVATION = 1; };
 };

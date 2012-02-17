@@ -46,6 +46,7 @@ CPU test_application {
 		USEREMOTETASK = ALWAYS;
 
 		KERNEL_TYPE = BCC1;
+                EE_OPT = "__OO_STARTOS_OLD__";
 	};
 
 	TASK TaskMaster {

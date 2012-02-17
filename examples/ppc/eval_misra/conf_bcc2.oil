@@ -46,7 +46,7 @@ CPU test_application {
 		STACK = SHARED;
 	};
 
-	OS EE { EE_OPT = "MYSCHEDULE"; KERNEL_TYPE = BCC2; };
+	OS EE { EE_OPT = "MYSCHEDULE"; KERNEL_TYPE = BCC2; EE_OPT = "__OO_STARTOS_OLD__";};
 	TASK Task1 { SCHEDULE = NON; };
 	TASK Task2 { ACTIVATION = 6; };
 };

@@ -81,5 +81,5 @@ CPU test_application {
 		SCHEDULE = FULL;
 	};
 
-	OS EE { KERNEL_TYPE = BCC1; };
+	OS EE { KERNEL_TYPE = BCC1; EE_OPT = "__OO_STARTOS_OLD__";};
 };
