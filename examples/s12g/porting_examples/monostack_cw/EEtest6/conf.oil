@@ -106,8 +106,7 @@ CPU test_application {
 		STACK = SHARED;
     };
 
-    EE_OPT = "__OO_STARTOS_OLD__";
-    OS EE { KERNEL_TYPE = BCC1; }; 
+    OS EE { KERNEL_TYPE = BCC1;     EE_OPT = "__OO_STARTOS_OLD__"; }; 
 	TASK Task1 { SCHEDULE = FULL; };
 	TASK Task2 { ACTIVATION = 1; };
 
