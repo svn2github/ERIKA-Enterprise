@@ -46,19 +46,19 @@ if [ $1 = "GCC" ]; then
     fi
 
     if test -d "${PROGRAMFILES}\Microchip\mplabc30\v3.25"; then
-	printf "...Using ${PROGRAMFILES}\\Microchip\\mplabc30\\v3.25\n" 1>&2
+	echo "...Using ${PROGRAMFILES}\\Microchip\\mplabc30\\v3.25" 1>&2
 	cygpath `cygpath -ms "${PROGRAMFILES}\Microchip\mplabc30\v3.25"`
 	exit
     fi
 
     if test -d "${PROGRAMFILES}\Microchip\mplabc30\v3.30"; then
-	printf "...Using ${PROGRAMFILES}\\Microchip\\mplabc30\\v3.30\n" 1>&2
+	echo "...Using ${PROGRAMFILES}\\Microchip\\mplabc30\\v3.30" 1>&2
 	cygpath `cygpath -ms "${PROGRAMFILES}\Microchip\mplabc30\v3.30"`
 	exit
     fi
 
     if test -d "${PROGRAMFILES}\Microchip\mplabc30\v3.31"; then
-	printf "...Using ${PROGRAMFILES}\\Microchip\\mplabc30\\v3.31\n" 1>&2
+	echo "...Using ${PROGRAMFILES}\\Microchip\\mplabc30\\v3.31" 1>&2
 	cygpath `cygpath -ms "${PROGRAMFILES}\Microchip\mplabc30\v3.31"`
 	exit
     fi
