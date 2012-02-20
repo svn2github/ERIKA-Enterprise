@@ -106,6 +106,7 @@ CPU test_application {
 
 	}; // CPU_DATA
 
+        EE_OPT = "__OO_STARTOS_OLD__";
 #ifdef B1
         KERNEL_TYPE = BCC1;
 #endif

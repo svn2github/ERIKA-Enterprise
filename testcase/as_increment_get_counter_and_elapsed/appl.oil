@@ -70,6 +70,7 @@
 #endif
     };
 
+    EE_OPT = "__OO_STARTOS_OLD__";
 #ifdef B1
     KERNEL_TYPE = BCC1;
 #endif

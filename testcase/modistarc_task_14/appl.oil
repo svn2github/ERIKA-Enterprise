@@ -101,6 +101,7 @@ CPU test_application {
 		
 		};
 
+        EE_OPT = "__OO_STARTOS_OLD__";
 #ifdef E1
         KERNEL_TYPE = ECC1;
 #endif

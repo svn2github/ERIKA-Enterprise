@@ -85,6 +85,7 @@ CPU test_application {
 		
 		};
 
+        EE_OPT = "__OO_STARTOS_OLD__";
         KERNEL_TYPE = ECC2;
 
     };
