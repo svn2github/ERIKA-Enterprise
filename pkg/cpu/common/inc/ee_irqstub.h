@@ -56,6 +56,8 @@
 /* Used angle brackets to select header in Erika Root. This file select the
    right kernel API inclusion */
 #include <ee_irq.h>
+/* this bring EE_IRQ_nesting_level definition */
+#include "ee_primitives.h"
 
 /* True if we are inside an interrupt-serving routine */
 #define EE_is_inside_ISR_call() (EE_IRQ_nesting_level > 0U)

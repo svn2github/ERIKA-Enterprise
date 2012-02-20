@@ -53,7 +53,6 @@
 #include	"cpu/hs12xs/inc/ee_compiler.h"
 
 #include	"cpu/common/inc/ee_context.h"
-#include	"cpu/common/inc/ee_primitives.h"
 
 #include	"cpu/common/inc/ee_irqstub.h"
 

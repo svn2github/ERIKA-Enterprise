@@ -56,7 +56,6 @@
 #include	"cpu/pic30/inc/ee_cpu.h"
 
 /* common ee_irqstub.h depends on ee_context */
-#include	"cpu/common/inc/ee_primitives.h"
 #include	"cpu/common/inc/ee_context.h"
 #include	"cpu/common/inc/ee_irqstub.h"
 
