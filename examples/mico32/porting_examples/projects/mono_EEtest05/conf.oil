@@ -49,6 +49,5 @@ CPU test_application {
 		ACTIVATION = 1;    /* only one pending activation */
 	};	
 
-	OS EE { KERNEL_TYPE = BCC1; };
-        EE_OPT = "__OO_STARTOS_OLD__";
+	OS EE { KERNEL_TYPE = BCC1; EE_OPT = "__OO_STARTOS_OLD__";};
 };
