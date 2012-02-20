@@ -46,6 +46,7 @@
 #define __INCLUDE_FP_INTERNAL_H__
 
 #include "kernel/fp/inc/ee_common.h"
+#include "kernel/fp/inc/ee_irq.h"
 
 /*************************************************************************
  Kernel Constants
@@ -82,11 +83,6 @@
 #ifndef __PRIVATE_THREAD_END_INSTANCE__
 void EE_thread_end_instance(void);
 #endif
-
-#ifndef __PRIVATE_IRQ_END_INSTANCE__
-void EE_IRQ_end_instance(void);
-#endif
-
 
 /*************************************************************************
  Internal Queue management functions

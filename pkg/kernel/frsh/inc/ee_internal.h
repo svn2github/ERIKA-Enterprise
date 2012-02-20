@@ -44,6 +44,7 @@
  */
 
 #include "ee_common.h"
+#include "ee_irq.h"
 
 #ifndef __INCLUDE_FRSH_INTERNAL_H__
 #define __INCLUDE_FRSH_INTERNAL_H__
@@ -213,24 +214,6 @@ int EE_frsh_bind_detach_thread(EE_TID thread);
    primitive is not inserted at the end of */
 void EE_thread_end_instance(void);
 #endif
-
-
-/*************************************************************************
- Primitives that have to be called into an IRQ
- *************************************************************************/
-
-#ifndef __PRIVATE_IRQ_END_INSTANCE__
-/* This primitive shall be atomic.
-   This primitive shall be inserted as the last function in an IRQ handler.
-   If the HAL allow IRQ nesting the end_instance should work as follows:
-   - it must implement the preemption test only if it is the last IRQ on the stack
-   - if there are other interrupts on the stack the IRQ end_instance should do nothing
-*/
-void EE_IRQ_end_instance(void);
-#endif
-
-
-
 
 /*************************************************************************
  Timers

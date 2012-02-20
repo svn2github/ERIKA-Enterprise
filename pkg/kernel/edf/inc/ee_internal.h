@@ -44,6 +44,7 @@
  */
 
 #include "kernel/edf/inc/ee_common.h"
+#include "kernel/edf/inc/ee_irq.h"
 
 #ifndef __INCLUDE_EDF_INTERNAL_H__
 #define __INCLUDE_EDF_INTERNAL_H__
@@ -82,12 +83,6 @@
 #ifndef __PRIVATE_THREAD_END_INSTANCE__
 void EE_thread_end_instance(void);
 #endif
-
-
-#ifndef __PRIVATE_IRQ_END_INSTANCE__
-void EE_IRQ_end_instance(void);
-#endif
-
 
 
 /*************************************************************************

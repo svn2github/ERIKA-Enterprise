@@ -43,15 +43,19 @@
  * Author: 2009-2010,  Bernardo  Dal Seno
  */
 
-/*
- * You should include "ee_internal.h" before including this header, because the
- * declaration of EE_IRQ_end_instance() is needed.  It also depends on
- * "cpu/common/inc/ee_context.h" or your own implementation of the same.
- */
+/*******************************************************************************
+ *                        !!!WARNING!!!
+ * This header depends on "cpu/common/inc/ee_context.h" or your own 
+ * implementation of the same. You should include it file before including this
+ * file
+ ******************************************************************************/
 
 #ifndef __INCLUDE_CPU_COMMON_EE_IRQSTUB__
 #define __INCLUDE_CPU_COMMON_EE_IRQSTUB__
 
+/* Used angle brackets to select header in Erika Root. This file select the
+   right kernel API inclusion */
+#include <ee_irq.h>
 
 /* True if we are inside an interrupt-serving routine */
 #define EE_is_inside_ISR_call() (EE_IRQ_nesting_level > 0U)
@@ -82,7 +86,7 @@
 #endif
 
 #if defined(__OO_BCC1__) || defined(__OO_BCC2__) || defined(__OO_ECC1__) || \
-    defined(__OO_ECC2__)
+    defined(__OO_ECC2__) || defined(__AS_SC4__)
 /* Function to be called at the end of a function service interrupt, to execute
    clean-up specifiend in Autosar standard */
 __INLINE__ void __ALWAYS_INLINE__ EE_std_end_IRQ_post_stub(void)

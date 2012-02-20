@@ -46,8 +46,6 @@
 #ifndef __INCLUDE_E200ZX_IRQ_H__
 #define __INCLUDE_E200ZX_IRQ_H__
 
-/* Use angled parenthesis to include the main "ee_internal.h" */
-#include <ee_internal.h>
 #include "cpu/e200zx/inc/ee_irq_internal.h"
 
 #if (!defined(__OO_BCC1__)) && (!defined(__OO_BCC2__)) && \

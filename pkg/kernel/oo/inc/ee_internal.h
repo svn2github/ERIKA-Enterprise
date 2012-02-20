@@ -48,6 +48,7 @@
 
 #include "kernel/oo/inc/ee_common.h"
 #include "kernel/oo/inc/ee_intfunc.h"
+#include "kernel/oo/inc/ee_irq.h"
 
 /*************************************************************************
  HAL extensions
@@ -195,25 +196,6 @@ void EE_thread_not_terminated(void);
    primitive is not inserted at the end of */
 #ifndef __PRIVATE_THREAD_END_INSTANCE__
 void EE_thread_end_instance(void);
-#endif
-
-#ifndef __PRIVATE_IRQ_END_INSTANCE__
-/* This primitive shall be atomic.
-   This primitive shall be inserted as the last function in an IRQ handler.
-   If the HAL allow IRQ nesting the C_end_instance should work as follows:
-   - it must implement the preemption test only if it is the last IRQ on the
-     stack
-   - if there are other interrupts on the stack the IRQ end_instance should
-     do nothing
-*/
-void EE_IRQ_end_instance(void);
-/* This primitive shall be atomic.
-   This primitive shall be inserted as the last function in an IRQ post-stub.
-    This primitive done needed clean-up as restting kernel interrupt nested
-    counters and release got resources if application forget to do that as
-    specified by Autosar standard.
-*/
-void EE_IRQ_end_post_stub(void);
 #endif
 
 #ifdef __OO_ISR2_RESOURCES__
