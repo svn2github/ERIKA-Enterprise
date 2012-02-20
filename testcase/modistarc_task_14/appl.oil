@@ -158,7 +158,7 @@ CPU test_application {
 #endif
 #ifdef cortex_mx
 		STACK = PRIVATE {
-			SYS_SIZE = 0x200;
+			SYS_SIZE = 0x100;
 		};
 #endif
     };
@@ -210,7 +210,7 @@ CPU test_application {
 #endif
 #ifdef cortex_mx
 		STACK = PRIVATE {
-			SYS_SIZE = 0x200;
+			SYS_SIZE = 0x100;
 		};
 #endif
     };
@@ -261,7 +261,7 @@ CPU test_application {
 #endif
 #ifdef cortex_mx
 		STACK = PRIVATE {
-			SYS_SIZE = 0x200;
+			SYS_SIZE = 0x100;
 		};
 #endif
     };
@@ -312,7 +312,7 @@ CPU test_application {
 #endif
 #ifdef cortex_mx
 		STACK = PRIVATE {
-			SYS_SIZE = 0x200;
+			SYS_SIZE = 0x100;
 		};
 #endif
     };
@@ -363,7 +363,7 @@ CPU test_application {
 #endif
 #ifdef cortex_mx
 		STACK = PRIVATE {
-			SYS_SIZE = 0x200;
+			SYS_SIZE = 0x100;
 		};
 #endif
     };
@@ -414,7 +414,7 @@ CPU test_application {
 #endif
 #ifdef cortex_mx
 		STACK = PRIVATE {
-			SYS_SIZE = 0x200;
+			SYS_SIZE = 0x100;
 		};
 #endif
     };
@@ -465,7 +465,7 @@ CPU test_application {
 #endif
 #ifdef cortex_mx
 		STACK = PRIVATE {
-			SYS_SIZE = 0x200;
+			SYS_SIZE = 0x100;
 		};
 #endif
     };
@@ -516,7 +516,7 @@ CPU test_application {
 #endif
 #ifdef cortex_mx
 		STACK = PRIVATE {
-			SYS_SIZE = 0x200;
+			SYS_SIZE = 0x100;
 		};
 #endif
     };
@@ -567,7 +567,7 @@ CPU test_application {
 #endif
 #ifdef cortex_mx
 		STACK = PRIVATE {
-			SYS_SIZE = 0x200;
+			SYS_SIZE = 0x100;
 		};
 #endif
     };
@@ -618,7 +618,7 @@ CPU test_application {
 #endif
 #ifdef cortex_mx
 		STACK = PRIVATE {
-			SYS_SIZE = 0x200;
+			SYS_SIZE = 0x100;
 		};
 #endif
     };
@@ -669,7 +669,7 @@ CPU test_application {
 #endif
 #ifdef cortex_mx
 		STACK = PRIVATE {
-			SYS_SIZE = 0x200;
+			SYS_SIZE = 0x100;
 		};
 #endif
     };
@@ -720,7 +720,7 @@ CPU test_application {
 #endif
 #ifdef cortex_mx
 		STACK = PRIVATE {
-			SYS_SIZE = 0x200;
+			SYS_SIZE = 0x100;
 		};
 #endif
     };
@@ -771,7 +771,7 @@ CPU test_application {
 #endif
 #ifdef cortex_mx
 		STACK = PRIVATE {
-			SYS_SIZE = 0x200;
+			SYS_SIZE = 0x100;
 		};
 #endif
     };
@@ -822,7 +822,7 @@ CPU test_application {
 #endif
 #ifdef cortex_mx
 		STACK = PRIVATE {
-			SYS_SIZE = 0x200;
+			SYS_SIZE = 0x100;
 		};
 #endif
     };
@@ -873,7 +873,7 @@ CPU test_application {
 #endif
 #ifdef cortex_mx
 		STACK = PRIVATE {
-			SYS_SIZE = 0x200;
+			SYS_SIZE = 0x100;
 		};
 #endif
     };
@@ -924,7 +924,7 @@ CPU test_application {
 #endif
 #ifdef cortex_mx
 		STACK = PRIVATE {
-			SYS_SIZE = 0x200;
+			SYS_SIZE = 0x100;
 		};
 #endif
 	};
