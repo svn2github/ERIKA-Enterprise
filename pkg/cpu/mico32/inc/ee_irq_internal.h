@@ -55,8 +55,6 @@
 #endif
 
 #include <MicoInterrupts.h>
-/* Here we really need angle brackets: */
-#include <ee_internal.h>
 #include <cpu/common/inc/ee_irqstub.h>
 #include <cpu/mico32/inc/ee_irq_types.h>
 
