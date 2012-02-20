@@ -55,9 +55,6 @@
 #include	"cpu/common/inc/ee_context.h"
 #include	"cpu/common/inc/ee_primitives.h"
 
-/* Here we really need angle brackets: */
-#include <ee_internal.h>
-
 #include	"cpu/common/inc/ee_irqstub.h"
 
 extern EE_DADD EE_s12_temp_tos;
