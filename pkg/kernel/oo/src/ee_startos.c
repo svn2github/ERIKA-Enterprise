@@ -164,7 +164,7 @@ static void EE_oo_call_StartupHook(void)
  * If __OO_STARTOS_OLD__ is defined, the StartOS() returns,
  * (this is the old behaviour before the Autosar compliance).
  */
-#define EE_oo_start_os()    return E_OK
+#define EE_oo_start_os()    ((void)0)
 #else
 /*
  * If __OO_STARTOS_OLD__ is not defined the system behaves 
@@ -173,6 +173,13 @@ static void EE_oo_call_StartupHook(void)
  */
 static void EE_oo_start_os(void)
 {
+  /*
+   * This static declaration prevents from MISRA 14.2/FlexeLint 522:
+   * lacks side-effects
+   */
+  static int started;
+  started = 1;
+
   for(;;) {
     ;
   }
@@ -273,6 +280,8 @@ StatusType EE_oo_StartOS(AppModeType Mode)
 
   /* If __OO_STARTOS_AS__ is defined -> endless cycle, otherwise return. */
   EE_oo_start_os();
+
+  return E_OK;
 }
 #endif /* __PRIVATE_STARTOS__ */
 
