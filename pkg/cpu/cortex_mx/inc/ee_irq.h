@@ -53,9 +53,10 @@
 #define EE_std_change_context(x) ((void)0)
 
 /* Use angled parenthesis to include the main "ee_internal.h" */
-#include <ee_internal.h>
+#include "cpu/cortex_mx/inc/ee_cpu.h"
 #include "cpu/cortex_mx/inc/ee_irq_cng_cont.h"
-#include <cpu/common/inc/ee_irqstub.h>
+#include "cpu/cortex_mx/inc/ee_context.h"
+#include "cpu/common/inc/ee_irqstub.h"
 
 #ifdef __ALLOW_NESTED_IRQ__
 
