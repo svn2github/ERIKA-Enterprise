@@ -53,11 +53,11 @@
 #ifndef	__INCLUDE_PIC30_EE_IRQSTUB_H__
 #define	__INCLUDE_PIC30_EE_IRQSTUB_H__
 
-#include	"eecfg.h"
-#include	"cpu/pic30/inc/ee_compiler.h"
+#include	"cpu/pic30/inc/ee_cpu.h"
 
-/* Angle brackets to include the root one (I need internal to bring UP kernel IRQ callback) */
-#include	<ee_internal.h>
+/* common ee_irqstub.h depends on ee_context */
+#include	"cpu/common/inc/ee_primitives.h"
+#include	"cpu/common/inc/ee_context.h"
 #include	"cpu/common/inc/ee_irqstub.h"
 
 __INLINE__ void __ALWAYS_INLINE__ EE_ISR2_prestub(void)
