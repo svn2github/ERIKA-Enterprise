@@ -47,6 +47,5 @@ CPU test_application {
                 ACTIVATION = 4;
     };
 
-    OS EE { KERNEL_TYPE = BCC2; };
-    EE_OPT = "__OO_STARTOS_OLD__";
+    OS EE { KERNEL_TYPE = BCC2; EE_OPT = "__OO_STARTOS_OLD__";};
 };
