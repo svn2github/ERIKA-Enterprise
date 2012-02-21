@@ -45,9 +45,7 @@
 	@date 2009-2010
 */  
 
-#include <cpu/mico32/inc/ee_irq_internal.h>
-#include <ee_internal.h>
-#include <cpu/common/inc/ee_irqstub.h>
+#include <ee_irq.h>
 
 #ifndef __STATIC_ISR_TABLE__
 EE_mico32_ISR_handler EE_mico32_ISR_table[MAX_MICO32_ISR_LEVEL+1];

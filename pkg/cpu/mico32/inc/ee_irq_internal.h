@@ -55,6 +55,7 @@
 #endif
 
 #include <MicoInterrupts.h>
+#include <cpu/common/inc/ee_context.h>
 #include <cpu/common/inc/ee_irqstub.h>
 #include <cpu/mico32/inc/ee_irq_types.h>
 
