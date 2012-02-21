@@ -11,6 +11,7 @@
 #define __uwl_compiler_ee_h__
 
 #include <ee.h>
+#include <ee_irq.h>
 #include "../../../../misc/inc/ee_stdint.h"
 
 #ifndef COMPILER_INLINE 

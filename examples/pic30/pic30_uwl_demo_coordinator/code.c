@@ -1,4 +1,5 @@
 #include "ee.h"
+#include "ee_irq.h"
 #include "uwl_ieee802154.h"
 #include <string.h>
 #include <stdio.h>
