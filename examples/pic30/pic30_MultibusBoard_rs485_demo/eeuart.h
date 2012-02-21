@@ -42,6 +42,7 @@
 #define __INCLUDE_EEUART_H__
 
 #include "ee.h"
+#include "ee_irq.h"
 
 #define CLOCK_FREQ	(40000000)      // Hz
 #define INSTR_FREQ	(CLOCK_FREQ/2)	// Hz
