@@ -888,11 +888,11 @@ typedef EE_TYPEOSSERVICEID OSServiceIdType;
 /* Special value to flag an error happened in the Task body
    needed for AS requirement OS069
 */
-#define OSServiceId_TaskBody          25U
+#define OSId_TaskBody          25U
 /* Special value to flag an error happened in the ISR2 body
    needed for AS requirement OS368
 */
-#define OSServiceId_ISR2Body          26U
+#define OSId_ISR2Body          26U
 
 /* 13.8.4 Macros                                                           */
 /* ----------------------------------------------------------------------- */

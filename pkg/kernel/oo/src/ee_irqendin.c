@@ -83,7 +83,7 @@ static void EE_IRQ_release_all_resources(void) {
       /* OS369 */
       if(ResID != EE_UREG_MINUS1) {
         EE_ORTI_set_lasterror(E_OS_RESOURCE);
-        EE_oo_notify_error_service(OSServiceId_ISR2Body, E_OS_RESOURCE);
+        EE_oo_notify_error_service(OSId_ISR2Body, E_OS_RESOURCE);
       }
       /* Decrement ISR2 index (from 0U to EE_UREG_MINUS1 is handled by
          unsigned wraparound) */
@@ -179,7 +179,7 @@ void EE_IRQ_end_post_stub(void) {
     EE_oo_IRQ_disable_count = 0U;
 
     EE_ORTI_set_lasterror(E_OS_DISABLEDINT);
-    EE_oo_notify_error_service(OSServiceId_ISR2Body, E_OS_DISABLEDINT);
+    EE_oo_notify_error_service(OSId_ISR2Body, E_OS_DISABLEDINT);
   }
 
   /* OS369: If a Category 2 OsIsr calls GetResource() and ends (returns)

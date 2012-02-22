@@ -70,7 +70,7 @@ void EE_thread_not_terminated(void)
       the RUNNING state.
   */
   EE_ORTI_set_lasterror(E_OS_MISSINGEND);
-  EE_oo_notify_error_service(OSServiceId_TaskBody, E_OS_MISSINGEND);
+  EE_oo_notify_error_service(OSId_TaskBody, E_OS_MISSINGEND);
 
   /* OS070: If a task returns from the entry function without making a 
       TerminateTask() or ChainTask() call and still holds OSEK Resources, 
