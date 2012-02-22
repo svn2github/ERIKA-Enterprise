@@ -2,8 +2,8 @@
 #define __SUPPORT_H__
 
 #include <ee.h>
+#include <ee_irq.h>
 #include "shared.h"
-#include <cpu/e200zx/inc/ee_irq.h>
 
 /* just a set of constant delays */
 #define BASE_DELAY 250000

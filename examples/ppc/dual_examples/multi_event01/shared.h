@@ -2,6 +2,9 @@
 #define SHARED_H
 
 #include <ee.h>
+#include <ee_irq.h>
+/* Assertions */
+#include "test/assert/inc/ee_assert.h"
 
 enum assertions {
 	asr_init = 1,

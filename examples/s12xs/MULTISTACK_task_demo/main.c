@@ -43,7 +43,7 @@
 */ 
 
 #include "ee.h"
-#include "cpu/hs12xs/inc/ee_irqstub.h" 
+#include "ee_irq.h" 
 #include "myapp.h"
 
 #include "ee_s12regs.h"

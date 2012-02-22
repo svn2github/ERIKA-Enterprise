@@ -44,8 +44,6 @@
  */
 
 #include "support.h"
-#include <ee.h>
-#include <cpu/e200zx/inc/ee_irq.h>
 
 /*
  * MAIN TASK

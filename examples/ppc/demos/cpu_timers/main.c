@@ -19,7 +19,7 @@
  */
 
 #include <ee.h>
-#include <cpu/e200zx/inc/ee_irq.h>
+#include <ee_irq.h>
 #include "board/axiom_mpc5674fxmb/inc/ee_board.h"
 
 DeclareTask(Task1);

@@ -67,7 +67,7 @@
  */
 
 #include "ee.h"
-#include "cpu/pic30/inc/ee_irqstub.h"
+#include "ee_irq.h"
 
 #define XNAME(x,y)  x##y
 #define NAME(x,y)   XNAME(x,y)

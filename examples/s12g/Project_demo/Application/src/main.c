@@ -43,7 +43,7 @@
 */
 
 #include "ee.h"
-#include "cpu/hs12xs/inc/ee_irqstub.h"
+#include "ee_irq.h"
 #include "mcu/hs12xs/inc/ee_timer.h"
 #include "mcu/hs12xs/inc/ee_sci.h"
 #include "inc/application.h"

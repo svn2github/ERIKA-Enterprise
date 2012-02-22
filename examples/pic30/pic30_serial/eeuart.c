@@ -39,7 +39,7 @@
  * ###*E*### */
 
 #include "ee_internal.h"
-#include "cpu/pic30/inc/ee_irqstub.h"
+#include "ee_irq.h"
 #include "mcu/microchip_dspic/inc/ee_mcu.h"
 #include "eeuart.h"
 

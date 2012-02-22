@@ -44,7 +44,7 @@
  */
 
 #include "ee.h"
-#include "cpu/pic30/inc/ee_irqstub.h"
+#include "ee_irq.h"
 
 /* Oscillator selectione register set on internal Fast RC oscillator (7.86 Mhz nominal). */
 _FOSCSEL(FNOSC_FRC);

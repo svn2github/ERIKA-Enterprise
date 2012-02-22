@@ -1,5 +1,5 @@
 #include <ee.h>
-#include <cpu/e200zx/inc/ee_irq.h>
+#include <ee_irq.h>
 
 static void init_app1_timer(void)
 {

@@ -2,6 +2,9 @@
 #define SHARED_H
 
 #include <ee.h>
+#include <ee_irq.h>
+/* Assertions */
+#include "test/assert/inc/ee_assert.h"
 
 #define SHARED_LEN 9
 #define SHARED_LONG_LEN 512

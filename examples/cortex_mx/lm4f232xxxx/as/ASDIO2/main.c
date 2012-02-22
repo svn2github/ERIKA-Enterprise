@@ -49,7 +49,7 @@
 #include "Mcu.h"
 #include "Port.h"
 #include "Dio.h"
-#include "cpu/cortex_mx/inc/ee_irq.h"
+#include "ee_irq.h"
 #include "test/assert/inc/ee_assert.h"
 
 #ifndef	TRUE

@@ -7,7 +7,7 @@
 /* RT-Kernel */
 #include <ee.h>
 /* Erika Mico32 interrupts */
-#include <cpu/mico32/inc/ee_irq.h>
+#include <ee_irq.h>
 /* Platform description */
 #include <system_conf.h>
 /* Standard library */

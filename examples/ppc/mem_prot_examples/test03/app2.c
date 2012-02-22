@@ -1,5 +1,5 @@
 #include <ee.h>
-#include <cpu/e200zx/inc/ee_irq.h>
+#include <ee_irq.h>
 #include "app.h"
 
 static char EE_APPLICATION_UDATA(App2) var0;

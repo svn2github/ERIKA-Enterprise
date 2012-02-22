@@ -54,7 +54,7 @@
 /* Platform configuration */
 #include <system_conf.h>
 /* Erika Mico32 interrupts */
-#include <cpu/mico32/inc/ee_irq.h>
+#include <ee_irq.h>
 #include "spi_flash_sw.h"
 /* Other libraries */
 #include <stdlib.h>

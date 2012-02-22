@@ -46,7 +46,7 @@
 
 
 #include <ee.h>
-#include <cpu/e200zx/inc/ee_irq.h>
+#include <ee_irq.h>
 
 /* Counters; volatile because they are accessed in interrupt handlers and
  * different tasks */

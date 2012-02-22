@@ -1,5 +1,5 @@
 #include <ee.h>
-#include <cpu/e200zx/inc/ee_irq.h>
+#include <ee_irq.h>
 
 static volatile int EE_APPLICATION_UDATA(App1) state1;
 static volatile int EE_APPLICATION_IDATA(App1) counter1 = 110100;

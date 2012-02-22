@@ -30,7 +30,7 @@
 
 
 #include "ee.h"
-#include "cpu/pic30/inc/ee_irqstub.h"
+#include "ee_irq.h"
 
 #include "P2PDefs.h"
 #include "MRF24J40.h"
@@ -372,7 +372,8 @@ int main(void)
 	/*
 	* This alarm activates, every 5 ms, the TaskMiWiOP task which
 	* manages the MiWi-P2P protocol.
-	*/	SetRelAlarm(AlarmProt, 5, 5);
+	*/
+	SetRelAlarm(AlarmProt, 5, 5);
 
 	/* Forever loop: background activities (if any) should go here */
 	for (;;) {

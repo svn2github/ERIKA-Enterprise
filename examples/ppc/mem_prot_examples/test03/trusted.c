@@ -1,5 +1,5 @@
 #include <ee.h>
-#include <cpu/e200zx/inc/ee_irq.h>
+#include <ee_irq.h>
 #include "app.h"
 #include "trusted.h"
 

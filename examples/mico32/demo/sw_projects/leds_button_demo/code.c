@@ -51,7 +51,7 @@
 /* Latice GPIO component */
 #include <MicoGPIO.h>
 /* Erika Mico32 interrupts */
-#include <cpu/mico32/inc/ee_irq.h>
+#include <ee_irq.h>
 /* Lattice components */
 #include <MicoMacros.h>
 

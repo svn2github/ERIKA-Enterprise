@@ -5,7 +5,7 @@
 #include "stdlib.h"
 #include <math.h>
 #include "ee.h"
-#include "cpu/hs12xs/inc/ee_irqstub.h"
+#include "ee_irq.h"
 #include "ee_s12regs.h" 
 
 #include "myapp.h"

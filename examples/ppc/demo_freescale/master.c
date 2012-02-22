@@ -44,8 +44,6 @@
  */
 
 #include "support.h"
-#include <ee.h>
-#include <cpu/e200zx/inc/ee_irq.h>
 
 /* My shared data */
 #ifdef __MSRP__

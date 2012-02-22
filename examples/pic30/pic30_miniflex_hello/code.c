@@ -44,7 +44,7 @@
  */
 
 #include "ee.h"
-#include "cpu/pic30/inc/ee_irqstub.h"
+#include "ee_irq.h"
 #include "mcu/microchip_dspic/inc/ee_uart.h"
 
 EE_UINT8 i;

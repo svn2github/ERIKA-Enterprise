@@ -7,7 +7,7 @@
 //   Static ISR table
 //  
 /////////////////////////////////////////////////////////////////////////////
-    #include <cpu/e200zx/inc/ee_irq.h>
+    #include <ee_irq.h>
 
     extern void timer_interrupt(void);
 

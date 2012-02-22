@@ -43,7 +43,7 @@
  * CVS: $Id: code.c,v 1.2 2007/03/19 15:04:49 nino Exp $
  */
 #include "ee.h"
-#include "cpu/pic30/inc/ee_irqstub.h"
+#include "ee_irq.h"
 
 #include "sensors.h"
 

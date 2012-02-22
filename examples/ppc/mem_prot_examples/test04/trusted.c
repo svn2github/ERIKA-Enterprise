@@ -1,5 +1,5 @@
 #include <ee.h>
-#include <cpu/e200zx/inc/ee_irq.h>
+#include <ee_irq.h>
 #include "error.h"
 
 int EE_APPLICATION_UDATA(TrustedApp) error_var;

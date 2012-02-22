@@ -43,7 +43,7 @@
  */
 
 #include "ee.h"
-#include "cpu/e200zx/inc/ee_irq.h"
+#include "ee_irq.h"
 
 #define __USE_LEDS__
 #define __USE_BUTTONS__

@@ -43,7 +43,7 @@
  */
 
 #include "ee.h"
-#include "cpu/pic30/inc/ee_irqstub.h"
+#include "ee_irq.h"
 #include "flex_udp.h"
 
 // Primary (XT, HS, EC) Oscillator without PLL

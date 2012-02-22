@@ -91,7 +91,7 @@
 #define THIS_IS_STACK_APPLICATION
 
 #include "ee.h"
-#include "cpu/pic30/inc/ee_irqstub.h"
+#include "ee_irq.h"
 // Include all headers for any enabled TCPIP Stack functions
 #include "TCPIP_Stack/TCPIP.h"
 

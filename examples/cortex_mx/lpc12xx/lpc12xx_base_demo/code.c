@@ -55,7 +55,7 @@
 
 #include "ee.h"
 #include "lpc12xx_libcfg_default.h"
-#include "cpu/cortex_mx/inc/ee_irq.h"
+#include "ee_irq.h"
 
 /* Counter */
 int task1_fired = 0;

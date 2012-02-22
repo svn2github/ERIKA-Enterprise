@@ -19,7 +19,7 @@
  */
 
 #include "ee.h"
-#include "cpu/e200zx/inc/ee_irq.h"
+#include "ee_irq.h"
 
 #include "test/assert/inc/ee_assert.h"
 

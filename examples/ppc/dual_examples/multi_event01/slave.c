@@ -45,10 +45,6 @@
 
 
 #include "shared.h"
-#include <ee.h>
-#include <cpu/e200zx/inc/ee_irq.h>
-/* Assertions */
-#include "test/assert/inc/ee_assert.h"
 
 #ifdef USE_PRAGMAS
 

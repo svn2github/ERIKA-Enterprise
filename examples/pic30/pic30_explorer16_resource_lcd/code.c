@@ -44,7 +44,7 @@
  */
 
 #include "ee.h"
-#include "cpu/pic30/inc/ee_irqstub.h"
+#include "ee_irq.h"
 
 /*
  * Use this define to use or not the resources and obtain the race

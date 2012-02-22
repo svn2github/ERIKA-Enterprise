@@ -45,11 +45,6 @@
 
 
 #include "shared.h"
-#include <ee.h>
-#include <cpu/e200zx/inc/ee_irq.h>
-/* Assertions */
-#include "test/assert/inc/ee_assert.h"
-
 
 /* Counters; volatile because they are accessed in interrupt handlers and
  * different tasks */

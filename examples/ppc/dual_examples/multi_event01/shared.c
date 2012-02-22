@@ -1,8 +1,5 @@
 #include "shared.h"
 
-/* Hack to avoid clashing with the declaration in ee_assert.h */
-typedef EE_INT8 EE_TYPEASSERTVALUE;
-
 #ifdef USE_PRAGMAS
 
 #pragma section EE_SHARED_NOTINIT_BEGIN

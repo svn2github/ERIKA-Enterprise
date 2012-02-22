@@ -45,10 +45,6 @@
 
 
 #include "shared.h"
-#include <ee.h>
-#include <cpu/e200zx/inc/ee_irq.h>
-/* Assertions */
-#include "test/assert/inc/ee_assert.h"
 
 /* Space for my shared data */
 volatile int EE_SHARED_UDATA shared[SHARED_LONG_LEN];
