@@ -51,7 +51,7 @@
     #include "GenericTypeDefs.h"
     #include "SystemProfile.h"
     #if defined(PROTOCOL_P2P)
-        #include "WirelessProtocols\P2P\P2P.h"
+        #include "WirelessProtocols/P2P/P2P.h"
     #endif
     
     #define INPUT

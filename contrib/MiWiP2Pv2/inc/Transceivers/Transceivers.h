@@ -52,14 +52,14 @@
     #if defined(MRF24J40)
         #define IEEE_802_15_4
 
-        #include "Transceivers\MRF24J40\MRF24J40.h"
+        #include "Transceivers/MRF24J40/MRF24J40.h"
     #endif
 
     #if defined(MRF49XA)
         #define SOFTWARE_CRC
         #define SOFTWARE_SECURITY
 
-        #include "Transceivers\MRF49XA\MRF49XA.h"
+        #include "Transceivers/MRF49XA/MRF49XA.h"
     #endif
 #endif
 

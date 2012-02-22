@@ -66,12 +66,12 @@
 
     #include "Compiler.h"
     #include "GenericTypeDefs.h"
-    #include "Transceivers\MCHP_MAC.h"
-    //GF #include "Common\MSPI.h"
-	//#include "Common\radio_spi.h" //GF
+    #include "Transceivers/MCHP_MAC.h"
+    //GF #include "Common/MSPI.h"
+	//#include "Common/radio_spi.h" //GF
 	#include "mcu/microchip_dspic/inc/ee_spi.h"
-    #include "Transceivers\Transceivers.h"
-    //GF #include "Common\Console.h"
+    #include "Transceivers/Transceivers.h"
+    //GF #include "Common/Console.h"
 	//Start GF
 	#ifdef ENABLE_CONSOLE
 		#include "console_serial.h"
@@ -79,7 +79,7 @@
 		console_write(MY_FIRST_CONSOLE, (EE_UINT8*) str, strlen(str))
 	#endif
 	//End GF
-    #include "Common\SymbolTime.h"
+    #include "Common/SymbolTime.h"
 
     /************************ VARIABLES ********************************/
     MACINIT_PARAM   MACInitParams;
@@ -119,7 +119,7 @@
         BYTE tmpSourceLongAddress[MY_ADDRESS_LENGTH];
         DWORD_VAL tmpFrameCounter;
 
-        #include "WirelessProtocols\MCHP_API.h"
+        #include "WirelessProtocols/MCHP_API.h"
     #endif
 
     #if defined(__18CXX)

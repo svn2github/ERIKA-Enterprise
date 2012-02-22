@@ -48,7 +48,7 @@
 #ifndef __CRC_H
     #define __CRC_H
 
-    #include "Transceivers\Transceivers.h"
+    #include "Transceivers/Transceivers.h"
     
     #if defined(SOFTWARE_CRC)
         #include "GenericTypeDefs.h"

@@ -51,9 +51,9 @@
 
     #include "ConfigApp.h"
     #include "GenericTypeDefs.h"
-    #include "Transceivers\Transceivers.h"
+    #include "Transceivers/Transceivers.h"
     #if defined(PROTOCOL_P2P)
-        #include "WirelessProtocols\P2P\ConfigP2P.h"
+        #include "WirelessProtocols/P2P/ConfigP2P.h"
     #endif
 
     #define CHANNEL_ASSESSMENT_CARRIER_SENSE    0x00

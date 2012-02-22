@@ -45,10 +45,10 @@
 *  2.0   4/15/2009    yfy       MiMAC and MiApp revision
 *  2.1   6/20/2009    yfy       Add LCD support
 ********************************************************************/
-#include "Transceivers\Transceivers.h"
+#include "Transceivers/Transceivers.h"
 
 #if defined(SOFTWARE_CRC)
-    #include "Transceivers\crc.h"
+    #include "Transceivers/crc.h"
     #include "GenericTypeDefs.h"
 
     /**********************************************************************

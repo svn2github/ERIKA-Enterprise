@@ -61,14 +61,14 @@
 
 #if defined(PROTOCOL_P2P)
 
-//GF #include "Common\MSPI.h"
-//#include "Common\radio_spi.h" //GF
+//GF #include "Common/MSPI.h"
+//#include "Common/radio_spi.h" //GF
 #include "mcu/microchip_dspic/inc/ee_spi.h"
 
-#include "WirelessProtocols\P2P\P2P.h"
+#include "WirelessProtocols/P2P/P2P.h"
 #include "Compiler.h"
 #include "GenericTypeDefs.h"
-//GF #include "Common\Console.h"
+//GF #include "Common/Console.h"
 //Start GF
 #ifdef ENABLE_CONSOLE
 	#include "console_serial.h"
@@ -100,10 +100,10 @@
 						
 #endif
 //End GF
-#include "Common\SymbolTime.h"
-#include "Transceivers\MCHP_MAC.h"
-#include "Transceivers\Transceivers.h"
-#include "WirelessProtocols\MCHP_API.h"
+#include "Common/SymbolTime.h"
+#include "Transceivers/MCHP_MAC.h"
+#include "Transceivers/Transceivers.h"
+#include "WirelessProtocols/MCHP_API.h"
 
 
 /************************ VARIABLES ********************************/

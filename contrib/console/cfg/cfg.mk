@@ -39,6 +39,4 @@ ifeq ($(EE_HC12_CONSOLE), YES)
 EE_SRCS += contrib/console/src/hal/s12.c
 endif
 
-INCLUDE_PATH += $(EEBASE)/contrib/console/inc
-
 endif

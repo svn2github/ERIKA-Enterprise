@@ -53,12 +53,12 @@
 ********************************************************************/
 
 #include "SystemProfile.h"
-#include "Transceivers\Transceivers.h"
+#include "Transceivers/Transceivers.h"
 
 #if defined(SOFTWARE_SECURITY) && defined(ENABLE_SECURITY)
 
     #include "GenericTypeDefs.h"
-    #include "Transceivers\Security.h"                                
+    #include "Transceivers/Security.h"
     #include "Common/Console.h"
     
     BYTE tmpBlock[BLOCK_SIZE];

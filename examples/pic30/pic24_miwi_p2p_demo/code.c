@@ -41,17 +41,17 @@
 #include <stdio.h>
 
 #include "ee.h"
-#include "cpu/pic30/inc/ee_irqstub.h"
+#include "ee_irq.h"
 
 #include "console_serial.h"
 
 #include "ConfigApp.h"
 //#include "Common\Console.h"
-#include "WirelessProtocols\P2P\P2P.h"
-#include "Transceivers\Transceivers.h"
-#include "Common\SymbolTime.h"
-#include "Transceivers\Security.h"
-#include "WirelessProtocols\MCHP_API.h"
+#include "WirelessProtocols/P2P/P2P.h"
+#include "Transceivers/Transceivers.h"
+#include "Common/SymbolTime.h"
+#include "Transceivers/Security.h"
+#include "WirelessProtocols/MCHP_API.h"
 
 _CONFIG1(JTAGEN_OFF & FWDTEN_OFF)
 _CONFIG2(FNOSC_PRIPLL & POSCMOD_XT)

@@ -56,10 +56,10 @@
 
 #if defined(PROTOCOL_P2P)
 /************************ HEADERS **********************************/
-#include "WirelessProtocols\P2P\ConfigP2P.h"
-#include "Common\SymbolTime.h"
-#include "Transceivers\Transceivers.h"
-#include "Transceivers\MCHP_MAC.h"
+#include "WirelessProtocols/P2P/ConfigP2P.h"
+#include "Common/SymbolTime.h"
+#include "Transceivers/Transceivers.h"
+#include "Transceivers/MCHP_MAC.h"
 
 /************************ DEFINITIONS ******************************/
 

@@ -53,9 +53,9 @@
     
     #include "GenericTypeDefs.h"
     #include "SystemProfile.h"
-    #include "Transceivers\Transceivers.h"
-    #include "Transceivers\MCHP_MAC.h"
-    #include "Transceivers\MRF24J40\ConfigMRF24J40.h"
+    #include "Transceivers/Transceivers.h"
+    #include "Transceivers/MCHP_MAC.h"
+    #include "Transceivers/MRF24J40/ConfigMRF24J40.h"
     
     #define SEC_LEVEL_CTR           0
     #define SEC_LEVEL_CBC_MAC_32    1
@@ -236,6 +236,7 @@
     #define READ_SECCR2 (0x6E)
     #define READ_BBREG0 (0x70)
     #define READ_BBREG1 (0x72)
+
     #define READ_BBREG2 (0x74)
     #define READ_BBREG3 (0x76)
     #define READ_BBREG4 (0x78)
