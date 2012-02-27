@@ -41,10 +41,6 @@ module fpg_eye_mico32_wrapper(
                             , serparioSTORE
                             , serparioOUT_EN
                             , spi_flash_hold_out
-                            , SPIFlash_bootCEJ
-                            , SPIFlash_bootSCK
-                            , SPIFlash_bootSI
-                            , SPIFlash_bootSO
 							, cameracam_y
 							, cameracam_pclk
 							, cameracam_hsync
@@ -65,7 +61,6 @@ module fpg_eye_mico32_wrapper(
     input net_spiMISO_MASTER;
     input [3:0] misc_gpioPIO_BOTH_IN;
     input serparioSER_IN;
-    input SPIFlash_bootSO;
 	input gpio_flash_sdi;
 
 	// Outputs
@@ -92,9 +87,6 @@ module fpg_eye_mico32_wrapper(
     output        serparioSH_CLK;
     output        serparioSTORE;
     output        serparioOUT_EN;
-    output        SPIFlash_bootCEJ;
-    output        SPIFlash_bootSCK;
-    output        SPIFlash_bootSI;
     output        spi_flash_hold_out;
     output        cameracam_mclk;
     output        cameracam_rst;
