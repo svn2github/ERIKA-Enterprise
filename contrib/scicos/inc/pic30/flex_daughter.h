@@ -52,6 +52,10 @@
 
 #include <ee.h>
 
+#ifdef __USE_BUZZER__
+void flex_daughter_buzzer_update(float new_freq_f);
+#endif
+
 #ifdef __USE_LCD__
 #define LCD_PRINT_FLOAT SCITYPE_FLOAT
 #define LCD_PRINT_CHARS SCITYPE_INT8

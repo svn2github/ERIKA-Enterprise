@@ -56,6 +56,7 @@
 
 #define FLEX_BLOCKS_TYPE_BUTTONS 0
 #define FLEX_BLOCKS_TYPE_LEDSLCD 1
+#define FLEX_BLOCKS_TYPE_LEDSLCDBUZ 2
 
 static void init(scicos_block *block)
 {
@@ -64,10 +65,12 @@ static void init(scicos_block *block)
 	if(type == FLEX_BLOCKS_TYPE_BUTTONS) {
 		flex_daughter_button_init();
 	}
-	else if(type == FLEX_BLOCKS_TYPE_LEDSLCD) {
+	else {
 		flex_daughter_leds_init();
 		#if defined(__USE_DEMOBOARD__)
 		flex_daughter_lcd_init();
+		if(type == FLEX_BLOCKS_TYPE_LEDSLCDBUZ)
+			EE_buzzer_init();
 		#endif
 	}
 }
@@ -85,7 +88,7 @@ static void inout(scicos_block *block)
 		flex_daughter_button_inout(4, block->outptr[3], SCITYPE_INT8);
 		#endif
 	}
-	else if(type == FLEX_BLOCKS_TYPE_LEDSLCD) {
+	else {
 		/* LEDs */
 		int i;
 		unsigned char ledv = 0;
@@ -94,18 +97,32 @@ static void inout(scicos_block *block)
 		}
 		flex_daughter_leds_inout_uint8(ledv);
 
-		/* LCD */
+		/* LCD and buzzer */
 		#if defined(__USE_DEMOBOARD__)
 		int line1_type = block->ipar[2];
 		int line2_type = block->ipar[3];
-		flex_daughter_lcd_inout_line (1, line1_type, (void*)block->inptr[8], block->insz[2*block->nin - 2]);
-		flex_daughter_lcd_inout_line (2, line2_type, (void*)block->inptr[9], block->insz[2*block->nin - 1]);
+		if(type == FLEX_BLOCKS_TYPE_LEDSLCD){
+			flex_daughter_lcd_inout_line (1, line1_type, (void*)block->inptr[8], block->insz[2*block->nin - 2]);
+			flex_daughter_lcd_inout_line (2, line2_type, (void*)block->inptr[9], block->insz[2*block->nin - 1]);
+		}
+		else if(type == FLEX_BLOCKS_TYPE_LEDSLCDBUZ){
+			flex_daughter_lcd_inout_line (1, line1_type, (void*)block->inptr[8], block->insz[2*block->nin - 3]);
+			flex_daughter_lcd_inout_line (2, line2_type, (void*)block->inptr[9], block->insz[2*block->nin - 2]);
+			float new_freq_f = ((float *)block->inptr[10])[0];
+			flex_daughter_buzzer_update(new_freq_f);
+		}
 		#endif
 	}
 }
 
 static void end(scicos_block *block)
 {
+	#if defined(__USE_DEMOBOARD__)
+	int type = block->ipar[0];
+	if(type == FLEX_BLOCKS_TYPE_LEDSLCDBUZ){
+		EE_buzzer_stop();
+	}
+	#endif
 }
 
 void flex_blocks(scicos_block *block,int flag)

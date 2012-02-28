@@ -53,6 +53,25 @@
 #include <ee.h>
 #include "pic30/flex_daughter.h"
 
+#ifdef __USE_BUZZER__
+void flex_daughter_buzzer_update(float new_freq_f)
+{
+    static const EE_UINT32 frequency_span = EE_FLEX_BUZZER_MAX_FREQ - EE_FLEX_BUZZER_MIN_FREQ;
+    if(new_freq_f > 0.0F)
+    {
+        /* Saturate IN to 1.0 */
+        if(new_freq_f > 1.0F)
+            new_freq_f = 1.0F;
+        /* Frequency in Hz */
+        EE_UINT32 new_span = new_freq_f * frequency_span;
+        EE_UINT32 new_freq = new_span + EE_FLEX_BUZZER_MIN_FREQ;
+        EE_buzzer_start(new_freq);
+    }
+    else
+        EE_buzzer_stop();
+}
+#endif
+
 #ifdef __USE_LCD__
 
 #include "stdio.h"
