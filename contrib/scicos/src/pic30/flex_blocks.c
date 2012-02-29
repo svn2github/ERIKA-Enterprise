@@ -70,7 +70,7 @@ static void init(scicos_block *block)
 		#if defined(__USE_DEMOBOARD__)
 		flex_daughter_lcd_init();
 		if(type == FLEX_BLOCKS_TYPE_LEDSLCDBUZ)
-			EE_buzzer_init();
+			flex_daughter_buzzer_init();
 		#endif
 	}
 }
@@ -120,7 +120,7 @@ static void end(scicos_block *block)
 	#if defined(__USE_DEMOBOARD__)
 	int type = block->ipar[0];
 	if(type == FLEX_BLOCKS_TYPE_LEDSLCDBUZ){
-		EE_buzzer_stop();
+		flex_daughter_buzzer_stop();
 	}
 	#endif
 }

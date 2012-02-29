@@ -54,6 +54,14 @@
 
 #ifdef __USE_BUZZER__
 void flex_daughter_buzzer_update(float new_freq_f);
+#define flex_daughter_buzzer_start(f) EE_buzzer_start(f)
+#define flex_daughter_buzzer_stop() EE_buzzer_stop()
+#define flex_daughter_buzzer_init() EE_buzzer_init()
+#else
+__INLINE__ void __ALWAYS_INLINE__ flex_daughter_buzzer_update(float new_freq_f){}
+__INLINE__ void __ALWAYS_INLINE__ flex_daughter_buzzer_start(EE_UINT32 freq){}
+__INLINE__ void __ALWAYS_INLINE__ flex_daughter_buzzer_stop(void){}
+__INLINE__ void __ALWAYS_INLINE__ flex_daughter_buzzer_init(void){}
 #endif
 
 #ifdef __USE_LCD__
