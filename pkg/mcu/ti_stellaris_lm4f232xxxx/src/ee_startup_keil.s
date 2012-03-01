@@ -281,7 +281,7 @@ __heap_limit
 	IMPORT	EE_CORTEX_MX_I2C_3_ISR
 #endif
 #ifdef EE_CORTEX_MX_I2C_4_ISR			/* I2C4 Master and Slave */
-	IMPORT	EE_CORTEX_MX_I2C_0_ISR
+	IMPORT	EE_CORTEX_MX_I2C_4_ISR
 #endif
 #ifdef EE_CORTEX_MX_I2C_5_ISR			/* I2C5 Master and Slave */
 	IMPORT	EE_CORTEX_MX_I2C_5_ISR
@@ -392,10 +392,10 @@ __heap_limit
 	IMPORT	EE_CORTEX_MX_WIDE_TIMER_0_A_ISR
 #endif
 #ifdef EE_CORTEX_MX_WIDE_TIMER_0_B_ISR		/* Wide Timer 0 subtimer B */
-	IMPORT	EE_CORTEX_MX_WIDE_TIMER_0_A_ISR
+	IMPORT	EE_CORTEX_MX_WIDE_TIMER_0_B_ISR
 #endif
 #ifdef EE_CORTEX_MX_WIDE_TIMER_1_A_ISR		/* Wide Timer 1 subtimer A */
-	IMPORT	EE_CORTEX_MX_WIDE_TIMER_0_A_ISR
+	IMPORT	EE_CORTEX_MX_WIDE_TIMER_1_A_ISR
 #endif
 #ifdef EE_CORTEX_MX_WIDE_TIMER_1_B_ISR		/* Wide Timer 1 subtimer B */
 	IMPORT	EE_CORTEX_MX_WIDE_TIMER_1_B_ISR
@@ -499,7 +499,11 @@ EE_cortex_mx_vtable
 #ifdef EE_CORTEX_MX_HARD_FAULT_ISR		/* The hard fault handler */
 	DCD	EE_CORTEX_MX_HARD_FAULT_ISR
 #else
+#ifdef	__AUTOSAR_R4_0__
+	DCD	EE_cortex_mx_as_hard_fault_ISR
+#else	/* __AUTOSAR_R4_0__ */
 	DCD	EE_cortex_mx_default_ISR
+#endif	/* !__AUTOSAR_R4_0__ */
 #endif
 #ifdef EE_CORTEX_MX_MPU_FAULT_ISR		/* The MPU fault handler */
 	DCD	EE_CORTEX_MX_MPU_FAULT_ISR
@@ -509,7 +513,11 @@ EE_cortex_mx_vtable
 #ifdef EE_CORTEX_MX_BUS_FAULT_ISR		/* The bus fault handler */
 	DCD	EE_CORTEX_MX_BUS_FAULT_ISR
 #else
+#ifdef	__AUTOSAR_R4_0__
+	DCD	EE_cortex_mx_as_bus_fault_ISR
+#else	/* __AUTOSAR_R4_0__ */
 	DCD	EE_cortex_mx_default_ISR
+#endif	/* !__AUTOSAR_R4_0__ */
 #endif
 #ifdef EE_CORTEX_MX_USAGE_FAULT_ISR		/* The usage fault handler */
 	DCD	EE_CORTEX_MX_USAGE_FAULT_ISR
@@ -1157,6 +1165,38 @@ EE_cortex_mx_default_reset_ISR
     ENDIF
 
 	B	__main
+
+;******************************************************************************
+;
+; This is the code that gets called when the processor receives a BUS FAULT
+; exception.
+;
+;******************************************************************************
+#ifdef	__AUTOSAR_R4_0__
+EE_cortex_mx_as_bus_fault_ISR
+#ifdef	__AS_SCI_DRIVER__
+	BKPT	#0x00
+	B	EE_cortex_mx_as_bus_fault_ISR
+#else	/* !__AS_SCI_DRIVER__ */
+	B	EE_cortex_mx_as_bus_fault_ISR
+#endif	/* !__AS_SCI_DRIVER__ */
+#endif	/* __AUTOSAR_R4_0__ */
+
+;******************************************************************************
+;
+; This is the code that gets called when the processor receives a HARD FAULT
+; exception.
+;
+;******************************************************************************
+#ifdef	__AUTOSAR_R4_0__
+EE_cortex_mx_as_hard_fault_ISR
+#ifdef	__AS_SCI_DRIVER__
+	BKPT	#0x00
+	B	EE_cortex_mx_as_hard_fault_ISR
+#else	/* !__AS_SCI_DRIVER__ */
+	B	EE_cortex_mx_as_hard_fault_ISR
+#endif	/* !__AS_SCI_DRIVER__ */
+#endif	/* __AUTOSAR_R4_0__ */
 
 ;******************************************************************************
 ;
