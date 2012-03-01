@@ -43,7 +43,7 @@
 
 
 # Output directories
-OUTPUT_DIRS = html
+OUTPUT_DIRS = html latex rtf
 
 
 .PHONY: clean

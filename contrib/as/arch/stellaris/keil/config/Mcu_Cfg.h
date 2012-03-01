@@ -41,7 +41,7 @@
 /** @file	Mcu_Cfg.h
  *  @brief	fake-druid AUTOSAR MCU Driver Configuration Header File.
  *
- * Configured for (MCU): TI Stellaris LM4F232H5QD
+ *  Configured for (MCU): TI Stellaris LM4F232H5QD
  *
  *  @author	Giuseppe Serano
  *  @date	2011
@@ -292,10 +292,176 @@
  */
 #define	MCU_CLOCK_MODE_PRIOSC_16_PLL	0x1F
 
-/**
- *  Number of supported clock mode.
+/** @brief	16MHz
+ *
+ *  Main Oscillator - No PLL - No System Clock Divisor.
  */
-#define	MCU_CLOCK_MODE_NUMBER		MCU_CLOCK_MODE_PRIOSC_16_PLL + 1
+#define	MCU_CLOCK_MODE_MOSC_NO_PLL	0x20
+/** @brief	8MHz
+ *
+ *  Main Oscillator - No PLL - System Clock Divisor (2).
+ */
+#define	MCU_CLOCK_MODE_MOSC_2_NO_PLL	0x21
+/** @brief	5.33MHz
+ *
+ *  Main Oscillator - No PLL - System Clock Divisor (3).
+ */
+#define	MCU_CLOCK_MODE_MOSC_3_NO_PLL	0x22
+/** @brief	4MHz
+ *
+ *  Main Oscillator - No PLL - System Clock Divisor (4).
+ */
+#define	MCU_CLOCK_MODE_MOSC_4_NO_PLL	0x23
+/** @brief	3.2MHz
+ *
+ *  Main Oscillator - No PLL - System Clock Divisor (5).
+ */
+#define	MCU_CLOCK_MODE_MOSC_5_NO_PLL	0x24
+/** @brief	2.67MHz
+ *
+ *  Main Oscillator - No PLL - System Clock Divisor (6).
+ */
+#define	MCU_CLOCK_MODE_MOSC_6_NO_PLL	0x25
+/** @brief	2.28MHz
+ *
+ *  Main Oscillator - No PLL - System Clock Divisor (7).
+ */
+#define	MCU_CLOCK_MODE_MOSC_7_NO_PLL	0x26
+/** @brief	2MHz
+ *
+ *  Main Oscillator - No PLL - System Clock Divisor (8).
+ */
+#define	MCU_CLOCK_MODE_MOSC_8_NO_PLL	0x27
+/** @brief	1.78MHz
+ *
+ *  Main Oscillator - No PLL - System Clock Divisor (9).
+ */
+#define	MCU_CLOCK_MODE_MOSC_9_NO_PLL	0x28
+/** @brief	1.6MHz
+ *
+ *  Main Oscillator - No PLL - System Clock Divisor (10).
+ */
+#define	MCU_CLOCK_MODE_MOSC_10_NO_PLL	0x29
+/** @brief	1.45MHz
+ *
+ *  Main Oscillator - No PLL - System Clock Divisor (11).
+ */
+#define	MCU_CLOCK_MODE_MOSC_11_NO_PLL	0x2A
+/** @brief	1.33MHz
+ *
+ *  Main Oscillator - No PLL - System Clock Divisor (12).
+ */
+#define	MCU_CLOCK_MODE_MOSC_12_NO_PLL	0x2B
+/** @brief	1.23MHz
+ *
+ *  Main Oscillator - No PLL - System Clock Divisor (13).
+ */
+#define	MCU_CLOCK_MODE_MOSC_13_NO_PLL	0x2C
+/** @brief	1.14MHz
+ *
+ *  Main Oscillator - No PLL - System Clock Divisor (14).
+ */
+#define	MCU_CLOCK_MODE_MOSC_14_NO_PLL	0x2D
+/** @brief	1.06MHz
+ *
+ *  Main Oscillator - No PLL - System Clock Divisor (15).
+ */
+#define	MCU_CLOCK_MODE_MOSC_15_NO_PLL	0x2E
+/** @brief	1MHz
+ *
+ *  Main Oscillator - No PLL - System Clock Divisor (16).
+ */
+#define	MCU_CLOCK_MODE_MOSC_16_NO_PLL	0x2F
+/** @brief	200MHz
+ *
+ *  Main Oscillator - PLL - No System Clock Divisor.
+ *
+ *  @note	NOT SUPPORTED BY HARDWARE.
+ */
+#define	MCU_CLOCK_MODE_MOSC_PLL	0x30
+/** @brief	100MHz
+ *
+ *  Main Oscillator - PLL - System Clock Divisor (2).
+ *
+ *  @note	NOT SUPPORTED BY HARDWARE.
+ */
+#define	MCU_CLOCK_MODE_MOSC_2_PLL	0x31
+/** @brief	66.7MHz
+ *
+ *  Main Oscillator - PLL - System Clock Divisor (3).
+ */
+#define	MCU_CLOCK_MODE_MOSC_3_PLL	0x32
+/** @brief	50MHz
+ *
+ *  Main Oscillator - PLL - System Clock Divisor (4).
+ */
+#define	MCU_CLOCK_MODE_MOSC_4_PLL	0x33
+/** @brief	40MHz
+ *
+ *  Main Oscillator - PLL - System Clock Divisor (5).
+ */
+#define	MCU_CLOCK_MODE_MOSC_5_PLL	0x34
+/** @brief	33.3MHz
+ *
+ *  Main Oscillator - PLL - System Clock Divisor (6).
+ */
+#define	MCU_CLOCK_MODE_MOSC_6_PLL	0x35
+/** @brief	28.6MHz
+ *
+ *  Main Oscillator - PLL - System Clock Divisor (7).
+ */
+#define	MCU_CLOCK_MODE_MOSC_7_PLL	0x36
+/** @brief	25MHz
+ *
+ *  Main Oscillator - PLL - System Clock Divisor (8).
+ */
+#define	MCU_CLOCK_MODE_MOSC_8_PLL	0x37
+/** @brief	22.2MHz
+ *
+ *  Main Oscillator - PLL - System Clock Divisor (9).
+ */
+#define	MCU_CLOCK_MODE_MOSC_9_PLL	0x38
+/** @brief	20MHz
+ *
+ *  Main Oscillator - PLL - System Clock Divisor (10).
+ */
+#define	MCU_CLOCK_MODE_MOSC_10_PLL	0x39
+/** @brief	18.1MHz
+ *
+ *  Main Oscillator - PLL - System Clock Divisor (11).
+ */
+#define	MCU_CLOCK_MODE_MOSC_11_PLL	0x3A
+/** @brief	16.7MHz
+ *
+ *  Main Oscillator - PLL - System Clock Divisor (12).
+ */
+#define	MCU_CLOCK_MODE_MOSC_12_PLL	0x3B
+/** @brief	15.4MHz
+ *
+ *  Main Oscillator - PLL - System Clock Divisor (13).
+ */
+#define	MCU_CLOCK_MODE_MOSC_13_PLL	0x3C
+/** @brief	14.3MHz
+ *
+ *  Main Oscillator - PLL - System Clock Divisor (14).
+ */
+#define	MCU_CLOCK_MODE_MOSC_14_PLL	0x3D
+/** @brief	13.3MHz
+ *
+ *  Main Oscillator - PLL - System Clock Divisor (15).
+ */
+#define	MCU_CLOCK_MODE_MOSC_15_PLL	0x3E
+/** @brief	12.5MHz
+ *
+ *  Main Oscillator - PLL - System Clock Divisor (16).
+ */
+#define	MCU_CLOCK_MODE_MOSC_16_PLL	0x3F
+
+/** @brief	Clock Modes Number
+ *
+ *  Number of supported clock modes.
+ */
+#define	MCU_CLOCK_MODES_NUMBER		MCU_CLOCK_MODE_MOSC_16_PLL + 1
 
 /** @brief	Clock Settings Configuration Parameters
  *
@@ -306,11 +472,13 @@
  */
 typedef struct {
 
-  /*
-   * MCU183_Conf:	The Id of this McuClockSettingConfig to be used as
-   * 			argument for the API call "Mcu_InitClock".
+  /** @brief	Clock Settings Identifier
+   *
+   *  <b>MCU183_Conf:</b>	The Id of this <tt>McuClockSettingConfig</tt> to
+   *  				be used as argument for the API call
+   *  				<tt>Mcu_InitClock()</tt>.
    */
-  /*Mcu_ClockType	McuClockSettingId;*/
+  Mcu_ClockType	McuClockSettingId;
 
   /** @brief	Clock Frequency
    *
@@ -323,7 +491,7 @@ typedef struct {
    *  <b>MCU175_Conf:</b> This is the frequency for the specific instance of the
    *  <tt>McuClockReferencePoint</tt> container. It shall be given in Hz.
    */
-  float	McuClockReferencePointFrequency;
+  float32	McuClockReferencePointFrequency;
 
   /** @brief Run-Mode Clock Configuration
    *
@@ -340,8 +508,8 @@ typedef struct {
    *  10:6		Crystal Value
    *  5:4		Oscillator Source
    *  3:2		Undefined
-   *  1		Precision Internal Oscillator Disable
-   *  0		Main Oscillator Disable
+   *  1			Precision Internal Oscillator Disable
+   *  0			Main Oscillator Disable
    *  </pre>
    */
   uint32 McuRunModeClockConfiguration;
@@ -361,7 +529,7 @@ typedef struct {
    *  11		PLL Bypass
    *  10:7		Undefined
    *  6:4		Oscillator Source
-   *  3:0		Undeifned
+   *  3:0		Undefined
    *  </pre>
    */
   uint32 McuRunModeClockConfiguration2;
@@ -376,10 +544,11 @@ typedef struct {
  */
 #define	MCU_MODE_NORMAL	0x00
 
-/**
- *  Number of supported MCU mode.
+/** @brief	MCU Modes Number
+ *
+ *  Number of supported MCU modes.
  */
-#define	MCU_MODE_NUMBER	MCU_MODE_NORMAL + 1
+#define	MCU_MODES_NUMBER	MCU_MODE_NORMAL + 1
 
 /** @brief	Mode Setting Configuration Paramaters
  *

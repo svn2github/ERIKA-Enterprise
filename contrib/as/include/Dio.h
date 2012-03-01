@@ -130,7 +130,7 @@
  * DIO065:	The Dio module shall detect the following errors and exceptions
  * 		depending on its build version (development/production mode).
  */
-
+#if ( DIO_DEV_ERROR_DETECT == STD_ON )
 /**
  * <b>DIO175:</b> Invalid channel name requested
  */
@@ -157,6 +157,7 @@
  * action, beside reporting this development error.
  */
 #define	DIO_E_PARAM_POINTER		0x20
+#endif
 
 /** @brief	Channel
  *

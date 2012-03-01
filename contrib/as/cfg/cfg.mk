@@ -64,6 +64,11 @@ ifeq ($(call iseeopt, __AS_DIO_DRIVER__), yes)
 EE_SRCS += contrib/as/arch/stellaris/keil/drivers/Dio.c
 endif
 
+ifeq ($(call iseeopt, __AS_SCI_DRIVER__), yes)
+EE_SRCS += contrib/as/arch/stellaris/keil/drivers/Sci.c
+EE_SRCS += contrib/as/arch/stellaris/keil/drivers/Sci_Irq.c
+endif
+
 endif	# __STELLARIS__ && __KEIL__
 
 endif	# __AUTOSAR_R4_0__

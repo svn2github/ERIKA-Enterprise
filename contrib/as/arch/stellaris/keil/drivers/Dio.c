@@ -48,10 +48,18 @@
 #include "Dio.h"
 
 /*
- * PORT114:	For included (external) header files:
- * 		- <MODULENAME>_AR_ RELEASE_MAJOR_VERSION
- * 		- <MODULENAME>_AR_ RELEASE_MINOR_VERSION
- * 		shall be verified.
+ * DIO106:	The DIO module shall perform Inter Module Checks to avoid
+ * 		integration of incompatible files.
+ * 		The imported included files shall be checked by preprocessing
+ * 		directives.
+ * 		The following version numbers shall be verified:
+ * 		- <MODULENAME>_AR_RELEASE_MAJOR_VERSION
+ * 		- <MODULENAME>_AR_RELEASE_MINOR_VERSION
+ * 		Where <MODULENAME> is the module short name of the other
+ * 		(external) modules which provide header files included by DIO
+ * 		module.
+ * 		If the values are not identical to the expected values, an
+ * 		error shall be reported.
  */
 #if !defined( DIO_AR_MAJOR_VERSION ) || \
     ( DIO_AR_MAJOR_VERSION != DIO_AR_RELEASE_MAJOR_VERSION )

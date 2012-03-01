@@ -94,6 +94,16 @@
 
 #include "Std_Types.h"
 
+/** @brief	Clock Type
+ *
+ *  <b>MCU232:</b> The type Mcu_ClockType defines the identification (ID) for
+ *  clock setting configured via the configuration structure.
+ *
+ *  <b>MCU233:</b> The type shall be uint8, uint16 or uint32, depending on uC
+ *  platform.
+ */
+typedef	uint8_least	Mcu_ClockType;
+
 /*
  * MCU211:	Mcu.h shall include Mcu_Cfg.h for the API pre-compiler switches.
  * 		Mcu.c has access to the Mcu_Cfg.h via the implicitly included
@@ -106,6 +116,7 @@
  * 		MCU module depending on its build version
  * 		(development/production mode)
  */
+#if ( MCU_DEV_ERROR_DETECT == STD_ON )
 #define	MCU_E_PARAM_CONFIG	0x0A	/**< Parameter ConfigPtr is NULL_PTR. */
 #define	MCU_E_PARAM_CLOCK	0x0B	/**< Parameter ClockSetting Invalid.  */
 #define	MCU_E_PARAM_MODE	0x0C	/**< Parameter McuMode Invalid.	      */
@@ -113,6 +124,7 @@
 #define	MCU_E_PLL_NOT_LOCKED	0x0E	/**< PLL Detected and Not Locked.     */
 #define	MCU_E_UNINIT		0x0F	/**< MCU Module Not Initialized.      */
 #define	MCU_E_PARAM_POINTER	0x10	/**< Parameter _vi is NULL_PTR.	      */
+#endif
 
 /** @brief	MCU Driver Configuration Parameters
  *
@@ -155,6 +167,12 @@
  */
 extern Mcu_ConfigType Mcu_Config;
 
+/** @brief	MCU Configuration Pointer
+ *
+ *  Pointer to MCU Driver Configuration.
+ */
+#define	MCU_CONFIG_PTR	&Mcu_Config
+
 /** @brief	PLL Status Type
  *
  *  <b>MCU230:</b> The type <tt>Mcu_PllStatusType</tt> is the type of the return
@@ -169,16 +187,6 @@ typedef enum {
   MCU_PLL_UNLOCKED,		/**< PLL is unlocked.	    */
   MCU_PLL_STATUS_UNDEFINED,	/**< PLL Status is unknown. */
 } Mcu_PllStatusType;
-
-/** @brief	Clock Type
- *
- *  <b>MCU232:</b> The type Mcu_ClockType defines the identification (ID) for
- *  clock setting configured via the configuration structure.
- *
- *  <b>MCU233:</b> The type shall be uint8, uint16 or uint32, depending on uC
- *  platform.
- */
-typedef	uint8_least	Mcu_ClockType;
 
 /** @brief	Reset Type
  *
@@ -302,7 +310,7 @@ void Mcu_Init(
   const Mcu_ConfigType * ConfigPtr
 );
 
-/** @brief	Ram Senction Initialization.
+/** @brief	Ram Section Initialization.
  *  @param	RamSection	Selects RAM memory section provided in
  *  				configuration set
  *  @return	
@@ -325,6 +333,8 @@ void Mcu_Init(
  *  <b>MCU136:</b> The MCU module's environment shall call the function
  *  <tt>Mcu_InitRamSection()</tt> only after the MCU module has been initialized
  *  using the function <tt>Mcu_Init()</tt>.
+ *
+ *  @note NOT YET IMPLEMENTED, reason: no support for external RAM.
  */
 Std_ReturnType Mcu_InitRamSection(
   Mcu_RamSectionType RamSection
@@ -509,6 +519,8 @@ void Mcu_PerformReset(
  *  <b>MCU148:</b> The MCU module's environment shall only call the function
  *  <tt>Mcu_SetMode()</tt> after the MCU module has been initialized by the
  *  function <tt>Mcu_Init()</tt>.
+ *
+ *  @note NOT YET IMPLEMENTED, reason: operational mode only.
  */
 void Mcu_SetMode(
   Mcu_ModeType McuMode
@@ -581,7 +593,9 @@ void Mcu_SetMode(
  *  to the user if the precompile parameter <tt>McuGetRamStateApi</tt> is set to
  *  <tt>TRUE</tt>. Instead, if the former parameter is set to <tt>FALSE</tt>,
  *  this function shall be disabled (e.g. the hardware does not support this
- * functionality).
+ *  functionality).
+ *
+ *  @note NOT YET IMPLEMENTED, reason: no support for external RAM.
  */
 Mcu_RamStateType Mcu_GetRamState(
   void

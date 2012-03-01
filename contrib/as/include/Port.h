@@ -91,6 +91,7 @@
  * 		PORT driver depending on its build version
  * 		(development/production).
  */
+#if ( PORT_DEV_ERROR_DETECT == STD_ON )
 /** Invalid Port Pin ID requested					      */
 #define	PORT_E_PARAM_PIN		0x0A
 /** Port Pin not configured as changeable				      */
@@ -105,6 +106,7 @@
 #define	PORT_E_UNINIT			0x0F
 /** APIs called with a <tt>NULL</tt> Pointer				      */
 #define	PORT_E_PARAM_POINTER		0x10
+#endif
 
 /** @brief	Pin
  *
@@ -196,11 +198,11 @@ extern	Port_ConfigType	Port_Config[];
  * Service ID's
  */
 #if ( PORT_DEV_ERROR_DETECT == STD_ON )
-#define	PORT_INIT_ID			0x00
-#define	PORT_SET_PIN_DIRECTION_ID	0x01
-#define	PORT_REFRESH_PORT_DIRECTION_ID	0x02
-#define	PORT_GET_VERSION_INFO_ID	0x03
-#define	PORT_SET_PIN_MODE_ID		0x04
+#define	PORT_INIT_SERVICE_ID			0x00
+#define	PORT_SET_PIN_DIRECTION_SERVICE_ID	0x01
+#define	PORT_REFRESH_PORT_DIRECTION_SERVICE_ID	0x02
+#define	PORT_GET_VERSION_INFO_SERVICE_ID	0x03
+#define	PORT_SET_PIN_MODE_SERVICE_ID		0x04
 #endif
 
 /** @brief	Port Driver Initialization

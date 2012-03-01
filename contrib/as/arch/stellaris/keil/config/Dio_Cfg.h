@@ -124,6 +124,8 @@
 #define	DIO_CHANNEL_D_4	0x0000001C	/**< Channel D 4 */
 #define	DIO_CHANNEL_D_5	0x0000001D	/**< Channel D 5 */
 #define	DIO_CHANNEL_D_6	0x0000001E	/**< Channel D 6 */
+/** Channel User Output */
+#define	DIO_CHANNEL_USER_OUTPUT	DIO_CHANNEL_D_6
 #define	DIO_CHANNEL_D_7	0x0000001F	/**< Channel D 7 */
 
 #define	DIO_CHANNEL_E_0	0x00000020	/**< Channel E 0 */
@@ -192,20 +194,20 @@
 #define	DIO_CHANNEL_L_7	0x00000057	/**< Channel L 7 */
 
 #define	DIO_CHANNEL_M_0	0x00000058	/**< Channel M 0 */
-/** Channel Switch 1 */
-#define	DIO_CHANNEL_SWITCH_1	DIO_CHANNEL_M_0
+/** Channel User Switch 1 */
+#define	DIO_CHANNEL_USER_SWITCH_1	DIO_CHANNEL_M_0
 #define	DIO_CHANNEL_M_1	0x00000059	/**< Channel M 1 */
-/** Channel Switch 2 */
-#define	DIO_CHANNEL_SWITCH_2	DIO_CHANNEL_M_1
+/** Channel User Switch 2 */
+#define	DIO_CHANNEL_USER_SWITCH_2	DIO_CHANNEL_M_1
 #define	DIO_CHANNEL_M_2	0x0000005A	/**< Channel M 2 */
-/** Channel Switch 3 */
-#define	DIO_CHANNEL_SWITCH_3	DIO_CHANNEL_M_2
+/** Channel User Switch 3 */
+#define	DIO_CHANNEL_USER_SWITCH_3	DIO_CHANNEL_M_2
 #define	DIO_CHANNEL_M_3	0x0000005B	/**< Channel M 3 */
-/** Channel Switch 4 */
-#define	DIO_CHANNEL_SWITCH_4	DIO_CHANNEL_M_3
+/** Channel User Switch 4 */
+#define	DIO_CHANNEL_USER_SWITCH_4	DIO_CHANNEL_M_3
 #define	DIO_CHANNEL_M_4	0x0000005C	/**< Channel M 4 */
-/** Channel Switch 5 */
-#define	DIO_CHANNEL_SWITCH_5	DIO_CHANNEL_M_4
+/** Channel User Switch 5 */
+#define	DIO_CHANNEL_USER_SWITCH_5	DIO_CHANNEL_M_4
 #define	DIO_CHANNEL_M_5	0x0000005D	/**< Channel M 5 */
 #define	DIO_CHANNEL_M_6	0x0000005E	/**< Channel M 6 */
 #define	DIO_CHANNEL_M_7	0x0000005F	/**< Channel M 7 */
@@ -235,6 +237,8 @@
 #define	DIO_PORT_B	0x00000001	/**< Port B */
 #define	DIO_PORT_C	0x00000002	/**< Port C */
 #define	DIO_PORT_D	0x00000003	/**< Port D */
+/** Port User Output */
+#define	DIO_PORT_USER_OUTPUT	DIO_PORT_D
 #define	DIO_PORT_E	0x00000004	/**< Port E */
 #define	DIO_PORT_F	0x00000005	/**< Port F */
 #define	DIO_PORT_G	0x00000006	/**< Port G */
@@ -245,8 +249,8 @@
 #define	DIO_PORT_K	0x00000009	/**< Port K */
 #define	DIO_PORT_L	0x0000000A	/**< Port L */
 #define	DIO_PORT_M	0x0000000B	/**< Port M */
-/** Port Switches */
-#define	DIO_PORT_SWITCHES	DIO_PORT_M
+/** Port User Switches */
+#define	DIO_PORT_USER_SWITCHES	DIO_PORT_M
 #define	DIO_PORT_P	0x0000000C	/**< Port P */
 #define	DIO_PORT_Q	0x0000000D	/**< Port Q */
 
@@ -262,8 +266,11 @@ extern Dio_ChannelGroupType DioPortGChannelsGroups[];
 /** @brief	Port M Channel Groups Configuration Parameters */
 extern Dio_ChannelGroupType DioPortMChannelsGroups[];
 
-/** Switches Channel Group */
-#define	DIO_CHANNEL_GROUP_SWITCHES	&DioPortMChannelsGroups[0]
+/** User Switches Channel Group */
+#define	DIO_CHANNEL_GROUP_USER_SWITCHES	&DioPortMChannelsGroups[0]
+
+/** User Output Channel Group */
+#define	DIO_CHANNEL_GROUP_USER_OUTPUT	&DioPortDChannelsGroups[0]
 
 /** @brief	Port Configuration Parameters
  *
@@ -344,7 +351,46 @@ typedef struct {
 
 } Dio_ConfigType;
 
-#define	DIO_CONFIG_DIO_ALL	0x00000000		/**< ALL PIN DIO      */
-#define	DIO_CONFIG_DEFAULT	DIO_CONFIG_DIO_ALL	/**< DEFAULT CONFIG   */
+/** @brief	DIO Configuration
+ *
+ *  Identifier for DIO Configuration.
+ */
+#define	DIO_CONFIG_DIO		0x00000000
+/** @brief	DIO Configuration Pointer
+ *
+ *  Pointer of DIO Driver Configuration
+ */
+#define	DIO_CONFIG_DIO_PTR	&Dio_Config[DIO_CONFIG_DIO]
+/** @brief	Default Configuration
+ *
+ *  Identifier for Default DIO Driver Configuration.
+ */
+#define	DIO_CONFIG_DEFAULT	DIO_CONFIG_DIO
+/** @brief	Default Configuration Pointer
+ *
+ *  Pointer of Default DIO Driver Configuration
+ */
+#define	DIO_CONFIG_DEFAULT_PTR	&Dio_Config[DIO_CONFIG_DEFAULT]
+/** @brief	User Led Configuration
+ *
+ *  Identifier for User Led DIO Driver Configuration.
+ */
+#define	DIO_CONFIG_USER_LED	0x00000001
+/** @brief	User Led Configuration Pointer
+ *
+ *  Pointer of User Led DIO Driver Configuration
+ */
+#define	DIO_CONFIG_USER_LED_PTR	&Dio_Config[DIO_CONFIG_USER_LED]
+
+/** @brief	User Output Configuration
+ *
+ *  Identifier for User Output DIO Driver Configuration.
+ */
+#define	DIO_CONFIG_USER_OUTPUT	0x00000002
+/** @brief	User Output Configuration Pointer
+ *
+ *  Pointer of User Output DIO Driver Configuration
+ */
+#define	DIO_CONFIG_USER_OUTPUT_PTR	&Dio_Config[DIO_CONFIG_USER_OUTPUT]
 
 #endif	/* DIO_CFG_H */

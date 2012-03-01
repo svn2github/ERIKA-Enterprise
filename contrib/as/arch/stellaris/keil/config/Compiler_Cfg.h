@@ -119,4 +119,15 @@
 #define	PORT_VAR_FAST
 #define	PORT_VAR
 
+#define	SCI_CODE
+#define	SCI_CONST
+#define	SCI_APPL_DATA
+#define	SCI_APPL_CONST
+#define	SCI_APPL_CODE
+#define	SCI_CALLOUT_CODE
+#define	SCI_VAR_NOINIT
+#define	SCI_VAR_POWER_ON_INIT
+#define	SCI_VAR_FAST
+#define	SCI_VAR
+
 #endif	/* COMPILER_CFG_H */

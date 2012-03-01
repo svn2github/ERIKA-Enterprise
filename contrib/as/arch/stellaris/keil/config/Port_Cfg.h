@@ -250,8 +250,11 @@
 /** DIO Pin Mode. */
 #define	PORT_PIN_MODE_DIO	0x00000000
 
+/** SCI Pin Mode. */
+#define	PORT_PIN_MODE_SCI	0x00000001
+
 /** Number of Port Pin Modes */
-#define	PORT_PIN_MODES_NUMBER	PORT_PIN_MODE_DIO + 1
+#define	PORT_PIN_MODES_NUMBER	PORT_PIN_MODE_SCI + 1
 
 /*
  * Port Pin Mode Hardware Configuration Data Values.
@@ -269,6 +272,116 @@
 #define	PORT_PIN_HW_CFG_SLR	0x00002000	/**< Slew-Rate Control Select */
 #define	PORT_PIN_HW_CFG_ADCCTL	0x00004000	/**< ADC Control	      */
 #define	PORT_PIN_HW_CFG_DMACTL	0x00008000	/**< DMA Control	      */
+
+/*
+ * Port Pins PMCs
+ */
+/** Port A Mux Control Sci 0 */
+#define	PORT_A_PMC_SCI_0		0x00000001
+/** Port A - Pin 0 Mux Control Sci 0 Rx */
+#define	PORT_A_PIN_0_PMC_SCI_0_RX	PORT_A_PMC_SCI_0
+/** Port A - Pin 1 Mux Control Sci 1 Tx */
+#define	PORT_A_PIN_1_PMC_SCI_0_TX	PORT_A_PMC_SCI_0
+/** Port B Mux Control Sci 1 */
+#define	PORT_B_PMC_SCI_1		0x00000001
+/** Port B - Pin 0 Mux Control Sci 1 Rx */
+#define	PORT_B_PIN_0_PMC_SCI_1_RX	PORT_B_PMC_SCI_1
+/** Port B - Pin 1 Mux Control Sci 1 Tx */
+#define	PORT_B_PIN_1_PMC_SCI_1_TX	PORT_B_PMC_SCI_1
+/** Port C Mux Control Sci 4 */
+#define	PORT_C_PMC_SCI_4		0x00000001
+/** Port C - Pin 4 Mux Control Sci 4 Rx */
+#define	PORT_C_PIN_4_PMC_SCI_4_RX	PORT_C_PMC_SCI_4
+/** Port C - Pin 5 Mux Control Sci 4 Tx */
+#define	PORT_C_PIN_5_PMC_SCI_4_TX	PORT_C_PMC_SCI_4
+/** Port C Mux Control Sci 1 */
+#define	PORT_C_PMC_SCI_1		0x00000002
+/** Port C - Pin 4 Mux Control Sci 1 Rx */
+#define	PORT_C_PIN_4_PMC_SCI_1_RX	PORT_C_PMC_SCI_1
+/** Port C - Pin 5 Mux Control Sci 1 Tx */
+#define	PORT_C_PIN_5_PMC_SCI_1_TX	PORT_C_PMC_SCI_1
+/** Port C Mux Control Sci 1 RTS/CTS */
+#define	PORT_C_PMC_SCI_1_RTS_CTS	0x00000008
+/** Port C - Pin 4 Mux Control Sci 1 RTS */
+#define	PORT_C_PIN_4_PMC_SCI_1_RTS	PORT_C_PMC_SCI_1_RTS_CTS
+/** Port C - Pin 5 Mux Control Sci 1 CTS */
+#define	PORT_C_PIN_5_PMC_SCI_1_CTS	PORT_C_PMC_SCI_1_RTS_CTS
+/** Port C Mux Control Sci 3 */
+#define	PORT_C_PMC_SCI_3		PORT_C_PMC_SCI_4
+/** Port C - Pin 6 Mux Control Sci 3 Rx */
+#define	PORT_C_PIN_6_PMC_SCI_3_RX	PORT_C_PMC_SCI_3
+/** Port C - Pin 7 Mux Control Sci 3 Tx */
+#define	PORT_C_PIN_7_PMC_SCI_3_TX	PORT_C_PMC_SCI_3
+/** Port D Mux Control Sci 6 */
+#define	PORT_D_PMC_SCI_6		0x00000001
+/** Port D - Pin 4 Mux Control Sci 6 Rx */
+#define	PORT_D_PIN_4_PMC_SCI_6_RX	PORT_D_PMC_SCI_6
+/** Port D - Pin 5 Mux Control Sci 6 Tx */
+#define	PORT_D_PIN_5_PMC_SCI_6_TX	PORT_D_PMC_SCI_6
+/** Port D Mux Control Sci 2 */
+#define	PORT_D_PMC_SCI_2		PORT_D_PMC_SCI_6
+/** Port D - Pin 6 Mux Control Sci 2 Rx */
+#define	PORT_D_PIN_6_PMC_SCI_2_RX	PORT_D_PMC_SCI_2
+/** Port D - Pin 6 Mux Control Sci 2 Tx */
+#define	PORT_D_PIN_7_PMC_SCI_2_TX	PORT_D_PMC_SCI_2
+/** Port E Mux Control Sci 7 */
+#define	PORT_E_PMC_SCI_7		0x00000001
+/** Port E - Pin 0 Mux Control Sci 7 Rx */
+#define	PORT_E_PIN_0_PMC_SCI_7_RX	PORT_E_PMC_SCI_7
+/** Port E - Pin 1 Mux Control Sci 7 Rx */
+#define	PORT_E_PIN_1_PMC_SCI_7_TX	PORT_E_PMC_SCI_7
+/** Port E Mux Control Sci 5 */
+#define	PORT_E_PMC_SCI_5		PORT_E_PMC_SCI_7
+/** Port E - Pin 4 Mux Control Sci 5 Rx */
+#define	PORT_E_PIN_4_PMC_SCI_5_RX	PORT_E_PMC_SCI_5
+/** Port E - Pin 5 Mux Control Sci 5 Tx */
+#define	PORT_E_PIN_5_PMC_SCI_5_TX	PORT_E_PMC_SCI_5
+/** Port E Mux Control Sci 1 */
+#define	PORT_E_PMC_SCI_1		PORT_E_PMC_SCI_7
+/** Port E - Pin 7 Mux Control Sci 1 RI */
+#define	PORT_E_PIN_7_PMC_SCI_1_RI	PORT_E_PMC_SCI_1
+/** Port F Mux Control Sci 1 */
+#define	PORT_F_PMC_SCI_1		0x00000001
+/** Port F - Pin 0 Mux Control Sci 1 RTS */
+#define	PORT_F_PIN_0_PMC_SCI_1_RTS	PORT_F_PMC_SCI_1
+/** Port F - Pin 1 Mux Control Sci 1 CTS */
+#define	PORT_F_PIN_1_PMC_SCI_1_CTS	PORT_F_PMC_SCI_1
+/** Port F - Pin 2 Mux Control Sci 1 DCD */
+#define	PORT_F_PIN_2_PMC_SCI_1_DCD	PORT_F_PMC_SCI_1
+/** Port F - Pin 3 Mux Control Sci 1 DSR */
+#define	PORT_F_PIN_3_PMC_SCI_1_DSR	PORT_F_PMC_SCI_1
+/** Port F - Pin 4 Mux Control Sci 1 DTR */
+#define	PORT_F_PIN_4_PMC_SCI_1_DTR	PORT_F_PMC_SCI_1
+/** Port G Mux Control Sci 2 */
+#define	PORT_G_PMC_SCI_2		0x00000001
+/** Port G - Pin 4 Mux Control Sci 2 Rx */
+#define	PORT_G_PIN_4_PMC_SCI_2_RX	PORT_G_PMC_SCI_2
+/** Port G - Pin 5 Mux Control Sci 2 Tx */
+#define	PORT_G_PIN_5_PMC_SCI_2_TX	PORT_G_PMC_SCI_2
+/** Port J Mux Control Sci 4 */
+#define	PORT_J_PMC_SCI_4		0x00000001
+/** Port J - Pin 0 Mux Control Sci 4 Rx */
+#define	PORT_J_PIN_0_PMC_SCI_4_RX	PORT_J_PMC_SCI_4
+/** Port J - Pin 1 Mux Control Sci 4 Rx */
+#define	PORT_J_PIN_1_PMC_SCI_4_TX	PORT_J_PMC_SCI_4
+/** Port J  Mux Control Sci 5 */
+#define	PORT_J_PMC_SCI_5		PORT_J_PMC_SCI_4
+/** Port J - Pin 2 Mux Control Sci 5 Rx */
+#define	PORT_J_PIN_2_PMC_SCI_5_RX	PORT_J_PMC_SCI_5
+/** Port J - Pin 3 Mux Control Sci 5 Tx */
+#define	PORT_J_PIN_3_PMC_SCI_5_TX	PORT_J_PMC_SCI_5
+/** Port J Mux Control Sci 6 */
+#define	PORT_J_PMC_SCI_6		PORT_J_PMC_SCI_4
+/** Port J - Pin 4 Mux Control Sci 6 Rx */
+#define	PORT_J_PIN_4_PMC_SCI_6_RX	PORT_J_PMC_SCI_6
+/** Port J - Pin 5 Mux Control Sci 6 Tx */
+#define	PORT_J_PIN_5_PMC_SCI_6_TX	PORT_J_PMC_SCI_6
+/** Port K Mux Control Sci 7 */
+#define	PORT_K_PMC_SCI_7		0x00000001
+/** Port K - Pin 4 Mux Control Sci 7 Rx */
+#define	PORT_K_PIN_4_PMC_SCI_7_RX	PORT_K_PMC_SCI_7
+/** Port K - Pin 5 Mux Control Sci 7 Tx */
+#define	PORT_K_PIN_5_PMC_SCI_7_TX	PORT_K_PMC_SCI_7
 
 /** @brief	Pin Mode Configuration Parameters
  *
@@ -381,7 +494,35 @@ typedef struct {
 
 } Port_ConfigType;
 
-#define	PORT_CONFIG_DIO_ALL	0x00000000		/**< ALL PIN DIO      */
-#define	PORT_CONFIG_DEFAULT	PORT_CONFIG_DIO_ALL	/**< DEFAULT CONFIG   */
+/** @brief	Port Pins DIO Configuration
+ *
+ *  Identifier for Port Pins as DIO Configuration.
+ */
+#define	PORT_CONFIG_DIO		0x00000000
+/** @brief	Port Pins DIO Configuration Pointer
+ *
+ *  Pointer of Port Pins as DIO Port Driver Configuration
+ */
+#define	PORT_CONFIG_DIO_PTR	&Port_Config[PORT_CONFIG_DIO]
+/** @brief	Default Configuration
+ *
+ *  Identifier for Default Port Driver Configuration.
+ */
+#define	PORT_CONFIG_DEFAULT	PORT_CONFIG_DIO
+/** @brief	Default Configuration Pointer
+ *
+ *  Pointer of Default Port Driver Configuration
+ */
+#define	PORT_CONFIG_DEFAULT_PTR	&Port_Config[PORT_CONFIG_DEFAULT]
+/** @brief	Port Pins SCI Configuration
+ *
+ *  Identifier for Port Pins as SCI Configuration.
+ */
+#define	PORT_CONFIG_SCI		0x00000001
+/** @brief	Port Pins SCI Configuration Pointer
+ *
+ *  Pointer of Port Pins as SCI Port Driver Configuration.
+ */
+#define	PORT_CONFIG_SCI_PTR	&Port_Config[PORT_CONFIG_SCI]
 
 #endif	/* PORT_CFG_H */

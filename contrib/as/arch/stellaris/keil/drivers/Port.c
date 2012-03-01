@@ -194,12 +194,15 @@ static boolean Port_CheckCore( void ) {
   ((*((volatile uint32 *)PIN2ADDR(_pin))) >> PIN2MASK(_pin))
 
 #define	SETPINREGVAL(_pin,_val,_ofs) \
-  if ( _val == STD_ON ) \
-    (*((volatile uint32 *)(PIN2PORTADDR(_pin) + _ofs))) |= \
-      (_val << PIN2MASK(_pin)); \
-  else \
+  if ( _val == STD_OFF ) \
     (*((volatile uint32 *)(PIN2PORTADDR(_pin) + _ofs))) &= \
-      ~(_val << PIN2MASK(_pin))
+      ~(_val << PIN2MASK(_pin)); \
+  else \
+    (*((volatile uint32 *)(PIN2PORTADDR(_pin) + _ofs))) |= \
+      (_val << PIN2MASK(_pin))
+
+
+#define	PORT_PIN_PMC_MASK_BITS		0x00000004
 
 #define	GPIO_PORT_DIR_R_OFFSET		0x00000400
 #define	GPIO_PORT_AFSEL_R_OFFSET	0x00000420
@@ -212,6 +215,7 @@ static boolean Port_CheckCore( void ) {
 #define	GPIO_PORT_SLR_R_OFFSET		0x00000518
 #define	GPIO_PORT_DEN_R_OFFSET		0x0000051C
 #define	GPIO_PORT_AMSEL_R_OFFSET	0x00000528
+#define	GPIO_PORT_CTL_R_OFFESET		0x0000052C
 
 #define	SETPINDIR(_pin,_dir)	SETPINREGVAL(_pin,_dir,GPIO_PORT_DIR_R_OFFSET)
 #define	SETPINAFSEL(_pin,_val)	SETPINREGVAL(_pin,_val,GPIO_PORT_AFSEL_R_OFFSET)
@@ -225,87 +229,97 @@ static boolean Port_CheckCore( void ) {
 #define	SETPINDEN(_pin,_val)	SETPINREGVAL(_pin,_val,GPIO_PORT_DEN_R_OFFSET)
 #define	SETPINAMSEL(_pin,_val)	SETPINREGVAL(_pin,_val,GPIO_PORT_AMSEL_R_OFFSET)
 
-/*
- * Port Pin Mode Hardware Configuration: DIO.
- */
-static void Port_SetPortPinModeDIO(
-  Port_PinType			Pin,
-  uint32			PortPinModeHWConfig
-)
-{
-  register EE_UREG f;
-
-  /* Starts Atomic Section. */
-  f = EE_hal_suspendIRQ();
-
-  /* Clear Analog Mode Select */
-  SETPINAMSEL(Pin, STD_OFF);
-  
-  /* Clear Alternate Function Select */
-  SETPINAFSEL(Pin, STD_OFF);
-
-  /* Sets-up Strenght Drive Select */
-  if ( PortPinModeHWConfig & PORT_PIN_HW_CFG_DR2R ) {
-    SETPINDR2R(Pin, STD_ON);
-    SETPINSLR(Pin, STD_OFF);
-  }
-  else if ( PortPinModeHWConfig & PORT_PIN_HW_CFG_DR4R ) {
-    SETPINDR4R(Pin, STD_ON);
-    SETPINSLR(Pin, STD_OFF);
-  }
-  else if ( PortPinModeHWConfig & PORT_PIN_HW_CFG_DR8R ) {
-
-    SETPINDR8R(Pin, STD_ON);
-
-    /* Sets-up Slew-rate Control */
-    if ( PortPinModeHWConfig & PORT_PIN_HW_CFG_SLR )
-      SETPINSLR(Pin, STD_ON);
-    else
-      SETPINSLR(Pin, STD_OFF);
-
-  }
-
-  /* Sets-up Open Drain */
-  if ( PortPinModeHWConfig & PORT_PIN_HW_CFG_ODR )
-    SETPINODR(Pin, STD_ON);
-  else {
-
-    SETPINODR(Pin, STD_OFF);
-
-    /* Sets-up Pull-Up */
-    if ( PortPinModeHWConfig & PORT_PIN_HW_CFG_PUR )
-      SETPINPUR(Pin, STD_ON);
-    else
-      SETPINPUR(Pin, STD_OFF);
-
-    /* Sets-up Pull-Down */
-    if ( PortPinModeHWConfig & PORT_PIN_HW_CFG_PDR )
-      SETPINPDR(Pin, STD_ON);
-    else
-      SETPINPDR(Pin, STD_OFF);
-  }
-
-  /* Sets Digital Enable */
-  SETPINDEN(Pin, STD_ON);
-
-  /* Ends Atomic Section. */
-  EE_hal_resumeIRQ(f);
-
-}
+#define	SETPINPMC(_pin,_pmc)	\
+  (*((volatile uint32 *)(PIN2PORTADDR(_pin) + GPIO_PORT_CTL_R_OFFESET))) &= \
+  ~(PORT_PIN_HW_CFG_PMC_M << (PIN2MASK(_pin) * PORT_PIN_PMC_MASK_BITS)); \
+  (*((volatile uint32 *)(PIN2PORTADDR(_pin) + GPIO_PORT_CTL_R_OFFESET))) |= \
+  ((_pmc & PORT_PIN_HW_CFG_PMC_M) << (PIN2MASK(_pin) * PORT_PIN_PMC_MASK_BITS))
 
 /*
  * Port Pin Mode Hardware Configuration.
  */
-static void Port_SetPortPinMode(
+static void Port_SetPortPinHWMode(
   Port_PinType			Pin,
   Port_PinModeConfType *	ConfigPtr
 )
 {
-  switch (ConfigPtr->PortPinMode) {
-    case	PORT_PIN_MODE_DIO:
-    default:
-      Port_SetPortPinModeDIO(Pin, ConfigPtr->PortPinModeHWConfig);
-  };
+  register EE_UREG	flag;
+  register uint32	mode;
+
+  /* Starts Atomic Section. */
+  flag = EE_hal_suspendIRQ();
+
+  mode = ConfigPtr->PortPinModeHWConfig;
+
+  /* Sets-up Analog Mode Select */
+  if ( mode & PORT_PIN_HW_CFG_AMSEL ) {
+    SETPINDEN(Pin, STD_OFF);
+    SETPINAMSEL(Pin, STD_ON);
+  }
+  else {
+
+    SETPINAMSEL(Pin, STD_OFF);
+
+    /* Sets-up Alternate Function Select */
+    if ( mode & PORT_PIN_HW_CFG_AFSEL ) {
+      SETPINPMC(Pin, mode);
+      SETPINAFSEL(Pin, STD_ON);
+    }
+    else
+      SETPINAFSEL(Pin, STD_OFF);
+
+    /* Sets-up Strenght Drive Select */
+    if ( mode & PORT_PIN_HW_CFG_DR2R ) {
+      SETPINDR2R(Pin, STD_ON);
+      SETPINSLR(Pin, STD_OFF);
+    }
+    else if ( mode & PORT_PIN_HW_CFG_DR4R ) {
+      SETPINDR4R(Pin, STD_ON);
+      SETPINSLR(Pin, STD_OFF);
+    }
+    else if ( mode & PORT_PIN_HW_CFG_DR8R ) {
+
+      SETPINDR8R(Pin, STD_ON);
+
+      /* Sets-up Slew-rate Control */
+      if ( mode & PORT_PIN_HW_CFG_SLR )
+	SETPINSLR(Pin, STD_ON);
+      else
+	SETPINSLR(Pin, STD_OFF);
+
+    } /* DR8R */
+
+    /* Sets-up Open Drain */
+    if ( mode & PORT_PIN_HW_CFG_ODR )
+      SETPINODR(Pin, STD_ON);
+    else {
+
+      SETPINODR(Pin, STD_OFF);
+
+      /* Sets-up Pull-Up */
+      if ( mode & PORT_PIN_HW_CFG_PUR )
+	SETPINPUR(Pin, STD_ON);
+      else
+	SETPINPUR(Pin, STD_OFF);
+
+      /* Sets-up Pull-Down */
+      if ( mode & PORT_PIN_HW_CFG_PDR )
+	SETPINPDR(Pin, STD_ON);
+      else
+	SETPINPDR(Pin, STD_OFF);
+
+    } /* !(Open Drain) */
+
+    /* Sets-up Digital Enable */
+    if ( mode & PORT_PIN_HW_CFG_DEN )
+      SETPINDEN(Pin, STD_ON);
+    else
+      SETPINDEN(Pin, STD_OFF);
+
+  }	/* !(Analog Mode Select) */
+
+  /* Ends Atomic Section. */
+  EE_hal_resumeIRQ(flag);
 
 }
 
@@ -317,6 +331,7 @@ static void Port_InitPortPin(
 )
 {
   register uint32 port;
+  register uint32 mode;
 
   /* Sets-up Port Mask */
   port = (uint32) (SYSCTL_RCGCGPIO_R0 << PIN2PORT(ConfigPtr->PortPinId));
@@ -328,7 +343,7 @@ static void Port_InitPortPin(
   SYSCTL_RCGCGPIO_R |= port;
 
   /* Does a dummy read to insert a few cycles after enabling the peripheral. */
-  port = SYSCTL_RCGCGPIO_R;
+  /*port = SYSCTL_RCGCGPIO_R;*/
 
   /* Sets Initial Port Pin Level Value */
   if (ConfigPtr->PortPinDirection == PORT_PIN_OUT)
@@ -338,10 +353,20 @@ static void Port_InitPortPin(
   SETPINDIR(ConfigPtr->PortPinId, ConfigPtr->PortPinDirection);
 
   /* Sets Port Pin Initial Mode. */
-  Port_SetPortPinMode(
-    ConfigPtr->PortPinId,
-    &(ConfigPtr->PortPinSupportedModes[ConfigPtr->PortPinInitialMode])
-  );
+  for (mode = 0; mode < ConfigPtr->PortPinModeNumber; mode++) {
+
+    if (
+      ConfigPtr->PortPinSupportedModes[mode].PortPinMode ==
+      ConfigPtr->PortPinInitialMode
+    ) {
+
+      Port_SetPortPinHWMode(
+	ConfigPtr->PortPinId,
+	&(ConfigPtr->PortPinSupportedModes[mode])
+      );
+    }
+
+  }
 
 }
 
@@ -384,7 +409,7 @@ void Port_SetPinDirection(
 
   register uint32		p;
   register EE_UREG		f;
-  register boolan		init;
+  register boolean		init;
   register Port_ConfigType *	cfgptr;
 
   f = EE_hal_suspendIRQ();
@@ -394,13 +419,13 @@ void Port_SetPinDirection(
 
   VALIDATE(
     ( init == TRUE ),
-    PORT_SET_PIN_DIRECTION_ID,
+    PORT_SET_PIN_DIRECTION_SERVICE_ID,
     PORT_E_UNINIT
   );
 
   VALIDATE(
     ( Pin < PORT_PINS_NUMBER ),
-    PORT_SET_PIN_MODE_ID,
+    PORT_SET_PIN_DIRECTION_SERVICE_ID,
     PORT_E_PARAM_PIN
   );
 
@@ -414,13 +439,13 @@ void Port_SetPinDirection(
 
   VALIDATE(
     ( p < cfgptr->PortNumberOfPortPins ),
-    PORT_SET_PIN_MODE_ID,
+    PORT_SET_PIN_DIRECTION_SERVICE_ID,
     PORT_E_PARAM_PIN
   );
 
   VALIDATE(
     ( cfgptr->PortPins[p].PortPinDirectionChangeable == TRUE ),
-    PORT_SET_PIN_DIRECTION_ID,
+    PORT_SET_PIN_DIRECTION_SERVICE_ID,
     PORT_E_DIRECTION_UNCHANGEABLE
   );
 
@@ -451,7 +476,7 @@ void Port_RefreshPortDirection(
 
   VALIDATE(
     ( Port_Global.Init == TRUE ),
-    PORT_REFRESH_PORT_DIRECTION_ID,
+    PORT_REFRESH_PORT_DIRECTION_SERVICE_ID,
     PORT_E_UNINIT
   );
 
@@ -479,10 +504,10 @@ void Port_SetPinMode(
 )
 {
 
-  register uint32		p, m;
-  register EE_UREG		f;
-  register boolan		init;
-  register Port_ConfigType *	cfgptr;
+  register uint32			p, m;
+  register EE_UREG			f;
+  register boolan			init;
+  register const Port_ConfigType *	cfgptr;
 
   f = EE_hal_suspendIRQ();
   init = Port_Global.Init;
@@ -491,13 +516,13 @@ void Port_SetPinMode(
 
   VALIDATE(
     ( init == TRUE ),
-    PORT_SET_PIN_MODE_ID,
+    PORT_SET_PIN_MODE_SERVICE_ID,
     PORT_E_UNINIT
   );
 
   VALIDATE(
     ( Pin < PORT_PINS_NUMBER ),
-    PORT_SET_PIN_MODE_ID,
+    PORT_SET_PIN_MODE_SERVICE_ID,
     PORT_E_PARAM_PIN
   );
 
@@ -511,19 +536,19 @@ void Port_SetPinMode(
 
   VALIDATE(
     ( p < cfgptr->PortNumberOfPortPins ),
-    PORT_SET_PIN_MODE_ID,
+    PORT_SET_PIN_MODE_SERVICE_ID,
     PORT_E_PARAM_PIN
   );
 
   VALIDATE(
     ( cfgptr->PortPins[p].PortPinModeChangeable == TRUE ),
-    PORT_SET_PIN_MODE_ID,
+    PORT_SET_PIN_MODE_SERVICE_ID,
     PORT_E_MODE_UNCHANGEABLE
   );
 
   VALIDATE(
     ( Mode < PORT_MODES_NUMBER ),
-    PORT_SET_PIN_MODE_ID,
+    PORT_SET_PIN_MODE_SERVICE_ID,
     PORT_E_PARAM_INVALID_MODE
   );
 
@@ -537,7 +562,7 @@ void Port_SetPinMode(
 
   VALIDATE(
     ( m < cfgptr->PortPins[p].PortPinModeNumber ),
-    PORT_SET_PIN_MODE_ID,
+    PORT_SET_PIN_MODE_SERVICE_ID,
     PORT_E_PARAM_INVALID_MODE
   );
 

@@ -110,12 +110,14 @@ typedef struct
 } Mcu_GlobalType;
 
 
-// Global config
+/*
+ * MCU Global Configuration
+ */
 Mcu_GlobalType Mcu_Global =
 {
-  FALSE,		/* Init		*/
-  NULL_PTR,		/* ConfigPtr	*/
-  MCU_MODE_NORMAL,	/* ClockSetting	*/
+  FALSE,			/* Init		*/
+  NULL_PTR,			/* ConfigPtr	*/
+  MCU_CLOCK_MODE_NORMAL		/* ClockSetting	*/
 };
 
 /*
@@ -211,14 +213,14 @@ Std_ReturnType Mcu_InitRamSection(
     E_NOT_OK 
   );
 
-  /* NOT SUPPORTED, reason: no support for external RAM */
+  /* NOT YET IMPLEMENTED, reason: no support for external RAM */
 
   return E_OK;
 
 }
 
 /*
- *
+ * Mcu_InitSystemClock implementation
  */
 #if ( MCU_INIT_CLOCK == STD_ON )
 static void Mcu_InitSystemClock(Mcu_ClockSettingConfigType *ConfigPtr)
@@ -310,7 +312,7 @@ Std_ReturnType Mcu_InitClock(
   );
 
   VALIDATE_W_RV(
-    ( ClockSetting <= MCU_CLOCK_MODE_NUMBER ),
+    ( ClockSetting <= MCU_CLOCK_MODES_NUMBER ),
     MCU_INITCLOCK_SERVICE_ID,
     MCU_E_PARAM_CLOCK,
     E_NOT_OK
@@ -319,6 +321,8 @@ Std_ReturnType Mcu_InitClock(
   Mcu_InitSystemClock(
     &Mcu_Global.ConfigPtr->McuClockSettingConfig[ClockSetting]
   );
+
+  Mcu_Global.ClockSetting = ClockSetting;
 
   return E_OK;
 
@@ -543,8 +547,7 @@ void Mcu_SetMode(
     MCU_E_PARAM_MODE 
   );
 
-  /* NOT SUPPORTED */
-
+  /* NOT YET IMPLEMENTED, reason: operational mode only */
   return;
 
 }
@@ -558,9 +561,16 @@ Mcu_RamStateType Mcu_GetRamState(
 )
 {
 
-  /* NOT SUPPORTED */
+  VALIDATE_W_RV(
+    ( Mcu_Global.Init == TRUE ),
+    MCU_GETRAMSTATE_SERVICE_ID,
+    MCU_E_UNINIT,
+    MCU_RAMSTATE_INVALID
+  );
 
-  return MCU_RAMSTATE_VALID;
+  /* NOT YET IMPLEMENTED, reason: no support for external RAM */
+
+  return MCU_RAMSTATE_INVALID;
 
 }
 #endif

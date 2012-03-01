@@ -46,9 +46,30 @@
  * Author: 2011, Giuseppe Serano
  */
 
+
+#define	DIO_AR_RELEASE_MAJOR_VERSION	4
+#define	DIO_AR_RELEASE_MINOR_VERSION	0
+
 #include "Dio.h"
 
-/* TODO: AUTOSAR DIO Driver Version Check */
+/*
+ * DIO106:	The DIO module shall perform Inter Module Checks to avoid
+ * 		integration of incompatible files.
+ * 		The imported included files shall be checked by preprocessing
+ * 		directives.
+ * 		The following version numbers shall be verified:
+ * 		- <MODULENAME>_AR_RELEASE_MAJOR_VERSION
+ * 		- <MODULENAME>_AR_RELEASE_MINOR_VERSION
+ * 		Where <MODULENAME> is the module short name of the other
+ * 		(external) modules which provide header files included by DIO
+ * 		module.
+ * 		If the values are not identical to the expected values, an
+ * 		error shall be reported.
+ */
+#if !defined( DIO_AR_MAJOR_VERSION ) || \
+    ( DIO_AR_MAJOR_VERSION != DIO_AR_RELEASE_MAJOR_VERSION )
+#error	Dio: version mismatch.
+#endif
 
 /*
  * DIO146_Conf:	Configuration of an individual DIO channel. Besides a HW
@@ -64,11 +85,15 @@ Dio_ChannelType	DioPortGChannels[] = {
 };
 
 Dio_ChannelType	DioPortMChannels[] = {
-  DIO_CHANNEL_SWITCH_1,
-  DIO_CHANNEL_SWITCH_2,
-  DIO_CHANNEL_SWITCH_3,
-  DIO_CHANNEL_SWITCH_4,
-  DIO_CHANNEL_SWITCH_5
+  DIO_CHANNEL_USER_SWITCH_1,
+  DIO_CHANNEL_USER_SWITCH_2,
+  DIO_CHANNEL_USER_SWITCH_3,
+  DIO_CHANNEL_USER_SWITCH_4,
+  DIO_CHANNEL_USER_SWITCH_5
+};
+
+Dio_ChannelType	DioPortDChannels[] = {
+  DIO_CHANNEL_USER_OUTPUT
 };
 
 /*
@@ -91,10 +116,18 @@ Dio_ChannelGroupType DioPortGChannelsGroups[] = {
 };
 
 Dio_ChannelGroupType DioPortMChannelsGroups[] = {
-  { /* DIO_CHANNEL_GROUP_SWITCHES */
+  { /* DIO_CHANNEL_GROUP_USER_SWITCHES */
     0x0000001F,			/* mask				 */
     0x00000000,			/* offest			 */
-    DIO_PORT_SWITCHES		/* port				 */
+    DIO_PORT_USER_SWITCHES	/* port				 */
+  }
+};
+
+Dio_ChannelGroupType DioPortDChannelsGroups[] = {
+  { /* DIO_CHANNEL_GROUP_USER_OUTPUT */
+    0x00000040,			/* mask				 */
+    0x00000006,			/* offest			 */
+    DIO_PORT_USER_OUTPUT	/* port				 */
   }
 };
 
@@ -114,7 +147,7 @@ Dio_PortConfType Dio_Ports[] = {
     &DioPortGChannelsGroups[0]	/* Dio_ChannelsGroups		 */
   },
   { /* PORT_M */
-    DIO_PORT_SWITCHES,		/* DioPortId			 */
+    DIO_PORT_USER_SWITCHES,	/* DioPortId			 */
     0x00000005,			/* DioNumberOfChannels		 */
     &DioPortMChannels[0],	/* Dio_Channels			 */
     0x00000001,			/* DioNumberOfChannelsGroups	 */
@@ -122,6 +155,22 @@ Dio_PortConfType Dio_Ports[] = {
   }
 };
 
+Dio_PortConfType Dio_OutputPorts[] = {
+  { /* PORT_D */
+    DIO_PORT_USER_OUTPUT,	/* DioPortId			 */
+    0x00000001,			/* DioNumberOfChannels		 */
+    &DioPortDChannels[0],	/* Dio_Channels			 */
+    0x00000000,			/* DioNumberOfChannelsGroups	 */
+    &DioPortGChannelsGroups[0]	/* Dio_ChannelsGroups		 */
+  },
+  { /* PORT G */
+    DIO_PORT_USER_LED,		/* DioPortId			 */
+    0x00000001,			/* DioNumberOfChannels		 */
+    &DioPortGChannels[0],	/* Dio_Channels			 */
+    0x00000001,			/* DioNumberOfChannelsGroups	 */
+    &DioPortGChannelsGroups[0]	/* Dio_ChannelsGroups		 */
+  }
+};
 
 /*
  * DIO152_Conf:	This container contains the configuration parameters and sub
@@ -130,8 +179,16 @@ Dio_PortConfType Dio_Ports[] = {
  * 		sub-containers exist once per configuration set.
  */
 Dio_ConfigType Dio_Config[] = {
-  {
+  { /* DIO_CONFIG_DIO */
     0x00000002,		/* DioNumberOfPorts	*/
     &Dio_Ports[0]	/* DioPorts		*/
-  }
+  },
+  { /* DIO_CONFIG_USER_LED */
+    0x00000001,		/* DioNumberOfPorts	*/
+    &Dio_Ports[0]	/* DioPorts		*/
+  },
+  { /* DIO_CONFIG_USER_OUTPUT */
+    0x00000002,		/* DioNumberOfPorts	*/
+    &Dio_OutputPorts[0]	/* DioPorts		*/
+  },
 };
