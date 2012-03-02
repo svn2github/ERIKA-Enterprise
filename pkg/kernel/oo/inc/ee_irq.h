@@ -69,5 +69,28 @@ void EE_IRQ_end_instance(void);
 void EE_IRQ_end_post_stub(void);
 #endif /* __PRIVATE_IRQ_END_INSTANCE__ */
 
+/*
+ * ORTI Macros
+ */
+#ifdef __OO_ORTI_RUNNINGISR2__
+__INLINE__ EE_ORTI_runningisr2_type EE_ORTI_get_runningisr2(void)
+{
+    return EE_ORTI_runningisr2;
+}
+
+__INLINE__ void EE_ORTI_set_runningisr2(EE_ORTI_runningisr2_type isr2)
+{
+    EE_ORTI_runningisr2 = isr2;
+    EE_ORTI_send_otm_runningisr2(isr2);
+}
+
+#else /* if __OO_ORTI_RUNNINGISR2__ */
+
+/* EE_ORTI_runningisr2_type is defined by the CPU layer only when needed */
+#define EE_ORTI_get_runningisr2()         (NULL)
+#define EE_ORTI_set_runningisr2(isr2)     ((void)0)
+
+#endif /* else __OO_ORTI_RUNNINGISR2__ */
+
 #endif /* INCLUDE_OO_IRQ_H__ */
 

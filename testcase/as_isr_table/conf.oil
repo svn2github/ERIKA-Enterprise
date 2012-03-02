@@ -7,7 +7,7 @@
  *
  * ERIKA Enterprise is free software; you can redistribute it
  * and/or modify it under the terms of the GNU General Public License
- * version 2 as published by the Free Software Foundation, 
+ * version 2 as published by the Free Software Foundation,
  * (with a special exception described below).
  *
  * Linking this code statically or dynamically with other modules is
@@ -43,22 +43,38 @@ CPU test_application {
 
   OS EE {
     EE_OPT = "__ASSERT__";
+    /* This EE_OPT enable Static ISR Table */
+    EE_OPT = "__STATIC_ISR_TABLE__";
     EE_OPT = "DEBUG";
+
+    /* WORKAROUND START */
+    /* Following CFLAGS are used to let ee_ctable.c see the configuration
+       before that druid support it, SHOLD BE removed when it will happen */
+    /* Handlers mapping */
+    CFLAGS = "-DEE_PPCE200ZX_SOFT_IRQ_0_ISR=IsrLow";
+    CFLAGS = "-DEE_PPCE200ZX_SOFT_IRQ_3_ISR=IsrMedium";
+    CFLAGS = "-DEE_PPCE200ZX_SOFT_IRQ_5_ISR=IsrHigh";
+
+    /* Priorities mapping */
+    CFLAGS = "-DEE_PPCE200ZX_SOFT_IRQ_0_PRIO=1";
+    CFLAGS = "-DEE_PPCE200ZX_SOFT_IRQ_3_PRIO=2";
+    CFLAGS = "-DEE_PPCE200ZX_SOFT_IRQ_5_PRIO=3";
+    /* WORKAROUND END */
 
     STATUS = STANDARD;
 
-    STARTUPHOOK = FALSE;
-    ERRORHOOK = TRUE;
-    SHUTDOWNHOOK = FALSE;
-    PRETASKHOOK = FALSE;
-    POSTTASKHOOK = FALSE;
+    STARTUPHOOK   = FALSE;
+    ERRORHOOK     = FALSE;
+    SHUTDOWNHOOK  = FALSE;
+    PRETASKHOOK   = FALSE;
+    POSTTASKHOOK  = FALSE;
 
     USEGETSERVICEID = FALSE;
     USEPARAMETERACCESS = FALSE;
     USERESSCHEDULER = FALSE;
 
     EE_OPT = "__E200ZX_EXECUTE_FROM_RAM__";
-    EE_OPT = "__CODEWARRIOR__";
+    //EE_OPT = "__CODEWARRIOR__";
     //EE_OPT = "EEOPT_DIAB_5_8";
 
     MCU_DATA = PPCE200ZX {
@@ -68,50 +84,52 @@ CPU test_application {
     CPU_DATA = PPCE200ZX {
       MODEL = E200Z7;
       APP_SRC = "code.c";
-      APP_SRC = "testcase/common/e200zx/test_irq.c";
       VLE = FALSE;
       SYS_STACK_SIZE=2048;
 
       MULTI_STACK = TRUE {
-        IRQ_STACK = FALSE;
+        IRQ_STACK = TRUE {
+          SYS_SIZE=512;
+        };
       };
     };
 
-    KERNEL_TYPE = ECC1;
     EE_OPT = "__OO_STARTOS_OLD__";
+    KERNEL_TYPE = BCC1;
   };
 
-  TASK Task1 {
+   TASK Task1 {
     PRIORITY = 1;
+    ACTIVATION = 1;
+    SCHEDULE = FULL;
+    AUTOSTART = TRUE;
+    STACK = SHARED;
+  };
+
+  TASK Task2 {
+    PRIORITY = 2;
     ACTIVATION = 1;
     SCHEDULE = FULL;
     AUTOSTART = FALSE;
     STACK = SHARED;
-    RESOURCE = "Resource1";
-    RESOURCE = "ResourceA";
-    RESOURCE = "ResourceB";
   };
-
+  /*
   ISR IsrLow {
     CATEGORY = 2;
     PRIORITY = 1;
-    RESOURCE = "ResourceA";
-    RESOURCE = "ResourceB";
+    ENTRY = "0";
   };
 
   ISR IsrMedium {
     CATEGORY = 2;
     PRIORITY = 2;
+    ENTRY = "3";
   }
 
   ISR IsrHigh {
-    CATEGORY = 2;
+    CATEGORY = 1;
     PRIORITY = 3;
-    RESOURCE = "ResourceB";
-  };
-
-  RESOURCE Resource1 { RESOURCEPROPERTY = STANDARD; };
-  RESOURCE ResourceA { RESOURCEPROPERTY = STANDARD; };
-  RESOURCE ResourceB { RESOURCEPROPERTY = STANDARD; };
+    ENTRY = "5";
+  }; */
 };
 

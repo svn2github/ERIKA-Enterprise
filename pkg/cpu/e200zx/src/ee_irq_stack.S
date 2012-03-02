@@ -47,85 +47,99 @@
 #include <cpu/e200zx/inc/ee_irq.h>
 #endif
 
-	/* CW-VAR-DEFINITION: EE_ADDR EE_e200z7_tmp_tos; */
-        .section .bss
-	.global	EE_e200z7_tmp_tos
-	.type	EE_e200z7_tmp_tos, @object
-	.balign	4
-EE_e200z7_tmp_tos:
-        .space  4
-	.size	EE_e200z7_tmp_tos, .-EE_e200z7_tmp_tos
+/* CW-VAR-DEFINITION: EE_ADDR EE_e200zx_tmp_tos; */
+  .section .bss
+  .global   EE_e200zx_tmp_tos
+  .type     EE_e200zx_tmp_tos, @object
+  .balign   4
+EE_e200zx_tmp_tos:
+  .space    4
+  .size	EE_e200zx_tmp_tos, .-EE_e200zx_tmp_tos
 
+
+/* Start code section
+    I need to preserve TAB caracter .text directive because otherwise
+    codewarrior AWK translation script would keep that line in
+    c file. (This approach is REALLY error prone it would be better use directly
+    c files with embedded asm). */
 	.text
 
-	/* CW-FUNC-DEFINITION: void EE_e200z7_call_ISR_new_stack(EE_SREG level, EE_e200z7_ISR_handler fun, EE_UREG nesting) */
-	.global EE_e200z7_call_ISR_new_stack
-	.type EE_e200z7_call_ISR_new_stack, @function
-EE_e200z7_call_ISR_new_stack:
-	/*
-	 * r3 == irq_level
-	 * r4 == fun
-	 * r5 == nesting_level
-	 */
+/* CW-FUNC-DEFINITION: void EE_e200zx_call_ISR(EE_e200z7_ISR_handler fun, EE_UREG nesting) */
+  .global EE_e200zx_call_ISR
+  .type   EE_e200zx_call_ISR, @function
+EE_e200zx_call_ISR:
+  /*
+   * r3 == fun            (parameter)
+   * r4 == nesting_level  (parameter)
+   * r5 == internal temporary register
+   */
 
-	stwu	sp, -16(sp)
-	mfspr	r0, SPRG_LR
-	stw	r0, 20(sp)
+  /* Function Frame */
+  stwu  sp, -16(sp)
+  mfspr r0, SPRG_LR
+  stw   r0, 20(sp)
 
-	/* if (nesting_level == 1) */
+  /* if (nesting_level == 1) */
 #ifdef	__ALLOW_NESTED_IRQ__
 
 #ifdef	__VLE__
-	e_cmpi	cr0, r5, 1
+  e_cmpi  cr0, r4, 1
 #else
-	cmpi	cr0, r5, 1
+  cmpi    cr0, r4, 1
+#endif /* VLE */
+  bne   skip_change
+#endif /* __ALLOW_NESTED_IRQ__ */
+
+  /* change_to_IRQ_stacks(); */
+  /* Save old Stack Pointer in EE_e200zx_tmp_tos global */
+  addis r5, 0, EE_e200zx_tmp_tos@ha
+  stw   sp,    EE_e200zx_tmp_tos@l(r5)
+
+  /* Switch to IRQ stack */
+  addis r5, 0, EE_e200z7_IRQ_tos@ha
+  lwz   sp,    EE_e200z7_IRQ_tos@l(r5)
+
+  /* Call fun handling the nesting */
+  /* EE_std_enableIRQ_nested(); */
+#ifdef	__ALLOW_NESTED_IRQ__
+  wrteei	1
 #endif
-	bne	skip_change
+  /* call fun(); */
+  mtspr	SPRG_LR, r3
+  blrl
+  /* EE_std_disableIRQ_nested(); */
+#ifdef	__ALLOW_NESTED_IRQ__
+  wrteei	0
 #endif
 
-        /*	change_stacks(); */
-	addis	r3, 0, EE_e200z7_tmp_tos@ha
-	stw	sp, EE_e200z7_tmp_tos@l(r3)
+  /* change_back_from_IRQ_stacks(); */
+  /* Restore old Stack pointer */
+  addis r5, 0, EE_e200zx_tmp_tos@ha
+  lwz   sp,    EE_e200zx_tmp_tos@l(r5)
 
-	addis	r3, 0, EE_e200z7_IRQ_tos@ha
-	lwz	sp, EE_e200z7_IRQ_tos@l(r3)
+  /* branch to the end (not execute else branch) */
+  b frame_free
 
 skip_change:
-	/* EE_std_enableIRQ_nested(); */
+  /* I don't need to change the stack just call fun */
+  /* EE_std_enableIRQ_nested(); */
 #ifdef	__ALLOW_NESTED_IRQ__
-	wrteei	1
+  wrteei	1
 #endif
-
-	/* fun(); */
-	mtspr	SPRG_LR, r4
-	blrl
-
-	/* EE_std_disableIRQ_nested(); */
+  /* call fun(); */
+  mtspr	SPRG_LR, r3
+  blrl
+  /* EE_std_disableIRQ_nested(); */
 #ifdef	__ALLOW_NESTED_IRQ__
-	wrteei	0
+  wrteei	0
 #endif
 
-	/* if (nesting_level == 1) */
-#ifdef	__ALLOW_NESTED_IRQ__
-	addis	r5, 0, EE_IRQ_nesting_level@ha
-	lwz	r0, EE_IRQ_nesting_level@l(r5)
-#ifdef	__VLE__
-	e_cmpi	cr0, r0, 1
-#else
-	cmpi	cr0, r0, 1
-#endif
-	bne	skip_change_back
-#endif
+frame_free:
+  /* Free the function frame */
+  lwz   r0,       20(sp)
+  addi  sp, sp,   16
+  mtspr SPRG_LR,  r0
+  /* return */
+  blr
 
-	/*     change_stacks_back(); */
-	addis	r3, 0, EE_e200z7_tmp_tos@ha
-	lwz	sp, EE_e200z7_tmp_tos@l(r3)
-
-skip_change_back:
-	lwz	r0, 20(sp)
-	addi	sp, sp, 16
-	mtspr	SPRG_LR, r0
-
-	blr
-
-	.size	EE_e200z7_call_ISR_new_stack, .-EE_e200z7_call_ISR_new_stack
+  .size EE_e200zx_call_ISR, .-EE_e200zx_call_ISR

@@ -129,7 +129,10 @@ extern "C" {
 
 #if defined __PPCE200Z7__ || defined __PPCE200ZX__
 #include "cpu/e200zx/inc/ee_cpu.h"
-#endif
+#ifdef __MSRP__
+#include "cpu/e200zx/inc/ee_e200zx_multicore.h"
+#endif /* __MSRP__ */
+#endif /* defined __PPCE200Z7__ || defined __PPCE200ZX__ */
 
 #ifdef __ESI_RISC__
 #include "cpu/esi_risc/inc/ee_cpu.h"

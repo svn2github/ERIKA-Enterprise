@@ -47,18 +47,21 @@
 #include <ee_internal.h>
 #include <cpu/e200zx/inc/ee_irq.h>
 #include <cpu/e200zx/inc/ee_irq_internal.h>
-#include <cpu/common/inc/ee_irqstub.h>
 #include <cpu/e200zx/inc/ee_mcu_regs.h>
 
-#ifdef __FP__
-/* No ORTI support for the FP kernel */
-typedef int EE_ORTI_runningisr2_type;
-__INLINE__ EE_ORTI_runningisr2_type EE_ORTI_get_runningisr2(void)
-{
-	return (EE_ORTI_runningisr2_type)0;
-}
-#define EE_ORTI_set_runningisr2(isr2)   ((void)0)
-#endif /* __FP__ */
+
+#ifndef __AS_SC4__
+
+#ifdef __IRQ_STACK_NEEDED__
+/* It is a temp variable to hold old stack pointer when IRQ stack is needed */
+EE_ADDR EE_e200zx_tmp_tos;
+#endif /* __IRQ_STACK_NEEDED__ */
+
+#ifndef __STATIC_ISR_TABLE__
+
+/* Software Interrupt Vector */
+EE_e200z7_ISR_handler EE_e200z7_ISR_table[EE_E200ZX_MAX_CPU_EXCP
+	+ EE_E200ZX_MAX_EXT_IRQ];
 
 void EE_e200z7_irq(EE_SREG level)
 {
@@ -69,8 +72,9 @@ void EE_e200z7_irq(EE_SREG level)
 	f = EE_e200z7_ISR_table[level];
 	if (f != (EE_e200z7_ISR_handler)0) {
 		ortiold = EE_ORTI_get_runningisr2();
-		EE_ORTI_set_runningisr2(EE_ORTI_build_isr2id(level, f));
-		EE_e200z7_call_ISR_new_stack(level, f, EE_IRQ_nesting_level);
+		EE_ORTI_set_runningisr2(EE_ORTI_build_isr2id(f));
+		/* eventually call ISR handler in a new stack (it need nesting level) */
+		EE_e200zx_call_ISR(f, EE_IRQ_nesting_level);
 		EE_ORTI_set_runningisr2(ortiold);
 	}
 
@@ -97,11 +101,6 @@ void EE_e200z7_irq(EE_SREG level)
 	}
 }
 
-#ifndef __STATIC_ISR_TABLE__
-
-EE_e200z7_ISR_handler EE_e200z7_ISR_table[EE_E200ZX_MAX_CPU_EXCP
-	+ EE_E200ZX_MAX_EXT_IRQ];
-
 void EE_e200z7_register_ISR(int level, EE_e200z7_ISR_handler fun, EE_UINT8 pri)
 {
 	EE_UINT8 proc;
@@ -118,10 +117,20 @@ void EE_e200z7_register_ISR(int level, EE_e200z7_ISR_handler fun, EE_UINT8 pri)
 
 	EE_e200z7_resumeIRQ(intst);
 }
+#else /* !__STATIC_ISR_TABLE__ */
 
-#endif
+void EE_e200z7_irq(EE_SREG level)
+{
+  EE_e200z7_ISR_handler f;
+  f = EE_e200z7_ISR_table[level];
+  if (f != (EE_e200z7_ISR_handler)0) {
+    f();
+  }
+}
 
-#ifdef __AS_SC4__
+#endif /* #else !__STATIC_ISR_TABLE__ */
+
+#else /*__AS_SC4__ */
 /*
  * Expansion of the inline function in the common layer.  We have asm
  * post-IRQ stubs that need to call it.
@@ -131,4 +140,4 @@ void EE_e200zx_after_IRQ_schedule(void)
 {
 	EE_std_after_IRQ_schedule();
 }
-#endif
+#endif /*__AS_SC4__ */

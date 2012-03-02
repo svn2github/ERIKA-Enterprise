@@ -48,11 +48,19 @@
 #include <mcu/freescale_mpc5674f/inc/ee_regs_asm.h>
 #include <cpu/e200zx/inc/ee_cpu_asm.h>
 
-	.extern	ee_load_ram, ee_sdata, ee_sbss, ee_ebss, sram_setup, main
+	.extern ee_load_ram, ee_sdata, ee_sbss, ee_ebss, sram_setup
 	.extern EE_e200zx_mmu_entries, EE_e200zx_mmu_num_entries
+	.extern main
+#ifdef __STATIC_ISR_TABLE__
+	.extern EE_mpc5674_initialize_external_IRQ_priorities
+#endif /* __STATIC_ISR_TABLE__ */
+
 #ifdef __ASM_CONVERTED_TO_C__
 int main(void);
-#endif
+#ifdef __STATIC_ISR_TABLE__
+void EE_mpc5674_initialize_external_IRQ_priorities(void);
+#endif /* __STATIC_ISR_TABLE__ */
+#endif /* __ASM_CONVERTED_TO_C__ */
 
 #ifndef __E200ZX_EXECUTE_FROM_RAM__
 #ifdef __VLE__
@@ -150,6 +158,9 @@ __start:
 #endif /* __EE_CRT0_INIT_MMU__ */
 	bl	cpu_setup		/* cpu-specific initialization */
 	bl	intc_setup		/* interrupt controller */
+#ifdef __STATIC_ISR_TABLE__
+	bl	EE_mpc5674_initialize_external_IRQ_priorities /* Init ext. irq prio */
+#endif /* __STATIC_ISR_TABLE__ */
 	bl	main			/* jump to application code */
 
 	wrteei	0

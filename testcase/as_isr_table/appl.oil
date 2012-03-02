@@ -7,7 +7,7 @@
  *
  * ERIKA Enterprise is free software; you can redistribute it
  * and/or modify it under the terms of the GNU General Public License
- * version 2 as published by the Free Software Foundation, 
+ * version 2 as published by the Free Software Foundation,
  * (with a special exception described below).
  *
  * Linking this code statically or dynamically with other modules is
@@ -38,80 +38,96 @@
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
 
+#include "../common/rtdruid_common/ee_oil_defs.h"
 
-CPU test_application {
+  CPU test_application {
 
-  OS EE {
-    EE_OPT = "__ASSERT__";
-    EE_OPT = "DEBUG";
+    OS EE {
+      EE_OPT = "__ASSERT__";
+#ifdef STATIC
+      /* This EE_OPT enable Static ISR Table */
+      EE_OPT = "__STATIC_ISR_TABLE__";
+#endif /* ISRSTATIC */
+      EE_OPT = "DEBUG";
 
-    STATUS = STANDARD;
+      /* WORKAROUND START */
+      /* Following CFLAGS are used to let ee_ctable.c see the configuration
+         before that druid support it, SHOLD BE removed when it will happen */
+      /* Handlers mapping */
+      CFLAGS = "-DEE_PPCE200ZX_0_ISR=IsrLow";
+      CFLAGS = "-DEE_PPCE200ZX_3_ISR=IsrMedium";
+      CFLAGS = "-DEE_PPCE200ZX_5_ISR=IsrHigh";
 
-    STARTUPHOOK = FALSE;
-    ERRORHOOK = TRUE;
-    SHUTDOWNHOOK = FALSE;
-    PRETASKHOOK = FALSE;
-    POSTTASKHOOK = FALSE;
+      /* Priorities mapping */
+      CFLAGS = "-DEE_PPCE200ZX_0_ISR_PRI=1";
+      CFLAGS = "-DEE_PPCE200ZX_3_ISR_PRI=2";
+      CFLAGS = "-DEE_PPCE200ZX_5_ISR_PRI=3";
+      /* WORKAROUND END */
 
-    USEGETSERVICEID = FALSE;
-    USEPARAMETERACCESS = FALSE;
-    USERESSCHEDULER = FALSE;
+      STATUS = EXTENDED;
 
-    EE_OPT = "__E200ZX_EXECUTE_FROM_RAM__";
-    EE_OPT = "__CODEWARRIOR__";
-    //EE_OPT = "EEOPT_DIAB_5_8";
+      STARTUPHOOK         = FALSE;
+      ERRORHOOK           = FALSE;
+      SHUTDOWNHOOK        = FALSE;
+      PRETASKHOOK         = FALSE;
+      POSTTASKHOOK        = FALSE;
+      USEGETSERVICEID     = FALSE;
+      USEPARAMETERACCESS  = FALSE;
+      USERESSCHEDULER     = FALSE;
 
-    MCU_DATA = PPCE200ZX {
-      MODEL = MPC5674F;
-    };
+#include "../common/rtdruid_common/ee_oil_e200zx_os.h"
 
-    CPU_DATA = PPCE200ZX {
-      MODEL = E200Z7;
-      APP_SRC = "code.c";
-      APP_SRC = "testcase/common/e200zx/test_irq.c";
-      VLE = FALSE;
-      SYS_STACK_SIZE=2048;
+/* Mono Stack */
 
+/* Multi Stack */
+#ifdef NO
+      MULTI_STACK = FALSE;
+#endif
+#ifdef YES
       MULTI_STACK = TRUE {
-        IRQ_STACK = FALSE;
+        IRQ_STACK = TRUE {
+          SYS_SIZE=512;
+        };
       };
+#endif
     };
 
-    KERNEL_TYPE = ECC1;
-    EE_OPT = "__OO_STARTOS_OLD__";
+    KERNEL_TYPE = BCC1;
   };
 
   TASK Task1 {
     PRIORITY = 1;
     ACTIVATION = 1;
     SCHEDULE = FULL;
-    AUTOSTART = FALSE;
+    AUTOSTART = TRUE;
     STACK = SHARED;
-    RESOURCE = "Resource1";
-    RESOURCE = "ResourceA";
-    RESOURCE = "ResourceB";
   };
 
+  TASK Task2 {
+    PRIORITY = 2;
+    ACTIVATION = 1;
+    SCHEDULE = FULL;
+    AUTOSTART = FALSE;
+    STACK = SHARED;
+  };
+
+  /*
   ISR IsrLow {
     CATEGORY = 2;
     PRIORITY = 1;
-    RESOURCE = "ResourceA";
-    RESOURCE = "ResourceB";
+    ENTRY = "0";
   };
 
   ISR IsrMedium {
     CATEGORY = 2;
     PRIORITY = 2;
+    ENTRY = "3";
   }
 
   ISR IsrHigh {
-    CATEGORY = 2;
+    CATEGORY = 1;
     PRIORITY = 3;
-    RESOURCE = "ResourceB";
-  };
-
-  RESOURCE Resource1 { RESOURCEPROPERTY = STANDARD; };
-  RESOURCE ResourceA { RESOURCEPROPERTY = STANDARD; };
-  RESOURCE ResourceB { RESOURCEPROPERTY = STANDARD; };
+    ENTRY = "5";
+  }; */
 };
 

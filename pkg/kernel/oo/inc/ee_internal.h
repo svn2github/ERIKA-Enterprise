@@ -213,34 +213,6 @@ __INLINE__ EE_TID __ALWAYS_INLINE__ EE_oo_get_ISR2_TID(void) {
 }
 #endif /*  __OO_ISR2_RESOURCES__ */
 
-/*
- * ORTI Macros
- */
-#ifdef __OO_ORTI_RUNNINGISR2__
-__INLINE__ EE_ORTI_runningisr2_type EE_ORTI_get_runningisr2(void)
-{
-    return EE_ORTI_runningisr2;
-}
-
-__INLINE__ void EE_ORTI_set_runningisr2(EE_ORTI_runningisr2_type isr2)
-{
-    EE_ORTI_runningisr2 = isr2;
-    EE_ORTI_send_otm_runningisr2(isr2);
-}
-
-#else /* if __OO_ORTI_RUNNINGISR2__ */
-
-/* EE_ORTI_runningisr2_type is defined by the CPU layer only when needed */
-typedef EE_UREG EE_ORTI_runningisr2_type;
-
-__INLINE__ EE_ORTI_runningisr2_type EE_ORTI_get_runningisr2(void)
-{
-	return (EE_ORTI_runningisr2_type)NULL;
-}
-
-#define EE_ORTI_set_runningisr2(isr2)    ((void)0)
-#endif /* else __OO_ORTI_RUNNINGISR2__ */
-
 #if defined(__OO_ECC1__) || defined(__OO_ECC2__)
 /*
     Reset Active Events  THREAD utility method.

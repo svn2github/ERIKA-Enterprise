@@ -135,8 +135,8 @@ extern EE_STACK_T EE_STACK_ATTRIB EE_e200zx_sys_stack[EE_STACK_WLEN(EE_SYS_STACK
 #endif
 
 /* ORTI types */
-#ifdef __OO_ORTI_RUNNINGISR2__
 typedef EE_e200z7_ISR_handler EE_ORTI_runningisr2_type;
+#ifdef __OO_ORTI_RUNNINGISR2__
 #define EE_ORTI_build_isr2id(l,f) (f)
 #else /* __OO_ORTI_RUNNINGISR2__ */
 /* In this case EE_ORTI_runningisr2_type is defined inside the OO kernel */

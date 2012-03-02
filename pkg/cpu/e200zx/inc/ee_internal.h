@@ -127,24 +127,20 @@ __INLINE__ EE_FREG __ALWAYS_INLINE__
 }
 
 /*
- * Context Handling
+ * Context Handling e200zx ee_irq.h include common context because is needed by   
+ * common irq stub (needed for IRQ handling).
  */
-
-#ifdef __MULTI__
-#define EE_hal_active_tos	EE_e200z7_active_tos
-#endif
-
-#include "cpu/common/inc/ee_context.h"
-
+#include "ee_irq.h"
 /* typically called at the end of an interrupt */
-#define EE_hal_IRQ_stacked EE_hal_endcycle_stacked
-#define EE_hal_IRQ_ready EE_hal_endcycle_ready
+#define EE_hal_IRQ_stacked  EE_hal_endcycle_stacked
+#define EE_hal_IRQ_ready    EE_hal_endcycle_ready
 
 /*
  * OO TerminateTask related stuffs
  */
 
-#if defined(__OO_BCC1__) || defined(__OO_BCC2__) || defined(__OO_ECC1__) || defined(__OO_ECC2__)
+#if defined(__OO_BCC1__) || defined(__OO_BCC2__) || defined(__OO_ECC1__) || \
+  defined(__OO_ECC2__)
 
 void EE_hal_terminate_savestk(EE_TID tid);
 void EE_hal_terminate_task(EE_TID tid) NORETURN;

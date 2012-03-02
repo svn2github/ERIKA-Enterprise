@@ -1,7 +1,7 @@
 /* ###*B*###
  * ERIKA Enterprise - a tiny RTOS for small microcontrollers
  *
- * Copyright (C) 2002-2011  Evidence Srl
+ * Copyright (C) 2002-2012  Evidence Srl
  *
  * This file is part of ERIKA Enterprise.
  *
@@ -38,32 +38,34 @@
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
 
-/*
- * MPC5674F register map
- * Author: 2011 Bernardo  Dal Seno
- */
-
-#ifndef EE_MCU_MPC5674F_H
-#define EE_MCU_MPC5674F_H
-
-/* ISO int types used by mpc5674f.h */
-#define __EE_STDINT_SKIP_64BIT__
-#include <cpu/common/inc/ee_stdint.h>
-
-#include "mpc5674f.h"
-
-/* Number of externa interrupts */
-#define EE_E200ZX_MAX_EXT_IRQ 474
-
-/* These are used for compatibility with multi-core CPUs */
-#define INTC_CPR (INTC.CPR)
-#define INTC_IACKR (INTC.IACKR)
-#define INTC_EOIR (INTC.EOIR)
-/* Default external interrupt priority */
-#define EE_E200ZX_INTC_CURRPROC 0U
+#ifndef EE_INCLUDE_ISR_DEFINE_H
+#define EE_INCLUDE_ISR_DEFINE_H
 
 #ifdef __STATIC_ISR_TABLE__
-void EE_mpc5674_initialize_external_IRQ_priorities(void);
+/* Workaround to introduce Standard ISR macro definition */
+#define ISR(f) ISR##f(f)
+
+/* Those shall be defined by RT-Druid*/
+#define ISRIsrLow(f)        ISR2(f)
+#define ISRIsrMedium(f)     ISR2(f)
+
+#define ISRIsrHigh(f)       ISR1(f)
+
+/* FOLLOWING DEFINES ARE NOT USED BY code.c ARE HERE ONLY AS REMINDER */
+/* Handlers mapping */
+#define EE_PPCE200ZX_0_ISR IsrLow
+#define EE_PPCE200ZX_3_ISR IsrMedium
+#define EE_PPCE200ZX_5_ISR IsrHigh
+
+#else /* __STATIC_ISR_TABLE__ */
+
+#define ISR(f) void f(void)
+
 #endif /* __STATIC_ISR_TABLE__ */
 
-#endif /* EE_MCU_MPC5674F_H */
+/* Priorities mapping */
+#define EE_PPCE200ZX_0_ISR_PRI 1
+#define EE_PPCE200ZX_3_ISR_PRI 2
+#define EE_PPCE200ZX_5_ISR_PRI 3
+
+#endif /* EE_INCLUDE_ISR_DEFINE_H */
