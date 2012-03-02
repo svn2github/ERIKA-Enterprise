@@ -257,6 +257,30 @@ static void Mcu_InitSystemClock(Mcu_ClockSettingConfigType *ConfigPtr)
   rcc2dst |= SYSCTL_RCC2_OSCSRC2_IO;	/* Precision Internal Oscillator      */
   SYSCTL_RCC2_R = rcc2dst;		/* Write RCC2			      */
 
+  /* PIOSC Automatic Calibration using Hibernation Module if present */
+  if ( SYSCTL_PPHIB_R & SYSCTL_PPHIB_P0) {
+
+    /* Hibernation Module Clock Gating */
+    SYSCTL_RCGCHIB_R |= SYSCTL_RCGCHIB_R0;
+
+    /* Hibernation Module 32.768-kHz Oscillator Enable. */
+    HIB_CTL_R |= HIB_CTL_CLK32EN;
+
+    /* Wait Hibenation Module 32.768-kHz Oscillator to Enable. */
+    while ( !((HIB_RIS_R & HIB_RIS_WC) || (HIB_MIS_R & HIB_MIS_WC)) );
+
+    /* Repeat Calibration Process until Pass */
+    while ( !(SYSCTL_PIOSCSTAT_R & SYSCTL_PIOSCSTAT_CRPASS))
+      SYSCTL_PIOSCCAL_R |= SYSCTL_PIOSCCAL_CAL;
+
+    /* Hibernation Module 32.768-kHz Oscillator Disable. */
+    HIB_CTL_R &= ~HIB_CTL_CLK32EN;
+
+    /* Hibernation Module Clock Gating Removal */
+    SYSCTL_RCGCHIB_R &= ~SYSCTL_RCGCHIB_R0;
+
+  }
+
   /* Set XTAL Frequency */
   rccdst &= ~SYSCTL_RCC_XTAL_M;
   rccdst |= (rccsrc & SYSCTL_RCC_XTAL_M);
