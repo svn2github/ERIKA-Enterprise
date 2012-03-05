@@ -49,9 +49,6 @@
 #include <cpu/e200zx/inc/ee_irq_internal.h>
 #include <cpu/e200zx/inc/ee_mcu_regs.h>
 
-
-#ifndef __AS_SC4__
-
 #ifdef __IRQ_STACK_NEEDED__
 /* It is a temp variable to hold old stack pointer when IRQ stack is needed */
 EE_ADDR EE_e200zx_tmp_tos;
@@ -130,7 +127,7 @@ void EE_e200z7_irq(EE_SREG level)
 
 #endif /* #else !__STATIC_ISR_TABLE__ */
 
-#else /*__AS_SC4__ */
+#ifdef __AS_SC4__
 /*
  * Expansion of the inline function in the common layer.  We have asm
  * post-IRQ stubs that need to call it.

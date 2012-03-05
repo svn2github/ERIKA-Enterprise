@@ -97,8 +97,6 @@ extern EE_e200z7_ISR_handler EE_e200z7_ISR_table[];
     implementation.
 */
 
-#ifndef __AS_SC4__
-
 /*
  * Call an ISR. If the ISR is to be called on a new stack we need to
  * resort to the black magic of assembly programming, and here we're
@@ -209,7 +207,7 @@ void EE_PREPROC_JOIN(ISR2_,f)(void)
 void EE_e200z7_register_ISR(int level, EE_e200z7_ISR_handler fun, EE_UINT8 pri);
 #endif /* #else __STATIC_ISR_TABLE__ */
 
-#else /* __AS_SC4__ */
+#ifdef __AS_SC4__
 /*
  * In SC4 ISR2 are somehow tricky: we need to execute them in trusted/
  * untrusted mode according to the OS application they belong to, and we
