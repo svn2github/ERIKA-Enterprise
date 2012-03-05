@@ -129,13 +129,15 @@ extern struct EE_TOS EE_e200z7_IRQ_tos;
 void EE_e200zx_call_ISR(EE_e200z7_ISR_handler fun, EE_UREG nesting);
 
 #else /* if __IRQ_STACK_NEEDED__ */
-__INLINE__ void __ALWAYS_INLINE__ EE_e200zx_call_ISR(EE_e200z7_ISR_handler fun,
-    EE_UREG nesting)
-{
-  EE_std_enableIRQ_nested();
-  fun();
-  EE_std_disableIRQ_nested();
-}
+
+/* Implemented as macro to remove the need of pointer null check for MISRA
+   compliance. Fake do while construct to enforce ending semicolon */
+#define EE_e200zx_call_ISR(fun, nesting)  \
+  do {                                    \
+    EE_std_enableIRQ_nested();            \
+    fun();                                \
+    EE_std_disableIRQ_nested();           \
+  } while (0)
 #endif /* else if __IRQ_STACK_NEEDED__ */
 
 

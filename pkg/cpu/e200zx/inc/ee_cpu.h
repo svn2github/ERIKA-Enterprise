@@ -160,6 +160,13 @@ extern EE_UREG EE_e200z7_active_tos;
 
 #define __OO_CPU_HAS_STARTOS_ROUTINE__
 
+/* If system is defined I have to initialize it*/
+#ifdef SystemTimer
+void EE_e200zx_initialize_system_timer(void);
+#else
+#define EE_e200zx_initialize_system_timer() ((void) 0)
+#endif /* SystemTimer */
+
 #if defined(__MSRP__) || (defined(__EE_MEMORY_PROTECTION__) \
 	&& (defined(__OO_BCC1__) || defined(__OO_BCC2__)    \
 		|| defined(__OO_ECC1__) || defined(__OO_ECC2__)))
@@ -167,11 +174,12 @@ extern EE_UREG EE_e200z7_active_tos;
 int EE_cpu_startos(void);
 
 #else /* if __MSRP__ || __EE_MEMORY_PROTECTION__ ... */
-/* Nothing to do */
+/* Nothing to do but initializing system timer */
 static int __ALWAYS_INLINE__ EE_cpu_startos(void);
 __INLINE__ int __ALWAYS_INLINE__ EE_cpu_startos(void)
 {
-	return 0;
+  EE_e200zx_initialize_system_timer();
+  return 0;
 }
 
 #endif /* else if __MSRP__ || __EE_MEMORY_PROTECTION__ ... */
