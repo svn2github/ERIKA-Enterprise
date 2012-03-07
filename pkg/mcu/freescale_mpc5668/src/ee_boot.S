@@ -139,7 +139,7 @@ __start:
 	addis	r13, 0, _SDA_BASE_@ha	/* load .sdata base into r13 */
 	addi	r13, r13, _SDA_BASE_@l
 	addis	r2, 0, _SDA2_BASE_@ha	/* load .sdata2 base into r2 */
-	addi	r2, r2, _SDA_BASE_@l
+	addi	r2, r2, _SDA2_BASE_@l
 
 #if defined(__EE_CRT0_INIT_MMU__) && ! defined(__SLAVE_CPU__)
 	/* mmu initialization */
