@@ -49,11 +49,6 @@
 #include <cpu/e200zx/inc/ee_irq_internal.h>
 #include <cpu/e200zx/inc/ee_mcu_regs.h>
 
-#ifdef __IRQ_STACK_NEEDED__
-/* It is a temp variable to hold old stack pointer when IRQ stack is needed */
-EE_ADDR EE_e200zx_tmp_tos;
-#endif /* __IRQ_STACK_NEEDED__ */
-
 #ifndef __STATIC_ISR_TABLE__
 
 /* Software Interrupt Vector */

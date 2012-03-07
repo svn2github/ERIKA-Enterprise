@@ -56,6 +56,20 @@
 #define DEFAULT_IRQ_ENTRY (EE_e200z7_ISR_handler)0
 #endif
 
+/* Special entry for internal decrementer */
+#ifdef EE_PPCE200ZX_DECREMENTER_ISR
+extern void EE_PPCE200ZX_DECREMENTER_ISR(void);
+#else
+#define EE_PPCE200ZX_DECREMENTER_ISR DEFAULT_IRQ_ENTRY
+#endif
+
+/* Special entry for fixed interval timer */
+#ifdef EE_PPCE200ZX_FIXED_INTV_ISR
+extern void EE_PPCE200ZX_FIXED_INTV_ISR(void);
+#else
+#define EE_PPCE200ZX_FIXED_INTV_ISR DEFAULT_IRQ_ENTRY
+#endif
+
 #ifdef EE_PPCE200ZX_0_ISR
 extern void EE_PPCE200ZX_0_ISR(void);
 #else
@@ -2934,9 +2948,10 @@ EE_e200z7_ISR_handler EE_e200z7_ISR_table[EE_E200ZX_MAX_CPU_EXCP +
   /* Zen EE_e200zx_auxiliary_unavailable set to __empty_handler by IVOR */
   (EE_e200z7_ISR_handler)0, /* IVOR9 */
   /* Zen EE_e200zx_decrementer set to EE_e200zx_decrementer_handler by IVOR */
-  (EE_e200z7_ISR_handler)0, /* IVOR10 */
+  /* Special Entry is used as ISR2 for System Timer */
+  EE_PPCE200ZX_DECREMENTER_ISR, /* IVOR10 */
   /* Zen EE_e200zx_interval_timer set to EE_e200zx_fixed_intv_handler by IVOR */
-  (EE_e200z7_ISR_handler)0, /* IVOR11 */
+  EE_PPCE200ZX_FIXED_INTV_ISR, /* IVOR11 */
   /* Zen EE_e200zx_watchdog_timer set to  __empty_handler by IVOR */
   (EE_e200z7_ISR_handler)0, /* IVOR12 */
   /* Zen EE_e200zx_data_tlb_error set to  __empty_handler by IVOR */

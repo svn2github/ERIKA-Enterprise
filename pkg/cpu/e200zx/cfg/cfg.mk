@@ -45,6 +45,7 @@ EE_CASM_SRCS += pkg/cpu/e200zx/src/ee_entry.S
 EE_SRCS += pkg/cpu/e200zx/src/ee_ivor.S
 EE_SRCS += pkg/cpu/e200zx/src/ee_irq.c
 EE_SRCS += pkg/cpu/e200zx/src/ee_e200zx_cpu.c
+EE_SRCS += pkg/cpu/e200zx/src/ee_system_timer.c
 
 ifeq ($(call iseeopt, __OO_BCC1__), yes)
 CPU_OO=YES

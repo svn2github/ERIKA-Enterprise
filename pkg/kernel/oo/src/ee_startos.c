@@ -127,8 +127,8 @@ static void  EE_oo_autostart_alarms(AppModeType Mode)
   register EE_UINT8 n, t;
   n = (EE_UINT8)(EE_oo_autostart_alarm_data[Mode].n);
   for (t = 0U; t<n; t++) {
-    EE_TYPEALARM alarm_temp = compute_alarm_id(\
-		EE_oo_autostart_alarm_data[Mode].alarm, t);
+    EE_TYPEALARM alarm_temp = compute_alarm_id(
+      EE_oo_autostart_alarm_data[Mode].alarm, t);
     (void)EE_oo_SetRelAlarm(alarm_temp,
       EE_oo_autostart_alarm_increment[alarm_temp],
       EE_oo_autostart_alarm_cycle[alarm_temp]);

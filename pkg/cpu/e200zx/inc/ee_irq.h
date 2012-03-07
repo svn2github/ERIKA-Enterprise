@@ -90,11 +90,14 @@ extern EE_e200z7_ISR_handler EE_e200z7_ISR_table[];
 
 /*                      Static ISR table implementation.
                                !!! WARNING !!!
-    only external interrupt MAY be ISR hanlders, because the code that pop
-    interrupt cotroller priority queue embedded in ISR macros.
+    Use ISRx macros only to registers hanlders for external interrupts,
+    because the code that pop interrupt controller priority queue embedded
+    in these macros.
     Dynamic ISR table handling make the check (level >= EE_E200ZX_MAX_CPU_EXC)
-    to execute the code or not. That check is impossible in Static ISR table
+    to execute that code or not. That check is impossible in Static ISR table
     implementation.
+    To obviate this problem two more macro are given: ISR1_INT and ISR2_INT to
+    register handlers for internal exception.
 */
 
 /*
@@ -138,8 +141,11 @@ void EE_e200zx_call_ISR(EE_e200z7_ISR_handler fun, EE_UREG nesting);
   } while (0)
 #endif /* else if __IRQ_STACK_NEEDED__ */
 
-
+/*                        Static ISR table implementation.                    */
 #ifdef __STATIC_ISR_TABLE__
+
+/* TODO: These macros have to be checked to work with memory protection */
+#ifndef __AS_SC4__
 
 #define ISR1(f)                                                       \
 void EE_PREPROC_JOIN(ISR1_,f)(void);                                  \
@@ -195,7 +201,57 @@ void f(void)                                                          \
 }                                                                     \
 void EE_PREPROC_JOIN(ISR2_,f)(void)
 
+
+/*
+  Following macros SHOULD BE used for internal interrupt handlers.
+ */
+#define ISR1_INT(f)                                                       \
+void EE_PREPROC_JOIN(ISR1_INT,f)(void);                                   \
+void f(void)                                                              \
+{                                                                         \
+  EE_increment_IRQ_nesting_level();                                       \
+  /* This handle stack change and nesting */                              \
+  EE_e200zx_call_ISR(EE_PREPROC_JOIN(ISR1_INT,f), EE_IRQ_nesting_level);  \
+  /* decrement nesting level */                                           \
+  EE_decrement_IRQ_nesting_level();                                       \
+}                                                                         \
+void EE_PREPROC_JOIN(ISR1_INT,f)(void)
+
+#define ISR2_INT(f)                                                       \
+void EE_PREPROC_JOIN(ISR2_INT,f)(void);                                   \
+void f(void)                                                              \
+{                                                                         \
+  /* prestub */                                                           \
+  /* keep the old ORTI */                                                 \
+  EE_ORTI_runningisr2_type ortiold;                                       \
+  /* increment nesting level here, with isr disabled */                   \
+  EE_increment_IRQ_nesting_level();                                       \
+  /* Save the old ORTI ID */                                              \
+  ortiold = EE_ORTI_get_runningisr2();                                    \
+  /* Set the new ID as an ISR2 ID
+     (level is not really used to build isr2id) */                        \
+  EE_ORTI_set_runningisr2(EE_ORTI_build_isr2id(f));                       \
+  /* prestub */                                                           \
+  /* This handle stack change and nesting */                              \
+  EE_e200zx_call_ISR(EE_PREPROC_JOIN(ISR2_INT,f), EE_IRQ_nesting_level);  \
+  /* poststub */                                                          \
+  /* Set old ORTI ID back*/                                               \
+  EE_ORTI_set_runningisr2(ortiold);                                       \
+  /* ISR2 instance clean-up as requested by AR */                         \
+  EE_std_end_IRQ_post_stub();                                             \
+  /* decrement nesting level only from hereunder */                       \
+  EE_decrement_IRQ_nesting_level();                                       \
+  /* check for scheduling point */                                        \
+  if (!EE_is_inside_ISR_call()) {                                         \
+    EE_std_after_IRQ_schedule();                                          \
+  }                                                                       \
+  /* poststub */                                                          \
+}                                                                         \
+void EE_PREPROC_JOIN(ISR2_INT,f)(void)
+#endif /* __AS_SC4__*/
+
 #else  /* __STATIC_ISR_TABLE__ */
+/*                        Dynamic ISR table implementation.                   */
 /*
  * Register the handler `fun' for the IRQ `level', using priority `pri'.  If
  * `fun' is 0, disable the given interrupt.  Levels 0-15 are used for the
