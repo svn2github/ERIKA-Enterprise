@@ -44,8 +44,8 @@ CPU test_application {
   OS EE {
     EE_OPT = "__ASSERT__";
     /* This EE_OPT enable Static ISR Table */
-    EE_OPT = "__STATIC_ISR_TABLE__";
     EE_OPT = "DEBUG";
+    EE_OPT = "USE_PRAGMAS";
 
     /* WORKAROUND START */
     /* Following CFLAGS are used to let ee_ctable.c see the configuration

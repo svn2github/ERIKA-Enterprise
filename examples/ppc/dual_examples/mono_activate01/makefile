@@ -69,7 +69,19 @@ clean:
 	rm -f -r $(OUTPUT_DIR)
 
 
-ifeq ($(RUN_RTDRUID),1)
+ifeq ($(FAKE_RTDRUID),1)
+# Simulate RT-Druid
+ifndef EEBASE
+EEBASE=../../../../..
+endif
+
+$(RTDRUID_OUTPUT): $(OUTPUT_DIR)/% : fake_druid/%
+	@echo "Substituing RT-Druid in generating $@..."
+	@mkdir -p $(dir $@)
+	cp $< $@
+
+else
+
 ifneq (ok,$(shell test -d "$(RTDRUID_ECLIPSE_HOME)" && echo ok ))
 $(error The variable RTDRUID_ECLIPSE_HOME must point to a valid Eclipse RT-Druid installation)
 endif
@@ -81,14 +93,4 @@ $(RTDRUID_OUTPUT): conf.oil
 	export ECLIPSE_HOME ;\
 	exec sh $(RTDRUID_SCRIPT_DIR)/start_ant.sh -buildfile $(RTDRUID_SCRIPT_DIR)/build.xml -Din_conf_oil=$< -Dconf_output_dir=$(OUTPUT_DIR) compile
 
-else
-# Simulate RT-Druid
-ifndef EEBASE
-EEBASE=../../../../..
-endif
-
-$(RTDRUID_OUTPUT): $(OUTPUT_DIR)/% : fake_druid/%
-	@echo "Substituing RT-Druid in generating $@..."
-	@mkdir -p $(dir $@)
-	cp $< $@
 endif

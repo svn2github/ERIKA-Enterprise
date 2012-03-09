@@ -58,16 +58,17 @@
 #include "cpu/common/inc/ee_context.h"
 #include "cpu/common/inc/ee_irqstub.h"
 
-#if defined(__IRQ_STACK_NEEDED__) && (! defined(__AS_SC4__))
+#if defined(__IRQ_STACK_NEEDED__) && (! defined(__EE_MEMORY_PROTECTION__))
 /* Moved declaration here from ee_irq_internal.h because it is needed eventually
    by EE_e200zx_IRQ_change_stack */
 extern struct EE_TOS EE_e200z7_IRQ_tos;
-#endif /* __IRQ_STACK_NEEDED__&& ! __AS_SC4__ */
+#endif /* __IRQ_STACK_NEEDED__&& ! __EE_MEMORY_PROTECTION__ */
 
-#if defined(__ALLOW_NESTED_IRQ__) && (!defined(__AS_SC4__))
+#if defined(__ALLOW_NESTED_IRQ__) && (!defined(__EE_MEMORY_PROTECTION__))
 #define EE_std_enableIRQ_nested()   EE_e200z7_enableIRQ()
 #define EE_std_disableIRQ_nested()  EE_e200z7_disableIRQ()
-#endif
+#endif  /* defined(__ALLOW_NESTED_IRQ__) &&
+  (!defined(__EE_MEMORY_PROTECTION__)) */
 
 #ifdef __FP__
 /* No ORTI support for the FP kernel */
@@ -85,21 +86,29 @@ __INLINE__ EE_ORTI_runningisr2_type EE_ORTI_get_runningisr2(void)
 #define EE_std_end_IRQ_post_stub()  ((void)0)
 #endif /* !__OO_BCC1__ && !__OO_BCC2__ && !__OO_ECC1__ !__OO_ECC2__*/
 
-/* Software Interrupt Vector */
+/* Software ISR Table */
 extern EE_e200z7_ISR_handler EE_e200z7_ISR_table[];
 
-/*                      Static ISR table implementation.
-                               !!! WARNING !!!
-    Use ISRx macros only to registers hanlders for external interrupts,
-    because the code that pop interrupt controller priority queue embedded
-    in these macros.
-    Dynamic ISR table handling make the check (level >= EE_E200ZX_MAX_CPU_EXC)
-    to execute that code or not. That check is impossible in Static ISR table
-    implementation.
-    To obviate this problem two more macro are given: ISR1_INT and ISR2_INT to
-    register handlers for internal exception.
-*/
+#ifdef EE_ISR_DYNAMIC_TABLE
+/*                        Dynamic ISR table implementation.                   */
+/*
+ * Register the handler `fun' for the IRQ `level', using priority `pri'.  If
+ * `fun' is 0, disable the given interrupt.  Levels 0-15 are used for the
+ * primary interrupt sources for the e200 core, while levels greater than 15 are
+ * used for external interrupt sources connected to the interrupt controller.
+ * This function is available only if the system is configured to use a dynamic
+ * interrupt table (i.e., the EEOPT EE_ISR_DYNAMIC_TABLE is defined).
+ */
+void EE_e200z7_register_ISR(int level, EE_e200z7_ISR_handler fun, EE_UINT8 pri);
+#endif /* EE_ISR_DYNAMIC_TABLE */
 
+/* Macro to declare ISR: always valid */
+#define DeclareIsr(f) void f(void)
+
+/* For memory protection the stack is changed within the prestub and the postub
+  */
+#if defined(__IRQ_STACK_NEEDED__) && (!defined(__EE_MEMORY_PROTECTION__))
+extern struct EE_TOS EE_e200z7_IRQ_tos;
 /*
  * Call an ISR. If the ISR is to be called on a new stack we need to
  * resort to the black magic of assembly programming, and here we're
@@ -123,13 +132,10 @@ extern EE_e200z7_ISR_handler EE_e200z7_ISR_table[];
  *    }
  * }
  */
-#ifdef __IRQ_STACK_NEEDED__
-extern struct EE_TOS EE_e200z7_IRQ_tos;
-
-/* For SC4 the stack is changed within the prestub and the postub */
 void EE_e200zx_call_ISR(EE_e200z7_ISR_handler fun, EE_UREG nesting);
 
-#else /* if __IRQ_STACK_NEEDED__ */
+#else /* if defined(__IRQ_STACK_NEEDED__) &&
+  (!defined(__EE_MEMORY_PROTECTION__)) */
 
 /* Implemented as macro to remove the need of pointer null check for MISRA
    compliance. Fake do while construct to enforce ending semicolon */
@@ -139,14 +145,28 @@ void EE_e200zx_call_ISR(EE_e200z7_ISR_handler fun, EE_UREG nesting);
     fun();                                \
     EE_std_disableIRQ_nested();           \
   } while (0)
-#endif /* else if __IRQ_STACK_NEEDED__ */
+#endif /* else if defined(__IRQ_STACK_NEEDED__) &&
+  (!defined(__EE_MEMORY_PROTECTION__)) */
 
-/*                        Static ISR table implementation.                    */
-#ifdef __STATIC_ISR_TABLE__
+/* ISR With memory protection need special treatment */
+#ifndef __EE_MEMORY_PROTECTION__
 
-/* TODO: These macros have to be checked to work with memory protection */
-#ifndef __AS_SC4__
-
+#ifdef EE_ISR_DYNAMIC_TABLE
+/* Macro for ISR declaration. ISR1 macro doesn't exist because only ISR2 exists
+   in Dynamic ISR table implementation */
+#define ISR2(f)   void f(void)
+#else /* EE_ISR_DYNAMIC_TABLE */
+/*                        Static ISR Table implementation.                    */
+/*                               !!! WARNING !!!
+    Use ISRx macros only to registers hanlders for external interrupts,
+    because the code that pop interrupt controller priority queue embedded
+    in these macros.
+    Dynamic ISR table handling make the check (level >= EE_E200ZX_MAX_CPU_EXC)
+    to execute that code or not. That check is impossible in Static ISR table
+    implementation.
+    To obviate this problem two more macro are given: ISR1_INT and ISR2_INT to
+    register handlers for internal exception.
+*/
 #define ISR1(f)                                                       \
 void EE_PREPROC_JOIN(ISR1_,f)(void);                                  \
 void f(void)                                                          \
@@ -201,7 +221,6 @@ void f(void)                                                          \
 }                                                                     \
 void EE_PREPROC_JOIN(ISR2_,f)(void)
 
-
 /*
   Following macros SHOULD BE used for internal interrupt handlers.
  */
@@ -248,30 +267,20 @@ void f(void)                                                              \
   /* poststub */                                                          \
 }                                                                         \
 void EE_PREPROC_JOIN(ISR2_INT,f)(void)
-#endif /* __AS_SC4__*/
 
-#else  /* __STATIC_ISR_TABLE__ */
-/*                        Dynamic ISR table implementation.                   */
-/*
- * Register the handler `fun' for the IRQ `level', using priority `pri'.  If
- * `fun' is 0, disable the given interrupt.  Levels 0-15 are used for the
- * primary interrupt sources for the e200 core, while levels greater than 15 are
- * used for external interrupt sources connected to the interrupt controller.
- * This function is available only if the system is configured to use a dynamic
- * interrupt table (i.e., the EEOPT __STATIC_ISR_TABLE__ is not defined).
- */
-void EE_e200z7_register_ISR(int level, EE_e200z7_ISR_handler fun, EE_UINT8 pri);
-#endif /* #else __STATIC_ISR_TABLE__ */
+#endif /* EE_ISR_DYNAMIC_TABLE */
 
-#ifdef __AS_SC4__
+#else  /* __EE_MEMORY_PROTECTION__ */
+
 /*
- * In SC4 ISR2 are somehow tricky: we need to execute them in trusted/
- * untrusted mode according to the OS application they belong to, and we
- * must be able to terminate them if necessary.  We use one ISR2 stack
+ * With memory protection ISR2 are somehow tricky: we need to execute them in
+ * trusted/ untrusted mode according to the OS application they belong to, and
+ * we must be able to terminate them if necessary. We use one ISR2 stack
  * per application and we maintain a stack of ISR2 descriptors to track
- * the active ISR2s.  A complete implementation would use two stacks per
+ * the active ISR2s. A complete implementation would use two stacks per
  * application: one for trusted and one for untrusted mode.
  */
+
 /*
  * Pseudocode:
  * void ISR2_N_handler(void)
@@ -306,9 +315,6 @@ void EE_e200z7_register_ISR(int level, EE_e200z7_ISR_handler fun, EE_UINT8 pri);
  *	TerminateISR2();
  * }
  */
-
-#define DeclareIsr(f) void f(void)
-
 
 __asm void EE_ISR2_prestub(int toid, int isrid)
 {
@@ -379,17 +385,19 @@ __asm void EE_ISR2_poststub(void)
 	sc
 }
 
-#define ISR2(f)								\
-static void EE_PREPROC_JOIN(ISR2_,f)(void);				\
-void f(void)								\
-{									\
-	EE_ISR2_prestub(EE_PREPROC_JOIN(ISR2_APP_,f),			\
-	EE_PREPROC_JOIN(ISR2_ID_,f));				\
-	EE_PREPROC_JOIN(ISR2_,f)();					\
-	EE_ISR2_poststub();						\
-}									\
+#define ISR2(f)                                                 \
+static void EE_PREPROC_JOIN(ISR2_,f)(void);                     \
+void f(void)                                                    \
+{                                                               \
+  EE_ISR2_prestub(EE_PREPROC_JOIN(ISR2_APP_,f),                 \
+  EE_PREPROC_JOIN(ISR2_ID_,f));                                 \
+  EE_PREPROC_JOIN(ISR2_,f)();                                   \
+  EE_ISR2_poststub();                                           \
+}                                                               \
 static void EE_PREPROC_JOIN(ISR2_,f)(void)
-#endif /* __AS_SC4__ */
 
+/* TODO: Add support for ISR1 in static ISR table */
+
+#endif /* __EE_MEMORY_PROTECTION__ */
 
 #endif /*  __INCLUDE_E200ZX_IRQ_H__ */

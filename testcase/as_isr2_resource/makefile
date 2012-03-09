@@ -54,10 +54,17 @@ ifndef RTDRUID_SCRIPT_DIR
 RTDRUID_SCRIPT_DIR=$(RTDRUID_ECLIPSE_HOME)/evidence
 endif
 
+# Added to support ERIKA_FILES environmental variable
+ifdef ERIKA_FILES
+ifdef EEBASE
+    $(warning EEBASE is set, but it has been overridden by ERIKA_FILES)
+endif
+EEBASE := ${ERIKA_FILES}
+endif
 
 RTDRUID_OUTPUT = $(addprefix $(OUTPUT_DIR)/, eecfg.c eecfg.h makefile)
 
-.PHONY: all all_ext autotest autotest_ext clean
+.PHONY: all all_ext autotest autotest_ext clean deep_clean_lin lin
 
 all: $(RTDRUID_OUTPUT)
 	$(MAKE) -C $(OUTPUT_DIR) all
@@ -74,7 +81,7 @@ autotest_ext: all_ext
 
 clean:
 	@echo cleaning...
-	rm -f -r $(OUTPUT_DIR)
+	rm -f -r $(OUTPUT_DIR) *errors*
 
 ifeq ($(RUN_RTDRUID),1)
 ifneq (ok,$(shell test -d "$(RTDRUID_ECLIPSE_HOME)" && echo ok ))
@@ -94,3 +101,59 @@ $(RTDRUID_OUTPUT): $(OUTPUT_DIR)/% : fake_druid/%
 	@mkdir -p $(OUTPUT_DIR)
 	cp $< $@
 endif
+
+# LIN compliance level; to be overridden on the command line
+LIN_LEVEL ?= 4C
+
+# LIN executable; override it if your settings are different
+LIN_EXE ?= /opt/case/lin/7.10/lin
+
+# Configuration file for LIN
+LIN_CONF = erika_ppc.lnt
+
+lin: real_errors
+
+# Remove all LIN configuration files
+deep_clean_lin: clean
+	rm -rf $(HOME)/.files.lin $(HOME)/lin_*.txt $(HOME)/.rules.lnt \
+	 $(HOME)/.lin.cnfg $(HOME)/.lin.lock
+
+
+# Targets are listed
+# Generate compilation command list
+cleanup_cmds = grep -v '[-]o [^ ]\+\.src' | sed 's/printf[^;]\+;//'
+$(OUTPUT_DIR)/make.list: $(RTDRUID_OUTPUT)
+	@echo MAKE $(dir $@)
+	@(cd $(OUTPUT_DIR)$* && make -n) | $(cleanup_cmds) > $@ \
+	  || (rm -f $@; false)
+
+# Run LIN
+$(OUTPUT_DIR)/out_lin.txt: $(OUTPUT_DIR)/make.list $(LIN_CONF)
+	@echo "LIN $(dir $@)"
+	@rm -f $@ && cd $(OUTPUT_DIR) && \
+	$(LIN_EXE) -p . -n -m make.list -L $(LIN_LEVEL) -c dcc \
+	 -v 5.5.1.0 -l $(abspath $(LIN_CONF)) 2>lin.stderr >lin.stdout ; \
+	test -e out_lin.txt || tail -1 lin.stdout \
+	 | grep -F '0 error(s) found.' >/dev/null && touch out_lin.txt
+
+# Compact LIN output
+# The awk script may cause problem to the output format in case of long ee path
+errors: $(OUTPUT_DIR)/out_lin.txt
+	@echo Merging errors...
+	@gawk 'BEGIN {err = 0; msg = ""} '\
+	'{if ($$0 ~ /^[-a-zA-Z0-9_./]+\.([ch]|lnt)/ '\
+	'|| $$0 ~ /^Error [0-9]+: /) err = 1; '\
+	'if (err == 1) { if (! ($$0 ~ /^(--- .+| *_ *)$$/)) { '\
+	'    gsub("^[[:space:]]+", "", $$0); msg = msg $$0 " "; '\
+	'    if ($$0 ~ /\]$$/) { err = 2; } '\
+	'  } else { err = 2; } }'\
+	'if (err == 2) { err = 0; print msg; msg = "" } '\
+	'}' $^ | sort -u > $*.tmp
+	@sed 's#$(EEBASE)/##g' $*.tmp | sed '1d' > $@
+	@rm -f $*.tmp
+# Even more compact output: Remove EEBASE from paths and the first row that is
+# the last of the out_lin.txt
+
+# Remove deviation
+real_errors: errors
+	sh ./filter_misra.sh $< $@

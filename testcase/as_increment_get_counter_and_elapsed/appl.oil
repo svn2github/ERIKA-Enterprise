@@ -71,6 +71,7 @@
     };
 
     EE_OPT = "__OO_STARTOS_OLD__";
+    EE_OPT = "EE_ISR_DYNAMIC_TABLE";
 #ifdef B1
     KERNEL_TYPE = BCC1;
 #endif

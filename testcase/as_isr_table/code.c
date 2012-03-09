@@ -182,7 +182,7 @@ TASK(Task2) {
   TerminateTask();
 }
 
-#ifndef __STATIC_ISR_TABLE__
+#ifdef EE_ISR_DYNAMIC_TABLE
 __INLINE__ void __ALWAYS_INLINE__ initialize_isr_table(void)
 {
   EE_e200z7_register_ISR(EE_E200ZX_MAX_CPU_EXCP + IRQ_LOW, IsrLow,

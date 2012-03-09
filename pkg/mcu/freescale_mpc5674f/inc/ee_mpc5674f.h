@@ -62,7 +62,7 @@
 /* Default external interrupt priority */
 #define EE_E200ZX_INTC_CURRPROC 0U
 
-#ifdef __STATIC_ISR_TABLE__
+#ifndef EE_ISR_DYNAMIC_TABLE
 void EE_mpc5674_initialize_external_IRQ_priorities(void);
 #endif /* __STATIC_ISR_TABLE__ */
 

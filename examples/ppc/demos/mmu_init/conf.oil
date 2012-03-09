@@ -24,6 +24,7 @@ CPU example {
 		//EE_OPT = "__CODEWARRIOR__";
 		//EE_OPT = "VERBOSE";
 		//EE_OPT = "EEOPT_USE_DIAB_5_8";
+		EE_OPT = "EE_ISR_DYNAMIC_TABLE";
 
 		CFLAGS = "";
 		ASFLAGS = "";

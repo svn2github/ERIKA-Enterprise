@@ -45,12 +45,8 @@
 	@date 2012
  **/
 
-/* This guard is even in cfg.mk file but I want to make it even more explicit */
-#ifdef __STATIC_ISR_TABLE__
 #include <ee.h>
 #include <ee_irq.h>
-/* #include "mcu/freescale_mpc5674f/ee_mpc5674f.h" Explicitly Not Needed */
-
 
 #ifndef DEFAULT_IRQ_ENTRY
 #define DEFAULT_IRQ_ENTRY (EE_e200z7_ISR_handler)0
@@ -3439,8 +3435,11 @@ EE_e200z7_ISR_handler EE_e200z7_ISR_table[EE_E200ZX_MAX_CPU_EXCP +
   EE_PPCE200ZX_473_ISR
 };
 
+/* For MM-PWT 2: MISRA 8.1 */
 __INLINE__ void __ALWAYS_INLINE__
-    EE_mpc5674_set_external_priority(unsigned int psr, uint8_t prio)
+    EE_mpc5674_set_external_priority(EE_UREG psr, EE_BIT prio);
+__INLINE__ void __ALWAYS_INLINE__
+    EE_mpc5674_set_external_priority(EE_UREG psr, EE_BIT prio)
 {
 		INTC.PSR[psr].R	= prio;
 }
@@ -5344,4 +5343,3 @@ void EE_mpc5674_initialize_external_IRQ_priorities(void) {
 
 }
 
-#endif /* __STATIC_ISR_TABLE__ */

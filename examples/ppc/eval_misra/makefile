@@ -66,11 +66,11 @@ LIN_FILES +=$(addsuffix /slave/out_lin.txt,$(addprefix $(OUT_DIR_BASE),$(MP_CONF
 # Do not delete intermediate files (e.g., files created by RT-Druid)
 .SECONDARY:
 
-all: errors.report
+all: real_errors.report
 
 # Remove RT-Druid output and reports
 clean:
-	rm -f -r $(OUT_DIR_BASE)* errors errors.report
+	rm -f -r $(OUT_DIR_BASE)* errors errors.report real_errors.report
 
 # Remove all reports
 clean_lin:
@@ -101,6 +101,7 @@ $(OUT_DIR_BASE)%/slave/make.list: $(OUT_DIR_BASE)%/makefile $(OUT_DIR_BASE)%/sha
 	@echo MAKE $(dir $@)
 	@(cd $(OUT_DIR_BASE)$* && $(call mp_make,CPU1)) \
 	  | $(cleanup_cmds) > $@ || (rm -f $@; false)
+
 # Targets are listed, so this rule is not triggered for MP configurations
 $(addsuffix /make.list,$(addprefix $(OUT_DIR_BASE),$(SP_CONFIGS))): \
   $(OUT_DIR_BASE)%/make.list: $(OUT_DIR_BASE)%/makefile
@@ -135,3 +136,7 @@ errors: $(LIN_FILES)
 # Even more compact output: Remove EEBASE from paths
 errors.report: errors
 	 sed 's#$(EEBASE)/##g' $< > $@
+
+# Remove deviations
+real_errors.report: errors.report
+	sh ./filter_misra.sh $< $@

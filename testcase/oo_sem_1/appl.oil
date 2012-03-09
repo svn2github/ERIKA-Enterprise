@@ -49,6 +49,9 @@ CPU test_application {
 		EE_OPT = "__OO_SEM__";
 		EE_OPT = "__ASSERT__";
 		EE_OPT = "DEBUG";
+#ifdef e200zx
+		EE_OPT = "EE_ISR_DYNAMIC_TABLE";
+#endif
 		
 		#ifdef s12
 			EE_OPT = "__USE_TIMER__";

@@ -7,6 +7,7 @@ CPU test_application {
 
 		EE_OPT = "__E200ZX_EXECUTE_FROM_RAM__";
 		EE_OPT = "DEBUG";
+		EE_OPT = "EE_ISR_DYNAMIC_TABLE";
 
 		EE_OPT = "__CODEWARRIOR__";
 

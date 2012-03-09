@@ -70,6 +70,8 @@
 #define __OO_ISR2_RESOURCES__
 #define __OO_STARTOS_OLD__
 
+#define EE_ISR_DYNAMIC_TABLE
+
 #endif
 
     /* System stack size */

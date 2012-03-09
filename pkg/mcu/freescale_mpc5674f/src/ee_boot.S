@@ -158,9 +158,9 @@ __start:
 #endif /* __EE_CRT0_INIT_MMU__ */
 	bl	cpu_setup		/* cpu-specific initialization */
 	bl	intc_setup		/* interrupt controller */
-#ifdef __STATIC_ISR_TABLE__
+#ifndef EE_ISR_DYNAMIC_TABLE
 	bl	EE_mpc5674_initialize_external_IRQ_priorities /* Init ext. irq prio */
-#endif /* __STATIC_ISR_TABLE__ */
+#endif /* EE_ISR_DYNAMIC_TABLE */
 	bl	main			/* jump to application code */
 
 	wrteei	0

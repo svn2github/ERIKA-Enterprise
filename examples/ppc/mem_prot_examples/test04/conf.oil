@@ -4,6 +4,8 @@ CPU PerfTestApp {
 		MEMORY_PROTECTION = TRUE;
 		EE_OPT = "DEBUG";
 
+		EE_OPT = "EE_ISR_DYNAMIC_TABLE";
+
 		CPU_DATA = PPCE200ZX {
 			MODEL = E200Z7;
 			APP_SRC = "code.c";

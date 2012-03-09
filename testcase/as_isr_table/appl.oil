@@ -44,10 +44,10 @@
 
     OS EE {
       EE_OPT = "__ASSERT__";
-#ifdef STATIC
+#ifdef DYNAMIC
       /* This EE_OPT enable Static ISR Table */
-      EE_OPT = "__STATIC_ISR_TABLE__";
-#endif /* ISRSTATIC */
+      EE_OPT = "EE_ISR_DYNAMIC_TABLE";
+#endif /* DYNAMIC */
       EE_OPT = "DEBUG";
 
       /* WORKAROUND START */

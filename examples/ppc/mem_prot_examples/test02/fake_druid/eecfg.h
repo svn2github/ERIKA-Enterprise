@@ -38,8 +38,6 @@
     #define EE_MAX_CPU 1
     #define EE_CURRENTCPU 0
 
-
-
 /***************************************************************************
  *
  * OS APPLICATIONS definition

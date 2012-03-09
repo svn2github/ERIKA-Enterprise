@@ -42,19 +42,7 @@ clean:
 	rm -f -r $(OUTPUT_DIR)
 
 
-ifeq ($(RUN_RTDRUID),1)
-ifneq (ok,$(shell test -d "$(RTDRUID_ECLIPSE_HOME)" && echo ok ))
-$(error The variable RTDRUID_ECLIPSE_HOME must point to a valid Eclipse RT-Druid installation)
-endif
-
-# Run RT-Druid
-$(RTDRUID_OUTPUT): conf.oil
-	@echo "Running RT-Druid..."
-	@ECLIPSE_HOME="$(RTDRUID_ECLIPSE_HOME)" ;\
-	export ECLIPSE_HOME ;\
-	exec sh $(RTDRUID_SCRIPT_DIR)/start_ant.sh -buildfile $(RTDRUID_SCRIPT_DIR)/build.xml -Din_conf_oil=$< -Dconf_output_dir=$(OUTPUT_DIR) compile
-
-else
+ifeq ($(FAKE_RTDRUID),1)
 # Simulate RT-Druid
 ifndef EEBASE
 EEBASE=../../../../
@@ -64,4 +52,15 @@ $(RTDRUID_OUTPUT): $(OUTPUT_DIR)/% : fake_druid/%
 	@echo "Substituing RT-Druid in generating $@..."
 	@mkdir -p $(OUTPUT_DIR)
 	cp $< $@
+else
+
+ifneq (ok,$(shell test -d "$(RTDRUID_ECLIPSE_HOME)" && echo ok ))
+$(error The variable RTDRUID_ECLIPSE_HOME must point to a valid Eclipse RT-Druid installation)
+endif
+# Run RT-Druid
+$(RTDRUID_OUTPUT): conf.oil
+	@echo "Running RT-Druid..."
+	@ECLIPSE_HOME="$(RTDRUID_ECLIPSE_HOME)" ;\
+	export ECLIPSE_HOME ;\
+	exec sh $(RTDRUID_SCRIPT_DIR)/start_ant.sh -buildfile $(RTDRUID_SCRIPT_DIR)/build.xml -Din_conf_oil=$< -Dconf_output_dir=$(OUTPUT_DIR) compile
 endif

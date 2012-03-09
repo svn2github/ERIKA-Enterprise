@@ -2,6 +2,7 @@ CPU PerfTestApp {
 	OS EE {
 		CFLAGS = "-Xsmall-data=0";
 		MEMORY_PROTECTION = TRUE;
+		EE_OPT = "EE_ISR_DYNAMIC_TABLE";
 
 		CPU_DATA = PPCE200ZX {
 			MODEL = E200Z7;

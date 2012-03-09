@@ -60,6 +60,8 @@ EE_TID EE_oo_assign_TID_to_ISR2(void) {
   } else if (EE_isr2_nesting_level[EE_isr2_index] < actual_nesting) {
     ++EE_isr2_index;
     EE_isr2_nesting_level[EE_isr2_index] = actual_nesting;
+  } else {
+    /* Nothing to do added just for MISRA 2004 Required Rule 14.10 */
   }
 
   return (EE_MAX_TASK + (EE_TID)EE_isr2_index);
@@ -79,7 +81,8 @@ static void EE_IRQ_release_all_resources(void) {
 
     /* Check if this is the right level where do clean-up */
     if(EE_isr2_nesting_level[EE_isr2_index] == actual_nesting) {
-      EE_UREG ResID = EE_oo_release_all_resources(EE_isr2_index + EE_MAX_TASK);
+      EE_UREG ResID = EE_oo_release_all_resources((EE_TID)EE_isr2_index + 
+        EE_MAX_TASK);
       /* OS369 */
       if(ResID != EE_UREG_MINUS1) {
         EE_ORTI_set_lasterror(E_OS_RESOURCE);

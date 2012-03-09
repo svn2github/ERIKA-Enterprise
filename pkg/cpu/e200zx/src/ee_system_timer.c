@@ -50,17 +50,17 @@
 
 
 #ifndef EE_PPCE200ZX_DECREMENTER_ISR
-#ifdef __STATIC_ISR_TABLE__
+#ifdef EE_ISR_DYNAMIC_TABLE
+/* Default system timer handler for dynamic ISR table */
+#define EE_PPCE200ZX_DECREMENTER_ISR EE_system_timer_handler
+#else /* EE_ISR_DYNAMIC_TABLE */
 /* You must define system timer handler as compilation define with static ISR
    table
 */
 #error "if SystemTimer is defined yo must define EE_PPCE200ZX_DECREMENTER_ISR\
  with the name of the handler for static ISR table"
-#else /* __STATIC_ISR_TABLE__ */
-/* Default system timer handler for dynamic ISR table */
-#define EE_PPCE200ZX_DECREMENTER_ISR EE_system_timer_handler
-#endif /* __STATIC_ISR_TABLE__ */
-#endif /* EE_PPCE200ZX_DECREMENTER_ISR */
+#endif /* EE_ISR_DYNAMIC_TABLE */
+#endif /* !EE_PPCE200ZX_DECREMENTER_ISR */
 
 /* Handler Declaration */
 void EE_PPCE200ZX_DECREMENTER_ISR(void);
@@ -76,7 +76,7 @@ void EE_PPCE200ZX_DECREMENTER_ISR(void)
 
 /* System Timer Initialization */
 void EE_e200zx_initialize_system_timer(void) {
-#ifndef __STATIC_ISR_TABLE__
+#ifdef EE_ISR_DYNAMIC_TABLE
 /* Decrementer level inside ISR table */
 #define EE_DECREMENTER_LEVEL    10
 /* Priority doesn't make sense for internal exceptions so 0 is a value as
@@ -84,8 +84,12 @@ void EE_e200zx_initialize_system_timer(void) {
 #define EE_DECREMENTER_PRIORITY 0
   EE_e200z7_register_ISR(EE_DECREMENTER_LEVEL, EE_PPCE200ZX_DECREMENTER_ISR,
     EE_DECREMENTER_PRIORITY);
-#endif
-  EE_e200z7_setup_decrementer(1000000);
+#endif /* EE_ISR_DYNAMIC_TABLE */
+
+  /* FIXME: Add evaluation of right number of clock ticks/system counter
+     ticks.
+     60000 clock ticks at 60MHZ (Axiom Board) mean a 1ms system counter tick */
+  EE_e200z7_setup_decrementer(60000);
 }
 
 #endif /* SystemTimer */

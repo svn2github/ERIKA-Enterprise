@@ -69,6 +69,8 @@
 #define __OO_NO_ALARMS__
 #define __OO_AUTOSTART_TASK__
 
+#define EE_ISR_DYNAMIC_TABLE
+
 #endif
 
 

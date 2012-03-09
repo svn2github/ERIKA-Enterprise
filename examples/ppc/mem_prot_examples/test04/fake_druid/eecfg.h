@@ -41,8 +41,6 @@
     /* System stack size */
     #define EE_SYS_STACK_SIZE     4096
 
-
-
 /***************************************************************************
  *
  * OS APPLICATIONS definition

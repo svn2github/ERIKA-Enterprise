@@ -49,12 +49,39 @@
 #include <cpu/e200zx/inc/ee_irq_internal.h>
 #include <cpu/e200zx/inc/ee_mcu_regs.h>
 
-#ifndef __STATIC_ISR_TABLE__
-
-/* Software Interrupt Vector */
+#ifdef EE_ISR_DYNAMIC_TABLE
+/*
+    Only with Dynamic ISR TAble the EE_e200z7_register_ISR method is defined
+    and the Software ISR Table declared.
+ */
+/* Software Isr Table */
 EE_e200z7_ISR_handler EE_e200z7_ISR_table[EE_E200ZX_MAX_CPU_EXCP
 	+ EE_E200ZX_MAX_EXT_IRQ];
 
+void EE_e200z7_register_ISR(int level, EE_e200z7_ISR_handler fun, EE_UINT8 pri)
+{
+	EE_UINT8 proc;
+	EE_FREG intst = EE_e200z7_suspendIRQ();
+
+	EE_e200z7_ISR_table[level] = fun;
+
+	/* Set priority for external interrupts */
+	if (level >= EE_E200ZX_MAX_CPU_EXCP) {
+		proc = EE_E200ZX_INTC_CURRPROC;
+		INTC.PSR[level - EE_E200ZX_MAX_CPU_EXCP].R
+			= (uint8_t)(proc | pri);
+	}
+
+	EE_e200z7_resumeIRQ(intst);
+}
+
+#endif /* EE_ISR_DYNAMIC_TABLE */
+
+/*
+    The "complete" interrupt dispatcher EE_e200z7_irq is needed for handling
+    dynamic ISR table and always when memory protection is active.
+ */
+#if defined(EE_ISR_DYNAMIC_TABLE) || defined(__EE_MEMORY_PROTECTION__)
 void EE_e200z7_irq(EE_SREG level)
 {
 	EE_e200z7_ISR_handler f;
@@ -93,24 +120,10 @@ void EE_e200z7_irq(EE_SREG level)
 	}
 }
 
-void EE_e200z7_register_ISR(int level, EE_e200z7_ISR_handler fun, EE_UINT8 pri)
-{
-	EE_UINT8 proc;
-	EE_FREG intst = EE_e200z7_suspendIRQ();
+#else /* defined(EE_ISR_DYNAMIC_TABLE) || defined(__EE_MEMORY_PROTECTION__) */
 
-	EE_e200z7_ISR_table[level] = fun;
-
-	/* Set priority for external interrupts */
-	if (level >= EE_E200ZX_MAX_CPU_EXCP) {
-		proc = EE_E200ZX_INTC_CURRPROC;
-		INTC.PSR[level - EE_E200ZX_MAX_CPU_EXCP].R
-			= (uint8_t)(proc | pri);
-	}
-
-	EE_e200z7_resumeIRQ(intst);
-}
-#else /* !__STATIC_ISR_TABLE__ */
-
+/* Simplified interrupt dispatcher used with static ISR table without memory
+   protection. */
 void EE_e200z7_irq(EE_SREG level)
 {
   EE_e200z7_ISR_handler f;
@@ -119,10 +132,9 @@ void EE_e200z7_irq(EE_SREG level)
     f();
   }
 }
+#endif /* defined(EE_ISR_DYNAMIC_TABLE) || defined(__EE_MEMORY_PROTECTION__) */
 
-#endif /* #else !__STATIC_ISR_TABLE__ */
-
-#ifdef __AS_SC4__
+#ifdef __EE_MEMORY_PROTECTION__
 /*
  * Expansion of the inline function in the common layer.  We have asm
  * post-IRQ stubs that need to call it.
@@ -132,4 +144,4 @@ void EE_e200zx_after_IRQ_schedule(void)
 {
 	EE_std_after_IRQ_schedule();
 }
-#endif /*__AS_SC4__ */
+#endif /*__EE_MEMORY_PROTECTION__ */

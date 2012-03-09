@@ -42,6 +42,7 @@ EEOPT += __OO_STARTOS_OLD__
 ifdef EXT
 EEOPT += __OO_EXTENDED_STATUS__
 endif
+EEOPT += EE_ISR_DYNAMIC_TABLE
 
 ############################################################################
 #

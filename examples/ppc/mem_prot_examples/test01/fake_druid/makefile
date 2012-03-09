@@ -26,6 +26,7 @@ EEOPT += __OO_NO_ALARMS__
 EEOPT += __OO_NO_RESOURCES__
 EEOPT += __OO_NO_EVENTS__
 EEOPT += __OO_AUTOSTART_TASK__
+EEOPT += EE_ISR_DYNAMIC_TABLE
 
 
 ############################################################################

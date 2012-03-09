@@ -17,7 +17,7 @@ cat ${2} | grep -v -E "(pkg/kernel/oo/src/ee_getelapsedvalue.c)(.*)(Error 818: P
 cat ${2} | grep -v -E "(pkg/kernel/oo/inc/ee_common.h)(.*)(Error 960: Violates MISRA 2004 Required Rule 18.4, declaration of union type or object of union type: 'EE_oo_ErrorHook_parameters'  \[MM-PWT 2: MISRA 18.4\])" > ${1}.tmp; mv ${1}.tmp ${2}
 cat ${2} | grep -v -E "(pkg/kernel/oo/src/ee_lookup.c)(.*)(Error 960: Violates MISRA 2004 Required Rule 18.4, declaration of union type or object of union type: 'EE_oo_ErrorHook_parameters'  \[MM-PWT 2: MISRA 18.4\])" > ${1}.tmp; mv ${1}.tmp ${2}
 cat ${2} | grep -v -E "(pkg/kernel/rn/inc/ee_rn_internal.h)(.*)(Error 960: Violates MISRA 2004 Required Rule 18.4, declaration of union type or object of union type: '{...}'  \[MM-PWT 2: MISRA 18.4\])" > ${1}.tmp ; mv ${1}.tmp ${2}
-
+cat ${2} | grep -v -E "^testcase.*$" > ${1}.tmp ; mv ${1}.tmp ${2}
 
 echo "REPORT filtrato"
 cat ${2}

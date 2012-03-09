@@ -60,6 +60,7 @@ CPU test_application {
     EE_OPT = "__E200ZX_EXECUTE_FROM_RAM__";
     EE_OPT = "__CODEWARRIOR__";
     //EE_OPT = "EEOPT_DIAB_5_8";
+    EE_OPT = "EE_ISR_DYNAMIC_TABLE";
 
     MCU_DATA = PPCE200ZX {
       MODEL = MPC5674F;

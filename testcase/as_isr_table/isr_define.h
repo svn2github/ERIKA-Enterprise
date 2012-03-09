@@ -41,7 +41,7 @@
 #ifndef EE_INCLUDE_ISR_DEFINE_H
 #define EE_INCLUDE_ISR_DEFINE_H
 
-#ifdef __STATIC_ISR_TABLE__
+#ifndef EE_ISR_DYNAMIC_TABLE
 /* Workaround to introduce Standard ISR macro definition */
 #define ISR(f) ISR##f(f)
 
@@ -57,11 +57,11 @@
 #define EE_PPCE200ZX_3_ISR IsrMedium
 #define EE_PPCE200ZX_5_ISR IsrHigh
 
-#else /* __STATIC_ISR_TABLE__ */
+#else /* !EE_ISR_DYNAMIC_TABLE */
 
-#define ISR(f) void f(void)
+#define ISR(f) ISR2(f)
 
-#endif /* __STATIC_ISR_TABLE__ */
+#endif /* !EE_ISR_DYNAMIC_TABLE */
 
 /* Priorities mapping */
 #define EE_PPCE200ZX_0_ISR_PRI 1
