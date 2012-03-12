@@ -79,6 +79,19 @@ StatusType EE_oo_SetRelAlarm(AlarmType AlarmID,
   }
 #endif /* __OO_EXTENDED_STATUS__ */
 
+  /* New feature: you can configure alarm increment value and alarm cycle value
+   * inside the conf.oil and then call the function in this way:
+   * SetRelAlarm(alarm_id, EE_STATIC_ALARM_TIME, EE_STATIC_CYCLE_TIME);
+   */
+#ifdef __OO_AUTOSTART_ALARM__
+  if(increment == EE_STATIC_ALARM_TIME) {
+    increment = EE_oo_autostart_alarm_increment[AlarmID];
+  }
+  if(cycle == EE_STATIC_CYCLE_TIME) {
+    cycle = EE_oo_autostart_alarm_cycle[AlarmID];
+  }
+#endif /* __OO_AUTOSTART_ALARM__ */
+
   /* OS304: If in a call to SetRelAlarm() the parameter “increment” is set to
      zero, the service shall return E_OS_VALUE in standard and extended status
    */
@@ -93,19 +106,6 @@ StatusType EE_oo_SetRelAlarm(AlarmType AlarmID,
 
     return E_OS_VALUE;
   }
-
-  /* New feature: you can configure alarm increment value and alarm cycle value
-   * inside the conf.oil and then call the function in this way:
-   * SetRelAlarm(alarm_id, EE_STATIC_ALARM_TIME, EE_STATIC_CYCLE_TIME);
-   */
-#ifdef __OO_AUTOSTART_ALARM__
-  if(increment == EE_STATIC_ALARM_TIME) {
-    increment = EE_oo_autostart_alarm_increment[AlarmID];
-  }
-  if(cycle == EE_STATIC_CYCLE_TIME) {
-    cycle = EE_oo_autostart_alarm_cycle[AlarmID];
-  }
-#endif /* __OO_AUTOSTART_ALARM__ */
 
   /* let the system still work if the increment parameter is 0 note that 0
    * is still an invalid value, so I decided arbitrarily to let it

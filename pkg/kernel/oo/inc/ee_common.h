@@ -793,8 +793,8 @@ typedef EE_TYPETICK *TickRefType;
 
 /* This is used for static alarm initialization in SetRelAlarm 
 */
-#define EE_STATIC_CYCLE_TIME ((TickType)-1)
 #define EE_STATIC_ALARM_TIME ((TickType)-1)
+#define EE_STATIC_CYCLE_TIME ((TickType)-1)
 
 /* A structure for storage of counter characteristics. */
 typedef struct {

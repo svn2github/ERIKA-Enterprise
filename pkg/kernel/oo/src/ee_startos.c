@@ -130,8 +130,7 @@ static void  EE_oo_autostart_alarms(AppModeType Mode)
     EE_TYPEALARM alarm_temp = compute_alarm_id(
       EE_oo_autostart_alarm_data[Mode].alarm, t);
     (void)EE_oo_SetRelAlarm(alarm_temp,
-      EE_oo_autostart_alarm_increment[alarm_temp],
-      EE_oo_autostart_alarm_cycle[alarm_temp]);
+      EE_STATIC_ALARM_TIME, EE_STATIC_CYCLE_TIME);
   }
 }
 #else   /* __OO_AUTOSTART_ALARM__ */
