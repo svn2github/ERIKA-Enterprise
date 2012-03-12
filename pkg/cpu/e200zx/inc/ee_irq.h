@@ -58,12 +58,6 @@
 #include "cpu/common/inc/ee_context.h"
 #include "cpu/common/inc/ee_irqstub.h"
 
-#if defined(__IRQ_STACK_NEEDED__) && (! defined(__EE_MEMORY_PROTECTION__))
-/* Moved declaration here from ee_irq_internal.h because it is needed eventually
-   by EE_e200zx_IRQ_change_stack */
-extern struct EE_TOS EE_e200z7_IRQ_tos;
-#endif /* __IRQ_STACK_NEEDED__&& ! __EE_MEMORY_PROTECTION__ */
-
 #if defined(__ALLOW_NESTED_IRQ__) && (!defined(__EE_MEMORY_PROTECTION__))
 #define EE_std_enableIRQ_nested()   EE_e200z7_enableIRQ()
 #define EE_std_disableIRQ_nested()  EE_e200z7_disableIRQ()
@@ -95,7 +89,6 @@ void EE_e200z7_register_ISR(int level, EE_e200z7_ISR_handler fun, EE_UINT8 pri);
 /* For memory protection the stack is changed within the prestub and the postub
   */
 #if defined(__IRQ_STACK_NEEDED__) && (!defined(__EE_MEMORY_PROTECTION__))
-extern struct EE_TOS EE_e200z7_IRQ_tos;
 /*
  * Call an ISR. If the ISR is to be called on a new stack we need to
  * resort to the black magic of assembly programming, and here we're

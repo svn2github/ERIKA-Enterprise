@@ -65,6 +65,9 @@
 /* Ack the IRQ */
 #define ACK_IRQ(x) (INTC.SSCIR[(x)].B.CLR = 1)
 
+/* IRQ tos defined in eecfg.c */
+extern struct EE_TOS EE_e200z7_IRQ_tos;
+
 static unsigned int low_isr_hit;
 static unsigned int medium_isr_hit;
 static unsigned int high_isr_hit;

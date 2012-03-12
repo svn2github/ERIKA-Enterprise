@@ -47,6 +47,10 @@
 #include <cpu/e200zx/inc/ee_irq.h>
 #endif
 
+/* IRQ tos defined in eecfg.c */
+/* CW-VAR-DEFINITION: extern struct EE_TOS EE_e200z7_IRQ_tos; */
+  .extern EE_e200z7_IRQ_tos
+
 /* CW-VAR-DEFINITION: EE_ADDR EE_e200zx_tmp_tos; */
   .section .bss
   .global   EE_e200zx_tmp_tos
