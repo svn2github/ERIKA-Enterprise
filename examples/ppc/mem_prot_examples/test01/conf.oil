@@ -2,7 +2,7 @@ CPU PerfTestApp {
 	OS EE {
 		CFLAGS = "-Xsmall-data=0";
 		MEMORY_PROTECTION = TRUE;
-		EE_OPT = "EE_ISR_DYNAMIC_TABLE";
+		//EE_OPT = "EE_ISR_DYNAMIC_TABLE";
 
 		CPU_DATA = PPCE200ZX {
 			MODEL = E200Z7;
@@ -68,14 +68,17 @@ CPU PerfTestApp {
 
 	ISR TrustedIsr {
 		CATEGORY = 2;
+		ENTRY = "FIXED_INTV";
 	};
 
 	ISR App1Isr {
 		CATEGORY = 2;
+		ENTRY = "DECREMENTER";
 	};
 
 	ISR App2Isr {
 		CATEGORY = 2;
+		ENTRY = "0";
 	};
 
 	APPLICATION TrustedApp {
