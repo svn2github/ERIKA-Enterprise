@@ -45,21 +45,7 @@ CPU test_application {
     EE_OPT = "__ASSERT__";
     /* This EE_OPT enable Static ISR Table */
     EE_OPT = "DEBUG";
-    EE_OPT = "USE_PRAGMAS";
-
-    /* WORKAROUND START */
-    /* Following CFLAGS are used to let ee_ctable.c see the configuration
-       before that druid support it, SHOLD BE removed when it will happen */
-    /* Handlers mapping */
-    CFLAGS = "-DEE_PPCE200ZX_SOFT_IRQ_0_ISR=IsrLow";
-    CFLAGS = "-DEE_PPCE200ZX_SOFT_IRQ_3_ISR=IsrMedium";
-    CFLAGS = "-DEE_PPCE200ZX_SOFT_IRQ_5_ISR=IsrHigh";
-
-    /* Priorities mapping */
-    CFLAGS = "-DEE_PPCE200ZX_SOFT_IRQ_0_PRIO=1";
-    CFLAGS = "-DEE_PPCE200ZX_SOFT_IRQ_3_PRIO=2";
-    CFLAGS = "-DEE_PPCE200ZX_SOFT_IRQ_5_PRIO=3";
-    /* WORKAROUND END */
+    //EE_OPT = "USE_PRAGMAS";
 
     STATUS = STANDARD;
 
@@ -74,7 +60,7 @@ CPU test_application {
     USERESSCHEDULER = FALSE;
 
     EE_OPT = "__E200ZX_EXECUTE_FROM_RAM__";
-    //EE_OPT = "__CODEWARRIOR__";
+    EE_OPT = "__CODEWARRIOR__";
     //EE_OPT = "EEOPT_DIAB_5_8";
 
     MCU_DATA = PPCE200ZX {
@@ -113,7 +99,7 @@ CPU test_application {
     AUTOSTART = FALSE;
     STACK = SHARED;
   };
-  /*
+
   ISR IsrLow {
     CATEGORY = 2;
     PRIORITY = 1;
@@ -124,12 +110,12 @@ CPU test_application {
     CATEGORY = 2;
     PRIORITY = 2;
     ENTRY = "3";
-  }
+  };
 
   ISR IsrHigh {
-    CATEGORY = 1;
+    CATEGORY = 2;
     PRIORITY = 3;
     ENTRY = "5";
-  }; */
+  };
 };
 

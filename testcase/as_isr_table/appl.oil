@@ -50,20 +50,6 @@
 #endif /* DYNAMIC */
       EE_OPT = "DEBUG";
 
-      /* WORKAROUND START */
-      /* Following CFLAGS are used to let ee_ctable.c see the configuration
-         before that druid support it, SHOLD BE removed when it will happen */
-      /* Handlers mapping */
-      CFLAGS = "-DEE_PPCE200ZX_0_ISR=IsrLow";
-      CFLAGS = "-DEE_PPCE200ZX_3_ISR=IsrMedium";
-      CFLAGS = "-DEE_PPCE200ZX_5_ISR=IsrHigh";
-
-      /* Priorities mapping */
-      CFLAGS = "-DEE_PPCE200ZX_0_ISR_PRI=1";
-      CFLAGS = "-DEE_PPCE200ZX_3_ISR_PRI=2";
-      CFLAGS = "-DEE_PPCE200ZX_5_ISR_PRI=3";
-      /* WORKAROUND END */
-
       STATUS = EXTENDED;
 
       STARTUPHOOK         = FALSE;
@@ -111,7 +97,6 @@
     STACK = SHARED;
   };
 
-  /*
   ISR IsrLow {
     CATEGORY = 2;
     PRIORITY = 1;
@@ -122,12 +107,12 @@
     CATEGORY = 2;
     PRIORITY = 2;
     ENTRY = "3";
-  }
+  };
 
   ISR IsrHigh {
-    CATEGORY = 1;
+    CATEGORY = 2;
     PRIORITY = 3;
     ENTRY = "5";
-  }; */
+  };
 };
 

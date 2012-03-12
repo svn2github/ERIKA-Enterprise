@@ -91,7 +91,6 @@ static void assert(int test)
   ++assert_count;
 }
 
-#ifdef __IRQ_STACK_NEEDED__
 __asm static EE_ADDR read_stack_pointer(void) {
 #ifdef __DCC__
   ! "r1","r3"
@@ -101,6 +100,8 @@ __asm static EE_ADDR read_stack_pointer(void) {
   mr r3, r1
 }
 
+
+#ifdef __IRQ_STACK_NEEDED__
 __INLINE__ void __ALWAYS_INLINE__ assert_ISR_stack(void) {
   int comparison_result;
   EE_ADDR sp_temp;
@@ -138,23 +139,30 @@ void IsrHigh(void);
 
 ISR(IsrLow)
 {
+  register EE_ADDR sp_temp;
   ACK_IRQ(IRQ_LOW);
   assert_ISR_stack();
+  sp_temp = read_stack_pointer();
   fire_irq(IRQ_MEDIUM);
+  assert(sp_temp == read_stack_pointer());
   ++low_isr_hit;
 }
 
 ISR(IsrMedium)
 {
+  register EE_ADDR sp_temp;
   ACK_IRQ(IRQ_MEDIUM);
   assert_ISR_stack();
   ActivateTask(Task2);
+  sp_temp = read_stack_pointer();
   fire_irq(IRQ_HIGH);
+  assert(sp_temp == read_stack_pointer());
   ++medium_isr_hit;
 }
 
 ISR(IsrHigh)
 {
+  register EE_ADDR sp_temp;
   ACK_IRQ(IRQ_HIGH);
   assert_ISR_stack();
   ++high_isr_hit;
@@ -163,17 +171,22 @@ ISR(IsrHigh)
 
 TASK(Task1)
 {
+  register EE_ADDR sp_temp;
   assert_sys_stack();
+  sp_temp = read_stack_pointer();
   fire_irq(IRQ_LOW);
+  assert(sp_temp == read_stack_pointer());
   assert_sys_stack();
   assert(task2_hit == 1);
   fire_irq(IRQ_HIGH);
+  assert(sp_temp == read_stack_pointer());
   assert_sys_stack();
   assert(high_isr_hit == 2);
   TerminateTask();
 }
 
 TASK(Task2) {
+  register EE_ADDR sp_temp;
   assert_sys_stack();
   assert(low_isr_hit == 1);
   assert(medium_isr_hit == 1);
@@ -200,10 +213,12 @@ __INLINE__ void __ALWAYS_INLINE__ initialize_isr_table(void)
 
 int main(void)
 {
+  register EE_ADDR sp_temp;
   INITIALIZE_ISR_TABLE();
   assert_sys_stack();
+  sp_temp = read_stack_pointer();
   StartOS(OSDEFAULTAPPMODE);
-
+  assert(sp_temp == read_stack_pointer());
   EE_assert_range(0, 1, assert_count);
   EE_assert_last();
 
