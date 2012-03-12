@@ -177,6 +177,7 @@ static void setup_interrupts(void)
 
 int main(void)
 {
+
   AppModeType startupmode;
 
   EE_buttons_init(BUTTON_0,3);
@@ -184,7 +185,7 @@ int main(void)
   EE_leds(0);
 
   /* check if the first button is pressed or not */
-  if (EE_button_get_B0()) {
+  if (!EE_button_get_B0()) {
     /* the button is not pressed */
     startupmode = ModeIncrement;
   }

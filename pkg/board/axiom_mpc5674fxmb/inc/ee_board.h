@@ -168,7 +168,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_buttons_clear_ISRflag(EE_UREG btn)
 
 __INLINE__ EE_UINT32 __ALWAYS_INLINE__ EE_button_get_B0(void)
 {
-        return !((*(volatile EE_UINT8 *)(SIU_BASE + 0x0FC2))&0x1U);
+	return !((*(volatile EE_UINT32 *)(SIU_BASE + 0x0FC0))&0x100);
 }
 
 __INLINE__ void __ALWAYS_INLINE__ EE_buttons_init(EE_UREG btn, int n)
