@@ -74,7 +74,7 @@ clean:
 
 # Remove all reports
 clean_lin:
-	rm -f $(LIN_FILES) errors errors.report
+	rm -f $(LIN_FILES) errors errors.report real_errors.report
 
 # Remove all LIN configuration files
 deep_clean_lin: clean_lin
