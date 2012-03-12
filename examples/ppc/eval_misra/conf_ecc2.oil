@@ -67,7 +67,10 @@ CPU test_application {
 		ACTION = ACTIVATETASK {
 			TASK = "Task1";
 		};
-		AUTOSTART = TRUE;
+		AUTOSTART = TRUE{
+			ALARMTIME = 12;
+			CYCLETIME = 12;
+		};
 	};
 
 	OS EE { KERNEL_TYPE = ECC2; EE_OPT = "__OO_STARTOS_OLD__";};

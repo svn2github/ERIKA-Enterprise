@@ -74,7 +74,10 @@ CPU test_application {
 		ACTION = ACTIVATETASK {
 			TASK = "Task1";
 		};
-		AUTOSTART = TRUE;
+		AUTOSTART = TRUE{
+			ALARMTIME = 12;
+			CYCLETIME = 12;
+		};
 	};
 
 	ISR DecrIsr {
