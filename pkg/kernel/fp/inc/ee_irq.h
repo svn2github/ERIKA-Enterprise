@@ -49,4 +49,8 @@
 void EE_IRQ_end_instance(void);
 #endif
 
+/* No ORTI support for the FP kernel */
+#define EE_ORTI_get_runningisr2(void)   (NULL)
+#define EE_ORTI_set_runningisr2(isr2)   ((void)0)
+
 #endif

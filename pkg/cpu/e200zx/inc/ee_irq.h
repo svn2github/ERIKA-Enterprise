@@ -70,24 +70,14 @@ extern struct EE_TOS EE_e200z7_IRQ_tos;
 #endif  /* defined(__ALLOW_NESTED_IRQ__) &&
   (!defined(__EE_MEMORY_PROTECTION__)) */
 
-#ifdef __FP__
-/* No ORTI support for the FP kernel */
-__INLINE__ EE_ORTI_runningisr2_type EE_ORTI_get_runningisr2(void)
-{
-	return (EE_ORTI_runningisr2_type)NULL;
-}
-#define EE_ORTI_set_runningisr2(isr2)   ((void)0)
-#endif /* __FP__ */
-
-
 #if (!defined(__OO_BCC1__)) && (!defined(__OO_BCC2__)) && \
 		(!defined(__OO_ECC1__)) && (!defined(__OO_ECC2__))
 /* no OO no IRQ clean-up */
 #define EE_std_end_IRQ_post_stub()  ((void)0)
 #endif /* !__OO_BCC1__ && !__OO_BCC2__ && !__OO_ECC1__ !__OO_ECC2__*/
 
-/* Software ISR Table */
-extern EE_e200z7_ISR_handler EE_e200z7_ISR_table[];
+/* Macro to declare ISR: always valid */
+#define DeclareIsr(f) void f(void)
 
 #ifdef EE_ISR_DYNAMIC_TABLE
 /*                        Dynamic ISR table implementation.                   */
@@ -101,9 +91,6 @@ extern EE_e200z7_ISR_handler EE_e200z7_ISR_table[];
  */
 void EE_e200z7_register_ISR(int level, EE_e200z7_ISR_handler fun, EE_UINT8 pri);
 #endif /* EE_ISR_DYNAMIC_TABLE */
-
-/* Macro to declare ISR: always valid */
-#define DeclareIsr(f) void f(void)
 
 /* For memory protection the stack is changed within the prestub and the postub
   */

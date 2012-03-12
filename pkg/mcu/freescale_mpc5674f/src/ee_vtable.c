@@ -45,8 +45,7 @@
 	@date 2012
  **/
 
-#include <ee.h>
-#include <ee_irq.h>
+#include <ee_internal.h>
 
 #ifndef DEFAULT_IRQ_ENTRY
 #define DEFAULT_IRQ_ENTRY (EE_e200z7_ISR_handler)0

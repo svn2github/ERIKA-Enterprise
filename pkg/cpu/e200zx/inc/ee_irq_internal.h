@@ -49,6 +49,9 @@
 #include "ee_internal.h"
 #include "ee_irq.h"
 
+/* Software ISR Table */
+extern EE_e200z7_ISR_handler EE_e200z7_ISR_table[];
+
 /* IRQ handler */
 void EE_e200z7_irq(EE_SREG level);
 
