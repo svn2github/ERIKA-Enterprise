@@ -55,11 +55,40 @@
 extern "C" {
 #endif
 
+  /*
+   *
+   * CPU
+   *
+   */
+
+ /* Freescale */
+#if defined(__MC9S12__) || defined(__HCS12XS__)
+#include "cpu/hs12xs/inc/ee_cpu.h"
+#endif
+
+#ifdef __PIC30__
+#include "cpu/pic30/inc/ee_cpu.h"
+#endif
+
+#ifdef __lm32__
+#include "cpu/mico32/inc/ee_cpu.h"
+#endif
+
+#if defined __PPCE200Z7__ || defined __PPCE200ZX__
+#include "cpu/e200zx/inc/ee_cpu.h"
+#endif /* defined __PPCE200Z7__ || defined __PPCE200ZX__ */
+
+#ifdef __CORTEX_MX__
+#include "cpu/cortex_mx/inc/ee_cpu.h"
+#endif
+
+
 /*
- * I need kernel inclusion before CPU inclusion because is CPU layer that have
- * to see Kernel API for IRQ Handling
- *
- *
+ * I need kernel inclusion before IRQ CPU inclusion because is CPU layer that
+ * have to see Kernel API for IRQ Handling
+ */
+
+/*
  * Kernel
  *
  */

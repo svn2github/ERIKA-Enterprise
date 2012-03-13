@@ -582,14 +582,6 @@ __INLINE__ void __ALWAYS_INLINE__ EE_ORTI_set_th_priority(EE_TID index,
 #define EE_ORTI_set_th_priority(index, prio)    ((void)0)
 #endif /*__OO_ORTI_PRIORITY__ */
 
-#ifdef __OO_ORTI_RUNNINGISR2__
-/* this variable stores 0 if no ISR is running, or the address of the ISR stub
-   generated for the particular ISR handler 
-   Initvalue: 0
-*/
-extern volatile EE_ORTI_runningisr2_type EE_ORTI_runningisr2;
-#endif
-
 #ifdef __OO_ORTI_ALARMTIME__
 /* this variable stores the time until an alarm expires; it is only
    valid if an alarm is running. 

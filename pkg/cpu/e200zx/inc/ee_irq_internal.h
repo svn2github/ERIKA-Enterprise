@@ -55,35 +55,4 @@ extern EE_e200z7_ISR_handler EE_e200z7_ISR_table[];
 /* IRQ handler */
 void EE_e200z7_irq(EE_SREG level);
 
-/*
- * ORTI ISR2 support
- */
-typedef EE_e200z7_ISR_handler EE_ORTI_ISR2_magic_type;
-
-#ifdef __OO_ORTI_ISR2__
-extern volatile EE_ORTI_ISR2_magic_type EE_ORTI_ISR2_magic;
-
-__INLINE__ EE_ORTI_ISR2_magic_type EE_ORTI_get_ISR2_magic(void)
-{
-	return EE_ORTI_ISR2_magic;
-}
-
-__INLINE__ void EE_ORTI_set_ISR2_magic(EE_ORTI_ISR2_magic_type isr2)
-{
-	EE_ORTI_ISR2_magic = isr2;
-}
-
-#else /* if __OO_ORTI_ISR2__ */
-
-__INLINE__ EE_ORTI_ISR2_magic_type EE_ORTI_get_ISR2_magic(void)
-{
-	return NULL;
-}
-
-__INLINE__ void EE_ORTI_set_ISR2_magic(EE_ORTI_ISR2_magic_type isr2)
-{
-}
-
-#endif /* else __OO_ORTI_ISR2__ */
-
 #endif /* __INCLUDE_E200ZX_IRQ_INTERNAL_H__ */

@@ -56,12 +56,7 @@
 extern "C" {
 #endif
 
-
-
 #include "ee_opt.h"
-
-
-
 
   /*
    *
@@ -69,9 +64,9 @@ extern "C" {
    *
    */
 
- /* Freescale */
+  /* Freescale */
 #if defined(__MC9S12__) || defined(__HCS12XS__)
- #include "cpu/hs12xs/inc/ee_cpu.h"
+#include "cpu/hs12xs/inc/ee_cpu.h"
 #endif
 
 #ifdef __ST10__
@@ -152,9 +147,9 @@ extern "C" {
    *
    */
 
-   /* Freescale */
+  /* Freescale */
 #if defined(__MC9S12__) || defined(__HCS12XS__)
- #include "mcu/hs12xs/inc/ee_mcu.h"
+#include "mcu/hs12xs/inc/ee_mcu.h"
 #endif
 
   /* Atmel */

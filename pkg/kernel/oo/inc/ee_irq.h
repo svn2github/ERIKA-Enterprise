@@ -70,9 +70,15 @@ void EE_IRQ_end_post_stub(void);
 #endif /* __PRIVATE_IRQ_END_INSTANCE__ */
 
 /*
- * ORTI Macros
+ * ORTI ISR2 Support
  */
 #ifdef __OO_ORTI_RUNNINGISR2__
+
+/* This variable stores 0 if no ISR is running, or the address of the ISR stub
+   generated for the particular ISR handler
+   Initvalue: 0 */
+extern volatile EE_ORTI_runningisr2_type EE_ORTI_runningisr2;
+
 __INLINE__ EE_ORTI_runningisr2_type EE_ORTI_get_runningisr2(void)
 {
     return EE_ORTI_runningisr2;
@@ -86,7 +92,6 @@ __INLINE__ void EE_ORTI_set_runningisr2(EE_ORTI_runningisr2_type isr2)
 
 #else /* if __OO_ORTI_RUNNINGISR2__ */
 
-/* EE_ORTI_runningisr2_type is defined by the CPU layer only when needed */
 #define EE_ORTI_get_runningisr2()         (NULL)
 #define EE_ORTI_set_runningisr2(isr2)     ((void)0)
 
