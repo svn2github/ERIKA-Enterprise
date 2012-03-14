@@ -65,10 +65,10 @@
 /* Handler Declaration */
 void EE_PPCE200ZX_DECREMENTER_ISR(void);
 
-#ifdef __STATIC_ISR_TABLE__
-ISR2_INT(EE_PPCE200ZX_DECREMENTER_ISR)
-#else
+#ifdef EE_ISR_DYNAMIC_TABLE
 void EE_PPCE200ZX_DECREMENTER_ISR(void)
+#else
+ISR2_INT(EE_PPCE200ZX_DECREMENTER_ISR)
 #endif
 {
   CounterTick(SystemTimer);

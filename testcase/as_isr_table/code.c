@@ -209,9 +209,9 @@ __INLINE__ void __ALWAYS_INLINE__ initialize_isr_table(void)
     IRQ_HIGH_PRIORITY);
 }
 #define INITIALIZE_ISR_TABLE()  initialize_isr_table()
-#else /* __STATIC_ISR_TABLE__ */
+#else /* EE_ISR_DYNAMIC_TABLE */
 #define INITIALIZE_ISR_TABLE()  ((void)0)
-#endif /* __STATIC_ISR_TABLE__ */
+#endif /* EE_ISR_DYNAMIC_TABLE */
 
 
 int main(void)
