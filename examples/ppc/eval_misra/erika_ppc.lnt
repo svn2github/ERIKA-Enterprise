@@ -17,12 +17,13 @@
 
 /* Definition without prototype for inline asm functions */
 -esym(957,EE_e200zx_get_tcr, EE_e200zx_set_tcr, EE_e200z7_disableIRQ,
- EE_ISR2_prestub, EE_ISR2_poststub, mmu_write_mas, mmu_write_sync,
- EE_e200zx_get_tbl)
+ EE_ISR2_prestub, EE_ISR2_poststub, EE_ISR2_PROT_prestub,
+ EE_ISR2_PROT_poststub, mmu_write_mas, mmu_write_sync, EE_e200zx_get_tbl)
 
 /* Duplicate definition of inline asm functions */
 -esym(14, EE_e200zx_get_tcr, EE_e200zx_set_tcr, EE_e200z7_disableIRQ,
- EE_ISR2_prestub, EE_ISR2_poststub, EE_e200zx_get_tbl)
+ EE_ISR2_prestub, EE_ISR2_poststub, EE_ISR2_PROT_prestub,
+ EE_ISR2_PROT_poststub, EE_e200zx_get_tbl)
 
 /* Macros defined to access hardware registers */
 -emacro(923,INTC)
