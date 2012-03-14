@@ -68,7 +68,25 @@ void EE_oo_GetEvent(TaskType TaskID, EventMaskRefType Event)
   
   EE_ORTI_set_service_in(EE_SERVICETRACE_GETEVENT);
 
-#ifdef __OO_EXTENDED_STATUS__    
+#ifdef __OO_EXTENDED_STATUS__
+  /*
+    OS093: If interrupts are disabled/suspended by a Task/OsIsr and the
+      Task/OsIsr calls any OS service (excluding the interrupt services)
+      then the Operating System shall ignore the service AND shall return
+      E_OS_DISABLEDINT if the service returns a StatusType value.
+  */
+  if(EE_oo_check_disableint_error()) {
+    EE_ORTI_set_lasterror(E_OS_DISABLEDINT);
+
+    flag = EE_hal_begin_nested_primitive();
+    EE_oo_notify_error_GetEvent(TaskID, Event, E_OS_DISABLEDINT);
+    EE_hal_end_nested_primitive(flag);
+
+    EE_ORTI_set_service_out(EE_SERVICETRACE_GETEVENT);
+
+    return E_OS_DISABLEDINT;
+  }
+
   /* check if the task Id is valid */
   if ((TaskID < 0) || (TaskID >= EE_MAX_TASK)) {
     EE_ORTI_set_lasterror(E_OS_ID);

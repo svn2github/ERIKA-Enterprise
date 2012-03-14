@@ -162,9 +162,9 @@ void EE_IRQ_end_instance(void)
 
 /* This primitive shall be atomic.
    This primitive shall be inserted as the last function in an IRQ post-stub.
-    This primitive done needed clean-up as restting kernel interrupt nested
-    counters and release got resources if application forget to do that as
-    specified by Autosar standard.
+   This primitive do needed clean-up as resetting kernel interrupt nested
+   counter and release gotten resources if application forget to do that as
+   specified by Autosar standard.
 */
 void EE_IRQ_end_post_stub(void) {
   /* OS368: If a Category 2 OsIsr calls DisableAllInterupts()/

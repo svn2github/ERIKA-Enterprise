@@ -76,6 +76,25 @@ StatusType EE_oo_ActivateTask(TaskType TaskID)
     return E_OK;
   }
 #endif /* __RN_TASK__ */
+
+
+  /*
+    OS093: If interrupts are disabled/suspended by a Task/OsIsr and the
+      Task/OsIsr calls any OS service (excluding the interrupt services)
+      then the Operating System shall ignore the service AND shall return
+      E_OS_DISABLEDINT if the service returns a StatusType value.
+  */
+  if(EE_oo_check_disableint_error()) {
+    EE_ORTI_set_lasterror(E_OS_DISABLEDINT);
+
+    flag = EE_hal_begin_nested_primitive();
+    EE_oo_notify_error_ActivateTask(TaskID, E_OS_DISABLEDINT);
+    EE_hal_end_nested_primitive(flag);
+
+    EE_ORTI_set_service_out(EE_SERVICETRACE_ACTIVATETASK);
+
+    return E_OS_DISABLEDINT;
+  }
   
 #ifdef __OO_EXTENDED_STATUS__    
   /* check if the task Id is valid */

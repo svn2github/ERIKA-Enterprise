@@ -60,6 +60,19 @@ StatusType EE_oo_CancelAlarm(AlarmType AlarmID)
   
   EE_ORTI_set_service_in(EE_SERVICETRACE_CANCELALARM);
 
+  if(EE_oo_check_disableint_error()) {
+    EE_ORTI_set_lasterror(E_OS_DISABLEDINT);
+
+    flag = EE_hal_begin_nested_primitive();
+    EE_oo_notify_error_CancelAlarm(AlarmID, E_OS_DISABLEDINT);
+    EE_hal_end_nested_primitive(flag);
+
+    EE_ORTI_set_service_out(EE_SERVICETRACE_CANCELALARM);
+
+    return E_OS_DISABLEDINT;
+  }
+
+
 #ifdef __OO_EXTENDED_STATUS__
   if ((AlarmID < 0) || (AlarmID >= EE_MAX_ALARM)) {
     EE_ORTI_set_lasterror(E_OS_ID);

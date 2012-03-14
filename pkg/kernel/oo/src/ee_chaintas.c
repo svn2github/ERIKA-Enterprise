@@ -64,9 +64,27 @@
 StatusType EE_oo_ChainTask(TaskType TaskID)
 {
   register TaskType current;
-  register EE_FREG np_flags;
+  register EE_FREG flag;
 
   EE_ORTI_set_service_in(EE_SERVICETRACE_CHAINTASK);
+
+  /*
+    OS093: If interrupts are disabled/suspended by a Task/OsIsr and the
+      Task/OsIsr calls any OS service (excluding the interrupt services)
+      then the Operating System shall ignore the service AND shall return
+      E_OS_DISABLEDINT if the service returns a StatusType value.
+  */
+  if(EE_oo_check_disableint_error()) {
+    EE_ORTI_set_lasterror(E_OS_DISABLEDINT);
+
+    flag = EE_hal_begin_nested_primitive();
+    EE_oo_notify_error_ChainTask(TaskID, E_OS_DISABLEDINT);
+    EE_hal_end_nested_primitive(flag);
+
+    EE_ORTI_set_service_out(EE_SERVICETRACE_CHAINTASK);
+
+    return E_OS_DISABLEDINT;
+  }
 
   current = EE_stk_queryfirst();
 
@@ -76,9 +94,9 @@ StatusType EE_oo_ChainTask(TaskType TaskID)
   if (EE_hal_get_IRQ_nesting_level()) {
     EE_ORTI_set_lasterror(E_OS_CALLEVEL);
 
-    np_flags = EE_hal_begin_nested_primitive();
+    flag = EE_hal_begin_nested_primitive();
     EE_oo_notify_error_ChainTask(TaskID, E_OS_CALLEVEL);
-    EE_hal_end_nested_primitive(np_flags);
+    EE_hal_end_nested_primitive(flag);
 
     EE_ORTI_set_service_out(EE_SERVICETRACE_CHAINTASK);
 
@@ -89,9 +107,9 @@ StatusType EE_oo_ChainTask(TaskType TaskID)
   if ((TaskID < 0) || (TaskID >= EE_MAX_TASK)) {
     EE_ORTI_set_lasterror(E_OS_ID);
 
-    np_flags = EE_hal_begin_nested_primitive();
+    flag = EE_hal_begin_nested_primitive();
     EE_oo_notify_error_ChainTask(TaskID, E_OS_CALLEVEL);
-    EE_hal_end_nested_primitive(np_flags);
+    EE_hal_end_nested_primitive(flag);
 
     EE_ORTI_set_service_out(EE_SERVICETRACE_CHAINTASK);
 
@@ -103,9 +121,9 @@ StatusType EE_oo_ChainTask(TaskType TaskID)
   if (EE_th_resource_last[current] != EE_UREG_MINUS1) {
     EE_ORTI_set_lasterror(E_OS_RESOURCE);
 
-    np_flags = EE_hal_begin_nested_primitive();
+    flag = EE_hal_begin_nested_primitive();
     EE_oo_notify_error_ChainTask(TaskID, E_OS_RESOURCE);
-    EE_hal_end_nested_primitive(np_flags);
+    EE_hal_end_nested_primitive(flag);
 
     EE_ORTI_set_service_out(EE_SERVICETRACE_CHAINTASK);
 
@@ -115,7 +133,7 @@ StatusType EE_oo_ChainTask(TaskType TaskID)
 
 #endif /* __OO_EXTENDED_STATUS__ */
 
-  np_flags = EE_hal_begin_nested_primitive();
+  flag = EE_hal_begin_nested_primitive();
 
   /* check for pending activations; works also if the task passed as
      parameter inside ChainTask is the calling task; 
@@ -126,7 +144,7 @@ StatusType EE_oo_ChainTask(TaskType TaskID)
 
     EE_oo_notify_error_ChainTask(TaskID, E_OS_RESOURCE);
 
-    EE_hal_end_nested_primitive(np_flags);
+    EE_hal_end_nested_primitive(flag);
     EE_ORTI_set_service_out(EE_SERVICETRACE_CHAINTASK);
 
     return E_OS_LIMIT;

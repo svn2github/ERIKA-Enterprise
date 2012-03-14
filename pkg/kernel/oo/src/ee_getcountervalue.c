@@ -55,6 +55,25 @@ StatusType EE_oo_GetCounterValue(CounterType CounterID, TickRefType Value)
   register StatusType retVal;
 
   EE_ORTI_set_service_in(EE_SERVICETRACE_GETCOUNTERVALUE);
+
+  /*
+    OS093: If interrupts are disabled/suspended by a Task/OsIsr and the
+      Task/OsIsr calls any OS service (excluding the interrupt services)
+      then the Operating System shall ignore the service AND shall return
+      E_OS_DISABLEDINT if the service returns a StatusType value.
+  */
+  if(EE_oo_check_disableint_error()) {
+    EE_ORTI_set_lasterror(E_OS_DISABLEDINT);
+
+    flag = EE_hal_begin_nested_primitive();
+    EE_oo_notify_error_GetCounterValue(CounterID, Value, E_OS_DISABLEDINT);
+    EE_hal_end_nested_primitive(flag);
+
+    EE_ORTI_set_service_out(EE_SERVICETRACE_GETCOUNTERVALUE);
+
+    return E_OS_DISABLEDINT;
+  }
+
 #ifdef __OO_EXTENDED_STATUS__
   /* OS376: If the input parameter <CounterID> in a call of GetElapsedValue()
      is not valid GetElapsedValue() shall return E_OS_ID.

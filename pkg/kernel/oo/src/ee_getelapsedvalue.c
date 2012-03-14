@@ -58,6 +58,25 @@ StatusType EE_oo_GetElapsedValue(CounterType CounterID, TickRefType Value,
 
   EE_ORTI_set_service_in(EE_SERVICETRACE_GETELAPSEDVALUE);
 
+  /*
+    OS093: If interrupts are disabled/suspended by a Task/OsIsr and the
+      Task/OsIsr calls any OS service (excluding the interrupt services)
+      then the Operating System shall ignore the service AND shall return
+      E_OS_DISABLEDINT if the service returns a StatusType value.
+  */
+  if(EE_oo_check_disableint_error()) {
+    EE_ORTI_set_lasterror(E_OS_DISABLEDINT);
+
+    flag = EE_hal_begin_nested_primitive();
+    EE_oo_notify_error_GetElapsedValue(CounterID, Value, ElapsedValue,
+      E_OS_DISABLEDINT);
+    EE_hal_end_nested_primitive(flag);
+
+    EE_ORTI_set_service_out(EE_SERVICETRACE_GETELAPSEDVALUE);
+
+    return E_OS_DISABLEDINT;
+  }
+
   /* OS381: If the input parameter <CounterID> in a call of GetElapsedValue()
      is not Valid GetElapsedValue() shall return E_OS_ID.
   */
@@ -132,6 +151,25 @@ StatusType EE_oo_GetElapsedValue(CounterType CounterID, TickRefType Value,
   register StatusType retVal;
 
   EE_ORTI_set_service_in(EE_SERVICETRACE_GETELAPSEDVALUE);
+
+  /*
+    OS093: If interrupts are disabled/suspended by a Task/OsIsr and the
+      Task/OsIsr calls any OS service (excluding the interrupt services)
+      then the Operating System shall ignore the service AND shall return
+      E_OS_DISABLEDINT if the service returns a StatusType value.
+  */
+  if(EE_oo_check_disableint_error()) {
+    EE_ORTI_set_lasterror(E_OS_DISABLEDINT);
+
+    flag = EE_hal_begin_nested_primitive();
+    EE_oo_notify_error_GetElapsedValue(CounterID, Value, ElapsedValue,
+      E_OS_DISABLEDINT);
+    EE_hal_end_nested_primitive(flag);
+
+    EE_ORTI_set_service_out(EE_SERVICETRACE_GETELAPSEDVALUE);
+
+    return E_OS_DISABLEDINT;
+  }
 
   /* OS382: If the input parameters in a call of GetElapsedValue() are valid,
       GetElapsedValue() shall return the number of elapsed ticks since the given

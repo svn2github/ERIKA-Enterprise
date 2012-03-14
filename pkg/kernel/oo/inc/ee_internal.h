@@ -112,6 +112,26 @@ __INLINE__ void __ALWAYS_INLINE__ EE_oo_call_PostTaskHook(void)
 extern EE_TYPEBOOL EE_oo_no_preemption;
 #endif
 
+/* Used to check if we are in disable interrupt error. It return
+   'signed register type' because usally it is native intger type.
+ */
+__INLINE__ EE_SREG __ALWAYS_INLINE__ EE_oo_check_disableint_error(void)
+{
+    register EE_SREG error_check;
+#if defined(__OO_HAS_STARTUPHOOK__) || defined(__OO_AUTOSTART_TASK__) || \
+    defined(__OO_AUTOSTART_ALARM__)
+    /* if EE_oo_no_preemption is set we are in statos routine. We never raise
+       an error never in this case. */
+    if (EE_oo_no_preemption != 0U) {
+      /* return not an error */
+      return 0;
+    }
+#endif
+    error_check = (EE_oo_IRQ_disable_count != 0U);
+    /* TODO: add hal API that let understand the real state of the isr */
+    return error_check;
+}
+
 #if defined(__OO_BCC2__) || defined(__OO_ECC2__)
 /* a lookup table to speedup ready queue handling */
 extern const EE_INT8 EE_rq_lookup[];
@@ -141,7 +161,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_stk_getfirst(void)
 }
 #endif
 
-/* insert a task into the stack  data structures */
+/* insert a task into the stack data structures */
 #ifndef __PRIVATE_STK_INSERTFIRST__
 __INLINE__ void __ALWAYS_INLINE__ EE_stk_insertfirst(EE_TID t)
 {
