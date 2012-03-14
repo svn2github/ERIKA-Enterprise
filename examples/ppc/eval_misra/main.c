@@ -139,8 +139,45 @@ static void body1(void)
 
 static void body2(void)
 {
-#if defined(__OO_ECC2__) || defined(__OO_ECC1__)
+
+#if defined(__OO_ECC1__) || defined(__OO_ECC2__)
 	EventMaskType e;
+#endif
+
+#if ((defined(__OO_BCC1__) || defined(__OO_BCC2__)		 	\
+		|| defined(__OO_ECC1__) || defined(__OO_ECC2__))	\
+		&& defined(__OO_SEM__))
+	StatusType status;
+#endif /* __OO_BCC1__ || __OO_BCC2__ */
+
+#if ((defined(__OO_BCC1__) || defined(__OO_BCC2__)		 	\
+		|| defined(__OO_ECC1__) || defined(__OO_ECC2__))	\
+		&& defined(__OO_SEM__))
+	SemRefType Sem=NULL;
+	int my_res=0;
+	my_res = GetValueSem(Sem);
+
+#ifndef __PRIVATE_TRYWAITSEM__
+	my_res = TryWaitSem(Sem);
+#endif /* __PRIVATE_TRYWAITSEM__ */
+
+#if defined(__OO_ECC1__) || defined(__OO_ECC2__)
+#ifndef __PRIVATE_WAITSEM__
+
+#ifdef __OO_EXTENDED_STATUS__
+	status = WaitSem(Sem);
+	status = PostSem(Sem);
+#else
+	WaitSem(Sem);
+	PostSem(Sem);
+#endif /* __OO_EXTENDED_STATUS__ */
+#endif /* __PRIVATE_WAITSEM__ */
+#endif /* __OO_ECC1__ || __OO_ECC2__ */
+
+#endif /* __OO_BCC1__ || __OO_BCC2__ || __OO_ECC1__ || 
+	__OO_ECC2__ && __OO_SEM__ */
+
+#if defined(__OO_ECC2__) || defined(__OO_ECC1__)
 	(void)GetEvent(Task2, &e);
 	(void)WaitEvent(MyEvent);
 	(void)ClearEvent(MyEvent);
