@@ -1,5 +1,4 @@
-#include <ee.h>
-#include <ee_irq.h>
+#include "common.h"
 
 #ifdef EE_ISR_DYNAMIC_TABLE
 static void init_app1_timer(void)

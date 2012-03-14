@@ -1,5 +1,4 @@
-#include <ee.h>
-#include <ee_irq.h>
+#include "common.h"
 
 static char EE_APPLICATION_UDATA(App2) var0;
 static int EE_APPLICATION_UDATA(App2) var1;
@@ -7,7 +6,7 @@ static int EE_APPLICATION_IDATA(App2) var2 = 0x374a430b;
 static char EE_APPLICATION_IDATA(App2) var3 = 0x34;
 static int EE_APPLICATION_IDATA(App2) err = 0;
 
-ISR2(App2Isr)
+ISR(App2Isr)
 {
 }
 

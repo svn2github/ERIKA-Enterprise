@@ -1,5 +1,4 @@
-#include <ee.h>
-#include <ee_irq.h>
+#include "common.h"
 
 int EE_APPLICATION_UDATA(TrustedApp) error;
 
@@ -45,7 +44,7 @@ TASK(TrustedTask1)
 }
 
 
-ISR2(TrustedIsr)
+ISR(TrustedIsr)
 {
 	ActivateTask(TrustedTask1);
 }

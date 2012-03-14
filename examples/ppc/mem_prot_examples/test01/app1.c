@@ -1,9 +1,8 @@
-#include <ee.h>
-#include <ee_irq.h>
+#include "common.h"
 
 static volatile int EE_APPLICATION_UDATA(App1) state1;
 
-ISR2(App1Isr)
+ISR(App1Isr)
 {
 	if (! (state1 & 1)) {
 		ActivateTask(App1Task);

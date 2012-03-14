@@ -75,13 +75,10 @@ void EE_e200z7_register_ISR(int level, EE_e200z7_ISR_handler fun, EE_UINT8 pri)
 	EE_e200z7_resumeIRQ(intst);
 }
 
-#endif /* EE_ISR_DYNAMIC_TABLE */
-
 /*
     The "complete" interrupt dispatcher EE_e200z7_irq is needed for handling
-    dynamic ISR table and always when memory protection is active.
+    dynamic ISR table.
  */
-#if defined(EE_ISR_DYNAMIC_TABLE) || defined(__EE_MEMORY_PROTECTION__)
 void EE_e200z7_irq(EE_SREG level)
 {
 	EE_e200z7_ISR_handler f;
@@ -120,7 +117,7 @@ void EE_e200z7_irq(EE_SREG level)
 	}
 }
 
-#else /* defined(EE_ISR_DYNAMIC_TABLE) || defined(__EE_MEMORY_PROTECTION__) */
+#else /* EE_ISR_DYNAMIC_TABLE */
 
 /* Simplified interrupt dispatcher used with static ISR table without memory
    protection. */

@@ -68,10 +68,6 @@ ifeq ($(call iseeopt, __MULTI__), yes)
 EE_CASM_SRCS += pkg/cpu/e200zx/src/ee_context.S
 endif
 
-ifeq ($(call iseeopt, __IRQ_STACK_NEEDED__), yes)
-EE_CASM_SRCS += pkg/cpu/e200zx/src/ee_irq_stack.S
-endif
-
 ifeq ($(call iseeopt, __MSRP__), yes)
 EE_SRCS += pkg/cpu/e200zx/src/ee_e200zx_multicore.c
 endif
@@ -79,6 +75,9 @@ endif
 ifeq ($(call iseeopt, __EE_MEMORY_PROTECTION__), yes)
 EE_SRCS += pkg/cpu/e200zx/src/ee_memp_syscall.S
 EE_SRCS += pkg/cpu/e200zx/src/ee_e200zx_mem_prot.c
+else ifeq ($(call iseeopt, __IRQ_STACK_NEEDED__), yes)
+#EE_200zx_call_ISR is not used with memory protection
+EE_CASM_SRCS += pkg/cpu/e200zx/src/ee_irq_stack.S
 endif
 
 endif # __PPCE200ZX__
