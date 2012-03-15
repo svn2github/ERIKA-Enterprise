@@ -119,8 +119,7 @@ void EE_e200z7_irq(EE_SREG level)
 
 #else /* EE_ISR_DYNAMIC_TABLE */
 
-/* Simplified interrupt dispatcher used with static ISR table without memory
-   protection. */
+/* Simplified interrupt dispatcher used with static ISR table. */
 void EE_e200z7_irq(EE_SREG level)
 {
   EE_e200z7_ISR_handler f;
@@ -129,7 +128,7 @@ void EE_e200z7_irq(EE_SREG level)
     f();
   }
 }
-#endif /* defined(EE_ISR_DYNAMIC_TABLE) || defined(__EE_MEMORY_PROTECTION__) */
+#endif /* EE_ISR_DYNAMIC_TABLE */
 
 #ifdef __EE_MEMORY_PROTECTION__
 /*

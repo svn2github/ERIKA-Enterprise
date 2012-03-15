@@ -118,15 +118,17 @@ extern EE_TYPEBOOL EE_oo_no_preemption;
 __INLINE__ EE_SREG __ALWAYS_INLINE__ EE_oo_check_disableint_error(void)
 {
     register EE_SREG error_check;
-#if defined(__OO_HAS_STARTUPHOOK__) || defined(__OO_AUTOSTART_TASK__) || \
+/* The following check is useful only in startupHook where you SHOULD NOT call
+   Kernel API, so probably it's better to not waste clock time later */
+/* #if defined(__OO_HAS_STARTUPHOOK__) || defined(__OO_AUTOSTART_TASK__) || \
     defined(__OO_AUTOSTART_ALARM__)
-    /* if EE_oo_no_preemption is set we are in statos routine. We never raise
-       an error never in this case. */
+    // if EE_oo_no_preemption is set we are in statos routine. We never raise
+    //  an error never in this case. 
     if (EE_oo_no_preemption != 0U) {
-      /* return not an error */
+      // return not an error
       return 0;
     }
-#endif
+#endif */
     error_check = (EE_oo_IRQ_disable_count != 0U);
     /* TODO: add hal API that let understand the real state of the isr */
     return error_check;

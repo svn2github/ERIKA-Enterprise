@@ -321,7 +321,6 @@ static void EE_oo_IncrementCounter_Impl(CounterType CounterID)
   EE_hal_end_nested_primitive(flag);
 }
 
-#ifdef __OO_EXTENDED_STATUS__
 StatusType EE_oo_IncrementCounter(CounterType CounterID)
 {
 #if defined(__OO_HAS_ERRORHOOK__) && (!defined(__OO_ERRORHOOK_NOMACROS__))
@@ -353,6 +352,7 @@ StatusType EE_oo_IncrementCounter(CounterType CounterID)
     return E_OS_DISABLEDINT;
   }
 
+#ifdef __OO_EXTENDED_STATUS__
   /* OS285: If the input parameter CounterID in a call of IncrementCounter() is
       not valid OR the counter is a hardware counter, IncrementCounter() shall
       return E_OS_ID.
@@ -371,50 +371,12 @@ StatusType EE_oo_IncrementCounter(CounterType CounterID)
 
     return E_OS_ID;
   }
-
-  EE_oo_IncrementCounter_Impl(CounterID);
-
-  EE_ORTI_set_service_out(EE_SERVICETRACE_INCREMENTCOUNTER);
-  return E_OK;
-}
-#else /* __OO_EXTENDED_STATUS__ */
-StatusType EE_oo_IncrementCounter(CounterType CounterID)
-{
-#if defined(__OO_HAS_ERRORHOOK__) && (!defined(__OO_ERRORHOOK_NOMACROS__))
-  register AlarmType current;
-  register EE_FREG flag;
-#endif /* __OO_HAS_ERRORHOOK__ && !__OO_ERRORHOOK_NOMACROS__ */
-
-  EE_ORTI_set_service_in(EE_SERVICETRACE_INCREMENTCOUNTER);
-
-  /*
-    OS093: If interrupts are disabled/suspended by a Task/OsIsr and the
-      Task/OsIsr calls any OS service (excluding the interrupt services)
-      then the Operating System shall ignore the service AND shall return
-      E_OS_DISABLEDINT if the service returns a StatusType value.
-  */
-  if(EE_oo_check_disableint_error()) {
-    EE_ORTI_set_lasterror(E_OS_DISABLEDINT);
-#if defined(__OO_HAS_ERRORHOOK__) && (!defined(__OO_ERRORHOOK_NOMACROS__))
-    flag = EE_hal_begin_nested_primitive();
-    current = EE_counter_RAM[CounterID].first;
-    EE_oo_notify_error_IncrementCounter(CounterID, current,
-      EE_alarm_ROM[current].TaskID, EE_alarm_ROM[current].action,
-      E_OS_DISABLEDINT);
-    EE_hal_end_nested_primitive(flag);
-#endif /* __OO_HAS_ERRORHOOK__ && !__OO_ERRORHOOK_NOMACROS__ */
-
-    EE_ORTI_set_service_out(EE_SERVICETRACE_INCREMENTCOUNTER);
-
-    return E_OS_DISABLEDINT;
-  }
-
-  EE_oo_IncrementCounter_Impl(CounterID);
-
-  EE_ORTI_set_service_out(EE_SERVICETRACE_INCREMENTCOUNTER);
-  return E_OK;
-}
 #endif /* __OO_EXTENDED_STATUS__ */
 
+  EE_oo_IncrementCounter_Impl(CounterID);
+
+  EE_ORTI_set_service_out(EE_SERVICETRACE_INCREMENTCOUNTER);
+  return E_OK;
+}
 #endif /* __PRIVATE_INCREMENTCOUNTER__ */
 

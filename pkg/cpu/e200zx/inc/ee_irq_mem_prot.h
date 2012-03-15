@@ -183,7 +183,7 @@ void f(void)                                                          \
   /* keep the old ORTI */                                             \
   EE_ORTI_runningisr2_type ortiold;                                   \
   /* handle ORTI ID */                                                \
-  ortiold = EE_ISR2_prestub();                                        \
+  ortiold = EE_ISR2_prestub(f);                                       \
   /* These handle stack change and nesting */                         \
   EE_ISR2_PROT_prestub(EE_PREPROC_JOIN(ISR2_APP_,f),                  \
     EE_PREPROC_JOIN(ISR2_ID_,f));                                     \
@@ -200,8 +200,8 @@ void f(void)                                                          \
 {                                                                     \
   /* keep the old ORTI */                                             \
   EE_ORTI_runningisr2_type ortiold;                                   \
-   /* Save the old ORTI ID */                                         \
-  ortiold = EE_ISR2_prestub();                                        \
+  /* Save the old ORTI ID */                                          \
+  ortiold = EE_ISR2_prestub(f);                                       \
   /* These handle stack change and nesting */                         \
   EE_ISR2_PROT_prestub(EE_PREPROC_JOIN(ISR2_APP_,f),                  \
     EE_PREPROC_JOIN(ISR2_ID_,f));                                     \
