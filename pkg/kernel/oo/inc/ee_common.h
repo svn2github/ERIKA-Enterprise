@@ -357,6 +357,12 @@ typedef struct {
   EE_TYPEALARM  first;         /* first alarm queued on the counter */
 } EE_oo_counter_RAM_type;
 
+/* Add supplementary support info for hardware counters */
+#ifdef EE_MAX_COUNTER_HW
+typedef struct {
+  EE_TYPETICK microsecondspertick;
+} EE_oo_counter_hw_ROM_type;
+#endif
 
 /* these are the different types of alarm notifications... */
 #define EE_ALARM_ACTION_TASK      0U
@@ -395,6 +401,14 @@ extern const EE_oo_counter_ROM_type EE_counter_ROM[];
 /* this is the RAM part of a counter. 
    Initvalue = an array of {0,-1} elements */
 extern EE_oo_counter_RAM_type       EE_counter_RAM[];
+
+#ifdef EE_MAX_COUNTER_HW
+/* Add supplementary support info for HARDWARE counters.
+   This array contains, for each HARDWARE counter, the supplementary 
+   characteristics of the counter.The initialization value is implementation
+   dependent */
+extern const EE_oo_counter_hw_ROM_type EE_counter_hw_ROM[];
+#endif
 
 /* this is the fixed part of the configuration of an alarm
    Initvalue= depends on how the alarm notification have to be configured */
