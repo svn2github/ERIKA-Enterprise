@@ -46,7 +46,7 @@
 #include "ee_internal.h"
 
 #ifndef __PRIVATE_GETVALUESEM__
-int EE_oo_GetValueSem(SemRefType Sem)
+int EE_oo_GetValueSem(const SemType *Sem)
 {
   int      returnvalue = EE_NIL;
   register EE_FREG flag;

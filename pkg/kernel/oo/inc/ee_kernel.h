@@ -442,7 +442,7 @@ StatusType EE_oo_PostSem(SemRefType Sem);
 
 /* Semaphore value read: BCC1, BCC2, ECC1, ECC2 */
 #ifndef __PRIVATE_GETVALUESEM__
-int EE_oo_GetValueSem(SemRefType Sem);
+int EE_oo_GetValueSem(const SemType *Sem);
 #endif
 
 #endif /* __OO_SEM__ */
