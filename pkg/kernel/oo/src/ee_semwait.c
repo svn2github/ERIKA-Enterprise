@@ -141,12 +141,14 @@ void EE_oo_WaitSem(SemRefType Sem)
     EE_ORTI_set_th_priority(current, 0U);
 
     /* queue the task inside the semaphore queue */
-    if (Sem->first != EE_NIL)
+    if (Sem->first != EE_NIL) {
       /* the semaphore queue is not empty */
       EE_th_next[Sem->last] = current;
-    else
+    }
+    else {
       /* the semaphore queue is empty */
       Sem->first = current;
+    }
 
     Sem->last = current;
     EE_th_next[current] = EE_NIL;

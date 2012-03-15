@@ -56,10 +56,12 @@ int EE_oo_GetValueSem(SemRefType Sem)
   flag = EE_hal_begin_nested_primitive();
 
 #if defined(__OO_ECC1__) || defined(__OO_ECC2__)
-  if (Sem->first == EE_NIL)
+  if (Sem->first == EE_NIL) {
     returnvalue = Sem->count;
-  else
+  }
+  else {
     returnvalue = -1;
+  }
 #else
   returnvalue = Sem->count;
 #endif

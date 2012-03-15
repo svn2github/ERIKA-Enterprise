@@ -69,8 +69,9 @@ int EE_oo_TryWaitSem(SemRefType Sem)
     Sem->count--;
     returnvalue = 0;
   }
-  else
+  else {
     returnvalue = 1;
+  }
 
   EE_hal_end_nested_primitive(flag);
   

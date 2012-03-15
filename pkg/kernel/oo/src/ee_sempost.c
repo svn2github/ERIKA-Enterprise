@@ -98,8 +98,9 @@ StatusType EE_oo_PostSem(SemRefType Sem)
 
     /* update the semaphore queue */
     unlocked_tmp = Sem->first;
-    if ((Sem->first = EE_th_next[unlocked_tmp]) == EE_NIL)
+    if ((Sem->first = EE_th_next[unlocked_tmp]) == EE_NIL) {
       Sem->last = EE_NIL;
+    }
 
     /* if yes, the task must go back into the READY state */
     EE_th_status[unlocked_tmp] = READY;
