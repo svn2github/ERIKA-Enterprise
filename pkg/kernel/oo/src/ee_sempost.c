@@ -86,7 +86,7 @@ StatusType EE_oo_PostSem(SemRefType Sem)
     EE_oo_notify_error_PostSem(Sem, E_OS_DISABLEDINT);
     EE_hal_end_nested_primitive(flag);
 
-    EE_ORTI_set_service_out(EE_SERVICETRACE_POSTSEM);;
+    EE_ORTI_set_service_out(EE_SERVICETRACE_POSTSEM);
 
     return E_OS_DISABLEDINT;
   }
