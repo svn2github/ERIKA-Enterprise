@@ -405,7 +405,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_oo_InitSem(SemRefType Sem, int value)
 {
   EE_ORTI_set_service_in(EE_SERVICETRACE_INITSEM);
 
-  (Sem)->count = (value);
+  (Sem)->count = (EE_UTID)(value);
 #if defined(__OO_ECC1__) || defined(__OO_ECC2__)
   (Sem)->first = EE_NIL;
   (Sem)->last = EE_NIL;

@@ -108,7 +108,7 @@ StatusType EE_oo_PostSem(SemRefType Sem)
     EE_rq_insert(unlocked_tmp);
   
     /* and if I am at task level, check for preemption... */
-    if (EE_hal_get_IRQ_nesting_level()==NULL) {
+    if (EE_hal_get_IRQ_nesting_level()==(EE_UREG)NULL) {
       /* we are inside a task */
       EE_oo_preemption_point();
     }

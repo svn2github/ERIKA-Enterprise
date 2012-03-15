@@ -624,9 +624,9 @@ __INLINE__ void __ALWAYS_INLINE__ EE_oo_notify_error_WaitSem(SemRefType Sem,
 {
     if (EE_ErrorHook_nested_flag == 0U) {
         EE_oo_fill_error_data_WaitSem(Sem);
-        EE_ErrorHook_nested_flag = 1;
+        EE_ErrorHook_nested_flag = 1U;
         ErrorHook(Error);
-        EE_ErrorHook_nested_flag = 0;
+        EE_ErrorHook_nested_flag = 0U;
     }
 }
 
@@ -635,9 +635,9 @@ __INLINE__ void __ALWAYS_INLINE__ EE_oo_notify_error_PostSem(SemRefType Sem,
 {
     if (EE_ErrorHook_nested_flag == 0U) {
         EE_oo_fill_error_data_PostSem(Sem);
-        EE_ErrorHook_nested_flag = 1;
+        EE_ErrorHook_nested_flag = 1U;
         ErrorHook(Error);
-        EE_ErrorHook_nested_flag = 0;
+        EE_ErrorHook_nested_flag = 0U;
     }
 }
 #else /* __OO_SEM__ */

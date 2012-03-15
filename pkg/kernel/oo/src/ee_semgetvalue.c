@@ -57,13 +57,13 @@ int EE_oo_GetValueSem(SemRefType Sem)
 
 #if defined(__OO_ECC1__) || defined(__OO_ECC2__)
   if (Sem->first == EE_NIL) {
-    returnvalue = Sem->count;
+    returnvalue = (int)(Sem->count);
   }
   else {
     returnvalue = -1;
   }
 #else
-  returnvalue = Sem->count;
+  returnvalue = (int)(Sem->count);
 #endif
 
   EE_hal_end_nested_primitive(flag);

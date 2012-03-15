@@ -105,7 +105,7 @@ void EE_oo_WaitSem(SemRefType Sem)
 #endif /* __OO_NO_RESOURCES__ */
 
   /* check if the task is an extended task */
-  if (EE_th_is_extended[current]==NULL) {
+  if (EE_th_is_extended[current]==(EE_TYPEBOOL)NULL) {
     EE_ORTI_set_lasterror(E_OS_ACCESS);
 
     np_flags = EE_hal_begin_nested_primitive();
