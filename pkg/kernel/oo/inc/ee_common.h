@@ -744,7 +744,7 @@ typedef EE_TYPEEVENTMASK *EventMaskRefType;
 /* ----------------------------------------------------------------------- */
 
 /* the maximum unsigned integer */
-#define EE_MAX_SEM_COUNTER ((unsigned int)-1)
+#define EE_MAX_SEM_COUNTER ((EE_UREG)-1)
 
 /* Data types                                                              */
 /* ----------------------------------------------------------------------- */
@@ -752,7 +752,7 @@ typedef EE_TYPEEVENTMASK *EventMaskRefType;
 #ifdef __OO_SEM__
 
 struct EE_TYPESEM {
-  unsigned int count;
+  EE_UREG   count;
 #if defined(__OO_ECC1__) || defined(__OO_ECC2__)
   EE_TID    first;
   EE_TID    last;
