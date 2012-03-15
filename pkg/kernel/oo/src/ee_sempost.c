@@ -94,7 +94,7 @@ StatusType EE_oo_PostSem(SemRefType Sem)
   flag = EE_hal_begin_nested_primitive();
 
   /* check if the post on the semaphore wakes up someone */
-  if (Sem->first != EE_NIL) {
+  if ((Sem != NULL) && (Sem->first != EE_NIL)) {
 
     /* update the semaphore queue */
     unlocked_tmp = Sem->first;
@@ -114,18 +114,20 @@ StatusType EE_oo_PostSem(SemRefType Sem)
     }
   }
   else {
-    if (Sem->count == EE_MAX_SEM_COUNTER) {
-      EE_ORTI_set_lasterror(E_OS_VALUE);
+    if ((Sem != NULL)) {
+      if (Sem->count == EE_MAX_SEM_COUNTER) {
+        EE_ORTI_set_lasterror(E_OS_VALUE);
 
-      EE_oo_notify_error_PostSem(Sem, E_OS_VALUE);
+        EE_oo_notify_error_PostSem(Sem, E_OS_VALUE);
 
-      EE_hal_end_nested_primitive(flag);
-      EE_ORTI_set_service_out(EE_SERVICETRACE_POSTSEM);
+        EE_hal_end_nested_primitive(flag);
+        EE_ORTI_set_service_out(EE_SERVICETRACE_POSTSEM);
 
-      return E_OS_VALUE;
+        return E_OS_VALUE;
+      }
+
+      Sem->count++;
     }
-
-    Sem->count++;
   }
 
   EE_hal_end_nested_primitive(flag);
@@ -152,19 +154,21 @@ StatusType EE_oo_PostSem(SemRefType Sem)
   flag = EE_hal_begin_nested_primitive();
 
   /* the wake up check is removed because there is no blocking wait! */
-  if (Sem->count == EE_MAX_SEM_COUNTER) {
+  if (Sem != NULL) {
+    if (Sem->count == EE_MAX_SEM_COUNTER) {
 
-    EE_ORTI_set_lasterror(E_OS_VALUE);
+      EE_ORTI_set_lasterror(E_OS_VALUE);
 
-    EE_oo_notify_error_PostSem(Sem, E_OS_VALUE);
+      EE_oo_notify_error_PostSem(Sem, E_OS_VALUE);
 
-    EE_hal_end_nested_primitive(flag);
-    EE_ORTI_set_service_out(EE_SERVICETRACE_POSTSEM);
+      EE_hal_end_nested_primitive(flag);
+      EE_ORTI_set_service_out(EE_SERVICETRACE_POSTSEM);
 
-    return E_OS_VALUE;
+      return E_OS_VALUE;
+    }
+
+    Sem->count++;
   }
-
-  Sem->count++;
 
   EE_hal_end_nested_primitive(flag);
   EE_ORTI_set_service_out(EE_SERVICETRACE_POSTSEM);

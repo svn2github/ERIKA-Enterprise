@@ -48,23 +48,25 @@
 #ifndef __PRIVATE_GETVALUESEM__
 int EE_oo_GetValueSem(SemRefType Sem)
 {
-  int      returnvalue;
+  int      returnvalue = EE_NIL;
   register EE_FREG flag;
 
   EE_ORTI_set_service_in(EE_SERVICETRACE_GETVALUESEM);
 	
   flag = EE_hal_begin_nested_primitive();
 
+  if (Sem != NULL) {
 #if defined(__OO_ECC1__) || defined(__OO_ECC2__)
-  if (Sem->first == EE_NIL) {
-    returnvalue = (int)(Sem->count);
-  }
-  else {
-    returnvalue = -1;
-  }
+    if (Sem->first == EE_NIL) {
+      returnvalue = (int)(Sem->count);
+    }
+    else {
+      returnvalue = -1;
+    }
 #else
-  returnvalue = (int)(Sem->count);
+    returnvalue = (int)(Sem->count);
 #endif
+  }
 
   EE_hal_end_nested_primitive(flag);
 

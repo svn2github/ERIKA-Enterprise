@@ -122,49 +122,50 @@ void EE_oo_WaitSem(SemRefType Sem)
 
   /* handle a local semaphore queue */
   /* check if we have to wait */
-  if (Sem->count != 0U) {
-    Sem->count--;
-  }
-  else {
-    /* extract the task from the stk data structure
-     * current was filled at the beginning of the function
-     */
-    EE_stk_getfirst();
-
-    /* the task must go into the WAITING state */
-    EE_th_status[current] = WAITING;
-
-    /* reset the thread priority bit in the system_ceiling */
-    EE_sys_ceiling &= ~EE_th_dispatch_prio[current];
-    /* the ready priority is not touched, it is not the same as Schedule! */
-
-    EE_ORTI_set_th_priority(current, 0U);
-
-    /* queue the task inside the semaphore queue */
-    if (Sem->first != EE_NIL) {
-      /* the semaphore queue is not empty */
-      EE_th_next[Sem->last] = current;
+  if (Sem != NULL) {
+    if (Sem->count != 0U) {
+      Sem->count--;
     }
     else {
-      /* the semaphore queue is empty */
-      Sem->first = current;
+      /* extract the task from the stk data structure
+       * current was filled at the beginning of the function
+       */
+      EE_stk_getfirst();
+
+      /* the task must go into the WAITING state */
+      EE_th_status[current] = WAITING;
+
+      /* reset the thread priority bit in the system_ceiling */
+      EE_sys_ceiling &= ~EE_th_dispatch_prio[current];
+      /* the ready priority is not touched, it is not the same as Schedule! */
+
+      EE_ORTI_set_th_priority(current, 0U);
+
+      /* queue the task inside the semaphore queue */
+      if (Sem->first != EE_NIL) {
+        /* the semaphore queue is not empty */
+        EE_th_next[Sem->last] = current;
+      }
+      else {
+        /* the semaphore queue is empty */
+        Sem->first = current;
+      }
+
+      Sem->last = current;
+      EE_th_next[current] = EE_NIL;
+
+      /* since the task blocks, it has to be woken up by another
+         EE_hal_stkchange */
+      EE_th_waswaiting[current] = 1U;
+
+      /* then, the task will be woken up by a PostSem using a EE_hal_stkchange... */
+
+      /* Yeld to the next task:
+       * check if there is to schedule a ready thread or pop a preempted
+       * thread 
+       */
+      EE_oo_yeld();
     }
-
-    Sem->last = current;
-    EE_th_next[current] = EE_NIL;
-
-    /* since the task blocks, it has to be woken up by another
-       EE_hal_stkchange */
-    EE_th_waswaiting[current] = 1U;
-
-    /* then, the task will be woken up by a PostSem using a EE_hal_stkchange... */
-
-    /* Yeld to the next task:
-     * check if there is to schedule a ready thread or pop a preempted
-     * thread 
-     */
-    EE_oo_yeld();
-
   }
 
   EE_hal_end_nested_primitive(np_flags);

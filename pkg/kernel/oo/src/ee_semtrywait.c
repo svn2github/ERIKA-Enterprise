@@ -57,7 +57,7 @@
 #ifndef __PRIVATE_TRYWAITSEM__
 int EE_oo_TryWaitSem(SemRefType Sem)
 {
-  int returnvalue;
+  int returnvalue = EE_NIL;
   register EE_FREG flag;
 
   EE_ORTI_set_service_in(EE_SERVICETRACE_TRYWAITSEM);
@@ -65,12 +65,14 @@ int EE_oo_TryWaitSem(SemRefType Sem)
   flag = EE_hal_begin_nested_primitive();
 
   /* check if we have to wait */
-  if (Sem->count) {
-    Sem->count--;
-    returnvalue = 0;
-  }
-  else {
-    returnvalue = 1;
+  if (Sem != NULL) {
+    if (Sem->count) {
+      Sem->count--;
+      returnvalue = 0;
+    }
+    else {
+      returnvalue = 1;
+    }
   }
 
   EE_hal_end_nested_primitive(flag);
