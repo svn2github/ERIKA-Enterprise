@@ -77,7 +77,7 @@ void EE_oo_WaitSem(SemRefType Sem)
   /* check for a call at interrupt level:
    * Note: this must be the FIRST error check!!!
    */
-  if (EE_hal_get_IRQ_nesting_level() || (current == EE_NIL)) {
+  if ((EE_hal_get_IRQ_nesting_level()!=(EE_UREG)NULL) || (current == EE_NIL)) {
     EE_ORTI_set_lasterror(E_OS_CALLEVEL);
 
     np_flags = EE_hal_begin_nested_primitive();
@@ -105,7 +105,7 @@ void EE_oo_WaitSem(SemRefType Sem)
 #endif /* __OO_NO_RESOURCES__ */
 
   /* check if the task is an extended task */
-  if (!EE_th_is_extended[current]) {
+  if (EE_th_is_extended[current]==NULL) {
     EE_ORTI_set_lasterror(E_OS_ACCESS);
 
     np_flags = EE_hal_begin_nested_primitive();
