@@ -7,7 +7,7 @@
  *
  * ERIKA Enterprise is free software; you can redistribute it
  * and/or modify it under the terms of the GNU General Public License
- * version 2 as published by the Free Software Foundation, 
+ * version 2 as published by the Free Software Foundation,
  * (with a special exception described below).
  *
  * Linking this code statically or dynamically with other modules is
@@ -38,7 +38,6 @@
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
 
-
 CPU test_application {
 
   OS EE {
@@ -58,9 +57,8 @@ CPU test_application {
     USERESSCHEDULER = FALSE;
 
     EE_OPT = "__E200ZX_EXECUTE_FROM_RAM__";
-    EE_OPT = "__CODEWARRIOR__";
+    //EE_OPT = "__CODEWARRIOR__";
     //EE_OPT = "EEOPT_DIAB_5_8";
-    EE_OPT = "EE_ISR_DYNAMIC_TABLE";
 
     MCU_DATA = PPCE200ZX {
       MODEL = MPC5674F;
@@ -74,7 +72,9 @@ CPU test_application {
       SYS_STACK_SIZE=2048;
 
       MULTI_STACK = TRUE {
-        IRQ_STACK = FALSE;
+        IRQ_STACK = TRUE {
+          SYS_SIZE = 512;
+        };
       };
     };
 
@@ -98,17 +98,20 @@ CPU test_application {
     PRIORITY = 1;
     RESOURCE = "ResourceA";
     RESOURCE = "ResourceB";
+    ENTRY = "0";
   };
 
   ISR IsrMedium {
     CATEGORY = 2;
     PRIORITY = 2;
-  }
+    ENTRY = "1";
+  };
 
   ISR IsrHigh {
     CATEGORY = 2;
     PRIORITY = 3;
     RESOURCE = "ResourceB";
+    ENTRY = "2";
   };
 
   RESOURCE Resource1 { RESOURCEPROPERTY = STANDARD; };

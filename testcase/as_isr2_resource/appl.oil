@@ -44,16 +44,16 @@
 
     OS EE {
       EE_OPT = "__ASSERT__";
-#ifdef DYNAMIC
-      /* This EE_OPT enable Static ISR Table */
-      EE_OPT = "EE_ISR_DYNAMIC_TABLE";
-#endif /* DYNAMIC */
       EE_OPT = "DEBUG";
 
+#ifdef STD
+      STATUS = STANDARD;
+#else
       STATUS = EXTENDED;
+#endif
 
       STARTUPHOOK         = FALSE;
-      ERRORHOOK           = FALSE;
+      ERRORHOOK           = TRUE;
       SHUTDOWNHOOK        = FALSE;
       PRETASKHOOK         = FALSE;
       POSTTASKHOOK        = FALSE;
@@ -63,21 +63,15 @@
 
 #include "../common/rtdruid_common/ee_oil_e200zx_os.h"
 
-#ifdef NO
-/* Mono Stack */
-      MULTI_STACK = FALSE;
-#endif
-#ifdef YES
-/* Multi Stack */
       MULTI_STACK = TRUE {
         IRQ_STACK = TRUE {
-          SYS_SIZE=512;
+          SYS_SIZE = 512;
         };
       };
-#endif
     };
 
     EE_OPT = "__OO_STARTOS_OLD__";
+
     KERNEL_TYPE = BCC1;
   };
 
@@ -85,34 +79,37 @@
     PRIORITY = 1;
     ACTIVATION = 1;
     SCHEDULE = FULL;
-    AUTOSTART = TRUE;
-    STACK = SHARED;
-  };
-
-  TASK Task2 {
-    PRIORITY = 2;
-    ACTIVATION = 1;
-    SCHEDULE = FULL;
     AUTOSTART = FALSE;
     STACK = SHARED;
+    RESOURCE = "Resource1";
+    RESOURCE = "ResourceA";
+    RESOURCE = "ResourceB";
   };
 
   ISR IsrLow {
     CATEGORY = 2;
     PRIORITY = 1;
+    RESOURCE = "ResourceA";
+    RESOURCE = "ResourceB";
     ENTRY = "0";
   };
 
   ISR IsrMedium {
     CATEGORY = 2;
     PRIORITY = 2;
-    ENTRY = "3";
+    ENTRY = "1";
   };
 
   ISR IsrHigh {
     CATEGORY = 2;
     PRIORITY = 3;
-    ENTRY = "5";
+    RESOURCE = "ResourceB";
+    ENTRY = "2";
   };
+
+  RESOURCE Resource1 { RESOURCEPROPERTY = STANDARD; };
+  RESOURCE ResourceA { RESOURCEPROPERTY = STANDARD; };
+  RESOURCE ResourceB { RESOURCEPROPERTY = STANDARD; };
+
 };
 

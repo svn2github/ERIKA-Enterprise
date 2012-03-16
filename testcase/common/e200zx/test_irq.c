@@ -54,6 +54,7 @@
 
 #define E200ZX_SOFT_IRQ_NUM  6
 
+#ifdef EE_ISR_DYNAMIC_TABLE
 static SoftIRQHandler soft_irq_handlers[E200ZX_SOFT_IRQ_NUM];
 
 #define DEFINE_SOFT_IRQ_WRAPPER(IRQ)\
@@ -94,6 +95,7 @@ void test_setup_irq(unsigned int irq, SoftIRQHandler handler,
 	EE_e200z7_register_ISR(EE_E200ZX_MAX_CPU_EXCP + irq, soft_irq_wrappers[irq],
 		priority);
 }
+#endif /* EE_ISR_DYNAMIC_TABLE */
 
 void test_fire_irq(unsigned int irq)
 {

@@ -38,14 +38,21 @@
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
 
-#include "ee_internal.h"
+#include <ee_internal.h>
 #include "test/assert/inc/ee_assert.h"
 #include "../../common/test_common.h"
 
 #define TRUE  1U
 #define FALSE 0U
 
-#define MAX_ASSERT 80
+#define MAX_ASSERT 70
+
+#define IRQ_LOW     0
+#define IRQ_MEDIUM  1
+#define IRQ_HIGH    2
+
+/* Ack the IRQ */
+#define ACK_IRQ(x) (INTC.SSCIR[(x)].B.CLR = 1)
 
 static StatusType last_error;
 static unsigned int error_count;
@@ -53,7 +60,6 @@ static unsigned int error_count;
 static unsigned int low_isr_hit;
 static unsigned int medium_isr_hit;
 static unsigned int high_isr_hit;
-
 
 static int assert_count = EE_ASSERT_NIL;
 static void assert(int test)
@@ -109,11 +115,12 @@ void ErrorHook(StatusType Error)
   ++error_count;
 }
 
-static void IsrLow(void)
+ISR2(IsrLow)
 {
 #ifdef __OO_EXTENDED_STATUS__
   StatusType s;
 #endif /* __OO_EXTENDED_STATUS__ */
+  ACK_IRQ(IRQ_LOW);
   if (low_isr_hit == 0U) {
     assert(EE_hal_get_int_prio() == 1U);
     GetResource(ResourceA);
@@ -153,8 +160,9 @@ static void IsrLow(void)
   ++low_isr_hit;
 }
 
-static void IsrMedium(void)
+ISR2(IsrMedium)
 {
+  ACK_IRQ(IRQ_MEDIUM);
   if (medium_isr_hit == 0U) {
     assert(low_isr_hit == 0U);
     assert(EE_hal_get_int_prio() == 2U);
@@ -174,8 +182,9 @@ static void IsrMedium(void)
   ++medium_isr_hit;
 }
 
-static void IsrHigh(void)
+ISR2(IsrHigh)
 {
+  ACK_IRQ(IRQ_HIGH);
   if (high_isr_hit == 0U) {
     GetResource(ResourceB);
     assert(medium_isr_hit == 0U);
@@ -199,10 +208,6 @@ static void IsrHigh(void)
 
 int main(int argc, char *argv[])
 {
-  test_setup_irq(0U, IsrLow, 1U);
-  test_setup_irq(1U, IsrMedium, 2U);
-  test_setup_irq(2U, IsrHigh, 3U);
-
   StartOS(OSDEFAULTAPPMODE);
 
   ActivateTask(Task1);

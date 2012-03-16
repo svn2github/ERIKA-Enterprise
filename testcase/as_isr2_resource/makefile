@@ -74,16 +74,15 @@ all_ext: $(RTDRUID_OUTPUT)
 	$(MAKE) EXT=1 -C $(OUTPUT_DIR) all
 
 autotest: all
-	cp fake_druid/t32.cmm $(OUTPUT_DIR)
+	cp t32_autotest.cmm $(OUTPUT_DIR)/t32.cmm
 
 autotest_ext: all_ext
-	cp fake_druid/t32.cmm $(OUTPUT_DIR)
+	cp t32_autotest.cmm $(OUTPUT_DIR)/t32.cmm
 
 clean:
 	@echo cleaning...
 	rm -f -r $(OUTPUT_DIR) *errors*
 
-ifeq ($(RUN_RTDRUID),1)
 ifneq (ok,$(shell test -d "$(RTDRUID_ECLIPSE_HOME)" && echo ok ))
 $(error The variable RTDRUID_ECLIPSE_HOME must point to a valid Eclipse RT-Druid installation)
 endif
@@ -93,14 +92,8 @@ $(RTDRUID_OUTPUT): conf.oil
 	@echo "Running RT-Druid..."
 	@ECLIPSE_HOME="$(RTDRUID_ECLIPSE_HOME)" ;\
 	export ECLIPSE_HOME ;\
-	sh $(RTDRUID_SCRIPT_DIR)/generate_code.sh $(RTDRUID_ECLIPSE_HOME) conf.oil $(OUTPUT_DIR)
-else
-# Fake Druid
-$(RTDRUID_OUTPUT): $(OUTPUT_DIR)/% : fake_druid/%
-	@echo "Substituing RT-Druid in generating $@..."
-	@mkdir -p $(OUTPUT_DIR)
-	cp $< $@
-endif
+	sh $(RTDRUID_SCRIPT_DIR)/generate_code.sh $(RTDRUID_ECLIPSE_HOME) \
+		conf.oil $(OUTPUT_DIR)
 
 # LIN compliance level; to be overridden on the command line
 LIN_LEVEL ?= 4C
