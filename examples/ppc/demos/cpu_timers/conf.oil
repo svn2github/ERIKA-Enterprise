@@ -19,7 +19,7 @@ CPU example {
 		EE_OPT = "__USE_LEDS__";
 		EE_OPT = "__E200ZX_EXECUTE_FROM_RAM__";
 		//EE_OPT = "__CODEWARRIOR__";
-		EE_OPT = "EE_ISR_DYNAMIC_TABLE";
+		//EE_OPT = "EE_ISR_DYNAMIC_TABLE";
 
 		CPU_DATA = PPCE200ZX {
 			MODEL = E200Z7;
@@ -64,10 +64,12 @@ CPU example {
 
 	ISR DecrIsr {
 		CATEGORY = 2;
+		ENTRY = "DECREMENTER";
 	};
 
 	ISR FixedIntvIsr {
 		CATEGORY = 2;
+		ENTRY = "FIXED_INTV";
 	};
 
 };

@@ -24,6 +24,11 @@
 /* Assertions */
 #include "test/assert/inc/ee_assert.h"
 
+#ifdef EE_ISR_DYNAMIC_TABLE
+#define ISR(f) ISR2(f)
+#else
+#define ISR(f) ISR2_INT(f)
+#endif
 
 /* Counters; volatile because they are accessed in interrupt handlers and
  * different tasks */
@@ -84,7 +89,7 @@ TASK(Task1)
 /*
  * Interrupt handler for the timer
  */
-static void timer_interrupt(void)
+ISR(timer_interrupt)
 {
 	++tick_counter;
 	if (tick_counter & 1)
@@ -109,11 +114,18 @@ static void timer_interrupt(void)
 /*
  * Low-level initialization of the timer
  */
+#ifdef EE_ISR_DYNAMIC_TABLE
 static void init_timer(void)
 {
 	EE_e200z7_register_ISR(10, timer_interrupt, 0);
 	EE_e200z7_setup_decrementer(500000);
 }
+#else
+static void init_timer(void)
+{
+	EE_e200z7_setup_decrementer(500000);
+}
+#endif
 
 extern void system_call(void);
 

@@ -25,29 +25,45 @@
 DeclareTask(Task1);
 DeclareTask(Task2);
 
-static void DecrIsr(void)
+#ifdef EE_ISR_DYNAMIC_TABLE
+#define ISR(f) ISR2(f)
+#else
+#define ISR(f) ISR2_INT(f)
+#endif /* EE_ISR_DYNAMIC_TABLE */
+
+ISR(DecrIsr)
 {
 	ActivateTask(Task1);
 }
 
-static void FixedIntvIsr(void)
+ISR(FixedIntvIsr)
 {
 	ActivateTask(Task2);
 }
 
+#ifdef EE_ISR_DYNAMIC_TABLE
 static void init_decrementer_timer(void)
 {
-	void App1Isr(void);
 	EE_e200z7_register_ISR(10, DecrIsr, 0);
 	EE_e200z7_setup_decrementer(8000000);
 }
 
 static void init_fixed_timer(void)
 {
-	void App2Isr(void);
 	EE_e200z7_register_ISR(11, FixedIntvIsr, 1);
 	EE_e200zx_setup_fixed_intv(64-23);
 }
+#else
+static void init_decrementer_timer(void)
+{
+	EE_e200z7_setup_decrementer(8000000);
+}
+
+static void init_fixed_timer(void)
+{
+	EE_e200zx_setup_fixed_intv(64-23);
+}
+#endif /* EE_ISR_DYNAMIC_TABLE */
 
 TASK(Task1)
 {

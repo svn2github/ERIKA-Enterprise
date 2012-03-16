@@ -60,5 +60,11 @@ CPU example {
 		ACTIVATION = 1;	   /* only one pending activation */
 	};
 	
-	OS EE { KERNEL_TYPE = FP; };	
+	OS EE { KERNEL_TYPE = FP; };
+
+	ISR DecrIsr {
+		CATEGORY = 2;
+		ENTRY = "DECREMENTER";
+		HANDLER = "timer_interrupt";
+	};
 };
