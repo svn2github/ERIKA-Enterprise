@@ -50,7 +50,12 @@
 #include "ee_irq.h"
 
 /* Software ISR Table */
+#ifdef EE_ISR_DYNAMIC_TABLE
 extern EE_e200z7_ISR_handler EE_e200z7_ISR_table[];
+#else
+/* In case of static ISR table, it's made const so it can be put it in flash */
+extern const EE_e200z7_ISR_handler EE_e200z7_ISR_table[];
+#endif
 
 /* IRQ handler */
 void EE_e200z7_irq(EE_SREG level);

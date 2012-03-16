@@ -2915,8 +2915,9 @@ extern void EE_PPCE200ZX_473_ISR(void);
   Max External IRQ (in mcu/freescale_mpc5674f/ee_mpc5674f.h)
   EE_E200ZX_MAX_EXT_IRQ 474
 
+  It has been made const so it can be put in flash
  */
-EE_e200z7_ISR_handler EE_e200z7_ISR_table[EE_E200ZX_MAX_CPU_EXCP + 
+const EE_e200z7_ISR_handler EE_e200z7_ISR_table[EE_E200ZX_MAX_CPU_EXCP +
   EE_E200ZX_MAX_EXT_IRQ] = 
 {
   /* SOFTWARE HANDLER FOR INTERNAL CPU EXCEPTION TO ENABLE THOSE THAT POINT TO
