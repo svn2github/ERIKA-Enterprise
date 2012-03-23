@@ -1174,12 +1174,10 @@ EE_cortex_mx_default_reset_ISR
 ;******************************************************************************
 #ifdef	__AUTOSAR_R4_0__
 EE_cortex_mx_as_bus_fault_ISR
-#ifdef	__AS_SCI_DRIVER__
+#ifdef	DEBUG
 	BKPT	#0x00
+#endif	/* DEBUG */
 	B	EE_cortex_mx_as_bus_fault_ISR
-#else	/* !__AS_SCI_DRIVER__ */
-	B	EE_cortex_mx_as_bus_fault_ISR
-#endif	/* !__AS_SCI_DRIVER__ */
 #endif	/* __AUTOSAR_R4_0__ */
 
 ;******************************************************************************
@@ -1190,12 +1188,10 @@ EE_cortex_mx_as_bus_fault_ISR
 ;******************************************************************************
 #ifdef	__AUTOSAR_R4_0__
 EE_cortex_mx_as_hard_fault_ISR
-#ifdef	__AS_SCI_DRIVER__
+#ifdef	DEBUG
 	BKPT	#0x00
+#endif	/* DEBUG */
 	B	EE_cortex_mx_as_hard_fault_ISR
-#else	/* !__AS_SCI_DRIVER__ */
-	B	EE_cortex_mx_as_hard_fault_ISR
-#endif	/* !__AS_SCI_DRIVER__ */
 #endif	/* __AUTOSAR_R4_0__ */
 
 ;******************************************************************************
@@ -1206,6 +1202,9 @@ EE_cortex_mx_as_hard_fault_ISR
 ;
 ;******************************************************************************
 EE_cortex_mx_default_ISR
+#ifdef	DEBUG
+	BKPT	#0x00
+#endif	/* DEBUG */
 	B	EE_cortex_mx_default_ISR
 
 ;******************************************************************************
