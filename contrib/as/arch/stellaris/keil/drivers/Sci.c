@@ -334,6 +334,9 @@ static boolean Sci_CheckCore( void ) {
 
 #define	INTEN(_ch,_srcs)  SCI_UART_REG_OR_SET(_ch, SCI_UART_IM_R_OFFSET, _srcs)
 
+#define	INTDIS(_ch,_srcs) \
+	SCI_UART_REG_AND_SET(_ch, SCI_UART_IM_R_OFFSET, ~((uint32)_srcs))
+
 /*
  * Sci Channel Initialization.
  */
@@ -458,6 +461,9 @@ static void Sci_DeInitSciChannel(
 
   /* Clear Interrupt */
   INTCLR(ConfigPtr->SciChannelId, SCI_UART_INT_ALL);
+
+  /* Disable Interrupt */
+  INTDIS(ConfigPtr->SciChannelId, SCI_UART_INT_ALL);
 
   /* Disables Sci Module in Run-Mode */
   SYSCTL_RCGCUART_R &= 
@@ -637,7 +643,7 @@ void Sci_DisableNotifications(
     SYSCTL_RCGCUART_R & ((uint32) (SYSCTL_RCGCUART_R0 << CH2MASK(Channel)))
   ) {
 
-    INTCLR(
+    INTDIS(
       Channel,
       SCI_UART_INT_TX | SCI_UART_INT_RX | SCI_UART_INT_RT | SCI_UART_INT_RX_ERR
     );
