@@ -165,6 +165,12 @@ typedef	uint16_t	uint16;
  */
 typedef	uint32_t	uint32;
 
+/** @brief	64 bit unsigned integer.
+ *
+ *  This NOT-standard AUTOSAR type shall be of 64 bit unsigned.
+ */
+typedef	uint64_t	uint64;
+
 /** @brief	8 bit signed integer.
  *
  *  <b>PLATFORM016:</b> This standard AUTOSAR type shall be of 8 bit signed.
@@ -182,6 +188,12 @@ typedef	int16_t		sint16;
  *  <b>PLATFORM018:</b>	This standard AUTOSAR type shall be of 32 bit signed.
  */
 typedef	int32_t		sint32;
+
+/** @brief	64 bit signed integer.
+ *
+ *  This NOT-standard AUTOSAR type shall be of 64 bit signed.
+ */
+typedef	int64_t		sint64;
 
 /** @brief	At least 8 bit unsigned integer.
  *
