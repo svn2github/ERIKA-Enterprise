@@ -97,6 +97,17 @@
 #define	DIO_VAR_FAST
 #define	DIO_VAR
 
+#define	GPT_CODE
+#define	GPT_CONST
+#define	GPT_APPL_DATA
+#define	GPT_APPL_CONST
+#define	GPT_APPL_CODE
+#define	GPT_CALLOUT_CODE
+#define	GPT_VAR_NOINIT
+#define	GPT_VAR_POWER_ON_INIT
+#define	GPT_VAR_FAST
+#define	GPT_VAR
+
 #define	MCU_CODE
 #define	MCU_CONST
 #define	MCU_APPL_DATA

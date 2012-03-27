@@ -51,6 +51,7 @@ INCLUDE_PATH += $(EEBASE)/contrib/as/include
 ifeq ($(and $(call iseeopt, __STELLARIS__), $(call iseeopt, __KEIL__)), yes)
 
 INCLUDE_PATH += $(EEBASE)/contrib/as/arch/stellaris/keil/include
+EE_SRCS += contrib/as/arch/stellaris/keil/drivers/Hardware.c
 
 ifeq ($(call iseeopt, __AS_MCU_DRIVER__), yes)
 EE_SRCS += contrib/as/arch/stellaris/keil/drivers/Mcu.c
@@ -67,6 +68,11 @@ endif
 ifeq ($(call iseeopt, __AS_SCI_DRIVER__), yes)
 EE_SRCS += contrib/as/arch/stellaris/keil/drivers/Sci.c
 EE_SRCS += contrib/as/arch/stellaris/keil/drivers/Sci_Irq.c
+endif
+
+ifeq ($(call iseeopt, __AS_GPT_DRIVER__), yes)
+EE_SRCS += contrib/as/arch/stellaris/keil/drivers/Gpt.c
+EE_SRCS += contrib/as/arch/stellaris/keil/drivers/Gpt_Irq.c
 endif
 
 endif	# __STELLARIS__ && __KEIL__

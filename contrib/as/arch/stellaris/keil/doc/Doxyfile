@@ -1513,6 +1513,13 @@ PREDEFINED		=	\
 				SCI_DEINIT_API=STD_ON \
 				SCI_NOTIFICATIONS_API=STD_ON \
 				\
+				GPT_VERSION_INFO_API=STD_ON \
+				GPT_DEINIT_API=STD_ON \
+				GPT_ENABLE_DISABLE_NOTIFICATION_API=STD_ON \
+				GPT_TIME_ELAPSED_API=STD_ON \
+				GPT_TIME_REMAINING_API=STD_ON \
+				SCI_CHANNEL_WAKEUP_FUNCTIONALITY_API=STD_ON \
+				\
 
 # If the MACRO_EXPANSION and EXPAND_ONLY_PREDEF tags are set to YES then
 # this tag can be used to specify a list of macro names that should be expanded.

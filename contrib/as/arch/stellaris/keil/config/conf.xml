@@ -69,6 +69,9 @@
 	  <MODULE-REF DEST="MODULE-CONFIGURATION">
 	    /Erika/Autosar/Sci
 	  </MODULE-REF>
+	  <MODULE-REF DEST="MODULE-CONFIGURATION">
+	    /Erika/Autosar/Gpt
+	  </MODULE-REF>
 	</MODULE-REFS>
 	</ECU-CONFIGURATION>
 	<ECU-SW-COMPOSITION UUID="222a7882-dfe3-4682-a89e-863fae593b4d"> <!-- ?!? -->
@@ -930,6 +933,129 @@
 		      </VALUE>
 		    </INTEGER-VALUE>
 		    <!-- Notifications -->
+		  </PARAMETER-VALUES>
+		</CONTAINER>
+	      </SUB-CONTAINERS>
+	    </CONTAINER>
+	  </CONTAINERS>
+	</MODULE-CONFIGURATION>
+	<MODULE-CONFIGURATION UUID="397101ac-c65b-452f-bc0b-ca3aed0dd477">
+	  <SHORT-NAME>Gpt</SHORT-NAME>
+	  <DEFINITION-REF DEST="MODULE-DEF">/Erika/Autosar/Gpt</DEFINITION-REF>
+	  <CONTAINERS>
+	    <CONTAINER UUID="510bda5e-33db-41d6-b4ac-1300a313580c"> <!-- ?!? -->
+	      <SHORT-NAME>GptDriverConfiguration</SHORT-NAME>
+	      <DEFINITION-REF DEST="PARAM-CONF-CONTAINER-DEF">
+	        GptDriverConfiguration
+	      </DEFINITION-REF>
+	      <PARAMETER-VALUES>
+		<BOOLEAN-VALUE>
+		  <DEFINITION-REF DEST="BOOLEAN-PARAM-DEF">
+		    GptDevErrorDetect
+		  </DEFINITION-REF>
+		  <VALUE>false</VALUE>
+		</BOOLEAN-VALUE>
+		<BOOLEAN-VALUE>
+		  <DEFINITION-REF DEST="BOOLEAN-PARAM-DEF">
+		    GptReportWakeupSource
+		  </DEFINITION-REF>
+		  <VALUE>false</VALUE>
+		</BOOLEAN-VALUE>
+		<!-- GptClockReferencePoint Container -->
+	      </PARAMETER-VALUES>
+	    </CONTAINER>
+	    <CONTAINER UUID="510bda5e-33db-41d6-b4ac-1300a313580c"> <!-- ?!? -->
+	      <SHORT-NAME>GptConfigurationOfOptApiServices</SHORT-NAME>
+	      <DEFINITION-REF DEST="PARAM-CONF-CONTAINER-DEF">
+	        GptConfigurationOfOptApiServices
+	      </DEFINITION-REF>
+	      <PARAMETER-VALUES>
+		<BOOLEAN-VALUE>
+		  <DEFINITION-REF DEST="BOOLEAN-PARAM-DEF">
+		    GptDeinitApi
+		  </DEFINITION-REF>
+		  <VALUE>true</VALUE>
+		</BOOLEAN-VALUE>
+		<BOOLEAN-VALUE>
+		  <DEFINITION-REF DEST="BOOLEAN-PARAM-DEF">
+		    GptEnableDisableNotificationApi
+		  </DEFINITION-REF>
+		  <VALUE>true</VALUE>
+		</BOOLEAN-VALUE>
+		<BOOLEAN-VALUE>
+		  <DEFINITION-REF DEST="BOOLEAN-PARAM-DEF">
+		    GptTimeElapsedApi
+		  </DEFINITION-REF>
+		  <VALUE>true</VALUE>
+		</BOOLEAN-VALUE>
+		<BOOLEAN-VALUE>
+		  <DEFINITION-REF DEST="BOOLEAN-PARAM-DEF">
+		    GptTimeRemainingApi
+		  </DEFINITION-REF>
+		  <VALUE>true</VALUE>
+		</BOOLEAN-VALUE>
+		<BOOLEAN-VALUE>
+		  <DEFINITION-REF DEST="BOOLEAN-PARAM-DEF">
+		    GptVersionInfoApi
+		  </DEFINITION-REF>
+		  <VALUE>true</VALUE>
+		</BOOLEAN-VALUE>
+		<BOOLEAN-VALUE>
+		  <DEFINITION-REF DEST="BOOLEAN-PARAM-DEF">
+		   GptWakeupFunctionalityApi
+		  </DEFINITION-REF>
+		  <VALUE>false</VALUE>
+		</BOOLEAN-VALUE>
+		<BOOLEAN-VALUE>
+		  <DEFINITION-REF DEST="BOOLEAN-PARAM-DEF">
+		   GptChannelWakeupFunctionalityApi
+		  </DEFINITION-REF>
+		  <VALUE>true</VALUE>
+		</BOOLEAN-VALUE>
+	      </PARAMETER-VALUES>
+	    </CONTAINER>
+	    <CONTAINER UUID="fca4fd0c-40f8-47af-b749-2f4f39090c89"> <!-- ?!? -->
+	      <SHORT-NAME>GPT_CONFIG_DEFAULT</SHORT-NAME>
+	      <DEFINITION-REF DEST="PARAM-CONF-CONTAINER-DEF">
+	        GptChannelConfiguration
+	      </DEFINITION-REF>
+	      <SUB-CONTAINERS>
+		<CONTAINER UUID="7db79dd3-9f88-43d2-bc9a-5f4f9f06fe93">
+		  <SHORT-NAME>GPT_CHANNEL_0_A</SHORT-NAME>
+		  <DEFINITION-REF DEST="PARAM-CONF-CONTAINER-DEF">
+		    GptChannel
+		  </DEFINITION-REF>
+		  <PARAMETER-VALUES>
+		    <INTEGER-VALUE>
+		      <DEFINITION-REF DEST="INTEGER-PARAM-DEF">
+		        GptChannelId
+		      </DEFINITION-REF>
+		      <VALUE>GPT_CHANNEL_0_A</VALUE>
+		    </INTEGER-VALUE>
+		    <BOOLEAN-VALUE>
+		      <DEFINITION-REF DEST="BOOLEAN-PARAM-DEF">
+			GptChannelWakeupSupport
+		      </DEFINITION-REF>
+		      <VALUE>true</VALUE>
+		    </BOOLEAN-VALUE>
+		    <INTEGER-VALUE>
+		      <DEFINITION-REF DEST="INTEGER-PARAM-DEF">
+		        GptChannelMode
+		      </DEFINITION-REF>
+		      <VALUE>
+			GPT_CH_MODE_CONTINUOUS
+		      </VALUE>
+		    </INTEGER-VALUE>
+		    <!-- GptChannelTickFrequency -->
+		    <!-- GptChannelTickValueMax -->
+		    <BOOLEAN-VALUE>
+		      <DEFINITION-REF DEST="BOOLEAN-PARAM-DEF">
+			GptEnableWakeup
+		      </DEFINITION-REF>
+		      <VALUE>false</VALUE>
+		    </BOOLEAN-VALUE>
+		    <!-- GptNotification -->
+		    <!-- GptChannelClkSrcRef -->
 		  </PARAMETER-VALUES>
 		</CONTAINER>
 	      </SUB-CONTAINERS>
