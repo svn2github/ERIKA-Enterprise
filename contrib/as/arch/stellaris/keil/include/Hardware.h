@@ -38,7 +38,7 @@
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
 
-/** @file	Harware.h
+/** @file	Hardware.h
  *  @brief	Hardware Abstraction Header File.
  *
  *  This file contains all the functions and macros for abstraction of harware
