@@ -42,9 +42,18 @@ ifeq ($(or $(call iseeopt, __PPCE200ZX__), $(call iseeopt, __PPCE200Z7__)), yes)
 # EE_CASM_SRCS is used for assembly files that have to be translated to C
 # for CodeWarrior FLE-to-VLE conversion to work
 EE_CASM_SRCS += pkg/cpu/e200zx/src/ee_entry.S
+EE_SRCS += pkg/cpu/e200zx/src/ee_e200zx_cpu.c
+
+ifneq ($(call iseeopt, EE_ISR_EXTERNAL_TABLE), yes)
 EE_SRCS += pkg/cpu/e200zx/src/ee_ivor.S
 EE_SRCS += pkg/cpu/e200zx/src/ee_irq.c
-EE_SRCS += pkg/cpu/e200zx/src/ee_e200zx_cpu.c
+ifeq  ($(call iseeopt, __IRQ_STACK_NEEDED__), yes)
+ifneq ($(call iseeopt, __EE_MEMORY_PROTECTION__), yes)
+#EE_200zx_call_ISR is not used with memory protection
+EE_CASM_SRCS += pkg/cpu/e200zx/src/ee_irq_stack.S
+endif # __EE_MEMORY_PROTECTION__
+endif # __IRQ_STACK_NEEDED_
+endif # EE_ISR_EXTERNAL_TABLE
 
 ifeq ($(call iseeopt, ENABLE_SYSTEM_TIMER), yes)
 EE_SRCS += pkg/cpu/e200zx/src/ee_system_timer.c
@@ -78,9 +87,6 @@ endif
 ifeq ($(call iseeopt, __EE_MEMORY_PROTECTION__), yes)
 EE_SRCS += pkg/cpu/e200zx/src/ee_memp_syscall.S
 EE_SRCS += pkg/cpu/e200zx/src/ee_e200zx_mem_prot.c
-else ifeq ($(call iseeopt, __IRQ_STACK_NEEDED__), yes)
-#EE_200zx_call_ISR is not used with memory protection
-EE_CASM_SRCS += pkg/cpu/e200zx/src/ee_irq_stack.S
 endif
 
 endif # __PPCE200ZX__

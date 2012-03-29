@@ -120,6 +120,7 @@ restore_all_return:
  */
 #include <cpu/e200zx/inc/ee_mcu_regs_asm.h>
 
+#ifndef EE_ISR_EXTERNAL_TABLE
 	/* CW-FUNC-DEFINITION:  void EE_e200zx_external_input_handler(void) */
 	.global EE_e200zx_external_input_handler
 	.type	EE_e200zx_external_input_handler, @function
@@ -163,7 +164,7 @@ EE_e200zx_fixed_intv_handler:
 	bl	EE_e200z7_irq
 	handler_epilogue
 	.size	EE_e200zx_fixed_intv_handler, .-EE_e200zx_fixed_intv_handler
-
+#endif /* !EE_ISR_EXTERNAL_TABLE */
 
 	/* CW-FUNC-DEFINITION: void cpu_setup(void) */
 	.global	cpu_setup
@@ -180,7 +181,9 @@ cpu_setup:
 	ori	r3, r3, 1 << HID0_TBEN
 	mtspr	SPRG_HID0, r3
 #endif /* E200ZX_CPU_HAS_TB */
+#ifndef EE_ISR_EXTERNAL_TABLE
 	b	ivor_setup
+#endif /* !EE_ISR_EXTERNAL_TABLE */
 	.size	cpu_setup, .-cpu_setup
 
 
@@ -217,6 +220,6 @@ sram_setup:
 #endif
 	addi	r8, r8, 16
 	bdnz	1b
-#endif
+#endif /*!__E200ZX_EXECUTE_FROM_RAM__ */
 	blr
 	.size	sram_setup, .-sram_setup

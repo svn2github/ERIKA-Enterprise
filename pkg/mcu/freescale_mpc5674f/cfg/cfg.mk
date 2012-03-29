@@ -43,7 +43,7 @@
 ifeq ($(call iseeopt, __MPC5674F__), yes)
 
 # Static ISR Vector Table
-ifneq ($(call iseeopt, EE_ISR_DYNAMIC_TABLE), yes)
+ifneq ($(or $(call iseeopt, EE_ISR_DYNAMIC_TABLE), $(call iseeopt,  EE_ISR_EXTERNAL_TABLE)), yes)
 EE_SRCS += pkg/mcu/freescale_mpc5674f/src/ee_vtable.c
 endif # EE_ISR_DYNAMIC_TABLE
 
