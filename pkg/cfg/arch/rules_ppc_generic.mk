@@ -131,10 +131,12 @@ LIBDEP += $(ALL_LIBS)
 # Specific option from the application makefile
 LIBDEP += $(LDDEPS)
 
-# Add application file to dependencies
 ELFNAME ?= ppc.elf
-ifneq ($(call iseeopt, __BUILD_LIBS__), yes)
+# if is specified __NO_APP__ the user want Erika as libee.a and noting else
+ifneq ($(call iseeopt, __NO_APP__), yes)
 TARGET:=$(ELFNAME)
+else
+TARGET:=libee.a
 endif
 MAP_FILE = ppc.map
 
@@ -158,9 +160,13 @@ CRT0 := $(addprefix $(OBJDIR)/, $(patsubst %.c,%.o,$(patsubst %.S,%.o, $(EE_CRT0
 OPT_CRT0 := $(CRT0)
 
 LIBEESRCS += $(EE_SRCS)
-LIBEEOBJS := $(addprefix $(OBJDIR)/, $(patsubst %.c,%.o,$(patsubst %.S,%.o,$(LIBEESRCS))))
+#if only lib is needed (__NO_APP__) and we want the lib configurated add eecfg.c
+#to LIBEESRCS
+ifeq ($(or $(call iseeopt, __NO_APP__), $(call iseeopt, EE_CONFIGURATED_LIB)), yes)
+LIBEESRCS += eecfg.c
+endif
 
-LIBEESRCS += $(LIB_SRCS)
+LIBEEOBJS := $(addprefix $(OBJDIR)/, $(patsubst %.c,%.o,$(patsubst %.S,%.o,$(LIBEESRCS))))
 LIBOBJS := $(addprefix $(OBJDIR)/, $(patsubst %.c,%.o,$(patsubst %.S,%.o,$(LIBSRCS))))
 
 SRCS += $(APP_SRCS)
@@ -251,7 +257,8 @@ orti.men: system.orti
 ##
 ## ELF file creation
 ##
-
+# if is specified __NO_APP__ the user want Erika as libee.a and noting else
+ifneq ($(call iseeopt, __NO_APP__), yes)
 $(TARGET): $(CRT0) $(OBJS) $(LINKDEP) $(LIBDEP)
 	@printf "LD\n";
 	$(QUIET)$(EE_LINK) $(COMPUTED_OPT_LINK)				\
@@ -259,7 +266,7 @@ $(TARGET): $(CRT0) $(OBJS) $(LINKDEP) $(LIBDEP)
 	@echo
 	@echo "Compilation terminated successfully"
 	@echo
-
+endif
 ##
 ## Object file creation
 ##
