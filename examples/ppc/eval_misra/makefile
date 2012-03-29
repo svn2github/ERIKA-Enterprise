@@ -84,7 +84,7 @@ deep_clean_lin: clean_lin
 # Run RT-Druid
 $(OUT_DIR_BASE)%/makefile: conf_%.oil
 	@echo "Running RT-Druid $*..."
-	@sh "$(RTDRUID_ECLIPSE_HOME)"/evidence/generate_code.sh \
+	@bash "$(RTDRUID_ECLIPSE_HOME)"/evidence/generate_code.sh \
 	 "$(RTDRUID_ECLIPSE_HOME)" $< $(OUT_DIR_BASE)$*
 
 

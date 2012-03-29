@@ -75,7 +75,7 @@ endif
 # Run RT-Druid
 $(RTDRUID_OUTPUT): conf.oil
 	@echo "Running RT-Druid..."
-	exec sh $(RTDRUID_SCRIPT_DIR)/generate_code.sh \
+	exec bash $(RTDRUID_SCRIPT_DIR)/generate_code.sh \
 	$(RTDRUID_ECLIPSE_HOME) $< $(OUTPUT_DIR) \
 
 else
