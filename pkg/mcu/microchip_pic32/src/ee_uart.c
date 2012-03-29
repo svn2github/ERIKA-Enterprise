@@ -453,7 +453,7 @@ static EE_INT8 uart_init_port1 (EE_UINT32 baud, EE_UINT16 byte_format,
 
 		if ((mode & EE_UART_CTRL_MASK) == EE_UART_CTRL_FLOW) {
 			U1MODEbits.RTSMD = 1;
-			U1MODEbits.UEN = 0x10;
+			U1MODEbits.UEN = 0b10;
 		} else {
 			U1MODEbits.RTSMD = 0;
 			U1MODEbits.UEN = 0;
@@ -512,7 +512,7 @@ static EE_INT8 uart_init_port2 (EE_UINT32 baud, EE_UINT16 byte_format,
 
 		if ((mode & EE_UART_CTRL_MASK)  == EE_UART_CTRL_FLOW) {
 			U2MODEbits.RTSMD = 1;
-			U2MODEbits.UEN = 0x10;
+			U2MODEbits.UEN = 0b10;
 		} else {
 			U2MODEbits.RTSMD = 0;
 			U2MODEbits.UEN = 0;
