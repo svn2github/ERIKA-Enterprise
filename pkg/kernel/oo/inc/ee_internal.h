@@ -303,9 +303,6 @@ __INLINE__ void __ALWAYS_INLINE__ EE_oo_set_th_status_ready(TaskType TaskID)
 }
 #endif /* defined(__OO_BCC2__) || defined(__OO_ECC2__) */
 
-#endif /* __INCLUDE_OO_INTERNAL_H__ */
-
-
 /* Execute a preemption */
 #ifndef __PRIVATE_PREEMPTION_POINTS__
 /*
@@ -395,4 +392,6 @@ __INLINE__ void __ALWAYS_INLINE__ EE_oo_yeld(void)
 }
 #endif /* __OO_ECC1__ || __OO_ECC2__ */
 #endif /* __PRIVATE_PREEMPTION_POINTS__ */
+
+#endif /* __INCLUDE_OO_INTERNAL_H__ */
 

@@ -45,15 +45,10 @@
 #ifndef __INCLUDE_E200ZX_IRQ_H__
 #define __INCLUDE_E200ZX_IRQ_H__
 
-#include "cpu/e200zx/inc/ee_cpu.h"
-#include "cpu/e200zx/inc/ee_regs.h"
+/* CPU-dependent part of HAL that have to be seen by user code */
+#include "ee_cpu_os.h"
 
-/* I include context because is needed by common ee_irqstub.h and I define
-   EE_hal_active_tos because is needed by common context */
-#ifdef __MULTI__
-#define EE_hal_active_tos	EE_e200z7_active_tos
-#endif
-
+/* I include context because is needed by common ee_irqstub.h */
 #include "cpu/common/inc/ee_context.h"
 #include "cpu/common/inc/ee_irqstub.h"
 
@@ -151,7 +146,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_ISR2_poststub(
       (the only that can be ISR2) Look at reference manual:
       9.4.3.1.2 End-of-Interrupt Exception Handler NOTE */
   EE_e200zx_mbar();
-  INTC_EOIR.R = 0U;
+  EE_INTC_EOIR = 0U;
   /* decrement nesting level only from hereunder */
   EE_decrement_IRQ_nesting_level();
   /* check for scheduling point */
@@ -206,7 +201,7 @@ void f(void)                                                          \
   /* Pop priority for external interrupts */                          \
   /* 9.4.3.1.2 EOIE Handler NOTE */                                   \
   EE_e200zx_mbar();                                                   \
-  INTC_EOIR.R = 0U;                                                   \
+  EE_INTC_EOIR = 0U;                                                   \
   /* decrement nesting level */                                       \
   EE_decrement_IRQ_nesting_level();                                   \
 }                                                                     \

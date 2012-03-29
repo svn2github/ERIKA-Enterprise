@@ -54,6 +54,9 @@
 #ifndef __INCLUDE_CPU_COMMON_EE_COMPILER_GCC__
 #define __INCLUDE_CPU_COMMON_EE_COMPILER_GCC__
 
+/* __INLINE__ is a macro already used by a lot of libraries: protect it for
+   integration */
+#ifndef __INLINE__
 #ifdef __NO_INLINE__
 #define __INLINE__ static
 /* Used to declare an inline function before the actual definition */
@@ -63,6 +66,7 @@
 /* Used to declare an inline function before the actual definition */
 #define __DECLARE_INLINE__ static inline
 #endif
+#endif /* !__INLINE__ */
 
 #define __ALWAYS_INLINE__ __attribute__((always_inline))
 

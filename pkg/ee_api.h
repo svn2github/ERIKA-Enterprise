@@ -117,4 +117,22 @@
 #include "com/com/inc/ee_api.h"
 #endif
 
+  /*
+   *
+   *
+   */
+#if defined(__AS_SC4__)
+#include "kernel/as/inc/ee_os.h"
+#include "kernel/as/inc/ee_os_internal.h"
+
+/*
+ * Some autosar functionalities are implemented as architecture-dependent
+ * macros, but they need the definitions in the above header files.
+ */
+#ifdef __PPCE200ZX__
+#include "cpu/e200zx/inc/ee_as_cpu.h"
+#endif
+
+#endif /* __AS_SC4__ */
+
 #endif

@@ -1,13 +1,13 @@
 /* ###*B*###
  * ERIKA Enterprise - a tiny RTOS for small microcontrollers
  *
- * Copyright (C) 2002-2008  Evidence Srl
+ * Copyright (C) 2002-2012  Evidence Srl
  *
  * This file is part of ERIKA Enterprise.
  *
  * ERIKA Enterprise is free software; you can redistribute it
  * and/or modify it under the terms of the GNU General Public License
- * version 2 as published by the Free Software Foundation, 
+ * version 2 as published by the Free Software Foundation,
  * (with a special exception described below).
  *
  * Linking this code statically or dynamically with other modules is
@@ -38,64 +38,79 @@
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
 
+/**
+ * @author Errico Guidieri
+ * @date   2012
+ **/
+
+/*******************************************************************************
+ * Interface header to Erika Kernel support.
+ ******************************************************************************/
+
+#ifndef INCLUDE_PKG_OS_H__
+#define INCLUDE_PKG_OS_H__
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
 /*
- * Author: 2004 Paolo Gai
- * 	   2005 Antonio Romano
- * CVS: $Id: ee_opt.h,v 1.7 2006/08/02 12:23:01 romano Exp $
+ *
+ * CPU minimal support for OS
+ *
  */
 
-#ifndef __INCLUDE_EE_OPT_H__
-#define __INCLUDE_EE_OPT_H__
-
-/* ee_opt.h declares the __PRIVATE_XXX__ macros that exclude the
-   declaration and definition of the optimized primitives for various
-   architectures.
-
-   In this file, first the ee_opt files of CPUs MCUs, and BOARDs are
-   included; then, all the kernel layers and upper layer are included.
-*/
+#if defined __PPCE200Z7__ || defined __PPCE200ZX__
+#include "cpu/e200zx/inc/ee_cpu_os.h"
+#endif /* defined __PPCE200Z7__ || defined __PPCE200ZX__ */
 
 
+/*
+ * I need kernel inclusion before IRQ CPU inclusion because is CPU layer that
+ * have to see Kernel API for IRQ Handling
+ */
 
-  /*
-   *
-   * CPU
-   *
-   */
-
-#if defined(__ST10SEGM__)
-#include "cpu/st10segm/ee_opt.h"
+/*
+ * Kernel
+ *
+ */
+#ifdef __FP__
+#include "kernel/fp/inc/ee_kernel.h"
+#include "kernel/fp/inc/ee_irq.h"
 #endif
 
-#if defined(__ST10TINY__)
-#include "cpu/st10tiny/inc/ee_opt.h"
+#ifdef __EDF__
+#include "kernel/edf/inc/ee_kernel.h"
+#include "kernel/edf/inc/ee_irq.h"
 #endif
 
-  /*
-   *
-   * MCU
-   *
-   */
-
-
-  /*
-   *
-   * BOARD
-   *
-   */
-
-
-  /*
-   *
-   * Kernel
-   *
-   */
-
-
-  /*
-   *
-   * Com
-   *
-   */
-
+#ifdef __FRSH__
+#include "kernel/frsh/inc/ee_kernel.h"
+#include "kernel/frsh/inc/ee_irq.h"
 #endif
+
+/* OO */
+#if defined(__OO_BCC1__) || defined(__OO_BCC2__) || defined(__OO_ECC1__) || \
+defined(__OO_ECC2__) || defined(__AS_SC4__)
+#include "kernel/oo/inc/ee_kernel.h"
+#include "kernel/oo/inc/ee_irq.h"
+#endif
+
+/*
+ * CPU IRQ support
+ */
+
+#if defined __PPCE200Z7__ || defined __PPCE200ZX__
+#include "cpu/e200zx/inc/ee_irq.h"
+#endif
+
+/* kernel API inclusion */
+#include "ee_api.h"
+
+#if defined(__cplusplus)
+};
+#endif
+
+
+#endif /* INCLUDE_PKG_OS_H__ */
+

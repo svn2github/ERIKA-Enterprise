@@ -54,11 +54,16 @@
 #ifndef __INCLUDE_CPU_COMMON_EE_COMPILER_DIAB__
 #define __INCLUDE_CPU_COMMON_EE_COMPILER_DIAB__
 
+/* __INLINE__ is a macro already used by a lot of libraries: protect it for
+   integration */
+#ifndef __INLINE__
 #ifdef __NO_INLINE__
 #define __INLINE__ static
 #else
 #define __INLINE__ static inline
 #endif
+#endif /* !__INLINE__ */
+
 /* Used to declare an inline function before the actual definition */
 #define __DECLARE_INLINE__ static
 

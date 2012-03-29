@@ -314,7 +314,7 @@ __INLINE__ AppModeType __ALWAYS_INLINE__ EE_oo_GetActiveApplicationMode(void)
 }
 #endif
 
-#ifdef __MSRP__
+#if defined(__MSRP__) && (!defined(__OO_NO_RESOURCES__))
 __INLINE__ EE_UREG __ALWAYS_INLINE__ EE_oo_isGlobal(ResourceType ResID)
 {
   register EE_UREG isGlobal, ureg_tmp1, ureg_tmp2;
@@ -336,6 +336,6 @@ __INLINE__ EE_UREG __ALWAYS_INLINE__ EE_oo_isGlobal(ResourceType ResID)
 
   return isGlobal;
 }
-#endif
+#endif /* __MSRP__ && !__OO_NO_RESOURCES__ */
 
 #endif /* __INCLUDE_OO_INLINE_H__ */

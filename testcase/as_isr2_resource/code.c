@@ -39,6 +39,7 @@
  * ###*E*### */
 
 #include <ee_internal.h>
+#include <ee_irq.h>
 #include "test/assert/inc/ee_assert.h"
 #include "../../common/test_common.h"
 

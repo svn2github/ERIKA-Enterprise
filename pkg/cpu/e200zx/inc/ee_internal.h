@@ -48,18 +48,59 @@
 #define __INCLUDE_E200ZX_INTERNAL_H__
 
 #include "cpu/e200zx/inc/ee_cpu.h"
-#include "ee_e200zx_multicore.h"
-
-
-/*************************************************************************
- Functions
- *************************************************************************/
 
 /*
  * Generic Primitives
  */
 
 #include "cpu/common/inc/ee_primitives.h"
+
+
+/*************************************************************************
+                            System stack
+ *************************************************************************/
+#ifdef USE_PRAGMAS
+#pragma section PRAGMA_SECTION_BEGIN_SYS_STACK
+extern EE_STACK_T EE_e200zx_sys_stack[EE_STACK_WLEN(EE_SYS_STACK_SIZE)];
+#pragma section PRAGMA_SECTION_END_SYS_STACK
+#else
+extern EE_STACK_T EE_STACK_ATTRIB EE_e200zx_sys_stack[EE_STACK_WLEN(EE_SYS_STACK_SIZE)];
+#endif
+
+
+/*************************************************************************
+                            System startup
+ *************************************************************************/
+
+#define __OO_CPU_HAS_STARTOS_ROUTINE__
+
+/* If system is defined I have to initialize it*/
+#ifdef ENABLE_SYSTEM_TIMER
+void EE_e200zx_initialize_system_timer(void);
+#else /* ENABLE_SYSTEM_TIMER */
+#define EE_e200zx_initialize_system_timer() ((void) 0)
+#endif /* ENABLE_SYSTEM_TIMER */
+
+#if defined(__MSRP__) || (defined(__EE_MEMORY_PROTECTION__) \
+	&& (defined(__OO_BCC1__) || defined(__OO_BCC2__)    \
+		|| defined(__OO_ECC1__) || defined(__OO_ECC2__)))
+/* On multi-core this is used also as a synchronization point */
+int EE_cpu_startos(void);
+
+#else /* if __MSRP__ || __EE_MEMORY_PROTECTION__ ... */
+/* Nothing to do but initializing system timer */
+static int __ALWAYS_INLINE__ EE_cpu_startos(void);
+__INLINE__ int __ALWAYS_INLINE__ EE_cpu_startos(void)
+{
+  EE_e200zx_initialize_system_timer();
+  return 0;
+}
+
+#endif /* else if __MSRP__ || __EE_MEMORY_PROTECTION__ ... */
+
+/*************************************************************************
+                              HAL Functions
+ *************************************************************************/
 
 
 /* called as _first_ function of a primitive that can be called in
@@ -126,12 +167,9 @@ __INLINE__ EE_FREG __ALWAYS_INLINE__
 	return flag;
 }
 
-/*
- * Context Handling e200zx ee_irq.h include common context because is needed by   
- * common irq stub (needed for IRQ handling).
- */
-#include "ee_irq.h"
-/* typically called at the end of an interrupt */
+/* Common Context Handling implementation */
+#include "cpu/common/inc/ee_context.h"
+/* typically called at the end of an interrupt by kernel */
 #define EE_hal_IRQ_stacked  EE_hal_endcycle_stacked
 #define EE_hal_IRQ_ready    EE_hal_endcycle_ready
 

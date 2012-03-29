@@ -45,9 +45,8 @@
  */
 
 #include <ee_internal.h>
-#include <cpu/e200zx/inc/ee_irq.h>
-#include <cpu/e200zx/inc/ee_irq_internal.h>
-#include <cpu/e200zx/inc/ee_mcu_regs.h>
+#include "cpu/e200zx/inc/ee_irq_internal.h"
+#include "cpu/e200zx/inc/ee_mcu_regs.h"
 
 #ifdef EE_ISR_DYNAMIC_TABLE
 /*

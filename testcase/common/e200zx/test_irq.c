@@ -42,9 +42,9 @@
  * Author: 2011 Bernardo  Dal Seno
  */
 
+#include <ee_irq.h>
 #include "../test_common.h"
-#include <cpu/e200zx/inc/ee_mcu_regs.h>
-#include <cpu/e200zx/inc/ee_irq.h>
+#include "cpu/e200zx/inc/ee_mcu_regs.h"
 
 /* EXTRA Software IRQ support. I'll provide support only for software IRQ
    from o to 5 because software because software IRQ 6 and 7 are used in

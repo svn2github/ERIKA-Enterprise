@@ -48,6 +48,7 @@
 
 /* EE includes */
 #include "ee.h"
+#include "ee_irq.h"
 
 #ifdef __CORTEX_M0__
 #include "lpc12xx_libcfg_default.h"
@@ -123,7 +124,6 @@ void ErrorHook(StatusType Error)
 #endif
 
 #if defined(__HCS12XS__) || defined(__MC9S12__)
-	#include "cpu/hs12xs/inc/ee_irqstub.h"
 	#include "ee_s12regs.h" 
 	#include "mcu/hs12xs/inc/ee_timer.h"
 	#define myISR2 CPU12TimerCh0ISR
@@ -140,7 +140,6 @@ void ErrorHook(StatusType Error)
 #endif
 
 #if defined(__PPCE200Z7__)
-	#include "cpu/e200zx/inc/ee_irq.h"
 	/* call the ERIKA Enterprise tick function for the Counter1 counter! */
 	static void handle_timer_interrupt(void)
 	{
@@ -156,7 +155,6 @@ void ErrorHook(StatusType Error)
 #endif
 
 #ifdef __CORTEX_MX__
-#include "cpu/cortex_mx/inc/ee_irq.h"
 ISR2(SysTick_Handler)
 {
 	StatusType s;

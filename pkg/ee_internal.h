@@ -54,13 +54,6 @@
 extern "C" {
 #endif
 
-
-
-#include "ee_opt.h"
-
-
-
-
   /*
    *
    * CPU
@@ -281,7 +274,7 @@ extern "C" {
 #ifdef __FP__
 #include "kernel/fp/inc/ee_internal.h"
 /* API prototypes should be visible when defining API functions; also, some
- * types are defined in ee_kenerl.h */
+ * types are defined in ee_kernel.h */
 #include "kernel/fp/inc/ee_kernel.h"
 #endif
 

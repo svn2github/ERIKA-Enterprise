@@ -49,63 +49,18 @@
 #ifndef __INCLUDE_E200ZX_EE_CPU_H__
 #define __INCLUDE_E200ZX_EE_CPU_H__
 
-#include "eecfg.h"
-#ifdef __GNUC__
-#include "cpu/common/inc/ee_compiler_gcc.h"
-#elif defined (__DCC__)
-#include "cpu/common/inc/ee_compiler_diab.h"
-#elif defined (__CWCC__)
-#include "cpu/common/inc/ee_compiler_codewarrior.h"
-#else
-#error Unsupported compiler
-#endif
+/* Include types and functions for the kernel */
+#include "ee_cpu_os.h"
 
-
-/* This instruction should cause a trap when executed.  Handy to mark invalid
+/* This instruction should cause a trap when executed. Handy to mark invalid
  * functions */
 /* XXX */
 #define INVALID_ASM_INSTR  __asm volatile ( ".word 0xcccc" )
 
-
-/*************************************************************************
- HAL Types and structures
- *************************************************************************/
-
-/* Primitive data types */
-#include "cpu/common/inc/ee_types.h"
-
+/* defines used both by C and assembly */
 #include "ee_cpu_asm.h"
 /* INTC symbols */
 #include "ee_mcu_regs.h"
-
-typedef EE_UINT32 EE_UREG;
-typedef EE_INT32  EE_SREG;
-typedef EE_UINT32 EE_FREG;
-
-/* Thread IDs */
-typedef EE_INT32 EE_TID;
-
-/* Thread IDs - unsigned version*/
-typedef EE_UINT32 EE_UTID;
-
-/* ISR Priority representation type */
-typedef EE_UREG EE_TYPEISR2PRIO;
-
-/* Flag (OR'ed to an EE_TID) to mark a task as stacked. */
-#define TID_IS_STACKED_MARK	0x80000000U
-
-/* Remote TID, to be used with Remote notifications */
-#define EE_REMOTE_TID 0x80000000U
-
-/* EE_TYPEIRQ is defined inside the MCU */
-
-/* XXX: define EE_TIME? */
-
-/* Use the "standard" implementation */
-#include "cpu/common/inc/ee_hal_structs.h"
-
-/* Type pointing to an ISR */
-typedef void (*EE_e200z7_ISR_handler)(void);
 
 /* Alignment and section for program stacks */
 #define EE_STACK_SEC "ee_stack"
@@ -125,65 +80,6 @@ typedef EE_UINT32 EE_STACK_T;
 /* Initial pointer (word offset) in user stacks */
 #define EE_STACK_INITP(bl) (EE_STACK_WLEN(bl) -	\
 	((EE_UREG)EE_STACK_ALIGN / sizeof(EE_STACK_T)))
-
-#ifdef USE_PRAGMAS
-#pragma section PRAGMA_SECTION_BEGIN_SYS_STACK
-extern EE_STACK_T EE_e200zx_sys_stack[EE_STACK_WLEN(EE_SYS_STACK_SIZE)];
-#pragma section PRAGMA_SECTION_END_SYS_STACK
-#else
-extern EE_STACK_T EE_STACK_ATTRIB EE_e200zx_sys_stack[EE_STACK_WLEN(EE_SYS_STACK_SIZE)];
-#endif
-
-/* ORTI types */
-typedef EE_e200z7_ISR_handler EE_ORTI_runningisr2_type;
-#ifdef __OO_ORTI_RUNNINGISR2__
-#define EE_ORTI_build_isr2id(f) (f)
-#else /* __OO_ORTI_RUNNINGISR2__ */
-/* In this case EE_ORTI_runningisr2_type is defined inside the OO kernel */
-#define EE_ORTI_build_isr2id(f) ((EE_ORTI_runningisr2_type)0)
-#endif /* else __OO_ORTI_RUNNINGISR2__ */
-
-#ifdef __MULTI__
-
-/* Top of each private stack. */
-extern struct EE_TOS EE_e200z7_system_tos[];
-
-/* Index of the current stack. */
-extern EE_UREG EE_e200z7_active_tos;
-
-#endif /* __MULTI__ */
-
-
-/*************************************************************************
- System startup
- *************************************************************************/
-
-#define __OO_CPU_HAS_STARTOS_ROUTINE__
-
-/* If system is defined I have to initialize it*/
-#ifdef ENABLE_SYSTEM_TIMER
-void EE_e200zx_initialize_system_timer(void);
-#else /* ENABLE_SYSTEM_TIMER */
-#define EE_e200zx_initialize_system_timer() ((void) 0)
-#endif /* ENABLE_SYSTEM_TIMER */
-
-#if defined(__MSRP__) || (defined(__EE_MEMORY_PROTECTION__) \
-	&& (defined(__OO_BCC1__) || defined(__OO_BCC2__)    \
-		|| defined(__OO_ECC1__) || defined(__OO_ECC2__)))
-/* On multi-core this is used also as a synchronization point */
-int EE_cpu_startos(void);
-
-#else /* if __MSRP__ || __EE_MEMORY_PROTECTION__ ... */
-/* Nothing to do but initializing system timer */
-static int __ALWAYS_INLINE__ EE_cpu_startos(void);
-__INLINE__ int __ALWAYS_INLINE__ EE_cpu_startos(void)
-{
-  EE_e200zx_initialize_system_timer();
-  return 0;
-}
-
-#endif /* else if __MSRP__ || __EE_MEMORY_PROTECTION__ ... */
-
 
 /*********************************************************************
  Multicore and multiprocessor support
@@ -214,77 +110,10 @@ typedef EE_UINT32 EE_TYPESPIN;
 #define EE_SHARED_RES(name,var) EE_SHARED_RES_##name(var)
 #endif
 
+/* Include multicore support if needed (There's a guard inside the file too) */
+#include "ee_e200zx_multicore.h"
+
 #endif /* __MSRP__ */
-
-
-/*********************************************************************
- E200Z7 interrupt disabling/enabling
- *********************************************************************/
-
-#define MSR_EE	((EE_FREG)1U << 15)
-
-__INLINE__ void __ALWAYS_INLINE__ EE_e200z7_enableIRQ(void)
-{
-	__asm volatile ("wrteei 1\n");
-}
-
-__INLINE__ void __ALWAYS_INLINE__ EE_e200z7_disableIRQ(void)
-{
-	__asm volatile ("wrteei 0\n");
-}
-
-#ifdef	__DCC__
-__asm static void EE_e200z7_resumeIRQ(EE_FREG msr)
-{
-% reg msr
-	wrtee	msr
-}
-#else
-__INLINE__ void __ALWAYS_INLINE__ EE_e200z7_resumeIRQ(EE_FREG msr)
-{
-	__asm volatile ("wrtee %0\n" :: "r"(msr));
-}
-#endif
-
-#ifdef	__DCC__
-__asm static EE_FREG EE_e200z7_suspendIRQ(void)
-{
-! "r3"
-	mfmsr	r3
-	wrteei	0
-}
-#else
-__INLINE__ EE_FREG __ALWAYS_INLINE__ EE_e200z7_suspendIRQ(void)
-{
-  EE_FREG msr;
-
-  __asm volatile ("mfmsr %0   \n"
-      "wrteei 0\n"
-      : "=r"(msr));
-  return msr;
-}
-#endif
-
-/* FIXME: In Erika HAL doesn't exit a method to check IRQ status! */
-#ifdef __DCC__
-__asm static EE_FREG EE_e200z7_isIRQEnabled(void)
-{
-! "r3"
-  mfmsr	r3
-  /* This istruction has been retro-engineered looking at the code generated
-     by CodeWarrior compiler! */
-  rlwinm   r3,r3,0x11,0x1F,0x1F
-}
-#else
-__INLINE__ EE_BIT __ALWAYS_INLINE__ EE_e200z7_isIRQEnabled(void)
-{
-  EE_FREG msr;
-
-  __asm volatile ("mfmsr %0   \n"
-      : "=r"(msr));
-  return ((msr & MSR_EE) != 0U);
-}
-#endif
 
 #ifdef __EE_MEMORY_PROTECTION__
 
@@ -400,11 +229,6 @@ __INLINE__ void __ALWAYS_INLINE__ EE_e200zx_isync(void)
 	__asm volatile ("isync");
 }
 
-__INLINE__ void __ALWAYS_INLINE__ EE_e200zx_mbar(void)
-{
-	__asm volatile("mbar 0\n");
-}
-
 __INLINE__ EE_TYPEISR2PRIO __ALWAYS_INLINE__ EE_e200zx_get_int_prio(void)
 {
 	return INTC_CPR.R;
@@ -423,31 +247,6 @@ __INLINE__ void __ALWAYS_INLINE__ EE_e200zx_set_int_prio(EE_TYPEISR2PRIO prio)
 	/* Context syncronization + INTC_CPR store executed */
 	EE_e200zx_mbar();
 	EE_e200zx_isync();
-}
-
-/*
- * Interrupt Handling
- */
-
-/* Disable/Enable Interrupts */
-__INLINE__ void __ALWAYS_INLINE__ EE_hal_enableIRQ(void)
-{
-	EE_e200z7_enableIRQ();
-}
-
-__INLINE__ void __ALWAYS_INLINE__ EE_hal_disableIRQ(void)
-{
-	EE_e200z7_disableIRQ();
-}
-
-__INLINE__ void __ALWAYS_INLINE__ EE_hal_resumeIRQ(EE_FREG flags)
-{
-	EE_e200z7_resumeIRQ(flags);
-}
-
-__INLINE__ EE_FREG __ALWAYS_INLINE__ EE_hal_suspendIRQ(void)
-{
-	return EE_e200z7_suspendIRQ();
 }
 
 #ifndef __PPCE200Z0__
@@ -649,63 +448,5 @@ __INLINE__ EE_UINT8 EE_as_raw_call_trusted_func(EE_UINT32 FunctionIndex,
 	asm volatile ("sc");
 }
 #endif
-
-/*************************************************************************
- CPU-dependent ORT support (mainly OTM)
- *************************************************************************/
-
-/* Probably, some parts of the OTM code below does not depend on the
- * architecture.  They should be moved somewhere into pkg/cpu/common if this
- * turns out to be the case. */
-
-#define EE_ORTI_OTM_ID_RUNNINGISR2 1
-#define EE_ORTI_OTM_ID_SERVICETRACE 2
-
-#ifdef __OO_ORTI_USE_OTM__
-void EE_e200zx_send_otm8(EE_UINT8 id, EE_UINT8 data);
-void EE_e200zx_send_otm32(EE_UINT8 id, EE_UINT32 data);
-
-#else /* if __OO_ORTI_USE_OTM__ */
-/* OTM disabled */
-#define EE_e200zx_send_otm8(id, data)   ((void)0)
-#define EE_e200zx_send_otm32(id, data)  ((void)0)
-#endif /* else __OO_ORTI_USE_OTM__ */
-
-#if defined(__OO_ORTI_RUNNINGISR2__) && defined(__OO_ORTI_USE_OTM__)
-__INLINE__ void EE_ORTI_send_otm_runningisr2(EE_ORTI_runningisr2_type isr2)
-{
-	EE_e200zx_send_otm32(EE_ORTI_OTM_ID_RUNNINGISR2, (EE_UINT32)isr2);
-}
-#else /* __OO_ORTI_RUNNINGISR2__ && __OO_ORTI_USE_OTM__ */
-#define EE_ORTI_send_otm_runningisr2(isr2)    ((void)0)
-#endif /* __OO_ORTI_RUNNINGISR2__ && __OO_ORTI_USE_OTM__ */
-
-#ifdef __OO_ORTI_SERVICETRACE__
-__INLINE__ void EE_ORTI_send_otm_servicetrace(EE_UINT8 srv)
-{
-	EE_e200zx_send_otm8(EE_ORTI_OTM_ID_SERVICETRACE, srv);
-}
-
-#if defined(__EE_MEMORY_PROTECTION__)
-#if (defined(RTDRUID_CONFIGURATOR_NUMBER)) \
- && (RTDRUID_CONFIGURATOR_NUMBER >= RTDRUID_CONFNUM_ORTI_SERVICE_API)
-#if defined __DCC__
-__asm static void EE_ORTI_ext_set_service(EE_UINT8 srv)
-{
-% reg srv
-! "r0","r3","r4","r5","r6","r7","r8","r9","r10","r11","r12","ctr"
-	mr	r3, srv
-	li	r0, EE_ID_ORTI_ext_set_service
-	sc
-}
-#endif /* __DCC__ */
-#else /* RTDRUID_CONFNUM_ORTI_SERVICE_API */
-__INLINE__ void EE_ORTI_ext_set_service(EE_UINT8 srv)
-{
-}
-#endif /* else RTDRUID_CONFNUM_ORTI_SERVICE_API */
-#endif /* __EE_MEMORY_PROTECTION__ */
-
-#endif /* __OO_ORTI_SERVICETRACE__ */
 
 #endif /* __INCLUDE_E200ZX_EE_CPU_H__ */

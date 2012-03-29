@@ -53,9 +53,6 @@
 #ifndef __INCLUDE_CPU_COMMON_EE_IRQSTUB__
 #define __INCLUDE_CPU_COMMON_EE_IRQSTUB__
 
-/* Used angle brackets to select header in Erika Root. This file select the
-   right kernel API inclusion */
-#include <ee_irq.h>
 /* this bring EE_IRQ_nesting_level definition */
 #include "cpu/common/inc/ee_primitives.h"
 

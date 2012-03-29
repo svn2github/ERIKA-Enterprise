@@ -39,23 +39,15 @@
  * ###*E*### */
 
 #include "ee.h"
+#include "ee_irq.h"
 #include "test/assert/inc/ee_assert.h"
 
 #ifdef __EVALUATOR7T__
 #include "mcu/samsung_ks32c50100/inc/ee_ic.h"
 #endif
 
-#ifdef __PPCE200Z7__
-#include "cpu/e200zx/inc/ee_irq.h"
-#endif
-
 #ifdef __PIC30__
-#include "cpu/pic30/inc/ee_irqstub.h"
 #include "mcu/microchip_dspic/inc/ee_timer.h"
-#endif
-
-#ifdef __CORTEX_MX__
-#include "cpu/cortex_mx/inc/ee_irq.h"
 #endif
 
 #ifdef __CORTEX_M0__
