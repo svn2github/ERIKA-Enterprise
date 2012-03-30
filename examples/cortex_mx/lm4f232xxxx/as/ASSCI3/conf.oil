@@ -50,7 +50,6 @@ CPU test_application {
 
 		EE_OPT = "DEBUG";
 		EE_OPT = "__ASSERT__";
-		CFLAGS = "-DEE_CORTEX_MX_UART_4_ISR_PRI=0x00000001";
 
 		CPU_DATA = CORTEX_MX {
 			MODEL = M4;
@@ -125,7 +124,7 @@ CPU test_application {
 	ISR Sci_Channel_4_ISR {
 		CATEGORY = 2;
 		ENTRY = "UART_4";
-		/*PRIORITY = 1;*/
+		PRIORITY = 1;
 	};
 
 };

@@ -48,7 +48,7 @@
 
 
 
-#define RTDRUID_CONFIGURATOR_NUMBER 1276
+#define RTDRUID_CONFIGURATOR_NUMBER 1277
 
 
 
@@ -89,6 +89,7 @@
  *
  **************************************************************************/
 #define EE_CORTEX_MX_UART_4_ISR Sci_Channel_4_ISR
+#define EE_CORTEX_MX_UART_4_ISR_PRI 1
 
 #ifndef __DISABLE_EEOPT_DEFINES__
 
