@@ -50,14 +50,14 @@ CPU test_application {
 
 		EE_OPT = "DEBUG";
 		EE_OPT = "__ASSERT__";
-		CFLAGS = "-DEE_CORTEX_MX_TIMER_0_A_ISR_PRI=0x00000001";
-		CFLAGS = "-DEE_CORTEX_MX_TIMER_0_B_ISR_PRI=0x00000001";
-		CFLAGS = "-DEE_CORTEX_MX_WIDE_TIMER_0_A_ISR_PRI=0x00000001";
-		CFLAGS = "-DEE_CORTEX_MX_WIDE_TIMER_0_B_ISR_PRI=0x00000001";
-		CFLAGS = "-DEE_CORTEX_MX_TIMER_1_A_ISR_PRI=0x00000001";
-		CFLAGS = "-DEE_CORTEX_MX_TIMER_2_A_ISR_PRI=0x00000001";
-		CFLAGS = "-DEE_CORTEX_MX_WIDE_TIMER_1_A_ISR_PRI=0x00000001";
-		CFLAGS = "-DEE_CORTEX_MX_WIDE_TIMER_2_A_ISR_PRI=0x00000001";
+		//~ CFLAGS = "-DEE_CORTEX_MX_TIMER_0_A_ISR_PRI=0x00000001";
+		//~ CFLAGS = "-DEE_CORTEX_MX_TIMER_0_B_ISR_PRI=0x00000001";
+		//~ CFLAGS = "-DEE_CORTEX_MX_WIDE_TIMER_0_A_ISR_PRI=0x00000001";
+		//~ CFLAGS = "-DEE_CORTEX_MX_WIDE_TIMER_0_B_ISR_PRI=0x00000001";
+		//~ CFLAGS = "-DEE_CORTEX_MX_TIMER_1_A_ISR_PRI=0x00000001";
+		//~ CFLAGS = "-DEE_CORTEX_MX_TIMER_2_A_ISR_PRI=0x00000001";
+		//~ CFLAGS = "-DEE_CORTEX_MX_WIDE_TIMER_1_A_ISR_PRI=0x00000001";
+		//~ CFLAGS = "-DEE_CORTEX_MX_WIDE_TIMER_2_A_ISR_PRI=0x00000001";
 
 		CPU_DATA = CORTEX_MX {
 			MODEL = M4;
@@ -108,7 +108,7 @@ CPU test_application {
 	ISR Gpt_Channel_0_A_ISR {
 		CATEGORY = 2;
 		ENTRY = "TIMER_0_A";
-		/*PRIORITY = 1;*/
+		PRIORITY = 1;
 	};
 
 	/* this is the OIL part for the Task 0 B */
@@ -124,7 +124,7 @@ CPU test_application {
 	ISR Gpt_Channel_0_B_ISR {
 		CATEGORY = 2;
 		ENTRY = "TIMER_0_B";
-		/*PRIORITY = 1;*/
+		PRIORITY = 1;
 	};
 
 	/* this is the OIL part for the Task W 0 A */
@@ -140,7 +140,7 @@ CPU test_application {
 	ISR Gpt_Channel_W_0_A_ISR {
 		CATEGORY = 2;
 		ENTRY = "WIDE_TIMER_0_A";
-		/*PRIORITY = 1;*/
+		PRIORITY = 1;
 	};
 
 	/* this is the OIL part for the Task W 0 B */
@@ -156,7 +156,7 @@ CPU test_application {
 	ISR Gpt_Channel_W_0_B_ISR {
 		CATEGORY = 2;
 		ENTRY = "WIDE_TIMER_0_B";
-		/*PRIORITY = 1;*/
+		PRIORITY = 1;
 	};
 
 	/* this is the OIL part for the Task J 1 */
@@ -172,7 +172,7 @@ CPU test_application {
 	ISR Gpt_Channel_J_1_ISR {
 		CATEGORY = 2;
 		ENTRY = "TIMER_1_A";
-		/*PRIORITY = 1;*/
+		PRIORITY = 1;
 	};
 
 	/* this is the OIL part for the Task J 2 */
@@ -188,7 +188,7 @@ CPU test_application {
 	ISR Gpt_Channel_J_2_ISR {
 		CATEGORY = 2;
 		ENTRY = "TIMER_2_A";
-		/*PRIORITY = 1;*/
+		PRIORITY = 1;
 	};
 
 	/* this is the OIL part for the Task J W 1 */
@@ -204,7 +204,7 @@ CPU test_application {
 	ISR Gpt_Channel_J_W_1_ISR {
 		CATEGORY = 2;
 		ENTRY = "WIDE_TIMER_1_A";
-		/*PRIORITY = 1;*/
+		PRIORITY = 1;
 	};
 
 	/* this is the OIL part for the Task J W 2 */
@@ -220,7 +220,7 @@ CPU test_application {
 	ISR Gpt_Channel_J_W_2_ISR {
 		CATEGORY = 2;
 		ENTRY = "WIDE_TIMER_2_A";
-		/*PRIORITY = 1;*/
+		PRIORITY = 1;
 	};
 
 };
