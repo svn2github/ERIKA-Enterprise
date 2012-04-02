@@ -234,7 +234,7 @@ int main(int argc, char **argv)
   
 #endif
 
-#if defined(__PPCE200Z7__)
+#if defined(__PPCE200Z7__) || defined (EE_PPCE200Z4)
   EE_e200z7_register_ISR(10, myISR2, 0);
   EE_e200z7_setup_decrementer(3000000);
 #endif

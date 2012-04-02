@@ -139,7 +139,7 @@ void ErrorHook(StatusType Error)
 	}
 #endif
 
-#if defined(__PPCE200Z7__)
+#if defined(__PPCE200Z7__) || defined(EE_PPCE200Z4)
 	/* call the ERIKA Enterprise tick function for the Counter1 counter! */
 	static void handle_timer_interrupt(void)
 	{
@@ -184,7 +184,7 @@ void StartupHook(void)
 		EE_timer_init_ms(EE_TIMER_0, 10, EE_TIMER_ISR_ON);
 		EE_timer_start();
 	#endif
-	#if defined(__PPCE200Z7__)
+	#if defined(__PPCE200Z7__) || defined(EE_PPCE200Z4)
 		EE_e200z7_register_ISR(10, handle_timer_interrupt, 0);
 		EE_e200z7_setup_decrementer(2000000);
 	#endif
@@ -213,7 +213,7 @@ int main(void)
   EE_system_init();
 #endif
 
-	#if defined(__PPCE200Z7__)
+	#if defined(__PPCE200Z7__) || defined(EE_PPCE200Z4)
 	EnableAllInterrupts();
 	#endif
   
