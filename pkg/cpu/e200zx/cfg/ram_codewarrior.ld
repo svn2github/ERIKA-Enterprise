@@ -76,7 +76,8 @@ SECTIONS
 		ee_sdata = . ;
 		.data LOAD(ee_load_ram): { }
 
-		.sdata LOAD(ee_load_ram + ADDR(.sdata) - ADDR(.data)): { }
+/*		.sdata LOAD(ee_load_ram + ADDR(.sdata) - ADDR(.data)): { }*/
+		.sdata LOAD(ee_load_ram + SIZEOF(.data)): { }
 
 		ee_sbss = . ;
 		.sbss : { }

@@ -42,12 +42,13 @@
  * on CPU 0.
  * Author: 2010 Fabio Checconi
  *         2011 Bernardo  Dal Seno
+ *         2012 Francesco Esposito
  */
-
+FORCEACTIVE { "boot_data" "sscm" }
 SECTIONS
 {
 	GROUP : {
-		.bam_data LOAD(ADDR(boot)): { KEEP(*(.bam_data)) }
+		.boot_data LOAD(ADDR(.boot_data)): { }
 		.boot LOAD(ADDR(.boot)): { }
 	} > boot
 
@@ -74,10 +75,10 @@ SECTIONS
 		}
 
 		ee_smcglobalc = . ;
-		ee_mcglobalc : { }
+		ee_mcglobalc LOAD(ee_smcglobalc): { }
 		ee_emcglobalc = . ;
 
-		.sdata2 LOAD(_etext): {
+		.sdata2 LOAD(ee_emcglobalc): {
 			*(.sdata2)
 			*(.sbss2)
 		 }
@@ -91,7 +92,7 @@ SECTIONS
 		.sram_text LOAD(ee_load_ram + ADDR(.sram_text) - ADDR(.data)): { }
 
 		ee_smcglobald = . ;
-		ee_mcglobald LOAD(ee_load_ram + ADDR(ee_mcglobald) - ADDR(.data)): { }
+		ee_mcglobald LOAD(ee_load_ram + ee_smcglobald - ADDR(.data)): { }
                 ee_fast_mcglobald LOAD(ee_load_ram + ADDR(ee_fast_mcglobald) - ADDR(.data)): { }
 		ee_emcglobald = . ;
 
@@ -99,9 +100,9 @@ SECTIONS
 
 		ee_sbss = . ;
 		.sbss : { }
-                ee_fast_mcglobalu LOAD(ee_load_ram + ADDR(ee_fast_mcglobalu) - ADDR(.data)): { }
+                ee_fast_mcglobalu : { }
 		.bss : { }
-                ee_mcglobalu LOAD(ee_load_ram + ADDR(ee_mcglobalu) - ADDR(.data)): { }
+                ee_mcglobalu : { }
 		ee_ebss = . ;
 
 		ee_sstack = . ;
