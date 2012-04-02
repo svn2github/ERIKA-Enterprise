@@ -41,6 +41,7 @@
 ##
 ## Freescale (CodeWarrior) compiler for PPC
 ## Author: 2011 Bernardo  Dal Seno
+##         2012 Francesco Esposito
 ##
 
 # BINDIR is the directory of assembler, compiler, linker...
@@ -57,7 +58,8 @@ MWLibraries ?= $(CW_SUPPORTDIR)/ewl/lib
 ifeq ($(call iseeopt, __PPCE200Z0__), yes)
 MW_LIB_FLAVOR = _E200z0_VLE_Soft
 else
-ifeq ($(or $(call iseeopt, __PPCE200Z6__), $(call iseeopt, __PPCE200Z7__)), yes)
+ifeq ($(or $(call iseeopt, __PPCE200Z6__), $(call iseeopt, __PPCE200Z7__), \
+$(call iseeopt, EE_PPCE200Z4)), yes)
 MW_LIB_FLAVOR = _E200z650
 endif
 ifneq ($(__BASE_MAKEFILE__), yes)
@@ -73,7 +75,7 @@ endif # PPCE200Z0
 ifeq ($(call iseeopt, __RTD_CYGWIN__), yes)
 MW_LIBS = $(addsuffix $(MW_LIB_FLAVOR), c m)
 else
-MW_LIBS = $(addsuffix $(MW_LIB_FLAVOR), rt m)
+MW_LIBS = $(addsuffix $(MW_LIB_FLAVOR), rt)
 endif
 
 
@@ -115,7 +117,7 @@ OPT_ASM += $(OPT_TARGET) $(VLE_OPT) -msgstyle gcc -gccinc -gnu_mode
 # OPT_LINK represents the options for ld invocation
 OPT_LINK += $(LDFLAGS) $(OPT_TARGET) -L$(call native_path,$(MWLibraries))
 OPT_LINK += $(addprefix -l, $(MW_LIBS))
-OPT_LINK += -msgstyle gcc -nostdlib -char unsigned
+OPT_LINK += -msgstyle gcc -nostdlib -char unsigned -m ee_start
 ifneq ($(call iseeopt, __E200ZX_EXECUTE_FROM_RAM__), yes)
 # Here we assume that ROM is always at address 0.  Maybe it's too strong
 # an assumption, and a variable should be set in an MCU-specific makefile

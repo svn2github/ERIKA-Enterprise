@@ -67,6 +67,10 @@ ifeq ($(call iseeopt, __MPC5668__), yes)
 PPC_MCU_MODEL = mpc5668
 T32_FLASH_BIN = c90fl5668.bin
 endif
+ifeq ($(call iseeopt, EE_MPC5643L), yes)
+PPC_MCU_MODEL = mpc5643l
+T32_FLASH_BIN = c90fl564xl.bin
+endif
 ifndef PPC_MCU_MODEL
 $(error No known PPC MCU model found in EE_OPT)
 endif

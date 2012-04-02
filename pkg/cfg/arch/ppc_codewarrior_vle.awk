@@ -104,7 +104,7 @@ BEGIN {
 /^[[:space:]](\.section[[:space:]]|text_section\()[[:space:]]*([.0-9a-zA-Z_]+)/ {
     if (state == 0) {
 	match($0, "^[[:space:]](\\.section[[:space:]]|text_section\\()[[:space:]]*([.0-9a-zA-Z_]+)", m)
-	printf("#pragma section code_type \"%s\"\n", m[2]);
+	printf("#pragma push\n#pragma section code_type \"%s\"\n#pragma pop\n", m[2]);
 	state = 3;
     }
 }
