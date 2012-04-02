@@ -80,6 +80,10 @@
 
 #endif /* EE_CURRENTCPU */
 
+#ifndef EE_ISR_DYNAMIC_TABLE
+void EE_mpc5643_initialize_external_IRQ_priorities(void);
+#endif /* __STATIC_ISR_TABLE__ */
+
 __INLINE__ unsigned int EE_mpc5643l_lsm_or_dpm(void)
 {
 	/* return only the 9-th bit of UOPT, bit number 22 (32-9-1=22) */

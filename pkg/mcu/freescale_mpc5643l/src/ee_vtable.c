@@ -1915,7 +1915,16 @@ __INLINE__ void __ALWAYS_INLINE__
 __INLINE__ void __ALWAYS_INLINE__
     EE_mpc5643_set_external_priority(EE_UREG psr, EE_BIT prio)
 {
-		INTC.PSR[psr].R	= prio;
+	/*INTC.PSR[psr].R	= prio;*/
+#if (!defined __MSRP__ )
+	(*(volatile char *) (0xFFF48000+0x40+(psr)))=prio;
+#else
+	#if EE_CURRENTCPU==0
+		(*(volatile char *) (0xFFF48000+0x40+(psr)))=prio;
+	#else
+		(*(volatile char *) (0x8FF48000+0x40+(psr)))=prio;
+	#endif
+#endif
 }
 
 void EE_mpc5643_initialize_external_IRQ_priorities(void);

@@ -50,9 +50,17 @@
 
 	.extern	ee_load_ram, ee_sdata, ee_sbss, ee_ebss, sram_setup, main
 	.extern EE_e200zx_mmu_entries, EE_e200zx_mmu_num_entries
+
+#ifndef EE_ISR_DYNAMIC_TABLE
+	.extern EE_mpc5643_initialize_external_IRQ_priorities
+#endif /* !EE_ISR_DYNAMIC_TABLE */
+
 #ifdef __ASM_CONVERTED_TO_C__
 int main(void);
 void ee_start(void);
+#ifndef EE_ISR_DYNAMIC_TABLE
+void EE_mpc5643l_initialize_external_IRQ_priorities(void);
+#endif /* !EE_ISR_DYNAMIC_TABLE */
 #endif
 
 #if ! defined(__E200ZX_EXECUTE_FROM_RAM__) && ! defined(__SLAVE_CPU__)
@@ -153,7 +161,12 @@ __start:
 	bl	EE_e200zx_mmu_setup
 #endif /* __EE_CRT0_INIT_MMU__ && ! __SLAVE_CPU__ */
 	bl	cpu_setup		/* cpu-specific initialization */
+#ifndef EE_ISR_EXTERNAL_TABLE /* the ISR table is implemented externally */
 	bl	intc_setup		/* interrupt controller */
+#ifndef EE_ISR_DYNAMIC_TABLE
+	bl	EE_mpc5643_initialize_external_IRQ_priorities /* Init ext. irq prio */
+#endif /* !EE_ISR_DYNAMIC_TABLE */
+#endif /* !EE_ISR_EXTERNAL_TABLE */
 	bl	main			/* jump to application code */
 
 	wrteei	0
