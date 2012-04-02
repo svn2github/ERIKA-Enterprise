@@ -51,15 +51,15 @@
 	.extern ee_load_ram, ee_sdata, ee_sbss, ee_ebss, sram_setup
 	.extern EE_e200zx_mmu_entries, EE_e200zx_mmu_num_entries
 	.extern main
-#ifdef __STATIC_ISR_TABLE__
+#ifndef EE_ISR_DYNAMIC_TABLE
 	.extern EE_mpc5674_initialize_external_IRQ_priorities
-#endif /* __STATIC_ISR_TABLE__ */
+#endif /* !EE_ISR_DYNAMIC_TABLE */
 
 #ifdef __ASM_CONVERTED_TO_C__
 int main(void);
-#ifdef __STATIC_ISR_TABLE__
+#ifndef EE_ISR_DYNAMIC_TABLE
 void EE_mpc5674_initialize_external_IRQ_priorities(void);
-#endif /* __STATIC_ISR_TABLE__ */
+#endif /* !EE_ISR_DYNAMIC_TABLE */
 #endif /* __ASM_CONVERTED_TO_C__ */
 
 #ifndef __E200ZX_EXECUTE_FROM_RAM__
