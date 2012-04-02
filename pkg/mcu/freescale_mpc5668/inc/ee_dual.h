@@ -99,5 +99,13 @@ __INLINE__ void EE_mpc5668_spin_out(EE_TYPESPIN spin_id)
 	SEMA4.GATE[spin_id].R = 0U;
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////
+
+__INLINE__ void EE_mpc5668_set_int_prio(int level, EE_UINT8 proc, EE_UINT8 pri)
+{
+	INTC.PSR[level - EE_E200ZX_MAX_CPU_EXCP].R
+			= (uint8_t)(proc | pri);
+}
+
 
 #endif /* EE_MCU_MPC5668_DUAL_H */

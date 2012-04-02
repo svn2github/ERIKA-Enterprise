@@ -56,6 +56,7 @@
 
 #ifdef __ASM_CONVERTED_TO_C__
 int main(void);
+void ee_start(void);
 #ifndef EE_ISR_DYNAMIC_TABLE
 void EE_mpc5668_initialize_external_IRQ_priorities(void);
 #endif /* !EE_ISR_DYNAMIC_TABLE */
@@ -70,8 +71,8 @@ void EE_mpc5668_initialize_external_IRQ_priorities(void);
 	/* CW-VAR-DEFINITION:
 	#pragma section R ".bam_data"
 	const struct { EE_UINT32 rchw; void (*start)(void); }
-		EE_COMPILER_SECTION(".bam_data") bam_data =
-		{ BAM_RCHW, __start };
+		bam_data =
+		{ BAM_RCHW, ee_start };
 	*/
 	.section .bam_data
 	.global	_bam_data
@@ -88,7 +89,7 @@ _bam_data:
 
 	.section .boot, , c
 
-	/* CW-FUNC-DEFINITION: void __start(void) */
+	/* CW-FUNC-DEFINITION: void ee_start(void) */
 	.global	__start
 	.type	__start, @function
 __start:

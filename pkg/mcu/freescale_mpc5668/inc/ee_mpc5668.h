@@ -76,4 +76,8 @@
 void EE_mpc5668_initialize_external_IRQ_priorities(void);
 #endif /* __STATIC_ISR_TABLE__ */
 
+#define SET_INT_PRIO(level, proc, pri) \
+			INTC.PSR[level - EE_E200ZX_MAX_CPU_EXCP].R \
+			= (uint8_t)(proc | pri);
+
 #endif /* EE_MCU_MPC5668_H */
