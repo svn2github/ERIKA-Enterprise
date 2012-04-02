@@ -66,6 +66,9 @@ void EE_e200z7_register_ISR(int level, EE_e200z7_ISR_handler fun, EE_UINT8 pri)
 
 	/* Set priority for external interrupts */
 	if (level >= EE_E200ZX_MAX_CPU_EXCP) {
+		/* MPC5668 (Fado) has a special method to direct irq to cores based on value
+		   of bits of PSR so the bitmask EE_E200ZX_INTC_CURRPROC in or is used to
+		   handle it */
 		proc = EE_E200ZX_INTC_CURRPROC;
 		INTC.PSR[level - EE_E200ZX_MAX_CPU_EXCP].R
 			= (uint8_t)(proc | pri);

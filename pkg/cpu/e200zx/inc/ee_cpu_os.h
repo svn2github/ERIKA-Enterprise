@@ -77,7 +77,7 @@ typedef EE_UINT32 EE_FREG;
 
 
 /*
-                        !! WARNING WORK AROUND !!! 
+                        !!! WARNING WORK AROUND !!!
 
     To not include frescale file to access INTC register.
 
@@ -100,7 +100,7 @@ typedef EE_UINT32 EE_FREG;
 #include "ee_mcu_regs_asm.h"
 
 /******************************************************************************/
-/*            INTERRUPT CONTROL  REGISTERS ACCESS MACROS                      */
+/*            INTERRUPT CONTROL REGISTERS ACCESS MACROS                      */
 /******************************************************************************/
 #define EE_INTC_MCR       (*((volatile EE_UREG*)(INTC_MCR_ADDR)))
 #define EE_INTC_IACKR     (*((volatile EE_UREG*)(INTC_IACKR_ADDR)))

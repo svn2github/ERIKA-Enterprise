@@ -72,18 +72,29 @@ void EE_e200zx_sync_barrier(EE_TYPEBARRIER *bar)
 	}
 }
 
-
+#ifdef EE_ISR_DYNAMIC_TABLE
 static void EE_e200zx_setup_inter_irqs(void)
 {
 	EE_e200z7_register_ISR(EE_E200ZX_INTER_IRQ_LEVEL(EE_CURRENTCPU),
 		&EE_rn_handler, (EE_UINT8)1U);
 }
 
-
 static void EE_e200zx_iirq_handler(void)
 {
 	EE_rn_handler();
 }
+#else /* EE_ISR_DYNAMIC_TABLE */
+
+/* STATIC ISR TABLE IMPLEMENTATION */
+#define EE_e200zx_setup_inter_irqs()  ((void)0)
+/* Declare ISR handler */
+DeclareIsr(EE_e200zx_iirq_handler);
+
+ISR2 (EE_e200zx_iirq_handler)
+{
+	EE_rn_handler();
+}
+#endif /* EE_ISR_DYNAMIC_TABLE */
 
 int EE_cpu_startos(void)
 {

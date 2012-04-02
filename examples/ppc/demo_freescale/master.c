@@ -133,6 +133,7 @@ TASK(TaskZ6_4)
 /*
  * Interrupt handler for the decrementer timer
  */
+#ifdef EE_ISR_DYNAMIC_TABLE
 static void timer_interrupt(void)
 {
 	ActivateTask(TaskZ6_4);
@@ -143,6 +144,22 @@ static void init_decrementer_timer(void)
 	EE_e200z7_register_ISR(10, timer_interrupt, 1);
 	EE_e200z7_setup_decrementer(26000000);
 }
+#else /* EE_ISR_DYNAMIC_TABLE */
+#include <ee_irq.h>
+
+/* Declare ISR handler */
+DeclareIsr(timer_interrupt);
+
+ISR2_INT(timer_interrupt)
+{
+	ActivateTask(TaskZ6_4);
+}
+
+static void init_decrementer_timer(void)
+{
+	EE_e200z7_setup_decrementer(26000000);
+}
+#endif /* EE_ISR_DYNAMIC_TABLE */
 
 /*
  * MAIN TASK

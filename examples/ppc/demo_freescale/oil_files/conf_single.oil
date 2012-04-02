@@ -7,7 +7,7 @@ CPU test_application {
 
 		EE_OPT = "__E200ZX_EXECUTE_FROM_RAM__";
 		EE_OPT = "DEBUG";
-		EE_OPT = "EE_ISR_DYNAMIC_TABLE";
+		//EE_OPT = "EE_ISR_DYNAMIC_TABLE";
 
 		EE_OPT = "__CODEWARRIOR__";
 
@@ -108,6 +108,12 @@ CPU test_application {
 		ACTIVATION = 1;
 		SCHEDULE = FULL;
 	};
+
+	ISR timer_interrupt {
+		CATEGORY = 2;
+		ENTRY = "DECREMENTER";
+	};
+
 
 	RESOURCE shared_var2 { RESOURCEPROPERTY = STANDARD; };
 };

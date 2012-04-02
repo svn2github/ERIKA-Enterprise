@@ -151,7 +151,13 @@ __start:
 	bl	EE_e200zx_mmu_setup
 #endif /* __EE_CRT0_INIT_MMU__ && ! __SLAVE_CPU__ */
 	bl	cpu_setup		/* cpu-specific initialization */
+#ifndef EE_ISR_EXTERNAL_TABLE /* the ISR table is implemented externally */
 	bl	intc_setup		/* interrupt controller */
+#ifndef EE_ISR_DYNAMIC_TABLE
+	bl	EE_mpc5668_initialize_external_IRQ_priorities /* Init ext. irq prio */
+#endif /* !EE_ISR_DYNAMIC_TABLE */
+#endif /* !EE_ISR_EXTERNAL_TABLE */
+
 	bl	main			/* jump to application code */
 
 	wrteei	0

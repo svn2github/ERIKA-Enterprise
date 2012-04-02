@@ -72,4 +72,8 @@
 
 #endif /* EE_CURRENTCPU */
 
+#ifndef EE_ISR_DYNAMIC_TABLE
+void EE_mpc5668_initialize_external_IRQ_priorities(void);
+#endif /* __STATIC_ISR_TABLE__ */
+
 #endif /* EE_MCU_MPC5668_H */
