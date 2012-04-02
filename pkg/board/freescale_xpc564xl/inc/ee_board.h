@@ -137,6 +137,28 @@ __INLINE__ void __ALWAYS_INLINE__ EE_led_set(EE_UREG idx, EE_UREG val)
 #define BUTTON_2	2U
 #define BUTTON_3	3U
 
+/* input parameter necessary to guarantee backward compatibility of demos */
+__INLINE__ void __ALWAYS_INLINE__ EE_buttons_disable_interrupts(EE_UREG btn)
+{
+	EE_UINT32 val;
+
+	val = SIU_IRER;
+
+	/* Disable  IRQ_0 IRQ_1 IRQ_2 IRQ_3 */
+	SIU_IRER = val & ~0x01010101;
+}
+
+/* input parameter necessary to guarantee backward compatibility of demos */
+__INLINE__ void __ALWAYS_INLINE__ EE_buttons_enable_interrupts(EE_UREG btn)
+{
+	EE_UINT32 val;
+
+	val = SIU_IRER;
+
+	/* Eneble IRQ_0 IRQ_1 IRQ_2 IRQ_3 */
+	SIU_IRER = val | 0x01010101;
+}
+
 /* Clear specific ISR flag associated to a specific button */
 __INLINE__ void __ALWAYS_INLINE__ EE_buttons_clear_ISRflag(EE_UREG btn)
 {
