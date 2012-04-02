@@ -41,6 +41,7 @@
  * Exception entry points and hardware setup for the e200zX CPUs.
  * Author: 2010 Fabio Checconi
  *         2011 Bernardo  Dal Seno
+ *         2012 Francesco Esposito
  */
 
 #include <cpu/e200zx/inc/ee_regs.h>
@@ -55,7 +56,7 @@ load_ivpr: .macro reg, lab
 #ifdef __PPCE200Z0__
 	e_lis	reg, lab@ha
 	e_add16i reg, reg, lab@l
-#elif defined __PPCE200Z6__ || defined __PPCE200Z7__
+#elif defined __PPCE200Z6__ || defined __PPCE200Z7__ || defined EE_PPCE200Z4
 #ifdef __VLE__
 	e_lis	reg, lab@ha
 #else

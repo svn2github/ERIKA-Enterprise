@@ -41,6 +41,7 @@
  * e200zX register mappings.
  * Author: 2010 Fabio Checconi
  *         2011 Bernardo  Dal Seno
+ *         2012 Francesco Esposito
  */
 
 #ifndef __EE_CPU_E200ZX_REGS_H__
@@ -103,7 +104,7 @@
 /* Z0 has fixed IVORs, at 16-byte intervals */
 #define E200ZX_IRQ_ENTRY_ALIGN	16
 
-#elif defined __PPCE200Z6__ || defined __PPCE200Z7__
+#elif defined __PPCE200Z6__ || defined __PPCE200Z7__ || defined EE_PPCE200Z4
 #define E200ZX_IRQ_VECTOR_BASE_ALIGN	E200ZX_IRQ_ENTRY_ALIGN
 #define E200ZX_IRQ_ENTRY_ALIGN	16
 

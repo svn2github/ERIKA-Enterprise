@@ -41,12 +41,14 @@
 /*
  * Multicore support
  * Author: 2011 Bernardo  Dal Seno
+ *         2012 Francesco Esposito
  */
 
 #ifndef __INCLUDE_E200ZX_MULTICORE_H__
 #define __INCLUDE_E200ZX_MULTICORE_H__
 
 #ifdef __MSRP__
+
 #ifdef __MPC5668G__
 #include <mcu/freescale_mpc5668/inc/ee_dual.h>
 #define EE_hal_spin_in EE_mpc5668_spin_in
@@ -54,6 +56,20 @@
 #define EE_hal_IRQ_interprocessor_served(cpu) EE_mpc5668_ack_signal(cpu)
 #define EE_hal_IRQ_interprocessor(cpu) EE_mpc5668_signal_cpu(cpu)
 #define EE_E200ZX_INTER_IRQ_LEVEL(cpu) EE_MPC5668_INTER_IRQ_LEVEL(cpu)
+#define EE_E200ZX_DUAL_SET_INT_PRIO(level, proc, pri) \
+			EE_mpc5668_set_int_prio(level, proc, pri)
+
+#elif EE_MPC5643L
+#include <mcu/freescale_mpc5643l/inc/ee_dual.h>
+#define EE_hal_spin_in EE_mpc5643l_spin_in
+#define EE_hal_spin_out EE_mpc5643l_spin_out
+#define EE_hal_IRQ_interprocessor_served(cpu) EE_mpc5643l_ack_signal(cpu)
+#define EE_hal_IRQ_interprocessor(cpu) EE_mpc5643l_signal_cpu(cpu)
+#define EE_E200ZX_INTER_IRQ_LEVEL(cpu) EE_MPC5643L_INTER_IRQ_LEVEL(cpu)
+/* proc not necessary for mpc5643l */
+#define EE_E200ZX_DUAL_SET_INT_PRIO(level, proc, pri) \
+			EE_mpc5643l_set_int_prio(level, pri)
+
 #endif /* __MPC5668G__ */
 
 
