@@ -57,7 +57,7 @@
 #define __CCS__
 #define __FP__
 #define __MULTI__
-#define __FP_NO_RESOURCES__
+#define __FP_NO_RESOURCE__
 
 #endif
 

@@ -60,7 +60,7 @@
 #define __FP__
 #define __IRQ_STACK_NEEDED__
 #define __MULTI__
-#define __FP_NO_RESOURCES__
+#define __FP_NO_RESOURCE__
 
 #endif
 

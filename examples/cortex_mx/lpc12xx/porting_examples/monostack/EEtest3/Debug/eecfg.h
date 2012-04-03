@@ -61,7 +61,7 @@
 #define __LPC12xx__
 #define __FP__
 #define __MONO__
-#define __FP_NO_RESOURCES__
+#define __FP_NO_RESOURCE__
 
 #endif
 

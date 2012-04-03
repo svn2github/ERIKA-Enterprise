@@ -64,7 +64,7 @@
 #define __IAR__
 #define __FP__
 #define __MULTI__
-#define __FP_NO_RESOURCES__
+#define __FP_NO_RESOURCE__
 #define __ALLOW_NESTED_IRQ__
 
 #endif

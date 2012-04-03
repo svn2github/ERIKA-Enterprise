@@ -34,7 +34,7 @@ EEOPT += __CORTEX_M4__
 EEOPT += __CCS__
 EEOPT += __FP__
 EEOPT += __MONO__
-EEOPT += __FP_NO_RESOURCES__
+EEOPT += __FP_NO_RESOURCE__
 EEOPT += __DISABLE_EEOPT_DEFINES__
 
 ############################################################################

@@ -51,7 +51,7 @@
 
 
 #include "ee.h"
-#include "cpu/cortex_mx/inc/ee_irq.h"
+#include "ee_irq.h"
 #include "cpu/cortex_mx/inc/ee_svc.h"
 #include "test/assert/inc/ee_assert.h"
 
