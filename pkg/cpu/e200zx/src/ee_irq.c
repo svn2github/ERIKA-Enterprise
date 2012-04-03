@@ -59,18 +59,15 @@ EE_e200z7_ISR_handler EE_e200z7_ISR_table[EE_E200ZX_MAX_CPU_EXCP
 
 void EE_e200z7_register_ISR(int level, EE_e200z7_ISR_handler fun, EE_UINT8 pri)
 {
-	EE_UINT8 proc;
+	/*EE_UINT8 proc;*/
 	EE_FREG intst = EE_e200z7_suspendIRQ();
 
 	EE_e200z7_ISR_table[level] = fun;
 
 	/* Set priority for external interrupts */
 	if (level >= EE_E200ZX_MAX_CPU_EXCP) {
-		/* MPC5668 (Fado) has a special method to direct irq to cores based on value
-		   of bits of PSR so the bitmask EE_E200ZX_INTC_CURRPROC in or is used to
-		   handle it */
-		proc = EE_E200ZX_INTC_CURRPROC;
-		SET_INT_PRIO(level, proc, pri);
+		/*proc = EE_E200ZX_INTC_CURRPROC;*/
+		SET_INT_PRIO(level, pri);
 	}
 
 	EE_e200z7_resumeIRQ(intst);

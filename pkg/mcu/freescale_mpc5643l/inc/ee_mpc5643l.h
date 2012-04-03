@@ -63,7 +63,7 @@
  * it is provided just to guarantee backward compatibility */
 #define EE_E200ZX_INTC_CURRPROC 0x0U
 
-#define SET_INT_PRIO(level, proc, pri) \
+#define SET_INT_PRIO(level, pri) \
 			(*(volatile char *) (0xFFF48000+0x40+(level-16)))=pri
 
 #else /* if EE_CURRENTCPU != 0 */
@@ -75,7 +75,7 @@
  * it is provided just to guarantee backward compatibility */
 #define EE_E200ZX_INTC_CURRPROC 0x0U
  
-#define SET_INT_PRIO(level, proc, pri) \
+#define SET_INT_PRIO(level, pri) \
 			(*(volatile char *) (0x8FF48000+0x40+(level-16)))=pri
 
 #endif /* EE_CURRENTCPU */
