@@ -104,6 +104,9 @@ extern struct EE_TOS EE_mico32_system_tos[];
 /* Index of the current stack */
 extern EE_UREG EE_mico32_active_tos;
 
+/* Used by standard context switch implementation */
+#define EE_hal_active_tos EE_mico32_active_tos
+
 #endif /* __MULTI__ */
 
 /*********************************************************************

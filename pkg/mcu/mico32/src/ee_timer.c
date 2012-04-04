@@ -44,7 +44,7 @@
 	@author Dario Di Stefano
 	@date 2010
 */
-
+#include <ee_irq.h>
 #include "mcu/mico32/inc/ee_timer.h"
 
 /******************************************************************************/

@@ -164,9 +164,10 @@
 #ifndef __INCLUDE_EEMCUMICO32_GPIO_H__
 #define __INCLUDE_EEMCUMICO32_GPIO_H__
 
-#include "cpu/mico32/inc/ee_internal.h"
+//#include "cpu/mico32/inc/ee_internal.h"
+#include <ee_irq.h>
 #include "mcu/mico32/inc/ee_internal.h"
-#include <cpu/mico32/inc/ee_irq.h>
+//#include <cpu/mico32/inc/ee_irq.h>
 #include <MicoGPIO.h>
 
 /*************************************************************************

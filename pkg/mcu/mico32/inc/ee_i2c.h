@@ -143,10 +143,10 @@
 #ifndef __INCLUDE_EEMCUMICO32_I2C_H__
 #define __INCLUDE_EEMCUMICO32_I2C_H__
 
-#include "cpu/mico32/inc/ee_internal.h"
+//#include "cpu/mico32/inc/ee_internal.h"
 #include "mcu/mico32/inc/ee_internal.h"
 #include "mcu/mico32/inc/ee_buffer.h"
-#include <cpu/mico32/inc/ee_irq.h>
+//#include <cpu/mico32/inc/ee_irq.h>
 #include "OpenCoresI2CMaster.h"
 
 /* mico-i2c register structure (defined in OpenCoresI2CMaster.h) */

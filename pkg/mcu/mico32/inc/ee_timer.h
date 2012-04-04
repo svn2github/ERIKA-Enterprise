@@ -94,10 +94,10 @@
 #ifndef __INCLUDE_EEMCUMICO32_TIMER_H__
 #define __INCLUDE_EEMCUMICO32_TIMER_H__
 
-#include "cpu/mico32/inc/ee_internal.h"
+//#include "cpu/mico32/inc/ee_internal.h"
 #include "mcu/mico32/inc/ee_internal.h"
 #include "mcu/mico32/inc/ee_buffer.h"
-#include <cpu/mico32/inc/ee_irq.h>
+//#include <cpu/mico32/inc/ee_irq.h>
 #include <MicoTimer.h>                  // to use LATTICE data structures.
  
 /* mico-timer register structure (defined in MicoTimer.h)

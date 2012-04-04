@@ -49,8 +49,9 @@
 #define __ENC28J60_HAL_EE_MICO32_H__
 
 /* Needed header files */
-#include "cpu/mico32/inc/ee_internal.h"
-#include "cpu/mico32/inc/ee_irq.h"
+//#include "cpu/mico32/inc/ee_internal.h"
+//#include "cpu/mico32/inc/ee_irq.h"
+#include <ee_irq.h>
 #include "mcu/mico32/inc/ee_internal.h"
 #include "mcu/mico32/inc/ee_spi.h"
 #include "mcu/mico32/inc/ee_gpio.h"

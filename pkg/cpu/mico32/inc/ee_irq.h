@@ -48,9 +48,8 @@
 #ifndef __INCLUDE_MICO32_IRQ_H__
 #define __INCLUDE_MICO32_IRQ_H__
 
-#include <cpu/mico32/inc/ee_internal.h>
+#include <cpu/mico32/inc/ee_cpu.h>
 #include <cpu/mico32/inc/ee_irq_internal.h>
-#include <cpu/mico32/inc/ee_irq_types.h>
 
 
 #ifndef __STATIC_ISR_TABLE__

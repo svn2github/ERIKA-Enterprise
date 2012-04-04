@@ -121,10 +121,10 @@
 #ifndef __INCLUDE_EEMCUMICO32_UART_H__
 #define __INCLUDE_EEMCUMICO32_UART_H__
 
-#include "cpu/mico32/inc/ee_internal.h"
+//#include "cpu/mico32/inc/ee_internal.h"
 #include "mcu/mico32/inc/ee_internal.h"
 #include "mcu/mico32/inc/ee_buffer.h"
-#include <cpu/mico32/inc/ee_irq.h>
+//#include <cpu/mico32/inc/ee_irq.h>
 #include <MicoUart.h>               // to use LATTICE data structures.
 
 /* mico-uart register structure (defined in MicoUart.h) */

@@ -137,10 +137,10 @@
 #ifndef __INCLUDE_EEMCUMICO32_SPI_H__
 #define __INCLUDE_EEMCUMICO32_SPI_H__
 
-#include "cpu/mico32/inc/ee_internal.h"
+//#include "cpu/mico32/inc/ee_internal.h"
 #include "mcu/mico32/inc/ee_internal.h"
 #include "mcu/mico32/inc/ee_buffer.h"
-#include <cpu/mico32/inc/ee_irq.h>
+//#include <cpu/mico32/inc/ee_irq.h>
 #include "MicoSPI.h"
 
 /* mico-spi register structure (defined here because is not defined in MicoSPI.h ) */
