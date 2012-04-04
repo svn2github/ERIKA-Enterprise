@@ -41,6 +41,7 @@
  * Boot code for the MPC5674F board.
  * Author: 2010 Fabio Checconi
            2011 Bernardo  Dal Seno
+	   2012 Francesco Esposito
  */
 
 #include <eecfg.h>
@@ -72,7 +73,7 @@ void EE_mpc5674_initialize_external_IRQ_priorities(void);
 	#pragma section R ".bam_data"
 	const struct { EE_UINT32 rchw; void (*start)(void); }
 		EE_COMPILER_SECTION(".bam_data") bam_data =
-		{ BAM_RCHW, __start };
+		{ BAM_RCHW, ee_start };
 	*/
 	.section .bam_data
 	.global	_bam_data
@@ -89,7 +90,7 @@ _bam_data:
 
 	.section .boot, , c
 
-	/* CW-FUNC-DEFINITION: void __start(void) */
+	/* CW-FUNC-DEFINITION: void ee_start(void) */
 	.global	__start
 	.type	__start, @function
 __start:
