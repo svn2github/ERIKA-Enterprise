@@ -45,7 +45,7 @@
 
 #include "../test_common.h"
 #include <ee.h>
-#include <cpu/pic30/inc/ee_irqstub.h>
+#include <ee_irq.h>
 #include <mcu/microchip_dspic/inc/ee_timer.h>
 
 void test_setup_irq(void)
