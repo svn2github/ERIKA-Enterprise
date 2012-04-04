@@ -114,11 +114,14 @@ endif
 # EE_CLABS:=$(BINDIR_BINUTILS)/... todo
 #endif
 
-# Set CPU model
-ifeq ($(or MC9S12XS64, MC9S12XS128, MC9S12XS256), $(S12_MODEL))
+# Set CPU model, only models currently supported
+S12XS_CPU_MODEL = MC9S12XS64 MC9S12XS128 MC9S12XS256
+S12_CPU_MODEL = MC9S12G96 MC9S12G128 MC9S12GN16 MC9S12GN32
+
+ifeq ($(if $(filter $(S12_MODEL),$(S12XS_CPU_MODEL)),yes,) ,yes) 
 CW_CPU_MODEL = -CpuHCS12X
 endif
-ifeq ($(or MC9S12G96, MC9S12G128, MC9S12GN16, MC9S12GN32), $(S12_MODEL))
+ifeq ($(if $(filter $(S12_MODEL),$(S12_CPU_MODEL)),yes,) ,yes) 
 CW_CPU_MODEL = -CpuHCS12
 endif
 
