@@ -92,7 +92,7 @@ $(RTDRUID_OUTPUT): conf.oil
 	@echo "Running RT-Druid..."
 	@ECLIPSE_HOME="$(RTDRUID_ECLIPSE_HOME)" ;\
 	export ECLIPSE_HOME ;\
-	sh $(RTDRUID_SCRIPT_DIR)/generate_code.sh $(RTDRUID_ECLIPSE_HOME) \
+	bash $(RTDRUID_SCRIPT_DIR)/generate_code.sh $(RTDRUID_ECLIPSE_HOME) \
 		conf.oil $(OUTPUT_DIR)
 
 # LIN compliance level; to be overridden on the command line
