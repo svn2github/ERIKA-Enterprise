@@ -8,8 +8,8 @@
 #define __CPU12ISR_H_
 
 #include "hidef.h" /* this file declares symbols user by the CodeWarrior environment */
-#include "ee.h"
-#include "cpu/hs12xs/inc/ee_irqstub.h"
+#include <ee.h>
+#include <ee_irq.h>
 #include "test/assert/inc/ee_assert.h"
 
 EE_S12_ISR void SpuriousISR(void);
