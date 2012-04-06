@@ -82,7 +82,7 @@ void EE_oo_SetEvent(TaskType TaskID, EventMaskType Mask)
     register EE_TYPERN_PARAM par;
     par.ev = Mask;
     (void)EE_rn_send((EE_SREG)EE_MARK_REMOTE_TID(TaskID),
-      EE_RN_TASK, par);
+      EE_RN_EVENT, par);
     
     EE_ORTI_set_service_out(EE_SERVICETRACE_SETEVENT);
 
