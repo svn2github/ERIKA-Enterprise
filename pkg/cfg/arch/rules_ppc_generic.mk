@@ -113,7 +113,6 @@ ifneq ($(call iseeopt, __USE_CUSTOM_CRT0__), yes)
 EE_CRT0_S := pkg/mcu/freescale_$(PPC_MCU_MODEL)/src/ee_boot.S
 ifeq ($(NEED_ASM_TO_C_TRANSLATION), 1)
 EE_CRT0_SRCS := $(call asm_to_c_filename,$(EE_CRT0_S))
-EE_CASM_SRCS += $(EE_CRT0_S)
 else
 EE_CRT0_SRCS := $(EE_CRT0_S)
 endif
@@ -158,12 +157,11 @@ include $(wildcard $(PKGBASE)/cfg/cfg.mk)
 
 # Boot code containing _start should stay outside of the library in
 # case of normal compilation
-SRCS += $(EE_BOOT_SRCS)
-
 CRT0 := $(addprefix $(OBJDIR)/, $(patsubst %.c,%.o,$(patsubst %.S,%.o, $(EE_CRT0_SRCS))))
 OPT_CRT0 := $(CRT0)
 
 LIBEESRCS += $(EE_SRCS)
+
 #if only lib is needed (__NO_APP__) and we want the lib configurated add eecfg.c
 #to LIBEESRCS
 ifeq ($(or $(call iseeopt, __NO_APP__), $(call iseeopt, EE_CONFIGURATED_LIB)), yes)
@@ -291,9 +289,12 @@ $(OBJDIR)/%.o: %.c
 
 ##
 ## Assembly-to-C translation (used for CodeWarrior VLE)
+## (Boot file need translation but it MUST not be belong to libee, so it cannot
+##  be added to EE_CASM_SRCS because in cc_ppc_codewarrior.mk these file are
+##  added to EE_SRCS).
 ##
 ifeq ($(NEED_ASM_TO_C_TRANSLATION), 1)
-EE_CASM_CFILES = $(call asm_to_c_filename,$(EE_CASM_SRCS))
+EE_CASM_CFILES = $(call asm_to_c_filename,$(EE_CASM_SRCS)) $(call asm_to_c_filename, $(EE_CRT0_S))
 $(EE_CASM_CFILES): $(call asm_to_c_filename,%.S): %.S
 	@echo "ASM2C $(notdir $<)"
 	$(QUIET)$(call asm_to_c_command,$<,$@)
