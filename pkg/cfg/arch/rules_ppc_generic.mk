@@ -294,7 +294,7 @@ $(OBJDIR)/%.o: %.c
 ##  added to EE_SRCS).
 ##
 ifeq ($(NEED_ASM_TO_C_TRANSLATION), 1)
-EE_CASM_CFILES = $(call asm_to_c_filename,$(EE_CASM_SRCS)) $(call asm_to_c_filename, $(EE_CRT0_S))
+EE_CASM_CFILES = $(call asm_to_c_filename,$(EE_CASM_SRCS)) $(EE_CRT0_SRCS)
 $(EE_CASM_CFILES): $(call asm_to_c_filename,%.S): %.S
 	@echo "ASM2C $(notdir $<)"
 	$(QUIET)$(call asm_to_c_command,$<,$@)

@@ -170,10 +170,16 @@ __asm static void EE_e200zx_set_decar(EE_UREG val)
 	mtspr	decar, val
 }
 
-__asm static EE_UINT32 EE_e200zx_get_tbl(void)
+__asm static EE_UREG EE_e200zx_get_tbl(void)
 {
 ! "r3"
 	mfspr	r3, tbl
+}
+
+__asm static EE_UREG EE_e200zx_get_pvr(void)
+{
+! "r3"
+	mfspr	r3, pvr
 }
 
 #else /* if __DCC__ */
@@ -211,11 +217,18 @@ __INLINE__ void EE_e200zx_set_decar(EE_UREG val)
 	__asm volatile ("mtspr decar, %0" :: "r"(val) );
 }
 
-__INLINE__ EE_UINT32 EE_e200zx_get_tbl(void)
+__INLINE__ EE_UREG EE_e200zx_get_tbl(void)
 {
 	EE_UINT32 tbl;
 	__asm volatile ("mfspr %0, tbl" : "=r"(tbl));
 	return tbl;
+}
+
+__INLINE__ EE_UREG EE_e200zx_get_pvr(void)
+{
+	EE_UINT32 pvr;
+	__asm volatile ("mfspr %0, pvr" : "=r"(pvr));
+	return pvr;
 }
 #endif /* else __DCC__ */
 

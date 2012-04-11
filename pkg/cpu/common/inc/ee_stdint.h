@@ -50,12 +50,29 @@
 #define __INCLUDE_CPU_COMMON_EE_STDINT_H__
 
 #if (defined(__PIC32__) && defined(__GNUC__)) || \
-    (defined(__CORTEX_MX__) && (defined(__CCS__) || defined(__IAR__)))
+  (defined(__CORTEX_MX__) && (defined(__CCS__) || defined(__IAR__)))
 /* When supported, include stdint.h to avoid conflicting definitions of
  * exact-size types. */
 #include <stdint.h>
 
+#elif defined(__PPCE200ZX__) && defined(__CODEWARRIOR__)
+/* EWL CodeWarrior standard library.
+   I need all types so I need to eneble C99 support */
+#if defined(_EWL_C99) && (!_EWL_C99)
+#define EE_EWL_C99_FALSE
+#undef _EWL_C99
+#endif /* defined(_EWL_C99) && !_EWL_C99 */
+
+#define _EWL_C99 1
+#include <stdint.h>
+
+#undef _EWL_C99
+#ifdef EE_EWL_C99_FALSE
+#define _EWL_C99 0
+#endif /* EE_EWL_C99_FALSE */  
+
 #else
+
 /* No stdint.h.  Define types through educated guesses */
 
 #include <limits.h>
@@ -113,6 +130,38 @@ typedef __EE_INT16 int16_t;	/**< Signed 16 bit integer. */
 typedef __EE_INT32 int32_t;	/**< Signed 32 bit integer. */
 #endif
 
+
+/* 7.18.1.3 Fastest minimum-width integer types */
+#ifndef INT_FAST8_T
+#define INT_FAST8_T
+typedef signed char     int_fast8_t;
+#endif
+
+#ifndef INT_FAST16_T
+#define INT_FAST16_T
+typedef __EE_INT16      int_fast16_t;
+#endif
+
+#ifndef INT_FAST32_T
+#define INT_FAST32_T
+typedef __EE_INT32      int_fast32_t;
+#endif
+
+#ifndef UINT_FAST8_T
+#define UINT_FAST8_T
+typedef unsigned char   uint_fast8_t;
+#endif
+
+#ifndef UINT_FAST16_T
+#define UINT_FAST16_T
+typedef __EE_UINT16     uint_fast16_t;
+#endif
+
+#ifndef UINT_FAST32_T
+#define UINT_FAST32_T
+typedef __EE_UINT32     uint_fast32_t;
+#endif
+
 /* Some real guesswork is needed here, as 64-bit types are not standard */
 #ifndef __EE_STDINT_SKIP_64BIT__
 
@@ -139,13 +188,13 @@ typedef unsigned long long uint64_t;	/**< Unsigned 64 bit integer. */
 #ifdef LLONG_MAX
 #if LLONG_MAX != 4294967295UL
 #define INT64_T
-typedef long long int64_t;	/**< Unsigned 64 bit integer. */
+typedef long long int64_t;	/**< Signed 64 bit integer. */
 #endif
 #endif /* ULLONG_MAX */
 #if ! defined(INT64_T) && defined(__LONG_LONG_MAX__)
 #if __LONG_LONG_MAX__ != 2147483647L
 #define INT64_T
-typedef long long int64_t;	/**< Unsigned 64 bit integer. */
+typedef long long int64_t;	/**< Signed 64 bit integer. */
 #endif
 #endif /*  __LONG_LONG_MAX__ */
 #ifndef UINT64_T

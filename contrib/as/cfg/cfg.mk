@@ -77,6 +77,17 @@ endif
 
 endif	# __STELLARIS__ && __KEIL__
 
+ifeq ($(and $(call iseeopt, EE_MPC5643L), $(call iseeopt, __CODEWARRIOR__)), yes)
+
+INCLUDE_PATH += $(EEBASE)/contrib/as/arch/mpc56xx/codewarrior/include
+
+ifeq ($(call iseeopt, __AS_MCU_DRIVER__), yes)
+EE_SRCS += contrib/as/arch/mpc56xx/codewarrior/drivers/Mcu.c
+endif
+
+endif	#EE_MPC5643L && __CODEWARRIOR__
+
 endif	# __AUTOSAR_R4_0__
 
 endif	# ENABLE_LIBS
+

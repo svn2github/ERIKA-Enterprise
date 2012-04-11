@@ -54,8 +54,6 @@ ifeq ($(call iseeopt, __BUILD_ALL_LIBS__), yes)
 INCLUDE_AUTOSAR = YES
 endif
 
-endif
-
 ##
 ## If the library is required
 ##
@@ -65,7 +63,7 @@ ifeq ($(INCLUDE_AUTOSAR), YES)
 ## Library code
 ##
 ## Add the inc path to the include pathlist
-##New include mechanism
+## New include mechanism
 INCLUDE_PATH += $(EEBASE)/contrib/as/include
 
 ifeq ($(and $(call iseeopt, __STELLARIS__), $(call iseeopt, __KEIL__)), yes)
@@ -130,6 +128,18 @@ EE_SRCS_AUTOSAR += $(OUTBASE)/Gpt_Cfg.c
 endif
 endif	# __NO_APP__
 endif	# __AS_GPT_DRIVER__
+
+endif # __STELLARIS__ && __KEIL__
+
+ifeq ($(and $(call iseeopt, EE_MPC5643L), $(call iseeopt, __CODEWARRIOR__)), yes)
+
+INCLUDE_PATH += $(EEBASE)/contrib/as/arch/mpc56xx/codewarrior/include
+
+ifeq ($(call iseeopt, __AS_MCU_DRIVER__), yes)
+EE_SRCS_AUTOSAR += contrib/as/arch/mpc56xx/codewarrior/drivers/Mcu.c
+endif	# __AS_MCU_DRIVER__
+
+endif	#EE_MPC5643L && __CODEWARRIOR__
 
 #~ ifeq ($(call iseeopt, __NO_APP__), yes)
 #~ EE_SRCS_AUTOSAR += $(filter-out eecfg.c, $(APP_SRCS))
