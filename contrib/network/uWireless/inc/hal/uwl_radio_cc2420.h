@@ -85,11 +85,11 @@ COMPILER_INLINE int8_t uwl_radio_init(void)
 	#endif
 }
 
-
+#ifndef CSMA_UNSLOTTED
 int8_t uwl_radio_mac_create_beacon(void);
 
 int8_t uwl_radio_mac_send_beacon(void);
-
+#endif
 
 COMPILER_INLINE uint32_t uwl_radio_phy_get_bitrate(void)
 {
@@ -130,7 +130,9 @@ int8_t uwl_radio_send_ack(void);
 int8_t uwl_radio_send_csma(void *todo); /*TODO: chris: define params */
 
 /* chris: Receiving function (callbback mechanism), can be used by the MAC! */
+#ifndef CSMA_UNSLOTTED
 int8_t uwl_radio_set_beacon_rx_callback(void *todo); /*TODO: chris: def params*/
+#endif
 int8_t uwl_radio_set_data_rx_callback(void *todo); /*TODO: chris: def params */
 int8_t uwl_radio_set_command_rx_callback(void *todo); /*TODO: chris: def parms*/
 int8_t uwl_radio_set_ack_rx_callback(void *todo); /*TODO: chris: define params*/
@@ -271,7 +273,7 @@ COMPILER_INLINE int8_t uwl_radio_get_rx_data(uint8_t *msg, uint8_t *fcs_chk,
 	* For further information see the CC2420 datasheet
 	*/
 	*lqi = buf[len - 1] & 0x7F;
-	*rssi= 255 - buf[len - 2];
+	*rssi= (uint8_t)(buf[len - 2] - 45);
 	/* remove the FCS/LQI, RSSI, and lenght from the length */
 	len -= 3;
 	//memcpy(msg, buf+1, len);

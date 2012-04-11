@@ -128,7 +128,8 @@ int8_t uwl_mac_gts_db_clean(void);
 
 int8_t uwl_mac_gts_db_add(uwl_mac_dev_addr_short_t dev_addr, 
 			  uint8_t len, uint8_t dir);
-			  
+
+#ifndef CSMA_UNSLOTTED
 int8_t uwl_mac_set_beacon_payload(uint8_t *data, uint8_t len);
 
 int8_t uwl_mac_get_beacon_payload(uint8_t *data, uint8_t len);
@@ -138,6 +139,7 @@ int8_t uwl_mac_set_before_beacon_callback(void (* func)(void));
 int8_t uwl_mac_set_on_beacon_callback(void (* func)(void));
 
 int8_t uwl_mac_set_on_rx_beacon_callback(void (* func)(void));
+#endif
 
 int8_t uwl_mac_jammer_cap(uint8_t *data, uint8_t len);
 

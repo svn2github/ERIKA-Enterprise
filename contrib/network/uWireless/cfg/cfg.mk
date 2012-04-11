@@ -35,11 +35,15 @@ endif
 EE_SRCS += contrib/network/uWireless/src/phy/uwl_phy.c
 
 ifneq ($(call iseeopt, UWL_USE_ONLY_802154_PHY), yes)
+ifeq ($(call iseeopt, CSMA_UNSLOTTED), yes)
+EE_SRCS += contrib/network/uWireless/src/mac/uwl_mac_unslotted.c
+else
 EE_SRCS += contrib/network/uWireless/src/mac/uwl_mac.c
-EE_SRCS += contrib/network/uWireless/src/mac/uwl_mac_mlme.c
-EE_SRCS += contrib/network/uWireless/src/mac/uwl_mac_mcps.c
 EE_SRCS += contrib/network/uWireless/src/mac/uwl_mac_superframe.c
 EE_SRCS += contrib/network/uWireless/src/mac/uwl_mac_gts.c
+endif
+EE_SRCS += contrib/network/uWireless/src/mac/uwl_mac_mlme.c
+EE_SRCS += contrib/network/uWireless/src/mac/uwl_mac_mcps.c
 endif
 
 ifneq ($(call iseeopt, UWL_USE_ONLY_802154_MAC), yes)

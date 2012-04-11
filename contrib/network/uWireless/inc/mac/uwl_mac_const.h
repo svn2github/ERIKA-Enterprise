@@ -41,7 +41,7 @@
 #ifdef __AVR5__ /* FIXME: tmp solution!*/
 #define UWL_MAC_IND_LIST_SIZE	5
 #else
-#define UWL_MAC_IND_LIST_SIZE	20
+#define UWL_MAC_IND_LIST_SIZE	1
 #endif
 #endif /* UWL_MAC_IND_LIST_SIZE */
 

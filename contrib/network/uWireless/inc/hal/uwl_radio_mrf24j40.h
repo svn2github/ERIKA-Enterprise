@@ -74,10 +74,11 @@
  */
 int8_t uwl_radio_init(void);
 
+#ifndef CSMA_UNSLOTTED
 int8_t uwl_radio_mac_create_beacon(void);
 
 int8_t uwl_radio_mac_send_beacon(void);
-
+#endif
 
 COMPILER_INLINE uint32_t uwl_radio_phy_get_bitrate(void)
 {
@@ -118,7 +119,9 @@ int8_t uwl_radio_send_ack(void);
 int8_t uwl_radio_send_csma(void *todo); /*TODO: chris: define params */
 
 /* chris: Receiving function (callbback mechanism), can be used by the MAC! */
+#ifndef CSMA_UNSLOTTED
 int8_t uwl_radio_set_beacon_rx_callback(void *todo); /*TODO: chris: def params*/
+#endif
 int8_t uwl_radio_set_data_rx_callback(void *todo); /*TODO: chris: def params */
 int8_t uwl_radio_set_command_rx_callback(void *todo); /*TODO: chris: def parms*/
 int8_t uwl_radio_set_ack_rx_callback(void *todo); /*TODO: chris: define params*/

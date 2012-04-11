@@ -31,8 +31,10 @@ int sprintf(char *, const char *, ...);
 /******************************************************************************/
 /*                      Radio MAC/PHY Private Data                            */
 /******************************************************************************/
+#ifndef CSMA_UNSLOTTED
 static uwl_mpdu_t beacon;
 static uint8_t beacon_size;
+#endif
 static enum uwl_phy_code_t phy_status;
 
 static uwl_mpdu_t ack;
@@ -121,6 +123,7 @@ int8_t uwl_radio_init(void)
 
 }
 
+#ifndef CSMA_UNSLOTTED
 int8_t uwl_radio_mac_create_beacon(void)
 {
 	/* TODO: chris: IDEA: We can use this symbol to force the 
@@ -151,6 +154,7 @@ int8_t uwl_radio_mac_send_beacon(void)
 	}
 	return -UWL_RADIO_ERR_NONE; 
 }
+#endif
 
 int8_t uwl_radio_store_ack(uint8_t *buf, uint8_t len)
 {
