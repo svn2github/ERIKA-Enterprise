@@ -129,11 +129,10 @@ static EE_mcu_disable_watchdog(void) {
 #define MCU_KEY_MASK            0x00005AF0U
 #define MCU_INVERTED_KEY_MASK   0x0000A50FU
 
-static void EE_mcu_perform_mode_switch(Mcu_ModeSettingConfigType const * const 
-    mode_settings_ptr)
-{
-  const uint32 target_mode_mask = mode_settings_ptr->
-      McuHardawareModeId << MCU_TARGET_MODE_SHIFT;
+static void EE_mcu_perform_mode_switch(Mcu_HardawareModeIdType
+    mode_hardware_id) {
+
+  const uint32 target_mode_mask   = mode_hardware_id << MCU_TARGET_MODE_SHIFT;
   const uint32 mode_key           = target_mode_mask | MCU_KEY_MASK;
   const uint32 mode_inverted_key  = target_mode_mask | MCU_INVERTED_KEY_MASK;
  
@@ -149,15 +148,54 @@ static void EE_mcu_perform_mode_switch(Mcu_ModeSettingConfigType const * const
   }
 
 #ifdef DEBUG
-  while (ME.GS.B.S_CURRENT_MODE !=  mode_settings_ptr->
-      McuHardawareModeId)
+  while (ME.GS.B.S_CURRENT_MODE !=  mode_hardware_id)
   {
     ; /* Catch if the right transition didn't happened */
   }
 #endif /* DEBUG */
 
-  /* Clear Transition flag */
+  /* Clear Transition flag (w1c bit)*/
   ME.IS.R = 0x00000001U;
+}
+
+static void EE_mcu_set_mode_configuration(Mcu_HardawareModeIdType
+    mode_hardware_id, uint32 run_configuration) {
+  /* TODO Add bit masks to disable bit that must be disabled and to enable bit
+     that must be enabled (unconfigurable bits) */
+  switch(mode_hardware_id) {
+    case MCU_MODE_ID_RESET:
+      ME.RESET_MC.R = run_configuration;
+    break;
+    case MCU_MODE_ID_TEST:
+      ME.TEST_MC.R = run_configuration;
+    break;
+    case MCU_MODE_ID_SAFE:
+      ME.SAFE_MC.R = run_configuration;
+    break;
+    case MCU_MODE_ID_DRUN:
+      ME.DRUN_MC.R = run_configuration;
+    break;
+    case MCU_MODE_ID_RUN0:
+      ME.RUN0_MC.R = run_configuration;
+    break;
+    case MCU_MODE_ID_RUN1:
+      ME.RUN1_MC.R = run_configuration;
+    break;
+    case MCU_MODE_ID_RUN2:
+      ME.RUN2_MC.R = run_configuration;
+    break;
+    case MCU_MODE_ID_RUN3:
+      ME.RUN3_MC.R = run_configuration;
+    break;
+    case MCU_MODE_ID_HALT0:
+      ME.HALT0_MC.R = run_configuration;
+    break;
+    case MCU_MODE_ID_STOP0:
+      ME.STOP0_MC.R = run_configuration;
+    default:
+      /* Unknown mode ID nothing to do (XXX: maybe Notify DET/DEM) */
+      ;
+  }
 }
 
 /*
@@ -172,17 +210,22 @@ void Mcu_Init(const Mcu_ConfigType * ConfigPtr)
   /* Enable modes */
   ME.MER.R = MCU_ENABLED_MODES;
 
-    /* TODO: Maybe add some FLASH and CACHE optimization here */
+  /* TODO: Maybe add some FLASH and CACHE optimization here */
 
   /* Only peripheral configuration 0 it's used so peripheral have to be
      enabled according to this */
-  /* Enable peripherals to run in all modes not LP */
+  /* Enable peripherals to run in all modes not LP with
+     (default configuration) */
   ME.RUNPC[0].R = 0x000000FEU;
   /* Disable peripherals in LP modes (already done at reset) */
   /* ME.LPPC[0].R = 0x00000000; */
 
   /* save the configuration in global status */
   EE_mcu_status.config = ConfigPtr;
+
+  /* Configure RESET */
+  EE_mcu_set_mode_configuration(MCU_MODE_ID_RESET,
+    ConfigPtr->McuResetSetting);
 
   /* Now the MCU is initializated */
   EE_mcu_status.init = TRUE;
@@ -245,7 +288,7 @@ Std_ReturnType Mcu_InitClock(Mcu_ClockType ClockSetting)
       EE_ENABLE_PLL_SWITCHING);
 
 #ifdef MCU_CLOCK_MAX_FREQ_WITHOUT_RAM_WAIT
-  if (clockSettingsPtr->McuClockReferencePointFrequency > 
+  if (clockSettingsPtr->McuClockReferencePointFrequency >=
         MCU_CLOCK_MAX_FREQ_WITHOUT_RAM_WAIT)
   {
       /* Add a wait state in RAM read */
@@ -269,7 +312,7 @@ Std_ReturnType Mcu_InitClock(Mcu_ClockType ClockSetting)
 #if ( MCU_NO_PLL == STD_OFF )
 void Mcu_DistributePllClock(void)
 {
-  /* NOT IMPLEMENTED meaningless in this hardware */
+  /* NOT IMPLEMENTED: meaningless in this hardware */
 }
 #endif
 
@@ -280,6 +323,7 @@ Mcu_PllStatusType Mcu_GetPllStatus(void)
 {
   Mcu_PllStatusType pll_status;
 
+  /* CGM.FMPLL[0] it's system pll */
   if (CGM.FMPLL[0].CR.B.S_LOCK ) {
     pll_status = MCU_PLL_LOCKED;
   } else {
@@ -300,6 +344,7 @@ Mcu_ResetType Mcu_GetResetReason(void)
   if( RGM.FES.B.F_SOFT_FUNC || RGM.DES.B.F_SOFT_DEST ) {
     reset_reason = MCU_SW_RESET;
   } else if( RGM.FES.B.F_SWT || RGM.FES.B.F_CWD) {
+    /* SWT or Core Watchdog reset */
     reset_reason = MCU_WATCHDOG_RESET;
   } else if( RGM.DES.B.F_POR ) {
     reset_reason = MCU_POWER_ON_RESET;
@@ -325,14 +370,8 @@ Mcu_RawResetType Mcu_GetResetRawValue(void)
  */
 void Mcu_PerformReset(void)
 {
-  Mcu_ModeSettingConfigType EE_mcu_reset_settings;
-  /* RESET hardware ID */
-  EE_mcu_reset_settings.McuHardawareModeId      = MCU_MODE_ID_RESET;
-  /* RESET configuration */
-  EE_mcu_reset_settings.McuRunConfiguration  = EE_mcu_status.config->
-    McuResetSetting;
-
-  EE_mcu_perform_mode_switch(&EE_mcu_reset_settings);
+  /* XXX: At this time only Software Functional Reset it's supported */
+  EE_mcu_perform_mode_switch(MCU_MODE_ID_RESET);
 }
 #endif
 
@@ -341,16 +380,17 @@ void Mcu_PerformReset(void)
  */
 void Mcu_SetMode(Mcu_ModeType McuMode)
 {
-  /* TODO */
   Mcu_ModeSettingConfigType const * const modeSettingsPtr = &EE_mcu_status.
     config->McuModeSettingConf[McuMode];
 
-  const uint32 mode_id = modeSettingsPtr->McuHardawareModeId;
+  const Mcu_HardawareModeIdType mode_id = modeSettingsPtr->
+    McuHardawareModeId;
 
-  /* Set RUN mode configuration */
-  ME.RUN[mode_id].R = modeSettingsPtr->McuRunConfiguration;
+  /* Set mode configuration */
+  EE_mcu_set_mode_configuration(mode_id, modeSettingsPtr->McuRunConfiguration);
 
-  EE_mcu_perform_mode_switch(modeSettingsPtr);
+  /* Perform Switch */
+  EE_mcu_perform_mode_switch(mode_id);
 }
 
 /*
