@@ -46,20 +46,27 @@
 ; */
 ;
 ;******************************************************************************
+#include "eecfg.h"	/* Configurable by RT-Druid */
 
 ;******************************************************************************
 ;
 ; <o> Stack Size (in Bytes) <0x0-0xFFFFFFFF:8>
 ;
 ;******************************************************************************
-Stack	EQU	0x00000100
+#ifndef	EE_CORTEX_MX_SYS_STACK_SIZE
+#define	EE_CORTEX_MX_SYS_STACK_SIZE	0x00000400	/* 1K bytes */
+#endif
+Stack	EQU	EE_CORTEX_MX_SYS_STACK_SIZE
 
 ;******************************************************************************
 ;
 ; <o> Heap Size (in Bytes) <0x0-0xFFFFFFFF:8>
 ;
 ;******************************************************************************
-Heap	EQU	0x00000000
+#ifndef	EE_CORTEX_MX_SYS_HEAP_SIZE
+#define	EE_CORTEX_MX_SYS_HEAP_SIZE	0x00000400	/* 1K bytes */
+#endif
+Heap	EQU	EE_CORTEX_MX_SYS_HEAP_SIZE
 
 ;******************************************************************************
 ;
@@ -103,7 +110,6 @@ __heap_limit
 ; The vector table.
 ;
 ;******************************************************************************
-#include "eecfg.h"
 
 /*
  * Extern declarations of the interrupt handlers.
