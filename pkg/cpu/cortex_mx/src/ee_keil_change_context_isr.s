@@ -70,6 +70,7 @@ NVIC_INT_CTRL		EQU	0xE000ED04	; Interrupt control status register
 NVIC_SHPR3		EQU	0xE000ED20	; System priority register (PendSV 14)
 NVIC_PENDSV_PRI		EQU	0x00FF0000	; PendSV priority value (Lowest)
 NVIC_PENDSVSET		EQU	0x10000000	; Value to trigger PendSV exception
+NVIC_STKALIGN		EQU	0x00000200	; Stack Alignment on Exception Entry
 
 EPSR_T_BIT_VAL		EQU	0x01000000	; Value to set the T-bit in EPSR (always Thumb mode)
 
@@ -129,15 +130,16 @@ EE_cortex_mx_pendsv_ISR
 	LDR	R1, =EE_cortex_mx_change_context	; R1 = EE_cortex_mx_change_context (PC)
 	LDR	R0, =exit_EE_cortex_mx_change_context	; R0 = exit_EE_cortex_mx_change_context (LR)
 	PUSH	{R0-R2}			;
-	PUSH	{R0}			;Since PUSH cannot use R12, put R0 onto stack as R12
+	MOV	R0, R12			;Since PUSH cannot use R12, put R0 onto stack as R12
+	PUSH	{R0}
 	LDR	R0, =EE_std_endcycle_next_tid		; R0 = address of EE_std_endcycle_next_tid
 	LDR	R0,[R0]			; R0 = EE_std_endcycle_next_tid
 					; Note: following the call convention, EE_cortex_mx_change_context
 					; will get EE_std_endcycle_next_tid from R0.
 	PUSH	{R0-R3}			;Fake IRQ handler frame on top of PendSV frame:
-					;|xPSR|
-					;| PC |-> EE_std_change_context
-					;| LR |-> exitPendSV (LR)
+					;|xPSR|-> xPSR AND 0xFFFFFE0
+					;| PC |-> EE_cortex_mx_change_context
+					;| LR |-> exit_EE_cortex_mx_change_context
 					;| R12|
 					;| R3 |
 					;| R2 |
@@ -172,29 +174,42 @@ exit_EE_cortex_mx_change_context
 
 	LDR	R1, [R0, #24]		; Get the value of PC from the stack
 	ADDS	R1, R1, #0x01		; Set Bit[0] of R1 to ensure that T-bit in APSR is 1,
+
+	LDR	R2, =NVIC_STKALIGN	; R2 = 0x00000200
+	ANDS	R2, R2, R3		; Alignment test in R2
+
+	CBZ	R2, stackAligned1
+	ADDS	R0, R0, #4		; Adds alignment displacement
+
+stackAligned1
+	MSR	PSR, R3			; Restore xPSR
 					; that is, the processor must work in Thumb mode
 	STR	R1, [R0, #28]		; Store value of PC from stack has the
 					; first value on the stack frame. 
 					; This value is used as return address
-
-	MSR	PSR, R3			; Restore xPSR
-
-	LDR	R1, [R0]		; Get the value of R0 from the stack
-	STR	R1, [R0, #20]		; Store value of R0 from the stack
+	POP	{R1}			; Get R0 value from stack
+	STR	R1, [R0, #24]		; Store value of R0 from the stack
+					; onto the stack at the place of PC
+	POP	{R1}			; Get R1 value from stack
+	STR	R1, [R0, #20]		; Store value of R1 from the stack 
 					; onto the stack at the place of LR
-	STR	R1, [R0, #24]		; Store value of R0 from the stack 
-					 ;onto the stack at the place of PC
 	MOV	R12, R4			; Use R12 to save the current value of R4
-	POP	{R0-R4}			; Restore Scratch registers
+	MOV	R1, R2			; Aligment test in R1
+	POP	{R2-R4}			; Restore Scratch registers
 					; Note: in R4 we get the scratch register R12
 	MOV	R0, R12			; Use R0 to save the value of R4 before the pop instruc.,
 					; (which is stored in R12)
 	MOV	R12, R4			; Restore Scratch register R12
 	MOV	R4, R0			; Restore R4
-	POP	{R0}			; Move stack pointer getting again R0
+
+	CBZ	R1, stackAligned2
+	POP	{R0}
+
+stackAligned2
+	POP	{R1}			; Move stack pointer getting again R1
 	CPSIE	I			; Enable interrupts (clear PRIMASK)
 	POP	{R0, PC}		; Move stack pointer getting again R0 and return
-					; updating PC 
+					; updating PC
 
 ;******************************************************************************
 ;

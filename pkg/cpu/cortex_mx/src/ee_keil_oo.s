@@ -56,6 +56,11 @@
 	IMPORT	EE_terminate_real_th_body
 	IMPORT	EE_terminate_data
 
+;*******************************************************************************
+;                              EQUATES
+;*******************************************************************************
+EPSR_T_BIT_VAL		EQU	0x01000000	; Value to set the T-bit in EPSR (always Thumb mode)
+
 ;******************************************************************************
 ;
 ; Indicate that the code in this file preserves 8-byte alignment of the stack.
@@ -71,6 +76,17 @@
 
 ;void EE_hal_terminate_savestk(EE_TID tid);
 EE_hal_terminate_savestk
+	; Save all callee-saved registers
+	; R0-R3 and R12 are scratch registers, R13 ->(MSP), R14 ->(LR), R15 -> (PC)
+	PUSH	{R4-R7}			; Store R4, R5, R6, R7 onto stack 
+	MOV	R4, R8
+	MOV	R5, R9
+	MOV	R6, R10
+	MOV	R7, R11
+	PUSH	{R4-R7}			; Store R8, R9, R10, R11 onto stack
+	PUSH	{LR}			; Store link register (return address)
+	MRS	R3, PSR			; Store xPSR to 8-bytes stack aligment
+	PUSH	{R3}
 	;R0 == tid
 	LSLS	R0, R0, #2		; R0 = tid << 2
 	LDR	R1, =EE_terminate_real_th_body	; R1 == EE_terminate_real_th_body[tid]
@@ -81,27 +97,19 @@ EE_hal_terminate_savestk
 	LDR	R2, =EE_terminate_data
 	ADD	R2, R2, R0
 	MRS	R3, MSP			; Get the stack pointer
-	SUBS	R3, R3, #36		; R3= Stack pointer after context saving
 	STR	R3, [R2]		; Save stack pointer
-	; Save all callee-saved registers
-	; R0-R3 and R12 are scratch registers, R13 ->(MSP), R14 ->(LR), R15 -> (PC)
-	PUSH	{R4-R7}			; Store R4, R5, R6, R7 onto stack 
-	MOV	R4, R8
-	MOV	R5, R9
-	MOV	R6, R10
-	MOV	R7, R11
-	PUSH	{R4-R7}			; Store R8, R9, R10, R11 onto stack
-	PUSH	{LR}			; Store link register (return address)
 
 	;Start the thread body
 	BLX	R1
 
 	; The task terminated with a return: do the usual cleanup
+	POP	{R2}			; Get xPSR from stack
+	LDR	R0, =EPSR_T_BIT_VAL	; R0 = 0x01000000
+	ORRS	R2, R2, R0		; R2 = (xPSR OR 0x01000000). This guarantees that Thumbs bit is set
+					; to avoid an hard_fault exception
+	MSR	PSR, R2			; Restore xPSR register
 	POP	{R0}			; Get link register from stack
 	MOV	LR, R0			; Restore the link register
-;	MRS	R3, MSP			; Get the stack pointer
-;	ADDS	R3, R3, #32		; Restore the stack pointer
-;	MSR	MSP, R3
 	; Restore R8, R9, R10, R11 from stack
 	POP	{R4-R7}
 	MOV	R8, R4
@@ -124,6 +132,11 @@ EE_hal_terminate_task
 	LDR	R2, [R1]
 	MSR	MSP, R2
 
+	POP	{R2}			; Get xPSR from stack
+	LDR	R0, =EPSR_T_BIT_VAL	; R0 = 0x01000000
+	ORRS	R2, R2, R0		; R2 = (xPSR OR 0x01000000). This guarantees that Thumbs bit is set
+					; to avoid an hard_fault exception
+	MSR	PSR, R2			; Restore xPSR register
 	POP	{R3}			; Get link register from stack
 	MOV	LR, R3			; Restore the link register
 	; Restore R8, R9, R10, R11 from stack

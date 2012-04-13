@@ -66,11 +66,10 @@
 	.text
 
 NVIC_INT_CTRL		.word	0E000ED04h	; Interrupt control status register
-NVIC_ICER		.word	0E000E180h	; Interrupt Clear Register
 NVIC_SHPR3		.word	0E000ED20h	; System priority register (PendSV 14) 0xE000ED20
 NVIC_PENDSV_PRI		.word	000FF0000h	; PendSV priority value (Lowest)
 NVIC_PENDSVSET		.word	010000000h	; Value to trigger PendSV exception
-NVIC_PENDSVCLEAR	.word	010000000h	; Value to trigger PendSV exception
+NVIC_STKALIGN		.word	000000200h	; Stack Alignment on Exception Entry
 
 EPSR_T_BIT_VAL		.word	001000000h	; Value to set the T-bit in EPSR (always Thumb mode)
 
@@ -85,42 +84,53 @@ _exit_EE_cortex_mx_change_context_addr	.word exit_EE_cortex_mx_change_context
 ;
 exit_EE_cortex_mx_change_context:
 	.asmfunc
-	;SVC #0
-	;incrementa stack pointer per scartare frame 
 
-	;mrs	r0, msp
 	MRS	R0, MSP			; Get the stack pointer
 
-	LDR	R3, [R0, #28]		; Status xPSR  in R3
+	LDR	R3, [R0, #28]		; Status xPSR in R3
 
 	LDR	R2, [R0, #20]		; Load LR from stack
 	MOV	LR, R2			; Restore LR
 
 	LDR	R1, [R0, #24]		; Get the value of PC from the stack
 	ADDS	R1, R1, #0x01		; Set Bit[0] of R1 to ensure that T-bit in APSR is 1,
+
+	LDR	R2, NVIC_STKALIGN	; R2 = 0x00000200
+	ANDS	R2, R2, R3		; Alignment test in R2
+
+	CBZ	R2, stackAligned1
+	ADDS	R0, R0, #4		; Adds alignment displacement
+
+stackAligned1:
+	MSR	XPSR, R3		; Restore xPSR
 					; that is, the processor must work in Thumb mode
 	STR	R1, [R0, #28]		; Store value of PC from stack has the
 					; first value on the stack frame. 
 					; This value is used as return address
-
-	MSR	XPSR, R3		; Restore xPSR
-
-	LDR	R1, [R0]		; Get the value of R0 from the stack
-	STR	R1, [R0, #20]		; Store value of R0 from the stack
+	POP	{R1}			; Get R0 value from stack
+	STR	R1, [R0, #24]		; Store value of R0 from the stack
+					; onto the stack at the place of PC
+	POP	{R1}			; Get R1 value from stack
+	STR	R1, [R0, #20]		; Store value of R1 from the stack 
 					; onto the stack at the place of LR
-	STR	R1, [R0, #24]		; Store value of R0 from the stack 
-					 ;onto the stack at the place of PC
 	MOV	R12, R4			; Use R12 to save the current value of R4
-	POP	{R0-R4}			; Restore Scratch registers
+	MOV	R1, R2			; Aligment test in R1
+	POP	{R2-R4}			; Restore Scratch registers
 					; Note: in R4 we get the scratch register R12
 	MOV	R0, R12			; Use R0 to save the value of R4 before the pop instruc.,
 					; (which is stored in R12)
 	MOV	R12, R4			; Restore Scratch register R12
 	MOV	R4, R0			; Restore R4
-	POP	{R0}			; Move stack pointer getting again R0
-	CPSIE	i			; Enable interrupts (clear PRIMASK)
-	POP {R0, PC}			; Move stack pointer getting again R0 and return
+
+	CBZ	R1, stackAligned2
+	POP	{R0}
+
+stackAligned2:
+	POP	{R1}			; Move stack pointer getting again R1
+	CPSIE	I			; Enable interrupts (clear PRIMASK)
+	POP	{R0, PC}		; Move stack pointer getting again R0 and return
 					; updating PC
+
 	.endasmfunc
 
 ; void EE_set_switch_context_pri(void)
@@ -148,15 +158,10 @@ EE_switch_context:
 ; void EE_cortex_mx_pendsv_handler(void)
 EE_cortex_mx_pendsv_handler:
 	.asmfunc
-	CPSID i				; Disable all interrupts except NMI (set PRIMASK)
+	CPSID	I			; Disable all interrupts except NMI (set PRIMASK)
 					; Build a stack frame to jump into the EE_cortex_mx_change_context(EE_TID)
 					; at the end of PendSV_Handler.
-;	LDR	R0, NVIC_ICER		; Clear PendSv interrupt
-;	LDR	R1, NVIC_PENDSVCLEAR	; Load  0x10000000 in R1
-;	STR	R1, [R0]		; Clear any pending PendSv interrupt ICER = 0x10000000
 	MRS	R2, XPSR		; R2 = xPSR
-;	MOVS	R0, #0x80		; R0 = 0x00000080
-;	LSLS	R0, #0x11		; R0 = 0x01000000
 	LDR	R0, EPSR_T_BIT_VAL	; R0 = 0x01000000
 	ORRS	R2, R2, R0		; R2 = (xPSR OR 0x01000000). This guarantees that Thumbs bit is set
 					; to avoid an hard_fault exception
@@ -166,7 +171,8 @@ EE_cortex_mx_pendsv_handler:
 	LDR	R1, _EE_cortex_mx_change_context_addr		; R1 = EE_cortex_mx_change_context_addr
 	LDR	R0, _exit_EE_cortex_mx_change_context_addr	; R0 = exit_EE_cortex_mx_change_context (LR)
 	PUSH	{R0-R2}			;
-	PUSH	{R0}			;Since PUSH cannot use R12, put R0 onto stack as R12
+	MOV	R0, R12			;Since PUSH cannot use R12, put R0 onto stack as R12
+	PUSH	{R0}
 	LDR	R0, _EE_std_endcycle_next_tid_addr	; R0 = address of EE_std_endcycle_next_tid_addr
 	LDR	R0,[R0]			; R0 = EE_std_endcycle_next_tid
 					; Note: following the call convention, EE_cortex_mx_change_context
