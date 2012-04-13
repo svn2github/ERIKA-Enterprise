@@ -57,7 +57,7 @@
 #define	SRAM_BASE	0x20000000
 #define	SRAM_SIZE	0x00008000
 #define	STACK_BASE	__stack
-#define	STACK_SIZE	0x00000200
+#define	STACK_SIZE	0x00000400
 
 /* System memory map */
 
