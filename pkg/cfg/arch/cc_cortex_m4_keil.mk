@@ -134,7 +134,7 @@ ifeq ($(call iseeopt, DEBUG), yes)
 OPT_CC += -g
 endif
 
-OPT_CC += -c -D__EVAL
+OPT_CC += -c
 
 # Specific option from the application makefile
 OPT_CC += $(CFLAGS)
@@ -149,7 +149,7 @@ ifeq ($(call iseeopt, DEBUG), yes)
 OPT_ASM += -g
 endif
 
-OPT_ASM += --pd "__EVAL SETA 1" --xref --cpreproc
+OPT_ASM += --xref --cpreproc
 
 # Specific option from the application makefile
 OPT_ASM += $(ASFLAGS)
@@ -209,8 +209,8 @@ OPT_LINK += $(LDFLAGS)
 # Each identifier that is listed in EEOPT is also inserted as a 
 # command-line macro in the compiler...
 
-DEFS_ASM = 
-#$(foreach d,$(EEOPT),$(addprefix --pd ,$d))
+DEFS_ASM = $(foreach d,$(EEOPT),--pd "$d SETA 1")
+
 DEFS_CC  = $(addprefix -D, $(EEOPT))
 
 
