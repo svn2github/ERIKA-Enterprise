@@ -33,7 +33,7 @@
         #define UWL_TIMER_INTERRUPT_DISABLE() IEC0CLR = _IEC0_T5IE_MASK
         #define UWL_TIMER_INTERRUPT_VECTOR _TIMER_5_VECTOR
 #else /* TODO: implement other timer */
-        #error "UWL_HAL ERROR: invalid timer hw interface specified""
+        #error "UWL_HAL ERROR: invalid timer hw interface specified"
 #endif
 
 
