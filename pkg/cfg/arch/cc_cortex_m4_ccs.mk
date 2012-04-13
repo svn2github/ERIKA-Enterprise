@@ -216,7 +216,7 @@ endif
 OPT_LINK += -diag_warning=225 -me --gen_func_subsections=on --abi=eabi \
 	    --code_state=16 --float_support=FPv4SPD16 -z --define=ccs \
 	    --define=PART_LM4F232H5QD --define=TARGET_IS_BLIZZARD_RA1 \
-	    --quiet --reread_libs --rom_model --stack_size=512 --heap_size=0 \
+	    --quiet --reread_libs --rom_model --stack_size=1024 --heap_size=0 \
 	    --warn_sections
 # TODO: Generate *.map file (OBJDUMP -> odf470)
 #	   -m$(call native_path, $(subst .$(CG_OUT_EXTENSION), .map, $@))
