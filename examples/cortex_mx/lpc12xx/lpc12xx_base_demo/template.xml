@@ -2,7 +2,7 @@
 
 <evidence_example version="1" ID="lpc12xx_base_demo">
 
- <category>cortex_mx/lpc12xx</category>
+ <category>Cortex-MX/NXP LPCXpresso 12xx Board</category>
  <title>Base Demo</title>
    
  <small_descr>
