@@ -57,8 +57,9 @@
 /*
  * User Led
  */
-
 #ifdef __USE_USER_LED__
+
+#define	USER_LED_MASK	0x04
 
 /** @brief User led initialization **/
 __INLINE__ void __ALWAYS_INLINE__ EE_user_led_init(void)
@@ -79,29 +80,158 @@ __INLINE__ void __ALWAYS_INLINE__ EE_user_led_init(void)
     // Enable the GPIO pin for the LED (PG2).  Set the direction as output, and
     // enable the GPIO pin for digital function.
     //
-    GPIO_PORTG_DIR_R = 0x04;
-    GPIO_PORTG_DEN_R = 0x04;
+    GPIO_PORTG_DIR_R |= USER_LED_MASK;
+    GPIO_PORTG_DEN_R |= USER_LED_MASK;
 
 }
 
 /** @brief User led on **/
 __INLINE__ void __ALWAYS_INLINE__ EE_user_led_on(void)
 {
-    GPIO_PORTG_DATA_R |= 0x04;
+    GPIO_PORTG_DATA_R |= USER_LED_MASK;
 }
 
 /** @brief User_led_off **/
 __INLINE__ void __ALWAYS_INLINE__ EE_user_led_off(void)
 {
-    GPIO_PORTG_DATA_R &= ~(0x04);
+    GPIO_PORTG_DATA_R &= ~(USER_LED_MASK);
 }
 
 /** @brief User led toggle **/
 __INLINE__ void __ALWAYS_INLINE__ EE_user_led_toggle(void)
 {
-    GPIO_PORTG_DATA_R ^= 0x04;
+    GPIO_PORTG_DATA_R ^= USER_LED_MASK;
 }
 
 #endif /* __USE_USER_LED__ */
+
+/*
+ * User Buttons
+ */
+#ifdef __USE_USER_BUTTONS__
+
+#define	NUM_BUTTONS	5
+#define	UP_BUTTON	0x00000001
+#define	DOWN_BUTTON	0x00000002
+#define	LEFT_BUTTON	0x00000004
+#define	RIGHT_BUTTON	0x00000008
+#define	SELECT_BUTTON	0x00000010
+
+#define	ALL_BUTTONS	( \
+  LEFT_BUTTON | RIGHT_BUTTON | UP_BUTTON | DOWN_BUTTON | SELECT_BUTTON \
+)
+
+/** @brief User buttons initialization **/
+__INLINE__ void __ALWAYS_INLINE__ EE_user_buttons_init(void)
+{
+
+    //
+    // Enable the GPIO port M (R11) that is used for the on-board buttons.
+    //
+    SYSCTL_RCGCGPIO_R |= SYSCTL_RCGCGPIO_R11;
+
+    //
+    // Enable the GPIO pin for the on-board buttons.
+    // Set the direction as input, weak pull-up and enable the GPIO pin for 
+    // digital function.
+    //
+    GPIO_PORTM_DIR_R &= ~ALL_BUTTONS;
+    GPIO_PORTM_PUR_R |= ALL_BUTTONS;
+    GPIO_PORTM_DEN_R |= ALL_BUTTONS;
+
+}
+
+/** @brief Enables the User Buttons interrupt. */
+__INLINE__ void __ALWAYS_INLINE__ EE_user_buttons_enable_int(void)
+{
+
+  register EE_UREG tmp;
+
+  tmp = GPIO_PORTM_IM_R;
+
+  /* Disables PORT M Interrupts */
+  GPIO_PORTM_IM_R = 0x00000000;
+
+  /* Edge Triggered Interrupt */
+  GPIO_PORTM_IS_R &= ~ALL_BUTTONS;
+
+  /* Single Edge Triggered Interrupts */
+  GPIO_PORTM_IBE_R &= ~ALL_BUTTONS;
+
+  /* Falling Edge Triggered Interrupts */
+  GPIO_PORTM_IEV_R &= ~ALL_BUTTONS;
+
+  /* Enables User Buttons Interrupts */
+  GPIO_PORTM_IM_R = (tmp | ALL_BUTTONS);
+
+}
+
+/** @brief Disables the User Buttons interrupt. */
+__INLINE__ void __ALWAYS_INLINE__ EE_user_buttons_disable_int(void)
+{
+
+  /* Disables User Buttons Interrupts */
+  GPIO_PORTM_IM_R &= ~ALL_BUTTONS;
+
+}
+
+/** @brief Clear the User Buttons interrupt sources. */
+__INLINE__ void __ALWAYS_INLINE__ EE_user_buttons_clear_int(void)
+{
+
+  /* Clear User Buttons Interrupt Source */
+  GPIO_PORTM_ICR_R |= ALL_BUTTONS;
+
+}
+
+/** @brief User Buttons Status Retrieval */
+__INLINE__ EE_UREG __ALWAYS_INLINE__ EE_user_buttons_get_status(void)
+{
+  return GPIO_PORTM_DATA_R & ALL_BUTTONS;
+}
+
+#endif /* __USE_USER_BUTTONS__ */
+
+/*
+ * OLED Display
+ */
+#ifdef __USE_OLED_DISPLAY__
+
+#define	OLED_DISPLAY_LEDS_NUM	8
+#define	OLED_DISPLAY_LED_0	0x01
+#define	OLED_DISPLAY_LED_1	0x02
+#define	OLED_DISPLAY_LED_2	0x04
+#define	OLED_DISPLAY_LED_3	0x08
+#define	OLED_DISPLAY_LED_4	0x10
+#define	OLED_DISPLAY_LED_5	0x20
+#define	OLED_DISPLAY_LED_6	0x40
+#define	OLED_DISPLAY_LED_7	0x80
+
+#define	OLED_DISPLAY_LEDS_OFF	0x00
+#define	OLED_DISPLAY_LEDS_ON	( \
+  OLED_DISPLAY_LED_0 | OLED_DISPLAY_LED_1 | \
+  OLED_DISPLAY_LED_2 | OLED_DISPLAY_LED_3 | \
+  OLED_DISPLAY_LED_4 | OLED_DISPLAY_LED_5 | \
+  OLED_DISPLAY_LED_6 | OLED_DISPLAY_LED_7   \
+)
+
+#define	OLED_DISPLAY_LINE_SIZE	0x10
+
+/** @brief OLED Display Initialization. */
+void EE_oled_display_init(void);
+
+/** @brief OLED Display Clear display. */
+void EE_oled_display_clear(void);
+
+/** @brief OLED Display User Leds display. */
+void EE_oled_display_leds(EE_UINT8 leds_mask);
+
+/** @brief OLED Display User Message Line 1 display. */
+void EE_oled_display_line1(const char *s);
+
+/** @brief OLED Display User Message Line 2 display. */
+void EE_oled_display_line2(const char *s);
+
+#endif /* __USE_OLED_DISPLAY__ */
 
 #endif /*__INCLUDE_STELLARIS_LM4F232XXXX_BOARD_H__ */

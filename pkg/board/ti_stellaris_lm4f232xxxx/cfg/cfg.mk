@@ -44,4 +44,12 @@ ifeq ($(and $(call iseeopt, __STELLARIS__), $(call iseeopt, __LM4F232xxxx__)), y
 
 ##EE_SRCS += pkg/board/ee_easylab/src/ee_board.c
 
+ifeq ($(call iseeopt, __USE_OLED_DISPLAY__), yes)
+EEOPT += __STELLARISWARE__
+EEOPT += __STELLARISWARE_DRIVER_LIB__
+EEOPT += __STELLARISWARE_GRAPHICS_LIB__
+EEOPT += __STELLARISWARE_EK_LM4F232__
+EE_SRCS += pkg/board/ti_stellaris_lm4f232xxxx/src/ee_oled_display.c
+endif	# __USE_OLED_DISPLAY__
+
 endif	# __STELLARIS__
