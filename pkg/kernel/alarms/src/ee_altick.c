@@ -85,7 +85,9 @@ void EE_alarm_CounterTick(CounterType c)
   register EE_TYPEALARM current;
   register EE_TID t;
   register EE_FREG flag;
+#ifdef __RN_TASK__
   int rn_return_val;
+#endif
   
   flag = EE_hal_begin_nested_primitive();
 
