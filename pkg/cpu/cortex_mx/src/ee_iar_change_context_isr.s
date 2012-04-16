@@ -63,11 +63,10 @@
 ;                              EQUATES
 ;*******************************************************************************
 NVIC_INT_CTRL		EQU	0xE000ED04	; Interrupt control status register
-NVIC_ICER		EQU	0xE000E180	; Interrupt Clear Register
 NVIC_SHPR3		EQU	0xE000ED20	; System priority register (PendSV 14) 0xE000ED20
 NVIC_PENDSV_PRI		EQU	0x00C00000	; PendSV priority value (Lowest)
 NVIC_PENDSVSET		EQU	0x10000000	; Value to trigger PendSV exception
-NVIC_PENDSVCLEAR	EQU	0x10000000	; Value to trigger PendSV exception
+NVIC_STKALIGN		EQU	0x00000200	; Stack Alignment on Exception Entry
 
 EPSR_T_BIT_VAL		EQU	0x01000000	; Value to set the T-bit in EPSR (always Thumb mode)
 
@@ -165,7 +164,7 @@ exit_EE_cortex_mx_change_context:
 	LDR	R2, =NVIC_STKALIGN	; R2 = 0x00000200
 	ANDS	R2, R2, R3		; Alignment test in R2
 
-	CBZ	R2, stackAligned1
+	BEQ	stackAligned1
 	ADDS	R0, R0, #4		; Adds alignment displacement
 
 stackAligned1:
@@ -189,10 +188,13 @@ stackAligned1:
 	MOV	R12, R4			; Restore Scratch register R12
 	MOV	R4, R0			; Restore R4
 
-	CBZ	R1, stackAligned2
-	POP	{R0}
+	MRS	R0, PSR			; Save xPSR in R0.
+	CMP	R1, #0
+	BEQ	stackAligned2
+	POP	{R1}
 
 stackAligned2:
+	MSR	PSR, R0			; Restore xPSR.
 	POP	{R1}			; Move stack pointer getting again R1
 	CPSIE	I			; Enable interrupts (clear PRIMASK)
 	POP	{R0, PC}		; Move stack pointer getting again R0 and return
