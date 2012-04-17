@@ -303,29 +303,11 @@ void EE_oo_counter_tick(CounterType CounterID)
 /*
   OS399: IncrementCounter
 */
-static void EE_oo_IncrementCounter_Impl(CounterType CounterID)
-{
-  register EE_FREG flag;
-  flag = EE_hal_begin_nested_primitive();
-
-  /* Call to function that actually increment the counter */
-  EE_oo_counter_tick_Impl(CounterID);
-
-  /* After all counter updates check if I'm not in a ISR2 and then 
-     execute rescheduling.
-   */
-  if(EE_hal_get_IRQ_nesting_level() == 0U)
-  {
-    EE_oo_preemption_point();
-  }
-  EE_hal_end_nested_primitive(flag);
-}
-
 StatusType EE_oo_IncrementCounter(CounterType CounterID)
 {
+  register EE_FREG flag;
 #if defined(__OO_HAS_ERRORHOOK__) && (!defined(__OO_ERRORHOOK_NOMACROS__))
   register AlarmType current;
-  register EE_FREG flag;
 #endif /* __OO_HAS_ERRORHOOK__ && !__OO_ERRORHOOK_NOMACROS__ */
 
   EE_ORTI_set_service_in(EE_SERVICETRACE_INCREMENTCOUNTER);
@@ -373,7 +355,20 @@ StatusType EE_oo_IncrementCounter(CounterType CounterID)
   }
 #endif /* __OO_EXTENDED_STATUS__ */
 
-  EE_oo_IncrementCounter_Impl(CounterID);
+  /* I need to protect from hereunder */
+  flag = EE_hal_begin_nested_primitive();
+
+  /* Call to function that actually increment the counter */
+  EE_oo_counter_tick_Impl(CounterID);
+
+  /* After all counter updates check if I'm not in a ISR2 and then
+     execute rescheduling.
+   */
+  if(EE_hal_get_IRQ_nesting_level() == 0U)
+  {
+    EE_oo_preemption_point();
+  }
+  EE_hal_end_nested_primitive(flag);
 
   EE_ORTI_set_service_out(EE_SERVICETRACE_INCREMENTCOUNTER);
   return E_OK;

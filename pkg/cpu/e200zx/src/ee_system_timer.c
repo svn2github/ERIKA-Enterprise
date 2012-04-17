@@ -42,7 +42,8 @@
  * Author: 2012  Errico Guidieri
  */
 
-#include <ee.h>
+#include <ee_internal.h>
+#include <ee_api.h>
 #include <ee_irq.h>
 
 /* This file is needed only if System Timer is defined */
@@ -76,7 +77,12 @@ void EE_PPCE200ZX_DECREMENTER_ISR(void)
 ISR2_INT(EE_PPCE200ZX_DECREMENTER_ISR)
 #endif
 {
+#if defined(__OO_BCC1__) || defined(__OO_BCC2__) || defined(__OO_ECC1__) || \
+    defined(__OO_ECC2__) || defined(__AS_SC4__)
+  SystemTick();
+#else
   CounterTick(EE_SYSTEM_TIMER);
+#endif
 }
 
 /* System Timer Initialization */

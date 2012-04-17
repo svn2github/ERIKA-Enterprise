@@ -153,4 +153,7 @@ __IRQ void f(void)		\
 }				\
 void ISR2_ ## f(void)
 
+/* Standard Macro to declare an ISR (2) */
+#define ISR(f) ISR2(f)
+
 #endif /* __INCLUDE_CORTEX_MX_IRQ_H__ */

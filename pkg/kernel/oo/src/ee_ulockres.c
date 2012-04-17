@@ -65,7 +65,10 @@ StatusType EE_oo_ReleaseResource(ResourceType ResID)
 void EE_oo_ReleaseResource(ResourceType ResID)
 #endif
 {
+#if defined(__OO_EXTENDED_STATUS__) || defined(__OO_ISR2_RESOURCES__)
   register EE_TID current;
+#endif
+
 #ifdef __MSRP__
   register EE_UREG isGlobal;
 #endif
@@ -116,7 +119,10 @@ void EE_oo_ReleaseResource(ResourceType ResID)
   /* I begin the primitive */
   flag = EE_hal_begin_nested_primitive();
 
+#if defined(__OO_EXTENDED_STATUS__) || defined(__OO_ISR2_RESOURCES__)
   current = EE_stk_queryfirst();
+#endif
+
   inside_task = (EE_hal_get_IRQ_nesting_level() == 0U);
 
 #ifdef __OO_EXTENDED_STATUS__

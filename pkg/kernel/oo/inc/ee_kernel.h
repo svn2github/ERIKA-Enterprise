@@ -627,6 +627,13 @@ StatusType EE_oo_StartOS(AppModeType Mode);
 void EE_oo_ShutdownOS(StatusType Error);
 #endif
 
+#ifdef ENABLE_SYSTEM_TIMER
+#ifndef __PRIVATE_SYSTICK__
+void EE_oo_sys_tick(void);
+#endif /*  */
+#endif /*  */
+
+
 /* 13.7.3 Constants                                                        */
 /* ----------------------------------------------------------------------- */
 
@@ -671,7 +678,6 @@ void StartupHook(void);
 #ifdef __OO_HAS_SHUTDOWNHOOK__
 void ShutdownHook(StatusType Error);
 #endif
-
 
 /* 13.8.3 Constants                                                        */
 /* ----------------------------------------------------------------------- */

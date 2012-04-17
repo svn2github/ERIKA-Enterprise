@@ -57,6 +57,7 @@
 #endif /* !EE_ISR_DYNAMIC_TABLE */
 
 #ifdef __ASM_CONVERTED_TO_C__
+__asm void ee_start(void);
 int main(void);
 #ifndef EE_ISR_DYNAMIC_TABLE
 void EE_mpc5674_initialize_external_IRQ_priorities(void);

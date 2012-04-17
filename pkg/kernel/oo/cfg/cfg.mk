@@ -74,6 +74,7 @@ EE_SRCS += pkg/kernel/oo/src/ee_rq_exchg.c
 EE_SRCS += pkg/kernel/oo/src/ee_rq_inser.c
 EE_SRCS += pkg/kernel/oo/src/ee_shtdown.c
 EE_SRCS += pkg/kernel/oo/src/ee_startos.c
+EE_SRCS += pkg/kernel/oo/src/ee_systick.c
 
 ifeq ($(OO2), YES)
 EE_SRCS += pkg/kernel/oo/src/ee_rq_first.c

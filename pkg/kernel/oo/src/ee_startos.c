@@ -176,7 +176,7 @@ static void EE_oo_start_os(void)
    * This static declaration prevents from MISRA 14.2/FlexeLint 522:
    * lacks side-effects
    */
-  static int started;
+  static volatile int started;
   started = 1;
 
   for(;;) {
