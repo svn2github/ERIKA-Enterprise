@@ -47,11 +47,11 @@
 # BINDIR is the directory of assembler, compiler, linker...
 MCUToolsBaseDirEnv ?= $(PPC_CW_BASEDIR)
 CW_SUPPORTDIR = $(MCUToolsBaseDirEnv)/PA_Support
-ifeq ($(call iseeopt, __RTD_CYGWIN__), yes)
-CW_TOOLSDIR = $(MCUToolsBaseDirEnv)/PowerPC_EABI_Tools
-else # RTD_CYGWIN
+#ifeq ($(call iseeopt, __RTD_CYGWIN__), yes)
+#CW_TOOLSDIR = $(MCUToolsBaseDirEnv)/PowerPC_EABI_Tools
+#else # RTD_CYGWIN
 CW_TOOLSDIR = $(MCUToolsBaseDirEnv)/PA_Tools
-endif # else RTD_CYGWIN
+#endif # else RTD_CYGWIN
 BINDIR = $(CW_TOOLSDIR)/Command_Line_Tools/
 MWCIncludes ?= $(CW_SUPPORTDIR)/ewl/EWL_C/include
 MWLibraries ?= $(CW_SUPPORTDIR)/ewl/lib

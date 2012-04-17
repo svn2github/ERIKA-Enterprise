@@ -50,4 +50,4 @@ $(RTDRUID_OUTPUT): conf.oil
 	@echo "Running RT-Druid..."
 	@ECLIPSE_HOME="$(RTDRUID_ECLIPSE_HOME)" ;\
 	export ECLIPSE_HOME ;\
-	exec sh $(RTDRUID_SCRIPT_DIR)/start_ant.sh -buildfile $(RTDRUID_SCRIPT_DIR)/build.xml -Din_conf_oil=$< -Dconf_output_dir=$(OUTPUT_DIR) compile
+	exec sh "$(RTDRUID_SCRIPT_DIR)"/start_ant.sh -buildfile "$(RTDRUID_SCRIPT_DIR)"/build.xml -Din_conf_oil=$< -Dconf_output_dir=$(OUTPUT_DIR) compile

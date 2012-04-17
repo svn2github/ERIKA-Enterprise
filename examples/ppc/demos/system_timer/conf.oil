@@ -18,7 +18,7 @@ CPU example {
     EE_OPT = "DEBUG";
     EE_OPT = "__USE_LEDS__";
     EE_OPT = "__E200ZX_EXECUTE_FROM_RAM__";
-    //EE_OPT = "__CODEWARRIOR__";
+    EE_OPT = "__CODEWARRIOR__";
 
     CPU_DATA = PPCE200ZX {
       MODEL = E200Z7;
