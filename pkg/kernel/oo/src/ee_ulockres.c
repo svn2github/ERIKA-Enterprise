@@ -194,7 +194,8 @@ void EE_oo_ReleaseResource(ResourceType ResID)
 
   EE_sys_ceiling = EE_resource_oldceiling[ResID];
 
-#ifdef __OO_ORTI_PRIORITY__
+#if ((defined(__OO_EXTENDED_STATUS__) || defined(__OO_ISR2_RESOURCES__)) && \
+			defined(__OO_ORTI_PRIORITY__))
   EE_ORTI_th_priority[current] = EE_ORTI_resource_oldpriority[ResID];
 #endif
 
