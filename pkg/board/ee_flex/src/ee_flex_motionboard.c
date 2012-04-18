@@ -74,6 +74,18 @@ ISR2(_IC4Interrupt)
 }
 #endif
 
+/************************************************************************* */
+/*                                Analog input                             */
+/************************************************************************* */
+
+#if defined(__USE_ANALOG_SENSORS__) || defined(__USE_TRIMMER__) || defined(__USE_ACCELEROMETER__) || defined(__USE_ADC__)
+EE_UINT8 EE_adc_init = 0;
+#endif
+
+#ifdef __USE_ACCELEROMETER__
+EE_UINT8 EE_accelerometer_g = 6;
+#endif
+
 /******************************************************************************/
 /*                                   U S B                                    */
 /******************************************************************************/

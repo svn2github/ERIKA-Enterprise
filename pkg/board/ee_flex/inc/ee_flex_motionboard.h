@@ -216,6 +216,316 @@ __INLINE__ EE_UINT8 __ALWAYS_INLINE__ EE_switch_get_all(void)
 #endif /* __USE_SWITCH__ */
 
 
+/* /\************************************************************************* */
+/*  Analog inputs */
+/*  *************************************************************************\/ */
+
+#if defined(__USE_ANALOG_SENSORS__) || defined(__USE_TRIMMER__) || defined(__USE_ACCELEROMETER__) || defined(__USE_ADC__)
+
+#define AVDD 3.3
+#define VREF 3.3
+
+extern EE_UINT8 EE_adc_init;
+
+__INLINE__ void __ALWAYS_INLINE__ EE_analog_init( void )
+{
+	/* Check if the ADC is initialized */
+	if (EE_adc_init != 0) return;
+
+	/* turn off ADC module */
+	AD1CON1bits.ADON = 0;
+
+	/* set ALL configuration bits as ADC input */
+ 	AD1PCFGLbits.PCFG3  = 0;         // ADC Aux1     -> AN3/RB3
+ 	AD1PCFGLbits.PCFG12 = 0;         // ADC Aux2     -> AN12/RB12
+ 	AD1PCFGLbits.PCFG13 = 0;         // ADC Aux3     -> AN13/RB13 
+ 	AD1PCFGHbits.PCFG16 = 0;         // Accelerometer X Axis -> AN16/RC1
+ 	AD1PCFGHbits.PCFG17 = 0;         // Accelerometer Y Axis -> AN17/RC2
+ 	AD1PCFGHbits.PCFG18 = 0;         // Accelerometer Z Axis -> AN18/RC3
+ 	AD1PCFGHbits.PCFG22 = 0;         // Trimmer      -> AN22/RC6
+
+	/* Set control register 1 */
+	/* 12-bit, unsigned integer format, autosampling */
+	AD1CON1 = 0x04E0;
+
+	/* Set control register 2 */
+	/* Vref = AVcc/AVdd, Scan Inputs */
+	AD1CON2 = 0x0000;
+
+	/* Set Samples and bit conversion time */
+	/* AS = 31 Tad, Tad = 64 Tcy = 1.6us  */
+	AD1CON3 = 0x1F3F; //** Last PATCH xxx
+
+	/* disable channel scanning here */
+	AD1CSSL = 0x0000;
+
+	/* reset ADC interrupt flag */
+	IFS0bits.AD1IF = 0;
+
+	/* disable ADC interrupts */
+	IEC0bits.AD1IE = 0;
+
+	/* turn on ADC module */
+	AD1CON1bits.ADON = 1;
+
+	/* set ADC as configured */
+	EE_adc_init = 1;
+}
+
+__INLINE__ void __ALWAYS_INLINE__ EE_analog_close( void )
+{
+	/* turn off ADC module */
+	AD1CON1bits.ADON = 0;
+
+	/* set ADC as unconfigured */
+	EE_adc_init = 0;
+}
+
+#endif
+
+/* ADC Aux Input */
+#ifdef __USE_ADC__
+__INLINE__ void __ALWAYS_INLINE__ EE_adcin_init( void ) { EE_analog_init(); }
+
+__INLINE__ float __ALWAYS_INLINE__ EE_adcin_get_volt( EE_UINT8 channel )
+{
+	float adcdata;
+
+	switch (channel) {
+		case 1: // Set AN3 - RB3 as input channel
+			AD1CHS0 = 3;
+			break;
+		case 2: // Set AN12 - RB12 as input channel
+			AD1CHS0 = 12;
+			break;
+		case 3: // Set AN13 - RB13 as input channel
+			AD1CHS0 = 13;
+			break;
+		default: // Set to channel 1 as default
+			AD1CHS0 = 3;
+			break;
+	}
+
+	/* Start conversion */
+	AD1CON1bits.SAMP = 1;
+
+	/* Wait till the EOC */
+	while(!IFS0bits.AD1IF);
+
+	/* reset ADC interrupt flag */
+	IFS0bits.AD1IF = 0;
+
+	/* Acquire data */
+	adcdata = ADC1BUF0;
+
+	/* Return conversion */
+	return (adcdata * VREF) / 4096;
+}
+#endif
+
+/* Trimmer Input */
+#ifdef __USE_TRIMMER__
+__INLINE__ void __ALWAYS_INLINE__ EE_trimmer_init( void ) { EE_analog_init(); }
+
+__INLINE__ float __ALWAYS_INLINE__ EE_trimmer_get_volt( void )
+{
+	float adcdata;
+
+	// Set AN22 - RA6 as input channel
+	AD1CHS0 = 22;
+
+	/* Start conversion */
+	AD1CON1bits.SAMP = 1;
+
+	/* Wait till the EOC */
+	while(!IFS0bits.AD1IF);
+
+	/* reset ADC interrupt flag */
+	IFS0bits.AD1IF = 0;
+
+	/* Acquire data */
+	adcdata = ADC1BUF0;
+
+	/* Return conversion */
+	return (adcdata * VREF) / 4096;
+}
+#endif
+
+
+/* Accelerometer Input */
+#ifdef __USE_ACCELEROMETER__
+
+#define	EE_ACCEL_G_ZERO		1.65
+#define	EE_ACCEL_G_SCALE_1_5	0.8
+#define	EE_ACCEL_G_SCALE_2	0.6
+#define	EE_ACCEL_G_SCALE_4	0.3
+#define	EE_ACCEL_G_SCALE_6	0.2
+
+extern EE_UINT8 EE_accelerometer_g;
+
+__INLINE__ void __ALWAYS_INLINE__ EE_accelerometer_init( void )
+{
+	EE_analog_init();
+
+	// Set output pins for g-select and sleep options
+	TRISDbits.TRISD3  = 0;
+	TRISGbits.TRISG15 = 0;   // GS1
+	TRISCbits.TRISC13 = 0;   // GS2
+
+	// Set g-selet to 6g
+	LATGbits.LATG15 = 1;
+	LATCbits.LATC13 = 1;
+	EE_accelerometer_g = 3;
+
+	// Disable Sleep mode
+	LATDbits.LATD3 = 1;
+}
+
+__INLINE__ EE_UINT8 __ALWAYS_INLINE__ EE_eccelerometer_getglevel( void ) { return EE_accelerometer_g; }
+
+__INLINE__ void __ALWAYS_INLINE__ EE_eccelerometer_setglevel( EE_UINT8 level)
+{
+	if (level <= 0) {
+		EE_accelerometer_g = 0;
+		LATGbits.LATG15 = 0;
+	  LATCbits.LATC13 = 0;
+	} else if (level == 1) {
+		EE_accelerometer_g = 1;
+		LATGbits.LATG15 = 1;
+    LATCbits.LATC13 = 0;
+	} else if (level == 2) {
+		EE_accelerometer_g = 2;
+  	LATGbits.LATG15 = 0;
+  	LATCbits.LATC13 = 1;
+	} else {
+		EE_accelerometer_g = 3;
+  	LATGbits.LATG15 = 1;
+  	LATCbits.LATC13 = 1;
+	}
+}
+
+__INLINE__ void __ALWAYS_INLINE__ EE_accelerometer_sleep( void )  { LATDbits.LATD3 = 0; }
+
+__INLINE__ void __ALWAYS_INLINE__ EE_accelerometer_wakeup( void ) { LATDbits.LATD3 = 1; }
+
+__INLINE__ float __ALWAYS_INLINE__ EE_accelerometer_getx( void )
+{
+	float adcdata;
+
+	// Set AN16 - RB16 as input channel
+	AD1CHS0 = 16;
+
+	/* Start conversion */
+	AD1CON1bits.SAMP = 1;
+
+	/* Wait till the EOC */
+	while(!IFS0bits.AD1IF);
+
+	/* reset ADC interrupt flag */
+	IFS0bits.AD1IF = 0;
+
+	/* Acquire data and convert to volts */
+	adcdata = ((ADC1BUF0 * 3.3) / 4096);
+
+	/* Return conversion */
+	adcdata -= EE_ACCEL_G_ZERO;
+	switch (EE_accelerometer_g) {
+		case 0:
+			adcdata /= EE_ACCEL_G_SCALE_1_5;
+			break;
+		case 1:
+			adcdata /= EE_ACCEL_G_SCALE_2;
+			break;
+		case 2:
+			adcdata /= EE_ACCEL_G_SCALE_4;
+			break;
+		case 3:
+			adcdata /= EE_ACCEL_G_SCALE_6;
+			break;
+	}
+
+	return adcdata;
+}
+
+__INLINE__ float __ALWAYS_INLINE__ EE_accelerometer_gety( void )
+{
+	float adcdata;
+
+	// Set AN17 - RB17 as input channel
+	AD1CHS0 = 17;
+
+	/* Start conversion */
+	AD1CON1bits.SAMP = 1;
+
+	/* Wait till the EOC */
+	while(!IFS0bits.AD1IF);
+
+	/* reset ADC interrupt flag */
+	IFS0bits.AD1IF = 0;
+
+	/* Acquire data and convert to volts */
+	adcdata = (ADC1BUF0 * 3.3) / 4096;
+
+	/* Return conversion */
+	adcdata -= EE_ACCEL_G_ZERO;
+	switch (EE_accelerometer_g) {
+		case 0:
+			adcdata /= EE_ACCEL_G_SCALE_1_5;
+			break;
+		case 1:
+			adcdata /= EE_ACCEL_G_SCALE_2;
+			break;
+		case 2:
+			adcdata /= EE_ACCEL_G_SCALE_4;
+			break;
+		case 3:
+			adcdata /= EE_ACCEL_G_SCALE_6;
+			break;
+	}
+	return adcdata;
+}
+
+__INLINE__ float __ALWAYS_INLINE__ EE_accelerometer_getz( void )
+{
+	float adcdata;
+
+	// Set AN18 - RB18 as input channel
+	AD1CHS0 = 18;
+
+	/* Start conversion */
+	AD1CON1bits.SAMP = 1;
+
+	/* Wait till the EOC */
+	while(!IFS0bits.AD1IF);
+
+	/* reset ADC interrupt flag */
+	IFS0bits.AD1IF = 0;
+
+	/* Acquire data and convert to volts */
+	adcdata = (ADC1BUF0 * 3.3) / 4096;
+
+	/* Return conversion */
+	adcdata -= EE_ACCEL_G_ZERO;
+	switch (EE_accelerometer_g) {
+		case 0:
+			adcdata /= EE_ACCEL_G_SCALE_1_5;
+			break;
+		case 1:
+			adcdata /= EE_ACCEL_G_SCALE_2;
+			break;
+		case 2:
+			adcdata /= EE_ACCEL_G_SCALE_4;
+			break;
+		case 3:
+			adcdata /= EE_ACCEL_G_SCALE_6;
+			break;
+	}
+	return adcdata; // TODO!!!
+}
+
+#endif
+
+
 
 
 /******************************************************************************/
