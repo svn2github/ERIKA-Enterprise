@@ -41,9 +41,6 @@
  /*
  * Author: 2012 Errico Guidieri
  */
- 
- 
-#ifdef ENABLE_SYSTEM_TIMER
 
 #ifndef __PRIVATE_SYSTICK__
 
@@ -101,6 +98,4 @@ void EE_oo_sys_tick(void) {
 }
 
 #endif /* __PRIVATE_SYSTICK__ */
-
-#endif /* ENABLE_SYSTEM_TIMER */
 

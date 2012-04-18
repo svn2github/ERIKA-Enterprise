@@ -65,7 +65,8 @@ StatusType EE_oo_ReleaseResource(ResourceType ResID)
 void EE_oo_ReleaseResource(ResourceType ResID)
 #endif
 {
-#if defined(__OO_EXTENDED_STATUS__) || defined(__OO_ISR2_RESOURCES__)
+#if defined(__OO_EXTENDED_STATUS__) || defined(__OO_ISR2_RESOURCES__) ||\
+    defined(__OO_ORTI_PRIORITY__)
   register EE_TID current;
 #endif
 
@@ -119,7 +120,8 @@ void EE_oo_ReleaseResource(ResourceType ResID)
   /* I begin the primitive */
   flag = EE_hal_begin_nested_primitive();
 
-#if defined(__OO_EXTENDED_STATUS__) || defined(__OO_ISR2_RESOURCES__)
+#if defined(__OO_EXTENDED_STATUS__) || defined(__OO_ISR2_RESOURCES__) ||\
+    defined(__OO_ORTI_PRIORITY__)
   current = EE_stk_queryfirst();
 #endif
 
@@ -194,8 +196,7 @@ void EE_oo_ReleaseResource(ResourceType ResID)
 
   EE_sys_ceiling = EE_resource_oldceiling[ResID];
 
-#if ((defined(__OO_EXTENDED_STATUS__) || defined(__OO_ISR2_RESOURCES__)) && \
-			defined(__OO_ORTI_PRIORITY__))
+#ifdef __OO_ORTI_PRIORITY__
   EE_ORTI_th_priority[current] = EE_ORTI_resource_oldpriority[ResID];
 #endif
 
