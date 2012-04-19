@@ -186,7 +186,7 @@ ALLOBJS = $(LIBEEOBJS) $(LIBOBJS) $(OBJS)
 
 OBJDIRS=$(sort $(dir $(ALLOBJS)))
 
-INCLUDE_PATH += $(PKGBASE) $(APPBASE) . $(CG_INLCUDE_DIR)
+INCLUDE_PATH += $(PKGBASE) $(call short_native_path,$(APPBASE)) . $(CG_INLCUDE_DIR)
 
 vpath %.c $(EE_VPATH) $(APPBASE)
 vpath %.s $(EE_VPATH) $(APPBASE)
@@ -220,7 +220,7 @@ endif	# __CCS__
 endif	# !__IAR__ (Default compiler toolchain)
 
 ## Select input filename format ##
-SOURCEFILE = $(call native_path,$<)
+SOURCEFILE = $(call short_native_path,$(dir $<))\\$(notdir $<)
 TARGETFILE = $(call native_path,$@)
 ## 
 
