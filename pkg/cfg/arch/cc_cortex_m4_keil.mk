@@ -161,7 +161,7 @@ OPT_LINK += --cpu Cortex-M4
 endif
 
 ifeq ($(call iseeopt, DEBUG), yes)
-OPT_LINK += --debug
+OPT_LINK += --debug --no_remove
 endif
 
 ## Put here the link options --userlibpath (instead of -L).
@@ -219,7 +219,7 @@ ifeq ($(call iseeopt, NODEPS), yes)
 DEPENDENCY_OPT = 
 make-depend =
 else	# NODEPS
-DEPENDENCY_OPT = --depend $(call native_path,$(subst .o,.d_tmp,$@))
+DEPENDENCY_OPT = --depend=$(call native_path,$(subst .o,.d_tmp,$@))
 ifeq ($(call iseeopt, __RTD_CYGWIN__), yes)
 # Dependencies on Windows need path translation
 make-depend = sed -e 's_\\\(.\)_/\1_g' \
