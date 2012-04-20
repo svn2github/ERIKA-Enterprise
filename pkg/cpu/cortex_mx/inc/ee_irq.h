@@ -77,7 +77,6 @@ extern struct EE_TOS EE_cortex_mx_IRQ_tos;
 extern void EE_cortex_mx_change_IRQ_stack(void);
 extern void EE_cortex_mx_change_IRQ_stack_back(void);
 
-EE_ADDR EE_cortex_mx_tmp_tos;
 /*save the stack pointer*/ /*Load new stack pointer*/
 #define EE_cortex_mx_change_stack()\
 do {\

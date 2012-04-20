@@ -49,12 +49,21 @@
 	@date 2011
 */ 
 
+;*******************************************************************************
+;                              DATA SECTION
+;*******************************************************************************	
+	SECTION	CHN_C_DATA : DATA:NOROOT (2)
+
+EE_cortex_mx_tmp_tos:	DS32 1	; EE_UREG EE_cortex_mx_tmp_tos;
+
+;*******************************************************************************
+;                              CODE SECTION
+;*******************************************************************************	
 	SECTION	CODE:CODE(2)
 
 	PUBLIC	EE_cortex_mx_change_IRQ_stack
 	PUBLIC	EE_cortex_mx_change_IRQ_stack_back
 
-	EXTERN	EE_cortex_mx_tmp_tos
 	EXTERN	EE_cortex_mx_IRQ_tos
 
 	THUMB

@@ -60,8 +60,14 @@
 ;                         EXTERNAL DATA
 ;*******************************************************************************
 
-	.global	EE_cortex_mx_tmp_tos
 	.global	EE_cortex_mx_IRQ_tos
+
+;*******************************************************************************
+;                              DATA SECTION
+;*******************************************************************************
+	.data
+
+EE_cortex_mx_tmp_tos		.word	00h	; EE_UREG EE_cortex_mx_tmp_tos;
 
 ;*******************************************************************************
 ;                              CODE SECTION
@@ -74,7 +80,7 @@ EE_cortex_mx_IRQ_tos_addr	.word	EE_cortex_mx_IRQ_tos
 ;void EE_cortex_mx_change_IRQ_stack(void);
 EE_cortex_mx_change_IRQ_stack:
 	MRS	R0, MSP			; R0 = MSP (Main stack Pointer)
-	LDR	R1, EE_cortex_mx_tmp_tos_addr	; R1 = address of EE_cortex_m0_tmp_tos
+	LDR	R1, EE_cortex_mx_tmp_tos_addr; R1 = address of EE_cortex_mx_tmp_tos
 	STR	R0, [R1]		; Save MSP in EE_cortex_mx_tmp_tos
 	LDR	R0, EE_cortex_mx_IRQ_tos_addr; R0 = address of EE_cortex_mx_IRQ_tos
 	LDR	R0, [R0]		; R0 = IRQ new stack pointer
@@ -84,7 +90,7 @@ EE_cortex_mx_change_IRQ_stack:
 
 ;void EE_cortex_mx_change_IRQ_stack_back(void);
 EE_cortex_mx_change_IRQ_stack_back:
-	LDR	R0, EE_cortex_mx_tmp_tos_addr	; R0 = address of EE_cortex_mx_tmp_tos
+	LDR	R0, EE_cortex_mx_tmp_tos_addr; R0 = address of EE_cortex_mx_tmp_tos
 	LDR	R0, [R0]		; R0 = old MSP
 	MSR	MSP, R0			; Restore the stack pointer
 

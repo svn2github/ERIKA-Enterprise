@@ -61,6 +61,13 @@
 	.global	EE_std_endcycle_next_tid
 
 ;*******************************************************************************
+;                              DATA SECTION
+;*******************************************************************************
+	.data
+
+EE_cortex_mx_change_context_active	.word 00h	; EE_UREG EE_cortex_mx_change_context_active;
+
+;*******************************************************************************
 ;                              CODE SECTION
 ;*******************************************************************************
 	.text
@@ -73,7 +80,7 @@ NVIC_STKALIGN		.word	000000200h	; Stack Alignment on Exception Entry
 
 EPSR_T_BIT_VAL		.word	001000000h	; Value to set the T-bit in EPSR (always Thumb mode)
 
-EE_cortex_mx_change_context_active	.word 00h	; EE_UREG EE_cortex_mx_change_context_active;
+EE_cortex_mx_change_context_active_addr	.word EE_cortex_mx_change_context_active
 _EE_cortex_mx_change_context_addr	.word EE_cortex_mx_change_context
 _EE_std_endcycle_next_tid_addr		.word EE_std_endcycle_next_tid
 _exit_EE_cortex_mx_change_context_addr	.word exit_EE_cortex_mx_change_context
@@ -189,7 +196,7 @@ EE_cortex_mx_pendsv_handler:
 exitPendSV:
 	; EE_cortex_mx_change_context_active = 0
 	SUBS	R0, R0, R0
-	LDR	R1, EE_cortex_mx_change_context_active
+	LDR	R1, EE_cortex_mx_change_context_active_addr
 	STR	R0, [R1]
 	
 	MOVS	R0,#8			; R0 = 0x8
