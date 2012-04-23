@@ -275,8 +275,9 @@ __INLINE__ EE_TYPEISR2PRIO __ALWAYS_INLINE__ EE_cortex_mx_get_int_prio(void)
 #endif
 
 #ifdef __CCS__
+	/* NVIC_INT_PRI_S = 5 */
 	__ASM ("    MRS     R0, BASEPRI\n"
-	       "    ASR     R0, #NVIC_INT_PRI_S\n"
+	       "    ASR     R0, #5\n"
 	       "    BLX     LR\n");
 #else	/* __CCS__ */
 #ifdef __KEIL__
@@ -303,7 +304,8 @@ __INLINE__ void __ALWAYS_INLINE__ EE_cortex_mx_set_int_prio(
 {
 #ifdef __CORTEX_M4__
 #ifdef __CCS__
-	__ASM ("    LSL    R0, #NVIC_INT_PRI_S\n"
+	/* NVIC_INT_PRI_S = 5 */
+	__ASM ("    LSL    R0, #5\n"
 	       "    MSR    BASEPRI, R0\n");
 #else	/* __CCS__ */
 #ifdef __KEIL__
@@ -320,6 +322,7 @@ __INLINE__ EE_TYPEISR2PRIO __ALWAYS_INLINE__ EE_cortex_mx_get_isr_prio(
   void
 )
 {
+#ifdef __CORTEX_M4__
   register EE_UREG vectact = NVIC_INT_CTRL_R & NVIC_INT_CTRL_VEC_ACT_M;
   register EE_TYPEISR2PRIO prio = 0;
 
@@ -339,6 +342,10 @@ __INLINE__ EE_TYPEISR2PRIO __ALWAYS_INLINE__ EE_cortex_mx_get_isr_prio(
 #endif
 
   return prio;
+
+#else	/* __CORTEX_M4__ */
+  return 0;
+#endif	/* !__CORTEX_M4__ */
 }
 
 /*************************************************************************
