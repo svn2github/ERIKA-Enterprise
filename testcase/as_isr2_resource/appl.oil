@@ -62,6 +62,7 @@
       USERESSCHEDULER     = FALSE;
 
 #include "../common/rtdruid_common/ee_oil_e200zx_os.h"
+#include "../common/rtdruid_common/ee_oil_cortex_mx_os.h"
 
       MULTI_STACK = TRUE {
         IRQ_STACK = TRUE {
@@ -88,23 +89,38 @@
 
   ISR IsrLow {
     CATEGORY = 2;
-    PRIORITY = 1;
+    PRIORITY = 1;	/* Low Priority Value */
+#ifdef ez200x
+    ENTRY = "0";
+#endif
+#ifdef cortex_m4
+    ENTRY = "GPIO_A";
+#endif
     RESOURCE = "ResourceA";
     RESOURCE = "ResourceB";
-    ENTRY = "0";
   };
 
   ISR IsrMedium {
     CATEGORY = 2;
     PRIORITY = 2;
+#ifdef ez200x
     ENTRY = "1";
+#endif
+#ifdef cortex_m4
+    ENTRY = "GPIO_B";
+#endif
   };
 
   ISR IsrHigh {
     CATEGORY = 2;
-    PRIORITY = 3;
-    RESOURCE = "ResourceB";
+    PRIORITY = 3;	/* Max Priority Value */
+#ifdef ez200x
     ENTRY = "2";
+#endif
+#ifdef cortex_m4
+    ENTRY = "GPIO_C";
+#endif
+    RESOURCE = "ResourceB";
   };
 
   RESOURCE Resource1 { RESOURCEPROPERTY = STANDARD; };

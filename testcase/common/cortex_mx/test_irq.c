@@ -1,13 +1,13 @@
 /* ###*B*###
  * ERIKA Enterprise - a tiny RTOS for small microcontrollers
  *
- * Copyright (C) 2002-2008  Evidence Srl
+ * Copyright (C) 2002-2012  Evidence Srl
  *
  * This file is part of ERIKA Enterprise.
  *
  * ERIKA Enterprise is free software; you can redistribute it
  * and/or modify it under the terms of the GNU General Public License
- * version 2 as published by the Free Software Foundation, 
+ * version 2 as published by the Free Software Foundation,
  * (with a special exception described below).
  *
  * Linking this code statically or dynamically with other modules is
@@ -37,62 +37,17 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
+/*
+ * IRQ functions used in test cases for Cortex-M4
+ * Author: 2012, Giuseppe Serano
+ */
 
-#ifdef cortex_mx
+#include <ee_irq.h>
+#include "../test_common.h"
+#include "mcu/ti_stellaris_lm4f232xxxx/inc/ee_mcuregs.h"
 
-#ifdef cortex_m0
-		EE_OPT = "__ADD_LIBS__";
-		LIB = ENABLE {
-			NAME = "CMSIS";
-		};
-		EE_OPT = "__USE_LPC12XX_CMSIS_V2__";
+void test_fire_irq(unsigned int irq)
+{
+  NVIC_SW_TRIG_R = (EE_UREG) irq;
+}
 
-		MCU_DATA = LPCXPRESSO {
-			MODEL = LPC12xx;
-		};
-#else	/* cortex_m0 */
-
-#ifdef cortex_m4
-		MCU_DATA = STELLARIS {
-			MODEL = LM4F232xxxx;
-		};
-#endif	/* !cortex_m4 */
-
-#endif	/* !cortex_m0 */
-
-		CPU_DATA = CORTEX_MX {
-
-#ifdef cortex_m0
-			MODEL = M0;
-#else	/* cortex_m0 */
-
-#ifdef cortex_m4
-			MODEL = M4;
-#endif	/* cortex_m4 */
-
-#endif	/* !cortex_m0 */
-
-			APP_SRC = "code.c";
-
-#if ( defined(cortex_m4) && defined(USEIRQ) )
-			APP_SRC = "../../common/cortex_mx/test_irq.c";
-#endif
-
-#ifdef iar
-			JLINK = TRUE;
-			COMPILER_TYPE = IAR;
-#else	/* iar */
-
-#ifdef ccs
-			COMPILER_TYPE = CCS;
-#else	/* ccs */
-
-#ifdef keil
-			COMPILER_TYPE = KEIL;
-#endif	/* keil */
-
-#endif	/* !ccs */
-
-#endif	/* !iar */
-
-#endif	/* cortex_mx */

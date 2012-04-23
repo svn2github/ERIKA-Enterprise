@@ -38,6 +38,7 @@
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
 
+#include <ee.h>
 #include <ee_internal.h>
 #include <ee_irq.h>
 #include "test/assert/inc/ee_assert.h"
@@ -48,12 +49,31 @@
 
 #define MAX_ASSERT 70
 
-#define IRQ_LOW     0
-#define IRQ_MEDIUM  1
-#define IRQ_HIGH    2
+#ifdef __PPCE200ZX__
+#define IRQ_LOW     0U
+#define IRQ_MEDIUM  1U
+#define IRQ_HIGH    2U
+
+#define IRQ_LOW_PRIO    1U
+#define IRQ_MEDIUM_PRIO 2U
+#define IRQ_HIGH_PRIO   3U
 
 /* Ack the IRQ */
 #define ACK_IRQ(x) (INTC.SSCIR[(x)].B.CLR = 1)
+#endif	/* __PPCE200ZX__ */
+
+#ifdef __CORTEX_M4__
+#define IRQ_LOW     0U
+#define IRQ_MEDIUM  1U
+#define IRQ_HIGH    2U
+
+#define IRQ_LOW_PRIO    3U
+#define IRQ_MEDIUM_PRIO 2U
+#define IRQ_HIGH_PRIO   1U
+
+/* Ack the IRQ */
+#define ACK_IRQ(x)
+#endif	/* __CORTEX_M4__ */
 
 static StatusType last_error;
 static unsigned int error_count;
@@ -81,7 +101,7 @@ TASK(Task1)
   GetResource(Resource1);
 
   /* Firt IRQ stack */
-  test_fire_irq(0U);
+  test_fire_irq(IRQ_LOW);
   assert(low_isr_hit == 1U);
   assert(medium_isr_hit == 1U);
   assert(high_isr_hit == 1U);
@@ -91,7 +111,7 @@ TASK(Task1)
   assert(EE_th_resource_last[EE_MAX_TASK + 1] == EE_UREG_MINUS1);
   /* Second IRQ stack */
   GetResource(ResourceA);
-  test_fire_irq(0U);
+  test_fire_irq(IRQ_LOW);
   assert(low_isr_hit == 1U);
   ReleaseResource(ResourceA);
   assert(low_isr_hit == 2U);
@@ -102,9 +122,9 @@ TASK(Task1)
   assert(EE_th_resource_last[EE_MAX_TASK] == EE_UREG_MINUS1);
   /* Third IRQ Stack */
   GetResource(ResourceB);
-  test_fire_irq(0U);
-  test_fire_irq(1U);
-  test_fire_irq(2U);
+  test_fire_irq(IRQ_LOW);
+  test_fire_irq(IRQ_MEDIUM);
+  test_fire_irq(IRQ_HIGH);
 }
 
 void ErrorHook(StatusType Error)
@@ -123,24 +143,24 @@ ISR2(IsrLow)
 #endif /* __OO_EXTENDED_STATUS__ */
   ACK_IRQ(IRQ_LOW);
   if (low_isr_hit == 0U) {
-    assert(EE_hal_get_int_prio() == 1U);
+    assert(EE_hal_get_int_prio() == IRQ_LOW_PRIO);
     GetResource(ResourceA);
     assert(EE_oo_get_ISR2_TID() == EE_MAX_TASK);
     assert(EE_isr2_nesting_level[EE_isr2_index] == 1U);
-    assert(EE_hal_get_int_prio() == 1U);
-    test_fire_irq(1U);
+    assert(EE_hal_get_int_prio() == IRQ_LOW_PRIO);
+    test_fire_irq(IRQ_MEDIUM);
     assert(medium_isr_hit == 1U);
     assert(high_isr_hit == 1U);
     assert(EE_oo_get_ISR2_TID() == EE_MAX_TASK);
     ReleaseResource(ResourceA);
-    assert(EE_hal_get_int_prio() == 1U);
+    assert(EE_hal_get_int_prio() == IRQ_LOW_PRIO);
   } else if (low_isr_hit == 1U) {
-    assert(EE_hal_get_int_prio() == 1U);
+    assert(EE_hal_get_int_prio() == IRQ_LOW_PRIO);
     GetResource(ResourceB);
     assert(EE_oo_get_ISR2_TID() == EE_MAX_TASK);
-    assert(EE_hal_get_int_prio() == 3U);
-    test_fire_irq(1U);
-    test_fire_irq(2U);
+    assert(EE_hal_get_int_prio() == IRQ_HIGH_PRIO);
+    test_fire_irq(IRQ_MEDIUM);
+    test_fire_irq(IRQ_HIGH);
     assert(medium_isr_hit == 1U);
     assert(high_isr_hit == 1U);
   } else if (low_isr_hit == 2U) {
@@ -149,13 +169,13 @@ ISR2(IsrLow)
     GetResource(ResourceB);
     GetResource(ResourceA);
     assert(EE_oo_get_ISR2_TID() == EE_MAX_TASK);
-    assert(EE_hal_get_int_prio() == 3U);
+    assert(EE_hal_get_int_prio() == IRQ_HIGH_PRIO);
     assert(EE_th_resource_last[EE_MAX_TASK] == ResourceA);
 #ifdef __OO_EXTENDED_STATUS__
     /* Error one more in error_count */
     s = ReleaseResource(ResourceB);
     assert(s == E_OS_NOFUNC);
-    assert(EE_hal_get_int_prio() == 3U);
+    assert(EE_hal_get_int_prio() == IRQ_HIGH_PRIO);
 #endif /* __OO_EXTENDED_STATUS__ */
   }
   ++low_isr_hit;
@@ -166,16 +186,16 @@ ISR2(IsrMedium)
   ACK_IRQ(IRQ_MEDIUM);
   if (medium_isr_hit == 0U) {
     assert(low_isr_hit == 0U);
-    assert(EE_hal_get_int_prio() == 2U);
+    assert(EE_hal_get_int_prio() == IRQ_MEDIUM_PRIO);
     assert(EE_oo_get_ISR2_TID() == EE_MAX_TASK);
-    test_fire_irq(2U);
+    test_fire_irq(IRQ_HIGH);
     assert(high_isr_hit == 1U);
     assert(EE_oo_get_ISR2_TID() == EE_MAX_TASK);
-    assert(EE_hal_get_int_prio() == 2U);
+    assert(EE_hal_get_int_prio() == IRQ_MEDIUM_PRIO);
   } else if (medium_isr_hit == 1U) {
     assert(low_isr_hit == 2U);
     assert(high_isr_hit == 2U);
-    assert(EE_hal_get_int_prio() == 2U);
+    assert(EE_hal_get_int_prio() == IRQ_MEDIUM_PRIO);
   } else if (medium_isr_hit == 2U) {
     assert(high_isr_hit == 3U);
     assert(low_isr_hit == 2U);
@@ -191,7 +211,7 @@ ISR2(IsrHigh)
     assert(medium_isr_hit == 0U);
     assert(EE_oo_get_ISR2_TID() == (EE_MAX_TASK + 1U));
     assert(EE_isr2_nesting_level[EE_isr2_index] == 3U);
-    assert(EE_hal_get_int_prio() == 3U);
+    assert(EE_hal_get_int_prio() == IRQ_HIGH_PRIO);
     ReleaseResource(ResourceB);
   } else if (high_isr_hit == 1U) {
     assert(low_isr_hit == 2U);
@@ -209,6 +229,10 @@ ISR2(IsrHigh)
 
 int main(int argc, char *argv[])
 {
+#ifdef __CORTEX_MX__
+  EE_system_init();
+#endif
+
   StartOS(OSDEFAULTAPPMODE);
 
   ActivateTask(Task1);

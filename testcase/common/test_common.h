@@ -38,7 +38,7 @@
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
 
-#ifdef __PPCE200ZX__
+#if ( defined(__PPCE200ZX__ ) || defined(__STELLARIS__) )
 typedef void (*SoftIRQHandler) (void);
 
 /* Setup an IRQ source */
