@@ -55,6 +55,7 @@
 
 	EXTERN	EE_terminate_real_th_body
 	EXTERN	EE_terminate_data
+	EXTERN	EE_thread_not_terminated
 
 ;*******************************************************************************
 ;                              EQUATES
@@ -93,6 +94,10 @@ EE_hal_terminate_savestk:
 	BLX	R1
 
 	; The task terminated with a return: do the usual cleanup
+	LDR	R0, =EE_thread_not_terminated
+	BLX	R0
+
+	; NOTE: code never executed because EE_thread_not_terminated()
 	POP	{R2}			; Get xPSR from stack
 	LDR	R0, =EPSR_T_BIT_VAL	; R0 = 0x01000000
 	ORRS	R2, R2, R0		; R2 = (xPSR OR 0x01000000). This guarantees that Thumbs bit is set

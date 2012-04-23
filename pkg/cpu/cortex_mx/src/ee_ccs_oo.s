@@ -60,6 +60,7 @@
 
 	.global	EE_terminate_real_th_body
 	.global	EE_terminate_data
+	.global	EE_thread_not_terminated
 
 ;*******************************************************************************
 ;                              CODE SECTION
@@ -70,6 +71,7 @@ _EPSR_T_BIT_VAL			.word	001000000h	; Value to set the T-bit in EPSR (always Thum
 
 _EE_terminate_real_th_body_addr	.word	EE_terminate_real_th_body
 _EE_terminate_data_addr		.word	EE_terminate_data
+_EE_thread_not_terminated_addr	.word	EE_thread_not_terminated
 
 	;void EE_hal_terminate_savestk(EE_TID tid);
 EE_hal_terminate_savestk:
@@ -100,6 +102,10 @@ EE_hal_terminate_savestk:
 	BLX	R1
 
 	; The task terminated with a return: do the usual cleanup
+	LDR	R0, _EE_thread_not_terminated_addr
+	BLX	R0
+
+	; NOTE: code never executed because EE_thread_not_terminated()
 	POP	{R2}			; Get xPSR from stack
 	LDR	R0, _EPSR_T_BIT_VAL	; R0 = 0x01000000
 	ORRS	R2, R2, R0		; R2 = (xPSR OR 0x01000000). This guarantees that Thumbs bit is set
