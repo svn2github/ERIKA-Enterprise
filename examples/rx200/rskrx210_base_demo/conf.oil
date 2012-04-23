@@ -49,14 +49,10 @@ CPU mySystem {
 
 		EE_OPT = "DEBUG";
 //		EE_OPT = "VERBOSE";
-/*		CFLAGS = "-include=..\\RPDL";
-		CFLAGS = "-dbl_size=8";
-		CFLAGS = "-define=__DBL8";
-		LDFLAGS = "-library=..\\RPDL\\RX210_library.lib";
-*/		
+	
 		CPU_DATA = RX200 {
 			APP_SRC = "code.c";
-			APP_SRC = "lcd.c";
+			APP_SRC = "ee_lcd.c";
 			COMPILER_TYPE = CCRX;
 			MULTI_STACK = FALSE;
 		};
@@ -69,6 +65,7 @@ CPU mySystem {
 		EE_OPT = "__USE_SYSTICK__";
 		EE_OPT = "__USE_RSKRX120_USER_LED__";
 		EE_OPT = "__USE_RSKRX120_BUTTONS__";
+		EE_OPT = "__ADD_LIB_SECT__";
 
 		STATUS = EXTENDED;
 		STARTUPHOOK = FALSE;

@@ -19,6 +19,7 @@ EEOPT += __RSKRX210__
 EEOPT += __USE_SYSTICK__
 EEOPT += __USE_RSKRX120_USER_LED__
 EEOPT += __USE_RSKRX120_BUTTONS__
+EEOPT += __ADD_LIB_SECT__
 
 
 ############################################################################
