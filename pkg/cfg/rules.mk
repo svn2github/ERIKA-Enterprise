@@ -349,6 +349,14 @@ include $(EEBASE)/pkg/cfg/arch/rules_cortex_generic.mk
 endif
 
 ##
+## RX210 - Renesas High-performance Embedded Workshop with ccrx compiler
+## compilers toolchains under windows
+##########################################################################
+ifeq ($(call iseeopt, __RX200__), yes)
+include $(EEBASE)/pkg/cfg/arch/rules_rx200_generic.mk
+endif
+
+##
 ## error checking in EEOPT
 ##########################################################################
 ifeq ($(and $(call iseeopt, __MONO__), $(call iseeopt, __MULTI__)), yes)

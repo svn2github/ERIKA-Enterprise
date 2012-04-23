@@ -163,3 +163,8 @@ endif	# __KEIL__
 endif	# !__CCS__
 endif	# __CORTEX_M4__
 
+ifeq ($(call iseeopt, __RX200__), yes)
+include $(EEBASE)/pkg/cfg/arch/cc_rx200_ccrx.mk
+endif
+
+

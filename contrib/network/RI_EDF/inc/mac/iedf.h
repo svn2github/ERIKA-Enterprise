@@ -135,8 +135,8 @@ void iedf_phy2mac_cb(uint8_t psduLen, uint8_t *psdu, uint8_t ppduLQ);
  * Link iEDF callback to upper layer.
  * 
  */
-void iedf_link_rx_cb(void (*func) (uint8_t status, uint8_t *data, uint8_t len,
-uint16_t add_data));
+void iedf_link_notify_cb(void (*func) (uint8_t status, uint8_t *data, 
+									   uint8_t len, uint16_t add_data));
 
 /*
  * Store a packet into tx data buffer.

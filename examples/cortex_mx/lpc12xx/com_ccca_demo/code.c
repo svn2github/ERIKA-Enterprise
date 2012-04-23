@@ -77,7 +77,7 @@ void led_init(void)
   PIO_mode.type = IOCON_PIO_0_7;
   IOCON_SetFunc(&PIO_mode);
   GPIO_SetDir(LPC_GPIO0, 7, 1);
-  GPIO_SetHighLevel(LPC_GPIO0, 7, 1);
+  GPIO_SetLowLevel(LPC_GPIO0, 7, 1);
 }
 
 /*
@@ -100,7 +100,8 @@ void interrupt_init()
 {
   /* Generate systemtick interrupt each 1 ms   */
   SysTick_Config(SystemCoreClock/1000 - 1);
-  __enable_interrupt();
+  //__enable_interrupt(); /*__IAR__*/
+    __enable_irq(); /*__KEIL__*/
 }
 
 
@@ -119,7 +120,7 @@ COMCallback(callback)
 
 TASK(Task0)
 {
-	SendMessage(ABS, (EE_UINT8 *)&ABS_Data);
+//	SendMessage(ABS, (EE_UINT8 *)&ABS_Data);
 
 	led_blink();
 }
@@ -185,7 +186,7 @@ int main(void)
   }	else {
 	  led_high();
   }
-  
+ ActivateTask(Task0);
   /* Forever loop: background activities (if any) should go here */
   for (;;)
   {

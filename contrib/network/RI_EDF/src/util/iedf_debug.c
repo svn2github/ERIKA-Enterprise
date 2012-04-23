@@ -8,9 +8,6 @@
 #include "util/iedf_debug.h"
 #include <string.h>
 
-#ifdef IEDF_DEBUG
-struct iedf_debug_stat_t iedf_debug_stats;
-#endif
 #ifdef IEDF_DEBUG_LOG
 static uint8_t debug_initialized = 0; 
 #endif

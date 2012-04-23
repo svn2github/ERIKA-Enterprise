@@ -11,6 +11,20 @@
 #ifndef __iedf_debug_h__
 #define __iedf_debug_h__
 
+#ifndef IEDF_DEBUG
+
+#define iedf_debug_init() ((void)0)
+#define iedf_debug_write(a, b) ((void)0)
+#define iedf_debug_print() ((void)0)
+#define iedf_debug_sprint_u8(a,b) ((void)0)
+#define iedf_debug_sprint_u16(a,b) ((void)0)
+#define iedf_debug_sprint_u32(a,b) ((void)0)
+#define iedf_debug_sprint_d8(a,b) ((void)0)
+#define iedf_debug_sprint_d16(a,b) ((void)0)
+#define iedf_debug_sprint_d32(a,b) ((void)0)
+
+#else 
+
 #include <hal/iedf_compiler.h> 
 
 
@@ -56,71 +70,9 @@
 int8_t iedf_debug_init(void);
 
 
-enum iedf_debug_tim_clock_id_t {
-	IEDF_DEBUG_TIME_CLOCK_BI = 0,
-	IEDF_DEBUG_TIME_CLOCK_DEVEL ,
-	IEDF_DEBUG_TIME_CLOCK_NUMBER,
-};
-
-#define IEDF_DEBUG_STAT_STRLEN 	26	/**<head(3)+tail(3) + (DAQ_TIME_STRLEN *
-					     IEDF_DEBUG_TIME_CLOCK_NUMBER) */
-
-struct iedf_debug_stat_t {
-	#ifdef IEDF_DEBUG_TIME
-	struct daq_time_t time_clock[IEDF_DEBUG_TIME_CLOCK_NUMBER];
-	#endif /* IEDF_DEBUG_TIME */
-};
-
-extern struct iedf_debug_stat_t iedf_debug_stats;
-
-COMPILER_INLINE int8_t iedf_debug_time_start(uint8_t ck_id) 
-{
-	#ifdef UWL_DEBUG_TIME
-	return daq_time_start(ck_id);
-	#else
-	return 0;
-	#endif
-}
-
-COMPILER_INLINE uint8_t iedf_debug_time_get(uint8_t ck_id) 
-{
-	#ifdef UWL_DEBUG_TIME
-	return daq_time_get(ck_id, iedf_debug_stats.time_clock + ck_id);
-	#else
-	return 0;
-	#endif
-}
-
-
-COMPILER_INLINE void iedf_debug_stat2str(uint8_t *out) 
-{
-	#ifdef UWL_DEBUG
-	#ifdef UWL_DEBUG_TIME
-	uint8_t i;
-	#endif
-
-	/* TODO: the escape mechanism must be done!!! */
-	*(out++) = 0x3C;	/* HEADER */
-	#ifdef UWL_DEBUG_TIME
-	for (i = 0; i < UWL_DEBUG_TIME_CLOCK_NUMBER; i++, out+=DAQ_TIME_STRLEN) 
-		daq_time_2str(iedf_debug_stats.time_clock + i, out);
-	#endif /* UWL_DEBUG_TIME */
-	*(out++) = 0x3E;	/* TRAILER */
-	#endif /* UWL_DEBUG */
-}
-
-COMPILER_INLINE uint32_t iedf_debug_time_get_us(uint8_t ck_id) 
-{
-	#ifdef UWL_DEBUG_TIME
-	daq_time_get(ck_id, iedf_debug_stats.time_clock + ck_id);
-	return daq_time_2us(iedf_debug_stats.time_clock + ck_id);
-	#else
-	return 0;
-	#endif
-}
 
 /** 
-* @brief Write to the uWireless debug port
+* @brief Write to the iedf debug port
 * 
 * @param[in] msg The message to write
 * @param[in] len The message length
@@ -215,5 +167,7 @@ COMPILER_INLINE void iedf_debug_sprint_d32(int32_t data, char *out)
 	out[1] = '0' + ((data / 1000000000) % 10);
 	out[0] = data < 0 ? '-' : ' ';
 }
+
+#endif /*ifndef IEDF_DEBUG*/
 
 #endif /* Header Protection */

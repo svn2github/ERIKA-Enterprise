@@ -136,6 +136,10 @@ extern "C" {
 #include "cpu/cortex_mx/inc/ee_cpu.h"
 #endif
 
+#ifdef __RX200__
+#include "cpu/rx200/inc/ee_cpu.h"
+#endif
+
   /*
    *
    * MCU
@@ -212,6 +216,11 @@ extern "C" {
  /* Stellaris */
 #if defined( __STELLARIS__ ) && defined( __LM4F232xxx__ )
 #include "mcu/ti_stellaris_lm4f232xxxx/inc/ee_mcu.h"
+#endif
+
+/* Renesas RX200*/
+#if defined( __RX200__ ) && defined( __R5F5210x__ )
+#include "mcu/renesas_r5f5210x/inc/ee_mcu.h"
 #endif
 
   /*
@@ -317,6 +326,10 @@ extern "C" {
   /* Stellaris */
 #if defined( __STELLARIS__ ) && defined ( __LM4F232xxxx__ )
 #include "board/ti_stellaris_lm4f232xxxx/inc/ee_board.h"
+#endif
+
+#ifdef __RSKRX210__
+#include "board/renesas_rskrx210/inc/ee_board.h"
 #endif
 
   /*

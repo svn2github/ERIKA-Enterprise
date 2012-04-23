@@ -132,6 +132,10 @@ defined(__OO_ECC2__) || defined(__AS_SC4__)
 #ifdef __CORTEX_MX__
 #include "cpu/cortex_mx/inc/ee_irq.h"
 #endif
+	
+#ifdef __RX200__
+#include "cpu/rx200/inc/ee_irq.h"
+#endif
 
 #if defined(__cplusplus)
 };

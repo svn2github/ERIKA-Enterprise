@@ -126,6 +126,11 @@ extern "C" {
 #include "cpu/cortex_mx/inc/ee_internal.h"
 #endif
 
+/* Renesas RX200 */
+#ifdef __RX200__
+#include "cpu/rx200/inc/ee_internal.h"
+#endif
+
   /*
    *
    * MCU
@@ -200,6 +205,11 @@ extern "C" {
 #include "mcu/ti_stellaris_lm4f232xxxx/inc/ee_internal.h"
 #endif
 
+/* Renesas RX200*/
+#if defined( __RX200__ ) && defined( __R5F5210x__ )
+#include "mcu/renesas_r5f5210x/inc/ee_internal.h"
+#endif
+	
   /*
    *
    * Board
@@ -262,6 +272,10 @@ extern "C" {
 
 #ifdef __ESI_RISC__
 #include "board/esi_risc/inc/ee_board.h"
+#endif
+
+#ifdef __RSKRX210__
+#include "board/renesas_rskrx210/inc/ee_board.h"
 #endif
 
   /*

@@ -107,7 +107,8 @@ void interrupt_init()
 {
   /* Generate systemtick interrupt each 1 ms   */
   SysTick_Config(SystemCoreClock/1000 - 1);
-  __enable_interrupt();
+  //__enable_interrupt(); /*__IAR__*/
+    __enable_irq(); /*__KEIL__*/
 }
 
 
@@ -171,7 +172,7 @@ int main(void)
   led_init();
 
   /* Initialize OsekCOM */
-  if (StartCOM(EE_COM_MODE_B) == E_OK) {
+  if (StartCOM(EE_COM_MODE_A) == E_OK) {
 
 	  SetRelAlarm(AlarmTask0, 500, 200);
 	  SetRelAlarm(AlarmTask1, 500, 400);

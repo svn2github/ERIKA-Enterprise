@@ -45,21 +45,22 @@ CPU mySystem {
 		/***************************************************/
 		/* These symbols, ABS etc., should go into eecfg.h */
 		/***************************************************/
-		CFLAGS = "-D ABS=0";
+		/*CFLAGS = "-D ABS=0";
 		CFLAGS = "-D RECEIVER1=1";
 		CFLAGS = "-D RECEIVER2=2";
 		CFLAGS = "-D EE_COM_N_MSG=3";
 		CFLAGS = "-D EE_COM_N_MODE=1";
-		CFLAGS = "-D EE_COM_MODE_A=0";
+		CFLAGS = "-D EE_COM_MODE_A=0";*/
 		/***************************************************/
 
 
 		CPU_DATA = CORTEX_MX {
 			MODEL = M0;
 			APP_SRC = "code.c";
-			APP_SRC = "initosekcom.c";
-			JLINK = TRUE;
-			COMPILER_TYPE = IAR; 
+			//APP_SRC = "initosekcom.c";
+			//JLINK = TRUE;
+			//COMPILER_TYPE = IAR;
+			COMPILER_TYPE = KEIL; 
 			MULTI_STACK = FALSE;
 		};
 
@@ -93,7 +94,7 @@ CPU mySystem {
 		EE_OPT = "__ADD_LIBS__";
 		
 		/*OSEK COM EE_OPT*/
-		EE_OPT = "__COM_CCCB__";
+		//EE_OPT = "__COM_CCCB__";
 	};
 	
 	/* this is the OIL part for the task */
@@ -103,6 +104,7 @@ CPU mySystem {
 		ACTIVATION = 1;    /* only one pending activation */
 		STACK = SHARED;
 		RESOURCE = "EE_MUTEX_COM_MSG";
+		MESSAGE = "ABS";
 	};
 	/* this is the OIL part for the task */
 	TASK Task1 {
@@ -111,6 +113,7 @@ CPU mySystem {
 		ACTIVATION = 1;    /* only one pending activation */
 		STACK = SHARED;
 		RESOURCE = "EE_MUTEX_COM_MSG";
+		MESSAGE = "RECEIVER2";
 	};
 	
 	TASK Task2 {
@@ -119,6 +122,8 @@ CPU mySystem {
 		ACTIVATION = 1;    /* only one pending activation */
 		STACK = SHARED;
 		RESOURCE = "EE_MUTEX_COM_MSG";
+		MESSAGE = "RECEIVER1";
+		
 	};
 	
 	/* General purpose counter for all the needed alarms  */
@@ -145,7 +150,7 @@ CPU mySystem {
 	* OSEK COM sub-system properties.
 	* Vedi "OIL: OSEK Implementation Language Specification 2.5", pag.31. 
 	*/
-	/*
+	
 	COM myCom {
 			COMERRORHOOK = FALSE;
 			COMUSEGETSERVICEID =FALSE;
@@ -156,12 +161,11 @@ CPU mySystem {
 			
 			COMTYPE = CCCB;
 		};
-	*/
 	
 	/*
 	* Message definitions;
 	*/
-	/*
+	
 	MESSAGE ABS {
 		MESSAGEPROPERTY = SEND_STATIC_INTERNAL {
 			CDATATYPE = "EE_UINT32";
@@ -183,8 +187,9 @@ CPU mySystem {
 			SENDINGMESSAGE = "ABS";
 			FILTER = ALWAYS;
 			INITIALVALUE = 0;
+			QUEUESIZE = 2;
 		};
 		NOTIFICATION = FLAG { FLAGNAME = "data_in"; };
 	};
-	*/
+
 };
