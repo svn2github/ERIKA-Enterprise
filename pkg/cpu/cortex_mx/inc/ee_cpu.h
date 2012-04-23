@@ -50,6 +50,8 @@
 #define __INCLUDE_CORTEX_MX_EE_CPU_H__
 
 #include "eecfg.h"
+#include "cpu/cortex_mx/inc/ee_nvic.h"
+#include "mcu/ti_stellaris_lm4f232xxxx/inc/ee_mcuregs.h"
 
 #ifdef __IAR__
 #include "cpu/common/inc/ee_compiler_iar.h"
@@ -81,6 +83,9 @@ typedef EE_UINT32 EE_UREG;
 typedef EE_INT32  EE_SREG;
 typedef EE_UINT32 EE_FREG;
 #define EE_UREG_SIZE 4
+
+/* ISR Priority representation type */
+typedef EE_UREG EE_TYPEISR2PRIO;
 
 /* Thread IDs */
 typedef EE_INT32 EE_TID;
@@ -239,7 +244,7 @@ __INLINE__ EE_UINT32 __ALWAYS_INLINE__ EE_cortex_mx_get_IRQ_enabled(void)
 #else	/* __IAR__ */
 #ifdef __CCS__
 	__ASM ("    MRS     r0, PRIMASK\n"
-	       "    EOR     r0, #1n"
+	       "    EOR     r0, #1\n"
 	       "    bx      lr\n");
 #else	/* __CCS__ */
 #ifdef __KEIL__
@@ -255,6 +260,85 @@ __INLINE__ EE_UINT32 __ALWAYS_INLINE__ EE_cortex_mx_get_IRQ_enabled(void)
 #else
 	return EE_cortex_mx_are_IRQs_enabled(ie);
 #endif
+}
+
+__INLINE__ EE_TYPEISR2PRIO __ALWAYS_INLINE__ EE_cortex_mx_get_int_prio(void)
+{
+#ifdef __CORTEX_M4__
+
+#ifndef __CCS__
+	register EE_UREG prio;
+#ifdef	__KEIL__
+	register EE_FREG BASEPRI __ASM("basepri");
+#endif
+
+#endif
+
+#ifdef __CCS__
+	__ASM ("    MRS     R0, BASEPRI\n"
+	       "    ASR     R0, #NVIC_INT_PRI_S\n"
+	       "    BLX     LR\n");
+#else	/* __CCS__ */
+#ifdef __KEIL__
+	prio = BASEPRI;
+#else	/* __KEIL__ */
+	__ASM volatile("MRS %0, BASEPRI" :: "=r" (prio));
+#endif	/* !__KEIL__ */
+#endif	/* !__CCS__ */
+
+#ifdef __CCS__
+	return 0;
+#else
+	return prio >> NVIC_INT_PRI_S;
+#endif
+
+#else	/* __CORTEX_M4__ */
+	return 0;
+#endif	/* !__CORTEX_M4__ */
+}
+
+__INLINE__ void __ALWAYS_INLINE__ EE_cortex_mx_set_int_prio(
+  EE_TYPEISR2PRIO prio
+)
+{
+#ifdef __CORTEX_M4__
+#ifdef __CCS__
+	__ASM ("    LSL    R0, #NVIC_INT_PRI_S\n"
+	       "    MSR    BASEPRI, R0\n");
+#else	/* __CCS__ */
+#ifdef __KEIL__
+	register EE_FREG BASEPRI __ASM("basepri");
+	BASEPRI = (prio << NVIC_INT_PRI_S);
+#else	/* __KEIL__ */
+	__ASM volatile("MSR BASEPRI, %0" :: "r" (prio << NVIC_INT_PRI_S));
+#endif	/* !__KEIL__ */
+#endif	/* !__CCS__ */
+#endif	/* __CORTEX_M4__ */
+}
+
+__INLINE__ EE_TYPEISR2PRIO __ALWAYS_INLINE__ EE_cortex_mx_get_isr_prio(
+  void
+)
+{
+  register EE_UREG vectact = NVIC_INT_CTRL_R & NVIC_INT_CTRL_VEC_ACT_M;
+  register EE_TYPEISR2PRIO prio = 0;
+
+  if (vectact > EE_CORTEX_MX_SYSTICK_EXC_NUM) {
+    vectact -= EE_CORTEX_MX_SYSTICK_EXC_NUM + 1;
+    prio = NVIC_GET_PRI(vectact);
+  }
+#ifdef	__USE_SYSTICK__
+  else if (vectact == EE_CORTEX_MX_SYSTICK_EXC_NUM) {
+    prio = NVIC_SYS_PRI3_R >> NVIC_SYS_PRI3_TICK_S
+  }
+#endif
+#ifdef	__USE_SVC__
+  else if (vectact == EE_CORTEX_MX_SVCALL_EXC_NUM) {
+    prio = NVIC_SYS_PRI2_R >> NVIC_SYS_PRI2_SVC_S
+  }
+#endif
+
+  return prio;
 }
 
 /*************************************************************************

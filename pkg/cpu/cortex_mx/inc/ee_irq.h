@@ -50,6 +50,16 @@
 #ifndef __INCLUDE_CORTEX_MX_IRQ_H__
 #define __INCLUDE_CORTEX_MX_IRQ_H__
 
+
+#define	EE_ISR_UNMASKED	0x00000000
+#define	EE_ISR_PRI_1	0x00000007
+#define	EE_ISR_PRI_2	0x00000006
+#define	EE_ISR_PRI_3	0x00000005
+#define	EE_ISR_PRI_4	0x00000004
+#define	EE_ISR_PRI_5	0x00000003
+#define	EE_ISR_PRI_6	0x00000002
+#define	EE_ISR_PRI_7	0x00000001
+
 #define EE_std_change_context(x) ((void)0)
 
 /* Use angled parenthesis to include the main "ee_internal.h" */
@@ -98,6 +108,8 @@ do {\
 #define EE_ISR2_prestub(void)\
 do {\
 	EE_cortex_mx_disableIRQ();\
+	ipl = EE_cortex_mx_get_int_prio();\
+	EE_cortex_mx_set_int_prio(EE_cortex_mx_get_isr_prio());\
 	EE_increment_IRQ_nesting_level();\
 	EE_cortex_mx_change_stack();\
 	/* Enable IRQ if nesting  is allowed */\
@@ -113,6 +125,8 @@ do{\
  * Note: if nesting is not allowed, the IRQs are already disabled\
  */\
     EE_std_disableIRQ_nested();\
+    EE_cortex_mx_set_int_prio(ipl);\
+    EE_std_end_IRQ_post_stub();\
     EE_decrement_IRQ_nesting_level();\
 /*\
 * If the ISR at the lowest level is ended, restore the stack pointer\
@@ -146,6 +160,7 @@ void ISR1_ ## f(void)
 void ISR2_ ## f(void);		\
 __IRQ void f(void)		\
 {				\
+	static EE_UREG ipl = 0;	\
 	EE_ISR2_prestub();	\
 	ISR2_ ## f();		\
 	EE_ISR2_poststub();	\

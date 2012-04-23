@@ -72,6 +72,13 @@ void EE_system_init(void)
 	 */
 	EE_set_switch_context_pri();
 
+#ifdef EE_CORTEX_MX_SYSTICK_ISR
+#ifdef EE_CORTEX_MX_SYSTICK_ISR_PRI
+	NVIC_SYS_PRI3_R |= (
+	  EE_CORTEX_MX_SYSTICK_ISR_PRI << NVIC_SYS_PRI3_TICK_S
+	);
+#endif
+#endif
 
 #ifdef EE_CORTEX_MX_GPIO_A_ISR
 #ifdef EE_CORTEX_MX_GPIO_A_ISR_PRI

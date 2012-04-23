@@ -389,6 +389,15 @@
 	);\
 }
 
+/* NVIC Get Priority */
+#define	NVIC_GET_PRI(_int)	(\
+	(\
+	  ( NVIC_INT_PRI_REG(_int) & NVIC_INT_PRI_M(_int) )  >> (\
+	    ((EE_UREG)_int & NVIC_INT_PRI_REG_M) << NVIC_INT_PRI_REG_M\
+	  )\
+	) >> NVIC_INT_PRI_S \
+)\
+
 /* NVIC Set Pending Interrupt */
 #define	NVIC_INT_SET_PENDING(_int)	(\
 	NVIC_INT_REG(_int, NVIC_INT_SET_PENDING_REG_B) |= NVIC_INT_M(_int)\
