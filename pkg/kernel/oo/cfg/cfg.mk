@@ -118,8 +118,4 @@ EE_SRCS += pkg/kernel/oo/src/ee_semwait.c
 endif
 endif
 
-ifeq ($(call iseeopt, ENABLE_SYSTEM_TIMER), yes)
-EE_SRCS += pkg/kernel/oo/src/ee_systick.c
-endif
-
 endif

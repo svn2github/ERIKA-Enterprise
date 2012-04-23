@@ -50,6 +50,32 @@
 #include "kernel/oo/inc/ee_intfunc.h"
 #include "kernel/oo/inc/ee_irq.h"
 
+
+/* This function notifies a tick to a hardware counter.
+   That is, the counter is
+   incremented by 1.  It must be called into an ISR2 or into a
+   task notify that the event linked to the counter occurred.
+
+   The function will also implement the notification of expired alarms
+   (calling an alarm callback, setting an event, or activating a
+   task).
+
+   The function can be considered atomic, and NO RESCHEDULING will
+   take place after the execution of this function. To implement the
+   rescheduling at task level, you can use the Schedule() or the
+   ForceSchedule() functions just after this notification.
+
+   see also internal.h
+*/
+StatusType EE_oo_IncrementCounterHardware(CounterType CounterID);
+void       EE_oo_IncrementCounterImplementation(CounterType CounterID);
+
+/* kernel internal API */
+#define IncrementCounterHardware EE_oo_IncrementCounterHardware
+
+/* Helper function */
+void EE_oo_alarm_insert(AlarmType AlarmID, TickType increment);
+
 /*************************************************************************
  HAL extensions
  *************************************************************************/

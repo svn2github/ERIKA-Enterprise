@@ -127,7 +127,8 @@ void EE_thread_end_instance(void)
     /* No threads in the ready queue, return to the preempted thread (maybe main) */
     if (EE_stk_queryfirst() != EE_NIL) {
       EE_th_status[EE_stk_queryfirst()] = RUNNING;
-      EE_oo_call_PreTaskHook();
+      /* The call the PreTaskHook is done inside EE_oo_preemption_point */
+      /* EE_oo_call_PreTaskHook(); */
     }
     EE_hal_endcycle_stacked(EE_stk_queryfirst());
   }

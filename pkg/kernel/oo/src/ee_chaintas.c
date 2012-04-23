@@ -142,7 +142,7 @@ StatusType EE_oo_ChainTask(TaskType TaskID)
       (EE_th_rnact[TaskID] == (EE_UREG)0U)) {
     EE_ORTI_set_lasterror(E_OS_LIMIT);
 
-    EE_oo_notify_error_ChainTask(TaskID, E_OS_RESOURCE);
+    EE_oo_notify_error_ChainTask(TaskID, E_OS_LIMIT);
 
     EE_hal_end_nested_primitive(flag);
     EE_ORTI_set_service_out(EE_SERVICETRACE_CHAINTASK);

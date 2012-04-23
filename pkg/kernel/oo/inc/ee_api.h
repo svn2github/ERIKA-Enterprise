@@ -141,10 +141,6 @@
 #define IncrementCounter          EE_oo_IncrementCounter
 #endif
 
-#ifndef SystemTick
-#define SystemTick                EE_oo_sys_tick
-#endif
-
 #ifndef GetCounterValue
 #define GetCounterValue           EE_oo_GetCounterValue
 #endif

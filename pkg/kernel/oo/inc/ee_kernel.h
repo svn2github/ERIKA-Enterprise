@@ -83,7 +83,7 @@
 
    __OO_ORTI_RES_LOCKER_TASK__ if defined, the resource functions keep
                          trace of the locker task.
-			     
+
    __OO_ORTI_STACK__ This define is not included in the OO
                      sources, but instead it is contained in the BSP
                      boot code, and specifies if stack
@@ -490,28 +490,6 @@ int EE_oo_GetValueSem(const SemType *Sem);
 StatusType EE_oo_IncrementCounter(CounterType CounterID);
 #endif  /* __PRIVATE_INCREMENTCOUNTER__ */
 
-/* This function notifies a tick to a counter. That is, the counter is
-   incremented by 1.  It must be called into an ISR2 or into a
-   task totify that the event linked to the counter occurred. 
-
-   The function will also implement the notification of expired alarms
-   (calling an alarm callback, setting an event, or activating a
-   task). 
-
-   The function can be considered atomic, and NO RESCHEDULING will
-   take place after the execution of this function. To implement the
-   rescheduling at task level, you can use the Schedule() or the
-   ForceSchedule() functions just after this notification.
-
-   see also internal.h
-*/
-#ifndef __PRIVATE_COUNTER_TICK__
-void EE_oo_counter_tick(CounterType CounterID);
-
-/* Helper function */
-void EE_oo_alarm_insert(AlarmType AlarmID, TickType increment);
-#endif /* __PRIVATE_COUNTER_TICK__ */
-
 /*
   AS 4.0 OS SWS 8.4.17 GetCounterValue
   AS OS requirement OS383:
@@ -626,13 +604,6 @@ StatusType EE_oo_StartOS(AppModeType Mode);
 #ifndef __PRIVATE_SHUTDOWNOS__
 void EE_oo_ShutdownOS(StatusType Error);
 #endif
-
-#ifdef ENABLE_SYSTEM_TIMER
-#ifndef __PRIVATE_SYSTICK__
-void EE_oo_sys_tick(void);
-#endif /*  */
-#endif /*  */
-
 
 /* 13.7.3 Constants                                                        */
 /* ----------------------------------------------------------------------- */

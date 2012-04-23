@@ -57,9 +57,6 @@ EE_TYPETICK EE_ORTI_alarmtime[EE_MAX_ALARM];
 #endif /* RTDRUID_CONFIGURATOR_NUMBER */
 
 
-
-#ifndef __PRIVATE_COUNTER_TICK__
-
 void EE_oo_alarm_insert(AlarmType AlarmID, TickType increment)
 {
   register AlarmType current, previous;
@@ -215,7 +212,7 @@ static void EE_handle_alarm_action_event(CounterType CounterID,
 }
 #endif /* __OO_ECC1__ || __OO_ECC2__ */
 
-static void EE_oo_counter_tick_Impl(CounterType CounterID)
+void EE_oo_IncrementCounterImplementation(CounterType CounterID)
 {
   register AlarmType current;
   /* Increment the counter value or reset it when overcome maxallowedvalue.
@@ -249,8 +246,10 @@ static void EE_oo_counter_tick_Impl(CounterType CounterID)
           break;
 
         case EE_ALARM_ACTION_COUNTER:
-          /* recursive call */
-          EE_oo_counter_tick_Impl(EE_alarm_ROM[current].inccount);
+          /* recursive call
+             TODO: HANDLE CYCLIC COUNTERS !!!
+           */
+          EE_oo_IncrementCounterImplementation(EE_alarm_ROM[current].inccount);
           break;
 
 #if defined(__OO_ECC1__) || defined(__OO_ECC2__)
@@ -287,16 +286,47 @@ static void EE_oo_counter_tick_Impl(CounterType CounterID)
     }
   }
 }
+
+/* Flag from wich index software counters starts */
+#ifdef EE_MAX_COUNTER_HW
+#define EE_SOFT_COUNTERS_START EE_MAX_COUNTER_HW
+#else
+#define EE_SOFT_COUNTERS_START 0U
+#endif /* EE_MAX_COUNTER_HW */
+
+
 /* Internal primitive */
-void EE_oo_counter_tick(CounterType CounterID)
+StatusType EE_oo_IncrementCounterHardware(CounterType CounterID)
 {
   register EE_FREG flag;
 
   flag = EE_hal_begin_nested_primitive();
-  EE_oo_counter_tick_Impl(CounterID);
+
+  /* This primitive must be called inside an Interrupt */
+  if(EE_hal_get_IRQ_nesting_level() == 0U) {
+    EE_ORTI_set_lasterror(E_OS_NOFUNC);
+
+    EE_oo_notify_error_service(OSId_ISR2Body, E_OS_NOFUNC);
+    EE_hal_end_nested_primitive(flag);
+
+    return E_OS_NOFUNC;
+  }
+
+  if ((CounterID < 0) && (CounterID >= EE_SOFT_COUNTERS_START)) {
+    EE_ORTI_set_lasterror(E_OS_ID);
+#if defined(__OO_HAS_ERRORHOOK__) && (!defined(__OO_ERRORHOOK_NOMACROS__))
+    EE_oo_notify_error_service(OSId_ISR2Body, E_OS_ID);
+#endif /* __OO_HAS_ERRORHOOK__ && !__OO_ERRORHOOK_NOMACROS__ */
+
+    EE_hal_end_nested_primitive(flag);
+    return E_OS_ID;
+  }
+
+  EE_oo_IncrementCounterImplementation(CounterID);
   EE_hal_end_nested_primitive(flag);
+
+  return E_OK;
 }
-#endif /* __PRIVATE_COUNTER_TICK__ */
 
 #ifndef __PRIVATE_INCREMENTCOUNTER__
 
@@ -339,7 +369,7 @@ StatusType EE_oo_IncrementCounter(CounterType CounterID)
       not valid OR the counter is a hardware counter, IncrementCounter() shall
       return E_OS_ID.
   */
-  if ((CounterID < 0) || (CounterID >= EE_MAX_COUNTER)) {
+  if ((CounterID < EE_SOFT_COUNTERS_START) || (CounterID >= EE_MAX_COUNTER)) {
     EE_ORTI_set_lasterror(E_OS_ID);
 #if defined(__OO_HAS_ERRORHOOK__) && (!defined(__OO_ERRORHOOK_NOMACROS__))
     flag = EE_hal_begin_nested_primitive();
@@ -359,7 +389,7 @@ StatusType EE_oo_IncrementCounter(CounterType CounterID)
   flag = EE_hal_begin_nested_primitive();
 
   /* Call to function that actually increment the counter */
-  EE_oo_counter_tick_Impl(CounterID);
+  EE_oo_IncrementCounterImplementation(CounterID);
 
   /* After all counter updates check if I'm not in a ISR2 and then
      execute rescheduling.

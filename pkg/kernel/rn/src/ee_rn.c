@@ -65,7 +65,7 @@ static void EE_rn_execute(EE_TYPERN rn, EE_TYPERN_SWITCH sw)
 	 pend--) {
 
 #if (defined(__OO_BCC1__) || defined(__OO_BCC2__) || defined(__OO_ECC1__) || defined(__OO_ECC2__) ) && !defined(__OO_NO_ALARMS__)
-      EE_oo_counter_tick(EE_rn_counter[rn]);
+      EE_oo_IncrementCounterImplementation(EE_rn_counter[rn]);
 #endif
 #if defined(__ALARMS__)
       EE_counter_tick(EE_rn_counter[rn]);
