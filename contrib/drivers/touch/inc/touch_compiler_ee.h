@@ -11,11 +11,7 @@
 #define __TOUCH_COMPILER_EE_H__
 
 #include <ee.h>
-
-// TODO: (Nino) Needed also by AVR5?
-#ifdef __PIC30__
-#include <cpu/pic30/inc/ee_irqstub.h>
-#endif
+#include <ee_irq.h>
 
 /**
 * @name Basic type representations.

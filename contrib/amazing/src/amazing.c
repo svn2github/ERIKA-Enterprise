@@ -2,7 +2,6 @@
 #include "amazing.h"
 #include "dee_emulation_16-bit.h"
 #include "touch.h"
-#include "cpu/pic30/inc/ee_irqstub.h"
 
 #define AMAZING_LAPS			2
 #define AMAZING_ALREADY_SET_ADDR	2
