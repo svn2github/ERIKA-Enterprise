@@ -291,7 +291,7 @@ void EE_oo_IncrementCounterImplementation(CounterType CounterID)
 #ifdef EE_MAX_COUNTER_HW
 #define EE_SOFT_COUNTERS_START EE_MAX_COUNTER_HW
 #else
-#define EE_SOFT_COUNTERS_START 0U
+#define EE_SOFT_COUNTERS_START 0
 #endif /* EE_MAX_COUNTER_HW */
 
 
