@@ -67,6 +67,8 @@
 
    see also internal.h
 */
+#ifndef __OO_NO_ALARMS__
+
 StatusType EE_oo_IncrementCounterHardware(CounterType CounterID);
 void       EE_oo_IncrementCounterImplementation(CounterType CounterID);
 
@@ -75,6 +77,8 @@ void       EE_oo_IncrementCounterImplementation(CounterType CounterID);
 
 /* Helper function */
 void EE_oo_alarm_insert(AlarmType AlarmID, TickType increment);
+
+#endif
 
 /*************************************************************************
  HAL extensions
