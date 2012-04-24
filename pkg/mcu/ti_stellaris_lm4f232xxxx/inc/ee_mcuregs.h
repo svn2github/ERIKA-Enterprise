@@ -45,10 +45,10 @@
 	@date 2011
  */
 
+#include "cpu/cortex_mx/inc/ee_cpu.h"
+
 #ifndef	__INCLUDE_STELLARIS_LM4F232XXXX_MCUREGS_H__
 #define	__INCLUDE_STELLARIS_LM4F232XXXX_MCUREGS_H__
-
-#include "cpu/cortex_mx/inc/ee_cpu.h"
 
 /* Watchdog Timer registers (WATCHDOG0) */
 #define WATCHDOG0_LOAD_R        (*((volatile EE_UREG *)0x40000000))
