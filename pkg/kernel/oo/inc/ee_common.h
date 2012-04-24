@@ -797,17 +797,12 @@ typedef EE_TYPETICK TickType;
 /* This data type points to the data type TickType. */
 typedef EE_TYPETICK *TickRefType;
 
-/* This is used for static alarm initialization in SetRelAlarm 
-*/
-#define EE_STATIC_ALARM_TIME ((TickType)-1)
-#define EE_STATIC_CYCLE_TIME ((TickType)-1)
-
 /* A structure for storage of counter characteristics. */
 typedef struct {
   TickType maxallowedvalue; /* Maximum possible allowed count value in
                                ticks */
-  TickType ticksperbase;    /* Number of ticks required to reach a
-			       counter-specific (significant) unit. */
+  TickType ticksperbase;    /* Number of hardware ticks required to reach a
+                               counter-specific (significant) unit. */
 #ifdef __OO_EXTENDED_STATUS__
   TickType mincycle; /* Smallest allowed value for the cycle-parameter
                         of SetRelAlarm/SetAbsAlarm) (only for systems

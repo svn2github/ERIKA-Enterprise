@@ -332,7 +332,7 @@ __INLINE__ EE_TYPEISR2PRIO __ALWAYS_INLINE__ EE_cortex_mx_get_isr_prio(
   }
 #ifdef	__USE_SYSTICK__
   else if (vectact == EE_CORTEX_MX_SYSTICK_EXC_NUM) {
-    prio = NVIC_SYS_PRI3_R >> NVIC_SYS_PRI3_TICK_S
+    prio = NVIC_SYS_PRI3_R >> NVIC_SYS_PRI3_TICK_S;
   }
 #endif
 #ifdef	__USE_SVC__
