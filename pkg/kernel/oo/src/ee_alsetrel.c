@@ -57,15 +57,12 @@
      E_OS_VALUE if the parameters are incorrect
 */
 
-TickType pippo=0;
-
 #ifndef __PRIVATE_SETRELALARM__
 StatusType EE_oo_SetRelAlarm(AlarmType AlarmID, 
     TickType increment, TickType cycle)
 {
   register EE_FREG flag;
   EE_ORTI_set_service_in(EE_SERVICETRACE_SETRELALARM);
-  pippo = cycle;
 
   /*
     OS093: If interrupts are disabled/suspended by a Task/OsIsr and the
