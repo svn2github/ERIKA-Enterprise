@@ -90,7 +90,7 @@
   ISR IsrLow {
     CATEGORY = 2;
     PRIORITY = 1;	/* Low Priority Value */
-#ifdef ez200x
+#ifdef e200zx
     ENTRY = "0";
 #endif
 #ifdef cortex_m4
@@ -103,7 +103,7 @@
   ISR IsrMedium {
     CATEGORY = 2;
     PRIORITY = 2;
-#ifdef ez200x
+#ifdef e200zx
     ENTRY = "1";
 #endif
 #ifdef cortex_m4
@@ -114,7 +114,7 @@
   ISR IsrHigh {
     CATEGORY = 2;
     PRIORITY = 3;	/* Max Priority Value */
-#ifdef ez200x
+#ifdef e200zx
     ENTRY = "2";
 #endif
 #ifdef cortex_m4
