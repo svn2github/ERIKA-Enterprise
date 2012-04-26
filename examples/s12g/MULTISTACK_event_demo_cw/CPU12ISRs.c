@@ -158,7 +158,7 @@ ISR2 ( CPU12TimerCh7ISR ) {
 	if ( (timer_divisor%10==0) && (EE_button_get_B1()) ) {
 		button_fired++;
 		/* arm an alarm that will activated Task2 */ 
-		SetRelAlarm(AlarmTask2, EE_STATIC_ALARM_TIME, EE_STATIC_CYCLE_TIME);//SetRelAlarm(AlarmTask2, 1000, 0);
+		SetRelAlarm(AlarmTask2, 1000, 0);
 		/* set an event to wake up Task1 */
 		SetEvent(Task1, ButtonEvent);
 	}

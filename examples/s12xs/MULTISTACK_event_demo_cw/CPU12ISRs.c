@@ -412,7 +412,7 @@ ISR2 ( CPU12PortPISR )
 	EE_buttons_disable_interrupts(BUTTON_0);
 	button_fired++;
 	/* arm an alarm that will activated Task2 */ 
-	SetRelAlarm(AlarmTask2,EE_STATIC_ALARM_TIME,EE_STATIC_CYCLE_TIME);//SetRelAlarm(AlarmTask2, 1000, 0);
+	SetRelAlarm(AlarmTask2, 1000, 0);
 	/* set an event to wake up Task1 */
     SetEvent(Task1, ButtonEvent);
 	mydelay((long int)1000);
