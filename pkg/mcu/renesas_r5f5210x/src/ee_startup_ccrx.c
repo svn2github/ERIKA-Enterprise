@@ -75,10 +75,6 @@ void EE_rx200_default_ISR(void)
     }
 }
 
-/*GF
-Note this is the same code of the freeRTOS demo. We should change it 
-whit a Erika version.
-*/
 
 void	EE_rx200_cpu_freq_setup(void) 
 {
