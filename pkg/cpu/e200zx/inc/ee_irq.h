@@ -48,6 +48,26 @@
 /* CPU-dependent part of HAL that have to be seen by user code */
 #include "ee_cpu_os.h"
 
+
+/* ISR priority level defines */
+#define EE_ISR_UNMASKED 0U
+#define EE_ISR_PRIO_1  1U
+#define EE_ISR_PRIO_2  2U
+#define EE_ISR_PRIO_3  3U
+#define EE_ISR_PRIO_4  4U
+#define EE_ISR_PRIO_5  5U
+#define EE_ISR_PRIO_6  6U
+#define EE_ISR_PRIO_7  7U
+#define EE_ISR_PRIO_8  8U
+#define EE_ISR_PRIO_9  9U
+#define EE_ISR_PRIO_10 10U
+#define EE_ISR_PRIO_11 11U
+#define EE_ISR_PRIO_12 12U
+#define EE_ISR_PRIO_13 13U
+#define EE_ISR_PRIO_14 14U
+#define EE_ISR_PRIO_15 15U
+
+
 /* I include context because is needed by common ee_irqstub.h */
 #include "cpu/common/inc/ee_context.h"
 #include "cpu/common/inc/ee_irqstub.h"

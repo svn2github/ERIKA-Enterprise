@@ -47,6 +47,7 @@
 */ 
 
 #include "ee_internal.h"
+#include "ee_irq.h"
 #include "cpu/cortex_mx/inc/ee_nvic.h"
 
 #ifdef __USE_SVC__

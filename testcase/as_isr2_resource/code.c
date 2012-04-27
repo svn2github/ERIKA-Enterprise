@@ -49,31 +49,22 @@
 
 #define MAX_ASSERT 70
 
-#ifdef __PPCE200ZX__
 #define IRQ_LOW     0U
 #define IRQ_MEDIUM  1U
 #define IRQ_HIGH    2U
 
-#define IRQ_LOW_PRIO    1U
-#define IRQ_MEDIUM_PRIO 2U
-#define IRQ_HIGH_PRIO   3U
+#define IRQ_LOW_PRIO    EE_ISR_PRIO_1
+#define IRQ_MEDIUM_PRIO EE_ISR_PRIO_2
+#define IRQ_HIGH_PRIO   EE_ISR_PRIO_3
 
+#ifdef __PPCE200ZX__
 /* Ack the IRQ */
 #define ACK_IRQ(x) (INTC.SSCIR[(x)].B.CLR = 1)
-#endif	/* __PPCE200ZX__ */
-
+#endif  /* __PPCE200ZX__ */
 #ifdef __CORTEX_M4__
-#define IRQ_LOW     0U
-#define IRQ_MEDIUM  1U
-#define IRQ_HIGH    2U
-
-#define IRQ_LOW_PRIO    3U
-#define IRQ_MEDIUM_PRIO 2U
-#define IRQ_HIGH_PRIO   1U
-
 /* Ack the IRQ */
-#define ACK_IRQ(x)
-#endif	/* __CORTEX_M4__ */
+#define ACK_IRQ(x)    ((void)0)
+#endif  /* __CORTEX_M4__ */
 
 static StatusType last_error;
 static unsigned int error_count;
@@ -166,14 +157,14 @@ ISR2(IsrLow)
   } else if (low_isr_hit == 2U) {
     assert(high_isr_hit == 3U);
     assert(medium_isr_hit == 3U);
-    GetResource(ResourceB);
     GetResource(ResourceA);
+    GetResource(ResourceB);
     assert(EE_oo_get_ISR2_TID() == EE_MAX_TASK);
     assert(EE_hal_get_int_prio() == IRQ_HIGH_PRIO);
-    assert(EE_th_resource_last[EE_MAX_TASK] == ResourceA);
+    assert(EE_th_resource_last[EE_MAX_TASK] == ResourceB);
 #ifdef __OO_EXTENDED_STATUS__
-    /* Error one more in error_count */
-    s = ReleaseResource(ResourceB);
+    /* Error two more in error_count */
+    s = ReleaseResource(ResourceA);
     assert(s == E_OS_NOFUNC);
     assert(EE_hal_get_int_prio() == IRQ_HIGH_PRIO);
 #endif /* __OO_EXTENDED_STATUS__ */
@@ -183,6 +174,9 @@ ISR2(IsrLow)
 
 ISR2(IsrMedium)
 {
+#ifdef __OO_EXTENDED_STATUS__
+  StatusType s;
+#endif /* __OO_EXTENDED_STATUS__ */
   ACK_IRQ(IRQ_MEDIUM);
   if (medium_isr_hit == 0U) {
     assert(low_isr_hit == 0U);
@@ -199,6 +193,20 @@ ISR2(IsrMedium)
   } else if (medium_isr_hit == 2U) {
     assert(high_isr_hit == 3U);
     assert(low_isr_hit == 2U);
+    /* You should not do this but API cannot prevent
+       you on doing this */
+    GetResource(ResourceB);
+    assert(EE_oo_get_ISR2_TID() == EE_MAX_TASK);
+    assert(EE_isr2_nesting_level[EE_isr2_index] == 1U);
+    assert(EE_hal_get_int_prio() == IRQ_HIGH_PRIO);
+    ReleaseResource(ResourceB);
+#ifdef __OO_EXTENDED_STATUS__
+    /* Error two more in error_count */
+    s = GetResource(ResourceA);
+    assert(s == E_OS_ACCESS);
+    assert(EE_hal_get_int_prio() == IRQ_MEDIUM_PRIO);
+    assert(EE_th_resource_last[EE_MAX_TASK] == EE_UREG_MINUS1);
+#endif /* __OO_EXTENDED_STATUS__ */
   }
   ++medium_isr_hit;
 }
@@ -239,7 +247,7 @@ int main(int argc, char *argv[])
 
   assert(last_error == E_OS_RESOURCE);
 #ifdef __OO_EXTENDED_STATUS__
-  assert(error_count == 4U);
+  assert(error_count == 5U);
 #else
   assert(error_count == 3U);
 #endif /* __OO_EXTENDED_STATUS__ */

@@ -127,23 +127,6 @@ void EE_oo_ReleaseResource(ResourceType ResID)
 
   inside_task = (EE_hal_get_IRQ_nesting_level() == 0U);
 
-#ifdef __OO_EXTENDED_STATUS__
-  /* If I'm really in a Task */
-  if(inside_task != 0) {
-    if ((current == EE_NIL) ||
-        (EE_th_ready_prio[current] > EE_resource_ceiling[ResID])) {
-      EE_ORTI_set_lasterror(E_OS_ACCESS);
-
-      EE_oo_notify_error_ReleaseResource(ResID, E_OS_ACCESS);
-      EE_hal_end_nested_primitive(flag);
-
-      EE_ORTI_set_service_out(EE_SERVICETRACE_RELEASERESOURCE);
-
-      return E_OS_ACCESS;
-    }
-  }
-#endif /* __OO_EXTENDED_STATUS__ */
-
 #ifdef __OO_ISR2_RESOURCES__
   /* If actually we are inside an ISR2 get the fake TID to access stack */
   if(inside_task == 0) {
@@ -152,8 +135,8 @@ void EE_oo_ReleaseResource(ResourceType ResID)
 #endif /* __OO_ISR2_RESOURCES__ */
 
 #ifdef __OO_EXTENDED_STATUS__
-  if ((current == EE_NIL) || ((EE_resource_locked[ResID] == 0U) ||
-      (EE_th_resource_last[current] != ResID))) {
+  if ((EE_resource_locked[ResID] == 0U) ||
+      (EE_th_resource_last[current] != ResID)) {
     EE_ORTI_set_lasterror(E_OS_NOFUNC);
 
     EE_oo_notify_error_ReleaseResource(ResID, E_OS_NOFUNC);
@@ -162,6 +145,35 @@ void EE_oo_ReleaseResource(ResourceType ResID)
     EE_ORTI_set_service_out(EE_SERVICETRACE_RELEASERESOURCE);
 
     return E_OS_NOFUNC;
+  }
+  {
+    /* Resource access error block flag */
+    register EE_BIT  res_access_error_flag = 0U;
+    /* If I'm really in a Task */
+    if(inside_task != 0) {
+      if ((current == EE_NIL) ||
+          (EE_th_ready_prio[current] > EE_resource_ceiling[ResID])) {
+        res_access_error_flag = 1U;
+      }
+    } else {
+#ifdef __OO_ISR2_RESOURCES__
+      /* Check if interrupt controller priority is greater than priority
+         of resource to be realeased */
+      if(EE_hal_check_int_prio_if_higher(EE_resource_isr2_priority[ResID])) {
+        res_access_error_flag = 1U;
+      }
+#else
+      res_access_error_flag = 1U;
+#endif
+    }
+
+    if(res_access_error_flag != 0U) {
+      EE_ORTI_set_lasterror(E_OS_ACCESS);
+      EE_oo_notify_error_ReleaseResource(ResID, E_OS_ACCESS);
+      EE_hal_end_nested_primitive(flag);
+      EE_ORTI_set_service_out(EE_SERVICETRACE_RELEASERESOURCE);
+      return E_OS_ACCESS;
+    }
   }
 #endif /* __OO_EXTENDED_STATUS__ */
 
