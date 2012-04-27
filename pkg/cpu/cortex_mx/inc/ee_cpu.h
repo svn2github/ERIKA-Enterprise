@@ -83,6 +83,10 @@ typedef EE_INT32  EE_SREG;
 typedef EE_UINT32 EE_FREG;
 #define EE_UREG_SIZE 4
 
+#define	EE_HWREG_PTR		volatile EE_UREG *
+#define	EE_HWREG_ADDR(x)	((EE_HWREG_PTR)(x))
+#define	EE_HWREG(x)		(*EE_HWREG_ADDR(x))
+
 /* ISR Priority representation type */
 typedef EE_UREG EE_TYPEISR2PRIO;
 
