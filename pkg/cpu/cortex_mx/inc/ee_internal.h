@@ -127,12 +127,12 @@ __INLINE__ EE_FREG __ALWAYS_INLINE__ EE_hal_raise_int_prio_if_less(
  * Used to check internal CPU interrupt priority if param new_prio is greater
  * than actual priority.
  */
-__INLINE__ EE_BIT __ALWAYS_INLINE__ EE_hal_check_int_prio_if_greater(
+__INLINE__ EE_BIT __ALWAYS_INLINE__ EE_hal_check_int_prio_if_higher(
   EE_TYPEISR2PRIO new_prio
 )
 {
   register EE_TYPEISR2PRIO prev_prio = EE_cortex_mx_get_int_prio();
-  return ((prev_prio == 0U) && ((prev_prio < new_prio) || (new_prio == 0U));
+  return ((prev_prio != 0U) && ((prev_prio < new_prio) || (new_prio == 0U)));
 }
 
 /* 

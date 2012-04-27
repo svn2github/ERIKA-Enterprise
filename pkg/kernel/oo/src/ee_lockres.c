@@ -136,20 +136,38 @@ void EE_oo_GetResource(ResourceType ResID)
   flag = EE_hal_begin_nested_primitive();
   current = EE_stk_queryfirst();
 
-  /* If I'm really in a Task */
-  if(EE_hal_get_IRQ_nesting_level() == 0U) {
-    if ((current == EE_NIL) || (EE_resource_locked[ResID] != 0U) ||
-        (EE_th_ready_prio[current] > EE_resource_ceiling[ResID])) {
+  {
+    /* Resource access error block flag */
+    register EE_BIT  res_access_error_flag = 0U;
+    /* Check if the resource is already gotten */
+    if(EE_resource_locked[ResID] != 0U) {
+      res_access_error_flag = 1U;
+    } else if(EE_hal_get_IRQ_nesting_level() == 0U) {
+      /* If I'm in a Task check invalid task and ceiling */
+      if ((current == EE_NIL) ||
+          (EE_th_ready_prio[current] > EE_resource_ceiling[ResID])) {
+        res_access_error_flag = 1U;
+      }
+    } else {
+#ifdef __OO_ISR2_RESOURCES__
+      /* Check if interrupt controller priority is greater than new priority */
+      if(EE_hal_check_int_prio_if_higher(EE_resource_isr2_priority[ResID])) {
+        res_access_error_flag = 1U;
+      }
+#else
+      res_access_error_flag = 1U;
+#endif
+    }
+
+    if(res_access_error_flag != 0U) {
       EE_ORTI_set_lasterror(E_OS_ACCESS);
-
       EE_oo_notify_error_GetResource(ResID, E_OS_ACCESS);
-
       EE_hal_end_nested_primitive(flag);
       EE_ORTI_set_service_out(EE_SERVICETRACE_GETRESOURCE);
-
       return E_OS_ACCESS;
     }
   }
+
 #else
   /* I begin the primitive */
   flag = EE_hal_begin_nested_primitive();
