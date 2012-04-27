@@ -51,7 +51,6 @@
 
 #include "eecfg.h"
 #include "cpu/cortex_mx/inc/ee_nvic.h"
-#include "mcu/ti_stellaris_lm4f232xxxx/inc/ee_mcuregs.h"
 
 #ifdef __IAR__
 #include "cpu/common/inc/ee_compiler_iar.h"
