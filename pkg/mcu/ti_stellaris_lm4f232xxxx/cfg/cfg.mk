@@ -62,10 +62,9 @@ endif	# CRT0_SRCS
 endif	# __KEIL__
 endif	# !__CCS__
 
-#~ ifeq ($(call iseeopt, __USE_UART__), yes)
-#~ EE_SRCS += pkg/mcu/ti_stellaris_lm4f232xxxx/src/ee_uart.c
-#~ MCU_BUF = YES
-#~ endif
+ifeq ($(call iseeopt, __USE_TIMER__), yes)
+EE_SRCS += pkg/mcu/ti_stellaris_lm4f232xxxx/src/ee_timer.c
+endif
 
 #~ ifeq ($(call iseeopt, __USE_SPI__), yes)
 #~ EE_SRCS += pkg/mcu/ti_stellaris_lm4f232xxxx/src/ee_spi.c

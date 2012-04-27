@@ -50,5 +50,6 @@
 
 #include "mcu/ti_stellaris_lm4f232xxxx/inc/ee_mcuregs.h"
 #include "mcu/ti_stellaris_lm4f232xxxx/inc/ee_systick.h"
+#include "mcu/ti_stellaris_lm4f232xxxx/inc/ee_timer.h"
 
 #endif	/* __INCLUDE_STELLARIS_LM4F232XXXX_MCU_H__ */
