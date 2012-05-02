@@ -23,6 +23,7 @@ EEOPT += __ASSERT__
 EEOPT += __SEM__
 EEOPT += __RSKRX210__
 EEOPT += __USE_RSKRX120_USER_LED__
+EEOPT += __USE_RSKRX210_OP_FREQ_SETUP__
 
 
 ############################################################################

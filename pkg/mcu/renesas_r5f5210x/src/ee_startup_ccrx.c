@@ -39,9 +39,10 @@
  * ###*E*### */
 
 /*
- * Context Interrupt Services Routines
+ * Initialization routines and startup code.
  * Author: 2012 Gianluca Franchino
  */
+
 #include <machine.h>
 #include "mcu/renesas_r5f5210x/inc/ee_mcuregs.h"
 #include "mcu/renesas_r5f5210x/inc/ee_isr.h"
@@ -74,71 +75,6 @@ void EE_rx200_default_ISR(void)
     {
     }
 }
-
-
-void	EE_rx200_cpu_freq_setup(void) 
-{
-	unsigned int i;
-
-	SYSTEM.PRCR.WORD = 0xA503;				/* Protect off 						*/
-
-#if (CLK_SRC_HOCO == 1)	
-	SYSTEM.HOCOPCR.BYTE = 0x00;				/* HOCO power supply on */
-	SYSTEM.HOCOCR2.BYTE = 0x03;				/* Select - 50MHz */
-	SYSTEM.HOCOCR.BYTE  = 0x01;				/* HOCO is operating */
-
-	for(i=0; i<10; i++){					/* wait over 60us */
-	}
-#else
-	SYSTEM.MOSCWTCR.BYTE = 0x0C;			/* Main Clock Oscillator Wait Control Register */
-											/* 65536 states 					*/
-											/* wait over 2 ms  @20MHz 			*/
-
-	SYSTEM.PLLWTCR.BYTE = 0x0B;				/* PLL Wait Control Register 		*/
-											/* 262144 states 					*/
-											/* wait over 2.1 ms  @PLL = 80Hz	*/
-											/*					(20/2x8*8) 		*/
-	
-	SYSTEM.PLLCR.WORD = 0x0701;				/* x8 @PLL 							*/
-											/* Input to PLL (EXTAL in) / 2 		*/
-											/* Therefore: 
-													PLL = EXTAL / 2 	
-														= 20M / 2
-														= 10MHz														
-												PLL * 8 = 80Mhz					*/	
-	
-	SYSTEM.MOSCCR.BYTE = 0x02;				/* EXTAL ON */
-											/* External oscillation input selection */
-	SYSTEM.PLLCR2.BYTE = 0x00;				/* PLL ON */
-	
-	for(i = 0; i<263; i++){					/* wait over 2.1ms */
-	}
-#endif
-	
-//	SYSTEM.SCKCR.LONG = 0x21823333;			/* ICK=PLL/2,FCK,PCK,BCL=PLL/4 */
-/************************************************************************/
-/*  If setting bits individually, rather than a single long write, 		*/
-/*	set the BCK value before that of ICK 								*/
-/************************************************************************/
-	SYSTEM.SCKCR.BIT.PCKD 	= 3;			/* PLL/8 = 10MHz		*/
-	SYSTEM.SCKCR.BIT.PCKC 	= 3;			/* PLL/8 = 10MHz		*/	
-	SYSTEM.SCKCR.BIT.PCKB 	= 3;			/* PLL/8 = 10MHz		*/
-	SYSTEM.SCKCR.BIT.PCKA 	= 3;			/* PLL/8 = 10MHz		*/
-	SYSTEM.SCKCR.BIT.BCK 	= 3;			/* PLL/8 = 10MHz		*/
-	SYSTEM.SCKCR.BIT.PSTOP1 = 1;			/* BUS CLK OUT Disabled */
-	SYSTEM.SCKCR.BIT.ICK 	= 1;			/* PLL/2 = 40MHz		*/
-	SYSTEM.SCKCR.BIT.FCK 	= 2;			/* PLL/4 = 20MHz		*/
-
-	while(SYSTEM.OPCCR.BIT.OPCMTSF == 1);
-	SYSTEM.OPCCR.BIT.OLPCM = 0;
-	while(SYSTEM.OPCCR.BIT.OPCMTSF == 1);
-#if (CLK_SRC_HOCO == 1)	
-	SYSTEM.SCKCR3.WORD = 0x0100;			/* LOCO -> HOCO */
-#else
-	SYSTEM.SCKCR3.WORD = 0x0400;			/* LOCO -> PLL */
-#endif
-}
-
 
 /* Enable interrupt (bit16 PWS register) */ 
 #define EE_PSW_INIT_MASK 0x00010000
@@ -178,9 +114,6 @@ void EE_rx200_power_on_res(void)
 	 _INITLIB(); //This routine has to be written following the examples 
 				 //provided in the manual (pages 218-219).
 	 */
-	
-	/*CPU operating frequency initialization.*/
-	EE_rx200_cpu_freq_setup();
 
     nop();
 	
@@ -188,11 +121,7 @@ void EE_rx200_power_on_res(void)
 	*Set PSW register
 	*/
 	set_psw(EE_PSW_INIT_MASK);
-
-	/*
-	*Should we change into User Mode or we stay in Supervisor mode?
 	
-	*/
 	/*
 	* Call main function.
 	*/

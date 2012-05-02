@@ -67,6 +67,7 @@ CPU mySystem {
 		EE_OPT = "__RSKRX210__";
 		EE_OPT = "__USE_RSKRX120_USER_LED__";
 		EE_OPT = "__USE_SYSTICK__";
+		EE_OPT = "__USE_RSKRX210_OP_FREQ_SETUP__";
 	
 		KERNEL_TYPE = BCC2;
 		EE_OPT = "__OO_STARTOS_OLD__";

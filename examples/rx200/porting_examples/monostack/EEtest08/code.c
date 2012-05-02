@@ -142,7 +142,12 @@ TASK(Task2)
  */
 int main(void)
 {
-
+	/*Initilize the operating frequencies (CPU, Peripheral etc.)*/
+	/*PCKD = PCKC = PCKB = PCKA = BCKPLL/8 = 10MHz*/
+	/*ICK = PLL/2 = 40 MHz*/
+	/*FCK = PLL/4 = 20 MHz*/
+	EE_rskrx210_op_freq_setup();
+	
 	EE_rskrx210_leds_init(0xF);
 	EE_systick_start();
 	EE_systick_set_period();

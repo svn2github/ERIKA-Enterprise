@@ -67,7 +67,9 @@ CPU mySystem {
 		EE_OPT = "__RSKRX210__";
 		EE_OPT = "__USE_SYSTICK__";
 		EE_OPT = "__USE_RSKRX120_USER_LED__";
-
+		EE_OPT = "__USE_RSKRX210_OP_FREQ_SETUP__";
+		EE_OPT = "__USE_SWINT__";
+		
 		KERNEL_TYPE = FP {
 			NESTED_IRQ = TRUE;
 		};

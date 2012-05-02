@@ -24,6 +24,7 @@ EEOPT += __RSKRX210__
 EEOPT += __USE_RSKRX120_USER_LED__
 EEOPT += __USE_SYSTICK__
 EEOPT += __USE_SWINT__
+EEOPT += __USE_RSKRX210_OP_FREQ_SETUP__
 
 ############################################################################
 #

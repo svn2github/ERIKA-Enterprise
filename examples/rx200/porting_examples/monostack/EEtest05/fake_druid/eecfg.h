@@ -54,7 +54,9 @@
 #define __ASSERT__
 #define __RSKRX210__
 #define __USE_SYSTICK__
+#define __USE_SWINT__
 #define __USE_RSKRX120_USER_LED__
+#define __USE_RSKRX210_OP_FREQ_SETUP__
 
 /***************************************************************************
  *

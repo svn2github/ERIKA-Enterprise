@@ -50,6 +50,7 @@
 
 #include "ee.h"
 #include "ee_irq.h"
+#include "cpu/rx200/inc/ee_swint.h"
 #include "test/assert/inc/ee_assert.h"
 
 #define TRUE 1
@@ -108,20 +109,6 @@ ISR2(cmia0_handler)
 	}
 }
 
-/*Trigger SW interrupt*/
-void EE_swint()
-{
-	ICU.SWINTR.BIT.SWINT = 1;
-}
-
-void EE_enable_swint()
-{
-	/*Enable SWINT interrupt in ICU*/
-	ICU.IER[IER_ICU_SWINT].BIT.IEN_ICU_SWINT = 1;
-	/*Set SWINT interrupt priority to level 2 */
-	ICU.IPR[IPR_ICU_SWINT].BIT.IPR = 0x1;
-}
-
 TASK(Task1)
 {
 	task1_fired++;
@@ -158,10 +145,15 @@ TASK(Task2)
  */
 int main(void)
 {
-
+	/*Initilize the operating frequencies (CPU, Peripheral etc.)*/
+	/*PCKD = PCKC = PCKB = PCKA = BCKPLL/8 = 10MHz*/
+	/*ICK = PLL/2 = 40 MHz*/
+	/*FCK = PLL/4 = 20 MHz*/
+	EE_rskrx210_op_freq_setup();
+	
 	EE_rskrx210_leds_init(0xF);
 
-	EE_enable_swint();
+	EE_enable_swint(0x1);
 	
 	EE_assert(EE_ASSERT_INIT, TRUE, EE_ASSERT_NIL);
 

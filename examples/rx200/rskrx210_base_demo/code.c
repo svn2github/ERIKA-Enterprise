@@ -194,9 +194,15 @@ TASK(TaskLCD)
  */
 int main(void)
 {
-
-	/*Initialize the system tick
-	* Note: now is initialized to generate an IRQ every 1ms.
+	/*Initilize the operating frequencies (CPU, Peripheral etc.)*/
+	/*PCKD = PCKC = PCKB = PCKA = BCKPLL/8 = 10MHz*/
+	/*ICK = PLL/2 = 40 MHz*/
+	/*FCK = PLL/4 = 20 MHz*/
+	EE_rskrx210_op_freq_setup();
+	
+	/*
+	* Initialize the system tick
+	* Note: now it is initialized to generate an IRQ every 1ms.
 	*/
 	EE_systick_start();
 	EE_systick_set_period();
@@ -204,7 +210,7 @@ int main(void)
 	
 	/*Initialize the Leds*/
 	EE_rskrx210_leds_init(LED_INIT_MASK);
-	/*Initialize the buttons/
+	/*Initialize the buttons*/
 	EE_rskrx210_buttons_IRQ_init(BUTTON_INIT_MASK);
 	/*Initialize the LCD Module*/
 	EE_LCD_init();

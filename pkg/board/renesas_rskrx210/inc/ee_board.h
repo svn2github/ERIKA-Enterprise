@@ -40,11 +40,7 @@
 
  /**
     @file   ee_board.h
-    @brief  stellaris board header file.
-
-    Header file that contains board's API declaration, and defines
-    for remap mcu drivers on board layout.
-
+    @brief  RX210 starter kit board header file.
     @author Gianluca Franchino
     @date   2012
   */
@@ -348,5 +344,63 @@ __INLINE__ void __ALWAYS_INLINE__ EE_b3_enable_IRQ(void)
 
 
 #endif /* __USE_RSKRX120_BUTTONS__ */
+
+/*
+ * RSKRX210 Operating freq. setup
+ */
+
+#ifdef __USE_RSKRX210_OP_FREQ_SETUP__
+#ifdef __CCRX__
+#pragma inline (EE_rskrx210_op_freq_setup)
+#endif
+/** @brief Operating Frequencies setup **/
+__INLINE__ void __ALWAYS_INLINE__ EE_rskrx210_op_freq_setup(void) 
+{
+	unsigned int i;
+
+	/* Write protect off */
+	SYSTEM.PRCR.WORD = 0xA503;				
+	/* Main clock oscillator wait control register       */
+	/* 65536 cycles -> wait at least 2 ms  (XTAL = 20MHz ) */
+	SYSTEM.MOSCWTCR.BYTE = 0x0C;			
+
+	/* PLL wait control register 		                  */
+    /* 262144 cycles -> wait at least 2.1 ms  PLL = 80MHz */
+	SYSTEM.PLLWTCR.BYTE = 0x0B;				
+	
+	/* PLL = XTAL / 2 = 10MHz		*/												
+	/* PLL * 8 = 80MHz				*/
+	SYSTEM.PLLCR.WORD = 0x0701;					
+	/* XTAL ON */
+	SYSTEM.MOSCCR.BYTE = 0x00;				
+	/* PLL ON */										
+	SYSTEM.PLLCR2.BYTE = 0x00;				
+	/*Wait at least 2.1 ms*/
+	for(i = 0; i<500; i++){	
+	}
+
+	
+	/* PCKD = PCKC = PCKB = PCKA = BCKPLL/8 = 10MHz*/
+	SYSTEM.SCKCR.BIT.PCKD 	= 3;
+	SYSTEM.SCKCR.BIT.PCKC 	= 3;
+	SYSTEM.SCKCR.BIT.PCKB 	= 3;
+	SYSTEM.SCKCR.BIT.PCKA 	= 3;
+	SYSTEM.SCKCR.BIT.BCK 	= 3;
+	/* BUS CLK OUT Disabled */
+	SYSTEM.SCKCR.BIT.PSTOP1 = 1;
+	/*ICK = PLL/2 = 40 MHz*/
+	SYSTEM.SCKCR.BIT.ICK 	= 1;
+	/*FCK = PLL/4 = 20 MHz*/
+	SYSTEM.SCKCR.BIT.FCK 	= 2;
+
+	while(SYSTEM.OPCCR.BIT.OPCMTSF == 1);
+	SYSTEM.OPCCR.BIT.OLPCM = 0;
+	while(SYSTEM.OPCCR.BIT.OPCMTSF == 1);
+
+	/*Source of system clock = PLL*/
+	SYSTEM.SCKCR3.WORD = 0x0400;			
+}
+
+#endif /*__USE_RSKRX210_OP_FREQ_SETUP__*/
 
 #endif /*__INCLUDE_RENESAS_RSKRX210_BOARD_H__ */

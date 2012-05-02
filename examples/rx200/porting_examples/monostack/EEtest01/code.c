@@ -82,23 +82,27 @@ TASK(Task1)
  */
 int main(void)
 {
-
+	/*Initilize the operating frequencies (CPU, Peripheral etc.)*/
+	/*PCKD = PCKC = PCKB = PCKA = BCKPLL/8 = 10MHz*/
+	/*ICK = PLL/2 = 40 MHz*/
+	/*FCK = PLL/4 = 20 MHz*/
+	EE_rskrx210_op_freq_setup();
+	
 	EE_rskrx210_leds_init(0xF);
 
-  EE_assert(EE_ASSERT_INIT, TRUE, EE_ASSERT_NIL);
+	EE_assert(EE_ASSERT_INIT, TRUE, EE_ASSERT_NIL);
 
-  ActivateTask(Task1);
+	ActivateTask(Task1);
 
-  EE_assert(EE_ASSERT_TASK_END, counter==1, EE_ASSERT_INIT);
-  EE_assert_range(EE_ASSERT_FIN, EE_ASSERT_INIT, EE_ASSERT_TASK_END);
-  result = EE_assert_last();
+	EE_assert(EE_ASSERT_TASK_END, counter==1, EE_ASSERT_INIT);
+	EE_assert_range(EE_ASSERT_FIN, EE_ASSERT_INIT, EE_ASSERT_TASK_END);
+	result = EE_assert_last();
 
-  /* Forever loop: background activities (if any) should go here */
-  for (;result == 1;)
-  {
-    while (counter % 100000) counter++;
-    EE_rskrx210_leds_toggle();
-    counter++;
-  }
+	/* Forever loop: background activities (if any) should go here */
+	for (;result == 1;) {
+		while (counter % 100000) counter++;
+		EE_rskrx210_leds_toggle();
+		counter++;
+	}
 
 }

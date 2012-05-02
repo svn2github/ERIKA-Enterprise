@@ -58,14 +58,14 @@
 
 /* Assertions */
 enum EE_ASSERTIONS {
-  EE_ASSERT_FIN = 0,
-  EE_ASSERT_INIT,
-  EE_ASSERT_TASK1_FIRED,
-  EE_ASSERT_ISR_FIRED,
-  EE_ASSERT_TASK1_ENDED,
-  EE_ASSERT_TASK2_FIRED,
-  EE_ASSERT_TASK2_ENDED,
-  EE_ASSERT_DIM
+	EE_ASSERT_FIN = 0,
+	EE_ASSERT_INIT,
+	EE_ASSERT_TASK1_FIRED,
+	EE_ASSERT_ISR_FIRED,
+	EE_ASSERT_TASK1_ENDED,
+	EE_ASSERT_TASK2_FIRED,
+	EE_ASSERT_TASK2_ENDED,
+	EE_ASSERT_DIM
 };
 EE_TYPEASSERTVALUE EE_assertions[EE_ASSERT_DIM];
 
@@ -79,7 +79,6 @@ volatile int task1_ended = 0;
 volatile int task2_ended = 0;
 volatile int counter = 0;
 
-void EE_systick_stop();
 
 /*
  * cmia0 ISR2
@@ -101,12 +100,12 @@ ISR2(cmia0_handler)
  */
 TASK(Task1)
 {
-  task1_fired++;
-  EE_assert(EE_ASSERT_TASK1_FIRED, task1_fired == 1, EE_ASSERT_INIT);
-  while (counter < 110);
-  EE_systick_stop();
-  task1_ended++;
-  EE_assert(EE_ASSERT_TASK1_ENDED, task1_ended == 1, EE_ASSERT_ISR_FIRED);
+	task1_fired++;
+	EE_assert(EE_ASSERT_TASK1_FIRED, task1_fired == 1, EE_ASSERT_INIT);
+	while (counter < 110);
+	EE_systick_stop();
+	task1_ended++;
+	EE_assert(EE_ASSERT_TASK1_ENDED, task1_ended == 1, EE_ASSERT_ISR_FIRED);
 }
 
 /*
@@ -125,7 +124,12 @@ TASK(Task2)
  */
 int main(void)
 {
-
+	/*Initilize the operating frequencies (CPU, Peripheral etc.)*/
+	/*PCKD = PCKC = PCKB = PCKA = BCKPLL/8 = 10MHz*/
+	/*ICK = PLL/2 = 40 MHz*/
+	/*FCK = PLL/4 = 20 MHz*/
+	EE_rskrx210_op_freq_setup();
+	
 	EE_rskrx210_leds_init(0xF);
 	EE_systick_start();
 	EE_systick_set_period();
@@ -142,7 +146,7 @@ int main(void)
 	/* Forever loop: background activities (if any) should go here */
 	for (;result == 1;)	{
 		while (counter % 100000) counter++;
-		EE_rskrx210_led0_toggle();
+		EE_rskrx210_leds_toggle();
 		counter++;
 	}
  
