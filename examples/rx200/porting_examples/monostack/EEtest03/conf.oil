@@ -86,9 +86,9 @@ CPU mySystem {
 		SCHEDULE = FULL;
 	};
 
-	ISR systick_handler {
+	ISR cmia0_handler {
 		CATEGORY = 2;
-		ENTRY = "SYSTICK";
+		ENTRY = "CMIA0";
 	};
 
 };
