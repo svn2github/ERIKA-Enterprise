@@ -53,9 +53,9 @@
 #define IRQ_MEDIUM  1U
 #define IRQ_HIGH    2U
 
-#define IRQ_LOW_PRIO    EE_ISR_PRIO_1
-#define IRQ_MEDIUM_PRIO EE_ISR_PRIO_2
-#define IRQ_HIGH_PRIO   EE_ISR_PRIO_3
+#define IRQ_LOW_PRIO    EE_ISR_PRI_1
+#define IRQ_MEDIUM_PRIO EE_ISR_PRI_2
+#define IRQ_HIGH_PRIO   EE_ISR_PRI_3
 
 #ifdef __PPCE200ZX__
 /* Ack the IRQ */
