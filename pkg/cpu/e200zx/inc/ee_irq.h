@@ -51,21 +51,21 @@
 
 /* ISR priority level defines */
 #define EE_ISR_UNMASKED 0U
-#define EE_ISR_PRIO_1  1U
-#define EE_ISR_PRIO_2  2U
-#define EE_ISR_PRIO_3  3U
-#define EE_ISR_PRIO_4  4U
-#define EE_ISR_PRIO_5  5U
-#define EE_ISR_PRIO_6  6U
-#define EE_ISR_PRIO_7  7U
-#define EE_ISR_PRIO_8  8U
-#define EE_ISR_PRIO_9  9U
-#define EE_ISR_PRIO_10 10U
-#define EE_ISR_PRIO_11 11U
-#define EE_ISR_PRIO_12 12U
-#define EE_ISR_PRIO_13 13U
-#define EE_ISR_PRIO_14 14U
-#define EE_ISR_PRIO_15 15U
+#define EE_ISR_PRI_1  1U
+#define EE_ISR_PRI_2  2U
+#define EE_ISR_PRI_3  3U
+#define EE_ISR_PRI_4  4U
+#define EE_ISR_PRI_5  5U
+#define EE_ISR_PRI_6  6U
+#define EE_ISR_PRI_7  7U
+#define EE_ISR_PRI_8  8U
+#define EE_ISR_PRI_9  9U
+#define EE_ISR_PRI_10 10U
+#define EE_ISR_PRI_11 11U
+#define EE_ISR_PRI_12 12U
+#define EE_ISR_PRI_13 13U
+#define EE_ISR_PRI_14 14U
+#define EE_ISR_PRI_15 15U
 
 
 /* I include context because is needed by common ee_irqstub.h */
