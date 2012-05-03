@@ -83,6 +83,10 @@ CPU test_application {
 		EE_OPT = "__USE_SYSTICK__";
 #endif
 
+#ifdef rx200
+		EE_OPT = "__USE_SYSTICK__";
+#endif
+
 #include "../common/rtdruid_common/ee_oil_e7t_os.h"
 #include "../common/rtdruid_common/ee_oil_janus_os.h"
 #include "../common/rtdruid_common/ee_oil_nios2_os.h"
@@ -90,12 +94,12 @@ CPU test_application {
 #include "../common/rtdruid_common/ee_oil_s12_os.h"
 #include "../common/rtdruid_common/ee_oil_e200zx_os.h"
 #include "../common/rtdruid_common/ee_oil_cortex_mx_os.h"
-
+#include "../common/rtdruid_common/ee_oil_rx200_os.h"
 
 /* Multi Stack */
 			MULTI_STACK = TRUE {
 				IRQ_STACK = FALSE;
-#if !defined(pic30) && !defined(s12) && !defined(e200zx) && !defined(cortex_mx)
+#if !defined(pic30) && !defined(s12) && !defined(e200zx) && !defined(cortex_mx) && !defined(rx200)
 				DUMMY_STACK = SHARED;
 #endif		
 		};
@@ -163,6 +167,11 @@ CPU test_application {
 			SYS_SIZE = 0x200;
 		};
 #endif
+#ifdef rx200
+		STACK = PRIVATE {
+			SYS_SIZE = 0x200;
+		};
+#endif
     };
 
     EVENT Event1 {
@@ -177,6 +186,12 @@ CPU test_application {
 	ISR SysTick_Handler {
 		CATEGORY = 2;
 		ENTRY = "SYSTICK";
+	};
+#endif
+#ifdef rx200
+	ISR cmia0_handler {
+		CATEGORY = 2;
+		ENTRY = "CMIA0";
 	};
 #endif
 

@@ -205,7 +205,8 @@ int main(void)
 	* Note: now it is initialized to generate an IRQ every 1ms.
 	*/
 	EE_systick_start();
-	EE_systick_set_period();
+	/*Set 1 ms tick: match value 0xC, prescaler =0x9C -> PCLK/64*/
+	EE_systick_set_period(0x0C, 0x9C);
 	EE_systick_enable_int();
 	
 	/*Initialize the Leds*/

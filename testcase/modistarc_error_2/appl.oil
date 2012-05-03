@@ -72,7 +72,7 @@ CPU test_application {
 #include "../common/rtdruid_common/ee_oil_s12_os.h"
 #include "../common/rtdruid_common/ee_oil_e200zx_os.h"
 #include "../common/rtdruid_common/ee_oil_cortex_mx_os.h"
-
+#include "../common/rtdruid_common/ee_oil_rx200_os.h"
 
 /* Mono Stack */
 #if defined(B1) || defined(B2)
@@ -83,7 +83,7 @@ CPU test_application {
 #if defined(E1) || defined(E2)
 			MULTI_STACK = TRUE {
 				IRQ_STACK = FALSE;
-#if !defined(pic30) && !defined(s12) && !defined(e200zx) && !defined(cortex_mx)
+#if !defined(pic30) && !defined(s12) && !defined(e200zx) && !defined(cortex_mx) && !defined(rx200)
 				DUMMY_STACK = SHARED;
 #endif
 			};

@@ -1,7 +1,7 @@
 /* ###*B*###
  * ERIKA Enterprise - a tiny RTOS for small microcontrollers
  *
- * Copyright (C) 2002-2008  Evidence Srl
+ * Copyright (C) 2002-2012  Evidence Srl
  *
  * This file is part of ERIKA Enterprise.
  *
@@ -38,91 +38,17 @@
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
 
-#include "../common/rtdruid_common/ee_oil_defs.h"
-
-CPU test_application {
-
-    OS EE {
-        EE_OPT = "__ASSERT__";
-        EE_OPT = "DEBUG";
-
-		STATUS = EXTENDED;
-	
-		STARTUPHOOK = FALSE;
-		ERRORHOOK = FALSE;
-		SHUTDOWNHOOK = FALSE;
-		PRETASKHOOK = FALSE;
-		POSTTASKHOOK = FALSE;
-		USEGETSERVICEID = FALSE;
-		USEPARAMETERACCESS = FALSE;
-		USERESSCHEDULER = TRUE;
-
-#ifdef evaluator7t
-	MCU_DATA = SAMSUNG_KS32C50100;
-#endif
-
-#include "../common/rtdruid_common/ee_oil_e7t_os.h"
-#include "../common/rtdruid_common/ee_oil_janus_os.h"
-#include "../common/rtdruid_common/ee_oil_nios2_os.h"
-#include "../common/rtdruid_common/ee_oil_pic30_os.h"
-#include "../common/rtdruid_common/ee_oil_s12_os.h"
-#include "../common/rtdruid_common/ee_oil_e200zx_os.h"
-#include "../common/rtdruid_common/ee_oil_cortex_mx_os.h"
-#include "../common/rtdruid_common/ee_oil_rx200_os.h"
+#ifdef rx200
 
 
-/* Mono Stack */
-#if defined(B1) || defined(B2)
-        	MULTI_STACK = FALSE;
-#endif
-
-/* Multi Stack */
-#if defined(E1) || defined(E2)
-			MULTI_STACK = TRUE {
-				IRQ_STACK = FALSE;
-#if !defined(pic30) && !defined(s12) && !defined (e200zx) && !defined(cortex_mx)
-				DUMMY_STACK = SHARED;
-#endif
-			};
-#endif
-
+		MCU_DATA = RENESAS {
+			MODEL = R5F5210x;
 		};
 
-        EE_OPT = "__OO_STARTOS_OLD__";
-#ifdef B1
-        KERNEL_TYPE = BCC1;
-#endif
-#ifdef B2
-        KERNEL_TYPE = BCC2;
-#endif
-#ifdef E1
-        KERNEL_TYPE = ECC1;
-#endif
-#ifdef E2
-        KERNEL_TYPE = ECC2;
+		CPU_DATA = RX200 {
+			APP_SRC = "code.c";
+#ifdef ccrx			
+			COMPILER_TYPE = CCRX;
 #endif
 
-
-    };
-
-    TASK Task1 {
-		PRIORITY = 1;
-		ACTIVATION = 1;
-		SCHEDULE = FULL;
-		AUTOSTART = TRUE;
-		STACK = SHARED;
-    };
-
-    COUNTER Counter1 {
-        MINCYCLE = 2;
-        MAXALLOWEDVALUE = 16 ;
-        TICKSPERBASE = 1;
-    };
-
-    ALARM Alarm1 {
-		COUNTER = "Counter1";
-		ACTION = ACTIVATETASK { TASK = "Task1"; };
-		AUTOSTART = FALSE;
-    };
-};
-
+#endif	/* rx200 */

@@ -114,7 +114,8 @@ TASK(Task1)
 	task1_fired++;
 	EE_assert(EE_ASSERT_TASK1_FIRED, task1_fired == 1, EE_ASSERT_INIT);
 	EE_systick_start();
-	EE_systick_set_period();
+	/*Set 1 ms tick: match value 0xC, prescaler =0x9C -> PCLK/64*/
+	EE_systick_set_period(0x0C, 0x9C);
 	EE_systick_enable_int();
 	/*Set TMR0_CMIA0 interrupt priority to level 2 */
 	ICU.IPR[IR_TMR0_CMIA0].BIT.IPR=0x2;

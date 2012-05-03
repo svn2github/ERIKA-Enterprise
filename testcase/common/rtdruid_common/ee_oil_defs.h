@@ -101,6 +101,11 @@
 #define keil
 #endif
 
+#ifdef rx200_ccrx
+#define rx200
+#define ccrx
+#endif
+
 //#ifdef s12xs_...
 //#define s12xs
 //#endif

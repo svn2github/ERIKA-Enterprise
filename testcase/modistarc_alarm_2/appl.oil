@@ -74,7 +74,7 @@ CPU test_application {
 #include "../common/rtdruid_common/ee_oil_s12_os.h"
 #include "../common/rtdruid_common/ee_oil_e200zx_os.h"
 #include "../common/rtdruid_common/ee_oil_cortex_mx_os.h"
-
+#include "../common/rtdruid_common/ee_oil_rx200_os.h"
 
 /* Mono Stack */
 #if defined(B1) || defined(B2)

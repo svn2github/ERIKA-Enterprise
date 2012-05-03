@@ -51,17 +51,14 @@
 
 #ifdef	__USE_SYSTICK__
 
-/*GF: this routine is just a draft, the tick period is hardcoded.
-*
-*/
 #ifdef __CCRX__
 #pragma inline (EE_systick_set_period)
 #endif
-__INLINE__ void __ALWAYS_INLINE__ EE_systick_set_period(void)
+__INLINE__ void __ALWAYS_INLINE__ EE_systick_set_period(EE_UINT8 tc, EE_UINT8 pre)
 {
-	/*Uses frequency dividing clock. Counts at PCLK/64*/
-	TMR0.TCCR.BYTE = 0x0C;//0b00001101  
-	TMR0.TCORA = 0x9C;//156 -> match A reg
+	/*Set prescaler for PCLK*/
+	TMR0.TCCR.BYTE = pre;  
+	TMR0.TCORA = tc;//tc -> match A reg
 }
 
 #ifdef __CCRX__
