@@ -46,6 +46,7 @@
  **/
 
 #include <ee_internal.h>
+#include <ee_irq.h>
 
 #ifndef DEFAULT_IRQ_ENTRY
 #define DEFAULT_IRQ_ENTRY (EE_e200z7_ISR_handler)0
