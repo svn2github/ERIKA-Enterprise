@@ -87,9 +87,14 @@ void EE_thread_end_instance(void)
   EE_th_rnact[current]++;
 
   /* The task state switch from STACKED TO READY because it end its
-   * instance. Note that status=READY and nact=0 ==>> the task is
+   * instance. Note that status=READY and
+   * rnact==maximum number of pending activations ==>> the task is
    * suspended!!! */
-  EE_th_status[current] = SUSPENDED;
+  if(EE_th_rnact[current] == EE_th_rnact_max[current]){
+  	EE_th_status[current] = SUSPENDED;
+  } else {   
+	EE_th_status[current] = READY;
+  }
 
   /* reset the thread priority bit in the system_ceiling */
   EE_sys_ceiling &= ~EE_th_dispatch_prio[current];

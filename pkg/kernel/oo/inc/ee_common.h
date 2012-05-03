@@ -185,6 +185,9 @@ extern const EE_TYPEPRIO EE_th_dispatch_prio[];
  */
 extern EE_TYPENACT   EE_th_rnact[];
 
+/* Maximum number of pending acrivations */
+extern const EE_TYPENACT   EE_th_rnact_max[];
+
 #ifndef __OO_NO_CHAINTASK__
 /* The next task to be activated after a ChainTask. initvalue=all EE_NIL */
 extern EE_TID EE_th_terminate_nextask[];
