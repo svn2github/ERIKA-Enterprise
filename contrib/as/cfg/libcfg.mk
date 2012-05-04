@@ -69,7 +69,7 @@ INCLUDE_PATH += $(EEBASE)/contrib/as/include
 ifeq ($(and $(call iseeopt, __STELLARIS__), $(call iseeopt, __KEIL__)), yes)
 
 INCLUDE_PATH += $(EEBASE)/contrib/as/arch/stellaris/keil/include
-EE_SRCS_AUTOSAR += contrib/as/arch/stellaris/keil/drivers/Harware.c
+EE_SRCS_AUTOSAR += contrib/as/arch/stellaris/keil/drivers/Hardware.c
 
 ## Add each file individually
 ifeq ($(call iseeopt, __AS_MCU_DRIVER__), yes)
