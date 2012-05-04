@@ -108,14 +108,6 @@ const EE_UREG EE_Timer_Wide_Base_Addr[] = {
 #define	EE_TIMER_CFG_MASK	0x0000000F	/* Configuration Mask	      */
 
 /*
- * Timer Hardware Module Identifier Retrieval
- */
-EE_UREG	EE_timer_get_hw_mod_id(EE_TimerId id)
-{
-  return id & EE_TIMER_ID_MASK
-}
-
-/*
  * Timer Initialization.
  */
 EE_TimerErr EE_timer_init(EE_TimerId id, EE_TimerCfg cfg)
