@@ -62,6 +62,7 @@ EEOPT += __ASSERT__
 EEOPT += __USE_USER_LED__
 EEOPT += __AUTOSAR_R4_0__
 EEOPT += __AS_MCU_DRIVER__
+EEOPT += __ADD_LIBS__
 
 ############################################################################
 #
@@ -130,6 +131,8 @@ ASFLAGS +=
 LDFLAGS +=
 LDDEPS  +=
 LIBS    +=
+
+LIB_OPT  += __LIB_AUTOSAR__
 
 
 ############################################################################

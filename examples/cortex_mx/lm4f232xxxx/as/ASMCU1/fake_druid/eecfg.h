@@ -90,6 +90,7 @@
 #define __USE_USER_LED__
 #define __AUTOSAR_R4_0__
 #define __AS_MCU_DRIVER__
+#define __ADD_LIBS__
 
 /***************************************************************************
  *

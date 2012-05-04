@@ -150,9 +150,6 @@ int main(void)
   /* Forever loop: background activities (if any) should go here */
   for (;result == 1;)
   {
-    //~ while (counter % 1000000) counter++;
-    //~ EE_user_led_toggle();
-    //~ counter++;
     ;
   }
 

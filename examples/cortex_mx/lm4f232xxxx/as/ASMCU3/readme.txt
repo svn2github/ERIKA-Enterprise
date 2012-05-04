@@ -1,4 +1,4 @@
-ASMCU2
+ASMCU3
 
  Simple project to test Mcu_GetPllStatus() and Mcu_DistributePllClock()
  services.
