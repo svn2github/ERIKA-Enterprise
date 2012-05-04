@@ -56,9 +56,25 @@
 #endif
 
 /*
- * Supported Cores Identifitication Numbers
+ * Supported Cores Identifitication Numbers:
+ * - Bits 31:24	Implementer:
+ * 	- 0x41: ARM
+ * - Bits 23:20	Variant:	Variant number.
+ * 				The r value in the rnpn product revision
+ * 				identifier.
+ * 	- 0x0: revision 0
+ * - Bits 19:16	Constant:
+ * 	- Reads as 0xF
+ * - Bits 15:4	PartNo: Part number of the processor
+ * 	- 0xC24: = Cortex-M4
+ * - Bits 3:0	Revision:	Revision number
+ * 				The p value in the rnpn product revision
+ * 				identifier, indicates patch release.
+ * 	- 0x0: = no patch
+ * 	- 0x1: = patch 1
  */
-#define	HW_CORE_CPUID_CORTEX_M4F	0x410FC241
+#define	HW_CORE_CPUID_CORTEX_M4F	0x410FC240
+#define	HW_CORE_CPUID_CORTEX_M4F_R1	0x410FC241
 
 /*
  * Core Informations Container Type
@@ -74,8 +90,12 @@ typedef struct {
 Hw_CoreInfoType Hw_SupportedCoreArray[] =
 {
   {
-    "ARM Cortex-M4F",		/* .Name */
-    HW_CORE_CPUID_CORTEX_M4F,	/* .Id	 */
+    "ARM Cortex-M4F",			/* .Name */
+    HW_CORE_CPUID_CORTEX_M4F,		/* .Id	 */
+  },
+    {
+    "ARM Cortex-M4F Rev 1",		/* .Name */
+    HW_CORE_CPUID_CORTEX_M4F_R1,	/* .Id	 */
   },
 };
 
