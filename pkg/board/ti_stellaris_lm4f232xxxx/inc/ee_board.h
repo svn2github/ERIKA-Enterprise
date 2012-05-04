@@ -64,17 +64,11 @@
 /** @brief User led initialization **/
 __INLINE__ void __ALWAYS_INLINE__ EE_user_led_init(void)
 {
-    volatile register EE_UREG tmp;
 
     //
-    // Enable the GPIO port that is used for the on-board LED.
+    // Enable the GPIO port G (R6) that is used for the on-board LED.
     //
-    SYSCTL_RCGC2_R = SYSCTL_RCGC2_GPIOG;
-
-    //
-    // Do a dummy read to insert a few cycles after enabling the peripheral.
-    //
-    tmp = SYSCTL_RCGC2_R;
+    SYSCTL_RCGCGPIO_R |= SYSCTL_RCGCGPIO_R6;
 
     //
     // Enable the GPIO pin for the LED (PG2).  Set the direction as output, and
