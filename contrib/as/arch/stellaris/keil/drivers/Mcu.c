@@ -60,15 +60,11 @@
 
 #include "ee.h"
 
-#ifndef	ARRAY_SIZE
-#define	ARRAY_SIZE(_x)	(sizeof(_x)/sizeof((_x)[0]))
-#endif
-
 /* Development error macros. */
 #if ( MCU_DEV_ERROR_DETECT == STD_ON )
 
 #include "Det.h"
-#if defined(USE_DEM)
+#if defined(__AS_DEM__)
 #include "Dem.h"
 #endif
 
@@ -120,57 +116,7 @@ Mcu_GlobalType Mcu_Global =
   MCU_CLOCK_MODE_NORMAL		/* ClockSetting	*/
 };
 
-/*
- * Supported Cores Identifitication Numbers
- */
-#define	CORE_CPUID_CORTEX_M4	0x410FC241
-
-/*
- * Core Informations Container Type
- */
-typedef struct {
-  char		*Name;	/* Core Name String		*/
-  uint32	Id;	/* Core Identifier Number	*/
-} Mcu_CoreInfoType;
-
-/*
- * Supported Cores Array
- */
-Mcu_CoreInfoType Mcu_SupportedCoreArray[] =
-{
-  {
-    "CORE_ARM_CORTEX_M4",	/* .Name	*/
-    CORE_CPUID_CORTEX_M4,	/* .Id		*/
-  },
-};
-
-/*
- * Supported Core Information Retrieval
- */
-static Mcu_CoreInfoType * Mcu_GetSupportedCoreInfo(
-  uint32 Id
-)
-{
-  register uint32 i;
-  Mcu_CoreInfoType *info = NULL;
-  for (i = 0; i < ARRAY_SIZE(Mcu_SupportedCoreArray); i++) {
-    if (Mcu_SupportedCoreArray[i].Id == Id) {
-      info = &Mcu_SupportedCoreArray[i];
-    }
-  }
-  return info;
-}
-
-/*
- * Identify the core, just to check that we have support for it.
- */
-static boolean Mcu_CheckCore( void ) {
-  /* NVIC - System Control Block - Register 64: CPUID */
-  register uint32 Id = NVIC_CPUID_R;
-  Mcu_CoreInfoType *info = NULL;
-  info = Mcu_GetSupportedCoreInfo(Id);
-  return (info != NULL);
-}
+#include "Hardware.h"	/* Hardware Abstraction Header File. */
 
 /*
  * Mcu_Init implementation.
@@ -180,9 +126,9 @@ void Mcu_Init(
 )
 {
 
-  VALIDATE( ( ConfigPtr != NULL), MCU_INIT_SERVICE_ID, MCU_E_PARAM_CONFIG );
+  VALIDATE( ( ConfigPtr != NULL ), MCU_INIT_SERVICE_ID, MCU_E_PARAM_CONFIG );
 
-  VALIDATE( ( Mcu_CheckCore() != FALSE), MCU_INIT_SERVICE_ID, MCU_E_UNINIT );
+  VALIDATE( ( Hw_CheckCore() == E_OK ), MCU_INIT_SERVICE_ID, MCU_E_UNINIT );
 
   Mcu_Global.ConfigPtr = ConfigPtr;
   Mcu_Global.Init = TRUE;
