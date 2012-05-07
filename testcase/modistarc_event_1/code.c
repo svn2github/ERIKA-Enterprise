@@ -265,7 +265,7 @@ int main(int argc, char **argv)
 #endif
 
 #if defined (__RX200__)
-EE_systick_start();
+	EE_systick_start();
 	EE_systick_start();
 	EE_systick_set_period(0x0C, 0x9C);
 	EE_systick_enable_int();

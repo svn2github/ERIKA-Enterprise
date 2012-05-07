@@ -163,10 +163,15 @@ _ISR2(myISR2)
 		#if defined(__CORTEX_MX__)
 		ISR2(SysTick_Handler)
 		#else
-		static void myISR2(void)
+			#if defined (__RX200__)
+			ISR2(cmia0_handler)
+			#else
+			static void myISR2(void)
+			#endif
 		#endif
 	#endif
 #endif
+
 {
   StatusType s;
 
@@ -259,6 +264,13 @@ int main(int argc, char **argv)
   EE_systick_set_period(3000000);
   EE_systick_enable_int();
   EE_systick_start();
+#endif
+
+#if defined (__RX200__)
+	EE_systick_start();
+	EE_systick_start();
+	EE_systick_set_period(0x0C, 0x9C);
+	EE_systick_enable_int();
 #endif
 
   StartOS(OSDEFAULTAPPMODE);
