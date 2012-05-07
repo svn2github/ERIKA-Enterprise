@@ -51,21 +51,14 @@
 
 #define ISRIsrHigh(f)       ISR1(f)
 
-/* FOLLOWING DEFINES ARE NOT USED BY code.c ARE HERE ONLY AS REMINDER */
-/* Handlers mapping */
-#define EE_PPCE200ZX_0_ISR IsrLow
-#define EE_PPCE200ZX_3_ISR IsrMedium
-#define EE_PPCE200ZX_5_ISR IsrHigh
-
 #else /* !EE_ISR_DYNAMIC_TABLE */
 
 #define ISR(f) ISR2(f)
-
-#endif /* !EE_ISR_DYNAMIC_TABLE */
-
 /* Priorities mapping */
 #define EE_PPCE200ZX_0_ISR_PRI 1
 #define EE_PPCE200ZX_3_ISR_PRI 2
 #define EE_PPCE200ZX_5_ISR_PRI 3
+
+#endif /* !EE_ISR_DYNAMIC_TABLE */
 
 #endif /* EE_INCLUDE_ISR_DEFINE_H */

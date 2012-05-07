@@ -62,6 +62,10 @@ StatusType EE_oo_SetAbsAlarm(AlarmType AlarmID,
     TickType start, TickType cycle)
 {
   register EE_FREG flag;
+  /* these are used to evaluate alarm time handling wrap around */
+  register TickType counter_value;
+  register TickType alarm_time;
+  register EE_SREG  start_rel;
 
   EE_ORTI_set_service_in(EE_SERVICETRACE_SETABSALARM);
 
@@ -98,20 +102,12 @@ StatusType EE_oo_SetAbsAlarm(AlarmType AlarmID,
   }
 #endif /* __OO_EXTENDED_STATUS__ */
 
-  /* let the system still work if the start parameter is 0 note that 0
-   * is still an invalid value, so I decided arbitrarily to let it
-   * fire the next tick.
-   */
-  if (start==(TickType)0U) {
-    start = 1U;
-  }
-
 #ifdef __OO_EXTENDED_STATUS__
   if ((start > EE_counter_ROM[EE_alarm_ROM[AlarmID].c].maxallowedvalue)
       || 
       ((cycle != 0U) && 
        ((cycle < EE_counter_ROM[EE_alarm_ROM[AlarmID].c].mincycle) ||
-	(cycle > EE_counter_ROM[EE_alarm_ROM[AlarmID].c].maxallowedvalue)))
+        (cycle > EE_counter_ROM[EE_alarm_ROM[AlarmID].c].maxallowedvalue)))
       ) {
     EE_ORTI_set_lasterror(E_OS_VALUE);
 
@@ -124,8 +120,6 @@ StatusType EE_oo_SetAbsAlarm(AlarmType AlarmID,
     return E_OS_VALUE;
   }
 #endif /* __OO_EXTENDED_STATUS__ */
-
-
 
   flag = EE_hal_begin_nested_primitive();
 
@@ -144,8 +138,29 @@ StatusType EE_oo_SetAbsAlarm(AlarmType AlarmID,
   EE_alarm_RAM[AlarmID].used = 1U;
   EE_alarm_RAM[AlarmID].cycle = cycle;
 
-  EE_oo_alarm_insert(AlarmID, start - 
-    EE_counter_RAM[EE_alarm_ROM[AlarmID].c].value);
+  /* Handling wrap around for alarm time */
+  counter_value = EE_counter_RAM[EE_alarm_ROM[AlarmID].c].value;
+  start_rel = start - counter_value;
+  if(start_rel > 0) {
+    /* Normal behavior */
+    alarm_time = start_rel;
+  } else if (start_rel == 0){
+    /* start_rel == 0 -> the alarm should start now.
+       How handle this:
+       1) Return an error (E_OS_VALUE?). (The primitive behaviour is subject
+          to races, not allowed)
+       2) Create an internal primitive to force an alarm handling.
+          (Could be the best choice, but a little complex)
+       3) Posticipate it by one (Easy and not so wrong: for now the winner)
+    */
+    alarm_time = 1;
+  } else {
+    /* start_rel is negative in this case (unsigned conversion + wrap around do the work) */
+    alarm_time = EE_counter_ROM[EE_alarm_ROM[AlarmID].c].maxallowedvalue + start_rel + 1U;
+  }
+
+  /* Set alarm with a relative ammount of time */
+  EE_oo_alarm_insert(AlarmID, alarm_time);
 
   EE_hal_end_nested_primitive(flag);
   EE_ORTI_set_service_out(EE_SERVICETRACE_SETABSALARM);

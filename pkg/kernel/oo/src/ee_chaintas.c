@@ -170,9 +170,9 @@ StatusType EE_oo_ChainTask(TaskType TaskID)
       EE_th_terminate_nextask[current] = TaskID;
     }
 
-  EE_hal_terminate_task(current);
   EE_ORTI_set_service_out(EE_SERVICETRACE_CHAINTASK);
 
+  EE_hal_terminate_task(current);
   /* This return instruction usually is optimized by the compiler,
      because hal_terminate_task does not return... */
   return E_OK;

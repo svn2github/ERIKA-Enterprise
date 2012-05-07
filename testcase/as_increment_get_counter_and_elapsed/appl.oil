@@ -56,6 +56,7 @@
       USERESSCHEDULER = FALSE;
 
 #include "../common/rtdruid_common/ee_oil_e200zx_os.h"
+#include "../common/rtdruid_common/ee_oil_cortex_mx_os.h"
 
 /* Mono Stack */
 #if defined(B1) || defined(B2)
@@ -64,14 +65,11 @@
 
 /* Multi Stack */
 #if defined(E1) || defined(E2)
-      MULTI_STACK = TRUE {
-        IRQ_STACK = FALSE;
-      };
+      MULTI_STACK = TRUE;
 #endif
     };
 
     EE_OPT = "__OO_STARTOS_OLD__";
-    EE_OPT = "EE_ISR_DYNAMIC_TABLE";
 #ifdef B1
     KERNEL_TYPE = BCC1;
 #endif
@@ -113,6 +111,18 @@
     COUNTER = "Counter1";
     ACTION = ACTIVATETASK { TASK = "Task2"; };
     AUTOSTART = FALSE;
+  };
+
+  ISR IsrLow {
+    CATEGORY = 2;
+    PRIORITY = 1; /* Low Priority Value */
+#ifdef e200zx
+    ENTRY = "0";
+#endif
+#ifdef cortex_m4
+    ENTRY = "GPIO_A";
+#endif
+    HANDLER = "isr_callback";
   };
 };
 

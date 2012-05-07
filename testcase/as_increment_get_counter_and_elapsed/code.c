@@ -38,7 +38,8 @@
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
 
-#include "ee.h"
+#include <ee.h>
+#include <ee_irq.h>
 #include "test/assert/inc/ee_assert.h"
 #include "../../common/test_common.h"
 
@@ -46,8 +47,9 @@
 #define FALSE 0U
 
 /* assertion data */
-#define MAX_ASSERT 11
-EE_TYPEASSERTVALUE EE_assertions[MAX_ASSERT + 1];
+#define MAX_ASSERT 15
+/* Leave one position as guard */
+EE_TYPEASSERTVALUE EE_assertions[MAX_ASSERT + 2];
 
 DeclareTask(Task1);
 DeclareTask(Task2);
@@ -69,7 +71,7 @@ TASK(Task2)
   IncrementCounter(Counter1);
 }
 
-void isr_callback(void)
+ISR2(isr_callback)
 {
   TickType Value;
   GetCounterValue(Counter1, &Value);
@@ -89,12 +91,14 @@ int main(int argc, char **argv)
   StatusType  s;
   TickType Value;
   TickType ElapsedValue;
+#ifdef __CORTEX_MX__
+  EE_system_init();
+#endif
 
   EE_assert(1, TRUE, EE_ASSERT_NIL);
 
   /* Setup and queue an interrupt request; StartOS() should enable IRQs, so
      the request is served */
-  test_setup_irq(0U, isr_callback, 1U);
   test_fire_irq(0U);
 
   StartOS(OSDEFAULTAPPMODE);
@@ -160,6 +164,18 @@ int main(int argc, char **argv)
      ElapsedValue = MaxValue - (old_value - current_value) + 1 =
      = 16 -(8 - 4) + 1 = 13 */
   EE_assert(11, (Value == 13U), 10);
+
+  /* Check set absolute alarm wrap around handling */
+  s = SetAbsAlarm(Alarm1, (Value - 1), 0);
+  EE_assert(12, (s == E_OK), 11);
+  EE_assert(13, (EE_alarm_RAM[Alarm1].delta == EE_counter_ROM[Counter1].maxallowedvalue), 12);
+
+  CancelAlarm(Alarm1);
+
+  /* Check set absolute alarm 'NOW' handling: (just +1 one policy) */
+  s = SetAbsAlarm(Alarm1, Value, 0);
+  EE_assert(14, (s == E_OK), 13);
+  EE_assert(15, (EE_alarm_RAM[Alarm1].delta == 1U), 14);
 
   EE_assert_range(0, 1, MAX_ASSERT);
   EE_assert_last();
