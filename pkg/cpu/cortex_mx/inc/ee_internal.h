@@ -63,6 +63,27 @@
 
 #include "cpu/common/inc/ee_primitives.h"
 
+/*************************************************************************
+                            System startup
+ *************************************************************************/
+
+#define __OO_CPU_HAS_STARTOS_ROUTINE__
+
+/* If system is defined I have to initialize it*/
+#ifdef ENABLE_SYSTEM_TIMER
+void EE_cortex_mx_initialize_system_timer(void);
+#else /* ENABLE_SYSTEM_TIMER */
+#define EE_cortex_mx_initialize_system_timer() ((void) 0)
+#endif /* ENABLE_SYSTEM_TIMER */
+
+static int __ALWAYS_INLINE__ EE_cpu_startos(void);
+__INLINE__ int __ALWAYS_INLINE__ EE_cpu_startos(void)
+{
+  EE_system_init();
+  EE_cortex_mx_initialize_system_timer();
+  return 0;
+}
+
 
 /** Called as _first_ function of a primitive that can be called in
    an IRQ and in a task */

@@ -88,6 +88,10 @@ endif
 endif
 endif
 
+ifeq ($(call iseeopt, ENABLE_SYSTEM_TIMER), yes)
+EE_SRCS += pkg/cpu/cortex_mx/src/ee_system_timer.c
+endif
+
 ifeq ($(call iseeopt, __MULTI__), yes)
 
 ifeq ($(call iseeopt, __IAR__), yes)
