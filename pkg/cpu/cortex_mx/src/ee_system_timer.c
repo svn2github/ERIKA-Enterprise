@@ -47,7 +47,7 @@
 #include <ee_internal.h>
 
 /* This file is needed only if System Timer is defined */
-#ifdef ENABLE_SYSTEM_TIMER
+#if	( defined(ENABLE_SYSTEM_TIMER) && defined(EE_SYSTEM_TIMER_DEVICE) )
 
 /* Legit devices as system timer */
 #define EE_CORTEX_MX_SYSTICK 1

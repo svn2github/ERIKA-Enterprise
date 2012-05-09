@@ -70,7 +70,7 @@
 #define __OO_CPU_HAS_STARTOS_ROUTINE__
 
 /* If system is defined I have to initialize it*/
-#ifdef ENABLE_SYSTEM_TIMER
+#if	( defined(ENABLE_SYSTEM_TIMER) && defined(EE_SYSTEM_TIMER_DEVICE) )
 void EE_cortex_mx_initialize_system_timer(void);
 #else /* ENABLE_SYSTEM_TIMER */
 #define EE_cortex_mx_initialize_system_timer() ((void) 0)
