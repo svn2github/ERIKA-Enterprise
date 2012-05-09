@@ -49,32 +49,19 @@
 /* This file is needed only if System Timer is defined */
 #ifdef ENABLE_SYSTEM_TIMER
 
+/* Legit devices as system timer */
+#define EE_PPCE200ZX_DECREMENTER 1
 
-#ifndef EE_PPCE200ZX_DECREMENTER_ISR
-#ifdef EE_ISR_DYNAMIC_TABLE
-/* Decrementer level inside ISR table */
-#define EE_DECREMENTER_LEVEL    10
-/* Priority doesn't make sense for internal exceptions so 0 is a value as
-   another */
-#define EE_DECREMENTER_PRIORITY 0
-/* Default system timer handler for dynamic ISR table */
-#define EE_PPCE200ZX_DECREMENTER_ISR EE_e200zx_system_timer_handler
-#else /* EE_ISR_DYNAMIC_TABLE */
-/* You must define system timer handler as compilation define with static ISR
-   table
-*/
-#error "if SystemTimer is defined yo must define EE_PPCE200ZX_DECREMENTER_ISR\
- with the name of the handler for static ISR table"
-#endif /* EE_ISR_DYNAMIC_TABLE */
-#endif /* !EE_PPCE200ZX_DECREMENTER_ISR */
+/* Used for compiler error */
+#define PREPROC(s) s
 
 /* Handler Declaration */
-void EE_PPCE200ZX_DECREMENTER_ISR(void);
+void EE_e200zx_system_timer_handler(void);
 
 #ifdef EE_ISR_DYNAMIC_TABLE
-void EE_PPCE200ZX_DECREMENTER_ISR(void)
+void EE_e200zx_system_timer_handler(void)
 #else
-ISR2_INT(EE_PPCE200ZX_DECREMENTER_ISR)
+ISR2_INT(EE_e200zx_system_timer_handler)
 #endif
 {
 #if defined(__OO_BCC1__) || defined(__OO_BCC2__) || defined(__OO_ECC1__) || \
@@ -88,13 +75,18 @@ ISR2_INT(EE_PPCE200ZX_DECREMENTER_ISR)
 /* System Timer Initialization */
 void EE_e200zx_initialize_system_timer(void) {
 #ifdef EE_ISR_DYNAMIC_TABLE
-  EE_e200z7_register_ISR(EE_DECREMENTER_LEVEL, EE_PPCE200ZX_DECREMENTER_ISR,
+  EE_e200z7_register_ISR(EE_DECREMENTER_LEVEL, EE_e200zx_system_timer_handler,
     EE_DECREMENTER_PRIORITY);
 #endif /* EE_ISR_DYNAMIC_TABLE */
 
-  EE_e200z7_setup_decrementer((EE_CPU_CLOCK + 
-    EE_counter_hw_ROM[EE_SYSTEM_TIMER].microsecondspertick/2U) / 
-    EE_counter_hw_ROM[EE_SYSTEM_TIMER].microsecondspertick);
+#if (EE_SYSTEM_TIMER_DEVICE == EE_PPCE200ZX_DECREMENTER)
+  /* OSTICKDURATION is defined as nanoseconds macro */
+  EE_e200z7_setup_decrementer((EE_CPU_CLOCK + (OSTICKDURATION / 2000U)) /
+    (OSTICKDURATION / 1000U));
+#else
+#error Unsupported Device: PREPROC(EE_SYSTEM_TIMER_DEVICE) as\
+ System Timer!
+#endif
 }
 
 #endif /* ENABLE_SYSTEM_TIMER */
