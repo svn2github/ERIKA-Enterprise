@@ -124,10 +124,10 @@ TASK(Task1)
   while (!ISR2_fired) {};
 
   s = ReleaseResource(Resource1);
-  EE_assert(19, (s==E_OS_NOFUNC), 18);
+  EE_assert(18, (s==E_OS_NOFUNC), 17);
 
   s = ReleaseResource(NoResource);
-  EE_assert(20, (s==E_OS_ID), 19);
+  EE_assert(19, (s==E_OS_ID), 18);
 
   TerminateTask();
 }
@@ -166,7 +166,11 @@ _ISR2(myISR2)
 			#if defined (__RX200__)
 			ISR2(cmia0_handler)
 			#else
-			static void myISR2(void)
+				#if defined (__PPCE200ZX__)
+					ISR2(decrementer_handler)
+				#else
+					static void myISR2(void)
+				#endif
 			#endif
 		#endif
 	#endif
@@ -178,10 +182,7 @@ _ISR2(myISR2)
   EE_assert(16, TRUE, 15);
 
   s = GetResource(Resource6);
-  EE_assert(17, (s==E_OK), 16);
-
-  s = ReleaseResource(Resource6);
-  EE_assert(18, (s==E_OK), 17);
+  EE_assert(17, (s==E_OS_ACCESS), 16);
 
   ISR2_fired = 1;
 
@@ -237,8 +238,7 @@ int main(int argc, char **argv)
 
 #endif
 
-#if defined(__PPCE200Z7__) || defined(EE_PPCE200Z4)
-  EE_e200z7_register_ISR(10, myISR2, 0);
+#if defined(__PPCE200ZX__)
   EE_e200z7_setup_decrementer(3000000);
 #endif
 
@@ -275,7 +275,7 @@ int main(int argc, char **argv)
 
   StartOS(OSDEFAULTAPPMODE);
 
-  EE_assert_range(0,1, 20);
+  EE_assert_range(0,1, 19);
   EE_assert_last();
 
   return 0;
