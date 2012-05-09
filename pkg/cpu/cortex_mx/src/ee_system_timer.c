@@ -75,6 +75,8 @@ void EE_cortex_mx_initialize_system_timer(void) {
     (OSTICKDURATION/1000U),
     EE_CPU_CLOCK)
   );
+  EE_systick_enable_int();
+  EE_systick_start();
 #else
 #error Unsupported Device: PREPROC(EE_SYSTEM_TIMER_DEVICE) as\
  System Timer!
