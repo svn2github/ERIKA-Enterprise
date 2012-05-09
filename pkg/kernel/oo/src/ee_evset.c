@@ -155,19 +155,18 @@ void EE_oo_SetEvent(TaskType TaskID, EventMaskType Mask)
   }
 #endif /* __OO_EXTENDED_STATUS__ */
 
-  /* set the event mask */
-  EE_th_event_active[TaskID] |= Mask;
-  
-  /* check if the task was waiting for an event we just set 
+  /* check if the task was waiting for an event we have to set 
    *
    * WARNING:
-   * the test with status==WAITING is FUNDAMENTAL to avoid double
-   * insertion of the task in the ready queue!!! Example, when I call
-   * two times the same setevent... the first time the task must go in
-   * the ready queue, the second time NOT!!!
+   * the test with status==WAITING is FUNDAMENTAL because an envent must be set
+   * only on a waiting Task.
    */
-  if (EE_th_event_waitmask[TaskID] & Mask) {
-    if (EE_th_status[TaskID] == WAITING) {
+  if (EE_th_status[TaskID] == WAITING) {
+
+    /* set the event mask */
+    EE_th_event_active[TaskID] |= Mask;
+
+    if (EE_th_event_waitmask[TaskID] & Mask) {
       /* if yes, the task must go back into the READY state */
       EE_th_status[TaskID] = READY;
       /* insert the task in the ready queue */
@@ -179,6 +178,7 @@ void EE_oo_SetEvent(TaskType TaskID, EventMaskType Mask)
         EE_oo_preemption_point();
       }
     }
+
   }
 
   EE_hal_end_nested_primitive(flag);
