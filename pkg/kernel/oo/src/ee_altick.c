@@ -56,13 +56,16 @@ EE_TYPETICK EE_ORTI_alarmtime[EE_MAX_ALARM];
 
 #endif /* RTDRUID_CONFIGURATOR_NUMBER */
 
-
+/*
+  Increment equal to 0 means next tick. Has been used this convention to
+  utilize all values from zero to counter.maxallowedvalue range
+ */
 void EE_oo_alarm_insert(AlarmType AlarmID, TickType increment)
 {
   register AlarmType current, previous;
   
 #ifdef __OO_ORTI_ALARMTIME__
-  EE_ORTI_alarmtime[AlarmID] = increment + 
+  EE_ORTI_alarmtime[AlarmID] = increment + 1U +
     EE_counter_RAM[EE_alarm_ROM[AlarmID].c].value;
 #endif /* __OO_ORTI_ALARMTIME__ */
 
@@ -227,12 +230,11 @@ void EE_oo_IncrementCounterImplementation(CounterType CounterID)
 
   /* if there are queued alarms */
   if (EE_counter_RAM[CounterID].first != (EE_SREG)-1) {
-    /* decrement first queued alarm delta */
-    EE_alarm_RAM[EE_counter_RAM[CounterID].first].delta--;
-
     /* execute all the alarms with counter 0 */
     current = EE_counter_RAM[CounterID].first;
     while (EE_alarm_RAM[current].delta == 0U) {
+      /* First alarm handled, it's an end flag */
+      register const AlarmType first = current;
       /* execute it */
       switch (EE_alarm_ROM[current].action) {
 
@@ -273,16 +275,24 @@ void EE_oo_IncrementCounterImplementation(CounterType CounterID)
         /* enqueue it again 
            note: this can modify EE_counter_RAM[CounterID].first!!! see (*)
          */
-        EE_oo_alarm_insert(current,EE_alarm_RAM[current].cycle);
+        EE_oo_alarm_insert(current, (EE_alarm_RAM[current].cycle - 1U));
       } else {
         /* alarm no more used! */
         EE_alarm_RAM[current].used = 0U;
       }
       /* (*) here we need EE_counter_RAM[CounterID].first again... */
       current = EE_counter_RAM[CounterID].first;
-      if (current == (AlarmType)-1) {
+      if((current == first) || (current == (AlarmType)-1)) {
+        /* N.B In the case that new alarm is equal to the first handled means
+           need to do nothing -> break the cycle plus do not decrement alarm
+           setting current == (AlarmType)-1 */
+        current = (AlarmType)-1;
         break;
       }
+    }
+    /* Decrement first queued alarm delta -> prepare for next tick */
+    if (current != (AlarmType)-1) {
+      EE_alarm_RAM[EE_counter_RAM[CounterID].first].delta--;
     }
   }
 }

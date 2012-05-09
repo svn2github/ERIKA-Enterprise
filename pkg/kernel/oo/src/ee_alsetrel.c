@@ -157,8 +157,9 @@ StatusType EE_oo_SetRelAlarm(AlarmType AlarmID,
   EE_alarm_RAM[AlarmID].used = 1U;
   EE_alarm_RAM[AlarmID].cycle = cycle;
 
-  /* then, insert the task into the delta queue with a value = interval */
-  EE_oo_alarm_insert(AlarmID,increment);
+  /* then, insert the task into the delta queue with an increment equal
+     (increment -1U) increment equal to 0 means next tick */
+  EE_oo_alarm_insert(AlarmID, (increment - 1U));
 
   EE_hal_end_nested_primitive(flag);
   EE_ORTI_set_service_out(EE_SERVICETRACE_SETRELALARM);

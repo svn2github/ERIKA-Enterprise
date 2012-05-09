@@ -46,6 +46,16 @@
 #define TRUE  1U
 #define FALSE 0U
 
+#ifdef __PPCE200ZX__
+/* Ack the IRQ */
+#define ISR_LOW 0
+#define ACK_IRQ(x) (INTC.SSCIR[(x)].B.CLR = 1)
+#else
+/* Ack the IRQ */
+#define ISR_LOW 0
+#define ACK_IRQ(x)    ((void)0)
+#endif  /* __PPCE200ZX__ */
+
 /* assertion data */
 #define MAX_ASSERT 15
 /* Leave one position as guard */
@@ -74,6 +84,7 @@ TASK(Task2)
 ISR2(isr_callback)
 {
   TickType Value;
+  ACK_IRQ(ISR_LOW); /* Needed by ppc */
   GetCounterValue(Counter1, &Value);
   IncrementCounter(Counter1);
   /* I check that preemption doesn't happen in IRQ */
@@ -168,14 +179,19 @@ int main(int argc, char **argv)
   /* Check set absolute alarm wrap around handling */
   s = SetAbsAlarm(Alarm1, (Value - 1), 0);
   EE_assert(12, (s == E_OK), 11);
-  EE_assert(13, (EE_alarm_RAM[Alarm1].delta == EE_counter_ROM[Counter1].maxallowedvalue), 12);
+  EE_assert(13,
+    (EE_alarm_RAM[Alarm1].delta == EE_counter_ROM[Counter1].maxallowedvalue - 1U),
+     12);
 
   CancelAlarm(Alarm1);
 
-  /* Check set absolute alarm 'NOW' handling: (just +1 one policy) */
+  /* Check set absolute alarm 'NOW' handling: that means next time counter has
+     actual value*/
   s = SetAbsAlarm(Alarm1, Value, 0);
   EE_assert(14, (s == E_OK), 13);
-  EE_assert(15, (EE_alarm_RAM[Alarm1].delta == 1U), 14);
+  EE_assert(15,
+   (EE_alarm_RAM[Alarm1].delta == EE_counter_ROM[Counter1].maxallowedvalue),
+   14);
 
   EE_assert_range(0, 1, MAX_ASSERT);
   EE_assert_last();

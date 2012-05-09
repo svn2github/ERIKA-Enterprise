@@ -140,26 +140,23 @@ StatusType EE_oo_SetAbsAlarm(AlarmType AlarmID,
 
   /* Handling wrap around for alarm time */
   counter_value = EE_counter_RAM[EE_alarm_ROM[AlarmID].c].value;
-  start_rel = start - counter_value;
+  start_rel = (EE_SREG)start - (EE_SREG)counter_value;
   if(start_rel > 0) {
     /* Normal behavior */
-    alarm_time = start_rel;
+    alarm_time = (TickType)start_rel - 1U;
   } else if (start_rel == 0){
-    /* start_rel == 0 -> the alarm should start now.
-       How handle this:
-       1) Return an error (E_OS_VALUE?). (The primitive behaviour is subject
-          to races, not allowed)
-       2) Create an internal primitive to force an alarm handling.
-          (Could be the best choice, but a little complex)
-       3) Posticipate it by one (Easy and not so wrong: for now the winner)
-    */
-    alarm_time = 1;
+    /* start_rel == 0 -> the alarm should start now or next time that counter
+       has this value. Has been chosen the second option */
+    alarm_time = EE_counter_ROM[EE_alarm_ROM[AlarmID].c].maxallowedvalue;
   } else {
-    /* start_rel is negative in this case (unsigned conversion + wrap around do the work) */
-    alarm_time = EE_counter_ROM[EE_alarm_ROM[AlarmID].c].maxallowedvalue + start_rel + 1U;
+    /* start_rel is negative in this case (unsigned conversion +
+       wrap around do the work) */
+    alarm_time = EE_counter_ROM[EE_alarm_ROM[AlarmID].c].maxallowedvalue +
+      (TickType)start_rel;
   }
 
-  /* Set alarm with a relative ammount of time */
+  /* Set alarm with a relative ammount of time (alarm_time already is a "0 as
+     next tick" value)*/
   EE_oo_alarm_insert(AlarmID, alarm_time);
 
   EE_hal_end_nested_primitive(flag);

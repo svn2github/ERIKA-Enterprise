@@ -75,7 +75,7 @@ void       EE_oo_IncrementCounterImplementation(CounterType CounterID);
 /* kernel internal API */
 #define IncrementCounterHardware EE_oo_IncrementCounterHardware
 
-/* Helper function */
+/* Helper function (0 as increment means next tick)*/
 void EE_oo_alarm_insert(AlarmType AlarmID, TickType increment);
 
 #endif

@@ -111,7 +111,9 @@ StatusType EE_oo_GetAlarm(AlarmType AlarmID, TickRefType Tick)
   current = EE_counter_RAM[EE_alarm_ROM[AlarmID].c].first;
 
   if (Tick != (TickRefType)NULL) {
-    *Tick = EE_alarm_RAM[current].delta;
+    /* Added 1 because alarm list is a "zero as next tick" list
+       (so zero count one) */
+    *Tick = EE_alarm_RAM[current].delta + 1U;
     while (current != AlarmID) {
       current = EE_alarm_RAM[current].next;
       *Tick += EE_alarm_RAM[current].delta;
@@ -119,7 +121,7 @@ StatusType EE_oo_GetAlarm(AlarmType AlarmID, TickRefType Tick)
     retVal = E_OK;
   } else {
     /* OS566: The Operating System API shall check in extended mode all pointer
-        argument for NULL pointer and return OS_E_PARAMETER_POINTER 
+        argument for NULL pointer and return OS_E_PARAMETER_POINTER
         if such argument is NULL.
     */
     EE_ORTI_set_lasterror(E_OS_PARAMETER_POINTER);
