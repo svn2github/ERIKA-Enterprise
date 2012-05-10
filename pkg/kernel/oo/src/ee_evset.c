@@ -142,8 +142,8 @@ void EE_oo_SetEvent(TaskType TaskID, EventMaskType Mask)
 
   flag = EE_hal_begin_nested_primitive();
 
-#ifdef __OO_EXTENDED_STATUS__
   if (EE_th_status[TaskID] == SUSPENDED) {
+#ifdef __OO_EXTENDED_STATUS__
     EE_ORTI_set_lasterror(E_OS_STATE);
 
     EE_oo_notify_error_SetEvent(TaskID, Mask, E_OS_STATE);
@@ -152,33 +152,33 @@ void EE_oo_SetEvent(TaskType TaskID, EventMaskType Mask)
     EE_ORTI_set_service_out(EE_SERVICETRACE_SETEVENT);
 
     return E_OS_STATE;
-  }
 #endif /* __OO_EXTENDED_STATUS__ */
-
-  /* check if the task was waiting for an event we have to set 
-   *
-   * WARNING:
-   * the test with status==WAITING is FUNDAMENTAL because an envent must be set
-   * only on a waiting Task.
-   */
-  if (EE_th_status[TaskID] == WAITING) {
-
-    /* set the event mask */
+  } else {
+    /* Set the event mask only if the task is not suspended */
     EE_th_event_active[TaskID] |= Mask;
 
+    /* Check if the task was waiting for an event we just set
+     *
+     * WARNING:
+     * the test with status==WAITING is FUNDAMENTAL to avoid double
+     * insertion of the task in the ready queue!!! Example, when I call
+     * two times the same setevent... the first time the task must go in
+     * the ready queue, the second time NOT!!!
+     */
     if (EE_th_event_waitmask[TaskID] & Mask) {
-      /* if yes, the task must go back into the READY state */
-      EE_th_status[TaskID] = READY;
-      /* insert the task in the ready queue */
-      EE_rq_insert(TaskID);
+      if (EE_th_status[TaskID] == WAITING) {
+        /* if yes, the task must go back into the READY state */
+        EE_th_status[TaskID] = READY;
+        /* insert the task in the ready queue */
+        EE_rq_insert(TaskID);
 
-      /* and if I am at task level, check for preemption... */
-      if (EE_hal_get_IRQ_nesting_level() == 0U) {
-        /* we are inside a task */
-        EE_oo_preemption_point();
+        /* and if I am at task level, check for preemption... */
+        if (EE_hal_get_IRQ_nesting_level() == 0U) {
+          /* we are inside a task */
+          EE_oo_preemption_point();
+        }
       }
     }
-
   }
 
   EE_hal_end_nested_primitive(flag);
