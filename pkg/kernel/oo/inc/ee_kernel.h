@@ -165,11 +165,7 @@ StatusType EE_oo_ChainTask(TaskType TaskID);
 
 /* 13.2.3.4: BCC1, BCC2, ECC1, ECC2 */
 #ifndef __PRIVATE_SCHEDULE__
-#ifdef __OO_EXTENDED_STATUS__
 StatusType EE_oo_Schedule(void);
-#else
-void EE_oo_Schedule(void);
-#endif
 #endif
 
 /* Needed for counters (see later) */

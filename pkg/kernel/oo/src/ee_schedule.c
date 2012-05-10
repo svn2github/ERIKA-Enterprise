@@ -58,11 +58,7 @@
 
 #ifndef __PRIVATE_SCHEDULE__
 
-#ifdef __OO_EXTENDED_STATUS__
 StatusType EE_oo_Schedule(void)
-#else
-void EE_oo_Schedule(void)
-#endif
 {
   EE_TID current, rq;
   register EE_FREG flag;
@@ -185,9 +181,7 @@ void EE_oo_Schedule(void)
   EE_hal_end_nested_primitive(flag);
   EE_ORTI_set_service_out(EE_SERVICETRACE_SCHEDULE);
 
-#ifdef __OO_EXTENDED_STATUS__
   return E_OK;
-#endif
 }
 
 #endif
