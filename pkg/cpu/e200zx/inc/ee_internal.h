@@ -74,12 +74,12 @@ extern EE_STACK_T EE_STACK_ATTRIB EE_e200zx_sys_stack[EE_STACK_WLEN(EE_SYS_STACK
 
 #define __OO_CPU_HAS_STARTOS_ROUTINE__
 
-/* If system is defined I have to initialize it*/
-#ifdef ENABLE_SYSTEM_TIMER
+/* If system timer is defined with a device. I have to initialize it */
+#if defined(ENABLE_SYSTEM_TIMER) && defined(EE_SYSTEM_TIMER_DEVICE)
 void EE_e200zx_initialize_system_timer(void);
-#else /* ENABLE_SYSTEM_TIMER */
+#else /* ENABLE_SYSTEM_TIMER && EE_SYSTEM_TIMER_DEVICE */
 #define EE_e200zx_initialize_system_timer() ((void) 0)
-#endif /* ENABLE_SYSTEM_TIMER */
+#endif /* ENABLE_SYSTEM_TIMER && EE_SYSTEM_TIMER_DEVICE */
 
 #if defined(__MSRP__) || (defined(__EE_MEMORY_PROTECTION__) \
 	&& (defined(__OO_BCC1__) || defined(__OO_BCC2__)    \
