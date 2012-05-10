@@ -127,19 +127,8 @@ void EE_oo_WaitSem(SemRefType Sem)
       Sem->count--;
     }
     else {
-      /* extract the task from the stk data structure
-       * current was filled at the beginning of the function
-       */
-      EE_stk_getfirst();
-
-      /* the task must go into the WAITING state */
-      EE_th_status[current] = WAITING;
-
-      /* reset the thread priority bit in the system_ceiling */
-      EE_sys_ceiling &= ~EE_th_dispatch_prio[current];
-      /* the ready priority is not touched, it is not the same as Schedule! */
-
-      EE_ORTI_set_th_priority(current, 0U);
+      /* Prepare current  Task to yeld */
+      EE_oo_prepare_to_yeld();
 
       /* queue the task inside the semaphore queue */
       if (Sem->first != EE_NIL) {
@@ -153,10 +142,6 @@ void EE_oo_WaitSem(SemRefType Sem)
 
       Sem->last = current;
       EE_th_next[current] = EE_NIL;
-
-      /* since the task blocks, it has to be woken up by another
-         EE_hal_stkchange */
-      EE_th_waswaiting[current] = 1U;
 
       /* then, the task will be woken up by a PostSem using a EE_hal_stkchange... */
 

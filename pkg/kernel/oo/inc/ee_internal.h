@@ -382,14 +382,42 @@ __INLINE__ void __ALWAYS_INLINE__ EE_oo_preemption_point(void)
 }
 
 #if defined(__OO_ECC1__) || defined(__OO_ECC2__)
+
 /*
-  Yeld to next TASK if Extended Task is configured
+  Prepare current Task to Yeld to next TASK if Extended Task is configured
+ */
+__INLINE__ void __ALWAYS_INLINE__ EE_oo_prepare_to_yeld(void) {
+  register EE_TID current;
+
+  current = EE_stk_queryfirst();
+
+  /* the task must go into the WAITING state */
+  EE_th_status[current] = WAITING;
+
+  /* Call the Post Task Hook before change stk data structure */
+  EE_oo_call_PostTaskHook();
+
+  /* extract the task from the stk data structure */
+  EE_stk_getfirst();
+
+  /* reset the thread priority bit in the system_ceiling */
+  EE_sys_ceiling &= ~EE_th_dispatch_prio[current];
+  /* the ready priority is not touched, it is not the same as Schedule! */
+
+  /* reset ORTI priority */
+  EE_ORTI_set_th_priority(current, 0U);
+
+  /* since the task blocks, it has to be woken up by another
+     EE_hal_stkchange */
+  EE_th_waswaiting[current] = 1U;
+}
+
+/*
+    Yeld to next TASK if Extended Task is configured
  */
 __INLINE__ void __ALWAYS_INLINE__ EE_oo_yeld(void)
 {
   register EE_TID next;
-
-  EE_oo_call_PostTaskHook();
 
   next = EE_rq_queryfirst();
   if ((next == EE_NIL) || (EE_sys_ceiling >= EE_th_ready_prio[next])) {

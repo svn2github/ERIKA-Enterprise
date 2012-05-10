@@ -143,22 +143,8 @@ void EE_oo_WaitEvent(EventMaskType Mask)
     /* set the waiting mask */
     EE_th_event_waitmask[current] = Mask;
 
-    /* the task must go into the WAITING state */
-    EE_th_status[current] = WAITING;
-
-    /* extract the task from the stk data structure */
-    EE_stk_getfirst();
-
-    /* reset the thread priority bit in the system_ceiling */
-    EE_sys_ceiling &= ~EE_th_dispatch_prio[current];
-    /* the ready priority is not touched, it is not the same as Schedule! */
-
-    /* reset ORTI priority */
-    EE_ORTI_set_th_priority(current, 0U);
-
-    /* since the task blocks, it has to be woken up by another
-       EE_hal_stkchange */
-    EE_th_waswaiting[current] = 1U;
+    /* Prepare current. Task to yeld */
+    EE_oo_prepare_to_yeld();
 
     /* then, the task is not inserted in any queue! it will be woken
        up by a SetEvent using a EE_hal_stkchange... */
