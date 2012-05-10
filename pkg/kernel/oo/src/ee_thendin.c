@@ -72,9 +72,7 @@ static void EE_thread_endcycle_next(void)
 void EE_thread_end_instance(void)
 {
   EE_TID current, rqfirst;
-#ifndef __OO_NO_CHAINTASK__
   EE_TID TaskID;
-#endif /* __OO_NO_CHAINTASK__ */
 
   current = EE_stk_queryfirst();
 
@@ -86,14 +84,23 @@ void EE_thread_end_instance(void)
   /* increase the remaining activations...*/
   EE_th_rnact[current]++;
 
+#ifndef __OO_NO_CHAINTASK__
+  /* if we called a ChainTask, 
+     EE_th_terminate_nextask[current] != NIL
+  */
+  TaskID = EE_th_terminate_nextask[current];
+#else
+  TaskID = EE_NIL;
+#endif
+
   /* The task state switch from STACKED TO READY because it end its
    * instance. Note that status=READY and
    * rnact==maximum number of pending activations ==>> the task is
    * suspended!!! */
-  if(EE_th_rnact[current] == EE_th_rnact_max[current]){
-  	EE_th_status[current] = SUSPENDED;
+  if((EE_th_rnact[current] == EE_th_rnact_max[current]) || (current == TaskID)){
+    EE_th_status[current] = SUSPENDED;
   } else {   
-	EE_th_status[current] = READY;
+    EE_th_status[current] = READY;
   }
 
   /* reset the thread priority bit in the system_ceiling */
@@ -108,7 +115,6 @@ void EE_thread_end_instance(void)
   /* if we called a ChainTask, 
      EE_th_terminate_nextask[current] != NIL
   */
-  TaskID = EE_th_terminate_nextask[current];
   if (TaskID != EE_NIL) {
 
     /* see also activate.c
