@@ -149,7 +149,7 @@ void EE_oo_WaitEvent(EventMaskType Mask)
     /* then, the task is not inserted in any queue! it will be woken
        up by a SetEvent using a EE_hal_stkchange... */
 
-    /* Reschudule next task:
+    /* Reschedule next task:
      * check if there is to schedule a ready thread or pop a preempted
      * thread 
      */

@@ -127,8 +127,8 @@ void EE_oo_WaitSem(SemRefType Sem)
       Sem->count--;
     }
     else {
-      /* Prepare current  Task to yeld */
-      EE_oo_prepare_to_yeld();
+      /* Prepare current Task to block */
+      EE_oo_prepare_to_block();
 
       /* queue the task inside the semaphore queue */
       if (Sem->first != EE_NIL) {
@@ -145,11 +145,11 @@ void EE_oo_WaitSem(SemRefType Sem)
 
       /* then, the task will be woken up by a PostSem using a EE_hal_stkchange... */
 
-      /* Yeld to the next task:
+      /* Reschedule next task:
        * check if there is to schedule a ready thread or pop a preempted
        * thread 
        */
-      EE_oo_yeld();
+      EE_oo_reschedule_on_block();
     }
   }
 
