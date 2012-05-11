@@ -143,17 +143,17 @@ void EE_oo_WaitEvent(EventMaskType Mask)
     /* set the waiting mask */
     EE_th_event_waitmask[current] = Mask;
 
-    /* Prepare current. Task to yeld */
-    EE_oo_prepare_to_yeld();
+    /* Prepare current Task to block */
+    EE_oo_prepare_to_block();
 
     /* then, the task is not inserted in any queue! it will be woken
        up by a SetEvent using a EE_hal_stkchange... */
 
-    /* Yeld to the next task:
+    /* Reschudule next task:
      * check if there is to schedule a ready thread or pop a preempted
      * thread 
      */
-    EE_oo_yeld();
+    EE_oo_reschedule_on_block();
 
     /* reset the waiting mask */
     EE_th_event_waitmask[current] = 0U;

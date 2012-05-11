@@ -384,9 +384,9 @@ __INLINE__ void __ALWAYS_INLINE__ EE_oo_preemption_point(void)
 #if defined(__OO_ECC1__) || defined(__OO_ECC2__)
 
 /*
-  Prepare current Task to Yeld to next TASK if Extended Task is configured
+  Prepare current Task to Block if Extended Task is configured
  */
-__INLINE__ void __ALWAYS_INLINE__ EE_oo_prepare_to_yeld(void) {
+__INLINE__ void __ALWAYS_INLINE__ EE_oo_prepare_to_block(void) {
   register EE_TID current;
 
   current = EE_stk_queryfirst();
@@ -413,9 +413,9 @@ __INLINE__ void __ALWAYS_INLINE__ EE_oo_prepare_to_yeld(void) {
 }
 
 /*
-    Yeld to next TASK if Extended Task is configured
+    Reschedule on task blocking if Extended Task is configured
  */
-__INLINE__ void __ALWAYS_INLINE__ EE_oo_yeld(void)
+__INLINE__ void __ALWAYS_INLINE__ EE_oo_reschedule_on_block(void)
 {
   register EE_TID next;
 
