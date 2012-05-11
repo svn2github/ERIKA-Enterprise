@@ -94,6 +94,14 @@ __INLINE__ void __ALWAYS_INLINE__ EE_leds_init(void)
 	SIU_GPIO[55] = 1;
 }
 
+__INLINE__ void __ALWAYS_INLINE__ EE_leds(EE_UREG led)
+{
+	SIU_GPIO[52] = led & 1;
+	SIU_GPIO[53] = (led >> 1) & 1;
+	SIU_GPIO[54] = (led >> 2) & 1;
+	SIU_GPIO[55] = (led >> 3) & 1;
+}
+
 /* Turn ALL leds on */
 __INLINE__ void __ALWAYS_INLINE__ EE_leds_on(void)
 {
