@@ -55,6 +55,12 @@
 #define EE_E200ZX_MAX_EXT_IRQ 256
 
 #if (! defined EE_CURRENTCPU) || (EE_CURRENTCPU == 0)
+/* INTC Base */
+#define INTC_BASE 0xFFF48000
+
+/* INTC_PSR Base */
+#define INTC_PSR_BASE (INTC_BASE+0x40)
+
 /* For duplicated registers, pick the Z4 instance */
 #define INTC_CPR (INTC.CPR_PRC0)
 #define INTC_IACKR (INTC.IACKR_PRC0)
@@ -64,9 +70,15 @@
 #define EE_E200ZX_INTC_CURRPROC 0x0U
 
 #define SET_INT_PRIO(level, pri) \
-			(*(volatile char *) (0xFFF48000+0x40+(level-16)))=pri
+			(*(volatile char *) (INTC_PSR_BASE+(level-16)))=pri
 
 #else /* if EE_CURRENTCPU != 0 */
+/* INTC Base */
+#define INTC_BASE 0x8FF48000
+
+/* INTC_PSR Base */
+#define INTC_PSR_BASE (INTC_BASE+0x40)
+
 /* For duplicated registers, pick the Z4 instance */
 #define INTC_CPR (INTC_1.CPR_PRC0)
 #define INTC_IACKR (INTC_1.IACKR_PRC0)
@@ -74,9 +86,9 @@
 /* This value is ignored in MPC5643L,
  * it is provided just to guarantee backward compatibility */
 #define EE_E200ZX_INTC_CURRPROC 0x0U
- 
+
 #define SET_INT_PRIO(level, pri) \
-			(*(volatile char *) (0x8FF48000+0x40+(level-16)))=pri
+			(*(volatile char *) (INTC_PSR_BASE+(level-16)))=pri
 
 #endif /* EE_CURRENTCPU */
 
