@@ -51,6 +51,7 @@
 
 	.extern ee_load_ram, ee_sdata, ee_sbss, ee_ebss, sram_setup
 	.extern EE_e200zx_mmu_entries, EE_e200zx_mmu_num_entries
+	.extern ee_ssbss2, ee_esbss2
 	.extern main
 #ifndef EE_ISR_DYNAMIC_TABLE
 	.extern EE_mpc5674_initialize_external_IRQ_priorities
@@ -143,6 +144,20 @@ __start:
 	addi	r9, r9, 4
 	cmplw	cr0, r9, r8
 	blt	1b
+
+#ifdef __E200ZX_EXECUTE_FROM_RAM__
+	addis	r8, 0, ee_esbss2@ha	/* load ee_esbss2 into r8 */
+	addi	r8, r8, ee_esbss2@l
+	addis	r9, 0, ee_ssbss2@ha	/* load ee_ssbss2 into r9 */
+	addi	r9, r9, ee_ssbss2@l
+	li	r11, 0x0		/* load zero into r11 */
+
+1:
+	stw	r11, 0(r9)		/* fill sbss2 with zero */
+	addi	r9, r9, 4
+	cmplw	cr0, r9, r8
+	blt	1b
+#endif
 
 	addis	r13, 0, _SDA_BASE_@ha	/* load .sdata base into r13 */
 	addi	r13, r13, _SDA_BASE_@l

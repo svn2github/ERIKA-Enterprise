@@ -219,6 +219,8 @@ extern int _SDA2_BASE_;
 extern int ee_sstack, ee_estack;
 extern int isram_base;
 extern int isram_len;
+extern int ee_ssbss2;
+extern int ee_esbss2;
 #endif
 
 

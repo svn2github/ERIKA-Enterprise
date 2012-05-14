@@ -60,7 +60,10 @@ SECTIONS
 		.sram_text : { }
 
 		.sdata2 : { }
+
+		ee_ssbss2 = . ;
 		.sbss2 : { }
+		ee_esbss2 = . ;
 
 		ee_load_ram = . ;
 		ee_sdata = . ;
