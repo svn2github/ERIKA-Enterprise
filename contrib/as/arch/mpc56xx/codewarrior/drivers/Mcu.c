@@ -72,28 +72,47 @@ struct EE_mcu_status_type {
 #define SPR_PIR 286
 #define SPR_PVR 287
 
-#define PVR_CORE_E200Z4D    0x81540001UL /* Leopard Core */
+#define PVR_CORE_E200Z4D_LEOPARD    0x81550001UL /* Leopard Core PVR */
+
+struct EE_cpu_info_type {
+  const char * const    cpu_name;
+  const uint32          pvr;
+};
 
 struct EE_mcu_info_type {
-  const char * const mcu_name;
-  const uint32       pvr;
+  const char * const                     mcu_name;
+  const struct EE_cpu_info_type * const  cpu_ptr;
+  const uint16                           mcuid1;
+  const uint8                            mcuid2;
+};
+
+const struct EE_cpu_info_type EE_supported_cpu[] = {
+  {
+    "e200z4d",
+    PVR_CORE_E200Z4D_LEOPARD
+  }
 };
 
 const struct EE_mcu_info_type EE_supported_mcu[] = {
   {
     "MPC5643L",
-    PVR_CORE_E200Z4D
+    &EE_supported_cpu[0],
+    0x5643U,
+    'L'
   }
 };
 
 /* Get the mcu info from a given pvr value */
-static struct EE_mcu_info_type const * EE_mcu_get_supported(EE_UREG pvr) {
+static struct EE_mcu_info_type const * EE_mcu_get_supported(uint16 mcuid1,
+      uint8 mcuid2) {
     EE_UREG i;
     struct EE_mcu_info_type const * mcu_info = NULL;
-    for (i = 0; i < ARRAY_LENGTH(EE_supported_mcu); i++) {
-      if (EE_supported_mcu[i].pvr == pvr) {
-        mcu_info = &EE_supported_mcu[i];
-        break;
+    for (i = 0; i < ARRAY_LENGTH(EE_supported_mcu); ++i) {
+      if (EE_supported_mcu[i].mcuid1 == mcuid1) {
+        if(EE_supported_mcu[i].mcuid2 == mcuid2) {
+          mcu_info = &EE_supported_mcu[i];
+          break;
+        }
       }
     }
 
@@ -102,18 +121,24 @@ static struct EE_mcu_info_type const * EE_mcu_get_supported(EE_UREG pvr) {
 
 static EE_UREG EE_mcu_check(void) {
   EE_UREG pvr;
+  uint16 mcuid1;
+  uint8  mcuid2;
   struct EE_mcu_info_type const * mcu_info;
 
-  pvr      = EE_e200zx_get_pvr();
-  mcu_info = EE_mcu_get_supported(pvr);
+  /* Mcu ID part number */
+  mcuid1 = SIU.MIDR1.B.PARTNUM;
+  mcuid2 = SIU.MIDR2.B.PARTNUM2;
 
-  if(mcu_info == NULL) {
-    /* Not supported MCU */
-    /* TODO choose a right policy */
-    while (TRUE) {
-      ; /* For now just catch it */
-    } 
+  mcu_info = EE_mcu_get_supported(mcuid1, mcuid2);
+  pvr      = EE_e200zx_get_pvr();
+
+  if(mcu_info != NULL) {
+    /* Redundant check */
+    if(mcu_info->cpu_ptr->pvr == pvr) {
+      return TRUE;
+    }
   }
+  return FALSE;
 }
 
 /* Disable watchdog. Watchdog is enabled default after reset.*/
@@ -198,18 +223,33 @@ static void EE_mcu_set_mode_configuration(Mcu_HardawareModeIdType
   }
 }
 
+#define MCU_RESET_CLEAR_ALL_FLAGS 0xFFFFU
+static void EE_mcu_clear_reset_flags(EE_UINT16 bitmask_to_clear) {
+  /* Check if the any bits of the bitmask are set */
+  while((RGM.FES.R & bitmask_to_clear) != 0U) {
+    /* w1c bits */
+    RGM.FES.R = bitmask_to_clear;
+  }
+}
+
 /*
  * Mcu_Init implementation.
  */
 void Mcu_Init(const Mcu_ConfigType * ConfigPtr)
 {
-  /* Disable watchdog. Watchdog is enabled default after reset.*/
+  /* Disable watchdog. Watchdog could be enabled by default after reset. */
   EE_mcu_disable_watchdog();
   /* Check if the MCU is supported */
-  EE_mcu_check();
+  if(EE_mcu_check() == FALSE){
+      /* Not supported MCU */
+      /* TODO choose a right policy */
+      while (TRUE) {
+        ; /* For now just catch it */
+      }
+  }
+
   /* Enable modes */
   ME.MER.R = MCU_ENABLED_MODES;
-
   /* TODO: Maybe add some FLASH and CACHE optimization here */
 
   /* Only peripheral configuration 0 it's used so peripheral have to be
@@ -226,6 +266,9 @@ void Mcu_Init(const Mcu_ConfigType * ConfigPtr)
   /* Configure RESET */
   EE_mcu_set_mode_configuration(MCU_MODE_ID_RESET,
     ConfigPtr->McuResetSetting);
+
+  /* FORCE DRUN mode (priviliged mode) */
+  EE_mcu_perform_mode_switch(MCU_MODE_ID_DRUN);
 
   /* Now the MCU is initializated */
   EE_mcu_status.init = TRUE;
@@ -358,10 +401,16 @@ Mcu_ResetType Mcu_GetResetReason(void)
  */
 Mcu_RawResetType Mcu_GetResetRawValue(void)
 {
-  if( RGM.DES.R )
-    return RGM.DES.R;
-  else
-    return RGM.FES.R;
+  Mcu_RawResetType reset_raw_value;
+  if( RGM.DES.R ) {
+    reset_raw_value = RGM.DES.R;
+  } else {
+    reset_raw_value = RGM.FES.R;
+    /* Reset start-up reset events */
+    EE_mcu_clear_reset_flags(MCU_RESET_CLEAR_ALL_FLAGS);
+  }
+
+  return reset_raw_value;
 }
 
 #if ( MCU_PERFORM_RESET_API == STD_ON )

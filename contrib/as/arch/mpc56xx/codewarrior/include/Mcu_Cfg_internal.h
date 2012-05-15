@@ -59,8 +59,7 @@
  *  <b>MCU236:</b> The type shall be <tt>uint8</tt>, <tt>uint16</tt> or
  *  <tt>uint32</tt> based on best performance.
  */
-/* XXX: THIS SHOULD BE HERE */
-/* typedef uint16_least  Mcu_RawResetType; */
+typedef uint16_least  Mcu_RawResetType;
 
 /** @brief  Clock Settings Configuration Parameters
  *

@@ -463,6 +463,16 @@
  */
 #define	MCU_CLOCK_MODES_NUMBER		MCU_CLOCK_MODE_MOSC_16_PLL + 1
 
+/** @brief	Raw Reset Type
+ *
+ *  <b>MCU235:</b> The type Mcu_RawResetType specifies the reset reason in raw
+ *  register format, read from a reset status register.
+ *
+ *  <b>MCU236:</b> The type shall be <tt>uint8</tt>, <tt>uint16</tt> or
+ *  <tt>uint32</tt> based on best performance.
+ */
+typedef	uint8_least	Mcu_RawResetType;
+
 /** @brief	Clock Settings Configuration Parameters
  *
  *  <b>MCU124_Conf:</b> This container contains the configuration (parameters)

@@ -205,16 +205,6 @@ typedef enum {
   MCU_RESET_UNDEFINED	/**< Reset is undefined		   */
 } Mcu_ResetType;
 
-/** @brief	Raw Reset Type
- *
- *  <b>MCU235:</b> The type Mcu_RawResetType specifies the reset reason in raw
- *  register format, read from a reset status register.
- *
- *  <b>MCU236:</b> The type shall be <tt>uint8</tt>, <tt>uint16</tt> or
- *  <tt>uint32</tt> based on best performance.
- */
-typedef	uint8_least	Mcu_RawResetType;
-
 /** @brief	Mode Type
  *
  *  <b>MCU237:</b> The <tt>Mcu_ModeType</tt> specifies the identification (ID)
