@@ -83,7 +83,11 @@ static inline void unlock_var(void)
 #ifdef __MSRP__
 static inline void sys_start_up(void)
 {
+#ifdef __E200ZX_EXECUTE_FROM_RAM__
 	EE_mpc5668_start_z0((void (*)(void))0x40020000);
+#else
+	EE_mpc5668_start_z0((void (*)(void))0x00030000);
+#endif
 }
 #else
 static inline void sys_start_up(void)

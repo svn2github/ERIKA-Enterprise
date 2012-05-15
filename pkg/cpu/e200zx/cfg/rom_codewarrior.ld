@@ -46,7 +46,7 @@
 SECTIONS
 {
 	GROUP : {
-		.bam_data LOAD(ADDR(boot)): { KEEP(*(.bam_data)) }
+		.boot_data LOAD(ADDR(boot)): { KEEP(*(.boot_data)) }
 		.boot LOAD(ADDR(.boot)): { }
 	} > boot
 

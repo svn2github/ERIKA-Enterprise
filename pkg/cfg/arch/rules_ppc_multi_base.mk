@@ -44,11 +44,18 @@ export EEBASE
 GLOBAL_LINKSCRIPT = shared_sym.ld
 SLAVE_CPUS := $(filter-out CPU_MASTER, $(CPU_LIST))
 
+ifeq ($(call iseeopt, __E200ZX_EXECUTE_FROM_RAM__), yes)
+START_SH = start.sh
+MULTI_FLASH_T32_SCRIPT = 
+else
+START_SH = start_flash.sh
+MULTI_FLASH_T32_SCRIPT = rom_multi.cmm
+endif
 
 .PHONY: all clean
 
 .DEFAULT_GOAL := all
-all: $(foreach c, $(CPU_LIST), $(c)-all) start.sh config-mc.t32 start-mc.cmm
+all: $(foreach c, $(CPU_LIST), $(c)-all) $(START_SH) config-mc.t32 start-mc.cmm $(MULTI_FLASH_T32_SCRIPT)
 
 clean: $(foreach c, $(CPU_LIST), $(c)-clean)
 
@@ -64,7 +71,7 @@ $(foreach c, $(CPU_LIST), $(eval $(call all-clean-template,$c)))
 
 $(foreach s, $(SLAVE_CPUS), $(s)-all): $(GLOBAL_LINKSCRIPT)
 
-start.sh: \
+$(START_SH): \
  %: $(PKGBASE)/mcu/freescale_$(PPC_MCU_MODEL)/cfg/multicore/%
 	@echo CP $@
 	$(QUIET) cp $< $@
@@ -74,6 +81,7 @@ config-mc.t32: \
 	@echo GEN $@
 	$(QUIET) sed -e 's:#T32SYS#:$(T32SYS):g'  $< > $@
 
+ifeq ($(call iseeopt, __E200ZX_EXECUTE_FROM_RAM__), yes)
 # This rule works on the assumption that there is one slave CPU
 start-mc.cmm: \
  %: $(PKGBASE)/mcu/freescale_$(PPC_MCU_MODEL)/cfg/multicore/% $(MAKEFILE_LIST)
@@ -82,7 +90,30 @@ start-mc.cmm: \
 		$(foreach s, $(SLAVE_CPUS),				\
 			-e 's:#CPU1_DIR#:$($(s)_DIR):g'			\
 			-e 's:#CPU1_EXE_NAME#:$($(s)_ELF):g'		\
+			-e 's:#EXECUTE_FROM_FLASH#:0:g'			\
 		) $< > $@
+else
+# This rule works on the assumption that there is one slave CPU
+start-mc.cmm: \
+ %: $(PKGBASE)/mcu/freescale_$(PPC_MCU_MODEL)/cfg/multicore/% $(MAKEFILE_LIST)
+	@echo GEN $@
+	$(QUIET)sed -e 's:#MASTER_DIR#:$(CPU_MASTER_DIR):g'		\
+		$(foreach s, $(SLAVE_CPUS),				\
+			-e 's:#CPU1_DIR#:$($(s)_DIR):g'			\
+			-e 's:#CPU1_EXE_NAME#:$($(s)_ELF):g'		\
+			-e 's:#EXECUTE_FROM_FLASH#:1:g'			\
+		) $< > $@
+
+rom_multi.cmm: \
+ %: $(PKGBASE)/mcu/freescale_$(PPC_MCU_MODEL)/cfg/multicore/% $(MAKEFILE_LIST)
+	@echo GEN $@
+	$(QUIET) sed -e 's:#MASTER_ELF#:$(MASTER_ELF):g'  		\
+		$(foreach s, $(SLAVE_CPUS),				\
+			-e 's:#CPU1_DIR#:$($(s)_DIR):g'			\
+			-e 's:#CPU1_EXE_NAME#:$($(s)_ELF):g'		\
+		) $< > $@
+
+endif
 
 MASTER_ELF = $(CPU_MASTER_DIR)/$(CPU_MASTER_ELF)
 

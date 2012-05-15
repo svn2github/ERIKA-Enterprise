@@ -70,9 +70,9 @@ void EE_mpc5668_initialize_external_IRQ_priorities(void);
 #define BAM_RCHW 0x05a0000
 #endif
 	/* CW-VAR-DEFINITION:
-	#pragma section R ".bam_data"
+	#pragma section R ".boot_data"
 	const struct { EE_UINT32 rchw; void (*start)(void); }
-		bam_data =
+		EE_COMPILER_SECTION(".boot_data") bam_data =
 		{ BAM_RCHW, ee_start };
 	*/
 	.section .bam_data

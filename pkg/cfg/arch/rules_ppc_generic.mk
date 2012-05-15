@@ -48,6 +48,11 @@ endif
 
 # VLE
 USE_VLE:=$(if $(call iseeopt, __VLE__),1,0)
+#ifeq ($(call iseeopt, __VLE__), yes)
+#USE_VLE = 1
+#else
+#USE_VLE = 0
+#endif
 
 # For compatibility with old code
 ifeq ($(call iseeopt, __E200Z7_EXECUTE_FROM_RAM__), yes)

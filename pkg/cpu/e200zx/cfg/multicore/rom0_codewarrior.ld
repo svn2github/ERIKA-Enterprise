@@ -44,11 +44,10 @@
  *         2011 Bernardo  Dal Seno
  *         2012 Francesco Esposito
  */
-FORCEACTIVE { "boot_data" "sscm" }
 SECTIONS
 {
 	GROUP : {
-		.boot_data LOAD(ADDR(.boot_data)): { }
+		.boot_data LOAD(ADDR(.boot_data)): { KEEP(*(.boot_data)) }
 		.boot LOAD(ADDR(.boot)): { }
 	} > boot
 

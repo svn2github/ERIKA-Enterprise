@@ -16,7 +16,7 @@ for d in output Debug Release debug; do
 # if [ -d $d ] return true if $d exists and is a directory
     if [ -d $d ]; then
 
-	for f in start.sh; do
+	for f in start.sh start_flash.sh; do
 	    if [ -r $d/$f ]; then
 		cd $d
                 if [ "$1" = "usb" ]; then
