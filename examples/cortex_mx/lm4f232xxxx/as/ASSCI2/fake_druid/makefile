@@ -64,6 +64,7 @@ EEOPT += __AS_DIO_DRIVER__
 EEOPT += __AS_MCU_DRIVER__
 EEOPT += __AS_PORT_DRIVER__
 EEOPT += __AS_SCI_DRIVER__
+EEOPT += __ADD_LIBS__
 
 ############################################################################
 #
@@ -132,6 +133,8 @@ ASFLAGS +=
 LDFLAGS +=
 LDDEPS  +=
 LIBS    +=
+
+LIB_OPT  += __LIB_AUTOSAR__
 
 
 ############################################################################

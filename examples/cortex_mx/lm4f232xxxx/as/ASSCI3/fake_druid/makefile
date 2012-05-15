@@ -64,6 +64,7 @@ EEOPT += __AS_DIO_DRIVER__
 EEOPT += __AS_MCU_DRIVER__
 EEOPT += __AS_PORT_DRIVER__
 EEOPT += __AS_SCI_DRIVER__
+EEOPT += __ADD_LIBS__
 
 ############################################################################
 #
@@ -127,11 +128,13 @@ STELLARIS_MODEL           := LM4F232xxxx
 # Flags
 #
 ############################################################################
-CFLAGS  += -DEE_CORTEX_MX_UART_4_ISR_PRI=0x00000001
+CFLAGS  +=
 ASFLAGS +=
 LDFLAGS +=
 LDDEPS  +=
 LIBS    +=
+
+LIB_OPT  += __LIB_AUTOSAR__
 
 
 ############################################################################

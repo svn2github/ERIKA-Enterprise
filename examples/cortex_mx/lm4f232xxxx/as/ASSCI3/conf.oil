@@ -73,6 +73,12 @@ CPU test_application {
 		EE_OPT = "__AS_PORT_DRIVER__";
 		EE_OPT = "__AS_SCI_DRIVER__";
 
+		/* Used to build separate libas.a without configuration */
+		EE_OPT = "__ADD_LIBS__";
+		LIB = ENABLE {
+			NAME = "AUTOSAR";
+		};
+
 		STATUS = EXTENDED;
 		STARTUPHOOK = FALSE;
 		ERRORHOOK = FALSE;

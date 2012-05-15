@@ -114,7 +114,7 @@ int main(void)
     EE_ASSERT_INIT
   );
 
-  Mcu_Init(MCU_CONFIG_PTR);
+  Mcu_Init(MCU_CONFIG_DEFAULT_PTR);
 
   Mcu_InitClock(MCU_CLOCK_MODE_MOSC_4_PLL);
 
