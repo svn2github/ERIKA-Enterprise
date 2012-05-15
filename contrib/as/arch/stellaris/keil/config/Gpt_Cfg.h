@@ -2098,7 +2098,7 @@ void Gpt_Notification_Channel_J_W_4(
 void Gpt_Notification_Channel_J_W_5(
   void
 );
-#endif
+#endif	/* GPT_ENABLE_DISABLE_NOTIFICATION_API == STD_ON */
 
 /** @brief	GPT Configuration Parameters
  *
@@ -2129,7 +2129,7 @@ typedef struct {
    *  This container contains the configuration (parameters) for the channel
    *  settings of the GPT.
    */
-  Gpt_ChannelConfigType *	GptChannels;
+  const Gpt_ChannelConfigType *	GptChannels;
 
 } Gpt_ConfigType;
 

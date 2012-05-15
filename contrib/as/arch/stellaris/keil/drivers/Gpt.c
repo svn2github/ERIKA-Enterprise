@@ -109,13 +109,15 @@
   }
 #endif	/* !GPT_DEV_ERROR_DETECT */
 
-/* GPT Harware Unit Mask */
+/* GPT Hardware Unit Mask */
 #define	HW_CH_UNIT_MASK		0x00000001	/* Mask			*/
-#define	HW_CH_UNIT_MASK_SZ	0x00000001	/* Mask Size		*/
 #define	HW_CH_UNIT_MASK_SZ_S	0x00000001	/* Mask Size Shift Bits */
 
 /* GPT Hardware Module Mask */
 #define	HW_CH_MOD_MASK		0x0000003E	/* Mask */
+
+/* GPT Hardware Base Address */
+#define	HW_BASE_ADDR		&TIMER0_CFG_R
 
 /* Hardware Abstraction */
 #include "Hardware.h"
@@ -758,7 +760,7 @@ static void Gpt_ResetChannel(
  * Gpt Channel Initialization.
  */
 static void Gpt_InitGptChannel(
-  Gpt_ChannelConfigType *	ConfigPtr
+  const Gpt_ChannelConfigType *	ConfigPtr
 )
 {
 
@@ -824,7 +826,7 @@ static void Gpt_InitGptChannel(
  */
 #if ( GPT_DEINIT_API == STD_ON )
 static void Gpt_DeInitGptChannel(
-  Gpt_ChannelConfigType *	ConfigPtr
+  const Gpt_ChannelConfigType *	ConfigPtr
 )
 {
 

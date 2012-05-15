@@ -259,7 +259,7 @@ typedef void (*Gpt_Notification)(
  *  - GPT harware unit initialization parameters
  *  - SFR's settings affecting the GPT channels
  */
-extern Gpt_ConfigType	Gpt_Config[];
+extern const Gpt_ConfigType	Gpt_Config[];
 
 /** @brief	GPT Value Type
  *
