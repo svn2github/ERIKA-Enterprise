@@ -62,15 +62,11 @@
 
 #include "ee.h"
 
-#ifndef	ARRAY_SIZE
-#define	ARRAY_SIZE(_x)	(sizeof(_x)/sizeof((_x)[0]))
-#endif
-
 /* Development error macros. */
 #if ( SCI_DEV_ERROR_DETECT == STD_ON )
 
 #include "Det.h"
-#if defined(USE_DEM)
+#if defined(__AS_DEM__)
 #include "Dem.h"
 #endif
 
@@ -133,57 +129,13 @@ typedef struct
 } Mcu_GlobalType;
 extern Mcu_GlobalType Mcu_Global;
 
-/*
- * Supported Cores Identifitication Numbers
- */
-#define	CORE_CPUID_CORTEX_M4	0x410FC241
+/* UART Hardware Channel Unit Mask */
+#define	HW_CH_MOD_MASK		0x00000007	/* Mask			*/
 
-/*
- * Core Informations Container Type
- */
-typedef struct {
-  char		*Name;	/* Core Name String		*/
-  uint32	Id;	/* Core Identifier Number	*/
-} Sci_CoreInfoType;
+/* UART Hardware Base Address */
+#define	HW_BASE_ADDR		&UART0_DR_R
 
-/*
- * Supported Cores Array
- */
-Sci_CoreInfoType Sci_SupportedCoreArray[] =
-{
-  {
-    "CORE_ARM_CORTEX_M4",	/* .Name	*/
-    CORE_CPUID_CORTEX_M4,	/* .Id		*/
-  },
-};
-
-/*
- * Supported Core Information Retrieval
- */
-static Sci_CoreInfoType * Sci_GetSupportedCoreInfo(
-  uint32 Id
-)
-{
-  register uint32 i;
-  Sci_CoreInfoType *info = NULL;
-  for (i = 0; i < ARRAY_SIZE(Sci_SupportedCoreArray); i++) {
-    if (Sci_SupportedCoreArray[i].Id == Id) {
-      info = &Sci_SupportedCoreArray[i];
-    }
-  }
-  return info;
-}
-
-/*
- * Identify the core, just to check that we have support for it.
- */
-static boolean Sci_CheckCore( void ) {
-  /* NVIC - System Control Block - Register 64: CPUID */
-  register uint32 Id = NVIC_CPUID_R;
-  Sci_CoreInfoType *info = NULL;
-  info = Sci_GetSupportedCoreInfo(Id);
-  return (info != NULL);
-}
+#include "Hardware.h"	/* Hardware Abstraction Header File. */
 
 /*
  * Usefull Sci Channel Macros
@@ -193,155 +145,169 @@ static boolean Sci_CheckCore( void ) {
 #define	SCI_CLK_DIV_HIGH_SPEED	8
 #define	SCI_CLK_DIV_LOW_SPEED	16
 
+/* HW_CH_MOD_MASK */
 #define	SCI_CH_MASK		0x00000007		/* Channel Mask	      */
-#define	CH2MASK(_ch) (uint32)(_ch & SCI_CH_MASK)
 
+#define	CH2MASK(_ch) (uint32)(_ch & SCI_CH_MASK)	/* HW_CH_2_MOD */
+
+/* HW_MOD_ADDR_S */
 #define	SCI_CH_MASK_BITS	0x0000000C
+
+#define	CH2ADDR(_ch) (uint32)( \
+  ((uint32) &UART0_DR_R) + (HW_CH_2_MOD(_ch) << SCI_CH_MASK_BITS) \
+)
+/*
 #define	CH2ADDR(_ch) (uint32)( \
   ((uint32) &UART0_DR_R) + (CH2MASK(_ch) << SCI_CH_MASK_BITS) \
 )
+*/
 
 /* Clock Control */
 #define	SCI_CH_SYSCLK	0x000000000	/* System Clock			 */
 #define	SCI_CH_PIOSC	0x000000001	/* Precision Internal Oscillator */
 
 /* Channel Harware Register Offsets */
-#define	SCI_UART_DATA_R_OFFSET		0x00000000	/* Data               */
-#define	SCI_UART_RS_EC_R_OFFSET		0x00000004	/* Rx Status/Err Clr  */
-#define	SCI_UART_FLAG_R_OFFSET		0x00000018	/* Flags	      */
-#define	SCI_UART_IBRD_R_OFFSET		0x00000024	/* Integer BRD	      */
-#define	SCI_UART_FBRD_R_OFFSET		0x00000028	/* Fractional BRD     */
-#define	SCI_UART_LCRH_R_OFFSET		0x0000002C	/* Line Control	      */
-#define	SCI_UART_CTL_R_OFFSET		0x00000030	/* System Control     */
-#define	SCI_UART_IFLS_R_OFFSET		0x00000034	/* Int FIFO Lvl	      */
-#define	SCI_UART_IM_R_OFFSET		0x00000038	/* Interrupt Mask     */
-#define	SCI_UART_RIS_R_OFFSET		0x0000003C	/* Raw Int Status     */
-#define	SCI_UART_MIS_R_OFFSET		0x00000040	/* Masked Int Status  */
-#define	SCI_UART_IC_R_OFFSET		0x00000044	/* Interrupt Clear    */
-#define	SCI_UART_CC_R_OFFSET		0x00000FC8	/* Clock Control      */
+#define	UART_DATA_R_OFFSET		0x00000000	/* Data               */
+#define	UART_RS_EC_R_OFFSET		0x00000004	/* Rx Status/Err Clr  */
+#define	UART_FLAG_R_OFFSET		0x00000018	/* Flags	      */
+#define	UART_IBRD_R_OFFSET		0x00000024	/* Integer BRD	      */
+#define	UART_FBRD_R_OFFSET		0x00000028	/* Fractional BRD     */
+#define	UART_LCRH_R_OFFSET		0x0000002C	/* Line Control	      */
+#define	UART_CTL_R_OFFSET		0x00000030	/* System Control     */
+#define	UART_IFLS_R_OFFSET		0x00000034	/* Int FIFO Lvl	      */
+#define	UART_IM_R_OFFSET		0x00000038	/* Interrupt Mask     */
+#define	UART_RIS_R_OFFSET		0x0000003C	/* Raw Int Status     */
+#define	UART_MIS_R_OFFSET		0x00000040	/* Masked Int Status  */
+#define	UART_IC_R_OFFSET		0x00000044	/* Interrupt Clear    */
+#define	UART_CC_R_OFFSET		0x00000FC8	/* Clock Control      */
 
 /* Channel Interrupt Sources */
-#define	SCI_UART_INT_LME5	0x00008000	/* LIN Mode Edge 5	      */
-#define	SCI_UART_INT_LME1	0x00004000	/* LIN Mode Edge 1	      */
-#define	SCI_UART_INT_LMSB	0x00002000	/* LIN Mode Sync Break	      */
-#define	SCI_UART_INT_9BIT	0x00001000	/* 9-Bit Mode		      */
-#define	SCI_UART_INT_OE		0x00000400	/* Overrun Error	      */
-#define	SCI_UART_INT_BE		0x00000200	/* Break Error		      */
-#define	SCI_UART_INT_PE		0x00000100	/* Parity Error		      */
-#define	SCI_UART_INT_FE		0x00000080	/* Frame Error		      */
-#define	SCI_UART_INT_RT		0x00000040	/* Receive Timeout	      */
-#define	SCI_UART_INT_TX		0x00000020	/* Transmission		      */
-#define	SCI_UART_INT_RX		0x00000010	/* Reception		      */
-#define	SCI_UART_INT_DSR	0x00000008	/* Data Set Ready	      */
-#define	SCI_UART_INT_DCD	0x00000004	/* Data Carrier Detect	      */
-#define	SCI_UART_INT_CTS	0x00000002	/* Clear To Send	      */
-#define	SCI_UART_INT_RI		0x00000001	/* Ring Indicator	      */
+#define	UART_INT_LME5	0x00008000	/* LIN Mode Edge 5	      */
+#define	UART_INT_LME1	0x00004000	/* LIN Mode Edge 1	      */
+#define	UART_INT_LMSB	0x00002000	/* LIN Mode Sync Break	      */
+#define	UART_INT_9BIT	0x00001000	/* 9-Bit Mode		      */
+#define	UART_INT_OE	0x00000400	/* Overrun Error	      */
+#define	UART_INT_BE	0x00000200	/* Break Error		      */
+#define	UART_INT_PE	0x00000100	/* Parity Error		      */
+#define	UART_INT_FE	0x00000080	/* Frame Error		      */
+#define	UART_INT_RT	0x00000040	/* Receive Timeout	      */
+#define	UART_INT_TX	0x00000020	/* Transmission		      */
+#define	UART_INT_RX	0x00000010	/* Reception		      */
+#define	UART_INT_DSR	0x00000008	/* Data Set Ready	      */
+#define	UART_INT_DCD	0x00000004	/* Data Carrier Detect	      */
+#define	UART_INT_CTS	0x00000002	/* Clear To Send	      */
+#define	UART_INT_RI	0x00000001	/* Ring Indicator	      */
 
 /* Interrupt Receive Error	      */
-#define	SCI_UART_INT_RX_ERR	( \
-	SCI_UART_INT_OE  |	SCI_UART_INT_BE  | \
-	SCI_UART_INT_PE  |	SCI_UART_INT_FE \
+#define	UART_INT_RX_ERR	( \
+	UART_INT_OE  |	UART_INT_BE  |	UART_INT_PE  |	UART_INT_FE \
 )
 
 /* All Interrupt	      */
-#define	SCI_UART_INT_ALL	( \
-	SCI_UART_INT_LME5 |	SCI_UART_INT_LME1 |	SCI_UART_INT_LMSB | \
-	SCI_UART_INT_9BIT |	SCI_UART_INT_OE   |	SCI_UART_INT_BE   | \
-	SCI_UART_INT_PE   |	SCI_UART_INT_FE   |	SCI_UART_INT_RT   | \
-	SCI_UART_INT_TX   |	SCI_UART_INT_RX   |	SCI_UART_INT_DSR  | \
-	SCI_UART_INT_DCD  |	SCI_UART_INT_CTS  |	SCI_UART_INT_RI \
+#define	UART_INT_ALL	( \
+	UART_INT_LME5 |	UART_INT_LME1 |	UART_INT_LMSB |	UART_INT_9BIT | \
+	UART_INT_OE   |	UART_INT_BE   |	UART_INT_PE   |	UART_INT_FE   | \
+	UART_INT_RT   |	UART_INT_TX   |	UART_INT_RX   |	UART_INT_DSR  | \
+	UART_INT_DCD  |	UART_INT_CTS  |	UART_INT_RI \
 )
 
 /* Channel Hardware Registers Read/Write */
-#define	SCI_UART_REG(_ch,_ofs) (*((volatile uint32 *)(CH2ADDR(_ch) + _ofs)))
+#define	UART_REG(_ch,_ofs)	HW_CH_2_MOD_REG(_ch,_ofs)
 
-#define	SCI_UART_REG_SET(_ch,_ofs,_val)	(SCI_UART_REG(_ch,_ofs) = _val)
+#define	UART_REG_SET(_ch,_ofs,_val)	(UART_REG(_ch,_ofs) = _val)
 
-#define	SCI_UART_REG_AND(_ch,_ofs,_val)	(SCI_UART_REG(_ch,_ofs) & _val)
+#define	UART_REG_AND(_ch,_ofs,_val)	(UART_REG(_ch,_ofs) & _val)
 
-#define	SCI_UART_REG_OR(_ch,_ofs,_val)	(SCI_UART_REG(_ch,_ofs) | _val)
+#define	UART_REG_OR(_ch,_ofs,_val)	(UART_REG(_ch,_ofs) | _val)
 
-#define	SCI_UART_REG_AND_SET(_ch,_ofs,_val)	(SCI_UART_REG(_ch,_ofs) &= _val)
+#define	UART_REG_AND_SET(_ch,_ofs,_val)	(UART_REG(_ch,_ofs) &= _val)
 
-#define	SCI_UART_REG_OR_SET(_ch,_ofs,_val)	(SCI_UART_REG(_ch,_ofs) |= _val)
+#define	UART_REG_OR_SET(_ch,_ofs,_val)	(UART_REG(_ch,_ofs) |= _val)
 
 /* Utils */
-#define	RXDATA(_ch)	  SCI_UART_REG(_ch, SCI_UART_DATA_R_OFFSET)
+#define	UART_RX_DATA(_ch)	UART_REG(_ch, UART_DATA_R_OFFSET)
 
-#define	TXDATA(_ch,_data) SCI_UART_REG_SET(_ch, SCI_UART_DATA_R_OFFSET, _data)
+#define	UART_TX_DATA(_ch,_data)	UART_REG_SET(_ch, UART_DATA_R_OFFSET, _data)
 
-#define	RXERR(_ch)  SCI_UART_REG(_ch, SCI_UART_RS_EC_R_OFFSET)
+#define	UART_RX_ERR(_ch)	UART_REG(_ch, UART_RS_EC_R_OFFSET)
 
-#define	ERRCLR(_ch) SCI_UART_REG_SET(_ch, SCI_UART_RS_EC_R_OFFSET, 0x00000000)
+#define	UART_RX_ERR_CLR(_ch)	\
+	UART_REG_SET(_ch, UART_RS_EC_R_OFFSET, 0x00000000)
 
-#define	EMPTYRXFIFO(_ch) \
-  SCI_UART_REG_AND(_ch, SCI_UART_FLAG_R_OFFSET, UART_FR_RXFE)
+#define	UART_RX_FIFO_EMPTY(_ch)	\
+	UART_REG_AND(_ch, UART_FLAG_R_OFFSET, UART_FR_RXFE)
 
-#define	FULLRXFIFO(_ch) \
-  SCI_UART_REG_AND(_ch, SCI_UART_FLAG_R_OFFSET, UART_FR_RXFF)
+#define	UART_RX_FIFO_FULL(_ch)	\
+	UART_REG_AND(_ch, UART_FLAG_R_OFFSET, UART_FR_RXFF)
 
-#define	EMPTYTXFIFO(_ch) \
-  SCI_UART_REG_AND(_ch, SCI_UART_FLAG_R_OFFSET, UART_FR_TXFE)
+#define	UART_TX_FIFO_EMPTY(_ch)	\
+	UART_REG_AND(_ch, UART_FLAG_R_OFFSET, UART_FR_TXFE)
 
-#define	FULLTXFIFO(_ch) \
-  SCI_UART_REG_AND(_ch, SCI_UART_FLAG_R_OFFSET, UART_FR_TXFF)
+#define	UART_TX_FIFO_FULL(_ch)	\
+	UART_REG_AND(_ch, UART_FLAG_R_OFFSET, UART_FR_TXFF)
 
-#define	BUSY(_ch) \
-  SCI_UART_REG_AND(_ch, SCI_UART_FLAG_R_OFFSET, UART_FR_BUSY)
+#define	UART_BUSY(_ch)		\
+	UART_REG_AND(_ch, UART_FLAG_R_OFFSET, UART_FR_BUSY)
 
-#define	FLUSHFIFO(_ch) \
-  SCI_UART_REG_AND_SET(_ch,SCI_UART_LCRH_R_OFFSET, ~SCI_CH_HW_FIFO)
+#define	UART_FIFO_FLUSH(_ch)	\
+	UART_REG_AND_SET(_ch, UART_LCRH_R_OFFSET, ~SCI_CH_HW_FIFO)
 
-#define	CHEN(_ch) \
-  SCI_UART_REG_OR_SET(_ch, SCI_UART_CTL_R_OFFSET, SCI_CH_HW_ENABLE)
+#define	UART_ENABLE(_ch)	\
+	UART_REG_OR_SET(_ch, UART_CTL_R_OFFSET, SCI_CH_HW_ENABLE)
 
-#define	CHENRX(_ch) \
-  SCI_UART_REG_OR_SET(_ch, SCI_UART_CTL_R_OFFSET, SCI_CH_HW_RX)
+#define	UART_ENABLE_RX(_ch)	\
+	UART_REG_OR_SET(_ch, UART_CTL_R_OFFSET, SCI_CH_HW_RX)
 
-#define	CHENTX(_ch) \
-  SCI_UART_REG_OR_SET(_ch, SCI_UART_CTL_R_OFFSET, SCI_CH_HW_TX)
+#define	UART_ENABLE_TX(_ch)	\
+	UART_REG_OR_SET(_ch, UART_CTL_R_OFFSET, SCI_CH_HW_TX)
 
-#define	CHDIS(_ch) \
-  SCI_UART_REG_AND_SET(_ch, SCI_UART_CTL_R_OFFSET, ~SCI_CH_HW_ENABLE)
+#define	UART_DISABLE(_ch)	\
+	UART_REG_AND_SET(_ch, UART_CTL_R_OFFSET, ~SCI_CH_HW_ENABLE)
 
-#define	CHDISRX(_ch) \
-  SCI_UART_REG_AND_SET(_ch, SCI_UART_CTL_R_OFFSET, ~SCI_CH_HW_RX)
+#define	UART_DISABLE_RX(_ch)	\
+	UART_REG_AND_SET(_ch, UART_CTL_R_OFFSET, ~SCI_CH_HW_RX)
 
-#define	CHDISTX(_ch) \
-  SCI_UART_REG_AND_SET(_ch, SCI_UART_CTL_R_OFFSET, ~SCI_CH_HW_TX)
+#define	UART_DISABLE_TX(_ch)	\
+	UART_REG_AND_SET(_ch, UART_CTL_R_OFFSET, ~SCI_CH_HW_TX)
 
-#define	CLKSYS(_ch)   SCI_UART_REG_SET(_ch, SCI_UART_CC_R_OFFSET, SCI_CH_SYSCLK)
+#define	UART_CLK_SYS(_ch)	\
+	UART_REG_SET(_ch, UART_CC_R_OFFSET, SCI_CH_SYSCLK)
 
-#define	CLKPIOSC(_ch) SCI_UART_REG_SET(_ch, SCI_UART_CC_R_OFFSET, SCI_CH_PIOSC)
+#define	UART_CLK_PIOSC(_ch)	\
+	UART_REG_SET(_ch, UART_CC_R_OFFSET, SCI_CH_PIOSC)
 
-#define	BRD(_br,_clk,_div) (_clk / ((float32) (_div * _br)))
+#define	UART_BRD(_br,_clk,_div)	(_clk / ((float32) (_div * _br)))
 
-#define	SETIBRD(_ch,_ibrd) SCI_UART_REG_SET(_ch, SCI_UART_IBRD_R_OFFSET, _ibrd)
+#define	UART_SET_IBRD(_ch,_ibrd)	\
+	UART_REG_SET(_ch, UART_IBRD_R_OFFSET, _ibrd)
 
-#define	SETFBRD(_ch,_fbrd) SCI_UART_REG_SET(_ch, SCI_UART_FBRD_R_OFFSET, _fbrd)
+#define	UART_SET_FBRD(_ch,_fbrd)	\
+	UART_REG_SET(_ch, UART_FBRD_R_OFFSET, _fbrd)
 
-#define	SETLINECTRL(_ch,_ctrl) \
-  SCI_UART_REG_SET(_ch, SCI_UART_LCRH_R_OFFSET, _ctrl)
+#define	UART_SET_LINE_CTRL(_ch,_ctrl)	\
+	UART_REG_SET(_ch, UART_LCRH_R_OFFSET, _ctrl)
 
-#define	SETSYSCTRL(_ch,_ctrl) \
-  SCI_UART_REG_SET(_ch, SCI_UART_CTL_R_OFFSET, _ctrl)
+#define	UART_SET_SYS_CTRL(_ch,_ctrl)	\
+	UART_REG_SET(_ch, UART_CTL_R_OFFSET, _ctrl)
 
-#define	RIS(_ch)	  SCI_UART_REG(_ch, SCI_UART_RIS_R_OFFSET)
+#define	UART_RIS(_ch)		UART_REG(_ch, UART_RIS_R_OFFSET)
 
-#define	MIS(_ch)	  SCI_UART_REG(_ch, SCI_UART_MIS_R_OFFSET)
+#define	UART_MIS(_ch)	 	UART_REG(_ch, UART_MIS_R_OFFSET)
 
-#define	INTCLR(_ch,_srcs) SCI_UART_REG_OR_SET(_ch, SCI_UART_IC_R_OFFSET, _srcs)
+#define	UART_INT_CLEAR(_ch,_srcs)	\
+	UART_REG_OR_SET(_ch, UART_IC_R_OFFSET, _srcs)
 
-#define	INTEN(_ch,_srcs)  SCI_UART_REG_OR_SET(_ch, SCI_UART_IM_R_OFFSET, _srcs)
+#define	UART_INT_ENABLE(_ch,_srcs)	\
+	UART_REG_OR_SET(_ch, UART_IM_R_OFFSET, _srcs)
 
-#define	INTDIS(_ch,_srcs) \
-	SCI_UART_REG_AND_SET(_ch, SCI_UART_IM_R_OFFSET, ~((uint32)_srcs))
+#define	UART_INT_DISABLE(_ch,_srcs)	\
+	UART_REG_AND_SET(_ch, UART_IM_R_OFFSET, ~((uint32)_srcs))
 
 /*
  * Sci Channel Initialization.
  */
 static void Sci_InitSciChannel(
-  Sci_ChannelConfigType *	ConfigPtr
+  const Sci_ChannelConfigType *	ConfigPtr
 )
 {
 
@@ -349,65 +315,66 @@ static void Sci_InitSciChannel(
   register float32	clk;	/* Clock Frequency	*/
 
   /* Enables Sci Module in Run-Mode */
-  SYSCTL_RCGCUART_R |= 
-  (uint32) (SYSCTL_RCGCUART_R0 << CH2MASK(ConfigPtr->SciChannelId));
+  SYSCTL_RCGCUART_R |= HW_CH_2_CGC_MASK(ConfigPtr->SciChannelId);
 
   /* Disables Channel */
-  CHDIS(ConfigPtr->SciChannelId);
+  UART_DISABLE(ConfigPtr->SciChannelId);
 
   /* Flushes Fifo */
-  FLUSHFIFO(ConfigPtr->SciChannelId);
+  UART_FIFO_FLUSH(ConfigPtr->SciChannelId);
 
   /* Waits end of transmission/reception */
   while(
-    BUSY(ConfigPtr->SciChannelId) ||
-    !EMPTYTXFIFO(ConfigPtr->SciChannelId) ||
-    !EMPTYRXFIFO(ConfigPtr->SciChannelId)
+    UART_BUSY(ConfigPtr->SciChannelId) ||
+    !UART_TX_FIFO_EMPTY(ConfigPtr->SciChannelId) ||
+    !UART_RX_FIFO_EMPTY(ConfigPtr->SciChannelId)
   );
 
   /* Clear Errors */
-  ERRCLR(ConfigPtr->SciChannelId);
+  UART_RX_ERR_CLR(ConfigPtr->SciChannelId);
 
   /* UART Baud Clock Source */
   if ( ConfigPtr->SciSysClock == TRUE ) {
-    CLKSYS(ConfigPtr->SciChannelId);
+    UART_CLK_SYS(ConfigPtr->SciChannelId);
     clk =
     Mcu_Global.ConfigPtr->McuClockSettingConfig[
     	Mcu_Global.ClockSetting
     ].McuClockReferencePointFrequency;
   }
   else {
-    CLKPIOSC(ConfigPtr->SciChannelId);
+    UART_CLK_PIOSC(ConfigPtr->SciChannelId);
     clk = SCI_PIOSC_FREQ;
   }
 
   /* Baud-Rate Divisor computation waiting the peripheral to enable. */
   if ( ConfigPtr->SciSysCtrl & SCI_CH_HW_HIGH_SPEED )
     /* Clock Divider: 8 */
-    brd = BRD(ConfigPtr->SciChannelBaudRate, clk, SCI_CLK_DIV_HIGH_SPEED);
+    brd = UART_BRD(ConfigPtr->SciChannelBaudRate, clk, SCI_CLK_DIV_HIGH_SPEED);
   else
     /* Clock Divider: 16 */
-    brd = BRD(ConfigPtr->SciChannelBaudRate, clk, SCI_CLK_DIV_LOW_SPEED);
+    brd = UART_BRD(ConfigPtr->SciChannelBaudRate, clk, SCI_CLK_DIV_LOW_SPEED);
 
   /* Integer Baud-Rate Divisor Sets-Up */
-  SETIBRD(ConfigPtr->SciChannelId, (uint32) brd);
+  UART_SET_IBRD(ConfigPtr->SciChannelId, (uint32) brd);
 
   /* Fractional Baud-Rate Divisor Sets-Up */
-  SETFBRD(ConfigPtr->SciChannelId, (uint32) ((brd - ((uint32) brd))*64 + 0.5));
+  UART_SET_FBRD(
+    ConfigPtr->SciChannelId, (uint32) ((brd - ((uint32) brd))*64 + 0.5)
+  );
 
   /* Line Control Sets-Up */
-  SETLINECTRL(ConfigPtr->SciChannelId, ConfigPtr->SciLineCtrl);
+  UART_SET_LINE_CTRL(ConfigPtr->SciChannelId, ConfigPtr->SciLineCtrl);
 
   /* System Control Sets-Up */
-  SETSYSCTRL(
+  UART_SET_SYS_CTRL(
     ConfigPtr->SciChannelId, (ConfigPtr->SciSysCtrl & ~SCI_CH_HW_ENABLE)
   );
 
   /* Clear Interrupt */
-  INTCLR(ConfigPtr->SciChannelId, SCI_UART_INT_ALL);
+  UART_INT_CLEAR(ConfigPtr->SciChannelId, UART_INT_ALL);
 
   /* Enables Channel */
-  CHEN(ConfigPtr->SciChannelId);
+  UART_ENABLE(ConfigPtr->SciChannelId);
 
 }
 
@@ -416,58 +383,21 @@ static void Sci_InitSciChannel(
  */
 #if ( SCI_DEINIT_API == STD_ON )
 static void Sci_DeInitSciChannel(
-  Sci_ChannelConfigType *	ConfigPtr
+  const Sci_ChannelConfigType *	ConfigPtr
 )
 {
 
-  if ( 
-    SYSCTL_RCGCUART_R & 
-    ((uint32) (SYSCTL_RCGCUART_R0 << CH2MASK(ConfigPtr->SciChannelId))) 
-  )
-    /* Enables Sci Module in Run-Mode */
-    SYSCTL_RCGCUART_R |= 
-    (uint32) (SYSCTL_RCGCUART_R0 << CH2MASK(ConfigPtr->SciChannelId));
+  register uint32	mask = HW_CH_2_CGC_MASK(ConfigPtr->SciChannelId);
 
-  /* Disables Channel */
-  CHDIS(ConfigPtr->SciChannelId);
+  /* Enables Sci Module in Run-Mode */
+  if ( !( SYSCTL_RCGCUART_R & mask ) )	SYSCTL_RCGCUART_R |= mask;
 
-  /* Flushes Fifo */
-  FLUSHFIFO(ConfigPtr->SciChannelId);
-
-  /* Waits end of transmission/reception */
-  while(
-    BUSY(ConfigPtr->SciChannelId) ||
-    !EMPTYTXFIFO(ConfigPtr->SciChannelId) ||
-    !EMPTYRXFIFO(ConfigPtr->SciChannelId)
-  );
-
-  /* Clear Errors */
-  ERRCLR(ConfigPtr->SciChannelId);
-
-  /* UART Baud Clock Source */
-  CLKSYS(ConfigPtr->SciChannelId);
-
-  /* Integer Baud-Rate Divisor Sets-Up */
-  SETIBRD(ConfigPtr->SciChannelId, (uint32) STD_OFF);
-
-  /* Fractional Baud-Rate Divisor Sets-Up */
-  SETFBRD(ConfigPtr->SciChannelId, (uint32) STD_OFF);
-
-  /* Line Control Sets-Up */
-  SETLINECTRL(ConfigPtr->SciChannelId, (uint32) STD_OFF);
-
-  /* System Control Sets-Up */
-  SETSYSCTRL(ConfigPtr->SciChannelId, (SCI_CH_HW_RX | SCI_CH_HW_TX));
-
-  /* Clear Interrupt */
-  INTCLR(ConfigPtr->SciChannelId, SCI_UART_INT_ALL);
-
-  /* Disable Interrupt */
-  INTDIS(ConfigPtr->SciChannelId, SCI_UART_INT_ALL);
+  SYSCTL_SRUART_R |= mask;			/* Start Channel Module Reset */
+  SYSCTL_SRUART_R &= ~mask;			/* Stop  Channel Module Reset */
+  while ( !( SYSCTL_PRUART_R & mask ) );	/* Wait Reset		      */
 
   /* Disables Sci Module in Run-Mode */
-  SYSCTL_RCGCUART_R &= 
-  ~((uint32) (SYSCTL_RCGCUART_R0 << CH2MASK(ConfigPtr->SciChannelId)));
+  SYSCTL_RCGCUART_R &= ~(mask);
 
 }
 #endif
@@ -482,9 +412,9 @@ void Sci_Init(
 
   register uint32 channel;
 
-  VALIDATE( ( ConfigPtr != NULL), SCI_INIT_SERVICE_ID, SCI_E_PARAM_CONFIG );
+  VALIDATE( ( ConfigPtr != NULL ), SCI_INIT_SERVICE_ID, SCI_E_PARAM_CONFIG );
 
-  VALIDATE( ( Sci_CheckCore() != FALSE), SCI_INIT_SERVICE_ID, SCI_E_UNINIT );
+  VALIDATE( ( Hw_CheckCore() == E_OK ), SCI_INIT_SERVICE_ID, SCI_E_UNINIT );
 
   Sci_Global.ConfigPtr = ConfigPtr;
   Sci_Global.Init = TRUE;
@@ -523,15 +453,15 @@ Std_ReturnType Sci_WriteTxData(
   );
 
   VALIDATE_W_RV(
-    ( SYSCTL_RCGCUART_R & ((uint32) (SYSCTL_RCGCUART_R0 << CH2MASK(Channel))) ),
+    ( SYSCTL_RCGCUART_R & HW_CH_2_CGC_MASK(Channel) ),
     SCI_WRITETXDATA_SERVICE_ID,
     SCI_E_STATE_TRANSITION,
     E_NOT_OK
   );
 
-  if (FULLTXFIFO(Channel)) return E_NOT_OK;
+  if (UART_TX_FIFO_FULL(Channel)) return E_NOT_OK;
 
-  TXDATA(Channel, (uint32) Data);
+  UART_TX_DATA(Channel, (uint32) Data);
 
   return E_OK;
 
@@ -563,7 +493,7 @@ Std_ReturnType Sci_ReadRxData(
   );
 
   VALIDATE_W_RV(
-    ( SYSCTL_RCGCUART_R & ((uint32) (SYSCTL_RCGCUART_R0 << CH2MASK(Channel))) ),
+    ( SYSCTL_RCGCUART_R & HW_CH_2_CGC_MASK(Channel) ),
     SCI_READRXDATA_SERVICE_ID,
     SCI_E_STATE_TRANSITION,
     E_NOT_OK
@@ -576,9 +506,9 @@ Std_ReturnType Sci_ReadRxData(
     E_NOT_OK
   );
 
-  if (EMPTYRXFIFO(Channel)) return E_NOT_OK;
+  if (UART_RX_FIFO_EMPTY(Channel)) return E_NOT_OK;
 
-  rx = RXDATA(Channel);
+  rx = UART_RX_DATA(Channel);
   (*DataPtr) = (uint8) rx;
 
   return E_OK;
@@ -606,13 +536,11 @@ void Sci_EnableNotifications(
     SCI_E_INVALID_CHANNEL
   );
 
-  if (
-    SYSCTL_RCGCUART_R & ((uint32) (SYSCTL_RCGCUART_R0 << CH2MASK(Channel)))
-  ) {
+  if ( SYSCTL_RCGCUART_R & HW_CH_2_CGC_MASK(Channel) ) {
 
-    INTEN(
+    UART_INT_ENABLE(
       Channel,
-      SCI_UART_INT_TX | SCI_UART_INT_RX | SCI_UART_INT_RT | SCI_UART_INT_RX_ERR
+      UART_INT_TX | UART_INT_RX | UART_INT_RT | UART_INT_RX_ERR
     );
   
   };
@@ -639,13 +567,11 @@ void Sci_DisableNotifications(
     SCI_E_INVALID_CHANNEL
   );
 
-  if (
-    SYSCTL_RCGCUART_R & ((uint32) (SYSCTL_RCGCUART_R0 << CH2MASK(Channel)))
-  ) {
+  if ( SYSCTL_RCGCUART_R & HW_CH_2_CGC_MASK(Channel) ) {
 
-    INTDIS(
+    UART_INT_DISABLE(
       Channel,
-      SCI_UART_INT_TX | SCI_UART_INT_RX | SCI_UART_INT_RT | SCI_UART_INT_RX_ERR
+      UART_INT_TX | UART_INT_RX | UART_INT_RT | UART_INT_RX_ERR
     );
 
   }
@@ -662,6 +588,8 @@ Std_ReturnType Sci_GoToSleep(
 )
 {
 
+  register uint32	mask = HW_CH_2_CGC_MASK(Channel);
+
   VALIDATE_W_RV(
     ( Sci_Global.Init == TRUE ),
     SCI_GOTOSLEEP_SERVICE_ID,
@@ -677,14 +605,14 @@ Std_ReturnType Sci_GoToSleep(
   );
 
   VALIDATE_W_RV(
-    ( SYSCTL_RCGCUART_R & ((uint32) (SYSCTL_RCGCUART_R0 << CH2MASK(Channel))) ),
+    ( SYSCTL_RCGCUART_R & mask ),
     SCI_GOTOSLEEP_SERVICE_ID,
     SCI_E_STATE_TRANSITION,
     E_NOT_OK
   );
 
   /* Disables Sci Module in Run-Mode */
-  SYSCTL_RCGCUART_R &= ~((uint32) (SYSCTL_RCGCUART_R0 << CH2MASK(Channel)));
+  SYSCTL_RCGCUART_R &= ~mask;
 
   return E_OK;
 
@@ -700,6 +628,8 @@ Std_ReturnType Sci_Wakeup(
 )
 {
 
+  register uint32	mask = HW_CH_2_CGC_MASK(Channel);
+
   VALIDATE_W_RV(
     ( Sci_Global.Init == TRUE ),
     SCI_WAKEUP_SERVICE_ID,
@@ -715,18 +645,14 @@ Std_ReturnType Sci_Wakeup(
   );
 
   VALIDATE_W_RV(
-    ( 
-      !(
-        SYSCTL_RCGCUART_R & ((uint32) (SYSCTL_RCGCUART_R0 << CH2MASK(Channel)))
-       )
-    ),
+    ( !( SYSCTL_RCGCUART_R & mask ) ),
     SCI_WAKEUP_SERVICE_ID,
     SCI_E_STATE_TRANSITION,
     E_NOT_OK
   );
 
   /* Enables Sci Module in Run-Mode */
-  SYSCTL_RCGCUART_R |= (uint32) (SYSCTL_RCGCUART_R0 << CH2MASK(Channel));
+  SYSCTL_RCGCUART_R |= mask;
 
   return E_OK;
 
@@ -758,26 +684,26 @@ Sci_StatusType Sci_GetStatus(
   );
 
   VALIDATE_W_RV(
-    ( SYSCTL_RCGCUART_R & ((uint32) (SYSCTL_RCGCUART_R0 << CH2MASK(Channel))) ),
+    ( SYSCTL_RCGCUART_R & HW_CH_2_CGC_MASK(Channel) ),
     SCI_GETSTATUS_SERVICE_ID,
     SCI_E_STATE_TRANSITION,
     SCI_CH_SLEEP
   );
 
   VALIDATE_W_RV(
-    ( !(RIS(Channel) & SCI_UART_INT_RT) ),
+    ( !(UART_RIS(Channel) & UART_INT_RT) ),
     SCI_GETSTATUS_SERVICE_ID,
     SCI_E_TIMEOUT,
     SCI_NOT_OK
   );
 
-  if (!EMPTYRXFIFO(Channel)) {
-    if (RXERR(Channel))		ret = SCI_RX_ERROR;
+  if (!UART_RX_FIFO_EMPTY(Channel)) {
+    if (UART_RX_ERR(Channel))	ret = SCI_RX_ERROR;
     else			ret = SCI_RX_OK;
   }
-  else if (BUSY(Channel))	ret = SCI_TX_BUSY;
+  else if (UART_BUSY(Channel))	ret = SCI_TX_BUSY;
   else if (
-    ( RIS(Channel) & SCI_UART_INT_TX ) || ( MIS(Channel) & SCI_UART_INT_TX )
+    ( UART_RIS(Channel) & UART_INT_TX ) || ( UART_MIS(Channel) & UART_INT_TX )
   )				ret = SCI_TX_OK;
   else				ret = SCI_OPERATIONAL;
 
@@ -841,7 +767,7 @@ Std_ReturnType Sci_CheckWakeup(
   );
 
   VALIDATE_W_RV(
-    ( SYSCTL_RCGCUART_R & ((uint32) (SYSCTL_RCGCUART_R0 << CH2MASK(Channel))) ),
+    ( SYSCTL_RCGCUART_R & HW_CH_2_CGC_MASK(Channel) ),
     SCI_CHECKWAKEUP_SERVICE_ID,
     SCI_E_STATE_TRANSITION,
     E_NOT_OK
@@ -875,26 +801,26 @@ Std_ReturnType Sci_DisableTx(
   );
 
   VALIDATE_W_RV(
-    ( SYSCTL_RCGCUART_R & ((uint32) (SYSCTL_RCGCUART_R0 << CH2MASK(Channel))) ),
+    ( SYSCTL_RCGCUART_R & HW_CH_2_CGC_MASK(Channel) ),
     SCI_DISABLETX_SERVICE_ID,
     SCI_E_STATE_TRANSITION,
     E_NOT_OK
   );
 
   /* Disables Channel */
-  CHDIS(Channel);
+  UART_DISABLE(Channel);
 
   /* Flushes Fifo */
-  FLUSHFIFO(Channel);
+  UART_FIFO_FLUSH(Channel);
 
   /* Waits end of transmission/reception */
-  while(BUSY(Channel) || !EMPTYTXFIFO(Channel));
+  while(UART_BUSY(Channel) || !UART_TX_FIFO_EMPTY(Channel));
 
   /* Disable TX */
-  CHDISTX(Channel);
+  UART_DISABLE_TX(Channel);
 
   /* Enables Channel */
-  CHEN(Channel);
+  UART_ENABLE(Channel);
 
   return E_OK;
 
@@ -923,26 +849,26 @@ Std_ReturnType Sci_EnableTx(
   );
 
   VALIDATE_W_RV(
-    ( SYSCTL_RCGCUART_R & ((uint32) (SYSCTL_RCGCUART_R0 << CH2MASK(Channel))) ),
+    ( SYSCTL_RCGCUART_R & HW_CH_2_CGC_MASK(Channel) ),
     SCI_ENABLETX_SERVICE_ID,
     SCI_E_STATE_TRANSITION,
     E_NOT_OK
   );
 
   /* Disables Channel */
-  CHDIS(Channel);
+  UART_DISABLE(Channel);
 
   /* Flushes Fifo */
-  FLUSHFIFO(Channel);
+  UART_FIFO_FLUSH(Channel);
 
   /* Waits end of transmission/reception */
-  while(BUSY(Channel));
+  while(UART_BUSY(Channel));
 
   /* Enable TX */
-  CHENTX(Channel);
+  UART_ENABLE_TX(Channel);
 
   /* Enables Channel */
-  CHEN(Channel);
+  UART_ENABLE(Channel);
 
   return E_OK;
 
@@ -971,26 +897,26 @@ Std_ReturnType Sci_DisableRx(
   );
 
   VALIDATE_W_RV(
-    ( SYSCTL_RCGCUART_R & ((uint32) (SYSCTL_RCGCUART_R0 << CH2MASK(Channel))) ),
+    ( SYSCTL_RCGCUART_R & HW_CH_2_CGC_MASK(Channel) ),
     SCI_DISABLERX_SERVICE_ID,
     SCI_E_STATE_TRANSITION,
     E_NOT_OK
   );
 
   /* Disables Channel */
-  CHDIS(Channel);
+  UART_DISABLE(Channel);
 
   /* Flushes Fifo */
-  FLUSHFIFO(Channel);
+  UART_FIFO_FLUSH(Channel);
 
   /* Waits end of transmission/reception */
-  while(BUSY(Channel) || !EMPTYRXFIFO(Channel));
+  while(UART_BUSY(Channel) || !UART_RX_FIFO_EMPTY(Channel));
 
   /* Disable RX */
-  CHDISRX(Channel);
+  UART_DISABLE_RX(Channel);
 
   /* Enables Channel */
-  CHEN(Channel);
+  UART_ENABLE(Channel);
 
   return E_OK;
 
@@ -1019,26 +945,26 @@ Std_ReturnType Sci_EnableRx(
   );
 
   VALIDATE_W_RV(
-    ( SYSCTL_RCGCUART_R & ((uint32) (SYSCTL_RCGCUART_R0 << CH2MASK(Channel))) ),
+    ( SYSCTL_RCGCUART_R & HW_CH_2_CGC_MASK(Channel) ),
     SCI_ENABLERX_SERVICE_ID,
     SCI_E_STATE_TRANSITION,
     E_NOT_OK
   );
 
   /* Disables Channel */
-  CHDIS(Channel);
+  UART_DISABLE(Channel);
 
   /* Flushes Fifo */
-  FLUSHFIFO(Channel);
+  UART_FIFO_FLUSH(Channel);
 
   /* Waits end of transmission/reception */
-  while(BUSY(Channel));
+  while(UART_BUSY(Channel));
 
   /* Enable RX */
-  CHENRX(Channel);
+  UART_ENABLE_RX(Channel);
 
   /* Enables Channel */
-  CHEN(Channel);
+  UART_ENABLE(Channel);
 
   return E_OK;
 

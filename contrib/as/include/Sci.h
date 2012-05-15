@@ -276,7 +276,7 @@ typedef void (*Sci_RxErrNotification)(
  *  - SCI harware unit initialization parameters
  *  - SFR's settings affecting the SCI channels
  */
-extern Sci_ConfigType Sci_Config[];
+extern const Sci_ConfigType Sci_Config[];
 
 /** @brief	SCI Status Type
  *

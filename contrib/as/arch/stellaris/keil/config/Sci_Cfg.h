@@ -675,7 +675,7 @@ typedef struct {
    *  This container contains the configuration (parameters) for the channel
    *  settings of the SCI.
    */
-  Sci_ChannelConfigType *		SciChannels;
+  const Sci_ChannelConfigType *		SciChannels;
 
 #if ( SCI_DEV_ERROR_DETECT == STD_ON )
   /** @brief	DEM Event Configuration Parameters

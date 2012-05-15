@@ -50,6 +50,7 @@
 #define	SCI_AR_RELEASE_MINOR_VERSION	0
 
 #include "Sci.h"
+#include "eecfg.h"
 
 /*
  * For included (external) header files:
@@ -65,7 +66,7 @@
 /*
  * Sci Channels Configuration.
  */
-Sci_ChannelConfigType SciChannels[] = {
+const Sci_ChannelConfigType SciChannels[] = {
   { /* UART0 */
     SCI_CHANNEL_0,			/* SciChannelId			      */
     2400,				/* SciChannelBaudRate		      */
@@ -166,11 +167,18 @@ Sci_ChannelConfigType SciChannels[] = {
     /*SCI_CH_HW_FIFO |*/		/* - UART Enable FIFOs		      */
     SCI_CH_HW_8_BITS,			/* - 8 bits, 1 stop bit, No parity    */
 #if ( SCI_NOTIFICATIONS_API == STD_ON )
+#ifdef	EE_CORTEX_MX_UART_4_ISR
     &Sci_TxNotifications_Channel_4,	/* SciTxNotificationPtr		      */
     &Sci_TxErrNotifications_Channel_4,	/* SciTxErrNotificationPtr	      */
     &Sci_RxNotifications_Channel_4,	/* SciRxNotificationPtr		      */
     &Sci_RxErrNotifications_Channel_4	/* SciRxErrNotificationPtr	      */
-#endif
+#else	/* EE_CORTEX_MX_UART_4_ISR	*/
+    NULL_PTR,				/* SciTxNotificationPtr		      */
+    NULL_PTR,				/* SciTxErrNotificationPtr	      */
+    NULL_PTR,				/* SciRxNotificationPtr		      */
+    NULL_PTR				/* SciRxErrNotificationPtr	      */
+#endif	/* !EE_CORTEX_MX_UART_4_ISR	*/
+#endif	/* SCI_NOTIFICATIONS_API == STD_ON */
   },
   { /* UART5 */
     SCI_CHANNEL_5,			/* SciChannelId			      */
@@ -240,7 +248,7 @@ Sci_ChannelConfigType SciChannels[] = {
 /*
  * This container is the base of a multiple configuration set.
  */
-Sci_ConfigType Sci_Config[] = {
+const Sci_ConfigType Sci_Config[] = {
   {
     SCI_CHANNELS_NUMBER,	/* SciNumberOfSciChannels	*/
     &SciChannels[0]		/* SciChannels			*/
