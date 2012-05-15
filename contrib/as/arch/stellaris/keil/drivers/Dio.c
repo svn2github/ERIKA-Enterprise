@@ -68,15 +68,11 @@
 
 #include "ee.h"
 
-#ifndef	ARRAY_SIZE
-#define	ARRAY_SIZE(_x)	(sizeof(_x)/sizeof((_x)[0]))
-#endif
-
 /* Development error macros. */
 #if ( DIO_DEV_ERROR_DETECT == STD_ON )
 
 #include "Det.h"
-#if defined(USE_DEM)
+#if defined(__AS_DEM__)
 #include "Dem.h"
 #endif
 
@@ -105,7 +101,7 @@
 #endif	/* !DIO_DEV_ERROR_DETECT */
 
 /*
- * Type that holds all global data for Mcu
+ * Type that holds all global data for Dio
  */
 typedef struct
 {
@@ -125,96 +121,50 @@ Dio_GlobalType Dio_Global =
   NULL_PTR,		/* ConfigPtr	*/
 };
 
-/*
- * Supported Cores Identifitication Numbers
- */
-#define	CORE_CPUID_CORTEX_M4	0x410FC241
+/* GPIO Hardware Channel Unit Mask (Channel Unit = Port Pin) */
+#define	HW_CH_UNIT_MASK		0x00000007	/* Mask			*/
+#define	HW_CH_UNIT_MASK_SZ_S	0x00000003	/* Mask Size Shift Bits */
+
+/* GPIO Hardware Channel Module Mask (Channel Module = Port) */
+#define	HW_CH_MOD_MASK		0x00000078	/* Mask */
+
+/* GPIO Hardware Base Address */
+#define	HW_BASE_ADDR		GPIO_PORTA_AHB_DATA_BITS_R
+
+#include "Hardware.h"	/* Hardware Abstraction Header File. */
 
 /*
- * Core Informations Container Type
+ * Usefull GPIO Port Pin Macros
  */
-typedef struct {
-  char		*Name;	/* Core Name String		*/
-  uint32	Id;	/* Core Identifier Number	*/
-} Dio_CoreInfoType;
+#define	GPIO_PORT_DATA_BIT_ADDR_MASK	0x00000004
 
-/*
- * Supported Cores Array
- */
-Dio_CoreInfoType Dio_SupportedCoreArray[] =
-{
-  {
-    "CORE_ARM_CORTEX_M4",	/* .Name	*/
-    CORE_CPUID_CORTEX_M4,	/* .Id		*/
-  },
-};
-
-/*
- * Supported Core Information Retrieval
- */
-static Dio_CoreInfoType * Dio_GetSupportedCoreInfo(
-  uint32 Id
-)
-{
-  register uint32 i;
-  Dio_CoreInfoType *info = NULL;
-  for (i = 0; i < ARRAY_SIZE(Dio_SupportedCoreArray); i++) {
-    if (Dio_SupportedCoreArray[i].Id == Id) {
-      info = &Dio_SupportedCoreArray[i];
-    }
-  }
-  return info;
-}
-
-/*
- * Identify the core, just to check that we have support for it.
- */
-static boolean Dio_CheckCore( void ) {
-  /* NVIC - System Control Block - Register 64: CPUID */
-  register uint32 Id = NVIC_CPUID_R;
-  Dio_CoreInfoType *info = NULL;
-  info = Dio_GetSupportedCoreInfo(Id);
-  return (info != NULL);
-}
-
-/*
- * Usefull Dio Channel Macros
- */
-#define	DIO_CHANNEL_MASK		0x00000007
-#define	CHANNEL2MASK(_ch) (uint32)(_ch & DIO_CHANNEL_MASK)
-
-#define	DIO_CHANNEL_MASK_BITS	0x00000003
-#define	CHANNEL2PORT(_ch) (uint32)(_ch >> DIO_CHANNEL_MASK_BITS)
-
-#define	GPIO_PORT_PIN_MASK_BITS	0x0000000C
-#define	CHANNEL2PORTADDR(_ch) (uint32)( \
-  (uint32)GPIO_PORTA_AHB_DATA_BITS_R + \
-  (CHANNEL2PORT(_ch) << GPIO_PORT_PIN_MASK_BITS) \
+#define	GPIO_PORT_PIN_ADDR(_pin)	(uint32)(\
+  HW_CH_2_MOD_BASE_ADDR(_pin) +\
+  (GPIO_PORT_DATA_BIT_ADDR_MASK << HW_CH_2_UNIT(_pin))\
 )
 
-#define	PORT_DATA_BIT_0_ADDRESS_MASK	0x00000004
-#define	CHANNEL2ADDR(_ch) (uint32)(\
-  CHANNEL2PORTADDR(_ch) + (PORT_DATA_BIT_0_ADDRESS_MASK << CHANNEL2MASK(_ch))\
+#define	GPIO_SET_PIN(_pin,_val)	(\
+  EE_HWREG(GPIO_PORT_PIN_ADDR(_pin)) = (_val << HW_CH_2_UNIT(_pin)) \
 )
 
-#define	SETCHANNELVAL(_ch,_val) \
-  (*((volatile uint32 *)CHANNEL2ADDR(_ch))) = (_val << CHANNEL2MASK(_ch))
-
-#define	GETCHANNELVAL(_ch) \
-  ((*((volatile uint32 *)CHANNEL2ADDR(_ch))) >> CHANNEL2MASK(_ch))
-
-#define	PORT_DATA_ADDRESS_MASK		0x000003FC
-#define	PORT2ADDR(_port) (uint32)( \
-  (uint32)GPIO_PORTA_AHB_DATA_BITS_R + \
-  (_port << GPIO_PORT_PIN_MASK_BITS) + \
-  PORT_DATA_ADDRESS_MASK\
+#define	GPIO_GET_PIN(_pin)	(\
+  EE_HWREG(GPIO_PORT_PIN_ADDR(_pin)) >> HW_CH_2_UNIT(_pin) \
 )
 
-#define	SETPORTVAL(_port, _val) \
-  (*((volatile uint32 *)PORT2ADDR(_port))) = _val
+/*
+ * Usefull GPIO Port Macros
+ */
+#define	GPIO_PORT_DATA_ADDRESS_MASK	0x000003FC
 
-#define	GETPORTVAL(_port) \
-  (*((volatile uint32 *)PORT2ADDR(_port)))
+#define	GPIO_PORT_ADDR(_port)	(uint32)( \
+  (uint32)HW_BASE_ADDR + \
+  ((uint32)_port << (uint32)HW_MOD_ADDR_S) + \
+  (uint32)GPIO_PORT_DATA_ADDRESS_MASK \
+)
+
+#define	GPIO_SET_PORT(_port, _val)	(EE_HWREG(GPIO_PORT_ADDR(_port)) = _val)
+
+#define	GPIO_GET_PORT(_port)		EE_HWREG(GPIO_PORT_ADDR(_port))
 
 /*
  * Dio_ReadChannel implementation
@@ -248,7 +198,7 @@ Dio_LevelType Dio_ReadChannel(
   );
 
   for (p = 0; (p < cfgptr->DioNumberOfPorts) && init; p++) {
-    if (CHANNEL2PORT(ChannelId) == cfgptr->DioPorts[p].DioPortId) {
+    if (HW_CH_2_MOD(ChannelId) == cfgptr->DioPorts[p].DioPortId) {
       for (c = 0; (c < cfgptr->DioPorts[p].DioNumberOfChannels) && init; c++) {
 	if (ChannelId == cfgptr->DioPorts[p].DioChannels[c]) {
 	  init = FALSE;
@@ -264,7 +214,7 @@ Dio_LevelType Dio_ReadChannel(
     STD_LOW
   );
 
-  return GETCHANNELVAL(ChannelId);
+  return GPIO_GET_PIN(ChannelId);
 }
 
 /*
@@ -298,7 +248,7 @@ void Dio_WriteChannel(
   );
 
   for (p = 0; (p < cfgptr->DioNumberOfPorts) && init; p++) {
-    if (CHANNEL2PORT(ChannelId) == cfgptr->DioPorts[p].DioPortId) {
+    if (HW_CH_2_MOD(ChannelId) == cfgptr->DioPorts[p].DioPortId) {
       for (c = 0; (c < cfgptr->DioPorts[p].DioNumberOfChannels) && init; c++) {
 	if (ChannelId == cfgptr->DioPorts[p].DioChannels[c]) {
 	  init = FALSE;
@@ -313,7 +263,7 @@ void Dio_WriteChannel(
     DIO_E_PARAM_INVALID_CHANNEL_ID
   );
 
-  SETCHANNELVAL(ChannelId, Level);
+  GPIO_SET_PIN(ChannelId, Level);
 }
 
 /*
@@ -360,7 +310,7 @@ Dio_PortLevelType Dio_ReadPort(
     STD_LOW
   );
 
-  return GETPORTVAL(PortId);
+  return GPIO_GET_PORT(PortId);
 }
 
 /*
@@ -405,7 +355,7 @@ void Dio_WritePort(
     DIO_E_PARAM_INVALID_PORT_ID
   );
 
-  SETPORTVAL(PortId, Level);
+  GPIO_SET_PORT(PortId, Level);
 }
 
 /*
@@ -460,7 +410,7 @@ Dio_PortLevelType Dio_ReadChannelGroup(
   );
 
   return (
-    (GETPORTVAL(ChannelGroupIdPtr->port) &  ChannelGroupIdPtr->mask) >>
+    (GPIO_GET_PORT(ChannelGroupIdPtr->port) &  ChannelGroupIdPtr->mask) >>
     ChannelGroupIdPtr->offset
   );
 }
@@ -513,7 +463,7 @@ void Dio_WriteChannelGroup(
     DIO_E_PARAM_INVALID_PORT_ID
   );
 
-  SETPORTVAL(
+  GPIO_SET_PORT(
     ChannelGroupIdPtr->port,
     ((Level << ChannelGroupIdPtr->offset) & ChannelGroupIdPtr->mask)
   );
@@ -530,7 +480,7 @@ void Dio_Init(
   VALIDATE( ( ConfigPtr != NULL), DIO_INIT_SERVICE_ID, DIO_E_PARAM_CONFIG );
 
   VALIDATE(
-    ( Dio_CheckCore() != FALSE), DIO_INIT_SERVICE_ID, DIO_E_PARAM_CONFIG
+    ( Hw_CheckCore() == E_OK), DIO_INIT_SERVICE_ID, DIO_E_PARAM_CONFIG
   );
 
   Dio_Global.ConfigPtr = ConfigPtr;
@@ -572,7 +522,7 @@ Dio_LevelType Dio_FlipChannel(
   );
 
   for (p = 0; (p < cfgptr->DioNumberOfPorts) && init; p++) {
-    if (CHANNEL2PORT(ChannelId) == cfgptr->DioPorts[p].DioPortId) {
+    if (HW_CH_2_MOD(ChannelId) == cfgptr->DioPorts[p].DioPortId) {
       for (c = 0; (c < cfgptr->DioPorts[p].DioNumberOfChannels) && init; c++) {
 	if (ChannelId == cfgptr->DioPorts[p].DioChannels[c]) {
 	  init = FALSE;
@@ -589,12 +539,12 @@ Dio_LevelType Dio_FlipChannel(
   );
 
   f = EE_hal_suspendIRQ();
-  lvl = GETCHANNELVAL(ChannelId);
+  lvl = GPIO_GET_PIN(ChannelId);
   
   if ( lvl == STD_LOW )
-    SETCHANNELVAL(ChannelId, STD_HIGH);
+    GPIO_SET_PIN(ChannelId, STD_HIGH);
   else
-    SETCHANNELVAL(ChannelId, STD_LOW);
+    GPIO_SET_PIN(ChannelId, STD_LOW);
   EE_hal_resumeIRQ(f);
   
   return lvl;

@@ -258,13 +258,13 @@
 #define	DIO_PORTS_NUMBER	DIO_PORT_Q + 1
 
 /** @brief	Port G Channel Groups Configuration Parameters */
-extern Dio_ChannelGroupType DioPortGChannelsGroups[];
+extern const Dio_ChannelGroupType DioPortGChannelsGroups[];
 
 /** User Led Channel Group */
 #define	DIO_CHANNEL_GROUP_USER_LED	&DioPortGChannelsGroups[0]
 
 /** @brief	Port M Channel Groups Configuration Parameters */
-extern Dio_ChannelGroupType DioPortMChannelsGroups[];
+extern const Dio_ChannelGroupType DioPortMChannelsGroups[];
 
 /** User Switches Channel Group */
 #define	DIO_CHANNEL_GROUP_USER_SWITCHES	&DioPortMChannelsGroups[0]
@@ -306,7 +306,7 @@ typedef struct {
    *  the container's short name will be used in the Ecu Configuration
    *  Description to specify the symbolic name of the channel.
    */
-  Dio_ChannelType *		DioChannels;
+  const Dio_ChannelType *	DioChannels;
 
   /** @brief	Number of Channel Groups
    *
@@ -324,7 +324,7 @@ typedef struct {
    *  the channel group information. Example values are "&MyDioGroup1" or
    *  "&MyDioGroupArray[0]"
    */
-  Dio_ChannelGroupType *	Dio_ChannelsGroups;
+  const Dio_ChannelGroupType *	Dio_ChannelsGroups;
 
 } Dio_PortConfType;
 
@@ -347,7 +347,7 @@ typedef struct {
    *
    *  Ports Configuration Parameters for all specified Ports.
    */
-  Dio_PortConfType *		DioPorts;
+  const Dio_PortConfType *	DioPorts;
 
 } Dio_ConfigType;
 

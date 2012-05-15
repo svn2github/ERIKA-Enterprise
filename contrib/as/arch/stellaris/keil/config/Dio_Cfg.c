@@ -80,11 +80,11 @@
  * 		short name will be used in the Ecu Configuration Description to
  * 		specify the symbolic name of the channel.
  */
-Dio_ChannelType	DioPortGChannels[] = {
+const Dio_ChannelType	DioPortGChannels[] = {
   DIO_CHANNEL_USER_LED
 };
 
-Dio_ChannelType	DioPortMChannels[] = {
+const Dio_ChannelType	DioPortMChannels[] = {
   DIO_CHANNEL_USER_SWITCH_1,
   DIO_CHANNEL_USER_SWITCH_2,
   DIO_CHANNEL_USER_SWITCH_3,
@@ -92,7 +92,7 @@ Dio_ChannelType	DioPortMChannels[] = {
   DIO_CHANNEL_USER_SWITCH_5
 };
 
-Dio_ChannelType	DioPortDChannels[] = {
+const Dio_ChannelType	DioPortDChannels[] = {
   DIO_CHANNEL_USER_OUTPUT
 };
 
@@ -107,7 +107,7 @@ Dio_ChannelType	DioPortDChannels[] = {
  * 		"&MyDioGroupArray[0]"
  */
 
-Dio_ChannelGroupType DioPortGChannelsGroups[] = {
+const Dio_ChannelGroupType DioPortGChannelsGroups[] = {
   { /* DIO_CHANNEL_GROUP_USER_LED */
     0x00000004,			/* mask				 */
     0x00000002,			/* offest			 */
@@ -115,7 +115,7 @@ Dio_ChannelGroupType DioPortGChannelsGroups[] = {
   }
 };
 
-Dio_ChannelGroupType DioPortMChannelsGroups[] = {
+const Dio_ChannelGroupType DioPortMChannelsGroups[] = {
   { /* DIO_CHANNEL_GROUP_USER_SWITCHES */
     0x0000001F,			/* mask				 */
     0x00000000,			/* offest			 */
@@ -123,7 +123,7 @@ Dio_ChannelGroupType DioPortMChannelsGroups[] = {
   }
 };
 
-Dio_ChannelGroupType DioPortDChannelsGroups[] = {
+const Dio_ChannelGroupType DioPortDChannelsGroups[] = {
   { /* DIO_CHANNEL_GROUP_USER_OUTPUT */
     0x00000040,			/* mask				 */
     0x00000006,			/* offest			 */
@@ -138,7 +138,7 @@ Dio_ChannelGroupType DioPortDChannelsGroups[] = {
  * 		the container's short name will be used in the Ecu Configuration
  * 		Description to specify the symbolic name of the port.
  */
-Dio_PortConfType Dio_Ports[] = {
+const Dio_PortConfType Dio_Ports[] = {
   { /* PORT G */
     DIO_PORT_USER_LED,		/* DioPortId			 */
     0x00000001,			/* DioNumberOfChannels		 */
@@ -155,7 +155,7 @@ Dio_PortConfType Dio_Ports[] = {
   }
 };
 
-Dio_PortConfType Dio_OutputPorts[] = {
+const Dio_PortConfType Dio_OutputPorts[] = {
   { /* PORT_D */
     DIO_PORT_USER_OUTPUT,	/* DioPortId			 */
     0x00000001,			/* DioNumberOfChannels		 */
@@ -178,7 +178,7 @@ Dio_PortConfType Dio_OutputPorts[] = {
  * 		MultipleConfigurationContainer, i.e. this container and its
  * 		sub-containers exist once per configuration set.
  */
-Dio_ConfigType Dio_Config[] = {
+const Dio_ConfigType Dio_Config[] = {
   { /* DIO_CONFIG_DIO */
     0x00000002,		/* DioNumberOfPorts	*/
     &Dio_Ports[0]	/* DioPorts		*/

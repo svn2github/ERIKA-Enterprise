@@ -270,7 +270,7 @@ typedef	uint32	Dio_PortLevelType;
  *  <b>DIO164:</b> <tt>Dio_ConfigType</tt> is the type for all post-build
  *  configurable parameters of the DIO driver.
  */
-extern Dio_ConfigType Dio_Config[];
+extern const Dio_ConfigType Dio_Config[];
 
 /*
  * Service ID's
