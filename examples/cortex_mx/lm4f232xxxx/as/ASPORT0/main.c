@@ -165,7 +165,7 @@ int main(void)
     EE_ASSERT_INIT
   );
 
-  Mcu_Init(&Mcu_Config);
+  Mcu_Init(MCU_CONFIG_DEFAULT_PTR);
 
   reset = Mcu_GetResetRawValue();
 
@@ -197,7 +197,7 @@ int main(void)
 
   }
 
-  Port_Init(&Port_Config[PORT_CONFIG_DEFAULT]);
+  Port_Init(PORT_CONFIG_DEFAULT_PTR);
 
   EE_assert(EE_ASSERT_PORT_INIT, TRUE, EE_ASSERT_PLL_LOCKED);
 
