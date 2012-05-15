@@ -131,7 +131,7 @@ OPT_CC += --cpu Cortex-M4
 endif
 
 ifeq ($(call iseeopt, DEBUG), yes)
-OPT_CC += -g
+OPT_CC += -g -O0
 endif
 
 OPT_CC += -c
