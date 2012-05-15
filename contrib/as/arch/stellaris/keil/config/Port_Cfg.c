@@ -71,7 +71,7 @@
  * 	PORT_M_PIN_4
  * Modes Configuration Container.
  */
-Port_PinModeConfType PortMPin0To4Conf[] = {
+const Port_PinModeConfType PortMPin0To4Conf[] = {
   { /* USER SWITCHES */
     PORT_PIN_MODE_DIO,				/* Port pin mode.	      */
     PORT_PIN_HW_CFG_DEN | PORT_PIN_HW_CFG_PUR	/* Digital Enable + Pull-up.  */
@@ -81,7 +81,7 @@ Port_PinModeConfType PortMPin0To4Conf[] = {
 /*
  * Port Pin:PORT_G_PIN_2 Modes Configuration Container.
  */
-Port_PinModeConfType PortGPin2Conf[] = {
+const Port_PinModeConfType PortGPin2Conf[] = {
   { /* USER LED */
     PORT_PIN_MODE_DIO,			/* Port pin mode.		      */
     PORT_PIN_HW_CFG_DEN			/* Digital Enable.		      */
@@ -91,7 +91,7 @@ Port_PinModeConfType PortGPin2Conf[] = {
 /*
  * Port Pins:PORT_D_PIN_6 Modes Configuration Container.
  */
-Port_PinModeConfType PortDPin6Conf[] = {
+const Port_PinModeConfType PortDPin6Conf[] = {
   {
     PORT_PIN_MODE_DIO,				/* Port pin mode.	      */
     PORT_PIN_HW_CFG_DEN				/* Digital Enable.	      */
@@ -101,7 +101,7 @@ Port_PinModeConfType PortDPin6Conf[] = {
 /*
  * Port Pin: PORT_C_PIN_4 Modes Configuration Container.
  */
-Port_PinModeConfType PortCPin4Conf[] = {
+const Port_PinModeConfType PortCPin4Conf[] = {
   {
     PORT_PIN_MODE_SCI,		/* Port pin mode.			      */
     PORT_PIN_HW_CFG_DEN |	/* Digital Enable.			      */
@@ -114,7 +114,7 @@ Port_PinModeConfType PortCPin4Conf[] = {
 /*
  * Port Pin: PORT_C_PIN_5 Modes Configuration Container.
  */
-Port_PinModeConfType PortCPin5Conf[] = {
+const Port_PinModeConfType PortCPin5Conf[] = {
   {
     PORT_PIN_MODE_SCI,		/* Port pin mode.			      */
     PORT_PIN_HW_CFG_DEN |	/* Digital Enable.			      */
@@ -126,7 +126,7 @@ Port_PinModeConfType PortCPin5Conf[] = {
 /*
  * DIO Port Pins Configuration.
  */
-Port_PinConfType DIOPortPins[] = {
+const Port_PinConfType DIOPortPins[] = {
   {
     PORT_PIN_IN,			/* PortPinDirection		      */
     FALSE,				/* PortPinDirectionChangeable	      */
@@ -192,7 +192,7 @@ Port_PinConfType DIOPortPins[] = {
 /*
  * SCI Port Pins Configuration.
  */
-Port_PinConfType SCIPortPins[] = {
+const Port_PinConfType SCIPortPins[] = {
   {
     PORT_PIN_IN,			/* PortPinDirection		      */
     FALSE,				/* PortPinDirectionChangeable	      */
@@ -238,7 +238,7 @@ Port_PinConfType SCIPortPins[] = {
 /*
  * PORT121:	This container is the base of a multiple configuration set.
  */
-Port_ConfigType Port_Config[] = {
+const Port_ConfigType Port_Config[] = {
   { /* PORT_CONFIG_DIO */
     0x00000006,		/* PortNumberOfPortPins	*/
     &DIOPortPins[0]	/* PortPins		*/

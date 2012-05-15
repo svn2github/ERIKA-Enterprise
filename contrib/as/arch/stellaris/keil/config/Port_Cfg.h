@@ -461,7 +461,7 @@ typedef struct {
    *
    *  Supported Port Pin Modes.
    */
-  Port_PinModeConfType *	PortPinSupportedModes;
+  const Port_PinModeConfType *	PortPinSupportedModes;
 
   /** @brief	Pin Mode Changeable
    *
@@ -490,7 +490,7 @@ typedef struct {
    *
    *  PortPins.
    */
-  Port_PinConfType *		PortPins;
+  const Port_PinConfType *		PortPins;
 
 } Port_ConfigType;
 

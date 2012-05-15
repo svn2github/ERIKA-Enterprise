@@ -60,15 +60,11 @@
 
 #include "ee.h"
 
-#ifndef	ARRAY_SIZE
-#define	ARRAY_SIZE(_x)	(sizeof(_x)/sizeof((_x)[0]))
-#endif
-
 /* Development error macros. */
 #if ( PORT_DEV_ERROR_DETECT == STD_ON )
 
 #include "Det.h"
-#if defined(USE_DEM)
+#if defined(__AS_DEM__)
 #include "Dem.h"
 #endif
 
@@ -115,94 +111,43 @@ Port_GlobalType Port_Global =
   NULL_PTR,		/* ConfigPtr	*/
 };
 
-/*
- * Supported Cores Identifitication Numbers
- */
-#define	CORE_CPUID_CORTEX_M4	0x410FC241
+/* GPIO Hardware Channel Unit Mask (Channel Unit = Port Pin) */
+#define	HW_CH_UNIT_MASK		0x00000007	/* Mask			*/
+#define	HW_CH_UNIT_MASK_SZ_S	0x00000003	/* Mask Size Shift Bits */
 
-/*
- * Core Informations Container Type
- */
-typedef struct {
-  char		*Name;	/* Core Name String		*/
-  uint32	Id;	/* Core Identifier Number	*/
-} Port_CoreInfoType;
+/* GPIO Hardware Channel Module Mask (Channel Module = Port) */
+#define	HW_CH_MOD_MASK		0x00000078	/* Mask */
 
-/*
- * Supported Cores Array
- */
-Port_CoreInfoType Port_SupportedCoreArray[] =
-{
-  {
-    "CORE_ARM_CORTEX_M4",	/* .Name	*/
-    CORE_CPUID_CORTEX_M4,	/* .Id		*/
-  },
-};
+/* GPIO Hardware Base Address */
+#define	HW_BASE_ADDR		GPIO_PORTA_AHB_DATA_BITS_R
 
-/*
- * Supported Core Information Retrieval
- */
-static Port_CoreInfoType * Port_GetSupportedCoreInfo(
-  uint32 Id
-)
-{
-  register uint32 i;
-  Port_CoreInfoType *info = NULL;
-  for (i = 0; i < ARRAY_SIZE(Port_SupportedCoreArray); i++) {
-    if (Port_SupportedCoreArray[i].Id == Id) {
-      info = &Port_SupportedCoreArray[i];
-    }
-  }
-  return info;
-}
-
-/*
- * Identify the core, just to check that we have support for it.
- */
-static boolean Port_CheckCore( void ) {
-  /* NVIC - System Control Block - Register 64: CPUID */
-  register uint32 Id = NVIC_CPUID_R;
-  Port_CoreInfoType *info = NULL;
-  info = Port_GetSupportedCoreInfo(Id);
-  return (info != NULL);
-}
+#include "Hardware.h"	/* Hardware Abstraction Header File. */
 
 /*
  * Usefull Port Pin Macros
  */
-#define	PORT_PIN_MASK		0x00000007
-#define	PIN2MASK(_pin) (uint32)(_pin & PORT_PIN_MASK)
+#define	GPIO_PORT_DATA_BIT_ADDR_MASK	0x00000004
 
-#define	PORT_PIN_MASK_BITS	0x00000003
-#define	PIN2PORT(_pin) (uint32)(_pin >> PORT_PIN_MASK_BITS)
-
-#define	GPIO_PORT_PIN_MASK_BITS	0x0000000C
-#define	PIN2PORTADDR(_pin) (uint32)( \
-  (uint32)GPIO_PORTA_AHB_DATA_BITS_R + \
-  (PIN2PORT(_pin) << GPIO_PORT_PIN_MASK_BITS) \
+#define	GPIO_PORT_PIN_ADDR(_pin) (uint32)(\
+  HW_CH_2_MOD_BASE_ADDR(_pin) +\
+  (GPIO_PORT_DATA_BIT_ADDR_MASK << HW_CH_2_UNIT(_pin))\
 )
 
-#define	PORT_DATA_BIT_0_ADDRESS_MASK	0x00000004
-#define	PIN2ADDR(_pin) (uint32)(\
-  PIN2PORTADDR(_pin) + (PORT_DATA_BIT_0_ADDRESS_MASK << PIN2MASK(_pin))\
+#define	GPIO_SET_PIN(_pin,_val) (\
+  EE_HWREG(GPIO_PORT_PIN_ADDR(_pin)) = (_val << HW_CH_2_UNIT(_pin))\
 )
 
-#define	SETPINVAL(_pin,_val) \
-  (*((volatile uint32 *)PIN2ADDR(_pin))) = (_val << PIN2MASK(_pin))
+#define	GPIO_GET_PIN(_pin) (\
+  EE_HWREG(GPIO_PORT_PIN_ADDR(_pin)) >> HW_CH_2_UNIT(_pin)\
+)
 
-#define	GETPINVAL(_pin) \
-  ((*((volatile uint32 *)PIN2ADDR(_pin))) >> PIN2MASK(_pin))
-
-#define	SETPINREGVAL(_pin,_val,_ofs) \
+#define	GPIO_SET_PIN_REG(_pin,_val,_ofs) \
+do { \
   if ( _val == STD_OFF ) \
-    (*((volatile uint32 *)(PIN2PORTADDR(_pin) + _ofs))) &= \
-      ~(_val << PIN2MASK(_pin)); \
+    HW_CH_2_MOD_REG(_pin, _ofs) &= ~(_val << HW_CH_2_UNIT(_pin)); \
   else \
-    (*((volatile uint32 *)(PIN2PORTADDR(_pin) + _ofs))) |= \
-      (_val << PIN2MASK(_pin))
-
-
-#define	PORT_PIN_PMC_MASK_BITS		0x00000004
+    HW_CH_2_MOD_REG(_pin, _ofs) |= (_val << HW_CH_2_UNIT(_pin)); \
+} while(0)
 
 #define	GPIO_PORT_DIR_R_OFFSET		0x00000400
 #define	GPIO_PORT_AFSEL_R_OFFSET	0x00000420
@@ -217,30 +162,50 @@ static boolean Port_CheckCore( void ) {
 #define	GPIO_PORT_AMSEL_R_OFFSET	0x00000528
 #define	GPIO_PORT_CTL_R_OFFESET		0x0000052C
 
-#define	SETPINDIR(_pin,_dir)	SETPINREGVAL(_pin,_dir,GPIO_PORT_DIR_R_OFFSET)
-#define	SETPINAFSEL(_pin,_val)	SETPINREGVAL(_pin,_val,GPIO_PORT_AFSEL_R_OFFSET)
-#define	SETPINDR2R(_pin,_val)	SETPINREGVAL(_pin,_val,GPIO_PORT_DR2R_R_OFFSET)
-#define	SETPINDR4R(_pin,_val)	SETPINREGVAL(_pin,_val,GPIO_PORT_DR4R_R_OFFSET)
-#define	SETPINDR8R(_pin,_val)	SETPINREGVAL(_pin,_val,GPIO_PORT_DR8R_R_OFFSET)
-#define	SETPINODR(_pin,_val)	SETPINREGVAL(_pin,_val,GPIO_PORT_ODR_R_OFFSET)
-#define	SETPINPUR(_pin,_val)	SETPINREGVAL(_pin,_val,GPIO_PORT_PUR_R_OFFSET)
-#define	SETPINPDR(_pin,_val)	SETPINREGVAL(_pin,_val,GPIO_PORT_PDR_R_OFFSET)
-#define	SETPINSLR(_pin,_val)	SETPINREGVAL(_pin,_val,GPIO_PORT_SLR_R_OFFSET)
-#define	SETPINDEN(_pin,_val)	SETPINREGVAL(_pin,_val,GPIO_PORT_DEN_R_OFFSET)
-#define	SETPINAMSEL(_pin,_val)	SETPINREGVAL(_pin,_val,GPIO_PORT_AMSEL_R_OFFSET)
+#define	GPIO_SET_PIN_DIR(_pin,_dir)	\
+	GPIO_SET_PIN_REG(_pin,_dir,GPIO_PORT_DIR_R_OFFSET)
+#define	GPIO_SET_PIN_AFSEL(_pin,_val)	\
+	GPIO_SET_PIN_REG(_pin,_val,GPIO_PORT_AFSEL_R_OFFSET)
+#define	GPIO_SET_PIN_DR2R(_pin,_val)	\
+	GPIO_SET_PIN_REG(_pin,_val,GPIO_PORT_DR2R_R_OFFSET)
+#define	GPIO_SET_PIN_DR4R(_pin,_val)	\
+	GPIO_SET_PIN_REG(_pin,_val,GPIO_PORT_DR4R_R_OFFSET)
+#define	GPIO_SET_PIN_DR8R(_pin,_val)	\
+	GPIO_SET_PIN_REG(_pin,_val,GPIO_PORT_DR8R_R_OFFSET)
+#define	GPIO_SET_PIN_ODR(_pin,_val)	\
+	GPIO_SET_PIN_REG(_pin,_val,GPIO_PORT_ODR_R_OFFSET)
+#define	GPIO_SET_PIN_PUR(_pin,_val)	\
+	GPIO_SET_PIN_REG(_pin,_val,GPIO_PORT_PUR_R_OFFSET)
+#define	GPIO_SET_PIN_PDR(_pin,_val)	\
+	GPIO_SET_PIN_REG(_pin,_val,GPIO_PORT_PDR_R_OFFSET)
+#define	GPIO_SET_PIN_SLR(_pin,_val)	\
+	GPIO_SET_PIN_REG(_pin,_val,GPIO_PORT_SLR_R_OFFSET)
+#define	GPIO_SET_PIN_DEN(_pin,_val)	\
+	GPIO_SET_PIN_REG(_pin,_val,GPIO_PORT_DEN_R_OFFSET)
+#define	GPIO_SET_PIN_AMSEL(_pin,_val)	\
+	GPIO_SET_PIN_REG(_pin,_val,GPIO_PORT_AMSEL_R_OFFSET)
 
-#define	SETPINPMC(_pin,_pmc)	\
-  (*((volatile uint32 *)(PIN2PORTADDR(_pin) + GPIO_PORT_CTL_R_OFFESET))) &= \
-  ~(PORT_PIN_HW_CFG_PMC_M << (PIN2MASK(_pin) * PORT_PIN_PMC_MASK_BITS)); \
-  (*((volatile uint32 *)(PIN2PORTADDR(_pin) + GPIO_PORT_CTL_R_OFFESET))) |= \
-  ((_pmc & PORT_PIN_HW_CFG_PMC_M) << (PIN2MASK(_pin) * PORT_PIN_PMC_MASK_BITS))
+/* Port Mux Control Mask Size Shift Bits */
+#define	PORT_PIN_HW_CFG_PMC_M_SZ_S	0x00000002
+
+#define	GPIO_SET_PIN_PMC(_pin,_pmc)	\
+  EE_HWREG(HW_CH_2_MOD_BASE_ADDR(_pin) + GPIO_PORT_CTL_R_OFFESET) &= ~(\
+	PORT_PIN_HW_CFG_PMC_M << (\
+		HW_CH_2_UNIT(_pin) << PORT_PIN_HW_CFG_PMC_M_SZ_S\
+	)\
+  ); \
+  EE_HWREG(HW_CH_2_MOD_BASE_ADDR(_pin) + GPIO_PORT_CTL_R_OFFESET) |= (\
+	(_pmc & PORT_PIN_HW_CFG_PMC_M) << (\
+		HW_CH_2_UNIT(_pin) << PORT_PIN_HW_CFG_PMC_M_SZ_S\
+	)\
+  )
 
 /*
  * Port Pin Mode Hardware Configuration.
  */
 static void Port_SetPortPinHWMode(
   Port_PinType			Pin,
-  Port_PinModeConfType *	ConfigPtr
+  const Port_PinModeConfType *	ConfigPtr
 )
 {
   register EE_UREG	flag;
@@ -253,68 +218,73 @@ static void Port_SetPortPinHWMode(
 
   /* Sets-up Analog Mode Select */
   if ( mode & PORT_PIN_HW_CFG_AMSEL ) {
-    SETPINDEN(Pin, STD_OFF);
-    SETPINAMSEL(Pin, STD_ON);
-  }
-  else {
-
-    SETPINAMSEL(Pin, STD_OFF);
+    GPIO_SET_PIN_DEN(Pin, STD_OFF);
+    GPIO_SET_PIN_AMSEL(Pin, STD_ON);
 
     /* Sets-up Alternate Function Select */
     if ( mode & PORT_PIN_HW_CFG_AFSEL ) {
-      SETPINPMC(Pin, mode);
-      SETPINAFSEL(Pin, STD_ON);
+      GPIO_SET_PIN_AFSEL(Pin, STD_ON);
+    }
+  }
+  else {
+
+    GPIO_SET_PIN_AMSEL(Pin, STD_OFF);
+
+    /* Sets-up Alternate Function Select */
+    if ( mode & PORT_PIN_HW_CFG_AFSEL ) {
+      GPIO_SET_PIN_PMC(Pin, mode);
+      GPIO_SET_PIN_AFSEL(Pin, STD_ON);
     }
     else
-      SETPINAFSEL(Pin, STD_OFF);
+      GPIO_SET_PIN_AFSEL(Pin, STD_OFF);
 
     /* Sets-up Strenght Drive Select */
     if ( mode & PORT_PIN_HW_CFG_DR2R ) {
-      SETPINDR2R(Pin, STD_ON);
-      SETPINSLR(Pin, STD_OFF);
+      GPIO_SET_PIN_DR2R(Pin, STD_ON);
+      GPIO_SET_PIN_SLR(Pin, STD_OFF);
     }
     else if ( mode & PORT_PIN_HW_CFG_DR4R ) {
-      SETPINDR4R(Pin, STD_ON);
-      SETPINSLR(Pin, STD_OFF);
+      GPIO_SET_PIN_DR4R(Pin, STD_ON);
+      GPIO_SET_PIN_SLR(Pin, STD_OFF);
     }
     else if ( mode & PORT_PIN_HW_CFG_DR8R ) {
 
-      SETPINDR8R(Pin, STD_ON);
+      GPIO_SET_PIN_DR8R(Pin, STD_ON);
 
       /* Sets-up Slew-rate Control */
       if ( mode & PORT_PIN_HW_CFG_SLR )
-	SETPINSLR(Pin, STD_ON);
+	GPIO_SET_PIN_SLR(Pin, STD_ON);
       else
-	SETPINSLR(Pin, STD_OFF);
+	GPIO_SET_PIN_SLR(Pin, STD_OFF);
 
     } /* DR8R */
 
     /* Sets-up Open Drain */
     if ( mode & PORT_PIN_HW_CFG_ODR )
-      SETPINODR(Pin, STD_ON);
+      GPIO_SET_PIN_ODR(Pin, STD_ON);
     else {
 
-      SETPINODR(Pin, STD_OFF);
+      GPIO_SET_PIN_ODR(Pin, STD_OFF);
 
       /* Sets-up Pull-Up */
       if ( mode & PORT_PIN_HW_CFG_PUR )
-	SETPINPUR(Pin, STD_ON);
+	GPIO_SET_PIN_PUR(Pin, STD_ON);
       else
-	SETPINPUR(Pin, STD_OFF);
+	GPIO_SET_PIN_PUR(Pin, STD_OFF);
 
       /* Sets-up Pull-Down */
       if ( mode & PORT_PIN_HW_CFG_PDR )
-	SETPINPDR(Pin, STD_ON);
+	GPIO_SET_PIN_PDR(Pin, STD_ON);
       else
-	SETPINPDR(Pin, STD_OFF);
+	GPIO_SET_PIN_PDR(Pin, STD_OFF);
 
     } /* !(Open Drain) */
 
     /* Sets-up Digital Enable */
     if ( mode & PORT_PIN_HW_CFG_DEN )
-      SETPINDEN(Pin, STD_ON);
+      GPIO_SET_PIN_DEN(Pin, STD_ON);
     else
-      SETPINDEN(Pin, STD_OFF);
+      GPIO_SET_PIN_DEN(Pin, STD_OFF);
 
   }	/* !(Analog Mode Select) */
 
@@ -327,14 +297,14 @@ static void Port_SetPortPinHWMode(
  * Port Pin Initialization.
  */
 static void Port_InitPortPin(
-  Port_PinConfType *	ConfigPtr
+  const Port_PinConfType *	ConfigPtr
 )
 {
   register uint32 port;
   register uint32 mode;
 
   /* Sets-up Port Mask */
-  port = (uint32) (SYSCTL_RCGCGPIO_R0 << PIN2PORT(ConfigPtr->PortPinId));
+  port = HW_CH_2_CGC_MASK(ConfigPtr->PortPinId);
 
   /* Sets Advanced High-Performance Bus Memory Access for the Port Module */
   SYSCTL_GPIOHBCTL_R |= port;
@@ -347,10 +317,10 @@ static void Port_InitPortPin(
 
   /* Sets Initial Port Pin Level Value */
   if (ConfigPtr->PortPinDirection == PORT_PIN_OUT)
-    SETPINVAL(ConfigPtr->PortPinId, ConfigPtr->PortPinLevelValue);
+    GPIO_SET_PIN(ConfigPtr->PortPinId, ConfigPtr->PortPinLevelValue);
 
   /* Sets Initial Port Pin Direction */
-  SETPINDIR(ConfigPtr->PortPinId, ConfigPtr->PortPinDirection);
+  GPIO_SET_PIN_DIR(ConfigPtr->PortPinId, ConfigPtr->PortPinDirection);
 
   /* Sets Port Pin Initial Mode. */
   for (mode = 0; mode < ConfigPtr->PortPinModeNumber; mode++) {
@@ -380,9 +350,9 @@ void Port_Init(
 
   register uint32 pin;
 
-  VALIDATE( ( ConfigPtr != NULL), PORT_INIT_SERVICE_ID, PORT_E_PARAM_CONFIG );
+  VALIDATE( ( ConfigPtr != NULL ), PORT_INIT_SERVICE_ID, PORT_E_PARAM_CONFIG );
 
-  VALIDATE( ( Port_CheckCore() != FALSE), PORT_INIT_SERVICE_ID, PORT_E_UNINIT );
+  VALIDATE( ( Hw_CheckCore() == E_OK ), PORT_INIT_SERVICE_ID, PORT_E_UNINIT );
 
   Port_Global.ConfigPtr = ConfigPtr;
   Port_Global.Init = TRUE;
@@ -454,9 +424,9 @@ void Port_SetPinDirection(
 
   /* Sets Initial Port Pin Level Value */
   if ( Direction == PORT_PIN_OUT )
-    SETPINVAL(cfgPtr->PortPinId, cfgPtr->PortPinLevelValue);
+    GPIO_SET_PIN(cfgPtr->PortPinId, cfgPtr->PortPinLevelValue);
 
-  SETPINDIR(cfgptr->PortPins[p].PortPinId, Direction);
+  GPIO_SET_PIN_DIR(cfgptr->PortPins[p].PortPinId, Direction);
 
   /* Ends Atomic Section. */
   EE_hal_resumeIRQ(f);
@@ -485,7 +455,7 @@ void Port_RefreshPortDirection(
     if (
       Port_Global.ConfigPtr->PortPins[pin].PortPinDirectionChangeable == FALSE
     ) {
-      SETPINDIR(
+      GPIO_SET_PIN_DIR(
         Port_Global.ConfigPtr->PortPins[pin].PortPinId,
         Port_Global.ConfigPtr->PortPins[pin].PortPinDirection
       );

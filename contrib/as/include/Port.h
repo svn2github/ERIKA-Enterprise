@@ -192,7 +192,7 @@ typedef	uint8_least	Port_PinModeType;
  *  - Activation of internal pull-ups.
  *  - Microcontroller specific port pin properties.
  */
-extern	Port_ConfigType	Port_Config[];
+extern	const Port_ConfigType	Port_Config[];
 
 /*
  * Service ID's
