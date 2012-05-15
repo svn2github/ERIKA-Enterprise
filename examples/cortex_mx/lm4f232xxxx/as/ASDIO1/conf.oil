@@ -50,14 +50,13 @@ CPU test_application {
 
 		EE_OPT = "DEBUG";
 		EE_OPT = "__ASSERT__";
-		CFLAGS = "-I$(APPBASE)/fake_druid/";
 
 		CPU_DATA = CORTEX_MX {
 			MODEL = M4;
 			APP_SRC = "main.c";
-			APP_SRC = "fake_druid/Mcu_Cfg.c";
-			APP_SRC = "fake_druid/Port_Cfg.c";
-			APP_SRC = "fake_druid/Dio_Cfg.c";
+			APP_SRC = "Mcu_Cfg.c";
+			APP_SRC = "Port_Cfg.c";
+			APP_SRC = "Dio_Cfg.c";
 			COMPILER_TYPE = KEIL;
 			MULTI_STACK = FALSE;
 		};
@@ -71,6 +70,12 @@ CPU test_application {
 		EE_OPT = "__AS_MCU_DRIVER__";
 		EE_OPT = "__AS_PORT_DRIVER__";
 		EE_OPT = "__AS_DIO_DRIVER__";
+
+		/* Used to build separate libas.a without configuration */
+		EE_OPT = "__ADD_LIBS__";
+		LIB = ENABLE {
+			NAME = "AUTOSAR";
+		};
 
 		STATUS = EXTENDED;
 		STARTUPHOOK = FALSE;

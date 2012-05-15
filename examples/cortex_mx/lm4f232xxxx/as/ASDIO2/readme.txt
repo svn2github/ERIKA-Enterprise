@@ -1,4 +1,4 @@
-ASDIO0
+ASDIO2
 
  Simple project to test Dio_ReadPort() and Dio_WritePort() AUTOSAR DIO Driver
  services.

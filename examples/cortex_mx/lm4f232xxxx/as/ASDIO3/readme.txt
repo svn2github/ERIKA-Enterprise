@@ -1,4 +1,4 @@
-ASDIO0
+ASDIO3
 
  Simple project to test Dio_ReadChannelGroup() and Dio_WriteChannelGroup()
  AUTOSAR DIO Driver services.

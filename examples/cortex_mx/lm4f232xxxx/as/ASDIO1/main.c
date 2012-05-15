@@ -50,10 +50,6 @@
 #include "ee_irq.h"
 #include "test/assert/inc/ee_assert.h"
 
-#ifndef	TRUE
-#define	TRUE	1
-#endif
-
 /* Assertions */
 enum EE_ASSERTIONS {
   EE_ASSERT_FIN = 0,
@@ -106,7 +102,7 @@ int main(void)
     EE_ASSERT_INIT
   );
 
-  Mcu_Init(&Mcu_Config);
+  Mcu_Init(MCU_CONFIG_DEFAULT_PTR);
 
   reset = Mcu_GetResetRawValue();
 
@@ -138,9 +134,9 @@ int main(void)
 
   }
 
-  Port_Init(&Port_Config[PORT_CONFIG_DEFAULT]);
+  Port_Init(PORT_CONFIG_DEFAULT_PTR);
 
-  Dio_Init(&Dio_Config[DIO_CONFIG_DEFAULT]);
+  Dio_Init(DIO_CONFIG_DEFAULT_PTR);
 
   EE_assert(EE_ASSERT_DIO_INIT, TRUE, EE_ASSERT_PLL_LOCKED);
 

@@ -1,4 +1,4 @@
-ASDIO0
+ASDIO1
 
  Simple project to test Dio_FlipChannel() AUTOSAR DIO Driver service.
  The compilation chain starts from the Cygwin shell with the "make" command.
