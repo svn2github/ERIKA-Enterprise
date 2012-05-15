@@ -97,7 +97,7 @@ TASK(Task1)
 int main(void)
 {
 
-  Mcu_Init(&Mcu_Config);
+  Mcu_Init(MCU_CONFIG_DEFAULT_PTR);
 
   EE_assert(EE_ASSERT_INIT, TRUE, EE_ASSERT_NIL);
 

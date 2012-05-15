@@ -99,7 +99,7 @@ int main(void)
     EE_ASSERT_INIT
   );
 
-  Mcu_Init(&Mcu_Config);
+  Mcu_Init(MCU_CONFIG_DEFAULT_PTR);
 
   EE_user_led_init();
 
