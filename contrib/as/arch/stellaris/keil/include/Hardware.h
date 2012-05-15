@@ -68,9 +68,13 @@
  *
  *  @note	Requires <tt>HW_CH_UNIT_MASK</tt> macro.
  */
+#ifdef	HW_CH_UNIT_MASK
 #define	HW_CH_2_UNIT(_ch)	(uint32)( \
   (uint32)_ch & (uint32)HW_CH_UNIT_MASK \
 )
+#else
+#define	HW_CH_2_UNIT(_ch)	(uint32)( 0x00000000 )
+#endif
 
 /** @brief	Channel to Hardware Module.
  *  @param	_ch	Numeric ID of a Channel.
@@ -79,14 +83,21 @@
  *  This macro function returns the numeric ID of the harware module referred to
  *  numeric id of a channel.
  *
- *  @note	Requires <tt>HW_CH_MOD_MASK</tt> and
- *  		<tt>HW_CH_UNIT_MASK_SZ_S</tt> macros.
+ *  @note	Requires <tt>HW_CH_MOD_MASK</tt> macro.
  */
+#ifdef	HW_CH_MOD_MASK
+#ifdef	HW_CH_UNIT_MASK_SZ_S
 #define	HW_CH_2_MOD(_ch)	(uint32)( \
-  ( (uint32)( _ch & HW_CH_MOD_MASK ) >> (uint32)HW_CH_UNIT_MASK_SZ_S ) \
+  ( (uint32)_ch & (uint32)HW_CH_MOD_MASK ) >> (uint32)HW_CH_UNIT_MASK_SZ_S \
 )
+#else	/* HW_CH_UNIT_MASK_SZ_S */
+#define	HW_CH_2_MOD(_ch)	(uint32)( \
+  (uint32)_ch & (uint32)HW_CH_MOD_MASK \
+)
+#endif	/* !HW_CH_UNIT_MASK_SZ_S */
+#endif	/* HW_CH_MOD_MASK */
 
-/** Hardware Clock Gating Control Base Mask */
+/** @brief	Hardware Clock Gating Control Base Mask */
 #define	HW_CGC_BASE_MASK	HW_BASE_MASK
 
 /** @brief	Channel to Clock Gating Control Mask.
@@ -96,60 +107,102 @@
  *  This macro function returns the Clock Gating Control Mask of the harware
  *  module referred to numeric id of a channel.
  *
- *  @note	Requires <tt>HW_CH_MOD_MASK</tt> and
- *  		<tt>HW_CH_UNIT_MASK_SZ_S</tt> macros.
+ *  @note	Requires <tt>HW_CH_MOD_MASK</tt> macro.
+ *
+ *  @see	<tt>HW_CH_2_MOD</tt> macro.
  */
+#ifdef	HW_CH_MOD_MASK
 #define	HW_CH_2_CGC_MASK(_ch)	(uint32)( \
   (uint32)HW_CGC_BASE_MASK << HW_CH_2_MOD(_ch) \
 )
+#endif
 
 #define	HW_MOD_ADDR_S	0x0000000C	/**< HW Module Address Shift Bits     */
 
 /** @brief	Channel to Hardware Module Base Address
  *  @param	_ch	Channel Identifier.
  *  @return	Hardware Module Base Address.
+ *
+ *  @note	Requires <tt>HW_CH_MOD_MASK</tt> and
+ *  		<tt>HW_BASE_ADDR</tt> macros.
+ *
+ *  @see	<tt>HW_CH_2_MOD</tt> macro.
  */
+#if	( defined(HW_CH_MOD_MASK) && defined(HW_BASE_ADDR) )
 #define	HW_CH_2_MOD_BASE_ADDR(_ch)	(uint32)( \
-  ((uint32)&TIMER0_CFG_R) + (HW_CH_2_MOD(_ch) << (uint32)HW_MOD_ADDR_S) \
+  ((uint32)HW_BASE_ADDR) + (HW_CH_2_MOD(_ch) << (uint32)HW_MOD_ADDR_S) \
 )
+#endif	/* HW_CH_MOD_MASK && HW_BASE_ADDR */
 
 /** @brief	Channel to Hardware Module Register Address
  *  @param	_ch	Channel Identifier.
  *  @param	_ro	Harware Module Register Offset.
  *  @return	Hardware Module Register Address.
+ *
+ *  @note	Requires <tt>HW_CH_MOD_MASK</tt> and
+ *  		and <tt>HW_BASE_ADDR</tt> macros.
+ *
+ *  @see	<tt>HW_CH_2_MOD_BASE_ADDR</tt> macro.
  */
- #define HW_CH_2_MOD_REG_ADDR(_ch, _ro)	(uint32)( \
+#if	( defined(HW_CH_MOD_MASK) && defined(HW_BASE_ADDR) )
+#define	HW_CH_2_MOD_REG_ADDR(_ch, _ro)	(uint32)( \
   HW_CH_2_MOD_BASE_ADDR(_ch) + (uint32)_ro \
 )
+#endif	/* HW_CH_MOD_MASK && HW_BASE_ADDR */
 
 /** @brief	Channel to Hardware Module Register
  *  @param	_ch	Channel Identifier.
  *  @param	_ro	Harware Module Register Offset.
  *  @return	Hardware Module Register.
+ *
+ *  @note	Requires <tt>HW_CH_MOD_MASK</tt> and
+ *  		<tt>HW_BASE_ADDR</tt> macros.
+ *
+ *  @see	<tt>HW_CH_2_MOD_REG_ADDR</tt> macro.
  */
-#define	HW_CH_2_MOD_REG(_ch, _ro)	(*((volatile uint32 *)( \
-  HW_CH_2_MOD_REG_ADDR(_ch, _ro) )) \
+#if	( defined(HW_CH_MOD_MASK) && defined(HW_BASE_ADDR) )
+#define	HW_CH_2_MOD_REG(_ch, _ro)	EE_HWREG( \
+  HW_CH_2_MOD_REG_ADDR(_ch, _ro) \
 )
+#endif	/* HW_CH_MOD_MASK && HW_BASE_ADDR */
 
 /** @brief	Channel to Hardware Unit Register Address
  *  @param	_ch	Channel Identifier.
  *  @param	_ro	Harware Unit Register Offset.
  *  @return	Hardware Unit Register Address.
+ *
+ *  @note	Requires <tt>HW_CH_MOD_MASK</tt> and
+ *  		<tt>HW_BASE_ADDR</tt> macros.
+ *
+ *  @see	<tt>HW_CH_2_MOD_REG_ADDR</tt> and <tt>HW_CH_2_UNIT</tt> macros.
  */
- #define HW_CH_2_UNIT_REG_ADDR(_ch, _ro)	(uint32)( \
-  HW_CH_2_MOD_BASE_ADDR(_ch) + (uint32)_ro + (uint32)( \
+#if	( defined(HW_CH_MOD_MASK) && defined(HW_BASE_ADDR) )
+#ifdef	HW_CH_UNIT_MASK
+#define	HW_CH_2_UNIT_REG_ADDR(_ch, _ro)	(uint32)( \
+  HW_CH_2_MOD_REG_ADDR(_ch,_ro) + (uint32)( \
     HW_CH_2_UNIT(_ch) << (uint32)HW_REG_SZ_S \
   ) \
 )
+#else	/* HW_CH_UNIT_MASK */
+#define	HW_CH_2_UNIT_REG_ADDR(_ch, _ro)	(uint32)( HW_CH_2_MOD_REG_ADDR(_ch) )
+#endif	/* !HW_CH_UNIT_MASK */
+#endif	/* HW_CH_MOD_MASK && HW_BASE_ADDR */
 
 /** @brief	Channel to Hardware Unit Register
  *  @param	_ch	Channel Identifier.
  *  @param	_ro	Harware Unit Register Offset.
  *  @return	Hardware Unit Register.
+ *
+ *  @note	Requires <tt>HW_CH_MOD_MASK</tt> and
+ *  		<tt>HW_BASE_ADDR</tt> macros.
+ *
+ *  @see	<tt>HW_CH_2_UNIT_REG_ADDR</tt> macro.
  */
-#define	HW_CH_2_UNIT_REG(_ch, _ro)	(*((volatile uint32 *)( \
-  HW_CH_2_UNIT_REG_ADDR(_ch, _ro) )) \
+#if	( defined(HW_CH_MOD_MASK) && defined(HW_BASE_ADDR) )
+#define	HW_CH_2_UNIT_REG(_ch, _ro)	EE_HWREG( \
+  HW_CH_2_UNIT_REG_ADDR(_ch, _ro) \
 )
+#endif	/* HW_CH_MOD_MASK && HW_BASE_ADDR */
 
 /*
  * FUNCTIONS
