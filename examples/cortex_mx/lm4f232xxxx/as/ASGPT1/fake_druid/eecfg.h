@@ -92,6 +92,7 @@
 #define __AS_MCU_DRIVER__
 #define __AS_PORT_DRIVER__
 #define __AS_GPT_DRIVER__
+#define __ADD_LIBS__
 
 /***************************************************************************
  *

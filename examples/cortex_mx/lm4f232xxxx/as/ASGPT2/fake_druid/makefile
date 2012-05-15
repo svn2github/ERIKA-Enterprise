@@ -59,12 +59,12 @@ RTDRUID_CONFIGURATOR_NUMBER:=1276
 ############################################################################
 EEOPT += DEBUG
 EEOPT += __ASSERT__
-EEOPT += __USE_SYSTICK__
 EEOPT += __AUTOSAR_R4_0__
 EEOPT += __AS_DIO_DRIVER__
 EEOPT += __AS_MCU_DRIVER__
 EEOPT += __AS_PORT_DRIVER__
 EEOPT += __AS_GPT_DRIVER__
+EEOPT += __ADD_LIBS__
 
 ############################################################################
 #
@@ -128,18 +128,13 @@ STELLARIS_MODEL           := LM4F232xxxx
 # Flags
 #
 ############################################################################
-CFLAGS  += -DEE_CORTEX_MX_TIMER_0_A_ISR_PRI=0x00000001
-CFLAGS  += -DEE_CORTEX_MX_TIMER_0_B_ISR_PRI=0x00000001
-CFLAGS  += -DEE_CORTEX_MX_WIDE_TIMER_0_A_ISR_PRI=0x00000001
-CFALGS  += -DEE_CORTEX_MX_WIDE_TIMER_0_B_ISR_PRI=0x00000001
-CFLAGS  += -DEE_CORTEX_MX_TIMER_1_A_ISR_PRI=0x00000001
-CFLAGS  += -DEE_CORTEX_MX_TIMER_2_A_ISR_PRI=0x00000001
-CFLAGS  += -DEE_CORTEX_MX_WIDE_TIMER_1_A_ISR_PRI=0x00000001
-CFLAGS  += -DEE_CORTEX_MX_WIDE_TIMER_2_A_ISR_PRI=0x00000001
+CFLAGS  +=
 ASFLAGS +=
 LDFLAGS +=
 LDDEPS  +=
 LIBS    +=
+
+LIB_OPT  += __LIB_AUTOSAR__
 
 
 ############################################################################

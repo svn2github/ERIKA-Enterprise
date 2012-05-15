@@ -38,7 +38,7 @@
 # Boston, MA 02110-1301 USA.
 # ###*E*###
 
-## Makefile for Erika ARM Cortex M4 AUTOSAR driver examples
+## Makefile for Erika ARM Cortex M4 AUTOSAR GPT driver examples
 ## Author: 2011,  Giuseppe Serano
 
 
@@ -46,6 +46,12 @@
 export OUTPUT_DIR = Debug
 
 # Check the environment and use reasonable defaults
+ifndef ERIKA_FILES
+ERIKA_FILES=../../../../
+endif
+
+AS_CFG_PREFIX = $(ERIKA_FILES)/contrib/as/arch/stellaris/keil/config/
+
 ifndef RTDRUID_ECLIPSE_HOME
 RTDRUID_ECLIPSE_HOME = C:/Evidence/eclipse
 endif
@@ -64,54 +70,47 @@ AS_CFG =	Compiler_Cfg.h\
 		Port_Cfg.h\
 		Port_Cfg.c
 
-FAKEDRUID_AS_CFG = $(addprefix fake_druid/, $(AS_CFG))
+FAKEDRUID_AS_CFG = $(addprefix $(AS_CFG_PREFIX), $(AS_CFG))
 
 RTDRUID_AS_OUTPUT = $(addprefix $(OUTPUT_DIR)/, $(AS_CFG))
 
-RTDRUID_OUTPUT = $(addprefix $(OUTPUT_DIR)/, \
-	makefile\
-	eecfg.h\
-	eecfg.c\
-)\
-	$(RTDRUID_AS_OUTPUT)
+RTDRUID_OUTPUT = $(addprefix $(OUTPUT_DIR)/, makefile eecfg.h eecfg.c)
 
 .PHONY: all clean
 
-all: $(RTDRUID_OUTPUT)
+all: $(RTDRUID_OUTPUT) $(RTDRUID_AS_OUTPUT)
 	$(MAKE) -C $(OUTPUT_DIR) all
 
 clean:
 	@echo cleaning...
 	rm -f -r $(OUTPUT_DIR)
 
-
 ifeq ($(RUN_RTDRUID),1)
 ifneq (ok,$(shell test -d "$(RTDRUID_ECLIPSE_HOME)" && echo ok ))
 $(error The variable RTDRUID_ECLIPSE_HOME must point to a valid Eclipse RT-Druid installation)
 endif
 
-$(OUTPUT_DIR)/% : fake_druid/%
-	@echo "Substituting RT-Druid in generating $@..."
-	@mkdir -p $(OUTPUT_DIR)
-	@cp $< $@
-
 # Run RT-Druid
-$(RTDRUID_OUTPUT): conf.oil $(FAKEDRUID_AS_CFG)
+$(RTDRUID_OUTPUT): conf.oil
 	@echo "Running RT-Druid..."
 	@ECLIPSE_HOME="$(RTDRUID_ECLIPSE_HOME)" ;\
 	export ECLIPSE_HOME ;\
-	exec sh $(RTDRUID_SCRIPT_DIR)/start_ant.sh -buildfile $(RTDRUID_SCRIPT_DIR)/build.xml -Din_conf_oil=$< -Dconf_output_dir=$(OUTPUT_DIR) compile
-	@echo "Substituting RT-Druid in generating $(RTDRUID_AS_OUTPUT)"
-	@cp $(FAKEDRUID_AS_CFG) $(OUTPUT_DIR)
+	exec sh $(RTDRUID_SCRIPT_DIR)/start_ant.sh \
+		-buildfile $(RTDRUID_SCRIPT_DIR)/build.xml \
+		-Din_conf_oil=$< \
+		-Dconf_output_dir=$(OUTPUT_DIR) \
+		compile
 
 else
 # Simulate RT-Druid
-ifndef ERIKA_FILES
-ERIKA_FILES=../../../../
+$(RTDRUID_OUTPUT): $(OUTPUT_DIR)/% : fake_druid/%
+	@echo "Substituing RT-Druid in generating $@..."
+	@mkdir -p $(OUTPUT_DIR)
+	cp $< $@
 endif
 
-$(RTDRUID_OUTPUT): $(OUTPUT_DIR)/% : fake_druid/%
-	@echo "Substituting RT-Druid in generating $@..."
+# Simulate RT-Druid for AUTOSAR
+$(RTDRUID_AS_OUTPUT): $(OUTPUT_DIR)/% : $(AS_CFG_PREFIX)%
+	@echo "Substituing RT-Druid in generating $@..."
 	@mkdir -p $(OUTPUT_DIR)
-	@cp $< $@
-endif
+	cp $< $@

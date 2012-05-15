@@ -99,6 +99,7 @@
 #define __AS_MCU_DRIVER__
 #define __AS_PORT_DRIVER__
 #define __AS_GPT_DRIVER__
+#define __ADD_LIBS__
 
 /***************************************************************************
  *
@@ -125,21 +126,21 @@
  *
  **************************************************************************/
 #define EE_CORTEX_MX_TIMER_0_A_ISR Gpt_Channel_0_A_ISR
-#define EE_CORTEX_MX_TIMER_0_A_ISR_PRI 1
+#define EE_CORTEX_MX_TIMER_0_A_ISR_PRI EE_ISR_PRI_1
 #define EE_CORTEX_MX_TIMER_0_B_ISR Gpt_Channel_0_B_ISR
-#define EE_CORTEX_MX_TIMER_0_B_ISR_PRI 1
+#define EE_CORTEX_MX_TIMER_0_B_ISR_PRI EE_ISR_PRI_1
 #define EE_CORTEX_MX_WIDE_TIMER_0_A_ISR Gpt_Channel_W_0_A_ISR
-#define EE_CORTEX_MX_WIDE_TIMER_0_A_ISR_PRI 1
+#define EE_CORTEX_MX_WIDE_TIMER_0_A_ISR_PRI EE_ISR_PRI_1
 #define EE_CORTEX_MX_WIDE_TIMER_0_B_ISR Gpt_Channel_W_0_B_ISR
-#define EE_CORTEX_MX_WIDE_TIMER_0_B_ISR_PRI 1
+#define EE_CORTEX_MX_WIDE_TIMER_0_B_ISR_PRI EE_ISR_PRI_1
 #define EE_CORTEX_MX_TIMER_1_A_ISR Gpt_Channel_J_1_ISR
-#define EE_CORTEX_MX_TIMER_1_A_ISR_PRI 1
+#define EE_CORTEX_MX_TIMER_1_A_ISR_PRI EE_ISR_PRI_1
 #define EE_CORTEX_MX_TIMER_2_A_ISR Gpt_Channel_J_2_ISR
-#define EE_CORTEX_MX_TIMER_2_A_ISR_PRI 1
+#define EE_CORTEX_MX_TIMER_2_A_ISR_PRI EE_ISR_PRI_1
 #define EE_CORTEX_MX_WIDE_TIMER_1_A_ISR Gpt_Channel_J_W_1_ISR
-#define EE_CORTEX_MX_WIDE_TIMER_1_A_ISR_PRI 1
+#define EE_CORTEX_MX_WIDE_TIMER_1_A_ISR_PRI EE_ISR_PRI_1
 #define EE_CORTEX_MX_WIDE_TIMER_2_A_ISR Gpt_Channel_J_W_2_ISR
-#define EE_CORTEX_MX_WIDE_TIMER_2_A_ISR_PRI 1
+#define EE_CORTEX_MX_WIDE_TIMER_2_A_ISR_PRI EE_ISR_PRI_1
 
 
 #endif
