@@ -169,7 +169,7 @@ Std_ReturnType Mcu_InitRamSection(
  * Mcu_InitSystemClock implementation
  */
 #if ( MCU_INIT_CLOCK == STD_ON )
-static void Mcu_InitSystemClock(Mcu_ClockSettingConfigType *ConfigPtr)
+static void Mcu_InitSystemClock(const Mcu_ClockSettingConfigType *ConfigPtr)
 {
   register uint32 rccsrc;	/* Run-Mode Clock Configuration Source        */
   register uint32 rcc2src;	/* Run-Mode Clock Configuration 2 Source      */

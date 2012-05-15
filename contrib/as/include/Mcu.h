@@ -165,7 +165,7 @@ typedef	uint8_least	Mcu_ClockType;
  *  - Data pre-setting to be initialized
  * Usage of linker symbols instead of scalar values is allowed.
  */
-extern Mcu_ConfigType Mcu_Config;
+extern const Mcu_ConfigType Mcu_Config[];
 
 /** @brief	MCU Configuration Pointer
  *

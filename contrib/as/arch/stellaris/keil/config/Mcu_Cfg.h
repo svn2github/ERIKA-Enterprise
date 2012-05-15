@@ -689,7 +689,7 @@ typedef struct {
    *
    *  @see <b>MCU031</b> for more information on the MCU clock settings.
    */
-  Mcu_ClockSettingConfigType * McuClockSettingConfig;
+  const Mcu_ClockSettingConfigType * McuClockSettingConfig;
 
 #if ( MCU_DEV_ERROR_DETECT == STD_ON )
   /** @brief	DEM Event Configuration Parameters
@@ -710,7 +710,7 @@ typedef struct {
    *
    *  @see <b>MCU035</b> for more information on the MCU mode settings.
    */
-  Mcu_ModeSettingConfigType  * McuModeSettingConf;
+  const Mcu_ModeSettingConfigType  * McuModeSettingConf;
 
   /** @brief	Ram Sector Setting  Configuration Parameters
    *
@@ -719,8 +719,20 @@ typedef struct {
    *
    *  @see <b>MCU030</b> for more information on RAM sec-tor settings.
    */
-  Mcu_RamSectorSettingConfType * McuRamSectorSettingConf;
+  const Mcu_RamSectorSettingConfType * McuRamSectorSettingConf;
 
 } Mcu_ConfigType;
+
+/** @brief	Default Configuration
+ *
+ *  Identifier for Default MCU Driver Configuration.
+ */
+#define	MCU_CONFIG_DEFAULT	0x00000000U
+
+/** @brief	Default Configuration Pointer
+ *
+ *  Pointer of Default MCU Driver Configuration.
+ */
+#define	MCU_CONFIG_DEFAULT_PTR	&Mcu_Config[MCU_CONFIG_DEFAULT]
 
 #endif	/* MCU_CFG_H */

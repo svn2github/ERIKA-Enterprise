@@ -68,7 +68,7 @@
  *
  * Please see MCU031 for more information on the MCU clock settings.
  */
-Mcu_ClockSettingConfigType Mcu_ClockSettingConfigData[] =
+const Mcu_ClockSettingConfigType Mcu_ClockSettingConfigData[] =
 {
   { /* MCU_CLOCK_MODE_NORMAL */
     MCU_CLOCK_MODE_PRIOSC_NO_PLL,	/* Clock Settings Identifier	      */
@@ -464,7 +464,7 @@ Mcu_ClockSettingConfigType Mcu_ClockSettingConfigData[] =
  * Please see MCU035 for more information on the MCU mode settings.
  */
 
-Mcu_ModeSettingConfigType Mcu_ModeSettingConfigData[] = 
+const Mcu_ModeSettingConfigType Mcu_ModeSettingConfigData[] = 
 {
   {
     MCU_MODE_NORMAL,
@@ -477,7 +477,7 @@ Mcu_ModeSettingConfigType Mcu_ModeSettingConfigData[] =
  *
  * Please see MCU030 for more information on RAM sec-tor settings.
  */
-Mcu_RamSectorSettingConfType Mcu_RamSectorSettingConfigData[] =
+const Mcu_RamSectorSettingConfType Mcu_RamSectorSettingConfigData[] =
 {
   {
     0,		/* McuRamDefaultValue		*/
@@ -526,14 +526,16 @@ Mcu_RamSectorSettingConfType Mcu_RamSectorSettingConfigData[] =
  * 		- Data pre-setting to be initialized
  * 		Usage of linker symbols instead of scalar values is allowed.
  */
-Mcu_ConfigType Mcu_Config =
+const Mcu_ConfigType Mcu_Config[] = 
 {
-  FALSE,				/* McuClockSrcFailureNotification */
-  1,					/* McuNumberOfMcuModes		  */
-  1,					/* McuRamSectors		  */
-  NULL_PTR,				/* McuResetSetting		  */
-  &Mcu_ClockSettingConfigData[0],	/* McuClockSettingConfig	  */
-  /*NULL_PTR,*/				/* McuDemEventParametersRefs	  */
-  &Mcu_ModeSettingConfigData[0],	/* McuModeSettingConf		  */
-  &Mcu_RamSectorSettingConfigData[0],	/* McuRamSectorSettingConf	  */
+  {
+    FALSE,				/* McuClockSrcFailureNotification */
+    1,					/* McuNumberOfMcuModes		  */
+    1,					/* McuRamSectors		  */
+    NULL_PTR,				/* McuResetSetting		  */
+    &Mcu_ClockSettingConfigData[0],	/* McuClockSettingConfig	  */
+    /*NULL_PTR,*/			/* McuDemEventParametersRefs	  */
+    &Mcu_ModeSettingConfigData[0],	/* McuModeSettingConf		  */
+    &Mcu_RamSectorSettingConfigData[0]	/* McuRamSectorSettingConf	  */
+  }
 };
