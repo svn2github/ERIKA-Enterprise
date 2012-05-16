@@ -75,17 +75,18 @@ RX_TMPDIR := $(call native_path, .)
 endif
 
 ifndef BIN_RX
-export BIN_RX := $(call native_path, $(CCRX_ROOT)\\bin)
+export BIN_RX := $(call native_path, $(CCRX_ROOT)\\Bin)
 endif
 
 ifndef INC_RX
 export INC_RX := $(call native_path, $(CCRX_ROOT)\\Include)
 endif
 
-#export PATH:=$(call native_path, $(PATH):$(CCRX_ROOT)\\bin)
 
+#export PATH:=$(call native_path, $(PATH):$(CCRX_ROOT)\\Bin)
 #export TMP_RX:=$(call native_path,$(TEMP))
-#export TMP_RX:="C:\\Users\\paco\\Temp"
+
+
 # Bin directories used for compilation
 # BINDIR_ASM      - directory of the Assembler
 # BINDIR_CC       - directory of the C compiler
