@@ -84,6 +84,13 @@
 /** @brief Return Active Clock Type */
 #define MCU_CLOCK_ACTIVE()          (ME.GS.B.S_SYSCLK)
 
+/** @brief Return if PLL0 is actually enabled */
+#define MCU_PLL0_IS_ENABLED()       (ME.GS.B.S_PLL0)
+
+/** @brief Return if PLL1 is actually enabled */
+#define MCU_PLL1_IS_ENABLED()       (ME.GS.B.S_PLL1)
+
+
 /* Mode Entry Module Macros (MC_ME) */
 
 /** @brief Mode Entry base address */

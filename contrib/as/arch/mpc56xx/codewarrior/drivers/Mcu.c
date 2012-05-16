@@ -59,6 +59,7 @@
 #endif
 
 #include <ee.h>
+
 #include "Hardware.h"
 #include "Utility.h"
 
@@ -273,7 +274,8 @@ Std_ReturnType Mcu_InitRamSection(Mcu_RamSectionType RamSection)
 #define EE_ECSM_MUDCR (*((volatile EE_UREG*)(ECSM_BASE_ADDR + 0x0024U)))
 #endif /* MCU_CLOCK_MAX_FREQ_WITHOUT_RAM_WAIT */
 
-/* Bitmask to enable PLL clock switching when written on CGM.FMPLL */
+/* Bitmasks used to access to CGM.FMPLL */
+#define EE_UNLOCK_PLL                   0xFFFF0010U
 #define EE_ENABLE_PLL_SWITCHING         0x00000100U
 
 /* Bitmask to select RC or Xosc as PLL source */
@@ -281,9 +283,12 @@ Std_ReturnType Mcu_InitRamSection(Mcu_RamSectionType RamSection)
 #define EE_XOSC_PLL_SOURCE              0x01000000U
 
 /* Bitmasks to check mode configurations */
+#define EE_MODE_CLEAR_CLK               0xFFFFFFF0U
 #define EE_MODE_CLK_SYS_FMPLL           0x00000004U
+#define EE_MODE_IRCOSC_ON               0x00000010U
 #define EE_MODE_XOSC_ON                 0x00000020U
-
+#define EE_MODE_PLL0_ON                 0x00000040U
+#define EE_MODE_PLL1_ON                 0x00000080U
 Std_ReturnType Mcu_InitClock(Mcu_ClockType ClockSetting)
 {
   /* Utility Index */
@@ -309,39 +314,39 @@ Std_ReturnType Mcu_InitClock(Mcu_ClockType ClockSetting)
     return E_NOT_OK;
   }
 
-  if( !HW_REG_BITMASK_CHECK(mode_configuration, EE_MODE_CLK_SYS_FMPLL) ) {
-    /* Actual Mode Configuration doesn't use FMPLL so I cannot change clock */
-    return E_NOT_OK;
-  }
-
-  if( !HW_REG_BITMASK_CHECK(mode_configuration, EE_MODE_XOSC_ON) && 
-      (pll_source_mask == EE_XOSC_PLL_SOURCE) ) 
-  {
-    /* The configuration change should use XOSC but cannot */
-    return E_NOT_OK;
-  }
-
   /*                        !!! WARNING !!!
-    Before change PLL Source Mask I need to ensure that PLL is not used as
-    actual clock source
+    Only Supervisor can access to CGM.ACX_SC and CGM.FMPLL[X].CR registers
+    so I check if I need a mode switch to configure them. Furthermore if I'm
+    actually using FMPLL I have to switch to RC internal OSC.
   */
-  if( MCU_CLOCK_ACTIVE() == EE_MODE_CLK_SYS_FMPLL ) {
-    if( (CGM.AC3_SC.R != pll_source_mask) || (CGM.AC4_SC.R != pll_source_mask) )
-    {
-      /* I need to change to Int RC Clock in order to change FMPLL source */
-      mode_configuration &= 0xFFFFFFF0;
-      ME_SET_MC(active_hw_mode, mode_configuration);
-      EE_mcu_perform_mode_switch(active_hw_mode);
-    }
+  if( (active_hw_mode != MCU_MODE_ID_DRUN) ||
+      (MCU_CLOCK_ACTIVE() == EE_MODE_CLK_SYS_FMPLL) )
+  {
+     /* I need to switch to supervisor mode to change CGM.ACX_SC registers
+       (To be safe I switch to internal RC as clock too) */
+    ME_SET_MC(MCU_MODE_ID_DRUN, ME_GET_MC(MCU_MODE_ID_DRUN) &
+      EE_MODE_CLEAR_CLK);
+    EE_mcu_perform_mode_switch(MCU_MODE_ID_DRUN);
   }
 
-  CGM.AC3_SC.R = pll_source_mask; /* Select PLL0 source clock */
-  CGM.AC4_SC.R = pll_source_mask; /* Select PLL1 source clock */
+  if( (CGM.AC3_SC.R != pll_source_mask) || (CGM.AC4_SC.R != pll_source_mask) )
+  {
+    /*                  !!! WARNING !!!
+        I cannot switch PLL sources if PLLs are locked
+     */
+    if( CGM.FMPLL[0].CR.B.S_LOCK || CGM.FMPLL[1].CR.B.S_LOCK ) {
+      return E_NOT_OK;
+    }
 
+    /* Select PLL0 source clock */
+    CGM.AC3_SC.R = pll_source_mask;
+    /* Select PLL1 source clock */
+    CGM.AC4_SC.R = pll_source_mask;
+  }
 
   /* TODO: check the following better */
-  /* Monitor FXOSC > FIRC/1 (16MHz); no PLL monitor*/
-  CGM.CMU_0_CSR.R = 0x000000000;
+  /* Monitor FXOSC > FIRC/1 (16MHz); no PLL monitor */
+  /* CGM.CMU_0_CSR.R = 0x000000000; */
 
   /* fsys = (fcrystal * ndiv) / (idf * odf) */
   /* fvco must be from 256 MHz to 512 MHz and fvco = fsys * odf */
@@ -352,7 +357,21 @@ Std_ReturnType Mcu_InitClock(Mcu_ClockType ClockSetting)
   CGM.FMPLL[0].CR.R = (clockSettingsPtr->McuPllConfiguration);
 
   /* Mode Switch to change PLL configuration */
-  Mcu_SetMode(EE_mcu_status.mode);
+  if( !HW_REG_BITMASK_CHECK(mode_configuration, EE_MODE_CLK_SYS_FMPLL) ) {
+    /* Actual Mode Configuration doesn't use FMPLL so I cannot change clock */
+    /* I adjust mode configuration */
+    mode_configuration = (mode_configuration & EE_MODE_CLEAR_CLK) |
+      EE_MODE_CLK_SYS_FMPLL | EE_MODE_IRCOSC_ON | EE_MODE_PLL0_ON;
+  }
+
+  if( (!HW_REG_BITMASK_CHECK(mode_configuration, EE_MODE_XOSC_ON)) &&
+      (pll_source_mask == EE_XOSC_PLL_SOURCE) ) {
+    /* Actual Mode Configuration has XOSC not active */
+    /* I adjust mode_configuration */
+    mode_configuration |= EE_MODE_XOSC_ON;
+  }
+  ME_SET_MC(active_hw_mode, mode_configuration);
+  EE_mcu_perform_mode_switch(active_hw_mode);
 
 #ifdef MCU_CLOCK_MAX_FREQ_WITHOUT_RAM_WAIT
   if (clockSettingsPtr->McuClockReferencePointFrequency >=
