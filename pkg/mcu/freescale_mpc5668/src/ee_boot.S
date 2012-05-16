@@ -75,7 +75,7 @@ void EE_mpc5668_initialize_external_IRQ_priorities(void);
 		EE_COMPILER_SECTION(".boot_data") bam_data =
 		{ BAM_RCHW, ee_start };
 	*/
-	.section .bam_data
+	.section .boot_data
 	.global	_bam_data
 	.type	_bam_data, @object
 _bam_data:
