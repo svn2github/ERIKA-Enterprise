@@ -56,8 +56,8 @@ StatusType EE_com_SendMessage(SymbolicName Message,
 #endif
 	
 #ifdef __EE_COM_EXTENDED__
-  if ((Message == 0) || 
-      (Message > EE_COM_N_MSG) || 
+//  if ((Message == 0) ||  
+    if ((Message > EE_COM_N_MSG) || 
       (EE_com_msg_ROM[Message] == NULL) || 
       ((EE_com_msg_RAM[Message]->property & EE_MASK_MSG_TXRX) 
             == EE_COM_MSG_RX) || 

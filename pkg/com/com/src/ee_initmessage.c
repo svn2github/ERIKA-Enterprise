@@ -74,12 +74,12 @@ StatusType EE_com_InitMessage(SymbolicName Message,
   EE_UINT8 EE_com_temp_buffer[EE_com_bit2byte(EE_UINT8)];
   #endif
        
-#ifdef __COM_EXTENDED__
+#ifdef __EE_COM_EXTENDED__
   if ((Message > EE_COM_N_MSG) || 
-      (EE_COM_msg_ROM[Message]->size == 0) || 
-      ((EE_COM_msg_RAM[Message]->property & (0x8100) == 0x0100)) 
+      (EE_com_msg_ROM[Message]->size == 0) || 
+      ((EE_com_msg_RAM[Message]->property & 0x8100) == 0x0100))
   {
-    EE_com_sys2user.service_error = ComServiceId_InitMessage;
+    EE_com_sys2user.service_error = COMServiceId_InitMessage;
 #ifdef __COM_HAS_ERRORHOOK__ 
     flags = EE_hal_begin_nested_primitive();    
       COMError_InitMessage_Message = Message;

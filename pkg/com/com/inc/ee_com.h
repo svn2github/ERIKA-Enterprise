@@ -180,7 +180,7 @@ EE_UINT8 F_NewIsDifferent(void *new_data, void *old_data,
 typedef EE_TYPESTATUS StatusType;
 #define E_OK                                 0
 #endif
-/*GF: Since the message status is given by the firs 3 bits in 
+/*GF: Since the message status is given by the first 3 bits in 
 * EE_com_msg_RAM_TYPE->property, its better to use values in
 * the range [1; 7]. 
 */
@@ -204,7 +204,9 @@ typedef EE_TYPESYMBOLICNAME SymbolicName;
 
 /* 2.9.2.1.3 - This implementation of COM uses pointer to
            bytes. For that reason, EE_ADDR CANNOT be used. */
-typedef EE_UINT8 *ApplicationDataRef;
+//typedef EE_UINT8 *ApplicationDataRef;
+/*GF: Changed to a void pointer to handle different data types, expecially strings*/
+typedef void *ApplicationDataRef;
 
 /* 2.9.2.1.4 */
 typedef EE_UINT8 *LengthRef;
