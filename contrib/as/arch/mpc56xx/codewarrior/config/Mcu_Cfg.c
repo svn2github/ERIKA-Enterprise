@@ -73,33 +73,47 @@ Mcu_ClockSettingConfigType const Mcu_ClockSettingConfigData[] =
   { 
     MCU_CLOCK_EXT_REF_64MHZ,      /* Clock Settings Identifier          */
     6.4E7,                        /* McuClockReferencePointFrequency    */
-    0x12400000U,                  /* 40 MHz xtal: Set PLL0 to 64 MHz    */
+    0x12400001U,                  /* 40 MHz xtal: Set PLL0 to 64 MHz    */
                                   /* IDF = 4: divide Fxtal by 5 (IDF+1) */
                                   /* NDIV = 64: multiply by 64 (NDIV)   */
                                   /* ODF = 2:  divide Fpll by 8 (2**(ODF+1)) */
     TRUE                          /* External Oscillator is PLL input */
-
   },
-  /* MCU_CLOCK_MODE_NORMAL */
   {
     MCU_CLOCK_EXT_REF_80MHZ,      /* Clock Settings Identifier          */
     8E7,                          /* McuClockReferencePointFrequency    */
-    0x0D400000U,                  /* 40 MHz xtal: Set PLL0 to 120 MHz   */
+    0x1D400001U,                  /* 40 MHz xtal: Set PLL0 to 120 MHz   */
                                   /* IDF = 7: divide Fxtal by 8 (IDF+1) */
                                   /* NDIV = 64: multiply by 64 (NDIV)   */
                                   /* ODF = 1:  divide Fpll by 4 (2**(ODF+1)) */
     TRUE                          /* External Oscillator is PLL input */
-
   },
-  /* MCU_CLOCK_MODE_NORMAL */
   {
     MCU_CLOCK_EXT_REF_120MHZ,     /* Clock Settings Identifier          */
     1.2E8,                        /* McuClockReferencePointFrequency    */
-    0x0D300000U,                  /* 40 MHz xtal: Set PLL0 to 120 MHz */ 
+    0x0D300001U,                  /* 40 MHz xtal: Set PLL0 to 120 MHz */
                                   /* IDF = 3: divide Fxtal by 4 (IDF+1) */
                                   /* NDIV = 48: multiply by 48 (NDIV) */
                                   /* ODF = 1:  divide Fpll by 4 (2**(ODF+1)) */
     TRUE                          /* External Oscillator is PLL input */
+  },
+  {
+    MCU_CLOCK_RC_REF_80MHZ,       /* Clock Settings Identifier          */
+    1.2E8,                        /* McuClockReferencePointFrequency    */
+    0x05480001U,                  /* 16 MHz RC: Set PLL0 to 80 MHz */
+                                  /* IDF = 1: divide RC by 2 (IDF+1) */
+                                  /* NDIV = 40: multiply by 40 (NDIV) */
+                                  /* ODF = 1:  divide Fpll by 4 (2**(ODF+1)) */
+    FALSE
+  },
+  {
+    MCU_CLOCK_RC_REF_120MHZ,      /* Clock Settings Identifier          */
+    1.2E8,                        /* McuClockReferencePointFrequency    */
+    0x095A0001U,                  /* 16 MHz RC: Set PLL0 to 120 MHz */
+                                  /* IDF = 2: divide RC by 4 (IDF+1) */
+                                  /* NDIV = 90: multiply by 90 (NDIV) */
+                                  /* ODF = 1:  divide Fpll by 4 (2**(ODF+1)) */
+    FALSE
   }
 };
 
@@ -110,21 +124,25 @@ Mcu_ClockSettingConfigType const Mcu_ClockSettingConfigData[] =
  *
  * Please see MCU035 for more information on the MCU mode settings.
  */
-
 Mcu_ModeSettingConfigType const Mcu_ModeSettingConfigData[] =
 {
   {
-    /* Application Execution Mode */
-    MCU_MODE_ID_RUN0, /* RUN0 hardware ID */
-    0x001F0074U,      /* RUN0 cfg: 16MHzIRCON,OSC0ON,PLL0ON,syclk=PLL0 */
-  },
-  {
-    /* Application Supervisor Mode */
+    MCU_MODE_INIT,    /* Application Init Mode */
     MCU_MODE_ID_DRUN, /* DRUN hardware ID */
-    0x001F0074U       /* DRUN cfg: 16MHzIRCON,OSC0ON,PLL0ON,syclk=PLL0 */
+    0x001F0030U       /* DRUN cfg: 16MHzIRCON,OSC0ON,PLL0OFF,syclk=16MHzIRC */
   },
   {
-    /* Safe mode for recovering from errors */
+    MCU_MODE_APPLICATION, /* Application Execution Mode */
+    MCU_MODE_ID_RUN0,     /* RUN0 hardware ID */
+    0x001F0074U,          /* RUN0 cfg: 16MHzIRCON,OSC0ON,PLL0ON,syclk=PLL0 */
+  },
+  {
+    MCU_MODE_SUPERVISOR,  /* Application Supervisor Mode */
+    MCU_MODE_ID_DRUN,     /* DRUN hardware ID */
+    0x001F0074U           /* DRUN cfg: 16MHzIRCON,OSC0ON,PLL0ON,syclk=PLL0 */
+  },
+  {
+    MCU_MODE_SAFE,    /* Application Safe Mode (for recovering from errors) */
     MCU_MODE_ID_SAFE, /* SAFE hardware ID */
     0x001F0010U       /* SAFE cfg: 16MHzIRCON,OSC0OFF,PLL0OFF,syclk=16MHzIRC */
   }
@@ -186,24 +204,28 @@ Mcu_RamSectorSettingConfType const Mcu_RamSectorSettingConfigData[] =
  *    - Data pre-setting to be initialized
  *    Usage of linker symbols instead of scalar values is allowed.
  */
-Mcu_ConfigType Mcu_Config =
+const Mcu_ConfigType Mcu_Config[] =
 {
-  /* McuClockSrcFailureNotification */
-  FALSE,
-  /* McuNumberOfMcuModes            */
-  MCU_MODES_NUMBER,
-  /* McuRamSectors                  */
-  1U,
-  /* McuResetSetting                */
-  MCU_RESET_CONF,
-  /* (Mcu_ClockSettingConfigType const * const) */
-  &Mcu_ClockSettingConfigData[0],
-  /* McuDemEventParametersRefs      */
-  /*NULL_PTR,*/
-  /* (Mcu_ModeSettingConfigType const * const) */
-  &Mcu_ModeSettingConfigData[0],
-  /* (Mcu_RamSectorSettingConfType const * const) */
-  &Mcu_RamSectorSettingConfigData[0],
-  /* McuExternalOscillatorFrequency */
-  40000000U
+  {
+    /* McuClockSrcFailureNotification */
+    FALSE,
+    /* McuNumberOfMcuModes            */
+    MCU_MODES_NUMBER,
+    /* McuDefaultInitMode             */
+    MCU_MODE_INIT,
+    /* McuRamSectors                  */
+    1U,
+    /* McuResetSetting                */
+    MCU_RESET_CONF,
+    /* (Mcu_ClockSettingConfigType const * const) */
+    &Mcu_ClockSettingConfigData[0],
+    /* McuDemEventParametersRefs      */
+    /*NULL_PTR,*/
+    /* (Mcu_ModeSettingConfigType const * const) */
+    &Mcu_ModeSettingConfigData[0],
+    /* (Mcu_RamSectorSettingConfType const * const) */
+    &Mcu_RamSectorSettingConfigData[0],
+    /* McuExternalOscillatorFrequency */
+    40000000U
+  }
 };

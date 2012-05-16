@@ -44,6 +44,9 @@
  *  This file contains all the functions and macros for abstraction of hardware
  *  for Freescale Leopard (MPC5643L) and Codewarrior compiler.
  *
+ *  In order to use the following macros you need to include header with
+ *  hardware info somewere before the first use site
+ *
  *  @author Errico Guidieri
  *  @date 2012
  */
@@ -51,6 +54,51 @@
 #ifndef HARDWARE_H
 #define HARDWARE_H
 
-/* TODO fill this */
+/*
+ * MACROS
+ */
+#define HW_REG_SZ   0x00000004U   /**< Register Size in Bytes   */
+#define HW_REG_SZ_S 0x00000002U   /**< Register Size Shift Bits */
+
+/** @brief Macro used to actually use a integer as register offset */
+#define HW_REG_OFFSET(index) ((index) << HW_REG_SZ_S)
+
+/** @brief Macro used to check a reg value againt a bit mask */
+#define HW_REG_BITMASK_CHECK(reg, bitmask) (((reg) & (bitmask)) == bitmask)
+
+/* Processor identification */
+
+/** @brief Core identification special register */
+#define SPR_PIR 286
+/** @brief Core version special register */
+#define SPR_PVR 287
+
+/** @brief Leopard Core PVR */
+#define PVR_CORE_E200Z4D_LEOPARD    0x81550001UL 
+
+/* MCU Macros access */
+
+/** @brief Return Active Hardware Mode */
+#define MCU_HARDWARE_MODE_ACTIVE()  (ME.GS.B.S_CURRENT_MODE)
+
+/** @brief Return Active Clock Type */
+#define MCU_CLOCK_ACTIVE()          (ME.GS.B.S_SYSCLK)
+
+/* Mode Entry Module Macros (MC_ME) */
+
+/** @brief Mode Entry base address */
+#define ME_BASE_ADDR 0xC3FDC000U
+/** @brief Mode Entry Global Status */
+#define ME_GS   ((volatile uint32 *) ME_BASE_ADDR)
+
+/** @brief Mode Entry Mode Configuration Base */
+#define ME_MC_BASE_ADDR   0xC3FDC020U
+
+/** @brief Read Mode Configuration */
+#define ME_GET_MC(mode) (*(volatile uint32 *)(ME_MC_BASE_ADDR +\
+    HW_REG_OFFSET(mode)))
+
+/** @bried Write Mode Configuration */
+#define ME_SET_MC(mode, conf) (ME_GET_MC(mode) = (conf))
 
 #endif  /* HARDWARE_H */

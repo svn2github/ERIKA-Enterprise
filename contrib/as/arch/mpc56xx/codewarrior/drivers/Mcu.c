@@ -59,20 +59,15 @@
 #endif
 
 #include <ee.h>
+#include "Hardware.h"
 #include "Utility.h"
 
 struct EE_mcu_status_type {
   boolean               init;
   const Mcu_ConfigType  *config;
+  Mcu_ModeType          mode;
   Mcu_ClockType         clock;
-} EE_mcu_status = {0, NULL};
-
-/* Processor identification */
-
-#define SPR_PIR 286
-#define SPR_PVR 287
-
-#define PVR_CORE_E200Z4D_LEOPARD    0x81550001UL /* Leopard Core PVR */
+} EE_mcu_status = {0, NULL, MCU_MODE_INVALID, MCU_CLOCKS_INVALID};
 
 struct EE_cpu_info_type {
   const char * const    cpu_name;
@@ -115,7 +110,6 @@ static struct EE_mcu_info_type const * EE_mcu_get_supported(uint16 mcuid1,
         }
       }
     }
-
     return mcu_info;
 }
 
@@ -148,13 +142,12 @@ static EE_mcu_disable_watchdog(void) {
   SWT.CR.R = 0x8000010A;     /* Clear watchdog enable (WEN) */
 }
 
-
 /*  Mode switch implementation */
 #define MCU_TARGET_MODE_SHIFT   28U
 #define MCU_KEY_MASK            0x00005AF0U
 #define MCU_INVERTED_KEY_MASK   0x0000A50FU
 
-static void EE_mcu_perform_mode_switch(Mcu_HardawareModeIdType
+static void EE_mcu_perform_mode_switch(Mcu_HardwareModeIdType
     mode_hardware_id) {
 
   const uint32 target_mode_mask   = mode_hardware_id << MCU_TARGET_MODE_SHIFT;
@@ -183,52 +176,28 @@ static void EE_mcu_perform_mode_switch(Mcu_HardawareModeIdType
   ME.IS.R = 0x00000001U;
 }
 
-static void EE_mcu_set_mode_configuration(Mcu_HardawareModeIdType
-    mode_hardware_id, uint32 run_configuration) {
-  /* TODO Add bit masks to disable bit that must be disabled and to enable bit
-     that must be enabled (unconfigurable bits) */
-  switch(mode_hardware_id) {
-    case MCU_MODE_ID_RESET:
-      ME.RESET_MC.R = run_configuration;
-    break;
-    case MCU_MODE_ID_TEST:
-      ME.TEST_MC.R = run_configuration;
-    break;
-    case MCU_MODE_ID_SAFE:
-      ME.SAFE_MC.R = run_configuration;
-    break;
-    case MCU_MODE_ID_DRUN:
-      ME.DRUN_MC.R = run_configuration;
-    break;
-    case MCU_MODE_ID_RUN0:
-      ME.RUN0_MC.R = run_configuration;
-    break;
-    case MCU_MODE_ID_RUN1:
-      ME.RUN1_MC.R = run_configuration;
-    break;
-    case MCU_MODE_ID_RUN2:
-      ME.RUN2_MC.R = run_configuration;
-    break;
-    case MCU_MODE_ID_RUN3:
-      ME.RUN3_MC.R = run_configuration;
-    break;
-    case MCU_MODE_ID_HALT0:
-      ME.HALT0_MC.R = run_configuration;
-    break;
-    case MCU_MODE_ID_STOP0:
-      ME.STOP0_MC.R = run_configuration;
-    default:
-      /* Unknown mode ID nothing to do (XXX: maybe Notify DET/DEM) */
-      ;
-  }
-}
+#define MCU_RESET_CLEAR_ALL_FLAGS     0xFFFFU
 
-#define MCU_RESET_CLEAR_ALL_FLAGS 0xFFFFU
-static void EE_mcu_clear_reset_flags(EE_UINT16 bitmask_to_clear) {
+#define MCU_RESET_CLEAR_F_F_SOFT      0x0004U
+#define MCU_RESET_CLEAR_F_F_CWD       0x0008U
+#define MCU_RESET_CLEAR_F_F_FCCU_SAFE 0x0080U
+#define MCU_RESET_CLEAR_F_F_SWT       0x0100U
+
+static void EE_mcu_clear_functional_reset_flags(uint16 bitmask_to_clear) {
   /* Check if the any bits of the bitmask are set */
   while((RGM.FES.R & bitmask_to_clear) != 0U) {
     /* w1c bits */
     RGM.FES.R = bitmask_to_clear;
+  }
+}
+
+#define MCU_RESET_CLEAR_D_F_SOFT      0x4000U
+#define MCU_RESET_CLEAR_D_F_POR       0x8000U
+static void EE_mcu_clear_destructive_reset_flags(uint16 bitmask_to_clear) {
+  /* Check if the any bits of the bitmask are set */
+  while((RGM.DES.R & bitmask_to_clear) != 0U) {
+    /* w1c bits */
+    RGM.DES.R = bitmask_to_clear;
   }
 }
 
@@ -264,14 +233,17 @@ void Mcu_Init(const Mcu_ConfigType * ConfigPtr)
   EE_mcu_status.config = ConfigPtr;
 
   /* Configure RESET */
-  EE_mcu_set_mode_configuration(MCU_MODE_ID_RESET,
-    ConfigPtr->McuResetSetting);
-
-  /* FORCE DRUN mode (priviliged mode) */
-  EE_mcu_perform_mode_switch(MCU_MODE_ID_DRUN);
+  ME_SET_MC(MCU_MODE_ID_RESET, ConfigPtr->McuResetSetting);
 
   /* Now the MCU is initializated */
   EE_mcu_status.init = TRUE;
+
+  /* Configure and switch to default mode (it should be a DRUN mode, because
+     sometime MCU starts in SAFE mode) */
+  /* Reset start-up FCCU SAFE event (as work around needed to recover if a
+     fccu complain with a hw fault (it happens)) */
+  EE_mcu_clear_functional_reset_flags(MCU_RESET_CLEAR_F_F_FCCU_SAFE);
+  Mcu_SetMode(ConfigPtr->McuDefaultInitMode);
 }
 
 /*
@@ -301,21 +273,71 @@ Std_ReturnType Mcu_InitRamSection(Mcu_RamSectionType RamSection)
 #define EE_ECSM_MUDCR (*((volatile EE_UREG*)(ECSM_BASE_ADDR + 0x0024U)))
 #endif /* MCU_CLOCK_MAX_FREQ_WITHOUT_RAM_WAIT */
 
-/* Bit mask to enable PLL clock switching when written on CGM.FMPLL */
-#define EE_ENABLE_PLL_SWITCHING 0x00000100
+/* Bitmask to enable PLL clock switching when written on CGM.FMPLL */
+#define EE_ENABLE_PLL_SWITCHING         0x00000100U
+
+/* Bitmask to select RC or Xosc as PLL source */
+#define EE_RC_PLL_SOURCE                0x00000000U
+#define EE_XOSC_PLL_SOURCE              0x01000000U
+
+/* Bitmasks to check mode configurations */
+#define EE_MODE_CLK_SYS_FMPLL           0x00000004U
+#define EE_MODE_XOSC_ON                 0x00000020U
 
 Std_ReturnType Mcu_InitClock(Mcu_ClockType ClockSetting)
 {
-  Mcu_ClockSettingConfigType const * const clockSettingsPtr = 
+  /* Utility Index */
+  uint32 i;
+
+  /* Get Clock Settings */
+  const Mcu_ClockSettingConfigType * const clockSettingsPtr = 
     &EE_mcu_status.config->McuClockSettingConfig[ClockSetting];
 
-  /* Configure PLL clock Source */
+  /* Configure PLL Clock Source */
   const uint32 pll_source_mask = (clockSettingsPtr->McuUseExternalOscillator)?
-      0x01000000U:  /* Select Xosc as PLL source clock */
-      0x00000000U;  /* Select Int RC osc as PLL source clock */
+      EE_XOSC_PLL_SOURCE: /* Select Xosc as PLL source clock */
+      EE_RC_PLL_SOURCE;   /* Select Int RC osc as PLL source clock */
+
+  /* Active Hardware Mode */
+  Mcu_HardwareModeIdType active_hw_mode = MCU_HARDWARE_MODE_ACTIVE();
+  /* Hardware Mode Configuration */
+  uint32 mode_configuration = ME_GET_MC(active_hw_mode);
+
+  /* Driver Unitializated conditions */
+  if((EE_mcu_status.init == FALSE) || (EE_mcu_status.mode == MCU_MODE_INVALID))
+  {
+    return E_NOT_OK;
+  }
+
+  if( !HW_REG_BITMASK_CHECK(mode_configuration, EE_MODE_CLK_SYS_FMPLL) ) {
+    /* Actual Mode Configuration doesn't use FMPLL so I cannot change clock */
+    return E_NOT_OK;
+  }
+
+  if( !HW_REG_BITMASK_CHECK(mode_configuration, EE_MODE_XOSC_ON) && 
+      (pll_source_mask == EE_XOSC_PLL_SOURCE) ) 
+  {
+    /* The configuration change should use XOSC but cannot */
+    return E_NOT_OK;
+  }
+
+  /*                        !!! WARNING !!!
+    Before change PLL Source Mask I need to ensure that PLL is not used as
+    actual clock source
+  */
+  if( MCU_CLOCK_ACTIVE() == EE_MODE_CLK_SYS_FMPLL ) {
+    if( (CGM.AC3_SC.R != pll_source_mask) || (CGM.AC4_SC.R != pll_source_mask) )
+    {
+      /* I need to change to Int RC Clock in order to change FMPLL source */
+      mode_configuration &= 0xFFFFFFF0;
+      ME_SET_MC(active_hw_mode, mode_configuration);
+      EE_mcu_perform_mode_switch(active_hw_mode);
+    }
+  }
 
   CGM.AC3_SC.R = pll_source_mask; /* Select PLL0 source clock */
   CGM.AC4_SC.R = pll_source_mask; /* Select PLL1 source clock */
+
 
   /* TODO: check the following better */
   /* Monitor FXOSC > FIRC/1 (16MHz); no PLL monitor*/
@@ -327,8 +349,10 @@ Std_ReturnType Mcu_InitClock(Mcu_ClockType ClockSetting)
   /* fsys =  (40 * 96)/(8 * 4) = 120 MHz */
 
   /* For system clock configure PLL 0 */
-  CGM.FMPLL[0].CR.R = (clockSettingsPtr-> McuPllConfiguration | 
-      EE_ENABLE_PLL_SWITCHING);
+  CGM.FMPLL[0].CR.R = (clockSettingsPtr->McuPllConfiguration);
+
+  /* Mode Switch to change PLL configuration */
+  Mcu_SetMode(EE_mcu_status.mode);
 
 #ifdef MCU_CLOCK_MAX_FREQ_WITHOUT_RAM_WAIT
   if (clockSettingsPtr->McuClockReferencePointFrequency >=
@@ -384,13 +408,13 @@ Mcu_ResetType Mcu_GetResetReason(void)
   Mcu_ResetType reset_reason;
 
   /* N.B Destructive software Reset is not supported yet by this driver */
-  if( RGM.FES.B.F_SOFT_FUNC || RGM.DES.B.F_SOFT_DEST ) {
+  if( RGM.DES.B.F_POR ) {
+    reset_reason = MCU_POWER_ON_RESET;
+  } else if( RGM.FES.B.F_SOFT_FUNC || RGM.DES.B.F_SOFT_DEST ) {
     reset_reason = MCU_SW_RESET;
   } else if( RGM.FES.B.F_SWT || RGM.FES.B.F_CWD) {
     /* SWT or Core Watchdog reset */
     reset_reason = MCU_WATCHDOG_RESET;
-  } else if( RGM.DES.B.F_POR ) {
-    reset_reason = MCU_POWER_ON_RESET;
   } else {
     reset_reason = MCU_RESET_UNDEFINED;
   }
@@ -406,9 +430,11 @@ Mcu_RawResetType Mcu_GetResetRawValue(void)
     reset_raw_value = RGM.DES.R;
   } else {
     reset_raw_value = RGM.FES.R;
-    /* Reset start-up reset events */
-    EE_mcu_clear_reset_flags(MCU_RESET_CLEAR_ALL_FLAGS);
   }
+
+  /* Reset start-up reset events */
+  EE_mcu_clear_functional_reset_flags(MCU_RESET_CLEAR_ALL_FLAGS);
+  EE_mcu_clear_destructive_reset_flags(MCU_RESET_CLEAR_ALL_FLAGS);
 
   return reset_raw_value;
 }
@@ -432,14 +458,17 @@ void Mcu_SetMode(Mcu_ModeType McuMode)
   Mcu_ModeSettingConfigType const * const modeSettingsPtr = &EE_mcu_status.
     config->McuModeSettingConf[McuMode];
 
-  const Mcu_HardawareModeIdType mode_id = modeSettingsPtr->
-    McuHardawareModeId;
+  const Mcu_HardwareModeIdType mode_id = modeSettingsPtr->
+    McuHardwareModeId;
 
   /* Set mode configuration */
-  EE_mcu_set_mode_configuration(mode_id, modeSettingsPtr->McuRunConfiguration);
+  ME_SET_MC(mode_id, modeSettingsPtr->McuRunConfiguration);
 
   /* Perform Switch */
   EE_mcu_perform_mode_switch(mode_id);
+
+  /* Set Actual mode */
+  EE_mcu_status.mode = McuMode;
 }
 
 /*

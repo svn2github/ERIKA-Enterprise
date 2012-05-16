@@ -116,9 +116,6 @@
  */
 #define MCU_VERSION_INFO_API  STD_ON
 
-/* Include StaticConfiguration (Type Declarations) */
-#include <Mcu_Cfg_internal.h>
-
 /* Add this define to introduce wait states in RAM from a treeshold and beyond */
 /* #define MCU_CLOCK_MAX_FREQ_WITHOUT_RAM_WAIT 120000000UL/
 
@@ -131,7 +128,11 @@
 #define MCU_CLOCK_EXT_REF_64MHZ   0U
 #define MCU_CLOCK_EXT_REF_80MHZ   1U
 #define MCU_CLOCK_EXT_REF_120MHZ  2U
-#define MCU_CLOCKS_NUMBER         3U
+#define MCU_CLOCK_RC_REF_80MHZ    3U
+#define MCU_CLOCK_RC_REF_120MHZ   4U
+
+/* Actual number of supported clock configurations */
+#define MCU_CLOCKS_NUMBER         5U
 
 /*
  * MCU176_Conf: The parameter represents the MCU Mode settings.
@@ -141,15 +142,17 @@
 /* Enable DRUN, RUN0, SAFE, RESET modes */
 #define MCU_ENABLED_MODES 0x0000001D
 
-/* A RUN0 configuration */
-#define MCU_MODE_APPLICATION 0U
 /* A DRUN configuration */
-#define MCU_MODE_SUPERVISOR  1U
+#define MCU_MODE_INIT         0U
+/* A RUN0 configuration */
+#define MCU_MODE_APPLICATION  1U
+/* A DRUN configuration */
+#define MCU_MODE_SUPERVISOR   2U
 /* A SAFE configuration */
-#define MCU_MODE_SAFE        2U
+#define MCU_MODE_SAFE         3U
 
 /* Actual number of supported modes */
-#define   MCU_MODES_NUMBER 3U
+#define MCU_MODES_NUMBER      4U
 
 /*  Reset Configuration (Default):
     I/O output power-down control:          OFF (No auto I/O safe gating),
@@ -162,5 +165,8 @@
     System Clock (SYSLK):                   16 MHZ int. RC osc.
 */
 #define MCU_RESET_CONF        0x001F0010U
+
+/* Include StaticConfiguration (Type Declarations) */
+#include <Mcu_Cfg_internal.h>
 
 #endif  /* MCU_CFG_H */

@@ -105,13 +105,6 @@
 typedef	uint8_least	Mcu_ClockType;
 
 /*
- * MCU211:	Mcu.h shall include Mcu_Cfg.h for the API pre-compiler switches.
- * 		Mcu.c has access to the Mcu_Cfg.h via the implicitly included
- * 		Mcu.h file.
- */
-#include "Mcu_Cfg.h"
-
-/*
  * MCU012:	The following errors and exceptions shall be detectable by the
  * 		MCU module depending on its build version
  * 		(development/production mode)
@@ -125,53 +118,6 @@ typedef	uint8_least	Mcu_ClockType;
 #define	MCU_E_UNINIT		0x0F	/**< MCU Module Not Initialized.      */
 #define	MCU_E_PARAM_POINTER	0x10	/**< Parameter _vi is NULL_PTR.	      */
 #endif
-
-/** @brief	MCU Driver Configuration Parameters
- *
- *  <b>MCU131:</b> The structure <tt>Mcu_ConfigType</tt> is an external data
- *  structure (i.e. implementation specific) and shall contain the
- *  initialization data for the MCU module. It shall contain:
- *  - MCU dependent properties
- *  - Reset Configuration
- *  - Definition of MCU modes
- *  - Definition of Clock settings
- *  - Definition of RAM sections
- *
- *  <b>MCU054:</b> The structure <tt>Mcu_ConfigType</tt> shall provide a
- *  configurable (enable/disable) clock failure notification if the MCU provides
- *  an interrupt for such detection. If the clock failure is detected with other
- *  HW mechanisms e.g., the generation of a trap, this notification shall be
- *  disabled and the failure reporting shall be done outside the MCU driver.
- *
- *  <b>MCU035:</b> The definitions for each MCU mode within the structure
- *  <tt>Mcu_ConfigType</tt> shall contain: (depending on MCU)
- *  - MCU specific properties
- *  - Change of CPU clock
- *  - Change of Peripheral clock
- *  - Change of PLL settings
- *  - Change of MCU power supply
- *
- *  <b>MCU031:</b> The definitions for each Clock setting within the structure
- *  <tt>Mcu_ConfigType</tt> shall contain:
- *  - MCU specific properties as, e.g., clock safety features and special clock
- *  distribution settings
- *  - PLL settings /start lock options
- *  - Internal oscillator setting
- *
- *  <b>MCU030:</b> The definitions for each RAM section within the structure
- *  <tt>Mcu_ConfigType</tt> shall contain:
- *  - RAM section base address
- *  - Section size
- *  - Data pre-setting to be initialized
- * Usage of linker symbols instead of scalar values is allowed.
- */
-extern const Mcu_ConfigType Mcu_Config[];
-
-/** @brief	MCU Configuration Pointer
- *
- *  Pointer to MCU Driver Configuration.
- */
-#define	MCU_CONFIG_PTR	&Mcu_Config
 
 /** @brief	PLL Status Type
  *
@@ -237,6 +183,68 @@ typedef enum {
   MCU_RAMSTATE_VALID	/**< Ram content is valid.			   */
 } Mcu_RamStateType;
 #endif
+
+/*
+ * MCU211:	Mcu.h shall include Mcu_Cfg.h for the API pre-compiler switches.
+
+ * 		Mcu.c has access to the Mcu_Cfg.h via the implicitly included
+ * 		Mcu.h file.
+ */
+#include "Mcu_Cfg.h"
+
+/** @brief	MCU Driver Configuration Parameters
+ *
+
+ *  <b>MCU131:</b> The structure <tt>Mcu_ConfigType</tt> is an external data
+ *  structure (i.e. implementation specific) and shall contain the
+ *  initialization data for the MCU module. It shall contain:
+ *  - MCU dependent properties
+ *  - Reset Configuration
+
+ *  - Definition of MCU modes
+ *  - Definition of Clock settings
+ *  - Definition of RAM sections
+ *
+ *  <b>MCU054:</b> The structure <tt>Mcu_ConfigType</tt> shall provide a
+ *  configurable (enable/disable) clock failure notification if the MCU provides
+
+ *  an interrupt for such detection. If the clock failure is detected with other
+ *  HW mechanisms e.g., the generation of a trap, this notification shall be
+ *  disabled and the failure reporting shall be done outside the MCU driver.
+ *
+ *  <b>MCU035:</b> The definitions for each MCU mode within the structure
+
+ *  <tt>Mcu_ConfigType</tt> shall contain: (depending on MCU)
+ *  - MCU specific properties
+ *  - Change of CPU clock
+ *  - Change of Peripheral clock
+ *  - Change of PLL settings
+
+ *  - Change of MCU power supply
+ *
+ *  <b>MCU031:</b> The definitions for each Clock setting within the structure
+ *  <tt>Mcu_ConfigType</tt> shall contain:
+ *  - MCU specific properties as, e.g., clock safety features and special clock
+ *  distribution settings
+
+ *  - PLL settings /start lock options
+ *  - Internal oscillator setting
+ *
+ *  <b>MCU030:</b> The definitions for each RAM section within the structure
+ *  <tt>Mcu_ConfigType</tt> shall contain:
+
+ *  - RAM section base address
+ *  - Section size
+ *  - Data pre-setting to be initialized
+ * Usage of linker symbols instead of scalar values is allowed.
+ */
+extern const Mcu_ConfigType Mcu_Config[];
+
+/** @brief	MCU Configuration Pointer
+ *
+ *  Pointer to MCU Driver Configuration.
+ */
+#define	MCU_CONFIG_PTR	&Mcu_Config
 
 /*
  * Service ID's

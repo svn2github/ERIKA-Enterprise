@@ -61,6 +61,34 @@
  */
 typedef uint16_least  Mcu_RawResetType;
 
+typedef enum {
+  MCU_MODE_ID_RESET = 0x00U,
+  MCU_MODE_ID_TEST  = 0x01U,
+  MCU_MODE_ID_SAFE  = 0x02U,
+  MCU_MODE_ID_DRUN  = 0x03U,
+  MCU_MODE_ID_RUN0  = 0x04U,
+  MCU_MODE_ID_RUN1  = 0x05U,
+  MCU_MODE_ID_RUN2  = 0x06U,
+  MCU_MODE_ID_RUN3  = 0x07U,
+  MCU_MODE_ID_HALT0 = 0x08U,
+  MCU_MODE_ID_STOP0 = 0x0AU,
+  MCU_MODE_ID_INVALID = 0xFFU
+} Mcu_HardwareModeIdType;
+
+/** @brief  Mode Setting Configuration Paramaters
+ *
+ *  <b>MCU123_Conf:</b> This container contains the configuration (parameters)
+ *  for the Mode setting of the MCU.
+ *
+ *  @see <b>MCU035</b> for more information on the MCU mode settings.
+ */
+
+typedef struct {
+  const Mcu_ModeType            McuModeSettingId;
+  const Mcu_HardwareModeIdType  McuHardwareModeId;
+  const uint32                  McuRunConfiguration;
+} Mcu_ModeSettingConfigType;
+
 /** @brief  Clock Settings Configuration Parameters
  *
  *  <b>MCU124_Conf:</b> This container contains the configuration (parameters)
@@ -95,34 +123,12 @@ typedef struct {
   const uint32 McuPllConfiguration;
   /** @brief Flag that select PLL input */
   const boolean McuUseExternalOscillator;
-
 } Mcu_ClockSettingConfigType;
 
-typedef enum {
-  MCU_MODE_ID_RESET = 0x00U,
-  MCU_MODE_ID_TEST  = 0x01U,
-  MCU_MODE_ID_SAFE  = 0x02U,
-  MCU_MODE_ID_DRUN  = 0x03U,
-  MCU_MODE_ID_RUN0  = 0x04U,
-  MCU_MODE_ID_RUN1  = 0x05U,
-  MCU_MODE_ID_RUN2  = 0x06U,
-  MCU_MODE_ID_RUN3  = 0x07U,
-  MCU_MODE_ID_HALT0 = 0x08U,
-  MCU_MODE_ID_STOP0 = 0x0AU
-} Mcu_HardawareModeIdType;
-
-/** @brief  Mode Setting Configuration Paramaters
- *
- *  <b>MCU123_Conf:</b> This container contains the configuration (parameters)
- *  for the Mode setting of the MCU.
- *
- *  @see <b>MCU035</b> for more information on the MCU mode settings.
- */
-
-typedef struct {
-  const Mcu_HardawareModeIdType McuHardawareModeId;
-  const uint32                  McuRunConfiguration;
-} Mcu_ModeSettingConfigType;
+/** @brief Invalid ID for mcu configuration */
+#define MCU_MODE_INVALID           (Mcu_ModeType)-1
+/** @brief Invalid ID for clock configuration */
+#define MCU_CLOCKS_INVALID         (Mcu_ClockType)-1
 
 /** @brief  Ram Sector Setting Configuration Parameters
  *
@@ -211,6 +217,12 @@ typedef struct {
    *  <tt>McuModeSettingConf</tt>.
    */
   const uint8   McuNumberOfMcuModes;
+
+  /** @brief Mcu Default Initial Mode
+   *
+   *  Used in MCU Init to configure the default mode before return
+   */
+  const Mcu_ModeType  McuDefaultInitMode;
 
   /** @brief  RAM Sectors Number
    *

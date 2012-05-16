@@ -86,7 +86,7 @@ int main(void)
     EE_ASSERT_INIT
   );
 
-  Mcu_Init(&Mcu_Config);
+  Mcu_Init(&Mcu_Config[0]);
 
   EE_assert_range(EE_ASSERT_FIN, EE_ASSERT_INIT, EE_ASSERT_VERSION);
   
