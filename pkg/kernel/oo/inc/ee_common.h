@@ -185,7 +185,7 @@ extern const EE_TYPEPRIO EE_th_dispatch_prio[];
  */
 extern EE_TYPENACT   EE_th_rnact[];
 
-/* Maximum number of pending acrivations */
+/* Maximum number of pending activations */
 extern const EE_TYPENACT   EE_th_rnact_max[];
 
 #ifndef __OO_NO_CHAINTASK__
@@ -438,7 +438,7 @@ extern void EE_oo_thread_stub(void);
 #ifndef STATUSTYPEDEFINED
 #define STATUSTYPEDEFINED
 typedef unsigned char StatusType;
-#define E_OK                                 ((StatusType)0U)
+#define E_OK                      ((StatusType)0U)
 #endif
 
 #define E_OS_ACCESS               ((StatusType)1U)

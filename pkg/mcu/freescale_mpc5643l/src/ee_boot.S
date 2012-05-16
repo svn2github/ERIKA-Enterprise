@@ -153,12 +153,15 @@ __start:
 	addis	r9, 0, ee_ssbss2@ha	/* load ee_ssbss2 into r9 */
 	addi	r9, r9, ee_ssbss2@l
 	li	r11, 0x0		/* load zero into r11 */
+	cmplw	cr0, r8, r9 /* check if we have to zero out sbss2 */
+	beq	2f
 
 1:
 	stw	r11, 0(r9)		/* fill sbss2 with zero */
 	addi	r9, r9, 4
 	cmplw	cr0, r9, r8
 	blt	1b
+2:
 #endif
 
 	addis	r13, 0, _SDA_BASE_@ha	/* load .sdata base into r13 */
