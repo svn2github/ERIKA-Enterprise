@@ -244,7 +244,7 @@ extern const Mcu_ConfigType Mcu_Config[];
  *
  *  Pointer to MCU Driver Configuration.
  */
-#define	MCU_CONFIG_PTR	&Mcu_Config
+#define	MCU_CONFIG_PTR	&Mcu_Config[0]
 
 /*
  * Service ID's

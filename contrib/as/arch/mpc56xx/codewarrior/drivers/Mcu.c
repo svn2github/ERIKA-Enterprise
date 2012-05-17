@@ -274,26 +274,28 @@ Std_ReturnType Mcu_InitRamSection(Mcu_RamSectionType RamSection)
 #define EE_ECSM_MUDCR (*((volatile EE_UREG*)(ECSM_BASE_ADDR + 0x0024U)))
 #endif /* MCU_CLOCK_MAX_FREQ_WITHOUT_RAM_WAIT */
 
-/* Bitmasks used to access to CGM.FMPLL */
+/* Bitmasks used to set value to CGM.FMPLL */
 #define EE_UNLOCK_PLL                   0xFFFF0010U
-#define EE_ENABLE_PLL_SWITCHING         0x00000100U
+#define EE_ENABLE_PROG_PLL_SWITCHING    0x00000100U
 
 /* Bitmask to select RC or Xosc as PLL source */
 #define EE_RC_PLL_SOURCE                0x00000000U
 #define EE_XOSC_PLL_SOURCE              0x01000000U
 
-/* Bitmasks to check mode configurations */
-#define EE_MODE_CLEAR_CLK               0xFFFFFFF0U
+/* Bitmasks to check & set mode configurations */
 #define EE_MODE_CLK_SYS_FMPLL           0x00000004U
 #define EE_MODE_IRCOSC_ON               0x00000010U
 #define EE_MODE_XOSC_ON                 0x00000020U
 #define EE_MODE_PLL0_ON                 0x00000040U
 #define EE_MODE_PLL1_ON                 0x00000080U
+
+/* Bitmasks to clear mode configurations */
+#define EE_MODE_CLEAR_CLK               0xFFFFFFF0U
+#define EE_MODE_CLEAR_PLL0              0xFFFFFFBFU
+#define EE_MODE_CLEAR_PLL1              0xFFFFFF7FU
+
 Std_ReturnType Mcu_InitClock(Mcu_ClockType ClockSetting)
 {
-  /* Utility Index */
-  uint32 i;
-
   /* Get Clock Settings */
   const Mcu_ClockSettingConfigType * const clockSettingsPtr = 
     &EE_mcu_status.config->McuClockSettingConfig[ClockSetting];
@@ -303,8 +305,16 @@ Std_ReturnType Mcu_InitClock(Mcu_ClockType ClockSetting)
       EE_XOSC_PLL_SOURCE: /* Select Xosc as PLL source clock */
       EE_RC_PLL_SOURCE;   /* Select Int RC osc as PLL source clock */
 
+  /* Flag if a PLL is locked */
+  const boolean pll_locked = (CGM.FMPLL[0].CR.B.S_LOCK ||
+    CGM.FMPLL[1].CR.B.S_LOCK);
+  /* Flag if PLLs sources need to be changed */
+  const boolean change_pll_source = ((CGM.AC3_SC.R != pll_source_mask) ||
+    (CGM.AC4_SC.R != pll_source_mask));
+
   /* Active Hardware Mode */
-  Mcu_HardwareModeIdType active_hw_mode = MCU_HARDWARE_MODE_ACTIVE();
+  const Mcu_HardwareModeIdType active_hw_mode = MCU_HARDWARE_MODE_ACTIVE();
+
   /* Hardware Mode Configuration */
   uint32 mode_configuration = ME_GET_MC(active_hw_mode);
 
@@ -314,30 +324,22 @@ Std_ReturnType Mcu_InitClock(Mcu_ClockType ClockSetting)
     return E_NOT_OK;
   }
 
-  /*                        !!! WARNING !!!
-    Only Supervisor can access to CGM.ACX_SC and CGM.FMPLL[X].CR registers
-    so I check if I need a mode switch to configure them. Furthermore if I'm
-    actually using FMPLL I have to switch to RC internal OSC.
+  /*                          !!! WARNING !!!
+    Only Supervisor (DRUN mode) can access CGM.FMPLL[X].CR registers (and that
+    should be true for to CGM.ACX_SC registers too, but it doesn't) so I check
+    if I need a mode switch to configure them.
+    Furthermore if pll is locked and I have to change pll source I have (maybe)
+    to switch to RC internal OSC and (obligatorily) disable PLLs.
   */
-  if( (active_hw_mode != MCU_MODE_ID_DRUN) ||
-      (MCU_CLOCK_ACTIVE() == EE_MODE_CLK_SYS_FMPLL) )
+  if((active_hw_mode != MCU_MODE_ID_DRUN) || (pll_locked && change_pll_source))
   {
-     /* I need to switch to supervisor mode to change CGM.ACX_SC registers
-       (To be safe I switch to internal RC as clock too) */
     ME_SET_MC(MCU_MODE_ID_DRUN, ME_GET_MC(MCU_MODE_ID_DRUN) &
-      EE_MODE_CLEAR_CLK);
+      EE_MODE_CLEAR_CLK & EE_MODE_CLEAR_PLL0 & EE_MODE_CLEAR_PLL1);
     EE_mcu_perform_mode_switch(MCU_MODE_ID_DRUN);
   }
 
-  if( (CGM.AC3_SC.R != pll_source_mask) || (CGM.AC4_SC.R != pll_source_mask) )
+  if(change_pll_source)
   {
-    /*                  !!! WARNING !!!
-        I cannot switch PLL sources if PLLs are locked
-     */
-    if( CGM.FMPLL[0].CR.B.S_LOCK || CGM.FMPLL[1].CR.B.S_LOCK ) {
-      return E_NOT_OK;
-    }
-
     /* Select PLL0 source clock */
     CGM.AC3_SC.R = pll_source_mask;
     /* Select PLL1 source clock */
@@ -356,20 +358,22 @@ Std_ReturnType Mcu_InitClock(Mcu_ClockType ClockSetting)
   /* For system clock configure PLL 0 */
   CGM.FMPLL[0].CR.R = (clockSettingsPtr->McuPllConfiguration);
 
-  /* Mode Switch to change PLL configuration */
+  /* Configure Mode to change Clock frequency */
   if( !HW_REG_BITMASK_CHECK(mode_configuration, EE_MODE_CLK_SYS_FMPLL) ) {
     /* Actual Mode Configuration doesn't use FMPLL so I cannot change clock */
     /* I adjust mode configuration */
     mode_configuration = (mode_configuration & EE_MODE_CLEAR_CLK) |
-      EE_MODE_CLK_SYS_FMPLL | EE_MODE_IRCOSC_ON | EE_MODE_PLL0_ON;
+      EE_MODE_CLK_SYS_FMPLL | EE_MODE_IRCOSC_ON | EE_MODE_PLL0_ON |
+      EE_MODE_PLL1_ON;
   }
-
   if( (!HW_REG_BITMASK_CHECK(mode_configuration, EE_MODE_XOSC_ON)) &&
       (pll_source_mask == EE_XOSC_PLL_SOURCE) ) {
     /* Actual Mode Configuration has XOSC not active */
     /* I adjust mode_configuration */
     mode_configuration |= EE_MODE_XOSC_ON;
   }
+
+  /* Mode Switch to change Clock frequency */
   ME_SET_MC(active_hw_mode, mode_configuration);
   EE_mcu_perform_mode_switch(active_hw_mode);
 
@@ -474,11 +478,22 @@ void Mcu_PerformReset(void)
  */
 void Mcu_SetMode(Mcu_ModeType McuMode)
 {
+  /*                          !!! WARNING !!!
+    According documentation only Supervisor (DRUN mode) can perform a a mode
+    switch but it does't make any sense, indeed mode switch can be done from
+    any mode.
+  */
   Mcu_ModeSettingConfigType const * const modeSettingsPtr = &EE_mcu_status.
     config->McuModeSettingConf[McuMode];
 
   const Mcu_HardwareModeIdType mode_id = modeSettingsPtr->
     McuHardwareModeId;
+
+  /* Driver Unitializated condition */
+  if(EE_mcu_status.init == FALSE)
+  {
+    return;
+  }
 
   /* Set mode configuration */
   ME_SET_MC(mode_id, modeSettingsPtr->McuRunConfiguration);
