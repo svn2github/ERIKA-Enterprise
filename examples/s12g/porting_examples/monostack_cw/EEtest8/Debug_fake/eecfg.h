@@ -61,6 +61,7 @@
 #define __OO_EXTENDED_STATUS__
 #define __MONO__
 #define __OO_NO_ALARMS__
+#define __OO_STARTOS_OLD__
 #define __ALLOW_NESTED_IRQ__
 
 #endif
