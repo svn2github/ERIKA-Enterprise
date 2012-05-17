@@ -47,6 +47,14 @@
 
 #ifndef __PRIVATE_THREAD_END_INSTANCE__
 
+#if defined(__OO_BCC2__) || defined(__OO_ECC2__)
+static EE_BIT EE_thread_rnact_max(EE_TID current) {
+  return (EE_th_rnact[current] == EE_th_rnact_max[current]);
+}
+#else /* __OO_BCC2__ || __OO_ECC2__ */
+#define EE_thread_rnact_max(current)  (1)
+#endif /* __OO_BCC2__ || __OO_ECC2__ */
+
 #if defined(__OO_ECC1__) || defined(__OO_ECC2__)
 static void EE_thread_endcycle_next(void)
 {
@@ -97,7 +105,7 @@ void EE_thread_end_instance(void)
    * instance. Note that status=READY and
    * rnact==maximum number of pending activations ==>> the task is
    * suspended!!! */
-  if((EE_th_rnact[current] == EE_th_rnact_max[current]) || (current == TaskID)){
+  if( EE_thread_rnact_max(current) || (current == TaskID) ) {
     EE_th_status[current] = SUSPENDED;
   } else {   
     EE_th_status[current] = READY;

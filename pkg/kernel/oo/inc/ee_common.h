@@ -185,8 +185,10 @@ extern const EE_TYPEPRIO EE_th_dispatch_prio[];
  */
 extern EE_TYPENACT   EE_th_rnact[];
 
+#if defined(__OO_BCC2__) || defined(__OO_ECC2__)
 /* Maximum number of pending activations */
 extern const EE_TYPENACT   EE_th_rnact_max[];
+#endif /* __OO_BCC2__ || __OO_ECC2__ */
 
 #ifndef __OO_NO_CHAINTASK__
 /* The next task to be activated after a ChainTask. initvalue=all EE_NIL */
