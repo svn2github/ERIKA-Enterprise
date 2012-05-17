@@ -62,6 +62,7 @@
 #define __OO_NO_ALARMS__
 #define __OO_NO_RESOURCES__
 #define __ALLOW_NESTED_IRQ__
+#define __OO_STARTOS_OLD__
 
 #endif
 

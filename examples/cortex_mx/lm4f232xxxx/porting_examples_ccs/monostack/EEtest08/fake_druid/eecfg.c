@@ -63,6 +63,9 @@
     EE_TYPENACT   EE_th_rnact[EE_MAX_TASK] =
         { 1U, 1U};
 
+    const EE_TYPENACT   EE_th_rnact_max[EE_MAX_TASK] =
+        { 1U, 1U};
+
     /* First task in the ready queue (initvalue = EE_NIL) */
     EE_TID EE_rq_first  = EE_NIL;
 
