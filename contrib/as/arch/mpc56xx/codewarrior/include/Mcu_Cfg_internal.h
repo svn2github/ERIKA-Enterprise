@@ -39,7 +39,7 @@
  * ###*E*### */
 
 /** @file   Mcu_Cfg_internal.h
- *  @brief  Static part (types definition)of AUTOSAR MCU Driver Configuration
+ *  @brief  Static part (types definition) of AUTOSAR MCU Driver Configuration
  *     Header File.
  *
  *  Configured for (MCU): Freescale MPC5643L (Leopard)

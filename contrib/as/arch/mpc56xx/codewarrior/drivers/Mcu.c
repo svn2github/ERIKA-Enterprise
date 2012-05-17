@@ -325,17 +325,14 @@ Std_ReturnType Mcu_InitClock(Mcu_ClockType ClockSetting)
   }
 
   /*                          !!! WARNING !!!
-    Only Supervisor (DRUN mode) can access CGM.FMPLL[X].CR registers (and that
-    should be true for to CGM.ACX_SC registers too, but it doesn't) so I check
-    if I need a mode switch to configure them.
-    Furthermore if pll is locked and I have to change pll source I have (maybe)
-    to switch to RC internal OSC and (obligatorily) disable PLLs.
+    If pll is locked and I have to change pll source I have (maybe) to switch
+    to RC internal OSC and (obligatorily) disable PLLs.
   */
-  if((active_hw_mode != MCU_MODE_ID_DRUN) || (pll_locked && change_pll_source))
+  if(pll_locked && change_pll_source)
   {
-    ME_SET_MC(MCU_MODE_ID_DRUN, ME_GET_MC(MCU_MODE_ID_DRUN) &
+    ME_SET_MC(active_hw_mode, mode_configuration &
       EE_MODE_CLEAR_CLK & EE_MODE_CLEAR_PLL0 & EE_MODE_CLEAR_PLL1);
-    EE_mcu_perform_mode_switch(MCU_MODE_ID_DRUN);
+    EE_mcu_perform_mode_switch(active_hw_mode);
   }
 
   if(change_pll_source)
@@ -356,7 +353,9 @@ Std_ReturnType Mcu_InitClock(Mcu_ClockType ClockSetting)
   /* fsys =  (40 * 96)/(8 * 4) = 120 MHz */
 
   /* For system clock configure PLL 0 */
-  CGM.FMPLL[0].CR.R = (clockSettingsPtr->McuPllConfiguration);
+  /* TODO Check if EE_ENABLE_PROG_PLL_SWITCHING flag works */
+  CGM.FMPLL[0].CR.R = (clockSettingsPtr->McuPllConfiguration /* |
+    EE_ENABLE_PROG_PLL_SWITCHING */ );
 
   /* Configure Mode to change Clock frequency */
   if( !HW_REG_BITMASK_CHECK(mode_configuration, EE_MODE_CLK_SYS_FMPLL) ) {
@@ -478,11 +477,6 @@ void Mcu_PerformReset(void)
  */
 void Mcu_SetMode(Mcu_ModeType McuMode)
 {
-  /*                          !!! WARNING !!!
-    According documentation only Supervisor (DRUN mode) can perform a a mode
-    switch but it does't make any sense, indeed mode switch can be done from
-    any mode.
-  */
   Mcu_ModeSettingConfigType const * const modeSettingsPtr = &EE_mcu_status.
     config->McuModeSettingConf[McuMode];
 

@@ -166,7 +166,7 @@
 */
 #define MCU_RESET_CONF        0x001F0010U
 
-/* Include StaticConfiguration (Type Declarations) */
+/* Include Static Configuration (Type Declarations) */
 #include <Mcu_Cfg_internal.h>
 
 #endif  /* MCU_CFG_H */
