@@ -40,6 +40,9 @@ EEOPT += __MONO__
 EEOPT += __OO_AUTOSTART_TASK__
 EEOPT += __ASSERT__
 
+EEOPT += __OO_STARTOS_OLD__
+EEOPT += EE_ISR_DYNAMIC_TABLE
+
 ############################################################################
 #
 # Freescale MPC5674F, PPC E200Z7

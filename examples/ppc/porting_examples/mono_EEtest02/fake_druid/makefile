@@ -36,6 +36,8 @@ EEOPT += __MONO__
 EEOPT += __ALARMS__
 EEOPT += __ASSERT__
 
+EEOPT += __OO_STARTOS_OLD__
+EEOPT += EE_ISR_DYNAMIC_TABLE
 
 ############################################################################
 #

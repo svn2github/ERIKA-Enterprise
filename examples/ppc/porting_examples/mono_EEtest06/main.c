@@ -96,7 +96,7 @@ void timer_interrupt(int level)
         EE_assert(7, counter == 2, 6);
         break;
     }
-    CounterTick(MainTimer);
+    IncrementCounter(MainTimer);
 }
 
 

@@ -35,6 +35,8 @@ EEOPT += __OO_ECC1__
 EEOPT += __OO_EXTENDED_STATUS__
 EEOPT += __MULTI__
 
+EEOPT += __OO_STARTOS_OLD__
+EEOPT += EE_ISR_DYNAMIC_TABLE
 
 ############################################################################
 #
