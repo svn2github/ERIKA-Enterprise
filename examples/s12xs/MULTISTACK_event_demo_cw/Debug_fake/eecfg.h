@@ -80,6 +80,7 @@
 #define __OO_AUTOSTART_TASK__
 #define __OO_AUTOSTART_ALARM__
 #define __ALLOW_NESTED_IRQ__
+#define __OO_STARTOS_OLD__
 
 #endif
 
