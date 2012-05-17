@@ -32,6 +32,7 @@ EEOPT += __LM32__
 EEOPT += __OO_ECC1__
 EEOPT += __OO_EXTENDED_STATUS__
 EEOPT += __MULTI__
+EEOPT += __OO_STARTOS_OLD__
 
 
 ############################################################################
