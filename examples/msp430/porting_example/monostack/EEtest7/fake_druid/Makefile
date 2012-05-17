@@ -33,6 +33,7 @@ EEOPT += __USE_LEDS__
 #EEOPT += __OO_NO_ALARMS__
 #EEOPT += __OO_NO_RESOURCES__
 #EEOPT += __OO_AUTOSTART_TASK__
+EEOPT += __OO_STARTOS_OLD__
 
 ifndef EEBASE
     EEBASE  := /extra/eclipse/plugins/com.eu.evidence.ee_1.0.0.201002181432/ee_base
