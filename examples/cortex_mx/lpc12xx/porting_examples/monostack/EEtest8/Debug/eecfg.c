@@ -69,6 +69,11 @@
         1U		 /* thread Task2 */
     };
 
+    const EE_TYPEPRIO EE_th_rnact_max[EE_MAX_TASK] = {
+        1U,		 /* thread Task1 */
+        1U		 /* thread Task2 */
+    };
+
     EE_TYPEPRIO EE_rq_link[EE_MAX_TASK] =
         { 0U, 1U};
 

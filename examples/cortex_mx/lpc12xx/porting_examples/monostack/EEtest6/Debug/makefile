@@ -40,6 +40,7 @@ EEOPT += __OO_NO_RESOURCES__
 EEOPT += __OO_AUTOSTART_TASK__
 EEOPT += __ALLOW_NESTED_IRQ__
 EEOPT += __DISABLE_EEOPT_DEFINES__
+EEOPT += __OO_STARTOS_OLD__
 
 
 ############################################################################
