@@ -205,7 +205,7 @@ typedef EE_TYPESYMBOLICNAME SymbolicName;
 /* 2.9.2.1.3 - This implementation of COM uses pointer to
            bytes. For that reason, EE_ADDR CANNOT be used. */
 //typedef EE_UINT8 *ApplicationDataRef;
-/*GF: Changed to a void pointer to handle different data types, expecially strings*/
+/*GF: Changed to void pointer to handle different data types, expecially strings*/
 typedef void *ApplicationDataRef;
 
 /* 2.9.2.1.4 */
@@ -370,7 +370,7 @@ StatusType EE_com_GetMessageStatus(SymbolicName Message);
 /* 2.9.2.4.7 */
 #ifndef __PRIVATE_COM_COMERRORGETSERVICEID__
 #define EE_com_COMErrorGetServiceId() \
-  EE_com_sys2user.service_error;
+  EE_com_sys2user.service_error
 #endif
 
 /***************************************************************************

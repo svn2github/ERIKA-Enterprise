@@ -101,8 +101,35 @@
 
 #ifndef COMErrorGetServiceId
 #define COMErrorGetServiceId     EE_com_COMErrorGetServiceId
+#endif
+
+/*GF Start*/
+#ifdef __COM_HAS_ERRORHOOK__AAA
+
+/* 
+ * COMErrorHook MACRO
+ */
+#define COMError_StartCOM_Mode()          EE_com_ErrorHook.proc_param.Mode
+#define COMError_StopCOM_Mode()           EE_com_ErrorHook.proc_param.Mode
+#define COMError_InitMessage_Message()    EE_com_ErrorHook.proc_param.OtherCOM.Message
+#define COMError_InitMessage_DataRef()    EE_com_ErrorHook.proc_param.OtherCOM.DataRef
+#define COMError_SendMessage_Message()    EE_com_ErrorHook.proc_param.OtherCOM.Message
+#define COMError_SendMessage_DataRef()    EE_com_ErrorHook.proc_param.OtherCOM.DataRef
+#define COMError_ReceiveMessage_Message()    EE_com_ErrorHook.proc_param.OtherCOM.Message
+#define COMError_ReceiveMessage_DataRef()    EE_com_ErrorHook.proc_param.OtherCOM.DataRef
+#define COMError_SendDynamicMessage_Message()    EE_com_ErrorHook.proc_param.OtherCOM.Message
+#define COMError_SendDynamicMessage_DataRef()    EE_com_ErrorHook.proc_param.OtherCOM.DataRef
+#define COMError_SendDynamicMessage_LengthRef()  EE_com_ErrorHook.proc_param.OtherCOM.MsgLengthRef
+#define COMError_ReceiveDynamicMessage_Message()    EE_com_ErrorHook.proc_param.OtherCOM.Message
+#define COMError_ReceiveDynamicMessage_DataRef()    EE_com_ErrorHook.proc_param.OtherCOM.DataRef
+#define COMError_ReceiveDynamicMessage_LengthRef()  EE_com_ErrorHook.proc_param.OtherCOM.MsgLengthRef
+#define COMError_SendZeroMessage_Message()    EE_com_ErrorHook.proc_param.OtherCOM.Message
+#define COMError_GetMessageStatus_Message()    EE_com_ErrorHook.proc_param.OtherCOM.Message
+
+extern struct EE_com_ErrorHook_TYPE EE_com_ErrorHook;
 
 #endif
+/*GF Start*/
 
 #endif
 

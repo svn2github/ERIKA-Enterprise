@@ -69,6 +69,7 @@ typedef short int EE_INT16;
 typedef unsigned short int EE_UINT16;
 typedef int EE_INT32;
 typedef unsigned int EE_UINT32;
+typedef unsigned long int EE_UINT64;
 #else /* Unknown architecture */
 #error Unknow/unsupported architecture
 #endif

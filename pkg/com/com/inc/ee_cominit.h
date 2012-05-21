@@ -155,7 +155,6 @@ struct EE_com_ErrorHook_TYPE {
   EE_UINT8 already_executed;
 };
 #endif
-
 /*
  *
  * IPDU structures 
@@ -427,7 +426,7 @@ extern const struct EE_com_msg_ROM_TYPE * EE_com_msg_ROM[EE_COM_N_MSG];
  *************************************************************************/
 
 
-#define EE_COM_DEFINE_INTERNAL_MESSAGE(symname,size,receiver) \
+#define EE_COM_DEFINE_INTERNAL_MESSAGE(symname,size, receiver) \
    const struct EE_com_msg_ROM_TYPE EE_com_msg_ROM_##symname = {(size), NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL,(receiver),EE_COM_NULL};   \
    struct EE_com_msg_RAM_TYPE EE_com_msg_RAM_##symname = {EE_COM_INTERNAL|E_COM_NOMSG}
    

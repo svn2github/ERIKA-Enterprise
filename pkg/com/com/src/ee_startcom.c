@@ -44,6 +44,10 @@
  */
 
 #include "com/com/inc/ee_comprv.h"
+#include "com/com/inc/ee_cominit.h"
+
+extern const EE_UINT64 EE_com_msg_init_val[EE_COM_N_MSG];
+
 
 /************
  * STARTCOM *
@@ -127,8 +131,15 @@ StatusType EE_com_StartCOM(COMApplicationModeType Mode)
           == EE_COM_MSG_UNQUE) 
       { /* Unqueued message */
 #endif
+/*GF start*/
+/*
         for (j=0; j < EE_com_bit2byte(msg_ROM->size); j++) 
           ((EE_UINT8 *)msg_ROM->data)[j]=0;
+*/		  
+	EE_com_memo((EE_UINT8 *)(&EE_com_msg_init_val[i]), 0, 
+				(EE_UINT8 *)msg_ROM->data, 0, msg_ROM->size);
+/*GF end*/	
+
 #if defined(__COM_CCCB__) || defined(__COM_CCC1__)
       }
       else 
