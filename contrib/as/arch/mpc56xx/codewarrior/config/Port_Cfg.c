@@ -140,6 +140,16 @@ const Port_PinModeConfType PortDPin4Conf[] = {
 };
 
 /*
+ * Port Pins:PORT_D_PIN_5 Modes Configuration Container.
+ */
+const Port_PinModeConfType PortDPin5Conf[] = {
+  {
+    PORT_PIN_MODE_DIO,                          /* Port pin mode.     */
+    PORT_OUTPUT_BUFFER_ENABLE                 /* Port Output Buffer */
+  }
+};
+
+/*
  * Port Pins:PORT_D_PIN_6 Modes Configuration Container.
  */
 const Port_PinModeConfType PortDPin6Conf[] = {
@@ -264,6 +274,16 @@ const Port_PinConfType DemoPortPins[] = {
     PORT_PIN_LEVEL_LOW,           /* PortPinLevelValue            */
     1U,                           /* PortPinModeNumber            */
     &PortDPin4Conf[0],            /* PortPinSupportedModes        */
+    FALSE                         /* PortPinModeChangeable        */
+  },
+  {
+    PORT_PIN_OUT,                 /* PortPinDirection             */
+    FALSE,                        /* PortPinDirectionChangeable   */
+    PORT_D_PIN_5,                 /* PortPinId                    */
+    PORT_PIN_MODE_DIO,            /* PortPinInitialMode           */
+    PORT_PIN_LEVEL_LOW,           /* PortPinLevelValue            */
+    1U,                           /* PortPinModeNumber            */
+    &PortDPin5Conf[0],            /* PortPinSupportedModes        */
     FALSE                         /* PortPinModeChangeable        */
   },
   {
