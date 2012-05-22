@@ -82,8 +82,8 @@ StatusType EE_com_InitMessage(SymbolicName Message,
     EE_com_sys2user.service_error = COMServiceId_InitMessage;
 #ifdef __COM_HAS_ERRORHOOK__ 
     flags = EE_hal_begin_nested_primitive();    
-      COMError_InitMessage_Message = Message;
-      COMError_InitMessage_DataRef = DataRef;
+      EE_com_ErrorHook.proc_param.OtherCOM.Message = Message;
+      EE_com_ErrorHook.proc_param.OtherCOM.DataRef = DataRef;
       if (!EE_com_ErrorHook.already_executed)
       {        
         EE_com_ErrorHook.already_executed = EE_COM_TRUE;

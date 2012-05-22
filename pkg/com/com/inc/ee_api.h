@@ -103,14 +103,15 @@
 #define COMErrorGetServiceId     EE_com_COMErrorGetServiceId
 #endif
 
-/*GF Start*/
-#ifdef __COM_HAS_ERRORHOOK__AAA
+#endif
 
-/* 
- * COMErrorHook MACRO
+#ifdef __COM_HAS_ERRORHOOK__
+
+/* COMErrorHook MACRO
+ * Used in COMErrorHook to access the parameters of the calling function
  */
-#define COMError_StartCOM_Mode()          EE_com_ErrorHook.proc_param.Mode
-#define COMError_StopCOM_Mode()           EE_com_ErrorHook.proc_param.Mode
+#define COMError_StartCOM_Mode          EE_com_ErrorHook.proc_param.Mode
+#define COMError_StopCOM_Mode           EE_com_ErrorHook.proc_param.Mode
 #define COMError_InitMessage_Message()    EE_com_ErrorHook.proc_param.OtherCOM.Message
 #define COMError_InitMessage_DataRef()    EE_com_ErrorHook.proc_param.OtherCOM.DataRef
 #define COMError_SendMessage_Message()    EE_com_ErrorHook.proc_param.OtherCOM.Message
@@ -126,11 +127,7 @@
 #define COMError_SendZeroMessage_Message()    EE_com_ErrorHook.proc_param.OtherCOM.Message
 #define COMError_GetMessageStatus_Message()    EE_com_ErrorHook.proc_param.OtherCOM.Message
 
-extern struct EE_com_ErrorHook_TYPE EE_com_ErrorHook;
-
 #endif
-/*GF Start*/
 
-#endif
 
 #endif

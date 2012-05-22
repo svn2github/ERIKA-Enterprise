@@ -111,25 +111,7 @@ void EE_com_monitor_handler(void);
 
 #define EE_COM_NO_ORDER          0x0008
 
-/* COMErrorHook MACRO
- * Used in COMErrorHook to access the parameters of the calling function
- */
-#define COMError_StartCOM_Mode          EE_com_ErrorHook.proc_param.Mode
-#define COMError_StopCOM_Mode           EE_com_ErrorHook.proc_param.Mode
-#define COMError_InitMessage_Message    EE_com_ErrorHook.proc_param.OtherCOM.Message
-#define COMError_InitMessage_DataRef    EE_com_ErrorHook.proc_param.OtherCOM.DataRef
-#define COMError_SendMessage_Message    EE_com_ErrorHook.proc_param.OtherCOM.Message
-#define COMError_SendMessage_DataRef    EE_com_ErrorHook.proc_param.OtherCOM.DataRef
-#define COMError_ReceiveMessage_Message    EE_com_ErrorHook.proc_param.OtherCOM.Message
-#define COMError_ReceiveMessage_DataRef    EE_com_ErrorHook.proc_param.OtherCOM.DataRef
-#define COMError_SendDynamicMessage_Message    EE_com_ErrorHook.proc_param.OtherCOM.Message
-#define COMError_SendDynamicMessage_DataRef    EE_com_ErrorHook.proc_param.OtherCOM.DataRef
-#define COMError_SendDynamicMessage_LengthRef  EE_com_ErrorHook.proc_param.OtherCOM.MsgLengthRef
-#define COMError_ReceiveDynamicMessage_Message    EE_com_ErrorHook.proc_param.OtherCOM.Message
-#define COMError_ReceiveDynamicMessage_DataRef    EE_com_ErrorHook.proc_param.OtherCOM.DataRef
-#define COMError_ReceiveDynamicMessage_LengthRef  EE_com_ErrorHook.proc_param.OtherCOM.MsgLengthRef
-#define COMError_SendZeroMessage_Message    EE_com_ErrorHook.proc_param.OtherCOM.Message
-#define COMError_GetMessageStatus_Message    EE_com_ErrorHook.proc_param.OtherCOM.Message
+
 
 
 /*************************************************************************
@@ -139,6 +121,7 @@ void EE_com_monitor_handler(void);
 /* COMErrorHook data structure used to stor info about last 
  * occured error, data structure remapped by COMError_name1_name2 macro
  */
+ 
 #ifdef __COM_HAS_ERRORHOOK__
 struct EE_com_ErrorHook_TYPE {
   union 
