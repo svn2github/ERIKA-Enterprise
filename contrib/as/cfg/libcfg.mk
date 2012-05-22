@@ -134,12 +134,17 @@ endif # __STELLARIS__ && __KEIL__
 ifeq ($(and $(call iseeopt, EE_MPC5643L), $(call iseeopt, __CODEWARRIOR__)), yes)
 
 INCLUDE_PATH += $(EEBASE)/contrib/as/arch/mpc56xx/codewarrior/include
+EE_SRCS += contrib/as/arch/mpc56xx/codewarrior/drivers/Hardware.c
 
 ifeq ($(call iseeopt, __AS_MCU_DRIVER__), yes)
 EE_SRCS_AUTOSAR += contrib/as/arch/mpc56xx/codewarrior/drivers/Mcu.c
-endif	# __AS_MCU_DRIVER__
+endif # __AS_MCU_DRIVER__
 
-endif	#EE_MPC5643L && __CODEWARRIOR__
+ifeq ($(call iseeopt, __AS_PORT_DRIVER__), yes)
+EE_SRCS += contrib/as/arch/mpc56xx/codewarrior/drivers/Port.c
+endif # __AS_PORT_DRIVER__
+
+endif #EE_MPC5643L && __CODEWARRIOR__
 
 #~ ifeq ($(call iseeopt, __NO_APP__), yes)
 #~ EE_SRCS_AUTOSAR += $(filter-out eecfg.c, $(APP_SRCS))

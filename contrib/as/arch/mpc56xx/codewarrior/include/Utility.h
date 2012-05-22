@@ -58,33 +58,42 @@
 /* Development error macros. */
 #if ( MCU_DEV_ERROR_DETECT == STD_ON )
 
+/* In Order To Use Following Validation Macrocs each module must define
+   AS_MODULE_ID with correct value */
+
 #include "Det.h"
 #if defined(USE_DEM)
 #include "Dem.h"
 #endif
 
-#define VALIDATE(_exp,_api,_err ) \
-  if( !(_exp) ) { \
-    Det_ReportError(MCU_MODULE_ID,0,_api,_err); \
-    return; \
+#define AS_ASSERt(exp_, api_, err_)\
+  if( !(exp_) ) {\
+    Det_ReportError(AS_MODULE_ID, 0, api_, err_);\
+    return;\
   }
 
-#define VALIDATE_W_RV(_exp,_api,_err,_rv ) \
-  if( !(_exp) ) { \
-    Det_ReportError(MCU_MODULE_ID,0,_api,_err); \
-    return (_rv); \
+#define AS_ASSERT_W_RV(exp_, api_, err_, rv_)\
+  if( !(exp_) ) {\
+    Det_ReportError(AS_MODULE_ID, 0, api_, err_);\
+    return (rv_);\
   }
 
-#else	/* MCU_DEV_ERROR_DETECT */
+#define AS_ERROR(api_, err_) Det_ReportError(AS_MODULE_ID, 0, api_, err_)
 
-#define VALIDATE(_exp,_api,_err ) \
-  if( !(_exp) ) { \
-    return; \
-  }
-#define VALIDATE_W_RV(_exp,_api,_err,_rv ) \
-  if( !(_exp) ) { \
-    return (_rv); \
-  }
-#endif	/* !MCU_DEV_ERROR_DETECT */
+#else /* MCU_DEV_ERROR_DETECT */
 
-#endif /* UTILITY_H */
+#define AS_ASSERT(exp_, api_, err_)\
+  if( !(exp_) ) {\
+    return;\
+  }
+
+#define AS_ASSERT_W_RV(exp_, api_, err_, rv_)\
+  if( !(exp_) ) {\
+    return (rv_);\
+  }
+
+#define AS_ERROR(api_, err_)   ((void)0)
+
+#endif  /* !MCU_DEV_ERROR_DETECT */
+
+#endif  /* UTILITY_H */

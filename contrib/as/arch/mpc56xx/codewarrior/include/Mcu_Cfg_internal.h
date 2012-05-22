@@ -51,6 +51,52 @@
 #ifndef MCU_CFG_INTERNAL_H
 #define MCU_CFG_INTERNAL_H
 
+#include "Cfg.h"
+
+/* Bitmak to check & set mode enabled register */
+#define MCU_MODE_ENABLED_RESET          AS_32_BIT31
+#define MCU_MODE_ENABLED_TEST           AS_32_BIT30
+#define MCU_MODE_ENABLED_SAFE           AS_32_BIT29
+#define MCU_MODE_ENABLED_DRUN           AS_32_BIT28
+#define MCU_MODE_ENABLED_RUN0           AS_32_BIT27
+#define MCU_MODE_ENABLED_RUN1           AS_32_BIT26
+#define MCU_MODE_ENABLED_RUN2           AS_32_BIT25
+#define MCU_MODE_ENABLED_RUN3           AS_32_BIT24
+#define MCU_MODE_ENABLED_HALT0          AS_32_BIT23
+#define MCU_MODE_ENABLED_STOP0          AS_32_BIT21
+
+#define MCU_MODE_ENABLED_DRESET         AS_32_BIT16
+
+/* Bitmasks to check & set mode configurations */
+#define MCU_MODE_SYSCLK_RC              0x00000000U
+#define MCU_MODE_SYSCLK_FMPLL           0x00000004U
+#define MCU_MODE_IRCOSC_ON              AS_32_BIT27
+#define MCU_MODE_XOSC_ON                AS_32_BIT26
+#define MCU_MODE_PLL0_ON                AS_32_BIT25
+#define MCU_MODE_PLL1_ON                AS_32_BIT24
+
+#define MCU_MODE_FLAON_NORM             (3U << 16U)
+#define MCU_MODE_FLAON_HALT0            (2U << 16U)
+#define MCU_MODE_FLAON_STOP0            (1U << 16U)
+
+#define MCU_MODE_RESERVED_NORM          (3U << 18U)
+#define MCU_MODE_RESERVED_HALT0         (2U << 18U)
+#define MCU_MODE_RESERVED_STOP0         (1U << 18U)
+
+#define MCU_MODE_MAIN_VOLTAGE_REG_ON    AS_32_BIT11
+#define MCU_MODE_IO_POWER_DOWN          AS_32_BIT8
+
+/* Macros to populate FMPLL register */
+#define MCU_FMPLL_IDF(n)                ((0x00000FU & ((n) - 1U)) << 26U)
+#define MCU_FMPLL_ODF(n)                ((0x000003U & ((n)/2U - 1U)) << 24U)
+#define MCU_FMPLL_NDIV(n)               ((0x00007FU & (n)) << 16U)
+#define MCU_FMPLL_DEFAULT               AS_32_BIT31
+
+/* Bitmask to select Auxiliary Clock Source */
+#define MCU_AUX_CLOCK_SOURCE_RC         0x00000000U
+#define MCU_AUX_CLOCK_SOURCE_XOSC       AS_32_BIT7
+#define MCU_AUX_CLOCK_SOURCE_SYSPLL     AS_32_BIT5
+
 /* @brief Raw Reset Type
  *
  *  <b>MCU235:</b> The type Mcu_RawResetType specifies the reset reason in raw
@@ -89,6 +135,21 @@ typedef struct {
   const uint32                  McuRunConfiguration;
 } Mcu_ModeSettingConfigType;
 
+typedef enum {
+  MCU_AUX_CLOCK_0,
+  MCU_AUX_CLOCK_1,
+  MCU_AUX_CLOCK_2,
+  MCU_AUX_CLOCK_3,
+  MCU_AUX_CLOCK_4
+} Mcu_AuxClockIdType;
+
+typedef struct {
+  const Mcu_AuxClockIdType  McuAuxClockId;
+  const uint32              McuAuxClockSource;
+  const uint32              McuAuxClockDivisor0;
+  const uint32              McuAuxClockDivisor1;
+} Mcu_AuxClockSettingConfigType;
+
 /** @brief  Clock Settings Configuration Parameters
  *
  *  <b>MCU124_Conf:</b> This container contains the configuration (parameters)
@@ -121,8 +182,13 @@ typedef struct {
 
   /** @brief FMPLL Register value for desired clock frequency */
   const uint32 McuPllConfiguration;
-  /** @brief Flag that select PLL input */
-  const boolean McuUseExternalOscillator;
+
+  /** @brief Number of Auxiliary Clock configuration */
+  const uint32  McuAuxClockNumber;
+
+  /** @brief Auxiliary Clock Setting Configuration Parameters */
+  const Mcu_AuxClockSettingConfigType * const McuAuxClockSettingConfig;
+
 } Mcu_ClockSettingConfigType;
 
 /** @brief Invalid ID for mcu configuration */

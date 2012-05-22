@@ -166,7 +166,8 @@ __INLINE__ void __ALWAYS_INLINE__ EE_e200zx_mbar(void)
   must put them here)
  *********************************************************************/
 
-#define MSR_EE	((EE_FREG)1U << 15)
+#define MSR_EE  ((EE_FREG)1U << 15U)
+#define MSR_PR  ((EE_FREG)1U << 14U)
 
 __INLINE__ void __ALWAYS_INLINE__ EE_e200z7_enableIRQ(void)
 {
@@ -182,12 +183,12 @@ __INLINE__ void __ALWAYS_INLINE__ EE_e200z7_disableIRQ(void)
 __asm static void EE_e200z7_resumeIRQ(EE_FREG msr)
 {
 % reg msr
-	wrtee	msr
+	mtmsr msr
 }
 #else
 __INLINE__ void __ALWAYS_INLINE__ EE_e200z7_resumeIRQ(EE_FREG msr)
 {
-	__asm volatile ("wrtee %0\n" :: "r"(msr));
+	__asm volatile ("mtmsr %0\n" :: "r"(msr));
 }
 #endif
 
@@ -228,6 +229,51 @@ __INLINE__ EE_BIT __ALWAYS_INLINE__ EE_e200z7_isIRQEnabled(void)
   __asm volatile ("mfmsr %0   \n"
       : "=r"(msr));
   return ((msr & MSR_EE) != 0U);
+}
+#endif
+
+/*********************************************************************
+             E200Z7 mode user/supervisor switch functions
+ *********************************************************************/
+
+#ifdef __DCC__
+__asm static void EE_e200z7_switch_to_user_mode(void)
+{
+! "r3"
+  mfmsr r3
+  ori   r3, r3, (1U << 14U)
+  mtmsr r3
+}
+
+__asm static void EE_e200z7_switch_to_supervisor_mode(void)
+{
+! "r3"
+  mfmsr r3
+  andi  r3, r3, 0xBFFFU
+  mtmsr r3
+}
+
+#else
+__INLINE__ void EE_e200z7_switch_to_user_mode(void)
+{
+  EE_FREG msr;
+
+  __asm volatile ("mfmsr %0   \n"
+      : "=r"(msr));
+  msr |= MSR_PR;
+  __asm volatile ("mtmsr %0   \n"
+      :: "r"(msr));
+}
+
+__INLINE__  void EE_e200z7_switch_to_supervisor_mode(void)
+{
+  EE_FREG msr;
+
+  __asm volatile ("mfmsr %0   \n"
+      : "=r"(msr));
+  msr &= ~MSR_PR;
+  __asm volatile ("mtmsr %0   \n"
+      :: "r"(msr));
 }
 #endif
 

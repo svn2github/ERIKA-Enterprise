@@ -266,4 +266,11 @@
 #define VAR(vartype, memclass)  \
   vartype
 
+/** @brief  Token Join Macro.
+ *  @param  a   First Token to Joinof the variable
+ *  @param  b   Second Token to Join
+ *
+ */
+#define JOIN(a,b) a##b
+
 #endif  /* COMPILER_H */

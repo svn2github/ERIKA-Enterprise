@@ -57,16 +57,24 @@
 /*
  * MACROS
  */
-#define HW_REG_SZ   0x00000004U   /**< Register Size in Bytes   */
-#define HW_REG_SZ_S 0x00000002U   /**< Register Size Shift Bits */
+#define HW_WORD_SZ        4U   /**< Register Size in Bytes   */
+#define HW_WORD_SZ_S      2U   /**< Register Size Shift Bits */
+
+#define HW_HALF_WORD_SZ   2U   /**< 16 bit register Size in Bytes   */
+#define HW_HALF_WORD_SZ_S 1U   /**< 16 bit register Size Shift Bits */
+
+#define HW_BYTE_SZ        1U   /**< 16 bit register Size in Bytes   */
+#define HW_BYTE_SZ_S      0U   /**< 16 bit register Size Shift Bits */
 
 /** @brief Macro used to actually use a integer as register offset */
-#define HW_REG_OFFSET(index) ((index) << HW_REG_SZ_S)
+#define HW_REG_OFFSET(index, sz_s) ((index) << (sz_s))
 
-/** @brief Macro used to check a reg value againt a bit mask */
+/** @brief Macro used to check a register value against a bitmask */
 #define HW_REG_BITMASK_CHECK(reg, bitmask) (((reg) & (bitmask)) == bitmask)
 
-/* Processor identification */
+
+/* Processor (CORE) Identification */
+
 
 /** @brief Core identification special register */
 #define SPR_PIR 286
@@ -76,7 +84,9 @@
 /** @brief Leopard Core PVR */
 #define PVR_CORE_E200Z4D_LEOPARD    0x81550001UL 
 
-/* MCU Macros access */
+
+/* MCU Status Macros */
+
 
 /** @brief Return Active Hardware Mode */
 #define MCU_HARDWARE_MODE_ACTIVE()  (ME.GS.B.S_CURRENT_MODE)
@@ -93,6 +103,7 @@
 
 /* Mode Entry Module Macros (MC_ME) */
 
+
 /** @brief Mode Entry base address */
 #define ME_BASE_ADDR 0xC3FDC000U
 /** @brief Mode Entry Global Status */
@@ -103,9 +114,50 @@
 
 /** @brief Read Mode Configuration */
 #define ME_GET_MC(mode) (*(volatile uint32 *)(ME_MC_BASE_ADDR +\
-    HW_REG_OFFSET(mode)))
+    HW_REG_OFFSET(mode, HW_WORD_SZ_S)))
 
 /** @bried Write Mode Configuration */
 #define ME_SET_MC(mode, conf) (ME_GET_MC(mode) = (conf))
+
+
+/* SIUL Mode Macros */
+
+
+/** @brief SIUL Pad Code Configuration Registers Base Address */
+#define SIUL_PCR_BASE_ADDR    0x00000040U
+
+/** @brief Used to read a PCR register */
+#define SIUL_GET_PCR(num) (*(volatile uint16 *)(SIUL_PCR_BASE_ADDR +\
+    HW_REG_OFFSET(num, HW_HALF_WORD_SZ_S)))
+
+/** @brief Used to set a PCR register */
+#define SIUL_SET_PCR(num, value) (SIUL_GET_PCR(num) = (value))
+
+
+/** @brief SIUL GPIO Data Output Register Base Address */
+#define SIUL_GPDO_BASE_ADDR   0x00000600U
+
+/** @brief Used to read a GPIO register */
+#define SIUL_GET_GPDO(num) (*(volatile uint8 *)(SIUL_GPDO_BASE_ADDR +\
+    HW_REG_OFFSET(num, HW_BYTE_SZ_S)))
+
+/** @brief Used to set a GPIO register */
+#define SIUL_SET_GET_GPDO(num, value) (SIUL_GET_GET_GPDO((num) = (value))
+
+/*
+ * FUNCTIONS
+ */
+
+#include "Std_Types.h"
+
+/** @brief  Supported Chip Check.
+ *
+ *  @return
+ *      - E_OK:     Chip Supported.
+ *      - E_NOT_OK: Chip Not Supported.
+ *
+ *  Checs if the core is supported or not.
+ */
+Std_ReturnType Hw_ChipCheck(void);
 
 #endif  /* HARDWARE_H */

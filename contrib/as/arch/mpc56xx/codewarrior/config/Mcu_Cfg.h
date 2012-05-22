@@ -125,14 +125,15 @@
  */
 
 /* Define all clock configurated */
-#define MCU_CLOCK_EXT_REF_64MHZ   0U
-#define MCU_CLOCK_EXT_REF_80MHZ   1U
-#define MCU_CLOCK_EXT_REF_120MHZ  2U
-#define MCU_CLOCK_RC_REF_80MHZ    3U
-#define MCU_CLOCK_RC_REF_120MHZ   4U
+#define MCU_CLOCK_EXT_REF_64MHZ     0U
+#define MCU_CLOCK_EXT_REF_80MHZ     1U
+#define MCU_CLOCK_EXT_REF_120MHZ    2U
+#define MCU_CLOCK_RC_REF_80MHZ      3U
+#define MCU_CLOCK_RC_REF_120MHZ     4U
+#define MCU_CLOCK_DEMO_EXT_120MHZ   5U
 
 /* Actual number of supported clock configurations */
-#define MCU_CLOCKS_NUMBER         5U
+#define MCU_CLOCKS_NUMBER           6U
 
 /*
  * MCU176_Conf: The parameter represents the MCU Mode settings.
@@ -140,7 +141,8 @@
 
 /* Bit mask to configure MC_ME register with */
 /* Enable DRUN, RUN0, SAFE, RESET modes */
-#define MCU_ENABLED_MODES 0x0000001D
+#define MCU_ENABLED_MODES MCU_MODE_ENABLED_RESET | MCU_MODE_ENABLED_SAFE |\
+  MCU_MODE_ENABLED_DRUN | MCU_MODE_ENABLED_RUN0
 
 /* A DRUN configuration */
 #define MCU_MODE_INIT         0U
@@ -164,7 +166,14 @@
     Internal RC Oscillator 16MHz (IRCOSC):  ON,
     System Clock (SYSLK):                   16 MHZ int. RC osc.
 */
-#define MCU_RESET_CONF        0x001F0010U
+#define MCU_RESET_CONF      MCU_MODE_MAIN_VOLTAGE_REG_ON |\
+  MCU_MODE_RESERVED_NORM | MCU_MODE_FLAON_NORM | MCU_MODE_IRCOSC_ON |\
+  MCU_MODE_SYSCLK_RC
+
+/* Clock Output Enbled */
+#define MCU_CLOCK_OUTPUT_ENABLE     1U
+/* Clock Output Prescaler Factor */
+#define MCU_CLOCK_PRESCALER_FACTOR  2U /* Prescaler 4x */
 
 /* Include Static Configuration (Type Declarations) */
 #include <Mcu_Cfg_internal.h>

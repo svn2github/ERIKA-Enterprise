@@ -194,6 +194,12 @@ typedef	uint8_least	Port_PinModeType;
  */
 extern	const Port_ConfigType	Port_Config[];
 
+/** @brief  Default PORT Configuration Pointer
+ *
+ *  Pointer to Default PORT Driver Configuration.
+ */
+#define PORT_CONFIG_PTR &Port_Config[0]
+
 /*
  * Service ID's
  */
