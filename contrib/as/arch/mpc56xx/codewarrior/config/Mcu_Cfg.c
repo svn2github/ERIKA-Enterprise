@@ -65,7 +65,7 @@
 
 Mcu_AuxClockSettingConfigType const Mcu_DefaultAuxClockSetting[] = {
   {
-    MCU_AUX_CLOCK_4,
+    MCU_AUX_CLOCK_3,
     MCU_AUX_CLOCK_SOURCE_XOSC,
     0U,
     0U
@@ -74,16 +74,22 @@ Mcu_AuxClockSettingConfigType const Mcu_DefaultAuxClockSetting[] = {
 
 Mcu_AuxClockSettingConfigType const Mcu_DemoAuxClockSetting[] = {
   {
-    MCU_AUX_CLOCK_4,
+    MCU_AUX_CLOCK_0,
+    MCU_AUX_CLOCK_SOURCE_SYSPLL,
+    1U,
+    4U
+  },
+  {
+    MCU_AUX_CLOCK_3,
     MCU_AUX_CLOCK_SOURCE_XOSC,
     0U,
     0U
   },
   {
-    MCU_AUX_CLOCK_0,
-    MCU_AUX_CLOCK_SOURCE_SYSPLL,
-    1U,
-    4U
+    MCU_AUX_CLOCK_4,
+    MCU_AUX_CLOCK_SOURCE_XOSC,
+    0U,
+    0U
   }
 };
 
@@ -101,6 +107,8 @@ Mcu_ClockSettingConfigType const Mcu_ClockSettingConfigData[] =
     6.4E7,                        /* McuClockReferencePointFrequency    */
     MCU_FMPLL_IDF(5U) | MCU_FMPLL_ODF(8U) | MCU_FMPLL_NDIV(64U) |
     MCU_FMPLL_DEFAULT,
+    MCU_FMPLL_IDF(5U) | MCU_FMPLL_ODF(8U) | MCU_FMPLL_NDIV(64U) |
+    MCU_FMPLL_DEFAULT,
     /* 0x12400001U, */            /* 40 MHz xtal: Set PLL0 to 64 MHz    */
                                   /* IDF = 4: divide Fxtal by 5 (IDF+1) */
                                   /* NDIV = 64: multiply by 64 (NDIV)   */
@@ -111,6 +119,8 @@ Mcu_ClockSettingConfigType const Mcu_ClockSettingConfigData[] =
   {
     MCU_CLOCK_EXT_REF_80MHZ,      /* Clock Settings Identifier          */
     8E7,                          /* McuClockReferencePointFrequency    */
+    MCU_FMPLL_IDF(8U) | MCU_FMPLL_ODF(4U) | MCU_FMPLL_NDIV(64U) |
+    MCU_FMPLL_DEFAULT,
     MCU_FMPLL_IDF(8U) | MCU_FMPLL_ODF(4U) | MCU_FMPLL_NDIV(64U) |
     MCU_FMPLL_DEFAULT,
     /* 0x1D400001U, */            /* 40 MHz xtal: Set PLL0 to 120 MHz   */
@@ -125,6 +135,8 @@ Mcu_ClockSettingConfigType const Mcu_ClockSettingConfigData[] =
     1.2E8,                        /* McuClockReferencePointFrequency    */
     MCU_FMPLL_IDF(4U) | MCU_FMPLL_ODF(4U) | MCU_FMPLL_NDIV(48U) |
     MCU_FMPLL_DEFAULT,
+    MCU_FMPLL_IDF(4U) | MCU_FMPLL_ODF(4U) | MCU_FMPLL_NDIV(48U) |
+    MCU_FMPLL_DEFAULT,
     /* 0x0D300001U, */            /* 40 MHz xtal: Set PLL0 to 120 MHz */
                                   /* IDF = 3: divide Fxtal by 4 (IDF+1) */
                                   /* NDIV = 48: multiply by 48 (NDIV) */
@@ -135,6 +147,8 @@ Mcu_ClockSettingConfigType const Mcu_ClockSettingConfigData[] =
   {
     MCU_CLOCK_RC_REF_80MHZ,       /* Clock Settings Identifier          */
     1.2E8,                        /* McuClockReferencePointFrequency    */
+    MCU_FMPLL_IDF(2U) | MCU_FMPLL_ODF(4U) | MCU_FMPLL_NDIV(40U) |
+    MCU_FMPLL_DEFAULT,
     MCU_FMPLL_IDF(2U) | MCU_FMPLL_ODF(4U) | MCU_FMPLL_NDIV(40U) |
     MCU_FMPLL_DEFAULT,
     /* 0x05480001U, */            /* 16 MHz RC: Set PLL0 to 80 MHz */
@@ -149,6 +163,8 @@ Mcu_ClockSettingConfigType const Mcu_ClockSettingConfigData[] =
     1.2E8,                        /* McuClockReferencePointFrequency    */
     MCU_FMPLL_IDF(4U) | MCU_FMPLL_ODF(4U) | MCU_FMPLL_NDIV(90U) |
     MCU_FMPLL_DEFAULT,
+    MCU_FMPLL_IDF(4U) | MCU_FMPLL_ODF(4U) | MCU_FMPLL_NDIV(90U) |
+    MCU_FMPLL_DEFAULT,
     /* 0x095A0001U, */            /* 16 MHz RC: Set PLL0 to 120 MHz */
                                   /* IDF = 2: divide RC by 4 (IDF+1) */
                                   /* NDIV = 90: multiply by 90 (NDIV) */
@@ -161,7 +177,9 @@ Mcu_ClockSettingConfigType const Mcu_ClockSettingConfigData[] =
     1.2E8,                        /* McuClockReferencePointFrequency    */
     MCU_FMPLL_IDF(6U) | MCU_FMPLL_ODF(4U) | MCU_FMPLL_NDIV(72U) |
     MCU_FMPLL_DEFAULT,
-    2U,                           /* Auxiliary Clock Settings */
+    MCU_FMPLL_IDF(6U) | MCU_FMPLL_ODF(4U) | MCU_FMPLL_NDIV(72U) |
+    MCU_FMPLL_DEFAULT,
+    3U,                           /* Auxiliary Clock Settings */
     &Mcu_DemoAuxClockSetting[0]
   }
 

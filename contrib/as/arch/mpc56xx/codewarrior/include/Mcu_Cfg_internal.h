@@ -180,8 +180,11 @@ typedef struct {
    */
   const float32 McuClockReferencePointFrequency;
 
-  /** @brief FMPLL Register value for desired clock frequency */
-  const uint32 McuPllConfiguration;
+  /** @brief FMPLL0 Register value for desired clock frequency */
+  const uint32 McuPll0Configuration;
+
+  /** @brief FMPLL1 Register value for desired clock frequency */
+  const uint32 McuPll1Configuration;
 
   /** @brief Number of Auxiliary Clock configuration */
   const uint32  McuAuxClockNumber;

@@ -166,7 +166,7 @@ static void EE_mcu_configure_auxiliary_clocks(const Mcu_ClockSettingConfigType *
         CGM.AC3SC.R = auxClockConfigPtr->McuAuxClockSource;
       break;
       case MCU_AUX_CLOCK_4:
-        CGM.AC3SC.R = auxClockConfigPtr->McuAuxClockSource;
+        CGM.AC4SC.R = auxClockConfigPtr->McuAuxClockSource;
       break;
       default:
         ; /* Configuration error TODO: notify DET/DEM ? */
@@ -258,7 +258,7 @@ static void EE_mcu_clear_critical_fault(void)
 }
 
 #define EE_MCU_FCCU_NCFK_KEY  0xAB3498FEU
-void EE_mcu_clear_non_critical_fault(void)
+static void EE_mcu_clear_non_critical_fault(void)
 {
   uint32_t i,b[4];
   for(i = 0U; i < 4U ;i++){
@@ -442,8 +442,11 @@ Std_ReturnType Mcu_InitClock(Mcu_ClockType ClockSetting)
 
   /* For system clock configure PLL 0 */
   /* TODO Check if EE_ENABLE_PROG_PLL_SWITCHING flag works */
-  CGM.FMPLL[0].CR.R = (clockSettingsPtr->McuPllConfiguration /* |
+  CGM.FMPLL[0].CR.R = (clockSettingsPtr->McuPll0Configuration /* |
     EE_ENABLE_PROG_PLL_SWITCHING */ );
+  CGM.FMPLL[1].CR.R = (clockSettingsPtr->McuPll1Configuration /* |
+    EE_ENABLE_PROG_PLL_SWITCHING */ );
+
 
   /* Configure Mode to change Clock frequency */
   if( !HW_REG_BITMASK_CHECK(mode_configuration, MCU_MODE_SYSCLK_FMPLL) ) {
