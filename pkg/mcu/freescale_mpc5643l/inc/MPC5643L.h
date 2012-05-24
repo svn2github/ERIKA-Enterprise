@@ -8135,13 +8135,21 @@ extern "C" {
       } B;
    } CTU_EXPECTED_B_16B_tag;
 
-   typedef union {   /* CTU Counter Range Register */
-      vuint16_t R;
+   //typedef union {   /* CTU Counter Range Register */
+   //   vuint16_t R;
+   //   struct {
+   //      vuint16_t:8;
+   //      vuint16_t  CNT_RANGE_VALUE:8;   /* Counter Range Value */
+   //   } B;
+   //} CTU_CNT_RANGE_16B_tag;
+
+typedef union {   /* CTU Counter Range Register */
+      vuint32_t R;
       struct {
-         vuint16_t:8;
+         vuint32_t:24;
          vuint16_t  CNT_RANGE_VALUE:8;   /* Counter Range Value */
       } B;
-   } CTU_CNT_RANGE_16B_tag;
+   } CTU_CNT_RANGE_32B_tag;
 
 
    /* Register layout for generated register(s) FRA... */
@@ -8364,8 +8372,11 @@ extern "C" {
                                         /* CTU Expected B Value Register */
       CTU_EXPECTED_B_16B_tag EXPECTED_B;   /* offset: 0x00CE size: 16 bit */
                                            /* CTU Counter Range Register */
-      CTU_CNT_RANGE_16B_tag CNT_RANGE;     /* offset: 0x00D0 size: 16 bit */
-      int8_t CTU_reserved_00D2[16174];
+      //CTU_CNT_RANGE_16B_tag CNT_RANGE;     /* offset: 0x00D0 size: 16 bit */
+      //int8_t CTU_reserved_00D2[16174];
+
+CTU_CNT_RANGE_32B_tag CNT_RANGE;     /* offset: 0x00D0 size: 32 bit */
+int8_t CTU_reserved_00D4[16172];
 
    } CTU_tag;
 
