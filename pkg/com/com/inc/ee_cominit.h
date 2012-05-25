@@ -316,7 +316,12 @@ struct EE_COM_msg_queue {
 };
 #endif
 
-
+/*GF: Start */
+struct EE_COM_event_notify {
+	TaskType task;
+	EventMaskType event;
+};
+/*GF: End*/
 
 
 /*************************************************************************

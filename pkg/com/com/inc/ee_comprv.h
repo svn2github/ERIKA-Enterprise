@@ -356,6 +356,8 @@ void __ALWAYS_INLINE__ EE_com_notify_ok(const struct EE_com_msg_ROM_TYPE *msg_RO
     
     /* Setting an event */
     case EE_COM_MSG_EVOK:
+		SetEvent( ((struct EE_COM_event_notify *)msg_ROM->notify_call)->task, 
+			((struct EE_COM_event_notify *)(msg_ROM->notify_call))->event );
     break;   
   }
 }
