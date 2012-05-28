@@ -76,6 +76,8 @@ SECTIONS
 			*(.sdata2)
 			*(.sbss2)
 		 }
+
+		. = ALIGN(8);
 		ee_load_ram = . ;
 	} > iflash
 
