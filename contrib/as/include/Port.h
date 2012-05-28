@@ -86,28 +86,6 @@
  */
 #include "Std_Types.h"
 
-/*
- * PORT051:	The following errors and exceptions shall be detectable by the
- * 		PORT driver depending on its build version
- * 		(development/production).
- */
-#if ( PORT_DEV_ERROR_DETECT == STD_ON )
-/** Invalid Port Pin ID requested					      */
-#define	PORT_E_PARAM_PIN		0x0A
-/** Port Pin not configured as changeable				      */
-#define	PORT_E_DIRECTION_UNCHANGEABLE	0x0B
-/** API <tt>Port_Init()</tt> service called with wrong parameter	      */
-#define	PORT_E_PARAM_CONFIG		0x0C
-/** Port Pin Mode passed Not Valid					      */
-#define	PORT_E_PARAM_INVALID_MODE	0x0D
-/** API <tt>Port_SetPinMode()</tt> service called when mode is unchangeable   */
-#define	PORT_E_MODE_UNCHANGEABLE	0x0E
-/** API service called without module initialization			      */
-#define	PORT_E_UNINIT			0x0F
-/** APIs called with a <tt>NULL</tt> Pointer				      */
-#define	PORT_E_PARAM_POINTER		0x10
-#endif
-
 /** @brief	Pin
  *
  *  <b>PORT013:</b> The type <tt>Port_PinType</tt> shall be used for the
@@ -199,6 +177,29 @@ extern	const Port_ConfigType	Port_Config[];
  *  Pointer to Default PORT Driver Configuration.
  */
 #define PORT_CONFIG_PTR &Port_Config[0]
+
+
+/*
+ * PORT051:	The following errors and exceptions shall be detectable by the
+ * 		PORT driver depending on its build version
+ * 		(development/production).
+ */
+#if ( PORT_DEV_ERROR_DETECT == STD_ON )
+/** Invalid Port Pin ID requested					      */
+#define	PORT_E_PARAM_PIN		0x0A
+/** Port Pin not configured as changeable				      */
+#define	PORT_E_DIRECTION_UNCHANGEABLE	0x0B
+/** API <tt>Port_Init()</tt> service called with wrong parameter	      */
+#define	PORT_E_PARAM_CONFIG		0x0C
+/** Port Pin Mode passed Not Valid					      */
+#define	PORT_E_PARAM_INVALID_MODE	0x0D
+/** API <tt>Port_SetPinMode()</tt> service called when mode is unchangeable   */
+#define	PORT_E_MODE_UNCHANGEABLE	0x0E
+/** API service called without module initialization			      */
+#define	PORT_E_UNINIT			0x0F
+/** APIs called with a <tt>NULL</tt> Pointer				      */
+#define	PORT_E_PARAM_POINTER		0x10
+#endif
 
 /*
  * Service ID's
@@ -395,7 +396,7 @@ void Port_RefreshPortDirection(
 		Det_ReportError(\
 			PORT_MODULE_ID,\
 			0,\
-			PORT_GETVERSIONINFO_SERVICE_ID,\
+			PORT_GET_VERSION_INFO_SERVICE_ID,\
 			PORT_E_PARAM_POINTER\
 		);\
 	}

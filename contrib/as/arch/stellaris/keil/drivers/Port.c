@@ -68,28 +68,56 @@
 #include "Dem.h"
 #endif
 
-#define VALIDATE(_exp,_api,_err ) \
+#define VALIDATE(_exp,_api,_err) \
   if( !(_exp) ) { \
     Det_ReportError(PORT_MODULE_ID,0,_api,_err); \
     return; \
   }
 
-#define VALIDATE_W_RV(_exp,_api,_err,_rv ) \
+#define VALIDATE_IRQ(_exp,_api,_err,_flags) \
   if( !(_exp) ) { \
     Det_ReportError(PORT_MODULE_ID,0,_api,_err); \
+    EE_hal_resumeIRQ(_flags); \
+    return; \
+  }
+
+#define VALIDATE_W_RV(_exp,_api,_err,_rv) \
+  if( !(_exp) ) { \
+    Det_ReportError(PORT_MODULE_ID,0,_api,_err); \
+    return (_rv); \
+  }
+
+#define VALIDATE_IRQ_W_RV(_exp,_api,_err,_rv,_flags) \
+  if( !(_exp) ) { \
+    Det_ReportError(PORT_MODULE_ID,0,_api,_err); \
+    EE_hal_resumeIRQ(_flags); \
     return (_rv); \
   }
 
 #else	/* PORT_DEV_ERROR_DETECT */
 
-#define VALIDATE(_exp,_api,_err ) \
+#define VALIDATE(_exp,_api,_err) \
   if( !(_exp) ) { \
     return; \
   }
-#define VALIDATE_W_RV(_exp,_api,_err,_rv ) \
+
+#define VALIDATE_IRQ(_exp,_api,_err,_flags) \
+  if( !(_exp) ) { \
+    EE_hal_resumeIRQ(_flags); \
+    return; \
+  }
+
+#define VALIDATE_W_RV(_exp,_api,_err,_rv) \
   if( !(_exp) ) { \
     return (_rv); \
   }
+
+#define VALIDATE_IRQ_W_RV(_exp,_api,_err,_rv,_flags) \
+  if( !(_exp) ) { \
+    EE_hal_resumeIRQ(_flags); \
+    return (_rv); \
+  }
+
 #endif	/* !PORT_DEV_ERROR_DETECT */
 
 /*
@@ -104,7 +132,9 @@ typedef struct
 } Port_GlobalType;
 
 
-// Global config
+/*
+ * Global config
+ */
 Port_GlobalType Port_Global =
 {
   FALSE,		/* Init		*/
@@ -208,23 +238,26 @@ static void Port_SetPortPinHWMode(
   const Port_PinModeConfType *	ConfigPtr
 )
 {
-  register EE_UREG	flag;
-  register uint32	mode;
 
-  /* Starts Atomic Section. */
-  flag = EE_hal_suspendIRQ();
+  register uint32	mode;
 
   mode = ConfigPtr->PortPinModeHWConfig;
 
   /* Sets-up Analog Mode Select */
   if ( mode & PORT_PIN_HW_CFG_AMSEL ) {
+
     GPIO_SET_PIN_DEN(Pin, STD_OFF);
+
     GPIO_SET_PIN_AMSEL(Pin, STD_ON);
 
     /* Sets-up Alternate Function Select */
+
     if ( mode & PORT_PIN_HW_CFG_AFSEL ) {
+
       GPIO_SET_PIN_AFSEL(Pin, STD_ON);
+
     }
+
   }
   else {
 
@@ -232,64 +265,100 @@ static void Port_SetPortPinHWMode(
 
     /* Sets-up Alternate Function Select */
     if ( mode & PORT_PIN_HW_CFG_AFSEL ) {
+
       GPIO_SET_PIN_PMC(Pin, mode);
+
       GPIO_SET_PIN_AFSEL(Pin, STD_ON);
+
     }
-    else
+    else {
+
       GPIO_SET_PIN_AFSEL(Pin, STD_OFF);
+
+    }
 
     /* Sets-up Strenght Drive Select */
     if ( mode & PORT_PIN_HW_CFG_DR2R ) {
+
       GPIO_SET_PIN_DR2R(Pin, STD_ON);
+
       GPIO_SET_PIN_SLR(Pin, STD_OFF);
+
     }
     else if ( mode & PORT_PIN_HW_CFG_DR4R ) {
+
       GPIO_SET_PIN_DR4R(Pin, STD_ON);
+
       GPIO_SET_PIN_SLR(Pin, STD_OFF);
+
     }
     else if ( mode & PORT_PIN_HW_CFG_DR8R ) {
 
       GPIO_SET_PIN_DR8R(Pin, STD_ON);
 
       /* Sets-up Slew-rate Control */
-      if ( mode & PORT_PIN_HW_CFG_SLR )
+      if ( mode & PORT_PIN_HW_CFG_SLR ) {
+
 	GPIO_SET_PIN_SLR(Pin, STD_ON);
-      else
+
+      }
+      else {
+
 	GPIO_SET_PIN_SLR(Pin, STD_OFF);
+
+      }
 
     } /* DR8R */
 
     /* Sets-up Open Drain */
-    if ( mode & PORT_PIN_HW_CFG_ODR )
+    if ( mode & PORT_PIN_HW_CFG_ODR ) {
+
       GPIO_SET_PIN_ODR(Pin, STD_ON);
+
+    }
     else {
 
       GPIO_SET_PIN_ODR(Pin, STD_OFF);
 
       /* Sets-up Pull-Up */
-      if ( mode & PORT_PIN_HW_CFG_PUR )
+      if ( mode & PORT_PIN_HW_CFG_PUR ) {
+
 	GPIO_SET_PIN_PUR(Pin, STD_ON);
-      else
+
+      }
+      else {
+
 	GPIO_SET_PIN_PUR(Pin, STD_OFF);
 
+      }
+
       /* Sets-up Pull-Down */
-      if ( mode & PORT_PIN_HW_CFG_PDR )
+      if ( mode & PORT_PIN_HW_CFG_PDR ) {
+
 	GPIO_SET_PIN_PDR(Pin, STD_ON);
-      else
+
+      }
+      else {
+
 	GPIO_SET_PIN_PDR(Pin, STD_OFF);
+
+      }
 
     } /* !(Open Drain) */
 
     /* Sets-up Digital Enable */
-    if ( mode & PORT_PIN_HW_CFG_DEN )
+    if ( mode & PORT_PIN_HW_CFG_DEN ) {
+
       GPIO_SET_PIN_DEN(Pin, STD_ON);
-    else
+
+    }
+    else {
+
       GPIO_SET_PIN_DEN(Pin, STD_OFF);
 
-  }	/* !(Analog Mode Select) */
+    }
 
-  /* Ends Atomic Section. */
-  EE_hal_resumeIRQ(flag);
+  }	/* !(Analog Mode Select) */
 
 }
 
@@ -316,8 +385,11 @@ static void Port_InitPortPin(
   /*port = SYSCTL_RCGCGPIO_R;*/
 
   /* Sets Initial Port Pin Level Value */
-  if (ConfigPtr->PortPinDirection == PORT_PIN_OUT)
+  if (ConfigPtr->PortPinDirection == PORT_PIN_OUT) {
+
     GPIO_SET_PIN(ConfigPtr->PortPinId, ConfigPtr->PortPinLevelValue);
+
+  }
 
   /* Sets Initial Port Pin Direction */
   GPIO_SET_PIN_DIR(ConfigPtr->PortPinId, ConfigPtr->PortPinDirection);
@@ -334,6 +406,7 @@ static void Port_InitPortPin(
 	ConfigPtr->PortPinId,
 	&(ConfigPtr->PortPinSupportedModes[mode])
       );
+
     }
 
   }
@@ -348,11 +421,14 @@ void Port_Init(
 )
 {
 
-  register uint32 pin;
+  register EE_FREG	flags;
+  register Port_PinType	pin;
 
   VALIDATE( ( ConfigPtr != NULL ), PORT_INIT_SERVICE_ID, PORT_E_PARAM_CONFIG );
 
   VALIDATE( ( Hw_CheckCore() == E_OK ), PORT_INIT_SERVICE_ID, PORT_E_UNINIT );
+
+  flags = EE_hal_suspendIRQ();
 
   Port_Global.ConfigPtr = ConfigPtr;
   Port_Global.Init = TRUE;
@@ -364,6 +440,8 @@ void Port_Init(
     Port_InitPortPin(&(ConfigPtr->PortPins[pin]));
 
   }
+
+  EE_hal_resumeIRQ(flags);
 
 }
 
@@ -377,21 +455,8 @@ void Port_SetPinDirection(
 )
 {
 
-  register uint32		p;
-  register EE_UREG		f;
-  register boolean		init;
-  register Port_ConfigType *	cfgptr;
-
-  f = EE_hal_suspendIRQ();
-  init = Port_Global.Init;
-  cfgptr = Port_Global.ConfigPtr;
-  EE_hal_resumeIRQ(f);
-
-  VALIDATE(
-    ( init == TRUE ),
-    PORT_SET_PIN_DIRECTION_SERVICE_ID,
-    PORT_E_UNINIT
-  );
+  register uint32	p;
+  register EE_UREG	f;
 
   VALIDATE(
     ( Pin < PORT_PINS_NUMBER ),
@@ -399,34 +464,50 @@ void Port_SetPinDirection(
     PORT_E_PARAM_PIN
   );
 
+  f = EE_hal_suspendIRQ();
+
+  VALIDATE_IRQ(
+    Port_Global.Init,
+    PORT_SET_PIN_DIRECTION_SERVICE_ID,
+    PORT_E_UNINIT,
+    f
+  );
+
   /* Pin Look-up */
   for (
     p = 0;
-    ( p < cfgptr->PortNumberOfPortPins ) &&
-    ( cfgptr->PortPins[p].PortPinId != Pin );
+    ( p < Port_Global.ConfigPtr->PortNumberOfPortPins ) &&
+    ( Port_Global.ConfigPtr->PortPins[p].PortPinId != Pin );
     p++
-  );
+  ) {
+    ;
+  }
 
-  VALIDATE(
-    ( p < cfgptr->PortNumberOfPortPins ),
+  VALIDATE_IRQ(
+    ( p <= Port_Global.ConfigPtr->PortNumberOfPortPins ),
     PORT_SET_PIN_DIRECTION_SERVICE_ID,
-    PORT_E_PARAM_PIN
+    PORT_E_PARAM_PIN,
+    f
   );
 
-  VALIDATE(
-    ( cfgptr->PortPins[p].PortPinDirectionChangeable == TRUE ),
+  VALIDATE_IRQ(
+    Port_Global.ConfigPtr->PortPins[p].PortPinDirectionChangeable,
     PORT_SET_PIN_DIRECTION_SERVICE_ID,
-    PORT_E_DIRECTION_UNCHANGEABLE
+    PORT_E_DIRECTION_UNCHANGEABLE,
+    f
   );
-
-  /* Starts Atomic Section. */
-  f = EE_hal_suspendIRQ();
 
   /* Sets Initial Port Pin Level Value */
-  if ( Direction == PORT_PIN_OUT )
-    GPIO_SET_PIN(cfgPtr->PortPinId, cfgPtr->PortPinLevelValue);
+  if ( Direction == PORT_PIN_OUT ) {
 
-  GPIO_SET_PIN_DIR(cfgptr->PortPins[p].PortPinId, Direction);
+    GPIO_SET_PIN(
+      Port_Global.ConfigPtr->PortPins[p].PortPinId,
+      Port_Global.ConfigPtr->PortPins[p].PortPinLevelValue
+    );
+
+  }
+
+  GPIO_SET_PIN_DIR(Port_Global.ConfigPtr->PortPins[p].PortPinId, Direction);
 
   /* Ends Atomic Section. */
   EE_hal_resumeIRQ(f);
@@ -442,25 +523,32 @@ void Port_RefreshPortDirection(
 )
 {
 
-  register uint32 pin;
+  register EE_FREG	flags;
+  register Port_PinType	pin;
 
-  VALIDATE(
-    ( Port_Global.Init == TRUE ),
+  flags = EE_hal_suspendIRQ();
+
+  VALIDATE_IRQ(
+    Port_Global.Init,
     PORT_REFRESH_PORT_DIRECTION_SERVICE_ID,
-    PORT_E_UNINIT
+    PORT_E_UNINIT,
+    flags
   );
 
-  for (pin = 0; pin < Port_Global.ConfigPtr->PortNumberOfPortPins; pin++)
-  {
-    if (
-      Port_Global.ConfigPtr->PortPins[pin].PortPinDirectionChangeable == FALSE
-    ) {
+  for ( pin = 0; pin < Port_Global.ConfigPtr->PortNumberOfPortPins; pin++ ) {
+
+    if ( !Port_Global.ConfigPtr->PortPins[pin].PortPinDirectionChangeable ) {
+
       GPIO_SET_PIN_DIR(
         Port_Global.ConfigPtr->PortPins[pin].PortPinId,
         Port_Global.ConfigPtr->PortPins[pin].PortPinDirection
       );
+
     }
+
   }
+
+  EE_hal_resumeIRQ(flags);
 
 }
 
@@ -474,21 +562,8 @@ void Port_SetPinMode(
 )
 {
 
-  register uint32			p, m;
-  register EE_UREG			f;
-  register boolan			init;
-  register const Port_ConfigType *	cfgptr;
-
-  f = EE_hal_suspendIRQ();
-  init = Port_Global.Init;
-  cfgptr = Port_Global.ConfigPtr;
-  EE_hal_resumeIRQ(f);
-
-  VALIDATE(
-    ( init == TRUE ),
-    PORT_SET_PIN_MODE_SERVICE_ID,
-    PORT_E_UNINIT
-  );
+  register uint32	p, m;
+  register EE_UREG	f;
 
   VALIDATE(
     ( Pin < PORT_PINS_NUMBER ),
@@ -496,51 +571,73 @@ void Port_SetPinMode(
     PORT_E_PARAM_PIN
   );
 
+  f = EE_hal_suspendIRQ();
+
+  VALIDATE_IRQ(
+    Port_Global.Init,
+    PORT_SET_PIN_MODE_SERVICE_ID,
+    PORT_E_UNINIT,
+    f
+  );
+
   /* Pin Look-up */
   for (
     p = 0;
-    ( p < cfgptr->PortNumberOfPortPins ) &&
-    ( cfgptr->PortPins[p].PortPinId != Pin );
+    ( p < Port_Global.ConfigPtr->PortNumberOfPortPins ) &&
+    ( Port_Global.ConfigPtr->PortPins[p].PortPinId != Pin );
     p++
+  ) {
+    ;
+  }
+
+  VALIDATE_IRQ(
+    ( p < Port_Global.ConfigPtr->PortNumberOfPortPins ),
+    PORT_SET_PIN_MODE_SERVICE_ID,
+    PORT_E_PARAM_PIN,
+    f
   );
 
-  VALIDATE(
-    ( p < cfgptr->PortNumberOfPortPins ),
+  VALIDATE_IRQ(
+    Port_Global.ConfigPtr->PortPins[p].PortPinModeChangeable,
     PORT_SET_PIN_MODE_SERVICE_ID,
-    PORT_E_PARAM_PIN
+    PORT_E_MODE_UNCHANGEABLE,
+    f
   );
 
-  VALIDATE(
-    ( cfgptr->PortPins[p].PortPinModeChangeable == TRUE ),
+  VALIDATE_IRQ(
+    ( Mode < Port_Global.ConfigPtr->PortPins[p].PortPinModeNumber ),
     PORT_SET_PIN_MODE_SERVICE_ID,
-    PORT_E_MODE_UNCHANGEABLE
-  );
-
-  VALIDATE(
-    ( Mode < PORT_MODES_NUMBER ),
-    PORT_SET_PIN_MODE_SERVICE_ID,
-    PORT_E_PARAM_INVALID_MODE
+    PORT_E_PARAM_INVALID_MODE,
+    f
   );
 
   /* Pin Modes Look-up */
   for(
     m = 0;
-    ( m < cfgptr->PortPins[p].PortPinModeNumber ) &&
-    ( cfgptr->PortPins[p].PortPinSupportedModes[m].PortPinMode != Mode );
+    ( m < Port_Global.ConfigPtr->PortPins[p].PortPinModeNumber ) &&
+    ( 
+      Port_Global.ConfigPtr->PortPins[p].PortPinSupportedModes[m].PortPinMode !=
+      Mode
+    );
     m++
-  );
+  ) {
+    ;
+  }
 
-  VALIDATE(
-    ( m < cfgptr->PortPins[p].PortPinModeNumber ),
+  VALIDATE_IRQ(
+    ( m < Port_Global.ConfigPtr->PortPins[p].PortPinModeNumber ),
     PORT_SET_PIN_MODE_SERVICE_ID,
-    PORT_E_PARAM_INVALID_MODE
+    PORT_E_PARAM_INVALID_MODE,
+    f
   );
 
   /* Change Port Pin Mode. */
-  Port_SetPortPinMode(
-    cfgptr->PortPins[p].PortPinId,
-    &(cfgptr->PortPins[p].PortPinSupportedModes[m])
+  Port_SetPortPinHWMode(
+    Port_Global.ConfigPtr->PortPins[p].PortPinId,
+    &(Port_Global.ConfigPtr->PortPins[p].PortPinSupportedModes[m])
   );
+
+  EE_hal_resumeIRQ(f);
 
 }
 #endif
