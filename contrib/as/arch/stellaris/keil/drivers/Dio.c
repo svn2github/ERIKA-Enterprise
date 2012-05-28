@@ -76,28 +76,56 @@
 #include "Dem.h"
 #endif
 
-#define VALIDATE(_exp,_api,_err ) \
+#define VALIDATE(_exp,_api,_err) \
   if( !(_exp) ) { \
     Det_ReportError(DIO_MODULE_ID,0,_api,_err); \
     return; \
   }
 
-#define VALIDATE_W_RV(_exp,_api,_err,_rv ) \
+#define VALIDATE_IRQ(_exp,_api,_err,_flags) \
   if( !(_exp) ) { \
     Det_ReportError(DIO_MODULE_ID,0,_api,_err); \
+    EE_hal_resumeIRQ(_flags); \
+    return; \
+  }
+
+#define VALIDATE_W_RV(_exp,_api,_err,_rv) \
+  if( !(_exp) ) { \
+    Det_ReportError(DIO_MODULE_ID,0,_api,_err); \
+    return (_rv); \
+  }
+
+#define VALIDATE_IRQ_W_RV(_exp,_api,_err,_rv,_flags) \
+  if( !(_exp) ) { \
+    Det_ReportError(DIO_MODULE_ID,0,_api,_err); \
+    EE_hal_resumeIRQ(_flags); \
     return (_rv); \
   }
 
 #else	/* DIO_DEV_ERROR_DETECT */
 
-#define VALIDATE(_exp,_api,_err ) \
+#define VALIDATE(_exp,_api,_err) \
   if( !(_exp) ) { \
     return; \
   }
-#define VALIDATE_W_RV(_exp,_api,_err,_rv ) \
+
+#define VALIDATE_IRQ(_exp,_api,_err,_flags) \
+  if( !(_exp) ) { \
+    EE_hal_resumeIRQ(_flags); \
+    return; \
+  }
+
+#define VALIDATE_W_RV(_exp,_api,_err,_rv) \
   if( !(_exp) ) { \
     return (_rv); \
   }
+
+#define VALIDATE_IRQ_W_RV(_exp,_api,_err,_rv,_flags) \
+  if( !(_exp) ) { \
+    EE_hal_resumeIRQ(_flags); \
+    return (_rv); \
+  }
+
 #endif	/* !DIO_DEV_ERROR_DETECT */
 
 /*
@@ -173,22 +201,10 @@ Dio_LevelType Dio_ReadChannel(
   Dio_ChannelType	ChannelId
 )
 {
-  register uint32			p, c;
-  register EE_UREG			f;
-  register boolean			init;
-  register const Dio_ConfigType *	cfgptr;
 
-  f = EE_hal_suspendIRQ();
-  init = Dio_Global.Init;
-  cfgptr = Dio_Global.ConfigPtr;
-  EE_hal_resumeIRQ(f);
-
-  VALIDATE_W_RV(
-    ( init == TRUE ),
-    DIO_READCHANNEL_ID,
-    DIO_E_PARAM_CONFIG,
-    STD_LOW
-  );
+  register uint32		p, c;
+  register EE_UREG		f;
+  register Dio_LevelType	lvl;
 
   VALIDATE_W_RV(
     ( ChannelId < DIO_CHANNELS_NUMBER ),
@@ -197,24 +213,63 @@ Dio_LevelType Dio_ReadChannel(
     STD_LOW
   );
 
-  for (p = 0; (p < cfgptr->DioNumberOfPorts) && init; p++) {
-    if (HW_CH_2_MOD(ChannelId) == cfgptr->DioPorts[p].DioPortId) {
-      for (c = 0; (c < cfgptr->DioPorts[p].DioNumberOfChannels) && init; c++) {
-	if (ChannelId == cfgptr->DioPorts[p].DioChannels[c]) {
-	  init = FALSE;
-	}
-      }
-    }
-  }
+  f = EE_hal_suspendIRQ();
 
-  VALIDATE_W_RV(
-    ( init == FALSE ),
+  VALIDATE_IRQ_W_RV(
+    Dio_Global.Init,
     DIO_READCHANNEL_ID,
-    DIO_E_PARAM_INVALID_CHANNEL_ID,
-    STD_LOW
+    DIO_E_PARAM_CONFIG,
+    STD_LOW,
+    f
   );
 
-  return GPIO_GET_PIN(ChannelId);
+  /* Port Look-up. */
+  c = HW_CH_2_MOD(ChannelId);
+  for (
+    p = 0;
+    (
+      ( p < Dio_Global.ConfigPtr->DioNumberOfPorts ) &&
+      ( c != Dio_Global.ConfigPtr->DioPorts[p].DioPortId )
+    );
+    p++
+  ) {
+    ;
+  }
+
+  VALIDATE_IRQ_W_RV(
+    ( p < Dio_Global.ConfigPtr->DioNumberOfPorts ),
+    DIO_READCHANNEL_ID,
+    DIO_E_PARAM_INVALID_CHANNEL_ID,
+    STD_LOW,
+    f
+  );
+
+  /* Channel Look-up. */
+  for (
+    c = 0;
+    (
+      ( c < Dio_Global.ConfigPtr->DioPorts[p].DioNumberOfChannels ) &&
+      ( ChannelId != Dio_Global.ConfigPtr->DioPorts[p].DioChannels[c] )
+    );
+    c++
+  ) {
+    ;
+  }
+
+  VALIDATE_IRQ_W_RV(
+    ( c < Dio_Global.ConfigPtr->DioPorts[p].DioNumberOfChannels ),
+    DIO_READCHANNEL_ID,
+    DIO_E_PARAM_INVALID_CHANNEL_ID,
+    STD_LOW,
+    f
+  );
+
+  lvl = GPIO_GET_PIN(ChannelId);
+
+  EE_hal_resumeIRQ(f);
+
+  return lvl;
+
 }
 
 /*
@@ -225,21 +280,9 @@ void Dio_WriteChannel(
   Dio_LevelType		Level
 )
 {
-  register uint32			p, c;
-  register EE_UREG			f;
-  register boolean			init;
-  register const Dio_ConfigType *	cfgptr;
 
-  f = EE_hal_suspendIRQ();
-  init = Dio_Global.Init;
-  cfgptr = Dio_Global.ConfigPtr;
-  EE_hal_resumeIRQ(f);
-
-  VALIDATE(
-    ( init == TRUE ),
-    DIO_WRITECHANNEL_ID,
-    DIO_E_PARAM_CONFIG
-  );
+  register uint32	p, c;
+  register EE_UREG	f;
 
   VALIDATE(
     ( ChannelId < DIO_CHANNELS_NUMBER ),
@@ -247,23 +290,53 @@ void Dio_WriteChannel(
     DIO_E_PARAM_INVALID_CHANNEL_ID
   );
 
-  for (p = 0; (p < cfgptr->DioNumberOfPorts) && init; p++) {
-    if (HW_CH_2_MOD(ChannelId) == cfgptr->DioPorts[p].DioPortId) {
-      for (c = 0; (c < cfgptr->DioPorts[p].DioNumberOfChannels) && init; c++) {
-	if (ChannelId == cfgptr->DioPorts[p].DioChannels[c]) {
-	  init = FALSE;
-	}
-      }
-    }
+  f = EE_hal_suspendIRQ();
+
+  VALIDATE_IRQ( Dio_Global.Init, DIO_WRITECHANNEL_ID, DIO_E_PARAM_CONFIG, f );
+
+  /* Port Look-up. */
+  c = HW_CH_2_MOD(ChannelId);
+  for (
+    p = 0;
+    (
+      ( p < Dio_Global.ConfigPtr->DioNumberOfPorts ) &&
+      ( c != Dio_Global.ConfigPtr->DioPorts[p].DioPortId )
+    );
+    p++
+  ) {
+    ;
   }
 
-  VALIDATE(
-    ( init == FALSE ),
+  VALIDATE_IRQ(
+    ( p < Dio_Global.ConfigPtr->DioNumberOfPorts ),
     DIO_WRITECHANNEL_ID,
-    DIO_E_PARAM_INVALID_CHANNEL_ID
+    DIO_E_PARAM_INVALID_CHANNEL_ID,
+    f
+  );
+
+  /* Channel Look-up. */
+  for (
+    c = 0;
+    (
+      ( c < Dio_Global.ConfigPtr->DioPorts[p].DioNumberOfChannels ) &&
+      ( ChannelId != Dio_Global.ConfigPtr->DioPorts[p].DioChannels[c] )
+    );
+    c++
+  ) {
+    ;
+  }
+
+  VALIDATE_IRQ(
+    ( c < Dio_Global.ConfigPtr->DioPorts[p].DioNumberOfChannels ),
+    DIO_WRITECHANNEL_ID,
+    DIO_E_PARAM_INVALID_CHANNEL_ID,
+    f
   );
 
   GPIO_SET_PIN(ChannelId, Level);
+
+  EE_hal_resumeIRQ(f);
+
 }
 
 /*
@@ -273,22 +346,10 @@ Dio_PortLevelType Dio_ReadPort(
   Dio_PortType		PortId
 )
 {
-  register uint32			p;
-  register EE_UREG			f;
-  register boolean			init;
-  register const Dio_ConfigType *	cfgptr;
 
-  f = EE_hal_suspendIRQ();
-  init = Dio_Global.Init;
-  cfgptr = Dio_Global.ConfigPtr;
-  EE_hal_resumeIRQ(f);
-
-  VALIDATE_W_RV(
-    ( init == TRUE ),
-    DIO_READPORT_ID,
-    DIO_E_PARAM_CONFIG,
-    STD_LOW
-  );
+  register uint32		p;
+  register EE_UREG		f;
+  register Dio_PortLevelType	lvl;
 
   VALIDATE_W_RV(
     ( PortId < DIO_PORTS_NUMBER ),
@@ -297,20 +358,42 @@ Dio_PortLevelType Dio_ReadPort(
     STD_LOW
   );
 
-  for (p = 0; (p < cfgptr->DioNumberOfPorts) && init; p++) {
-    if (PortId == cfgptr->DioPorts[p].DioPortId) {
-      init = FALSE;
-    }
-  }
+  f = EE_hal_suspendIRQ();
 
-  VALIDATE_W_RV(
-    ( init == FALSE ),
+  VALIDATE_IRQ_W_RV(
+    Dio_Global.Init,
     DIO_READPORT_ID,
-    DIO_E_PARAM_INVALID_PORT_ID,
-    STD_LOW
+    DIO_E_PARAM_CONFIG,
+    STD_LOW,
+    f
   );
 
-  return GPIO_GET_PORT(PortId);
+  /* Port Look-up. */
+  for (
+    p = 0;
+    (
+      ( p < Dio_Global.ConfigPtr->DioNumberOfPorts ) &&
+      ( PortId != Dio_Global.ConfigPtr->DioPorts[p].DioPortId )
+    );
+    p++
+  ) {
+    ;
+  }
+
+  VALIDATE_IRQ_W_RV(
+    ( p < Dio_Global.ConfigPtr->DioNumberOfPorts ),
+    DIO_READPORT_ID,
+    DIO_E_PARAM_INVALID_PORT_ID,
+    STD_LOW,
+    f
+  );
+
+  lvl = GPIO_GET_PORT(PortId);
+
+  EE_hal_resumeIRQ(f);
+
+  return lvl;
+
 }
 
 /*
@@ -321,21 +404,9 @@ void Dio_WritePort(
   Dio_PortLevelType	Level
 )
 {
-  register uint32			p;
-  register EE_UREG			f;
-  register boolean			init;
-  register const Dio_ConfigType *	cfgptr;
 
-  f = EE_hal_suspendIRQ();
-  init = Dio_Global.Init;
-  cfgptr = Dio_Global.ConfigPtr;
-  EE_hal_resumeIRQ(f);
-
-  VALIDATE(
-    ( init == TRUE ),
-    DIO_WRITEPORT_ID,
-    DIO_E_PARAM_CONFIG
-  );
+  register uint32	p;
+  register EE_UREG	f;
 
   VALIDATE(
     ( PortId < DIO_PORTS_NUMBER ),
@@ -343,19 +414,34 @@ void Dio_WritePort(
     DIO_E_PARAM_INVALID_PORT_ID
   );
 
-  for (p = 0; (p < cfgptr->DioNumberOfPorts) && init; p++) {
-    if (PortId == cfgptr->DioPorts[p].DioPortId) {
-      init = FALSE;
-    }
+  f = EE_hal_suspendIRQ();
+
+  VALIDATE_IRQ( Dio_Global.Init, DIO_WRITEPORT_ID, DIO_E_PARAM_CONFIG, f );
+
+  /* Port Look-up. */
+  for (
+    p = 0;
+    (
+      ( p < Dio_Global.ConfigPtr->DioNumberOfPorts ) &&
+      ( PortId != Dio_Global.ConfigPtr->DioPorts[p].DioPortId )
+    );
+    p++
+  ) {
+    ;
   }
 
-  VALIDATE(
-    ( init == FALSE ),
+  VALIDATE_IRQ(
+    ( p < Dio_Global.ConfigPtr->DioNumberOfPorts ),
     DIO_WRITEPORT_ID,
-    DIO_E_PARAM_INVALID_PORT_ID
+    DIO_E_PARAM_INVALID_PORT_ID,
+    f
   );
 
+
   GPIO_SET_PORT(PortId, Level);
+
+  EE_hal_resumeIRQ(f);
+
 }
 
 /*
@@ -365,22 +451,10 @@ Dio_PortLevelType Dio_ReadChannelGroup(
   const Dio_ChannelGroupType*	ChannelGroupIdPtr
 )
 {
-  register uint32			p;
-  register EE_UREG			f;
-  register boolean			init;
-  register const Dio_ConfigType *	cfgptr;
 
-  f = EE_hal_suspendIRQ();
-  init = Dio_Global.Init;
-  cfgptr = Dio_Global.ConfigPtr;
-  EE_hal_resumeIRQ(f);
-
-  VALIDATE_W_RV(
-    ( init == TRUE ),
-    DIO_READCHANNELGROUP_ID,
-    DIO_E_PARAM_CONFIG,
-    STD_LOW
-  );
+  register uint32		p;
+  register EE_UREG		f;
+  register Dio_PortLevelType	lvl;
 
   VALIDATE_W_RV(
     ( ChannelGroupIdPtr != NULL_PTR ),
@@ -396,23 +470,45 @@ Dio_PortLevelType Dio_ReadChannelGroup(
     STD_LOW
   );
 
-  for (p = 0; (p < cfgptr->DioNumberOfPorts) && init; p++) {
-    if (ChannelGroupIdPtr->port == cfgptr->DioPorts[p].DioPortId) {
-      init = FALSE;
-    }
+  f = EE_hal_suspendIRQ();
+
+  VALIDATE_IRQ_W_RV(
+    Dio_Global.Init,
+    DIO_READCHANNELGROUP_ID,
+    DIO_E_PARAM_CONFIG,
+    STD_LOW,
+    f
+  );
+
+  /* Port Look-up. */
+  for (
+    p = 0;
+    (
+      ( p < Dio_Global.ConfigPtr->DioNumberOfPorts ) &&
+      ( ChannelGroupIdPtr->port != Dio_Global.ConfigPtr->DioPorts[p].DioPortId )
+    );
+    p++
+  ) {
+    ;
   }
 
-  VALIDATE_W_RV(
-    ( init == FALSE ),
+  VALIDATE_IRQ_W_RV(
+    ( p < Dio_Global.ConfigPtr->DioNumberOfPorts ),
     DIO_READCHANNELGROUP_ID,
     DIO_E_PARAM_INVALID_PORT_ID,
-    STD_LOW
+    STD_LOW,
+    f
   );
 
-  return (
-    (GPIO_GET_PORT(ChannelGroupIdPtr->port) &  ChannelGroupIdPtr->mask) >>
+  lvl = (
+    ( GPIO_GET_PORT(ChannelGroupIdPtr->port) &  ChannelGroupIdPtr->mask ) >>
     ChannelGroupIdPtr->offset
   );
+
+  EE_hal_resumeIRQ(f);
+
+  return lvl;
+
 }
 
 /*
@@ -423,21 +519,9 @@ void Dio_WriteChannelGroup(
   Dio_PortLevelType		Level
 )
 {
-  register uint32			p;
-  register EE_UREG			f;
-  register boolean			init;
-  register const Dio_ConfigType *	cfgptr;
 
-  f = EE_hal_suspendIRQ();
-  init = Dio_Global.Init;
-  cfgptr = Dio_Global.ConfigPtr;
-  EE_hal_resumeIRQ(f);
-
-  VALIDATE(
-    ( init == TRUE ),
-    DIO_WRITECHANNELGROUP_ID,
-    DIO_E_PARAM_CONFIG
-  );
+  register uint32	p;
+  register EE_UREG	f;
 
   VALIDATE(
     ( ChannelGroupIdPtr != NULL_PTR ),
@@ -451,22 +535,42 @@ void Dio_WriteChannelGroup(
     DIO_E_PARAM_INVALID_PORT_ID
   );
 
-  for (p = 0; (p < cfgptr->DioNumberOfPorts) && init; p++) {
-    if (ChannelGroupIdPtr->port == cfgptr->DioPorts[p].DioPortId) {
-      init = FALSE;
-    }
+
+  f = EE_hal_suspendIRQ();
+
+  VALIDATE_IRQ(
+    Dio_Global.Init,
+    DIO_WRITECHANNELGROUP_ID,
+    DIO_E_PARAM_CONFIG,
+    f
+  );
+
+  /* Port Look-up. */
+  for (
+    p = 0;
+    (
+      ( p < Dio_Global.ConfigPtr->DioNumberOfPorts ) &&
+      ( ChannelGroupIdPtr->port != Dio_Global.ConfigPtr->DioPorts[p].DioPortId )
+    );
+    p++
+  ) {
+    ;
   }
 
-  VALIDATE(
-    ( init == FALSE ),
+  VALIDATE_IRQ(
+    ( p < Dio_Global.ConfigPtr->DioNumberOfPorts ),
     DIO_WRITECHANNELGROUP_ID,
-    DIO_E_PARAM_INVALID_PORT_ID
+    DIO_E_PARAM_INVALID_PORT_ID,
+    f
   );
 
   GPIO_SET_PORT(
     ChannelGroupIdPtr->port,
     ((Level << ChannelGroupIdPtr->offset) & ChannelGroupIdPtr->mask)
   );
+
+  EE_hal_resumeIRQ(f);
+
 }
 
 /*
@@ -477,14 +581,18 @@ void Dio_Init(
 )
 {
 
-  VALIDATE( ( ConfigPtr != NULL), DIO_INIT_SERVICE_ID, DIO_E_PARAM_CONFIG );
+  register EE_FREG	flags;
+
+  VALIDATE( ( ConfigPtr != NULL), DIO_INIT_ID, DIO_E_PARAM_CONFIG );
 
   VALIDATE(
-    ( Hw_CheckCore() == E_OK), DIO_INIT_SERVICE_ID, DIO_E_PARAM_CONFIG
+    ( Hw_CheckCore() == E_OK), DIO_INIT_ID, DIO_E_PARAM_CONFIG
   );
 
+  flags = EE_hal_suspendIRQ();
   Dio_Global.ConfigPtr = ConfigPtr;
   Dio_Global.Init = TRUE;
+  EE_hal_resumeIRQ(flags);
 
 }
 
@@ -496,23 +604,9 @@ Dio_LevelType Dio_FlipChannel(
   Dio_ChannelType		ChannelId
 )
 {
-  register uint32			p, c;
-  register EE_UREG			f;
-  register boolean			init;
-  register const Dio_ConfigType *	cfgptr;
-  register Dio_LevelType		lvl;
-
-  f = EE_hal_suspendIRQ();
-  init = Dio_Global.Init;
-  cfgptr = Dio_Global.ConfigPtr;
-  EE_hal_resumeIRQ(f);
-
-  VALIDATE_W_RV(
-    ( init == TRUE ),
-    DIO_READCHANNEL_ID,
-    DIO_E_PARAM_CONFIG,
-    STD_LOW
-  );
+  register uint32		p, c;
+  register EE_UREG		f;
+  register Dio_LevelType	lvl;
 
   VALIDATE_W_RV(
     ( ChannelId < DIO_CHANNELS_NUMBER ),
@@ -521,32 +615,73 @@ Dio_LevelType Dio_FlipChannel(
     STD_LOW
   );
 
-  for (p = 0; (p < cfgptr->DioNumberOfPorts) && init; p++) {
-    if (HW_CH_2_MOD(ChannelId) == cfgptr->DioPorts[p].DioPortId) {
-      for (c = 0; (c < cfgptr->DioPorts[p].DioNumberOfChannels) && init; c++) {
-	if (ChannelId == cfgptr->DioPorts[p].DioChannels[c]) {
-	  init = FALSE;
-	}
-      }
-    }
-  }
+  f = EE_hal_suspendIRQ();
 
-  VALIDATE_W_RV(
-    ( init == FALSE ),
-    DIO_READCHANNEL_ID,
-    DIO_E_PARAM_INVALID_CHANNEL_ID,
-    STD_LOW
+  VALIDATE_IRQ_W_RV(
+    Dio_Global.Init,
+    DIO_FILPCHANNEL_ID,
+    DIO_E_PARAM_CONFIG,
+    STD_LOW,
+    f
   );
 
-  f = EE_hal_suspendIRQ();
+  /* Port Look-up. */
+  c = HW_CH_2_MOD(ChannelId);
+  for (
+    p = 0;
+    (
+      ( p < Dio_Global.ConfigPtr->DioNumberOfPorts ) &&
+      ( c != Dio_Global.ConfigPtr->DioPorts[p].DioPortId )
+    );
+    p++
+  ) {
+    ;
+  }
+
+  VALIDATE_IRQ_W_RV(
+    ( p < Dio_Global.ConfigPtr->DioNumberOfPorts ),
+    DIO_FLIPCHANNEL_ID,
+    DIO_E_PARAM_INVALID_CHANNEL_ID,
+    STD_LOW,
+    f
+  );
+
+  /* Channel Look-up. */
+  for (
+    c = 0;
+    (
+      ( c < Dio_Global.ConfigPtr->DioPorts[p].DioNumberOfChannels ) &&
+      ( ChannelId != Dio_Global.ConfigPtr->DioPorts[p].DioChannels[c] )
+    );
+    c++
+  ) {
+    ;
+  }
+
+  VALIDATE_IRQ_W_RV(
+    ( c < Dio_Global.ConfigPtr->DioPorts[p].DioNumberOfChannels ),
+    DIO_FLIPCHANNEL_ID,
+    DIO_E_PARAM_INVALID_CHANNEL_ID,
+    STD_LOW,
+    f
+  );
+
   lvl = GPIO_GET_PIN(ChannelId);
-  
-  if ( lvl == STD_LOW )
+
+  if ( lvl == STD_LOW ) {
+
     GPIO_SET_PIN(ChannelId, STD_HIGH);
-  else
+
+  }
+  else {
+
     GPIO_SET_PIN(ChannelId, STD_LOW);
+
+  }
+
   EE_hal_resumeIRQ(f);
-  
+
   return lvl;
-}
+
+  }
 #endif

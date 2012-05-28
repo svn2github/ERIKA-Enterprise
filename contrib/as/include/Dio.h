@@ -126,39 +126,6 @@
  */
 #include "Std_Types.h"
 
-/*
- * DIO065:	The Dio module shall detect the following errors and exceptions
- * 		depending on its build version (development/production mode).
- */
-#if ( DIO_DEV_ERROR_DETECT == STD_ON )
-/**
- * <b>DIO175:</b> Invalid channel name requested
- */
-#define	DIO_E_PARAM_INVALID_CHANNEL_ID	0x0A
-
-/**
- * <b>DIO176:</b> API service called with "<tt>NULL</tt> pointer" parameter
- */
-#define	DIO_E_PARAM_CONFIG		0x10
-
-/**
- * <b>DIO177:</b> Invalid port name requested
- */
-#define	DIO_E_PARAM_INVALID_PORT_ID	0x14
-
-/**
- * <b>DIO178:</b> Invalid ChannelGroup passed
- */
-#define	DIO_E_PARAM_INVALID_GROUP	0x1F
-
-/**
- * <b>DIO188:</b> API service called with a <tt>NULL</tt> pointer. In case of
- * this error, the API service shall return immediately without any further
- * action, beside reporting this development error.
- */
-#define	DIO_E_PARAM_POINTER		0x20
-#endif
-
 /** @brief	Channel
  *
  *  <b>DIO182:</b> <tt>Dio_ChannelType</tt>
@@ -271,6 +238,39 @@ typedef	uint32	Dio_PortLevelType;
  *  configurable parameters of the DIO driver.
  */
 extern const Dio_ConfigType Dio_Config[];
+
+/*
+ * DIO065:	The Dio module shall detect the following errors and exceptions
+ * 		depending on its build version (development/production mode).
+ */
+#if ( DIO_DEV_ERROR_DETECT == STD_ON )
+/**
+ * <b>DIO175:</b> Invalid channel name requested
+ */
+#define	DIO_E_PARAM_INVALID_CHANNEL_ID	0x0A
+
+/**
+ * <b>DIO176:</b> API service called with "<tt>NULL</tt> pointer" parameter
+ */
+#define	DIO_E_PARAM_CONFIG		0x10
+
+/**
+ * <b>DIO177:</b> Invalid port name requested
+ */
+#define	DIO_E_PARAM_INVALID_PORT_ID	0x14
+
+/**
+ * <b>DIO178:</b> Invalid ChannelGroup passed
+ */
+#define	DIO_E_PARAM_INVALID_GROUP	0x1F
+
+/**
+ * <b>DIO188:</b> API service called with a <tt>NULL</tt> pointer. In case of
+ * this error, the API service shall return immediately without any further
+ * action, beside reporting this development error.
+ */
+#define	DIO_E_PARAM_POINTER		0x20
+#endif
 
 /*
  * Service ID's
@@ -544,7 +544,7 @@ Dio_LevelType Dio_FlipChannel(
 		Det_ReportError(\
 			DIO_MODULE_ID,\
 			0,\
-			DIO_GETVERSIONINFO_SERVICE_ID,\
+			DIO_GETVERSIONINFO_ID,\
 			DIO_E_PARAM_POINTER\
 		);\
 	}
