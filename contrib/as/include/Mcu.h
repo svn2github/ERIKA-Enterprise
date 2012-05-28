@@ -104,21 +104,6 @@
  */
 typedef	uint8_least	Mcu_ClockType;
 
-/*
- * MCU012:	The following errors and exceptions shall be detectable by the
- * 		MCU module depending on its build version
- * 		(development/production mode)
- */
-#if ( MCU_DEV_ERROR_DETECT == STD_ON )
-#define	MCU_E_PARAM_CONFIG	0x0A	/**< Parameter ConfigPtr is NULL_PTR. */
-#define	MCU_E_PARAM_CLOCK	0x0B	/**< Parameter ClockSetting Invalid.  */
-#define	MCU_E_PARAM_MODE	0x0C	/**< Parameter McuMode Invalid.	      */
-#define	MCU_E_PARAM_RAMSECTION	0x0D	/**< Parameter RamSection Invalid.    */
-#define	MCU_E_PLL_NOT_LOCKED	0x0E	/**< PLL Detected and Not Locked.     */
-#define	MCU_E_UNINIT		0x0F	/**< MCU Module Not Initialized.      */
-#define	MCU_E_PARAM_POINTER	0x10	/**< Parameter _vi is NULL_PTR.	      */
-#endif
-
 /** @brief	PLL Status Type
  *
  *  <b>MCU230:</b> The type <tt>Mcu_PllStatusType</tt> is the type of the return
@@ -169,7 +154,7 @@ typedef	uint8_least	Mcu_ModeType;
  *  <b>MCU240:</b> The type shall be <tt>uint8</tt>, <tt>uint16</tt> or
  *  <tt>uint32</tt>, based on best performance.
  */
-typedef uint8_least Mcu_RamSectionType;
+typedef uint8_least	Mcu_RamSectionType;
 
 /** @brief	Ram State Type
  *
@@ -240,11 +225,20 @@ typedef enum {
  */
 extern const Mcu_ConfigType Mcu_Config[];
 
-/** @brief	MCU Configuration Pointer
- *
- *  Pointer to MCU Driver Configuration.
+/*
+ * MCU012:	The following errors and exceptions shall be detectable by the
+ * 		MCU module depending on its build version
+ * 		(development/production mode)
  */
-#define	MCU_CONFIG_PTR	&Mcu_Config[0]
+#if ( MCU_DEV_ERROR_DETECT == STD_ON )
+#define	MCU_E_PARAM_CONFIG	0x0A	/**< Parameter ConfigPtr is NULL_PTR. */
+#define	MCU_E_PARAM_CLOCK	0x0B	/**< Parameter ClockSetting Invalid.  */
+#define	MCU_E_PARAM_MODE	0x0C	/**< Parameter McuMode Invalid.	      */
+#define	MCU_E_PARAM_RAMSECTION	0x0D	/**< Parameter RamSection Invalid.    */
+#define	MCU_E_PLL_NOT_LOCKED	0x0E	/**< PLL Detected and Not Locked.     */
+#define	MCU_E_UNINIT		0x0F	/**< MCU Module Not Initialized.      */
+#define	MCU_E_PARAM_POINTER	0x10	/**< Parameter _vi is NULL_PTR.	      */
+#endif
 
 /*
  * Service ID's

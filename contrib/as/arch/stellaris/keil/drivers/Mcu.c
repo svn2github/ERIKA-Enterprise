@@ -68,28 +68,57 @@
 #include "Dem.h"
 #endif
 
-#define VALIDATE(_exp,_api,_err ) \
+#define VALIDATE(_exp,_api,_err) \
   if( !(_exp) ) { \
     Det_ReportError(MCU_MODULE_ID,0,_api,_err); \
     return; \
   }
 
-#define VALIDATE_W_RV(_exp,_api,_err,_rv ) \
+#define VALIDATE_IRQ(_exp,_api,_err,_flags) \
   if( !(_exp) ) { \
     Det_ReportError(MCU_MODULE_ID,0,_api,_err); \
+    EE_hal_resumeIRQ(_flags); \
+    return; \
+  }
+
+#define VALIDATE_W_RV(_exp,_api,_err,_rv) \
+  if( !(_exp) ) { \
+    Det_ReportError(MCU_MODULE_ID,0,_api,_err); \
+    return (_rv); \
+  }
+
+#define VALIDATE_IRQ_W_RV(_exp,_api,_err,_rv,_flags) \
+  if( !(_exp) ) { \
+    Det_ReportError(MCU_MODULE_ID,0,_api,_err); \
+    EE_hal_resumeIRQ(_flags); \
     return (_rv); \
   }
 
 #else	/* MCU_DEV_ERROR_DETECT */
 
-#define VALIDATE(_exp,_api,_err ) \
+#define VALIDATE(_exp,_api,_err) \
   if( !(_exp) ) { \
     return; \
   }
-#define VALIDATE_W_RV(_exp,_api,_err,_rv ) \
+
+#define VALIDATE_IRQ(_exp,_api,_err,_flags) \
+  if( !(_exp) ) { \
+    EE_hal_resumeIRQ(_flags); \
+    return; \
+  }
+
+
+#define VALIDATE_W_RV(_exp,_api,_err,_rv) \
   if( !(_exp) ) { \
     return (_rv); \
   }
+
+#define VALIDATE_IRQ_W_RV(_exp,_api,_err,_rv,_flags) \
+  if( !(_exp) ) { \
+    EE_hal_resumeIRQ(_flags); \
+    return (_rv); \
+  }
+
 #endif	/* !MCU_DEV_ERROR_DETECT */
 
 /*
@@ -126,14 +155,24 @@ void Mcu_Init(
 )
 {
 
+  register EE_FREG	flags;
+
   VALIDATE( ( ConfigPtr != NULL ), MCU_INIT_SERVICE_ID, MCU_E_PARAM_CONFIG );
 
   VALIDATE( ( Hw_CheckCore() == E_OK ), MCU_INIT_SERVICE_ID, MCU_E_UNINIT );
 
+  flags = EE_hal_suspendIRQ();
+
+  if ( !Mcu_Global.Init ) {
+
+    EE_system_init();
+
+  }
+
   Mcu_Global.ConfigPtr = ConfigPtr;
   Mcu_Global.Init = TRUE;
 
-  EE_system_init();
+  EE_hal_resumeIRQ(flags);
 
 }
 
@@ -145,23 +184,50 @@ Std_ReturnType Mcu_InitRamSection(
 )
 {
 
-  VALIDATE_W_RV(
-    ( Mcu_Global.Init == TRUE ),
+  register EE_FREG			flags;
+#if	0
+  register uint32			idx;
+#endif
+
+  flags = EE_hal_suspendIRQ();
+
+  VALIDATE_IRQ_W_RV(
+    Mcu_Global.Init,
     MCU_INITRAMSECTION_SERVICE_ID,
     MCU_E_UNINIT,
-    E_NOT_OK
+    E_NOT_OK,
+    flags
   );
 
-  VALIDATE_W_RV(
-    ( RamSection <= Mcu_Global.ConfigPtr->McuRamSectors ),
+  VALIDATE_IRQ_W_RV(
+    ( RamSection < Mcu_Global.ConfigPtr->McuRamSectors ),
     MCU_INITRAMSECTION_SERVICE_ID,
     MCU_E_PARAM_RAMSECTION,
-    E_NOT_OK 
+    E_NOT_OK,
+    flags
   );
 
   /* NOT YET IMPLEMENTED, reason: no support for external RAM */
+#if	0
+  for (
+    idx = 0;
+    idx < cfg->McuRamSectorSettingConf[RamSection].McuRamSectionSize;
+    idx++
+  ) {
 
-  return E_OK;
+    (
+      (
+	(uint8 *)
+	cfg->McuRamSectorSettingConf[RamSection].McuRamSectionBaseAddress
+      ) + idx
+    ) = cfg->McuRamSectorSettingConf[RamSection].McuRamDefaultValue;
+
+  }
+#endif	/* 0 */
+
+  EE_hal_resumeIRQ(flags);
+
+  return E_NOT_OK;
 
 }
 
@@ -169,38 +235,46 @@ Std_ReturnType Mcu_InitRamSection(
  * Mcu_InitSystemClock implementation
  */
 #if ( MCU_INIT_CLOCK == STD_ON )
-static void Mcu_InitSystemClock(const Mcu_ClockSettingConfigType *ConfigPtr)
+static Std_ReturnType Mcu_InitSystemClock(
+  const Mcu_ClockSettingConfigType *ConfigPtr
+)
 {
+  register Std_ReturnType	ret = E_OK;
+  register uint32		attempt;
+
   register uint32 rccsrc;	/* Run-Mode Clock Configuration Source        */
   register uint32 rcc2src;	/* Run-Mode Clock Configuration 2 Source      */
   register uint32 rccdst;	/* Run-Mode Clock Configuration Destination   */
   register uint32 rcc2dst;	/* Run-Mode Clock Configuration 2 Destination */
+  register uint32 rccorig;	/* Run-Mode Clock Configuration Original      */
+  register uint32 rcc2orig;	/* Run-Mode Clock Configuration 2 Original    */
 
-  rccsrc = ConfigPtr->McuRunModeClockConfiguration;
-  rcc2src = ConfigPtr->McuRunModeClockConfiguration2;
+  rccorig = SYSCTL_RCC_R;
+  rcc2orig = SYSCTL_RCC2_R;
+
+  rccsrc = ConfigPtr->McuRunModeClockConfiguration | SYSCTL_RCC_BYPASS;
+  rcc2src = ConfigPtr->McuRunModeClockConfiguration2 | SYSCTL_RCC2_BYPASS2;
 
   /* Configuring the microcontroller to run of a "raw" clock source */
-  rccdst = SYSCTL_RCC_R;		/* Read RCC			      */
-  rccdst |= SYSCTL_RCC_BYPASS;		/* PLL Bypass			      */
-  rccdst |= SYSCTL_RCC_PWRDN;		/* PLL Power-Down		      */
-  rccdst &= ~SYSCTL_RCC_USESYSDIV;	/* Disable System Divisor	      */
-  rccdst |= SYSCTL_RCC_SYSDIV_M;	/* Reset System Divisor Configuration */
-  rccdst &= ~SYSCTL_RCC_XTAL_M;		/* Clear XTAL			      */
-  rccdst |= SYSCTL_RCC_XTAL_16MHZ;	/* 16MHz			      */
-  rccdst &= ~SYSCTL_RCC_OSCSRC_M;	/* Clear Oscillator Source	      */
-  rccdst |= SYSCTL_RCC_OSCSRC_INT;	/* Precision Internal Oscillator      */
-  rccdst &= ~SYSCTL_RCC_IOSCDIS;	/* Enable Internal Oscillator	      */
-  rccdst |= SYSCTL_RCC_MOSCDIS;		/* Disable Main Oscillator	      */
+  rccdst =	SYSCTL_RCC_SYSDIV_M	| /* Reset System Clock Divisor.      */
+		SYSCTL_RCC_PWMDIV_M	| /* Reset PWM Unit Clock Divisor.    */
+		SYSCTL_RCC_PWRDN 	| /* PLL Power-Down		      */
+		SYSCTL_RCC_BYPASS	| /* PLL Bypass			      */
+		SYSCTL_RCC_XTAL_16MHZ	| /* 16MHz			      */
+		SYSCTL_RCC_OSCSRC_INT	| /* Precision Internal Oscillator    */
+		SYSCTL_RCC_MOSCDIS;	  /* Disable Main Oscillator	      */
+
+  rcc2dst =	SYSCTL_RCC2_SYSDIV2_M	| /* Reset System Clock Divisor.      */
+		SYSCTL_RCC2_SYSDIV2LSB	| /* Additional LSB for SYSDIV2.      */
+		SYSCTL_RCC2_USBPWRDN	| /* Power-Down USB PLL.	      */
+		SYSCTL_RCC2_PWRDN2	| /* PLL Power-Down		      */
+		SYSCTL_RCC2_BYPASS2	| /* PLL Bypass			      */
+		SYSCTL_RCC2_OSCSRC2_IO;	  /* Precision Internal Oscillator    */
+
+  /* 
+   * IMPORTANT:	Write the RCC register prior to writing the RCC2 register.
+   */
   SYSCTL_RCC_R = rccdst;		/* Write RCC			      */
-  rcc2dst = SYSCTL_RCC2_R;		/* Read RCC2			      */
-  rcc2dst &= ~SYSCTL_RCC2_USERCC2;	/* Don't use RCC2		      */
-  rcc2dst &= ~SYSCTL_RCC2_DIV400;	/* Divide PLL as 200MHz		      */
-  rcc2dst |= SYSCTL_RCC2_SYSDIV2_M;	/* Reset System Divisor Configuration */
-  rcc2dst |= SYSCTL_RCC2_SYSDIV2LSB;	/* Set System Divisor LSB	      */
-  rcc2dst |= SYSCTL_RCC2_PWRDN2;	/* PLL Power-Down		      */
-  rcc2dst |= SYSCTL_RCC2_BYPASS2;	/* PLL Bypass			      */
-  rcc2dst &= ~SYSCTL_RCC2_OSCSRC2_M;	/* Clear Oscillator Source	      */
-  rcc2dst |= SYSCTL_RCC2_OSCSRC2_IO;	/* Precision Internal Oscillator      */
   SYSCTL_RCC2_R = rcc2dst;		/* Write RCC2			      */
 
   /* PIOSC Automatic Calibration using Hibernation Module if present */
@@ -215,9 +289,28 @@ static void Mcu_InitSystemClock(const Mcu_ClockSettingConfigType *ConfigPtr)
     /* Wait Hibenation Module 32.768-kHz Oscillator to Enable. */
     while ( !((HIB_RIS_R & HIB_RIS_WC) || (HIB_MIS_R & HIB_MIS_WC)) );
 
-    /* Repeat Calibration Process until Pass */
-    while ( !(SYSCTL_PIOSCSTAT_R & SYSCTL_PIOSCSTAT_CRPASS))
+    /* Repeat Calibration Process until Pass or Max Attempt*/
+    for (
+      attempt = 0; 
+      (
+	(attempt < MCU_PIOSC_CAL_MAX_ATTEMPTS) &&
+	!(SYSCTL_PIOSCSTAT_R & SYSCTL_PIOSCSTAT_CRPASS)
+      );
+      attempt++
+    ) {
+
       SYSCTL_PIOSCCAL_R |= SYSCTL_PIOSCCAL_CAL;
+
+    }
+
+    /* Calibration Process Failure Check. */
+    if ( attempt == MCU_PIOSC_CAL_MAX_ATTEMPTS ) {
+
+      rccsrc = rccorig;
+      rcc2src = rcc2orig;
+      ret = E_NOT_OK;
+
+    }
 
     /* Hibernation Module 32.768-kHz Oscillator Disable. */
     HIB_CTL_R &= ~HIB_CTL_CLK32EN;
@@ -227,40 +320,16 @@ static void Mcu_InitSystemClock(const Mcu_ClockSettingConfigType *ConfigPtr)
 
   }
 
-  /* Set XTAL Frequency */
-  rccdst &= ~SYSCTL_RCC_XTAL_M;
-  rccdst |= (rccsrc & SYSCTL_RCC_XTAL_M);
+  /*
+    * IMPORTANT:	If a subsequent write to the RCC register is required,
+    * 			include another register access after writing the RCC
+    * 			register and before writing the RCC2 register.
+    */
+  SYSCTL_RCC_R = rccsrc;		/* Write RCC			      */
+  rccsrc = SYSCTL_RCC2_R;		/* Read RCC2			      */
+  SYSCTL_RCC2_R = rcc2src;		/* Write RCC2			      */
 
-  /* Enable Selected Oscillator */
-  rccdst &= ~SYSCTL_RCC_MOSCDIS;
-  rccdst |= rccsrc & (SYSCTL_RCC_IOSCDIS | SYSCTL_RCC_MOSCDIS);
-
-  /* Enable System Divisor */
-  rccdst |= rccsrc & (SYSCTL_RCC_USESYSDIV);
-
-  if (rcc2src & SYSCTL_RCC2_USERCC2) {
-    SYSCTL_RCC_R = rccdst;		/* Write RCC			      */
-    rcc2dst = SYSCTL_RCC2_R;		/* Read RCC2			      */
-    rcc2dst |= SYSCTL_RCC2_USERCC2;	/* Use RCC2			      */
-    rcc2dst &= ~SYSCTL_RCC2_OSCSRC2_M;	/* Clear Oscillator Source	      */
-    rcc2dst |= (rcc2src & SYSCTL_RCC2_OSCSRC2_M); /* Set Oscillator Source    */
-    if (!(rcc2src & SYSCTL_RCC2_PWRDN2))
-      rcc2dst &= ~SYSCTL_RCC2_PWRDN2;	/* PLL Power-Up			      */
-    rcc2dst &= ~SYSCTL_RCC2_SYSDIV2_M;	/* Clear System Divisor Configuration */
-    rcc2dst |= (rcc2src & SYSCTL_RCC2_SYSDIV2_M); /* Set System Divisor	      */
-    SYSCTL_RCC2_R = rcc2dst;		/* Wriet RCC2			      */
-  }
-  else {
-    rccdst &= ~SYSCTL_RCC_OSCSRC_M;	/* Clear Oscillator Source	      */
-    rccdst |= (rccsrc & SYSCTL_RCC_OSCSRC_M); /* Set Oscillator Source	      */
-    if (!(rccsrc & SYSCTL_RCC_PWRDN))
-      rccdst &= ~SYSCTL_RCC_PWRDN;	/* PLL Power-Up			      */
-    rccdst &= ~SYSCTL_RCC_SYSDIV_M;	/* Clear System Divisor Configuration */
-    rccdst |= (rccsrc & SYSCTL_RCC_SYSDIV_M); /* Set System Divisor	      */
-    SYSCTL_RCC_R = rccdst;		/* Write RCC			      */
-    rcc2dst = SYSCTL_RCC2_R;		/* Read RCC2			      */
-    SYSCTL_RCC2_R = rcc2dst;		/* Wriet RCC2			      */
-  }
+  return ret;
 
 }
 #endif
@@ -274,12 +343,8 @@ Std_ReturnType Mcu_InitClock(
 )
 {
 
-  VALIDATE_W_RV(
-    ( Mcu_Global.Init == TRUE ),
-    MCU_INITCLOCK_SERVICE_ID,
-    MCU_E_UNINIT,
-    E_NOT_OK
-  );
+  register EE_FREG			flags;
+  register Std_ReturnType		ret;
 
   VALIDATE_W_RV(
     ( ClockSetting <= MCU_CLOCK_MODES_NUMBER ),
@@ -288,13 +353,29 @@ Std_ReturnType Mcu_InitClock(
     E_NOT_OK
   );
 
-  Mcu_InitSystemClock(
+  flags = EE_hal_suspendIRQ();
+
+  VALIDATE_IRQ_W_RV(
+    Mcu_Global.Init,
+    MCU_INITCLOCK_SERVICE_ID,
+    MCU_E_UNINIT,
+    E_NOT_OK,
+    flags
+  );
+
+  ret = Mcu_InitSystemClock(
     &Mcu_Global.ConfigPtr->McuClockSettingConfig[ClockSetting]
   );
 
-  Mcu_Global.ClockSetting = ClockSetting;
+  if ( ret == E_OK ) {
 
-  return E_OK;
+    Mcu_Global.ClockSetting = ClockSetting;
+
+  }
+
+  EE_hal_resumeIRQ(flags);
+
+  return ret;
 
 }
 #endif
@@ -307,58 +388,59 @@ void Mcu_DistributePllClock(
   void
 )
 {
+
+  register EE_FREG	flags;
+
   register uint32 rccdst;	/* Run-Mode Clock Configuration Destination   */
   register uint32 rcc2dst;	/* Run-Mode Clock Configuration 2 Destination */
 
-  VALIDATE(
-    ( Mcu_Global.Init == TRUE ),
+  flags = EE_hal_suspendIRQ();
+
+  VALIDATE_IRQ(
+    Mcu_Global.Init,
     MCU_DISTRIBUTEPLLCLOCK_SERVICE_ID,
-    MCU_E_UNINIT
+    MCU_E_UNINIT,
+    flags
   );
 
   rccdst = SYSCTL_RCC_R;	/* Read RCC	*/
   rcc2dst = SYSCTL_RCC2_R;	/* Read RCC2	*/
 
   /* PLL undefined check */
-  VALIDATE(
+  VALIDATE_IRQ(
     (
-      ( SYSCTL_DC1_R & SYSCTL_DC1_PLL ) &&
       (
-	(
-	  ( rcc2dst & SYSCTL_RCC2_USERCC2 ) && 
-	  !( rcc2dst & SYSCTL_RCC2_PWRDN2 )
-	) ||
-	!(
-	  ( SYSCTL_RCC2_R & SYSCTL_RCC2_USERCC2 ) ||
-	  ( SYSCTL_RCC_R & SYSCTL_RCC_PWRDN )
-	)
+	( rcc2dst & SYSCTL_RCC2_USERCC2 ) && 
+	!( rcc2dst & SYSCTL_RCC2_PWRDN2 )
+      ) ||
+      !(
+	( rcc2dst & SYSCTL_RCC2_USERCC2 ) ||
+	( rcc2dst & SYSCTL_RCC_PWRDN )
       )
     ),
     MCU_DISTRIBUTEPLLCLOCK_SERVICE_ID,
-    MCU_E_PLL_UNDEFINED
+    MCU_E_PLL_NOT_LOCKED,
+    flags
   );
+
+  rccdst = SYSCTL_PLLSTAT_R;	/* Read PLLSTAT	*/
 
   /* PLL locked check */
-  VALIDATE(
-    ( SYSCTL_PLLSTAT_R & SYSCTL_PLLSTAT_LOCK ),
+  VALIDATE_IRQ(
+    ( rccdst & SYSCTL_PLLSTAT_LOCK ),
     MCU_DISTRIBUTEPLLCLOCK_SERVICE_ID,
-    MCU_E_PLL_NOT_LOCKED
+    MCU_E_PLL_NOT_LOCKED,
+    flags
   );
 
-  if (SYSCTL_RCC2_R & SYSCTL_RCC2_USERCC2) {
-    rccdst = SYSCTL_RCC_R;		/* Read RCC */
-    SYSCTL_RCC_R = rccdst;		/* Write RCC */
-    rcc2dst = SYSCTL_RCC2_R;		/* Read RCC2 */
-    rcc2dst &= ~SYSCTL_RCC2_BYPASS2;	/* Remove PLL Bypass */
-    SYSCTL_RCC2_R = rcc2dst;		/* Write RCC2 */
-  }
-  else {
-    rccdst = SYSCTL_RCC_R;		/* Read RCC */
-    rccdst &= ~SYSCTL_RCC_BYPASS;	/* Remove PLL Bypass */
-    SYSCTL_RCC_R = rccdst;		/* Write RCC */
-    rcc2dst = SYSCTL_RCC2_R;		/* Read RCC2 */
-    SYSCTL_RCC2_R = rcc2dst;		/* Write RCC2 */
-  }
+  rccdst = SYSCTL_RCC_R;		/* Read RCC		*/
+  rccdst &= ~SYSCTL_RCC_BYPASS;		/* Remove PLL Bypass	*/
+  SYSCTL_RCC_R = rccdst;		/* Write RCC		*/
+  rcc2dst = SYSCTL_RCC2_R;		/* Read RCC2		*/
+  rcc2dst &= ~SYSCTL_RCC2_BYPASS2;	/* Remove PLL Bypass	*/
+  SYSCTL_RCC2_R = rcc2dst;		/* Write RCC2		*/
+
+  EE_hal_resumeIRQ(flags);
 
 }
 #endif
@@ -371,36 +453,45 @@ Mcu_PllStatusType Mcu_GetPllStatus(
 )
 {
 
-  Mcu_PllStatusType ret;
+  register EE_FREG	flags;
 
-  VALIDATE_W_RV(
-    ( Mcu_Global.Init == TRUE ),
+  register uint32 rccsrc;	/* Run-Mode Clock Configuration Source	      */
+  register uint32 rcc2src;	/* Run-Mode Clock Configuration 2 Source      */
+  register uint32 pllstat;	/* PLL Status.				      */
+
+  register Mcu_PllStatusType	ret;
+
+  flags = EE_hal_suspendIRQ();
+
+  VALIDATE_IRQ_W_RV(
+    Mcu_Global.Init,
     MCU_GETPLLSTATUS_SERVICE_ID,
     MCU_E_UNINIT,
-    MCU_PLL_STATUS_UNDEFINED
+    MCU_PLL_STATUS_UNDEFINED,
+    flags
   );
 
 #if ( MCU_NO_PLL == STD_ON )
   ret = MCU_PLL_STATUS_UNDEFINED;
 #else
-  /* PLL present and powered check. */
+
+  rccsrc = SYSCTL_RCC_R;
+  rcc2src = SYSCTL_RCC2_R;
+  pllstat = SYSCTL_PLLSTAT_R;
+
+  /* PLL undefined check. */
   if ( 
-    !( SYSCTL_DC1_R & SYSCTL_DC1_PLL ) ||
-    (
-      ( SYSCTL_RCC2_R & SYSCTL_RCC2_USERCC2 ) && 
-      ( SYSCTL_RCC2_R & SYSCTL_RCC2_PWRDN2 )
-    ) ||
-    (
-      !( SYSCTL_RCC2_R & SYSCTL_RCC2_USERCC2 ) && 
-      ( SYSCTL_RCC_R & SYSCTL_RCC_PWRDN )
-    )
+    ( ( rcc2src & SYSCTL_RCC2_USERCC2 ) && ( rcc2src & SYSCTL_RCC2_PWRDN2 ) ) ||
+    ( !( rcc2src & SYSCTL_RCC2_USERCC2 ) && ( rccsrc & SYSCTL_RCC_PWRDN ) )
   )
     ret = MCU_PLL_STATUS_UNDEFINED;
-  else if ( SYSCTL_PLLSTAT_R & SYSCTL_PLLSTAT_LOCK )
+  else if ( pllstat & SYSCTL_PLLSTAT_LOCK )
     ret = MCU_PLL_LOCKED;
   else
     ret = MCU_PLL_UNLOCKED;
 #endif
+
+  EE_hal_resumeIRQ(flags);
 
   return ret;
 
@@ -413,27 +504,46 @@ Mcu_ResetType Mcu_GetResetReason(
   void
 ) {
 
-  register uint32 resc;
-  Mcu_ResetType ret;
+  register EE_FREG	flags;
 
-  VALIDATE_W_RV(
-    ( Mcu_Global.Init == TRUE ),
+  register uint32		resc;
+  register Mcu_ResetType	ret;
+
+  flags = EE_hal_suspendIRQ();
+
+  VALIDATE_IRQ_W_RV(
+    Mcu_Global.Init,
     MCU_GETRESETREASON_SERVICE_ID,
     MCU_E_UNINIT,
-    MCU_RESET_UNDEFINED
+    MCU_RESET_UNDEFINED,
+    flags
   );
 
-  resc = SYSCTL_RESC_R;
+  resc = SYSCTL_RESC_R;		/* Read  RESC */
+  SYSCTL_RESC_R = 0x00000000U;	/* Clear RESC */
 
-  if ( (resc & SYSCTL_RESC_POR) )
+  if ( (resc & SYSCTL_RESC_POR) ) {
+
     ret = MCU_POWER_ON_RESET;
-  else if ( (resc & (SYSCTL_RESC_WDT1 | SYSCTL_RESC_WDT0)) )
+
+  }
+  else if ( (resc & (SYSCTL_RESC_WDT1 | SYSCTL_RESC_WDT0)) ) {
+
     ret = MCU_WATCHDOG_RESET;
-  else if ( (resc & SYSCTL_RESC_SW) )
+
+  }
+  else if ( (resc & SYSCTL_RESC_SW) ) {
+
     ret = MCU_SW_RESET;
-  else ret = MCU_RESET_UNDEFINED;
-  
-  SYSCTL_RESC_R = 0x00000000;
+
+  }
+  else {
+
+    ret = MCU_RESET_UNDEFINED;
+
+  }
+
+  EE_hal_resumeIRQ(flags);
 
   return ret;
 
@@ -447,18 +557,23 @@ Mcu_RawResetType Mcu_GetResetRawValue(
 )
 {
 
-  Mcu_RawResetType ret;
+  register EE_FREG		flags;
+  register Mcu_RawResetType	ret;
 
-  VALIDATE_W_RV(
-    ( Mcu_Global.Init == TRUE ),
+  flags = EE_hal_suspendIRQ();
+
+  VALIDATE_IRQ_W_RV(
+    Mcu_Global.Init,
     MCU_GETRESETREASON_SERVICE_ID,
     MCU_E_UNINIT,
-    0x00000000
+    0x00000000U,
+    flags
   );
 
-  ret = SYSCTL_RESC_R;
+  ret = SYSCTL_RESC_R;		/* Read  RESC */
+  SYSCTL_RESC_R = 0x000000000;	/* Clear RESC */
 
-  SYSCTL_RESC_R = 0x000000000;
+  EE_hal_resumeIRQ(flags);
 
   return ret;
 
@@ -473,12 +588,17 @@ void Mcu_PerformReset(
 )
 {
 
-  register uint32 apint;
 
-  VALIDATE(
-    ( Mcu_Global.Init == TRUE ),
+  register EE_FREG	flags;
+  register uint32	apint;
+
+  flags = EE_hal_suspendIRQ();
+
+  VALIDATE_IRQ(
+    Mcu_Global.Init,
     MCU_PERFORMRESET_SERVICE_ID,
-    MCU_E_UNINIT
+    MCU_E_UNINIT,
+    flags
   );
 
   /* 
@@ -496,7 +616,9 @@ void Mcu_PerformReset(
 
   __dsb(0xF);	/* Ensure completion of memory access */
 
-  while(1);	/* Waiting for Reset to perform. */
+  EE_hal_resumeIRQ(flags);
+
+  while(TRUE);	/* Waiting for Reset to perform. */
 
 }
 #endif
@@ -509,16 +631,22 @@ void Mcu_SetMode(
 )
 {
 
-  VALIDATE( ( Mcu_Global.Init == TRUE ), MCU_SETMODE_SERVICE_ID, MCU_E_UNINIT );
+  register EE_FREG			flags;
 
-  VALIDATE(
-    ( Mcu_Global.ConfigPtr->McuNumberOfMcuModes > McuMode ),
+  flags = EE_hal_suspendIRQ();
+
+  VALIDATE_IRQ( Mcu_Global.Init, MCU_SETMODE_SERVICE_ID, MCU_E_UNINIT, flags );
+
+  VALIDATE_IRQ(
+    ( McuMode < Mcu_Global.ConfigPtr->McuNumberOfMcuModes ),
     MCU_SETMODE_SERVICE_ID,
-    MCU_E_PARAM_MODE 
+    MCU_E_PARAM_MODE,
+    flags
   );
 
   /* NOT YET IMPLEMENTED, reason: operational mode only */
-  return;
+
+  EE_hal_resumeIRQ(flags);
 
 }
 
@@ -531,17 +659,26 @@ Mcu_RamStateType Mcu_GetRamState(
 )
 {
 
-  VALIDATE_W_RV(
-    ( Mcu_Global.Init == TRUE ),
+  register EE_FREG		flags;
+  register Mcu_RamStateType	rv;
+
+  flags = EE_hal_suspendIRQ();
+
+  VALIDATE_IRQ_W_RV(
+    Mcu_Global.Init,
     MCU_GETRAMSTATE_SERVICE_ID,
     MCU_E_UNINIT,
-    MCU_RAMSTATE_INVALID
+    MCU_RAMSTATE_INVALID,
+    flags
   );
+
+  rv = MCU_RAMSTATE_INVALID;
 
   /* NOT YET IMPLEMENTED, reason: no support for external RAM */
 
-  return MCU_RAMSTATE_INVALID;
+  EE_hal_resumeIRQ(flags);
+
+  return rv;
 
 }
 #endif
-

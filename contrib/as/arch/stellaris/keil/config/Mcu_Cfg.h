@@ -116,10 +116,160 @@
  */
 #define	MCU_VERSION_INFO_API	STD_ON
 
+/** @brief	MCU PIOSC Calibrartion Maximum Attempts
+ *
+ *  Maximum attempts for TI Stellaris LM4F232XXX Precision Internal OSCillator
+ *  calibration.
+ */
+#define	MCU_PIOSC_CAL_MAX_ATTEMPTS	0x00000010U
 /*
  * MCU183_Conf:	The Id of this McuClockSettingConfig to be used as argument for
  * 		the API call "Mcu_InitClock".
  */
+
+/* The following are defines for the bit fields in the RCC. */
+#define MCU_RCC_ACG		0x08000000U	/**< Auto Clock Gating	      */
+#define MCU_RCC_SYSDIV_M	0x07800000U	/**< System Clock Divisor     */
+#define MCU_RCC_SYSDIV_1	0x00000000U	/**< System clock /2	      */
+#define MCU_RCC_SYSDIV_2	0x00800000U	/**< System clock /2	      */
+#define MCU_RCC_SYSDIV_3	0x01000000U	/**< System clock /3	      */
+#define MCU_RCC_SYSDIV_4	0x01800000U	/**< System clock /4	      */
+#define MCU_RCC_SYSDIV_5	0x02000000U	/**< System clock /5	      */
+#define MCU_RCC_SYSDIV_6	0x02800000U	/**< System clock /6	      */
+#define MCU_RCC_SYSDIV_7	0x03000000U	/**< System clock /7	      */
+#define MCU_RCC_SYSDIV_8	0x03800000U	/**< System clock /8	      */
+#define MCU_RCC_SYSDIV_9	0x04000000U	/**< System clock /9	      */
+#define MCU_RCC_SYSDIV_10	0x04800000U	/**< System clock /10	      */
+#define MCU_RCC_SYSDIV_11	0x05000000U	/**< System clock /11	      */
+#define MCU_RCC_SYSDIV_12	0x05800000U	/**< System clock /12	      */
+#define MCU_RCC_SYSDIV_13	0x06000000U	/**< System clock /13	      */
+#define MCU_RCC_SYSDIV_14	0x06800000U	/**< System clock /14	      */
+#define MCU_RCC_SYSDIV_15	0x07000000U	/**< System clock /15	      */
+#define MCU_RCC_SYSDIV_16	0x07800000U	/**< System clock /16	      */
+#define MCU_RCC_USESYSDIV	0x00400000U	/**< Enable System Clock
+						 *   Divisor		      */
+#define MCU_RCC_USEPWMDIV	0x00100000U	/**< Enable PWM Clock Divisor */
+#define MCU_RCC_PWMDIV_M	0x000E0000U	/**< PWM Unit Clock Divisor   */
+#define MCU_RCC_PWMDIV_2	0x00000000U	/**< PWM clock /2	      */
+#define MCU_RCC_PWMDIV_4	0x00020000U	/**< PWM clock /4	      */
+#define MCU_RCC_PWMDIV_8	0x00040000U	/**< PWM clock /8	      */
+#define MCU_RCC_PWMDIV_16	0x00060000U	/**< PWM clock /16	      */
+#define MCU_RCC_PWMDIV_32	0x00080000U	/**< PWM clock /32	      */
+#define MCU_RCC_PWMDIV_64	0x000A0000U	/**< PWM clock /64	      */
+#define MCU_RCC_PWRDN		0x00002000U	/**< PLL Power Down	      */
+#define MCU_RCC_BYPASS		0x00000800U	/**< PLL Bypass		      */
+#define MCU_RCC_XTAL_M		0x000007C0U	/**< Crystal Value	      */
+#define MCU_RCC_XTAL_4MHZ	0x00000180U	/**< 4 MHz		      */
+#define MCU_RCC_XTAL_4_09MHZ	0x000001C0U	/**< 4.096 MHz		      */
+#define MCU_RCC_XTAL_4_91MHZ	0x00000200U	/**< 4.9152 MHz		      */
+#define MCU_RCC_XTAL_5MHZ	0x00000240U	/**< 5 MHz		      */
+#define MCU_RCC_XTAL_5_12MHZ	0x00000280U	/**< 5.12 MHz		      */
+#define MCU_RCC_XTAL_6MHZ	0x000002C0U	/**< 6 MHz		      */
+#define MCU_RCC_XTAL_6_14MHZ	0x00000300U	/**< 6.144 MHz		      */
+#define MCU_RCC_XTAL_7_37MHZ	0x00000340U	/**< 7.3728 MHz		      */
+#define MCU_RCC_XTAL_8MHZ	0x00000380U	/**< 8 MHz		      */
+#define MCU_RCC_XTAL_8_19MHZ	0x000003C0U	/**< 8.192 MHz		      */
+#define MCU_RCC_XTAL_10MHZ	0x00000400U	/**< 10 MHz		      */
+#define MCU_RCC_XTAL_12MHZ	0x00000440U	/**< 12 MHz		      */
+#define MCU_RCC_XTAL_12_2MHZ	0x00000480U	/**< 12.288 MHz		      */
+#define MCU_RCC_XTAL_13_5MHZ	0x000004C0U	/**< 13.56 MHz		      */
+#define MCU_RCC_XTAL_14_3MHZ	0x00000500U	/**< 14.31818 MHz	      */
+#define MCU_RCC_XTAL_16MHZ	0x00000540U	/**< 16 MHz		      */
+#define MCU_RCC_XTAL_16_3MHZ	0x00000580U	/**< 16.384 MHz		      */
+#define MCU_RCC_XTAL_18MHZ	0x000005C0U	/**< 18.0 MHz		      */
+#define MCU_RCC_XTAL_20MHZ	0x00000600U	/**< 20.0 MHz		      */
+#define MCU_RCC_XTAL_24MHZ	0x00000640U	/**< 24.0 MHz		      */
+#define MCU_RCC_XTAL_25MHZ	0x00000680U	/**< 25.0 MHz		      */
+#define MCU_RCC_OSCSRC_M	0x00000030U	/**< Oscillator Source	      */
+#define MCU_RCC_OSCSRC_MAIN	0x00000000U	/**< MOSC		      */
+#define MCU_RCC_OSCSRC_INT	0x00000010U	/**< IOSC		      */
+#define MCU_RCC_OSCSRC_INT4	0x00000020U	/**< IOSC/4		      */
+#define MCU_RCC_OSCSRC_30	0x00000030U	/**< 30 kHz		      */
+#define MCU_RCC_IOSCDIS		0x00000002U	/**< Internal Oscillator
+						 *   Disable		      */
+#define MCU_RCC_MOSCDIS		0x00000001U	/**< Main Oscillator Disable  */
+#define MCU_RCC_SYSDIV_S	23U
+
+/* The following are defines for the bit fields in the MCU_RCC2 register. */
+#define MCU_RCC2_USERCC2	0x80000000U	/**< Use RCC2	      */
+#define MCU_RCC2_DIV400		0x40000000U	/**< Divide PLL as 400 MHz vs.
+						 *   200 MHz		      */
+#define MCU_RCC2_SYSDIV2_M	0x1F800000U	/**< System Clock Divisor 2   */
+#define MCU_RCC2_SYSDIV2_2	0x00800000U	/**< System clock /2	      */
+#define MCU_RCC2_SYSDIV2_3	0x01000000U	/**< System clock /3	      */
+#define MCU_RCC2_SYSDIV2_4	0x01800000U	/**< System clock /4	      */
+#define MCU_RCC2_SYSDIV2_5	0x02000000U	/**< System clock /5	      */
+#define MCU_RCC2_SYSDIV2_6	0x02800000U	/**< System clock /6	      */
+#define MCU_RCC2_SYSDIV2_7	0x03000000U	/**< System clock /7	      */
+#define MCU_RCC2_SYSDIV2_8	0x03800000U	/**< System clock /8	      */
+#define MCU_RCC2_SYSDIV2_9	0x04000000U	/**< System clock /9	      */
+#define MCU_RCC2_SYSDIV2_10	0x04800000U	/**< System clock /10	      */
+#define MCU_RCC2_SYSDIV2_11	0x05000000U	/**< System clock /11	      */
+#define MCU_RCC2_SYSDIV2_12	0x05800000U	/**< System clock /12	      */
+#define MCU_RCC2_SYSDIV2_13	0x06000000U	/**< System clock /13	      */
+#define MCU_RCC2_SYSDIV2_14	0x06800000U	/**< System clock /14	      */
+#define MCU_RCC2_SYSDIV2_15	0x07000000U	/**< System clock /15	      */
+#define MCU_RCC2_SYSDIV2_16	0x07800000U	/**< System clock /16	      */
+#define MCU_RCC2_SYSDIV2_17	0x08000000U	/**< System clock /17	      */
+#define MCU_RCC2_SYSDIV2_18	0x08800000U	/**< System clock /18	      */
+#define MCU_RCC2_SYSDIV2_19	0x09000000U	/**< System clock /19	      */
+#define MCU_RCC2_SYSDIV2_20	0x09800000U	/**< System clock /20	      */
+#define MCU_RCC2_SYSDIV2_21	0x0A000000U	/**< System clock /21	      */
+#define MCU_RCC2_SYSDIV2_22	0x0A800000U	/**< System clock /22	      */
+#define MCU_RCC2_SYSDIV2_23	0x0B000000U	/**< System clock /23	      */
+#define MCU_RCC2_SYSDIV2_24	0x0B800000U	/**< System clock /24	      */
+#define MCU_RCC2_SYSDIV2_25	0x0C000000U	/**< System clock /25	      */
+#define MCU_RCC2_SYSDIV2_26	0x0C800000U	/**< System clock /26	      */
+#define MCU_RCC2_SYSDIV2_27	0x0D000000U	/**< System clock /27	      */
+#define MCU_RCC2_SYSDIV2_28	0x0D800000U	/**< System clock /28	      */
+#define MCU_RCC2_SYSDIV2_29	0x0E000000U	/**< System clock /29	      */
+#define MCU_RCC2_SYSDIV2_30	0x0E800000U	/**< System clock /30	      */
+#define MCU_RCC2_SYSDIV2_31	0x0F000000U	/**< System clock /31	      */
+#define MCU_RCC2_SYSDIV2_32	0x0F800000U	/**< System clock /32	      */
+#define MCU_RCC2_SYSDIV2_33	0x10000000U	/**< System clock /33	      */
+#define MCU_RCC2_SYSDIV2_34	0x10800000U	/**< System clock /34	      */
+#define MCU_RCC2_SYSDIV2_35	0x11000000U	/**< System clock /35	      */
+#define MCU_RCC2_SYSDIV2_36	0x11800000U	/**< System clock /36	      */
+#define MCU_RCC2_SYSDIV2_37	0x12000000U	/**< System clock /37	      */
+#define MCU_RCC2_SYSDIV2_38	0x12800000U	/**< System clock /38	      */
+#define MCU_RCC2_SYSDIV2_39	0x13000000U	/**< System clock /39	      */
+#define MCU_RCC2_SYSDIV2_40	0x13800000U	/**< System clock /40	      */
+#define MCU_RCC2_SYSDIV2_41	0x14000000U	/**< System clock /41	      */
+#define MCU_RCC2_SYSDIV2_42	0x14800000U	/**< System clock /42	      */
+#define MCU_RCC2_SYSDIV2_43	0x15000000U	/**< System clock /43	      */
+#define MCU_RCC2_SYSDIV2_44	0x15800000U	/**< System clock /44	      */
+#define MCU_RCC2_SYSDIV2_45	0x16000000U	/**< System clock /45	      */
+#define MCU_RCC2_SYSDIV2_46	0x16800000U	/**< System clock /46	      */
+#define MCU_RCC2_SYSDIV2_47	0x17000000U	/**< System clock /47	      */
+#define MCU_RCC2_SYSDIV2_48	0x17800000U	/**< System clock /48	      */
+#define MCU_RCC2_SYSDIV2_49	0x18000000U	/**< System clock /49	      */
+#define MCU_RCC2_SYSDIV2_50	0x18800000U	/**< System clock /50	      */
+#define MCU_RCC2_SYSDIV2_51	0x19000000U	/**< System clock /51	      */
+#define MCU_RCC2_SYSDIV2_52	0x19800000U	/**< System clock /52	      */
+#define MCU_RCC2_SYSDIV2_53	0x1A000000U	/**< System clock /53	      */
+#define MCU_RCC2_SYSDIV2_54	0x1A800000U	/**< System clock /54	      */
+#define MCU_RCC2_SYSDIV2_55	0x1B000000U	/**< System clock /55	      */
+#define MCU_RCC2_SYSDIV2_56	0x1B800000U	/**< System clock /56	      */
+#define MCU_RCC2_SYSDIV2_57	0x1C000000U	/**< System clock /57	      */
+#define MCU_RCC2_SYSDIV2_58	0x1C800000U	/**< System clock /58	      */
+#define MCU_RCC2_SYSDIV2_59	0x1D000000U	/**< System clock /59	      */
+#define MCU_RCC2_SYSDIV2_60	0x1D800000U	/**< System clock /60	      */
+#define MCU_RCC2_SYSDIV2_61	0x1E000000U	/**< System clock /61	      */
+#define MCU_RCC2_SYSDIV2_62	0x1E800000U	/**< System clock /62	      */
+#define MCU_RCC2_SYSDIV2_63	0x1F000000U	/**< System clock /63	      */
+#define MCU_RCC2_SYSDIV2_64	0x1F800000U	/**< System clock /64	      */
+#define MCU_RCC2_SYSDIV2LSB	0x00400000U	/**< Additional LSB for
+						 *   SYSDIV2		      */
+#define MCU_RCC2_USBPWRDN	0x00004000U	/**< Power-Down USB PLL	      */
+#define MCU_RCC2_PWRDN2		0x00002000U	/**< Power-Down PLL 2	      */
+#define MCU_RCC2_BYPASS2	0x00000800U	/**< PLL Bypass 2	      */
+#define MCU_RCC2_OSCSRC2_M	0x00000070U	/**< Oscillator Source 2      */
+#define MCU_RCC2_OSCSRC2_MO	0x00000000U	/**< MOSC		      */
+#define MCU_RCC2_OSCSRC2_IO	0x00000010U	/**< PIOSC		      */
+#define MCU_RCC2_OSCSRC2_IO4	0x00000020U	/**< PIOSC/4		      */
+#define MCU_RCC2_OSCSRC2_30	0x00000030U	/**< 30 kHz		      */
+#define MCU_RCC2_OSCSRC2_32	0x00000070U	/**< 32.768 kHz		      */
+#define MCU_RCC2_SYSDIV2_S	23
 
 /** @brief	16MHz
  *
@@ -734,5 +884,11 @@ typedef struct {
  *  Pointer of Default MCU Driver Configuration.
  */
 #define	MCU_CONFIG_DEFAULT_PTR	&Mcu_Config[MCU_CONFIG_DEFAULT]
+
+/** @brief	MCU Configuration Pointer
+ *
+ *  Pointer to MCU Driver Configuration.
+ */
+#define	MCU_CONFIG_PTR		&Mcu_Config[MCU_CONFIG_DEFAULT]
 
 #endif	/* MCU_CFG_H */
