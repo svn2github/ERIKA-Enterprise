@@ -101,19 +101,6 @@
 
 #include "Std_Types.h"
 
-/*
- * The following errors and exceptions shall be detectable by the SCI module
- * depending on its build version (development/production mode)
- */
-#if ( SCI_DEV_ERROR_DETECT == STD_ON )
-#define	SCI_E_UNINIT		0x00	/**< SCI Module Not Initialized.      */
-#define	SCI_E_INVALID_CHANNEL	0x02	/**< Invalid or inactive channel.     */
-#define	SCI_E_INVALID_POINTER	0x03	/**< Invalid configuration pointer.   */
-#define	SCI_E_STATE_TRANSITION	0x04	/**< Invalid state transition from the
-					 *   current state.		      */
-#define	SCI_E_PARAM_POINTER	0x05	/**< Pointer is NULL_PTR.	      */
-#endif
-
 /** @brief	Channel
  *
  *  <tt>Sci_ChannelType</tt>
@@ -306,6 +293,23 @@ typedef enum {
   SCI_CH_SLEEP		/**< Sleep state operation; in this state wake-up
   			 *   detection is enabled.			      */
 } Sci_StatusType;
+
+/*
+ * The following errors and exceptions shall be detectable by the SCI module
+ * depending on its build version (development/production mode)
+ */
+#if ( SCI_DEV_ERROR_DETECT == STD_ON )
+#define	SCI_E_UNINIT			0x00	/**< SCI Module Not
+						 *   Initialized.	      */
+#define	SCI_E_ALREADY_INITIALIZED	0x01	/**< SCI Module Already
+						 *   Initialized	      */
+#define	SCI_E_INVALID_CHANNEL		0x02	/**< Invalid or inactive
+						 *   channel.     */
+#define	SCI_E_INVALID_POINTER		0x03	/**< Invalid pointer.	      */
+#define	SCI_E_STATE_TRANSITION		0x04	/**< Invalid state transition
+						 *   from the current state.  */
+#define	SCI_E_PARAM_POINTER		0x05	/**< Pointer is NULL_PTR.     */
+#endif
 
 /*
  * Service ID's

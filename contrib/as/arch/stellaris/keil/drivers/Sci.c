@@ -70,28 +70,56 @@
 #include "Dem.h"
 #endif
 
-#define VALIDATE(_exp,_api,_err ) \
+#define VALIDATE(_exp,_api,_err) \
   if( !(_exp) ) { \
     Det_ReportError(SCI_MODULE_ID,0,_api,_err); \
     return; \
   }
 
-#define VALIDATE_W_RV(_exp,_api,_err,_rv ) \
+#define VALIDATE_IRQ(_exp,_api,_err,_flags) \
   if( !(_exp) ) { \
     Det_ReportError(SCI_MODULE_ID,0,_api,_err); \
+    EE_hal_resumeIRQ(_flags); \
+    return; \
+  }
+
+#define VALIDATE_W_RV(_exp,_api,_err,_rv) \
+  if( !(_exp) ) { \
+    Det_ReportError(SCI_MODULE_ID,0,_api,_err); \
+    return (_rv); \
+  }
+
+#define VALIDATE_IRQ_W_RV(_exp,_api,_err,_rv,_flags) \
+  if( !(_exp) ) { \
+    Det_ReportError(SCI_MODULE_ID,0,_api,_err); \
+    EE_hal_resumeIRQ(_flags); \
     return (_rv); \
   }
 
 #else	/* SCI_DEV_ERROR_DETECT */
 
-#define VALIDATE(_exp,_api,_err ) \
+#define VALIDATE(_exp,_api,_err) \
   if( !(_exp) ) { \
     return; \
   }
-#define VALIDATE_W_RV(_exp,_api,_err,_rv ) \
+
+#define VALIDATE_IRQ(_exp,_api,_err,_flags) \
+  if( !(_exp) ) { \
+    EE_hal_resumeIRQ(_flags); \
+    return; \
+  }
+
+#define VALIDATE_W_RV(_exp,_api,_err,_rv) \
   if( !(_exp) ) { \
     return (_rv); \
   }
+
+#define VALIDATE_IRQ_W_RV(_exp,_api,_err,_rv,_flags) \
+  if( !(_exp) ) { \
+    EE_hal_resumeIRQ(_flags); \
+    return (_rv); \
+  }
+
 #endif	/* !SCI_DEV_ERROR_DETECT */
 
 /*
@@ -129,179 +157,20 @@ typedef struct
 } Mcu_GlobalType;
 extern Mcu_GlobalType Mcu_Global;
 
-/* UART Hardware Channel Unit Mask */
-#define	HW_CH_MOD_MASK		0x00000007	/* Mask			*/
-
-/* UART Hardware Base Address */
-#define	HW_BASE_ADDR		&UART0_DR_R
-
-#include "Hardware.h"	/* Hardware Abstraction Header File. */
+#include "Sci_Internal.h"
 
 /*
  * Usefull Sci Channel Macros
  */
 #define	SCI_PIOSC_FREQ	1.6E7
 
-#define	SCI_CLK_DIV_HIGH_SPEED	8
-#define	SCI_CLK_DIV_LOW_SPEED	16
-
-/* HW_CH_MOD_MASK */
-#define	SCI_CH_MASK		0x00000007		/* Channel Mask	      */
-
-#define	CH2MASK(_ch) (uint32)(_ch & SCI_CH_MASK)	/* HW_CH_2_MOD */
-
-/* HW_MOD_ADDR_S */
-#define	SCI_CH_MASK_BITS	0x0000000C
-
-#define	CH2ADDR(_ch) (uint32)( \
-  ((uint32) &UART0_DR_R) + (HW_CH_2_MOD(_ch) << SCI_CH_MASK_BITS) \
-)
-/*
-#define	CH2ADDR(_ch) (uint32)( \
-  ((uint32) &UART0_DR_R) + (CH2MASK(_ch) << SCI_CH_MASK_BITS) \
-)
-*/
+#define	SCI_CLK_DIV_HIGH_SPEED	8	/* High-Speed Clock Divisor.	 */
+#define	SCI_CLK_DIV_LOW_SPEED	16	/* Low-Speed Clock Divisor.	 */
 
 /* Clock Control */
 #define	SCI_CH_SYSCLK	0x000000000	/* System Clock			 */
 #define	SCI_CH_PIOSC	0x000000001	/* Precision Internal Oscillator */
 
-/* Channel Harware Register Offsets */
-#define	UART_DATA_R_OFFSET		0x00000000	/* Data               */
-#define	UART_RS_EC_R_OFFSET		0x00000004	/* Rx Status/Err Clr  */
-#define	UART_FLAG_R_OFFSET		0x00000018	/* Flags	      */
-#define	UART_IBRD_R_OFFSET		0x00000024	/* Integer BRD	      */
-#define	UART_FBRD_R_OFFSET		0x00000028	/* Fractional BRD     */
-#define	UART_LCRH_R_OFFSET		0x0000002C	/* Line Control	      */
-#define	UART_CTL_R_OFFSET		0x00000030	/* System Control     */
-#define	UART_IFLS_R_OFFSET		0x00000034	/* Int FIFO Lvl	      */
-#define	UART_IM_R_OFFSET		0x00000038	/* Interrupt Mask     */
-#define	UART_RIS_R_OFFSET		0x0000003C	/* Raw Int Status     */
-#define	UART_MIS_R_OFFSET		0x00000040	/* Masked Int Status  */
-#define	UART_IC_R_OFFSET		0x00000044	/* Interrupt Clear    */
-#define	UART_CC_R_OFFSET		0x00000FC8	/* Clock Control      */
-
-/* Channel Interrupt Sources */
-#define	UART_INT_LME5	0x00008000	/* LIN Mode Edge 5	      */
-#define	UART_INT_LME1	0x00004000	/* LIN Mode Edge 1	      */
-#define	UART_INT_LMSB	0x00002000	/* LIN Mode Sync Break	      */
-#define	UART_INT_9BIT	0x00001000	/* 9-Bit Mode		      */
-#define	UART_INT_OE	0x00000400	/* Overrun Error	      */
-#define	UART_INT_BE	0x00000200	/* Break Error		      */
-#define	UART_INT_PE	0x00000100	/* Parity Error		      */
-#define	UART_INT_FE	0x00000080	/* Frame Error		      */
-#define	UART_INT_RT	0x00000040	/* Receive Timeout	      */
-#define	UART_INT_TX	0x00000020	/* Transmission		      */
-#define	UART_INT_RX	0x00000010	/* Reception		      */
-#define	UART_INT_DSR	0x00000008	/* Data Set Ready	      */
-#define	UART_INT_DCD	0x00000004	/* Data Carrier Detect	      */
-#define	UART_INT_CTS	0x00000002	/* Clear To Send	      */
-#define	UART_INT_RI	0x00000001	/* Ring Indicator	      */
-
-/* Interrupt Receive Error	      */
-#define	UART_INT_RX_ERR	( \
-	UART_INT_OE  |	UART_INT_BE  |	UART_INT_PE  |	UART_INT_FE \
-)
-
-/* All Interrupt	      */
-#define	UART_INT_ALL	( \
-	UART_INT_LME5 |	UART_INT_LME1 |	UART_INT_LMSB |	UART_INT_9BIT | \
-	UART_INT_OE   |	UART_INT_BE   |	UART_INT_PE   |	UART_INT_FE   | \
-	UART_INT_RT   |	UART_INT_TX   |	UART_INT_RX   |	UART_INT_DSR  | \
-	UART_INT_DCD  |	UART_INT_CTS  |	UART_INT_RI \
-)
-
-/* Channel Hardware Registers Read/Write */
-#define	UART_REG(_ch,_ofs)	HW_CH_2_MOD_REG(_ch,_ofs)
-
-#define	UART_REG_SET(_ch,_ofs,_val)	(UART_REG(_ch,_ofs) = _val)
-
-#define	UART_REG_AND(_ch,_ofs,_val)	(UART_REG(_ch,_ofs) & _val)
-
-#define	UART_REG_OR(_ch,_ofs,_val)	(UART_REG(_ch,_ofs) | _val)
-
-#define	UART_REG_AND_SET(_ch,_ofs,_val)	(UART_REG(_ch,_ofs) &= _val)
-
-#define	UART_REG_OR_SET(_ch,_ofs,_val)	(UART_REG(_ch,_ofs) |= _val)
-
-/* Utils */
-#define	UART_RX_DATA(_ch)	UART_REG(_ch, UART_DATA_R_OFFSET)
-
-#define	UART_TX_DATA(_ch,_data)	UART_REG_SET(_ch, UART_DATA_R_OFFSET, _data)
-
-#define	UART_RX_ERR(_ch)	UART_REG(_ch, UART_RS_EC_R_OFFSET)
-
-#define	UART_RX_ERR_CLR(_ch)	\
-	UART_REG_SET(_ch, UART_RS_EC_R_OFFSET, 0x00000000)
-
-#define	UART_RX_FIFO_EMPTY(_ch)	\
-	UART_REG_AND(_ch, UART_FLAG_R_OFFSET, UART_FR_RXFE)
-
-#define	UART_RX_FIFO_FULL(_ch)	\
-	UART_REG_AND(_ch, UART_FLAG_R_OFFSET, UART_FR_RXFF)
-
-#define	UART_TX_FIFO_EMPTY(_ch)	\
-	UART_REG_AND(_ch, UART_FLAG_R_OFFSET, UART_FR_TXFE)
-
-#define	UART_TX_FIFO_FULL(_ch)	\
-	UART_REG_AND(_ch, UART_FLAG_R_OFFSET, UART_FR_TXFF)
-
-#define	UART_BUSY(_ch)		\
-	UART_REG_AND(_ch, UART_FLAG_R_OFFSET, UART_FR_BUSY)
-
-#define	UART_FIFO_FLUSH(_ch)	\
-	UART_REG_AND_SET(_ch, UART_LCRH_R_OFFSET, ~SCI_CH_HW_FIFO)
-
-#define	UART_ENABLE(_ch)	\
-	UART_REG_OR_SET(_ch, UART_CTL_R_OFFSET, SCI_CH_HW_ENABLE)
-
-#define	UART_ENABLE_RX(_ch)	\
-	UART_REG_OR_SET(_ch, UART_CTL_R_OFFSET, SCI_CH_HW_RX)
-
-#define	UART_ENABLE_TX(_ch)	\
-	UART_REG_OR_SET(_ch, UART_CTL_R_OFFSET, SCI_CH_HW_TX)
-
-#define	UART_DISABLE(_ch)	\
-	UART_REG_AND_SET(_ch, UART_CTL_R_OFFSET, ~SCI_CH_HW_ENABLE)
-
-#define	UART_DISABLE_RX(_ch)	\
-	UART_REG_AND_SET(_ch, UART_CTL_R_OFFSET, ~SCI_CH_HW_RX)
-
-#define	UART_DISABLE_TX(_ch)	\
-	UART_REG_AND_SET(_ch, UART_CTL_R_OFFSET, ~SCI_CH_HW_TX)
-
-#define	UART_CLK_SYS(_ch)	\
-	UART_REG_SET(_ch, UART_CC_R_OFFSET, SCI_CH_SYSCLK)
-
-#define	UART_CLK_PIOSC(_ch)	\
-	UART_REG_SET(_ch, UART_CC_R_OFFSET, SCI_CH_PIOSC)
-
-#define	UART_BRD(_br,_clk,_div)	(_clk / ((float32) (_div * _br)))
-
-#define	UART_SET_IBRD(_ch,_ibrd)	\
-	UART_REG_SET(_ch, UART_IBRD_R_OFFSET, _ibrd)
-
-#define	UART_SET_FBRD(_ch,_fbrd)	\
-	UART_REG_SET(_ch, UART_FBRD_R_OFFSET, _fbrd)
-
-#define	UART_SET_LINE_CTRL(_ch,_ctrl)	\
-	UART_REG_SET(_ch, UART_LCRH_R_OFFSET, _ctrl)
-
-#define	UART_SET_SYS_CTRL(_ch,_ctrl)	\
-	UART_REG_SET(_ch, UART_CTL_R_OFFSET, _ctrl)
-
-#define	UART_RIS(_ch)		UART_REG(_ch, UART_RIS_R_OFFSET)
-
-#define	UART_MIS(_ch)	 	UART_REG(_ch, UART_MIS_R_OFFSET)
-
-#define	UART_INT_CLEAR(_ch,_srcs)	\
-	UART_REG_OR_SET(_ch, UART_IC_R_OFFSET, _srcs)
-
-#define	UART_INT_ENABLE(_ch,_srcs)	\
-	UART_REG_OR_SET(_ch, UART_IM_R_OFFSET, _srcs)
-
-#define	UART_INT_DISABLE(_ch,_srcs)	\
-	UART_REG_AND_SET(_ch, UART_IM_R_OFFSET, ~((uint32)_srcs))
 
 /*
  * Sci Channel Initialization.
@@ -328,38 +197,51 @@ static void Sci_InitSciChannel(
     UART_BUSY(ConfigPtr->SciChannelId) ||
     !UART_TX_FIFO_EMPTY(ConfigPtr->SciChannelId) ||
     !UART_RX_FIFO_EMPTY(ConfigPtr->SciChannelId)
-  );
+  ) {
+    ;
+  }
 
   /* Clear Errors */
   UART_RX_ERR_CLR(ConfigPtr->SciChannelId);
 
   /* UART Baud Clock Source */
-  if ( ConfigPtr->SciSysClock == TRUE ) {
+  if ( ConfigPtr->SciSysClock ) {
+
     UART_CLK_SYS(ConfigPtr->SciChannelId);
-    clk =
-    Mcu_Global.ConfigPtr->McuClockSettingConfig[
-    	Mcu_Global.ClockSetting
-    ].McuClockReferencePointFrequency;
+
+    clk =	Mcu_Global.ConfigPtr->McuClockSettingConfig[
+			Mcu_Global.ClockSetting
+		].McuClockReferencePointFrequency;
+
   }
   else {
+
     UART_CLK_PIOSC(ConfigPtr->SciChannelId);
+
     clk = SCI_PIOSC_FREQ;
+
   }
 
   /* Baud-Rate Divisor computation waiting the peripheral to enable. */
-  if ( ConfigPtr->SciSysCtrl & SCI_CH_HW_HIGH_SPEED )
+  if ( ConfigPtr->SciSysCtrl & SCI_CH_HW_HIGH_SPEED ) {
+
     /* Clock Divider: 8 */
     brd = UART_BRD(ConfigPtr->SciChannelBaudRate, clk, SCI_CLK_DIV_HIGH_SPEED);
-  else
+
+  }
+  else {
+
     /* Clock Divider: 16 */
     brd = UART_BRD(ConfigPtr->SciChannelBaudRate, clk, SCI_CLK_DIV_LOW_SPEED);
+
+  }
 
   /* Integer Baud-Rate Divisor Sets-Up */
   UART_SET_IBRD(ConfigPtr->SciChannelId, (uint32) brd);
 
   /* Fractional Baud-Rate Divisor Sets-Up */
   UART_SET_FBRD(
-    ConfigPtr->SciChannelId, (uint32) ((brd - ((uint32) brd))*64 + 0.5)
+    ConfigPtr->SciChannelId, (uint32) ((brd - ((uint32) brd)) * 64 + 0.5)
   );
 
   /* Line Control Sets-Up */
@@ -390,7 +272,11 @@ static void Sci_DeInitSciChannel(
   register uint32	mask = HW_CH_2_CGC_MASK(ConfigPtr->SciChannelId);
 
   /* Enables Sci Module in Run-Mode */
-  if ( !( SYSCTL_RCGCUART_R & mask ) )	SYSCTL_RCGCUART_R |= mask;
+  if ( !( SYSCTL_RCGCUART_R & mask ) ) {
+
+    SYSCTL_RCGCUART_R |= mask;
+
+  }
 
   SYSCTL_SRUART_R |= mask;			/* Start Channel Module Reset */
   SYSCTL_SRUART_R &= ~mask;			/* Stop  Channel Module Reset */
@@ -410,11 +296,21 @@ void Sci_Init(
 )
 {
 
-  register uint32 channel;
+  register EE_FREG	flags;
+  register uint32	channel;
 
-  VALIDATE( ( ConfigPtr != NULL ), SCI_INIT_SERVICE_ID, SCI_E_PARAM_CONFIG );
+  VALIDATE( ( ConfigPtr != NULL ), SCI_INIT_SERVICE_ID, SCI_E_PARAM_POINTER );
 
   VALIDATE( ( Hw_CheckCore() == E_OK ), SCI_INIT_SERVICE_ID, SCI_E_UNINIT );
+
+  flags = EE_hal_suspendIRQ();
+
+  VALIDATE_IRQ(
+    !Sci_Global.Init,
+    SCI_INIT_SERVICE_ID,
+    SCI_E_ALREADY_INITIALIZED,
+    flags
+  );
 
   Sci_Global.ConfigPtr = ConfigPtr;
   Sci_Global.Init = TRUE;
@@ -427,6 +323,8 @@ void Sci_Init(
 
   }
 
+  EE_hal_resumeIRQ(flags);
+
 }
 
 /*
@@ -438,12 +336,8 @@ Std_ReturnType Sci_WriteTxData(
 )
 {
 
-  VALIDATE_W_RV(
-    ( Sci_Global.Init == TRUE ),
-    SCI_WRITETXDATA_SERVICE_ID,
-    SCI_E_UNINIT,
-    E_NOT_OK
-  );
+  register EE_FREG		flags;
+  register Std_ReturnType	rv;
 
   VALIDATE_W_RV(
     ( Channel < SCI_CHANNELS_NUMBER ),
@@ -452,18 +346,40 @@ Std_ReturnType Sci_WriteTxData(
     E_NOT_OK
   );
 
-  VALIDATE_W_RV(
-    ( SYSCTL_RCGCUART_R & HW_CH_2_CGC_MASK(Channel) ),
+  flags = EE_hal_suspendIRQ();
+
+  VALIDATE_IRQ_W_RV(
+    Sci_Global.Init,
     SCI_WRITETXDATA_SERVICE_ID,
-    SCI_E_STATE_TRANSITION,
-    E_NOT_OK
+    SCI_E_UNINIT,
+    E_NOT_OK,
+    flags
   );
 
-  if (UART_TX_FIFO_FULL(Channel)) return E_NOT_OK;
+  VALIDATE_IRQ_W_RV(
+    ( SYSCTL_RCGCUART_R & HW_CH_2_CGC_MASK(Channel) ),
+    SCI_WRITETXDATA_SERVICE_ID,
+    SCI_E_INVALID_CHANNEL,
+    E_NOT_OK,
+    flags
+  );
 
-  UART_TX_DATA(Channel, (uint32) Data);
+  if (UART_TX_FIFO_FULL(Channel)) {
 
-  return E_OK;
+    rv = E_NOT_OK;
+
+  }
+  else {
+
+    UART_TX_DATA(Channel, (uint32) Data);
+
+    rv = E_OK;
+
+  }
+
+  EE_hal_resumeIRQ(flags);
+
+  return rv;
 
 }
 
@@ -476,26 +392,14 @@ Std_ReturnType Sci_ReadRxData(
 )
 {
 
-  register uint32	rx;
-
-  VALIDATE_W_RV(
-    ( Sci_Global.Init == TRUE ),
-    SCI_READRXDATA_SERVICE_ID,
-    SCI_E_UNINIT,
-    E_NOT_OK
-  );
+  register EE_FREG		flags;
+  register Std_ReturnType	rv;
+  register uint32		rx;
 
   VALIDATE_W_RV(
     ( Channel < SCI_CHANNELS_NUMBER ),
     SCI_READRXDATA_SERVICE_ID,
     SCI_E_INVALID_CHANNEL,
-    E_NOT_OK
-  );
-
-  VALIDATE_W_RV(
-    ( SYSCTL_RCGCUART_R & HW_CH_2_CGC_MASK(Channel) ),
-    SCI_READRXDATA_SERVICE_ID,
-    SCI_E_STATE_TRANSITION,
     E_NOT_OK
   );
 
@@ -506,12 +410,41 @@ Std_ReturnType Sci_ReadRxData(
     E_NOT_OK
   );
 
-  if (UART_RX_FIFO_EMPTY(Channel)) return E_NOT_OK;
+  flags = EE_hal_suspendIRQ();
 
-  rx = UART_RX_DATA(Channel);
-  (*DataPtr) = (uint8) rx;
+  VALIDATE_IRQ_W_RV(
+    Sci_Global.Init,
+    SCI_READRXDATA_SERVICE_ID,
+    SCI_E_UNINIT,
+    E_NOT_OK,
+    flags
+  );
 
-  return E_OK;
+  VALIDATE_IRQ_W_RV(
+    ( SYSCTL_RCGCUART_R & HW_CH_2_CGC_MASK(Channel) ),
+    SCI_READRXDATA_SERVICE_ID,
+    SCI_E_INVALID_CHANNEL,
+    E_NOT_OK,
+    flags
+  );
+
+  if (UART_RX_FIFO_EMPTY(Channel)) {
+
+    rv = E_NOT_OK;
+
+  }
+  else {
+
+    rx = UART_RX_DATA(Channel);
+    (*DataPtr) = (uint8) rx;
+
+    rv = E_OK;
+
+  }
+
+  EE_hal_resumeIRQ(flags);
+
+  return rv;
 
 }
 
@@ -524,11 +457,7 @@ void Sci_EnableNotifications(
 )
 {
 
-  VALIDATE(
-    ( Sci_Global.Init == TRUE ),
-    SCI_ENABLE_NOTIFICATIONS_SERVICE_ID,
-    SCI_E_UNINIT
-  );
+  register EE_FREG		flags;
 
   VALIDATE(
     ( Channel < SCI_CHANNELS_NUMBER ),
@@ -536,14 +465,27 @@ void Sci_EnableNotifications(
     SCI_E_INVALID_CHANNEL
   );
 
-  if ( SYSCTL_RCGCUART_R & HW_CH_2_CGC_MASK(Channel) ) {
+  flags = EE_hal_suspendIRQ();
 
-    UART_INT_ENABLE(
-      Channel,
-      UART_INT_TX | UART_INT_RX | UART_INT_RT | UART_INT_RX_ERR
-    );
-  
-  };
+  VALIDATE_IRQ(
+    Sci_Global.Init,
+    SCI_ENABLE_NOTIFICATIONS_SERVICE_ID,
+    SCI_E_UNINIT,
+    flags
+  );
+
+  VALIDATE_IRQ(
+    ( SYSCTL_RCGCUART_R & HW_CH_2_CGC_MASK(Channel) ),
+    SCI_ENABLE_NOTIFICATIONS_SERVICE_ID,
+    SCI_E_INVALID_CHANNEL,
+    flags
+  );
+
+  UART_INT_ENABLE(
+    Channel, UART_INT_TX | UART_INT_RX | UART_INT_RT | UART_INT_RX_ERR
+  );
+
+  EE_hal_resumeIRQ(flags);
 
 }
 
@@ -555,26 +497,35 @@ void Sci_DisableNotifications(
 )
 {
 
-  VALIDATE(
-    ( Sci_Global.Init == TRUE ),
-    SCI_ENABLE_NOTIFICATIONS_SERVICE_ID,
-    SCI_E_UNINIT
-  );
+  register EE_FREG		flags;
 
   VALIDATE(
     ( Channel < SCI_CHANNELS_NUMBER ),
-    SCI_ENABLE_NOTIFICATIONS_SERVICE_ID,
+    SCI_DISABLE_NOTIFICATIONS_SERVICE_ID,
     SCI_E_INVALID_CHANNEL
   );
 
-  if ( SYSCTL_RCGCUART_R & HW_CH_2_CGC_MASK(Channel) ) {
+  flags = EE_hal_suspendIRQ();
 
-    UART_INT_DISABLE(
-      Channel,
-      UART_INT_TX | UART_INT_RX | UART_INT_RT | UART_INT_RX_ERR
-    );
+  VALIDATE_IRQ(
+    Sci_Global.Init,
+    SCI_DISABLE_NOTIFICATIONS_SERVICE_ID,
+    SCI_E_UNINIT,
+    flags
+  );
 
-  }
+  VALIDATE_IRQ(
+    ( SYSCTL_RCGCUART_R & HW_CH_2_CGC_MASK(Channel) ),
+    SCI_DISABLE_NOTIFICATIONS_SERVICE_ID,
+    SCI_E_INVALID_CHANNEL,
+    flags
+  );
+
+  UART_INT_DISABLE(
+    Channel, UART_INT_TX | UART_INT_RX | UART_INT_RT | UART_INT_RX_ERR
+  );
+
+  EE_hal_resumeIRQ(flags);
 
 }
 #endif
@@ -588,14 +539,8 @@ Std_ReturnType Sci_GoToSleep(
 )
 {
 
-  register uint32	mask = HW_CH_2_CGC_MASK(Channel);
-
-  VALIDATE_W_RV(
-    ( Sci_Global.Init == TRUE ),
-    SCI_GOTOSLEEP_SERVICE_ID,
-    SCI_E_UNINIT,
-    E_NOT_OK
-  );
+  register EE_FREG	flags;
+  register uint32	mask;
 
   VALIDATE_W_RV(
     ( Channel < SCI_CHANNELS_NUMBER ),
@@ -604,15 +549,30 @@ Std_ReturnType Sci_GoToSleep(
     E_NOT_OK
   );
 
-  VALIDATE_W_RV(
+  flags = EE_hal_suspendIRQ();
+
+  VALIDATE_IRQ_W_RV(
+    Sci_Global.Init,
+    SCI_GOTOSLEEP_SERVICE_ID,
+    SCI_E_UNINIT,
+    E_NOT_OK,
+    flags
+  );
+
+  mask = HW_CH_2_CGC_MASK(Channel);
+
+  VALIDATE_IRQ_W_RV(
     ( SYSCTL_RCGCUART_R & mask ),
     SCI_GOTOSLEEP_SERVICE_ID,
     SCI_E_STATE_TRANSITION,
-    E_NOT_OK
+    E_NOT_OK,
+    flags
   );
 
   /* Disables Sci Module in Run-Mode */
   SYSCTL_RCGCUART_R &= ~mask;
+
+  EE_hal_resumeIRQ(flags);
 
   return E_OK;
 
@@ -628,14 +588,8 @@ Std_ReturnType Sci_Wakeup(
 )
 {
 
-  register uint32	mask = HW_CH_2_CGC_MASK(Channel);
-
-  VALIDATE_W_RV(
-    ( Sci_Global.Init == TRUE ),
-    SCI_WAKEUP_SERVICE_ID,
-    SCI_E_UNINIT,
-    E_NOT_OK
-  );
+  register EE_FREG	flags;
+  register uint32	mask;
 
   VALIDATE_W_RV(
     ( Channel < SCI_CHANNELS_NUMBER ),
@@ -644,15 +598,30 @@ Std_ReturnType Sci_Wakeup(
     E_NOT_OK
   );
 
-  VALIDATE_W_RV(
-    ( !( SYSCTL_RCGCUART_R & mask ) ),
+  flags = EE_hal_suspendIRQ();
+
+  VALIDATE_IRQ_W_RV(
+    Sci_Global.Init,
+    SCI_WAKEUP_SERVICE_ID,
+    SCI_E_UNINIT,
+    E_NOT_OK,
+    flags
+  );
+
+  mask = HW_CH_2_CGC_MASK(Channel);
+
+  VALIDATE_IRQ_W_RV(
+    !( SYSCTL_RCGCUART_R & mask ),
     SCI_WAKEUP_SERVICE_ID,
     SCI_E_STATE_TRANSITION,
-    E_NOT_OK
+    E_NOT_OK,
+    flags
   );
 
   /* Enables Sci Module in Run-Mode */
   SYSCTL_RCGCUART_R |= mask;
+
+  EE_hal_resumeIRQ(flags);
 
   return E_OK;
 
@@ -667,14 +636,9 @@ Sci_StatusType Sci_GetStatus(
 )
 {
 
+  register EE_FREG		flags;
   register Sci_StatusType	ret;
-
-  VALIDATE_W_RV(
-    ( Sci_Global.Init == TRUE ),
-    SCI_GETSTATUS_SERVICE_ID,
-    SCI_E_UNINIT,
-    SCI_NOT_OK
-  );
+  register uint32		ris, mis;
 
   VALIDATE_W_RV(
     ( Channel < SCI_CHANNELS_NUMBER ),
@@ -683,29 +647,63 @@ Sci_StatusType Sci_GetStatus(
     SCI_NOT_OK
   );
 
-  VALIDATE_W_RV(
+  flags = EE_hal_suspendIRQ();
+
+  VALIDATE_IRQ_W_RV(
+    Sci_Global.Init,
+    SCI_GETSTATUS_SERVICE_ID,
+    SCI_E_UNINIT,
+    SCI_NOT_OK,
+    flags
+  );
+
+  VALIDATE_IRQ_W_RV(
     ( SYSCTL_RCGCUART_R & HW_CH_2_CGC_MASK(Channel) ),
     SCI_GETSTATUS_SERVICE_ID,
-    SCI_E_STATE_TRANSITION,
-    SCI_CH_SLEEP
+    SCI_E_INVALID_CHANNEL,
+    SCI_CH_SLEEP,
+    flags
   );
 
-  VALIDATE_W_RV(
-    ( !(UART_RIS(Channel) & UART_INT_RT) ),
-    SCI_GETSTATUS_SERVICE_ID,
-    SCI_E_TIMEOUT,
-    SCI_NOT_OK
-  );
+  ris = UART_RIS(Channel);
+  mis = UART_MIS(Channel);
 
-  if (!UART_RX_FIFO_EMPTY(Channel)) {
-    if (UART_RX_ERR(Channel))	ret = SCI_RX_ERROR;
-    else			ret = SCI_RX_OK;
+  if ( ( ris & UART_INT_RT ) || ( mis & UART_INT_RT ) ) {
+
+    ret = SCI_RX_ERROR;
+
   }
-  else if (UART_BUSY(Channel))	ret = SCI_TX_BUSY;
-  else if (
-    ( UART_RIS(Channel) & UART_INT_TX ) || ( UART_MIS(Channel) & UART_INT_TX )
-  )				ret = SCI_TX_OK;
-  else				ret = SCI_OPERATIONAL;
+  else if (!UART_RX_FIFO_EMPTY(Channel)) {
+
+    if (UART_RX_ERR(Channel)) {
+
+      ret = SCI_RX_ERROR;
+
+    }
+    else {
+
+      ret = SCI_RX_OK;
+
+    }
+
+  }
+  else if (UART_BUSY(Channel)) {
+
+    ret = SCI_TX_BUSY;
+
+  }
+  else if ( ( ris & UART_INT_TX ) || ( ris & UART_INT_TX ) ) {
+
+    ret = SCI_TX_OK;
+
+  }
+  else {
+
+    ret = SCI_OPERATIONAL;
+
+  }
+
+  EE_hal_resumeIRQ(flags);
 
   return ret;
 
@@ -720,13 +718,12 @@ void Sci_DeInit(
 )
 {
 
-  register uint32 channel;
+  register EE_FREG	flags;
+  register uint32	channel;
 
-  VALIDATE(
-    ( Sci_Global.Init == TRUE ),
-    SCI_DEINIT_SERVICE_ID,
-    SCI_E_UNINIT
-  );
+  flags = EE_hal_suspendIRQ();
+
+  VALIDATE_IRQ( Sci_Global.Init, SCI_DEINIT_SERVICE_ID, SCI_E_UNINIT, flags );
 
   for (
     channel = 0;
@@ -740,6 +737,8 @@ void Sci_DeInit(
 
   }
 
+  EE_hal_resumeIRQ(flags);
+
 }
 #endif
 
@@ -752,12 +751,8 @@ Std_ReturnType Sci_CheckWakeup(
 )
 {
 
-  VALIDATE_W_RV(
-    ( Sci_Global.Init == TRUE ),
-    SCI_CHECKWAKEUP_SERVICE_ID,
-    SCI_E_UNINIT,
-    E_NOT_OK
-  );
+  register EE_FREG		flags;
+  register Std_ReturnType	rv;
 
   VALIDATE_W_RV(
     ( Channel < SCI_CHANNELS_NUMBER ),
@@ -766,14 +761,27 @@ Std_ReturnType Sci_CheckWakeup(
     E_NOT_OK
   );
 
-  VALIDATE_W_RV(
-    ( SYSCTL_RCGCUART_R & HW_CH_2_CGC_MASK(Channel) ),
+  flags = EE_hal_suspendIRQ();
+
+  VALIDATE_IRQ_W_RV(
+    Sci_Global.Init,
     SCI_CHECKWAKEUP_SERVICE_ID,
-    SCI_E_STATE_TRANSITION,
-    E_NOT_OK
+    SCI_E_UNINIT,
+    E_NOT_OK,
+    flags
   );
 
-  return E_OK;
+  rv = E_NOT_OK;
+
+  if ( SYSCTL_RCGCUART_R & HW_CH_2_CGC_MASK(Channel) ) {
+
+    rv =  E_OK;
+
+  }
+
+  EE_hal_resumeIRQ(flags);
+
+  return rv;
 
 }
 #endif
@@ -786,12 +794,7 @@ Std_ReturnType Sci_DisableTx(
 )
 {
 
-  VALIDATE_W_RV(
-    ( Sci_Global.Init == TRUE ),
-    SCI_DISABLETX_SERVICE_ID,
-    SCI_E_UNINIT,
-    E_NOT_OK
-  );
+  register EE_FREG	flags;
 
   VALIDATE_W_RV(
     ( Channel < SCI_CHANNELS_NUMBER ),
@@ -800,11 +803,21 @@ Std_ReturnType Sci_DisableTx(
     E_NOT_OK
   );
 
-  VALIDATE_W_RV(
-    ( SYSCTL_RCGCUART_R & HW_CH_2_CGC_MASK(Channel) ),
+  flags = EE_hal_suspendIRQ();
+
+  VALIDATE_IRQ_W_RV(
+    Sci_Global.Init,
     SCI_DISABLETX_SERVICE_ID,
-    SCI_E_STATE_TRANSITION,
-    E_NOT_OK
+    SCI_E_UNINIT,
+    E_NOT_OK,
+    flags
+  );
+
+  VALIDATE_IRQ_W_RV(
+    ( SYSCTL_RCGCUART_R & HW_CH_2_CGC_MASK(Channel) ),
+    SCI_DISABLETX_SERVICE_ID, SCI_E_INVALID_CHANNEL,
+    E_NOT_OK,
+    flags
   );
 
   /* Disables Channel */
@@ -814,13 +827,15 @@ Std_ReturnType Sci_DisableTx(
   UART_FIFO_FLUSH(Channel);
 
   /* Waits end of transmission/reception */
-  while(UART_BUSY(Channel) || !UART_TX_FIFO_EMPTY(Channel));
+  while( UART_BUSY(Channel) || !UART_TX_FIFO_EMPTY(Channel) );
 
   /* Disable TX */
   UART_DISABLE_TX(Channel);
 
   /* Enables Channel */
   UART_ENABLE(Channel);
+
+  EE_hal_resumeIRQ(flags);
 
   return E_OK;
 
@@ -834,12 +849,7 @@ Std_ReturnType Sci_EnableTx(
 )
 {
 
-  VALIDATE_W_RV(
-    ( Sci_Global.Init == TRUE ),
-    SCI_ENABLETX_SERVICE_ID,
-    SCI_E_UNINIT,
-    E_NOT_OK
-  );
+  register EE_FREG	flags;
 
   VALIDATE_W_RV(
     ( Channel < SCI_CHANNELS_NUMBER ),
@@ -848,11 +858,17 @@ Std_ReturnType Sci_EnableTx(
     E_NOT_OK
   );
 
-  VALIDATE_W_RV(
+
+  flags = EE_hal_suspendIRQ();
+
+  VALIDATE_IRQ_W_RV( Sci_Global.Init, SCI_ENABLETX_SERVICE_ID, SCI_E_UNINIT, E_NOT_OK, flags );
+
+  VALIDATE_IRQ_W_RV(
     ( SYSCTL_RCGCUART_R & HW_CH_2_CGC_MASK(Channel) ),
     SCI_ENABLETX_SERVICE_ID,
-    SCI_E_STATE_TRANSITION,
-    E_NOT_OK
+    SCI_E_INVALID_CHANNEL,
+    E_NOT_OK,
+    flags
   );
 
   /* Disables Channel */
@@ -862,13 +878,15 @@ Std_ReturnType Sci_EnableTx(
   UART_FIFO_FLUSH(Channel);
 
   /* Waits end of transmission/reception */
-  while(UART_BUSY(Channel));
+  while( UART_BUSY(Channel) );
 
   /* Enable TX */
   UART_ENABLE_TX(Channel);
 
   /* Enables Channel */
   UART_ENABLE(Channel);
+
+  EE_hal_resumeIRQ(flags);
 
   return E_OK;
 
@@ -882,12 +900,7 @@ Std_ReturnType Sci_DisableRx(
 )
 {
 
-  VALIDATE_W_RV(
-    ( Sci_Global.Init == TRUE ),
-    SCI_DISABLERX_SERVICE_ID,
-    SCI_E_UNINIT,
-    E_NOT_OK
-  );
+  register EE_FREG	flags;
 
   VALIDATE_W_RV(
     ( Channel < SCI_CHANNELS_NUMBER ),
@@ -896,11 +909,22 @@ Std_ReturnType Sci_DisableRx(
     E_NOT_OK
   );
 
-  VALIDATE_W_RV(
+  flags = EE_hal_suspendIRQ();
+
+  VALIDATE_IRQ_W_RV(
+    Sci_Global.Init,
+    SCI_DISABLERX_SERVICE_ID,
+    SCI_E_UNINIT,
+    E_NOT_OK,
+    flags
+  );
+
+  VALIDATE_IRQ_W_RV(
     ( SYSCTL_RCGCUART_R & HW_CH_2_CGC_MASK(Channel) ),
     SCI_DISABLERX_SERVICE_ID,
-    SCI_E_STATE_TRANSITION,
-    E_NOT_OK
+    SCI_E_INVALID_CHANNEL,
+    E_NOT_OK,
+    flags
   );
 
   /* Disables Channel */
@@ -910,13 +934,15 @@ Std_ReturnType Sci_DisableRx(
   UART_FIFO_FLUSH(Channel);
 
   /* Waits end of transmission/reception */
-  while(UART_BUSY(Channel) || !UART_RX_FIFO_EMPTY(Channel));
+  while( UART_BUSY(Channel) || !UART_RX_FIFO_EMPTY(Channel) );
 
   /* Disable RX */
   UART_DISABLE_RX(Channel);
 
   /* Enables Channel */
   UART_ENABLE(Channel);
+
+  EE_hal_resumeIRQ(flags);
 
   return E_OK;
 
@@ -930,12 +956,7 @@ Std_ReturnType Sci_EnableRx(
 )
 {
 
-  VALIDATE_W_RV(
-    ( Sci_Global.Init == TRUE ),
-    SCI_ENABLERX_SERVICE_ID,
-    SCI_E_UNINIT,
-    E_NOT_OK
-  );
+  register EE_FREG	flags;
 
   VALIDATE_W_RV(
     ( Channel < SCI_CHANNELS_NUMBER ),
@@ -944,11 +965,22 @@ Std_ReturnType Sci_EnableRx(
     E_NOT_OK
   );
 
-  VALIDATE_W_RV(
+  flags = EE_hal_suspendIRQ();
+
+  VALIDATE_IRQ_W_RV(
+    Sci_Global.Init,
+    SCI_ENABLERX_SERVICE_ID,
+    SCI_E_UNINIT,
+    E_NOT_OK,
+    flags
+  );
+
+  VALIDATE_IRQ_W_RV(
     ( SYSCTL_RCGCUART_R & HW_CH_2_CGC_MASK(Channel) ),
     SCI_ENABLERX_SERVICE_ID,
-    SCI_E_STATE_TRANSITION,
-    E_NOT_OK
+    SCI_E_INVALID_CHANNEL,
+    E_NOT_OK,
+    flags
   );
 
   /* Disables Channel */
@@ -966,7 +998,8 @@ Std_ReturnType Sci_EnableRx(
   /* Enables Channel */
   UART_ENABLE(Channel);
 
+  EE_hal_resumeIRQ(flags);
+
   return E_OK;
 
 }
-
