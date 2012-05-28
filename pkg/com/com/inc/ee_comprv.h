@@ -353,12 +353,13 @@ void __ALWAYS_INLINE__ EE_com_notify_ok(const struct EE_com_msg_ROM_TYPE *msg_RO
     /*EE_thread_activate(*((EE_TID *)msg_ROM->notify_call)); GF*/
 		 ActivateTask(*((EE_TID *)msg_ROM->notify_call));
     break; 
-    
+#if defined( __OO_ECC1__) || defined (__OO_ECC2__)
     /* Setting an event */
     case EE_COM_MSG_EVOK:
 		SetEvent( ((struct EE_COM_event_notify *)msg_ROM->notify_call)->task, 
 			((struct EE_COM_event_notify *)(msg_ROM->notify_call))->event );
-    break;   
+    break;
+#endif	
   }
 }
 #endif
