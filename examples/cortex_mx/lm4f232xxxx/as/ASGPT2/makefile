@@ -47,7 +47,7 @@ export OUTPUT_DIR = Debug
 
 # Check the environment and use reasonable defaults
 ifndef ERIKA_FILES
-ERIKA_FILES=../../../../
+export ERIKA_FILES = $(abspath ../../../../..)
 endif
 
 AS_CFG_PREFIX = $(ERIKA_FILES)/contrib/as/arch/stellaris/keil/config/
