@@ -77,7 +77,8 @@
 
 #include "ee.h"
 #include "ee_irq.h"
-#include "cpu/cortex_mx/inc/ee_nvic.h"
+
+#include "Gpt_Internal.h"
 
 /*
  * Type that holds all global data for Gpt Driver
@@ -99,940 +100,308 @@ typedef struct
  */
 extern Gpt_GlobalType Gpt_Global;
 
-/*
- * Hardware Timers Interrupt Sources
- */
-#define	GPT_TMR_INT_WUEIM	0x00010000	/* 32/64-Bit Write Update     */
-#define	GPT_TMR_INT_TBMIM	0x00000800	/* Timer B Mode Match	      */
-#define	GPT_TMR_INT_CBEIM	0x00000400	/* Capture B Event	      */
-#define	GPT_TMR_INT_CBMIM	0x00000200	/* Capture B Match	      */
-#define	GPT_TMR_INT_TBTOIM	0x00000100	/* Timer B Time-Out	      */
-#define	GPT_TMR_INT_TAMIM	0x00000010	/* Timer A Mode Match	      */
-#define	GPT_TMR_INT_RTCIM	0x00000008	/* RTC Interrupt	      */
-#define	GPT_TMR_INT_CAEIM	0x00000004	/* Capture A Event	      */
-#define	GPT_TMR_INT_CAMIM	0x00000002	/* Capture A Match	      */
-#define	GPT_TMR_INT_TATOIM	0x00000001	/* Timer A Time-Out	      */
-
-/*
- * Hardware Timer A Interrupt Sources
- */
-#define	GPT_TMRA_INT_ALL	( \
-	GPT_TMR_INT_TAMIM	|	GPT_TMR_INT_CAEIM	| \
-	GPT_TMR_INT_CAMIM	|	GPT_TMR_INT_TATOIM	\
-)
-
-/*
- * Hardware Timer B Interrupt Sources
- */
-#define	GPT_TMRB_INT_ALL	( \
-	GPT_TMR_INT_TBMIM	|	GPT_TMR_INT_CBEIM	| \
-	GPT_TMR_INT_CBMIM	|	GPT_TMR_INT_TBTOIM	\
-)
-
-/*
- * All Hardware Timers Interrupts
- */
-#define	GPT_TMR_INT_ALL	( \
-	GPT_TMR_INT_WUEIM	|	GPT_TMR_INT_RTCIM	| \
-	GPT_TMRA_INT_ALL	|	GPT_TMRB_INT_ALL	\
-)
-
 #if ( GPT_ENABLE_DISABLE_NOTIFICATION_API == STD_ON )
+
+#if ( \
+  defined(EE_CORTEX_MX_TIMER_0_A_ISR) || \
+  defined(EE_CORTEX_MX_TIMER_1_A_ISR) || \
+  defined(EE_CORTEX_MX_TIMER_2_A_ISR) || \
+  defined(EE_CORTEX_MX_TIMER_3_A_ISR) || \
+  defined(EE_CORTEX_MX_TIMER_4_A_ISR) || \
+  defined(EE_CORTEX_MX_TIMER_5_A_ISR) || \
+  defined(EE_CORTEX_MX_WIDE_TIMER_0_A_ISR) || \
+  defined(EE_CORTEX_MX_WIDE_TIMER_1_A_ISR) || \
+  defined(EE_CORTEX_MX_WIDE_TIMER_2_A_ISR) || \
+  defined(EE_CORTEX_MX_WIDE_TIMER_3_A_ISR) || \
+  defined(EE_CORTEX_MX_WIDE_TIMER_4_A_ISR) || \
+  defined(EE_CORTEX_MX_WIDE_TIMER_5_A_ISR) \
+)
+static void Gpt_Isr_A(
+  Gpt_ChannelType		Channel_A,
+  Gpt_ChannelType		Channel_J
+)
+{
+
+  register EE_FREG			flags;
+  register boolean			init;
+  register const Gpt_ConfigType *	cfg;
+  register uint32			ris;
+  register uint32			mis;
+  register Gpt_ChannelType		ch;
+
+  flags = EE_hal_suspendIRQ();
+  init = Gpt_Global.Init;
+  cfg = Gpt_Global.ConfigPtr;
+  ris = GPT_GET_RIS(Channel_A);
+  mis = GPT_GET_MIS(Channel_A);
+  GPT_INT_CLR(
+    Channel_A, GPT_TMRA_INT_ALL | GPT_TMR_INT_WUE | GPT_TMR_INT_RTC
+  );
+  EE_hal_resumeIRQ(flags);
+
+  if ( 
+    ( init == TRUE ) &&
+    (
+      ( ris & GPT_TMR_INT_TATO ) ||
+      ( mis & GPT_TMR_INT_TATO )
+    )
+  ) {
+
+    /* Channel Look-up */
+    for (
+      ch = 0;
+      (
+	( ch < cfg->GptNumberOfGptChannels ) &&
+	(
+	  ( cfg->GptChannels[ch].GptChannelId != Channel_A ) &&
+	  ( cfg->GptChannels[ch].GptChannelId != Channel_J )
+	)
+      );
+      ch++
+    ) {
+      ;
+    }
+
+    /* Notification Callback Call. */
+    if (
+      ( ch < cfg->GptNumberOfGptChannels ) &&
+      ( cfg->GptChannels[ch].GptNotificationPtr != NULL_PTR )
+    ) {
+
+      (*(cfg->GptChannels[ch].GptNotificationPtr))();
+
+    }
+
+  }
+
+}
+#endif
+
+#if ( \
+  defined(EE_CORTEX_MX_TIMER_0_B_ISR) || \
+  defined(EE_CORTEX_MX_TIMER_1_B_ISR) || \
+  defined(EE_CORTEX_MX_TIMER_2_B_ISR) || \
+  defined(EE_CORTEX_MX_TIMER_3_B_ISR) || \
+  defined(EE_CORTEX_MX_TIMER_4_B_ISR) || \
+  defined(EE_CORTEX_MX_TIMER_5_B_ISR) || \
+  defined(EE_CORTEX_MX_WIDE_TIMER_0_B_ISR) || \
+  defined(EE_CORTEX_MX_WIDE_TIMER_1_B_ISR) || \
+  defined(EE_CORTEX_MX_WIDE_TIMER_2_B_ISR) || \
+  defined(EE_CORTEX_MX_WIDE_TIMER_3_B_ISR) || \
+  defined(EE_CORTEX_MX_WIDE_TIMER_4_B_ISR) || \
+  defined(EE_CORTEX_MX_WIDE_TIMER_5_B_ISR) \
+)
+static void Gpt_Isr_B(
+  Gpt_ChannelType		Channel_B
+)
+{
+
+  register EE_FREG			flags;
+  register boolean			init;
+  register const Gpt_ConfigType *	cfg;
+  register uint32			ris;
+  register uint32			mis;
+  register Gpt_ChannelType		ch;
+
+  flags = EE_hal_suspendIRQ();
+  init = Gpt_Global.Init;
+  cfg = Gpt_Global.ConfigPtr;
+  ris = GPT_GET_RIS(Channel_B);
+  mis = GPT_GET_MIS(Channel_B);
+  GPT_INT_CLR(
+    Channel_B, GPT_TMRB_INT_ALL | GPT_TMR_INT_WUE | GPT_TMR_INT_RTC
+  );
+  EE_hal_resumeIRQ(flags);
+
+  if ( 
+    ( init == TRUE ) &&
+    (
+      ( ris & GPT_TMR_INT_TBTO ) ||
+      ( mis & GPT_TMR_INT_TBTO )
+    )
+  ) {
+
+    /* Channel Look-up */
+    for (
+      ch = 0;
+      (
+	( ch < cfg->GptNumberOfGptChannels ) &&
+	( cfg->GptChannels[ch].GptChannelId != Channel_B )
+      );
+      ch++
+    ) {
+      ;
+    }
+
+    /* Notification Callback Call. */
+    if (
+      ( ch < cfg->GptNumberOfGptChannels ) &&
+      ( cfg->GptChannels[ch].GptNotificationPtr != NULL_PTR )
+    ) {
+
+      (*(cfg->GptChannels[ch].GptNotificationPtr))();
+
+    }
+
+  }
+
+}
+#endif
 
 #ifdef	EE_CORTEX_MX_TIMER_0_A_ISR
 /* GPT CHANNEL 0 A or CHANNEL J 0 ISR */
 ISR2(EE_CORTEX_MX_TIMER_0_A_ISR)
 {
-
-  register uint32 channel;
-
-  /* Channel Look-up */
-  for (
-    channel = 0;
-    (
-      (channel < Gpt_Global.ConfigPtr->GptNumberOfGptChannels) &&
-      (
-	(
-	  Gpt_Global.ConfigPtr->GptChannels[channel].GptChannelId !=
-	  GPT_CHANNEL_0_A
-	) && (
-	  Gpt_Global.ConfigPtr->GptChannels[channel].GptChannelId !=
-	  GPT_CHANNEL_J_0
-	)
-      )
-    );
-    channel++
-  );
-
-  /* Notification Callback Call. */
-  if (
-    (channel < Gpt_Global.ConfigPtr->GptNumberOfGptChannels) &&
-    (Gpt_Global.ConfigPtr->GptChannels[channel].GptNotificationPtr != NULL_PTR)
-  ) (*(Gpt_Global.ConfigPtr->GptChannels[channel].GptNotificationPtr))();
-
-  /* GPTM Timer A Time-Out Interrupt Clear */
-  TIMER0_ICR_R |= GPT_TMRA_INT_ALL | GPT_TMR_INT_WUEIM | GPT_TMR_INT_RTCIM;
-
-  /* NVIC Clear Pending Interrupt */
-  /* NVIC_INT_CLR_PENDING(EE_CORTEX_MX_TIMER_0_A_INT_NUM); */
-
+  Gpt_Isr_A(GPT_CHANNEL_0_A, GPT_CHANNEL_J_0);
 }
-#endif	/* EE_CORTEX_MX_TIMER_0_A_ISR */
+#endif
 
 #ifdef	EE_CORTEX_MX_TIMER_0_B_ISR
 /* GPT CHANNEL 0 B ISR */
-ISR2(EE_CORTEX_MX_TIMER_0_B_ISR)
-{
-
-  register uint32 channel;
-
-  /* Channel Look-up */
-  for (
-    channel = 0;
-    (
-      (channel < Gpt_Global.ConfigPtr->GptNumberOfGptChannels) &&
-      (
-	Gpt_Global.ConfigPtr->GptChannels[channel].GptChannelId !=
-	GPT_CHANNEL_0_B
-      )
-    );
-    channel++
-  );
-
-  /* Notification Callback Call. */
-  if (
-    (channel < Gpt_Global.ConfigPtr->GptNumberOfGptChannels) &&
-    (Gpt_Global.ConfigPtr->GptChannels[channel].GptNotificationPtr != NULL_PTR)
-  ) (*(Gpt_Global.ConfigPtr->GptChannels[channel].GptNotificationPtr))();
-
-  /* GPTM Timer B Time-Out Interrupt Clear */
-  TIMER0_ICR_R |= GPT_TMRB_INT_ALL | GPT_TMR_INT_WUEIM | GPT_TMR_INT_RTCIM;
-
-  /* NVIC Clear Pending Interrupt */
-  /* NVIC_INT_CLR_PENDING(EE_CORTEX_MX_TIMER_0_B_INT_NUM); */
-
-}
-#endif	/* EE_CORTEX_MX_TIMER_0_B_ISR */
+ISR2(EE_CORTEX_MX_TIMER_0_B_ISR) { Gpt_Isr_B(GPT_CHANNEL_0_B); }
+#endif
 
 #ifdef	EE_CORTEX_MX_TIMER_1_A_ISR
 /* GPT CHANNEL 1 A or CHANNEL J 1 ISR */
 ISR2(EE_CORTEX_MX_TIMER_1_A_ISR)
 {
-
-  register uint32 channel;
-
-  /* Channel Look-up */
-  for (
-    channel = 0;
-    (
-      (channel < Gpt_Global.ConfigPtr->GptNumberOfGptChannels) &&
-      (
-	(
-	  Gpt_Global.ConfigPtr->GptChannels[channel].GptChannelId !=
-	  GPT_CHANNEL_1_A
-	) && (
-	  Gpt_Global.ConfigPtr->GptChannels[channel].GptChannelId !=
-	  GPT_CHANNEL_J_1
-	)
-      )
-    );
-    channel++
-  );
-
-  /* Notification Callback Call. */
-  if (
-    (channel < Gpt_Global.ConfigPtr->GptNumberOfGptChannels) &&
-    (Gpt_Global.ConfigPtr->GptChannels[channel].GptNotificationPtr != NULL_PTR)
-  ) (*(Gpt_Global.ConfigPtr->GptChannels[channel].GptNotificationPtr))();
-
-  /* GPTM Timer A Time-Out Interrupt Clear */
-  TIMER1_ICR_R |= GPT_TMRA_INT_ALL | GPT_TMR_INT_WUEIM | GPT_TMR_INT_RTCIM;
-
-  /* NVIC Clear Pending Interrupt */
-  /* NVIC_INT_CLR_PENDING(EE_CORTEX_MX_TIMER_1_A_INT_NUM); */
-
+  Gpt_Isr_A(GPT_CHANNEL_1_A, GPT_CHANNEL_J_1);
 }
-#endif	/* EE_CORTEX_MX_TIMER_1_A_ISR */
+#endif
 
 #ifdef	EE_CORTEX_MX_TIMER_1_B_ISR
 /* GPT CHANNEL 1 B ISR */
-ISR2(EE_CORTEX_MX_TIMER_1_B_ISR)
-{
-
-  register uint32 channel;
-
-  /* Channel Look-up */
-  for (
-    channel = 0;
-    (
-      (channel < Gpt_Global.ConfigPtr->GptNumberOfGptChannels) &&
-      (
-	Gpt_Global.ConfigPtr->GptChannels[channel].GptChannelId !=
-	GPT_CHANNEL_1_B
-      )
-    );
-    channel++
-  );
-
-  /* Notification Callback Call. */
-  if (
-    (channel < Gpt_Global.ConfigPtr->GptNumberOfGptChannels) &&
-    (Gpt_Global.ConfigPtr->GptChannels[channel].GptNotificationPtr != NULL_PTR)
-  ) (*(Gpt_Global.ConfigPtr->GptChannels[channel].GptNotificationPtr))();
-
-  /* GPTM Timer B Time-Out Interrupt Clear */
-  TIMER1_ICR_R |= GPT_TMRB_INT_ALL | GPT_TMR_INT_WUEIM | GPT_TMR_INT_RTCIM;
-
-  /* NVIC Clear Pending Interrupt */
-  /* NVIC_INT_CLR_PENDING(EE_CORTEX_MX_TIMER_1_B_INT_NUM); */
-
-}
-#endif	/* EE_CORTEX_MX_TIMER_1_B_ISR */
+ISR2(EE_CORTEX_MX_TIMER_1_B_ISR) { Gpt_Isr_B(GPT_CHANNEL_1_B); }
+#endif
 
 #ifdef	EE_CORTEX_MX_TIMER_2_A_ISR
 /* GPT CHANNEL 2 A or CHANNEL J 2 ISR */
 ISR2(EE_CORTEX_MX_TIMER_2_A_ISR)
 {
-
-  register uint32 channel;
-
-  /* Channel Look-up */
-  for (
-    channel = 0;
-    (
-      (channel < Gpt_Global.ConfigPtr->GptNumberOfGptChannels) &&
-      (
-	(
-	  Gpt_Global.ConfigPtr->GptChannels[channel].GptChannelId !=
-	  GPT_CHANNEL_2_A
-	) && (
-	  Gpt_Global.ConfigPtr->GptChannels[channel].GptChannelId !=
-	  GPT_CHANNEL_J_2
-	)
-      )
-    );
-    channel++
-  );
-
-  /* Notification Callback Call. */
-  if (
-    (channel < Gpt_Global.ConfigPtr->GptNumberOfGptChannels) &&
-    (Gpt_Global.ConfigPtr->GptChannels[channel].GptNotificationPtr != NULL_PTR)
-  ) (*(Gpt_Global.ConfigPtr->GptChannels[channel].GptNotificationPtr))();
-
-  /* GPTM Timer A Time-Out Interrupt Clear */
-  TIMER2_ICR_R |= GPT_TMRA_INT_ALL | GPT_TMR_INT_WUEIM | GPT_TMR_INT_RTCIM;
-
-  /* NVIC Clear Pending Interrupt */
-  /* NVIC_INT_CLR_PENDING(EE_CORTEX_MX_TIMER_2_A_INT_NUM); */
-
+  Gpt_Isr_A(GPT_CHANNEL_2_A, GPT_CHANNEL_J_2);
 }
-#endif	/* EE_CORTEX_MX_TIMER_2_A_ISR */
+#endif
 
 #ifdef	EE_CORTEX_MX_TIMER_2_B_ISR
 /* GPT CHANNEL 2 B ISR */
-ISR2(EE_CORTEX_MX_TIMER_2_B_ISR)
-{
-
-  register uint32 channel;
-
-  /* Channel Look-up */
-  for (
-    channel = 0;
-    (
-      (channel < Gpt_Global.ConfigPtr->GptNumberOfGptChannels) &&
-      (
-	Gpt_Global.ConfigPtr->GptChannels[channel].GptChannelId !=
-	GPT_CHANNEL_2_B
-      )
-    );
-    channel++
-  );
-
-  /* Notification Callback Call. */
-  if (
-    (channel < Gpt_Global.ConfigPtr->GptNumberOfGptChannels) &&
-    (Gpt_Global.ConfigPtr->GptChannels[channel].GptNotificationPtr != NULL_PTR)
-  ) (*(Gpt_Global.ConfigPtr->GptChannels[channel].GptNotificationPtr))();
-
-  /* GPTM Timer B Time-Out Interrupt Clear */
-  TIMER2_ICR_R |= GPT_TMRB_INT_ALL | GPT_TMR_INT_WUEIM | GPT_TMR_INT_RTCIM;
-
-  /* NVIC Clear Pending Interrupt */
-  /* NVIC_INT_CLR_PENDING(EE_CORTEX_MX_TIMER_2_B_INT_NUM); */
-
-}
-#endif	/* EE_CORTEX_MX_TIMER_2_B_ISR */
+ISR2(EE_CORTEX_MX_TIMER_2_B_ISR) { Gpt_Isr_B(GPT_CHANNEL_2_B); }
+#endif
 
 #ifdef	EE_CORTEX_MX_TIMER_3_A_ISR
 /* GPT CHANNEL 3 A or CHANNEL J 3 ISR */
 ISR2(EE_CORTEX_MX_TIMER_3_A_ISR)
 {
-
-  register uint32 channel;
-
-  /* Channel Look-up */
-  for (
-    channel = 0;
-    (
-      (channel < Gpt_Global.ConfigPtr->GptNumberOfGptChannels) &&
-      (
-	(
-	  Gpt_Global.ConfigPtr->GptChannels[channel].GptChannelId !=
-	  GPT_CHANNEL_3_A
-	) && (
-	  Gpt_Global.ConfigPtr->GptChannels[channel].GptChannelId !=
-	  GPT_CHANNEL_J_3
-      )
-    );
-    channel++
-  );
-
-  /* Notification Callback Call. */
-  if (
-    (channel < Gpt_Global.ConfigPtr->GptNumberOfGptChannels) &&
-    (Gpt_Global.ConfigPtr->GptChannels[channel].GptNotificationPtr != NULL_PTR)
-  ) (*(Gpt_Global.ConfigPtr->GptChannels[channel].GptNotificationPtr))();
-
-  /* GPTM Timer A Time-Out Interrupt Clear */
-  TIMER3_ICR_R |= GPT_TMRA_INT_ALL | GPT_TMR_INT_WUEIM | GPT_TMR_INT_RTCIM;
-
-  /* NVIC Clear Pending Interrupt */
-  /* NVIC_INT_CLR_PENDING(EE_CORTEX_MX_TIMER_3_A_INT_NUM); */
-
+  Gpt_Isr_A(GPT_CHANNEL_0_A, GPT_CHANNEL_J_0);
 }
-#endif	/* EE_CORTEX_MX_TIMER_3_A_ISR */
+#endif
 
 #ifdef	EE_CORTEX_MX_TIMER_3_B_ISR
 /* GPT CHANNEL 3 B ISR */
-ISR2(EE_CORTEX_MX_TIMER_3_B_ISR)
-{
-
-  register uint32 channel;
-
-  /* Channel Look-up */
-  for (
-    channel = 0;
-    (
-      (channel < Gpt_Global.ConfigPtr->GptNumberOfGptChannels) &&
-      (
-	Gpt_Global.ConfigPtr->GptChannels[channel].GptChannelId !=
-	GPT_CHANNEL_3_B
-      )
-    );
-    channel++
-  );
-
-  /* Notification Callback Call. */
-  if (
-    (channel < Gpt_Global.ConfigPtr->GptNumberOfGptChannels) &&
-    (Gpt_Global.ConfigPtr->GptChannels[channel].GptNotificationPtr != NULL_PTR)
-  ) (*(Gpt_Global.ConfigPtr->GptChannels[channel].GptNotificationPtr))();
-
-  /* GPTM Timer B Time-Out Interrupt Clear */
-  TIMER3_ICR_R |= GPT_TMRB_INT_ALL | GPT_TMR_INT_WUEIM | GPT_TMR_INT_RTCIM;
-
-  /* NVIC Clear Pending Interrupt */
-  /* NVIC_INT_CLR_PENDING(EE_CORTEX_MX_TIMER_3_B_INT_NUM); */
-
-}
-#endif	/* EE_CORTEX_MX_TIMER_3_B_ISR */
+ISR2(EE_CORTEX_MX_TIMER_3_B_ISR) { Gpt_Isr_B(GPT_CHANNEL_3_B); }
+#endif
 
 #ifdef	EE_CORTEX_MX_TIMER_4_A_ISR
 /* GPT CHANNEL 4 A or CHANNEL J 4 ISR */
 ISR2(EE_CORTEX_MX_TIMER_4_A_ISR)
 {
-
-  register uint32 channel;
-
-  /* Channel Look-up */
-  for (
-    channel = 0;
-    (
-      (channel < Gpt_Global.ConfigPtr->GptNumberOfGptChannels) &&
-      (
-	(
-	  Gpt_Global.ConfigPtr->GptChannels[channel].GptChannelId !=
-	  GPT_CHANNEL_4_A
-	) && (
-	  Gpt_Global.ConfigPtr->GptChannels[channel].GptChannelId !=
-	  GPT_CHANNEL_J_4
-      )
-    );
-    channel++
-  );
-
-  /* Notification Callback Call. */
-  if (
-    (channel < Gpt_Global.ConfigPtr->GptNumberOfGptChannels) &&
-    (Gpt_Global.ConfigPtr->GptChannels[channel].GptNotificationPtr != NULL_PTR)
-  ) (*(Gpt_Global.ConfigPtr->GptChannels[channel].GptNotificationPtr))();
-
-  /* GPTM Timer A Time-Out Interrupt Clear */
-  TIMER4_ICR_R |= GPT_TMRA_INT_ALL | GPT_TMR_INT_WUEIM | GPT_TMR_INT_RTCIM;
-
-  /* NVIC Clear Pending Interrupt */
-  /* NVIC_INT_CLR_PENDING(EE_CORTEX_MX_TIMER_4_A_INT_NUM); */
-
+  Gpt_Isr_A(GPT_CHANNEL_4_A, GPT_CHANNEL_J_4);
 }
-#endif	/* EE_CORTEX_MX_TIMER_4_A_ISR */
+#endif
 
 #ifdef	EE_CORTEX_MX_TIMER_4_B_ISR
 /* GPT CHANNEL 4 B ISR */
-ISR2(EE_CORTEX_MX_TIMER_4_B_ISR)
-{
-
-  register uint32 channel;
-
-  /* Channel Look-up */
-  for (
-    channel = 0;
-    (
-      (channel < Gpt_Global.ConfigPtr->GptNumberOfGptChannels) &&
-      (
-	Gpt_Global.ConfigPtr->GptChannels[channel].GptChannelId !=
-	GPT_CHANNEL_4_B
-      )
-    );
-    channel++
-  );
-
-  /* Notification Callback Call. */
-  if (
-    (channel < Gpt_Global.ConfigPtr->GptNumberOfGptChannels) &&
-    (Gpt_Global.ConfigPtr->GptChannels[channel].GptNotificationPtr != NULL_PTR)
-  ) (*(Gpt_Global.ConfigPtr->GptChannels[channel].GptNotificationPtr))();
-
-  /* GPTM Timer B Time-Out Interrupt Clear */
-  TIMER4_ICR_R |= GPT_TMRB_INT_ALL | GPT_TMR_INT_WUEIM | GPT_TMR_INT_RTCIM;
-
-  /* NVIC Clear Pending Interrupt */
-  /* NVIC_INT_CLR_PENDING(EE_CORTEX_MX_TIMER_4_B_INT_NUM); */
-
-}
-#endif	/* EE_CORTEX_MX_TIMER_4_B_ISR */
+ISR2(EE_CORTEX_MX_TIMER_4_B_ISR){ Gpt_Isr_B(GPT_CHANNEL_4_B); }
+#endif
 
 #ifdef	EE_CORTEX_MX_TIMER_5_A_ISR
 /* GPT CHANNEL 5 A or CHANNEL J 5 ISR */
 ISR2(EE_CORTEX_MX_TIMER_5_A_ISR)
 {
-
-  register uint32 channel;
-
-  /* Channel Look-up */
-  for (
-    channel = 0;
-    (
-      (channel < Gpt_Global.ConfigPtr->GptNumberOfGptChannels) &&
-      (
-	(
-	  Gpt_Global.ConfigPtr->GptChannels[channel].GptChannelId !=
-	  GPT_CHANNEL_5_A
-	) && (
-	  Gpt_Global.ConfigPtr->GptChannels[channel].GptChannelId !=
-	  GPT_CHANNEL_J_5
-      )
-    );
-    channel++
-  );
-
-  /* Notification Callback Call. */
-  if (
-    (channel < Gpt_Global.ConfigPtr->GptNumberOfGptChannels) &&
-    (Gpt_Global.ConfigPtr->GptChannels[channel].GptNotificationPtr != NULL_PTR)
-  ) (*(Gpt_Global.ConfigPtr->GptChannels[channel].GptNotificationPtr))();
-
-  /* GPTM Timer A Time-Out Interrupt Clear */
-  TIMER5_ICR_R |= GPT_TMRA_INT_ALL | GPT_TMR_INT_WUEIM | GPT_TMR_INT_RTCIM;
-
-  /* NVIC Clear Pending Interrupt */
-  /* NVIC_INT_CLR_PENDING(EE_CORTEX_MX_TIMER_5_A_INT_NUM); */
-
+  Gpt_Isr_A(GPT_CHANNEL_0_A, GPT_CHANNEL_J_0);
 }
-#endif	/* EE_CORTEX_MX_TIMER_5_A_ISR */
+#endif
 
 #ifdef	EE_CORTEX_MX_TIMER_5_B_ISR
 /* GPT CHANNEL 5 B ISR */
-ISR2(EE_CORTEX_MX_TIMER_5_B_ISR)
-{
-
-  register uint32 channel;
-
-  /* Channel Look-up */
-  for (
-    channel = 0;
-    (
-      (channel < Gpt_Global.ConfigPtr->GptNumberOfGptChannels) &&
-      (
-	Gpt_Global.ConfigPtr->GptChannels[channel].GptChannelId !=
-	GPT_CHANNEL_5_B
-      )
-    );
-    channel++
-  );
-
-  /* Notification Callback Call. */
-  if (
-    (channel < Gpt_Global.ConfigPtr->GptNumberOfGptChannels) &&
-    (Gpt_Global.ConfigPtr->GptChannels[channel].GptNotificationPtr != NULL_PTR)
-  ) (*(Gpt_Global.ConfigPtr->GptChannels[channel].GptNotificationPtr))();
-
-  /* GPTM Timer B Time-Out Interrupt Clear */
-  TIMER5_ICR_R |= GPT_TMRB_INT_ALL | GPT_TMR_INT_WUEIM | GPT_TMR_INT_RTCIM;
-
-  /* NVIC Clear Pending Interrupt */
-  /* NVIC_INT_CLR_PENDING(EE_CORTEX_MX_TIMER_5_B_INT_NUM); */
-
-}
-#endif	/* EE_CORTEX_MX_TIMER_5_B_ISR */
+ISR2(EE_CORTEX_MX_TIMER_5_B_ISR){ Gpt_Isr_B(GPT_CHANNEL_5_B); }
+#endif
 
 #ifdef	EE_CORTEX_MX_WIDE_TIMER_0_A_ISR
 /* GPT CHANNEL W 0 A or CHANNEL J W 0 ISR */
 ISR2(EE_CORTEX_MX_WIDE_TIMER_0_A_ISR)
 {
-
-  register uint32 channel;
-
-  /* Channel Look-up */
-  for (
-    channel = 0;
-    (
-      (channel < Gpt_Global.ConfigPtr->GptNumberOfGptChannels) &&
-      (
-	(
-	  Gpt_Global.ConfigPtr->GptChannels[channel].GptChannelId !=
-	  GPT_CHANNEL_W_0_A
-	) && (
-	  Gpt_Global.ConfigPtr->GptChannels[channel].GptChannelId !=
-	  GPT_CHANNEL_J_W_0
-	)
-      )
-    );
-    channel++
-  );
-
-  /* Notification Callback Call. */
-  if (
-    (channel < Gpt_Global.ConfigPtr->GptNumberOfGptChannels) &&
-    (Gpt_Global.ConfigPtr->GptChannels[channel].GptNotificationPtr != NULL_PTR)
-  ) (*(Gpt_Global.ConfigPtr->GptChannels[channel].GptNotificationPtr))();
-
-  /* GPTM Timer A Time-Out Interrupt Clear */
-  WTIMER0_ICR_R |= GPT_TMRA_INT_ALL | GPT_TMR_INT_WUEIM | GPT_TMR_INT_RTCIM;
-
-  /* NVIC Clear Pending Interrupt */
-  /* NVIC_INT_CLR_PENDING(EE_CORTEX_MX_WIDE_TIMER_0_A_INT_NUM); */
-
+  Gpt_Isr_A(GPT_CHANNEL_W_0_A, GPT_CHANNEL_J_W_0);
 }
-#endif	/* EE_CORTEX_MX_WIDE_TIMER_0_A_ISR */
+#endif
 
 #ifdef	EE_CORTEX_MX_WIDE_TIMER_0_B_ISR
 /* GPT CHANNEL W 0 B ISR */
-ISR2(EE_CORTEX_MX_WIDE_TIMER_0_B_ISR)
-{
-
-  register uint32 channel;
-
-  /* Channel Look-up */
-  for (
-    channel = 0;
-    (
-      (channel < Gpt_Global.ConfigPtr->GptNumberOfGptChannels) &&
-      (
-	Gpt_Global.ConfigPtr->GptChannels[channel].GptChannelId !=
-	GPT_CHANNEL_W_0_B
-      )
-    );
-    channel++
-  );
-
-  /* Notification Callback Call. */
-  if (
-    (channel < Gpt_Global.ConfigPtr->GptNumberOfGptChannels) &&
-    (Gpt_Global.ConfigPtr->GptChannels[channel].GptNotificationPtr != NULL_PTR)
-  ) (*(Gpt_Global.ConfigPtr->GptChannels[channel].GptNotificationPtr))();
-
-  /* GPTM Timer B Time-Out Interrupt Clear */
-  WTIMER0_ICR_R |= GPT_TMRB_INT_ALL | GPT_TMR_INT_WUEIM | GPT_TMR_INT_RTCIM;
-
-  /* NVIC Clear Pending Interrupt */
-  /* NVIC_INT_CLR_PENDING(EE_CORTEX_MX_WIDE_TIMER_0_B_INT_NUM); */
-
-}
-#endif	/* EE_CORTEX_MX_WIDE_TIMER_0_B_ISR */
+ISR2(EE_CORTEX_MX_WIDE_TIMER_0_B_ISR) { Gpt_Isr_B(GPT_CHANNEL_W_0_B); }
+#endif
 
 #ifdef	EE_CORTEX_MX_WIDE_TIMER_1_A_ISR
 /* GPT CHANNEL W 1 A or CHANNEL J W 1 ISR */
 ISR2(EE_CORTEX_MX_WIDE_TIMER_1_A_ISR)
 {
-
-  register uint32 channel;
-
-  /* Channel Look-up */
-  for (
-    channel = 0;
-    (
-      (channel < Gpt_Global.ConfigPtr->GptNumberOfGptChannels) &&
-      (
-	(
-	  Gpt_Global.ConfigPtr->GptChannels[channel].GptChannelId !=
-	  GPT_CHANNEL_W_1_A
-	) && (
-	  Gpt_Global.ConfigPtr->GptChannels[channel].GptChannelId !=
-	  GPT_CHANNEL_J_W_1
-	)
-      )
-    );
-    channel++
-  );
-
-  /* Notification Callback Call. */
-  if (
-    (channel < Gpt_Global.ConfigPtr->GptNumberOfGptChannels) &&
-    (Gpt_Global.ConfigPtr->GptChannels[channel].GptNotificationPtr != NULL_PTR)
-  ) (*(Gpt_Global.ConfigPtr->GptChannels[channel].GptNotificationPtr))();
-
-  /* GPTM Timer A Time-Out Interrupt Clear */
-  WTIMER1_ICR_R |= GPT_TMRA_INT_ALL | GPT_TMR_INT_WUEIM | GPT_TMR_INT_RTCIM;
-
-  /* NVIC Clear Pending Interrupt */
-  /* NVIC_INT_CLR_PENDING(EE_CORTEX_MX_WIDE_TIMER_1_A_INT_NUM); */
-
+  Gpt_Isr_A(GPT_CHANNEL_W_1_A, GPT_CHANNEL_J_W_1);
 }
-#endif	/* EE_CORTEX_MX_WIDE_TIMER_1_A_ISR */
+#endif
 
 #ifdef	EE_CORTEX_MX_WIDE_TIMER_1_B_ISR
 /* GPT CHANNEL W 1 B ISR */
-ISR2(EE_CORTEX_MX_WIDE_TIMER_1_B_ISR)
-{
-
-  register uint32 channel;
-
-  /* Channel Look-up */
-  for (
-    channel = 0;
-    (
-      (channel < Gpt_Global.ConfigPtr->GptNumberOfGptChannels) &&
-      (
-	Gpt_Global.ConfigPtr->GptChannels[channel].GptChannelId !=
-	GPT_CHANNEL_W_1_B
-      )
-    );
-    channel++
-  );
-
-  /* Notification Callback Call. */
-  if (
-    (channel < Gpt_Global.ConfigPtr->GptNumberOfGptChannels) &&
-    (Gpt_Global.ConfigPtr->GptChannels[channel].GptNotificationPtr != NULL_PTR)
-  ) (*(Gpt_Global.ConfigPtr->GptChannels[channel].GptNotificationPtr))();
-
-  /* GPTM Timer B Time-Out Interrupt Clear */
-  WTIMER1_ICR_R |= GPT_TMRB_INT_ALL | GPT_TMR_INT_WUEIM | GPT_TMR_INT_RTCIM;
-
-  /* NVIC Clear Pending Interrupt */
-  /* NVIC_INT_CLR_PENDING(EE_CORTEX_MX_WIDE_TIMER_1_B_INT_NUM); */
-
-}
-#endif	/* EE_CORTEX_MX_WIDE_TIMER_1_B_ISR */
+ISR2(EE_CORTEX_MX_WIDE_TIMER_1_B_ISR) { Gpt_Isr_B(GPT_CHANNEL_W_1_B); }
+#endif
 
 #ifdef	EE_CORTEX_MX_WIDE_TIMER_2_A_ISR
 /* GPT CHANNEL W 2 A or CHANNEL J W 2 ISR */
 ISR2(EE_CORTEX_MX_WIDE_TIMER_2_A_ISR)
 {
-
-  register uint32 channel;
-
-  /* Channel Look-up */
-  for (
-    channel = 0;
-    (
-      (channel < Gpt_Global.ConfigPtr->GptNumberOfGptChannels) &&
-      (
-	(
-	  Gpt_Global.ConfigPtr->GptChannels[channel].GptChannelId !=
-	  GPT_CHANNEL_W_2_A
-	) && (
-	  Gpt_Global.ConfigPtr->GptChannels[channel].GptChannelId !=
-	  GPT_CHANNEL_J_W_2
-	)
-      )
-    );
-    channel++
-  );
-
-  /* Notification Callback Call. */
-  if (
-    (channel < Gpt_Global.ConfigPtr->GptNumberOfGptChannels) &&
-    (Gpt_Global.ConfigPtr->GptChannels[channel].GptNotificationPtr != NULL_PTR)
-  ) (*(Gpt_Global.ConfigPtr->GptChannels[channel].GptNotificationPtr))();
-
-  /* GPTM Timer A Time-Out Interrupt Clear */
-  WTIMER2_ICR_R |= GPT_TMRA_INT_ALL | GPT_TMR_INT_WUEIM | GPT_TMR_INT_RTCIM;
-
-  /* NVIC Clear Pending Interrupt */
-  /* NVIC_INT_CLR_PENDING(EE_CORTEX_MX_WIDE_TIMER_2_A_INT_NUM); */
-
+  Gpt_Isr_A(GPT_CHANNEL_W_2_A, GPT_CHANNEL_J_W_2);
 }
-#endif	/* EE_CORTEX_MX_WIDE_TIMER_2_A_ISR */
+#endif
 
 #ifdef	EE_CORTEX_MX_WIDE_TIMER_2_B_ISR
 /* GPT CHANNEL W 2 B ISR */
-ISR2(EE_CORTEX_MX_WIDE_TIMER_2_B_ISR)
-{
-
-  register uint32 channel;
-
-  /* Channel Look-up */
-  for (
-    channel = 0;
-    (
-      (channel < Gpt_Global.ConfigPtr->GptNumberOfGptChannels) &&
-      (
-	Gpt_Global.ConfigPtr->GptChannels[channel].GptChannelId !=
-	GPT_CHANNEL_W_2_B
-      )
-    );
-    channel++
-  );
-
-  /* Notification Callback Call. */
-  if (
-    (channel < Gpt_Global.ConfigPtr->GptNumberOfGptChannels) &&
-    (Gpt_Global.ConfigPtr->GptChannels[channel].GptNotificationPtr != NULL_PTR)
-  ) (*(Gpt_Global.ConfigPtr->GptChannels[channel].GptNotificationPtr))();
-
-  /* GPTM Timer B Time-Out Interrupt Clear */
-  WTIMER2_ICR_R |= GPT_TMRB_INT_ALL | GPT_TMR_INT_WUEIM | GPT_TMR_INT_RTCIM;
-
-  /* NVIC Clear Pending Interrupt */
-  /* NVIC_INT_CLR_PENDING(EE_CORTEX_MX_WIDE_TIMER_2_B_INT_NUM); */
-
-}
-#endif	/* EE_CORTEX_MX_WIDE_TIMER_2_B_ISR */
+ISR2(EE_CORTEX_MX_WIDE_TIMER_2_B_ISR) { Gpt_Isr_B(GPT_CHANNEL_W_2_B); }
+#endif
 
 #ifdef	EE_CORTEX_MX_WIDE_TIMER_3_A_ISR
 /* GPT CHANNEL W 3 A or CHANNEL J W 3 ISR */
 ISR2(EE_CORTEX_MX_WIDE_TIMER_3_A_ISR)
 {
-
-  register uint32 channel;
-
-  /* Channel Look-up */
-  for (
-    channel = 0;
-    (
-      (channel < Gpt_Global.ConfigPtr->GptNumberOfGptChannels) &&
-      (
-	(
-	  Gpt_Global.ConfigPtr->GptChannels[channel].GptChannelId !=
-	  GPT_CHANNEL_W_3_A
-	) && (
-	  Gpt_Global.ConfigPtr->GptChannels[channel].GptChannelId !=
-	  GPT_CHANNEL_J_W_3
-      )
-    );
-    channel++
-  );
-
-  /* Notification Callback Call. */
-  if (
-    (channel < Gpt_Global.ConfigPtr->GptNumberOfGptChannels) &&
-    (Gpt_Global.ConfigPtr->GptChannels[channel].GptNotificationPtr != NULL_PTR)
-  ) (*(Gpt_Global.ConfigPtr->GptChannels[channel].GptNotificationPtr))();
-
-  /* GPTM Timer A Time-Out Interrupt Clear */
-  WTIMER3_ICR_R |= GPT_TMRA_INT_ALL | GPT_TMR_INT_WUEIM | GPT_TMR_INT_RTCIM;
-
-  /* NVIC Clear Pending Interrupt */
-  /* NVIC_INT_CLR_PENDING(EE_CORTEX_MX_WIDE_TIMER_3_A_INT_NUM); */
-
+  Gpt_Isr_A(GPT_CHANNEL_W_3_A, GPT_CHANNEL_J_W_3);
 }
-#endif	/* EE_CORTEX_MX_WIDE_TIMER_3_A_ISR */
+#endif
 
 #ifdef	EE_CORTEX_MX_WIDE_TIMER_3_B_ISR
 /* GPT CHANNEL W 3 B ISR */
-ISR2(EE_CORTEX_MX_WIDE_TIMER_3_B_ISR)
-{
-
-  register uint32 channel;
-
-  /* Channel Look-up */
-  for (
-    channel = 0;
-    (
-      (channel < Gpt_Global.ConfigPtr->GptNumberOfGptChannels) &&
-      (
-	Gpt_Global.ConfigPtr->GptChannels[channel].GptChannelId !=
-	GPT_CHANNEL_W_3_B
-      )
-    );
-    channel++
-  );
-
-  /* Notification Callback Call. */
-  if (
-    (channel < Gpt_Global.ConfigPtr->GptNumberOfGptChannels) &&
-    (Gpt_Global.ConfigPtr->GptChannels[channel].GptNotificationPtr != NULL_PTR)
-  ) (*(Gpt_Global.ConfigPtr->GptChannels[channel].GptNotificationPtr))();
-
-  /* GPTM Timer B Time-Out Interrupt Clear */
-  WTIMER3_ICR_R |= GPT_TMRB_INT_ALL | GPT_TMR_INT_WUEIM | GPT_TMR_INT_RTCIM;
-
-  /* NVIC Clear Pending Interrupt */
-  /* NVIC_INT_CLR_PENDING(EE_CORTEX_MX_WIDE_TIMER_3_B_INT_NUM); */
-
-}
-#endif	/* EE_CORTEX_MX_WIDE_TIMER_3_B_ISR */
+ISR2(EE_CORTEX_MX_WIDE_TIMER_3_B_ISR) { Gpt_Isr_B(GPT_CHANNEL_W_3_B); }
+#endif
 
 #ifdef	EE_CORTEX_MX_WIDE_TIMER_4_A_ISR
 /* GPT CHANNEL W 4 A or CHANNEL J W 4 ISR */
 ISR2(EE_CORTEX_MX_WIDE_TIMER_4_A_ISR)
 {
-
-  register uint32 channel;
-
-  /* Channel Look-up */
-  for (
-    channel = 0;
-    (
-      (channel < Gpt_Global.ConfigPtr->GptNumberOfGptChannels) &&
-      (
-	(
-	  Gpt_Global.ConfigPtr->GptChannels[channel].GptChannelId !=
-	  GPT_CHANNEL_W_4_A
-	) && (
-	  Gpt_Global.ConfigPtr->GptChannels[channel].GptChannelId !=
-	  GPT_CHANNEL_J_W_4
-      )
-    );
-    channel++
-  );
-
-  /* Notification Callback Call. */
-  if (
-    (channel < Gpt_Global.ConfigPtr->GptNumberOfGptChannels) &&
-    (Gpt_Global.ConfigPtr->GptChannels[channel].GptNotificationPtr != NULL_PTR)
-  ) (*(Gpt_Global.ConfigPtr->GptChannels[channel].GptNotificationPtr))();
-
-  /* GPTM Timer A Time-Out Interrupt Clear */
-  WTIMER4_ICR_R |= GPT_TMRA_INT_ALL | GPT_TMR_INT_WUEIM | GPT_TMR_INT_RTCIM;
-
-  /* NVIC Clear Pending Interrupt */
-  /* NVIC_INT_CLR_PENDING(EE_CORTEX_MX_WIDE_TIMER_4_A_INT_NUM); */
-
+  Gpt_Isr_A(GPT_CHANNEL_W_4_A, GPT_CHANNEL_J_W_4);
 }
-#endif	/* EE_CORTEX_MX_WIDE_TIMER_4_A_ISR */
+#endif
 
 #ifdef	EE_CORTEX_MX_WIDE_TIMER_4_B_ISR
 /* GPT CHANNEL W 4 B ISR */
-ISR2(EE_CORTEX_MX_WIDE_TIMER_4_B_ISR)
-{
-
-  register uint32 channel;
-
-  /* Channel Look-up */
-  for (
-    channel = 0;
-    (
-      (channel < Gpt_Global.ConfigPtr->GptNumberOfGptChannels) &&
-      (
-	Gpt_Global.ConfigPtr->GptChannels[channel].GptChannelId !=
-	GPT_CHANNEL_W_4_B
-      )
-    );
-    channel++
-  );
-
-  /* Notification Callback Call. */
-  if (
-    (channel < Gpt_Global.ConfigPtr->GptNumberOfGptChannels) &&
-    (Gpt_Global.ConfigPtr->GptChannels[channel].GptNotificationPtr != NULL_PTR)
-  ) (*(Gpt_Global.ConfigPtr->GptChannels[channel].GptNotificationPtr))();
-
-  /* GPTM Timer B Time-Out Interrupt Clear */
-  WTIMER4_ICR_R |= GPT_TMRB_INT_ALL | GPT_TMR_INT_WUEIM | GPT_TMR_INT_RTCIM;
-
-  /* NVIC Clear Pending Interrupt */
-  /* NVIC_INT_CLR_PENDING(EE_CORTEX_MX_WIDE_TIMER_4_B_INT_NUM); */
-
-}
-#endif	/* EE_CORTEX_MX_WIDE_TIMER_4_B_ISR */
+ISR2(EE_CORTEX_MX_WIDE_TIMER_4_B_ISR) { Gpt_Isr_B(GPT_CHANNEL_W_4_B); }
+#endif
 
 #ifdef	EE_CORTEX_MX_WIDE_TIMER_5_A_ISR
 /* GPT CHANNEL W 5 A or CHANNEL J W 5 ISR */
 ISR2(EE_CORTEX_MX_WIDE_TIMER_5_A_ISR)
 {
-
-  register uint32 channel;
-
-  /* Channel Look-up */
-  for (
-    channel = 0;
-    (
-      (channel < Gpt_Global.ConfigPtr->GptNumberOfGptChannels) &&
-      (
-	(
-	  Gpt_Global.ConfigPtr->GptChannels[channel].GptChannelId !=
-	  GPT_CHANNEL_W_5_A
-	) && (
-	  Gpt_Global.ConfigPtr->GptChannels[channel].GptChannelId !=
-	  GPT_CHANNEL_J_W_5
-      )
-    );
-    channel++
-  );
-
-  /* Notification Callback Call. */
-  if (
-    (channel < Gpt_Global.ConfigPtr->GptNumberOfGptChannels) &&
-    (Gpt_Global.ConfigPtr->GptChannels[channel].GptNotificationPtr != NULL_PTR)
-  ) (*(Gpt_Global.ConfigPtr->GptChannels[channel].GptNotificationPtr))();
-
-  /* GPTM Timer A Time-Out Interrupt Clear */
-  WTIMER5_ICR_R |= GPT_TMRA_INT_ALL | GPT_TMR_INT_WUEIM | GPT_TMR_INT_RTCIM;
-
-  /* NVIC Clear Pending Interrupt */
-  /* NVIC_INT_CLR_PENDING(EE_CORTEX_MX_WIDE_TIMER_5_A_INT_NUM); */
-
+  Gpt_Isr_A(GPT_CHANNEL_W_5_A, GPT_CHANNEL_J_W_5);
 }
-#endif	/* EE_CORTEX_MX_WIDE_TIMER_5_A_ISR */
+#endif
 
 #ifdef	EE_CORTEX_MX_WIDE_TIMER_5_B_ISR
 /* GPT CHANNEL W 5 B ISR */
-ISR2(EE_CORTEX_MX_WIDE_TIMER_5_B_ISR)
-{
-
-  register uint32 channel;
-
-  /* Channel Look-up */
-  for (
-    channel = 0;
-    (
-      (channel < Gpt_Global.ConfigPtr->GptNumberOfGptChannels) &&
-      (
-	Gpt_Global.ConfigPtr->GptChannels[channel].GptChannelId !=
-	GPT_CHANNEL_W_5_B
-      )
-    );
-    channel++
-  );
-
-  /* Notification Callback Call. */
-  if (
-    (channel < Gpt_Global.ConfigPtr->GptNumberOfGptChannels) &&
-    (Gpt_Global.ConfigPtr->GptChannels[channel].GptNotificationPtr != NULL_PTR)
-  ) (*(Gpt_Global.ConfigPtr->GptChannels[channel].GptNotificationPtr))();
-
-  /* GPTM Timer B Time-Out Interrupt Clear */
-  WTIMER5_ICR_R |= GPT_TMRB_INT_ALL | GPT_TMR_INT_WUEIM | GPT_TMR_INT_RTCIM;
-
-  /* NVIC Clear Pending Interrupt */
-  /* NVIC_INT_CLR_PENDING(EE_CORTEX_MX_WIDE_TIMER_5_B_INT_NUM); */
-
-}
-#endif	/* EE_CORTEX_MX_WIDE_TIMER_5_B_ISR */
-
+ISR2(EE_CORTEX_MX_WIDE_TIMER_5_B_ISR) { Gpt_Isr_B(GPT_CHANNEL_W_5_B); }
+#endif
 
 #endif	/* GPT_NOTIFICATIONS_API */
-

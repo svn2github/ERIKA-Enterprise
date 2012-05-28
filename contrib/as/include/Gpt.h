@@ -130,58 +130,6 @@
 
 #include "Std_Types.h"
 
-/*
- * GPT174:	Development error values are of type uint8. (BSW00304)
- *
- * The following errors shall be detectable by the GPT driver depending on its
- * build version (development / production).
- *
- * GPT345:	GPT_E_UNINIT (0x0A)
- * 		API service called without module initialization
- *
- * GPT346:	GPT_E_BUSY (0x0B)
- * 		API service when timer channel is still busy (running)
- *
- * GPT347:	GPT_E_ALREADY_INITIALIZED (0x0D) 
- * 		API parameter checking: called when already initialized
- *
- * GPT348:	GPT_E_PARAM_CHANNEL (0x14)
- * 		API parameter checking: invalid channel
- *
- * GPT349:	GPT_E_PARAM_VALUE (0x15)
- * 		API parameter checking: invalid value
- *
- * GPT350:	GPT_E_PARAM_POINTER (0x16)
- * 		API parameter checking: invalid pointer
- *
- * GPT351:	GPT_E_PARAM_MODE (0x1F)
- * 		API parameter checking: invalid mode
- *
- * GPT004:	Additional errors that are detected because of specific
- * 		implementation and/or specific hardware properties shall be
- * 		added in the GPT device specific implementation specification.
- * 		The classification and enumeration shall be compatible to the
- * 		errors listed above. (BSW00337)
- */
-#if ( GPT_DEV_ERROR_DETECT == STD_ON )
-/** GPT Module Not Initialized. */
-#define	GPT_E_UNINIT			0x0A
-/** Timer Channel Busy */
-#define	GPT_E_BUSY			0x0B
-/** GPT Module Already Initialized */
-#define	GPT_E_ALREADY_INITIALIZED	0x0D
-/** Invalid Channel. */
-#define	GPT_E_PARAM_CHANNEL		0x14
-/** Invalid Value. */
-#define	GPT_E_PARAM_VALUE		0x15
-/** Pointer is NULL_PTR. */
-#define	GPT_E_PARAM_POINTER		0x16
-/** Invalid Mode. */
-#define	GPT_E_PARAM_MODE		0x1F
-/** Invalid state transition from the current state. */
-#define	GPT_E_STATE_TRANSITION		0x20
-#endif
-
 /** @brief	Numeric ID of a GPT channel.
  *
  *  <b>GPT358</b>:	Numeric ID of a GPT channel. (<tt>BSW00305</tt>)
@@ -243,6 +191,58 @@ typedef void (*Gpt_Notification)(
  * GPT259:	Gpt.h shall include Gpt_Cfg.h for the API pre-compiler switches.
  */
 #include "Gpt_Cfg.h"
+
+/*
+ * GPT174:	Development error values are of type uint8. (BSW00304)
+ *
+ * The following errors shall be detectable by the GPT driver depending on its
+ * build version (development / production).
+ *
+ * GPT345:	GPT_E_UNINIT (0x0A)
+ * 		API service called without module initialization
+ *
+ * GPT346:	GPT_E_BUSY (0x0B)
+ * 		API service when timer channel is still busy (running)
+ *
+ * GPT347:	GPT_E_ALREADY_INITIALIZED (0x0D) 
+ * 		API parameter checking: called when already initialized
+ *
+ * GPT348:	GPT_E_PARAM_CHANNEL (0x14)
+ * 		API parameter checking: invalid channel
+ *
+ * GPT349:	GPT_E_PARAM_VALUE (0x15)
+ * 		API parameter checking: invalid value
+ *
+ * GPT350:	GPT_E_PARAM_POINTER (0x16)
+ * 		API parameter checking: invalid pointer
+ *
+ * GPT351:	GPT_E_PARAM_MODE (0x1F)
+ * 		API parameter checking: invalid mode
+ *
+ * GPT004:	Additional errors that are detected because of specific
+ * 		implementation and/or specific hardware properties shall be
+ * 		added in the GPT device specific implementation specification.
+ * 		The classification and enumeration shall be compatible to the
+ * 		errors listed above. (BSW00337)
+ */
+#if ( GPT_DEV_ERROR_DETECT == STD_ON )
+/** GPT Module Not Initialized. */
+#define	GPT_E_UNINIT			0x0A
+/** Timer Channel Busy */
+#define	GPT_E_BUSY			0x0B
+/** GPT Module Already Initialized */
+#define	GPT_E_ALREADY_INITIALIZED	0x0D
+/** Invalid Channel. */
+#define	GPT_E_PARAM_CHANNEL		0x14
+/** Invalid Value. */
+#define	GPT_E_PARAM_VALUE		0x15
+/** Pointer is NULL_PTR. */
+#define	GPT_E_PARAM_POINTER		0x16
+/** Invalid Mode. */
+#define	GPT_E_PARAM_MODE		0x1F
+/** Invalid state transition from the current state. */
+#define	GPT_E_STATE_TRANSITION		0x20
+#endif
 
 /** @brief	GPT Driver Configuration Parameters
  *
