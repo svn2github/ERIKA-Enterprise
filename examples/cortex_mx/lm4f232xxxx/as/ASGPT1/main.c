@@ -184,7 +184,7 @@ int main(void)
 
   Mcu_Init(MCU_CONFIG_DEFAULT_PTR);
 
-  Mcu_InitClock(MCU_CLOCK_MODE_PRIOSC_2_PLL);
+  Mcu_InitClock(MCU_CLOCK_MODE_PRIOSC_3_PLL);
   
   EE_assert(EE_ASSERT_CLOCK_INIT, TRUE, EE_ASSERT_VERSION);
 
