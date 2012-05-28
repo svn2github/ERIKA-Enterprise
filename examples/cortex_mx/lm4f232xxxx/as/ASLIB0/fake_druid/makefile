@@ -58,7 +58,6 @@ RTDRUID_CONFIGURATOR_NUMBER:=1276
 #
 ############################################################################
 EEOPT += DEBUG
-EEOPT += VERBOSE
 EEOPT += __ASSERT__
 EEOPT += __NO_APP__
 EEOPT += __ADD_LIBS__
@@ -66,6 +65,8 @@ EEOPT += __AUTOSAR_R4_0__
 EEOPT += __AS_MCU_DRIVER__
 EEOPT += __AS_PORT_DRIVER__
 EEOPT += __AS_DIO_DRIVER__
+EEOPT += __AS_SCI_DRIVER__
+EEOPT += __AS_GPT_DRIVER__
 
 
 ############################################################################
@@ -143,7 +144,7 @@ LIB_OPT  += __LIB_AUTOSAR__
 # Sources
 #
 ############################################################################
-APP_SRCS += eecfg.c Dio_Cfg.c Mcu_Cfg.c Port_Cfg.c
+APP_SRCS += eecfg.c Dio_Cfg.c Gpt_Cfg.c Mcu_Cfg.c Port_Cfg.c Sci_Cfg.c
 
 
 ############################################################################

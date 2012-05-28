@@ -85,7 +85,7 @@
  * User options
  *
  **************************************************************************/
-#define VERBOSE
+#define DEBUG
 #define __ASSERT__
 #define __NO_APP__
 #define __ADD_LIBS__
@@ -93,6 +93,8 @@
 #define __AS_MCU_DRIVER__
 #define __AS_PORT_DRIVER__
 #define __AS_DIO_DRIVER__
+#define __AS_SCI_DRIVER__
+#define __AS_GPT_DRIVER__
 
 /***************************************************************************
  *

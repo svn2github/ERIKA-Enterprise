@@ -46,6 +46,12 @@
 export OUTPUT_DIR = Debug
 
 # Check the environment and use reasonable defaults
+ifndef ERIKA_FILES
+export ERIKA_FILES := $(abspath ../../../../..)
+endif
+
+AS_CFG_PREFIX = $(ERIKA_FILES)/contrib/as/arch/stellaris/keil/config/
+
 ifndef RTDRUID_ECLIPSE_HOME
 RTDRUID_ECLIPSE_HOME = C:/Evidence/eclipse
 endif
@@ -54,22 +60,27 @@ ifndef RTDRUID_SCRIPT_DIR
 RTDRUID_SCRIPT_DIR=$(RTDRUID_ECLIPSE_HOME)/evidence
 endif
 
-RTDRUID_OUTPUT = $(addprefix $(OUTPUT_DIR)/, \
-	makefile\
-	eecfg.h\
-	eecfg.c\
-	Compiler_Cfg.h\
-	Mcu_Cfg.h\
-	Mcu_Cfg.c\
-	Port_Cfg.h\
-	Port_Cfg.c\
-	Dio_Cfg.h\
-	Dio_Cfg.c\
-)
+AS_CFG =	Compiler_Cfg.h\
+		Dio_Cfg.h\
+		Dio_Cfg.c\
+		Gpt_Cfg.h\
+		Gpt_Cfg.c\
+		Mcu_Cfg.h\
+		Mcu_Cfg.c\
+		Port_Cfg.h\
+		Port_Cfg.c\
+		Sci_Cfg.h\
+		Sci_Cfg.c
+
+FAKEDRUID_AS_CFG = $(addprefix $(AS_CFG_PREFIX), $(AS_CFG))
+
+RTDRUID_AS_OUTPUT = $(addprefix $(OUTPUT_DIR)/, $(AS_CFG))
+
+RTDRUID_OUTPUT = $(addprefix $(OUTPUT_DIR)/, makefile eecfg.h eecfg.c)
 
 .PHONY: all clean
 
-all: $(RTDRUID_OUTPUT)
+all: $(RTDRUID_OUTPUT) $(RTDRUID_AS_OUTPUT)
 	$(MAKE) -C $(OUTPUT_DIR) all
 
 clean:
@@ -91,12 +102,14 @@ $(RTDRUID_OUTPUT): conf.oil
 
 else
 # Simulate RT-Druid
-ifndef ERIKA_FILES
-ERIKA_FILES=../../../../
-endif
-
 $(RTDRUID_OUTPUT): $(OUTPUT_DIR)/% : fake_druid/%
 	@echo "Substituing RT-Druid in generating $@..."
 	@mkdir -p $(OUTPUT_DIR)
 	cp $< $@
 endif
+
+# Simulate RT-Druid for AUTOSAR
+$(RTDRUID_AS_OUTPUT): $(OUTPUT_DIR)/% : $(AS_CFG_PREFIX)%
+	@echo "Substituing RT-Druid in generating $@..."
+	@mkdir -p $(OUTPUT_DIR)
+	cp $< $@
