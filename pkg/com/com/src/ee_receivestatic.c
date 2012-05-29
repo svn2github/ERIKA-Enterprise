@@ -60,9 +60,10 @@ StatusType EE_com_ReceiveMessage(SymbolicName Message,
 #ifdef __EE_COM_EXTENDED__
   if ((Message > EE_COM_N_MSG) || 
       (EE_com_msg_ROM[Message] == NULL) || 
-      ((EE_com_msg_RAM[Message]->property & 0x8000) ==  0x0000) || 
-      ((EE_com_msg_RAM[Message]->property & 0x0100) == 
-       EE_COM_QUEUED) || 
+      ((EE_com_msg_RAM[Message]->property & 0x8000) ==  0x0000) ||
+#ifdef __COM_CCCA__  
+     ((EE_com_msg_RAM[Message]->property & 0x0100) == EE_COM_QUEUED) || 
+#endif
       (EE_com_msg_ROM[Message]->size == 0)) 
   {
     EE_com_sys2user.service_error = COMServiceId_ReceiveMessage;

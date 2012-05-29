@@ -130,4 +130,7 @@
 #endif
 
 
+#define COM_TRUE EE_COM_TRUE 
+#define COM_FALSE EE_COM_FALSE 
+
 #endif
