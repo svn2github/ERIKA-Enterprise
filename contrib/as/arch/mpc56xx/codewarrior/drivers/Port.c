@@ -399,7 +399,7 @@ void Port_Init(const Port_ConfigType * ConfigPtr)
     register const Port_PinModeType initial_mode = ConfigPtr->PortPins[pin].
       PortPinInitialMode;
     /* Pin Modes Array */
-    register const Port_PinModeConfType *supported_modes = ConfigPtr->
+    register const Port_PinModeConfType * const supported_modes = ConfigPtr->
       PortPins[pin].PortPinSupportedModes;
 
     /* Pin modes counter */
@@ -420,7 +420,7 @@ void Port_Init(const Port_ConfigType * ConfigPtr)
         } else if (ConfigPtr->PortPins[pin].
             PortPinLevelValue == PORT_PIN_LEVEL_HIGH) {
           /* Initialize Output Pin High Value */
-          SIU.GPDO[pin_id].R = 1U;
+          SIUL.GPDO[pin_id].R = 1U;
         }
       }
     }
@@ -458,8 +458,8 @@ void Port_SetPinDirection(Port_PinType Pin, Port_PinDirectionType Direction)
   EE_hal_resumeIRQ(f);
 
   /* Pin Look-up */
-  for (p = 0U; (p < cfgptr->PortNumberOfPortPins) &&
-      (cfgptr->PortPins[p].PortPinId != Pin); p++);
+  for ( p = 0U; ( p < cfgptr->PortNumberOfPortPins ) &&
+      ( cfgptr->PortPins[p].PortPinId != Pin ); ++p );
 
   AS_ASSERT(
     ( p < cfgptr->PortNumberOfPortPins ),
@@ -480,7 +480,6 @@ void Port_SetPinDirection(Port_PinType Pin, Port_PinDirectionType Direction)
 
   /* Ends Atomic Section. */
   EE_hal_resumeIRQ(f);
-
 }
 #endif
 
@@ -498,7 +497,7 @@ void Port_RefreshPortDirection(void)
     PORT_E_UNINIT
   );
 
-  for (pin = 0U; pin < Port_Global.ConfigPtr->PortNumberOfPortPins; ++pin)
+  for ( pin = 0U; pin < Port_Global.ConfigPtr->PortNumberOfPortPins; ++pin )
   {
     if (
       Port_Global.ConfigPtr->PortPins[pin].PortPinDirectionChangeable == FALSE
@@ -513,7 +512,7 @@ void Port_RefreshPortDirection(void)
  * Port_SetPinMode implementation
  */
 #if ( PORT_SET_PIN_MODE_API == STD_ON )
-void Port_SetPinMode(Port_PinType Pin, Port_PinModeType  Mode)
+void Port_SetPinMode(Port_PinType Pin, Port_PinModeType Mode)
 {
 
   register uint32     p, m;
@@ -539,8 +538,8 @@ void Port_SetPinMode(Port_PinType Pin, Port_PinModeType  Mode)
   );
 
   /* Pin Look-up */
-  for (p = 0U; ( p < cfgptr->PortNumberOfPortPins ) && 
-    ( cfgptr->PortPins[p].PortPinId != Pin ); ++p);
+  for ( p = 0U; ( p < cfgptr->PortNumberOfPortPins ) &&
+    ( cfgptr->PortPins[p].PortPinId != Pin ); ++p );
 
   AS_ASSERT(
     ( p < cfgptr->PortNumberOfPortPins ),
@@ -573,6 +572,7 @@ void Port_SetPinMode(Port_PinType Pin, Port_PinModeType  Mode)
   /* Change Port Pin Mode. (Pad Conf. Register value) */
   SIUL.PCR[cfgptr->PortPins[p].PortPinId].R = cfgptr->PortPins[p].
     PortPinSupportedModes[m].PortPinModePadConfig;
+
   /* If the new mode is an input mode maybe I need to configure Input
      Multiplexer */
   if( cfgptr->PortPins[p].PortPinDirection == PORT_PIN_IN ) {

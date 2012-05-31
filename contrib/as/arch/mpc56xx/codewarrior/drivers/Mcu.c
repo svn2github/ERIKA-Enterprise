@@ -107,14 +107,15 @@ static boolean EE_mcu_pll_source_changed(const Mcu_ClockSettingConfigType *
   for(i = 0U; i < clockSettingsPtr->McuAuxClockNumber ; ++i) {
     const Mcu_AuxClockIdType mcu_aux_id = auxClockSettingsPtr[i].McuAuxClockId;
     const uint32 pll_source_mask = auxClockSettingsPtr[i].McuAuxClockSource;
-    if ( mcu_aux_id == MCU_AUX_CLOCK_4 ) {
-      if( CGM.AC4_SC.R != pll_source_mask ) {
+
+    if( mcu_aux_id == MCU_AUX_CLOCK_3 ) {
+      if( CGM.AC3_SC.R != pll_source_mask ) {
         pll_changed = TRUE;
         break;
       }
     }
-    if( mcu_aux_id == MCU_AUX_CLOCK_3 ) {
-      if( CGM.AC3_SC.R != pll_source_mask ) {
+    if ( mcu_aux_id == MCU_AUX_CLOCK_4 ) {
+      if( CGM.AC4_SC.R != pll_source_mask ) {
         pll_changed = TRUE;
         break;
       }
@@ -522,7 +523,7 @@ Mcu_ResetType Mcu_GetResetReason(void)
     reset_reason = MCU_POWER_ON_RESET;
   } else if( RGM.FES.B.F_SOFT_FUNC || RGM.DES.B.F_SOFT_DEST ) {
     reset_reason = MCU_SW_RESET;
-  } else if( RGM.FES.B.F_SWT || RGM.FES.B.F_CWD) {
+  } else if( RGM.FES.B.F_SWT || RGM.FES.B.F_CWD ) {
     /* SWT or Core Watchdog reset */
     reset_reason = MCU_WATCHDOG_RESET;
   } else {

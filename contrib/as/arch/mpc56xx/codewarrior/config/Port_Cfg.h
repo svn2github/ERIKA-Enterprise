@@ -110,52 +110,26 @@
  *  Identifier for Port Pins as DIO Configuration.
  */
 
-#define PORT_CONFIG_DIO   0U
+#define PORT_CONFIG_DEMO   0U
+
 /** @brief  Port Pins DIO Configuration Pointer
  *
  *  Pointer of Port Pins as DIO Port Driver Configuration
  */
-#define PORT_CONFIG_DIO_PTR &Port_Config[PORT_CONFIG_DIO]
+#define PORT_CONFIG_DEMO_PTR &Port_Config[PORT_CONFIG_DEMO]
 
 
 /** @brief  Default Configuration
  *
  *  Identifier for Default Port Driver Configuration.
  */
-#define PORT_CONFIG_DEFAULT PORT_CONFIG_DIO
+#define PORT_CONFIG_DEFAULT PORT_CONFIG_DEMO
 
 /** @brief  Default Configuration Pointer
  *
  *  Pointer of Default Port Driver Configuration
  */
 #define PORT_CONFIG_DEFAULT_PTR &Port_Config[PORT_CONFIG_DEFAULT]
-
-
-/** @brief  Port Pins ADC Configuration
- *
- *  Identifier for Port Pins as SCI Configuration.
- */
-
-#define PORT_CONFIG_ADC   1U
-/** @brief  Port Pins SCI Configuration Pointer
- *
- *  Pointer of Port Pins as SCI Port Driver Configuration.
- */
-#define PORT_CONFIG_ADC_PTR &Port_Config[PORT_CONFIG_ADC]
-
-
-/** @brief  Port Pins PWM Configuration
- *
- *  Identifier for Port Pins as SCI Configuration.
- */
-
-#define PORT_CONFIG_PWM   2U
-/** @brief  Port Pins SCI Configuration Pointer
- *
- *  Pointer of Port Pins as SCI Port Driver Configuration.
- */
-#define PORT_CONFIG_PWM_PTR &Port_Config[PORT_CONFIG_PWM]
-
 
 /* Include Static Configuration (Type Declarations) */
 #include <Port_Cfg_internal.h>
