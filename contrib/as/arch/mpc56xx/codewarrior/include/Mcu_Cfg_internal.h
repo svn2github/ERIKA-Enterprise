@@ -231,6 +231,191 @@ typedef struct {
 
 } Mcu_RamSectorSettingConfType;
 
+/* Mcu_Ctu_TriggerGeneratorSubsistem.TriggerGeneratorSubunitInput
+   bitmasks */
+#define MCU_CTU_TGS_TI_EXT_SIGNAL_FALLING_EDGE    AS_32_BIT0
+#define MCU_CTU_TGS_TI_EXT_SIGNAL_RAISING_EDGE    AS_32_BIT1
+
+#define MCU_CTU_TGS_TI_E_TIMERS_2_FALLING_EDGE    AS_32_BIT2
+#define MCU_CTU_TGS_TI_E_TIMERS_2_RAISING_EDGE    AS_32_BIT3
+
+#define MCU_CTU_TGS_TI_E_TIMERS_1_FALLING_EDGE    AS_32_BIT4
+#define MCU_CTU_TGS_TI_E_TIMERS_1_RAISING_EDGE    AS_32_BIT5
+
+#define MCU_CTU_TGS_TI_REAL_PWM_3_FALLING_EDGE    AS_32_BIT6
+#define MCU_CTU_TGS_TI_REAL_PWM_3_RAISING_EDGE    AS_32_BIT7
+
+#define MCU_CTU_TGS_TI_REAL_PWM_2_FALLING_EDGE    AS_32_BIT8
+#define MCU_CTU_TGS_TI_REAL_PWM_2_RAISING_EDGE    AS_32_BIT9
+
+#define MCU_CTU_TGS_TI_REAL_PWM_1_FALLING_EDGE    AS_32_BIT10
+#define MCU_CTU_TGS_TI_REAL_PWM_1_RAISING_EDGE    AS_32_BIT11
+
+#define MCU_CTU_TGS_TI_REAL_PWM_0_FALLING_EDGE    AS_32_BIT12
+#define MCU_CTU_TGS_TI_REAL_PWM_0_RAISING_EDGE    AS_32_BIT13
+
+#define MCU_CTU_TGS_TI_EVEN_PWM_3_FALLING_EDGE    AS_32_BIT14
+#define MCU_CTU_TGS_TI_EVEN_PWM_3_RAISING_EDGE    AS_32_BIT15
+
+#define MCU_CTU_TGS_TI_EVEN_PWM_2_FALLING_EDGE    AS_32_BIT16
+#define MCU_CTU_TGS_TI_EVEN_PWM_2_RAISING_EDGE    AS_32_BIT17
+
+#define MCU_CTU_TGS_TI_EVEN_PWM_1_FALLING_EDGE    AS_32_BIT18
+#define MCU_CTU_TGS_TI_EVEN_PWM_1_RAISING_EDGE    AS_32_BIT19
+
+#define MCU_CTU_TGS_TI_EVEN_PWM_0_FALLING_EDGE    AS_32_BIT20
+#define MCU_CTU_TGS_TI_EVEN_PWM_0_RAISING_EDGE    AS_32_BIT21
+
+#define MCU_CTU_TGS_TI_ODD_PWM_3_FALLING_EDGE     AS_32_BIT22
+#define MCU_CTU_TGS_TI_ODD_PWM_3_RAISING_EDGE     AS_32_BIT23
+
+#define MCU_CTU_TGS_TI_ODD_PWM_2_FALLING_EDGE     AS_32_BIT24
+#define MCU_CTU_TGS_TI_ODD_PWM_2_RAISING_EDGE     AS_32_BIT25
+
+#define MCU_CTU_TGS_TI_ODD_PWM_1_FALLING_EDGE     AS_32_BIT26
+#define MCU_CTU_TGS_TI_ODD_PWM_1_RAISING_EDGE     AS_32_BIT27
+
+#define MCU_CTU_TGS_TI_ODD_PWM_0_FALLING_EDGE     AS_32_BIT28
+#define MCU_CTU_TGS_TI_ODD_PWM_0_RAISING_EDGE     AS_32_BIT29
+
+#define MCU_CTU_TGS_TI_PWM_RELOAD_FALLING_EDGE    AS_32_BIT30
+#define MCU_CTU_TGS_TI_PWM_RELOAD_RAISING_EDGE    AS_32_BIT31
+
+/*Mcu_Ctu_TriggerGeneratorSubsistem.TriggerGeneratorSubunitControl
+   bitmasks */
+#define   MCU_CTU_TGS_TC_TOGGLE_MODE              AS_16_BIT7
+#define   MCU_CTU_TGS_TC_PRESCALER(p)             ((0x0003U & (p)) << 6U)
+#define   MCU_CTU_TGS_TC_MASTER_RELOAD_SIGNAL(m)  ((0x001FU & (m)) << 1U)
+#define   MCU_CTU_TGS_TC_SUBUNIT_MODE_SEQUENTIAL  AS_16_BIT15
+#define   MCU_CTU_TGS_TC_SUBUNIT_MODE_TRIGGERED   0x0000U
+
+#define MCU_CTU_TGS_TRIGGER_COMPARE_OUT_OF_RANGE  0xFFFFU
+
+/** @brief CTU TGS Subsystem Configuration Parameters */
+typedef struct {
+  /* TGSISR register value */
+  const uint32 TriggerGeneratorSubsystemInput;
+  /* TGSCR register value */
+  const uint16 TriggerGeneratorSubsystemControl;
+  /* TGSCCR register value */
+  const uint16 TriggerGeneratorSubsystemCounterCompare;
+  /* TGSCRR register value */
+  const uint16 TriggerGeneratorSubsystemCounterReload;
+  /* T1CR register value */
+  const uint16 TriggerGeneratorSubsystemTrigger1Compare;
+  /* T2CR register value */
+  const uint16 TriggerGeneratorSubsystemTrigger2Compare;
+  /* T3CR register value */
+  const uint16 TriggerGeneratorSubsystemTrigger3Compare;
+  /* T4CR register value */
+  const uint16 TriggerGeneratorSubsystemTrigger4Compare;
+  /* T5CR register value */
+  const uint16 TriggerGeneratorSubsystemTrigger5Compare;
+  /* T6CR register value */
+  const uint16 TriggerGeneratorSubsystemTrigger6Compare;
+  /* T7CR register value */
+  const uint16 TriggerGeneratorSubsystemTrigger7Compare;
+  /* T8CR register value */
+  const uint16 TriggerGeneratorSubsystemTrigger8Compare;
+} Mcu_Ctu_TriggerGeneratorSubsistemConfigType;
+
+/* Mcu_Ctu_CommandListType bitmasks */
+#define MCU_CTU_CLR_INTERRUPT_REQUEST     AS_16_BIT0
+#define MCU_CTU_CLR_LAST_COMMAND          AS_16_BIT1
+#define MCU_CTU_CLR_CONVERSION_MODE       AS_16_BIT2
+#define MCU_CTU_CLR_FIFO(f)               ((0x000FU & (f)) << 10U)
+#define MCU_CTU_CLR_SELECTION_UNIT_ADC_B  AS_16_BIT10
+#define MCU_CTU_CLR_ADC_CHANNEL(c)        (0x000FU & (c))
+
+/** @brief Max number of commands for ADC */
+#define MCU_CTU_CLR_MAX_NUMBER_OF_COMMAND 24
+
+/** @brief CTU Command List Type */
+typedef uint6 Mcu_Ctu_CommandListType;
+
+typedef enum {
+  MCT_CTU_TRIGGER_0       = 0U,
+  MCT_CTU_TRIGGER_1       = 1U,
+  MCT_CTU_TRIGGER_2       = 2U,
+  MCT_CTU_TRIGGER_3       = 3U,
+  MCT_CTU_TRIGGER_4       = 4U,
+  MCT_CTU_TRIGGER_5       = 5U,
+  MCT_CTU_TRIGGER_6       = 6U,
+  MCT_CTU_TRIGGER_7       = 7U,
+  MCT_CTU_NUM_OF_TRIGGER  = 8U;
+} Mcu_Ctu_TriggerType;
+
+#define   MCU_CTU_THCR_TRIGGER_ENABLE             AS_8_BIT1
+#define   MCU_CTU_THCR_TRIGGER_EXT_OUT_ENABLE     AS_8_BIT2
+#define   MCU_CTU_THCR_TRIGGER_TIMER4_OUT_ENABLE  AS_8_BIT3
+#define   MCU_CTU_THCR_TRIGGER_TIMER3_OUT_ENABLE  AS_8_BIT4
+#define   MCU_CTU_THCR_TRIGGER_TIMER2_OUT_ENABLE  AS_8_BIT5
+#define   MCU_CTU_THCR_TRIGGER_TIMER1_OUT_ENABLE  AS_8_BIT6
+#define   MCU_CTU_THCR_TRIGGER_ADC_OUT_ENABLE     AS_8_BIT7
+
+typedef struct {
+  const Mcu_Ctu_TriggerType     McuCtuTriggerId;
+  const uint8                   McuCtuTriggerConf;
+} Mcu_Ctu_TriggerControlHandlerConfigType;
+
+/** McuCtuControlConf bitmasks */
+#define MCU_CTU_CR_TRIGGER_7_SOFT               AS_16_BIT0
+#define MCU_CTU_CR_TRIGGER_6_SOFT               AS_16_BIT1
+#define MCU_CTU_CR_TRIGGER_5_SOFT               AS_16_BIT2
+#define MCU_CTU_CR_TRIGGER_4_SOFT               AS_16_BIT3
+#define MCU_CTU_CR_TRIGGER_3_SOFT               AS_16_BIT4
+#define MCU_CTU_CR_TRIGGER_2_SOFT               AS_16_BIT5
+#define MCU_CTU_CR_TRIGGER_1_SOFT               AS_16_BIT6
+#define MCU_CTU_CR_TRIGGER_0_SOFT               AS_16_BIT7
+
+#define MCU_CTU_CR_STATE_MACHINE_RESET          AS_16_BIT8
+#define MCU_CTU_CR_OUTPUT_DISABLE               AS_16_BIT9
+
+#define MCU_CTU_CR_DIGITAL_FILTER_ENABLED       AS_16_BIT10
+#define MCU_CTU_CR_CLEAR_GENERAL_RELOAD         AS_16_BIT11
+#define MCU_CTU_CR_FLAG_GENERAL_RELOAD          AS_16_BIT12
+
+#define MCU_CTU_CR_MSR_SOFT                     AS_16_BIT13
+#define MCU_CTU_CR_GENERAL_RELOAD_ENABLED       AS_16_BIT14
+
+#define MCU_CTU_CR_TGS_IS_RELOAD_ENABLED        AS_16_BIT15
+
+/** McuCtuInterruptDmaConf bitmasks */
+#define MCU_CTU_IR_TRIGGER_7_ENABLED            AS_16_BIT0
+#define MCU_CTU_IR_TRIGGER_6_ENABLED            AS_16_BIT1
+#define MCU_CTU_IR_TRIGGER_5_ENABLED            AS_16_BIT2
+#define MCU_CTU_IR_TRIGGER_4_ENABLED            AS_16_BIT3
+#define MCU_CTU_IR_TRIGGER_3_ENABLED            AS_16_BIT4
+#define MCU_CTU_IR_TRIGGER_2_ENABLED            AS_16_BIT5
+#define MCU_CTU_IR_TRIGGER_1_ENABLED            AS_16_BIT6
+#define MCU_CTU_IR_TRIGGER_0_ENABLED            AS_16_BIT7
+
+#define MCU_CTU_IR_SAFE_COUNTER_B_ENABLED       AS_16_BIT10
+#define MCU_CTU_IR_SAFE_COUNTER_A_ENABLED       AS_16_BIT11
+
+#define MCU_CTU_IR_DMA_DE                       AS_16_BIT12
+#define MCU_CTU_IR_MSR_DMA_ENABLED              AS_16_BIT13
+#define MCU_CTU_IR_MSR_INTERRUPT_ENABLED        AS_16_BIT14
+#define MCU_CTU_IR_ERROR_INTERRUPT_ENABLED      AS_16_BIT15
+
+/** @brief CTU Configuration Parameters */
+typedef struct {
+  /* CTUCR register value */
+  const uint32    McuCtuControlConf;
+  /* CTUIR register value */
+  const uint32    McuCtuInterruptDmaConf;
+  /* CTU TGS Configuration */
+  Mcu_Ctu_TriggerGeneratorSubsistemConfigType const * const
+      McuCtuTgsConf;
+  /* THCR configuration */
+  const uint32    McuCtuNumberOfTriggerHandler;
+  Mcu_Ctu_TriggerControlHandlerConfigType const * const
+      McuTcuTriggerHandlersConf;
+  const uint32 McuCtuNumberOfCommand;
+  Mcu_Ctu_CommandListType const * const McuCtuCommandList;
+
+} Mcu_CrossTriggeringUnitSettingConfigType;
+
 /** @brief  MCU Configuration Parameters
  *
  *  <b>MCU131:</b> The structure <tt>Mcu_ConfigType</tt> is an external data
@@ -348,6 +533,9 @@ typedef struct {
    *  @see <b>MCU030</b> for more information on RAM sec-tor settings.
    */
   Mcu_RamSectorSettingConfType const * const McuRamSectorSettingConf;
+
+  /** @brief  CTU Configuration Parameters */
+  Mcu_CrossTriggeringUnitSettingConfigType const * const McuCtuSettingConf;
 
   /** @brief  External Oscillator Frequency parameter */
   const uint32 McuExternalOscillatorFrequency;

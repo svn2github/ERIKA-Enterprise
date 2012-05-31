@@ -144,6 +144,11 @@
 /** @brief Used to set a GPIO register */
 #define SIUL_SET_GET_GPDO(num, value) (SIUL_GET_GET_GPDO((num) = (value))
 
+
+/* CTU Registers Macros */
+#define CTU_BASE_ADDR       0xFFE0C000U
+#define CTU_THCR_BASE       (CTU_BASE_ADDR + 0x00000024U)
+
 /*
  * FUNCTIONS
  */

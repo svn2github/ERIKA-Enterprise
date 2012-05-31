@@ -51,6 +51,7 @@
 #define MCU_AR_RELEASE_MINOR_VERSION  0
 
 #include "Mcu.h"
+#include "Utility.h"
 
 /*
  * MCU110:  For included (external) header files:
@@ -226,6 +227,70 @@ Mcu_ModeSettingConfigType const Mcu_ModeSettingConfigData[] =
   }
 };
 
+/* CTU Trigger Generation Subsystem Configuration */
+const Mcu_Ctu_TriggerGeneratorSubsistemConfigType McuCtuTgsDemo {
+  /* TGSISR register value */
+  MCU_CTU_TGS_TI_REAL_PWM_3_FALLING_EDGE,
+  /* TGSCR register value */
+  MCU_CTU_TGS_TC_SUBUNIT_MODE_TRIGGERED,
+  /* TGSCCR register value */
+  0x0BB8U,
+  /* TGSCRR register value */
+  0U,
+  /* T1CR register value */
+  0U,
+  /* T2CR register value */
+  MCU_CTU_TGS_TRIGGER_COMPARE_OUT_OF_RANGE
+  /* T3CR register value */
+  MCU_CTU_TGS_TRIGGER_COMPARE_OUT_OF_RANGE,
+  /* T4CR register value */
+  MCU_CTU_TGS_TRIGGER_COMPARE_OUT_OF_RANGE,
+  /* T5CR register value */
+  MCU_CTU_TGS_TRIGGER_COMPARE_OUT_OF_RANGE,
+  /* T6CR register value */
+  MCU_CTU_TGS_TRIGGER_COMPARE_OUT_OF_RANGE,
+  /* T7CR register value */
+  MCU_CTU_TGS_TRIGGER_COMPARE_OUT_OF_RANGE,
+  /* T8CR register value */
+  MCU_CTU_TGS_TRIGGER_COMPARE_OUT_OF_RANGE
+};
+
+/* Demo Trigger Handler Configuration List */
+const Mcu_Ctu_TriggerControlHandlerConfigType McuCtuDemoTriggerList = {
+  MCT_CTU_TRIGGER_0,
+  MCU_CTU_THCR_TRIGGER_ENABLE | MCU_CTU_THCR_TRIGGER_EXT_OUT_ENABLE |
+    MCU_CTU_THCR_TRIGGER_ADC_OUT_ENABLE
+}
+
+/* Demo Command List */
+const Mcu_Ctu_CommandListType McuCtuDemoCommandList[] {
+  MCU_CTU_CLR_ADC_CHANNEL(0U),
+  MCU_CTU_CLR_ADC_CHANNEL(1U),
+  MCU_CTU_CLR_ADC_CHANNEL(2U),
+  MCU_CTU_CLR_ADC_CHANNEL(3U),
+  MCU_CTU_CLR_ADC_CHANNEL(4U),
+  MCU_CTU_CLR_ADC_CHANNEL(5U),
+  MCU_CTU_CLR_ADC_CHANNEL(6U),
+  MCU_CTU_CLR_ADC_CHANNEL(7U) | MCU_CTU_CLR_INTERRUPT_REQUEST,
+  MCU_CTU_CLR_LAST_COMMAND
+};
+
+/** @brief CTU Configuration */
+const Mcu_CrossTriggeringUnitSettingConfigType McuCtuDemo {
+  /* CTUCR register value */
+  MCU_CTU_IR_MSR_DMA_ENABLED | MCU_CTU_IR_ERROR_INTERRUPT_ENABLED,
+  /* CTUIR register value */
+  MCU_CTU_IR_TRIGGER_0_ENABLED,
+  /* TGS Configuration */
+  &McuCtuTgsDemo;
+  /* CTU Trigger Cofiguration List */
+  ARRAY_LENGHT(McuCtuDemoTriggerList);
+  &McuCtuDemoTriggerList[0];
+  /* CTU ADC Command List */
+  ARRAY_LENGHT(McuCtuDemoCommandList);
+  &McuCtuDemoCommandList[0];
+};
+
 /*
  * MCU129_Conf: This container contains the configuration (parameters) for the
  *    RAM Sector setting.
@@ -303,6 +368,9 @@ const Mcu_ConfigType Mcu_Config[] =
     &Mcu_ModeSettingConfigData[0],
     /* (Mcu_RamSectorSettingConfType const * const) */
     &Mcu_RamSectorSettingConfigData[0],
+    /* (Mcu_CrossTriggeringUnitSettingConfigType const * const
+        McuCtuSettingConf) */
+    &McuCtuDemo;
     /* McuExternalOscillatorFrequency */
     40000000U
   }
