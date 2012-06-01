@@ -169,7 +169,7 @@ LIBEESRCS += $(EE_SRCS)
 
 #if only lib is needed (__NO_APP__) and we want the lib configurated add eecfg.c
 #to LIBEESRCS
-ifeq ($(or $(call iseeopt, __NO_APP__), $(call iseeopt, EE_CONFIGURATED_LIB)), yes)
+ifeq ($(and $(call iseeopt, __NO_APP__), $(call iseeopt, EE_CONFIGURATED_LIB)), yes)
 LIBEESRCS += eecfg.c
 endif
 

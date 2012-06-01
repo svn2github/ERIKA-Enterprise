@@ -331,7 +331,7 @@ typedef struct {
 #define MCU_CTU_CLR_MAX_NUMBER_OF_COMMAND 24
 
 /** @brief CTU Command List Type */
-typedef uint6 Mcu_Ctu_CommandListType;
+typedef uint16 Mcu_Ctu_CommandListType;
 
 typedef enum {
   MCT_CTU_TRIGGER_0       = 0U,
@@ -342,7 +342,7 @@ typedef enum {
   MCT_CTU_TRIGGER_5       = 5U,
   MCT_CTU_TRIGGER_6       = 6U,
   MCT_CTU_TRIGGER_7       = 7U,
-  MCT_CTU_NUM_OF_TRIGGER  = 8U;
+  MCT_CTU_NUM_OF_TRIGGER  = 8U
 } Mcu_Ctu_TriggerType;
 
 #define   MCU_CTU_THCR_TRIGGER_ENABLE             AS_8_BIT1
@@ -400,8 +400,6 @@ typedef struct {
 
 /** @brief CTU Configuration Parameters */
 typedef struct {
-  /* CTUCR register value */
-  const uint32    McuCtuControlConf;
   /* CTUIR register value */
   const uint32    McuCtuInterruptDmaConf;
   /* CTU TGS Configuration */
@@ -541,5 +539,12 @@ typedef struct {
   const uint32 McuExternalOscillatorFrequency;
 
 } Mcu_ConfigType;
+
+
+/* Implementation Custom Functions */
+#define MCU_INITCTU_SERVICE_ID MCU_LAST_SERVICE_ID + 1U
+#if ( MCU_CTU_INIT == STD_ON )
+void Mcu_CtuInit(void);
+#endif
 
 #endif  /* MCU_CFG_H */

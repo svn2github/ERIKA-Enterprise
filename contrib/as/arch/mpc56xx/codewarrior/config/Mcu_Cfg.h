@@ -116,6 +116,9 @@
  */
 #define MCU_VERSION_INFO_API  STD_ON
 
+/** @brief  CTU Initialization Custom Function */
+#define MCU_CTU_INIT STD_ON
+
 /* Add this define to introduce wait states in RAM from a treeshold and beyond */
 /* #define MCU_CLOCK_MAX_FREQ_WITHOUT_RAM_WAIT 120000000UL/
 
@@ -174,6 +177,13 @@
 #define MCU_CLOCK_OUTPUT_ENABLE     1U
 /* Clock Output Prescaler Factor */
 #define MCU_CLOCK_PRESCALER_FACTOR  2U /* Prescaler 4x */
+
+/* Demo Configuration Macros*/
+
+/* Demo Configuration ID */
+#define MCU_CONFIG_DEMO 0U
+/* Demo Configuration Pointer */
+#define MCU_CONFIG_DEMO_PTR &Mcu_Config[MCU_CONFIG_DEMO]
 
 /* Include Static Configuration (Type Declarations) */
 #include <Mcu_Cfg_internal.h>

@@ -276,12 +276,31 @@ static void EE_mcu_clear_non_critical_fault(void)
 
 
 /* CTU Initialization */
+#if ( MCU_CTU_INIT == STD_ON )
 #define EE_MCU_CTU_IFR_RESET_IRQ 0x0FFFU
-static void EE_mcu_ctu_init(Mcu_CrossTriggeringUnitSettingConfigType const *
-  const mcu_ctu_conf)
+void Mcu_CtuInit(void)
 {
+  /* Flags for Critical Section */
+  register EE_FREG f;
+  
+  /* Configure CTU */
+  Mcu_CrossTriggeringUnitSettingConfigType const * const
+    mcu_ctu_conf = Mcu_Global.config->McuCtuSettingConf;
+
+  /* Start Critical Section */
+  f = EE_hal_suspendIRQ();
+
+  /* Unizializated Condition Check */
+  if((Mcu_Global.init == FALSE) || (Mcu_Global.mode == MCU_MODE_INVALID)) {
+    AS_ERROR(MCU_INITCTU_SERVICE_ID, MCU_E_UNINIT);
+
+    /* End Critical Section */
+    EE_hal_resumeIRQ(f);
+    return;
+  }
+
   /* Clear CTUIFR */
-  CTU.CTUIFR.R = EE_MCU_CTU_IFR_RESET;
+  CTU.CTUIFR.R = EE_MCU_CTU_IFR_RESET_IRQ;
 
   /* Trigger Generation Subsystem Configuration */
   /* TGS Input Selection */
@@ -309,15 +328,15 @@ static void EE_mcu_ctu_init(Mcu_CrossTriggeringUnitSettingConfigType const *
   CTU.TCR[5].R  = mcu_ctu_conf->McuCtuTgsConf->
     TriggerGeneratorSubsystemTrigger6Compare;
   CTU.TCR[6].R  = mcu_ctu_conf->McuCtuTgsConf->
-    TriggerGeneratorSubsystemTrigger7Compare
+    TriggerGeneratorSubsystemTrigger7Compare;
   CTU.TCR[7].R  = mcu_ctu_conf->McuCtuTgsConf->
     TriggerGeneratorSubsystemTrigger8Compare;
 
   /* CTU ADC Command List */
   {
     uint32 i;
-    for(i = 0U; mcu_ctu_conf->McuCtuNumberOfCommand; ++i) {
-      CTU_0.CLR[i].R = mcu_ctu_conf->McuCtuCommandList[i];
+    for(i = 0U; i < mcu_ctu_conf->McuCtuNumberOfCommand; ++i) {
+      CTU.CLR[i].R = mcu_ctu_conf->McuCtuCommandList[i];
     }
   }
 
@@ -325,12 +344,12 @@ static void EE_mcu_ctu_init(Mcu_CrossTriggeringUnitSettingConfigType const *
   {
     uint32 i, thcr1 = 0U, thcr2 = 0U;
     /* THCRx can be write only as word */
-    for(i = 0U; mcu_ctu_conf->McuCtuNumberOfTriggerHandler; ++i)
+    for(i = 0U; i < mcu_ctu_conf->McuCtuNumberOfTriggerHandler; ++i)
     {
         const Mcu_Ctu_TriggerType trigger_id = mcu_ctu_conf->
           McuTcuTriggerHandlersConf[i].McuCtuTriggerId;
 
-        if(mcu_ctu_conf <= MCT_CTU_TRIGGER_3) {
+        if(trigger_id <= MCT_CTU_TRIGGER_3) {
           thcr1 |= mcu_ctu_conf->McuTcuTriggerHandlersConf[i].
             McuCtuTriggerConf << (sizeof(uint8) * trigger_id);
         } else {
@@ -344,9 +363,14 @@ static void EE_mcu_ctu_init(Mcu_CrossTriggeringUnitSettingConfigType const *
 
   /* Global CTU configuration */
   CTU.CTUIR.R = mcu_ctu_conf->McuCtuInterruptDmaConf;
-  CTU.CTUCR.R = mcu_ctu_conf->McuCtuControlConf;
-}
+  CTU.CTUCR.R = MCU_CTU_CR_GENERAL_RELOAD_ENABLED |
+    MCU_CTU_CR_TGS_IS_RELOAD_ENABLED;
 
+  /* End Critical Section */
+  EE_hal_resumeIRQ(f);
+  return;
+}
+#endif
 /*
  * Mcu_Init implementation.
  */
@@ -383,9 +407,6 @@ void Mcu_Init(const Mcu_ConfigType * ConfigPtr)
 
   /* Configure RESET */
   ME_SET_MC(MCU_MODE_ID_RESET, ConfigPtr->McuResetSetting);
-
-  /* Configure CTU */
-  EE_mcu_ctu_init(ConfigPtr->McuCtuSettingConf);
 
   /* Now the MCU is initializated */
   Mcu_Global.init = TRUE;

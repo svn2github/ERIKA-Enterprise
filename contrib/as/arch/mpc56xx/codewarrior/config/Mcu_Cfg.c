@@ -199,7 +199,7 @@ Mcu_ModeSettingConfigType const Mcu_ModeSettingConfigData[] =
     MCU_MODE_INIT,      /* Application Init Mode */
     MCU_MODE_ID_DRUN,   /* DRUN hardware ID */
     MCU_MODE_MAIN_VOLTAGE_REG_ON | MCU_MODE_RESERVED_NORM | MCU_MODE_FLAON_NORM
-      | MCU_MODE_XOSC_ON | MCU_MODE_IRCOSC_ON | MCU_MODE_SYSCLK_RC,
+      | MCU_MODE_XOSC_ON | MCU_MODE_IRCOSC_ON | MCU_MODE_SYSCLK_RC
     /* 0x001F0030U */   /* DRUN cfg: 16MHzIRCON,OSC0ON,PLL0OFF,syclk=16MHzIRC */
   },
   {
@@ -207,7 +207,7 @@ Mcu_ModeSettingConfigType const Mcu_ModeSettingConfigData[] =
     MCU_MODE_ID_RUN0,     /* RUN0 hardware ID */
     MCU_MODE_MAIN_VOLTAGE_REG_ON | MCU_MODE_RESERVED_NORM | MCU_MODE_FLAON_NORM
       | MCU_MODE_PLL0_ON | MCU_MODE_XOSC_ON | MCU_MODE_IRCOSC_ON |
-      MCU_MODE_SYSCLK_FMPLL,
+      MCU_MODE_SYSCLK_FMPLL
     /* 0x001F0074U */     /* RUN0 cfg: 16MHzIRCON,OSC0ON,PLL0ON,syclk=PLL0 */
   },
   {
@@ -215,22 +215,22 @@ Mcu_ModeSettingConfigType const Mcu_ModeSettingConfigData[] =
     MCU_MODE_ID_DRUN,     /* DRUN hardware ID */
     MCU_MODE_MAIN_VOLTAGE_REG_ON | MCU_MODE_RESERVED_NORM | MCU_MODE_FLAON_NORM
       | MCU_MODE_PLL0_ON | MCU_MODE_XOSC_ON | MCU_MODE_IRCOSC_ON |
-      MCU_MODE_SYSCLK_FMPLL,
+      MCU_MODE_SYSCLK_FMPLL
     /* 0x001F0074U */     /* DRUN cfg: 16MHzIRCON,OSC0ON,PLL0ON,syclk=PLL0 */
   },
   {
     MCU_MODE_SAFE,    /* Application Safe Mode (for recovering from errors) */
     MCU_MODE_ID_SAFE, /* SAFE hardware ID */
     MCU_MODE_MAIN_VOLTAGE_REG_ON | MCU_MODE_RESERVED_NORM | MCU_MODE_FLAON_NORM
-      | MCU_MODE_IRCOSC_ON | MCU_MODE_SYSCLK_RC,
+      | MCU_MODE_IRCOSC_ON | MCU_MODE_SYSCLK_RC
     /* 0x001F0010U */ /* SAFE cfg: 16MHzIRCON,OSC0OFF,PLL0OFF,syclk=16MHzIRC */
   }
 };
 
 /* CTU Trigger Generation Subsystem Configuration */
-const Mcu_Ctu_TriggerGeneratorSubsistemConfigType McuCtuTgsDemo {
+const Mcu_Ctu_TriggerGeneratorSubsistemConfigType McuCtuTgsDemo = {
   /* TGSISR register value */
-  MCU_CTU_TGS_TI_REAL_PWM_3_FALLING_EDGE,
+  MCU_CTU_TGS_TI_EVEN_PWM_0_RAISING_EDGE,
   /* TGSCR register value */
   MCU_CTU_TGS_TC_SUBUNIT_MODE_TRIGGERED,
   /* TGSCCR register value */
@@ -240,7 +240,7 @@ const Mcu_Ctu_TriggerGeneratorSubsistemConfigType McuCtuTgsDemo {
   /* T1CR register value */
   0U,
   /* T2CR register value */
-  MCU_CTU_TGS_TRIGGER_COMPARE_OUT_OF_RANGE
+  MCU_CTU_TGS_TRIGGER_COMPARE_OUT_OF_RANGE,
   /* T3CR register value */
   MCU_CTU_TGS_TRIGGER_COMPARE_OUT_OF_RANGE,
   /* T4CR register value */
@@ -256,14 +256,16 @@ const Mcu_Ctu_TriggerGeneratorSubsistemConfigType McuCtuTgsDemo {
 };
 
 /* Demo Trigger Handler Configuration List */
-const Mcu_Ctu_TriggerControlHandlerConfigType McuCtuDemoTriggerList = {
-  MCT_CTU_TRIGGER_0,
-  MCU_CTU_THCR_TRIGGER_ENABLE | MCU_CTU_THCR_TRIGGER_EXT_OUT_ENABLE |
-    MCU_CTU_THCR_TRIGGER_ADC_OUT_ENABLE
-}
+const Mcu_Ctu_TriggerControlHandlerConfigType McuCtuDemoTriggerList[] = {
+  {
+    MCT_CTU_TRIGGER_0,
+    MCU_CTU_THCR_TRIGGER_ENABLE | MCU_CTU_THCR_TRIGGER_EXT_OUT_ENABLE |
+      MCU_CTU_THCR_TRIGGER_ADC_OUT_ENABLE
+  }
+};
 
 /* Demo Command List */
-const Mcu_Ctu_CommandListType McuCtuDemoCommandList[] {
+const Mcu_Ctu_CommandListType McuCtuDemoCommandList[] = {
   MCU_CTU_CLR_ADC_CHANNEL(0U),
   MCU_CTU_CLR_ADC_CHANNEL(1U),
   MCU_CTU_CLR_ADC_CHANNEL(2U),
@@ -276,19 +278,17 @@ const Mcu_Ctu_CommandListType McuCtuDemoCommandList[] {
 };
 
 /** @brief CTU Configuration */
-const Mcu_CrossTriggeringUnitSettingConfigType McuCtuDemo {
-  /* CTUCR register value */
-  MCU_CTU_IR_MSR_DMA_ENABLED | MCU_CTU_IR_ERROR_INTERRUPT_ENABLED,
+const Mcu_CrossTriggeringUnitSettingConfigType McuCtuDemo = {
   /* CTUIR register value */
   MCU_CTU_IR_TRIGGER_0_ENABLED,
   /* TGS Configuration */
-  &McuCtuTgsDemo;
+  &McuCtuTgsDemo,
   /* CTU Trigger Cofiguration List */
-  ARRAY_LENGHT(McuCtuDemoTriggerList);
-  &McuCtuDemoTriggerList[0];
+  ARRAY_LENGTH(McuCtuDemoTriggerList),
+  &McuCtuDemoTriggerList[0],
   /* CTU ADC Command List */
-  ARRAY_LENGHT(McuCtuDemoCommandList);
-  &McuCtuDemoCommandList[0];
+  ARRAY_LENGTH(McuCtuDemoCommandList),
+  &McuCtuDemoCommandList[0]
 };
 
 /*
@@ -303,7 +303,7 @@ Mcu_RamSectorSettingConfType const Mcu_RamSectorSettingConfigData[] =
     0U,           /* McuRamDefaultValue       */
     0x40000000U,  /* McuRamSectionBaseAddress */
     /* 64K (0x00008000U) of RAM in Lock Step Mode */
-    0x00008000U,  /* McuRamSectionSize        */
+    0x00008000U   /* McuRamSectionSize        */
   }
 };
 
@@ -370,7 +370,7 @@ const Mcu_ConfigType Mcu_Config[] =
     &Mcu_RamSectorSettingConfigData[0],
     /* (Mcu_CrossTriggeringUnitSettingConfigType const * const
         McuCtuSettingConf) */
-    &McuCtuDemo;
+    &McuCtuDemo,
     /* McuExternalOscillatorFrequency */
     40000000U
   }

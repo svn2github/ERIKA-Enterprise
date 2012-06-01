@@ -255,6 +255,7 @@ extern const Mcu_ConfigType Mcu_Config[];
 #define	MCU_SETMODE_SERVICE_ID			0x08
 #define	MCU_GETVERSIONINFO_SERVICE_ID		0x09
 #define	MCU_GETRAMSTATE_SERVICE_ID		0x0A
+#define	MCU_LAST_SERVICE_ID		MCU_GETRAMSTATE_SERVICE_ID
 #endif
 
 /** @brief	MCU Driver Initialization
