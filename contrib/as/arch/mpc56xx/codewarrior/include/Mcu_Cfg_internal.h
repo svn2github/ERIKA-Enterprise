@@ -543,8 +543,12 @@ typedef struct {
 
 /* Implementation Custom Functions */
 #define MCU_INITCTU_SERVICE_ID MCU_LAST_SERVICE_ID + 1U
-#if ( MCU_CTU_INIT == STD_ON )
-void Mcu_CtuInit(void);
+#if ( MCU_CTU_SUPPORT == STD_ON )
+void Mcu_InitCtu(void);
+/* Global CTU configuration (GRE + TGSISR_RE). TGS Input Selection Reload
+   Enable CTU */
+#define  Mcu_ReloadCtu() (CTU.CTUCR.R |= MCU_CTU_CR_GENERAL_RELOAD_ENABLED |\
+    MCU_CTU_CR_TGS_IS_RELOAD_ENABLED)
 #endif
 
 #endif  /* MCU_CFG_H */

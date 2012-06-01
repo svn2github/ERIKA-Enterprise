@@ -276,9 +276,9 @@ static void EE_mcu_clear_non_critical_fault(void)
 
 
 /* CTU Initialization */
-#if ( MCU_CTU_INIT == STD_ON )
+#if ( MCU_CTU_SUPPORT == STD_ON )
 #define EE_MCU_CTU_IFR_RESET_IRQ 0x0FFFU
-void Mcu_CtuInit(void)
+void Mcu_InitCtu(void)
 {
   /* Flags for Critical Section */
   register EE_FREG f;
@@ -301,6 +301,10 @@ void Mcu_CtuInit(void)
 
   /* Clear CTUIFR */
   CTU.CTUIFR.R = EE_MCU_CTU_IFR_RESET_IRQ;
+
+  /* Clear General Reload Enable (GRE) (So I can write double buffered
+     registers) */
+  CTU.CTUCR.R |= MCU_CTU_CR_CLEAR_GENERAL_RELOAD;
 
   /* Trigger Generation Subsystem Configuration */
   /* TGS Input Selection */
@@ -361,10 +365,8 @@ void Mcu_CtuInit(void)
     CTU.THCR2.R = thcr2;
   }
 
-  /* Global CTU configuration */
+  /* Enable CTU Interrupts */
   CTU.CTUIR.R = mcu_ctu_conf->McuCtuInterruptDmaConf;
-  CTU.CTUCR.R = MCU_CTU_CR_GENERAL_RELOAD_ENABLED |
-    MCU_CTU_CR_TGS_IS_RELOAD_ENABLED;
 
   /* End Critical Section */
   EE_hal_resumeIRQ(f);
@@ -538,12 +540,11 @@ Std_ReturnType Mcu_InitClock(Mcu_ClockType ClockSetting)
   /* E.G. we want fsys = 120 MHz. fvco = fsys*odf = 120 MHz * 4 = 480 MHz */
   /* fsys =  (40 * 96)/(8 * 4) = 120 MHz */
 
-  /* For system clock configure PLL 0 */
-  /* TODO Check if EE_ENABLE_PROG_PLL_SWITCHING flag works */
-  CGM.FMPLL[0].CR.R = (clockSettingsPtr->McuPll0Configuration /* |
-    EE_ENABLE_PROG_PLL_SWITCHING */ );
-  CGM.FMPLL[1].CR.R = (clockSettingsPtr->McuPll1Configuration /* |
-    EE_ENABLE_PROG_PLL_SWITCHING */ );
+  /* For system clock configure PLLs */
+  CGM.FMPLL[0].CR.R = (clockSettingsPtr->McuPll0Configuration |
+    EE_ENABLE_PROG_PLL_SWITCHING );
+  CGM.FMPLL[1].CR.R = (clockSettingsPtr->McuPll1Configuration |
+    EE_ENABLE_PROG_PLL_SWITCHING );
 
 
   /* Configure Mode to change Clock frequency */

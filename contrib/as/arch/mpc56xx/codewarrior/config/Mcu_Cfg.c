@@ -134,10 +134,8 @@ Mcu_ClockSettingConfigType const Mcu_ClockSettingConfigData[] =
   {
     MCU_CLOCK_EXT_REF_120MHZ,     /* Clock Settings Identifier          */
     1.2E8,                        /* McuClockReferencePointFrequency    */
-    MCU_FMPLL_IDF(4U) | MCU_FMPLL_ODF(4U) | MCU_FMPLL_NDIV(48U) |
-    MCU_FMPLL_DEFAULT,
-    MCU_FMPLL_IDF(4U) | MCU_FMPLL_ODF(4U) | MCU_FMPLL_NDIV(48U) |
-    MCU_FMPLL_DEFAULT,
+    MCU_FMPLL_IDF(4U) | MCU_FMPLL_ODF(4U) | MCU_FMPLL_NDIV(48U),
+    MCU_FMPLL_IDF(2U) | MCU_FMPLL_ODF(4U) | MCU_FMPLL_NDIV(64U),
     /* 0x0D300001U, */            /* 40 MHz xtal: Set PLL0 to 120 MHz */
                                   /* IDF = 3: divide Fxtal by 4 (IDF+1) */
                                   /* NDIV = 48: multiply by 48 (NDIV) */
@@ -176,10 +174,8 @@ Mcu_ClockSettingConfigType const Mcu_ClockSettingConfigData[] =
   {
     MCU_CLOCK_DEMO_EXT_120MHZ,    /* Clock Settings Identifier          */
     1.2E8,                        /* McuClockReferencePointFrequency    */
-    MCU_FMPLL_IDF(6U) | MCU_FMPLL_ODF(4U) | MCU_FMPLL_NDIV(72U) |
-    MCU_FMPLL_DEFAULT,
-    MCU_FMPLL_IDF(6U) | MCU_FMPLL_ODF(4U) | MCU_FMPLL_NDIV(72U) |
-    MCU_FMPLL_DEFAULT,
+    MCU_FMPLL_IDF(6U) | MCU_FMPLL_ODF(4U) | MCU_FMPLL_NDIV(72U),
+    MCU_FMPLL_IDF(2U) | MCU_FMPLL_ODF(4U) | MCU_FMPLL_NDIV(64U),
     3U,                           /* Auxiliary Clock Settings */
     &Mcu_DemoAuxClockSetting[0]
   }

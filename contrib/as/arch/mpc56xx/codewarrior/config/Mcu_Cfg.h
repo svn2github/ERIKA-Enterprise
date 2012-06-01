@@ -116,8 +116,8 @@
  */
 #define MCU_VERSION_INFO_API  STD_ON
 
-/** @brief  CTU Initialization Custom Function */
-#define MCU_CTU_INIT STD_ON
+/** @brief  Enable Custom CTU Support Functions */
+#define MCU_CTU_SUPPORT STD_ON
 
 /* Add this define to introduce wait states in RAM from a treeshold and beyond */
 /* #define MCU_CLOCK_MAX_FREQ_WITHOUT_RAM_WAIT 120000000UL/
