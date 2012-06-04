@@ -344,7 +344,7 @@ void __ALWAYS_INLINE__ EE_com_notify_ok(const struct EE_com_msg_ROM_TYPE *msg_RO
 #ifndef __COM_CCCA__
     /* Flag set */
     case EE_COM_MSG_FLOK:
-    *(FlagValue *)msg_ROM->notify_call = EE_COM_TRUE; 
+    *(FlagValue *)msg_ROM->notify_call = (FlagValue)EE_COM_TRUE; 
     break;  
 #endif
     

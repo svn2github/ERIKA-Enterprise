@@ -58,14 +58,14 @@ StatusType EE_com_GetMessageStatus(SymbolicName Message)
 	register EE_FREG flags;
 #endif
     
-#ifdef EE_COM_EXTENDED
+#ifdef __EE_COM_EXTENDED__
   if ((Message > EE_COM_N_MSG) || 
-      ((EE_COM_msg_RAM[Message]->property & 0x8100) != 0x8000)) 
+      ((EE_com_msg_RAM[Message]->property & 0x8100) != 0x8000)) 
   {
     EE_com_sys2user.service_error = COMServiceId_GetMessageStatus;
 #ifdef __COM_HAS_ERRORHOOK__  
     flags = EE_hal_begin_nested_primitive();   
-      COMError_GetMessageStatus_Message = Message;
+      EE_com_ErrorHook.proc_param.OtherCOM.Message = Message;
       if (!EE_com_ErrorHook.already_executed)
       {        
         EE_com_ErrorHook.already_executed = EE_COM_TRUE;
@@ -78,11 +78,28 @@ StatusType EE_com_GetMessageStatus(SymbolicName Message)
   }
 #endif
 
-  GetResource(EE_MUTEX_COM_MSG);
+	GetResource(EE_MUTEX_COM_MSG);
   
-  ret_code = EE_com_msg_RAM[Message]->property & EE_MASK_MSG_STAT;
+	ret_code = EE_com_msg_RAM[Message]->property & EE_MASK_MSG_STAT;
       
-  ReleaseResource(EE_MUTEX_COM_MSG);
+	ReleaseResource(EE_MUTEX_COM_MSG);
+  
+#ifdef __EE_COM_EXTENDED__  
+	if (ret_code != E_OK) {
+		EE_com_sys2user.service_error = COMServiceId_GetMessageStatus;
+#ifdef __COM_HAS_ERRORHOOK__    
+		flags = EE_hal_begin_nested_primitive(); 
+		EE_com_ErrorHook.proc_param.OtherCOM.Message = Message;
+		if (!EE_com_ErrorHook.already_executed) {        
+			EE_com_ErrorHook.already_executed = EE_COM_TRUE;
+			COMErrorHook(ret_code);    
+			EE_com_ErrorHook.already_executed = EE_COM_FALSE;
+		}
+		EE_hal_end_nested_primitive(flags);  
+#endif
+	}
+#endif	
+  
   return (ret_code);
 }  
 #endif

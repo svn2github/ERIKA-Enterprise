@@ -135,14 +135,18 @@ StatusType EE_com_ReceiveMessage(SymbolicName Message,
    
 #ifndef __COM_CCCA__
   if ((msg_RAM->property & EE_MASK_MSG_N_OK) == EE_COM_F_OK)  
-    *(FlagValue *)msg_ROM->notify_call = EE_COM_FALSE;
+    *(FlagValue *)msg_ROM->notify_call = (FlagValue) EE_COM_FALSE;
 #ifdef __COM_CCC1__
   if ((msg_RAM->property & EE_MASK_MSG_N_ER) == EE_COM_F_ER) 
-    *(FlagValue *)msg_ROM->error_call = EE_COM_FALSE;
+    *(FlagValue *)msg_ROM->error_call = (FlagValue) EE_COM_FALSE;
 #endif
 #endif
 /*GF:   if (ret_code != E_OK)*/
-  if (ret_code !=  E_COM_NOMSG && ret_code != E_OK)
+#ifdef __COM_CCCA__
+	if (ret_code !=  E_COM_NOMSG && ret_code != E_OK)
+#else
+	if (ret_code != E_OK)
+#endif 
   {
     EE_com_sys2user.service_error = COMServiceId_ReceiveMessage;
 #ifdef __COM_HAS_ERRORHOOK__    

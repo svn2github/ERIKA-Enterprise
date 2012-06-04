@@ -299,7 +299,7 @@ struct EE_com_msg_ROM_TYPE {
   EE_UINT8 ipdu_pos;
   EE_UINT8 (*filter)(void *, void *, EE_UINT8, void *);
   void *filter_data;
-  void *notify_call;
+  const void *notify_call;
   void *error_call;
   void *data;
   StatusType (*cpu_callout)(void);
