@@ -77,7 +77,7 @@ SECTIONS
 			*(.sbss2)
 		 }
 
-		. = ALIGN(8);
+		. = ALIGN(16);
 		ee_load_ram = . ;
 	} > iflash
 
@@ -86,6 +86,12 @@ SECTIONS
 		.data LOAD(ee_load_ram): { }
 
 		.sram_text LOAD(ee_load_ram + ADDR(.sram_text) - ADDR(.data)): { }
+
+		/* For code not running in VLE mode */
+		ee_faster_loop LOAD(ee_load_ram + ADDR(ee_faster_loop) - ADDR(.data)): { }
+
+		/* For code running in VLE mode */
+		ee_faster_loop_vle (VLECODE) LOAD(ee_load_ram + ADDR(ee_faster_loop_vle) - ADDR(.data)): { }
 
 		.sdata LOAD(ee_load_ram + ADDR(.sdata) - ADDR(.data)): { }
 
