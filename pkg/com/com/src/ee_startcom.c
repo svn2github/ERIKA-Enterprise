@@ -73,7 +73,9 @@ extern const EE_UINT64 EE_com_msg_init_val[EE_COM_N_MSG];
 StatusType EE_com_StartCOM(COMApplicationModeType Mode)
 {   
   StatusType ret_code;
+#if defined(__COM_CCC0__) || defined(__COM_CCC1__)
   EE_UINT8 j;
+#endif
   SymbolicName i;
 #ifdef __COM_HAS_ERRORHOOK__  	
   register EE_FREG flags;
