@@ -276,6 +276,16 @@ const EE_FADDR EE_syscall_table[EE_SYSCALL_NR] = {
         1U		 /* thread App2Task */
     };
 
+    /* max number activations of a Task */
+    const EE_TYPEPRIO EE_th_rnact_max[EE_MAX_TASK] = {
+        1U,		 /* thread MainTask */
+        1U,		 /* thread TrustedTask1 */
+        1U,		 /* thread App1Init */
+        1U,		 /* thread App1Task */
+        1U,		 /* thread App2Init */
+        1U		 /* thread App2Task */
+    };
+
     EE_TYPEPRIO EE_rq_link[EE_MAX_TASK] =
         { 4U, 0U, 1U, 2U, 1U, 3U};
 

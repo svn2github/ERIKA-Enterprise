@@ -46,7 +46,7 @@
 SECTIONS
 {
 	GROUP : {
-		.bam_data : { }
+		.boot_data : { }
 		.boot : { }
 	} > boot
 

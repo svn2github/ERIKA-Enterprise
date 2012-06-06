@@ -48,11 +48,17 @@
 BINDIR =
 
 # Compilers
+ifdef PPC_DIAB_BASEDIR
+EE_LINK ?= $(PPC_DIAB_BASEDIR)/dld
+EE_ASM  ?= $(PPC_DIAB_BASEDIR)/das
+EE_CC   ?= $(PPC_DIAB_BASEDIR)/dcc
+EE_AR   ?= $(PPC_DIAB_BASEDIR)/dar
+else
 EE_LINK ?= dld
-EE_ASM ?= das
-EE_CC ?= dcc
-EE_AR ?= dar
-
+EE_ASM  ?= das
+EE_CC   ?= dcc
+EE_AR   ?= dar
+endif
 
 OPT_INCLUDE = $(foreach d,$(INCLUDE_PATH),$(addprefix -I,$(call native_path,$d)))
 
