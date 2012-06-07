@@ -64,10 +64,6 @@ else
  PIC30_EXTENSION := elf
 endif
 
-
-# Prefix for GCC tools (prefix for deps below)
-PIC30_GCCPREFIX := pic30-$(PIC30_OFF)-
-
 # Bin install directories of the various compilers
 # BINDIR_C30   - Microchip C30 binary directory (includes both ASM30 and C30)
 # BINDIR_ASM30 - Microchip ASM30 installed with MPLAB IDE
@@ -127,12 +123,20 @@ BINDIR_CC       := $(BINDIR_C30)
 BINDIR_BINUTILS := $(BINDIR_C30)
 endif
 
-ifeq ($(PIC30_USE_EEGCC_DEPS), Y)
-BINDIR_DEP := $(BINDIR_EVI)
+ifeq ($(wildcard $(PIC30_GCCDIR)/bin/xc16*),)
+# Prefix for GCC tools (prefix for deps below)
+PIC30_GCCPREFIX := pic30-$(PIC30_OFF)-
 PIC30_DEPPREFIX := pic30-$(PIC30_OFF)-
 else
+# Prefix for GCC tools (prefix for deps below)
+PIC30_GCCPREFIX := $(PIC30_OFF)-
+PIC30_DEPPREFIX := $(PIC30_OFF)-
+endif
+
+ifeq ($(PIC30_USE_EEGCC_DEPS), Y)
+BINDIR_DEP := $(BINDIR_EVI)
+else
 BINDIR_DEP := $(BINDIR_C30)
-PIC30_DEPPREFIX := pic30-$(PIC30_OFF)-
 endif
 
 ifndef EE_LINK

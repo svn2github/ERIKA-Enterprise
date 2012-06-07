@@ -67,6 +67,12 @@ else
 unix_path = $(shell cygpath -u -a '$1')
 endif
 
+ifeq ($(findstring Linux, $(MYOS)), Linux)
+unix_relpath = $1
+else
+unix_relpath = $(shell cygpath -u '$1')
+endif
+
 ifeq ($(call iseeopt, __RTD_CYGWIN__), yes)
 short_native_path = $(shell cygpath -w -s $1 | sed -e 's/\\$$//' -e 's/\\/\\\\/g')
 else

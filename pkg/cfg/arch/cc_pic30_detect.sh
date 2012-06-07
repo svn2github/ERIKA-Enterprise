@@ -39,15 +39,15 @@ fi
 if [ $1 = "GCC" ]; then
     printf "Looking for the MPLAB C30 directory...\n" 1>&2
 
-    if test -d "${PROGRAMFILES}\Microchip\MPLAB C30 Suite"; then
-	printf "...Using ${PROGRAMFILES}\\Microchip\\MPLAB C30 Suite\n" 1>&2
-	cygpath `cygpath -ms "${PROGRAMFILES}\Microchip\MPLAB C30 Suite"`
+    if test -d "${PROGRAMFILES}\Microchip\xc16\v1.00"; then
+	echo "...Using ${PROGRAMFILES}\\Microchip\\xc16\\v1.00" 1>&2
+	cygpath `cygpath -ms "${PROGRAMFILES}\Microchip\xc16\v1.00"`
 	exit
     fi
 
-    if test -d "${PROGRAMFILES}\Microchip\mplabc30\v3.25"; then
-	echo "...Using ${PROGRAMFILES}\\Microchip\\mplabc30\\v3.25" 1>&2
-	cygpath `cygpath -ms "${PROGRAMFILES}\Microchip\mplabc30\v3.25"`
+    if test -d "${PROGRAMFILES}\Microchip\mplabc30\v3.31"; then
+	echo "...Using ${PROGRAMFILES}\\Microchip\\mplabc30\\v3.31" 1>&2
+	cygpath `cygpath -ms "${PROGRAMFILES}\Microchip\mplabc30\v3.31"`
 	exit
     fi
 
@@ -57,9 +57,9 @@ if [ $1 = "GCC" ]; then
 	exit
     fi
 
-    if test -d "${PROGRAMFILES}\Microchip\mplabc30\v3.31"; then
-	echo "...Using ${PROGRAMFILES}\\Microchip\\mplabc30\\v3.31" 1>&2
-	cygpath `cygpath -ms "${PROGRAMFILES}\Microchip\mplabc30\v3.31"`
+    if test -d "${PROGRAMFILES}\Microchip\MPLAB C30 Suite"; then
+	printf "...Using ${PROGRAMFILES}\\Microchip\\MPLAB C30 Suite\n" 1>&2
+	cygpath `cygpath -ms "${PROGRAMFILES}\Microchip\MPLAB C30 Suite"`
 	exit
     fi
 
