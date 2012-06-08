@@ -214,6 +214,7 @@ static void Gpt_EnableChannel(
 
 }
 
+#if ( GPT_DEINIT_API == STD_ON )
 /*
  * Gpt Disable Channel
  *
@@ -285,6 +286,7 @@ static void Gpt_ResetChannel(
   }
 
 }
+#endif
 
 /*
  * Gpt Channel Initialization.
@@ -743,6 +745,8 @@ Gpt_ValueType Gpt_GetTimeRemaining(
     GPT_E_PARAM_CHANNEL,
     GPT_HW_TMR_EMPTY_VALUE
   );
+
+  flags = EE_hal_suspendIRQ();
 
   VALIDATE_IRQ_W_RV(
     Gpt_Global.Init,
