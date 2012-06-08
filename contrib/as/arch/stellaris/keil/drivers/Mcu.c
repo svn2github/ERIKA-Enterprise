@@ -455,9 +455,11 @@ Mcu_PllStatusType Mcu_GetPllStatus(
 
   register EE_FREG	flags;
 
+#if ( MCU_NO_PLL == STD_OFF )
   register uint32 rccsrc;	/* Run-Mode Clock Configuration Source	      */
   register uint32 rcc2src;	/* Run-Mode Clock Configuration 2 Source      */
   register uint32 pllstat;	/* PLL Status.				      */
+#endif
 
   register Mcu_PllStatusType	ret;
 
