@@ -39,8 +39,7 @@
  * ###*E*### */
 
 /*
- * Simple project to test Mcu_GetPllStatus() and Mcu_DistributePllClock()
- * services.
+ * Simple project to estimate the MCU driver MINIMAL services.
  *
  * Author: 2011  Giuseppe Serano
  */

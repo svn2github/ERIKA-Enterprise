@@ -39,8 +39,7 @@
  * ###*E*### */
 
 /*
- * Simple project to test Mcu_GetPllStatus() and Mcu_DistributePllClock()
- * services.
+ * Simple project to estimate the MCU driver MINIMAL services.
  *
  * Author: 2011  Giuseppe Serano
  */
@@ -65,7 +64,6 @@ CPU test_application {
 		};
 
 		EE_OPT = "__USE_USER_LED__";
-		EE_OPT = "__USE_SYSTICK__";
 
 		EE_OPT = "__AUTOSAR_R4_0__";
 		EE_OPT = "__AS_MCU_DRIVER__";
