@@ -197,6 +197,7 @@ typedef void (*Gpt_Notification)(
  *
  * The following errors shall be detectable by the GPT driver depending on its
  * build version (development / production).
+
  *
  * GPT345:	GPT_E_UNINIT (0x0A)
  * 		API service called without module initialization

@@ -90,6 +90,11 @@ ifeq ($(call iseeopt, __AS_PORT_DRIVER__), yes)
 EE_SRCS += contrib/as/arch/mpc56xx/codewarrior/drivers/Port.c
 endif
 
+ifeq ($(call iseeopt, __AS_GPT_DRIVER__), yes)
+EE_SRCS += contrib/as/arch/mpc56xx/codewarrior/drivers/Gpt.c
+EE_SRCS += contrib/as/arch/mpc56xx/codewarrior/drivers/Gpt_Irq.c
+endif
+
 endif	#EE_MPC5643L && __CODEWARRIOR__
 
 endif	# __AUTOSAR_R4_0__

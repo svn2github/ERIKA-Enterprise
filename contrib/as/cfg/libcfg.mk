@@ -144,6 +144,18 @@ ifeq ($(call iseeopt, __AS_PORT_DRIVER__), yes)
 EE_SRCS += contrib/as/arch/mpc56xx/codewarrior/drivers/Port.c
 endif # __AS_PORT_DRIVER__
 
+ifeq ($(call iseeopt, __AS_GPT_DRIVER__), yes)
+EE_SRCS_AUTOSAR += contrib/as/arch/mpc56xx/codewarrior/drivers/Gpt.c
+EE_SRCS_AUTOSAR += contrib/as/arch/mpc56xx/codewarrior/drivers/Gpt_Irq.c
+ifeq ($(call iseeopt, __NO_APP__), yes)
+ifneq ($(filter %Gpt_Cfg.c, $(APP_SRCS)),)
+EE_SRCS_AUTOSAR += $(filter %Gpt_Cfg.c, $(APP_SRCS))
+else
+EE_SRCS_AUTOSAR += $(OUTBASE)/Gpt_Cfg.c
+endif
+endif	# __NO_APP__
+endif	# __AS_GPT_DRIVER__
+
 endif #EE_MPC5643L && __CODEWARRIOR__
 
 #~ ifeq ($(call iseeopt, __NO_APP__), yes)
