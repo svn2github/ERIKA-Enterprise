@@ -44,9 +44,9 @@
  *
  * fake-druid AUTOSAR GPT Driver Configuration Source File.
  *
- * Configured for (GPT): TI Stellaris LM4F232H5QD
+ * Configured for (GPT): MPC5643L Leopard
  *
- * Author: 2011, Giuseppe Serano
+ * Author: 2012, Francesco Esposito
  */
 
 #include "Gpt.h"
@@ -80,166 +80,26 @@
  * Gpt Channels Configuration.
  */
 const Gpt_ChannelConfigType GptChannels[] = {
-  { /* TIMER 0 A */
-    GPT_CHANNEL_0_A,			/* GptChannelId			      */
-    GPT_CH_MODE_CONTINUOUS,		/* GptChannelMode		      */
+  { /* TIMER 0 STM */
+    GPT_CHANNEL_0_STM,			/* GptChannelId			*/
+    GPT_CH_MODE_CONTINUOUS,		/* GptChannelMode		*/
 #if ( GPT_ENABLE_DISABLE_NOTIFICATION_API == STD_ON )
-#ifdef	EE_CORTEX_MX_TIMER_0_A_ISR
-    &Gpt_Notification_Channel_0_A,	/* GptNotificationPtr		      */
-#else	/* EE_CORTEX_MX_TIMER_0_A_ISR	*/
-    NULL_PTR,				/* GptNotificationPtr		      */
-#endif	/* !EE_CORTEX_MX_TIMER_0_A_ISR	*/
-#endif	/* GPT_ENABLE_DISABLE_NOTIFICATION_API == STD_ON	*/
+#ifdef	EE_PPCE200ZX_30_ISR
+    &Gpt_Notification_Channel_0_STM,	/* GptNotificationPtr		*/
+#else	/* EE_MPC5643L_TIMER_0_A_ISR	*/
+    NULL_PTR,				/* GptNotificationPtr		*/
+#endif	/* !EE_MPC5643L_TIMER_0_A_ISR	*/
+#endif	/* GPT_ENABLE_DISABLE_NOTIFICATION_API == STD_ON		*/
 #if ( GPT_CHANNEL_WAKEUP_FUNCTIONALITY_API == STD_ON )
-    TRUE,				/* GptChannelWakeupSupport	      */
-#endif	/* GPT_CHANNEL_WAKEUP_FUNCTIONALITY_API == STD_ON	*/
-    					/* GptChannelHWConfig:		      */
-    /* GPT_CH_HW_CFG_SPLIT, */		/* - Splitted.			      */
-    					/* GptChannelHWMode:		      */
-    /* GPT_CH_HW_MODE_PERIODIC, */	/* - Periodic Mode.		      */
-    					/* GptChannelHwCtrl:		      */
-    /* GPT_CH_HW_CTL_STALL */		/* - Stall Enable.		      */
+    TRUE,				/* GptChannelWakeupSupport	*/
+#endif	/* GPT_CHANNEL_WAKEUP_FUNCTIONALITY_API == STD_ON		*/
+
+    /* Hardware specific initilaization values */
+    FREEZE_ON,				/* Timer freeze in debug mode	*/
+    0x0U,				/* Timer start value		*/
+    0x1U				/* Timer Prescaler		*/
   },
-  { /* TIMER 0 B */
-    GPT_CHANNEL_0_B,			/* GptChannelId			      */
-    GPT_CH_MODE_ONESHOT,		/* GptChannelMode		      */
-#if ( GPT_ENABLE_DISABLE_NOTIFICATION_API == STD_ON )
-#ifdef	EE_CORTEX_MX_TIMER_0_B_ISR
-    &Gpt_Notification_Channel_0_B,	/* GptNotificationPtr		      */
-#else	/* EE_CORTEX_MX_TIMER_0_B_ISR	*/
-    NULL_PTR,				/* GptNotificationPtr		      */
-#endif	/* !EE_CORTEX_MX_TIMER_0_B_ISR	*/
-#endif	/* GPT_ENABLE_DISABLE_NOTIFICATION_API == STD_ON	*/
-#if ( GPT_CHANNEL_WAKEUP_FUNCTIONALITY_API == STD_ON )
-    TRUE,				/* GptChannelWakeupSupport	      */
-#endif	/* GPT_CHANNEL_WAKEUP_FUNCTIONALITY_API == STD_ON	*/
-    					/* GptChannelHWConfig:		      */
-    /* GPT_CH_HW_CFG_SPLIT, */		/* - Splitted.			      */
-    					/* GptChannelHWMode:		      */
-    /* GPT_CH_HW_MODE_PERIODIC, */	/* - Periodic Mode.		      */
-    					/* GptChannelHwCtrl:		      */
-    /* GPT_CH_HW_CTL_STALL */		/* - Stall Enable.		      */
-  },
-  { /* TIMER W 0 A */
-    GPT_CHANNEL_W_0_A,			/* GptChannelId			      */
-    GPT_CH_MODE_CONTINUOUS,		/* GptChannelMode		      */
-#if ( GPT_ENABLE_DISABLE_NOTIFICATION_API == STD_ON )
-#ifdef	EE_CORTEX_MX_WIDE_TIMER_0_A_ISR
-    &Gpt_Notification_Channel_W_0_A,	/* GptNotificationPtr		      */
-#else	/* EE_CORTEX_MX_WIDE_TIMER_0_A_ISR	*/
-    NULL_PTR,				/* GptNotificationPtr		      */
-#endif	/* !EE_CORTEX_MX_WIDE_TIMER_0_A_ISR	*/
-#endif	/* GPT_ENABLE_DISABLE_NOTIFICATION_API == STD_ON	*/
-#if ( GPT_CHANNEL_WAKEUP_FUNCTIONALITY_API == STD_ON )
-    TRUE,				/* GptChannelWakeupSupport	      */
-#endif	/* GPT_CHANNEL_WAKEUP_FUNCTIONALITY_API == STD_ON	*/
-    					/* GptChannelHWConfig:		      */
-    /* GPT_CH_HW_CFG_SPLIT, */		/* - Splitted.			      */
-    					/* GptChannelHWMode:		      */
-    /* GPT_CH_HW_MODE_PERIODIC, */	/* - Periodic Mode.		      */
-    					/* GptChannelHwCtrl:		      */
-    /* GPT_CH_HW_CTL_STALL */		/* - Stall Enable.		      */
-  },
-  { /* TIMER W 0 B */
-    GPT_CHANNEL_W_0_B,			/* GptChannelId			      */
-    GPT_CH_MODE_ONESHOT,		/* GptChannelMode		      */
-#if ( GPT_ENABLE_DISABLE_NOTIFICATION_API == STD_ON )
-#ifdef	EE_CORTEX_MX_WIDE_TIMER_0_B_ISR
-    &Gpt_Notification_Channel_W_0_B,	/* GptNotificationPtr		      */
-#else	/* EE_CORTEX_MX_WIDE_TIMER_0_B_ISR	*/
-    NULL_PTR,				/* GptNotificationPtr		      */
-#endif	/* !EE_CORTEX_MX_WIDE_TIMER_0_B_ISR	*/
-#endif	/* GPT_ENABLE_DISABLE_NOTIFICATION_API == STD_ON	*/
-#if ( GPT_CHANNEL_WAKEUP_FUNCTIONALITY_API == STD_ON )
-    TRUE,				/* GptChannelWakeupSupport	      */
-#endif	/* GPT_CHANNEL_WAKEUP_FUNCTIONALITY_API == STD_ON	*/
-    					/* GptChannelHWConfig:		      */
-    /* GPT_CH_HW_CFG_SPLIT, */		/* - Splitted.			      */
-    					/* GptChannelHWMode:		      */
-    /* GPT_CH_HW_MODE_PERIODIC, */	/* - Periodic Mode.		      */
-    					/* GptChannelHwCtrl:		      */
-    /* GPT_CH_HW_CTL_STALL */		/* - Stall Enable.		      */
-  },
-  { /* TIMER J 1 */
-    GPT_CHANNEL_J_1,			/* GptChannelId			      */
-    GPT_CH_MODE_CONTINUOUS,		/* GptChannelMode		      */
-#if ( GPT_ENABLE_DISABLE_NOTIFICATION_API == STD_ON )
-#ifdef	EE_CORTEX_MX_TIMER_1_A_ISR
-    &Gpt_Notification_Channel_J_1,	/* GptNotificationPtr		      */
-#else	/* EE_CORTEX_MX_TIMER_1_A_ISR	*/
-    NULL_PTR,				/* GptNotificationPtr		      */
-#endif	/* !EE_CORTEX_MX_TIMER_1_A_ISR	*/
-#endif	/* GPT_ENABLE_DISABLE_NOTIFICATION_API == STD_ON	*/
-#if ( GPT_CHANNEL_WAKEUP_FUNCTIONALITY_API == STD_ON )
-    TRUE,				/* GptChannelWakeupSupport	      */
-#endif	/* GPT_CHANNEL_WAKEUP_FUNCTIONALITY_API == STD_ON	*/
-    					/* GptChannelHWConfig:		      */
-    /* GPT_CH_HW_CFG_JOIN, */		/* - Joined.			      */
-    					/* GptChannelHWMode:		      */
-    /* GPT_CH_HW_MODE_PERIODIC, */	/* - Periodic Mode.		      */
-    					/* GptChannelHwCtrl:		      */
-    /* GPT_CH_HW_CTL_STALL */		/* - Stall Enable.		      */
-  },
-  { /* TIMER J 2 */
-    GPT_CHANNEL_J_2,			/* GptChannelId			      */
-    GPT_CH_MODE_ONESHOT,		/* GptChannelMode		      */
-#if ( GPT_ENABLE_DISABLE_NOTIFICATION_API == STD_ON )
-#ifdef	EE_CORTEX_MX_TIMER_2_A_ISR
-    &Gpt_Notification_Channel_J_2,	/* GptNotificationPtr		      */
-#else	/* EE_CORTEX_MX_TIMER_2_A_ISR	*/
-    NULL_PTR,				/* GptNotificationPtr		      */
-#endif	/* !EE_CORTEX_MX_TIMER_2_A_ISR	*/
-#endif	/* GPT_ENABLE_DISABLE_NOTIFICATION_API == STD_ON	*/
-#if ( GPT_CHANNEL_WAKEUP_FUNCTIONALITY_API == STD_ON )
-    TRUE,				/* GptChannelWakeupSupport	      */
-#endif	/* GPT_CHANNEL_WAKEUP_FUNCTIONALITY_API == STD_ON	*/
-    					/* GptChannelHWConfig:		      */
-    /* GPT_CH_HW_CFG_JOIN, */		/* - Joined.			      */
-    					/* GptChannelHWMode:		      */
-    /* GPT_CH_HW_MODE_PERIODIC, */	/* - Periodic Mode.		      */
-    					/* GptChannelHwCtrl:		      */
-    /* GPT_CH_HW_CTL_STALL */		/* - Stall Enable.		      */
-  },
-  { /* TIMER J W 1 */
-    GPT_CHANNEL_J_W_1,			/* GptChannelId			      */
-    GPT_CH_MODE_CONTINUOUS,		/* GptChannelMode		      */
-#if ( GPT_ENABLE_DISABLE_NOTIFICATION_API == STD_ON )
-#ifdef	EE_CORTEX_MX_WIDE_TIMER_1_A_ISR
-    &Gpt_Notification_Channel_J_W_1,	/* GptNotificationPtr		      */
-#else	/* EE_CORTEX_MX_WIDE_TIMER_1_A_ISR	*/
-    NULL_PTR,				/* GptNotificationPtr		      */
-#endif	/* !EE_CORTEX_MX_WIDE_TIMER_1_A_ISR	*/
-#endif	/* GPT_ENABLE_DISABLE_NOTIFICATION_API == STD_ON	*/
-#if ( GPT_CHANNEL_WAKEUP_FUNCTIONALITY_API == STD_ON )
-    TRUE,				/* GptChannelWakeupSupport	      */
-#endif	/* GPT_CHANNEL_WAKEUP_FUNCTIONALITY_API == STD_ON	*/
-    					/* GptChannelHWConfig:		      */
-    /* GPT_CH_HW_CFG_JOIN, */		/* - Joined.			      */
-    					/* GptChannelHWMode:		      */
-    /* GPT_CH_HW_MODE_PERIODIC, */	/* - Periodic Mode.		      */
-    					/* GptChannelHwCtrl:		      */
-    /* GPT_CH_HW_CTL_STALL */		/* - Stall Enable.		      */
-  },
-  { /* TIMER J W 2 */
-    GPT_CHANNEL_J_W_2,			/* GptChannelId			      */
-    GPT_CH_MODE_ONESHOT,		/* GptChannelMode		      */
-#if ( GPT_ENABLE_DISABLE_NOTIFICATION_API == STD_ON )
-#ifdef	EE_CORTEX_MX_WIDE_TIMER_2_A_ISR
-    &Gpt_Notification_Channel_J_W_2,	/* GptNotificationPtr		      */
-#else	/* EE_CORTEX_MX_WIDE_TIMER_2_A_ISR	*/
-    NULL_PTR,				/* GptNotificationPtr		      */
-#endif	/* !EE_CORTEX_MX_WIDE_TIMER_1_A_ISR	*/
-#endif	/* GPT_ENABLE_DISABLE_NOTIFICATION_API == STD_ON	*/
-#if ( GPT_CHANNEL_WAKEUP_FUNCTIONALITY_API == STD_ON )
-    TRUE,				/* GptChannelWakeupSupport	      */
-#endif	/* GPT_CHANNEL_WAKEUP_FUNCTIONALITY_API == STD_ON	*/
-    					/* GptChannelHWConfig:		      */
-    /* GPT_CH_HW_CFG_JOIN, */		/* - Joined.			      */
-    					/* GptChannelHWMode:		      */
-    /* GPT_CH_HW_MODE_PERIODIC, */	/* - Periodic Mode.		      */
-    					/* GptChannelHwCtrl:		      */
-    /* GPT_CH_HW_CTL_STALL */		/* - Stall Enable.		      */
-  },
+  {0U,0U,0U,0U},{0U,0U,0U,0U},{0U,0U,0U,0U},{0U,0U,0U,0U},{0U,0U,0U,0U},{0U,0U,0U,0U},{0U,0U,0U,0U}
 };
 
 /*

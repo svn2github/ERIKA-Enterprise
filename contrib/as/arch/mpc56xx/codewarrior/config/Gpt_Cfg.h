@@ -45,10 +45,10 @@
  *  			pre-compile defines are used (<tt>BSW00345</tt>,
  *  			<tt>BSW00381</tt>, <tt>BSW412</tt>)
  *
- *  Configured for (GPT): TI Stellaris LM4F232H5QD
+ *  Configured for (GPT): MPC5643L Leopard
  *
- *  @author	Giuseppe Serano
- *  @date	2011
+ *  @author	Francesco Esposito
+ *  @date	2012
  */
 
 
@@ -148,7 +148,7 @@
  *  			time configurable On/Off by the configuration parameter:
  *  			<tt>GptDeInitApi</tt>. (<tt>BSW171</tt>)
  */
-#define	GPT_DEINIT_API				STD_ON
+#define	GPT_DEINIT_API				STD_OFF
 
 /** @brief	Notification API 
  *
@@ -181,7 +181,7 @@
  *  			compile time configurable On/Off by the configuration
  *  			parameter: <tt>GptTimeElapsedApi</tt>. (<tt>BSW171</tt>)
  */
-#define	GPT_TIME_ELAPSED_API			STD_ON
+#define	GPT_TIME_ELAPSED_API			STD_OFF
 
 /** @brief	Remaining Time Retrieval API
  *
@@ -194,7 +194,7 @@
  *  			configuration parameter: <tt>GptTimeRemainingApi</tt>.
  *  			(<tt>BSW171</tt>)
  */
-#define	GPT_TIME_REMAINING_API			STD_ON
+#define	GPT_TIME_REMAINING_API			STD_OFF
 
 /** @brief	Version Informations Retrieval API
  *
@@ -717,51 +717,47 @@ typedef struct {
    */
   /* uint32		GptChannelHWCtrl; */
 
+  /** @brief	Timer freeze flag
+   *
+   */
+  uint8			freeze;
+
+  /** @brief	Timer Initial value
+   *
+   */
+  uint32		InitVal;
+
+   /** @brief	Prescaler Initial value
+   *
+   */
+  uint32		Prsc;
+
 } Gpt_ChannelConfigType;
 
 /*
  * The configuration process for Gpt module shall provide symbolic names for
  * each configured GPT channel.
  */ 
-#define	GPT_CHANNEL_0_A		0x00	/**< Channel 0 A */
-#define	GPT_CHANNEL_0_B		0x01	/**< Channel 0 B */
-#define	GPT_CHANNEL_1_A		0x02	/**< Channel 1 A */
-#define	GPT_CHANNEL_1_B		0x03	/**< Channel 1 B */
-#define	GPT_CHANNEL_2_A		0x04	/**< Channel 2 A */
-#define	GPT_CHANNEL_2 B		0x05	/**< Channel 2 B */
-#define	GPT_CHANNEL_3_A		0x06	/**< Channel 3 A */
-#define	GPT_CHANNEL_3_B		0x07	/**< Channel 3 B */
-#define	GPT_CHANNEL_4_A		0x08	/**< Channel 4 A */
-#define	GPT_CHANNEL_4_B		0x09	/**< Channel 4 B */
-#define	GPT_CHANNEL_5_A		0x0A	/**< Channel 5 A */
-#define	GPT_CHANNEL_5_B		0x0B	/**< Channel 5 B */
-#define	GPT_CHANNEL_W_0_A	0x0C	/**< Channel W 0 A */
-#define	GPT_CHANNEL_W_0_B	0x0D	/**< Channel W 0 B */
-#define	GPT_CHANNEL_W_1_A	0x0E	/**< Channel W 1 A */
-#define	GPT_CHANNEL_W_1_B	0x0F	/**< Channel W 1 B */
-#define	GPT_CHANNEL_W_2_A	0x38	/**< Channel W 2 A */
-#define	GPT_CHANNEL_W_2 B	0x39	/**< Channel W 2 B */
-#define	GPT_CHANNEL_W_3_A	0x3A	/**< Channel W 3 A */
-#define	GPT_CHANNEL_W_3_B	0x3B	/**< Channel W 3 B */
-#define	GPT_CHANNEL_W_4_A	0x3C	/**< Channel W 4 A */
-#define	GPT_CHANNEL_W_4_B	0x3D	/**< Channel W 4 B */
-#define	GPT_CHANNEL_W_5_A	0x3E	/**< Channel W 5 A */
-#define	GPT_CHANNEL_W_5_B	0x3F	/**< Channel W 5 B */
+#define	GPT_CHANNEL_0_STM		0x00	/**< Channel 0 STM */
+#define	GPT_CHANNEL_0_PIT		0x00	/**< Channel 0 PIT */
+#define	GPT_CHANNEL_1_STM		0x01	/**< Channel 1 STM */
+#define	GPT_CHANNEL_1_PIT		0x01	/**< Channel 1 PIT */
+#define	GPT_CHANNEL_2_STM		0x02	/**< Channel 2 STM */
+#define	GPT_CHANNEL_2 PIT		0x03	/**< Channel 2 PIT */
+#define	GPT_CHANNEL_3_STM		0x04	/**< Channel 3 STM */
+#define	GPT_CHANNEL_3_PIT		0x04	/**< Channel 3 PIT */
 
-#define	GPT_CHANNEL_J_0		0x40	/**< Channel J 0 */
-#define	GPT_CHANNEL_J_1		0x42	/**< Channel J 1 */
-#define	GPT_CHANNEL_J_2		0x44	/**< Channel J 2 */
-#define	GPT_CHANNEL_J_3		0x46	/**< Channel J 3 */
-#define	GPT_CHANNEL_J_4		0x48	/**< Channel J 4 */
-#define	GPT_CHANNEL_J_5		0x4A	/**< Channel J 5 */
-#define	GPT_CHANNEL_J_W_0	0x4C	/**< Channel W J 0 */
-#define	GPT_CHANNEL_J_W_1	0x4E	/**< Channel W J 1 */
-#define	GPT_CHANNEL_J_W_2	0x78	/**< Channel W J 2 */
-#define	GPT_CHANNEL_J_W_3	0x7A	/**< Channel W J 3 */
-#define	GPT_CHANNEL_J_W_4	0x7C	/**< Channel W J 4 */
-#define	GPT_CHANNEL_J_W_5	0x7E	/**< Channel W J 5 */
+/*
+ * Other GPT capabilities
+ */
+#define FREEZE_ON			0x1U
+#define FREEZE_OFF			0x0U
 
 #if ( GPT_ENABLE_DISABLE_NOTIFICATION_API == STD_ON )
+
+#define NOTIFICATION_ENABLED		0x1U
+#define NOTIFICATION_DISABLED		0x0U
+
 /*
  * The configuration process for Gpt module shall provide function prototypes
  * for notification callback functions for each configured GPT channel.
@@ -769,7 +765,7 @@ typedef struct {
 
 /** @brief	Channel 0 A Notification Callback
  *
- *  The notification prototype <tt>Gpt_Notification_Channel_0_A()</tt> is for
+ *  The notification prototype <tt>Gpt_Notification_Channel_0_STM()</tt> is for
  *  the notification callback function for GPT Channel 0 A and shall be
  *  implemented by the user.
  *
@@ -778,7 +774,7 @@ typedef struct {
  *  efficiency. (<tt>BSW00375</tt>, <tt>BSW12069</tt>)
  *
  *  <b>GPT086</b>:	The callback notifications
- *  			<tt>Gpt_Notification_Channel_0_A()</tt> shall be
+ *  			<tt>Gpt_Notification_Channel_0_STM()</tt> shall be
  *  			configurable as pointers to user defined functions
  *  			within the configuration structure.
  *
@@ -800,7 +796,7 @@ typedef struct {
  *  <b>GPT362</b>:	For all available channels, callback functions have to
  *  			be declared by the configuration tool.
  */
-void Gpt_Notification_Channel_0_A(
+void Gpt_Notification_Channel_0_STM(
   void
 );
 
@@ -837,7 +833,7 @@ void Gpt_Notification_Channel_0_A(
  *  <b>GPT362</b>:	For all available channels, callback functions have to
  *  			be declared by the configuration tool.
  */
-void Gpt_Notification_Channel_0_B(
+void Gpt_Notification_Channel_0_PIT(
   void
 );
 
@@ -874,7 +870,7 @@ void Gpt_Notification_Channel_0_B(
  *  <b>GPT362</b>:	For all available channels, callback functions have to
  *  			be declared by the configuration tool.
  */
-void Gpt_Notification_Channel_1_A(
+void Gpt_Notification_Channel_1_STM(
   void
 );
 
@@ -911,7 +907,7 @@ void Gpt_Notification_Channel_1_A(
  *  <b>GPT362</b>:	For all available channels, callback functions have to
  *  			be declared by the configuration tool.
  */
-void Gpt_Notification_Channel_1_B(
+void Gpt_Notification_Channel_1_PIT(
   void
 );
 
@@ -948,7 +944,7 @@ void Gpt_Notification_Channel_1_B(
  *  <b>GPT362</b>:	For all available channels, callback functions have to
  *  			be declared by the configuration tool.
  */
-void Gpt_Notification_Channel_2_A(
+void Gpt_Notification_Channel_2_STM(
   void
 );
 
@@ -985,7 +981,7 @@ void Gpt_Notification_Channel_2_A(
  *  <b>GPT362</b>:	For all available channels, callback functions have to
  *  			be declared by the configuration tool.
  */
-void Gpt_Notification_Channel_2_B(
+void Gpt_Notification_Channel_2_PIT(
   void
 );
 
@@ -1022,7 +1018,7 @@ void Gpt_Notification_Channel_2_B(
  *  <b>GPT362</b>:	For all available channels, callback functions have to
  *  			be declared by the configuration tool.
  */
-void Gpt_Notification_Channel_3_A(
+void Gpt_Notification_Channel_3_STM(
   void
 );
 
@@ -1059,1043 +1055,7 @@ void Gpt_Notification_Channel_3_A(
  *  <b>GPT362</b>:	For all available channels, callback functions have to
  *  			be declared by the configuration tool.
  */
-void Gpt_Notification_Channel_3_B(
-  void
-);
-
-/** @brief	Channel 4 A Notification Callback
- *
- *  The notification prototype <tt>Gpt_Notification_Channel_4_A()</tt> is for
- *  the notification callback function for GPT Channel 4 A and shall be
- *  implemented by the user.
- *
- *  The GPT module's environment shall declare a separate notification for each
- *  channel to avoid parameters in notification services and to improve run time
- *  efficiency. (<tt>BSW00375</tt>, <tt>BSW12069</tt>)
- *
- *  <b>GPT086</b>:	The callback notifications
- *  			<tt>Gpt_Notification_Channel_4_A()</tt> shall be
- *  			configurable as pointers to user defined functions
- *  			within the configuration structure.
- *
- *  <b>GPT209</b>:	Each channel shall provide its own notification if
- *  			configured. (<tt>BSW00375</tt>, <tt>BSW12069</tt>)
- *
- *  <b>GPT093</b>:	When disabled, the GPT Driver will send no
- *  			notifications.
- *
- *  <b>GPT233</b>:	The GPT Driver shall invoke a notification callback
- *  			whenever the defined target time of the channel is
- *  			reached. (<tt>BSW12067</tt>, <tt>BSW12120</tt>)
- *
- *  <b>GPT206</b>:	The ISR's, providing the GPT events, shall be
- *  			responsible for resetting  the interrupt flags (if
- *  			needed by hardware) and calling the according
- *  			notification function.
- *
- *  <b>GPT362</b>:	For all available channels, callback functions have to
- *  			be declared by the configuration tool.
- */
-void Gpt_Notification_Channel_4_A(
-  void
-);
-
-/** @brief	Channel 4 B Notification Callback
- *
- *  The notification prototype <tt>Gpt_Notification_Channel_4_B()</tt> is for
- *  the notification callback function for GPT Channel 4 B and shall be
- *  implemented by the user.
- *
- *  The GPT module's environment shall declare a separate notification for each
- *  channel to avoid parameters in notification services and to improve run time
- *  efficiency. (<tt>BSW00375</tt>, <tt>BSW12069</tt>)
- *
- *  <b>GPT086</b>:	The callback notifications
- *  			<tt>Gpt_Notification_Channel_4_B()</tt> shall be
- *  			configurable as pointers to user defined functions
- *  			within the configuration structure.
- *
- *  <b>GPT209</b>:	Each channel shall provide its own notification if
- *  			configured. (<tt>BSW00375</tt>, <tt>BSW12069</tt>)
- *
- *  <b>GPT093</b>:	When disabled, the GPT Driver will send no
- *  			notifications.
- *
- *  <b>GPT233</b>:	The GPT Driver shall invoke a notification callback
- *  			whenever the defined target time of the channel is
- *  			reached. (<tt>BSW12067</tt>, <tt>BSW12120</tt>)
- *
- *  <b>GPT206</b>:	The ISR's, providing the GPT events, shall be
- *  			responsible for resetting  the interrupt flags (if
- *  			needed by hardware) and calling the according
- *  			notification function.
- *
- *  <b>GPT362</b>:	For all available channels, callback functions have to
- *  			be declared by the configuration tool.
- */
-void Gpt_Notification_Channel_4_B(
-  void
-);
-
-/** @brief	Channel 5 A Notification Callback
- *
- *  The notification prototype <tt>Gpt_Notification_Channel_5_A()</tt> is for
- *  the notification callback function for GPT Channel 5 A and shall be
- *  implemented by the user.
- *
- *  The GPT module's environment shall declare a separate notification for each
- *  channel to avoid parameters in notification services and to improve run time
- *  efficiency. (<tt>BSW00375</tt>, <tt>BSW12069</tt>)
- *
- *  <b>GPT086</b>:	The callback notifications
- *  			<tt>Gpt_Notification_Channel_5_A()</tt> shall be
- *  			configurable as pointers to user defined functions
- *  			within the configuration structure.
- *
- *  <b>GPT209</b>:	Each channel shall provide its own notification if
- *  			configured. (<tt>BSW00375</tt>, <tt>BSW12069</tt>)
- *
- *  <b>GPT093</b>:	When disabled, the GPT Driver will send no
- *  			notifications.
- *
- *  <b>GPT233</b>:	The GPT Driver shall invoke a notification callback
- *  			whenever the defined target time of the channel is
- *  			reached. (<tt>BSW12067</tt>, <tt>BSW12120</tt>)
- *
- *  <b>GPT206</b>:	The ISR's, providing the GPT events, shall be
- *  			responsible for resetting  the interrupt flags (if
- *  			needed by hardware) and calling the according
- *  			notification function.
- *
- *  <b>GPT362</b>:	For all available channels, callback functions have to
- *  			be declared by the configuration tool.
- */
-void Gpt_Notification_Channel_5_A(
-  void
-);
-
-/** @brief	Channel 5 B Notification Callback
- *
- *  The notification prototype <tt>Gpt_Notification_Channel_5_B()</tt> is for
- *  the notification callback function for GPT Channel 5 B and shall be
- *  implemented by the user.
- *
- *  The GPT module's environment shall declare a separate notification for each
- *  channel to avoid parameters in notification services and to improve run time
- *  efficiency. (<tt>BSW00375</tt>, <tt>BSW12069</tt>)
- *
- *  <b>GPT086</b>:	The callback notifications
- *  			<tt>Gpt_Notification_Channel_5_B()</tt> shall be
- *  			configurable as pointers to user defined functions
- *  			within the configuration structure.
- *
- *  <b>GPT209</b>:	Each channel shall provide its own notification if
- *  			configured. (<tt>BSW00375</tt>, <tt>BSW12069</tt>)
- *
- *  <b>GPT093</b>:	When disabled, the GPT Driver will send no
- *  			notifications.
- *
- *  <b>GPT233</b>:	The GPT Driver shall invoke a notification callback
- *  			whenever the defined target time of the channel is
- *  			reached. (<tt>BSW12067</tt>, <tt>BSW12120</tt>)
- *
- *  <b>GPT206</b>:	The ISR's, providing the GPT events, shall be
- *  			responsible for resetting  the interrupt flags (if
- *  			needed by hardware) and calling the according
- *  			notification function.
- *
- *  <b>GPT362</b>:	For all available channels, callback functions have to
- *  			be declared by the configuration tool.
- */
-void Gpt_Notification_Channel_5_B(
-  void
-);
-
-/** @brief	Channel W 0 A Notification Callback
- *
- *  The notification prototype <tt>Gpt_Notification_Channel_W_0_A()</tt> is for
- *  the notification callback function for GPT Channel W 0 A and shall be
- *  implemented by the user.
- *
- *  The GPT module's environment shall declare a separate notification for each
- *  channel to avoid parameters in notification services and to improve run time
- *  efficiency. (<tt>BSW00375</tt>, <tt>BSW12069</tt>)
- *
- *  <b>GPT086</b>:	The callback notifications
- *  			<tt>Gpt_Notification_Channel_W_0_A()</tt> shall be
- *  			configurable as pointers to user defined functions
- *  			within the configuration structure.
- *
- *  <b>GPT209</b>:	Each channel shall provide its own notification if
- *  			configured. (<tt>BSW00375</tt>, <tt>BSW12069</tt>)
- *
- *  <b>GPT093</b>:	When disabled, the GPT Driver will send no
- *  			notifications.
- *
- *  <b>GPT233</b>:	The GPT Driver shall invoke a notification callback
- *  			whenever the defined target time of the channel is
- *  			reached. (<tt>BSW12067</tt>, <tt>BSW12120</tt>)
- *
- *  <b>GPT206</b>:	The ISR's, providing the GPT events, shall be
- *  			responsible for resetting  the interrupt flags (if
- *  			needed by hardware) and calling the according
- *  			notification function.
- *
- *  <b>GPT362</b>:	For all available channels, callback functions have to
- *  			be declared by the configuration tool.
- */
-void Gpt_Notification_Channel_W_0_A(
-  void
-);
-
-/** @brief	Channel W 0 B Notification Callback
- *
- *  The notification prototype <tt>Gpt_Notification_Channel_W_0_B()</tt> is for
- *  the notification callback function for GPT Channel W 0 B and shall be
- *  implemented by the user.
- *
- *  The GPT module's environment shall declare a separate notification for each
- *  channel to avoid parameters in notification services and to improve run time
- *  efficiency. (<tt>BSW00375</tt>, <tt>BSW12069</tt>)
- *
- *  <b>GPT086</b>:	The callback notifications
- *  			<tt>Gpt_Notification_Channel_W_0_B()</tt> shall be
- *  			configurable as pointers to user defined functions
- *  			within the configuration structure.
- *
- *  <b>GPT209</b>:	Each channel shall provide its own notification if
- *  			configured. (<tt>BSW00375</tt>, <tt>BSW12069</tt>)
- *
- *  <b>GPT093</b>:	When disabled, the GPT Driver will send no
- *  			notifications.
- *
- *  <b>GPT233</b>:	The GPT Driver shall invoke a notification callback
- *  			whenever the defined target time of the channel is
- *  			reached. (<tt>BSW12067</tt>, <tt>BSW12120</tt>)
- *
- *  <b>GPT206</b>:	The ISR's, providing the GPT events, shall be
- *  			responsible for resetting  the interrupt flags (if
- *  			needed by hardware) and calling the according
- *  			notification function.
- *
- *  <b>GPT362</b>:	For all available channels, callback functions have to
- *  			be declared by the configuration tool.
- */
-void Gpt_Notification_Channel_W_0_B(
-  void
-);
-
-/** @brief	Channel W 1 A Notification Callback
- *
- *  The notification prototype <tt>Gpt_Notification_Channel_W_1_A()</tt> is for
- *  the notification callback function for GPT Channel W 1 A and shall be
- *  implemented by the user.
- *
- *  The GPT module's environment shall declare a separate notification for each
- *  channel to avoid parameters in notification services and to improve run time
- *  efficiency. (<tt>BSW00375</tt>, <tt>BSW12069</tt>)
- *
- *  <b>GPT086</b>:	The callback notifications
- *  			<tt>Gpt_Notification_Channel_W_1_A()</tt> shall be
- *  			configurable as pointers to user defined functions
- *  			within the configuration structure.
- *
- *  <b>GPT209</b>:	Each channel shall provide its own notification if
- *  			configured. (<tt>BSW00375</tt>, <tt>BSW12069</tt>)
- *
- *  <b>GPT093</b>:	When disabled, the GPT Driver will send no
- *  			notifications.
- *
- *  <b>GPT233</b>:	The GPT Driver shall invoke a notification callback
- *  			whenever the defined target time of the channel is
- *  			reached. (<tt>BSW12067</tt>, <tt>BSW12120</tt>)
- *
- *  <b>GPT206</b>:	The ISR's, providing the GPT events, shall be
- *  			responsible for resetting  the interrupt flags (if
- *  			needed by hardware) and calling the according
- *  			notification function.
- *
- *  <b>GPT362</b>:	For all available channels, callback functions have to
- *  			be declared by the configuration tool.
- */
-void Gpt_Notification_Channel_W_1_A(
-  void
-);
-
-/** @brief	Channel W 1 B Notification Callback
- *
- *  The notification prototype <tt>Gpt_Notification_Channel_W_1_B()</tt> is for
- *  the notification callback function for GPT Channel W 1 B and shall be
- *  implemented by the user.
- *
- *  The GPT module's environment shall declare a separate notification for each
- *  channel to avoid parameters in notification services and to improve run time
- *  efficiency. (<tt>BSW00375</tt>, <tt>BSW12069</tt>)
- *
- *  <b>GPT086</b>:	The callback notifications
- *  			<tt>Gpt_Notification_Channel_W_1_B()</tt> shall be
- *  			configurable as pointers to user defined functions
- *  			within the configuration structure.
- *
- *  <b>GPT209</b>:	Each channel shall provide its own notification if
- *  			configured. (<tt>BSW00375</tt>, <tt>BSW12069</tt>)
- *
- *  <b>GPT093</b>:	When disabled, the GPT Driver will send no
- *  			notifications.
- *
- *  <b>GPT233</b>:	The GPT Driver shall invoke a notification callback
- *  			whenever the defined target time of the channel is
- *  			reached. (<tt>BSW12067</tt>, <tt>BSW12120</tt>)
- *
- *  <b>GPT206</b>:	The ISR's, providing the GPT events, shall be
- *  			responsible for resetting  the interrupt flags (if
- *  			needed by hardware) and calling the according
- *  			notification function.
- *
- *  <b>GPT362</b>:	For all available channels, callback functions have to
- *  			be declared by the configuration tool.
- */
-void Gpt_Notification_Channel_W_1_B(
-  void
-);
-
-/** @brief	Channel W 2 A Notification Callback
- *
- *  The notification prototype <tt>Gpt_Notification_Channel_W_2_A()</tt> is for
- *  the notification callback function for GPT Channel W 2 A and shall be
- *  implemented by the user.
- *
- *  The GPT module's environment shall declare a separate notification for each
- *  channel to avoid parameters in notification services and to improve run time
- *  efficiency. (<tt>BSW00375</tt>, <tt>BSW12069</tt>)
- *
- *  <b>GPT086</b>:	The callback notifications
- *  			<tt>Gpt_Notification_Channel_W_2_A()</tt> shall be
- *  			configurable as pointers to user defined functions
- *  			within the configuration structure.
- *
- *  <b>GPT209</b>:	Each channel shall provide its own notification if
- *  			configured. (<tt>BSW00375</tt>, <tt>BSW12069</tt>)
- *
- *  <b>GPT093</b>:	When disabled, the GPT Driver will send no
- *  			notifications.
- *
- *  <b>GPT233</b>:	The GPT Driver shall invoke a notification callback
- *  			whenever the defined target time of the channel is
- *  			reached. (<tt>BSW12067</tt>, <tt>BSW12120</tt>)
- *
- *  <b>GPT206</b>:	The ISR's, providing the GPT events, shall be
- *  			responsible for resetting  the interrupt flags (if
- *  			needed by hardware) and calling the according
- *  			notification function.
- *
- *  <b>GPT362</b>:	For all available channels, callback functions have to
- *  			be declared by the configuration tool.
- */
-void Gpt_Notification_Channel_W_2_A(
-  void
-);
-
-/** @brief	Channel W 2 B Notification Callback
- *
- *  The notification prototype <tt>Gpt_Notification_Channel_W_2_B()</tt> is for
- *  the notification callback function for GPT Channel W 2 B and shall be
- *  implemented by the user.
- *
- *  The GPT module's environment shall declare a separate notification for each
- *  channel to avoid parameters in notification services and to improve run time
- *  efficiency. (<tt>BSW00375</tt>, <tt>BSW12069</tt>)
- *
- *  <b>GPT086</b>:	The callback notifications
- *  			<tt>Gpt_Notification_Channel_W_2_B()</tt> shall be
- *  			configurable as pointers to user defined functions
- *  			within the configuration structure.
- *
- *  <b>GPT209</b>:	Each channel shall provide its own notification if
- *  			configured. (<tt>BSW00375</tt>, <tt>BSW12069</tt>)
- *
- *  <b>GPT093</b>:	When disabled, the GPT Driver will send no
- *  			notifications.
- *
- *  <b>GPT233</b>:	The GPT Driver shall invoke a notification callback
- *  			whenever the defined target time of the channel is
- *  			reached. (<tt>BSW12067</tt>, <tt>BSW12120</tt>)
- *
- *  <b>GPT206</b>:	The ISR's, providing the GPT events, shall be
- *  			responsible for resetting  the interrupt flags (if
- *  			needed by hardware) and calling the according
- *  			notification function.
- *
- *  <b>GPT362</b>:	For all available channels, callback functions have to
- *  			be declared by the configuration tool.
- */
-void Gpt_Notification_Channel_W_2_B(
-  void
-);
-
-/** @brief	Channel W 3 A Notification Callback
- *
- *  The notification prototype <tt>Gpt_Notification_Channel_W_3_A()</tt> is for
- *  the notification callback function for GPT Channel W 3 A and shall be
- *  implemented by the user.
- *
- *  The GPT module's environment shall declare a separate notification for each
- *  channel to avoid parameters in notification services and to improve run time
- *  efficiency. (<tt>BSW00375</tt>, <tt>BSW12069</tt>)
- *
- *  <b>GPT086</b>:	The callback notifications
- *  			<tt>Gpt_Notification_Channel_W_3_A()</tt> shall be
- *  			configurable as pointers to user defined functions
- *  			within the configuration structure.
- *
- *  <b>GPT209</b>:	Each channel shall provide its own notification if
- *  			configured. (<tt>BSW00375</tt>, <tt>BSW12069</tt>)
- *
- *  <b>GPT093</b>:	When disabled, the GPT Driver will send no
- *  			notifications.
- *
- *  <b>GPT233</b>:	The GPT Driver shall invoke a notification callback
- *  			whenever the defined target time of the channel is
- *  			reached. (<tt>BSW12067</tt>, <tt>BSW12120</tt>)
- *
- *  <b>GPT206</b>:	The ISR's, providing the GPT events, shall be
- *  			responsible for resetting  the interrupt flags (if
- *  			needed by hardware) and calling the according
- *  			notification function.
- *
- *  <b>GPT362</b>:	For all available channels, callback functions have to
- *  			be declared by the configuration tool.
- */
-void Gpt_Notification_Channel_W_3_A(
-  void
-);
-
-/** @brief	Channel W 3 B Notification Callback
- *
- *  The notification prototype <tt>Gpt_Notification_Channel_W_3_B()</tt> is for
- *  the notification callback function for GPT Channel W 3 B and shall be
- *  implemented by the user.
- *
- *  The GPT module's environment shall declare a separate notification for each
- *  channel to avoid parameters in notification services and to improve run time
- *  efficiency. (<tt>BSW00375</tt>, <tt>BSW12069</tt>)
- *
- *  <b>GPT086</b>:	The callback notifications
- *  			<tt>Gpt_Notification_Channel_W_3_B()</tt> shall be
- *  			configurable as pointers to user defined functions
- *  			within the configuration structure.
- *
- *  <b>GPT209</b>:	Each channel shall provide its own notification if
- *  			configured. (<tt>BSW00375</tt>, <tt>BSW12069</tt>)
- *
- *  <b>GPT093</b>:	When disabled, the GPT Driver will send no
- *  			notifications.
- *
- *  <b>GPT233</b>:	The GPT Driver shall invoke a notification callback
- *  			whenever the defined target time of the channel is
- *  			reached. (<tt>BSW12067</tt>, <tt>BSW12120</tt>)
- *
- *  <b>GPT206</b>:	The ISR's, providing the GPT events, shall be
- *  			responsible for resetting  the interrupt flags (if
- *  			needed by hardware) and calling the according
- *  			notification function.
- *
- *  <b>GPT362</b>:	For all available channels, callback functions have to
- *  			be declared by the configuration tool.
- */
-void Gpt_Notification_Channel_W_3_B(
-  void
-);
-
-/** @brief	Channel W 4 A Notification Callback
- *
- *  The notification prototype <tt>Gpt_Notification_Channel_W_4_A()</tt> is for
- *  the notification callback function for GPT Channel W 4 A and shall be
- *  implemented by the user.
- *
- *  The GPT module's environment shall declare a separate notification for each
- *  channel to avoid parameters in notification services and to improve run time
- *  efficiency. (<tt>BSW00375</tt>, <tt>BSW12069</tt>)
- *
- *  <b>GPT086</b>:	The callback notifications
- *  			<tt>Gpt_Notification_Channel_W_4_A()</tt> shall be
- *  			configurable as pointers to user defined functions
- *  			within the configuration structure.
- *
- *  <b>GPT209</b>:	Each channel shall provide its own notification if
- *  			configured. (<tt>BSW00375</tt>, <tt>BSW12069</tt>)
- *
- *  <b>GPT093</b>:	When disabled, the GPT Driver will send no
- *  			notifications.
- *
- *  <b>GPT233</b>:	The GPT Driver shall invoke a notification callback
- *  			whenever the defined target time of the channel is
- *  			reached. (<tt>BSW12067</tt>, <tt>BSW12120</tt>)
- *
- *  <b>GPT206</b>:	The ISR's, providing the GPT events, shall be
- *  			responsible for resetting  the interrupt flags (if
- *  			needed by hardware) and calling the according
- *  			notification function.
- *
- *  <b>GPT362</b>:	For all available channels, callback functions have to
- *  			be declared by the configuration tool.
- */
-void Gpt_Notification_Channel_W_4_A(
-  void
-);
-
-/** @brief	Channel W 4 B Notification Callback
- *
- *  The notification prototype <tt>Gpt_Notification_Channel_W_4_B()</tt> is for
- *  the notification callback function for GPT Channel W 4 B and shall be
- *  implemented by the user.
- *
- *  The GPT module's environment shall declare a separate notification for each
- *  channel to avoid parameters in notification services and to improve run time
- *  efficiency. (<tt>BSW00375</tt>, <tt>BSW12069</tt>)
- *
- *  <b>GPT086</b>:	The callback notifications
- *  			<tt>Gpt_Notification_Channel_W_4_B()</tt> shall be
- *  			configurable as pointers to user defined functions
- *  			within the configuration structure.
- *
- *  <b>GPT209</b>:	Each channel shall provide its own notification if
- *  			configured. (<tt>BSW00375</tt>, <tt>BSW12069</tt>)
- *
- *  <b>GPT093</b>:	When disabled, the GPT Driver will send no
- *  			notifications.
- *
- *  <b>GPT233</b>:	The GPT Driver shall invoke a notification callback
- *  			whenever the defined target time of the channel is
- *  			reached. (<tt>BSW12067</tt>, <tt>BSW12120</tt>)
- *
- *  <b>GPT206</b>:	The ISR's, providing the GPT events, shall be
- *  			responsible for resetting  the interrupt flags (if
- *  			needed by hardware) and calling the according
- *  			notification function.
- *
- *  <b>GPT362</b>:	For all available channels, callback functions have to
- *  			be declared by the configuration tool.
- */
-void Gpt_Notification_Channel_W_4_B(
-  void
-);
-
-/** @brief	Channel W 5 A Notification Callback
- *
- *  The notification prototype <tt>Gpt_Notification_Channel_W_5_A()</tt> is for
- *  the notification callback function for GPT Channel W 5 A and shall be
- *  implemented by the user.
- *
- *  The GPT module's environment shall declare a separate notification for each
- *  channel to avoid parameters in notification services and to improve run time
- *  efficiency. (<tt>BSW00375</tt>, <tt>BSW12069</tt>)
- *
- *  <b>GPT086</b>:	The callback notifications
- *  			<tt>Gpt_Notification_Channel_W_5_A()</tt> shall be
- *  			configurable as pointers to user defined functions
- *  			within the configuration structure.
- *
- *  <b>GPT209</b>:	Each channel shall provide its own notification if
- *  			configured. (<tt>BSW00375</tt>, <tt>BSW12069</tt>)
- *
- *  <b>GPT093</b>:	When disabled, the GPT Driver will send no
- *  			notifications.
- *
- *  <b>GPT233</b>:	The GPT Driver shall invoke a notification callback
- *  			whenever the defined target time of the channel is
- *  			reached. (<tt>BSW12067</tt>, <tt>BSW12120</tt>)
- *
- *  <b>GPT206</b>:	The ISR's, providing the GPT events, shall be
- *  			responsible for resetting  the interrupt flags (if
- *  			needed by hardware) and calling the according
- *  			notification function.
- *
- *  <b>GPT362</b>:	For all available channels, callback functions have to
- *  			be declared by the configuration tool.
- */
-void Gpt_Notification_Channel_W_5_A(
-  void
-);
-
-/** @brief	Channel W 5 B Notification Callback
- *
- *  The notification prototype <tt>Gpt_Notification_Channel_W_5_B()</tt> is for
- *  the notification callback function for GPT Channel W 5 B and shall be
- *  implemented by the user.
- *
- *  The GPT module's environment shall declare a separate notification for each
- *  channel to avoid parameters in notification services and to improve run time
- *  efficiency. (<tt>BSW00375</tt>, <tt>BSW12069</tt>)
- *
- *  <b>GPT086</b>:	The callback notifications
- *  			<tt>Gpt_Notification_Channel_W_5_B()</tt> shall be
- *  			configurable as pointers to user defined functions
- *  			within the configuration structure.
- *
- *  <b>GPT209</b>:	Each channel shall provide its own notification if
- *  			configured. (<tt>BSW00375</tt>, <tt>BSW12069</tt>)
- *
- *  <b>GPT093</b>:	When disabled, the GPT Driver will send no
- *  			notifications.
- *
- *  <b>GPT233</b>:	The GPT Driver shall invoke a notification callback
- *  			whenever the defined target time of the channel is
- *  			reached. (<tt>BSW12067</tt>, <tt>BSW12120</tt>)
- *
- *  <b>GPT206</b>:	The ISR's, providing the GPT events, shall be
- *  			responsible for resetting  the interrupt flags (if
- *  			needed by hardware) and calling the according
- *  			notification function.
- *
- *  <b>GPT362</b>:	For all available channels, callback functions have to
- *  			be declared by the configuration tool.
- */
-void Gpt_Notification_Channel_W_5_B(
-  void
-);
-
-/** @brief	Channel J 0 Notification Callback
- *
- *  The notification prototype <tt>Gpt_Notification_Channel_J_0()</tt> is for
- *  the notification callback function for GPT Channel J 0 and shall be
- *  implemented by the user.
- *
- *  The GPT module's environment shall declare a separate notification for each
- *  channel to avoid parameters in notification services and to improve run time
- *  efficiency. (<tt>BSW00375</tt>, <tt>BSW12069</tt>)
- *
- *  <b>GPT086</b>:	The callback notifications
- *  			<tt>Gpt_Notification_Channel_J_0()</tt> shall be
- *  			configurable as pointers to user defined functions
- *  			within the configuration structure.
- *
- *  <b>GPT209</b>:	Each channel shall provide its own notification if
- *  			configured. (<tt>BSW00375</tt>, <tt>BSW12069</tt>)
- *
- *  <b>GPT093</b>:	When disabled, the GPT Driver will send no
- *  			notifications.
- *
- *  <b>GPT233</b>:	The GPT Driver shall invoke a notification callback
- *  			whenever the defined target time of the channel is
- *  			reached. (<tt>BSW12067</tt>, <tt>BSW12120</tt>)
- *
- *  <b>GPT206</b>:	The ISR's, providing the GPT events, shall be
- *  			responsible for resetting  the interrupt flags (if
- *  			needed by hardware) and calling the according
- *  			notification function.
- *
- *  <b>GPT362</b>:	For all available channels, callback functions have to
- *  			be declared by the configuration tool.
- */
-void Gpt_Notification_Channel_J_0(
-  void
-);
-
-/** @brief	Channel J 1 Notification Callback
- *
- *  The notification prototype <tt>Gpt_Notification_Channel_J_1()</tt> is for
- *  the notification callback function for GPT Channel J 1 and shall be
- *  implemented by the user.
- *
- *  The GPT module's environment shall declare a separate notification for each
- *  channel to avoid parameters in notification services and to improve run time
- *  efficiency. (<tt>BSW00375</tt>, <tt>BSW12069</tt>)
- *
- *  <b>GPT086</b>:	The callback notifications
- *  			<tt>Gpt_Notification_Channel_J_1()</tt> shall be
- *  			configurable as pointers to user defined functions
- *  			within the configuration structure.
- *
- *  <b>GPT209</b>:	Each channel shall provide its own notification if
- *  			configured. (<tt>BSW00375</tt>, <tt>BSW12069</tt>)
- *
- *  <b>GPT093</b>:	When disabled, the GPT Driver will send no
- *  			notifications.
- *
- *  <b>GPT233</b>:	The GPT Driver shall invoke a notification callback
- *  			whenever the defined target time of the channel is
- *  			reached. (<tt>BSW12067</tt>, <tt>BSW12120</tt>)
- *
- *  <b>GPT206</b>:	The ISR's, providing the GPT events, shall be
- *  			responsible for resetting  the interrupt flags (if
- *  			needed by hardware) and calling the according
- *  			notification function.
- *
- *  <b>GPT362</b>:	For all available channels, callback functions have to
- *  			be declared by the configuration tool.
- */
-void Gpt_Notification_Channel_J_1(
-  void
-);
-
-/** @brief	Channel J 2 Notification Callback
- *
- *  The notification prototype <tt>Gpt_Notification_Channel_J_2()</tt> is for
- *  the notification callback function for GPT Channel J 2 and shall be
- *  implemented by the user.
- *
- *  The GPT module's environment shall declare a separate notification for each
- *  channel to avoid parameters in notification services and to improve run time
- *  efficiency. (<tt>BSW00375</tt>, <tt>BSW12069</tt>)
- *
- *  <b>GPT086</b>:	The callback notifications
- *  			<tt>Gpt_Notification_Channel_J_2()</tt> shall be
- *  			configurable as pointers to user defined functions
- *  			within the configuration structure.
- *
- *  <b>GPT209</b>:	Each channel shall provide its own notification if
- *  			configured. (<tt>BSW00375</tt>, <tt>BSW12069</tt>)
- *
- *  <b>GPT093</b>:	When disabled, the GPT Driver will send no
- *  			notifications.
- *
- *  <b>GPT233</b>:	The GPT Driver shall invoke a notification callback
- *  			whenever the defined target time of the channel is
- *  			reached. (<tt>BSW12067</tt>, <tt>BSW12120</tt>)
- *
- *  <b>GPT206</b>:	The ISR's, providing the GPT events, shall be
- *  			responsible for resetting  the interrupt flags (if
- *  			needed by hardware) and calling the according
- *  			notification function.
- *
- *  <b>GPT362</b>:	For all available channels, callback functions have to
- *  			be declared by the configuration tool.
- */
-void Gpt_Notification_Channel_J_2(
-  void
-);
-
-/** @brief	Channel J 3 Notification Callback
- *
- *  The notification prototype <tt>Gpt_Notification_Channel_J_3()</tt> is for
- *  the notification callback function for GPT Channel J 3 and shall be
- *  implemented by the user.
- *
- *  The GPT module's environment shall declare a separate notification for each
- *  channel to avoid parameters in notification services and to improve run time
- *  efficiency. (<tt>BSW00375</tt>, <tt>BSW12069</tt>)
- *
- *  <b>GPT086</b>:	The callback notifications
- *  			<tt>Gpt_Notification_Channel_J_3()</tt> shall be
- *  			configurable as pointers to user defined functions
- *  			within the configuration structure.
- *
- *  <b>GPT209</b>:	Each channel shall provide its own notification if
- *  			configured. (<tt>BSW00375</tt>, <tt>BSW12069</tt>)
- *
- *  <b>GPT093</b>:	When disabled, the GPT Driver will send no
- *  			notifications.
- *
- *  <b>GPT233</b>:	The GPT Driver shall invoke a notification callback
- *  			whenever the defined target time of the channel is
- *  			reached. (<tt>BSW12067</tt>, <tt>BSW12120</tt>)
- *
- *  <b>GPT206</b>:	The ISR's, providing the GPT events, shall be
- *  			responsible for resetting  the interrupt flags (if
- *  			needed by hardware) and calling the according
- *  			notification function.
- *
- *  <b>GPT362</b>:	For all available channels, callback functions have to
- *  			be declared by the configuration tool.
- */
-void Gpt_Notification_Channel_J_3(
-  void
-);
-
-/** @brief	Channel J 4 Notification Callback
- *
- *  The notification prototype <tt>Gpt_Notification_Channel_J_4()</tt> is for
- *  the notification callback function for GPT Channel J 4 and shall be
- *  implemented by the user.
- *
- *  The GPT module's environment shall declare a separate notification for each
- *  channel to avoid parameters in notification services and to improve run time
- *  efficiency. (<tt>BSW00375</tt>, <tt>BSW12069</tt>)
- *
- *  <b>GPT086</b>:	The callback notifications
- *  			<tt>Gpt_Notification_Channel_J_4()</tt> shall be
- *  			configurable as pointers to user defined functions
- *  			within the configuration structure.
- *
- *  <b>GPT209</b>:	Each channel shall provide its own notification if
- *  			configured. (<tt>BSW00375</tt>, <tt>BSW12069</tt>)
- *
- *  <b>GPT093</b>:	When disabled, the GPT Driver will send no
- *  			notifications.
- *
- *  <b>GPT233</b>:	The GPT Driver shall invoke a notification callback
- *  			whenever the defined target time of the channel is
- *  			reached. (<tt>BSW12067</tt>, <tt>BSW12120</tt>)
- *
- *  <b>GPT206</b>:	The ISR's, providing the GPT events, shall be
- *  			responsible for resetting  the interrupt flags (if
- *  			needed by hardware) and calling the according
- *  			notification function.
- *
- *  <b>GPT362</b>:	For all available channels, callback functions have to
- *  			be declared by the configuration tool.
- */
-void Gpt_Notification_Channel_J_4(
-  void
-);
-
-/** @brief	Channel J 5 Notification Callback
- *
- *  The notification prototype <tt>Gpt_Notification_Channel_J_5()</tt> is for
- *  the notification callback function for GPT Channel J 5 and shall be
- *  implemented by the user.
- *
- *  The GPT module's environment shall declare a separate notification for each
- *  channel to avoid parameters in notification services and to improve run time
- *  efficiency. (<tt>BSW00375</tt>, <tt>BSW12069</tt>)
- *
- *  <b>GPT086</b>:	The callback notifications
- *  			<tt>Gpt_Notification_Channel_J_5()</tt> shall be
- *  			configurable as pointers to user defined functions
- *  			within the configuration structure.
- *
- *  <b>GPT209</b>:	Each channel shall provide its own notification if
- *  			configured. (<tt>BSW00375</tt>, <tt>BSW12069</tt>)
- *
- *  <b>GPT093</b>:	When disabled, the GPT Driver will send no
- *  			notifications.
- *
- *  <b>GPT233</b>:	The GPT Driver shall invoke a notification callback
- *  			whenever the defined target time of the channel is
- *  			reached. (<tt>BSW12067</tt>, <tt>BSW12120</tt>)
- *
- *  <b>GPT206</b>:	The ISR's, providing the GPT events, shall be
- *  			responsible for resetting  the interrupt flags (if
- *  			needed by hardware) and calling the according
- *  			notification function.
- *
- *  <b>GPT362</b>:	For all available channels, callback functions have to
- *  			be declared by the configuration tool.
- */
-void Gpt_Notification_Channel_J_5(
-  void
-);
-
-/** @brief	Channel J W 0 Notification Callback
- *
- *  The notification prototype <tt>Gpt_Notification_Channel_J_W_0()</tt> is for
- *  the notification callback function for GPT Channel J W 0 and shall be
- *  implemented by the user.
- *
- *  The GPT module's environment shall declare a separate notification for each
- *  channel to avoid parameters in notification services and to improve run time
- *  efficiency. (<tt>BSW00375</tt>, <tt>BSW12069</tt>)
- *
- *  <b>GPT086</b>:	The callback notifications
- *  			<tt>Gpt_Notification_Channel_J_W_0()</tt> shall be
- *  			configurable as pointers to user defined functions
- *  			within the configuration structure.
- *
- *  <b>GPT209</b>:	Each channel shall provide its own notification if
- *  			configured. (<tt>BSW00375</tt>, <tt>BSW12069</tt>)
- *
- *  <b>GPT093</b>:	When disabled, the GPT Driver will send no
- *  			notifications.
- *
- *  <b>GPT233</b>:	The GPT Driver shall invoke a notification callback
- *  			whenever the defined target time of the channel is
- *  			reached. (<tt>BSW12067</tt>, <tt>BSW12120</tt>)
- *
- *  <b>GPT206</b>:	The ISR's, providing the GPT events, shall be
- *  			responsible for resetting  the interrupt flags (if
- *  			needed by hardware) and calling the according
- *  			notification function.
- *
- *  <b>GPT362</b>:	For all available channels, callback functions have to
- *  			be declared by the configuration tool.
- */
-void Gpt_Notification_Channel_J_W_0(
-  void
-);
-
-/** @brief	Channel J W 1 Notification Callback
- *
- *  The notification prototype <tt>Gpt_Notification_Channel_J_W_1()</tt> is for
- *  the notification callback function for GPT Channel J W 1 and shall be
- *  implemented by the user.
- *
- *  The GPT module's environment shall declare a separate notification for each
- *  channel to avoid parameters in notification services and to improve run time
- *  efficiency. (<tt>BSW00375</tt>, <tt>BSW12069</tt>)
- *
- *  <b>GPT086</b>:	The callback notifications
- *  			<tt>Gpt_Notification_Channel_J_W_1()</tt> shall be
- *  			configurable as pointers to user defined functions
- *  			within the configuration structure.
- *
- *  <b>GPT209</b>:	Each channel shall provide its own notification if
- *  			configured. (<tt>BSW00375</tt>, <tt>BSW12069</tt>)
- *
- *  <b>GPT093</b>:	When disabled, the GPT Driver will send no
- *  			notifications.
- *
- *  <b>GPT233</b>:	The GPT Driver shall invoke a notification callback
- *  			whenever the defined target time of the channel is
- *  			reached. (<tt>BSW12067</tt>, <tt>BSW12120</tt>)
- *
- *  <b>GPT206</b>:	The ISR's, providing the GPT events, shall be
- *  			responsible for resetting  the interrupt flags (if
- *  			needed by hardware) and calling the according
- *  			notification function.
- *
- *  <b>GPT362</b>:	For all available channels, callback functions have to
- *  			be declared by the configuration tool.
- */
-void Gpt_Notification_Channel_J_W_1(
-  void
-);
-
-/** @brief	Channel J W 2 Notification Callback
- *
- *  The notification prototype <tt>Gpt_Notification_Channel_J_W_2()</tt> is for
- *  the notification callback function for GPT Channel J W 2 and shall be
- *  implemented by the user.
- *
- *  The GPT module's environment shall declare a separate notification for each
- *  channel to avoid parameters in notification services and to improve run time
- *  efficiency. (<tt>BSW00375</tt>, <tt>BSW12069</tt>)
- *
- *  <b>GPT086</b>:	The callback notifications
- *  			<tt>Gpt_Notification_Channel_J_W_2()</tt> shall be
- *  			configurable as pointers to user defined functions
- *  			within the configuration structure.
- *
- *  <b>GPT209</b>:	Each channel shall provide its own notification if
- *  			configured. (<tt>BSW00375</tt>, <tt>BSW12069</tt>)
- *
- *  <b>GPT093</b>:	When disabled, the GPT Driver will send no
- *  			notifications.
- *
- *  <b>GPT233</b>:	The GPT Driver shall invoke a notification callback
- *  			whenever the defined target time of the channel is
- *  			reached. (<tt>BSW12067</tt>, <tt>BSW12120</tt>)
- *
- *  <b>GPT206</b>:	The ISR's, providing the GPT events, shall be
- *  			responsible for resetting  the interrupt flags (if
- *  			needed by hardware) and calling the according
- *  			notification function.
- *
- *  <b>GPT362</b>:	For all available channels, callback functions have to
- *  			be declared by the configuration tool.
- */
-void Gpt_Notification_Channel_J_W_2(
-  void
-);
-
-/** @brief	Channel J W 3 Notification Callback
- *
- *  The notification prototype <tt>Gpt_Notification_Channel_J_W_3()</tt> is for
- *  the notification callback function for GPT Channel J W 3 and shall be
- *  implemented by the user.
- *
- *  The GPT module's environment shall declare a separate notification for each
- *  channel to avoid parameters in notification services and to improve run time
- *  efficiency. (<tt>BSW00375</tt>, <tt>BSW12069</tt>)
- *
- *  <b>GPT086</b>:	The callback notifications
- *  			<tt>Gpt_Notification_Channel_J_W_3()</tt> shall be
- *  			configurable as pointers to user defined functions
- *  			within the configuration structure.
- *
- *  <b>GPT209</b>:	Each channel shall provide its own notification if
- *  			configured. (<tt>BSW00375</tt>, <tt>BSW12069</tt>)
- *
- *  <b>GPT093</b>:	When disabled, the GPT Driver will send no
- *  			notifications.
- *
- *  <b>GPT233</b>:	The GPT Driver shall invoke a notification callback
- *  			whenever the defined target time of the channel is
- *  			reached. (<tt>BSW12067</tt>, <tt>BSW12120</tt>)
- *
- *  <b>GPT206</b>:	The ISR's, providing the GPT events, shall be
- *  			responsible for resetting  the interrupt flags (if
- *  			needed by hardware) and calling the according
- *  			notification function.
- *
- *  <b>GPT362</b>:	For all available channels, callback functions have to
- *  			be declared by the configuration tool.
- */
-void Gpt_Notification_Channel_J_W_3(
-  void
-);
-
-/** @brief	Channel J W 4 Notification Callback
- *
- *  The notification prototype <tt>Gpt_Notification_Channel_J_W_4()</tt> is for
- *  the notification callback function for GPT Channel J W 4 and shall be
- *  implemented by the user.
- *
- *  The GPT module's environment shall declare a separate notification for each
- *  channel to avoid parameters in notification services and to improve run time
- *  efficiency. (<tt>BSW00375</tt>, <tt>BSW12069</tt>)
- *
- *  <b>GPT086</b>:	The callback notifications
- *  			<tt>Gpt_Notification_Channel_J_W_4()</tt> shall be
- *  			configurable as pointers to user defined functions
- *  			within the configuration structure.
- *
- *  <b>GPT209</b>:	Each channel shall provide its own notification if
- *  			configured. (<tt>BSW00375</tt>, <tt>BSW12069</tt>)
- *
- *  <b>GPT093</b>:	When disabled, the GPT Driver will send no
- *  			notifications.
- *
- *  <b>GPT233</b>:	The GPT Driver shall invoke a notification callback
- *  			whenever the defined target time of the channel is
- *  			reached. (<tt>BSW12067</tt>, <tt>BSW12120</tt>)
- *
- *  <b>GPT206</b>:	The ISR's, providing the GPT events, shall be
- *  			responsible for resetting  the interrupt flags (if
- *  			needed by hardware) and calling the according
- *  			notification function.
- *
- *  <b>GPT362</b>:	For all available channels, callback functions have to
- *  			be declared by the configuration tool.
- */
-void Gpt_Notification_Channel_J_W_4(
-  void
-);
-
-/** @brief	Channel J W 5 Notification Callback
- *
- *  The notification prototype <tt>Gpt_Notification_Channel_J_W_5()</tt> is for
- *  the notification callback function for GPT Channel J W 5 and shall be
- *  implemented by the user.
- *
- *  The GPT module's environment shall declare a separate notification for each
- *  channel to avoid parameters in notification services and to improve run time
- *  efficiency. (<tt>BSW00375</tt>, <tt>BSW12069</tt>)
- *
- *  <b>GPT086</b>:	The callback notifications
- *  			<tt>Gpt_Notification_Channel_J_W_5()</tt> shall be
- *  			configurable as pointers to user defined functions
- *  			within the configuration structure.
- *
- *  <b>GPT209</b>:	Each channel shall provide its own notification if
- *  			configured. (<tt>BSW00375</tt>, <tt>BSW12069</tt>)
- *
- *  <b>GPT093</b>:	When disabled, the GPT Driver will send no
- *  			notifications.
- *
- *  <b>GPT233</b>:	The GPT Driver shall invoke a notification callback
- *  			whenever the defined target time of the channel is
- *  			reached. (<tt>BSW12067</tt>, <tt>BSW12120</tt>)
- *
- *  <b>GPT206</b>:	The ISR's, providing the GPT events, shall be
- *  			responsible for resetting  the interrupt flags (if
- *  			needed by hardware) and calling the according
- *  			notification function.
- *
- *  <b>GPT362</b>:	For all available channels, callback functions have to
- *  			be declared by the configuration tool.
- */
-void Gpt_Notification_Channel_J_W_5(
+void Gpt_Notification_Channel_3_PIT(
   void
 );
 #endif	/* GPT_ENABLE_DISABLE_NOTIFICATION_API == STD_ON */

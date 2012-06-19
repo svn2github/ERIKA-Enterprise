@@ -44,7 +44,7 @@
  *
  * AUTOSAR-"like" GPT Driver Channels ISRs Source File.
  *
- * Author:  2011,  Giuseppe Serano
+ * Author:  2012,  Francesco Esposito
  */
 
 /*
@@ -77,6 +77,7 @@
 
 #include "ee.h"
 #include "ee_irq.h"
+#include "Gpt_Internal.h"
 
 /*
  * Type that holds all global data for Gpt Driver
@@ -100,306 +101,170 @@ extern Gpt_GlobalType Gpt_Global;
 
 #if ( GPT_ENABLE_DISABLE_NOTIFICATION_API == STD_ON )
 
-#if ( \
-  defined(EE_CORTEX_MX_TIMER_0_A_ISR) || \
-  defined(EE_CORTEX_MX_TIMER_1_A_ISR) || \
-  defined(EE_CORTEX_MX_TIMER_2_A_ISR) || \
-  defined(EE_CORTEX_MX_TIMER_3_A_ISR) || \
-  defined(EE_CORTEX_MX_TIMER_4_A_ISR) || \
-  defined(EE_CORTEX_MX_TIMER_5_A_ISR) || \
-  defined(EE_CORTEX_MX_WIDE_TIMER_0_A_ISR) || \
-  defined(EE_CORTEX_MX_WIDE_TIMER_1_A_ISR) || \
-  defined(EE_CORTEX_MX_WIDE_TIMER_2_A_ISR) || \
-  defined(EE_CORTEX_MX_WIDE_TIMER_3_A_ISR) || \
-  defined(EE_CORTEX_MX_WIDE_TIMER_4_A_ISR) || \
-  defined(EE_CORTEX_MX_WIDE_TIMER_5_A_ISR) \
-)
-static void Gpt_Isr_A(
-  Gpt_ChannelType		Channel_A,
-  Gpt_ChannelType		Channel_J
-)
-{
-
-  register EE_FREG			flags;
-  register boolean			init;
-  register const Gpt_ConfigType *	cfg;
-  register uint32			ris;
-  register uint32			mis;
-  register Gpt_ChannelType		ch;
-
-  flags = EE_hal_suspendIRQ();
-  init = Gpt_Global.Init;
-  cfg = Gpt_Global.ConfigPtr;
-  ris = GPT_GET_RIS(Channel_A);
-  mis = GPT_GET_MIS(Channel_A);
-  GPT_INT_CLR(
-    Channel_A, GPT_TMRA_INT_ALL | GPT_TMR_INT_WUE | GPT_TMR_INT_RTC
-  );
-  EE_hal_resumeIRQ(flags);
-
-  if ( 
-    ( init == TRUE ) &&
-    (
-      ( ris & GPT_TMR_INT_TATO ) ||
-      ( mis & GPT_TMR_INT_TATO )
-    )
-  ) {
-
-    /* Channel Look-up */
-    for (
-      ch = 0;
-      (
-	( ch < cfg->GptNumberOfGptChannels ) &&
-	(
-	  ( cfg->GptChannels[ch].GptChannelId != Channel_A ) &&
-	  ( cfg->GptChannels[ch].GptChannelId != Channel_J )
-	)
-      );
-      ch++
-    ) {
-      ;
-    }
-
-    /* Notification Callback Call. */
-    if (
-      ( ch < cfg->GptNumberOfGptChannels ) &&
-      ( cfg->GptChannels[ch].GptNotificationPtr != NULL_PTR )
-    ) {
-
-      (*(cfg->GptChannels[ch].GptNotificationPtr))();
-
-    }
-
-  }
-
-}
-#endif
+extern int Gpt_NotificationList[];
 
 #if ( \
-  defined(EE_CORTEX_MX_TIMER_0_B_ISR) || \
-  defined(EE_CORTEX_MX_TIMER_1_B_ISR) || \
-  defined(EE_CORTEX_MX_TIMER_2_B_ISR) || \
-  defined(EE_CORTEX_MX_TIMER_3_B_ISR) || \
-  defined(EE_CORTEX_MX_TIMER_4_B_ISR) || \
-  defined(EE_CORTEX_MX_TIMER_5_B_ISR) || \
-  defined(EE_CORTEX_MX_WIDE_TIMER_0_B_ISR) || \
-  defined(EE_CORTEX_MX_WIDE_TIMER_1_B_ISR) || \
-  defined(EE_CORTEX_MX_WIDE_TIMER_2_B_ISR) || \
-  defined(EE_CORTEX_MX_WIDE_TIMER_3_B_ISR) || \
-  defined(EE_CORTEX_MX_WIDE_TIMER_4_B_ISR) || \
-  defined(EE_CORTEX_MX_WIDE_TIMER_5_B_ISR) \
+  defined(EE_PPCE200ZX_30_ISR) || \
+  defined(EE_PPCE200ZX_31_ISR) || \
+  defined(EE_PPCE200ZX_32_ISR) || \
+  defined(EE_PPCE200ZX_33_ISR) || \
+  defined(EE_PPCE200ZX_59_ISR) || \
+  defined(EE_PPCE200ZX_60_ISR) || \
+  defined(EE_PPCE200ZX_61_ISR) || \
+  defined(EE_PPCE200ZX_127_ISR) \
 )
-static void Gpt_Isr_B(
-  Gpt_ChannelType		Channel_B
+
+Gpt_Notification prova, prova2;
+
+void Gpt_Isr_STM(
+  Gpt_ChannelType		Channel_STM
 )
 {
+/*	register boolean		init;
+  	register const Gpt_ConfigType	*cfg;
+	register EE_FREG		flags;
 
-  register EE_FREG			flags;
-  register boolean			init;
-  register const Gpt_ConfigType *	cfg;
-  register uint32			ris;
-  register uint32			mis;
-  register Gpt_ChannelType		ch;
+	init = Gpt_Global.Init;
+	cfg = Gpt_Global.ConfigPtr;
 
-  flags = EE_hal_suspendIRQ();
-  init = Gpt_Global.Init;
-  cfg = Gpt_Global.ConfigPtr;
-  ris = GPT_GET_RIS(Channel_B);
-  mis = GPT_GET_MIS(Channel_B);
-  GPT_INT_CLR(
-    Channel_B, GPT_TMRB_INT_ALL | GPT_TMR_INT_WUE | GPT_TMR_INT_RTC
-  );
-  EE_hal_resumeIRQ(flags);
+	// Notification Callback Call.
+	if ( ( Channel_STM < 3U) &&
+	( cfg->GptChannels[Channel_STM].GptNotificationPtr != NULL_PTR ) &&
+	( Gpt_NotificationList[Channel_STM] == NOTIFICATION_ENABLED)
+	) {
+		//(*(cfg->GptChannels[Channel_STM].GptNotificationPtr))();
+		Gpt_Notification_Channel_0_STM();
 
-  if ( 
-    ( init == TRUE ) &&
-    (
-      ( ris & GPT_TMR_INT_TBTO ) ||
-      ( mis & GPT_TMR_INT_TBTO )
-    )
-  ) {
+//prova = cfg->GptChannels[Channel_STM].GptNotificationPtr;
+//prova2 = Gpt_Notification_Channel_0_STM;
+//cfg->GptChannels[Channel_STM].GptNotificationPtr();
+	}
 
-    /* Channel Look-up */
-    for (
-      ch = 0;
-      (
-	( ch < cfg->GptNumberOfGptChannels ) &&
-	( cfg->GptChannels[ch].GptChannelId != Channel_B )
-      );
-      ch++
-    ) {
-      ;
-    }
+	// clear request
+        mpc5643l_stm_clear_int(Channel_STM);
 
-    /* Notification Callback Call. */
-    if (
-      ( ch < cfg->GptNumberOfGptChannels ) &&
-      ( cfg->GptChannels[ch].GptNotificationPtr != NULL_PTR )
-    ) {
+	if (cfg->GptChannels[Channel_STM].GptChannelMode == \
+		GPT_CH_MODE_CONTINUOUS)
+	{
+		// stop timer
+		mpc5643l_stm_disable();
 
-      (*(cfg->GptChannels[ch].GptNotificationPtr))();
+		// enable channel 0 to raise a new interrupt
+		mpc5643l_stm_select_channel(Channel_STM);
 
-    }
+		// initial counter value (equal to 0)
+		mpc5643l_stm_set_counter(0);
 
-  }
+		// start timer
+		mpc5643l_stm_enable();
+	}*/
 
+// Periodic activity: send CAN message
+        Gpt_Notification_Channel_0_STM();
+
+        // clear request
+        mpc5643l_stm_clear_int(0);
+
+        // stop timer
+        mpc5643l_stm_disable();
+
+        // enable channel 0 to raise a new interrupt
+        mpc5643l_stm_select_channel(0);
+
+        // initial counter value (equal to 0)
+        mpc5643l_stm_set_counter(0);
+
+	// start timer
+        mpc5643l_stm_enable();
 }
-#endif
 
-#ifdef	EE_CORTEX_MX_TIMER_0_A_ISR
-/* GPT CHANNEL 0 A or CHANNEL J 0 ISR */
-ISR2(EE_CORTEX_MX_TIMER_0_A_ISR)
+static void Gpt_Isr_PIT(
+  Gpt_ChannelType		Channel_PIT
+)
 {
-  Gpt_Isr_A(GPT_CHANNEL_0_A, GPT_CHANNEL_J_0);
+	;
 }
 #endif
 
-#ifdef	EE_CORTEX_MX_TIMER_0_B_ISR
-/* GPT CHANNEL 0 B ISR */
-ISR2(EE_CORTEX_MX_TIMER_0_B_ISR) { Gpt_Isr_B(GPT_CHANNEL_0_B); }
-#endif
+/*
+ * STM timers definitions
+ */
 
-#ifdef	EE_CORTEX_MX_TIMER_1_A_ISR
-/* GPT CHANNEL 1 A or CHANNEL J 1 ISR */
-ISR2(EE_CORTEX_MX_TIMER_1_A_ISR)
+#ifdef	EE_PPCE200ZX_30_ISR
+DeclareIsr(EE_PPCE200ZX_30_ISR);
+/* GPT CHANNEL 0 STM ISR */
+ISR2(EE_PPCE200ZX_30_ISR)
 {
-  Gpt_Isr_A(GPT_CHANNEL_1_A, GPT_CHANNEL_J_1);
+  Gpt_Isr_STM(GPT_CHANNEL_0_STM);
 }
 #endif
 
-#ifdef	EE_CORTEX_MX_TIMER_1_B_ISR
-/* GPT CHANNEL 1 B ISR */
-ISR2(EE_CORTEX_MX_TIMER_1_B_ISR) { Gpt_Isr_B(GPT_CHANNEL_1_B); }
-#endif
-
-#ifdef	EE_CORTEX_MX_TIMER_2_A_ISR
-/* GPT CHANNEL 2 A or CHANNEL J 2 ISR */
-ISR2(EE_CORTEX_MX_TIMER_2_A_ISR)
+#ifdef	EE_PPCE200ZX_31_ISR
+DeclareIsr(EE_PPCE200ZX_31_ISR);
+/* GPT CHANNEL 1 STM ISR */
+ISR2(EE_PPCE200ZX_31_ISR)
 {
-  Gpt_Isr_A(GPT_CHANNEL_2_A, GPT_CHANNEL_J_2);
+  Gpt_Isr_STM(GPT_CHANNEL_1_STM);
 }
 #endif
 
-#ifdef	EE_CORTEX_MX_TIMER_2_B_ISR
-/* GPT CHANNEL 2 B ISR */
-ISR2(EE_CORTEX_MX_TIMER_2_B_ISR) { Gpt_Isr_B(GPT_CHANNEL_2_B); }
-#endif
-
-#ifdef	EE_CORTEX_MX_TIMER_3_A_ISR
-/* GPT CHANNEL 3 A or CHANNEL J 3 ISR */
-ISR2(EE_CORTEX_MX_TIMER_3_A_ISR)
+#ifdef	EE_PPCE200ZX_32_ISR
+DeclareIsr(EE_PPCE200ZX_32_ISR);
+/* GPT CHANNEL 2 STM ISR */
+ISR2(EE_PPCE200ZX_32_ISR)
 {
-  Gpt_Isr_A(GPT_CHANNEL_0_A, GPT_CHANNEL_J_0);
+  Gpt_Isr_STM(GPT_CHANNEL_2_STM);
 }
 #endif
 
-#ifdef	EE_CORTEX_MX_TIMER_3_B_ISR
-/* GPT CHANNEL 3 B ISR */
-ISR2(EE_CORTEX_MX_TIMER_3_B_ISR) { Gpt_Isr_B(GPT_CHANNEL_3_B); }
-#endif
-
-#ifdef	EE_CORTEX_MX_TIMER_4_A_ISR
-/* GPT CHANNEL 4 A or CHANNEL J 4 ISR */
-ISR2(EE_CORTEX_MX_TIMER_4_A_ISR)
+#ifdef	EE_PPCE200ZX_33_ISR
+DeclareIsr(EE_PPCE200ZX_33_ISR);
+/* GPT CHANNEL 3 STM ISR */
+ISR2(EE_PPCE200ZX_33_ISR)
 {
-  Gpt_Isr_A(GPT_CHANNEL_4_A, GPT_CHANNEL_J_4);
+  Gpt_Isr_STM(GPT_CHANNEL_3_STM);
 }
 #endif
 
-#ifdef	EE_CORTEX_MX_TIMER_4_B_ISR
-/* GPT CHANNEL 4 B ISR */
-ISR2(EE_CORTEX_MX_TIMER_4_B_ISR){ Gpt_Isr_B(GPT_CHANNEL_4_B); }
-#endif
+/*
+ * PIT timers definitions
+ */
 
-#ifdef	EE_CORTEX_MX_TIMER_5_A_ISR
-/* GPT CHANNEL 5 A or CHANNEL J 5 ISR */
-ISR2(EE_CORTEX_MX_TIMER_5_A_ISR)
+#ifdef	EE_PPCE200ZX_59_ISR
+DeclareIsr(EE_PPCE200ZX_59_ISR);
+/* GPT CHANNEL 0 PIT ISR */
+ISR2(EE_PPCE200ZX_59_ISR)
 {
-  Gpt_Isr_A(GPT_CHANNEL_0_A, GPT_CHANNEL_J_0);
+  Gpt_Isr_PIT(GPT_CHANNEL_0_PIT);
 }
 #endif
 
-#ifdef	EE_CORTEX_MX_TIMER_5_B_ISR
-/* GPT CHANNEL 5 B ISR */
-ISR2(EE_CORTEX_MX_TIMER_5_B_ISR){ Gpt_Isr_B(GPT_CHANNEL_5_B); }
-#endif
-
-#ifdef	EE_CORTEX_MX_WIDE_TIMER_0_A_ISR
-/* GPT CHANNEL W 0 A or CHANNEL J W 0 ISR */
-ISR2(EE_CORTEX_MX_WIDE_TIMER_0_A_ISR)
+#ifdef	EE_PPCE200ZX_60_ISR
+DeclareIsr(EE_PPCE200ZX_60_ISR);
+/* GPT CHANNEL 1 PIT ISR */
+ISR2(EE_PPCE200ZX_60_ISR)
 {
-  Gpt_Isr_A(GPT_CHANNEL_W_0_A, GPT_CHANNEL_J_W_0);
+  Gpt_Isr_PIT(GPT_CHANNEL_1_PIT);
 }
 #endif
 
-#ifdef	EE_CORTEX_MX_WIDE_TIMER_0_B_ISR
-/* GPT CHANNEL W 0 B ISR */
-ISR2(EE_CORTEX_MX_WIDE_TIMER_0_B_ISR) { Gpt_Isr_B(GPT_CHANNEL_W_0_B); }
-#endif
-
-#ifdef	EE_CORTEX_MX_WIDE_TIMER_1_A_ISR
-/* GPT CHANNEL W 1 A or CHANNEL J W 1 ISR */
-ISR2(EE_CORTEX_MX_WIDE_TIMER_1_A_ISR)
+#ifdef	EE_PPCE200ZX_61_ISR
+DeclareIsr(EE_PPCE200ZX_61_ISR);
+/* GPT CHANNEL 2 PIT ISR */
+ISR2(EE_PPCE200ZX_61_ISR)
 {
-  Gpt_Isr_A(GPT_CHANNEL_W_1_A, GPT_CHANNEL_J_W_1);
+  Gpt_Isr_PIT(GPT_CHANNEL_2_PIT);
 }
 #endif
 
-#ifdef	EE_CORTEX_MX_WIDE_TIMER_1_B_ISR
-/* GPT CHANNEL W 1 B ISR */
-ISR2(EE_CORTEX_MX_WIDE_TIMER_1_B_ISR) { Gpt_Isr_B(GPT_CHANNEL_W_1_B); }
-#endif
-
-#ifdef	EE_CORTEX_MX_WIDE_TIMER_2_A_ISR
-/* GPT CHANNEL W 2 A or CHANNEL J W 2 ISR */
-ISR2(EE_CORTEX_MX_WIDE_TIMER_2_A_ISR)
+#ifdef	EE_PPCE200ZX_127_ISR
+DeclareIsr(EE_PPCE200ZX_127_ISR);
+/* GPT CHANNEL 3 PIT ISR */
+ISR2(EE_PPCE200ZX_127_ISR)
 {
-  Gpt_Isr_A(GPT_CHANNEL_W_2_A, GPT_CHANNEL_J_W_2);
+  Gpt_Isr_PIT(GPT_CHANNEL_3_PIT);
 }
 #endif
 
-#ifdef	EE_CORTEX_MX_WIDE_TIMER_2_B_ISR
-/* GPT CHANNEL W 2 B ISR */
-ISR2(EE_CORTEX_MX_WIDE_TIMER_2_B_ISR) { Gpt_Isr_B(GPT_CHANNEL_W_2_B); }
-#endif
-
-#ifdef	EE_CORTEX_MX_WIDE_TIMER_3_A_ISR
-/* GPT CHANNEL W 3 A or CHANNEL J W 3 ISR */
-ISR2(EE_CORTEX_MX_WIDE_TIMER_3_A_ISR)
-{
-  Gpt_Isr_A(GPT_CHANNEL_W_3_A, GPT_CHANNEL_J_W_3);
-}
-#endif
-
-#ifdef	EE_CORTEX_MX_WIDE_TIMER_3_B_ISR
-/* GPT CHANNEL W 3 B ISR */
-ISR2(EE_CORTEX_MX_WIDE_TIMER_3_B_ISR) { Gpt_Isr_B(GPT_CHANNEL_W_3_B); }
-#endif
-
-#ifdef	EE_CORTEX_MX_WIDE_TIMER_4_A_ISR
-/* GPT CHANNEL W 4 A or CHANNEL J W 4 ISR */
-ISR2(EE_CORTEX_MX_WIDE_TIMER_4_A_ISR)
-{
-  Gpt_Isr_A(GPT_CHANNEL_W_4_A, GPT_CHANNEL_J_W_4);
-}
-#endif
-
-#ifdef	EE_CORTEX_MX_WIDE_TIMER_4_B_ISR
-/* GPT CHANNEL W 4 B ISR */
-ISR2(EE_CORTEX_MX_WIDE_TIMER_4_B_ISR) { Gpt_Isr_B(GPT_CHANNEL_W_4_B); }
-#endif
-
-#ifdef	EE_CORTEX_MX_WIDE_TIMER_5_A_ISR
-/* GPT CHANNEL W 5 A or CHANNEL J W 5 ISR */
-ISR2(EE_CORTEX_MX_WIDE_TIMER_5_A_ISR)
-{
-  Gpt_Isr_A(GPT_CHANNEL_W_5_A, GPT_CHANNEL_J_W_5);
-}
-#endif
-
-#ifdef	EE_CORTEX_MX_WIDE_TIMER_5_B_ISR
-/* GPT CHANNEL W 5 B ISR */
-ISR2(EE_CORTEX_MX_WIDE_TIMER_5_B_ISR) { Gpt_Isr_B(GPT_CHANNEL_W_5_B); }
-#endif
 
 #endif	/* GPT_NOTIFICATIONS_API */

@@ -43,7 +43,7 @@
  *
  * AUTOSAR-"like" GPT Driver Source File.
  *
- * Author:  2011,  Giuseppe Serano
+ * Author:  2012,  Francesco Esposito
  */
 
 /*
@@ -76,133 +76,145 @@
 #endif
 
 #include "ee.h"
-
-/* Development error macros. */
-#if ( GPT_DEV_ERROR_DETECT == STD_ON )
-
-#include "Det.h"
-#if defined(USE_DEM)
-#include "Dem.h"
-#endif
-
-#define VALIDATE(_exp,_api,_err) \
-  if( !(_exp) ) { \
-    Det_ReportError(GPT_MODULE_ID,0,_api,_err); \
-    return; \
-  }
-
-#define VALIDATE_IRQ(_exp,_api,_err,_flags) \
-  if( !(_exp) ) { \
-    Det_ReportError(GPT_MODULE_ID,0,_api,_err); \
-    EE_hal_resumeIRQ(_flags); \
-    return; \
-  }
-
-#define VALIDATE_W_RV(_exp,_api,_err,_rv) \
-  if( !(_exp) ) { \
-    Det_ReportError(GPT_MODULE_ID,0,_api,_err); \
-    return (_rv); \
-  }
-
-#define VALIDATE_IRQ_W_RV(_exp,_api,_err,_rv,_flags) \
-  if( !(_exp) ) { \
-    Det_ReportError(GPT_MODULE_ID,0,_api,_err); \
-    EE_hal_resumeIRQ(_flags); \
-    return (_rv); \
-  }
-
-#else	/* GPT_DEV_ERROR_DETECT */
-
-#define VALIDATE(_exp,_api,_err) \
-  if( !(_exp) ) { \
-    return; \
-  }
-
-#define VALIDATE_IRQ(_exp,_api,_err,_flags) \
-  if( !(_exp) ) { \
-    EE_hal_resumeIRQ(_flags); \
-    return; \
-  }
-
-#define VALIDATE_W_RV(_exp,_api,_err,_rv) \
-  if( !(_exp) ) { \
-    return (_rv); \
-  }
-
-#define VALIDATE_IRQ_W_RV(_exp,_api,_err,_rv,_flags) \
-  if( !(_exp) ) { \
-    EE_hal_resumeIRQ(_flags); \
-    return (_rv); \
-  }
-
-#endif	/* !GPT_DEV_ERROR_DETECT */
+#include "Gpt_Internal.h"
 
 /*
- * Gpt Enable Channel
- *
- * param	Channel	Numeric ID of a GPT Channel.
+ * Type that holds all global data for Gpt Driver
  */
-static void Gpt_EnableChannel(
-  Gpt_ChannelType	Channel
-)
+typedef struct
 {
 
+  boolean			Init;		/* GPT Driver Initialized?    */
 
+  const Gpt_ConfigType *	ConfigPtr;	/* Actual Configuration	      */
 
-}
+  uint32			Status;		/* Channel Status	      */
 
-#if ( GPT_DEINIT_API == STD_ON )
-/*
- * Gpt Disable Channel
- *
- * param	Channel	Numeric ID of a GPT Channel.
- */
-static void Gpt_DisableChannel(
-  Gpt_ChannelType	Channel
-)
-{
+  uint32			Notifications;	/* Channel Notifications      */
 
-  
-}
+} Gpt_GlobalType;
+
 
 /*
- * Gpt Reset Channel
- *
- * param	Channel	Numeric ID of a GPT Channel.
+ * Global config
  */
-static void Gpt_ResetChannel(
-  Gpt_ChannelType	Channel
-)
+Gpt_GlobalType Gpt_Global =
 {
+  FALSE,		/* Init		*/
+  NULL_PTR,		/* ConfigPtr	*/
+  0x00000000		/* Status	*/
+};
 
-  
-
-}
+#if ( GPT_ENABLE_DISABLE_NOTIFICATION_API == STD_ON )
+/* List of Notification GPT Flag */
+int Gpt_NotificationList[8] = {	
+					NOTIFICATION_ENABLED, \
+					NOTIFICATION_ENABLED, \
+					NOTIFICATION_ENABLED, \
+					NOTIFICATION_ENABLED, \
+					NOTIFICATION_ENABLED, \
+					NOTIFICATION_ENABLED, \
+					NOTIFICATION_ENABLED, \
+					NOTIFICATION_ENABLED
+				     };
 #endif
 
 /*
- * Gpt Channel Initialization.
+ * Local function managing STM module
  */
-static void Gpt_InitGptChannel(
-  const Gpt_ChannelConfigType *	ConfigPtr
-)
+void mpc5643l_stm_freeze_on(void)
 {
-
-  
-
+        STM.CR.B.FRZ = 1;
 }
 
-/*
- * Gpt Channel De-Initialization.
- */
-#if ( GPT_DEINIT_API == STD_ON )
-static void Gpt_DeInitGptChannel(
-  const Gpt_ChannelConfigType *	ConfigPtr
-)
+void mpc5643l_stm_freeze_off(void)
 {
-
+        STM.CR.B.FRZ = 0;
 }
-#endif
+
+void mpc5643l_stm_set_prescaler(unsigned int val)
+{
+        STM.CR.B.CPS = val-1;
+}
+
+void mpc5643l_stm_select_channel(unsigned int ch)
+{
+        if (ch == 0) {
+                STM.CCR0.B.CEN = 1;
+        }
+        else if (ch == 1) {
+                STM.CCR1.B.CEN = 1;
+        }
+        else if (ch == 2) {
+                STM.CCR2.B.CEN = 1;
+        }
+        else if (ch == 3) {
+                STM.CCR3.B.CEN = 1;
+        }
+}
+
+void mpc5643l_stm_unselect_channel(unsigned int ch)
+{
+        if (ch == 0) {
+                STM.CCR0.B.CEN = 0;
+        }
+        else if (ch == 1) {
+                STM.CCR1.B.CEN = 0;
+        }
+        else if (ch == 2) {
+                STM.CCR2.B.CEN = 0;
+        }
+        else if (ch == 3) {
+                STM.CCR3.B.CEN = 0;
+        }
+}
+
+void mpc5643l_stm_channel_cmp(unsigned int ch, unsigned int val)
+{
+        if (ch == 0) {
+                STM.CMP0.R = val;
+        }
+        else if (ch == 1) {
+                STM.CMP1.R = val;
+        }
+        else if (ch == 2) {
+                STM.CMP2.R = val;
+        }
+        else if (ch == 3) {
+                STM.CMP3.R = val;
+        }
+}
+
+void mpc5643l_stm_clear_int(unsigned int ch)
+{
+        if (ch == 0) {
+                STM.CIR0.B.CIF = 1;
+        }
+        else if (ch == 1) {
+                STM.CIR1.B.CIF = 1;
+        }
+        else if (ch == 2) {
+                STM.CIR2.B.CIF = 1;
+        }
+        else if (ch == 3) {
+                STM.CIR3.B.CIF = 1;
+        }
+}
+
+void mpc5643l_stm_set_counter(unsigned int val)
+{
+        STM.CNT.R = val;
+}
+
+void mpc5643l_stm_enable(void)
+{
+        STM.CR.B.TEN = 1;
+}
+
+void mpc5643l_stm_disable(void)
+{
+        STM.CR.B.TEN = 0;
+}
 
 /*
  * Gpt_Init implementation.
@@ -211,8 +223,41 @@ void Gpt_Init(
   const Gpt_ConfigType *	ConfigPtr
 )
 {
+	register EE_FREG	flags;
+	register uint32		channel;
+	static uint8		one_time_setup=NULL;
 
+	flags = EE_hal_suspendIRQ();
 
+	for (channel = 0; channel < ConfigPtr->GptNumberOfGptChannels; channel++)
+	{
+
+		// Prescaler value
+		mpc5643l_stm_set_prescaler(ConfigPtr->GptChannels[0].Prsc);
+
+		// enable channel
+		mpc5643l_stm_select_channel(0);
+
+		if (one_time_setup == NULL) {
+			// Initializes Gpt Channel
+			mpc5643l_stm_freeze_on();
+
+			// initial counter value
+			mpc5643l_stm_set_counter(ConfigPtr->GptChannels[0].InitVal);
+
+			if (ConfigPtr->GptChannels[channel].GptNotificationPtr != NULL) {
+				Gpt_NotificationList[channel] = NOTIFICATION_ENABLED;
+			}
+
+			// Execute this code only one time
+			one_time_setup = 1U;
+		}
+	}
+
+	Gpt_Global.ConfigPtr = ConfigPtr;
+	Gpt_Global.Init = TRUE;
+
+	EE_hal_resumeIRQ(flags);
 }
 
 #if ( GPT_DEINIT_API == STD_ON )
@@ -228,35 +273,7 @@ void Gpt_DeInit(
 }
 #endif
 
-#if ( \
-  ( GPT_TIME_ELAPSED_API == STD_ON ) || ( GPT_TIME_REMAINING_API == STD_ON ) \
-)
-/*
- * Gpt_GetHWTimeRemaining implementation.
- */
-static Gpt_ValueType Gpt_GetHWTimeRemaining(
-  Gpt_ChannelType	Channel
-)
-{
-
-
-}
-#endif	/* 
-	 * ( GPT_TIME_ELAPSED_API == STD_ON ) ||
-	 * ( GPT_TIME_REMAINING_API == STD_ON )
-	 */
-
 #if ( GPT_TIME_ELAPSED_API == STD_ON )
-/*
- * Gpt_GetHWStartTime implementation.
- */
-static Gpt_ValueType Gpt_GetHWStartTime(
-  Gpt_ChannelType	Channel
-)
-{
-
-}
-
 /*
  * Gpt_GetTimeElapsed implementation.
  */
@@ -288,8 +305,9 @@ void Gpt_StartTimer(
   Gpt_ValueType		Value
 )
 {
-
-
+	mpc5643l_stm_channel_cmp(Channel, Value);
+	mpc5643l_stm_select_channel(Channel);
+	mpc5643l_stm_enable();
 }
 
 /*
@@ -299,7 +317,7 @@ void Gpt_StopTimer(
   Gpt_ChannelType	Channel
 )
 {
-
+	mpc5643l_stm_unselect_channel(Channel);
 }
 
 #if ( GPT_ENABLE_DISABLE_NOTIFICATION_API == STD_ON )
@@ -310,7 +328,7 @@ void Gpt_EnableNotification(
   Gpt_ChannelType	Channel
 )
 {
-
+  	
 }
 
 /*
@@ -320,7 +338,7 @@ void Gpt_DisableNotification(
   Gpt_ChannelType	Channel
 )
 {
-
+	
 }
 #endif
 
@@ -368,43 +386,7 @@ void Gpt_CheckWakeup(
 {
 
 
-  EE_hal_resumeIRQ(flags);
-
 }
 #endif
 
-#if ( GPT_CHANNEL_WAKEUP_FUNCTIONALITY_API == STD_ON )
-/*
- * Gpt_GoToSleep implementation.
- */
-Std_ReturnType Gpt_GoToSleep(
-  Gpt_ChannelType	Channel
-)
-{
 
- 
-
-}
-
-/*
- * Gpt_Wakeup implementation.
- */
-Std_ReturnType Gpt_Wakeup(
-  Gpt_ChannelType	Channel
-)
-{
- 
-}
-
-/*
- * Gpt_GetStatus implementation.
- */
-Gpt_StatusType Gpt_GetStatus(
-  Gpt_ChannelType	Channel
-)
-{
-
-  
-
-}
-#endif
