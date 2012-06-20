@@ -188,7 +188,6 @@
 #define MCU_RCC_IOSCDIS		0x00000002U	/**< Internal Oscillator
 						 *   Disable		      */
 #define MCU_RCC_MOSCDIS		0x00000001U	/**< Main Oscillator Disable  */
-#define MCU_RCC_SYSDIV_S	23U
 
 /* The following are defines for the bit fields in the MCU_RCC2 register. */
 #define MCU_RCC2_USERCC2	0x80000000U	/**< Use RCC2	      */
@@ -269,7 +268,6 @@
 #define MCU_RCC2_OSCSRC2_IO4	0x00000020U	/**< PIOSC/4		      */
 #define MCU_RCC2_OSCSRC2_30	0x00000030U	/**< 30 kHz		      */
 #define MCU_RCC2_OSCSRC2_32	0x00000070U	/**< 32.768 kHz		      */
-#define MCU_RCC2_SYSDIV2_S	23
 
 /** @brief	16MHz
  *
