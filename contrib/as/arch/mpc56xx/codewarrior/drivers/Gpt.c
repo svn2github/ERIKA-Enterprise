@@ -225,32 +225,30 @@ void Gpt_Init(
 {
 	register EE_FREG	flags;
 	register uint32		channel;
-	static uint8		one_time_setup=NULL;
 
 	flags = EE_hal_suspendIRQ();
 
-	for (channel = 0; channel < ConfigPtr->GptNumberOfGptChannels; channel++)
+	// Set prescaler
+	mpc5643l_stm_set_prescaler(ConfigPtr->Prsc);
+
+	// Initializes STM freeze capability
+	if (ConfigPtr->freeze == FREEZE_ON) {
+		mpc5643l_stm_freeze_on();
+	}
+	else {
+		mpc5643l_stm_freeze_off();
+	}
+
+	// initial counter value
+	mpc5643l_stm_set_counter(ConfigPtr->InitVal);
+
+	for (channel = 0U; channel < ConfigPtr->GptNumberOfGptChannels; channel++)
 	{
-
-		// Prescaler value
-		mpc5643l_stm_set_prescaler(ConfigPtr->GptChannels[0].Prsc);
-
 		// enable channel
-		mpc5643l_stm_select_channel(0);
+		mpc5643l_stm_select_channel(channel);
 
-		if (one_time_setup == NULL) {
-			// Initializes Gpt Channel
-			mpc5643l_stm_freeze_on();
-
-			// initial counter value
-			mpc5643l_stm_set_counter(ConfigPtr->GptChannels[0].InitVal);
-
-			if (ConfigPtr->GptChannels[channel].GptNotificationPtr != NULL) {
-				Gpt_NotificationList[channel] = NOTIFICATION_ENABLED;
-			}
-
-			// Execute this code only one time
-			one_time_setup = 1U;
+		if (ConfigPtr->GptChannels[channel].GptNotificationPtr != NULL) {
+			Gpt_NotificationList[channel] = NOTIFICATION_ENABLED;
 		}
 	}
 

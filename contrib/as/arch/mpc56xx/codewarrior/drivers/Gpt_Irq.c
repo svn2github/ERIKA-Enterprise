@@ -116,11 +116,11 @@ extern int Gpt_NotificationList[];
 
 Gpt_Notification prova, prova2;
 
-void Gpt_Isr_STM(
+static void Gpt_Isr_STM(
   Gpt_ChannelType		Channel_STM
 )
 {
-/*	register boolean		init;
+	register boolean		init;
   	register const Gpt_ConfigType	*cfg;
 	register EE_FREG		flags;
 
@@ -128,16 +128,11 @@ void Gpt_Isr_STM(
 	cfg = Gpt_Global.ConfigPtr;
 
 	// Notification Callback Call.
-	if ( ( Channel_STM < 3U) &&
+	if ( ( Channel_STM < 4U) &&
 	( cfg->GptChannels[Channel_STM].GptNotificationPtr != NULL_PTR ) &&
 	( Gpt_NotificationList[Channel_STM] == NOTIFICATION_ENABLED)
 	) {
-		//(*(cfg->GptChannels[Channel_STM].GptNotificationPtr))();
-		Gpt_Notification_Channel_0_STM();
-
-//prova = cfg->GptChannels[Channel_STM].GptNotificationPtr;
-//prova2 = Gpt_Notification_Channel_0_STM;
-//cfg->GptChannels[Channel_STM].GptNotificationPtr();
+		(*(cfg->GptChannels[Channel_STM].GptNotificationPtr))();
 	}
 
 	// clear request
@@ -146,36 +141,12 @@ void Gpt_Isr_STM(
 	if (cfg->GptChannels[Channel_STM].GptChannelMode == \
 		GPT_CH_MODE_CONTINUOUS)
 	{
-		// stop timer
-		mpc5643l_stm_disable();
-
 		// enable channel 0 to raise a new interrupt
 		mpc5643l_stm_select_channel(Channel_STM);
 
 		// initial counter value (equal to 0)
 		mpc5643l_stm_set_counter(0);
-
-		// start timer
-		mpc5643l_stm_enable();
-	}*/
-
-// Periodic activity: send CAN message
-        Gpt_Notification_Channel_0_STM();
-
-        // clear request
-        mpc5643l_stm_clear_int(0);
-
-        // stop timer
-        mpc5643l_stm_disable();
-
-        // enable channel 0 to raise a new interrupt
-        mpc5643l_stm_select_channel(0);
-
-        // initial counter value (equal to 0)
-        mpc5643l_stm_set_counter(0);
-
-	// start timer
-        mpc5643l_stm_enable();
+	}
 }
 
 static void Gpt_Isr_PIT(

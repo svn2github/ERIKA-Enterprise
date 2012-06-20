@@ -717,21 +717,6 @@ typedef struct {
    */
   /* uint32		GptChannelHWCtrl; */
 
-  /** @brief	Timer freeze flag
-   *
-   */
-  uint8			freeze;
-
-  /** @brief	Timer Initial value
-   *
-   */
-  uint32		InitVal;
-
-   /** @brief	Prescaler Initial value
-   *
-   */
-  uint32		Prsc;
-
 } Gpt_ChannelConfigType;
 
 /*
@@ -1090,6 +1075,21 @@ typedef struct {
    *  settings of the GPT.
    */
   const Gpt_ChannelConfigType *	GptChannels;
+
+  /** @brief	Timer freeze flag
+   *
+   */
+  uint8			freeze;
+
+  /** @brief	Timer Initial value
+   *
+   */
+  uint32		InitVal;
+
+   /** @brief	Prescaler Initial value
+   *
+   */
+  uint32		Prsc;
 
 } Gpt_ConfigType;
 

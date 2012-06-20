@@ -93,11 +93,6 @@ const Gpt_ChannelConfigType GptChannels[] = {
 #if ( GPT_CHANNEL_WAKEUP_FUNCTIONALITY_API == STD_ON )
     TRUE,				/* GptChannelWakeupSupport	*/
 #endif	/* GPT_CHANNEL_WAKEUP_FUNCTIONALITY_API == STD_ON		*/
-
-    /* Hardware specific initilaization values */
-    FREEZE_ON,				/* Timer freeze in debug mode	*/
-    0x0U,				/* Timer start value		*/
-    0x1U				/* Timer Prescaler		*/
   },
   {0U,0U,0U,0U},{0U,0U,0U,0U},{0U,0U,0U,0U},{0U,0U,0U,0U},{0U,0U,0U,0U},{0U,0U,0U,0U},{0U,0U,0U,0U}
 };
@@ -108,6 +103,9 @@ const Gpt_ChannelConfigType GptChannels[] = {
 const Gpt_ConfigType Gpt_Config[] = {
   {
     GPT_CHANNELS_NUMBER,	/* GptNumberOfGptChannels	*/
-    &GptChannels[0]		/* GptChannels			*/
+    &GptChannels[0],		/* GptChannels			*/
+    FREEZE_ON,			/* Freeze Capability: ON/OFF	*/
+    0U,				/* Initial Counter Value	*/
+    1U				/* Prescale Value		*/
   }
 };
