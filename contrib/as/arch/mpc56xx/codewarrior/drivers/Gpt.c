@@ -224,7 +224,8 @@ void Gpt_Init(
 )
 {
 	register EE_FREG	flags;
-	register uint32		channel;
+	register uint32		channel, Comparator=0U;
+	Gpt_ChannelMode		Mode;
 
 	flags = EE_hal_suspendIRQ();
 
@@ -249,6 +250,15 @@ void Gpt_Init(
 
 		if (ConfigPtr->GptChannels[channel].GptNotificationPtr != NULL) {
 			Gpt_NotificationList[channel] = NOTIFICATION_ENABLED;
+		}
+
+		// Get GPT Mode (continuous/one-shot)
+		Mode = ConfigPtr->GptChannels[channel].GptChannelMode;
+
+		// For continuous mode set user predefined Match-Comparator
+		if (Mode == GPT_CH_MODE_CONTINUOUS) {
+			Comparator = ConfigPtr->GptChannels[channel].GptCompare;
+			mpc5643l_stm_channel_cmp(channel, Comparator);
 		}
 	}
 
@@ -279,7 +289,17 @@ Gpt_ValueType Gpt_GetTimeElapsed(
   Gpt_ChannelType	Channel
 )
 {
+	uint32 target = Gpt_Global.ConfigPtr->GptChannels[Channel].GptCompare;
+	uint32 ret_val = 0U;
 
+	if (target < STM.CNT.R) {
+		ret_val = STM.CNT.R - target;
+	}
+	else {
+		ret_val = STM.CNT.R + (0xFFFFFFFF - target);
+	}
+
+	return ret_val;
 }
 #endif
 
@@ -291,7 +311,17 @@ Gpt_ValueType Gpt_GetTimeRemaining(
   Gpt_ChannelType	Channel
 )
 {
+	uint32 target = Gpt_Global.ConfigPtr->GptChannels[Channel].GptCompare;
+	uint32 ret_val = 0U;
 
+	if (target > STM.CNT.R) {
+		ret_val = target - STM.CNT.R;
+	}
+	else {
+		ret_val = target + (0xFFFFFFFF - STM.CNT.R);
+	}
+
+	return ret_val;
 }
 #endif
 
@@ -326,7 +356,7 @@ void Gpt_EnableNotification(
   Gpt_ChannelType	Channel
 )
 {
-  	
+  	Gpt_NotificationList[Channel] = NOTIFICATION_ENABLED;
 }
 
 /*
@@ -336,7 +366,7 @@ void Gpt_DisableNotification(
   Gpt_ChannelType	Channel
 )
 {
-	
+	Gpt_NotificationList[Channel] = NOTIFICATION_DISABLED;
 }
 #endif
 

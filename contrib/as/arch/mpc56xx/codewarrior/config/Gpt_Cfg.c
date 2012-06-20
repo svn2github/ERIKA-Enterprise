@@ -93,8 +93,53 @@ const Gpt_ChannelConfigType GptChannels[] = {
 #if ( GPT_CHANNEL_WAKEUP_FUNCTIONALITY_API == STD_ON )
     TRUE,				/* GptChannelWakeupSupport	*/
 #endif	/* GPT_CHANNEL_WAKEUP_FUNCTIONALITY_API == STD_ON		*/
+    20000000				/* Timer Match Valuer		*/
   },
-  {0U,0U,0U,0U},{0U,0U,0U,0U},{0U,0U,0U,0U},{0U,0U,0U,0U},{0U,0U,0U,0U},{0U,0U,0U,0U},{0U,0U,0U,0U}
+  { /* TIMER 1 STM */
+    GPT_CHANNEL_1_STM,			/* GptChannelId			*/
+    GPT_CH_MODE_CONTINUOUS,		/* GptChannelMode		*/
+#if ( GPT_ENABLE_DISABLE_NOTIFICATION_API == STD_ON )
+#ifdef	EE_PPCE200ZX_31_ISR
+    &Gpt_Notification_Channel_1_STM,	/* GptNotificationPtr		*/
+#else	/* EE_MPC5643L_TIMER_1_A_ISR	*/
+    NULL_PTR,				/* GptNotificationPtr		*/
+#endif	/* !EE_MPC5643L_TIMER_1_A_ISR	*/
+#endif	/* GPT_ENABLE_DISABLE_NOTIFICATION_API == STD_ON		*/
+#if ( GPT_CHANNEL_WAKEUP_FUNCTIONALITY_API == STD_ON )
+    TRUE,				/* GptChannelWakeupSupport	*/
+#endif	/* GPT_CHANNEL_WAKEUP_FUNCTIONALITY_API == STD_ON		*/
+    60000000				/* Timer Match Valuer		*/
+  },
+  { /* TIMER 2 STM */
+    GPT_CHANNEL_2_STM,			/* GptChannelId			*/
+    GPT_CH_MODE_CONTINUOUS,		/* GptChannelMode		*/
+#if ( GPT_ENABLE_DISABLE_NOTIFICATION_API == STD_ON )
+#ifdef	EE_PPCE200ZX_32_ISR
+    &Gpt_Notification_Channel_2_STM,	/* GptNotificationPtr		*/
+#else	/* EE_MPC5643L_TIMER_2_A_ISR	*/
+    NULL_PTR,				/* GptNotificationPtr		*/
+#endif	/* !EE_MPC5643L_TIMER_2_A_ISR	*/
+#endif	/* GPT_ENABLE_DISABLE_NOTIFICATION_API == STD_ON		*/
+#if ( GPT_CHANNEL_WAKEUP_FUNCTIONALITY_API == STD_ON )
+    TRUE,				/* GptChannelWakeupSupport	*/
+#endif	/* GPT_CHANNEL_WAKEUP_FUNCTIONALITY_API == STD_ON		*/
+    80000000				/* Timer Match Valuer		*/
+  },
+  { /* TIMER 3 STM */
+    GPT_CHANNEL_3_STM,			/* GptChannelId			*/
+    GPT_CH_MODE_CONTINUOUS,		/* GptChannelMode		*/
+#if ( GPT_ENABLE_DISABLE_NOTIFICATION_API == STD_ON )
+#ifdef	EE_PPCE200ZX_33_ISR
+    &Gpt_Notification_Channel_3_STM,	/* GptNotificationPtr		*/
+#else	/* EE_MPC5643L_TIMER_3_A_ISR	*/
+    NULL_PTR,				/* GptNotificationPtr		*/
+#endif	/* !EE_MPC5643L_TIMER_3_A_ISR	*/
+#endif	/* GPT_ENABLE_DISABLE_NOTIFICATION_API == STD_ON		*/
+#if ( GPT_CHANNEL_WAKEUP_FUNCTIONALITY_API == STD_ON )
+    TRUE,				/* GptChannelWakeupSupport	*/
+#endif	/* GPT_CHANNEL_WAKEUP_FUNCTIONALITY_API == STD_ON		*/
+    120000000				/* Timer Match Valuer		*/
+  },{0U,0U,0U,0U},{0U,0U,0U,0U},{0U,0U,0U,0U},{0U,0U,0U,0U}
 };
 
 /*
@@ -104,8 +149,8 @@ const Gpt_ConfigType Gpt_Config[] = {
   {
     GPT_CHANNELS_NUMBER,	/* GptNumberOfGptChannels	*/
     &GptChannels[0],		/* GptChannels			*/
-    FREEZE_ON,			/* Freeze Capability: ON/OFF	*/
-    0U,				/* Initial Counter Value	*/
-    1U				/* Prescale Value		*/
+    FREEZE_ON,			    /* Freeze Capability: ON/OFF	*/
+    0U,				        /* Initial Counter Value	*/
+    1U				        /* Prescale Value		*/
   }
 };

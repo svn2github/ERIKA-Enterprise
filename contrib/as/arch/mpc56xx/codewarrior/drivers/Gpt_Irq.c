@@ -114,15 +114,14 @@ extern int Gpt_NotificationList[];
   defined(EE_PPCE200ZX_127_ISR) \
 )
 
-Gpt_Notification prova, prova2;
-
 static void Gpt_Isr_STM(
   Gpt_ChannelType		Channel_STM
 )
 {
-	register boolean		init;
+	register boolean		        init;
   	register const Gpt_ConfigType	*cfg;
-	register EE_FREG		flags;
+	register EE_FREG		        flags;
+    uint32                          CurrentComparator=0U;    
 
 	init = Gpt_Global.Init;
 	cfg = Gpt_Global.ConfigPtr;
@@ -136,16 +135,27 @@ static void Gpt_Isr_STM(
 	}
 
 	// clear request
-        mpc5643l_stm_clear_int(Channel_STM);
+    mpc5643l_stm_clear_int(Channel_STM);
 
 	if (cfg->GptChannels[Channel_STM].GptChannelMode == \
 		GPT_CH_MODE_CONTINUOUS)
 	{
-		// enable channel 0 to raise a new interrupt
+		// enable Channel_STM to raise a new interrupt
 		mpc5643l_stm_select_channel(Channel_STM);
 
-		// initial counter value (equal to 0)
-		mpc5643l_stm_set_counter(0);
+        // Get current Comparator
+        CurrentComparator = cfg->GptChannels[Channel_STM].GptCompare;
+
+        if ((0xFFFFFFFFU - STM.CNT.R) >= CurrentComparator) {
+            Gpt_StartTimer(Channel_STM, \
+			    // STM.CNT.R is the current Timer value
+			    STM.CNT.R + CurrentComparator);
+        }
+        else {
+            Gpt_StartTimer(Channel_STM, \
+			    // STM.CNT.R is the current Timer value
+			    CurrentComparator - (0xFFFFFFFFU - STM.CNT.R));
+        }
 	}
 }
 

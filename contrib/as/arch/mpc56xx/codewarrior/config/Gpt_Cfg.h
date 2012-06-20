@@ -181,7 +181,7 @@
  *  			compile time configurable On/Off by the configuration
  *  			parameter: <tt>GptTimeElapsedApi</tt>. (<tt>BSW171</tt>)
  */
-#define	GPT_TIME_ELAPSED_API			STD_OFF
+#define	GPT_TIME_ELAPSED_API			STD_ON
 
 /** @brief	Remaining Time Retrieval API
  *
@@ -194,7 +194,7 @@
  *  			configuration parameter: <tt>GptTimeRemainingApi</tt>.
  *  			(<tt>BSW171</tt>)
  */
-#define	GPT_TIME_REMAINING_API			STD_OFF
+#define	GPT_TIME_REMAINING_API			STD_ON
 
 /** @brief	Version Informations Retrieval API
  *
@@ -717,6 +717,12 @@ typedef struct {
    */
   /* uint32		GptChannelHWCtrl; */
 
+  /** @brief	Channel Comparator
+   *
+   *  Specifies the timer match value
+   */
+  uint32		GptCompare;
+
 } Gpt_ChannelConfigType;
 
 /*
@@ -728,9 +734,9 @@ typedef struct {
 #define	GPT_CHANNEL_1_STM		0x01	/**< Channel 1 STM */
 #define	GPT_CHANNEL_1_PIT		0x01	/**< Channel 1 PIT */
 #define	GPT_CHANNEL_2_STM		0x02	/**< Channel 2 STM */
-#define	GPT_CHANNEL_2 PIT		0x03	/**< Channel 2 PIT */
-#define	GPT_CHANNEL_3_STM		0x04	/**< Channel 3 STM */
-#define	GPT_CHANNEL_3_PIT		0x04	/**< Channel 3 PIT */
+#define	GPT_CHANNEL_2 PIT		0x02	/**< Channel 2 PIT */
+#define	GPT_CHANNEL_3_STM		0x03	/**< Channel 3 STM */
+#define	GPT_CHANNEL_3_PIT		0x03	/**< Channel 3 PIT */
 
 /*
  * Other GPT capabilities
