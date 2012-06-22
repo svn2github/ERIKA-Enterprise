@@ -122,6 +122,8 @@ __start:
 	addi	r10, r10, 4
 	cmplw	cr0, r10, r9
 	blt	1b
+	msync							/* Grant that all the copies are consistently in ram. This
+											 ensure consistency if some code has been moved in RAM */
 
 2:
 	addis	r8, 0, ee_ebss@ha		/* load _ebss into r8 (r9 is _sbss) */
