@@ -97,6 +97,17 @@
 #define	DIO_VAR_FAST
 #define	DIO_VAR
 
+#define	DMA_CODE
+#define	DMA_CONST
+#define	DMA_APPL_DATA
+#define	DMA_APPL_CONST
+#define	DMA_APPL_CODE
+#define	DMA_CALLOUT_CODE
+#define	DMA_VAR_NOINIT
+#define	DMA_VAR_POWER_ON_INIT
+#define	DMA_VAR_FAST
+#define	DMA_VAR
+
 #define	GPT_CODE
 #define	GPT_CONST
 #define	GPT_APPL_DATA

@@ -194,7 +194,7 @@ SHORT_NAMES		=	NO
 # comments will behave just like regular Qt-style comments
 # (thus requiring an explicit @brief command for a brief description.)
 
-JAVADOC_AUTOBRIEF	=	NO
+JAVADOC_AUTOBRIEF	=	YES
 
 # If the QT_AUTOBRIEF tag is set to YES then Doxygen will
 # interpret the first line (until the first dot) of a Qt-style
@@ -656,7 +656,8 @@ WARN_LOGFILE		=	"warnings.log"
 
 INPUT			=	"../../../../include" \
 				"../config" \
-				"../include"
+				"../include/Compiler.h" \
+				"../include/Platform_Types.h"
 
 # This tag can be used to specify the character encoding of the source files
 # that doxygen parses. Internally doxygen uses the UTF-8 encoding, which is
@@ -1518,7 +1519,17 @@ PREDEFINED		=	\
 				GPT_ENABLE_DISABLE_NOTIFICATION_API=STD_ON \
 				GPT_TIME_ELAPSED_API=STD_ON \
 				GPT_TIME_REMAINING_API=STD_ON \
-				SCI_CHANNEL_WAKEUP_FUNCTIONALITY_API=STD_ON \
+				GPT_CHANNEL_WAKEUP_FUNCTIONALITY_API=STD_ON \
+				\
+				DMA_VERSION_INFO_API=STD_ON \
+				DMA_DE_INIT_API=STD_ON \
+				DMA_DISABLE_CHANNEL_API=STD_ON \
+				DMA_STATUS_API=STD_ON \
+				DMA_CHANNEL_RESULT_API=STD_ON \
+				DMA_TRANSFER_REQUEST_API=STD_ON \
+				DMA_PING_PONG_API=STD_ON \
+				DMA_SCATTER_GATHER_API=STD_ON \
+				DMA_NOTIFICATIONS_API=STD_ON \
 				\
 
 # If the MACRO_EXPANSION and EXPAND_ONLY_PREDEF tags are set to YES then

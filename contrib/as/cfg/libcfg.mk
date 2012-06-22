@@ -129,6 +129,18 @@ endif
 endif	# __NO_APP__
 endif	# __AS_GPT_DRIVER__
 
+ifeq ($(call iseeopt, __AS_DMA_DRIVER__), yes)
+EE_SRCS_AUTOSAR += contrib/as/arch/stellaris/keil/drivers/Dma.c
+EE_SRCS_AUTOSAR += contrib/as/arch/stellaris/keil/drivers/Dma_Irq.c
+ifeq ($(call iseeopt, __NO_APP__), yes)
+ifneq ($(filter %Dma_Cfg.c, $(APP_SRCS)),)
+EE_SRCS_AUTOSAR += $(filter %Dma_Cfg.c, $(APP_SRCS))
+else
+EE_SRCS_AUTOSAR += $(OUTBASE)/Dma_Cfg.c
+endif
+endif	# __NO_APP__
+endif	# __AS_DMA_DRIVER__
+
 endif # __STELLARIS__ && __KEIL__
 
 ifeq ($(and $(call iseeopt, EE_MPC5643L), $(call iseeopt, __CODEWARRIOR__)), yes)

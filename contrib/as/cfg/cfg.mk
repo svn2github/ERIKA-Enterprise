@@ -75,6 +75,11 @@ EE_SRCS += contrib/as/arch/stellaris/keil/drivers/Gpt.c
 EE_SRCS += contrib/as/arch/stellaris/keil/drivers/Gpt_Irq.c
 endif
 
+ifeq ($(call iseeopt, __AS_DMA_DRIVER__), yes)
+EE_SRCS += contrib/as/arch/stellaris/keil/drivers/Dma.c
+EE_SRCS += contrib/as/arch/stellaris/keil/drivers/Dma_Irq.c
+endif
+
 endif	# __STELLARIS__ && __KEIL__
 
 ifeq ($(and $(call iseeopt, EE_MPC5643L), $(call iseeopt, __CODEWARRIOR__)), yes)
