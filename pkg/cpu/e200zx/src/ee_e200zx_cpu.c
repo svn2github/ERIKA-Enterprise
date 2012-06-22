@@ -249,7 +249,7 @@ __asm volatile void mmu_write_sync(void)
 {
 !
 	tlbwe
-	msync
+	isync
 }
 
 #else /* if __DCC__ */
@@ -260,7 +260,7 @@ __asm volatile void mmu_write_sync(void)
 __INLINE__ void __ALWAYS_INLINE__ mmu_write_sync(void)
 {
 	asm volatile ("tlbwe	\n\t"
-		"msync");
+		"isync");
 }
 
 #endif /* else if __DCC__ */
