@@ -55,7 +55,7 @@ extern const EE_UINT64 EE_com_msg_init_val[EE_COM_N_MSG];
  * starts and initializes the COM subsystem. In particular: 
  * 1. sets to 0 the number of received messages for a queued message 
  * 2. sets to 0 the value of all the unqueued messages 
- * 3. internal and external queued message are not initialized 
+ * 3. internal and external queued message are initialized 
  * 4. application mode is set to Mode
  * 5. all IPDUs are initialized to 0 
  * 6. Periodic ipdu reception monitor mechanism is started. 
@@ -76,7 +76,7 @@ StatusType EE_com_StartCOM(COMApplicationModeType Mode)
 #if defined(__COM_CCC0__) || defined(__COM_CCC1__)
   EE_UINT8 j;
 #endif
-  SymbolicName i;
+  MessageIdentifier i;
 #ifdef __COM_HAS_ERRORHOOK__  	
   register EE_FREG flags;
 #endif
@@ -101,7 +101,7 @@ StatusType EE_com_StartCOM(COMApplicationModeType Mode)
     EE_com_sys2user.service_error = COMServiceId_StartCOM;
 #ifdef __COM_HAS_ERRORHOOK__    
     flags = EE_hal_begin_nested_primitive();        
-      COMError_StartCOM_Mode = Mode;
+     EE_com_ErrorHook.proc_param.Mode = Mode;
       if (!EE_com_ErrorHook.already_executed)
       {        
         EE_com_ErrorHook.already_executed = EE_COM_TRUE;
@@ -132,15 +132,9 @@ StatusType EE_com_StartCOM(COMApplicationModeType Mode)
       if ((msg_RAM->property & EE_MASK_MSG_QUEUNQUE) 
           == EE_COM_MSG_UNQUE) 
       { /* Unqueued message */
-#endif
-/*GF start*/
-/*
-        for (j=0; j < EE_com_bit2byte(msg_ROM->size); j++) 
-          ((EE_UINT8 *)msg_ROM->data)[j]=0;
-*/		  
+#endif	  
 	EE_com_memo((EE_UINT8 *)(&EE_com_msg_init_val[i]), 0, 
 				(EE_UINT8 *)msg_ROM->data, 0, msg_ROM->size);
-/*GF end*/	
 
 #if defined(__COM_CCCB__) || defined(__COM_CCC1__)
       }
@@ -203,7 +197,7 @@ StatusType EE_com_StartCOM(COMApplicationModeType Mode)
     EE_com_sys2user.service_error = COMServiceId_StartCOM;
 #ifdef __COM_HAS_ERRORHOOK__    
 	flags = EE_hal_begin_nested_primitive();         
-      COMError_StartCOM_Mode = Mode;
+      EE_com_ErrorHook.proc_param.Mode = Mode;
       if (!EE_com_ErrorHook.already_executed)
       {        
         EE_com_ErrorHook.already_executed  = EE_COM_TRUE;

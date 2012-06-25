@@ -46,7 +46,7 @@
 #include "com/com/inc/ee_comprv.h"
 
 #ifndef __PRIVATE_COM_NOTIFY_ERROR__
-void EE_com_notify_error(SymbolicName MSG)
+void EE_com_notify_error(MessageIdentifier MSG)
 {  
   while (MSG != EE_COM_NULL) {
     switch (EE_com_msg_RAM[MSG]->property & EE_MASK_MSG_N_ER) {

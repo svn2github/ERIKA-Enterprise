@@ -53,10 +53,10 @@
  *    num : the position number of ipdu in EE_com_ipdu[] 
  */
 #ifndef __PRIVATE_COM_INSERT_PM__
-void EE_com_insert_PM (SymbolicName ipdu_num, EE_UINT8 reload)
+void EE_com_insert_PM (MessageIdentifier ipdu_num, EE_UINT8 reload)
 {
   EE_UINT8 cont;
-  SymbolicName ipdu_prev, ipdu_curr;
+  MessageIdentifier ipdu_prev, ipdu_curr;
   
   cont = reload;
   ipdu_curr = EE_com_sys.first_PM;
@@ -100,9 +100,9 @@ void EE_com_insert_PM (SymbolicName ipdu_num, EE_UINT8 reload)
  *    num : the position number of ipdu in EE_com_ipdu[] 
  */
 #ifndef __PRIVATE_COM_CANCEL_PM__
-void EE_com_remove_PM (SymbolicName ipdu_num)
+void EE_com_remove_PM (MessageIdentifier ipdu_num)
 {
-  SymbolicName ipdu_prev, ipdu_curr;
+  MessageIdentifier ipdu_prev, ipdu_curr;
     
   ipdu_curr = EE_com_sys.first_PM;
         

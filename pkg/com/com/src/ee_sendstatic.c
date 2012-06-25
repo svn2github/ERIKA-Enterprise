@@ -47,7 +47,7 @@
 
 /* 2.9.2.4.1 */
 #ifndef __PRIVATE_COM_SENDMESSAGE__
-StatusType EE_com_SendMessage(SymbolicName Message, 
+StatusType EE_com_SendMessage(MessageIdentifier Message, 
              ApplicationDataRef DataRef)
 {
   StatusType code;
@@ -56,7 +56,6 @@ StatusType EE_com_SendMessage(SymbolicName Message,
 #endif
 	
 #ifdef __EE_COM_EXTENDED__
-//  if ((Message == 0) ||  
     if ((Message > EE_COM_N_MSG) || 
       (EE_com_msg_ROM[Message] == NULL) || 
       ((EE_com_msg_RAM[Message]->property & EE_MASK_MSG_TXRX) 

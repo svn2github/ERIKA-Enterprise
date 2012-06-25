@@ -61,7 +61,7 @@
 
 /* 2.9.2.2.4 */
 #ifndef __PRIVATE_COM_INITMESSAGE__
-StatusType EE_com_InitMessage(SymbolicName Message,
+StatusType EE_com_InitMessage(MessageIdentifier Message,
                  ApplicationDataRef DataRef)
 {
   register struct EE_com_msg_RAM_TYPE * msg_RAM;

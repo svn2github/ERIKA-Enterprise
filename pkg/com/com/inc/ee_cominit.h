@@ -39,7 +39,7 @@
  * ###*E*### */
 
 /*
- * Author: 2003 Francesco Bertozzi, Paolo Gai
+ * Author: 2003 Francesco Bertozzi, Paolo Gai, 2012 Gianluca Franchino.
  * CVS: $Id: ee_cominit.h,v 1.2 2005/07/17 13:58:36 pj Exp $
  */
 
@@ -129,7 +129,7 @@ struct EE_com_ErrorHook_TYPE {
     COMApplicationModeType Mode;
     struct 
     {
-      SymbolicName Message;
+      MessageIdentifier Message;
       ApplicationDataRef DataRef;
       LengthRef MsgLengthRef;
     } OtherCOM;
@@ -165,10 +165,10 @@ struct EE_com_ErrorHook_TYPE {
 
 */
 struct EE_com_ipdu_ROM_TYPE {
-  SymbolicName name;
+  MessageIdentifier name;
   EE_UINT8 *data;
   StatusType (*ipdu_callout)(void);
-  SymbolicName first;
+  MessageIdentifier first;
   EE_UINT8 reload_DM, 
     reload_PM,          
     reload_TM, 
@@ -196,10 +196,10 @@ struct EE_com_ipdu_RAM_TYPE {
     cont_PM;
 
 #ifdef __COM_CCC1__    
-  SymbolicName next_DM, 
+  MessageIdentifier next_DM, 
                next_PM; 
 #endif  
-  SymbolicName next_TM; 
+  MessageIdentifier next_TM; 
 };
 
 #endif
@@ -304,8 +304,8 @@ struct EE_com_msg_ROM_TYPE {
   void *data;
   StatusType (*cpu_callout)(void);
   StatusType (*net_callout)(void);
-  SymbolicName next;
-  SymbolicName next_ipdu;
+  MessageIdentifier next;
+  MessageIdentifier next_ipdu;
 };
 
 #if defined(__COM_CCCB__) || defined(__COM_CCC1__)

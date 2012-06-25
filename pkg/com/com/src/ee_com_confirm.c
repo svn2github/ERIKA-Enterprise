@@ -47,8 +47,7 @@
 
 void EE_com_confirm (EE_UINT8 * data_id, EE_UINT8 result)
 {  
-  SymbolicName i,
-               MSG;
+  MessageIdentifier i, MSG;
   struct EE_com_ipdu_RAM_TYPE * IPDU_RAM;
   const struct EE_com_ipdu_ROM_TYPE * IPDU_ROM;
   

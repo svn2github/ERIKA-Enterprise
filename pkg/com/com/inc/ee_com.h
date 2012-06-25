@@ -69,7 +69,7 @@
 #endif
 
 /* to end a message list into the next / next_ipdu field */
-#define EE_COM_NULL (SymbolicName)~0
+#define EE_COM_NULL (MessageIdentifier)~0
 
 /* used to specify that a message should not be filtered (the filter
    is mapped to F_Always) */
@@ -181,7 +181,7 @@ typedef EE_TYPESTATUS StatusType;
 #define E_OK                                 0
 #endif
 /*GF: Since the message status is given by the first 3 bits in 
-* EE_com_msg_RAM_TYPE->property, its better to use values in
+* EE_com_msg_RAM_TYPE->property, it's better to use values in
 * the range [1; 7]. 
 */
 /*
@@ -200,12 +200,10 @@ typedef EE_TYPESTATUS StatusType;
 
 
 /* 2.9.2.1.2 */
-typedef EE_TYPESYMBOLICNAME SymbolicName;
+typedef EE_TYPESYMBOLICNAME MessageIdentifier;
 
 /* 2.9.2.1.3 - This implementation of COM uses pointer to
            bytes. For that reason, EE_ADDR CANNOT be used. */
-//typedef EE_UINT8 *ApplicationDataRef;
-/*GF: Changed to void pointer to handle different data types, expecially strings*/
 typedef void *ApplicationDataRef;
 
 /* 2.9.2.1.4 */
@@ -223,7 +221,7 @@ typedef enum FlagValue_enum FlagValue;
 typedef EE_TYPECOMAPPMODE COMApplicationModeType;
 
 /* 2.9.2.1.7 */
-typedef EE_TYPECOMSHUTDOWNMODE ComShutdownModeType;
+typedef EE_TYPECOMSHUTDOWNMODE COMShutdownModeType;
 
 #define COM_SHUTDOWN_IMMEDIATE 0
 
@@ -272,7 +270,7 @@ StatusType EE_com_StartCOM(COMApplicationModeType Mode);
 
 /* 2.9.2.2.2 */
 #ifndef __PRIVATE_COM_STOPCOM__
-StatusType EE_com_StopCOM(COMApplicationModeType Mode);
+StatusType EE_com_StopCOM(COMShutdownModeType Mode);
 #endif
 
 /* 2.9.2.2.3 */
@@ -283,8 +281,8 @@ StatusType EE_com_StopCOM(COMApplicationModeType Mode);
 
 /* 2.9.2.2.4 */
 #ifndef __PRIVATE_COM_INITMESSAGE__
-StatusType EE_com_InitMessage(SymbolicName Message,
-				     ApplicationDataRef DataRef);
+StatusType EE_com_InitMessage(MessageIdentifier Message,
+							  ApplicationDataRef DataRef);
 #endif
 
 
@@ -325,20 +323,20 @@ StatusType EE_com_StopPeriodic(void);
 
 /* 2.9.2.4.1 */
 #ifndef __PRIVATE_COM_SENDMESSAGE__
-StatusType EE_com_SendMessage(SymbolicName Message, 
+StatusType EE_com_SendMessage(MessageIdentifier Message, 
 				     ApplicationDataRef DataRef);
 #endif
 
 /* 2.9.2.4.2 */
 #ifndef __PRIVATE_COM_RECEIVEMESSAGE__
-StatusType EE_com_ReceiveMessage(SymbolicName Message,
+StatusType EE_com_ReceiveMessage(MessageIdentifier Message,
 					ApplicationDataRef DataRef);
 #endif
 
 /* 2.9.2.4.3 */
 #ifdef __COM_CCC1__
 #ifndef __PRIVATE_COM_SENDDYNAMICMESSAGE__
-StatusType EE_com_SendDynamicMessage(SymbolicName Message, 
+StatusType EE_com_SendDynamicMessage(MessageIdentifier Message, 
 					    ApplicationDataRef DataRef, 
 					    LengthRef msg_length);
 #endif
@@ -347,7 +345,7 @@ StatusType EE_com_SendDynamicMessage(SymbolicName Message,
 /* 2.9.2.4.4 */
 #ifdef __COM_CCC1__
 #ifndef __PRIVATE_COM_RECEIVEDYNAMICMESSAGE__
-StatusType EE_com_ReceiveDynamicMessage(SymbolicName Message,
+StatusType EE_com_ReceiveDynamicMessage(MessageIdentifier Message,
 					       ApplicationDataRef DataRef,
 					       LengthRef msg_length);
 #endif
@@ -356,14 +354,14 @@ StatusType EE_com_ReceiveDynamicMessage(SymbolicName Message,
 /* 2.9.2.4.5 */
 #ifdef __COM_CCC1__
 #ifndef __PRIVATE_COM_SENDZEROMESSAGE__
-StatusType EE_com_SendZeroMessage(SymbolicName Message);
+StatusType EE_com_SendZeroMessage(MessageIdentifier Message);
 #endif
 #endif
 
 /* 2.9.2.4.6 */
 #if defined(__COM_CCCB__) || defined(__COM_CCC1__)
 #ifndef __PRIVATE_COM_GETMESSAGESTATUS__
-StatusType EE_com_GetMessageStatus(SymbolicName Message);
+StatusType EE_com_GetMessageStatus(MessageIdentifier Message);
 #endif
 #endif
 

@@ -110,8 +110,8 @@
 /* COMErrorHook MACRO
  * Used in COMErrorHook to access the parameters of the calling function
  */
-#define COMError_StartCOM_Mode          EE_com_ErrorHook.proc_param.Mode
-#define COMError_StopCOM_Mode           EE_com_ErrorHook.proc_param.Mode
+#define COMError_StartCOM_Mode()          EE_com_ErrorHook.proc_param.Mode
+#define COMError_StopCOM_Mode()           EE_com_ErrorHook.proc_param.Mode
 #define COMError_InitMessage_Message()    EE_com_ErrorHook.proc_param.OtherCOM.Message
 #define COMError_InitMessage_DataRef()    EE_com_ErrorHook.proc_param.OtherCOM.DataRef
 #define COMError_SendMessage_Message()    EE_com_ErrorHook.proc_param.OtherCOM.Message

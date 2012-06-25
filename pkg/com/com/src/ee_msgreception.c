@@ -57,7 +57,7 @@
  **********************************************************/
 
 #ifndef __PRIVATE_COM_MSG_RECEPTION__
-void EE_com_msg_reception (SymbolicName Message,
+void EE_com_msg_reception (MessageIdentifier Message,
           EE_UINT8 * DataRef,
           EE_UINT16 rx_from)
 {

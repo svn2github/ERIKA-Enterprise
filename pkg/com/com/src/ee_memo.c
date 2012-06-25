@@ -85,7 +85,7 @@ void EE_com_memo(EE_UINT8 *source, EE_UINT8 s_from,
     b = s_from + length;
       
     for (i=a; i < b; i++) {
-      // isolo il bit  di interesse 
+      // bits of interest are isolated 
       data_bit = (source[i>>3] >> (i & 7)) & 0x01;
       temp_bit = 1 << (temp & 7);
    

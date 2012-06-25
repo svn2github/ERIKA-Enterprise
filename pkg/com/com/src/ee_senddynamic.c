@@ -48,7 +48,7 @@
 /* 2.9.2.4.3 */
 #ifdef __COM_CCC1__
 #ifndef __PRIVATE_COM_SENDDYNAMICMESSAGE__
-StatusType EE_com_SendDynamicMessage(SymbolicName Message, 
+StatusType EE_com_SendDynamicMessage(MessageIdentifier Message, 
                    ApplicationDataRef DataRef, 
                    LengthRef msg_length)
 {

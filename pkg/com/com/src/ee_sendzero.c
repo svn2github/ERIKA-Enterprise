@@ -48,7 +48,7 @@
 /* 2.9.2.4.5 */
 #ifdef __COM_CCC1__
 #ifndef __PRIVATE_COM_SENDZEROMESSAGE__
-StatusType EE_com_SendZeroMessage (SymbolicName Message)
+StatusType EE_com_SendZeroMessage (MessageIdentifier Message)
 {
   StatusType code;
 #ifdef __COM_HAS_ERRORHOOK__  	

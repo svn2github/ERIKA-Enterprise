@@ -50,7 +50,7 @@ void EE_com_indication (EE_UINT8 *data_id,
 {  
   EE_UINT8 found, 
               j;
-  SymbolicName i, name;
+  MessageIdentifier i, name;
   const struct EE_com_ipdu_ROM_TYPE * IPDU_ROM;
    
   i=0; 

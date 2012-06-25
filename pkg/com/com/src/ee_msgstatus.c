@@ -51,7 +51,7 @@ extern struct msg *msg_info[];
 /* 2.9.2.4.6 */
 #if defined(__COM_CCCB__) || defined(__COM_CCC1__)
 #ifndef __PRIVATE_COM_GETMESSAGESTATUS__
-StatusType EE_com_GetMessageStatus(SymbolicName Message)
+StatusType EE_com_GetMessageStatus(MessageIdentifier Message)
 {  
   StatusType ret_code;
 #ifdef __COM_HAS_ERRORHOOK__  	

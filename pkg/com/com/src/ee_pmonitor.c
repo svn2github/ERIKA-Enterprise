@@ -66,7 +66,7 @@ void EE_com_period_monitor (void)
 {
   register struct EE_com_ipdu_RAM_TYPE * ipdu_RAM;
   register const struct EE_com_ipdu_ROM_TYPE * ipdu_ROM;
-  SymbolicName ipdu_name, ipdu_old_first;
+  MessageIdentifier ipdu_name, ipdu_old_first;
   
   ipdu_name = ipdu_old_first = EE_com_sys.first_PM;
   

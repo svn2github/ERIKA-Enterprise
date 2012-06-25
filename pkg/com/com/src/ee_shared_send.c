@@ -52,7 +52,7 @@
  * This function is used by SendMessage, SendDynamicMessage 
  * and SendZeroMessage to send an ipdu
  */
-StatusType EE_com_send (SymbolicName Message, EE_UINT8 *DataRef, EE_UINT8 size)
+StatusType EE_com_send (MessageIdentifier Message, EE_UINT8 *DataRef, EE_UINT8 size)
 {  
   register const struct EE_com_msg_ROM_TYPE *msg_ROM = 
         EE_com_msg_ROM[Message];

@@ -39,7 +39,7 @@
  * ###*E*### */
 
 /*
- * Author: 2003 Francesco Bertozzi
+ * Author: 2003 Francesco Bertozzi, 2012 Gianluca Franchino.
  * CVS: $Id: ee_receivestatic.c,v 1.2 2005/07/17 13:58:36 pj Exp $
  */
 
@@ -47,7 +47,7 @@
 
 /* 2.9.2.4.2 */
 #ifndef __PRIVATE_COM_RECEIVEMESSAGE__
-StatusType EE_com_ReceiveMessage(SymbolicName Message,
+StatusType EE_com_ReceiveMessage(MessageIdentifier Message,
           ApplicationDataRef DataRef)
 {
   register struct EE_com_msg_RAM_TYPE * msg_RAM;
@@ -111,10 +111,7 @@ StatusType EE_com_ReceiveMessage(SymbolicName Message,
 
       temp->tot--;
       if (temp->tot == 0) {
-        msg_RAM->property &= 0xfff8;
-		/*GF:The following statement looks wrong. E_COM_NOMSG is 0x23 (35 decimal value).*/
-        /*msg_RAM->property |= 0x0004;*/ /* E_COM_NOMSG */ 
-		/*GF: the correct instruction should be: */
+        msg_RAM->property &= 0xfff8;/* E_OK */
 		msg_RAM->property |= E_COM_NOMSG;
       } 
 	  else 
@@ -141,7 +138,7 @@ StatusType EE_com_ReceiveMessage(SymbolicName Message,
     *(FlagValue *)msg_ROM->error_call = (FlagValue) EE_COM_FALSE;
 #endif
 #endif
-/*GF:   if (ret_code != E_OK)*/
+
 #ifdef __COM_CCCA__
 	if (ret_code !=  E_COM_NOMSG && ret_code != E_OK)
 #else

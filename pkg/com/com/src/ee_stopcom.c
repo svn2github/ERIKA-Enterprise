@@ -58,7 +58,7 @@
 
 /* 2.9.2.2.2 */
 #ifndef __PRIVATE_COM_STOPCOM__
-StatusType EE_com_StopCOM(COMApplicationModeType Mode)
+StatusType EE_com_StopCOM(COMShutdownModeType Mode)
 {
 #ifdef __COM_HAS_ERRORHOOK__	
 	register EE_FREG flags;
@@ -69,7 +69,7 @@ StatusType EE_com_StopCOM(COMApplicationModeType Mode)
       EE_com_sys2user.service_error = COMServiceId_StopCOM;
 #ifdef __COM_HAS_ERRORHOOK__ 
     flags = EE_hal_begin_nested_primitive();        
-      COMError_StopCOM_Mode = Mode;   
+      EE_com_ErrorHook.proc_param.Mode = Mode;   
       if (!EE_com_ErrorHook.already_executed)
       {        
         EE_com_ErrorHook.already_executed  = EE_COM_TRUE;

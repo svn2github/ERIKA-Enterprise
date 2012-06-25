@@ -39,7 +39,7 @@
  * ###*E*### */
 
 /*
- * Author 2003 Francesco Bertozzi, Paolo Gai
+ * Author 2003 Francesco Bertozzi, Paolo Gai, 2012 Gianluca Franchino.
  * CVS: $Id: ee_comprv.h,v 1.3 2006/04/08 21:15:23 pj Exp $
  */
 
@@ -64,10 +64,10 @@ extern EE_UINT16 EE_com_temp_buffer[];
 #if defined(__COM_CCC0__) || defined(__COM_CCC1__)
 extern struct EE_com_sys_TYPE {
 #ifdef __COM_CCC1__
-  SymbolicName first_DM;
-  SymbolicName first_PM;
+  MessageIdentifier first_DM;
+  MessageIdentifier first_PM;
 #endif
-  SymbolicName first_TM;
+  MessageIdentifier first_TM;
 } EE_com_sys;
 #endif
 
@@ -83,13 +83,13 @@ void EE_com_memo(EE_UINT8 *source, EE_UINT8 s_from,
 #endif
 
 #ifndef __PRIVATE_COM_MSG_RECEPTION__
-void EE_com_msg_reception (SymbolicName Message, 
+void EE_com_msg_reception (MessageIdentifier Message, 
 				  EE_UINT8 *ipdu_data, 
 				  EE_UINT16 rx_from);
 #endif
 
 #ifndef __PRIVATE_COM_SEND__
-StatusType EE_com_send (SymbolicName Message, EE_UINT8 *DataRef, 
+StatusType EE_com_send (MessageIdentifier Message, EE_UINT8 *DataRef, 
 			       EE_UINT8 size);
 #endif
 
@@ -111,7 +111,7 @@ void EE_com_time_monitor (void);
 
 #ifdef __COM_CCC1__
 #ifndef __PRIVATE_COM_NOTIFY_ERROR__
-void EE_com_notify_error (SymbolicName MSG);
+void EE_com_notify_error (MessageIdentifier MSG);
 #endif
 #endif
 
@@ -135,27 +135,27 @@ void EE_com_indication (EE_UINT8 *data_id,
       EE_UINT8 size, EE_UINT8 *data);
 
 #ifndef __PRIVATE_COM_INSERT_DM__
-void EE_com_insert_DM (SymbolicName ipdu_num, EE_UINT8 reload);
+void EE_com_insert_DM (MessageIdentifier ipdu_num, EE_UINT8 reload);
 #endif
 
 #ifndef __PRIVATE_COM_CANCEL_DM__
-void EE_com_remove_DM (SymbolicName num);
+void EE_com_remove_DM (MessageIdentifier num);
 #endif
 
 #ifndef __PRIVATE_COM_INSERT_TM__
-void EE_com_insert_TM (SymbolicName ipdu_num, EE_UINT8 reload);
+void EE_com_insert_TM (MessageIdentifier ipdu_num, EE_UINT8 reload);
 #endif
 
 #ifndef __PRIVATE_COM_CANCEL_TM__
-void EE_com_remove_TM (SymbolicName num);
+void EE_com_remove_TM (MessageIdentifier num);
 #endif
 
 #ifndef __PRIVATE_COM_INSERT_PM__
-void EE_com_insert_PM (SymbolicName ipdu_num, EE_UINT8 reload);
+void EE_com_insert_PM (MessageIdentifier ipdu_num, EE_UINT8 reload);
 #endif
 
 #ifndef __PRIVATE_COM_CANCEL_PM__
-void EE_com_remove_PM (SymbolicName num);
+void EE_com_remove_PM (MessageIdentifier num);
 #endif
 
 /*************************************************************************
@@ -350,7 +350,6 @@ void __ALWAYS_INLINE__ EE_com_notify_ok(const struct EE_com_msg_ROM_TYPE *msg_RO
     
     /* activate a task */
     case EE_COM_MSG_TSOK:
-    /*EE_thread_activate(*((EE_TID *)msg_ROM->notify_call)); GF*/
 		 ActivateTask(*((EE_TID *)msg_ROM->notify_call));
     break; 
 #if defined( __OO_ECC1__) || defined (__OO_ECC2__)

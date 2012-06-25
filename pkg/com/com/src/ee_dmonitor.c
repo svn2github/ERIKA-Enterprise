@@ -66,7 +66,7 @@ void EE_com_deadline_monitor (void)
 {
   register struct EE_com_ipdu_RAM_TYPE *ipdu_RAM;
   register const struct EE_com_ipdu_ROM_TYPE * ipdu_ROM;
-  SymbolicName ipdu_name, ipdu_old_first;
+  MessageIdentifier ipdu_name, ipdu_old_first;
   
   /* Set new DM head */
   ipdu_name = ipdu_old_first = EE_com_sys.first_DM;
