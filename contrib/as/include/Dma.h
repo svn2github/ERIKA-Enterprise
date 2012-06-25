@@ -307,7 +307,7 @@ typedef void (*Dma_TransferErrorNotification)(
  */
 #define	DMA_E_CHANNEL_PENDING		0x11
 
-#endif
+#endif	/* ( DMA_DEV_ERROR_DETECT == STD_ON ) */
 
 /** @brief	DMA Driver Configuration Parameters
  *
@@ -507,7 +507,7 @@ void Dma_Init(
 Std_ReturnType Dma_DeInit(
   void
 );
-#nedif	/* ( DMA_DE_INIT_API == STD_ON ) */
+#endif	/* ( DMA_DE_INIT_API == STD_ON ) */
 
 /** @brief	Channel Enabling
  *  @param	Channel	DMA channel to be addressed.
