@@ -230,11 +230,11 @@ void EE_oo_IncrementCounterImplementation(CounterType CounterID)
 
   /* if there are queued alarms */
   if (EE_counter_RAM[CounterID].first != (EE_SREG)-1) {
+    /* First alarm handled, it's an end flag */
+    const register AlarmType first = current;
     /* execute all the alarms with counter 0 */
     current = EE_counter_RAM[CounterID].first;
     while (EE_alarm_RAM[current].delta == 0U) {
-      /* First alarm handled, it's an end flag */
-      register const AlarmType first = current;
       /* execute it */
       switch (EE_alarm_ROM[current].action) {
 
