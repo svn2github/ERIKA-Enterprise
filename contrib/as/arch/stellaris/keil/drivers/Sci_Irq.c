@@ -149,6 +149,11 @@ void Sci_Isr(
 	)
       ) {
 
+	/* Dummy read preventing RX Lock. */
+	flags = EE_hal_suspendIRQ();
+	UART_RX_DATA(_ch);
+	EE_hal_resumeIRQ(flags);
+
 	if ( cfg->SciChannels[ch].SciRxErrNotificationPtr != NULL_PTR ) {
 
 	  /* Call Reception Errors Notifications Callback. */
