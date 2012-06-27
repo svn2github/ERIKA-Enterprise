@@ -38,6 +38,10 @@
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
 
+#include "ee.h"
+#include "ee_irq.h"
+ 
+ 
 #if defined(__dsPIC33F__)
 
 #include "mcu/microchip_dspic/inc/ee_utils.h"
@@ -49,27 +53,24 @@
 
 static EE_UINT8 EE_check_clock_switch_enabled(void)
 {
-    static EE_INT16 const clockSwitchDisabled  = 0x0080;
-    static EE_INT16 const clockMonitorDisabled = 0x0040;    
-    EE_INT16 foscr = EE_read_fosc();
+    static EE_UINT16 const clockSwitchDisabled  = 0x0080U;
+    static EE_UINT16 const clockMonitorDisabled = 0x0040U;    
+    EE_UINT16 foscr = EE_read_fosc();
     return !(foscr & clockSwitchDisabled) && (foscr & clockMonitorDisabled) && !OSCCONbits.CLKLOCK;
 }
 
 static void EE_set_system_clock_pll(EE_UINT32 fosc, EE_UINT32 fin, EE_UINT8 nosc)
 {
     /* M = (N1 * N2) * Fosc / Fin */
-    unsigned M = (fosc * 4U + fin / 2U) / fin;
+    EE_UINT32 M = (fosc * 4U + fin / 2U) / fin;
 
-    OSCTUN             = 0;     /* FRC  Oscillator Tuning Register. 0 => center frequency nominal FRC frequency (7,37 MHz) */
-    if(nosc == EE_OSC_FRC_PLL) {
-        CLKDIVbits.FRCDIV = 0;  /* FRC is not post scaled (I don't need it) */
-    }
-    CLKDIVbits.DOZEN   = 0;     /* DOZE not enabled => Processor clock/peripheral clock ratio forced to 1:1 */
-    CLKDIVbits.PLLPOST = 0;     /* N1=2 */
-    CLKDIVbits.PLLPRE  = 0;     /* N2=2 */
-    PLLFBDbits.PLLDIV  = M - 2; /* M PLL Feedback Divisor VCO output. Symbol eq PLLFDB. (register with an offset equal to 2) */
-
-
+    OSCTUN = 0;     /* FRC  Oscillator Tuning Register. 0 => center frequency nominal FRC frequency (7,37 MHz) */
+    PLLFBD = M - 2; /* M PLL Feedback Divisor VCO output. Symbol eq PLLFDB. (register with an offset equal to 2) */
+	CLKDIV = 0x3000;              /* DOZE not enabled => Processor clock/peripheral clock ratio forced to 1:1 */
+	                              /* N1=2 */
+								  /* N2=2 */
+								  /* FRC is not post scaled (I don't need it) */
+	
     __builtin_write_OSCCONH(nosc); /* New Oscillator Selection bits */
     __builtin_write_OSCCONL(0x01); /* Initiate Clock Switch OSWEN: Oscillator Switch Enable bit*/
 
@@ -137,16 +138,16 @@ static EE_INT32 EE_get_system_clock_pll(EE_UINT32 fin)
     EE_UINT16 N2 = CLKDIVbits.PLLPRE + 2U;
     EE_UINT16 N  = valuesN1[indexN1] * N2;
 
-    EE_INT32 fosc = 0;
+    EE_UINT32 fosc = 0;
     if(N > 0)
         /* Fosc = M * Fin / (N1 * N2) */
         fosc = ((EE_INT32)M * fin + N / 2U) / N;
     return fosc;
 }
 
-EE_INT32 EE_get_system_clock(void)
+EE_UINT32 EE_get_system_clock(void)
 {
-    EE_INT32  fosc = 0;
+    EE_UINT32  fosc = 0;
     EE_UINT16 frcPostscaler = 1 << CLKDIVbits.FRCDIV;
     EE_UINT32 frcFin = EE_PIC30_FRC_OSC_FREQ / frcPostscaler;
     /* check the actual oscillator */
@@ -176,19 +177,19 @@ EE_INT32 EE_get_system_clock(void)
     return fosc;
 }
 
-EE_INT32 EE_get_peripheral_clock(void)
+EE_UINT32 EE_get_peripheral_clock(void)
 {
-    EE_INT32 fosc = EE_get_system_clock();
+    EE_UINT32 fosc = EE_get_system_clock();
     /* fosc >= 0 => no error happened  */
     if (fosc >= 0)
         fosc /= 2U;
     return fosc;
 }
 
-EE_INT32 EE_get_cpu_mips(void)
+EE_UINT32 EE_get_cpu_mips(void)
 {
     EE_UINT16 dozeRatio = 1;
-    EE_INT32 mips = EE_get_system_clock();
+    EE_UINT32 mips = EE_get_system_clock();
     /* mips >= 0 => no error happened  */
     if(mips >= 0) {
         if(CLKDIVbits.DOZEN)

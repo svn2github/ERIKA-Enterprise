@@ -109,7 +109,7 @@ EE_INT16 EE_set_system_clock(EE_UINT32 fosc);
     @return actual system frequency or an 
         appropriate error values
 **/
-EE_INT32 EE_get_system_clock(void);
+EE_UINT32 EE_get_system_clock(void);
 
 /**
     @brief get periphereal clock frequency (Hz).
@@ -117,7 +117,7 @@ EE_INT32 EE_get_system_clock(void);
     @return actual periphereal frequency or an 
         appropriate error values
 **/
-EE_INT32 EE_get_peripheral_clock(void);
+EE_UINT32 EE_get_peripheral_clock(void);
 
 /**
     @brief get cpu instruction per seconds (MIPS).
@@ -125,16 +125,16 @@ EE_INT32 EE_get_peripheral_clock(void);
     @return actual cpu MIPS or an 
         appropriate error values
 **/
-EE_INT32 EE_get_cpu_mips(void);
+EE_UINT32 EE_get_cpu_mips(void);
 
 /**
     @brief read FOSCSEL configuartion read-only flash register
     
     @return value of the register.
 **/
-__INLINE__ EE_INT16 EE_read_foscsel(void){
+__INLINE__ EE_UINT16 EE_read_foscsel(void){
     EE_UINT8 prevTblPag = TBLPAG;
-    EE_INT16 offset, data;
+    EE_UINT16 offset, data;
     TBLPAG = __builtin_tblpage(&_FOSCSEL);
     offset = __builtin_tbloffset(&_FOSCSEL);
     /* Table read */
@@ -148,9 +148,9 @@ __INLINE__ EE_INT16 EE_read_foscsel(void){
     
     @return value of the register.
 **/
-__INLINE__ EE_INT16 EE_read_fosc(void){
+__INLINE__ EE_UINT16 EE_read_fosc(void){
     EE_UINT8 prevTblPag = TBLPAG;
-    EE_INT16 offset, data;
+    EE_UINT16 offset, data;
     TBLPAG = __builtin_tblpage(&_FOSC);
     offset = __builtin_tbloffset(&_FOSC);
     /* Table read */
