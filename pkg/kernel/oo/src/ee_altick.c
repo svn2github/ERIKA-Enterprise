@@ -217,7 +217,12 @@ static void EE_handle_alarm_action_event(CounterType CounterID,
 
 void EE_oo_IncrementCounterImplementation(CounterType CounterID)
 {
-  register AlarmType current;
+  /* to_fire: Is the head of the splitted queue that have to be served at this
+              counter tick. */
+  register AlarmType to_fire = EE_counter_RAM[CounterID].first;
+  /* previous: Is a temporary copy of the index used as utility */
+  register AlarmType previous = (AlarmType)-1;
+
   /* Increment the counter value or reset it when overcome maxallowedvalue.
      I need this behaviour for AS services GetCounterValue and GetElapsedValue
    */
@@ -228,71 +233,88 @@ void EE_oo_IncrementCounterImplementation(CounterType CounterID)
     EE_counter_RAM[CounterID].value = 0U;
   }
 
-  /* if there are queued alarms */
-  if (EE_counter_RAM[CounterID].first != (EE_SREG)-1) {
-    /* First alarm handled, it's an end flag */
-    const register AlarmType first = EE_counter_RAM[CounterID].first;
-    /* execute all the alarms with counter 0 */
-    current = first;
-    while (EE_alarm_RAM[current].delta == 0U) {
-      /* execute it */
-      switch (EE_alarm_ROM[current].action) {
+  /* I split Alarm queue in two: The queue that SHALL be handled at this tick
+     and the rest.
+     current & previous are double indexes used to split alarm queue.
+   */
+  /* If the alarm queue is empty I have to do nothing */
+  if(to_fire != (AlarmType)-1) {
+    /* If the head of alarm queue has not delta equal to zero I have only
+       to decrement the first alarm delta    */
+    if(EE_alarm_RAM[to_fire].delta == 0U) {
+      /* current point to the first alarm at the beginning */
+      register AlarmType current = to_fire;
+      do {
+        /* Now I will use previous to hold the pevious checked alarm */
+        previous = current;
+        current = EE_alarm_RAM[current].next;
+      } while ( (current != (AlarmType)-1) &&
+          (EE_alarm_RAM[current].delta == 0U) );
 
-        case  EE_ALARM_ACTION_TASK:
-          /* activate the task */
-          EE_handle_alarm_action_task(CounterID, current);
-          break;
+      /* I set the end of handled queue */
+      if(previous != (AlarmType)-1) {
+        EE_alarm_RAM[previous].next = (AlarmType)-1;
+      }
 
-        case EE_ALARM_ACTION_CALLBACK:
-          (EE_alarm_ROM[current].f)();
-          break;
+      /* I set the head of the alarm queue to the current value (maybe -1) */
+      EE_counter_RAM[CounterID].first = current;
 
-        case EE_ALARM_ACTION_COUNTER:
-          /* recursive call
-             TODO: HANDLE CYCLIC COUNTERS !!!
-           */
-          EE_oo_IncrementCounterImplementation(EE_alarm_ROM[current].inccount);
-          break;
+      /* If not empty I decrement the first alarm delta in queue */
+      if(current != (AlarmType)-1) {
+        --EE_alarm_RAM[current].delta;
+      }
+    } else {
+      /* I do not handle any alarm but I have to decrement the first delta */
+      --EE_alarm_RAM[to_fire].delta;
+      to_fire = (AlarmType)-1;
+    }
+  }
+
+  /* Handle the alarm queue active at this tick */
+  while (to_fire != (AlarmType)-1) {
+    /* execute it */
+    switch (EE_alarm_ROM[to_fire].action) {
+
+      case  EE_ALARM_ACTION_TASK:
+        /* activate the task */
+        EE_handle_alarm_action_task(CounterID, to_fire);
+        break;
+
+      case EE_ALARM_ACTION_CALLBACK:
+        (EE_alarm_ROM[to_fire].f)();
+        break;
+
+      case EE_ALARM_ACTION_COUNTER:
+        /* recursive call
+           TODO: HANDLE CYCLIC COUNTERS !!!
+         */
+        EE_oo_IncrementCounterImplementation(EE_alarm_ROM[to_fire].inccount);
+        break;
 
 #if defined(__OO_ECC1__) || defined(__OO_ECC2__)
-        case EE_ALARM_ACTION_EVENT:
-          /* set an event for a task */
-          EE_handle_alarm_action_event(CounterID, current);
-          break;
+      case EE_ALARM_ACTION_EVENT:
+        /* set an event for a task */
+        EE_handle_alarm_action_event(CounterID, to_fire);
+        break;
 #endif /* defined(__OO_ECC1__) || defined(__OO_ECC2__) */
 
-        default:
-          /* Invalid action: this should never happen, as `action' is
-             initialized by RT-Druid */
-          break;
-      }
-
-      /* remove the current entry */
-      EE_counter_RAM[CounterID].first = EE_alarm_RAM[current].next;
-
-      /* the alarm is cyclic? */
-      if (EE_alarm_RAM[current].cycle > 0U) {
-        /* enqueue it again 
-           note: this can modify EE_counter_RAM[CounterID].first!!! see (*)
-         */
-        EE_oo_alarm_insert(current, (EE_alarm_RAM[current].cycle - 1U));
-      } else {
-        /* alarm no more used! */
-        EE_alarm_RAM[current].used = 0U;
-      }
-      /* (*) here we need EE_counter_RAM[CounterID].first again... */
-      current = EE_counter_RAM[CounterID].first;
-      if((current == first) || (current == (AlarmType)-1)) {
-        /* N.B In the case that new alarm is equal to the first handled means
-           need to do nothing -> break the cycle plus do not decrement alarm
-           setting current == (AlarmType)-1 */
-        current = (AlarmType)-1;
+      default:
+        /* Invalid action: this should never happen, as `action' is
+           initialized by RT-Druid */
         break;
-      }
     }
-    /* Decrement first queued alarm delta -> prepare for next tick */
-    if (current != (AlarmType)-1) {
-      EE_alarm_RAM[EE_counter_RAM[CounterID].first].delta--;
+
+    /* Save the actual alarm in previous and get the next to be executed */
+    previous = to_fire;
+    to_fire = EE_alarm_RAM[to_fire].next;
+
+    /* the previous alarm is cyclic? */
+    if (EE_alarm_RAM[previous].cycle > 0U) {
+      /* enqueue it again */
+      EE_oo_alarm_insert(previous, (EE_alarm_RAM[previous].cycle - 1U));
+    } else {
+      /* alarm no more used! */
+      EE_alarm_RAM[previous].used = 0U;
     }
   }
 }
