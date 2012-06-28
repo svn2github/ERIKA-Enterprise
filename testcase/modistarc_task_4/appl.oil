@@ -103,8 +103,8 @@ CPU test_application {
 		ACTIVATION = 1;
 		SCHEDULE = NON;
 		AUTOSTART = TRUE;
-		EVENT = "Event1";
-		EVENT = "Event3";
+		EVENT = Event1;
+		EVENT = Event3;
 		
 #ifdef evaluator7t
 		STACK = PRIVATE_ARM7 {
@@ -155,8 +155,8 @@ CPU test_application {
 		ACTIVATION = 1;
 		SCHEDULE = NON;
 		AUTOSTART = FALSE;
-		EVENT = "Event2";
-		EVENT = "Event3";
+		EVENT = Event2;
+		EVENT = Event3;
 #ifdef evaluator7t
 		STACK = PRIVATE_ARM7 {
 			SYS_SIZE = 0x200;

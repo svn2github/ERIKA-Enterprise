@@ -88,16 +88,16 @@ CPU test_application {
     SCHEDULE = FULL;
     AUTOSTART = FALSE;
     STACK = SHARED;
-    RESOURCE = "Resource1";
-    RESOURCE = "ResourceA";
-    RESOURCE = "ResourceB";
+    RESOURCE = Resource1;
+    RESOURCE = ResourceA;
+    RESOURCE = ResourceB;
   };
 
   ISR IsrLow {
     CATEGORY = 2;
     PRIORITY = 1;
-    RESOURCE = "ResourceA";
-    RESOURCE = "ResourceB";
+    RESOURCE = ResourceA;
+    RESOURCE = ResourceB;
     ENTRY = "0";
   };
 
@@ -110,7 +110,7 @@ CPU test_application {
   ISR IsrHigh {
     CATEGORY = 2;
     PRIORITY = 3;
-    RESOURCE = "ResourceB";
+    RESOURCE = ResourceB;
     ENTRY = "2";
   };
 

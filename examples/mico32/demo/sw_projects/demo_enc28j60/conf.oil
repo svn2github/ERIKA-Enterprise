@@ -111,8 +111,8 @@ CPU test_application {
 	
 	/* ALARMs list */
 	ALARM myAlarm1 {
-		COUNTER = "myCounter";
-		ACTION = ACTIVATETASK { TASK = "myTask1"; };
+		COUNTER = myCounter;
+		ACTION = ACTIVATETASK { TASK = myTask1; };
 	};
 
 };

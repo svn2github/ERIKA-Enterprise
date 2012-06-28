@@ -53,7 +53,7 @@ OS myOs {
 		SYS_SIZE = 512;
 	};
         SCHEDULE = FULL;
-	RESOURCE = "MUTEX_sync";
+	RESOURCE = MUTEX_sync;
     };
 
     TASK thread1 {
@@ -68,7 +68,7 @@ OS myOs {
         ACTIVATION = 4;
 	STACK = SHARED;
         SCHEDULE = FULL;
-	RESOURCE = "MUTEX_sync";
+	RESOURCE = MUTEX_sync;
     };
 
     TASK thread3 {

@@ -56,7 +56,7 @@ CPU test_application {
 		AUTOSTART = FALSE;
 		STACK = SHARED;
 		ACTIVATION = 1;
-		RESOURCE = "MyResource";
+		RESOURCE = MyResource;
 		CPU_ID = "master";
 	};
 
@@ -68,8 +68,8 @@ CPU test_application {
 			SYS_SIZE = 1024;
 		};
 		ACTIVATION = 1;
-		RESOURCE = "MyResource";
-		EVENT = "MyEvent";
+		RESOURCE = MyResource;
+		EVENT = MyEvent;
 		CPU_ID = "master";
 	};
 
@@ -79,7 +79,7 @@ CPU test_application {
 		AUTOSTART = TRUE;
 		STACK = SHARED;
 		ACTIVATION = 1;
-		RESOURCE = "MyOtherResource";
+		RESOURCE = MyOtherResource;
 		CPU_ID = "slave";
 	};
 
@@ -98,9 +98,9 @@ CPU test_application {
 	};
 
 	ALARM MyAlarm {
-		COUNTER = "MainTimer";
+		COUNTER = MainTimer;
 		ACTION = ACTIVATETASK {
-			TASK = "Task1";
+			TASK = Task1;
 		};
 		AUTOSTART = FALSE;
 	};
@@ -113,9 +113,9 @@ CPU test_application {
 	};
 
 	ALARM OtherAlarm {
-		COUNTER = "OtherTimer";
+		COUNTER = OtherTimer;
 		ACTION = ACTIVATETASK {
-			TASK = "Task1";
+			TASK = Task1;
 		};
 		AUTOSTART = FALSE;
 	};

@@ -111,8 +111,8 @@ CPU test_application {
 		#endif
 			SYS_SIZE = 1024;
 		};
-		EVENT = "myEvent";
-		RESOURCE = "Resource";
+		EVENT = myEvent;
+		RESOURCE = Resource;
     };
 
     TASK BasTask {

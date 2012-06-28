@@ -115,7 +115,7 @@ CPU test_application {
 		SCHEDULE = NON;
 		AUTOSTART = TRUE;	
 		STACK = SHARED;
-		RESOURCE = "Resource1";
+		RESOURCE = Resource1;
     };
 
     TASK Task2 {
@@ -124,7 +124,7 @@ CPU test_application {
 		SCHEDULE = NON;
 		AUTOSTART = FALSE;	
 		STACK = SHARED;
-		RESOURCE = "Resource1";
+		RESOURCE = Resource1;
     };
 
     TASK Task3 {

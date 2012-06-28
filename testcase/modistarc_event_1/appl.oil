@@ -129,8 +129,8 @@ CPU test_application {
 		ACTIVATION = 1;
 		SCHEDULE = FULL;
 		AUTOSTART = FALSE;
-		EVENT = "Event1";
-		RESOURCE = "Resource1";
+		EVENT = Event1;
+		RESOURCE = Resource1;
 #ifdef evaluator7t
 		STACK = PRIVATE_ARM7 {
 			SYS_SIZE = 0x200;

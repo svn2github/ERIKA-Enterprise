@@ -82,9 +82,9 @@
     SCHEDULE = FULL;
     AUTOSTART = FALSE;
     STACK = SHARED;
-    RESOURCE = "Resource1";
-    RESOURCE = "ResourceA";
-    RESOURCE = "ResourceB";
+    RESOURCE = Resource1;
+    RESOURCE = ResourceA;
+    RESOURCE = ResourceB;
   };
 
   ISR IsrLow {
@@ -96,8 +96,8 @@
 #ifdef cortex_m4
     ENTRY = "GPIO_A";
 #endif
-    RESOURCE = "ResourceA";
-    RESOURCE = "ResourceB";
+    RESOURCE = ResourceA;
+    RESOURCE = ResourceB;
   };
 
   ISR IsrMedium {
@@ -120,7 +120,7 @@
 #ifdef cortex_m4
     ENTRY = "GPIO_C";
 #endif
-    RESOURCE = "ResourceB";
+    RESOURCE = ResourceB;
   };
 
   RESOURCE Resource1 { RESOURCEPROPERTY = STANDARD; };

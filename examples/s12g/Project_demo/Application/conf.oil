@@ -146,7 +146,7 @@ CPU test_application {
 	// ALARMs list
 	ALARM SystemAlarm {
 		COUNTER = SystemTimer;
-		ACTION = ACTIVATETASK { TASK = "Task1"; };
+		ACTION = ACTIVATETASK { TASK = Task1; };
 	};
 	*/
 };

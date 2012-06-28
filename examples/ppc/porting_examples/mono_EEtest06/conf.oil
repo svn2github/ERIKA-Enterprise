@@ -50,9 +50,9 @@ CPU test_application {
 	COUNTER MainTimer;
 	
 	ALARM MyAlarm {
-		COUNTER = "MainTimer";
+		COUNTER = MainTimer;
 		ACTION = ACTIVATETASK {
-			TASK = "Task1";
+			TASK = Task1;
 		};
 		/* Autstart is not supported on FP kernel! */
 		AUTOSTART = FALSE;

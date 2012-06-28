@@ -84,30 +84,30 @@ CPU mySystem {
 		PRIORITY = 2;
 		STACK = SHARED;
 		SCHEDULE = FULL;
-		RESOURCE = "lcd_mutex";
+		RESOURCE = lcd_mutex;
 	};
 	ALARM send_packet_alarm {
-		COUNTER = "task_counter";
-		ACTION = ACTIVATETASK { TASK =  "send_packet"; };
+		COUNTER = task_counter;
+		ACTION = ACTIVATETASK { TASK =  send_packet; };
 	};
 
 	TASK receive_packet {
 		PRIORITY = 2;
 		STACK = SHARED;
 		SCHEDULE = FULL;
-		RESOURCE = "lcd_mutex";
-		RESOURCE = "read_buffer_mutex";
+		RESOURCE = lcd_mutex;
+		RESOURCE = read_buffer_mutex;
 	};
 
 	TASK lcd_write {
 		PRIORITY = 1;
 		STACK = SHARED;
 		SCHEDULE = FULL;
-		RESOURCE = "lcd_mutex";
+		RESOURCE = lcd_mutex;
 	};
 	ALARM lcd_write_alarm {
-		COUNTER = "task_counter";
-		ACTION = ACTIVATETASK { TASK =  "lcd_write"; };
+		COUNTER = task_counter;
+		ACTION = ACTIVATETASK { TASK =  lcd_write; };
 	};
 
 
@@ -121,7 +121,7 @@ CPU mySystem {
 		PRIORITY = 10;
 		STACK = SHARED;
 		SCHEDULE = FULL;
-		RESOURCE = "read_buffer_mutex";
+		RESOURCE = read_buffer_mutex;
 	};
 	TASK AckFrameDispatcher {
 		PRIORITY = 10;
@@ -173,38 +173,38 @@ CPU mySystem {
 	
 	//IEEE802.15.4 Superframe timer ALARMS
 	ALARM bi_firedAlarm {
-		COUNTER = "myCounter";
-		ACTION = ACTIVATETASK { TASK =  "bi_firedTask"; };
+		COUNTER = myCounter;
+		ACTION = ACTIVATETASK { TASK =  bi_firedTask; };
 	};
 	ALARM before_bi_firedAlarm {
-		COUNTER = "myCounter";
-		ACTION = ACTIVATETASK { TASK = "before_bi_firedTask"; };
+		COUNTER = myCounter;
+		ACTION = ACTIVATETASK { TASK = before_bi_firedTask; };
 	};
 	ALARM sd_firedAlarm {
-		COUNTER = "myCounter";
-		ACTION = ACTIVATETASK { TASK = "sd_firedTask"; };
+		COUNTER = myCounter;
+		ACTION = ACTIVATETASK { TASK = sd_firedTask; };
 	};
 	ALARM time_slot_firedAlarm {
-		COUNTER = "myCounter";
-		ACTION = ACTIVATETASK { TASK = "time_slot_firedTask"; };
+		COUNTER = myCounter;
+		ACTION = ACTIVATETASK { TASK = time_slot_firedTask; };
 	};
 	ALARM before_time_slot_firedAlarm {
-		COUNTER = "myCounter";
-		ACTION = ACTIVATETASK { TASK = "time_slot_firedTask"; };
+		COUNTER = myCounter;
+		ACTION = ACTIVATETASK { TASK = time_slot_firedTask; };
 	};
 	ALARM backoff_firedAlarm {
-		COUNTER = "myCounter";
-		ACTION = ACTIVATETASK { TASK = "backoff_firedTask"; };
+		COUNTER = myCounter;
+		ACTION = ACTIVATETASK { TASK = backoff_firedTask; };
 	};
 	
 	/*ALARM interframespace_firedAlarm {
-		COUNTER = "myCounter";
+		COUNTER = myCounter;
 		ACTION = ALARMCALLBACK { ALARMCALLBACKNAME = "send_gts_after_interframearrival"; };
 	};*/
 	
 	ALARM interframespace_firedAlarm {
-		COUNTER = "myCounter";
-		ACTION = ACTIVATETASK { TASK = "send_gts_after_interframearrivalTask"; };
+		COUNTER = myCounter;
+		ACTION = ACTIVATETASK { TASK = send_gts_after_interframearrivalTask; };
 	};
 	
 	RESOURCE S0 { RESOURCEPROPERTY = STANDARD; };

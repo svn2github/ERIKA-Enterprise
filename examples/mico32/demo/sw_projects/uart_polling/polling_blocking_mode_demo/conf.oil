@@ -92,8 +92,8 @@ CPU test_application {
 	COUNTER myCounter;
 
 	ALARM myAlarm {
-		COUNTER = "myCounter";
-		ACTION = ACTIVATETASK { TASK = "myTask"; };
+		COUNTER = myCounter;
+		ACTION = ACTIVATETASK { TASK = myTask; };
 	};
 
 	OS EE { KERNEL_TYPE = FP; };

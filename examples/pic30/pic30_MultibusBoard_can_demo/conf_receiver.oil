@@ -76,7 +76,7 @@ CPU mySystem {
 	COUNTER myCounter;
 	
 	ALARM AlarmReceive {
-		COUNTER = "myCounter";
-		ACTION = ACTIVATETASK { TASK = "TaskReceive"; };
+		COUNTER = myCounter;
+		ACTION = ACTIVATETASK { TASK = TaskReceive; };
 	};
 }; 

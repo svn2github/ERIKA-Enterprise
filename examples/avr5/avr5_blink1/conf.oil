@@ -146,7 +146,7 @@ CPU mySystem {
 		PRIORITY = 1;
 		STACK = SHARED;
 		SCHEDULE = FULL;
-		RESOURCE = "MUTEX_sync";
+		RESOURCE = MUTEX_sync;
 	};
   
    

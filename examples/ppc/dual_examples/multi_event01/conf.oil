@@ -77,8 +77,8 @@ CPU test_application {
 		};
 		ACTIVATION = 1;
 		SCHEDULE = FULL;
-		EVENT = "Event1";
-		EVENT = "Event2";
+		EVENT = Event1;
+		EVENT = Event2;
 	};
 
 	TASK TaskZ0Bkg {

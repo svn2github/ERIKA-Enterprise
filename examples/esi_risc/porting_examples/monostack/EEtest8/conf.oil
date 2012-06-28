@@ -38,14 +38,14 @@ CPU test_application {
                 PRIORITY = 0x01;
                 AUTOSTART = FALSE;
                 ACTIVATION = 1;
-                RESOURCE = "Resource";
+                RESOURCE = Resource;
     };
 
     TASK Task2 {
                 PRIORITY = 0x02;
                 SCHEDULE = FULL;
                 AUTOSTART = FALSE;
-                RESOURCE = "Resource";
+                RESOURCE = Resource;
     };
 
     OS EE { KERNEL_TYPE = BCC1; EE_OPT = "__OO_STARTOS_OLD__";};

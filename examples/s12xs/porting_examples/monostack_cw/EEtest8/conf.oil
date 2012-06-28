@@ -96,7 +96,7 @@ CPU test_application {
 		AUTOSTART = FALSE;
 		STACK = SHARED;
 		ACTIVATION = 1;    /* only one pending activation */
-		RESOURCE = "Resource";
+		RESOURCE = Resource;
 	};	
 	
 	/* this is the OIL part for the task activated by the button press */
@@ -105,7 +105,7 @@ CPU test_application {
 		SCHEDULE = FULL;
 		AUTOSTART = FALSE;	
 		STACK = SHARED;
-		RESOURCE = "Resource";
+		RESOURCE = Resource;
     };
 
     OS EE { KERNEL_TYPE = BCC1; EE_OPT = "__OO_STARTOS_OLD__";}; 

@@ -90,13 +90,13 @@ CPU mySystem {
 	};
 	
 	ALARM LED_ALARM {
-		COUNTER = "myCounter";
-		ACTION = ACTIVATETASK { TASK =  "LED_BLINK"; };
+		COUNTER = myCounter;
+		ACTION = ACTIVATETASK { TASK =  LED_BLINK; };
 	};
 	
 	ALARM UART_ALARM {
-		COUNTER = "myCounter";
-		ACTION = ACTIVATETASK { TASK =  "UART_ECO"; };
+		COUNTER = myCounter;
+		ACTION = ACTIVATETASK { TASK =  UART_ECO; };
 	};
 };
 

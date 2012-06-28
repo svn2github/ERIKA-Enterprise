@@ -98,7 +98,7 @@ CPU test_application {
 		SCHEDULE = FULL;
 		AUTOSTART = FALSE;
 		STACK = SHARED;
-		RESOURCE = "Resource";
+		RESOURCE = Resource;
     };
 
     TASK LCDTask {
@@ -107,7 +107,7 @@ CPU test_application {
 		SCHEDULE = FULL;
 		AUTOSTART = TRUE;	
 		STACK = SHARED;
-		RESOURCE = "Resource";
+		RESOURCE = Resource;
     };
 
     RESOURCE Resource { RESOURCEPROPERTY = STANDARD; };

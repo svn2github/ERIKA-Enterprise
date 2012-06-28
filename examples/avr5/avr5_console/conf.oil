@@ -149,8 +149,8 @@ CPU mySystem {
 	COUNTER myCounter;
 	
 	ALARM AlarmSend {
-		COUNTER = "myCounter";
-		ACTION = ACTIVATETASK { TASK = "TaskSend"; };
+		COUNTER = myCounter;
+		ACTION = ACTIVATETASK { TASK = TaskSend; };
 	};
 
     TASK TaskSend {

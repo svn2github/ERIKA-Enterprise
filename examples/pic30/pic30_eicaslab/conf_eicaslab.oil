@@ -5,7 +5,7 @@
 		SCHEDULE = FULL;                                \
 	};                                                      \
 	ALARM Alarm_##name {                                    \
-		COUNTER = "myCounter";                          \
+		COUNTER = myCounter;                          \
 		ACTION = ACTIVATETASK { TASK = quotedname; };   \
                 AUTOSTART = TRUE {                              \
 				ALARMTIME = offset;             \
@@ -83,8 +83,8 @@ CPU mySystem {
 
 	
 	ALARM AlarmLcd {
-		COUNTER = "myCounter";
-		ACTION = ACTIVATETASK { TASK = "rt_LCD"; };
+		COUNTER = myCounter;
+		ACTION = ACTIVATETASK { TASK = rt_LCD; };
                 AUTOSTART = TRUE {
 				ALARMTIME = 500;
 				CYCLETIME = 500;

@@ -103,8 +103,8 @@ CPU mySystem {
 		AUTOSTART = FALSE;
 		ACTIVATION = 1;    /* only one pending activation */
 		STACK = SHARED;
-		RESOURCE = "EE_MUTEX_COM_MSG";
-		MESSAGE = "ABS";
+		RESOURCE = EE_MUTEX_COM_MSG;
+		MESSAGE = ABS;
 	};
 	/* this is the OIL part for the task */
 	TASK Task1 {
@@ -112,8 +112,8 @@ CPU mySystem {
 		AUTOSTART = FALSE;
 		ACTIVATION = 1;    /* only one pending activation */
 		STACK = SHARED;
-		RESOURCE = "EE_MUTEX_COM_MSG";
-		MESSAGE = "RECEIVER2";
+		RESOURCE = EE_MUTEX_COM_MSG;
+		MESSAGE = RECEIVER2;
 	};
 	
 	TASK Task2 {
@@ -121,8 +121,8 @@ CPU mySystem {
 		AUTOSTART = FALSE;
 		ACTIVATION = 1;    /* only one pending activation */
 		STACK = SHARED;
-		RESOURCE = "EE_MUTEX_COM_MSG";
-		MESSAGE = "RECEIVER1";
+		RESOURCE = EE_MUTEX_COM_MSG;
+		MESSAGE = RECEIVER1;
 		
 	};
 	
@@ -135,13 +135,13 @@ CPU mySystem {
 
 	/* Alarm to that cyclically activate Kitt effect */
 	ALARM AlarmTask0 {
-		COUNTER = "myCounter";
-	    ACTION = ACTIVATETASK { TASK = "Task0"; };
+		COUNTER = myCounter;
+	    ACTION = ACTIVATETASK { TASK = Task0; };
 	};
 	
 	ALARM AlarmTask1 {
-		COUNTER = "myCounter";
-	    ACTION = ACTIVATETASK { TASK = "Task1"; };
+		COUNTER = myCounter;
+	    ACTION = ACTIVATETASK { TASK = Task1; };
 	};
 	
 	RESOURCE EE_MUTEX_COM_MSG { RESOURCEPROPERTY = STANDARD; };
@@ -156,7 +156,7 @@ CPU mySystem {
 			COMUSEGETSERVICEID =FALSE;
 			COMUSEPARAMETERACCESS = FALSE; 
 			COMSTARTCOMEXTENSION = FALSE; 
-			COMAPPMODE = "EE_COM_MODE_A"; 
+			COMAPPMODE = EE_COM_MODE_A; 
 			COMSTATUS = COMSTANDARD;
 			
 			COMTYPE = CCCB;
@@ -175,16 +175,16 @@ CPU mySystem {
 	
 	MESSAGE RECEIVER1 {
 		MESSAGEPROPERTY = RECEIVE_UNQUEUED_INTERNAL {
-			SENDINGMESSAGE = "ABS";
+			SENDINGMESSAGE = ABS;
 			FILTER = ALWAYS;
 			INITIALVALUE = 0;
 		};
-		NOTIFICATION = ACTIVATETASK { TASK = "Task2"; }; 
+		NOTIFICATION = ACTIVATETASK { TASK = Task2; }; 
 	};
 	
 	MESSAGE RECEIVER2 {
 		MESSAGEPROPERTY = RECEIVE_QUEUED_INTERNAL {
-			SENDINGMESSAGE = "ABS";
+			SENDINGMESSAGE = ABS;
 			FILTER = ALWAYS;
 			INITIALVALUE = 0;
 			QUEUESIZE = 2;

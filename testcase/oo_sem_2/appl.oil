@@ -106,7 +106,7 @@ CPU test_application {
 		#endif
 			SYS_SIZE = 1024;
 		};
-		EVENT = "myEvent";
+		EVENT = myEvent;
     };
 
 	/* media priorità */
@@ -131,7 +131,7 @@ CPU test_application {
 		#endif
 			SYS_SIZE = 1024;
 		};
-		EVENT = "myEvent";
+		EVENT = myEvent;
     };
 
     EVENT myEvent  { MASK = AUTO; };

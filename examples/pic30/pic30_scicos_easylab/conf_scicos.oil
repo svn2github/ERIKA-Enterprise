@@ -109,8 +109,8 @@ CPU mySystem {
     COUNTER sciCounter;
 
     ALARM AlarmSci {
-        COUNTER = "sciCounter";
-        ACTION = ACTIVATETASK { TASK = "rt_sci"; };
+        COUNTER = sciCounter;
+        ACTION = ACTIVATETASK { TASK = rt_sci; };
     };
 };
 

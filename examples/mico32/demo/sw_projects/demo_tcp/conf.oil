@@ -110,6 +110,6 @@ CPU test_application {
 		PRIORITY = 8;
 		STACK = SHARED;
 		SCHEDULE = FULL;
-		RESOURCE = "LwipMutex";
+		RESOURCE = LwipMutex;
 	};
 };

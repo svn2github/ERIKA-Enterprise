@@ -120,7 +120,7 @@ CPU test_application {
 		PRIORITY = 8;
 		STACK = SHARED;
 		SCHEDULE = FULL;
-		RESOURCE = "LwipMutex";
+		RESOURCE = LwipMutex;
 	};
 
 	/* COUNTERs list */
@@ -129,6 +129,6 @@ CPU test_application {
 	/* ALARMs list */
 	ALARM SenderAlarm {
 		COUNTER = SenderCounter;
-		ACTION = ACTIVATETASK { TASK = "Sender"; };
+		ACTION = ACTIVATETASK { TASK = Sender; };
 	};
 };

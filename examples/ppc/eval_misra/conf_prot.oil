@@ -44,7 +44,7 @@ CPU test_application {
 		AUTOSTART = FALSE;
 		STACK = SHARED;
 		ACTIVATION = 1;
-		RESOURCE = "MyResource";
+		RESOURCE = MyResource;
 	};
 
 	TASK Task2 {
@@ -55,8 +55,8 @@ CPU test_application {
 			SYS_SIZE = 1024;
 		};
 		ACTIVATION = 1;
-		RESOURCE = "MyResource";
-		EVENT = "MyEvent";
+		RESOURCE = MyResource;
+		EVENT = MyEvent;
 	};
 
 	EVENT MyEvent { MASK = AUTO; };
@@ -70,9 +70,9 @@ CPU test_application {
 	};
 
 	ALARM MyAlarm {
-		COUNTER = "MainTimer";
+		COUNTER = MainTimer;
 		ACTION = ACTIVATETASK {
-			TASK = "Task1";
+			TASK = Task1;
 		};
 		AUTOSTART = TRUE{
 			ALARMTIME = 12;
@@ -91,7 +91,7 @@ CPU test_application {
 	APPLICATION TrustedApp {
 		TRUSTED = TRUE;
 		ISR = "DecrIsr";
-		TASK = "Task1";
+		TASK = Task1;
 		MEMORY_BASE = 0x40010000;
 		MEMORY_SIZE = 0x10000;
 		SHARED_STACK_SIZE = 512;
@@ -101,9 +101,9 @@ CPU test_application {
 	APPLICATION App1 {
 		TRUSTED = FALSE;
 		ISR = "FixedIntvIsr";
-		TASK = "Task2";
-		ALARM = "MyAlarm";
-		COUNTER = "MainTimer";
+		TASK = Task2;
+		ALARM = MyAlarm;
+		COUNTER = MainTimer;
 		MEMORY_BASE = 0x40020000;
 		MEMORY_SIZE = 0x10000;
 		SHARED_STACK_SIZE = 512;

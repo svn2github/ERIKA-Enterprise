@@ -183,8 +183,8 @@ CPU test_application {
     };
 
     ALARM Alarm1 {
-		COUNTER = "Counter1";
-		ACTION = SETEVENT { TASK = "Task2"; EVENT = "Event2"; };
+		COUNTER = Counter1;
+		ACTION = SETEVENT { TASK = Task2; EVENT = Event2; };
 		AUTOSTART = FALSE;
     };
 };

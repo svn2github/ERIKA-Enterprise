@@ -99,9 +99,9 @@
     SCHEDULE = FULL;
     AUTOSTART = FALSE;
     STACK = SHARED;
-    RESOURCE = "Resource1";
-    RESOURCE = "ResourceA";
-    RESOURCE = "ResourceB";
+    RESOURCE = Resource1;
+    RESOURCE = ResourceA;
+    RESOURCE = ResourceB;
   };
 
   TASK Task2 {
@@ -110,8 +110,8 @@
     SCHEDULE = FULL;
     AUTOSTART = FALSE;
     STACK = SHARED;
-    RESOURCE = "ResourceA";
-    RESOURCE = "ResourceB";
+    RESOURCE = ResourceA;
+    RESOURCE = ResourceB;
   };
 
   RESOURCE Resource1 { RESOURCEPROPERTY = STANDARD; };

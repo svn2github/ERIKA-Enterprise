@@ -39,7 +39,7 @@ CPU test_application {
 		AUTOSTART = FALSE;
 		STACK = SHARED;
 		ACTIVATION = 1;
-		RESOURCE = "MyResource";
+		RESOURCE = MyResource;
 	};
 
 	TASK Task2 {
@@ -49,8 +49,8 @@ CPU test_application {
 		STACK = PRIVATE {
 			SYS_SIZE = 1024;
 		};
-		RESOURCE = "MyResource";
-		EVENT = "MyEvent";
+		RESOURCE = MyResource;
+		EVENT = MyEvent;
 	};
 
 	EVENT MyEvent { MASK = AUTO; };
@@ -64,9 +64,9 @@ CPU test_application {
 	};
 
 	ALARM MyAlarm {
-		COUNTER = "MainTimer";
+		COUNTER = MainTimer;
 		ACTION = ACTIVATETASK {
-			TASK = "Task1";
+			TASK = Task1;
 		};
 		AUTOSTART = TRUE{
 			ALARMTIME = 12;

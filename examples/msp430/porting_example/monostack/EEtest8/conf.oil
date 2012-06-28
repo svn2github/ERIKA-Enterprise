@@ -77,14 +77,14 @@ CPU test_application {
 		AUTOSTART = FALSE;
 		STACK = SHARED;
 		ACTIVATION = 1;    /* only one pending activation */
-                RESOURCE = "Resource";
+                RESOURCE = Resource;
 	};
 
    TASK Task2 {
 		PRIORITY = 0x02;   /* High priority */
 		AUTOSTART = FALSE;
 		STACK = SHARED;
-		RESOURCE = "Resource";	
+		RESOURCE = Resource;	
 };	
 
   OS EE { KERNEL_TYPE = BCC1; EE_OPT = "__OO_STARTOS_OLD__";}; 

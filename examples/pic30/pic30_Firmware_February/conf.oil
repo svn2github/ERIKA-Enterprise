@@ -69,8 +69,8 @@ CPU mySystem {
 	COUNTER myCounter;
 
 	ALARM myAlarm {
-		COUNTER = "myCounter";
-	    ACTION = ACTIVATETASK { TASK = "myTask"; };
+		COUNTER = myCounter;
+	    ACTION = ACTIVATETASK { TASK = myTask; };
 	};
 };
 

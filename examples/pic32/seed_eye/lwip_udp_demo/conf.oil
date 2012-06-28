@@ -130,7 +130,7 @@ CPU test_application {
 		PRIORITY = 8;
 		STACK = SHARED;
 		SCHEDULE = FULL;
-		RESOURCE = "LwipMutex";
+		RESOURCE = LwipMutex;
 	};
 
 	// COUNTERs list
@@ -139,7 +139,7 @@ CPU test_application {
 	// ALARMs list
 	ALARM SenderAlarm {
 		COUNTER = SenderCounter;
-		ACTION = ACTIVATETASK { TASK = "Sender"; };
+		ACTION = ACTIVATETASK { TASK = Sender; };
 	};
 	
 	/* RESOURCEs list */
@@ -150,14 +150,14 @@ CPU test_application {
 		PRIORITY = 30;
 		STACK = SHARED;
 		SCHEDULE = FULL;
-		RESOURCE = "LwipMutex";
+		RESOURCE = LwipMutex;
 	};
 
 	TASK LwipPeriodic {
 		PRIORITY = 35;
 		STACK = SHARED;
 		SCHEDULE = FULL;
-		RESOURCE = "LwipMutex";
+		RESOURCE = LwipMutex;
 	};
 		
 };

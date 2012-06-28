@@ -146,7 +146,7 @@ CPU mySystem {
 		PRIORITY = 1;
 		STACK = SHARED;
 		SCHEDULE = FULL;
-		RESOURCE = "MUTEX_sync";
+		RESOURCE = MUTEX_sync;
 	};
   
 	TASK TaskL2 {
@@ -166,17 +166,17 @@ CPU mySystem {
 	COUNTER Counter1ms;
 	
 	ALARM AlarmL1 {
-		COUNTER = "Counter320us";
-		ACTION = ACTIVATETASK { TASK = "TaskL1"; };
+		COUNTER = Counter320us;
+		ACTION = ACTIVATETASK { TASK = TaskL1; };
 	};
 
 	ALARM AlarmL2 {
-		COUNTER = "Counter320us";
-		ACTION = ACTIVATETASK { TASK = "TaskL2"; };
+		COUNTER = Counter320us;
+		ACTION = ACTIVATETASK { TASK = TaskL2; };
 	};
 
 	ALARM AlarmL3 {
-		COUNTER = "Counter1ms";
-		ACTION = ACTIVATETASK { TASK = "TaskL3"; };
+		COUNTER = Counter1ms;
+		ACTION = ACTIVATETASK { TASK = TaskL3; };
 	};
 };

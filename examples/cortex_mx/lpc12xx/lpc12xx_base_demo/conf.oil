@@ -121,8 +121,8 @@ CPU mySystem {
 
 	/* Alarm to that cyclically activate Kitt effect */
 	ALARM myAlarm {
-		COUNTER = "myCounter";
-		ACTION = ACTIVATETASK { TASK = "Task1"; };
+		COUNTER = myCounter;
+		ACTION = ACTIVATETASK { TASK = Task1; };
 	};
 
 };

@@ -100,8 +100,8 @@ CPU test_application {
 		STACK = PRIVATE {
 			SYS_SIZE = 1024;
 		};
-		RESOURCE = "myRes";
-		RESOURCE = "myRes2";
+		RESOURCE = myRes;
+		RESOURCE = myRes2;
     };
 
     TASK Task2 {
@@ -142,16 +142,16 @@ CPU test_application {
     COUNTER Counter1;
 
     ALARM AlarmTask2 {
-                COUNTER = "Counter1";
-                ACTION = ACTIVATETASK { TASK = "Task2"; };
+                COUNTER = Counter1;
+                ACTION = ACTIVATETASK { TASK = Task2; };
     };
     ALARM AlarmTask3 {
-                COUNTER = "Counter1";
-                ACTION = ACTIVATETASK { TASK = "Task3"; };
+                COUNTER = Counter1;
+                ACTION = ACTIVATETASK { TASK = Task3; };
     };
     ALARM AlarmTask4 {
-                COUNTER = "Counter1";
-                ACTION = ACTIVATETASK { TASK = "Task4"; };
+                COUNTER = Counter1;
+                ACTION = ACTIVATETASK { TASK = Task4; };
     };
 
 };

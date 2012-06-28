@@ -115,28 +115,28 @@ CPU mySystem {
 	COUNTER myCounter;
 
 	ALARM AlarmLeds {
-		COUNTER = "myCounter";
-	    ACTION = ACTIVATETASK { TASK = "TaskLeds"; };
+		COUNTER = myCounter;
+	    ACTION = ACTIVATETASK { TASK = TaskLeds; };
 	};
 	
 	ALARM AlarmDeb1 {
-		COUNTER = "myCounter";
-	    ACTION = ACTIVATETASK { TASK = "TaskDebounce1"; };
+		COUNTER = myCounter;
+	    ACTION = ACTIVATETASK { TASK = TaskDebounce1; };
 	};
 
 	ALARM AlarmDeb2 {
-		COUNTER = "myCounter";
-	    ACTION = ACTIVATETASK { TASK = "TaskDebounce2"; };
+		COUNTER = myCounter;
+	    ACTION = ACTIVATETASK { TASK = TaskDebounce2; };
 	};
 	
 	ALARM AlarmDeb3 {
-		COUNTER = "myCounter";
-	    ACTION = ACTIVATETASK { TASK = "TaskDebounce3"; };
+		COUNTER = myCounter;
+	    ACTION = ACTIVATETASK { TASK = TaskDebounce3; };
 	};
 	
 	ALARM AlarmLCD {
-		COUNTER = "myCounter";
-	    ACTION = ACTIVATETASK { TASK = "TaskLCD"; };
+		COUNTER = myCounter;
+	    ACTION = ACTIVATETASK { TASK = TaskLCD; };
 	};
 		
 	ISR cmia0_handler {

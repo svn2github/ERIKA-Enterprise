@@ -72,14 +72,14 @@ CPU test_application {
 		PRIORITY = 2;
 		STACK = SHARED;
 		SCHEDULE = FULL;
-		RESOURCE = "LwipMutex";
+		RESOURCE = LwipMutex;
 	};
 	
 	COUNTER myCounter;
 
  	ALARM myAlarm {
-  		COUNTER = "myCounter";
-    	ACTION = ACTIVATETASK { TASK = "myTask"; };
+  		COUNTER = myCounter;
+    	ACTION = ACTIVATETASK { TASK = myTask; };
     };
     
 };

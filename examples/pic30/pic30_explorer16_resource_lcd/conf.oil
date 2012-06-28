@@ -64,14 +64,14 @@ CPU mySystem {
 		PRIORITY = 1;
 		STACK = SHARED;
 		SCHEDULE = FULL;
-		RESOURCE = "myResource";
+		RESOURCE = myResource;
 	};
 	
 	TASK HighTask {
 		PRIORITY = 2;
 		STACK = SHARED;
 		SCHEDULE = FULL;
-		RESOURCE = "myResource";
+		RESOURCE = myResource;
 	};
 
 	RESOURCE myResource { RESOURCEPROPERTY = STANDARD; };

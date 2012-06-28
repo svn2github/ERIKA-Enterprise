@@ -111,7 +111,7 @@ CPU test_application {
 	};
 
 	ALARM AlarmCal {
-		COUNTER = "myCounter";
-		ACTION = ACTIVATETASK { TASK = "calTask"; };
+		COUNTER = myCounter;
+		ACTION = ACTIVATETASK { TASK = calTask; };
 	};
 };

@@ -84,8 +84,8 @@ CPU PerfTestApp {
 	APPLICATION TrustedApp {
 		TRUSTED = TRUE;
 		ISR = "TrustedIsr";
-		TASK = "MainTask";
-		TASK = "TrustedTask1";
+		TASK = MainTask;
+		TASK = TrustedTask1;
 		MEMORY_BASE = 0x40010000;
 		MEMORY_SIZE = 0x10000;
 		SHARED_STACK_SIZE = 512;
@@ -95,7 +95,7 @@ CPU PerfTestApp {
 	APPLICATION App1 {
 		TRUSTED = FALSE;
 		ISR = "App1Isr";
-		TASK = "App1Task";
+		TASK = App1Task;
 		MEMORY_BASE = 0x40020000;
 		MEMORY_SIZE = 0x10000;
 		SHARED_STACK_SIZE = 512;
@@ -105,7 +105,7 @@ CPU PerfTestApp {
 	APPLICATION App2 {
 		TRUSTED = FALSE;
 		ISR = "App2Isr";
-		TASK = "App2Task";
+		TASK = App2Task;
 		MEMORY_BASE = 0x40030000;
 		MEMORY_SIZE = 0x4000;
 		SHARED_STACK_SIZE = 512;

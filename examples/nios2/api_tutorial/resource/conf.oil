@@ -94,17 +94,17 @@ CPU test_application {
 		AUTOSTART = FALSE;
 //		STACK = PRIVATE_NIOSII { SYS_SIZE = 0x300; };
 		STACK = SHARED;
-		RESOURCE = "Resource";
+		RESOURCE = Resource;
     };
 
     TASK HighTask {
 		PRIORITY = 0x02;
 		ACTIVATION = 1;
 		SCHEDULE = FULL;
-		AUTOSTART = TRUE { APPMODE="ModeIncrement"; };	
+		AUTOSTART = TRUE { APPMODE=ModeIncrement; };	
 //		STACK = PRIVATE_NIOSII { SYS_SIZE = 0x300; };
 		STACK = SHARED;
-		RESOURCE = "Resource";
+		RESOURCE = Resource;
     };
 
     RESOURCE Resource { RESOURCEPROPERTY = STANDARD; };

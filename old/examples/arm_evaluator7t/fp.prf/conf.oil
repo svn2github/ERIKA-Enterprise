@@ -92,7 +92,7 @@ OS myOs {
 //	};
 	STACK = SHARED;
         SCHEDULE = FULL;
-	RESOURCE = "MUTEX_sync";
+	RESOURCE = MUTEX_sync;
     };
 
     TASK thread1 {
@@ -107,7 +107,7 @@ OS myOs {
         ACTIVATION = 1;
 	STACK = SHARED;
         SCHEDULE = FULL;
-	RESOURCE = "MUTEX_sync";
+	RESOURCE = MUTEX_sync;
     };
 
     TASK thread3 {

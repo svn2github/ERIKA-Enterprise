@@ -106,29 +106,29 @@ CPU mySystem {
 		PRIORITY = 1;
 		STACK = SHARED;
 		SCHEDULE = FULL;
-		RESOURCE = "S0";
-		RESOURCE = "S1";
+		RESOURCE = S0;
+		RESOURCE = S1;
 	};
 	
 	TASK TaskSensRead {
 		PRIORITY = 2;
 		STACK = SHARED;
 		SCHEDULE = FULL;
-		RESOURCE = "S0";
-		RESOURCE = "S1";
+		RESOURCE = S0;
+		RESOURCE = S1;
 	};	
 	TASK TaskMiWiOP {
 		PRIORITY = 2;
 		STACK = SHARED;
 		SCHEDULE = FULL;
-		RESOURCE = "S0";
+		RESOURCE = S0;
 	};
 	
 	TASK TaskRec {
 		PRIORITY = 3;
 		STACK = SHARED;
 		SCHEDULE = FULL;
-		RESOURCE = "S0";
+		RESOURCE = S0;
 	};
 	
 	TASK TaskInt {
@@ -140,18 +140,18 @@ CPU mySystem {
 	COUNTER myCounter;
 	
 	ALARM AlarmProt {
-		COUNTER = "myCounter";
-		ACTION = ACTIVATETASK { TASK = "TaskMiWiOP"; };
+		COUNTER = myCounter;
+		ACTION = ACTIVATETASK { TASK = TaskMiWiOP; };
 		
 	};
 	ALARM AlarmSend {
-		COUNTER = "myCounter";
-		ACTION = ACTIVATETASK { TASK = "TaskSend"; };
+		COUNTER = myCounter;
+		ACTION = ACTIVATETASK { TASK = TaskSend; };
 	};
 	
 	ALARM AlarmSens {
-		COUNTER = "myCounter";
-		ACTION = ACTIVATETASK { TASK = "TaskSensRead"; };
+		COUNTER = myCounter;
+		ACTION = ACTIVATETASK { TASK = TaskSensRead; };
 	};
 	
 	RESOURCE S0 { RESOURCEPROPERTY = STANDARD; };

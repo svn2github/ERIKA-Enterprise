@@ -108,8 +108,8 @@
   };
 
   ALARM Alarm1 {
-    COUNTER = "Counter1";
-    ACTION = ACTIVATETASK { TASK = "Task2"; };
+    COUNTER = Counter1;
+    ACTION = ACTIVATETASK { TASK = Task2; };
     AUTOSTART = FALSE;
   };
 

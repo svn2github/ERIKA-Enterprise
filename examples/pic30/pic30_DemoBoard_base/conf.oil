@@ -84,18 +84,18 @@ CPU mySystem {
 	COUNTER myCounter;
 
 	ALARM AlarmFlash {
-		COUNTER = "myCounter";
-		ACTION = ACTIVATETASK { TASK = "TaskFlash"; };
+		COUNTER = myCounter;
+		ACTION = ACTIVATETASK { TASK = TaskFlash; };
 	};
 
 	ALARM AlarmKitt {
-		COUNTER = "myCounter";
-		ACTION = ACTIVATETASK { TASK = "TaskKitt"; };
+		COUNTER = myCounter;
+		ACTION = ACTIVATETASK { TASK = TaskKitt; };
 	};
 
 	ALARM AlarmLCD {
-		COUNTER = "myCounter";
-		ACTION = ACTIVATETASK { TASK = "TaskLCD"; };
+		COUNTER = myCounter;
+		ACTION = ACTIVATETASK { TASK = TaskLCD; };
 	};
 };
 

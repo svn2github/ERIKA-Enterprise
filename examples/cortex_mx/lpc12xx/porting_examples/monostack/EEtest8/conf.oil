@@ -100,7 +100,7 @@ CPU mySystem {
 		STACK = SHARED;
 		ACTIVATION = 1;    /* only one pending activation */
 		SCHEDULE = FULL;
-		RESOURCE = "Resource";
+		RESOURCE = Resource;
 	};
 
 	TASK Task2 {
@@ -109,7 +109,7 @@ CPU mySystem {
 		SCHEDULE = FULL;
 		AUTOSTART = FALSE;
 		ACTIVATION = 1;    /* only one pending activation */
-		RESOURCE = "Resource";
+		RESOURCE = Resource;
 	};
 
 	RESOURCE Resource { RESOURCEPROPERTY = STANDARD; };

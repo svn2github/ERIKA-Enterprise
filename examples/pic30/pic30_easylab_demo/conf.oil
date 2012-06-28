@@ -119,26 +119,26 @@ CPU mySystem {
     
     /* Alarm to that cyclically activate Kitt effect */
     ALARM AlarmLeds {
-        COUNTER = "myCounter";
-        ACTION = ACTIVATETASK { TASK = "TaskLeds"; };
+        COUNTER = myCounter;
+        ACTION = ACTIVATETASK { TASK = TaskLeds; };
     };
     
     /* Alarm used for wait notification */
     ALARM AlarmWaitFinished {
-        COUNTER = "myCounter";
-        ACTION = ACTIVATETASK { TASK = "TaskWaitFinished"; };
+        COUNTER = myCounter;
+        ACTION = ACTIVATETASK { TASK = TaskWaitFinished; };
     };
     
     /* Alarm that activate console management task */
     ALARM AlarmConsole {
-        COUNTER = "myCounter";
-        ACTION = ACTIVATETASK { TASK = "TaskConsole"; };
+        COUNTER = myCounter;
+        ACTION = ACTIVATETASK { TASK = TaskConsole; };
     };
     
     /* Alarm that activate task control PWM voltage output */
     ALARM AlarmVoltageCtrl {
-        COUNTER = "myCounter";
-        ACTION = ACTIVATETASK { TASK = "TaskVoltageCtrl"; };
+        COUNTER = myCounter;
+        ACTION = ACTIVATETASK { TASK = TaskVoltageCtrl; };
     };
 
 };

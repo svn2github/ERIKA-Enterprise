@@ -159,7 +159,7 @@ CPU mySystem {
         ACTIVATION = 4;
         STACK = SHARED;
         SCHEDULE = FULL;
-        RESOURCE = "MUTEX_sync";
+        RESOURCE = MUTEX_sync;
     };
   
    

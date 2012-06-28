@@ -89,8 +89,8 @@ CPU test_application {
 		STACK = PRIVATE {
 			SYS_SIZE = 1024;
 		};
-		EVENT = "TimerEvent";
-		EVENT = "ButtonEvent";
+		EVENT = TimerEvent;
+		EVENT = ButtonEvent;
     };
 
     TASK Task2 {
@@ -111,14 +111,14 @@ CPU test_application {
     };
 
     ALARM AlarmTask1 {
-                COUNTER = "Counter1";
-                ACTION = SETEVENT { TASK = "Task1"; EVENT = "TimerEvent"; };
+                COUNTER = Counter1;
+                ACTION = SETEVENT { TASK = Task1; EVENT = TimerEvent; };
                 AUTOSTART = TRUE { ALARMTIME = 250; CYCLETIME = 500; };
     };
 
     ALARM AlarmTask2 {
-                COUNTER = "Counter1";
-                ACTION = ACTIVATETASK { TASK = "Task2"; };
+                COUNTER = Counter1;
+                ACTION = ACTIVATETASK { TASK = Task2; };
                 AUTOSTART = FALSE;
     };
 };

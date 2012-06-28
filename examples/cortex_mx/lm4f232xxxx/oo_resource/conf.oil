@@ -90,16 +90,16 @@ CPU test_application {
     SCHEDULE = FULL;
     AUTOSTART = FALSE;
     STACK = SHARED;
-    RESOURCE = "Resource";
+    RESOURCE = Resource;
   };
 
   TASK HighTask {
     PRIORITY = 0x02;
     ACTIVATION = 1;
     SCHEDULE = FULL;
-    AUTOSTART = TRUE { APPMODE="ModeIncrement"; };
+    AUTOSTART = TRUE { APPMODE=ModeIncrement; };
     STACK = SHARED;
-    RESOURCE = "Resource";
+    RESOURCE = Resource;
   };
 
   RESOURCE Resource { RESOURCEPROPERTY = STANDARD; };

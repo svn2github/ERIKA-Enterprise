@@ -77,7 +77,7 @@ CPU test_application {
 		STACK = PRIVATE_NIOSII {
 			SYS_SIZE = 1024;
 		};
-		EVENT = "myEvent";
+		EVENT = myEvent;
     };
 
     EVENT myEvent  { MASK = AUTO; };

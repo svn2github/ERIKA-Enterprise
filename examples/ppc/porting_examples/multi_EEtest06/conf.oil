@@ -60,7 +60,7 @@ CPU test_application {
 		};
 		ACTIVATION = 1;
 		SCHEDULE = FULL;
-		EVENT = "WakeUpEvent";
+		EVENT = WakeUpEvent;
 	};
 	
 	TASK Task4 {

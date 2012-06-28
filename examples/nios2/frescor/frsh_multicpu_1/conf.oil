@@ -231,7 +231,7 @@ CPU test_application {
 		STACK = PRIVATE {
 			SYS_SIZE = 10000;
 		};
-		RESOURCE = "myRes";
+		RESOURCE = myRes;
     };
 
     TASK mytask1 {

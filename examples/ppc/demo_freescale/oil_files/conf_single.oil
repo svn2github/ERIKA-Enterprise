@@ -61,7 +61,7 @@ CPU test_application {
 		};
 		ACTIVATION = 1;
 		SCHEDULE = FULL;
-		RESOURCE = "shared_var2";
+		RESOURCE = shared_var2;
 	};
 
 	TASK TaskZ6_3 {
@@ -95,7 +95,7 @@ CPU test_application {
 		};
 		ACTIVATION = 1;
 		SCHEDULE = FULL;
-		RESOURCE = "shared_var2";
+		RESOURCE = shared_var2;
 	};
 
 	TASK CheckOK_task {

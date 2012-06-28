@@ -120,8 +120,8 @@ CPU test_application {
     };
 
     ALARM Alarm1 {
-		COUNTER = "Counter1";
-		ACTION = ACTIVATETASK { TASK = "Task1"; };
+		COUNTER = Counter1;
+		ACTION = ACTIVATETASK { TASK = Task1; };
 		AUTOSTART = FALSE;
     };
 };
