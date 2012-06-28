@@ -103,7 +103,19 @@ enum EE_ASSERTION_TEST_3 {
   TEST_3_LENGTH
 };
 
-#define EE_ASSERTION_LENGTH TEST_3_LENGTH
+enum EE_ASSERTION_TEST_4 {
+  TEST_4_START = TEST_3_LENGTH,
+  TEST_4_TICK1,
+  TEST_4_STARTALARM1,
+  TEST_4_COUNTERVALUE,
+  TEST_4_ALARM1_CALLBACK1,
+  TEST_4_ELAPSEDVALUE,
+  TEST_4_BEFORE_END = TEST_4_ALARM1_CALLBACK1,
+  TEST_4_END        = TEST_4_ELAPSEDVALUE,
+  TEST_4_LENGTH
+};
+
+#define EE_ASSERTION_LENGTH TEST_4_LENGTH
 
 /* assertion data */
 EE_TYPEASSERTVALUE EE_assertions[EE_ASSERTION_LENGTH];
@@ -294,12 +306,50 @@ void test3_alarm3_callback(void) {
   ++test3_alarm3_callback_hits;
 }
 
+static void test4(void) {
+  StatusType s;
+  TickType counter_value;
+  EE_UREG i;
+  EE_UREG ticks_to_wrap_around;
+
+  EE_assert(TEST_4_START, TRUE, TEST_3_END);
+  s = IncrementCounter(Counter);
+  EE_assert(TEST_4_TICK1, (s == E_OK), TEST_4_START);
+  s = SetAbsAlarm(Test4Alarm1, 0, 0);
+  EE_assert(TEST_4_STARTALARM1, (s == E_OK), TEST_4_TICK1);
+  s = GetCounterValue(Counter, &counter_value);
+  EE_assert(TEST_4_COUNTERVALUE, (s == E_OK), TEST_4_STARTALARM1);
+
+  ticks_to_wrap_around = EE_counter_ROM[Counter].maxallowedvalue - counter_value
+    + 1U;
+
+  for (i = 0U; i < ticks_to_wrap_around; ++i) {
+    IncrementCounter(Counter);
+  }
+  /* Un po' tirato per i capelli ma è una prova che voglio fare: usare la stessa
+     variable per Value e ElapsedValue */
+  s = GetElapsedValue(Counter, &counter_value, &counter_value);
+  EE_assert(TEST_4_ELAPSEDVALUE, (counter_value == ticks_to_wrap_around),
+      TEST_4_ALARM1_CALLBACK1);
+
+}
+
+void test4_alarm1_callback(void) {
+  static EE_UREG test4_alarm1_callback_hits = 0U;
+  if( test4_alarm1_callback_hits == 0U ) {
+    EE_assert(TEST_4_ALARM1_CALLBACK1, TRUE, TEST_4_COUNTERVALUE);
+  } else {
+    EE_assert(TEST_4_END, TRUE, TEST_4_BEFORE_END);
+  }
+  ++test4_alarm1_callback_hits;
+}
 
 TASK(TestTask)
 {
   test1();
   test2();
   test3();
+  test4();
 
   TerminateTask();
 }

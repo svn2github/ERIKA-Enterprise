@@ -252,9 +252,7 @@ void EE_oo_IncrementCounterImplementation(CounterType CounterID)
           (EE_alarm_RAM[current].delta == 0U) );
 
       /* I set the end of handled queue */
-      if(previous != (AlarmType)-1) {
-        EE_alarm_RAM[previous].next = (AlarmType)-1;
-      }
+      EE_alarm_RAM[previous].next = (AlarmType)-1;
 
       /* I set the head of the alarm queue to the current value (maybe -1) */
       EE_counter_RAM[CounterID].first = current;

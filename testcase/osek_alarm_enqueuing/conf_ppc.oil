@@ -140,5 +140,12 @@ CPU test_application {
       ALARMCALLBACKNAME = "test3_alarm3_callback";
     };
   };
+
+  ALARM Test4Alarm1 {
+    COUNTER = Counter;
+    ACTION = ALARMCALLBACK {
+      ALARMCALLBACKNAME = "test4_alarm1_callback";
+    };
+  };
 };
 
