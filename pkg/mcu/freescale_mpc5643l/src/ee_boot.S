@@ -102,7 +102,6 @@ __start:
 #if defined(MPC5643L_STD_SW_MMU_CONFIG)
     /* To use standard MPC5643L MMU initialization */
     bl	mmu_init_mpc5643l
-    bl  EE_mpc5643l_initMMU
 #endif  /* MPC5643L_STD_SW_MMU_CONFIG */
 
 #ifndef __SLAVE_CPU__
