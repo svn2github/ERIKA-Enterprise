@@ -47,4 +47,9 @@ ifneq ($(or $(call iseeopt, EE_ISR_DYNAMIC_TABLE), $(call iseeopt,  EE_ISR_EXTER
 EE_SRCS += pkg/mcu/freescale_mpc5643l/src/ee_vtable.c
 endif # EE_ISR_DYNAMIC_TABLE
 
+# MMU Configuration performed via software
+ifeq ($(call iseeopt, MPC5643L_STD_SW_MMU_CONFIG), yes)
+EE_SRCS += pkg/mcu/freescale_mpc5643l/src/ee_mmu.c
+endif # EE_MMU_SW_CONFIG
+
 endif # __MPC5674F__

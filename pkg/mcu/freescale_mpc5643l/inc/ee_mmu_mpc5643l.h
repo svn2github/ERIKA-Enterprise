@@ -43,65 +43,58 @@
  *         2012 Francesco Esposito
  */
 
-#ifndef EE_MCU_MPC5643L_H
-#define EE_MCU_MPC5643L_H
+#ifndef EE_MMU_H
+#define EE_MMU_H
 
-/* ISO int types used by MPC5643L.h */
-#define __EE_STDINT_SKIP_64BIT__
-#include <cpu/common/inc/ee_stdint.h>
+#define TLB0_MAS0 0x0
+#define TLB0_MAS1 0xC0000500
+#define TLB0_MAS2 0x00000028
+#define TLB0_MAS3 0x0000003F
 
-#include "MPC5643L.h"
+#define TLB1_MAS0 0x00010000
+#define TLB1_MAS1 0xC0000500
+#define TLB1_MAS2 0x00F00028
+#define TLB1_MAS3 0x00F0003F
 
-#define EE_E200ZX_MAX_EXT_IRQ 256
+#define TLB2_MAS0 0x00020000
+#define TLB2_MAS1 0xC0000300
+#define TLB2_MAS2 0x40000028
+#define TLB2_MAS3 0x4000003F
 
-#if (! defined EE_CURRENTCPU) || (EE_CURRENTCPU == 0)
-/* INTC Base */
-#define INTC_BASE 0xFFF48000
+#define TLB3_MAS0 0x00030000
+#define TLB3_MAS1 0xC0000300
+#define TLB3_MAS2 0x50000028
+#define TLB3_MAS3 0x5000003F
 
-/* INTC_PSR Base */
-#define INTC_PSR_BASE (INTC_BASE+0x40)
+#define TLB4_MAS0 0x00040000
+#define TLB4_MAS1 0xC0000500
+#define TLB4_MAS2 0x8FF0002A
+#define TLB4_MAS3 0x8FF0003F
 
-/* For duplicated registers, pick the Z4 instance */
-#define INTC_CPR (INTC.CPR_PRC0)
-#define INTC_IACKR (INTC.IACKR_PRC0)
-#define INTC_EOIR (INTC.EOIR_PRC0)
-/* This value is ignored in MPC5643L,
- * it is provided just to guarantee backward compatibility */
-#define EE_E200ZX_INTC_CURRPROC 0x0U
+#define TLB5_MAS0 0x00050000
+#define TLB5_MAS1 0xC0000500
+#define TLB5_MAS2 0xC3F0002A
+#define TLB5_MAS3 0xC3F0003F
 
-#define SET_INT_PRIO(level, pri) \
-			(*(volatile char *) (INTC_PSR_BASE+(level-16)))=pri
+#define TLB6_MAS0 0x00060000
+#define TLB6_MAS1 0xC0000500
+#define TLB6_MAS2 0xFFE00028
+#define TLB6_MAS3 0xFFE0003F
 
-#else /* if EE_CURRENTCPU != 0 */
-/* INTC Base */
-#define INTC_BASE 0x8FF48000
+#define TLB7_MAS0 0x00070000
+#define TLB7_MAS1 0xC0000480
+#define TLB7_MAS2 0xFFF00028
+#define TLB7_MAS3 0xFFF0003F
 
-/* INTC_PSR Base */
-#define INTC_PSR_BASE (INTC_BASE+0x40)
+#define TLB8_MAS0 0x00080000
+#define TLB8_MAS1 0xC0000300
+#define TLB8_MAS2 0xFFF90028
+#define TLB8_MAS3 0xFFF9003F
 
-/* For duplicated registers, pick the Z4 instance */
-#define INTC_CPR (INTC_1.CPR_PRC0)
-#define INTC_IACKR (INTC_1.IACKR_PRC0)
-#define INTC_EOIR (INTC_1.EOIR_PRC0)
-/* This value is ignored in MPC5643L,
- * it is provided just to guarantee backward compatibility */
-#define EE_E200ZX_INTC_CURRPROC 0x0U
+#define TLB9_MAS0 0x00090000
+#define TLB9_MAS1 0xC0000400
+#define TLB9_MAS2 0xFFFC0028
+#define TLB9_MAS3 0xFFFC003F
 
-#define SET_INT_PRIO(level, pri) \
-			(*(volatile char *) (INTC_PSR_BASE+(level-16)))=pri
+#endif
 
-#endif /* EE_CURRENTCPU */
-
-#ifndef EE_ISR_DYNAMIC_TABLE
-void EE_mpc5643_initialize_external_IRQ_priorities(void);
-#endif /* __STATIC_ISR_TABLE__ */
-
-__INLINE__ unsigned int EE_mpc5643l_lsm_or_dpm(void)
-{
-	/* return only the 9-th bit of UOPT, bit number 22 (32-9-1=22) */
-	return (SSCM.UOPS.B.UOPT & 0x400000UL);
-}
-
-__asm void EE_mpc5643l_initMMU(void);
-
-#endif /* EE_MCU_MPC5643L_H */

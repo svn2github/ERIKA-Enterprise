@@ -59,6 +59,11 @@
 #ifdef __ASM_CONVERTED_TO_C__
 int main(void);
 void ee_start(void);
+#if defined(MPC5643L_STD_SW_MMU_CONFIG)
+void WriteMMUEntry(void);
+void mmu_init_mpc5643l(void);
+#include "mcu/freescale_mpc5643l/inc/ee_mmu_mpc5643l.h"
+#endif /* defined(MPC5643L_STD_SW_MMU_CONFIG) */
 #ifndef EE_ISR_DYNAMIC_TABLE
 void EE_mpc5643l_initialize_external_IRQ_priorities(void);
 #endif /* !EE_ISR_DYNAMIC_TABLE */
@@ -90,12 +95,16 @@ _bam_data:
 	.extern	EE_e200zx_sys_stack
 #define _stack0	(EE_e200zx_sys_stack + EE_SYS_STACK_SIZE - 16)
 
-	.section .boot, , c
-
 	/* CW-FUNC-DEFINITION: void ee_start(void) */
 	.global	__start
 	.type	__start, @function
 __start:
+#if defined(MPC5643L_STD_SW_MMU_CONFIG)
+    /* To use standard MPC5643L MMU initialization */
+    bl	mmu_init_mpc5643l
+    bl  EE_mpc5643l_initMMU
+#endif  /* MPC5643L_STD_SW_MMU_CONFIG */
+
 #ifndef __SLAVE_CPU__
 	bl	sram_setup
 	/* bl	pll_setup */
@@ -224,3 +233,132 @@ intc_setup:
 
 	blr
 	.size	intc_setup, .-intc_setup
+
+    /* CW-FUNC-DEFINITION: static void mmu_init_mpc5643l(void) */
+	.type	mmu_init_mpc5643l, @function
+mmu_init_mpc5643l:
+
+    mflr     r27
+
+	lis r3,TLB0_MAS0@h
+    ori r3,r3,TLB0_MAS0@l
+    lis r4,TLB0_MAS1@h
+    ori r4,r4,TLB0_MAS1@l
+    lis r5,TLB0_MAS2@h
+    ori r5,r5,TLB0_MAS2@l
+    lis r6,TLB0_MAS3@h
+    ori r6,r6,TLB0_MAS3@l
+    bl WriteMMUEntry
+
+    lis r3,TLB1_MAS0@h
+    ori r3,r3,TLB1_MAS0@l
+    lis r4,TLB1_MAS1@h
+    ori r4,r4,TLB1_MAS1@l
+    lis r5,TLB1_MAS2@h
+    ori r5,r5,TLB1_MAS2@l
+    lis r6,TLB1_MAS3@h
+    ori r6,r6,TLB1_MAS3@l
+    bl WriteMMUEntry
+
+    lis r3,TLB2_MAS0@h
+    ori r3,r3,TLB2_MAS0@l
+    lis r4,TLB2_MAS1@h
+    ori r4,r4,TLB2_MAS1@l
+    lis r5,TLB2_MAS2@h
+    ori r5,r5,TLB2_MAS2@l
+    lis r6,TLB2_MAS3@h
+    ori r6,r6,TLB2_MAS3@l
+    bl WriteMMUEntry
+
+    lis r3,TLB3_MAS0@h
+    ori r3,r3,TLB3_MAS0@l
+    lis r4,TLB3_MAS1@h
+    ori r4,r4,TLB3_MAS1@l
+    lis r5,TLB3_MAS2@h
+    ori r5,r5,TLB3_MAS2@l
+    lis r6,TLB3_MAS3@h
+    ori r6,r6,TLB3_MAS3@l
+    bl WriteMMUEntry
+
+    lis r3,TLB4_MAS0@h
+    ori r3,r3,TLB4_MAS0@l
+    lis r4,TLB4_MAS1@h
+    ori r4,r4,TLB4_MAS1@l
+    lis r5,TLB4_MAS2@h
+    ori r5,r5,TLB4_MAS2@l
+    lis r6,TLB4_MAS3@h
+    ori r6,r6,TLB4_MAS3@l
+    bl WriteMMUEntry
+
+    lis r3,TLB5_MAS0@h
+    ori r3,r3,TLB5_MAS0@l
+    lis r4,TLB5_MAS1@h
+    ori r4,r4,TLB5_MAS1@l
+    lis r5,TLB5_MAS2@h
+    ori r5,r5,TLB5_MAS2@l
+    lis r6,TLB5_MAS3@h
+    ori r6,r6,TLB5_MAS3@l
+    bl WriteMMUEntry
+
+    lis r3,TLB6_MAS0@h
+    ori r3,r3,TLB6_MAS0@l
+    lis r4,TLB6_MAS1@h
+    ori r4,r4,TLB6_MAS1@l
+    lis r5,TLB6_MAS2@h
+    ori r5,r5,TLB6_MAS2@l
+    lis r6,TLB6_MAS3@h
+    ori r6,r6,TLB6_MAS3@l
+    bl WriteMMUEntry
+
+    lis r3,TLB7_MAS0@h
+    ori r3,r3,TLB7_MAS0@l
+    lis r4,TLB7_MAS1@h
+    ori r4,r4,TLB7_MAS1@l
+    lis r5,TLB7_MAS2@h
+    ori r5,r5,TLB7_MAS2@l
+    lis r6,TLB7_MAS3@h
+    ori r6,r6,TLB7_MAS3@l
+    bl WriteMMUEntry
+
+    lis r3,TLB8_MAS0@h
+    ori r3,r3,TLB8_MAS0@l
+    lis r4,TLB8_MAS1@h
+    ori r4,r4,TLB8_MAS1@l
+    lis r5,TLB8_MAS2@h
+    ori r5,r5,TLB8_MAS2@l
+    lis r6,TLB8_MAS3@h
+    ori r6,r6,TLB8_MAS3@l
+    bl WriteMMUEntry
+
+    lis r3,TLB9_MAS0@h
+    ori r3,r3,TLB9_MAS0@l
+    lis r4,TLB9_MAS1@h
+    ori r4,r4,TLB9_MAS1@l
+    lis r5,TLB9_MAS2@h
+    ori r5,r5,TLB9_MAS2@l
+    lis r6,TLB9_MAS3@h
+    ori r6,r6,TLB9_MAS3@l
+    bl WriteMMUEntry
+
+    mtlr r27
+
+	blr
+
+	.size	mmu_init_mpc5643l, .-mmu_init_mpc5643l
+
+    /* CW-FUNC-DEFINITION: static void WriteMMUEntry(void) */
+	.type	WriteMMUEntry, @function
+WriteMMUEntry:
+	/* Write MMU Assist Register 0 (MAS0); SPR 624 */
+    mtspr   624, r3
+    /* Write MMU Assist Register 1 (MAS1); SPR 625 */
+    mtspr   625, r4
+    /* Write MMU Assist Register 2 (MAS2); SPR 626 */
+    mtspr   626, r5
+    /* Write MMU Assist Register 3 (MAS3); SPR 627 */
+    mtspr   627, r6
+    /* Write the table entry */
+    tlbwe
+
+	blr
+	.size	WriteMMUEntry, .-WriteMMUEntry
