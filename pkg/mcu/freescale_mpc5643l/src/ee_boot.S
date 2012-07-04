@@ -233,6 +233,7 @@ intc_setup:
 	blr
 	.size	intc_setup, .-intc_setup
 
+#if defined(MPC5643L_STD_SW_MMU_CONFIG)
     /* CW-FUNC-DEFINITION: static void mmu_init_mpc5643l(void) */
 	.type	mmu_init_mpc5643l, @function
 mmu_init_mpc5643l:
@@ -361,3 +362,4 @@ WriteMMUEntry:
 
 	blr
 	.size	WriteMMUEntry, .-WriteMMUEntry
+#endif /* defined(MPC5643L_STD_SW_MMU_CONFIG) */
