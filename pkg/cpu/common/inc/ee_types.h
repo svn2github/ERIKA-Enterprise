@@ -64,8 +64,10 @@ typedef int EE_INT16;
 typedef unsigned int EE_UINT16;
 typedef long int EE_INT32;
 typedef unsigned long int EE_UINT32;
+#ifdef ULLONG_MAX
 #if ULLONG_MAX == 0xffffffffffffffffUL
 typedef unsigned long int EE_UINT64;
+#endif
 #endif
 #elif (INT_MAX == 2147483647) && (SHRT_MAX == 32767) /* 32-bit architecture */
 typedef short int EE_INT16;
