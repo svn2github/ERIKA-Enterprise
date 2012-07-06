@@ -152,4 +152,15 @@
 #define	SCI_VAR_FAST
 #define	SCI_VAR
 
+#define	SPI_CODE
+#define	SPI_CONST
+#define	SPI_APPL_DATA
+#define	SPI_APPL_CONST
+#define	SPI_APPL_CODE
+#define	SPI_CALLOUT_CODE
+#define	SPI_VAR_NOINIT
+#define	SPI_VAR_POWER_ON_INIT
+#define	SPI_VAR_FAST
+#define	SPI_VAR
+
 #endif	/* COMPILER_CFG_H */
