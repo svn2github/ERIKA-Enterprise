@@ -960,6 +960,8 @@ Std_ReturnType Dma_TransferSetup(
   DmaControlTable[Channel].DmaControl = chctrl;
   DmaControlTable[Channel].DmaUnused = chctrl;
 
+  DMA_CHANNEL_PRIALT_CLR(Channel);
+
   EE_hal_resumeIRQ(flags);
 
   return E_OK;
@@ -1255,7 +1257,7 @@ Std_ReturnType Dma_ScatterGatherEntrySetup(
   VALIDATE_W_RV(
     (
       ( (uint32)SrcAddrPtr >= chcfgptr->DmaSrcAddrLow ) &&
-      ( chsrcaddr < chcfgptr->DmaSrcAddrHigh )
+      ( chsrcaddr <= chcfgptr->DmaSrcAddrHigh )
     ),
     DMA_SCATTER_GATHER_ENTRY_SETUP_SERVICE_ID,
     DMA_E_PARAM_ADDRESS,
@@ -1265,7 +1267,17 @@ Std_ReturnType Dma_ScatterGatherEntrySetup(
   if ( LastEntry ) {
 
     chctrl &= ~UDMA_CHCTL_XFERMODE_M;
-    chctrl |= UDMA_CHCTL_XFERMODE_AUTO;
+
+    if ( chidx == UDMA_CHCTL_XFERMODE_MEM_SG ) {
+
+      chctrl |= UDMA_CHCTL_XFERMODE_AUTO;
+
+    }
+    else {
+
+      chctrl |= UDMA_CHCTL_XFERMODE_BASIC;
+
+    }
 
   }
   else {
@@ -1426,6 +1438,8 @@ Std_ReturnType Dma_ScatterGatherTransferSetup(
    */
   DmaControlTable[Channel].DmaControl = chctrl;
   DmaControlTable[Channel].DmaUnused = chctrl;
+
+  DMA_CHANNEL_PRIALT_CLR(Channel);
 
   EE_hal_resumeIRQ(flags);
 

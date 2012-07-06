@@ -311,6 +311,22 @@
 	DMA_REG_FLAG_SET(UDMA_REQMASKSET_R, _ch)
 
 /*
+ * DMA Channel Primary Alternate Clear.
+ *
+ * param	_ch	DMA Channel to addess.
+ */
+#define	DMA_CHANNEL_PRIALT_CLR(_ch)	\
+	DMA_REG_FLAG_SET(UDMA_ALTCLR_R, _ch)
+
+/*
+ * DMA Channel Primary Alternate Set.
+ *
+ * param	_ch	DMA Channel to addess.
+ */
+#define	DMA_CHANNEL_PRIALT_SET(_ch)	\
+	DMA_REG_FLAG_SET(UDMA_ALTSET_R, _ch)
+
+/*
  * Type that holds all global data for Dma Driver
  */
 typedef struct
