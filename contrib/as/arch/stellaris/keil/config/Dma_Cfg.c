@@ -166,7 +166,7 @@ const Dma_ChannelConfigType		Dma_SwChannelConfig[] = {
  * SPI Handler/Driver DMA Channels Configuration.
  */
 #if	( DMA_SCATTER_GATHER_API == STD_ON )
-#define	DMA_SPI_CHANNELS_NUMBER	0x09U
+#define	DMA_SPI_CHANNELS_NUMBER	0x0AU
 #else	/* ( DMA_SCATTER_GATHER_API == STD_ON ) */
 #define	DMA_SPI_CHANNELS_NUMBER	0x01U
 #endif	/* ( DMA_SCATTER_GATHER_API != STD_ON ) */
@@ -209,167 +209,226 @@ const Dma_ChannelConfigType		Dma_SpiChannelConfig[] = {
   },
 #if	( DMA_SCATTER_GATHER_API == STD_ON )
   {
-    DMA_CHANNEL_10,			/* DmaChannelId.		      */
-    DMA_CHANNEL_10_SSI_0_RX,		/* DmaChannelAssignemnt.	      */
+    DMA_CHANNEL_29,			/* DmaChannelId.		      */
+    DMA_CHANNEL_29_SW_4,		/* DmaChannelAssignment.	      */
+    					/* DmaChannelControl:		      */
+    DMA_CHANNEL_DST_INC_WORD	|	/* - Dest. Addr. Inc. Word: 32-bit.   */
+    DMA_CHANNEL_DST_SZ_WORD	|	/* - Dest Data Size Word:   32-bit.   */
+    DMA_CHANNEL_SRC_INC_WORD	|	/* - Src. Addr. Inc. Word:  32-bit.   */
+    DMA_CHANNEL_SRC_SZ_WORD	|	/* - Src. Data Size Word:   32-bit.   */
+    DMA_CHANNEL_ARB_SZ_4  	|	/* - No Arbitration.		      */
+    DMA_CHANNEL_XFER_MSG	|	/* - Memory Scatter-Gather.	      */
+    DMA_CHANNEL_SOFTWARE,		/* - Software Channel.		      */
+    DMA_MEMORY_ADDRESS_LOW,		/* DmaSrcAddrLow.		      */
+    DMA_MEMORY_ADDRESS_HIGH,		/* DmaSrcAddrHigh.		      */
+    DMA_MEMORY_ADDRESS_LOW,		/* DmaDstAddrLow.		      */
+    DMA_MEMORY_ADDRESS_HIGH,		/* DmaDstAddrHigh.		      */
+
+#if	( DMA_NOTIFICATIONS_API == STD_ON )
+
+#ifdef	__AS_CFG_DMA_SW_XFER_END_NOTIF_CH_29__
+    /* DmaSoftwareTransferEndNotificationPtr	*/
+    Dma_SoftwareTransferEndNotification_Channel_29,
+#else	/* __AS_CFG_DMA_SW_XFER_END_NOTIF_CH_29__ */
+    NULL_PTR,			/* DmaSoftwareTransferEndNotificationPtr      */
+#endif	/* !__AS_CFG_DMA_SW_XFER_END_NOTIF_CH_29__ */
+
+#ifdef	__AS_CFG_DMA_XFER_ERR_NOTIF_CH_29__
+    /* DmaTransferErroeNotificationPtr	*/
+    Dma_TransferErrorNotification_Channel_29,
+#else	/* __AS_CFG_DMA_XFER_ERR_NOTIF_CH_29__ */
+    NULL_PTR,				/* DmaTransferErrorNotificationPtr    */
+#endif	/* !__AS_CFG_DMA_XFER_ERR_NOTIF_CH_29__ */
+
+#endif	/* ( DMA_NOTIFICATIONS_API == STD_ON ) */
+
+  },
+  {
+    DMA_CHANNEL_SPI_0_RX,		/* DmaChannelId.		      */
+    DMA_SSI_0_RX,			/* DmaChannelAssignemnt.	      */
     					/* DmaChannelControl:		      */
     DMA_CHANNEL_DST_INC_BYTE	|	/* - Dest. Addr. Inc. Byte: 8-bit     */
     DMA_CHANNEL_DST_SZ_BYTE 	|	/* - Dest. Data Size Byte:  8-bit.    */
     DMA_CHANNEL_SRC_INC_NONE	|	/* - Src. Addr. Inc. None.	      */
     DMA_CHANNEL_SRC_SZ_BYTE 	|	/* - Src. Data Size Byte:   8-bit.    */
     DMA_CHANNEL_ARB_SZ_4	|	/* - Arbitration Size: FIFO HALF-FULL.*/
-    DMA_CHANNEL_XFER_PSG		|	/* - Peripheral Scatter-Gather.	      */
-    DMA_CHANNEL_PRIO_HIGH,		/* - High Priority.		      */
+    DMA_CHANNEL_XFER_PSG,		/* - Peripheral Scatter-Gather.	      */
+#if	0
+    DMA_CHANNEL_XFER_PSG	|	/* - Peripheral Scatter-Gather.	      */
+    DMA_CHANNEL_LAST_BURST,		/* - Last Transfer in Burst Mode.     */
+#endif
     DMA_SSI_0_ADDRESS_LOW,		/* DmaSrcAddrLow.		      */
     DMA_SSI_0_ADDRESS_HIGH,		/* DmaSrcAddrHigh.		      */
     DMA_MEMORY_ADDRESS_LOW,		/* DmaDstAddrLow.		      */
     DMA_MEMORY_ADDRESS_HIGH,		/* DmaDstAddrHigh.		      */
 #if	( DMA_NOTIFICATIONS_API == STD_ON )
-    NULL_PTR,		/* DmaSoftwareTransferEndNotificationPtr	      */
-    NULL_PTR,		/* DmaTransferErrorNotificationPtr		      */
+    NULL_PTR,			/* DmaSoftwareTransferEndNotificationPtr      */
+#ifdef	__AS_CFG_DMA_XFER_ERR_NOTIF_SPI_0_RX__
+    SPI_0_RX_DMA_XFER_ERR_NOTIF_SYM,	/* DmaTransferErrorNotificationPtr    */
+#else	/* __AS_CFG_DMA_XFER_ERR_NOTIF_SPI_0_RX__ */
+    NULL_PTR,				/* DmaTransferErrorNotificationPtr    */
+#endif	/* !__AS_CFG_DMA_XFER_ERR_NOTIF_SPI_0_RX__ */
 #endif	/* ( DMA_NOTIFICATIONS_API == STD_ON ) */
   },
   {
-    DMA_CHANNEL_11,			/* DmaChannelId.		      */
-    DMA_CHANNEL_11_SSI_0_TX,		/* DmaChannelAssignemnt.	      */
+    DMA_CHANNEL_SPI_0_TX,		/* DmaChannelId.		      */
+    DMA_SSI_0_TX,			/* DmaChannelAssignemnt.	      */
     					/* DmaChannelControl:		      */
     DMA_CHANNEL_DST_INC_NONE	|	/* - Dest. Addr. Inc. None.	      */
     DMA_CHANNEL_DST_SZ_BYTE	|	/* - Dest. Data Size Byte: 8-bit.     */
     DMA_CHANNEL_SRC_INC_BYTE	|	/* - Src. Addr. Inc. Byte: 8-bit.     */
     DMA_CHANNEL_SRC_SZ_BYTE	|	/* - Src. Data Size Byte:  8-bit.     */
     DMA_CHANNEL_ARB_SZ_4	|	/* - Arbitration Size: FIFO HALF-FULL.*/
-    DMA_CHANNEL_XFER_PSG		|	/* - Peripheral Scatter-Gather.	      */
-    DMA_CHANNEL_PRIO_HIGH	|	/* - High Priority.		      */
-    DMA_CHANNEL_BURST_ONLY,		/* - Burst Only.		      */
+    DMA_CHANNEL_XFER_PSG,		/* - Peripheral Scatter-Gather.	      */
     DMA_MEMORY_ADDRESS_LOW,		/* DmaSrcAddrLow.		      */
     DMA_MEMORY_ADDRESS_HIGH,		/* DmaSrcAddrHigh.		      */
     DMA_SSI_0_ADDRESS_LOW,		/* DmaDstAddrLow.		      */
     DMA_SSI_0_ADDRESS_HIGH,		/* DmaDstAddrHigh.		      */
 #if	( DMA_NOTIFICATIONS_API == STD_ON )
-    NULL_PTR,		/* DmaSoftwareTransferEndNotificationPtr	      */
-    NULL_PTR,		/* DmaTransferErrorNotificationPtr		      */
+    NULL_PTR,			/* DmaSoftwareTransferEndNotificationPtr      */
+#ifdef	__AS_CFG_DMA_XFER_ERR_NOTIF_SPI_0_TX__
+    SPI_0_TX_DMA_XFER_ERR_NOTIF_SYM,	/* DmaTransferErrorNotificationPtr    */
+#else	/* __AS_CFG_DMA_XFER_ERR_NOTIF_SPI_0_TX__ */
+    NULL_PTR,				/* DmaTransferErrorNotificationPtr    */
+#endif	/* !__AS_CFG_DMA_XFER_ERR_NOTIF_SPI_0_TX__ */
 #endif	/* ( DMA_NOTIFICATIONS_API == STD_ON ) */
   },
 {
-    DMA_CHANNEL_24,			/* DmaChannelId.		      */
-    DMA_CHANNEL_24_SSI_1_RX,		/* DmaChannelAssignemnt.	      */
+    DMA_CHANNEL_SPI_1_RX,		/* DmaChannelId.		      */
+    DMA_SSI_1_RX,			/* DmaChannelAssignemnt.	      */
     					/* DmaChannelControl:		      */
     DMA_CHANNEL_DST_INC_BYTE	|	/* - Dest. Addr. Inc. Byte: 8-bit     */
     DMA_CHANNEL_DST_SZ_BYTE	|	/* - Dest. Data Size Byte:  8-bit.    */
     DMA_CHANNEL_SRC_INC_NONE	|	/* - Src. Addr. Inc. None.	      */
     DMA_CHANNEL_SRC_SZ_BYTE	|	/* - Src. Data Size Byte:   8-bit.    */
     DMA_CHANNEL_ARB_SZ_4	|	/* - Arbitration Size: FIFO HALF-FULL.*/
-    DMA_CHANNEL_XFER_PSG		|	/* - Peripheral Scatter-Gather.	      */
-    DMA_CHANNEL_PRIO_HIGH,		/* - High Priority.		      */
+    DMA_CHANNEL_XFER_PSG,		/* - Peripheral Scatter-Gather.	      */
     DMA_SSI_1_ADDRESS_LOW,		/* DmaSrcAddrLow.		      */
     DMA_SSI_2_ADDRESS_HIGH,		/* DmaSrcAddrHigh.		      */
     DMA_MEMORY_ADDRESS_LOW,		/* DmaDstAddrLow.		      */
     DMA_MEMORY_ADDRESS_HIGH,		/* DmaDstAddrHigh.		      */
 #if	( DMA_NOTIFICATIONS_API == STD_ON )
-    NULL_PTR,		/* DmaSoftwareTransferEndNotificationPtr	      */
-    NULL_PTR,		/* DmaTransferErrorNotificationPtr		      */
+    NULL_PTR,			/* DmaSoftwareTransferEndNotificationPtr      */
+#ifdef	__AS_CFG_DMA_XFER_ERR_NOTIF_SPI_1_RX__
+    SPI_1_RX_DMA_XFER_ERR_NOTIF_SYM,	/* DmaTransferErrorNotificationPtr    */
+#else	/* __AS_CFG_DMA_XFER_ERR_NOTIF_SPI_1_RX__ */
+    NULL_PTR,				/* DmaTransferErrorNotificationPtr    */
+#endif	/* !__AS_CFG_DMA_XFER_ERR_NOTIF_SPI_1_RX__ */
 #endif	/* ( DMA_NOTIFICATIONS_API == STD_ON ) */
   },
   {
-    DMA_CHANNEL_25,			/* DmaChannelId.		      */
-    DMA_CHANNEL_25_SSI_1_TX,		/* DmaChannelAssignemnt.	      */
+    DMA_CHANNEL_SPI_1_TX,		/* DmaChannelId.		      */
+    DMA_SSI_1_TX,			/* DmaChannelAssignemnt.	      */
     					/* DmaChannelControl:		      */
     DMA_CHANNEL_DST_INC_NONE	|	/* - Dest. Addr. Inc. None.	      */
     DMA_CHANNEL_DST_SZ_BYTE	|	/* - Dest. Data Size Byte: 8-bit.     */
     DMA_CHANNEL_SRC_INC_BYTE	|	/* - Src. Addr. Inc. Byte: 8-bit.     */
     DMA_CHANNEL_SRC_SZ_BYTE	|	/* - Src. Data Size Byte:  8-bit.     */
     DMA_CHANNEL_ARB_SZ_4	|	/* - Arbitration Size: FIFO HALF-FULL.*/
-    DMA_CHANNEL_XFER_PSG		|	/* - Peripheral Scatter-Gather.	      */
-    DMA_CHANNEL_PRIO_HIGH	|	/* - High Priority.		      */
-    DMA_CHANNEL_BURST_ONLY,		/* - Burst Only.		      */
+    DMA_CHANNEL_XFER_PSG,		/* - Peripheral Scatter-Gather.	      */
     DMA_MEMORY_ADDRESS_LOW,		/* DmaSrcAddrLow.		      */
     DMA_MEMORY_ADDRESS_HIGH,		/* DmaSrcAddrHigh.		      */
     DMA_SSI_1_ADDRESS_LOW,		/* DmaDstAddrLow.		      */
     DMA_SSI_1_ADDRESS_HIGH,		/* DmaDstAddrHigh.		      */
 #if	( DMA_NOTIFICATIONS_API == STD_ON )
-    NULL_PTR,		/* DmaSoftwareTransferEndNotificationPtr	      */
-    NULL_PTR,		/* DmaTransferErrorNotificationPtr		      */
+    NULL_PTR,			/* DmaSoftwareTransferEndNotificationPtr      */
+#ifdef	__AS_CFG_DMA_XFER_ERR_NOTIF_SPI_1_TX__
+    SPI_1_TX_DMA_XFER_ERR_NOTIF_SYM,	/* DmaTransferErrorNotificationPtr    */
+#else	/* __AS_CFG_DMA_XFER_ERR_NOTIF_SPI_1_TX__ */
+    NULL_PTR,				/* DmaTransferErrorNotificationPtr    */
+#endif	/* !__AS_CFG_DMA_XFER_ERR_NOTIF_SPI_1_TX__ */
 #endif	/* ( DMA_NOTIFICATIONS_API == STD_ON ) */
   },
   {
-    DMA_CHANNEL_12,			/* DmaChannelId.		      */
-    DMA_CHANNEL_12_SSI_2_RX,		/* DmaChannelAssignemnt.	      */
+    DMA_CHANNEL_SPI_2_RX,		/* DmaChannelId.		      */
+    DMA_SSI_2_RX,			/* DmaChannelAssignemnt.	      */
     					/* DmaChannelControl:		      */
     DMA_CHANNEL_DST_INC_BYTE	|	/* - Dest. Addr. Inc. Byte: 8-bit     */
     DMA_CHANNEL_DST_SZ_BYTE	|	/* - Dest. Data Size Byte:  8-bit.    */
     DMA_CHANNEL_SRC_INC_NONE	|	/* - Src. Addr. Inc. None.	      */
     DMA_CHANNEL_SRC_SZ_BYTE	|	/* - Src. Data Size Byte:   8-bit.    */
     DMA_CHANNEL_ARB_SZ_4	|	/* - Arbitration Size: FIFO HALF-FULL.*/
-    DMA_CHANNEL_XFER_PSG		|	/* - Peripheral Scatter-Gather.	      */
-    DMA_CHANNEL_PRIO_HIGH,		/* - High Priority.		      */
+    DMA_CHANNEL_XFER_PSG,		/* - Peripheral Scatter-Gather.	      */
     DMA_SSI_2_ADDRESS_LOW,		/* DmaSrcAddrLow.		      */
     DMA_SSI_2_ADDRESS_HIGH,		/* DmaSrcAddrHigh.		      */
     DMA_MEMORY_ADDRESS_LOW,		/* DmaDstAddrLow.		      */
     DMA_MEMORY_ADDRESS_HIGH,		/* DmaDstAddrHigh.		      */
 #if	( DMA_NOTIFICATIONS_API == STD_ON )
-    NULL_PTR,		/* DmaSoftwareTransferEndNotificationPtr	      */
-    NULL_PTR,		/* DmaTransferErrorNotificationPtr		      */
+    NULL_PTR,			/* DmaSoftwareTransferEndNotificationPtr      */
+#ifdef	__AS_CFG_DMA_XFER_ERR_NOTIF_SPI_2_RX__
+    SPI_2_RX_DMA_XFER_ERR_NOTIF_SYM,	/* DmaTransferErrorNotificationPtr    */
+#else	/* __AS_CFG_DMA_XFER_ERR_NOTIF_SPI_2_RX__ */
+    NULL_PTR,				/* DmaTransferErrorNotificationPtr    */
+#endif	/* !__AS_CFG_DMA_XFER_ERR_NOTIF_SPI_2_RX__ */
 #endif	/* ( DMA_NOTIFICATIONS_API == STD_ON ) */
   },
   {
-    DMA_CHANNEL_13,			/* DmaChannelId.		      */
-    DMA_CHANNEL_13_SSI_2_TX,		/* DmaChannelAssignemnt.	      */
+    DMA_CHANNEL_SPI_2_TX,		/* DmaChannelId.		      */
+    DMA_SSI_2_TX,			/* DmaChannelAssignemnt.	      */
     					/* DmaChannelControl:		      */
     DMA_CHANNEL_DST_INC_NONE	|	/* - Dest. Addr. Inc. None.	      */
     DMA_CHANNEL_DST_SZ_BYTE	|	/* - Dest. Data Size Byte: 8-bit.     */
     DMA_CHANNEL_SRC_INC_BYTE	|	/* - Src. Addr. Inc. Byte: 8-bit.     */
     DMA_CHANNEL_SRC_SZ_BYTE	|	/* - Src. Data Size Byte:  8-bit.     */
     DMA_CHANNEL_ARB_SZ_4	|	/* - Arbitration Size: FIFO HALF-FULL.*/
-    DMA_CHANNEL_XFER_PSG		|	/* - Peripheral Scatter-Gather.	      */
-    DMA_CHANNEL_PRIO_HIGH	|	/* - High Priority.		      */
-    DMA_CHANNEL_BURST_ONLY,		/* - Burst Only.		      */
+    DMA_CHANNEL_XFER_PSG,		/* - Peripheral Scatter-Gather.	      */
     DMA_MEMORY_ADDRESS_LOW,		/* DmaSrcAddrLow.		      */
     DMA_MEMORY_ADDRESS_HIGH,		/* DmaSrcAddrHigh.		      */
     DMA_SSI_2_ADDRESS_LOW,		/* DmaDstAddrLow.		      */
     DMA_SSI_2_ADDRESS_HIGH,		/* DmaDstAddrHigh.		      */
 #if	( DMA_NOTIFICATIONS_API == STD_ON )
-    NULL_PTR,		/* DmaSoftwareTransferEndNotificationPtr	      */
-    NULL_PTR,		/* DmaTransferErrorNotificationPtr		      */
+    NULL_PTR,			/* DmaSoftwareTransferEndNotificationPtr      */
+#ifdef	__AS_CFG_DMA_XFER_ERR_NOTIF_SPI_2_TX__
+    SPI_2_TX_DMA_XFER_ERR_NOTIF_SYM,	/* DmaTransferErrorNotificationPtr    */
+#else	/* __AS_CFG_DMA_XFER_ERR_NOTIF_SPI_2_TX__ */
+    NULL_PTR,				/* DmaTransferErrorNotificationPtr    */
+#endif	/* !__AS_CFG_DMA_XFER_ERR_NOTIF_SPI_2_TX__ */
 #endif	/* ( DMA_NOTIFICATIONS_API == STD_ON ) */
   },
   {
-    DMA_CHANNEL_14,			/* DmaChannelId.		      */
-    DMA_CHANNEL_14_SSI_3_RX,		/* DmaChannelAssignemnt.	      */
+    DMA_CHANNEL_SPI_3_RX,		/* DmaChannelId.		      */
+    DMA_SSI_3_RX,			/* DmaChannelAssignemnt.	      */
     					/* DmaChannelControl:		      */
     DMA_CHANNEL_DST_INC_BYTE	|	/* - Dest. Addr. Inc. Byte: 8-bit     */
     DMA_CHANNEL_DST_SZ_BYTE	|	/* - Dest. Data Size Byte:  8-bit.    */
     DMA_CHANNEL_SRC_INC_NONE	|	/* - Src. Addr. Inc. None.	      */
     DMA_CHANNEL_SRC_SZ_BYTE	|	/* - Src. Data Size Byte:   8-bit.    */
     DMA_CHANNEL_ARB_SZ_4	|	/* - Arbitration Size: FIFO HALF-FULL.*/
-    DMA_CHANNEL_XFER_PSG		|	/* - Peripheral Scatter-Gather.	      */
-    DMA_CHANNEL_PRIO_HIGH,		/* - High Priority.		      */
+    DMA_CHANNEL_XFER_PSG,		/* - Peripheral Scatter-Gather.	      */
     DMA_SSI_3_ADDRESS_LOW,		/* DmaSrcAddrLow.		      */
     DMA_SSI_3_ADDRESS_HIGH,		/* DmaSrcAddrHigh.		      */
     DMA_MEMORY_ADDRESS_LOW,		/* DmaDstAddrLow.		      */
     DMA_MEMORY_ADDRESS_HIGH,		/* DmaDstAddrHigh.		      */
 #if	( DMA_NOTIFICATIONS_API == STD_ON )
-    NULL_PTR,		/* DmaSoftwareTransferEndNotificationPtr	      */
-    NULL_PTR,		/* DmaTransferErrorNotificationPtr		      */
+    NULL_PTR,			/* DmaSoftwareTransferEndNotificationPtr      */
+#ifdef	__AS_CFG_DMA_XFER_ERR_NOTIF_SPI_3_RX__
+    SPI_3_RX_DMA_XFER_ERR_NOTIF_SYM,	/* DmaTransferErrorNotificationPtr    */
+#else	/* __AS_CFG_DMA_XFER_ERR_NOTIF_SPI_3_RX__ */
+    NULL_PTR,				/* DmaTransferErrorNotificationPtr    */
+#endif	/* !__AS_CFG_DMA_XFER_ERR_NOTIF_SPI_3_RX__ */
 #endif	/* ( DMA_NOTIFICATIONS_API == STD_ON ) */
   },
   {
-    DMA_CHANNEL_15,			/* DmaChannelId.		      */
-    DMA_CHANNEL_15_SSI_3_TX,		/* DmaChannelAssignemnt.	      */
+    DMA_CHANNEL_SPI_3_TX,		/* DmaChannelId.		      */
+    DMA_SSI_3_TX,			/* DmaChannelAssignemnt.	      */
     					/* DmaChannelControl:		      */
     DMA_CHANNEL_DST_INC_NONE	|	/* - Dest. Addr. Inc. None.	      */
     DMA_CHANNEL_DST_SZ_BYTE	|	/* - Dest. Data Size Byte: 8-bit.     */
     DMA_CHANNEL_SRC_INC_BYTE	|	/* - Src. Addr. Inc. Byte: 8-bit.     */
     DMA_CHANNEL_SRC_SZ_BYTE	|	/* - Src. Data Size Byte:  8-bit.     */
     DMA_CHANNEL_ARB_SZ_4	|	/* - Arbitration Size: FIFO HALF-FULL.*/
-    DMA_CHANNEL_XFER_PSG		|	/* - Peripheral Scatter-Gather.	      */
-    DMA_CHANNEL_PRIO_HIGH	|	/* - High Priority.		      */
-    DMA_CHANNEL_BURST_ONLY,		/* - Burst Only.		      */
+    DMA_CHANNEL_XFER_PSG,		/* - Peripheral Scatter-Gather.	      */
     DMA_MEMORY_ADDRESS_LOW,		/* DmaSrcAddrLow.		      */
     DMA_MEMORY_ADDRESS_HIGH,		/* DmaSrcAddrHigh.		      */
     DMA_SSI_3_ADDRESS_LOW,		/* DmaDstAddrLow.		      */
     DMA_SSI_3_ADDRESS_HIGH,		/* DmaDstAddrHigh.		      */
 #if	( DMA_NOTIFICATIONS_API == STD_ON )
-    NULL_PTR,		/* DmaSoftwareTransferEndNotificationPtr	      */
-    NULL_PTR,		/* DmaTransferErrorNotificationPtr		      */
+    NULL_PTR,			/* DmaSoftwareTransferEndNotificationPtr      */
+#ifdef	__AS_CFG_DMA_XFER_ERR_NOTIF_SPI_3_TX__
+    SPI_3_TX_DMA_XFER_ERR_NOTIF_SYM,	/* DmaTransferErrorNotificationPtr    */
+#else	/* __AS_CFG_DMA_XFER_ERR_NOTIF_SPI_3_TX__ */
+    NULL_PTR,				/* DmaTransferErrorNotificationPtr    */
+#endif	/* !__AS_CFG_DMA_XFER_ERR_NOTIF_SPI_3_TX__ */
 #endif	/* ( DMA_NOTIFICATIONS_API == STD_ON ) */
   },
 #endif	/* ( DMA_SCATTER_GATHER_API == STD_ON ) */

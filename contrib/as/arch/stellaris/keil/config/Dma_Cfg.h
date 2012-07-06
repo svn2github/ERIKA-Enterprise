@@ -331,6 +331,17 @@ typedef uint16	Dma_NumberOfElementsType;
 #define	DMA_CHANNEL_30	0x1EU	/**< DMA Channel 30. */
 #define	DMA_CHANNEL_31	0x1FU	/**< DMA Channel 31. */
 
+#ifdef	__AS_CFG_DMA_SPI__
+#define	DMA_CHANNEL_SPI_0_RX	DMA_CHANNEL_10	/**< DMA Channel SPI 0 RX.    */
+#define	DMA_CHANNEL_SPI_0_TX	DMA_CHANNEL_11	/**< DMA Channel SPI 0 TX.    */
+#define	DMA_CHANNEL_SPI_1_RX	DMA_CHANNEL_24	/**< DMA Channel SPI 1 RX.    */
+#define	DMA_CHANNEL_SPI_1_TX	DMA_CHANNEL_25	/**< DMA Channel SPI 1 TX.    */
+#define	DMA_CHANNEL_SPI_2_RX	DMA_CHANNEL_12	/**< DMA Channel SPI 2 RX.    */
+#define	DMA_CHANNEL_SPI_2_TX	DMA_CHANNEL_13	/**< DMA Channel SPI 2 TX.    */
+#define	DMA_CHANNEL_SPI_3_RX	DMA_CHANNEL_14	/**< DMA Channel SPI 3 RX.    */
+#define	DMA_CHANNEL_SPI_3_TX	DMA_CHANNEL_15	/**< DMA Channel SPI 3 TX.    */
+#endif	/* __AS_CFG_DMA_SPI__ */
+
 /*
  * DMA Channels Assigments Encodings.
  *
@@ -691,6 +702,17 @@ typedef uint16	Dma_NumberOfElementsType;
 #define	DMA_CHANNEL_31_RESERVED_3	0x03U
 /** @brief	DMA Channel 31 - Reserved	*/
 #define	DMA_CHANNEL_31_RESERVED_4	0x04U
+
+#ifdef	__AS_CFG_DMA_SPI__
+#define	DMA_SSI_0_RX	DMA_CHANNEL_10_SSI_0_RX	/**< DMA SSI 0 RX. */
+#define	DMA_SSI_0_TX	DMA_CHANNEL_11_SSI_0_TX	/**< DMA SSI 0 TX. */
+#define	DMA_SSI_1_RX	DMA_CHANNEL_24_SSI_1_RX	/**< DMA SSI 1 RX. */
+#define	DMA_SSI_1_TX	DMA_CHANNEL_25_SSI_1_TX	/**< DMA SSI 1 TX. */
+#define	DMA_SSI_2_RX	DMA_CHANNEL_12_SSI_2_RX	/**< DMA SSI 2 RX. */
+#define	DMA_SSI_2_TX	DMA_CHANNEL_13_SSI_2_TX	/**< DMA SSI 2 TX. */
+#define	DMA_SSI_3_RX	DMA_CHANNEL_14_SSI_3_RX	/**< DMA SSI 3 RX. */
+#define	DMA_SSI_3_TX	DMA_CHANNEL_15_SSI_3_TX	/**< DMA SSI 3 TX. */
+#endif	/* __AS_CFG_DMA_SPI__ */
 
 #if	( DMA_NOTIFICATIONS_API == STD_ON )
 
@@ -1139,6 +1161,98 @@ void Dma_TransferErrorNotification_Channel_31(
   void
 );
 #endif	/* __AS_CFG_DMA_XFER_ERR_NOTIF_CH_31__ */
+
+#ifdef	__AS_CFG_DMA_SPI__
+
+#ifdef	__AS_CFG_DMA_XFER_ERR_NOTIF_SPI_0_RX__
+/** @brief	DMA Channel SPI 0 RX -
+ *  		Transfer Error Notification Callback Symbol.
+ */
+#define	SPI_0_RX_DMA_XFER_ERR_NOTIF_SYM	Dma_TransferErrorNotification_SPI_0_RX
+/** @brief	DMA Channel SPI 0 RX - Transfer Error Notification Callback.  */
+void SPI_0_RX_DMA_XFER_ERR_NOTIF_SYM(
+  void
+);
+#endif	/* __AS_CFG_DMA_XFER_ERR_NOTIF_SPI_0_RX__ */
+
+#ifdef	__AS_CFG_DMA_XFER_ERR_NOTIF_SPI_0_TX__
+/** @brief	DMA Channel SPI 0 TX -
+ *  		Transfer Error Notification Callback Symbol.
+ */
+#define	SPI_0_TX_DMA_XFER_ERR_NOTIF_SYM	Dma_TransferErrorNotification_SPI_0_TX
+/** @brief	DMA Channel SPI 0 TX - Transfer Error Notification Callback.  */
+void SPI_0_TX_DMA_XFER_ERR_NOTIF_SYM(
+  void
+);
+#endif	/* __AS_CFG_DMA_XFER_ERR_NOTIF_SPI_0_TX__ */
+
+#ifdef	__AS_CFG_DMA_XFER_ERR_NOTIF_SPI_1_RX__
+/** @brief	DMA Channel SPI 1 RX -
+ *  		Transfer Error Notification Callback Symbol.
+ */
+#define	SPI_1_RX_DMA_XFER_ERR_NOTIF_SYM	Dma_TransferErrorNotification_SPI_1_RX
+/** @brief	DMA Channel SPI 1 RX - Transfer Error Notification Callback.  */
+void SPI_1_RX_DMA_XFER_ERR_NOTIF_SYM(
+  void
+);
+#endif	/* __AS_CFG_DMA_XFER_ERR_NOTIF_SPI_1_RX__ */
+
+#ifdef	__AS_CFG_DMA_XFER_ERR_NOTIF_SPI_1_TX__
+/** @brief	DMA Channel SPI 1 TX -
+ *  		Transfer Error Notification Callback Symbol.
+ */
+#define	SPI_1_TX_DMA_XFER_ERR_NOTIF_SYM	Dma_TransferErrorNotification_SPI_1_TX
+/** @brief	DMA Channel SPI 1 TX - Transfer Error Notification Callback.  */
+void SPI_1_TX_DMA_XFER_ERR_NOTIF_SYM(
+  void
+);
+#endif	/* __AS_CFG_DMA_XFER_ERR_NOTIF_SPI_1_TX__ */
+
+#ifdef	__AS_CFG_DMA_XFER_ERR_NOTIF_SPI_2_RX__
+/** @brief	DMA Channel SPI 2 RX -
+ *  		Transfer Error Notification Callback Symbol.
+ */
+#define	SPI_2_RX_DMA_XFER_ERR_NOTIF_SYM	Dma_TransferErrorNotification_SPI_2_RX
+/** @brief	DMA Channel SPI 2 RX - Transfer Error Notification Callback.  */
+void SPI_2_RX_DMA_XFER_ERR_NOTIF_SYM(
+  void
+);
+#endif	/* __AS_CFG_DMA_XFER_ERR_NOTIF_SPI_2_RX__ */
+
+#ifdef	__AS_CFG_DMA_XFER_ERR_NOTIF_SPI_2_TX__
+/** @brief	DMA Channel SPI 2 TX -
+ *  		Transfer Error Notification Callback Symbol.
+ */
+#define	SPI_2_TX_DMA_XFER_ERR_NOTIF_SYM	Dma_TransferErrorNotification_SPI_2_TX
+/** @brief	DMA Channel SPI 2 TX - Transfer Error Notification Callback.  */
+void SPI_2_TX_DMA_XFER_ERR_NOTIF_SYM(
+  void
+);
+#endif	/* __AS_CFG_DMA_XFER_ERR_NOTIF_SPI_2_TX__ */
+
+#ifdef	__AS_CFG_DMA_XFER_ERR_NOTIF_SPI_3_RX__
+/** @brief	DMA Channel SPI 3 RX -
+ *  		Transfer Error Notification Callback Symbol.
+ */
+#define	SPI_3_RX_DMA_XFER_ERR_NOTIF_SYM	Dma_TransferErrorNotification_SPI_3_RX
+/** @brief	DMA Channel SPI 3 RX - Transfer Error Notification Callback.  */
+void SPI_3_RX_DMA_XFER_ERR_NOTIF_SYM(
+  void
+);
+#endif	/* __AS_CFG_DMA_XFER_ERR_NOTIF_SPI_0_RX__ */
+
+#ifdef	__AS_CFG_DMA_XFER_ERR_NOTIF_SPI_3_TX__
+/** @brief	DMA Channel SPI 3 TX -
+ *  		Transfer Error Notification Callback Symbol.
+ */
+#define	SPI_3_TX_DMA_XFER_ERR_NOTIF_SYM	Dma_TransferErrorNotification_SPI_3_TX
+/** @brief	DMA Channel SPI 3 TX - Transfer Error Notification Callback.  */
+void SPI_3_TX_DMA_XFER_ERR_NOTIF_SYM(
+  void
+);
+#endif	/* __AS_CFG_DMA_XFER_ERR_NOTIF_SPI_3_TX__ */
+
+#endif	/* __AS_CFG_DMA_SPI__ */
 
 #endif	/* ( DMA_NOTIFICATIONS_API == STD_ON ) */
 
