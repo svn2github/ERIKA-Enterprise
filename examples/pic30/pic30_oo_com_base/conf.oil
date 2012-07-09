@@ -97,7 +97,7 @@ CPU test_application {
 		INCLUDES = "umsgtype.h";
 	};
    
-	/* this is the OIL part for the task displaying the christmas tree */
+	/* this is the OIL part for the task sending leds status*/
     TASK Task1 {
 		PRIORITY = 0x02;
 		SCHEDULE = FULL; 
@@ -107,7 +107,7 @@ CPU test_application {
 		MESSAGE = Led_SMsg;
 	};	
 	
-	/* this is the OIL part for the task activated by the button press */
+	/* this is the OIL part for the task that receives and updates leds status */
     TASK Task2 {
 		PRIORITY = 0x03;   
 		SCHEDULE = FULL;
@@ -117,7 +117,8 @@ CPU test_application {
 		MESSAGE = Led_RMsg;
     };
 	
-	/* this is the OIL part for the task activated by the button press */
+	/* this is the OIL part for the task that prints the counters on the LCD 
+	and the console (UART) */
     TASK Task3 {
 		PRIORITY = 0x01;
 		SCHEDULE = FULL;
@@ -127,8 +128,9 @@ CPU test_application {
 		MESSAGE = Led_RMsg_Copy;
     };
 	
-	/* this is the OIL part for the task activated by the button press */
-    TASK Task4 {
+	/* this is the OIL part for the task that initializes the COM support and 
+	sets AlarmTask3 */
+    TASK TaskInit {
 		PRIORITY = 0x01;
 		SCHEDULE = FULL;
 		AUTOSTART = TRUE;	

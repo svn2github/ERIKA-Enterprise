@@ -409,14 +409,19 @@ TASK(Task3)
 }
 
 
-/* Task4: initialize the COM support */
-TASK(Task4)
+/* TaskInit: initialize the COM support */
+TASK(TaskInit)
 {
 
 	if (StartCOM(LED_DEMO_APPMODE) != E_OK) {
 			EE_leds_on();
 			while(1);
 	}
+	/*Activate Task3 periodically to print the statistics on both the LCD 
+	 *	and the console (UART)
+	 */
+	SetRelAlarm(AlarmTask3, 1000,  500);
+	
 	ActivateTask(Task1);
 		
 	TerminateTask();
@@ -464,12 +469,7 @@ int main()
 	EE_lcd_home();
   
 	/* Program Timer 1 to raise interrupts */
-	T1_program();	
-	
-	/*Activate Task3 periodically to print the statistics on both the LCD 
-	 *	and the console (UART)
-	 */
-	SetRelAlarm(AlarmTask3, 1000,  500);
+	T1_program();
 	
 	/* let's start the multiprogramming environment...*/
 	StartOS(OSDEFAULTAPPMODE);
