@@ -65,7 +65,7 @@ static volatile CounterType counter_timer2 = 0;
  */
 static void EE_timer1_tick_routine(void)
 {
-    CounterTick(counter_timer1);
+    IncrementCounter(counter_timer1);
 }
 
 /*
@@ -73,7 +73,7 @@ static void EE_timer1_tick_routine(void)
  */
 static void EE_timer2_tick_routine(void)
 {
-    CounterTick(counter_timer2);
+    IncrementCounter(counter_timer2);
 }
 
 static volatile EE_ISR_callback t1_cbk = EE_timer1_tick_routine;
