@@ -124,8 +124,7 @@ void EE_com_msg_reception (MessageIdentifier Message,
     }
 #endif
      
-    GetResource (EE_MUTEX_COM_MSG);
-      
+	  DisableAllInterrupts();
 #ifdef __COM_CCC1__
     if (msg_ROM->filter == F_Always) 
       /* I don't want to apply any filter if it is a zero-length message
@@ -231,8 +230,7 @@ void EE_com_msg_reception (MessageIdentifier Message,
 #endif
 #endif
     
-    ReleaseResource(EE_MUTEX_COM_MSG);
-    
+	  EnableAllInterrupts();
 #ifdef __COM_CCC1__
     if (temp == EE_COM_TRUE) 
     { 

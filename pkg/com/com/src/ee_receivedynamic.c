@@ -91,8 +91,7 @@ StatusType EE_com_ReceiveDynamicMessage(MessageIdentifier Message,
 
   if (ret_code != E_COM_NOMSG) 
   {
-    GetResource (EE_MUTEX_COM_IPDU);
-    GetResource (EE_MUTEX_COM_MSG);
+	DisableAllInterrupts();
     
     /* First of all I have to read the message length... */
     EE_com_memo (MSG_ROM->ipdu_ROM->data,
@@ -104,8 +103,7 @@ StatusType EE_com_ReceiveDynamicMessage(MessageIdentifier Message,
             MSG_ROM->ipdu_pos+sizeof(EE_UINT8)*8,
             DataRef, 0, *msg_length);
             
-    ReleaseResource (EE_MUTEX_COM_MSG);
-    ReleaseResource (EE_MUTEX_COM_IPDU);
+	EnableAllInterrupts();
      
 #ifndef __COM_CCCA__
     if ((MSG_RAM->property & EE_MASK_MSG_N_OK) == EE_COM_F_OK)  

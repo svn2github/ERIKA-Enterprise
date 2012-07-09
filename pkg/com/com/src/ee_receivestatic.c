@@ -90,11 +90,8 @@ StatusType EE_com_ReceiveMessage(MessageIdentifier Message,
   ret_code = msg_RAM->property & EE_MASK_MSG_STAT;
 
   if (ret_code != E_COM_NOMSG) {
-    #if defined(__COM_CCC0__) || defined(__COM_CCC1__)
-    GetResource (EE_MUTEX_COM_IPDU);
-    #endif
-    GetResource (EE_MUTEX_COM_MSG);
-    
+	DisableAllInterrupts();
+	  
 #if defined(__COM_CCCB__) || defined(__COM_CCC1__)
     if ((msg_RAM->property & EE_MASK_MSG_QUEUNQUE) == EE_COM_QUEUED) {  
       /* Message queued */
@@ -123,11 +120,7 @@ StatusType EE_com_ReceiveMessage(MessageIdentifier Message,
       EE_com_memo((EE_UINT8 *)msg_ROM->data, 0, DataRef, 0, msg_ROM->size);
       msg_RAM->property &= 0xfff8; /* E_OK */ 
     }
-    
-    ReleaseResource (EE_MUTEX_COM_MSG);
-    #if defined(__COM_CCC0__) || defined(__COM_CCC1__)
-    ReleaseResource (EE_MUTEX_COM_IPDU);
-    #endif
+	  EnableAllInterrupts();
   }
    
 #ifndef __COM_CCCA__

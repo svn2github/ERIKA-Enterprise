@@ -116,9 +116,8 @@ StatusType EE_com_StartCOM(COMApplicationModeType Mode)
   
   EE_com_sys2user.mode = EE_com_validmodes[Mode];
   ret_code = E_OK;
-
-  GetResource(EE_MUTEX_COM_MSG);   
-
+	
+  DisableAllInterrupts();
   for (i=0; i<EE_COM_N_MSG; i++) 
   {
     msg_RAM = EE_com_msg_RAM[i];
@@ -152,10 +151,10 @@ StatusType EE_com_StartCOM(COMApplicationModeType Mode)
     }
   }
 
-  ReleaseResource(EE_MUTEX_COM_MSG);
+	EnableAllInterrupts();
   
 #if defined(__COM_CCC0__) || defined(__COM_CCC1__)
-  GetResource(EE_MUTEX_COM_IPDU);         
+	DisableAllInterrupts();
 
   for (i=0; i<EE_COM_N_IPDU; i++) 
   {  
@@ -180,7 +179,7 @@ StatusType EE_com_StartCOM(COMApplicationModeType Mode)
     } 
 #endif
   }  
-  ReleaseResource(EE_MUTEX_COM_IPDU);         
+	EnableAllInterrupts();
 #endif   
    
 #ifdef __USE_STARTCOM_EXTENSION__

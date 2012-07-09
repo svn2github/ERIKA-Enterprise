@@ -55,6 +55,20 @@
 #include "ee_callout.h"
 
 
+#if !( defined(__OO_BCC1__) || defined(__OO_BCC2__) || defined(__OO_ECC1__) || \
+defined(__OO_ECC2__) || defined(__AS_SC4__) )
+
+__INLINE__ void __ALWAYS_INLINE__ DisableAllInterrupts(void)
+{
+	EE_hal_disableIRQ();
+}
+
+__INLINE__ void __ALWAYS_INLINE__ EnableAllInterrupts(void)
+{
+	EE_hal_enableIRQ();
+}
+#endif
+
 /*************************************************************************
  macros and constants
  *************************************************************************/

@@ -99,7 +99,7 @@ StatusType EE_com_InitMessage(MessageIdentifier Message,
   msg_ROM = EE_com_msg_ROM[Message];
   msg_RAM = EE_com_msg_RAM[Message];
 
-  GetResource(EE_MUTEX_COM_MSG);
+  DisableAllInterrupts();
 
   msg_RAM->property &= EE_SET_COM_MSG_OK;   /* set status to E_OK */
       
@@ -141,9 +141,10 @@ StatusType EE_com_InitMessage(MessageIdentifier Message,
       return EE_COM_FALSE;
 #endif
     /* Store initialization data into I-PDU */
-    GetResource(EE_MUTEX_COM_IPDU);   
-           
-    if ((msg_RAM->property & EE_MASK_MSG_STDY) ==
+   
+	DisableAllInterrupts();
+	  
+	  if ((msg_RAM->property & EE_MASK_MSG_STDY) ==
           EE_COM_MSG_DYN) 
     {  
       /* On dynamic length messages, first of all I have to store its
@@ -164,7 +165,7 @@ StatusType EE_com_InitMessage(MessageIdentifier Message,
         EE_com_memo(EE_com_temp_buffer, 0, 
               msg_ROM->ipdu_ROM->data, msg_ROM->ipdu_pos, msg_ROM->size);
             
-    ReleaseResource(EE_MUTEX_COM_IPDU);         
+	  EnableAllInterrupts();
   } 
   else 
 #endif
@@ -217,7 +218,7 @@ StatusType EE_com_InitMessage(MessageIdentifier Message,
 */
   }
    
-  ReleaseResource(EE_MUTEX_COM_MSG); 
-  return E_OK;
+	EnableAllInterrupts();	
+	return E_OK;
 }
 #endif

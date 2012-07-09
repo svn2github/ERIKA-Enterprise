@@ -78,12 +78,10 @@ StatusType EE_com_GetMessageStatus(MessageIdentifier Message)
   }
 #endif
 
-	GetResource(EE_MUTEX_COM_MSG);
-  
+	DisableAllInterrupts();
 	ret_code = EE_com_msg_RAM[Message]->property & EE_MASK_MSG_STAT;
-      
-	ReleaseResource(EE_MUTEX_COM_MSG);
-  
+	EnableAllInterrupts();
+	
 #ifdef __EE_COM_EXTENDED__  
 	if (ret_code != E_OK) {
 		EE_com_sys2user.service_error = COMServiceId_GetMessageStatus;
