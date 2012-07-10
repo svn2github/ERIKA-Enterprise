@@ -78,7 +78,7 @@ Include device header
 #endif /* EE_ADC_VREF */
 
 /** 
-    define for ADC analog input pins (AD1PCFGLbits.PCFGX)
+    define for ADC analog input pins (_PCFGX)
     @{
 **/  
 #define EE_ADC_PIN0   0
@@ -91,8 +91,20 @@ Include device header
 #define EE_ADC_PIN7   7
 #define EE_ADC_PIN8   8
 #define EE_ADC_PIN9   9
-/* TODO: add identifiers for high port pins */
-/** @} **/
+#define EE_ADC_PIN10 10
+#define EE_ADC_PIN11 11
+#define EE_ADC_PIN12 12
+#define EE_ADC_PIN13 13
+#define EE_ADC_PIN14 14
+#define EE_ADC_PIN15 15
+#define EE_ADC_PIN16 16
+#define EE_ADC_PIN17 17
+#define EE_ADC_PIN18 18
+#define EE_ADC_PIN19 19
+#define EE_ADC_PIN20 20
+#define EE_ADC_PIN21 21
+#define EE_ADC_PIN22 22
+#define EE_ADC_PIN23 23
 
 /** 
     define for ADC channel's IDs and map it on default pins 
@@ -100,48 +112,102 @@ Include device header
     
     @{
 **/
+
+#ifndef EE_ADC_AN0
+#define EE_ADC_AN0   EE_ADC_PIN0
+#endif /* EE_ADC_AN0 */
+
 #ifndef EE_ADC_AN1
-#define EE_ADC_AN1   EE_ADC_PIN0
+#define EE_ADC_AN1   EE_ADC_PIN1
 #endif /* EE_ADC_AN1 */
 
 #ifndef EE_ADC_AN2
-#define EE_ADC_AN2   EE_ADC_PIN1
+#define EE_ADC_AN2   EE_ADC_PIN2
 #endif /* EE_ADC_AN2 */
 
 #ifndef EE_ADC_AN3
-#define EE_ADC_AN3   EE_ADC_PIN2
+#define EE_ADC_AN3   EE_ADC_PIN3
 #endif /* EE_ADC_AN3 */
 
 #ifndef EE_ADC_AN4
-#define EE_ADC_AN4   EE_ADC_PIN3
+#define EE_ADC_AN4   EE_ADC_PIN4
 #endif /* EE_ADC_AN4 */
 
 #ifndef EE_ADC_AN5
-#define EE_ADC_AN5   EE_ADC_PIN4
+#define EE_ADC_AN5   EE_ADC_PIN5
 #endif /* EE_ADC_AN5 */
 
 #ifndef EE_ADC_AN6
-#define EE_ADC_AN6   EE_ADC_PIN5
+#define EE_ADC_AN6   EE_ADC_PIN6
 #endif /* EE_ADC_AN6 */
 
 #ifndef EE_ADC_AN7
-#define EE_ADC_AN7   EE_ADC_PIN6
+#define EE_ADC_AN7   EE_ADC_PIN7
 #endif /* EE_ADC_AN7 */
 
 #ifndef EE_ADC_AN8
-#define EE_ADC_AN8   EE_ADC_PIN7
+#define EE_ADC_AN8   EE_ADC_PIN8
 #endif /* EE_ADC_AN8 */
 
 #ifndef EE_ADC_AN9
-#define EE_ADC_AN9   EE_ADC_PIN8
+#define EE_ADC_AN9   EE_ADC_PIN9
 #endif /* EE_ADC_AN9 */
 
 #ifndef EE_ADC_AN10
-#define EE_ADC_AN10   EE_ADC_PIN9
+#define EE_ADC_AN10   EE_ADC_PIN10
 #endif /* EE_ADC_AN10 */
 
-/** @} **/
-/* TODO: add identifiers for high port channels */
+#ifndef EE_ADC_AN11
+#define EE_ADC_AN11   EE_ADC_PIN11
+#endif /* EE_ADC_AN11 */
+
+#ifndef EE_ADC_AN12
+#define EE_ADC_AN12   EE_ADC_PIN12
+#endif /* EE_ADC_AN12 */
+
+#ifndef EE_ADC_AN13
+#define EE_ADC_AN13   EE_ADC_PIN13
+#endif /* EE_ADC_AN13 */
+
+#ifndef EE_ADC_AN14
+#define EE_ADC_AN14   EE_ADC_PIN14
+#endif /* EE_ADC_AN14 */
+
+#ifndef EE_ADC_AN15
+#define EE_ADC_AN15   EE_ADC_PIN15
+#endif /* EE_ADC_AN15 */
+
+#ifndef EE_ADC_AN16
+#define EE_ADC_AN16   EE_ADC_PIN16
+#endif /* EE_ADC_AN16 */
+
+#ifndef EE_ADC_AN17
+#define EE_ADC_AN17   EE_ADC_PIN17
+#endif /* EE_ADC_AN17 */
+
+#ifndef EE_ADC_AN18
+#define EE_ADC_AN18   EE_ADC_PIN18
+#endif /* EE_ADC_AN18 */
+
+#ifndef EE_ADC_AN19
+#define EE_ADC_AN19   EE_ADC_PIN19
+#endif /* EE_ADC_AN19 */
+
+#ifndef EE_ADC_AN20
+#define EE_ADC_AN20   EE_ADC_PIN20
+#endif /* EE_ADC_AN20 */
+
+#ifndef EE_ADC_AN21
+#define EE_ADC_AN21   EE_ADC_PIN21
+#endif /* EE_ADC_AN21 */
+
+#ifndef EE_ADC_AN22
+#define EE_ADC_AN22   EE_ADC_PIN22
+#endif /* EE_ADC_AN22 */
+
+#ifndef EE_ADC_AN23
+#define EE_ADC_AN23   EE_ADC_PIN23
+#endif /* EE_ADC_AN23 */
 
 /** Error codes. 
     @{
@@ -198,8 +264,7 @@ typedef enum EE_Adc_BitResolution_TAG {
     @return EE_ADC_ERR_NO if no errors happend. 
         Otherwise appropriate error value.
 **/
-EE_AdcErr EE_adc_init_ch(EE_Adc_Coverter_Id adc_id, EE_AdcChId adc_ch_id, EE_Adc_VoltageRef volt_ref, 
-    EE_Adc_BitResolution bit_res);
+EE_AdcErr EE_adc_init_ch(EE_Adc_Coverter_Id adc_id, EE_AdcChId adc_ch_id);
 
 /**
     @brief Get channel value as uint 
@@ -222,7 +287,7 @@ EE_AdcErr EE_adc_get_ch_uint(EE_Adc_Coverter_Id adc_id, EE_AdcChId adc_ch_id, EE
         Otherwise appropriate error value.
 
  **/
-EE_AdcErr EE_adc_start ( EE_Adc_Coverter_Id adc_id );
+EE_AdcErr EE_adc_start ( EE_Adc_Coverter_Id adc_id, EE_Adc_VoltageRef volt_ref, EE_Adc_BitResolution bit_res );
 
 /** 
     @brief Stop ADC sampling 
@@ -249,7 +314,7 @@ __INLINE__ EE_AdcErr EE_adc_set_idle_behaviour (EE_Adc_Coverter_Id adc_id, EE_UI
     switch ( adc_id ){
         case EE_ADC_1:
             /* 1 => Discontinue module operation when device enters Idle mode */
-            AD1CON1bits.ADSIDL = (on) ? 0 : 1;
+            _ADSIDL = (on) ? 0 : 1;
         break;
         case EE_ADC_2:
             /* TODO: implement this case */

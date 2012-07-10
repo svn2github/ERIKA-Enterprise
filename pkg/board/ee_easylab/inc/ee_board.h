@@ -568,8 +568,16 @@ __INLINE__ EE_BIT EE_dio8_read(void)
 #error "You must define EE_OPT = __USE_TIMER__ easylab buzzer"
 #endif
 
-#define EE_EASYLAB_BUZZER_MAX_FREQ 48000U
-#define EE_EASYLAB_BUZZER_MIN_FREQ 100U
+#define EE_BUZZER_MAX_FREQ 48000U
+#define EE_BUZZER_MIN_FREQ 100U
+
+/**
+    @brief Init the pin for buzzer
+**/
+__INLINE__ void EE_buzzer_init(void){
+    TRISAbits.TRISA2 = 0; /* output */
+}
+
 /**
     @brief Start the buzzer
 
@@ -588,8 +596,6 @@ void EE_buzzer_toggle(void);
 
 /**
     @brief Stop the buzzer
-
-    @param half_period (EE_UINT16): toggle output time value (=half period)
 **/
 void EE_buzzer_stop(void);
 
@@ -618,10 +624,9 @@ void EE_buzzer_stop(void);
     @return 0 if no errors happend.
         Otherwise appropriate error value (negative value).
 **/
-__INLINE__ EE_INT8 EE_easylab_adc_init_ch(EE_AdcChId adc_ch_id, EE_Adc_VoltageRef volt_ref,
-    EE_Adc_BitResolution bit_res)
+__INLINE__ EE_INT8 EE_easylab_adc_init_ch(EE_AdcChId adc_ch_id)
 {
-    return EE_adc_init_ch(EE_ADC_1, adc_ch_id, volt_ref, bit_res);
+    return EE_adc_init_ch(EE_ADC_1, adc_ch_id);
 }
 
 /**
@@ -644,8 +649,8 @@ __INLINE__ EE_INT8 EE_easylab_adc_get_ch_uint(EE_AdcChId adc_ch_id, EE_UINT16 * 
         Otherwise appropriate error value (negative value).
 
  **/
-__INLINE__ EE_INT8 EE_easylab_adc_start ( ) {
-    return EE_adc_start(EE_ADC_1);
+__INLINE__ EE_INT8 EE_easylab_adc_start ( EE_Adc_VoltageRef volt_ref, EE_Adc_BitResolution bit_res ) {
+    return EE_adc_start(EE_ADC_1, volt_ref, bit_res);
 }
 
 /**

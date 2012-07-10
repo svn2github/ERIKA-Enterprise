@@ -61,6 +61,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_leds_init(void) {
 	TRISBbits.TRISB14 = 0;
 }
 
+__INLINE__ void __ALWAYS_INLINE__ EE_led_sys_init(void)  { EE_leds_init(); }
 __INLINE__ void __ALWAYS_INLINE__ EE_led_sys_on(void)   { LATBbits.LATB14 = 1; }
 __INLINE__ void __ALWAYS_INLINE__ EE_led_sys_off(void)  { LATBbits.LATB14 = 0; }
 

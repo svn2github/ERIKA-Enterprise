@@ -59,32 +59,15 @@ __INLINE__ void __ALWAYS_INLINE__ EE_daughter_leds_init(void)
 	TRISDbits.TRISD0 = 0;
 	TRISDbits.TRISD2 = 0;
 }
-__INLINE__ void __ALWAYS_INLINE__ EE_led_0_on(void)   
-{ 
-	LATDbits.LATD0 = 1;
-}
-__INLINE__ void __ALWAYS_INLINE__ EE_led_0_off(void)  
-{ 
-	LATDbits.LATD0 = 0;
-}
-__INLINE__ void __ALWAYS_INLINE__ EE_led_1_on(void)   
-{ 
-	LATDbits.LATD2 = 1;
-}
-__INLINE__ void __ALWAYS_INLINE__ EE_led_1_off(void)  
-{ 
-	LATDbits.LATD2 = 0;
-}
-__INLINE__ void __ALWAYS_INLINE__ EE_leds_on(void)   
-{ 
-	LATDbits.LATD0 = 1;
-	LATDbits.LATD2 = 1;
-}
-__INLINE__ void __ALWAYS_INLINE__ EE_leds_off(void)  
-{ 
-	LATDbits.LATD0 = 0;
-	LATDbits.LATD2 = 0;
-}
+
+__INLINE__ void __ALWAYS_INLINE__ EE_led_0_init(void)  { LATDbits.LATD0  = 0; TRISDbits.TRISD0  = 0; }
+__INLINE__ void __ALWAYS_INLINE__ EE_led_1_init(void)  { LATDbits.LATD2  = 0; TRISDbits.TRISD2  = 0; }
+__INLINE__ void __ALWAYS_INLINE__ EE_led_0_on(void)    { LATDbits.LATD0 = 1; }
+__INLINE__ void __ALWAYS_INLINE__ EE_led_0_off(void)   { LATDbits.LATD0 = 0; }
+__INLINE__ void __ALWAYS_INLINE__ EE_led_1_on(void)    { LATDbits.LATD2 = 1; }
+__INLINE__ void __ALWAYS_INLINE__ EE_led_1_off(void)   { LATDbits.LATD2 = 0; }
+__INLINE__ void __ALWAYS_INLINE__ EE_leds_on(void)     { LATDbits.LATD0 = 1; LATDbits.LATD2 = 1; }
+__INLINE__ void __ALWAYS_INLINE__ EE_leds_off(void)    { LATDbits.LATD0 = 0; LATDbits.LATD2 = 0; }
 
 #endif
 
@@ -225,12 +208,12 @@ __INLINE__ EE_UINT8 __ALWAYS_INLINE__ EE_switch_get_all(void)
 #define AVDD 3.3
 #define VREF 3.3
 
-extern EE_UINT8 EE_adc_init;
+extern EE_UINT8 ee_adc_init_flag;
 
 __INLINE__ void __ALWAYS_INLINE__ EE_analog_init( void )
 {
 	/* Check if the ADC is initialized */
-	if (EE_adc_init != 0) return;
+	if (ee_adc_init_flag != 0) return;
 
 	/* turn off ADC module */
 	AD1CON1bits.ADON = 0;
@@ -269,7 +252,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_analog_init( void )
 	AD1CON1bits.ADON = 1;
 
 	/* set ADC as configured */
-	EE_adc_init = 1;
+	ee_adc_init_flag = 1;
 }
 
 __INLINE__ void __ALWAYS_INLINE__ EE_analog_close( void )
@@ -278,13 +261,35 @@ __INLINE__ void __ALWAYS_INLINE__ EE_analog_close( void )
 	AD1CON1bits.ADON = 0;
 
 	/* set ADC as unconfigured */
-	EE_adc_init = 0;
+	ee_adc_init_flag = 0;
 }
 
 #endif
 
 /* ADC Aux Input */
 #ifdef __USE_ADC__
+
+#if defined(__USE_PLUGIN_DCM__)
+  #define ADC_CUR      EE_ADC_AN1
+  #define ADC_VOUT     EE_ADC_AN2
+  #define ADC_FAULT    EE_ADC_AN3
+  #define EE_ADC_AN1   EE_ADC_PIN21 /* ADC_CUR */
+  #define EE_ADC_AN2   EE_ADC_PIN10 /* ADC_VOUT */
+  #define EE_ADC_AN3   EE_ADC_PIN20 /* ADC_FAULT */
+#elif defined (__USE_PLUGIN_SERVO__)
+  #define ADC_TOUCH_BOTTOM   EE_ADC_AN1
+  #define ADC_TOUCH_RIGHT    EE_ADC_AN2
+  #define EE_ADC_AN1   EE_ADC_PIN9  /* ADC_BOTTOM */
+  #define EE_ADC_AN2   EE_ADC_PIN15 /* ADC_RIGHT */
+#else
+  #define ADC_GP1      EE_ADC_AN1
+  #define ADC_GP2      EE_ADC_AN2
+  #define ADC_GP3      EE_ADC_AN3
+  #define EE_ADC_AN1   EE_ADC_PIN3  /* ADC_GP1 */
+  #define EE_ADC_AN2   EE_ADC_PIN12 /* ADC_GP2 */
+  #define EE_ADC_AN3   EE_ADC_PIN13 /* ADC_GP3 */
+#endif
+
 __INLINE__ void __ALWAYS_INLINE__ EE_adcin_init( void ) { EE_analog_init(); }
 
 __INLINE__ float __ALWAYS_INLINE__ EE_adcin_get_volt( EE_UINT8 channel )

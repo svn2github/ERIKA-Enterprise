@@ -56,7 +56,7 @@
 #ifdef __USE_BUZZER__
 void flex_daughter_buzzer_update(float new_freq_f)
 {
-    static const EE_UINT32 frequency_span = EE_FLEX_BUZZER_MAX_FREQ - EE_FLEX_BUZZER_MIN_FREQ;
+    static const EE_UINT32 frequency_span = EE_BUZZER_MAX_FREQ - EE_BUZZER_MIN_FREQ;
     if(new_freq_f > 0.0F)
     {
         /* Saturate IN to 1.0 */
@@ -64,7 +64,7 @@ void flex_daughter_buzzer_update(float new_freq_f)
             new_freq_f = 1.0F;
         /* Frequency in Hz */
         EE_UINT32 new_span = new_freq_f * frequency_span;
-        EE_UINT32 new_freq = new_span + EE_FLEX_BUZZER_MIN_FREQ;
+        EE_UINT32 new_freq = new_span + EE_BUZZER_MIN_FREQ;
         EE_buzzer_start(new_freq);
     }
     else

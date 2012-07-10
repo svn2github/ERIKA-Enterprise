@@ -80,8 +80,7 @@ static void init(scicos_block *block)
         return;
 
     EE_AdcChId adc_ch_id = getAdcChId(adc_ch);
-    EE_easylab_adc_init_ch(adc_ch_id, EE_ADC_VDD_VSS, EE_ADC_12_BIT);
-    EE_easylab_adc_start( );
+    EE_easylab_adc_init_ch(adc_ch_id);
 }
 
 static void inout(scicos_block *block)
@@ -95,7 +94,7 @@ static void inout(scicos_block *block)
         y[0] = -1.0f ;
         return;
     }
-
+    EE_easylab_adc_start(EE_ADC_VDD_VSS, EE_ADC_12_BIT);
     EE_AdcChId adc_ch_id = getAdcChId(adc_ch);
     EE_easylab_adc_get_ch_uint(adc_ch_id, &adcdata);
     adcdata = (adcdata * EE_ADC_VDD_mV) / EE_ADC_RES_MAX;

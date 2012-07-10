@@ -56,7 +56,7 @@ void EE_buzzer_start(EE_UINT16 freq)
     /*
      * period (us) = 1000000UL / freq (Hz);
      */
-    if ((freq > EE_EASYLAB_BUZZER_MIN_FREQ) && (freq <= EE_EASYLAB_BUZZER_MAX_FREQ)) {
+    if ((freq > EE_BUZZER_MIN_FREQ) && (freq <= EE_BUZZER_MAX_FREQ)) {
         TRISAbits.TRISA2 = 0; /* output */
         LATAbits.LATA2 = 0;
         /* to get the desired period I have to half the given 

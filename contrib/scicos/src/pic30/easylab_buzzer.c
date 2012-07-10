@@ -66,7 +66,7 @@ static void end(scicos_block *block)
 
 static void inout(scicos_block *block)
 {
-    static const EE_UINT16 frequency_span = EE_EASYLAB_BUZZER_MAX_FREQ - EE_EASYLAB_BUZZER_MIN_FREQ;
+    static const EE_UINT16 frequency_span = EE_BUZZER_MAX_FREQ - EE_BUZZER_MIN_FREQ;
 
     /* Stop the buzzer as first thing */
     EE_buzzer_stop();
@@ -80,7 +80,7 @@ static void inout(scicos_block *block)
             new_freq_f = 1.0F;
         /* Frequency in Hz */
         EE_UINT32 new_span = new_freq_f * frequency_span;
-        EE_UINT32 new_freq = new_span + EE_EASYLAB_BUZZER_MIN_FREQ;
+        EE_UINT32 new_freq = new_span + EE_BUZZER_MIN_FREQ;
         EE_buzzer_start(new_freq);
     }
 }

@@ -37,72 +37,11 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
+ 
 #include "ee.h"
 #include "mcu/microchip_dspic/inc/ee_adc.h"
 
-#ifdef __dsPIC33FJ64MC802__
-
-#ifdef _PCFG16 /* AD1PCFGMbits: PORT Configuration Register High. AD1PCFGMbits.PCFG16 */
-static void EE_adc_init_driver_high()
-{
-    if(!driver_initialized){
-        /* Is better leave those pins as analog input so digital In buffer is turned-off
-           and it doesn't consume power */
-        /*
-        AD1PCFGLbits.PCFG6 = 1;
-        AD1PCFGLbits.PCFG7 = 1;
-        AD1PCFGLbits.PCFG8 = 1;
-        AD1PCFGLbits.PCFG9 = 1;
-        */
-        /* TODO: Add support for Port High PINs 
-        (AD1PCFGM: PORT Configuration Register High) */
-    }
-}
-
-static EE_AdcErr EE_adc_init_high_port( EE_AdcChId adc_ch_id )
-{
-    /* TODO: Add support for Port High PINs (AD1PCFGM: PORT Configuration Register High) */
-    return EE_ADC_ERR_NO;
-}
-
-static EE_AdcErr EE_sdc_get_high_port ( EE_AdcId adc_ch_id )
-{
-    EE_AdcErr error = EE_ADC_ERR_NO;
-    switch ( adc_ch_id ){
-        case EE_ADC1_PIN6:
-            AD1PCFGLbits.PCFG6 = 0;
-        break;
-        case EE_ADC1_PIN7:
-            AD1PCFGLbits.PCFG7 = 0;
-        break;
-        case EE_ADC1_PIN8:
-            AD1PCFGLbits.PCFG8 = 0;
-        break;
-        case EE_ADC1_PIN9:
-            AD1PCFGLbits.PCFG9 = 0;
-        break;
-        /* TODO: Add support for Port High PINs (AD1PCFGM: PORT Configuration Register High) */
-        default:
-            error = EE_ADC_ERR_CHID_INVALID;
-    }
-    return error;
-}
-
-#else
-static EE_AdcErr EE_adc_init_high_port( EE_AdcChId adc_ch_id )
-{
-    return EE_ADC_ERR_CHID_INVALID;
-}
-
-static EE_AdcErr EE_sdc_get_high_port ( EE_AdcChId adc_ch_id )
-{
-    return EE_ADC_ERR_CHID_INVALID;
-}
-
-#define EE_adc_init_driver_high()
-#endif /* _PCFG16 */
-
-static EE_UINT8 driver_initialized = 0;
+/* WARNING: ADC2 driver is not implemented! only ADC1 is supported. */
 
 enum EE_Adc_SampleFormats {
     EE_ADC_UINT  = 0x0,
@@ -113,121 +52,156 @@ enum EE_Adc_SampleFormats {
 
 static void EE_adc_set_sample_format(enum EE_Adc_SampleFormats format)
 {
-    AD1CON1bits.FORM = format;
+    _FORM = format;
 }
 
-static void EE_adc_int_driver()
+static EE_INT16 EE_adc1_init_ch_internal ( EE_AdcChId adc_ch_id )
 {
-    /* AD1PCFGLbits are initialized as Analog Input in POR (Power on Reset).
-       I put them as digital input here. */
-    if(!driver_initialized){
-        /* Is better leave those pins as analog input so digital In buffer is turned-off
-           and it doesn't consume power */
-        /*
-        AD1PCFGLbits.PCFG0 = 1;
-        AD1PCFGLbits.PCFG1 = 1;
-        AD1PCFGLbits.PCFG2 = 1;
-        AD1PCFGLbits.PCFG3 = 1;
-        AD1PCFGLbits.PCFG4 = 1;
-        AD1PCFGLbits.PCFG5 = 1;
-        */
-        EE_adc_init_driver_high();
-        driver_initialized  = 1;
-    }
-}
-
-static EE_INT16 EE_adc1_init_ch_internal ( EE_AdcChId adc_ch_id, EE_Adc_VoltageRef volt_ref,
-    EE_Adc_BitResolution bit_res )
-{
-    /* initialize driver */
-    EE_adc_int_driver();
     /* turn off ADC module */
-    AD1CON1bits.ADON = 0;
+    _ADON = 0;
     EE_INT16 error = EE_ADC_ERR_NO;
     switch( adc_ch_id ) {
+#ifdef _PCFG0
         case EE_ADC_PIN0:
-            AD1PCFGLbits.PCFG0 = 0;
+            _PCFG0 = 0;
         break;
+#endif
+#ifdef _PCFG1
         case EE_ADC_PIN1:
-            AD1PCFGLbits.PCFG1 = 0;
+            _PCFG1 = 0;
         break;
+#endif
+#ifdef _PCFG2
         case EE_ADC_PIN2:
-            AD1PCFGLbits.PCFG2 = 0;
+            _PCFG2 = 0;
         break;
+#endif
+#ifdef _PCFG3
         case EE_ADC_PIN3:
-            AD1PCFGLbits.PCFG3 = 0;
+            _PCFG3 = 0;
         break;
+#endif
+#ifdef _PCFG4
         case EE_ADC_PIN4:
-            AD1PCFGLbits.PCFG4 = 0;
+            _PCFG4 = 0;
         break;
+#endif
+#ifdef _PCFG5
         case EE_ADC_PIN5:
-            AD1PCFGLbits.PCFG5 = 0;
+            _PCFG5 = 0;
         break;
+#endif
+#ifdef _PCFG6
+        case EE_ADC_PIN6:
+            _PCFG6 = 0;
+        break;
+#endif
+#ifdef _PCFG7
+        case EE_ADC_PIN7:
+            _PCFG7 = 0;
+        break;
+#endif
+#ifdef _PCFG8
+        case EE_ADC_PIN8:
+            _PCFG8 = 0;
+        break;
+#endif
+#ifdef _PCFG9
+        case EE_ADC_PIN9:
+            _PCFG9 = 0;
+        break;
+#endif
+#ifdef _PCFG10
+        case EE_ADC_PIN10:
+            _PCFG10 = 0;
+        break;
+#endif
+#ifdef _PCFG11
+        case EE_ADC_PIN11:
+            _PCFG11 = 0;
+        break;
+#endif
+#ifdef _PCFG12
+        case EE_ADC_PIN12:
+            _PCFG12 = 0;
+        break;
+#endif
+#ifdef _PCFG13
+        case EE_ADC_PIN13:
+            _PCFG13 = 0;
+        break;
+#endif
+#ifdef _PCFG14
+        case EE_ADC_PIN14:
+            _PCFG14 = 0;
+        break;
+#endif
+#ifdef _PCFG15
+        case EE_ADC_PIN15:
+            _PCFG15 = 0;
+        break;
+#endif
+#ifdef _PCFG16
+        case EE_ADC_PIN16:
+            _PCFG16 = 0;
+        break;
+#endif
+#ifdef _PCFG17
+        case EE_ADC_PIN17:
+            _PCFG17 = 0;
+        break;
+#endif
+#ifdef _PCFG18
+        case EE_ADC_PIN18:
+            _PCFG18 = 0;
+        break;
+#endif
+#ifdef _PCFG19
+        case EE_ADC_PIN19:
+            _PCFG19 = 0;
+        break;
+#endif
+#ifdef _PCFG20
+        case EE_ADC_PIN20:
+            _PCFG20 = 0;
+        break;
+#endif
+#ifdef _PCFG21
+        case EE_ADC_PIN21:
+            _PCFG21 = 0;
+        break;
+#endif
+#ifdef _PCFG22
+        case EE_ADC_PIN22:
+            _PCFG22 = 0;
+        break;
+#endif
+#ifdef _PCFG23
+        case EE_ADC_PIN23:
+            _PCFG23 = 0;
+        break;
+#endif
         default:
-            error = EE_adc_init_high_port( adc_ch_id );
-    }
-    if(!error){
-            /* Set control register 2 */
-            /* Vref = AVcc/AVdd, Scan Inputs */
-            AD1CON2bits.VCFG = volt_ref;
-            /* Set bit resolution for ADC (10 or 12 bits) */
-            AD1CON1bits.AD12B = bit_res;
-            /*  Sample Clock Source Select bits 
-                111 => Internal counter ends sampling and starts conversion (autosampling)
-                Other configuration not supported because they depends on other periphereal
-                (GP Timers, PWM, external pins)
-            */
-            AD1CON1bits.SSRC = 0x7;
-
-            /* Input scan not supported by default */
-            AD1CON2bits.CSCNA = 0; /* Input scan enable bit */
-            AD1CSSL = 0x0000;  /* Channel selection register for input scan [none]*/
-            
-            /*  1 => Sampling begins immediately after last conversion. SAMP bit is auto-set
-                0 => Sampling begins when SAMP bit is set 
-                We want trigger convertion with a function call so we put this at 0.
-            */
-            AD1CON1bits.ASAM = 0; /* ADC Sample Auto-Start bit */
-            
-            /* 
-              1 => ADC internal RC clock
-              0 => Clock derived from system clock */
-            AD1CON3bits.ADRC = 0; /* ADC Conversion Clock Source bit */
-            /* AST = value (e.g. 31) * Tad Tad: ADC clock period [if ARDC = 0 
-               then periphereal clock]) used only if SSRC if autosampling is choose */
-            AD1CON3bits.SAMC = 31; /* Auto Sample Time (AST) bits */
-            /* 0011 1111 => TAD = (ADCS<7:0> + 1) � TCY = 64 � TCY 
-               Not used if ADRC were = 1 */
-            AD1CON3bits.ADCS = 0x003F; /* ADC Conversion Clock Select bits */
-            
-            /* reset ADC interrupt flag */
-            IFS0bits.AD1IF = 0;
-            /* disable ADC interrupts */
-            IEC0bits.AD1IE = 0;
-    } else {
-        /* Unitialize driver */
-        driver_initialized = 0;
+            error = EE_ADC_ERR_CHID_INVALID;
     }
     return error;
 }
 
-static EE_INT16 EE_adc2_init_ch_internal ( EE_AdcChId adc_ch_id, EE_Adc_VoltageRef volt_ref,
-    EE_Adc_BitResolution bit_res )
+static EE_INT16 EE_adc2_init_ch_internal ( EE_AdcChId adc_ch_id )
 {
     /* To Be implemented */
     return EE_ADC_ERR_CHID_INVALID;
 }
 
-EE_AdcErr EE_adc_init_ch( EE_Adc_Coverter_Id adc_id, EE_AdcChId adc_ch_id, 
-    EE_Adc_VoltageRef volt_ref, EE_Adc_BitResolution bit_res )
+EE_AdcErr EE_adc_init_ch( EE_Adc_Coverter_Id adc_id, EE_AdcChId adc_ch_id )
 {
     EE_AdcErr error;
     switch( adc_id ){
         case EE_ADC_1:
-            error = EE_adc1_init_ch_internal( adc_ch_id, volt_ref, bit_res );
+            error = EE_adc1_init_ch_internal( adc_ch_id );
         break;
         case EE_ADC_2:
-            error = EE_adc2_init_ch_internal( adc_ch_id, volt_ref, bit_res );
+            error = EE_adc2_init_ch_internal( adc_ch_id );
         break;
         default:
             error = EE_ADC_ERR_CHID_INVALID;
@@ -235,31 +209,66 @@ EE_AdcErr EE_adc_init_ch( EE_Adc_Coverter_Id adc_id, EE_AdcChId adc_ch_id,
     return error;
 }
 
-static EE_AdcErr EE_adc1_start_internal ( void )
+static EE_AdcErr EE_adc1_start_internal ( EE_Adc_VoltageRef volt_ref, EE_Adc_BitResolution bit_res )
 {
     EE_INT16 error = EE_ADC_ERR_NO;
-    /* turn on ADC module */
-    if(driver_initialized)
-        AD1CON1bits.ADON = 1;
-    else
-        error = EE_ADC_ERR_DRIVER_UNINT;
+    if(_ADON == 0){
+            /* Set control register 2 */
+            /* Vref = AVcc/AVdd, Scan Inputs */
+            _VCFG = volt_ref;
+            /* Set bit resolution for ADC (10 or 12 bits) */
+            _AD12B = bit_res;
+            /*  Sample Clock Source Select bits 
+                111 => Internal counter ends sampling and starts conversion (autosampling)
+                Other configuration not supported because they depends on other periphereal
+                (GP Timers, PWM, external pins)
+            */
+            _SSRC = 0x7;
+            /* Input scan not supported by default */
+            _CSCNA = 0; /* Input scan enable bit */
+            AD1CSSL = 0x0000;  /* Channel selection register for input scan [none]*/
+            #ifdef _CSS16
+            AD1CSSH = 0x0000;
+            #endif
+            /*  1 => Sampling begins immediately after last conversion. SAMP bit is auto-set
+                0 => Sampling begins when SAMP bit is set 
+                We want trigger convertion with a function call so we put this at 0.
+            */
+            _ASAM = 0; /* ADC Sample Auto-Start bit */
+            /* 
+              1 => ADC internal RC clock
+              0 => Clock derived from system clock */
+            _ADRC = 0; /* ADC Conversion Clock Source bit */
+            /* AST = value (e.g. 31) * Tad Tad: ADC clock period [if ARDC = 0 
+               then periphereal clock]) used only if SSRC if autosampling is choose */
+            _SAMC = 31; /* Auto Sample Time (AST) bits */
+            /* 0011 1111 => TAD = (ADCS<7:0> + 1) � TCY = 64 � TCY 
+               Not used if ADRC were = 1 */
+            _ADCS = 0x003F; /* ADC Conversion Clock Select bits */
+            /* reset ADC interrupt flag */
+            _AD1IF = 0;
+            /* disable ADC interrupts */
+            _AD1IE = 0;
+            /* turn on ADC module */
+            _ADON = 1;
+    }
     return error;
 }
 
-static EE_AdcErr EE_adc2_start_internal( void )
+static EE_AdcErr EE_adc2_start_internal( EE_Adc_VoltageRef volt_ref, EE_Adc_BitResolution bit_res )
 {
     /* To Be implemented */
     return EE_ADC_ERR_CHID_INVALID;
 }
 
-EE_AdcErr EE_adc_start( EE_Adc_Coverter_Id adc_id ){
+EE_AdcErr EE_adc_start( EE_Adc_Coverter_Id adc_id, EE_Adc_VoltageRef volt_ref, EE_Adc_BitResolution bit_res ){
     EE_AdcErr error;
     switch( adc_id ){
         case EE_ADC_1:
-            error = EE_adc1_start_internal( );
+            error = EE_adc1_start_internal( volt_ref, bit_res);
         break;
         case EE_ADC_2:
-            error = EE_adc2_start_internal( );
+            error = EE_adc2_start_internal( volt_ref, bit_res );
         break;
         default:
             error = EE_ADC_ERR_CHID_INVALID;
@@ -270,7 +279,7 @@ EE_AdcErr EE_adc_start( EE_Adc_Coverter_Id adc_id ){
 static EE_AdcErr EE_adc1_stop_internal( void )
 {
     /* turn off ADC module */
-    AD1CON1bits.ADON = 0;
+    _ADON = 0;
     return EE_ADC_ERR_NO;
 }
 
@@ -295,55 +304,153 @@ EE_AdcErr EE_adc_stop( EE_Adc_Coverter_Id adc_id ){
     return error;
 }
 
+#define _adc_check_set(pcfgX, pinX) \
+                if(pcfgX){\
+                    error = EE_ADC_ERR_CHID_INVALID;\
+                    break;\
+                }\
+                _CH0SA = pinX
+
 static EE_AdcErr EE_adc1_get_ch_uint_internal( EE_AdcChId adc_ch_id, EE_UINT16 * value)
 {
     EE_AdcErr error = EE_ADC_ERR_NO;
-    if(!driver_initialized) {
+    if(_ADON == 0) {
         error = EE_ADC_ERR_DRIVER_UNINT; 
     } else {
         /* Set the data format to acquire as UINT (10 -12 bit) */
         EE_adc_set_sample_format(EE_ADC_UINT);
         /* Select channel to acquire */
         switch (adc_ch_id) {
+#ifdef _PCFG0
             case EE_ADC_PIN0:
-                if(AD1PCFGLbits.PCFG0){
-                    error = EE_ADC_ERR_CHID_INVALID;
-                    break;
-                }
-                AD1CHS0bits.CH0SA = 0;
+              _adc_check_set(_PCFG0, EE_ADC_PIN0);
             break;
-            case EE_ADC_PIN1: 
-                if(AD1PCFGLbits.PCFG1) {
-                    error = EE_ADC_ERR_CHID_INVALID;
-                    break;
-                }
-                AD1CHS0bits.CH0SA = 1;
+#endif
+#ifdef _PCFG1
+            case EE_ADC_PIN1:
+              _adc_check_set(_PCFG1, EE_ADC_PIN1);
             break;
-            case EE_ADC_PIN4: 
-                if(AD1PCFGLbits.PCFG4) {
-                    error = EE_ADC_ERR_CHID_INVALID;
-                    break;
-                }
-                AD1CHS0bits.CH0SA = 4;
+#endif
+#ifdef _PCFG2
+            case EE_ADC_PIN2:
+              _adc_check_set(_PCFG2, EE_ADC_PIN2);
             break;
+#endif
+#ifdef _PCFG3
+            case EE_ADC_PIN3:
+              _adc_check_set(_PCFG3, EE_ADC_PIN3);
+            break;
+#endif
+#ifdef _PCFG4
+            case EE_ADC_PIN4:
+              _adc_check_set(_PCFG4, EE_ADC_PIN4);
+            break;
+#endif
+#ifdef _PCFG5
             case EE_ADC_PIN5:
-                if(AD1PCFGLbits.PCFG5){
-                    error = EE_ADC_ERR_CHID_INVALID;
-                    break;
-                }
-                AD1CHS0bits.CH0SA = 5;
+              _adc_check_set(_PCFG5, EE_ADC_PIN5);
             break;
+#endif
+#ifdef _PCFG6
+            case EE_ADC_PIN6:
+              _adc_check_set(_PCFG6, EE_ADC_PIN6);
+            break;
+#endif
+#ifdef _PCFG7
+            case EE_ADC_PIN7:
+              _adc_check_set(_PCFG7, EE_ADC_PIN7);
+            break;
+#endif
+#ifdef _PCFG8
+            case EE_ADC_PIN8:
+              _adc_check_set(_PCFG8, EE_ADC_PIN8);
+            break;
+#endif
+#ifdef _PCFG9
+            case EE_ADC_PIN9:
+              _adc_check_set(_PCFG9, EE_ADC_PIN9);
+            break;
+#endif
+#ifdef _PCFG10
+            case EE_ADC_PIN10:
+              _adc_check_set(_PCFG10, EE_ADC_PIN10);
+            break;
+#endif
+#ifdef _PCFG11
+            case EE_ADC_PIN11:
+              _adc_check_set(_PCFG11, EE_ADC_PIN11);
+            break;
+#endif
+#ifdef _PCFG12
+            case EE_ADC_PIN12:
+              _adc_check_set(_PCFG12, EE_ADC_PIN12);
+            break;
+#endif
+#ifdef _PCFG13
+            case EE_ADC_PIN13:
+              _adc_check_set(_PCFG13, EE_ADC_PIN13);
+            break;
+#endif
+#ifdef _PCFG14
+            case EE_ADC_PIN14:
+              _adc_check_set(_PCFG14, EE_ADC_PIN14);
+            break;
+#endif
+#ifdef _PCFG15
+            case EE_ADC_PIN15:
+              _adc_check_set(_PCFG15, EE_ADC_PIN15);
+            break;
+#endif
+#ifdef _PCFG16
+            case EE_ADC_PIN16:
+              _adc_check_set(_PCFG16, EE_ADC_PIN16);
+            break;
+#endif
+#ifdef _PCFG17
+            case EE_ADC_PIN17:
+              _adc_check_set(_PCFG17, EE_ADC_PIN17);
+            break;
+#endif
+#ifdef _PCFG18
+            case EE_ADC_PIN18:
+              _adc_check_set(_PCFG18, EE_ADC_PIN18);
+            break;
+#endif
+#ifdef _PCFG19
+            case EE_ADC_PIN19:
+              _adc_check_set(_PCFG19, EE_ADC_PIN19);
+            break;
+#endif
+#ifdef _PCFG20
+            case EE_ADC_PIN20:
+              _adc_check_set(_PCFG20, EE_ADC_PIN20);
+            break;
+#endif
+#ifdef _PCFG21
+            case EE_ADC_PIN21:
+              _adc_check_set(_PCFG21, EE_ADC_PIN21);
+            break;
+#endif
+#ifdef _PCFG22
+            case EE_ADC_PIN22:
+              _adc_check_set(_PCFG22, EE_ADC_PIN22);
+            break;
+#endif
+#ifdef _PCFG23
+            case EE_ADC_PIN23:
+              _adc_check_set(_PCFG23, EE_ADC_PIN23);
+            break;
+#endif
             default:
-                error = EE_sdc_get_high_port ( adc_ch_id );
+              error = EE_ADC_ERR_CHID_INVALID;
         }
-        if(!error){
-            /* Start conversion (reset DONE pin too) */
-            AD1CON1bits.SAMP = 1;
-            while(!AD1CON1bits.DONE){
+        if(error==EE_ADC_ERR_NO){
+            /* Start sampling and conversion (auto-convert) */
+            _DONE = 0; /* cleared by software */
+            _SAMP = 1; /* start sampling, (cleared by ADC controller) */
+            while(!_DONE){
                 /* Wait till the EOC */
             }
-            /* Stop conversion */
-            AD1CON1bits.SAMP = 0;
             /* Acquire data */
             *value =  ADC1BUF0;
         }
@@ -371,6 +478,5 @@ EE_AdcErr EE_adc_get_ch_uint( EE_Adc_Coverter_Id adc_id, EE_AdcChId adc_ch_id, E
     return error;
 }
 
-#endif /*__dsPIC33FJ64MC802__ */
 
 

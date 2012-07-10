@@ -81,6 +81,16 @@ __INLINE__ void __ALWAYS_INLINE__ EE_leds( EE_UINT8 data ) {
 	LATD |= (data & 0xF0) << 4;
 }
 
+
+__INLINE__ void __ALWAYS_INLINE__ EE_led_0_init(void)   { LATFbits.LATF0  = 0; TRISFbits.TRISF0  = 0; }
+__INLINE__ void __ALWAYS_INLINE__ EE_led_1_init(void)   { LATFbits.LATF1  = 0; TRISFbits.TRISF1  = 0; }
+__INLINE__ void __ALWAYS_INLINE__ EE_led_2_init(void)   { LATFbits.LATF2  = 0; TRISFbits.TRISF2  = 0; }
+__INLINE__ void __ALWAYS_INLINE__ EE_led_3_init(void)   { LATFbits.LATF3  = 0; TRISFbits.TRISF3  = 0; }
+__INLINE__ void __ALWAYS_INLINE__ EE_led_4_init(void)   { LATDbits.LATD8  = 0; TRISDbits.TRISD8  = 0; }
+__INLINE__ void __ALWAYS_INLINE__ EE_led_5_init(void)   { LATDbits.LATD9  = 0; TRISDbits.TRISD9  = 0; }
+__INLINE__ void __ALWAYS_INLINE__ EE_led_6_init(void)   { LATDbits.LATD10  = 0; TRISDbits.TRISD10  = 0; }
+__INLINE__ void __ALWAYS_INLINE__ EE_led_7_init(void)   { LATDbits.LATD11  = 0; TRISDbits.TRISD11  = 0; }
+
 __INLINE__ void __ALWAYS_INLINE__ EE_led_0_on(void)   { LATFbits.LATF0  = 1; }
 __INLINE__ void __ALWAYS_INLINE__ EE_led_0_off(void)  { LATFbits.LATF0  = 0; }
 __INLINE__ void __ALWAYS_INLINE__ EE_led_1_on(void)   { LATFbits.LATF1  = 1; }
@@ -386,6 +396,12 @@ __INLINE__ void __ALWAYS_INLINE__ EE_picdemz_init( void(*isr_callback)(void)) {
 /*  *************************************************************************\/ */
 
 #ifdef __USE_LCD__
+
+#ifndef FCY
+#define FCY  40000000
+#endif
+#include <libpic30.h> /* to use: __delay_us and __delay_ms */
+
 /*
    For Explorer 16 board, here are the data and control signal definitions
    RS -> RB10
@@ -413,19 +429,6 @@ __INLINE__ void __ALWAYS_INLINE__ EE_picdemz_init( void(*isr_callback)(void)) {
 #define  EE_LCD_DATAPORT	PORTA
 #define  EE_LCD_TRISDATA	TRISA          // I/O setup for data Port
 
-// fra
-#define Fcy  40000000
-#define Delay200uS_count  (Fcy * 0.0002) / 1080
-#define Delay500uS_count  (Fcy * 0.0005) / 1080
-#define Delay_1mS_Cnt	  (Fcy * 0.001) / 2950
-#define Delay_2mS_Cnt	  (Fcy * 0.002) / 2950
-#define Delay_5mS_Cnt	  (Fcy * 0.005) / 2950
-#define Delay_20mS_Cnt	  (Fcy * 0.020) / 2950
-#define Delay_1S_Cnt	  (Fcy * 1) / 2950
-
-void Delay( unsigned int delay_count );
-void Delay_Us( unsigned int delayUs_count );
-
 /* /\* Send an impulse on the enable line.  *\/ */
 __INLINE__ void __ALWAYS_INLINE__ EE_lcd_pulse_enable( void )
 {
@@ -443,7 +446,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_lcd_command( EE_UINT8 cmd )
 	EE_LCD_DATA |= cmd;
 	EE_LCD_RS = 0;  // fra
 	EE_lcd_pulse_enable();
-	Delay_Us( Delay200uS_count );
+	__delay_us(500);
 }
 
 /* /\* Switch on or off the back illumination  *\/ */
@@ -481,25 +484,25 @@ __INLINE__ void __ALWAYS_INLINE__ EE_lcd_init(void) {
 	EE_LCD_TRISDATA &= 0xFF00;
 	EE_LCD_RS_TRIS  = 0;
 	EE_LCD_E_TRIS   = 0;
-	Delay( Delay_20mS_Cnt );
+	__delay_ms(50);
 
 	// Init - Step 1
 	EE_LCD_DATA &= 0xFF00;
 	EE_LCD_DATA |= 0x0038;
 	EE_lcd_pulse_enable();
-	Delay_Us( Delay500uS_count );
+	__delay_us(500);
 
 	// Init - Step 2
 	EE_LCD_DATA &= 0xFF00;
 	EE_LCD_DATA |= 0x0038;
 	EE_lcd_pulse_enable();
-	Delay_Us( Delay200uS_count );
+	__delay_us(500);
 
 	// Init - Step 3
 	EE_LCD_DATA &= 0xFF00;
 	EE_LCD_DATA |= 0x0038;
 	EE_lcd_pulse_enable();
-	Delay_Us( Delay200uS_count );
+	__delay_us(500);
 
 	EE_lcd_command( 0x38 );	// Function set
 	EE_lcd_command( 0x0C );	// Display on/off control, cursor blink off (0x0C)
@@ -526,7 +529,7 @@ __INLINE__ unsigned char __ALWAYS_INLINE__ EE_lcd_busy( void )
 	EE_LCD_TRISDATA |= 0x00FF;
 	EE_LCD_RS = 1;
 	EE_lcd_pulse_enable();
-	//Delay_Us( Delay200uS_count );
+	//__delay_us(200);
 	buf = EE_LCD_DATAPORT & 0x00FF;
 	EE_LCD_RS = 0;
 	EE_LCD_TRISDATA &= 0xFF00;
@@ -563,12 +566,12 @@ __INLINE__ void __ALWAYS_INLINE__ EE_lcd_goto (EE_UINT8 posx, EE_UINT8 posy)
 #define AVDD 3.3
 #define VREF 3.3
 
-extern EE_UINT8 EE_adc_init;
+extern EE_UINT8 ee_adc_init_flag;
 
 __INLINE__ void __ALWAYS_INLINE__ EE_analog_init( void )
 {
 	/* Check if the ADC is initialized */
-	if (EE_adc_init != 0) return;
+	if (ee_adc_init_flag != 0) return;
 
 	/* turn off ADC module */
 	AD1CON1bits.ADON = 0;
@@ -609,7 +612,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_analog_init( void )
 	AD1CON1bits.ADON = 1;
 
 	/* set ADC as configured */
-	EE_adc_init = 1;
+	ee_adc_init_flag = 1;
 }
 
 __INLINE__ void __ALWAYS_INLINE__ EE_analog_close( void )
@@ -618,13 +621,21 @@ __INLINE__ void __ALWAYS_INLINE__ EE_analog_close( void )
 	AD1CON1bits.ADON = 0;
 
 	/* set ADC as unconfigured */
-	EE_adc_init = 0;
+	ee_adc_init_flag = 0;
 }
 
 #endif
 
 /* ADC Aux Input */
 #ifdef __USE_ADC__
+
+#define ADC_GP1      EE_ADC_AN1
+#define ADC_GP2      EE_ADC_AN2
+#define ADC_GP3      EE_ADC_AN3
+#define EE_ADC_AN1   EE_ADC_PIN19 /* ADC_GP1 */
+#define EE_ADC_AN2   EE_ADC_PIN20 /* ADC_GP2 */
+#define EE_ADC_AN3   EE_ADC_PIN21 /* ADC_GP3 */
+  
 __INLINE__ void __ALWAYS_INLINE__ EE_adcin_init( void ) { EE_analog_init(); }
 
 __INLINE__ float __ALWAYS_INLINE__ EE_adcin_get_volt( EE_UINT8 channel )
@@ -938,8 +949,8 @@ __INLINE__ float __ALWAYS_INLINE__ EE_accelerometer_getz( void )
 
 #ifdef __USE_BUZZER__
 
-#define EE_FLEX_BUZZER_MAX_FREQ 20000UL
-#define EE_FLEX_BUZZER_MIN_FREQ 100UL
+#define EE_BUZZER_MAX_FREQ 20000UL
+#define EE_BUZZER_MIN_FREQ 100UL
 
 extern EE_UINT32 buzzer_freq;
 

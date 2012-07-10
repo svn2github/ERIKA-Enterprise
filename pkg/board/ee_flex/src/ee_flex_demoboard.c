@@ -194,7 +194,7 @@ ISR2(_QEIInterrupt)	// High priority interrupt
 /*  *************************************************************************\/ */
 
 #if defined(__USE_ANALOG_SENSORS__) || defined(__USE_TRIMMER__) || defined(__USE_ACCELEROMETER__) || defined(__USE_ADC__)
-EE_UINT8 EE_adc_init = 0;
+EE_UINT8 ee_adc_init_flag = 0;
 #endif
 
 #ifdef __USE_ACCELEROMETER__
@@ -207,33 +207,6 @@ EE_UINT8 EE_accelerometer_g = 6;
 /*  *************************************************************************\/ */
 
 #ifdef __USE_LCD__
-EE_UINT16 lcd_temp_count __attribute__((near)) = 0;
-
-void Delay( unsigned int delay_count )
-{
-	lcd_temp_count = delay_count +1;
-	asm volatile("outer: dec _lcd_temp_count");
-	asm volatile("cp0 _lcd_temp_count");
-	asm volatile("bra z, done");
-	asm volatile("do #3200, inner" );
-	asm volatile("nop");
-	asm volatile("inner: nop");
-	asm volatile("bra outer");
-	asm volatile("done:");
-}
-
-void Delay_Us( unsigned int delayUs_count )
-{
-	lcd_temp_count = delayUs_count +1;
-	asm volatile("outer1: dec _lcd_temp_count");
-	asm volatile("cp0 _lcd_temp_count");
-	asm volatile("bra z, done1");
-	asm volatile("do #1500, inner1" );
-	asm volatile("nop");
-	asm volatile("inner1: nop");
-	asm volatile("bra outer1");
-	asm volatile("done1:");
-}
 
 void EE_lcd_putc( unsigned char data )
 {
@@ -242,9 +215,8 @@ void EE_lcd_putc( unsigned char data )
 	EE_LCD_DATA |= data;
 	EE_lcd_pulse_enable();
 	EE_LCD_RS = 0;
-	Delay_Us( Delay200uS_count );
+	__delay_us(500);
 }
-
 
 #endif
 
@@ -285,7 +257,7 @@ void EE_buzzer_init( void ) {
 }
 
 void EE_buzzer_start( EE_UINT32 new_freq ) {
-    if ((new_freq > EE_FLEX_BUZZER_MIN_FREQ) && (new_freq <= EE_FLEX_BUZZER_MAX_FREQ)) {
+    if ((new_freq > EE_BUZZER_MIN_FREQ) && (new_freq <= EE_BUZZER_MAX_FREQ)) {
         EE_UINT16 period = 1000000UL / (new_freq);
         /* to get the desired period I have to half the given 
          * value becauze the timer call back is a toggle function so 
