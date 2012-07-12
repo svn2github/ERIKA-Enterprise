@@ -75,17 +75,14 @@ RX_TMPDIR := $(call native_path, .)
 endif
 
 ifndef BIN_RX
-export BIN_RX := $(call native_path, $(CCRX_ROOT)\\Bin)
+export BIN_RX := $(shell cygpath -lw $(CCRX_ROOT)\\Bin)
 endif
 
 ifndef INC_RX
-export INC_RX := $(call native_path, $(CCRX_ROOT)\\Include)
+export INC_RX := C$(shell cygpath -lw $(CCRX_ROOT)\\Include)
 endif
 
-
-#export PATH:=$(call native_path, $(PATH):$(CCRX_ROOT)\\Bin)
-#export TMP_RX:=$(call native_path,$(TEMP))
-
+PATH := $(PATH):$(RX_BIN_DIR)
 
 # Bin directories used for compilation
 # BINDIR_ASM      - directory of the Assembler
@@ -182,7 +179,7 @@ else
 OPT_LINK += -nomessage
 endif
 
-OPT_LINK += -rom=D=R,D_1=R_1,D_2=R_2 -nologo -noprelink -nooptimize -map -list\
+OPT_LINK += -rom=D=R,D_1=R_1,D_2=R_2 -nologo -nooptimize -map -list\
  -show=symbol,reference,xreference,total_size,vector -library=./$(RUNTIMELIB)
 
 ifeq ($(call iseeopt, __R5F5210x__), yes)

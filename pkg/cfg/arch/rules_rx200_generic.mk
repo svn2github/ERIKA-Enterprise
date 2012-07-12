@@ -152,6 +152,7 @@ $(patsubst %.cxx, %.obj, $(patsubst %.cc, %.obj, $(patsubst %.C, %.obj, \
 $(CXX_SRCS))))) $(patsubst %.c, %.obj, $(patsubst %.s, %.obj, \
 $(patsubst %.asm, %.obj, $(patsubst %.src, %.obj, $(SRCS)))))))
 
+
 # Variable used to import dependencies
 ALLOBJS = $(LIBEEOBJS) $(LIBOBJS) $(OBJS) 
 
@@ -198,7 +199,7 @@ clean:
 $(TARGET_NAME).$(RX_OUT_EXTENSION): $(OBJS) $(LINKDEP) $(LIBDEP) 
 	@echo "LD";
 	$(QUIET)$(EE_LINK) $(COMPUTED_OPT_LINK) -output=$@ $(OBJS) $(LIBEEOBJS)
-
+	
 	
 ### Object file creation ###
 
@@ -209,7 +210,8 @@ $(OBJDIR)/%.obj: %.s
 	-output=$(TARGETFILE)
 
 $(OBJDIR)/%.obj: %.src
-	$(VERBOSE_PRINTASM) BIN_RX=$(BIN_RX) $(EE_ASM) $(COMPUTED_OPT_ASM) \
+	@echo "ASM $(BIN_RX)";
+	$(VERBOSE_PRINTASM)	$(EE_ASM) $(COMPUTED_OPT_ASM) \
 	$(COMPUTED_INCLUDE_PATH) $(DEFS_ASM) $(SOURCEFILE) \
 	-output=$(TARGETFILE)
 
@@ -222,15 +224,18 @@ $(OBJDIR)/%.obj: %.c
 
 #produce the runtime library
 $(RUNTIMELIB): $(OBJS)
-	@echo "AR    $(RUNTIMELIB)";
-	$(QUIET)$(EE_AR) -cpu=rx200 -output=$@ -head=runtime	
+	@echo "AR    $(RUNTIMELIB) $(PATH)";
+	$(QUIET)$(EE_AR) -cpu=rx200 -output=$@ -head=runtime
+
 	
+	
+STI_CAZZI := $(RX_TOOL_ROOT)/setccrx.bat	
 ##
 ## EE Library
 ##s
 $(ERIKALIB): $(LIBEEOBJS)
 	@echo "AR $(ERIKALIB)";
-	$(QUIET)$(EE_LINK) $(COMPUTED_OPT_LIB_LINK) -output=$@ $(LIBEEOBJS)
+	$(QUIET) $(EE_LINK) $(COMPUTED_OPT_LIB_LINK) -output=$@ $(LIBEEOBJS)
 
 	
 ##

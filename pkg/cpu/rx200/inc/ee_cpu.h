@@ -74,6 +74,17 @@ typedef EE_UINT32 EE_FREG;
 
 #define EE_UREG_SIZE 4
 
+#ifdef __CCRX__
+#define	EE_HWREG_PTR		volatile EE_UREG __evenaccess*
+
+#define	EE_HWREG_ADDR(x)	((EE_HWREG_PTR)(x))
+#define	EE_HWREG(x)		(*EE_HWREG_ADDR(x))
+
+#else	/* __CCRX__ */
+#error ee_cpu.h --> Unsupported compiler
+#endif	/* !__CCRX__ */
+
+
 /* Thread IDs */
 typedef EE_INT32 EE_TID;
 typedef	EE_UREG EE_UTID;
