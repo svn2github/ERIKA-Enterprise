@@ -53,18 +53,18 @@
 ; <o> Stack Size (in Bytes) <0x0-0xFFFFFFFF:8>
 ;
 ;******************************************************************************
-#ifndef	EE_CORTEX_MX_SYS_STACK_SIZE
-#define	EE_CORTEX_MX_SYS_STACK_SIZE	0x00000400	/* 1K bytes */
+#ifndef	EE_SYS_STACK_SIZE
+#define	EE_SYS_STACK_SIZE	0x00000400	/* 1K bytes */
 #endif
-Stack	EQU	EE_CORTEX_MX_SYS_STACK_SIZE
+Stack	EQU	EE_SYS_STACK_SIZE
 
 ;******************************************************************************
 ;
 ; <o> Heap Size (in Bytes) <0x0-0xFFFFFFFF:8>
 ;
 ;******************************************************************************
-#ifndef	EE_CORTEX_MX_SYS_HEAP_SIZE
-#define	EE_CORTEX_MX_SYS_HEAP_SIZE	0x00000400	/* 1K bytes */
+#ifndef	EE_SYS_HEAP_SIZE
+#define	EE_SYS_HEAP_SIZE	0x00000400	/* 1K bytes */
 #endif
 Heap	EQU	EE_CORTEX_MX_SYS_HEAP_SIZE
 
