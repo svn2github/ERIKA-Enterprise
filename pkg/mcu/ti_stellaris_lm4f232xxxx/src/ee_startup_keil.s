@@ -66,7 +66,7 @@ Stack	EQU	EE_SYS_STACK_SIZE
 #ifndef	EE_SYS_HEAP_SIZE
 #define	EE_SYS_HEAP_SIZE	0x00000400	/* 1K bytes */
 #endif
-Heap	EQU	EE_CORTEX_MX_SYS_HEAP_SIZE
+Heap	EQU	EE_SYS_HEAP_SIZE
 
 ;******************************************************************************
 ;
