@@ -362,22 +362,22 @@ static void easylab_demo(void) {
 
         switch(data) {
             case '1':
-                EE_easylab_adc_init_ch(EE_ADC_AN1, EE_ADC_VDD_VSS, EE_ADC_12_BIT);
+                EE_easylab_adc_init_ch(EE_ADC_AN1);
                 adc_channel = EE_ADC_AN1;
                 EE_uart_write_string(EE_UART_PORT_1, "ADC channel selected: 1\r\n");
                 break;
             case '2':
-                EE_easylab_adc_init_ch(EE_ADC_AN2, EE_ADC_VDD_VSS, EE_ADC_12_BIT);
+                EE_easylab_adc_init_ch(EE_ADC_AN2);
                 adc_channel = EE_ADC_AN2;
                 EE_uart_write_string(EE_UART_PORT_1, "ADC channel selected: 2\r\n");
                 break;
             case '3':
-                EE_easylab_adc_init_ch(EE_ADC_AN3, EE_ADC_VDD_VSS, EE_ADC_12_BIT);
+                EE_easylab_adc_init_ch(EE_ADC_AN3);
                 adc_channel = EE_ADC_AN3;
                 EE_uart_write_string(EE_UART_PORT_1, "ADC channel selected: 3\r\n");
                 break;
             case '4':
-                EE_easylab_adc_init_ch(EE_ADC_AN4, EE_ADC_VDD_VSS, EE_ADC_12_BIT);
+                EE_easylab_adc_init_ch(EE_ADC_AN4);
                 adc_channel = EE_ADC_AN4;
                 EE_uart_write_string(EE_UART_PORT_1, "ADC channel selected: 4\r\n");
                 break;
@@ -388,7 +388,7 @@ static void easylab_demo(void) {
                 EE_uart_write_string(EE_UART_PORT_1, "Select the adc channel (possible values are 1,2,3,4): ");
         }
         if(adc_channel < 0xFFFF) {
-            EE_easylab_adc_start();
+            EE_easylab_adc_start(EE_ADC_VDD_VSS, EE_ADC_12_BIT);
             break;
         }
     }
@@ -425,8 +425,8 @@ static void easylab_demo(void) {
                 EE_uart_write_string(EE_UART_PORT_1, "\r\n#warning: input value > 3300!\r\n");
                 EE_uart_write_string(EE_UART_PORT_1, "Voltage = 3300mV will be performed!\r\n");
                 dvolt = EE_ADC_VDD_mV;
-                EE_easylab_pwm_set_duty(pwm_channel, 100);
-                pwm_duty_cycle = 100;
+                EE_easylab_pwm_set_duty(pwm_channel, EE_PWM_DUTY_MAX);
+                pwm_duty_cycle = EE_PWM_DUTY_MAX;
                 break;
             }
             else if( dvolt == 0 )
