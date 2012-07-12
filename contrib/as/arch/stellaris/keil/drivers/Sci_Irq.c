@@ -94,30 +94,21 @@ void Sci_Isr(
 )
 {
 
-  register EE_FREG			flags;
-  register boolean			init;
-  register const Sci_ConfigType *	cfg;
-  register uint32			ris;
-  register uint32			mis;
-  register uint32			ch;
+  register EE_FREG	flags;
+  register uint32	is;
+  register uint32	ch;
 
   flags = EE_hal_suspendIRQ();
-  init = Sci_Global.Init;
-  cfg = Sci_Global.ConfigPtr;
-  ris = UART_RIS(Channel);
-  mis = UART_MIS(Channel);
-  UART_INT_CLEAR(Channel, UART_INT_ALL);
-  EE_hal_resumeIRQ(flags);
 
   /* Driver Initialization Check. */
-  if ( init == TRUE ) {
+  if ( Sci_Global.Init == TRUE ) {
 
     /* Channel Look-up */
     for (
       ch = 0;
       (
-	(ch < cfg->SciNumberOfSciChannels) &&
-	(cfg->SciChannels[ch].SciChannelId != Channel)
+	(ch < Sci_Global.ConfigPtr->SciNumberOfSciChannels) &&
+	(Sci_Global.ConfigPtr->SciChannels[ch].SciChannelId != Channel)
       );
       ch++
     ) {
@@ -125,51 +116,59 @@ void Sci_Isr(
     }
 
     /* Channel Configured Check. */
-    if ( ch < cfg->SciNumberOfSciChannels ) {
+    if ( ch < Sci_Global.ConfigPtr->SciNumberOfSciChannels ) {
+
+	is = ( UART_RIS(Channel) | UART_MIS(Channel) );
+	UART_INT_CLEAR(Channel, UART_INT_ALL);
 
       /* Receception Errors */
       if (
 	(
-	  mis & (
-	    UART_MIS_OEMIS | /* UART Overrun Error Masked Interrupt Status      */
-	    UART_MIS_BEMIS | /* UART Break Error Masked Interrupt Status	      */
-	    UART_MIS_PEMIS | /* UART Parity Error Masked Interrupt Status	      */
-	    UART_MIS_FEMIS | /* UART Framing Error Masked Interrupt Status      */
-	    UART_MIS_RTMIS   /* UART Receive Time-Out Masked Interrupt Status   */
+	  is & (
+	    UART_MIS_OEMIS | /* UART Overrun Error Masked Interrupt Status    */
+	    UART_MIS_BEMIS | /* UART Break Error Masked Interrupt Status      */
+	    UART_MIS_PEMIS | /* UART Parity Error Masked Interrupt Status     */
+	    UART_MIS_FEMIS | /* UART Framing Error Masked Interrupt Status    */
+	    UART_MIS_RTMIS   /* UART Receive Time-Out Masked Interrupt Status */
 	  )
-	) ||
-	(
-	  UART0_RIS_R & (
-	    UART_RIS_OERIS | /* UART Overrun Error Raw Interrupt Status	      */
-	    UART_RIS_BERIS | /* UART Break Error Raw Interrupt Status	      */
-	    UART_RIS_PERIS | /* UART Parity Error Raw Interrupt Status	      */
-	    UART_RIS_FERIS | /* UART Framing Error Raw Interrupt Status	      */
-	    UART_RIS_RTRIS   /* UART Receive Time-Out Raw Interrupt Status      */
-	  )
-	)
+	) 
       ) {
 
 	/* Dummy read preventing RX Lock. */
-	flags = EE_hal_suspendIRQ();
-	UART_RX_DATA(ch);
-	EE_hal_resumeIRQ(flags);
+	while ( !UART_RX_FIFO_EMPTY(Channel) ) {
+	  UART_RX_DATA(Channel);
+	}
 
-	if ( cfg->SciChannels[ch].SciRxErrNotificationPtr != NULL_PTR ) {
+	if (
+	  Sci_Global.ConfigPtr->SciChannels[ch].SciRxErrNotificationPtr !=
+	  NULL_PTR
+	) {
+
+	  EE_hal_resumeIRQ(flags);
 
 	  /* Call Reception Errors Notifications Callback. */
-	  (*(cfg->SciChannels[ch].SciRxErrNotificationPtr))();
-	
+	  (*(Sci_Global.ConfigPtr->SciChannels[ch].SciRxErrNotificationPtr))();
+
+	  flags = EE_hal_suspendIRQ();
+
 	}
 
       }
 
       /* Trasnmission Successful */
-      else if ( (mis & UART_MIS_TXMIS ) || (ris & UART_RIS_TXRIS) ) {
+      else if ( ( is & UART_MIS_TXMIS ) ) {
 
-	if ( cfg->SciChannels[ch].SciTxNotificationPtr ) {
+	if (
+	  Sci_Global.ConfigPtr->SciChannels[ch].SciTxNotificationPtr !=
+	  NULL_PTR
+	) {
+
+	  EE_hal_resumeIRQ(flags);
 
 	  /* Call Transmission Notifications Callback. */
-	  (*(cfg->SciChannels[ch].SciTxNotificationPtr))();
+	  (*(Sci_Global.ConfigPtr->SciChannels[ch].SciTxNotificationPtr))();
+
+	  flags = EE_hal_suspendIRQ();
 
 	}
 
@@ -178,10 +177,17 @@ void Sci_Isr(
       /* Reception Successful */
       else /* if ( (mis & UART_MIS_RXMIS) || (ris & UART_RIS_RXRIS) ) */ {
 
-	if ( cfg->SciChannels[ch].SciRxNotificationPtr ) {
+	if (
+	  Sci_Global.ConfigPtr->SciChannels[ch].SciRxNotificationPtr !=
+	  NULL_PTR
+	) {
+
+	  EE_hal_resumeIRQ(flags);
 
 	  /* Call Reception Notifications Callback. */
-	  (*(cfg->SciChannels[ch].SciRxNotificationPtr))();
+	  (*(Sci_Global.ConfigPtr->SciChannels[ch].SciRxNotificationPtr))();
+
+	  flags = EE_hal_suspendIRQ();
 
 	}
 
@@ -190,6 +196,8 @@ void Sci_Isr(
     }	/* ch < cfg->SciNumberOfSciChannels */
 
   }	/* init == TRUE */
+
+  EE_hal_resumeIRQ(flags);
 
 }
 #endif	/*
