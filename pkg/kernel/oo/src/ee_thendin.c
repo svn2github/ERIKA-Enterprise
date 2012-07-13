@@ -49,10 +49,10 @@
 
 #if defined(__OO_BCC2__) || defined(__OO_ECC2__)
 static EE_BIT EE_thread_rnact_max(EE_TID current) {
-  return (EE_th_rnact[current] == EE_th_rnact_max[current]);
+  return (EE_th_rnact[current] == EE_th_rnact_max[current]) ? 1U : 0U;
 }
 #else /* __OO_BCC2__ || __OO_ECC2__ */
-#define EE_thread_rnact_max(current)  (1)
+#define EE_thread_rnact_max(current)  (1U)
 #endif /* __OO_BCC2__ || __OO_ECC2__ */
 
 #if defined(__OO_ECC1__) || defined(__OO_ECC2__)
@@ -105,11 +105,15 @@ void EE_thread_end_instance(void)
    * instance. Note that status=READY and
    * rnact==maximum number of pending activations ==>> the task is
    * suspended!!! */
-  if( EE_thread_rnact_max(current) || (current == TaskID) ) {
+#if defined(__OO_BCC2__) || defined(__OO_ECC2__)
+  if( (1U == EE_thread_rnact_max(current)) || (current == TaskID) ) {
     EE_th_status[current] = SUSPENDED;
   } else {   
     EE_th_status[current] = READY;
   }
+#else
+    EE_th_status[current] = SUSPENDED;
+#endif
 
   /* reset the thread priority bit in the system_ceiling */
   EE_sys_ceiling &= ~EE_th_dispatch_prio[current];
