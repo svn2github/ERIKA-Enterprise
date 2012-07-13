@@ -228,8 +228,6 @@ $(RUNTIMELIB): $(OBJS)
 	$(QUIET)$(EE_AR) -cpu=rx200 -output=$@ -head=runtime
 
 	
-	
-STI_CAZZI := $(RX_TOOL_ROOT)/setccrx.bat	
 ##
 ## EE Library
 ##s
