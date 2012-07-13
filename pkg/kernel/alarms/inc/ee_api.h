@@ -54,6 +54,10 @@
 #define CounterTick                  EE_alarm_CounterTick
 #endif
 
+#ifndef IncrementCounter
+#define IncrementCounter             EE_alarm_CounterTick
+#endif
+
 #ifndef GetAlarm
 #define GetAlarm                     EE_alarm_GetAlarm
 #endif
