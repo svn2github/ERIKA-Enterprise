@@ -197,7 +197,7 @@ clean:
 
 ### Target file creation ###
 $(TARGET_NAME).$(RX_OUT_EXTENSION): $(OBJS) $(LINKDEP) $(LIBDEP) 
-	@echo "LD";
+	@echo "LD $(TARGET_NAME).$(RX_OUT_EXTENSION)";
 	$(QUIET)$(EE_LINK) $(COMPUTED_OPT_LINK) -output=$@ $(OBJS) $(LIBEEOBJS)
 	
 	
@@ -210,7 +210,6 @@ $(OBJDIR)/%.obj: %.s
 	-output=$(TARGETFILE)
 
 $(OBJDIR)/%.obj: %.src
-	@echo "ASM $(BIN_RX)";
 	$(VERBOSE_PRINTASM)	$(EE_ASM) $(COMPUTED_OPT_ASM) \
 	$(COMPUTED_INCLUDE_PATH) $(DEFS_ASM) $(SOURCEFILE) \
 	-output=$(TARGETFILE)
@@ -224,7 +223,7 @@ $(OBJDIR)/%.obj: %.c
 
 #produce the runtime library
 $(RUNTIMELIB): $(OBJS)
-	@echo "AR    $(RUNTIMELIB) $(PATH)";
+	@echo "AR $(RUNTIMELIB)";
 	$(QUIET)$(EE_AR) -cpu=rx200 -output=$@ -head=runtime
 
 	

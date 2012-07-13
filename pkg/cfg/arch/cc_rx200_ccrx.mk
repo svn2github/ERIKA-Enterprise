@@ -61,25 +61,15 @@ BINDIR_CYG := /usr/bin
 RX_TOOL_ROOT := $(CCRX_ROOT)
 
 RX_BIN_DIR := $(RX_TOOL_ROOT)/bin
-
-RX_BINUTILS_DIR := $(RX_TOOL_ROOT)/bin
-
-RX_LIB_DIR := $(RX_TOOL_ROOT)/lib
-
-RX_INCLUDE_DIR := $(RX_TOOL_ROOT)/include
-
-ifdef TMPDIR
-RX_TMPDIR := $(call native_path, $(TMPDIR))
-else
-RX_TMPDIR := $(call native_path, .)
-endif
+#RX_LIB_DIR := $(RX_TOOL_ROOT)/lib
+#RX_INCLUDE_DIR := $(RX_TOOL_ROOT)/include
 
 ifndef BIN_RX
 export BIN_RX := $(shell cygpath -lw $(CCRX_ROOT)\\Bin)
 endif
 
 ifndef INC_RX
-export INC_RX := C$(shell cygpath -lw $(CCRX_ROOT)\\Include)
+export INC_RX := $(shell cygpath -lw $(CCRX_ROOT)\\Include)
 endif
 
 PATH := $(PATH):$(RX_BIN_DIR)
@@ -92,8 +82,6 @@ PATH := $(PATH):$(RX_BIN_DIR)
 
 BINDIR_ASM      := $(RX_BIN_DIR)
 BINDIR_CC       := $(RX_BIN_DIR)
-BINDIR_BINUTILS := $(RX_BINUTILS_DIR)
-BINDIR_DEP      := $(RX_BIN_DIR)
 
 ifndef EE_ASM
 EE_ASM:=$(BINDIR_ASM)/asrx.exe
@@ -210,7 +198,8 @@ DEFS_CC  = $(addprefix -define=, $(EEOPT))
 
 
 # Automatic dependency generation
-#NOTE: CCRX cannot generate a dependencies file
+#NOTE: CCRX cannot generate a dependencies file. We should do something different
+#to handle dependencies.
 ifeq ($(call iseeopt, NODEPS), yes)
 DEPENDENCY_OPT = 
 make-depend =
