@@ -177,10 +177,14 @@ exit_EE_cortex_mx_change_context
 
 	LDR	R2, =NVIC_STKALIGN	; R2 = 0x00000200
 	ANDS	R2, R2, R3		; Alignment test in R2
-
+#ifdef __CORTEX_M0__
+	CMP R2, #0
+	BEQ stackAligned1
+#else
 	CBZ	R2, stackAligned1
+#endif
 	ADDS	R0, R0, #4		; Adds alignment displacement
-
+	
 stackAligned1
 	MSR	PSR, R3			; Restore xPSR
 					; that is, the processor must work in Thumb mode
@@ -202,9 +206,15 @@ stackAligned1
 	MOV	R12, R4			; Restore Scratch register R12
 	MOV	R4, R0			; Restore R4
 
+#ifdef __CORTEX_M0__
+	CMP R1, #0
+	BEQ stackAligned2
+#else	
 	CBZ	R1, stackAligned2
-	POP	{R0}
+#endif
 
+	POP	{R0}
+	
 stackAligned2
 	POP	{R1}			; Move stack pointer getting again R1
 	CPSIE	I			; Enable interrupts (clear PRIMASK)
