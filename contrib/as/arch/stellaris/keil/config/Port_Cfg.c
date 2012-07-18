@@ -124,10 +124,100 @@ const Port_PinModeConfType PortCPin5Conf[] = {
 };
 
 /*
+ * Port Pin: PORT_F_PIN_0 Modes Configuration Container.
+ */
+const Port_PinModeConfType PortFPin0Conf[] = {
+  {
+    PORT_PIN_MODE_SPI,		/* Port pin mode.			      */
+    PORT_PIN_HW_CFG_DEN |	/* Digital Enable.			      */
+    PORT_PIN_HW_CFG_AFSEL |	/* Alternate Function Select.		      */
+    PORT_F_PIN_0_PMC_SPI_1_RX	/* Port F SSI1 Mux Control.		      */
+  }
+};
+
+/*
+ * Port Pin: PORT_F_PIN_1 Modes Configuration Container.
+ */
+const Port_PinModeConfType PortFPin1Conf[] = {
+  {
+    PORT_PIN_MODE_SPI,		/* Port pin mode.			      */
+    PORT_PIN_HW_CFG_DEN |	/* Digital Enable.			      */
+    PORT_PIN_HW_CFG_AFSEL |	/* Alternate Function Select.		      */
+    PORT_F_PIN_1_PMC_SPI_1_TX	/* Port F SSI1 Mux Control.		      */
+  }
+};
+
+/*
+ * Port Pin: PORT_F_PIN_2 Modes Configuration Container.
+ */
+const Port_PinModeConfType PortFPin2Conf[] = {
+  {
+    PORT_PIN_MODE_SPI,		/* Port pin mode.			      */
+    PORT_PIN_HW_CFG_DEN |	/* Digital Enable.			      */
+    PORT_PIN_HW_CFG_AFSEL |	/* Alternate Function Select.		      */
+    PORT_F_PIN_2_PMC_SPI_1_CLK	/* Port F SSI1 Mux Control.		      */
+  }
+};
+
+/*
+ * Port Pin: PORT_F_PIN_3 Modes Configuration Container.
+ */
+const Port_PinModeConfType PortFPin3Conf[] = {
+  {
+    PORT_PIN_MODE_SPI,		/* Port pin mode.			      */
+    PORT_PIN_HW_CFG_DEN |	/* Digital Enable.			      */
+    PORT_PIN_HW_CFG_AFSEL |	/* Alternate Function Select.		      */
+    PORT_F_PIN_3_PMC_SPI_1_CS	/* Port F SSI1 Mux Control.		      */
+  }
+};
+
+/*
+ * Port Pin: PORT_F_PIN_4 Modes Configuration Container.
+ */
+const Port_PinModeConfType PortFPin4Conf[] = {
+  {
+    PORT_PIN_MODE_DIO,		/* Port pin mode.			      */
+    PORT_PIN_HW_CFG_DEN		/* Digital Enable.			      */
+  }
+};
+
+/*
+ * Port Pin: PORT_F_PIN_5 Modes Configuration Container.
+ */
+const Port_PinModeConfType PortFPin5Conf[] = {
+  {
+    PORT_PIN_MODE_DIO,		/* Port pin mode.			      */
+    PORT_PIN_HW_CFG_DEN |	/* Digital Enable.			      */
+    PORT_PIN_HW_CFG_PUR		/* Pull-Up Select			      */
+  }
+};
+
+/*
+ * Port Pin: PORT_F_PIN_6 Modes Configuration Container.
+ */
+const Port_PinModeConfType PortFPin6Conf[] = {
+  {
+    PORT_PIN_MODE_DIO,		/* Port pin mode.			      */
+    PORT_PIN_HW_CFG_DEN |	/* Digital Enable.			      */
+    PORT_PIN_HW_CFG_PUR		/* Pull-Up Select			      */
+  }
+};
+
+/*
+ * Port Pin: PORT_F_PIN_7 Modes Configuration Container.
+ */
+const Port_PinModeConfType PortFPin7Conf[] = {
+  {
+    PORT_PIN_MODE_SPI,		/* Port pin mode.			      */
+    PORT_PIN_HW_CFG_DEN		/* Digital Enable.			      */
+  }
+};
+
+/*
  * DIO Port Pins Configuration.
  */
 const Port_PinConfType DIOPortPins[] = {
-  {
+  { /* USER SWITCH 1 (UP) */
     PORT_PIN_IN,			/* PortPinDirection		      */
     FALSE,				/* PortPinDirectionChangeable	      */
     PORT_M_PIN_0,			/* PortPinId			      */
@@ -137,7 +227,7 @@ const Port_PinConfType DIOPortPins[] = {
     &PortMPin0To4Conf[0],		/* PortPinSupportedModes	      */
     FALSE				/* PortPinModeChangeable	      */
   },
-  {
+  { /* USER SWITCH 2 (DOWN) */
     PORT_PIN_IN,			/* PortPinDirection		      */
     FALSE,				/* PortPinDirectionChangeable	      */
     PORT_M_PIN_1,			/* PortPinId			      */
@@ -147,7 +237,7 @@ const Port_PinConfType DIOPortPins[] = {
     &PortMPin0To4Conf[0],		/* PortPinSupportedModes	      */
     FALSE				/* PortPinModeChangeable	      */
   },
-  {
+  { /* USER SWITCH 3 (LEFT) */
     PORT_PIN_IN,			/* PortPinDirection		      */
     FALSE,				/* PortPinDirectionChangeable	      */
     PORT_M_PIN_2,			/* PortPinId			      */
@@ -157,7 +247,7 @@ const Port_PinConfType DIOPortPins[] = {
     &PortMPin0To4Conf[0],		/* PortPinSupportedModes	      */
     FALSE				/* PortPinModeChangeable	      */
   },
-  {
+  { /* USER SWITCH 4 (RIGHT) */
     PORT_PIN_IN,			/* PortPinDirection		      */
     FALSE,				/* PortPinDirectionChangeable	      */
     PORT_M_PIN_3,			/* PortPinId			      */
@@ -167,7 +257,7 @@ const Port_PinConfType DIOPortPins[] = {
     &PortMPin0To4Conf[0],		/* PortPinSupportedModes	      */
     FALSE				/* PortPinModeChangeable	      */
   },
-  {
+  { /* USER SWITCH 5 (SELECT/WAKE) */
     PORT_PIN_IN,			/* PortPinDirection		      */
     FALSE,				/* PortPinDirectionChangeable	      */
     PORT_M_PIN_4,			/* PortPinId			      */
@@ -177,7 +267,7 @@ const Port_PinConfType DIOPortPins[] = {
     &PortMPin0To4Conf[0],		/* PortPinSupportedModes	      */
     FALSE				/* PortPinModeChangeable	      */
   },
-  {
+  { /* USER LED */
     PORT_PIN_OUT,			/* PortPinDirection		      */
     FALSE,				/* PortPinDirectionChangeable	      */
     PORT_G_PIN_2,			/* PortPinId			      */
@@ -235,6 +325,103 @@ const Port_PinConfType SCIPortPins[] = {
   }
 };
 
+
+/*
+ * SPI Microchip ENC28J60 Port Pins Configuration.
+ */
+const Port_PinConfType SPIENC28J60PortPins[] = {
+  { /* SSI1 RX */
+    PORT_PIN_IN,			/* PortPinDirection		      */
+    FALSE,				/* PortPinDirectionChangeable	      */
+    PORT_F_PIN_0,			/* PortPinId			      */
+    PORT_PIN_MODE_SPI,			/* PortPinInitialMode		      */
+    PORT_PIN_LEVEL_HIGH,		/* PortPinLevelValue		      */
+    0x00000001,				/* PortPinModeNumber		      */
+    &PortFPin0Conf[0],			/* PortPinSupportedModes	      */
+    FALSE				/* PortPinModeChangeable	      */
+  },
+  { /* SSI1 TX */
+    PORT_PIN_OUT,			/* PortPinDirection		      */
+    FALSE,				/* PortPinDirectionChangeable	      */
+    PORT_F_PIN_1,			/* PortPinId			      */
+    PORT_PIN_MODE_SPI,			/* PortPinInitialMode		      */
+    PORT_PIN_LEVEL_HIGH,		/* PortPinLevelValue		      */
+    0x00000001,				/* PortPinModeNumber		      */
+    &PortFPin1Conf[0],			/* PortPinSupportedModes	      */
+    FALSE				/* PortPinModeChangeable	      */
+  },
+  { /* SSI1 CLK */
+    PORT_PIN_IN,			/* PortPinDirection		      */
+    FALSE,				/* PortPinDirectionChangeable	      */
+    PORT_F_PIN_2,			/* PortPinId			      */
+    PORT_PIN_MODE_SPI,			/* PortPinInitialMode		      */
+    PORT_PIN_LEVEL_HIGH,		/* PortPinLevelValue		      */
+    0x00000001,				/* PortPinModeNumber		      */
+    &PortFPin2Conf[0],			/* PortPinSupportedModes	      */
+    FALSE				/* PortPinModeChangeable	      */
+  },
+  { /* SSI1 CS */
+    PORT_PIN_OUT,			/* PortPinDirection		      */
+    FALSE,				/* PortPinDirectionChangeable	      */
+    PORT_F_PIN_3,			/* PortPinId			      */
+    PORT_PIN_MODE_SPI,			/* PortPinInitialMode		      */
+    PORT_PIN_LEVEL_HIGH,		/* PortPinLevelValue		      */
+    0x00000001,				/* PortPinModeNumber		      */
+    &PortFPin3Conf[0],			/* PortPinSupportedModes	      */
+    FALSE				/* PortPinModeChangeable	      */
+  },
+  { /* RST */
+    PORT_PIN_OUT,			/* PortPinDirection		      */
+    FALSE,				/* PortPinDirectionChangeable	      */
+    PORT_F_PIN_4,			/* PortPinId			      */
+    PORT_PIN_MODE_DIO,			/* PortPinInitialMode		      */
+    PORT_PIN_LEVEL_HIGH,		/* PortPinLevelValue		      */
+    0x00000001,				/* PortPinModeNumber		      */
+    &PortFPin4Conf[0],			/* PortPinSupportedModes	      */
+    FALSE				/* PortPinModeChangeable	      */
+  },
+  { /* INT */
+    PORT_PIN_IN,			/* PortPinDirection		      */
+    FALSE,				/* PortPinDirectionChangeable	      */
+    PORT_F_PIN_5,			/* PortPinId			      */
+    PORT_PIN_MODE_DIO,			/* PortPinInitialMode		      */
+    PORT_PIN_LEVEL_HIGH,		/* PortPinLevelValue		      */
+    0x00000001,				/* PortPinModeNumber		      */
+    &PortFPin5Conf[0],			/* PortPinSupportedModes	      */
+    FALSE				/* PortPinModeChangeable	      */
+  },
+  { /* WOL */
+    PORT_PIN_IN,			/* PortPinDirection		      */
+    FALSE,				/* PortPinDirectionChangeable	      */
+    PORT_F_PIN_6,			/* PortPinId			      */
+    PORT_PIN_MODE_DIO,			/* PortPinInitialMode		      */
+    PORT_PIN_LEVEL_HIGH,		/* PortPinLevelValue		      */
+    0x00000001,				/* PortPinModeNumber		      */
+    &PortFPin6Conf[0],			/* PortPinSupportedModes	      */
+    FALSE				/* PortPinModeChangeable	      */
+  },
+  { /* CLK */
+    PORT_PIN_IN,			/* PortPinDirection		      */
+    FALSE,				/* PortPinDirectionChangeable	      */
+    PORT_F_PIN_7,			/* PortPinId			      */
+    PORT_PIN_MODE_DIO,			/* PortPinInitialMode		      */
+    PORT_PIN_LEVEL_HIGH,		/* PortPinLevelValue		      */
+    0x00000001,				/* PortPinModeNumber		      */
+    &PortFPin7Conf[0],			/* PortPinSupportedModes	      */
+    FALSE				/* PortPinModeChangeable	      */
+  },
+  { /* USER LED */
+    PORT_PIN_OUT,			/* PortPinDirection		      */
+    FALSE,				/* PortPinDirectionChangeable	      */
+    PORT_G_PIN_2,			/* PortPinId			      */
+    PORT_PIN_MODE_DIO,			/* PortPinInitialMode		      */
+    PORT_PIN_LEVEL_LOW,			/* PortPinLevelValue		      */
+    0x00000001,				/* PortPinModeNumber		      */
+    &PortGPin2Conf[0],			/* PortPinSupportedModes	      */
+    FALSE				/* PortPinModeChangeable	      */
+  }
+};
+
 /*
  * PORT121:	This container is the base of a multiple configuration set.
  */
@@ -246,5 +433,9 @@ const Port_ConfigType Port_Config[] = {
   { /* PORT_CONFIG_SCI */
     0x00000004,		/* PortNumberOfPortPins	*/
     &SCIPortPins[0]	/* PortPins		*/
+  },
+  { /* PORT_CONFIG_SPI_ENC28J60 */
+    0x00000004,			/* PortNumberOfPortPins	*/
+    &SPIENC28J60PortPins[0]	/* PortPins		*/
   }
 };

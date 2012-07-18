@@ -253,8 +253,11 @@
 /** SCI Pin Mode. */
 #define	PORT_PIN_MODE_SCI	0x00000001
 
+/** SPI Pin Mode. */
+#define	PORT_PIN_MODE_SPI	0x00000002
+
 /** Number of Port Pin Modes */
-#define	PORT_PIN_MODES_NUMBER	PORT_PIN_MODE_SCI + 1
+#define	PORT_PIN_MODES_NUMBER	PORT_PIN_MODE_SPI + 1
 
 /*
  * Port Pin Mode Hardware Configuration Data Values.
@@ -382,6 +385,83 @@
 #define	PORT_K_PIN_4_PMC_SCI_7_RX	PORT_K_PMC_SCI_7
 /** Port K - Pin 5 Mux Control Sci 7 Tx */
 #define	PORT_K_PIN_5_PMC_SCI_7_TX	PORT_K_PMC_SCI_7
+
+/** Port A Mux Control Spi 0 */
+#define	PORT_A_PMC_SPI_0		0x00000002
+/** Port A - Pin 2 Mux Control Spi 0 Clk */
+#define	PORT_A_PIN_2_PMC_SPI_0_CLK	PORT_A_PMC_SPI_0
+/** Port A - Pin 3 Mux Control Spi 0 Cs */
+#define	PORT_A_PIN_3_PMC_SPI_0_CS	PORT_A_PMC_SPI_0
+/** Port A - Pin 4 Mux Control Spi 0 Rx */
+#define	PORT_A_PIN_4_PMC_SPI_0_RX	PORT_A_PMC_SPI_0
+/** Port A - Pin 5 Mux Control Spi 0 Tx */
+#define	PORT_A_PIN_5_PMC_SPI_0_TX	PORT_A_PMC_SPI_0
+/** Port B Mux Control Spi 2 */
+#define	PORT_B_PMC_SPI_2		0x00000002
+/** Port B - Pin 4 Mux Control Spi 2 Clk */
+#define	PORT_B_PIN_4_PMC_SPI_2_CLK	PORT_A_PMC_SPI_2
+/** Port B - Pin 5 Mux Control Spi 2 Cs */
+#define	PORT_B_PIN_5_PMC_SPI_2_CS	PORT_A_PMC_SPI_2
+/** Port D Mux Control Spi 1 */
+#define	PORT_D_PMC_SPI_1		0x00000002
+/** Port D - Pin 0 Mux Control Spi 1 Clk */
+#define	PORT_D_PIN_0_PMC_SPI_1_CLK	PORT_D_PMC_SPI_1
+/** Port D - Pin 1 Mux Control Spi 1 Cs */
+#define	PORT_D_PIN_1_PMC_SPI_1_CS	PORT_D_PMC_SPI_1
+/** Port D - Pin 2 Mux Control Spi 1 Rx */
+#define	PORT_D_PIN_2_PMC_SPI_1_RX	PORT_D_PMC_SPI_1
+/** Port D - Pin 3 Mux Control Spi 1 Tx */
+#define	PORT_D_PIN_3_PMC_SPI_1_TX	PORT_D_PMC_SPI_1
+/** Port D Mux Control Spi 3 */
+#define	PORT_D_PMC_SPI_3		0x00000001
+/** Port D - Pin 0 Mux Control Spi 3 Clk */
+#define	PORT_D_PIN_0_PMC_SPI_3_CLK	PORT_D_PMC_SPI_3
+/** Port D - Pin 1 Mux Control Spi 3 Cs */
+#define	PORT_D_PIN_1_PMC_SPI_3_CS	PORT_D_PMC_SPI_3
+/** Port D - Pin 2 Mux Control Spi 3 Rx */
+#define	PORT_D_PIN_2_PMC_SPI_3_RX	PORT_D_PMC_SPI_3
+/** Port D - Pin 3 Mux Control Spi 3 Tx */
+#define	PORT_D_PIN_3_PMC_SPI_3_TX	PORT_D_PMC_SPI_3
+/** Port F Mux Control Spi 1 */
+#define	PORT_F_PMC_SPI_1		0x00000002
+/** Port F - Pin 0 Mux Control Spi 1 Rx */
+#define	PORT_F_PIN_0_PMC_SPI_1_RX	PORT_F_PMC_SPI_1
+/** Port F - Pin 1 Mux Control Spi 1 Tx */
+#define	PORT_F_PIN_1_PMC_SPI_1_TX	PORT_F_PMC_SPI_1
+/** Port F - Pin 2 Mux Control Spi 1 Clk */
+#define	PORT_F_PIN_2_PMC_SPI_1_CLK	PORT_F_PMC_SPI_1
+/** Port F - Pin 3 Mux Control Spi 1 Cs */
+#define	PORT_F_PIN_3_PMC_SPI_1_CS	PORT_F_PMC_SPI_1
+/** Port H Mux Control Spi 3 */
+#define	PORT_H_PMC_SPI_3		0x00000002
+/** Port H - Pin 0 Mux Control Spi 3 Clk */
+#define	PORT_H_PIN_0_PMC_SPI_3_CLK	PORT_H_PMC_SPI_3
+/** Port H - Pin 1 Mux Control Spi 3 Cs */
+#define	PORT_H_PIN_1_PMC_SPI_3_CS	PORT_H_PMC_SPI_3
+/** Port H - Pin 2 Mux Control Spi 3 Rx */
+#define	PORT_H_PIN_2_PMC_SPI_3_RX	PORT_H_PMC_SPI_3
+/** Port H - Pin 3 Mux Control Spi 3 Tx */
+#define	PORT_H_PIN_3_PMC_SPI_3_TX	PORT_H_PMC_SPI_3
+/** Port H Mux Control Spi 2 */
+#define	PORT_H_PMC_SPI_2		0x00000002
+/** Port H - Pin 4 Mux Control Spi 2 Clk */
+#define	PORT_H_PIN_4_PMC_SPI_2_CLK	PORT_H_PMC_SPI_2
+/** Port H - Pin 5 Mux Control Spi 2 Cs */
+#define	PORT_H_PIN_5_PMC_SPI_2_CS	PORT_H_PMC_SPI_2
+/** Port H - Pin 6 Mux Control Spi 2 Rx */
+#define	PORT_H_PIN_6_PMC_SPI_2_RX	PORT_H_PMC_SPI_2
+/** Port H - Pin 7 Mux Control Spi 2 Tx */
+#define	PORT_H_PIN_7_PMC_SPI_2_TX	PORT_H_PMC_SPI_2
+/** Port K Mux Control Spi 3 */
+#define	PORT_K_PMC_SPI_3		0x00000002
+/** Port K - Pin 0 Mux Control Spi 3 Clk */
+#define	PORT_K_PIN_0_PMC_SPI_3_CLK	PORT_K_PMC_SPI_3
+/** Port K - Pin 1 Mux Control Spi 3 Cs */
+#define	PORT_K_PIN_1_PMC_SPI_3_CS	PORT_K_PMC_SPI_3
+/** Port K - Pin 2 Mux Control Spi 3 Rx */
+#define	PORT_K_PIN_2_PMC_SPI_3_RX	PORT_K_PMC_SPI_3
+/** Port K - Pin 3 Mux Control Spi 3 Tx */
+#define	PORT_K_PIN_3_PMC_SPI_3_TX	PORT_K_PMC_SPI_3
 
 /** @brief	Pin Mode Configuration Parameters
  *
@@ -524,5 +604,14 @@ typedef struct {
  *  Pointer of Port Pins as SCI Port Driver Configuration.
  */
 #define	PORT_CONFIG_SCI_PTR	&Port_Config[PORT_CONFIG_SCI]
-
+/** @brief	Port Pins SPI Microchip ENC28J60 Configuration
+ *
+ *  Identifier for Port Pins as SPI Microchip ENC28J60 Configuration.
+ */
+#define	PORT_CONFIG_SPI_ENC28J60	0x00000002
+/** @brief	Port Pins SPI Microchip ENC28J60 Configuration Pointer
+ *
+ *  Pointer of Port Pins as SPI Microchip ENC28J60 Port Driver Configuration.
+ */
+#define	PORT_CONFIG_SPI_ENC28J60_PTR	&Port_Config[PORT_CONFIG_SPI_ENC28J60]
 #endif	/* PORT_CFG_H */

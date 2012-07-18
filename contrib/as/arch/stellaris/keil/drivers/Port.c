@@ -174,23 +174,25 @@ Port_GlobalType Port_Global =
 #define	GPIO_SET_PIN_REG(_pin,_val,_ofs) \
 do { \
   if ( _val == STD_OFF ) \
-    HW_CH_2_MOD_REG(_pin, _ofs) &= ~(_val << HW_CH_2_UNIT(_pin)); \
+    HW_CH_2_MOD_REG(_pin, _ofs) &= ~((uint32)STD_ON << HW_CH_2_UNIT(_pin)); \
   else \
-    HW_CH_2_MOD_REG(_pin, _ofs) |= (_val << HW_CH_2_UNIT(_pin)); \
+    HW_CH_2_MOD_REG(_pin, _ofs) |= ((uint32)STD_ON << HW_CH_2_UNIT(_pin)); \
 } while(0)
 
-#define	GPIO_PORT_DIR_R_OFFSET		0x00000400
-#define	GPIO_PORT_AFSEL_R_OFFSET	0x00000420
-#define	GPIO_PORT_DR2R_R_OFFSET		0x00000500
-#define	GPIO_PORT_DR4R_R_OFFSET		0x00000504
-#define	GPIO_PORT_DR8R_R_OFFSET		0x00000508
-#define	GPIO_PORT_ODR_R_OFFSET		0x0000050C
-#define	GPIO_PORT_PUR_R_OFFSET		0x00000510
-#define	GPIO_PORT_PDR_R_OFFSET		0x00000514
-#define	GPIO_PORT_SLR_R_OFFSET		0x00000518
-#define	GPIO_PORT_DEN_R_OFFSET		0x0000051C
-#define	GPIO_PORT_AMSEL_R_OFFSET	0x00000528
-#define	GPIO_PORT_CTL_R_OFFESET		0x0000052C
+#define	GPIO_PORT_DIR_R_OFFSET			0x00000400
+#define	GPIO_PORT_AFSEL_R_OFFSET		0x00000420
+#define	GPIO_PORT_DR2R_R_OFFSET			0x00000500
+#define	GPIO_PORT_DR4R_R_OFFSET			0x00000504
+#define	GPIO_PORT_DR8R_R_OFFSET			0x00000508
+#define	GPIO_PORT_ODR_R_OFFSET			0x0000050C
+#define	GPIO_PORT_PUR_R_OFFSET			0x00000510
+#define	GPIO_PORT_PDR_R_OFFSET			0x00000514
+#define	GPIO_PORT_SLR_R_OFFSET			0x00000518
+#define	GPIO_PORT_DEN_R_OFFSET			0x0000051C
+#define	GPIO_PORT_LOCK_R_OFFSET			0x00000520
+#define	GPIO_PORT_COMMIT_R_OFFSET		0x00000524
+#define	GPIO_PORT_AMSEL_R_OFFSET		0x00000528
+#define	GPIO_PORT_CTL_R_OFFSET			0x0000052C
 
 #define	GPIO_SET_PIN_DIR(_pin,_dir)	\
 	GPIO_SET_PIN_REG(_pin,_dir,GPIO_PORT_DIR_R_OFFSET)
@@ -212,6 +214,10 @@ do { \
 	GPIO_SET_PIN_REG(_pin,_val,GPIO_PORT_SLR_R_OFFSET)
 #define	GPIO_SET_PIN_DEN(_pin,_val)	\
 	GPIO_SET_PIN_REG(_pin,_val,GPIO_PORT_DEN_R_OFFSET)
+#define	GPIO_SET_PIN_LOCK(_pin,_val)	\
+	GPIO_SET_PIN_REG(_pin,_val,GPIO_PORT_LOCK_R_OFFSET)
+#define	GPIO_SET_PIN_COMMIT(_pin,_val)	\
+	GPIO_SET_PIN_REG(_pin,_val,GPIO_PORT_COMMIT_R_OFFSET)
 #define	GPIO_SET_PIN_AMSEL(_pin,_val)	\
 	GPIO_SET_PIN_REG(_pin,_val,GPIO_PORT_AMSEL_R_OFFSET)
 
@@ -219,21 +225,25 @@ do { \
 #define	PORT_PIN_HW_CFG_PMC_M_SZ_S	0x00000002
 
 #define	GPIO_SET_PIN_PMC(_pin,_pmc)	\
-  EE_HWREG(HW_CH_2_MOD_BASE_ADDR(_pin) + GPIO_PORT_CTL_R_OFFESET) &= ~(\
+  EE_HWREG(HW_CH_2_MOD_BASE_ADDR(_pin) + GPIO_PORT_CTL_R_OFFSET) &= ~(\
 	PORT_PIN_HW_CFG_PMC_M << (\
 		HW_CH_2_UNIT(_pin) << PORT_PIN_HW_CFG_PMC_M_SZ_S\
 	)\
   ); \
-  EE_HWREG(HW_CH_2_MOD_BASE_ADDR(_pin) + GPIO_PORT_CTL_R_OFFESET) |= (\
+  EE_HWREG(HW_CH_2_MOD_BASE_ADDR(_pin) + GPIO_PORT_CTL_R_OFFSET) |= (\
 	(_pmc & PORT_PIN_HW_CFG_PMC_M) << (\
 		HW_CH_2_UNIT(_pin) << PORT_PIN_HW_CFG_PMC_M_SZ_S\
 	)\
   )
 
+/* LOCK and COMMIT special masks */
+#define GPIO_LOCK_PASSWORD 0x4C4F434BU
+#define GPIO_COMMIT_MASK   0x000000FFU
+
 /*
  * Port Pin Mode Hardware Configuration.
  */
-static void Port_SetPortPinHWMode(
+static void Port_SetPortPinHWMode_Impl(
   Port_PinType			Pin,
   const Port_PinModeConfType *	ConfigPtr
 )
@@ -299,12 +309,12 @@ static void Port_SetPortPinHWMode(
       /* Sets-up Slew-rate Control */
       if ( mode & PORT_PIN_HW_CFG_SLR ) {
 
-	GPIO_SET_PIN_SLR(Pin, STD_ON);
+        GPIO_SET_PIN_SLR(Pin, STD_ON);
 
       }
       else {
 
-	GPIO_SET_PIN_SLR(Pin, STD_OFF);
+        GPIO_SET_PIN_SLR(Pin, STD_OFF);
 
       }
 
@@ -323,24 +333,24 @@ static void Port_SetPortPinHWMode(
       /* Sets-up Pull-Up */
       if ( mode & PORT_PIN_HW_CFG_PUR ) {
 
-	GPIO_SET_PIN_PUR(Pin, STD_ON);
+        GPIO_SET_PIN_PUR(Pin, STD_ON);
 
       }
       else {
 
-	GPIO_SET_PIN_PUR(Pin, STD_OFF);
+        GPIO_SET_PIN_PUR(Pin, STD_OFF);
 
       }
 
       /* Sets-up Pull-Down */
       if ( mode & PORT_PIN_HW_CFG_PDR ) {
 
-	GPIO_SET_PIN_PDR(Pin, STD_ON);
+        GPIO_SET_PIN_PDR(Pin, STD_ON);
 
       }
       else {
 
-	GPIO_SET_PIN_PDR(Pin, STD_OFF);
+        GPIO_SET_PIN_PDR(Pin, STD_OFF);
 
       }
 
@@ -362,10 +372,36 @@ static void Port_SetPortPinHWMode(
 
 }
 
+/* Handle Configuration Lock for special pins */
+static void Port_SetPortPinHWMode(
+  Port_PinType			Pin,
+  const Port_PinModeConfType *	ConfigPtr
+)
+{
+  switch(Pin) {
+    case PORT_C_PIN_0:
+    case PORT_C_PIN_1:
+    case PORT_C_PIN_2:
+    case PORT_C_PIN_3:
+    case PORT_D_PIN_7:
+    case PORT_F_PIN_0:
+      /* Unlock the register to change it's configuration */
+      GPIO_SET_PIN_LOCK(Pin,GPIO_LOCK_PASSWORD);
+      /* Enable Pin Configuration changes */
+      GPIO_SET_PIN_COMMIT(Pin,GPIO_COMMIT_MASK);
+      Port_SetPortPinHWMode_Impl(Pin, ConfigPtr);
+      /* To Re-Lock just write something different than the correct unlock password */
+      GPIO_SET_PIN_LOCK(Pin,0x00000000U);
+    break;
+    default:
+      Port_SetPortPinHWMode_Impl(Pin, ConfigPtr);
+  }
+}
+
 /*
  * Port Pin Initialization.
  */
-static void Port_InitPortPin(
+static void Port_InitPortPin_Impl(
   const Port_PinConfType *	ConfigPtr
 )
 {
@@ -403,14 +439,40 @@ static void Port_InitPortPin(
     ) {
 
       Port_SetPortPinHWMode(
-	ConfigPtr->PortPinId,
-	&(ConfigPtr->PortPinSupportedModes[mode])
+        ConfigPtr->PortPinId,
+        &(ConfigPtr->PortPinSupportedModes[mode])
       );
 
     }
 
   }
 
+}
+
+/* Handle Configuration Lock for special pins */
+static void Port_InitPortPin(
+  const Port_PinConfType *	ConfigPtr
+) 
+{
+  const Port_PinType Pin = ConfigPtr->PortPinId;
+  switch(Pin) {
+    case PORT_C_PIN_0:
+    case PORT_C_PIN_1:
+    case PORT_C_PIN_2:
+    case PORT_C_PIN_3:
+    case PORT_D_PIN_7:
+    case PORT_F_PIN_0:
+      /* Unlock the register to change it's configuration */
+      GPIO_SET_PIN_LOCK(Pin,GPIO_LOCK_PASSWORD);
+      /* Enable Pin Configuration changes */
+      GPIO_SET_PIN_COMMIT(Pin,GPIO_COMMIT_MASK);
+      Port_InitPortPin_Impl(ConfigPtr);
+      /* To Re-Lock just write something different than the correct unlock password */
+      GPIO_SET_PIN_LOCK(Pin,0x00000000U);
+    break;
+    default:
+      Port_InitPortPin_Impl(ConfigPtr);
+  }
 }
 
 /*
