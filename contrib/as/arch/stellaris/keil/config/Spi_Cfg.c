@@ -1814,6 +1814,356 @@ const Spi_SequenceConfigType		Spi_LBMSequenceConfig[] = {
 
 #endif	/* __AS_CFG_SPI_LBM__ */
 
+#ifdef __AS_CFG_SPI_ENC28J60__
+const Spi_ChannelConfigType Spi_Enc28j60ChannelConfig[] = {
+  {
+    SPI_ENC28J60_CHANNEL_COMMAND,       /* SpiChannelId.   */
+#if ( SPI_CHANNEL_BUFFERS_ALLOWED == 2 )
+    SPI_IB,                             /* SpiChannelType. */
+#endif
+    SPI_ENC28J60_DEFAULT_DATA,          /* SpiDefaultData. */
+#if (\
+  ( SPI_CHANNEL_BUFFERS_ALLOWED == 1 ) || ( SPI_CHANNEL_BUFFERS_ALLOWED == 2 )\
+)
+    SPI_ENC28J60_CHANNEL_COMMAND_SIZE,  /* SpiEbMaxLength. */
+#endif
+#if ( SPI_LEVEL_DELIVERED == 2 )
+    SPI_SYNCHRONOUS,                    /* SpiHwUnitSynchronous. */
+#endif
+#if	(\
+  ( SPI_CHANNEL_BUFFERS_ALLOWED == 0 ) || ( SPI_CHANNEL_BUFFERS_ALLOWED == 2 )\
+)
+    SPI_ENC28J60_CHANNEL_COMMAND_SIZE,  /* SpiIbNBuffers. */
+#endif
+  },
+  {
+    SPI_ENC28J60_CHANNEL_DUMMY,         /* SpiChannelId.   */
+#if ( SPI_CHANNEL_BUFFERS_ALLOWED == 2 )
+    SPI_IB,                             /* SpiChannelType. */
+#endif
+    SPI_ENC28J60_DEFAULT_DATA,          /* SpiDefaultData. */
+#if (\
+  ( SPI_CHANNEL_BUFFERS_ALLOWED == 1 ) || ( SPI_CHANNEL_BUFFERS_ALLOWED == 2 )\
+)
+    SPI_ENC28J60_CHANNEL_DUMMY_SIZE,    /* SpiEbMaxLength. */
+#endif
+#if ( SPI_LEVEL_DELIVERED == 2 )
+    SPI_SYNCHRONOUS,                    /* SpiHwUnitSynchronous. */
+#endif
+#if (\
+  ( SPI_CHANNEL_BUFFERS_ALLOWED == 0 ) || ( SPI_CHANNEL_BUFFERS_ALLOWED == 2 )\
+)
+    SPI_ENC28J60_CHANNEL_DUMMY_SIZE,    /* SpiIbNBuffers. */
+#endif
+  },
+  {
+    SPI_ENC28J60_CHANNEL_REG,           /* SpiChannelId.   */
+#if ( SPI_CHANNEL_BUFFERS_ALLOWED == 2 )
+    SPI_IB,                             /* SpiChannelType. */
+#endif
+    SPI_ENC28J60_DEFAULT_DATA,          /* SpiDefaultData. */
+#if (\
+  ( SPI_CHANNEL_BUFFERS_ALLOWED == 1 ) || ( SPI_CHANNEL_BUFFERS_ALLOWED == 2 )\
+)
+    SPI_ENC28J60_CHANNEL_REG_SIZE,      /* SpiEbMaxLength. */
+#endif
+#if ( SPI_LEVEL_DELIVERED == 2 )
+    SPI_SYNCHRONOUS,                    /* SpiHwUnitSynchronous. */
+#endif
+#if (\
+  ( SPI_CHANNEL_BUFFERS_ALLOWED == 0 ) || ( SPI_CHANNEL_BUFFERS_ALLOWED == 2 )\
+)
+    SPI_ENC28J60_CHANNEL_REG_SIZE,      /* SpiIbNBuffers. */
+#endif
+  },
+{
+    SPI_ENC28J60_CHANNEL_BUFFER,        /* SpiChannelId.   */
+#if ( SPI_CHANNEL_BUFFERS_ALLOWED == 2 )
+    SPI_EB,                             /* SpiChannelType. */
+#endif
+    SPI_ENC28J60_DEFAULT_DATA,          /* SpiDefaultData. */
+#if (\
+  ( SPI_CHANNEL_BUFFERS_ALLOWED == 1 ) || ( SPI_CHANNEL_BUFFERS_ALLOWED == 2 )\
+)
+    SPI_ENC28J60_CHANNEL_BUFFER_SIZE,   /* SpiEbMaxLength. */
+#endif
+#if ( SPI_LEVEL_DELIVERED == 2 )
+    SPI_SYNCHRONOUS,                    /* SpiHwUnitSynchronous. */
+#endif
+#if (\
+  ( SPI_CHANNEL_BUFFERS_ALLOWED == 0 ) || ( SPI_CHANNEL_BUFFERS_ALLOWED == 2 )\
+)
+    SPI_ENC28J60_CHANNEL_BUFFER_SIZE,   /* SpiIbNBuffers. */
+#endif
+  }
+};
+
+const Spi_ExternalDeviceConfigType  Spi_Enc28j60ExternalDeviceConfig[] = {
+  {
+    1E6,                    /* SpiBaudrate */
+    SPI_ENC28J60_CS_0,      /* SpiCsIdentifier */
+    SPI_LEADING,            /* SpiDataShiftEdge */
+    SPI_HW_UNIT_0,          /* SpiHwUnit */
+    SPI_LOW,                /* SpiShiftClockIdleLevel */
+#if ( SPI_LEVEL_DELIVERED == 2 )
+    SPI_SYNCHRONOUS,        /* SpiHwUnitSynchronous. */
+#endif
+    SPI_HW_UNIT_MASTER,     /* - Master */
+    TRUE,                   /* SpiSysClock. */
+    DMA_CHANNEL_SPI_3_RX,   /* SpiDmaRxChannel. */
+    DMA_CHANNEL_SPI_3_TX,   /* SpiDmaTxChannel. */
+  }
+};
+
+const Spi_ChannelType Spi_Enc28j60CRChannelList[] = {
+  SPI_ENC28J60_CHANNEL_COMMAND,
+  SPI_ENC28J60_CHANNEL_REG,
+  SPI_CHANNEL_END_LIST
+};
+
+const Spi_ChannelType Spi_Enc28j60CRWithDummyChannelList[] = {
+  SPI_ENC28J60_CHANNEL_COMMAND,
+  SPI_ENC28J60_CHANNEL_DUMMY,
+  SPI_ENC28J60_CHANNEL_REG,
+  SPI_CHANNEL_END_LIST
+};
+
+const Spi_ChannelType Spi_Enc28j60BufferMemoryChannelList[] = {
+  SPI_ENC28J60_CHANNEL_COMMAND,
+  SPI_ENC28J60_CHANNEL_BUFFER,
+  SPI_CHANNEL_END_LIST
+};
+
+const Spi_JobConfigType Spi_Enc28j60JobConfig[] = {
+  {
+#if ( ( SPI_LEVEL_DELIVERED == 1 ) || ( SPI_LEVEL_DELIVERED == 2 ) )
+    NULL_PTR,                                   /* SpiJobEndNotification. */
+#endif
+    SPI_ENC28J60_JOB_RCR_ETH,                   /* SpiJobId. */
+#if ( ( SPI_LEVEL_DELIVERED == 1 ) || ( SPI_LEVEL_DELIVERED == 2 ) )
+#if ( SPI_INTERRUPTIBLE_SEQ_ALLOWED == STD_ON )
+    SPI_ENC28J60_JOB_PRI,                       /* SpiJobPriority. */
+#endif  /* ( SPI_INTERRUPTIBLE_SEQ_ALLOWED == STD_ON ) */
+#endif  /* ( ( SPI_LEVEL_DELIVERED == 1 ) || ( SPI_LEVEL_DELIVERED == 2 ) ) */
+    SPI_ENC28J60_CS_0,                          /* SpiDeviceAssignment. */
+    &Spi_Enc28j60CRChannelList[0]               /* SpiChannelList. */
+  },
+  {
+#if ( ( SPI_LEVEL_DELIVERED == 1 ) || ( SPI_LEVEL_DELIVERED == 2 ) )
+    NULL_PTR,                                   /* SpiJobEndNotification. */
+#endif
+    SPI_ENC28J60_JOB_RCR_MAC_OR_MII,            /* SpiJobId. */
+#if ( ( SPI_LEVEL_DELIVERED == 1 ) || ( SPI_LEVEL_DELIVERED == 2 ) )
+#if ( SPI_INTERRUPTIBLE_SEQ_ALLOWED == STD_ON )
+    SPI_ENC28J60_JOB_PRI,                       /* SpiJobPriority. */
+#endif  /* ( SPI_INTERRUPTIBLE_SEQ_ALLOWED == STD_ON ) */
+#endif  /* ( ( SPI_LEVEL_DELIVERED == 1 ) || ( SPI_LEVEL_DELIVERED == 2 ) ) */
+    SPI_ENC28J60_CS_0,                          /* SpiDeviceAssignment. */
+    &Spi_Enc28j60CRWithDummyChannelList[0]      /* SpiChannelList. */
+  },
+  {
+#if ( ( SPI_LEVEL_DELIVERED == 1 ) || ( SPI_LEVEL_DELIVERED == 2 ) )
+    NULL_PTR,                                   /* SpiJobEndNotification. */
+#endif
+    SPI_ENC28J60_JOB_RBM,                       /* SpiJobId. */
+#if ( ( SPI_LEVEL_DELIVERED == 1 ) || ( SPI_LEVEL_DELIVERED == 2 ) )
+#if ( SPI_INTERRUPTIBLE_SEQ_ALLOWED == STD_ON )
+    SPI_ENC28J60_JOB_PRI,                       /* SpiJobPriority. */
+#endif  /* ( SPI_INTERRUPTIBLE_SEQ_ALLOWED == STD_ON ) */
+#endif  /* ( ( SPI_LEVEL_DELIVERED == 1 ) || ( SPI_LEVEL_DELIVERED == 2 ) ) */
+    SPI_ENC28J60_CS_0,                          /* SpiDeviceAssignment. */
+    &Spi_Enc28j60BufferMemoryChannelList[0]     /* SpiChannelList. */
+  },
+  {
+#if ( ( SPI_LEVEL_DELIVERED == 1 ) || ( SPI_LEVEL_DELIVERED == 2 ) )
+    NULL_PTR,                                   /* SpiJobEndNotification. */
+#endif
+    SPI_ENC28J60_JOB_WCR,                       /* SpiJobId. */
+#if ( ( SPI_LEVEL_DELIVERED == 1 ) || ( SPI_LEVEL_DELIVERED == 2 ) )
+#if ( SPI_INTERRUPTIBLE_SEQ_ALLOWED == STD_ON )
+    SPI_ENC28J60_JOB_PRI,                       /* SpiJobPriority. */
+#endif  /* ( SPI_INTERRUPTIBLE_SEQ_ALLOWED == STD_ON ) */
+#endif  /* ( ( SPI_LEVEL_DELIVERED == 1 ) || ( SPI_LEVEL_DELIVERED == 2 ) ) */
+    SPI_ENC28J60_CS_0,                          /* SpiDeviceAssignment. */
+    &Spi_Enc28j60CRChannelList[0]               /* SpiChannelList. */
+  },
+  {
+#if ( ( SPI_LEVEL_DELIVERED == 1 ) || ( SPI_LEVEL_DELIVERED == 2 ) )
+    NULL_PTR,                                   /* SpiJobEndNotification. */
+#endif
+    SPI_ENC28J60_JOB_WBM,                       /* SpiJobId. */
+#if ( ( SPI_LEVEL_DELIVERED == 1 ) || ( SPI_LEVEL_DELIVERED == 2 ) )
+#if ( SPI_INTERRUPTIBLE_SEQ_ALLOWED == STD_ON )
+    SPI_ENC28J60_JOB_PRI,                       /* SpiJobPriority. */
+#endif  /* ( SPI_INTERRUPTIBLE_SEQ_ALLOWED == STD_ON ) */
+#endif  /* ( ( SPI_LEVEL_DELIVERED == 1 ) || ( SPI_LEVEL_DELIVERED == 2 ) ) */
+    SPI_ENC28J60_CS_0,                          /* SpiDeviceAssignment. */
+    &Spi_Enc28j60BufferMemoryChannelList[0]     /* SpiChannelList. */
+  },
+  {
+#if ( ( SPI_LEVEL_DELIVERED == 1 ) || ( SPI_LEVEL_DELIVERED == 2 ) )
+    NULL_PTR,                                   /* SpiJobEndNotification. */
+#endif
+    SPI_ENC28J60_JOB_BFS,                       /* SpiJobId. */
+#if ( ( SPI_LEVEL_DELIVERED == 1 ) || ( SPI_LEVEL_DELIVERED == 2 ) )
+#if ( SPI_INTERRUPTIBLE_SEQ_ALLOWED == STD_ON )
+    SPI_ENC28J60_JOB_PRI,                       /* SpiJobPriority. */
+#endif  /* ( SPI_INTERRUPTIBLE_SEQ_ALLOWED == STD_ON ) */
+#endif  /* ( ( SPI_LEVEL_DELIVERED == 1 ) || ( SPI_LEVEL_DELIVERED == 2 ) ) */
+    SPI_ENC28J60_CS_0,                          /* SpiDeviceAssignment. */
+    &Spi_Enc28j60CRChannelList[0]               /* SpiChannelList. */
+  },
+  {
+#if ( ( SPI_LEVEL_DELIVERED == 1 ) || ( SPI_LEVEL_DELIVERED == 2 ) )
+    NULL_PTR,                                   /* SpiJobEndNotification. */
+#endif
+    SPI_ENC28J60_JOB_BFC,                       /* SpiJobId. */
+#if ( ( SPI_LEVEL_DELIVERED == 1 ) || ( SPI_LEVEL_DELIVERED == 2 ) )
+#if ( SPI_INTERRUPTIBLE_SEQ_ALLOWED == STD_ON )
+    SPI_ENC28J60_JOB_PRI,                       /* SpiJobPriority. */
+#endif  /* ( SPI_INTERRUPTIBLE_SEQ_ALLOWED == STD_ON ) */
+#endif  /* ( ( SPI_LEVEL_DELIVERED == 1 ) || ( SPI_LEVEL_DELIVERED == 2 ) ) */
+    SPI_ENC28J60_CS_0,                          /* SpiDeviceAssignment. */
+    &Spi_Enc28j60CRChannelList[0]               /* SpiChannelList. */
+  },
+  {
+#if ( ( SPI_LEVEL_DELIVERED == 1 ) || ( SPI_LEVEL_DELIVERED == 2 ) )
+    NULL_PTR,                                   /* SpiJobEndNotification. */
+#endif
+    SPI_ENC28J60_JOB_SRC,                       /* SpiJobId. */
+#if ( ( SPI_LEVEL_DELIVERED == 1 ) || ( SPI_LEVEL_DELIVERED == 2 ) )
+#if ( SPI_INTERRUPTIBLE_SEQ_ALLOWED == STD_ON )
+    SPI_ENC28J60_JOB_PRI,                       /* SpiJobPriority. */
+#endif  /* ( SPI_INTERRUPTIBLE_SEQ_ALLOWED == STD_ON ) */
+#endif  /* ( ( SPI_LEVEL_DELIVERED == 1 ) || ( SPI_LEVEL_DELIVERED == 2 ) ) */
+    SPI_ENC28J60_CS_0,                          /* SpiDeviceAssignment. */
+    &Spi_Enc28j60CRChannelList[0]               /* SpiChannelList. */
+  }
+};
+
+const Spi_JobType   Spi_Enc28j60SeqRcrEthJobAssignment[] = {
+  SPI_ENC28J60_JOB_RCR_ETH,
+  SPI_JOB_END_LIST      /* - End List Marker. */
+};
+
+const Spi_JobType   Spi_Enc28j60SeqRcrMacOrMiiJobAssignment[] = {
+  SPI_ENC28J60_JOB_RCR_MAC_OR_MII,
+  SPI_JOB_END_LIST      /* - End List Marker. */
+};
+const Spi_JobType   Spi_Enc28j60SeqRbmJobAssignment[] = {
+  SPI_ENC28J60_JOB_RBM,
+  SPI_JOB_END_LIST      /* - End List Marker. */
+};
+
+const Spi_JobType   Spi_Enc28j60SeqWcrJobAssignment[] = {
+  SPI_ENC28J60_JOB_WCR,
+  SPI_JOB_END_LIST      /* - End List Marker. */
+};
+
+const Spi_JobType   Spi_Enc28j60SeqWbmJobAssignment[] = {
+  SPI_ENC28J60_JOB_WBM,
+  SPI_JOB_END_LIST      /* - End List Marker. */
+};
+
+const Spi_JobType   Spi_Enc28j60SeqBfsJobAssignment[] = {
+  SPI_ENC28J60_JOB_BFS,
+  SPI_JOB_END_LIST      /* - End List Marker. */
+};
+
+const Spi_JobType   Spi_Enc28j60SeqBfcJobAssignment[] = {
+  SPI_ENC28J60_JOB_BFC,
+  SPI_JOB_END_LIST      /* - End List Marker. */
+};
+
+const Spi_JobType   Spi_Enc28j60SeqSrcJobAssignment[] = {
+  SPI_ENC28J60_JOB_SRC,
+  SPI_JOB_END_LIST      /* - End List Marker. */
+};
+
+const Spi_SequenceConfigType  Spi_Enc28j60SequenceConfig[] = {
+  {
+#if ( ( SPI_LEVEL_DELIVERED == 1 ) || ( SPI_LEVEL_DELIVERED == 2 ) )
+#if ( SPI_INTERRUPTIBLE_SEQ_ALLOWED == STD_ON )
+    FALSE,                                /* SpiInterruptibleSequence. */
+#endif /* ( SPI_INTERRUPTIBLE_SEQ_ALLOWED == STD_ON ) */
+    NULL_PTR,                             /* Spi_SeqEndNotification. */
+#endif  /* ( ( SPI_LEVEL_DELIVERED == 1 ) || ( SPI_LEVEL_DELIVERED == 2 ) ) */
+    SPI_ENC28J60_SEQ_RCR_ETH,             /* SpiSequenceId. */
+    &Spi_Enc28j60SeqRcrEthJobAssignment[0] /* SpiJobAssignment. */
+  },
+  {
+#if ( ( SPI_LEVEL_DELIVERED == 1 ) || ( SPI_LEVEL_DELIVERED == 2 ) )
+#if ( SPI_INTERRUPTIBLE_SEQ_ALLOWED == STD_ON )
+    FALSE,                                /* SpiInterruptibleSequence. */
+#endif /* ( SPI_INTERRUPTIBLE_SEQ_ALLOWED == STD_ON ) */
+    NULL_PTR,                             /* Spi_SeqEndNotification. */
+#endif  /* ( ( SPI_LEVEL_DELIVERED == 1 ) || ( SPI_LEVEL_DELIVERED == 2 ) ) */
+    SPI_ENC28J60_SEQ_RCR_MAC_OR_MII,             /* SpiSequenceId. */
+    &Spi_Enc28j60SeqRcrMacOrMiiJobAssignment[0] /* SpiJobAssignment. */
+  },
+  {
+#if ( ( SPI_LEVEL_DELIVERED == 1 ) || ( SPI_LEVEL_DELIVERED == 2 ) )
+#if ( SPI_INTERRUPTIBLE_SEQ_ALLOWED == STD_ON )
+    FALSE,                                /* SpiInterruptibleSequence. */
+#endif /* ( SPI_INTERRUPTIBLE_SEQ_ALLOWED == STD_ON ) */
+    NULL_PTR,                             /* Spi_SeqEndNotification. */
+#endif  /* ( ( SPI_LEVEL_DELIVERED == 1 ) || ( SPI_LEVEL_DELIVERED == 2 ) ) */
+    SPI_ENC28J60_SEQ_RBM,                 /* SpiSequenceId. */
+    &Spi_Enc28j60SeqRbmJobAssignment[0]   /* SpiJobAssignment. */
+  },
+  {
+#if ( ( SPI_LEVEL_DELIVERED == 1 ) || ( SPI_LEVEL_DELIVERED == 2 ) )
+#if ( SPI_INTERRUPTIBLE_SEQ_ALLOWED == STD_ON )
+    FALSE,                                /* SpiInterruptibleSequence. */
+#endif /* ( SPI_INTERRUPTIBLE_SEQ_ALLOWED == STD_ON ) */
+    NULL_PTR,                             /* Spi_SeqEndNotification. */
+#endif  /* ( ( SPI_LEVEL_DELIVERED == 1 ) || ( SPI_LEVEL_DELIVERED == 2 ) ) */
+    SPI_ENC28J60_SEQ_WCR,                 /* SpiSequenceId. */
+    &Spi_Enc28j60SeqWcrJobAssignment[0]   /* SpiJobAssignment. */
+  },
+  {
+#if ( ( SPI_LEVEL_DELIVERED == 1 ) || ( SPI_LEVEL_DELIVERED == 2 ) )
+#if ( SPI_INTERRUPTIBLE_SEQ_ALLOWED == STD_ON )
+    FALSE,                                /* SpiInterruptibleSequence. */
+#endif /* ( SPI_INTERRUPTIBLE_SEQ_ALLOWED == STD_ON ) */
+    NULL_PTR,                             /* Spi_SeqEndNotification. */
+#endif  /* ( ( SPI_LEVEL_DELIVERED == 1 ) || ( SPI_LEVEL_DELIVERED == 2 ) ) */
+    SPI_ENC28J60_SEQ_WBM,                 /* SpiSequenceId. */
+    &Spi_Enc28j60SeqWbmJobAssignment[0]   /* SpiJobAssignment. */
+  },
+  {
+#if ( ( SPI_LEVEL_DELIVERED == 1 ) || ( SPI_LEVEL_DELIVERED == 2 ) )
+#if ( SPI_INTERRUPTIBLE_SEQ_ALLOWED == STD_ON )
+    FALSE,                                /* SpiInterruptibleSequence. */
+#endif /* ( SPI_INTERRUPTIBLE_SEQ_ALLOWED == STD_ON ) */
+    NULL_PTR,                             /* Spi_SeqEndNotification. */
+#endif  /* ( ( SPI_LEVEL_DELIVERED == 1 ) || ( SPI_LEVEL_DELIVERED == 2 ) ) */
+    SPI_ENC28J60_SEQ_BFS,                 /* SpiSequenceId. */
+    &Spi_Enc28j60SeqBfsJobAssignment[0]   /* SpiJobAssignment. */
+  },
+  {
+#if ( ( SPI_LEVEL_DELIVERED == 1 ) || ( SPI_LEVEL_DELIVERED == 2 ) )
+#if ( SPI_INTERRUPTIBLE_SEQ_ALLOWED == STD_ON )
+    FALSE,                                /* SpiInterruptibleSequence. */
+#endif /* ( SPI_INTERRUPTIBLE_SEQ_ALLOWED == STD_ON ) */
+    NULL_PTR,                             /* Spi_SeqEndNotification. */
+#endif  /* ( ( SPI_LEVEL_DELIVERED == 1 ) || ( SPI_LEVEL_DELIVERED == 2 ) ) */
+    SPI_ENC28J60_SEQ_BFC,                 /* SpiSequenceId. */
+    &Spi_Enc28j60SeqBfcJobAssignment[0]   /* SpiJobAssignment. */
+  },
+  {
+#if ( ( SPI_LEVEL_DELIVERED == 1 ) || ( SPI_LEVEL_DELIVERED == 2 ) )
+#if ( SPI_INTERRUPTIBLE_SEQ_ALLOWED == STD_ON )
+    FALSE,                                /* SpiInterruptibleSequence. */
+#endif /* ( SPI_INTERRUPTIBLE_SEQ_ALLOWED == STD_ON ) */
+    NULL_PTR,                             /* Spi_SeqEndNotification. */
+#endif  /* ( ( SPI_LEVEL_DELIVERED == 1 ) || ( SPI_LEVEL_DELIVERED == 2 ) ) */
+    SPI_ENC28J60_SEQ_SRC,                 /* SpiSequenceId. */
+    &Spi_Enc28j60SeqSrcJobAssignment[0]   /* SpiJobAssignment. */
+  }
+};
+#endif /* __AS_CFG_SPI_ENC28J60__ */
+
 /*
  * This container is the base of a multiple configuration set.
  */
@@ -1840,4 +2190,16 @@ const Spi_ConfigType			Spi_Config[] = {
     &Spi_LBMSequenceConfig[0]		/* SpiSequence.			      */
   },
 #endif	/* __AS_CFG_SPI_LBM__ */
+#ifdef __AS_CFG_SPI_ENC28J60__
+  {
+    SPI_ENC28J60_CHANNELS_NUMBER,         /* SpiMaxChannel. */
+    SPI_ENC28J60_EXTERNAL_DEVICES_NUMBER, /* SpiMaxExternalDevice. */
+    SPI_TEST_JOBS_NUMBER,                 /* SpiMaxJob. */
+    SPI_ENC28J60_SEQUENCES_NUMBER,        /* SpiMaxSequence. */
+    &Spi_Enc28j60ChannelConfig[0],        /* SpiChannel. */
+    &Spi_Enc28j60ExternalDeviceConfig[0], /* SpiExternalDevice. */
+    &Spi_Enc28j60JobConfig[0],            /* SpiJob. */
+    &Spi_Enc28j60SequenceConfig[0]        /* SpiSequence. */
+  }
+#endif /* __AS_CFG_SPI_ENC28J60__ */
 };

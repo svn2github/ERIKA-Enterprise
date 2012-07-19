@@ -1457,12 +1457,89 @@ void Spi_LBMSeq3EndNotification(
 
 #endif	/* __AS_CFG_SPI_LBM__ */
 
+#ifdef  __AS_CFG_SPI_ENC28J60__
+/** @brief  enc28j60 Read ETH Control Register Sequence */
+#define SPI_ENC28J60_SEQ_RCR_ETH        0U
+/** @brief  enc28j60 Read MAC or MII Control Register Sequence */
+#define SPI_ENC28J60_SEQ_RCR_MAC_OR_MII 1U
+/** @brief  enc28j60 Read Buffer Memory Sequence */
+#define SPI_ENC28J60_SEQ_RBM            2U
+/** @brief  enc28j60 Write Control Register Sequence */
+#define SPI_ENC28J60_SEQ_WCR            3U
+/** @brief  enc28j60 Write Buffer Memory Sequence */
+#define SPI_ENC28J60_SEQ_WBM            4U
+/** @brief  enc28j60 Bit Field Set Sequence */
+#define SPI_ENC28J60_SEQ_BFS            5U
+/** @brief  enc28j60 Bit Field Clear Sequence */
+#define SPI_ENC28J60_SEQ_BFC            6U
+/** @brief  enc28j60 System Reset Command (Soft Reset) */
+#define SPI_ENC28J60_SEQ_SRC            7U
+/** @brief  enc28j60 Sequences Number */
+#define SPI_ENC28J60_SEQUENCES_NUMBER SPI_ENC28J60_SEQ_SRC + 1U
+
+/** @brief  enc28j60 Read ETH Control Register Sequence */
+#define SPI_ENC28J60_JOB_RCR_ETH        0U
+/** @brief  enc28j60 Read MAC or MII Control Register Sequence */
+#define SPI_ENC28J60_JOB_RCR_MAC_OR_MII 1U
+/** @brief  enc28j60 Read Buffer Memory Sequence */
+#define SPI_ENC28J60_JOB_RBM            2U
+/** @brief  enc28j60 Write Control Register Sequence */
+#define SPI_ENC28J60_JOB_WCR            3U
+/** @brief  enc28j60 Write Buffer Memory Sequence */
+#define SPI_ENC28J60_JOB_WBM            4U
+/** @brief  enc28j60 Bit Field Set Sequence */
+#define SPI_ENC28J60_JOB_BFS            5U
+/** @brief  enc28j60 Bit Field Clear Sequence */
+#define SPI_ENC28J60_JOB_BFC            6U
+/** @brief  enc28j60 System Reset Command (Soft Reset) */
+#define SPI_ENC28J60_JOB_SRC            7U
+
+/** @brief  enc28j60 JOB priority (DUMMY -> sync transmission) */
+#define SPI_ENC28J60_JOB_PRI            1U
+
+/* CHANNELS DEFINITIONS FOR JOBS COMPOSITION */
+/** @brief  enc28j60 command channel (is made by opcode + address enc28j60 protocol fields) */
+#define SPI_ENC28J60_CHANNEL_COMMAND    0U
+/** @brief  enc28j60 dummy channel (dummy field of enc28j60 protocol) */
+#define SPI_ENC28J60_CHANNEL_DUMMY      1U
+/** @brief  enc28j60 reg channel (register value) */
+#define SPI_ENC28J60_CHANNEL_REG        2U
+/** @brief  enc28j60 buffer channel (memory buffer value) */
+#define SPI_ENC28J60_CHANNEL_BUFFER     3U
+
+/** @brief  enc28j60 command channel size in bytes */
+#define SPI_ENC28J60_CHANNEL_COMMAND_SIZE 1U
+/** @brief  enc28j60 dummy channel size in bytes */
+#define SPI_ENC28J60_CHANNEL_DUMMY_SIZE   1U
+/** @brief  enc28j60 command channel size in bytes */
+#define SPI_ENC28J60_CHANNEL_REG_SIZE     1U
+/** @brief  enc28j60 buffer channel (memory buffer value) */
+#define SPI_ENC28J60_CHANNEL_BUFFER_SIZE  256U
+
+/** @brief  enc28j60 Channels Number */
+#define SPI_ENC28J60_CHANNELS_NUMBER SPI_ENC28J60_CHANNEL_BUFFER + 1U
+/** @brief  enc28j60 Channels default data */
+#define SPI_ENC28J60_DEFAULT_DATA     0U
+
+#define SPI_ENC28J60_CS_0 0U /**< enc28j60 Mode Chip-Select 0. */
+#define SPI_ENC28J60_CS_1 1U /**< enc28j60 Mode Chip-Select 1. */
+#define SPI_ENC28J60_CS_2 2U /**< enc28j60 Mode Chip-Select 2. */
+#define SPI_ENC28J60_CS_3 3U /**< enc28j60 Mode Chip-Select 3. */
+
+/** @brief  Number of Configured  enc28j60 Mode External Devices. */
+#define SPI_ENC28J60_EXTERNAL_DEVICES_NUMBER 1U
+
+#endif /* __AS_CFG_SPI_ENC28J60__ */
+
 /** @brief	Maximum Number of Configured SPI Sequences. */
-#ifdef	__AS_CFG_SPI_LBM__
+#if defined(__AS_CFG_SPI_LBM__)
 #define	SPI_SEQUENCES_MAX_NUMBER	SPI_LBM_SEQUENCES_NUMBER
-#else	/* __AS_CFG_SPI_LBM__ */
+#elif defined(__AS_CFG_SPI_ENC28J60__)
+#define	SPI_SEQUENCES_MAX_NUMBER	SPI_ENC28J60_SEQUENCES_NUMBER
+#else
 #define	SPI_SEQUENCES_MAX_NUMBER	SPI_TEST_SEQUENCES_NUMBER
 #endif	/* !__AS_CFG_SPI_LBM__ */
+
 
 /** @brief	SPI Sequence Configuration Type.
  *
@@ -1662,6 +1739,26 @@ typedef	Spi_DriverConfigType	Spi_ConfigType;
 #define	SPI_CONFIG_LBM_PTR	&Spi_Config[SPI_CONFIG_LBM]
 
 #endif	/* __AS_CFG_SPI_TEST__ */
+
+#ifdef __AS_CFG_SPI_ENC28J60__
+
+/** @brief enc28j60 Mode Mode Configuration
+ *
+ *  Identifier for Loop-back Mode SPI Handler/Driver Configuration.
+ */
+#ifdef  __AS_CFG_SPI_LBM__
+#define SPI_CONFIG_ENC28J60 2U
+#else
+#define SPI_CONFIG_ENC28J60 1U
+#endif
+
+/** @brief enc28j60 Mode Configuration Pointer
+ *
+ *  Pointer of Loop-back Mode SPI Handler/Driver Configuration.
+ */
+#define SPI_CONFIG_ENC28J60_PTR &Spi_Config[SPI_CONFIG_ENC28J60]
+
+#endif /* __AS_CFG_SPI_ENC28J60__ */
 
 /** @brief	Default Configuration
  *

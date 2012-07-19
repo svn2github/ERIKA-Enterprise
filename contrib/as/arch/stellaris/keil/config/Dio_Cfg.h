@@ -233,6 +233,9 @@
 /** Number of Channels */
 #define	DIO_CHANNELS_NUMBER	DIO_CHANNEL_Q_7 + 1
 
+/** Custom Channel Names Remapping */
+#define	DIO_CHANNEL_ENC28J60_RESET DIO_CHANNEL_F_0
+
 #define	DIO_PORT_A	0x00000000	/**< Port A */
 #define	DIO_PORT_B	0x00000001	/**< Port B */
 #define	DIO_PORT_C	0x00000002	/**< Port C */
@@ -257,6 +260,9 @@
 /** Number of Ports */
 #define	DIO_PORTS_NUMBER	DIO_PORT_Q + 1
 
+/** Custom Port Names Remapping */
+#define	DIO_PORT_ENC28J60_RESET DIO_PORT_F
+
 /** @brief	Port G Channel Groups Configuration Parameters */
 extern const Dio_ChannelGroupType DioPortGChannelsGroups[];
 
@@ -271,6 +277,12 @@ extern const Dio_ChannelGroupType DioPortMChannelsGroups[];
 
 /** User Output Channel Group */
 #define	DIO_CHANNEL_GROUP_USER_OUTPUT	&DioPortDChannelsGroups[0]
+
+/** @brief	Port F Channel Groups Configuration Parameters */
+extern const Dio_ChannelGroupType DioPortFChannelsGroups[];
+
+/** @brief enc28j60 Channel Group */
+#define DIO_CHANNEL_GROUP_ENC28J60_RESET  &DioPortFChannelsGroups[0]
 
 /** @brief	Port Configuration Parameters
  *
@@ -392,5 +404,16 @@ typedef struct {
  *  Pointer of User Output DIO Driver Configuration
  */
 #define	DIO_CONFIG_USER_OUTPUT_PTR	&Dio_Config[DIO_CONFIG_USER_OUTPUT]
+
+/** @brief	enc28j60 Configuration
+ *
+ *  Identifier for User Output DIO Driver Configuration.
+ */
+#define	DIO_CONFIG_ENC28J60 3U
+/** @brief	User Output Configuration Pointer
+ *
+ *  Pointer of User Output DIO Driver Configuration
+ */
+#define	DIO_CONFIG_ENC28J60_PTR	&Dio_Config[DIO_CONFIG_ENC28J60]
 
 #endif	/* DIO_CFG_H */
