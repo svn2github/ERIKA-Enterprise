@@ -76,7 +76,7 @@ EPSR_T_BIT_VAL		EQU	0x01000000	; Value to set the T-bit in EPSR (always Thumb mo
 	THUMB
 
 ;void EE_hal_terminate_savestk(EE_TID tid);
-EE_hal_terminate_savestk
+EE_hal_terminate_savestk	FUNCTION
 	; Save all callee-saved registers
 	; R0-R3 and R12 are scratch registers, R13 ->(MSP), R14 ->(LR), R15 -> (PC)
 	PUSH	{R4-R7}			; Store R4, R5, R6, R7 onto stack 
@@ -124,9 +124,10 @@ EE_hal_terminate_savestk
 	POP	{R4-R7}			; Restore R4, R5, R6, R7 from stack
 
 	BX	LR			; Return
+	ENDFUNC
 
 ;void EE_hal_terminate_task(EE_TID tid) /* NORETURN; */
-EE_hal_terminate_task
+EE_hal_terminate_task	FUNCTION
 	; R0 == tid
 
 	; Restore the stack pointer
@@ -153,6 +154,7 @@ EE_hal_terminate_task
 	POP	{R4-R7}			; Restore R4, R5, R6, R7 from stack
 
 	BX	LR			; Return
+	ENDFUNC
 
 ;******************************************************************************
 ;

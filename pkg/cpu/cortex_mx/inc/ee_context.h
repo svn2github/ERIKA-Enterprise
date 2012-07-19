@@ -141,13 +141,7 @@ EE_TID EE_std_run_task_code(EE_TID tid);
 /* TID_IS_STACKED_MARK must set the most significative bit */
 #define EE_std_mark_tid_stacked(tid) ((tid) | (EE_TID)TID_IS_STACKED_MARK)
 
-__INLINE__ int __ALWAYS_INLINE__ EE_std_need_context_change(EE_TID tid)
-{
-    /* FIXME: "tid+1" can be used as an index for arrays even when marked if
-     * EE_TID is defined as an int.  Otherwise, the mark will cause a memory
-     * access violation!  */
-    return ((tid >= 0) || (EE_hal_active_tos != EE_std_thread_tos[tid+1]));
-}
+extern int EE_std_need_context_change(EE_TID tid);
 
 __INLINE__ void __ALWAYS_INLINE__ EE_hal_stkchange(EE_TID tid)
 {

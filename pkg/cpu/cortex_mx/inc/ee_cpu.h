@@ -66,9 +66,9 @@
 #endif	/* !__CCS__ */
 #endif	/* !__IAR__ */
 
-/* Initial stack offset (in words) */
+/* Initial stack offset (in words): Used in multistack. */
 #ifndef CORTEX_MX_INIT_TOS_OFFSET
-#define CORTEX_MX_INIT_TOS_OFFSET 9
+#define CORTEX_MX_INIT_TOS_OFFSET 10
 #endif
 
 /*************************************************************************

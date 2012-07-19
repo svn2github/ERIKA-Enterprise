@@ -39,11 +39,11 @@
  * ###*E*### */
 
 /** 
-	@file ee_internal.h
-	@brief Derived from cpu/pic30/inc/ee_internal.h
-	@author Gianluca Franchino
-	@author Giuseppe Serano
-	@date 2011
+	@file	ee_internal.h
+	@brief	Derived from cpu/pic30/inc/ee_internal.h
+	@author	Gianluca Franchino
+	@author	Giuseppe Serano
+	@date	2012
 */  
 
 #ifndef __INCLUDE_CORTEX_MX_INTERNAL_H__

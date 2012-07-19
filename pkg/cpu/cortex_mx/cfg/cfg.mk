@@ -44,7 +44,7 @@
 
 ifeq ($(call iseeopt, __CORTEX_MX__), yes)
 EE_SRCS += pkg/cpu/cortex_mx/src/ee_utils.c
-
+EE_SRCS += pkg/cpu/cortex_mx/src/ee_context.c
 
 ifeq ($(call iseeopt, __IAR__), yes)
 EE_SRCS += pkg/cpu/cortex_mx/src/ee_iar_change_context_isr.s
@@ -106,11 +106,7 @@ endif
 endif
 endif
 
-else	# __MULTI__
-
-EE_SRCS += pkg/cpu/cortex_mx/src/ee_context.c
-
-endif	# !__MULTI__
+endif	# __MULTI__
 
 ifeq ($(call iseeopt, __IRQ_STACK_NEEDED__), yes)
 
@@ -127,16 +123,5 @@ endif
 endif
 
 endif	# __IRQ_STACK_NEEDED__
-
-
-ifeq ($(call iseeopt, __USE_SVC__), yes)
-ifeq ($(call iseeopt, __CCS__), yes)
-EE_SRCS += pkg/cpu/cortex_mx/src/ee_ccs_svc_isr.s
-else
-ifeq ($(call iseeopt, __KEIL__), yes)
-EE_SRCS += pkg/cpu/cortex_mx/src/ee_keil_svc_isr.s
-endif
-endif
-endif
 
 endif	# __CORTEX_MX__

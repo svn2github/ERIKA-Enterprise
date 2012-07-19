@@ -46,9 +46,35 @@
 
 #include "ee_internal.h"
 
-void EE_cortex_mx_change_context(EE_TID tid) 
+#ifdef	__MONO__
+
+void EE_cortex_mx_change_context(EE_TID tid)
 {
   do {
     tid = EE_std_run_task_code(tid);
   } while (EE_std_need_context_change(tid));
 }
+
+#endif	/* __MONO__ */
+
+#ifdef __MULTI__
+
+int EE_std_need_context_change(EE_TID tid)
+{
+  /* FIXME: "tid+1" can be used as an index for arrays even when marked if
+   * EE_TID is defined as an int.  Otherwise, the mark will cause a memory
+   * access violation!  */
+  EE_UTID utid;
+  int need_context_change = 1;
+  if (tid < 0) {
+    /* Unmark the tid to access the EE_std_thread_tos, otherwise undefined
+       behaviour. (Index out of arrays boundaries)
+       FIXME: #1
+    */
+    utid = (EE_UTID)tid & (~(EE_UTID)TID_IS_STACKED_MARK);
+    need_context_change = (EE_hal_active_tos != EE_std_thread_tos[utid + 1U]);
+  }
+  return need_context_change;
+}
+
+#endif /* __MULTI__ */

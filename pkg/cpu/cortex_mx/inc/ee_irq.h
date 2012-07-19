@@ -51,14 +51,16 @@
 #define __INCLUDE_CORTEX_MX_IRQ_H__
 
 
+#ifdef	__CORTEX_M4__
 #define EE_ISR_UNMASKED 0x00000000
-#define EE_ISR_PRI_1 0x00000007U
-#define EE_ISR_PRI_2 0x00000006U
-#define EE_ISR_PRI_3 0x00000005U
-#define EE_ISR_PRI_4 0x00000004U
-#define EE_ISR_PRI_5 0x00000003U
-#define EE_ISR_PRI_6 0x00000002U
-#define EE_ISR_PRI_7 0x00000001U
+#define EE_ISR_PRI_1 0x00000006U
+#define EE_ISR_PRI_2 0x00000005U
+#define EE_ISR_PRI_3 0x00000004U
+#define EE_ISR_PRI_4 0x00000003U
+#define EE_ISR_PRI_5 0x00000002U
+#define EE_ISR_PRI_6 0x00000001U
+/*#define EE_ISR_PRI_7 0x00000001U*/
+#endif	/* __CORTEX_M4__ */
 
 #define EE_std_change_context(x) ((void)0)
 
@@ -106,6 +108,7 @@ do {\
 #endif	/* end __MULTI__ && __IRQ_STACK_NEEDED__*/
  
 #define EE_ISR2_prestub(void)\
+/* Defined as Macro */\
 do {\
 	EE_cortex_mx_disableIRQ();\
 	ipl = EE_cortex_mx_get_int_prio();\
@@ -120,6 +123,7 @@ while(0)
 extern EE_UREG	EE_cortex_mx_change_context_active;
 
 #define EE_ISR2_poststub(void)\
+/* Defined as Macro */\
 do{\
 /* Disabled IRQ if nesting is allowed.\
  * Note: if nesting is not allowed, the IRQs are already disabled\
@@ -134,13 +138,7 @@ do{\
 */\
     if (!EE_is_inside_ISR_call()) {\
 	EE_cortex_mx_stack_back();\
-	if (!EE_cortex_mx_change_context_active) {\
-	    EE_IRQ_end_instance();\
-	    if (EE_std_need_context_change(EE_std_endcycle_next_tid)) {\
-		EE_cortex_mx_IRQ_active_change_context();\
-		EE_cortex_mx_change_context_active = 1;\
-	    }\
-	}\
+	EE_cortex_mx_IRQ_active_change_context();\
     }\
     EE_cortex_mx_enableIRQ();\
 }\
@@ -160,7 +158,7 @@ void ISR1_ ## f(void)
 void ISR2_ ## f(void);		\
 __IRQ void f(void)		\
 {				\
-	static EE_UREG ipl = 0;	\
+	EE_UREG ipl = 0;	\
 	EE_ISR2_prestub();	\
 	ISR2_ ## f();		\
 	EE_ISR2_poststub();	\

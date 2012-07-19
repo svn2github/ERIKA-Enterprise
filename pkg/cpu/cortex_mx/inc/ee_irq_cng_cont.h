@@ -40,11 +40,11 @@
 
  /** 
 	
-	@file ee_irq_cng_cont.h
-	@brief Function active the context change interrupt
-	@author Gianluca Franchino
-	@author Giuseppe Serano
-	@date 2011
+	@file	ee_irq_cng_cont.h
+	@brief	Function active the context change interrupt
+	@author	Gianluca Franchino
+	@author	Giuseppe Serano
+	@date	2012
 */ 
 
 #ifndef __INCLUDE_CORTEX_MX_IRQ_CNG_CONTEXT_H__
@@ -64,6 +64,7 @@
 #endif	/* !__CCS__ */
 #endif	/* !__IAR__ */
 
+/* Implemented in ee_<compiler>_change_context_isr.s */
 extern void EE_switch_context(void);
 
 __INLINE__ void __ALWAYS_INLINE__ EE_cortex_mx_IRQ_active_change_context(void)
@@ -71,5 +72,5 @@ __INLINE__ void __ALWAYS_INLINE__ EE_cortex_mx_IRQ_active_change_context(void)
 	EE_switch_context();
 }
 
-#endif //__INCLUDE_CORTEX_MX_IRQ_CNG_CONTEXT_H__
+#endif /* __INCLUDE_CORTEX_MX_IRQ_CNG_CONTEXT_H__ */
 

@@ -50,28 +50,23 @@
 #include "ee_irq.h"
 #include "cpu/cortex_mx/inc/ee_nvic.h"
 
-#ifdef __USE_SVC__
-extern void EE_set_sv_call_pri(void);
-#endif
-
 extern void EE_set_switch_context_pri(void);
 
 /* Function used to calculate the initialize the system */
 void EE_system_init(void)
 {
-#ifdef __USE_SVC__
-	/* 
-	 * Set the priority of SVCall to the minimum one
-	 * SVCall is the software interrupt used for context switch
-	 */
-	EE_set_sv_call_pri();
-#endif
+
+  register EE_UREG flags;
+
+  flags = EE_hal_suspendIRQ();
 
 	/* 
 	 * Set the priority of PendSV to the minimum one
 	 * PendSV is the software interrupt used for context switch
 	 */
 	EE_set_switch_context_pri();
+
+#ifdef	__CORTEX_M4__
 
 #ifdef EE_CORTEX_MX_SYSTICK_ISR
 #ifdef EE_CORTEX_MX_SYSTICK_ISR_PRI
@@ -1100,4 +1095,9 @@ void EE_system_init(void)
 #endif	/* EE_CORTEX_MX_FAN_0_ISR_PRI */
 	NVIC_INT_ENABLE(EE_CORTEX_MX_FAN_0_INT_NUM);
 #endif	/* EE_CORTEX_MX_FAN_0_ISR */
+
+#endif	/* __CORTEX_M4__ */
+
+  EE_hal_resumeIRQ(flags);
+
 }
