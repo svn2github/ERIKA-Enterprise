@@ -73,8 +73,8 @@ CPU mySystem {
 		};
 
 		EE_OPT = "__USE_USER_LED__";
-		EE_OPT = "__USE_SVC__";
 		EE_OPT = "__USE_SYSTICK__";
+		EE_OPT = "__USE_TIMER__";
 
 		STATUS = EXTENDED;
 		STARTUPHOOK = FALSE;
@@ -112,14 +112,16 @@ CPU mySystem {
 		SCHEDULE = FULL;
 	};
 
-	ISR svcall_handler {
-		CATEGORY = 2;
-		ENTRY = "SVCALL";
-	};
-
 	ISR systick_handler {
 		CATEGORY = 2;
 		ENTRY = "SYSTICK";
+		PRIORITY = 2;
+	};
+
+	ISR timer_handler {
+		CATEGORY = 2;
+		ENTRY = "TIMER_0_A";
+		PRIORITY = 1;
 	};
 
 };

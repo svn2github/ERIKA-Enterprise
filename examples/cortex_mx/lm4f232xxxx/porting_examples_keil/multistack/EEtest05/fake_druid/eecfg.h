@@ -43,6 +43,7 @@
  **************************************************************************/
 #define __ASSERT__
 #define __SEM__
+#define __USE_USER_LED__
 
 
 /***************************************************************************
@@ -59,7 +60,7 @@
 #define __MULTI__
 #define __FP_NO_RESOURCE__
 #define __ALLOW_NESTED_IRQ__
-#define __USE_USER_LED__
+
 
 #endif
 

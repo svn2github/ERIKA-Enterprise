@@ -70,7 +70,7 @@ ERIKA_FILES :=
 #
 ############################################################################
 APPBASE := ..
-OUTBASE := .
+OUTBASE := Debug
 
 ifndef ARM_ROOT
     ARM_ROOT := $(shell cygpath `cygpath -ms 'C:\Keil\ARM'`)

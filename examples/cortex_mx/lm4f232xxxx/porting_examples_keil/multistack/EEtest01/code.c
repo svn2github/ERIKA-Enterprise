@@ -47,11 +47,11 @@
  */
 
 #include "ee.h"
-#include "ee_irq.h"
 #include "test/assert/inc/ee_assert.h"
 
-
-#define TRUE 1
+#ifndef	TRUE
+#define	TRUE	0x01U
+#endif
 
 /* Assertions */
 enum EE_ASSERTIONS {
@@ -68,20 +68,35 @@ EE_TYPEASSERTVALUE EE_assertions[EE_ASSERT_DIM];
 /* Final result */
 EE_TYPEASSERTVALUE result;
 
-/* counters */
-volatile int task1_fired=0;
-volatile int task2_fired=0;
-volatile int divisor = 0;
+/* Counters */
+volatile int task1_fired = 0;
+volatile int task2_fired = 0;
 volatile int counter = 0;
+volatile int divisor = 0;
+
+/* Stack Pointers */
+volatile EE_UREG main_sp = 0;
+volatile EE_UREG task1_sp = 0;
+volatile EE_UREG task2_sp = 0;
 
 /*
  * TASK 1
  */
 TASK(Task1)
 {
+
+  EE_UREG curr_sp;
+
+  curr_sp = __current_sp();
+  if (curr_sp != task1_sp) {
+    task1_sp = curr_sp;
+  }
+
   task1_fired++;
-  if (task1_fired == 1)
+  if (task1_fired == 1) {
     EE_assert(EE_ASSERT_TASK1_FIRED, task1_fired ==1, EE_ASSERT_INIT);
+  }
+
 }
 
 /*
@@ -89,9 +104,19 @@ TASK(Task1)
  */
 TASK(Task2)
 {
+
+  EE_UREG curr_sp;
+
+  curr_sp = __current_sp();
+  if (curr_sp != task2_sp) {
+    task2_sp = curr_sp;
+  }
+
   task2_fired++;
-  if (task2_fired == 1)
+  if (task2_fired == 1) {
     EE_assert(EE_ASSERT_TASK2_FIRED, task2_fired ==1, EE_ASSERT_TASK1_FIRED);
+  }
+
 }
 
 
@@ -100,6 +125,8 @@ TASK(Task2)
  */
 int main(void)
 {
+
+  EE_UREG curr_sp;
 
   /*Initializes Erika related stuffs*/
   EE_system_init(); 
@@ -132,9 +159,30 @@ int main(void)
   /* Forever loop: background activities (if any) should go here */
   for (;result == 1;)
   {
-    while (counter % 100000) counter++;
+
+    curr_sp = __current_sp();
+    if (curr_sp != main_sp) {
+      main_sp = curr_sp;
+    }
+
+    counter = 0;
+    for (;;)
+    {
+      divisor++;
+      if (divisor == 10000) 
+      {
+	divisor = 0;
+	counter++;
+	ActivateTask(Task1);
+	ActivateTask(Task2);
+	if(counter==10) {
+	  break;
+	}
+      }
+    }
+
     EE_user_led_toggle();
-    counter++;
+
   }
 
 }

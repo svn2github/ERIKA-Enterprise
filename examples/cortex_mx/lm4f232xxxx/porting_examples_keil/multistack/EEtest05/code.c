@@ -66,7 +66,9 @@
 #include "kernel/sem/inc/ee_sem.h"
 #include "test/assert/inc/ee_assert.h"
 
-#define TRUE 1
+#ifndef	TRUE
+#define	TRUE	0x01U
+#endif
 
 /* Assertions */
 enum EE_ASSERTIONS {
@@ -91,9 +93,15 @@ SemType P = STATICSEM(1);
 /* This semaphore is initialized inside the Background Task */
 SemType V;
 
-volatile int taskp_counter = 0;
-volatile int taskc_counter = 0;
+/* Counters */
+volatile int task1_fired = 0;
+volatile int task2_fired = 0;
 volatile int counter = 0;
+
+/* Stack Pointers */
+volatile EE_UREG main_sp = 0;
+volatile EE_UREG task1_sp = 0;
+volatile EE_UREG task2_sp = 0;
 
 #define	PRODUCTION_CYCLES	1000000
 /*
@@ -104,7 +112,14 @@ TASK(Producer)
   int i;
   static int pcounter = 0;
 
-  taskp_counter++;
+  EE_UREG curr_sp;
+
+  curr_sp = __current_sp();
+  if (curr_sp != task1_sp) {
+    task1_sp = curr_sp;
+  }
+
+  task1_fired++;
 
   /* 
    * Note: Please note that this task structure is different from the typical
@@ -142,7 +157,14 @@ TASK(Consumer)
   int i;
   static int ccounter = 0;
 
-  taskc_counter++;
+  EE_UREG curr_sp;
+
+  curr_sp = __current_sp();
+  if (curr_sp != task2_sp) {
+    task2_sp = curr_sp;
+  }
+
+  task2_fired++;
   
   for (;;) {
     ccounter++;
@@ -173,6 +195,8 @@ TASK(Consumer)
 int main(void)
 {
 
+  EE_UREG curr_sp;
+
   /*Initializes Erika related stuffs*/
   EE_system_init(); 
 
@@ -201,8 +225,12 @@ int main(void)
      Please note that in this example the code never reach this point... */
   for (;result == 1;)
   {
-    while (counter % 100000) counter++;
-    EE_user_led_toggle();
+
+    curr_sp = __current_sp();
+    if (curr_sp != main_sp) {
+      main_sp = curr_sp;
+    }
+
     counter++;
   }
 

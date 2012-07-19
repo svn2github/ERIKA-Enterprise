@@ -23,8 +23,6 @@
 
     struct EE_TOS EE_cortex_mx_system_tos[3] = {
         {0},    /* Task   (dummy) */
-        //{(EE_ADDR)(&EE_cortex_mx_stack_1[STACK_1_SIZE])},   /* Task 0 (Producer) */
-        //{(EE_ADDR)(&EE_cortex_mx_stack_2[STACK_2_SIZE])}    /* Task 1 (Consumer) */
         {(EE_ADDR)(&EE_cortex_mx_stack_1[STACK_1_SIZE - CORTEX_MX_INIT_TOS_OFFSET])},   /* Task 0 (Producer) */
         {(EE_ADDR)(&EE_cortex_mx_stack_2[STACK_2_SIZE - CORTEX_MX_INIT_TOS_OFFSET])}    /* Task 1 (Consumer) */
     };
@@ -54,14 +52,14 @@
 
     /* ready priority */
     const EE_TYPEPRIO EE_th_ready_prio[EE_MAX_TASK] = {
-        0x2U,		/* thread Task1 */
-        0x1U 		/* thread Task2 */
+        0x2U,		/* thread Producer */
+        0x1U 		/* thread Consumer */
     };
 
     /* dispatch priority */
     const EE_TYPEPRIO EE_th_dispatch_prio[EE_MAX_TASK] = {
-        0x2U,		/* thread Task1 */
-        0x1U 		/* thread Task2 */
+        0x2U,		/* thread Producer */
+        0x1U 		/* thread Consumer */
     };
 
     /* thread status */

@@ -22,6 +22,7 @@ EEOPT += DEBUG
 EEOPT += __ASSERT__
 EEOPT += __USE_USER_LED__
 EEOPT += __USE_SYSTICK__
+EEOPT += __OO_STARTOS_OLD__
 
 
 ############################################################################
@@ -74,7 +75,7 @@ ERIKA_FILES :=
 #
 ############################################################################
 APPBASE := ..
-OUTBASE := .
+OUTBASE := Debug
 
 ifndef ARM_ROOT
     ARM_ROOT := $(shell cygpath `cygpath -ms 'C:\Keil\ARM'`)

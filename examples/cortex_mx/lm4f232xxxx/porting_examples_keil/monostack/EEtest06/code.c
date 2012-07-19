@@ -49,9 +49,12 @@
 
 
 #include "ee.h"
+#include "ee_irq.h"
 #include "test/assert/inc/ee_assert.h"
 
-#define TRUE 1
+#ifndef	TRUE
+#define	TRUE	0x01U
+#endif
 
 /* Assertions */
 enum EE_ASSERTIONS {
@@ -100,17 +103,57 @@ volatile int task1_fired = 0;
 volatile int task2_fired = 0;
 volatile int task1_ended = 0;
 volatile int task2_ended = 0;
+volatile int isr1_fired = 0;
 volatile int counter = 0;
+
+/* Stack Pointers */
+volatile EE_UREG main_sp = 0;
+volatile EE_UREG isr1_sp = 0;
+volatile EE_UREG task1_sp = 0;
+volatile EE_UREG task2_sp = 0;
+
+/*
+ * SysTick ISR2
+ */
+ISR2(systick_handler)
+{
+
+  EE_UREG curr_sp;
+
+  curr_sp = __current_sp();
+  if (curr_sp != isr1_sp) {
+    isr1_sp = curr_sp;
+  }
+
+  isr1_fired++;
+
+  ActivateTask(Task2);
+
+}
 
 /*
  * TASK 1
  */
 TASK(Task1)
 {
+
+  EE_UREG curr_sp;
+
+  curr_sp = __current_sp();
+  if (curr_sp != task1_sp) {
+    task1_sp = curr_sp;
+  }
+
   task1_fired++;
-  EE_assert(EE_ASSERT_TASK1_FIRED, task1_fired == 1, EE_ASSERT_TASK2_FIRED);
-  //TerminateTask();
-  //task1_ended++;
+  if (task1_fired == 1) {
+    EE_assert(EE_ASSERT_TASK1_FIRED, task1_fired == 1, EE_ASSERT_TASK2_FIRED);
+  }
+
+  EE_user_led_toggle();
+
+  /* TerminateTask(); -> Forgetfulness Test!!!	*/
+  /* task1_ended++;				*/
+
 }
 
 /*
@@ -118,11 +161,25 @@ TASK(Task1)
  */
 TASK(Task2)
 {
+
+  EE_UREG curr_sp;
+
+  curr_sp = __current_sp();
+  if (curr_sp != task2_sp) {
+    task2_sp = curr_sp;
+  }
+
   task2_fired++;
-  EE_assert(EE_ASSERT_TASK2_FIRED, task2_fired == 1, EE_ASSERT_INIT);
+  if (task2_fired == 1) {
+    EE_assert(EE_ASSERT_TASK2_FIRED, task2_fired == 1, EE_ASSERT_INIT);
+  }
+
   ActivateTask(Task1);
+
   func1();
+
   task2_ended++;
+
 }
 
 /*
@@ -131,15 +188,19 @@ TASK(Task2)
 int main(void)
 {
 
+  EE_UREG curr_sp;
+
   /*Initializes Erika related stuffs*/
-  EE_system_init(); 
+  /* EE_system_init(); -> Done inside StartOS() */
 
   EE_user_led_init();
+
+  EE_systick_set_period(1000000);
+  EE_systick_enable_int();
 
   EE_assert(EE_ASSERT_INIT, TRUE, EE_ASSERT_NIL);
 
   StartOS(OSDEFAULTAPPMODE);
-  counter++;
 
   EE_assert(
     EE_ASSERT_TASKS_ENDED, !task1_ended && !task2_ended, EE_ASSERT_TASK1_FIRED
@@ -147,12 +208,21 @@ int main(void)
   EE_assert_range(EE_ASSERT_FIN, EE_ASSERT_INIT, EE_ASSERT_TASKS_ENDED);
   result = EE_assert_last();
 
+  if (result == 1) {
+    EE_systick_start();
+  }
+
   /* Forever loop: background activities (if any) should go here */
   for (;result == 1;)
   {
-    while (counter % 100000) counter++;
-    EE_user_led_toggle();
+
+    curr_sp = __current_sp();
+    if (curr_sp != main_sp) {
+      main_sp = curr_sp;
+    }
+
     counter++;
+
   }
 
 }

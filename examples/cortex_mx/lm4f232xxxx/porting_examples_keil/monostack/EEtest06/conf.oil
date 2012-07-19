@@ -65,9 +65,10 @@ CPU mySystem {
 		};
 
 		EE_OPT = "__USE_USER_LED__";
+		EE_OPT = "__USE_SYSTICK__";
 
 		KERNEL_TYPE = BCC1;
-                EE_OPT = "__OO_STARTOS_OLD__";
+		EE_OPT = "__OO_STARTOS_OLD__";
 
 		STATUS = EXTENDED;
 		STARTUPHOOK = FALSE;
@@ -94,6 +95,12 @@ CPU mySystem {
 		AUTOSTART = TRUE;
 		STACK = SHARED;
 		SCHEDULE = FULL;
+	};
+
+	ISR systick_handler {
+		CATEGORY = 2;
+		ENTRY = "SYSTICK";
+		PRIORITY = 2;
 	};
 
 };

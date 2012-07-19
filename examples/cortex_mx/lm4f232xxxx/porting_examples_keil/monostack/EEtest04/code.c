@@ -53,7 +53,9 @@
 #include "ee_irq.h"
 #include "test/assert/inc/ee_assert.h"
 
-#define TRUE 1
+#ifndef	TRUE
+#define	TRUE	0x01U
+#endif
 
 /* Assertions */
 enum EE_ASSERTIONS {
@@ -66,6 +68,7 @@ enum EE_ASSERTIONS {
   EE_ASSERT_TASK2_ENDED,
   EE_ASSERT_DIM
 };
+
 EE_TYPEASSERTVALUE EE_assertions[EE_ASSERT_DIM];
 
 /* Final result */
@@ -76,18 +79,35 @@ volatile int task1_fired = 0;
 volatile int task2_fired = 0;
 volatile int task1_ended = 0;
 volatile int task2_ended = 0;
+volatile int isr1_fired = 0;
 volatile int counter = 0;
+
+/* Stack Pointers */
+volatile EE_UREG main_sp = 0;
+volatile EE_UREG isr1_sp = 0;
+volatile EE_UREG task1_sp = 0;
+volatile EE_UREG task2_sp = 0;
 
 /*
  * SysTick ISR2
  */
 ISR2(systick_handler)
 {
-  counter++;
-  if (counter == 1) {
-    ActivateTask(Task2);
-    EE_assert(EE_ASSERT_ISR_FIRED, counter == 1, EE_ASSERT_TASK1_FIRED);
+
+  EE_UREG curr_sp;
+
+  curr_sp = __current_sp();
+  if (curr_sp != isr1_sp) {
+    isr1_sp = curr_sp;
   }
+
+  isr1_fired++;
+  if (isr1_fired == 1) {
+    EE_assert(EE_ASSERT_ISR_FIRED, isr1_fired == 1, EE_ASSERT_TASK1_FIRED);
+  }
+
+  ActivateTask(Task2);
+
 }
 
 /*
@@ -95,12 +115,28 @@ ISR2(systick_handler)
  */
 TASK(Task1)
 {
+
+  EE_UREG curr_sp;
+
+  curr_sp = __current_sp();
+  if (curr_sp != task1_sp) {
+    task1_sp = curr_sp;
+  }
+
   task1_fired++;
-  EE_assert(EE_ASSERT_TASK1_FIRED, task1_fired == 1, EE_ASSERT_INIT);
-  while (counter < 10);
+  if (task1_fired == 1) {
+    EE_assert(EE_ASSERT_TASK1_FIRED, task1_fired == 1, EE_ASSERT_INIT);
+  }
+
+  EE_systick_start();
+  while (!(isr1_fired % 10));	/* Waits 1st ISR */
+  while (isr1_fired % 10);	/* Waits 10th ISR */
   EE_systick_stop();
+
   task1_ended++;
-  EE_assert(EE_ASSERT_TASK1_ENDED, task1_ended == 1, EE_ASSERT_ISR_FIRED);
+  if (task1_ended == 1) {
+    EE_assert(EE_ASSERT_TASK1_ENDED, task1_ended == 1, EE_ASSERT_ISR_FIRED);
+  }
 }
 
 /*
@@ -108,9 +144,24 @@ TASK(Task1)
  */
 TASK(Task2)
 {
-    task2_fired++;
+
+  EE_UREG curr_sp;
+
+  curr_sp = __current_sp();
+  if (curr_sp != task2_sp) {
+    task2_sp = curr_sp;
+  }
+
+  task2_fired++;
+  if (task2_fired == 1) {
     EE_assert(EE_ASSERT_TASK2_FIRED, task2_fired == 1, EE_ASSERT_TASK1_ENDED);
-    task2_ended++;
+  }
+
+  task2_ended++;
+  if (task2_ended == 1) {
+    EE_assert(EE_ASSERT_TASK2_ENDED, task2_ended == 1, EE_ASSERT_TASK2_FIRED);
+  }
+
 }
 
 /*
@@ -119,6 +170,8 @@ TASK(Task2)
 int main(void)
 {
 
+  EE_UREG curr_sp;
+
   /*Initializes Erika related stuffs*/
   EE_system_init(); 
 
@@ -126,22 +179,28 @@ int main(void)
 
   EE_systick_set_period(1000000);
   EE_systick_enable_int();
-  EE_systick_start();
 
   EE_assert(EE_ASSERT_INIT, TRUE, EE_ASSERT_NIL);
 
   ActivateTask(Task1);
 
-  EE_assert(EE_ASSERT_TASK2_ENDED, task2_ended == 1, EE_ASSERT_TASK2_FIRED);
   EE_assert_range(EE_ASSERT_FIN, EE_ASSERT_INIT, EE_ASSERT_TASK2_ENDED);
   result = EE_assert_last();
 
   /* Forever loop: background activities (if any) should go here */
   for (;result == 1;)
   {
-    while (counter % 100000) counter++;
+
+    curr_sp = __current_sp();
+    if (curr_sp != main_sp) {
+      main_sp = curr_sp;
+    }
+
+    while (counter % 10000) counter++;
     EE_user_led_toggle();
+    ActivateTask(Task1);
     counter++;
+
   }
 
 }

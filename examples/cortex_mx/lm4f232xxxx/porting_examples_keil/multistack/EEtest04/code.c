@@ -54,16 +54,17 @@
 
 #include "ee.h"
 #include "ee_irq.h"
-#include "cpu/cortex_mx/inc/ee_svc.h"
 #include "test/assert/inc/ee_assert.h"
 
-#define TRUE 1
+#ifndef	TRUE
+#define	TRUE	0x01U
+#endif
 
 /* Assertions */
 enum EE_ASSERTIONS {
   EE_ASSERT_FIN = 0,
   EE_ASSERT_INIT,
-  EE_ASSERT_SVC_ISR_FIRED,
+  EE_ASSERT_TIMER_ISR_FIRED,
   EE_ASSERT_SYSTICK_ISR_FIRED,
   EE_ASSERT_TASK2_FIRED,
   EE_ASSERT_TASK2_TEN_INSTANCES,
@@ -76,25 +77,54 @@ EE_TYPEASSERTVALUE EE_assertions[EE_ASSERT_DIM];
 /* Final result */
 volatile EE_TYPEASSERTVALUE result;
 
+/* Counters */
 volatile int task1_fired = 0;
 volatile int task2_fired = 0;
 volatile int task1_ended = 0;
 volatile int task2_ended = 0;
-volatile int svcounter = 0;
-volatile int stcounter = 0;
-volatile int divisor = 0;
+volatile int isr1_fired = 0;
+volatile int isr2_fired = 0;
 volatile int counter = 0;
+
+/* Stack Pointers */
+volatile EE_UREG main_sp = 0;
+volatile EE_UREG isr1_sp = 0;
+volatile EE_UREG isr2_sp = 0;
+volatile EE_UREG task1_sp = 0;
+volatile EE_UREG task2_sp = 0;
+
+#define	EE_TIMER_ID	( EE_TIMER_0 | EE_TIMER_A )
+#define	EE_TIMER_CFG	( EE_TIMER_CFG_SPLITTED | EE_TIMER_CFG_A_PERIODIC )
 
 /*
  * SVCall ISR2
  */
-ISR2(svcall_handler)
+ISR2(timer_handler)
 {
-  svcounter++;
-  EE_assert(EE_ASSERT_SVC_ISR_FIRED, svcounter == 1, EE_ASSERT_INIT);
+
+  EE_UREG curr_sp;
+
+  EE_timer_clear_int(EE_TIMER_ID);
+
+  curr_sp = __current_sp();
+  if (curr_sp != isr1_sp) {
+    isr1_sp = curr_sp;
+  }
+
+  isr1_fired++;
+  if (isr1_fired == 1) {
+    EE_assert(EE_ASSERT_TIMER_ISR_FIRED, isr1_fired == 1, EE_ASSERT_INIT);
+  }
+
+  EE_timer_stop(EE_TIMER_ID);
+
   ActivateTask(Task1);
-  while (stcounter < 10);
+
+  EE_systick_start();
+  while (!(isr2_fired % 10));	/* Waits 1st ISR */
+  while (isr2_fired % 10);	/* Waits 10th ISR */
   EE_systick_stop();
+
 }
 
 
@@ -103,12 +133,23 @@ ISR2(svcall_handler)
  */
 ISR2(systick_handler)
 {
-  stcounter++;
-  if (stcounter == 1)
+
+  EE_UREG curr_sp;
+
+  curr_sp = __current_sp();
+  if (curr_sp != isr2_sp) {
+    isr2_sp = curr_sp;
+  }
+
+  isr2_fired++;
+  if (isr2_fired == 1) {
     EE_assert(
-      EE_ASSERT_SYSTICK_ISR_FIRED, stcounter == 1, EE_ASSERT_SVC_ISR_FIRED
+      EE_ASSERT_SYSTICK_ISR_FIRED, isr2_fired == 1, EE_ASSERT_TIMER_ISR_FIRED
     );
+  }
+
   ActivateTask(Task2);
+
 }
 
 /*
@@ -116,10 +157,20 @@ ISR2(systick_handler)
  */
 TASK(Task1)
 {
+
+  EE_UREG curr_sp;
+
+  curr_sp = __current_sp();
+  if (curr_sp != task1_sp) {
+    task1_sp = curr_sp;
+  }
+
   task1_fired++;
-  EE_assert(
-    EE_ASSERT_TASK1_FIRED, task1_fired == 1, EE_ASSERT_TASK2_TEN_INSTANCES
-  );
+  if (task1_fired == 1) {
+    EE_assert(
+      EE_ASSERT_TASK1_FIRED, task1_fired == 1, EE_ASSERT_TASK2_TEN_INSTANCES
+    );
+  }
   task1_ended++;
 }
 
@@ -128,17 +179,29 @@ TASK(Task1)
  */
 TASK(Task2)
 {
+
+  EE_UREG curr_sp;
+
+  curr_sp = __current_sp();
+  if (curr_sp != task2_sp) {
+    task2_sp = curr_sp;
+  }
+
   task2_fired++;
-  if (task2_fired == 1)
+  if (task2_fired == 1) {
     EE_assert(
       EE_ASSERT_TASK2_FIRED, task2_fired == 1, EE_ASSERT_SYSTICK_ISR_FIRED
     );
-  else
-    if (task2_fired >= 10)
+  }
+  else {
+    if (task2_fired >= 10) {
       EE_assert(
         EE_ASSERT_TASK2_TEN_INSTANCES, task2_fired == 10, EE_ASSERT_TASK2_FIRED
       );
+    }
+  }
   task2_ended++;
+
 }
 
 /*
@@ -147,6 +210,8 @@ TASK(Task2)
 int main(void)
 {
 
+  EE_UREG curr_sp;
+
   /*Initializes Erika related stuffs*/
   EE_system_init(); 
 
@@ -154,13 +219,15 @@ int main(void)
 
   EE_systick_set_period(100000);
   EE_systick_enable_int();
-  EE_systick_start();
+  EE_timer_init(EE_TIMER_ID, EE_TIMER_CFG);
+  EE_timer_set_period(EE_TIMER_ID, 1000);
+  EE_timer_enable_int(EE_TIMER_ID);
 
   EE_assert(EE_ASSERT_INIT, TRUE, EE_ASSERT_NIL);
 
-  EE_svc_0();
+  EE_timer_start(EE_TIMER_ID);
 
-  counter++;
+  while (task1_ended == 0);
 
   EE_assert(
     EE_ASSERT_TASKS_ENDED,
@@ -173,9 +240,17 @@ int main(void)
   /* Forever loop: background activities (if any) should go here */
   for (;result == 1;)
   {
+
+    curr_sp = __current_sp();
+    if (curr_sp != main_sp) {
+      main_sp = curr_sp;
+    }
+
+    EE_timer_start(EE_TIMER_ID);
     while (counter % 100000) counter++;
     EE_user_led_toggle();
     counter++;
+
   }
 
 }

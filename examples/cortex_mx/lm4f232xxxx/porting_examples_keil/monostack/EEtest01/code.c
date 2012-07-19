@@ -45,11 +45,11 @@
  */
 
 #include "ee.h"
-#include "ee_irq.h"
 #include "test/assert/inc/ee_assert.h"
 
-
-#define TRUE 1
+#ifndef	TRUE
+#define	TRUE	0x01U
+#endif
 
 /* Assertions */
 enum EE_ASSERTIONS {
@@ -64,16 +64,29 @@ EE_TYPEASSERTVALUE EE_assertions[EE_ASSERT_DIM];
 /* Final result */
 volatile EE_TYPEASSERTVALUE result;
 
-/* counter */
 volatile int counter = 0;
+volatile int task1_fired = 0;
+
+volatile EE_UREG main_sp = 0;
+volatile EE_UREG task1_sp = 0;
 
 /*
  * TASK 1
  */
 TASK(Task1)
 {
-  EE_assert(EE_ASSERT_TASK_FIRED, counter==0, EE_ASSERT_INIT);
-  counter++;
+  EE_UREG curr_sp;
+
+  curr_sp = __current_sp();
+  if (curr_sp != task1_sp) {
+    task1_sp = curr_sp;
+  }
+
+  task1_fired++;
+  if (task1_fired == 1) {
+    EE_assert(EE_ASSERT_TASK_FIRED, task1_fired==1, EE_ASSERT_INIT);
+  }
+
 }
 
 /*
@@ -81,6 +94,8 @@ TASK(Task1)
  */
 int main(void)
 {
+
+  EE_UREG curr_sp;
 
   /*Initializes Erika related stuffs*/
   EE_system_init(); 
@@ -91,16 +106,27 @@ int main(void)
 
   ActivateTask(Task1);
 
-  EE_assert(EE_ASSERT_TASK_END, counter==1, EE_ASSERT_INIT);
+  EE_assert(EE_ASSERT_TASK_END, task1_fired==1, EE_ASSERT_INIT);
   EE_assert_range(EE_ASSERT_FIN, EE_ASSERT_INIT, EE_ASSERT_TASK_END);
   result = EE_assert_last();
 
   /* Forever loop: background activities (if any) should go here */
   for (;result == 1;)
   {
+
+    curr_sp = __current_sp();
+    if (curr_sp != main_sp) {
+      main_sp = curr_sp;
+    }
+
     while (counter % 100000) counter++;
+
     EE_user_led_toggle();
+
+    ActivateTask(Task1);
+
     counter++;
+
   }
 
 }

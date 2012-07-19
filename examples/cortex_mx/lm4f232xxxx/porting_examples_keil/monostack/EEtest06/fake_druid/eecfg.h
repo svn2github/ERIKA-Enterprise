@@ -43,6 +43,8 @@
  **************************************************************************/
 #define __ASSERT__
 #define __USE_USER_LED__
+#define __USE_SYSTICK__
+#define __OO_STARTOS_OLD__
 
 
 /***************************************************************************
@@ -66,6 +68,17 @@
 #define __OO_STARTOS_OLD__
 
 #endif
+
+
+
+/***************************************************************************
+ *
+ * ISR definition
+ *
+ **************************************************************************/
+#define EE_CORTEX_MX_SYSTICK_ISR systick_handler
+#define EE_CORTEX_MX_SYSTICK_ISR_PRI EE_ISR_PRI_1
+
 
 #endif
 
