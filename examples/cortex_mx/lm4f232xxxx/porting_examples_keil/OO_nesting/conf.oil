@@ -44,8 +44,8 @@
  * In this demo two tasks are activated inside two ISRs and work with different
  * stacks.
  * The ISRs use another stack.
- * With this demo you can test the ISR nesting mechanism and the behaviour of the
- * ISR stack.
+ * With this demo you can test the ISR nesting mechanism and the behaviour of
+ * the ISR stack.
  * Author: 2011  Giuseppe Serano
  * Based on examples/s12xs/porting_examples/multistack/EEtest4
  */
@@ -61,8 +61,8 @@ CPU mySystem {
 			MODEL = M4;
 			APP_SRC = "code.c";
 			COMPILER_TYPE = KEIL;
-			/*MULTI_STACK = FALSE;
-			MULTI_STACK = TRUE {
+			/*MULTI_STACK = FALSE;*/
+			/*MULTI_STACK = TRUE {
 				IRQ_STACK = FALSE;
 			};*/
 			MULTI_STACK = TRUE {
@@ -77,8 +77,8 @@ CPU mySystem {
 		};
 
 		EE_OPT = "__USE_USER_LED__";
-		EE_OPT = "__USE_SVC__";
 		EE_OPT = "__USE_SYSTICK__";
+		EE_OPT = "__USE_TIMER__";
 
 		STATUS = EXTENDED;
 		STARTUPHOOK = FALSE;
@@ -138,16 +138,16 @@ CPU mySystem {
 		SCHEDULE = FULL;
 	};
 
-	ISR svcall_handler {
-		CATEGORY = 2;
-		ENTRY = "SVCALL";
-		PRIORITY = 1;
-	};
-
 	ISR systick_handler {
 		CATEGORY = 2;
 		ENTRY = "SYSTICK";
 		PRIORITY = 2;
+	};
+
+	ISR timer_handler {
+		CATEGORY = 2;
+		ENTRY = "TIMER_0_A";
+		PRIORITY = 1;
 	};
 
 };
