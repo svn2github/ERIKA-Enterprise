@@ -59,7 +59,6 @@
 #define EE_ISR_PRI_4 0x00000003U
 #define EE_ISR_PRI_5 0x00000002U
 #define EE_ISR_PRI_6 0x00000001U
-/*#define EE_ISR_PRI_7 0x00000001U*/
 #endif	/* __CORTEX_M4__ */
 
 #define EE_std_change_context(x) ((void)0)

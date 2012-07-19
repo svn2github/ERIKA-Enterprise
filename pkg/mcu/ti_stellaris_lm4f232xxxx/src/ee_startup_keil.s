@@ -132,9 +132,6 @@ __heap_limit
 #ifdef EE_CORTEX_MX_USAGE_FAULT_ISR		/* The usage fault handler */
 	IMPORT	EE_CORTEX_MX_USAGE_FAULT_ISR
 #endif
-/*#ifdef	EE_CORTEX_MX_SVCALL_ISR*/	/* SVCall Handler */
-/*	IMPORT	EE_CORTEX_MX_SVCALL_ISR*/
-/*#endif*/
 	IMPORT	EE_cortex_mx_svc_ISR		/* SVCall Handler */
 	IMPORT	EE_cortex_mx_pendsv_ISR		/* PendSV Handler */
 #ifdef	EE_CORTEX_MX_SYSTICK_ISR		/* SysTick Handler */
@@ -535,12 +532,7 @@ EE_cortex_mx_vtable
 	DCD	0				; Reserved
 	DCD	0				; Reserved
 	DCD	0				; Reserved
-/*#ifdef	EE_CORTEX_MX_SVCALL_ISR*/	/* SVCall Handler */
-/*	DCD	EE_CORTEX_MX_SVCALL_ISR*/
-/*#else*/
-/*	DCD	EE_cortex_mx_default_ISR*/
-/*#endif*/
-; Not for user: used by Erika Enterptise context switch.
+; Not for user: used by Erika Enterprise context switch.
 	DCD	EE_cortex_mx_svc_ISR		; SVCall Handler
 #ifdef EE_CORTEX_MX_DEBUG_MONITOR_ISR		/* Debug monitor handler */
 	DCD	EE_CORTEX_MX_DEBUG_MONITOR_ISR

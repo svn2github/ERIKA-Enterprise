@@ -66,18 +66,4 @@ ifeq ($(call iseeopt, __USE_TIMER__), yes)
 EE_SRCS += pkg/mcu/ti_stellaris_lm4f232xxxx/src/ee_timer.c
 endif
 
-#~ ifeq ($(call iseeopt, __USE_SPI__), yes)
-#~ EE_SRCS += pkg/mcu/ti_stellaris_lm4f232xxxx/src/ee_spi.c
-#~ MCU_BUF = YES
-#~ endif
-
-#~ ifeq ($(call iseeopt, __USE_I2C__), yes)
-#~ EE_SRCS += pkg/mcu/ti_stellaris_lm4f232xxxx/src/ee_i2c.c
-#~ MCU_BUF = YES
-#~ endif
-
-#~ ifeq ($(call iseeopt, __USE_GPIO__), yes)
-#~ EE_SRCS += pkg/mcu/ti_stellaris_lm4f232xxxx/src/ee_gpio.c
-#~ endif
-
 endif	# __STELLARIS__ && __LM4F232xxxx__
