@@ -50,7 +50,13 @@
 
 #include <ee.h>
 
+#ifdef __AUTOSAR_R4_0__
+#include "Std_Types.h"
+#define BOOL boolean
+#define DEF_BOOL_TYPE
+#else
 #include "../../../../misc/inc/ee_stdint.h"
+#endif /* __AUTOSAR_R4_0__ */
 
 #ifndef COMPILER_INLINE 
 #define COMPILER_INLINE __INLINE__
@@ -144,16 +150,16 @@ typedef union _WORD_VAL
     } bits;
 } WORD_VAL;
 #else
-typedef union _WORD_VAL
+typedef union __attribute__((packed)) _WORD_VAL
 {
     WORD Val;
     BYTE v[2];
-    struct
+    struct __attribute__((packed))
     {
         BYTE LB;
         BYTE HB;
     } byte;
-    struct
+    struct __attribute__((packed))
     {
         unsigned char b0:1;
         unsigned char b1:1;

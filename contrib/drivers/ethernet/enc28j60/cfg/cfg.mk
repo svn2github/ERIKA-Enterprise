@@ -17,4 +17,8 @@ ifeq ($(call iseeopt, __PIC32__), yes)
 EE_SRCS += contrib/drivers/ethernet/enc28j60/src/enc28j60_hal_ee_pic32.c
 endif
 
+ifeq ($(call iseeopt, __CORTEX_MX__), yes)
+EE_SRCS += contrib/drivers/ethernet/enc28j60/src/enc28j60_hal_ee_cortex_mx.c
+endif
+
 endif

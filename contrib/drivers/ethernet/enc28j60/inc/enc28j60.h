@@ -116,9 +116,9 @@ typedef struct __attribute__((__packed__))
 #define ETHER_ARP   			(0x06u)
 
 #ifdef __BIG_ENDIAN__
-typedef union {
+typedef union __attribute__((packed)) {
 	BYTE v[7];
-	struct
+	struct __attribute__((packed))
     {
         BYTE HB;
 		BYTE B6;
@@ -128,7 +128,7 @@ typedef union {
 		BYTE B2;
         BYTE LB;
     } byte;
-	struct {
+	struct __attribute__((packed)) {
 		WORD	 		ByteCount;	
 		unsigned char	Done:1;
 		unsigned char	LengthOutOfRange:1;
@@ -152,16 +152,16 @@ typedef union {
 	} bits;
 } TXSTATUS;
 
-typedef union {
+typedef union __attribute__((packed)){
 	BYTE v[4];
-	struct
+	struct __attribute__((packed))
     {
         BYTE HB;
 		BYTE B3;
 		BYTE B2;
         BYTE LB;
     } byte;
-	struct {
+	struct __attribute__((packed)) {
 		WORD	 		ByteCount;
 		unsigned char	ReceiveOk:1;
 		unsigned char	LengthOutOfRange:1;
@@ -184,10 +184,9 @@ typedef union {
 
 #else	//#ifdef __BIG_ENDIAN__
 
-typedef union {
+typedef union __attribute__((packed)){
 	BYTE v[7];
-	struct
-    {
+	struct __attribute__((packed)) {
         BYTE LB;
 		BYTE B2;
 		BYTE B3;
@@ -196,7 +195,7 @@ typedef union {
 		BYTE B6;
         BYTE HB;
     } byte;
-	struct {
+	struct __attribute__((packed)) {
 		WORD	 		ByteCount;
 		unsigned char	CollisionCount:4;
 		unsigned char	CRCError:1;
@@ -220,16 +219,16 @@ typedef union {
 	} bits;
 } TXSTATUS;
 
-typedef union {
+typedef union __attribute__((packed)){
 	BYTE v[4];
-	struct
+	struct __attribute__((packed))
     {
         BYTE LB;
 		BYTE B2;
 		BYTE B3;
         BYTE HB;
     } byte;
-	struct {
+	struct __attribute__((packed)) {
 		WORD	 		ByteCount;
 		unsigned char	PreviouslyIgnored:1;
 		unsigned char	RXDCPreviouslySeen:1;
