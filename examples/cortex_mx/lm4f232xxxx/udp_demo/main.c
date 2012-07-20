@@ -136,7 +136,9 @@ static void udp_rx_handler(void *arg, struct udp_pcb *upcb,
     u16_t len;
     err_t ret;
 
-    /* TODO: Add LED Blink */
+    /* Make the LED blink in RX */
+    Dio_WriteChannel(DIO_CHANNEL_USER_LED, STD_HIGH);
+    
     /* Connect to the remote host, for replies */
     if (! (upcb->flags & UDP_FLAGS_CONNECTED))
         udp_connect(upcb, addr, port);
@@ -169,8 +171,9 @@ static void udp_rx_handler(void *arg, struct udp_pcb *upcb,
     
     /* Don't leak the pbuf! */
     pbuf_free(p);
-    
-    /* TODO: Add LED Blink */
+
+    /* Make the LED blink in RX */
+    Dio_WriteChannel(DIO_CHANNEL_USER_LED, STD_LOW);
 }
 
 TASK(SenderTask)
@@ -292,11 +295,8 @@ int main (void) {
   Gpt_Init(GPT_CONFIG_LWIP_PTR);
   Sci_Init(SCI_CONFIG_DEFAULT_PTR);
   Spi_Init(SPI_CONFIG_ENC28J60_PTR);
-  //Icu_Init(ICU_CONFIG_ENC28J60_PTR); TODO: Enable this and the following when ICU will be ready
-  //TODO: Check if the activation condition is correct
-  //Icu_SetActivationCondition(ICU_CHANNEL_ENC28J60,ICU_RISING_EDGE);
-  //Icu_EnableNotification(ICU_CHANNEL_ENC28J60);
-
+  Icu_Init(ICU_CONFIG_ENC28J60_PTR);
+  Icu_EnableNotification(ICU_ENC28J60_CHANNEL);
 
   StartOS(OSDEFAULTAPPMODE);
   return 0;

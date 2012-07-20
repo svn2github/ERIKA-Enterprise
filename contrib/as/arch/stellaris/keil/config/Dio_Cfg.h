@@ -234,7 +234,7 @@
 #define	DIO_CHANNELS_NUMBER	DIO_CHANNEL_Q_7 + 1
 
 /** Custom Channel Names Remapping */
-#define	DIO_CHANNEL_ENC28J60_RESET DIO_CHANNEL_F_0
+#define	DIO_CHANNEL_ENC28J60_RESET DIO_CHANNEL_F_4
 
 #define	DIO_PORT_A	0x00000000	/**< Port A */
 #define	DIO_PORT_B	0x00000001	/**< Port B */

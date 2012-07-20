@@ -116,7 +116,7 @@ ifeq ($(call iseeopt, __PIC32__), yes)
 EE_SRCS += contrib/lwip/lwip_1_3_2/abstraction/src/hal/lwip_timer_pic32.c
 endif
 
-ifeq ($(call iseeopt, __PIC32__), yes)
+ifeq ($(call iseeopt, __CORTEX_MX__), yes)
 EE_SRCS += contrib/lwip/lwip_1_3_2/abstraction/src/hal/lwip_timer_cortex_mx.c
 endif
 

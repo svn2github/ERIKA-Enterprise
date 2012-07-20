@@ -59,7 +59,7 @@
 /* AS Drivers inclusions */
 #include "Dio.h"
 #include "Spi.h"
-//#include "Icu.h" TODO: Reactivate this when ICU will be ready
+#include "Icu.h"
 
 /* ------------------------------------------------------------------------------- */
 /* Macros used into the Ethernet driver functions */
@@ -99,7 +99,7 @@ void Icu_SignalNotification_ENC28J60(void);
 /* The handler (Icu_SignalNotification_ENC28J60) is statically configured a compile time and the ISR
    handler is inside to ICU Driver */
 #define EE_enc28j60_hal_handler_setup() ((void)0U)
-#define EE_enc28j60_hal_handler(level)      ((void)0U)
+#define EE_enc28j60_hal_handler(level)  ((void)0U)
 /**
   @brief  This function sets the task should be called inside the interrupt handler.
 */
@@ -221,10 +221,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_hal_write_MII_register(BYTE addres
 /** @brief This function provides, before resetting it,
       the notification status 1 is active 0 is idle   */
 __INLINE__ int __ALWAYS_INLINE__ EE_enc28j60_pending_interrupt(void){ 
-  /* TODO: Reactivate this when ICU will be ready
-  return (Icu_GetInputState(ICU_CHANNEL_ENC28J60) == ICU_ACTIVE)? 1: 0;
-  */
-  return 0;
+  return (Icu_GetInputState(ICU_ENC28J60_CHANNEL) == ICU_ACTIVE)? 1: 0;
 }
 
 /**
@@ -233,7 +230,7 @@ __INLINE__ int __ALWAYS_INLINE__ EE_enc28j60_pending_interrupt(void){
 __INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_hal_enable(void)
 {
   /* ENC28J60 Reset Active Low */
-    Dio_WriteChannel(DIO_CHANNEL_ENC28J60_RESET, STD_HIGH);
+  Dio_WriteChannel(DIO_CHANNEL_ENC28J60_RESET, STD_HIGH);
 }
 
 /**
@@ -247,34 +244,27 @@ __INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_hal_disable(void)
 
 
 /**
-  @brief This function enables ENC28J60 reception notifications. 
+  @brief This function enables ENC28J60 reception of interrupts. 
 */
 __INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_hal_enable_IRQ(void)
 {
-  /* TODO: Reactivate this when ICU will be ready
-  Icu_EnableNotification(ICU_CHANNEL_ENC28J60);
-  */
+  Icu_EnableEdgeDetection(ICU_ENC28J60_CHANNEL);
 }
 
 /**
-  @brief This function disables ENC28J60 reception notifications. 
+  @brief This function disables ENC28J60 reception of interrupts. 
 */
 __INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_hal_disable_IRQ(void)
 {
-  /* TODO: Reactivate this when ICU will be ready
-  Icu_DisableNotification(ICU_ENC28J60_CHANNEL);
-  */
+  Icu_DisableEdgeDetection(ICU_ENC28J60_CHANNEL);
 }
 
 /** @brief This function returns ENC28J60 reception notifications status. */
 __INLINE__ int __ALWAYS_INLINE__ EE_enc28j60_hal_IRQ_enabled(void)
 {
-  /* TODO: Reactivate this when ICU will be ready
-     N.B The following API is not AS standard it has been added as extension for an easy porting of
-     enc28j60 driver on top of AS MCAL
-  return Icu_GetNotificationStatus(ICU_ENC28J60_CHANNEL);
-  */
-  return 0;
+  /* The following API is not AS standard it has been added as extension for an easy porting of
+     enc28j60 driver on top of AS MCAL  */
+  return Icu_GetEdgeDetectionStatus(ICU_ENC28J60_CHANNEL);
 }
 
 #endif /* __ENC28J60_HAL_EE_CORTEX_MX_H__ */

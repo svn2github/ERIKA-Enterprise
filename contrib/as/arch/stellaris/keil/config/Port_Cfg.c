@@ -131,6 +131,7 @@ const Port_PinModeConfType PortFPin0Conf[] = {
     PORT_PIN_MODE_SPI,		/* Port pin mode.			      */
     PORT_PIN_HW_CFG_DEN |	/* Digital Enable.			      */
     PORT_PIN_HW_CFG_AFSEL |	/* Alternate Function Select.		      */
+    PORT_PIN_HW_CFG_PUR |	/* Pull-Up Select			      */
     PORT_F_PIN_0_PMC_SPI_1_RX	/* Port F SSI1 Mux Control.		      */
   }
 };
@@ -435,7 +436,7 @@ const Port_ConfigType Port_Config[] = {
     &SCIPortPins[0]	/* PortPins		*/
   },
   { /* PORT_CONFIG_SPI_ENC28J60 */
-    0x00000004,			/* PortNumberOfPortPins	*/
+    0x00000008,			/* PortNumberOfPortPins	*/
     &SPIENC28J60PortPins[0]	/* PortPins		*/
   }
 };

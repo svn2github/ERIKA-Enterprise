@@ -64,6 +64,7 @@ CPU test_application {
       APP_SRC = "Spi_Cfg.c";
       APP_SRC = "Sci_Cfg.c";
       APP_SRC = "Gpt_Cfg.c";
+      APP_SRC = "Icu_Cfg.c";
       MULTI_STACK = FALSE;
     };
     
@@ -83,20 +84,21 @@ CPU test_application {
     EE_OPT = "__AS_SCI_DRIVER__";
     EE_OPT = "__AS_GPT_DRIVER__";
 
+    EE_OPT = "__AS_ICU_DRIVER__";
+    EE_OPT = "__AS_CFG_ICU_EDGE_DETECT_API__";
+    EE_OPT = "__AS_CFG_ICU_ENC28J60__";
+
     EE_OPT = "__AS_DMA_DRIVER__";
     EE_OPT = "__AS_CFG_DMA_STATUS_API__";
     EE_OPT = "__AS_CFG_DMA_SCATTER_GATHER_API__";
     EE_OPT = "__AS_CFG_DMA_NOTIFICATIONS_API__";
     EE_OPT = "__AS_CFG_DMA_DISABLE_CHANNEL_API__";
     EE_OPT = "__AS_CFG_DMA_SPI__";
-    EE_OPT = "__AS_CFG_DMA_XFER_ERR_NOTIF_SPI_0_RX__";
-    EE_OPT = "__AS_CFG_DMA_XFER_ERR_NOTIF_SPI_0_TX__";
     EE_OPT = "__AS_CFG_DMA_XFER_ERR_NOTIF_SPI_1_RX__";
     EE_OPT = "__AS_CFG_DMA_XFER_ERR_NOTIF_SPI_1_TX__";
 
     EE_OPT = "__AS_SPI_DRIVER__";
     EE_OPT = "__AS_CFG_SPI_ENC28J60__";
-    EE_OPT = "__AS_CFG_SPI_VERSION_INFO_API__";
     EE_OPT = "__AS_CFG_SPI_SYNCHRONOUS__";
 
     KERNEL_TYPE = BCC1;
@@ -107,6 +109,9 @@ CPU test_application {
     EE_OPT = "__ADD_LIBS__";
     LIB = ENABLE {
       NAME = "AUTOSAR";
+    };
+    LIB = ENABLE {
+      NAME = "AUTOSAR_SSG";
     };
   };
 

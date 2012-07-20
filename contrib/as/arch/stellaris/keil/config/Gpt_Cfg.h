@@ -761,6 +761,9 @@ typedef struct {
 #define	GPT_CHANNEL_J_W_4	0x7C	/**< Channel W J 4 */
 #define	GPT_CHANNEL_J_W_5	0x7E	/**< Channel W J 5 */
 
+/** @brief Custon Channel Names Remapping */
+#define GPT_CHANNEL_LWIP GPT_CHANNEL_0_A
+
 #if ( GPT_ENABLE_DISABLE_NOTIFICATION_API == STD_ON )
 /*
  * The configuration process for Gpt module shall provide function prototypes
@@ -2161,6 +2164,6 @@ typedef struct {
  *
  *  Name Mapping for LWIP GPT Driver Configuration
  */
-#define Gpt_Notification_Channel_LWIP Gpt_Notification_Channel_1_A
+#define Gpt_Notification_Channel_LWIP Gpt_Notification_Channel_0_A
 
 #endif	/* GPT_CFG_H */

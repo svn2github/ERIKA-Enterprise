@@ -52,7 +52,8 @@ else
 export ERIKA_FILES := $(subst \,/,$(ERIKA_FILES))
 endif
 
-AS_CFG_PREFIX = $(ERIKA_FILES)/contrib/as/arch/stellaris/keil/config/
+AS_CFG_PREFIX := $(ERIKA_FILES)/contrib/as/arch/stellaris/keil/config/
+AS_SSG_CFG_PREFIX := $(ERIKA_FILES)/contrib/as_ssg/arch/stellaris/keil/config/
 
 ifndef RTDRUID_ECLIPSE_HOME
 RTDRUID_ECLIPSE_HOME := C:/Evidence/eclipse
@@ -80,15 +81,18 @@ AS_CFG =	Compiler_Cfg.h\
 		Spi_Cfg.h\
 		Spi_Cfg.c
 
-FAKEDRUID_AS_CFG = $(addprefix $(AS_CFG_PREFIX), $(AS_CFG))
+AS_SSG_CFG =	Icu_Cfg.h\
+		Icu_Cfg.c
 
 RTDRUID_AS_OUTPUT = $(addprefix $(OUTPUT_DIR)/, $(AS_CFG))
+
+RTDRUID_AS_SSG_OUTPUT = $(addprefix $(OUTPUT_DIR)/, $(AS_SSG_CFG))
 
 RTDRUID_OUTPUT = $(addprefix $(OUTPUT_DIR)/, makefile eecfg.h eecfg.c)
 
 .PHONY: all clean
 
-all: $(RTDRUID_OUTPUT) $(RTDRUID_AS_OUTPUT)
+all: $(RTDRUID_OUTPUT) $(RTDRUID_AS_OUTPUT) $(RTDRUID_AS_SSG_OUTPUT)
 	$(MAKE) -C $(OUTPUT_DIR) all
 
 clean:
@@ -116,3 +120,7 @@ $(RTDRUID_AS_OUTPUT): $(OUTPUT_DIR)/% : $(AS_CFG_PREFIX)%
 	@mkdir -p $(OUTPUT_DIR)
 	cp $< $@
 
+$(RTDRUID_AS_SSG_OUTPUT): $(OUTPUT_DIR)/% : $(AS_SSG_CFG_PREFIX)%
+	@echo "Substituing RT-Druid in generating $@..."
+	@mkdir -p $(OUTPUT_DIR)
+	cp $< $@
