@@ -71,17 +71,13 @@ extern void EE_CORTEX_MX_BUS_FAULT_ISR(void);
 #ifdef EE_CORTEX_MX_USAGE_FAULT_ISR			// The usage fault handler
 extern void EE_CORTEX_MX_USAGE_FAULT_ISR(void);
 #endif
-#ifdef EE_CORTEX_MX_SVCALL_ISR				// SVCall handler
-extern void EE_CORTEX_MX_SVCALL_ISR(void);
-#endif
+/* Not for user: used by Erika Enterprise context switch. */
+extern void EE_cortex_mx_svcall_handler(void);		// The SVCall handler
 #ifdef EE_CORTEX_MX_DEBUG_MONITOR_ISR			// Debug monitor handler
 extern void EE_CORTEX_MX_DEBUG_MONITOR_ISR(void);
 #endif
-/*#ifdef EE_CORTEX_MX_PENDSV_ISR				// The PendSV handler
-extern void EE_CORTEX_MX_PENDSV_ISR(void);
-#endif*/
-/* Not for user: used by Erika Enterptise context switch. */
-extern void EE_cortex_mx_pendsv_handler(void);
+/* Not for user: used by Erika Enterprise context switch. */
+extern void EE_cortex_mx_pendsv_handler(void);		// The PendSV handler
 #ifdef EE_CORTEX_MX_SYSTICK_ISR				// The SysTick handler
 extern void EE_CORTEX_MX_SYSTICK_ISR(void);
 #endif
@@ -477,24 +473,16 @@ void (* const EE_cortex_mx_vtable[])(void) =
     0,					// Reserved
     0,					// Reserved
     0,					// Reserved
-#ifdef EE_CORTEX_MX_SVCALL_ISR		// SVCall handler
-    EE_CORTEX_MX_SVCALL_ISR,
-#else
-    EE_cortex_mx_default_ISR,
-#endif
+    /* Not for user: used by Erika Enterprise context switch. */
+    EE_cortex_mx_svcall_handler,	// The SVCall handler
 #ifdef EE_CORTEX_MX_DEBUG_MONITOR_ISR	// Debug monitor handler
     EE_CORTEX_MX_DEBUG_MONITOR_ISR,
 #else
     EE_cortex_mx_default_ISR,
 #endif
     0,					// Reserved
-/*#ifdef EE_CORTEX_MX_PENDSV_ISR		// The PendSV handler
-    EE_CORTEX_MX_PENDSV_ISR,
-#else
-    EE_cortex_mx_default_ISR,
-#endif*/
     /* Not for user: used by Erika Enterprise context switch. */
-    EE_cortex_mx_pendsv_handler,
+    EE_cortex_mx_pendsv_handler,	// The PendSV handler
 #ifdef EE_CORTEX_MX_SYSTICK_ISR		// The SysTick handler
     EE_CORTEX_MX_SYSTICK_ISR,
 #else

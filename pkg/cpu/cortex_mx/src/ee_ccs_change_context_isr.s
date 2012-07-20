@@ -1,7 +1,7 @@
 ; ###*B*###
 ; ERIKA Enterprise - a tiny RTOS for small microcontrollers
 ;
-; Copyright (C) 2002-2010  Evidence Srl
+; Copyright (C) 2002-2012  Evidence Srl
 ;
 ; This file is part of ERIKA Enterprise.
 ;
@@ -38,174 +38,205 @@
 ; Boston, MA 02110-1301 USA.
 ; ###*E*###
 
-;	@file ee_ccs_change_context_isr.s
-;	@brief Functions to active and manage the context switch for Cortex_MX 
-;	@author Gianluca Franchino
-;	@author Giuseppe Serano
-;	@date 2011
+;	@file	ee_ccs_change_context_isr.s
+;	@brief	Functions to active and manage the context switch for Cortex_MX 
+;	@author	Gianluca Franchino
+;	@author	Giuseppe Serano
+;	@date	2012
 
 ;*******************************************************************************
 ;                         PUBLIC FUNCTIONS
 ;*******************************************************************************
 
-; Functions declared in this file 
-	.global	EE_switch_context		; void EE_switch_context(void)
-	.global	EE_cortex_mx_pendsv_handler	; void EE_cortex_mx_pendsv_handler(void);
-	.global	EE_set_switch_context_pri	; void EE_set_switch_context_pri(void)
+; void EE_switch_context(void);
+	.global	EE_switch_context
 
-; Variables declared in this file
-	.global	EE_cortex_mx_change_context_active
+; void EE_cortex_mx_pendsv_handler(void);
+	.global	EE_cortex_mx_pendsv_handler
 
-; Extenal Functions
+; void EE_cortex_mx_svcall_handler(void);
+	.global	EE_cortex_mx_svcall_handler
+
+; void EE_set_switch_context_pri(void)
+	.global	EE_set_switch_context_pri
+
+; void EE_IRQ_end_instance(void);
+	.global	EE_IRQ_end_instance
+
+; void EE_cortex_mx_change_context(EE_TID tid);
 	.global	EE_cortex_mx_change_context
+
+; EE_TID EE_std_endcycle_next_tid;
 	.global	EE_std_endcycle_next_tid
 
-;*******************************************************************************
-;                              DATA SECTION
-;*******************************************************************************
-	.data
-
-EE_cortex_mx_change_context_active	.word 00h	; EE_UREG EE_cortex_mx_change_context_active;
+	.if $$isdefed("__MULTI__")
+; int EE_std_need_context_change(EE_TID tid);
+	.global	EE_std_need_context_change
+	.endif
 
 ;*******************************************************************************
 ;                              CODE SECTION
 ;*******************************************************************************
 	.text
 
-NVIC_INT_CTRL		.word	0E000ED04h	; Interrupt control status register
-NVIC_SHPR3		.word	0E000ED20h	; System priority register (PendSV 14) 0xE000ED20
-NVIC_PENDSV_PRI		.word	000FF0000h	; PendSV priority value (Lowest)
-NVIC_PENDSVSET		.word	010000000h	; Value to trigger PendSV exception
-NVIC_STKALIGN		.word	000000200h	; Stack Alignment on Exception Entry
+NVIC_INT_CTRL	.word	0E000ED04h	; Interrupt control status register
+NVIC_SHPR2	.word	0E000ED1Ch	; System priority register (SVCall 11)
+NVIC_SHPR3	.word	0E000ED20h	; System priority register (PendSV 14)
+NVIC_PENDSV_PRI	.word	000FF0000h	; PendSV priority OR-value (Lowest)
+NVIC_SVCALL_PRI	.word	000FFFFFFh	; SVCall priority AND-value (Highest)
+NVIC_PENDSVSET	.word	010000000h	; Value to trigger PendSV exception
+NVIC_PENDSVCLR	.word	008000000h	; Value to un-trigger PendSV exception
 
-EPSR_T_BIT_VAL		.word	001000000h	; Value to set the T-bit in EPSR (always Thumb mode)
+EPSR_T_BIT_VAL	.word	001000000h	; Value to set the T-bit in EPSR
+					; (always Thumb mode)
 
-EE_cortex_mx_change_context_active_addr	.word EE_cortex_mx_change_context_active
+EXC_RETURN	.word	0xFFFFFFF9	; No-FPU, Thread-Mode, MSP.
+
+			.if $$isdefed("__MONO__")
+TID_IS_STACKED_MARK	.word	0x80000000
+			.endif
+
 _EE_cortex_mx_change_context_addr	.word EE_cortex_mx_change_context
 _EE_std_endcycle_next_tid_addr		.word EE_std_endcycle_next_tid
-_exit_EE_cortex_mx_change_context_addr	.word exit_EE_cortex_mx_change_context
+_EE_cortex_mx_change_context_return_point_addr	.word EE_cortex_mx_change_context_return_point
 
-;
-;This function restores the context before the IRQ that caused a context change
-;through EE_cortex_mx_IRQ_active_change_context(void);
-;
-exit_EE_cortex_mx_change_context:
-	.asmfunc
-
-	MRS	R0, MSP			; Get the stack pointer
-
-	LDR	R3, [R0, #28]		; Status xPSR in R3
-
-	LDR	R2, [R0, #20]		; Load LR from stack
-	MOV	LR, R2			; Restore LR
-
-	LDR	R1, [R0, #24]		; Get the value of PC from the stack
-	ADDS	R1, R1, #0x01		; Set Bit[0] of R1 to ensure that T-bit in APSR is 1,
-
-	LDR	R2, NVIC_STKALIGN	; R2 = 0x00000200
-	ANDS	R2, R2, R3		; Alignment test in R2
-
-	CBZ	R2, stackAligned1
-	ADDS	R0, R0, #4		; Adds alignment displacement
-
-stackAligned1:
-	MSR	XPSR, R3		; Restore xPSR
-					; that is, the processor must work in Thumb mode
-	STR	R1, [R0, #28]		; Store value of PC from stack has the
-					; first value on the stack frame. 
-					; This value is used as return address
-	POP	{R1}			; Get R0 value from stack
-	STR	R1, [R0, #24]		; Store value of R0 from the stack
-					; onto the stack at the place of PC
-	POP	{R1}			; Get R1 value from stack
-	STR	R1, [R0, #20]		; Store value of R1 from the stack 
-					; onto the stack at the place of LR
-	MOV	R12, R4			; Use R12 to save the current value of R4
-	MOV	R1, R2			; Aligment test in R1
-	POP	{R2-R4}			; Restore Scratch registers
-					; Note: in R4 we get the scratch register R12
-	MOV	R0, R12			; Use R0 to save the value of R4 before the pop instruc.,
-					; (which is stored in R12)
-	MOV	R12, R4			; Restore Scratch register R12
-	MOV	R4, R0			; Restore R4
-
-	CBZ	R1, stackAligned2
-	POP	{R0}
-
-stackAligned2:
-	POP	{R1}			; Move stack pointer getting again R1
-	CPSIE	I			; Enable interrupts (clear PRIMASK)
-	POP	{R0, PC}		; Move stack pointer getting again R0 and return
-					; updating PC
-
-	.endasmfunc
 
 ; void EE_set_switch_context_pri(void)
-EE_set_switch_context_pri:
-	.asmfunc
+EE_set_switch_context_pri:	.asmfunc
+
 ;Set PendSV priority to the minumum one
-	LDR	R0, NVIC_SHPR3
-	LDR	R1, NVIC_PENDSV_PRI
-	LDR	R2, [R0];
-	ORRS	R2, R2, R1;
-	STR	R2, [R0];
-	BX	LR
-	.endasmfunc
+				LDR	R0, NVIC_SHPR3
+				LDR	R1, NVIC_PENDSV_PRI
+				LDR	R2, [R0];
+				ORRS	R2, R2, R1;
+				STR	R2, [R0];
+
+;Set SVCall priority to the maximum one
+				LDR	R0, NVIC_SHPR2
+				LDR	R1, NVIC_SVCALL_PRI
+				LDR	R2, [R0];
+				ANDS	R2, R2, R1;
+				STR	R2, [R0];
+
+				BX	LR
+
+				.endasmfunc
+
 
 ; void EE_switch_context(void)
-EE_switch_context:
-	.asmfunc
-	;Trigger the PendSV exception (causes context switch)
-	LDR	R0, NVIC_INT_CTRL
-	LDR	R1, NVIC_PENDSVSET
-	STR	R1, [R0]
-	BX	LR
-	.endasmfunc
+EE_switch_context:	.asmfunc
+
+; Trigger the PendSV exception (causes context switch)
+			LDR	R0, NVIC_INT_CTRL
+			LDR	R1, NVIC_PENDSVSET
+			STR	R1, [R0]
+			BX	LR
+
+			.endasmfunc
+
 
 ; void EE_cortex_mx_pendsv_handler(void)
-EE_cortex_mx_pendsv_handler:
-	.asmfunc
-	CPSID	I			; Disable all interrupts except NMI (set PRIMASK)
-					; Build a stack frame to jump into the EE_cortex_mx_change_context(EE_TID)
-					; at the end of PendSV_Handler.
-	MRS	R2, XPSR		; R2 = xPSR
-	LDR	R0, EPSR_T_BIT_VAL	; R0 = 0x01000000
-	ORRS	R2, R2, R0		; R2 = (xPSR OR 0x01000000). This guarantees that Thumbs bit is set
-					; to avoid an hard_fault exception
-	MOVS	R0, #0x20		; R0 = 0x00000020
-	RSBS	R0, R0, #0;		; R0 = 0xFFFFFFE0
-	ANDS	R2, R2, R0		; R2 = (xPSR AND 0xFFFFFE0) -> In this way, we return in Thread mode. 
-	LDR	R1, _EE_cortex_mx_change_context_addr		; R1 = EE_cortex_mx_change_context_addr
-	LDR	R0, _exit_EE_cortex_mx_change_context_addr	; R0 = exit_EE_cortex_mx_change_context (LR)
-	PUSH	{R0-R2}			;
-	MOV	R0, R12			;Since PUSH cannot use R12, put R0 onto stack as R12
-	PUSH	{R0}
-	LDR	R0, _EE_std_endcycle_next_tid_addr	; R0 = address of EE_std_endcycle_next_tid_addr
-	LDR	R0,[R0]			; R0 = EE_std_endcycle_next_tid
-					; Note: following the call convention, EE_cortex_mx_change_context
-					; will get EE_std_endcycle_next_tid from R0.
-	PUSH	{R0-R3}			;Fake IRQ handler frame on top of PendSV frame:
-					;|xPSR|
-					;| PC |-> EE_cortex_mx_change_context
-					;| LR |-> exitPendSV (LR)
-					;| R12|
-					;| R3 |
-					;| R2 |
-					;| R1 |
-					;| R0 | <- MSP
-exitPendSV:
-	; EE_cortex_mx_change_context_active = 0
-	SUBS	R0, R0, R0
-	LDR	R1, EE_cortex_mx_change_context_active_addr
-	STR	R0, [R1]
-	
-	MOVS	R0,#8			; R0 = 0x8
-	RSBS	R0, R0, #0		; R0 = 0xFFFFFFF8
-	ADDS	R0, R0, #1		; R0 = 0xFFFFFFF9 
-					; EXC_RETURN = R0 -> Return to Thread mode.
-					;		  -> Exception return gets state from MSP.
-					;		  -> Execution uses MSP after return.
-	BX	R0			; Exit interrupt
-	.endasmfunc
+EE_cortex_mx_pendsv_handler:	.asmfunc
+
+				CPSID	I	; Disable all interrupts.
+
+; Clear the PendSV exception (preventing 2nd triggering)
+				LDR	R0, NVIC_INT_CTRL
+				LDR	R1, NVIC_PENDSVCLR
+				STR	R1, [R0]
+
+				BL	EE_IRQ_end_instance	; IRQ Scheduler.
+
+; R0 = EE_std_endcycle_next_tid.
+				LDR	R0, _EE_std_endcycle_next_tid_addr
+				LDR	R0, [R0]
+
+				.if $$isdefed("__MONO__")
+; #define EE_std_need_context_change(tid) ((tid) >= 0)
+				LDR	R1, TID_IS_STACKED_MARK
+				ANDS	R0, R0, R1
+				CBNZ	R0, EE_cortex_mx_pendsv_handler_end
+				.endif
+
+				.if $$isdefed("__MULTI__")
+				BL	EE_std_need_context_change
+				CBZ	R0, EE_cortex_mx_pendsv_handler_end
+				.endif
+
+; Build a stack frame to jump into the EE_std_change_context(EE_TID) at the end
+; of PendSV_Handler.
+
+; R0 = EE_std_endcycle_next_tid (R12)
+				LDR	R0, _EE_std_endcycle_next_tid_addr
+				LDR	R0, [R0]
+
+; R3 = 0x01000000 (xPSR)
+				LDR	R3, EPSR_T_BIT_VAL
+
+; R2 = EE_cortex_mx_change_context (PC)
+				LDR	R2, _EE_cortex_mx_change_context_addr
+
+; R1 = exit_EE_cortex_mx_change_context (LR)
+				LDR	R1, _EE_cortex_mx_change_context_return_point_addr
+
+;|xPSR|-> xPSR AND 0xFFFFFE0
+;| PC |-> EE_cortex_mx_change_context
+;| LR |-> EE_cortex_mx_change_context_return_point
+;| R12|
+				PUSH	{R0-R3}
+
+;| R3 |
+;| R2 |
+;| R1 |
+;| R0 |
+				PUSH	{R0-R3}
+
+;Fake IRQ handler frame on top of PendSV frame:
+;|xPSR|-> xPSR AND 0xFFFFFE0
+;| PC |-> EE_cortex_mx_change_context
+;| LR |-> EE_cortex_mx_change_context_return_point
+;| R12|
+;| R3 |
+;| R2 |
+;| R1 |
+;| R0 | <- MSP
+; R0 = EXC_RETURN -> Return to Thread mode.
+;		  -> Exception return gets state from MSP.
+;		  -> Execution uses MSP after return.
+				LDR	R0, EXC_RETURN
+				BX	R0		; EXC_RETURN.
+
+				NOP			; Alignment. 
+
+EE_cortex_mx_pendsv_handler_end:
+; R0 = EXC_RETURN -> Return to Thread mode.
+;		  -> Exception return gets state from MSP.
+;		  -> Execution uses MSP after return.
+				LDR	R0, EXC_RETURN
+				CPSIE	I		; Enable all interrupts.
+				BX	R0		; EXC_RETURN.
+
+				.endasmfunc
+
+
+EE_cortex_mx_change_context_return_point:	.asmfunc
+; Enable interrupts (clear PRIMASK)
+; NOTE:	If SVC is executed when PRIMASK is set to 1, HardFault Exception will
+; 	occur. To solve this, instead of using PRIMASK to mask interrupts, use
+; 	BASEPRI to mask particular interrupts.
+						CPSIE	I
+; SVCall exception to remove Original PendSV stack-frame.
+						SVC	#0
+
+						.endasmfunc
+
+; void EE_cortex_mx_svc_ISR(void)
+EE_cortex_mx_svcall_handler:	.asmfunc
+; Remove SVCall Stack-Frame.
+				ADD	SP, SP, #(8*4)
+
+				BX	LR	; EXC_RETURN.
+
+				.endasmfunc
 
 	.end
