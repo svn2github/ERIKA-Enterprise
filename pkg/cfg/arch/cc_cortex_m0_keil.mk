@@ -150,7 +150,7 @@ ifeq ($(call iseeopt, DEBUG), yes)
 OPT_ASM += -g
 endif
 
-OPT_ASM += --pd "__EVAL SETA 1" --xref --cpreproc --cpreproc_opts=-D,__CORTEX_M0__
+OPT_ASM += --xref --cpreproc
 
 # Specific option from the application makefile
 OPT_ASM += $(ASFLAGS)
@@ -191,7 +191,7 @@ OPT_LINK += --strict --map --xref --callgraph  --symbols \
 
 ifndef LPCXPRESSO_LINKERSCRIPT
 
-OPT_LINK += --ro-base 0x00000000 --rw-base 0x10000000 \
+#OPT_LINK += --ro-base 0x00000000 --rw-base 0x10000000 \
 #	     --first EE_cortex_mx_vtable
 
 #ifdef EE_CORTEX_MX_RESET_ISR
@@ -223,8 +223,7 @@ OPT_LINK += $(LDFLAGS)
 # Each identifier that is listed in EEOPT is also inserted as a 
 # command-line macro in the compiler...
 
-DEFS_ASM =
-#$(foreach d,$(EEOPT),$(addprefix --pd ,$d))
+DEFS_ASM = $(foreach d,$(EEOPT),--pd "$d SETA 1")
 DEFS_CC  = $(addprefix -D, $(EEOPT))
 
 
