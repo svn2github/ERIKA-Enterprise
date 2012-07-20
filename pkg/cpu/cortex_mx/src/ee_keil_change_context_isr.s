@@ -172,12 +172,9 @@ EE_cortex_mx_pendsv_ISR	FUNCTION
 
 			BL	EE_IRQ_end_instance	; IRQ Scheduler.
 
-; R3 = EE_std_endcycle_next_tid.
-			LDR	R0, =EE_std_endcycle_next_tid
-			LDR	R3, [R0]
-
 ; R0 = EE_std_endcycle_next_tid.
-			MOV	R0, R3
+			LDR	R0, =EE_std_endcycle_next_tid
+			LDR	R0, [R0]
 
   IF	:DEF:	__MONO__
 ; #define EE_std_need_context_change(tid) ((tid) >= 0)
@@ -190,12 +187,13 @@ EE_cortex_mx_pendsv_ISR	FUNCTION
 			BL	EE_std_need_context_change
 			CBZ	R0, EE_cortex_mx_pendsv_ISR_end
   ENDIF
-	
+
 ; Build a stack frame to jump into the EE_std_change_context(EE_TID) at the end
 ; of PendSV_Handler.
 
 ; R0 = EE_std_endcycle_next_tid (R12)
-			MOV	R0, R3
+			LDR	R0, =EE_std_endcycle_next_tid
+			LDR	R0, [R0]
 
 ; R3 = 0x01000000 (xPSR)
 			LDR	R3, =EPSR_T_BIT_VAL
