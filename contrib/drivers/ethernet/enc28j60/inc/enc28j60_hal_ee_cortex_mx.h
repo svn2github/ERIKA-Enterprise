@@ -83,10 +83,11 @@
 /* ETHERNET driver functions list */
 /* ------------------------------------------------------------------------------- */
 
-/** @brief  enc28j60 driver initialization procedure */
+/** @brief  enc28j60 driver initialization procedure (Check if SPI Driver is correctly configured) */
 __INLINE__ int __ALWAYS_INLINE__ EE_enc28j60_hal_spi_init(void){
-  Spi_Init(SPI_CONFIG_ENC28J60_PTR);
-  return ENC28J60_SUCCESS;
+  return (Spi_GetStatus() == SPI_UNINIT)?
+    ENC28J60_FAILURE:
+    ENC28J60_SUCCESS;
 }
 
 /**
@@ -217,6 +218,15 @@ __INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_hal_write_MII_register(BYTE addres
   EE_enc28j60_hal_write_register(address, data);
 }
 
+/** @brief This function provides, before resetting it,
+      the notification status 1 is active 0 is idle   */
+__INLINE__ int __ALWAYS_INLINE__ EE_enc28j60_pending_interrupt(void){ 
+  /* TODO: Reactivate this when ICU will be ready
+  return (Icu_GetInputState(ICU_CHANNEL_ENC28J60) == ICU_ACTIVE)? 1: 0;
+  */
+  return 0;
+}
+
 /**
   @brief  This function enables device using reset pin (turn on).
 */
@@ -242,7 +252,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_hal_disable(void)
 __INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_hal_enable_IRQ(void)
 {
   /* TODO: Reactivate this when ICU will be ready
-  Icu_EnableNotification(ICU_ENC28J60_CHANNEL);
+  Icu_EnableNotification(ICU_CHANNEL_ENC28J60);
   */
 }
 

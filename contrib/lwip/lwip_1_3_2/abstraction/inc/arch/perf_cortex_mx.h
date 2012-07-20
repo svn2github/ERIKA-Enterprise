@@ -37,18 +37,11 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
-
-#ifndef __CC_H__
-#define __CC_H__
  
-#if defined __LM32__
-#include <arch/cc_mico32.h>
-#elif defined __PIC32__ 			/* No timer */
-#include <arch/cc_pic32.h>
-#elif defined __CORTEX_MX__
-#include <arch/cc_cortex_mx.h>
-#else			/* No Supported Arch */
-#error "LWIP_ARCH ERROR: cpu not specified!"
-#endif	/* End Selection */
+#ifndef __PERF_CORTEX_MX_H__
+#define __PERF_CORTEX_MX_H__
 
-#endif
+#define PERF_START    /* null definition */
+#define PERF_STOP(x)  /* null definition */
+
+#endif /* __PERF_CORTEX_MX_H__ */

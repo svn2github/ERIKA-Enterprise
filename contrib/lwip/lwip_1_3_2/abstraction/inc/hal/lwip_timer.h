@@ -26,6 +26,8 @@
 #include <hal/lwip_timer_pic32.h>
 #include "eth_api.h"
 
+#elif defined __CORTEX_MX__
+#include <hal/lwip_timer_cortex_mx.h>
 #else			/* No timer */
 #warning "No timer Specified"
 #endif	/* End Selection */

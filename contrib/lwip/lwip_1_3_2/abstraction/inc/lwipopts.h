@@ -130,7 +130,7 @@
  * ---------- DHCP options ---------- 
  */
 #ifndef LWIP_DHCP
-#define LWIP_DHCP               1
+#define LWIP_DHCP               0
 #endif
 //#define DHCP_DOES_ARP_CHECK             ((LWIP_DHCP) && (LWIP_ARP))
 

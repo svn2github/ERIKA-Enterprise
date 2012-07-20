@@ -45,10 +45,12 @@
 
 #if defined __LM32__
 #include <arch/perf_mico32.h>
-#elif defined __PIC32__			/* No timer */
+#elif defined __PIC32__
 #include <arch/perf_pic32.h>
+#elif defined __CORTEX_MX__
+#include <arch/perf_cortex_mx.h>
 #else
 #error "LWIP_ARCH ERROR: cpu not specified!"
 #endif	/* End Selection */
 
-#endif                                                        /* __PERF_H__ */
+#endif /* __PERF_H__ */

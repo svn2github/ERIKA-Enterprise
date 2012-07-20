@@ -2145,4 +2145,22 @@ typedef struct {
  */
 #define	GPT_CONFIG_DEFAULT_PTR	&Gpt_Config[GPT_CONFIG_DEFAULT]
 
+/** @brief  LWIP Configuration
+ *
+ *  Identifier for LWIP GPT Driver Configuration.
+ */
+#define GPT_CONFIG_LWIP GPT_CONFIG_DEFAULT
+
+/** @brief  LWIP Configuration Pointer
+ *
+ *  Pointer of LWIP GPT Driver Configuration
+ */
+#define GPT_CONFIG_LWIP_PTR GPT_CONFIG_DEFAULT_PTR
+
+/** @brief  LWIP Configuration Pointer
+ *
+ *  Name Mapping for LWIP GPT Driver Configuration
+ */
+#define Gpt_Notification_Channel_LWIP Gpt_Notification_Channel_1_A
+
 #endif	/* GPT_CFG_H */
