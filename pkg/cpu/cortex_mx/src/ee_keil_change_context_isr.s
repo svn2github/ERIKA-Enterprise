@@ -180,12 +180,24 @@ EE_cortex_mx_pendsv_ISR	FUNCTION
 ; #define EE_std_need_context_change(tid) ((tid) >= 0)
 			LDR	R1, =TID_IS_STACKED_MARK
 			ANDS	R0, R0, R1
+	IF	:DEF:	__CORTEX_M0__
+			CMP	R0, #0
+			BNE	EE_cortex_mx_pendsv_ISR_end
+	ELSE
 			CBNZ	R0, EE_cortex_mx_pendsv_ISR_end
+	ENDIF
   ENDIF
 
   IF	:DEF:	__MULTI__
 			BL	EE_std_need_context_change
+	IF	:DEF:	__CORTEX_M0__
+			CMP	R0, #0
+			BNE	EE_cortex_mx_pendsv_ISR_continue
+			B	EE_cortex_mx_pendsv_ISR_end
+EE_cortex_mx_pendsv_ISR_continue
+	ELSE
 			CBZ	R0, EE_cortex_mx_pendsv_ISR_end
+	ENDIF
   ENDIF
 
 ; Build a stack frame to jump into the EE_std_change_context(EE_TID) at the end
