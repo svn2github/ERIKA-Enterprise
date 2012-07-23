@@ -75,6 +75,7 @@
  *
  **************************************************************************/
 #define EE_CORTEX_MX_SYSTICK_ISR systick_handler
+#define EE_CORTEX_MX_SYSTICK_ISR_PRI EE_ISR_PRI_1
 
 
 #endif

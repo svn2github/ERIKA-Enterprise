@@ -43,8 +43,8 @@
  **************************************************************************/
 #define __ASSERT__
 #define __USE_USER_LED__
-#define __USE_SVC__
 #define __USE_SYSTICK__
+#define __USE_TIMER__
 
 
 /***************************************************************************
@@ -73,8 +73,10 @@
  * ISR definition
  *
  **************************************************************************/
-#define EE_CORTEX_MX_SVCALL_ISR svcall_handler
 #define EE_CORTEX_MX_SYSTICK_ISR systick_handler
+#define EE_CORTEX_MX_SYSTICK_ISR_PRI EE_ISR_PRI_2
+#define EE_CORTEX_MX_TIMER_0_A_ISR timer_handler
+#define EE_CORTEX_MX_TIMER_0_A_ISR_PRI EE_ISR_PRI_1
 
 
 #endif

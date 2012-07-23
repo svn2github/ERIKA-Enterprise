@@ -89,6 +89,7 @@ CPU mySystem {
 	ISR systick_handler {
 		CATEGORY = 2;
 		ENTRY = "SYSTICK";
+		PRIORITY = 1;
 	};
 
 };

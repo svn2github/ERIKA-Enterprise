@@ -54,7 +54,6 @@
 
 #include "ee.h"
 #include "ee_irq.h"
-#include "cpu/cortex_mx/inc/ee_svc.h"
 #include "test/assert/inc/ee_assert.h"
 
 #define TRUE 1
@@ -63,7 +62,7 @@
 enum EE_ASSERTIONS {
   EE_ASSERT_FIN = 0,
   EE_ASSERT_INIT,
-  EE_ASSERT_SVC_ISR_FIRED,
+  EE_ASSERT_TIMER_ISR_FIRED,
   EE_ASSERT_SYSTICK_ISR_FIRED,
   EE_ASSERT_TASK2_FIRED,
   EE_ASSERT_TASK2_TEN_INSTANCES,
@@ -80,20 +79,26 @@ volatile int task1_fired = 0;
 volatile int task2_fired = 0;
 volatile int task1_ended = 0;
 volatile int task2_ended = 0;
-volatile int svcounter = 0;
-volatile int stcounter = 0;
-volatile int divisor = 0;
+volatile int isr1_fired = 0;
+volatile int isr2_fired = 0;
 volatile int counter = 0;
 
+#define	EE_TIMER_ID	( EE_TIMER_0 | EE_TIMER_A )
+#define	EE_TIMER_CFG	( EE_TIMER_CFG_SPLITTED | EE_TIMER_CFG_A_PERIODIC )
+
 /*
- * SVCall ISR2
+ * Timer ISR2
  */
-ISR2(svcall_handler)
+ISR2(timer_handler)
 {
-  svcounter++;
-  EE_assert(EE_ASSERT_SVC_ISR_FIRED, svcounter == 1, EE_ASSERT_INIT);
+  EE_timer_clear_int(EE_TIMER_ID);
+  isr1_fired++;
+  EE_assert(EE_ASSERT_TIMER_ISR_FIRED, isr1_fired == 1, EE_ASSERT_INIT);
+  EE_timer_stop(EE_TIMER_ID);
   ActivateTask(Task1);
-  while (stcounter < 10);
+  EE_systick_start();
+  while (!(isr2_fired % 10));	/* Waits 1st ISR */
+  while (isr2_fired % 10);	/* Waits 10th ISR */
   EE_systick_stop();
 }
 
@@ -103,10 +108,10 @@ ISR2(svcall_handler)
  */
 ISR2(systick_handler)
 {
-  stcounter++;
-  if (stcounter == 1)
+  isr2_fired++;
+  if (isr2_fired == 1)
     EE_assert(
-      EE_ASSERT_SYSTICK_ISR_FIRED, stcounter == 1, EE_ASSERT_SVC_ISR_FIRED
+      EE_ASSERT_SYSTICK_ISR_FIRED, isr2_fired == 1, EE_ASSERT_TIMER_ISR_FIRED
     );
   ActivateTask(Task2);
 }
@@ -152,15 +157,17 @@ int main(void)
 
   EE_user_led_init();
 
-  EE_systick_set_period(100000);
+  EE_systick_set_period(1000);
   EE_systick_enable_int();
-  EE_systick_start();
+  EE_timer_init(EE_TIMER_ID, EE_TIMER_CFG);
+  EE_timer_set_period(EE_TIMER_ID, 1000);
+  EE_timer_enable_int(EE_TIMER_ID);
 
   EE_assert(EE_ASSERT_INIT, TRUE, EE_ASSERT_NIL);
 
-  EE_svc_0();
+  EE_timer_start(EE_TIMER_ID);
 
-  counter++;
+  while (task1_ended == 0);
 
   EE_assert(
     EE_ASSERT_TASKS_ENDED,
