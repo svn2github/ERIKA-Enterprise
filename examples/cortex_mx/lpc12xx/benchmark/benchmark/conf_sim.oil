@@ -93,6 +93,7 @@ CPU mySystem {
 		};
 */
 		KERNEL_TYPE = BCC1;
+
 		EE_OPT = "__ADD_LIBS__";
 		LIB = ENABLE {
 			NAME = "CMSIS";

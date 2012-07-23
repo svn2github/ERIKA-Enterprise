@@ -47,8 +47,14 @@
 volatile EE_UREG bm_end = 0;
 
 /*ShutdownHook*/
-
+#ifndef __FP__
 void ShutdownHook(StatusType Error)
 {
 	bm_end = 1;
 }
+#else
+void bm_set_end()
+{
+	bm_end = 1;
+}
+#endif

@@ -77,7 +77,7 @@
 
 static volatile unsigned int bm_loops = 0;
 #ifdef __FP__
-volatile EE_UINT8 bm_end = 0;
+void bm_set_end();
 #define bm_stop() return
 #else
 #define bm_stop() ShutdownOS(E_OK)
@@ -94,8 +94,9 @@ NORETURN __INLINE__ void bm_rtos_init(void)
 	
 	for (;;) {  
 	/* Background activities, if any, go here... */
-		if (bm_loops == BM_MAX_LOOPS)
-			bm_end = 1;
+		if (bm_loops == BM_MAX_LOOPS) {
+			bm_set_end();
+		}	
 	}
 #else
 	/*
