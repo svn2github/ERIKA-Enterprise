@@ -103,7 +103,13 @@ void interrupt_init()
 {
   /* Generate systemtick interrupt each 1 ms   */
   SysTick_Config(SystemCoreClock/1000 - 1);
+#ifdef	__IAR__
   __enable_interrupt();
+#else
+#ifdef	__KEIL__
+  __enable_irq();
+#endif	/* __KEIL__ */
+#endif	/* __IAR__ */
 }
 
 /*

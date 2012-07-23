@@ -63,7 +63,8 @@ CPU mySystem {
 			MODEL = M0;
 			APP_SRC = "code.c";
 			JLINK = TRUE;
-			COMPILER_TYPE = IAR; 
+			COMPILER_TYPE = IAR;
+			/*COMPILER_TYPE = KEIL;*/
 			MULTI_STACK = TRUE {
 				IRQ_STACK = TRUE {
 					SYS_SIZE=512;
