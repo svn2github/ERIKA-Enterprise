@@ -139,10 +139,6 @@ HardFault_Handler\
                 EXPORT  HardFault_Handler         [WEAK]
                 B       .
                 ENDP
-SVC_Handler     PROC
-                EXPORT  SVC_Handler               [WEAK]
-                B       .
-                ENDP
 PendSV_Handler  PROC
                 EXPORT  PendSV_Handler            [WEAK]
                 B       .
