@@ -87,13 +87,25 @@ volatile int TxErrCntr = 0;
 volatile int RxErrNotifCntr = 0;
 volatile int RxErrCntr = 0;
 
+/* Stack Pointers */
+volatile EE_UREG main_sp = 0;
+volatile EE_UREG bg_sp = 0;
+
 volatile EE_UREG counter = 0;
 /*
  * TASK BackGround
  */
 TASK(BackGround)
 {
+
+  EE_UREG curr_sp;
+
   while(1) {
+
+    curr_sp = __current_sp();
+    if (curr_sp != bg_sp) {
+      bg_sp = curr_sp;
+    }
 
     while ( counter % 100000 ) {
       counter++;
@@ -251,6 +263,8 @@ volatile Mcu_RawResetType	RawReset;
 int main(void)
 {
 
+  EE_UREG curr_sp;
+
   Std_VersionInfoType	version;
 
   EE_assert(EE_ASSERT_INIT, TRUE, EE_ASSERT_NIL);
@@ -293,7 +307,7 @@ int main(void)
 
   Port_Init(PORT_CONFIG_SCI_PTR);
 
-  Dio_Init(DIO_CONFIG_USER_OUTPUT_PTR);
+  Dio_Init(DIO_CONFIG_DEFAULT_PTR);
 
   Sci_Init(SCI_CONFIG_DEFAULT_PTR);
 
@@ -321,8 +335,12 @@ int main(void)
   /* Forever loop: background activities (if any) should go here */
   for (;result == 1;)
   {
-    /* Nothing to do! */
-    ;
+
+    curr_sp = __current_sp();
+    if (curr_sp != main_sp) {
+      main_sp = curr_sp;
+    }
+
   }
 
 }
