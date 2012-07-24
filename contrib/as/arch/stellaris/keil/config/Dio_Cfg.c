@@ -172,8 +172,8 @@ const Dio_PortConfType Dio_OutputPorts[] = {
     DIO_PORT_USER_OUTPUT,	/* DioPortId			 */
     0x00000001,			/* DioNumberOfChannels		 */
     &DioPortDChannels[0],	/* Dio_Channels			 */
-    0x00000000,			/* DioNumberOfChannelsGroups	 */
-    &DioPortGChannelsGroups[0]	/* Dio_ChannelsGroups		 */
+    0x00000001,			/* DioNumberOfChannelsGroups	 */
+    &DioPortDChannelsGroups[0]	/* Dio_ChannelsGroups		 */
   },
   { /* PORT G */
     DIO_PORT_USER_LED,		/* DioPortId			 */

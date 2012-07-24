@@ -610,7 +610,7 @@ Dio_LevelType Dio_FlipChannel(
 
   VALIDATE_W_RV(
     ( ChannelId < DIO_CHANNELS_NUMBER ),
-    DIO_READCHANNEL_ID,
+    DIO_FLIPCHANNEL_ID,
     DIO_E_PARAM_INVALID_CHANNEL_ID,
     STD_LOW
   );
@@ -619,7 +619,7 @@ Dio_LevelType Dio_FlipChannel(
 
   VALIDATE_IRQ_W_RV(
     Dio_Global.Init,
-    DIO_FILPCHANNEL_ID,
+    DIO_FLIPCHANNEL_ID,
     DIO_E_PARAM_CONFIG,
     STD_LOW,
     f
