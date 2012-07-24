@@ -72,10 +72,10 @@
 ; EE_TID EE_std_endcycle_next_tid;
 	EXTERN	EE_std_endcycle_next_tid
 
-  IF	__MULTI__
+#ifdef	__MULTI__
 ; int EE_std_need_context_change(EE_TID tid);
 	EXTERN	EE_std_need_context_change
-  ENDIF
+#endif
 
 ;*******************************************************************************
 ;                              EQUATES
