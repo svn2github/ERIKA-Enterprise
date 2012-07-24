@@ -45,9 +45,29 @@
 */
 
 OS EE {
-  
+
   /* LWIP Flags */
   CFLAGS = "-DLWIP_UDP=1";
+  /* MEM_SIZE: the size of the lwIp heap memory. If the application will send
+     a lot of data that needs to be copied, this should be set high. */
+  CFLAGS = "-DMEM_SIZE=2*1024";
+  /*
+   * PBUF_POOL_SIZE: the number of buffers in the pbuf pool. 
+   */
+  CFLAGS = "-DPBUF_POOL_SIZE=3";
+  /* PBUF_POOL_BUFSIZE: the size of each pbuf in the pbuf pool. The default is
+   * designed to accomodate single full size TCP frame in one pbuf, including
+   * TCP_MSS, IP header, and link header.
+   * LWIP_MEM_ALIGN_SIZE(TCP_MSS+40+PBUF_LINK_HLEN)
+   * TCP_MSS: 536
+   * PBUF_LINK_HLEN: 14
+   */
+  CFLAGS = "-DPBUF_POOL_BUFSIZE=1536";
+  /* MEMP_NUM_PBUF: the number of memp struct pbufs. If the application
+     sends a lot of data out of ROM (or other static memory), this
+     should be set high. */
+  CFLAGS = "-DMEMP_NUM_PBUF=8";
+
   /*                        !!!WARNING!!!
     Needed because LWIP will not compile otherwise (ip.c for sure at least).
     Maybe this option could be activated by default inside Erika makefiles

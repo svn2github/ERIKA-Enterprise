@@ -55,6 +55,7 @@ CPU test_application {
       /* Needed by system timer */
       CPU_CLOCK = 50.0;
       COMPILER_TYPE = KEIL;
+      // COMPILER_TYPE = CCS;
 
       APP_SRC = "main.c";
       APP_SRC = "Dio_Cfg.c";
