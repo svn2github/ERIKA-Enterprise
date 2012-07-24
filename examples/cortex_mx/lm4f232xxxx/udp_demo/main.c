@@ -283,7 +283,12 @@ TASK(InitTask)
 int main (void) {
   Mcu_Init(MCU_CONFIG_DEFAULT_PTR);
   /* 50 MHz Clock  */
-  Mcu_InitClock(MCU_CLOCK_MODE_MOSC_4_PLL);
+
+  if ( Mcu_InitClock(MCU_CLOCK_MODE_MOSC_4_PLL) == E_NOT_OK ) {
+
+    Mcu_PerformReset();
+
+  }
 
   while ( Mcu_GetPllStatus() != MCU_PLL_LOCKED );
 
