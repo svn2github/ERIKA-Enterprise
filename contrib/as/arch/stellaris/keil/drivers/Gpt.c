@@ -208,7 +208,7 @@ static void Gpt_EnableChannel(
   else {
 
     SYSCTL_RCGCWTIMER_R |=
-    HW_CH_2_CGC_MASK(Channel - (Gpt_ChannelType)GPT_CHANNEL_W_0_A);
+    HW_CH_2_CGC_MASK(Channel - (Gpt_ChannelType)GPT_INTERNAL_CHANNEL_W_0_A);
 
   }
 
@@ -239,7 +239,7 @@ static void Gpt_DisableChannel(
   else {
 
     SYSCTL_RCGCWTIMER_R &=
-    ~HW_CH_2_CGC_MASK(Channel - (Gpt_ChannelType)GPT_CHANNEL_W_0_A);
+    ~HW_CH_2_CGC_MASK(Channel - (Gpt_ChannelType)GPT_INTERNAL_CHANNEL_W_0_A);
 
   }
 
@@ -276,7 +276,7 @@ static void Gpt_ResetChannel(
     else {
 
       mask =
-      HW_CH_2_CGC_MASK(Channel - (Gpt_ChannelType)GPT_CHANNEL_W_0_A);
+      HW_CH_2_CGC_MASK(Channel - (Gpt_ChannelType)GPT_INTERNAL_CHANNEL_W_0_A);
 
     }
     SYSCTL_SRWTIMER_R |= mask;			/* Start Channel Module Reset */

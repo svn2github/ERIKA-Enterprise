@@ -725,41 +725,43 @@ typedef struct {
  */ 
 #define	GPT_CHANNEL_0_A		0x00	/**< Channel 0 A */
 #define	GPT_CHANNEL_0_B		0x01	/**< Channel 0 B */
-#define	GPT_CHANNEL_1_A		0x02	/**< Channel 1 A */
-#define	GPT_CHANNEL_1_B		0x03	/**< Channel 1 B */
-#define	GPT_CHANNEL_2_A		0x04	/**< Channel 2 A */
-#define	GPT_CHANNEL_2 B		0x05	/**< Channel 2 B */
-#define	GPT_CHANNEL_3_A		0x06	/**< Channel 3 A */
-#define	GPT_CHANNEL_3_B		0x07	/**< Channel 3 B */
-#define	GPT_CHANNEL_4_A		0x08	/**< Channel 4 A */
-#define	GPT_CHANNEL_4_B		0x09	/**< Channel 4 B */
-#define	GPT_CHANNEL_5_A		0x0A	/**< Channel 5 A */
-#define	GPT_CHANNEL_5_B		0x0B	/**< Channel 5 B */
-#define	GPT_CHANNEL_W_0_A	0x0C	/**< Channel W 0 A */
-#define	GPT_CHANNEL_W_0_B	0x0D	/**< Channel W 0 B */
-#define	GPT_CHANNEL_W_1_A	0x0E	/**< Channel W 1 A */
-#define	GPT_CHANNEL_W_1_B	0x0F	/**< Channel W 1 B */
-#define	GPT_CHANNEL_W_2_A	0x38	/**< Channel W 2 A */
-#define	GPT_CHANNEL_W_2 B	0x39	/**< Channel W 2 B */
+/* #define	GPT_CHANNEL_1_A		0x02 */	/**< Channel 1 A */
+/* #define	GPT_CHANNEL_1_B		0x03 */	/**< Channel 1 B */
+/* #define	GPT_CHANNEL_2_A		0x04 */	/**< Channel 2 A */
+/* #define	GPT_CHANNEL_2 B		0x05 */	/**< Channel 2 B */
+/* #define	GPT_CHANNEL_3_A		0x06 */	/**< Channel 3 A */
+/* #define	GPT_CHANNEL_3_B		0x07 */	/**< Channel 3 B */
+/* #define	GPT_CHANNEL_4_A		0x08 */	/**< Channel 4 A */
+/* #define	GPT_CHANNEL_4_B		0x09 */	/**< Channel 4 B */
+/* #define	GPT_CHANNEL_5_A		0x0A */	/**< Channel 5 A */
+/* #define	GPT_CHANNEL_5_B		0x0B */	/**< Channel 5 B */
+
+/* #define	GPT_CHANNEL_W_0_A	0x0C */	/**< Channel W 0 A */
+/* #define	GPT_CHANNEL_W_0_B	0x0D */	/**< Channel W 0 B */
+/* #define	GPT_CHANNEL_W_1_A	0x0E */	/**< Channel W 1 A */
+/* #define	GPT_CHANNEL_W_1_B	0x0F */	/**< Channel W 1 B */
+/* #define	GPT_CHANNEL_W_2_A	0x38 */	/**< Channel W 2 A */
+/* #define	GPT_CHANNEL_W_2 B	0x39 */	/**< Channel W 2 B */
 #define	GPT_CHANNEL_W_3_A	0x3A	/**< Channel W 3 A */
 #define	GPT_CHANNEL_W_3_B	0x3B	/**< Channel W 3 B */
-#define	GPT_CHANNEL_W_4_A	0x3C	/**< Channel W 4 A */
-#define	GPT_CHANNEL_W_4_B	0x3D	/**< Channel W 4 B */
-#define	GPT_CHANNEL_W_5_A	0x3E	/**< Channel W 5 A */
-#define	GPT_CHANNEL_W_5_B	0x3F	/**< Channel W 5 B */
+/* #define	GPT_CHANNEL_W_4_A	0x3C */	/**< Channel W 4 A */
+/* #define	GPT_CHANNEL_W_4_B	0x3D */	/**< Channel W 4 B */
+/* #define	GPT_CHANNEL_W_5_A	0x3E */	/**< Channel W 5 A */
+/* #define	GPT_CHANNEL_W_5_B	0x3F */	/**< Channel W 5 B */
 
-#define	GPT_CHANNEL_J_0		0x40	/**< Channel J 0 */
+/* #define	GPT_CHANNEL_J_0		0x40 */	/**< Channel J 0 */
 #define	GPT_CHANNEL_J_1		0x42	/**< Channel J 1 */
 #define	GPT_CHANNEL_J_2		0x44	/**< Channel J 2 */
-#define	GPT_CHANNEL_J_3		0x46	/**< Channel J 3 */
-#define	GPT_CHANNEL_J_4		0x48	/**< Channel J 4 */
-#define	GPT_CHANNEL_J_5		0x4A	/**< Channel J 5 */
-#define	GPT_CHANNEL_J_W_0	0x4C	/**< Channel W J 0 */
+/* #define	GPT_CHANNEL_J_3		0x46 */	/**< Channel J 3 */
+/* #define	GPT_CHANNEL_J_4		0x48 */	/**< Channel J 4 */
+/* #define	GPT_CHANNEL_J_5		0x4A */	/**< Channel J 5 */
+
+/* #define	GPT_CHANNEL_J_W_0	0x4C */	/**< Channel W J 0 */
 #define	GPT_CHANNEL_J_W_1	0x4E	/**< Channel W J 1 */
 #define	GPT_CHANNEL_J_W_2	0x78	/**< Channel W J 2 */
-#define	GPT_CHANNEL_J_W_3	0x7A	/**< Channel W J 3 */
-#define	GPT_CHANNEL_J_W_4	0x7C	/**< Channel W J 4 */
-#define	GPT_CHANNEL_J_W_5	0x7E	/**< Channel W J 5 */
+/* #define	GPT_CHANNEL_J_W_3	0x7A */	/**< Channel W J 3 */
+/* #define	GPT_CHANNEL_J_W_4	0x7C */	/**< Channel W J 4 */
+/* #define	GPT_CHANNEL_J_W_5	0x7E */	/**< Channel W J 5 */
 
 /** @brief Custon Channel Names Remapping */
 #define GPT_CHANNEL_LWIP GPT_CHANNEL_0_A
@@ -770,6 +772,7 @@ typedef struct {
  * for notification callback functions for each configured GPT channel.
  */
 
+#ifdef	GPT_CHANNEL_0_A
 /** @brief	Channel 0 A Notification Callback
  *
  *  The notification prototype <tt>Gpt_Notification_Channel_0_A()</tt> is for
@@ -806,7 +809,9 @@ typedef struct {
 void Gpt_Notification_Channel_0_A(
   void
 );
+#endif	/* GPT_CHANNEL_0_A */
 
+#ifdef	GPT_CHANNEL_0_B
 /** @brief	Channel 0 B Notification Callback
  *
  *  The notification prototype <tt>Gpt_Notification_Channel_0_B()</tt> is for
@@ -843,7 +848,9 @@ void Gpt_Notification_Channel_0_A(
 void Gpt_Notification_Channel_0_B(
   void
 );
+#endif	/* GPT_CHANNEL_0_B */
 
+#ifdef	GPT_CHANNEL_1_A
 /** @brief	Channel 1 A Notification Callback
  *
  *  The notification prototype <tt>Gpt_Notification_Channel_1_A()</tt> is for
@@ -880,7 +887,9 @@ void Gpt_Notification_Channel_0_B(
 void Gpt_Notification_Channel_1_A(
   void
 );
+#endif	/* GPT_CHANNEL_1_A */
 
+#ifdef	GPT_CHANNEL_1_B
 /** @brief	Channel 1 B Notification Callback
  *
  *  The notification prototype <tt>Gpt_Notification_Channel_1_B()</tt> is for
@@ -917,7 +926,9 @@ void Gpt_Notification_Channel_1_A(
 void Gpt_Notification_Channel_1_B(
   void
 );
+#endif	/* GPT_CHANNEL_1_B */
 
+#ifdef	GPT_CHANNEL_2_A
 /** @brief	Channel 2 A Notification Callback
  *
  *  The notification prototype <tt>Gpt_Notification_Channel_2_A()</tt> is for
@@ -954,7 +965,9 @@ void Gpt_Notification_Channel_1_B(
 void Gpt_Notification_Channel_2_A(
   void
 );
+#endif	/* GPT_CHANNEL_2_A */
 
+#ifdef	GPT_CHANNEL_2_B
 /** @brief	Channel 2 B Notification Callback
  *
  *  The notification prototype <tt>Gpt_Notification_Channel_2_B()</tt> is for
@@ -991,7 +1004,9 @@ void Gpt_Notification_Channel_2_A(
 void Gpt_Notification_Channel_2_B(
   void
 );
+#endif	/* GPT_CHANNEL_2_B */
 
+#ifdef	GPT_CHANNEL_3_A
 /** @brief	Channel 3 A Notification Callback
  *
  *  The notification prototype <tt>Gpt_Notification_Channel_3_A()</tt> is for
@@ -1028,7 +1043,9 @@ void Gpt_Notification_Channel_2_B(
 void Gpt_Notification_Channel_3_A(
   void
 );
+#endif	/* GPT_CHANNEL_3_A */
 
+#ifdef	GPT_CHANNEL_3_B
 /** @brief	Channel 3 B Notification Callback
  *
  *  The notification prototype <tt>Gpt_Notification_Channel_3_B()</tt> is for
@@ -1065,7 +1082,9 @@ void Gpt_Notification_Channel_3_A(
 void Gpt_Notification_Channel_3_B(
   void
 );
+#endif	/* GPT_CHANNEL_3_B */
 
+#ifdef	GPT_CHANNEL_4_A
 /** @brief	Channel 4 A Notification Callback
  *
  *  The notification prototype <tt>Gpt_Notification_Channel_4_A()</tt> is for
@@ -1102,7 +1121,9 @@ void Gpt_Notification_Channel_3_B(
 void Gpt_Notification_Channel_4_A(
   void
 );
+#endif	/* GPT_CHANNEL_4_A */
 
+#ifdef	GPT_CHANNEL_4_B
 /** @brief	Channel 4 B Notification Callback
  *
  *  The notification prototype <tt>Gpt_Notification_Channel_4_B()</tt> is for
@@ -1139,7 +1160,9 @@ void Gpt_Notification_Channel_4_A(
 void Gpt_Notification_Channel_4_B(
   void
 );
+#endif	/* GPT_CHANNEL_4_B */
 
+#ifdef	GPT_CHANNEL_5_A
 /** @brief	Channel 5 A Notification Callback
  *
  *  The notification prototype <tt>Gpt_Notification_Channel_5_A()</tt> is for
@@ -1176,7 +1199,9 @@ void Gpt_Notification_Channel_4_B(
 void Gpt_Notification_Channel_5_A(
   void
 );
+#endif	/* GPT_CHANNEL_5_A */
 
+#ifdef	GPT_CHANNEL_5_A
 /** @brief	Channel 5 B Notification Callback
  *
  *  The notification prototype <tt>Gpt_Notification_Channel_5_B()</tt> is for
@@ -1213,7 +1238,9 @@ void Gpt_Notification_Channel_5_A(
 void Gpt_Notification_Channel_5_B(
   void
 );
+#endif	/* GPT_CHANNEL_5_B */
 
+#ifdef	GPT_CHANNEL_W_0_A
 /** @brief	Channel W 0 A Notification Callback
  *
  *  The notification prototype <tt>Gpt_Notification_Channel_W_0_A()</tt> is for
@@ -1250,7 +1277,9 @@ void Gpt_Notification_Channel_5_B(
 void Gpt_Notification_Channel_W_0_A(
   void
 );
+#endif	/* GPT_CHANNEL_W_0_A */
 
+#ifdef	GPT_CHANNEL_W_0_B
 /** @brief	Channel W 0 B Notification Callback
  *
  *  The notification prototype <tt>Gpt_Notification_Channel_W_0_B()</tt> is for
@@ -1287,7 +1316,9 @@ void Gpt_Notification_Channel_W_0_A(
 void Gpt_Notification_Channel_W_0_B(
   void
 );
+#endif	/* GPT_CHANNEL_W_0_B */
 
+#ifdef	GPT_CHANNEL_W_1_A
 /** @brief	Channel W 1 A Notification Callback
  *
  *  The notification prototype <tt>Gpt_Notification_Channel_W_1_A()</tt> is for
@@ -1324,7 +1355,9 @@ void Gpt_Notification_Channel_W_0_B(
 void Gpt_Notification_Channel_W_1_A(
   void
 );
+#endif	/* GPT_CHANNEL_W_1_A */
 
+#ifdef	GPT_CHANNEL_W_1_B
 /** @brief	Channel W 1 B Notification Callback
  *
  *  The notification prototype <tt>Gpt_Notification_Channel_W_1_B()</tt> is for
@@ -1361,7 +1394,9 @@ void Gpt_Notification_Channel_W_1_A(
 void Gpt_Notification_Channel_W_1_B(
   void
 );
+#endif	/* GPT_CHANNEL_W_1_B */
 
+#ifdef	GPT_CHANNEL_W_2_A
 /** @brief	Channel W 2 A Notification Callback
  *
  *  The notification prototype <tt>Gpt_Notification_Channel_W_2_A()</tt> is for
@@ -1398,7 +1433,9 @@ void Gpt_Notification_Channel_W_1_B(
 void Gpt_Notification_Channel_W_2_A(
   void
 );
+#endif	/* GPT_CHANNEL_W_2_A */
 
+#ifdef	GPT_CHANNEL_W_2_B
 /** @brief	Channel W 2 B Notification Callback
  *
  *  The notification prototype <tt>Gpt_Notification_Channel_W_2_B()</tt> is for
@@ -1435,7 +1472,9 @@ void Gpt_Notification_Channel_W_2_A(
 void Gpt_Notification_Channel_W_2_B(
   void
 );
+#endif	/* GPT_CHANNEL_W_2_B */
 
+#ifdef	GPT_CHANNEL_W_3_A
 /** @brief	Channel W 3 A Notification Callback
  *
  *  The notification prototype <tt>Gpt_Notification_Channel_W_3_A()</tt> is for
@@ -1472,7 +1511,9 @@ void Gpt_Notification_Channel_W_2_B(
 void Gpt_Notification_Channel_W_3_A(
   void
 );
+#endif	/* GPT_CHANNEL_W_3_A */
 
+#ifdef	GPT_CHANNEL_W_3_B
 /** @brief	Channel W 3 B Notification Callback
  *
  *  The notification prototype <tt>Gpt_Notification_Channel_W_3_B()</tt> is for
@@ -1509,7 +1550,9 @@ void Gpt_Notification_Channel_W_3_A(
 void Gpt_Notification_Channel_W_3_B(
   void
 );
+#endif	/* GPT_CHANNEL_W_3_B */
 
+#ifdef	GPT_CHANNEL_W_4_A
 /** @brief	Channel W 4 A Notification Callback
  *
  *  The notification prototype <tt>Gpt_Notification_Channel_W_4_A()</tt> is for
@@ -1546,7 +1589,9 @@ void Gpt_Notification_Channel_W_3_B(
 void Gpt_Notification_Channel_W_4_A(
   void
 );
+#endif	/* GPT_CHANNEL_W_4_A */
 
+#ifdef	GPT_CHANNEL_W_4_B
 /** @brief	Channel W 4 B Notification Callback
  *
  *  The notification prototype <tt>Gpt_Notification_Channel_W_4_B()</tt> is for
@@ -1583,7 +1628,9 @@ void Gpt_Notification_Channel_W_4_A(
 void Gpt_Notification_Channel_W_4_B(
   void
 );
+#endif	/* GPT_CHANNEL_W_4_B */
 
+#ifdef	GPT_CHANNEL_W_5_A
 /** @brief	Channel W 5 A Notification Callback
  *
  *  The notification prototype <tt>Gpt_Notification_Channel_W_5_A()</tt> is for
@@ -1620,7 +1667,9 @@ void Gpt_Notification_Channel_W_4_B(
 void Gpt_Notification_Channel_W_5_A(
   void
 );
+#endif	/* GPT_CHANNEL_W_5_A */
 
+#ifdef	GPT_CHANNEL_W_5_B
 /** @brief	Channel W 5 B Notification Callback
  *
  *  The notification prototype <tt>Gpt_Notification_Channel_W_5_B()</tt> is for
@@ -1657,7 +1706,9 @@ void Gpt_Notification_Channel_W_5_A(
 void Gpt_Notification_Channel_W_5_B(
   void
 );
+#endif	/* GPT_CHANNEL_W_5_B */
 
+#ifdef	GPT_CHANNEL_J_0
 /** @brief	Channel J 0 Notification Callback
  *
  *  The notification prototype <tt>Gpt_Notification_Channel_J_0()</tt> is for
@@ -1694,7 +1745,9 @@ void Gpt_Notification_Channel_W_5_B(
 void Gpt_Notification_Channel_J_0(
   void
 );
+#endif	/* GPT_CHANNEL_J_0 */
 
+#ifdef	GPT_CHANNEL_J_1
 /** @brief	Channel J 1 Notification Callback
  *
  *  The notification prototype <tt>Gpt_Notification_Channel_J_1()</tt> is for
@@ -1731,7 +1784,9 @@ void Gpt_Notification_Channel_J_0(
 void Gpt_Notification_Channel_J_1(
   void
 );
+#endif	/* GPT_CHANNEL_J_1 */
 
+#ifdef	GPT_CHANNEL_J_2
 /** @brief	Channel J 2 Notification Callback
  *
  *  The notification prototype <tt>Gpt_Notification_Channel_J_2()</tt> is for
@@ -1768,7 +1823,9 @@ void Gpt_Notification_Channel_J_1(
 void Gpt_Notification_Channel_J_2(
   void
 );
+#endif	/* GPT_CHANNEL_J_2 */
 
+#ifdef	GPT_CHANNEL_J_3
 /** @brief	Channel J 3 Notification Callback
  *
  *  The notification prototype <tt>Gpt_Notification_Channel_J_3()</tt> is for
@@ -1805,7 +1862,9 @@ void Gpt_Notification_Channel_J_2(
 void Gpt_Notification_Channel_J_3(
   void
 );
+#endif	/* GPT_CHANNEL_J_3 */
 
+#ifdef	GPT_CHANNEL_J_4
 /** @brief	Channel J 4 Notification Callback
  *
  *  The notification prototype <tt>Gpt_Notification_Channel_J_4()</tt> is for
@@ -1842,7 +1901,9 @@ void Gpt_Notification_Channel_J_3(
 void Gpt_Notification_Channel_J_4(
   void
 );
+#endif	/* GPT_CHANNEL_J_4 */
 
+#ifdef	GPT_CHANNEL_J_5
 /** @brief	Channel J 5 Notification Callback
  *
  *  The notification prototype <tt>Gpt_Notification_Channel_J_5()</tt> is for
@@ -1879,7 +1940,9 @@ void Gpt_Notification_Channel_J_4(
 void Gpt_Notification_Channel_J_5(
   void
 );
+#endif	/* GPT_CHANNEL_J_5 */
 
+#ifdef	GPT_CHANNEL_J_W_0
 /** @brief	Channel J W 0 Notification Callback
  *
  *  The notification prototype <tt>Gpt_Notification_Channel_J_W_0()</tt> is for
@@ -1916,7 +1979,9 @@ void Gpt_Notification_Channel_J_5(
 void Gpt_Notification_Channel_J_W_0(
   void
 );
+#endif	/* GPT_CHANNEL_J_W_0 */
 
+#ifdef	GPT_CHANNEL_J_W_1
 /** @brief	Channel J W 1 Notification Callback
  *
  *  The notification prototype <tt>Gpt_Notification_Channel_J_W_1()</tt> is for
@@ -1953,7 +2018,9 @@ void Gpt_Notification_Channel_J_W_0(
 void Gpt_Notification_Channel_J_W_1(
   void
 );
+#endif	/* GPT_CHANNEL_J_W_1 */
 
+#ifdef	GPT_CHANNEL_J_W_2
 /** @brief	Channel J W 2 Notification Callback
  *
  *  The notification prototype <tt>Gpt_Notification_Channel_J_W_2()</tt> is for
@@ -1990,7 +2057,9 @@ void Gpt_Notification_Channel_J_W_1(
 void Gpt_Notification_Channel_J_W_2(
   void
 );
+#endif	/* GPT_CHANNEL_J_W_2 */
 
+#ifdef	GPT_CHANNEL_J_W_3
 /** @brief	Channel J W 3 Notification Callback
  *
  *  The notification prototype <tt>Gpt_Notification_Channel_J_W_3()</tt> is for
@@ -2027,7 +2096,9 @@ void Gpt_Notification_Channel_J_W_2(
 void Gpt_Notification_Channel_J_W_3(
   void
 );
+#endif	/* GPT_CHANNEL_J_W_3 */
 
+#ifdef	GPT_CHANNEL_J_W_4
 /** @brief	Channel J W 4 Notification Callback
  *
  *  The notification prototype <tt>Gpt_Notification_Channel_J_W_4()</tt> is for
@@ -2064,7 +2135,9 @@ void Gpt_Notification_Channel_J_W_3(
 void Gpt_Notification_Channel_J_W_4(
   void
 );
+#endif	/* GPT_CHANNEL_J_W_4 */
 
+#ifdef	GPT_CHANNEL_J_W_5
 /** @brief	Channel J W 5 Notification Callback
  *
  *  The notification prototype <tt>Gpt_Notification_Channel_J_W_5()</tt> is for
@@ -2101,6 +2174,8 @@ void Gpt_Notification_Channel_J_W_4(
 void Gpt_Notification_Channel_J_W_5(
   void
 );
+#endif	/* GPT_CHANNEL_J_W_5 */
+
 #endif	/* GPT_ENABLE_DISABLE_NOTIFICATION_API == STD_ON */
 
 /** @brief	GPT Configuration Parameters

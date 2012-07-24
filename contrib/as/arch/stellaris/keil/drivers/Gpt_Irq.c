@@ -103,59 +103,134 @@ extern Gpt_GlobalType Gpt_Global;
 #if ( GPT_ENABLE_DISABLE_NOTIFICATION_API == STD_ON )
 
 #if ( \
-  defined(EE_CORTEX_MX_TIMER_0_A_ISR) || \
-  defined(EE_CORTEX_MX_TIMER_1_A_ISR) || \
-  defined(EE_CORTEX_MX_TIMER_2_A_ISR) || \
-  defined(EE_CORTEX_MX_TIMER_3_A_ISR) || \
-  defined(EE_CORTEX_MX_TIMER_4_A_ISR) || \
-  defined(EE_CORTEX_MX_TIMER_5_A_ISR) || \
-  defined(EE_CORTEX_MX_WIDE_TIMER_0_A_ISR) || \
-  defined(EE_CORTEX_MX_WIDE_TIMER_1_A_ISR) || \
-  defined(EE_CORTEX_MX_WIDE_TIMER_2_A_ISR) || \
-  defined(EE_CORTEX_MX_WIDE_TIMER_3_A_ISR) || \
-  defined(EE_CORTEX_MX_WIDE_TIMER_4_A_ISR) || \
-  defined(EE_CORTEX_MX_WIDE_TIMER_5_A_ISR) \
+  ( \
+    defined(EE_CORTEX_MX_TIMER_0_A_ISR) && ( \
+      defined(GPT_CHANNEL_0_A) || defined(GPT_CHANNEL_J_0) \
+    ) \
+  ) || \
+  ( \
+    defined(EE_CORTEX_MX_TIMER_0_B_ISR) && defined(GPT_CHANNEL_0_B) \
+  ) || \
+  ( \
+    defined(EE_CORTEX_MX_TIMER_1_A_ISR) && ( \
+      defined(GPT_CHANNEL_1_A) || defined(GPT_CHANNEL_J_1) \
+    ) \
+  ) || \
+  ( \
+    defined(EE_CORTEX_MX_TIMER_1_B_ISR) && defined(GPT_CHANNEL_1_B) \
+  ) || \
+  ( \
+    defined(EE_CORTEX_MX_TIMER_2_A_ISR) && ( \
+      defined(GPT_CHANNEL_2_A) || defined(GPT_CHANNEL_J_2) \
+    ) \
+  ) || \
+  ( \
+    defined(EE_CORTEX_MX_TIMER_2_B_ISR) && defined(GPT_CHANNEL_2_B) \
+  ) || \
+  ( \
+    defined(EE_CORTEX_MX_TIMER_3_A_ISR) && ( \
+      defined(GPT_CHANNEL_3_A) || defined(GPT_CHANNEL_J_3) \
+    ) \
+  ) || \
+  ( \
+    defined(EE_CORTEX_MX_TIMER_3_B_ISR) && defined(GPT_CHANNEL_3_B) \
+  ) || \
+  ( \
+    defined(EE_CORTEX_MX_TIMER_4_A_ISR) && ( \
+      defined(GPT_CHANNEL_4_A) || defined(GPT_CHANNEL_J_4) \
+    ) \
+  ) || \
+  ( \
+    defined(EE_CORTEX_MX_TIMER_4_B_ISR) && defined(GPT_CHANNEL_4_B) \
+  ) || \
+  ( \
+    defined(EE_CORTEX_MX_TIMER_5_A_ISR) && ( \
+      defined(GPT_CHANNEL_5_A) || defined(GPT_CHANNEL_J_5) \
+    ) \
+  ) || \
+  ( \
+    defined(EE_CORTEX_MX_TIMER_5_B_ISR) && defined(GPT_CHANNEL_5_B) \
+  ) || \
+  ( \
+    defined(EE_CORTEX_MX_WIDE_TIMER_0_A_ISR) && ( \
+      defined(GPT_CHANNEL_W_0_A) || defined (GPT_CHANNEL_J_W_0) \
+    ) \
+  ) || \
+  ( \
+    defined(EE_CORTEX_MX_WIDE_TIMER_0_B_ISR) && defined(GPT_CHANNEL_W_0_B) \
+  ) || \
+  ( \
+    defined(EE_CORTEX_MX_WIDE_TIMER_1_A_ISR) && ( \
+      defined(GPT_CHANNEL_W_1_A) || defined (GPT_CHANNEL_J_W_1) \
+    ) \
+  ) || \
+  ( \
+    defined(EE_CORTEX_MX_WIDE_TIMER_1_B_ISR) && defined(GPT_CHANNEL_W_1_B) \
+  ) || \
+  ( \
+    defined(EE_CORTEX_MX_WIDE_TIMER_2_A_ISR) && ( \
+      defined(GPT_CHANNEL_W_2_A) || defined (GPT_CHANNEL_J_W_2) \
+    ) \
+  ) || \
+  ( \
+    defined(EE_CORTEX_MX_WIDE_TIMER_2_B_ISR) && defined(GPT_CHANNEL_W_2_B) \
+  ) || \
+  ( \
+    defined(EE_CORTEX_MX_WIDE_TIMER_3_A_ISR) && ( \
+      defined(GPT_CHANNEL_W_3_A) || defined (GPT_CHANNEL_J_W_3) \
+    ) \
+  ) || \
+  ( \
+    defined(EE_CORTEX_MX_WIDE_TIMER_3_B_ISR) && defined(GPT_CHANNEL_W_3_B) \
+  ) || \
+  ( \
+    defined(EE_CORTEX_MX_WIDE_TIMER_4_A_ISR) && ( \
+      defined(GPT_CHANNEL_W_4_A) || defined (GPT_CHANNEL_J_W_4) \
+    ) \
+  ) || \
+  ( \
+    defined(EE_CORTEX_MX_WIDE_TIMER_4_B_ISR) && defined(GPT_CHANNEL_W_4_B) \
+  ) || \
+  ( \
+    defined(EE_CORTEX_MX_WIDE_TIMER_5_A_ISR) && ( \
+      defined(GPT_CHANNEL_W_5_A) || defined (GPT_CHANNEL_J_W_5) \
+    ) \
+  ) || \
+  ( \
+    defined(EE_CORTEX_MX_WIDE_TIMER_5_B_ISR) && defined(GPT_CHANNEL_W_5_B) \
+  ) \
 )
-static void Gpt_Isr_A(
-  Gpt_ChannelType		Channel_A,
-  Gpt_ChannelType		Channel_J
+static void Gpt_Isr(
+  Gpt_ChannelType	Channel
 )
 {
 
-  register EE_FREG			flags;
-  register boolean			init;
-  register const Gpt_ConfigType *	cfg;
-  register uint32			ris;
-  register uint32			mis;
-  register Gpt_ChannelType		ch;
+  register EE_FREG		flags;
+  register uint32		is;
+  register Gpt_ChannelType	ch;
 
   flags = EE_hal_suspendIRQ();
-  init = Gpt_Global.Init;
-  cfg = Gpt_Global.ConfigPtr;
-  ris = GPT_GET_RIS(Channel_A);
-  mis = GPT_GET_MIS(Channel_A);
+  is = GPT_GET_RIS(Channel) | GPT_GET_MIS(Channel);
   GPT_INT_CLR(
-    Channel_A, GPT_TMRA_INT_ALL | GPT_TMR_INT_WUE | GPT_TMR_INT_RTC
+    Channel,
+    GPT_TMR_INT_TAM | GPT_TMR_INT_CAE | GPT_TMR_INT_CAM |
+    GPT_TMR_INT_TBM | GPT_TMR_INT_CBE | GPT_TMR_INT_CBM |
+    GPT_TMR_INT_WUE | GPT_TMR_INT_RTC
   );
-  EE_hal_resumeIRQ(flags);
 
-  if ( 
-    ( init == TRUE ) &&
-    (
-      ( ris & GPT_TMR_INT_TATO ) ||
-      ( mis & GPT_TMR_INT_TATO )
-    )
+  GPT_TMR_TIMEOUT_INT_CLR(Channel);
+
+  if (
+    ( Gpt_Global.Init == TRUE ) &&
+    ( is & ( GPT_TMR_INT_TATO | GPT_TMR_INT_TBTO ) )
   ) {
 
     /* Channel Look-up */
     for (
       ch = 0;
       (
-	( ch < cfg->GptNumberOfGptChannels ) &&
-	(
-	  ( cfg->GptChannels[ch].GptChannelId != Channel_A ) &&
-	  ( cfg->GptChannels[ch].GptChannelId != Channel_J )
-	)
+	( ch < Gpt_Global.ConfigPtr->GptNumberOfGptChannels ) &&
+	( Gpt_Global.ConfigPtr->GptChannels[ch].GptChannelId != Channel ) 
       );
       ch++
     ) {
@@ -164,244 +239,401 @@ static void Gpt_Isr_A(
 
     /* Notification Callback Call. */
     if (
-      ( ch < cfg->GptNumberOfGptChannels ) &&
-      ( cfg->GptChannels[ch].GptNotificationPtr != NULL_PTR )
+      ( ch < Gpt_Global.ConfigPtr->GptNumberOfGptChannels ) &&
+      ( Gpt_Global.ConfigPtr->GptChannels[ch].GptNotificationPtr != NULL_PTR )
     ) {
 
-      (*(cfg->GptChannels[ch].GptNotificationPtr))();
+      EE_hal_resumeIRQ(flags);
+
+      (*(Gpt_Global.ConfigPtr->GptChannels[ch].GptNotificationPtr))();
+
+      flags = EE_hal_suspendIRQ();
 
     }
 
   }
 
-}
-#endif
-
-#if ( \
-  defined(EE_CORTEX_MX_TIMER_0_B_ISR) || \
-  defined(EE_CORTEX_MX_TIMER_1_B_ISR) || \
-  defined(EE_CORTEX_MX_TIMER_2_B_ISR) || \
-  defined(EE_CORTEX_MX_TIMER_3_B_ISR) || \
-  defined(EE_CORTEX_MX_TIMER_4_B_ISR) || \
-  defined(EE_CORTEX_MX_TIMER_5_B_ISR) || \
-  defined(EE_CORTEX_MX_WIDE_TIMER_0_B_ISR) || \
-  defined(EE_CORTEX_MX_WIDE_TIMER_1_B_ISR) || \
-  defined(EE_CORTEX_MX_WIDE_TIMER_2_B_ISR) || \
-  defined(EE_CORTEX_MX_WIDE_TIMER_3_B_ISR) || \
-  defined(EE_CORTEX_MX_WIDE_TIMER_4_B_ISR) || \
-  defined(EE_CORTEX_MX_WIDE_TIMER_5_B_ISR) \
-)
-static void Gpt_Isr_B(
-  Gpt_ChannelType		Channel_B
-)
-{
-
-  register EE_FREG			flags;
-  register boolean			init;
-  register const Gpt_ConfigType *	cfg;
-  register uint32			ris;
-  register uint32			mis;
-  register Gpt_ChannelType		ch;
-
-  flags = EE_hal_suspendIRQ();
-  init = Gpt_Global.Init;
-  cfg = Gpt_Global.ConfigPtr;
-  ris = GPT_GET_RIS(Channel_B);
-  mis = GPT_GET_MIS(Channel_B);
-  GPT_INT_CLR(
-    Channel_B, GPT_TMRB_INT_ALL | GPT_TMR_INT_WUE | GPT_TMR_INT_RTC
-  );
   EE_hal_resumeIRQ(flags);
 
-  if ( 
-    ( init == TRUE ) &&
-    (
-      ( ris & GPT_TMR_INT_TBTO ) ||
-      ( mis & GPT_TMR_INT_TBTO )
-    )
-  ) {
-
-    /* Channel Look-up */
-    for (
-      ch = 0;
-      (
-	( ch < cfg->GptNumberOfGptChannels ) &&
-	( cfg->GptChannels[ch].GptChannelId != Channel_B )
-      );
-      ch++
-    ) {
-      ;
-    }
-
-    /* Notification Callback Call. */
-    if (
-      ( ch < cfg->GptNumberOfGptChannels ) &&
-      ( cfg->GptChannels[ch].GptNotificationPtr != NULL_PTR )
-    ) {
-
-      (*(cfg->GptChannels[ch].GptNotificationPtr))();
-
-    }
-
-  }
-
 }
 #endif
 
-#ifdef	EE_CORTEX_MX_TIMER_0_A_ISR
-/* GPT CHANNEL 0 A or CHANNEL J 0 ISR */
+#if	( \
+  defined(EE_CORTEX_MX_TIMER_0_A_ISR) && ( \
+    defined(GPT_CHANNEL_0_A) || defined(GPT_CHANNEL_J_0) \
+  ) \
+)
 ISR2(EE_CORTEX_MX_TIMER_0_A_ISR)
 {
-  Gpt_Isr_A(GPT_CHANNEL_0_A, GPT_CHANNEL_J_0);
+#ifdef	GPT_CHANNEL_0_A
+  Gpt_Isr(GPT_CHANNEL_0_A);
+#else	/* GPT_CHANNEL_0_A */
+  Gpt_Isr(GPT_CHANNEL_J_0);
+#endif	/* GPT_CHANNEL_J_0 */
 }
-#endif
+#endif	/* 
+	 * (
+	 * 	defined(EE_CORTEX_MX_TIMER_0_A_ISR) && (
+	 * 		defined(GPT_CHANNEL_0_A) || defined(GPT_CHANNEL_J_0)
+	 * 	)
+	 * )
+	 */
 
-#ifdef	EE_CORTEX_MX_TIMER_0_B_ISR
-/* GPT CHANNEL 0 B ISR */
-ISR2(EE_CORTEX_MX_TIMER_0_B_ISR) { Gpt_Isr_B(GPT_CHANNEL_0_B); }
-#endif
+#if	( \
+  defined(EE_CORTEX_MX_TIMER_0_B_ISR) && defined(GPT_CHANNEL_0_B) \
+)
+ISR2(EE_CORTEX_MX_TIMER_0_B_ISR) { Gpt_Isr(GPT_CHANNEL_0_B); }
+#endif	/*
+	 * (
+	 * 	defined(EE_CORTEX_MX_TIMER_0_B_ISR) && defined(GPT_CHANNEL_0_B)
+	 * )
+	 */
 
-#ifdef	EE_CORTEX_MX_TIMER_1_A_ISR
-/* GPT CHANNEL 1 A or CHANNEL J 1 ISR */
+#if	( \
+  defined(EE_CORTEX_MX_TIMER_1_A_ISR) && ( \
+    defined(GPT_CHANNEL_1_A) || defined(GPT_CHANNEL_J_1) \
+  ) \
+)
 ISR2(EE_CORTEX_MX_TIMER_1_A_ISR)
 {
-  Gpt_Isr_A(GPT_CHANNEL_1_A, GPT_CHANNEL_J_1);
+#ifdef	GPT_CHANNEL_1_A
+  Gpt_Isr(GPT_CHANNEL_1_A);
+#else	/* GPT_CHANNEL_1_A */
+  Gpt_Isr(GPT_CHANNEL_J_1);
+#endif	/* GPT_CHANNEL_J_1 */
 }
-#endif
+#endif	/* 
+	 * (
+	 * 	defined(EE_CORTEX_MX_TIMER_1_A_ISR) && (
+	 * 		defined(GPT_CHANNEL_1_A) || defined(GPT_CHANNEL_J_1)
+	 * 	)
+	 * )
+	 */
 
-#ifdef	EE_CORTEX_MX_TIMER_1_B_ISR
-/* GPT CHANNEL 1 B ISR */
-ISR2(EE_CORTEX_MX_TIMER_1_B_ISR) { Gpt_Isr_B(GPT_CHANNEL_1_B); }
-#endif
+#if	( \
+  defined(EE_CORTEX_MX_TIMER_1_B_ISR) && defined(GPT_CHANNEL_1_B) \
+)
+ISR2(EE_CORTEX_MX_TIMER_1_B_ISR) { Gpt_Isr(GPT_CHANNEL_1_B); }
+#endif	/*
+	 * (
+	 * 	defined(EE_CORTEX_MX_TIMER_1_B_ISR) && defined(GPT_CHANNEL_1_B)
+	 * )
+	 */
 
-#ifdef	EE_CORTEX_MX_TIMER_2_A_ISR
-/* GPT CHANNEL 2 A or CHANNEL J 2 ISR */
+#if	( \
+  defined(EE_CORTEX_MX_TIMER_2_A_ISR) && ( \
+    defined(GPT_CHANNEL_2_A) || defined(GPT_CHANNEL_J_2) \
+  ) \
+)
 ISR2(EE_CORTEX_MX_TIMER_2_A_ISR)
 {
-  Gpt_Isr_A(GPT_CHANNEL_2_A, GPT_CHANNEL_J_2);
+#ifdef	GPT_CHANNEL_2_A
+  Gpt_Isr(GPT_CHANNEL_2_A);
+#else	/* GPT_CHANNEL_2_A */
+  Gpt_Isr(GPT_CHANNEL_J_2);
+#endif	/* GPT_CHANNEL_J_2 */
 }
-#endif
+#endif	/* 
+	 * (
+	 * 	defined(EE_CORTEX_MX_TIMER_2_A_ISR) && (
+	 * 		defined(GPT_CHANNEL_2_A) || defined(GPT_CHANNEL_J_2)
+	 * 	)
+	 * )
+	 */
 
-#ifdef	EE_CORTEX_MX_TIMER_2_B_ISR
-/* GPT CHANNEL 2 B ISR */
-ISR2(EE_CORTEX_MX_TIMER_2_B_ISR) { Gpt_Isr_B(GPT_CHANNEL_2_B); }
-#endif
+#if	( \
+  defined(EE_CORTEX_MX_TIMER_2_B_ISR) && defined(GPT_CHANNEL_2_B) \
+)
+ISR2(EE_CORTEX_MX_TIMER_2_B_ISR) { Gpt_Isr(GPT_CHANNEL_2_B); }
+#endif	/*
+	 * (
+	 * 	defined(EE_CORTEX_MX_TIMER_2_B_ISR) && defined(GPT_CHANNEL_2_B)
+	 * )
+	 */
 
-#ifdef	EE_CORTEX_MX_TIMER_3_A_ISR
-/* GPT CHANNEL 3 A or CHANNEL J 3 ISR */
+#if	( \
+  defined(EE_CORTEX_MX_TIMER_3_A_ISR) && ( \
+    defined(GPT_CHANNEL_3_A) || defined(GPT_CHANNEL_J_3) \
+  ) \
+)
 ISR2(EE_CORTEX_MX_TIMER_3_A_ISR)
 {
-  Gpt_Isr_A(GPT_CHANNEL_0_A, GPT_CHANNEL_J_0);
+#ifdef	GPT_CHANNEL_3_A
+  Gpt_Isr(GPT_CHANNEL_3_A);
+#else	/* GPT_CHANNEL_3_A */
+  Gpt_Isr(GPT_CHANNEL_J_3);
+#endif	/* GPT_CHANNEL_J_3 */
 }
-#endif
+#endif	/* 
+	 * (
+	 * 	defined(EE_CORTEX_MX_TIMER_3_A_ISR) && (
+	 * 		defined(GPT_CHANNEL_3_A) || defined(GPT_CHANNEL_J_3)
+	 * 	)
+	 * )
+	 */
 
-#ifdef	EE_CORTEX_MX_TIMER_3_B_ISR
-/* GPT CHANNEL 3 B ISR */
-ISR2(EE_CORTEX_MX_TIMER_3_B_ISR) { Gpt_Isr_B(GPT_CHANNEL_3_B); }
-#endif
+#if	( \
+  defined(EE_CORTEX_MX_TIMER_3_B_ISR) && defined(GPT_CHANNEL_3_B) \
+)
+ISR2(EE_CORTEX_MX_TIMER_3_B_ISR) { Gpt_Isr(GPT_CHANNEL_3_B); }
+#endif	/*
+	 * (
+	 * 	defined(EE_CORTEX_MX_TIMER_3_B_ISR) && defined(GPT_CHANNEL_3_B)
+	 * )
+	 */
 
-#ifdef	EE_CORTEX_MX_TIMER_4_A_ISR
-/* GPT CHANNEL 4 A or CHANNEL J 4 ISR */
+#if	( \
+  defined(EE_CORTEX_MX_TIMER_4_A_ISR) && ( \
+    defined(GPT_CHANNEL_4_A) || defined(GPT_CHANNEL_J_4) \
+  ) \
+)
 ISR2(EE_CORTEX_MX_TIMER_4_A_ISR)
 {
-  Gpt_Isr_A(GPT_CHANNEL_4_A, GPT_CHANNEL_J_4);
+#ifdef	GPT_CHANNEL_4_A
+  Gpt_Isr(GPT_CHANNEL_4_A);
+#else	/* GPT_CHANNEL_4_A */
+  Gpt_Isr(GPT_CHANNEL_J_4);
+#endif	/* GPT_CHANNEL_J_4 */
 }
-#endif
+#endif	/* 
+	 * (
+	 * 	defined(EE_CORTEX_MX_TIMER_4_A_ISR) && (
+	 * 		defined(GPT_CHANNEL_4_A) || defined(GPT_CHANNEL_J_4)
+	 * 	)
+	 * )
+	 */
 
-#ifdef	EE_CORTEX_MX_TIMER_4_B_ISR
-/* GPT CHANNEL 4 B ISR */
-ISR2(EE_CORTEX_MX_TIMER_4_B_ISR){ Gpt_Isr_B(GPT_CHANNEL_4_B); }
-#endif
+#if	( \
+  defined(EE_CORTEX_MX_TIMER_4_B_ISR) && defined(GPT_CHANNEL_4_B) \
+)
+ISR2(EE_CORTEX_MX_TIMER_4_B_ISR) { Gpt_Isr(GPT_CHANNEL_4_B); }
+#endif	/*
+	 * (
+	 * 	defined(EE_CORTEX_MX_TIMER_4_B_ISR) && defined(GPT_CHANNEL_4_B)
+	 * )
+	 */
 
-#ifdef	EE_CORTEX_MX_TIMER_5_A_ISR
-/* GPT CHANNEL 5 A or CHANNEL J 5 ISR */
+#if	( \
+  defined(EE_CORTEX_MX_TIMER_5_A_ISR) && ( \
+    defined(GPT_CHANNEL_5_A) || defined(GPT_CHANNEL_J_5) \
+  ) \
+)
 ISR2(EE_CORTEX_MX_TIMER_5_A_ISR)
 {
-  Gpt_Isr_A(GPT_CHANNEL_0_A, GPT_CHANNEL_J_0);
+#ifdef	GPT_CHANNEL_5_A
+  Gpt_Isr(GPT_CHANNEL_5_A);
+#else	/* GPT_CHANNEL_5_A */
+  Gpt_Isr(GPT_CHANNEL_J_5);
+#endif	/* GPT_CHANNEL_J_5 */
 }
-#endif
+#endif	/* 
+	 * (
+	 * 	defined(EE_CORTEX_MX_TIMER_5_A_ISR) && (
+	 * 		defined(GPT_CHANNEL_5_A) || defined(GPT_CHANNEL_J_5)
+	 * 	)
+	 * )
+	 */
 
-#ifdef	EE_CORTEX_MX_TIMER_5_B_ISR
-/* GPT CHANNEL 5 B ISR */
-ISR2(EE_CORTEX_MX_TIMER_5_B_ISR){ Gpt_Isr_B(GPT_CHANNEL_5_B); }
-#endif
+#if	( \
+  defined(EE_CORTEX_MX_TIMER_5_B_ISR) && defined(GPT_CHANNEL_5_B) \
+)
+ISR2(EE_CORTEX_MX_TIMER_5_B_ISR) { Gpt_Isr(GPT_CHANNEL_5_B); }
+#endif	/*
+	 * (
+	 * 	defined(EE_CORTEX_MX_TIMER_5_B_ISR) && defined(GPT_CHANNEL_5_B)
+	 * )
+	 */
 
-#ifdef	EE_CORTEX_MX_WIDE_TIMER_0_A_ISR
-/* GPT CHANNEL W 0 A or CHANNEL J W 0 ISR */
+#if	( \
+  defined(EE_CORTEX_MX_WIDE_TIMER_0_A_ISR) && ( \
+    defined(GPT_CHANNEL_W_0_A) || defined(GPT_CHANNEL_J_W_0) \
+  ) \
+)
 ISR2(EE_CORTEX_MX_WIDE_TIMER_0_A_ISR)
 {
-  Gpt_Isr_A(GPT_CHANNEL_W_0_A, GPT_CHANNEL_J_W_0);
+#ifdef	GPT_CHANNEL_W_0_A
+  Gpt_Isr(GPT_CHANNEL_W_0_A);
+#else	/* GPT_CHANNEL_W_0_A */
+  Gpt_Isr(GPT_CHANNEL_J_W_0);
+#endif	/* GPT_CHANNEL_J_W_0 */
 }
-#endif
+#endif	/* 
+	 * (
+	 * 	defined(EE_CORTEX_MX_WIDE_TIMER_0_A_ISR) && (
+	 * 		defined(GPT_CHANNEL_W_0_A) || defined(GPT_CHANNEL_J_W_0)
+	 * 	)
+	 * )
+	 */
 
-#ifdef	EE_CORTEX_MX_WIDE_TIMER_0_B_ISR
-/* GPT CHANNEL W 0 B ISR */
-ISR2(EE_CORTEX_MX_WIDE_TIMER_0_B_ISR) { Gpt_Isr_B(GPT_CHANNEL_W_0_B); }
-#endif
+#if	( \
+  defined(EE_CORTEX_MX_WIDE_TIMER_0_B_ISR) && defined(GPT_CHANNEL_W_0_B) \
+)
+ISR2(EE_CORTEX_MX_WIDE_TIMER_0_B_ISR) { Gpt_Isr(GPT_CHANNEL_W_0_B); }
+#endif	/*
+	 * (
+	 * 	defined(EE_CORTEX_MX_WIDE_TIMER_0_B_ISR) &&
+	 * 	defined(GPT_CHANNEL_W_0_B)
+	 * )
+	 */
 
-#ifdef	EE_CORTEX_MX_WIDE_TIMER_1_A_ISR
-/* GPT CHANNEL W 1 A or CHANNEL J W 1 ISR */
+#if	( \
+  defined(EE_CORTEX_MX_WIDE_TIMER_1_A_ISR) && ( \
+    defined(GPT_CHANNEL_W_1_A) || defined(GPT_CHANNEL_J_W_1) \
+  ) \
+)
 ISR2(EE_CORTEX_MX_WIDE_TIMER_1_A_ISR)
 {
-  Gpt_Isr_A(GPT_CHANNEL_W_1_A, GPT_CHANNEL_J_W_1);
+#ifdef	GPT_CHANNEL_W_1_A
+  Gpt_Isr(GPT_CHANNEL_W_1_A);
+#else	/* GPT_CHANNEL_W_1_A */
+  Gpt_Isr(GPT_CHANNEL_J_W_1);
+#endif	/* GPT_CHANNEL_J_W_1 */
 }
-#endif
+#endif	/* 
+	 * (
+	 * 	defined(EE_CORTEX_MX_WIDE_TIMER_1_A_ISR) && (
+	 * 		defined(GPT_CHANNEL_W_1_A) || defined(GPT_CHANNEL_J_W_1)
+	 * 	)
+	 * )
+	 */
 
-#ifdef	EE_CORTEX_MX_WIDE_TIMER_1_B_ISR
-/* GPT CHANNEL W 1 B ISR */
-ISR2(EE_CORTEX_MX_WIDE_TIMER_1_B_ISR) { Gpt_Isr_B(GPT_CHANNEL_W_1_B); }
-#endif
+#if	( \
+  defined(EE_CORTEX_MX_WIDE_TIMER_1_B_ISR) && defined(GPT_CHANNEL_W_1_B) \
+)
+ISR2(EE_CORTEX_MX_WIDE_TIMER_1_B_ISR) { Gpt_Isr(GPT_CHANNEL_W_1_B); }
+#endif	/*
+	 * (
+	 * 	defined(EE_CORTEX_MX_WIDE_TIMER_1_B_ISR) &&
+	 * 	defined(GPT_CHANNEL_W_1_B)
+	 * )
+	 */
 
-#ifdef	EE_CORTEX_MX_WIDE_TIMER_2_A_ISR
-/* GPT CHANNEL W 2 A or CHANNEL J W 2 ISR */
+#if	( \
+  defined(EE_CORTEX_MX_WIDE_TIMER_2_A_ISR) && ( \
+    defined(GPT_CHANNEL_W_2_A) || defined(GPT_CHANNEL_J_W_2) \
+  ) \
+)
 ISR2(EE_CORTEX_MX_WIDE_TIMER_2_A_ISR)
 {
-  Gpt_Isr_A(GPT_CHANNEL_W_2_A, GPT_CHANNEL_J_W_2);
+#ifdef	GPT_CHANNEL_W_2_A
+  Gpt_Isr(GPT_CHANNEL_W_2_A);
+#else	/* GPT_CHANNEL_W_2_A */
+  Gpt_Isr(GPT_CHANNEL_J_W_2);
+#endif	/* GPT_CHANNEL_J_W_2 */
 }
-#endif
+#endif	/* 
+	 * (
+	 * 	defined(EE_CORTEX_MX_WIDE_TIMER_2_A_ISR) && (
+	 * 		defined(GPT_CHANNEL_W_2_A) || defined(GPT_CHANNEL_J_W_2)
+	 * 	)
+	 * )
+	 */
 
-#ifdef	EE_CORTEX_MX_WIDE_TIMER_2_B_ISR
-/* GPT CHANNEL W 2 B ISR */
-ISR2(EE_CORTEX_MX_WIDE_TIMER_2_B_ISR) { Gpt_Isr_B(GPT_CHANNEL_W_2_B); }
-#endif
+#if	( \
+  defined(EE_CORTEX_MX_WIDE_TIMER_2_B_ISR) && defined(GPT_CHANNEL_W_2_B) \
+)
+ISR2(EE_CORTEX_MX_WIDE_TIMER_2_B_ISR) { Gpt_Isr(GPT_CHANNEL_W_2_B); }
+#endif	/*
+	 * (
+	 * 	defined(EE_CORTEX_MX_WIDE_TIMER_2_B_ISR) &&
+	 * 	defined(GPT_CHANNEL_W_2_B)
+	 * )
+	 */
 
-#ifdef	EE_CORTEX_MX_WIDE_TIMER_3_A_ISR
-/* GPT CHANNEL W 3 A or CHANNEL J W 3 ISR */
+#if	( \
+  defined(EE_CORTEX_MX_WIDE_TIMER_3_A_ISR) && ( \
+    defined(GPT_CHANNEL_W_3_A) || defined(GPT_CHANNEL_J_W_3) \
+  ) \
+)
 ISR2(EE_CORTEX_MX_WIDE_TIMER_3_A_ISR)
 {
-  Gpt_Isr_A(GPT_CHANNEL_W_3_A, GPT_CHANNEL_J_W_3);
+#ifdef	GPT_CHANNEL_W_3_A
+  Gpt_Isr(GPT_CHANNEL_W_3_A);
+#else	/* GPT_CHANNEL_W_3_A */
+  Gpt_Isr(GPT_CHANNEL_J_W_3);
+#endif	/* GPT_CHANNEL_J_W_3 */
 }
-#endif
+#endif	/* 
+	 * (
+	 * 	defined(EE_CORTEX_MX_WIDE_TIMER_3_A_ISR) && (
+	 * 		defined(GPT_CHANNEL_W_3_A) || defined(GPT_CHANNEL_J_W_3)
+	 * 	)
+	 * )
+	 */
 
-#ifdef	EE_CORTEX_MX_WIDE_TIMER_3_B_ISR
-/* GPT CHANNEL W 3 B ISR */
-ISR2(EE_CORTEX_MX_WIDE_TIMER_3_B_ISR) { Gpt_Isr_B(GPT_CHANNEL_W_3_B); }
-#endif
+#if	( \
+  defined(EE_CORTEX_MX_WIDE_TIMER_3_B_ISR) && defined(GPT_CHANNEL_W_3_B) \
+)
+ISR2(EE_CORTEX_MX_WIDE_TIMER_3_B_ISR) { Gpt_Isr(GPT_CHANNEL_W_3_B); }
+#endif	/*
+	 * (
+	 * 	defined(EE_CORTEX_MX_WIDE_TIMER_3_B_ISR) &&
+	 * 	defined(GPT_CHANNEL_W_3_B)
+	 * )
+	 */
 
-#ifdef	EE_CORTEX_MX_WIDE_TIMER_4_A_ISR
-/* GPT CHANNEL W 4 A or CHANNEL J W 4 ISR */
+#if	( \
+  defined(EE_CORTEX_MX_WIDE_TIMER_4_A_ISR) && ( \
+    defined(GPT_CHANNEL_W_4_A) || defined(GPT_CHANNEL_J_W_4) \
+  ) \
+)
 ISR2(EE_CORTEX_MX_WIDE_TIMER_4_A_ISR)
 {
-  Gpt_Isr_A(GPT_CHANNEL_W_4_A, GPT_CHANNEL_J_W_4);
+#ifdef	GPT_CHANNEL_W_4_A
+  Gpt_Isr(GPT_CHANNEL_W_4_A);
+#else	/* GPT_CHANNEL_W_4_A */
+  Gpt_Isr(GPT_CHANNEL_J_W_4);
+#endif	/* GPT_CHANNEL_J_W_4 */
 }
-#endif
+#endif	/* 
+	 * (
+	 * 	defined(EE_CORTEX_MX_WIDE_TIMER_4_A_ISR) && (
+	 * 		defined(GPT_CHANNEL_W_4_A) || defined(GPT_CHANNEL_J_W_4)
+	 * 	)
+	 * )
+	 */
 
-#ifdef	EE_CORTEX_MX_WIDE_TIMER_4_B_ISR
-/* GPT CHANNEL W 4 B ISR */
-ISR2(EE_CORTEX_MX_WIDE_TIMER_4_B_ISR) { Gpt_Isr_B(GPT_CHANNEL_W_4_B); }
-#endif
+#if	( \
+  defined(EE_CORTEX_MX_WIDE_TIMER_4_B_ISR) && defined(GPT_CHANNEL_W_4_B) \
+)
+ISR2(EE_CORTEX_MX_WIDE_TIMER_4_B_ISR) { Gpt_Isr(GPT_CHANNEL_W_4_B); }
+#endif	/*
+	 * (
+	 * 	defined(EE_CORTEX_MX_WIDE_TIMER_4_B_ISR) &&
+	 * 	defined(GPT_CHANNEL_W_4_B)
+	 * )
+	 */
 
-#ifdef	EE_CORTEX_MX_WIDE_TIMER_5_A_ISR
-/* GPT CHANNEL W 5 A or CHANNEL J W 5 ISR */
+#if	( \
+  defined(EE_CORTEX_MX_WIDE_TIMER_5_A_ISR) && ( \
+    defined(GPT_CHANNEL_W_5_A) || defined(GPT_CHANNEL_J_W_5) \
+  ) \
+)
 ISR2(EE_CORTEX_MX_WIDE_TIMER_5_A_ISR)
 {
-  Gpt_Isr_A(GPT_CHANNEL_W_5_A, GPT_CHANNEL_J_W_5);
+#ifdef	GPT_CHANNEL_W_5_A
+  Gpt_Isr(GPT_CHANNEL_W_5_A);
+#else	/* GPT_CHANNEL_W_5_A */
+  Gpt_Isr(GPT_CHANNEL_J_W_5);
+#endif	/* GPT_CHANNEL_J_W_5 */
 }
-#endif
+#endif	/* 
+	 * (
+	 * 	defined(EE_CORTEX_MX_WIDE_TIMER_5_A_ISR) && (
+	 * 		defined(GPT_CHANNEL_W_5_A) || defined(GPT_CHANNEL_J_W_5)
+	 * 	)
+	 * )
+	 */
 
-#ifdef	EE_CORTEX_MX_WIDE_TIMER_5_B_ISR
-/* GPT CHANNEL W 5 B ISR */
-ISR2(EE_CORTEX_MX_WIDE_TIMER_5_B_ISR) { Gpt_Isr_B(GPT_CHANNEL_W_5_B); }
-#endif
+#if	( \
+  defined(EE_CORTEX_MX_WIDE_TIMER_5_B_ISR) && defined(GPT_CHANNEL_W_5_B) \
+)
+ISR2(EE_CORTEX_MX_WIDE_TIMER_5_B_ISR) { Gpt_Isr(GPT_CHANNEL_W_5_B); }
+#endif	/*
+	 * (
+	 * 	defined(EE_CORTEX_MX_WIDE_TIMER_5_B_ISR) &&
+	 * 	defined(GPT_CHANNEL_W_5_B)
+	 * )
+	 */
 
 #endif	/* GPT_NOTIFICATIONS_API */

@@ -150,6 +150,50 @@
 #define	GTP_TMR_WIDE_ROW_OFFSET	0x00000034
 
 /*
+ * Internal Cahnels Identifiers
+ */ 
+#define	GPT_INTERNAL_CHANNEL_0_A	0x00	/**< Channel 0 A */
+#define	GPT_INTERNAL_CHANNEL_0_B	0x01	/**< Channel 0 B */
+#define	GPT_INTERNAL_CHANNEL_1_A	0x02	/**< Channel 1 A */
+#define	GPT_INTERNAL_CHANNEL_1_B	0x03	/**< Channel 1 B */
+#define	GPT_INTERNAL_CHANNEL_2_A	0x04	/**< Channel 2 A */
+#define	GPT_INTERNAL_CHANNEL_2 B	0x05	/**< Channel 2 B */
+#define	GPT_INTERNAL_CHANNEL_3_A	0x06	/**< Channel 3 A */
+#define	GPT_INTERNAL_CHANNEL_3_B	0x07	/**< Channel 3 B */
+#define	GPT_INTERNAL_CHANNEL_4_A	0x08	/**< Channel 4 A */
+#define	GPT_INTERNAL_CHANNEL_4_B	0x09	/**< Channel 4 B */
+#define	GPT_INTERNAL_CHANNEL_5_A	0x0A	/**< Channel 5 A */
+#define	GPT_INTERNAL_CHANNEL_5_B	0x0B	/**< Channel 5 B */
+
+#define	GPT_INTERNAL_CHANNEL_W_0_A	0x0C	/**< Channel W 0 A */
+#define	GPT_INTERNAL_CHANNEL_W_0_B	0x0D	/**< Channel W 0 B */
+#define	GPT_INTERNAL_CHANNEL_W_1_A	0x0E	/**< Channel W 1 A */
+#define	GPT_INTERNAL_CHANNEL_W_1_B	0x0F	/**< Channel W 1 B */
+#define	GPT_INTERNAL_CHANNEL_W_2_A	0x38	/**< Channel W 2 A */
+#define	GPT_INTERNAL_CHANNEL_W_2 B	0x39	/**< Channel W 2 B */
+#define	GPT_INTERNAL_CHANNEL_W_3_A	0x3A	/**< Channel W 3 A */
+#define	GPT_INTERNAL_CHANNEL_W_3_B	0x3B	/**< Channel W 3 B */
+#define	GPT_INTERNAL_CHANNEL_W_4_A	0x3C	/**< Channel W 4 A */
+#define	GPT_INTERNAL_CHANNEL_W_4_B	0x3D	/**< Channel W 4 B */
+#define	GPT_INTERNAL_CHANNEL_W_5_A	0x3E	/**< Channel W 5 A */
+#define	GPT_INTERNAL_CHANNEL_W_5_B	0x3F	/**< Channel W 5 B */
+
+#define	GPT_INTERNAL_CHANNEL_J_0	0x40	/**< Channel J 0 */
+#define	GPT_INTERNAL_CHANNEL_J_1	0x42	/**< Channel J 1 */
+#define	GPT_INTERNAL_CHANNEL_J_2	0x44	/**< Channel J 2 */
+#define	GPT_INTERNAL_CHANNEL_J_3	0x46	/**< Channel J 3 */
+#define	GPT_INTERNAL_CHANNEL_J_4	0x48	/**< Channel J 4 */
+#define	GPT_INTERNAL_CHANNEL_J_5	0x4A	/**< Channel J 5 */
+
+#define	GPT_INTERNAL_CHANNEL_J_W_0	0x4C	/**< Channel W J 0 */
+#define	GPT_INTERNAL_CHANNEL_J_W_1	0x4E	/**< Channel W J 1 */
+#define	GPT_INTERNAL_CHANNEL_J_W_2	0x78	/**< Channel W J 2 */
+#define	GPT_INTERNAL_CHANNEL_J_W_3	0x7A	/**< Channel W J 3 */
+#define	GPT_INTERNAL_CHANNEL_J_W_4	0x7C	/**< Channel W J 4 */
+#define	GPT_INTERNAL_CHANNEL_J_W_5	0x7E	/**< Channel W J 5 */
+
+
+/*
  * Channel is Valid Test
  *
  * param	_ch	Numeric ID of a GPT channel. (Gpt_ChannelType)
@@ -159,23 +203,21 @@
  * This macro function returns if numeric id of a channel is valid or not.
  */
 #define	GPT_CH_IS_VALID(_ch)	(boolean)( \
-	( (uint32)_ch <= (uint32)GPT_CHANNEL_W_1_B ) || ( \
-		( (uint32)_ch >= (uint32)GPT_CHANNEL_W_2_A ) && \
-		( (uint32)_ch <= (uint32)GPT_CHANNEL_W_5_B ) \
+	( (uint32)_ch <= (uint32)GPT_INTERNAL_CHANNEL_W_1_B ) || ( \
+		( (uint32)_ch >= (uint32)GPT_INTERNAL_CHANNEL_W_2_A ) && \
+		( (uint32)_ch <= (uint32)GPT_INTERNAL_CHANNEL_W_5_B ) \
 	) || ( \
 		(\
-			( \
-				( (uint32)_ch >= (uint32)GPT_CHANNEL_J_0 ) && \
-				( (uint32)_ch <= (uint32)GPT_CHANNEL_J_W_1 ) \
-			) || ( \
-				( \
-					(uint32)_ch >= \
-					(uint32)GPT_CHANNEL_J_W_2 \
-				) && ( \
-					(uint32)_ch <= \
-					(uint32)GPT_CHANNEL_J_W_5 \
-				) \
-			) \
+		  ( \
+		    ( (uint32)_ch >= (uint32)GPT_INTERNAL_CHANNEL_J_0 ) && \
+		    ( (uint32)_ch <= (uint32)GPT_INTERNAL_CHANNEL_J_W_1 ) \
+		  ) || ( \
+		    ( \
+			(uint32)_ch >= (uint32)GPT_INTERNAL_CHANNEL_J_W_2 \
+		    ) && ( \
+			(uint32)_ch <= (uint32)GPT_INTERNAL_CHANNEL_J_W_5 \
+		    ) \
+		  ) \
 		) && !HW_CH_2_UNIT(_ch) \
 	) \
 )
@@ -192,12 +234,12 @@
  */
 #define	GPT_CH_IS_WIDE(_ch)	(boolean)( \
 	( \
-		( (uint32)_ch >= (uint32)GPT_CHANNEL_W_0_A ) && \
-		( (uint32)_ch <= (uint32)GPT_CHANNEL_W_5_B ) \
+		( (uint32)_ch >= (uint32)GPT_INTERNAL_CHANNEL_W_0_A ) && \
+		( (uint32)_ch <= (uint32)GPT_INTERNAL_CHANNEL_W_5_B ) \
 	) || \
 	( \
-		( (uint32)_ch >= (uint32)GPT_CHANNEL_J_W_0 ) && \
-		( (uint32)_ch <= (uint32)GPT_CHANNEL_J_W_5 ) \
+		( (uint32)_ch >= (uint32)GPT_INTERNAL_CHANNEL_J_W_0 ) && \
+		( (uint32)_ch <= (uint32)GPT_INTERNAL_CHANNEL_J_W_5 ) \
 	) \
 )
 

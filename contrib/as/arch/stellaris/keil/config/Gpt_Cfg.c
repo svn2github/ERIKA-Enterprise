@@ -120,15 +120,15 @@ const Gpt_ChannelConfigType GptChannels[] = {
     					/* GptChannelHwCtrl:		      */
     /* GPT_CH_HW_CTL_STALL */		/* - Stall Enable.		      */
   },
-  { /* TIMER W 0 A */
-    GPT_CHANNEL_W_0_A,			/* GptChannelId			      */
+  { /* TIMER W 3 A */
+    GPT_CHANNEL_W_3_A,			/* GptChannelId			      */
     GPT_CH_MODE_CONTINUOUS,		/* GptChannelMode		      */
 #if ( GPT_ENABLE_DISABLE_NOTIFICATION_API == STD_ON )
-#ifdef	EE_CORTEX_MX_WIDE_TIMER_0_A_ISR
-    &Gpt_Notification_Channel_W_0_A,	/* GptNotificationPtr		      */
-#else	/* EE_CORTEX_MX_WIDE_TIMER_0_A_ISR	*/
+#ifdef	EE_CORTEX_MX_WIDE_TIMER_3_A_ISR
+    &Gpt_Notification_Channel_W_3_A,	/* GptNotificationPtr		      */
+#else	/* EE_CORTEX_MX_WIDE_TIMER_3_A_ISR	*/
     NULL_PTR,				/* GptNotificationPtr		      */
-#endif	/* !EE_CORTEX_MX_WIDE_TIMER_0_A_ISR	*/
+#endif	/* !EE_CORTEX_MX_WIDE_TIMER_3_A_ISR	*/
 #endif	/* GPT_ENABLE_DISABLE_NOTIFICATION_API == STD_ON	*/
 #if ( GPT_CHANNEL_WAKEUP_FUNCTIONALITY_API == STD_ON )
     TRUE,				/* GptChannelWakeupSupport	      */
@@ -140,15 +140,15 @@ const Gpt_ChannelConfigType GptChannels[] = {
     					/* GptChannelHwCtrl:		      */
     /* GPT_CH_HW_CTL_STALL */		/* - Stall Enable.		      */
   },
-  { /* TIMER W 0 B */
-    GPT_CHANNEL_W_0_B,			/* GptChannelId			      */
+  { /* TIMER W 3 B */
+    GPT_CHANNEL_W_3_B,			/* GptChannelId			      */
     GPT_CH_MODE_ONESHOT,		/* GptChannelMode		      */
 #if ( GPT_ENABLE_DISABLE_NOTIFICATION_API == STD_ON )
-#ifdef	EE_CORTEX_MX_WIDE_TIMER_0_B_ISR
-    &Gpt_Notification_Channel_W_0_B,	/* GptNotificationPtr		      */
-#else	/* EE_CORTEX_MX_WIDE_TIMER_0_B_ISR	*/
+#ifdef	EE_CORTEX_MX_WIDE_TIMER_3_B_ISR
+    &Gpt_Notification_Channel_W_3_B,	/* GptNotificationPtr		      */
+#else	/* EE_CORTEX_MX_WIDE_TIMER_3_B_ISR	*/
     NULL_PTR,				/* GptNotificationPtr		      */
-#endif	/* !EE_CORTEX_MX_WIDE_TIMER_0_B_ISR	*/
+#endif	/* !EE_CORTEX_MX_WIDE_TIMER_3_B_ISR	*/
 #endif	/* GPT_ENABLE_DISABLE_NOTIFICATION_API == STD_ON	*/
 #if ( GPT_CHANNEL_WAKEUP_FUNCTIONALITY_API == STD_ON )
     TRUE,				/* GptChannelWakeupSupport	      */
