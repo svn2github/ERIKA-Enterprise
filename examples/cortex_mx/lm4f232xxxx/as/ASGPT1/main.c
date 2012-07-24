@@ -76,24 +76,24 @@ enum EE_ASSERTIONS {
   EE_ASSERT_GPT_0_B_PRESC_ELAPSED,		/* 21 */
   EE_ASSERT_GPT_0_B_PRESC_REMAINING,		/* 22 */
   EE_ASSERT_GPT_0_B_PRESC_EXPIRED,		/* 23 */
-  EE_ASSERT_GPT_W_0_A_INIT,			/* 24 */
-  EE_ASSERT_GPT_W_0_A_NO_PRESC_RUNNING,		/* 25 */
-  EE_ASSERT_GPT_W_0_A_NO_PRESC_ELAPSED,		/* 26 */
-  EE_ASSERT_GPT_W_0_A_NO_PRESC_REMAINING,	/* 27 */
-  EE_ASSERT_GPT_W_0_A_NO_PRESC_STOPPED,		/* 28 */
-  EE_ASSERT_GPT_W_0_A_PRESC_RUNNING,		/* 29 */
-  EE_ASSERT_GPT_W_0_A_PRESC_ELAPSED,		/* 30 */
-  EE_ASSERT_GPT_W_0_A_PRESC_REMAINING,		/* 31 */
-  EE_ASSERT_GPT_W_0_A_PRESC_STOPPED,		/* 32 */
-  EE_ASSERT_GPT_W_0_B_INIT,			/* 33 */
-  EE_ASSERT_GPT_W_0_B_NO_PRESC_RUNNING,		/* 34 */
-  EE_ASSERT_GPT_W_0_B_NO_PRESC_ELAPSED,		/* 35 */
-  EE_ASSERT_GPT_W_0_B_NO_PRESC_REMAINING,	/* 36 */
-  EE_ASSERT_GPT_W_0_B_NO_PRESC_EXPIRED,		/* 37 */
-  EE_ASSERT_GPT_W_0_B_PRESC_RUNNING,		/* 38 */
-  EE_ASSERT_GPT_W_0_B_PRESC_ELAPSED,		/* 39 */
-  EE_ASSERT_GPT_W_0_B_PRESC_REMAINING,		/* 40 */
-  EE_ASSERT_GPT_W_0_B_PRESC_EXPIRED,		/* 41 */
+  EE_ASSERT_GPT_W_3_A_INIT,			/* 24 */
+  EE_ASSERT_GPT_W_3_A_NO_PRESC_RUNNING,		/* 25 */
+  EE_ASSERT_GPT_W_3_A_NO_PRESC_ELAPSED,		/* 26 */
+  EE_ASSERT_GPT_W_3_A_NO_PRESC_REMAINING,	/* 27 */
+  EE_ASSERT_GPT_W_3_A_NO_PRESC_STOPPED,		/* 28 */
+  EE_ASSERT_GPT_W_3_A_PRESC_RUNNING,		/* 29 */
+  EE_ASSERT_GPT_W_3_A_PRESC_ELAPSED,		/* 30 */
+  EE_ASSERT_GPT_W_3_A_PRESC_REMAINING,		/* 31 */
+  EE_ASSERT_GPT_W_3_A_PRESC_STOPPED,		/* 32 */
+  EE_ASSERT_GPT_W_3_B_INIT,			/* 33 */
+  EE_ASSERT_GPT_W_3_B_NO_PRESC_RUNNING,		/* 34 */
+  EE_ASSERT_GPT_W_3_B_NO_PRESC_ELAPSED,		/* 35 */
+  EE_ASSERT_GPT_W_3_B_NO_PRESC_REMAINING,	/* 36 */
+  EE_ASSERT_GPT_W_3_B_NO_PRESC_EXPIRED,		/* 37 */
+  EE_ASSERT_GPT_W_3_B_PRESC_RUNNING,		/* 38 */
+  EE_ASSERT_GPT_W_3_B_PRESC_ELAPSED,		/* 39 */
+  EE_ASSERT_GPT_W_3_B_PRESC_REMAINING,		/* 40 */
+  EE_ASSERT_GPT_W_3_B_PRESC_EXPIRED,		/* 41 */
   EE_ASSERT_GPT_J_1_INIT,			/* 42 */
   EE_ASSERT_GPT_J_1_RUNNING,			/* 43 */
   EE_ASSERT_GPT_J_1_ELAPSED,			/* 44 */
@@ -438,17 +438,17 @@ int main(void)
   user_led_toggle();
 
   EE_assert(
-    EE_ASSERT_GPT_W_0_A_INIT,
-    ( Gpt_GetStatus(GPT_CHANNEL_W_0_A) == GPT_OPERATIONAL ),
+    EE_ASSERT_GPT_W_3_A_INIT,
+    ( Gpt_GetStatus(GPT_CHANNEL_W_3_A) == GPT_OPERATIONAL ),
     EE_ASSERT_GPT_INIT
   );
 
-  Gpt_StartTimer(GPT_CHANNEL_W_0_A, GPT_TMR_WIDE_START_VALUE_NO_PRESC);
+  Gpt_StartTimer(GPT_CHANNEL_W_3_A, GPT_TMR_WIDE_START_VALUE_NO_PRESC);
 
   EE_assert(
-    EE_ASSERT_GPT_W_0_A_NO_PRESC_RUNNING,
-    ( Gpt_GetStatus(GPT_CHANNEL_W_0_A) == GPT_CH_RUNNING ),
-    EE_ASSERT_GPT_W_0_A_INIT
+    EE_ASSERT_GPT_W_3_A_NO_PRESC_RUNNING,
+    ( Gpt_GetStatus(GPT_CHANNEL_W_3_A) == GPT_CH_RUNNING ),
+    EE_ASSERT_GPT_W_3_A_INIT
   );
 
   counter = 0;
@@ -457,39 +457,39 @@ int main(void)
 
     counter++;
 
-    elapsed = Gpt_GetTimeElapsed(GPT_CHANNEL_W_0_A);
+    elapsed = Gpt_GetTimeElapsed(GPT_CHANNEL_W_3_A);
 
     if (counter == 1) {
       EE_assert(
-	EE_ASSERT_GPT_W_0_A_NO_PRESC_ELAPSED,
+	EE_ASSERT_GPT_W_3_A_NO_PRESC_ELAPSED,
 	( ( elapsed > 0 ) && (elapsed < GPT_TMR_WIDE_START_VALUE_NO_PRESC ) ),
-	EE_ASSERT_GPT_W_0_A_NO_PRESC_RUNNING
+	EE_ASSERT_GPT_W_3_A_NO_PRESC_RUNNING
       );
     }
 
-    remaining = Gpt_GetTimeRemaining(GPT_CHANNEL_W_0_A);
+    remaining = Gpt_GetTimeRemaining(GPT_CHANNEL_W_3_A);
 
     if (counter == 1) {
       EE_assert(
-	EE_ASSERT_GPT_W_0_A_NO_PRESC_REMAINING,
+	EE_ASSERT_GPT_W_3_A_NO_PRESC_REMAINING,
 	( 
 	  ( remaining > 0 ) && 
 	  ( remaining < GPT_TMR_WIDE_START_VALUE_NO_PRESC ) &&
 	  ( elapsed < remaining ) &&
 	  ( (elapsed + remaining ) < GPT_TMR_WIDE_START_VALUE_NO_PRESC )
 	),
-	EE_ASSERT_GPT_W_0_A_NO_PRESC_ELAPSED
+	EE_ASSERT_GPT_W_3_A_NO_PRESC_ELAPSED
       );
     }
 
   } while ( elapsed < remaining );
 
-  Gpt_StopTimer(GPT_CHANNEL_W_0_A);
+  Gpt_StopTimer(GPT_CHANNEL_W_3_A);
 
   EE_assert(
-    EE_ASSERT_GPT_W_0_A_NO_PRESC_STOPPED,
-    ( Gpt_GetStatus(GPT_CHANNEL_W_0_A) == GPT_CH_STOPPED ),
-    EE_ASSERT_GPT_W_0_A_NO_PRESC_REMAINING
+    EE_ASSERT_GPT_W_3_A_NO_PRESC_STOPPED,
+    ( Gpt_GetStatus(GPT_CHANNEL_W_3_A) == GPT_CH_STOPPED ),
+    EE_ASSERT_GPT_W_3_A_NO_PRESC_REMAINING
   );
 
   /*
@@ -497,12 +497,12 @@ int main(void)
    */
   user_led_toggle();
 
-  Gpt_StartTimer(GPT_CHANNEL_W_0_A, GPT_TMR_WIDE_START_VALUE_PRESC);
+  Gpt_StartTimer(GPT_CHANNEL_W_3_A, GPT_TMR_WIDE_START_VALUE_PRESC);
 
   EE_assert(
-    EE_ASSERT_GPT_W_0_A_PRESC_RUNNING,
-    ( Gpt_GetStatus(GPT_CHANNEL_W_0_A) == GPT_CH_RUNNING ),
-    EE_ASSERT_GPT_W_0_A_NO_PRESC_STOPPED
+    EE_ASSERT_GPT_W_3_A_PRESC_RUNNING,
+    ( Gpt_GetStatus(GPT_CHANNEL_W_3_A) == GPT_CH_RUNNING ),
+    EE_ASSERT_GPT_W_3_A_NO_PRESC_STOPPED
   );
 
   counter = 0;
@@ -511,39 +511,39 @@ int main(void)
 
     counter++;
 
-    elapsed = Gpt_GetTimeElapsed(GPT_CHANNEL_W_0_A);
+    elapsed = Gpt_GetTimeElapsed(GPT_CHANNEL_W_3_A);
 
     if (counter == 1) {
       EE_assert(
-	EE_ASSERT_GPT_W_0_A_PRESC_ELAPSED,
+	EE_ASSERT_GPT_W_3_A_PRESC_ELAPSED,
 	( ( elapsed > 0 ) && (elapsed < GPT_TMR_WIDE_START_VALUE_PRESC ) ),
-	EE_ASSERT_GPT_W_0_A_PRESC_RUNNING
+	EE_ASSERT_GPT_W_3_A_PRESC_RUNNING
       );
     }
 
-    remaining = Gpt_GetTimeRemaining(GPT_CHANNEL_W_0_A);
+    remaining = Gpt_GetTimeRemaining(GPT_CHANNEL_W_3_A);
 
     if (counter == 1) {
       EE_assert(
-	EE_ASSERT_GPT_W_0_A_PRESC_REMAINING,
+	EE_ASSERT_GPT_W_3_A_PRESC_REMAINING,
 	( 
 	  ( remaining > 0 ) && 
 	  ( remaining < GPT_TMR_WIDE_START_VALUE_PRESC ) &&
 	  ( elapsed < remaining ) &&
 	  ( (elapsed + remaining ) < GPT_TMR_WIDE_START_VALUE_PRESC )
 	),
-	EE_ASSERT_GPT_W_0_A_PRESC_ELAPSED
+	EE_ASSERT_GPT_W_3_A_PRESC_ELAPSED
       );
     }
 
   } while ( elapsed < remaining );
 
-  Gpt_StopTimer(GPT_CHANNEL_W_0_A);
+  Gpt_StopTimer(GPT_CHANNEL_W_3_A);
 
   EE_assert(
-    EE_ASSERT_GPT_W_0_A_PRESC_STOPPED,
-    ( Gpt_GetStatus(GPT_CHANNEL_W_0_A) == GPT_CH_STOPPED ),
-    EE_ASSERT_GPT_W_0_A_PRESC_REMAINING
+    EE_ASSERT_GPT_W_3_A_PRESC_STOPPED,
+    ( Gpt_GetStatus(GPT_CHANNEL_W_3_A) == GPT_CH_STOPPED ),
+    EE_ASSERT_GPT_W_3_A_PRESC_REMAINING
   );
 
   /*
@@ -552,17 +552,17 @@ int main(void)
   user_led_toggle();
 
   EE_assert(
-    EE_ASSERT_GPT_W_0_B_INIT,
-    ( Gpt_GetStatus(GPT_CHANNEL_W_0_B) == GPT_OPERATIONAL ),
+    EE_ASSERT_GPT_W_3_B_INIT,
+    ( Gpt_GetStatus(GPT_CHANNEL_W_3_B) == GPT_OPERATIONAL ),
     EE_ASSERT_GPT_INIT
   );
 
-  Gpt_StartTimer(GPT_CHANNEL_W_0_B, GPT_TMR_WIDE_START_VALUE_NO_PRESC);
+  Gpt_StartTimer(GPT_CHANNEL_W_3_B, GPT_TMR_WIDE_START_VALUE_NO_PRESC);
 
   EE_assert(
-    EE_ASSERT_GPT_W_0_B_NO_PRESC_RUNNING,
-    ( Gpt_GetStatus(GPT_CHANNEL_W_0_B) == GPT_CH_RUNNING ),
-    EE_ASSERT_GPT_W_0_B_INIT
+    EE_ASSERT_GPT_W_3_B_NO_PRESC_RUNNING,
+    ( Gpt_GetStatus(GPT_CHANNEL_W_3_B) == GPT_CH_RUNNING ),
+    EE_ASSERT_GPT_W_3_B_INIT
   );
 
   counter = 0;
@@ -571,38 +571,38 @@ int main(void)
 
     counter++;
 
-    elapsed = Gpt_GetTimeElapsed(GPT_CHANNEL_W_0_B);
+    elapsed = Gpt_GetTimeElapsed(GPT_CHANNEL_W_3_B);
 
     if (counter == 1) {
       EE_assert(
-	EE_ASSERT_GPT_W_0_B_NO_PRESC_ELAPSED,
+	EE_ASSERT_GPT_W_3_B_NO_PRESC_ELAPSED,
 	( ( elapsed > 0 ) && (elapsed < GPT_TMR_WIDE_START_VALUE_NO_PRESC ) ),
-	EE_ASSERT_GPT_W_0_B_NO_PRESC_RUNNING
+	EE_ASSERT_GPT_W_3_B_NO_PRESC_RUNNING
       );
     }
 
-    remaining = Gpt_GetTimeRemaining(GPT_CHANNEL_W_0_B);
+    remaining = Gpt_GetTimeRemaining(GPT_CHANNEL_W_3_B);
 
     if (counter == 1) {
       EE_assert(
-	EE_ASSERT_GPT_W_0_B_NO_PRESC_REMAINING,
+	EE_ASSERT_GPT_W_3_B_NO_PRESC_REMAINING,
 	( 
 	  ( remaining > 0 ) && 
 	  ( elapsed < remaining ) &&
 	  ( (elapsed + remaining ) < GPT_TMR_WIDE_START_VALUE_NO_PRESC )
 	),
-	EE_ASSERT_GPT_W_0_B_NO_PRESC_ELAPSED
+	EE_ASSERT_GPT_W_3_B_NO_PRESC_ELAPSED
       );
     }
 
   } while ( elapsed < remaining );
 
-  while (Gpt_GetStatus(GPT_CHANNEL_W_0_B) != GPT_CH_EXPIRED);
+  while (Gpt_GetStatus(GPT_CHANNEL_W_3_B) != GPT_CH_EXPIRED);
 
   EE_assert(
-    EE_ASSERT_GPT_W_0_B_NO_PRESC_EXPIRED,
-    ( Gpt_GetStatus(GPT_CHANNEL_W_0_B) == GPT_CH_EXPIRED ),
-    EE_ASSERT_GPT_W_0_B_NO_PRESC_ELAPSED
+    EE_ASSERT_GPT_W_3_B_NO_PRESC_EXPIRED,
+    ( Gpt_GetStatus(GPT_CHANNEL_W_3_B) == GPT_CH_EXPIRED ),
+    EE_ASSERT_GPT_W_3_B_NO_PRESC_ELAPSED
   );
 
   /*
@@ -610,12 +610,12 @@ int main(void)
    */
   user_led_toggle();
 
-  Gpt_StartTimer(GPT_CHANNEL_W_0_B, GPT_TMR_WIDE_START_VALUE_PRESC);
+  Gpt_StartTimer(GPT_CHANNEL_W_3_B, GPT_TMR_WIDE_START_VALUE_PRESC);
 
   EE_assert(
-    EE_ASSERT_GPT_W_0_B_PRESC_RUNNING,
-    ( Gpt_GetStatus(GPT_CHANNEL_W_0_B) == GPT_CH_RUNNING ),
-    EE_ASSERT_GPT_W_0_B_NO_PRESC_EXPIRED
+    EE_ASSERT_GPT_W_3_B_PRESC_RUNNING,
+    ( Gpt_GetStatus(GPT_CHANNEL_W_3_B) == GPT_CH_RUNNING ),
+    EE_ASSERT_GPT_W_3_B_NO_PRESC_EXPIRED
   );
 
   counter = 0;
@@ -624,38 +624,38 @@ int main(void)
 
     counter++;
 
-    elapsed = Gpt_GetTimeElapsed(GPT_CHANNEL_W_0_B);
+    elapsed = Gpt_GetTimeElapsed(GPT_CHANNEL_W_3_B);
 
     if (counter == 1) {
       EE_assert(
-	EE_ASSERT_GPT_W_0_B_PRESC_ELAPSED,
+	EE_ASSERT_GPT_W_3_B_PRESC_ELAPSED,
 	( ( elapsed > 0 ) && (elapsed < GPT_TMR_WIDE_START_VALUE_PRESC ) ),
-	EE_ASSERT_GPT_W_0_B_PRESC_RUNNING
+	EE_ASSERT_GPT_W_3_B_PRESC_RUNNING
       );
     }
 
-    remaining = Gpt_GetTimeRemaining(GPT_CHANNEL_W_0_B);
+    remaining = Gpt_GetTimeRemaining(GPT_CHANNEL_W_3_B);
 
     if (counter == 1) {
       EE_assert(
-	EE_ASSERT_GPT_W_0_B_PRESC_REMAINING,
+	EE_ASSERT_GPT_W_3_B_PRESC_REMAINING,
 	( 
 	  ( remaining > 0 ) && 
 	  ( elapsed < remaining ) &&
 	  ( (elapsed + remaining ) < GPT_TMR_WIDE_START_VALUE_PRESC )
 	),
-	EE_ASSERT_GPT_W_0_B_PRESC_ELAPSED
+	EE_ASSERT_GPT_W_3_B_PRESC_ELAPSED
       );
     }
 
   } while ( elapsed < remaining );
 
-  while (Gpt_GetStatus(GPT_CHANNEL_W_0_B) != GPT_CH_EXPIRED);
+  while (Gpt_GetStatus(GPT_CHANNEL_W_3_B) != GPT_CH_EXPIRED);
 
   EE_assert(
-    EE_ASSERT_GPT_W_0_B_PRESC_EXPIRED,
-    ( Gpt_GetStatus(GPT_CHANNEL_W_0_B) == GPT_CH_EXPIRED ),
-    EE_ASSERT_GPT_W_0_B_PRESC_ELAPSED
+    EE_ASSERT_GPT_W_3_B_PRESC_EXPIRED,
+    ( Gpt_GetStatus(GPT_CHANNEL_W_3_B) == GPT_CH_EXPIRED ),
+    EE_ASSERT_GPT_W_3_B_PRESC_ELAPSED
   );
 
   /*

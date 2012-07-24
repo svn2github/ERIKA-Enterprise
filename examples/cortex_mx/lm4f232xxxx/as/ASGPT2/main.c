@@ -72,20 +72,20 @@ enum EE_ASSERTIONS {
   EE_ASSERT_GPT_0_B_NO_PRESC_EXPIRED,		/* 17 */
   EE_ASSERT_GPT_0_B_PRESC_RUNNING,		/* 18 */
   EE_ASSERT_GPT_0_B_PRESC_EXPIRED,		/* 19 */
-  EE_ASSERT_GPT_W_0_A_INIT,			/* 20 */
-  EE_ASSERT_GPT_W_0_A_NO_PRESC_RUNNING,		/* 21 */
-  EE_ASSERT_GPT_W_0_A_NO_PRESC_FIRED,		/* 22 */
-  EE_ASSERT_GPT_W_0_A_NO_PRESC_FIRED_LAST,	/* 23 */
-  EE_ASSERT_GPT_W_0_A_NO_PRESC_STOPPED,		/* 24 */
-  EE_ASSERT_GPT_W_0_A_PRESC_RUNNING,		/* 25 */
-  EE_ASSERT_GPT_W_0_A_PRESC_FIRED,		/* 26 */
-  EE_ASSERT_GPT_W_0_A_PRESC_FIRED_LAST,		/* 27 */
-  EE_ASSERT_GPT_W_0_A_PRESC_STOPPED,		/* 28 */
-  EE_ASSERT_GPT_W_0_B_INIT,			/* 29 */
-  EE_ASSERT_GPT_W_0_B_NO_PRESC_RUNNING,		/* 30 */
-  EE_ASSERT_GPT_W_0_B_NO_PRESC_EXPIRED,		/* 31 */
-  EE_ASSERT_GPT_W_0_B_PRESC_RUNNING,		/* 32 */
-  EE_ASSERT_GPT_W_0_B_PRESC_EXPIRED,		/* 33 */
+  EE_ASSERT_GPT_W_3_A_INIT,			/* 20 */
+  EE_ASSERT_GPT_W_3_A_NO_PRESC_RUNNING,		/* 21 */
+  EE_ASSERT_GPT_W_3_A_NO_PRESC_FIRED,		/* 22 */
+  EE_ASSERT_GPT_W_3_A_NO_PRESC_FIRED_LAST,	/* 23 */
+  EE_ASSERT_GPT_W_3_A_NO_PRESC_STOPPED,		/* 24 */
+  EE_ASSERT_GPT_W_3_A_PRESC_RUNNING,		/* 25 */
+  EE_ASSERT_GPT_W_3_A_PRESC_FIRED,		/* 26 */
+  EE_ASSERT_GPT_W_3_A_PRESC_FIRED_LAST,		/* 27 */
+  EE_ASSERT_GPT_W_3_A_PRESC_STOPPED,		/* 28 */
+  EE_ASSERT_GPT_W_3_B_INIT,			/* 29 */
+  EE_ASSERT_GPT_W_3_B_NO_PRESC_RUNNING,		/* 30 */
+  EE_ASSERT_GPT_W_3_B_NO_PRESC_EXPIRED,		/* 31 */
+  EE_ASSERT_GPT_W_3_B_PRESC_RUNNING,		/* 32 */
+  EE_ASSERT_GPT_W_3_B_PRESC_EXPIRED,		/* 33 */
   EE_ASSERT_GPT_J_1_INIT,			/* 34 */
   EE_ASSERT_GPT_J_1_RUNNING,			/* 35 */
   EE_ASSERT_GPT_J_1_FIRED,			/* 36 */
@@ -229,39 +229,39 @@ void Gpt_Notification_Channel_0_B(void)
 /*
  * TASK W 0 A
  */
-TASK(Task_W_0_A)
+TASK(Task_W_3_A)
 {
   user_led_toggle();
   counter++;
   if ( counter == 1 ) {
     if ( presc ) {
       EE_assert(
-	EE_ASSERT_GPT_W_0_A_PRESC_FIRED,
-	( Gpt_GetStatus(GPT_CHANNEL_W_0_A) == GPT_CH_RUNNING ),
-	EE_ASSERT_GPT_W_0_A_PRESC_RUNNING
+	EE_ASSERT_GPT_W_3_A_PRESC_FIRED,
+	( Gpt_GetStatus(GPT_CHANNEL_W_3_A) == GPT_CH_RUNNING ),
+	EE_ASSERT_GPT_W_3_A_PRESC_RUNNING
       );
     }
     else {
       EE_assert(
-	EE_ASSERT_GPT_W_0_A_NO_PRESC_FIRED,
-	( Gpt_GetStatus(GPT_CHANNEL_W_0_A) == GPT_CH_RUNNING ),
-	EE_ASSERT_GPT_W_0_A_NO_PRESC_RUNNING
+	EE_ASSERT_GPT_W_3_A_NO_PRESC_FIRED,
+	( Gpt_GetStatus(GPT_CHANNEL_W_3_A) == GPT_CH_RUNNING ),
+	EE_ASSERT_GPT_W_3_A_NO_PRESC_RUNNING
       );
     }
   }
   else if ( counter == GPT_TMR_CNTR_MAX ) {
     if ( presc ) {
       EE_assert(
-	EE_ASSERT_GPT_W_0_A_PRESC_FIRED_LAST,
-	( Gpt_GetStatus(GPT_CHANNEL_W_0_A) == GPT_CH_RUNNING ),
-	EE_ASSERT_GPT_W_0_A_PRESC_FIRED
+	EE_ASSERT_GPT_W_3_A_PRESC_FIRED_LAST,
+	( Gpt_GetStatus(GPT_CHANNEL_W_3_A) == GPT_CH_RUNNING ),
+	EE_ASSERT_GPT_W_3_A_PRESC_FIRED
       );
     }
     else {
       EE_assert(
-	EE_ASSERT_GPT_W_0_A_NO_PRESC_FIRED_LAST,
-	( Gpt_GetStatus(GPT_CHANNEL_W_0_A) == GPT_CH_RUNNING ),
-	EE_ASSERT_GPT_W_0_A_NO_PRESC_FIRED
+	EE_ASSERT_GPT_W_3_A_NO_PRESC_FIRED_LAST,
+	( Gpt_GetStatus(GPT_CHANNEL_W_3_A) == GPT_CH_RUNNING ),
+	EE_ASSERT_GPT_W_3_A_NO_PRESC_FIRED
       );
     }
   }
@@ -270,31 +270,31 @@ TASK(Task_W_0_A)
 /*
  * Channel W 0 A Notification Callback.
  */
-void Gpt_Notification_Channel_W_0_A(void)
+void Gpt_Notification_Channel_W_3_A(void)
 {
-  ActivateTask(Task_W_0_A);
+  ActivateTask(Task_W_3_A);
 }
 
 /*
  * TASK W 0 B
  */
-TASK(Task_W_0_B)
+TASK(Task_W_3_B)
 {
   user_led_toggle();
   counter++;
   if ( counter == 1 ) {
     if ( presc ) {
       EE_assert(
-	EE_ASSERT_GPT_W_0_B_PRESC_EXPIRED,
-	( Gpt_GetStatus(GPT_CHANNEL_W_0_B) == GPT_CH_STOPPED ),
-	EE_ASSERT_GPT_W_0_B_PRESC_RUNNING
+	EE_ASSERT_GPT_W_3_B_PRESC_EXPIRED,
+	( Gpt_GetStatus(GPT_CHANNEL_W_3_B) == GPT_CH_STOPPED ),
+	EE_ASSERT_GPT_W_3_B_PRESC_RUNNING
       );
     }
     else {
       EE_assert(
-	EE_ASSERT_GPT_W_0_B_NO_PRESC_EXPIRED,
-	( Gpt_GetStatus(GPT_CHANNEL_W_0_B) == GPT_CH_STOPPED ),
-	EE_ASSERT_GPT_W_0_B_NO_PRESC_RUNNING
+	EE_ASSERT_GPT_W_3_B_NO_PRESC_EXPIRED,
+	( Gpt_GetStatus(GPT_CHANNEL_W_3_B) == GPT_CH_STOPPED ),
+	EE_ASSERT_GPT_W_3_B_NO_PRESC_RUNNING
       );
     }
   }
@@ -303,9 +303,9 @@ TASK(Task_W_0_B)
 /*
  * Channel W 0 B Notification Callback.
  */
-void Gpt_Notification_Channel_W_0_B(void)
+void Gpt_Notification_Channel_W_3_B(void)
 {
-  ActivateTask(Task_W_0_B);
+  ActivateTask(Task_W_3_B);
 }
 
 /*
@@ -587,56 +587,56 @@ int main(void)
    * mode.
    */
   EE_assert(
-    EE_ASSERT_GPT_W_0_A_INIT,
-    ( Gpt_GetStatus(GPT_CHANNEL_W_0_A) == GPT_OPERATIONAL ),
+    EE_ASSERT_GPT_W_3_A_INIT,
+    ( Gpt_GetStatus(GPT_CHANNEL_W_3_A) == GPT_OPERATIONAL ),
     EE_ASSERT_GPT_INIT
   );
 
-  Gpt_EnableNotification(GPT_CHANNEL_W_0_A);
+  Gpt_EnableNotification(GPT_CHANNEL_W_3_A);
 
   do {
 
     if ( presc ) {
 
-      Gpt_StartTimer(GPT_CHANNEL_W_0_A, GPT_TMR_WIDE_START_VALUE_PRESC);
+      Gpt_StartTimer(GPT_CHANNEL_W_3_A, GPT_TMR_WIDE_START_VALUE_PRESC);
 
       EE_assert(
-	EE_ASSERT_GPT_W_0_A_PRESC_RUNNING,
-	( Gpt_GetStatus(GPT_CHANNEL_W_0_A) == GPT_CH_RUNNING ),
-	EE_ASSERT_GPT_W_0_A_NO_PRESC_STOPPED
+	EE_ASSERT_GPT_W_3_A_PRESC_RUNNING,
+	( Gpt_GetStatus(GPT_CHANNEL_W_3_A) == GPT_CH_RUNNING ),
+	EE_ASSERT_GPT_W_3_A_NO_PRESC_STOPPED
       );
   
     }
     else {
   
-      Gpt_StartTimer(GPT_CHANNEL_W_0_A, GPT_TMR_WIDE_START_VALUE_NO_PRESC);
+      Gpt_StartTimer(GPT_CHANNEL_W_3_A, GPT_TMR_WIDE_START_VALUE_NO_PRESC);
 
       EE_assert(
-	EE_ASSERT_GPT_W_0_A_NO_PRESC_RUNNING,
-	( Gpt_GetStatus(GPT_CHANNEL_W_0_A) == GPT_CH_RUNNING ),
-	EE_ASSERT_GPT_W_0_A_INIT
+	EE_ASSERT_GPT_W_3_A_NO_PRESC_RUNNING,
+	( Gpt_GetStatus(GPT_CHANNEL_W_3_A) == GPT_CH_RUNNING ),
+	EE_ASSERT_GPT_W_3_A_INIT
       );
     }
 
     while ( counter < GPT_TMR_CNTR_MAX );
 
-    Gpt_StopTimer(GPT_CHANNEL_W_0_A);
+    Gpt_StopTimer(GPT_CHANNEL_W_3_A);
 
     if ( presc ) {
 
         EE_assert(
-	  EE_ASSERT_GPT_W_0_A_PRESC_STOPPED,
-	  ( Gpt_GetStatus(GPT_CHANNEL_W_0_A) == GPT_CH_STOPPED ),
-	  EE_ASSERT_GPT_W_0_A_PRESC_FIRED_LAST
+	  EE_ASSERT_GPT_W_3_A_PRESC_STOPPED,
+	  ( Gpt_GetStatus(GPT_CHANNEL_W_3_A) == GPT_CH_STOPPED ),
+	  EE_ASSERT_GPT_W_3_A_PRESC_FIRED_LAST
 	);
 
     }
     else {
 
       EE_assert(
-	EE_ASSERT_GPT_W_0_A_NO_PRESC_STOPPED,
-	( Gpt_GetStatus(GPT_CHANNEL_W_0_A) == GPT_CH_STOPPED ),
-	EE_ASSERT_GPT_W_0_A_NO_PRESC_FIRED_LAST
+	EE_ASSERT_GPT_W_3_A_NO_PRESC_STOPPED,
+	( Gpt_GetStatus(GPT_CHANNEL_W_3_A) == GPT_CH_STOPPED ),
+	EE_ASSERT_GPT_W_3_A_NO_PRESC_FIRED_LAST
       );
 
     }
@@ -647,41 +647,41 @@ int main(void)
   }
   while ( presc );
 
-  Gpt_DisableNotification(GPT_CHANNEL_W_0_A);
+  Gpt_DisableNotification(GPT_CHANNEL_W_3_A);
 
   /*
    * Channel W 0 B: 32bit counter without prescaler in one-shot mode.
    */
   EE_assert(
-    EE_ASSERT_GPT_W_0_B_INIT,
-    ( Gpt_GetStatus(GPT_CHANNEL_W_0_B) == GPT_OPERATIONAL ),
+    EE_ASSERT_GPT_W_3_B_INIT,
+    ( Gpt_GetStatus(GPT_CHANNEL_W_3_B) == GPT_OPERATIONAL ),
     EE_ASSERT_GPT_INIT
   );
 
-  Gpt_EnableNotification(GPT_CHANNEL_W_0_B);
+  Gpt_EnableNotification(GPT_CHANNEL_W_3_B);
 
   do {
 
     if ( presc ) {
 
-      Gpt_StartTimer(GPT_CHANNEL_W_0_B, GPT_TMR_WIDE_START_VALUE_PRESC);
+      Gpt_StartTimer(GPT_CHANNEL_W_3_B, GPT_TMR_WIDE_START_VALUE_PRESC);
 
       EE_assert(
-	EE_ASSERT_GPT_W_0_B_PRESC_RUNNING,
-	( Gpt_GetStatus(GPT_CHANNEL_W_0_B) == GPT_CH_RUNNING ),
-	EE_ASSERT_GPT_W_0_B_NO_PRESC_EXPIRED
+	EE_ASSERT_GPT_W_3_B_PRESC_RUNNING,
+	( Gpt_GetStatus(GPT_CHANNEL_W_3_B) == GPT_CH_RUNNING ),
+	EE_ASSERT_GPT_W_3_B_NO_PRESC_EXPIRED
       );
 
     }
 
     else {
 
-      Gpt_StartTimer(GPT_CHANNEL_W_0_B, GPT_TMR_WIDE_START_VALUE_NO_PRESC);
+      Gpt_StartTimer(GPT_CHANNEL_W_3_B, GPT_TMR_WIDE_START_VALUE_NO_PRESC);
 
       EE_assert(
-	EE_ASSERT_GPT_W_0_B_NO_PRESC_RUNNING,
-	( Gpt_GetStatus(GPT_CHANNEL_W_0_B) == GPT_CH_RUNNING ),
-	EE_ASSERT_GPT_W_0_B_INIT
+	EE_ASSERT_GPT_W_3_B_NO_PRESC_RUNNING,
+	( Gpt_GetStatus(GPT_CHANNEL_W_3_B) == GPT_CH_RUNNING ),
+	EE_ASSERT_GPT_W_3_B_INIT
       );
 
     }
@@ -694,7 +694,7 @@ int main(void)
   }
   while ( presc );
 
-  Gpt_DisableNotification(GPT_CHANNEL_W_0_B);
+  Gpt_DisableNotification(GPT_CHANNEL_W_3_B);
 
   /*
    * Channel J 1: 32bit joined counter without prescaler in continuous mode.

@@ -125,8 +125,8 @@ CPU test_application {
 		PRIORITY = 1;
 	};
 
-	/* this is the OIL part for the Task W 0 A */
-	TASK Task_W_0_A {
+	/* this is the OIL part for the Task W 3 A */
+	TASK Task_W_3_A {
 		PRIORITY = 0x01;   /* Low priority */
 		SCHEDULE = FULL;
 		AUTOSTART = FALSE;
@@ -134,15 +134,15 @@ CPU test_application {
 		STACK = SHARED;
 	};
 
-	/* this is the OIL part for the GPT CHANNEL W 0 A ISR */
-	ISR Gpt_Channel_W_0_A_ISR {
+	/* this is the OIL part for the GPT CHANNEL W 3 A ISR */
+	ISR Gpt_Channel_W_3_A_ISR {
 		CATEGORY = 2;
-		ENTRY = "WIDE_TIMER_0_A";
+		ENTRY = "WIDE_TIMER_3_A";
 		PRIORITY = 1;
 	};
 
-	/* this is the OIL part for the Task W 0 B */
-	TASK Task_W_0_B {
+	/* this is the OIL part for the Task W 3 B */
+	TASK Task_W_3_B {
 		PRIORITY = 0x01;   /* Low priority */
 		SCHEDULE = FULL;
 		AUTOSTART = FALSE;
@@ -151,9 +151,9 @@ CPU test_application {
 	};
 
 	/* this is the OIL part for the GPT CHANNEL W 0 B ISR */
-	ISR Gpt_Channel_W_0_B_ISR {
+	ISR Gpt_Channel_W_3_B_ISR {
 		CATEGORY = 2;
-		ENTRY = "WIDE_TIMER_0_B";
+		ENTRY = "WIDE_TIMER_3_B";
 		PRIORITY = 1;
 	};
 
