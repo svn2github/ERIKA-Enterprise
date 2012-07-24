@@ -214,6 +214,70 @@ const Port_PinModeConfType PortFPin7Conf[] = {
   }
 };
 
+#ifdef	__AS_CFG_PORT_KEIL_ULINK_PRO__
+
+/*
+ * Port Pin: PORT_F_PIN_0 Modes Configuration Container.
+ */
+const Port_PinModeConfType PortFPin0TRD2Conf[] = {
+  {
+    PORT_PIN_MODE_TRACE,	/* Port pin mode.			      */
+    PORT_PIN_HW_CFG_DEN |	/* Digital Enable.			      */
+    PORT_PIN_HW_CFG_AFSEL |	/* Alternate Function Select.		      */
+    PORT_F_PIN_0_PMC_TRACE_TRD2	/* Port F Trace Mux Control.		      */
+  }
+};
+
+/*
+ * Port Pin: PORT_F_PIN_1 Modes Configuration Container.
+ */
+const Port_PinModeConfType PortFPin1TRD1Conf[] = {
+  {
+    PORT_PIN_MODE_TRACE,	/* Port pin mode.			      */
+    PORT_PIN_HW_CFG_DEN |	/* Digital Enable.			      */
+    PORT_PIN_HW_CFG_AFSEL |	/* Alternate Function Select.		      */
+    PORT_F_PIN_1_PMC_TRACE_TRD1	/* Port F Trace Mux Control.		      */
+  }
+};
+
+/*
+ * Port Pin: PORT_F_PIN_2 Modes Configuration Container.
+ */
+const Port_PinModeConfType PortFPin2TRD0Conf[] = {
+  {
+    PORT_PIN_MODE_TRACE,	/* Port pin mode.			      */
+    PORT_PIN_HW_CFG_DEN |	/* Digital Enable.			      */
+    PORT_PIN_HW_CFG_AFSEL |	/* Alternate Function Select.		      */
+    PORT_F_PIN_2_PMC_TRACE_TRD0	/* Port F Trace Mux Control.		      */
+  }
+};
+
+/*
+ * Port Pin: PORT_F_PIN_3 Modes Configuration Container.
+ */
+const Port_PinModeConfType PortFPin3TRCLKConf[] = {
+  {
+    PORT_PIN_MODE_TRACE,		/* Port pin mode.		      */
+    PORT_PIN_HW_CFG_DEN |		/* Digital Enable.		      */
+    PORT_PIN_HW_CFG_AFSEL |		/* Alternate Function Select.	      */
+    PORT_F_PIN_3_PMC_TRACE_TRCLK	/* Port F Trace Mux Control.	      */
+  }
+};
+
+/*
+ * Port Pin: PORT_F_PIN_4 Modes Configuration Container.
+ */
+const Port_PinModeConfType PortFPin4TRD3Conf[] = {
+  {
+    PORT_PIN_MODE_TRACE,	/* Port pin mode.			      */
+    PORT_PIN_HW_CFG_DEN |	/* Digital Enable.			      */
+    PORT_PIN_HW_CFG_AFSEL |	/* Alternate Function Select.		      */
+    PORT_F_PIN_4_PMC_TRACE_TRD3	/* Port F Trace Mux Control.		      */
+  }
+};
+
+#endif	/* __AS_CFG_PORT_KEIL_ULINK_PRO__ */
+
 /*
  * DIO Port Pins Configuration.
  */
@@ -423,6 +487,76 @@ const Port_PinConfType SPIENC28J60PortPins[] = {
   }
 };
 
+
+#ifdef	__AS_CFG_PORT_KEIL_ULINK_PRO__
+/*
+ * KEIL ULINK Pro Port Pins Configuration.
+ */
+const Port_PinConfType KeilULinkProPortPins[] = {
+  { /* TRACE TRD2 */
+    PORT_PIN_OUT,			/* PortPinDirection		      */
+    FALSE,				/* PortPinDirectionChangeable	      */
+    PORT_F_PIN_0,			/* PortPinId			      */
+    PORT_PIN_MODE_TRACE,		/* PortPinInitialMode		      */
+    PORT_PIN_LEVEL_LOW,			/* PortPinLevelValue		      */
+    0x00000001,				/* PortPinModeNumber		      */
+    &PortFPin0TRD2Conf[0],		/* PortPinSupportedModes	      */
+    FALSE				/* PortPinModeChangeable	      */
+  },
+  { /* TRACE TRD1 */
+    PORT_PIN_OUT,			/* PortPinDirection		      */
+    FALSE,				/* PortPinDirectionChangeable	      */
+    PORT_F_PIN_1,			/* PortPinId			      */
+    PORT_PIN_MODE_TRACE,		/* PortPinInitialMode		      */
+    PORT_PIN_LEVEL_LOW,			/* PortPinLevelValue		      */
+    0x00000001,				/* PortPinModeNumber		      */
+    &PortFPin1TRD1Conf[0],		/* PortPinSupportedModes	      */
+    FALSE				/* PortPinModeChangeable	      */
+  },
+  { /* TRACE TRD0 */
+    PORT_PIN_OUT,			/* PortPinDirection		      */
+    FALSE,				/* PortPinDirectionChangeable	      */
+    PORT_F_PIN_2,			/* PortPinId			      */
+    PORT_PIN_MODE_TRACE,		/* PortPinInitialMode		      */
+    PORT_PIN_LEVEL_LOW,			/* PortPinLevelValue		      */
+    0x00000001,				/* PortPinModeNumber		      */
+    &PortFPin2TRD0Conf[0],		/* PortPinSupportedModes	      */
+    FALSE				/* PortPinModeChangeable	      */
+  },
+  { /* TRACE TRCLK */
+    PORT_PIN_OUT,			/* PortPinDirection		      */
+    FALSE,				/* PortPinDirectionChangeable	      */
+    PORT_F_PIN_3,			/* PortPinId			      */
+    PORT_PIN_MODE_TRACE,		/* PortPinInitialMode		      */
+    PORT_PIN_LEVEL_LOW,			/* PortPinLevelValue		      */
+    0x00000001,				/* PortPinModeNumber		      */
+    &PortFPin3TRCLKConf[0],		/* PortPinSupportedModes	      */
+    FALSE				/* PortPinModeChangeable	      */
+  },
+  { /* TRACE TRD3 */
+    PORT_PIN_OUT,			/* PortPinDirection		      */
+    FALSE,				/* PortPinDirectionChangeable	      */
+    PORT_F_PIN_4,			/* PortPinId			      */
+    PORT_PIN_MODE_TRACE,		/* PortPinInitialMode		      */
+    PORT_PIN_LEVEL_LOW,			/* PortPinLevelValue		      */
+    0x00000001,				/* PortPinModeNumber		      */
+    &PortFPin4TRD3Conf[0],		/* PortPinSupportedModes	      */
+    FALSE				/* PortPinModeChangeable	      */
+  },
+  { /* USER LED */
+    PORT_PIN_OUT,			/* PortPinDirection		      */
+    FALSE,				/* PortPinDirectionChangeable	      */
+    PORT_G_PIN_2,			/* PortPinId			      */
+    PORT_PIN_MODE_DIO,			/* PortPinInitialMode		      */
+    PORT_PIN_LEVEL_LOW,			/* PortPinLevelValue		      */
+    0x00000001,				/* PortPinModeNumber		      */
+    &PortGPin2Conf[0],			/* PortPinSupportedModes	      */
+    FALSE				/* PortPinModeChangeable	      */
+  }
+};
+#endif	/* __AS_CFG_PORT_KEIL_ULINK_PRO__ */
+
+
 /*
  * PORT121:	This container is the base of a multiple configuration set.
  */
@@ -436,7 +570,13 @@ const Port_ConfigType Port_Config[] = {
     &SCIPortPins[0]	/* PortPins		*/
   },
   { /* PORT_CONFIG_SPI_ENC28J60 */
-    0x00000008,			/* PortNumberOfPortPins	*/
+    0x00000009,			/* PortNumberOfPortPins	*/
     &SPIENC28J60PortPins[0]	/* PortPins		*/
-  }
+  },
+#ifdef	__AS_CFG_PORT_KEIL_ULINK_PRO__
+  { /* PORT_CONFIG_KEIL_ULINK_PRO */
+    0x00000006,			/* PortNumberOfPortPins	*/
+    &KeilULinkProPortPins[0]	/* PortPins		*/
+  },
+#endif	/* __AS_CFG_PORT_KEIL_ULINK_PRO__ */
 };

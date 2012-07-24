@@ -256,8 +256,11 @@
 /** SPI Pin Mode. */
 #define	PORT_PIN_MODE_SPI	0x00000002
 
+/** TRACE Pin Mode. */
+#define	PORT_PIN_MODE_TRACE	0x00000003
+
 /** Number of Port Pin Modes */
-#define	PORT_PIN_MODES_NUMBER	PORT_PIN_MODE_SPI + 1
+#define	PORT_PIN_MODES_NUMBER	PORT_PIN_MODE_TRACE + 1
 
 /*
  * Port Pin Mode Hardware Configuration Data Values.
@@ -463,6 +466,21 @@
 /** Port K - Pin 3 Mux Control Spi 3 Tx */
 #define	PORT_K_PIN_3_PMC_SPI_3_TX	PORT_K_PMC_SPI_3
 
+#ifdef	__AS_CFG_PORT_KEIL_ULINK_PRO__
+/** Port F Mux Control Trace */
+#define	PORT_F_PMC_TRACE		0x0000000E
+/** Port F - Pin 0 Mux Control Trace TRD2 */
+#define	PORT_F_PIN_0_PMC_TRACE_TRD2	PORT_F_PMC_TRACE
+/** Port F - Pin 1 Mux Control Trace TRD1 */
+#define	PORT_F_PIN_1_PMC_TRACE_TRD1	PORT_F_PMC_TRACE
+/** Port F - Pin 2 Mux Control Trace TRD0 */
+#define	PORT_F_PIN_2_PMC_TRACE_TRD0	PORT_F_PMC_TRACE
+/** Port F - Pin 3 Mux Control Trace TRCLK */
+#define	PORT_F_PIN_3_PMC_TRACE_TRCLK	PORT_F_PMC_TRACE
+/** Port F - Pin 4 Mux Control Trace TRD3 */
+#define	PORT_F_PIN_4_PMC_TRACE_TRD3	PORT_F_PMC_TRACE
+#endif	/* __AS_CFG_PORT_KEIL_ULINK_PRO__ */
+
 /** @brief	Pin Mode Configuration Parameters
  *
  * This container contains the configuration (parameters) of a Port Pin Mode.
@@ -614,4 +632,18 @@ typedef struct {
  *  Pointer of Port Pins as SPI Microchip ENC28J60 Port Driver Configuration.
  */
 #define	PORT_CONFIG_SPI_ENC28J60_PTR	&Port_Config[PORT_CONFIG_SPI_ENC28J60]
+
+#ifdef	__AS_CFG_PORT_KEIL_ULINK_PRO__
+/** @brief	Port Pins  KEIL ULINK Pro Configuration
+ *
+ *  Identifier for Port Pins as  KEIL ULINK Pro Configuration.
+ */
+#define	PORT_CONFIG_KEIL_ULINK_PRO	0x00000003
+/** @brief	Port Pins KEIL ULINK Pro Configuration Pointer
+ *
+ *  Pointer of Port Pins as KEIL ULINK Pro Port Driver Configuration.
+ */
+#define	PORT_CONFIG_KEIL_ULINK_PRO_PTR	&Port_Config[PORT_CONFIG_KEIL_ULINK_PRO]
+#endif	/* __AS_CFG_PORT_KEIL_ULINK_PRO__ */
+
 #endif	/* PORT_CFG_H */
