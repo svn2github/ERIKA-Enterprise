@@ -179,6 +179,10 @@ do { \
     HW_CH_2_MOD_REG(_pin, _ofs) |= ((uint32)STD_ON << HW_CH_2_UNIT(_pin)); \
 } while(0)
 
+#define	GPIO_SET_PORT_REG(_pin,_val,_ofs)	( \
+    HW_CH_2_MOD_REG(_pin, _ofs) = (uint32)_val \
+)
+
 #define	GPIO_PORT_DIR_R_OFFSET			0x00000400
 #define	GPIO_PORT_AFSEL_R_OFFSET		0x00000420
 #define	GPIO_PORT_DR2R_R_OFFSET			0x00000500
@@ -214,10 +218,6 @@ do { \
 	GPIO_SET_PIN_REG(_pin,_val,GPIO_PORT_SLR_R_OFFSET)
 #define	GPIO_SET_PIN_DEN(_pin,_val)	\
 	GPIO_SET_PIN_REG(_pin,_val,GPIO_PORT_DEN_R_OFFSET)
-#define	GPIO_SET_PIN_LOCK(_pin,_val)	\
-	GPIO_SET_PIN_REG(_pin,_val,GPIO_PORT_LOCK_R_OFFSET)
-#define	GPIO_SET_PIN_COMMIT(_pin,_val)	\
-	GPIO_SET_PIN_REG(_pin,_val,GPIO_PORT_COMMIT_R_OFFSET)
 #define	GPIO_SET_PIN_AMSEL(_pin,_val)	\
 	GPIO_SET_PIN_REG(_pin,_val,GPIO_PORT_AMSEL_R_OFFSET)
 
@@ -237,8 +237,20 @@ do { \
   )
 
 /* LOCK and COMMIT special masks */
-#define GPIO_LOCK_PASSWORD 0x4C4F434BU
-#define GPIO_COMMIT_MASK   0x000000FFU
+#define	GPIO_UNLOCK_PASSWORD	0x4C4F434BU
+
+#define	GPIO_PORT_UNLOCK(_pin)	\
+	GPIO_SET_PORT_REG(_pin, GPIO_UNLOCK_PASSWORD, GPIO_PORT_LOCK_R_OFFSET)
+
+#define	GPIO_ENABLE_PIN_COMMIT(_pin)	( \
+	HW_CH_2_MOD_REG(_pin, GPIO_PORT_COMMIT_R_OFFSET) |= \
+	((uint32)STD_ON << HW_CH_2_UNIT(_pin)) \
+)
+
+#define	GPIO_DISABLE_PIN_COMMIT(_pin)	( \
+	HW_CH_2_MOD_REG(_pin, GPIO_PORT_COMMIT_R_OFFSET) &= \
+	~((uint32)STD_ON << HW_CH_2_UNIT(_pin)) \
+)
 
 /*
  * Port Pin Mode Hardware Configuration.
@@ -385,13 +397,15 @@ static void Port_SetPortPinHWMode(
     case PORT_C_PIN_3:
     case PORT_D_PIN_7:
     case PORT_F_PIN_0:
-      /* Unlock the register to change it's configuration */
-      GPIO_SET_PIN_LOCK(Pin,GPIO_LOCK_PASSWORD);
+      /* Unlock the GPIO Port to change COMMIT */
+      GPIO_PORT_UNLOCK(Pin);
       /* Enable Pin Configuration changes */
-      GPIO_SET_PIN_COMMIT(Pin,GPIO_COMMIT_MASK);
+      GPIO_ENABLE_PIN_COMMIT(Pin);
       Port_SetPortPinHWMode_Impl(Pin, ConfigPtr);
-      /* To Re-Lock just write something different than the correct unlock password */
-      GPIO_SET_PIN_LOCK(Pin,0x00000000U);
+      /* Unlock the GPIO Port to change COMMIT */
+      GPIO_PORT_UNLOCK(Pin);
+      /* Disable Pin Configuration changes */
+      GPIO_DISABLE_PIN_COMMIT(Pin);
     break;
     default:
       Port_SetPortPinHWMode_Impl(Pin, ConfigPtr);
@@ -401,7 +415,7 @@ static void Port_SetPortPinHWMode(
 /*
  * Port Pin Initialization.
  */
-static void Port_InitPortPin_Impl(
+static void Port_InitPortPin(
   const Port_PinConfType *	ConfigPtr
 )
 {
@@ -447,32 +461,6 @@ static void Port_InitPortPin_Impl(
 
   }
 
-}
-
-/* Handle Configuration Lock for special pins */
-static void Port_InitPortPin(
-  const Port_PinConfType *	ConfigPtr
-) 
-{
-  const Port_PinType Pin = ConfigPtr->PortPinId;
-  switch(Pin) {
-    case PORT_C_PIN_0:
-    case PORT_C_PIN_1:
-    case PORT_C_PIN_2:
-    case PORT_C_PIN_3:
-    case PORT_D_PIN_7:
-    case PORT_F_PIN_0:
-      /* Unlock the register to change it's configuration */
-      GPIO_SET_PIN_LOCK(Pin,GPIO_LOCK_PASSWORD);
-      /* Enable Pin Configuration changes */
-      GPIO_SET_PIN_COMMIT(Pin,GPIO_COMMIT_MASK);
-      Port_InitPortPin_Impl(ConfigPtr);
-      /* To Re-Lock just write something different than the correct unlock password */
-      GPIO_SET_PIN_LOCK(Pin,0x00000000U);
-    break;
-    default:
-      Port_InitPortPin_Impl(ConfigPtr);
-  }
 }
 
 /*
