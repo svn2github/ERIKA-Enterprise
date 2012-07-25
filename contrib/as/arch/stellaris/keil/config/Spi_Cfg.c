@@ -1903,15 +1903,15 @@ const Spi_ExternalDeviceConfigType  Spi_Enc28j60ExternalDeviceConfig[] = {
     1E6,                    /* SpiBaudrate */
     SPI_ENC28J60_CS_0,      /* SpiCsIdentifier */
     SPI_LEADING,            /* SpiDataShiftEdge */
-    SPI_HW_UNIT_0,          /* SpiHwUnit */
+    SPI_HW_UNIT_1,          /* SpiHwUnit */
     SPI_LOW,                /* SpiShiftClockIdleLevel */
 #if ( SPI_LEVEL_DELIVERED == 2 )
     SPI_SYNCHRONOUS,        /* SpiHwUnitSynchronous. */
 #endif
     SPI_HW_UNIT_MASTER,     /* - Master */
     TRUE,                   /* SpiSysClock. */
-    DMA_CHANNEL_SPI_3_RX,   /* SpiDmaRxChannel. */
-    DMA_CHANNEL_SPI_3_TX,   /* SpiDmaTxChannel. */
+    DMA_CHANNEL_SPI_1_RX,   /* SpiDmaRxChannel. */
+    DMA_CHANNEL_SPI_1_TX,   /* SpiDmaTxChannel. */
   }
 };
 

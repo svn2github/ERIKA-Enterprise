@@ -299,6 +299,7 @@ int main (void) {
   Dio_Init(DIO_CONFIG_ENC28J60_PTR);
   Gpt_Init(GPT_CONFIG_LWIP_PTR);
   Sci_Init(SCI_CONFIG_DEFAULT_PTR);
+  Dma_Init(DMA_CONFIG_SPI_PTR);
   Spi_Init(SPI_CONFIG_ENC28J60_PTR);
   Icu_Init(ICU_CONFIG_ENC28J60_PTR);
   Icu_EnableNotification(ICU_ENC28J60_CHANNEL);
