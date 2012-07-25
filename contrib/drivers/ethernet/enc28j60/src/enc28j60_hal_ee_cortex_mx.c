@@ -133,6 +133,7 @@ void EE_enc28j60_hal_software_reset(void)
   EE_enc28j60_hal_delay_us(1000U);
   // Execute the System Reset command
   Spi_WriteIB(SPI_ENC28J60_CHANNEL_COMMAND, &software_reset);
+  Spi_SyncTransmit(SPI_ENC28J60_SEQ_SRC);
   // Wait for the oscillator start up timer and PHY to become ready
   EE_enc28j60_hal_delay_us(1000U);
 }//end SendSystemReset
