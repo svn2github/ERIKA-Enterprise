@@ -1,0 +1,30 @@
+/* ENC28J60 OIL */
+
+OS EE {
+  
+  /* ENC28J60 library enabling */
+  EE_OPT = "__ADD_LIBS__";
+  LIB = ENABLE { NAME = "ENC28J60"; };
+};
+
+/* ISRs list */
+ISR Enc28j60_Isr{
+  CATEGORY = 2;
+  ENTRY = "GPIO_F";
+  PRIORITY = 2;
+};
+
+/* this is the OIL part for the SSI_1 ISR */
+ISR Spi_HwUnit_1_ISR {
+  CATEGORY = 2;
+  ENTRY = "SSI_1";
+  PRIORITY = 3;
+};
+
+/* this is the OIL part for the DMA Error ISR */
+ISR Dma_TransferError_ISR {
+  CATEGORY = 2;
+  ENTRY = "UDMA_ERR";
+  PRIORITY = 4;
+};
+

@@ -65,7 +65,7 @@
 #include "Gpt.h"
 #include "Sci.h"
 #include "Spi.h"
-// #include "Icu.h" TODO Enable This When ICU will be ready
+#include "Icu.h"
 
 #define MY_UDP_BUFFER_LEN 256
 #define UDP_SENDER_BUF_SIZE 1408
