@@ -84,8 +84,17 @@ define check_and_set_cygwin_compiler_path
 ifndef $(1)
 
     ifeq ($$(strip $(2)),)
-            # usually this error happens if RT-Druid was not able to find the default value
+        # usually this happens if RT-Druid was not able to find the default value.
+        # Even if is deprecated, for some cases it is possible to search the compiler
+        # using the PATH.
+
+        # list here all special cases (es. a b c)
+        ifneq (,$$(findstring $$(strip $(1)),PPC_DIAB_BASEDIR))
+            $$(warning The environment variable $(1) is unset.)
+            $$(warning The compiler will be searched using the PATH)
+        else
             $$(error Please set the compiler path into $(1) variable before run the makefile)
+        endif
     else
         CHECK_COMPILER_PATH := $$(shell test -d "$(2)" 2>/dev/null && echo "0")
         ifneq ($$(CHECK_COMPILER_PATH),0)
@@ -118,8 +127,17 @@ define check_and_set_linux_compiler_path
 ifndef $(1)
 
     ifeq ($$(strip $(2)),)
-            # usually this error happens if RT-Druid was not able to find the default value
+        # usually this happens if RT-Druid was not able to find the default value.
+        # Even if is deprecated, for some cases it is possible to search the compiler
+        # using the PATH.
+
+        # list here all special cases (es. a b c)
+        ifneq (,$$(findstring $$(strip $(1)),PPC_DIAB_BASEDIR))
+            $$(warning The environment variable $(1) is unset.)
+            $$(warning The compiler will be searched using the PATH)
+        else
             $$(error Please set the compiler path into $(1) variable before run the makefile)
+        endif
     else
         CHECK_COMPILER_PATH := $$(shell test -d "$(2)" 2>/dev/null && echo "0")
         ifneq ($$(CHECK_COMPILER_PATH),0)
