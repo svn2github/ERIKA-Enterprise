@@ -434,16 +434,6 @@ static void Port_InitPortPin(
   /* Does a dummy read to insert a few cycles after enabling the peripheral. */
   /*port = SYSCTL_RCGCGPIO_R;*/
 
-  /* Sets Initial Port Pin Level Value */
-  if (ConfigPtr->PortPinDirection == PORT_PIN_OUT) {
-
-    GPIO_SET_PIN(ConfigPtr->PortPinId, ConfigPtr->PortPinLevelValue);
-
-  }
-
-  /* Sets Initial Port Pin Direction */
-  GPIO_SET_PIN_DIR(ConfigPtr->PortPinId, ConfigPtr->PortPinDirection);
-
   /* Sets Port Pin Initial Mode. */
   for (mode = 0; mode < ConfigPtr->PortPinModeNumber; mode++) {
 
@@ -458,6 +448,16 @@ static void Port_InitPortPin(
       );
 
     }
+
+  }
+
+  /* Sets Initial Port Pin Direction */
+  GPIO_SET_PIN_DIR(ConfigPtr->PortPinId, ConfigPtr->PortPinDirection);
+
+  /* Sets Initial Port Pin Level Value */
+  if (ConfigPtr->PortPinDirection == PORT_PIN_OUT) {
+
+    GPIO_SET_PIN(ConfigPtr->PortPinId, ConfigPtr->PortPinLevelValue);
 
   }
 
