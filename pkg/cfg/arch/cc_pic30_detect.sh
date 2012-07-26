@@ -8,11 +8,34 @@
 # cc_pic30_detect.sh ASM dirname
 # cc_pic30_detect.sh GCC dirname
 
+
+############################################################################
+#
+# Workaround to remove cygwin warning message about the usage of DOS-like paths
+# that is produced the first time a DOS-like path is used:
+#
+# Note: CYGWIN=nodosfilewarning option has to be set before the first execution
+#       of cygwin programs, than it cannot be set here
+#
+############################################################################
+test -d "c:\\dummy\\path" 2>/dev/null
+
+
+############################################################################
+#
+# Check user's path
+#
+############################################################################
 if test -d "$2"; then
     cygpath `cygpath -ms "$2"`
     exit
 fi
 
+############################################################################
+#
+# Search ASM compiler inside standard paths
+#
+############################################################################
 if [ $1 = "ASM" ]; then
     printf "Looking for the MPLAB ASM30 directory...\n" 1>&2
 
@@ -36,6 +59,11 @@ if [ $1 = "ASM" ]; then
 
 fi
 
+############################################################################
+#
+# Search C compiler inside standard paths
+#
+############################################################################
 if [ $1 = "GCC" ]; then
     printf "Looking for the MPLAB C30 directory...\n" 1>&2
 
