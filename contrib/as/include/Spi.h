@@ -124,6 +124,14 @@
  */
 #include "Std_Types.h"
 
+/* 
+ * SPI370:	It shall be possible to define if the Chip Select handling is
+ * 		managed autonomously by the HW peripheral, without explicit chip
+ * 		select control by the driver, or the SPI driver shall drive the
+ * 		chip select lines explicitly as DIO (see SPI212_Conf).
+ */
+#include "Dio.h"
+
 /** @brief	SPI Handler/Driver Channel Type.
  *
  *  <b>SPI356</b>:	The type <tt>Spi_ChannelType</tt> specifies the

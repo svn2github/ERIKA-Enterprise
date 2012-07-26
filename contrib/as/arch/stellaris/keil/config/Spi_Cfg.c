@@ -798,15 +798,10 @@ const Spi_ExternalDeviceConfigType	Spi_TestExternalDeviceConfig[] = {
   {
     5E6,				/* SpiBaudrate			      */
     SPI_TEST_CS_0,			/* SpiCsIdentifier		      */
-    /* NOTE: TI Stellaris SSI Modules HAVE SPI_LOW Chip-Select Polarity. */
-#if	0
     SPI_LOW,				/* SpiCsPolarity		      */
-#endif
     SPI_LEADING,			/* SpiDataShiftEdge		      */
-    /* NOTE: TI Stellaris SSI Modules MUST handle Chip-Select. */
-#if	0
     FALSE,				/* SpiEnableCs			      */
-#endif
+    0x00U,				/* SpiCsChannelId		      */
     SPI_HW_UNIT_3,			/* SpiHwUnit			      */
     SPI_LOW,				/* SpiShiftClockIdleLevel	      */
   /* NOTE: TI Stellaris SSI Modules have FIXED TIMINGS!!! */
@@ -827,15 +822,10 @@ const Spi_ExternalDeviceConfigType	Spi_TestExternalDeviceConfig[] = {
   {
     5E6,				/* SpiBaudrate			      */
     SPI_TEST_CS_1,			/* SpiCsIdentifier		      */
-    /* NOTE: TI Stellaris SSI Modules HAVE SPI_LOW Chip-Select Polarity. */
-#if	0
     SPI_LOW,				/* SpiCsPolarity		      */
-#endif
     SPI_LEADING,			/* SpiDataShiftEdge		      */
-    /* NOTE: TI Stellaris SSI Modules MUST handle Chip-Select. */
-#if	0
     FALSE,				/* SpiEnableCs			      */
-#endif
+    0x00U,				/* SpiCsChannelId		      */
     SPI_HW_UNIT_2,			/* SpiHwUnit			      */
     SPI_LOW,				/* SpiShiftClockIdleLevel	      */
   /* NOTE: TI Stellaris SSI Modules have FIXED TIMINGS!!! */
@@ -861,15 +851,10 @@ const Spi_ExternalDeviceConfigType	Spi_LBMExternalDeviceConfig[] = {
   {
     5E6,				/* SpiBaudrate			      */
     SPI_LBM_CS_0,			/* SpiCsIdentifier		      */
-    /* NOTE: TI Stellaris SSI Modules HAVE SPI_LOW Chip-Select Polarity. */
-#if	0
     SPI_LOW,				/* SpiCsPolarity		      */
-#endif
     SPI_LEADING,			/* SpiDataShiftEdge		      */
-    /* NOTE: TI Stellaris SSI Modules MUST handle Chip-Select. */
-#if	0
     FALSE,				/* SpiEnableCs			      */
-#endif
+    0x00U,				/* SpiCsChannelId		      */
     SPI_HW_UNIT_0,			/* SpiHwUnit			      */
     SPI_LOW,				/* SpiShiftClockIdleLevel	      */
   /* NOTE: TI Stellaris SSI Modules have FIXED TIMINGS!!! */
@@ -889,15 +874,10 @@ const Spi_ExternalDeviceConfigType	Spi_LBMExternalDeviceConfig[] = {
   {
     5E6,				/* SpiBaudrate			      */
     SPI_LBM_CS_1,			/* SpiCsIdentifier		      */
-    /* NOTE: TI Stellaris SSI Modules HAVE SPI_LOW Chip-Select Polarity. */
-#if	0
     SPI_LOW,				/* SpiCsPolarity		      */
-#endif
     SPI_LEADING,			/* SpiDataShiftEdge		      */
-    /* NOTE: TI Stellaris SSI Modules MUST handle Chip-Select. */
-#if	0
     FALSE,				/* SpiEnableCs			      */
-#endif
+    0x00U,				/* SpiCsChannelId		      */
     SPI_HW_UNIT_1,			/* SpiHwUnit			      */
     SPI_LOW,				/* SpiShiftClockIdleLevel	      */
   /* NOTE: TI Stellaris SSI Modules have FIXED TIMINGS!!! */
@@ -917,15 +897,10 @@ const Spi_ExternalDeviceConfigType	Spi_LBMExternalDeviceConfig[] = {
   {
     5E6,				/* SpiBaudrate			      */
     SPI_LBM_CS_2,			/* SpiCsIdentifier		      */
-    /* NOTE: TI Stellaris SSI Modules HAVE SPI_LOW Chip-Select Polarity. */
-#if	0
     SPI_LOW,				/* SpiCsPolarity		      */
-#endif
     SPI_LEADING,			/* SpiDataShiftEdge		      */
-    /* NOTE: TI Stellaris SSI Modules MUST handle Chip-Select. */
-#if	0
     FALSE,				/* SpiEnableCs			      */
-#endif
+    0x00U,				/* SpiCsChannelId		      */
     SPI_HW_UNIT_2,			/* SpiHwUnit			      */
     SPI_LOW,				/* SpiShiftClockIdleLevel	      */
   /* NOTE: TI Stellaris SSI Modules have FIXED TIMINGS!!! */
@@ -945,15 +920,11 @@ const Spi_ExternalDeviceConfigType	Spi_LBMExternalDeviceConfig[] = {
   {
     5E6,				/* SpiBaudrate			      */
     SPI_LBM_CS_3,			/* SpiCsIdentifier		      */
-    /* NOTE: TI Stellaris SSI Modules HAVE SPI_LOW Chip-Select Polarity. */
-#if	0
     SPI_LOW,				/* SpiCsPolarity		      */
-#endif
     SPI_LEADING,			/* SpiDataShiftEdge		      */
     /* NOTE: TI Stellaris SSI Modules MUST handle Chip-Select. */
-#if	0
     FALSE,				/* SpiEnableCs			      */
-#endif
+    0x00U,				/* SpiCsChannelId		      */
     SPI_HW_UNIT_3,			/* SpiHwUnit			      */
     SPI_LOW,				/* SpiShiftClockIdleLevel	      */
   /* NOTE: TI Stellaris SSI Modules have FIXED TIMINGS!!! */
@@ -1900,18 +1871,21 @@ const Spi_ChannelConfigType Spi_Enc28j60ChannelConfig[] = {
 
 const Spi_ExternalDeviceConfigType  Spi_Enc28j60ExternalDeviceConfig[] = {
   {
-    1E6,                    /* SpiBaudrate */
-    SPI_ENC28J60_CS_0,      /* SpiCsIdentifier */
-    SPI_LEADING,            /* SpiDataShiftEdge */
-    SPI_HW_UNIT_1,          /* SpiHwUnit */
-    SPI_LOW,                /* SpiShiftClockIdleLevel */
+    1E6,			/* SpiBaudrate */
+    SPI_ENC28J60_CS_0,		/* SpiCsIdentifier */
+    SPI_LOW,			/* SpiCsPolarity */
+    SPI_LEADING,		/* SpiDataShiftEdge */
+    TRUE,			/* SpiEnableCs */
+    DIO_CHANNEL_ENC28J60_CS,	/* SpiCsChannelId */
+    SPI_HW_UNIT_1,		/* SpiHwUnit */
+    SPI_LOW,			/* SpiShiftClockIdleLevel */
 #if ( SPI_LEVEL_DELIVERED == 2 )
-    SPI_SYNCHRONOUS,        /* SpiHwUnitSynchronous. */
+    SPI_SYNCHRONOUS,		/* SpiHwUnitSynchronous. */
 #endif
-    SPI_HW_UNIT_MASTER,     /* - Master */
-    TRUE,                   /* SpiSysClock. */
-    DMA_CHANNEL_SPI_1_RX,   /* SpiDmaRxChannel. */
-    DMA_CHANNEL_SPI_1_TX,   /* SpiDmaTxChannel. */
+    SPI_HW_UNIT_MASTER,		/* - Master */
+    TRUE,			/* SpiSysClock. */
+    DMA_CHANNEL_SPI_1_RX,	/* SpiDmaRxChannel. */
+    DMA_CHANNEL_SPI_1_TX,	/* SpiDmaTxChannel. */
   }
 };
 
@@ -1931,6 +1905,11 @@ const Spi_ChannelType Spi_Enc28j60CRWithDummyChannelList[] = {
 const Spi_ChannelType Spi_Enc28j60BufferMemoryChannelList[] = {
   SPI_ENC28J60_CHANNEL_COMMAND,
   SPI_ENC28J60_CHANNEL_BUFFER,
+  SPI_CHANNEL_END_LIST
+};
+
+const Spi_ChannelType Spi_Enc28j60SRChannelList[] = {
+  SPI_ENC28J60_CHANNEL_COMMAND,
   SPI_CHANNEL_END_LIST
 };
 
@@ -2037,7 +2016,7 @@ const Spi_JobConfigType Spi_Enc28j60JobConfig[] = {
 #endif  /* ( SPI_INTERRUPTIBLE_SEQ_ALLOWED == STD_ON ) */
 #endif  /* ( ( SPI_LEVEL_DELIVERED == 1 ) || ( SPI_LEVEL_DELIVERED == 2 ) ) */
     SPI_ENC28J60_CS_0,                          /* SpiDeviceAssignment. */
-    &Spi_Enc28j60CRChannelList[0]               /* SpiChannelList. */
+    &Spi_Enc28j60SRChannelList[0]               /* SpiChannelList. */
   }
 };
 

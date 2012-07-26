@@ -687,14 +687,58 @@ typedef enum
 
 #endif	/* __AS_CFG_SPI_LBM__ */
 
+#ifdef	__AS_CFG_SPI_ENC28J60__
+/* CHANNELS DEFINITIONS FOR JOBS COMPOSITION */
+/** @brief  enc28j60 command channel (is made by opcode + address enc28j60 protocol fields) */
+#define SPI_ENC28J60_CHANNEL_COMMAND    0U
+/** @brief  enc28j60 dummy channel (dummy field of enc28j60 protocol) */
+#define SPI_ENC28J60_CHANNEL_DUMMY      1U
+/** @brief  enc28j60 reg channel (register value) */
+#define SPI_ENC28J60_CHANNEL_REG        2U
+/** @brief  enc28j60 buffer channel (memory buffer value) */
+#define SPI_ENC28J60_CHANNEL_BUFFER     3U
+
+/** @brief  enc28j60 Channels Number */
+#define SPI_ENC28J60_CHANNELS_NUMBER SPI_ENC28J60_CHANNEL_BUFFER + 1U
+
+/** @brief  enc28j60 command channel size in bytes */
+#define SPI_ENC28J60_CHANNEL_COMMAND_SIZE 1U
+/** @brief  enc28j60 dummy channel size in bytes */
+#define SPI_ENC28J60_CHANNEL_DUMMY_SIZE   1U
+/** @brief  enc28j60 command channel size in bytes */
+#define SPI_ENC28J60_CHANNEL_REG_SIZE     1U
+/** @brief  enc28j60 buffer channel (memory buffer value) */
+#define SPI_ENC28J60_CHANNEL_BUFFER_SIZE  256U
+/** @brief	enc28j60 Channels IB Max N Buffers */
+#define	SPI_ENC28J60_CHANNELS_IB_MAX_N_BUFFERS	SPI_ENC28J60_CHANNEL_BUFFER_SIZE
+
+/** @brief  enc28j60 Channels default data */
+#define SPI_ENC28J60_DEFAULT_DATA     0U
+
+/* NOTE: 8-bit SPI Channel Data Width. */
+#if	0
+/** @brief	Loop-Back Mode Channels Data Width. */
+#define	SPI_ENC28J60_CHANNELS_DATA_WIDTH	0x08U
+#endif
+
+#endif	/* __AS_CFG_SPI_ENC28J60__ */
+
 #if	(\
   ( SPI_CHANNEL_BUFFERS_ALLOWED == 0 ) || ( SPI_CHANNEL_BUFFERS_ALLOWED == 2 )\
 )
 /** @brief	Maximum Number of IB N Buffer */
 #ifdef	__AS_CFG_SPI_LBM__
+#ifdef	__AS_CFG_SPI_ENC28J60__
+#define	SPI_IB_MAX_N_BUFFERS	SPI_ENC28J60_CHANNELS_IB_MAX_N_BUFFERS
+#else	/* __AS_CFG_SPI_ENC28J60__ */
 #define	SPI_IB_MAX_N_BUFFERS	SPI_LBM_CHANNELS_IB_MAX_N_BUFFERS
+#endif	/* !__AS_CFG_SPI_ENC28J60__ */
 #else	/* __AS_CFG_SPI_LBM__ */
+#ifdef	__AS_CFG_SPI_ENC28J60__
+#define	SPI_IB_MAX_N_BUFFERS	SPI_ENC28J60_CHANNELS_IB_MAX_N_BUFFERS
+#else	/* __AS_CFG_SPI_ENC28J60__ */
 #define	SPI_IB_MAX_N_BUFFERS	SPI_TEST_CHANNELS_IB_MAX_N_BUFFERS
+#endif	/* !__AS_CFG_SPI_ENC28J60__ */
 #endif	/* !__AS_CFG_SPI_LBM__ */
 #endif	/* 
 	 * ( SPI_CHANNEL_BUFFERS_ALLOWED == 0 ) ||
@@ -716,6 +760,13 @@ typedef enum
 
 #else	/* __AS_CFG_SPI_LBM__ */
 
+#ifdef	__AS_CFG_SPI_ENC28J60__
+
+/** @brief	Maximum Number of Configured SPI Channels. */
+#define	SPI_CHANNELS_MAX_NUMBER	SPI_ENC28J60_CHANNELS_NUMBER
+
+#else	/* __AS_CFG_SPI_ENC28J60__ */
+
 /** @brief	Maximum Number of Configured SPI Channels. */
 #define	SPI_CHANNELS_MAX_NUMBER	SPI_TEST_CHANNELS_NUMBER
 
@@ -726,6 +777,8 @@ typedef enum
 /** @brief	Maximum Number of Configured Synchronous SPI Channels.  */
 #define	SPI_ASYNC_CHANNELS_MAX_NUMBER	SPI_TEST_ASYNC_CHANNELS_NUMBER
 #endif	/* ( SPI_LEVEL_DELIVERED == 2 ) */
+
+#endif	/* !__AS_CFG_SPI_ENC28J60__ */
 
 #endif	/* !__AS_CFG_SPI_LBM__ */
 
@@ -975,8 +1028,6 @@ typedef	struct {
    */
   Spi_HWUnitType	SpiCsIdentifier;
 
-    /* NOTE: TI Stellaris SSI Modules HAVE SPI_LOW Chip-Select Polarity. */
-#if	0
   /** @brief	Chip Select Polarity.
    *
    *  <b>SPI210_Conf</b>:	<tt>SpiCsPolarity</tt>
@@ -986,7 +1037,6 @@ typedef	struct {
    *  <tt>SPI_HIGH</tt> or </tt>SPI_LOW</tt>
    */
   Spi_PolarityType	SpiCsPolarity;
-#endif
 
   /** @brief	Data Shift Edge.
    *
@@ -996,8 +1046,6 @@ typedef	struct {
    */
   Spi_DataShiftEdgeType	SpiDataShiftEdge;
 
-  /* NOTE: TI Stellaris SSI Modules MUST handle Chip-Select. */
-#if	0
   /** @brief	Enable Chip-Select.
    *
    *  <b>SPI212_Conf</b>:	<tt>SpiEnableCs</tt>
@@ -1009,7 +1057,13 @@ typedef	struct {
    *  the chip select lines explicitly as DIO.
    */
   boolean		SpiEnableCs;
-#endif	/* 0 */
+
+  /** @brief	Chip-Select Dio Channel Identidfier.
+   *
+   *  This parameter defines, when the SPI master will handle the chip select
+   *  for the device, the DIO Channel Identifier for the Cs.
+   */
+  Dio_ChannelType	SpiCsChannelId;
 
   /** @brief	SPI Hardware Unit.
    *
@@ -1496,30 +1550,6 @@ void Spi_LBMSeq3EndNotification(
 
 /** @brief  enc28j60 JOB priority (DUMMY -> sync transmission) */
 #define SPI_ENC28J60_JOB_PRI            1U
-
-/* CHANNELS DEFINITIONS FOR JOBS COMPOSITION */
-/** @brief  enc28j60 command channel (is made by opcode + address enc28j60 protocol fields) */
-#define SPI_ENC28J60_CHANNEL_COMMAND    0U
-/** @brief  enc28j60 dummy channel (dummy field of enc28j60 protocol) */
-#define SPI_ENC28J60_CHANNEL_DUMMY      1U
-/** @brief  enc28j60 reg channel (register value) */
-#define SPI_ENC28J60_CHANNEL_REG        2U
-/** @brief  enc28j60 buffer channel (memory buffer value) */
-#define SPI_ENC28J60_CHANNEL_BUFFER     3U
-
-/** @brief  enc28j60 command channel size in bytes */
-#define SPI_ENC28J60_CHANNEL_COMMAND_SIZE 1U
-/** @brief  enc28j60 dummy channel size in bytes */
-#define SPI_ENC28J60_CHANNEL_DUMMY_SIZE   1U
-/** @brief  enc28j60 command channel size in bytes */
-#define SPI_ENC28J60_CHANNEL_REG_SIZE     1U
-/** @brief  enc28j60 buffer channel (memory buffer value) */
-#define SPI_ENC28J60_CHANNEL_BUFFER_SIZE  256U
-
-/** @brief  enc28j60 Channels Number */
-#define SPI_ENC28J60_CHANNELS_NUMBER SPI_ENC28J60_CHANNEL_BUFFER + 1U
-/** @brief  enc28j60 Channels default data */
-#define SPI_ENC28J60_DEFAULT_DATA     0U
 
 #define SPI_ENC28J60_CS_0 0U /**< enc28j60 Mode Chip-Select 0. */
 #define SPI_ENC28J60_CS_1 1U /**< enc28j60 Mode Chip-Select 1. */

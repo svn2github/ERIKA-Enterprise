@@ -133,6 +133,14 @@ void Spi_JobEnd(
 
   ExtDevCfgPtr =	&Spi_Global.ConfigPtr->SpiExternalDevice[HWUnitIdx];
 
+  if ( ExtDevCfgPtr->SpiEnableCs ) {
+
+    Dio_WriteChannel(
+      ExtDevCfgPtr->SpiCsChannelId, !ExtDevCfgPtr->SpiCsPolarity
+    );
+
+  }
+
   Dma_DisableChannel(ExtDevCfgPtr->SpiDmaRxChannel);
 
   Dma_DisableChannel(ExtDevCfgPtr->SpiDmaTxChannel);

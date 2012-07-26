@@ -97,7 +97,11 @@ const Dio_ChannelType	DioPortDChannels[] = {
 };
 
 const Dio_ChannelType	DioPortFChannels[] = {
-  DIO_CHANNEL_ENC28J60_RESET
+  DIO_CHANNEL_ENC28J60_CS,
+  DIO_CHANNEL_ENC28J60_RESET,
+  DIO_CHANNEL_ENC28J60_INT,
+  DIO_CHANNEL_ENC28J60_WOL,
+  DIO_CHANNEL_ENC28J60_CLK,
 };
 
 /*
@@ -136,10 +140,10 @@ const Dio_ChannelGroupType DioPortDChannelsGroups[] = {
 };
 
 const Dio_ChannelGroupType DioPortFChannelsGroups[] = {
-  { /* DIO_CHANNEL_GROUP_ENC28J60_RESET */
-    0x00000008,			/* mask				 */
-    0x00000004,			/* offest			 */
-    DIO_PORT_ENC28J60_RESET	/* port				 */
+  { /* DIO_CHANNEL_GROUP_ENC28J60 */
+    0x000000F8,			/* mask				 */
+    0x00000003,			/* offest			 */
+    DIO_PORT_ENC28J60		/* port				 */
   }
 };
 
@@ -193,8 +197,8 @@ const Dio_PortConfType Dio_Enc28j60tPorts[] = {
     &DioPortGChannelsGroups[0]	/* Dio_ChannelsGroups		 */
   },
   { /* PORT F */
-    DIO_PORT_ENC28J60_RESET,		/* DioPortId			 */
-    0x00000001,			/* DioNumberOfChannels		 */
+    DIO_PORT_ENC28J60,		/* DioPortId			 */
+    0x00000005,			/* DioNumberOfChannels		 */
     &DioPortFChannels[0],	/* Dio_Channels			 */
     0x00000001,			/* DioNumberOfChannelsGroups	 */
     &DioPortFChannelsGroups[0]	/* Dio_ChannelsGroups		 */

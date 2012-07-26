@@ -165,10 +165,8 @@ const Port_PinModeConfType PortFPin2Conf[] = {
  */
 const Port_PinModeConfType PortFPin3Conf[] = {
   {
-    PORT_PIN_MODE_SPI,		/* Port pin mode.			      */
-    PORT_PIN_HW_CFG_DEN |	/* Digital Enable.			      */
-    PORT_PIN_HW_CFG_AFSEL |	/* Alternate Function Select.		      */
-    PORT_F_PIN_3_PMC_SPI_1_CS	/* Port F SSI1 Mux Control.		      */
+    PORT_PIN_MODE_DIO,		/* Port pin mode.			      */
+    PORT_PIN_HW_CFG_DEN		/* Digital Enable.			      */
   }
 };
 

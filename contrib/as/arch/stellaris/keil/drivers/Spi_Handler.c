@@ -389,6 +389,12 @@ static void Spi_JobStart(
   
   SSI_INT_EN(HWUnit, SSI_INT_RX_ERR);
 
+  if ( ExtDevCfgPtr->SpiEnableCs ) {
+
+    Dio_WriteChannel(ExtDevCfgPtr->SpiCsChannelId, ExtDevCfgPtr->SpiCsPolarity);
+
+  }
+
   SSI_ENABLE(HWUnit);
 
 }	/* Spi_JobStart() */

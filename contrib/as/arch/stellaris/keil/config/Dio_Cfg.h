@@ -234,7 +234,12 @@
 #define	DIO_CHANNELS_NUMBER	DIO_CHANNEL_Q_7 + 1
 
 /** Custom Channel Names Remapping */
-#define	DIO_CHANNEL_ENC28J60_RESET DIO_CHANNEL_F_4
+#define	DIO_CHANNEL_ENC28J60_CS		DIO_CHANNEL_F_3
+#define	DIO_CHANNEL_ENC28J60_RESET	DIO_CHANNEL_F_4
+#define	DIO_CHANNEL_ENC28J60_INT	DIO_CHANNEL_F_5
+#define	DIO_CHANNEL_ENC28J60_WOL	DIO_CHANNEL_F_6
+#define	DIO_CHANNEL_ENC28J60_CLK	DIO_CHANNEL_F_7
+
 
 #define	DIO_PORT_A	0x00000000	/**< Port A */
 #define	DIO_PORT_B	0x00000001	/**< Port B */
@@ -261,7 +266,7 @@
 #define	DIO_PORTS_NUMBER	DIO_PORT_Q + 1
 
 /** Custom Port Names Remapping */
-#define	DIO_PORT_ENC28J60_RESET DIO_PORT_F
+#define	DIO_PORT_ENC28J60	DIO_PORT_F
 
 /** @brief	Port G Channel Groups Configuration Parameters */
 extern const Dio_ChannelGroupType DioPortGChannelsGroups[];
@@ -282,7 +287,7 @@ extern const Dio_ChannelGroupType DioPortMChannelsGroups[];
 extern const Dio_ChannelGroupType DioPortFChannelsGroups[];
 
 /** @brief enc28j60 Channel Group */
-#define DIO_CHANNEL_GROUP_ENC28J60_RESET  &DioPortFChannelsGroups[0]
+#define DIO_CHANNEL_GROUP_ENC28J60	&DioPortFChannelsGroups[0]
 
 /** @brief	Port Configuration Parameters
  *
