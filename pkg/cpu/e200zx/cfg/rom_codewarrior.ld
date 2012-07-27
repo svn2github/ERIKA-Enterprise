@@ -93,6 +93,15 @@ SECTIONS
 		/* For code running in VLE mode */
 		ee_faster_loop_vle (VLECODE) LOAD(ee_load_ram + ADDR(ee_faster_loop_vle) - ADDR(.data)): { }
 
+        /* To use SSD Driver */
+        SSD_Driver LOAD(ee_load_ram + ADDR(SSD_Driver) - ADDR(.data)): { }
+
+        /* For SSD Driver code not running in VLE mode */
+		SSD_Driver_code LOAD(ee_load_ram + ADDR(SSD_Driver_code) - ADDR(.data)): { }
+
+		/* For SSD Driver code running in VLE mode */
+		SSD_Driver_code_vle (VLECODE) LOAD(ee_load_ram + ADDR(SSD_Driver_code_vle) - ADDR(.data)): { }
+
 		.sdata LOAD(ee_load_ram + ADDR(.sdata) - ADDR(.data)): { }
 
 		ee_sbss = . ;
