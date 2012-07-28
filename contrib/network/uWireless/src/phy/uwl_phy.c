@@ -118,6 +118,14 @@ static void phy_read_dispatcher(void)
 //	}
 	#endif
 
+    #ifdef UWL_ADD_RSSI_LQI
+    #warning RSSI VALUE added at the end of packet
+    /* Make sure that the packet size does not exceed the maximum size */
+    buf[len] = rssi;
+    buf[len + 1] = lqi;
+    len = (uint8_t)len + 2;
+    #endif
+
 	uwl_PD_DATA_indication((uint8_t) len,  buf, lqi);
 }
 
