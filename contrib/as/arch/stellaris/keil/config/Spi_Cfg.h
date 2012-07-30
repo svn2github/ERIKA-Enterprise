@@ -1304,7 +1304,11 @@ void Spi_LBMJob3EndNotification(
 #ifdef	__AS_CFG_SPI_LBM__
 #define	SPI_JOBS_MAX_NUMBER	SPI_LBM_JOBS_NUMBER
 #else	/* __AS_CFG_SPI_LBM__ */
+#ifdef	__AS_CFG_SPI_ENC28J60__
+#define	SPI_JOBS_MAX_NUMBER	SPI_ENC28J60_JOBS_NUMBER
+#else	/* __AS_CFG_SPI_ENC28J60__ */
 #define	SPI_JOBS_MAX_NUMBER	SPI_TEST_JOBS_NUMBER
+#endif	/* !__AS_CFG_SPI_ENC28J60__ */
 #endif	/* !__AS_CFG_SPI_LBM__ */
 
 /** @brief	SPI Job Configuration Type.
@@ -1547,6 +1551,10 @@ void Spi_LBMSeq3EndNotification(
 #define SPI_ENC28J60_JOB_BFC            6U
 /** @brief  enc28j60 System Reset Command (Soft Reset) */
 #define SPI_ENC28J60_JOB_SRC            7U
+
+/** @brief  enc28j60 Sequences Number */
+#define SPI_ENC28J60_JOBS_NUMBER SPI_ENC28J60_JOB_SRC + 1U
+
 
 /** @brief  enc28j60 JOB priority (DUMMY -> sync transmission) */
 #define SPI_ENC28J60_JOB_PRI            1U

@@ -304,7 +304,7 @@ const Dma_ChannelConfigType		Dma_SpiChannelConfig[] = {
     DMA_CHANNEL_ARB_SZ_4	|	/* - Arbitration Size: FIFO HALF-FULL.*/
     DMA_CHANNEL_XFER_PSG,		/* - Peripheral Scatter-Gather.	      */
     DMA_SSI_1_ADDRESS_LOW,		/* DmaSrcAddrLow.		      */
-    DMA_SSI_2_ADDRESS_HIGH,		/* DmaSrcAddrHigh.		      */
+    DMA_SSI_1_ADDRESS_HIGH,		/* DmaSrcAddrHigh.		      */
     DMA_MEMORY_ADDRESS_LOW,		/* DmaDstAddrLow.		      */
     DMA_MEMORY_ADDRESS_HIGH,		/* DmaDstAddrHigh.		      */
 #if	( DMA_NOTIFICATIONS_API == STD_ON )

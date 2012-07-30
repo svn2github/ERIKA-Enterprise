@@ -207,7 +207,7 @@ const Port_PinModeConfType PortFPin6Conf[] = {
  */
 const Port_PinModeConfType PortFPin7Conf[] = {
   {
-    PORT_PIN_MODE_SPI,		/* Port pin mode.			      */
+    PORT_PIN_MODE_DIO,		/* Port pin mode.			      */
     PORT_PIN_HW_CFG_DEN		/* Digital Enable.			      */
   }
 };
@@ -427,7 +427,7 @@ const Port_PinConfType SPIENC28J60PortPins[] = {
     PORT_PIN_OUT,			/* PortPinDirection		      */
     FALSE,				/* PortPinDirectionChangeable	      */
     PORT_F_PIN_3,			/* PortPinId			      */
-    PORT_PIN_MODE_SPI,			/* PortPinInitialMode		      */
+    PORT_PIN_MODE_DIO,			/* PortPinInitialMode		      */
     PORT_PIN_LEVEL_HIGH,		/* PortPinLevelValue		      */
     0x00000001,				/* PortPinModeNumber		      */
     &PortFPin3Conf[0],			/* PortPinSupportedModes	      */
@@ -471,6 +471,26 @@ const Port_PinConfType SPIENC28J60PortPins[] = {
     PORT_PIN_LEVEL_HIGH,		/* PortPinLevelValue		      */
     0x00000001,				/* PortPinModeNumber		      */
     &PortFPin7Conf[0],			/* PortPinSupportedModes	      */
+    FALSE				/* PortPinModeChangeable	      */
+  },
+   {
+    PORT_PIN_IN,			/* PortPinDirection		      */
+    FALSE,				/* PortPinDirectionChangeable	      */
+    PORT_C_PIN_4,			/* PortPinId			      */
+    PORT_PIN_MODE_SCI,			/* PortPinInitialMode		      */
+    PORT_PIN_LEVEL_HIGH,		/* PortPinLevelValue		      */
+    0x00000001,				/* PortPinModeNumber		      */
+    &PortCPin4Conf[0],			/* PortPinSupportedModes	      */
+    FALSE				/* PortPinModeChangeable	      */
+  },
+  {
+    PORT_PIN_OUT,			/* PortPinDirection		      */
+    FALSE,				/* PortPinDirectionChangeable	      */
+    PORT_C_PIN_5,			/* PortPinId			      */
+    PORT_PIN_MODE_SCI,			/* PortPinInitialMode		      */
+    PORT_PIN_LEVEL_HIGH,		/* PortPinLevelValue		      */
+    0x00000001,				/* PortPinModeNumber		      */
+    &PortCPin5Conf[0],			/* PortPinSupportedModes	      */
     FALSE				/* PortPinModeChangeable	      */
   },
   { /* USER LED */
@@ -560,20 +580,20 @@ const Port_PinConfType KeilULinkProPortPins[] = {
  */
 const Port_ConfigType Port_Config[] = {
   { /* PORT_CONFIG_DIO */
-    0x00000006,		/* PortNumberOfPortPins	*/
+    6U,		/* PortNumberOfPortPins	*/
     &DIOPortPins[0]	/* PortPins		*/
   },
   { /* PORT_CONFIG_SCI */
-    0x00000004,		/* PortNumberOfPortPins	*/
+    4U,		/* PortNumberOfPortPins	*/
     &SCIPortPins[0]	/* PortPins		*/
   },
   { /* PORT_CONFIG_SPI_ENC28J60 */
-    0x00000009,			/* PortNumberOfPortPins	*/
+    11U,			/* PortNumberOfPortPins	*/
     &SPIENC28J60PortPins[0]	/* PortPins		*/
   },
 #ifdef	__AS_CFG_PORT_KEIL_ULINK_PRO__
   { /* PORT_CONFIG_KEIL_ULINK_PRO */
-    0x00000006,			/* PortNumberOfPortPins	*/
+    6U,			/* PortNumberOfPortPins	*/
     &KeilULinkProPortPins[0]	/* PortPins		*/
   },
 #endif	/* __AS_CFG_PORT_KEIL_ULINK_PRO__ */

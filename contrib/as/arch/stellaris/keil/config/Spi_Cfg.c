@@ -2173,7 +2173,7 @@ const Spi_ConfigType			Spi_Config[] = {
   {
     SPI_ENC28J60_CHANNELS_NUMBER,         /* SpiMaxChannel. */
     SPI_ENC28J60_EXTERNAL_DEVICES_NUMBER, /* SpiMaxExternalDevice. */
-    SPI_TEST_JOBS_NUMBER,                 /* SpiMaxJob. */
+    SPI_ENC28J60_JOBS_NUMBER,             /* SpiMaxJob. */
     SPI_ENC28J60_SEQUENCES_NUMBER,        /* SpiMaxSequence. */
     &Spi_Enc28j60ChannelConfig[0],        /* SpiChannel. */
     &Spi_Enc28j60ExternalDeviceConfig[0], /* SpiExternalDevice. */
