@@ -73,7 +73,15 @@
 /* A printf-like function */
 static void EE_uart_send_buffer(const char * const str, size_t len) {
   size_t i;
+  uint8 rx;
+  Sci_StatusType st;
   for(i = 0U; i < len; ++i) {
+  	/* To eventually handle errors in rx */
+    st = Sci_GetStatus(SCI_CHANNEL_4);
+    while ((st != SCI_OPERATIONAL) && (st != SCI_TX_OK)) {
+	  Sci_ReadRxData(SCI_CHANNEL_4, &rx);
+	  st = Sci_GetStatus(SCI_CHANNEL_4);
+	}
     Sci_WriteTxData(SCI_CHANNEL_4, str[i]);
   }
 }
@@ -151,6 +159,9 @@ TASK(myTask1)
   EE_enc28j60_write_PHY_register(PHLCON, phy_data);
   myprintf("\nWrite PHLCON:%x\n", phy_data);
   myprintf("\nRead PHLCON:%x\n", EE_enc28j60_read_PHY_register((BYTE)PHLCON).Val);
+  
+  /* ----------------------------------------------------------------- */
+  /* MEMORY READ */
 }
 
 /*

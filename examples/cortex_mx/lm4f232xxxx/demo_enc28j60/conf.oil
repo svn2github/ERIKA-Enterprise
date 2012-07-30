@@ -75,7 +75,7 @@ CPU test_application {
     /* For System Timer and Timer Debug */
     EE_OPT = "__USE_SYSTICK__";
     /* For Debug */
-    EE_OPT = "__USE_LED__";
+    /*EE_OPT = "__USE_LED__";*/
 
     EE_OPT = "__AUTOSAR_R4_0__";
     EE_OPT = "__AS_DIO_DRIVER__";
@@ -123,7 +123,7 @@ CPU test_application {
       DEVICE = "SYSTICK";
       SYSTEM_TIMER = TRUE;
     };
-    SECONDSPERTICK = 1;
+    SECONDSPERTICK = 0.001;
   };
 
   /* TASKs list */

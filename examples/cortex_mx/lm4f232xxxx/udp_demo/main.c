@@ -45,8 +45,8 @@
                The demo requires a RS232 serial connection with user PC (115200 bps,8N1 configuration).
                The demo requires a SPI bus to communicate with ENC28J60.
                The demo requires a Ethernet connection with user PC.
-    @author    Bernardo Dal Seno
-    @date      2010
+    @author    Errico Guidieri
+    @date      2012
 */
 
 /* RT-Kernel */
@@ -67,8 +67,8 @@
 #include "Spi.h"
 #include "Icu.h"
 
-#define MY_UDP_BUFFER_LEN 256
-#define UDP_SENDER_BUF_SIZE 1408
+#define MY_UDP_BUFFER_LEN 128
+#define UDP_SENDER_BUF_SIZE 128
 #define MAXCHARS 128
 
 #define time_diff_ms(t1,t2)  (((t1) - (t2)) / (EE_UINT32)(EE_CPU_CLOCK / 1000U))
@@ -83,7 +83,15 @@ static EE_UINT8 my_udp_buffer[MY_UDP_BUFFER_LEN];
 /* A printf-like function */
 static void EE_uart_send_buffer(const char * const str, size_t len) {
   size_t i;
+  uint8 rx;
+  Sci_StatusType st;
   for(i = 0U; i < len; ++i) {
+	/* To eventually handle errors in rx */
+    st = Sci_GetStatus(SCI_CHANNEL_4);
+    while ((st != SCI_OPERATIONAL) && (st != SCI_TX_OK)) {
+	  Sci_ReadRxData(SCI_CHANNEL_4, &rx);
+	  st = Sci_GetStatus(SCI_CHANNEL_4);
+	}
     Sci_WriteTxData(SCI_CHANNEL_4, str[i]);
   }
 }
@@ -178,10 +186,10 @@ static void udp_rx_handler(void *arg, struct udp_pcb *upcb,
 
 TASK(SenderTask)
 {
-    static EE_UINT8 buf[UDP_SENDER_BUF_SIZE];
-    static EE_UINT16 size = 11;
+    static EE_UINT8 buf[UDP_SENDER_BUF_SIZE] = {0};
+    static EE_UINT16 size = sizeof(buf);
 
-    const unsigned num_packets = 512;
+    const unsigned num_packets = 10;
 
     struct udp_pcb *socket;
     struct ip_addr ipaddr;
@@ -212,6 +220,7 @@ TASK(SenderTask)
     udp_connect(socket, &ipaddr, remote_port);
 
     pb = pbuf_alloc(PBUF_TRANSPORT, size, PBUF_REF);
+
     if (pb != 0) {
         ReleaseResource(LwipMutex);
         pb->payload = buf;

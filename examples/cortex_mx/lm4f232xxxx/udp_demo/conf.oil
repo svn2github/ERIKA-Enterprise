@@ -88,6 +88,7 @@ CPU test_application {
     EE_OPT = "__AS_ICU_DRIVER__";
     EE_OPT = "__AS_CFG_ICU_EDGE_DETECT_API__";
     EE_OPT = "__AS_CFG_ICU_ENC28J60__";
+	EE_OPT = "__AS_CFG_ICU_SIG_NOTIF_ENC28J60__";
 
     EE_OPT = "__AS_DMA_DRIVER__";
     EE_OPT = "__AS_CFG_DMA_STATUS_API__";
@@ -127,7 +128,7 @@ CPU test_application {
       DEVICE = "SYSTICK";
       SYSTEM_TIMER = TRUE;
     };
-    SECONDSPERTICK = 1;
+    SECONDSPERTICK = 0.001;
   };
 
   /* TASKs list */
@@ -151,8 +152,8 @@ CPU test_application {
     COUNTER = system_timer;
     ACTION = ACTIVATETASK { TASK = SenderTask; };
     AUTOSTART = TRUE {
-      ALARMTIME = 1;
-      CYCLETIME = 10;
+      ALARMTIME = 1000;
+      CYCLETIME = 5000;
     };
   };
 };
