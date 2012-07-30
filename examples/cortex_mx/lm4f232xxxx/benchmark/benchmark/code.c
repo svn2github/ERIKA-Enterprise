@@ -176,9 +176,9 @@ TASK(BM_task)
 		bm_raise_isr2_act_task();
 
 		/*New task with preemption*/
-		timingtest_mark(TIMINGTEST_CKP_BEFORE_TASK2);
 		task2_chp_begin = TIMINGTEST_CKP_BEGIN_TASK2_PREE;
 		task2_chp_end = TIMINGTEST_CKP_END_TASK2_PREE;
+		timingtest_mark(TIMINGTEST_CKP_BEFORE_TASK2);
 		activate_task(Task2);
 		timingtest_mark(TIMINGTEST_CKP_AFTER_TASK2);
 		

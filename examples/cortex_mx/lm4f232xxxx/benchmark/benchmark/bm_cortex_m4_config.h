@@ -74,7 +74,6 @@
 #define ticks_to_us(x) (1000 * x / MICROSECONDS_TO_TICKS(1,EE_CPU_CLOCK))
 
 
-
 /*Initialize SysTick. Note that, SysTick is a 24 bits countdown timer */
 __INLINE__ void bm_time_stamp_init(void) 
 {
