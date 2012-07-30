@@ -29,6 +29,10 @@ ifeq ($(call iseeopt, __LM32__), yes)
 EE_SRCS += contrib/console/src/hal/mico32.c
 endif
 
+ifeq ($(call iseeopt, __CORTEX_MX__), yes)
+EE_SRCS += contrib/console/src/hal/cortex_mx.c
+endif
+
 ifeq ($(call iseeopt, __MC9S12__), yes)
 EE_HC12_CONSOLE=YES
 endif

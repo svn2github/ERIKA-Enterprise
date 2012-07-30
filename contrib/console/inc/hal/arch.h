@@ -29,5 +29,8 @@
 #include "hal/mico32.h"
 #endif	/* __LM32__ */
 
+#ifdef __CORTEX_MX__
+#include "hal/cortex_mx.h"
+#endif	/* __CORTEX_MX__ */
 
 #endif	/* __arch_h__ */
