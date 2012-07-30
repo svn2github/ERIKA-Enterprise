@@ -84,11 +84,7 @@
 /* ------------------------------------------------------------------------------- */
 
 /** @brief  enc28j60 driver initialization procedure (Check if SPI Driver is correctly configured) */
-__INLINE__ int __ALWAYS_INLINE__ EE_enc28j60_hal_spi_init(void){
-  return (Spi_GetStatus() == SPI_UNINIT)?
-    ENC28J60_FAILURE:
-    ENC28J60_SUCCESS;
-}
+int EE_enc28j60_hal_spi_init(void);
 
 /**
   @brief  This function is the ENC28J60 ICU Notification handler
@@ -220,8 +216,11 @@ __INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_hal_write_MII_register(BYTE addres
 
 /** @brief This function provides, before resetting it,
       the notification status 1 is active 0 is idle   */
-__INLINE__ int __ALWAYS_INLINE__ EE_enc28j60_pending_interrupt(void){ 
-  return (Icu_GetInputState(ICU_ENC28J60_CHANNEL) == ICU_ACTIVE)? 1: 0;
+__INLINE__ int __ALWAYS_INLINE__ EE_enc28j60_pending_interrupt(void){
+  /* Read the real pin value, not the Icu status. Icu status reset after
+     reading as dictated. The Interrupt signal is active-low so I need 
+	 to negate the read */
+  return !Dio_ReadChannel(DIO_CHANNEL_ENC28J60_INT); 
 }
 
 /**

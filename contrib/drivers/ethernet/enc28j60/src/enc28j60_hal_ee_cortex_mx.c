@@ -62,19 +62,29 @@ void EE_enc28j60_hal_set_rx_task(EE_TID task) {
 /* This function is the ENC28J60 ICU Notification handler
    it takes the role of GPIO interrupt handler.
  */
+
 void Icu_SignalNotification_ENC28J60(void)
 {
+  EE_enc28j60_hal_disable_IRQ();
   /* Called task should re-enable IRQs */
   if( ee_enc28j60_task >= 0)
-     ActivateTask(ee_enc28j60_task);  
+    ActivateTask(ee_enc28j60_task);
 }
 
 /* ---------------------- Ethernet Library functions ------------------------- */
-
 static void EE_enc28j60_hal_delay_us(unsigned int delay_count)
 {
-  /* TODO: EE_delay_us(delay_count); */
+  EE_systick_delay_us(delay_count);
 }
+
+int EE_enc28j60_hal_spi_init(void) {
+  /* Force hardware reset on enc28j60 */
+  EE_enc28j60_hal_hardware_reset();
+  return (Spi_GetStatus() == SPI_UNINIT)?
+    ENC28J60_FAILURE:
+    ENC28J60_SUCCESS;
+}
+
 
 BYTE EE_enc28j60_hal_get()
 {
@@ -140,9 +150,9 @@ void EE_enc28j60_hal_software_reset(void)
 
 void EE_enc28j60_hal_hardware_reset(void)
 {
-  /* TODO: Implemant a real hardware reset */
+  /* Real hardware reset */
   EE_enc28j60_hal_disable();
-  EE_enc28j60_hal_delay_us(1000);
+  EE_enc28j60_hal_delay_us(1000U);
   EE_enc28j60_hal_enable();
 }
 
