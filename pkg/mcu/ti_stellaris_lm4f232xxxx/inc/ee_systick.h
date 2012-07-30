@@ -179,6 +179,19 @@ __INLINE__ EE_UREG __ALWAYS_INLINE__ EE_systick_get_value()
   return NVIC_ST_CURRENT_R;
 }
 
+__INLINE__ void __ALWAYS_INLINE__ EE_systick_delay_us(EE_UREG usDelay){
+    EE_UREG	const start = EE_systick_get_value();
+	EE_UREG ticks = MICROSECONDS_TO_TICKS(usDelay, EE_CPU_CLOCK);
+	
+	/* Bound the delay to max one whole run */
+	if ((ticks == NVIC_ST_RELOAD_S) || (ticks > NVIC_ST_RELOAD_M))
+		ticks = NVIC_ST_RELOAD_M - 1;
+	
+	while (((EE_systick_get_value() - start) % NVIC_ST_RELOAD_M)  < ticks){
+		; /* wait */
+	}
+}
+
 #endif	/* __USE_SYSTICK__ */
 
 #endif	/* __INCLUDE_STELLARIS_LM4F232XXXX_SYSTICK_H__ */
