@@ -207,7 +207,6 @@ $(OUTPUT_DIR)/Debug.ini: $(DEBUG_PROJECT_DIR)/Debug.ini
 $(OUTPUT_DIR)/$(Debugger).%: $(DEBUG_PROJECT_DIR)/$(Debugger).%
 	$(ECHO) "Copying debug file: $@ from $<"
 	$(COPY) $< $(OUTPUT_DIR)
-#	$(MOVE) $(OUTPUT_DIR)/$(Debugger).out $(OUTPUT_DIR)/$(Debugger).axf
 
 $(OUTPUT_DIR)/$(Debugger)_$(arch).dep: $(DEBUG_PROJECT_DIR)/$(Debugger)_$(arch).dep
 	$(ECHO) "Copying debug file: $@ from $<"
