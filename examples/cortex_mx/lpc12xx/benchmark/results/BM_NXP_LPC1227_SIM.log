@@ -19,24 +19,24 @@ ISR1 exit (50 samples):
   Maximum: 2.500 usec   - 60 ticks
 
 ISR2 Latency (50 samples):
-  Mean:    4.000 usec   - 96 ticks
-  Minimum: 4.000 usec   - 96 ticks
-  Maximum: 4.000 usec   - 96 ticks
+  Mean:    3.791 usec   - 91 ticks
+  Minimum: 3.791 usec   - 91 ticks
+  Maximum: 3.791 usec   - 91 ticks
 
 ISR2 exit (50 samples):
-  Mean:    6.583 usec   - 158 ticks
-  Minimum: 6.583 usec   - 158 ticks
-  Maximum: 6.583 usec   - 158 ticks
+  Mean:    8.083 usec   - 194 ticks
+  Minimum: 8.083 usec   - 194 ticks
+  Maximum: 8.083 usec   - 194 ticks
 
 New task from ISR (50 samples):
-  Mean:    15.625 usec   - 375 ticks
-  Minimum: 15.625 usec   - 375 ticks
-  Maximum: 15.625 usec   - 375 ticks
+  Mean:    15.458 usec   - 371 ticks
+  Minimum: 15.458 usec   - 371 ticks
+  Maximum: 15.458 usec   - 371 ticks
 
 New task with preemption (50 samples):
-  Mean:    14.291 usec   - 343 ticks
-  Minimum: 14.291 usec   - 343 ticks
-  Maximum: 14.291 usec   - 343 ticks
+  Mean:    14.041 usec   - 337 ticks
+  Minimum: 14.041 usec   - 337 ticks
+  Maximum: 14.041 usec   - 337 ticks
 
 New task without preemption (50 samples):
   Mean:    7.375 usec   - 177 ticks
@@ -49,9 +49,9 @@ Task (not activated from IRQ) exit (50 samples):
   Maximum: 12.250 usec   - 294 ticks
 
 Task (activated from IRQ) exit (50 samples):
-  Mean:    31.375 usec   - 753 ticks
-  Minimum: 31.375 usec   - 753 ticks
-  Maximum: 31.375 usec   - 753 ticks
+  Mean:    30.625 usec   - 735 ticks
+  Minimum: 30.625 usec   - 735 ticks
+  Maximum: 30.625 usec   - 735 ticks
 
 /* ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */
 LOG OFF

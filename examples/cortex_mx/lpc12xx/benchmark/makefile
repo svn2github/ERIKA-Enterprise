@@ -86,10 +86,7 @@ DEPENDENT_CONF := conf_uart.oil
 else
 DEPENDENT_CONF := conf.oil
 endif
-
 endif
-
-
 
 DEPENDENT_HEADERS := timingtest.h bm_config.h bm_cortex_m0_config.h bm_erika_config.h
 ifeq ($(Debugger), ULINK2)
