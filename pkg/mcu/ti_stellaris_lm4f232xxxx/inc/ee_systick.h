@@ -191,7 +191,7 @@ __INLINE__ EE_UREG __ALWAYS_INLINE__ EE_systick_get_value()
  */
 __INLINE__ void __ALWAYS_INLINE__ EE_systick_delay_us(EE_UREG usDelay){
     EE_UREG	const start = EE_systick_get_value();
-#ifdeg	EE_CPU_CLOCK
+#ifdef	EE_CPU_CLOCK
 	EE_UREG ticks = MICROSECONDS_TO_TICKS(usDelay, EE_CPU_CLOCK);
 #else
 	EE_UREG ticks = MICROSECONDS_TO_TICKS(usDelay, EE_DEFAULT_CPU_CLOCK);
