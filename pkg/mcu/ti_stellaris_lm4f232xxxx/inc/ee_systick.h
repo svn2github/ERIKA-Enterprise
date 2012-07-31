@@ -179,10 +179,23 @@ __INLINE__ EE_UREG __ALWAYS_INLINE__ EE_systick_get_value()
   return NVIC_ST_CURRENT_R;
 }
 
+/** Default PIOSC Clock Frequency */
+#define	EE_DEFAULT_CPU_CLOCK	16000000
+
+/**
+    @brief Delay with SysTick .
+
+    @param usDelay Number of us to Delay.
+
+    This function delays the program execution by <tt>usDelay</tt> microseconds.
+ */
 __INLINE__ void __ALWAYS_INLINE__ EE_systick_delay_us(EE_UREG usDelay){
     EE_UREG	const start = EE_systick_get_value();
+#ifdeg	EE_CPU_CLOCK
 	EE_UREG ticks = MICROSECONDS_TO_TICKS(usDelay, EE_CPU_CLOCK);
-	
+#else
+	EE_UREG ticks = MICROSECONDS_TO_TICKS(usDelay, EE_DEFAULT_CPU_CLOCK);
+#endif
 	/* Bound the delay to max one whole run */
 	if ((ticks == NVIC_ST_RELOAD_S) || (ticks > NVIC_ST_RELOAD_M))
 		ticks = NVIC_ST_RELOAD_M - 1;
