@@ -104,6 +104,12 @@ const Dio_ChannelType	DioPortFChannels[] = {
   DIO_CHANNEL_ENC28J60_CLK,
 };
 
+#ifdef	__AS_CFG_DIO_ICU__
+const Dio_ChannelType	DioPortDICUChannels[] = {
+  DIO_CHANNEL_ICU_DUTY_CYCLE,
+  DIO_CHANNEL_ICU_PERIOD_TIME
+};
+#endif	/* __AS_CFG_DIO_ICU__ */
 /*
  * DIO149_Conf:	The DIO channel group is identified in DIO API by a
  * 		pointer to a data structure (of type Dio_ChannelGroupType).
@@ -146,6 +152,16 @@ const Dio_ChannelGroupType DioPortFChannelsGroups[] = {
     DIO_PORT_ENC28J60		/* port				 */
   }
 };
+
+#ifdef	__AS_CFG_DIO_ICU__
+const Dio_ChannelGroupType DioPortDICUChannelsGroups[] = {
+  { /* DIO_CHANNEL_GROUP_ICU */
+    0x000000C0,			/* mask				 */
+    0x00000006,			/* offest			 */
+    DIO_PORT_ICU		/* port				 */
+  }
+};
+#endif	/* __AS_CFG_DIO_ICU__ */
 
 /*
  * DIO144_Conf:	Configuration of individual DIO ports, consisting of channels
@@ -206,6 +222,32 @@ const Dio_PortConfType Dio_Enc28j60tPorts[] = {
 
 };
 
+#ifdef	__AS_CFG_DIO_ICU__
+const Dio_PortConfType Dio_ICUPorts[] = {
+  { /* PORT D */
+    DIO_PORT_ICU,			/* DioPortId			 */
+    0x00000002,				/* DioNumberOfChannels		 */
+    &DioPortDICUChannels[0],		/* Dio_Channels			 */
+    0x00000001,				/* DioNumberOfChannelsGroups	 */
+    &DioPortDICUChannelsGroups[0]	/* Dio_ChannelsGroups		 */
+  },
+  { /* PORT G */
+    DIO_PORT_USER_LED,			/* DioPortId			 */
+    0x00000001,				/* DioNumberOfChannels		 */
+    &DioPortGChannels[0],		/* Dio_Channels			 */
+    0x00000001,				/* DioNumberOfChannelsGroups	 */
+    &DioPortGChannelsGroups[0]		/* Dio_ChannelsGroups		 */
+  },
+  { /* PORT_M */
+    DIO_PORT_USER_SWITCHES,		/* DioPortId			 */
+    0x00000005,				/* DioNumberOfChannels		 */
+    &DioPortMChannels[0],		/* Dio_Channels			 */
+    0x00000001,				/* DioNumberOfChannelsGroups	 */
+    &DioPortMChannelsGroups[0]		/* Dio_ChannelsGroups		 */
+  },
+};
+#endif	/* __AS_CFG_DIO_ICU__ */
+
 /*
  * DIO152_Conf:	This container contains the configuration parameters and sub
  * 		containers of the AUTOSAR DIO module. This container is a
@@ -228,5 +270,11 @@ const Dio_ConfigType Dio_Config[] = {
   { /* DIO_CONFIG_ENC28J60 */
     0x00000002,		/* DioNumberOfPorts	*/
     &Dio_Enc28j60tPorts[0]	/* DioPorts		*/
-  }
+  },
+#ifdef	__AS_CFG_DIO_ICU__
+  { /* DIO_CONFIG_ICU */
+    0x00000003,		/* DioNumberOfPorts	*/
+    &Dio_ICUPorts[0]	/* DioPorts		*/
+  },
+#endif	/* __AS_CFG_DIO_ICU__ */
 };

@@ -196,18 +196,23 @@
 #define	DIO_CHANNEL_M_0	0x00000058	/**< Channel M 0 */
 /** Channel User Switch 1 */
 #define	DIO_CHANNEL_USER_SWITCH_1	DIO_CHANNEL_M_0
+#define	DIO_CHANNEL_USER_SWITCH_UP	DIO_CHANNEL_USER_SWITCH_1
 #define	DIO_CHANNEL_M_1	0x00000059	/**< Channel M 1 */
 /** Channel User Switch 2 */
 #define	DIO_CHANNEL_USER_SWITCH_2	DIO_CHANNEL_M_1
+#define	DIO_CHANNEL_USER_SWITCH_DOWN	DIO_CHANNEL_USER_SWITCH_2
 #define	DIO_CHANNEL_M_2	0x0000005A	/**< Channel M 2 */
 /** Channel User Switch 3 */
 #define	DIO_CHANNEL_USER_SWITCH_3	DIO_CHANNEL_M_2
+#define	DIO_CHANNEL_USER_SWITCH_LEFT	DIO_CHANNEL_USER_SWITCH_3
 #define	DIO_CHANNEL_M_3	0x0000005B	/**< Channel M 3 */
 /** Channel User Switch 4 */
 #define	DIO_CHANNEL_USER_SWITCH_4	DIO_CHANNEL_M_3
+#define	DIO_CHANNEL_USER_SWITCH_RIGHT	DIO_CHANNEL_USER_SWITCH_4
 #define	DIO_CHANNEL_M_4	0x0000005C	/**< Channel M 4 */
 /** Channel User Switch 5 */
-#define	DIO_CHANNEL_USER_SWITCH_5	DIO_CHANNEL_M_4
+#define	DIO_CHANNEL_USER_SWITCH_5		DIO_CHANNEL_M_4
+#define	DIO_CHANNEL_USER_SWITCH_SELECT_WAKE	DIO_CHANNEL_USER_SWITCH_5
 #define	DIO_CHANNEL_M_5	0x0000005D	/**< Channel M 5 */
 #define	DIO_CHANNEL_M_6	0x0000005E	/**< Channel M 6 */
 #define	DIO_CHANNEL_M_7	0x0000005F	/**< Channel M 7 */
@@ -240,6 +245,10 @@
 #define	DIO_CHANNEL_ENC28J60_WOL	DIO_CHANNEL_F_6
 #define	DIO_CHANNEL_ENC28J60_CLK	DIO_CHANNEL_F_7
 
+#ifdef	__AS_CFG_DIO_ICU__
+#define	DIO_CHANNEL_ICU_DUTY_CYCLE	DIO_CHANNEL_D_6
+#define	DIO_CHANNEL_ICU_PERIOD_TIME	DIO_CHANNEL_D_7
+#endif	/* __AS_CFG_DIO_ICU__ */
 
 #define	DIO_PORT_A	0x00000000	/**< Port A */
 #define	DIO_PORT_B	0x00000001	/**< Port B */
@@ -268,6 +277,10 @@
 /** Custom Port Names Remapping */
 #define	DIO_PORT_ENC28J60	DIO_PORT_F
 
+#ifdef	__AS_CFG_DIO_ICU__
+#define	DIO_PORT_ICU		DIO_PORT_D
+#endif	/* __AS_CFG_DIO_ICU__ */
+
 /** @brief	Port G Channel Groups Configuration Parameters */
 extern const Dio_ChannelGroupType DioPortGChannelsGroups[];
 
@@ -288,6 +301,10 @@ extern const Dio_ChannelGroupType DioPortFChannelsGroups[];
 
 /** @brief enc28j60 Channel Group */
 #define DIO_CHANNEL_GROUP_ENC28J60	&DioPortFChannelsGroups[0]
+
+#ifdef	__AS_CFG_DIO_ICU__
+#define	DIO_CHANNEL_GROUP_ICU		&DioPortDICUChannelsGroups[0]
+#endif	/* __AS_CFG_DIO_ICU__ */
 
 /** @brief	Port Configuration Parameters
  *
@@ -420,5 +437,18 @@ typedef struct {
  *  Pointer of User Output DIO Driver Configuration
  */
 #define	DIO_CONFIG_ENC28J60_PTR	&Dio_Config[DIO_CONFIG_ENC28J60]
+
+#ifdef	__AS_CFG_DIO_ICU__
+/** @brief	ICU Configuration
+ *
+ *  Identifier for ICU Driver Testcases DIO Driver Configuration.
+ */
+#define	DIO_CONFIG_ICU		0x00000004U
+/** @brief	ICU Configuration Pointer
+ *
+ *  Pointer of ICU Driver Testcases DIO Driver Configuration
+ */
+#define	DIO_CONFIG_ICU_PTR	&Dio_Config[DIO_CONFIG_ICU]
+#endif	/* __AS_CFG_DIO_ICU__ */
 
 #endif	/* DIO_CFG_H */
