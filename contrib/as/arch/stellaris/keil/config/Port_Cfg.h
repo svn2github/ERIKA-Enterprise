@@ -639,16 +639,16 @@
 /** Port L - Pin 7 Mux Control ICU WT3CCP1 */
 #define	PORT_L_PIN_7_PMC_ICU_WT3CCP1	PORT_L_PMC_ICU_W
 
-/** Port M Mux Montrol ICU */
-#define	PORT_M_PCM_ICU			0x00000007
+/** Port M Mux Control ICU */
+#define	PORT_M_PMC_ICU			0x00000007
 /** Port M - Pin 0 Mux Montrol ICU T4CCP0 */
-#define	PORT_M_PIN_0_PCM_ICU_T4CCP0	PORT_M_PCM_ICU
+#define	PORT_M_PIN_0_PMC_ICU_T4CCP0	PORT_M_PMC_ICU
 /** Port M - Pin 1 Mux Montrol ICU T4CCP1 */
-#define	PORT_M_PIN_1_PCM_ICU_T4CCP1	PORT_M_PCM_ICU
+#define	PORT_M_PIN_1_PMC_ICU_T4CCP1	PORT_M_PMC_ICU
 /** Port M - Pin 2 Mux Montrol ICU T5CCP0 */
-#define	PORT_M_PIN_2_PCM_ICU_T5CCP0	PORT_M_PCM_ICU
+#define	PORT_M_PIN_2_PMC_ICU_T5CCP0	PORT_M_PMC_ICU
 /** Port M - Pin 3 Mux Control ICU T5CCP1 */
-#define	PORT_M_PIN_3_PCM_ICU_T5CCP1	PORT_M_PCM_ICU
+#define	PORT_M_PIN_3_PMC_ICU_T5CCP1	PORT_M_PMC_ICU
 
 /** Port M - Pin 6 Mux Control ICU WT0CCP0 */
 #define	PORT_M_PIN_6_PMC_ICU_WT0CCP0	PORT_L_PMC_ICU
@@ -656,18 +656,18 @@
 #define	PORT_M_PIN_7_PMC_ICU_WT0CCP1	PORT_L_PMC_ICU
 
 /** Port M Mux Montrol ICU Wide */
-#define	PORT_M_PCM_ICU_W		0x00000008
+#define	PORT_M_PMC_ICU_W		0x00000008
 /** Port M - Pin 0 Mux Montrol ICU WT4CCP0 */
-#define	PORT_M_PIN_0_PCM_ICU_WT4CCP0	PORT_M_PCM_ICU_W
+#define	PORT_M_PIN_0_PMC_ICU_WT4CCP0	PORT_M_PMC_ICU_W
 /** Port M - Pin 1 Mux Montrol ICU WT4CCP1 */
-#define	PORT_M_PIN_1_PCM_ICU_WT4CCP1	PORT_M_PCM_ICU_W
+#define	PORT_M_PIN_1_PMC_ICU_WT4CCP1	PORT_M_PMC_ICU_W
 /** Port M - Pin 2 Mux Montrol ICU WT5CCP0 */
-#define	PORT_M_PIN_2_PCM_ICU_WT5CCP0	PORT_M_PCM_ICU_W
+#define	PORT_M_PIN_2_PMC_ICU_WT5CCP0	PORT_M_PMC_ICU_W
 /** Port M - Pin 3 Mux Control ICU WT5CCP1 */
-#define	PORT_M_PIN_3_PCM_ICU_WT5CCP1	PORT_M_PCM_ICU_W
+#define	PORT_M_PIN_3_PMC_ICU_WT5CCP1	PORT_M_PMC_ICU_W
 
 /** Port N Mux Montrol ICU */
-#define	PORT_N_PCM_ICU			0x00000007
+#define	PORT_N_PMC_ICU			0x00000007
 /** Port N - Pin 2 Mux Control ICU WT2CCP0 */
 #define	PORT_N_PIN_2_PMC_ICU_WT2CCP0	PORT_N_PMC_ICU
 /** Port N - Pin 3 Mux Control ICU WT2CCP1 */
@@ -861,15 +861,41 @@ typedef struct {
 #define	PORT_CONFIG_ICU_PTR		&Port_Config[PORT_CONFIG_ICU]
 #endif	/* __AS_CFG_PORT_ICU__ */
 
+#ifdef	__AS_CFG_PORT_ICU_ARISTON_TESTS__
+/** @brief	ICU Port Pins Configuration
+ *
+ *  Identifier for Port Pins as ICU Port Driver Configuration.
+ */
+#ifdef	__AS_CFG_PORT_ICU__
+#define	PORT_CONFIG_ARISTON_TESTS	0x00000004
+#else	/* __AS_CFG_PORT_ICU__ */
+#define	PORT_CONFIG_ARISTON_TESTS	0x00000003
+#endif	/* !__AS_CFG_PORT_ICU__ */
+/** @brief	ICU Port Pins Configuration Pointer
+ *
+ *  Pointer of Port Pins as ICU Port Driver Configuration.
+ */
+#define	PORT_CONFIG_ARISTON_TESTS_PTR	\
+	&Port_Config[PORT_CONFIG_ARISTON_TESTS]
+#endif	/* __AS_CFG_PORT_ICU_ARISTON_TESTS__ */
+
 #ifdef	__AS_CFG_PORT_KEIL_ULINK_PRO__
 /** @brief	Port Pins  KEIL ULINK Pro Configuration
  *
  *  Identifier for Port Pins as  KEIL ULINK Pro Configuration.
  */
 #ifdef	__AS_CFG_PORT_ICU__
+#ifdef	__AS_CFG_PORT_ICU_ARISTON_TESTS__
+#define	PORT_CONFIG_KEIL_ULINK_PRO	0x00000005
+#else	/* __AS_CFG_PORT_ICU_ARISTON_TESTS__ */
 #define	PORT_CONFIG_KEIL_ULINK_PRO	0x00000004
+#endif	/* !__AS_CFG_PORT_ICU_ARISTON_TESTS__ */
 #else	/* __AS_CFG_PORT_ICU__ */
+#ifdef	__AS_CFG_PORT_ICU_ARISTON_TESTS__
+#define	PORT_CONFIG_KEIL_ULINK_PRO	0x00000004
+#else	/* __AS_CFG_PORT_ICU_ARISTON_TESTS__ */
 #define	PORT_CONFIG_KEIL_ULINK_PRO	0x00000003
+#endif	/* !__AS_CFG_PORT_ICU_ARISTON_TESTS__ */
 #endif	/* !__AS_CFG_PORT_ICU__ */
 /** @brief	Port Pins KEIL ULINK Pro Configuration Pointer
  *

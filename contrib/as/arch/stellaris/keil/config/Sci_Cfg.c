@@ -245,6 +245,35 @@ const Sci_ChannelConfigType SciChannels[] = {
   },
 };
 
+#ifdef	__AS_CFG_SCI_ARISTON_TESTS__
+/*
+ * Ariston Tests Sci Channels Configuration.
+ */
+const Sci_ChannelConfigType AristonTestsSciChannels[] = {
+  { /* UART4 */
+    SCI_CHANNEL_ARISTON_TESTS_DEBUG,	/* SciChannelId			      */
+    115200,				/* SciChannelBaudRate		      */
+#if ( SCI_WAKEUP_FUNCTIONALITY_API == STD_ON )
+    TRUE,				/* SciChannelWakeupSupport	      */
+#endif
+    TRUE,				/* SciSysClock			      */
+    					/* SciSysCtrl:			      */
+    SCI_CH_HW_HIGH_SPEED |		/* - UART High-Speed Enable	      */
+    SCI_CH_HW_RX |			/* - UART Receive Enable	      */
+    SCI_CH_HW_TX |			/* - UART Transmit Enable	      */
+    SCI_CH_HW_ENABLE,			/* - UART Enable		      */
+    					/* SciLineCtrl:			      */
+    SCI_CH_HW_8_BITS,			/* - 8 bits, 1 stop bit, No parity    */
+#if ( SCI_NOTIFICATIONS_API == STD_ON )
+    NULL_PTR,				/* SciTxNotificationPtr		      */
+    NULL_PTR,				/* SciTxErrNotificationPtr	      */
+    NULL_PTR,				/* SciRxNotificationPtr		      */
+    NULL_PTR				/* SciRxErrNotificationPtr	      */
+#endif
+  },
+};
+#endif	/* __AS_CFG_SCI_ARISTON_TESTS__ */
+
 /*
  * This container is the base of a multiple configuration set.
  */
@@ -252,5 +281,11 @@ const Sci_ConfigType Sci_Config[] = {
   {
     SCI_CHANNELS_NUMBER,	/* SciNumberOfSciChannels	*/
     &SciChannels[0]		/* SciChannels			*/
-  }
+  },
+#ifdef	__AS_CFG_SCI_ARISTON_TESTS__
+    {
+    ARISTON_TESTS_SCI_CHANNELS_NUMBER,	/* SciNumberOfSciChannels	*/
+    &AristonTestsSciChannels[0]		/* SciChannels			*/
+  },
+#endif	/* __AS_CFG_SCI_ARISTON_TESTS__ */
 };

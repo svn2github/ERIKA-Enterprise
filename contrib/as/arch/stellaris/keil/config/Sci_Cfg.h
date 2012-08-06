@@ -563,6 +563,13 @@ typedef struct {
 /** Number of Channels */
 #define	SCI_CHANNELS_NUMBER	SCI_CHANNEL_7 + 1
 
+#ifdef	__AS_CFG_SCI_ARISTON_TESTS__
+/** Ariston Tests Sci Debug Channel. */
+#define	SCI_CHANNEL_ARISTON_TESTS_DEBUG	SCI_CHANNEL_4
+/** Ariston Tests Sci Channels Number. */
+#define	ARISTON_TESTS_SCI_CHANNELS_NUMBER	0x00000001
+#endif	/* __AS_CFG_SCI_ARISTON_TESTS__ */
+
 /** @brief	Channel 4 Transmission Notifications Callback
  *
  *  The notification prototype <tt>Sci_TxNotification_Channel_4()</tt> is for
@@ -701,5 +708,18 @@ typedef struct {
  *  Pointer of Default SCI Driver Configuration
  */
 #define	SCI_CONFIG_DEFAULT_PTR	&Sci_Config[SCI_CONFIG_DEFAULT]
+
+#ifdef	__AS_CFG_SCI_ARISTON_TESTS__
+/** @brief	Ariston Tests Configuration
+ *
+ *  Identifier for Ariston Tests SCI Driver Configuration.
+ */
+#define	SCI_CONFIG_ARISTON_TESTS	0x00000001
+/** @brief	Ariston Tests Configuration Pointer
+ *
+ *  Pointer of Ariston Tests SCI Driver Configuration
+ */
+#define	SCI_CONFIG_ARISTON_TESTS_PTR	&Sci_Config[SCI_CONFIG_ARISTON_TESTS]
+#endif	/* __AS_CFG_SCI_ARISTON_TESTS__ */
 
 #endif	/* SCI_CFG_H */

@@ -250,6 +250,13 @@
 #define	DIO_CHANNEL_ICU_PERIOD_TIME	DIO_CHANNEL_D_7
 #endif	/* __AS_CFG_DIO_ICU__ */
 
+#ifdef	__AS_CFG_DIO_ICU_ARISTON_TESTS__
+#define	DIO_CHANNEL_ARISTON_TESTS_ICU_LOW_TIME		DIO_CHANNEL_F_4
+#define	DIO_CHANNEL_ARISTON_TESTS_ICU_HIGH_TIME		DIO_CHANNEL_F_5
+#define	DIO_CHANNEL_ARISTON_TESTS_ICU_PERIOD_TIME	DIO_CHANNEL_F_6
+#define	DIO_CHANNEL_ARISTON_TESTS_ICU_DUTY_CYCLE	DIO_CHANNEL_F_7
+#endif	/* __AS_CFG_DIO_ICU_ARISTON_TESTS__ */
+
 #define	DIO_PORT_A	0x00000000	/**< Port A */
 #define	DIO_PORT_B	0x00000001	/**< Port B */
 #define	DIO_PORT_C	0x00000002	/**< Port C */
@@ -281,6 +288,10 @@
 #define	DIO_PORT_ICU		DIO_PORT_D
 #endif	/* __AS_CFG_DIO_ICU__ */
 
+#ifdef	__AS_CFG_DIO_ICU_ARISTON_TESTS__
+#define	DIO_PORT_ARISTON_TESTS_ICU	DIO_PORT_F
+#endif	/* __AS_CFG_DIO_ICU_ARISTON_TESTS__ */
+
 /** @brief	Port G Channel Groups Configuration Parameters */
 extern const Dio_ChannelGroupType DioPortGChannelsGroups[];
 
@@ -305,6 +316,11 @@ extern const Dio_ChannelGroupType DioPortFChannelsGroups[];
 #ifdef	__AS_CFG_DIO_ICU__
 #define	DIO_CHANNEL_GROUP_ICU		&DioPortDICUChannelsGroups[0]
 #endif	/* __AS_CFG_DIO_ICU__ */
+
+#ifdef	__AS_CFG_DIO_ICU_ARISTON_TESTS__
+#define	DIO_CHANNEL_GROUP_ARISTON_TESTS_ICU	\
+	&DioPortAristonTestsICUChannelsGroups[0]
+#endif	/* __AS_CFG_DIO_ICU_ARISTON_TESTS__ */
 
 /** @brief	Port Configuration Parameters
  *
@@ -450,5 +466,23 @@ typedef struct {
  */
 #define	DIO_CONFIG_ICU_PTR	&Dio_Config[DIO_CONFIG_ICU]
 #endif	/* __AS_CFG_DIO_ICU__ */
+
+#ifdef	__AS_CFG_DIO_ICU_ARISTON_TESTS__
+/** @brief	Ariston Tests ICU Configuration
+ *
+ *  Identifier for Ariston Tests ICU Driver Testcases DIO Driver Configuration.
+ */
+#ifdef	__AS_CFG_DIO_ICU__
+#define	DIO_CONFIG_ARISTON_TESTS	0x00000005U
+#else	/* __AS_CFG_DIO_ICU__ */
+#define	DIO_CONFIG_ARISTON_TESTS	0x00000004U
+#endif	/* !__AS_CFG_DIO_ICU__ */
+/** @brief	Ariston Tests ICU Configuration Pointer
+ *
+ *  Pointer of Ariston Tests ICU Driver Testcases DIO Driver Configuration
+ */
+#define	DIO_CONFIG_ARISTON_TESTS_PTR	\
+	&Dio_Config[DIO_CONFIG_ARISTON_TESTS]
+#endif	/* __AS_CFG_DIO_ICU_ARISTON_TESTS__ */
 
 #endif	/* DIO_CFG_H */

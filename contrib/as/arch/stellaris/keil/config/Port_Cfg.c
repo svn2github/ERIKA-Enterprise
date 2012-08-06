@@ -85,10 +85,22 @@ const Port_PinModeConfType PortPinsICUConf[] = {
     PORT_PIN_HW_CFG_DEN	  |	/* Digital Enable + Pull-up.		      */
     PORT_PIN_HW_CFG_AFSEL |	/* Alternate Function Select.		      */
     PORT_PIN_HW_CFG_PUR	  |	/* Pull-Up Select.			      */
-    PORT_M_PCM_ICU		/* Port M ICU Mux Control.		      */
+    PORT_M_PMC_ICU		/* Port M ICU Mux Control.		      */
   }
 };
 #endif	/* __AS_CFG_PORT_ICU__ */
+
+#ifdef	__AS_CFG_PORT_ICU_ARISTON_TESTS__
+const Port_PinModeConfType PortPinsAristonTestsICUConf[] = {
+  {
+    PORT_PIN_MODE_ICU,		/* Port pin mode.			      */
+    PORT_PIN_HW_CFG_DEN	  |	/* Digital Enable + Pull-up.		      */
+    PORT_PIN_HW_CFG_AFSEL |	/* Alternate Function Select.		      */
+    PORT_PIN_HW_CFG_PUR	  |	/* Pull-Up Select.			      */
+    PORT_F_PMC_ICU		/* Port F ICU Mux Control.		      */
+  }
+};
+#endif	/* __AS_CFG_PORT_ICU_ARISTON_TESTS__ */
 
 /*
  * Port Pin:PORT_G_PIN_2 Modes Configuration Container.
@@ -625,6 +637,134 @@ const Port_PinConfType ICUPortPins[] = {
 };
 #endif	/* __AS_CFG_PORT_ICU__ */
 
+#ifdef	__AS_CFG_PORT_ICU_ARISTON_TESTS__
+/*
+ * Ariston Tests ICU Port Pins Configuration.
+ */
+const Port_PinConfType AristonTestsICUPortPins[] = {
+  { /* T2 CCP0 */
+    PORT_PIN_IN,			/* PortPinDirection		      */
+    FALSE,				/* PortPinDirectionChangeable	      */
+    PORT_F_PIN_4,			/* PortPinId			      */
+    PORT_PIN_MODE_ICU,			/* PortPinInitialMode		      */
+    PORT_PIN_LEVEL_LOW,			/* PortPinLevelValue		      */
+    0x00000001,				/* PortPinModeNumber		      */
+    &PortPinsAristonTestsICUConf[0],	/* PortPinSupportedModes	      */
+    FALSE				/* PortPinModeChangeable	      */
+  },
+  { /* T2 CCP1 */
+    PORT_PIN_IN,			/* PortPinDirection		      */
+    FALSE,				/* PortPinDirectionChangeable	      */
+    PORT_F_PIN_5,			/* PortPinId			      */
+    PORT_PIN_MODE_ICU,			/* PortPinInitialMode		      */
+    PORT_PIN_LEVEL_LOW,			/* PortPinLevelValue		      */
+    0x00000001,				/* PortPinModeNumber		      */
+    &PortPinsAristonTestsICUConf[0],	/* PortPinSupportedModes	      */
+    FALSE				/* PortPinModeChangeable	      */
+  },
+    { /* T3 CCP0 */
+    PORT_PIN_IN,			/* PortPinDirection		      */
+    FALSE,				/* PortPinDirectionChangeable	      */
+    PORT_F_PIN_6,			/* PortPinId			      */
+    PORT_PIN_MODE_ICU,			/* PortPinInitialMode		      */
+    PORT_PIN_LEVEL_LOW,			/* PortPinLevelValue		      */
+    0x00000001,				/* PortPinModeNumber		      */
+    &PortPinsAristonTestsICUConf[0],	/* PortPinSupportedModes	      */
+    FALSE				/* PortPinModeChangeable	      */
+  },
+  { /* T3 CCP1 */
+    PORT_PIN_IN,			/* PortPinDirection		      */
+    FALSE,				/* PortPinDirectionChangeable	      */
+    PORT_F_PIN_7,			/* PortPinId			      */
+    PORT_PIN_MODE_ICU,			/* PortPinInitialMode		      */
+    PORT_PIN_LEVEL_LOW,			/* PortPinLevelValue		      */
+    0x00000001,				/* PortPinModeNumber		      */
+    &PortPinsAristonTestsICUConf[0],	/* PortPinSupportedModes	      */
+    FALSE				/* PortPinModeChangeable	      */
+  },
+  {
+    PORT_PIN_IN,			/* PortPinDirection		      */
+    FALSE,				/* PortPinDirectionChangeable	      */
+    PORT_M_PIN_0,			/* PortPinId			      */
+    PORT_PIN_MODE_DIO,			/* PortPinInitialMode		      */
+    PORT_PIN_LEVEL_LOW,			/* PortPinLevelValue		      */
+    0x00000001,				/* PortPinModeNumber		      */
+    &PortMPin0To4Conf[0],		/* PortPinSupportedModes	      */
+    FALSE				/* PortPinModeChangeable	      */
+  },
+  {
+    PORT_PIN_IN,			/* PortPinDirection		      */
+    FALSE,				/* PortPinDirectionChangeable	      */
+    PORT_M_PIN_1,			/* PortPinId			      */
+    PORT_PIN_MODE_DIO,			/* PortPinInitialMode		      */
+    PORT_PIN_LEVEL_LOW,			/* PortPinLevelValue		      */
+    0x00000001,				/* PortPinModeNumber		      */
+    &PortMPin0To4Conf[0],		/* PortPinSupportedModes	      */
+    FALSE				/* PortPinModeChangeable	      */
+  },
+  {
+    PORT_PIN_IN,			/* PortPinDirection		      */
+    FALSE,				/* PortPinDirectionChangeable	      */
+    PORT_M_PIN_2,			/* PortPinId			      */
+    PORT_PIN_MODE_DIO,			/* PortPinInitialMode		      */
+    PORT_PIN_LEVEL_LOW,			/* PortPinLevelValue		      */
+    0x00000001,				/* PortPinModeNumber		      */
+    &PortMPin0To4Conf[0],		/* PortPinSupportedModes	      */
+    FALSE				/* PortPinModeChangeable	      */
+  },
+  {
+    PORT_PIN_IN,			/* PortPinDirection		      */
+    FALSE,				/* PortPinDirectionChangeable	      */
+    PORT_M_PIN_3,			/* PortPinId			      */
+    PORT_PIN_MODE_DIO,			/* PortPinInitialMode		      */
+    PORT_PIN_LEVEL_LOW,			/* PortPinLevelValue		      */
+    0x00000001,				/* PortPinModeNumber		      */
+    &PortMPin0To4Conf[0],		/* PortPinSupportedModes	      */
+    FALSE				/* PortPinModeChangeable	      */
+  },
+  {
+    PORT_PIN_IN,			/* PortPinDirection		      */
+    FALSE,				/* PortPinDirectionChangeable	      */
+    PORT_M_PIN_4,			/* PortPinId			      */
+    PORT_PIN_MODE_DIO,			/* PortPinInitialMode		      */
+    PORT_PIN_LEVEL_LOW,			/* PortPinLevelValue		      */
+    0x00000001,				/* PortPinModeNumber		      */
+    &PortMPin0To4Conf[0],		/* PortPinSupportedModes	      */
+    FALSE				/* PortPinModeChangeable	      */
+  },
+  {
+    PORT_PIN_IN,			/* PortPinDirection		      */
+    FALSE,				/* PortPinDirectionChangeable	      */
+    PORT_C_PIN_4,			/* PortPinId			      */
+    PORT_PIN_MODE_SCI,			/* PortPinInitialMode		      */
+    PORT_PIN_LEVEL_HIGH,		/* PortPinLevelValue		      */
+    0x00000001,				/* PortPinModeNumber		      */
+    &PortCPin4Conf[0],			/* PortPinSupportedModes	      */
+    FALSE				/* PortPinModeChangeable	      */
+  },
+  {
+    PORT_PIN_OUT,			/* PortPinDirection		      */
+    FALSE,				/* PortPinDirectionChangeable	      */
+    PORT_C_PIN_5,			/* PortPinId			      */
+    PORT_PIN_MODE_SCI,			/* PortPinInitialMode		      */
+    PORT_PIN_LEVEL_HIGH,		/* PortPinLevelValue		      */
+    0x00000001,				/* PortPinModeNumber		      */
+    &PortCPin5Conf[0],			/* PortPinSupportedModes	      */
+    FALSE				/* PortPinModeChangeable	      */
+  },
+  { /* USER LED */
+    PORT_PIN_OUT,			/* PortPinDirection		      */
+    FALSE,				/* PortPinDirectionChangeable	      */
+    PORT_G_PIN_2,			/* PortPinId			      */
+    PORT_PIN_MODE_DIO,			/* PortPinInitialMode		      */
+    PORT_PIN_LEVEL_LOW,			/* PortPinLevelValue		      */
+    0x00000001,				/* PortPinModeNumber		      */
+    &PortGPin2Conf[0],			/* PortPinSupportedModes	      */
+    FALSE				/* PortPinModeChangeable	      */
+  }
+};
+#endif	/* __AS_CFG_PORT_ICU_ARISTON_TESTS__ */
+
 #ifdef	__AS_CFG_PORT_KEIL_ULINK_PRO__
 /*
  * KEIL ULINK Pro Port Pins Configuration.
@@ -711,9 +851,15 @@ const Port_ConfigType Port_Config[] = {
     &SPIENC28J60PortPins[0]	/* PortPins		*/
   },
 #ifdef	__AS_CFG_PORT_ICU__
-  { /* PORT_CONFIG_KEIL_ULINK_PRO */
+  { /* PORT_CONFIG_ICU */
     10U,			/* PortNumberOfPortPins	*/
     &ICUPortPins[0]		/* PortPins		*/
+  },
+#endif
+#ifdef	__AS_CFG_PORT_ICU_ARISTON_TESTS__
+  { /* PORT_CONFIG_ARISTON_TESTS_ICU */
+    12U,			/* PortNumberOfPortPins	*/
+    &AristonTestsICUPortPins[0]	/* PortPins		*/
   },
 #endif
 #ifdef	__AS_CFG_PORT_KEIL_ULINK_PRO__

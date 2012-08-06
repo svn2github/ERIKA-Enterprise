@@ -110,6 +110,15 @@ const Dio_ChannelType	DioPortDICUChannels[] = {
   DIO_CHANNEL_ICU_PERIOD_TIME
 };
 #endif	/* __AS_CFG_DIO_ICU__ */
+
+#ifdef	__AS_CFG_DIO_ICU_ARISTON_TESTS__
+const Dio_ChannelType	DioPortAristonTestsICUChannels[] = {
+  DIO_CHANNEL_ARISTON_TESTS_ICU_LOW_TIME,
+  DIO_CHANNEL_ARISTON_TESTS_ICU_HIGH_TIME,
+  DIO_CHANNEL_ARISTON_TESTS_ICU_PERIOD_TIME,
+  DIO_CHANNEL_ARISTON_TESTS_ICU_DUTY_CYCLE,
+};
+#endif	/* __AS_CFG_DIO_ICU_ARISTON_TESTS__ */
 /*
  * DIO149_Conf:	The DIO channel group is identified in DIO API by a
  * 		pointer to a data structure (of type Dio_ChannelGroupType).
@@ -159,6 +168,16 @@ const Dio_ChannelGroupType DioPortDICUChannelsGroups[] = {
     0x000000C0,			/* mask				 */
     0x00000006,			/* offest			 */
     DIO_PORT_ICU		/* port				 */
+  }
+};
+#endif	/* __AS_CFG_DIO_ICU__ */
+
+#ifdef	__AS_CFG_DIO_ICU_ARISTON_TESTS__
+const Dio_ChannelGroupType DioPortAristonTestsICUChannelsGroups[] = {
+  { /* DIO_CHANNEL_GROUP_ARISTON_TESTS_ICU */
+    0x000000F0,			/* mask				 */
+    0x00000004,			/* offest			 */
+    DIO_PORT_ARISTON_TESTS_ICU	/* port				 */
   }
 };
 #endif	/* __AS_CFG_DIO_ICU__ */
@@ -248,6 +267,32 @@ const Dio_PortConfType Dio_ICUPorts[] = {
 };
 #endif	/* __AS_CFG_DIO_ICU__ */
 
+#ifdef	__AS_CFG_DIO_ICU_ARISTON_TESTS__
+const Dio_PortConfType Dio_AristonTestsICUPorts[] = {
+  { /* PORT F */
+    DIO_PORT_ARISTON_TESTS_ICU,			/* DioPortId		      */
+    0x00000004,					/* DioNumberOfChannels	      */
+    &DioPortAristonTestsICUChannels[0],		/* Dio_Channels		      */
+    0x00000001,					/* DioNumberOfChannelsGroups  */
+    &DioPortAristonTestsICUChannelsGroups[0]	/* Dio_ChannelsGroups	      */
+  },
+  { /* PORT G */
+    DIO_PORT_USER_LED,			/* DioPortId			 */
+    0x00000001,				/* DioNumberOfChannels		 */
+    &DioPortGChannels[0],		/* Dio_Channels			 */
+    0x00000001,				/* DioNumberOfChannelsGroups	 */
+    &DioPortGChannelsGroups[0]		/* Dio_ChannelsGroups		 */
+  },
+  { /* PORT_M */
+    DIO_PORT_USER_SWITCHES,		/* DioPortId			 */
+    0x00000005,				/* DioNumberOfChannels		 */
+    &DioPortMChannels[0],		/* Dio_Channels			 */
+    0x00000001,				/* DioNumberOfChannelsGroups	 */
+    &DioPortMChannelsGroups[0]		/* Dio_ChannelsGroups		 */
+  },
+};
+#endif	/* __AS_CFG_DIO_ICU_ARISTON_TESTS__ */
+
 /*
  * DIO152_Conf:	This container contains the configuration parameters and sub
  * 		containers of the AUTOSAR DIO module. This container is a
@@ -277,4 +322,10 @@ const Dio_ConfigType Dio_Config[] = {
     &Dio_ICUPorts[0]	/* DioPorts		*/
   },
 #endif	/* __AS_CFG_DIO_ICU__ */
+#ifdef	__AS_CFG_DIO_ICU_ARISTON_TESTS__
+  { /* DIO_CONFIG_ARISTION_TESTS_ICU */
+    0x00000003,				/* DioNumberOfPorts	*/
+    &Dio_AristonTestsICUPorts[0]	/* DioPorts		*/
+  },
+#endif	/* __AS_CFG_DIO_ICU_ARISTON_TESTS__ */
 };
