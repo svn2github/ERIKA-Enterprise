@@ -657,7 +657,8 @@ WARN_LOGFILE		=	"warnings.log"
 INPUT			=	"../../../../include" \
 				"../config" \
 				"../include/Compiler.h" \
-				"../include/Platform_Types.h"
+				"../include/Platform_Types.h" \
+				"../include/WdgSysClk.h"
 
 # This tag can be used to specify the character encoding of the source files
 # that doxygen parses. Internally doxygen uses the UTF-8 encoding, which is
@@ -1530,6 +1531,9 @@ PREDEFINED		=	\
 				DMA_PING_PONG_API=STD_ON \
 				DMA_SCATTER_GATHER_API=STD_ON \
 				DMA_NOTIFICATIONS_API=STD_ON \
+				\
+				WDG_SYSCLK_DISABLE_ALLOWED=STD_ON \
+				WDG_SYSCLK_VERSION_INFO_API \
 				\
 
 # If the MACRO_EXPANSION and EXPAND_ONLY_PREDEF tags are set to YES then

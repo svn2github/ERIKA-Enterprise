@@ -154,6 +154,18 @@ endif
 endif	# __NO_APP__
 endif	# __AS_SPI_DRIVER__
 
+ifeq ($(call iseeopt, __AS_WDG_SYSCLK_DRIVER__), yes)
+EE_SRCS_AUTOSAR += contrib/as/arch/stellaris/keil/drivers/WdgSysClk.c
+EE_SRCS_AUTOSAR += contrib/as/arch/stellaris/keil/drivers/Wdg_SysClkIrq.c
+ifeq ($(call iseeopt, __NO_APP__), yes)
+ifneq ($(filter %Wdg_SysClkCfg.c, $(APP_SRCS)),)
+EE_SRCS_AUTOSAR += $(filter %Wdg_SysClkCfg.c, $(APP_SRCS))
+else
+EE_SRCS_AUTOSAR += $(OUTBASE)/Wdg_SysClkCfg.c
+endif
+endif	# __NO_APP__
+endif	# __AS_WDG_SYSCLK_DRIVER__
+
 endif # __STELLARIS__ && __KEIL__
 
 ifeq ($(and $(call iseeopt, EE_MPC5643L), $(call iseeopt, __CODEWARRIOR__)), yes)
