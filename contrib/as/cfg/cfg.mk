@@ -86,6 +86,11 @@ EE_SRCS += contrib/as/arch/stellaris/keil/drivers/Spi_Irq.c
 EE_SRCS += contrib/as/arch/stellaris/keil/drivers/Spi_Handler.c
 endif
 
+ifeq ($(call iseeopt, __AS_WDG_PIOSC_DRIVER__), yes)
+EE_SRCS += contrib/as/arch/stellaris/keil/drivers/WdgPIOsc.c
+EE_SRCS += contrib/as/arch/stellaris/keil/drivers/Wdg_PIOscIrq.c
+endif
+
 ifeq ($(call iseeopt, __AS_WDG_SYSCLK_DRIVER__), yes)
 EE_SRCS += contrib/as/arch/stellaris/keil/drivers/WdgSysClk.c
 EE_SRCS += contrib/as/arch/stellaris/keil/drivers/Wdg_SysClkIrq.c

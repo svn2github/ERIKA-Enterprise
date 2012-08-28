@@ -658,6 +658,7 @@ INPUT			=	"../../../../include" \
 				"../config" \
 				"../include/Compiler.h" \
 				"../include/Platform_Types.h" \
+				"../include/WdgPIOsc.h" \
 				"../include/WdgSysClk.h"
 
 # This tag can be used to specify the character encoding of the source files
@@ -1532,8 +1533,11 @@ PREDEFINED		=	\
 				DMA_SCATTER_GATHER_API=STD_ON \
 				DMA_NOTIFICATIONS_API=STD_ON \
 				\
+				WDG_PIOSC_DISABLE_ALLOWED=STD_ON \
+				WDG_PIOSC_VERSION_INFO_API=STD_ON \
+				\
 				WDG_SYSCLK_DISABLE_ALLOWED=STD_ON \
-				WDG_SYSCLK_VERSION_INFO_API \
+				WDG_SYSCLK_VERSION_INFO_API=STD_ON \
 				\
 
 # If the MACRO_EXPANSION and EXPAND_ONLY_PREDEF tags are set to YES then
