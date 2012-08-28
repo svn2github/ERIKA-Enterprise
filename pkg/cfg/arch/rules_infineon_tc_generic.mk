@@ -148,25 +148,32 @@ TARGET_LD_FILE = $(call target_ld_file,$(TARGETFILE))
 
 .PHONY: all clean
 
-all: make_directories $(ALL_LIBS) $(TARGET) 
-	@printf "************************************\n\n"
-	@printf "Compilation terminated successfully!\n"
+all: make_directories $(ALL_LIBS) $(TARGET) t32.cmm
+# The success message is printed by the $(TARGET) rule, so we get a "Nothing
+# do be done" message when everything is up to date
 
 clean:
 	@printf "CLEAN\n" ;
 	@-rm -rf *.a *.ld *.map *.elf *.objdump t32* obj *.men *.sh *.bin
-
-$(TARGET_NAME).objdump: $(TARGET_NAME).elf
-	@echo "Executable Dump"
-	$(QUIET)$(EE_OBJDUMP) $(OPT_OBJDUMP) $(SOURCEFILE) > $(TARGETFILE)
+##
+## Lauterbach targets
+##
+t32.cmm: $(PKGBASE)/cpu/tricore/cfg/t32_$(TRICORE1_MODEL).cmm
+	$(QUIET)sed -e 's:#EXE_NAME#:$(TARGET_NAME).elf:g'	$< > $@
 
 #
 # --------------------------------------------------------------------------
 #
 
 ### Target file creation ###
+$(TARGET_NAME).objdump: $(TARGET_NAME).elf
+	@echo "Executable dump on file $@"
+	$(QUIET)$(EE_OBJDUMP) $(OPT_OBJDUMP) $(SOURCEFILE) > $(TARGETFILE)
+	@echo "************************************"
+	@echo "Compilation terminated successfully!"
+
 $(TARGET_NAME).elf: $(OBJS) $(LINKDEP) $(LIBDEP) 
-	@echo "LD $(SOURCEFILE)";
+	@echo "LD $@";
 	$(QUIET)$(EE_LINK) $(COMPUTED_OPT_LINK) $(TARGET_LD_FILE) $(OBJS) $(LIBDEP)
 	
 # produce the object file from assembly code in a single step
@@ -185,9 +192,9 @@ $(OBJDIR)/%.o: %.c
 ## EE Library
 ##
 $(ERIKALIB): $(LIBEEOBJS)
-	@echo "AR $(SOURCEFILE)\n"
-	$(QUIET)rm -f $(TARGETFILE)
-	$(QUIET)$(EE_AR) $(OPT_AR) $(TARGETFILE) $(LIBEEOBJS)
+	@echo "AR $@"
+	$(QUIET)rm -f $@
+	$(QUIET)$(EE_AR) $(OPT_AR) $(ERIKALIB) $(LIBEEOBJS)
 
 ##
 ## Directories

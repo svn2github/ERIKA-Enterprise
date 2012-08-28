@@ -56,7 +56,7 @@
 EE_LINK ?= $(TRICORE1_TASKINGDIR)/ctc/bin/cctc.exe
 EE_ASM  ?= $(TRICORE1_TASKINGDIR)/ctc/bin/cctc.exe
 EE_CC   ?= $(TRICORE1_TASKINGDIR)/ctc/bin/cctc.exe
-EE_AR   ?= $(TRICORE1_TASKINGDIR)/ctc/bin/cctc.exe
+EE_AR   ?= $(TRICORE1_TASKINGDIR)/ctc/bin/artc.exe
 EE_OBJDUMP ?= $(TRICORE1_TASKINGDIR)/ctc/bin/hldumptc.exe
 
 ifneq ($(ONLY_LIBS), TRUE)
@@ -150,8 +150,8 @@ OPT_LINK += $(LDFLAGS)
 #Functions to be used to wrap with right options target for Linker:
 target_ld_file=$(addprefix -o ,$1)
 
-# Options for Archiver (Default is ok)
-OPT_AR +=
+# Options for Archiver
+OPT_AR += -r -c
 
 # Option for OBJDUMP Command (the following is the default and it's ok, added just to remember that)
 OPT_OBJDUMP += --dump-format=dhmsy
