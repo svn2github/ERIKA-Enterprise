@@ -289,8 +289,14 @@ endif
 ifeq ($(and $(call iseeopt, __TRICORE1_TASKING___), \
 	$(call iseeopt, __TC1775B__)), yes)
 include $(EEBASE)/pkg/cfg/arch/rules_infineon_tc1775b.mk
-endif
+endif # __TRICORE1_TASKING___ AND __TC1775B__
 
+##
+## Infineon Tricore - Tasking under Windows
+##########################################################################
+ifeq ($(call iseeopt,__TRICORE_TASKING__), yes)
+include $(EEBASE)/pkg/cfg/arch/rules_infineon_tc_generic.mk
+endif
 
 ##
 ## Infineon Tricore - GNU
