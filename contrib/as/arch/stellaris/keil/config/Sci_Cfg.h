@@ -570,6 +570,13 @@ typedef struct {
 #define	ARISTON_TESTS_SCI_CHANNELS_NUMBER	0x00000001
 #endif	/* __AS_CFG_SCI_ARISTON_TESTS__ */
 
+#ifdef	__AS_CFG_SCI_WDG_PIOSC_TESTS__
+/** WdgPIOsc Tests Sci Debug Channel. */
+#define	SCI_CHANNEL_WDG_PIOSC_TESTS_DEBUG	SCI_CHANNEL_4
+/** WdgPIOsc Tests Sci Channels Number. */
+#define	WDG_PIOSC_TESTS_SCI_CHANNELS_NUMBER	0x00000001
+#endif	/* __AS_CFG_SCI_WDG_PIOSC_TESTS__ */
+
 /** @brief	Channel 4 Transmission Notifications Callback
  *
  *  The notification prototype <tt>Sci_TxNotification_Channel_4()</tt> is for
@@ -721,5 +728,22 @@ typedef struct {
  */
 #define	SCI_CONFIG_ARISTON_TESTS_PTR	&Sci_Config[SCI_CONFIG_ARISTON_TESTS]
 #endif	/* __AS_CFG_SCI_ARISTON_TESTS__ */
+
+#ifdef	__AS_CFG_SCI_WDG_PIOSC_TESTS__
+/** @brief	WdgPIOsc Tests Configuration
+ *
+ *  Identifier for WdgPIOsc Tests SCI Driver Configuration.
+ */
+#ifdef	__AS_CFG_SCI_ARISTON_TESTS__
+#define	SCI_CONFIG_WDG_PIOSC_TESTS	0x00000002
+#else	/* __AS_CFG_SCI_ARISTON_TESTS__ */
+#define	SCI_CONFIG_WDG_PIOSC_TESTS	0x00000001
+#endif	/* !__AS_CFG_SCI_ARISTON_TESTS__ */
+/** @brief	WdgPIOsc Tests Configuration Pointer
+ *
+ *  Pointer of WdgPIOsc Tests SCI Driver Configuration
+ */
+#define	SCI_CONFIG_WDG_PIOSC_TESTS_PTR	&Sci_Config[SCI_CONFIG_WDG_PIOSC_TESTS]
+#endif	/* __AS_CFG_SCI_WDG_PIOSC_TESTS__ */
 
 #endif	/* SCI_CFG_H */
