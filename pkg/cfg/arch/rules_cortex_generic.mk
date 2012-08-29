@@ -108,6 +108,26 @@ endif	# __LM4F232xxxx__
 TARGET_NAME = c_mX
 endif	# __STELLARIS__
 
+ifeq ($(call iseeopt, __STM32__), yes)
+#~ STM32_MODEL
+#~ STM32_LINKERSCRIPT
+#~ STM32_INCLUDE_C
+#~ STM32_INCLUDE_S
+#~ STM32_STARTUP
+ifneq ($(call iseeopt, __STM32F4xx__), yes)
+CORTEX_MCU_MODEL = $(STM32_MODEL)
+CORTEX_MCU_STARTUP = $(STM32_STARTUP)
+CORTEX_MCU_LINKERSCRIPT = $(STM32_LINKERSCRIPT)
+else	# !__STM32F4xx__
+CORTEX_MCU_MODEL = __STM32F4xx__
+ifeq ($(call iseeopt, __KEIL__), yes)
+CORTEX_MCU_LINKERSCRIPT = $(EEBASE)/pkg/mcu/st_stm32_stm32f4xx/src/template.sct
+endif	# __KEIL__
+CORTEX_MCU_STARTUP = $(CRT0_SRCS)
+endif	# __STM32F4xx__
+TARGET_NAME = c_mX
+endif	# __STM32__
+
 ifeq ($(call iseeopt, __LPCXPRESSO__), yes)
 #~ LPCXPRESSO_MODEL
 #~ LPCXPRESSO_LINKERSCRIPT

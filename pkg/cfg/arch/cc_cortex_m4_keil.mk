@@ -188,6 +188,7 @@ OPT_LINK += --strict --map --xref --callgraph  --symbols \
 	    --summary_stderr --info summarysizes --info sizes --info totals \
 	    --info unused --info veneers --info libraries
 
+ifeq ($(call iseeopt, __STELLARIS__), yes)
 ifndef STELLARIS_LINKERSCRIPT
 
 OPT_LINK += --ro-base 0x00000000 --rw-base 0x20000000 \
@@ -200,6 +201,7 @@ OPT_LINK += --entry EE_cortex_mx_default_reset_ISR
 endif
 
 endif	# STELLARIS_LINKERSCRIPT
+endif	# __STELLARIS__
 
 # Specific option from the application makefile
 OPT_LINK += $(LDFLAGS)

@@ -218,6 +218,11 @@ extern "C" {
 #include "mcu/ti_stellaris_lm4f232xxxx/inc/ee_mcu.h"
 #endif
 
+/* ST */
+#if defined( __STM32__ ) && defined( __STM32F4xx__ )
+#include "mcu/st_stm32_stm32f4xx/inc/ee_mcu.h"
+#endif
+
 /* Renesas RX200*/
 #if defined( __RX200__ ) && defined( __R5F5210x__ )
 #include "mcu/renesas_r5f5210x/inc/ee_mcu.h"
