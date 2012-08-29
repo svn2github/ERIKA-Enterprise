@@ -51,9 +51,6 @@
 
 #ifdef	__USE_SYSTICK__
 
-#ifdef __CCRX__
-#pragma inline (EE_systick_set_period)
-#endif
 __INLINE__ void __ALWAYS_INLINE__ EE_systick_set_period(EE_UINT8 tc, EE_UINT8 pre)
 {
 	/*Set prescaler for PCLK*/
@@ -61,9 +58,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_systick_set_period(EE_UINT8 tc, EE_UINT8 pr
 	TMR0.TCORA = tc;//tc -> match A reg
 }
 
-#ifdef __CCRX__
-#pragma inline (EE_systick_enable_int)
-#endif
+
 __INLINE__ void __ALWAYS_INLINE__ EE_systick_enable_int(void)
 {
 	/*
@@ -79,9 +74,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_systick_enable_int(void)
 	
 }
 
-#ifdef __CCRX__
-#pragma inline (EE_systick_set_IRQ_pri)
-#endif
+
 /*Enable TIMER0 module*/
 __INLINE__ void __ALWAYS_INLINE__ EE_systick_set_IRQ_pri(EE_UINT8 pri)
 {
@@ -93,18 +86,13 @@ __INLINE__ void __ALWAYS_INLINE__ EE_systick_set_IRQ_pri(EE_UINT8 pri)
 }
 
 
-#ifdef __CCRX__
-#pragma inline (EE_systick_start)
-#endif
+
 /*Enable TIMER0 module*/
 __INLINE__ void __ALWAYS_INLINE__ EE_systick_start(void)
 {
 	SYSTEM.MSTPCRA.BIT.MSTPA5 = 0;
 }
 
-#ifdef __CCRX__
-#pragma inline (EE_systick_stop)
-#endif
 /*Stop TIMER0 module*/
 __INLINE__ void __ALWAYS_INLINE__ EE_systick_stop(void)
 {

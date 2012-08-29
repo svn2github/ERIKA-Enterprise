@@ -55,9 +55,7 @@
  */
 
 #ifdef __USE_RSKRX120_USER_LED__
-#ifdef __CCRX__
-#pragma inline (EE_rskrx210_leds_init)
-#endif
+
 /** @brief Initialize board leds defined by mask */
 __INLINE__  void EE_rskrx210_leds_init(EE_UINT8 mask)
 {
@@ -70,9 +68,7 @@ __INLINE__  void EE_rskrx210_leds_init(EE_UINT8 mask)
 	if (mask & 0x8)
 		PORT1.PDR.BIT.B7 = 1;
 }
-#ifdef __CCRX__
-#pragma inline (EE_rskrx210_leds_on)
-#endif
+
 /** @brief User leds on **/
 __INLINE__ void __ALWAYS_INLINE__ EE_rskrx210_leds_on(void)
 {
@@ -82,9 +78,6 @@ __INLINE__ void __ALWAYS_INLINE__ EE_rskrx210_leds_on(void)
 	PORT1.PODR.BIT.B7 = 0;	
 }
 
-#ifdef __CCRX__
-#pragma inline (EE_rskrx210_leds_off)
-#endif
 /** @brief User leds off **/
 __INLINE__ void __ALWAYS_INLINE__ EE_rskrx210_leds_off(void)
 {
@@ -94,9 +87,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_rskrx210_leds_off(void)
 	PORT1.PODR.BIT.B7 = 1;	
 }
 
-#ifdef __CCRX__
-#pragma inline (EE_rskrx210_leds_toggle)
-#endif
+
 /** @brief User leds toggle **/
 __INLINE__ void __ALWAYS_INLINE__ EE_rskrx210_leds_toggle(void)
 {
@@ -106,102 +97,73 @@ __INLINE__ void __ALWAYS_INLINE__ EE_rskrx210_leds_toggle(void)
 	PORT1.PODR.BIT.B7 = PORT1.PODR.BIT.B7 ^ 1;
 }
 
-#ifdef __CCRX__
-#pragma inline (EE_rskrx210_led0_on)
-#endif
 /** @brief User led0 on **/
 __INLINE__ void __ALWAYS_INLINE__ EE_rskrx210_led0_on(void)
 {
 	PORT1.PODR.BIT.B4 = 0;
 }
-#ifdef __CCRX__
-#pragma inline (EE_rskrx210_led0_off)
-#endif
+
 /** @brief User led0 off **/
 __INLINE__ void __ALWAYS_INLINE__ EE_rskrx210_led0_off(void)
 {
 	PORT1.PODR.BIT.B4 = 1;
 }
-#ifdef __CCRX__
-#pragma inline (EE_rskrx210_led0_toggle)
-#endif
+
 /** @brief User led0 toggle **/
 __INLINE__ void __ALWAYS_INLINE__ EE_rskrx210_led0_toggle(void)
 {
 	PORT1.PODR.BIT.B4 =  PORT1.PODR.BIT.B4 ^ 1;
 }
 
-#ifdef __CCRX__
-#pragma inline (EE_rskrx210_led1_on)
-#endif
 /** @brief User led1 on **/
 __INLINE__ void __ALWAYS_INLINE__ EE_rskrx210_led1_on(void)
 {
 	PORT1.PODR.BIT.B5 = 0;
 }
-#ifdef __CCRX__
-#pragma inline (EE_rskrx210_led1_off)
-#endif
+
 /** @brief User led1 off **/
 __INLINE__ void __ALWAYS_INLINE__ EE_rskrx210_led1_off(void)
 {
 	PORT1.PODR.BIT.B5 = 1;
 }
 
-#ifdef __CCRX__
-#pragma inline (EE_rskrx210_led1_toggle)
-#endif
 /** @brief User led1 toggle **/
 __INLINE__ void __ALWAYS_INLINE__ EE_rskrx210_led1_toggle(void)
 {
 	PORT1.PODR.BIT.B5 =  PORT1.PODR.BIT.B5 ^ 1;
 }
 
-#ifdef __CCRX__
-#pragma inline (EE_rskrx210_led2_on)
-#endif
 /** @brief User led2 on **/
 __INLINE__ void __ALWAYS_INLINE__ EE_rskrx210_led2_on(void)
 {
 	PORT1.PODR.BIT.B6 = 0;
 }
 
-#ifdef __CCRX__
-#pragma inline (EE_rskrx210_led2_off)
-#endif
 /** @brief User led2 off **/
 __INLINE__ void __ALWAYS_INLINE__ EE_rskrx210_led2_off(void)
 {
 	PORT1.PODR.BIT.B6 = 1;
 }
 
-#ifdef __CCRX__
-#pragma inline (EE_rskrx210_led2_toggle)
-#endif
+
 /** @brief User led2 toggle **/
 __INLINE__ void __ALWAYS_INLINE__ EE_rskrx210_led2_toggle(void)
 {
 	PORT1.PODR.BIT.B6 =  PORT1.PODR.BIT.B6 ^ 1;
 }
-#ifdef __CCRX__
-#pragma inline (EE_rskrx210_led3_on)
-#endif
+
 /** @brief User led3 on **/
 __INLINE__ void __ALWAYS_INLINE__ EE_rskrx210_led3_on(void)
 {
 	PORT1.PODR.BIT.B7 = 0;
 }
-#ifdef __CCRX__
-#pragma inline (EE_rskrx210_led3_off)
-#endif
+
 /** @brief User led3 off **/
 __INLINE__ void __ALWAYS_INLINE__ EE_rskrx210_led3_off(void)
 {
 	PORT1.PODR.BIT.B7 = 1;
 }
-#ifdef __CCRX__
-#pragma inline (EE_rskrx210_led3_toggle)
-#endif
+
 /** @brief User led3 toggle **/
 __INLINE__ void __ALWAYS_INLINE__ EE_rskrx210_led3_toggle(void)
 {
@@ -211,9 +173,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_rskrx210_led3_toggle(void)
 #endif /* __USE_RSKRX120_USER_LED__ */
 
 #ifdef __USE_RSKRX120_BUTTONS__
-#ifdef __CCRX__
-#pragma inline (EE_rskrx210_buttons_pins_init)
-#endif
+
 
 /** @brief Buttons initialization **/
 __INLINE__ void __ALWAYS_INLINE__ EE_rskrx210_buttons_pins_init(EE_UINT8 mask)
@@ -226,9 +186,6 @@ __INLINE__ void __ALWAYS_INLINE__ EE_rskrx210_buttons_pins_init(EE_UINT8 mask)
 		PORT3.PDR.BIT.B4 = 0;
 }
 
-#ifdef __CCRX__
-#pragma inline (EE_rskrx210_buttons_IRQ_init)
-#endif
 /** @brief Initialize board buttons ISRs as defined by mask */	
 __INLINE__ void __ALWAYS_INLINE__ EE_rskrx210_buttons_IRQ_init(EE_UINT8 mask)
 {
@@ -270,73 +227,47 @@ __INLINE__ void __ALWAYS_INLINE__ EE_rskrx210_buttons_IRQ_init(EE_UINT8 mask)
 	}
 }
 
-#ifdef __CCRX__
-#pragma inline (EE_b1_not_pressed)
-#endif
 __INLINE__ EE_UINT8 __ALWAYS_INLINE__ EE_b1_not_pressed(void)
 {
 	 return PORT3.PIDR.BIT.B1;
 }
 
-#ifdef __CCRX__
-#pragma inline (EE_b2_not_pressed)
-#endif
 __INLINE__ EE_UINT8 __ALWAYS_INLINE__ EE_b2_not_pressed(void)
 {
 	 return PORT3.PIDR.BIT.B3;
 }
 
-#ifdef __CCRX__
-#pragma inline (EE_b3_not_pressed)
-#endif
+
 __INLINE__ EE_UINT8 __ALWAYS_INLINE__ EE_b3_not_pressed(void)
 {
 	 return PORT3.PIDR.BIT.B4;
 }
 
-#ifdef __CCRX__
-#pragma inline (EE_b1_disable_IRQ)
-#endif
 __INLINE__ void __ALWAYS_INLINE__ EE_b1_disable_IRQ(void)
 {
 	 	ICU.IER[IER_ICU_IRQ1].BIT.IEN_ICU_IRQ1 = 0;
 }
 
-#ifdef __CCRX__
-#pragma inline (EE_b1_enable_IRQ)
-#endif
 __INLINE__ void __ALWAYS_INLINE__ EE_b1_enable_IRQ(void)
 {
 	 	ICU.IER[IER_ICU_IRQ1].BIT.IEN_ICU_IRQ1 = 1;
 }
 
-#ifdef __CCRX__
-#pragma inline (EE_b2_disable_IRQ)
-#endif
 __INLINE__ void __ALWAYS_INLINE__ EE_b2_disable_IRQ(void)
 {
 	ICU.IER[IER_ICU_IRQ3].BIT.IEN_ICU_IRQ3 = 0;
 }
 
-#ifdef __CCRX__
-#pragma inline (EE_b2_enable_IRQ)
-#endif
 __INLINE__ void __ALWAYS_INLINE__ EE_b2_enable_IRQ(void)
 {
 	ICU.IER[IER_ICU_IRQ3].BIT.IEN_ICU_IRQ3 = 1;
 }
 
-#ifdef __CCRX__
-#pragma inline (EE_b3_disable_IRQ)
-#endif
 __INLINE__ void __ALWAYS_INLINE__ EE_b3_disable_IRQ(void)
 {
 	ICU.IER[IER_ICU_IRQ4].BIT.IEN_ICU_IRQ4 = 0;
 }
 
-#ifdef __CCRX__
-#pragma inline (EE_b3_enable_IRQ)
-#endif
 __INLINE__ void __ALWAYS_INLINE__ EE_b3_enable_IRQ(void)
 {
 	ICU.IER[IER_ICU_IRQ4].BIT.IEN_ICU_IRQ4 = 1;
@@ -350,9 +281,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_b3_enable_IRQ(void)
  */
 
 #ifdef __USE_RSKRX210_OP_FREQ_SETUP__
-#ifdef __CCRX__
-#pragma inline (EE_rskrx210_op_freq_setup)
-#endif
+
 /** @brief Operating Frequencies setup **/
 __INLINE__ void __ALWAYS_INLINE__ EE_rskrx210_op_freq_setup(void) 
 {

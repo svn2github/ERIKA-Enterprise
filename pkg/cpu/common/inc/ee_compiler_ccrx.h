@@ -54,9 +54,21 @@
 
 #include <machine.h>
 
-#define __INLINE__ static 
+#define __ALWAYS_INLINE__  
+
+/* __INLINE__ is a macro already used by a lot of libraries: protect it for
+   integration */
+#ifndef __INLINE__
+#ifdef __NO_INLINE__
+#define __INLINE__ static
+/* Used to declare an inline function before the actual definition */
 #define __DECLARE_INLINE__ static
-#define __ALWAYS_INLINE__   
+#else
+#define __INLINE__ static inline
+/* Used to declare an inline function before the actual definition */
+#define __DECLARE_INLINE__ static inline
+#endif
+#endif /* !__INLINE__ */
 
 /*the compiler has not "noreturn" support*/
 //#define NORETURN  __attribute__ ((noreturn))

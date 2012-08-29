@@ -130,10 +130,11 @@ RX200 interrupt disabling/enabling
 
 #pragma inline_asm (EE_rx200_enableIRQ, EE_rx200_disableIRQ, EE_rx200_suspendIRQ, EE_rx200_resumeIRQ, EE_rx200_get_IRQ_enabled)
 
+
 /**
  * Enable interrupts
  */
-__INLINE__ void __ALWAYS_INLINE__ EE_rx200_enableIRQ()
+static void EE_rx200_enableIRQ()
 {
 	SETPSW I;
 }
@@ -141,7 +142,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_rx200_enableIRQ()
 /**
  * Disable interrupts
  */
-__INLINE__ void __ALWAYS_INLINE__ EE_rx200_disableIRQ()
+static void EE_rx200_disableIRQ()
 {
 	CLRPSW I;
 }
@@ -150,7 +151,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_rx200_disableIRQ()
  * Supend interrupts
  * Return value is in R1
  */
-__INLINE__ EE_FREG __ALWAYS_INLINE__ EE_rx200_suspendIRQ()
+static EE_FREG EE_rx200_suspendIRQ()
 {
 	MVFC PSW, R1;
 	CLRPSW I;
@@ -160,7 +161,7 @@ __INLINE__ EE_FREG __ALWAYS_INLINE__ EE_rx200_suspendIRQ()
  * Resume interrupts
  * Note: sr is stord in R1
  */
-__INLINE__ void __ALWAYS_INLINE__ EE_rx200_resumeIRQ(EE_FREG sr)
+static void EE_rx200_resumeIRQ(EE_FREG sr)
 {
 /*
 	if (sr & 0b10000000000000000)
@@ -175,13 +176,12 @@ __INLINE__ void __ALWAYS_INLINE__ EE_rx200_resumeIRQ(EE_FREG sr)
 EE_CLEAR_INT:	
 	CLRPSW I;
 EE_RESUME_IRQ_END:
-
 }
 
 /**
  * Return true (not 0) if IRQs are enabled, 0 (false) if IRQ are disabled.
  */
-__INLINE__ EE_UINT32 __ALWAYS_INLINE__ EE_rx200_get_IRQ_enabled(void)
+static EE_UINT32 EE_rx200_get_IRQ_enabled(void)
 {
 	MVFC PSW, R1;
 	BZ	EE_IRQ_DISABLED;

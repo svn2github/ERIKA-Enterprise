@@ -61,6 +61,8 @@ include $(EEBASE)/pkg/cfg/dir.mk
 include $(PKGBASE)/cfg/verbose.mk
 include $(PKGBASE)/cfg/compiler.mk
 
+RXGCC_LIB_DIR := $(RXGCCDIR)/lib
+
 ifneq ($(ONLY_LIBS), TRUE)
 
 ifneq ($(call iseeopt, __BIN_DISTR), yes)
@@ -73,6 +75,15 @@ endif	# ONLY_LIBS
 
 #Add runtime library to dependencies
 LIBDEP += $(RUNTIMELIB)
+
+
+# Libraries from MC
+OPT_LIBS +=  -l "nosys" -l "gcc" -l "c" -l "m"
+
+# check if RX_LIB_DIR is empty
+ifneq ($(RX_LIB_DIR),)
+OPT_LIBS += -L $(call native_path,$(RX_LIB_DIR))
+endif
 
 #Includes from Compiler
 INCLUDE_PATH += $(RX_INCLUDE_DIR)
@@ -174,7 +185,11 @@ COMPUTED_OPT_AR := $(OPT_AR)
 #COMPUTED_OPT_OBJDUMP := $(OPT_OBJDUMP)
 
 ifdef RX200_MCU_LINKERSCRIPT
+ifeq ($(call iseeopt, __CCRX__), yes)
 COMPUTED_LINKERSCRIPT := -lnkcmd $(call native_path, $(RX_MCU_LINKERSCRIPT))
+else
+COMPUTED_LINKERSCRIPT := -T
+endif 	# __CCRX__
 endif	# RX200_MCU_LINKERSCRIPT
 
 ## Select input filename format ##
@@ -198,8 +213,12 @@ clean:
 ### Target file creation ###
 $(TARGET_NAME).$(RX_OUT_EXTENSION): $(OBJS) $(LINKDEP) $(LIBDEP) 
 	@echo "LD $(TARGET_NAME).$(RX_OUT_EXTENSION)";
+ifeq ($(call iseeopt, __CCRX__), yes)	
 	$(QUIET)$(EE_LINK) $(COMPUTED_OPT_LINK) -output=$@ $(OBJS) $(LIBEEOBJS)
-	
+else
+	$(QUIET)$(EE_LINK) $(COMPUTED_OPT_LINK) -o $(TARGETFILE) $(OBJS) \
+                     --start-group $(OPT_LIBS) --end-group -M > rx200.map
+endif	
 	
 ### Object file creation ###
 

@@ -51,16 +51,12 @@
 
 #ifdef __CCRX__
 #include "cpu/common/inc/ee_compiler_ccrx.h"
-#pragma inline (EE_enable_swint, EE_swint)
 #else
 #error Unsupported compiler
 #endif
 
 #ifdef	__USE_SWINT__
 
-#ifdef __CCRX__
-//#pragma inline (EE_enable_swint)
-#endif
 __INLINE__ void __ALWAYS_INLINE__  EE_enable_swint(EE_UINT8 pri_lev)
 {
 	/*Set SWINT interrupt priority level */
@@ -74,9 +70,7 @@ __INLINE__ void __ALWAYS_INLINE__  EE_enable_swint(EE_UINT8 pri_lev)
 	ICU.IER[IER_ICU_SWINT].BIT.IEN_ICU_SWINT = 1;
 	
 }
-#ifdef __CCRX__
-//#pragma inline (EE_swint)
-#endif
+
 /*Trigger SW interrupt*/
 __INLINE__ void __ALWAYS_INLINE__  EE_swint()
 {
