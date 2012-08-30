@@ -168,9 +168,9 @@ DEPENDENCY_OPT =
 make-depend =
 else # NODEPS
 # Create dependency for all headers, and add a target for each header
-DEPENDENCY_OPT = --dep-file=$(call native_path,$(subst .o,.d_tmp,$(TARGETFILE)))
+DEPENDENCY_OPT = --dep-file=$(call native_path,$(subst .o,.d_tmp,$(@))) -Wc--make-target=$(@)
 # Create dependency for all headers, and add a target for each header
-DEPENDENCY_OPT_ASM = --Wa--dep-file=$(call native_path,$(subst .o,.d_tmp,$(TARGETFILE)))
-# Dependencies on Windows need path translation
-make-depend = sed -e 's_\\\(.\)_/\1_g' -e 's_\<\([a-zA-Z]\):/_/cygdrive/\l\1/_g' < $3_tmp > $3 && rm $3_tmp
+DEPENDENCY_OPT_ASM = -Wa--dep-file=$(call native_path,$(subst .o,.d_tmp,$(@))) -Wa--make-target=$(@)
+# Dependencies on Windows need path translation and quote remotion
+make-depend = sed -e 's_"__g' -e 's_\\\(.\)_/\1_g' -e 's_\<\([a-zA-Z]\):/_/cygdrive/\l\1/_g' < $1_tmp > $1 && rm $1_tmp
 endif # NODEPS

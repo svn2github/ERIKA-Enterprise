@@ -180,13 +180,13 @@ $(TARGET_NAME).elf: $(OBJS) $(LINKDEP) $(LIBDEP)
 $(OBJDIR)/%.o: %.S
 	$(VERBOSE_PRINTASM) $(EE_ASM) $(DEFS_ASM) $(COMPUTED_INCLUDE_PATH) $(COMPUTED_OPT_ASM) $(DEPENDENCY_OPT_ASM) \
 	$(TARGET_ASM_FILE) $(SOURCE_ASM_FILE)
-	$(QUIET)$(call make-depend, $(SOURCEFILE), $(TARGETFILE), $(subst .o,.d,$(TARGETFILE)))
+	$(QUIET)$(call make-depend, $(subst .o,.d,$(@)))
 
 # produce the object file from C code in a single step
 $(OBJDIR)/%.o: %.c
 	$(VERBOSE_PRINTCC) $(EE_CC) $(DEFS_CC) $(COMPUTED_INCLUDE_PATH) $(COMPUTED_OPT_CC) $(DEPENDENCY_OPT) \
 	$(TARGET_C_FILE) $(SOURCE_C_FILE)
-	$(QUIET)$(call make-depend, $(SOURCEFILE), $(TARGETFILE), $(subst .o,.d,$(TARGETFILE)))
+	$(QUIET)$(call make-depend, $(subst .o,.d,$(@)))
 
 ##
 ## EE Library
