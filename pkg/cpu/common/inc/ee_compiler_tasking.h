@@ -69,37 +69,38 @@
    integration */
 #ifndef __INLINE__
 #ifdef __NO_INLINE__
-#define __INLINE__ 			static
+#define __INLINE__             static
 /* Used to declare an inline function before the actual definition */
-#define __DECLARE_INLINE__ 	static
+#define __DECLARE_INLINE__     static
 #else
-#define __INLINE__ 		  	static inline
+#define __INLINE__             static inline
 /* Used to declare an inline function before the actual definition */
-#define __DECLARE_INLINE__ 	static inline
+#define __DECLARE_INLINE__     static inline
 #endif
 #endif /* !__INLINE__ */
 
 /* Empty because redundant with the keyword inline. 1.6. Attributes */ 
 #define __ALWAYS_INLINE__
 
-#define __NEVER_INLINE__		EE_DO_PRAGMA(noinline)
+#define __NEVER_INLINE__        EE_DO_PRAGMA(noinline)
 /* For noreturn attribute there'is not pragma equivalence */
-#define NORETURN  				EE_DO_ATTRIBUTE(noreturn)
+#define NORETURN                EE_DO_ATTRIBUTE(noreturn)
 /* "Maybe Attribute" not documented but originally used in startup code.
    It cannot be used with the construct __attribute__, I don't know
    why because, as I said, is not documented. */
-#define JUMP      				__jump__
+#define JUMP                    __jump__
 
 /* Alignment, Section, Used attributes as are used in GCC compiler */
 /* attribute __align() (1.1.4. Changing the Alignment: __align()) */
-#define EE_COMPILER_ALIGN(a) 	EE_DO_ATTRIBUTE(__align(a))
-#define EE_COMPILER_SECTION(s) 	EE_DO_ATTRIBUTE(section(s))
-#define EE_COMPILER_KEEP 		EE_DO_ATTRIBUTE(used)
+#define EE_COMPILER_ALIGN(a)    EE_DO_ATTRIBUTE(__align(a))
+#define EE_COMPILER_SECTION(s)  EE_DO_ATTRIBUTE(section(s))
+#define EE_COMPILER_KEEP        EE_DO_ATTRIBUTE(used)
 
 /* More useful attributes */
-#define EE_COMPILER_USED 		EE_DO_ATTRIBUTE(unused)
+#define EE_COMPILER_USED        EE_DO_ATTRIBUTE(unused)
 /* For Weak attribute exist equivalent pragma */
-#define EE_COMPILER_WEAK		EE_DO_PRAGMA(weak)
+#define EE_COMPILER_WEAK        EE_DO_PRAGMA(weak)
+#define EE_COMPILER_EXPORT      EE_DO_ATTRIBUTE(export)
 
 /*
  * I will use label pragmas (1.7. Pragmas to Control the Compiler - 
@@ -116,19 +117,19 @@
 
 /* declare ivec_prio priority interrupt handler (priority and entry ID
    are the same thing in TriCore). */
-#define EE_INTERRUPT(ivec_prio)	__interrupt(ivec_prio)
-/* declare trap_class trap handler. */
-#define EE_TRAP(trap_class)		__trap(trap_class)
+#define EE_INTERRUPT(ivec_prio)     __interrupt(ivec_prio)
+/* declare trap_class trap handler. (It will placed in Vector Table) */
+#define EE_TRAP(trap_class)         __trap_fast(trap_class)
 
 #ifdef  __CORE_TC16X__
 /* EG: sii sicuro che __MSRP__ sia veramente la macro per il multicore */ 
 #ifdef  __MSRP__
-#define EE_VECTOR_TABLE   		__vector_table(EE_CURRENTCPU) 	
-#else 	/* __MSRP__ */
+#define EE_VECTOR_TABLE             __vector_table(EE_CURRENTCPU)     
+#else     /* __MSRP__ */
 /* In sigle-core the main CPU is the one with CPU_ID = 0 */
-#define EE_VECTOR_TABLE   		__vector_table(0)
-#endif	/* __MSRP__ */
-#else	/* __CORE_TC16X__ */
+#define EE_VECTOR_TABLE             __vector_table(0)
+#endif    /* __MSRP__ */
+#else    /* __CORE_TC16X__ */
 /* Vector Table declaration makes sense only for last multicore chips
   (TC16X) */
 #define EE_VECTOR_TABLE
@@ -137,6 +138,12 @@
 /* This define is needed to enhance equivalence between GCC compiler and
    TASKING compiler so they can share mostly of the code. */
 #define asm __asm
+
+/* Macros used to encapsulate # and ## operators; used to enforce the expected
+ * evaluation order of arguments */
+#define EE_PREPROC_JOIN(a,b) a ## b
+#define EE_PREPROC_STRING(s) # s
+#define EE_PREPROC_EVAL(e) e
 
 /* Software "memory barrier" (or "memory clobber") to enforce NOT code
    reordering. At compile level.

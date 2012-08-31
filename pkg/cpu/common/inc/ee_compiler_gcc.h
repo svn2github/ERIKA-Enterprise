@@ -82,4 +82,10 @@
 #define EE_PREPROC_STRING(s) # s
 #define EE_PREPROC_EVAL(e) e
 
+/* Software "memory barrier" (or "memory clobber") to enforce NOT code
+   reordering. At compile level.
+   http://www.nongnu.org/avr-libc/user-manual/optimization.html */
+#define EE_barrier() \
+    asm volatile("" : : : "memory")
+
 #endif /* __INCLUDE_CPU_COMMON_EE_COMPILER_GCC__ */
