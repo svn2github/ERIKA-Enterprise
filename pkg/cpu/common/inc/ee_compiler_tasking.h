@@ -101,6 +101,7 @@
 /* For Weak attribute exist equivalent pragma */
 #define EE_COMPILER_WEAK        EE_DO_PRAGMA(weak)
 #define EE_COMPILER_EXPORT      EE_DO_ATTRIBUTE(export)
+#define EE_COMPILER_EXTERN(f)   EE_DO_PRAGMA(extern f)
 
 /*
  * I will use label pragmas (1.7. Pragmas to Control the Compiler - 
