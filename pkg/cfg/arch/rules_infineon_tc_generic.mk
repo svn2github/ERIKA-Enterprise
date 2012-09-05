@@ -158,7 +158,7 @@ clean:
 ##
 ## Lauterbach targets
 ##
-t32.cmm: $(PKGBASE)/cpu/tricore/cfg/t32_$(TRICORE1_MODEL).cmm
+t32.cmm: $(PKGBASE)/mcu/infineon_$(TRICORE1_MODEL)/cfg/t32_$(TRICORE1_MODEL).cmm
 	$(QUIET)sed -e 's:#EXE_NAME#:$(TARGET_NAME).elf:g'	$< > $@
 
 #
