@@ -45,6 +45,8 @@ ifneq (ok,$(shell test -d "$(RTDRUID_ECLIPSE_HOME)" && echo ok ))
 $(error The variable RTDRUID_ECLIPSE_HOME must point to a valid Eclipse RT-Druid installation)
 endif
 
+configure: $(RTDRUID_OUTPUT)
+	
 # Run RT-Druid
 $(RTDRUID_OUTPUT): conf.oil
 	@echo "Running RT-Druid..."

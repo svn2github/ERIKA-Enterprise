@@ -46,12 +46,24 @@
 export OUTPUT_DIR = output
 
 # Check the environment and use reasonable defaults
+ifndef ERIKA_FILES
+export ERIKA_FILES := $(abspath ../../../../..)
+else
+export ERIKA_FILES := $(subst \,/,$(ERIKA_FILES))
+endif
+
+# Check the environment and use reasonable defaults
 ifndef RTDRUID_ECLIPSE_HOME
 RTDRUID_ECLIPSE_HOME = C:/Evidence/Evidence/eclipse
 RTDRUID_SCRIPT_DIR =
+else
+RTDRUID_ECLIPSE_HOME := $(subst \,/,$(RTDRUID_ECLIPSE_HOME))
 endif
+
 ifndef RTDRUID_SCRIPT_DIR
 RTDRUID_SCRIPT_DIR=$(RTDRUID_ECLIPSE_HOME)/evidence
+else
+RTDRUID_SCRIPT_DIR := $(subst \,/,$(RTDRUID_SCRIPT_DIR))
 endif
 
 RTDRUID_OUTPUT = $(addprefix $(OUTPUT_DIR)/, makefile eecfg.h eecfg.c)
@@ -75,4 +87,5 @@ $(RTDRUID_OUTPUT): conf.oil
 	@echo "Running RT-Druid..."
 	@ECLIPSE_HOME="$(RTDRUID_ECLIPSE_HOME)" ;\
 	export ECLIPSE_HOME ;\
-	exec sh $(RTDRUID_SCRIPT_DIR)/start_ant.sh -buildfile $(RTDRUID_SCRIPT_DIR)/build.xml -Din_conf_oil=$< -Dconf_output_dir=$(OUTPUT_DIR) compile
+	$(RTDRUID_SCRIPT_DIR)/generate_code.sh $(RTDRUID_ECLIPSE_HOME)\
+		conf.oil $(OUTPUT_DIR)
