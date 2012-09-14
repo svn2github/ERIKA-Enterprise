@@ -169,13 +169,20 @@ __INLINE__ void __ALWAYS_INLINE__ EE_std_change_context(EE_TID tid)
     and there is no change in the bit pattern (if there is no truncation).
  */
 #define EE_std_mark_tid_stacked(tid) \
-  ((EE_UTID)(tid) | (EE_UTID)TID_IS_STACKED_MARK)
+    ((EE_UTID)(tid) | (EE_UTID)TID_IS_STACKED_MARK)
+
+  /* Check if the TID is Marked Stacked */
+#define EE_std_tid_is_marked_stacked(tid)\
+    (((EE_UTID)tid & TID_IS_STACKED_MARK) != 0U)
 
 __INLINE__ int __ALWAYS_INLINE__ EE_std_need_context_change(EE_TID tid)
 {
     EE_UTID utid;
     int need_context_change = 1;
-    if (tid < 0) {
+    /* I cannot use EE_NIL symbol, because is defined inside the kernell,  */
+    if (tid == (EE_TID)-1) {
+        need_context_change = (EE_hal_active_tos != EE_std_thread_tos[0U]);
+    } else if (EE_std_tid_is_marked_stacked(tid)) {
       /* Unmark the tid to access the EE_std_thread_tos, otherwise undefined
          behaviour. (Index out of arrays boundaries)
          FIXME: #1
