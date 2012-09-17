@@ -18,7 +18,11 @@ char conq_insert(conq_t *q, char x)
 {
 	if (q->nElementNumber >= CONQ_DIMENSION)
 		// Warning: queue overflow enqueue
+#ifdef	__CORTEX_MX__
+		return (char)-1;
+#else
 		return -1;
+#endif
 	else {
 		q->nLastElement = (q->nLastElement+1) % CONQ_DIMENSION;
 		q->storage[ q->nLastElement ] = x;    
@@ -34,7 +38,11 @@ char conq_extract(conq_t *q)
 
 	if (q->nElementNumber <= 0)
 		//Warning: empty queue dequeue
+#ifdef	__CORTEX_MX__
+		return (char)-1;
+#else
 		return -1;
+#endif
 	else {
 		x = q->storage[ q->nFirstElement ];
 		q->nFirstElement = (q->nFirstElement+1) % CONQ_DIMENSION;
