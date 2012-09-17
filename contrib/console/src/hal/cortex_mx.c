@@ -14,10 +14,13 @@
 /* ************************************************************************** */
 #ifdef USE_CONSOLE_SERIAL
 
-
-//#ifndef __USE_UART__
-//#error "CONSOLE_SERIAL ERROR: UART support from Erika MCU is required!"
-//#endif
+#if ( \
+  !defined(__AUTOSAR_R4_0__)	|| \
+  !defined(__AS_SCI_DRIVER__)	|| \
+  !defined(SCI_CHANNEL_4)	   \
+)
+#error "CONSOLE_SERIAL ERROR: AUTOSAR SCI Driver is required!"
+#endif
 
 int8_t console_serial_hal_open(uint8_t port, uint32_t bdr, uint16_t flags)
 {
@@ -51,7 +54,6 @@ int8_t  console_serial_hal_read(uint8_t port, uint8_t *mesg, uint16_t length,
 				uint16_t *read)
 {
   uint32 i;
-  uint8 rx;
   Std_ReturnType st;
   for(i = 0U; i < length; ++i) {
 	  st=Sci_ReadRxData(SCI_CHANNEL_4, &mesg[i]);
