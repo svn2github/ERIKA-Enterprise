@@ -190,6 +190,11 @@ __INLINE__ int __ALWAYS_INLINE__ EE_std_need_context_change(EE_TID tid)
       utid = (EE_UTID)tid & (~(EE_UTID)TID_IS_STACKED_MARK);
       need_context_change = (EE_hal_active_tos != EE_std_thread_tos[utid + 1U]);
     }
+    else {
+        /* The "else" clause is required by MISRA 14.10, even if this
+           point will never be reached.
+        */
+    }
     return need_context_change;
 }
 
