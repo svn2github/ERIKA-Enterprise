@@ -48,9 +48,19 @@
 #ifndef __ENC28J60_HAL_EE_CORTEX_MX_H__
 #define __ENC28J60_HAL_EE_CORTEX_MX_H__
 
-#if !defined(__AUTOSAR_R4_0__) || !defined(__AS_SPI_DRIVER__)
+#if	( \
+	!defined(__AUTOSAR_R4_0__)  ||	\
+	!defined(__AS_DIO_DRIVER__) ||	\
+	!defined(__AS_ICU_DRIVER__) ||	\
+	!defined(__AS_SPI_DRIVER__)	\
+)
 #error enc28j60 driver for cortex need Autosar SPI MCAL driver!
-#endif /* !defined(__AUTOSAR_R4_0__) || !defined(__AS_SPI_DRIVER__) */
+#endif	/*
+	 * 	!defined(__AUTOSAR_R4_0__)
+	 * 	!defined(__AS_DIO_DRIVER__)
+	 * 	!defined(__AS_ICU_DRIVER__)
+	 * 	!defined(__AS_SPI_DRIVER__)
+	 */
 
 /* Types definition */
 #include "enc28j60_reg.h"
