@@ -104,10 +104,27 @@ WORD EE_enc28j60_hal_get_array(BYTE *val, WORD len)
   // point the interrupts are not disabled. Is this
   // approach the right one ??
   /* EE_cortex_mx_disableIRQ(); */
-  Spi_WriteIB(SPI_ENC28J60_CHANNEL_COMMAND, &read_mem);
-  Spi_SetupEB(SPI_ENC28J60_CHANNEL_BUFFER, NULL_PTR, val, len);
   EE_enc28j60_write_timestamp(ENC28J60_START_GET_ARRAY);
-  Spi_SyncTransmit(SPI_ENC28J60_SEQ_RBM);
+  Spi_WriteIB(SPI_ENC28J60_CHANNEL_COMMAND, &read_mem);
+  if ( len > SPI_ENC28J60_CHANNEL_BUFFER_SIZE ) {
+    Spi_SetupEB(
+      SPI_ENC28J60_CHANNEL_BUFFER,
+      NULL_PTR,
+      val,
+      SPI_ENC28J60_CHANNEL_BUFFER_SIZE
+    );
+    Spi_SetupEB(
+      SPI_ENC28J60_CHANNEL_BUFFER_EXT,
+      NULL_PTR,
+      ( val + SPI_ENC28J60_CHANNEL_BUFFER_SIZE ),
+      ( len - SPI_ENC28J60_CHANNEL_BUFFER_SIZE )
+    );
+    Spi_SyncTransmit(SPI_ENC28J60_SEQ_REBM);
+  }
+  else {
+    Spi_SetupEB(SPI_ENC28J60_CHANNEL_BUFFER, NULL_PTR, val, len);
+    Spi_SyncTransmit(SPI_ENC28J60_SEQ_RBM);
+  }
   EE_enc28j60_write_timestamp(ENC28J60_END_GET_ARRAY);
   return len;
 }//end MACGetArray
@@ -124,10 +141,27 @@ void EE_enc28j60_hal_put(BYTE val)
 void EE_enc28j60_hal_put_array(BYTE *val, WORD len)
 {
   const BYTE write_mem = ENC28J60_WBM;
-  Spi_WriteIB(SPI_ENC28J60_CHANNEL_COMMAND, &write_mem);
-  Spi_SetupEB(SPI_ENC28J60_CHANNEL_BUFFER, val, NULL_PTR, len);
   EE_enc28j60_write_timestamp(ENC28J60_START_PUT_ARRAY);
-  Spi_SyncTransmit(SPI_ENC28J60_SEQ_WBM);
+  Spi_WriteIB(SPI_ENC28J60_CHANNEL_COMMAND, &write_mem);
+  if ( len > SPI_ENC28J60_CHANNEL_BUFFER_SIZE ) {
+    Spi_SetupEB(
+      SPI_ENC28J60_CHANNEL_BUFFER,
+      val,
+      NULL_PTR,
+      SPI_ENC28J60_CHANNEL_BUFFER_SIZE
+    );
+    Spi_SetupEB(
+      SPI_ENC28J60_CHANNEL_BUFFER_EXT,
+      ( val + SPI_ENC28J60_CHANNEL_BUFFER_SIZE ),
+      NULL_PTR,
+      ( len - SPI_ENC28J60_CHANNEL_BUFFER_SIZE )
+    );
+    Spi_SyncTransmit(SPI_ENC28J60_SEQ_WEBM);
+  }
+  else {
+    Spi_SetupEB(SPI_ENC28J60_CHANNEL_BUFFER, val, NULL_PTR, len);
+    Spi_SyncTransmit(SPI_ENC28J60_SEQ_WBM);
+  }
   EE_enc28j60_write_timestamp(ENC28J60_END_PUT_ARRAY); 
 }//end MACPutArray
 
@@ -275,4 +309,3 @@ BYTE EE_enc28j60_hal_get_clkout(void)
   BankSel(ERDPTL);
   return i;
 }//end GetCLKOUT
-
