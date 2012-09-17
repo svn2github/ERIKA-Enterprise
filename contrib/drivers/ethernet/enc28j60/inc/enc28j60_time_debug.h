@@ -52,8 +52,17 @@
 
 #include <stdio.h>
 #include <string.h>
+#ifdef	__CORTEX_MX__
+#if	( \
+  !defined(EE_SYSTEM_TIMER_DEVICE) || \
+  ( EE_SYSTEM_TIMER_DEVICE != EE_CORTEX_MX_SYSTICK ) \
+)
+#error "ENC28J60_TIME_DEBUG ERROR: SysTick based SystemTimer is required!"
+#endif
+#else
 /* Platform description */
 #include <system_conf.h>
+#endif
 
 #define enc28j60_time_diff_ms(from,to)  ((EE_UINT32)((from) - (to)) / (EE_UINT32)(CPU_FREQUENCY / 1000))
 #define enc28j60_time_diff_us(from,to)  ((EE_UINT32)((from) - (to)) / (EE_UINT32)(CPU_FREQUENCY / 1000000))
@@ -63,9 +72,13 @@
 */
 __INLINE__ EE_UINT32 __ALWAYS_INLINE__ EE_enc28j60_read_freetimer(void)
 {
+#ifdef	__CORTEX_MX__
+	return EE_systick_get_value();
+#else
 	EE_UINT32 time_val;
 	EE_freetimer_get_value(&time_val);
 	return time_val;
+#endif
 }
 
 enum{	
