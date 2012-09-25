@@ -156,7 +156,7 @@ void EE_IRQ_end_instance(void)
 
     EE_IRQ_run_next_task();
   } else {
-    EE_hal_IRQ_stacked(EE_stk_queryfirst());
+    EE_hal_IRQ_stacked(tmp_stacked);
   }
 }
 

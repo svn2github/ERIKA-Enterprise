@@ -113,8 +113,12 @@ extern "C" {
 #endif
 
 #ifdef __TRICORE1__
+#ifdef __CORE_TC16X__
+#include "cpu/tricore/inc/ee_tc_cpu.h"
+#else
 #include "cpu/tricore1/inc/ee_cpu.h"
-#endif
+#endif /* __CORE_TC16X__ */
+#endif /* __TRICORE1__ */
 
 #ifdef __lm32__
 #include "cpu/mico32/inc/ee_cpu.h"
@@ -203,7 +207,12 @@ extern "C" {
 #include "mcu/tc179x/inc/ee_mcu.h"
 #endif
 
- /* MSP430 */
+/* Tricore TC27x */
+#ifdef __TC27X__
+#include "mcu/infineon_tc27x/inc/ee_tc27x_mcu.h"
+#endif
+
+/* MSP430 */
 #ifdef __MSP430__
 #include "mcu/msp430/inc/ee_mcu.h"
 #endif
@@ -310,6 +319,10 @@ extern "C" {
 
 #ifdef __TC1796__
 #include "board/infineon_tc1796b/inc/ee_board.h"
+#endif
+
+#ifdef __TC27X__
+#include "board/infineon_TriBoard-TC2X5_V2.0/inc/ee_tc2x5_board.h"
 #endif
 
 #ifdef __ESI_RISC__

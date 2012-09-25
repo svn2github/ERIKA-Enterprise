@@ -81,6 +81,9 @@ extern "C" {
 #include "cpu/cortex_mx/inc/ee_cpu.h"
 #endif
 
+#if defined(__TRICORE1__) && defined(__CORE_TC16X__)
+#include "cpu/tricore/inc/ee_tc_cpu.h"
+#endif /* __TRICORE1__ && __CORE_TC16X__ */
 
 /*
  * I need kernel inclusion before IRQ CPU inclusion because is CPU layer that
@@ -136,6 +139,11 @@ defined(__OO_ECC2__) || defined(__AS_SC4__)
 #ifdef __RX200__
 #include "cpu/rx200/inc/ee_irq.h"
 #endif
+
+#if defined(__TRICORE1__) && defined(__CORE_TC16X__)
+#include "cpu/tricore/inc/ee_tc_irq.h"
+#endif /* __TRICORE1__ && __CORE_TC16X__ */
+
 
 #if defined(__cplusplus)
 };

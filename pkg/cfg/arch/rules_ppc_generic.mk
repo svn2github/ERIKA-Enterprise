@@ -128,8 +128,8 @@ ifneq ($(ONLY_LIBS), TRUE)
 
 # OPT_LIBS is used to link additional libraries (e.g., for C++ support)
 # the EE library is built in the current directory
-OPT_LIBS +=  -L. -lee
-LIBDEP = libee.a
+#OPT_LIBS +=  -L. -lee
+#LIBDEP = libee.a
 
 endif
 
@@ -266,10 +266,10 @@ orti.men: system.orti
 ##
 # if is specified __NO_APP__ the user want Erika as libee.a and noting else
 ifneq ($(call iseeopt, __NO_APP__), yes)
-$(TARGET): $(CRT0) $(OBJS) $(LINKDEP) $(LIBDEP)
+$(TARGET): $(CRT0) $(OBJS) $(LIBEEOBJS) $(LINKDEP) $(LIBDEP)
 	@printf "LD\n";
 	$(QUIET)$(EE_LINK) $(COMPUTED_OPT_LINK)				\
-		-o $(TARGETFILE) $(OPT_CRT0) $(OBJS) $(OPT_LIBS) $(MAP_OPT)
+		-o $(TARGETFILE) $(MAP_OPT) $(OPT_LIBS) $(OPT_CRT0) $(OBJS) $(LIBEEOBJS)
 	@echo
 	@echo "Compilation terminated successfully"
 	@echo
@@ -332,10 +332,10 @@ endif # if EE_LINK_SCRIPT
 ## EE Library
 ##
 
-libee.a: $(LIBEEOBJS)
-	@printf "AR  libee.a\n" ;
-	$(QUIET)rm -f $@
-	$(QUIET)$(EE_AR) $(OPT_AR) $@ $(LIBEEOBJS)
+# libee.a: $(LIBEEOBJS)
+#	@printf "AR  libee.a\n" ;
+#	$(QUIET)rm -f $@
+#	$(QUIET)$(EE_AR) $(OPT_AR) $@ $(LIBEEOBJS)
 
 ##
 ## Automatic Generation of dependencies
