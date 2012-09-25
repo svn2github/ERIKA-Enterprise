@@ -96,7 +96,7 @@ OPT_CC = $(CFLAGS) $(OPT_TARGET) $(VLE_OPT) -RTTI off -Cpp_exceptions off \
  -gccinc -char unsigned -nostdinc -pragma "section RW \".stack\" \".ustack\""
 ifneq ($(call iseeopt, __MINIMAL_CC_OPTIONS__), yes)
 OPT_CC += -flag require_prototypes -msgstyle gcc -rostr \
- -opt level=0 -opt speed -inline on -ipa file -inline on,auto -schedule on
+ -O4 -ipa file -inline on,auto -schedule on
 endif
 ifeq ($(call iseeopt, __MSRP__), yes)
 OPT_CC += -pragma "section RW \"ee_mcglobald\" \"ee_mcglobalu\"" \
@@ -116,7 +116,8 @@ OPT_ASM += $(OPT_TARGET) $(VLE_OPT) -msgstyle gcc -gccinc -gnu_mode
 
 # OPT_LINK represents the options for ld invocation
 OPT_LINK += $(LDFLAGS) $(OPT_TARGET) -L$(call native_path,$(MWLibraries))
-OPT_LINK += -msgstyle gcc -char unsigned -m ee_start
+OPT_LINK += $(addprefix -l, $(MW_LIBS))
+OPT_LINK += -msgstyle gcc -nostdlib -char unsigned -m ee_start
 ifneq ($(call iseeopt, __E200ZX_EXECUTE_FROM_RAM__), yes)
 # Here we assume that ROM is always at address 0.  Maybe it's too strong
 # an assumption, and a variable should be set in an MCU-specific makefile
