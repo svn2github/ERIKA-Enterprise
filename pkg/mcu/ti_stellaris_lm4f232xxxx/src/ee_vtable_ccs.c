@@ -58,23 +58,35 @@ extern void EE_cortex_mx_default_reset_ISR(void);
 #endif
 #ifdef EE_CORTEX_MX_NMI_ISR				// The NMI handler
 extern void EE_CORTEX_MX_NMI_ISR(void);
+#else
+extern void EE_cortex_mx_nmi_ISR(void);
 #endif
 #ifdef EE_CORTEX_MX_HARD_FAULT_ISR			// The hard fault handler
 extern void EE_CORTEX_MX_HARD_FAULT_ISR(void);
+#else
+extern void EE_cortex_mx_hard_fault_ISR(void);
 #endif
 #ifdef EE_CORTEX_MX_MPU_FAULT_ISR			// The MPU fault handler
 extern void EE_CORTEX_MX_MPU_FAULT_ISR(void);
+#else
+extern void EE_cortex_mx_mpu_fault_ISR(void);
 #endif
 #ifdef EE_CORTEX_MX_BUS_FAULT_ISR			// The bus fault handler
 extern void EE_CORTEX_MX_BUS_FAULT_ISR(void);
+#else
+extern void EE_cortex_mx_bus_fault_ISR(void);
 #endif
 #ifdef EE_CORTEX_MX_USAGE_FAULT_ISR			// The usage fault handler
 extern void EE_CORTEX_MX_USAGE_FAULT_ISR(void);
+#else
+extern void EE_cortex_mx_usage_fault_ISR(void);
 #endif
 /* Not for user: used by Erika Enterprise context switch. */
 extern void EE_cortex_mx_svcall_handler(void);		// The SVCall handler
 #ifdef EE_CORTEX_MX_DEBUG_MONITOR_ISR			// Debug monitor handler
 extern void EE_CORTEX_MX_DEBUG_MONITOR_ISR(void);
+#else
+extern void EE_cortex_mx_debug_monitor_ISR(void);
 #endif
 /* Not for user: used by Erika Enterprise context switch. */
 extern void EE_cortex_mx_pendsv_handler(void);		// The PendSV handler
@@ -447,27 +459,27 @@ void (* const EE_cortex_mx_vtable[])(void) =
 #ifdef EE_CORTEX_MX_NMI_ISR		// The NMI handler
     EE_CORTEX_MX_NMI_ISR,
 #else
-    EE_cortex_mx_default_ISR,
+    EE_cortex_mx_nmi_ISR,
 #endif
 #ifdef EE_CORTEX_MX_HARD_FAULT_ISR	// The hard fault handler
     EE_CORTEX_MX_HARD_FAULT_ISR,
 #else
-    EE_cortex_mx_default_ISR,
+    EE_cortex_mx_hard_fault_ISR,
 #endif
 #ifdef EE_CORTEX_MX_MPU_FAULT_ISR	// The MPU fault handler
     EE_CORTEX_MX_MPU_FAULT_ISR,
 #else
-    EE_cortex_mx_default_ISR,
+    EE_cortex_mx_mpu_fault_ISR,
 #endif
 #ifdef EE_CORTEX_MX_BUS_FAULT_ISR	// The bus fault handler
     EE_CORTEX_MX_BUS_FAULT_ISR,
 #else
-    EE_cortex_mx_default_ISR,
+    EE_cortex_mx_bus_fault_ISR,
 #endif
 #ifdef EE_CORTEX_MX_USAGE_FAULT_ISR	// The usage fault handler
     EE_CORTEX_MX_USAGE_FAULT_ISR,
 #else
-    EE_cortex_mx_default_ISR,
+    EE_cortex_mx_usage_fault_ISR,
 #endif
     0,					// Reserved
     0,					// Reserved
@@ -478,7 +490,7 @@ void (* const EE_cortex_mx_vtable[])(void) =
 #ifdef EE_CORTEX_MX_DEBUG_MONITOR_ISR	// Debug monitor handler
     EE_CORTEX_MX_DEBUG_MONITOR_ISR,
 #else
-    EE_cortex_mx_default_ISR,
+    EE_cortex_mx_debug_monitor_ISR,
 #endif
     0,					// Reserved
     /* Not for user: used by Erika Enterprise context switch. */

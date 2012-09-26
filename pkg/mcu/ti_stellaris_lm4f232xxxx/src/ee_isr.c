@@ -60,6 +60,78 @@ void EE_cortex_mx_default_ISR(void)
     }
 }
 
+#ifndef EE_CORTEX_MX_NMI_ISR
+void EE_cortex_mx_nmi_ISR(void)
+{
+    //
+    // Go into an infinite loop.
+    //
+    while(1)
+    {
+    }
+}
+#endif
+
+#ifndef EE_CORTEX_MX_HARD_FAULT_ISR
+void EE_cortex_mx_hard_fault_ISR(void)
+{
+    //
+    // Go into an infinite loop.
+    //
+    while(1)
+    {
+    }
+}
+#endif
+
+#ifndef EE_CORTEX_MX_MPU_FAULT_ISR
+void EE_cortex_mx_mpu_fault_ISR(void)
+{
+    //
+    // Go into an infinite loop.
+    //
+    while(1)
+    {
+    }
+}
+#endif
+
+#ifndef EE_CORTEX_MX_BUS_FAULT_ISR
+void EE_cortex_mx_bus_fault_ISR(void)
+{
+    //
+    // Go into an infinite loop.
+    //
+    while(1)
+    {
+    }
+}
+#endif
+
+#ifndef EE_CORTEX_MX_USAGE_FAULT_ISR
+void EE_cortex_mx_usage_fault_ISR(void)
+{
+    //
+    // Go into an infinite loop.
+    //
+    while(1)
+    {
+    }
+}
+#endif
+
+#ifndef EE_CORTEX_MX_DEBUG_MONITOR_ISR
+void EE_cortex_mx_debug_monitor_ISR(void)
+{
+    //
+    // Go into an infinite loop.
+    //
+    while(1)
+    {
+    }
+}
+#endif
+
 /*
  * This is the code that gets called when the processor first starts execution
  * following a reset event.  Only the absolutely necessary set is performed,
