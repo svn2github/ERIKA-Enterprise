@@ -1,7 +1,7 @@
 # ###*B*###
 # ERIKA Enterprise - a tiny RTOS for small microcontrollers
 # 
-# Copyright (C) 2002-2011  Evidence Srl
+# Copyright (C) 2002-2012  Evidence Srl
 # 
 # This file is part of ERIKA Enterprise.
 # 
@@ -38,8 +38,9 @@
 # Boston, MA 02110-1301 USA.
 # ###*E*###
 
-## Makefile for Erika ARM Cortex M4 AUTOSAR SPI driver examples
+## Makefile for Erika ARM Cortex M4 AUTOSAR Driver examples
 ## Author: 2012, Errico Guidieri
+## 		 Giuseppe Serano
 
 
 # Destination directory
@@ -52,8 +53,14 @@ else
 export ERIKA_FILES := $(subst \,/,$(ERIKA_FILES))
 endif
 
+# KEIL uVision Compiler Toolchain.
 AS_CFG_PREFIX := $(ERIKA_FILES)/contrib/as/arch/stellaris/keil/config/
 AS_SSG_CFG_PREFIX := $(ERIKA_FILES)/contrib/as_ssg/arch/stellaris/keil/config/
+
+
+# TI CCSv4 Compiler Toolchain.
+#AS_CFG_PREFIX := $(ERIKA_FILES)/contrib/as/arch/stellaris/ccs/config/
+#AS_SSG_CFG_PREFIX := $(ERIKA_FILES)/contrib/as_ssg/arch/stellaris/ccs/config/
 
 ifndef RTDRUID_ECLIPSE_HOME
 RTDRUID_ECLIPSE_HOME := C:/Evidence/eclipse
@@ -74,8 +81,6 @@ AS_CFG =	Compiler_Cfg.h\
 		Mcu_Cfg.c\
 		Port_Cfg.h\
 		Port_Cfg.c\
-		Gpt_Cfg.h\
-		Gpt_Cfg.c\
 		Sci_Cfg.h\
 		Sci_Cfg.c\
 		Spi_Cfg.h\
@@ -88,23 +93,30 @@ RTDRUID_AS_OUTPUT = $(addprefix $(OUTPUT_DIR)/, $(AS_CFG))
 
 RTDRUID_AS_SSG_OUTPUT = $(addprefix $(OUTPUT_DIR)/, $(AS_SSG_CFG))
 
+RTDRUID_INPUT = conf.oil conf_console.oil conf_enc28j60.oil conf_lwip.oil
+
 RTDRUID_OUTPUT = $(addprefix $(OUTPUT_DIR)/, makefile eecfg.h eecfg.c)
+
+UDP_TOOLS = udp_send.exe udp_recv.exe
 
 .PHONY: all clean
 
-all: $(RTDRUID_OUTPUT) $(RTDRUID_AS_OUTPUT) $(RTDRUID_AS_SSG_OUTPUT)
+all:	$(UDP_TOOLS)		\
+	$(RTDRUID_OUTPUT)	\
+	$(RTDRUID_AS_OUTPUT)	\
+	$(RTDRUID_AS_SSG_OUTPUT)
 	$(MAKE) -C $(OUTPUT_DIR) all
 
 clean:
 	@echo cleaning...
-	rm -f -r $(OUTPUT_DIR)
+	rm -f -r $(OUTPUT_DIR) $(UDP_TOOLS)
 
 ifneq (ok,$(shell test -d "$(RTDRUID_ECLIPSE_HOME)" && echo ok ))
 $(error The variable RTDRUID_ECLIPSE_HOME must point to a valid Eclipse RT-Druid installation)
 endif
 
 # Run RT-Druid
-$(RTDRUID_OUTPUT): conf.oil
+$(RTDRUID_OUTPUT): $(RTDRUID_INPUT)
 	@echo "Running RT-Druid..."
 	@ECLIPSE_HOME="$(RTDRUID_ECLIPSE_HOME)" ;\
 	export ECLIPSE_HOME ;\
@@ -121,3 +133,6 @@ $(RTDRUID_AS_SSG_OUTPUT): $(OUTPUT_DIR)/% : $(AS_SSG_CFG_PREFIX)%
 	@echo "Substituing RT-Druid in generating $@..."
 	@mkdir -p $(OUTPUT_DIR)
 	cp $< $@
+
+%.exe:	%.c
+	$(CC) -O -pipe $< -o $@

@@ -1,7 +1,7 @@
 /* ###*B*###
  * ERIKA Enterprise - a tiny RTOS for small microcontrollers
  *
- * Copyright (C) 2010  Evidence Srl
+ * Copyright (C) 2012  Evidence Srl
  *
  * This file is part of ERIKA Enterprise.
  *
@@ -38,16 +38,18 @@
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
  
-/** 
-    @file      main.c
-    @brief     LWIP UDP test (with ENC28J60, see oil files).
-               User can use this demo to learn how to write LWIP UDP based applications. 
-               The demo requires a RS232 serial connection with user PC (115200 bps,8N1 configuration).
-               The demo requires a SPI bus to communicate with ENC28J60.
-               The demo requires a Ethernet connection with user PC.
-    @author    Errico Guidieri
-    @date      2012
-*/
+/** @file	main.c
+ *  @brief	LWIP UDP test (with ENC28J60, see oil files).
+ *
+ *  User can use this demo to learn how to write LWIP UDP based applications. 
+ *  The demo requires a RS232 serial connection with user PC.
+ *  The demo requires a SPI bus to communicate with ENC28J60.
+ *  The demo requires a Ethernet connection with user PC.
+ *
+ *  @author	Errico Guidieri
+ *  @author	Giuseppe Serano
+ *  @date	2012
+ */
 
 /* RT-Kernel */
 #include <ee.h>
@@ -62,25 +64,32 @@
 #include "Mcu.h"
 #include "Port.h"
 #include "Dio.h"
-#include "Gpt.h"
+#ifdef	DEBUG
 #include "Sci.h"
+#endif
 #include "Spi.h"
 #include "Icu.h"
 
-#define MY_UDP_BUFFER_LEN 128
-#define UDP_SENDER_BUF_SIZE 128
-#define MAXCHARS 128
+#define UDP_SENDER_BUF_SIZE	1472
+#define UDP_SENDER_PKT_NUM	4
 
-#define time_diff_ms(t1,t2)  (((t1) - (t2)) / (EE_UINT32)(EE_CPU_CLOCK / 1000U))
-#define time_diff_us(t1,t2)  (((t1) - (t2)) / (EE_UINT32)(EE_CPU_CLOCK / 1000000U))
+#define time_diff_ms(t1,t2)	\
+	((EE_UINT32)((t1) - (t2)) / (EE_UINT32)(EE_CPU_CLOCK / 1000U))
+#define time_diff_us(t1,t2)	\
+	((EE_UINT32)((t1) - (t2)) / (EE_UINT32)(EE_CPU_CLOCK / 1000000U))
 
 /* Variables for UDP communication */
 static const u16_t my_port = 9760;
 static const u16_t remote_port = 8640;
+struct ip_addr remote_ipaddr;
 
+#define	MY_UDP_BUFFER_LEN	1472
 static EE_UINT8 my_udp_buffer[MY_UDP_BUFFER_LEN];
+static char *msg = "LwIP Packet %d\n";
 
-/* A printf-like function */
+static EE_UINT32 packet_num = 0;
+
+#ifdef	DEBUG
 static void EE_uart_send_buffer(const char * const str, size_t len) {
   size_t i;
   uint8 rx;
@@ -96,9 +105,12 @@ static void EE_uart_send_buffer(const char * const str, size_t len) {
   }
 }
 
+#define MAXCHARS 80
+
+/* A printf-like function */
 void myprintf(const char *format, ...)
 {
-    const char printf_trunc[] = "..[TRUNCATED]..\n";
+    const char printf_trunc[] = "\n..[TRUNCATED]..\n";
     char str[MAXCHARS];
     int len;
     va_list args;
@@ -134,23 +146,33 @@ static void hex_dump(const void *base, int size)
         }
     }
 }
+#endif	/* DEBUG */
 
 /* UDP rx handler */
 static void udp_rx_handler(void *arg, struct udp_pcb *upcb,
     struct pbuf *p, struct ip_addr *addr, u16_t port)
 {
     struct pbuf *q;
-    int i;
     u16_t len;
+#ifdef	DEBUG
+    int i;
     err_t ret;
+#endif
 
     /* Make the LED blink in RX */
     Dio_WriteChannel(DIO_CHANNEL_USER_LED, STD_HIGH);
     
     /* Connect to the remote host, for replies */
-    if (! (upcb->flags & UDP_FLAGS_CONNECTED))
-        udp_connect(upcb, addr, port);
-    
+    if (upcb->flags & UDP_FLAGS_CONNECTED) {
+
+      udp_disconnect(upcb);
+
+    }
+
+    /* Connect to the remote host, for replies */
+    udp_connect(upcb, &remote_ipaddr, remote_port);
+
+#ifdef	DEBUG
     /* Print the received UDP packet */
     myprintf("\nReceived %d bytes from %d.%d.%d.%d, port %d\n", p->tot_len,
         ip4_addr1(addr), ip4_addr2(addr), ip4_addr3(addr), ip4_addr4(addr),
@@ -159,6 +181,7 @@ static void udp_rx_handler(void *arg, struct udp_pcb *upcb,
         myprintf("Chunk #%d, %d byte long\n",i, q->len);
         hex_dump(q->payload, q->len);
     }
+#endif
 
     /* Estract the payload in a buffer, put it in a new pbuf, and send */
     len = pbuf_copy_partial(p, my_udp_buffer, MY_UDP_BUFFER_LEN, 0);
@@ -166,17 +189,33 @@ static void udp_rx_handler(void *arg, struct udp_pcb *upcb,
         q = pbuf_alloc(PBUF_TRANSPORT, len, PBUF_REF);
         if (q != 0) {
             q->payload = my_udp_buffer;
-            ret = udp_send(upcb, q);
+#ifdef	DEBUG
+            ret =
+#endif
+            udp_send(upcb, q);
+#ifdef	DEBUG
             if (ret != ERR_OK)
                 myprintf("ERROR in sending a reply\n");
+#endif
             pbuf_free(q);
+#ifdef	DEBUG
         } else {
             myprintf("ERROR while allocating a pbuf\n");
+#endif
         }
+#ifdef	DEBUG
     } else {
         myprintf("ERROR while extracting data\n");
+#endif
     }
-    
+
+    /* Connect to the remote host, for replies */
+    if (upcb->flags & UDP_FLAGS_CONNECTED) {
+
+      udp_disconnect(upcb);
+
+    }
+
     /* Don't leak the pbuf! */
     pbuf_free(p);
 
@@ -184,82 +223,120 @@ static void udp_rx_handler(void *arg, struct udp_pcb *upcb,
     Dio_WriteChannel(DIO_CHANNEL_USER_LED, STD_LOW);
 }
 
+void fill_buff(char *b, EE_UINT16 sz, EE_UINT32 pkt_num)
+{
+  register EE_UINT16 ofs = 0;
+  register int n;
+  while ( (ofs + 23) < sz ) {
+    n = sprintf(&b[ofs], msg, pkt_num);
+    ofs += n;
+  }
+}
+
 TASK(SenderTask)
 {
     static EE_UINT8 buf[UDP_SENDER_BUF_SIZE] = {0};
-    static EE_UINT16 size = sizeof(buf);
-
-    const unsigned num_packets = 10;
+    static EE_UINT16 size = 24; /* strlen(msg) */
 
     struct udp_pcb *socket;
-    struct ip_addr ipaddr;
     struct pbuf *pb;
+
     err_t ret;
     unsigned i;
-    EE_UINT32 time1, time2, time3;
 
-    myprintf("\nSender: sending %d %d-byte packets\n", num_packets, size);
+#ifdef	DEBUG
+    EE_UINT32 time1, time2, time3;
+#endif
+
+    GetResource(LwipMutex);
+
+#ifdef	DEBUG
+    myprintf(
+      "\nSender: sending %d %d-byte packets\n", UDP_SENDER_PKT_NUM, size
+    );
 
     time1 = EE_systick_get_value();
-    GetResource(LwipMutex);
+#endif
+
     socket = udp_new();
     if (0 == socket) {
-        ReleaseResource(LwipMutex);
+#ifdef	DEBUG
         myprintf("ERROR: cannot create UDP socket\n");
+#endif
+        ReleaseResource(LwipMutex);
         return;
     }
     ret = udp_bind(socket, IP_ADDR_ANY, my_port+1);
     if (ret != ERR_OK) {
         udp_remove(socket);
-        ReleaseResource(LwipMutex);
+#ifdef	DEBUG
         myprintf("ERROR while binding to UDP port %d\n", my_port+1);
+#endif
+        ReleaseResource(LwipMutex);
         return;
     }
-    IP4_ADDR(&ipaddr, MY_IPADDR_BYTE1, MY_IPADDR_BYTE2,
-        MY_IPADDR_BYTE3, MY_IPADDR_BYTE4 - 1);
-    udp_connect(socket, &ipaddr, remote_port);
+
+    udp_connect(socket, &remote_ipaddr, remote_port);
 
     pb = pbuf_alloc(PBUF_TRANSPORT, size, PBUF_REF);
 
     if (pb != 0) {
+#ifdef	DEBUG
+        time2 = EE_systick_get_value();
+#endif
         ReleaseResource(LwipMutex);
         pb->payload = buf;
-        time2 = EE_systick_get_value();
-        for (i = 0; i < num_packets; ++i) {
-            sprintf((char *)buf, "%5d", i);
+        for (i = 0; i < UDP_SENDER_PKT_NUM; ++i) {
+            fill_buff((char *)buf, size, packet_num++);
             GetResource(LwipMutex);
             ret = udp_send(socket, pb);
-            ReleaseResource(LwipMutex);
-            if (ret != ERR_OK)
+#ifdef	DEBUG
+            if (ret != ERR_OK) {
                 myprintf("ERROR in sending a packet\n");
+            }
+#endif
+            ReleaseResource(LwipMutex);
         }
-        time3 = EE_systick_get_value();
         GetResource(LwipMutex);
+#ifdef	DEBUG
+        time3 = EE_systick_get_value();
+#endif
         udp_remove(socket);
         pbuf_free(pb);
-        ReleaseResource(LwipMutex);
+#ifdef	DEBUG
         myprintf("Setup took %d us\n", time_diff_us(time1, time2));
         myprintf("Transmission of %d kB took %d ms (%d kB/s)\n",
-            size * num_packets / 1024, time_diff_ms(time2, time3),
-            size * num_packets / 1024 * 1000 / time_diff_ms(time2, time3));
+          size * UDP_SENDER_PKT_NUM / 1024, time_diff_ms(time2, time3),
+          size * UDP_SENDER_PKT_NUM / 1024 * 1000 / time_diff_ms(time2, time3));
+#endif
+        ReleaseResource(LwipMutex);
     } else {
         udp_remove(socket);
-        ReleaseResource(LwipMutex);
+#ifdef	DEBUG
         myprintf("ERROR while allocating a pbuf\n");
+#endif
+        ReleaseResource(LwipMutex);
     }
-    if (size*2 <= UDP_SENDER_BUF_SIZE)
-        size *= 2;
+
+    if ( (size << 1) <= UDP_SENDER_BUF_SIZE) {
+        size <<= 1;
+    }
+    else {
+      size = 24;
+    }
 }
 
 TASK(InitTask)
 {
 
     struct udp_pcb *my_udp_socket;
+#ifdef	DEBUG
     err_t ret;
+#endif
 
     /* Initialize lwIP */
-    static struct ip_addr my_ipaddr, netmask, gw;
-    static struct eth_addr my_ethaddr;
+    struct ip_addr my_ipaddr, netmask, gw;
+    struct eth_addr my_ethaddr;
 
     IP4_ADDR(&my_ipaddr, MY_IPADDR_BYTE1, MY_IPADDR_BYTE2, MY_IPADDR_BYTE3,
         MY_IPADDR_BYTE4);
@@ -272,13 +349,20 @@ TASK(InitTask)
         MY_ETHERNETIF_MAC_BYTE5, MY_ETHERNETIF_MAC_BYTE6);
     EE_lwip_init(&my_ipaddr, &netmask, &gw, &my_ethaddr);
 
+    IP4_ADDR(&remote_ipaddr, MY_IPADDR_BYTE1, MY_IPADDR_BYTE2, MY_IPADDR_BYTE3,
+    MY_IPADDR_BYTE4 - 1);
+
     /* Create a UDP socket */
     my_udp_socket = udp_new();
     if (my_udp_socket != 0) {
         /* Set the incoming callback */
         udp_recv(my_udp_socket, &udp_rx_handler, 0);
         /* Bind to a local port */
-        ret = udp_bind(my_udp_socket, IP_ADDR_ANY, my_port);
+#ifdef	DEBUG
+        ret =
+#endif
+        udp_bind(my_udp_socket, IP_ADDR_ANY, my_port);
+#ifdef	DEBUG
         if (ret != ERR_OK) {
             myprintf("ERROR while binding to UDP port %d\n", my_port);
         } else {
@@ -286,13 +370,14 @@ TASK(InitTask)
         }
     } else {
         myprintf("ERROR: cannot create UDP socket\n");
+#endif
     }
 }
 
 int main (void) {
   Mcu_Init(MCU_CONFIG_DEFAULT_PTR);
-  /* 50 MHz Clock  */
 
+  /* 50 MHz Clock  */
   if ( Mcu_InitClock(MCU_CLOCK_MODE_MOSC_4_PLL) == E_NOT_OK ) {
 
     Mcu_PerformReset();
@@ -306,8 +391,9 @@ int main (void) {
   /* Initialize all AS MCAL */
   Port_Init(PORT_CONFIG_SPI_ENC28J60_PTR);
   Dio_Init(DIO_CONFIG_ENC28J60_PTR);
-  Gpt_Init(GPT_CONFIG_LWIP_PTR);
+#ifdef	DEBUG
   Sci_Init(SCI_CONFIG_DEFAULT_PTR);
+#endif
   Dma_Init(DMA_CONFIG_SPI_PTR);
   Spi_Init(SPI_CONFIG_ENC28J60_PTR);
   Icu_Init(ICU_CONFIG_ENC28J60_PTR);
