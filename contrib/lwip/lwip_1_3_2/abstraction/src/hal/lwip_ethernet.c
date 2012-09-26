@@ -220,12 +220,16 @@ static err_t low_level_output(struct netif *netif, struct pbuf *p)
  */
 err_t EE_ethernet_output(struct netif *netif, struct pbuf *p, struct ip_addr *ipaddr)
 {
+#if	0
 	err_t ret;
-	
+#endif
 	EE_lwip_write_timestamp(LWIP_START_ETH_OUT);
 	LWIP_DEBUGF(NETIF_DEBUG | LWIP_DBG_TRACE, ("ethernetif_output()\n"));
 
-	ret = etharp_output(netif, p, ipaddr);
+#if	0
+	ret =
+#endif
+	etharp_output(netif, p, ipaddr);
 
 	if (p != NULL) 
 	{

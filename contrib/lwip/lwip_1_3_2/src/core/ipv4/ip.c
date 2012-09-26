@@ -705,9 +705,11 @@ void
 ip_debug_print(struct pbuf *p)
 {
   struct ip_hdr *iphdr = p->payload;
+#if	0
   u8_t *payload;
 
   payload = (u8_t *)iphdr + IP_HLEN;
+#endif
 
   LWIP_DEBUGF(IP_DEBUG, ("IP header:\n"));
   LWIP_DEBUGF(IP_DEBUG, ("+-------------------------------+\n"));
