@@ -76,6 +76,7 @@ CPU test_application {
 		EE_OPT = "__AS_PORT_DRIVER__";
 
 		EE_OPT = "__AS_DMA_DRIVER__";
+		EE_OPT = "__AS_CFG_DMA_CHANNEL_RESULT_API__";
 		EE_OPT = "__AS_CFG_DMA_SCATTER_GATHER_API__";
 		EE_OPT = "__AS_CFG_DMA_STATUS_API__";
 		EE_OPT = "__AS_CFG_DMA_SPI__";

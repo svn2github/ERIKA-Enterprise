@@ -319,7 +319,7 @@ void Spi_LBMSeq0EndNotification()
 	( Spi_GetJobResult(SPI_LBM_JOB_2) == SPI_JOB_OK ),
 	EE_ASSERT_SPI_POLL_SEQ_1_OK
       );
-      if ( Spi_GetSeqResult(SPI_LBM_SEQ_0) == SPI_SEQ_OK ) {
+      if ( Spi_GetSequenceResult(SPI_LBM_SEQ_0) == SPI_SEQ_OK ) {
 	ActivateTask(TaskSeq0Ok);
       }
       else {
@@ -333,7 +333,7 @@ void Spi_LBMSeq0EndNotification()
 	( Spi_GetJobResult(SPI_LBM_JOB_2) == SPI_JOB_OK ),
 	EE_ASSERT_SPI_EB_POLL_SEQ_1_OK
       );
-      if ( Spi_GetSeqResult(SPI_LBM_SEQ_0_EB) == SPI_SEQ_OK ) {
+      if ( Spi_GetSequenceResult(SPI_LBM_SEQ_0_EB) == SPI_SEQ_OK ) {
 	ActivateTask(TaskSeq0Ok);
       }
       else {
@@ -359,7 +359,7 @@ void Spi_LBMSeq1EndNotification()
 	( Spi_GetJobResult(SPI_LBM_JOB_0) == SPI_JOB_OK ),
 	EE_ASSERT_SPI_POLL_JOB_OK
       );
-      if ( Spi_GetSeqResult(SPI_LBM_SEQ_1) == SPI_SEQ_OK ) {
+      if ( Spi_GetSequenceResult(SPI_LBM_SEQ_1) == SPI_SEQ_OK ) {
 	ActivateTask(TaskSeq1Ok);
       }
       else {
@@ -373,7 +373,7 @@ void Spi_LBMSeq1EndNotification()
 	( Spi_GetJobResult(SPI_LBM_JOB_0_EB) == SPI_JOB_OK ),
 	EE_ASSERT_SPI_EB_POLL_JOB_OK
       );
-      if ( Spi_GetSeqResult(SPI_LBM_SEQ_1_EB) == SPI_SEQ_OK ) {
+      if ( Spi_GetSequenceResult(SPI_LBM_SEQ_1_EB) == SPI_SEQ_OK ) {
 	ActivateTask(TaskSeq1Ok);
       }
       else {
@@ -391,8 +391,13 @@ void Spi_LBMSeq1EndNotification()
 
 #define	SPI_CHANNEL_NUMBER	0x0EU
 
+#if	0	/* Not-Optimized Code. */
 Spi_DataType	rx[SPI_CHANNEL_NUMBER][SPI_IB_MAX_N_BUFFERS],
 		tx[SPI_CHANNEL_NUMBER][SPI_IB_MAX_N_BUFFERS];
+#else	/* Optimized Code. */
+Spi_DataType	rx[SPI_CHANNEL_NUMBER][SPI_CHANNEL_13_MAX_IB_N_BUFFERS],
+		tx[SPI_CHANNEL_NUMBER][SPI_CHANNEL_13_MAX_IB_N_BUFFERS];
+#endif	/* Optimized Code. */
 
 void setup_buff(
   void
@@ -403,7 +408,11 @@ void setup_buff(
 
   for (i = 0; i < SPI_CHANNEL_NUMBER; i++) {
 
+#if	0	/* Not-Optimized Code. */
     for (j = 0; j < SPI_IB_MAX_N_BUFFERS; j++) {
+#else	/* Optimized Code. */
+    for (j = 0; j < SPI_CHANNEL_13_MAX_IB_N_BUFFERS; j++) {
+#endif	/* Optimized Code. */
 
       rx[i][j] = SPI_TX_RX_DATA_NULL;
       tx[i][j] = counter + test + i + j;
@@ -624,8 +633,8 @@ int main(void)
   );
 
   while (
-    ( Spi_GetSeqResult(SPI_LBM_SEQ_0) == SPI_SEQ_PENDING ) ||
-    ( Spi_GetSeqResult(SPI_LBM_SEQ_1) == SPI_SEQ_PENDING )
+    ( Spi_GetSequenceResult(SPI_LBM_SEQ_0) == SPI_SEQ_PENDING ) ||
+    ( Spi_GetSequenceResult(SPI_LBM_SEQ_1) == SPI_SEQ_PENDING )
   ) {
 
     Spi_MainFunction_Handling();
@@ -633,8 +642,8 @@ int main(void)
   }
 
   if (
-    ( Spi_GetSeqResult(SPI_LBM_SEQ_0) == SPI_SEQ_OK ) &&
-    ( Spi_GetSeqResult(SPI_LBM_SEQ_1) == SPI_SEQ_OK )
+    ( Spi_GetSequenceResult(SPI_LBM_SEQ_0) == SPI_SEQ_OK ) &&
+    ( Spi_GetSequenceResult(SPI_LBM_SEQ_1) == SPI_SEQ_OK )
   ) {
 
     EE_assert(
@@ -964,8 +973,8 @@ int main(void)
   );
 
   while (
-    ( Spi_GetSeqResult(SPI_LBM_SEQ_0_EB) == SPI_SEQ_PENDING ) ||
-    ( Spi_GetSeqResult(SPI_LBM_SEQ_1_EB) == SPI_SEQ_PENDING )
+    ( Spi_GetSequenceResult(SPI_LBM_SEQ_0_EB) == SPI_SEQ_PENDING ) ||
+    ( Spi_GetSequenceResult(SPI_LBM_SEQ_1_EB) == SPI_SEQ_PENDING )
   ) {
 
     Spi_MainFunction_Handling();
@@ -973,8 +982,8 @@ int main(void)
   }
 
   if (
-    ( Spi_GetSeqResult(SPI_LBM_SEQ_0_EB) == SPI_SEQ_OK ) &&
-    ( Spi_GetSeqResult(SPI_LBM_SEQ_0_EB) == SPI_SEQ_OK )
+    ( Spi_GetSequenceResult(SPI_LBM_SEQ_0_EB) == SPI_SEQ_OK ) &&
+    ( Spi_GetSequenceResult(SPI_LBM_SEQ_0_EB) == SPI_SEQ_OK )
   ) {
 
     EE_assert(

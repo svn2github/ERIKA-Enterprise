@@ -90,6 +90,7 @@ CPU test_application {
 
 		EE_OPT = "__AS_DMA_DRIVER__";
 		EE_OPT = "__AS_CFG_DMA_STATUS_API__";
+		EE_OPT = "__AS_CFG_DMA_CHANNEL_RESULT_API__";
 		EE_OPT = "__AS_CFG_DMA_SCATTER_GATHER_API__";
 		EE_OPT = "__AS_CFG_DMA_NOTIFICATIONS_API__";
 		EE_OPT = "__AS_CFG_DMA_DISABLE_CHANNEL_API__";
@@ -101,7 +102,6 @@ CPU test_application {
 
 		EE_OPT = "__AS_SPI_DRIVER__";
 		EE_OPT = "__AS_CFG_SPI_LBM__";
-		EE_OPT = "__AS_CFG_SPI_ENC28J60__";
 		EE_OPT = "__AS_CFG_SPI_VERSION_INFO_API__";
 		EE_OPT = "__AS_CFG_SPI_ASYNCHRONOUS__";
 		EE_OPT = "__AS_CFG_SPI_SYNCHRONOUS__";
@@ -114,10 +114,6 @@ CPU test_application {
 		EE_OPT = "__ADD_LIBS__";
 		LIB = ENABLE {
 			NAME = "AUTOSAR";
-		};
-    
-		LIB = ENABLE {
-			NAME = "ENC28J60";
 		};
 
 		STATUS = EXTENDED;

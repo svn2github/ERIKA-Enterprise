@@ -285,7 +285,7 @@ void Spi_TestSeq0EndNotification()
 
     case 0:
       EE_assert( EE_ASSERT_SPI_INT_SEQ_END, TRUE, EE_ASSERT_SPI_INT_JOB_END );
-      if ( Spi_GetSeqResult(SPI_TEST_SEQ_0) == SPI_SEQ_OK ) {
+      if ( Spi_GetSequenceResult(SPI_TEST_SEQ_0) == SPI_SEQ_OK ) {
 	ActivateTask(TaskSeqOk);
       }
       else {
@@ -295,7 +295,7 @@ void Spi_TestSeq0EndNotification()
 
     case 1:
       EE_assert( EE_ASSERT_SPI_POLL_SEQ_END, TRUE, EE_ASSERT_SPI_POLL_JOB_END );
-      if ( Spi_GetSeqResult(SPI_TEST_SEQ_0) == SPI_SEQ_OK ) {
+      if ( Spi_GetSequenceResult(SPI_TEST_SEQ_0) == SPI_SEQ_OK ) {
 	ActivateTask(TaskSeqOk);
       }
       else {
@@ -307,7 +307,7 @@ void Spi_TestSeq0EndNotification()
       EE_assert(
 	EE_ASSERT_SPI_EB_INT_SEQ_END, TRUE, EE_ASSERT_SPI_EB_INT_JOB_END
       );
-      if ( Spi_GetSeqResult(SPI_TEST_SEQ_0_EB) == SPI_SEQ_OK ) {
+      if ( Spi_GetSequenceResult(SPI_TEST_SEQ_0_EB) == SPI_SEQ_OK ) {
 	ActivateTask(TaskSeqOk);
       }
       else {
@@ -319,7 +319,7 @@ void Spi_TestSeq0EndNotification()
       EE_assert(
 	EE_ASSERT_SPI_EB_POLL_SEQ_END, TRUE, EE_ASSERT_SPI_EB_POLL_JOB_END
       );
-      if ( Spi_GetSeqResult(SPI_TEST_SEQ_0_EB) == SPI_SEQ_OK ) {
+      if ( Spi_GetSequenceResult(SPI_TEST_SEQ_0_EB) == SPI_SEQ_OK ) {
 	ActivateTask(TaskSeqOk);
       }
       else {
@@ -448,11 +448,11 @@ int main(void)
     EE_ASSERT_SPI_INT_WRITE_IB
   );
 
-  while ( Spi_GetSeqResult(SPI_TEST_SEQ_0) == SPI_SEQ_PENDING ) {
+  while ( Spi_GetSequenceResult(SPI_TEST_SEQ_0) == SPI_SEQ_PENDING ) {
     ;
   }
 
-  if ( Spi_GetSeqResult(SPI_TEST_SEQ_0) == SPI_SEQ_OK ) {
+  if ( Spi_GetSequenceResult(SPI_TEST_SEQ_0) == SPI_SEQ_OK ) {
 
     EE_assert(
       EE_ASSERT_SPI_INT_READ_IB,
@@ -491,13 +491,13 @@ int main(void)
     EE_ASSERT_SPI_POLL_WRITE_IB
   );
 
-  while ( Spi_GetSeqResult(SPI_TEST_SEQ_0) == SPI_SEQ_PENDING ) {
+  while ( Spi_GetSequenceResult(SPI_TEST_SEQ_0) == SPI_SEQ_PENDING ) {
 
     Spi_MainFunction_Handling();
 
   }
 
-  if ( Spi_GetSeqResult(SPI_TEST_SEQ_0) == SPI_SEQ_OK ) {
+  if ( Spi_GetSequenceResult(SPI_TEST_SEQ_0) == SPI_SEQ_OK ) {
 
     EE_assert(
       EE_ASSERT_SPI_POLL_READ_IB,
@@ -536,11 +536,11 @@ int main(void)
     EE_ASSERT_SPI_EB_INT_SETUP
   );
 
-  while ( Spi_GetSeqResult(SPI_TEST_SEQ_0_EB) == SPI_SEQ_PENDING ) {
+  while ( Spi_GetSequenceResult(SPI_TEST_SEQ_0_EB) == SPI_SEQ_PENDING ) {
     ;
   }
 
-  if ( Spi_GetSeqResult(SPI_TEST_SEQ_0_EB) == SPI_SEQ_OK ) {
+  if ( Spi_GetSequenceResult(SPI_TEST_SEQ_0_EB) == SPI_SEQ_OK ) {
 
     EE_assert(
       EE_ASSERT_SPI_EB_INT_VALIDATE,
@@ -573,13 +573,13 @@ int main(void)
     EE_ASSERT_SPI_EB_POLL_SETUP
   );
 
-  while ( Spi_GetSeqResult(SPI_TEST_SEQ_0_EB) == SPI_SEQ_PENDING ) {
+  while ( Spi_GetSequenceResult(SPI_TEST_SEQ_0_EB) == SPI_SEQ_PENDING ) {
 
     Spi_MainFunction_Handling();
 
   }
 
-  if ( Spi_GetSeqResult(SPI_TEST_SEQ_0_EB) == SPI_SEQ_OK ) {
+  if ( Spi_GetSequenceResult(SPI_TEST_SEQ_0_EB) == SPI_SEQ_OK ) {
 
     EE_assert(
       EE_ASSERT_SPI_EB_POLL_VALIDATE,
@@ -614,11 +614,11 @@ int main(void)
 
   EE_assert(
     EE_ASSERT_SPI_SYNC_SEQ_OK,
-    ( Spi_GetSeqResult(SPI_TEST_SEQ_0_SYNC) == SPI_SEQ_OK ),
+    ( Spi_GetSequenceResult(SPI_TEST_SEQ_0_SYNC) == SPI_SEQ_OK ),
     EE_ASSERT_SPI_SYNC_JOB_OK
   );
 
-  if ( Spi_GetSeqResult(SPI_TEST_SEQ_0_SYNC) == SPI_SEQ_OK ) {
+  if ( Spi_GetSequenceResult(SPI_TEST_SEQ_0_SYNC) == SPI_SEQ_OK ) {
 
     EE_assert(
       EE_ASSERT_SPI_SYNC_READ_IB,
@@ -659,11 +659,11 @@ int main(void)
 
   EE_assert(
     EE_ASSERT_SPI_EB_SYNC_SEQ_OK,
-    ( Spi_GetSeqResult(SPI_TEST_SEQ_0_EB_SYNC) == SPI_SEQ_OK ),
+    ( Spi_GetSequenceResult(SPI_TEST_SEQ_0_EB_SYNC) == SPI_SEQ_OK ),
     EE_ASSERT_SPI_EB_SYNC_JOB_OK
   );
 
-  if ( Spi_GetSeqResult(SPI_TEST_SEQ_0_EB_SYNC) == SPI_SEQ_OK ) {
+  if ( Spi_GetSequenceResult(SPI_TEST_SEQ_0_EB_SYNC) == SPI_SEQ_OK ) {
 
     EE_assert(
       EE_ASSERT_SPI_EB_SYNC_VALIDATE,

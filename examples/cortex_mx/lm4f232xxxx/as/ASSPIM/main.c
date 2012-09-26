@@ -146,11 +146,11 @@ int main(void)
 
   EE_assert(
     EE_ASSERT_SPI_EB_SYNC_SEQ_OK,
-    ( Spi_GetSeqResult(SPI_TEST_SEQ_0) == SPI_SEQ_OK ),
+    ( Spi_GetSequenceResult(SPI_TEST_SEQ_0) == SPI_SEQ_OK ),
     EE_ASSERT_SPI_EB_SYNC_JOB_OK
   );
 
-  if ( Spi_GetSeqResult(SPI_TEST_SEQ_0) == SPI_SEQ_OK ) {
+  if ( Spi_GetSequenceResult(SPI_TEST_SEQ_0) == SPI_SEQ_OK ) {
 
     EE_assert(
       EE_ASSERT_SPI_EB_SYNC_VALIDATE,
