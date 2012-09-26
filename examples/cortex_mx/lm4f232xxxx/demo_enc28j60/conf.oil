@@ -38,25 +38,27 @@
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
  
- /** 
-    @file      conf.oil
-    @author    Errico Guidieri
-    @date      2012
-*/
+ /** @file	conf.oil
+  *  @author	Errico Guidieri
+  *  @author	Giuseppe Serano
+  *  @date	2012
+  */
 
 CPU test_application {
 
-  #include "conf_enc28j60.oil"
-  
+#include "conf_console.oil"
+#include "conf_enc28j60.oil"
+
   OS EE {
-    
+
     EE_OPT = "DEBUG";
+
     CPU_DATA = CORTEX_MX {
       MODEL = M4;
       /* Needed by system timer */
       CPU_CLOCK = 50.0;
       COMPILER_TYPE = KEIL;
-      //COMPILER_TYPE = CCS;
+      /* COMPILER_TYPE = CCS; */
       APP_SRC = "test1_main.c";
       APP_SRC = "Dio_Cfg.c";
       APP_SRC = "Dma_Cfg.c";
@@ -64,7 +66,7 @@ CPU test_application {
       APP_SRC = "Port_Cfg.c";
       APP_SRC = "Spi_Cfg.c";
       APP_SRC = "Sci_Cfg.c";
-      APP_SRC = "Icu_Cfg.c";
+      /* APP_SRC = "Icu_Cfg.c"; */
       MULTI_STACK = FALSE;
     };
 
@@ -74,8 +76,6 @@ CPU test_application {
 
     /* For System Timer and Timer Debug */
     EE_OPT = "__USE_SYSTICK__";
-    /* For Debug */
-    /*EE_OPT = "__USE_LED__";*/
 
     EE_OPT = "__AUTOSAR_R4_0__";
     EE_OPT = "__AS_DIO_DRIVER__";
@@ -83,12 +83,14 @@ CPU test_application {
     EE_OPT = "__AS_PORT_DRIVER__";
     EE_OPT = "__AS_SCI_DRIVER__";
 
-    EE_OPT = "__AS_ICU_DRIVER__";
-    EE_OPT = "__AS_CFG_ICU_EDGE_DETECT_API__";
-    EE_OPT = "__AS_CFG_ICU_ENC28J60__";
+    /* Needed by ENC28J60 IRQ */
+    /* EE_OPT = "__AS_ICU_DRIVER__"; */
+    /* EE_OPT = "__AS_CFG_ICU_EDGE_DETECT_API__"; */
+    /* EE_OPT = "__AS_CFG_ICU_ENC28J60__"; */
 
     EE_OPT = "__AS_DMA_DRIVER__";
     EE_OPT = "__AS_CFG_DMA_STATUS_API__";
+    EE_OPT = "__AS_CFG_DMA_CHANNEL_RESULT_API__";
     EE_OPT = "__AS_CFG_DMA_SCATTER_GATHER_API__";
     EE_OPT = "__AS_CFG_DMA_NOTIFICATIONS_API__";
     EE_OPT = "__AS_CFG_DMA_DISABLE_CHANNEL_API__";
@@ -102,14 +104,17 @@ CPU test_application {
 
     /* Kernel algorithm */
     KERNEL_TYPE = BCC1;
-    /* Used to build separate libas.a without configuration */
+
+    /* ********************************************************** */
+    /*                Contrib Library Inclusion                   */
+    /* ********************************************************** */
     EE_OPT = "__ADD_LIBS__";
-    LIB = ENABLE {
-      NAME = "AUTOSAR";
-    };
-    LIB = ENABLE {
-      NAME = "AUTOSAR_SSG";
-    };
+
+    /* Used to build separate libas.a without configuration */
+    LIB = ENABLE { NAME = "AUTOSAR"; };
+    /* Used to build separate libasssg.a without configuration */
+    /* LIB = ENABLE { NAME = "AUTOSAR_SSG"; }; */
+
   };
 
   /* ****************************************************************** */
@@ -132,8 +137,7 @@ CPU test_application {
     STACK = SHARED;
     SCHEDULE = FULL;
   };
-  
-  
+
   /* ALARMs list */
   ALARM myAlarm1 {
     COUNTER = system_timer;
@@ -143,4 +147,5 @@ CPU test_application {
       CYCLETIME = 1000;
     };
   };
+
 };

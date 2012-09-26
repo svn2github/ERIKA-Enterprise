@@ -1,7 +1,7 @@
 /* ###*B*###
  * ERIKA Enterprise - a tiny RTOS for small microcontrollers
  *
- * Copyright (C) 2010  Evidence Srl
+ * Copyright (C) 2012  Evidence Srl
  *
  * This file is part of ERIKA Enterprise.
  *
@@ -38,17 +38,21 @@
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
  
-/** 
-    @file      test1_main.c
-    @brief     ENC28J60 driver function test (eth mac mii read and write, bank selection).
-               User can use this demo to test if SPI communication works fine.
-               The demo uses eth, mac, mii read/write and bank selection functions of the 
-               ENC28J60 library.
-               The demo requires a RS232 serial connection with a 115200 bps,8N1 configuration.
-               The demo requires a SPI bus to communicate with the device.
-    @author    Dario Di Stefano
-    @date      2010
-*/
+/** @file	test1_main.c
+ *  @brief	ENC28J60 driver function test
+ *  		(eth mac mii read and write, bank selection).
+ *
+ *  User can use this demo to test if SPI communication works fine.
+ *  The demo uses eth, mac, mii read/write and bank selection functions of the 
+ *  ENC28J60 library.
+ *  The demo requires a RS232 serial connection.
+ *  The demo requires a SPI bus to communicate with the device.
+ *
+ *  @author    Dario Di Stefano
+ *  @author    Errico Guidieri
+ *  @author    Giuseppe Serano
+ *  @date      2012
+ */
 
 /* RT-Kernel */
 #include <ee.h>
@@ -60,10 +64,11 @@
 #include "Mcu.h"
 #include "Port.h"
 #include "Dio.h"
-#include "Gpt.h"
+#if	0
+#include "Icu.h"
+#endif
 #include "Sci.h"
 #include "Spi.h"
-#include "Icu.h"
 
 /* enc28j60 driver */
 #include "enc28j60.h"
@@ -108,6 +113,9 @@ TASK(myTask1)
   EE_UINT8 data;
   EE_UINT8 mask;
   EE_UINT32 phy_data;
+
+  /* Make the LED blink */
+  Dio_WriteChannel(DIO_CHANNEL_USER_LED, STD_HIGH);
 
   /* ---------------------------------------------------------------- */
   /* BANK SELECTION */
@@ -159,14 +167,17 @@ TASK(myTask1)
   EE_enc28j60_write_PHY_register(PHLCON, phy_data);
   myprintf("\nWrite PHLCON:%x\n", phy_data);
   myprintf("\nRead PHLCON:%x\n", EE_enc28j60_read_PHY_register((BYTE)PHLCON).Val);
-  
+
   /* ----------------------------------------------------------------- */
   /* MEMORY READ */
+
+  /* Make the LED blink */
+  Dio_WriteChannel(DIO_CHANNEL_USER_LED, STD_LOW);
 }
 
 /*
-* MAIN TASK
-*/
+ * MAIN TASK
+ */
 int main(void)
 {
   Mcu_Init(MCU_CONFIG_DEFAULT_PTR);
@@ -188,6 +199,10 @@ int main(void)
   Sci_Init(SCI_CONFIG_DEFAULT_PTR);
   Dma_Init(DMA_CONFIG_SPI_PTR);
   Spi_Init(SPI_CONFIG_ENC28J60_PTR);
+#if	0
+  Icu_Init(ICU_CONFIG_ENC28J60_PTR);
+  Icu_EnableNotification(ICU_ENC28J60_CHANNEL);
+#endif
 
   StartOS(OSDEFAULTAPPMODE);
 

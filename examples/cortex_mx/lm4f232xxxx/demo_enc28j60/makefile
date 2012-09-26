@@ -52,8 +52,13 @@ else
 export ERIKA_FILES := $(subst \,/,$(ERIKA_FILES))
 endif
 
+# KEIL uVision Compiler Toolchain.
 AS_CFG_PREFIX := $(ERIKA_FILES)/contrib/as/arch/stellaris/keil/config/
-AS_SSG_CFG_PREFIX := $(ERIKA_FILES)/contrib/as_ssg/arch/stellaris/keil/config/
+# AS_SSG_CFG_PREFIX := $(ERIKA_FILES)/contrib/as_ssg/arch/stellaris/keil/config/
+
+# TI CCSv4 Compiler Toolchain.
+# AS_CFG_PREFIX := $(ERIKA_FILES)/contrib/as/arch/stellaris/ccs/config/
+# AS_SSG_CFG_PREFIX := $(ERIKA_FILES)/contrib/as_ssg/arch/stellaris/ccs/config/
 
 ifndef RTDRUID_ECLIPSE_HOME
 RTDRUID_ECLIPSE_HOME := C:/Evidence/eclipse
@@ -74,25 +79,27 @@ AS_CFG =	Compiler_Cfg.h\
 		Mcu_Cfg.c\
 		Port_Cfg.h\
 		Port_Cfg.c\
-		Gpt_Cfg.h\
-		Gpt_Cfg.c\
 		Sci_Cfg.h\
 		Sci_Cfg.c\
 		Spi_Cfg.h\
 		Spi_Cfg.c
 
-AS_SSG_CFG =	Icu_Cfg.h\
-		Icu_Cfg.c
+# Uncomment for ENC28J60 IRQ
+#AS_SSG_CFG =	Icu_Cfg.h\
+#		Icu_Cfg.c
 
 RTDRUID_AS_OUTPUT = $(addprefix $(OUTPUT_DIR)/, $(AS_CFG))
 
-RTDRUID_AS_SSG_OUTPUT = $(addprefix $(OUTPUT_DIR)/, $(AS_SSG_CFG))
+# Uncomment for ENC28J60 IRQ
+#RTDRUID_AS_SSG_OUTPUT = $(addprefix $(OUTPUT_DIR)/, $(AS_SSG_CFG))
 
 RTDRUID_OUTPUT = $(addprefix $(OUTPUT_DIR)/, makefile eecfg.h eecfg.c)
 
 .PHONY: all clean
 
-all: $(RTDRUID_OUTPUT) $(RTDRUID_AS_OUTPUT) $(RTDRUID_AS_SSG_OUTPUT)
+# Uncomment for ENC28J60 IRQ
+#all: $(RTDRUID_OUTPUT) $(RTDRUID_AS_OUTPUT) $(RTDRUID_AS_SSG_OUTPUT)
+all: $(RTDRUID_OUTPUT) $(RTDRUID_AS_OUTPUT)
 	$(MAKE) -C $(OUTPUT_DIR) all
 
 clean:
@@ -120,7 +127,8 @@ $(RTDRUID_AS_OUTPUT): $(OUTPUT_DIR)/% : $(AS_CFG_PREFIX)%
 	@mkdir -p $(OUTPUT_DIR)
 	cp $< $@
 
-$(RTDRUID_AS_SSG_OUTPUT): $(OUTPUT_DIR)/% : $(AS_SSG_CFG_PREFIX)%
-	@echo "Substituing RT-Druid in generating $@..."
-	@mkdir -p $(OUTPUT_DIR)
-	cp $< $@
+# Uncomment for ENC28J60 IRQ
+#$(RTDRUID_AS_SSG_OUTPUT): $(OUTPUT_DIR)/% : $(AS_SSG_CFG_PREFIX)%
+#	@echo "Substituing RT-Druid in generating $@..."
+#	@mkdir -p $(OUTPUT_DIR)
+#	cp $< $@
