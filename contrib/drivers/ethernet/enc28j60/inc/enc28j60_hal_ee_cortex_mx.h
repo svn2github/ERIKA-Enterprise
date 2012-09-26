@@ -51,14 +51,17 @@
 #if	( \
 	!defined(__AUTOSAR_R4_0__)  ||	\
 	!defined(__AS_DIO_DRIVER__) ||	\
-	!defined(__AS_ICU_DRIVER__) ||	\
+	( defined(__USE_ETHERNET_IRQ__) && !defined(__AS_ICU_DRIVER__) ) || \
 	!defined(__AS_SPI_DRIVER__)	\
 )
 #error enc28j60 driver for cortex need Autosar SPI MCAL driver!
 #endif	/*
-	 * 	!defined(__AUTOSAR_R4_0__)
-	 * 	!defined(__AS_DIO_DRIVER__)
-	 * 	!defined(__AS_ICU_DRIVER__)
+	 * 	!defined(__AUTOSAR_R4_0__) ||
+	 * 	!defined(__AS_DIO_DRIVER__) ||
+	 * 	( 
+	 * 		defined(__USE_ETHERNET_IRQ__) &&
+	 * 		!defined(__AS_ICU_DRIVER__)
+	 * 	) ||
 	 * 	!defined(__AS_SPI_DRIVER__)
 	 */
 
@@ -69,7 +72,9 @@
 /* AS Drivers inclusions */
 #include "Dio.h"
 #include "Spi.h"
+#ifdef	__USE_ETHERNET_IRQ__
 #include "Icu.h"
+#endif
 
 /* ------------------------------------------------------------------------------- */
 /* Macros used into the Ethernet driver functions */
@@ -252,6 +257,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_enc28j60_hal_disable(void)
 }
 
 
+#ifdef	__USE_ETHERNET_IRQ__
 /**
   @brief This function enables ENC28J60 reception of interrupts. 
 */
@@ -275,6 +281,11 @@ __INLINE__ int __ALWAYS_INLINE__ EE_enc28j60_hal_IRQ_enabled(void)
      enc28j60 driver on top of AS MCAL  */
   return Icu_GetEdgeDetectionStatus(ICU_ENC28J60_CHANNEL);
 }
+#else	/* !__USE_ETHERNET_IRQ__ */
+#define	EE_enc28j60_hal_enable_IRQ()	((void)0)
+#define	EE_enc28j60_hal_disable_IRQ()	((void)0)
+#define	EE_enc28j60_hal_IRQ_enabled()	((void)0)
+#endif	/* !__USE_ETHERNET_IRQ__ */
 
 #endif /* __ENC28J60_HAL_EE_CORTEX_MX_H__ */
 
