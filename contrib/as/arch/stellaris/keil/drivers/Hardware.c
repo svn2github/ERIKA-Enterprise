@@ -87,7 +87,7 @@ typedef struct {
 /*
  * Supported Cores Array
  */
-Hw_CoreInfoType Hw_SupportedCoreArray[] =
+const Hw_CoreInfoType Hw_SupportedCoreArray[] =
 {
   {
     "ARM Cortex-M4F",			/* .Name */
@@ -105,12 +105,12 @@ Hw_CoreInfoType Hw_SupportedCoreArray[] =
  * Id		Core Idenfier Number.
  * Return	Core Informations Container Pointer.
  */
-static Hw_CoreInfoType * Hw_GetSupportedCoreInfo(
+static const Hw_CoreInfoType * Hw_GetSupportedCoreInfo(
   uint32	Id
 )
 {
-  register uint32		i;
-  register Hw_CoreInfoType *	info = NULL;
+  register uint32			i;
+  register const Hw_CoreInfoType	*info = NULL;
   for (i = 0; i < HW_ARRAY_SIZE(Hw_SupportedCoreArray); i++) {
     if (Hw_SupportedCoreArray[i].Id == Id) {
       info = &Hw_SupportedCoreArray[i];
@@ -130,7 +130,7 @@ Std_ReturnType Hw_CheckCore(
 ) {
   /* NVIC - System Control Block - Register 64: CPUID */
   register uint32 Id = NVIC_CPUID_R;
-  Hw_CoreInfoType *info = NULL;
+  const Hw_CoreInfoType *info = NULL;
   info = Hw_GetSupportedCoreInfo(Id);
   if ( info != NULL )
     return E_OK;
