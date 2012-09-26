@@ -167,14 +167,12 @@ endif
 
 ifeq ($(call iseeopt, DEBUG), yes)
 OPT_CC += -g
-else
-OPT_CC += -O2
 endif
 
 OPT_CC +=  -c --gcc --define=ccs --define=PART_LM4F232H5QD \
 	   --define=TARGET_IS_BLIZZARD_RA1 --diag_warning=225 -me \
 	   --gen_func_subsections=on --abi=eabi --code_state=16 \
-	   --float_support=FPv4SPD16 --ual --quiet \
+	   --float_support=vfplib --ual --quiet \
 	   --temp_directory=$(CG_TMPDIR)
 
 # Specific option from the application makefile
@@ -187,15 +185,13 @@ endif
 
 ifeq ($(call iseeopt, DEBUG), yes)
 OPT_ASM += -g
-else
-OPT_ASM += -O2
 endif 
 
 
 OPT_ASM += -c --gcc --define=ccs --define=PART_LM4F232H5QD \
 	   --define=TARGET_IS_BLIZZARD_RA1 --diag_warning=225 -me \
 	   --gen_func_subsections=on --abi=eabi --code_state=16 \
-	   --float_support=FPv4SPD16 --ual --quiet --asm_extension=.s \
+	   --float_support=vfplib --ual --quiet --asm_extension=.s \
 	   --temp_directory=$(CG_TMPDIR)
 
 # Specific option from the application makefile
@@ -208,16 +204,34 @@ endif
 
 ifeq ($(call iseeopt, DEBUG), yes)
 OPT_LINK += -g
-else
-OPT_LINK += -O2
 endif
 
 # FIXME: STACK_SIZE.
 OPT_LINK += -diag_warning=225 -me --gen_func_subsections=on --abi=eabi \
-	    --code_state=16 --float_support=FPv4SPD16 -z --define=ccs \
+	    --code_state=16 --float_support=vfplib -z --define=ccs \
 	    --define=PART_LM4F232H5QD --define=TARGET_IS_BLIZZARD_RA1 \
-	    --quiet --reread_libs --rom_model --stack_size=1024 --heap_size=0 \
-	    --warn_sections
+	    --reread_libs --rom_model --warn_sections
+
+ifeq ($(call iseeopt, __CORTEX_M4_CCS_SYS_STACK_4K__), yes)
+OPT_LINK += --stack_size=4096
+else
+ifeq ($(call iseeopt, __CORTEX_M4_CCS_SYS_STACK_2K__), yes)
+OPT_LINK += --stack_size=2048
+else
+OPT_LINK += --stack_size=1024
+endif
+endif
+
+ifeq ($(call iseeopt, __CORTEX_M4_CCS_SYS_HEAP_2K__), yes)
+OPT_LINK += --heap_size=2048
+else
+ifeq ($(call iseeopt, __CORTEX_M4_CCS_SYS_HEAP_1K__), yes)
+OPT_LINK += --heap_size=1024
+else
+OPT_LINK += --heap_size=0
+endif
+endif
+
 # TODO: Generate *.map file (OBJDUMP -> odf470)
 #	   -m$(call native_path, $(subst .$(CG_OUT_EXTENSION), .map, $@))
 
