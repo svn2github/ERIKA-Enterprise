@@ -118,18 +118,18 @@ Spi_ChannelStateType	SpiChannelStatus[SPI_CHANNELS_MAX_NUMBER];
  * Scatter-Gather Tables MUST BE 4-bytes (32-bits) aligned.
  */
 #if	( SPI_LEVEL_DELIVERED == 2 )
-Dma_EntryType		SpiAsyncTxSGTable[SPI_ASYNC_CHANNELS_MAX_NUMBER]
+Dma_EntryType		SpiAsyncTxSGTable[SPI_ASYNC_JOBS_CHANNELS_MAX_NUMBER]
 			__attribute__ ((aligned(4)));
-Dma_EntryType		SpiAsyncRxSGTable[SPI_ASYNC_CHANNELS_MAX_NUMBER]
+Dma_EntryType		SpiAsyncRxSGTable[SPI_ASYNC_JOBS_CHANNELS_MAX_NUMBER]
 			__attribute__ ((aligned(4)));
-Dma_EntryType		SpiSyncTxSGTable[SPI_SYNC_CHANNELS_MAX_NUMBER]
+Dma_EntryType		SpiSyncTxSGTable[SPI_SYNC_JOBS_CHANNELS_MAX_NUMBER]
 			__attribute__ ((aligned(4)));
-Dma_EntryType		SpiSyncRxSGTable[SPI_SYNC_CHANNELS_MAX_NUMBER]
+Dma_EntryType		SpiSyncRxSGTable[SPI_SYNC_JOBS_CHANNELS_MAX_NUMBER]
 			__attribute__ ((aligned(4)));
 #else	/* ( SPI_LEVEL_DELIVERED == 2 ) */
-Dma_EntryType		SpiTxSGTable[SPI_CHANNELS_MAX_NUMBER]
+Dma_EntryType		SpiTxSGTable[SPI_JOBS_CHANNELS_MAX_NUMBER]
 			__attribute__ ((aligned(4)));
-Dma_EntryType		SpiRxSGTable[SPI_CHANNELS_MAX_NUMBER]
+Dma_EntryType		SpiRxSGTable[SPI_JOBS_CHANNELS_MAX_NUMBER]
 			__attribute__ ((aligned(4)));
 #endif	/* !( SPI_LEVEL_DELIVERED == 2 ) */
 
@@ -157,8 +157,21 @@ static void Spi_DmaSGEntriesSetup(
 )
 {
 
-  register Spi_ChannelType	ChIdx;
-  register Spi_NumberOfDataType	IbBuffIdx;
+  register Spi_ChannelType		ChIdx;
+#if	( \
+	  ( SPI_CHANNEL_BUFFERS_ALLOWED == 0 ) || \
+	  ( SPI_CHANNEL_BUFFERS_ALLOWED == 2 ) \
+	)
+  register Spi_NumberOfDataType		IbBuffIdx;
+#endif	/*
+	 * (
+	 *   ( SPI_CHANNEL_BUFFERS_ALLOWED == 0 ) ||
+	 *   ( SPI_CHANNEL_BUFFERS_ALLOWED == 2 )
+	 * )
+	 */
+  register Dma_NumberOfElementsType	DmaBuffLen;
+  register const Dma_DataType *		DmaSrcBuffPtr;
+  register const Dma_DataType *		DmaDstBuffPtr;
 
   for (
     ChIdx = 0;
@@ -171,8 +184,6 @@ static void Spi_DmaSGEntriesSetup(
     ;
   }
 
-  if ( SpiChannelStatus[ChIdx].SpiBuffLen == 0x0000 ) {
-
 #if	( SPI_CHANNEL_BUFFERS_ALLOWED == 2 )
     if ( Spi_Global.ConfigPtr->SpiChannel[ChIdx].SpiChannelType == SPI_EB ) {
 #endif	/* ( SPI_CHANNEL_BUFFERS_ALLOWED == 2 ) */
@@ -181,8 +192,44 @@ static void Spi_DmaSGEntriesSetup(
 	  ( SPI_CHANNEL_BUFFERS_ALLOWED == 1 ) || \
 	  ( SPI_CHANNEL_BUFFERS_ALLOWED == 2 ) \
 	)
-      SpiChannelStatus[ChIdx].SpiBuffLen =
-      Spi_Global.ConfigPtr->SpiChannel[ChIdx].SpiEbMaxLength;
+      if ( SpiChannelStatus[ChIdx].SpiEbLen == 0x0000 ) {
+
+	DmaBuffLen = Spi_Global.ConfigPtr->SpiChannel[ChIdx].SpiEbMaxLength;
+	SpiChannelStatus[ChIdx].SpiSrcEb =
+	Spi_Global.ConfigPtr->SpiChannel[ChIdx].SpiDefaultData;
+	DmaSrcBuffPtr = &SpiChannelStatus[ChIdx].SpiSrcEb;
+	DmaDstBuffPtr = &SpiChannelStatus[ChIdx].SpiDstEb;
+
+      }
+      else {
+
+	DmaBuffLen = SpiChannelStatus[ChIdx].SpiEbLen;
+
+	if ( SpiChannelStatus[ChIdx].SpiSrcEbPtr == NULL_PTR ) {
+
+	  SpiChannelStatus[ChIdx].SpiSrcEb =
+	  Spi_Global.ConfigPtr->SpiChannel[ChIdx].SpiDefaultData;
+	  DmaSrcBuffPtr = &SpiChannelStatus[ChIdx].SpiSrcEb;
+
+	}
+	else {
+
+	  DmaSrcBuffPtr = SpiChannelStatus[ChIdx].SpiSrcEbPtr;
+
+	}
+
+	if ( SpiChannelStatus[ChIdx].SpiDstEbPtr == NULL_PTR ) {
+
+	  DmaDstBuffPtr = &SpiChannelStatus[ChIdx].SpiDstEb;
+
+	}
+	else {
+
+	  DmaDstBuffPtr = SpiChannelStatus[ChIdx].SpiDstEbPtr;
+
+	}
+
+      }
 #endif	/*
 	 * (
 	 *   ( SPI_CHANNEL_BUFFERS_ALLOWED == 1 ) ||
@@ -199,8 +246,19 @@ static void Spi_DmaSGEntriesSetup(
 	  ( SPI_CHANNEL_BUFFERS_ALLOWED == 0 ) || \
 	  ( SPI_CHANNEL_BUFFERS_ALLOWED == 2 ) \
 	)
-      SpiChannelStatus[ChIdx].SpiBuffLen =
-      Spi_Global.ConfigPtr->SpiChannel[ChIdx].SpiIbNBuffers;
+      DmaBuffLen = Spi_Global.ConfigPtr->SpiChannel[ChIdx].SpiIbNBuffers;
+      DmaSrcBuffPtr = SpiChSrcIb[ChIdx];
+      DmaDstBuffPtr = SpiChDstIb[ChIdx];
+      if ( SpiChannelStatus[ChIdx].SpiSrcIbEmpty == TRUE ) {
+
+	for (IbBuffIdx = 0; IbBuffIdx < DmaBuffLen; IbBuffIdx++) {
+
+	  SpiChSrcIb[ChIdx][IbBuffIdx] =
+	  Spi_Global.ConfigPtr->SpiChannel[ChIdx].SpiDefaultData;
+
+	}
+
+      }
 #endif	/*
 	 * (
 	 *   ( SPI_CHANNEL_BUFFERS_ALLOWED == 0 ) ||
@@ -212,51 +270,71 @@ static void Spi_DmaSGEntriesSetup(
     }
 #endif	/* ( SPI_CHANNEL_BUFFERS_ALLOWED == 2 ) */
 
-  } /* ( SpiChannelStatus[ChIdx].SpiBuffLen == 0x0000 ) */
-
-  if ( SpiChannelStatus[ChIdx].SpiSrcBuffPtr == NULL_PTR ) {
-
-    SpiChannelStatus[ChIdx].SpiSrcBuffPtr =
-    SpiChannelStatus[ChIdx].SpiIbSrcBuff;
-
-    for (
-      IbBuffIdx = 0;
-      IbBuffIdx < SpiChannelStatus[ChIdx].SpiBuffLen;
-      IbBuffIdx++
-    ) {
-
-      SpiChannelStatus[ChIdx].SpiIbSrcBuff[IbBuffIdx] =
-      Spi_Global.ConfigPtr->SpiChannel[ChIdx].SpiDefaultData;
-
-    }
-
-  }
-
-  if ( SpiChannelStatus[ChIdx].SpiDstBuffPtr == NULL_PTR ) {
-
-    SpiChannelStatus[ChIdx].SpiDstBuffPtr =
-    SpiChannelStatus[ChIdx].SpiIbDstBuff;
-
-  }
-
-  /* Last Entries. */
   Dma_ScatterGatherEntrySetup(
     ExtDevCfgPtr->SpiDmaRxChannel,
     &RxSGTable[AssChIdx],
     (const Dma_DataType *)SSI_FIFO_ADDR(ExtDevCfgPtr->SpiHwUnit),
-    SpiChannelStatus[ChIdx].SpiDstBuffPtr,
-    SpiChannelStatus[ChIdx].SpiBuffLen,
+    DmaDstBuffPtr,
+    DmaBuffLen,
     LastEntry
   );
+
+#if	( \
+	  ( SPI_CHANNEL_BUFFERS_ALLOWED == 1 ) || \
+	  ( SPI_CHANNEL_BUFFERS_ALLOWED == 2 ) \
+	)
+  if (
+#if	( SPI_CHANNEL_BUFFERS_ALLOWED == 2 )
+    ( Spi_Global.ConfigPtr->SpiChannel[ChIdx].SpiChannelType == SPI_EB ) &&
+#endif	/* ( SPI_CHANNEL_BUFFERS_ALLOWED == 2 ) */
+    ( SpiChannelStatus[ChIdx].SpiDstEbPtr == NULL_PTR)
+  ) {
+
+    /* Scatter-Gather Entry HACK */
+    RxSGTable[AssChIdx].DmaControl |= DMA_CHANNEL_DST_INC_NONE;
+    RxSGTable[AssChIdx].DmaDstEndAddress =
+	(uint32)&SpiChannelStatus[ChIdx].SpiDstEb;
+
+  }
+#endif	/*
+	 * (
+	 *   ( SPI_CHANNEL_BUFFERS_ALLOWED == 1 ) ||
+	 *   ( SPI_CHANNEL_BUFFERS_ALLOWED == 2 )
+	 *  )
+	 */
 
   Dma_ScatterGatherEntrySetup(
     ExtDevCfgPtr->SpiDmaTxChannel,
     &TxSGTable[AssChIdx],
-    SpiChannelStatus[ChIdx].SpiSrcBuffPtr,
+    DmaSrcBuffPtr,
     (const Dma_DataType *)SSI_FIFO_ADDR(ExtDevCfgPtr->SpiHwUnit),
-    SpiChannelStatus[ChIdx].SpiBuffLen,
+    DmaBuffLen,
     LastEntry
   );
+
+#if	( \
+	  ( SPI_CHANNEL_BUFFERS_ALLOWED == 1 ) || \
+	  ( SPI_CHANNEL_BUFFERS_ALLOWED == 2 ) \
+	)
+  if (
+#if	( SPI_CHANNEL_BUFFERS_ALLOWED == 2 )
+    ( Spi_Global.ConfigPtr->SpiChannel[ChIdx].SpiChannelType == SPI_EB ) &&
+#endif	/* ( SPI_CHANNEL_BUFFERS_ALLOWED == 2 ) */
+    ( SpiChannelStatus[ChIdx].SpiSrcEbPtr == NULL_PTR)
+  ) {
+
+    /* Scatter-Gather Entry HACK */
+    TxSGTable[AssChIdx].DmaControl |= DMA_CHANNEL_SRC_INC_NONE;
+    TxSGTable[AssChIdx].DmaSrcEndAddress =
+	(uint32)&SpiChannelStatus[ChIdx].SpiSrcEb;
+
+  }
+#endif	/*
+	 * (
+	 *   ( SPI_CHANNEL_BUFFERS_ALLOWED == 1 ) ||
+	 *   ( SPI_CHANNEL_BUFFERS_ALLOWED == 2 )
+	 *  )
+	 */
 
 }
 
@@ -303,7 +381,6 @@ static void Spi_JobStart(
   HWUnit = ExtDevCfgPtr->SpiHwUnit;
 
   SpiHwUnitStatus[HWUnitIdx].SpiOwnerIdx = JobIdx;
-  SpiHwUnitStatus[HWUnitIdx].SpiTxEnd = FALSE;
 
   SpiJobStatus[JobIdx].SpiJobResult = SPI_JOB_PENDING;
   SpiJobStatus[JobIdx].SpiOwnerIdx = OwnerIdx;

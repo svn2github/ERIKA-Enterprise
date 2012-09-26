@@ -197,6 +197,13 @@
 #define	SSI_ENABLE(_hu)	SSI_REG_OR_SET(_hu, SSI_CR1_R_OFFSET, SSI_CR1_SSE)
 
 /*
+ * Hardware Unit is Enabled.
+ *
+ * param	_hu	Numeric ID of a SPI Hardware Unit. (Spi_HWUnitType)
+ */
+#define	SSI_IS_ENABLED(_hu)	SSI_REG_AND(_hu, SSI_CR1_R_OFFSET, SSI_CR1_SSE)
+
+/*
  * Hardware Unit Disable.
  *
  * param	_hu	Numeric ID of a SPI Hardware Unit. (Spi_HWUnitType)
@@ -368,15 +375,43 @@ extern Mcu_GlobalType Mcu_Global;
  */
 typedef struct {
 
-  Spi_DataType		SpiIbSrcBuff[SPI_IB_MAX_N_BUFFERS];
-  Spi_DataType		SpiIbDstBuff[SPI_IB_MAX_N_BUFFERS];
+#if	( \
+  ( SPI_CHANNEL_BUFFERS_ALLOWED == 1 ) || ( SPI_CHANNEL_BUFFERS_ALLOWED == 2 ) \
+)
+  Spi_NumberOfDataType	SpiEbLen;	/* External Buffers Elements Number.  */
+  const Spi_DataType *	SpiSrcEbPtr;	/* Source External Buffer Pointer.    */
+  Spi_DataType *	SpiDstEbPtr;  /* Destination External Buffer Pointer. */
 
-  Spi_NumberOfDataType	SpiBuffLen;	/* Buffers Elements Number.	      */
+  /* Dummy Buffers to be used when User don't call Spi_SetupEB(). */
+  Spi_DataType		SpiSrcEb;	/* Fake Source External Buffer.	      */
+  Spi_DataType		SpiDstEb;	/* Fake Destination External Buffer.  */
+#endif	/* 
+	 * ( SPI_CHANNEL_BUFFERS_ALLOWED == 1 ) ||
+	 * ( SPI_CHANNEL_BUFFERS_ALLOWED == 2 )
+	 */
 
-  const Spi_DataType *	SpiSrcBuffPtr;	/* Source Buffer.		      */
-  Spi_DataType *	SpiDstBuffPtr;	/* Destination Buffer.		      */
+#if	( \
+  ( SPI_CHANNEL_BUFFERS_ALLOWED == 0 ) || ( SPI_CHANNEL_BUFFERS_ALLOWED == 2 ) \
+)
+  boolean	SpiSrcIbEmpty;	/* Source Internal Buffer Empty Flag.	      */
+  boolean	SpiDstIbEmpty;	/* Destination Internal Buffer Empty Flag.    */
+#endif	/* 
+	 * ( SPI_CHANNEL_BUFFERS_ALLOWED == 0 ) ||
+	 * ( SPI_CHANNEL_BUFFERS_ALLOWED == 2 )
+	 */
 
 }	Spi_ChannelStateType;
+
+#if	(\
+  ( SPI_CHANNEL_BUFFERS_ALLOWED == 0 ) || ( SPI_CHANNEL_BUFFERS_ALLOWED == 2 )\
+)
+/* Internal Buffers moved in Spi_Cfg.c */
+extern	Spi_DataType *	SpiChSrcIb[];	/* Source Internal Buffer.	      */
+extern	Spi_DataType *	SpiChDstIb[];	/* Destination Internal Buffer.	      */
+#endif	/* 
+	 * ( SPI_CHANNEL_BUFFERS_ALLOWED == 0 ) ||
+	 * ( SPI_CHANNEL_BUFFERS_ALLOWED == 2 )
+	 */
 
 /*
  * Channel Status Array.
@@ -389,7 +424,6 @@ extern Spi_ChannelStateType	SpiChannelStatus[SPI_CHANNELS_MAX_NUMBER];
 typedef struct {
 
   Spi_JobType		SpiOwnerIdx;	/* Hardware Unit Owner Job Index.     */
-  boolean		SpiTxEnd;	/* Hardware Unit Transmission End.    */
 
 }	Spi_HwUnitStateType;
 

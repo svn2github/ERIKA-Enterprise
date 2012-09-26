@@ -600,7 +600,7 @@ typedef enum {
 #define	SPI_SETUPEB_SERVICE_ID			0x05
 #define	SPI_GETSTATUS_SERVICE_ID		0x06
 #define	SPI_GETJOBRESULT_SERVICE_ID		0x07
-#define	SPI_GETSEQRESULT_SERVICE_ID		0x08
+#define	SPI_GETSEQUENCERESULT_SERVICE_ID	0x08
 #define	SPI_GETVERSIONINFO_SERVICE_ID		0x09
 #define	SPI_SYNCTRANSMIT_SERVICE_ID		0x0A
 #define	SPI_GETHWUNITSTATUS_SERVICE_ID		0x0B
@@ -772,7 +772,7 @@ Std_ReturnType Spi_DeInit(
  *  <b>SPI258</b>:	If the API parameter Length related service is not done
  *  			and the return value shall be <tt>E_NOT_OK</tt>.
  *
- *  <b>SPI046</b>:	If the SPI Handler/Driver’s environment calls any API
+ *  <b>SPI046</b>:	If the SPI Handler/Driver's environment calls any API
  *  			function before initialization, an error should be
  *  			reported to the DET with the error value
  *  			<tt>SPI_E_UNINIT</tt> according to the configuration.
@@ -1000,7 +1000,7 @@ Std_ReturnType Spi_ReadIB(
  *  					<tt>SrcDataBufferPtr</tt> and/or
  *  					received from <tt>DesDataBufferPtr</tt>
  *  					- Min.:	1
- *  					- Max.:	Max of data specified atù
+ *  					- Max.:	Max of data specified at
  *  						configuration for this channel.
  *  @return	
  *  	- <tt>E_OK</tt>:	Setup command has been accepted
@@ -1196,7 +1196,7 @@ Spi_JobResultType Spi_GetJobResult(
  *  			<b>E_NOT_OK</b> or a failed result 
  *  			(<tt>SPI_JOB_FAILED</tt> or <tt>SPI_SEQ_FAILED</tt>).
  *
- *  <b>SPI046</b>:	If the SPI Handler/Driver’s environment calls any API
+ *  <b>SPI046</b>:	If the SPI Handler/Driver's environment calls any API
  *  			function before initialization, an error should be
  *  			reported to the DET with the error value
  *  			<tt>SPI_E_UNINIT</tt> according to the configuration.
@@ -1207,7 +1207,7 @@ Spi_JobResultType Spi_GetJobResult(
  *  			result (<tt>SPI_JOB_FAILED</tt> or
  *  			<tt>SPI_SEQ_FAILED</tt>).
  */
-Spi_SeqResultType Spi_GetSeqResult(
+Spi_SeqResultType Spi_GetSequenceResult(
   Spi_SequenceType	Sequence
 );
 
@@ -1233,7 +1233,7 @@ Spi_SeqResultType Spi_GetSeqResult(
  *  <b>SPI196</b>:	If source code for caller and callee of
  *  			<tt>Spi_GetVersionInfo()</tt> is available, the SPI
  *  			Handler/Driver should realize Spi_GetVersionInfo as a
- *  			macro, defined in the module’s header file.
+ *  			macro, defined in the module's header file.
  *
  *  <b>SPI102</b>:	The function <tt>Spi_GetVersionInfo()</tt> is pre
  * 			compile time configurable by the configuration parameter

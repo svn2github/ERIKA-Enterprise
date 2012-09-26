@@ -1788,84 +1788,54 @@ const Spi_SequenceConfigType		Spi_LBMSequenceConfig[] = {
 #ifdef __AS_CFG_SPI_ENC28J60__
 const Spi_ChannelConfigType Spi_Enc28j60ChannelConfig[] = {
   {
-    SPI_ENC28J60_CHANNEL_COMMAND,       /* SpiChannelId.   */
-#if ( SPI_CHANNEL_BUFFERS_ALLOWED == 2 )
-    SPI_IB,                             /* SpiChannelType. */
-#endif
-    SPI_ENC28J60_DEFAULT_DATA,          /* SpiDefaultData. */
-#if (\
-  ( SPI_CHANNEL_BUFFERS_ALLOWED == 1 ) || ( SPI_CHANNEL_BUFFERS_ALLOWED == 2 )\
-)
-    SPI_ENC28J60_CHANNEL_COMMAND_SIZE,  /* SpiEbMaxLength. */
-#endif
+    SPI_ENC28J60_CHANNEL_COMMAND,		/* SpiChannelId.	      */
+    SPI_IB,					/* SpiChannelType.	      */
+    SPI_ENC28J60_DEFAULT_DATA,			/* SpiDefaultData.	      */
+    SPI_ENC28J60_CHANNEL_COMMAND_EB_MAX_LENGTH,	/* SpiEbMaxLength.	      */
 #if ( SPI_LEVEL_DELIVERED == 2 )
-    SPI_SYNCHRONOUS,                    /* SpiHwUnitSynchronous. */
+    SPI_SYNCHRONOUS,				/* SpiHwUnitSynchronous.      */
 #endif
-#if	(\
-  ( SPI_CHANNEL_BUFFERS_ALLOWED == 0 ) || ( SPI_CHANNEL_BUFFERS_ALLOWED == 2 )\
-)
-    SPI_ENC28J60_CHANNEL_COMMAND_SIZE,  /* SpiIbNBuffers. */
-#endif
+    SPI_ENC28J60_CHANNEL_COMMAND_IB_N_BUFFERS,	/* SpiIbNBuffers.	      */
   },
   {
-    SPI_ENC28J60_CHANNEL_DUMMY,         /* SpiChannelId.   */
-#if ( SPI_CHANNEL_BUFFERS_ALLOWED == 2 )
-    SPI_IB,                             /* SpiChannelType. */
-#endif
-    SPI_ENC28J60_DEFAULT_DATA,          /* SpiDefaultData. */
-#if (\
-  ( SPI_CHANNEL_BUFFERS_ALLOWED == 1 ) || ( SPI_CHANNEL_BUFFERS_ALLOWED == 2 )\
-)
-    SPI_ENC28J60_CHANNEL_DUMMY_SIZE,    /* SpiEbMaxLength. */
-#endif
+    SPI_ENC28J60_CHANNEL_DUMMY,			/* SpiChannelId.	      */
+    SPI_IB,					/* SpiChannelType.	      */
+    SPI_ENC28J60_DEFAULT_DATA,			/* SpiDefaultData.	      */
+    SPI_ENC28J60_CHANNEL_DUMMY_EB_MAX_LENGTH,	/* SpiEbMaxLength.	      */
 #if ( SPI_LEVEL_DELIVERED == 2 )
-    SPI_SYNCHRONOUS,                    /* SpiHwUnitSynchronous. */
+    SPI_SYNCHRONOUS,				/* SpiHwUnitSynchronous.      */
 #endif
-#if (\
-  ( SPI_CHANNEL_BUFFERS_ALLOWED == 0 ) || ( SPI_CHANNEL_BUFFERS_ALLOWED == 2 )\
-)
-    SPI_ENC28J60_CHANNEL_DUMMY_SIZE,    /* SpiIbNBuffers. */
-#endif
+    SPI_ENC28J60_CHANNEL_DUMMY_IB_N_BUFFERS,	/* SpiIbNBuffers.	      */
   },
   {
-    SPI_ENC28J60_CHANNEL_REG,           /* SpiChannelId.   */
-#if ( SPI_CHANNEL_BUFFERS_ALLOWED == 2 )
-    SPI_IB,                             /* SpiChannelType. */
-#endif
-    SPI_ENC28J60_DEFAULT_DATA,          /* SpiDefaultData. */
-#if (\
-  ( SPI_CHANNEL_BUFFERS_ALLOWED == 1 ) || ( SPI_CHANNEL_BUFFERS_ALLOWED == 2 )\
-)
-    SPI_ENC28J60_CHANNEL_REG_SIZE,      /* SpiEbMaxLength. */
-#endif
+    SPI_ENC28J60_CHANNEL_REG,			/* SpiChannelId.	      */
+    SPI_IB,					/* SpiChannelType.	      */
+    SPI_ENC28J60_DEFAULT_DATA,			/* SpiDefaultData.	      */
+    SPI_ENC28J60_CHANNEL_REG_EB_MAX_LENGTH,	/* SpiEbMaxLength.	      */
 #if ( SPI_LEVEL_DELIVERED == 2 )
-    SPI_SYNCHRONOUS,                    /* SpiHwUnitSynchronous. */
+    SPI_SYNCHRONOUS,				/* SpiHwUnitSynchronous.      */
 #endif
-#if (\
-  ( SPI_CHANNEL_BUFFERS_ALLOWED == 0 ) || ( SPI_CHANNEL_BUFFERS_ALLOWED == 2 )\
-)
-    SPI_ENC28J60_CHANNEL_REG_SIZE,      /* SpiIbNBuffers. */
-#endif
+    SPI_ENC28J60_CHANNEL_REG_IB_N_BUFFERS,	/* SpiIbNBuffers.	      */
   },
-{
-    SPI_ENC28J60_CHANNEL_BUFFER,        /* SpiChannelId.   */
-#if ( SPI_CHANNEL_BUFFERS_ALLOWED == 2 )
-    SPI_EB,                             /* SpiChannelType. */
-#endif
-    SPI_ENC28J60_DEFAULT_DATA,          /* SpiDefaultData. */
-#if (\
-  ( SPI_CHANNEL_BUFFERS_ALLOWED == 1 ) || ( SPI_CHANNEL_BUFFERS_ALLOWED == 2 )\
-)
-    SPI_ENC28J60_CHANNEL_BUFFER_SIZE,   /* SpiEbMaxLength. */
-#endif
+  {
+    SPI_ENC28J60_CHANNEL_BUFFER,		/* SpiChannelId.	      */
+    SPI_EB,					/* SpiChannelType.	      */
+    SPI_ENC28J60_DEFAULT_DATA,			/* SpiDefaultData.	      */
+    SPI_ENC28J60_CHANNEL_BUFFER_EB_MAX_LENGTH,	/* SpiEbMaxLength.	      */
 #if ( SPI_LEVEL_DELIVERED == 2 )
-    SPI_SYNCHRONOUS,                    /* SpiHwUnitSynchronous. */
+    SPI_SYNCHRONOUS,				/* SpiHwUnitSynchronous.      */
 #endif
-#if (\
-  ( SPI_CHANNEL_BUFFERS_ALLOWED == 0 ) || ( SPI_CHANNEL_BUFFERS_ALLOWED == 2 )\
-)
-    SPI_ENC28J60_CHANNEL_BUFFER_SIZE,   /* SpiIbNBuffers. */
+    SPI_ENC28J60_CHANNEL_BUFFER_IB_N_BUFFERS,	/* SpiIbNBuffers.	      */
+  },
+  {
+    SPI_ENC28J60_CHANNEL_BUFFER_EXT,		/* SpiChannelId.	      */
+    SPI_EB,					/* SpiChannelType.	      */
+    SPI_ENC28J60_DEFAULT_DATA,			/* SpiDefaultData.	      */
+    SPI_ENC28J60_CHANNEL_BUFFER_EXT_EB_MAX_LENGTH,	/* SpiEbMaxLength.    */
+#if ( SPI_LEVEL_DELIVERED == 2 )
+    SPI_SYNCHRONOUS,				/* SpiHwUnitSynchronous.      */
 #endif
+    SPI_ENC28J60_CHANNEL_BUFFER_EXT_IB_N_BUFFERS,	/* SpiIbNBuffers.     */
   }
 };
 
@@ -1905,6 +1875,13 @@ const Spi_ChannelType Spi_Enc28j60CRWithDummyChannelList[] = {
 const Spi_ChannelType Spi_Enc28j60BufferMemoryChannelList[] = {
   SPI_ENC28J60_CHANNEL_COMMAND,
   SPI_ENC28J60_CHANNEL_BUFFER,
+  SPI_CHANNEL_END_LIST
+};
+
+const Spi_ChannelType Spi_Enc28j60ExtBufferMemoryChannelList[] = {
+  SPI_ENC28J60_CHANNEL_COMMAND,
+  SPI_ENC28J60_CHANNEL_BUFFER,
+  SPI_ENC28J60_CHANNEL_BUFFER_EXT,
   SPI_CHANNEL_END_LIST
 };
 
@@ -2017,7 +1994,33 @@ const Spi_JobConfigType Spi_Enc28j60JobConfig[] = {
 #endif  /* ( ( SPI_LEVEL_DELIVERED == 1 ) || ( SPI_LEVEL_DELIVERED == 2 ) ) */
     SPI_ENC28J60_CS_0,                          /* SpiDeviceAssignment. */
     &Spi_Enc28j60SRChannelList[0]               /* SpiChannelList. */
-  }
+  },
+  {
+#if ( ( SPI_LEVEL_DELIVERED == 1 ) || ( SPI_LEVEL_DELIVERED == 2 ) )
+    NULL_PTR,                                   /* SpiJobEndNotification. */
+#endif
+    SPI_ENC28J60_JOB_REBM,                       /* SpiJobId. */
+#if ( ( SPI_LEVEL_DELIVERED == 1 ) || ( SPI_LEVEL_DELIVERED == 2 ) )
+#if ( SPI_INTERRUPTIBLE_SEQ_ALLOWED == STD_ON )
+    SPI_ENC28J60_JOB_PRI,                       /* SpiJobPriority. */
+#endif  /* ( SPI_INTERRUPTIBLE_SEQ_ALLOWED == STD_ON ) */
+#endif  /* ( ( SPI_LEVEL_DELIVERED == 1 ) || ( SPI_LEVEL_DELIVERED == 2 ) ) */
+    SPI_ENC28J60_CS_0,                          /* SpiDeviceAssignment. */
+    &Spi_Enc28j60ExtBufferMemoryChannelList[0]  /* SpiChannelList. */
+  },
+  {
+#if ( ( SPI_LEVEL_DELIVERED == 1 ) || ( SPI_LEVEL_DELIVERED == 2 ) )
+    NULL_PTR,                                   /* SpiJobEndNotification. */
+#endif
+    SPI_ENC28J60_JOB_WEBM,                       /* SpiJobId. */
+#if ( ( SPI_LEVEL_DELIVERED == 1 ) || ( SPI_LEVEL_DELIVERED == 2 ) )
+#if ( SPI_INTERRUPTIBLE_SEQ_ALLOWED == STD_ON )
+    SPI_ENC28J60_JOB_PRI,                       /* SpiJobPriority. */
+#endif  /* ( SPI_INTERRUPTIBLE_SEQ_ALLOWED == STD_ON ) */
+#endif  /* ( ( SPI_LEVEL_DELIVERED == 1 ) || ( SPI_LEVEL_DELIVERED == 2 ) ) */
+    SPI_ENC28J60_CS_0,                          /* SpiDeviceAssignment. */
+    &Spi_Enc28j60ExtBufferMemoryChannelList[0]  /* SpiChannelList. */
+  },
 };
 
 const Spi_JobType   Spi_Enc28j60SeqRcrEthJobAssignment[] = {
@@ -2029,6 +2032,7 @@ const Spi_JobType   Spi_Enc28j60SeqRcrMacOrMiiJobAssignment[] = {
   SPI_ENC28J60_JOB_RCR_MAC_OR_MII,
   SPI_JOB_END_LIST      /* - End List Marker. */
 };
+
 const Spi_JobType   Spi_Enc28j60SeqRbmJobAssignment[] = {
   SPI_ENC28J60_JOB_RBM,
   SPI_JOB_END_LIST      /* - End List Marker. */
@@ -2058,6 +2062,17 @@ const Spi_JobType   Spi_Enc28j60SeqSrcJobAssignment[] = {
   SPI_ENC28J60_JOB_SRC,
   SPI_JOB_END_LIST      /* - End List Marker. */
 };
+
+const Spi_JobType   Spi_Enc28j60SeqRebmJobAssignment[] = {
+  SPI_ENC28J60_JOB_REBM,
+  SPI_JOB_END_LIST      /* - End List Marker. */
+};
+
+const Spi_JobType   Spi_Enc28j60SeqWebmJobAssignment[] = {
+  SPI_ENC28J60_JOB_WEBM,
+  SPI_JOB_END_LIST      /* - End List Marker. */
+};
+
 
 const Spi_SequenceConfigType  Spi_Enc28j60SequenceConfig[] = {
   {
@@ -2139,9 +2154,244 @@ const Spi_SequenceConfigType  Spi_Enc28j60SequenceConfig[] = {
 #endif  /* ( ( SPI_LEVEL_DELIVERED == 1 ) || ( SPI_LEVEL_DELIVERED == 2 ) ) */
     SPI_ENC28J60_SEQ_SRC,                 /* SpiSequenceId. */
     &Spi_Enc28j60SeqSrcJobAssignment[0]   /* SpiJobAssignment. */
-  }
+  },
+  {
+#if ( ( SPI_LEVEL_DELIVERED == 1 ) || ( SPI_LEVEL_DELIVERED == 2 ) )
+#if ( SPI_INTERRUPTIBLE_SEQ_ALLOWED == STD_ON )
+    FALSE,                                /* SpiInterruptibleSequence. */
+#endif /* ( SPI_INTERRUPTIBLE_SEQ_ALLOWED == STD_ON ) */
+    NULL_PTR,                             /* Spi_SeqEndNotification. */
+#endif  /* ( ( SPI_LEVEL_DELIVERED == 1 ) || ( SPI_LEVEL_DELIVERED == 2 ) ) */
+    SPI_ENC28J60_SEQ_REBM,                /* SpiSequenceId. */
+    &Spi_Enc28j60SeqRebmJobAssignment[0]  /* SpiJobAssignment. */
+  },
+  {
+#if ( ( SPI_LEVEL_DELIVERED == 1 ) || ( SPI_LEVEL_DELIVERED == 2 ) )
+#if ( SPI_INTERRUPTIBLE_SEQ_ALLOWED == STD_ON )
+    FALSE,                                /* SpiInterruptibleSequence. */
+#endif /* ( SPI_INTERRUPTIBLE_SEQ_ALLOWED == STD_ON ) */
+    NULL_PTR,                             /* Spi_SeqEndNotification. */
+#endif  /* ( ( SPI_LEVEL_DELIVERED == 1 ) || ( SPI_LEVEL_DELIVERED == 2 ) ) */
+    SPI_ENC28J60_SEQ_WEBM,                 /* SpiSequenceId. */
+    &Spi_Enc28j60SeqWebmJobAssignment[0]   /* SpiJobAssignment. */
+  },
 };
 #endif /* __AS_CFG_SPI_ENC28J60__ */
+
+/*
+ * Internal Buffers.
+ */
+#if	(\
+  ( SPI_CHANNEL_BUFFERS_ALLOWED == 0 ) || ( SPI_CHANNEL_BUFFERS_ALLOWED == 2 )\
+)
+
+#ifdef	__AS_CFG_SPI_LBM__
+/*
+ * Channel 0 Internal Buffers.
+ */
+Spi_DataType	SpiCh0SrcIb[SPI_CHANNEL_0_MAX_IB_N_BUFFERS];
+Spi_DataType	SpiCh0DstIb[SPI_CHANNEL_0_MAX_IB_N_BUFFERS];
+
+/*
+ * Channel 1 Internal Buffers.
+ */
+Spi_DataType	SpiCh1SrcIb[SPI_CHANNEL_1_MAX_IB_N_BUFFERS];
+Spi_DataType	SpiCh1DstIb[SPI_CHANNEL_1_MAX_IB_N_BUFFERS];
+
+/*
+ * Channel 2 Internal Buffers.
+ */
+Spi_DataType	SpiCh2SrcIb[SPI_CHANNEL_2_MAX_IB_N_BUFFERS];
+Spi_DataType	SpiCh2DstIb[SPI_CHANNEL_2_MAX_IB_N_BUFFERS];
+
+/*
+ * Channel 3 Internal Buffers.
+ */
+Spi_DataType	SpiCh3SrcIb[SPI_CHANNEL_3_MAX_IB_N_BUFFERS];
+Spi_DataType	SpiCh3DstIb[SPI_CHANNEL_3_MAX_IB_N_BUFFERS];
+
+/*
+ * Channel 4 Internal Buffers.
+ */
+Spi_DataType	SpiCh4SrcIb[SPI_CHANNEL_4_MAX_IB_N_BUFFERS];
+Spi_DataType	SpiCh4DstIb[SPI_CHANNEL_4_MAX_IB_N_BUFFERS];
+
+/*
+ * Channel 5 Internal Buffers.
+ */
+Spi_DataType	SpiCh5SrcIb[SPI_CHANNEL_5_MAX_IB_N_BUFFERS];
+Spi_DataType	SpiCh5DstIb[SPI_CHANNEL_5_MAX_IB_N_BUFFERS];
+
+/*
+ * Channel 6 Internal Buffers.
+ */
+Spi_DataType	SpiCh6SrcIb[SPI_CHANNEL_6_MAX_IB_N_BUFFERS];
+Spi_DataType	SpiCh6DstIb[SPI_CHANNEL_6_MAX_IB_N_BUFFERS];
+
+/*
+ * Channel 7 Internal Buffers.
+ */
+Spi_DataType	SpiCh7SrcIb[SPI_CHANNEL_7_MAX_IB_N_BUFFERS];
+Spi_DataType	SpiCh7DstIb[SPI_CHANNEL_7_MAX_IB_N_BUFFERS];
+
+/*
+ * Channel 8 Internal Buffers.
+ */
+Spi_DataType	SpiCh8SrcIb[SPI_CHANNEL_8_MAX_IB_N_BUFFERS];
+Spi_DataType	SpiCh8DstIb[SPI_CHANNEL_8_MAX_IB_N_BUFFERS];
+
+/*
+ * Channel 9 Internal Buffers.
+ */
+Spi_DataType	SpiCh9SrcIb[SPI_CHANNEL_9_MAX_IB_N_BUFFERS];
+Spi_DataType	SpiCh9DstIb[SPI_CHANNEL_9_MAX_IB_N_BUFFERS];
+
+/*
+ * Channel 10 Internal Buffers.
+ */
+Spi_DataType	SpiCh10SrcIb[SPI_CHANNEL_10_MAX_IB_N_BUFFERS];
+Spi_DataType	SpiCh10DstIb[SPI_CHANNEL_10_MAX_IB_N_BUFFERS];
+
+/*
+ * Channel 11 Internal Buffers.
+ */
+Spi_DataType	SpiCh11SrcIb[SPI_CHANNEL_11_MAX_IB_N_BUFFERS];
+Spi_DataType	SpiCh11DstIb[SPI_CHANNEL_11_MAX_IB_N_BUFFERS];
+
+/*
+ * Channel 12 Internal Buffers.
+ */
+Spi_DataType	SpiCh12SrcIb[SPI_CHANNEL_12_MAX_IB_N_BUFFERS];
+Spi_DataType	SpiCh12DstIb[SPI_CHANNEL_12_MAX_IB_N_BUFFERS];
+
+/*
+ * Channel 13 Internal Buffers.
+ */
+Spi_DataType	SpiCh13SrcIb[SPI_CHANNEL_13_MAX_IB_N_BUFFERS];
+Spi_DataType	SpiCh13DstIb[SPI_CHANNEL_13_MAX_IB_N_BUFFERS];
+
+#else	/* __AS_CFG_SPI_LBM__ */
+
+/*
+ * Channel 0 Internal Buffers.
+ */
+Spi_DataType	SpiCh0SrcIb[SPI_CHANNEL_0_MAX_IB_N_BUFFERS];
+Spi_DataType	SpiCh0DstIb[SPI_CHANNEL_0_MAX_IB_N_BUFFERS];
+
+#ifdef	__AS_CFG_SPI_ENC28J60__
+/*
+ * Channel 1 Internal Buffers.
+ */
+Spi_DataType	SpiCh1SrcIb[SPI_CHANNEL_1_MAX_IB_N_BUFFERS];
+Spi_DataType	SpiCh1DstIb[SPI_CHANNEL_1_MAX_IB_N_BUFFERS];
+
+/*
+ * Channel 2 Internal Buffers.
+ */
+Spi_DataType	SpiCh2SrcIb[SPI_CHANNEL_2_MAX_IB_N_BUFFERS];
+Spi_DataType	SpiCh2DstIb[SPI_CHANNEL_2_MAX_IB_N_BUFFERS];
+#endif	/* __AS_CFG_SPI_ENC28J60__ */
+
+#endif	/* __AS_CFG_SPI_LBM__ */
+
+/*
+ * Channel Internal Buffers Arrays.
+ */
+Spi_DataType * const	SpiChSrcIb[] = {
+  &SpiCh0SrcIb[0],
+#ifdef	__AS_CFG_SPI_LBM__
+  &SpiCh1SrcIb[0],
+  &SpiCh2SrcIb[0],
+  &SpiCh3SrcIb[0],
+  &SpiCh4SrcIb[0],
+  &SpiCh5SrcIb[0],
+  &SpiCh6SrcIb[0],
+  &SpiCh7SrcIb[0],
+  &SpiCh8SrcIb[0],
+  &SpiCh9SrcIb[0],
+  &SpiCh10SrcIb[0],
+  &SpiCh11SrcIb[0],
+  &SpiCh12SrcIb[0],
+  &SpiCh13SrcIb[0],
+#if	( SPI_CHANNEL_BUFFERS_ALLOWED == 2 )
+  NULL_PTR,
+  NULL_PTR,
+  NULL_PTR,
+  NULL_PTR,
+  NULL_PTR,
+  NULL_PTR,
+  NULL_PTR,
+  NULL_PTR,
+  NULL_PTR,
+  NULL_PTR,
+  NULL_PTR,
+  NULL_PTR,
+  NULL_PTR,
+  NULL_PTR,
+#endif	/* ( SPI_CHANNEL_BUFFERS_ALLOWED == 2 ) */
+#else	/* __AS_CFG_SPI_LBM__ */
+#ifdef	__AS_CFG_SPI_ENC28J60__
+  &SpiCh1SrcIb[0],
+  &SpiCh2SrcIb[0],
+  NULL_PTR,
+  NULL_PTR,
+#else	/* __AS_CFG_SPI_ENC28J60__ */
+#if	( SPI_CHANNEL_BUFFERS_ALLOWED == 2 )
+  NULL_PTR,
+#endif	/* ( SPI_CHANNEL_BUFFERS_ALLOWED == 2 ) */
+#endif	/* !__AS_CFG_SPI_ENC28J60__ */
+#endif	/* !__AS_CFG_SPI_LBM__ */
+};
+
+Spi_DataType * const	SpiChDstIb[] = {
+  &SpiCh0DstIb[0],
+#ifdef	__AS_CFG_SPI_LBM__
+  &SpiCh1DstIb[0],
+  &SpiCh2DstIb[0],
+  &SpiCh3DstIb[0],
+  &SpiCh4DstIb[0],
+  &SpiCh5DstIb[0],
+  &SpiCh6DstIb[0],
+  &SpiCh7DstIb[0],
+  &SpiCh8DstIb[0],
+  &SpiCh9DstIb[0],
+  &SpiCh10DstIb[0],
+  &SpiCh11DstIb[0],
+  &SpiCh12DstIb[0],
+  &SpiCh13DstIb[0],
+#if	( SPI_CHANNEL_BUFFERS_ALLOWED == 2 )
+  NULL_PTR,
+  NULL_PTR,
+  NULL_PTR,
+  NULL_PTR,
+  NULL_PTR,
+  NULL_PTR,
+  NULL_PTR,
+  NULL_PTR,
+  NULL_PTR,
+  NULL_PTR,
+  NULL_PTR,
+  NULL_PTR,
+  NULL_PTR,
+  NULL_PTR,
+#endif	/* ( SPI_CHANNEL_BUFFERS_ALLOWED == 2 ) */
+#else	/* __AS_CFG_SPI_LBM__ */
+#ifdef	__AS_CFG_SPI_ENC28J60__
+  &SpiCh1DstIb[0],
+  &SpiCh2DstIb[0],
+  NULL_PTR,
+  NULL_PTR,
+#else	/* __AS_CFG_SPI_ENC28J60__ */
+#if	( SPI_CHANNEL_BUFFERS_ALLOWED == 2 )
+  NULL_PTR,
+#endif	/* ( SPI_CHANNEL_BUFFERS_ALLOWED == 2 ) */
+#endif	/* !__AS_CFG_SPI_ENC28J60__ */
+#endif	/* !__AS_CFG_SPI_LBM__ */
+};
+#endif	/* 
+	 * ( SPI_CHANNEL_BUFFERS_ALLOWED == 0 ) ||
+	 * ( SPI_CHANNEL_BUFFERS_ALLOWED == 2 )
+	 */
 
 /*
  * This container is the base of a multiple configuration set.

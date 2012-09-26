@@ -78,6 +78,8 @@
 #include "ee.h"
 #include "ee_irq.h"
 
+#include "Spi_Internal.h"
+
 #if	( \
 	defined(SPI_0_RX_DMA_XFER_ERR_NOTIF_SYM) || \
 	defined(SPI_0_TX_DMA_XFER_ERR_NOTIF_SYM) || \
@@ -90,8 +92,6 @@
 	defined(EE_CORTEX_MX_SSI_0_ISR) || defined(EE_CORTEX_MX_SSI_1_ISR) || \
 	defined(EE_CORTEX_MX_SSI_2_ISR) || defined(EE_CORTEX_MX_SSI_3_ISR) \
 )
-
-#include "Spi_Internal.h"
 
 /*
  * Job End.
@@ -106,9 +106,6 @@ void Spi_JobEnd(
 {
 
   register EE_UREG				flags;
-#if	0
-  register uint32				mode;
-#endif
   register Spi_HWUnitType			HWUnitIdx;
   register Spi_JobType				JobIdx;
   register Spi_ChannelType			AssChNum, ChIdx;
@@ -145,46 +142,8 @@ void Spi_JobEnd(
 
   Dma_DisableChannel(ExtDevCfgPtr->SpiDmaTxChannel);
 
-#if	0
-  /*
-   * Flush FIFOs - START.
-   */
-
-  /* Save Hardware Unit Mode. */
-  mode = SSI_GET_CR1(HWUnit);
-
-  /* Hardware Unit Master+Loopback Mode. */
-  SSI_SET_CR1(HWUnit, ( SPI_HW_UNIT_MASTER | SPI_HW_UNIT_LOOPBACK ));
-
-  /* Enables Harware Unit. */
-  SSI_ENABLE(HWUnit);
-
-  /* Tx FIFO Flush. */
-  while ( !( SSI_GET_SR(HWUnit) & SSI_STAT_TFE ) ) {
-    ;
-  }
-
-  /* Disables Harware Unit. */
-  SSI_DISABLE(HWUnit);
-
-  /* Rx FIFO Flush. */
-  while ( SSI_GET_SR(HWUnit) & SSI_STAT_RNE ) {
-
-    SSI_FIFO_RX(HWUnit);
-
-  }
-
-  /* Restore Hardware Unit Mode. */
-  SSI_SET_CR1(HWUnit, mode);
-
-  /*
-   * Flush FIFOs - END.
-   */
-#endif	/* 0 */
-
   JobIdx = SpiHwUnitStatus[HWUnitIdx].SpiOwnerIdx;
 
-  SpiHwUnitStatus[HWUnitIdx].SpiTxEnd = FALSE;
   SpiHwUnitStatus[HWUnitIdx].SpiOwnerIdx = SPI_JOB_END_LIST;
 
   SpiJobStatus[JobIdx].SpiJobResult = JobResult;
@@ -207,9 +166,6 @@ void Spi_JobEnd(
       ;
     }
 
-    SpiChannelStatus[ChIdx].SpiBuffLen = 0x0000U;
-    SpiChannelStatus[ChIdx].SpiSrcBuffPtr = NULL_PTR;
-
 #if	( SPI_CHANNEL_BUFFERS_ALLOWED == 2 )
     if ( Spi_Global.ConfigPtr->SpiChannel[ChIdx].SpiChannelType == SPI_EB ) {
 #endif	/* ( SPI_CHANNEL_BUFFERS_ALLOWED == 2 ) */
@@ -218,10 +174,35 @@ void Spi_JobEnd(
 	  ( SPI_CHANNEL_BUFFERS_ALLOWED == 1 ) || \
 	  ( SPI_CHANNEL_BUFFERS_ALLOWED == 2 ) \
 	)
-      SpiChannelStatus[ChIdx].SpiDstBuffPtr = NULL_PTR;
+      SpiChannelStatus[ChIdx].SpiEbLen = 0x0000U;
+      SpiChannelStatus[ChIdx].SpiSrcEbPtr = NULL_PTR;
+      SpiChannelStatus[ChIdx].SpiDstEbPtr = NULL_PTR;
 #endif	/*
 	 * (
 	 *   ( SPI_CHANNEL_BUFFERS_ALLOWED == 1 ) ||
+	 *    ( SPI_CHANNEL_BUFFERS_ALLOWED == 2 )
+	 *  )
+	 */
+
+#if	( SPI_CHANNEL_BUFFERS_ALLOWED == 2 )
+    }
+    else {
+#endif	/* ( SPI_CHANNEL_BUFFERS_ALLOWED == 2 ) */
+
+#if	( \
+	  ( SPI_CHANNEL_BUFFERS_ALLOWED == 0 ) || \
+	  ( SPI_CHANNEL_BUFFERS_ALLOWED == 2 ) \
+	)
+      SpiChannelStatus[ChIdx].SpiSrcIbEmpty = TRUE;
+
+      if ( JobResult == SPI_JOB_OK ) {
+
+	SpiChannelStatus[ChIdx].SpiDstIbEmpty = FALSE;
+
+      }
+#endif	/*
+	 * (
+	 *   ( SPI_CHANNEL_BUFFERS_ALLOWED == 0 ) ||
 	 *    ( SPI_CHANNEL_BUFFERS_ALLOWED == 2 )
 	 *  )
 	 */
@@ -327,6 +308,7 @@ void SPI_3_TX_DMA_XFER_ERR_NOTIF_SYM(void)
   defined(EE_CORTEX_MX_SSI_0_ISR) || defined(EE_CORTEX_MX_SSI_1_ISR) || \
   defined(EE_CORTEX_MX_SSI_2_ISR) || defined(EE_CORTEX_MX_SSI_3_ISR) \
 )
+
 /*
  * SPI Interrupt Service Routine.
  *
@@ -337,11 +319,16 @@ void Spi_Isr(
 )
 {
 
-  EE_FREG			flags;
-  register Spi_HWUnitType	HWUnitIdx;
-  register boolean		rx_err, tx_end;
+  register EE_FREG				flags;
+  register Spi_HWUnitType			HWUnitIdx;
+  register boolean				rx_err;
+  register boolean				hw_enabled;
+  register Dma_ChannelResultType		rx_stat, tx_stat;
+  register const Spi_ExternalDeviceConfigType *	ExtDevCfgPtr;
 
   flags = EE_hal_suspendIRQ();
+
+  hw_enabled = ( SSI_IS_ENABLED(HWUnit) != 0 );
 
   rx_err = (
 	( SSI_GET_RIS(HWUnit) & SSI_INT_ROR ) ||
@@ -359,18 +346,30 @@ void Spi_Isr(
     ;
   }
 
-  tx_end = SpiHwUnitStatus[HWUnitIdx].SpiTxEnd;
-
-  SpiHwUnitStatus[HWUnitIdx].SpiTxEnd = TRUE;
+  ExtDevCfgPtr = &Spi_Global.ConfigPtr->SpiExternalDevice[HWUnitIdx];
 
   EE_hal_resumeIRQ(flags);
 
-  if ( rx_err ) {
+  rx_stat = Dma_GetChannelResult(ExtDevCfgPtr->SpiDmaRxChannel);
+  tx_stat = Dma_GetChannelResult(ExtDevCfgPtr->SpiDmaTxChannel);
+
+  if (
+    ( 
+      rx_err ||
+      ( tx_stat == DMA_CHANNEL_FAILED ) ||
+      ( rx_stat == DMA_CHANNEL_FAILED )
+    ) &&
+    hw_enabled
+  ) {
 
     Spi_JobEnd(HWUnit, SPI_JOB_FAILED);
 
   }
-  else if ( tx_end ) {
+  else if (
+    ( tx_stat == DMA_CHANNEL_OK ) &&
+    ( rx_stat == DMA_CHANNEL_OK ) &&
+    hw_enabled
+  ) {
 
     Spi_JobEnd(HWUnit, SPI_JOB_OK);
 

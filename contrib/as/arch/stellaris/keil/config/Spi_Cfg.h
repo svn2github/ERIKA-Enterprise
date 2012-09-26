@@ -493,10 +493,6 @@ typedef enum
 )
 /** @brief	Test Channel 0 IB N Buffers */
 #define	SPI_TEST_CHANNEL_0_IB_N_BUFFERS	0x0001U
-
-/** @brief	Test Channels IB Max N Buffers */
-#define	SPI_TEST_CHANNELS_IB_MAX_N_BUFFERS	SPI_TEST_CHANNEL_0_IB_N_BUFFERS
-
 #endif	/* 
 	 * ( SPI_CHANNEL_BUFFERS_ALLOWED == 0 ) ||
 	 * ( SPI_CHANNEL_BUFFERS_ALLOWED == 2 )
@@ -509,14 +505,6 @@ typedef enum
 /** @brief	Configured SPI TEST Channels. */
 #define	SPI_TEST_CHANNELS_NUMBER	SPI_TEST_CHANNEL_0 + 1
 #endif	/* !( SPI_CHANNEL_BUFFERS_ALLOWED == 2 ) */
-
-#if	( SPI_LEVEL_DELIVERED == 2 )
-/*** NOTE:	Needed to DMA Scatter-Gather Tables. ***/
-/** @brief	Configured SPI TEST Asynchronous Channels. */
-#define	SPI_TEST_SYNC_CHANNELS_NUMBER	SPI_TEST_CHANNELS_NUMBER
-/** @brief	Configured SPI TEST Synchronous Channels.  */
-#define	SPI_TEST_ASYNC_CHANNELS_NUMBER	SPI_TEST_CHANNELS_NUMBER
-#endif	/* ( SPI_LEVEL_DELIVERED == 2 ) */
 
 /* NOTE: 8-bit SPI Channel Data Width. */
 #if	0
@@ -656,8 +644,6 @@ typedef enum
 #define	SPI_LBM_CHANNEL_12_IB_N_BUFFERS	SPI_LBM_CHANNEL_12 + 1
 /** @brief	Loop-back Mode Channel 13 IB N Buffers */
 #define	SPI_LBM_CHANNEL_13_IB_N_BUFFERS	SPI_LBM_CHANNEL_13 + 1
-/** @brief	Loop-back Mode Channels IB Max N Buffers */
-#define	SPI_LBM_CHANNELS_IB_MAX_N_BUFFERS	SPI_LBM_CHANNEL_13_IB_N_BUFFERS
 #endif	/* 
 	 * ( SPI_CHANNEL_BUFFERS_ALLOWED == 0 ) ||
 	 * ( SPI_CHANNEL_BUFFERS_ALLOWED == 2 )
@@ -671,14 +657,6 @@ typedef enum
 #define	SPI_LBM_CHANNELS_NUMBER	SPI_LBM_CHANNEL_13 + 1
 #endif	/* !( SPI_CHANNEL_BUFFERS_ALLOWED == 2 ) */
 
-#if	( SPI_LEVEL_DELIVERED == 2 )
-/*** NOTE:	Needed by DMA Scatter-Gather Tables. */
-/** @brief	Configured SPI LBM Asynchronous Channels. */
-#define	SPI_LBM_SYNC_CHANNELS_NUMBER	SPI_LBM_CHANNELS_NUMBER
-/** @brief	Configured SPI LBM Synchronous Channels.  */
-#define	SPI_LBM_ASYNC_CHANNELS_NUMBER	SPI_LBM_CHANNELS_NUMBER
-#endif	/* ( SPI_LEVEL_DELIVERED == 2 ) */
-
 /* NOTE: 8-bit SPI Channel Data Width. */
 #if	0
 /** @brief	Loop-Back Mode Channels Data Width. */
@@ -690,27 +668,54 @@ typedef enum
 #ifdef	__AS_CFG_SPI_ENC28J60__
 /* CHANNELS DEFINITIONS FOR JOBS COMPOSITION */
 /** @brief  enc28j60 command channel (is made by opcode + address enc28j60 protocol fields) */
-#define SPI_ENC28J60_CHANNEL_COMMAND    0U
+#define SPI_ENC28J60_CHANNEL_COMMAND	0U
 /** @brief  enc28j60 dummy channel (dummy field of enc28j60 protocol) */
-#define SPI_ENC28J60_CHANNEL_DUMMY      1U
+#define SPI_ENC28J60_CHANNEL_DUMMY	1U
 /** @brief  enc28j60 reg channel (register value) */
-#define SPI_ENC28J60_CHANNEL_REG        2U
+#define SPI_ENC28J60_CHANNEL_REG	2U
 /** @brief  enc28j60 buffer channel (memory buffer value) */
-#define SPI_ENC28J60_CHANNEL_BUFFER     3U
+#define SPI_ENC28J60_CHANNEL_BUFFER	3U
+/** @brief  enc28j60 extended buffer channel (memory extended buffer value) */
+#define SPI_ENC28J60_CHANNEL_BUFFER_EXT	4U
 
 /** @brief  enc28j60 Channels Number */
-#define SPI_ENC28J60_CHANNELS_NUMBER SPI_ENC28J60_CHANNEL_BUFFER + 1U
+#define SPI_ENC28J60_CHANNELS_NUMBER	SPI_ENC28J60_CHANNEL_BUFFER_EXT + 1U
 
 /** @brief  enc28j60 command channel size in bytes */
-#define SPI_ENC28J60_CHANNEL_COMMAND_SIZE 1U
+#define SPI_ENC28J60_CHANNEL_COMMAND_SIZE	1U
 /** @brief  enc28j60 dummy channel size in bytes */
-#define SPI_ENC28J60_CHANNEL_DUMMY_SIZE   1U
+#define SPI_ENC28J60_CHANNEL_DUMMY_SIZE		1U
 /** @brief  enc28j60 command channel size in bytes */
-#define SPI_ENC28J60_CHANNEL_REG_SIZE     1U
+#define SPI_ENC28J60_CHANNEL_REG_SIZE		1U
 /** @brief  enc28j60 buffer channel (memory buffer value) */
-#define SPI_ENC28J60_CHANNEL_BUFFER_SIZE  256U
-/** @brief	enc28j60 Channels IB Max N Buffers */
-#define	SPI_ENC28J60_CHANNELS_IB_MAX_N_BUFFERS	SPI_ENC28J60_CHANNEL_BUFFER_SIZE
+#define SPI_ENC28J60_CHANNEL_BUFFER_SIZE	1024U
+/** @brief  enc28j60 buffer channel (memory buffer value) */
+#define SPI_ENC28J60_CHANNEL_BUFFER_EXT_SIZE	490U
+
+/** @brief	enc28j60 command channel EB Max Length */
+#define	SPI_ENC28J60_CHANNEL_COMMAND_EB_MAX_LENGTH	0x0000U
+/** @brief	enc28j60 dummy channel EB Max Length */
+#define	SPI_ENC28J60_CHANNEL_DUMMY_EB_MAX_LENGTH	0x0000U
+/** @brief	enc28j60 reg channel EB Max Length */
+#define	SPI_ENC28J60_CHANNEL_REG_EB_MAX_LENGTH		0x0000U
+/** @brief	enc28j60 buffer channel EB Max Length */
+#define	SPI_ENC28J60_CHANNEL_BUFFER_EB_MAX_LENGTH	\
+	SPI_ENC28J60_CHANNEL_BUFFER_SIZE
+/** @brief	enc28j60 extended buffer channel EB Max Length */
+#define	SPI_ENC28J60_CHANNEL_BUFFER_EXT_EB_MAX_LENGTH	\
+	SPI_ENC28J60_CHANNEL_BUFFER_EXT_SIZE
+
+/** @brief	enc28j60 command channel IB N Buffers */
+#define	SPI_ENC28J60_CHANNEL_COMMAND_IB_N_BUFFERS	\
+	SPI_ENC28J60_CHANNEL_COMMAND_SIZE
+/** @brief	enc28j60 dummy channel IB N Buffers */
+#define	SPI_ENC28J60_CHANNEL_DUMMY_IB_N_BUFFERS	SPI_ENC28J60_CHANNEL_DUMMY_SIZE
+/** @brief	enc28j60 reg channel IB N Buffers */
+#define	SPI_ENC28J60_CHANNEL_REG_IB_N_BUFFERS	SPI_ENC28J60_CHANNEL_REG_SIZE
+/** @brief	enc28j60 buffer channel IB N Buffers */
+#define	SPI_ENC28J60_CHANNEL_BUFFER_IB_N_BUFFERS	0x0000U
+/** @brief	enc28j60 extened buffer channel IB N Buffers */
+#define	SPI_ENC28J60_CHANNEL_BUFFER_EXT_IB_N_BUFFERS	0x0000U
 
 /** @brief  enc28j60 Channels default data */
 #define SPI_ENC28J60_DEFAULT_DATA     0U
@@ -723,40 +728,10 @@ typedef enum
 
 #endif	/* __AS_CFG_SPI_ENC28J60__ */
 
-#if	(\
-  ( SPI_CHANNEL_BUFFERS_ALLOWED == 0 ) || ( SPI_CHANNEL_BUFFERS_ALLOWED == 2 )\
-)
-/** @brief	Maximum Number of IB N Buffer */
-#ifdef	__AS_CFG_SPI_LBM__
-#ifdef	__AS_CFG_SPI_ENC28J60__
-#define	SPI_IB_MAX_N_BUFFERS	SPI_ENC28J60_CHANNELS_IB_MAX_N_BUFFERS
-#else	/* __AS_CFG_SPI_ENC28J60__ */
-#define	SPI_IB_MAX_N_BUFFERS	SPI_LBM_CHANNELS_IB_MAX_N_BUFFERS
-#endif	/* !__AS_CFG_SPI_ENC28J60__ */
-#else	/* __AS_CFG_SPI_LBM__ */
-#ifdef	__AS_CFG_SPI_ENC28J60__
-#define	SPI_IB_MAX_N_BUFFERS	SPI_ENC28J60_CHANNELS_IB_MAX_N_BUFFERS
-#else	/* __AS_CFG_SPI_ENC28J60__ */
-#define	SPI_IB_MAX_N_BUFFERS	SPI_TEST_CHANNELS_IB_MAX_N_BUFFERS
-#endif	/* !__AS_CFG_SPI_ENC28J60__ */
-#endif	/* !__AS_CFG_SPI_LBM__ */
-#endif	/* 
-	 * ( SPI_CHANNEL_BUFFERS_ALLOWED == 0 ) ||
-	 * ( SPI_CHANNEL_BUFFERS_ALLOWED == 2 )
-	 */
-
 #ifdef	__AS_CFG_SPI_LBM__
 
 /** @brief	Maximum Number of Configured SPI Channels. */
 #define	SPI_CHANNELS_MAX_NUMBER	SPI_LBM_CHANNELS_NUMBER
-
-#if	( SPI_LEVEL_DELIVERED == 2 )
-/*** NOTE:	Needed to DMA Scatter-Gather Tables. ***/
-/** @brief	Maximum Number of Configured Asynchronous SPI Channels. */
-#define	SPI_SYNC_CHANNELS_MAX_NUMBER	SPI_LBM_SYNC_CHANNELS_NUMBER
-/** @brief	Maximum Number of Configured Synchronous SPI Channels.  */
-#define	SPI_ASYNC_CHANNELS_MAX_NUMBER	SPI_LBM_ASYNC_CHANNELS_NUMBER
-#endif	/* ( SPI_LEVEL_DELIVERED == 2 ) */
 
 #else	/* __AS_CFG_SPI_LBM__ */
 
@@ -770,16 +745,106 @@ typedef enum
 /** @brief	Maximum Number of Configured SPI Channels. */
 #define	SPI_CHANNELS_MAX_NUMBER	SPI_TEST_CHANNELS_NUMBER
 
-#if	( SPI_LEVEL_DELIVERED == 2 )
-/*** NOTE:	Needed to DMA Scatter-Gather Tables. ***/
-/** @brief	Maximum Number of Configured Asynchronous SPI Channels. */
-#define	SPI_SYNC_CHANNELS_MAX_NUMBER	SPI_TEST_SYNC_CHANNELS_NUMBER
-/** @brief	Maximum Number of Configured Synchronous SPI Channels.  */
-#define	SPI_ASYNC_CHANNELS_MAX_NUMBER	SPI_TEST_ASYNC_CHANNELS_NUMBER
-#endif	/* ( SPI_LEVEL_DELIVERED == 2 ) */
-
 #endif	/* !__AS_CFG_SPI_ENC28J60__ */
 
+#endif	/* !__AS_CFG_SPI_LBM__ */
+
+/*
+ * Channel Internal Buffers.
+ */
+#ifdef	__AS_CFG_SPI_LBM__
+#if	(\
+  ( SPI_CHANNEL_BUFFERS_ALLOWED == 0 ) || ( SPI_CHANNEL_BUFFERS_ALLOWED == 2 )\
+)
+/** @brief	SPI Channel 0 Max IB N Buffers */
+#define	SPI_CHANNEL_0_MAX_IB_N_BUFFERS	SPI_LBM_CHANNEL_0_IB_N_BUFFERS
+/** @brief	SPI Channel 1 Max IB N Buffers */
+#define	SPI_CHANNEL_1_MAX_IB_N_BUFFERS	SPI_LBM_CHANNEL_1_IB_N_BUFFERS
+/** @brief	SPI Channel 2 Max IB N Buffers */
+#define	SPI_CHANNEL_2_MAX_IB_N_BUFFERS	SPI_LBM_CHANNEL_2_IB_N_BUFFERS
+/** @brief	SPI Channel 3 Max IB N Buffers */
+#define	SPI_CHANNEL_3_MAX_IB_N_BUFFERS	SPI_LBM_CHANNEL_3_IB_N_BUFFERS
+/** @brief	SPI Channel 4 Max IB N Buffers */
+#define	SPI_CHANNEL_4_MAX_IB_N_BUFFERS	SPI_LBM_CHANNEL_4_IB_N_BUFFERS
+/** @brief	SPI Channel 5 Max IB N Buffers */
+#define	SPI_CHANNEL_5_MAX_IB_N_BUFFERS	SPI_LBM_CHANNEL_5_IB_N_BUFFERS
+/** @brief	SPI Channel 6 Max IB N Buffers */
+#define	SPI_CHANNEL_6_MAX_IB_N_BUFFERS	SPI_LBM_CHANNEL_6_IB_N_BUFFERS
+/** @brief	SPI Channel 7 Max IB N Buffers */
+#define	SPI_CHANNEL_7_MAX_IB_N_BUFFERS	SPI_LBM_CHANNEL_7_IB_N_BUFFERS
+/** @brief	SPI Channel 8 Max IB N Buffers */
+#define	SPI_CHANNEL_8_MAX_IB_N_BUFFERS	SPI_LBM_CHANNEL_8_IB_N_BUFFERS
+/** @brief	SPI Channel 9 Max IB N Buffers */
+#define	SPI_CHANNEL_9_MAX_IB_N_BUFFERS	SPI_LBM_CHANNEL_9_IB_N_BUFFERS
+/** @brief	SPI Channel 10 Max IB N Buffers */
+#define	SPI_CHANNEL_10_MAX_IB_N_BUFFERS	SPI_LBM_CHANNEL_10_IB_N_BUFFERS
+/** @brief	SPI Channel 11 Max IB N Buffers */
+#define	SPI_CHANNEL_11_MAX_IB_N_BUFFERS	SPI_LBM_CHANNEL_11_IB_N_BUFFERS
+/** @brief	SPI Channel 12 Max IB N Buffers */
+#define	SPI_CHANNEL_12_MAX_IB_N_BUFFERS	SPI_LBM_CHANNEL_12_IB_N_BUFFERS
+/** @brief	SPI Channel 13 Max IB N Buffers */
+#define	SPI_CHANNEL_13_MAX_IB_N_BUFFERS	SPI_LBM_CHANNEL_13_IB_N_BUFFERS
+#if	( SPI_CHANNEL_BUFFERS_ALLOWED == 2 )
+/** @brief	SPI Channel 14 Max IB N Buffers */
+#define	SPI_CHANNEL_14_MAX_IB_N_BUFFERS	0x0000U
+/** @brief	SPI Channel 15 Max IB N Buffers */
+#define	SPI_CHANNEL_15_MAX_IB_N_BUFFERS	0x0000U
+/** @brief	SPI Channel 16 Max IB N Buffers */
+#define	SPI_CHANNEL_16_MAX_IB_N_BUFFERS	0x0000U
+/** @brief	SPI Channel 17 Max IB N Buffers */
+#define	SPI_CHANNEL_17_MAX_IB_N_BUFFERS	0x0000U
+/** @brief	SPI Channel 18 Max IB N Buffers */
+#define	SPI_CHANNEL_18_MAX_IB_N_BUFFERS	0x0000U
+/** @brief	SPI Channel 19 Max IB N Buffers */
+#define	SPI_CHANNEL_19_MAX_IB_N_BUFFERS	0x0000U
+/** @brief	SPI Channel 20 Max IB N Buffers */
+#define	SPI_CHANNEL_20_MAX_IB_N_BUFFERS	0x0000U
+/** @brief	SPI Channel 21 Max IB N Buffers */
+#define	SPI_CHANNEL_21_MAX_IB_N_BUFFERS	0x0000U
+/** @brief	SPI Channel 22 Max IB N Buffers */
+#define	SPI_CHANNEL_22_MAX_IB_N_BUFFERS	0x0000U
+/** @brief	SPI Channel 23 Max IB N Buffers */
+#define	SPI_CHANNEL_23_MAX_IB_N_BUFFERS	0x0000U
+/** @brief	SPI Channel 24 Max IB N Buffers */
+#define	SPI_CHANNEL_24_MAX_IB_N_BUFFERS	0x0000U
+/** @brief	SPI Channel 25 Max IB N Buffers */
+#define	SPI_CHANNEL_25_MAX_IB_N_BUFFERS	0x0000U
+/** @brief	SPI Channel 26 Max IB N Buffers */
+#define	SPI_CHANNEL_26_MAX_IB_N_BUFFERS	0x0000U
+#endif	/* ( SPI_CHANNEL_BUFFERS_ALLOWED == 2 ) */
+#endif	/* 
+	 * ( SPI_CHANNEL_BUFFERS_ALLOWED == 0 ) ||
+	 * ( SPI_CHANNEL_BUFFERS_ALLOWED == 2 )
+	 */
+#else	/* __AS_CFG_SPI_LBM__ */
+#ifdef	__AS_CFG_SPI_ENC28J60__
+/** @brief	SPI Channel 0 Max IB N Buffers */
+#define	SPI_CHANNEL_0_MAX_IB_N_BUFFERS	\
+	SPI_ENC28J60_CHANNEL_COMMAND_IB_N_BUFFERS
+/** @brief	SPI Channel 1 Max IB N Buffers */
+#define	SPI_CHANNEL_1_MAX_IB_N_BUFFERS	SPI_ENC28J60_CHANNEL_DUMMY_IB_N_BUFFERS
+/** @brief	SPI Channel 2 Max IB N Buffers */
+#define	SPI_CHANNEL_2_MAX_IB_N_BUFFERS	SPI_ENC28J60_CHANNEL_REG_IB_N_BUFFERS
+/** @brief	SPI Channel 3 Max IB N Buffers */
+#define	SPI_CHANNEL_3_MAX_IB_N_BUFFERS	SPI_ENC28J60_CHANNEL_BUFFER_IB_N_BUFFERS
+/** @brief	SPI Channel 4 Max IB N Buffers */
+#define	SPI_CHANNEL_4_MAX_IB_N_BUFFERS	\
+	SPI_ENC28J60_CHANNEL_BUFFER_EXT_IB_N_BUFFERS
+#else	/* __AS_CFG_SPI_ENC28J60__ */
+#if	(\
+  ( SPI_CHANNEL_BUFFERS_ALLOWED == 0 ) || ( SPI_CHANNEL_BUFFERS_ALLOWED == 2 )\
+)
+/** @brief	SPI Channel 0 Max IB N Buffers */
+#define	SPI_CHANNEL_0_MAX_IB_N_BUFFERS	SPI_TEST_CHANNEL_0_IB_N_BUFFERS
+#if	( SPI_CHANNEL_BUFFERS_ALLOWED == 2 )
+/** @brief	SPI Channel 1 Max IB N Buffers */
+#define	SPI_CHANNEL_1_MAX_IB_N_BUFFERS	0x0000U
+#endif	/* ( SPI_CHANNEL_BUFFERS_ALLOWED == 2 ) */
+#endif	/* 
+	 * ( SPI_CHANNEL_BUFFERS_ALLOWED == 0 ) ||
+	 * ( SPI_CHANNEL_BUFFERS_ALLOWED == 2 )
+	 */
+#endif	/* !__AS_CFG_SPI_ENC28J60__ */
 #endif	/* !__AS_CFG_SPI_LBM__ */
 
 /** @brief	SPI Channel Configuration Type.
@@ -1034,7 +1099,7 @@ typedef	struct {
    *
    *  This parameter defines the active polarity of Chip Select.
    *
-   *  <tt>SPI_HIGH</tt> or </tt>SPI_LOW</tt>
+   *  <tt>SPI_HIGH</tt> or <tt>SPI_LOW</tt>
    */
   Spi_PolarityType	SpiCsPolarity;
 
@@ -1171,6 +1236,17 @@ void Spi_TestJob0EndNotification(
 
 #endif	/* ( ( SPI_LEVEL_DELIVERED == 1 ) || ( SPI_LEVEL_DELIVERED == 2 ) ) */
 
+/*** NOTE:	Needed to DMA Scatter-Gather Tables. ***/
+#if	( SPI_CHANNEL_BUFFERS_ALLOWED == 2 )
+/** @brief	Configured SPI TEST Asynchronous Jobs Channels Max Number.    */
+#define	SPI_TEST_ASYNC_JOBS_CHANNELS_MAX_NUMBER	1
+/** @brief	Configured SPI TEST Synchronous Jobs Channels Max Number.     */
+#define	SPI_TEST_SYNC_JOBS_CHANNELS_MAX_NUMBER	1
+#else	/* ( SPI_CHANNEL_BUFFERS_ALLOWED == 2 )	 */
+/** @brief	Configured SPI TEST Jobs Channels Max Number.		      */
+#define	SPI_TEST_JOBS_CHANNELS_MAX_NUMBER	1
+#endif	/* !( SPI_CHANNEL_BUFFERS_ALLOWED == 2 ) */
+
 #define	SPI_TEST_JOB_0		0x0000U		/**< Test Job 0.	      */
 #if	( SPI_CHANNEL_BUFFERS_ALLOWED == 2 )
 #define	SPI_TEST_JOB_0_EB	0x0001U		/**< Test Job 0. (EB)	      */
@@ -1238,6 +1314,17 @@ void Spi_LBMJob3EndNotification(
 #endif	/* __AS_CFG_SPI_LBM_JOB_3_END_NOTIFICATION__ */
 
 #endif	/* ( ( SPI_LEVEL_DELIVERED == 1 ) || ( SPI_LEVEL_DELIVERED == 2 ) ) */
+
+/*** NOTE:	Needed to DMA Scatter-Gather Tables. ***/
+#if	( SPI_CHANNEL_BUFFERS_ALLOWED == 2 )
+/** @brief	Configured SPI LBM Asynchronous Jobs Channels Max Number.     */
+#define	SPI_LBM_ASYNC_JOBS_CHANNELS_MAX_NUMBER	7
+/** @brief	Configured SPI LBM Synchronous Jobs Channels Max Number.      */
+#define	SPI_LBM_SYNC_JOBS_CHANNELS_MAX_NUMBER	7
+#else	/* ( SPI_CHANNEL_BUFFERS_ALLOWED == 2 )	 */
+/** @brief	Configured SPI LBM Jobs Channels Max Number.		      */
+#define	SPI_LBM_JOBS_CHANNELS_MAX_NUMBER	7
+#endif	/* !( SPI_CHANNEL_BUFFERS_ALLOWED == 2 ) */
 
 #define	SPI_LBM_JOB_0		0x0000U		/**< Loop-back Mode Job 0.    */
 #define	SPI_LBM_JOB_1		0x0001U		/**< Loop-back Mode Job 1.    */
@@ -1310,6 +1397,49 @@ void Spi_LBMJob3EndNotification(
 #define	SPI_JOBS_MAX_NUMBER	SPI_TEST_JOBS_NUMBER
 #endif	/* !__AS_CFG_SPI_ENC28J60__ */
 #endif	/* !__AS_CFG_SPI_LBM__ */
+
+/*** NOTE:	Needed to DMA Scatter-Gather Tables. ***/
+#ifdef	__AS_CFG_SPI_LBM__
+#if	( SPI_LEVEL_DELIVERED == 2 )
+/** @brief	Configured SPI Asynchronous Jobs Channels Max Number.	      */
+#define	SPI_ASYNC_JOBS_CHANNELS_MAX_NUMBER	\
+	SPI_LBM_ASYNC_JOBS_CHANNELS_MAX_NUMBER
+/** @brief	Configured SPI Synchronous Jobs Channels Max Number.	      */
+#define	SPI_SYNC_JOBS_CHANNELS_MAX_NUMBER	\
+	SPI_LBM_SYNC_JOBS_CHANNELS_MAX_NUMBER
+#else	/* ( SPI_LEVEL_DELIVERED == 2 )	 */
+/** @brief	Configured SPI Jobs Channels Max Number.		      */
+#define	SPI_JOBS_CHANNELS_MAX_NUMBER	\
+	SPI_LBM_JOBS_CHANNELS_MAX_NUMBER
+#endif	/* !( SSPI_LEVEL_DELIVERED == 2 ) */
+#else	/* __AS_CFG_SPI_LBM__ */
+#ifdef  __AS_CFG_SPI_ENC28J60__
+#if	( SPI_LEVEL_DELIVERED == 2 )
+/** @brief	Configured SPI Asynchronous Jobs Channels Max Number.	      */
+#define	SPI_ASYNC_JOBS_CHANNELS_MAX_NUMBER	\
+	SPI_TEST_ASYNC_JOBS_CHANNELS_MAX_NUMBER
+/** @brief	Configured SPI Synchronous Jobs Channels Max Number.	      */
+#define	SPI_SYNC_JOBS_CHANNELS_MAX_NUMBER	\
+	SPI_ENC28J60_SYNC_JOBS_CHANNELS_MAX_NUMBER
+#else	/* ( SPI_LEVEL_DELIVERED == 2 )	 */
+/** @brief	Configured SPI Jobs Channels Max Number.		      */
+#define	SPI_JOBS_CHANNELS_MAX_NUMBER	SPI_ENC28J60_JOBS_CHANNELS_MAX_NUMBER
+#endif	/* !( SSPI_LEVEL_DELIVERED == 2 ) */
+#else	/* __AS_CFG_SPI_ENC28J60__ */
+#if	( SPI_LEVEL_DELIVERED == 2 )
+/** @brief	Configured SPI Asynchronous Jobs Channels Max Number.	      */
+#define	SPI_ASYNC_JOBS_CHANNELS_MAX_NUMBER	\
+	SPI_TEST_ASYNC_JOBS_CHANNELS_MAX_NUMBER
+/** @brief	Configured SPI Synchronous Jobs Channels Max Number.	      */
+#define	SPI_SYNC_JOBS_CHANNELS_MAX_NUMBER	\
+	SPI_TEST_SYNC_JOBS_CHANNELS_MAX_NUMBER
+#else	/* ( SPI_LEVEL_DELIVERED == 2 )	 */
+/** @brief	Configured SPI Jobs Channels Max Number.		      */
+#define	SPI_JOBS_CHANNELS_MAX_NUMBER	\
+	SPI_TEST_JOBS_CHANNELS_MAX_NUMBER
+#endif	/* !( SPI_LEVEL_DELIVERED == 2 ) */
+#endif	/* __AS_CFG_SPI_ENC28J60__ */
+#endif	/* __AS_CFG_SPI_LBM__ */
 
 /** @brief	SPI Job Configuration Type.
  *
@@ -1517,44 +1647,59 @@ void Spi_LBMSeq3EndNotification(
 
 #ifdef  __AS_CFG_SPI_ENC28J60__
 /** @brief  enc28j60 Read ETH Control Register Sequence */
-#define SPI_ENC28J60_SEQ_RCR_ETH        0U
+#define SPI_ENC28J60_SEQ_RCR_ETH	0U
 /** @brief  enc28j60 Read MAC or MII Control Register Sequence */
-#define SPI_ENC28J60_SEQ_RCR_MAC_OR_MII 1U
+#define SPI_ENC28J60_SEQ_RCR_MAC_OR_MII	1U
 /** @brief  enc28j60 Read Buffer Memory Sequence */
-#define SPI_ENC28J60_SEQ_RBM            2U
+#define SPI_ENC28J60_SEQ_RBM		2U
 /** @brief  enc28j60 Write Control Register Sequence */
-#define SPI_ENC28J60_SEQ_WCR            3U
+#define SPI_ENC28J60_SEQ_WCR		3U
 /** @brief  enc28j60 Write Buffer Memory Sequence */
-#define SPI_ENC28J60_SEQ_WBM            4U
+#define SPI_ENC28J60_SEQ_WBM		4U
 /** @brief  enc28j60 Bit Field Set Sequence */
-#define SPI_ENC28J60_SEQ_BFS            5U
+#define SPI_ENC28J60_SEQ_BFS		5U
 /** @brief  enc28j60 Bit Field Clear Sequence */
-#define SPI_ENC28J60_SEQ_BFC            6U
+#define SPI_ENC28J60_SEQ_BFC		6U
 /** @brief  enc28j60 System Reset Command (Soft Reset) */
-#define SPI_ENC28J60_SEQ_SRC            7U
+#define SPI_ENC28J60_SEQ_SRC		7U
+/** @brief  enc28j60 Read Extended Buffer Memory Sequence */
+#define SPI_ENC28J60_SEQ_REBM		8U
+/** @brief  enc28j60 Write Extended Buffer Memory Sequence */
+#define SPI_ENC28J60_SEQ_WEBM		9U
 /** @brief  enc28j60 Sequences Number */
-#define SPI_ENC28J60_SEQUENCES_NUMBER SPI_ENC28J60_SEQ_SRC + 1U
+#define SPI_ENC28J60_SEQUENCES_NUMBER	SPI_ENC28J60_SEQ_WEBM + 1U
 
 /** @brief  enc28j60 Read ETH Control Register Sequence */
-#define SPI_ENC28J60_JOB_RCR_ETH        0U
+#define SPI_ENC28J60_JOB_RCR_ETH	0U
 /** @brief  enc28j60 Read MAC or MII Control Register Sequence */
-#define SPI_ENC28J60_JOB_RCR_MAC_OR_MII 1U
+#define SPI_ENC28J60_JOB_RCR_MAC_OR_MII	1U
 /** @brief  enc28j60 Read Buffer Memory Sequence */
-#define SPI_ENC28J60_JOB_RBM            2U
+#define SPI_ENC28J60_JOB_RBM		2U
 /** @brief  enc28j60 Write Control Register Sequence */
-#define SPI_ENC28J60_JOB_WCR            3U
+#define SPI_ENC28J60_JOB_WCR		3U
 /** @brief  enc28j60 Write Buffer Memory Sequence */
-#define SPI_ENC28J60_JOB_WBM            4U
+#define SPI_ENC28J60_JOB_WBM		4U
 /** @brief  enc28j60 Bit Field Set Sequence */
-#define SPI_ENC28J60_JOB_BFS            5U
+#define SPI_ENC28J60_JOB_BFS		5U
 /** @brief  enc28j60 Bit Field Clear Sequence */
-#define SPI_ENC28J60_JOB_BFC            6U
+#define SPI_ENC28J60_JOB_BFC		6U
 /** @brief  enc28j60 System Reset Command (Soft Reset) */
-#define SPI_ENC28J60_JOB_SRC            7U
-
+#define SPI_ENC28J60_JOB_SRC		7U
+/** @brief  enc28j60 Read Extended Buffer Memory Sequence */
+#define SPI_ENC28J60_JOB_REBM		8U
+/** @brief  enc28j60 Write Extended Buffer Memory Sequence */
+#define SPI_ENC28J60_JOB_WEBM		9U
 /** @brief  enc28j60 Sequences Number */
-#define SPI_ENC28J60_JOBS_NUMBER SPI_ENC28J60_JOB_SRC + 1U
+#define SPI_ENC28J60_JOBS_NUMBER	SPI_ENC28J60_JOB_WEBM + 1U
 
+/*** NOTE:	Needed to DMA Scatter-Gather Tables. ***/
+/** @brief	Configured enc28j60 Asynchronous Jobs Channels Max Number.    */
+#define	SPI_ENC28J60_ASYNC_JOBS_CHANNELS_MAX_NUMBER	0x0000U
+/** @brief	Configured enc28j60 Synchronous Jobs Channels Max Number.     */
+#define	SPI_ENC28J60_SYNC_JOBS_CHANNELS_MAX_NUMBER	0x0003U
+/** @brief	Configured enc28j60 Jobs Channels Max Number.		      */
+#define	SPI_ENC28J60_JOBS_CHANNELS_MAX_NUMBER	\
+	SPI_ENC28J60_SYNC_JOBS_CHANNELS_MAX_NUMBER
 
 /** @brief  enc28j60 JOB priority (DUMMY -> sync transmission) */
 #define SPI_ENC28J60_JOB_PRI            1U

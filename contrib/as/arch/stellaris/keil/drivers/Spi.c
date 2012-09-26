@@ -375,10 +375,30 @@ void Spi_Init(
    */
   for ( idx = 0; idx < ConfigPtr->SpiMaxChannel; idx++ ) {
 
-    SpiChannelStatus[idx].SpiSrcBuffPtr = NULL_PTR;
-    SpiChannelStatus[idx].SpiDstBuffPtr = NULL_PTR;
+#if	( \
+  ( SPI_CHANNEL_BUFFERS_ALLOWED == 1 ) || ( SPI_CHANNEL_BUFFERS_ALLOWED == 2 ) \
+)
+    SpiChannelStatus[idx].SpiEbLen = 0x0000U;
+    SpiChannelStatus[idx].SpiSrcEbPtr = NULL_PTR;
+    SpiChannelStatus[idx].SpiDstEbPtr = NULL_PTR;
 
-    SpiChannelStatus[idx].SpiBuffLen = 0x0000U;
+  /* Dummy Buffers to be used when User don't call Spi_SetupEB(). */
+    SpiChannelStatus[idx].SpiSrcEb = 0x00000000U;
+    SpiChannelStatus[idx].SpiDstEb = 0x00000000U;
+#endif	/* 
+	 * ( SPI_CHANNEL_BUFFERS_ALLOWED == 1 ) ||
+	 * ( SPI_CHANNEL_BUFFERS_ALLOWED == 2 )
+	 */
+
+#if	( \
+  ( SPI_CHANNEL_BUFFERS_ALLOWED == 0 ) || ( SPI_CHANNEL_BUFFERS_ALLOWED == 2 ) \
+)
+    SpiChannelStatus[idx].SpiSrcIbEmpty = TRUE;
+    SpiChannelStatus[idx].SpiDstIbEmpty = TRUE;
+#endif	/* 
+	 * ( SPI_CHANNEL_BUFFERS_ALLOWED == 0 ) ||
+	 * ( SPI_CHANNEL_BUFFERS_ALLOWED == 2 )
+	 */
 
   }
 
@@ -527,29 +547,19 @@ Std_ReturnType Spi_WriteIB(
   );
 #endif	/* ( SPI_CHANNEL_BUFFERS_ALLOWED == 2 ) */
 
-  SpiChannelStatus[ChIdx].SpiBuffLen =
-  Spi_Global.ConfigPtr->SpiChannel[ChIdx].SpiIbNBuffers;
+  if ( DataBufferPtr != NULL_PTR ) {
 
-  SpiChannelStatus[ChIdx].SpiSrcBuffPtr = SpiChannelStatus[ChIdx].SpiIbSrcBuff;
+    for (
+      IbBuffIdx = 0;
+      IbBuffIdx < Spi_Global.ConfigPtr->SpiChannel[ChIdx].SpiIbNBuffers;
+      IbBuffIdx++
+    ) {
 
-  for (
-    IbBuffIdx = 0;
-    IbBuffIdx < SpiChannelStatus[ChIdx].SpiBuffLen;
-    IbBuffIdx++
-  ) {
-
-    if ( DataBufferPtr == NULL_PTR ) {
-
-      SpiChannelStatus[ChIdx].SpiIbSrcBuff[IbBuffIdx] =
-      Spi_Global.ConfigPtr->SpiChannel[ChIdx].SpiDefaultData;
+      SpiChSrcIb[ChIdx][IbBuffIdx] = DataBufferPtr[IbBuffIdx];
 
     }
-    else {
 
-      SpiChannelStatus[ChIdx].SpiIbSrcBuff[IbBuffIdx] =
-      DataBufferPtr[IbBuffIdx];
-
-    }
+    SpiChannelStatus[ChIdx].SpiSrcIbEmpty = FALSE;
 
   }
 
@@ -961,7 +971,7 @@ Std_ReturnType Spi_ReadIB(
   );
 #endif	/* ( SPI_CHANNEL_BUFFERS_ALLOWED == 2 ) */
 
-  if ( SpiChannelStatus[ChIdx].SpiDstBuffPtr == NULL_PTR ) {
+  if ( SpiChannelStatus[ChIdx].SpiDstIbEmpty == TRUE ) {
 
     rv = E_NOT_OK;
 
@@ -974,12 +984,11 @@ Std_ReturnType Spi_ReadIB(
       IbBuffIdx++
     ) {
 
-      DataBufferPtr[IbBuffIdx] =
-      SpiChannelStatus[ChIdx].SpiIbDstBuff[IbBuffIdx];
+      DataBufferPtr[IbBuffIdx] = SpiChDstIb[ChIdx][IbBuffIdx];
 
     }
 
-    SpiChannelStatus[ChIdx].SpiDstBuffPtr = NULL_PTR;
+    SpiChannelStatus[ChIdx].SpiDstIbEmpty = TRUE;
 
     rv = E_OK;
 
@@ -999,7 +1008,7 @@ Std_ReturnType Spi_ReadIB(
   ( SPI_CHANNEL_BUFFERS_ALLOWED == 1 ) || ( SPI_CHANNEL_BUFFERS_ALLOWED == 2 ) \
 )
 /*
- * Spi_SetupIB implementation.
+ * Spi_SetupEB implementation.
  */
 Std_ReturnType Spi_SetupEB(
   Spi_ChannelType	Channel,
@@ -1011,8 +1020,6 @@ Std_ReturnType Spi_SetupEB(
 
   register EE_FREG		flags;
   register Spi_ChannelType	ChIdx;
-  register Spi_NumberOfDataType	IbBuffIdx;
-  
 
   VALIDATE_W_RV(
     ( Length > 0x0000U ),
@@ -1068,41 +1075,17 @@ Std_ReturnType Spi_SetupEB(
     flags
   );
 
-  SpiChannelStatus[ChIdx].SpiBuffLen = Length;
+  SpiChannelStatus[ChIdx].SpiEbLen = Length;
 
-  if ( SrcDataBufferPtr == NULL_PTR ) {
+  if ( SrcDataBufferPtr != NULL_PTR ) {
 
-    SpiChannelStatus[ChIdx].SpiSrcBuffPtr =
-    SpiChannelStatus[ChIdx].SpiIbSrcBuff;
-
-    
-    for (
-      IbBuffIdx = 0;
-      IbBuffIdx < SpiChannelStatus[ChIdx].SpiBuffLen;
-      IbBuffIdx++
-    ) {
-
-      SpiChannelStatus[ChIdx].SpiIbSrcBuff[IbBuffIdx] =
-      Spi_Global.ConfigPtr->SpiChannel[ChIdx].SpiDefaultData;
-
-    }
-
-  }
-  else {
-
-    SpiChannelStatus[ChIdx].SpiSrcBuffPtr = SrcDataBufferPtr;
+    SpiChannelStatus[ChIdx].SpiSrcEbPtr = SrcDataBufferPtr;
 
   }
 
-  if ( DesDataBufferPtr == NULL_PTR ) {
+  if ( DesDataBufferPtr != NULL_PTR ) {
 
-    SpiChannelStatus[ChIdx].SpiDstBuffPtr =
-    SpiChannelStatus[ChIdx].SpiIbDstBuff;
-
-  }
-  else {
-
-    SpiChannelStatus[ChIdx].SpiDstBuffPtr = DesDataBufferPtr;
+    SpiChannelStatus[ChIdx].SpiDstEbPtr = DesDataBufferPtr;
 
   }
 
@@ -1192,9 +1175,9 @@ Spi_JobResultType Spi_GetJobResult(
 }
 
 /*
- * Spi_GetSeqResult implementation.
+ * Spi_GetSequenceResult implementation.
  */
-Spi_SeqResultType Spi_GetSeqResult(
+Spi_SeqResultType Spi_GetSequenceResult(
   Spi_SequenceType	Sequence
 )
 {
@@ -1207,7 +1190,7 @@ Spi_SeqResultType Spi_GetSeqResult(
 
   VALIDATE_IRQ_W_RV(
     ( Spi_Global.DriverState != SPI_UNINIT ),
-    SPI_GETSEQRESULT_SERVICE_ID,
+    SPI_GETSEQUENCERESULT_SERVICE_ID,
     SPI_E_UNINIT,
     SPI_SEQ_FAILED,
     flags
@@ -1226,7 +1209,7 @@ Spi_SeqResultType Spi_GetSeqResult(
 
   VALIDATE_IRQ_W_RV(
     ( SpiSeqIdx < Spi_Global.ConfigPtr->SpiMaxSequence ),
-    SPI_GETSEQRESULT_SERVICE_ID,
+    SPI_GETSEQUENCERESULT_SERVICE_ID,
     SPI_E_PARAM_SEQ,
     SPI_SEQ_FAILED,
     flags
