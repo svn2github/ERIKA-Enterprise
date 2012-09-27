@@ -82,7 +82,7 @@ OPT_CC += -C$(TRICORE1_MODEL) -t -Wa-gAHLs -Wa-Ogs -Wa--error-limit=42 --no-prep
 --iso=99 --language=+gcc,-volatile,+strings --switch=auto --align=0 \
 --default-near-size=8 --default-a0-size=0 --default-a1-size=0 --tradeoff=4 --compact-max-size=200 --source
 
-ifeq ($(call iseeopt, DEBUG), yes)
+ifeq ($(call iseeopt, EE_DEBUG), yes)
 OPT_CC += --emit-locals=+equ,+symbols -g -O1
 else
 OPT_CC += --emit-locals=-equ,-symbols -O3
@@ -114,7 +114,7 @@ target_c_file=$(addprefix --create --output=,$1)
 #For ASM I leave --tasking-sfr option active
 OPT_ASM += -C$(TRICORE1_MODEL) -t -Wa--tasking-sfr -Wa-gAHLs -Wa-Ogs -Wa--error-limit=42
 
-ifeq ($(call iseeopt, DEBUG), yes)
+ifeq ($(call iseeopt, EE_DEBUG), yes)
 OPT_ASM += --emit-locals=+equ,+symbols
 else
 OPT_ASM += --emit-locals=-equ,-symbols
@@ -138,7 +138,7 @@ endif
 
 OPT_LINK += -C$(TRICORE1_MODEL) -t $(EE_LINK_SCRIPT) -Wl-O1 -Wl--map-file=$(TARGET_NAME).mapxml:XML -Wl-m2 -Wl--error-limit=42 -g
 
-ifeq ($(call iseeopt, DEBUG), yes)
+ifeq ($(call iseeopt, EE_DEBUG), yes)
 OPT_LINK += 
 endif
 
