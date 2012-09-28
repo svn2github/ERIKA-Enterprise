@@ -78,7 +78,7 @@ EE_SRCS += pkg/cpu/common/src/ee_hal_structs.c
 EE_SRCS += pkg/cpu/common/src/ee_context.c
 endif
 
-ifeq ($(call iseeopt, __TRICORE_TASKING__), yes)
+ifeq ($(call iseeopt, EE_TRICORE__), yes)
 EE_SRCS += pkg/cpu/common/src/ee_hal_structs.c
 EE_SRCS += pkg/cpu/common/src/ee_context.c
 endif

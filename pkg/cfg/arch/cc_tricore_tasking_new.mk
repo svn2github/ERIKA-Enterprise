@@ -53,11 +53,11 @@
 ## We eill use "control program" cctc instead specific single tool,
 ## because it understand better implicit options (empirical knowledge)
 ## and because we can easily use TASKING IDE to get the right options.
-EE_LINK ?= $(TRICORE1_TASKINGDIR)/ctc/bin/cctc.exe
-EE_ASM  ?= $(TRICORE1_TASKINGDIR)/ctc/bin/cctc.exe
-EE_CC   ?= $(TRICORE1_TASKINGDIR)/ctc/bin/cctc.exe
-EE_AR   ?= $(TRICORE1_TASKINGDIR)/ctc/bin/artc.exe
-EE_OBJDUMP ?= $(TRICORE1_TASKINGDIR)/ctc/bin/hldumptc.exe
+EE_LINK ?= $(TRICORE_TASKINGDIR)/ctc/bin/cctc.exe
+EE_ASM  ?= $(TRICORE_TASKINGDIR)/ctc/bin/cctc.exe
+EE_CC   ?= $(TRICORE_TASKINGDIR)/ctc/bin/cctc.exe
+EE_AR   ?= $(TRICORE_TASKINGDIR)/ctc/bin/artc.exe
+EE_OBJDUMP ?= $(TRICORE_TASKINGDIR)/ctc/bin/hldumptc.exe
 
 ifneq ($(ONLY_LIBS), TRUE)
 # OPT_LIBS is used to link additional libraries (e.g., for C++ support)
@@ -78,7 +78,7 @@ OPT_INCLUDE = $(foreach d,$(INCLUDE_PATH),$(addprefix -I,$(call native_path,$d))
 ## OPT_CC are the options for compiler invocation
 ## for the meaning of the options look at documentation paragraph 
 ## 11.6. Control Program Options
-OPT_CC += -C$(TRICORE1_MODEL) -t -Wa-gAHLs -Wa-Ogs -Wa--error-limit=42 --no-preprocessing-only -E+comments,+noline \
+OPT_CC += -C$(TRICORE_MODEL) -t -Wa-gAHLs -Wa-Ogs -Wa--error-limit=42 --no-preprocessing-only -E+comments,+noline \
 --iso=99 --language=+gcc,-volatile,+strings --switch=auto --align=0 \
 --default-near-size=8 --default-a0-size=0 --default-a1-size=0 --tradeoff=4 --compact-max-size=200 --source
 
@@ -112,7 +112,7 @@ source_c_file=$(strip $1)
 target_c_file=$(addprefix --create --output=,$1)
 
 #For ASM I leave --tasking-sfr option active
-OPT_ASM += -C$(TRICORE1_MODEL) -t -Wa--tasking-sfr -Wa-gAHLs -Wa-Ogs -Wa--error-limit=42
+OPT_ASM += -C$(TRICORE_MODEL) -t -Wa--tasking-sfr -Wa-gAHLs -Wa-Ogs -Wa--error-limit=42
 
 ifeq ($(call iseeopt, EE_DEBUG), yes)
 OPT_ASM += --emit-locals=+equ,+symbols
@@ -136,7 +136,7 @@ ifdef EE_LINK_SCRIPT
 LINKDEP += $(EE_LINK_SCRIPT)
 endif
 
-OPT_LINK += -C$(TRICORE1_MODEL) -t $(EE_LINK_SCRIPT) -Wl-O1 -Wl--map-file=$(TARGET_NAME).mapxml:XML -Wl-m2 -Wl--error-limit=42 -g
+OPT_LINK += -C$(TRICORE_MODEL) -t $(EE_LINK_SCRIPT) -Wl-O1 -Wl--map-file=$(TARGET_NAME).mapxml:XML -Wl-m2 -Wl--error-limit=42 -g
 
 ifeq ($(call iseeopt, EE_DEBUG), yes)
 OPT_LINK += 

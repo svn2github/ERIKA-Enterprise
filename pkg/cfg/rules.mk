@@ -294,7 +294,7 @@ endif # __TRICORE1_TASKING___ AND __TC1775B__
 ##
 ## Infineon Tricore - Tasking under Windows
 ##########################################################################
-ifeq ($(call iseeopt,__TRICORE_TASKING__), yes)
+ifeq ($(call iseeopt, EE_TRICORE__), yes)
 include $(EEBASE)/pkg/cfg/arch/rules_infineon_tc_generic.mk
 endif
 

@@ -49,7 +49,7 @@ VERBOSE = 1
 endif
 
 # Erika LIB name
-EELIB	  ?= ee
+EELIB    ?= ee
 ERIKALIB  = lib$(EELIB).a
 
 include $(EEBASE)/pkg/cfg/dir.mk
@@ -72,7 +72,7 @@ endif # ONLY_LIBS
 LIBDEP += $(ALL_LIBS)
 
 # Define the TARGET
-TARGET_NAME ?= $(TRICORE1_MODEL)
+TARGET_NAME ?= $(TRICORE_MODEL)
 
 # Add application file to dependencies
 ifneq ($(call iseeopt, __BUILD_LIBS__), yes)
@@ -122,10 +122,10 @@ vpath %.S $(EE_VPATH) $(APPBASE)
 ## Compute common variables
 ##
 
-COMPUTED_INCLUDE_PATH	:= $(OPT_INCLUDE)
-COMPUTED_OPT_LINK    	:= $(OPT_LINK)
-COMPUTED_OPT_ASM     	:= $(OPT_ASM)
-COMPUTED_OPT_CC      	:= $(OPT_CC)
+COMPUTED_INCLUDE_PATH  := $(OPT_INCLUDE)
+COMPUTED_OPT_LINK      := $(OPT_LINK)
+COMPUTED_OPT_ASM       := $(OPT_ASM)
+COMPUTED_OPT_CC        := $(OPT_CC)
 
 ## Select input filename format
 SOURCEFILE = $(call native_path,$<)
@@ -158,7 +158,7 @@ clean:
 ##
 ## Lauterbach targets
 ##
-t32.cmm: $(PKGBASE)/mcu/infineon_$(TRICORE1_MODEL)/cfg/t32_$(TRICORE1_MODEL).cmm
+t32.cmm: $(PKGBASE)/mcu/infineon_$(TRICORE_MODEL)/cfg/t32_$(TRICORE_MODEL).cmm
 	$(QUIET)sed -e 's:#EXE_NAME#:$(TARGET_NAME).elf:g'	$< > $@
 
 #

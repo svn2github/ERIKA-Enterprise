@@ -102,12 +102,12 @@ extern "C" {
 #endif
 
 #ifdef __TRICORE1__
-#ifdef __CORE_TC16X__
-#include "cpu/tricore/inc/ee_tc_internal.h"
-#else
 #include "cpu/tricore1/inc/ee_internal.h"
-#endif /* __CORE_TC16X__ */
 #endif /* __TRICORE1__ */
+
+#ifdef EE_TRICORE__
+#include "cpu/tricore/inc/ee_tc_internal.h"
+#endif /* EE_TRICORE__ */
 
 #ifdef __lm32__
 #include "cpu/mico32/inc/ee_internal.h"
@@ -194,11 +194,14 @@ extern "C" {
 #include "mcu/mico32/inc/ee_internal.h"
 #endif
 
-/* Tricore1 */
+/* Tricore */
 
-#ifdef __TC27X__
+/* Tricore TC27x */
+#if defined(EE_TRICORE__) && defined(EE_TC27X__)
 #include "mcu/infineon_tc27x/inc/ee_tc27x_internal.h"
 #endif
+
+/* Tricore1 */
 
 #ifdef __TC179x__
 #include "mcu/tc179x/inc/ee_internal.h"
