@@ -124,8 +124,7 @@ endif
 endif
 
 # Add application file to dependencies
-ifneq ($(ONLY_LIBS), TRUE)
-
+ifneq ($(or $(call iseeopt, ONLY_LIBS), $(call iseeopt, EE_NO_LIBEE)),yes)
 # OPT_LIBS is used to link additional libraries (e.g., for C++ support)
 # the EE library is built in the current directory
 OPT_LIBS +=  -L. -lee
@@ -178,6 +177,12 @@ LIBOBJS := $(addprefix $(OBJDIR)/, $(patsubst %.c,%.o,$(patsubst %.S,%.o,$(LIBSR
 
 SRCS += $(APP_SRCS)
 OBJS := $(addprefix $(OBJDIR)/, $(patsubst %.c,%.o,$(patsubst %.S,%.o, $(SRCS))))
+
+ifneq ($(call iseeopt, EE_NO_LIBEE), yes)
+APPOBJS := $(OBJS)
+else
+APPOBJS := $(LIBEEOBJS) $(OBJS)
+endif
 
 ALLOBJS = $(LIBEEOBJS) $(LIBOBJS) $(OBJS) $(CRT0)
 
@@ -266,10 +271,10 @@ orti.men: system.orti
 ##
 # if is specified __NO_APP__ the user want Erika as libee.a and noting else
 ifneq ($(call iseeopt, __NO_APP__), yes)
-$(TARGET): $(CRT0) $(OBJS) $(LINKDEP) $(LIBDEP)
+$(TARGET): $(CRT0) $(APPOBJS) $(LINKDEP) $(LIBDEP)
 	@printf "LD\n";
 	$(QUIET)$(EE_LINK) $(COMPUTED_OPT_LINK)				\
-		-o $(TARGETFILE) $(OPT_CRT0) $(OBJS) $(OPT_LIBS) $(MAP_OPT)
+		-o $(TARGETFILE) $(MAP_OPT) $(OPT_LIBS) $(OPT_CRT0) $(APPOBJS)
 	@echo
 	@echo "Compilation terminated successfully"
 	@echo
@@ -331,11 +336,12 @@ endif # if EE_LINK_SCRIPT
 ##
 ## EE Library
 ##
-
+ifneq ($(call iseeopt, EE_NO_LIBEE), yes)
 libee.a: $(LIBEEOBJS)
 	@printf "AR  libee.a\n" ;
 	$(QUIET)rm -f $@
 	$(QUIET)$(EE_AR) $(OPT_AR) $@ $(LIBEEOBJS)
+endif
 
 ##
 ## Automatic Generation of dependencies

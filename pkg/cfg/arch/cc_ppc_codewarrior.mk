@@ -73,7 +73,7 @@ endif
 endif # PPCE200Z0
 # Apparently, libc_XXX works on Windows, librt_XXX on Linux
 ifeq ($(call iseeopt, __RTD_CYGWIN__), yes)
-MW_LIBS = $(addsuffix $(MW_LIB_FLAVOR), c m)
+MW_LIBS = $(addsuffix $(MW_LIB_FLAVOR), c rt)
 else
 MW_LIBS = $(addsuffix $(MW_LIB_FLAVOR), rt)
 endif
