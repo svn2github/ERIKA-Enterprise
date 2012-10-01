@@ -140,7 +140,7 @@ defined(__OO_ECC2__) || defined(__AS_SC4__)
 #include "cpu/rx200/inc/ee_irq.h"
 #endif
 
-#if  EE_TRICORE__
+#ifdef  EE_TRICORE__
 #include "cpu/tricore/inc/ee_tc_irq.h"
 #endif /* EE_TRICORE__ */
 
