@@ -275,6 +275,24 @@ EE_INT16 EE_pwm_set_duty(EE_PwmId pwm_ch, EE_UINT16 duty)
     }
     return error;
 }
+
+EE_INT16 EE_pwm_set_direction(EE_PwmId pwm_ch, char dir)
+{
+    EE_INT16 error = EE_PWM_NO_ERROR;
+    switch(pwm_ch)
+    {
+        case EE_PWM_MC1:
+            EE_pwm1_set_direction(dir);
+        break;
+        case EE_PWM_MC2:
+            EE_pwm2_set_direction(dir);
+        break;
+        default:
+            error = EE_PWM_ERROR_INVALID_CH_ID;        
+    }
+    return error;
+}
+
 #endif /*__dsPIC33FJ64MC802__ */
 
 

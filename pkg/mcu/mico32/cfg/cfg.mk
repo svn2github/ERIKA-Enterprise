@@ -73,6 +73,14 @@ ifeq ($(call iseeopt, __USE_GPIO__), yes)
 EE_SRCS += pkg/mcu/mico32/src/ee_gpio.c
 endif
 
+ifeq ($(call iseeopt, __USE_ENCODER__), yes)
+EE_SRCS += pkg/mcu/mico32/src/ee_encoder.c
+endif
+
+ifeq ($(call iseeopt, __USE_DCM_PWM__), yes)
+EE_SRCS += pkg/mcu/mico32/src/ee_pwm.c
+endif
+
 ifeq ($(MCU_BUF), YES)
 EE_SRCS += pkg/mcu/mico32/src/ee_buffer.c
 endif

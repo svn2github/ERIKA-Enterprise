@@ -721,6 +721,15 @@ EE_INT16 EE_easylab_pwm_close(EE_UINT8 pwm_pin);
 **/
 EE_INT16 EE_easylab_pwm_set_duty(EE_UINT8 pwm_pin, EE_UINT16 duty);
 
+/**
+    @brief Set PWM pin onverride status.
+
+    @param pwm_pin (EE_UINT8): pwm pin's Id.
+    
+    @return an error value (negative integer) if someting happened
+**/
+EE_INT16 EE_easylab_pwm_set_direction(EE_UINT8 pwm_pin);
+
 #endif /* __USE_PWM__ */
 
 #endif /*__INCLUDE_EASYLAB_BOARD_H__ */

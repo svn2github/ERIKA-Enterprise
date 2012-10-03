@@ -117,11 +117,21 @@ EE_INT16 EE_pwm_close(EE_PwmId pwm_ch);
     @brief Set PWM channel's duty cicle and if, this value is not 0, start it.
     
     @param pwm_ch (EE_PwmId): pwm channel's Id.
-    @param pwm_freq (EE_UINT32): pwm duty cycle [0, EE_PWM_DUTY_MAX]
+    @param duty (EE_UINT16): pwm duty cycle [0, EE_PWM_DUTY_MAX]
     
     @return an error value (negative integer) if someting happened
 **/
 EE_INT16 EE_pwm_set_duty(EE_PwmId pwm_ch, EE_UINT16 duty);
+
+/**
+    @brief Set PWM channel's pins override.
+    
+    @param pwm_ch (EE_PwmId): pwm channel's Id.
+    @param dir (char): pwm pins override to set motor direction 
+    
+    @return an error value (negative integer) if someting happened
+**/
+EE_INT16 EE_pwm_set_direction(EE_PwmId pwm_ch, char dir);
 
 #endif /* __USE_PWM__ */
 

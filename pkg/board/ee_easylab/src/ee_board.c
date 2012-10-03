@@ -137,26 +137,61 @@ EE_INT16 EE_easylab_pwm_close(EE_UINT8 pwm_pin)
     return error;
 }
 
+EE_INT16 EE_easylab_pwm_set_direction(EE_UINT8 pwm_pin)
+{
+    EE_INT16 error = 0;
+    switch(pwm_pin)
+    {
+        case EE_EASYLAB_PWM1:
+            EE_pwm_set_direction(EE_PWM_MC1, EE_H_OVER_L_PWM);
+        break;
+        case EE_EASYLAB_PWM2:
+            EE_pwm_set_direction(EE_PWM_MC1, EE_H_PWM_L_OVER);
+        break;
+        case EE_EASYLAB_PWM3:
+            EE_pwm_set_direction(EE_PWM_MC2, EE_H_OVER_L_PWM);
+        break;
+        case EE_EASYLAB_PWM4:
+            EE_pwm_set_direction(EE_PWM_MC2, EE_H_PWM_L_OVER);
+        break;
+        case EE_EASYLAB_PWM12:
+            EE_pwm_set_direction(EE_PWM_MC1, EE_H_PWM_L_PWM);
+        break;
+        case EE_EASYLAB_PWM34:
+            EE_pwm_set_direction(EE_PWM_MC2, EE_H_PWM_L_PWM);
+        break;
+        default:
+            error = EE_EASYLAB_PWM_ERROR_INVALID_PIN_ID;
+    }
+    return error;
+}
+
 EE_INT16 EE_easylab_pwm_set_duty(EE_UINT8 pwm_pin, EE_UINT16 duty){
     EE_INT16 error;
     switch(pwm_pin)
     {
         case EE_EASYLAB_PWM1:
+            EE_easylab_pwm_set_direction(EE_EASYLAB_PWM1);
             error = EE_pwm_set_duty(EE_PWM_MC1, duty);
         break;
         case EE_EASYLAB_PWM2:
+            EE_easylab_pwm_set_direction(EE_EASYLAB_PWM2);
             error = EE_pwm_set_duty(EE_PWM_MC1, duty);
         break;
         case EE_EASYLAB_PWM3:
+            EE_easylab_pwm_set_direction(EE_EASYLAB_PWM3);
             error = EE_pwm_set_duty(EE_PWM_MC2, duty);
         break;
         case EE_EASYLAB_PWM4:
+            EE_easylab_pwm_set_direction(EE_EASYLAB_PWM4);
             error = EE_pwm_set_duty(EE_PWM_MC2, duty);
         break;
         case EE_EASYLAB_PWM12:
+            EE_easylab_pwm_set_direction(EE_EASYLAB_PWM12);
             error = EE_pwm_set_duty(EE_PWM_MC1, duty);
         break;
         case EE_EASYLAB_PWM34:
+            EE_easylab_pwm_set_direction(EE_EASYLAB_PWM34);
             error = EE_pwm_set_duty(EE_PWM_MC2, duty);
         break;
         default:
@@ -165,7 +200,6 @@ EE_INT16 EE_easylab_pwm_set_duty(EE_UINT8 pwm_pin, EE_UINT16 duty){
     return error;
 
 }
-
 #endif /* __USE_PWM__ */ 
 
 #endif /*__dsPIC33FJ64MC802__ */
