@@ -153,7 +153,11 @@ alt_u32 mycallback (void* arg)
 			#if defined (__RX200__)
 			ISR2(cmia0_handler)
 			#else
-			static void myISR2(void)
+				#if defined (EE_TRICORE__)
+				ISR2(STM_handler)
+				#else
+				static void myISR2(void)
+				#endif
 			#endif
 		#endif
 	#endif
@@ -273,6 +277,11 @@ int main(int argc, char **argv)
 	EE_systick_start();
 	EE_systick_set_period(0x0C, 0x9C);
 	EE_systick_enable_int();
+#endif
+
+#if defined(EE_TRICORE__)
+	EE_tc27x_stm_set_clockpersec();
+    EE_tc27x_stm_set_sr0(10000000U, EE_ISR2_ID_STM_handler);
 #endif
 
   StartOS(OSDEFAULTAPPMODE);

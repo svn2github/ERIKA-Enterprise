@@ -1,7 +1,7 @@
 /* ###*B*###
  * ERIKA Enterprise - a tiny RTOS for small microcontrollers
  *
- * Copyright (C) 2002-2008  Evidence Srl
+ * Copyright (C) 2002-2012  Evidence Srl
  *
  * This file is part of ERIKA Enterprise.
  *
@@ -38,80 +38,14 @@
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
 
-/* this is a set of defines that should help reducing the coding in
-   the OIL files */
+#ifdef tricore_tc27x
 
-#ifdef e7t_rtdruid
-#define evaluator7t
-#endif
-
-#ifdef e7t_dist_src
-#define evaluator7t
-#endif
-
-#ifdef e7t_dist_bin_full
-#define evaluator7t
-#endif
-
-#ifdef e7t_dist_bin_lim
-#define evaluator7t
-#endif
-
-#ifdef nios2_dist_bin_full
-#define nios2
-#endif
-
-#ifdef nios2_dist_src
-#define nios2
-#endif
-
-#ifdef nios2_dist_trace
-#define nios2
-#endif
-
-/* Nios II */
-//#define EE_NIOS2_SYSTEM_LIBRARY_PATH "C:/altera/kits/nios2_60/examples/verilog/niosII_stratix_1s40/standard/software/standard_syslib"
-//#define EE_NIOS2_SYSTEM_LIBRARY_PATH_FULLFEATURED "C:/altera/kits/nios2_60/examples/verilog/niosII_stratix_1s40/full_featured/software/full_featured_syslib"
-#define EE_NIOS2_SYSTEM_LIBRARY_PATH "C:/altera/80/nios2eds/examples/verilog/niosII_stratix_2s60/standard/software/standard_syslib"
-
-
-#ifdef pic30_dist_bin_full
-#define pic30
-#endif
-
-#ifdef pic30_dist_src
-#define pic30
-#endif
-
-#ifdef cortex_m0_iar
-#define cortex_mx
-#define cortex_m0
-#define iar
-#endif
-
-#ifdef cortex_m4_ccs
-#define cortex_mx
-#define cortex_m4
-#define ccs
-#endif
-
-#ifdef cortex_m4_keil
-#define cortex_mx
-#define cortex_m4
-#define keil
-#endif
-
-#ifdef rx200_ccrx
-#define rx200
-#define ccrx
-#endif
-
-
-#ifdef  tricore_tc27x_tasking
-#define tricore_tc27x
-#define tasking
-#endif
-
-//#ifdef s12xs_...
-//#define s12xs
-//#endif
+CPU_DATA = TRICORE {
+    MODEL =   "tc27x";
+    APP_SRC = "code.c";
+#ifdef USEIRQ
+  APP_SRC = "../../common/tricore/test_irq.c";
+#endif /* USEIRQ */
+  /* SYS_STACK_SIZE=4096; */
+  
+#endif /* tricore_tc27x */
