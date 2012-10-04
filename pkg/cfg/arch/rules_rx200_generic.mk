@@ -151,7 +151,7 @@ LIBEESRCS += $(EE_SRCS)
 LIBEEOBJS := $(addprefix $(OBJDIR)/, $(patsubst %.c, %.obj, $(patsubst %.s, %.obj, \
 $(patsubst %.asm, %.obj, $(patsubst %.src, %.obj, $(LIBEESRCS))))))
 
-LIBEESRCS += $(LIB_SRCS)
+#LIBEESRCS += $(LIB_SRCS)
 
 LIBOBJS := $(addprefix $(OBJDIR)/, $(patsubst %.c, %.obj, $(patsubst %.s, %.obj,\
  $(patsubst %.asm, %.obj, $(patsubst %.src, %.obj, $(LIBSRCS))))))
@@ -214,7 +214,7 @@ clean:
 $(TARGET_NAME).$(RX_OUT_EXTENSION): $(OBJS) $(LINKDEP) $(LIBDEP) 
 	@echo "LD $(TARGET_NAME).$(RX_OUT_EXTENSION)";
 ifeq ($(call iseeopt, __CCRX__), yes)	
-	$(QUIET)$(EE_LINK) $(COMPUTED_OPT_LINK) -output=$@ $(OBJS) $(LIBEEOBJS)
+	$(QUIET)$(EE_LINK) $(COMPUTED_OPT_LINK) -output=$@ $(ALLOBJS)
 else
 	$(QUIET)$(EE_LINK) $(COMPUTED_OPT_LINK) -o $(TARGETFILE) $(OBJS) \
                      --start-group $(OPT_LIBS) --end-group -M > rx200.map

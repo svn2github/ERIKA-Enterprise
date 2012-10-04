@@ -285,7 +285,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_b3_enable_IRQ(void)
 /** @brief Operating Frequencies setup **/
 __INLINE__ void __ALWAYS_INLINE__ EE_rskrx210_op_freq_setup(void) 
 {
-	unsigned int i;
+	volatile unsigned int i;
 
 	/* Write protect off */
 	SYSTEM.PRCR.WORD = 0xA503;				
@@ -327,7 +327,10 @@ __INLINE__ void __ALWAYS_INLINE__ EE_rskrx210_op_freq_setup(void)
 	while(SYSTEM.OPCCR.BIT.OPCMTSF == 1);
 
 	/*Source of system clock = PLL*/
-	SYSTEM.SCKCR3.WORD = 0x0400;			
+	SYSTEM.SCKCR3.WORD = 0x0400;
+	
+	/* Write protect on */
+	SYSTEM.PRCR.WORD = 0xA500;
 }
 
 #endif /*__USE_RSKRX210_OP_FREQ_SETUP__*/

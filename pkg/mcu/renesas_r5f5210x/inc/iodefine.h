@@ -5700,7 +5700,22 @@ struct st_system {
 			unsigned char PSTS:5;
 		} BIT;
 	} PLLWTCR;
-	char           wk10[25];
+	char           wk9b[1];
+	union {
+		unsigned char BYTE;
+		struct {
+			unsigned char :4;
+			unsigned char LSTS2:4;
+		} BIT;
+	} LOCOWTCR2;
+	union {
+		unsigned char BYTE;
+		struct {
+			unsigned char :4;
+			unsigned char HSTS2:4;
+		} BIT;
+	} HOCOWTCR2;
+	char           wk10[23];
 	union {
 		unsigned char BYTE;
 		struct {

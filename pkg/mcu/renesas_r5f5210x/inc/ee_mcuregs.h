@@ -132,4 +132,9 @@
 
 #endif /* #if 1*/
 
+#define SYS_RESC_POR	0x01
+#define SYS_RESC_IWDT	0x10
+#define SYS_RESC_WDT	0x20
+#define SYS_RESC_SW		0x40
+
 #endif	/* __INCLUDE_RENESAS_R5F5210X_MCUREGS_H__ */
