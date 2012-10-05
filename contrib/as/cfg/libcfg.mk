@@ -207,18 +207,44 @@ endif	# __AS_GPT_DRIVER__
 
 endif #EE_MPC5643L && __CODEWARRIOR__
 
+ifeq ($(and $(call iseeopt, __R5F5210x__), $(call iseeopt, __CCRX__)), yes)
+
+INCLUDE_PATH += $(EEBASE)/contrib/as/arch/rx200_5f5210x/ccrx/include
+EE_SRCS += contrib/as/arch/rx200_5f5210x/ccrx/drivers/Hardware.c
+
+ifeq ($(call iseeopt, __AS_MCU_DRIVER__), yes)
+EE_SRCS_AUTOSAR += contrib/as/arch/rx200_5f5210x/ccrx/drivers/Mcu.c
+ifeq ($(call iseeopt, __NO_APP__), yes)
+ifneq ($(filter %Mcu_Cfg.c, $(APP_SRCS)),)
+EE_SRCS_AUTOSAR += $(filter %Mcu_Cfg.c, $(APP_SRCS))
+else
+EE_SRCS_AUTOSAR += $(OUTBASE)/Mcu_Cfg.c
+endif
+endif	# __NO_APP__
+endif	# __AS_MCU_DRIVER__
+
+endif	#__R5F5210x__ && __CCRX__
+
 #~ ifeq ($(call iseeopt, __NO_APP__), yes)
 #~ EE_SRCS_AUTOSAR += $(filter-out eecfg.c, $(APP_SRCS))
 #~ endif
-
-EE_OBJS_AUTOSAR := $(addprefix $(OBJDIR)/, $(patsubst %.c,%.o,$(patsubst %.s,%.o,$(EE_SRCS_AUTOSAR))))
+ifeq ($(and $(call iseeopt, __R5F5210x__), $(call iseeopt, __CCRX__)), yes)
+EE_OBJS_AUTOSAR := $(addprefix $(OBJDIR)/, $(patsubst %.c,%.obj,$(patsubst %.s,%.obj,$(EE_SRCS_AUTOSAR))))
 LIBSRCS += $(EE_SRCS_AUTOSAR)
+endif #__R5F5210x__ && __CCRX__
 
 AUTOSARLIB := libas.a
 
+ifeq ($(and $(call iseeopt, __R5F5210x__), $(call iseeopt, __CCRX__)), yes)
+$(AUTOSARLIB): $(EE_OBJS_AUTOSAR)
+	@echo "AR    $(AUTOSARLIB)";
+	$(QUIET) $(EE_LINK) $(COMPUTED_OPT_AR) -output=$@ $^
+else
 $(AUTOSARLIB): $(EE_OBJS_AUTOSAR)
 	@echo "AR    $(AUTOSARLIB)";
 	$(QUIET)$(EE_AR) $(COMPUTED_OPT_AR) $@ $^
+endif #__R5F5210x__ && __CCRX__
+	
 OPT_LIBS += $(AUTOSARLIB)
 ALL_LIBS += $(AUTOSARLIB)
 

@@ -5715,7 +5715,7 @@ struct st_system {
 			unsigned char HSTS2:4;
 		} BIT;
 	} HOCOWTCR2;
-	char           wk10[23];
+	char           wk10[22];
 	union {
 		unsigned char BYTE;
 		struct {
