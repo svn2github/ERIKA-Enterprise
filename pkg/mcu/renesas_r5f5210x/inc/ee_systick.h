@@ -90,13 +90,31 @@ __INLINE__ void __ALWAYS_INLINE__ EE_systick_set_IRQ_pri(EE_UINT8 pri)
 /*Enable TIMER0 module*/
 __INLINE__ void __ALWAYS_INLINE__ EE_systick_start(void)
 {
+	/* 
+	 * Write protect off. 
+	 * This enables the writing of MSTPCRA register. 
+	 */
+	SYSTEM.PRCR.WORD |= 0xA502;
+	
 	SYSTEM.MSTPCRA.BIT.MSTPA5 = 0;
+	
+	/* Write protect on */
+	SYSTEM.PRCR.WORD = (SYSTEM.PRCR.WORD & 0x0009) | 0xA502;
 }
 
 /*Stop TIMER0 module*/
 __INLINE__ void __ALWAYS_INLINE__ EE_systick_stop(void)
 {
+	/* 
+	 * Write protect off. 
+	 * This enables the writing of MSTPCRA register. 
+	 */
+	SYSTEM.PRCR.WORD |= 0xA502;
+
 	SYSTEM.MSTPCRA.BIT.MSTPA5 = 1;
+	
+	/* Write protect on */
+	SYSTEM.PRCR.WORD = (SYSTEM.PRCR.WORD & 0x0009) | 0xA502;
 }
 
 
