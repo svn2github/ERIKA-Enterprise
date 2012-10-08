@@ -82,6 +82,8 @@ SECTIONS
 	} > iflash
 
     GROUP : {
+        /* Alignement necessary for a correct use of flash driver */
+        . = ALIGN(16);
         /* For data associated to calibrations memory area (non-const data) */
         ee_scal_ram = .;
     } > calibrations_ram
@@ -113,7 +115,10 @@ SECTIONS
 		/* For SSD Driver code running in VLE mode */
 		SSD_Driver_code_vle (VLECODE) LOAD(ee_load_ram + ADDR(SSD_Driver_code_vle) - ADDR(.data)): { }
 
+        /* Alignement necessary for a correct use of flash driver */
+        . = ALIGN(16);
         /* For data associated to calibrations memory area (non-const data) */
+        ee_scal_ram_dest = . ;
         cal_ram LOAD(ee_scal_ram) : {}
 
 		.sdata LOAD(ee_load_ram + ADDR(.sdata) - ADDR(.data)): { }
@@ -131,3 +136,4 @@ SECTIONS
 		ee_estack = . ;
 	} > isram
 }
+

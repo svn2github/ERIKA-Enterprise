@@ -19,3 +19,8 @@ MEMORY
 isram_base = ADDR(isram);
 isram_len = SIZEOF(isram);
 
+/* Variables used to manage calibrations */
+cal_ram_size = SIZEOF(cal_ram);
+cal_ram_base = ee_scal_ram;
+cal_ram_dest_base = ee_scal_ram_dest;
+
