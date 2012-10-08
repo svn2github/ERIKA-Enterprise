@@ -81,6 +81,17 @@ SECTIONS
 		ee_load_ram = . ;
 	} > iflash
 
+    GROUP : {
+        /* For data associated to calibrations memory area (non-const data) */
+        ee_scal_ram = .;
+    } > calibrations_ram
+
+    GROUP : {
+        /* For data associated to calibrations memory area (const data) */
+        ee_scal_flash = .;
+        cal_flash LOAD(ADDR(calibrations_flash)) : { }
+    } > calibrations_flash
+
 	GROUP : {
 		ee_sdata = . ;
 		.data LOAD(ee_load_ram): { }
@@ -101,6 +112,9 @@ SECTIONS
 
 		/* For SSD Driver code running in VLE mode */
 		SSD_Driver_code_vle (VLECODE) LOAD(ee_load_ram + ADDR(SSD_Driver_code_vle) - ADDR(.data)): { }
+
+        /* For data associated to calibrations memory area (non-const data) */
+        cal_ram LOAD(ee_scal_ram) : {}
 
 		.sdata LOAD(ee_load_ram + ADDR(.sdata) - ADDR(.data)): { }
 
