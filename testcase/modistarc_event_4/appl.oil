@@ -73,6 +73,7 @@ CPU test_application {
 #include "../common/rtdruid_common/ee_oil_e200zx_os.h"
 #include "../common/rtdruid_common/ee_oil_cortex_mx_os.h"
 #include "../common/rtdruid_common/ee_oil_rx200_os.h"
+#include "../common/rtdruid_common/ee_oil_tricore_os.h"
 
 
 /* Multi Stack */
@@ -153,6 +154,11 @@ CPU test_application {
 			SYS_SIZE = 0x200;
 		};
 #endif
+#ifdef tricore
+		STACK = PRIVATE {
+			SYS_SIZE = 0x100;
+		};
+#endif
     };
 
     TASK Task3 {
@@ -199,6 +205,11 @@ CPU test_application {
 		};
 #endif
 #ifdef rx200
+		STACK = PRIVATE {
+			SYS_SIZE = 0x200;
+		};
+#endif
+#ifdef tricore
 		STACK = PRIVATE {
 			SYS_SIZE = 0x200;
 		};

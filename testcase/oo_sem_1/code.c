@@ -154,8 +154,12 @@ void ErrorHook(StatusType Error)
 	}
 #endif
 
+#if defined(__CORTEX_MX__) || defined(EE_TRICORE__)
 #ifdef __CORTEX_MX__
 ISR2(SysTick_Handler)
+#elif defined(EE_TRICORE__)
+ISR2(STM_handler)
+#endif
 {
 	StatusType s;
 	/* clear the interrupt */
@@ -166,7 +170,7 @@ ISR2(SysTick_Handler)
 
 	wecanstart=1;
 }
-#endif
+#endif /*  defined(__CORTEX_MX__) || defined(EE_TRICORE__) */
 
 void StartupHook(void)
 {
@@ -199,6 +203,10 @@ void StartupHook(void)
   EE_systick_set_period(3000000);
   EE_systick_enable_int();
   EE_systick_start();
+#endif
+#if defined(EE_TRICORE__)
+    EE_tc27x_stm_set_clockpersec();
+    EE_tc27x_stm_set_sr0(3000000U, EE_ISR2_ID_STM_handler);
 #endif
 }
 

@@ -45,6 +45,7 @@ CPU test_application {
     OS EE {
         EE_OPT = "__ASSERT__";
         EE_OPT = "DEBUG";
+        EE_OPT = "EE_DEBUG";
 
 #ifdef STD
 		STATUS = STANDARD;
@@ -72,6 +73,7 @@ CPU test_application {
 #include "../common/rtdruid_common/ee_oil_e200zx_os.h"
 #include "../common/rtdruid_common/ee_oil_cortex_mx_os.h"
 #include "../common/rtdruid_common/ee_oil_rx200_os.h"
+#include "../common/rtdruid_common/ee_oil_tricore_os.h"
 
 
 #ifdef janusg_rtdruid
@@ -93,10 +95,11 @@ CPU test_application {
 /* Multi Stack */
 			MULTI_STACK = TRUE {
 				IRQ_STACK = FALSE;
-#if !defined(pic30) && !defined(s12) && !defined(e200zx) && !defined(cortex_mx)\
- && !defined(rx200)
-				DUMMY_STACK = SHARED;
-#endif
+// Default behaviour:not needed.
+// #if !defined(pic30) && !defined(s12) && !defined(e200zx) && !defined(cortex_mx)\
+// && !defined(rx200)
+				// DUMMY_STACK = SHARED;
+// #endif
 			};
 
 		
@@ -167,6 +170,11 @@ CPU test_application {
 			SYS_SIZE = 0x100;
 		};
 #endif
+#ifdef tricore
+		STACK = PRIVATE {
+			SYS_SIZE = 0x100;
+		};
+#endif
     };
 
     TASK Task2 {
@@ -220,6 +228,11 @@ CPU test_application {
 		};
 #endif
 #ifdef rx200
+		STACK = PRIVATE {
+			SYS_SIZE = 0x100;
+		};
+#endif
+#ifdef tricore
 		STACK = PRIVATE {
 			SYS_SIZE = 0x100;
 		};
@@ -280,6 +293,11 @@ CPU test_application {
 			SYS_SIZE = 0x100;
 		};
 #endif
+#ifdef tricore
+		STACK = PRIVATE {
+			SYS_SIZE = 0x100;
+		};
+#endif
     };
     TASK Task4 {
 		PRIORITY = 13;
@@ -332,6 +350,11 @@ CPU test_application {
 		};
 #endif
 #ifdef rx200
+		STACK = PRIVATE {
+			SYS_SIZE = 0x100;
+		};
+#endif
+#ifdef tricore
 		STACK = PRIVATE {
 			SYS_SIZE = 0x100;
 		};
@@ -392,6 +415,11 @@ CPU test_application {
 			SYS_SIZE = 0x100;
 		};
 #endif
+#ifdef tricore
+		STACK = PRIVATE {
+			SYS_SIZE = 0x100;
+		};
+#endif
     };
     TASK Task6 {
 		PRIORITY = 11;
@@ -444,6 +472,11 @@ CPU test_application {
 		};
 #endif
 #ifdef rx200
+		STACK = PRIVATE {
+			SYS_SIZE = 0x100;
+		};
+#endif
+#ifdef tricore
 		STACK = PRIVATE {
 			SYS_SIZE = 0x100;
 		};
@@ -504,6 +537,11 @@ CPU test_application {
 			SYS_SIZE = 0x100;
 		};
 #endif
+#ifdef tricore
+		STACK = PRIVATE {
+			SYS_SIZE = 0x100;
+		};
+#endif
     };
     TASK Task8 {
 		PRIORITY = 9;
@@ -556,6 +594,11 @@ CPU test_application {
 		};
 #endif
 #ifdef rx200
+		STACK = PRIVATE {
+			SYS_SIZE = 0x100;
+		};
+#endif
+#ifdef tricore
 		STACK = PRIVATE {
 			SYS_SIZE = 0x100;
 		};
@@ -616,6 +659,11 @@ CPU test_application {
 			SYS_SIZE = 0x100;
 		};
 #endif
+#ifdef tricore
+		STACK = PRIVATE {
+			SYS_SIZE = 0x100;
+		};
+#endif
     };
     TASK Task10 {
 		PRIORITY = 7;
@@ -668,6 +716,11 @@ CPU test_application {
 		};
 #endif
 #ifdef rx200
+		STACK = PRIVATE {
+			SYS_SIZE = 0x100;
+		};
+#endif
+#ifdef tricore
 		STACK = PRIVATE {
 			SYS_SIZE = 0x100;
 		};
@@ -728,6 +781,11 @@ CPU test_application {
 			SYS_SIZE = 0x100;
 		};
 #endif
+#ifdef tricore
+		STACK = PRIVATE {
+			SYS_SIZE = 0x100;
+		};
+#endif
     };
     TASK Task12 {
 		PRIORITY = 5;
@@ -780,6 +838,11 @@ CPU test_application {
 		};
 #endif
 #ifdef rx200
+		STACK = PRIVATE {
+			SYS_SIZE = 0x100;
+		};
+#endif
+#ifdef tricore
 		STACK = PRIVATE {
 			SYS_SIZE = 0x100;
 		};
@@ -840,6 +903,11 @@ CPU test_application {
 			SYS_SIZE = 0x100;
 		};
 #endif
+#ifdef tricore
+		STACK = PRIVATE {
+			SYS_SIZE = 0x100;
+		};
+#endif
     };
     TASK Task14 {
 		PRIORITY = 3;
@@ -892,6 +960,11 @@ CPU test_application {
 		};
 #endif
 #ifdef rx200
+		STACK = PRIVATE {
+			SYS_SIZE = 0x100;
+		};
+#endif
+#ifdef tricore
 		STACK = PRIVATE {
 			SYS_SIZE = 0x100;
 		};
@@ -952,6 +1025,11 @@ CPU test_application {
 			SYS_SIZE = 0x100;
 		};
 #endif
+#ifdef tricore
+		STACK = PRIVATE {
+			SYS_SIZE = 0x100;
+		};
+#endif
     };
     TASK Task16 {
 		PRIORITY = 1;
@@ -1004,6 +1082,11 @@ CPU test_application {
 		};
 #endif
 #ifdef rx200
+		STACK = PRIVATE {
+			SYS_SIZE = 0x100;
+		};
+#endif
+#ifdef tricore
 		STACK = PRIVATE {
 			SYS_SIZE = 0x100;
 		};

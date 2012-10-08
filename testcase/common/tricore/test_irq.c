@@ -7,7 +7,7 @@
  *
  * ERIKA Enterprise is free software; you can redistribute it
  * and/or modify it under the terms of the GNU General Public License
- * version 2 as published by the Free Software Foundation, 
+ * version 2 as published by the Free Software Foundation,
  * (with a special exception described below).
  *
  * Linking this code statically or dynamically with other modules is
@@ -37,25 +37,41 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
+/*
+ * IRQ functions used in test cases for PPC e200zX
+ * Author: 2011 Bernardo  Dal Seno
+ */
 
-#if ( defined(__PPCE200ZX__ ) || defined(__STELLARIS__) || defined(EE_TRICORE__))
-typedef void (*SoftIRQHandler) (void);
+#include <ee_irq.h>
+#include "../test_common.h"
+
+typedef SRC_AGBT_type * p_SRC_reg;
+
+static p_SRC_reg test_get_irq_register(unsigned int irq) {
+  switch(irq) {
+    case 3:
+      return &SRC_GPSR03;
+    case 2:
+      return &SRC_GPSR02;
+    case 1:
+      return &SRC_GPSR01;
+    case 0:
+    default:
+      return &SRC_GPSR00;
+  }
+}
 
 /* Setup an IRQ source */
 void test_setup_irq(unsigned int irq, SoftIRQHandler handler,
-		unsigned int priority);
+    unsigned int priority) {
+  register p_SRC_reg p_src_reg = test_get_irq_register(irq);
+  p_src_reg->U = (1U << 10U) | priority;
+}
 
-/* Fire an IRQ.  When this function returns, an IRQ is guaranteed to have fired
- * once. */
-void test_fire_irq(unsigned int irq);
-#else
-void test_setup_irq(void);
+void test_fire_irq(unsigned int irq)
+{
+  register p_SRC_reg p_src_reg = test_get_irq_register(irq);
+  p_src_reg->U |= (1U << 26U);
+  EE_tc_isync();
+}
 
-/* Fire an IRQ.  When this function returns, an IRQ is guaranteed to have fired
- * once. */
-void test_fire_irq(void);
-
-/* Callback function, defined in the test code.  It must be called by the
-* ISR. */
-void isr_callback(void);
-#endif

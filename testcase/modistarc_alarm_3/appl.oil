@@ -45,6 +45,7 @@ CPU test_application {
     OS EE {
         EE_OPT = "__ASSERT__";
         EE_OPT = "DEBUG";
+        EE_OPT = "EE_DEBUG";
 
 #ifdef STD
 		STATUS = STANDARD;
@@ -75,14 +76,16 @@ CPU test_application {
 #include "../common/rtdruid_common/ee_oil_e200zx_os.h"
 #include "../common/rtdruid_common/ee_oil_cortex_mx_os.h"
 #include "../common/rtdruid_common/ee_oil_rx200_os.h"
+#include "../common/rtdruid_common/ee_oil_tricore_os.h"
 
 
 /* Multi Stack */
 			MULTI_STACK = TRUE {
 				IRQ_STACK = FALSE;
-#if !defined(pic30) && !defined(s12) && !defined(e200zx) && !defined(cortex_mx) && !defined(rx200)
-				DUMMY_STACK = SHARED;
-#endif
+// Default Behaviour: not needed
+// #if !defined(pic30) && !defined(s12) && !defined(e200zx) && !defined(cortex_mx) && !defined(rx200)
+// 				DUMMY_STACK = SHARED;
+// #endif
 			};
 
 		};
@@ -150,6 +153,11 @@ CPU test_application {
 #ifdef rx200
 		STACK = PRIVATE {
 			SYS_SIZE = 0x200;
+		};
+#endif
+#ifdef tricore
+		STACK = PRIVATE {
+			SYS_SIZE = 0x100;
 		};
 #endif
 		EVENT = Event2;

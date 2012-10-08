@@ -47,7 +47,10 @@
 #define test_setup_irq() test_setup_irq(0U, isr_callback, 1U)
 #define test_fire_irq()  test_fire_irq(0U)
 #endif
-
+#ifdef EE_TRICORE__
+#define test_setup_irq() test_setup_irq(0U, isr_callback, 1U)
+#define test_fire_irq()  test_fire_irq(0U)
+#endif
 
 #define TRUE 1
 

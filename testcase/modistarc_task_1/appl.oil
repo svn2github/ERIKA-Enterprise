@@ -45,9 +45,7 @@ CPU test_application {
     OS EE {
 		EE_OPT = "__ASSERT__";
 		EE_OPT = "DEBUG";
-#ifdef tricore_tc27x
 		EE_OPT = "EE_DEBUG";
-#endif
 
 #ifdef e200zx
     EE_OPT = "EE_ISR_DYNAMIC_TABLE";
@@ -173,7 +171,7 @@ CPU test_application {
 	};
 #endif
 
-#ifdef tricore_tc27x
+#ifdef tricore
 	ISR STM_handler {
 		CATEGORY = 2;
 		PRIORITY = 1;

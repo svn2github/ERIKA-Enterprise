@@ -108,6 +108,7 @@
 
 
 #ifdef  tricore_tc27x_tasking
+#define tricore
 #define tricore_tc27x
 #define tasking
 #endif

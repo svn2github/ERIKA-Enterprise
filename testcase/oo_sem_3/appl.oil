@@ -49,6 +49,7 @@ CPU test_application {
 		EE_OPT = "__OO_SEM__";
 		EE_OPT = "__ASSERT__";
 		EE_OPT = "DEBUG";
+		EE_OPT = "EE_DEBUG";
 #ifdef e200zx
 		EE_OPT = "EE_ISR_DYNAMIC_TABLE";
 #endif
@@ -64,14 +65,16 @@ CPU test_application {
 #include "../common/rtdruid_common/ee_oil_s12_os.h"
 #include "../common/rtdruid_common/ee_oil_e200zx_os.h"
 #include "../common/rtdruid_common/ee_oil_cortex_mx_os.h"
+#include "../common/rtdruid_common/ee_oil_tricore_os.h"
 
 			MULTI_STACK = TRUE {
 				IRQ_STACK = TRUE {
 					SYS_SIZE=512;
 				};
-#if !defined(pic30) && !defined(s12) && !defined(e200zx)  && !defined(cortex_mx)
-						DUMMY_STACK = SHARED;
-#endif
+// Default behaviour: not needed.
+// #if !defined(pic30) && !defined(s12) && !defined(e200zx)  && !defined(cortex_mx)
+						// DUMMY_STACK = SHARED;
+// #endif
 			};
 
 		};
@@ -160,6 +163,11 @@ CPU test_application {
 		ENTRY = "SYSTICK";
 	};
 #endif
-
+#ifdef tricore
+	ISR STM_handler {
+		CATEGORY = 2;
+		PRIORITY = 1;
+	};
+#endif
 };
 

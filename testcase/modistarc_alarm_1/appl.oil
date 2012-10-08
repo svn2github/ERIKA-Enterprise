@@ -45,6 +45,7 @@ CPU test_application {
     OS EE {
         EE_OPT = "__ASSERT__";
         EE_OPT = "DEBUG";
+        EE_OPT = "EE_DEBUG";
 
 		STATUS = EXTENDED;
 	
@@ -69,6 +70,7 @@ CPU test_application {
 #include "../common/rtdruid_common/ee_oil_e200zx_os.h"
 #include "../common/rtdruid_common/ee_oil_cortex_mx_os.h"
 #include "../common/rtdruid_common/ee_oil_rx200_os.h"
+#include "../common/rtdruid_common/ee_oil_tricore_os.h"
 
 
 /* Mono Stack */
@@ -80,9 +82,10 @@ CPU test_application {
 #if defined(E1) || defined(E2)
 			MULTI_STACK = TRUE {
 				IRQ_STACK = FALSE;
-#if !defined(pic30) && !defined(s12) && !defined (e200zx) && !defined(cortex_mx)
-				DUMMY_STACK = SHARED;
-#endif
+//Default Behaviour, not neeeded.
+//#if !defined(pic30) && !defined(s12) && !defined (e200zx) && !defined(cortex_mx)
+//				DUMMY_STACK = SHARED;
+//#endif
 			};
 #endif
 
