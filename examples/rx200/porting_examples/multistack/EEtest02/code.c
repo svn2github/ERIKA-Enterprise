@@ -130,8 +130,8 @@ int main(void)
 	
 	EE_rskrx210_leds_init(0xF);
 	EE_systick_start();
-	/*Set 1 ms tick: match value 0xC, prescaler =0x9C -> PCLK/64*/
-	EE_systick_set_period(0x0C, 0x9C);
+	/*Set 1 ms tick: match value 0xC, prescaler =0x8C -> PCLK/64*/
+	EE_systick_set_period(0x0C, 0x8C);
 	EE_systick_enable_int();
 
 	EE_assert(EE_ASSERT_INIT, TRUE, EE_ASSERT_NIL);
