@@ -60,8 +60,7 @@
 #ifdef __PPCE200ZX__
 /* Ack the IRQ */
 #define ACK_IRQ(x) (INTC.SSCIR[(x)].B.CLR = 1)
-#endif  /* __PPCE200ZX__ */
-#ifdef __CORTEX_M4__
+#else
 /* Ack the IRQ */
 #define ACK_IRQ(x)    ((void)0)
 #endif  /* __CORTEX_M4__ */
@@ -239,6 +238,12 @@ int main(int argc, char *argv[])
 {
 #ifdef __CORTEX_MX__
   EE_system_init();
+#endif
+
+#ifdef EE_TRICORE__
+  test_setup_irq(IRQ_LOW, IsrLow, EE_TC_1_ISR_PRI);
+  test_setup_irq(IRQ_MEDIUM, IsrMedium, EE_TC_2_ISR_PRI);
+  test_setup_irq(IRQ_HIGH, IsrHigh, EE_TC_3_ISR_PRI);
 #endif
 
   StartOS(OSDEFAULTAPPMODE);

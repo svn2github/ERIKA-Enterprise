@@ -45,7 +45,11 @@
     OS EE {
       EE_OPT = "__ASSERT__";
       EE_OPT = "DEBUG";
-      EE_OPT = "EE_ISR_DYNAMIC_TABLE";
+      EE_OPT = "EE_DEBUG";
+
+#ifdef e200zx
+        EE_OPT = "EE_ISR_DYNAMIC_TABLE";
+#endif
 
 #ifdef STD
       STATUS = STANDARD;
@@ -63,6 +67,7 @@
       USERESSCHEDULER = FALSE;
 
 #include "../common/rtdruid_common/ee_oil_e200zx_os.h"
+#include "../common/rtdruid_common/ee_oil_tricore_os.h"
 
 /* Mono Stack */
 #if defined(B1) || defined(B2)
@@ -117,5 +122,11 @@
   RESOURCE Resource1 { RESOURCEPROPERTY = STANDARD; };
   RESOURCE ResourceA { RESOURCEPROPERTY = STANDARD; };
   RESOURCE ResourceB { RESOURCEPROPERTY = STANDARD; };
+
+  ISR IsrLow {
+    CATEGORY = 2;
+    PRIORITY = 1; /* Low Priority Value */
+    HANDLER = "isr_callback";
+  };
 };
 

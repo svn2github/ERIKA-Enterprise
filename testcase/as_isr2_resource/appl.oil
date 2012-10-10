@@ -45,6 +45,7 @@
     OS EE {
       EE_OPT = "__ASSERT__";
       EE_OPT = "DEBUG";
+      EE_OPT = "EE_DEBUG";
 
 #ifdef STD
       STATUS = STANDARD;
@@ -63,6 +64,7 @@
 
 #include "../common/rtdruid_common/ee_oil_e200zx_os.h"
 #include "../common/rtdruid_common/ee_oil_cortex_mx_os.h"
+#include "../common/rtdruid_common/ee_oil_tricore_os.h"
 
       MULTI_STACK = TRUE {
         IRQ_STACK = TRUE {

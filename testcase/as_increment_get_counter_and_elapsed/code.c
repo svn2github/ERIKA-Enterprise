@@ -105,6 +105,9 @@ int main(int argc, char **argv)
 #ifdef __CORTEX_MX__
   EE_system_init();
 #endif
+#ifdef EE_TRICORE__
+  test_setup_irq(0U, isr_callback, EE_TC_1_ISR_PRI);
+#endif
 
   EE_assert(1, TRUE, EE_ASSERT_NIL);
 

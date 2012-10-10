@@ -45,6 +45,12 @@
 #define TRUE  1U
 #define FALSE 0U
 
+#ifdef __PPCE200ZX__
+#define EE_isIRQEnabled()   EE_e200z7_isIRQEnabled()
+#elif defined(EE_TRICORE__)
+#define EE_isIRQEnabled()   EE_tc_isIRQEnabled()
+#endif
+
 /* assertion data */
 #ifdef __OO_EXTENDED_STATUS__
 EE_TYPEASSERTVALUE EE_assertions[13];
@@ -82,7 +88,7 @@ TASK(Task1)
   /* This should not call the isr_callback because interrupts are disabled */
   test_fire_irq(0U);
   prevIrqDisi = (irqCounter == 1);
-  prevIrqDisi &= !EE_e200z7_isIRQEnabled();
+  prevIrqDisi &= !EE_isIRQEnabled();
   prevIrqDisi &= EE_oo_IRQ_disable_count;
 
   /* I explicitally don't call TerminateTask. I'm testing that kernel is doing
@@ -108,7 +114,7 @@ void PostTaskHook(void)
   postTaskFlag = TRUE;
 }
 
-static void isr_callback(void)
+void isr_callback(void)
 {
   ++irqCounter;
 }
@@ -148,7 +154,7 @@ int main(int argc, char **argv)
   /* I test that the IRQ are enabled */
   /* FIXME: In Erika HAL doesn't exit a method to check IRQ status! */
   EE_assert(9, (irqCounter == 2), 8);
-  EE_assert(10, EE_e200z7_isIRQEnabled(), 9);
+  EE_assert(10, EE_isIRQEnabled(), 9);
 
 
 #ifdef __OO_EXTENDED_STATUS__
