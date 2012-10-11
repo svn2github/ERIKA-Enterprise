@@ -142,13 +142,16 @@ TARGET_ASM_FILE = $(call target_asm_file,$(TARGETFILE))
 ## make
 TARGET_LD_FILE = $(call target_ld_file,$(TARGETFILE))
 
+# T32SYS is the environemnt variable recognized by Trace32
+T32SYS ?= C:/T32
+
 ##
 ## Main rules: all clean
 ##
 
-.PHONY: all clean
+.PHONY: all clean t32
 
-all: make_directories $(ALL_LIBS) $(TARGET) t32.cmm
+all: make_directories $(ALL_LIBS) $(TARGET) t32
 # The success message is printed by the $(TARGET) rule, so we get a "Nothing
 # do be done" message when everything is up to date
 
@@ -158,8 +161,29 @@ clean:
 ##
 ## Lauterbach targets
 ##
+
+T32GENMENU ?= $(T32SYS)/demo/kernel/orti/genmenu
+
+T32TARGETS := t32.cmm
+ifneq ($(wildcard system.orti),)
+T32TARGETS += orti.cmm orti.men ortiperf.men
+T32ORTISTR := do orti.cmm
+else
+T32ORTISTR :=
+endif
+
+t32: $(T32TARGETS)
+
 t32.cmm: $(PKGBASE)/mcu/infineon_$(TRICORE_MODEL)/cfg/t32_$(TRICORE_MODEL).cmm
-	$(QUIET)sed -e 's:#EXE_NAME#:$(TARGET_NAME).elf:g'	$< > $@
+	$(QUIET)sed -e 's:#ORTICMD#:$(T32ORTISTR):'			\
+				-e 's:#EXE_NAME#:$(TARGET_NAME).elf:g'	\
+			$< > $@
+
+orti.cmm ortiperf.men: %:  $(PKGBASE)/mcu/infineon_$(TRICORE_MODEL)/cfg/%
+	$(QUIET) cp $< $@
+
+orti.men: system.orti
+	$(QUIET) $(T32GENMENU) $<
 
 #
 # --------------------------------------------------------------------------
