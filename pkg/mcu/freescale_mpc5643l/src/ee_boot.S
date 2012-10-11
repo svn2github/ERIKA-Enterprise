@@ -240,6 +240,32 @@ mmu_init_mpc5643l:
 
     mflr     r27
 
+    /*
+     * Notice that is much more prudent initialize a MMU entry
+     * for SRAM area as first operation otherwise it has to be PROPERLY
+     * initialized by the debugger if the application has to be executed
+     * directly from SRAM
+     */
+    lis r3,TLB2_MAS0@h      /* SRAM area of core 0 */
+    ori r3,r3,TLB2_MAS0@l
+    lis r4,TLB2_MAS1@h
+    ori r4,r4,TLB2_MAS1@l
+    lis r5,TLB2_MAS2@h
+    ori r5,r5,TLB2_MAS2@l
+    lis r6,TLB2_MAS3@h
+    ori r6,r6,TLB2_MAS3@l
+    bl WriteMMUEntry
+
+    lis r3,TLB3_MAS0@h      /* SRAM area of core 1 */
+    ori r3,r3,TLB3_MAS0@l
+    lis r4,TLB3_MAS1@h
+    ori r4,r4,TLB3_MAS1@l
+    lis r5,TLB3_MAS2@h
+    ori r5,r5,TLB3_MAS2@l
+    lis r6,TLB3_MAS3@h
+    ori r6,r6,TLB3_MAS3@l
+    bl WriteMMUEntry
+
 	lis r3,TLB0_MAS0@h
     ori r3,r3,TLB0_MAS0@l
     lis r4,TLB0_MAS1@h
@@ -258,26 +284,6 @@ mmu_init_mpc5643l:
     ori r5,r5,TLB1_MAS2@l
     lis r6,TLB1_MAS3@h
     ori r6,r6,TLB1_MAS3@l
-    bl WriteMMUEntry
-
-    lis r3,TLB2_MAS0@h
-    ori r3,r3,TLB2_MAS0@l
-    lis r4,TLB2_MAS1@h
-    ori r4,r4,TLB2_MAS1@l
-    lis r5,TLB2_MAS2@h
-    ori r5,r5,TLB2_MAS2@l
-    lis r6,TLB2_MAS3@h
-    ori r6,r6,TLB2_MAS3@l
-    bl WriteMMUEntry
-
-    lis r3,TLB3_MAS0@h
-    ori r3,r3,TLB3_MAS0@l
-    lis r4,TLB3_MAS1@h
-    ori r4,r4,TLB3_MAS1@l
-    lis r5,TLB3_MAS2@h
-    ori r5,r5,TLB3_MAS2@l
-    lis r6,TLB3_MAS3@h
-    ori r6,r6,TLB3_MAS3@l
     bl WriteMMUEntry
 
     lis r3,TLB4_MAS0@h

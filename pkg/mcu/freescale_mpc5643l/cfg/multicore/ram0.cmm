@@ -56,12 +56,12 @@ SYStem.Up
 ; the Z6 program wakes Z0 up from reset
 &core2 Break
 
-
-; initialize SRAM
-Data.Set EA:0x40000000--0x40093fff %Quad 0
-
 ; setup MMU for flash, RAM and register access, as BAM does
 GOSUB setup_mmu &use_vle
+
+; initialize SRAM
+Data.Set EA:0x40000000--0x4000FFFF %Quad 0
+Data.Set EA:0x50000000--0x5000FFFF %Quad 0
 
 ;disable mmu bypass
 Data.Set SPR:0x3F4 %LONG 0x00000000
@@ -88,5 +88,7 @@ setup_mmu:
 	MMU.TLB1.SET 0x0 0xC0000500 0xFFF0002A 0xFFF0003F
 	MMU.TLB1.SET 0x1 0xC0000900 0x00000000+&vle_flag 0x0000003F
 	MMU.TLB1.SET 0x2 0xC0000900 0x20000000+&vle_flag 0x2000003F
-	MMU.TLB1.SET 0x3 0xC0000400 0x40000008+&vle_flag 0x4000003F
+	MMU.TLB1.SET 0x3 0xC0000300 0x40000008+&vle_flag 0x4000003F
+    MMU.TLB1.SET 0x4 0xC0000300 0x50000008+&vle_flag 0x5000003F
+    MMU.TLB1.SET 0x5 0xC0000500 0xC3F00008+&vle_flag 0xC3F0003F
 	RETURN
