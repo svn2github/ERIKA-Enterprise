@@ -1,3 +1,19 @@
+/* ###*B*###
+ * ERIKA Enterprise - a tiny RTOS for small microcontrollers
+ *
+ * Copyright (C) 2002-2011  Evidence Srl
+ *
+ * This file is part of ERIKA Enterprise.  ERIKA Enterprise is free software;
+ * you can redistribute it and/or modify it under the terms of the
+ * GPLv2 + Linking Exception license (contained in the file `ee/LICENSE').
+ *
+ * ERIKA Enterprise is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE.  See the license for more details.
+ *
+ * ###*E*### */
+
+
 CPU test_application {
 
 	OS EE {
@@ -5,7 +21,7 @@ CPU test_application {
 		ASFLAGS = "";
 		LDFLAGS = ""; 
 
-		EE_OPT = "__E200ZX_EXECUTE_FROM_RAM__";
+		//EE_OPT = "__E200ZX_EXECUTE_FROM_RAM__";
 		EE_OPT = "DEBUG";
 		EE_OPT = "EE_ISR_DYNAMIC_TABLE";
 
