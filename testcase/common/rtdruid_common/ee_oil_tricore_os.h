@@ -40,12 +40,14 @@
 
 #ifdef tricore_tc27x
 
+MCU_DATA = TRICORE {
+    MODEL = TC27x;
+};
+
 CPU_DATA = TRICORE {
-    MODEL =   "tc27x";
     APP_SRC = "code.c";
 #ifdef USEIRQ
-  APP_SRC = "../../common/tricore/test_irq.c";
+    APP_SRC = "../../common/tricore/test_irq.c";
 #endif /* USEIRQ */
-  /* SYS_STACK_SIZE=4096; */
-  
+    SYS_STACK_SIZE=4096;
 #endif /* tricore_tc27x */
