@@ -158,7 +158,7 @@ ifeq ($(call iseeopt, __AS_WDG_PIOSC_DRIVER__), yes)
 EE_SRCS_AUTOSAR += contrib/as/arch/stellaris/keil/drivers/WdgPIOsc.c
 EE_SRCS_AUTOSAR += contrib/as/arch/stellaris/keil/drivers/Wdg_PIOscIrq.c
 ifeq ($(call iseeopt, __NO_APP__), yes)
-ifneq ($(filter %Wdg_PIOscCfg, $(APP_SRCS)),)
+ifneq ($(filter %Wdg_PIOscCfg.c, $(APP_SRCS)),)
 EE_SRCS_AUTOSAR += $(filter %Wdg_PIOscCfg.c, $(APP_SRCS))
 else
 EE_SRCS_AUTOSAR += $(OUTBASE)/Wdg_PIOscCfg.c
