@@ -97,7 +97,7 @@
 #define EE_COMPILER_KEEP        EE_DO_ATTRIBUTE(used)
 
 /* More useful attributes */
-#define EE_COMPILER_USED        EE_DO_ATTRIBUTE(unused)
+#define EE_COMPILER_UNUSED      EE_DO_ATTRIBUTE(unused)
 /* For Weak attribute exist equivalent pragma */
 #define EE_COMPILER_WEAK        EE_DO_PRAGMA(weak)
 #define EE_COMPILER_EXPORT      EE_DO_ATTRIBUTE(export)

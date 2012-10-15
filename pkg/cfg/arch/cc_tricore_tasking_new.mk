@@ -59,6 +59,9 @@ EE_CC   ?= $(TRICORE_TASKINGDIR)/ctc/bin/cctc.exe
 EE_AR   ?= $(TRICORE_TASKINGDIR)/ctc/bin/artc.exe
 EE_OBJDUMP ?= $(TRICORE_TASKINGDIR)/ctc/bin/hldumptc.exe
 
+# Suffix used for Linker Scripts Files for TASKING
+CC_LD_SUFFIX := lsl
+
 ifneq ($(ONLY_LIBS), TRUE)
 # OPT_LIBS is used to link additional libraries (e.g., for C++ support)
 ifneq ($(call iseeopt, __BIN_DISTR), yes) 

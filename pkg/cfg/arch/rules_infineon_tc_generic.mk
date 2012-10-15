@@ -48,13 +48,25 @@ ifeq ($(call iseeopt, VERBOSE), yes)
 VERBOSE = 1
 endif
 
-# Erika LIB name
-EELIB    ?= ee
-ERIKALIB  = lib$(EELIB).a
-
 include $(EEBASE)/pkg/cfg/dir.mk
 include $(PKGBASE)/cfg/verbose.mk
 include $(PKGBASE)/cfg/compiler.mk
+# Read MCU-specific file, if it exists, but don't make it.
+-include $(PKGBASE)/cfg/arch/rules_infineon_$(TRICORE_MODEL).mk
+
+# T32SYS is the environemnt variable recognized by Trace32
+T32SYS ?= C:/T32
+
+# The above part is needed for the base makefile for multicore building
+# The part below containes rules for `all' and `clean', and will interfere
+# with the rules that handle the per-cpu building process
+ifeq ($(and $(call iseeopt, __MSRP__), $(__BASE_MAKEFILE__)), yes)
+include $(PKGBASE)/cfg/arch/rules_infineon_multi_base.mk
+else  # __MSRP__ and __BASE_MAKEFILE__
+
+# Erika LIB name
+EELIB    ?= ee
+ERIKALIB  = lib$(EELIB).a
 
 # Add application file to dependencies
 ifneq ($(ONLY_LIBS), TRUE)
@@ -141,9 +153,6 @@ TARGET_ASM_FILE = $(call target_asm_file,$(TARGETFILE))
 ## target_ld_file, must be defined inside compiler
 ## make
 TARGET_LD_FILE = $(call target_ld_file,$(TARGETFILE))
-
-# T32SYS is the environemnt variable recognized by Trace32
-T32SYS ?= C:/T32
 
 ##
 ## Main rules: all clean
@@ -259,3 +268,5 @@ ifneq ($(MAKECMDGOALS),clean)
 -include $(dependencies)
 endif
 endif
+
+endif  # __MSRP__ and __BASE_MAKEFILE__
