@@ -112,7 +112,7 @@ else
     CHECK_COMPILER_PATH :=
 endif
 
-endef
+endef # check_and_set_cygwin_compiler_path
 
 #
 # Checks if a path exists and then sets the variable required by Erika makefiles
@@ -155,6 +155,61 @@ else
     CHECK_COMPILER_PATH :=
 endif
 
-endef
+endef # check_and_set_linux_compiler_path
 
+
+############################################################################
+#
+# Mico32 Platform's path
+#
+############################################################################
+
+#
+# Checks if the platform path exists as it is written, otherwise tries to move to the parent folder and check again.
+# This is required to be compatible with the "old way" to compile Erika mico32 projects, that uses the project path
+# as "current working directory", while the "new way" runs from the RT-Druid output folder. 
+#
+# 1-> container name (es. PLATFORM_LIB_PATH). Cannot be empty
+# 2-> platfrom path (es /opt/Program Files). Can be empty.
+#
+# es -> $(eval $(call check_and_set_mico32_platform_path,PLATFORM_LIB_PATH,../../platforms/fpg_eye_diamond/library))
+#
+define check_and_set_mico32_platform_path
+ifdef __LM32__
+
+ifndef $(1)
+    ifeq ($$(strip $(2)),)
+        $$(error Please set the platform path into $(1) variable before run the makefile)
+    else
+        CHECK_PLATFORM_PATH := $$(shell test -d "$(2)" 2>/dev/null && echo "0")
+        ifneq ($$(CHECK_PLATFORM_PATH),0)
+            CHECK_PLATFORM_PATH := $$(shell test -d "../$(2)" 2>/dev/null && echo "0")
+        	ifneq ($$(CHECK_PLATFORM_PATH),0)
+                $$(error Platform not found. Provided path is '$(2)')
+            else
+                $(1) := ../$(2)
+            endif
+        else
+            $(1) := $(2)
+        endif
+        CHECK_PLATFORM_PATH :=
+    endif
+    
+else
+    CHECK_PLATFORM_PATH := $$(shell test -d "$$($(1))" 2>/dev/null && echo "0")
+    ifneq ($$(CHECK_PLATFORM_PATH),0)
+        CHECK_PLATFORM_PATH := $$(shell test -d "../$$($(1))" 2>/dev/null && echo "0")
+        ifneq ($$(CHECK_PLATFORM_PATH),0)
+            $$(error Platform not found. Provided path is '$$($(1))')
+        else
+            $(1) := ../$$($(1))
+        endif
+    endif
+    CHECK_PLATFORM_PATH :=
+endif
+
+else
+$$(error check_and_set_mico32_platform_path works only with mico32)
+endif # __LM32__ 
+endef # check_and_set_mico32_platform_path
 
