@@ -230,8 +230,11 @@ endif	#__R5F5210x__ && __CCRX__
 #~ endif
 ifeq ($(and $(call iseeopt, __R5F5210x__), $(call iseeopt, __CCRX__)), yes)
 EE_OBJS_AUTOSAR := $(addprefix $(OBJDIR)/, $(patsubst %.c,%.obj,$(patsubst %.s,%.obj,$(EE_SRCS_AUTOSAR))))
+else	# __R5F5210x__ && __CCRX__
+EE_OBJS_AUTOSAR := $(addprefix $(OBJDIR)/, $(patsubst %.c,%.o,$(patsubst %.s,%.o,$(EE_SRCS_AUTOSAR))))
+endif	# !(__R5F5210x__ && __CCRX__)
+
 LIBSRCS += $(EE_SRCS_AUTOSAR)
-endif #__R5F5210x__ && __CCRX__
 
 AUTOSARLIB := libas.a
 
