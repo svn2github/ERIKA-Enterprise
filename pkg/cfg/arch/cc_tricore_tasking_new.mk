@@ -167,7 +167,7 @@ DEFS_CC  = $(addprefix -D, $(EEOPT))
 
 # Automatic dependency generation
 ifeq ($(call iseeopt, NODEPS), yes)
-DEPENDENCY_OPT = 
+DEPENDENCY_OPT =
 make-depend =
 else # NODEPS
 # Create dependency for all headers, and add a target for each header

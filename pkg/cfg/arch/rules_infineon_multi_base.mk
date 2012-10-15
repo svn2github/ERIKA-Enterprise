@@ -60,8 +60,8 @@ clean: $(foreach c, $(CPU_LIST), $(c)-clean)
 define all-clean-template
  .PHONY: $(1)-all $(1)-clean
  $(1)-all $(1)-clean: $(1)-%:
-	$(MAKE) -C $($(1)_DIR) ELFNAME=$($(1)_ELF)  		\
-		CPU_NUMID=$($(1)_ID) 							\
+	$(MAKE) -C $($(1)_DIR) TARGET_NAME=$(basename $($(1)_ELF))	\
+		CPU_NUMID=$($(1)_ID) 									\
 		GLOBAL_LINKSCRIPT=../$(GLOBAL_LINKSCRIPT) $$*
 endef
 
@@ -89,12 +89,14 @@ t32_tc27x_mc.cmm: %: $(PKGBASE)/mcu/infineon_$(TRICORE_MODEL)/cfg/multicore/%
 
 $(MASTER_ELF): CPU_MASTER-all
 
+# I will use objdump always because: the target is an ELF file and,even though TASKING copiler has is own,
+# obj utility but I don't know how to get the right output
 $(GLOBAL_LINKSCRIPT): $(MASTER_ELF)
 	@echo Building shared symbol table
-	$(QUIET) $() -F2 -s ee_mcglobalc -s ee_mcglobald -s ee_mcglobalu	\
-			-s ee_fast_mcglobalc -s ee_fast_mcglobald					\
-			-s ee_fast_mcglobalu $<										\
-		| awk '/^[0-9a-fA-F]+ ......O/ {								\
-			match($$0, "^([0-9a-fA-F]+) .+ ([^ ]+)$$", m);				\
+	$(QUIET) objdump -t -w -j ee_mcglobalc -j ee_mcglobald			\
+                -j ee_mcglobalu -j ee_fast_mcglobalc				\
+                -j ee_fast_mcglobald -j ee_fast_mcglobalu $<	|	\
+		awk '/^[0-9a-fA-F]+ ......O/ {								\
+			match($$0, "^([0-9a-fA-F]+) .+ ([^ ]+)$$", m);			\
 			printf("%s = 0x%s;\n", m[2], m[1]) }' > $@
 
