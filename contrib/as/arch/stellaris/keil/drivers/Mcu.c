@@ -163,11 +163,23 @@ void Mcu_Init(
 
   flags = EE_hal_suspendIRQ();
 
+#if ( \
+  !( \
+      defined(__OO_BCC1__) || defined(__OO_BCC2__) || \
+      defined(__OO_ECC1__) || defined(__OO_ECC2__) \
+  ) \
+)
   if ( !Mcu_Global.Init ) {
 
     EE_system_init();
 
   }
+#endif	/* 
+	 * !(
+	 *   defined(__OO_BCC1__) || defined(__OO_BCC2__) ||
+	 *   defined(__OO_ECC1__) || defined(__OO_ECC2__)
+	 * )
+	 */
 
   Mcu_Global.ConfigPtr = ConfigPtr;
   Mcu_Global.Init = TRUE;
@@ -240,17 +252,22 @@ static Std_ReturnType Mcu_InitSystemClock(
 )
 {
   register Std_ReturnType	ret = E_OK;
+#ifdef	__AS_MCU_INTERNAL_OSCILLATOR_CALIBRATION__
   register uint32		attempt;
+#endif	/* __AS_MCU_INTERNAL_OSCILLATOR_CALIBRATION__ */
 
   register uint32 rccsrc;	/* Run-Mode Clock Configuration Source        */
   register uint32 rcc2src;	/* Run-Mode Clock Configuration 2 Source      */
   register uint32 rccdst;	/* Run-Mode Clock Configuration Destination   */
   register uint32 rcc2dst;	/* Run-Mode Clock Configuration 2 Destination */
+
+#ifdef	__AS_MCU_INTERNAL_OSCILLATOR_CALIBRATION__
   register uint32 rccorig;	/* Run-Mode Clock Configuration Original      */
   register uint32 rcc2orig;	/* Run-Mode Clock Configuration 2 Original    */
 
   rccorig = SYSCTL_RCC_R;
   rcc2orig = SYSCTL_RCC2_R;
+#endif	/* __AS_MCU_INTERNAL_OSCILLATOR_CALIBRATION__ */
 
   rccsrc = ConfigPtr->McuRunModeClockConfiguration | SYSCTL_RCC_BYPASS;
   rcc2src = ConfigPtr->McuRunModeClockConfiguration2 | SYSCTL_RCC2_BYPASS2;
@@ -277,6 +294,7 @@ static Std_ReturnType Mcu_InitSystemClock(
   SYSCTL_RCC_R = rccdst;		/* Write RCC			      */
   SYSCTL_RCC2_R = rcc2dst;		/* Write RCC2			      */
 
+#ifdef	__AS_MCU_INTERNAL_OSCILLATOR_CALIBRATION__
   /* PIOSC Automatic Calibration using Hibernation Module if present */
   if ( SYSCTL_PPHIB_R & SYSCTL_PPHIB_P0) {
 
@@ -319,6 +337,7 @@ static Std_ReturnType Mcu_InitSystemClock(
     SYSCTL_RCGCHIB_R &= ~SYSCTL_RCGCHIB_R0;
 
   }
+#endif	/* __AS_MCU_INTERNAL_OSCILLATOR_CALIBRATION__ */
 
   /*
     * IMPORTANT:	If a subsequent write to the RCC register is required,
