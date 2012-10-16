@@ -99,6 +99,15 @@ ISR2 (EE_e200zx_iirq_handler)
 int EE_cpu_startos(void)
 {
 	EE_e200zx_setup_inter_irqs();
+
+/* Used only if system timer is required by the application */
+#if defined(ENABLE_SYSTEM_TIMER) && defined(EE_SYSTEM_TIMER_DEVICE)
+    EE_e200zx_initialize_system_timer();
+#endif
+
+/* Used only if syncronization barrier is required by the application */
+#if defined(EE_MSRP_USE_SYNC_BARRIER)
 	EE_e200zx_sync_barrier(&EE_e200zx_start_barrier);
+#endif
 	return 0;
 }
