@@ -93,7 +93,7 @@ LIBEEOBJS := $(addprefix $(OBJDIR)/, $(patsubst %.c,%.o,$(patsubst %.S,%.o,$(LIB
 LIBEESRCS += $(LIB_SRCS)
 LIBOBJS := $(addprefix $(OBJDIR)/, $(patsubst %.c,%.o,$(patsubst %.S,%.o,$(LIBSRCS))))
 
-SRCS += $(APP_SRCS)
+SRCS += $(foreach d,$(APP_SRCS),$(call unix_relpath,$d))
 OBJS := $(addprefix $(OBJDIR)/, $(patsubst %.c,%.o,$(patsubst %.S,%.o, $(SRCS))))
 
 ALLOBJS = $(LIBEEOBJS) $(LIBOBJS) $(OBJS)
