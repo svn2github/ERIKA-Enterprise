@@ -175,7 +175,6 @@ endef # check_and_set_linux_compiler_path
 # es -> $(eval $(call check_and_set_mico32_platform_path,PLATFORM_LIB_PATH,../../platforms/fpg_eye_diamond/library))
 #
 define check_and_set_mico32_platform_path
-ifdef __LM32__
 
 ifndef $(1)
     ifeq ($$(strip $(2)),)
@@ -208,8 +207,5 @@ else
     CHECK_PLATFORM_PATH :=
 endif
 
-else
-$$(error check_and_set_mico32_platform_path works only with mico32)
-endif # __LM32__ 
 endef # check_and_set_mico32_platform_path
 
