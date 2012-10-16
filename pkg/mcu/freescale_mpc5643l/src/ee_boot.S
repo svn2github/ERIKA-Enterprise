@@ -215,11 +215,11 @@ __start:
 	/* CW-FUNC-DEFINITION: static void intc_setup(void) */
 	.type	intc_setup, @function
 intc_setup:
-	/* MCR = 0: VTES=0 (4 byte entries) HVEN=0 (SW vector mode) */
+	/* BCR = 0: VTES=0 (4 byte entries) HVEN=0 (SW vector mode) */
 	li	r0, 0
-	addis	r3, 0, INTC_MCR_ADDR@ha
+	addis	r3, 0, INTC_BCR_ADDR@ha
 #ifndef __SLAVE_CPU__
-	stw	r0, INTC_MCR_ADDR@l(r3)
+	stw	r0, INTC_BCR_ADDR@l(r3)
 #endif
 
 	/* init current priority */

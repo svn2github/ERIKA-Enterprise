@@ -52,57 +52,55 @@
 #define PPC_MODE 0x0U
 
 /* First software IRQ used for interprocessor communication  */
-#define EE_MPC5643L_INTER_IRQ_BASE 6
+#define EE_MPC5643L_INTER_IRQ_BASE 7
 /* Position in VBA of the first interprocessor IRQ */
 #define EE_MPC5643L_INTER_IRQ_VBA_BASE EE_MPC5643L_INTER_IRQ_BASE
 /* Interprocessor IRQ vector number, from CPU id */
 #define EE_MPC5643L_INTER_IRQ_LEVEL(cpu) \
 	((EE_SREG)(cpu) + EE_MPC5643L_INTER_IRQ_VBA_BASE + 16)
 
-
-/* Enable the Z0 CPU, which starts executing the code pointed by `f' */
-__INLINE__ void EE_mpc5643l_start_z0(void (*f)(void))
-{
-	INTC.CPR.R = (uint32_t)f;
-}
-
 /* Setup the intercore IRQs used by ERIKA for multicore support */
-/* TODO: check the correctness of this function */
 __INLINE__ void EE_mpc5643l_setup_inter_irqs(void)
 {
 	/*
 	 * set INTC on master to receive interrupts from
-	 * SW source interrupt number 7 (prio=0)
+	 * SW source interrupt number 7 (prio=1)
 	 */
-	INTC.PSR[EE_MPC5643L_INTER_IRQ_BASE + 0].R = 0x0U;
+	INTC.PSR[EE_MPC5643L_INTER_IRQ_BASE].R = 0x1U;
 
 	/*
 	 * set INTC on slave to receive interrupts from
-	 * SW source interrupt number 7 (prio=0)
+	 * SW source interrupt number 7 (prio=1)
 	 */
-	INTC_1.PSR[EE_MPC5643L_INTER_IRQ_BASE + 1].R = 0x0U;
+	INTC_1.PSR[EE_MPC5643L_INTER_IRQ_BASE].R = 0x1U;
 }
 
 /* Signal the core `cpu' (0/1) by sending an IIRQ */
 __INLINE__ void EE_mpc5643l_signal_cpu(EE_UINT8 cpu)
 {
 	if (cpu == 0) {
-		INTC.SSCIR[EE_MPC5643L_INTER_IRQ_BASE + (EE_SREG)cpu].R = 2U;
+		INTC.SSCIR[EE_MPC5643L_INTER_IRQ_BASE].R = 2U;
 	}
 	else if (cpu == 1) {
-		INTC_1.SSCIR[EE_MPC5643L_INTER_IRQ_BASE + (EE_SREG)cpu].R = 2U;
+		INTC_1.SSCIR[EE_MPC5643L_INTER_IRQ_BASE].R = 2U;
 	}
+    else {
+        /* Ignore signal */
+    }
 }
 
 /* Acknowledge the signal riceved by the core `cpu' (0/1) */
 __INLINE__ void EE_mpc5643l_ack_signal(EE_UINT8 cpu)
 {
 	if (cpu == 0) {
-		INTC.SSCIR[EE_MPC5643L_INTER_IRQ_BASE + (EE_SREG)cpu].R = 1U;
+		INTC.SSCIR[EE_MPC5643L_INTER_IRQ_BASE].R = 1U;
 	}
 	else if (cpu == 1) {
-		INTC_1.SSCIR[EE_MPC5643L_INTER_IRQ_BASE + (EE_SREG)cpu].R = 1U;
+		INTC_1.SSCIR[EE_MPC5643L_INTER_IRQ_BASE].R = 1U;
 	}
+    else {
+        /* Ignore ack */
+    }
 }
 
 /* Acquire the spin lock `spin_id' */
