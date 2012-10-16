@@ -127,7 +127,7 @@ __INLINE__ void EE_mpc5643l_spin_out(EE_TYPESPIN spin_id)
 __INLINE__ void EE_mpc5643l_start_slave(volatile unsigned int start, unsigned int mode)
 {
 	/* Write the reset vector into DPMBOOT[P2BOOT] */
-	SSCM.DPMBOOT.R = 0x50000000;
+	SSCM.DPMBOOT.R = start;
 
 	/* Set DPMBOOT[DVLE] to enable/disable VLE */
     if (mode == VLE_MODE) {
