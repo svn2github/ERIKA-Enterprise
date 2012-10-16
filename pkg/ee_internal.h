@@ -109,7 +109,7 @@ extern "C" {
 #include "cpu/tricore/inc/ee_tc_internal.h"
 #endif /* EE_TRICORE__ */
 
-#ifdef __lm32__
+#ifdef __LM32__
 #include "cpu/mico32/inc/ee_internal.h"
 #endif
 
@@ -190,7 +190,7 @@ extern "C" {
 #endif
 
   /* MICO32 */
-#ifdef __lm32__
+#ifdef __LM32__
 #include "mcu/mico32/inc/ee_internal.h"
 #endif
 

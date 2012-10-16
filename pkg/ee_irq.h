@@ -69,7 +69,7 @@ extern "C" {
 #include "cpu/pic30/inc/ee_cpu.h"
 #endif
 
-#ifdef __lm32__
+#ifdef __LM32__
 #include "cpu/mico32/inc/ee_cpu.h"
 #endif
 
@@ -124,7 +124,7 @@ defined(__OO_ECC2__) || defined(__AS_SC4__)
 #include "cpu/pic30/inc/ee_irqstub.h"
 #endif
 
-#ifdef __lm32__
+#ifdef __LM32__
 #include "cpu/mico32/inc/ee_irq.h"
 #endif
 

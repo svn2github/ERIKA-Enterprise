@@ -120,7 +120,7 @@ extern "C" {
 #include "cpu/tricore/inc/ee_tc_cpu.h"
 #endif /* EE_TRICORE__ */
 
-#ifdef __lm32__
+#ifdef __LM32__
 #include "cpu/mico32/inc/ee_cpu.h"
 #endif
 
