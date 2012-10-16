@@ -48,6 +48,9 @@
 
 #include "ee_mpc5643l.h"
 
+#define VLE_MODE 0x2U
+#define PPC_MODE 0x0U
+
 /* First software IRQ used for interprocessor communication  */
 #define EE_MPC5643L_INTER_IRQ_BASE 6
 /* Position in VBA of the first interprocessor IRQ */
@@ -124,13 +127,18 @@ __INLINE__ void EE_mpc5643l_spin_out(EE_TYPESPIN spin_id)
 __INLINE__ void EE_mpc5643l_start_slave(volatile unsigned int start, unsigned int mode)
 {
 	/* Write the reset vector into DPMBOOT[P2BOOT] */
-	SSCM.DPMBOOT.B.P2BOOT=start;
+	SSCM.DPMBOOT.R = 0x50000000;
 
 	/* Set DPMBOOT[DVLE] to enable/disable VLE */
-	SSCM.DPMBOOT.B.DVLE=mode;
+    if (mode == VLE_MODE) {
+	    SSCM.DPMBOOT.R = SSCM.DPMBOOT.R | VLE_MODE;
+    }
 
-	SSCM.DPMKEY.B.KEY=0x5AF0UL; /* First write */
-	SSCM.DPMKEY.B.KEY=0xA50FUL; /* Second write */
+    /* Check if input mode is valid, otherwise skip starting slave core */
+    if (mode != VLE_MODE || mode != PPC_MODE) {
+	    SSCM.DPMKEY.R = 0x5AF0UL; /* First write */
+	    SSCM.DPMKEY.R = 0xA50FUL; /* Second write */
+    }
 
 	/* Immediately after the second write slave core starts */
 }
