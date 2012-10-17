@@ -130,8 +130,8 @@ INCLUDE_PATH += $(PKGBASE) $(APPBASE) $(OUTPUT_DIR) $(PLATFORM_LIB_PATH)/$(PLATF
 # ALLINCPATH includes the '-I' or '-i' flag, which depends on the compiler
 
 # APPBASE is the current directory: not needed
-vpath %.c $(EE_VPATH) #$(APPBASE)
-vpath %.S $(EE_VPATH) #$(APPBASE)
+vpath %.c $(EE_VPATH) $(APPBASE)
+vpath %.S $(EE_VPATH) $(APPBASE)
 
 
 ifndef PLATFORM_BLD_CFG
