@@ -3,7 +3,7 @@
 MEMORY
 {
 	boot:	org = 0x00000000, len = 0x00020000
-	iflash:	org = 0x00020000, len = 0x00020000
+	iflash:	org = 0x00080000, len = 0x00080000
 
     /* Calibrations flash area */
     calibrations_ram:	org = 0x00040000, len = 0x00020000
