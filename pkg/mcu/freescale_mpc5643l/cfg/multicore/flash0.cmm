@@ -48,7 +48,7 @@ SYStem.Up
 ;slave Z4: still in reset, attach only
 &core2 SYStem.Mode.Attach
 
-;slave Z4: on a Break while in reset, the debugger will stop Z0 as soon as
+;slave Z4: on a Break while in reset, the debugger will stop Z4 as soon as
 ; the master Z4 program wakes slave Z4 up from reset
 &core2 Break
 

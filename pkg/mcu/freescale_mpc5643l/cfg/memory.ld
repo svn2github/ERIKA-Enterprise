@@ -2,7 +2,10 @@
 
 MEMORY
 {
-	boot:	org = 0x00000000, len = 0x00020000
+    /* First 16 KB for boot sector */
+	boot:	org = 0x00000000, len = 0x00004000
+
+    /* 512 KB of Flash memory available in single core configuration */
 	iflash:	org = 0x00080000, len = 0x00080000
 
     /* Calibrations flash area */

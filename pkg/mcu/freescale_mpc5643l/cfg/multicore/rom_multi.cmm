@@ -116,8 +116,10 @@ entry &progflash
 if &progflash 
 (
     FLASH.ReProgram ALL /Erase
-    Data.LOAD.auto &filename_master E:0x00000000--(0x00030000-1)
-    Data.LOAD.auto &filename_slave  E:0x00030000--(0x00040000-1)
+; Francesco: notice that master flashing starts from 0x0 since in such
+; a location there are the RCHW word and the reset vector
+    Data.LOAD.auto &filename_master E:0x00000000--(0x000C0000-1)
+    Data.LOAD.auto &filename_slave  E:0x000C0000--(0x00100000-1)
     FLASH.ReProgram OFF
 )
 
