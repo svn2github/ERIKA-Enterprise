@@ -1,4 +1,4 @@
-/* Memory map for Freescale MPC5643L in DPM mode */
+/* Memory map for Freescale MPC5643L in Lock Step mode */
 
 MEMORY
 {
@@ -12,11 +12,8 @@ MEMORY
     calibrations_ram:	org = 0x00040000, len = 0x00020000
     calibrations_flash:	org = 0x00060000, len = 0x00020000
 
-    /* Use only 64 kB of RAM as in DPM mode.
-    /* This value can be equal to 128 in case of LSM...
-     * keep in mind in case of big application
-     */
-	isram:	org = 0x40000000, len = 0x00010000
+    /* 128 KB of RAM for LSM */
+	isram:	org = 0x40000000, len = 0x00020000
 }
 
 isram_base = ADDR(isram);

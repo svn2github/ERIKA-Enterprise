@@ -75,6 +75,12 @@ endif
 ifeq ($(call iseeopt, EE_MPC5643L), yes)
 PPC_MCU_MODEL = mpc5643l
 T32_FLASH_BIN = c90fl564xl.bin
+ifeq ($(call iseeopt, LOCK_STEP), yes)
+# MPC5643L supports Lock step mode
+LS_FLAG = _lock_step
+else
+LS_FLAG =
+endif
 endif
 ifndef PPC_MCU_MODEL
 $(error No known PPC MCU model found in EE_OPT)
@@ -326,7 +332,7 @@ $(EE_LINK_SCRIPT): apps.conf $(PKGBASE)/mcu/freescale_$(PPC_MCU_MODEL)/cfg/$(SCR
 	@printf "LOC\n" ;
 	$(QUIET) awk -f $(PKGBASE)/cpu/e200zx/cfg/memprot-genld.awk $^ > $@
 else # if __EE_MEMORY_PROTECTION__
-$(EE_LINK_SCRIPT): $(PKGBASE)/mcu/freescale_$(PPC_MCU_MODEL)/cfg/$(SCRIPT_SUBPATH)memory$(CPU_NUMID).ld $(PKGBASE)/cpu/e200zx/cfg/$(BASE_LD_SCRIPT) $(ADDITIONAL_LINKSCRIPT)
+$(EE_LINK_SCRIPT): $(PKGBASE)/mcu/freescale_$(PPC_MCU_MODEL)/cfg/$(SCRIPT_SUBPATH)memory$(CPU_NUMID)$(LS_FLAG).ld $(PKGBASE)/cpu/e200zx/cfg/$(BASE_LD_SCRIPT) $(ADDITIONAL_LINKSCRIPT)
 	@printf "LOC\n" ;
 	$(QUIET) cat $^ > $@
 endif # else __EE_MEMORY_PROTECTION__
