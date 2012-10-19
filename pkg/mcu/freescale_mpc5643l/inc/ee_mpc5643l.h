@@ -102,6 +102,10 @@ __INLINE__ unsigned int EE_mpc5643l_lsm_or_dpm(void)
 	return (SSCM.UOPS.B.UOPT & 0x400000UL);
 }
 
+#define SEMA4_NUM   (16)  /* Number of semaphores available in SEMA4 */
+#define SEMA4_1_NUM (16)  /* Number of semaphores available in SEMA4_1 */
+#define SEM_NUM     (SEMA4_NUM + SEMA4_1_NUM)
+
 __asm void EE_mpc5643l_initMMU(void);
 
 #endif /* EE_MCU_MPC5643L_H */

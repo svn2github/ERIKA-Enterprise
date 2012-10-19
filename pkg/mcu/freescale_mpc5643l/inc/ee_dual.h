@@ -106,19 +106,54 @@ __INLINE__ void EE_mpc5643l_ack_signal(EE_UINT8 cpu)
 /* Acquire the spin lock `spin_id' */
 __INLINE__ void EE_mpc5643l_spin_in(EE_TYPESPIN spin_id)
 {
+    volatile SEMA4_tag* SEM4_X = NULL;
+    uint8_t index = spin_id;
+
 	/* The same value as EE_CURRENTCPU can be obtained at run-time by
 	 * reading from special register PIR (286) */
 	uint8_t locked_val = (uint8_t)EE_CURRENTCPU;
 	locked_val += (uint8_t)1U;
+
+    if (SEM_NUM <= spin_id) {
+        /* Not supported sempahore ID */
+        return;
+    }
+
+    /* Decode Semaphore ID */
+    if (SEMA4_NUM > spin_id) {
+        SEM4_X = &SEMA4;
+    }
+    else {
+        index = index - SEMA4_1_NUM;
+        SEM4_X = &SEMA4_1;
+    }
+
 	do {
-		SEMA4.GATE[spin_id].R = locked_val;
-	} while (SEMA4.GATE[spin_id].R != locked_val);
+		SEM4_X->GATE[index].R = locked_val;
+	} while (SEM4_X->GATE[index].R != locked_val);
 }
 
 /* Release the spin lock `spin_id' */
 __INLINE__ void EE_mpc5643l_spin_out(EE_TYPESPIN spin_id)
 {
-	SEMA4.GATE[spin_id].R = 0U;
+    volatile SEMA4_tag* SEM4_X = NULL;
+    uint8_t index = spin_id;
+
+    if (SEM_NUM <= spin_id) {
+        /* Not supported sempahore ID */
+        return;
+    }
+
+    /* Decode Semaphore ID */
+    if (SEMA4_NUM > spin_id) {
+        SEM4_X = &SEMA4;
+    }
+    else {
+        index = index - SEMA4_1_NUM;
+        SEM4_X = &SEMA4_1;
+    }
+
+	SEM4_X->GATE[index].R = 0U;
 }
 
 /* Start slave core */
