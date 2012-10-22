@@ -1,7 +1,11 @@
 ifeq ($(call iseeopt, __PIC32__), yes)
 
 PIC32_EXTENSION := elf
+ifeq ($(wildcard $(PIC30_GCCDIR)/bin/xc32*),)
+PIC32_GCCPREFIX := xc32-
+else
 PIC32_GCCPREFIX := pic32-
+endif
 
 BINDIR_CYG := /usr/bin
 BINDIR_C32   := $(PIC32_GCCDIR)/bin
