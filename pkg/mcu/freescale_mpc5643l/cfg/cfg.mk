@@ -49,8 +49,8 @@ EE_SRCS += pkg/mcu/freescale_mpc5643l/src/ee_vtable.c
 endif # EE_ISR_DYNAMIC_TABLE
 
 # Flash Configuration
-ifneq ($(call iseeopt, __E200ZX_EXECUTE_FROM_RAM__), yes)
+#ifneq ($(call iseeopt, __E200ZX_EXECUTE_FROM_RAM__), yes)
 EE_SRCS += pkg/mcu/freescale_mpc5643l/src/ee_FlashConfig.c
-endif # __E200ZX_EXECUTE_FROM_RAM__
+#endif # __E200ZX_EXECUTE_FROM_RAM__
 
 endif # __MPC5674F__
