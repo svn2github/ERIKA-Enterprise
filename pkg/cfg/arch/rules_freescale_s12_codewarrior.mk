@@ -75,7 +75,7 @@ OPT_ENV += -envOBJPATH=$(OBJDIR) -envGENPATH=$(HCS12_SRC_DIR)
 # please note the final backslash sequence after the shell command to
 # avoid cygpath insering a trailing backslash
 # INTERNAL_PKGBASEDIR is used to avoid multiple calls to cygpath
-ALLINCPATH += -I$(call native_path,$(PKGBASE)) -I$(call native_path,$(APPBASE)) -I. -I$(call native_path,$(S12_CCDIR)/lib/HC12c/include)
+ALLINCPATH += -I$(shell cygpath -ms "$(PKGBASE)") -I$(shell cygpath -ms "$(APPBASE)") -I. -I$(shell cygpath -ms "$(S12_CCDIR)/lib/HC12c/include")
  
 # Linker script should be inside each project (so user can modify it)
 
