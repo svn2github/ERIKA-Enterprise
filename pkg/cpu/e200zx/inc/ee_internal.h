@@ -199,7 +199,8 @@ void EE_hal_terminate_task(EE_TID tid) NORETURN;
 /* Prototypes are included only for Erika source files, but they could be useful
  * also for user C code.  In that case, a further condition should be added. */
 /* Assembly functions */
-void __start(void);
+void FlashConfig(void);
+void init_regs();
 void intc_setup(void);
 void cpu_setup(void);
 void sram_setup(void);

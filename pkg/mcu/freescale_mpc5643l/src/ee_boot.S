@@ -48,7 +48,10 @@
 #include <mcu/freescale_mpc5643l/inc/ee_regs_asm.h>
 #include <cpu/e200zx/inc/ee_cpu_asm.h>
 
-	.extern	ee_load_ram, ee_sdata, ee_sbss, ee_ebss, sram_setup, main
+#define FLASH_REG CFLASH.PFCR0.R
+#define FLASH_DATA 0x18C7EDED
+
+	.extern	ee_load_ram, ee_sdata, ee_sbss, ee_ebss, sram_setup, main, FlashConfig2
 	.extern EE_e200zx_mmu_entries, EE_e200zx_mmu_num_entries
 	.extern ee_ssbss2, ee_esbss2
 
@@ -100,6 +103,10 @@ _bam_data:
 	.type	__start, @function
 __start:
 #if defined(MPC5643L_STD_SW_MMU_CONFIG)
+    //bl  __startup
+    bl  init_regs
+    //bl  INIT_Derivative
+    //bl  __init_user
     /* To use standard MPC5643L MMU initialization */
     bl	mmu_init_mpc5643l
 #endif  /* MPC5643L_STD_SW_MMU_CONFIG */
@@ -195,6 +202,10 @@ __start:
 	bl	EE_mpc5643_initialize_external_IRQ_priorities /* Init ext. irq prio */
 #endif /* !EE_ISR_DYNAMIC_TABLE */
 #endif /* !EE_ISR_EXTERNAL_TABLE */
+
+#if !defined(__E200ZX_EXECUTE_FROM_RAM__)
+    bl  FlashConfig
+#endif
 	bl	main			/* jump to application code */
 
 	wrteei	0
@@ -256,6 +267,7 @@ mmu_init_mpc5643l:
     ori r6,r6,TLB2_MAS3@l
     bl WriteMMUEntry
 
+#if !defined (LOCK_STEP)
     lis r3,TLB3_MAS0@h      /* SRAM area of core 1 */
     ori r3,r3,TLB3_MAS0@l
     lis r4,TLB3_MAS1@h
@@ -265,6 +277,7 @@ mmu_init_mpc5643l:
     lis r6,TLB3_MAS3@h
     ori r6,r6,TLB3_MAS3@l
     bl WriteMMUEntry
+#endif
 
 	lis r3,TLB0_MAS0@h
     ori r3,r3,TLB0_MAS0@l
@@ -369,3 +382,91 @@ WriteMMUEntry:
 	blr
 	.size	WriteMMUEntry, .-WriteMMUEntry
 #endif /* defined(MPC5643L_STD_SW_MMU_CONFIG) */
+
+/* CW-FUNC-DEFINITION: static void init_regs(void) */
+	.type	init_regs, @function
+init_regs:
+
+    lis r6,0x200
+	ori r6,r6,0x0
+	mtmsr r6
+	isync
+
+	// 32 64-bit GPR0-31
+	lis       r1, 0      // Initialize the lower 32-bits of GPR1 to 0
+
+	evmergelo r0,r1,r1   // Initialize the 64-bits of GPR0 to 0
+	evmergelo r1,r0,r0   // Continue initializing the other 64-bit GPRs
+	evmergelo r2,r0,r0   // ...
+	evmergelo r3,r0,r0   //
+	evmergelo r4,r0,r0   //
+	evmergelo r5,r0,r0   //
+	lis       r1, 0      // Re-initialize the lower 32-bits of GPR1 to 0 
+	evmergelo r6,r0,r0   //
+	evmergelo r7,r0,r0   //
+	evmergelo r8,r0,r0   //
+	evmergelo r9,r0,r0   //
+	evmergelo r10,r0,r0  //
+	evmergelo r11,r0,r0  //
+	evmergelo r12,r0,r0  //
+	evmergelo r13,r0,r0  //
+	evmergelo r14,r0,r0  //
+	evmergelo r15,r0,r0  //
+	evmergelo r16,r0,r0  //
+	evmergelo r17,r0,r0  //
+	evmergelo r18,r0,r0  //
+	evmergelo r19,r0,r0  //
+	evmergelo r20,r0,r0  //
+	evmergelo r21,r0,r0  //
+	evmergelo r22,r0,r0  //
+	evmergelo r23,r0,r0  //
+	evmergelo r24,r0,r0  //
+	evmergelo r25,r0,r0  //
+	evmergelo r26,r0,r0  //
+	evmergelo r27,r0,r0  //
+	evmergelo r28,r0,r0  //
+	evmergelo r29,r0,r0  //
+	evmergelo r30,r0,r0  //
+	evmergelo r31,r0,r0  // Initialize the 64-bit GPR31 to 0
+
+	mtcrf 0xFF,r29
+	mtspr 285,r29       /* TBU     */
+	mtspr 284,r29       /* TBL     */
+	mtspr 272,r29       /* SPRG1-7 */
+	mtspr 273,r29
+	mtspr 274,r29
+	mtspr 275,r29
+	mtspr 276,r29
+	mtspr 277,r29
+	mtspr 278,r29
+	mtspr 279,r29
+	mtspr 604,r29       /* SPRG8-9 */
+	mtspr 605,r29
+	mtspr 26,r29        /* SRR0-1  */
+	mtspr 27,r29
+	mtspr 58,r29        /* CSRR0-1 */
+	mtspr 59,r29
+	mtspr 63,r29        /* IVPR    */
+	mtspr 61,r29        /* DEAR    */
+	mtspr 62,r29        /* ESR     */
+	mtspr 570,r29       /* MCSRR0  */
+	mtspr 571,r29       /* MCSRR1  */
+	mtspr 340,r29       /* TCR     */
+	mtspr 512,r29       /* SPEFSCR */
+
+	mtspr 1,r29         /* XER     */
+	mtspr 256,r29       /* USPRG0  */
+	mtspr 9,r29         /* CTR     */
+
+	mtspr 308,r29       /* DBCR0-6 */
+	mtspr 309,r29
+	mtspr 310,r29
+	mtspr 561,r29
+	mtspr 563,r29
+	mtspr 564,r29
+	mtspr 603,r29
+
+    blr
+
+.size	init_regs, .-init_regs
+

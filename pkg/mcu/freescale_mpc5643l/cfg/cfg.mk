@@ -39,6 +39,7 @@
 # ###*E*###
 
 ## Author: 2012 Errico Guidieri
+## Modified: 2012 Francesco Esposito. Added support for Flash configuration.
 
 ifeq ($(call iseeopt, EE_MPC5643L), yes)
 
@@ -46,5 +47,10 @@ ifeq ($(call iseeopt, EE_MPC5643L), yes)
 ifneq ($(or $(call iseeopt, EE_ISR_DYNAMIC_TABLE), $(call iseeopt,  EE_ISR_EXTERNAL_TABLE)), yes)
 EE_SRCS += pkg/mcu/freescale_mpc5643l/src/ee_vtable.c
 endif # EE_ISR_DYNAMIC_TABLE
+
+# Flash Configuration
+ifneq ($(call iseeopt, __E200ZX_EXECUTE_FROM_RAM__), yes)
+EE_SRCS += pkg/mcu/freescale_mpc5643l/src/ee_FlashConfig.c
+endif # __E200ZX_EXECUTE_FROM_RAM__
 
 endif # __MPC5674F__
