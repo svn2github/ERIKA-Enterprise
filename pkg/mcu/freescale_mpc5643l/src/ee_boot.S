@@ -51,7 +51,7 @@
 #define FLASH_REG CFLASH.PFCR0.R
 #define FLASH_DATA 0x18C7EDED
 
-	.extern	ee_load_ram, ee_sdata, ee_sbss, ee_ebss, sram_setup, main, FlashConfig2
+	.extern	ee_load_ram, ee_sdata, ee_sbss, ee_ebss, sram_setup, main
 	.extern EE_e200zx_mmu_entries, EE_e200zx_mmu_num_entries
 	.extern ee_ssbss2, ee_esbss2
 
