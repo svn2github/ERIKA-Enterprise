@@ -78,8 +78,9 @@ T32_FLASH_BIN = c90fl564xl.bin
 ifeq ($(call iseeopt, LOCK_STEP), yes)
 # MPC5643L supports Lock step mode
 LS_FLAG = _lock_step
-LOCK_STEP:=$(if $(call iseeopt, LOCK_STEP),1,0)
+LOCK_STEP = 1
 else
+LOCK_STEP = 0
 LS_FLAG =
 endif
 endif
@@ -265,7 +266,7 @@ t32.cmm: $(PKGBASE)/mcu/freescale_$(PPC_MCU_MODEL)/cfg/$(T32CMM_SRC) $(MAKEFILE_
 	$(QUIET)sed -e 's:#ORTICMD#:$(T32ORTISTR):'			\
 		-e 's:#USE_VLE#:$(USE_VLE):g'				\
 		-e 's:#EXE_NAME#:$(TARGET):g'				\
-        -e 's:#USE_LOCK_STEP#:$(LOCK_STEP):g'				\
+		-e 's:#USE_LOCK_STEP#:$(LOCK_STEP):g'				\
 		$< > $@
 
 orti.cmm ortiperf.men: %: $(PKGBASE)/mcu/freescale_$(PPC_MCU_MODEL)/cfg/%
