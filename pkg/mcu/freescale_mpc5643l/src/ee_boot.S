@@ -102,8 +102,8 @@ _bam_data:
 	.global	__start
 	.type	__start, @function
 __start:
-#if defined(MPC5643L_STD_SW_MMU_CONFIG)
     bl  init_regs
+#if defined(MPC5643L_STD_SW_MMU_CONFIG)
     /* To use standard MPC5643L MMU initialization */
     bl	mmu_init_mpc5643l
 #endif  /* MPC5643L_STD_SW_MMU_CONFIG */
