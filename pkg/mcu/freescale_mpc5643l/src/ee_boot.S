@@ -389,79 +389,152 @@ init_regs:
 	mtmsr r6
 	isync
 
-	// 32 64-bit GPR0-31
-	lis       r1, 0      // Initialize the lower 32-bits of GPR1 to 0
+	xor  r0, r0, r0
+	evmergelo r0,r0,r0
 
-	evmergelo r0,r1,r1   // Initialize the 64-bits of GPR0 to 0
-	evmergelo r1,r0,r0   // Continue initializing the other 64-bit GPRs
-	evmergelo r2,r0,r0   // ...
-	evmergelo r3,r0,r0   //
-	evmergelo r4,r0,r0   //
-	evmergelo r5,r0,r0   //
-	lis       r1, 0      // Re-initialize the lower 32-bits of GPR1 to 0 
-	evmergelo r6,r0,r0   //
-	evmergelo r7,r0,r0   //
-	evmergelo r8,r0,r0   //
-	evmergelo r9,r0,r0   //
-	evmergelo r10,r0,r0  //
-	evmergelo r11,r0,r0  //
-	evmergelo r12,r0,r0  //
-	evmergelo r13,r0,r0  //
-	evmergelo r14,r0,r0  //
-	evmergelo r15,r0,r0  //
-	evmergelo r16,r0,r0  //
-	evmergelo r17,r0,r0  //
-	evmergelo r18,r0,r0  //
-	evmergelo r19,r0,r0  //
-	evmergelo r20,r0,r0  //
-	evmergelo r21,r0,r0  //
-	evmergelo r22,r0,r0  //
-	evmergelo r23,r0,r0  //
-	evmergelo r24,r0,r0  //
-	evmergelo r25,r0,r0  //
-	evmergelo r26,r0,r0  //
-	evmergelo r27,r0,r0  //
-	evmergelo r28,r0,r0  //
-	evmergelo r29,r0,r0  //
-	evmergelo r30,r0,r0  //
-	evmergelo r31,r0,r0  // Initialize the 64-bit GPR31 to 0
+	evmergelo r1,r0,r1 //used by runtime - should preserve lower 32bits
+	evmergelo r2,r0,r2 //used by runtime - should preserve lower 32bits
+	evmergelo r3,r0,r3 //used by runtime - should preserve lower 32bits
+	
+	evmergelo r4,r0,r0
+	evmergelo r5,r0,r0
+	evmergelo r6,r0,r0
+	evmergelo r7,r0,r0
+	evmergelo r8,r0,r0
+	evmergelo r9,r0,r0
+	evmergelo r10,r0,r0
+	evmergelo r11,r0,r0
+	evmergelo r12,r0,r0
+	
+	evmergelo r13,r0,r13 //used by runtime - should preserve lower 32bits
 
-	mtcrf 0xFF,r29
-	mtspr 285,r29       /* TBU     */
-	mtspr 284,r29       /* TBL     */
-	mtspr 272,r29       /* SPRG1-7 */
-	mtspr 273,r29
-	mtspr 274,r29
-	mtspr 275,r29
-	mtspr 276,r29
-	mtspr 277,r29
-	mtspr 278,r29
-	mtspr 279,r29
-	mtspr 604,r29       /* SPRG8-9 */
-	mtspr 605,r29
-	mtspr 26,r29        /* SRR0-1  */
-	mtspr 27,r29
-	mtspr 58,r29        /* CSRR0-1 */
-	mtspr 59,r29
-	mtspr 63,r29        /* IVPR    */
-	mtspr 61,r29        /* DEAR    */
-	mtspr 62,r29        /* ESR     */
-	mtspr 570,r29       /* MCSRR0  */
-	mtspr 571,r29       /* MCSRR1  */
-	mtspr 340,r29       /* TCR     */
-	mtspr 512,r29       /* SPEFSCR */
+	evmergelo r14,r0,r0
+	evmergelo r15,r0,r0
+	evmergelo r16,r0,r0
+	evmergelo r17,r0,r0
+	evmergelo r18,r0,r0
+	evmergelo r19,r0,r0
+	evmergelo r20,r0,r0
+	evmergelo r21,r0,r0
+	evmergelo r22,r0,r0
+	evmergelo r23,r0,r0
+	evmergelo r24,r0,r0
+	evmergelo r25,r0,r0
+	evmergelo r26,r0,r0
+	evmergelo r27,r0,r0
+	evmergelo r28,r0,r0
+	evmergelo r29,r0,r0
+	
+	evmergelo r30,r0,r30 //used by runtime - should preserve lower 32bits
+	evmergelo r31,r0,r31 //used by runtime - should preserve lower 32bits
 
-	mtspr 1,r29         /* XER     */
-	mtspr 256,r29       /* USPRG0  */
-	mtspr 9,r29         /* CTR     */
+	// 2.  32-bit DEAR (spr 61)
+	mtspr 61,r0         //DEAR
 
-	mtspr 308,r29       /* DBCR0-6 */
-	mtspr 309,r29
-	mtspr 310,r29
-	mtspr 561,r29
-	mtspr 563,r29
-	mtspr 564,r29
-	mtspr 603,r29
+	//3.  32-bit SPRG0-9 (spr 272-279, 604 & 605)
+
+	mtspr 272,r0        //SPRG0-7
+	mtspr 273,r0
+	mtspr 274,r0
+	mtspr 275,r0
+	mtspr 276,r0
+	mtspr 277,r0
+	mtspr 278,r0
+	mtspr 279,r0
+
+	mtspr 604,r0         //SPRG8-9
+	mtspr 605,r0
+
+	//4.  32-bit USPRG0 (spr 256)
+
+	mtspr 256,r0         //USPRG0
+
+	//5.  32-bit SRR0 (spr 26), SRR1 (spr 27), CSRR0 (spr58), CSRR1 (spr59),
+	//		DSRR0 (spr 574), DSRR1 (spr 575), MCSRR0 (spr570), MCSRR1 (spr571)
+
+	mtspr 26,r0          //SRR0-1
+	mtspr 27,r0
+	mtspr 58,r0          //CSRR0-1
+	mtspr 59,r0
+	mtspr 570,r0         //MCSRR0-1
+	mtspr 571,r0 
+	mtspr 574,r0         //DSRR0-1 
+	mtspr 575,r0      
+    
+	//6.  32-bit IVPR (spr 63)
+
+	mtspr 63,r0          //IVPR
+	mtspr 62,r0          //ESR
+	mtspr 340,r0         //TCR
+	mtspr 512,r0         //SPEFSCR
+	mtspr 1,r0           //XER
+	mtspr 256,r0         //USPRG0 
+ 
+
+	//32-bit IVOR0-15 (spr 400 - 415), IVOR 32-35 (spr 528 - 531)
+
+	mtspr 400,r0         //IVOR0-15
+	mtspr 401,r0
+	mtspr 402,r0
+	mtspr 403,r0   
+	mtspr 404,r0
+	mtspr 405,r0
+	mtspr 406,r0
+	mtspr 407,r0
+	mtspr 408,r0
+	mtspr 409,r0
+	mtspr 410,r0
+	mtspr 411,r0
+	mtspr 412,r0
+	mtspr 413,r0
+	mtspr 414,r0
+	mtspr 415,r0
+
+	mtspr 528,r0         //IVOR32-34 (IVOR35 not in Leopard)
+	mtspr 529,r0
+	mtspr 530,r0
+	
+	//mtspr 531,r0		 //IVOR35 KOMODO ONLY
+
+	//8.  32-bit MCAR (spr 573)
+
+	mtspr 573,r0         //MCAR
+ 
+	//9. 32-bit TBL, TBU (spr 284, 285)
+
+	mtspr 284,r0         //TBL
+	mtspr 285,r0         //TBU
+ 
+	//10. 32-bit DEC, DECAR (spr 22, 54)
+
+	mtspr 22,r0          //DEC
+	mtspr 54,r0          //DECAR
+
+	//11. 64-bit DVC1, DVC2 (spr 318, 319)
+	//Note most debug registers are reset by POR so initialization is not required.
+
+	mtspr 318,r0         //DVC1
+	mtspr 319,r0         //DVC2
+
+	//12. 32-bit DBCNT (spr 562)
+
+	mtspr 562,r0         //DBCNT
+	
+	// initialize MAS0 - MAS6; actual TLB configuration done later
+	mtmas0 r0
+	mtmas1 r0
+	mtmas2 r0
+	mtmas3 r0
+	mtmas4 r0
+	// no MAS5
+	mtmas6 r0
+	
+	// init ACC
+	evmra r0, r4
+	evmra r0, r4
+	
+	mtcrf 0xFF,r0 // CFR
+	mtspr 9,r0 // COUNT
 
     blr
 
