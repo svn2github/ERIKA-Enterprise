@@ -97,15 +97,18 @@ ifeq ($(call iseeopt, __TRICORE1_TASKING__), yes)
 include $(PKGBASE)/cfg/arch/cc_tricore_tasking.mk
 endif
 
+ifeq ($(call iseeopt, __TRICORE_GNU__), yes)
+include $(PKGBASE)/cfg/arch/cc_tricore_gnu.mk
+endif
+
 ifeq ($(call iseeopt, EE_TRICORE__), yes)
 ifeq ($(call iseeopt, EE_TASKING__), yes)
 include $(PKGBASE)/cfg/arch/cc_tricore_tasking_new.mk
 endif # EE_TASKING__
+ifeq ($(call iseeopt, EE_GNU__), yes)
+include $(PKGBASE)/cfg/arch/cc_tricore_gnu_new.mk
+endif # EE_GNU__
 endif # EE_TRICORE__
-
-ifeq ($(call iseeopt, __TRICORE_GNU__), yes)
-include $(PKGBASE)/cfg/arch/cc_tricore_gnu.mk
-endif
 
 # -------------------------------------------------------------
 
