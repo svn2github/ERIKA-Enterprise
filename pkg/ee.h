@@ -223,7 +223,7 @@ extern "C" {
 #endif
 
  /* Stellaris */
-#if defined( __STELLARIS__ ) && defined( __LM4F232xxx__ )
+#if defined( __STELLARIS__ ) && defined( __LM4F232xxxx__ )
 #include "mcu/ti_stellaris_lm4f232xxxx/inc/ee_mcu.h"
 #endif
 
