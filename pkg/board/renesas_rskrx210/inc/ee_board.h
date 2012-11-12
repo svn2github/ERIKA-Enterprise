@@ -49,6 +49,8 @@
 #define __INCLUDE_RENESAS_RSKRX210_BOARD_H__
 
 #include "mcu/renesas_r5f5210x/inc/ee_mcu.h"
+#include "cpu/rx200/inc/ee_utils.h"
+
 
 /*
  * User Led
@@ -334,5 +336,176 @@ __INLINE__ void __ALWAYS_INLINE__ EE_rskrx210_op_freq_setup(void)
 }
 
 #endif /*__USE_RSKRX210_OP_FREQ_SETUP__*/
+
+/*
+ * User Led
+ */
+
+#ifdef __USE_RSKRX120_LCD__ 
+
+#define EE_LCD_LINE1 0
+#define EE_LCD_LINE2 16
+#define EE_DATA_WR 1
+#define EE_CTRL_WR 0
+	
+
+/* LCD minimal commands. For other commands see the datasheet*/
+#define EE_LCD_CLEAR        0x01
+#define EE_LCD_HOME_L1      0x80    
+#define EE_LCD_HOME_L2      0xC0
+#define EE_LCD_DISPLAY_ON	0x04
+#define EE_LCD_TWO_LINE		0x08
+#define EE_LCD_CURSOR_OFF	0x0C
+#define EE_LCD_CURSOR_ON	0x0E
+#define EE_LCD_CLEAR		0x01
+#define EE_LCD_HOME_L1		0x80
+#define EE_LCD_HOME_L2		0xC0
+
+
+/*
+* Write a nibble to the LCD. ch_type = 0 -> CTRL nibble, 
+* ch_type = 1 -> DATA nibble
+*/
+__INLINE__ void __ALWAYS_INLINE__ EE_LCD_nib_wr(EE_UINT8 ch_type, EE_UINT8 ch)
+{
+	
+	if (ch_type == EE_DATA_WR) {
+		PORTJ.PODR.BIT.B1 = 1;
+	} else {
+		PORTJ.PODR.BIT.B1 = 0;
+	}
+	
+	/* tsu1 delay */
+    EE_delay_us(1e6);
+  	/* EN enable chip (HIGH) */
+	PORTJ.PODR.BIT.B3 = 1;
+	/* Output the data */
+	PORTH.PODR.BYTE = (EE_UINT8)(ch);
+	/* tw delay */	            
+    EE_delay_us(1e6);
+	/* Latch data by dropping E */					
+	PORTJ.PODR.BIT.B3 = 0;
+	
+	/* th2 delay + tc delay*/				
+    EE_delay_us(2e6);
+}
+
+/*
+* This function write a character on LCD, or a send a control data to the LCD; 
+* it depends on value_type: 0 (EE_CTRL_WR) -> CTRL, 1 (EE_DATA_WR) -> DATA 
+*/
+__INLINE__ void __ALWAYS_INLINE__ EE_LCD_wr(EE_UINT8 ch_type, EE_UINT8 ch)
+{
+	EE_LCD_nib_wr(ch_type, (EE_UINT8)((ch & 0xF0) >> 4));
+	EE_LCD_nib_wr(ch_type, (EE_UINT8)(ch & 0x0F));
+}
+
+__INLINE__ void __ALWAYS_INLINE__ EE_init_lcd_pins()
+{
+    /* Configure the debug LCD data pins (DLCD7-DLCD4) as outputs */
+	PORTH.PDR.BIT.B0 = 1;
+	PORTH.PDR.BIT.B1 = 1;
+	PORTH.PDR.BIT.B2 = 1;
+	PORTH.PDR.BIT.B3 = 1;
+	/* Set debug LCD data pin (DLCD7-DLCD4) outputs as low */
+	PORTH.PODR.BIT.B0 = 0;
+	PORTH.PODR.BIT.B1 = 0;
+	PORTH.PODR.BIT.B2 = 0;
+	PORTH.PODR.BIT.B3 = 0;
+
+	/* Configure the debug LCD control pin (DLCDRS) and enable pin (DLCDE)
+	   as output */
+	PORTJ.PDR.BIT.B1 = 1;
+	PORTJ.PDR.BIT.B3 = 1;
+
+	/* Set the debug LCD control pin (DLCDRS) and enable pin (DLCDE) as output
+	   low */
+	PORTJ.PODR.BIT.B1 = 0;
+	PORTJ.PODR.BIT.B3 = 0;
+}
+
+/*
+* Initialize the LCD module.
+*/
+__INLINE__ void __ALWAYS_INLINE__ EE_LCD_init(void)
+{
+	
+	EE_init_lcd_pins();
+
+	/* Power up delay */
+    EE_delay_us(1e6);
+	/* Display initialises in 8 bit mode*/ 
+	EE_LCD_nib_wr(EE_CTRL_WR, 0x03);
+	EE_delay_us(50e3);
+	EE_LCD_nib_wr(EE_CTRL_WR, 0x03);
+    EE_delay_us(50e3);
+	EE_LCD_nib_wr(EE_CTRL_WR, 0x03);
+	EE_delay_us(50e3);
+	/* Function Set */
+	EE_LCD_nib_wr(EE_CTRL_WR, 0x02);
+    EE_delay_us(1e3);
+	EE_LCD_nib_wr(EE_CTRL_WR, 0x02);
+	EE_LCD_nib_wr(EE_CTRL_WR, (EE_LCD_DISPLAY_ON | EE_LCD_TWO_LINE ));
+    EE_delay_us(1e3);
+	/* Display ON/OFF control */
+	EE_LCD_wr(EE_CTRL_WR, EE_LCD_CURSOR_OFF);
+    EE_delay_us(1e3);
+	/* Display Clear */
+	EE_LCD_wr(EE_CTRL_WR, EE_LCD_CLEAR);
+	EE_delay_us(25e3);
+	/* Entry Mode Set */
+	EE_LCD_wr(EE_CTRL_WR, 0x06);
+    EE_delay_us(1e3);
+	/* Home the cursor */
+	EE_LCD_wr(EE_CTRL_WR, EE_LCD_HOME_L1);
+    EE_delay_us(20e3);
+}
+
+/*
+*Clear the LCD
+*/
+__INLINE__ void __ALWAYS_INLINE__ EE_clear_LCD(void)
+{
+	EE_LCD_wr(EE_CTRL_WR, EE_LCD_CLEAR);
+    EE_delay_us(20e3);
+}
+
+/*
+* Display "string" starting from position.
+* Note that: pos = 0 - means from first character of line 1, pos=16 
+* means first character of line 2.
+*/
+__INLINE__ void __ALWAYS_INLINE__ EE_LCD_disp(EE_UINT8 pos, 
+												const EE_UINT8 * str)
+{
+	static EE_UINT8 new_pos = 0xFF;
+
+	if( new_pos != pos) {
+		if(pos < EE_LCD_LINE2) {
+			/*Line 1 */
+		  	EE_LCD_wr(EE_CTRL_WR, ((EE_UINT8)(EE_LCD_HOME_L1 + pos)));
+		}
+		else {
+			/*Line 2 */
+		  	EE_LCD_wr(EE_CTRL_WR, ((EE_UINT8)((EE_LCD_HOME_L2 + pos ) - EE_LCD_LINE2)));
+		}
+
+        /* Delay after sending a command to the LCD */
+        EE_delay_us(100e3);
+		/* Set new_pos to pos */
+		new_pos = pos;		
+	}
+
+	do {
+		/* Write the data to the LCD */
+		EE_LCD_wr(EE_DATA_WR, *str++);
+        EE_delay_us(1e3);
+		new_pos++;				
+	} 
+	while(*str);
+}
+
+
+#endif /*__USE_RSKRX120_LCD__*/
 
 #endif /*__INCLUDE_RENESAS_RSKRX210_BOARD_H__ */

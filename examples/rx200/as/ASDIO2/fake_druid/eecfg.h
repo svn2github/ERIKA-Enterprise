@@ -38,33 +38,77 @@
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
 
-/**
-	@file ee_mcuregs.h
-	@brief MCU memory mapped registers.
-	@author Gianluca Franchino
-	@date 2012
+/*
+ * fake-druid eecfg.h
+ *
+ * Author: 2012  Gianluca Franchino
  */
 
-#ifndef	__INCLUDE_RENESAS_R5F5210X_MCUREGS_H__
-#define	__INCLUDE_RENESAS_R5F5210X_MCUREGS_H__
+#ifndef __EECFG_H__
+#define __EECFG_H__
 
 
-#if 1
 
-#include "iodefine.h"
-
-#else
-
-#include "cpu/rx210/inc/ee_cpu.h"
-#define	CAC	EE_HWREG8(0x8B000)
-/*TODO: Put the others register here */
+#define RTDRUID_CONFIGURATOR_NUMBER 1275
 
 
-#endif /* #if 1*/
 
-#define SYS_RESC_POR	0x01
-#define SYS_RESC_IWDT	0x10
-#define SYS_RESC_WDT	0x20
-#define SYS_RESC_SW		0x40
+/***************************************************************************
+ *
+ * Common defines ( CPU 0 )
+ *
+ **************************************************************************/
 
-#endif	/* __INCLUDE_RENESAS_R5F5210X_MCUREGS_H__ */
+    /* TASK definition */
+    #define EE_MAX_TASK 1
+    #define Task1 0
+
+    /* MUTEX definition */
+    #define EE_MAX_RESOURCE 0U
+
+    /* ALARM definition */
+    #define EE_MAX_ALARM 0
+
+    /* COUNTER definition */
+    #define EE_MAX_COUNTER 0
+
+    /* APPMODE definition */
+    #define EE_MAX_APPMODE 0U
+
+    /* CPUs */
+    #define EE_MAX_CPU 1
+    #define EE_CURRENTCPU 0
+
+
+#ifndef __DISABLE_EEOPT_DEFINES__
+
+/***************************************************************************
+ *
+ * User options
+ *
+ **************************************************************************/
+#define __ASSERT__
+#define __AUTOSAR_R4_0__
+#define __AS_MCU_DRIVER__
+#define __AS_PORT_DRIVER__
+#define __AS_DIO_DRIVER__
+#define __ADD_LIBS__
+
+/***************************************************************************
+ *
+ * Automatic options
+ *
+ **************************************************************************/
+#define __RTD_CYGWIN__
+#define __RX200__
+#define __R5F5210x__
+#define __CCRX__
+#define __FP__
+#define __MONO__
+#define __FP_NO_RESOURCE__
+
+
+#endif
+
+#endif
+

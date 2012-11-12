@@ -45,7 +45,7 @@
 
 #include "ee.h"
 #include "ee_irq.h"
-#include "ee_lcd.h"
+//#include "ee_lcd.h"
 
 /* Enable all leds*/
 #define LED_INIT_MASK 0xF 

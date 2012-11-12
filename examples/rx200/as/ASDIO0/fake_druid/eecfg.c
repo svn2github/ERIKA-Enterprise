@@ -38,33 +38,57 @@
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
 
-/**
-	@file ee_mcuregs.h
-	@brief MCU memory mapped registers.
-	@author Gianluca Franchino
-	@date 2012
- */
-
-#ifndef	__INCLUDE_RENESAS_R5F5210X_MCUREGS_H__
-#define	__INCLUDE_RENESAS_R5F5210X_MCUREGS_H__
+/*
+ * fake-druid eecfg.c
+ *
+ * Author: 2012  Gianluca Franchino */
+#include "ee.h"
 
 
-#if 1
-
-#include "iodefine.h"
-
-#else
-
-#include "cpu/rx210/inc/ee_cpu.h"
-#define	CAC	EE_HWREG8(0x8B000)
-/*TODO: Put the others register here */
 
 
-#endif /* #if 1*/
+/***************************************************************************
+ *
+ * Kernel ( CPU 0 )
+ *
+ **************************************************************************/
+    /* Definition of task's body */
+    DeclareTask(Task1);
 
-#define SYS_RESC_POR	0x01
-#define SYS_RESC_IWDT	0x10
-#define SYS_RESC_WDT	0x20
-#define SYS_RESC_SW		0x40
+    const EE_FADDR EE_hal_thread_body[EE_MAX_TASK] = {
+        (EE_FADDR)FuncTask1 		/* thread Task1 */
 
-#endif	/* __INCLUDE_RENESAS_R5F5210X_MCUREGS_H__ */
+    };
+
+    /* ready priority */
+    const EE_TYPEPRIO EE_th_ready_prio[EE_MAX_TASK] = {
+        0x1U 		/* thread Task1 */
+    };
+
+    /* dispatch priority */
+    const EE_TYPEPRIO EE_th_dispatch_prio[EE_MAX_TASK] = {
+        0x1U 		/* thread Task1 */
+    };
+
+    /* thread status */
+    #if defined(__MULTI__) || defined(__WITH_STATUS__)
+        EE_TYPESTATUS EE_th_status[EE_MAX_TASK] = {
+            EE_READY
+        };
+    #endif
+
+    /* next thread */
+    EE_TID EE_th_next[EE_MAX_TASK] = {
+        EE_NIL
+    };
+
+    EE_TYPEPRIO EE_th_nact[EE_MAX_TASK];
+    /* The first stacked task */
+    EE_TID EE_stkfirst = EE_NIL;
+
+    /* The first task into the ready queue */
+    EE_TID EE_rqfirst  = EE_NIL;
+
+    /* system ceiling */
+    EE_TYPEPRIO EE_sys_ceiling= 0x0000U;
+

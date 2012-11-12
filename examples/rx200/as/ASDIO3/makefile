@@ -1,7 +1,7 @@
 # ###*B*###
 # ERIKA Enterprise - a tiny RTOS for small microcontrollers
 # 
-# Copyright (C) 2002-2011  Evidence Srl
+# Copyright (C) 2002-2012  Evidence Srl
 # 
 # This file is part of ERIKA Enterprise.
 # 
@@ -38,13 +38,18 @@
 # Boston, MA 02110-1301 USA.
 # ###*E*###
 
-## Makefile for Erika Renesas RX210 porting examples
+## Makefile for Erika Renesas RX210 AUTOSAR MCU driver examples
 ## Author: 2012,  Gianluca Franchino
-## Based on examples/cortex_mx/lm4f232xxxx/porting_examples_keil/monostack/EEtest0
-
 
 # Destination directory
 export OUTPUT_DIR = Debug
+
+# Check the environment and use reasonable defaults
+ifndef ERIKA_FILES
+export ERIKA_FILES := $(abspath ../../../..)
+endif
+
+AS_CFG_PREFIX = $(ERIKA_FILES)/contrib/as/arch/rx200_5f5210x/ccrx/config/
 
 # Check the environment and use reasonable defaults
 ifndef RTDRUID_ECLIPSE_HOME
@@ -55,11 +60,23 @@ ifndef RTDRUID_SCRIPT_DIR
 RTDRUID_SCRIPT_DIR=$(RTDRUID_ECLIPSE_HOME)/evidence
 endif
 
+AS_CFG =	Compiler_Cfg.h\
+		Mcu_Cfg.h\
+		Mcu_Cfg.c\
+		Dio_Cfg.h\
+		Dio_Cfg.c\
+		Port_Cfg.h\
+		Port_Cfg.c
+
+FAKEDRUID_AS_CFG = $(addprefix $(AS_CFG_PREFIX), $(AS_CFG))
+
+RTDRUID_AS_OUTPUT = $(addprefix $(OUTPUT_DIR)/, $(AS_CFG))
+
 RTDRUID_OUTPUT = $(addprefix $(OUTPUT_DIR)/, makefile eecfg.h eecfg.c)
 
 .PHONY: all clean
 
-all: $(RTDRUID_OUTPUT)
+all: $(RTDRUID_OUTPUT) $(RTDRUID_AS_OUTPUT)
 	$(MAKE) -C $(OUTPUT_DIR) all
 
 clean:
@@ -74,19 +91,25 @@ endif
 
 # Run RT-Druid
 $(RTDRUID_OUTPUT): conf.oil
-	@echo "Running RT-Druid... $(RTDRUID_SCRIPT_DIR)"
+	@echo "Running RT-Druid..."
 	@ECLIPSE_HOME="$(RTDRUID_ECLIPSE_HOME)" ;\
 	export ECLIPSE_HOME ;\
-	exec sh $(RTDRUID_SCRIPT_DIR)/start_ant.sh -buildfile $(RTDRUID_SCRIPT_DIR)/build.xml -Din_conf_oil=$< -Dconf_output_dir=$(OUTPUT_DIR) compile
+	exec sh $(RTDRUID_SCRIPT_DIR)/start_ant.sh \
+		-buildfile $(RTDRUID_SCRIPT_DIR)/build.xml \
+		-Din_conf_oil=$< \
+		-Dconf_output_dir=$(OUTPUT_DIR) \
+		compile
 
 else
 # Simulate RT-Druid
-ifndef ERIKA_FILES
-ERIKA_FILES=../../../../
-endif
-
 $(RTDRUID_OUTPUT): $(OUTPUT_DIR)/% : fake_druid/%
 	@echo "Substituing RT-Druid in generating $@..."
 	@mkdir -p $(OUTPUT_DIR)
 	cp $< $@
 endif
+
+# Simulate RT-Druid for AUTOSAR
+$(RTDRUID_AS_OUTPUT): $(OUTPUT_DIR)/% : $(AS_CFG_PREFIX)%
+	@echo "Substituing RT-Druid in generating $@..."
+	@mkdir -p $(OUTPUT_DIR)
+	cp $< $@

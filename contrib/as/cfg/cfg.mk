@@ -121,10 +121,17 @@ endif	#EE_MPC5643L && __CODEWARRIOR__
 ifeq ($(and $(call iseeopt, __R5F5210x__), $(call iseeopt, __CCRX__)), yes)
 
 INCLUDE_PATH += $(EEBASE)/contrib/as/arch/rx200_5f5210x/ccrx/include
-EE_SRCS += contrib/as/arch/rx200_5f5210x/ccrx/drivers/Hardware.c
 
 ifeq ($(call iseeopt, __AS_MCU_DRIVER__), yes)
 EE_SRCS += contrib/as/arch/rx200_5f5210x/ccrx/drivers/Mcu.c
+endif
+
+ifeq ($(call iseeopt, __AS_PORT_DRIVER__), yes)
+EE_SRCS += contrib/as/arch/rx200_5f5210x/ccrx/drivers/Port.c
+endif
+
+ifeq ($(call iseeopt, __AS_DIO_DRIVER__), yes)
+EE_SRCS += contrib/as/arch/rx200_5f5210x/ccrx/drivers/Dio.c
 endif
 
 endif	#__R5F5210x__ && __CCRX__

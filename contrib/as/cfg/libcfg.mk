@@ -210,7 +210,6 @@ endif #EE_MPC5643L && __CODEWARRIOR__
 ifeq ($(and $(call iseeopt, __R5F5210x__), $(call iseeopt, __CCRX__)), yes)
 
 INCLUDE_PATH += $(EEBASE)/contrib/as/arch/rx200_5f5210x/ccrx/include
-EE_SRCS += contrib/as/arch/rx200_5f5210x/ccrx/drivers/Hardware.c
 
 ifeq ($(call iseeopt, __AS_MCU_DRIVER__), yes)
 EE_SRCS_AUTOSAR += contrib/as/arch/rx200_5f5210x/ccrx/drivers/Mcu.c
@@ -222,6 +221,28 @@ EE_SRCS_AUTOSAR += $(OUTBASE)/Mcu_Cfg.c
 endif
 endif	# __NO_APP__
 endif	# __AS_MCU_DRIVER__
+
+ifeq ($(call iseeopt, __AS_PORT_DRIVER__), yes)
+EE_SRCS_AUTOSAR += contrib/as/arch/rx200_5f5210x/ccrx/drivers/Port.c
+ifeq ($(call iseeopt, __NO_APP__), yes)
+ifneq ($(filter %Port_Cfg.c, $(APP_SRCS)),)
+EE_SRCS_AUTOSAR += $(filter %Port_Cfg.c, $(APP_SRCS))
+else
+EE_SRCS_AUTOSAR += $(OUTBASE)/Port_Cfg.c
+endif
+endif	# __NO_APP__
+endif	# __AS_PORT_DRIVER__
+
+ifeq ($(call iseeopt, __AS_DIO_DRIVER__), yes)
+EE_SRCS_AUTOSAR += contrib/as/arch/rx200_5f5210x/ccrx/drivers/Dio.c
+ifeq ($(call iseeopt, __NO_APP__), yes)
+ifneq ($(filter %Dio_Cfg.c, $(APP_SRCS)),)
+EE_SRCS_AUTOSAR += $(filter %Dio_Cfg.c, $(APP_SRCS))
+else
+EE_SRCS_AUTOSAR += $(OUTBASE)/Dio_Cfg.c
+endif
+endif	# __NO_APP__
+endif	# __AS_DIO_DRIVER__
 
 endif	#__R5F5210x__ && __CCRX__
 

@@ -45,7 +45,7 @@
 ifeq ($(call iseeopt, __RX200__), yes)
 
 ifeq ($(call iseeopt, __CCRX__), yes)
-#EE_SRCS += pkg/cpu/rx200/src/ee_iar_change_context_isr.s
+EE_SRCS += pkg/cpu/rx200/src/ee_utils.c
 endif	#__CCRX__
 
 ifeq ($(call iseeopt, __OO_BCC1__), yes)

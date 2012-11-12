@@ -1,7 +1,7 @@
 /* ###*B*###
  * ERIKA Enterprise - a tiny RTOS for small microcontrollers
  *
- * Copyright (C) 2002-2011  Evidence Srl
+ * Copyright (C) 2002-2012  Evidence Srl
  *
  * This file is part of ERIKA Enterprise.
  *
@@ -39,10 +39,10 @@
  * ###*E*### */
 
 /*
- * Simple project to test Dio_ReadPort() and Dio_WritePort() AUTOSAR DIO Driver
- * services.
- *
- * Author: 2011,  Giuseppe Serano
+ * Simple project to test Dio_ReadChannelGroup() and Dio_WriteChannelGroup()
+ * AUTOSAR DIO Driver services.
+ * 
+ * Author: 2012  Gianluca Franchino
  */
 
 #include "Mcu.h"
@@ -61,6 +61,7 @@ enum EE_ASSERTIONS {
 	EE_ASSERT_DIO_INIT,
 	EE_ASSERT_DIM
 };
+
 EE_TYPEASSERTVALUE EE_assertions[EE_ASSERT_DIM];
 
 /* Final result */
@@ -76,87 +77,70 @@ TASK(Task1)
 {
 
 }
+
 /*
  * MAIN TASK
  */
 int main(void)
 {
+	Dio_PortLevelType	lvl;
+	Std_VersionInfoType version;
 
-  Dio_PortLevelType	lvl;
-  Std_VersionInfoType	version;
+	Mcu_RawResetType reset;
 
-  Mcu_RawResetType reset;
+	EE_assert(EE_ASSERT_INIT, TRUE, EE_ASSERT_NIL);
+	
+	Dio_GetVersionInfo(&version);
 
-  EE_assert(EE_ASSERT_INIT, TRUE, EE_ASSERT_NIL);
+	EE_assert( EE_ASSERT_VERSION, ((version.vendorID == 0) && 
+			(version.moduleID == 120) && (version.sw_major_version == 1) &&
+			(version.sw_minor_version == 0) &&
+			(version.sw_patch_version == 0)), EE_ASSERT_INIT);
 
-  Dio_GetVersionInfo(&version);
 
-  EE_assert(
-    EE_ASSERT_VERSION,
-    (
-      (version.vendorID == 0) &&
-      (version.moduleID == 120) &&
-      (version.sw_major_version == 1) &&
-      (version.sw_minor_version == 0) &&
-      (version.sw_patch_version == 0)
-    ),
-    EE_ASSERT_INIT
-  );
+	Mcu_Init(MCU_CONFIG_DEFAULT_PTR);
 
-  Mcu_Init(MCU_CONFIG_DEFAULT_PTR);
+	reset = Mcu_GetResetRawValue();
 
-  reset = Mcu_GetResetRawValue();
+	if ((reset & MCU_POWER_ON_RESET) || (reset & MCU_SW_RESET)) {
+		Mcu_InitClock(MCU_CLOCK_MODE_NORMAL);
+		EE_assert(EE_ASSERT_CLOCK_INIT, TRUE, EE_ASSERT_VERSION);
+		EE_assert(EE_ASSERT_PLL_LOCKED, TRUE, EE_ASSERT_CLOCK_INIT);
+	} else {
+			Mcu_InitClock(MCU_CLK_MODE_MOSC20_PLL100_I2_B4);
+		EE_assert(EE_ASSERT_CLOCK_INIT, TRUE, EE_ASSERT_VERSION);
+		while (Mcu_GetPllStatus() != MCU_PLL_LOCKED) {
+			counter++;
+		}
+		EE_assert(EE_ASSERT_PLL_LOCKED, Mcu_GetPllStatus() == MCU_PLL_LOCKED,
+					EE_ASSERT_CLOCK_INIT);
 
-  if ((reset & SYSCTL_RESC_POR) || (reset & SYSCTL_RESC_SW)) {
-    Mcu_InitClock(MCU_CLOCK_MODE_NORMAL);
-    EE_assert(EE_ASSERT_CLOCK_INIT, TRUE, EE_ASSERT_VERSION);
-    EE_assert(EE_ASSERT_PLL_LOCKED, TRUE, EE_ASSERT_CLOCK_INIT);
-  }
-  else {
+		//Mcu_DistributePllClock();
 
-    Mcu_InitClock(MCU_CLOCK_MODE_PRIOSC_3_PLL);
-    
-    EE_assert(EE_ASSERT_CLOCK_INIT, TRUE, EE_ASSERT_VERSION);
+		counter = 0;
 
-    while (Mcu_GetPllStatus() != MCU_PLL_LOCKED)
-    {
-      counter++;
-    }
+	}
 
-    EE_assert(
-      EE_ASSERT_PLL_LOCKED,
-      Mcu_GetPllStatus() == MCU_PLL_LOCKED,
-      EE_ASSERT_CLOCK_INIT
-    );
+	Port_Init(PORT_CONFIG_DEFAULT_PTR);
 
-    Mcu_DistributePllClock();
+	Dio_Init(DIO_CONFIG_DEFAULT_PTR);
 
-    counter = 0;
+	EE_assert(EE_ASSERT_DIO_INIT, TRUE, EE_ASSERT_PLL_LOCKED);
 
-  }
+	EE_assert_range(EE_ASSERT_FIN, TRUE, EE_ASSERT_DIO_INIT);
+	result = EE_assert_last();
 
-  Port_Init(PORT_CONFIG_DEFAULT_PTR);
+	/* Forever loop: background activities (if any) should go here */
+	for (;result == 1;) {
+	    while (counter % 100000) counter++;
+	    lvl = Dio_ReadChannelGroup(DIO_CHANNEL_GROUP_USER_LEDS);
 
-  Dio_Init(DIO_CONFIG_DEFAULT_PTR);
+	    if (lvl & 0x00000000F)
+	    	Dio_WriteChannelGroup(DIO_CHANNEL_GROUP_USER_LEDS, 0x00000000);
+	    else
+	    	Dio_WriteChannelGroup(DIO_CHANNEL_GROUP_USER_LEDS, 0x0000000F);
 
-  EE_assert(EE_ASSERT_DIO_INIT, TRUE, EE_ASSERT_PLL_LOCKED);
-
-  EE_assert_range(EE_ASSERT_FIN, TRUE, EE_ASSERT_DIO_INIT);
-  result = EE_assert_last();
-
-  /* Forever loop: background activities (if any) should go here */
-  for (;result == 1;)
-  {
-    while (counter % 100000) counter++;
-
-    lvl = Dio_ReadPort(DIO_PORT_USER_LED);
-
-    if (lvl & 0x00000004)
-      Dio_WritePort(DIO_PORT_USER_LED, 0x00000000);
-    else
-      Dio_WritePort(DIO_PORT_USER_LED, 0x00000004);
-
-    counter++;
-  }
+	    counter++;
+	}
 
 }

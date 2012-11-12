@@ -72,14 +72,33 @@ typedef EE_UINT32 EE_UREG;
 typedef EE_INT32  EE_SREG;
 typedef EE_UINT32 EE_FREG;
 
+typedef EE_UINT16 EE_UREG16;
+typedef EE_INT16  EE_SREG16;
+typedef EE_UINT16 EE_FREG16;
+
+typedef EE_UINT8 EE_UREG8;
+typedef EE_INT8  EE_SREG8;
+typedef EE_UINT8 EE_FREG8;
+
 #define EE_UREG_SIZE 4
+#define EE_UREG16_SIZE 2
+#define EE_UREG8_SIZE 1
 
 #ifdef __CCRX__
-#define	EE_HWREG_PTR		volatile EE_UREG __evenaccess*
+#define	EE_HWREG_PTR		volatile EE_UREG __evenaccess *
 
 #define	EE_HWREG_ADDR(x)	((EE_HWREG_PTR)(x))
 #define	EE_HWREG(x)		(*EE_HWREG_ADDR(x))
 
+#define	EE_HWREG16_PTR		volatile EE_UREG16 __evenaccess *
+
+#define	EE_HWREG16_ADDR(x)	((EE_HWREG16_PTR)(x))
+#define	EE_HWREG16(x)		(*EE_HWREG16_ADDR(x))
+
+#define	EE_HWREG8_PTR		volatile EE_UREG8 __evenaccess *
+
+#define	EE_HWREG8_ADDR(x)	((EE_HWREG8_PTR)(x))
+#define	EE_HWREG8(x)		(*EE_HWREG8_ADDR(x))
 #else	/* __CCRX__ */
 #error ee_cpu.h --> Unsupported compiler
 #endif	/* !__CCRX__ */
