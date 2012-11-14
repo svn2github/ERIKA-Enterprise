@@ -67,10 +67,10 @@ SECTIONS
 			*(.rodata)
 		}
 
-        /* Dummy value for cal_ram section */
-        ee_scal_ram = .;
-        ee_scal_ram_dest = .;
-        cal_ram : { }
+        /* Dummy value for calib_ram section */
+        ee_scalib_ram = .;
+        ee_scalib_ram_dest = .;
+        calib_ram : { }
 
 		.sram_text : { }
 

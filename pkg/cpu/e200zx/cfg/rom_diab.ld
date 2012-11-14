@@ -69,13 +69,13 @@ SECTIONS
 
     GROUP : {
         /* Dummy memory area. Used only by MPC5643L with Codewarrior */
-        ee_scal_ram = .;
+        ee_scalib_ram = .;
     } > calibrations_ram
 
     GROUP : {
         /* Dummy memory area. Used only by MPC5643L with Codewarrior */
-        ee_scal_flash = .;
-        cal_flash : { }
+        ee_scalib_flash = .;
+        calib_flash : { }
     } > calibrations_flash
 
 	GROUP : {

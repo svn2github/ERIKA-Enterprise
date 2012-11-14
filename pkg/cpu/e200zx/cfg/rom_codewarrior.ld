@@ -85,13 +85,13 @@ SECTIONS
         /* Alignement necessary for a correct use of flash driver */
         . = ALIGN(8);
         /* For data associated to calibrations memory area (non-const data) */
-        ee_scal_ram = .;
+        ee_scalib_ram = .;
     } > calibrations_ram
 
     GROUP : {
         /* For data associated to calibrations memory area (const data) */
-        ee_scal_flash = .;
-        cal_flash LOAD(ADDR(calibrations_flash)) : { }
+        ee_scalib_flash = .;
+        calib_flash LOAD(ADDR(calibrations_flash)) : { }
     } > calibrations_flash
 
 	GROUP : {
@@ -118,8 +118,8 @@ SECTIONS
         /* Alignement necessary for a correct use of flash driver */
         . = ALIGN(8);
         /* For data associated to calibrations memory area (non-const data) */
-        ee_scal_ram_dest = . ;
-        cal_ram LOAD(ee_scal_ram) : {}
+        ee_scalib_ram_dest = . ;
+        calib_ram LOAD(ee_scalib_ram) : {}
 
 		.sdata LOAD(ee_load_ram + ADDR(.sdata) - ADDR(.data)): { }
 
