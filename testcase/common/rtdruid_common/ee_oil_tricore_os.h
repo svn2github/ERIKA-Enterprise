@@ -40,6 +40,8 @@
 
 #ifdef tricore_tc27x
 
+EE_OPT = "EE_EXECUTE_FROM_RAM";
+
 MCU_DATA = TRICORE {
     MODEL = TC27x;
 };
@@ -51,3 +53,9 @@ CPU_DATA = TRICORE {
 #endif /* USEIRQ */
     SYS_STACK_SIZE=4096;
 #endif /* tricore_tc27x */
+#ifdef tasking
+    COMPILER_TYPE = TASKING;
+#endif
+#ifdef gnu
+    COMPILER_TYPE = GNU;
+#endif

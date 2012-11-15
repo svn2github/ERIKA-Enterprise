@@ -5,5 +5,5 @@ worksfor += pic30
 worksfor += s12xs_cosmic s12xs_cw s12g_cw e200zx_diab_5_5_1_fle e200zx_diab_5_5_1_vle e200zx_codewarrior_10_0_2_vle e200zx_codewarrior_10_0_2_fle e200zx_diab_5_8_vle e200zx_diab_5_8_fle
 worksfor += cortex_m0_iar cortex_m4_ccs cortex_m4_keil
 worksfor += rx200_ccrx
-worksfor += tricore_tc27x_tasking
+worksfor += tricore_tc27x_tasking tricore_tc27x_gnu
 

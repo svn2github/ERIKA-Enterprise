@@ -113,6 +113,12 @@
 #define tasking
 #endif
 
+#ifdef  tricore_tc27x_gnu
+#define tricore
+#define tricore_tc27x
+#define gnu
+#endif
+
 //#ifdef s12xs_...
 //#define s12xs
 //#endif

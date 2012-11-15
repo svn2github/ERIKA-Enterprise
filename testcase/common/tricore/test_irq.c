@@ -66,12 +66,18 @@ void test_setup_irq(unsigned int irq, SoftIRQHandler handler,
     unsigned int priority) {
   register p_SRC_reg p_src_reg = test_get_irq_register(irq);
   p_src_reg->U = (1U << 10U) | priority;
+  EE_tc_dsync();
 }
 
 void test_fire_irq(unsigned int irq)
 {
+  /* Workaround to assure IRQ generation ( I don't know why but
+     sometimes dsync followed by isync is not enough ) */
+  volatile EE_UINT32 intsource;
   register p_SRC_reg p_src_reg = test_get_irq_register(irq);
   p_src_reg->U |= (1U << 26U);
+  EE_tc_dsync();
+  intsource = p_src_reg->U;
   EE_tc_isync();
 }
 

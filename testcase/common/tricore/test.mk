@@ -69,6 +69,17 @@ CLEAN_tricore_tc27x_tasking             =
 COMPILE_tricore_tc27x_tasking           =   $(COMPILE_tricore_source)
 DEBUG_tricore_tc27x_tasking             =   $(DEBUG_tricore_tasking_source)
 
+# tricore_tc27x_gnu
+TESTLIST                                +=  tricore_tc27x_gnu
+OUTDIR_COMMANDS_tricore_tc27x_gnu        =   $(OUTDIR_COMMANDS_tricore_source)
+CONF_tricore_tc27x_gnu                   =   $(CONF_tricore_source)
+GLOBAL_CONF                             +=
+DIST_tricore_tc27x_gnu                   =
+RTDRUID_tricore_tc27x_gnu                =   $(RTDRUID_tricore_source)
+CLEAN_tricore_tc27x_gnu                  =
+COMPILE_tricore_tc27x_gnu                =   $(COMPILE_tricore_source)
+DEBUG_tricore_tc27x_gnu                  =   $(DEBUG_tricore_tasking_source)
+
 # -------------------------------------------------------------------
 
 EE_TMPDIR = $(EEBASE)/testcase/tmp
