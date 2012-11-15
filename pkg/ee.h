@@ -401,6 +401,14 @@ defined(__OO_ECC2__) || defined(__AS_SC4__)
 
 #include "ee_api.h"
 
+  /*
+   *
+   * IRQ
+   *
+   */
+
+#include "ee_irq.h"
+
 #if defined(__cplusplus)
 };
 #endif

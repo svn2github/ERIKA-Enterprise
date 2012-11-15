@@ -50,6 +50,8 @@
 #ifndef INCLUDE_PKG_EE_IRQ_H__
 #define INCLUDE_PKG_EE_IRQ_H__
 
+#include "eecfg.h"
+
 #if defined(__cplusplus)
 extern "C" {
 #endif
