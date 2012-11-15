@@ -1,7 +1,7 @@
 /* ###*B*###
  * ERIKA Enterprise - a tiny RTOS for small microcontrollers
  *
- * Copyright (C) 2002-2011  Evidence Srl
+ * Copyright (C) 2002-2012  Evidence Srl
  *
  * This file is part of ERIKA Enterprise.
  *
@@ -39,29 +39,29 @@
  * ###*E*### */
 
 /**
-    @file ee_systick.h
-    @brief SysTick system timer driver header file.
-    @author Giuseppe Serano
-    @date 2011
+    @file	ee_systick.h
+    @brief	SysTick system timer driver header file.
+    @author	Giuseppe Serano
+    @date	2012
 
 **/
 
-#ifndef	__INCLUDE_STELLARIS_LM4F232XXXX_SYSTICK_H__
-#define	__INCLUDE_STELLARIS_LM4F232XXXX_SYSTICK_H__
+#ifndef	__INCLUDE_CORTEX_MX_SYSTICK_H__
+#define	__INCLUDE_CORTEX_MX_SYSTICK_H__
 
 #ifdef	__USE_SYSTICK__
 
 /** Utility Macro that convert an amount of ms in number of ticks of a given
     frequency **/
-#define MILLISECONDS_TO_TICKS(X_MS, REF_FREQ_HZ)                            \
-    ((X_MS) * ((REF_FREQ_HZ) / 1000UL))
+#define	MILLISECONDS_TO_TICKS(X_MS, REF_FREQ_HZ)	\
+	((X_MS) * ((REF_FREQ_HZ) / 1000UL))
 
 /** Utility Macro that convert an amount of us in number of ticks of a given
     frequency **/
-#define MICROSECONDS_TO_TICKS(X_MICROSECS, REF_FREQ_HZ)                     \
-    (((X_MICROSECS) / 1000UL)?                                              \
-        (MILLISECONDS_TO_TICKS(((X_MICROSECS) / 1000UL), (REF_FREQ_HZ))):   \
-        (MILLISECONDS_TO_TICKS((X_MICROSECS), (REF_FREQ_HZ)) / 1000UL))
+#define	MICROSECONDS_TO_TICKS(X_MICROSECS, REF_FREQ_HZ)	\
+	(((X_MICROSECS) / 1000UL)? \
+	(MILLISECONDS_TO_TICKS(((X_MICROSECS) / 1000UL), (REF_FREQ_HZ))): \
+	(MILLISECONDS_TO_TICKS((X_MICROSECS), (REF_FREQ_HZ)) / 1000UL))
 
 /** error value. No errors happened **/
 #define	EE_SYSTICK_NO_ERRORS	0
@@ -179,7 +179,7 @@ __INLINE__ EE_UREG __ALWAYS_INLINE__ EE_systick_get_value()
   return NVIC_ST_CURRENT_R;
 }
 
-/** Default PIOSC Clock Frequency */
+/** Default Clock Frequency */
 #define	EE_DEFAULT_CPU_CLOCK	16000000
 
 /**
@@ -207,4 +207,4 @@ __INLINE__ void __ALWAYS_INLINE__ EE_systick_delay_us(EE_UREG usDelay){
 
 #endif	/* __USE_SYSTICK__ */
 
-#endif	/* __INCLUDE_STELLARIS_LM4F232XXXX_SYSTICK_H__ */
+#endif	/* __INCLUDE_CORTEX_MX_SYSTICK_H__ */

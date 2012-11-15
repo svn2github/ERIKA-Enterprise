@@ -50,7 +50,6 @@
 #define __INCLUDE_CORTEX_MX_EE_CPU_H__
 
 #include "eecfg.h"
-#include "cpu/cortex_mx/inc/ee_nvic.h"
 
 #ifdef __IAR__
 #include "cpu/common/inc/ee_compiler_iar.h"
@@ -112,6 +111,15 @@ typedef EE_UINT32 EE_UTID;
 
 #ifdef	__HAS_TYPES_H__
 #include	"types.h"
+#endif
+
+/******************************************************************************
+ CPU Peripherals
+ ******************************************************************************/
+
+#ifdef __CORTEX_M4__
+#include "cpu/cortex_mx/inc/ee_nvic.h"
+#include "cpu/cortex_mx/inc/ee_systick.h"
 #endif
 
 /******************************************************************************
