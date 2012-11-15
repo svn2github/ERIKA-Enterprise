@@ -205,8 +205,7 @@ void StartupHook(void)
   EE_systick_start();
 #endif
 #if defined(EE_TRICORE__)
-    EE_tc27x_stm_set_clockpersec();
-    EE_tc27x_stm_set_sr0(3000000U, EE_ISR2_ID_STM_handler);
+  EE_tc27x_stm_set_sr0(3000000U, EE_ISR2_ID_STM_handler);
 #endif
 }
 
