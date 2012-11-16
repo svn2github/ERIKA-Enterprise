@@ -48,6 +48,6 @@
 #ifndef	__INCLUDE_STM32_STM32F4XX_MCU_H__
 #define	__INCLUDE_STM32_STM32F4XX_MCU_H__
 
-#include "cpu/cortex_mx/inc/ee_cpu.h"
+#include "mcu/st_stm32_stm32f4xx/inc/ee_mcuirqs.h"
 
 #endif	/* __INCLUDE_STM32_STM32F4XX_MCU_H__ */

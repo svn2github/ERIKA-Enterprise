@@ -1,3 +1,4 @@
+#ifndef	__SIMUL__
 /**
   ******************************************************************************
   * @file    system_stm32f4xx.c
@@ -548,3 +549,4 @@ void SystemInit_ExtMemCtl(void)
   */    
 /******************* (C) COPYRIGHT 2011 STMicroelectronics *****END OF FILE****/
 
+#endif	/* __SIMUL__ */

@@ -1,430 +1,978 @@
-;******************** (C) COPYRIGHT 2011 STMicroelectronics ********************
-;* File Name          : startup_stm32f4xx.s
-;* Author             : MCD Application Team
-;* Version            : V1.0.0RC1
-;* Date               : 25-August-2011
-;* Description        : STM32F4xx devices vector table for MDK-ARM toolchain. 
-;*                      This module performs:
-;*                      - Set the initial SP
-;*                      - Set the initial PC == Reset_Handler
-;*                      - Set the vector table entries with the exceptions ISR address
-;*                      - Branches to __main in the C library (which eventually
-;*                        calls main()).
-;*                      After Reset the CortexM4 processor is in Thread mode,
-;*                      priority is Privileged, and the Stack is set to Main.
-;* <<< Use Configuration Wizard in Context Menu >>>   
-;*******************************************************************************
-; THE PRESENT FIRMWARE WHICH IS FOR GUIDANCE ONLY AIMS AT PROVIDING CUSTOMERS
-; WITH CODING INFORMATION REGARDING THEIR PRODUCTS IN ORDER FOR THEM TO SAVE TIME.
-; AS A RESULT, STMICROELECTRONICS SHALL NOT BE HELD LIABLE FOR ANY DIRECT,
-; INDIRECT OR CONSEQUENTIAL DAMAGES WITH RESPECT TO ANY CLAIMS ARISING FROM THE
-; CONTENT OF SUCH FIRMWARE AND/OR THE USE MADE BY CUSTOMERS OF THE CODING
-; INFORMATION CONTAINED HEREIN IN CONNECTION WITH THEIR PRODUCTS.
-;*******************************************************************************
+; ###*B*###
+; ERIKA Enterprise - a tiny RTOS for small microcontrollers
+;
+; Copyright (C) 2002-2011  Evidence Srl
+;
+; This file is part of ERIKA Enterprise.
+;
+; ERIKA Enterprise is free software; you can redistribute it
+; and/or modify it under the terms of the GNU General Public License
+; version 2 as published by the Free Software Foundation, 
+; (with a special exception described below).
+;
+; Linking this code statically or dynamically with other modules is
+; making a combined work based on this code.  Thus, the terms and
+; conditions of the GNU General Public License cover the whole
+; combination.
+;
+; As a special exception, the copyright holders of this library give you
+; permission to link this code with independent modules to produce an
+; executable, regardless of the license terms of these independent
+; modules, and to copy and distribute the resulting executable under
+; terms of your choice, provided that you also meet, for each linked
+; independent module, the terms and conditions of the license of that
+; module.  An independent module is a module which is not derived from
+; or based on this library.  If you modify this code, you may extend
+; this exception to your version of the code, but you are not
+; obligated to do so.  If you do not wish to do so, delete this
+; exception statement from your version.
+;
+; ERIKA Enterprise is distributed in the hope that it will be
+; useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+; of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+; GNU General Public License version 2 for more details.
+;
+; You should have received a copy of the GNU General Public License
+; version 2 along with ERIKA Enterprise; if not, write to the
+; Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+; Boston, MA 02110-1301 USA.
+; ###*E*###
+;
+; /** 
+; 	@file startup_stm32f4xx.s
+; 	@brief Startup code for Keil uVision MDK-Lite.
+; 	@author Carlo Caione
+; 	@date 2012
+; */
+;
+;******************************************************************************
+#include "eecfg.h"	/* Configurable by RT-Druid */
 
-; Amount of memory (in bytes) allocated for Stack
-; Tailor this value to your application needs
-; <h> Stack Configuration
-;   <o> Stack Size (in Bytes) <0x0-0xFFFFFFFF:8>
-; </h>
+;******************************************************************************
+;
+; <o> Stack Size (in Bytes) <0x0-0xFFFFFFFF:8>
+;
+;******************************************************************************
+#ifndef	EE_SYS_STACK_SIZE
+#define	EE_SYS_STACK_SIZE	0x00000400	/* 1K bytes */
+#endif
+Stack	EQU	EE_SYS_STACK_SIZE
 
-Stack_Size      EQU     0x00000400
+;******************************************************************************
+;
+; <o> Heap Size (in Bytes) <0x0-0xFFFFFFFF:8>
+;
+;******************************************************************************
+#ifndef	EE_SYS_HEAP_SIZE
+#define	EE_SYS_HEAP_SIZE	0x00000400	/* 1K bytes */
+#endif
+Heap	EQU	EE_SYS_HEAP_SIZE
 
-                AREA    STACK, NOINIT, READWRITE, ALIGN=3
-Stack_Mem       SPACE   Stack_Size
+;******************************************************************************
+;
+; Allocate space for the stack.
+;
+;******************************************************************************
+	AREA	STACK,	NOINIT,	READWRITE,	ALIGN=3
+StackMem
+	SPACE	Stack
 __initial_sp
+	EXPORT	__initial_sp
 
-
-; <h> Heap Configuration
-;   <o>  Heap Size (in Bytes) <0x0-0xFFFFFFFF:8>
-; </h>
-
-Heap_Size       EQU     0x00000200
-
-                AREA    HEAP, NOINIT, READWRITE, ALIGN=3
+;******************************************************************************
+;
+; Allocate space for the heap.
+;
+;******************************************************************************
+	AREA	HEAP,	NOINIT,	READWRITE,	ALIGN=3
 __heap_base
-Heap_Mem        SPACE   Heap_Size
+HeapMem
+	SPACE	Heap
 __heap_limit
 
-                PRESERVE8
-                THUMB
+;******************************************************************************
+;
+; Indicate that the code in this file preserves 8-byte alignment of the stack.
+;
+;******************************************************************************
+	PRESERVE8                
 
+;******************************************************************************
+;
+; Place code into the reset code section.
+;
+;******************************************************************************
+	AREA	RESET,	CODE,	READONLY
+	THUMB
 
-; Vector Table Mapped to Address 0 at Reset
-                AREA    RESET, DATA, READONLY
-                EXPORT  __Vectors
-                EXPORT  __Vectors_End
-                EXPORT  __Vectors_Size
+;******************************************************************************
+;
+; The vector table.
+;
+;******************************************************************************
 
-__Vectors       DCD     __initial_sp               ; Top of Stack
-                DCD     Reset_Handler              ; Reset Handler
-                DCD     NMI_Handler                ; NMI Handler
-                DCD     HardFault_Handler          ; Hard Fault Handler
-                DCD     MemManage_Handler          ; MPU Fault Handler
-                DCD     BusFault_Handler           ; Bus Fault Handler
-                DCD     UsageFault_Handler         ; Usage Fault Handler
-                DCD     0                          ; Reserved
-                DCD     0                          ; Reserved
-                DCD     0                          ; Reserved
-                DCD     0                          ; Reserved
-                DCD     SVC_Handler                ; SVCall Handler
-                DCD     DebugMon_Handler           ; Debug Monitor Handler
-                DCD     0                          ; Reserved
-                DCD     PendSV_Handler             ; PendSV Handler
-                DCD     SysTick_Handler            ; SysTick Handler
+/*
+ * Extern declarations of the interrupt handlers.
+ */
+#ifdef	EE_CORTEX_MX_RESET_ISR				/* Reset Handler */
+	IMPORT	EE_CORTEX_MX_RESET_ISR
+#endif
+#ifdef EE_CORTEX_MX_NMI_ISR					/* The NMI handler */
+	IMPORT	EE_CORTEX_MX_NMI_ISR
+#endif
+#ifdef EE_CORTEX_MX_HARD_FAULT_ISR			/* The hard fault handler */
+	IMPORT	EE_CORTEX_MX_HARD_FAULT_ISR
+#endif
+#ifdef EE_CORTEX_MX_MPU_FAULT_ISR			/* The MPU fault handler */
+	IMPORT	EE_CORTEX_MX_MPU_FAULT_ISR
+#endif
+#ifdef EE_CORTEX_MX_BUS_FAULT_ISR			/* The bus fault handler */
+	IMPORT	EE_CORTEX_MX_BUS_FAULT_ISR
+#endif
+#ifdef EE_CORTEX_MX_USAGE_FAULT_ISR			/* The usage fault handler */
+	IMPORT	EE_CORTEX_MX_USAGE_FAULT_ISR
+#endif
+	IMPORT	EE_cortex_mx_svc_ISR			/* SVCall Handler */
+	IMPORT	EE_cortex_mx_pendsv_ISR			/* PendSV Handler */
+#ifdef	EE_CORTEX_MX_SYSTICK_ISR			/* SysTick Handler */
+	IMPORT	EE_CORTEX_MX_SYSTICK_ISR
+#endif
+#ifdef EE_CORTEX_MX_DEBUG_MONITOR_ISR		/* Debug monitor handler */
+	IMPORT	EE_CORTEX_MX_DEBUG_MONITOR_ISR
+#endif
+#ifdef EE_CORTEX_MX_WWDG_ISR
+	IMPORT  EE_CORTEX_MX_WWDG_ISR
+#endif
+#ifdef EE_CORTEX_MX_PVD_ISR
+	IMPORT  EE_CORTEX_MX_PVD_ISR
+#endif
+#ifdef EE_CORTEX_MX_TAMP_STAMP_ISR
+	IMPORT  EE_CORTEX_MX_TAMP_STAMP_ISR
+#endif
+#ifdef EE_CORTEX_MX_RTC_WKUP_ISR
+	IMPORT  EE_CORTEX_MX_RTC_WKUP_ISR
+#endif
+#ifdef EE_CORTEX_MX_FLASH_ISR
+	IMPORT  EE_CORTEX_MX_FLASH_ISR
+#endif
+#ifdef EE_CORTEX_MX_RCC_ISR
+	IMPORT  EE_CORTEX_MX_RCC_ISR
+#endif
+#ifdef EE_CORTEX_MX_EXTI0_ISR
+	IMPORT  EE_CORTEX_MX_EXTI0_ISR
+#endif
+#ifdef EE_CORTEX_MX_EXTI1_ISR
+	IMPORT  EE_CORTEX_MX_EXTI1_ISR
+#endif
+#ifdef EE_CORTEX_MX_EXTI2_ISR
+	IMPORT  EE_CORTEX_MX_EXTI2_ISR
+#endif
+#ifdef EE_CORTEX_MX_EXTI3_ISR
+	IMPORT  EE_CORTEX_MX_EXTI3_ISR
+#endif
+#ifdef EE_CORTEX_MX_EXTI4_ISR
+	IMPORT  EE_CORTEX_MX_EXTI4_ISR
+#endif
+#ifdef EE_CORTEX_MX_DMA1_STREAM0_ISR
+	IMPORT  EE_CORTEX_MX_DMA1_STREAM0_ISR
+#endif
+#ifdef EE_CORTEX_MX_DMA1_STREAM1_ISR
+	IMPORT  EE_CORTEX_MX_DMA1_STREAM1_ISR
+#endif
+#ifdef EE_CORTEX_MX_DMA1_STREAM2_ISR
+	IMPORT  EE_CORTEX_MX_DMA1_STREAM2_ISR
+#endif
+#ifdef EE_CORTEX_MX_DMA1_STREAM3_ISR
+	IMPORT  EE_CORTEX_MX_DMA1_STREAM3_ISR
+#endif
+#ifdef EE_CORTEX_MX_DMA1_STREAM4_ISR
+	IMPORT  EE_CORTEX_MX_DMA1_STREAM4_ISR
+#endif
+#ifdef EE_CORTEX_MX_DMA1_STREAM5_ISR
+	IMPORT  EE_CORTEX_MX_DMA1_STREAM5_ISR
+#endif
+#ifdef EE_CORTEX_MX_DMA1_STREAM6_ISR
+	IMPORT  EE_CORTEX_MX_DMA1_STREAM6_ISR
+#endif
+#ifdef EE_CORTEX_MX_ADC_ISR
+	IMPORT  EE_CORTEX_MX_ADC_ISR
+#endif
+#ifdef EE_CORTEX_MX_CAN1_TX_ISR
+	IMPORT  EE_CORTEX_MX_CAN1_TX_ISR
+#endif
+#ifdef EE_CORTEX_MX_CAN1_RX0_ISR
+	IMPORT  EE_CORTEX_MX_CAN1_RX0_ISR
+#endif
+#ifdef EE_CORTEX_MX_CAN1_RX1_ISR
+	IMPORT  EE_CORTEX_MX_CAN1_RX1_ISR
+#endif
+#ifdef EE_CORTEX_MX_CAN1_SCE_ISR
+	IMPORT  EE_CORTEX_MX_CAN1_SCE_ISR
+#endif
+#ifdef EE_CORTEX_MX_EXTI9_5_ISR
+	IMPORT  EE_CORTEX_MX_EXTI9_5_ISR
+#endif
+#ifdef EE_CORTEX_MX_TIM1_BRK_TIM9_ISR
+	IMPORT  EE_CORTEX_MX_TIM1_BRK_TIM9_ISR
+#endif
+#ifdef EE_CORTEX_MX_TIM1_UP_TIM10_ISR
+	IMPORT  EE_CORTEX_MX_TIM1_UP_TIM10_ISR
+#endif
+#ifdef EE_CORTEX_MX_TIM1_TRG_COM_TIM11_ISR
+	IMPORT  EE_CORTEX_MX_TIM1_TRG_COM_TIM11_ISR
+#endif
+#ifdef EE_CORTEX_MX_TIM1_CC_ISR
+	IMPORT  EE_CORTEX_MX_TIM1_CC_ISR
+#endif
+#ifdef EE_CORTEX_MX_TIM2_ISR
+	IMPORT  EE_CORTEX_MX_TIM2_ISR
+#endif
+#ifdef EE_CORTEX_MX_TIM3_ISR
+	IMPORT  EE_CORTEX_MX_TIM3_ISR
+#endif
+#ifdef EE_CORTEX_MX_TIM4_ISR
+	IMPORT  EE_CORTEX_MX_TIM4_ISR
+#endif
+#ifdef EE_CORTEX_MX_I2C1_EV_ISR
+	IMPORT  EE_CORTEX_MX_I2C1_EV_ISR
+#endif
+#ifdef EE_CORTEX_MX_I2C1_ER_ISR
+	IMPORT  EE_CORTEX_MX_I2C1_ER_ISR
+#endif
+#ifdef EE_CORTEX_MX_I2C2_EV_ISR
+	IMPORT  EE_CORTEX_MX_I2C2_EV_ISR
+#endif
+#ifdef EE_CORTEX_MX_I2C2_ER_ISR
+	IMPORT  EE_CORTEX_MX_I2C2_ER_ISR
+#endif
+#ifdef EE_CORTEX_MX_SPI1_ISR
+	IMPORT  EE_CORTEX_MX_SPI1_ISR
+#endif
+#ifdef EE_CORTEX_MX_SPI2_ISR
+	IMPORT  EE_CORTEX_MX_SPI2_ISR
+#endif
+#ifdef EE_CORTEX_MX_USART1_ISR
+	IMPORT  EE_CORTEX_MX_USART1_ISR
+#endif
+#ifdef EE_CORTEX_MX_USART2_ISR
+	IMPORT  EE_CORTEX_MX_USART2_ISR
+#endif
+#ifdef EE_CORTEX_MX_USART3_ISR
+	IMPORT  EE_CORTEX_MX_USART3_ISR
+#endif
+#ifdef EE_CORTEX_MX_EXTI15_10_ISR
+	IMPORT  EE_CORTEX_MX_EXTI15_10_ISR
+#endif
+#ifdef EE_CORTEX_MX_RTC_ALARM_ISR
+	IMPORT  EE_CORTEX_MX_RTC_ALARM_ISR
+#endif
+#ifdef EE_CORTEX_MX_OTG_FS_WKUP_ISR
+	IMPORT  EE_CORTEX_MX_OTG_FS_WKUP_ISR
+#endif
+#ifdef EE_CORTEX_MX_TIM8_BRK_TIM12_ISR
+	IMPORT  EE_CORTEX_MX_TIM8_BRK_TIM12_ISR
+#endif
+#ifdef EE_CORTEX_MX_TIM8_UP_TIM13_ISR
+	IMPORT  EE_CORTEX_MX_TIM8_UP_TIM13_ISR
+#endif
+#ifdef EE_CORTEX_MX_TIM8_TRG_COM_TIM14_ISR
+	IMPORT  EE_CORTEX_MX_TIM8_TRG_COM_TIM14_ISR
+#endif
+#ifdef EE_CORTEX_MX_TIM8_CC_ISR
+	IMPORT  EE_CORTEX_MX_TIM8_CC_ISR
+#endif
+#ifdef EE_CORTEX_MX_DMA1_STREAM7_ISR
+	IMPORT  EE_CORTEX_MX_DMA1_STREAM7_ISR
+#endif
+#ifdef EE_CORTEX_MX_FSMC_ISR
+	IMPORT  EE_CORTEX_MX_FSMC_ISR
+#endif
+#ifdef EE_CORTEX_MX_SDIO_ISR
+	IMPORT  EE_CORTEX_MX_SDIO_ISR
+#endif
+#ifdef EE_CORTEX_MX_TIM5_ISR
+	IMPORT  EE_CORTEX_MX_TIM5_ISR
+#endif
+#ifdef EE_CORTEX_MX_SPI3_ISR
+	IMPORT  EE_CORTEX_MX_SPI3_ISR
+#endif
+#ifdef EE_CORTEX_MX_UART4_ISR
+	IMPORT  EE_CORTEX_MX_UART4_ISR
+#endif
+#ifdef EE_CORTEX_MX_UART5_ISR
+	IMPORT  EE_CORTEX_MX_UART5_ISR
+#endif
+#ifdef EE_CORTEX_MX_TIM6_DAC_ISR
+	IMPORT  EE_CORTEX_MX_TIM6_DAC_ISR
+#endif
+#ifdef EE_CORTEX_MX_TIM7_ISR
+	IMPORT  EE_CORTEX_MX_TIM7_ISR
+#endif
+#ifdef EE_CORTEX_MX_DMA2_STREAM0_ISR
+	IMPORT  EE_CORTEX_MX_DMA2_STREAM0_ISR
+#endif
+#ifdef EE_CORTEX_MX_DMA2_STREAM1_ISR
+	IMPORT  EE_CORTEX_MX_DMA2_STREAM1_ISR
+#endif
+#ifdef EE_CORTEX_MX_DMA2_STREAM2_ISR
+	IMPORT  EE_CORTEX_MX_DMA2_STREAM2_ISR
+#endif
+#ifdef EE_CORTEX_MX_DMA2_STREAM3_ISR
+	IMPORT  EE_CORTEX_MX_DMA2_STREAM3_ISR
+#endif
+#ifdef EE_CORTEX_MX_DMA2_STREAM4_ISR
+	IMPORT  EE_CORTEX_MX_DMA2_STREAM4_ISR
+#endif
+#ifdef EE_CORTEX_MX_ETH_ISR
+	IMPORT  EE_CORTEX_MX_ETH_ISR
+#endif
+#ifdef EE_CORTEX_MX_ETH_WKUP_ISR
+	IMPORT  EE_CORTEX_MX_ETH_WKUP_ISR
+#endif
+#ifdef EE_CORTEX_MX_CAN2_TX_ISR
+	IMPORT  EE_CORTEX_MX_CAN2_TX_ISR
+#endif
+#ifdef EE_CORTEX_MX_CAN2_RX0_ISR
+	IMPORT  EE_CORTEX_MX_CAN2_RX0_ISR
+#endif
+#ifdef EE_CORTEX_MX_CAN2_RX1_ISR
+	IMPORT  EE_CORTEX_MX_CAN2_RX1_ISR
+#endif
+#ifdef EE_CORTEX_MX_CAN2_SCE_ISR
+	IMPORT  EE_CORTEX_MX_CAN2_SCE_ISR
+#endif
+#ifdef EE_CORTEX_MX_OTG_FS_ISR
+	IMPORT  EE_CORTEX_MX_OTG_FS_ISR
+#endif
+#ifdef EE_CORTEX_MX_DMA2_STREAM5_ISR
+	IMPORT  EE_CORTEX_MX_DMA2_STREAM5_ISR
+#endif
+#ifdef EE_CORTEX_MX_DMA2_STREAM6_ISR
+	IMPORT  EE_CORTEX_MX_DMA2_STREAM6_ISR
+#endif
+#ifdef EE_CORTEX_MX_DMA2_STREAM7_ISR
+	IMPORT  EE_CORTEX_MX_DMA2_STREAM7_ISR
+#endif
+#ifdef EE_CORTEX_MX_USART6_ISR
+	IMPORT  EE_CORTEX_MX_USART6_ISR
+#endif
+#ifdef EE_CORTEX_MX_I2C3_EV_ISR
+	IMPORT  EE_CORTEX_MX_I2C3_EV_ISR
+#endif
+#ifdef EE_CORTEX_MX_I2C3_ER_ISR
+	IMPORT  EE_CORTEX_MX_I2C3_ER_ISR
+#endif
+#ifdef EE_CORTEX_MX_I2C3_ER_ISR
+	IMPORT  EE_CORTEX_MX_I2C3_ER_ISR
+#endif
+#ifdef EE_CORTEX_MX_OTG_HS_EP1_OUT_ISR
+	IMPORT  EE_CORTEX_MX_OTG_HS_EP1_OUT_ISR
+#endif
+#ifdef EE_CORTEX_MX_OTG_HS_EP1_IN_ISR
+	IMPORT  EE_CORTEX_MX_OTG_HS_EP1_IN_ISR
+#endif
+#ifdef EE_CORTEX_MX_OTG_HS_WKUP_ISR
+	IMPORT  EE_CORTEX_MX_OTG_HS_WKUP_ISR
+#endif
+#ifdef EE_CORTEX_MX_OTG_HS_ISR
+	IMPORT  EE_CORTEX_MX_OTG_HS_ISR
+#endif
+#ifdef EE_CORTEX_MX_DCMI_ISR
+	IMPORT  EE_CORTEX_MX_DCMI_ISR
+#endif
+#ifdef EE_CORTEX_MX_CRYP_ISR
+	IMPORT  EE_CORTEX_MX_CRYP_ISR
+#endif
+#ifdef EE_CORTEX_MX_HASH_RNG_ISR
+	IMPORT  EE_CORTEX_MX_HASH_RNG_ISR
+#endif
+#ifdef EE_CORTEX_MX_FPU_ISR
+	IMPORT  EE_CORTEX_MX_FPU_ISR
+#endif
 
-                ; External Interrupts
-                DCD     WWDG_IRQHandler                   ; Window WatchDog                                        
-                DCD     PVD_IRQHandler                    ; PVD through EXTI Line detection                        
-                DCD     TAMP_STAMP_IRQHandler             ; Tamper and TimeStamps through the EXTI line            
-                DCD     RTC_WKUP_IRQHandler               ; RTC Wakeup through the EXTI line                       
-                DCD     FLASH_IRQHandler                  ; FLASH                                           
-                DCD     RCC_IRQHandler                    ; RCC                                             
-                DCD     EXTI0_IRQHandler                  ; EXTI Line0                                             
-                DCD     EXTI1_IRQHandler                  ; EXTI Line1                                             
-                DCD     EXTI2_IRQHandler                  ; EXTI Line2                                             
-                DCD     EXTI3_IRQHandler                  ; EXTI Line3                                             
-                DCD     EXTI4_IRQHandler                  ; EXTI Line4                                             
-                DCD     DMA1_Stream0_IRQHandler           ; DMA1 Stream 0                                   
-                DCD     DMA1_Stream1_IRQHandler           ; DMA1 Stream 1                                   
-                DCD     DMA1_Stream2_IRQHandler           ; DMA1 Stream 2                                   
-                DCD     DMA1_Stream3_IRQHandler           ; DMA1 Stream 3                                   
-                DCD     DMA1_Stream4_IRQHandler           ; DMA1 Stream 4                                   
-                DCD     DMA1_Stream5_IRQHandler           ; DMA1 Stream 5                                   
-                DCD     DMA1_Stream6_IRQHandler           ; DMA1 Stream 6                                   
-                DCD     ADC_IRQHandler                    ; ADC1, ADC2 and ADC3s                            
-                DCD     CAN1_TX_IRQHandler                ; CAN1 TX                                                
-                DCD     CAN1_RX0_IRQHandler               ; CAN1 RX0                                               
-                DCD     CAN1_RX1_IRQHandler               ; CAN1 RX1                                               
-                DCD     CAN1_SCE_IRQHandler               ; CAN1 SCE                                               
-                DCD     EXTI9_5_IRQHandler                ; External Line[9:5]s                                    
-                DCD     TIM1_BRK_TIM9_IRQHandler          ; TIM1 Break and TIM9                   
-                DCD     TIM1_UP_TIM10_IRQHandler          ; TIM1 Update and TIM10                 
-                DCD     TIM1_TRG_COM_TIM11_IRQHandler     ; TIM1 Trigger and Commutation and TIM11
-                DCD     TIM1_CC_IRQHandler                ; TIM1 Capture Compare                                   
-                DCD     TIM2_IRQHandler                   ; TIM2                                            
-                DCD     TIM3_IRQHandler                   ; TIM3                                            
-                DCD     TIM4_IRQHandler                   ; TIM4                                            
-                DCD     I2C1_EV_IRQHandler                ; I2C1 Event                                             
-                DCD     I2C1_ER_IRQHandler                ; I2C1 Error                                             
-                DCD     I2C2_EV_IRQHandler                ; I2C2 Event                                             
-                DCD     I2C2_ER_IRQHandler                ; I2C2 Error                                               
-                DCD     SPI1_IRQHandler                   ; SPI1                                            
-                DCD     SPI2_IRQHandler                   ; SPI2                                            
-                DCD     USART1_IRQHandler                 ; USART1                                          
-                DCD     USART2_IRQHandler                 ; USART2                                          
-                DCD     USART3_IRQHandler                 ; USART3                                          
-                DCD     EXTI15_10_IRQHandler              ; External Line[15:10]s                                  
-                DCD     RTC_Alarm_IRQHandler              ; RTC Alarm (A and B) through EXTI Line                  
-                DCD     OTG_FS_WKUP_IRQHandler            ; USB OTG FS Wakeup through EXTI line                        
-                DCD     TIM8_BRK_TIM12_IRQHandler         ; TIM8 Break and TIM12                  
-                DCD     TIM8_UP_TIM13_IRQHandler          ; TIM8 Update and TIM13                 
-                DCD     TIM8_TRG_COM_TIM14_IRQHandler     ; TIM8 Trigger and Commutation and TIM14
-                DCD     TIM8_CC_IRQHandler                ; TIM8 Capture Compare                                   
-                DCD     DMA1_Stream7_IRQHandler           ; DMA1 Stream7                                           
-                DCD     FSMC_IRQHandler                   ; FSMC                                            
-                DCD     SDIO_IRQHandler                   ; SDIO                                            
-                DCD     TIM5_IRQHandler                   ; TIM5                                            
-                DCD     SPI3_IRQHandler                   ; SPI3                                            
-                DCD     UART4_IRQHandler                  ; UART4                                           
-                DCD     UART5_IRQHandler                  ; UART5                                           
-                DCD     TIM6_DAC_IRQHandler               ; TIM6 and DAC1&2 underrun errors                   
-                DCD     TIM7_IRQHandler                   ; TIM7                   
-                DCD     DMA2_Stream0_IRQHandler           ; DMA2 Stream 0                                   
-                DCD     DMA2_Stream1_IRQHandler           ; DMA2 Stream 1                                   
-                DCD     DMA2_Stream2_IRQHandler           ; DMA2 Stream 2                                   
-                DCD     DMA2_Stream3_IRQHandler           ; DMA2 Stream 3                                   
-                DCD     DMA2_Stream4_IRQHandler           ; DMA2 Stream 4                                   
-                DCD     ETH_IRQHandler                    ; Ethernet                                        
-                DCD     ETH_WKUP_IRQHandler               ; Ethernet Wakeup through EXTI line                      
-                DCD     CAN2_TX_IRQHandler                ; CAN2 TX                                                
-                DCD     CAN2_RX0_IRQHandler               ; CAN2 RX0                                               
-                DCD     CAN2_RX1_IRQHandler               ; CAN2 RX1                                               
-                DCD     CAN2_SCE_IRQHandler               ; CAN2 SCE                                               
-                DCD     OTG_FS_IRQHandler                 ; USB OTG FS                                      
-                DCD     DMA2_Stream5_IRQHandler           ; DMA2 Stream 5                                   
-                DCD     DMA2_Stream6_IRQHandler           ; DMA2 Stream 6                                   
-                DCD     DMA2_Stream7_IRQHandler           ; DMA2 Stream 7                                   
-                DCD     USART6_IRQHandler                 ; USART6                                           
-                DCD     I2C3_EV_IRQHandler                ; I2C3 event                                             
-                DCD     I2C3_ER_IRQHandler                ; I2C3 error                                             
-                DCD     OTG_HS_EP1_OUT_IRQHandler         ; USB OTG HS End Point 1 Out                      
-                DCD     OTG_HS_EP1_IN_IRQHandler          ; USB OTG HS End Point 1 In                       
-                DCD     OTG_HS_WKUP_IRQHandler            ; USB OTG HS Wakeup through EXTI                         
-                DCD     OTG_HS_IRQHandler                 ; USB OTG HS                                      
-                DCD     DCMI_IRQHandler                   ; DCMI                                            
-                DCD     CRYP_IRQHandler                   ; CRYP crypto                                     
-                DCD     HASH_RNG_IRQHandler               ; Hash and Rng
-                DCD     FPU_IRQHandler                    ; FPU
-                         
-__Vectors_End
+; Interrupt Vectors Table.
+	EXPORT	EE_cortex_mx_vtable
+EE_cortex_mx_vtable
+	DCD	StackMem + Stack					; Top of Stack
+#ifdef	EE_CORTEX_MX_RESET_ISR				/* Reset Handler */
+	DCD	EE_CORTEX_MX_RESET_ISR
+#else
+	DCD	EE_cortex_mx_default_reset_ISR
+#endif                
+#ifdef EE_CORTEX_MX_NMI_ISR					/* The NMI handler */
+	DCD	EE_CORTEX_MX_NMI_ISR
+#else
+	DCD	EE_cortex_mx_default_ISR
+#endif
+#ifdef EE_CORTEX_MX_HARD_FAULT_ISR			/* The hard fault handler */
+	DCD	EE_CORTEX_MX_HARD_FAULT_ISR
+#else
+#ifdef	__AUTOSAR_R4_0__
+	DCD	EE_cortex_mx_as_hard_fault_ISR
+#else	/* __AUTOSAR_R4_0__ */
+	DCD	EE_cortex_mx_default_ISR
+#endif	/* !__AUTOSAR_R4_0__ */
+#endif
+#ifdef EE_CORTEX_MX_MPU_FAULT_ISR			/* The MPU fault handler */
+	DCD	EE_CORTEX_MX_MPU_FAULT_ISR
+#else
+	DCD	EE_cortex_mx_default_ISR
+#endif
+#ifdef EE_CORTEX_MX_BUS_FAULT_ISR			/* The bus fault handler */
+	DCD	EE_CORTEX_MX_BUS_FAULT_ISR
+#else
+#ifdef	__AUTOSAR_R4_0__
+	DCD	EE_cortex_mx_as_bus_fault_ISR
+#else	/* __AUTOSAR_R4_0__ */
+	DCD	EE_cortex_mx_default_ISR
+#endif	/* !__AUTOSAR_R4_0__ */
+#endif
+#ifdef EE_CORTEX_MX_USAGE_FAULT_ISR			/* The usage fault handler */
+	DCD	EE_CORTEX_MX_USAGE_FAULT_ISR
+#else
+	DCD	EE_cortex_mx_default_ISR
+#endif
+    DCD     0                          		; Reserved
+    DCD     0                          		; Reserved
+    DCD     0                          		; Reserved
+    DCD     0                          		; Reserved
+	DCD	EE_cortex_mx_svc_ISR					; SVCall Handler
+#ifdef EE_CORTEX_MX_DEBUG_MONITOR_ISR		/* Debug monitor handler */
+	DCD	EE_CORTEX_MX_DEBUG_MONITOR_ISR
+#else
+	DCD	EE_cortex_mx_default_ISR
+#endif
+    DCD     0                          		; Reserved
+	DCD	EE_cortex_mx_pendsv_ISR				; PendSV Handler
+#ifdef	EE_CORTEX_MX_SYSTICK_ISR			/* SysTick Handler */
+	DCD	EE_CORTEX_MX_SYSTICK_ISR
+#else
+	DCD	EE_cortex_mx_default_ISR
+#endif
+#ifdef	EE_CORTEX_MX_WWDG_ISR		
+	DCD	EE_CORTEX_MX_WWDG_ISR
+#else
+	DCD	EE_cortex_mx_default_ISR
+#endif
+#ifdef	EE_CORTEX_MX_PVD_ISR		
+	DCD	EE_CORTEX_MX_PVD_ISR
+#else
+	DCD	EE_cortex_mx_default_ISR
+#endif
+#ifdef	EE_CORTEX_MX_TAMP_STAMP_ISR		
+	DCD	EE_CORTEX_MX_TAMP_STAMP_ISR
+#else
+	DCD	EE_cortex_mx_default_ISR
+#endif
+#ifdef	EE_CORTEX_MX_RTC_WKUP_ISR		
+	DCD	EE_CORTEX_MX_RTC_WKUP_ISR
+#else
+	DCD	EE_cortex_mx_default_ISR
+#endif
+#ifdef	EE_CORTEX_MX_FLASH_ISR		
+	DCD	EE_CORTEX_MX_FLASH_ISR
+#else
+	DCD	EE_cortex_mx_default_ISR
+#endif
+#ifdef	EE_CORTEX_MX_RCC_ISR		
+	DCD	EE_CORTEX_MX_RCC_ISR
+#else
+	DCD	EE_cortex_mx_default_ISR
+#endif
+#ifdef	EE_CORTEX_MX_EXTI0_ISR		
+	DCD	EE_CORTEX_MX_EXTI0_ISR
+#else
+	DCD	EE_cortex_mx_default_ISR
+#endif
+#ifdef	EE_CORTEX_MX_EXTI1_ISR		
+	DCD	EE_CORTEX_MX_EXTI1_ISR
+#else
+	DCD	EE_cortex_mx_default_ISR
+#endif
+#ifdef	EE_CORTEX_MX_EXTI2_ISR		
+	DCD	EE_CORTEX_MX_EXTI2_ISR
+#else
+	DCD	EE_cortex_mx_default_ISR
+#endif
+#ifdef	EE_CORTEX_MX_EXTI3_ISR		
+	DCD	EE_CORTEX_MX_EXTI3_ISR
+#else
+	DCD	EE_cortex_mx_default_ISR
+#endif
+#ifdef	EE_CORTEX_MX_EXTI4_ISR		
+	DCD	EE_CORTEX_MX_EXTI4_ISR
+#else
+	DCD	EE_cortex_mx_default_ISR
+#endif
+#ifdef	EE_CORTEX_MX_DMA1_STREAM0_ISR		
+	DCD	EE_CORTEX_MX_DMA1_STREAM0_ISR
+#else
+	DCD	EE_cortex_mx_default_ISR
+#endif
+#ifdef	EE_CORTEX_MX_DMA1_STREAM1_ISR		
+	DCD	EE_CORTEX_MX_DMA1_STREAM1_ISR
+#else
+	DCD	EE_cortex_mx_default_ISR
+#endif
+#ifdef	EE_CORTEX_MX_DMA1_STREAM2_ISR		
+	DCD	EE_CORTEX_MX_DMA1_STREAM2_ISR
+#else
+	DCD	EE_cortex_mx_default_ISR
+#endif
+#ifdef	EE_CORTEX_MX_DMA1_STREAM3_ISR		
+	DCD	EE_CORTEX_MX_DMA1_STREAM3_ISR
+#else
+	DCD	EE_cortex_mx_default_ISR
+#endif
+#ifdef	EE_CORTEX_MX_DMA1_STREAM4_ISR		
+	DCD	EE_CORTEX_MX_DMA1_STREAM4_ISR
+#else
+	DCD	EE_cortex_mx_default_ISR
+#endif
+#ifdef	EE_CORTEX_MX_DMA1_STREAM5_ISR		
+	DCD	EE_CORTEX_MX_DMA1_STREAM5_ISR
+#else
+	DCD	EE_cortex_mx_default_ISR
+#endif
+#ifdef	EE_CORTEX_MX_DMA1_STREAM6_ISR		
+	DCD	EE_CORTEX_MX_DMA1_STREAM6_ISR
+#else
+	DCD	EE_cortex_mx_default_ISR
+#endif
+#ifdef	EE_CORTEX_MX_ADC_ISR		
+	DCD	EE_CORTEX_MX_ADC_ISR
+#else
+	DCD	EE_cortex_mx_default_ISR
+#endif
+#ifdef	EE_CORTEX_MX_CAN1_TX_ISR		
+	DCD	EE_CORTEX_MX_CAN1_TX_ISR
+#else
+	DCD	EE_cortex_mx_default_ISR
+#endif
+#ifdef	EE_CORTEX_MX_CAN1_RX0_ISR		
+	DCD	EE_CORTEX_MX_CAN1_RX0_ISR
+#else
+	DCD	EE_cortex_mx_default_ISR
+#endif
+#ifdef	EE_CORTEX_MX_CAN1_RX1_ISR		
+	DCD	EE_CORTEX_MX_CAN1_RX1_ISR
+#else
+	DCD	EE_cortex_mx_default_ISR
+#endif
+#ifdef	EE_CORTEX_MX_CAN1_SCE_ISR		
+	DCD	EE_CORTEX_MX_CAN1_SCE_ISR
+#else
+	DCD	EE_cortex_mx_default_ISR
+#endif
+#ifdef	EE_CORTEX_MX_EXTI9_5_ISR		
+	DCD	EE_CORTEX_MX_EXTI9_5_ISR
+#else
+	DCD	EE_cortex_mx_default_ISR
+#endif
+#ifdef	EE_CORTEX_MX_TIM1_BRK_TIM9_ISR		
+	DCD	EE_CORTEX_MX_TIM1_BRK_TIM9_ISR
+#else
+	DCD	EE_cortex_mx_default_ISR
+#endif
+#ifdef	EE_CORTEX_MX_TIM1_UP_TIM10_ISR		
+	DCD	EE_CORTEX_MX_TIM1_UP_TIM10_ISR
+#else
+	DCD	EE_cortex_mx_default_ISR
+#endif
+#ifdef	EE_CORTEX_MX_TIM1_TRG_COM_TIM11_ISR		
+	DCD	EE_CORTEX_MX_TIM1_TRG_COM_TIM11_ISR
+#else
+	DCD	EE_cortex_mx_default_ISR
+#endif
+#ifdef	EE_CORTEX_MX_TIM1_CC_ISR		
+	DCD	EE_CORTEX_MX_TIM1_CC_ISR
+#else
+	DCD	EE_cortex_mx_default_ISR
+#endif
+#ifdef	EE_CORTEX_MX_TIM2_ISR		
+	DCD	EE_CORTEX_MX_TIM2_ISR
+#else
+	DCD	EE_cortex_mx_default_ISR
+#endif
+#ifdef	EE_CORTEX_MX_TIM3_ISR		
+	DCD	EE_CORTEX_MX_TIM3_ISR
+#else
+	DCD	EE_cortex_mx_default_ISR
+#endif
+#ifdef	EE_CORTEX_MX_TIM4_ISR		
+	DCD	EE_CORTEX_MX_TIM4_ISR
+#else
+	DCD	EE_cortex_mx_default_ISR
+#endif
+#ifdef	EE_CORTEX_MX_I2C1_EV_ISR		
+	DCD	EE_CORTEX_MX_I2C1_EV_ISR
+#else
+	DCD	EE_cortex_mx_default_ISR
+#endif
+#ifdef	EE_CORTEX_MX_I2C1_ER_ISR		
+	DCD	EE_CORTEX_MX_I2C1_ER_ISR
+#else
+	DCD	EE_cortex_mx_default_ISR
+#endif
+#ifdef	EE_CORTEX_MX_I2C2_EV_ISR		
+	DCD	EE_CORTEX_MX_I2C2_EV_ISR
+#else
+	DCD	EE_cortex_mx_default_ISR
+#endif
+#ifdef	EE_CORTEX_MX_I2C2_ER_ISR		
+	DCD	EE_CORTEX_MX_I2C2_ER_ISR
+#else
+	DCD	EE_cortex_mx_default_ISR
+#endif
+#ifdef	EE_CORTEX_MX_SPI1_ISR		
+	DCD	EE_CORTEX_MX_SPI1_ISR
+#else
+	DCD	EE_cortex_mx_default_ISR
+#endif
+#ifdef	EE_CORTEX_MX_SPI2_ISR		
+	DCD	EE_CORTEX_MX_SPI2_ISR
+#else
+	DCD	EE_cortex_mx_default_ISR
+#endif
+#ifdef	EE_CORTEX_MX_USART1_ISR		
+	DCD	EE_CORTEX_MX_USART1_ISR
+#else
+	DCD	EE_cortex_mx_default_ISR
+#endif
+#ifdef	EE_CORTEX_MX_USART2_ISR		
+	DCD	EE_CORTEX_MX_USART2_ISR
+#else
+	DCD	EE_cortex_mx_default_ISR
+#endif
+#ifdef	EE_CORTEX_MX_USART3_ISR		
+	DCD	EE_CORTEX_MX_USART3_ISR
+#else
+	DCD	EE_cortex_mx_default_ISR
+#endif
+#ifdef	EE_CORTEX_MX_EXTI15_10_ISR		
+	DCD	EE_CORTEX_MX_EXTI15_10_ISR
+#else
+	DCD	EE_cortex_mx_default_ISR
+#endif
+#ifdef	EE_CORTEX_MX_RTC_ALARM_ISR		
+	DCD	EE_CORTEX_MX_RTC_ALARM_ISR
+#else
+	DCD	EE_cortex_mx_default_ISR
+#endif
+#ifdef	EE_CORTEX_MX_OTG_FS_WKUP_ISR		
+	DCD	EE_CORTEX_MX_OTG_FS_WKUP_ISR
+#else
+	DCD	EE_cortex_mx_default_ISR
+#endif
+#ifdef	EE_CORTEX_MX_TIM8_BRK_TIM12_ISR		
+	DCD	EE_CORTEX_MX_TIM8_BRK_TIM12_ISR
+#else
+	DCD	EE_cortex_mx_default_ISR
+#endif
+#ifdef	EE_CORTEX_MX_TIM8_UP_TIM13_ISR		
+	DCD	EE_CORTEX_MX_TIM8_UP_TIM13_ISR
+#else
+	DCD	EE_cortex_mx_default_ISR
+#endif
+#ifdef	EE_CORTEX_MX_TIM8_TRG_COM_TIM14_ISR		
+	DCD	EE_CORTEX_MX_TIM8_TRG_COM_TIM14_ISR
+#else
+	DCD	EE_cortex_mx_default_ISR
+#endif
+#ifdef	EE_CORTEX_MX_TIM8_CC_ISR		
+	DCD	EE_CORTEX_MX_TIM8_CC_ISR
+#else
+	DCD	EE_cortex_mx_default_ISR
+#endif
+#ifdef	EE_CORTEX_MX_DMA1_STREAM7_ISR		
+	DCD	EE_CORTEX_MX_DMA1_STREAM7_ISR
+#else
+	DCD	EE_cortex_mx_default_ISR
+#endif
+#ifdef	EE_CORTEX_MX_FSMC_ISR		
+	DCD	EE_CORTEX_MX_FSMC_ISR
+#else
+	DCD	EE_cortex_mx_default_ISR
+#endif
+#ifdef	EE_CORTEX_MX_SDIO_ISR		
+	DCD	EE_CORTEX_MX_SDIO_ISR
+#else
+	DCD	EE_cortex_mx_default_ISR
+#endif
+#ifdef	EE_CORTEX_MX_TIM5_ISR		
+	DCD	EE_CORTEX_MX_TIM5_ISR
+#else
+	DCD	EE_cortex_mx_default_ISR
+#endif
+#ifdef	EE_CORTEX_MX_SPI3_ISR		
+	DCD	EE_CORTEX_MX_SPI3_ISR
+#else
+	DCD	EE_cortex_mx_default_ISR
+#endif
+#ifdef	EE_CORTEX_MX_UART4_ISR		
+	DCD	EE_CORTEX_MX_UART4_ISR
+#else
+	DCD	EE_cortex_mx_default_ISR
+#endif
+#ifdef	EE_CORTEX_MX_UART5_ISR		
+	DCD	EE_CORTEX_MX_UART5_ISR
+#else
+	DCD	EE_cortex_mx_default_ISR
+#endif
+#ifdef	EE_CORTEX_MX_TIM6_DAC_ISR		
+	DCD	EE_CORTEX_MX_TIM6_DAC_ISR
+#else
+	DCD	EE_cortex_mx_default_ISR
+#endif
+#ifdef	EE_CORTEX_MX_TIM7_ISR		
+	DCD	EE_CORTEX_MX_TIM7_ISR
+#else
+	DCD	EE_cortex_mx_default_ISR
+#endif
+#ifdef	EE_CORTEX_MX_DMA2_STREAM0_ISR		
+	DCD	EE_CORTEX_MX_DMA2_STREAM0_ISR
+#else
+	DCD	EE_cortex_mx_default_ISR
+#endif
+#ifdef	EE_CORTEX_MX_DMA2_STREAM1_ISR		
+	DCD	EE_CORTEX_MX_DMA2_STREAM1_ISR
+#else
+	DCD	EE_cortex_mx_default_ISR
+#endif
+#ifdef	EE_CORTEX_MX_DMA2_STREAM2_ISR		
+	DCD	EE_CORTEX_MX_DMA2_STREAM2_ISR
+#else
+	DCD	EE_cortex_mx_default_ISR
+#endif
+#ifdef	EE_CORTEX_MX_DMA2_STREAM3_ISR		
+	DCD	EE_CORTEX_MX_DMA2_STREAM3_ISR
+#else
+	DCD	EE_cortex_mx_default_ISR
+#endif
+#ifdef	EE_CORTEX_MX_DMA2_STREAM4_ISR		
+	DCD	EE_CORTEX_MX_DMA2_STREAM4_ISR
+#else
+	DCD	EE_cortex_mx_default_ISR
+#endif
+#ifdef	EE_CORTEX_MX_ETH_ISR		
+	DCD	EE_CORTEX_MX_ETH_ISR
+#else
+	DCD	EE_cortex_mx_default_ISR
+#endif
+#ifdef	EE_CORTEX_MX_ETH_WKUP_ISR		
+	DCD	EE_CORTEX_MX_ETH_WKUP_ISR
+#else
+	DCD	EE_cortex_mx_default_ISR
+#endif
+#ifdef	EE_CORTEX_MX_CAN2_TX_ISR		
+	DCD	EE_CORTEX_MX_CAN2_TX_ISR
+#else
+	DCD	EE_cortex_mx_default_ISR
+#endif
+#ifdef	EE_CORTEX_MX_CAN2_RX0_ISR		
+	DCD	EE_CORTEX_MX_CAN2_RX0_ISR
+#else
+	DCD	EE_cortex_mx_default_ISR
+#endif
+#ifdef	EE_CORTEX_MX_CAN2_RX1_ISR		
+	DCD	EE_CORTEX_MX_CAN2_RX1_ISR
+#else
+	DCD	EE_cortex_mx_default_ISR
+#endif
+#ifdef	EE_CORTEX_MX_CAN2_SCE_ISR		
+	DCD	EE_CORTEX_MX_CAN2_SCE_ISR
+#else
+	DCD	EE_cortex_mx_default_ISR
+#endif
+#ifdef	EE_CORTEX_MX_OTG_FS_ISR		
+	DCD	EE_CORTEX_MX_OTG_FS_ISR
+#else
+	DCD	EE_cortex_mx_default_ISR
+#endif 
+#ifdef	EE_CORTEX_MX_DMA2_STREAM5_ISR		
+	DCD	EE_CORTEX_MX_DMA2_STREAM5_ISR
+#else
+	DCD	EE_cortex_mx_default_ISR
+#endif   
+#ifdef	EE_CORTEX_MX_DMA2_STREAM6_ISR		
+	DCD	EE_CORTEX_MX_DMA2_STREAM6_ISR
+#else
+	DCD	EE_cortex_mx_default_ISR
+#endif   
+#ifdef	EE_CORTEX_MX_DMA2_STREAM7_ISR		
+	DCD	EE_CORTEX_MX_DMA2_STREAM7_ISR
+#else
+	DCD	EE_cortex_mx_default_ISR
+#endif  
+#ifdef	EE_CORTEX_MX_USART6_ISR		
+	DCD	EE_CORTEX_MX_USART6_ISR
+#else
+	DCD	EE_cortex_mx_default_ISR
+#endif  
+#ifdef	EE_CORTEX_MX_I2C3_EV_ISR		
+	DCD	EE_CORTEX_MX_I2C3_EV_ISR
+#else
+	DCD	EE_cortex_mx_default_ISR
+#endif  
+#ifdef	EE_CORTEX_MX_I2C3_ER_ISR		
+	DCD	EE_CORTEX_MX_I2C3_ER_ISR
+#else
+	DCD	EE_cortex_mx_default_ISR
+#endif  
+#ifdef	EE_CORTEX_MX_OTG_HS_EP1_OUT_ISR		
+	DCD	EE_CORTEX_MX_OTG_HS_EP1_OUT_ISR
+#else
+	DCD	EE_cortex_mx_default_ISR
+#endif   
+#ifdef	EE_CORTEX_MX_OTG_HS_EP1_IN_ISR		
+	DCD	EE_CORTEX_MX_OTG_HS_EP1_IN_ISR
+#else
+	DCD	EE_cortex_mx_default_ISR
+#endif 
+#ifdef	EE_CORTEX_MX_OTG_HS_WKUP_ISR		
+	DCD	EE_CORTEX_MX_OTG_HS_WKUP_ISR
+#else
+	DCD	EE_cortex_mx_default_ISR
+#endif   
+#ifdef	EE_CORTEX_MX_OTG_HS_ISR		
+	DCD	EE_CORTEX_MX_OTG_HS_ISR
+#else
+	DCD	EE_cortex_mx_default_ISR
+#endif  
+#ifdef	EE_CORTEX_MX_DCMI_ISR		
+	DCD	EE_CORTEX_MX_DCMI_ISR
+#else
+	DCD	EE_cortex_mx_default_ISR
+#endif 
+#ifdef	EE_CORTEX_MX_CRYP_ISR		
+	DCD	EE_CORTEX_MX_CRYP_ISR
+#else
+	DCD	EE_cortex_mx_default_ISR
+#endif  
+#ifdef	EE_CORTEX_MX_HASH_RNG_ISR		
+	DCD	EE_CORTEX_MX_HASH_RNG_ISR
+#else
+	DCD	EE_cortex_mx_default_ISR
+#endif     
+#ifdef	EE_CORTEX_MX_FPU_M4_ISR		
+	DCD	EE_CORTEX_MX_FPU_M4_ISR
+#else
+	DCD	EE_cortex_mx_default_ISR
+#endif                                                             
+                                                                         
 
-__Vectors_Size  EQU  __Vectors_End - __Vectors
+;******************************************************************************
+;
+; This is the code that gets called when the processor first starts execution
+; following a reset event.
+;
+;******************************************************************************
+	EXPORT	EE_cortex_mx_default_reset_ISR
+EE_cortex_mx_default_reset_ISR
+	;
+	; Call the C library enty point that handles startup.  This will copy
+	; the .data section initializers from flash to SRAM and zero fill the
+	; .bss section.
+	;
+    IMPORT  __main
 
-                AREA    |.text|, CODE, READONLY
+    ;FPU settings
+    LDR     R0, =0xE000ED88           ; Enable CP10,CP11
+    LDR     R1,[R0]
+    ORR     R1,R1,#(0xF << 20)
+    STR     R1,[R0]
 
-; Reset handler
-Reset_Handler    PROC
-                 EXPORT  Reset_Handler             [WEAK]
-        IMPORT  SystemInit
-        IMPORT  __main
+    
+    LDR     R0, =__main
+    BX      R0
 
-                 ;FPU settings
-                 LDR     R0, =0xE000ED88           ; Enable CP10,CP11
-                 LDR     R1,[R0]
-                 ORR     R1,R1,#(0xF << 20)
-                 STR     R1,[R0]
+;******************************************************************************
+;
+; This is the code that gets called when the processor receives a BUS FAULT
+; exception.
+;
+;******************************************************************************
+#ifdef	__AUTOSAR_R4_0__
+EE_cortex_mx_as_bus_fault_ISR
+#ifdef	DEBUG
+	BKPT	#0x00
+#endif	/* DEBUG */
+	B	EE_cortex_mx_as_bus_fault_ISR
+#endif	/* __AUTOSAR_R4_0__ */
 
-                 LDR     R0, =SystemInit
-                 BLX     R0
-                 LDR     R0, =__main
-                 BX      R0
-                 ENDP
+;******************************************************************************
+;
+; This is the code that gets called when the processor receives a HARD FAULT
+; exception.
+;
+;******************************************************************************
+#ifdef	__AUTOSAR_R4_0__
+EE_cortex_mx_as_hard_fault_ISR
+#ifdef	DEBUG
+	BKPT	#0x00
+#endif	/* DEBUG */
+	B	EE_cortex_mx_as_hard_fault_ISR
+#endif	/* __AUTOSAR_R4_0__ */
 
-; Dummy Exception Handlers (infinite loops which can be modified)
+;******************************************************************************
+;
+; This is the code that gets called when the processor receives an unexpected
+; interrupt.  This simply enters an infinite loop, preserving the system state
+; for examination by a debugger.
+;
+;******************************************************************************
+EE_cortex_mx_default_ISR
+#ifdef	DEBUG
+	BKPT	#0x00
+#endif	/* DEBUG */
+	B	EE_cortex_mx_default_ISR
 
-NMI_Handler     PROC
-                EXPORT  NMI_Handler                [WEAK]
-                B       .
-                ENDP
-HardFault_Handler\
-                PROC
-                EXPORT  HardFault_Handler          [WEAK]
-                B       .
-                ENDP
-MemManage_Handler\
-                PROC
-                EXPORT  MemManage_Handler          [WEAK]
-                B       .
-                ENDP
-BusFault_Handler\
-                PROC
-                EXPORT  BusFault_Handler           [WEAK]
-                B       .
-                ENDP
-UsageFault_Handler\
-                PROC
-                EXPORT  UsageFault_Handler         [WEAK]
-                B       .
-                ENDP
-SVC_Handler     PROC
-                EXPORT  SVC_Handler                [WEAK]
-                B       .
-                ENDP
-DebugMon_Handler\
-                PROC
-                EXPORT  DebugMon_Handler           [WEAK]
-                B       .
-                ENDP
-PendSV_Handler  PROC
-                EXPORT  PendSV_Handler             [WEAK]
-                B       .
-                ENDP
-SysTick_Handler PROC
-                EXPORT  SysTick_Handler            [WEAK]
-                B       .
-                ENDP
+;******************************************************************************
+;
+; Make sure the end of this section is aligned.
+;
+;******************************************************************************
+	ALIGN
 
-Default_Handler PROC
+;******************************************************************************
+;
+; Some code in the normal code section for initializing the heap and stack.
+;
+;******************************************************************************
+	AREA	|.text|, CODE, READONLY
 
-                EXPORT  WWDG_IRQHandler                   [WEAK]                                        
-                EXPORT  PVD_IRQHandler                    [WEAK]                      
-                EXPORT  TAMP_STAMP_IRQHandler             [WEAK]         
-                EXPORT  RTC_WKUP_IRQHandler               [WEAK]                     
-                EXPORT  FLASH_IRQHandler                  [WEAK]                                         
-                EXPORT  RCC_IRQHandler                    [WEAK]                                            
-                EXPORT  EXTI0_IRQHandler                  [WEAK]                                            
-                EXPORT  EXTI1_IRQHandler                  [WEAK]                                             
-                EXPORT  EXTI2_IRQHandler                  [WEAK]                                            
-                EXPORT  EXTI3_IRQHandler                  [WEAK]                                           
-                EXPORT  EXTI4_IRQHandler                  [WEAK]                                            
-                EXPORT  DMA1_Stream0_IRQHandler           [WEAK]                                
-                EXPORT  DMA1_Stream1_IRQHandler           [WEAK]                                   
-                EXPORT  DMA1_Stream2_IRQHandler           [WEAK]                                   
-                EXPORT  DMA1_Stream3_IRQHandler           [WEAK]                                   
-                EXPORT  DMA1_Stream4_IRQHandler           [WEAK]                                   
-                EXPORT  DMA1_Stream5_IRQHandler           [WEAK]                                   
-                EXPORT  DMA1_Stream6_IRQHandler           [WEAK]                                   
-                EXPORT  ADC_IRQHandler                    [WEAK]                         
-                EXPORT  CAN1_TX_IRQHandler                [WEAK]                                                
-                EXPORT  CAN1_RX0_IRQHandler               [WEAK]                                               
-                EXPORT  CAN1_RX1_IRQHandler               [WEAK]                                                
-                EXPORT  CAN1_SCE_IRQHandler               [WEAK]                                                
-                EXPORT  EXTI9_5_IRQHandler                [WEAK]                                    
-                EXPORT  TIM1_BRK_TIM9_IRQHandler          [WEAK]                  
-                EXPORT  TIM1_UP_TIM10_IRQHandler          [WEAK]                
-                EXPORT  TIM1_TRG_COM_TIM11_IRQHandler     [WEAK] 
-                EXPORT  TIM1_CC_IRQHandler                [WEAK]                                   
-                EXPORT  TIM2_IRQHandler                   [WEAK]                                            
-                EXPORT  TIM3_IRQHandler                   [WEAK]                                            
-                EXPORT  TIM4_IRQHandler                   [WEAK]                                            
-                EXPORT  I2C1_EV_IRQHandler                [WEAK]                                             
-                EXPORT  I2C1_ER_IRQHandler                [WEAK]                                             
-                EXPORT  I2C2_EV_IRQHandler                [WEAK]                                            
-                EXPORT  I2C2_ER_IRQHandler                [WEAK]                                               
-                EXPORT  SPI1_IRQHandler                   [WEAK]                                           
-                EXPORT  SPI2_IRQHandler                   [WEAK]                                            
-                EXPORT  USART1_IRQHandler                 [WEAK]                                          
-                EXPORT  USART2_IRQHandler                 [WEAK]                                          
-                EXPORT  USART3_IRQHandler                 [WEAK]                                         
-                EXPORT  EXTI15_10_IRQHandler              [WEAK]                                  
-                EXPORT  RTC_Alarm_IRQHandler              [WEAK]                  
-                EXPORT  OTG_FS_WKUP_IRQHandler            [WEAK]                        
-                EXPORT  TIM8_BRK_TIM12_IRQHandler         [WEAK]                 
-                EXPORT  TIM8_UP_TIM13_IRQHandler          [WEAK]                 
-                EXPORT  TIM8_TRG_COM_TIM14_IRQHandler     [WEAK] 
-                EXPORT  TIM8_CC_IRQHandler                [WEAK]                                   
-                EXPORT  DMA1_Stream7_IRQHandler           [WEAK]                                          
-                EXPORT  FSMC_IRQHandler                   [WEAK]                                             
-                EXPORT  SDIO_IRQHandler                   [WEAK]                                             
-                EXPORT  TIM5_IRQHandler                   [WEAK]                                             
-                EXPORT  SPI3_IRQHandler                   [WEAK]                                             
-                EXPORT  UART4_IRQHandler                  [WEAK]                                            
-                EXPORT  UART5_IRQHandler                  [WEAK]                                            
-                EXPORT  TIM6_DAC_IRQHandler               [WEAK]                   
-                EXPORT  TIM7_IRQHandler                   [WEAK]                    
-                EXPORT  DMA2_Stream0_IRQHandler           [WEAK]                                  
-                EXPORT  DMA2_Stream1_IRQHandler           [WEAK]                                   
-                EXPORT  DMA2_Stream2_IRQHandler           [WEAK]                                    
-                EXPORT  DMA2_Stream3_IRQHandler           [WEAK]                                    
-                EXPORT  DMA2_Stream4_IRQHandler           [WEAK]                                 
-                EXPORT  ETH_IRQHandler                    [WEAK]                                         
-                EXPORT  ETH_WKUP_IRQHandler               [WEAK]                     
-                EXPORT  CAN2_TX_IRQHandler                [WEAK]                                               
-                EXPORT  CAN2_RX0_IRQHandler               [WEAK]                                               
-                EXPORT  CAN2_RX1_IRQHandler               [WEAK]                                               
-                EXPORT  CAN2_SCE_IRQHandler               [WEAK]                                               
-                EXPORT  OTG_FS_IRQHandler                 [WEAK]                                       
-                EXPORT  DMA2_Stream5_IRQHandler           [WEAK]                                   
-                EXPORT  DMA2_Stream6_IRQHandler           [WEAK]                                   
-                EXPORT  DMA2_Stream7_IRQHandler           [WEAK]                                   
-                EXPORT  USART6_IRQHandler                 [WEAK]                                           
-                EXPORT  I2C3_EV_IRQHandler                [WEAK]                                              
-                EXPORT  I2C3_ER_IRQHandler                [WEAK]                                              
-                EXPORT  OTG_HS_EP1_OUT_IRQHandler         [WEAK]                      
-                EXPORT  OTG_HS_EP1_IN_IRQHandler          [WEAK]                      
-                EXPORT  OTG_HS_WKUP_IRQHandler            [WEAK]                        
-                EXPORT  OTG_HS_IRQHandler                 [WEAK]                                      
-                EXPORT  DCMI_IRQHandler                   [WEAK]                                             
-                EXPORT  CRYP_IRQHandler                   [WEAK]                                     
-                EXPORT  HASH_RNG_IRQHandler               [WEAK]
-                EXPORT  FPU_IRQHandler                    [WEAK]                
-
-WWDG_IRQHandler                                                       
-PVD_IRQHandler                                      
-TAMP_STAMP_IRQHandler                  
-RTC_WKUP_IRQHandler                                
-FLASH_IRQHandler                                                       
-RCC_IRQHandler                                                            
-EXTI0_IRQHandler                                                          
-EXTI1_IRQHandler                                                           
-EXTI2_IRQHandler                                                          
-EXTI3_IRQHandler                                                         
-EXTI4_IRQHandler                                                          
-DMA1_Stream0_IRQHandler                                       
-DMA1_Stream1_IRQHandler                                          
-DMA1_Stream2_IRQHandler                                          
-DMA1_Stream3_IRQHandler                                          
-DMA1_Stream4_IRQHandler                                          
-DMA1_Stream5_IRQHandler                                          
-DMA1_Stream6_IRQHandler                                          
-ADC_IRQHandler                                         
-CAN1_TX_IRQHandler                                                            
-CAN1_RX0_IRQHandler                                                          
-CAN1_RX1_IRQHandler                                                           
-CAN1_SCE_IRQHandler                                                           
-EXTI9_5_IRQHandler                                                
-TIM1_BRK_TIM9_IRQHandler                        
-TIM1_UP_TIM10_IRQHandler                      
-TIM1_TRG_COM_TIM11_IRQHandler  
-TIM1_CC_IRQHandler                                               
-TIM2_IRQHandler                                                           
-TIM3_IRQHandler                                                           
-TIM4_IRQHandler                                                           
-I2C1_EV_IRQHandler                                                         
-I2C1_ER_IRQHandler                                                         
-I2C2_EV_IRQHandler                                                        
-I2C2_ER_IRQHandler                                                           
-SPI1_IRQHandler                                                          
-SPI2_IRQHandler                                                           
-USART1_IRQHandler                                                       
-USART2_IRQHandler                                                       
-USART3_IRQHandler                                                      
-EXTI15_10_IRQHandler                                            
-RTC_Alarm_IRQHandler                            
-OTG_FS_WKUP_IRQHandler                                
-TIM8_BRK_TIM12_IRQHandler                      
-TIM8_UP_TIM13_IRQHandler                       
-TIM8_TRG_COM_TIM14_IRQHandler  
-TIM8_CC_IRQHandler                                               
-DMA1_Stream7_IRQHandler                                                 
-FSMC_IRQHandler                                                            
-SDIO_IRQHandler                                                            
-TIM5_IRQHandler                                                            
-SPI3_IRQHandler                                                            
-UART4_IRQHandler                                                          
-UART5_IRQHandler                                                          
-TIM6_DAC_IRQHandler                            
-TIM7_IRQHandler                              
-DMA2_Stream0_IRQHandler                                         
-DMA2_Stream1_IRQHandler                                          
-DMA2_Stream2_IRQHandler                                           
-DMA2_Stream3_IRQHandler                                           
-DMA2_Stream4_IRQHandler                                        
-ETH_IRQHandler                                                         
-ETH_WKUP_IRQHandler                                
-CAN2_TX_IRQHandler                                                           
-CAN2_RX0_IRQHandler                                                          
-CAN2_RX1_IRQHandler                                                          
-CAN2_SCE_IRQHandler                                                          
-OTG_FS_IRQHandler                                                    
-DMA2_Stream5_IRQHandler                                          
-DMA2_Stream6_IRQHandler                                          
-DMA2_Stream7_IRQHandler                                          
-USART6_IRQHandler                                                        
-I2C3_EV_IRQHandler                                                          
-I2C3_ER_IRQHandler                                                          
-OTG_HS_EP1_OUT_IRQHandler                           
-OTG_HS_EP1_IN_IRQHandler                            
-OTG_HS_WKUP_IRQHandler                                
-OTG_HS_IRQHandler                                                   
-DCMI_IRQHandler                                                            
-CRYP_IRQHandler                                                    
-HASH_RNG_IRQHandler
-FPU_IRQHandler                                                 
-
-                B       .
-
-                ENDP
-
-                ALIGN
-
-;*******************************************************************************
-; User Stack and Heap initialization
-;*******************************************************************************
-                 IF      :DEF:__MICROLIB
-                
-                 EXPORT  __initial_sp
-                 EXPORT  __heap_base
-                 EXPORT  __heap_limit
-                
-                 ELSE
-                
-                 IMPORT  __use_two_region_memory
-                 EXPORT  __user_initial_stackheap
-                 
+;******************************************************************************
+;
+; The function expected of the C library startup code for defining the stack
+; and heap memory locations.  For the C library version of the startup code,
+; provide this function so that the C library initialization code can find out
+; the location of the stack and heap.
+;
+;******************************************************************************
+    IF	:DEF:	__MICROLIB
+	EXPORT	__heap_base
+	EXPORT	__heap_limit
+    ELSE
+	IMPORT	__use_two_region_memory
+	EXPORT	__user_initial_stackheap
 __user_initial_stackheap
+	LDR	R0, =HeapMem
+	LDR	R1, =(StackMem + Stack)
+	LDR	R2, =(HeapMem + Heap)
+	LDR	R3, =StackMem
+	BX	LR
+    ENDIF
 
-                 LDR     R0, =  Heap_Mem
-                 LDR     R1, =(Stack_Mem + Stack_Size)
-                 LDR     R2, = (Heap_Mem +  Heap_Size)
-                 LDR     R3, = Stack_Mem
-                 BX      LR
+;******************************************************************************
+;
+; Make sure the end of this section is aligned.
+;
+;******************************************************************************
+	ALIGN
 
-                 ALIGN
-
-                 ENDIF
-
-                 END
-
-;******************* (C) COPYRIGHT 2011 STMicroelectronics *****END OF FILE*****
+;******************************************************************************
+;
+; Tell the assembler that we're done.
+;
+;******************************************************************************
+	END
