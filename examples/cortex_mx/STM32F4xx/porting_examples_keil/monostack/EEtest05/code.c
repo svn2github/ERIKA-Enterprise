@@ -49,70 +49,99 @@
 #include "test/assert/inc/ee_assert.h"
 #include "stm32f4xx_conf.h"
 #include "stm32f4_discovery.h"
+#include "ee_irq.h"
 
-
-#define TRUE 1
+#ifndef	TRUE
+#define	TRUE	0x01U
+#endif
 
 /* Assertions */
 enum EE_ASSERTIONS {
   EE_ASSERT_FIN = 0,
   EE_ASSERT_INIT,
   EE_ASSERT_TASK1_FIRED,
-  EE_ASSERT_TMR_ISR_FIRED,
-  EE_ASSERT_ST_ISR_FIRED,
+  EE_ASSERT_TIMER_ISR_FIRED,
+  EE_ASSERT_SYSTICK_ISR_FIRED,
+  EE_ASSERT_TASK1_ENDED,
   EE_ASSERT_TASK2_FIRED,
+  EE_ASSERT_TASK2_ENDED,
   EE_ASSERT_TASKS_ENDED,
   EE_ASSERT_DIM
 };
 EE_TYPEASSERTVALUE EE_assertions[EE_ASSERT_DIM];
 
 /* Final result */
-volatile EE_TYPEASSERTVALUE result;
+EE_TYPEASSERTVALUE result;
 
 /* Counters */
-volatile int counter_taskS = 0;
-volatile int counter_taskR = 0;
-volatile int counter0 = 0; 
-volatile int timer_divisor =0;
-volatile int timer_fired =0;
-volatile uint16_t capture = 0;
+volatile int task1_fired = 0;
+volatile int task2_fired = 0;
+volatile int task1_ended = 0;
+volatile int task2_ended = 0;
+volatile int isr1_fired = 0;
+volatile int isr2_fired = 0;
+volatile int counter = 0;
+
+/* Stack Pointers */
+volatile EE_UREG main_sp = 0;
+volatile EE_UREG isr1_sp = 0;
+volatile EE_UREG isr2_sp = 0;
+volatile EE_UREG task1_sp = 0;
+volatile EE_UREG task2_sp = 0;
+
 
 /*
- * Timer3
+ * Timer ISR2
  */
-void TIM3_IRQHandler(void)
+ISR2(timer_handler)
 {
-  if (TIM_GetITStatus(TIM3, TIM_IT_CC1) != RESET) {
-    TIM_ClearITPendingBit(TIM3, TIM_IT_CC1);
-	capture = TIM_GetCapture1(TIM3);
-	TIM_SetCompare1(TIM3, capture + 1000);
-    counter0++;
-    if (counter0 == 1) {
-      EE_assert(EE_ASSERT_TMR_ISR_FIRED, counter0 == 1, EE_ASSERT_TASK1_FIRED);
-      while(1)
-        if(timer_fired > 2)
-	  break;
-    }
+
+  EE_UREG curr_sp;
+
+  TIM_ClearITPendingBit(TIM3, TIM_IT_Update);
+
+  curr_sp = __current_sp();
+  if (curr_sp != isr1_sp) {
+    isr1_sp = curr_sp;
   }
+
+  isr1_fired++;
+  if (isr1_fired == 1) {
+    EE_assert(EE_ASSERT_TIMER_ISR_FIRED, isr1_fired == 1, EE_ASSERT_TASK1_FIRED);
+  }
+
+  TIM_ITConfig(TIM3, TIM_IT_Update, DISABLE);
+  TIM_Cmd(TIM3, DISABLE);
+
+  EE_systick_start();
+  while (!(isr2_fired % 10));	/* Waits 1st ISR */
+  while (isr2_fired % 10);	/* Waits 10th ISR */
+  EE_systick_stop();
+
 }
 
 /*
  * SysTick ISR2
  */
-void SysTick_Handler(void)
+ISR2(systick_handler)
 {
-  /* clear the interrupt source */
-  timer_divisor++;
-  if (timer_divisor == 200) {
-    timer_divisor = 0;
-    timer_fired++;
-    if (timer_fired == 1) {
-      EE_assert(
-        EE_ASSERT_ST_ISR_FIRED, timer_fired == 1, EE_ASSERT_TMR_ISR_FIRED
-      );
-      ActivateTask(Task2);
-    }
+
+  EE_UREG curr_sp;
+
+  curr_sp = __current_sp();
+  if (curr_sp != isr2_sp) {
+    isr2_sp = curr_sp;
   }
+
+  isr2_fired++;
+  if (isr2_fired == 1) {
+    EE_assert(
+      EE_ASSERT_SYSTICK_ISR_FIRED, isr2_fired == 1, EE_ASSERT_TIMER_ISR_FIRED
+    );
+  }
+
+  ActivateTask(Task2);
+
 }
 
 /*
@@ -120,12 +149,30 @@ void SysTick_Handler(void)
  */
 TASK(Task1)
 {
-  counter_taskS++;
-  EE_assert(EE_ASSERT_TASK1_FIRED, counter_taskS == 1, EE_ASSERT_INIT);
-  while(1)
-    if(timer_fired > 2)
-      break;
-  STM_EVAL_LEDOn(LED3);
+
+  EE_UREG curr_sp;
+
+  curr_sp = __current_sp();
+  if (curr_sp != task1_sp) {
+    task1_sp = curr_sp;
+  }
+
+  task1_fired++;
+  if (task1_fired == 1) {
+    EE_assert(EE_ASSERT_TASK1_FIRED, task1_fired == 1, EE_ASSERT_INIT);
+  }
+
+  TIM_ITConfig(TIM3, TIM_IT_Update, ENABLE);
+  TIM_Cmd(TIM3, ENABLE);
+  while (task1_fired != isr1_fired);
+
+  task1_ended++;
+  if (task1_ended == 1) {
+    EE_assert(
+      EE_ASSERT_TASK1_ENDED, task1_ended == 1, EE_ASSERT_SYSTICK_ISR_FIRED
+    );
+  }
+
 }
 
 /*
@@ -133,26 +180,24 @@ TASK(Task1)
  */
 TASK(Task2)
 {
-  counter_taskR++;
-  EE_assert(EE_ASSERT_TASK2_FIRED, counter_taskR == 1, EE_ASSERT_ST_ISR_FIRED);
-  NVIC_DisableIRQ(TIM3_IRQn);
-}
 
-/*
- * INTERRUPT INITIALIZATION
- */
-void interrupt_init()
-{
-	NVIC_InitTypeDef NVIC_InitStructure;
-	
-	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3, ENABLE);
-	
-	/* Enable the TIM3 gloabal Interrupt */
-	NVIC_InitStructure.NVIC_IRQChannel = TIM3_IRQn;
-	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-	NVIC_Init(&NVIC_InitStructure);
-	
-	NVIC_SetPriority(TIM3_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 1, 1));
+  EE_UREG curr_sp;
+
+  curr_sp = __current_sp();
+  if (curr_sp != task2_sp) {
+    task2_sp = curr_sp;
+  }
+
+  task2_fired++;
+  if (task2_fired == 1) {
+    EE_assert(EE_ASSERT_TASK2_FIRED, task2_fired == 1, EE_ASSERT_TASK1_ENDED);
+  }
+
+  task2_ended++;
+  if (task2_ended == 1) {
+    EE_assert(EE_ASSERT_TASK2_ENDED, task2_ended == 1, EE_ASSERT_TASK2_FIRED);
+  }
+
 }
 
 /*
@@ -160,38 +205,17 @@ void interrupt_init()
  */
 void timer_init()
 {
-	TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
-	TIM_OCInitTypeDef  TIM_OCInitStructure;
-	uint16_t PrescalerValue = 0;
-	
-	PrescalerValue = (uint16_t) ((SystemCoreClock / 2) / 1000000) - 1;
-	
-	/* Time base configuration */
-	TIM_TimeBaseStructure.TIM_Period = 65535;
-	TIM_TimeBaseStructure.TIM_Prescaler = 0;
-	TIM_TimeBaseStructure.TIM_ClockDivision = 0;
-	TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
+  TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
 
-	TIM_TimeBaseInit(TIM3, &TIM_TimeBaseStructure);
+  RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3, ENABLE);
 
-	/* Prescaler configuration */
-	TIM_PrescalerConfig(TIM3, PrescalerValue, TIM_PSCReloadMode_Immediate);
+  TIM_TimeBaseStructure.TIM_Period = (1000 - 1);
+  TIM_TimeBaseStructure.TIM_Prescaler = (SystemCoreClock / 2) - 1;
+  TIM_TimeBaseStructure.TIM_ClockDivision = 0;
+  TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
 
-	/* Output Compare Timing Mode configuration: Channel1 */
-	TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_Timing;
-	TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
-	TIM_OCInitStructure.TIM_Pulse = 1000;
-	TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High;
+  TIM_TimeBaseInit(TIM3, &TIM_TimeBaseStructure);
 
-	TIM_OC1Init(TIM3, &TIM_OCInitStructure);
-
-	TIM_OC1PreloadConfig(TIM3, TIM_OCPreload_Disable);
-
-	/* TIM Interrupts enable */
-	TIM_ITConfig(TIM3, TIM_IT_CC1, ENABLE);
-
-	/* TIM3 enable counter */
-	TIM_Cmd(TIM3, ENABLE);
 }
 
 /*
@@ -200,33 +224,41 @@ void timer_init()
 int main(void)
 {
 
+  EE_UREG curr_sp;
+
+  SystemInit();
   /*Initializes Erika related stuffs*/
   EE_system_init(); 
-
-  /* Generate systemtick interrupt each 1 ms   */
-  SysTick_Config(SystemCoreClock/1000 - 1); 
-  /* Priority SysTick = 00*/
-  NVIC_SetPriority(SysTick_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 0, 0));
+  timer_init();
 
   STM_EVAL_LEDInit(LED3);
-
-  interrupt_init();
-  timer_init();
+  EE_systick_set_period(1000000);
+  EE_systick_enable_int();
 
   EE_assert(EE_ASSERT_INIT, TRUE, EE_ASSERT_NIL);
 
   ActivateTask(Task1);
 
   EE_assert(
-    EE_ASSERT_TASKS_ENDED, counter_taskR && counter_taskS, EE_ASSERT_TASK2_FIRED
+    EE_ASSERT_TASKS_ENDED, task1_ended && task2_ended, EE_ASSERT_TASK2_ENDED
   );
   EE_assert_range(EE_ASSERT_FIN, EE_ASSERT_INIT, EE_ASSERT_TASKS_ENDED);
   result = EE_assert_last();
 
   /* Forever loop: background activities (if any) should go here */
-  for (;;)
+  for (;result == 1;)
   {
-    ;
+
+    curr_sp = __current_sp();
+    if (curr_sp != main_sp) {
+      main_sp = curr_sp;
+    }
+
+    while (counter % 10000) counter++;
+    STM_EVAL_LEDToggle(LED3);
+    ActivateTask(Task1);
+    counter++;
+
   }
 
 }

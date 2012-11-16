@@ -73,6 +73,7 @@ CPU mySystem {
 		EE_OPT = "__USE_STM32F4XX_CMSIS__";
 		EE_OPT = "__USE_STM32F4XX_SPD__";
 		EE_OPT = "__USE_STM32F4XX_EVAL__";
+		EE_OPT = "__USE_SYSTICK__";
 		
 		/* Uncomment the following EE_OPT to include all library functions */
 		//EE_OPT = "__USE_SPD_ALL__";
@@ -110,6 +111,8 @@ CPU mySystem {
 	ISR systick_handler {
 		CATEGORY = 2;
 		ENTRY = "SYSTICK";
+		PRIORITY = 1;
 	};
+
 
 };

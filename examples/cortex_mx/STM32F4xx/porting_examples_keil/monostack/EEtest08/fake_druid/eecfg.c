@@ -64,12 +64,12 @@
     EE_TYPE_RQ_MASK  EE_rq_bitmask = 0U;
 
     /* remaining nact: init= maximum pending activations of a Task */
-    EE_TYPENACT EE_th_rnact[EE_MAX_TASK] = {
+    EE_TYPEPRIO EE_th_rnact[EE_MAX_TASK] = {
         1U,		 /* thread Task1 */
         1U		 /* thread Task2 */
     };
 
-    const EE_TYPENACT EE_th_rnact_max[EE_MAX_TASK] = {
+    const EE_TYPEPRIO EE_th_rnact_max[EE_MAX_TASK] = {
         1U,		 /* thread Task1 */
         1U		 /* thread Task2 */
     };

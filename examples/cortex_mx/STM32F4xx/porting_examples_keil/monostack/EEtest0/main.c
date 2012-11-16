@@ -50,7 +50,7 @@
 
 #define TRUE 1
 
-/* assertion data */
+/* Assertions */
 enum EE_ASSERTIONS {
   EE_ASSERT_FIN = 0,
   EE_ASSERT_INIT,
@@ -61,60 +61,39 @@ EE_TYPEASSERTVALUE EE_assertions[EE_ASSERT_DIM];
 /* Final result */
 volatile EE_TYPEASSERTVALUE result;
 
-/* SysTick Counter */
-volatile unsigned long SysTickCnt;
+/* counter */
+volatile int counter = 0;
 
-/**
-  * @brief	SysTick handler sub-routine (1ms)
-  * @param	None
-  * @return	None
-  */
-void SysTick_Handler (void)
-{
-  SysTickCnt++;
-}
-
-/**
-  * @brief	Delay function
-  * @param	tick - number milisecond of delay time
-  * @return	None
-  */
-void Delay (unsigned long tick)
-{
-  unsigned long systickcnt;
-
-  systickcnt = SysTickCnt;
-  while ((SysTickCnt - systickcnt) < tick);
-}
-
-
+/*
+ * TASK 1
+ */
 TASK(Task1)
 {
+
 }
 
 /*
  * MAIN TASK
-*/
+ */
 int main(void)
 {
-  EE_assert(EE_ASSERT_INIT, TRUE, EE_ASSERT_NIL);
-
-  SysTick_Config(SystemCoreClock/1000 - 1); /* Generate interrupt each 1 ms   */
+  SystemInit();
+  /*Initializes Erika related stuffs*/
+  EE_system_init();
 
   STM_EVAL_LEDInit(LED3);
 
+  EE_assert(EE_ASSERT_INIT, TRUE, EE_ASSERT_NIL);
   EE_assert_range(EE_ASSERT_FIN, EE_ASSERT_INIT, EE_ASSERT_INIT);
   result = EE_assert_last();
 
-  // Forever loop: background activities (if any) should go here
-  for (;;) {
-
-	STM_EVAL_LEDOn(LED3);
-	Delay(500);
-
-	STM_EVAL_LEDOff(LED3);
-	Delay(500);
-
+  /* Forever loop: background activities (if any) should go here */
+  for (;result == 1;)
+  {
+    while (counter % 100000) counter++;
+    STM_EVAL_LEDToggle(LED3);
+    counter++;
   }
 
 }
+

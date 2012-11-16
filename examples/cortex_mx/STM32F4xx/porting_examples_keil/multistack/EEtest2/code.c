@@ -55,7 +55,9 @@
 #include "ee_irq.h"
 #include "test/assert/inc/ee_assert.h"
 
-#define TRUE 1
+#ifndef	TRUE
+#define	TRUE	0x01U
+#endif
 
 /* Assertions */
 enum EE_ASSERTIONS {
@@ -72,66 +74,39 @@ EE_TYPEASSERTVALUE EE_assertions[EE_ASSERT_DIM];
 /* Final result */
 volatile EE_TYPEASSERTVALUE result;
 
-volatile int task1_fired=0;
-volatile int task2_fired=0;
-volatile int timer_fired;
-volatile int timer_divisor = 0;
-volatile unsigned long sys_tick_cnt;
+/* Counters */
+volatile int task1_fired = 0;
+volatile int task2_fired = 0;
+volatile int isr1_fired = 0;
+volatile int counter = 0;
+
+/* Stack Pointers */
+volatile EE_UREG main_sp = 0;
+volatile EE_UREG isr1_sp = 0;
+volatile EE_UREG task1_sp = 0;
+volatile EE_UREG task2_sp = 0;
 
 /*
  * SysTick ISR2
  */
-void SysTick_Handler(void)
+ISR2(systick_handler)
 {
-  timer_divisor++;
-  if (timer_divisor == 1000) {
-    timer_divisor = 0;
-    timer_fired++;
-    if(timer_fired == 1) {
-      EE_assert(EE_ASSERT_TIMER_FIRED, timer_fired == 1, EE_ASSERT_INIT);
-      ActivateTask(Task1);
-      ActivateTask(Task2);
-    }
-    else if(timer_fired==10) {		
-    }
+
+  EE_UREG curr_sp;
+
+  curr_sp = __current_sp();
+  if (curr_sp != isr1_sp) {
+    isr1_sp = curr_sp;
   }
-  sys_tick_cnt++;
-}
 
-/*
- * DELAY
- */
-void mydelay(unsigned long tick)
-{
-  unsigned long cnt;
-  cnt = sys_tick_cnt;
+  ActivateTask(Task1);
+  ActivateTask(Task2);
 
-  while ((sys_tick_cnt - cnt) < tick);
-}
+  isr1_fired++;
+  if (isr1_fired==1) {
+    EE_assert(EE_ASSERT_TIMER_FIRED, isr1_fired == 1, EE_ASSERT_INIT);
+  }
 
-/*
- * SysTick INITIALIZATION
- */
-void sys_tick_init(void)
-{
- SysTick_Config(SystemCoreClock/1000 - 1); 
-  NVIC_SetPriority(SysTick_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 0, 0));
-}
-
-/*
- * LED INITIALIZATION
- */
-void led_init(void) 
-{
-  STM_EVAL_LEDInit(LED4);
-}
-
-/*
- * LED Blink
- */
-void led_blink(void) 
-{
-  STM_EVAL_LEDToggle(LED4);
 }
 
 /*
@@ -139,10 +114,19 @@ void led_blink(void)
  */
 TASK(Task1)
 {
+
+  EE_UREG curr_sp;
+
+  curr_sp = __current_sp();
+  if (curr_sp != task1_sp) {
+    task1_sp = curr_sp;
+  }
+
   task1_fired++;
-  if(task1_fired == 1)
+  if (task1_fired == 1) {
     EE_assert(EE_ASSERT_TASK1_FIRED, task1_fired == 1, EE_ASSERT_TASK2_FIRED);
-  led_blink();
+  }
+
 }
 
 /*
@@ -150,19 +134,19 @@ TASK(Task1)
  */
 TASK(Task2)
 {
-  static int led_off_cnt = 0;
-  static int led_on_cnt = 0;
 
-  /* count the number of Task2 activations */
+  EE_UREG curr_sp;
+
+  curr_sp = __current_sp();
+  if (curr_sp != task2_sp) {
+    task2_sp = curr_sp;
+  }
+
   task2_fired++;
-  if(task2_fired == 1)
+  if (task2_fired == 1) {
     EE_assert(EE_ASSERT_TASK2_FIRED, task2_fired == 1, EE_ASSERT_TIMER_FIRED);
+  }
 
-  /* Count the number of times the led is on and off */
-  if(GPIO_ReadOutputDataBit(LED4_GPIO_PORT, LED4_PIN) == Bit_SET)
-    led_on_cnt++;
-  else 
-    led_off_cnt++;
 }
 
 /*
@@ -170,29 +154,45 @@ TASK(Task2)
  */
 int main(void)
 {
+
+  EE_UREG curr_sp;
+
+  SystemInit();
   /*Initializes Erika related stuffs*/
+  EE_system_init();
 
-  EE_system_init(); 
-  /*Initialize the systemtick*/
+  STM_EVAL_LEDInit(LED3);
 
-  sys_tick_init();
-  
-  led_init();
+  EE_systick_set_period(100000);
+  EE_systick_enable_int();
+  EE_systick_start();
 
   EE_assert(EE_ASSERT_INIT, TRUE, EE_ASSERT_NIL);
 
-  mydelay(1000);
+  while (isr1_fired < 10);
 
   EE_assert(
-    EE_ASSERT_END, task1_fired && task2_fired, EE_ASSERT_TASK1_FIRED
+    EE_ASSERT_END,
+    (task1_fired >= 10) && (task2_fired >= 10),
+    EE_ASSERT_TASK1_FIRED
   );
   EE_assert_range(EE_ASSERT_FIN, EE_ASSERT_INIT, EE_ASSERT_END);
   result = EE_assert_last();
 
   /* Forever loop: background activities (if any) should go here */
-  for (;;)
+  for (;result == 1;)
   {
-    ;
+
+    curr_sp = __current_sp();
+    if (curr_sp != main_sp) {
+      main_sp = curr_sp;
+    }
+
+    while (counter % 100000) counter++;
+    STM_EVAL_LEDToggle(LED3);
+    counter++;
+
   }
 
 }
+

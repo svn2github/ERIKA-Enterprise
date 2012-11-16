@@ -48,6 +48,7 @@
 #define __USE_STM32F4XX_CMSIS__
 #define __USE_STM32F4XX_SPD__
 #define __USE_STM32F4XX_EVAL__
+#define __USE_SYSTICK__
 #define __USE_SPD_TIM__
 
 
@@ -57,8 +58,6 @@
  *
  **************************************************************************/
 #define __RTD_CYGWIN__
-#define __STM32__
-#define __STM32F4xx__
 #define __CORTEX_MX__
 #define __CORTEX_M4__
 #define __KEIL__
@@ -70,6 +69,15 @@
 
 #endif
 
+
+
+/***************************************************************************
+ *
+ * ISR definition
+ *
+ **************************************************************************/
+#define EE_CORTEX_MX_SYSTICK_ISR systick_handler
+#define EE_CORTEX_MX_SYSTICK_ISR_PRI EE_ISR_PRI_1
 
 
 #endif

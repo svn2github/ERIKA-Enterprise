@@ -53,7 +53,10 @@
 #include "test/assert/inc/ee_assert.h"
 
 
-#define TRUE 1
+
+#ifndef	TRUE
+#define	TRUE	0x01U
+#endif
 
 /* Assertions */
 enum EE_ASSERTIONS {
@@ -71,36 +74,34 @@ EE_TYPEASSERTVALUE EE_assertions[EE_ASSERT_DIM];
 volatile EE_TYPEASSERTVALUE result;
 
 /* Counters */
-volatile unsigned int task1_fired=0;
-volatile unsigned int task2_fired=0;
-volatile int divisor = 0;
+volatile int task1_fired = 0;
+volatile int task2_fired = 0;
 volatile int counter = 0;
+volatile int divisor = 0;
 
-/*
- * LED INITIALIZATION
- */
-void led_init(void) 
-{
-  STM_EVAL_LEDInit(LED4);
-}
-
-/*
- * LED Blink
- */
-void led_blink(void) 
-{
-  STM_EVAL_LEDToggle(LED4);
-}
+/* Stack Pointers */
+volatile EE_UREG main_sp = 0;
+volatile EE_UREG task1_sp = 0;
+volatile EE_UREG task2_sp = 0;
 
 /*
  * TASK 1
  */
 TASK(Task1)
 {
+
+  EE_UREG curr_sp;
+
+  curr_sp = __current_sp();
+  if (curr_sp != task1_sp) {
+    task1_sp = curr_sp;
+  }
+
   task1_fired++;
-  if(task1_fired==1)
+  if (task1_fired == 1) {
     EE_assert(EE_ASSERT_TASK1_FIRED, task1_fired ==1, EE_ASSERT_INIT);
-  led_blink();
+  }
+
 }
 
 /*
@@ -108,18 +109,19 @@ TASK(Task1)
  */
 TASK(Task2)
 {
-  static int led_off_cnt = 0;
-  static int led_on_cnt = 0;
 
-  /* count the number of Task2 activations */
+  EE_UREG curr_sp;
+
+  curr_sp = __current_sp();
+  if (curr_sp != task2_sp) {
+    task2_sp = curr_sp;
+  }
+
   task2_fired++;
-  if(task2_fired==1)
+  if (task2_fired == 1) {
     EE_assert(EE_ASSERT_TASK2_FIRED, task2_fired ==1, EE_ASSERT_TASK1_FIRED);
+  }
 
-  if(GPIO_ReadOutputDataBit(LED4_GPIO_PORT, LED4_PIN) == Bit_SET)
-    led_on_cnt++;
-  else 
-    led_off_cnt++;
 }
 
 /*
@@ -128,10 +130,13 @@ TASK(Task2)
 int main(void)
 {
 
+  EE_UREG curr_sp;
+
+  SystemInit();
   /*Initializes Erika related stuffs*/
   EE_system_init(); 
 
-  led_init();
+  STM_EVAL_LEDInit(LED3);
 
   EE_assert(EE_ASSERT_INIT, TRUE, EE_ASSERT_NIL);
 
@@ -145,10 +150,12 @@ int main(void)
       counter++;
       ActivateTask(Task1);
       ActivateTask(Task2);
-      if(counter==1)
+      if(counter==1) {
 	EE_assert(EE_ASSERT_FIRST_CYCLE, counter==1, EE_ASSERT_TASK2_FIRED);
-      if(counter==10)
+      }
+      if(counter==10) {
 	break;
+      }
     }
   }
 
@@ -157,9 +164,33 @@ int main(void)
   result = EE_assert_last();
 
   /* Forever loop: background activities (if any) should go here */
-  for (;;)
+  for (;result == 1;)
   {
-    ;
+
+    curr_sp = __current_sp();
+    if (curr_sp != main_sp) {
+      main_sp = curr_sp;
+    }
+
+    counter = 0;
+    for (;;)
+    {
+      divisor++;
+      if (divisor == 10000)
+      {
+	divisor = 0;
+	counter++;
+	ActivateTask(Task1);
+	ActivateTask(Task2);
+	if(counter==10) {
+	  break;
+	}
+      }
+    }
+
+    STM_EVAL_LEDToggle(LED3);
+
   }
 
 }
+

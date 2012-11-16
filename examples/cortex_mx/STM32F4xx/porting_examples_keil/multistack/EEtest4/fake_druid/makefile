@@ -27,6 +27,7 @@ EEOPT += __ADD_LIBS__
 EEOPT += __USE_STM32F4XX_CMSIS__
 EEOPT += __USE_STM32F4XX_SPD__
 EEOPT += __USE_STM32F4XX_EVAL__
+EEOPT += __USE_SYSTICK__
 EEOPT += __USE_SPD_TIM__
 
 
@@ -61,7 +62,7 @@ EEBASE := $(shell cygpath `cygpath -ms '${ERIKA_FILES}'`)
 else # ERIKA_FILES
 
 ifndef EEBASE
-        EEBASE := $(shell cygpath `cygpath -ms 'C:\Users\CC\ee'`)
+        EEBASE := $(shell cygpath `cygpath -ms 'C:\Users\CC\Desktop\ee'`)
 else
         $(warning The usage of EEBASE is deprecated. Please use ERIKA_FILES)
 endif

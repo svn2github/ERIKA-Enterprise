@@ -57,7 +57,10 @@
 #include "test/assert/inc/ee_assert.h"
 #include "kernel/sem/inc/ee_sem.h"
 
-#define TRUE 1
+
+#ifndef	TRUE
+#define	TRUE	0x01U
+#endif
 
 /* Assertions */
 enum EE_ASSERTIONS {
@@ -76,41 +79,60 @@ EE_TYPEASSERTVALUE EE_assertions[EE_ASSERT_DIM];
 /* Final result */
 volatile EE_TYPEASSERTVALUE result;
 
-/* This semaphore is initialized automatically */
-SemType P = STATICSEM(1);
-
 /* This semaphore is initialized inside the Background Task */
 SemType V;
 
-volatile int taskp_counter = 0;
-volatile int taskc_counter = 0;
-volatile int taskp_ended = 0;
-volatile int taskc_ended = 0;
+/* Counters */
+volatile int task1_fired = 0;
+volatile int task2_fired = 0;
+volatile int task1_ended = 0;
+volatile int task2_ended = 0;
+volatile int counter = 0;
 
-/*
- * LED INITIALIZATION
- */
-void led_init(void) 
-{
-  STM_EVAL_LEDInit(LED4);
-}
-
+/* Stack Pointers */
+volatile EE_UREG main_sp = 0;
+volatile EE_UREG task1_sp = 0;
+volatile EE_UREG task2_sp = 0;
 
 /*
  * TASK 1
  */
 TASK(Task1)
 {
-  taskp_counter++;
-  EE_assert(EE_ASSERT_TASK1_FIRED, taskp_counter == 1, EE_ASSERT_INIT);
+
+  int i;
+
+  EE_UREG curr_sp;
+
+  curr_sp = __current_sp();
+  if (curr_sp != task1_sp) {
+    task1_sp = curr_sp;
+  }
+
+  task1_fired++;
+  if (task1_fired == 1) {
+    EE_assert(EE_ASSERT_TASK1_FIRED, task1_fired == 1, EE_ASSERT_INIT);
+  }
+
+  STM_EVAL_LEDOn(LED3);
+
   ActivateTask(Task2);
-  
-  STM_EVAL_LEDOn(LED4);	
-  
-  EE_assert(EE_ASSERT_TASK1_POST, taskp_counter == 1, EE_ASSERT_TASK2_FIRED);
-  PostSem(&V); 
-  EE_assert(EE_ASSERT_TASK1_ENDED, taskp_counter == 1, EE_ASSERT_TASK2_ENDED);
-  taskp_ended++;
+
+  if (task1_fired == 1) {
+    EE_assert(EE_ASSERT_TASK1_POST, task1_fired == 1, EE_ASSERT_TASK2_FIRED);
+  }
+
+  for (i = 0; i < 100000; i++) {
+    ;
+  }
+
+  PostSem(&V);
+
+  if (task1_fired == 1) {
+    EE_assert(EE_ASSERT_TASK1_ENDED, task1_fired == 1, EE_ASSERT_TASK2_ENDED);
+  }
+  task1_ended++;
+
 }
 
 /*
@@ -118,12 +140,34 @@ TASK(Task1)
  */
 TASK(Task2)
 {
-  taskc_counter++;
-  EE_assert(EE_ASSERT_TASK2_FIRED, taskc_counter == 1, EE_ASSERT_TASK1_FIRED);
+
+  int i;
+
+  EE_UREG curr_sp;
+
+  curr_sp = __current_sp();
+  if (curr_sp != task2_sp) {
+    task2_sp = curr_sp;
+  }
+
+  task2_fired++;
+  if (task2_fired == 1) {
+    EE_assert(EE_ASSERT_TASK2_FIRED, task2_fired == 1, EE_ASSERT_TASK1_FIRED);
+  }
+
   WaitSem(&V);
-  STM_EVAL_LEDOff(LED4);
-  EE_assert(EE_ASSERT_TASK2_ENDED, taskc_counter == 1, EE_ASSERT_TASK1_POST);
-  taskc_ended++;
+
+  for (i = 0; i < 100000; i++) {
+    ;
+  }
+
+  STM_EVAL_LEDOff(LED3);
+
+  if (task2_fired == 1) {
+    EE_assert(EE_ASSERT_TASK2_ENDED, task2_fired == 1, EE_ASSERT_TASK1_POST);
+  }
+  task2_ended++;
+
 }
 
 /*
@@ -132,32 +176,42 @@ TASK(Task2)
 int main(void)
 {
 
-  SystemInit();
+  EE_UREG curr_sp;
 
+  SystemInit();
   /*Initializes Erika related stuffs*/
   EE_system_init(); 
-  
-  led_init();
-  
+
+  STM_EVAL_LEDInit(LED3);
+
   EE_assert(EE_ASSERT_INIT, TRUE, EE_ASSERT_NIL);
-  
-  /* Initialization of the second semaphore of the example; the first
-   * semaphore is initialized inside the definition */
-  InitSem(V,0);
+
+  /* Initialization of the second semaphore of the example;
+   * the first semaphore is initialized inside the definition */
+  InitSem(V, 0);
 
   ActivateTask(Task1);
-  //ActivateTask(Task2);
-  
+
   EE_assert(
-    EE_ASSERT_TASKS_ENDED, taskp_ended && taskc_ended, EE_ASSERT_TASK1_ENDED
+    EE_ASSERT_TASKS_ENDED, task1_ended && task2_ended, EE_ASSERT_TASK1_ENDED
   );
   EE_assert_range(EE_ASSERT_FIN, EE_ASSERT_INIT, EE_ASSERT_TASKS_ENDED);
   result = EE_assert_last();
-  
-  /* Forever loop: background activities (if any) should go here... */
-  for (;;)
+
+  /* Forever loop: background activities (if any) should go here */
+  for (;result == 1;)
   {
-    ;
+
+    curr_sp = __current_sp();
+    if (curr_sp != main_sp) {
+      main_sp = curr_sp;
+    }
+
+    while (counter % 10000) counter++;
+    ActivateTask(Task1);
+    counter++;
+
   }
 
 }
+

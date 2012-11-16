@@ -67,7 +67,9 @@
 #include "test/assert/inc/ee_assert.h"
 #include "kernel/sem/inc/ee_sem.h"
 
-#define TRUE 1
+#ifndef	TRUE
+#define	TRUE	0x01U
+#endif
 
 /* Assertions */
 enum EE_ASSERTIONS {
@@ -92,25 +94,15 @@ SemType P = STATICSEM(1);
 /* This semaphore is initialized inside the Background Task */
 SemType V;
 
-volatile int taskp_counter = 0;
-volatile int taskc_counter = 0;
+/* Counters */
+volatile int task1_fired = 0;
+volatile int task2_fired = 0;
+volatile int counter = 0;
 
-/*
- * NMI_Handler
- */
-void NMI_Handler()
-{
-	while(1);
-}
-
-/*
- * LED INITIALIZATION
- */
-void led_init(void) 
-{
-  STM_EVAL_LEDInit(LED3);
-}
-
+/* Stack Pointers */
+volatile EE_UREG main_sp = 0;
+volatile EE_UREG task1_sp = 0;
+volatile EE_UREG task2_sp = 0;
 
 #define	PRODUCTION_CYCLES	1000000
 /*
@@ -119,9 +111,16 @@ void led_init(void)
 TASK(Producer)
 {
   int i;
-  static int pcounter=0;
+  static int pcounter = 0;
 
-  taskp_counter++;
+  EE_UREG curr_sp;
+
+  curr_sp = __current_sp();
+  if (curr_sp != task1_sp) {
+    task1_sp = curr_sp;
+  }
+
+  task1_fired++;
 
   /* 
    * Note: Please note that this task structure is different from the typical
@@ -130,7 +129,7 @@ TASK(Producer)
    *       similar to the one typically used in the POSIX standard, and it
    *       requires that every task has a PRIVATE STACK, especially if the
    *       task calls blocking functions like WaitSem.
-  */
+   */
   for (;;) {
     pcounter++;
     if(pcounter==2)
@@ -138,16 +137,16 @@ TASK(Producer)
     WaitSem(&P);
 
     /* take some time to produce an item */
-    for (i=0; i < PRODUCTION_CYCLES; i++)
+    for (i=0; i < PRODUCTION_CYCLES; i++);
 
     /* the item has been produced! */
-    STM_EVAL_LEDOn(LED4);
+    STM_EVAL_LEDOn(LED3);
     if(pcounter==2)
       EE_assert(EE_ASSERT_TASKP_POST, pcounter==2, EE_ASSERT_TASKC_POST);
     PostSem(&V);
     if(pcounter==2)
       EE_assert(EE_ASSERT_PRODUCED, pcounter==2, EE_ASSERT_TASKP_POST);
-  } 
+  }
 }
 
 #define	CONSUMING_CYCLES	PRODUCTION_CYCLES
@@ -157,9 +156,16 @@ TASK(Producer)
 TASK(Consumer)
 {
   int i;
-  static int ccounter=0;
+  static int ccounter = 0;
 
-  taskc_counter++;
+  EE_UREG curr_sp;
+
+  curr_sp = __current_sp();
+  if (curr_sp != task2_sp) {
+    task2_sp = curr_sp;
+  }
+
+  task2_fired++;
   
   for (;;) {
     ccounter++;
@@ -171,7 +177,7 @@ TASK(Consumer)
     for (i=0; i < CONSUMING_CYCLES; i++);
 
     /* the item has been consumed! */
-    STM_EVAL_LEDOff(LED4);
+    STM_EVAL_LEDOff(LED3);
     if(ccounter==1)
       EE_assert(EE_ASSERT_TASKC_POST, ccounter==1, EE_ASSERT_TASKC_WAIT);
     PostSem(&P); 
@@ -189,34 +195,46 @@ TASK(Consumer)
  */
 int main(void)
 {
+
+  EE_UREG curr_sp;
+
+  SystemInit();
   /*Initializes Erika related stuffs*/
   EE_system_init(); 
 
-  led_init();
+  STM_EVAL_LEDInit(LED3);
 
   EE_assert(EE_ASSERT_INIT, TRUE, EE_ASSERT_NIL);
 
-  /* Initialization of the second semaphore of the example; the first
-  semaphore is initialized inside the definition */
-  InitSem(V,0);
+  /* Initialization of the second semaphore of the example;
+   * the first semaphore is initialized inside the definition */
+  InitSem(V, 0);
 
-  /* Activate the Producer. The consumer preempts the background task,
-  executes and finally blocks waiting for the Consumer to consume
-  the item produced. After the Producer Blocks, the Background task
-  resumes and the ActivateTask returns. */
+  /* Activate the Producer.
+   * The consumer preempts the background task, executes and finally blocks
+   * waiting for the Consumer to consume the item produced.
+   * After the Producer Blocks, the Background task resumes and the
+   * ActivateTask returns. */
   ActivateTask(Producer);
 
-  /* Activate the Consumer. The consumer is activated, preempting the
-  background task. After that, the Consumer and the Producer Task
-  will activate each other forever, and the background task will
-  never execute again. */
+  /* Activate the Consumer.
+   * The consumer is activated, preempting the background task.
+   * After that, the Consumer and the Producer Task will activate each other
+   * forever, and the background task will never execute again. */
   ActivateTask(Consumer);
 
   /* Forever loop: background activities (if any) should go here
      Please note that in this example the code never reach this point... */
-  for (;;)
+  for (;result == 1;)
   {
-    ;
+
+    curr_sp = __current_sp();
+    if (curr_sp != main_sp) {
+      main_sp = curr_sp;
+    }
+
+    counter++;
   }
 
 }
+

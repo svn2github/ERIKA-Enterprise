@@ -47,8 +47,11 @@
 #include "test/assert/inc/ee_assert.h"
 #include "stm32f4xx_conf.h"
 #include "stm32f4_discovery.h"
+#include "ee_irq.h"
 
-#define TRUE 1
+#ifndef	TRUE
+#define	TRUE	0x01U
+#endif
 
 /* Assertions */
 enum EE_ASSERTIONS {
@@ -63,44 +66,28 @@ EE_TYPEASSERTVALUE EE_assertions[EE_ASSERT_DIM];
 /* Final result */
 volatile EE_TYPEASSERTVALUE result;
 
-/* counter */
 volatile int counter = 0;
+volatile int task1_fired = 0;
 
-/* SysTick Counter */
-volatile unsigned long SysTickCnt;
-
-/**
-  * @brief	SysTick handler sub-routine (1ms)
-  * @param	None
-  * @return	None
-  */
-void SysTick_Handler (void)
-{
-  SysTickCnt++;
-}
-
-/**
-  * @brief	Delay function
-  * @param	tick - number milisecond of delay time
-  * @return	None
-  */
-void Delay(unsigned long tick)
-{
-  unsigned long systickcnt;
-
-  systickcnt = SysTickCnt;
-  while ((SysTickCnt - systickcnt) < tick);
-}
-
+volatile EE_UREG main_sp = 0;
+volatile EE_UREG task1_sp = 0;
 
 /*
  * TASK 1
  */
 TASK(Task1)
 {
-  EE_assert(EE_ASSERT_TASK_FIRED, counter==0, EE_ASSERT_INIT);
-  counter++;
-  STM_EVAL_LEDOn(LED3);
+  EE_UREG curr_sp;
+
+  curr_sp = __current_sp();
+  if (curr_sp != task1_sp) {
+    task1_sp = curr_sp;
+  }
+
+  task1_fired++;
+  if (task1_fired == 1) {
+    EE_assert(EE_ASSERT_TASK_FIRED, task1_fired==1, EE_ASSERT_INIT);
+  }
 
 }
 
@@ -110,22 +97,41 @@ TASK(Task1)
 int main(void)
 {
 
+  EE_UREG curr_sp;
+
+  SystemInit();
+  /*Initializes Erika related stuffs*/
+  EE_system_init();
+
+  STM_EVAL_LEDInit(LED3);
+
   EE_assert(EE_ASSERT_INIT, TRUE, EE_ASSERT_NIL);
 
-  SysTick_Config(SystemCoreClock/1000 - 1); /* Generate interrupt each 1 ms   */
-  
-  STM_EVAL_LEDInit(LED3);
-  Delay(500);
-  
   ActivateTask(Task1);
 
-  EE_assert(EE_ASSERT_TASK_END, counter==1, EE_ASSERT_INIT);
+  EE_assert(EE_ASSERT_TASK_END, task1_fired==1, EE_ASSERT_INIT);
   EE_assert_range(EE_ASSERT_FIN, EE_ASSERT_INIT, EE_ASSERT_TASK_END);
   result = EE_assert_last();
 
   /* Forever loop: background activities (if any) should go here */
-  for (;;)
-    ;
+  for (;result == 1;)
+  {
+
+    curr_sp = __current_sp();
+    if (curr_sp != main_sp) {
+      main_sp = curr_sp;
+    }
+
+    while (counter % 100000) counter++;
+
+    STM_EVAL_LEDToggle(LED3);
+
+    ActivateTask(Task1);
+
+    counter++;
+
+  }
 
 }
+
 
