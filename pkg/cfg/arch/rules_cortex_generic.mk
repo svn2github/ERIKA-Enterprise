@@ -121,9 +121,8 @@ CORTEX_MCU_LINKERSCRIPT = $(STM32_LINKERSCRIPT)
 else	# !__STM32F4xx__
 CORTEX_MCU_MODEL = __STM32F4xx__
 ifeq ($(call iseeopt, __KEIL__), yes)
-CORTEX_MCU_LINKERSCRIPT = $(EEBASE)/pkg/mcu/st_stm32_stm32f4xx/src/template.sct
-endif	# __KEIL__
 CORTEX_MCU_STARTUP = $(CRT0_SRCS)
+endif	# __KEIL__
 endif	# __STM32F4xx__
 TARGET_NAME = c_mX
 endif	# __STM32__

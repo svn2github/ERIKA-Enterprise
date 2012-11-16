@@ -203,6 +203,21 @@ endif
 endif	# STELLARIS_LINKERSCRIPT
 endif	# __STELLARIS__
 
+ifeq ($(call iseeopt, __STM32F4xx__), yes)
+ifndef STM32_LINKERSCRIPT
+
+OPT_LINK += --ro-base 0x08000000 --rw-base 0x20000000 \
+	    --first EE_cortex_mx_vtable
+
+ifdef EE_CORTEX_MX_RESET_ISR
+OPT_LINK += --entry $(EE_CORTEX_MX_RESET_ISR)
+else
+OPT_LINK += --entry EE_cortex_mx_default_reset_ISR
+endif
+
+endif	# STM32_LINKERSCRIPT
+endif	# __STM32F4xx__
+
 # Specific option from the application makefile
 OPT_LINK += $(LDFLAGS)
 
