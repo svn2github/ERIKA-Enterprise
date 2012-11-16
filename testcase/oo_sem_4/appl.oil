@@ -111,7 +111,7 @@ CPU test_application {
 #endif
 		
 		/* This generates the ORTI File used by lauterbach Trace32! */
-		ORTI_SECTIONS = ALL;
+		//ORTI_SECTIONS = ALL;
     };
 
     TASK BasTask {
