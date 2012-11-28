@@ -110,8 +110,6 @@ void COMErrorHook(StatusType error_id)
 	EE_com_COMErrorGetServiceId();
 }
 
-/*GF: dovremmo usare COMCallback(callback)*/
-//void callback(void)
 COMCallback(callback)
 {
 	ActivateTask(Task2);
@@ -120,7 +118,7 @@ COMCallback(callback)
 
 TASK(Task0)
 {
-//	SendMessage(ABS, (EE_UINT8 *)&ABS_Data);
+	SendMessage(ABS, (EE_UINT8 *)&ABS_Data);
 
 	led_blink();
 }

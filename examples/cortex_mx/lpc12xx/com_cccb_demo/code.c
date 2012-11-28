@@ -105,7 +105,7 @@ void led_blink(void)
  */
 void interrupt_init()
 {
-  /* Generate systemtick interrupt each 1 ms   */
+  /* Generate system tick interrupt each 1 ms   */
   SysTick_Config(SystemCoreClock/1000 - 1);
   //__enable_interrupt(); /*__IAR__*/
     __enable_irq(); /*__KEIL__*/

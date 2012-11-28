@@ -42,22 +42,10 @@ CPU mySystem {
 
 	OS myOs {
 		EE_OPT = "DEBUG";
-		/***************************************************/
-		/* These symbols, ABS etc., should go into eecfg.h */
-		/***************************************************/
-		/*CFLAGS = "-D ABS=0";
-		CFLAGS = "-D RECEIVER1=1";
-		CFLAGS = "-D RECEIVER2=2";
-		CFLAGS = "-D EE_COM_N_MSG=3";
-		CFLAGS = "-D EE_COM_N_MODE=1";
-		CFLAGS = "-D EE_COM_MODE_A=0";*/
-		/***************************************************/
-
 
 		CPU_DATA = CORTEX_MX {
 			MODEL = M0;
 			APP_SRC = "code.c";
-			//APP_SRC = "initosekcom.c";
 			//JLINK = TRUE;
 			//COMPILER_TYPE = IAR;
 			COMPILER_TYPE = KEIL; 
@@ -77,8 +65,8 @@ CPU mySystem {
 		USEGETSERVICEID = FALSE;
 		USEPARAMETERACCESS = FALSE;
 		USERESSCHEDULER = FALSE;
-
-		KERNEL_TYPE = FP;
+		
+		KERNEL_TYPE = BCC1;
 
 
 		LIB = ENABLE {
@@ -93,8 +81,6 @@ CPU mySystem {
 		
 		EE_OPT = "__ADD_LIBS__";
 		
-		/*OSEK COM EE_OPT*/
-		//EE_OPT = "__COM_CCCB__";
 	};
 	
 	/* this is the OIL part for the task */
@@ -148,7 +134,7 @@ CPU mySystem {
 	
 	/*   
 	* OSEK COM sub-system properties.
-	* Vedi "OIL: OSEK Implementation Language Specification 2.5", pag.31. 
+	* See "OIL: OSEK Implementation Language Specification 2.5", pag.31. 
 	*/
 	
 	COM myCom {
