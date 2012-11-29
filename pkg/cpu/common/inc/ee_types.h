@@ -76,10 +76,8 @@ typedef int EE_INT32;
 typedef unsigned int EE_UINT32;
 #if (ULONG_MAX > 0xffffffffUL)
 typedef unsigned long int EE_UINT64;
-#elif defined(ULLONG_MAX) && (ULLONG_MAX == 0xffffffffffffffffULL)
+#elif defined(ULLONG_MAX) && (ULLONG_MAX > 0xffffffffUL)
 typedef unsigned long long int EE_UINT64;
-#else /* Unknown architecture */
-#error Unknow/unsupported architecture
 #endif
 #else /* Unknown architecture */
 #error Unknow/unsupported architecture
