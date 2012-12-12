@@ -92,24 +92,12 @@ isr
 
 */
 
-/* Application tick duration */
-static double scicos_period;
-/* Sine phase increment for each tick */
-static double tick_phase_increment;
-/* Ticks/period sine */
-static EE_UINT32 period_ticks;
-
 static void init(scicos_block *block)
 {
-    /* Scicos clock period (seconds) */    
-    scicos_period = get_scicos_period();
-    /* phase increment for each tick (Frequency (Hz) * tick length) */
-    tick_phase_increment = F * scicos_period;
-    
-    /* N° ticks x period => [(1 / F) -> period (sec.)] * [(1 / scicos_period) -> n° ticks per second] => 
-		1 / tick_phase_increment */
+    /* N° ticks x delay */
     /* N.B trick to use roundig not truncation */
-    period_ticks = (EE_UINT32) ((1.0 / tick_phase_increment) + 0.5);
+    EE_UINT32 delay_ticks = (EE_UINT32)((D / get_scicos_period()) + 0.5);
+    D = -1.0 * delay_ticks; /* NOTE: now D is not the delay but is an internal variable used to count the occurred ticks */
     
     double * y = block->outptr[0];
     y[0]=0.0;
@@ -119,26 +107,28 @@ static void inout(scicos_block *block)
 {
     /* Pi constant */
     static const double pi = 3.1415927;
-    
-    /* Application actual time */
-    double t = get_scicos_time();
     /* Block output pointer */
     double * y = block->outptr[0];
+    
+    /* incremente the counter */
+    D += 1;
+    /* phase increment for each tick (Frequency (Hz) * tick length) */
+    double tick_phase_increment = F * get_scicos_period();
+    /* N° ticks x period => [(1 / F) -> period (sec.)] * [(1 / scicos_period) -> n° ticks per second] => 
+       1 / tick_phase_increment */
+    /* N.B trick to use roundig not truncation */
+    EE_UINT32 period_ticks = (EE_UINT32) ((1.0 / tick_phase_increment) + 0.5);
 
-    if (t < D) {
+    if (D < 0.0) {
         /* Activation delay time D */
         y[0] = 0.0;
     } else {
-        /* internal counter (put equal to 0 at (period_ticks - 1)) */
-        static EE_UINT32 tick = 0;
         /* sine phase */
-        double phase = 2*pi*tick*tick_phase_increment - P;
-        
+        double phase = 2*pi*D*tick_phase_increment - P;
         y[0] = A*sin(phase) + B ;
-        
-        /* incremente tic counter and reset it at the counter end */
-        if(++tick == period_ticks)
-            tick = 0;
+        /* reset the counter at the counter end */
+        if((EE_UINT32)D == period_ticks)
+            D = 0;
     }
 }
 
