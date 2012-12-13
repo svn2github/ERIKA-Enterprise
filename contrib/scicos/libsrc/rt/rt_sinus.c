@@ -80,13 +80,12 @@ extern double       get_scicos_period(void);
 
 init 
 
-   SP_sec   = 1 / F ; period of sinus (sec)
-   SP_ticks = (EE_UINT16) (SP_sec/scicos_time) 
+   // counter initialization
+   counter = (EE_UINT16) (delay/scicos_time) 
    
 isr
 
-   w  = tick % SP_ticks
-   pt = (double) (w * scicos_time)
+   pt = (double) (counter * scicos_time)
    phase = fmod(2*pi*F*(pt - D) - P,(2*pi))
    y = A*sin(phase)+B
 
@@ -114,10 +113,11 @@ static void inout(scicos_block *block)
     D += 1;
     /* phase increment for each tick (Frequency (Hz) * tick length) */
     double tick_phase_increment = F * get_scicos_period();
-    /* N° ticks x period => [(1 / F) -> period (sec.)] * [(1 / scicos_period) -> n° ticks per second] => 
-       1 / tick_phase_increment */
+    /* N° ticks x multi_period => [(1 / F) -> period (sec.)] * [(1 / scicos_period) -> n° ticks per period] 
+       => 1 / tick_phase_increment */
+    /* For the multiperiod: scicos_period/(F*scicos_period) and to have an integer value we can use [ms] => 1000/F with F<=1000 Hz */
     /* N.B trick to use roundig not truncation */
-    EE_UINT32 period_ticks = (EE_UINT32) ((1.0 / tick_phase_increment) + 0.5);
+    EE_UINT32 period_ticks = (EE_UINT32)(1000.0/F + 0.5);
 
     if (D < 0.0) {
         /* Activation delay time D */
