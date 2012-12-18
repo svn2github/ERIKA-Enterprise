@@ -468,13 +468,4 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_disableIRQ(void)
 #endif /* __TC13__ || __TC131__ */
 
 
-#ifdef __INT__
-#include "cpu/tricore1/inc/ee_int.h"
-#endif
-
-#ifdef __TRAP__
-#include "cpu/tricore1/inc/ee_trap.h"
-#endif
-
-
 #endif /* __INCLUDE_TRICORE1_EE_CPU_H__ */

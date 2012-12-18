@@ -50,8 +50,8 @@
 
 #ifdef __GNUC__
 
-        .extern     EE_int_default_isr
-        .extern     EE_IRQ_nesting_level
+        .extern     EE_int_default_isr, STT_FUNC, 0
+        .extern     EE_IRQ_nesting_level, STT_FUNC, 0
 
 /* Interrupt vector table:
  *

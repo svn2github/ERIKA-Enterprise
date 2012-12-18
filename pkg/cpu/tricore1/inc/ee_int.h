@@ -66,16 +66,15 @@ void EE_init_int_vector(void);
 /* ISR2 Prologue (Lower context safe)
  * (Interrupts already enabled, upper/lower contexts saved)
  */
-__INLINE__ void __ALWAYS_INLINE__ __INTERRUPT__ EE_isr2_prestub(void)
+__INLINE__ void __ALWAYS_INLINE__ EE_isr2_prestub(void)
 {   
     /* Nothing to do (see comment below) */
 }
 
-
 /* ISR2 Epilogue
  *
  */
-__INLINE__ void __ALWAYS_INLINE__ __INTERRUPT__ EE_isr2_poststub(void)
+__INLINE__ void __ALWAYS_INLINE__ EE_isr2_poststub(void)
 {
 #ifdef __ALLOW_NESTED_IRQ__
     EE_hal_disableIRQ();

@@ -119,11 +119,11 @@ struct EE_CTX {
 *************************************************************************/
 
 /* Thread function body pointer */
-extern const EE_ADDR EE_hal_thread_body[];
+extern const EE_THREAD_PTR EE_hal_thread_body[];
 
 /* From ee_hal.c */
 extern EE_UREG EE_IRQ_nesting_level;
-extern EE_ADDR EE_hal_endcycle_next_thread;
+extern EE_THREAD_PTR EE_hal_endcycle_next_thread;
 
 #ifdef __MULTI__
 
@@ -155,7 +155,7 @@ extern EE_UINT32 EE_terminate_data[];
 
 /* This is the real thread body that is called if the thread use the
    TerminateTask function */
-extern const EE_ADDR EE_terminate_real_th_body[];
+extern const EE_THREAD_PTR EE_terminate_real_th_body[];
 
 /* This is the stub that have to be put into the EE_th_body array */
 extern void EE_oo_thread_stub(void);
@@ -178,7 +178,7 @@ void EE_tc1_hal_stkchange(EE_TID tid);
 
 #if defined(__OO_BCC1__) || defined(__OO_BCC2__) \
     || defined(__OO_ECC1__) || defined(__OO_ECC2__)
-void EE_tc1_hal_terminate_savestk(EE_ADDR sp, EE_ADDR realbody);
+void EE_tc1_hal_terminate_savestk(EE_ADDR sp, EE_THREAD_PTR realbody);
 void EE_tc1_hal_terminate_task(EE_ADDR sp);
 #endif
 

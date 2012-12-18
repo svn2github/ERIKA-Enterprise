@@ -114,6 +114,15 @@ extern "C" {
 
 #ifdef __TRICORE1__
 #include "cpu/tricore1/inc/ee_cpu.h"
+
+#ifdef __INT__
+#include "cpu/tricore1/inc/ee_int.h"
+#endif
+
+#ifdef __TRAP__
+#include "cpu/tricore1/inc/ee_trap.h"
+#endif
+
 #endif /* __TRICORE1__ */
 
 #ifdef EE_TRICORE__

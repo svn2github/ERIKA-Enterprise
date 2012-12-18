@@ -46,7 +46,6 @@
 
 // #undef DEBUG
 
-#include "ee_internal.h"
 #include "cpu/tricore1/inc/ee_debug.h"
 #include "cpu/tricore1/inc/ee_compiler.h"
 #include "cpu/tricore1/inc/ee_hal.h"

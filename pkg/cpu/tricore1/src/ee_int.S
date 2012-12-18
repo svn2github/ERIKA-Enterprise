@@ -54,9 +54,9 @@
         
 #ifdef __GNUC__
 
-        .extern EE_wdt_lock
-        .extern EE_wdt_unlock
-        .extern EE_int_vector
+        .extern EE_wdt_lock, STT_FUNC, 0
+        .extern EE_wdt_unlock, STT_FUNC, 0
+        .extern EE_int_vector, STT_FUNC, 0
 
 /* Default interupt handler for both ISR1 and ISR2
  *
@@ -86,11 +86,12 @@ EE_init_int_vector:
 
         disable
         call EE_wdt_unlock
-
+#if defined (__INT__)
         movh %d8, HI:EE_int_vector
         addi %d8, %d8, LO:EE_int_vector
         mtcr $biv, %d8 /* Table must be properly aligned */
         isync
+#endif
 
 #if defined (__MULTI__) && defined(__IRQ_STACK_NEEDED__)
         /* Define an ISR stack location. */

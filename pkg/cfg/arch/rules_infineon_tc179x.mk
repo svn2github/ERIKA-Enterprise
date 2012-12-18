@@ -158,8 +158,9 @@ $(TRICORE1_MODEL).objdump: $(TRICORE1_MODEL).elf
 $(TRICORE1_MODEL).elf: $(OBJS) $(LINKDEP) $(LIBDEP)
 	@printf "LD\n";
 	$(QUIET)$(EE_LINK) $(COMPUTED_OPT_LINK) -o $(TARGETFILE) $(OBJS) \
-          --start-group $(OPT_LIBS) --end-group \
+          -Wl,--start-group $(OPT_LIBS) -Wl--end-group \
           -Wl,-Map=$(TRICORE1_MODEL).map
+
 
 $(OBJDIR)/%.o: %.S
 	$(VERBOSE_PRINTPRE) $(EE_CC)  $(COMPUTED_ALLINCPATH) $(DEFS_ASM) -E $< > $(SRCFILE)

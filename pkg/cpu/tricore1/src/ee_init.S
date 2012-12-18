@@ -53,9 +53,9 @@
            .globl EE_link_ctors
 EE_link_ctors: 
 
-        .extern     EE_tc179x_init_clock
-        .extern     EE_init_int_vector
-        .extern     EE_init_trap_vector
+        .extern     EE_tc179x_init_clock, STT_FUNC, 0
+        .extern     EE_init_int_vector, STT_FUNC, 0
+        .extern     EE_init_trap_vector, STT_FUNC, 0
         
         .section .ctors
 

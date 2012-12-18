@@ -50,7 +50,7 @@
 
 #ifdef __GNUC__
 
-        .extern     EE_trap_default_tsr
+        .extern     EE_trap_default_tsr, STT_FUNC, 0
 
 /* Trap vector table:
  *

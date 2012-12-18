@@ -43,9 +43,9 @@
  */
 #ifdef __GNUC__
 
-        .extern EE_trap_vector
-        .extern EE_wdt_lock
-        .extern EE_wdt_unlock
+        .extern EE_trap_vector, STT_FUNC, 0
+        .extern EE_wdt_lock, STT_FUNC, 0
+        .extern EE_wdt_unlock, STT_FUNC, 0
 
 /* Default trap handler
  * 
@@ -70,11 +70,13 @@ EE_trap_default_tsr:
         .type EE_init_trap_vector, @function
 EE_init_trap_vector:
         
-        call EE_wdt_unlock       
+        call EE_wdt_unlock
+#if defined (__TRAP__)
         movh %d8, HI:EE_trap_vector
         addi %d8, %d8, LO:EE_trap_vector
         mtcr $btv, %d8 /* Table must be properly aligned */
-        dsync
+        isync
+#endif
         call EE_wdt_lock
         ret
         
