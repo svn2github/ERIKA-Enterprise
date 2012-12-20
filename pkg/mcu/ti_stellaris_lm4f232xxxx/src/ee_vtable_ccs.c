@@ -349,7 +349,7 @@ extern void EE_CORTEX_MX_WIDE_TIMER_0_A_ISR(void);
 extern void EE_CORTEX_MX_WIDE_TIMER_0_A_ISR(void);
 #endif
 #ifdef EE_CORTEX_MX_WIDE_TIMER_1_A_ISR			// Wide Timer 1 subtimer A
-extern void EE_CORTEX_MX_WIDE_TIMER_0_A_ISR(void);
+extern void EE_CORTEX_MX_WIDE_TIMER_1_A_ISR(void);
 #endif
 #ifdef EE_CORTEX_MX_WIDE_TIMER_1_B_ISR			// Wide Timer 1 subtimer B
 extern void EE_CORTEX_MX_WIDE_TIMER_1_B_ISR(void);
