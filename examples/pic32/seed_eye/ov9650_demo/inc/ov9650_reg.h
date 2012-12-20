@@ -14,6 +14,7 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
+
 /**
  *
  *  \file ov9650_reg.h
@@ -30,7 +31,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 /**
 * @brief Definition of the maximum size of the buffer for different Micro
 */
-
 
 #ifndef OV9650_TIME_OUT_DEF_H_
 #define OV9650_TIME_OUT_DEF_H_
@@ -927,7 +927,6 @@ typedef enum {
  * Bit Register Def. 
  */
  
-
 /* Bit Resolution. */
 #define OV9650_COM7_VGA      (1 << 6)
 #define OV9650_COM7_CIF      (1 << 5)
@@ -970,9 +969,7 @@ typedef enum {
 /* Bit Sleep mode */
 #define OV9650_BIT_SOFT_SLEEP		(1 << 4) /** Setting this bit the camera goes
 										         in sleep mode. */
-
 /* DEVID register */
-
 #define OV9650_DEVICE_ID 				0x60	/**< The I2C slave device ID */
 
 #define OV9650_PROD_IDH					0x7F    /**< Product ID (Hight byte)*/

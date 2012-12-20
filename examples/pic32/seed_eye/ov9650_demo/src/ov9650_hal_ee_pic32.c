@@ -63,7 +63,6 @@ static volatile uint32_t frame_idx, image_size;
 void ov9650_oc_hal_init(uint32_t frequency)
 {
 	EE_oc_generate_clock_init(OV9650_OC_PORT, frequency);
-	
 }
 
 void ov9650_oc_hal_start(void)
@@ -177,7 +176,6 @@ OV9650_HSYNC_INTERRUPT()
 |  If "Debug" configuration is possible to manage the function that measure    |
 |  the frame duration, and toggle a value of output pin to show that duration  |
  ---------------------------------------------------------------------------- */
-
 OV9650_VSYNC_INTERRUPT()
 {
 	OV9650_PIN_HSYNC_START();

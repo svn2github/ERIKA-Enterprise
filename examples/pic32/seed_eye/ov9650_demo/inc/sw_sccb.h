@@ -88,3 +88,4 @@ uint8_t sw_sccb_read(uint8_t id, uint8_t reg, uint8_t* val);
 uint8_t sw_sccb_write(uint8_t id, uint8_t reg, uint8_t val);
 
 #endif
+

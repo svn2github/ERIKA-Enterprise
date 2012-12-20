@@ -73,3 +73,4 @@ EE_UINT32 elapsed_us(EE_UINT32 from, EE_UINT32 to);
 EE_UINT32 elapsed_ms(EE_UINT32 from, EE_UINT32 to);
 EE_UINT32 get_time_stamp(void);
 void msleep(EE_UINT32 ms);
+

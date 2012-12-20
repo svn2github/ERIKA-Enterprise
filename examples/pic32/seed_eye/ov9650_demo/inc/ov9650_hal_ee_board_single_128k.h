@@ -16,7 +16,6 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
- 
 /*
  * ee_ov9659_camera_board.h
  *
@@ -29,7 +28,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define OV9650_HAL_EE_BOARD_SINGLE_128K_H
 
 
-
 /* Specific Definitions	*/
 
 #ifndef OV9650_OC_PORT
@@ -39,8 +37,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef OV9650_I2C_PORT
 #define OV9650_I2C_PORT 	EE_I2C_PORT_1A
 #endif
-
-
 
 /**
 * @name Enable pin
@@ -60,9 +56,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define OV9650_PIN_RESET_ON() 		LATDbits.LATD1=1	/* Set pin to high value (reset on)*/
 #define OV9650_PIN_RESET_OFF() 		LATDbits.LATD1=0	/* Set pin to low value (reset off)*/
 /**  @} */
-
-
-
 
 /**
 * @name Vertical Sync
@@ -102,7 +95,6 @@ do {\
 
 
 #define OV9650_VSYNC_INTERRUPT()  ISR1(_EXTERNAL_2_VECTOR)
-
 
 /**  @} */
 
@@ -150,7 +142,6 @@ do {\
 	IFS0bits.INT1IF = 0;	/* Reset INT1 interrupt flag */	\
 } while (0)
 
-
 /*Position of the interrupt associated with VCLK inside the interrupt table */
 #define OV9650_PCLK_INT_TABLE_POSITION		_EXTERNAL_1_IRQ
 
@@ -185,8 +176,6 @@ do {\
 #define OV9650_PIN_Y_ADDRESS	(&PORTE)			/* Address PORT_E */
 /**  @} */
 
-
-
 /**
 * @name Software interrupt: end of frame acquisition
 *
@@ -196,7 +185,6 @@ do {\
 * \see ov9650_capture
 *
 * @{ */
-
 
 #define OV9650_PIN_EOF_INIT()\
 do {\

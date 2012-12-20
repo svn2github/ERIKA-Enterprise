@@ -79,7 +79,7 @@ CPU test_application {
 		EE_OPT = "__ADD_LIBS__";
 		EE_OPT = "__USE_LEDS__";
 
-		CFLAGS = "-DOV9650_VCLK_INT_MODE";
+		//CFLAGS = "-DOV9650_VCLK_INT_MODE";
 		EE_OPT = "__USE_OV9650__";
 
 		// Timer Configuration

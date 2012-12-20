@@ -61,17 +61,12 @@
 #include "mcu/microchip_pic32/inc/ee_uart.h"
 #include "ov9650.h"
 
+/* UART RX Flag. */
 #define UART_RX_FLAG  IFS2bits.U1BRXIF
-
-/* FSM Definitions */
-#define EE_UART_CAMERA_NO_ERROR		1
 
 /* Camera Definitions */
 #define OV9650_COLOR_MODE_ON 	1
 #define OV9650_COLOR_MODE_OFF 	0
-
-//#define SERIAL_DEBUG
-//#define RGB
 
 /* Console definitions */
 #define MY_FIRST_CONSOLE 		0
@@ -80,28 +75,19 @@
 #define CONSOLE_ID 				0
 #define CONSOLE_ERROR 			1
 
-/* Image default resolution */
+/* eDAC needs this image resolution */
 #define FRAME_WIDTH 			160
 #define FRAME_HEIGHT 			120
 #define COLOR_MODE  			OV9650_COLOR_MODE_ON
-// Colour is alway present
+
+/* The camera get always an image with colour */
 #define FRAME_SIZE 				FRAME_WIDTH * FRAME_HEIGHT * (COLOR_MODE + 1)
 
-#define CAMERA_STABILIZATION_TIME  	1
-
-volatile uint8_t pixel_dump = 0;
+/* Buffer data image  */
 EE_UINT8 frame_buffer[FRAME_SIZE];
 
-#define UART_PORT		EE_UART_PORT_2B
-#define I2C_PORT_1A 	EE_I2C_PORT_1A
-
-
-#define I2C_PORT_1A 	EE_I2C_PORT_1A
-#define FLAG 			EE_I2C_DEFAULT_FLAGS
-
-
+/* Parser variables */
 volatile uint8_t done = 0;
-volatile uint32_t frame_counter;
 volatile uint8_t image_dump = 0;
 
 void delay_sec (EE_UINT32 seconds) {	
@@ -110,7 +96,6 @@ void delay_sec (EE_UINT32 seconds) {
 	for (i = 0; i < milliseconds; i++)
 		EE_delay_us(1000);
 }
-
 
 static void error(int err_value)
 {
@@ -129,14 +114,12 @@ static void error(int err_value)
 	}
 }
 
-
 static void process_frame(ov9650_status_t status)
 {
 	EE_led_on(1);
 	ActivateTask(process_image);
 	done = 1;
 }
-
 
 void handshake_edaq(void)
 {
@@ -154,23 +137,6 @@ void handshake_edaq(void)
 		}
 	}
 }
-
-
-uint8_t	inv(uint8_t data)
-{
-	uint8_t k, value = 0;
-
-	for (k = 0; k < 8; k++) {
-		value = value << 1;
-		if (data & 0x01) {
-			value |= 0x01;
-		}
-		data = data >> 1;
-	}
-
-	return value;
-}
-
 
 static void send_data(void)
 {
@@ -232,7 +198,6 @@ static void send_data(void)
 			if (!(i%10)) myprintf("\r\n");
 		}
 	}
-	
 
 	if (image_dump == 1){
 		image_dump = 0;
@@ -241,7 +206,6 @@ static void send_data(void)
 	memset(frame_buffer, 255, FRAME_SIZE);
 	EE_leds_toggle();
 }
-
 
 uint8_t get_hex(uint8_t data)
 {
@@ -267,8 +231,8 @@ uint8_t is_hex(uint8_t data)
 }
 
 static uart_init_port2A (EE_UINT32 baud, EE_UINT16 byte_format,
-		     EE_UINT16 mode) {
-
+		     EE_UINT16 mode)
+{
 	// Stop UART port
 	U2AMODEbits.UARTEN = 0;
 
@@ -318,7 +282,6 @@ static uart_init_port2A (EE_UINT32 baud, EE_UINT16 byte_format,
 	return EE_UART_NO_ERROR;
 }
 
-
 uint8_t read_num(void)
 {
 	uint8_t data_h, data_l;
@@ -342,47 +305,6 @@ uint8_t read_num(void)
 	return (get_hex(data_h) * 16 + get_hex(data_l));
 }
 
-
-void printf_data(uint8_t* data, uint16_t size, uint8_t col, uint8_t inv)
-{
-	uint16_t i, j, k;
-	uint8_t value = 0, flip = 0;
-
-	myprintf("P2\r\n");
-	myprintf("160 120\r\n"); 
-	myprintf("255\r\n");
-	for (i = 0, j = 0; i < size; i += 1, data += 1) {
-		if (j == col) {
-			myprintf("\r\n");
-			j = 0;
-		} else {
-			j += 1;
-		}
-		if(inv) {
-			for (k = 0; k < 8; k++) {
-				value = value << 1;
-				if (*data & 0x01) {
-					value |= 0x01;
-				}
-				*data = *data >> 1;
-			}
-		} else {
-			value = *data;
-		}
-
-		//myprintf("%.2X ", value);
-		if (flip) {
-			myprintf("%d",  (value / 100));
-			myprintf("%d",  (value % 100) / 10);
-			myprintf("%d ", (value % 10));
-			flip = 1;
-		} else {
-			flip = 1;
-		}
-	}
-}
-
-
 /* ************************************************************************** */
 /*                                  TASKS                                     */
 /* ************************************************************************** */
@@ -394,16 +316,13 @@ TASK(process_image)
 	}
 }
 
-
 /* Console for debug and output image data. */
 console_descriptor_t *my_console_uart;
 console_descriptor_t *my_debug_uart_tx;
 console_descriptor_t *my_debug_uart_rx;
 
-
 int main(void)
 {
-	
 	EE_system_init();
     EE_leds_init();
 
@@ -419,7 +338,7 @@ int main(void)
     					CONSOLE_SERIAL_FLAG_BIT_STOP1);
     console_init(MY_FIRST_CONSOLE, my_console_uart);
 
-	 my_debug_uart_tx = console_serial_config(MY_DEBUG_SERIAL_TX, UART_BAUDRATE,
+	my_debug_uart_tx = console_serial_config(MY_DEBUG_SERIAL_TX, UART_BAUDRATE,
     					CONSOLE_SERIAL_FLAG_BIT8_NO |
     					CONSOLE_SERIAL_FLAG_BIT_STOP1);
     console_init(MY_DEBUG_CONSOLE_TX, my_debug_uart_tx);
@@ -450,6 +369,7 @@ int main(void)
 			EE_led_toggle(0);
 		}
 	}
+
 	if (ov9650_init_configure()!= OV9650_SUCCESS) {
 			while (1) {
 			/* Something went wrong. */
@@ -472,12 +392,13 @@ int main(void)
 		myprintf("03) get registers configuration\r\n");
 		myprintf("04) Image dump\r\n");
 		myprintf("> ");
+
 		num = read_num();
 		if (num > 4) {
 			myprintf("\r\n");
 			continue;
 		}
-		
+
 		switch (num) {
 			case 1:
 				myprintf("\taddr register >");

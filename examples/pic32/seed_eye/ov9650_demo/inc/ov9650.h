@@ -146,3 +146,4 @@ COMPILER_INLINE ov9650_status_t ov9650_capture(uint8_t *image, ov9650_cback_t *f
 }
 
 #endif
+

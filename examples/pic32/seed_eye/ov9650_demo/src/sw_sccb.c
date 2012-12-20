@@ -24,7 +24,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  *\brief API header
  */
 
-
 #include "../inc/sw_sccb.h"
 
 /* *** Private functions *** */
@@ -33,10 +32,8 @@ void sw_sccb_start(void)
 {
 	SW_SCCB_SDA_VAL	= SW_SCCB_PIN_HIGH;
 	SW_SCCB_SCL_VAL	= SW_SCCB_PIN_HIGH;
-	//SW_SCCB_T_2();
 	SW_SCCB_T();
 	SW_SCCB_SDA_VAL	= SW_SCCB_PIN_LOW;
-	//SW_SCCB_T_2();
 	SW_SCCB_T();
 	SW_SCCB_SCL_VAL	= SW_SCCB_PIN_LOW;
 	SW_SCCB_T();
@@ -46,10 +43,8 @@ void sw_sccb_stop(void)
 {
 	SW_SCCB_SDA_VAL	= SW_SCCB_PIN_LOW;
 	SW_SCCB_SCL_VAL	= SW_SCCB_PIN_LOW;
-	//SW_SCCB_T_2();
 	SW_SCCB_T();
 	SW_SCCB_SCL_VAL	= SW_SCCB_PIN_HIGH;
-	//SW_SCCB_T_2();
 	SW_SCCB_T();
  	SW_SCCB_SDA_VAL	= SW_SCCB_PIN_HIGH;
 	SW_SCCB_T();

@@ -141,16 +141,3 @@ void msleep(EE_UINT32 ms)
 	} while (elapsed(start, curr) < (ms * (cpu_freq / 1000U)));
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-

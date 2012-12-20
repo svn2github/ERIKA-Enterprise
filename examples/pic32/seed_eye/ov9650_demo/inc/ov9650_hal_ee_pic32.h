@@ -66,15 +66,9 @@ ov9650_status_t ov9650_hal_capture(uint8_t *image, ov9650_cback_t *func);
 #define	OV9650_MORE_THAN_4_MCLK_CYCLES	1 	
 #define	OV9650_MORE_THAN_2086000_MCLK_CYCLES	300000
 
-//Main clock speed
-
-//#define SYSTEM_INSTRUCTION_CLOCK 80000000ul
-//#define	OV9650_MCLK_PERIOD	0x02
-
 #ifndef OV9650_MCLK_FREQ
 #define OV9650_MCLK_FREQ	OV9650_OC_FREQ 
 #endif
-
 
 #ifdef __32MX360F512L__
 #define OV9650_MAX_SIZE	19200	/**< For PIC32MX */
@@ -86,40 +80,24 @@ ov9650_status_t ov9650_hal_capture(uint8_t *image, ov9650_cback_t *func);
 #endif //OV9650_MAX_SIZE
 #endif
 
-
 /******************************************************************************/
 /* 				OC specific definition			      */
 /******************************************************************************/
-
-//TODO: Must be implemented a logic of selection between the available boards
 
 #ifndef OV9650_OC_FREQ
 #define OV9650_OC_FREQ 	5000000ul
 #endif
 
 /******************************************************************************/
-/* 				I2C specific definition			      */
-/******************************************************************************/
-
-
-
-#ifndef OV9650_I2C_CLOCK
-#define OV9650_I2C_CLOCK 	EE_I2C_100KHZ
-#endif
-
-/******************************************************************************/
 /* 				DMA specific definition			      */
 /******************************************************************************/
-
 
 /* Registers exploited */
 #ifndef OV9650_DMA_CH
 #define OV9650_DMA_CH				EE_DMA_CH0
 #endif
 
-
 #if (OV9650_DMA_CH == 0)
-
 #define OV9650_DMA_DEST_ADD_REG		DCH0DSA
 #define OV9650_DMA_SOURCE_ADD_REG	DCH0SSA
 #define OV9650_DMA_CH_ENABLE()		DCH0CONSET = _DCH0CON_CHEN_MASK
@@ -127,7 +105,6 @@ ov9650_status_t ov9650_hal_capture(uint8_t *image, ov9650_cback_t *func);
 #define OV9650_DMA_FORCE_START()	DCH0ECONSET = _DCH0ECON_CFORCE_MASK
 
 #elif	(OV9650_DMA_CH == 1)
-
 #define OV9650_DMA_DEST_ADD_REG		DCH1DSA
 #define OV9650_DMA_SOURCE_ADD_REG	DCH1SSA
 #define OV9650_DMA_CH_ENABLE()		DCH1CONSET = _DCH1CON_CHEN_MASK
@@ -135,16 +112,13 @@ ov9650_status_t ov9650_hal_capture(uint8_t *image, ov9650_cback_t *func);
 #define OV9650_DMA_FORCE_START()	DCH1ECONSET = _DCH1ECON_CFORCE_MASK
 
 #elif	(OV9650_DMA_CH == 2)
-
 #define OV9650_DMA_DEST_ADD_REG		DCH2DSA
 #define OV9650_DMA_SOURCE_ADD_REG	DCH2SSA
 #define OV9650_DMA_CH_ENABLE()		DCH2ONSET = _DCH2CON_CHEN_MASK
 #define OV9650_DMA_CH_DISABLE()		DCH2CONCLR = _DCH2CON_CHEN_MASK
 #define OV9650_DMA_FORCE_START()	DCH2ECONSET = _DCH2ECON_CFORCE_MASK
 
-
 #elif	(OV9650_DMA_CH == 3)
-
 #define OV9650_DMA_DEST_ADD_REG		DCH3DSA
 #define OV9650_DMA_SOURCE_ADD_REG	DCH3SSA
 #define OV9650_DMA_CH_ENABLE()		DCH3CONSET = _DCH3CON_CHEN_MASK
@@ -152,7 +126,6 @@ ov9650_status_t ov9650_hal_capture(uint8_t *image, ov9650_cback_t *func);
 #define OV9650_DMA_FORCE_START()	DCH3ECONSET = _DCH3ECON_CFORCE_MASK
 
 #elif	(OV9650_DMA_CH == 4)
-
 #define OV9650_DMA_DEST_ADD_REG		DCH4DSA
 #define OV9650_DMA_SOURCE_ADD_REG	DCH4SSA
 #define OV9650_DMA_CH_ENABLE()		DCH4CONSET = _DCH4CON_CHEN_MASK
@@ -160,33 +133,27 @@ ov9650_status_t ov9650_hal_capture(uint8_t *image, ov9650_cback_t *func);
 #define OV9650_DMA_FORCE_START()	DCH4ECONSET = _DCH4ECON_CFORCE_MASK
 
 #elif	(OV9650_DMA_CH == 5)
-
 #define OV9650_DMA_DEST_ADD_REG		DCH5DSA				 
-#define OV9650_DMA_SOURCE_ADD_REG		DCH5SSA	
+#define OV9650_DMA_SOURCE_ADD_REG	DCH5SSA	
 #define OV9650_DMA_CH_ENABLE()		DCH5CONSET = _DCH5CON_CHEN_MASK
 #define OV9650_DMA_CH_DISABLE()		DCH5CONCLR = _DCH5CON_CHEN_MASK
-#define OV9650_DMA_FORCE_START()		DCH5ECONSET = _DCH5ECON_CFORCE_MASK
+#define OV9650_DMA_FORCE_START()	DCH5ECONSET = _DCH5ECON_CFORCE_MASK
 
 #elif	(OV9650_DMA_CH == 6)
-
 #define OV9650_DMA_DEST_ADD_REG		DCH6DSA
 #define OV9650_DMA_SOURCE_ADD_REG	DCH6SSA
 #define OV9650_DMA_CH_ENABLE()		DCH6CONSET = _DCH6CON_CHEN_MASK
 #define OV9650_DMA_CH_DISABLE()		DCH6CONCLR = _DCH6CON_CHEN_MASK
 #define OV9650_DMA_FORCE_START()	DCH6ECONSET = _DCH6ECON_CFORCE_MASK
 
-
 #elif	(OV9650_DMA_CH == 7)
-
 #define OV9650_DMA_DEST_ADD_REG		DCH7DSA
 #define OV9650_DMA_SOURCE_ADD_REG	DCH7SSA
 #define OV9650_DMA_CH_ENABLE()		DCH7CONSET = _DCH7CON_CHEN_MASK
 #define OV9650_DMA_CH_DISABLE()		DCH7CONCLR = _DCH7CON_CHEN_MASK
 #define OV9650_DMA_FORCE_START()	DCH7ECONSET = _DCH7ECON_CFORCE_MASK
 
-
 #endif
-
 
 /* Macro definitions used */
 
@@ -195,10 +162,8 @@ ov9650_status_t ov9650_hal_capture(uint8_t *image, ov9650_cback_t *func);
 #endif
 
 #define OV9650_DMA_DEFAULT_FLAG		0
-	
 
 #define OV9650_DMA_SOURCE_SIZE		1
-
 
 #define OV9650_DMA_CELL_SIZE		1
 
@@ -212,16 +177,12 @@ ov9650_status_t ov9650_hal_capture(uint8_t *image, ov9650_cback_t *func);
 
 #define OV9650_DMA_INT_SOURCE		OV9650_PCLK_INT_TABLE_POSITION
 
-
-
-
 /********************************************************/
 /* 		Interrupt Management Functions		*/
 /********************************************************/
 
 #define OV9650_HAL_DISABLE_INTERRUPTS() asm volatile("di")
 #define OV9650_HAL_ENABLE_INTERRUPTS() asm volatile("ei")
-
 
 /* For compatibilty with other HALs */
 #define ov9650_hal_init_ack() OV9650_SUCCESS
