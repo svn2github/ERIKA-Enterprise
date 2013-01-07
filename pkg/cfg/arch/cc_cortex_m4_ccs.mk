@@ -55,7 +55,15 @@ BINDIR_CYG := /usr/bin
 #CCS_INSTALL_ROOT: Code Composer Studio Installation Root Folder.
 #                  Default "C:\Programmi\Texas Instruments\ccsv4".
 CG_TOOL_SUFFIX := 470
+ifeq ($(call iseeopt, __CCS_4_2_4_00033_OLDER__), yes)
 CG_TOOL_ROOT := $(CCS_INSTALL_ROOT)/tools/compiler/tms$(CG_TOOL_SUFFIX)
+else
+ifeq ($(call iseeopt, __CCS_4_2_5_00005_TMS470_4_9_3__), yes)
+CG_TOOL_ROOT := $(shell cygpath -m -s "$(CCS_INSTALL_ROOT)/tools/compiler/TMS470 Code Generation Tools 4.9.3")
+else
+CG_TOOL_ROOT := $(shell cygpath -m -s "$(CCS_INSTALL_ROOT)/tools/compiler/TMS470 Code Generation Tools 4.9.7")
+endif
+endif
 
 CG_BIN_DIR := $(CG_TOOL_ROOT)/bin
 
@@ -163,17 +171,24 @@ OPT_AR = r
 
 ifeq ($(call iseeopt, __CORTEX_M4__), yes)
 OPT_CC += -mv7M4
+ifeq ($(call iseeopt, __CCS_4_2_4_00033_OLDER__), yes)
+OPT_CC += --float_support=vfplib
+else
+OPT_CC += --float_support=FPv4SPD16
+endif
 endif
 
 ifeq ($(call iseeopt, DEBUG), yes)
 OPT_CC += -g
 endif
 
-OPT_CC +=  -c --gcc --define=ccs --define=PART_LM4F232H5QD \
-	   --define=TARGET_IS_BLIZZARD_RA1 --diag_warning=225 -me \
+OPT_CC +=  -c --gcc --define=ccs --diag_warning=225 -me \
 	   --gen_func_subsections=on --abi=eabi --code_state=16 \
-	   --float_support=vfplib --ual --quiet \
-	   --temp_directory=$(CG_TMPDIR)
+	   --ual --quiet --temp_directory=$(CG_TMPDIR)
+
+ifeq ($(call iseeopt, __LM4F232xxxx__), yes)
+OPT_CC += --define=PART_LM4F232H5QD --define=TARGET_IS_BLIZZARD_RA1
+endif
 
 # Specific option from the application makefile
 OPT_CC += $(CFLAGS)
@@ -181,18 +196,24 @@ OPT_CC += $(CFLAGS)
 ##OPT_ASM are the options for assembler invocation
 ifeq ($(call iseeopt, __CORTEX_M4__), yes)
 OPT_ASM += -mv7M4
+ifeq ($(call iseeopt, __CCS_4_2_4_00033_OLDER__), yes)
+OPT_ASM += --float_support=vfplib
+else
+OPT_ASM += --float_support=FPv4SPD16
+endif
 endif
 
 ifeq ($(call iseeopt, DEBUG), yes)
 OPT_ASM += -g
 endif 
 
-
-OPT_ASM += -c --gcc --define=ccs --define=PART_LM4F232H5QD \
-	   --define=TARGET_IS_BLIZZARD_RA1 --diag_warning=225 -me \
+OPT_ASM += -c --gcc --define=ccs --diag_warning=225 -me \
 	   --gen_func_subsections=on --abi=eabi --code_state=16 \
-	   --float_support=vfplib --ual --quiet --asm_extension=.s \
-	   --temp_directory=$(CG_TMPDIR)
+	   --ual --quiet --asm_extension=.s --temp_directory=$(CG_TMPDIR)
+
+ifeq ($(call iseeopt, __LM4F232xxxx__), yes)
+OPT_ASM += --define=PART_LM4F232H5QD --define=TARGET_IS_BLIZZARD_RA1
+endif
 
 # Specific option from the application makefile
 OPT_ASM += $(ASFLAGS)
@@ -200,6 +221,11 @@ OPT_ASM += $(ASFLAGS)
 ## OPT_LINK represents the options for linker invocation
 ifeq ($(call iseeopt, __CORTEX_M4__), yes)
 OPT_LINK += -mv7M4
+ifeq ($(call iseeopt, __CCS_4_2_4_00033_OLDER__), yes)
+OPT_LINK += --float_support=vfplib
+else
+OPT_LINK += --float_support=FPv4SPD16
+endif
 endif
 
 ifeq ($(call iseeopt, DEBUG), yes)
@@ -207,10 +233,13 @@ OPT_LINK += -g
 endif
 
 # FIXME: STACK_SIZE.
-OPT_LINK += -diag_warning=225 -me --gen_func_subsections=on --abi=eabi \
-	    --code_state=16 --float_support=vfplib -z --define=ccs \
-	    --define=PART_LM4F232H5QD --define=TARGET_IS_BLIZZARD_RA1 \
-	    --reread_libs --rom_model --warn_sections
+OPT_LINK += --diag_warning=225 -me --gen_func_subsections=on --abi=eabi \
+	    --code_state=16 -z --define=ccs --reread_libs --rom_model \
+	    --warn_sections
+
+ifeq ($(call iseeopt, __LM4F232xxxx__), yes)
+OPT_LINK += --define=PART_LM4F232H5QD --define=TARGET_IS_BLIZZARD_RA1
+endif
 
 ifeq ($(call iseeopt, __CORTEX_M4_CCS_SYS_STACK_4K__), yes)
 OPT_LINK += --stack_size=4096
