@@ -53,13 +53,25 @@ BINDIR_CYG := /usr/bin
 #          Default "C:\Keil\ARM".
 CG_TOOL_ROOT := $(ARM_ROOT)
 
+ifeq ($(call iseeopt, __KEIL_4_54_OLDER__), yes)
 CG_BIN_DIR := $(CG_TOOL_ROOT)/BIN40
+else
+CG_BIN_DIR := $(CG_TOOL_ROOT)/ARMCC/bin
+endif
 
 CG_BINUTILS_DIR := $(CG_TOOL_ROOT)/BIN
 
+ifeq ($(call iseeopt, __KEIL_4_54_OLDER__), yes)
 CG_LIB_DIR := $(CG_TOOL_ROOT)/RV31/LIB
+else
+CG_LIB_DIR := $(CG_TOOL_ROOT)/ARMCC/lib $(CG_TOOL_ROOT)/RV31/LIB
+endif
 
+ifeq ($(call iseeopt, __KEIL_4_54_OLDER__), yes)
 CG_INCLUDE_DIR := $(CG_TOOL_ROOT)/RV31/INC/
+else
+CG_INCLUDE_DIR := $(CG_TOOL_ROOT)/ARMCC/include $(CG_TOOL_ROOT)/RV31/INC/
+endif
 
 ifdef TMPDIR
 CG_TMPDIR := $(call native_path, $(TMPDIR))
@@ -168,7 +180,11 @@ endif
 ifneq ($(ONLY_LIBS), TRUE)
 
 ifdef CG_LIB_DIR
+ifeq ($(call iseeopt, __KEIL_4_54_OLDER__), yes)
 OPT_LINK += --libpath $(call native_path, $(CG_LIB_DIR))
+else
+OPT_LINK += $(foreach d,$(CG_LIB_DIR),$(addprefix --libpath ,$(call native_path,$d)))
+endif
 endif
 
 ifneq ($(call iseeopt, __BIN_DISTR), yes)
