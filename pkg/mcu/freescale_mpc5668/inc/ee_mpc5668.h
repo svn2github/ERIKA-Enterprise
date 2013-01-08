@@ -73,6 +73,14 @@
 #endif /* EE_CURRENTCPU */
 
 #ifndef EE_ISR_DYNAMIC_TABLE
+/*
+ * Macros used by RT-Druid to target each isr to the proper
+ * cpu ONLY in case of "STATIC ISR Table"
+ */
+#define EE_RTDRUID_ISR_MASTER   0x00U /* To mark a isr to the Master core */
+#define EE_RTDRUID_ISR_SLAVE    0xC0U /* To mark a isr to the Slave core */
+#define EE_RTDRUID_ISR_BOTH     0x40U /* To mark a isr to both cores */
+
 void EE_mpc5668_initialize_external_IRQ_priorities(void);
 #endif /* __STATIC_ISR_TABLE__ */
 
