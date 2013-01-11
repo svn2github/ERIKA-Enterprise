@@ -62,12 +62,14 @@ __INLINE__ void EE_mpc5668_start_z0(void (*f)(void))
 	CRP.Z0VEC.R = (uint32_t)f;
 }
 
+#if defined (EE_ISR_DYNAMIC_TABLE)
 /* Setup the intercore IRQs used by ERIKA for multicore support */
 __INLINE__ void EE_mpc5668_setup_inter_irqs(void)
 {
 	INTC.PSR[EE_MPC5668_INTER_IRQ_BASE + 0].R = 0U;
 	INTC.PSR[EE_MPC5668_INTER_IRQ_BASE + 1].R = 0xc0U;
 }
+#endif
 
 /* Signal the core `cpu' (0/1) by sending an IIRQ */
 __INLINE__ void EE_mpc5668_signal_cpu(EE_UINT8 cpu)
