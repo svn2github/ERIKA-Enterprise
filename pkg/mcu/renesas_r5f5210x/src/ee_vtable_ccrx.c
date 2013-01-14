@@ -293,11 +293,11 @@ extern void EE_RX200_TCIV4_ISR(void);	//The MTU4.TCNT overflow int. handler
 #endif
 
 #ifdef EE_RX200_TGIU5_ISR
-extern void EE_RX200_TGIC5_ISR(void);	//The MTU5.TGRU input capture/comp 
+extern void EE_RX200_TGIU5_ISR(void);	//The MTU5.TGRU input capture/comp 
 #endif									//match ISR
 
 #ifdef EE_RX200_TGIV5_ISR
-extern void EE_RX200_TGID5_ISR(void);	//The MTU5.TGRV input capture/comp 
+extern void EE_RX200_TGIV5_ISR(void);	//The MTU5.TGRV input capture/comp 
 #endif									//match ISR
 
 #ifdef EE_RX200_TCIW5_ISR
@@ -911,12 +911,12 @@ void* const EE_rx200_vtable[] =
     EE_rx200_default_ISR,	
 #endif
 #ifdef EE_RX200_TGIU5_ISR
-	(void *) EE_RX200_TGIC5_ISR,	//The MTU5.TGRU input capture/comp 
+	(void *) EE_RX200_TGIU5_ISR,	//The MTU5.TGRU input capture/comp 
 #else
     EE_rx200_default_ISR,	
 #endif
 #ifdef EE_RX200_TGIV5_ISR
-	(void *) EE_RX200_TGID5_ISR,	//The MTU5.TGRV input capture/comp 
+	(void *) EE_RX200_TGIV5_ISR,	//The MTU5.TGRV input capture/comp 
 #else
     EE_rx200_default_ISR,	
 #endif	
