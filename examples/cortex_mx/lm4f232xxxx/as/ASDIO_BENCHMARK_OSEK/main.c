@@ -39,7 +39,7 @@
  * ###*E*### */
 
 /*
- * Simple benchmark project to AUTOSAR "like" DIO Driver.
+ * Simple benchmark project to AUTOSAR "like" DIO Driver with OSEK/VDX Kernel.
  *
  * Author: 2013,  Giuseppe Serano
  */
@@ -59,18 +59,6 @@ volatile int api = 0;
 volatile Mcu_RawResetType reset = 0;
 
 /*
- * SysTick ISR2
- */
-ISR2(systick_handler)
-{
-
-  counter++;
-
-  ActivateTask(Task1);
-
-}
-
-/*
  * TASK 1
  */
 TASK(Task1)
@@ -78,6 +66,8 @@ TASK(Task1)
 
   Dio_LevelType		lvl;
   Dio_PortLevelType	plvl;
+
+  counter++;
 
   switch (api) {
 
@@ -162,16 +152,6 @@ int main(void)
 
   Dio_Init(DIO_CONFIG_DEFAULT_PTR);
 
-  EE_systick_set_period(NVIC_ST_RELOAD_M);
-  EE_systick_enable_int();
-  EE_systick_start();
-
-  while(!counter);
-
-  /* Forever loop: background activities (if any) should go here */
-  for (;;)
-  {
-    ;
-  }
+  StartOS(OSDEFAULTAPPMODE);
 
 }

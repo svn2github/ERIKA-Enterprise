@@ -39,7 +39,7 @@
  * ###*E*### */
 
 /*
- * Simple benchmark project to AUTOSAR "like" DIO Driver.
+ * Simple benchmark project to AUTOSAR "like" DIO Driver with OSEK/VDX Kernel.
  *
  * Author: 2013  Giuseppe Serano
  */
@@ -50,6 +50,8 @@ CPU test_application {
 
 		CPU_DATA = CORTEX_MX {
 			MODEL = M4;
+			/* Needed by system timer */
+			CPU_CLOCK = 16.0;
 			APP_SRC = "main.c";
 			APP_SRC = "Mcu_Cfg.c";
 			APP_SRC = "Port_Cfg.c";
@@ -86,7 +88,7 @@ CPU test_application {
 		USEPARAMETERACCESS = FALSE;
 		USERESSCHEDULER = FALSE;
 
-		KERNEL_TYPE = FP;
+		KERNEL_TYPE = BCC1;
 
 	};
 
@@ -99,9 +101,26 @@ CPU test_application {
 		STACK = SHARED;
 	};
 
-	ISR systick_handler {
-		CATEGORY = 2;
-		ENTRY = "SYSTICK";
+	COUNTER system_timer {
+		MINCYCLE = 1;
+		MAXALLOWEDVALUE = 2147483647;
+		TICKSPERBASE = 1;
+		TYPE = HARDWARE {
+			DEVICE = "SYSTICK";
+			SYSTEM_TIMER = TRUE;
+		};
+		SECONDSPERTICK = 0.001;
+	};
+
+	ALARM OSAlarm_1000ms {
+		COUNTER = system_timer;
+		ACTION = ACTIVATETASK {
+			TASK = Task1;
+		};
+		AUTOSTART = TRUE {
+			ALARMTIME = 1000;
+			CYCLETIME = 1000;
+		};
 	};
 
 };
