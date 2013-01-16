@@ -39,7 +39,7 @@
  * ###*E*### */
 
 /*
- * Simple banchmark project for AUTOSAR "like" MCU Driver.
+ * Simple banchmark project for AUTOSAR "like" MCU Driver with OSEK/VDX Kernel.
  *
  * Author: 2013  Giuseppe Serano
  */
@@ -54,22 +54,12 @@ volatile int counter = 0;
 volatile Mcu_RawResetType reset = 0;
 
 /*
- * SysTick ISR2
- */
-ISR2(systick_handler)
-{
-
-  counter++;
-
-  ActivateTask(Task1);
-
-}
-
-/*
  * TASK 1
  */
 TASK(Task1)
 {
+
+  counter++;
 
   EE_user_led_toggle();
 
@@ -103,20 +93,7 @@ int main(void)
       counter++;
     }
 
-    if ( Mcu_GetPllStatus() == MCU_PLL_LOCKED ) {
-  
-      Mcu_DistributePllClock();
-
-    }
-    else {
-
-      /* Forever loop: PLL NOT LOCKED!!! */
-      for (;;)
-      {
-	;
-      }
-
-    }
+    Mcu_DistributePllClock();
 
     counter = 0;
 
@@ -128,16 +105,7 @@ int main(void)
   }
 
   EE_user_led_init();
-  EE_systick_set_period(NVIC_ST_RELOAD_M);
-  EE_systick_enable_int();
-  EE_systick_start();
 
-  while(!counter);
-
-  /* Forever loop: background activities (if any) should go here */
-  for (;;)
-  {
-    ;
-  }
+  StartOS(OSDEFAULTAPPMODE);
 
 }
