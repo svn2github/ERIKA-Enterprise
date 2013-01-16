@@ -345,11 +345,64 @@ void Wdg_PIOsc_SetTriggerCondition(
 
   Wdg_PIOsc_Global.State = WDG_BUSY;
 
-  Wdg_PIOsc_SetMode_Internal(Wdg_PIOsc_Global.Mode);
-
   EE_hal_resumeIRQ(flags);
 
-  WATCHDOG1_LOAD_R = MS_TO_TICKS(Timeout, WDG_PIOSC_CLK_FREQ);
+  if ( Wdg_PIOsc_Global.Mode != WDGIF_OFF_MODE ) {
+
+    Wdg_PIOsc_Off();
+
+    SYSCTL_RCGCWD_R |= SYSCTL_RCGCWD_R1;	/* Watchdog On. */
+
+    while ( !( SYSCTL_PRWD_R & SYSCTL_PRWD_R1 ) );	/* Wait Reset */
+
+    WATCHDOG1_LOAD_R = MS_TO_TICKS(Timeout, WDG_PIOSC_CLK_FREQ);
+
+    while ( !( WATCHDOG1_CTL_R & WDT_CTL_WRC ) );
+
+    if ( Wdg_PIOsc_Global.Mode == WDGIF_FAST_MODE ) {
+
+#ifdef	DEBUG
+      WATCHDOG1_TEST_R = 
+      (Wdg_PIOsc_Global.ConfigPtr->WdgSettingsFast->WdgCtl & WDT_TEST_STALL);
+
+      while ( !( WATCHDOG1_CTL_R & WDT_CTL_WRC ) );
+#endif
+
+      WATCHDOG1_CTL_R = (
+	  ( 
+	    Wdg_PIOsc_Global.ConfigPtr->WdgSettingsFast->WdgCtl & 
+	    ( WDG_PIOSC_CTL_NMI_INT | WDG_PIOSC_CTL_RST_EN ) 
+	  ) | WDT_CTL_INTEN
+      );
+
+      while ( !( WATCHDOG1_CTL_R & WDT_CTL_WRC ) );
+
+    }
+    else {
+
+#ifdef	DEBUG
+      WATCHDOG1_TEST_R = 
+      (Wdg_PIOsc_Global.ConfigPtr->WdgSettingsSlow->WdgCtl & WDT_TEST_STALL);
+
+      while ( !( WATCHDOG1_CTL_R & WDT_CTL_WRC ) );
+#endif
+
+      WATCHDOG1_CTL_R = (
+	  ( 
+	    Wdg_PIOsc_Global.ConfigPtr->WdgSettingsSlow->WdgCtl & 
+	    ( WDG_PIOSC_CTL_NMI_INT | WDG_PIOSC_CTL_RST_EN ) 
+	  ) | WDT_CTL_INTEN
+      );
+
+      while ( !( WATCHDOG1_CTL_R & WDT_CTL_WRC ) );
+
+    }
+
+    WATCHDOG1_ICR_R = WDT_ICR_M;
+
+    while ( !( WATCHDOG1_CTL_R & WDT_CTL_WRC ) );
+
+  }	/* if ( Wdg_PIOsc_Global.Mode != WDGIF_OFF_MODE ) */
 
   Wdg_PIOsc_Global.Expired = FALSE;
 
