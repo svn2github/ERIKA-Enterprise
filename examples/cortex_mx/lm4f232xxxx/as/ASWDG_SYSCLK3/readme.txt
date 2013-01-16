@@ -1,4 +1,4 @@
-ASWDG_SYSCLK1
+ASWDG_SYSCLK3
 
  Simple project to test the System Clock WDG driver services using callback and
  NMI without system reset.
