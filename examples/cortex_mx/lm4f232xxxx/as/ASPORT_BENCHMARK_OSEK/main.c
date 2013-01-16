@@ -39,7 +39,7 @@
  * ###*E*### */
 
 /*
- * Simple benchmark project to AUTOSAR "like" PORT Driver.
+ * Simple benchmark project to AUTOSAR "like" PORT Driver with OSEK/VDX Kernel.
  *
  * Author: 2011,  Giuseppe Serano
  */
@@ -150,7 +150,6 @@ int main(void)
       }
 
     }
-
     counter = 0;
 
   }
@@ -164,10 +163,6 @@ int main(void)
 
   init_buttons_interrupt();
 
-  /* Forever loop: background activities (if any) should go here */
-  for (;;)
-  {
-    ;
-  }
+  StartOS(OSDEFAULTAPPMODE);
 
 }

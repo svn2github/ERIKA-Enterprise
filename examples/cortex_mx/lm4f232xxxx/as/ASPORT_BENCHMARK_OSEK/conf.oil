@@ -39,7 +39,7 @@
  * ###*E*### */
 
 /*
- * Simple benchmark project to AUTOSAR "like" PORT Driver.
+ * Simple benchmark project to AUTOSAR "like" PORT Driver with OSEK/VDX Kernel.
  *
  * Author: 2013  Giuseppe Serano
  */
@@ -81,7 +81,7 @@ CPU test_application {
 		USEPARAMETERACCESS = FALSE;
 		USERESSCHEDULER = FALSE;
 
-		KERNEL_TYPE = FP;
+		KERNEL_TYPE = BCC1;
 
 	};
 
