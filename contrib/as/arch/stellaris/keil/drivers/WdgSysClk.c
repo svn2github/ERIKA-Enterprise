@@ -339,11 +339,10 @@ void Wdg_SysClk_SetTriggerCondition(
 
   EE_hal_resumeIRQ(flags);
 
-  VALIDATE_IRQ(
+  VALIDATE(
     ( ((float32)Timeout / 1000) < (0xFFFFFFFFU / freq) ),
     WDG_SETTRIGGERCONDITION_SERVICE_ID,
-    WDG_E_PARAM_TIMEOUT,
-    flags
+    WDG_E_PARAM_TIMEOUT
   );
 
   WATCHDOG0_LOAD_R = MS_TO_TICKS(Timeout, freq);
