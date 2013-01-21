@@ -57,6 +57,7 @@
 #define	HW_REG_SZ	0x00000004			/**< Register Size in Bytes   */
 #define	HW_REG_SZ_S	0x00000002			/**< Register Size Shift Bits */
 
+/* I/O and PORT related registers. */
 #define HW_PWPR_B0WI_SET	0x80		/**< Set B0WI bit in the PWPR reg.  */
 #define HW_PWPR_B0WI_CLEAR	0x00		/**< Clear B0WI bit in the PWPR reg.*/
 #define HW_PWPR_PFSWE_SET	0x01		/**< Set PFSWE bit in the PWPR reg. */
@@ -75,15 +76,171 @@
 #define HW_PORT0_ADDR	EE_HWREG_ADDR(0x0008C000)
 
 /**< PORT1 ODR register base address */
-#define HW_ODR_BASE_ADDR	EE_HWREG_ADDR(0x0008C080)
-/**< PORT Pin Function Select register base address */
+#define HW_ODR_BASE_ADDR		EE_HWREG_ADDR(0x0008C080)
+/**< PORT Pin Function Select register base address. */
 #define HW_PORT_PFS_BASE_ADDR	EE_HWREG_ADDR(0x0008C140)
-/**< Port Write Protect (PWPR) Register address */
-#define HW_PORT_WPR_ADDR	EE_HWREG_ADDR(0x0008C11F)
-
+/**< Port Write Protect (PWPR) Register address. */
+#define HW_PORT_WPR_ADDR		EE_HWREG_ADDR(0x0008C11F)
 /* IO Hardware Base Address */
-#define	HW_IO_BASE_ADDR		HW_PORT0_ADDR
+#define	HW_IO_BASE_ADDR			HW_PORT0_ADDR
 
+/* Timers related registers. */
+/**< TMR module Timer Counter Control Register address base. */
+#define HW_SYSTEM_TCCR_ADDR_BASE	EE_HWREG8_ADDR(0x0008820A)
+/**< TMR module Timer Control Register address base. */
+#define HW_SYSTEM_TMR_TCR_ADDR_BASE		EE_HWREG8_ADDR(0x00088200)
+/**< TMR module Timer Counter Register address base. */
+#define HW_SYSTEM_TCNT_ADDR_BASE	EE_HWREG8_ADDR(0x00088200)
+/**< TMR01 module Timer Counter Register 16 bits address base. */
+#define HW_SYSTEM_TMR01_TCNT_ADDR_BASE	EE_HWREG16_ADDR(0x00088208)
+/**< TMR23 module Timer Counter Register 16 bits address base. */
+#define HW_SYSTEM_TMR23_TCNT_ADDR_BASE	EE_HWREG16_ADDR(0x00088218)
+/**< TMR0 Time Constant Register A (TCORA). */
+#define HW_SYSTEM_TMR0_TCORA_ADDR	EE_HWREG8_ADDR(0x00088204)
+/**< TMR1 Time Constant Register A (TCORA). */
+#define HW_SYSTEM_TMR1_TCORA_ADDR	EE_HWREG8_ADDR(0x00088205)
+/**< TMR2 Time Constant Register A (TCORA). */
+#define HW_SYSTEM_TMR2_TCORA_ADDR	EE_HWREG8_ADDR(0x00088214)
+/**< TMR3 Time Constant Register A (TCORA). */
+#define HW_SYSTEM_TMR3_TCORA_ADDR	EE_HWREG8_ADDR(0x00088215)
+/**< TMR0 Time Constant Register B (TCORB). */
+#define HW_SYSTEM_TMR0_TCORB_ADDR	EE_HWREG8_ADDR(0x00088206)
+/**< TMR1 Time Constant Register B (TCORB). */
+#define HW_SYSTEM_TMR1_TCORB_ADDR	EE_HWREG8_ADDR(0x00088207)
+/**< TMR2 Time Constant Register B (TCORB). */
+#define HW_SYSTEM_TMR2_TCORB_ADDR	EE_HWREG8_ADDR(0x00088216)
+/**< TMR3 Time Constant Register B (TCORB). */
+#define HW_SYSTEM_TMR3_TCORB_ADDR	EE_HWREG8_ADDR(0x00088217)
+/**< Compare Match Timer (CMT) Start Register 0 (CMSTR0) address. */
+#define HW_SYSTEM_CMSTR0_ADDR			EE_HWREG16_ADDR(0x00088000)
+/**< Compare Match Timer (CMT) Start Register 1 (CMSTR1) address. */
+#define HW_SYSTEM_CMSTR1_ADDR			EE_HWREG16_ADDR(0x00088010)
+/**< Compare Match Timer (CMT) Compare Match Counter (CMCNT) CMT0 address. */
+#define HW_SYSTEM_CMT0_CMCNT_ADDR		EE_HWREG16_ADDR(0x00088004)
+/**< MTU0 Timer Control Register address. */
+#define HW_SYSTEM_MTU0_TCR_ADDR			EE_HWREG8_ADDR(0x00088700)
+/**< MTU1 Timer Control Register address. */
+#define HW_SYSTEM_MTU1_TCR_ADDR			EE_HWREG8_ADDR(0x00088780)
+/**< MTU2 Timer Control Register address. */
+#define HW_SYSTEM_MTU2_TCR_ADDR			EE_HWREG8_ADDR(0x00088800)
+/**< MTU3 Timer Control Register address. */
+#define HW_SYSTEM_MTU3_TCR_ADDR			EE_HWREG8_ADDR(0x00088600)
+/**< MTU4 Timer Control Register address. */
+#define HW_SYSTEM_MTU4_TCR_ADDR			EE_HWREG8_ADDR(0x00088601)
+/**< MTU5U Timer Control Register address. */
+#define HW_SYSTEM_MTU5U_TCR_ADDR		EE_HWREG8_ADDR(0x00088884)
+/**< MTU5V Timer Control Register address. */
+#define HW_SYSTEM_MTU5V_TCR_ADDR		EE_HWREG8_ADDR(0x00088894)
+/**< MTU5W Timer Control Register address. */
+#define HW_SYSTEM_MTU5W_TCR_ADDR		EE_HWREG8_ADDR(0x000888A4)
+/**< Timer Compare Match Clear Register (TCNTCMPCLR)*/
+#define HW_SYSTEM_MTU5_TCNTCMPCLR_ADDR	EE_HWREG8_ADDR(0x000888B6)
+/**< MTU0 Timer Control Register address. */
+#define HW_SYSTEM_MTU0_TMDR_ADDR 		EE_HWREG8_ADDR(0x00088701)
+/**< MTU1 Timer Control Register address. */
+#define HW_SYSTEM_MTU1_TMDR_ADDR 		EE_HWREG8_ADDR(0x00088781)
+/**< MTU2 Timer Control Register address. */
+#define HW_SYSTEM_MTU2_TMDR_ADDR 		EE_HWREG8_ADDR(0x00088801)
+/**< MTU3 Timer Control Register address. */
+#define HW_SYSTEM_MTU3_TMDR_ADDR 		EE_HWREG8_ADDR(0x00088602)
+/**< MTU4 Timer Control Register address. */
+#define HW_SYSTEM_MTU4_TMDR_ADDR 		EE_HWREG8_ADDR(0x00088603)
+/**< MTU0 Timer Status Register address. */
+#define HW_SYSTEM_MTU0_TSR_ADDR 		EE_HWREG8_ADDR(0x00088705)
+/**< MTU1 Timer Status Register address. */
+#define HW_SYSTEM_MTU1_TSR_ADDR 		EE_HWREG8_ADDR(0x00088785)
+/**< MTU2 Timer Status Register address. */
+#define HW_SYSTEM_MTU2_TSR_ADDR 		EE_HWREG8_ADDR(0x00088805)
+/**< MTU3 Timer Status Register address. */
+#define HW_SYSTEM_MTU3_TSR_ADDR 		EE_HWREG8_ADDR(0x0008862C)
+/**< MTU4 Timer Status Register address. */
+#define HW_SYSTEM_MTU4_TSR_ADDR 		EE_HWREG8_ADDR(0x0008862D)
+/**< MTU0 Timer Status Register address. */
+#define HW_SYSTEM_MTU0_TCNT_ADDR 		EE_HWREG16_ADDR(0x00088706)
+/**< MTU1 Timer Status Register address. */
+#define HW_SYSTEM_MTU1_TCNT_ADDR 		EE_HWREG16_ADDR(0x00088786)
+/**< MTU2 Timer Status Register address. */
+#define HW_SYSTEM_MTU2_TCNT_ADDR 		EE_HWREG16_ADDR(0x00088806)
+/**< MTU3 Timer Status Register address. */
+#define HW_SYSTEM_MTU3_TCNT_ADDR 		EE_HWREG16_ADDR(0x00088610)
+/**< MTU4 Timer Status Register address. */
+#define HW_SYSTEM_MTU4_TCNT_ADDR 		EE_HWREG16_ADDR(0x00088612)
+/**< MTU5U Timer Status Register address. */
+#define HW_SYSTEM_MTU5U_TCNT_ADDR 		EE_HWREG16_ADDR(0x00088880)
+/**< MTU5V Timer Status Register address. */
+#define HW_SYSTEM_MTU5V_TCNT_ADDR 		EE_HWREG16_ADDR(0x00088890)
+/**< MTU5W Timer Status Register address. */
+#define HW_SYSTEM_MTU5W_TCNT_ADDR 		EE_HWREG16_ADDR(0x000888A0)
+/**< MTU3 and MTU4 Timer Read/Write Enable Registers (TRWER) address. */
+#define HW_SYSTEM_MTU34_TRWER_ADDR		EE_HWREG16_ADDR(0x00088684)
+/**< MTU0 Timer General Register A (TGRA) address. */
+#define HW_SYSTEM_MTU0_TGRA_ADDR		EE_HWREG16_ADDR(0x00088708)
+/**< MTU0 Timer General Register B (TGRB) address. */
+#define HW_SYSTEM_MTU0_TGRB_ADDR		EE_HWREG16_ADDR(0x0008870A)
+/**< MTU0 Timer General Register C (TGRC) address. */
+#define HW_SYSTEM_MTU0_TGRC_ADDR		EE_HWREG16_ADDR(0x0008870C)
+/**< MTU0 Timer General Register D (TGRD) address. */
+#define HW_SYSTEM_MTU0_TGRD_ADDR		EE_HWREG16_ADDR(0x0008870E)
+/**< MTU0 Timer General Register E (TGRE) address. */
+#define HW_SYSTEM_MTU0_TGRE_ADDR		EE_HWREG16_ADDR(0x00088720)
+/**< MTU0 Timer General Register F (TGRF) address. */
+#define HW_SYSTEM_MTU0_TGRF_ADDR		EE_HWREG16_ADDR(0x00088722)
+/**< MTU1 Timer General Register A (TGRA) address. */
+#define HW_SYSTEM_MTU1_TGRA_ADDR		EE_HWREG16_ADDR(0x00088788)
+/**< MTU1 Timer General Register B (TGRB) address. */
+#define HW_SYSTEM_MTU1_TGRB_ADDR		EE_HWREG16_ADDR(0x0008878A)
+/**< MTU2 Timer General Register A (TGRA) address. */
+#define HW_SYSTEM_MTU2_TGRA_ADDR		EE_HWREG16_ADDR(0x00088808)
+/**< MTU2 Timer General Register B (TGRB) address. */
+#define HW_SYSTEM_MTU2_TGRB_ADDR		EE_HWREG16_ADDR(0x0008880A)
+/**< MTU3 Timer General Register A (TGRA) address. */
+#define HW_SYSTEM_MTU3_TGRA_ADDR		EE_HWREG16_ADDR(0x00088618)
+/**< MTU3 Timer General Register B (TGRB) address. */
+#define HW_SYSTEM_MTU3_TGRB_ADDR		EE_HWREG16_ADDR(0x0008861A)
+/**< MTU3 Timer General Register C (TGRC) address. */
+#define HW_SYSTEM_MTU3_TGRC_ADDR		EE_HWREG16_ADDR(0x00088624)
+/**< MTU3 Timer General Register D (TGRD) address. */
+#define HW_SYSTEM_MTU3_TGRD_ADDR		EE_HWREG16_ADDR(0x00088626)
+/**< MTU4 Timer General Register A (TGRA) address. */
+#define HW_SYSTEM_MTU4_TGRA_ADDR		EE_HWREG16_ADDR(0x0008861C)
+/**< MTU4 Timer General Register B (TGRB) address. */
+#define HW_SYSTEM_MTU4_TGRB_ADDR		EE_HWREG16_ADDR(0x0008861E)
+/**< MTU4 Timer General Register C (TGRC) address. */
+#define HW_SYSTEM_MTU4_TGRC_ADDR		EE_HWREG16_ADDR(0x00088628)
+/**< MTU4 Timer General Register D (TGRD) address. */
+#define HW_SYSTEM_MTU4_TGRD_ADDR		EE_HWREG16_ADDR(0x0008862A)
+/**< MTU4 Timer General Register U (TGRB) address. */
+#define HW_SYSTEM_MTU5_TGRU_ADDR		EE_HWREG16_ADDR(0x00088882)
+/**< MTU4 Timer General Register V (TGRC) address. */
+#define HW_SYSTEM_MTU5_TGRV_ADDR		EE_HWREG16_ADDR(0x00088892)
+/**< MTU4 Timer General Register W (TGRD) address. */
+#define HW_SYSTEM_MTU5_TGRW_ADDR		EE_HWREG16_ADDR(0x000888A2)
+/**< MTU0 Timer Interrupt Enable Register (TIER) address. */
+#define HW_SYSTEM_MTU0_TIER_ADDR 		EE_HWREG8_ADDR(0x00088704)
+/**< MTU1 Timer Interrupt Enable Register (TIER) address. */
+#define HW_SYSTEM_MTU1_TIER_ADDR 		EE_HWREG8_ADDR(0x00088784)
+/**< MTU2 Timer Interrupt Enable Register (TIER) address. */
+#define HW_SYSTEM_MTU2_TIER_ADDR 		EE_HWREG8_ADDR(0x00088804)
+/**< MTU3 Timer Interrupt Enable Register (TIER) address. */
+#define HW_SYSTEM_MTU3_TIER_ADDR 		EE_HWREG8_ADDR(0x00088608)
+/**< MTU4 Timer Interrupt Enable Register (TIER) address. */
+#define HW_SYSTEM_MTU4_TIER_ADDR 		EE_HWREG8_ADDR(0x00088609)
+/**< MTU5 Timer Interrupt Enable Register (TIER) address. */
+#define HW_SYSTEM_MTU5_TIER_ADDR 		EE_HWREG8_ADDR(0x000088B2)
+/**< MTU2A Timer Synchronous Registers (TSYR) address. */
+#define HW_SYSTEM_MTU2A_TSYR_ADDR		EE_HWREG8_ADDR(0x00008681)
+
+/**< MTU0 to MTU4 Timer Start Registers (TSTR) address. */
+#define HW_SYSTEM_TSTR_BASE_ADDR			EE_HWREG8_ADDR(0x00088680)
+/**< MTU5 Timer Start Registers (TSTR) address. */
+#define HW_SYSTEM_TSTR5_ADDR		EE_HWREG8_ADDR(0x000888B4)
+
+/* Module Stop/Start related registers. */
+/**< Module Stop Control Register A (MSTPCRA) address. */
+#define HW_SYSTEM_MSTPCRA_ADDR	EE_HWREG_ADDR(0x00080010)
+
+/**< CMT module registers base address. */
+#define HW_SYSTEM_CMT_BASE_ADDR HW_SYSTEM_CMSTR0_ADDR
 
 
 /** @brief	Channel to Hardware Unit.
