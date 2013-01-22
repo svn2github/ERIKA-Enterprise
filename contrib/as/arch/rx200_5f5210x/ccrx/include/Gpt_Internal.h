@@ -50,16 +50,20 @@
 #include "Hardware.h"
 
 /* Hardware Timer Module Status (MSTPCR A)*/
-#define	GPT_HW_TMR_STAT_TMR01_OFF	0x00000020
-#define	GPT_HW_TMR_STAT_TMR23_OFF	0x00000010
-#define	GPT_HW_TMR_STAT_CMT01_OFF	0x00008000
-#define	GPT_HW_TMR_STAT_CMT23_OFF	0x00004000
-#define GPT_HW_TMR_STAT_MTU2A_OFF	0x00000200
-#define	GPT_HW_TMR_STAT_TMR01_ON	0xFFFFFFDF
-#define	GPT_HW_TMR_STAT_TMR23_ON	0xFFFFFFEF
-#define	GPT_HW_TMR_STAT_CMT01_ON	0xFFFF7FFF
-#define	GPT_HW_TMR_STAT_CMT23_ON	0xFFFFBFFF
-#define GPT_HW_TMR_STAT_MTU2A_ON	0xFFFFFDFF
+#define GPT_HW_TMR_TMR_ON		0x00000030
+#define GPT_HW_TMR_CMT_ON		0x0000C000
+#define GPT_HW_TMR_MTU2A_ON		0x00000200
+#define	GPT_HW_TMR_STOP_TMR01	0x00000020
+#define	GPT_HW_TMR_STOP_TMR23	0x00000010
+#define	GPT_HW_TMR_STOP_CMT01	0x00008000
+#define	GPT_HW_TMR_STOP_CMT23	0x00004000
+#define GPT_HW_TMR_STOP_MTU2A	0x00000200
+#define	GPT_HW_TMR_NSTOP_TMR01	0xFFFFFFDF
+#define	GPT_HW_TMR_NSTOP_TMR23	0xFFFFFFEF
+#define	GPT_HW_TMR_NSTOP_CMT01	0xFFFF7FFF
+#define	GPT_HW_TMR_NSTOP_CMT23	0xFFFFBFFF
+#define GPT_HW_TMR_NSTOP_MTU2A	0xFFFFFDFF
+
 
 #define GPT_TIMER_NOT_RUNNING 0
 #define GPT_TIMER_RUNNING	1
@@ -155,6 +159,7 @@
 #define GPT_MTUA2_CASCADE_MODE	0x07	/**< MTU1 clock is on MUT2 overflow. */
 #define GPT_TSYR_MTU12_ENABLE	0x06	/**< MTU12 synchronous operation enable.*/
 #define GPT_CMTx_CMCR_RESET_VAL	0x0080 /**< CMT CMCR register reset value. */
+#define GPT_MSTPCRA_TIMERS_MASK 0xC230 /** Stop bits concerning timer modules.*/
 
 #define GPT_HW_TMR_EMPTY_VALUE	0x0 /**< Timer empty */
 
@@ -167,6 +172,7 @@
 #define GPT_MTU2A_TGIE5W_POS 0x0 /**< MTU2A TGR Interrupt Enable 5W bit pos. */
 #define GPT_MTU2A_TGIE5V_POS 0x1 /**< MTU2A TGR Interrupt Enable 5V bit pos. */
 #define GPT_MTU2A_TGIE5U_POS 0x2 /**< MTU2A TGR Interrupt Enable 5U bit pos. */
+#define GPT_EN_NOTIF_MASK 	0x1	/**<  Enable Notification mask. */
 
 /*
  * Channel is Valid Test
@@ -179,14 +185,11 @@
  */
 #define	GPT_CH_IS_VALID(_ch) ( _ch <= GPT_INTERNAL_NUMBER_OF_CH )
 
-#define GPT_EN_NOTIF_MASK 0x1
-		
+
 /** @brief	Set notification enabled bit.
  *	@param	_ch Timer channel.
  */		
 #define GPT_CH_2_NOTIF_MASK(_ch) (GPT_EN_NOTIF_MASK << _ch)
-
-
 
 #define GPT_CLEAR_FLAG(_flag, _ch) \
 	( _flag &= ~(0x1 << _ch) )
@@ -247,6 +250,7 @@
  */
 #define GPT_GET_REG(_reg) \
 		( EE_HWREG(_reg) )
+
 /** @brief	TCCR register address of channel _ch.
  *	@param	_ch Timer channel.
  */
@@ -499,9 +503,10 @@
  *	@param	_ch Timer channel.
  *	@param  _val Bit values.	
  */
-#define GPT_SET_CMT_CLK(_ch, _val) \
+/*#define GPT_SET_CMT_CLK(_ch, _val) \
 		(EE_HWREG16(GPT_GET_CMT_CMCR_ADDR(_ch)) |= \
 				((uint16)_val & GPT_CMT_CLK_MASK))
+				*/
 	
 /** @brief	Set CMCR register of CMTx.
 *	@param	_ch Timer channel.
@@ -1006,7 +1011,6 @@ __INLINE__ void __ALWAYS_INLINE__ Gpt_mtu5_int_dis(Gpt_ChannelType _ch)
 			~(0x1 << (GPT_INTERNAL_CHANNEL_MTU5W - _ch)));
 }
 
-
 /** @brief Return Module stop/star bit from Module Stop Control Register A 
  *	(MSTPCRA).
  *	@param ch_id Timer Channel Identifier.
@@ -1015,34 +1019,33 @@ __INLINE__ void __ALWAYS_INLINE__ Gpt_mtu5_int_dis(Gpt_ChannelType _ch)
 __INLINE__ uint32 __ALWAYS_INLINE__  Gpt_ch_2_mod_stat(Gpt_ChannelType ch_id)
 {
 	if (ch_id == GPT_INTERNAL_CHANNEL_TMR0 || 
-			ch_id == GPT_INTERNAL_CHANNEL_TMR0 || 
+			ch_id == GPT_INTERNAL_CHANNEL_TMR1 || 
 			ch_id == GPT_INTERNAL_CHANNEL_TMR01) {
-		return ~(EE_HWREG(HW_SYSTEM_MSTPCRA_ADDR) & GPT_HW_TMR_STAT_TMR01_OFF);
+		return (~EE_HWREG(HW_SYSTEM_MSTPCRA_ADDR) & GPT_HW_TMR_STOP_TMR01);
 	}
 	
 	if (ch_id == GPT_INTERNAL_CHANNEL_TMR2 || 
 			ch_id == GPT_INTERNAL_CHANNEL_TMR3 || 
 			ch_id == GPT_INTERNAL_CHANNEL_TMR23) {
-		return ~(EE_HWREG(HW_SYSTEM_MSTPCRA_ADDR) & GPT_HW_TMR_STAT_TMR23_OFF);
+		return (~EE_HWREG(HW_SYSTEM_MSTPCRA_ADDR) & GPT_HW_TMR_STOP_TMR23);
 	}
 	
 	if (ch_id == GPT_INTERNAL_CHANNEL_CMT0 || 
 			ch_id == GPT_INTERNAL_CHANNEL_CMT1) {
-		return ~(EE_HWREG(HW_SYSTEM_MSTPCRA_ADDR) & GPT_HW_TMR_STAT_CMT01_OFF);
+		return (~EE_HWREG(HW_SYSTEM_MSTPCRA_ADDR) & GPT_HW_TMR_STOP_CMT01);
 	}
 	if (ch_id == GPT_INTERNAL_CHANNEL_CMT2 || 
 			ch_id == GPT_INTERNAL_CHANNEL_CMT3) {
-		return ~(EE_HWREG(HW_SYSTEM_MSTPCRA_ADDR) & GPT_HW_TMR_STAT_CMT23_OFF);
+		return (~EE_HWREG(HW_SYSTEM_MSTPCRA_ADDR) & GPT_HW_TMR_STOP_CMT23);
 	}
 /*	If we get here, then:
  *  ch_id >= GPT_INTERNAL_CHANNEL_MTU0 <= ch_id <= GPT_INTERNAL_CHANNEL_MTU5W
  */ 
-	return ~(EE_HWREG(HW_SYSTEM_MSTPCRA_ADDR) & GPT_HW_TMR_STAT_MTU2A_OFF);
+	return (~EE_HWREG(HW_SYSTEM_MSTPCRA_ADDR) & GPT_HW_TMR_STOP_MTU2A);
 
 }
 
-
-/** @brief	Set start bit in Module Stop Control Register A (MSTPCRA).
+/** @brief	Clear stop bit in Module Stop Control Register A (MSTPCRA).
  *	@param  _ch Timer Channel Identifier.
  *  
  */
@@ -1055,8 +1058,7 @@ __INLINE__ void __ALWAYS_INLINE__  Gpt_EnableChannel(Gpt_ChannelType _ch)
 	SYSTEM.PRCR.WORD = 0xA503;
 	
 	if (_ch >= GPT_INTERNAL_CHANNEL_MTU0 && _ch <= GPT_INTERNAL_CHANNEL_MTU5W) {
-		EE_HWREG(HW_SYSTEM_MSTPCRA_ADDR) &= GPT_HW_TMR_STAT_MTU2A_ON;
-		
+		EE_HWREG(HW_SYSTEM_MSTPCRA_ADDR) &= GPT_HW_TMR_NSTOP_MTU2A;
 		return;
 	}
 	
@@ -1064,20 +1066,20 @@ __INLINE__ void __ALWAYS_INLINE__  Gpt_EnableChannel(Gpt_ChannelType _ch)
 	case GPT_INTERNAL_CHANNEL_TMR0:
 	case GPT_INTERNAL_CHANNEL_TMR1:
 	case GPT_INTERNAL_CHANNEL_TMR01:
-		EE_HWREG(HW_SYSTEM_MSTPCRA_ADDR) &= GPT_HW_TMR_STAT_TMR01_ON;
+		EE_HWREG(HW_SYSTEM_MSTPCRA_ADDR) &= GPT_HW_TMR_NSTOP_TMR01;
 		break;
 	case GPT_INTERNAL_CHANNEL_TMR2:
 	case GPT_INTERNAL_CHANNEL_TMR3:
 	case GPT_INTERNAL_CHANNEL_TMR23:
-		EE_HWREG(HW_SYSTEM_MSTPCRA_ADDR) &= GPT_HW_TMR_STAT_TMR23_ON;
+		EE_HWREG(HW_SYSTEM_MSTPCRA_ADDR) &= GPT_HW_TMR_NSTOP_TMR23;
 		break;
 	case GPT_INTERNAL_CHANNEL_CMT0:
 	case GPT_INTERNAL_CHANNEL_CMT1:
-		EE_HWREG(HW_SYSTEM_MSTPCRA_ADDR) &= GPT_HW_TMR_STAT_CMT01_ON;
+		EE_HWREG(HW_SYSTEM_MSTPCRA_ADDR) &= GPT_HW_TMR_NSTOP_CMT01;
 		break;
 	case GPT_INTERNAL_CHANNEL_CMT2:
 	case GPT_INTERNAL_CHANNEL_CMT3:
-		EE_HWREG(HW_SYSTEM_MSTPCRA_ADDR) &= GPT_HW_TMR_STAT_CMT23_ON;
+		EE_HWREG(HW_SYSTEM_MSTPCRA_ADDR) &= GPT_HW_TMR_NSTOP_CMT23;
 		break;	
 	}
 	
@@ -1086,7 +1088,7 @@ __INLINE__ void __ALWAYS_INLINE__  Gpt_EnableChannel(Gpt_ChannelType _ch)
 
 }
 
-/** @brief	Clear start bit in Module Stop Control Register A (MSTPCRA).
+/** @brief	Set stop bit in Module Stop Control Register A (MSTPCRA).
  *	@param  _ch Timer Channel Identifier.
  *  
  */
@@ -1099,7 +1101,7 @@ __INLINE__ void __ALWAYS_INLINE__  Gpt_DisableChannel(Gpt_ChannelType _ch)
 	SYSTEM.PRCR.WORD = 0xA503;
 	
 	if (_ch >= GPT_INTERNAL_CHANNEL_MTU0 && _ch <= GPT_INTERNAL_CHANNEL_MTU5W) {
-		EE_HWREG(HW_SYSTEM_MSTPCRA_ADDR) |= GPT_HW_TMR_STAT_MTU2A_OFF;
+		EE_HWREG(HW_SYSTEM_MSTPCRA_ADDR) |= GPT_HW_TMR_STOP_MTU2A;
 		
 		return;
 	}
@@ -1108,20 +1110,20 @@ __INLINE__ void __ALWAYS_INLINE__  Gpt_DisableChannel(Gpt_ChannelType _ch)
 	case GPT_INTERNAL_CHANNEL_TMR0:
 	case GPT_INTERNAL_CHANNEL_TMR1:
 	case GPT_INTERNAL_CHANNEL_TMR01:
-		EE_HWREG(HW_SYSTEM_MSTPCRA_ADDR) |= GPT_HW_TMR_STAT_TMR01_OFF;
+		EE_HWREG(HW_SYSTEM_MSTPCRA_ADDR) |= GPT_HW_TMR_STOP_TMR01;
 		break;
 	case GPT_INTERNAL_CHANNEL_TMR2:
 	case GPT_INTERNAL_CHANNEL_TMR3:
 	case GPT_INTERNAL_CHANNEL_TMR23:
-		EE_HWREG(HW_SYSTEM_MSTPCRA_ADDR) |= GPT_HW_TMR_STAT_TMR23_OFF;
+		EE_HWREG(HW_SYSTEM_MSTPCRA_ADDR) |= GPT_HW_TMR_STOP_TMR23;
 		break;
 	case GPT_INTERNAL_CHANNEL_CMT0:
 	case GPT_INTERNAL_CHANNEL_CMT1:
-		EE_HWREG(HW_SYSTEM_MSTPCRA_ADDR) |= GPT_HW_TMR_STAT_CMT01_OFF;
+		EE_HWREG(HW_SYSTEM_MSTPCRA_ADDR) |= GPT_HW_TMR_STOP_CMT01;
 		break;
 	case GPT_INTERNAL_CHANNEL_CMT2:
 	case GPT_INTERNAL_CHANNEL_CMT3:
-		EE_HWREG(HW_SYSTEM_MSTPCRA_ADDR) |= GPT_HW_TMR_STAT_CMT23_OFF;
+		EE_HWREG(HW_SYSTEM_MSTPCRA_ADDR) |= GPT_HW_TMR_STOP_CMT23;
 		break;	
 	}
 	
@@ -1185,8 +1187,9 @@ __INLINE__ void __ALWAYS_INLINE__	Gpt_tmr_init(
 __INLINE__ void __ALWAYS_INLINE__	Gpt_cmt_init(
 		const Gpt_ChannelConfigType *ConfigPtr) 
 {
-	GPT_SET_CMT_CLK(ConfigPtr->GptChannelId, 
+	/*GPT_SET_CMT_CLK(ConfigPtr->GptChannelId, 
 					GPT_GET_PRES_CONF(ConfigPtr->GptChannelHWConfig));
+					*/
 	/* Set clock/prescaler bits in CMCR.
 	 * Disable all interrupts.
 	 */

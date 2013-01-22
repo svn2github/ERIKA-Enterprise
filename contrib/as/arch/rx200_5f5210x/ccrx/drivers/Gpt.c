@@ -149,7 +149,7 @@ typedef struct
 
 	const Gpt_ConfigType *	ConfigPtr;	/* Actual Configuration	      */
 
-	uint32			Status;				/* Channel Status	      */
+	uint16			Status;				/* Channel Status	      */
 
 	uint32			Notifications;		/* Channel Notifications      */
 
@@ -553,7 +553,7 @@ static void Gpt_DeInitGptChannel(const Gpt_ChannelConfigType *ConfigPtr)
 	Gpt_Global.Status &= ~Gpt_ch_2_mod_stat(ConfigPtr->GptChannelId);
 
 	/* Gpt Module Disabled? */
-	if ( !(Gpt_Global.Status & Gpt_ch_2_mod_stat(ConfigPtr->GptChannelId)) ) {
+	if ( !(Gpt_Global.Status & Gpt_ch_2_mod_stat(ConfigPtr->GptChannelId)) ){
 		/* Disable Gpt Module in Run-Mode */
 		Gpt_DisableChannel(ConfigPtr->GptChannelId);
 	}
@@ -690,9 +690,16 @@ Gpt_ValueType Gpt_GetTimeElapsed(Gpt_ChannelType	Channel)
 			GPT_GETTIMEELAPSED_SERVICE_ID, GPT_E_PARAM_CHANNEL, 
 			GPT_HW_TMR_EMPTY_VALUE, flags);
 
-	VALIDATE_IRQ_W_RV((Gpt_Global.Status & Gpt_ch_2_mod_stat(Channel)), 
-			GPT_GETTIMEELAPSED_SERVICE_ID, GPT_E_STATE_TRANSITION, 
-			GPT_HW_TMR_EMPTY_VALUE, flags);
+	if (Channel >  GPT_CHANNEL_TMR23) {
+		VALIDATE_IRQ_W_RV((Gpt_Global.Status & Gpt_ch_2_mod_stat(Channel)), 
+				GPT_GETTIMEELAPSED_SERVICE_ID, GPT_E_STATE_TRANSITION, 
+				GPT_HW_TMR_EMPTY_VALUE, flags);
+	} else {
+		VALIDATE_IRQ_W_RV((Gpt_Global.Status & GPT_HW_TMR_TMR_ON), 
+				GPT_GETTIMEELAPSED_SERVICE_ID, GPT_E_STATE_TRANSITION, 
+				GPT_HW_TMR_EMPTY_VALUE, flags);
+	}
+
 	
 	/* Note, we assume that the timer counts up and the starting time is 0x0.*/
 	rv = Gpt_GetHWCnt(Channel);
@@ -732,9 +739,16 @@ Gpt_ValueType Gpt_GetTimeRemaining(Gpt_ChannelType	Channel)
 			GPT_GETTIMEREMAINING_SERVICE_ID, GPT_E_PARAM_CHANNEL, 
 			GPT_HW_TMR_EMPTY_VALUE, flags);
 
-	VALIDATE_IRQ_W_RV((Gpt_Global.Status & Gpt_ch_2_mod_stat(Channel)), 
-			GPT_GETTIMEREMAINING_SERVICE_ID, GPT_E_STATE_TRANSITION, 
-			GPT_HW_TMR_EMPTY_VALUE, flags);
+
+	if (Channel >  GPT_CHANNEL_TMR23) {
+		VALIDATE_IRQ_W_RV((Gpt_Global.Status & Gpt_ch_2_mod_stat(Channel)), 
+				GPT_GETTIMEREMAINING_SERVICE_ID, GPT_E_STATE_TRANSITION, 
+				GPT_HW_TMR_EMPTY_VALUE, flags);
+	} else {
+		VALIDATE_IRQ_W_RV((Gpt_Global.Status & GPT_HW_TMR_TMR_ON), 
+				GPT_GETTIMEREMAINING_SERVICE_ID, GPT_E_STATE_TRANSITION, 
+				GPT_HW_TMR_EMPTY_VALUE, flags);
+	}
 	
 	/* Note, we assume that the timer counts up and is cleared when reaches 
 	 * the target time, thus, we assume that:
@@ -778,9 +792,15 @@ void Gpt_StartTimer(Gpt_ChannelType	Channel, Gpt_ValueType	Value)
 	VALIDATE_IRQ((channel < Gpt_Global.ConfigPtr->GptNumberOfGptChannels ), 
 			GPT_STARTTIMER_SERVICE_ID, GPT_E_PARAM_CHANNEL, flags);
 
-	VALIDATE_IRQ((Gpt_Global.Status & Gpt_ch_2_mod_stat(Channel)), 
-			GPT_STARTTIMER_SERVICE_ID, GPT_E_STATE_TRANSITION, flags);
 
+	if (Channel >  GPT_CHANNEL_TMR23) {
+		VALIDATE_IRQ((Gpt_Global.Status & Gpt_ch_2_mod_stat(Channel)), 
+				GPT_STARTTIMER_SERVICE_ID, GPT_E_STATE_TRANSITION, flags);
+	} else {
+		VALIDATE_IRQ((Gpt_Global.Status & GPT_HW_TMR_TMR_ON), 
+				GPT_STARTTIMER_SERVICE_ID, GPT_E_STATE_TRANSITION, flags);
+	}
+	
 	if (Channel < GPT_INTERNAL_CHANNEL_CMT0) {
 		/*Note, TMR module does not have a stop/start bit, it is started 
 		 * directly by Gpt_EnableChannel().
@@ -868,8 +888,13 @@ void Gpt_StopTimer(Gpt_ChannelType	Channel)
 	VALIDATE_IRQ((channel < Gpt_Global.ConfigPtr->GptNumberOfGptChannels),
 			GPT_STOPTIMER_SERVICE_ID, GPT_E_PARAM_CHANNEL, flags);
 
-	VALIDATE_IRQ((Gpt_Global.Status & Gpt_ch_2_mod_stat(Channel)), 
-			GPT_STOPTIMER_SERVICE_ID, GPT_E_STATE_TRANSITION, flags);
+	if (Channel >  GPT_CHANNEL_TMR23) {
+		VALIDATE_IRQ((Gpt_Global.Status & Gpt_ch_2_mod_stat(Channel)), 
+				GPT_STARTTIMER_SERVICE_ID, GPT_E_STATE_TRANSITION, flags);
+	} else {
+		VALIDATE_IRQ((Gpt_Global.Status & GPT_HW_TMR_ON), 
+				GPT_STARTTIMER_SERVICE_ID, GPT_E_STATE_TRANSITION, flags);
+	}
 	
 	if (Channel < GPT_INTERNAL_CHANNEL_CMT0) {
 		GPT_CLEAR_TMR_TCNT(Channel);
@@ -1096,8 +1121,14 @@ Std_ReturnType Gpt_GoToSleep(Gpt_ChannelType Channel)
 			GPT_E_PARAM_CHANNEL, 
 			E_NOT_OK, flags);
 
-	VALIDATE_IRQ_W_RV((Gpt_Global.Status & Gpt_ch_2_mod_stat(Channel)),
-			GPT_GOTOSLEEP_SERVICE_ID, GPT_E_STATE_TRANSITION, E_NOT_OK, flags);
+
+	if (Channel >  GPT_CHANNEL_TMR23) {
+		VALIDATE_IRQ_W_RV((Gpt_Global.Status & Gpt_ch_2_mod_stat(Channel)),
+				GPT_GOTOSLEEP_SERVICE_ID, GPT_E_STATE_TRANSITION, E_NOT_OK, flags);
+	} else {
+		VALIDATE_IRQ_W_RV((Gpt_Global.Status & GPT_HW_TMR_TMR_ON),
+				GPT_GOTOSLEEP_SERVICE_ID, GPT_E_STATE_TRANSITION, E_NOT_OK, flags);
+	}
 
 	/* Stop Timer. */
 	Gpt_DisableChannel(Channel);
@@ -1144,8 +1175,15 @@ Std_ReturnType Gpt_Wakeup(Gpt_ChannelType Channel)
 			Gpt_Global.ConfigPtr->GptChannels[channel].GptChannelWakeupSupport),
 			GPT_WAKEUP_SERVICE_ID, GPT_E_PARAM_CHANNEL, E_NOT_OK, flags);
 
-	VALIDATE_IRQ_W_RV(!(Gpt_Global.Status & Gpt_ch_2_mod_stat(Channel)), 
-			GPT_WAKEUP_SERVICE_ID, GPT_E_STATE_TRANSITION, E_NOT_OK, flags);
+
+	if (Channel >  GPT_CHANNEL_TMR23) {
+		VALIDATE_IRQ_W_RV(!(Gpt_Global.Status & Gpt_ch_2_mod_stat(Channel)), 
+				GPT_WAKEUP_SERVICE_ID, GPT_E_STATE_TRANSITION, E_NOT_OK, flags);
+	} else {
+		VALIDATE_IRQ_W_RV(!(Gpt_Global.Status & GPT_HW_TMR_TMR_ON), 
+				GPT_WAKEUP_SERVICE_ID, GPT_E_STATE_TRANSITION, E_NOT_OK, flags);
+	}
+	
 
 	/* Gpt Module Disabled? */
 	if (!( Gpt_Global.Status & Gpt_ch_2_mod_stat(Channel))) {

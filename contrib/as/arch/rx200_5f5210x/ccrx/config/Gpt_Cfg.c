@@ -173,7 +173,7 @@ const Gpt_ChannelConfigType GptChannels[] = {
 		/* GptChannelHWConfig: */
 		/* Timer Clock = Peripheral clock (PCLKB) / 8,
 		*/
-		GPT_HW_MTU_PCLK16,
+		GPT_HW_MTU_PCLK16  | GPT_HW_MTU_CLRA,
 	},
 	{ /* TIMER MTU1 */
 		GPT_CHANNEL_MTU1,			/* GptChannelId			      */
@@ -191,7 +191,7 @@ const Gpt_ChannelConfigType GptChannels[] = {
 		/* GptChannelHWConfig: */
 		/* Timer Clock = Peripheral clock (PCLKB) / 8,
 		 */
-		GPT_HW_MTU_PCLK16,
+		GPT_HW_MTU_PCLK16 | GPT_HW_MTU_CLRA,
 	},
 };
 
