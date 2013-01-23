@@ -134,6 +134,11 @@ EE_LINK_SCRIPT =
 LINKDEP =
 endif
 
+# S-record file generation
+ifeq ($(call iseeopt, GENERATE_S_RECORD), yes)
+OPT_LINK += -srec ppc.srec
+endif
+
 CC_LD_SUFFIX = _codewarrior.ld
 
 ifeq ($(call iseeopt, __DEFAULT_LD_SCRIPT__), yes)
