@@ -51,7 +51,10 @@ SECTIONS
 	} > boot
 
 	GROUP : {
-		.text_vle (VLECODE) LOAD(ADDR(iflash)): {
+        /* This section holds calibration ram descriptor */
+        APPL_descriptor_section LOAD(ADDR(iflash)) : {}
+
+		.text_vle (VLECODE) LOAD(ADDR(iflash)+SIZEOF(APPL_descriptor_section)): {
 			*(.text)
 			*(.text_vle)
 			*(.init)
@@ -84,14 +87,20 @@ SECTIONS
     GROUP : {
         /* Alignement necessary for a correct use of flash driver */
         . = ALIGN(8);
+        /* This section holds calibration ram descriptor */
+        calib_ram_descriptor_section : {}
         /* For data associated to calibrations memory area (non-const data) */
         ee_scalib_ram = .;
     } > calibrations_ram
 
     GROUP : {
+        /* Alignement necessary for a correct use of flash driver */
+        . = ALIGN(8);
+        /* This section holds calibration flash descriptor */
+        calib_flash_descriptor_section : {}
         /* For data associated to calibrations memory area (const data) */
         ee_scalib_flash = .;
-        calib_flash LOAD(ADDR(calibrations_flash)) : { }
+        calib_flash LOAD(ADDR(calibrations_flash)+SIZEOF(calib_flash_descriptor_section)) : { }
     } > calibrations_flash
 
 	GROUP : {
