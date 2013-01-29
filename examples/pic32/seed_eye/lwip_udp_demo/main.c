@@ -68,6 +68,11 @@
 //#pragma config FPBDIV = DIV_8 /* SYSCLK = 80MHz, PBCLK = 10MHz */
 #pragma config FWDTEN = OFF
 #pragma config FMIIEN = OFF, FETHIO = ON	// external PHY in RMII/default configuration
+#pragma config FSOSCEN = OFF
+
+#define ENABLE_1V2_VOLTAGE() 	ODCCbits.ODCC14 = 0;\
+								TRISCbits.TRISC14 = 0;\
+								LATCbits.LATC14 = 1;
 
 /* Variables for UDP communication */
 static const u16_t my_port = MY_UDP_PORT;
@@ -194,6 +199,7 @@ int main(void)
     struct udp_pcb *my_udp_socket;
     err_t ret;
 
+	ENABLE_1V2_VOLTAGE();
     EE_system_init();
     EE_leds_init();
 
