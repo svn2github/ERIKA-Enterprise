@@ -58,7 +58,7 @@ load_ivpr: .macro reg, lab
 	e_add16i reg, reg, lab@l
 #elif defined __PPCE200Z6__ || defined __PPCE200Z7__ || defined EE_PPCE200Z4
 #ifdef __VLE__
-	e_lis	reg, lab@ha
+	e_lis	reg, lab@h
 #else
 	addis	reg, 0, lab@h
 #endif
