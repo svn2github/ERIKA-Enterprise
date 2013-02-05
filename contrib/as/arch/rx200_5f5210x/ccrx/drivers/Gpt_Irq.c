@@ -78,7 +78,13 @@
 #include "ee.h"
 #include "ee_irq.h"
 
+#include "Gpt.h"
 #include "Gpt_Internal.h"
+
+/*
+ * Channel expired flags. 
+ */
+extern uint32 exp_flag;
 
 /*
  * Type that holds all global data for Gpt Driver
@@ -202,7 +208,6 @@ static void Gpt_Isr(Gpt_ChannelType	Channel)
 {
 
 	register EE_FREG		flags;
-	register uint32		is;
 	register Gpt_ChannelType	ch;
 
 	flags = EE_hal_suspendIRQ();
@@ -214,6 +219,18 @@ static void Gpt_Isr(Gpt_ChannelType	Channel)
     		( Gpt_Global.ConfigPtr->GptChannels[ch].GptChannelId != Channel )); 
 		ch++) { ; }
 
+		/*
+		 * Stop the timer if one-shot mode is selected.
+		 */
+		if (Gpt_Global.ConfigPtr->GptChannels[ch].GptChannelMode == 
+				GPT_CH_MODE_ONESHOT) {
+			if (Channel < GPT_CHANNEL_CMT0) {
+				Gpt_DisableChannel(Channel);
+			} else {
+				Gpt_tmr_stop(Channel);
+			}
+			GPT_SET_FLAG(exp_flag, Channel);
+		}
 		/* Notification Callback Call. */
 		if ( ( ch < Gpt_Global.ConfigPtr->GptNumberOfGptChannels ) && 
 				( Gpt_Global.ConfigPtr->GptChannels[ch].GptNotificationPtr 
@@ -239,7 +256,7 @@ static void Gpt_Isr(Gpt_ChannelType	Channel)
 #pragma interrupt (EE_RX200_CMIA0_ISR)
 ISR2(EE_RX200_CMIA0_ISR)
 {
-	Gpt_Isr(GPT_CHANNEL_TMR0);
+	Gpt_Isr(GPT_CHANNEL_TMR0);&(ConfigPtr->GptChannels[channel])
 }
 #endif
 
@@ -268,7 +285,7 @@ ISR2(EE_RX200_CMIA1_ISR)
 #pragma interrupt (EE_RX200_CMIB1_ISR)
 ISR2(EE_RX200_CMIB1_ISR)
 {
-#if (defined(GPT_CHANNEL_TMR1)
+#if (defined(GPT_CHANNEL_TMR1))
 	Gpt_Isr(GPT_CHANNEL_TMR1);
 #else 
 	Gpt_Isr(GPT_CHANNEL_TMR12);

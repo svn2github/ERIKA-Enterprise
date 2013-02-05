@@ -299,7 +299,7 @@ typedef enum {
   GPT_CH_EXPIRED,	/**< "Expired" State.				      */
   GPT_CH_STOPPED,	/**< "Stopped" State.				      */
   GPT_CH_RUNNING,	/**< "Running" State.				      */
-  GPT_OPERATIONAL,	/**< Normal operation. "Initialized" State.	      */
+  GPT_OPERATIONAL,	/**< Normal operation. "Initialized" State. */
   GPT_CH_SLEEP		/**< Sleep state operation.			      */
 } Gpt_StatusType;
 

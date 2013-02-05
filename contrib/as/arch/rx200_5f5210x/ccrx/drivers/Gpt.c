@@ -176,25 +176,6 @@ uint32 exp_flag = 0;
  */
 uint32 stop_flag = 0;
 
-/*
- * MCU Global Configuration Reference
- */
-typedef struct
-{
-	boolean			Init;					/* MCU Driver Initialized?    */
-	
-	const Mcu_ConfigType 	*ConfigPtr;		/* Actual Configuration	      */
-	
-	Mcu_ClockType			ClockSetting;	/* Actual Clock Setting	      */
-
-} Mcu_GlobalType;
-
-/*
- * MCU Global Configuration External Reference
- */
-extern Mcu_GlobalType Mcu_Global;
-
-
 #if ( GPT_DEINIT_API == STD_ON )
 
 
@@ -210,16 +191,22 @@ static void Gpt_ResetChannel(Gpt_ChannelType ch)
 		GPT_CLEAR_TMR_TCNT(ch);
 		GPT_SET_TMR_TCR(ch, 0x0);
 		GPT_SET_TMR_TCCR(ch, 0x0);
+		Gpt_tmr_dis_icu_int(ch);
 	} else if (ch < GPT_INTERNAL_CHANNEL_MTU0) {
 		GPT_CLEAR_CMT_TCNT(ch);
+		GPT_DIS_ICU_IER(HW_ICU_IER_CMT_CMI, HW_ICU_CMT0_IER_CMI_MASK | 
+				HW_ICU_CMT1_IER_CMI_MASK | HW_ICU_CMT2_IER_CMI_MASK | 
+				HW_ICU_CMT3_IER_CMI_MASK);
 	} else if (ch < GPT_INTERNAL_CHANNEL_MTU5U){
 		GPT_CLEAR_MTU2A_TCNT(ch);
 		Gpt_mtu2a_set_tgra(ch, 0xFFFF);
 		Gpt_mtu2a_set_tgrb(ch, 0xFFFF);
 		Gpt_mtu2a_set_tgrc(ch, 0xFFFF);
 		Gpt_mtu2a_set_tgrd(ch, 0xFFFF);
+		Gpt_mtu0_4_int_dis(ch, Gpt_get_mtu2a_tcr(ch));
 	} else {
 		Gpt_mtu5_set_cmp(ch, 0xFFFF);
+		Gpt_mtu5_int_dis(ch);
 	}
 		
 	switch (ch) {
@@ -283,106 +270,91 @@ static void Gpt_mtu2a_init(const Gpt_ChannelConfigType *ConfigPtr)
 	switch (ConfigPtr->GptChannelId) {
 	case GPT_INTERNAL_CHANNEL_MTU0:
 		/*Set timer prescaler/clock and counter clear match.*/
-		GPT_SET_REG8(HW_SYSTEM_MTU0_TCR_ADDR, 
-				ConfigPtr->GptChannelHWConfig);
+		GPT_SET_REG8(HW_MTU0_TCR_ADDR, ConfigPtr->GptChannelHWConfig);
 		/*Set timer in normal mode.*/
-		GPT_SET_REG8(HW_SYSTEM_MTU0_TMDR_ADDR, 
-				GPT_GET_MTU2A_REG8(HW_SYSTEM_MTU0_TMDR_ADDR) & 
+		GPT_SET_REG8(HW_MTU0_TMDR_ADDR, 
+				GPT_GET_MTU2A_REG8(HW_MTU0_TMDR_ADDR) & 
 				GPT_MTU2A_TMDR_N_MODE_MASK);
 		break;
 	case GPT_INTERNAL_CHANNEL_MTU1:
 		/*Set timer prescaler/clock and counter clear match.*/
-		GPT_SET_REG8(HW_SYSTEM_MTU1_TCR_ADDR, 
-				ConfigPtr->GptChannelHWConfig);
+		GPT_SET_REG8(HW_MTU1_TCR_ADDR, ConfigPtr->GptChannelHWConfig);
 		/*Set timer in normal mode.*/
-		GPT_SET_REG8(HW_SYSTEM_MTU1_TMDR_ADDR, 
-				GPT_GET_MTU2A_REG8(HW_SYSTEM_MTU1_TMDR_ADDR) & 
+		GPT_SET_REG8(HW_MTU1_TMDR_ADDR, GPT_GET_MTU2A_REG8(HW_MTU1_TMDR_ADDR) & 
 				GPT_MTU2A_TMDR_N_MODE_MASK);
 		break;
 	case GPT_INTERNAL_CHANNEL_MTU2:
 		/*Set timer prescaler/clock and counter clear match.*/
-		GPT_SET_REG8(HW_SYSTEM_MTU2_TCR_ADDR, 
-				ConfigPtr->GptChannelHWConfig);
+		GPT_SET_REG8(HW_MTU2_TCR_ADDR, ConfigPtr->GptChannelHWConfig);
 		/*Set timer in normal mode.*/
-		GPT_SET_REG8(HW_SYSTEM_MTU2_TMDR_ADDR, 
-				GPT_GET_MTU2A_REG8(HW_SYSTEM_MTU2_TMDR_ADDR) & 
+		GPT_SET_REG8(HW_MTU2_TMDR_ADDR, GPT_GET_MTU2A_REG8(HW_MTU2_TMDR_ADDR) & 
 				GPT_MTU2A_TMDR_N_MODE_MASK);
 		break;
 	case GPT_INTERNAL_CHANNEL_MTU12:
 		/*Set timer prescaler/clock and counter clear match.*/
-		GPT_SET_REG8(HW_SYSTEM_MTU1_TCR_ADDR, 
-				ConfigPtr->GptChannelHWConfig | GPT_MTUA2_CASCADE_MODE);
-		GPT_SET_REG8(HW_SYSTEM_MTU2_TCR_ADDR, 
-				ConfigPtr->GptChannelHWConfig);
+		GPT_SET_REG8(HW_MTU1_TCR_ADDR, ConfigPtr->GptChannelHWConfig | 
+				GPT_MTUA2_CASCADE_MODE);
+		GPT_SET_REG8(HW_MTU2_TCR_ADDR, ConfigPtr->GptChannelHWConfig);
 		/*Set timer in normal mode.*/
-		GPT_SET_REG8(HW_SYSTEM_MTU1_TMDR_ADDR, 
-				GPT_GET_MTU2A_REG8(HW_SYSTEM_MTU1_TMDR_ADDR) & 
+		GPT_SET_REG8(HW_MTU1_TMDR_ADDR, GPT_GET_MTU2A_REG8(HW_MTU1_TMDR_ADDR) & 
 				GPT_MTU2A_TMDR_N_MODE_MASK);
-		GPT_SET_REG8(HW_SYSTEM_MTU2_TMDR_ADDR, 
-				GPT_GET_MTU2A_REG8(HW_SYSTEM_MTU2_TMDR_ADDR) & 
+		GPT_SET_REG8(HW_MTU2_TMDR_ADDR, GPT_GET_MTU2A_REG8(HW_MTU2_TMDR_ADDR) & 
 				GPT_MTU2A_TMDR_N_MODE_MASK);
 		/* Enable Synchronous operation for MTU1 and MTU2. */
-		GPT_SET_REG8(HW_SYSTEM_MTU2A_TSYR_ADDR, 
-				GPT_GET_MTU2A_REG8(HW_SYSTEM_MTU2A_TSYR_ADDR) | 
+		GPT_SET_REG8(HW_MTU2A_TSYR_ADDR, GPT_GET_MTU2A_REG8(HW_MTU2A_TSYR_ADDR) | 
 				GPT_TSYR_MTU12_ENABLE);
 		break;
 	
 	case GPT_INTERNAL_CHANNEL_MTU3:
 		/*Enable writing to MTU3 and MTU4 protected registers. */
-		GPT_SET_REG8(HW_SYSTEM_MTU34_TRWER_ADDR, GPT_MTU34_TRWER_EN_MASK);
+		GPT_SET_REG8(HW_MTU34_TRWER_ADDR, GPT_MTU34_TRWER_EN_MASK);
 		/*Set timer prescaler/clock and counter clear match.*/
-		GPT_SET_REG8(HW_SYSTEM_MTU3_TCR_ADDR, 
-				ConfigPtr->GptChannelHWConfig);
+		GPT_SET_REG8(HW_MTU3_TCR_ADDR, ConfigPtr->GptChannelHWConfig);
 		/*Set timer in normal mode.*/
-		GPT_SET_REG8(HW_SYSTEM_MTU3_TMDR_ADDR, 
-				GPT_GET_MTU2A_REG8(HW_SYSTEM_MTU3_TMDR_ADDR) & 
+		GPT_SET_REG8(HW_MTU3_TMDR_ADDR, GPT_GET_MTU2A_REG8(HW_MTU3_TMDR_ADDR) & 
 				GPT_MTU2A_TMDR_N_MODE_MASK);
 		/*Disable writing to MTU3 and MTU4 protected registers. */
-		GPT_SET_REG8(HW_SYSTEM_MTU34_TRWER_ADDR, GPT_MTU34_TRWER_DIS_MASK);
+		GPT_SET_REG8(HW_MTU34_TRWER_ADDR, GPT_MTU34_TRWER_DIS_MASK);
 		break;
 	case GPT_INTERNAL_CHANNEL_MTU4:
 		/*Enable writing to MTU3 and MTU4 protected registers. */
-		GPT_SET_REG8(HW_SYSTEM_MTU34_TRWER_ADDR, GPT_MTU34_TRWER_EN_MASK);
+		GPT_SET_REG8(HW_MTU34_TRWER_ADDR, GPT_MTU34_TRWER_EN_MASK);
 		/*Set timer prescaler/clock and counter clear match.*/
-		GPT_SET_REG8(HW_SYSTEM_MTU4_TCR_ADDR, 
-				ConfigPtr->GptChannelHWConfig);
+		GPT_SET_REG8(HW_MTU4_TCR_ADDR, ConfigPtr->GptChannelHWConfig);
 		/*Set timer in normal mode.*/
-		GPT_SET_REG8(HW_SYSTEM_MTU4_TMDR_ADDR, 
-				GPT_GET_MTU2A_REG8(HW_SYSTEM_MTU4_TMDR_ADDR) & 
+		GPT_SET_REG8(HW_MTU4_TMDR_ADDR, GPT_GET_MTU2A_REG8(HW_MTU4_TMDR_ADDR) & 
 				GPT_MTU2A_TMDR_N_MODE_MASK);
 		/*Disable writing to MTU3 and MTU4 protected registers. */
-		GPT_SET_REG8(HW_SYSTEM_MTU34_TRWER_ADDR, GPT_MTU34_TRWER_DIS_MASK);
+		GPT_SET_REG8(HW_MTU34_TRWER_ADDR, GPT_MTU34_TRWER_DIS_MASK);
 		break;
 	case GPT_INTERNAL_CHANNEL_MTU5U:
 		/*Set timer prescaler/clock and counter clear match.*/
-		GPT_SET_REG8(HW_SYSTEM_MTU5U_TCR_ADDR, 
-				ConfigPtr->GptChannelHWConfig);
+		GPT_SET_REG8(HW_MTU5U_TCR_ADDR, ConfigPtr->GptChannelHWConfig);
 		/*Enable counter clear on match with TGRU. */ 
 		if (ConfigPtr->GptChannelHWConfig & GPT_MTU5_CLR_BIT_MASK) {
-			GPT_SET_REG8(HW_SYSTEM_MTU5_TCNTCMPCLR_ADDR, 
-					(GPT_GET_MTU2A_REG8(HW_SYSTEM_MTU5_TCNTCMPCLR_ADDR) | 
+			GPT_SET_REG8(HW_MTU5_TCNTCMPCLR_ADDR, 
+					(GPT_GET_MTU2A_REG8(HW_MTU5_TCNTCMPCLR_ADDR) | 
 							GPT_MTU5U_TCNTCMPCLR_EN_MASK));
 		}
 		break;
 	case GPT_INTERNAL_CHANNEL_MTU5V:
 		/*Set timer prescaler/clock and counter clear match.*/
-		GPT_SET_REG8(HW_SYSTEM_MTU5V_TCR_ADDR, 
-				ConfigPtr->GptChannelHWConfig);
+		GPT_SET_REG8(HW_MTU5V_TCR_ADDR, ConfigPtr->GptChannelHWConfig);
 		/*Enable counter clear on match with TGRV. */
 		if (ConfigPtr->GptChannelHWConfig & GPT_MTU5_CLR_BIT_MASK) {
-			GPT_SET_REG8(HW_SYSTEM_MTU5_TCNTCMPCLR_ADDR, 
-					(GPT_GET_MTU2A_REG8(HW_SYSTEM_MTU5_TCNTCMPCLR_ADDR) | 
+			GPT_SET_REG8(HW_MTU5_TCNTCMPCLR_ADDR, 
+					(GPT_GET_MTU2A_REG8(HW_MTU5_TCNTCMPCLR_ADDR) | 
 							GPT_MTU5V_TCNTCMPCLR_EN_MASK));
 		}
 		break;
 	case GPT_INTERNAL_CHANNEL_MTU5W:
 		/*Set timer prescaler/clock and counter clear match.*/
-		GPT_SET_REG8(HW_SYSTEM_MTU5W_TCR_ADDR, 
-				ConfigPtr->GptChannelHWConfig);
+		GPT_SET_REG8(HW_MTU5W_TCR_ADDR, ConfigPtr->GptChannelHWConfig);
 		/*Enable counter clear on match with TGRW. */
-		if (ConfigPtr->GptChannelHWConfig & GPT_MTU5_CLR_BIT_MASK) {
-			GPT_SET_REG8(HW_SYSTEM_MTU5_TCNTCMPCLR_ADDR, 
-					(GPT_GET_MTU2A_REG8(HW_SYSTEM_MTU5_TCNTCMPCLR_ADDR) | 
+		if ((ConfigPtr->GptChannelHWConfig & GPT_MTU5_CLR_BIT_MASK) == 
+				GPT_MTU5_CLR_BIT_MASK) {
+			GPT_SET_REG8(HW_MTU5_TCNTCMPCLR_ADDR, 
+					(GPT_GET_MTU2A_REG8(HW_MTU5_TCNTCMPCLR_ADDR) | 
 							GPT_MTU5W_TCNTCMPCLR_EN_MASK));
 		}
 		break;
@@ -398,87 +370,116 @@ static void Gpt_mtu2a_en_oneshot(const Gpt_ChannelConfigType *ConfigPtr)
 
 	switch (ConfigPtr->GptChannelId) {
 	case GPT_INTERNAL_CHANNEL_MTU0:
-		if (ConfigPtr->GptChannelHWConfig & GPT_MTU2A_CMP_A_MASK) {
-			GPT_SET_MTU2A_BIT_REG8(HW_SYSTEM_MTU0_TIER_ADDR, 
-					GPT_MTU2A_TGIEA_POS);
-			} else if (ConfigPtr->GptChannelHWConfig & GPT_MTU2A_CMP_B_MASK) {
-				GPT_SET_MTU2A_BIT_REG8(HW_SYSTEM_MTU0_TIER_ADDR, 
-									GPT_MTU2A_TGIEB_POS);
-			} else if (ConfigPtr->GptChannelHWConfig & GPT_MTU2A_CMP_C_MASK) {
-				GPT_SET_MTU2A_BIT_REG8(HW_SYSTEM_MTU0_TIER_ADDR, 
-									GPT_MTU2A_TGIEC_POS);
-			} else if (ConfigPtr->GptChannelHWConfig & GPT_MTU2A_CMP_D_MASK) {
-				GPT_SET_MTU2A_BIT_REG8(HW_SYSTEM_MTU0_TIER_ADDR, 
-									GPT_MTU2A_TGIED_POS);	
+		if ((ConfigPtr->GptChannelHWConfig & GPT_MTU2A_CMP_A_MASK) == 
+				GPT_MTU2A_CMP_A_MASK) {
+			GPT_SET_MTU2A_BIT_REG8(HW_MTU0_TIER_ADDR, GPT_MTU2A_TGIEA_POS);
+			GPT_EN_ICU_IER(HW_ICU_IER_MTU0_TGIA, HW_ICU_MTU0_IER_TGIA_MASK);
+
+			} else if ((ConfigPtr->GptChannelHWConfig & GPT_MTU2A_CMP_B_MASK) == 
+					GPT_MTU2A_CMP_B_MASK) {
+				GPT_SET_MTU2A_BIT_REG8(HW_MTU0_TIER_ADDR, GPT_MTU2A_TGIEB_POS);
+				GPT_EN_ICU_IER(HW_ICU_IER_MTU0_TGIB, HW_ICU_MTU0_IER_TGIB_MASK);
+			} else if ((ConfigPtr->GptChannelHWConfig & GPT_MTU2A_CMP_C_MASK) == 
+					GPT_MTU2A_CMP_C_MASK) {
+				GPT_SET_MTU2A_BIT_REG8(HW_MTU0_TIER_ADDR, GPT_MTU2A_TGIEC_POS);
+				GPT_EN_ICU_IER(HW_ICU_IER_MTU0_TGIB, HW_ICU_MTU0_IER_TGIC_MASK);
+			} else if ((ConfigPtr->GptChannelHWConfig & GPT_MTU2A_CMP_D_MASK) == 
+					GPT_MTU2A_CMP_D_MASK) {
+				GPT_SET_MTU2A_BIT_REG8(HW_MTU0_TIER_ADDR, GPT_MTU2A_TGIED_POS);
+				GPT_EN_ICU_IER(HW_ICU_IER_MTU0_TGIB, HW_ICU_MTU0_IER_TGID_MASK);
 			}
+		GPT_SET_ICU_IPR(HW_ICU_IPR_MTU0_TGI_REG, HW_IPR_PRI_LEVEL_1);
 		break;
 	case GPT_INTERNAL_CHANNEL_MTU1:
-		if (ConfigPtr->GptChannelHWConfig & GPT_MTU2A_CMP_A_MASK) {
-			GPT_SET_MTU2A_BIT_REG8(HW_SYSTEM_MTU1_TIER_ADDR, 
-					GPT_MTU2A_TGIEA_POS);
-			} else if (ConfigPtr->GptChannelHWConfig & GPT_MTU2A_CMP_B_MASK) {
-				GPT_SET_MTU2A_BIT_REG8(HW_SYSTEM_MTU1_TIER_ADDR, 
-									GPT_MTU2A_TGIEB_POS);
+		if ((ConfigPtr->GptChannelHWConfig & GPT_MTU2A_CMP_A_MASK) == 
+				GPT_MTU2A_CMP_A_MASK) {
+			GPT_SET_MTU2A_BIT_REG8(HW_MTU1_TIER_ADDR, GPT_MTU2A_TGIEA_POS);
+			GPT_EN_ICU_IER(HW_ICU_IER_MTU1_TGIA, HW_ICU_MTU1_IER_TGIA_MASK);
+			
+			} else if ((ConfigPtr->GptChannelHWConfig & GPT_MTU2A_CMP_B_MASK) == 
+					GPT_MTU2A_CMP_B_MASK) {
+				GPT_SET_MTU2A_BIT_REG8(HW_MTU1_TIER_ADDR, GPT_MTU2A_TGIEB_POS);
+				GPT_EN_ICU_IER(HW_ICU_IER_MTU1_TGIB, HW_ICU_MTU1_IER_TGIB_MASK);
 			}
+		GPT_SET_ICU_IPR(HW_ICU_IPR_MTU1_TGI_REG, HW_IPR_PRI_LEVEL_1);
 		break;
 	case GPT_INTERNAL_CHANNEL_MTU2:
-		if (ConfigPtr->GptChannelHWConfig & GPT_MTU2A_CMP_A_MASK) {
-			GPT_SET_MTU2A_BIT_REG8(HW_SYSTEM_MTU2_TIER_ADDR, 
-					GPT_MTU2A_TGIEA_POS);
-			} else if (ConfigPtr->GptChannelHWConfig & GPT_MTU2A_CMP_B_MASK) {
-				GPT_SET_MTU2A_BIT_REG8(HW_SYSTEM_MTU2_TIER_ADDR, 
-									GPT_MTU2A_TGIEB_POS);
+		if ((ConfigPtr->GptChannelHWConfig & GPT_MTU2A_CMP_A_MASK) == 
+				GPT_MTU2A_CMP_A_MASK) {
+			GPT_SET_MTU2A_BIT_REG8(HW_MTU2_TIER_ADDR, GPT_MTU2A_TGIEA_POS);
+			GPT_EN_ICU_IER(HW_ICU_IER_MTU2_TGIA, HW_ICU_MTU2_IER_TGIA_MASK);
+			} else if ((ConfigPtr->GptChannelHWConfig & GPT_MTU2A_CMP_B_MASK) == 
+					GPT_MTU2A_CMP_B_MASK) {
+				GPT_SET_MTU2A_BIT_REG8(HW_MTU2_TIER_ADDR, GPT_MTU2A_TGIEB_POS);
+				GPT_EN_ICU_IER(HW_ICU_IER_MTU2_TGIB, HW_ICU_MTU2_IER_TGIB_MASK);
 			} 
+		GPT_SET_ICU_IPR(HW_ICU_IPR_MTU2_TGI_REG, HW_IPR_PRI_LEVEL_1);
 		break;
 	case GPT_INTERNAL_CHANNEL_MTU12:
 		/*TODO*/
 		break;
 	case GPT_INTERNAL_CHANNEL_MTU3:
 		/*Enable writing to MTU3 and MTU4 protected registers. */
-		GPT_SET_REG8(HW_SYSTEM_MTU34_TRWER_ADDR, GPT_MTU34_TRWER_EN_MASK);
-		if (ConfigPtr->GptChannelHWConfig & GPT_MTU2A_CMP_A_MASK) {
-			GPT_SET_MTU2A_BIT_REG8(HW_SYSTEM_MTU3_TIER_ADDR, 
-					GPT_MTU2A_TGIEA_POS);
-			} else if (ConfigPtr->GptChannelHWConfig & GPT_MTU2A_CMP_B_MASK) {
-				GPT_SET_MTU2A_BIT_REG8(HW_SYSTEM_MTU3_TIER_ADDR, 
-									GPT_MTU2A_TGIEB_POS);
-			} else if (ConfigPtr->GptChannelHWConfig & GPT_MTU2A_CMP_C_MASK) {
-				GPT_SET_MTU2A_BIT_REG8(HW_SYSTEM_MTU3_TIER_ADDR, 
-									GPT_MTU2A_TGIEC_POS);
-			} else if (ConfigPtr->GptChannelHWConfig & GPT_MTU2A_CMP_D_MASK) {
-				GPT_SET_MTU2A_BIT_REG8(HW_SYSTEM_MTU3_TIER_ADDR, 
-									GPT_MTU2A_TGIED_POS);	
+		GPT_SET_REG8(HW_MTU34_TRWER_ADDR, GPT_MTU34_TRWER_EN_MASK);
+		if ((ConfigPtr->GptChannelHWConfig & GPT_MTU2A_CMP_A_MASK) & 
+				GPT_MTU2A_CMP_A_MASK) {
+			GPT_SET_MTU2A_BIT_REG8(HW_MTU3_TIER_ADDR, GPT_MTU2A_TGIEA_POS);
+			GPT_EN_ICU_IER(HW_ICU_IER_MTU3_TGIA, HW_ICU_MTU3_IER_TGIA_MASK);
+			} else if ((ConfigPtr->GptChannelHWConfig & GPT_MTU2A_CMP_B_MASK) == 
+					GPT_MTU2A_CMP_B_MASK) {
+				GPT_SET_MTU2A_BIT_REG8(HW_MTU3_TIER_ADDR, GPT_MTU2A_TGIEB_POS);
+				GPT_EN_ICU_IER(HW_ICU_IER_MTU3_TGIB, HW_ICU_MTU3_IER_TGIB_MASK);
+			} else if ((ConfigPtr->GptChannelHWConfig & GPT_MTU2A_CMP_C_MASK) == 
+					GPT_MTU2A_CMP_C_MASK) {
+				GPT_SET_MTU2A_BIT_REG8(HW_MTU3_TIER_ADDR, GPT_MTU2A_TGIEC_POS);
+				GPT_EN_ICU_IER(HW_ICU_IER_MTU3_TGIC, HW_ICU_MTU3_IER_TGIC_MASK);
+			} else if ((ConfigPtr->GptChannelHWConfig & GPT_MTU2A_CMP_D_MASK) ==
+					 GPT_MTU2A_CMP_D_MASK) {
+				GPT_SET_MTU2A_BIT_REG8(HW_MTU3_TIER_ADDR, GPT_MTU2A_TGIED_POS);
+				GPT_EN_ICU_IER(HW_ICU_IER_MTU3_TGID, HW_ICU_MTU3_IER_TGID_MASK);
 			}
+		GPT_SET_ICU_IPR(HW_ICU_IPR_MTU3_TGI_REG, HW_IPR_PRI_LEVEL_1);
 		/*Disable writing to MTU3 and MTU4 protected registers. */
-		GPT_SET_REG8(HW_SYSTEM_MTU34_TRWER_ADDR, GPT_MTU34_TRWER_DIS_MASK);
+		GPT_SET_REG8(HW_MTU34_TRWER_ADDR, GPT_MTU34_TRWER_DIS_MASK);
 		break;
 	case GPT_INTERNAL_CHANNEL_MTU4:
 		/*Enable writing to MTU3 and MTU4 protected registers. */
-		GPT_SET_REG8(HW_SYSTEM_MTU34_TRWER_ADDR, GPT_MTU34_TRWER_EN_MASK);
-		if (ConfigPtr->GptChannelHWConfig & GPT_MTU2A_CMP_A_MASK) {
-			GPT_SET_MTU2A_BIT_REG8(HW_SYSTEM_MTU4_TIER_ADDR, 
-					GPT_MTU2A_TGIEA_POS);
-			} else if (ConfigPtr->GptChannelHWConfig & GPT_MTU2A_CMP_B_MASK) {
-				GPT_SET_MTU2A_BIT_REG8(HW_SYSTEM_MTU4_TIER_ADDR, 
-									GPT_MTU2A_TGIEB_POS);
-			} else if (ConfigPtr->GptChannelHWConfig & GPT_MTU2A_CMP_C_MASK) {
-				GPT_SET_MTU2A_BIT_REG8(HW_SYSTEM_MTU4_TIER_ADDR, 
-									GPT_MTU2A_TGIEC_POS);
-			} else if (ConfigPtr->GptChannelHWConfig & GPT_MTU2A_CMP_D_MASK) {
-				GPT_SET_MTU2A_BIT_REG8(HW_SYSTEM_MTU4_TIER_ADDR, 
-									GPT_MTU2A_TGIED_POS);	
+		GPT_SET_REG8(HW_MTU34_TRWER_ADDR, GPT_MTU34_TRWER_EN_MASK);
+		if ((ConfigPtr->GptChannelHWConfig & GPT_MTU2A_CMP_A_MASK) == 
+				GPT_MTU2A_CMP_A_MASK) {
+			GPT_SET_MTU2A_BIT_REG8(HW_MTU4_TIER_ADDR, GPT_MTU2A_TGIEA_POS);
+			GPT_EN_ICU_IER(HW_ICU_IER_MTU4_TGIA, HW_ICU_MTU4_IER_TGIA_MASK);
+			} else if ((ConfigPtr->GptChannelHWConfig & GPT_MTU2A_CMP_B_MASK) == 
+					GPT_MTU2A_CMP_B_MASK) {
+				GPT_SET_MTU2A_BIT_REG8(HW_MTU4_TIER_ADDR, GPT_MTU2A_TGIEB_POS);
+				GPT_EN_ICU_IER(HW_ICU_IER_MTU4_TGIB, HW_ICU_MTU4_IER_TGIB_MASK);
+			} else if ((ConfigPtr->GptChannelHWConfig & GPT_MTU2A_CMP_C_MASK) == 
+					GPT_MTU2A_CMP_C_MASK) {
+				GPT_SET_MTU2A_BIT_REG8(HW_MTU4_TIER_ADDR, GPT_MTU2A_TGIEC_POS);
+				GPT_EN_ICU_IER(HW_ICU_IER_MTU4_TGIC, HW_ICU_MTU4_IER_TGIC_MASK);
+			} else if ((ConfigPtr->GptChannelHWConfig & GPT_MTU2A_CMP_D_MASK) == 
+					GPT_MTU2A_CMP_D_MASK) {
+				GPT_SET_MTU2A_BIT_REG8(HW_MTU4_TIER_ADDR, GPT_MTU2A_TGIED_POS);
+				GPT_EN_ICU_IER(HW_ICU_IER_MTU4_TGID, HW_ICU_MTU4_IER_TGID_MASK);
 			}
+		GPT_SET_ICU_IPR(HW_ICU_IPR_MTU4_TGI_REG, HW_IPR_PRI_LEVEL_1);
 		/*Disable writing to MTU3 and MTU4 protected registers. */
-		GPT_SET_REG8(HW_SYSTEM_MTU34_TRWER_ADDR, GPT_MTU34_TRWER_DIS_MASK);
+		GPT_SET_REG8(HW_MTU34_TRWER_ADDR, GPT_MTU34_TRWER_DIS_MASK);
 		break;
 	case GPT_INTERNAL_CHANNEL_MTU5U:
-		GPT_SET_MTU2A_BIT_REG8(HW_SYSTEM_MTU5_TIER_ADDR, GPT_MTU2A_TGIE5U_POS);
+		GPT_SET_MTU2A_BIT_REG8(HW_MTU5_TIER_ADDR, GPT_MTU2A_TGIE5U_POS);
+		GPT_EN_ICU_IER(HW_ICU_IER_MTU5_TGI, HW_ICU_MTU5_IER_TGIU_MASK);
+		GPT_SET_ICU_IPR(HW_ICU_IPR_MTU5_TGI_REG, HW_IPR_PRI_LEVEL_1);
 		break;
 	case GPT_INTERNAL_CHANNEL_MTU5V:
-		GPT_SET_MTU2A_BIT_REG8(HW_SYSTEM_MTU5_TIER_ADDR, GPT_MTU2A_TGIE5V_POS);		
+		GPT_SET_MTU2A_BIT_REG8(HW_MTU5_TIER_ADDR, GPT_MTU2A_TGIE5V_POS);
+		GPT_EN_ICU_IER(HW_ICU_IER_MTU5_TGI, HW_ICU_MTU5_IER_TGIV_MASK);
+		GPT_SET_ICU_IPR(HW_ICU_IPR_MTU5_TGI_REG, HW_IPR_PRI_LEVEL_1);
 		break;
 	case GPT_INTERNAL_CHANNEL_MTU5W:
-		GPT_SET_MTU2A_BIT_REG8(HW_SYSTEM_MTU5_TIER_ADDR, GPT_MTU2A_TGIE5W_POS);
+		GPT_SET_MTU2A_BIT_REG8(HW_MTU5_TIER_ADDR, GPT_MTU2A_TGIE5W_POS);
+		GPT_EN_ICU_IER(HW_ICU_IER_MTU5_TGI, HW_ICU_MTU5_IER_TGIW_MASK);
+		GPT_SET_ICU_IPR(HW_ICU_IPR_MTU5_TGI_REG, HW_IPR_PRI_LEVEL_1);
 		break;
 	}
 	
@@ -548,6 +549,7 @@ static void Gpt_DeInitGptChannel(const Gpt_ChannelConfigType *ConfigPtr)
 	Gpt_ResetChannel(ConfigPtr->GptChannelId);
 	
 	GPT_CLEAR_FLAG(stop_flag, ConfigPtr->GptChannelId);
+	GPT_CLEAR_FLAG(exp_flag, ConfigPtr->GptChannelId);
 	
 	/* Turn-off Gpt Unit */
 	Gpt_Global.Status &= ~Gpt_ch_2_mod_stat(ConfigPtr->GptChannelId);
@@ -629,7 +631,8 @@ void Gpt_DeInit(void)
 static Gpt_ValueType Gpt_GetHWTarget(Gpt_ChannelType Channel)
 {
 	if (Channel < GPT_INTERNAL_CHANNEL_CMT0) {
-		if (GPT_GET_TMR_TCR(Channel) & GPT_TMR_CMP_A_MASK)
+		if ((GPT_GET_TMR_TCR(Channel) & GPT_TMR_CMP_A_MASK) == 
+				GPT_TMR_CMP_A_MASK)
 			return (GPT_GET_TMR_TCORA(Channel));
 		else
 			return (GPT_GET_TMR_TCORB(Channel));
@@ -644,7 +647,7 @@ static Gpt_ValueType Gpt_GetHWTarget(Gpt_ChannelType Channel)
  * Gpt_GetHWTimeRemaining implementation.
  */
 static Gpt_ValueType Gpt_GetHWCnt(Gpt_ChannelType Channel)
-{
+{	
 	if (Channel < GPT_INTERNAL_CHANNEL_CMT0) {
 		return (Gpt_get_tmr_tcnt(Channel));
 	} else if (Channel < GPT_INTERNAL_CHANNEL_MTU0){
@@ -670,7 +673,7 @@ Gpt_ValueType Gpt_GetTimeElapsed(Gpt_ChannelType	Channel)
 
 	register EE_FREG		flags;
 	register uint32		channel;
-
+	
 	register Gpt_ValueType	rv;
 
 	VALIDATE_W_RV(GPT_CH_IS_VALID(Channel),	GPT_GETTIMEELAPSED_SERVICE_ID, 
@@ -700,7 +703,6 @@ Gpt_ValueType Gpt_GetTimeElapsed(Gpt_ChannelType	Channel)
 				GPT_HW_TMR_EMPTY_VALUE, flags);
 	}
 
-	
 	/* Note, we assume that the timer counts up and the starting time is 0x0.*/
 	rv = Gpt_GetHWCnt(Channel);
 	
@@ -721,6 +723,7 @@ Gpt_ValueType Gpt_GetTimeRemaining(Gpt_ChannelType	Channel)
 	register uint32		channel;
 	
 	register Gpt_ValueType	rv;
+	
 
 	VALIDATE_W_RV(GPT_CH_IS_VALID(Channel), GPT_GETTIMEREMAINING_SERVICE_ID, 
 			GPT_E_PARAM_CHANNEL, GPT_HW_TMR_EMPTY_VALUE);
@@ -755,7 +758,7 @@ Gpt_ValueType Gpt_GetTimeRemaining(Gpt_ChannelType	Channel)
 	 * 	Gpt_GetHWTarget(Channel) > Gpt_GetHWCnt(Channel).
 	 */
 	rv = Gpt_GetHWTarget(Channel) - Gpt_GetHWCnt(Channel);
-	 
+	
 	EE_hal_resumeIRQ(flags);
 	
 	return rv;
@@ -808,9 +811,9 @@ void Gpt_StartTimer(Gpt_ChannelType	Channel, Gpt_ValueType	Value)
 		Gpt_EnableChannel(Channel);
 		tcr_reg = GPT_GET_TMR_TCR(Channel);
 		/*If compare match A is anabled. */
-		if (tcr_reg & GPT_TMR_CMP_A_MASK) {
+		if ((tcr_reg & GPT_TMR_CMP_A_MASK) == GPT_TMR_CMP_A_MASK) {
 			/*If compare match A ISR is enabled.*/
-			if ( tcr_reg & GPT_TMR_CMP_A_ISR_MASK) {
+			if ( (tcr_reg & GPT_TMR_CMP_A_ISR_MASK) == GPT_TMR_CMP_A_ISR_MASK) {
 				GPT_CLEAR_TMR_CMIEA(Channel);
 			}	
 			if (Channel == GPT_INTERNAL_CHANNEL_TMR01 || 
@@ -826,7 +829,7 @@ void Gpt_StartTimer(Gpt_ChannelType	Channel, Gpt_ValueType	Value)
 			}	
 		} else {
 			/*If compare match B is anabled. */
-			if (tcr_reg & GPT_TMR_CMP_B_ISR_MASK)
+			if ((tcr_reg & GPT_TMR_CMP_B_ISR_MASK) == GPT_TMR_CMP_B_ISR_MASK)
 				GPT_CLEAR_TMR_CMIEB(Channel);
 			if (Channel == GPT_INTERNAL_CHANNEL_TMR01 || 
 					Channel == GPT_INTERNAL_CHANNEL_TMR23) {
@@ -836,7 +839,7 @@ void Gpt_StartTimer(Gpt_ChannelType	Channel, Gpt_ValueType	Value)
 			}
 			GPT_CLEAR_TMR_TCNT(Channel);
 			/*If compare match B ISR was enabled, enable it again.*/
-			if (tcr_reg & GPT_TMR_CMP_B_ISR_MASK) {
+			if ((tcr_reg & GPT_TMR_CMP_B_ISR_MASK) == GPT_TMR_CMP_B_ISR_MASK) {
 				GPT_SET_TMR_CMIEB(Channel);
 			}
 		}
@@ -892,13 +895,13 @@ void Gpt_StopTimer(Gpt_ChannelType	Channel)
 		VALIDATE_IRQ((Gpt_Global.Status & Gpt_ch_2_mod_stat(Channel)), 
 				GPT_STARTTIMER_SERVICE_ID, GPT_E_STATE_TRANSITION, flags);
 	} else {
-		VALIDATE_IRQ((Gpt_Global.Status & GPT_HW_TMR_ON), 
+		VALIDATE_IRQ((Gpt_Global.Status & GPT_HW_TMR_TMR_ON), 
 				GPT_STARTTIMER_SERVICE_ID, GPT_E_STATE_TRANSITION, flags);
 	}
 	
 	if (Channel < GPT_INTERNAL_CHANNEL_CMT0) {
 		GPT_CLEAR_TMR_TCNT(Channel);
-		/*Note, TMR module does not have a stop/start bit, it is stapped 
+		/*Note, TMR module does not have a stop/start bit, it is stopped 
 		 * directly by Gpt_DisableChannel().
 		 */
 		Gpt_DisableChannel(Channel);
@@ -1235,8 +1238,24 @@ Gpt_StatusType Gpt_GetStatus(Gpt_ChannelType Channel)
 					GPT_GETSTATUS_SERVICE_ID, GPT_E_PARAM_CHANNEL, GPT_NOT_OK, 
 					flags);
 
-	if (!( Gpt_Global.Status & Gpt_ch_2_mod_stat(Channel))) {
-		rv = GPT_CH_SLEEP;
+
+	if (!( (Gpt_Global.Status & Gpt_ch_2_mod_stat(Channel)) ||  
+			GPT_GET_FLAG(exp_flag, Channel) || 
+			GPT_GET_FLAG(stop_flag, Channel)) ) {
+		/*If TMR0 <= Channel <= TMR23 check if the timer hw is disabled but the
+		 * channel is however enabled. This necessary because TMR module has not 
+		 * a start/stop bit.
+		 */
+		if ( ((Channel < GPT_INTERNAL_CHANNEL_TMR2 || 
+				Channel == GPT_INTERNAL_CHANNEL_TMR01) &&
+				(Gpt_Global.Status & GPT_HW_TMR_STOP_TMR01)) || 
+				((Channel < GPT_INTERNAL_CHANNEL_TMR01 || 
+						Channel == GPT_INTERNAL_CHANNEL_TMR23) && 
+						(Gpt_Global.Status & GPT_HW_TMR_STOP_TMR23)) ) {
+			rv = GPT_OPERATIONAL;
+		} else {
+			rv = GPT_CH_SLEEP;
+		}
 	} else if (Gpt_is_running(Channel)) {
 		rv = GPT_CH_RUNNING;
 	} else if ( GPT_GET_FLAG(exp_flag, Channel) ) {

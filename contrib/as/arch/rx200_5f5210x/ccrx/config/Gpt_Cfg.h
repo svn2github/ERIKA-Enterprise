@@ -351,7 +351,7 @@ typedef enum {
 /** @brief	TMRx module, Clock Prescaler PCLK/8192
  *
  */
-#define	GPT_HW_TMR_PCLK8192	0x04
+#define	GPT_HW_TMR_PCLK8192	0x0E
 
 /** @brief	TMRx module, Counts at TMR1.TCNT overflow
  *

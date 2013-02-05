@@ -92,6 +92,8 @@
 #define GPT_HW_TMR_NOTIF_MTU5_ON	0x10
 #define	GPT_HW_TMR_NOTIF_ALL_ON		0x11
 
+#define GTP_EN_TMR_CMIA 1
+#define GTP_EN_TMR_CMIB 0
 
 /*
  * Internal Channels Identifiers
@@ -251,29 +253,51 @@
 #define GPT_GET_REG(_reg) \
 		( EE_HWREG(_reg) )
 
+
+/** @brief	Enable Interrupt Control Unit (ICU) IER reg bit. 
+ *  @param _reg IER register.
+ *  @param _b_mask Bit mask used to set the correct bit. 
+ */
+#define GPT_EN_ICU_IER(_reg, _b_mask) \
+	GPT_SET_REG8(_reg, GPT_GET_REG8(_reg) | _b_mask)
+
+/** @brief	Disable Interrupt Control Unit (ICU) IER reg bit. 
+ *  @param _reg IER register.
+ *  @param _b_mask Bit mask used to clear the correct bit. 
+ */
+#define GPT_DIS_ICU_IER(_reg, _b_mask) \
+	GPT_SET_REG8(_reg, GPT_GET_REG8(_reg) & ~_b_mask)
+
+/** @brief	Set  Interrupt priority into Interrupt  prior. Register (IPR). 
+ *  @param _reg IPR register.
+ *  @param _pri Priority level. 
+ */
+#define GPT_SET_ICU_IPR(_reg, _pri) GPT_SET_REG8(_reg, _pri)
+
+
 /** @brief	TCCR register address of channel _ch.
  *	@param	_ch Timer channel.
  */
 #define	GPT_GET_TMR_TCCR_ADDR(_ch) \
-	( ((uint32)HW_SYSTEM_TCCR_ADDR_BASE | ((_ch & 0x2) << 3)) | (_ch & 0x1) )
+	( ((uint32)HW_TCCR_ADDR_BASE | ((_ch & 0x2) << 3)) | (_ch & 0x1) )
 
 /** @brief	Get TCR register address of channel _ch.
  *	@param	_ch Timer channel.
  */
 #define	GPT_GET_TMR_TCR_ADDR(_ch) \
-	( ((uint32)HW_SYSTEM_TMR_TCR_ADDR_BASE | ((_ch & 0x2) << 3)) | (_ch & 0x1) )
+	( ((uint32)HW_TMR_TCR_ADDR_BASE | ((_ch & 0x2) << 3)) | (_ch & 0x1) )
 
 /** @brief	Get TCORA register address of channel _ch.
  *	@param	_ch Timer channel.
  */
 #define	GPT_GET_TMR_TCORA_ADDR(_ch) \
-	( ( (uint32)(HW_SYSTEM_TMR0_TCORA_ADDR) | ( (_ch & 0x2) << 3 )) | (_ch & 0x1) )
+	( ( (uint32)(HW_TMR0_TCORA_ADDR) | ( (_ch & 0x2) << 3 )) | (_ch & 0x1) )
 		
 /** @brief	Get TCORB register address of channel _ch.
  *	@param	_ch Timer channel.
  */
 #define	GPT_GET_TMR_TCORB_ADDR(_ch) \
-	( ((uint32)HW_SYSTEM_TMR0_TCORB_ADDR | ((_ch & 0x2) << 3)) | (_ch & 0x1) )
+	( ((uint32)HW_TMR0_TCORB_ADDR | ((_ch & 0x2) << 3)) | (_ch & 0x1) )
 
 /** @brief	GET CMT UNIT bit for CMCR address of channel _ch.
  *	@param	_ch Timer channel.
@@ -291,21 +315,21 @@
  *	@param	_ch Timer channel.
  */
 #define	GPT_GET_CMT_CMCR_ADDR(_ch) \
-	( ((uint32)HW_SYSTEM_CMT_BASE_ADDR | ((_ch << 1) & 0x10)) | \
+	( ((uint32)HW_CMT_BASE_ADDR | ((_ch << 1) & 0x10)) | \
 			GPT_CH_TO_CMCR_UNIT(_ch) )
 
 /** @brief	GET CMCOR register address of channel _ch.
  *	@param	_ch Timer channel.
  */
 #define	GPT_GET_CMT_CMCOR_ADDR(_ch) \
-	( ((uint32)HW_SYSTEM_CMT_BASE_ADDR | ((_ch << 1) & 0x10)) | \
+	( ((uint32)HW_CMT_BASE_ADDR | ((_ch << 1) & 0x10)) | \
 			GPT_CH_TO_CMCOR_UNIT(_ch) )
 
 /** @brief	Get TRM TCNT register address of channel _ch.
  *	@param	_ch Timer channel.
  */
 #define GPT_GET_TMR_TCNT_ADDR(_ch) \
-	( ((uint32)HW_SYSTEM_TCNT_ADDR_BASE | ((_ch & 0x2) << 3)) | (_ch & 0x1) )
+	( ((uint32)HW_TCNT_ADDR_BASE | ((_ch & 0x2) << 3)) | (_ch & 0x1) )
 
 /** @brief	Get TMR TCCR register value of channel _ch.
  *	@param	_ch Timer channel.
@@ -329,7 +353,6 @@
 #define	GPT_GET_TMR_TCORB(_ch) \
 			( EE_HWREG8(GPT_GET_TMR_TCORB_ADDR(_ch)) )
 
-
 /** @brief	Get CMCOR register of CMTx.
 *	@param	_ch Timer channel.	
 */
@@ -346,33 +369,33 @@
  *	@param	_ch Timer channel.
  */
 #define GPT_GET_MTU0_2_TCR_ADDR(_ch) \
-		((uint32)(HW_SYSTEM_MTU0_TCR_ADDR) + \
-				(GPT_MTU0_TCR_OFFSET & (_ch - GPT_INTERNAL_CHANNEL_MTU0) << 7)+\
-				(GPT_MTU0_TCR_OFFSET & (_ch - GPT_INTERNAL_CHANNEL_MTU0)) << 6 )
+		((uint32)(HW_MTU0_TCR_ADDR) + \
+				(GPT_MTU0_TCR_OFFSET & ((_ch - GPT_INTERNAL_CHANNEL_MTU0) << 7))+\
+				(GPT_MTU0_TCR_OFFSET & ((_ch - GPT_INTERNAL_CHANNEL_MTU0)) << 6) )
 
 /** @brief	Get TCR register address of channel MTU3 <= _ch <= MTU4.
  *	@param	_ch Timer channel.
  */
 #define GPT_GET_MTU3_4_TCR_ADDR(_ch) \
-		((uint32)HW_SYSTEM_MTU3_TCR_ADDR | (_ch & 0x1 ))
+		((uint32)HW_MTU3_TCR_ADDR | (_ch & 0x1 ))
 		
 /** @brief	Get TCR register address of channel MTU5U <= _ch <= MTU5W.
  *	@param	_ch Timer channel.
  */
 #define GPT_GET_MTU5_TCR_ADDR(_ch) \
-		((uint32) HW_SYSTEM_MTU5U_TCR_ADDR | (_ch & 0x1 ) << 4)
+		((uint32) HW_MTU5U_TCR_ADDR | (_ch & 0x1 ) << 4)
 
 /** @brief	Get TMDR register address of channel MTU0 <= _ch <= MTU2.
  *	@param	_ch Timer channel.
  */
 #define GPT_GET_MTU0_2_TMDR_ADDR(_ch) \
-		((uint32)HW_SYSTEM_MTU3_TMDR_ADDR | (_ch & 0x1 ))
+		((uint32)HW_MTU3_TMDR_ADDR | (_ch & 0x1 ))
 
 /** @brief	Get TMDR register address of channel MTU3 <= _ch <= MTU4.
  *	@param	_ch Timer channel.
  */
 #define GPT_GET_MTU3_4_TMDR_ADDR(_ch) \
-		((uint32)(HW_SYSTEM_MTU0_TMDR_ADDR) + \
+		((uint32)(HW_MTU0_TMDR_ADDR) + \
 				(GPT_MTU0_TMDR_OFFSET & (_ch - GPT_INTERNAL_CHANNEL_MTU0) << 7)+\
 				(GPT_MTU0_TMDR_OFFSET & (_ch - GPT_INTERNAL_CHANNEL_MTU0)) << 6 )
 
@@ -386,13 +409,13 @@
 /** @brief	Get CNTCMPCLR value of module MTU2A.
  */
 #define GPT_GET_MTU5_CMP_CLR() \
-	( GPT_GET_MTU2A_REG8(HW_SYSTEM_MTU5_TCNTCMPCLR_ADDR))
+	( GPT_GET_MTU2A_REG8(HW_MTU5_TCNTCMPCLR_ADDR))
 
 /** @brief	Set CNTCMPCLR value of module MTU2A.
  *  @param _val Value to set
  */
 #define GPT_SET_MTU5_CMP_CLR(_val) \
-	( EE_HWREG8(HW_SYSTEM_MTU5_TCNTCMPCLR_ADDR) = _val)
+	( EE_HWREG8(HW_MTU5_TCNTCMPCLR_ADDR) = _val)
 
 		
 /** @brief	Set TCCR register of TMRx.
@@ -484,9 +507,9 @@
 #define GPT_SET_TMR_TCNT(_ch, _val) \
 	do { \
 			if (_ch == GPT_INTERNAL_CHANNEL_TMR01) {\
-				EE_HWREG16(HW_SYSTEM_TMR01_TCNT_ADDR_BASE) = _val;\
+				EE_HWREG16(HW_TMR01_TCNT_ADDR_BASE) = _val;\
 			} else if (_ch == GPT_INTERNAL_CHANNEL_TMR23) {\
-				EE_HWREG16(HW_SYSTEM_TMR23_TCNT_ADDR_BASE) = _val;\
+				EE_HWREG16(HW_TMR23_TCNT_ADDR_BASE) = _val;\
 			} else {\
 				EE_HWREG8(GPT_GET_TMR_TCNT_ADDR(_ch)) = _val;\
 			}\
@@ -535,6 +558,7 @@
 #define GPT_CLEAR_CMT_CMIE(_ch) \
 	( GPT_SET_CMT_CMCR(_ch, GPT_GET_CMT_CMCR(_ch) & 0xBF) )
 
+
 /** @brief	Set CMSTR register of CMTx.
 *	@param	_ch Timer channel.
 *	@param  _val Register value.	
@@ -547,16 +571,16 @@
 *	@param	_ch Timer channel.	
 */
 #define GPT_GET_CMT_CMSTR_ADDR(_ch) \
-	((uint32)HW_SYSTEM_CMT_BASE_ADDR + ((_ch & 0x80) >> 3))
+	((uint32)HW_CMT_BASE_ADDR + ((_ch & 0x80) >> 3))
 
-/*Displacement of CMCNT address with respect to HW_SYSTEM_CMT_BASE_ADDR. */
+/*Displacement of CMCNT address with respect to HW_CMT_BASE_ADDR. */
 #define GPT_CMT_CMCNT_DISP 0x00000004	
 											
 /** @brief	Get the address of CMCNT register of CMTx module.
 *	@param	_ch Timer channel.	
 */
 #define GPT_GET_CMT_CMCNT_ADDR(_ch) \
-	( ((uint32)HW_SYSTEM_CMT_BASE_ADDR |  \
+	( ((uint32)HW_CMT_BASE_ADDR |  \
 			((GPT_CMT_CMCNT_DISP | (_ch & 0x1)) << \
 					(_ch & 0x1)) | ((_ch & 0x80) >> 3)))
 
@@ -600,15 +624,14 @@
 #define GPT_START_MTU2A(_ch) \
 		do { \
 				if (_ch < GPT_INTERNAL_CHANNEL_MTU12) {\
-					EE_HWREG8(HW_SYSTEM_TSTR_BASE_ADDR) |= \
+					EE_HWREG8(HW_TSTR_BASE_ADDR) |= \
 						0x1 << (_ch - GPT_INTERNAL_CHANNEL_MTU0);\
 				} else if (_ch == GPT_INTERNAL_CHANNEL_MTU12) {\
-					EE_HWREG8(HW_SYSTEM_TSTR_BASE_ADDR) |= 0x06;\
+					EE_HWREG8(HW_TSTR_BASE_ADDR) |= 0x06;\
 				} else if(_ch < GPT_INTERNAL_CHANNEL_MTU5U) {\
-					EE_HWREG8(HW_SYSTEM_TSTR_BASE_ADDR) |= 0x40 << (_ch & 0x1);\
+					EE_HWREG8(HW_TSTR_BASE_ADDR) |= 0x40 << (_ch & 0x1);\
 				} else  {\
-					EE_HWREG8(HW_SYSTEM_TSTR5_ADDR) |= \
-						0x1 << (0x2 - (_ch & 0x7));\
+					EE_HWREG8(HW_TSTR5_ADDR) |= 0x1 << (0x2 - (_ch & 0x7));\
 				}\
 			} while (0)
 
@@ -618,16 +641,14 @@
 #define GPT_STOP_MTU2A(_ch) \
 		do { \
 				if (_ch < GPT_INTERNAL_CHANNEL_MTU12) {\
-					EE_HWREG8(HW_SYSTEM_TSTR_BASE_ADDR) &= \
+					EE_HWREG8(HW_TSTR_BASE_ADDR) &= \
 						~(0x1 << (_ch - GPT_INTERNAL_CHANNEL_MTU0));\
 				} else if (_ch == GPT_INTERNAL_CHANNEL_MTU12) {\
-					EE_HWREG8(HW_SYSTEM_TSTR_BASE_ADDR) &= 0xF9;\
+					EE_HWREG8(HW_TSTR_BASE_ADDR) &= 0xF9;\
 				} else if(_ch < GPT_INTERNAL_CHANNEL_MTU5U) {\
-					EE_HWREG8(HW_SYSTEM_TSTR_BASE_ADDR) &= \
-						~(0x40 << (_ch & 0x1));\
+					EE_HWREG8(HW_TSTR_BASE_ADDR) &= ~(0x40 << (_ch & 0x1));\
 				} else  {\
-					EE_HWREG8(HW_SYSTEM_TSTR5_ADDR) |= \
-						~(0x1 << (0x2 - (_ch & 0x7)));\
+					EE_HWREG8(HW_TSTR5_ADDR) |= ~(0x1 << (0x2 - (_ch & 0x7)));\
 				}\
 			} while (0)
 
@@ -638,7 +659,7 @@
 #define GPT_SET_MTU2A_TCNT(_ch, _val) \
 		do { \
 				if (_ch < GPT_INTERNAL_CHANNEL_MTU12) {\
-					EE_HWREG16((uint32)HW_SYSTEM_MTU0_TCNT_ADDR + \
+					EE_HWREG16((uint32)HW_MTU0_TCNT_ADDR + \
 						(0x180 & ( 0x40 << (_ch - GPT_INTERNAL_CHANNEL_MTU0))))\
 						= (uint16) (_val);\
 				} else if (_ch == GPT_INTERNAL_CHANNEL_MTU12) {\
@@ -646,11 +667,11 @@
 					(uint16) (_val >> 16);\
 					EE_HWREG16(GPT_INTERNAL_CHANNEL_MTU2) = (uint16) (_val);\
 				} else if(_ch < GPT_INTERNAL_CHANNEL_MTU5U) {\
-					EE_HWREG16((uint32)HW_SYSTEM_MTU3_TCNT_ADDR | \
+					EE_HWREG16((uint32)HW_MTU3_TCNT_ADDR | \
 						(0x2 & ( 0x1 << (_ch - GPT_INTERNAL_CHANNEL_MTU3))))\
 						= (uint16) (_val);\
 				} else  {\
-					EE_HWREG16((uint32)HW_SYSTEM_MTU5U_TCNT_ADDR + \
+					EE_HWREG16((uint32)HW_MTU5U_TCNT_ADDR + \
 						((_ch - GPT_INTERNAL_CHANNEL_MTU5U) << 0x4)) = \
 						(uint16) (_val);\
 				}\
@@ -667,19 +688,20 @@
  *	@param	_ch Timer channel.
  */
 #define GPT_MTU0_2_IS_RUNNING(_ch) \
-		( EE_HWREG8(HW_SYSTEM_TSTR_BASE_ADDR) & 0x6 )
+		( EE_HWREG8(HW_TSTR_BASE_ADDR) & \
+				(0x1 << (_ch - GPT_INTERNAL_CHANNEL_MTU0)) )
 
 /** @brief	Is MTUx (12 <= x <= 4) running?
  *	@param	_ch Timer channel.
  */
 #define GPT_MTU12_4_IS_RUNNING(_ch)\
-	( EE_HWREG8(HW_SYSTEM_TSTR_BASE_ADDR) & (0x40 << (_ch & 0x1)) )
+	( EE_HWREG8(HW_TSTR_BASE_ADDR) & (0x40 << (_ch & 0x1)) )
 
 /** @brief	Is MTU5x running?
 *	@param	_ch Timer channel.
 */
 #define GPT_MTU5_IS_RUNNING(_ch) \
-		(EE_HWREG8(HW_SYSTEM_TSTR5_ADDR) & (0x1 << (0x2 - (_ch & 0x7))) )
+		(EE_HWREG8(HW_TSTR5_ADDR) & (0x1 << (0x2 - (_ch & 0x7))) )
 
 /** @brief Get TCR register of module MTU2A.
  *	@param ch_id Timer Channel Identifier.
@@ -737,23 +759,23 @@ __INLINE__ void __ALWAYS_INLINE__ Gpt_mtu2a_set_tgra(Gpt_ChannelType _ch,
 {
 	switch (_ch) {
 	case GPT_INTERNAL_CHANNEL_MTU0:
-		GPT_SET_REG16(HW_SYSTEM_MTU0_TGRA_ADDR, _val);
+		GPT_SET_REG16(HW_MTU0_TGRA_ADDR, _val);
 		break;
 	case GPT_INTERNAL_CHANNEL_MTU1:
-		GPT_SET_REG16(HW_SYSTEM_MTU1_TGRA_ADDR, _val);
+		GPT_SET_REG16(HW_MTU1_TGRA_ADDR, _val);
 		break;
 	case GPT_INTERNAL_CHANNEL_MTU2:
-		GPT_SET_REG16(HW_SYSTEM_MTU2_TGRA_ADDR, _val);
+		GPT_SET_REG16(HW_MTU2_TGRA_ADDR, _val);
 		break;
 	case GPT_INTERNAL_CHANNEL_MTU3:
-		GPT_SET_REG16(HW_SYSTEM_MTU3_TGRA_ADDR, _val);
+		GPT_SET_REG16(HW_MTU3_TGRA_ADDR, _val);
 		break;
 	case GPT_INTERNAL_CHANNEL_MTU12:
-		GPT_SET_REG16(HW_SYSTEM_MTU2_TGRA_ADDR, _val);
-		GPT_SET_REG16(HW_SYSTEM_MTU1_TGRA_ADDR, _val >> 16);
+		GPT_SET_REG16(HW_MTU2_TGRA_ADDR, _val);
+		GPT_SET_REG16(HW_MTU1_TGRA_ADDR, _val >> 16);
 		break;
 	case GPT_INTERNAL_CHANNEL_MTU4:
-		GPT_SET_REG16(HW_SYSTEM_MTU4_TGRA_ADDR, _val);
+		GPT_SET_REG16(HW_MTU4_TGRA_ADDR, _val);
 		break;
 	}
 }
@@ -767,23 +789,23 @@ __INLINE__ void __ALWAYS_INLINE__ Gpt_mtu2a_set_tgrb(Gpt_ChannelType _ch,
 {
 	switch (_ch) {
 	case GPT_INTERNAL_CHANNEL_MTU0:
-		GPT_SET_REG16(HW_SYSTEM_MTU0_TGRB_ADDR, _val);
+		GPT_SET_REG16(HW_MTU0_TGRB_ADDR, _val);
 		break;
 	case GPT_INTERNAL_CHANNEL_MTU1:
-		GPT_SET_REG16(HW_SYSTEM_MTU1_TGRB_ADDR, _val);
+		GPT_SET_REG16(HW_MTU1_TGRB_ADDR, _val);
 		break;
 	case GPT_INTERNAL_CHANNEL_MTU2:
-		GPT_SET_REG16(HW_SYSTEM_MTU2_TGRB_ADDR, _val);
+		GPT_SET_REG16(HW_MTU2_TGRB_ADDR, _val);
 		break;
 	case GPT_INTERNAL_CHANNEL_MTU3:
-		GPT_SET_REG16(HW_SYSTEM_MTU3_TGRB_ADDR, _val);
+		GPT_SET_REG16(HW_MTU3_TGRB_ADDR, _val);
 		break;
 	case GPT_INTERNAL_CHANNEL_MTU12:
-		GPT_SET_REG16(HW_SYSTEM_MTU2_TGRB_ADDR, _val);
-		GPT_SET_REG16(HW_SYSTEM_MTU1_TGRB_ADDR, _val >> 16);
+		GPT_SET_REG16(HW_MTU2_TGRB_ADDR, _val);
+		GPT_SET_REG16(HW_MTU1_TGRB_ADDR, _val >> 16);
 		break;
 	case GPT_INTERNAL_CHANNEL_MTU4:
-		GPT_SET_REG16(HW_SYSTEM_MTU4_TGRB_ADDR, _val);
+		GPT_SET_REG16(HW_MTU4_TGRB_ADDR, _val);
 		break;
 	}
 }
@@ -797,27 +819,17 @@ __INLINE__ void __ALWAYS_INLINE__ Gpt_mtu2a_set_tgrc(Gpt_ChannelType _ch,
 {
 	switch (_ch) {
 	case GPT_INTERNAL_CHANNEL_MTU0:
-		GPT_SET_REG16(HW_SYSTEM_MTU0_TGRC_ADDR, _val);
+		GPT_SET_REG16(HW_MTU0_TGRC_ADDR, _val);
 		break;
 	case GPT_INTERNAL_CHANNEL_MTU3:
-		GPT_SET_REG16(HW_SYSTEM_MTU3_TGRC_ADDR, _val);
+		GPT_SET_REG16(HW_MTU3_TGRC_ADDR, _val);
 		break;
 	case GPT_INTERNAL_CHANNEL_MTU4:
-		GPT_SET_REG16(HW_SYSTEM_MTU4_TGRC_ADDR, _val);
+		GPT_SET_REG16(HW_MTU4_TGRC_ADDR, _val);
 		break;
 	}
 }
 
-/** @brief Get Timer General Register value of Module MTU2A.
- *	@param _ch Timer Channel Identifier.
- *	@return Register value.
- */
-__INLINE__ uint16 Gpt_get_mtu2a_tgr(Gpt_ChannelType _ch)
-{
-	/*TODO*/
-	
-	return 0;
-}
 
 /** @brief Set Timer General Register D of Module MTU2A.
  *	@param ch_id Timer Channel Identifier.
@@ -828,15 +840,137 @@ __INLINE__ void __ALWAYS_INLINE__ Gpt_mtu2a_set_tgrd(Gpt_ChannelType _ch,
 {
 	switch (_ch) {
 	case GPT_INTERNAL_CHANNEL_MTU0:
-		GPT_SET_REG16(HW_SYSTEM_MTU0_TGRD_ADDR, _val);
+		GPT_SET_REG16(HW_MTU0_TGRD_ADDR, _val);
 		break;
 	case GPT_INTERNAL_CHANNEL_MTU3:
-		GPT_SET_REG16(HW_SYSTEM_MTU3_TGRD_ADDR, _val);
+		GPT_SET_REG16(HW_MTU3_TGRD_ADDR, _val);
 		break;
 	case GPT_INTERNAL_CHANNEL_MTU4:
-		GPT_SET_REG16(HW_SYSTEM_MTU4_TGRD_ADDR, _val);
+		GPT_SET_REG16(HW_MTU4_TGRD_ADDR, _val);
 		break;
 	}
+}
+
+/** @brief Get Timer General Register A of Module MTU2A.
+ *	@param _ch Timer Channel Identifier.
+ *	@return  TGRA value of channel _ch.
+ */
+__INLINE__ uint32 __ALWAYS_INLINE__ Gpt_mtu2a_get_tgra(Gpt_ChannelType _ch)
+{
+	
+	if (_ch == GPT_INTERNAL_CHANNEL_MTU0)
+		return GPT_GET_REG16(HW_MTU0_TGRA_ADDR);
+	else if (_ch == GPT_INTERNAL_CHANNEL_MTU1)
+		return GPT_GET_REG16(HW_MTU1_TGRA_ADDR);
+	else if (_ch == GPT_INTERNAL_CHANNEL_MTU2)
+		return GPT_GET_REG16(HW_MTU2_TGRA_ADDR);
+	else if (_ch == GPT_INTERNAL_CHANNEL_MTU3)
+		return GPT_GET_REG16(HW_MTU3_TGRA_ADDR);
+	else if (_ch == GPT_INTERNAL_CHANNEL_MTU12)
+		return (GPT_GET_REG16(HW_MTU2_TGRA_ADDR) | 
+				(GPT_GET_REG16(HW_MTU1_TGRA_ADDR) >> 16));
+	else if (_ch == GPT_INTERNAL_CHANNEL_MTU4)
+		return GPT_GET_REG16(HW_MTU4_TGRA_ADDR);
+	
+	return 0;
+}
+
+/** @brief Get Timer General Register B of Module MTU2A.
+ *	@param _ch Timer Channel Identifier.
+ *	@return  GRB value of channel _ch.
+ */
+__INLINE__ uint32 __ALWAYS_INLINE__ Gpt_mtu2a_get_tgrb(Gpt_ChannelType _ch)
+{
+	
+	if (_ch == GPT_INTERNAL_CHANNEL_MTU0)
+		return GPT_GET_REG16(HW_MTU0_TGRB_ADDR);
+	else if (_ch == GPT_INTERNAL_CHANNEL_MTU1)
+		return GPT_GET_REG16(HW_MTU1_TGRB_ADDR);
+	else if (_ch == GPT_INTERNAL_CHANNEL_MTU2)
+		return GPT_GET_REG16(HW_MTU2_TGRB_ADDR);
+	else if (_ch == GPT_INTERNAL_CHANNEL_MTU3)
+		return GPT_GET_REG16(HW_MTU3_TGRB_ADDR);
+	else if (_ch == GPT_INTERNAL_CHANNEL_MTU12)
+		return (GPT_GET_REG16(HW_MTU2_TGRB_ADDR) | 
+				(GPT_GET_REG16(HW_MTU1_TGRB_ADDR) >> 16));
+	else if (_ch == GPT_INTERNAL_CHANNEL_MTU4)
+		return GPT_GET_REG16(HW_MTU4_TGRB_ADDR);
+	
+	return 0;
+}
+
+/** @brief Get Timer General Register C of Module MTU2A.
+ *	@param _ch Timer Channel Identifier.
+ *	@return TGRC value of channel _ch.
+ */
+__INLINE__ uint16 __ALWAYS_INLINE__ Gpt_mtu2a_get_tgrc(Gpt_ChannelType _ch)
+{
+	if (_ch == GPT_INTERNAL_CHANNEL_MTU0)
+		return GPT_GET_REG16(HW_MTU0_TGRC_ADDR);
+	else if (_ch == GPT_INTERNAL_CHANNEL_MTU3)
+		return GPT_GET_REG16(HW_MTU3_TGRC_ADDR);
+	else if (_ch == GPT_INTERNAL_CHANNEL_MTU4)
+		return GPT_GET_REG16(HW_MTU4_TGRC_ADDR);
+	
+	return 0;
+}
+
+
+/** @brief Get Timer General Register D of Module MTU2A.
+ *	@param _ch Timer Channel Identifier.
+ *	@return TGRD value of channel _ch.
+ */
+__INLINE__ uint16 __ALWAYS_INLINE__ Gpt_mtu2a_get_tgrd(Gpt_ChannelType _ch)
+{
+	if (_ch == GPT_INTERNAL_CHANNEL_MTU0)
+		return GPT_GET_REG16(HW_MTU0_TGRD_ADDR);
+	else if (_ch == GPT_INTERNAL_CHANNEL_MTU3)
+		return GPT_GET_REG16(HW_MTU3_TGRD_ADDR);
+	else if (_ch == GPT_INTERNAL_CHANNEL_MTU4)
+		return GPT_GET_REG16(HW_MTU4_TGRD_ADDR);
+	
+	return 0;
+}
+
+/** @brief Get Timer General Register value of Module MTU2A.
+ *	@param _ch Timer Channel Identifier.
+ *	@return Register value.
+ */
+__INLINE__ uint32 Gpt_get_mtu2a_tgr(Gpt_ChannelType _ch)
+{
+	uint32 _tcr = Gpt_get_mtu2a_tcr(_ch);
+	
+	switch (_ch) {
+	case GPT_INTERNAL_CHANNEL_MTU0:
+	case GPT_INTERNAL_CHANNEL_MTU1:
+	case GPT_INTERNAL_CHANNEL_MTU2:
+	case GPT_INTERNAL_CHANNEL_MTU3:
+	case GPT_INTERNAL_CHANNEL_MTU4:
+		if ((_tcr & GPT_MTU2A_CMP_A_MASK) == GPT_MTU2A_CMP_A_MASK ) {
+			_tcr = Gpt_mtu2a_get_tgra(_ch);
+		} else if ((_tcr & GPT_MTU2A_CMP_B_MASK) == GPT_MTU2A_CMP_B_MASK) {
+			_tcr = Gpt_mtu2a_get_tgrb(_ch);
+		}  else if ((_tcr & GPT_MTU2A_CMP_C_MASK) == GPT_MTU2A_CMP_C_MASK) {
+			_tcr = Gpt_mtu2a_get_tgrc(_ch);
+		}  else if ((_tcr & GPT_MTU2A_CMP_D_MASK) == GPT_MTU2A_CMP_D_MASK) {
+			_tcr = Gpt_mtu2a_get_tgrd(_ch);
+		}
+		break;
+	case GPT_INTERNAL_CHANNEL_MTU5U:
+		_tcr = GPT_GET_REG16(HW_MTU5_TGRU_ADDR);
+		break;
+	case GPT_INTERNAL_CHANNEL_MTU5V:
+		_tcr = GPT_GET_REG16(HW_MTU5_TGRV_ADDR);
+		break;
+	case GPT_INTERNAL_CHANNEL_MTU5W:
+		_tcr = GPT_GET_REG16(HW_MTU5_TGRW_ADDR);
+		break;
+	default:
+		_tcr = 0;
+		break;
+	}
+	
+	return _tcr;
 }
 
 /** @brief Set compare match values for MTU0 to MTU4 channels of module MTU2A.
@@ -848,13 +982,13 @@ __INLINE__ void __ALWAYS_INLINE__ Gpt_mtu2a_set_tgrd(Gpt_ChannelType _ch,
 __INLINE__ void __ALWAYS_INLINE__	Gpt_mtu0_4_set_cmp(Gpt_ChannelType _ch, 
 		uint16 _val, uint8 _tcr)
 {
-	if (_tcr & GPT_MTU2A_CMP_A_MASK) {
+	if ((_tcr & GPT_MTU2A_CMP_A_MASK) == GPT_MTU2A_CMP_A_MASK) {
 		Gpt_mtu2a_set_tgra(_ch, _val);
-	} else if (_tcr & GPT_MTU2A_CMP_B_MASK) {
+	} else if ((_tcr & GPT_MTU2A_CMP_B_MASK) == GPT_MTU2A_CMP_B_MASK) {
 		Gpt_mtu2a_set_tgrb(_ch, _val);
-	}  else if (_tcr & GPT_MTU2A_CMP_C_MASK) {
+	}  else if ((_tcr & GPT_MTU2A_CMP_C_MASK) == GPT_MTU2A_CMP_C_MASK) {
 		Gpt_mtu2a_set_tgrc(_ch, _val);
-	}  else if (_tcr & GPT_MTU2A_CMP_D_MASK) {
+	}  else if ((_tcr & GPT_MTU2A_CMP_D_MASK) == GPT_MTU2A_CMP_D_MASK) {
 		Gpt_mtu2a_set_tgrd(_ch, _val);
 	}
 	
@@ -870,11 +1004,11 @@ __INLINE__ void __ALWAYS_INLINE__	Gpt_mtu5_set_cmp(Gpt_ChannelType _ch,
 		uint16 _val)
 {
 	if (_ch == GPT_INTERNAL_CHANNEL_MTU5U) {
-		GPT_SET_REG16(HW_SYSTEM_MTU5_TGRU_ADDR, _val);
+		GPT_SET_REG16(HW_MTU5_TGRU_ADDR, _val);
 	} else if (_ch == GPT_INTERNAL_CHANNEL_MTU5V) {
-		GPT_SET_REG16(HW_SYSTEM_MTU5_TGRV_ADDR, _val);
+		GPT_SET_REG16(HW_MTU5_TGRV_ADDR, _val);
 	}  else if (_ch ==GPT_INTERNAL_CHANNEL_MTU5W) {
-		GPT_SET_REG16(HW_SYSTEM_MTU5_TGRW_ADDR, _val);
+		GPT_SET_REG16(HW_MTU5_TGRW_ADDR, _val);
 	}
 }
 /*TODO: MTU0 has also Interrupt compare/match channel E, F. We should support
@@ -889,22 +1023,22 @@ __INLINE__ void __ALWAYS_INLINE__ Gpt_mtu2a_int_en(Gpt_ChannelType _ch,
 {
 	switch (_ch) {
 	case GPT_INTERNAL_CHANNEL_MTU0:
-		GPT_SET_REG8(HW_SYSTEM_MTU0_TIER_ADDR, (0x1 << _b_pos));
+		GPT_SET_REG8(HW_MTU0_TIER_ADDR, (0x1 << _b_pos));
 		break;
 	case GPT_INTERNAL_CHANNEL_MTU1:
-		GPT_SET_REG8(HW_SYSTEM_MTU1_TIER_ADDR, (0x1 << _b_pos));
+		GPT_SET_REG8(HW_MTU1_TIER_ADDR, (0x1 << _b_pos));
 		break;
 	case GPT_INTERNAL_CHANNEL_MTU2:
-		GPT_SET_REG8(HW_SYSTEM_MTU2_TIER_ADDR, (0x1 << _b_pos));
+		GPT_SET_REG8(HW_MTU2_TIER_ADDR, (0x1 << _b_pos));
 		break;
 	case GPT_INTERNAL_CHANNEL_MTU3:
-		GPT_SET_REG8(HW_SYSTEM_MTU3_TIER_ADDR, (0x1 << _b_pos));
+		GPT_SET_REG8(HW_MTU3_TIER_ADDR, (0x1 << _b_pos));
 		break;
 	case GPT_INTERNAL_CHANNEL_MTU12:
 		/*TODO*/
 		break;
 	case GPT_INTERNAL_CHANNEL_MTU4:
-		GPT_SET_REG8(HW_SYSTEM_MTU4_TIER_ADDR, (0x1 << _b_pos));
+		GPT_SET_REG8(HW_MTU4_TIER_ADDR, (0x1 << _b_pos));
 		break;
 	}
 }
@@ -921,27 +1055,40 @@ __INLINE__ void __ALWAYS_INLINE__ Gpt_mtu2a_int_dis(Gpt_ChannelType _ch,
 {
 	switch (_ch) {
 	case GPT_INTERNAL_CHANNEL_MTU0:
-		GPT_SET_REG8(HW_SYSTEM_MTU0_TIER_ADDR,
-				GPT_GET_REG8(HW_SYSTEM_MTU0_TIER_ADDR) & ~(0x1 << _b_pos));
+		GPT_SET_REG8(HW_MTU0_TIER_ADDR,
+				GPT_GET_REG8(HW_MTU0_TIER_ADDR) & ~(0x1 << _b_pos));
+		GPT_DIS_ICU_IER(HW_ICU_IER_MTU0_TGIA, HW_ICU_MTU0_IER_TGIA_MASK | 
+				HW_ICU_MTU0_IER_TGIB_MASK | HW_ICU_MTU0_IER_TGIC_MASK | 
+				HW_ICU_MTU0_IER_TGID_MASK);
 		break;
 	case GPT_INTERNAL_CHANNEL_MTU1:
-		GPT_SET_REG8(HW_SYSTEM_MTU1_TIER_ADDR, 
-				GPT_GET_REG8(HW_SYSTEM_MTU1_TIER_ADDR) & ~(0x1 << _b_pos));
+		GPT_SET_REG8(HW_MTU1_TIER_ADDR, 
+				GPT_GET_REG8(HW_MTU1_TIER_ADDR) & ~(0x1 << _b_pos));
+		GPT_DIS_ICU_IER(HW_ICU_IER_MTU1_TGIA, HW_ICU_MTU1_IER_TGIA_MASK | 
+				HW_ICU_MTU1_IER_TGIB_MASK);
 		break;
 	case GPT_INTERNAL_CHANNEL_MTU2:
-		GPT_SET_REG8(HW_SYSTEM_MTU2_TIER_ADDR, 
-				GPT_GET_REG8(HW_SYSTEM_MTU2_TIER_ADDR) & ~(0x1 << _b_pos));
+		GPT_SET_REG8(HW_MTU2_TIER_ADDR, 
+				GPT_GET_REG8(HW_MTU2_TIER_ADDR) & ~(0x1 << _b_pos));
+		GPT_DIS_ICU_IER(HW_ICU_IER_MTU2_TGIA, HW_ICU_MTU2_IER_TGIA_MASK | 
+				HW_ICU_MTU2_IER_TGIB_MASK);
 		break;
 	case GPT_INTERNAL_CHANNEL_MTU3:
-		GPT_SET_REG8(HW_SYSTEM_MTU3_TIER_ADDR, 
-				GPT_GET_REG8(HW_SYSTEM_MTU3_TIER_ADDR) & ~(0x1 << _b_pos));
+		GPT_SET_REG8(HW_MTU3_TIER_ADDR, 
+				GPT_GET_REG8(HW_MTU3_TIER_ADDR) & ~(0x1 << _b_pos));
+		GPT_DIS_ICU_IER(HW_ICU_IER_MTU3_TGIA, HW_ICU_MTU3_IER_TGIA_MASK | 
+				HW_ICU_MTU3_IER_TGIB_MASK | HW_ICU_MTU3_IER_TGIC_MASK | 
+				HW_ICU_MTU3_IER_TGID_MASK);
 		break;
 	case GPT_INTERNAL_CHANNEL_MTU12:
 		/*TODO*/
 		break;
 	case GPT_INTERNAL_CHANNEL_MTU4:
-		GPT_SET_REG8(HW_SYSTEM_MTU4_TIER_ADDR, 
-				GPT_GET_REG8(HW_SYSTEM_MTU4_TIER_ADDR) & ~(0x1 << _b_pos));
+		GPT_SET_REG8(HW_MTU4_TIER_ADDR, 
+				GPT_GET_REG8(HW_MTU4_TIER_ADDR) & ~(0x1 << _b_pos));
+		GPT_DIS_ICU_IER(HW_ICU_IER_MTU4_TGIA, HW_ICU_MTU4_IER_TGIA_MASK | 
+				HW_ICU_MTU4_IER_TGIB_MASK | HW_ICU_MTU4_IER_TGIC_MASK | 
+				HW_ICU_MTU4_IER_TGID_MASK);
 		break;
 	}
 }
@@ -957,13 +1104,13 @@ __INLINE__ void __ALWAYS_INLINE__ Gpt_mtu2a_int_dis(Gpt_ChannelType _ch,
 __INLINE__ void __ALWAYS_INLINE__	Gpt_mtu0_4_int_en(Gpt_ChannelType _ch,
 		uint8 _tcr)
 {
-	if (_tcr & GPT_MTU2A_CMP_A_MASK) {
+	if ((_tcr & GPT_MTU2A_CMP_A_MASK) == GPT_MTU2A_CMP_A_MASK) {
 		Gpt_mtu2a_int_en(_ch, GPT_MTU2A_TGIEA_POS);
-	} else if (_tcr & GPT_MTU2A_CMP_B_MASK) {
+	} else if ((_tcr & GPT_MTU2A_CMP_B_MASK) == GPT_MTU2A_CMP_B_MASK) {
 		Gpt_mtu2a_int_en(_ch, GPT_MTU2A_TGIEB_POS);
-	}  else if (_tcr & GPT_MTU2A_CMP_C_MASK) {
+	}  else if ((_tcr & GPT_MTU2A_CMP_C_MASK) == GPT_MTU2A_CMP_C_MASK) {
 		Gpt_mtu2a_int_en(_ch, GPT_MTU2A_TGIEC_POS);
-	}  else if (_tcr & GPT_MTU2A_CMP_D_MASK) {
+	}  else if ((_tcr & GPT_MTU2A_CMP_D_MASK) ==GPT_MTU2A_CMP_D_MASK) {
 		Gpt_mtu2a_int_en(_ch, GPT_MTU2A_TGIED_POS);
 	}
 	
@@ -979,13 +1126,13 @@ __INLINE__ void __ALWAYS_INLINE__	Gpt_mtu0_4_int_en(Gpt_ChannelType _ch,
 __INLINE__ void __ALWAYS_INLINE__	Gpt_mtu0_4_int_dis(Gpt_ChannelType _ch,
 		uint8 _tcr)
 {
-	if (_tcr & GPT_MTU2A_CMP_A_MASK) {
+	if ((_tcr & GPT_MTU2A_CMP_A_MASK) == GPT_MTU2A_CMP_A_MASK) {
 		Gpt_mtu2a_int_dis(_ch, GPT_MTU2A_TGIEA_POS);
-	} else if (_tcr & GPT_MTU2A_CMP_B_MASK) {
+	} else if ((_tcr & GPT_MTU2A_CMP_B_MASK) == GPT_MTU2A_CMP_B_MASK) {
 		Gpt_mtu2a_int_dis(_ch, GPT_MTU2A_TGIEB_POS);
-	}  else if (_tcr & GPT_MTU2A_CMP_C_MASK) {
+	}  else if ((_tcr & GPT_MTU2A_CMP_C_MASK) == GPT_MTU2A_CMP_C_MASK) {
 		Gpt_mtu2a_int_dis(_ch, GPT_MTU2A_TGIEC_POS);
-	}  else if (_tcr & GPT_MTU2A_CMP_D_MASK) {
+	}  else if ((_tcr & GPT_MTU2A_CMP_D_MASK) ==GPT_MTU2A_CMP_D_MASK) {
 		Gpt_mtu2a_int_dis(_ch, GPT_MTU2A_TGIED_POS);
 	}
 	
@@ -996,8 +1143,7 @@ __INLINE__ void __ALWAYS_INLINE__	Gpt_mtu0_4_int_dis(Gpt_ChannelType _ch,
  */
 __INLINE__ void __ALWAYS_INLINE__ Gpt_mtu5_int_en(Gpt_ChannelType _ch)
 {
-	GPT_SET_REG8(HW_SYSTEM_MTU5_TIER_ADDR, 
-			(0x1 << (GPT_INTERNAL_CHANNEL_MTU5W - _ch)));
+	GPT_SET_REG8(HW_MTU5_TIER_ADDR, (0x1 << (GPT_INTERNAL_CHANNEL_MTU5W - _ch)));
 
 }
 
@@ -1006,9 +1152,10 @@ __INLINE__ void __ALWAYS_INLINE__ Gpt_mtu5_int_en(Gpt_ChannelType _ch)
  */
 __INLINE__ void __ALWAYS_INLINE__ Gpt_mtu5_int_dis(Gpt_ChannelType _ch)
 {
-	GPT_SET_REG8(HW_SYSTEM_MTU5_TIER_ADDR, 
-			GPT_GET_REG8(HW_SYSTEM_MTU5_TIER_ADDR) & 
+	GPT_SET_REG8(HW_MTU5_TIER_ADDR, GPT_GET_REG8(HW_MTU5_TIER_ADDR) & 
 			~(0x1 << (GPT_INTERNAL_CHANNEL_MTU5W - _ch)));
+	GPT_DIS_ICU_IER(HW_ICU_IER_MTU5_TGI, HW_ICU_MTU5_IER_TGIU_MASK | 
+			HW_ICU_MTU5_IER_TGIV_MASK | HW_ICU_MTU5_IER_TGIW_MASK);
 }
 
 /** @brief Return Module stop/star bit from Module Stop Control Register A 
@@ -1197,6 +1344,76 @@ __INLINE__ void __ALWAYS_INLINE__	Gpt_cmt_init(
 			ConfigPtr->GptChannelHWConfig & GPT_CMT_CLK_MASK);
 }
 
+/** @brief	Enable TMR CMIx interrupt.
+ *	@param _ch Channel id.
+ *	@param f_cmia Interrupt type flag (0 -> CMIB, CMIA otherwise)
+ */
+__INLINE__ void __ALWAYS_INLINE__ Gpt_tmr_en_icu_int(Gpt_ChannelType _ch, 
+		uint8 f_cmia)
+{
+	switch (_ch) {
+	case GPT_INTERNAL_CHANNEL_TMR0:
+		if (f_cmia) {
+			GPT_EN_ICU_IER(HW_ICU_IER_TMR0_CMIA, HW_ICU_TMR0_IER_CMIA_MASK);
+		} else {
+			GPT_EN_ICU_IER(HW_ICU_IER_TMR0_CMIB, HW_ICU_TMR0_IER_CMIB_MASK);
+		}
+		GPT_SET_ICU_IPR(HW_ICU_IPR_TMR0_REG, HW_IPR_PRI_LEVEL_1);
+		break;
+	case GPT_INTERNAL_CHANNEL_TMR1:
+		if (f_cmia) {
+			GPT_EN_ICU_IER(HW_ICU_IER_TMR1_CMIA, HW_ICU_TMR1_IER_CMIA_MASK);
+		} else {
+			GPT_EN_ICU_IER(HW_ICU_IER_TMR1_CMIB, HW_ICU_TMR1_IER_CMIB_MASK);
+		}
+		GPT_SET_ICU_IPR(HW_ICU_IPR_TMR1_REG, HW_IPR_PRI_LEVEL_1);
+		break;
+	case GPT_INTERNAL_CHANNEL_TMR2:
+		if (f_cmia) {
+			GPT_EN_ICU_IER(HW_ICU_IER_TMR2_CMIA, HW_ICU_TMR2_IER_CMIA_MASK);
+		} else {
+			GPT_EN_ICU_IER(HW_ICU_IER_TMR2_CMIB, HW_ICU_TMR2_IER_CMIB_MASK);
+		}
+		GPT_SET_ICU_IPR(HW_ICU_IPR_TMR2_REG, HW_IPR_PRI_LEVEL_1);
+		break;
+	case GPT_INTERNAL_CHANNEL_TMR3:
+		if (f_cmia) {
+			GPT_EN_ICU_IER(HW_ICU_IER_TMR3_CMIA, HW_ICU_TMR3_IER_CMIA_MASK);
+		} else {
+			GPT_EN_ICU_IER(HW_ICU_IER_TMR3_CMIB, HW_ICU_TMR3_IER_CMIB_MASK);
+		}
+		GPT_SET_ICU_IPR(HW_ICU_IPR_TMR3_REG, HW_IPR_PRI_LEVEL_1);
+		break;
+	}
+	
+}
+
+/** @brief	Disable TMR CMIx interrupt.
+ *	@param _ch Channel id.
+ */
+__INLINE__ void __ALWAYS_INLINE__ Gpt_tmr_dis_icu_int(Gpt_ChannelType _ch)
+{
+	switch (_ch) {
+	case GPT_INTERNAL_CHANNEL_TMR0:
+		GPT_DIS_ICU_IER(HW_ICU_IER_TMR0_CMIA, HW_ICU_TMR0_IER_CMIA_MASK | 
+				HW_ICU_TMR0_IER_CMIB_MASK);
+		break;
+	case GPT_INTERNAL_CHANNEL_TMR1:
+		GPT_DIS_ICU_IER(HW_ICU_IER_TMR1_CMIA, HW_ICU_TMR1_IER_CMIA_MASK | 
+				HW_ICU_TMR1_IER_CMIB_MASK);
+		break;
+	case GPT_INTERNAL_CHANNEL_TMR2:
+		GPT_DIS_ICU_IER(HW_ICU_IER_TMR2_CMIA, HW_ICU_TMR2_IER_CMIA_MASK | 
+				HW_ICU_TMR2_IER_CMIB_MASK);
+		break;
+	case GPT_INTERNAL_CHANNEL_TMR3:
+		GPT_DIS_ICU_IER(HW_ICU_IER_TMR3_CMIA, HW_ICU_TMR3_IER_CMIA_MASK | 
+				HW_ICU_TMR3_IER_CMIB_MASK);
+		break;
+	}
+	
+}
+
 /** @brief	Enable TMR interrupts to handle one-shot mode.
  *	@param ConfigPtr Address of channel configuration structure.
  */
@@ -1208,21 +1425,30 @@ __INLINE__ void __ALWAYS_INLINE__	Gpt_tmr_en_oneshot(
 	} else if (ConfigPtr->GptChannelId == GPT_INTERNAL_CHANNEL_TMR23){
 		/*TODO*/
 	} else {
-		if (ConfigPtr->GptChannelHWConfig & GPT_TMR_CMP_A_MASK) {
+		if (((ConfigPtr->GptChannelHWConfig >> 2) & GPT_TMR_CMP_A_MASK) == 
+				GPT_TMR_CMP_A_MASK) {
 			GPT_SET_TMR_CMIEA(ConfigPtr->GptChannelId);
+			Gpt_tmr_en_icu_int(ConfigPtr->GptChannelId, GTP_EN_TMR_CMIA);
+
 		} else {
 			GPT_SET_TMR_CMIEB(ConfigPtr->GptChannelId);
+			Gpt_tmr_en_icu_int(ConfigPtr->GptChannelId, GTP_EN_TMR_CMIB);
 		}
 	}
 }
 
+
 /** @brief	Enable CMT interrupts to handle one-shot mode.
- *	@param ConfigPtr Address of channel configuration structure.
+ *	@param _ch Channel id.
  */
-__INLINE__ void __ALWAYS_INLINE__	Gpt_cmt_en_oneshot(
-		Gpt_ChannelType GptChannelId) 
+__INLINE__ void __ALWAYS_INLINE__	Gpt_cmt_en_oneshot(Gpt_ChannelType _ch) 
 {
-	GPT_SET_CMT_CMIE(GptChannelId);
+	GPT_SET_CMT_CMIE(_ch);
+	
+	GPT_EN_ICU_IER(HW_ICU_IER_CMT_CMI, HW_ICU_CMT0_IER_CMI_MASK << 
+			(_ch - GPT_INTERNAL_CHANNEL_CMT0));
+	GPT_SET_ICU_IPR((uint32)HW_ICU_IPR_CMT0_REG + _ch - GPT_INTERNAL_CHANNEL_CMT0, 
+			HW_IPR_PRI_LEVEL_1);
 }
 
 
@@ -1232,15 +1458,22 @@ __INLINE__ void __ALWAYS_INLINE__	Gpt_cmt_en_oneshot(
 __INLINE__ void __ALWAYS_INLINE__ Gpt_timeout_int_en(Gpt_ChannelType _ch)
 {
 	if (_ch < GPT_INTERNAL_CHANNEL_TMR01) {
-		if (GPT_GET_TMR_TCR(_ch) & GPT_TMR_CMP_A_MASK) {
+		if ((GPT_GET_TMR_TCR(_ch) & GPT_TMR_CMP_A_MASK) == GPT_TMR_CMP_A_MASK) {
 			GPT_SET_TMR_CMIEA(_ch);
+			Gpt_tmr_en_icu_int(_ch, GTP_EN_TMR_CMIA);
 		} else {
 			GPT_SET_TMR_CMIEB(_ch);
+			Gpt_tmr_en_icu_int(_ch, GTP_EN_TMR_CMIB);
 		}
 	} else if (_ch < GPT_INTERNAL_CHANNEL_CMT0) {
 		/*TODO*/
 	} else if (_ch < GPT_INTERNAL_CHANNEL_MTU0) {
 		GPT_SET_CMT_CMIE(_ch);
+		GPT_EN_ICU_IER(HW_ICU_IER_CMT_CMI, HW_ICU_CMT0_IER_CMI_MASK << 
+				(_ch - GPT_INTERNAL_CHANNEL_CMT0));
+		GPT_SET_ICU_IPR((uint32)HW_ICU_IPR_CMT0_REG + 
+				EE_HWREG8_ADDR(_ch - GPT_INTERNAL_CHANNEL_CMT0), 
+				HW_IPR_PRI_LEVEL_1);
 	} else if (_ch < GPT_INTERNAL_CHANNEL_MTU5U){
 		Gpt_mtu0_4_int_en(_ch, Gpt_get_mtu2a_tcr(_ch));
 	} else {
@@ -1254,15 +1487,16 @@ __INLINE__ void __ALWAYS_INLINE__ Gpt_timeout_int_en(Gpt_ChannelType _ch)
 __INLINE__ void __ALWAYS_INLINE__ Gpt_timeout_int_dis(Gpt_ChannelType _ch)
 {
 	if (_ch < GPT_INTERNAL_CHANNEL_TMR01) {
-		if (GPT_GET_TMR_TCR(_ch) & GPT_TMR_CMP_A_MASK) {
-			GPT_CLEAR_TMR_CMIEA(_ch);
-		} else {
-			GPT_CLEAR_TMR_CMIEB(_ch);
-		}
+		GPT_CLEAR_TMR_CMIEA(_ch);
+		GPT_CLEAR_TMR_CMIEB(_ch);
+		Gpt_tmr_dis_icu_int(_ch);
 	} else if (_ch < GPT_INTERNAL_CHANNEL_CMT0) {
 		/*TODO*/
 	} else if (_ch < GPT_INTERNAL_CHANNEL_MTU0) {
 		GPT_CLEAR_CMT_CMIE(_ch);
+		GPT_DIS_ICU_IER(HW_ICU_IER_CMT_CMI, HW_ICU_CMT0_IER_CMI_MASK | 
+				HW_ICU_CMT1_IER_CMI_MASK | HW_ICU_CMT2_IER_CMI_MASK | 
+				HW_ICU_CMT3_IER_CMI_MASK);
 	} else if (_ch < GPT_INTERNAL_CHANNEL_MTU5U){
 		Gpt_mtu0_4_int_dis(_ch, Gpt_get_mtu2a_tcr(_ch));
 	} else {
@@ -1320,14 +1554,15 @@ __INLINE__ uint8 __ALWAYS_INLINE__ Gpt_is_running(Gpt_ChannelType _ch)
 
 /** @brief	Get TCNT register value of TMR module .
  *	@param _ch Timer Channel Identifier.
+ *	@return Counter value of channel _ch.
  */
 __INLINE__ uint16 __ALWAYS_INLINE__ Gpt_get_tmr_tcnt(Gpt_ChannelType _ch)
 {
 	
 	if (_ch == GPT_INTERNAL_CHANNEL_TMR01) 
-		return EE_HWREG16(HW_SYSTEM_TMR01_TCNT_ADDR_BASE);
+		return EE_HWREG16(HW_TMR01_TCNT_ADDR_BASE);
 	if (_ch == GPT_INTERNAL_CHANNEL_TMR23) 
-		return EE_HWREG16(HW_SYSTEM_TMR23_TCNT_ADDR_BASE);
+		return EE_HWREG16(HW_TMR23_TCNT_ADDR_BASE);
 	
 	return	EE_HWREG8(GPT_GET_TMR_TCNT_ADDR(_ch));
 }
@@ -1338,16 +1573,16 @@ __INLINE__ uint16 __ALWAYS_INLINE__ Gpt_get_tmr_tcnt(Gpt_ChannelType _ch)
 __INLINE__ uint32 __ALWAYS_INLINE__ Gpt_get_mtu2a_tcnt(Gpt_ChannelType _ch)
 {
 	if (_ch < GPT_INTERNAL_CHANNEL_MTU12)
-		return EE_HWREG16(HW_SYSTEM_MTU0_TCNT_ADDR +
+		return EE_HWREG16((uint32) (HW_MTU0_TCNT_ADDR) +
 				(0x180 & ( 0x40 << (_ch - GPT_INTERNAL_CHANNEL_MTU0))));
 	if (_ch == GPT_INTERNAL_CHANNEL_MTU12)
 		return ((uint32)(EE_HWREG16(GPT_INTERNAL_CHANNEL_MTU2)) | 
 				(uint32)(EE_HWREG16(GPT_INTERNAL_CHANNEL_MTU1)<< 16));
 	if (_ch < GPT_INTERNAL_CHANNEL_MTU5U)
-		return EE_HWREG16(((uint32)HW_SYSTEM_MTU3_TCNT_ADDR | 0x2 & 
+		return EE_HWREG16(((uint32)(HW_MTU3_TCNT_ADDR) | 0x2 & 
 				( 0x1 << (_ch - GPT_INTERNAL_CHANNEL_MTU3))));
 				
-	return 	EE_HWREG16(HW_SYSTEM_MTU5U_TCNT_ADDR + 
+	return 	EE_HWREG16((uint32)(HW_MTU5U_TCNT_ADDR) + 
 			((_ch - GPT_INTERNAL_CHANNEL_MTU5U) << 0x4));	
 }
 	

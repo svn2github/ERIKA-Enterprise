@@ -98,5 +98,18 @@ CPU mySystem {
 		ACTIVATION = 1;    /* only one pending activation */
 		STACK = SHARED;
 	};
+	
+	ISR EE_RX200_CMIB1_ISR {
+		CATEGORY = 2;
+		ENTRY = "CMIB1";
+	};
+	ISR EE_RX200_CMI1_ISR {
+		CATEGORY = 2;
+		ENTRY = "CMI1";
+	};
+	ISR EE_RX200_TGIB1_ISR {
+		CATEGORY = 2;
+		ENTRY = "TGIB1";
+	};
 
 };

@@ -85,7 +85,7 @@ const Gpt_ChannelConfigType GptChannels[] = {
 			GPT_CHANNEL_TMR0,			/* GptChannelId			      */
 			GPT_CH_MODE_CONTINUOUS,		/* GptChannelMode		      */
 #if ( GPT_ENABLE_DISABLE_NOTIFICATION_API == STD_ON )
-#ifdef	EE_RX200_CMIA0_ISR
+#if	 (defined(EE_RX200_CMIA0_ISR) && 0)
 			&Gpt_Notification_Channel_TMR0,	/* GptNotificationPtr	*/
 #else	/* EE_RX200_CMIA0_ISR	*/
 			NULL_PTR,				/* GptNotificationPtr		      */
@@ -95,16 +95,16 @@ const Gpt_ChannelConfigType GptChannels[] = {
 			TRUE,				/* GptChannelWakeupSupport	      */
 #endif	/* GPT_CHANNEL_WAKEUP_FUNCTIONALITY_API == STD_ON	*/
 			/* GptChannelHWConfig: */
-			/* Timer Clock = Peripheral clock (PCLKB) / 1024,
+			/* Timer Clock = Peripheral clock (PCLKB) / 8,
 			 * Timer cleared cleared by compare match A. */
-			GPT_HW_TMR_PCLK1024 | GPT_HW_TMR_CLRA,		
+			GPT_HW_TMR_PCLK8 | GPT_HW_TMR_CLRA,		
     
 	},
 	{ /* TIMER TMR1 */
 		GPT_CHANNEL_TMR1,			/* GptChannelId			      */
 		GPT_CH_MODE_ONESHOT,		/* GptChannelMode		      */
 #if ( GPT_ENABLE_DISABLE_NOTIFICATION_API == STD_ON )
-#ifdef	EE_RX200_CMIA1_ISR
+#if	 (defined(EE_RX200_CMIA1_ISR) && 0)
 		&Gpt_Notification_Channel_TMR1,	/* GptNotificationPtr	*/
 #else	/* EE_RX200_CMIA1_ISR	*/
 		NULL_PTR,				/* GptNotificationPtr		      */
@@ -114,16 +114,16 @@ const Gpt_ChannelConfigType GptChannels[] = {
 		TRUE,				/* GptChannelWakeupSupport	      */
 #endif	/* GPT_CHANNEL_WAKEUP_FUNCTIONALITY_API == STD_ON	*/
 		/* GptChannelHWConfig: */
-		/* Timer Clock = Peripheral clock (PCLKB) / 1024,
+		/* Timer Clock = Peripheral clock (PCLKB) / 8,
 		 * Timer cleared cleared by compare match A. */
-		GPT_HW_TMR_PCLK1024 | GPT_HW_TMR_CLRA,		
+		GPT_HW_TMR_PCLK8 | GPT_HW_TMR_CLRB,		
 		
 	},	
 	{ /* TIMER CMT0 */
 		GPT_CHANNEL_CMT0,			/* GptChannelId			      */
 		GPT_CH_MODE_CONTINUOUS,		/* GptChannelMode		      */
 #if ( GPT_ENABLE_DISABLE_NOTIFICATION_API == STD_ON )
-#ifdef	EE_RX200_CMI0_ISR
+#if	 (defined(EE_RX200_CMI0_ISR) && 0)	
 		&Gpt_Notification_Channel_CMT0,	/* GptNotificationPtr	*/
 #else	/* EE_RX200_CMI0_ISR	*/
 		NULL_PTR,				/* GptNotificationPtr		      */
@@ -142,7 +142,7 @@ const Gpt_ChannelConfigType GptChannels[] = {
 		GPT_CHANNEL_CMT1,			/* GptChannelId			      */
 		GPT_CH_MODE_ONESHOT,		/* GptChannelMode		      */
 #if ( GPT_ENABLE_DISABLE_NOTIFICATION_API == STD_ON )
-#ifdef	EE_RX200_CMI1_ISR
+#if (defined(EE_RX200_CMI1_ISR ) && 0)
 		&Gpt_Notification_Channel_CMT1,	/* GptNotificationPtr	*/
 #else	/* EE_RX200_CMI1_ISR	*/
 		NULL_PTR,				/* GptNotificationPtr		      */
@@ -161,7 +161,7 @@ const Gpt_ChannelConfigType GptChannels[] = {
 		GPT_CHANNEL_MTU0,			/* GptChannelId			      */
 		GPT_CH_MODE_CONTINUOUS,		/* GptChannelMode		      */
 #if ( GPT_ENABLE_DISABLE_NOTIFICATION_API == STD_ON )
-#ifdef	EE_RX200_TGIA0_ISR
+#if	 (defined(EE_RX200_TGIA0_ISR) && 0)		
 		&Gpt_Notification_Channel_MTU0,	/* GptNotificationPtr	*/
 #else	/* EE_RX200_TGIA0_ISR	*/
 		NULL_PTR,				/* GptNotificationPtr		      */
@@ -171,7 +171,7 @@ const Gpt_ChannelConfigType GptChannels[] = {
 		TRUE,				/* GptChannelWakeupSupport	      */
 #endif	/* GPT_CHANNEL_WAKEUP_FUNCTIONALITY_API == STD_ON	*/
 		/* GptChannelHWConfig: */
-		/* Timer Clock = Peripheral clock (PCLKB) / 8,
+		/* Timer Clock = Peripheral clock (PCLKB) / 16,
 		*/
 		GPT_HW_MTU_PCLK16  | GPT_HW_MTU_CLRA,
 	},
@@ -179,7 +179,7 @@ const Gpt_ChannelConfigType GptChannels[] = {
 		GPT_CHANNEL_MTU1,			/* GptChannelId			      */
 		GPT_CH_MODE_ONESHOT,		/* GptChannelMode		      */
 #if ( GPT_ENABLE_DISABLE_NOTIFICATION_API == STD_ON )
-#ifdef	EE_RX200_TGIA1_ISR
+#if	 (defined(EE_RX200_TGIA1_ISR) && 0)	
 		&Gpt_Notification_Channel_MTU1,	/* GptNotificationPtr	*/
 #else	/* EE_RX200_TGIA1_ISR	*/
 		NULL_PTR,				/* GptNotificationPtr		      */
@@ -189,9 +189,9 @@ const Gpt_ChannelConfigType GptChannels[] = {
 		TRUE,				/* GptChannelWakeupSupport	      */
 #endif	/* GPT_CHANNEL_WAKEUP_FUNCTIONALITY_API == STD_ON	*/
 		/* GptChannelHWConfig: */
-		/* Timer Clock = Peripheral clock (PCLKB) / 8,
+		/* Timer Clock = Peripheral clock (PCLKB) / 16,
 		 */
-		GPT_HW_MTU_PCLK16 | GPT_HW_MTU_CLRA,
+		GPT_HW_MTU_PCLK16 | GPT_HW_MTU_CLRB,
 	},
 };
 

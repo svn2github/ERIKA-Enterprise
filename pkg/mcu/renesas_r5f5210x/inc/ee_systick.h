@@ -70,7 +70,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_systick_enable_int(void)
 	/*Enable TMR0_CMIA0 interrupt in ICU*/
 	ICU.IER[IER_TMR0_CMIA0].BIT.IEN_TMR0_CMIA0 = 1;
 	/*Set TMR0_CMIA0 interrupt priority to level 1 */
-	ICU.IPR[IR_TMR0_CMIA0].BIT.IPR=0x1;
+	ICU.IPR[IPR_TMR0_CMIA0].BIT.IPR=0x1;
 	
 }
 

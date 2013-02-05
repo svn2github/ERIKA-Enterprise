@@ -52,8 +52,8 @@
 
 
 /*Timers values */
-#define GPT_TMR_START_VALUE	200 /*TMR0 target time about 20 msec.*/
-#define GPT_CMT_START_VALUE	50000 /*CMT0 target time about 20 msec.*/
+#define GPT_TMR_START_VALUE	200 /*TMR0, TMR1 target time about 0,5 msec.*/
+#define GPT_CMT_START_VALUE	50000 /*CMT0, CMT0 target time about 20 msec.*/
 #define GPT_MTU_START_VALUE	50000 /*MTU0 target time about 20 msec.*/
 
 
@@ -84,7 +84,7 @@ enum EE_ASSERTIONS {
 	EE_ASSERT_GPT_TMR1_ELAPSED,		/*  23 */
 	EE_ASSERT_GPT_TMR1_REMAINING,	/*  24 */
 	EE_ASSERT_GPT_TMR1_EXPIRED,		/*  25 */
-	EE_ASSERT_GPT_CMT1_INIT,		/*  16 */
+	EE_ASSERT_GPT_CMT1_INIT,		/*  26 */
 	EE_ASSERT_GPT_CMT1_RUNNING,		/*  27 */
 	EE_ASSERT_GPT_CMT1_ELAPSED,		/*  28 */
 	EE_ASSERT_GPT_CMT1_REMAINING,	/*  29 */
@@ -184,9 +184,9 @@ int main(void)
 		elapsed = Gpt_GetTimeElapsed(GPT_CHANNEL_TMR0);
 
 		if (counter == 1) {
-		EE_assert(EE_ASSERT_GPT_TMR0_ELAPSED, 
-			( ( elapsed > 0 ) && (elapsed < GPT_TMR_START_VALUE ) ), 
-			EE_ASSERT_GPT_TMR0_RUNNING);
+			EE_assert(EE_ASSERT_GPT_TMR0_ELAPSED, 
+					( ( elapsed > 0 ) && (elapsed < GPT_TMR_START_VALUE ) ), 
+					EE_ASSERT_GPT_TMR0_RUNNING);
 		}
 		remaining = Gpt_GetTimeRemaining(GPT_CHANNEL_TMR0); 
 		if (counter == 1) {
@@ -432,7 +432,7 @@ int main(void)
 	
 	/* Forever loop: background activities (if any) should go here */
 	for (;result == 1;) {
-	    while (counter % 5000) counter++;
+	    while (counter % 2500) counter++;
 	    lvl = Dio_ReadChannel(DIO_CHANNEL_USER_LED_0);
 
 	    if (lvl & 0x00000001)

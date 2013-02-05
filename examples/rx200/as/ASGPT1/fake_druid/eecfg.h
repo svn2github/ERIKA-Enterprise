@@ -79,6 +79,14 @@
     #define EE_MAX_CPU 1
     #define EE_CURRENTCPU 0
 
+/***************************************************************************
+ *
+ * ISR
+ *
+ **************************************************************************/
+#define EE_RX200_CMIB1_ISR EE_RX200_CMIB1_ISR
+#define EE_RX200_CMI1_ISR EE_RX200_CMI1_ISR
+#define EE_RX200_TGIB1_ISR EE_RX200_TGIB1_ISR
 
 #ifndef __DISABLE_EEOPT_DEFINES__
 
