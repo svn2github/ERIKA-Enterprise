@@ -41,7 +41,7 @@
 /*
  * fake-druid eecfg.c
  *
- * Author: 3  Gianluca Franchino */
+ * Author: 2013  Gianluca Franchino */
 
  #include "ee.h"
 

@@ -256,7 +256,7 @@ static void Gpt_Isr(Gpt_ChannelType	Channel)
 #pragma interrupt (EE_RX200_CMIA0_ISR)
 ISR2(EE_RX200_CMIA0_ISR)
 {
-	Gpt_Isr(GPT_CHANNEL_TMR0);&(ConfigPtr->GptChannels[channel])
+	Gpt_Isr(GPT_CHANNEL_TMR0);
 }
 #endif
 

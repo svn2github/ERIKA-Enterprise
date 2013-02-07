@@ -77,6 +77,28 @@
 
 #define	GPT_CHANNELS_NUMBER	6	/* Configured GTP Channels */
 
+#define GPT_EN_ALL_NOTIF
+
+#ifdef GPT_EN_ALL_NOTIF
+
+#define GPT_TMR0_EN_NOTIFICATION STD_ON
+#define GPT_CMT0_EN_NOTIFICATION STD_ON
+#define GPT_MTU0_EN_NOTIFICATION STD_ON
+#define GPT_TMR1_EN_NOTIFICATION STD_ON
+#define GPT_CMT1_EN_NOTIFICATION STD_ON
+#define GPT_MTU1_EN_NOTIFICATION STD_ON
+
+#else
+
+#define GPT_TMR0_EN_NOTIFICATION STD_OFF
+#define GPT_CMT0_EN_NOTIFICATION STD_OFF
+#define GPT_MTU0_EN_NOTIFICATION STD_OFF
+#define GPT_TMR1_EN_NOTIFICATION STD_OFF
+#define GPT_CMT1_EN_NOTIFICATION STD_OFF
+#define GPT_MTU1_EN_NOTIFICATION STD_OFF
+
+#endif
+
 /*
  * Gpt Channels Configuration.
  */
@@ -85,7 +107,7 @@ const Gpt_ChannelConfigType GptChannels[] = {
 			GPT_CHANNEL_TMR0,			/* GptChannelId			      */
 			GPT_CH_MODE_CONTINUOUS,		/* GptChannelMode		      */
 #if ( GPT_ENABLE_DISABLE_NOTIFICATION_API == STD_ON )
-#if	 (defined(EE_RX200_CMIA0_ISR) && 0)
+#if	 (defined(EE_RX200_CMIA0_ISR) && GPT_TMR0_EN_NOTIFICATION)
 			&Gpt_Notification_Channel_TMR0,	/* GptNotificationPtr	*/
 #else	/* EE_RX200_CMIA0_ISR	*/
 			NULL_PTR,				/* GptNotificationPtr		      */
@@ -104,11 +126,11 @@ const Gpt_ChannelConfigType GptChannels[] = {
 		GPT_CHANNEL_TMR1,			/* GptChannelId			      */
 		GPT_CH_MODE_ONESHOT,		/* GptChannelMode		      */
 #if ( GPT_ENABLE_DISABLE_NOTIFICATION_API == STD_ON )
-#if	 (defined(EE_RX200_CMIA1_ISR) && 0)
+#if	 (defined(EE_RX200_CMIB1_ISR) && GPT_TMR1_EN_NOTIFICATION)
 		&Gpt_Notification_Channel_TMR1,	/* GptNotificationPtr	*/
-#else	/* EE_RX200_CMIA1_ISR	*/
+#else	/* EE_RX200_CMIB1_ISR	*/
 		NULL_PTR,				/* GptNotificationPtr		      */
-#endif	/* !EE_RX200_CMIA1_ISR	*/
+#endif	/* !EE_RX200_CMIB1_ISR	*/
 #endif	/* GPT_ENABLE_DISABLE_NOTIFICATION_API == STD_ON	*/
 #if ( GPT_CHANNEL_WAKEUP_FUNCTIONALITY_API == STD_ON )
 		TRUE,				/* GptChannelWakeupSupport	      */
@@ -123,7 +145,7 @@ const Gpt_ChannelConfigType GptChannels[] = {
 		GPT_CHANNEL_CMT0,			/* GptChannelId			      */
 		GPT_CH_MODE_CONTINUOUS,		/* GptChannelMode		      */
 #if ( GPT_ENABLE_DISABLE_NOTIFICATION_API == STD_ON )
-#if	 (defined(EE_RX200_CMI0_ISR) && 0)	
+#if	 (defined(EE_RX200_CMI0_ISR) && GPT_CMT0_EN_NOTIFICATION)	
 		&Gpt_Notification_Channel_CMT0,	/* GptNotificationPtr	*/
 #else	/* EE_RX200_CMI0_ISR	*/
 		NULL_PTR,				/* GptNotificationPtr		      */
@@ -142,7 +164,7 @@ const Gpt_ChannelConfigType GptChannels[] = {
 		GPT_CHANNEL_CMT1,			/* GptChannelId			      */
 		GPT_CH_MODE_ONESHOT,		/* GptChannelMode		      */
 #if ( GPT_ENABLE_DISABLE_NOTIFICATION_API == STD_ON )
-#if (defined(EE_RX200_CMI1_ISR ) && 0)
+#if (defined(EE_RX200_CMI1_ISR ) && GPT_CMT1_EN_NOTIFICATION)
 		&Gpt_Notification_Channel_CMT1,	/* GptNotificationPtr	*/
 #else	/* EE_RX200_CMI1_ISR	*/
 		NULL_PTR,				/* GptNotificationPtr		      */
@@ -161,7 +183,7 @@ const Gpt_ChannelConfigType GptChannels[] = {
 		GPT_CHANNEL_MTU0,			/* GptChannelId			      */
 		GPT_CH_MODE_CONTINUOUS,		/* GptChannelMode		      */
 #if ( GPT_ENABLE_DISABLE_NOTIFICATION_API == STD_ON )
-#if	 (defined(EE_RX200_TGIA0_ISR) && 0)		
+#if	 (defined(EE_RX200_TGIA0_ISR) && GPT_MTU0_EN_NOTIFICATION)		
 		&Gpt_Notification_Channel_MTU0,	/* GptNotificationPtr	*/
 #else	/* EE_RX200_TGIA0_ISR	*/
 		NULL_PTR,				/* GptNotificationPtr		      */
@@ -179,11 +201,11 @@ const Gpt_ChannelConfigType GptChannels[] = {
 		GPT_CHANNEL_MTU1,			/* GptChannelId			      */
 		GPT_CH_MODE_ONESHOT,		/* GptChannelMode		      */
 #if ( GPT_ENABLE_DISABLE_NOTIFICATION_API == STD_ON )
-#if	 (defined(EE_RX200_TGIA1_ISR) && 0)	
+#if	 (defined(EE_RX200_TGIB1_ISR) && GPT_MTU1_EN_NOTIFICATION)	
 		&Gpt_Notification_Channel_MTU1,	/* GptNotificationPtr	*/
-#else	/* EE_RX200_TGIA1_ISR	*/
+#else	/* EE_RX200_TGIB1_ISR	*/
 		NULL_PTR,				/* GptNotificationPtr		      */
-#endif	/* !EE_RX200_TGIA1_ISR	*/
+#endif	/* !EE_RX200_TGIB1_ISR	*/
 #endif	/* GPT_ENABLE_DISABLE_NOTIFICATION_API == STD_ON	*/
 #if ( GPT_CHANNEL_WAKEUP_FUNCTIONALITY_API == STD_ON )
 		TRUE,				/* GptChannelWakeupSupport	      */

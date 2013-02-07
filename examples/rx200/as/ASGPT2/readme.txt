@@ -1,4 +1,4 @@
-ASGPT1
+ASGPT2
 
  Simple project to test all timers in polling mode.
  The compilation chain starts from the Cygwin shell with the "make" command.

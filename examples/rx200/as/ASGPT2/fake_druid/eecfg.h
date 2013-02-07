@@ -39,57 +39,93 @@
  * ###*E*### */
 
 /*
- * fake-druid eecfg.c
+ * fake-druid eecfg.h
  *
- * Author: 2013  Gianluca Franchino */
+ * Author: 2013  Gianluca Franchino
+ */
 
- #include "ee.h"
+#ifndef __EECFG_H__
+#define __EECFG_H__
 
+
+
+#define RTDRUID_CONFIGURATOR_NUMBER 1275
 
 
 
 /***************************************************************************
  *
- * Kernel ( CPU 0 )
+ * Common defines ( CPU 0 )
  *
  **************************************************************************/
-    /* Definition of task's body */
-    DeclareTask(Task1);
 
-    const EE_FADDR EE_hal_thread_body[EE_MAX_TASK] = {
-        (EE_FADDR)FuncTask1 		/* thread Task1 */
+    /* TASK definition */
+    #define EE_MAX_TASK 6
+	#define TaskTMR0 	0
+    #define TaskCMT0	1
+    #define TaskMTU0	2
+    #define TaskTMR1	3
+    #define TaskCMT1	4
+    #define TaskMTU1	5
 
-    };
+    /* MUTEX definition */
+    #define EE_MAX_RESOURCE 0U
 
-    /* ready priority */
-    const EE_TYPEPRIO EE_th_ready_prio[EE_MAX_TASK] = {
-        0x1U 		/* thread Task1 */
-    };
+    /* ALARM definition */
+    #define EE_MAX_ALARM 0
 
-    /* dispatch priority */
-    const EE_TYPEPRIO EE_th_dispatch_prio[EE_MAX_TASK] = {
-        0x1U 		/* thread Task1 */
-    };
+    /* COUNTER definition */
+    #define EE_MAX_COUNTER 0
 
-    /* thread status */
-    #if defined(__MULTI__) || defined(__WITH_STATUS__)
-        EE_TYPESTATUS EE_th_status[EE_MAX_TASK] = {
-            EE_READY
-        };
-    #endif
+    /* APPMODE definition */
+    #define EE_MAX_APPMODE 0U
 
-    /* next thread */
-    EE_TID EE_th_next[EE_MAX_TASK] = {
-        EE_NIL
-    };
+    /* CPUs */
+    #define EE_MAX_CPU 1
+    #define EE_CURRENTCPU 0
 
-    EE_TYPEPRIO EE_th_nact[EE_MAX_TASK];
-    /* The first stacked task */
-    EE_TID EE_stkfirst = EE_NIL;
+/***************************************************************************
+ *
+ * ISR
+ *
+ **************************************************************************/
+#define EE_RX200_CMIA0_ISR EE_RX200_CMIA0_ISR
+#define EE_RX200_CMIB1_ISR EE_RX200_CMIB1_ISR
+#define EE_RX200_CMI0_ISR EE_RX200_CMI0_ISR
+#define EE_RX200_CMI1_ISR EE_RX200_CMI1_ISR
+#define EE_RX200_TGIA0_ISR EE_RX200_TGIA0_ISR
+#define EE_RX200_TGIB1_ISR EE_RX200_TGIB1_ISR
 
-    /* The first task into the ready queue */
-    EE_TID EE_rqfirst  = EE_NIL;
+#ifndef __DISABLE_EEOPT_DEFINES__
 
-    /* system ceiling */
-    EE_TYPEPRIO EE_sys_ceiling= 0x0000U;
+/***************************************************************************
+ *
+ * User options
+ *
+ **************************************************************************/
+#define __ASSERT__
+#define __AUTOSAR_R4_0__
+#define __AS_MCU_DRIVER__
+#define __AS_PORT_DRIVER__
+#define __AS_DIO_DRIVER__
+#define __AS_GPT_DRIVER__
+#define __ADD_LIBS__
+
+/***************************************************************************
+ *
+ * Automatic options
+ *
+ **************************************************************************/
+#define __RTD_CYGWIN__
+#define __RX200__
+#define __R5F5210x__
+#define __CCRX__
+#define __FP__
+#define __MONO__
+#define __FP_NO_RESOURCE__
+
+
+#endif
+
+#endif
 

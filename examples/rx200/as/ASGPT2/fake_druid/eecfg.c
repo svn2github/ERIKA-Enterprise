@@ -41,7 +41,7 @@
 /*
  * fake-druid eecfg.c
  *
- * Author: 2013  Gianluca Franchino */
+ * Author: 2013 Gianluca Franchino */
 
  #include "ee.h"
 
@@ -54,33 +54,63 @@
  *
  **************************************************************************/
     /* Definition of task's body */
-    DeclareTask(Task1);
+    DeclareTask(TaskTMR0);
+    DeclareTask(TaskCMT0);
+    DeclareTask(TaskMTU0);
+    DeclareTask(TaskTMR1);
+    DeclareTask(TaskCMT1);
+    DeclareTask(TaskMTU1);
 
     const EE_FADDR EE_hal_thread_body[EE_MAX_TASK] = {
-        (EE_FADDR)FuncTask1 		/* thread Task1 */
+    		(EE_FADDR)FuncTaskTMR0, 		/* thread TaskTMR0 */
+    		(EE_FADDR)FuncTaskCMT0, 		/* thread TaskCMT0 */
+    		(EE_FADDR)FuncTaskMTU0, 		/* thread TaskMTU0 */
+    		(EE_FADDR)FuncTaskTMR1, 		/* thread TaskTMR1 */
+    		(EE_FADDR)FuncTaskCMT1, 		/* thread TaskCMT1 */
+    		(EE_FADDR)FuncTaskMTU1 		 	/* thread TaskMTU1 */
 
     };
 
     /* ready priority */
     const EE_TYPEPRIO EE_th_ready_prio[EE_MAX_TASK] = {
-        0x1U 		/* thread Task1 */
+    		0x1U, 		/* thread TaskTMR0 */
+    		0x1U, 		/* thread TaskCMT0 */
+    		0x1U, 		/* thread TaskMTU0 */
+    		0x1U, 		/* thread TaskTMR1 */
+    		0x1U, 		/* thread TaskCMT1 */
+    		0x1U 		/* thread TaskMTU1 */
     };
 
     /* dispatch priority */
     const EE_TYPEPRIO EE_th_dispatch_prio[EE_MAX_TASK] = {
-        0x1U 		/* thread Task1 */
+    		0x1U, 		/* thread TaskTMR0 */
+            0x1U, 		/* thread TaskCMT0 */
+            0x1U, 		/* thread TaskMTU0 */
+            0x1U, 		/* thread TaskTMR1 */
+            0x1U, 		/* thread TaskCMT1 */
+            0x1U 		/* thread TaskMTU1 */
     };
 
     /* thread status */
     #if defined(__MULTI__) || defined(__WITH_STATUS__)
         EE_TYPESTATUS EE_th_status[EE_MAX_TASK] = {
+            EE_READY,
+            EE_READY,
+            EE_READY,
+            EE_READY,
+            EE_READY,
             EE_READY
         };
     #endif
 
     /* next thread */
     EE_TID EE_th_next[EE_MAX_TASK] = {
-        EE_NIL
+    		EE_NIL,
+    		EE_NIL,
+    		EE_NIL,
+    		EE_NIL,
+    		EE_NIL,
+    		EE_NIL
     };
 
     EE_TYPEPRIO EE_th_nact[EE_MAX_TASK];
