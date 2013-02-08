@@ -68,7 +68,7 @@ $(error CPU unsupported by know CodeWarrior libraries)
 endif
 endif # __BASE_MAKEFILE__
 ifeq ($(call iseeopt, __VLE__), yes)
-MW_LIB_FLAVOR := $(MW_LIB_FLAVOR)_VLE
+MW_LIB_FLAVOR := $(MW_LIB_FLAVOR)_VLE_SPFP_Only
 endif
 endif # PPCE200Z0
 # Apparently, libc_XXX works on Windows, librt_XXX on Linux
@@ -92,7 +92,7 @@ OPT_TARGET := -proc Zen
 ## Candidate OPT_CC
 # Defaults:
 # -abi eabi -model absolute -fp soft -big
-OPT_CC = $(CFLAGS) $(OPT_TARGET) $(VLE_OPT) -RTTI off -Cpp_exceptions off \
+OPT_CC = $(OPT_TARGET) $(VLE_OPT) -RTTI off -Cpp_exceptions off \
  -gccinc -char unsigned -nostdinc -pragma "section RW \".stack\" \".ustack\""
 ifneq ($(call iseeopt, __MINIMAL_CC_OPTIONS__), yes)
 OPT_CC += -flag require_prototypes -msgstyle gcc -rostr \
@@ -110,6 +110,10 @@ OPT_CC += -ppc_asm_to_vle
 else
 VLE_OPT =
 endif
+
+# Concatenate CFLAGS to OPT_CC to overwrite OPT_CC values with CFLAGS
+# chosen by the user at .oil level
+OPT_CC += $(CFLAGS)
 
 ## OPT_ASM are the options for asm invocation
 OPT_ASM += $(OPT_TARGET) $(VLE_OPT) -msgstyle gcc -gccinc -gnu_mode
