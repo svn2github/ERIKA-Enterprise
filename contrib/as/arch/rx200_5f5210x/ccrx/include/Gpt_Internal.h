@@ -122,21 +122,13 @@
 
 /*
  * Configuration bit masks
- */
-#define GPT_TMR_CLEAR_DIS 		0x00	/**< TMR Clearing is disabled. */	
-#define GPT_TMR_CLEAR_MATCH_A	0x08	/**< TMR Cleared by compare match A */
-#define GPT_TMR_CLEAR_MATCH_B	0x10	/**< TMR Cleared by compare match B */
-#define GPT_TMR_CLEAR_EXT_RES	0x18	/**< TMR Cleared by the external reset 
-											input. */
+ */	
 #define GPT_MTU2A_CLEAR_DIS 	0x00	/**< TMR Clearing is disabled. */
 #define GPT_MTU2A_CMP_A_MASK	0x20	/**< MTU Cleared by compare match A */
 #define GPT_MTU2A_CMP_B_MASK	0x40	/**< MTU Cleared by compare match B */
 #define GPT_MTU2A_CMP_C_MASK	0xA0	/**< MTU Cleared by compare match C */
 #define GPT_MTU2A_CMP_D_MASK	0xC0	/**< MTU Cleared by compare match D */
 
-/*
- * Configuration masks
- */
 #define GPT_PRE_BITS_MASK	0x1F	/**< Prescaler Setting bits mask */
 
 #define GPT_TMR_CLK_MASK	0x1F	/**< TMR module clock setting mask. */
@@ -145,8 +137,8 @@
 #define GPT_TMR_CMP_B_MASK	0x10	/**< TMR module Cleared by compare match B.*/
 #define GPT_TMR_CCLR_SH_MASK 0x02	/**< TMR module clear mode shift mask. */
 #define GPT_TMR_TMRIS_DIS 	0xEF	/**< TMR module TMRIS bit disable mask. */
-#define GPT_TMR_CMP_A_ISR_MASK 	0x40 /**< TMR module TMRIS bit disable mask. */
-#define GPT_TMR_CMP_B_ISR_MASK 	0x80/**< TMR module TMRIS bit disable mask. */
+#define GPT_TMR_CMP_A_ISR_MASK 	0x40 /**< TMR module CMIA enable mask. */
+#define GPT_TMR_CMP_B_ISR_MASK 	0x80 /**< TMR module CMIB enable mask. */
 #define GPT_CMT_CLK_MASK	0x03	/**< CMT module clock setting mask. */
 #define GPT_MTU_CLK_MASK	0x1F	/**< CMT module clock setting mask. */
 #define GPT_MTU2A_CCLR_MASK 0xE0	/**< MTU2A module clear mode setting mask.*/
@@ -1093,6 +1085,44 @@ __INLINE__ void __ALWAYS_INLINE__ Gpt_mtu2a_int_dis(Gpt_ChannelType _ch,
 	}
 }
 
+/** @brief Enable ICU for MTUx channels of module MTU2A.
+ *	@param _ch Timer Channel Identifier.
+ *	@param _isr ISR to enable.
+ */
+__INLINE__ void __ALWAYS_INLINE__	Gpt_mtu2a_icu_en(Gpt_ChannelType _ch,
+		uint8 _isr)
+{
+	switch (_ch) {
+	case GPT_INTERNAL_CHANNEL_MTU0:
+		GPT_EN_ICU_IER(HW_ICU_IER_MTU1_TGIA, _isr);
+		GPT_SET_ICU_IPR(HW_ICU_IPR_MTU0_TGI_REG, HW_IPR_PRI_LEVEL_1);
+		break;
+	case GPT_INTERNAL_CHANNEL_MTU1:
+		GPT_EN_ICU_IER(HW_ICU_IER_MTU1_TGIA, _isr);
+		GPT_SET_ICU_IPR(HW_ICU_IPR_MTU1_TGI_REG, HW_IPR_PRI_LEVEL_1);
+		break;
+	case GPT_INTERNAL_CHANNEL_MTU2:
+		GPT_EN_ICU_IER(HW_ICU_IER_MTU2_TGIA, _isr);
+		GPT_SET_ICU_IPR(HW_ICU_IPR_MTU2_TGI_REG, HW_IPR_PRI_LEVEL_1);
+		break;
+	case GPT_INTERNAL_CHANNEL_MTU3:
+		GPT_EN_ICU_IER(HW_ICU_IER_MTU3_TGIA, _isr);
+		GPT_SET_ICU_IPR(HW_ICU_IPR_MTU3_TGI_REG, HW_IPR_PRI_LEVEL_1);
+		break;
+	case GPT_INTERNAL_CHANNEL_MTU12:
+		/*TODO*/
+		break;
+	case GPT_INTERNAL_CHANNEL_MTU4:
+		if ((_isr != HW_ICU_MTU4_IER_TGIC_MASK) && 
+				(_isr != HW_ICU_MTU4_IER_TGID_MASK)) { 
+			GPT_EN_ICU_IER(HW_ICU_IER_MTU4_TGIA, _isr);
+		} else {
+			GPT_EN_ICU_IER(HW_ICU_IER_MTU4_TGIC, _isr);	
+		}
+		GPT_SET_ICU_IPR(HW_ICU_IPR_MTU4_TGI_REG, HW_IPR_PRI_LEVEL_1);
+		break;
+	}
+}
 
 /*TODO: MTU0 has also Interrupt compare/match channel E, F. We should support
  * them.
@@ -1106,12 +1136,16 @@ __INLINE__ void __ALWAYS_INLINE__	Gpt_mtu0_4_int_en(Gpt_ChannelType _ch,
 {
 	if ((_tcr & GPT_MTU2A_CMP_A_MASK) == GPT_MTU2A_CMP_A_MASK) {
 		Gpt_mtu2a_int_en(_ch, GPT_MTU2A_TGIEA_POS);
+		Gpt_mtu2a_icu_en(_ch, HW_ICU_MTU0_IER_TGIA_MASK);
 	} else if ((_tcr & GPT_MTU2A_CMP_B_MASK) == GPT_MTU2A_CMP_B_MASK) {
 		Gpt_mtu2a_int_en(_ch, GPT_MTU2A_TGIEB_POS);
+		Gpt_mtu2a_icu_en(_ch, HW_ICU_MTU0_IER_TGIB_MASK);
 	}  else if ((_tcr & GPT_MTU2A_CMP_C_MASK) == GPT_MTU2A_CMP_C_MASK) {
 		Gpt_mtu2a_int_en(_ch, GPT_MTU2A_TGIEC_POS);
-	}  else if ((_tcr & GPT_MTU2A_CMP_D_MASK) ==GPT_MTU2A_CMP_D_MASK) {
+		Gpt_mtu2a_icu_en(_ch, HW_ICU_MTU0_IER_TGIC_MASK);
+	}  else if ((_tcr & GPT_MTU2A_CMP_D_MASK) == GPT_MTU2A_CMP_D_MASK) {
 		Gpt_mtu2a_int_en(_ch, GPT_MTU2A_TGIED_POS);
+		Gpt_mtu2a_icu_en(_ch, HW_ICU_MTU0_IER_TGID_MASK);
 	}
 	
 }
@@ -1428,11 +1462,11 @@ __INLINE__ void __ALWAYS_INLINE__	Gpt_tmr_en_oneshot(
 		if (((ConfigPtr->GptChannelHWConfig >> 2) & GPT_TMR_CMP_A_MASK) == 
 				GPT_TMR_CMP_A_MASK) {
 			GPT_SET_TMR_CMIEA(ConfigPtr->GptChannelId);
-			Gpt_tmr_en_icu_int(ConfigPtr->GptChannelId, GTP_EN_TMR_CMIA);
+			//Gpt_tmr_en_icu_int(ConfigPtr->GptChannelId, GTP_EN_TMR_CMIA);
 
 		} else {
 			GPT_SET_TMR_CMIEB(ConfigPtr->GptChannelId);
-			Gpt_tmr_en_icu_int(ConfigPtr->GptChannelId, GTP_EN_TMR_CMIB);
+			//Gpt_tmr_en_icu_int(ConfigPtr->GptChannelId, GTP_EN_TMR_CMIB);
 		}
 	}
 }
