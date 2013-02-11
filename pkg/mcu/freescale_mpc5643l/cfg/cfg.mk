@@ -53,4 +53,11 @@ endif # EE_ISR_DYNAMIC_TABLE
 EE_SRCS += pkg/mcu/freescale_mpc5643l/src/ee_FlashConfig.c
 #endif # __E200ZX_EXECUTE_FROM_RAM__
 
+# Enable System Timer
+ifeq ($(call iseeopt, ENABLE_SYSTEM_TIMER), yes)
+ifeq ($(call iseeopt, MCU_SYSTEM_TIMER), yes)
+EE_SRCS += pkg/mcu/freescale_mpc5643l/src/ee_system_timer.c
+endif # MCU_SYSTEM_TIMER
+endif # ENABLE_SYSTEM_TIMER
+
 endif # __MPC5674F__

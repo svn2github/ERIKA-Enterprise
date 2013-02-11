@@ -102,7 +102,7 @@ int EE_cpu_startos(void)
 
 /* Used only if system timer is required by the application */
 #if defined(ENABLE_SYSTEM_TIMER) && defined(EE_SYSTEM_TIMER_DEVICE)
-    EE_e200zx_initialize_system_timer();
+    EE_initialize_system_timer();
 #endif
 
 /* Used only if syncronization barrier is required by the application */
