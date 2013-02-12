@@ -137,7 +137,7 @@ int EE_cpu_startos(void)
 		EE_HAL_MEMPROT_ENTRIES(EE_MAX_APP));
 
 	/* Initialize System Timer */
-	EE_e200zx_initialize_system_timer();
+	EE_initialize_system_timer();
 	return 0;
 }
 #endif /* __EE_MEMORY_PROTECTION__ && __OO_CPU_HAS_STARTOS_ROUTINE__ */
