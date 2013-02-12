@@ -350,10 +350,6 @@
 #define HW_ICU_TMR0_IER_CMIA_MASK	0x40
 /**< Bit mask for TMR0 CMIB .*/
 #define HW_ICU_TMR0_IER_CMIB_MASK	0x80
-/**< Bit mask for TMR1 CMIA .*/
-#define HW_ICU_TMR1_IER_CMIA_MASK	0x02
-/**< Bit mask for TMR1 CMIB .*/
-#define HW_ICU_TMR1_IER_CMIB_MASK	0x04
 /**< Bit mask for CMT0 CMI .*/
 #define HW_ICU_CMT0_IER_CMI_MASK	0x10
 /**< Bit mask for CMT1 CMI .*/

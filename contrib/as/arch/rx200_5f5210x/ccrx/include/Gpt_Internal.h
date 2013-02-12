@@ -49,6 +49,8 @@
 #include "ee.h"
 #include "Hardware.h"
 
+extern uint8 start_flag;
+
 /* Hardware Timer Module Status (MSTPCR A)*/
 #define GPT_HW_TMR_TMR_ON		0x00000030
 #define GPT_HW_TMR_CMT_ON		0x0000C000
@@ -258,7 +260,7 @@
  *  @param _b_mask Bit mask used to clear the correct bit. 
  */
 #define GPT_DIS_ICU_IER(_reg, _b_mask) \
-	GPT_SET_REG8(_reg, GPT_GET_REG8(_reg) & ~_b_mask)
+	GPT_SET_REG8(_reg, GPT_GET_REG8(_reg) & (~(_b_mask)))
 
 /** @brief	Set  Interrupt priority into Interrupt  prior. Register (IPR). 
  *  @param _reg IPR register.
@@ -1094,7 +1096,7 @@ __INLINE__ void __ALWAYS_INLINE__	Gpt_mtu2a_icu_en(Gpt_ChannelType _ch,
 {
 	switch (_ch) {
 	case GPT_INTERNAL_CHANNEL_MTU0:
-		GPT_EN_ICU_IER(HW_ICU_IER_MTU1_TGIA, _isr);
+		GPT_EN_ICU_IER(HW_ICU_IER_MTU0_TGIA, _isr);
 		GPT_SET_ICU_IPR(HW_ICU_IPR_MTU0_TGI_REG, HW_IPR_PRI_LEVEL_1);
 		break;
 	case GPT_INTERNAL_CHANNEL_MTU1:
@@ -1461,12 +1463,10 @@ __INLINE__ void __ALWAYS_INLINE__	Gpt_tmr_en_oneshot(
 	} else {
 		if (((ConfigPtr->GptChannelHWConfig >> 2) & GPT_TMR_CMP_A_MASK) == 
 				GPT_TMR_CMP_A_MASK) {
-			GPT_SET_TMR_CMIEA(ConfigPtr->GptChannelId);
-			//Gpt_tmr_en_icu_int(ConfigPtr->GptChannelId, GTP_EN_TMR_CMIA);
+			Gpt_tmr_en_icu_int(ConfigPtr->GptChannelId, GTP_EN_TMR_CMIA);
 
 		} else {
-			GPT_SET_TMR_CMIEB(ConfigPtr->GptChannelId);
-			//Gpt_tmr_en_icu_int(ConfigPtr->GptChannelId, GTP_EN_TMR_CMIB);
+			Gpt_tmr_en_icu_int(ConfigPtr->GptChannelId, GTP_EN_TMR_CMIB);
 		}
 	}
 }
@@ -1493,10 +1493,8 @@ __INLINE__ void __ALWAYS_INLINE__ Gpt_timeout_int_en(Gpt_ChannelType _ch)
 {
 	if (_ch < GPT_INTERNAL_CHANNEL_TMR01) {
 		if ((GPT_GET_TMR_TCR(_ch) & GPT_TMR_CMP_A_MASK) == GPT_TMR_CMP_A_MASK) {
-			GPT_SET_TMR_CMIEA(_ch);
 			Gpt_tmr_en_icu_int(_ch, GTP_EN_TMR_CMIA);
 		} else {
-			GPT_SET_TMR_CMIEB(_ch);
 			Gpt_tmr_en_icu_int(_ch, GTP_EN_TMR_CMIB);
 		}
 	} else if (_ch < GPT_INTERNAL_CHANNEL_CMT0) {
@@ -1538,8 +1536,6 @@ __INLINE__ void __ALWAYS_INLINE__ Gpt_timeout_int_dis(Gpt_ChannelType _ch)
 	}
 }
 
-
-
 /** @brief	Check if the timer is running.
  *	@param _ch Timer Channel Identifier.
  */
@@ -1553,8 +1549,11 @@ __INLINE__ uint8 __ALWAYS_INLINE__ Gpt_is_running(Gpt_ChannelType _ch)
 	/* If TMR0 <= _ch <= TMR23, there is not start/stop bit, so the timer is 
 	 * running for sure.
 	 */
-	if (_ch < GPT_INTERNAL_CHANNEL_CMT0)
-			return GPT_TIMER_RUNNING;
+	if (_ch < GPT_INTERNAL_CHANNEL_CMT0 && GPT_GET_FLAG(start_flag, _ch)) {
+		
+		return GPT_TIMER_RUNNING;
+	}
+			
 	/* If CMT0 <= _ch <= CMT3 */
 	if (_ch < GPT_INTERNAL_CHANNEL_MTU0) {
 		if (GPT_CMT_IS_RUNNING(_ch))
@@ -1592,6 +1591,8 @@ __INLINE__ uint8 __ALWAYS_INLINE__ Gpt_is_running(Gpt_ChannelType _ch)
  */
 __INLINE__ uint16 __ALWAYS_INLINE__ Gpt_get_tmr_tcnt(Gpt_ChannelType _ch)
 {
+	/*TODO: consider the case when the timer is stopped, that is, 
+	 read the tcnt value from Gpt_tmr_tcnt_val[] */
 	
 	if (_ch == GPT_INTERNAL_CHANNEL_TMR01) 
 		return EE_HWREG16(HW_TMR01_TCNT_ADDR_BASE);

@@ -56,7 +56,7 @@
 #define GPT_CMT_START_VALUE	50000 /*CMT0, CMT0 target time about 20 msec.*/
 #define GPT_MTU_START_VALUE	50000 /*MTU0 target time about 20 msec.*/
 
-#define	GPT_TMR_CNTR_MAX				0xF
+#define	GPT_TMR_CNTR_MAX				0x3
 
 
 /* Assertions */
@@ -205,7 +205,7 @@ TASK(TaskTMR1)
 	counter++;
 	if ( counter == 1 ) {
       EE_assert(EE_ASSERT_GPT_TMR1_EXPIRED, 
-    		  ( Gpt_GetStatus(GPT_CHANNEL_TMR1) == GPT_CH_STOPPED ), 
+    		  ( Gpt_GetStatus(GPT_CHANNEL_TMR1) == GPT_CH_EXPIRED ), 
     		  EE_ASSERT_GPT_TMR1_RUNNING);
     } 
 }
@@ -227,7 +227,7 @@ TASK(TaskCMT1)
 	counter++;
 	if ( counter == 1 ) {
       EE_assert(EE_ASSERT_GPT_CMT1_EXPIRED, 
-    		  ( Gpt_GetStatus(GPT_CHANNEL_CMT1) == GPT_CH_STOPPED ), 
+    		  ( Gpt_GetStatus(GPT_CHANNEL_CMT1) == GPT_CH_EXPIRED ), 
     		  EE_ASSERT_GPT_CMT1_RUNNING);
     } 
 }
@@ -249,7 +249,7 @@ TASK(TaskMTU1)
 	counter++;
 	if ( counter == 1 ) {
       EE_assert(EE_ASSERT_GPT_MTU1_EXPIRED, 
-    		  ( Gpt_GetStatus(GPT_CHANNEL_MTU1) == GPT_CH_STOPPED ), 
+    		  ( Gpt_GetStatus(GPT_CHANNEL_MTU1) == GPT_CH_EXPIRED ), 
     		  EE_ASSERT_GPT_MTU1_RUNNING);
     } 
 }

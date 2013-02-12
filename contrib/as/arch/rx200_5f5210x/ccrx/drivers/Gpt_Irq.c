@@ -87,6 +87,11 @@
 extern uint32 exp_flag;
 
 /*
+ * TMR module TCNT values.
+ */
+extern uint8* Gpt_tmr_tcnt_val;
+                       
+/*
  * Type that holds all global data for Gpt Driver
  */
 typedef struct
@@ -209,6 +214,7 @@ static void Gpt_Isr(Gpt_ChannelType	Channel)
 
 	register EE_FREG		flags;
 	register Gpt_ChannelType	ch;
+	register uint16				tcnt;
 
 	flags = EE_hal_suspendIRQ();
 
@@ -224,13 +230,32 @@ static void Gpt_Isr(Gpt_ChannelType	Channel)
 		 */
 		if (Gpt_Global.ConfigPtr->GptChannels[ch].GptChannelMode == 
 				GPT_CH_MODE_ONESHOT) {
-			if (Channel < GPT_CHANNEL_CMT0) {
+			/*if (Channel < GPT_CHANNEL_CMT0) {
 				Gpt_DisableChannel(Channel);
 			} else {
 				Gpt_tmr_stop(Channel);
+			}*/
+			tcnt = Gpt_get_tmr_tcnt(Channel);
+			GPT_CLEAR_TMR_CMIEA(Channel);
+			GPT_CLEAR_TMR_CMIEB(Channel);
+			//Gpt_tmr_dis_icu_int(Channel);
+			if (Channel < GPT_CHANNEL_CMT0) {
+				if (Channel < GPT_INTERNAL_CHANNEL_TMR01) {
+					Gpt_tmr_tcnt_val[Channel] = (uint8) (tcnt);
+				} else if (Channel == GPT_INTERNAL_CHANNEL_TMR01) {
+					Gpt_tmr_tcnt_val[0] = (uint8) (tcnt >> 8);
+					Gpt_tmr_tcnt_val[1] = (uint8) (tcnt);
+				} else {
+					Gpt_tmr_tcnt_val[2] = (uint8) (tcnt >> 8);
+					Gpt_tmr_tcnt_val[3] = (uint8) (tcnt);
+				}
+			} else {
+				Gpt_tmr_stop(Channel);
 			}
+			GPT_CLEAR_FLAG(start_flag, Channel);
 			GPT_SET_FLAG(exp_flag, Channel);
 		}
+		
 		/* Notification Callback Call. */
 		if ( ( ch < Gpt_Global.ConfigPtr->GptNumberOfGptChannels ) && 
 				( Gpt_Global.ConfigPtr->GptChannels[ch].GptNotificationPtr 

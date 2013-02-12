@@ -183,6 +183,11 @@ uint32 exp_flag = 0;
  */
 uint32 stop_flag = 0;
 
+/*
+ * Channel start flags for TMR module. 
+ */
+uint8 start_flag = 0;
+
 #if ( GPT_DEINIT_API == STD_ON )
 
 
@@ -526,12 +531,6 @@ static void Gpt_InitGptChannel(const Gpt_ChannelConfigType *ConfigPtr)
 	if (ConfigPtr->GptChannelMode == GPT_CH_MODE_ONESHOT) {
 		if (ConfigPtr->GptChannelId < GPT_INTERNAL_CHANNEL_CMT0) {
 			Gpt_tmr_en_oneshot(ConfigPtr);
-			/*Note, TMR module does not have a stop/start bit, it is started 
-			 * directly by Gpt_EnableChannel(), so we need to disable the module
-			 * to stop the timer. Note that, the module status (register values) 
-			 * is (are) retained.
-			 */
-			//Gpt_DisableChannel(ConfigPtr->GptChannelId);
 		} else if (ConfigPtr->GptChannelId < GPT_INTERNAL_CHANNEL_MTU0) {
 			Gpt_cmt_en_oneshot(ConfigPtr->GptChannelId);
 		} else {
@@ -701,15 +700,10 @@ Gpt_ValueType Gpt_GetTimeElapsed(Gpt_ChannelType	Channel)
 			GPT_GETTIMEELAPSED_SERVICE_ID, GPT_E_PARAM_CHANNEL, 
 			GPT_HW_TMR_EMPTY_VALUE, flags);
 
-	if (Channel >  GPT_CHANNEL_TMR23) {
-		VALIDATE_IRQ_W_RV((Gpt_Global.Status & Gpt_ch_2_mod_stat(Channel)), 
-				GPT_GETTIMEELAPSED_SERVICE_ID, GPT_E_STATE_TRANSITION, 
-				GPT_HW_TMR_EMPTY_VALUE, flags);
-	} else {
-		VALIDATE_IRQ_W_RV((Gpt_Global.Status & GPT_HW_TMR_TMR_ON), 
-				GPT_GETTIMEELAPSED_SERVICE_ID, GPT_E_STATE_TRANSITION, 
-				GPT_HW_TMR_EMPTY_VALUE, flags);
-	}
+	VALIDATE_IRQ_W_RV((Gpt_Global.Status & Gpt_ch_2_mod_stat(Channel)), 
+			GPT_GETTIMEELAPSED_SERVICE_ID, GPT_E_STATE_TRANSITION, 
+			GPT_HW_TMR_EMPTY_VALUE, flags);
+
 
 	/* Note, we assume that the timer counts up and the starting time is 0x0.*/
 	rv = Gpt_GetHWCnt(Channel);
@@ -751,15 +745,10 @@ Gpt_ValueType Gpt_GetTimeRemaining(Gpt_ChannelType	Channel)
 			GPT_HW_TMR_EMPTY_VALUE, flags);
 
 
-	if (Channel >  GPT_CHANNEL_TMR23) {
-		VALIDATE_IRQ_W_RV((Gpt_Global.Status & Gpt_ch_2_mod_stat(Channel)), 
-				GPT_GETTIMEREMAINING_SERVICE_ID, GPT_E_STATE_TRANSITION, 
-				GPT_HW_TMR_EMPTY_VALUE, flags);
-	} else {
-		VALIDATE_IRQ_W_RV((Gpt_Global.Status & GPT_HW_TMR_TMR_ON), 
-				GPT_GETTIMEREMAINING_SERVICE_ID, GPT_E_STATE_TRANSITION, 
-				GPT_HW_TMR_EMPTY_VALUE, flags);
-	}
+	VALIDATE_IRQ_W_RV((Gpt_Global.Status & Gpt_ch_2_mod_stat(Channel)), 
+			GPT_GETTIMEREMAINING_SERVICE_ID, GPT_E_STATE_TRANSITION, 
+			GPT_HW_TMR_EMPTY_VALUE, flags);
+
 	
 	/* Note, we assume that the timer counts up and is cleared when reaches 
 	 * the target time, thus, we assume that:
@@ -803,25 +792,10 @@ void Gpt_StartTimer(Gpt_ChannelType	Channel, Gpt_ValueType	Value)
 	VALIDATE_IRQ((channel < Gpt_Global.ConfigPtr->GptNumberOfGptChannels ), 
 			GPT_STARTTIMER_SERVICE_ID, GPT_E_PARAM_CHANNEL, flags);
 
-/*
-	if (Channel >  GPT_CHANNEL_TMR23) {
-		VALIDATE_IRQ((Gpt_Global.Status & Gpt_ch_2_mod_stat(Channel)), 
-				GPT_STARTTIMER_SERVICE_ID, GPT_E_STATE_TRANSITION, flags);
-	} else {
-		VALIDATE_IRQ((Gpt_Global.Status & GPT_HW_TMR_TMR_ON), 
-				GPT_STARTTIMER_SERVICE_ID, GPT_E_STATE_TRANSITION, flags);
-	}
-*/
 	VALIDATE_IRQ((Gpt_Global.Status & Gpt_ch_2_mod_stat(Channel)), 
 			GPT_STARTTIMER_SERVICE_ID, GPT_E_STATE_TRANSITION, flags);
 	
 	if (Channel < GPT_INTERNAL_CHANNEL_CMT0) {
-		/*Note, TMR module does not have a stop/start bit, it is started 
-		 * directly by Gpt_EnableChannel().
-		 */
-		/*
-		Gpt_EnableChannel(Channel);
-		*/
 		tcr_reg = GPT_GET_TMR_TCR(Channel);
 		/*If compare match A is anabled. */
 		if ((tcr_reg & GPT_TMR_CMP_A_MASK) == GPT_TMR_CMP_A_MASK) {
@@ -832,16 +806,10 @@ void Gpt_StartTimer(Gpt_ChannelType	Channel, Gpt_ValueType	Value)
 				GPT_SET_TMR_TCORA(Channel, Value);
 			}
 			GPT_CLEAR_TMR_TCNT(Channel);
-			/*If compare match A ISR was enabled, enable it again.*/
-			if ( tcr_reg & GPT_TMR_CMP_A_ISR_MASK) {
-				//GPT_SET_TMR_CMIEA(Channel);
-				Gpt_tmr_en_icu_int(Channel, GTP_EN_TMR_CMIA);
-			}
+			/*Set interrupt bit. Note, the relative interrupt will fire iff 
+			 * one-shot mode or a notification function is enabled.*/
+			GPT_SET_TMR_CMIEA(Channel);
 		} else {
-			/*If compare match B is anabled. */
-			/*if ((tcr_reg & GPT_TMR_CMP_B_ISR_MASK) == GPT_TMR_CMP_B_ISR_MASK)
-				GPT_CLEAR_TMR_CMIEB(Channel);
-				*/
 			if (Channel == GPT_INTERNAL_CHANNEL_TMR01 || 
 					Channel == GPT_INTERNAL_CHANNEL_TMR23) {
 				GPT_SET_TMR_TCORB16(Channel, Value);
@@ -849,12 +817,13 @@ void Gpt_StartTimer(Gpt_ChannelType	Channel, Gpt_ValueType	Value)
 				GPT_SET_TMR_TCORB(Channel, Value);
 			}
 			GPT_CLEAR_TMR_TCNT(Channel);
-			/*If compare match B ISR was enabled, enable it again.*/
-			if ((tcr_reg & GPT_TMR_CMP_B_ISR_MASK) == GPT_TMR_CMP_B_ISR_MASK) {
-				/*GPT_SET_TMR_CMIEB(Channel);*/
-				Gpt_tmr_en_icu_int(Channel, GTP_EN_TMR_CMIA);
-			}
+			/*Set interrupt bit. Note, the relative interrupt will fire iff 
+			 * one-shot mode or a notification function is enabled.*/
+			GPT_SET_TMR_CMIEB(Channel);
+
 		}
+		/*start_flag is only for TMR module.*/
+		GPT_SET_FLAG(start_flag, Channel);
 		GPT_CLEAR_TMR_TCNT(Channel);
 	} else if (Channel < GPT_INTERNAL_CHANNEL_MTU0){
 		GPT_CLEAR_CMT_TCNT(Channel);
@@ -903,24 +872,16 @@ void Gpt_StopTimer(Gpt_ChannelType	Channel)
 	VALIDATE_IRQ((channel < Gpt_Global.ConfigPtr->GptNumberOfGptChannels),
 			GPT_STOPTIMER_SERVICE_ID, GPT_E_PARAM_CHANNEL, flags);
 
-	if (Channel >  GPT_CHANNEL_TMR23) {
-		VALIDATE_IRQ((Gpt_Global.Status & Gpt_ch_2_mod_stat(Channel)), 
-				GPT_STARTTIMER_SERVICE_ID, GPT_E_STATE_TRANSITION, flags);
-	} else {
-		VALIDATE_IRQ((Gpt_Global.Status & GPT_HW_TMR_TMR_ON), 
-				GPT_STARTTIMER_SERVICE_ID, GPT_E_STATE_TRANSITION, flags);
-	}
+	VALIDATE_IRQ((Gpt_Global.Status & Gpt_ch_2_mod_stat(Channel)), 
+			GPT_STARTTIMER_SERVICE_ID, GPT_E_STATE_TRANSITION, flags);
+
 	
 	if (Channel < GPT_INTERNAL_CHANNEL_CMT0) {
-		//GPT_CLEAR_TMR_TCNT(Channel);
-		/*Note, TMR module does not have a stop/start bit, it is stopped 
-		 * directly by Gpt_DisableChannel().
-		 */
-		/*Gpt_DisableChannel(Channel);*/
-		
 		/*We reutilize channel variable to get current TCNT. */
 		channel = Gpt_get_tmr_tcnt(Channel);
-		Gpt_tmr_dis_icu_int(Channel);
+		GPT_CLEAR_TMR_CMIEA(Channel);
+		GPT_CLEAR_TMR_CMIEB(Channel);
+		//Gpt_tmr_dis_icu_int(Channel);
 		
 		if (Channel < GPT_INTERNAL_CHANNEL_TMR01) {
 			Gpt_tmr_tcnt_val[Channel] = (uint8) (channel);
@@ -932,6 +893,7 @@ void Gpt_StopTimer(Gpt_ChannelType	Channel)
 			Gpt_tmr_tcnt_val[3] = (uint8) (channel);
 		}
 		
+		GPT_CLEAR_FLAG(start_flag, Channel);
 		
 	} else if (Channel < GPT_INTERNAL_CHANNEL_MTU0){
 		GPT_STOP_CMT(Channel);
@@ -972,12 +934,12 @@ void Gpt_EnableNotification(Gpt_ChannelType	Channel)
 			GPT_E_PARAM_CHANNEL, flags);
 
 	/* Gpt Unit Enabled? */
-	if ( !(Gpt_Global.Status & Gpt_ch_2_mod_stat(Channel))) {
-
+	if ( (Gpt_Global.Status & Gpt_ch_2_mod_stat(Channel))) {
+		/* Enable Time-out Interrupt */
+		Gpt_timeout_int_en(Channel);
 	}
 		
-	/* Enable Time-out Interrupt */
-	Gpt_timeout_int_en(Channel);
+
 
 	/* Turn-on Gpt Unit Notifications*/
 	Gpt_Global.Notifications |= GPT_CH_2_NOTIF_MASK(Channel);
@@ -1268,24 +1230,6 @@ Gpt_StatusType Gpt_GetStatus(Gpt_ChannelType Channel)
 					GPT_GETSTATUS_SERVICE_ID, GPT_E_PARAM_CHANNEL, GPT_NOT_OK, 
 					flags);
 
-/*
-	if (!( (Gpt_Global.Status & Gpt_ch_2_mod_stat(Channel)) ||  
-			GPT_GET_FLAG(exp_flag, Channel) || 
-			GPT_GET_FLAG(stop_flag, Channel)) ) {
-		/*If TMR0 <= Channel <= TMR23 check if the timer hw is disabled but the
-		 * channel is however enabled. This necessary because TMR module has not 
-		 * a start/stop bit.
-		 *//*
-		if ( ((Channel < GPT_INTERNAL_CHANNEL_TMR2 || 
-				Channel == GPT_INTERNAL_CHANNEL_TMR01) &&
-				(Gpt_Global.Status & GPT_HW_TMR_STOP_TMR01)) || 
-				((Channel < GPT_INTERNAL_CHANNEL_TMR01 || 
-						Channel == GPT_INTERNAL_CHANNEL_TMR23) && 
-						(Gpt_Global.Status & GPT_HW_TMR_STOP_TMR23)) ) {
-			rv = GPT_OPERATIONAL;
-		} else {
-			rv = GPT_CH_SLEEP;
-		}*/
 	if (!(Gpt_Global.Status & Gpt_ch_2_mod_stat(Channel)) ) {
 		rv = GPT_CH_SLEEP;
 	} else if (Gpt_is_running(Channel)) {
