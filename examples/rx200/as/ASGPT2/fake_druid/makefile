@@ -119,7 +119,7 @@ endif
 # Flags
 #
 ############################################################################
-CFLAGS  +=
+CFLAGS  += -define=GPT_EN_ALL_NOTIF
 ASFLAGS +=
 LDFLAGS +=
 LDDEPS  +=

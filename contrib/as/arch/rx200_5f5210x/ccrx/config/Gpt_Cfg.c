@@ -77,7 +77,7 @@
 
 #define	GPT_CHANNELS_NUMBER	6	/* Configured GTP Channels */
 
-#define GPT_EN_ALL_NOTIF
+//#define GPT_EN_ALL_NOTIF
 
 #ifdef GPT_EN_ALL_NOTIF
 

@@ -50,6 +50,8 @@ CPU mySystem {
 
 		EE_OPT = "DEBUG";
 		EE_OPT = "__ASSERT__";
+		
+		CFLAGS = "-define=GPT_EN_ALL_NOTIF";
 
 		CPU_DATA = RX200 {
 			APP_SRC = "main.c";

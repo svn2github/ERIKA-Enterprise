@@ -150,6 +150,7 @@ int main(void)
 		(version.sw_minor_version == 0) && (version.sw_patch_version == 0)),
 		EE_ASSERT_INIT);
 	
+	Mcu_Init(MCU_CONFIG_DEFAULT_PTR);
 	Mcu_InitClock(MCU_CLK_MODE_HOCO40_I1_B2);
 	EE_assert(EE_ASSERT_CLOCK_INIT, TRUE, EE_ASSERT_VERSION);
 	
@@ -432,7 +433,7 @@ int main(void)
 	
 	/* Forever loop: background activities (if any) should go here */
 	for (;result == 1;) {
-	    while (counter % 2500) counter++;
+	    while (counter % 100000) counter++;
 	    lvl = Dio_ReadChannel(DIO_CHANNEL_USER_LED_0);
 
 	    if (lvl & 0x00000001)

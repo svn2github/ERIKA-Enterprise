@@ -633,7 +633,7 @@ void Gpt_DeInit(void)
 
 #if ( (GPT_TIME_ELAPSED_API == STD_ON) || (GPT_TIME_REMAINING_API == STD_ON))
 /*
- * Gpt_GetHWTimeRemaining implementation.
+ * Gpt_GetHWTarget implementation.
  */
 static Gpt_ValueType Gpt_GetHWTarget(Gpt_ChannelType Channel)
 {
@@ -651,11 +651,24 @@ static Gpt_ValueType Gpt_GetHWTarget(Gpt_ChannelType Channel)
 }
 
 /*
- * Gpt_GetHWTimeRemaining implementation.
+ * Gpt_GetHWHWCnt implementation.
  */
 static Gpt_ValueType Gpt_GetHWCnt(Gpt_ChannelType Channel)
 {	
 	if (Channel < GPT_INTERNAL_CHANNEL_CMT0) {
+		/*If the channel is stopped, than use the value stored in 
+		 * Gpt_tmr_tcnt_val[].*/
+		if (GPT_GET_FLAG(stop_flag, Channel)) {
+			if (Channel < GPT_INTERNAL_CHANNEL_TMR01) {
+				return Gpt_tmr_tcnt_val[Channel];
+			} else if (Channel == GPT_INTERNAL_CHANNEL_TMR01) {
+				return (((uint16)(Gpt_tmr_tcnt_val[0]) << 8) | 
+						Gpt_tmr_tcnt_val[1]);
+			} else {
+				return (((uint16)(Gpt_tmr_tcnt_val[2]) << 8) | 
+						Gpt_tmr_tcnt_val[3]);
+			}	
+		}
 		return (Gpt_get_tmr_tcnt(Channel));
 	} else if (Channel < GPT_INTERNAL_CHANNEL_MTU0){
 		return (GPT_GET_CMT_TCNT(Channel));

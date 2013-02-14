@@ -195,7 +195,6 @@ extern uint8 start_flag;
 
 #define GPT_GET_FLAG(_flag, _ch) ( _flag & (0x1 << _ch) )
 
-
 /** @brief	Get prescaler configuration bits from _pre.
  *	@param	_ch Timer channel.
  */
@@ -1591,10 +1590,7 @@ __INLINE__ uint8 __ALWAYS_INLINE__ Gpt_is_running(Gpt_ChannelType _ch)
  */
 __INLINE__ uint16 __ALWAYS_INLINE__ Gpt_get_tmr_tcnt(Gpt_ChannelType _ch)
 {
-	/*TODO: consider the case when the timer is stopped, that is, 
-	 read the tcnt value from Gpt_tmr_tcnt_val[] */
-	
-	if (_ch == GPT_INTERNAL_CHANNEL_TMR01) 
+	if (_ch == GPT_INTERNAL_CHANNEL_TMR01)
 		return EE_HWREG16(HW_TMR01_TCNT_ADDR_BASE);
 	if (_ch == GPT_INTERNAL_CHANNEL_TMR23) 
 		return EE_HWREG16(HW_TMR23_TCNT_ADDR_BASE);
