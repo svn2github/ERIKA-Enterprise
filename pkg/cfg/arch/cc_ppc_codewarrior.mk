@@ -140,7 +140,7 @@ endif
 
 # S-record file generation
 ifeq ($(call iseeopt, GENERATE_S_RECORD), yes)
-OPT_LINK += -srec ppc.srec
+OPT_LINK += -srec ppc.srec -sreclength 22
 endif
 
 CC_LD_SUFFIX = _codewarrior.ld
