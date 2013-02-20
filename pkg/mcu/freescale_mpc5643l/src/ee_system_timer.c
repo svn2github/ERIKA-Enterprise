@@ -47,8 +47,7 @@
 #include <ee_irq.h>
 
 /* This file is needed only if System Timer is defined with a device */
-#if defined(ENABLE_SYSTEM_TIMER) && defined(EE_SYSTEM_TIMER_DEVICE) && \
-    defined(MCU_SYSTEM_TIMER)
+#if defined(ENABLE_SYSTEM_TIMER) && defined(EE_SYSTEM_TIMER_DEVICE)
 
 /* STM identifier */
 #define EE_MPC5643L_STM 1
@@ -123,4 +122,5 @@ void EE_initialize_system_timer(void)
     GENERIC_STM.CR.B.TEN = 1U;
 }
 
-#endif /* ENABLE_SYSTEM_TIMER && EE_SYSTEM_TIMER_DEVICE && MCU_SYSTEM_TIMER */
+#endif /* ENABLE_SYSTEM_TIMER && EE_SYSTEM_TIMER_DEVICE */
+

@@ -57,9 +57,9 @@ endif # EE_ISR_EXTERNAL_TABLE
 
 # Enable System Timer
 ifeq ($(call iseeopt, ENABLE_SYSTEM_TIMER), yes)
-ifneq ($(call iseeopt, MCU_SYSTEM_TIMER), yes)
+ifeq ($(call iseeopt, EE_SYSTEM_TIMER_DEVICE_DECREMENTER), yes)
 EE_SRCS += pkg/cpu/e200zx/src/ee_system_timer.c
-endif # MCU_SYSTEM_TIMER
+endif # EE_SYSTEM_TIMER_DEVICE_DECREMENTER
 endif # ENABLE_SYSTEM_TIMER
 
 ifeq ($(call iseeopt, __OO_BCC1__), yes)

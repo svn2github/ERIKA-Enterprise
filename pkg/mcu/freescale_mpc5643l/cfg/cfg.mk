@@ -55,9 +55,9 @@ EE_SRCS += pkg/mcu/freescale_mpc5643l/src/ee_FlashConfig.c
 
 # Enable System Timer
 ifeq ($(call iseeopt, ENABLE_SYSTEM_TIMER), yes)
-ifeq ($(call iseeopt, MCU_SYSTEM_TIMER), yes)
+ifeq ($(call iseeopt, EE_SYSTEM_TIMER_DEVICE_STM), yes)
 EE_SRCS += pkg/mcu/freescale_mpc5643l/src/ee_system_timer.c
-endif # MCU_SYSTEM_TIMER
+endif # EE_SYSTEM_TIMER_DEVICE_STM
 endif # ENABLE_SYSTEM_TIMER
 
 endif # __MPC5674F__
