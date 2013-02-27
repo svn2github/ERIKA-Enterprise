@@ -16,7 +16,10 @@ MEMORY
     /* This value can be equal to 128 in case of LSM...
      * keep in mind in case of big application
      */
-	isram:	org = 0x40000000, len = 0x00010000
+	isram:	org = 0x40000000, len = 0x0000FF80
+
+    /* Last 128 bytes to host bootloader input data */
+    isram_bootloader_data: org = 0x4000FF80, len = 0x00000080
 }
 
 isram_base = ADDR(isram);
