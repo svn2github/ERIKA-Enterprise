@@ -86,8 +86,15 @@ GOSUB setup_mmu 0
 
 FLASH.RESet
 
-; Low address blocks (256 KB)
-FLASH.Create 1. (&flashbase+0x00000000)++0x03FFF TARGET Quad 0. ; L0 - 16 kB
+DIALOG.YESNO "Would you like to preserve first flash area (0x00000000)?"
+entry &low_memory_area
+
+; Erase ow_memory_area if required by the user
+if !&low_memory_area
+(
+    ; Low address blocks (16 KB)
+    FLASH.Create 1. (&flashbase+0x00000000)++0x03FFF TARGET Quad 0. ; L0 - 16 kB
+)
 
 DIALOG.YESNO "Would you like to preserve NvRam flash area?"
 entry &nvram
