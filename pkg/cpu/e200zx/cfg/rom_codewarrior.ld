@@ -51,10 +51,7 @@ SECTIONS
 	} > boot
 
 	GROUP : {
-        /* This section holds calibration ram descriptor */
-        APPL_descriptor_section LOAD(ADDR(iflash)) : {}
-
-		.text_vle (VLECODE) LOAD(ADDR(iflash)+SIZEOF(APPL_descriptor_section)): {
+		.text_vle (VLECODE) LOAD(ADDR(iflash)): {
 			*(.text)
 			*(.text_vle)
 			*(.init)
@@ -84,45 +81,11 @@ SECTIONS
 		ee_load_ram = . ;
 	} > iflash
 
-    GROUP : {
-        /* Alignement necessary for a correct use of flash driver */
-        . = ALIGN(8);
-        /* This section holds calibration ram descriptor */
-        calib_ram_descriptor_section : {}
-        /* For data associated to calibrations memory area (non-const data) */
-        ee_scalib_ram = .;
-    } > calibrations_ram
-
-    GROUP : {
-        /* Alignement necessary for a correct use of flash driver */
-        . = ALIGN(8);
-        /* This section holds calibration flash descriptor */
-        calib_flash_descriptor_section : {}
-        /* For data associated to calibrations memory area (const data) */
-        ee_scalib_flash = .;
-        calib_flash LOAD(ADDR(calibrations_flash)+SIZEOF(calib_flash_descriptor_section)) : { }
-    } > calibrations_flash
-
 	GROUP : {
 		ee_sdata = . ;
 		.data LOAD(ee_load_ram): { }
 
 		.sram_text LOAD(ee_load_ram + ADDR(.sram_text) - ADDR(.data)): { }
-
-        /* To use SSD Driver */
-        SSD_Driver LOAD(ee_load_ram + ADDR(SSD_Driver) - ADDR(.data)): { }
-
-        /* For SSD Driver code not running in VLE mode */
-		SSD_Driver_code LOAD(ee_load_ram + ADDR(SSD_Driver_code) - ADDR(.data)): { }
-
-		/* For SSD Driver code running in VLE mode */
-		SSD_Driver_code_vle (VLECODE) LOAD(ee_load_ram + ADDR(SSD_Driver_code_vle) - ADDR(.data)): { }
-
-        /* Alignement necessary for a correct use of flash driver */
-        . = ALIGN(8);
-        /* For data associated to calibrations memory area (non-const data) */
-        ee_scalib_ram_dest = . ;
-        calib_ram LOAD(ee_scalib_ram) : {}
 
 		.sdata LOAD(ee_load_ram + ADDR(.sdata) - ADDR(.data)): { }
 
@@ -138,15 +101,5 @@ SECTIONS
 		}
 		ee_estack = . ;
 	} > isram
-
-    GROUP : {
-        ee_sBootloaderData = . ;
-        /* This section hosts bootloader input data. Notice that its value
-        at startup is not initialized/zero-ed, but this is not important since
-        it is populated at runtime with a precise value (key), if the
-        application needs to launch bootloader */
-		bootloader_data_section : { }
-		ee_eBootloaderData = . ;
-    } > isram_bootloader_data
 }
 

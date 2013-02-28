@@ -67,11 +67,6 @@ SECTIONS
 			*(.rodata)
 		}
 
-        /* Dummy value for calib_ram section */
-        ee_scalib_ram = .;
-        ee_scalib_ram_dest = .;
-        calib_ram : { }
-
 		.sram_text : { }
 
 		.sdata2 : { }
@@ -99,14 +94,4 @@ SECTIONS
 		}
 		ee_estack = . ;
 	} > isram
-
-    GROUP : {
-        ee_sBootloaderData = . ;
-        /* This section hosts bootloader input data. Notice that its value
-        at startup is not initialized/zero-ed, but this is not important since
-        it is populated at runtime with a precise value (key), if the
-        application needs to launch bootloader */
-		bootloader_data_section : { }
-		ee_eBootloaderData = . ;
-    } > isram_bootloader_data
 }
