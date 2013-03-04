@@ -301,7 +301,8 @@ static Std_ReturnType Mcu_InitSystemClock(
 							0x3FFF;
 		/* XTAL ON												*/
 		SYSTEM.MOSCCR.BYTE = 0x00;				
-		/* PLL ON												*/									SYSTEM.PLLCR2.BYTE = 0x00;
+		/* PLL ON												*/									
+		SYSTEM.PLLCR2.BYTE = 0x00;
 		
 	}
 	

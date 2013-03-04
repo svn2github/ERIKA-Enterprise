@@ -385,7 +385,6 @@
 /*
  * Port Pins MPCs
  */
- 
 /** Port 0 - Pin 5 12-bit ADC input external trigger */
 #define PORT_0_PIN7_ADTRG0	PORT_PIN_PFS_ADTRG
 /** Port 1 - Pin 2 TMR1 External Clock Input Pin */
@@ -1038,6 +1037,16 @@ typedef struct {
  *  Pointer of Port Pins as IRQ Port Driver Configuration.
  */
 #define	PORT_CONFIG_IRQ_PTR	&Port_Config[PORT_CONFIG_IRQ]
+/** @brief	Port Pins SCI Configuration
+ *
+ *  Identifier for Port Pins as SCI Configuration.
+ */
+#define	PORT_CONFIG_SCI		0x00000002
+/** @brief	Port Pins SCI Configuration Pointer
+ *
+ *  Pointer of Port Pins as SCI Port Driver Configuration.
+ */
+#define	PORT_CONFIG_SCI_PTR	&Port_Config[PORT_CONFIG_SCI]
 
 
 #endif	/* PORT_CFG_H */

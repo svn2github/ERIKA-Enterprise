@@ -238,9 +238,37 @@
 /* Module Stop/Start related registers. */
 /**< Module Stop Control Register A (MSTPCRA) address. */
 #define HW_SYSTEM_MSTPCRA_ADDR	EE_HWREG_ADDR(0x00080010)
+/**< Module Stop Control Register B (MSTPCRB) address. */
+#define HW_SYSTEM_MSTPCRB_ADDR	EE_HWREG_ADDR(0x00080014)
+/**< Module Stop Control Register C (MSTPCRC) address. */
+#define HW_SYSTEM_MSTPCRC_ADDR	EE_HWREG_ADDR(0x00080018)
 
 /**< CMT module registers base address. */
 #define HW_CMT_BASE_ADDR HW_CMSTR0_ADDR
+
+/*Serial Communication Interfaces (SCIc and SCId) registers base address*/
+/**< Base Address of SCIc */
+#define HW_SCI_C_BASE_ADDR		EE_HWREG8_ADDR(0x0008A000)
+/**< Base Address of SCId */
+#define HW_SCI_D_BASE_ADDR		EE_HWREG8_ADDR(0x0008B300)
+/*Serial Communication Interfaces (SCIc and SCId) register addresse offsets */
+#define HW_SCI_CH_OFFSET	0x00000020	/**< SCI SPMR register offset  */
+#define HW_SCI_SMR_OFFSET	0x00000000	/**< SCI SMR register offset  */
+#define HW_SCI_BRR_OFFSET	0x00000001	/**< SCI BRR register offset  */
+#define HW_SCI_SCR_OFFSET	0x00000002	/**< SCI SCR register offset  */
+#define HW_SCI_TDR_OFFSET	0x00000003	/**< SCI TDR register offset  */
+#define HW_SCI_SSR_OFFSET	0x00000004	/**< SCI SSR register offset  */
+#define HW_SCI_RDR_OFFSET	0x00000005	/**< SCI RDR register offset  */
+#define HW_SCI_SCMR_OFFSET	0x00000006	/**< SCI SCMR register offset  */
+#define HW_SCI_SEMR_OFFSET	0x00000007	/**< SCI SEMR register offset  */
+#define HW_SCI_SNFR_OFFSET	0x00000008	/**< SCI SNFR register offset  */
+#define HW_SCI_SIMR1_OFFSET	0x00000009	/**< SCI SIMR1 register offset  */
+#define HW_SCI_SIMR2_OFFSET	0x0000000A	/**< SCI SIMR2 register offset  */
+#define HW_SCI_SIMR3_OFFSET	0x0000000B	/**< SCI SIMR3 register offset  */
+#define HW_SCI_SISR_OFFSET	0x0000000C	/**< SCI SISR register offset  */
+#define HW_SCI_SPMR_OFFSET	0x0000000D	/**< SCI SPMR register offset  */
+
+
 
 /**< Base address of Interrupt Request Enable Registers (IERx) */
 #define HW_ICU_IEN_BASE	EE_HWREG8_ADDR(0x00087200)
@@ -297,37 +325,112 @@
 #define HW_ICU_IER_MTU4_TGID	EE_HWREG8_ADDR(0x00087211)
 /**< Address of Interrupt Request Enable Register (IER) for MTU5 TGIx.*/
 #define HW_ICU_IER_MTU5_TGI		EE_HWREG8_ADDR(0x00087211)
+/**< Address of Interrupt Request Enable Register (IER) of SCI0 ERX  */
+#define HW_ICU_IER_SCI0_ERX		EE_HWREG8_ADDR(0x0008721A)
+/**< Address of Interrupt Request Enable Register (IER) of SCI0 RX  */
+#define HW_ICU_IER_SCI0_RX		EE_HWREG8_ADDR(0x0008721A)
+/**< Address of Interrupt Request Enable Register (IER) of SCI0 TX  */
+#define HW_ICU_IER_SCI0_TX		EE_HWREG8_ADDR(0x0008721B)
+/**< Address of Interrupt Request Enable Register (IER) of SCI0 TE  */
+#define HW_ICU_IER_SCI0_TE		EE_HWREG8_ADDR(0x0008721B)
+/**< Address of Interrupt Request Enable Register (IER) of SCI1 ERX  */
+#define HW_ICU_IER_SCI1_ERX		EE_HWREG8_ADDR(0x0008721B)
+/**< Address of Interrupt Request Enable Register (IER) of SCI1 RX  */
+#define HW_ICU_IER_SCI1_RX		EE_HWREG8_ADDR(0x0008721B)
+/**< Address of Interrupt Request Enable Register (IER) of SCI1 TX  */
+#define HW_ICU_IER_SCI1_TX		EE_HWREG8_ADDR(0x0008721B)
+/**< Address of Interrupt Request Enable Register (IER) of SCI1 TE  */
+#define HW_ICU_IER_SCI1_TE		EE_HWREG8_ADDR(0x0008721B)
+/**< Address of Interrupt Request Enable Register (IER) of SCI5 ERX  */
+#define HW_ICU_IER_SCI5_ERX		EE_HWREG8_ADDR(0x0008721B)
+/**< Address of Interrupt Request Enable Register (IER) of SCI5 RX  */
+#define HW_ICU_IER_SCI5_RX		EE_HWREG8_ADDR(0x0008721B)
+/**< Address of Interrupt Request Enable Register (IER) of SCI5 TX  */
+#define HW_ICU_IER_SCI5_TX		EE_HWREG8_ADDR(0x0008721C)
+/**< Address of Interrupt Request Enable Register (IER) of SCI6 TE  */
+#define HW_ICU_IER_SCI6_TE		EE_HWREG8_ADDR(0x0008721C)
+/**< Address of Interrupt Request Enable Register (IER) of SCI6 ERX  */
+#define HW_ICU_IER_SCI6_ERX		EE_HWREG8_ADDR(0x0008721C)
+/**< Address of Interrupt Request Enable Register (IER) of SCI6 RX  */
+#define HW_ICU_IER_SCI6_RX		EE_HWREG8_ADDR(0x0008721C)
+/**< Address of Interrupt Request Enable Register (IER) of SCI6 TX  */
+#define HW_ICU_IER_SCI6_TX		EE_HWREG8_ADDR(0x0008721C)
+/**< Address of Interrupt Request Enable Register (IER) of SCI6 TE  */
+#define HW_ICU_IER_SCI6_TE		EE_HWREG8_ADDR(0x0008721C)
+/**< Address of Interrupt Request Enable Register (IER) of SCI6 TE  */
+#define HW_ICU_IER_SCI6_TE		EE_HWREG8_ADDR(0x0008721C)
+/**< Address of Interrupt Request Enable Register (IER) of SCI8 ERX  */
+#define HW_ICU_IER_SCI8_ERX		EE_HWREG8_ADDR(0x0008721C)
+/**< Address of Interrupt Request Enable Register (IER) of SCI8 RX  */
+#define HW_ICU_IER_SCI8_RX		EE_HWREG8_ADDR(0x0008721C)
+/**< Address of Interrupt Request Enable Register (IER) of SCI8 TX  */
+#define HW_ICU_IER_SCI8_TX		EE_HWREG8_ADDR(0x0008721D)
+/**< Address of Interrupt Request Enable Register (IER) of SCI8 TE  */
+#define HW_ICU_IER_SCI8_TE		EE_HWREG8_ADDR(0x0008721D)
+/**< Address of Interrupt Request Enable Register (IER) of SCI9 ERX  */
+#define HW_ICU_IER_SCI9_ERX		EE_HWREG8_ADDR(0x0008721D)
+/**< Address of Interrupt Request Enable Register (IER) of SCI9 RX  */
+#define HW_ICU_IER_SCI9_RX		EE_HWREG8_ADDR(0x0008721D)
+/**< Address of Interrupt Request Enable Register (IER) of SCI9 TX  */
+#define HW_ICU_IER_SCI9_TX		EE_HWREG8_ADDR(0x0008721D)
+/**< Address of Interrupt Request Enable Register (IER) of SCI9 TE  */
+#define HW_ICU_IER_SCI9_TE		EE_HWREG8_ADDR(0x0008721D)
+/**< Address of Interrupt Request Enable Register (IER) of SCI12 ERX  */
+#define HW_ICU_IER_SCI12_ERX	EE_HWREG8_ADDR(0x0008721D)
+/**< Address of Interrupt Request Enable Register (IER) of SCI12 RX  */
+#define HW_ICU_IER_SCI12_RX		EE_HWREG8_ADDR(0x0008721D)
+/**< Address of Interrupt Request Enable Register (IER) of SCI12 TX  */
+#define HW_ICU_IER_SCI12_TX		EE_HWREG8_ADDR(0x0008721E)
+/**< Address of Interrupt Request Enable Register (IER) of SCI12 TE  */
+#define HW_ICU_IER_SCI12_TE		EE_HWREG8_ADDR(0x0008721E)
+
 
 
 /*Interrrupt Priority Registers (IPRs) address.*/
-/**< Address of IPR for TMR0 CMIx. */
+/**< Address of IPR of TMR0 CMIx. */
 #define HW_ICU_IPR_TMR0_REG			EE_HWREG8_ADDR(0x000873AE)
-/**< Address of IPR for TMR1 CMIx. */
+/**< Address of IPR of TMR1 CMIx. */
 #define HW_ICU_IPR_TMR1_REG			EE_HWREG8_ADDR(0x000873B1)
-/**< Address of IPR for TMR2 CMIx. */
+/**< Address of IPR of TMR2 CMIx. */
 #define HW_ICU_IPR_TMR2_REG			EE_HWREG8_ADDR(0x000873B4)
-/**< Address of IPR for TMR3 CMIx. */
+/**< Address of IPR of TMR3 CMIx. */
 #define HW_ICU_IPR_TMR3_REG			EE_HWREG8_ADDR(0x000873B7)
-/**< Address of IPR for CMT0 CMI. */
+/**< Address of IPR of CMT0 CMI. */
 #define HW_ICU_IPR_CMT0_REG			EE_HWREG8_ADDR(0x00087304)
-/**< Address of IPR for CMT1 CMI. */
+/**< Address of IPR of CMT1 CMI. */
 #define HW_ICU_IPR_CMT1_REG			EE_HWREG8_ADDR(0x00087305)
-/**< Address of IPR for CMT2 CMI. */
+/**< Address of IPR of CMT2 CMI. */
 #define HW_ICU_IPR_CMT2_REG			EE_HWREG8_ADDR(0x00087306)
-/**< Address of IPR for CMT3 CMI. */
+/**< Address of IPR of CMT3 CMI. */
 #define HW_ICU_IPR_CMT3_REG			EE_HWREG8_ADDR(0x00087307)
-/**< Address of IPR for MTU0 TGIx. */
+/**< Address of IPR of MTU0 TGIx. */
 #define HW_ICU_IPR_MTU0_TGI_REG		EE_HWREG8_ADDR(0x00087372)
-/**< Address of IPR for MTU1 TGIx. */
+/**< Address of IPR of MTU1 TGIx. */
 #define HW_ICU_IPR_MTU1_TGI_REG		EE_HWREG8_ADDR(0x00087379)
-/**< Address of IPR for MTU2 TGIx. */
+/**< Address of IPR of MTU2 TGIx. */
 #define HW_ICU_IPR_MTU2_TGI_REG		EE_HWREG8_ADDR(0x0008737D)
-/**< Address of IPR for MTU3 TGIx. */
+/**< Address of IPR of MTU3 TGIx. */
 #define HW_ICU_IPR_MTU3_TGI_REG		EE_HWREG8_ADDR(0x00087381)
-/**< Address of IPR for MTU4 TGIx. */
+/**< Address of IPR of MTU4 TGIx. */
 #define HW_ICU_IPR_MTU4_TGI_REG		EE_HWREG8_ADDR(0x00087386)
-/**< Address of IPR for MTU5 TGIx. */
+/**< Address of IPR of MTU5 TGIx. */
 #define HW_ICU_IPR_MTU5_TGI_REG		EE_HWREG8_ADDR(0x0008738B)
+/**< Address of IPR of SCI0  */
+#define HW_ICU_IPR_SCI0				EE_HWREG8_ADDR(0x000873D6)
+/**< Address of IPR of SCI1  */
+#define HW_ICU_IPR_SCI1				EE_HWREG8_ADDR(0x000873DA)
+/**< Address of IPR of SCI5  */
+#define HW_ICU_IPR_SCI5				EE_HWREG8_ADDR(0x000873DE)
+/**< Address of IPR of SCI6  */
+#define HW_ICU_IPR_SCI6				EE_HWREG8_ADDR(0x000873E2)
+/**< Address of IPR of SCI8  */
+#define HW_ICU_IPR_SCI8				EE_HWREG8_ADDR(0x000873E6)
+/**< Address of IPR of SCI9  */
+#define HW_ICU_IPR_SCI9				EE_HWREG8_ADDR(0x000873EA)
+/**< Address of IPR of SCI12 */
+#define HW_ICU_IPR_SCI12			EE_HWREG8_ADDR(0x000873EE)
+
+
 
 /* IER bit mask.*/
 /**< Bit mask for TMR0 CMIA .*/
@@ -396,6 +499,65 @@
 #define HW_ICU_MTU5_IER_TGIV_MASK	0x10
 /**< Bit mask for MTU5 TGIW .*/
 #define HW_ICU_MTU5_IER_TGIW_MASK	0x20
+/**< Bit mask for SCI0 ER .*/
+#define HW_ICU_SCI0_IER_ER_MASK		0x40
+/**< Bit mask for SCI0 RX .*/
+#define HW_ICU_SCI0_IER_RX_MASK		0x80
+/**< Bit mask for SCI0 TX .*/
+#define HW_ICU_SCI0_IER_TX_MASK		0x01
+/**< Bit mask for SCI0 TE .*/
+#define HW_ICU_SCI0_IER_TE_MASK		0x02
+/**< Bit mask for SCI1 ER .*/
+#define HW_ICU_SCI1_IER_ER_MASK		0x04
+/**< Bit mask for SCI1 RX .*/
+#define HW_ICU_SCI1_IER_RX_MASK		0x08
+/**< Bit mask for SCI1 TX .*/
+#define HW_ICU_SCI1_IER_TX_MASK		0x10
+/**< Bit mask for SCI1 TE .*/
+#define HW_ICU_SCI1_IER_TE_MASK		0x20
+/**< Bit mask for SCI5 ER .*/
+#define HW_ICU_SCI5_IER_ER_MASK		0x40
+/**< Bit mask for SCI5 RX .*/
+#define HW_ICU_SCI5_IER_RX_MASK		0x80
+/**< Bit mask for SCI5 TX .*/
+#define HW_ICU_SCI5_IER_TX_MASK		0x01
+/**< Bit mask for SCI5 TE .*/
+#define HW_ICU_SCI5_IER_TE_MASK		0x02
+/**< Bit mask for SCI6 ER .*/
+#define HW_ICU_SCI6_IER_ER_MASK		0x04
+/**< Bit mask for SCI6 RX .*/
+#define HW_ICU_SCI6_IER_RX_MASK		0x08
+/**< Bit mask for SCI6 TX .*/
+#define HW_ICU_SCI6_IER_TX_MASK		0x10
+/**< Bit mask for SCI6 TE .*/
+#define HW_ICU_SCI6_IER_TE_MASK		0x20
+/**< Bit mask for SCI8 ER .*/
+#define HW_ICU_SCI8_IER_ER_MASK		0x40
+/**< Bit mask for SCI8 RX .*/
+#define HW_ICU_SCI8_IER_RX_MASK		0x80
+/**< Bit mask for SCI8 TX .*/
+#define HW_ICU_SCI8_IER_TX_MASK		0x01
+/**< Bit mask for SCI8 TE .*/
+#define HW_ICU_SCI8_IER_TE_MASK		0x02
+/**< Bit mask for SCI9 ER .*/
+#define HW_ICU_SCI9_IER_ER_MASK		0x04
+/**< Bit mask for SCI9 RX .*/
+#define HW_ICU_SCI9_IER_RX_MASK		0x08
+/**< Bit mask for SCI9 TX .*/
+#define HW_ICU_SCI9_IER_TX_MASK		0x10
+/**< Bit mask for SCI9 TE .*/
+#define HW_ICU_SCI9_IER_TE_MASK		0x20
+/**< Bit mask for SCI12 ER .*/
+#define HW_ICU_SCI12_IER_ER_MASK	0x40
+/**< Bit mask for SCI12 RX .*/
+#define HW_ICU_SCI12_IER_RX_MASK	0x80
+/**< Bit mask for SCI12 TX .*/
+#define HW_ICU_SCI12_IER_TX_MASK	0x01
+/**< Bit mask for SCI12 TE .*/
+#define HW_ICU_SCI12_IER_TE_MASK	0x02
+
+
+
 
 /*Priority levels for IPR registers. */
 #define HW_IPR_PRI_LEVEL_0	0
@@ -487,23 +649,6 @@
 
 #endif /*( defined(HW_CH_MOD_MASK) && defined(HW_ODR_BASE_ADDR) )*/
 
-
-
-/** @brief	Channel to Hardware Module Register Address
- *  @param	_ch	Channel Identifier.
- *  @param	_ro	Harware Module Register Offset.
- *  @return	Hardware Module Register Address.
- *
- *  @note	Requires <tt>HW_CH_MOD_MASK</tt> and
- *  		and <tt>HW_IO_BASE_ADDR</tt> macros.
- *
- *  @see	<tt>hw_ch_2_mod_base_addr</tt> inline func.
- */
-#if	( defined(HW_CH_MOD_MASK) && defined(HW_IO_BASE_ADDR) )
-#define	HW_CH_2_MOD_REG_ADDR(_ch, _ro)	(uint32)( \
-  hw_ch_2_mod_base_addr(_ch) + (uint32)_ro \
-)
-#endif	/* HW_CH_MOD_MASK && HW_IO_BASE_ADDR */
 
 /** @brief	Channel to Hardware Module Register
  *  @param	_ch	Channel Identifier.

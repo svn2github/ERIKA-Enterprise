@@ -244,6 +244,18 @@ endif
 endif	# __NO_APP__
 endif	# __AS_DIO_DRIVER__
 
+ifeq ($(call iseeopt, __AS_SCI_DRIVER__), yes)
+EE_SRCS_AUTOSAR += contrib/as/arch/rx200_5f5210x/ccrx/drivers/Sci.c
+EE_SRCS_AUTOSAR += contrib/as/arch/rx200_5f5210x/ccrx/drivers/Sci_Irq.c
+ifeq ($(call iseeopt, __NO_APP__), yes)
+ifneq ($(filter %Sci_Cfg.c, $(APP_SRCS)),)
+EE_SRCS_AUTOSAR += $(filter %Sci_Cfg.c, $(APP_SRCS))
+else
+EE_SRCS_AUTOSAR += $(OUTBASE)/Sci_Cfg.c
+endif
+endif	# __NO_APP__
+endif	# __AS_SCI_DRIVER__
+
 ifeq ($(call iseeopt, __AS_GPT_DRIVER__), yes)
 EE_SRCS_AUTOSAR += contrib/as/arch/rx200_5f5210x/ccrx/drivers/Gpt.c
 EE_SRCS_AUTOSAR += contrib/as/arch/rx200_5f5210x/ccrx/drivers/Gpt_Irq.c

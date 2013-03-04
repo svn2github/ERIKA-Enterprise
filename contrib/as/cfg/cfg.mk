@@ -134,6 +134,11 @@ ifeq ($(call iseeopt, __AS_DIO_DRIVER__), yes)
 EE_SRCS += contrib/as/arch/rx200_5f5210x/ccrx/drivers/Dio.c
 endif
 
+ifeq ($(call iseeopt, __AS_SCI_DRIVER__), yes)
+EE_SRCS += contrib/as/arch/rx200_5f5210x/ccrx/drivers/Sci.c
+EE_SRCS += contrib/as/arch/rx200_5f5210x/ccrx/drivers/Sci_Irq.c
+endif
+
 ifeq ($(call iseeopt, __AS_GPT_DRIVER__), yes)
 EE_SRCS += contrib/as/arch/rx200_5f5210x/ccrx/drivers/Gpt.c
 EE_SRCS += contrib/as/arch/rx200_5f5210x/ccrx/drivers/Gpt_Irq.c

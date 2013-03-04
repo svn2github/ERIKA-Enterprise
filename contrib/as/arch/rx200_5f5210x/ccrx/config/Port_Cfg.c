@@ -88,10 +88,34 @@ const Port_PinModeConfType Port1Pin0To4Conf[] = {
  */
 const Port_PinModeConfType Port3Pin1_3_4Conf[] = {
 		{ /* SWITCH2 and SWITCH3 */
-		  PORT_PIN_MODE_ISEL,			/* Port pin mode: IRQ */
+		  PORT_PIN_MODE_ISEL,		/* Port pin mode: IRQ */
 		  PORT_PIN_HW_CFG_DIO |		/* Digital I/O pin  */
 		  PORT_PIN_HW_CFG_ISEL		/* Select as IRQ pin  */
 		}
+};
+
+/*
+ * Port Pins:
+ * 	TXDx of SCIx
+ * Modes Configuration Container.
+ */
+const Port_PinModeConfType PortTXDPinConf[] = {
+	{ /* SCI TXD0*/
+		PORT_PIN_MODE_SCI,		/* Port pin mode: SCI */
+		PORT_PIN_PFS_TXD		/* Select as IRQ pin  */
+	}
+};
+
+/*
+ * Port Pins:
+ * 	RXDx of SCIx
+ * Modes Configuration Container.
+ */
+const Port_PinModeConfType PortRXDPinConf[] = {
+	{ /* SCI RXD0*/
+		PORT_PIN_MODE_SCI,		/* Port pin mode: SCI */
+		PORT_PIN_PFS_RXD		/* Select as IRQ pin  */
+	}
 };
 
 /*
@@ -177,6 +201,175 @@ const Port_PinConfType IRQPortPins[] = {
 };
 
 /*
+ * SCI Port Pins Configuration.
+ */
+const Port_PinConfType SCIPortPins[] = {
+	{
+		PORT_PIN_OUT,			/* PortPinDirection		      	*/
+		FALSE,					/* PortPinDirectionChangeable 	*/
+		PORT_2_PIN_0,			/* PortPinId			      	*/
+		PORT_PIN_MODE_SCI,		/* PortPinInitialMode		  	*/
+		PORT_PIN_LEVEL_HIGH,	/* PortPinLevelValue		   	*/
+		0x00000001,				/* PortPinModeNumber		   	*/
+		&PortTXDPinConf[0],		/* PortPinSupportedModes	   	*/
+		FALSE					/* PortPinModeChangeable	   	*/
+	},
+	{
+		PORT_PIN_IN,			/* PortPinDirection		      	*/
+		FALSE,					/* PortPinDirectionChangeable	*/
+		PORT_2_PIN_1,			/* PortPinId			      	*/
+		PORT_PIN_MODE_SCI,		/* PortPinInitialMode		   	*/
+		PORT_PIN_LEVEL_HIGH,	/* PortPinLevelValue		   	*/
+		0x00000001,				/* PortPinModeNumber		   	*/
+		&PortRXDPinConf[0],		/* PortPinSupportedModes	   	*/
+		FALSE					/* PortPinModeChangeable		*/
+	},
+#if 0	
+	{
+		PORT_PIN_OUT,			/* PortPinDirection		      	*/
+		FALSE,					/* PortPinDirectionChangeable 	*/
+		PORT_1_PIN_5,			/* PortPinId			      	*/
+		PORT_PIN_MODE_SCI,		/* PortPinInitialMode		   	*/
+		PORT_PIN_LEVEL_HIGH,	/* PortPinLevelValue		   	*/
+		0x00000001,				/* PortPinModeNumber		   	*/
+		&PortTXDPinConf[0],		/* PortPinSupportedModes	  	*/
+		FALSE					/* PortPinModeChangeable	  	*/
+	},
+	{
+		PORT_PIN_IN,			/* PortPinDirection		      	*/
+		FALSE,					/* PortPinDirectionChangeable	*/
+		PORT_1_PIN_6,			/* PortPinId			      	*/
+		PORT_PIN_MODE_SCI,		/* PortPinInitialMode		   	*/
+		PORT_PIN_LEVEL_HIGH,	/* PortPinLevelValue		   	*/
+		0x00000001,				/* PortPinModeNumber		   	*/
+		&PortRXDPinConf[0],		/* PortPinSupportedModes	   	*/
+		FALSE					/* PortPinModeChangeable	   	*/
+	},
+		{
+		PORT_PIN_OUT,			/* PortPinDirection		      	*/
+		FALSE,					/* PortPinDirectionChangeable 	*/
+		PORT_2_PIN_0,			/* PortPinId			      	*/
+		PORT_PIN_MODE_SCI,		/* PortPinInitialMode		  	*/
+		PORT_PIN_LEVEL_HIGH,	/* PortPinLevelValue		   	*/
+		0x00000001,				/* PortPinModeNumber		   	*/
+		&PortTXDPinConf[0],		/* PortPinSupportedModes	   	*/
+		FALSE					/* PortPinModeChangeable	   	*/
+	},
+	{
+		PORT_PIN_IN,			/* PortPinDirection		      	*/
+		FALSE,					/* PortPinDirectionChangeable	*/
+		PORT_2_PIN_1,			/* PortPinId			      	*/
+		PORT_PIN_MODE_SCI,		/* PortPinInitialMode		   	*/
+		PORT_PIN_LEVEL_HIGH,	/* PortPinLevelValue		   	*/
+		0x00000001,				/* PortPinModeNumber		   	*/
+		&PortRXDPinConf[0],		/* PortPinSupportedModes	   	*/
+		FALSE					/* PortPinModeChangeable		*/
+	},
+	{
+		PORT_PIN_OUT,			/* PortPinDirection		      	*/
+		FALSE,					/* PortPinDirectionChangeable 	*/
+		PORT_A_PIN_2,			/* PortPinId			      	*/
+		PORT_PIN_MODE_SCI,		/* PortPinInitialMode		   	*/
+		PORT_PIN_LEVEL_HIGH,	/* PortPinLevelValue		   	*/
+		0x00000001,				/* PortPinModeNumber		   	*/
+		&PortTXDPinConf[0],		/* PortPinSupportedModes	  	*/
+		FALSE					/* PortPinModeChangeable	  	*/
+	},
+	{
+		PORT_PIN_IN,			/* PortPinDirection		      	*/
+		FALSE,					/* PortPinDirectionChangeable	*/
+		PORT_A_PIN_4,			/* PortPinId			      	*/
+		PORT_PIN_MODE_SCI,		/* PortPinInitialMode		   	*/
+		PORT_PIN_LEVEL_HIGH,	/* PortPinLevelValue		   	*/
+		0x00000001,				/* PortPinModeNumber		   	*/
+		&PortRXDPinConf[0],		/* PortPinSupportedModes	   	*/
+		FALSE					/* PortPinModeChangeable	   	*/
+	},
+		{
+		PORT_PIN_OUT,			/* PortPinDirection		      	*/
+		FALSE,					/* PortPinDirectionChangeable 	*/
+		PORT_3_PIN_3,			/* PortPinId			      	*/
+		PORT_PIN_MODE_SCI,		/* PortPinInitialMode		   	*/
+		PORT_PIN_LEVEL_HIGH,	/* PortPinLevelValue		   	*/
+		0x00000001,				/* PortPinModeNumber		   	*/
+		&PortTXDPinConf[0],		/* PortPinSupportedModes	  	*/
+		FALSE					/* PortPinModeChangeable	  	*/
+	},
+	{
+		PORT_PIN_IN,			/* PortPinDirection		      	*/
+		FALSE,					/* PortPinDirectionChangeable	*/
+		PORT_3_PIN_2,			/* PortPinId			      	*/
+		PORT_PIN_MODE_SCI,		/* PortPinInitialMode		   	*/
+		PORT_PIN_LEVEL_HIGH,	/* PortPinLevelValue		   	*/
+		0x00000001,				/* PortPinModeNumber		   	*/
+		&PortRXDPinConf[0],		/* PortPinSupportedModes	   	*/
+		FALSE					/* PortPinModeChangeable	   	*/
+	},
+	{
+		PORT_PIN_OUT,			/* PortPinDirection		      	*/
+		FALSE,					/* PortPinDirectionChangeable 	*/
+		PORT_C_PIN_6,			/* PortPinId			      	*/
+		PORT_PIN_MODE_SCI,		/* PortPinInitialMode		   	*/
+		PORT_PIN_LEVEL_HIGH,	/* PortPinLevelValue		   	*/
+		0x00000001,				/* PortPinModeNumber		   	*/
+		&PortTXDPinConf[0],		/* PortPinSupportedModes	  	*/
+		FALSE					/* PortPinModeChangeable	  	*/
+	},
+	{
+		PORT_PIN_IN,			/* PortPinDirection		      	*/
+		FALSE,					/* PortPinDirectionChangeable	*/
+		PORT_C_PIN_7,			/* PortPinId			      	*/
+		PORT_PIN_MODE_SCI,		/* PortPinInitialMode		   	*/
+		PORT_PIN_LEVEL_HIGH,	/* PortPinLevelValue		   	*/
+		0x00000001,				/* PortPinModeNumber		   	*/
+		&PortRXDPinConf[0],		/* PortPinSupportedModes	   	*/
+		FALSE					/* PortPinModeChangeable	   	*/
+	},
+	{
+		PORT_PIN_OUT,			/* PortPinDirection		      	*/
+		FALSE,					/* PortPinDirectionChangeable 	*/
+		PORT_B_PIN_6,			/* PortPinId			      	*/
+		PORT_PIN_MODE_SCI,		/* PortPinInitialMode		   	*/
+		PORT_PIN_LEVEL_HIGH,	/* PortPinLevelValue		   	*/
+		0x00000001,				/* PortPinModeNumber		   	*/
+		&PortTXDPinConf[0],		/* PortPinSupportedModes	  	*/
+		FALSE					/* PortPinModeChangeable	  	*/
+	},
+	{
+		PORT_PIN_IN,			/* PortPinDirection		      	*/
+		FALSE,					/* PortPinDirectionChangeable	*/
+		PORT_B_PIN_7,			/* PortPinId			      	*/
+		PORT_PIN_MODE_SCI,		/* PortPinInitialMode		   	*/
+		PORT_PIN_LEVEL_HIGH,	/* PortPinLevelValue		   	*/
+		0x00000001,				/* PortPinModeNumber		   	*/
+		&PortRXDPinConf[0],		/* PortPinSupportedModes	   	*/
+		FALSE					/* PortPinModeChangeable	   	*/
+	},
+	{
+		PORT_PIN_OUT,			/* PortPinDirection		      	*/
+		FALSE,					/* PortPinDirectionChangeable 	*/
+		PORT_E_PIN_2,			/* PortPinId			      	*/
+		PORT_PIN_MODE_SCI,		/* PortPinInitialMode		   	*/
+		PORT_PIN_LEVEL_HIGH,	/* PortPinLevelValue		   	*/
+		0x00000001,				/* PortPinModeNumber		   	*/
+		&PortTXDPinConf[0],		/* PortPinSupportedModes	  	*/
+		FALSE					/* PortPinModeChangeable	  	*/
+	},
+	{
+		PORT_PIN_IN,			/* PortPinDirection		      	*/
+		FALSE,					/* PortPinDirectionChangeable	*/
+		PORT_E_PIN_1,			/* PortPinId			      	*/
+		PORT_PIN_MODE_SCI,		/* PortPinInitialMode		   	*/
+		PORT_PIN_LEVEL_HIGH,	/* PortPinLevelValue		   	*/
+		0x00000001,				/* PortPinModeNumber		   	*/
+		&PortRXDPinConf[0],		/* PortPinSupportedModes	   	*/
+		FALSE					/* PortPinModeChangeable	   	*/
+	}
+#endif
+};
+
+
+/*
  * PORT121:	This container is the base of a multiple configuration set.
  */
 const Port_ConfigType Port_Config[] = {
@@ -188,5 +381,13 @@ const Port_ConfigType Port_Config[] = {
 			3U,		/* PortNumberOfPortPins	*/
 			&IRQPortPins[0]	/* PortPins		*/
 		},
+		{
+#if 0
+			14U, /* PortNumberOfPortPins	*/
+#else
+			4U, /* PortNumberOfPortPins	*/
+#endif
+			&SCIPortPins[0] /*PortPins */
+		}
 };
 
