@@ -67,17 +67,6 @@ SECTIONS
 		ee_load_ram = . ;
 	} > iflash
 
-    GROUP : {
-        /* Dummy memory area. Used only by MPC5643L with Codewarrior */
-        ee_scalib_ram = .;
-    } > calibrations_ram
-
-    GROUP : {
-        /* Dummy memory area. Used only by MPC5643L with Codewarrior */
-        ee_scalib_flash = .;
-        calib_flash : { }
-    } > calibrations_flash
-
 	GROUP : {
 		ee_sdata = . ;
 		.data LOAD(ee_load_ram): { }
