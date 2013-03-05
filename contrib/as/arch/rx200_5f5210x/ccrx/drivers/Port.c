@@ -210,21 +210,34 @@ do { \
 #define	IO_SET_PFS_REG(_pin, _val)	\
 		(EE_HWREG8(HW_PORT_PFS_BASE_ADDR + _pin) = _val)
 
-#define	IO_GET_PFS_REG(_pin, _val)	EE_HWREG(HW_PORT_PFS_BASE_ADDR + _pin)
+#define	IO_GET_PFS_REG(_pin, _val)	EE_HWREG8(HW_PORT_PFS_BASE_ADDR + _pin)
+/*
+#define IO_EN_PWP() \
+do {\
+	EE_HWREG8(HW_PORT_PWPR_ADDR) = HW_PWPR_B0WI_CLEAR; \
+	EE_HWREG8(HW_PORT_PWPR_ADDR) = HW_PWPR_PFSWE_CLEAR; \
+	EE_HWREG8(HW_PORT_PWPR_ADDR) = HW_PWPR_B0WI_SET; \
+} while(0)
 
 #define IO_DIS_PWP() \
 do {\
-	EE_HWREG8(HW_PORT_WPR_ADDR) = HW_PWPR_B0WI_CLEAR; \
-	EE_HWREG8(HW_PORT_WPR_ADDR) = HW_PWPR_PFSWE_CLEAR; \
-	EE_HWREG8(HW_PORT_WPR_ADDR) = HW_PWPR_B0WI_SET; \
+	EE_HWREG8(HW_PORT_PWPR_ADDR) = HW_PWPR_B0WI_CLEAR; \
+	EE_HWREG8(HW_PORT_PWPR_ADDR) = HW_PWPR_PFSWE_SET; \
+	EE_HWREG8(HW_PORT_PWPR_ADDR) = HW_PWPR_B0WI_SET; \
 } while(0)
-
+*/
 #define IO_EN_PWP() \
 do {\
-	EE_HWREG8(HW_PORT_WPR_ADDR) = HW_PWPR_B0WI_CLEAR; \
-	EE_HWREG8(HW_PORT_WPR_ADDR) = HW_PWPR_PFSWE_SET; \
-	EE_HWREG8(HW_PORT_WPR_ADDR) = HW_PWPR_B0WI_SET; \
+	EE_HWREG8(HW_PORT_PWPR_ADDR) = HW_PWPR_PFSWE_CLEAR; \
+	EE_HWREG8(HW_PORT_PWPR_ADDR) = HW_PWPR_B0WI_SET; \
 } while(0)
+
+#define IO_DIS_PWP() \
+do {\
+	EE_HWREG8(HW_PORT_PWPR_ADDR) = HW_PWPR_B0WI_CLEAR; \
+	EE_HWREG8(HW_PORT_PWPR_ADDR) = HW_PWPR_PFSWE_SET; \
+} while(0)
+
 
 /*
  * Port Pin Mode Hardware Configuration.
@@ -246,6 +259,10 @@ void Port_SetPortPinHWMode (Port_PinType	Pin,
 		IO_SET_PFS_REG(Pin, HW_PFS_ASEL_SET);
 		IO_EN_PWP();
 	} else {
+	
+		/* Set the pin as DIO pin. This is necessary before writing to PFS regs.*/
+		IO_SET_PIN_PMR(Pin, STD_OFF);
+		
 		/* Set Port Pin Function */
 		IO_DIS_PWP();
 		
@@ -257,8 +274,7 @@ void Port_SetPortPinHWMode (Port_PinType	Pin,
 		}
 		
 		IO_EN_PWP();
-		
-		
+				
 		if (mode & PORT_PIN_HW_CFG_DIO) {
 			/* Set the pin as DIO pin. */
 			IO_SET_PIN_PMR(Pin, STD_OFF);

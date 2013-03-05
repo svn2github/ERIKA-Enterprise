@@ -301,14 +301,6 @@ static void Sci_InitSciChannel(const Sci_ChannelConfigType * ConfigPtr)
 	
 	/* Reset UART Control Registers.*/
 	UART_RESET(ConfigPtr->SciChannelId);
-	/* Clear Errors */
-	UART_RX_ERR_CLR(ConfigPtr->SciChannelId);
-	
-	/* UART set mode, parity mode , data length, clock divisor, etc. */
-	UART_SET_MODE(ConfigPtr->SciChannelId, ConfigPtr->SciModeCtrl);
-	/* UART Set Serial Control Reg.*/
-	UART_SET_SCR(ConfigPtr->SciChannelId, ConfigPtr->SciSysCtrl & 
-			(UART_CH_HW_RX | UART_CH_HW_TX));
 	
 	/* UART Baud Clock Source */
 	if ( ConfigPtr->SciSysClock ) {
@@ -321,7 +313,6 @@ static void Sci_InitSciChannel(const Sci_ChannelConfigType * ConfigPtr)
 
 		pclk =	Mcu_Global.ConfigPtr->McuClockSettingConfig[
 		      	       Mcu_Global.ClockSetting].McuClockReferencePointFrequency;
-
 		pclk = pclk / UART_GET_PCKB_DIV(
 				Mcu_Global.ConfigPtr->McuClockSettingConfig[
 				        Mcu_Global.ClockSetting].McuRunModeClockConfiguration2);
@@ -360,9 +351,16 @@ static void Sci_InitSciChannel(const Sci_ChannelConfigType * ConfigPtr)
 	/*UART Baud Rate Setup*/
 	UART_SET_BRD(ConfigPtr->SciChannelId, (uint32) brd);
 	
+	UART_SET_BRD(ConfigPtr->SciChannelId, 19);
+	
 	/* Enable SCI interrupts in the ICU) */
 	Sci_EnableICU(ConfigPtr->SciChannelId);
 	
+	/* UART set mode, parity mode , data length, clock divisor, etc. */
+	UART_SET_MODE(ConfigPtr->SciChannelId, ConfigPtr->SciModeCtrl);
+	/* UART Set Serial Control Reg.*/
+	UART_SET_SCR(ConfigPtr->SciChannelId, ConfigPtr->SciSysCtrl & 
+			(UART_CH_HW_RX | UART_CH_HW_TX));
 }
 
 /*

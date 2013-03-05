@@ -70,7 +70,7 @@
 
 /*Bit masks used to get the pckb (Peripheral Clock B) divisor. */
 #define UART_PCKB_BITS_SHIFT_MASK 0x8
-#define UART_PCKB_BITS_MASK 0x7
+#define UART_PCKB_BITS_MASK 0xF
 
 
 /* Channel Interrupt Sources */
@@ -133,16 +133,16 @@
 */
 
 #define UART_GET_PCKB_DIV(_clk_conf) \
-	( 0x1 >> ((_clk_conf >> UART_PCKB_BITS_SHIFT_MASK) & UART_PCKB_BITS_MASK) )
+	( 0x1 << ((_clk_conf >> UART_PCKB_BITS_SHIFT_MASK) & UART_PCKB_BITS_MASK) )
 
 #define UART_GET_CLOCK_DIV(_n) ( 0x1 << (2 * _n - 1 ) )
 
 #define UART_BRD(_br,_clk, _n, _div)	\
-	( (uint8) ((_clk * 10e6) / \
-			((float32) ( UART_GET_CLOCK_DIV(_n) * _div * _br))) )
+	( (uint8) ((_clk) / \
+			((float32) ( UART_GET_CLOCK_DIV(_n) * _div * _br))) - 1)
 
 #define UART_SET_BRD(_ch, _brd) \
-	UART_REG_AND(_ch, HW_SCI_BRR_OFFSET, _brd)
+	UART_REG_SET(_ch, HW_SCI_BRR_OFFSET, _brd)
 
 #define UART_SET_MODE(_ch, _val) \
 	UART_REG_SET(_ch, HW_SCI_SMR_OFFSET, _val)

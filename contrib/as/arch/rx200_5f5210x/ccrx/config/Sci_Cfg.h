@@ -146,17 +146,17 @@
 /** @brief	Enable UART Mode (i.e. Asyncronous mode).
  *
  */
-#define SCI_CH_HW_UART_MODE_EN		0x80
+#define SCI_CH_HW_UART_MODE_EN		0x00
 
 /** @brief	Enable UART 8 bits data length.
  *
  */
-#define SCI_CH_HW_DATA_8_BITS		0x40
+#define SCI_CH_HW_DATA_8_BITS		0x00
 
 /** @brief	Enable UART 7 bits data length.
  *
  */
-#define SCI_CH_HW_DATA_7_BITS		0x00
+#define SCI_CH_HW_DATA_7_BITS		0x10
 
 /** @brief	Enable UART parity bit check.
  *

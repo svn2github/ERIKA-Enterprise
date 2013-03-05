@@ -60,7 +60,7 @@
 /* I/O and PORT related registers. */
 #define HW_PWPR_B0WI_SET	0x80		/**< Set B0WI bit in the PWPR reg.  */
 #define HW_PWPR_B0WI_CLEAR	0x00		/**< Clear B0WI bit in the PWPR reg.*/
-#define HW_PWPR_PFSWE_SET	0x01		/**< Set PFSWE bit in the PWPR reg. */
+#define HW_PWPR_PFSWE_SET	0x40		/**< Set PFSWE bit in the PWPR reg. */
 #define HW_PWPR_PFSWE_CLEAR	0x00		/**< Clear PFSWE bi in the PWPR reg.*/
 #define HW_PFS_ASEL_SET		0x80		/**< Set ASEL bit in the PFS reg. 	*/
 #define HW_PFS_ISEL_SET		0x40		/**< Set ISEL bit in the PFS reg. 	*/
@@ -78,9 +78,9 @@
 /**< PORT1 ODR register base address */
 #define HW_ODR_BASE_ADDR		EE_HWREG_ADDR(0x0008C080)
 /**< PORT Pin Function Select register base address. */
-#define HW_PORT_PFS_BASE_ADDR	EE_HWREG_ADDR(0x0008C140)
+#define HW_PORT_PFS_BASE_ADDR	EE_HWREG8_ADDR(0x0008C140)
 /**< Port Write Protect (PWPR) Register address. */
-#define HW_PORT_WPR_ADDR		EE_HWREG_ADDR(0x0008C11F)
+#define HW_PORT_PWPR_ADDR		EE_HWREG8_ADDR(0x0008C11F)
 /* IO Hardware Base Address */
 #define	HW_IO_BASE_ADDR			HW_PORT0_ADDR
 

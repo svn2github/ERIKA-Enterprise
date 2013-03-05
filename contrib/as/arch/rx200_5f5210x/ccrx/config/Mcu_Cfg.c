@@ -210,8 +210,8 @@ const Mcu_ClockSettingConfigType Mcu_ClockSettingConfigData[] =
 #if	0
 		0x11010101,						 	/* Run-Mode Clock Configuration 2  */
 #endif
-		MCU_SCKCR_PCKD_DIV_2	|			/* BCLKD  = PLL / 2                */
-		MCU_SCKCR_PCKB_DIV_2	|		 	/* BCLKB  = PLL / 2                */
+		MCU_SCKCR_PCKD_DIV_2	|			/* BCLKD = PLL / 2                */
+		MCU_SCKCR_PCKB_DIV_2	|		 	/* BCLKB = PLL / 2                */
 		MCU_SCKCR_BCK_DIV_2		|		 	/* BCLK  = PLL / 2                 */
 		MCU_SCKCR_ICK_DIV_2		|		 	/* ICKL  = PLL / 2                 */
 		MCU_SCKCR_FCK_DIV_2,				/* FCKL  = PLL / 2                 */
@@ -231,8 +231,8 @@ const Mcu_ClockSettingConfigType Mcu_ClockSettingConfigData[] =
 #if	0
 		0x01000200,							/* Run-Mode Clock Configuration 2 */
 #endif
-		MCU_SCKCR_PCKD_DIV_2	|		 	/* BCLKD  = PLL / 2                */
-		MCU_SCKCR_PCKB_DIV_4	|		 	/* BCLKB  = PLL / 4                */
+		MCU_SCKCR_PCKD_DIV_2	|		 	/* BCLKD = PLL / 2                */
+		MCU_SCKCR_PCKB_DIV_4	|		 	/* BCLKB = PLL / 4                */
 		MCU_SCKCR_BCK_DIV_4		|		 	/* BCLK  = PLL / 4                 */
 		MCU_SCKCR_ICK_DIV_2		|		 	/* ICKL  = PLL / 2                 */
 		MCU_SCKCR_FCK_DIV_4,			 	/* FCKL  = PLL / 4                 */
@@ -252,8 +252,8 @@ const Mcu_ClockSettingConfigType Mcu_ClockSettingConfigData[] =
 #if	0
 		0x01000200,							/* Run-Mode Clock Configuration 2 */
 #endif
-		MCU_SCKCR_PCKD_DIV_2	|		 	/* BCLKD  = PLL / 2                */
-		MCU_SCKCR_PCKB_DIV_4	|		 	/* BCLKB  = PLL / 2                */
+		MCU_SCKCR_PCKD_DIV_2	|		 	/* BCLKD = PLL / 2                */
+		MCU_SCKCR_PCKB_DIV_4	|		 	/* BCLKB = PLL / 4                */
 		MCU_SCKCR_BCK_DIV_4		|		 	/* BCLK  = PLL / 2                 */
 		MCU_SCKCR_ICK_DIV_2		|		 	/* ICKL  = PLL / 2                 */
 		MCU_SCKCR_FCK_DIV_4,			 	/* FCKL  = PLL / 4                 */

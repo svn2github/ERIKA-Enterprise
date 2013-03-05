@@ -245,26 +245,6 @@ const Port_PinConfType SCIPortPins[] = {
 		&PortRXDPinConf[0],		/* PortPinSupportedModes	   	*/
 		FALSE					/* PortPinModeChangeable	   	*/
 	},
-		{
-		PORT_PIN_OUT,			/* PortPinDirection		      	*/
-		FALSE,					/* PortPinDirectionChangeable 	*/
-		PORT_2_PIN_0,			/* PortPinId			      	*/
-		PORT_PIN_MODE_SCI,		/* PortPinInitialMode		  	*/
-		PORT_PIN_LEVEL_HIGH,	/* PortPinLevelValue		   	*/
-		0x00000001,				/* PortPinModeNumber		   	*/
-		&PortTXDPinConf[0],		/* PortPinSupportedModes	   	*/
-		FALSE					/* PortPinModeChangeable	   	*/
-	},
-	{
-		PORT_PIN_IN,			/* PortPinDirection		      	*/
-		FALSE,					/* PortPinDirectionChangeable	*/
-		PORT_2_PIN_1,			/* PortPinId			      	*/
-		PORT_PIN_MODE_SCI,		/* PortPinInitialMode		   	*/
-		PORT_PIN_LEVEL_HIGH,	/* PortPinLevelValue		   	*/
-		0x00000001,				/* PortPinModeNumber		   	*/
-		&PortRXDPinConf[0],		/* PortPinSupportedModes	   	*/
-		FALSE					/* PortPinModeChangeable		*/
-	},
 	{
 		PORT_PIN_OUT,			/* PortPinDirection		      	*/
 		FALSE,					/* PortPinDirectionChangeable 	*/

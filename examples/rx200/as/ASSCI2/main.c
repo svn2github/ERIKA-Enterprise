@@ -121,11 +121,10 @@ int main(void)
 				EE_ASSERT_CLOCK_INIT);
 
 
-	Port_Init(PORT_CONFIG_SCI_PTR);
-
 	Port_Init(PORT_CONFIG_DEFAULT_PTR);
 	Dio_Init(DIO_CONFIG_DEFAULT_PTR);
 
+	Port_Init(PORT_CONFIG_SCI_PTR);
 	Sci_Init(SCI_CONFIG_DEFAULT_PTR);
 
 	EE_assert(EE_ASSERT_SCI_INIT, TRUE, EE_ASSERT_PLL_LOCKED);
@@ -163,7 +162,7 @@ int main(void)
 		break;
 
 		}	
-		TxData = 0x61;
+	//	TxData = 0x61;
 		if ( TxData != ASCII_NULL ) {
 
 			if ( Sci_WriteTxData(SCI_CHANNEL_0, TxData) == E_OK ) {
