@@ -48,8 +48,8 @@
  *  @date	2012
  */
 
-#ifndef	HARDWARE_H
-#define	HARDWARE_H
+#ifndef	__HARDWARE_H__
+#define	__HARDWARE_H__
 
 /*
  * MACROS

@@ -44,6 +44,9 @@
  *  @date	2012
  */
 
+#ifndef	__GPT_INTERNAL_H__
+#define	__GPT_INTERNAL_H__
+
 
 /* Hardware Abstraction */
 #include "ee.h"
@@ -1616,4 +1619,6 @@ __INLINE__ uint32 __ALWAYS_INLINE__ Gpt_get_mtu2a_tcnt(Gpt_ChannelType _ch)
 	return 	EE_HWREG16((uint32)(HW_MTU5U_TCNT_ADDR) + 
 			((_ch - GPT_INTERNAL_CHANNEL_MTU5U) << 0x4));	
 }
+
+#endif
 	

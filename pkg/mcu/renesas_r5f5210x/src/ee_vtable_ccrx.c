@@ -385,11 +385,11 @@ extern void EE_RX200_RXI0_ISR(void);	//The SCI0 RX int. handler.
 #endif									
 
 #ifdef EE_RX200_TXI0_ISR
-extern void EE_RX200_TXI0_ISR(void);	//The SCI0 TX int. handler.
+extern void EE_RX200_TXI0_ISR(void);	//The SCI0 TX empty int. handler.
 #endif
 
 #ifdef EE_RX200_TEI0_ISR
-extern void EE_RX200_TEI0_ISR(void);	//The SCI0 TX empty int. handler.
+extern void EE_RX200_TEI0_ISR(void);	//The SCI0 TX end int. handler.
 #endif
 
 #ifdef EE_RX200_ERI1_ISR
@@ -1080,12 +1080,12 @@ void* const EE_rx200_vtable[] =
     EE_rx200_default_ISR,	
 #endif									
 #ifdef EE_RX200_TXI0_ISR
-	(void *) EE_RX200_TXI0_ISR,	//The SCI0 TX int. handler.
+	(void *) EE_RX200_TXI0_ISR,	//The SCI0 TX empty int. handler.
 #else
     EE_rx200_default_ISR,	
 #endif
 #ifdef EE_RX200_TEI0_ISR
-	(void *) EE_RX200_TEI0_ISR,	//The SCI0 TX empty int. handler.
+	(void *) EE_RX200_TEI0_ISR,	//The SCI0 TX end int. handler.
 #else
     EE_rx200_default_ISR,	
 #endif

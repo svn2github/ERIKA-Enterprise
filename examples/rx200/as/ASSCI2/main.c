@@ -45,11 +45,15 @@
  * Author: 2013,  Gianluca Franchino
  */
 
+ /* RT-Kernel */
+#include <ee.h>
+
 #include "Dio.h"
 #include "Mcu.h"
 #include "Port.h"
 #include "Sci.h"
 #include "test/assert/inc/ee_assert.h"
+
 
 #ifndef	TRUE
 #define	TRUE	1
@@ -162,7 +166,7 @@ int main(void)
 		break;
 
 		}	
-	//	TxData = 0x61;
+		
 		if ( TxData != ASCII_NULL ) {
 
 			if ( Sci_WriteTxData(SCI_CHANNEL_0, TxData) == E_OK ) {

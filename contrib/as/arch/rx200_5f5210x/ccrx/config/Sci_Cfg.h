@@ -100,7 +100,7 @@
  *  Adds / removes the services <tt>Sci_EnableNotifications()</tt> and
  *  <tt>Sci_DisableNotifications()</tt> from the code.
  */
-#define	SCI_NOTIFICATIONS_API		STD_OFF
+#define	SCI_NOTIFICATIONS_API		STD_ON
 
 /** @brief	Enable Digital Noise Filter
  *

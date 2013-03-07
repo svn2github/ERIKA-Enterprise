@@ -43,7 +43,11 @@
  *  @author	Gianluca Franchino
  *  @date	2013
  */
+ 
+#ifndef __SCI_INTERNAL_H__ 
+#define __SCI_INTERNAL_H__
 
+#include "ee.h"
 #include "Hardware.h"	/* Hardware Abstraction Header File. */
 
 /*Channel Enable Masks */
@@ -135,11 +139,14 @@
 #define UART_GET_PCKB_DIV(_clk_conf) \
 	( 0x1 << ((_clk_conf >> UART_PCKB_BITS_SHIFT_MASK) & UART_PCKB_BITS_MASK) )
 
-#define UART_GET_CLOCK_DIV(_n) ( 0x1 << (2 * _n - 1 ) )
+#define UART_GET_CLOCK_DIV(_n) \
+	(_n > 0  ? ( 0x1 << (2 * _n - 1 ) ) : 0.5  )
+
+//#define UART_GET_CLOCK_DIV(_n) ( 0x1 << (2 * _n - 1 ) )
 
 #define UART_BRD(_br,_clk, _n, _div)	\
 	( (uint8) ((_clk) / \
-			((float32) ( UART_GET_CLOCK_DIV(_n) * _div * _br))) - 1)
+			( (float32) ( UART_GET_CLOCK_DIV(_n) * _div) * _br ) )  - 1 )
 
 #define UART_SET_BRD(_ch, _brd) \
 	UART_REG_SET(_ch, HW_SCI_BRR_OFFSET, _brd)
@@ -184,7 +191,7 @@
 	UART_REG_OR_SET(_ch, HW_SCI_SCR_OFFSET, ~((uint8)_srcs))
 
 #define UART_SET_8_BIT_BASE_CK(_ch) \
-	UART_REG_OR_SET(_ch, HW_SCI_SCR_OFFSET, UART_ABCS_EN)
+	UART_REG_OR_SET(_ch, HW_SCI_SEMR_OFFSET, UART_ABCS_EN)
 
 #define UART_EN_DFN(_ch) \
 	UART_REG_OR_SET(_ch, HW_SCI_SEMR_OFFSET, UART_NFEN_EN)
@@ -197,6 +204,7 @@
  *	@param  _ch SCI Channel Identifier.
  *  
  */
+ 
 __INLINE__ void __ALWAYS_INLINE__  Sci_EnableChannel(Sci_ChannelType _ch)
 {
 	/* 
@@ -266,5 +274,4 @@ __INLINE__ uint32 __ALWAYS_INLINE__  Sci_IsChannelEnabled(Sci_ChannelType _ch)
 	}
 }
 
-
-
+#endif

@@ -295,12 +295,15 @@ static void Sci_InitSciChannel(const Sci_ChannelConfigType * ConfigPtr)
 {
 	register uint8		brd;	/* Baud-Rate Divisor	*/
 	register float32	pclk;	/* Clock Frequency	*/
-	  
+	
 	/* Enables Sci Module in Run-Mode */
 	Sci_EnableChannel(ConfigPtr->SciChannelId);
 	
 	/* Reset UART Control Registers.*/
 	UART_RESET(ConfigPtr->SciChannelId);
+	
+	/* UART set mode, parity mode , data length, clock divisor, etc. */
+	UART_SET_MODE(ConfigPtr->SciChannelId, ConfigPtr->SciModeCtrl);
 	
 	/* UART Baud Clock Source */
 	if ( ConfigPtr->SciSysClock ) {
@@ -333,31 +336,26 @@ static void Sci_InitSciChannel(const Sci_ChannelConfigType * ConfigPtr)
 		
 		brd = UART_BRD(ConfigPtr->SciChannelBaudRate, 
 				pclk, 
-				ConfigPtr->SciModeCtrl & SCI_CLK_DIV_MASK, 
+				(ConfigPtr->SciModeCtrl & SCI_CLK_DIV_MASK), 
 				SCI_CLK_DIV_HIGH_SPEED);
 		
 		if (ConfigPtr->SciSysCtrl & SCI_CH_HW_DNF_EN ) {
 			UART_EN_DFN(ConfigPtr->SciChannelId);
 		}
 	} else {
-		
 		/* Clock Divider: 16 */
 		brd = UART_BRD(ConfigPtr->SciChannelBaudRate, 
 				pclk,
-				ConfigPtr->SciModeCtrl & SCI_CLK_DIV_MASK,
-				SCI_CLK_DIV_LOW_SPEED);
+				(ConfigPtr->SciModeCtrl & SCI_CLK_DIV_MASK),
+				SCI_CLK_DIV_LOW_SPEED);		
 	}
 	
 	/*UART Baud Rate Setup*/
-	UART_SET_BRD(ConfigPtr->SciChannelId, (uint32) brd);
-	
-	UART_SET_BRD(ConfigPtr->SciChannelId, 19);
+	UART_SET_BRD(ConfigPtr->SciChannelId, brd);
 	
 	/* Enable SCI interrupts in the ICU) */
 	Sci_EnableICU(ConfigPtr->SciChannelId);
 	
-	/* UART set mode, parity mode , data length, clock divisor, etc. */
-	UART_SET_MODE(ConfigPtr->SciChannelId, ConfigPtr->SciModeCtrl);
 	/* UART Set Serial Control Reg.*/
 	UART_SET_SCR(ConfigPtr->SciChannelId, ConfigPtr->SciSysCtrl & 
 			(UART_CH_HW_RX | UART_CH_HW_TX));
@@ -571,7 +569,7 @@ void Sci_EnableNotifications(Sci_ChannelType	Channel)
 
 	if ( Sci_IsChannelEnabled(Channel) ) {
 		
-		UART_INT_ENABLE(Channel, UART_INT_ALL);
+		UART_INT_ENABLE(Channel, (UART_INT_TX_END |	UART_INT_RX_ER));
 	}
 
 	EE_hal_resumeIRQ(flags);

@@ -69,12 +69,13 @@
 const Sci_ChannelConfigType SciChannels[] = {
   { /* UART0 */
     SCI_CHANNEL_0,			/* SciChannelId			      */
-    115200,				/* SciChannelBaudRate		      */
+    38400,				/* SciChannelBaudRate		      */
 #if ( SCI_WAKEUP_FUNCTIONALITY_API == STD_ON )
     TRUE,				/* SciChannelWakeupSupport	      */
 #endif
     TRUE,				/* SciSysClock			      */
     					/* SciSysCtrl:			      */
+	SCI_CH_HW_HIGH_SPEED | /*UART Enable High Speed Mode */					
     SCI_CH_HW_DNF_EN |	/* - UART Digital Filter Enable	      */
     SCI_CH_HW_TX_EN |	/* - UART Transmit Enable	      */
     SCI_CH_HW_RX_EN,	/* - UART Receive Enable	      */
@@ -84,20 +85,28 @@ const Sci_ChannelConfigType SciChannels[] = {
     SCI_CH_HW_ONE_BITS_STOP |
 	SCI_CH_HW_CLOCK_PCLK_1, /* - 8 bits, 1 stop bit, No parity, Clock = PCLK /1 */		
 #if ( SCI_NOTIFICATIONS_API == STD_ON )
+#if 1
     &Sci_TxNotifications_Channel_0,		/* SciTxNotificationPtr		      */
     NULL_PTR,							/* SciTxErrNotificationPtr	      */
     &Sci_RxNotifications_Channel_0,		/* SciRxNotificationPtr		      */
     &Sci_RxErrNotifications_Channel_0	/* SciRxErrNotificationPtr	      */
+#else
+	NULL_PTR,
+	NULL_PTR,
+	NULL_PTR,
+	NULL_PTR
+#endif
 #endif
   },
   { /* UART1 */
     SCI_CHANNEL_1,			/* SciChannelId			      */
-    115200,				/* SciChannelBaudRate		      */
+    38400,				/* SciChannelBaudRate		      */
 #if ( SCI_WAKEUP_FUNCTIONALITY_API == STD_ON )
     TRUE,				/* SciChannelWakeupSupport	      */
 #endif
     TRUE,				/* SciSysClock			      */
     					/* SciSysCtrl:			      */
+	SCI_CH_HW_HIGH_SPEED | /*UART Enable High Speed Mode */
     SCI_CH_HW_DNF_EN |	/* - UART Digital Filter Enable	      */
     SCI_CH_HW_TX_EN |	/* - UART Transmit Enable	      */
     SCI_CH_HW_RX_EN,	/* - UART Receive Enable	      */
@@ -107,20 +116,28 @@ const Sci_ChannelConfigType SciChannels[] = {
     SCI_CH_HW_ONE_BITS_STOP |
 	SCI_CH_HW_CLOCK_PCLK_1, /* - 8 bits, 1 stop bit, No parity, Clock = PCLK /1 */		
 #if ( SCI_NOTIFICATIONS_API == STD_ON )
+#if 0
     &Sci_TxNotifications_Channel_1,		/* SciTxNotificationPtr		      */
     NULL_PTR,							/* SciTxErrNotificationPtr	      */
     &Sci_RxNotifications_Channel_1,		/* SciRxNotificationPtr		      */
     &Sci_RxErrNotifications_Channel_1	/* SciRxErrNotificationPtr	      */
+#else
+	NULL_PTR,
+	NULL_PTR,
+	NULL_PTR,
+	NULL_PTR
+#endif
 #endif
   },
   { /* UART5 */
     SCI_CHANNEL_5,			/* SciChannelId			      */
-    115200,				/* SciChannelBaudRate		      */
+    38400,				/* SciChannelBaudRate		      */
 #if ( SCI_WAKEUP_FUNCTIONALITY_API == STD_ON )
     TRUE,				/* SciChannelWakeupSupport	      */
 #endif
     TRUE,				/* SciSysClock			      */
     					/* SciSysCtrl:			      */
+	SCI_CH_HW_HIGH_SPEED | /*UART Enable High Speed Mode */
     SCI_CH_HW_DNF_EN |	/* - UART Digital Filter Enable	      */
     SCI_CH_HW_TX_EN |	/* - UART Transmit Enable	      */
     SCI_CH_HW_RX_EN,	/* - UART Receive Enable	      */
@@ -131,20 +148,28 @@ const Sci_ChannelConfigType SciChannels[] = {
 	SCI_CH_HW_CLOCK_PCLK_1 |
 	SCI_CH_HW_CLOCK_PCLK_1, /* - 8 bits, 1 stop bit, No parity, Clock = PCLK /1 */		
 #if ( SCI_NOTIFICATIONS_API == STD_ON )
+#if 0
     &Sci_TxNotifications_Channel_5,		/* SciTxNotificationPtr		      */
     NULL_PTR,							/* SciTxErrNotificationPtr	      */
     &Sci_RxNotifications_Channel_5,		/* SciRxNotificationPtr		      */
     &Sci_RxErrNotifications_Channel_5	/* SciRxErrNotificationPtr	      */
+#else
+	NULL_PTR,
+	NULL_PTR,
+	NULL_PTR,
+	NULL_PTR
+#endif
 #endif
   },
   { /* UART6 */
     SCI_CHANNEL_6,			/* SciChannelId			      */
-    115200,				/* SciChannelBaudRate		      */
+     38400,				/* SciChannelBaudRate		      */
 #if ( SCI_WAKEUP_FUNCTIONALITY_API == STD_ON )
     TRUE,				/* SciChannelWakeupSupport	      */
 #endif
     TRUE,				/* SciSysClock			      */
     					/* SciSysCtrl:			      */
+	SCI_CH_HW_HIGH_SPEED | /*UART Enable High Speed Mode */
     SCI_CH_HW_DNF_EN |	/* - UART Digital Filter Enable	      */
     SCI_CH_HW_TX_EN |	/* - UART Transmit Enable	      */
     SCI_CH_HW_RX_EN,	/* - UART Receive Enable	      */
@@ -154,20 +179,28 @@ const Sci_ChannelConfigType SciChannels[] = {
     SCI_CH_HW_ONE_BITS_STOP |
 	SCI_CH_HW_CLOCK_PCLK_1, /* - 8 bits, 1 stop bit, No parity, Clock = PCLK /1 */	
 #if ( SCI_NOTIFICATIONS_API == STD_ON )
+#if 0
     &Sci_TxNotifications_Channel_6,		/* SciTxNotificationPtr		      */
     NULL_PTR,							/* SciTxErrNotificationPtr	      */
     &Sci_RxNotifications_Channel_6,		/* SciRxNotificationPtr		      */
     &Sci_RxErrNotifications_Channel_6	/* SciRxErrNotificationPtr	      */
+#else
+	NULL_PTR,
+	NULL_PTR,
+	NULL_PTR,
+	NULL_PTR
+#endif	
 #endif
   },
   { /* UART8 */
     SCI_CHANNEL_8,			/* SciChannelId			      */
-    115200,				/* SciChannelBaudRate		      */
+    38400,				/* SciChannelBaudRate		      */
 #if ( SCI_WAKEUP_FUNCTIONALITY_API == STD_ON )
     TRUE,				/* SciChannelWakeupSupport	      */
 #endif
     TRUE,				/* SciSysClock			      */
     					/* SciSysCtrl:			      */
+	SCI_CH_HW_HIGH_SPEED | /*UART Enable High Speed Mode */
     SCI_CH_HW_DNF_EN |	/* - UART Digital Filter Enable	      */
     SCI_CH_HW_TX_EN |	/* - UART Transmit Enable	      */
     SCI_CH_HW_RX_EN,	/* - UART Receive Enable	      */
@@ -177,20 +210,28 @@ const Sci_ChannelConfigType SciChannels[] = {
     SCI_CH_HW_ONE_BITS_STOP |
 	SCI_CH_HW_CLOCK_PCLK_1, /* - 8 bits, 1 stop bit, No parity, Clock = PCLK /1 */		
 #if ( SCI_NOTIFICATIONS_API == STD_ON )
+#if 0
     &Sci_TxNotifications_Channel_8,		/* SciTxNotificationPtr		      */
     NULL_PTR,							/* SciTxErrNotificationPtr	      */
     &Sci_RxNotifications_Channel_8,		/* SciRxNotificationPtr		      */
     &Sci_RxErrNotifications_Channel_8	/* SciRxErrNotificationPtr	      */
+#else
+	NULL_PTR,
+	NULL_PTR,
+	NULL_PTR,
+	NULL_PTR
+#endif
 #endif
   },
   { /* UART9 */
     SCI_CHANNEL_9,			/* SciChannelId			      */
-    115200,				/* SciChannelBaudRate		      */
+    38400,				/* SciChannelBaudRate		      */
 #if ( SCI_WAKEUP_FUNCTIONALITY_API == STD_ON )
     TRUE,				/* SciChannelWakeupSupport	      */
 #endif
     TRUE,				/* SciSysClock			      */
     					/* SciSysCtrl:			      */
+	SCI_CH_HW_HIGH_SPEED | /*UART Enable High Speed Mode */
     SCI_CH_HW_DNF_EN |	/* - UART Digital Filter Enable	      */
     SCI_CH_HW_TX_EN |	/* - UART Transmit Enable	      */
     SCI_CH_HW_RX_EN,	/* - UART Receive Enable	      */
@@ -200,20 +241,28 @@ const Sci_ChannelConfigType SciChannels[] = {
     SCI_CH_HW_ONE_BITS_STOP |
 	SCI_CH_HW_CLOCK_PCLK_1, /* - 8 bits, 1 stop bit, No parity, Clock = PCLK /1 */		
 #if ( SCI_NOTIFICATIONS_API == STD_ON )
+#if 0
     &Sci_TxNotifications_Channel_9,		/* SciTxNotificationPtr		      */
     NULL_PTR,							/* SciTxErrNotificationPtr	      */
     &Sci_RxNotifications_Channel_9,		/* SciRxNotificationPtr		      */
     &Sci_RxErrNotifications_Channel_9	/* SciRxErrNotificationPtr	      */
+#else
+	NULL_PTR,
+	NULL_PTR,
+	NULL_PTR,
+	NULL_PTR
+#endif	
 #endif
   },
   { /* UART12 */
     SCI_CHANNEL_12,			/* SciChannelId			      */
-    115200,				/* SciChannelBaudRate		      */
+    38400,				/* SciChannelBaudRate		      */
 #if ( SCI_WAKEUP_FUNCTIONALITY_API == STD_ON )
     TRUE,				/* SciChannelWakeupSupport	      */
 #endif
     TRUE,				/* SciSysClock			      */
     					/* SciSysCtrl:			      */
+	SCI_CH_HW_HIGH_SPEED | /*UART Enable High Speed Mode */
     SCI_CH_HW_DNF_EN |	/* - UART Digital Filter Enable	      */
     SCI_CH_HW_TX_EN |	/* - UART Transmit Enable	      */
     SCI_CH_HW_RX_EN,	/* - UART Receive Enable	      */
@@ -223,10 +272,17 @@ const Sci_ChannelConfigType SciChannels[] = {
     SCI_CH_HW_ONE_BITS_STOP |
 	SCI_CH_HW_CLOCK_PCLK_1, /* - 8 bits, 1 stop bit, No parity, Clock = PCLK /1 */	
 #if ( SCI_NOTIFICATIONS_API == STD_ON )
+#if 0
     &Sci_TxNotifications_Channel_12,		/* SciTxNotificationPtr		      */
     NULL_PTR,							/* SciTxErrNotificationPtr	      */
     &Sci_RxNotifications_Channel_12,		/* SciRxNotificationPtr		      */
     &Sci_RxErrNotifications_Channel_12	/* SciRxErrNotificationPtr	      */
+#else
+	NULL_PTR,
+	NULL_PTR,
+	NULL_PTR,
+	NULL_PTR
+#endif
 #endif
   },
   
