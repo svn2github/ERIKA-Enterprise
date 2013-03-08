@@ -107,7 +107,7 @@ LIBDEP += $(ALL_LIBS)
 LIBDEP += $(LDDEPS)
 
 # Libraries from MC
-OPT_LIBS += -lm -lc -ldsp
+OPT_LIBS += -lm -lc -ldsp -lq-coff 
 OPT_LIBS += -l$(subst .a,,$(subst lib,,$(PIC30_DEV_LIB)))
 OPT_LIBS += -lpic30-$(PIC30_OFF)
 
@@ -200,7 +200,8 @@ vpath %.S $(EE_VPATH) $(APPBASE)
 # Avoid multiple evaluations of OPT_INCLUDE, which may call `cygpath'
 COMPUTED_OPT_INCLUDE := $(OPT_INCLUDE)
 COMPUTED_OPT_LINK := $(OPT_LINK)
-COMPUTED_OPT_ASM := $(OPT_ASM)
+COMPUTED_OPT_ASM_VAR := -Wa,
+COMPUTED_OPT_ASM := $(addprefix $(COMPUTED_OPT_ASM_VAR), $(OPT_ASM))
 COMPUTED_OPT_CC := $(OPT_CC)
 
 ## Select input filename format
@@ -243,10 +244,9 @@ pic30.$(PIC30_EXTENSION): $(OBJS) $(LINKDEP) $(LIBDEP)
                      --start-group $(OPT_LIBS) --end-group \
                      -M > pic30.map
 
-					 
 # produce the object file from assembly code in a single step
 $(OBJDIR)/%.o: %.S ee_pic30regs.inc
-	$(VERBOSE_PRINTCPP) $(EE_CC) $(COMPUTED_OPT_INCLUDE) $(DEFS_ASM) -mcpu=$(PIC30_MODEL) $(DEPENDENCY_OPT) -c $(SOURCEFILE) -o $(TARGETFILE)
+	$(VERBOSE_PRINTCPP) $(EE_CC) $(COMPUTED_OPT_INCLUDE) $(COMPUTED_OPT_ASM) $(DEFS_ASM) -mcpu=$(PIC30_MODEL) $(DEPENDENCY_OPT) -c $(SOURCEFILE) -o $(TARGETFILE)
 	$(QUIET) $(call make-depend, $<, $@, $(subst .o,.d,$@))
 
 # produce the object file from C code in a single step
@@ -255,7 +255,7 @@ $(OBJDIR)/%.o: %.c ee_pic30regs.h
 	$(QUIET) $(call make-depend, $<, $@, $(subst .o,.d,$@))
 
 $(OBJDIR)/frommchp/crt0.o: frommchp/crt0.s
-	$(VERBOSE_PRINTASM) $(EE_ASM) $(COMPUTED_OPT_ASM) $(SOURCEFILE) -o $(TARGETFILE)
+	$(VERBOSE_PRINTCPP) $(EE_CC) $(COMPUTED_OPT_ASM) -mcpu=$(PIC30_MODEL) -c $(SOURCEFILE) -o $(TARGETFILE)
 
 
 ##
@@ -331,10 +331,8 @@ libee.a: $(LIBEEOBJS)
 # Objects depend on directories, but they are not remade if directories change
 $(ALLOBJS): | make_directories
 
-make_directories: $(OBJDIRS)
-
 # Directories are (re)created only when some of them don't exist already
-$(OBJDIRS):
+make_directories: 
 	@echo "MAKE_DIRECTORIES"
 	$(QUIET) mkdir -p $(OBJDIRS)
 
