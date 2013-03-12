@@ -188,7 +188,7 @@
 	UART_REG_OR_SET(_ch, HW_SCI_SCR_OFFSET, _srcs)
 
 #define	UART_INT_DISABLE(_ch, _srcs)	\
-	UART_REG_OR_SET(_ch, HW_SCI_SCR_OFFSET, ~((uint8)_srcs))
+	UART_REG_AND_SET(_ch, HW_SCI_SCR_OFFSET, ~((uint8)_srcs))
 
 #define UART_SET_8_BIT_BASE_CK(_ch) \
 	UART_REG_OR_SET(_ch, HW_SCI_SEMR_OFFSET, UART_ABCS_EN)

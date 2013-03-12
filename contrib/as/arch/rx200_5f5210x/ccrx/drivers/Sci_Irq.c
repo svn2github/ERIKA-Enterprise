@@ -151,6 +151,7 @@ void Sci_RxIsr(Sci_ChannelType Channel)
 	register EE_FREG	flags;
 	register uint32	ch;
 	
+
 	flags = EE_hal_suspendIRQ();
 	
 	/* Driver Initialization Check. */
@@ -165,9 +166,6 @@ void Sci_RxIsr(Sci_ChannelType Channel)
 
 	    /* Channel Configured Check. */
 		if ( ch < Sci_Global.ConfigPtr->SciNumberOfSciChannels ) {
-
-	    	/*Read RDR register to gurantee continuos reception.*/ 
-	    	ch = (uint8) UART_RX_DATA(Channel);
 	    		
 	    	if ( Sci_Global.ConfigPtr->SciChannels[ch].SciRxNotificationPtr !=
 					NULL_PTR) {
@@ -182,7 +180,6 @@ void Sci_RxIsr(Sci_ChannelType Channel)
 	    }/* ch < Sci_Global.ConfigPtr->SciNumberOfSciChannels */
 
 	}	/* init == TRUE */
-
 	EE_hal_resumeIRQ(flags);
 }
 
@@ -192,12 +189,12 @@ void Sci_RxIsr(Sci_ChannelType Channel)
 	 */
 
 #if ( \
-  defined(EE_RX200_TEI0_ISR) || \
-  defined(EE_RX200_TEI1_ISR) || \
-  defined(EE_RX200_TEI6_ISR) || \
-  defined(EE_RX200_TEI8_ISR) || \
-  defined(EE_RX200_TEI9_ISR) || \
-  defined(EE_RX200_TEI12_ISR) \
+  defined(EE_RX200_TXI0_ISR) || \
+  defined(EE_RX200_TXI1_ISR) || \
+  defined(EE_RX200_TXI6_ISR) || \
+  defined(EE_RX200_TXI8_ISR) || \
+  defined(EE_RX200_TXI9_ISR) || \
+  defined(EE_RX200_TXI12_ISR) \
 )
 
 void Sci_TxIsr(Sci_ChannelType Channel)
@@ -205,8 +202,9 @@ void Sci_TxIsr(Sci_ChannelType Channel)
 	register EE_FREG	flags;
 	register uint32	ch;
 	
+		
 	flags = EE_hal_suspendIRQ();
-	
+
 	/* Driver Initialization Check. */
 	if ( Sci_Global.Init == TRUE ) {
 		/* Channel Look-up */
@@ -231,13 +229,13 @@ void Sci_TxIsr(Sci_ChannelType Channel)
 	    		}
 	    }/* ch < Sci_Global.ConfigPtr->SciNumberOfSciChannels */
 	}	/* init == TRUE */
-
+	
 	EE_hal_resumeIRQ(flags);
 }
 
 #endif	/*
-	 * EE_RX200_TEI0_ISR  || EE_RX200_TEI1_ISR  ||
-	 * EE_RX200_TEI5_ISR  || EE_RX200_TEI6_ISR || etc.
+	 * EE_RX200_TXI0_ISR  || EE_RX200_TXI1_ISR  ||
+	 * EE_RX200_TXI5_ISR  || EE_RX200_TXI6_ISR || etc.
 	 */
 
 
@@ -253,10 +251,11 @@ ISR2(EE_RX200_ERI0_ISR) { Sci_RxErrIsr(SCI_CHANNEL_0); }
 ISR2(EE_RX200_RXI0_ISR) { Sci_RxIsr(SCI_CHANNEL_0); }
 #endif
 
-#ifdef	EE_RX200_TEI0_ISR
-#pragma interrupt (EE_RX200_TEI0_ISR)
-ISR2(EE_RX200_TEI0_ISR) { Sci_TxIsr(SCI_CHANNEL_0); }
+#ifdef	EE_RX200_TXI0_ISR
+#pragma interrupt (EE_RX200_TXI0_ISR)
+ISR2(EE_RX200_TXI0_ISR) { Sci_TxIsr(SCI_CHANNEL_0); }
 #endif
+
 
 #ifdef	EE_RX200_ERI1_ISR
 #pragma interrupt (EE_RX200_ERI1_ISR)
@@ -268,9 +267,9 @@ ISR2(EE_RX200_ERI1_ISR) { Sci_RxErrIsr(SCI_CHANNEL_1); }
 ISR2(EE_RX200_RXI1_ISR) { Sci_RxIsr(SCI_CHANNEL_1); }
 #endif
 
-#ifdef	EE_RX200_TEI1_ISR
-#pragma interrupt (EE_RX200_TEI1_ISR)
-ISR2(EE_RX200_TEI1_ISR) { Sci_TxIsr(SCI_CHANNEL_1); }
+#ifdef	EE_RX200_TXI1_ISR
+#pragma interrupt (EE_RX200_TXI1_ISR)
+ISR2(EE_RX200_TXI1_ISR) { Sci_TxIsr(SCI_CHANNEL_1); }
 #endif
 
 #ifdef	EE_RX200_ERI5_ISR
@@ -283,9 +282,9 @@ ISR2(EE_RX200_ERI5_ISR) { Sci_RxErrIsr(SCI_CHANNEL_5); }
 ISR2(EE_RX200_RXI5_ISR) { Sci_RxIsr(SCI_CHANNEL_5); }
 #endif
 
-#ifdef	EE_RX200_TEI5_ISR
-#pragma interrupt (EE_RX200_TEI5_ISR)
-ISR2(EE_RX200_TEI5_ISR) { Sci_TxIsr(SCI_CHANNEL_5); }
+#ifdef	EE_RX200_TXI5_ISR
+#pragma interrupt (EE_RX200_TXI5_ISR)
+ISR2(EE_RX200_TXI5_ISR) { Sci_TxIsr(SCI_CHANNEL_5); }
 #endif
 
 #ifdef	EE_RX200_ERI6_ISR
@@ -298,9 +297,9 @@ ISR2(EE_RX200_ERI6_ISR) { Sci_RxErrIsr(SCI_CHANNEL_6); }
 ISR2(EE_RX200_RXI6_ISR) { Sci_RxIsr(SCI_CHANNEL_6); }
 #endif
 
-#ifdef	EE_RX200_TEI6_ISR
-#pragma interrupt (EE_RX200_TEI6_ISR)
-ISR2(EE_RX200_TEI6_ISR) { Sci_TxIsr(SCI_CHANNEL_6); }
+#ifdef	EE_RX200_TXI6_ISR
+#pragma interrupt (EE_RX200_TXI6_ISR)
+ISR2(EE_RX200_TXI6_ISR) { Sci_TxIsr(SCI_CHANNEL_6); }
 #endif
 
 #ifdef	EE_RX200_ERI8_ISR
@@ -313,9 +312,9 @@ ISR2(EE_RX200_ERI8_ISR) { Sci_RxErrIsr(SCI_CHANNEL_8); }
 ISR2(EE_RX200_RXI8_ISR) { Sci_RxIsr(SCI_CHANNEL_8); }
 #endif
 
-#ifdef	EE_RX200_TEI_ISR
-#pragma interrupt (EE_RX200_TEI8_ISR)
-ISR2(EE_RX200_TEI8_ISR) { Sci_TxIsr(SCI_CHANNEL_8); }
+#ifdef	EE_RX200_TXI_ISR
+#pragma interrupt (EE_RX200_TXI8_ISR)
+ISR2(EE_RX200_TXI8_ISR) { Sci_TxIsr(SCI_CHANNEL_8); }
 #endif
 
 #ifdef	EE_RX200_ERI9_ISR
@@ -328,9 +327,9 @@ ISR2(EE_RX200_ERI9_ISR) { Sci_RxErrIsr(SCI_CHANNEL_9); }
 ISR2(EE_RX200_RXI9_ISR) { Sci_RxIsr(SCI_CHANNEL_9); }
 #endif
 
-#ifdef	EE_RX200_TEI9_ISR
-#pragma interrupt (EE_RX200_TEI9_ISR)
-ISR2(EE_RX200_TEI9_ISR) { Sci_TxIsr(SCI_CHANNEL_9); }
+#ifdef	EE_RX200_TXI9_ISR
+#pragma interrupt (EE_RX200_TXI9_ISR)
+ISR2(EE_RX200_TXI9_ISR) { Sci_TxIsr(SCI_CHANNEL_9); }
 #endif
 
 #ifdef	EE_RX200_ERI12_ISR
@@ -343,9 +342,9 @@ ISR2(EE_RX200_ERI12_ISR) { Sci_RxErrIsr(SCI_CHANNEL_12); }
 ISR2(EE_RX200_RXI12_ISR) { Sci_RxIsr(SCI_CHANNEL_12); }
 #endif
 
-#ifdef	EE_RX200_TEI12_ISR
-#pragma interrupt (EE_RX200_TEI12_ISR)
-ISR2(EE_RX200_TEI12_ISR) { Sci_TxIsr(SCI_CHANNEL_12); }
+#ifdef	EE_RX200_TXI12_ISR
+#pragma interrupt (EE_RX200_TXI12_ISR)
+ISR2(EE_RX200_TXI12_ISR) { Sci_TxIsr(SCI_CHANNEL_12); }
 #endif
 
 #endif	/* SCI_NOTIFICATIONS_API */

@@ -347,8 +347,8 @@
 #define HW_ICU_IER_SCI5_RX		EE_HWREG8_ADDR(0x0008721B)
 /**< Address of Interrupt Request Enable Register (IER) of SCI5 TX  */
 #define HW_ICU_IER_SCI5_TX		EE_HWREG8_ADDR(0x0008721C)
-/**< Address of Interrupt Request Enable Register (IER) of SCI6 TE  */
-#define HW_ICU_IER_SCI6_TE		EE_HWREG8_ADDR(0x0008721C)
+/**< Address of Interrupt Request Enable Register (IER) of SCI5 TE  */
+#define HW_ICU_IER_SCI5_TE		EE_HWREG8_ADDR(0x0008721C)
 /**< Address of Interrupt Request Enable Register (IER) of SCI6 ERX  */
 #define HW_ICU_IER_SCI6_ERX		EE_HWREG8_ADDR(0x0008721C)
 /**< Address of Interrupt Request Enable Register (IER) of SCI6 RX  */
