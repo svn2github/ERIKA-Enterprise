@@ -384,6 +384,21 @@
 /**< Address of Interrupt Request Enable Register (IER) of SCI12 TE  */
 #define HW_ICU_IER_SCI12_TE		EE_HWREG8_ADDR(0x0008721E)
 
+/*Interrrupt Request Registers (IR) address.*/
+/**< Address of Interrupt Request Register (IER) of SCI0 ERX  */
+#define HW_ICU_IR_SCI0_ERX		EE_HWREG8_ADDR(0x000870D6)
+/**< Address of Interrupt Request Register (IER) of SCI1 ERX  */
+#define HW_ICU_IR_SCI1_ERX		EE_HWREG8_ADDR(0x000870DA)
+/**< Address of Interrupt Request Register (IER) of SCI5 ERX  */
+#define HW_ICU_IR_SCI5_ERX		EE_HWREG8_ADDR(0x000870DE)
+/**< Address of Interrupt Request Register (IER) of SCI6 ERX  */
+#define HW_ICU_IR_SCI6_ERX		EE_HWREG8_ADDR(0x000870E2)
+/**< Address of Interrupt Request Register (IER) of SCI8 ERX  */
+#define HW_ICU_IR_SCI8_ERX		EE_HWREG8_ADDR(0x000870E6)
+/**< Address of Interrupt Request Register (IER) of SCI9 ERX  */
+#define HW_ICU_IR_SCI9_ERX		EE_HWREG8_ADDR(0x000870EA)
+/**< Address of Interrupt Request Register (IER) of SCI12 ERX  */
+#define HW_ICU_IR_SCI12_ERX		EE_HWREG8_ADDR(0x000870EE)
 
 
 /*Interrrupt Priority Registers (IPRs) address.*/

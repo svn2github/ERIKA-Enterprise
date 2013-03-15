@@ -200,6 +200,7 @@
 	UART_REG_OR_SET(_ch, HW_SCI_SCR_OFFSET, _val)
 
 
+
 /** @brief	Enable SCI Module: clear stop bit in Module Stop Control Registers.
  *	@param  _ch SCI Channel Identifier.
  *  

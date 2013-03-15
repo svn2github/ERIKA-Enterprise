@@ -136,6 +136,7 @@ endif
 
 OPT_CC += -lang=c99 -output=obj -optimize=max -nologo -auto_enum -goptimize -show=source
 
+
 # Specific option from the application makefile
 OPT_CC += $(CFLAGS)
 

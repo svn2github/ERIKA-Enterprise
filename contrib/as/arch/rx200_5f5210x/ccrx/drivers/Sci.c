@@ -285,6 +285,7 @@ static void Sci_DisableICU(Sci_ChannelType _ch)
 	}
 }
 
+
 /*
  * Sci Channel Initialization.
  * 
