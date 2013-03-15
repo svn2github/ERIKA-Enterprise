@@ -78,6 +78,8 @@ void EE_mpc5643l_initialize_external_IRQ_priorities(void);
 #else
 #define BAM_RCHW 0x05a0000
 #endif
+
+#if !defined (EE_APP_NOT_BOOTABLE)
 	/* CW-VAR-DEFINITION:
 	#pragma section R ".boot_data"
 	const struct { EE_UINT32 rchw; void (*start)(void); }
@@ -92,6 +94,8 @@ _bam_data:
 	.long	BAM_RCHW		/* BAM data */
 	.long	__start
 	.size	_bam_data, .-_bam_data
+#endif /* !EE_APP_NOT_BOOTABLE */
+
 #endif /* ! __E200ZX_EXECUTE_FROM_RAM__ && ! __SLAVE_CPU__ */
 
 
