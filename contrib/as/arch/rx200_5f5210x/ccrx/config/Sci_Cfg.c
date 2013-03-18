@@ -69,7 +69,8 @@
 const Sci_ChannelConfigType SciChannels[] = {
   { /* UART0 */
     SCI_CHANNEL_0,			/* SciChannelId			      */
-    38400,				/* SciChannelBaudRate		      */
+    //38400,				/* SciChannelBaudRate		      */
+	600,
 #if ( SCI_WAKEUP_FUNCTIONALITY_API == STD_ON )
     TRUE,				/* SciChannelWakeupSupport	      */
 #endif
@@ -85,7 +86,7 @@ const Sci_ChannelConfigType SciChannels[] = {
     SCI_CH_HW_ONE_BITS_STOP |
 	SCI_CH_HW_CLOCK_PCLK_1, /* - 8 bits, 1 stop bit, No parity, Clock = PCLK /1 */		
 #if ( SCI_NOTIFICATIONS_API == STD_ON )
-#if 1
+#if 0
     &Sci_TxNotifications_Channel_0,		/* SciTxNotificationPtr		      */
     NULL_PTR,							/* SciTxErrNotificationPtr	      */
     &Sci_RxNotifications_Channel_0,		/* SciRxNotificationPtr		      */

@@ -218,7 +218,7 @@ __INLINE__ void __ALWAYS_INLINE__  Sci_EnableChannel(Sci_ChannelType _ch)
 		EE_HWREG(HW_SYSTEM_MSTPCRB_ADDR) &= 
 				(~(UART_CH_HW_RTS_CTS_EN >> _ch));
 	} else if (_ch < SCI_CHANNEL_12) {
-		EE_HWREG(HW_SYSTEM_MSTPCRB_ADDR) &= 
+		EE_HWREG(HW_SYSTEM_MSTPCRC_ADDR) &= 
 				(~(UART_HW_CH_89_ENABLE_MASK << (SCI_CHANNEL_9 - _ch)) );
 	} else {
 		EE_HWREG(HW_SYSTEM_MSTPCRB_ADDR) &= (~UART_HW_CH_12_ENABLE_MASK);

@@ -39,8 +39,7 @@
  * ###*E*### */
 
 /*
- * Simple project to test Sci_GetStatus(), Sci_ReadRxData() and
- * Sci_WriteTxData() services.
+ *  Simple project to to estimate the SCI driver MINIMAL services.
  *
  * Author: 2013,  Gianluca Franchino
  */
@@ -63,9 +62,6 @@
 enum EE_ASSERTIONS {
 	EE_ASSERT_FIN = 0,
 	EE_ASSERT_INIT,
-	EE_ASSERT_VERSION,
-	EE_ASSERT_CLOCK_INIT,
-	EE_ASSERT_PLL_LOCKED,
 	EE_ASSERT_SCI_INIT,
 	EE_ASSERT_DIM
 };
@@ -75,15 +71,14 @@ EE_TYPEASSERTVALUE EE_assertions[EE_ASSERT_DIM];
 /* Final result */
 volatile EE_TYPEASSERTVALUE result;
 
-/* counter */
-volatile int counter = 0;
-
 /*
  * TASK 1
  */
 TASK(Task1)
 {
-  /* Nothing to do! */
+
+  /* Nothing to do. */
+
 }
 
 #define	ASCII_NULL	0x00
@@ -93,49 +88,25 @@ TASK(Task1)
  */
 int main(void)
 {
-
-	Std_VersionInfoType	version;
 	Dio_PortLevelType	lvl;
 	Sci_StatusType	rxstat;
-	uint8	TxData = ASCII_NULL;
-	uint8	RxData = ASCII_NULL;
-
-	EE_assert(EE_ASSERT_INIT, TRUE, EE_ASSERT_NIL);
-
-	Sci_GetVersionInfo(&version);
-
-	EE_assert(EE_ASSERT_VERSION,(
-								(version.vendorID == 0) &&
-								(version.moduleID == 0xFFFF) &&
-								(version.sw_major_version == 1) &&
-								(version.sw_minor_version == 0) &&
-								(version.sw_patch_version == 0)
-								), EE_ASSERT_INIT);
+	EE_UINT8	TxData = ASCII_NULL;
+	EE_UINT8	RxData = ASCII_NULL;
 
 	Mcu_Init(MCU_CONFIG_DEFAULT_PTR);
-
-	Mcu_InitClock(MCU_CLK_MODE_MOSC20_PLL100_I2_B4);
+	
+	EE_assert(EE_ASSERT_INIT, TRUE, EE_ASSERT_NIL);
   
-	EE_assert(EE_ASSERT_CLOCK_INIT, TRUE, EE_ASSERT_VERSION);
-
-	while (Mcu_GetPllStatus() != MCU_PLL_LOCKED);
-
-	EE_assert(EE_ASSERT_PLL_LOCKED, 
-				Mcu_GetPllStatus() == MCU_PLL_LOCKED, 
-				EE_ASSERT_CLOCK_INIT);
-
-
 	Port_Init(PORT_CONFIG_DEFAULT_PTR);
 	Dio_Init(DIO_CONFIG_DEFAULT_PTR);
 
 	Port_Init(PORT_CONFIG_SCI_PTR);
 	Sci_Init(SCI_CONFIG_DEFAULT_PTR);
 
-	EE_assert(EE_ASSERT_SCI_INIT, TRUE, EE_ASSERT_PLL_LOCKED);
+	EE_assert(EE_ASSERT_SCI_INIT, TRUE, EE_ASSERT_INIT);
 
 	EE_assert_range(EE_ASSERT_FIN, TRUE, EE_ASSERT_SCI_INIT);
 	result = EE_assert_last();
-
 	
 	  /* Forever loop: background activities (if any) should go here */
 	for (;result == 1;) {
@@ -183,5 +154,5 @@ int main(void)
 
 		}
 	}
-
+	
 }

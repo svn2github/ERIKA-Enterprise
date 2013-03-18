@@ -168,7 +168,8 @@ TASK(TaskRxOk)
 	if ( Sci_ReadRxData(SCI_CHANNEL_0, &RxData) == E_OK )
 		TxData = RxData;
 
-	while ((Sci_WriteTxData(SCI_CHANNEL_0, TxData) != E_OK) & (++tries < 20));
+		
+	while ((Sci_WriteTxData(SCI_CHANNEL_0, TxData) != E_OK) & (++tries < 30));
 
 }
 
@@ -230,7 +231,7 @@ int main(void)
 	Sci_EnableNotifications(SCI_CHANNEL_0);
 
 	
-	while( !(TxNotifCntr || TxOkCntr || RxNotifCntr || RxOkCntr ||
+	while( !(TxNotifCntr || TxOkCntr || (RxNotifCntr > 1) || (RxOkCntr > 1) ||
 			 RxErrNotifCntr || RxErrCntr));
 
 	EE_assert_range(EE_ASSERT_FIN, 

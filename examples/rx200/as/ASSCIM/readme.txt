@@ -1,7 +1,6 @@
 ASSCI3
 
- Simple project to test Sci_GetStatus(), Sci_ReadRxData() and Sci_WriteTxData()
- services.
+ Simple project to to estimate the SCI driver MINIMAL services.
  
  The compilation chain starts from the Cygwin shell with the "make" command.
 

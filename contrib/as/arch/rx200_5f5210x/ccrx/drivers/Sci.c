@@ -297,6 +297,8 @@ static void Sci_InitSciChannel(const Sci_ChannelConfigType * ConfigPtr)
 	register uint8		brd;	/* Baud-Rate Divisor	*/
 	register float32	pclk;	/* Clock Frequency	*/
 	
+	uint32 test;
+	
 	/* Enables Sci Module in Run-Mode */
 	Sci_EnableChannel(ConfigPtr->SciChannelId);
 	
@@ -330,6 +332,7 @@ static void Sci_InitSciChannel(const Sci_ChannelConfigType * ConfigPtr)
 		UART_SET_RTS_CTS(ConfigPtr->SciChannelId);
 	}
 	
+	test = pclk;
 	/* Baud-Rate Divisor computation waiting the peripheral to enable. */
 	if ( ConfigPtr->SciSysCtrl & SCI_CH_HW_HIGH_SPEED ) {
 		/* Clock Base Divider: 8 */
@@ -351,6 +354,7 @@ static void Sci_InitSciChannel(const Sci_ChannelConfigType * ConfigPtr)
 				SCI_CLK_DIV_LOW_SPEED);		
 	}
 	
+	test = brd;
 	/*UART Baud Rate Setup*/
 	UART_SET_BRD(ConfigPtr->SciChannelId, brd);
 	
@@ -801,6 +805,9 @@ void Sci_DeInit(void)
 		Sci_DeInitSciChannel(&(Sci_Global.ConfigPtr->SciChannels[channel]));
 	}
 
+	Sci_Global.ConfigPtr = NULL;
+	Sci_Global.Init = FALSE;
+	
 	EE_hal_resumeIRQ(flags);
 
 }
