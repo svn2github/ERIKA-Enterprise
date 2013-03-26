@@ -144,6 +144,16 @@ EE_SRCS += contrib/as/arch/rx200_5f5210x/ccrx/drivers/Gpt.c
 EE_SRCS += contrib/as/arch/rx200_5f5210x/ccrx/drivers/Gpt_Irq.c
 endif
 
+ifeq ($(call iseeopt, __AS_WDG_IWDT_DRIVER__), yes)
+EE_SRCS += contrib/as/arch/rx200_5f5210x/ccrx/drivers/Wdg_IWDT.c
+EE_SRCS += contrib/as/arch/rx200_5f5210x/ccrx/drivers/Wdg_IWDT_Irq.c
+endif
+
+ifeq ($(call iseeopt, __AS_WDG_PCLK_DRIVER__), yes)
+EE_SRCS += contrib/as/arch/rx200_5f5210x/ccrx/drivers/Wdg_PCLK.c
+EE_SRCS += contrib/as/arch/rx200_5f5210x/ccrx/drivers/Wdg_PCLK_Irq.c
+endif
+
 endif	#__R5F5210x__ && __CCRX__
 
 endif	# __AUTOSAR_R4_0__

@@ -39,9 +39,10 @@
  * ###*E*### */
 
 /*
- * Simple project to test SCI Driver interrupt operational mode.
+ * Simple project to demonstrate that the PCLK WDG driver is integrated into the
+ * makefiles and to test Wdg_PCLK_GetVersionInfo() service.
  *
- * Author: 2013  Gianluca Franchino
+ * Author: 2013,  Gianluca Franchino
  */
 
 CPU mySystem {
@@ -56,7 +57,7 @@ CPU mySystem {
 			APP_SRC = "Mcu_Cfg.c";
 			APP_SRC = "Port_Cfg.c";
 			APP_SRC = "Dio_Cfg.c";
-			APP_SRC = "Sci_Cfg.c";
+			APP_SRC = "Wdg_PCLK_Cfg.c";
 			COMPILER_TYPE = CCRX; 
 			MULTI_STACK = FALSE;
 		};
@@ -69,7 +70,9 @@ CPU mySystem {
 		EE_OPT = "__AS_MCU_DRIVER__";
 		EE_OPT = "__AS_PORT_DRIVER__";
 		EE_OPT = "__AS_DIO_DRIVER__";
-		EE_OPT = "__AS_SCI_DRIVER__";
+		EE_OPT = "__AS_WDG_PCLK_DRIVER__";
+		EE_OPT = "__AS_CFG_WDG_PCLK_VERSION_INFO_API__";
+		EE_OPT = "__AS_CFG_WDG_PCLK_FAST_MODE_RESET__";
 
 		/* Used to build separate libas.a without configuration */
 		EE_OPT = "__ADD_LIBS__";
@@ -87,50 +90,16 @@ CPU mySystem {
 		USEPARAMETERACCESS = FALSE;
 		USERESSCHEDULER = FALSE;
 
-		KERNEL_TYPE = FP;
+		KERNEL_TYPE = BCC1;
 
 	};
 
-		/* this is the OIL part for the tasks */
-	TASK TaskTxOk {
+	TASK Task1 {
 		PRIORITY = 0x01;   /* Low priority */
 		SCHEDULE = FULL;
 		AUTOSTART = FALSE;
 		ACTIVATION = 1;    /* only one pending activation */
 		STACK = SHARED;
-	};
-
-	TASK TaskRxOk {
-		PRIORITY = 0x02;
-		SCHEDULE = FULL;
-		AUTOSTART = FALSE;
-		ACTIVATION = 1;    /* only one pending activation */
-		STACK = SHARED;
-	};
-
-	TASK TaskRxErr {
-		PRIORITY = 0x01;   /* Low priority */
-		SCHEDULE = FULL;
-		AUTOSTART = FALSE;
-		ACTIVATION = 1;    /* only one pending activation */
-		STACK = SHARED;
-	};
-
-	/* this is the OIL part for the ISRs */
-	ISR EE_RX200_TXI0_ISR {
-		CATEGORY = 2;
-		ENTRY = "EE_RX200_TXI0_ISR";
-		PRIORITY = 1;
-	};
-	
-	ISR EE_RX200_ERI0_ISR {
-		CATEGORY = 2;
-		ENTRY = "EE_RX200_ERI0_ISR";
-	};
-	
-	ISR EE_RX200_RXI0_ISR {
-		CATEGORY = 2;
-		ENTRY = "EE_RX200_RXI0_ISR";
 	};
 
 };

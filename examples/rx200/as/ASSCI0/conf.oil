@@ -57,6 +57,7 @@ CPU mySystem {
 			APP_SRC = "Mcu_Cfg.c";
 			APP_SRC = "Port_Cfg.c";
 			APP_SRC = "Dio_Cfg.c";
+			APP_SRC = "Sci_Cfg.c";
 			COMPILER_TYPE = CCRX; 
 			MULTI_STACK = FALSE;
 		};

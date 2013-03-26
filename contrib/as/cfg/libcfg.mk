@@ -268,6 +268,29 @@ endif
 endif	# __NO_APP__
 endif	# __AS_GPT_DRIVER__
 
+ifeq ($(call iseeopt, __AS_WDG_IWDT_DRIVER__), yes)
+EE_SRCS_AUTOSAR += contrib/as/arch/rx200_5f5210x/ccrx/drivers/Wdg_IWDT.c
+EE_SRCS_AUTOSAR += contrib/as/arch/rx200_5f5210x/ccrx/drivers/Wdg_IWDT_Irq.c
+ifeq ($(call iseeopt, __NO_APP__), yes)
+ifneq ($(filter %Wdg_IWDT_Cfg.c, $(APP_SRCS)),)
+EE_SRCS_AUTOSAR += $(filter %Wdg_IWDT_Cfg.c, $(APP_SRCS))
+else
+EE_SRCS_AUTOSAR += $(OUTBASE)/Wdg_IWDT_Cfg.c
+endif
+endif	# __NO_APP__
+endif	# __AS_WDG_IWDT_DRIVER__
+
+ifeq ($(call iseeopt, __AS_WDG_PCLK_DRIVER__), yes)
+EE_SRCS_AUTOSAR += contrib/as/arch/rx200_5f5210x/ccrx/drivers/Wdg_PCLK.c
+EE_SRCS_AUTOSAR += contrib/as/arch/rx200_5f5210x/ccrx/drivers/Wdg_PCLK_Irq.c
+ifeq ($(call iseeopt, __NO_APP__), yes)
+ifneq ($(filter %Wdg_PCLK_Cfg.c, $(APP_SRCS)),)
+EE_SRCS_AUTOSAR += $(filter %Wdg_PCLK_Cfg.c, $(APP_SRCS))
+else
+EE_SRCS_AUTOSAR += $(OUTBASE)/Wdg_PCLK_Cfg.c
+endif
+endif	# __NO_APP__
+endif	# __AS_WDG_PCLK_DRIVER__
 
 endif	#__R5F5210x__ && __CCRX__
 

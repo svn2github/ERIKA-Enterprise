@@ -235,6 +235,17 @@
 /**< MTU5 Timer Start Registers (TSTR) address. */
 #define HW_TSTR5_ADDR			EE_HWREG8_ADDR(0x000888B4)
 
+/* WDT timer related registers. */
+/**< WDT refresh register (WDTRR) address. */
+#define HW_WDTRR_ADDR			EE_HWREG8_ADDR(0x00088020)
+/**< WDT control register (WDTCR) address. */
+#define HW_WDTCR_ADDR			EE_HWREG16_ADDR(0x00088022)
+/**< WDT status register (WDTSR) address. */
+#define HW_WDTSR_ADDR			EE_HWREG16_ADDR(0x00088024)
+/**< WDT reset control register (WDTRCR) address. */
+#define HW_WDTRCR_ADDR			EE_HWREG8_ADDR(0x00088024)
+
+
 /* Module Stop/Start related registers. */
 /**< Module Stop Control Register A (MSTPCRA) address. */
 #define HW_SYSTEM_MSTPCRA_ADDR	EE_HWREG_ADDR(0x00080010)
@@ -444,8 +455,26 @@
 #define HW_ICU_IPR_SCI9				EE_HWREG8_ADDR(0x000873EA)
 /**< Address of IPR of SCI12 */
 #define HW_ICU_IPR_SCI12			EE_HWREG8_ADDR(0x000873EE)
+/**< Address of Non-Maskable Interrupt Status Register (NMISR) */
+#define HW_ICU_NMISR				EE_HWREG8_ADDR(0x00087580)
+/**< Address of Non-Maskable Interrupt Enable Register (NMIER) */
+#define HW_ICU_NMIER				EE_HWREG8_ADDR(0x00087581)
+/**< Address of Non-Maskable Interrupt Status Clear Register (NMICLR) */
+#define HW_ICU_NMICLR				EE_HWREG8_ADDR(0x00087582)
+/**< Address of NMI Pin Interrupt Control Register (NMICR) */
+#define HW_ICU_NMICR				EE_HWREG8_ADDR(0x00087583)
+/**< Address of NMI Pin Digital Filter Enable Register (NMIFLTE) */
+#define HW_ICU_NMIFLTE				EE_HWREG8_ADDR(0x00087590)
 
-
+/*NMIER bits*/
+#define HW_ICU_NMIER_WDTST_MASK		0x40
+#define HW_ICU_NMIER_IWDTST_MASK	0x40
+/*NMISR bits*/
+#define HW_ICU_NMISR_WDTST_MASK		0x40
+#define HW_ICU_NMISR_IWDTST_MASK	0x80
+/*NMICLR bits*/
+#define HW_ICU_NMICLR_WDTCLR_MASK	0x40
+#define HW_ICU_NMISR_IWDTST_MASK	0x80
 
 /* IER bit mask.*/
 /**< Bit mask for TMR0 CMIA .*/
