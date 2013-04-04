@@ -194,3 +194,10 @@ help::
 ifneq ($(and $(filter-out $(TESTLIST),$(ARCH)),$(filter-out $(MAKECMDGOALS),supported)),)
 $(error Unknow architecture $(ARCH))
 endif
+
+# This target replaces inlcude "test/assert/inc/ee_assert.h" with include "ee_assert.h"
+.PHONY: flat_assert
+flat_assert:
+	@find . -iname "code.c" -type f | while read  file; do \
+	echo "$${file}"; sed -i.bak -e "s-\#include\s*\"test/assert/inc/ee_assert.h\"-\#include \"ee_assert.h\"-" "$${file}"  ; rm "$${file}.bak" ; \
+	done
