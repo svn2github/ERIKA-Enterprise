@@ -84,11 +84,13 @@ const Wdg_PCLK_ExternalConfigType	WdgPCLKExternalConfiguration = {
 const Wdg_PCLK_SettingsFastType	WdgPCLKSettingsFast = {
 					/* WdgCtl:			      */
 #ifdef	__AS_CFG_WDG_PCLK_FAST_MODE_RESET__
-		WDG_PCLK_CTL_RST_EN		|	/* - Watchdog Reset Enable.	      */
-#endif	/* __AS_CFG_WDG_PCLK_FAST_MODE_RESET__ */
-#ifdef	__AS_CFG_WDG_PCLK_FAST_MODE_NMI__
+		WDG_PCLK_CTL_RST_EN,			/* - Watchdog Reset Enable.	      */
+#elif defined __AS_CFG_WDG_PCLK_FAST_MODE_NMI__
 		WDG_PCLK_CTL_NMI_INT,		/* - NMI Watchdog Interrupt.	      */
-#endif	/* !__AS_CFG_WDG_PCLK_FAST_MODE_NMI__ */
+#else 
+#error Either __AS_CFG_WDG_PCLK_FAST_MODE_RESET__ or \
+__AS_CFG_WDG_PCLK_FAST_MODE_NMI__ should be defined!
+#endif	/* __AS_CFG_WDG_PCLK_FAST_MODE_NMI__ */
 		0x0005U,				/* WdgTimeout.			      */
 #ifdef	__AS_CFG_WDG_PCLK_FAST_MODE_NOTIFICATION__
 		&Wdg_PCLK_Notification_Fast,	/* WdgNotificationPtr.		      */
@@ -112,14 +114,16 @@ const Wdg_PCLK_SettingsOffType		WdgPCLKSettingsOff = {
 const Wdg_PCLK_SettingsSlowType	WdgPCLKSettingsSlow = {
 					/* WdgCtl:			      */
 #ifdef	__AS_CFG_WDG_PCLK_SLOW_MODE_RESET__
-		WDG_PCLK_CTL_RST_EN		|	/* - Watchdog Reset Enable.	      */
-#endif	/* __AS_CFG_WDG_PCLK_SLOW_MODE_RESET__ */
-#ifdef	__AS_CFG_WDG_PCLK_SLOW_MODE_NMI__
+		WDG_PCLK_CTL_RST_EN,			/* - Watchdog Reset Enable.	      */
+#elif defined __AS_CFG_WDG_PCLK_SLOW_MODE_NMI__
 		WDG_PCLK_CTL_NMI_INT,		/* - NMI Watchdog Interrupt.	      */
+#else 
+#error Either __AS_CFG_WDG_PCLK_SLOW_MODE_RESET__ or \
+__AS_CFG_WDG_PCLK_SLOW_MODE_NMI__ should be defined!
 #endif	/* __AS_CFG_WDG_PCLK_SLOW_MODE_NMI__ */
-		0x0014U,				/* WdgTimeout.			      */
+		0x0020U,				/* WdgTimeout.			      */
 #ifdef	__AS_CFG_WDG_PCLK_SLOW_MODE_NOTIFICATION__
-		&Wdg_PCLK_Notification_Slow,		/* WdgNotificationPtr.		      */
+		&Wdg_PCLK_Notification_Slow,	/* WdgNotificationPtr.		      */
 #else	/* __AS_CFG_WDG_PCLK_SLOW_MODE_NOTIFICATION__ */
 		NULL_PTR,				/* WdgNotificationPtr.		      */
 #endif	/* !__AS_CFG_WDG_PCLK_NOTIFICATION_SLOW__ */

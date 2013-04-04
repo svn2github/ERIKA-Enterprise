@@ -90,24 +90,29 @@ Wdg_PCLK_GlobalType Wdg_PCLK_Global =
 };
 
 
-/*
- * Set the nearest Timed-out period to tc/div.
+/** @brief	Set WDG WDTCR register. That is, set clock div, time-out and window.
+ *	@param  tc Time-out counter.
+ *	@param  wdtcr_bits Bits to configure clock division ratio and refresh window.
+ *	
  */
-static void Wdg_PCLK_SetTOP(uint32 tc, uint16 div) 
+static void Wdg_PCLK_SetWDTCR(uint32 tc, uint16 wdtcr_bits) 
 {
-	uint32 rel_tc;
-	
-	rel_tc = tc /div;
+	/*
+	* wdtcr_bits: b12, b11 ->Window Start Position
+ 	* wdtcr_bits: b8, b9 ->Window End Position
+	* wdtcr_bits: b4, b7 ->Clock Division Ratio
+	*/
 
-	if (rel_tc <= WDG_PCLK_TOP0) {
-		WDG_PCLK_SET_TOP0();
-	} else if (rel_tc <= WDG_PCLK_TOP1 ) {
-		WDG_PCLK_SET_TOP1();
-	} else if (rel_tc <= WDG_PCLK_TOP2 ) {
-		WDG_PCLK_SET_TOP2();
+	if (tc <= WDG_PCLK_TOP0) {
+		WDG_PCLK_SET_WDTCR(wdtcr_bits | WDG_PCLK_TOP0_MASK);
+	} else if (tc <= WDG_PCLK_TOP1 ) {
+		WDG_PCLK_SET_WDTCR(wdtcr_bits | WDG_PCLK_TOP1_MASK);
+	} else if (tc <= WDG_PCLK_TOP2 ) {
+		WDG_PCLK_SET_WDTCR(wdtcr_bits | WDG_PCLK_TOP2_MASK);
 	} else {
-		WDG_PCLK_SET_TOP3();
+		WDG_PCLK_SET_WDTCR(wdtcr_bits | WDG_PCLK_TOP3_MASK);
 	}
+	
 }
 
 /*
@@ -117,7 +122,8 @@ static Std_ReturnType Wdg_PCLK_SetMode_Internal(WdgIf_ModeType	Mode)
 {
 	Std_ReturnType	ret = E_OK;
 	register float32	pclk;	/* Clock Frequency	*/
-	register uint32	ticks; 		/*Number of ticks */	
+	register uint32	ticks; 		/*Number of ticks */
+	
 
 	if ( Mode != WDGIF_OFF_MODE ) {
 
@@ -129,45 +135,48 @@ static Std_ReturnType Wdg_PCLK_SetMode_Internal(WdgIf_ModeType	Mode)
 		if (Mode == WDGIF_FAST_MODE) {
 			ticks = MS_TO_TICKS(
 				Wdg_PCLK_Global.ConfigPtr->WdgSettingsFast->WdgTimeout, pclk);
-			WDG_PCLK_SET_CTRL(Wdg_PCLK_Global.ConfigPtr->WdgSettingsFast->WdgCtl);
+			WDG_PCLK_SET_UN_ACT(Wdg_PCLK_Global.ConfigPtr->WdgSettingsFast->WdgCtl);
 			
 		} else {
 			ticks = MS_TO_TICKS(
 				Wdg_PCLK_Global.ConfigPtr->WdgSettingsSlow->WdgTimeout, pclk);
-			WDG_PCLK_SET_CTRL(Wdg_PCLK_Global.ConfigPtr->WdgSettingsSlow->WdgCtl);
+			WDG_PCLK_SET_UN_ACT(Wdg_PCLK_Global.ConfigPtr->WdgSettingsSlow->WdgCtl);
 		}
 		
 		if (ticks < WDG_PCLKD4_MAX_TICKS) {
 			
-			WDG_PCLK_SET_DIV4();
-			Wdg_PCLK_SetTOP(ticks, WDG_PCLK_DIV4);
+			Wdg_PCLK_SetWDTCR( ticks / WDG_PCLK_DIV4, WDG_PCLK_DIV4_MASK | 
+							WDG_WDTCR_WIND_MASK);
 			
 		} else if (ticks < WDG_PCLKD64_MAX_TICKS) {
 			
-			WDG_PCLK_SET_DIV64();
-			
-			Wdg_PCLK_SetTOP(ticks, WDG_PCLK_DIV64);
+			Wdg_PCLK_SetWDTCR( ticks / WDG_PCLK_DIV64, WDG_PCLK_DIV64_MASK | 
+							WDG_WDTCR_WIND_MASK);
 			
 		} else if (ticks < WDG_PCLKD128_MAX_TICKS) {
 			
-			WDG_PCLK_SET_DIV128();
-			Wdg_PCLK_SetTOP(ticks, WDG_PCLK_DIV128);
+			Wdg_PCLK_SetWDTCR( ticks / WDG_PCLK_DIV128, WDG_PCLK_DIV128_MASK | 
+							WDG_WDTCR_WIND_MASK);
 			
 		} else if (ticks < WDG_PCLKD512_MAX_TICKS) {
 			
-			WDG_PCLK_SET_DIV512();
+			Wdg_PCLK_SetWDTCR( ticks / WDG_PCLK_DIV512, WDG_PCLK_DIV512_MASK | 
+							WDG_WDTCR_WIND_MASK);
 					
 		} else if (ticks < WDG_PCLKD2048_MAX_TICKS) {
 			
-			WDG_PCLK_SET_DIV2048();
-			Wdg_PCLK_SetTOP(ticks, WDG_PCLK_DIV2048);
+			Wdg_PCLK_SetWDTCR( ticks / WDG_PCLK_DIV2048, WDG_PCLK_DIV2048_MASK | 
+							WDG_WDTCR_WIND_MASK);
 			
 		} else if (ticks < WDG_PCLKD8192_MAX_TICKS) {
 			
-			WDG_PCLK_SET_DIV8192();
-			Wdg_PCLK_SetTOP(ticks, WDG_PCLK_DIV8192);
+			Wdg_PCLK_SetWDTCR( ticks / WDG_PCLK_DIV8192, WDG_PCLK_DIV8192_MASK | 
+							WDG_WDTCR_WIND_MASK);
 			
-		}	
+		} else {
+			
+			ret = E_NOT_OK;
+		}
 	}	
   
 	if ( ret == E_OK ) {
@@ -238,7 +247,7 @@ Std_ReturnType Wdg_PCLK_SetMode(WdgIf_ModeType	Mode)
 	register Std_ReturnType	rv;
 
 #if	( WDG_PCLK_DISABLE_ALLOWED == STD_OFF )
-	VALIDATE_W_RV(( Mode == WDGIF_OFF_MODE ), 
+	VALIDATE_W_RV(( Mode != WDGIF_OFF_MODE ), 
 			WDG_SETMODE_SERVICE_ID,
 			WDG_E_PARAM_MODE,
 			E_NOT_OK);

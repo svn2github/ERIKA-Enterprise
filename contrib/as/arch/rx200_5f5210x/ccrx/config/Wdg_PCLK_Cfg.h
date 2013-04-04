@@ -192,9 +192,9 @@
 #endif
 
 /** @brief	Watchdog Non-Maskable Interrupt.*/
-#define	WDG_PCLK_CTL_NMI_INT	0x80U
+#define	WDG_PCLK_CTL_NMI_INT	0x00U
 /** @brief	Watchdog Reset Enable.*/
-#define	WDG_PCLK_CTL_RST_EN		0x00U
+#define	WDG_PCLK_CTL_RST_EN		0x80U
 
 
 #ifdef	__AS_CFG_WDG_PCLK_FAST_MODE_NOTIFICATION__

@@ -243,7 +243,7 @@
 /**< WDT status register (WDTSR) address. */
 #define HW_WDTSR_ADDR			EE_HWREG16_ADDR(0x00088024)
 /**< WDT reset control register (WDTRCR) address. */
-#define HW_WDTRCR_ADDR			EE_HWREG8_ADDR(0x00088024)
+#define HW_WDTRCR_ADDR			EE_HWREG8_ADDR(0x00088026)
 
 
 /* Module Stop/Start related registers. */
@@ -467,14 +467,14 @@
 #define HW_ICU_NMIFLTE				EE_HWREG8_ADDR(0x00087590)
 
 /*NMIER bits*/
-#define HW_ICU_NMIER_WDTST_MASK		0x40
-#define HW_ICU_NMIER_IWDTST_MASK	0x40
+#define HW_ICU_NMIER_WDTST_MASK		0x04
+#define HW_ICU_NMIER_IWDTST_MASK	0x08
 /*NMISR bits*/
-#define HW_ICU_NMISR_WDTST_MASK		0x40
-#define HW_ICU_NMISR_IWDTST_MASK	0x80
+#define HW_ICU_NMISR_WDTST_MASK		0x04
+#define HW_ICU_NMISR_IWDTST_MASK	0x08
 /*NMICLR bits*/
-#define HW_ICU_NMICLR_WDTCLR_MASK	0x40
-#define HW_ICU_NMISR_IWDTST_MASK	0x80
+#define HW_ICU_NMICLR_WDTCLR_MASK	0x04
+#define HW_ICU_NMISR_IWDTST_MASK	0x08
 
 /* IER bit mask.*/
 /**< Bit mask for TMR0 CMIA .*/

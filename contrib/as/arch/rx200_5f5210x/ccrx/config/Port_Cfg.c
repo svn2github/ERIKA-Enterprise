@@ -365,7 +365,7 @@ const Port_ConfigType Port_Config[] = {
 #if 0
 			14U, /* PortNumberOfPortPins	*/
 #else
-			4U, /* PortNumberOfPortPins	*/
+			2U, /* PortNumberOfPortPins	*/
 #endif
 			&SCIPortPins[0] /*PortPins */
 		}

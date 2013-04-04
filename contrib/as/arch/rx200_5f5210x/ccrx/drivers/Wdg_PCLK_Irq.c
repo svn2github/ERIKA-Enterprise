@@ -81,10 +81,18 @@ static void Wdg_PCLK_Isr(void) {
 	register EE_UREG	flags;
 
 	flags = EE_hal_suspendIRQ();
-/*
- * TODO: Read WDTSR register to check if either underflow or refresh error has 
- * occurred!! The relative bit has to be cleared.
- * */
+
+	/*Check if the interrupt was raised because of underflow or refresh error,
+	 * then clear the corresponding flag.
+	 */
+	if (WDG_PCLK_GET_WDTSR() & WDG_WDTSR_UNDFF_FLAG_MASK) {
+		while(WDG_PCLK_GET_WDTSR() & WDG_WDTSR_UNDFF_FLAG_MASK)
+			WDG_PCLK_RESET_WDTSR_UNDFF(); 
+	} else {
+		
+		WDG_PCLK_RESET_WDTSR_REFEF();
+	}
+	
 	if ( Wdg_PCLK_Global.State == WDG_IDLE &&  
 			(Wdg_PCLK_Global.Mode != WDGIF_OFF_MODE )) {
 		if ( Wdg_PCLK_Global.Expired == FALSE ) {
@@ -132,7 +140,7 @@ static void Wdg_PCLK_Isr(void) {
 ISR2(EE_RX200_NON_MASKABLE_INT) { 
 	if (EE_HWREG8(HW_ICU_NMISR) & HW_ICU_NMISR_WDTST_MASK) {
 		Wdg_PCLK_Isr();
-		EE_HWREG8(HW_ICU_NMICLR) &= (~HW_ICU_NMICLR_WDTCLR_MASK);
+		EE_HWREG8(HW_ICU_NMICLR) = HW_ICU_NMICLR_WDTCLR_MASK;
 	}
 }
 

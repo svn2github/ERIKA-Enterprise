@@ -239,42 +239,35 @@
 #define WDG_PCLK_TOP2_MASK		0x0002
 #define WDG_PCLK_TOP3_MASK		0x0003
 /*Bit masks used to set Window start and stop bits. */
-#define WDG_WDTCR_SHIFT_MASK	0x08
-#define WDG_WDTCR_WIND_MASK		0x33
+#define WDG_WDTCR_WIND_MASK		0x3300
+
+#define WDG_WDTAR_CLEAR_UNDFF_FLAG		0xBFFF
+#define WDG_WDTAR_CLEAR_REFEF_FLAG		0x7FFF
+#define WDG_WDTSR_UNDFF_FLAG_MASK 		0x4000
 
 
 /*
- * Macros used to set the PCLK divisor.
+ * Macros used to set the WDTCR register.
  */
-#define WDG_PCLK_SET_DIV4() \
-	(EE_HWREG16(HW_WDTCR_ADDR) |= WDG_PCLK_DIV4_MASK)
+#define WDG_PCLK_SET_WDTCR(_val) \
+	(EE_HWREG16(HW_WDTCR_ADDR) = _val)
 
-#define WDG_PCLK_SET_DIV64() \
-	(EE_HWREG16(HW_WDTCR_ADDR) |= WDG_PCLK_DIV64_MASK) 
+/*
+ * Get the WDTCR register value.
+ */
+#define WDG_PCLK_GET_WDTSR() ( EE_HWREG16(HW_WDTSR_ADDR) )
 
-#define WDG_PCLK_SET_DIV128() \
-	(EE_HWREG16(HW_WDTCR_ADDR) |= WDG_PCLK_DIV128_MASK) 
+/*
+ * Clear the UNDFF flag in the WDTCR register.
+ */
+#define WDG_PCLK_RESET_WDTSR_UNDFF() \
+	( EE_HWREG16(HW_WDTSR_ADDR) = WDG_WDTAR_CLEAR_UNDFF_FLAG)
 
-#define WDG_PCLK_SET_DIV512() \
-	(EE_HWREG16(HW_WDTCR_ADDR) |= WDG_PCLK_DIV512_MASK) 
-
-#define WDG_PCLK_SET_DIV2048() \
-	(EE_HWREG16(HW_WDTCR_ADDR) |= WDG_PCLK_DIV2048_MASK) 
-
-#define WDG_PCLK_SET_DIV8192() \
-	(EE_HWREG16(HW_WDTCR_ADDR) |= WDG_PCLK_DIV8192_MASK) 
-
-#define WDG_PCLK_SET_TOP0() \
-	(EE_HWREG16(HW_WDTCR_ADDR) |= WDG_PCLK_TOP0_MASK)
-
-#define WDG_PCLK_SET_TOP1() \
-	(EE_HWREG16(HW_WDTCR_ADDR) |= WDG_PCLK_TOP1_MASK)
-
-#define WDG_PCLK_SET_TOP2() \
-	(EE_HWREG16(HW_WDTCR_ADDR) |= WDG_PCLK_TOP2_MASK)
-
-#define WDG_PCLK_SET_TOP3() \
-	(EE_HWREG16(HW_WDTCR_ADDR) |= WDG_PCLK_TOP3_MASK)
+/*
+ * Clear the REFEF flag in the WDTCR register.
+ */
+#define WDG_PCLK_RESET_WDTSR_REFEF() \
+	( EE_HWREG16(HW_WDTSR_ADDR) = WDG_WDTAR_CLEAR_REFEF_FLAG)
 
 /*
  * Macros used to start/refresh the watchdog.
@@ -288,12 +281,10 @@
 /** @brief	Set WDG refresh window and select WDG action: either NMI or reset.
  *	@param  _val Configuration value.
  */
-#define WDG_PCLK_SET_CTRL(_val) \
+#define WDG_PCLK_SET_UN_ACT(_val) \
 	do {\
-		EE_HWREG16(HW_WDTCR_ADDR) |= \
-			(((uint16)(_val) << WDG_WDTCR_SHIFT_MASK) & WDG_WDTCR_WIND_MASK);\
 		EE_HWREG8(HW_WDTRCR_ADDR) = _val;\
-		EE_HWREG8(HW_ICU_NMIER) = (_val & 0x80) >> 0x04;\
+		EE_HWREG8(HW_ICU_NMIER) = (~_val & 0x80) >> 0x05;\
 } while(0)
 
 
