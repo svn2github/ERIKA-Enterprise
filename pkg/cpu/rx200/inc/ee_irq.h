@@ -75,7 +75,7 @@ extern struct EE_TOS EE_rx200_IRQ_tos;
 extern void EE_rx200_change_IRQ_stack(void);
 extern void EE_rx200_change_IRQ_stack_back(void);
 
-EE_ADDR EE_rx200_tmp_tos;
+//EE_ADDR EE_rx200_tmp_tos;
 
 
 /*save the stack pointer*/ /*Load new stack pointer*/

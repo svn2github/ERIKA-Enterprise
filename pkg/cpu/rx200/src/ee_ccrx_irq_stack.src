@@ -51,10 +51,13 @@
 
 	.GLB	_EE_rx200_change_IRQ_stack
 	.GLB	_EE_rx200_change_IRQ_stack_back
-	.GLB	_EE_rx200_tmp_tos
 	.GLB	_EE_rx200_IRQ_tos
 		
-	.SECTION   P,CODE
+	.SECTION	B, DATA, ALIGN=4
+	
+_EE_rx200_tmp_tos:	.BLKL	1	
+
+	.SECTION   	P,CODE
 
 
 ;void EE_rx200_change_IRQ_stack(void);

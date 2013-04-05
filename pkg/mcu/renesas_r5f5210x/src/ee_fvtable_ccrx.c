@@ -58,21 +58,21 @@ void EE_dummy(void){/* brk(){  } */}
 //extern void EE_rx200_default_ISR(void);		// Default Handler
 
 
-#ifndef EE_RX200_NON_MASKABLE_INT
+#ifndef EE_RX200_NON_MASKABLE_INT_ISR
 //#pragma interrupt (EE_rx200_non_maskable_int)
 void	EE_rx200_non_maskable_int(void) { while(1);}
 #else
 extern void	EE_rx200_non_maskable_int(void);
 #endif
 
-#ifndef EE_RX200_SUPER_VIS_EXC
+#ifndef EE_RX200_SUPER_VIS_EXC_ISR
 //#pragma interrupt (EE_rx200_super_vis_exc)
 void	EE_rx200_super_vis_exc(void) {	while(1); }
 #else
 extern void	EE_rx200_super_vis_exc(void);
 #endif
 
-#ifndef EE_RX200_UNDEF_INST_EXC
+#ifndef EE_RX200_UNDEF_INST_EXC_ISR
 //#pragma interrupt (EE_rx200_undef_inst_exc)
 void	EE_rx200_undef_inst_exc(void) {	while(1); }
 #else
@@ -80,7 +80,7 @@ extern void	EE_rx200_undef_inst_exc(void);
 #endif
 
 
-#ifndef EE_RX200_FLOTING_P_EXC
+#ifndef EE_RX200_FLOTING_P_EXC_ISR
 //#pragma interrupt (EE_rx200_floting_p_exc)
 void	EE_rx200_floting_p_exc(void) {	while(1); }
 #else
