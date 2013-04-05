@@ -54,7 +54,7 @@ CPU mySystem {
 		EE_OPT = "__ASSERT__";
 
 		CPU_DATA = RX200 {
-			MODEL = RX210;
+			//MODEL = RX210;
 			APP_SRC = "code.c";
 			COMPILER_TYPE = CCRX; 
 			MULTI_STACK = FALSE;
@@ -93,7 +93,7 @@ CPU mySystem {
 
 	TASK Task2 {
 		PRIORITY = 0x01;   /* Low priority */
-		AUTOSTART = FALSE;
+		AUTOSTART = TRUE;
 		STACK = SHARED;
 		ACTIVATION = 1;    /* only one pending activation */
 		SCHEDULE = FULL;

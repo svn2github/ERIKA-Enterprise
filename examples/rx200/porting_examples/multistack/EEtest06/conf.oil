@@ -62,7 +62,8 @@ CPU mySystem {
 			APP_SRC = "code.c";
 			COMPILER_TYPE = CCRX; 
 			MULTI_STACK = TRUE;
-
+		};
+			
 		MCU_DATA = RENESAS {
 			MODEL = R5F5210x;
 		};

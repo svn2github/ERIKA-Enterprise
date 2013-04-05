@@ -56,7 +56,7 @@ CPU mySystem {
 		EE_OPT = "__ASSERT__";
 
 		CPU_DATA = RX200 {
-			MODEL = RX210;
+			//MODEL = RX210;
 			APP_SRC = "code.c";
 			COMPILER_TYPE = CCRX; 
 			MULTI_STACK = FALSE;

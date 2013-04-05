@@ -65,6 +65,7 @@ CPU mySystem {
 					SYS_SIZE=512;
 				};
 			};
+		};
 
 		MCU_DATA = RENESAS {
 			MODEL = R5F5210x;

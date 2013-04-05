@@ -60,6 +60,7 @@ CPU mySystem {
 				IRQ_STACK = TRUE {
 					SYS_SIZE=512;
 				};
+			};
 		};
 
 		MCU_DATA = RENESAS {
