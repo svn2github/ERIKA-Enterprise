@@ -39,8 +39,8 @@
  * ###*E*### */
 
 /*
- * Simple project to demonstrate that the PCLK WDG driver is integrated into the
- * makefiles and to test Wdg_PCLK_GetVersionInfo() service.
+ * Simple project to demonstrate that the PCLK WDG driver services using callback
+ * and standard watchdog NM interrupt without system reset.
  *
  * Author: 2013,  Gianluca Franchino
  */
@@ -51,9 +51,6 @@
 #include "Wdg_PCLK.h"
 #include "test/assert/inc/ee_assert.h"
 
-#ifndef	TRUE
-#define	TRUE	1
-#endif
 
 /* Assertions */
 enum EE_ASSERTIONS {
@@ -62,6 +59,9 @@ enum EE_ASSERTIONS {
 	EE_ASSERT_VERSION,
 	EE_ASSERT_CLOCK_INIT,
 	EE_ASSERT_PLL_LOCKED,
+	EE_ASSERT_WDG_INIT,
+	EE_ASSERT_WDG_SLOW_MODE,
+	EE_ASSERT_WDG_SLOW_NOTIF,
 	EE_ASSERT_DIM
 };
 
@@ -70,26 +70,69 @@ EE_TYPEASSERTVALUE EE_assertions[EE_ASSERT_DIM];
 /* Final result */
 volatile EE_TYPEASSERTVALUE result;
 
-
 /* counter */
 volatile int counter = 0;
+
+volatile boolean wdgfeed = FALSE;
+
+/*
+ * Watchdog Slow Mode Notification Callback.
+ */
+void Wdg_PCLK_Notification_Slow(void)
+{
+	if ( counter == 0 ) {
+
+		EE_assert(EE_ASSERT_WDG_SLOW_NOTIF, TRUE,  EE_ASSERT_WDG_SLOW_MODE);
+	}
+
+	Dio_FlipChannel(DIO_CHANNEL_USER_LED_1);
+
+	counter++;
+
+	Wdg_PCLK_SetTriggerCondition(1000 * counter);
+
+	if ( counter == 10 ) {
+		counter = 1;
+		wdgfeed = TRUE;
+	}
+}
 
 /*
  * TASK BackgroundTask
  */
 TASK(BackgroundTask)
 {
+
+	EE_assert(EE_ASSERT_WDG_SLOW_MODE, 
+			( Wdg_PCLK_SetMode(WDGIF_SLOW_MODE) == E_OK ),
+			EE_ASSERT_WDG_INIT);
+
 	/* Forever loop: background activities (if any) should go here */
-	for (;result == 1;) {
-		while (counter % 100000) counter++;
+	for(;;) {
+		if (wdgfeed == TRUE) {
 
-		Dio_FlipChannel(DIO_CHANNEL_USER_LED_0);
+			Wdg_PCLK_SetTriggerCondition(1000);	/* 1s */
 
-		counter++;
+			if (Dio_ReadChannel(DIO_CHANNEL_USER_SWITCH_1) == TRUE)
+				wdgfeed = 0;
+
+			counter = 2;
+
+			Dio_FlipChannel(DIO_CHANNEL_USER_LED_0);
+		}
+
+		if (counter == 1) {
+
+			EE_assert_range(EE_ASSERT_FIN, TRUE, EE_ASSERT_WDG_SLOW_NOTIF);
+			result = EE_assert_last();
+			counter++;
+		}
+
 	}
 
 	TerminateTask();
 }
+
 
 /*
  * MAIN TASK
@@ -131,9 +174,9 @@ int main(void)
 	Port_Init(PORT_CONFIG_DEFAULT_PTR);
 	Dio_Init(DIO_CONFIG_DEFAULT_PTR);
 
-	EE_assert_range(EE_ASSERT_FIN, TRUE, EE_ASSERT_PLL_LOCKED);
+	Wdg_PCLK_Init(WDG_PCLK_CONFIG_DEFAULT_PTR);
 	
-	result = EE_assert_last();
+	EE_assert(EE_ASSERT_WDG_INIT, TRUE, EE_ASSERT_PLL_LOCKED);
 
 	/* Start ERIKA ENTERPRISE */
 	StartOS(OSDEFAULTAPPMODE);

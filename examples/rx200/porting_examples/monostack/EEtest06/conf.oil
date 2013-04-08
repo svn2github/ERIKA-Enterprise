@@ -80,11 +80,13 @@ CPU mySystem {
 		USEGETSERVICEID = FALSE;
 		USEPARAMETERACCESS = FALSE;
 		USERESSCHEDULER = FALSE;
+		
+		
 
 	};
 
 	TASK Task1 {
-		PRIORITY = 0x02;   /* High priority */
+		PRIORITY = 0x01;   /* Low priority */
 		AUTOSTART = FALSE;
 		STACK = SHARED;
 		ACTIVATION = 1;    /* only one pending activation */

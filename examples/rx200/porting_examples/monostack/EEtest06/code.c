@@ -143,6 +143,8 @@ int main(void)
 	
 	StartOS(OSDEFAULTAPPMODE);
 	
+	ActivateTask(Task2);
+	
 	counter++;
 	
 	EE_assert(

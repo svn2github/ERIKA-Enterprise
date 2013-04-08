@@ -72,7 +72,7 @@
 
 #include "ee.h"
 
-#if	( defined(EE_RX200_NON_MASKABLE_INT) ) 
+#if	( defined(EE_RX200_NON_MASKABLE_INT_ISR) )
 
 #include "Wdg_PCLK_Internal.h"
 
@@ -130,19 +130,27 @@ static void Wdg_PCLK_Isr(void) {
 
 }
 
-#endif	/* (EE_RX200_NON_MASKABLE_INT ) */
+#endif	/* (EE_RX200_NON_MASKABLE_INT_ISR ) */
 
 
-#if	( defined(EE_RX200_NON_MASKABLE_INT) )
+
+#if	( defined(EE_RX200_NON_MASKABLE_INT_ISR) )
 /*
  * WDG Interrupt Service Routine.
  */
-ISR2(EE_RX200_NON_MASKABLE_INT) { 
+ISR2(EE_rx200_non_maskable_int) {
+
 	if (EE_HWREG8(HW_ICU_NMISR) & HW_ICU_NMISR_WDTST_MASK) {
+
+		do {
+
+			EE_HWREG8(HW_ICU_NMICLR) = HW_ICU_NMICLR_WDTCLR_MASK;
+
+		} while (EE_HWREG8(HW_ICU_NMISR) & HW_ICU_NMISR_WDTST_MASK);
+
 		Wdg_PCLK_Isr();
-		EE_HWREG8(HW_ICU_NMICLR) = HW_ICU_NMICLR_WDTCLR_MASK;
 	}
 }
 
-#endif	/* EE_RX200_NON_MASKABLE_INT */
+#endif	/* EE_RX200_NON_MASKABLE_INT_ISR */
 

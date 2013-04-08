@@ -75,7 +75,6 @@ CPU test_application {
 		EE_OPT = "__AS_WDG_SYSCLK_DRIVER__";
 		EE_OPT = "__AS_CFG_WDG_SYSCLK_VERSION_INFO_API__";
 		EE_OPT = "__AS_CFG_WDG_SYSCLK_DISABLE_ALLOWED__";
-		EE_OPT = "__AS_CFG_WDG_SYSCLK_WATCHDOG_TIMER_ISR__";
 		EE_OPT = "__AS_CFG_WDG_SYSCLK_SLOW_MODE_NOTIFICATION__";
 
 		/* Used to build separate libas.a without configuration */
