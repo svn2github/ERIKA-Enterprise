@@ -129,4 +129,7 @@ void __attribute__((__interrupt__,__auto_psv__)) f(void) \
 } \
 void ISR2_##f(void)
 
+#define ISR1(f) \
+void __attribute__((__interrupt__,__auto_psv__)) f(void)
+
 #endif	/* __INCLUDE_PIC30_EE_IRQSTUB_H__ */
