@@ -596,11 +596,11 @@ void EE_ecan1_Rx(ee_ecan_mID *message)
 
 void EE_ecan1_ClearIntrFlags(void){
 	/* Clear Interrupt Flags */
-	IFS0=0;
-	IFS1=0;
-	IFS2=0;
-	IFS3=0;
-	IFS4=0;
+	IFS2bits.C1IF = 0;
+	IFS1bits.DMA2IF = 0;
+	IFS2bits.DMA3IF = 0;
+	C1INTFbits.TBIF = 0;
+	C1INTFbits.RBIF = 0;
 }
 
 
