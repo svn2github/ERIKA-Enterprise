@@ -196,9 +196,10 @@ endif
 
 # #OPT_ASM are the options for asm invocation
 OPT_ASM = -Ifrommchp
-#ifeq ($(call iseeopt, DEBUG), yes)
-#OPT_ASM += --gstabs
-#endif
+ifeq ($(call iseeopt, DEBUG), yes)
+OPT_ASM += -g
+#--gstabs
+endif
 # Specific option from the application makefile
 OPT_ASM += $(ASFLAGS)
 
