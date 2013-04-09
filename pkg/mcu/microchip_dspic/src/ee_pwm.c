@@ -41,18 +41,10 @@
 #include "mcu/microchip_dspic/inc/ee_pwm.h"
 #include "mcu/microchip_dspic/inc/ee_utils.h"
 
-#ifdef __dsPIC33FJ64MC802__
-
 void EE_pwm1_set_duty(EE_UINT16 duty)
 {
     /* please, note the shift operation... (used the round trick...) */
     P1DC1 = (((EE_UINT32)duty * (P1TPER + 1) + (EE_PWM_DUTY_MAX / 2)) / EE_PWM_DUTY_MAX) << 1;
-}
-
-void EE_pwm2_set_duty(EE_UINT16 duty)
-{
-    /* please, note the shift operation... (used the round trick...) */
-    P2DC1 = (((EE_UINT32)duty * (P2TPER + 1) + (EE_PWM_DUTY_MAX / 2)) / EE_PWM_DUTY_MAX) << 1;
 }
 
 /*
@@ -84,43 +76,9 @@ void EE_pwm1_set_direction(char dir)
     }
 }
 
-/*
-    Set MCPWM1 motor direction  
- */
-void EE_pwm2_set_direction(char dir)
-{
-    switch(dir)
-    {
-        case EE_H_PWM_L_OVER:
-            P2OVDCONbits.POVD1H = 1;      /* PWM */
-            P2OVDCONbits.POVD1L = 0;      /* OVERRIDE */
-            break;
-        case EE_H_OVER_L_PWM:
-            P2OVDCONbits.POVD1H = 0;      /* OVERRIDE */
-            P2OVDCONbits.POVD1L = 1;      /* PWM */
-            break;
-        case EE_H_PWM_L_PWM:
-            P2OVDCONbits.POVD1H = 1;      /* PWM */
-            P2OVDCONbits.POVD1L = 1;      /* PWM */
-            break;
-        case EE_H_OVER_L_OVER:
-            P2OVDCONbits.POVD1H = 0;      /* OVERRIDE */
-            P2OVDCONbits.POVD1L = 0;      /* OVERRIDE */
-            break;
-        default:
-            P2OVDCONbits.POVD1H = 1;      /* PWM */
-            P2OVDCONbits.POVD1L = 1;      /* PWM */
-    }
-}
-
 void EE_pwm1_close(void)
 {
     P1TCONbits.PTEN = 0;
-}
-
-void EE_pwm2_close(void)
-{
-    P2TCONbits.PTEN = 0;
 }
 
 EE_INT16 EE_pwm1_init(EE_UINT32 pwm_freq, EE_UINT16 init_duty, char dir)
@@ -163,8 +121,14 @@ EE_INT16 EE_pwm1_init(EE_UINT32 pwm_freq, EE_UINT16 init_duty, char dir)
         P1DC1 = 0 << 1;    
         EE_pwm1_set_duty(init_duty);
         
-        IEC3bits.FLTA1IE =  0;
-        IEC3bits.PWM1IE  =  0;
+#ifndef _FLTA1IE
+#define _FLTA1IE _FLTAIE
+#endif
+#ifndef _PWM1IE
+#define _PWM1IE _PWMIE
+#endif
+        _FLTA1IE =  0;
+        _PWM1IE  =  0;
         P1TCONbits.PTEN  =  1;
     }
     else
@@ -175,6 +139,49 @@ EE_INT16 EE_pwm1_init(EE_UINT32 pwm_freq, EE_UINT16 init_duty, char dir)
     return EE_PWM_NO_ERROR;
 }
 
+
+#ifdef __dsPIC33FJ64MC802__
+
+
+void EE_pwm2_set_duty(EE_UINT16 duty)
+{
+    /* please, note the shift operation... (used the round trick...) */
+    P2DC1 = (((EE_UINT32)duty * (P2TPER + 1) + (EE_PWM_DUTY_MAX / 2)) / EE_PWM_DUTY_MAX) << 1;
+}
+
+/*
+    Set MCPWM1 motor direction  
+ */
+void EE_pwm2_set_direction(char dir)
+{
+    switch(dir)
+    {
+        case EE_H_PWM_L_OVER:
+            P2OVDCONbits.POVD1H = 1;      /* PWM */
+            P2OVDCONbits.POVD1L = 0;      /* OVERRIDE */
+            break;
+        case EE_H_OVER_L_PWM:
+            P2OVDCONbits.POVD1H = 0;      /* OVERRIDE */
+            P2OVDCONbits.POVD1L = 1;      /* PWM */
+            break;
+        case EE_H_PWM_L_PWM:
+            P2OVDCONbits.POVD1H = 1;      /* PWM */
+            P2OVDCONbits.POVD1L = 1;      /* PWM */
+            break;
+        case EE_H_OVER_L_OVER:
+            P2OVDCONbits.POVD1H = 0;      /* OVERRIDE */
+            P2OVDCONbits.POVD1L = 0;      /* OVERRIDE */
+            break;
+        default:
+            P2OVDCONbits.POVD1H = 1;      /* PWM */
+            P2OVDCONbits.POVD1L = 1;      /* PWM */
+    }
+}
+
+void EE_pwm2_close(void)
+{
+    P2TCONbits.PTEN = 0;
+}
 
 EE_INT16 EE_pwm2_init(EE_UINT32 pwm_freq, EE_UINT16 init_duty, char dir)
 {
@@ -224,6 +231,27 @@ EE_INT16 EE_pwm2_init(EE_UINT32 pwm_freq, EE_UINT16 init_duty, char dir)
     }
     return EE_PWM_NO_ERROR;
 }
+
+#else /*__dsPIC33FJ64MC802__ */
+
+void EE_pwm2_set_duty(EE_UINT16 duty) {
+}
+
+/*
+    Set MCPWM1 motor direction  
+ */
+void EE_pwm2_set_direction(char dir) {
+}
+
+void EE_pwm2_close(void) {
+}
+
+EE_INT16 EE_pwm2_init(EE_UINT32 pwm_freq, EE_UINT16 init_duty, char dir)
+{
+    return EE_PWM_ERROR_INVALID_CH_ID;
+}
+
+#endif /*__dsPIC33FJ64MC802__ */
 
 EE_INT16 EE_pwm_init(EE_PwmId pwm_ch, EE_UINT32 pwm_freq, EE_PwmOutputMode pwm_output_mode)
 {
@@ -292,7 +320,5 @@ EE_INT16 EE_pwm_set_direction(EE_PwmId pwm_ch, char dir)
     }
     return error;
 }
-
-#endif /*__dsPIC33FJ64MC802__ */
 
 

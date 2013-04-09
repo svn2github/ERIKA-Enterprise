@@ -340,7 +340,7 @@ void __attribute__((interrupt, no_auto_psv)) _DMA1Interrupt(void)
 
 EE_UINT8 t_pre_scaler;
 
-void EE_pwm_init(EE_UINT8 chan, EE_UINT32 pwm_period, EE_UINT32 init_pw)
+void EE_ocpwm_init(EE_UINT8 chan, EE_UINT32 pwm_period, EE_UINT32 init_pw)
 {
 	/* OutputCompare PWM constants
 	*
@@ -405,7 +405,7 @@ void EE_pwm_init(EE_UINT8 chan, EE_UINT32 pwm_period, EE_UINT32 init_pw)
 	return;
 }
 
-void EE_pwm_set_duty_f( EE_UINT8 chan , float duty )
+void EE_ocpwm_set_duty_f( EE_UINT8 chan , float duty )
 {
 	float duty_out;/* The computed duty cycle*/
 	/* Get period from Timer2 period register PR2 */

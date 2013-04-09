@@ -545,7 +545,7 @@ __INLINE__ float __ALWAYS_INLINE__ EE_accelerometer_getz( void )
 
 extern EE_UINT8 t_pre_scaler;
 
-void EE_pwm_init(EE_UINT8 chan, EE_UINT32 pwm_period, EE_UINT32 init_pw);
+void EE_ocpwm_init(EE_UINT8 chan, EE_UINT32 pwm_period, EE_UINT32 init_pw);
 
 //__INLINE__ void __ALWAYS_INLINE__ EE_pwm_set_duty_f( EE_UINT8 chan , float duty )
 //{
@@ -573,9 +573,9 @@ void EE_pwm_init(EE_UINT8 chan, EE_UINT32 pwm_period, EE_UINT32 init_pw);
 //	}
 //}
 
-void EE_pwm_set_duty_f(EE_UINT8 chan , float duty);
+void EE_ocpwm_set_duty_f(EE_UINT8 chan , float duty);
 
-__INLINE__ void __ALWAYS_INLINE__ EE_pwm_set_duty(EE_UINT8 chan, EE_UINT32 duty)
+__INLINE__ void __ALWAYS_INLINE__ EE_ocpwm_set_duty(EE_UINT8 chan, EE_UINT32 duty)
 {
 	/* Compute the Current PulseWidth  to set */
 	duty = ( (duty * 40) >> t_pre_scaler ) - 1;  
@@ -593,7 +593,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_pwm_set_duty(EE_UINT8 chan, EE_UINT32 duty)
 	return;
 }
 
-__INLINE__ void __ALWAYS_INLINE__ EE_pwm_close(EE_UINT8 chan)
+__INLINE__ void __ALWAYS_INLINE__ EE_ocpwm_close(EE_UINT8 chan)
 {
 	switch (chan) {
 	case EE_PWM_PORT1:	/** Close PWM1 **/

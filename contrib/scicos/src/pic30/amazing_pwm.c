@@ -52,8 +52,8 @@
 static void init(scicos_block *block)
 {
 #ifndef __AMAZING_TUNER__
-	EE_pwm_init( EE_PWM_PORT1 , 20000 , 0 );
-	EE_pwm_init( EE_PWM_PORT2 , 20000 , 0 );
+	EE_ocpwm_init( EE_PWM_PORT1 , 20000 , 0 );
+	EE_ocpwm_init( EE_PWM_PORT2 , 20000 , 0 );
 #endif // __AMAZING_TUNER__
 }
  
@@ -65,14 +65,14 @@ static void inout(scicos_block *block)
 	unsigned int pwm_step = 10; // us
 	unsigned int pwm_bias = 1500; // us
 	
-	EE_pwm_set_duty( EE_PWM_PORT1 , (*x_angle)*pwm_step+pwm_bias );
-	EE_pwm_set_duty( EE_PWM_PORT2 , (*y_angle)*pwm_step+pwm_bias );
+	EE_ocpwm_set_duty( EE_PWM_PORT1 , (*x_angle)*pwm_step+pwm_bias );
+	EE_ocpwm_set_duty( EE_PWM_PORT2 , (*y_angle)*pwm_step+pwm_bias );
 }
 
 static void end(scicos_block *block)
 {
-	EE_pwm_close(EE_PWM_PORT1);
-	EE_pwm_close(EE_PWM_PORT2);
+	EE_ocpwm_close(EE_PWM_PORT1);
+	EE_ocpwm_close(EE_PWM_PORT2);
 }
 
 void amazing_pwm(scicos_block *block,int flag)

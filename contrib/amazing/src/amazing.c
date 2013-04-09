@@ -41,17 +41,17 @@ ISR2(_T9Interrupt)
 		switch(pwm_phase%4)
 		{
 			case 0: 
-				EE_pwm_set_duty(EE_PWM_PORT1,AMAZING_DUTY_MIN);
-				EE_pwm_set_duty(EE_PWM_PORT2,AMAZING_DUTY_MIN);
+				EE_ocpwm_set_duty(EE_PWM_PORT1,AMAZING_DUTY_MIN);
+				EE_ocpwm_set_duty(EE_PWM_PORT2,AMAZING_DUTY_MIN);
 				break;
 			case 1:
-				EE_pwm_set_duty(EE_PWM_PORT1,AMAZING_DUTY_MAX);
+				EE_ocpwm_set_duty(EE_PWM_PORT1,AMAZING_DUTY_MAX);
 				break;
 			case 2:
-				EE_pwm_set_duty(EE_PWM_PORT2,AMAZING_DUTY_MAX);
+				EE_ocpwm_set_duty(EE_PWM_PORT2,AMAZING_DUTY_MAX);
 				break;
 			case 3:
-				EE_pwm_set_duty(EE_PWM_PORT1,AMAZING_DUTY_MIN);
+				EE_ocpwm_set_duty(EE_PWM_PORT1,AMAZING_DUTY_MIN);
 				break;
 		}
 
@@ -124,8 +124,8 @@ void amazing_tuner_body(EE_UINT16 horiz_width, EE_UINT16 vert_height)
 	touch_raw_init();
 	touch_start();
 
-	EE_pwm_init( EE_PWM_PORT1 , 20000 , 0 );
-	EE_pwm_init( EE_PWM_PORT2 , 20000 , 0 );
+	EE_ocpwm_init( EE_PWM_PORT1 , 20000 , 0 );
+	EE_ocpwm_init( EE_PWM_PORT2 , 20000 , 0 );
 
 	if(!read_permanent_conf(&t_raw))
 	{
@@ -189,8 +189,8 @@ void amazing_tuner_body(EE_UINT16 horiz_width, EE_UINT16 vert_height)
 		write_permanent_conf(&t_raw);
 	}
 	
-	EE_pwm_set_duty(EE_PWM_PORT1,EE_PWM_ZERO_DUTY);
-	EE_pwm_set_duty(EE_PWM_PORT2,EE_PWM_ZERO_DUTY);
+	EE_ocpwm_set_duty(EE_PWM_PORT1,EE_PWM_ZERO_DUTY);
+	EE_ocpwm_set_duty(EE_PWM_PORT2,EE_PWM_ZERO_DUTY);
 
 	touch_tune(&t_raw);
 }
