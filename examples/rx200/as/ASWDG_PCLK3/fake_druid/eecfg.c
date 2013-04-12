@@ -37,11 +37,13 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
-
-/*
+ 
+ /*
  * fake-druid eecfg.c
  *
  * Author: 2013  Gianluca Franchino */
+
+
 #include "ee.h"
 
 

@@ -525,4 +525,35 @@ typedef	Wdg_PCLK_SettingsConfigType	Wdg_PCLK_ConfigType;
 #define	WDG_PCLK_CONFIG_DEFAULT_PTR	\
 	&Wdg_PCLK_Config[WDG_PCLK_CONFIG_DEFAULT]
 
+/** @brief	Slow Mode Configuration
+ *
+ *  Identifier for Default PCLK WDG Driver Configuration.
+ */
+#define	WDG_PCLK_CONFIG_DEFAULT	WDG_PCLK_CONFIG_TEST
+
+/** @brief	Default Configuration Pointer
+ *
+ *  Pointer of Default PCLK WDG Driver Configuration.
+ */
+#define	WDG_PCLK_CONFIG_DEFAULT_PTR	\
+	&Wdg_PCLK_Config[WDG_PCLK_CONFIG_DEFAULT]
+
+#if defined (__AS_CFG_WDG_PCLK_SLOW_MODE_RESET__) || \
+		defined(__AS_CFG_WDG_PCLK_SLOW_MODE_NMI__)
+
+#define WDGIF_DEFAULT_MODE WDGIF_SLOW_MODE
+
+#elif defined (__AS_CFG_WDG_PCLK_FAST_MODE_RESET__) || \
+		defined(__AS_CFG_WDG_PCLK_FAST_MODE_NMI__)
+
+#define WDGIF_DEFAULT_MODE WDGIF_FAST_MODE
+
+#else
+
+#error "Either (__AS_CFG_WDG_PCLK_SLOW_MODE_RESET__ or\
+ __AS_CFG_WDG_PCLK_SLOW_MODE_NMI__  ) or\
+ (__AS_CFG_WDG_PCLK_FAST_MODE_RESET__ or\
+ __AS_CFG_WDG_PCLK_FAST_MODE_NMI__  ) should be defined!"
+#endif
+
 #endif	/* WDG_PCLK_CFG_H */

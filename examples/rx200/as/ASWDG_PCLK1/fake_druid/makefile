@@ -47,6 +47,7 @@
 # 
 # EEOPT =
 
+
 RTDRUID_CONFIGURATOR_NUMBER:=1277
 
 
@@ -57,18 +58,17 @@ RTDRUID_CONFIGURATOR_NUMBER:=1277
 #
 ############################################################################
 EEOPT += DEBUG
-EEOPT += NODEPS
 EEOPT += __ASSERT__
 EEOPT += __AUTOSAR_R4_0__
 EEOPT += __AS_MCU_DRIVER__
 EEOPT += __AS_PORT_DRIVER__
 EEOPT += __AS_DIO_DRIVER__
 EEOPT += __AS_WDG_PCLK_DRIVER__
-EEOPT += __AS_CFG_WDG_PCLK_FAST_MODE_NMI__
+EEOPT += __AS_CFG_WDG_PCLK_VERSION_INFO_API__
 EEOPT += __AS_CFG_WDG_PCLK_SLOW_MODE_NMI__
 EEOPT += __AS_CFG_WDG_PCLK_SLOW_MODE_NOTIFICATION__
-EEOPT += __AS_CFG_WDG_PCLK_VERSION_INFO_API__
 EEOPT += __ADD_LIBS__
+
 
 ############################################################################
 #
@@ -76,9 +76,9 @@ EEOPT += __ADD_LIBS__
 #
 ############################################################################
 EEOPT += __RTD_CYGWIN__
+EEOPT += __R5F5210x__
 EEOPT += __RX200__
 EEOPT += __CCRX__
-EEOPT += __R5F5210x__
 EEOPT += __OO_BCC1__
 EEOPT += __OO_EXTENDED_STATUS__
 EEOPT += __MULTI__
@@ -99,48 +99,52 @@ ifdef EEBASE
     $(warning EEBASE is set, but it has been overridden by ERIKA_FILES)
 endif
 EEBASE := $(shell cygpath `cygpath -ms '${ERIKA_FILES}'`)
+
 else # ERIKA_FILES
 
 ifndef EEBASE
-        EEBASE := $(shell cygpath `cygpath -ms 'F:\area_lavoro\ee'`)
+        EEBASE := $(shell cygpath `cygpath -ms 'C:\Evidence\eclipse\plugins\com.eu.evidence.ee_2.0.0.20130311_0037\ee_files'`)
 else
         $(warning The usage of EEBASE is deprecated. Please use ERIKA_FILES)
 endif
 endif # ERIKA_FILES
 # ERIKA_FILES has fulfilled its role. Make sure it's not used inside Erika makefiles
 ERIKA_FILES :=
+$(info Using erika files in $(EEBASE))
+
 
 ############################################################################
 #
-# RENESAS RX200
+# Renesas RX200
 #
 ############################################################################
+include $(EEBASE)/pkg/cfg/path_helper.mk
 APPBASE := ..
-OUTBASE := .
+OUTBASE := Debug
 
-ifndef CCRX_ROOT
-    CCRX_ROOT := $(shell cygpath `cygpath -ms 'C:\Programmi\Renesas\Hew\Tools\Renesas\RX\1_2_0'`)
-endif
+$(eval $(call check_and_set_cygwin_compiler_path,CCRX_ROOT,C:\Programmi\Renesas\Hew\Tools\Renesas\RX\1_2_0))
+
 
 ############################################################################
 #
 # Flags
 #
 ############################################################################
-CFLAGS  +=
-ASFLAGS +=
-LDFLAGS +=
-LDDEPS  +=
-LIBS    +=
+CFLAGS  += 
+ASFLAGS += 
+LDFLAGS += 
+LDDEPS  += 
+LIBS    += 
 
 LIB_OPT  += __LIB_AUTOSAR__
+
 
 ############################################################################
 #
 # Sources
 #
 ############################################################################
-APP_SRCS += eecfg.c main.c Dio_Cfg.c Mcu_Cfg.c Port_Cfg.c Wdg_PCLK_Cfg.c
+APP_SRCS += eecfg.c main.c Mcu_Cfg.c Port_Cfg.c Dio_Cfg.c Wdg_PCLK_Cfg.c
 
 
 ############################################################################

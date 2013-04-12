@@ -126,3 +126,4 @@
     const struct EE_oo_autostart_task_type EE_oo_autostart_task_data[EE_MAX_APPMODE] = {
         { 1U, EE_oo_autostart_task_mode_OSDEFAULTAPPMODE}
     };
+

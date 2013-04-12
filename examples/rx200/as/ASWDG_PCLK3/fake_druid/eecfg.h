@@ -37,6 +37,12 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
+ 
+ /*
+ * fake-druid eecfg.h
+ *
+ * Author: 2013  Gianluca Franchino */
+
 
 #ifndef RTDH_EECFG_H
 #define RTDH_EECFG_H
@@ -90,8 +96,9 @@
 #define __AS_DIO_DRIVER__
 #define __AS_WDG_PCLK_DRIVER__
 #define __AS_CFG_WDG_PCLK_VERSION_INFO_API__
-#define __AS_CFG_WDG_PCLK_SLOW_MODE_NMI__
-#define __AS_CFG_WDG_PCLK_SLOW_MODE_NOTIFICATION__
+#define __AS_CFG_WDG_PCLK_FAST_MODE_NMI__
+#define __AS_CFG_WDG_PCLK_FAST_MODE_RESET__
+#define __AS_CFG_WDG_PCLK_FAST_MODE_NOTIFICATION__
 #define __ADD_LIBS__
 
 

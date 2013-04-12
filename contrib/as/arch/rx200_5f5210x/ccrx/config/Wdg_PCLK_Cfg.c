@@ -85,19 +85,17 @@ const Wdg_PCLK_SettingsFastType	WdgPCLKSettingsFast = {
 					/* WdgCtl:			      */
 #ifdef	__AS_CFG_WDG_PCLK_FAST_MODE_RESET__
 		WDG_PCLK_CTL_RST_EN,			/* - Watchdog Reset Enable.	      */
-#elif defined __AS_CFG_WDG_PCLK_FAST_MODE_NMI__
+#else
 		WDG_PCLK_CTL_NMI_INT,		/* - NMI Watchdog Interrupt.	      */
-#else 
-#error Either __AS_CFG_WDG_PCLK_FAST_MODE_RESET__ or \
-__AS_CFG_WDG_PCLK_FAST_MODE_NMI__ should be defined!
-#endif	/* __AS_CFG_WDG_PCLK_FAST_MODE_NMI__ */
-		0x0005U,				/* WdgTimeout.			      */
+#endif	/* __AS_CFG_WDG_PCLK_FAST_MODE_RESET__ */
+		0x000FU,				/* WdgTimeout.			      */
 #ifdef	__AS_CFG_WDG_PCLK_FAST_MODE_NOTIFICATION__
 		&Wdg_PCLK_Notification_Fast,	/* WdgNotificationPtr.		      */
 #else	/* __AS_CFG_WDG_PCLK_FAST_MODE_NOTIFICATION__ */
 		NULL_PTR,				/* WdgNotificationPtr.		      */
 #endif	/* !__AS_CFG_WDG_PCLK_FAST_MODE_NOTIFICATION__ */
 };
+
 
 #if	( WDG_PCLK_DISABLE_ALLOWED == STD_ON )
 /*
@@ -115,19 +113,17 @@ const Wdg_PCLK_SettingsSlowType	WdgPCLKSettingsSlow = {
 					/* WdgCtl:			      */
 #ifdef	__AS_CFG_WDG_PCLK_SLOW_MODE_RESET__
 		WDG_PCLK_CTL_RST_EN,			/* - Watchdog Reset Enable.	      */
-#elif defined __AS_CFG_WDG_PCLK_SLOW_MODE_NMI__
+#else
 		WDG_PCLK_CTL_NMI_INT,		/* - NMI Watchdog Interrupt.	      */
-#else 
-#error Either __AS_CFG_WDG_PCLK_SLOW_MODE_RESET__ or \
-__AS_CFG_WDG_PCLK_SLOW_MODE_NMI__ should be defined!
-#endif	/* __AS_CFG_WDG_PCLK_SLOW_MODE_NMI__ */
-		0x0020U,				/* WdgTimeout.			      */
+#endif	/* __AS_CFG_WDG_PCLK_SLOW_MODE_RESET__ */
+		0x007CU,				/* WdgTimeout.			      */
 #ifdef	__AS_CFG_WDG_PCLK_SLOW_MODE_NOTIFICATION__
 		&Wdg_PCLK_Notification_Slow,	/* WdgNotificationPtr.		      */
 #else	/* __AS_CFG_WDG_PCLK_SLOW_MODE_NOTIFICATION__ */
 		NULL_PTR,				/* WdgNotificationPtr.		      */
 #endif	/* !__AS_CFG_WDG_PCLK_NOTIFICATION_SLOW__ */
 };
+
 
 /*
  * This container is the base of a multiple configuration set.
@@ -137,7 +133,7 @@ const Wdg_PCLK_ConfigType		Wdg_PCLK_Config[] = {
 #if	( WDG_PCLK_DISABLE_ALLOWED == STD_ON )
 		  WDGIF_OFF_MODE,			/* WdgDefaultMode.		      */
 #else	/* ( WDG_PCLK_DISABLE_ALLOWED == STD_ON ) */
-		  WDGIF_SLOW_MODE,			/* WdgDefaultMode.		      */
+		  WDGIF_DEFAULT_MODE,			/* WdgDefaultMode.		      */
 #endif	/* !( WDG_PCLK_DISABLE_ALLOWED == STD_ON ) */
 #if	0
 		  &WdgPCLKExternalConfiguration,	/* WdgExternalConfiguration.*/
@@ -147,5 +143,6 @@ const Wdg_PCLK_ConfigType		Wdg_PCLK_Config[] = {
 		  &WdgPCLKSettingsOff,		/* WdgSettingsOff.		      */
 #endif	/* ( WDG_PCLK_DISABLE_ALLOWED == STD_ON ) */
 		  &WdgPCLKSettingsSlow,		/* WdgSettingsSlow.		      */
+
   },
 };

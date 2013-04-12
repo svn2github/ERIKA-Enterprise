@@ -60,8 +60,8 @@ enum EE_ASSERTIONS {
 	EE_ASSERT_CLOCK_INIT,
 	EE_ASSERT_PLL_LOCKED,
 	EE_ASSERT_WDG_INIT,
-	EE_ASSERT_WDG_SLOW_MODE,
-	EE_ASSERT_WDG_SLOW_NOTIF,
+	EE_ASSERT_WDG_FAST_MODE,
+	EE_ASSERT_WDG_FAST_NOTIF,
 	EE_ASSERT_DIM
 };
 
@@ -73,28 +73,27 @@ volatile EE_TYPEASSERTVALUE result;
 /* counter */
 volatile int counter = 0;
 
-volatile boolean wdgfeed = FALSE;
+volatile boolean wdgfeed = TRUE;
 
 /*
  * Watchdog Slow Mode Notification Callback.
  */
-void Wdg_PCLK_Notification_Slow(void)
+void Wdg_PCLK_Notification_Fast(void)
 {
 	if ( counter == 0 ) {
 
-		EE_assert(EE_ASSERT_WDG_SLOW_NOTIF, TRUE,  EE_ASSERT_WDG_SLOW_MODE);
+		EE_assert(EE_ASSERT_WDG_FAST_NOTIF, TRUE,  EE_ASSERT_WDG_FAST_MODE);
 	}
 
 	Dio_FlipChannel(DIO_CHANNEL_USER_LED_1);
 
 	counter++;
 
-	Wdg_PCLK_SetTriggerCondition(1000 * counter);
+	if (counter < 10)
+		Wdg_PCLK_SetTriggerCondition(0);
+	else
+		counter = 2;
 
-	if ( counter == 10 ) {
-		counter = 1;
-		wdgfeed = TRUE;
-	}
 }
 
 /*
@@ -107,27 +106,25 @@ TASK(BackgroundTask)
  * through Wdg_PCLK_Init(WDG_PCLK_CONFIG_DEFAULT_PTR), 
  * Wdg_PCLK_SetMode(WDGIF_FAST_MODE) has not effect and returns E_OK.  
  */
-	EE_assert(EE_ASSERT_WDG_SLOW_MODE, 
-			( Wdg_PCLK_SetMode(WDGIF_SLOW_MODE) == E_OK ),
+	EE_assert(EE_ASSERT_WDG_FAST_MODE, 
+			( Wdg_PCLK_SetMode(WDGIF_FAST_MODE) == E_OK ), 
 			EE_ASSERT_WDG_INIT);
 
 	/* Forever loop: background activities (if any) should go here */
 	for(;;) {
 		if (wdgfeed == TRUE) {
 
-			Wdg_PCLK_SetTriggerCondition(1000);	/* 1s */
+			Wdg_PCLK_SetTriggerCondition(0);	
 
 			if (Dio_ReadChannel(DIO_CHANNEL_USER_SWITCH_1) == FALSE)
 				wdgfeed = FALSE;
-
-			counter = 2;
 
 			Dio_FlipChannel(DIO_CHANNEL_USER_LED_0);
 		}
 
 		if (counter == 1) {
 
-			EE_assert_range(EE_ASSERT_FIN, TRUE, EE_ASSERT_WDG_SLOW_NOTIF);
+			EE_assert_range(EE_ASSERT_FIN, TRUE, EE_ASSERT_WDG_FAST_NOTIF);
 			result = EE_assert_last();
 			counter++;
 		}

@@ -1,7 +1,7 @@
-ASWDG_PCLK1
+ASWDG_PCLK2
 
  Simple project to test the PCLK Clock WDG driver services using callback and
- standard watchdog NM interrupt without system reset.
+ standard watchdog NM interrupt and system reset.
  The compilation chain starts from the Cygwin shell with the "make" command.
 
 The RT-DRUID project contains the following files:

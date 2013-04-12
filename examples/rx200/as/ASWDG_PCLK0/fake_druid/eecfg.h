@@ -44,12 +44,11 @@
  * Author: 2013  Gianluca Franchino
  */
 
-#ifndef __EECFG_H__
-#define __EECFG_H__
+#ifndef RTDH_EECFG_H
+#define RTDH_EECFG_H
 
 
-
-#define RTDRUID_CONFIGURATOR_NUMBER 1275
+#define RTDRUID_CONFIGURATOR_NUMBER 1277
 
 
 
@@ -58,6 +57,7 @@
  * Common defines ( CPU 0 )
  *
  **************************************************************************/
+
     /* TASK definition */
     #define EE_MAX_TASK 1
     #define BackgroundTask 0
@@ -78,7 +78,11 @@
     #define EE_MAX_CPU 1
     #define EE_CURRENTCPU 0
 
+    /* Number of isr 2 */
+    #define EE_MAX_ISR2 0
+
 #ifndef __DISABLE_EEOPT_DEFINES__
+
 
 /***************************************************************************
  *
@@ -93,7 +97,9 @@
 #define __AS_WDG_PCLK_DRIVER__
 #define __AS_CFG_WDG_PCLK_VERSION_INFO_API__
 #define __AS_CFG_WDG_PCLK_FAST_MODE_RESET__
+#define __AS_CFG_WDG_PCLK_SLOW_MODE_RESET__
 #define __ADD_LIBS__
+
 
 /***************************************************************************
  *
@@ -101,8 +107,8 @@
  *
  **************************************************************************/
 #define __RTD_CYGWIN__
-#define __RX200__
 #define __R5F5210x__
+#define __RX200__
 #define __CCRX__
 #define __OO_BCC1__
 #define __OO_EXTENDED_STATUS__
@@ -112,8 +118,9 @@
 #define __OO_AUTOSTART_TASK__
 #define __ALLOW_NESTED_IRQ__
 
-
 #endif
+
+
 
 #endif
 
