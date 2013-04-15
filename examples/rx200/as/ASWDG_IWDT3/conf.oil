@@ -70,11 +70,11 @@ CPU mySystem {
 		EE_OPT = "__AS_MCU_DRIVER__";
 		EE_OPT = "__AS_PORT_DRIVER__";
 		EE_OPT = "__AS_DIO_DRIVER__";
-		EE_OPT = "__AS_WDG_PCLK_DRIVER__";
-		EE_OPT = "__AS_CFG_WDG_PCLK_VERSION_INFO_API__";
-		EE_OPT = "__AS_CFG_WDG_PCLK_FAST_MODE_NMI__";
-		EE_OPT = "__AS_CFG_WDG_PCLK_FAST_MODE_NOTIFICATION__";
-
+		EE_OPT = "__AS_WDG_IWDT_DRIVER__";
+		EE_OPT = "__AS_CFG_WDG_IWDT_VERSION_INFO_API__";
+		EE_OPT = "__AS_CFG_WDG_IWDT_FAST_MODE_NMI__";
+		EE_OPT = "__AS_CFG_WDG_IWDT_FAST_MODE_NOTIFICATION__";
+		EE_OPT = "__AS_CFG_WDG_IWDT_FAST_MODE_STOP_ON_SLEEP__";
 
 		/* Used to build separate libas.a without configuration */
 		EE_OPT = "__ADD_LIBS__";
@@ -105,10 +105,9 @@ CPU mySystem {
 			SYS_SIZE = 256;
 		};
 	};
-	
+
 	ISR EE_RX200_NON_MASKABLE_INT {
 		CATEGORY = 2;
 		ENTRY = "NON_MASKABLE_INT";
 	};
-
 };

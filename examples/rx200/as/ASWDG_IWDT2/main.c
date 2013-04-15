@@ -39,7 +39,7 @@
  * ###*E*### */
 
 /*
- * Simple project to demonstrate that the PCLK WDG driver services using callback
+ * Simple project to demonstrate that the IWDT WDG driver services using callback
  * and standard watchdog NM interrupt without system reset.
  *
  * Author: 2013,  Gianluca Franchino
@@ -48,7 +48,7 @@
 #include "Dio.h"
 #include "Mcu.h"
 #include "Port.h"
-#include "Wdg_PCLK.h"
+#include "Wdg_IWDT.h"
 #include "test/assert/inc/ee_assert.h"
 
 
@@ -78,7 +78,7 @@ volatile boolean wdgfeed = TRUE;
 /*
  * Watchdog Fast Mode Notification Callback.
  */
-void Wdg_PCLK_Notification_Fast(void)
+void Wdg_IWDT_Notification_Fast(void)
 {
 	if ( counter == 0 ) {
 
@@ -90,7 +90,7 @@ void Wdg_PCLK_Notification_Fast(void)
 	counter++;
 
 	if (counter < 10)
-		Wdg_PCLK_SetTriggerCondition(0);
+		Wdg_IWDT_SetTriggerCondition(0);
 	else
 		counter = 2;
 
@@ -103,18 +103,18 @@ TASK(BackgroundTask)
 {
 /*
  * Since the Watch Dog System can only be configured once, and this is done
- * through Wdg_PCLK_Init(WDG_PCLK_CONFIG_DEFAULT_PTR), 
- * Wdg_PCLK_SetMode(WDGIF_FAST_MODE) has not effect and returns E_OK.  
+ * through Wdg_IWDT_Init(WDG_IWDT_CONFIG_DEFAULT_PTR), 
+ * Wdg_IWDT_SetMode(WDGIF_FAST_MODE) has not effect and returns E_OK.  
  */
 	EE_assert(EE_ASSERT_WDG_FAST_MODE, 
-			( Wdg_PCLK_SetMode(WDGIF_FAST_MODE) == E_OK ), 
+			( Wdg_IWDT_SetMode(WDGIF_FAST_MODE) == E_OK ), 
 			EE_ASSERT_WDG_INIT);
 
 	/* Forever loop: background activities (if any) should go here */
 	for(;;) {
 		if (wdgfeed == TRUE) {
 
-			Wdg_PCLK_SetTriggerCondition(0);	
+			Wdg_IWDT_SetTriggerCondition(0);	
 
 			if (Dio_ReadChannel(DIO_CHANNEL_USER_SWITCH_1) == FALSE)
 				wdgfeed = FALSE;
@@ -145,7 +145,7 @@ int main(void)
 
 	EE_assert(EE_ASSERT_INIT, TRUE, EE_ASSERT_NIL);
 
-	Wdg_PCLK_GetVersionInfo(&version);
+	Wdg_IWDT_GetVersionInfo(&version);
 
 	EE_assert(EE_ASSERT_VERSION,(
 								(version.vendorID == 0) &&
@@ -175,7 +175,7 @@ int main(void)
 	Port_Init(PORT_CONFIG_DEFAULT_PTR);
 	Dio_Init(DIO_CONFIG_DEFAULT_PTR);
 
-	Wdg_PCLK_Init(WDG_PCLK_CONFIG_DEFAULT_PTR);
+	Wdg_IWDT_Init(WDG_IWDT_CONFIG_DEFAULT_PTR);
 	
 	EE_assert(EE_ASSERT_WDG_INIT, TRUE, EE_ASSERT_PLL_LOCKED);
 

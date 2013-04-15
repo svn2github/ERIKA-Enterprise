@@ -39,7 +39,7 @@
  * ###*E*### */
 
 /*
- * Simple project to demonstrate that the PCLK WDG driver services using callback
+ * Simple project to demonstrate that the IWDT driver services using callback
  * and standard watchdog NM interrupt without system reset.
  *
  * Author: 2013,  Gianluca Franchino
@@ -48,7 +48,7 @@
 #include "Dio.h"
 #include "Mcu.h"
 #include "Port.h"
-#include "Wdg_PCLK.h"
+#include "Wdg_IWDT.h"
 #include "test/assert/inc/ee_assert.h"
 
 
@@ -60,8 +60,8 @@ enum EE_ASSERTIONS {
 	EE_ASSERT_CLOCK_INIT,
 	EE_ASSERT_PLL_LOCKED,
 	EE_ASSERT_WDG_INIT,
-	EE_ASSERT_WDG_FAST_MODE,
-	EE_ASSERT_WDG_FAST_NOTIF,
+	EE_ASSERT_WDG_SLOW_MODE,
+	EE_ASSERT_WDG_SLOW_NOTIF,
 	EE_ASSERT_DIM
 };
 
@@ -73,27 +73,28 @@ volatile EE_TYPEASSERTVALUE result;
 /* counter */
 volatile int counter = 0;
 
-volatile boolean wdgfeed = TRUE;
+volatile boolean wdgfeed = FALSE;
 
 /*
- * Watchdog Fast Mode Notification Callback.
+ * Watchdog Slow Mode Notification Callback.
  */
-void Wdg_PCLK_Notification_Fast(void)
+void Wdg_IWDT_Notification_Slow(void)
 {
 	if ( counter == 0 ) {
 
-		EE_assert(EE_ASSERT_WDG_FAST_NOTIF, TRUE,  EE_ASSERT_WDG_FAST_MODE);
+		EE_assert(EE_ASSERT_WDG_SLOW_NOTIF, TRUE,  EE_ASSERT_WDG_SLOW_MODE);
 	}
 
 	Dio_FlipChannel(DIO_CHANNEL_USER_LED_1);
 
 	counter++;
 
-	if (counter < 10)
-		Wdg_PCLK_SetTriggerCondition(0);
-	else
-		counter = 2;
+	Wdg_IWDT_SetTriggerCondition(1000 * counter);
 
+	if ( counter == 10 ) {
+		counter = 1;
+		wdgfeed = TRUE;
+	}
 }
 
 /*
@@ -103,28 +104,30 @@ TASK(BackgroundTask)
 {
 /*
  * Since the Watch Dog System can only be configured once, and this is done
- * through Wdg_PCLK_Init(WDG_PCLK_CONFIG_DEFAULT_PTR), 
- * Wdg_PCLK_SetMode(WDGIF_FAST_MODE) has not effect and returns E_OK.  
+ * through Wdg_IWDT_Init(WDG_IWDT_CONFIG_DEFAULT_PTR), 
+ * Wdg_IWDT_SetMode(WDGIF_FAST_MODE) has not effect and returns E_OK.  
  */
-	EE_assert(EE_ASSERT_WDG_FAST_MODE, 
-			( Wdg_PCLK_SetMode(WDGIF_FAST_MODE) == E_OK ), 
+	EE_assert(EE_ASSERT_WDG_SLOW_MODE, 
+			( Wdg_IWDT_SetMode(WDGIF_SLOW_MODE) == E_OK ),
 			EE_ASSERT_WDG_INIT);
 
 	/* Forever loop: background activities (if any) should go here */
 	for(;;) {
 		if (wdgfeed == TRUE) {
 
-			Wdg_PCLK_SetTriggerCondition(0);	
+			Wdg_IWDT_SetTriggerCondition(1000);	/* 1s */
 
 			if (Dio_ReadChannel(DIO_CHANNEL_USER_SWITCH_1) == FALSE)
 				wdgfeed = FALSE;
+
+			counter = 2;
 
 			Dio_FlipChannel(DIO_CHANNEL_USER_LED_0);
 		}
 
 		if (counter == 1) {
 
-			EE_assert_range(EE_ASSERT_FIN, TRUE, EE_ASSERT_WDG_FAST_NOTIF);
+			EE_assert_range(EE_ASSERT_FIN, TRUE, EE_ASSERT_WDG_SLOW_NOTIF);
 			result = EE_assert_last();
 			counter++;
 		}
@@ -145,7 +148,7 @@ int main(void)
 
 	EE_assert(EE_ASSERT_INIT, TRUE, EE_ASSERT_NIL);
 
-	Wdg_PCLK_GetVersionInfo(&version);
+	Wdg_IWDT_GetVersionInfo(&version);
 
 	EE_assert(EE_ASSERT_VERSION,(
 								(version.vendorID == 0) &&
@@ -175,7 +178,7 @@ int main(void)
 	Port_Init(PORT_CONFIG_DEFAULT_PTR);
 	Dio_Init(DIO_CONFIG_DEFAULT_PTR);
 
-	Wdg_PCLK_Init(WDG_PCLK_CONFIG_DEFAULT_PTR);
+	Wdg_IWDT_Init(WDG_IWDT_CONFIG_DEFAULT_PTR);
 	
 	EE_assert(EE_ASSERT_WDG_INIT, TRUE, EE_ASSERT_PLL_LOCKED);
 

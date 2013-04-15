@@ -72,6 +72,14 @@
 #define HW_IO_PCR_OFFSET 	0x000000C0	/**< I/O PORT PCR registers offset  */
 #define HW_IO_DSCR_OFFSET 	0x000000E0	/**< I/O PORT DSCR registers offset  */
 
+/**< Protect Register Register (PRCR)
+ register address */
+#define HW_PRCR_ADDR	EE_HWREG16_ADDR(0x000803FE)
+
+/**< IWDT-Dedicated Low-Speed Clock Oscillator Control Register (ILOCOCR)
+ register address */
+#define HW_ILOCOCR_ADDR	EE_HWREG8_ADDR(0x00080035)
+
 /**< PORT0 PDR register address */
 #define HW_PORT0_ADDR	EE_HWREG_ADDR(0x0008C000)
 
@@ -245,6 +253,17 @@
 /**< WDT reset control register (WDTRCR) address. */
 #define HW_WDTRCR_ADDR			EE_HWREG8_ADDR(0x00088026)
 
+/* IWDT timer related registers. */
+/**< IWDT refresh register (IWDTRR) address. */
+#define HW_IWDTRR_ADDR			EE_HWREG8_ADDR(0x00088030)
+/**< IWDT control register (IWDTCR) address. */
+#define HW_IWDTCR_ADDR			EE_HWREG16_ADDR(0x00088032)
+/**< IWDT status register (IWDTSR) address. */
+#define HW_IWDTSR_ADDR			EE_HWREG16_ADDR(0x00088034)
+/**< IWDT reset control register (IWDTRCR) address. */
+#define HW_IWDTRCR_ADDR			EE_HWREG8_ADDR(0x00088036)
+/**< IWDT Count Stop Control Register (IWDTCSTPR) address. */
+#define HW_IWDTCSTPR_ADDR		EE_HWREG8_ADDR(0x00088038)
 
 /* Module Stop/Start related registers. */
 /**< Module Stop Control Register A (MSTPCRA) address. */
@@ -474,7 +493,7 @@
 #define HW_ICU_NMISR_IWDTST_MASK	0x08
 /*NMICLR bits*/
 #define HW_ICU_NMICLR_WDTCLR_MASK	0x04
-#define HW_ICU_NMISR_IWDTST_MASK	0x08
+#define HW_ICU_NMICLR_IWDTCLR_MASK	0x08
 
 /* IER bit mask.*/
 /**< Bit mask for TMR0 CMIA .*/
@@ -748,5 +767,17 @@
 )
 #endif	/* HW_CH_MOD_MASK && HW_IO_BASE_ADDR */
 
-
+/** @brief Macros used to enable the writing to clock generation related 
+ *  registers.
+ */
+#define HW_PRCR_W_EN() \
+	( EE_HWREG16(HW_PRCR_ADDR) = 0xA503)
+	
+/** @brief Macros used to disable the writing to clock generation related 
+ *  registers.
+ */
+#define HW_PRCR_W_DIS() \
+	( EE_HWREG16(HW_PRCR_ADDR) = 0xA500)
+	
+	
 #endif	/* HARDWARE_H */

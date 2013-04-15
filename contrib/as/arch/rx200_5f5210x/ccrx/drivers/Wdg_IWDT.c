@@ -39,7 +39,7 @@
  * ###*E*### */
 
 /*
- * Wdg_PCLK.c Module source file.
+ * Wdg_IWDT.c Module source file.
  *
  * Peripheral Clock  AUTOSAR WDG (Watchdog) Driver Source File.
  *
@@ -47,10 +47,10 @@
  */
 
 /*
- * Wdg_PCLK.c has implicit access to the Wdg_PCLK_Cfg.h through the
- * Wdg_PCLK.h file.
+ * Wdg_IWDT.c has implicit access to the Wdg_IWDT_Cfg.h through the
+ * Wdg_IWDT.h file.
  */
-#include "Wdg_PCLK.h"
+#include "Wdg_IWDT.h"
 
 /* 
  * WDG087:	The Wdg module shall avoid the integration of incompatible files
@@ -62,40 +62,40 @@
  * 		If the values are not identical to the values expected by the
  * 		Wdg module, an error shall be reported. (BSW167, BSW004)
  */
-#define	WDG_PCLK_AR_RELEASE_MAJOR_VERSION	4
-#define	WDG_PCLK_AR_RELEASE_MINOR_VERSION	0
+#define	WDG_IWDT_AR_RELEASE_MAJOR_VERSION	4
+#define	WDG_IWDT_AR_RELEASE_MINOR_VERSION	0
 
-#if !defined( WDG_PCLK_AR_MAJOR_VERSION ) || \
-    ( WDG_PCLK_AR_MAJOR_VERSION != WDG_PCLK_AR_RELEASE_MAJOR_VERSION )
-#error	Wdg_PCLK: version mismatch.
+#if !defined( WDG_IWDT_AR_MAJOR_VERSION ) || \
+    ( WDG_IWDT_AR_MAJOR_VERSION != WDG_IWDT_AR_RELEASE_MAJOR_VERSION )
+#error	Wdg_IWDT: version mismatch.
 #endif
 
 #include "ee.h"
 
-#include "Wdg_PCLK_Internal.h"
+#include "Wdg_IWDT_Internal.h"
 
 /*
  * Global config
  */
-Wdg_PCLK_GlobalType Wdg_PCLK_Global =
+Wdg_IWDT_GlobalType Wdg_IWDT_Global =
 {
 		WDG_UNINIT,		/* State	*/
-#if	( WDG_PCLK_DISABLE_ALLOWED == STD_ON )
+#if	( WDG_IWDT_DISABLE_ALLOWED == STD_ON )
 		WDGIF_OFF_MODE,	/* Mode		*/
-#else	/* ( WDG_PCLK_DISABLE_ALLOWED == STD_ON ) */
+#else	/* ( WDG_IWDT_DISABLE_ALLOWED == STD_ON ) */
 		WDGIF_SLOW_MODE,	/* Mode		*/
-#endif	/* !( WDG_PCLK_DISABLE_ALLOWED == STD_ON ) */
+#endif	/* !( WDG_IWDT_DISABLE_ALLOWED == STD_ON ) */
 		FALSE,		/* Expired	*/
 		NULL_PTR,		/* ConfigPtr	*/
 };
 
 
-/** @brief	Set WDG WDTCR register. That is, set clock div, time-out and window.
+/** @brief	Set IWDG WDTCR register. That is, set clock div, time-out and window.
  *	@param  tc Time-out counter.
  *	@param  wdtcr_bits Bits to configure clock division ratio and refresh window.
  *	
  */
-static void Wdg_PCLK_SetWDTCR(uint32 tc, uint16 wdtcr_bits) 
+static void Wdg_IWDT_SetWDTCR(uint32 tc, uint16 wdtcr_bits) 
 {
 	/*
 	* wdtcr_bits: b12, b11 ->Window Start Position
@@ -103,14 +103,14 @@ static void Wdg_PCLK_SetWDTCR(uint32 tc, uint16 wdtcr_bits)
 	* wdtcr_bits: b4, b7 ->Clock Division Ratio
 	*/
 
-	if (tc <= WDG_PCLK_TOP0) {
-		WDG_PCLK_SET_WDTCR(wdtcr_bits | WDG_PCLK_TOP0_MASK);
-	} else if (tc <= WDG_PCLK_TOP1 ) {
-		WDG_PCLK_SET_WDTCR(wdtcr_bits | WDG_PCLK_TOP1_MASK);
-	} else if (tc <= WDG_PCLK_TOP2 ) {
-		WDG_PCLK_SET_WDTCR(wdtcr_bits | WDG_PCLK_TOP2_MASK);
+	if (tc <= WDG_IWDT_TOP0) {
+		WDG_IWDT_SET_IWDTCR(wdtcr_bits | WDG_IWDT_TOP0_MASK);
+	} else if (tc <= WDG_IWDT_TOP1 ) {
+		WDG_IWDT_SET_IWDTCR(wdtcr_bits | WDG_IWDT_TOP1_MASK);
+	} else if (tc <= WDG_IWDT_TOP2 ) {
+		WDG_IWDT_SET_IWDTCR(wdtcr_bits | WDG_IWDT_TOP2_MASK);
 	} else {
-		WDG_PCLK_SET_WDTCR(wdtcr_bits | WDG_PCLK_TOP3_MASK);
+		WDG_IWDT_SET_IWDTCR(wdtcr_bits | WDG_IWDT_TOP3_MASK);
 	}
 	
 }
@@ -118,59 +118,53 @@ static void Wdg_PCLK_SetWDTCR(uint32 tc, uint16 wdtcr_bits)
 /*
  * Watchdog Mode Internal Set-up.
  */
-static Std_ReturnType Wdg_PCLK_SetMode_Internal(WdgIf_ModeType	Mode) 
+static Std_ReturnType Wdg_IWDT_SetMode_Internal(WdgIf_ModeType	Mode) 
 {
 	Std_ReturnType	ret = E_OK;
-	register float32	pclk;	/* Clock Frequency	*/
 	register uint32	ticks; 		/*Number of ticks */
 	
 
 	if ( Mode != WDGIF_OFF_MODE ) {
-
-		pclk =	Mcu_Global.ConfigPtr->McuClockSettingConfig[
-				      Mcu_Global.ClockSetting].McuClockReferencePointFrequency;
-		pclk = pclk / 
-				GET_PCLKB_DIV(Mcu_Global.ConfigPtr->McuClockSettingConfig[
-						Mcu_Global.ClockSetting].McuRunModeClockConfiguration2);
+					  
 		if (Mode == WDGIF_FAST_MODE) {
 			ticks = MS_TO_TICKS(
-				Wdg_PCLK_Global.ConfigPtr->WdgSettingsFast->WdgTimeout, pclk);
-			WDG_PCLK_SET_UN_ACT(Wdg_PCLK_Global.ConfigPtr->WdgSettingsFast->WdgCtl);
+				Wdg_IWDT_Global.ConfigPtr->WdgSettingsFast->WdgTimeout);
+			WDG_IWDT_SET_UN_ACT(Wdg_IWDT_Global.ConfigPtr->WdgSettingsFast->WdgCtl);
 			
 		} else {
 			ticks = MS_TO_TICKS(
-				Wdg_PCLK_Global.ConfigPtr->WdgSettingsSlow->WdgTimeout, pclk);
-			WDG_PCLK_SET_UN_ACT(Wdg_PCLK_Global.ConfigPtr->WdgSettingsSlow->WdgCtl);
+				Wdg_IWDT_Global.ConfigPtr->WdgSettingsSlow->WdgTimeout);
+			WDG_IWDT_SET_UN_ACT(Wdg_IWDT_Global.ConfigPtr->WdgSettingsSlow->WdgCtl);
 		}
 		
-		if (ticks < WDG_PCLKD4_MAX_TICKS) {
+		if (ticks < WDG_IWDTD1_MAX_TICKS) {
 			
-			Wdg_PCLK_SetWDTCR( ticks / WDG_PCLK_DIV4, WDG_PCLK_DIV4_MASK | 
+			Wdg_IWDT_SetWDTCR( ticks / WDG_IWDT_DIV1, WDG_IWDT_DIV1_MASK | 
 							WDG_WDTCR_WIND_MASK);
 			
-		} else if (ticks < WDG_PCLKD64_MAX_TICKS) {
+		} else if (ticks < WDG_IWDTD16_MAX_TICKS) {
 			
-			Wdg_PCLK_SetWDTCR( ticks / WDG_PCLK_DIV64, WDG_PCLK_DIV64_MASK | 
+			Wdg_IWDT_SetWDTCR( ticks / WDG_IWDT_DIV16, WDG_IWDT_DIV16_MASK | 
 							WDG_WDTCR_WIND_MASK);
 			
-		} else if (ticks < WDG_PCLKD128_MAX_TICKS) {
+		} else if (ticks < WDG_IWDTD32_MAX_TICKS) {
 			
-			Wdg_PCLK_SetWDTCR( ticks / WDG_PCLK_DIV128, WDG_PCLK_DIV128_MASK | 
+			Wdg_IWDT_SetWDTCR( ticks / WDG_IWDT_DIV32, WDG_IWDT_DIV32_MASK | 
 							WDG_WDTCR_WIND_MASK);
 			
-		} else if (ticks < WDG_PCLKD512_MAX_TICKS) {
+		} else if (ticks < WDG_IWDTD64_MAX_TICKS) {
 			
-			Wdg_PCLK_SetWDTCR( ticks / WDG_PCLK_DIV512, WDG_PCLK_DIV512_MASK | 
+			Wdg_IWDT_SetWDTCR( ticks / WDG_IWDT_DIV64, WDG_IWDT_DIV64_MASK | 
 							WDG_WDTCR_WIND_MASK);
 					
-		} else if (ticks < WDG_PCLKD2048_MAX_TICKS) {
+		} else if (ticks < WDG_IWDTD128_MAX_TICKS) {
 			
-			Wdg_PCLK_SetWDTCR( ticks / WDG_PCLK_DIV2048, WDG_PCLK_DIV2048_MASK | 
+			Wdg_IWDT_SetWDTCR( ticks / WDG_IWDT_DIV128, WDG_IWDT_DIV128_MASK | 
 							WDG_WDTCR_WIND_MASK);
 			
-		} else if (ticks < WDG_PCLKD8192_MAX_TICKS) {
+		} else if (ticks < WDG_IWDTD256_MAX_TICKS) {
 			
-			Wdg_PCLK_SetWDTCR( ticks / WDG_PCLK_DIV8192, WDG_PCLK_DIV8192_MASK | 
+			Wdg_IWDT_SetWDTCR( ticks / WDG_IWDT_DIV256, WDG_IWDT_DIV256_MASK | 
 							WDG_WDTCR_WIND_MASK);
 			
 		} else {
@@ -180,20 +174,23 @@ static Std_ReturnType Wdg_PCLK_SetMode_Internal(WdgIf_ModeType	Mode)
 	}	
   
 	if ( ret == E_OK ) {
-		Wdg_PCLK_Global.Expired = FALSE;
-		Wdg_PCLK_Global.Mode = Mode;
-			/*Start WDG */
-		WDG_PCLK_REFRESH();
+		Wdg_IWDT_Global.Expired = FALSE;
+		Wdg_IWDT_Global.Mode = Mode;
+		/* Start the IWDT oscillator.*/
+		WDG_IWDT_CLK_START();
+		/*Start WDG */
+		WDG_IWDT_REFRESH();
 	}
+
 	
 	return ret;
 
 }
 
 /*
- * Wdg_PCLK_Init implementation. (Non Re-entrant)
+ * Wdg_IWDT_Init implementation. (Non Re-entrant)
  */
-void Wdg_PCLK_Init(const Wdg_PCLK_ConfigType *	ConfigPtr)
+void Wdg_IWDT_Init(const Wdg_IWDT_ConfigType *	ConfigPtr)
 {
 
 	register EE_FREG		flags;
@@ -203,33 +200,32 @@ void Wdg_PCLK_Init(const Wdg_PCLK_ConfigType *	ConfigPtr)
 
 	flags = EE_hal_suspendIRQ();
 
-	VALIDATE_IRQ(( Wdg_PCLK_Global.State != WDG_BUSY ), 
+	VALIDATE_IRQ(( Wdg_IWDT_Global.State != WDG_BUSY ), 
 			WDG_INIT_SERVICE_ID,
 			WDG_E_DRIVER_STATE,
 			flags);
 
-	Wdg_PCLK_Global.State = WDG_BUSY;
-	Wdg_PCLK_Global.Expired = FALSE;
-	Wdg_PCLK_Global.ConfigPtr = ConfigPtr;
+	Wdg_IWDT_Global.State = WDG_BUSY;
+	Wdg_IWDT_Global.Expired = FALSE;
+	Wdg_IWDT_Global.ConfigPtr = ConfigPtr;
 
 	EE_hal_resumeIRQ(flags);
-	/* Note that WDGIF_OFF_MODE must be the mode passed by Wdg_PCLK_Init(), 
-	 * otherwise Wdg_PCLK_SetMode() will not have effects. 
+	/* Note that WDGIF_OFF_MODE must be the mode passed by Wdg_IWDT_Init(), 
+	 * otherwise Wdg_IWDT_SetMode() will not have effects. 
 	 * The Watchdog module can be configured only once after reset. 
 	 * Thus, ConfigPtr->WdgDefaultMode must be WDGIF_OFF_MODE.
 	 */
-	rv = Wdg_PCLK_SetMode_Internal(ConfigPtr->WdgDefaultMode);
+	rv = Wdg_IWDT_SetMode_Internal(ConfigPtr->WdgDefaultMode);
 
 	flags = EE_hal_suspendIRQ();
 
 	if ( rv == E_OK ) {
-
-		Wdg_PCLK_Global.State = WDG_IDLE;
+		Wdg_IWDT_Global.State = WDG_IDLE;
 
 	} else {
 
-		Wdg_PCLK_Global.State = WDG_UNINIT;
-		Wdg_PCLK_Global.ConfigPtr = NULL_PTR;
+		Wdg_IWDT_Global.State = WDG_UNINIT;
+		Wdg_IWDT_Global.ConfigPtr = NULL_PTR;
 
 	}
 
@@ -238,15 +234,15 @@ void Wdg_PCLK_Init(const Wdg_PCLK_ConfigType *	ConfigPtr)
 }
 
 /*
- * Wdg_PCLK_SetMode implementation. (Non Re-entrant)
+ * Wdg_IWDT_SetMode implementation. (Non Re-entrant)
  */
-Std_ReturnType Wdg_PCLK_SetMode(WdgIf_ModeType	Mode)
+Std_ReturnType Wdg_IWDT_SetMode(WdgIf_ModeType	Mode)
 {
 
 	register EE_FREG		flags;
 	register Std_ReturnType	rv;
 
-#if	( WDG_PCLK_DISABLE_ALLOWED == STD_OFF )
+#if	( WDG_IWDT_DISABLE_ALLOWED == STD_OFF )
 	VALIDATE_W_RV(( Mode != WDGIF_OFF_MODE ), 
 			WDG_SETMODE_SERVICE_ID,
 			WDG_E_PARAM_MODE,
@@ -255,21 +251,21 @@ Std_ReturnType Wdg_PCLK_SetMode(WdgIf_ModeType	Mode)
 
 	flags = EE_hal_suspendIRQ();
 
-	VALIDATE_IRQ_W_RV(( Wdg_PCLK_Global.State == WDG_IDLE ), 
+	VALIDATE_IRQ_W_RV(( Wdg_IWDT_Global.State == WDG_IDLE ), 
 			WDG_SETMODE_SERVICE_ID,
 			WDG_E_DRIVER_STATE,
 			E_NOT_OK,
 			flags);
 
-	Wdg_PCLK_Global.State = WDG_BUSY;
+	Wdg_IWDT_Global.State = WDG_BUSY;
 
 	EE_hal_resumeIRQ(flags);
 
-	rv = Wdg_PCLK_SetMode_Internal(Mode);
+	rv = Wdg_IWDT_SetMode_Internal(Mode);
 
 	flags = EE_hal_suspendIRQ();
 
-	Wdg_PCLK_Global.State = WDG_IDLE;
+	Wdg_IWDT_Global.State = WDG_IDLE;
 
 	EE_hal_resumeIRQ(flags);
 
@@ -277,9 +273,9 @@ Std_ReturnType Wdg_PCLK_SetMode(WdgIf_ModeType	Mode)
 }
 
 /*
- * Wdg_PCLK_SetTriggerCondition implementation. (Non Re-entrant)
+ * Wdg_IWDT_SetTriggerCondition implementation. (Non Re-entrant)
  */
-void Wdg_PCLK_SetTriggerCondition(uint16	Timeout)
+void Wdg_IWDT_SetTriggerCondition(uint16	Timeout)
 {
 
 	register EE_FREG	flags;
@@ -291,23 +287,23 @@ void Wdg_PCLK_SetTriggerCondition(uint16	Timeout)
 	/*
 	register float32	freq;
 
-	VALIDATE(( ((float32)Timeout / 1000) < WDG_PCLK_MAX_TIMEOUT ),
+	VALIDATE(( ((float32)Timeout / 1000) < WDG_IWDT_MAX_TIMEOUT ),
 			WDG_SETTRIGGERCONDITION_SERVICE_ID, 
 			WDG_E_PARAM_TIMEOUT);
 	*/
 	flags = EE_hal_suspendIRQ();
 
-	VALIDATE_IRQ(( Wdg_PCLK_Global.State == WDG_IDLE ), 
+	VALIDATE_IRQ(( Wdg_IWDT_Global.State == WDG_IDLE ), 
 			WDG_SETTRIGGERCONDITION_SERVICE_ID,
 			WDG_E_DRIVER_STATE,
 			flags);
 
-	Wdg_PCLK_Global.State = WDG_BUSY;
+	Wdg_IWDT_Global.State = WDG_BUSY;
 
 	/*
 	freq =	Mcu_Global.ConfigPtr->McuClockSettingConfig[
 			Mcu_Global.ClockSetting].McuClockReferencePointFrequency;
-	freq = freq / WDG_PCLK_GET_PCKB_DIV(
+	freq = freq / WDG_IWDT_GET_PCKB_DIV(
 			Mcu_Global.ConfigPtr->McuClockSettingConfig[
 			        Mcu_Global.ClockSetting].McuRunModeClockConfiguration2);
   */
@@ -317,13 +313,13 @@ void Wdg_PCLK_SetTriggerCondition(uint16	Timeout)
 			WDG_SETTRIGGERCONDITION_SERVICE_ID,
 			WDG_E_PARAM_TIMEOUT);
 */
-	WDG_PCLK_REFRESH();
+	WDG_IWDT_REFRESH();
 	
-	Wdg_PCLK_Global.Expired = FALSE;
+	Wdg_IWDT_Global.Expired = FALSE;
 
 	flags = EE_hal_suspendIRQ();
 
-	Wdg_PCLK_Global.State = WDG_IDLE;
+	Wdg_IWDT_Global.State = WDG_IDLE;
 
 	EE_hal_resumeIRQ(flags);
 
