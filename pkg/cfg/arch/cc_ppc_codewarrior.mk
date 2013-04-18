@@ -69,6 +69,8 @@ endif
 endif # __BASE_MAKEFILE__
 ifeq ($(call iseeopt, __VLE__), yes)
 MW_LIB_FLAVOR := $(MW_LIB_FLAVOR)_VLE_SPFP_Only
+else
+MW_LIB_FLAVOR := $(MW_LIB_FLAVOR)_SPFP_Only
 endif
 endif # PPCE200Z0
 # Apparently, libc_XXX works on Windows, librt_XXX on Linux
@@ -140,7 +142,7 @@ endif
 
 # S-record file generation
 ifeq ($(call iseeopt, GENERATE_S_RECORD), yes)
-OPT_LINK += -srec ppc.srec -sreclength 22
+OPT_LINK += -srec ppc.mot -sreclength 22
 endif
 
 CC_LD_SUFFIX = _codewarrior.ld
