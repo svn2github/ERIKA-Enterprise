@@ -55,8 +55,12 @@ int8_t	mrf24j40_hal_init(void)
 	MRF24J40_TRIS_CSn = 0;
 	/* Set interrupt registers */
 	MRF24J40_INTERRUPT_PRIORITY = 1;
+	#ifdef INT_POLARITY_HIGH
 	MRF24J40_INTERRUPT_EDGE_POLARITY = 0;
-
+	#else
+	MRF24J40_INTERRUPT_EDGE_POLARITY = 1;
+	#endif
+	
 	mrf24j40_hal_irq_clean();
 	mrf24j40_hal_irq_enable();
 	return 1;
