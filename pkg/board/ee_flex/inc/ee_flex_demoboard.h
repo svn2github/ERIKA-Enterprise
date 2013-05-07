@@ -111,6 +111,110 @@ __INLINE__ void __ALWAYS_INLINE__ EE_led_7_off(void)  { LATDbits.LATD11 = 0; }
 __INLINE__ void __ALWAYS_INLINE__ EE_leds_on(void)   { LATD  |= 0x0F00; LATF  |= 0x000F; }
 __INLINE__ void __ALWAYS_INLINE__ EE_leds_off(void)  { LATD  &= 0xF0FF; LATF  &= 0xFFF0; }
 
+#define EE_LED_0 1
+#define EE_LED_1 2
+#define EE_LED_2 3
+#define EE_LED_3 4
+#define EE_LED_4 5
+#define EE_LED_5 6
+#define EE_LED_6 7
+#define EE_LED_7 8
+
+__INLINE__ void __ALWAYS_INLINE__ EE_led_init(int led_id) 
+{
+    switch(led_id){
+	case EE_SYS_LED:
+	  EE_led_sys_init();
+	  break;
+	case EE_LED_0:
+	  EE_led_0_init();
+	  break;
+	case EE_LED_1:
+	  EE_led_1_init();
+	  break;
+	case EE_LED_2:
+	  EE_led_2_init();
+	  break;
+	case EE_LED_3:
+	  EE_led_3_init();
+	  break;
+	case EE_LED_4:
+	  EE_led_4_init();
+	  break;
+	case EE_LED_5:
+	  EE_led_5_init();
+	  break;
+	case EE_LED_6:
+	  EE_led_6_init();
+	  break;
+	case EE_LED_7:
+	  EE_led_7_init();
+	  break;
+    }
+}
+
+__INLINE__ void __ALWAYS_INLINE__ EE_led_write(int led_id, EE_INT8 value) 
+{
+    switch(led_id){
+	case EE_SYS_LED:
+	  if(value)
+	    EE_led_sys_on();
+	  else
+	    EE_led_sys_off();
+	  break;
+	case EE_LED_0:
+	  if(value)
+	    EE_led_0_on();
+	  else
+	    EE_led_0_off();
+	  break;
+	case EE_LED_1:
+	  if(value)
+	    EE_led_1_on();
+	  else
+	    EE_led_1_off();
+	  break;
+	case EE_LED_2:
+	  if(value)
+	    EE_led_2_on();
+	  else
+	    EE_led_2_off();
+	  break;
+	case EE_LED_3:
+	  if(value)
+	    EE_led_3_on();
+	  else
+	    EE_led_3_off();
+	  break;
+	case EE_LED_4:
+	  if(value)
+	    EE_led_4_on();
+	  else
+	    EE_led_4_off();
+	  break;
+	case EE_LED_5:
+	  if(value)
+	    EE_led_5_on();
+	  else
+	    EE_led_5_off();
+	  break;
+	case EE_LED_6:
+	  if(value)
+	    EE_led_6_on();
+	  else
+	    EE_led_6_off();
+	  break;
+	case EE_LED_7:
+	  if(value)
+	    EE_led_7_on();
+	  else
+	    EE_led_7_off();
+	  break;
+
+    }
+}
+
+
 #endif
 
 /* /\************************************************************************* */
@@ -196,6 +300,113 @@ __INLINE__ EE_UINT8 __ALWAYS_INLINE__ EE_button_get_S4( void ) {
 /******************************************************************************/
 /*                  Common APIs for Model Based Suite                         */
 /******************************************************************************/
+
+#define EE_BUTTON_S1 0
+#define EE_BUTTON_S2 1
+#define EE_BUTTON_S3 2
+#define EE_BUTTON_S4 3
+
+__INLINE__ void __ALWAYS_INLINE__ EE_button_S1_init(void(*isr_callback)(void))
+{
+
+	/* set BUTTON pins as inputs */
+	TRISDbits.TRISD4  = 1;
+
+	/* Enable Interrupt */
+	if (isr_callback != NULL) {
+		CNEN1bits.CN13IE = 1;	// S1/RD4
+		IFS1bits.CNIF = 0;
+		IEC1bits.CNIE = 1;
+		/* Save callback */
+		EE_button_callback = isr_callback;
+	}
+}
+
+__INLINE__ void __ALWAYS_INLINE__ EE_button_S2_init(void(*isr_callback)(void))
+{
+
+	/* set BUTTON pins as inputs */
+	TRISDbits.TRISD5  = 1;
+
+	/* Enable Interrupt */
+	if (isr_callback != NULL) {
+		CNEN1bits.CN14IE = 1;	// S2/RD5
+		IFS1bits.CNIF = 0;
+		IEC1bits.CNIE = 1;
+		/* Save callback */
+		EE_button_callback = isr_callback;
+	}
+}
+
+__INLINE__ void __ALWAYS_INLINE__ EE_button_S3_init(void(*isr_callback)(void))
+{
+
+	/* set BUTTON pins as inputs */
+	TRISDbits.TRISD6  = 1;
+
+	/* Enable Interrupt */
+	if (isr_callback != NULL) {
+		CNEN1bits.CN15IE = 1;	// S3/RD6
+		IFS1bits.CNIF = 0;
+		IEC1bits.CNIE = 1;
+		/* Save callback */
+		EE_button_callback = isr_callback;
+	}
+}
+
+__INLINE__ void __ALWAYS_INLINE__ EE_button_S4_init(void(*isr_callback)(void))
+{
+
+	/* set BUTTON pins as inputs */
+	TRISDbits.TRISD15  = 1;
+
+	/* Enable Interrupt */
+	if (isr_callback != NULL) {
+		CNEN2bits.CN21IE = 1;	// S4/RD15
+		IFS1bits.CNIF = 0;
+		IEC1bits.CNIE = 1;
+		/* Save callback */
+		EE_button_callback = isr_callback;
+	}
+}
+
+
+__INLINE__ void __ALWAYS_INLINE__ EE_button_init( int button_id, void(*isr_callback)(void) )
+{
+    switch(button_id){
+	case EE_BUTTON_S1:
+	  EE_button_S1_init(isr_callback);
+	  break;
+	case EE_BUTTON_S2:
+	  EE_button_S2_init(isr_callback);
+	  break;
+	case EE_BUTTON_S3:
+	  EE_button_S3_init(isr_callback);
+	  break;
+	case EE_BUTTON_S4:
+	  EE_button_S4_init(isr_callback);
+	  break;
+    }
+}
+
+__INLINE__ void __ALWAYS_INLINE__ EE_button_read( int button_id, EE_INT8* value)
+{
+    switch(button_id){
+	case EE_BUTTON_S1:
+	  *value = EE_button_get_S1();
+	  break;
+	case EE_BUTTON_S2:
+	  *value = EE_button_get_S2();
+	  break;
+	case EE_BUTTON_S3:
+	  *value = EE_button_get_S3();
+	  break;
+	case EE_BUTTON_S4:
+	  *value = EE_button_get_S4();
+	  break;
+    }
+}
+
 
 /* TODO:
    1- Write APIs doc

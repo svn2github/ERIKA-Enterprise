@@ -69,6 +69,48 @@ __INLINE__ void __ALWAYS_INLINE__ EE_led_1_off(void)   { LATDbits.LATD2 = 0; }
 __INLINE__ void __ALWAYS_INLINE__ EE_leds_on(void)     { LATDbits.LATD0 = 1; LATDbits.LATD2 = 1; }
 __INLINE__ void __ALWAYS_INLINE__ EE_leds_off(void)    { LATDbits.LATD0 = 0; LATDbits.LATD2 = 0; }
 
+#define EE_LED_0 1
+#define EE_LED_1 2
+
+__INLINE__ void __ALWAYS_INLINE__ EE_led_init(int led_id) 
+{
+    switch(led_id){
+	case EE_SYS_LED:
+	  EE_led_sys_init();
+	  break;
+	case EE_LED_0:
+	  EE_led_0_init();
+	  break;
+	case EE_LED_1:
+	  EE_led_1_init();
+	  break;
+    }
+}
+
+__INLINE__ void __ALWAYS_INLINE__ EE_led_write(int led_id, EE_INT8 value) 
+{
+    switch(led_id){
+	case EE_SYS_LED:
+	  if(value)
+	    EE_led_sys_on();
+	  else
+	    EE_led_sys_off();
+	  break;
+	case EE_LED_0:
+	  if(value)
+	    EE_led_0_on();
+	  else
+	    EE_led_0_off();
+	  break;
+	case EE_LED_1:
+	  if(value)
+	    EE_led_1_on();
+	  else
+	    EE_led_1_off();
+	  break;
+    }
+}
+
 #endif
 
 /******************************************************************************/
@@ -130,6 +172,34 @@ __INLINE__ void __ALWAYS_INLINE__ EE_buttons_init( void(*isr_callback1)(void), v
 	EE_button_S1_init(isr_callback1);
 	EE_button_S2_init(isr_callback2);
 }
+
+#define EE_BUTTON_S1 0
+#define EE_BUTTON_S2 1
+
+__INLINE__ void __ALWAYS_INLINE__ EE_button_init( int button_id, void(*isr_callback)(void) )
+{
+    switch(button_id){
+	case EE_BUTTON_S1:
+	  EE_button_S1_init(isr_callback);
+	  break;
+	case EE_BUTTON_S2:
+	  EE_button_S2_init(isr_callback);
+	  break;
+    }
+}
+
+__INLINE__ void __ALWAYS_INLINE__ EE_button_read( int button_id, EE_INT8* value)
+{
+    switch(button_id){
+	case EE_BUTTON_S1:
+	  *value = EE_button_get_S1();
+	  break;
+	case EE_BUTTON_S2:
+	  *value = EE_button_get_S2();
+	  break;
+    }
+}
+
 
 #endif
 
@@ -270,21 +340,18 @@ __INLINE__ void __ALWAYS_INLINE__ EE_analog_close( void )
 #ifdef __USE_ADC__
 
 #if defined(__USE_PLUGIN_DCM__)
-  #define ADC_CUR      EE_ADC_AN1
-  #define ADC_VOUT     EE_ADC_AN2
-  #define ADC_FAULT    EE_ADC_AN3
+  #define EE_ADC_CUR      EE_ADC_AN1
+  #define EE_ADC_VOUT     EE_ADC_AN2
+  #define EE_ADC_FAULT    EE_ADC_AN3
   #define EE_ADC_AN1   EE_ADC_PIN21 /* ADC_CUR */
   #define EE_ADC_AN2   EE_ADC_PIN10 /* ADC_VOUT */
   #define EE_ADC_AN3   EE_ADC_PIN20 /* ADC_FAULT */
 #elif defined (__USE_PLUGIN_SERVO__)
-  #define ADC_TOUCH_BOTTOM   EE_ADC_AN1
-  #define ADC_TOUCH_RIGHT    EE_ADC_AN2
+  #define EE_ADC_TOUCH_BOTTOM   EE_ADC_AN1
+  #define EE_ADC_TOUCH_RIGHT    EE_ADC_AN2
   #define EE_ADC_AN1   EE_ADC_PIN9  /* ADC_BOTTOM */
   #define EE_ADC_AN2   EE_ADC_PIN15 /* ADC_RIGHT */
 #else
-  #define ADC_GP1      EE_ADC_AN1
-  #define ADC_GP2      EE_ADC_AN2
-  #define ADC_GP3      EE_ADC_AN3
   #define EE_ADC_AN1   EE_ADC_PIN3  /* ADC_GP1 */
   #define EE_ADC_AN2   EE_ADC_PIN12 /* ADC_GP2 */
   #define EE_ADC_AN3   EE_ADC_PIN13 /* ADC_GP3 */
@@ -538,8 +605,8 @@ __INLINE__ float __ALWAYS_INLINE__ EE_accelerometer_getz( void )
 /******************************************************************************/
 #ifdef __USE_PWM__
 
-#define EE_PWM_PORT1 1
-#define EE_PWM_PORT2 2
+#define EE_PWM_PORT1 0
+#define EE_PWM_PORT2 1
 
 #define EE_PWM_ZERO_DUTY 1500
 

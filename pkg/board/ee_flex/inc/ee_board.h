@@ -54,6 +54,8 @@
 
 #ifdef __USE_LEDS__
 
+#define EE_SYS_LED 0
+
 __INLINE__ void __ALWAYS_INLINE__ EE_leds_init(void) {
 	/* set LED (LEDSYS/RB14) drive state low */
 	LATBbits.LATB14 = 0;
