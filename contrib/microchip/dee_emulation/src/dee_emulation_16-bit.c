@@ -70,7 +70,7 @@
 //    #error Selected processor not supported
 #endif
 
-#include "DEE_Emulation_16-bit.h"
+#include "dee_emulation_16-bit.h"
 
 // User constant validation
 #if DATA_EE_BANKS == 0
