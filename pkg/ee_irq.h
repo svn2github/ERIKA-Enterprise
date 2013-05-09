@@ -144,6 +144,7 @@ defined(__OO_ECC2__) || defined(__AS_SC4__)
 
 #ifdef  EE_TRICORE__
 #include "cpu/tricore/inc/ee_tc_irq.h"
+#include "cpu/tricore/inc/ee_tc_trap.h"
 #endif /* EE_TRICORE__ */
 
 

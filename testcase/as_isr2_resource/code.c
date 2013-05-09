@@ -75,8 +75,10 @@ static unsigned int high_isr_hit;
 static int assert_count = EE_ASSERT_NIL;
 static void assert(int test)
 {
-  EE_assert(assert_count + 1, test, assert_count);
-  ++assert_count;
+  register int next_assert;
+  next_assert = (assert_count == EE_ASSERT_NIL) ? 1 : assert_count + 1;
+  EE_assert(next_assert, test, EE_ASSERT_NIL);
+  assert_count = next_assert;
 }
 
 /* assertion data */

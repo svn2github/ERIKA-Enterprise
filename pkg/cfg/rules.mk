@@ -44,41 +44,8 @@
 ## 2010 Bernardo  Dal Seno
 ## CVS: $Id: rules.mk,v 1.33 2008/01/14 10:35:34 pj Exp $
 
-# Function to test EEOPT, useful in conditionals and in or/and expressions
-# Examples:
-#   ifeq ($(call iseeopt,__MULTI__), yes)
-#   ifeq ($(and $(call iseeopt,__MULTI__), $(call iseeopt,__IRQ_STACK_NEEDED__)), yes)
-#   ifneq ($(call iseeopt,__MULTI__), yes)
-iseeopt = $(if $(filter $1,$(EEOPT)),yes,)
-
-# `native_path' is used to convert Unix-style names to native names
-ifeq ($(call iseeopt, __RTD_CYGWIN__), yes)
-# Sed is used to remove trailing backslash and to double internal backslashes
-native_path = "$(shell cygpath -w $1 | sed -e 's/\\$$//' -e 's/\\/\\\\/g')"
-else
-# native_path is supposed to return a path string; `strip' removes leading or trailing white chars
-native_path = $(strip $1)
-endif
-
-ifeq ($(findstring Linux, $(MYOS)), Linux)
-unix_path = $1
-else
-#unix_path = $(shell cygpath -u -a '$1' | sed -e 's/ /\\ /g')
-unix_path = $(shell cygpath -u -a '$1')
-endif
-
-ifeq ($(call iseeopt, __RTD_CYGWIN__), yes)
-unix_relpath = $(shell cygpath -u '$1')
-else
-unix_relpath = $1
-endif
-
-ifeq ($(call iseeopt, __RTD_CYGWIN__), yes)
-short_native_path = $(shell cygpath -w -s $1 | sed -e 's/\\$$//' -e 's/\\/\\\\/g')
-else
-short_native_path = $(strip $1)
-endif
-
+# Include templates and functions to handle paths
+include $(EEBASE)/pkg/cfg/path_helper.mk
 
 # Add scicos generated make
 ifeq ($(findstring app.mk,$(notdir $(wildcard $(APPBASE)/*.mk))), app.mk)

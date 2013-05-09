@@ -64,6 +64,10 @@ extern "C" {
 #include "cpu/e200zx/inc/ee_cpu_os.h"
 #endif /* defined __PPCE200Z7__ || defined __PPCE200ZX__ */
 
+#ifdef EE_TRICORE__
+#include "cpu/tricore/inc/ee_tc_cpu.h"
+#include "cpu/tricore/inc/ee_tc_irq.h"
+#endif /* EE_TRICORE__ */
 
 /*
  * I need kernel inclusion before IRQ CPU inclusion because is CPU layer that

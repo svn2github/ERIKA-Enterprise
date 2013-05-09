@@ -56,6 +56,7 @@ include $(PKGBASE)/cfg/compiler.mk
 
 # T32SYS is the environemnt variable recognized by Trace32
 T32SYS ?= C:/T32
+T32ARCH ?= windows64
 
 # The above part is needed for the base makefile for multicore building
 # The part below containes rules for `all' and `clean', and will interfere
@@ -63,6 +64,9 @@ T32SYS ?= C:/T32
 ifeq ($(and $(call iseeopt, __MSRP__), $(__BASE_MAKEFILE__)), yes)
 include $(PKGBASE)/cfg/arch/rules_infineon_multi_base.mk
 else  # __MSRP__ and __BASE_MAKEFILE__
+
+# Explicit the default target
+.DEFAULT_GOAL := all
 
 # Erika LIB name
 EELIB    ?= ee
@@ -88,11 +92,21 @@ TARGET_NAME ?= $(TRICORE_MODEL)
 
 # Add application file to dependencies
 ifneq ($(call iseeopt, __BUILD_LIBS__), yes)
-TARGET := $(TARGET_NAME).objdump
+TARGET := $(TARGET_NAME).elf
 endif
 
 # Continue build system configuration
+# If the environment tag ERIKA as FLAT, use the right configuration file
+ifdef EE_FLAT_LAYOUT
+# Remember: all the sources are found starting from vpath=$(EE_VPATH)=$(EEBASE)
+include $(EEBASE)/ee_cfg.mk
+# Add repository root to INCLUDE_PATH (by default only PKGBASE is included)
+INCLUDE_PATH += $(EEBASE)
+# Make without dir even EE_BOOT_SRCS
+EE_BOOT_SRCS := $(notdir $(EE_BOOT_SRCS))
+else
 include $(PKGBASE)/cfg/cfg.mk
+endif # EE_FLAT_LAYOUT
 
 #
 # --------------------------------------------------------------------------
@@ -111,13 +125,13 @@ SRCS += $(EE_BOOT_SRCS)
 endif
 
 LIBEESRCS += $(EE_SRCS)
-LIBEEOBJS := $(addprefix $(OBJDIR)/, $(patsubst %.c,%.o,$(patsubst %.S,%.o,$(LIBEESRCS))))
+LIBEEOBJS += $(addprefix $(OBJDIR)/, $(patsubst %.c,%.o,$(patsubst %.S,%.o,$(LIBEESRCS))))
 
 LIBEESRCS += $(LIB_SRCS)
-LIBOBJS := $(addprefix $(OBJDIR)/, $(patsubst %.c,%.o,$(patsubst %.S,%.o,$(LIBSRCS))))
+LIBOBJS += $(addprefix $(OBJDIR)/, $(patsubst %.c,%.o,$(patsubst %.S,%.o,$(LIBSRCS))))
 
 SRCS += $(APP_SRCS)
-OBJS := $(addprefix $(OBJDIR)/, $(patsubst %.c,%.o,$(patsubst %.S,%.o, $(SRCS))))
+OBJS += $(addprefix $(OBJDIR)/, $(patsubst %.c,%.o,$(patsubst %.S,%.o, $(SRCS))))
 
 # Variable used to import dependencies
 ALLOBJS = $(LIBEEOBJS) $(LIBOBJS) $(OBJS) 
@@ -129,15 +143,6 @@ INCLUDE_PATH += $(PKGBASE) $(APPBASE) .
 
 vpath %.c $(EE_VPATH) $(APPBASE)
 vpath %.S $(EE_VPATH) $(APPBASE)
-
-##
-## Compute common variables
-##
-
-COMPUTED_INCLUDE_PATH  := $(OPT_INCLUDE)
-COMPUTED_OPT_LINK      := $(OPT_LINK)
-COMPUTED_OPT_ASM       := $(OPT_ASM)
-COMPUTED_OPT_CC        := $(OPT_CC)
 
 ## Select input filename format
 SOURCEFILE = $(call native_path,$<)
@@ -181,9 +186,16 @@ else
 T32ORTISTR :=
 endif
 
+ifeq ($(call iseeopt, EE_EXECUTE_FROM_RAM), yes)
+T32SOURCE := t32_$(TRICORE_MODEL)_ram.cmm
+else
+T32SOURCE := t32_$(TRICORE_MODEL).cmm
+endif
+
 t32: $(T32TARGETS)
 
-t32.cmm: $(PKGBASE)/mcu/infineon_$(TRICORE_MODEL)/cfg/t32_$(TRICORE_MODEL).cmm
+t32.cmm: $(PKGBASE)/mcu/infineon_$(TRICORE_MODEL)/cfg/$(T32SOURCE)
+	@echo "GEN $@ from $(notdir $<)"
 	$(QUIET)sed -e 's:#ORTICMD#:$(T32ORTISTR):'			\
 				-e 's:#EXE_NAME#:$(TARGET_NAME).elf:g'	\
 			$< > $@
@@ -199,25 +211,21 @@ orti.men: system.orti
 #
 
 ### Target file creation ###
-$(TARGET_NAME).objdump: $(TARGET_NAME).elf
-	@echo "Executable dump on file $@"
-	$(QUIET)$(EE_OBJDUMP) $(OPT_OBJDUMP) $(SOURCEFILE) > $(TARGETFILE)
+$(TARGET_NAME).elf: $(OBJS) $(LIBDEP) $(LINKDEP)
+	@echo "LD $@";
+	$(QUIET)$(EE_LINK) $(OPT_LINK) $(TARGET_LD_FILE) $(OBJS) $(LIBDEP)
 	@echo "************************************"
 	@echo "Compilation terminated successfully!"
 
-$(TARGET_NAME).elf: $(OBJS) $(LINKDEP) $(LIBDEP) 
-	@echo "LD $@";
-	$(QUIET)$(EE_LINK) $(COMPUTED_OPT_LINK) $(TARGET_LD_FILE) $(OBJS) $(LIBDEP)
-	
 # produce the object file from assembly code in a single step
-$(OBJDIR)/%.o: %.S
-	$(VERBOSE_PRINTASM) $(EE_ASM) $(DEFS_ASM) $(COMPUTED_INCLUDE_PATH) $(COMPUTED_OPT_ASM) $(DEPENDENCY_OPT_ASM) \
+$(OBJDIR)/%.o: %.S $(OBJDEP)
+	$(VERBOSE_PRINTASM) $(EE_ASM) $(DEFS_ASM) $(OPT_INCLUDE) $(OPT_ASM) $(DEPENDENCY_OPT_ASM) \
 	$(TARGET_ASM_FILE) $(SOURCE_ASM_FILE)
 	$(QUIET)$(call make-depend, $(subst .o,.d,$(@)))
 
 # produce the object file from C code in a single step
-$(OBJDIR)/%.o: %.c
-	$(VERBOSE_PRINTCC) $(EE_CC) $(DEFS_CC) $(COMPUTED_INCLUDE_PATH) $(COMPUTED_OPT_CC) $(DEPENDENCY_OPT) \
+$(OBJDIR)/%.o: %.c $(OBJDEP)
+	$(VERBOSE_PRINTCC) $(EE_CC) $(DEFS_CC) $(OPT_INCLUDE) $(OPT_CC) $(DEPENDENCY_OPT) \
 	$(TARGET_C_FILE) $(SOURCE_C_FILE)
 	$(QUIET)$(call make-depend, $(subst .o,.d,$(@)))
 

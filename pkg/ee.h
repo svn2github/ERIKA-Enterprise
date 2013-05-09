@@ -331,8 +331,8 @@ extern "C" {
 #endif
 
 /* Tricore TC27x */
-#if defined(EE_TRICORE__) && defined(EE_TC27X__)
-#include "board/infineon_TriBoard-TC2X5_V2.0/inc/ee_tc2x5_board.h"
+#if defined(EE_TRICORE__) && defined(EE_TC27X__) && defined(EE_TRIBOARD_TC2X5)
+#include "board/infineon_TriBoard_TC2X5/inc/ee_tc2x5_board.h"
 #endif
 
 #ifdef __ESI_RISC__

@@ -89,6 +89,12 @@ typedef unsigned long long int EE_UINT64;
 /* Data addresses (that have the same size of a pointer) */
 typedef void *EE_ADDR;
 
+/*
+ * Introduced to comply with MISRA 16.7.
+ * There may be functions requiring pointer to const)
+ */
+typedef const void *EE_CONST_ADDR;
+
 /* Code addresses (same size of function pointers) */
 typedef void (*EE_FADDR)(void);
 

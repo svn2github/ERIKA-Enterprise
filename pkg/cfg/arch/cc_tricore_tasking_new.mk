@@ -1,7 +1,7 @@
 # ###*B*###
 # ERIKA Enterprise - a tiny RTOS for small microcontrollers
 # 
-# Copyright (C) 20011  Evidence Srl
+# Copyright (C) 2002-2012  Evidence Srl
 # 
 # This file is part of ERIKA Enterprise.
 # 
@@ -50,7 +50,7 @@
 ## Author: 2012,  Errico Guidieri
 ##
 
-## We eill use "control program" cctc instead specific single tool,
+## We will use "control program" cctc instead specific single tool,
 ## because it understand better implicit options (empirical knowledge)
 ## and because we can easily use TASKING IDE to get the right options.
 EE_LINK ?= $(TRICORE_TASKINGDIR)/ctc/bin/cctc.exe
@@ -58,6 +58,13 @@ EE_ASM  ?= $(TRICORE_TASKINGDIR)/ctc/bin/cctc.exe
 EE_CC   ?= $(TRICORE_TASKINGDIR)/ctc/bin/cctc.exe
 EE_AR   ?= $(TRICORE_TASKINGDIR)/ctc/bin/artc.exe
 EE_OBJDUMP ?= $(TRICORE_TASKINGDIR)/ctc/bin/hldumptc.exe
+
+# HORRIBLE WORK AROUND TO PERSUADE TASKING LINKER TO PRESERVE SECTIONS IN SLAVE ELFs
+ifeq ($(call iseeopt, __MSRP__), yes)
+ifneq ($(CPU_NUMID), 0)
+OBJS += ../$(CPU_MASTER_DIR)/$(OBJDIR)/pkg/mcu/infineon_$(TRICORE_MODEL)/src/ee_tc27x_cstart.o
+endif # CPU_NUMID not eq 0
+endif # __MSRP__
 
 # Suffix used for Linker Scripts Files for TASKING
 CC_LD_SUFFIX := lsl
@@ -134,15 +141,39 @@ source_asm_file=$(strip $1)
 ##--create stop  "control program" after object file is created
 target_asm_file=$(addprefix --create --output=,$1)
 
-# Custom Linker Script Should be Provided with EE_LINK_SCRIPT variable
-ifdef EE_LINK_SCRIPT
-LINKDEP += $(EE_LINK_SCRIPT)
+# Custom Linker Script Should be Provided with EE_LINKERSCRIPT variable
+ifndef EE_LINKERSCRIPT
+# Use The Erika Default One
+ifeq ($(call iseeopt, EE_EXECUTE_FROM_RAM), yes)
+EE_LINKERSCRIPT := ee_tc27x_tasking_ram.lsl
+else
+EE_LINKERSCRIPT := ee_tc27x_tasking_flash.lsl
 endif
+$(EE_LINKERSCRIPT) : % : $(PKGBASE)/mcu/infineon_$(TRICORE_MODEL)/cfg/%
+	@echo CP $@
+	$(QUIET) cp $< $@
+endif
+# Add Linker Script to Link Dependencies
+LINKDEP += $(EE_LINKERSCRIPT)
 
-OPT_LINK += -C$(TRICORE_MODEL) -t $(EE_LINK_SCRIPT) -Wl-O1 -Wl--map-file=$(TARGET_NAME).mapxml:XML -Wl-m2 -Wl--error-limit=42 -g
+OPT_LINK += -C$(TRICORE_MODEL) -t $(EE_LINKERSCRIPT) -Wl-O1 -Wl--map-file=$(TARGET_NAME).mapxml:XML -Wl-m2 -Wl--error-limit=42 -Wl--no-warnings=159 -g
+#no warning is needed for following warning message in TC0:
+#ltc W159: LSL: section ".text.libc.reset" (function _START) was not selected because it already has an absolute restriction
 
 ifeq ($(call iseeopt, EE_DEBUG), yes)
-OPT_LINK += 
+OPT_LINK +=
+endif
+
+# Option to execute code and locate data structures in RAM 
+ifeq ($(call iseeopt, EE_EXECUTE_FROM_RAM), yes)
+#-Wl--non-romable SHOULD BE ADDED to the options but it doens't work
+#(conflict with INTTAB & TRAPTAB) -> TASKING BUG
+OPT_LINK += --no-rom-copy -Wl-DEE_EXECUTE_FROM_RAM
+endif
+
+#Defined when multicore support is needed, used to preprocess Multicore Linker Script
+ifdef CPU_NUMID
+OPT_LINK += -Wl-DCPU_NUMID=$(CPU_NUMID)
 endif
 
 # Specific option from the application makefile

@@ -173,28 +173,25 @@ __INLINE__ void __ALWAYS_INLINE__ EE_std_change_context(EE_TID tid)
 
   /* Check if the TID is Marked Stacked */
 #define EE_std_tid_is_marked_stacked(tid)\
-    (((EE_UTID)tid & TID_IS_STACKED_MARK) != 0U)
+    (((EE_UTID)(tid) & TID_IS_STACKED_MARK) != 0U)
 
 __INLINE__ int __ALWAYS_INLINE__ EE_std_need_context_change(EE_TID tid)
 {
     EE_UTID utid;
-    int need_context_change = 1;
-    /* I cannot use EE_NIL symbol, because is defined inside the kernell,  */
-    if (tid == (EE_TID)-1) {
-        need_context_change = (EE_hal_active_tos != EE_std_thread_tos[0U]);
-    } else if (EE_std_tid_is_marked_stacked(tid)) {
+    int need_context_change;
+
+    if ( EE_std_tid_is_marked_stacked(tid) )
+    {
       /* Unmark the tid to access the EE_std_thread_tos, otherwise undefined
          behaviour. (Index out of arrays boundaries)
          FIXME: #1
       */
-      utid = (EE_UTID)tid & (~(EE_UTID)TID_IS_STACKED_MARK);
-      need_context_change = (EE_hal_active_tos != EE_std_thread_tos[utid + 1U]);
+      utid = (((EE_UTID)tid + 1U)) & (~(EE_UTID)TID_IS_STACKED_MARK);
+      need_context_change = (EE_hal_active_tos != EE_std_thread_tos[utid]);
+    } else {
+      need_context_change = 1;
     }
-    else {
-        /* The "else" clause is required by MISRA 14.10, even if this
-           point will never be reached.
-        */
-    }
+
     return need_context_change;
 }
 

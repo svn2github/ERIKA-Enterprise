@@ -40,19 +40,62 @@
 
 ## Author: 2012 Errico Guidieri
 
-#Used by start scipts
-TEMPDIR ?= C:/Temp
-#used to export symbols to slave cpus
-GLOBAL_LINKSCRIPT := shared_sym.$(CC_LD_SUFFIX)
+#Used by start scripts
+T32TMP ?= C:/Temp
+#Used to export symbols to slave cpus
+GLOBAL_LINKSCRIPT := shared_sym.lsl
 #Slave CPU List
 SLAVE_CPUS := $(filter-out CPU_MASTER, $(CPU_LIST))
 #Master ELF Target
-MASTER_ELF = $(CPU_MASTER_DIR)/$(CPU_MASTER_ELF)
+MASTER_ELF_PATH := $(CPU_MASTER_DIR)/$(CPU_MASTER_ELF)
+
+#Slave ELFs PATH
+ifdef CPU1_ELF
+CPU1_ELF_PATH := $(CPU1_DIR)/$(CPU1_ELF)
+endif
+ifdef CPU2_ELF
+CPU2_ELF_PATH := $(CPU2_DIR)/$(CPU2_ELF)
+endif
+
+#ORTI Support
+ifneq ($(wildcard $(CPU_MASTER_DIR)/system.orti),)
+MASTER_ORTI_CD      := \&core0 cd $(CPU_MASTER_DIR)
+MASTER_ORTI_CMD     := \&core0 do orti.cmm
+MASTER_ORTI_CD_BACK := \&core0 cd ..
+ifdef CPU1_ELF
+CPU1_ORTI_CD        := \&core1 cd $(CPU1_DIR)
+CPU1_ORTI_CMD       := \&core1 do orti.cmm
+CPU1_ORTI_CD_BACK   := \&core1 cd ..
+endif
+ifdef CPU2_ELF
+CPU2_ORTI_CD        := \&core2 cd $(CPU2_DIR)
+CPU2_ORTI_CMD       := \&core2 do orti.cmm
+CPU2_ORTI_CD_BACK   := \&core2 cd ..
+endif
+
+endif
+
+#Preprocessing command
+T32_SED_COMMAND = 's-\#MASTER_ELF\#-$(MASTER_ELF_PATH)-g' 's-\#CPU1_ELF\#-$(CPU1_ELF_PATH)-g' 's-\#CPU2_ELF\#-$(CPU2_ELF_PATH)-g'
+
+T32_SED_COMMAND := $(addprefix -e , $(T32_SED_COMMAND)) -e 's-\#ORTICDMASTER\#-$(MASTER_ORTI_CD)-g'\
+ -e 's-\#ORTICDCPU1\#-$(CPU1_ORTI_CD)-g' -e 's-\#ORTICDCPU2\#-$(CPU2_ORTI_CD)-g'\
+ -e 's-\#ORTICMDMASTER\#-$(MASTER_ORTI_CMD)-g' -e 's-\#ORTICMDCPU1\#-$(CPU1_ORTI_CMD)-g' -e 's-\#ORTICMDCPU2\#-$(CPU2_ORTI_CMD)-g'\
+ -e 's-\#ORTICDBACKMASTER\#-$(MASTER_ORTI_CD_BACK)-g' -e 's-\#ORTICDBACKCPU1\#-$(CPU1_ORTI_CD_BACK)-g'\
+ -e 's-\#ORTICDBACKCPU2\#-$(CPU2_ORTI_CD_BACK)-g'
+
+ifeq ($(call iseeopt, EE_EXECUTE_FROM_RAM), yes)
+T32SCRIPT  := t32_tc27x_mc_ram.cmm
+EE_SCRIPTS := config_tc27x_mc.t32 tc27x_mc_start.bat tc27x_mc_start.sh 
+else
+T32SCRIPT  := t32_tc27x_mc.cmm
+EE_SCRIPTS := config_tc27x_mc.t32 tc27x_mc_start.bat tc27x_mc_start.sh tc27x_mc_flash.bat tc27x_mc_flash.sh t32_tc27x_mc_flash.cmm
+endif
 
 .PHONY: all clean
 .DEFAULT_GOAL := all
 
-all: $(foreach c, $(CPU_LIST), $(c)-all) tc27x_mc_start.bat tc27x_mc_start.sh config_tc27x_mc.t32 t32_tc27x_mc.cmm
+all: $(foreach c, $(CPU_LIST), $(c)-all) $(EE_SCRIPTS) $(T32SCRIPT)
 
 clean: $(foreach c, $(CPU_LIST), $(c)-clean)
 
@@ -60,13 +103,12 @@ clean: $(foreach c, $(CPU_LIST), $(c)-clean)
 define all-clean-template
  .PHONY: $(1)-all $(1)-clean
  $(1)-all $(1)-clean: $(1)-%:
-	$(MAKE) -C $($(1)_DIR) TARGET_NAME=$(basename $($(1)_ELF))	\
-		CPU_NUMID=$($(1)_ID) 									\
-		GLOBAL_LINKSCRIPT=../$(GLOBAL_LINKSCRIPT) $$*
+	$(MAKE) -C $($(1)_DIR) TARGET_NAME=$(basename $($(1)_ELF)) CPU_NUMID=$($(1)_ID) GLOBAL_LINKSCRIPT=../$(GLOBAL_LINKSCRIPT) $$*
 endef
 
 $(foreach c, $(CPU_LIST), $(eval $(call all-clean-template,$c)))
 
+#Targets Dependencies
 $(foreach s, $(SLAVE_CPUS), $(s)-all): $(GLOBAL_LINKSCRIPT)
 
 config_tc27x_mc.t32: %: $(PKGBASE)/mcu/infineon_$(TRICORE_MODEL)/cfg/multicore/%
@@ -75,28 +117,66 @@ config_tc27x_mc.t32: %: $(PKGBASE)/mcu/infineon_$(TRICORE_MODEL)/cfg/multicore/%
 
 tc27x_mc_start.bat tc27x_mc_start.sh: %: $(PKGBASE)/mcu/infineon_$(TRICORE_MODEL)/cfg/multicore/%
 	@echo GEN $@
-	$(QUIET) sed -e 's:#T32SYS#:$(T32SYS):g'	\
-		-e 's:#TEMPDIR#:$(TEMPDIR):g'			\
+	$(QUIET) sed -e 's-#T32SYS#-$(T32SYS)-g'	\
+		-e 's-#T32TMP#-$(T32TMP)-g'				\
+		-e 's-#T32SCRIPT#-$(T32SCRIPT)-g'		\
+		-e 's-#T32ARCH#-$(T32ARCH)-g'			\
 		$< > $@
+	$(QUIET) chmod 777 $@
 
-t32_tc27x_mc.cmm: %: $(PKGBASE)/mcu/infineon_$(TRICORE_MODEL)/cfg/multicore/%
+tc27x_mc_flash.bat:
 	@echo GEN $@
-	$(QUIET) sed -e 's:#MASTER_ELF#:$(MASTER_ELF):g'  		\
-		$(foreach s, $(SLAVE_CPUS),							\
-			-e 's:#CPU1_DIR#:$($(s)_DIR):g'					\
-			-e 's:#CPU1_EXE_NAME#:$($(s)_ELF):g'			\
-		) $< > $@
+	@echo "@ECHO OFF" > $@
+	@echo "REM script to flash TriCore". >> $@
+	@echo $(T32SYS)/bin/$(T32ARCH)/t32mtc -s t32_tc27x_mc_flash.cmm >> $@
+	$(QUIET) chmod 777 $@
 
-$(MASTER_ELF): CPU_MASTER-all
+#	@echo GEN $@
+#	@echo "@ECHO OFF" > $@
+#	@echo "REM script to flash TriCore". >> $@
+#ifdef CPU1_DIR
+#	@echo cd $(CPU1_DIR) >> $@
+#	@echo $(T32SYS)/bin/windows/t32mtc >> $@
+#	@echo cd .. >> $@
+#endif
+#ifdef CPU2_DIR
+#	@echo cd $(CPU2_DIR) >> $@
+#	@echo $(T32SYS)/bin/windows/t32mtc >> $@
+#	@echo cd .. >> $@
+#endif
+#	@echo cd $(CPU_MASTER_DIR) >> $@
+#	@echo $(T32SYS)/bin/windows/t32mtc >> $@
+#	@echo cd .. >> $@
+
+tc27x_mc_flash.sh:
+	@echo GEN $@
+	@echo "#! /bin/bash\n" > $@
+	@echo $(T32SYS)/bin/$(T32ARCH)/t32mtc -s t32_tc27x_mc_flash.cmm >> $@
+	$(QUIET) chmod 777 $@
+
+$(T32SCRIPT) t32_tc27x_mc_flash.cmm: %: $(PKGBASE)/mcu/infineon_$(TRICORE_MODEL)/cfg/multicore/%
+	@echo GEN $@
+	$(QUIET) sed $(T32_SED_COMMAND) $< > $@
+
+$(MASTER_ELF_PATH): CPU_MASTER-all
+
+# FIXME: Add some compiler awareness in master makefile
+
+# Generator command for AWK
+ifeq ($(call iseeopt, EE_TASKING__), yes)
+AWK_GEN_CMD = printf("\"%s\" := 0x%s;\n", m[2], m[1])
+else
+AWK_GEN_CMD = printf("%s = 0x%s;\n", m[2], m[1])
+endif
 
 # I will use objdump always because: the target is an ELF file and,even though TASKING copiler has is own,
 # obj utility but I don't know how to get the right output
-$(GLOBAL_LINKSCRIPT): $(MASTER_ELF)
+$(GLOBAL_LINKSCRIPT): $(MASTER_ELF_PATH)
 	@echo Building shared symbol table
-	$(QUIET) objdump -t -w -j ee_mcglobalc -j ee_mcglobald			\
-                -j ee_mcglobalu -j ee_fast_mcglobalc				\
-                -j ee_fast_mcglobald -j ee_fast_mcglobalu $<	|	\
-		awk '/^[0-9a-fA-F]+ ......O/ {								\
-			match($$0, "^([0-9a-fA-F]+) .+ ([^ ]+)$$", m);			\
-			printf("%s = 0x%s;\n", m[2], m[1]) }' > $@
-
+	$(QUIET) objdump -t -w -j ee_mcglobalc -j ee_mcglobald		\
+                -j ee_mcglobalu -j ee_fast_mcglobalc			\
+                -j ee_fast_mcglobald -j ee_fast_mcglobalu		\
+                -j ee_mcglobalt -j ee_kernel_start $<	|		\
+		awk '/^[0-9a-fA-F]+ ......[O,F]/ {						\
+			match($$0, "^([0-9a-fA-F]+) .+ ([^ ]+)$$", m);		\
+			$(AWK_GEN_CMD)	}' > $@

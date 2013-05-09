@@ -57,7 +57,7 @@
 /* __INLINE__ is a macro already used by a lot of libraries: protect it for
    integration */
 #ifndef __INLINE__
-#ifdef __NO_INLINE__
+#if defined(__NO_INLINE__) || defined(__STRICT_ANSI__)
 #define __INLINE__ static
 /* Used to declare an inline function before the actual definition */
 #define __DECLARE_INLINE__ static
@@ -65,27 +65,28 @@
 #define __INLINE__ static inline
 /* Used to declare an inline function before the actual definition */
 #define __DECLARE_INLINE__ static inline
-#endif
+#endif /* __NO_INLINE_ || __STRICT_ANSI__ */
 #endif /* !__INLINE__ */
 
 #define __ALWAYS_INLINE__ __attribute__((always_inline))
+#define __NEVER_INLINE__ __attribute__((noinline))
 
 #define NORETURN  __attribute__ ((noreturn))
 
 #define EE_COMPILER_ALIGN(a) __attribute__((aligned(a)))
 #define EE_COMPILER_SECTION(s) __attribute__((section(s)))
-#define EE_COMPILER_KEEP __attribute((used))
+#define EE_COMPILER_KEEP __attribute__((used))
 
 /* Macros used to encapsulate # and ## operators; used to enforce the expected
  * evaluation order of arguments */
 #define EE_PREPROC_JOIN(a,b) a ## b
 #define EE_PREPROC_STRING(s) # s
-#define EE_PREPROC_EVAL(e) e
+#define EE_PREPROC_EVAL(e) (e)
 
 /* Software "memory barrier" (or "memory clobber") to enforce NOT code
    reordering. At compile level.
    http://www.nongnu.org/avr-libc/user-manual/optimization.html */
 #define EE_barrier() \
-    asm volatile("" : : : "memory")
+    __asm volatile("" : : : "memory")
 
 #endif /* __INCLUDE_CPU_COMMON_EE_COMPILER_GCC__ */
