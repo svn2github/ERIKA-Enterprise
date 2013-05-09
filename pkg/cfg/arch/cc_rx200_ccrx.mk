@@ -131,10 +131,12 @@ OPT_CC += -cpu=rx200
 endif
 
 ifeq ($(call iseeopt, DEBUG), yes)
-OPT_CC += -debug -listfile
+OPT_CC += -debug -listfile -optimize=0
+else
+OPT_CC += -optimize=max
 endif
 
-OPT_CC += -lang=c99 -output=obj -optimize=max -nologo -auto_enum -goptimize -show=source
+OPT_CC += -lang=c99 -output=obj -nologo -auto_enum -goptimize -show=source
 
 
 # Specific option from the application makefile
