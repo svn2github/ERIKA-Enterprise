@@ -157,108 +157,6 @@ __INLINE__ void EE_sys_led_toggle(void){
     LATBbits.LATB15 = ~LATBbits.LATB15;
 }
 
-#define EE_LED0 0
-#define EE_LED1 1
-#define EE_LED2 2
-#define EE_LED3 3
-#define EE_LED4 4
-#define EE_LED5 5
-#define EE_LED6 6
-#define EE_LED7 7
-#define EE_LED8 8
-
-/**
-    @brief init LEDx
-**/
-__INLINE__ void EE_led_init(int led_id)
-{
-    switch (led_id){
-	case EE_LED1:
-	  EE_led1_init();
-	  break;
-	case EE_LED2:
-	  EE_led2_init();
-	  break;
-	case EE_LED3:
-	  EE_led3_init();
-	  break;
-	case EE_LED4:
-	  EE_led4_init();
-	  break;
-	case EE_LED5:
-	  EE_led5_init();
-	  break;
-	case EE_LED6:
-	  EE_led6_init();
-	  break;
-	case EE_LED7:
-	  EE_led7_init();
-	  break;
-	case EE_LED8:
-	  EE_led8_init();
-	  break;
-    }
-}
-
-/**
-    @brief write LEDx
-**/
-__INLINE__ void EE_led_write(int led_id, EE_BIT bit)
-{
-    switch (led_id){
-	case EE_LED1:
-	  if(bit)
-	    EE_led1_on();
-	  else
-	    EE_led1_off();
-	  break;
-	case EE_LED2:
-	  if(bit)
-	    EE_led2_on();
-	  else
-	    EE_led2_off();
-	  break;
-	case EE_LED3:
-	  if(bit)
-	    EE_led3_on();
-	  else
-	    EE_led3_off();
-	  break;
-	case EE_LED4:
-	  if(bit)
-	    EE_led4_on();
-	  else
-	    EE_led4_off();
-	  break;
-	case EE_LED5:
-	  if(bit)
-	    EE_led5_on();
-	  else
-	    EE_led5_off();
-	  break;
-	case EE_LED6:
-	  if(bit)
-	    EE_led6_on();
-	  else
-	    EE_led6_off();
-	  break;
-	case EE_LED7:
-	  if(bit)
-	    EE_led7_on();
-	  else
-	    EE_led7_off();
-	  break;
-	case EE_LED8:
-	  if(bit)
-	    EE_led8_on();
-	  else
-	    EE_led8_off();
-	  break;
-    }
-}
-
-
-
 /** @brief Initialize led 1 **/
 __INLINE__ void EE_led1_init(void)
 {
@@ -426,6 +324,108 @@ __INLINE__ void EE_led8_off(void){
 __INLINE__ void EE_led8_toggle(void){
     LATBbits.LATB6 = ~LATBbits.LATB6;
 }
+
+
+#define EE_LED0 0
+#define EE_LED1 1
+#define EE_LED2 2
+#define EE_LED3 3
+#define EE_LED4 4
+#define EE_LED5 5
+#define EE_LED6 6
+#define EE_LED7 7
+#define EE_LED8 8
+
+/**
+    @brief init LEDx
+**/
+__INLINE__ void EE_led_init(int led_id)
+{
+    switch (led_id){
+	case EE_LED1:
+	  EE_led1_init();
+	  break;
+	case EE_LED2:
+	  EE_led2_init();
+	  break;
+	case EE_LED3:
+	  EE_led3_init();
+	  break;
+	case EE_LED4:
+	  EE_led4_init();
+	  break;
+	case EE_LED5:
+	  EE_led5_init();
+	  break;
+	case EE_LED6:
+	  EE_led6_init();
+	  break;
+	case EE_LED7:
+	  EE_led7_init();
+	  break;
+	case EE_LED8:
+	  EE_led8_init();
+	  break;
+    }
+}
+
+/**
+    @brief write LEDx
+**/
+__INLINE__ void EE_led_write(int led_id, EE_BIT bit)
+{
+    switch (led_id){
+	case EE_LED1:
+	  if(bit)
+	    EE_led1_on();
+	  else
+	    EE_led1_off();
+	  break;
+	case EE_LED2:
+	  if(bit)
+	    EE_led2_on();
+	  else
+	    EE_led2_off();
+	  break;
+	case EE_LED3:
+	  if(bit)
+	    EE_led3_on();
+	  else
+	    EE_led3_off();
+	  break;
+	case EE_LED4:
+	  if(bit)
+	    EE_led4_on();
+	  else
+	    EE_led4_off();
+	  break;
+	case EE_LED5:
+	  if(bit)
+	    EE_led5_on();
+	  else
+	    EE_led5_off();
+	  break;
+	case EE_LED6:
+	  if(bit)
+	    EE_led6_on();
+	  else
+	    EE_led6_off();
+	  break;
+	case EE_LED7:
+	  if(bit)
+	    EE_led7_on();
+	  else
+	    EE_led7_off();
+	  break;
+	case EE_LED8:
+	  if(bit)
+	    EE_led8_on();
+	  else
+	    EE_led8_off();
+	  break;
+    }
+}
+
 #endif /* __dsPIC33FJ64MC802__ */
 #endif /* __USE_LEDS__ */
 
@@ -445,117 +445,6 @@ DIO8       RB6
 */
 
 #endif /*__dsPIC33FJ64MC802__ */
-
-#define EE_DIO1 0
-#define EE_DIO2 1
-#define EE_DIO3 2
-#define EE_DIO4 3
-#define EE_DIO5 4
-#define EE_DIO6 5
-#define EE_DIO7 6
-#define EE_DIO8 7
-
-/**
-    @brief configure DIOx
-    @param in: TRUE if the pin is a IN, FALSE if it is an OUT
-**/
-__INLINE__ void EE_dio_configure(int dio_id, EE_BIT in)
-{
-    switch (dio_id){
-	case EE_DIO1:
-	  EE_dio1_configure(in);
-	  break;
-	case EE_DIO2:
-	  EE_dio2_configure(in);
-	  break;
-	case EE_DIO3:
-	  EE_dio3_configure(in);
-	  break;
-	case EE_DIO4:
-	  EE_dio4_configure(in);
-	  break;
-	case EE_DIO5:
-	  EE_dio5_configure(in);
-	  break;
-	case EE_DIO6:
-	  EE_dio6_configure(in);
-	  break;
-	case EE_DIO7:
-	  EE_dio7_configure(in);
-	  break;
-	case EE_DIO8:
-	  EE_dio8_configure(in);
-	  break;
-    }
-}
-
-/**
-    @brief write DIOx
-    @param in: TRUE if the pin is a IN, FALSE if it is an OUT
-**/
-__INLINE__ void EE_dio_write(int dio_id, EE_BIT bit)
-{
-    switch (dio_id){
-	case EE_DIO1:
-	  EE_dio1_write(bit);
-	  break;
-	case EE_DIO2:
-	  EE_dio2_write(bit);
-	  break;
-	case EE_DIO3:
-	  EE_dio3_write(bit);
-	  break;
-	case EE_DIO4:
-	  EE_dio4_write(bit);
-	  break;
-	case EE_DIO5:
-	  EE_dio5_write(bit);
-	  break;
-	case EE_DIO6:
-	  EE_dio6_write(bit);
-	  break;
-	case EE_DIO7:
-	  EE_dio7_write(bit);
-	  break;
-	case EE_DIO8:
-	  EE_dio8_write(bit);
-	  break;
-    }
-}
-
-/**
-    @brief read DIOx
-    @param in: TRUE if the pin is a IN, FALSE if it is an OUT
-**/
-__INLINE__ void EE_dio_read(int dio_id, EE_BIT *bit)
-{
-    switch (dio_id){
-	case EE_DIO1:
-	  *bit = EE_dio1_read();
-	  break;
-	case EE_DIO2:
-	  *bit = EE_dio2_read();
-	  break;
-	case EE_DIO3:
-	  *bit = EE_dio3_read();
-	  break;
-	case EE_DIO4:
-	  *bit = EE_dio4_read();
-	  break;
-	case EE_DIO5:
-	  *bit = EE_dio5_read();
-	  break;
-	case EE_DIO6:
-	  *bit = EE_dio6_read();
-	  break;
-	case EE_DIO7:
-	  *bit = EE_dio7_read();
-	  break;
-	case EE_DIO8:
-	  *bit = EE_dio8_read();
-	  break;
-    }
-}
 
 /**
     @brief configure DIO1
@@ -771,6 +660,118 @@ __INLINE__ void EE_dio8_write(EE_BIT bit)
 __INLINE__ EE_BIT EE_dio8_read(void)
 {
     return PORTBbits.RB6;
+}
+
+
+#define EE_DIO1 0
+#define EE_DIO2 1
+#define EE_DIO3 2
+#define EE_DIO4 3
+#define EE_DIO5 4
+#define EE_DIO6 5
+#define EE_DIO7 6
+#define EE_DIO8 7
+
+/**
+    @brief configure DIOx
+    @param in: TRUE if the pin is a IN, FALSE if it is an OUT
+**/
+__INLINE__ void EE_dio_configure(int dio_id, EE_BIT in)
+{
+    switch (dio_id){
+	case EE_DIO1:
+	  EE_dio1_configure(in);
+	  break;
+	case EE_DIO2:
+	  EE_dio2_configure(in);
+	  break;
+	case EE_DIO3:
+	  EE_dio3_configure(in);
+	  break;
+	case EE_DIO4:
+	  EE_dio4_configure(in);
+	  break;
+	case EE_DIO5:
+	  EE_dio5_configure(in);
+	  break;
+	case EE_DIO6:
+	  EE_dio6_configure(in);
+	  break;
+	case EE_DIO7:
+	  EE_dio7_configure(in);
+	  break;
+	case EE_DIO8:
+	  EE_dio8_configure(in);
+	  break;
+    }
+}
+
+/**
+    @brief write DIOx
+    @param in: TRUE if the pin is a IN, FALSE if it is an OUT
+**/
+__INLINE__ void EE_dio_write(int dio_id, EE_BIT bit)
+{
+    switch (dio_id){
+	case EE_DIO1:
+	  EE_dio1_write(bit);
+	  break;
+	case EE_DIO2:
+	  EE_dio2_write(bit);
+	  break;
+	case EE_DIO3:
+	  EE_dio3_write(bit);
+	  break;
+	case EE_DIO4:
+	  EE_dio4_write(bit);
+	  break;
+	case EE_DIO5:
+	  EE_dio5_write(bit);
+	  break;
+	case EE_DIO6:
+	  EE_dio6_write(bit);
+	  break;
+	case EE_DIO7:
+	  EE_dio7_write(bit);
+	  break;
+	case EE_DIO8:
+	  EE_dio8_write(bit);
+	  break;
+    }
+}
+
+/**
+    @brief read DIOx
+    @param in: TRUE if the pin is a IN, FALSE if it is an OUT
+**/
+__INLINE__ void EE_dio_read(int dio_id, EE_BIT *bit)
+{
+    switch (dio_id){
+	case EE_DIO1:
+	  *bit = EE_dio1_read();
+	  break;
+	case EE_DIO2:
+	  *bit = EE_dio2_read();
+	  break;
+	case EE_DIO3:
+	  *bit = EE_dio3_read();
+	  break;
+	case EE_DIO4:
+	  *bit = EE_dio4_read();
+	  break;
+	case EE_DIO5:
+	  *bit = EE_dio5_read();
+	  break;
+	case EE_DIO6:
+	  *bit = EE_dio6_read();
+	  break;
+	case EE_DIO7:
+	  *bit = EE_dio7_read();
+	  break;
+	case EE_DIO8:
+	  *bit = EE_dio8_read();
+	  break;
+    }
 }
 
 #endif /*__USE_DIO__ */
