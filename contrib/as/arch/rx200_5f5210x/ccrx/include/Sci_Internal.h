@@ -92,7 +92,7 @@
 	(_ch != SCI_CHANNEL_12 ? HW_SCI_C_BASE_ADDR : HW_SCI_D_BASE_ADDR  )
 
 /* Channel Hardware Registers Read/Write */
-#define	UART_REG(_ch, _ofs)	EE_HWREG8( (uint32) (UART_GET_BASE_ADDR(_ch)) | \
+#define	UART_REG(_ch, _ofs)	EE_HWREG8( (uint8) (UART_GET_BASE_ADDR(_ch)) | \
 		(_ch * HW_SCI_CH_OFFSET) | _ofs)
 
 #define	UART_REG_SET(_ch, _ofs, _val) (UART_REG(_ch,_ofs) = _val)
