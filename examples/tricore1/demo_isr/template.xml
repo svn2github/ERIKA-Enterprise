@@ -2,7 +2,7 @@
 
 <evidence_example version="1" ID="tricore_base_isr">
 
- <category>tricore/base</category>
+ <category>tricore1/base</category>
  <title>Isr</title>
    
  <small_descr>
