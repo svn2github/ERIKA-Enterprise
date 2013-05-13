@@ -187,10 +187,8 @@ EE_UREG EE_tc27x_get_clock( void ) {
 /****************************************************************
                         STM Support
  ****************************************************************/
-/* Global variable with freq in khz value ( I use Khz to have more resolution
-   than Mhz but still do not risk wrap around that could be happen with Hz )
- */
-static EE_UINT32 EE_tc27x_stm_freq_khz;
+/* Global variable with freq in Mhz value */
+static EE_UINT32 EE_tc27x_stm_freq_mhz;
 
 /* Set inside std time reference  */
 void EE_tc27x_stm_set_clockpersec(void)
@@ -204,8 +202,8 @@ void EE_tc27x_stm_set_clockpersec(void)
   /* Standard Timer Module period */
   EE_UREG const fstm = fpll / SCU_CCUCON1.B.STMDIV;
 
-  /* Set Global variable with freq in Khz value */
-  EE_tc27x_stm_freq_khz = fstm / EE_KILO;
+  /* Set Global variable with freq in Mhz value */
+  EE_tc27x_stm_freq_mhz = fstm / EE_MEGA;
 
 #ifdef __TASKING__
   setfoschz ( fstm );
@@ -233,7 +231,7 @@ EE_STM_SR0_STORAGE void EE_tc27x_stm_set_sr0(EE_UINT32 usec,
 
   /*  Evaluate next compare value (actual value + increment,
       I don't need to handle wrap around) */
-  compare_value = ( (EE_tc27x_stm_freq_khz * usec) / EE_KILO ) +
+  compare_value = ( usec * EE_tc27x_stm_freq_mhz ) +
     EE_tc27x_stm_get_time_lower_word();
   /* Adjust the size of the mask */
   size_of_compare = 31U - EE_tc_clz(compare_value);
@@ -279,7 +277,7 @@ EE_STM_SR0_STORAGE void EE_tc27x_stm_set_sr0_next_match(EE_UINT32 usec)
     EE_tc_disableIRQ();
   /* Evaluate next compare value (previous one + increment,
      I don't need to handle wrap around) */
-  compare_value = ( (EE_tc27x_stm_freq_khz * usec) / EE_KILO ) +
+  compare_value = ( usec * EE_tc27x_stm_freq_mhz ) +
     EE_tc27x_stm_get_time_lower_word();
   /* Adjust the size of the mask */
   size_of_compare = 31U - EE_tc_clz(compare_value);
@@ -307,7 +305,7 @@ EE_STM_SR1_STORAGE void EE_tc27x_stm_set_sr1(EE_UINT32 usec,
   EE_tc_disableIRQ();
   /*  Evaluate next compare value (actual value + increment,
       I don't need to handle wrap around) */
-  compare_value = ( (EE_tc27x_stm_freq_khz * usec) / EE_KILO ) +
+  compare_value = ( usec * EE_tc27x_stm_freq_mhz ) +
     EE_tc27x_stm_get_time_lower_word();
   /* Adjust the size of the mask */
   size_of_compare = 31U - EE_tc_clz(compare_value);
@@ -352,7 +350,7 @@ EE_STM_SR1_STORAGE void EE_tc27x_stm_set_sr1_next_match(EE_UINT32 usec)
   EE_tc_disableIRQ();
   /* Evaluate next compare value (previous one + increment,
      I don't need to handle wrap around) */
-  compare_value = ( (EE_tc27x_stm_freq_khz * usec) / EE_KILO ) +
+  compare_value = ( usec * EE_tc27x_stm_freq_mhz ) +
     EE_tc27x_stm_get_time_lower_word();
   /* Adjust the size of the mask */
   size_of_compare = 31U - EE_tc_clz(compare_value);
@@ -371,7 +369,7 @@ void EE_tc27x_delay( EE_UREG usec )
   /* Read Start Point */
   EE_UREG const start = EE_tc27x_stm_get_time_lower_word();
   /* Evaluate End Point */
-  EE_UREG const end =  ( (EE_tc27x_stm_freq_khz * usec) / EE_KILO ) + start;
+  EE_UREG const end =  ( usec * EE_tc27x_stm_freq_mhz ) + start;
 
   /* usec == 0 -> fake delay, just return */
   if ( usec != 0U ) {

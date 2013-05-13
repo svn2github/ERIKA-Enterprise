@@ -86,15 +86,6 @@ volatile unsigned char led_status = 0;
 DeclareTask(Task1);
 DeclareTask(Task2);
 
-/* just a dummy delay */ 
-static void mydelay(EE_UINT32 end)
-{
-    volatile EE_UINT32 i;
-    for (i=0; i<end; i++)
-        ;
-    return;  
-}
-
 /* sets and resets a led configuration passed as parameter, leaving the other
  * bits unchanged
  * 
@@ -104,7 +95,7 @@ static void mydelay(EE_UINT32 end)
  * critical section is -really- small. An example of critical section using 
  * resources can be found in the osek_resource example.
  */
-#define LED_ON_TIME_DELTA 5000000U
+#define LED_ON_TIME_DELTA 200000U
 static void led_blink(enum EE_tc2x5_led_id theled)
 {
   DisableAllInterrupts();
@@ -112,7 +103,7 @@ static void led_blink(enum EE_tc2x5_led_id theled)
   EE_tc2x5_set_leds_mask(led_status);
   EnableAllInterrupts();
 
-  mydelay(LED_ON_TIME_DELTA);
+  EE_tc27x_delay(LED_ON_TIME_DELTA);
 
   DisableAllInterrupts();
   led_status &= ~theled;

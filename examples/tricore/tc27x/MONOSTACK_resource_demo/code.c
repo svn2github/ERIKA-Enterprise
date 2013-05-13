@@ -55,20 +55,11 @@ volatile int taskhigh_fired;
 volatile int tasklow_fired;
 volatile int mycounter=0;
 
-/* just a dummy delay */ 
-static void mydelay(EE_UINT32 end)
-{
-  volatile EE_UINT32 i;
-  for (i = 0U; i < end; ++i)
-     ;
-  return;
-}
-
-#define LED_ON_TIME_DELTA 5000000U
+#define LED_ON_TIME_DELTA 200000U
 static void blink_led(enum EE_tc2x5_led_id led_id) {
   /* do something long */
   EE_tc2x5_turn_led(led_id,EE_TRIBOARD_2X5_LED_ON);
-  mydelay(LED_ON_TIME_DELTA);
+  EE_tc27x_delay(LED_ON_TIME_DELTA);
   EE_tc2x5_turn_led(led_id,EE_TRIBOARD_2X5_LED_OFF);
 }
 
@@ -114,10 +105,10 @@ TASK(HighTask)
   GetResource(Resource);
   
   EE_tc2x5_turn_led(EE_TRIBOARD_2X5_LED_8, EE_TRIBOARD_2X5_LED_ON);
-  mydelay(LED_ON_TIME_DELTA / 2U);
+  EE_tc27x_delay(LED_ON_TIME_DELTA / 2U);
   
   /* decrement or increment the counter depending on the application mode */
-  if ( currentmode==ModeIncrement )
+  if ( currentmode == ModeIncrement )
     ++mycounter;
   else
     --mycounter;

@@ -80,7 +80,7 @@ CPU test_application {
         PRIORITY = 0x02;
         ACTIVATION = 1;
         SCHEDULE = FULL;
-        AUTOSTART = TRUE { APPMODE=ModeIncrement; };
+        AUTOSTART = TRUE { APPMODE = ModeIncrement; };
         STACK = SHARED;
         RESOURCE = Resource;
     };
@@ -99,14 +99,14 @@ CPU test_application {
         SECONDSPERTICK = 0.001;
     };
 
-    ALARM Alarm_LowTask_4s {
+    ALARM Alarm_LowTask_2s {
       COUNTER = system_timer;
       ACTION = ACTIVATETASK {
           TASK = LowTask;
       };
       AUTOSTART = TRUE {
-          ALARMTIME = 4000;
-          CYCLETIME = 4000;
+          ALARMTIME = 2000;
+          CYCLETIME = 2000;
           APPMODE = ModeDecrement;
           APPMODE = ModeIncrement;
       };
