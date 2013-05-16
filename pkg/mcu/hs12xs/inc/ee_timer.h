@@ -155,7 +155,7 @@
 #define EE_S12_TIMER_SET_OC_DATA_REG(var8)  OC7D=var8
 #define EE_S12_TIMER_GET_OC_DATA_REG()     OC7D
 
-#elif defined (__MC9S12GN16__) || defined (__MC9S12GN32__)
+#elif defined (__MC9S12GN16__) || defined (__MC9S12GN32__) || defined (__MC9S12G48__) || defined (__MC9S12GN48__)
 
 #define EE_TIMER_ID_MAX EE_TIMER_5
 
@@ -167,7 +167,8 @@
 
 #endif
 
-#if defined (__MC9S12G96__) || defined (__MC9S12G128__) || defined (__MC9S12GN16__) || defined (__MC9S12GN32__)
+#if defined (__MC9S12G96__) || defined (__MC9S12G128__) || defined (__MC9S12GN16__)\
+            || defined (__MC9S12GN32__) || defined (__MC9S12G48__) || defined (__MC9S12GN48__)
 
 #define EE_S12_TIMER_SET_PRIORITY(prio) do{} while(0)
 

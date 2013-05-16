@@ -59,7 +59,7 @@ GLOBAL_RTDRUID += \
 # configurations
 #
 
-TESTLIST += s12xs_cosmic s12xs_cw s12g_cw 
+TESTLIST += s12xs_cosmic s12xs_cw s12g128_cw s12g48_cw s12gn48_cw
 
 # s12xs_cosmic
 OUTDIR_COMMANDS_s12xs_cosmic    = $(OUTDIR_COMMANDS_s12xs_cosmic_source)
@@ -81,15 +81,26 @@ CLEAN_s12xs_cw              =
 COMPILE_s12xs_cw            = $(COMPILE_s12_source)
 DEBUG_s12xs_cw              = $(DEBUG_s12xs_cw_source)
 
-# s12g_cw
-OUTDIR_COMMANDS_s12g_cw     = $(OUTDIR_COMMANDS_s12g_cw_source)
-CONF_s12g_cw                = $(CONF_s12_source)
-GLOBAL_CONF                +=
-DIST_s12g_cw                =
-RTDRUID_s12g_cw             = $(RTDRUID_s12_source)
-CLEAN_s12g_cw               =
-COMPILE_s12g_cw             = $(COMPILE_s12_source)
-DEBUG_s12g_cw               = $(DEBUG_s12g_cw_source)
+# s12g128_cw
+OUTDIR_COMMANDS_s12g128_cw     = $(OUTDIR_COMMANDS_s12g128_cw_source)
+CONF_s12g128_cw                = $(CONF_s12_source)
+RTDRUID_s12g128_cw             = $(RTDRUID_s12_source)
+COMPILE_s12g128_cw             = $(COMPILE_s12_source)
+DEBUG_s12g128_cw               = $(DEBUG_s12g_cw_source)
+
+# s12g48_cw
+OUTDIR_COMMANDS_s12g48_cw     = $(OUTDIR_COMMANDS_s12g48_cw_source)
+CONF_s12g48_cw                = $(CONF_s12_source)
+RTDRUID_s12g48_cw             = $(RTDRUID_s12_source)
+COMPILE_s12g48_cw             = $(COMPILE_s12_source)
+DEBUG_s12g48_cw               = $(DEBUG_s12g_cw_source)
+
+# s12gn48_cw
+OUTDIR_COMMANDS_s12gn48_cw     = $(OUTDIR_COMMANDS_s12gn48_cw_source)
+CONF_s12gn48_cw                = $(CONF_s12_source)
+RTDRUID_s12gn48_cw             = $(RTDRUID_s12_source)
+COMPILE_s12gn48_cw             = $(COMPILE_s12_source)
+DEBUG_s12gn48_cw               = $(DEBUG_s12g_cw_source)
 
 ## s12xs_dist_bin_full
 #TESTLIST                            += s12xs_dist_bin_full
@@ -119,13 +130,23 @@ OUTDIR_COMMANDS_s12xs_cosmic_source = \
 
 OUTDIR_COMMANDS_s12xs_cw_source = \
 	( cd $@; cp -sf ../*.* .; \
-	cp ../../common/s12/s12xs_cw/Vectors.c ../../common/s12/s12xs_cw/CPU12ISRs.c ../../common/s12/s12xs_cw/CPU12ISRs.h ../../common/s12/s12xs_cw/MC9S12XS128.prm .; \
+	cp ../../common/s12/s12xs_cw/Vectors.c ../../common/s12/s12xs_cw/CPU12ISRs.c ../../common/s12/s12xs_cw/CPU12ISRs.h .; \
 	cp ../../common/s12/s12xs_cw/Start12.c ../../common/s12/s12xs_cw/Full_Chip_Simulation.ini ../../common/s12/s12xs_cw/C_Layout.hwl ../../common/s12/s12xs_cw/SofTec_HCS12.ini .; );
 
-OUTDIR_COMMANDS_s12g_cw_source = \
+OUTDIR_COMMANDS_s12g128_cw_source = \
 	( cd $@; cp -sf ../*.* .; \
-	cp ../../common/s12/s12g_cw/Vectors.c ../../common/s12/s12g_cw/CPU12ISRs.c ../../common/s12/s12g_cw/CPU12ISRs.h ../../common/s12/s12g_cw/mc9s12g128.prm .; \
-	cp ../../common/s12/s12g_cw/Start12.c ../../common/s12/s12g_cw/Full_Chip_Simulation.ini ../../common/s12/s12g_cw/C_Layout.hwl ../../common/s12/s12g_cw/PE_Multilink_CyclonePro.ini .; );
+	cp ../../common/s12/s12g_cw/Vectors.c ../../common/s12/s12g_cw/CPU12ISRs.c ../../common/s12/s12g_cw/CPU12ISRs.h .; \
+	cp ../../common/s12/s12g_cw/Start12.c ../../common/s12/s12g_cw/s12g128/Full_Chip_Simulation.ini ../../common/s12/s12g_cw/C_Layout.hwl ../../common/s12/s12g_cw/s12g128/PE_Multilink_CyclonePro.ini .; );
+
+OUTDIR_COMMANDS_s12g48_cw_source = \
+	( cd $@; cp -sf ../*.* .; \
+	cp ../../common/s12/s12g_cw/Vectors.c ../../common/s12/s12g_cw/CPU12ISRs.c ../../common/s12/s12g_cw/CPU12ISRs.h .; \
+	cp ../../common/s12/s12g_cw/Start12.c ../../common/s12/s12g_cw/s12g48/Full_Chip_Simulation.ini ../../common/s12/s12g_cw/C_Layout.hwl ../../common/s12/s12g_cw/s12g48/PE_Multilink_CyclonePro.ini .; );
+
+OUTDIR_COMMANDS_s12gn48_cw_source = \
+	( cd $@; cp -sf ../*.* .; \
+	cp ../../common/s12/s12g_cw/Vectors.c ../../common/s12/s12g_cw/CPU12ISRs.c ../../common/s12/s12g_cw/CPU12ISRs.h .; \
+	cp ../../common/s12/s12g_cw/Start12.c ../../common/s12/s12g_cw/s12gn48/Full_Chip_Simulation.ini ../../common/s12/s12g_cw/C_Layout.hwl ../../common/s12/s12g_cw/s12gn48/PE_Multilink_CyclonePro.ini .; );
 
 
 # -------------------------------------------------------------------

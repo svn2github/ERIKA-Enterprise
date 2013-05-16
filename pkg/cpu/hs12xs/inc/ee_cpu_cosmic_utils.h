@@ -61,7 +61,8 @@
 #if defined (__MC9S12XS64__) || defined (__MC9S12XS128__) || defined (__MC9S12XS256__)
   #define EE_WRITE_CCRH(var) _asm("tfr a,ccrh\n", var)
 #endif
-#if defined (__MC9S12G96__) || defined (__MC9S12G128__) || defined (__MC9S12GN16__) || defined (__MC9S12GN32__) // derivatives not yet supported in case of Cosmic compiler
+#if defined (__MC9S12G96__) || defined (__MC9S12G128__) || defined (__MC9S12GN16__) || defined (__MC9S12GN32__) || defined (__MC9S12G48__) || defined (__MC9S12GN48__) 
+  // derivatives not yet supported in case of Cosmic compiler
   #define EE_WRITE_CCRH(var)    do {} while(0)
 #endif
 

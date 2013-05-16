@@ -95,6 +95,13 @@ else
   ifeq ($(S12_MODEL), MC9S12GN32)
     LINKDEP += $(EEBASE)/pkg/mcu/hs12xs/MC9S12GN32.prm
   endif
+  ifeq ($(S12_MODEL), MC9S12G48)
+    LINKDEP += $(EEBASE)/pkg/mcu/hs12xs/MC9S12G48.prm
+  endif
+  ifeq ($(S12_MODEL), MC9S12GN48)
+    # The same linker script as MC9S12G48
+    LINKDEP += $(EEBASE)/pkg/mcu/hs12xs/MC9S12G48.prm
+  endif
 endif
 
 # Specific option from the libs dependencies

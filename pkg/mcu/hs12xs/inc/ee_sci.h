@@ -61,7 +61,8 @@
   #define SCI_0             0
   #define SCI_1             1
   #define SCI_2             2
-#elif defined (__MC9S12XS64__) || defined (__MC9S12XS128__) || defined (__MC9S12XS256__)
+#elif defined (__MC9S12XS64__) || defined (__MC9S12XS128__) || defined (__MC9S12XS256__)\
+              || defined (__MC9S12G48__) || defined (__MC9S12GN48__)
   #define SCI_0             0
   #define SCI_1             1
 #elif defined (__MC9S12GN16__) || defined (__MC9S12GN32__)

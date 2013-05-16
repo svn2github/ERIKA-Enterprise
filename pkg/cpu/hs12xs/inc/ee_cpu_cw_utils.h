@@ -87,7 +87,8 @@ __INLINE__ EE_DADD __ALWAYS_INLINE__ EE_READ_SP() {
      __asm tfr a,CCRH;\
    }while(0)
 #endif
-#if defined (__MC9S12G96__) || defined (__MC9S12G128__) || defined (__MC9S12GN16__) || defined (__MC9S12GN32__)
+#if defined (__MC9S12G96__) || defined (__MC9S12G128__) || defined (__MC9S12GN16__) || defined (__MC9S12GN32__)\
+            || defined (__MC9S12G48__) || defined (__MC9S12GN48__)
   #define EE_WRITE_CCRH(rvar)    do {\
    }while(0)
 #endif

@@ -57,7 +57,8 @@
 */
 #if defined (__MC9S12G96__) || defined (__MC9S12G128__)
   volatile EE_sci_peripheral EE_sci[3] = {-1, &SCI0BDH, -1, &SCI1BDH, -1, &SCI2BDH};
-#elif defined (__MC9S12XS64__) || defined (__MC9S12XS128__) || defined (__MC9S12XS256__)
+#elif defined (__MC9S12XS64__) || defined (__MC9S12XS128__) || defined (__MC9S12XS256__)\
+              || defined (__MC9S12G48__) || defined (__MC9S12GN48__)
   volatile EE_sci_peripheral EE_sci[2] = {-1, &SCI0BDH, -1, &SCI1BDH};
 #elif defined (__MC9S12GN16__) || defined (__MC9S12GN32__)
   volatile EE_sci_peripheral EE_sci[1] = {-1, &SCI0BDH};

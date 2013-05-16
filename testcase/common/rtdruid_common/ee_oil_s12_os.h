@@ -77,7 +77,7 @@
 	MCU_DATA = MC9S12 {
 		MODEL = CUSTOM{
 			MODEL = "MC9S12XS128";
-			LINKERSCRIPT = "../MC9S12XS128.prm";
+			LINKERSCRIPT = "";
 			INCLUDE_H = "mc9s12xs128.h";
 			INCLUDE_C = "mc9s12xs128.c";
 			INCLUDE_S = "";
@@ -90,7 +90,7 @@
 		APP_SRC = "CPU12ISRs.c";
 		APP_SRC = "Start12.c";
 
-#elif defined(s12g_cw)
+#elif defined(s12g128_cw)
 
 	EE_OPT = "DEBUG";
 	EE_OPT = "__CODEWARRIOR__"; 
@@ -103,7 +103,7 @@
 	MCU_DATA = MC9S12 {
 		MODEL = CUSTOM{
 			MODEL = "MC9S12G128";
-			LINKERSCRIPT = "../mc9s12g128.prm";
+			LINKERSCRIPT = "";
 			INCLUDE_H = "mc9s12g128.h";
 			INCLUDE_C = "mc9s12g128.c";
 			INCLUDE_S = "";
@@ -116,4 +116,55 @@
 		APP_SRC = "CPU12ISRs.c";
 		APP_SRC = "Start12.c";
 
+#elif defined(s12g48_cw)
+
+	EE_OPT = "DEBUG";
+	EE_OPT = "__CODEWARRIOR__"; 
+	EE_OPT = "CW_EVAL_VERSION"; 
+
+	CFLAGS = "-D__FAR_DATA";
+	ASFLAGS = "";
+	LDFLAGS = "-addansibi.lib"; 
+
+	MCU_DATA = MC9S12 {
+		MODEL = CUSTOM{
+			MODEL = "MC9S12G48";
+			LINKERSCRIPT = "";
+			INCLUDE_H = "mc9s12g48.h";
+			INCLUDE_C = "mc9s12g48.c";
+			INCLUDE_S = "";
+		};
+	};
+
+	CPU_DATA = MC9S12 {
+		APP_SRC = "code.c";
+		APP_SRC = "Vectors.c";
+		APP_SRC = "CPU12ISRs.c";
+		APP_SRC = "Start12.c";
+
+#elif defined(s12gn48_cw)
+
+	EE_OPT = "DEBUG";
+	EE_OPT = "__CODEWARRIOR__"; 
+	EE_OPT = "CW_EVAL_VERSION"; 
+
+	CFLAGS = "-D__FAR_DATA";
+	ASFLAGS = "";
+	LDFLAGS = "-addansibi.lib"; 
+
+	MCU_DATA = MC9S12 {
+		MODEL = CUSTOM{
+			MODEL = "MC9S12GN48";
+			LINKERSCRIPT = "";
+			INCLUDE_H = "mc9s12gn48.h";
+			INCLUDE_C = "mc9s12gn48.c";
+			INCLUDE_S = "";
+		};
+	};
+
+	CPU_DATA = MC9S12 {
+		APP_SRC = "code.c";
+		APP_SRC = "Vectors.c";
+		APP_SRC = "CPU12ISRs.c";
+		APP_SRC = "Start12.c";
 #endif

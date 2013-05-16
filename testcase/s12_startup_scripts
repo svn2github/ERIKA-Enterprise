@@ -2,6 +2,9 @@
 # Execute it using ". ./filename" before to run compilation of testcases.
 export RTDRUID_ECLIPSE_HOME=C:/Evidence/eclipse
 
-# If you want to change repository use ERIKA_FILES
-export ERIKA_FILES=C:/Dario/EE_svn/repos/ee/trunk/ee
+# If you want to change repository use ERIKA_FILES use common_oil.pref
+# in RT-Druid (e.g. C:\Evidence\eclipse\configuration) adding this line:
+# erika_enterprise_location=C:/repo/ee # e.g.
+
+
 

@@ -214,7 +214,7 @@ CPU test_application {
 #endif
 #ifdef s12
 		STACK = PRIVATE {
-			SYS_SIZE = 0x100;
+			SYS_SIZE = 0xA0;
 		};
 #endif
 #ifdef e200zx
@@ -275,7 +275,7 @@ CPU test_application {
 #endif
 #ifdef s12
 		STACK = PRIVATE {
-			SYS_SIZE = 0x100;
+			SYS_SIZE = 0xA0;
 		};
 #endif
 #ifdef e200zx
@@ -336,7 +336,7 @@ CPU test_application {
 #endif
 #ifdef s12
 		STACK = PRIVATE {
-			SYS_SIZE = 0x100;
+			SYS_SIZE = 0xA0;
 		};
 #endif
 #ifdef e200zx
@@ -397,7 +397,7 @@ CPU test_application {
 #endif
 #ifdef s12
 		STACK = PRIVATE {
-			SYS_SIZE = 0x100;
+			SYS_SIZE = 0xA0;
 		};
 #endif
 #ifdef e200zx
@@ -458,7 +458,7 @@ CPU test_application {
 #endif
 #ifdef s12
 		STACK = PRIVATE {
-			SYS_SIZE = 0x100;
+			SYS_SIZE = 0xA0;
 		};
 #endif
 #ifdef e200zx
@@ -519,7 +519,7 @@ CPU test_application {
 #endif
 #ifdef s12
 		STACK = PRIVATE {
-			SYS_SIZE = 0x100;
+			SYS_SIZE = 0xA0;
 		};
 #endif
 #ifdef e200zx
@@ -580,7 +580,7 @@ CPU test_application {
 #endif
 #ifdef s12
 		STACK = PRIVATE {
-			SYS_SIZE = 0x100;
+			SYS_SIZE = 0xA0;
 		};
 #endif
 #ifdef e200zx
@@ -641,7 +641,7 @@ CPU test_application {
 #endif
 #ifdef s12
 		STACK = PRIVATE {
-			SYS_SIZE = 0x100;
+			SYS_SIZE = 0xA0;
 		};
 #endif
 #ifdef e200zx
@@ -702,7 +702,7 @@ CPU test_application {
 #endif
 #ifdef s12
 		STACK = PRIVATE {
-			SYS_SIZE = 0x100;
+			SYS_SIZE = 0xA0;
 		};
 #endif
 #ifdef e200zx
@@ -763,7 +763,7 @@ CPU test_application {
 #endif
 #ifdef s12
 		STACK = PRIVATE {
-			SYS_SIZE = 0x100;
+			SYS_SIZE = 0xA0;
 		};
 #endif
 #ifdef e200zx
@@ -824,7 +824,7 @@ CPU test_application {
 #endif
 #ifdef s12
 		STACK = PRIVATE {
-			SYS_SIZE = 0x100;
+			SYS_SIZE = 0xA0;
 		};
 #endif
 #ifdef e200zx
@@ -885,7 +885,7 @@ CPU test_application {
 #endif
 #ifdef s12
 		STACK = PRIVATE {
-			SYS_SIZE = 0x100;
+			SYS_SIZE = 0xA0;
 		};
 #endif
 #ifdef e200zx
@@ -946,7 +946,7 @@ CPU test_application {
 #endif
 #ifdef s12
 		STACK = PRIVATE {
-			SYS_SIZE = 0x100;
+			SYS_SIZE = 0xA0;
 		};
 #endif
 #ifdef e200zx
@@ -1007,7 +1007,7 @@ CPU test_application {
 #endif
 #ifdef s12
 		STACK = PRIVATE {
-			SYS_SIZE = 0x100;
+			SYS_SIZE = 0xA0;
 		};
 #endif
 #ifdef e200zx
@@ -1068,7 +1068,7 @@ CPU test_application {
 #endif
 #ifdef s12
 		STACK = PRIVATE {
-			SYS_SIZE = 0x100;
+			SYS_SIZE = 0xA0;
 		};
 #endif
 #ifdef e200zx
