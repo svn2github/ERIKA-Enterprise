@@ -107,7 +107,12 @@ LIBDEP += $(ALL_LIBS)
 LIBDEP += $(LDDEPS)
 
 # Libraries from MC
-OPT_LIBS += -lm -lc -ldsp -lq-coff 
+OPT_LIBS += -lm -lc -ldsp
+ifeq ($(call iseeopt, __USE_ELF__), yes)
+OPT_LIBS += -lq-elf 
+else
+OPT_LIBS += -lq-coff 
+endif
 OPT_LIBS += -l$(subst .a,,$(subst lib,,$(PIC30_DEV_LIB)))
 OPT_LIBS += -lpic30-$(PIC30_OFF)
 
