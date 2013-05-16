@@ -74,8 +74,11 @@ typedef void (*EE_VOID_CALLBACK)(void);
 extern const EE_ADDR EE_hal_thread_body[];
 
 #ifdef __MULTI__
+struct EE_TOS {
+    EE_ADDR SYS_tos;
+};
 /* each task use a system (IRQ) stack and a user (SYS) stack */
-extern EE_ADDR EE_pic32_system_tos[];
+extern struct EE_TOS EE_pic32_system_tos[];
 
 /* pic32_system_tos[] index that point to the thread tos (one for each thread)*/
 extern EE_UREG EE_pic32_thread_tos[];
