@@ -50,11 +50,15 @@
 #ifndef EE_USTACK_SIZE
 /* Define the user stack size */
 #pragma stacksize su=0x300
+#else
+#pragma stacksize su=EE_USTACK_SIZE
 #endif
 
-#ifndef EE_ISTACK_SIZE      
+#ifndef EE_ISTACK_SIZE
 /* Define the interrupt stack size */
-#pragma stacksize si=0x100      
+#pragma stacksize si=0x100
+#else
+#pragma stacksize si=EE_ISTACK_SIZE
 #endif
 
 /* 
