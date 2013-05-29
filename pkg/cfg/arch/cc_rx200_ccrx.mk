@@ -58,21 +58,21 @@ BINDIR_CYG := /usr/bin
 
 #CCRX_ROOT: CCRX Renesas Root Folder.
 #          Default "C:\Programmi\Renesas\Hew\Tools\Renesas\RX\1_2_0".
-RX_TOOL_ROOT := $(CCRX_ROOT)
+RX_TOOL_ROOT := $(call short_native_path,$(CCRX_ROOT))
 
 RX_BIN_DIR := $(RX_TOOL_ROOT)/bin
 #RX_LIB_DIR := $(RX_TOOL_ROOT)/lib
 #RX_INCLUDE_DIR := $(RX_TOOL_ROOT)/include
 
 ifndef BIN_RX
-export BIN_RX := $(shell cygpath -lw $(CCRX_ROOT)\\Bin)
+export BIN_RX := $(shell cygpath -lw '$(CCRX_ROOT)\\Bin')
 endif
 
 ifndef INC_RX
-export INC_RX := $(shell cygpath -lw $(CCRX_ROOT)\\Include)
+export INC_RX := $(shell cygpath -lw '$(CCRX_ROOT)\\Include')
 endif
 
-export PATH := $(PATH):$(shell cygpath -lw $(RX_BIN_DIR))
+export PATH := $(PATH):$(shell cygpath -lw '$(RX_BIN_DIR)')
 
 # Bin directories used for compilation
 # BINDIR_ASM      - directory of the Assembler
@@ -118,7 +118,7 @@ endif	# !ONLY_LIBS
 # we also consider the current directory because the app could be compiled
 # from the config files generated from eclipse...
 
-OPT_INCLUDE = $(foreach d,$(INCLUDE_PATH),$(addprefix -include=,$(call native_path,$d)))
+OPT_INCLUDE = $(foreach d,$(INCLUDE_PATH),$(addprefix -include=,$(call short_native_path,$d)))
 
 # OPT_AR: options for library generation
 OPT_AR = -nologo -form=lib
