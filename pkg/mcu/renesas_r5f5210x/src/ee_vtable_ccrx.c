@@ -48,9 +48,17 @@
 #include "ee.h"
 
 /*
- * Extern declaration of the default handlers.
+ * This is the code that gets called when the processor receives an unexpected
+ * interrupt.  This simply enters an infinite loop, preserving the system state
+ * for examination by a debugger.
  */
-extern void EE_rx200_default_ISR(void);		// Default Handler
+void EE_rx200_default_ISR(void)
+{
+    /* Go into an infinite loop.*/
+    while(1)
+    {
+    }
+}
 
 #ifdef EE_RX200_BUSERR_ISR
 extern void EE_RX200_BUSERR_ISR(void);	//The BUS error handler

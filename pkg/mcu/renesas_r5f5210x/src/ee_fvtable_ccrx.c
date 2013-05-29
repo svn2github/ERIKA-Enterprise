@@ -51,13 +51,6 @@
 //#pragma interrupt (EE_dummy)
 void EE_dummy(void){/* brk(){  } */}
 
-
-/*
- * Extern declaration of the default handlers.
- */
-//extern void EE_rx200_default_ISR(void);		// Default Handler
-
-
 #ifndef EE_RX200_NON_MASKABLE_INT_ISR
 //#pragma interrupt (EE_rx200_non_maskable_int)
 void	EE_rx200_non_maskable_int(void) { while(1);}
