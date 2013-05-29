@@ -72,7 +72,7 @@ ifndef INC_RX
 export INC_RX := $(shell cygpath -lw $(CCRX_ROOT)\\Include)
 endif
 
-PATH := $(PATH):$(shell cygpath -lw $(RX_BIN_DIR))
+export PATH := $(PATH):$(shell cygpath -lw $(RX_BIN_DIR))
 
 # Bin directories used for compilation
 # BINDIR_ASM      - directory of the Assembler
