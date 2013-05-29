@@ -76,10 +76,6 @@ endif	# ONLY_LIBS
 #Add runtime library to dependencies
 LIBDEP += $(RUNTIMELIB)
 
-
-# Libraries from MC
-OPT_LIBS +=  -l "nosys" -l "gcc" -l "c" -l "m"
-
 # check if RX_LIB_DIR is empty
 ifneq ($(RX_LIB_DIR),)
 OPT_LIBS += -L $(call native_path,$(RX_LIB_DIR))
@@ -214,7 +210,7 @@ clean:
 $(TARGET_NAME).$(RX_OUT_EXTENSION): $(OBJS) $(LINKDEP) $(LIBDEP) 
 	@echo "LD $(TARGET_NAME).$(RX_OUT_EXTENSION)";
 ifeq ($(call iseeopt, __CCRX__), yes)	
-	$(QUIET)$(EE_LINK) $(COMPUTED_OPT_LINK) -output=$@ $(ALLOBJS)
+	$(QUIET)$(EE_LINK) $(COMPUTED_OPT_LINK) -output=$@ $(OBJS) $(OPT_LIBS)
 else
 	$(QUIET)$(EE_LINK) $(COMPUTED_OPT_LINK) -o $(TARGETFILE) $(OBJS) \
                      --start-group $(OPT_LIBS) --end-group -M > rx200.map

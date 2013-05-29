@@ -72,7 +72,7 @@ ifndef INC_RX
 export INC_RX := $(shell cygpath -lw $(CCRX_ROOT)\\Include)
 endif
 
-PATH := $(PATH):$(RX_BIN_DIR)
+PATH := $(PATH):$(shell cygpath -lw $(RX_BIN_DIR))
 
 # Bin directories used for compilation
 # BINDIR_ASM      - directory of the Assembler
@@ -104,7 +104,7 @@ ifneq ($(ONLY_LIBS), TRUE)
 
 ## OPT_LIBS is used to link additional libraries (e.g., for C++ support)
 ## Libraries from CCRX compiler.
-OPT_LIBS += $(ERIKALIB)
+OPT_LIBS += -library=$(ERIKALIB)
 
 TARGET = $(TARGET_NAME).$(RX_OUT_EXTENSION)
 
@@ -176,9 +176,9 @@ OPT_LINK += -rom=D=R,D_1=R_1,D_2=R_2 -nologo -nooptimize -map -list\
 ifeq ($(call iseeopt, __R5F5210x__), yes)
 
 ifeq ($(call iseeopt, __ADD_LIB_SECT__), yes)
-OPT_LINK += -subcommand=$(call native_path, $(EEBASE)/pkg/mcu/renesas_r5f5210x/src/rx200_lnk_sub_ls.cmd)
+OPT_LINK += -subcommand=$(call native_path,$(EEBASE)/pkg/mcu/renesas_r5f5210x/src/rx200_lnk_sub_ls.cmd)
 else
-OPT_LINK += -subcommand=$(call native_path, $(EEBASE)/pkg/mcu/renesas_r5f5210x/src/rx200_lnk_sub.cmd) 
+OPT_LINK += -subcommand=$(call native_path,$(EEBASE)/pkg/mcu/renesas_r5f5210x/src/rx200_lnk_sub.cmd) 
 endif
 else
 OPT_LINK +=
