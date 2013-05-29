@@ -133,7 +133,7 @@ extern "C" {
 #include "cpu/mico32/inc/ee_cpu.h"
 #endif
 
-#if defined __PPCE200Z7__ || defined __PPCE200ZX__
+#if defined(__PPCE200Z7__) || defined(__PPCE200ZX__)
 #include "cpu/e200zx/inc/ee_cpu.h"
 #endif /* defined __PPCE200Z7__ || defined __PPCE200ZX__ */
 
