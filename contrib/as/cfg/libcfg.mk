@@ -305,20 +305,26 @@ endif	# !(__R5F5210x__ && __CCRX__)
 
 LIBSRCS += $(EE_SRCS_AUTOSAR)
 
-AUTOSARLIB := libas.a
-
 ifeq ($(and $(call iseeopt, __R5F5210x__), $(call iseeopt, __CCRX__)), yes)
+AUTOSARLIB := libas.lib
+
 $(AUTOSARLIB): $(EE_OBJS_AUTOSAR)
 	@echo "AR    $(AUTOSARLIB)";
 	$(QUIET) $(EE_LINK) $(COMPUTED_OPT_AR) -output=$@ $^
-else
+
+OPT_LIBS += -library=$(AUTOSARLIB)
+ALL_LIBS += $(AUTOSARLIB)
+else	#__R5F5210x__ && __CCRX__
+AUTOSARLIB := libas.a
+
 $(AUTOSARLIB): $(EE_OBJS_AUTOSAR)
 	@echo "AR    $(AUTOSARLIB)";
 	$(QUIET)$(EE_AR) $(COMPUTED_OPT_AR) $@ $^
-endif #__R5F5210x__ && __CCRX__
+
 	
 OPT_LIBS += $(AUTOSARLIB)
 ALL_LIBS += $(AUTOSARLIB)
+endif	#__R5F5210x__ && __CCRX__
 
 endif	# INCLUDE_AUTOSAR
 
