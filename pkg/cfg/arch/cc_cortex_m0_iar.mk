@@ -53,11 +53,11 @@ CG_OBJBUMP_EXTENSION := objdump
 
 #IAR_CCDIR refers to the location of IAR libraries
 BINDIR_CYG := /usr/bin
-BINDIR_IAR := $(IAR_CCDIR)/bin
+BINDIR_IAR := $(call short_native_path, $(IAR_CCDIR)/bin)
 
-CG_LIB_DIR := $(IAR_CCDIR)/lib
+CG_LIB_DIR := $(call short_native_path, $(IAR_CCDIR)/lib)
 
-CG_INCLUDE_DIR := $(IAR_CCDIR)/inc/NXP
+CG_INCLUDE_DIR := $(call short_native_path, $(IAR_CCDIR)/inc/NXP)
 
 # Bin directories used for compilation
 # BINDIR_ASM      - directory of the Assembler
@@ -71,7 +71,7 @@ BINDIR_BINUTILS := $(BINDIR_IAR)
 BINDIR_DEP      := $(BINDIR_IAR)
 
 
-OPT_INCLUDE = $(foreach d,$(INCLUDE_PATH),$(addprefix -I,$(call native_path,$d)))
+OPT_INCLUDE = $(foreach d,$(INCLUDE_PATH),$(addprefix -I,$(call short_native_path,$d)))
 
 
 ifndef EE_ASM
