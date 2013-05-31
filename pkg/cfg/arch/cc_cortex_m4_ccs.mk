@@ -56,27 +56,27 @@ BINDIR_CYG := /usr/bin
 #                  Default "C:\Programmi\Texas Instruments\ccsv4".
 CG_TOOL_SUFFIX := 470
 ifeq ($(call iseeopt, __CCS_4_2_4_00033_OLDER__), yes)
-CG_TOOL_ROOT := $(CCS_INSTALL_ROOT)/tools/compiler/tms$(CG_TOOL_SUFFIX)
+CG_TOOL_ROOT := $(call short_native_path, $(CCS_INSTALL_ROOT)/tools/compiler/tms$(CG_TOOL_SUFFIX))
 else
 ifeq ($(call iseeopt, __CCS_4_2_5_00005_TMS470_4_9_3__), yes)
-CG_TOOL_ROOT := $(shell cygpath -m -s "$(CCS_INSTALL_ROOT)/tools/compiler/TMS470 Code Generation Tools 4.9.3")
+CG_TOOL_ROOT := $(call short_native_path, $(CCS_INSTALL_ROOT)/tools/compiler/TMS470 Code Generation Tools 4.9.3)
 else
-CG_TOOL_ROOT := $(shell cygpath -m -s "$(CCS_INSTALL_ROOT)/tools/compiler/TMS470 Code Generation Tools 4.9.7")
+CG_TOOL_ROOT := $(call short_native_path, $(CCS_INSTALL_ROOT)/tools/compiler/TMS470 Code Generation Tools 4.9.7)
 endif
 endif
 
 CG_BIN_DIR := $(CG_TOOL_ROOT)/bin
 
-CG_BINUTILS_DIR := $(CCS_INSTALL_ROOT)/utils/tiobj2bin
+CG_BINUTILS_DIR := $(call short_native_path, $(CCS_INSTALL_ROOT)/utils/tiobj2bin)
 
 CG_LIB_DIR := $(CG_TOOL_ROOT)/lib
 
 CG_INCLUDE_DIR := $(CG_TOOL_ROOT)/include
 
 ifdef TMPDIR
-CG_TMPDIR := $(call native_path, $(TMPDIR))
+CG_TMPDIR := $(call short_native_path, $(TMPDIR))
 else
-CG_TMPDIR := $(call native_path, .)
+CG_TMPDIR := $(call short_native_path, .)
 endif
 
 # Bin directories used for compilation
@@ -90,7 +90,7 @@ BINDIR_CC       := $(CG_BIN_DIR)
 BINDIR_BINUTILS := $(CG_BINUTILS_DIR)
 BINDIR_DEP      := $(CG_BIN_DIR)
 
-OPT_INCLUDE = $(foreach d,$(INCLUDE_PATH),$(addprefix --include_path=,$(call native_path,$d)))
+OPT_INCLUDE = $(foreach d,$(INCLUDE_PATH),$(addprefix --include_path=,$(call short_native_path,$d)))
 
 ifndef EE_ASM
 EE_ASM:=$(BINDIR_ASM)/cl$(CG_TOOL_SUFFIX).exe
