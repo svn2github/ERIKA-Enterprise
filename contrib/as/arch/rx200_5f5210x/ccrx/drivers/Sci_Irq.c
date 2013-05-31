@@ -139,7 +139,6 @@ void Sci_RxErrIsr(Sci_ChannelType Channel)
 
 #if ( \
   defined(EE_RX200_RXI0_ISR) || \
-  defined(EE_RX200_ERI1_ISR) || \
   defined(EE_RX200_RXI1_ISR) || \
   defined(EE_RX200_RXI5_ISR) || \
   defined(EE_RX200_RXI6_ISR) || \
