@@ -62,9 +62,14 @@
 
 #endif /* #if 1*/
 
-#define SYS_RESC_POR	0x01
-#define SYS_RESC_IWDT	0x10
-#define SYS_RESC_WDT	0x20
-#define SYS_RESC_SW		0x40
+#define SYS_RESC_POR	0x0001U	/**< Power-On Reset */
+#define SYS_RESC_LVD0	0x0002U	/**< Voltage Monitoring 0 Reset */
+#define SYS_RESC_LVD1	0x0004U	/**< Voltage Monitoring 0 Reset */
+#define SYS_RESC_LVD2	0x0008U	/**< Voltage Monitoring 0 Reset */
+#define SYS_RESC_IWDT	0x0010U	/**< Independent Watchdog Reset */
+#define SYS_RESC_WDT	0x0020U	/**< Watchdog Reset */
+#define SYS_RESC_SW	0x0040U	/**< Software Reset */
+#define SYS_RESC_DSS	0x0080U	/**< Deep Software Stand-by Reset */
+#define SYS_RESC_CWS	0x0100U	/**< Cold (0) / Warm (1) Start Determination */
 
 #endif	/* __INCLUDE_RENESAS_R5F5210X_MCUREGS_H__ */
