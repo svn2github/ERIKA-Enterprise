@@ -24,9 +24,9 @@ ifeq ($(INCLUDE_LPC12XX_CMSIS_V2), YES)
 ##
 ## Add the inc path to the include pathlist
 ##New include mechanism
-INCLUDE_PATH += "$(shell cygpath -w $(EEBASE)/contrib/nxp/lpc12xx_cmsis_v2_0/inc/CM0/CoreSupport)"
-INCLUDE_PATH += "$(shell cygpath -w $(EEBASE)/contrib/nxp/lpc12xx_cmsis_v2_0/inc/CM0/DeviceSupport/NXP/LPC12xx)"
-INCLUDE_PATH += "$(shell cygpath -w $(EEBASE)/contrib/nxp/lpc12xx_cmsis_v2_0/inc/Drivers/include)"
+INCLUDE_PATH += $(call short_native_path, $(EEBASE)/contrib/nxp/lpc12xx_cmsis_v2_0/inc/CM0/CoreSupport)
+INCLUDE_PATH += $(call short_native_path, $(EEBASE)/contrib/nxp/lpc12xx_cmsis_v2_0/inc/CM0/DeviceSupport/NXP/LPC12xx)
+INCLUDE_PATH += $(call short_native_path, $(EEBASE)/contrib/nxp/lpc12xx_cmsis_v2_0/inc/Drivers/include)
 ## Add each file individually
 EE_SRCS_CMSIS :=
 
