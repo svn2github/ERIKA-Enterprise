@@ -298,6 +298,50 @@
 #define HW_SCI_SISR_OFFSET	0x0000000C	/**< SCI SISR register offset  */
 #define HW_SCI_SPMR_OFFSET	0x0000000D	/**< SCI SPMR register offset  */
 
+/*Serial Peripheral Interface (RSPI) register addresses*/
+/**< Address of RSPI control register (SPCR) */
+#define HW_RSPI_SPCR_ADDR		EE_HWREG8_ADDR(0x00088380)
+/**< Address of RSPI slave select polarity register (SSLP) */
+#define HW_RSPI_SSLP_ADDR		EE_HWREG8_ADDR(0x00088381)
+/**< Address of RSPI pin control register (SPPCR) */
+#define HW_RSPI_SPPCR_ADDR		EE_HWREG8_ADDR(0x00088382)
+/**< Address of RSPI status register (SPSR) */
+#define HW_RSPI_SPSR_ADDR		EE_HWREG8_ADDR(0x00088383)
+/**< Address of RSPI  data register (SPDR) */
+#define HW_RSPI_SPDR_ADDR		EE_HWREG_ADDR(0x00088384)
+/**< Address of RSPI sequence control register (SPSCR) */
+#define HW_RSPI_SPSCR_ADDR		EE_HWREG8_ADDR(0x00088388)
+/**< Address of RSPI sequence status register (SPSSR) */
+#define HW_RSPI_SPSSR_ADDR		EE_HWREG8_ADDR(0x00088389)
+/**< Address of RSPI bit rate register (SPBR) */
+#define HW_RSPI_SPBR_ADDR		EE_HWREG8_ADDR(0x0008838A)
+/**< Address of RSPI data control register (SPDCR) */
+#define HW_RSPI_SPDCR_ADDR		EE_HWREG8_ADDR(0x0008838B)
+/**< Address of RSPI clock delay register (SPCKD) */
+#define HW_RSPI_SPCKD_ADDR		EE_HWREG8_ADDR(0x0008838C)
+/**< Address of RSPI slave select negation delay register (SSLND) */
+#define HW_RSPI_SSLND_ADDR		EE_HWREG8_ADDR(0x0008838D)
+/**< Address of RSPI next-access delay register (SPND) */
+#define HW_RSPI_SPND_ADDR		EE_HWREG8_ADDR(0x0008838E)
+/**< Address of RSPI control register 2 (SPCR2) */
+#define HW_RSPI_SPCR2_ADDR		EE_HWREG8_ADDR(0x0008838F)
+/**< Address of RSPI command register 0 (SPCMD0) */
+#define HW_RSPI_SPCMD0_ADDR		EE_HWREG16_ADDR(0x00088390)
+/**< Address of RSPI command register 1 (SPCMD1) */
+#define HW_RSPI_SPCMD1_ADDR		EE_HWREG16_ADDR(0x00088392)
+/**< Address of RSPI command register 2 (SPCMD2) */
+#define HW_RSPI_SPCMD2_ADDR		EE_HWREG16_ADDR(0x00088394)
+/**< Address of RSPI command register 3 (SPCMD3) */
+#define HW_RSPI_SPCMD3_ADDR		EE_HWREG16_ADDR(0x00088396)
+/**< Address of RSPI command register 4 (SPCMD4) */
+#define HW_RSPI_SPCMD4_ADDR		EE_HWREG16_ADDR(0x00088398)
+/**< Address of RSPI command register 5 (SPCMD5) */
+#define HW_RSPI_SPCMD5_ADDR		EE_HWREG16_ADDR(0x0008839A)
+/**< Address of RSPI command register 6 (SPCMD6) */
+#define HW_RSPI_SPCMD6_ADDR		EE_HWREG16_ADDR(0x0008839C)
+/**< Address of RSPI command register 7 (SPCMD7) */
+#define HW_RSPI_SPCMD7_ADDR		EE_HWREG16_ADDR(0x0008839E)
+
 
 
 /**< Base address of Interrupt Request Enable Registers (IERx) */
@@ -413,6 +457,15 @@
 #define HW_ICU_IER_SCI12_TX		EE_HWREG8_ADDR(0x0008721E)
 /**< Address of Interrupt Request Enable Register (IER) of SCI12 TE  */
 #define HW_ICU_IER_SCI12_TE		EE_HWREG8_ADDR(0x0008721E)
+/**< Address of Interrupt Request Enable Register (IER) of RSPI0 SPEI  */
+#define HW_ICU_IER_RSPI_SPEI	EE_HWREG8_ADDR(0x00087205)
+/**< Address of Interrupt Request Enable Register (IER) of RSPI0 SPRI  */
+#define HW_ICU_IER_RSPI_SPRI	EE_HWREG8_ADDR(0x00087205)
+/**< Address of Interrupt Request Enable Register (IER) of RSPI0 SPTI  */
+#define HW_ICU_IER_RSPI_SPTI	EE_HWREG8_ADDR(0x00087205)
+/**< Address of Interrupt Request Enable Register (IER) of RSPI0 SPII  */
+#define HW_ICU_IER_RSPI_SPII	EE_HWREG8_ADDR(0x00087205)
+
 
 /*Interrrupt Request Registers (IR) address.*/
 /**< Address of Interrupt Request Register (IER) of SCI0 ERX  */
@@ -429,6 +482,14 @@
 #define HW_ICU_IR_SCI9_ERX		EE_HWREG8_ADDR(0x000870EA)
 /**< Address of Interrupt Request Register (IER) of SCI12 ERX  */
 #define HW_ICU_IR_SCI12_ERX		EE_HWREG8_ADDR(0x000870EE)
+/**< Address of Interrupt Request Register (IER) of RSPI SPEI  */
+#define HW_ICU_IR_RSPI_SPEI		EE_HWREG8_ADDR(0x0008702C)
+/**< Address of Interrupt Request Register (IER) of RSPI SPRI  */
+#define HW_ICU_IR_RSPI_SPRI		EE_HWREG8_ADDR(0x0008702D)
+/**< Address of Interrupt Request Register (IER) of RSPI SPTI  */
+#define HW_ICU_IR_RSPI_SPTI		EE_HWREG8_ADDR(0x0008702E)
+/**< Address of Interrupt Request Register (IER) of RSPI SPII  */
+#define HW_ICU_IR_RSPI_SPII		EE_HWREG8_ADDR(0x0008702F)
 
 
 /*Interrrupt Priority Registers (IPRs) address.*/
@@ -474,6 +535,10 @@
 #define HW_ICU_IPR_SCI9				EE_HWREG8_ADDR(0x000873EA)
 /**< Address of IPR of SCI12 */
 #define HW_ICU_IPR_SCI12			EE_HWREG8_ADDR(0x000873EE)
+/**< Address of IPR of RSPI */
+#define HW_ICU_IPR_RSPI				EE_HWREG8_ADDR(0x0008732C)
+
+
 /**< Address of Non-Maskable Interrupt Status Register (NMISR) */
 #define HW_ICU_NMISR				EE_HWREG8_ADDR(0x00087580)
 /**< Address of Non-Maskable Interrupt Enable Register (NMIER) */
@@ -618,9 +683,14 @@
 #define HW_ICU_SCI12_IER_TX_MASK	0x01
 /**< Bit mask for SCI12 TE .*/
 #define HW_ICU_SCI12_IER_TE_MASK	0x02
-
-
-
+/**< Bit mask for RSPI SPEI .*/
+#define HW_ICU_RSPI_IER_SPEI_MASK	0x10
+/**< Bit mask for RSPI SPRI .*/
+#define HW_ICU_RSPI_IER_SPRI_MASK	0x20
+/**< Bit mask for RSPI SPTI .*/
+#define HW_ICU_RSPI_IER_SPTI_MASK	0x40
+/**< Bit mask for RSPI SPII .*/
+#define HW_ICU_RSPI_IER_SPII_MASK	0x80
 
 /*Priority levels for IPR registers. */
 #define HW_IPR_PRI_LEVEL_0	0
