@@ -237,7 +237,7 @@ $(OBJDIR)/%.obj: %.c
 	$(QUIET)$(call make-depend, $<, $@, $(subst .obj,.d,$@))
 
 #produce the runtime library
-$(RUNTIMELIB): $(OBJS)
+$(RUNTIMELIB):
 	@echo "AR $(RUNTIMELIB)";
 	$(QUIET)$(EE_AR) -cpu=rx200 -output=$@ -head=runtime
 
