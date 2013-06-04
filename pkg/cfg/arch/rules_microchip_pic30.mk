@@ -164,7 +164,7 @@ include $(PKGBASE)/cfg/cfg.mk
 ## TODO - Select if compile crt0.s or link libpic30-$(PIC30_OFF).a
 ##
 
-EE_BOOT_SRCS := frommchp/crt0.S
+EE_BOOT_SRCS := frommchp/crt0.s
 
 # Boot code containing _start should stay outside of the library in
 # case of normal compilation
@@ -181,7 +181,7 @@ LIBEESRCS += $(LIB_SRCS)
 LIBOBJS := $(addprefix $(OBJDIR)/, $(patsubst %.c,%.o,$(patsubst %.S,%.o,$(LIBSRCS))))
 
 SRCS += $(foreach d,$(APP_SRCS),$(call unix_relpath,$d))
-OBJS := $(addprefix $(OBJDIR)/, $(patsubst %.c,%.o,$(patsubst %.S,%.o, $(SRCS))))
+OBJS := $(addprefix $(OBJDIR)/, $(patsubst %.c,%.o,$(patsubst %.S,%.o, $(patsubst %.s,%.o, $(SRCS)))))
 
 # Variable used to import dependencies
 ALLOBJS = $(LIBEEOBJS) $(LIBOBJS) $(OBJS)
@@ -267,7 +267,7 @@ $(OBJDIR)/frommchp/crt0.o: frommchp/crt0.s
 ## Microchip C30 files
 ##
 
-frommchp/crt0.S: $(PIC30_CRT0)
+frommchp/crt0.s: $(PIC30_CRT0)
 	@printf "\nCP crt0.s\n"; cp $(SOURCEFILE) $(TARGETFILE); chmod +rw $(TARGETFILE)
 
 # Check if the MCU model has been defined
@@ -378,3 +378,4 @@ ifneq ($(call iseeopt, NODEPS), yes)
 -include $(dependencies)
 endif
 endif
+
