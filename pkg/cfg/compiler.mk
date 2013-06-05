@@ -158,7 +158,11 @@ include $(EEBASE)/pkg/cfg/arch/cc_cortex_m0_iar.mk
 else	# __IAR__
 ifeq ($(call iseeopt, __KEIL__), yes)
 include $(EEBASE)/pkg/cfg/arch/cc_cortex_m0_keil.mk
-endif	# __KEIL__
+else	# __KEIL__
+ifeq ($(call iseeopt, __GNU__), yes)
+include $(EEBASE)/pkg/cfg/arch/cc_cortex_m0_gnu.mk
+endif	# __GNU__
+endif	# !__KEIL__
 endif	# !__IAR__
 endif	# __CORTEX_M0__
 
@@ -168,7 +172,11 @@ include $(EEBASE)/pkg/cfg/arch/cc_cortex_m4_ccs.mk
 else	# __CCS__
 ifeq ($(call iseeopt, __KEIL__), yes)
 include $(EEBASE)/pkg/cfg/arch/cc_cortex_m4_keil.mk
-endif	# __KEIL__
+else	# __KEIL__
+ifeq ($(call iseeopt, __GNU__), yes)
+include $(EEBASE)/pkg/cfg/arch/cc_cortex_m4_gnu.mk
+endif	# __GNU__
+endif	# !__KEIL__
 endif	# !__CCS__
 endif	# __CORTEX_M4__
 

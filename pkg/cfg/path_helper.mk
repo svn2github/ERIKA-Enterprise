@@ -221,8 +221,10 @@ ifeq ($(call iseeopt, __RTD_CYGWIN__), yes)
 # Sed is used to remove trailing backslash and to double internal backslashes
 native_path = "$(shell cygpath -w '$(strip $1)' | sed -e 's/\\$$//' -e 's/\\/\\\\/g')"
 else
+
 # native_path is supposed to return a path string; `strip' removes leading or trailing white chars
 native_path = $(strip $1)
+
 endif
 
 ifeq ($(findstring Linux, $(MYOS)), Linux)

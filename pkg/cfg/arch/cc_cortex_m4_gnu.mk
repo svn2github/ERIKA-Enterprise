@@ -1,7 +1,7 @@
 # ###*B*###
 # ERIKA Enterprise - a tiny RTOS for small microcontrollers
 # 
-# Copyright (C) 20011  Evidence Srl
+# Copyright (C) 2013  Evidence Srl
 # 
 # This file is part of ERIKA Enterprise.
 # 
@@ -39,40 +39,47 @@
 # ###*E*###
 
 ##
-## Keil uVision MDK-Lite compiler
+## GCC EABI compiler
+## (tested with gcc-eabi 4.7 from Emdebian)
 ##
-## Author: 2011,  Giuseppe Serano
+## Author: 2013,  Mauro Nino Marinoni
+##		   2013,  Alessandro Biondi	
 ##
 
-# Select object file format
-CG_OUT_EXTENSION := out
-
+#
+# Select file formats
+#
+CG_OUT_EXTENSION := elf
+# MM: Check!!!
 CG_BIN_EXTENSION := bin
 
-BINDIR_CYG := /usr/bin
+#
+# EABI_ROOT: GNU GCC EABI Root Folder.
+#          Default "/usr".
+CG_TOOL_ROOT := $(GNU_ARM_ROOT)
 
-#ARM_ROOT: Keil uVision ARM Installation Root Folder.
-#          Default "C:\Keil\ARM".
-CG_TOOL_ROOT := $(ARM_ROOT)
-
-ifeq ($(call iseeopt, __KEIL_4_54_OLDER__), yes)
-CG_BIN_DIR := $(CG_TOOL_ROOT)/BIN40
+# BINDIR is the directory of assembler, compiler, linker...
+ifeq ($(call iseeopt, __RTD_CYGWIN__), yes) 
+CG_BIN_DIR = $(shell cygpath -u "$(CG_TOOL_ROOT)/bin")
 else
-CG_BIN_DIR := $(CG_TOOL_ROOT)/ARMCC/bin
+#AB: FIXME
+CG_BIN_DIR = $(CG_TOOL_ROOT)/bin
 endif
 
-CG_BINUTILS_DIR := $(CG_TOOL_ROOT)/BIN
+CG_BINUTILS_DIR := $(CG_TOOL_ROOT)/bin
 
-ifeq ($(call iseeopt, __KEIL_4_54_OLDER__), yes)
-CG_LIB_DIR := $(CG_TOOL_ROOT)/RV31/LIB
-else
-CG_LIB_DIR := $(CG_TOOL_ROOT)/ARMCC/lib $(CG_TOOL_ROOT)/RV31/LIB
+ifndef EABI_GCC_PREFIX
+EABI_GCC_PREFIX := arm-none-eabi
 endif
 
-ifeq ($(call iseeopt, __KEIL_4_54_OLDER__), yes)
-CG_INCLUDE_DIR := $(CG_TOOL_ROOT)/RV31/INC/
-else
-CG_INCLUDE_DIR := $(CG_TOOL_ROOT)/ARMCC/include $(CG_TOOL_ROOT)/RV31/INC/
+# MM: Check!!!
+ifndef CG_LIB_DIR
+CG_LIB_DIR := $(CG_TOOL_ROOT)/$(EABI_GCC_PREFIX)/lib
+endif
+
+# MM: Check!!!
+ifndef CG_INCLUDE_DIR
+CG_INCLUDE_DIR := $(CG_TOOL_ROOT)/$(EABI_GCC_PREFIX)/include
 endif
 
 ifdef TMPDIR
@@ -92,35 +99,67 @@ BINDIR_CC       := $(CG_BIN_DIR)
 BINDIR_BINUTILS := $(CG_BINUTILS_DIR)
 BINDIR_DEP      := $(CG_BIN_DIR)
 
+#
+# Define crosscompiler EABI_GCC_PREFIX, EABI_GCC_EXT and EABI_GCC_VERSION
+#
+
+
+ifeq ($(call iseeopt, __RTD_CYGWIN__), yes) 
+EABI_GCC_EXT := .exe
+endif
+
+#ifndef EABI_GCC_VERSION
+EABI_GCC_VERSION := 
+#endif
+
+#
+# Define crosscompiler tools
+#
+
 ifndef EE_ASM
-EE_ASM:=$(BINDIR_ASM)/armasm.exe
+#EE_ASM := $(BINDIR_ASM)/$(EABI_GCC_PREFIX)as$(EABI_GCC_EXT)
+EE_ASM := $(BINDIR_CC)/$(EABI_GCC_PREFIX)-gcc$(EABI_GCC_VERSION)$(EABI_GCC_EXT)
 endif
 
 ifndef EE_CC
-EE_CC:=$(BINDIR_CC)/armcc.exe
+EE_CC := $(BINDIR_CC)/$(EABI_GCC_PREFIX)-gcc$(EABI_GCC_VERSION)$(EABI_GCC_EXT)
 endif
 
 ifndef EE_LINK
-EE_LINK:=$(CG_BIN_DIR)/armlink.exe
+#EE_LINK := $(BINDIR_ASM)/$(EABI_GCC_PREFIX)ld$(EABI_GCC_EXT)
+EE_LINK := $(BINDIR_CC)/$(EABI_GCC_PREFIX)-gcc$(EABI_GCC_VERSION)$(EABI_GCC_EXT)
 endif
 
 ifndef EE_DEP
-EE_DEP:=$(BINDIR_DEP)/armcc.exe
+EE_DEP := $(BINDIR_DEP)/$(EABI_GCC_PREFIX)-gcc$(EABI_GCC_VERSION)$(EABI_GCC_EXT)
 endif
 
+# Using ar from BinUtils instead of the one from GCC
 ifndef EE_AR
-EE_AR:=$(CG_BIN_DIR)/armar.exe
+EE_AR := $(BINDIR_ASM)/$(EABI_GCC_PREFIX)-ar$(EABI_GCC_EXT)
 endif
 
-ifndef EE_FROMELF
-EE_FROMELF:=$(CG_BIN_DIR)/fromelf.exe
+ifndef EE_NM
+EE_NM := $(BINDIR_ASM)/$(EABI_GCC_PREFIX)-nm$(EABI_GCC_EXT)
 endif
 
+ifndef EE_OBJCOPY
+EE_OBJCOPY := $(BINDIR_ASM)/$(EABI_GCC_PREFIX)-objcopy$(EABI_GCC_EXT)
+endif
+
+ifndef EE_OBJDUMP
+EE_OBJDUMP := $(BINDIR_ASM)/$(EABI_GCC_PREFIX)-objdump$(EABI_GCC_EXT)
+endif
+
+
+
+#
 #Add application file to dependencies
+#
 ifneq ($(ONLY_LIBS), TRUE)
 
 ## OPT_LIBS is used to link additional libraries (e.g., for C++ support)
-## Libraries from Keil-uVision-MKD-Lite.
+# MM: Add others from GCC?
 OPT_LIBS += $(ERIKALIB)
 
 TARGET = $(TARGET_NAME).$(CG_BIN_EXTENSION)
@@ -129,74 +168,110 @@ else	# ONLY_LIBS
 
 endif	# !ONLY_LIBS
 
+
+
 # INCLUDE_PATH is a colon separated list of directories for source file searching
 # -I = adds directories to the source file search path (for both gcc and gas)
 # we consider the ee pkg directory and the application dir
 # we also consider the current directory because the app could be compiled
 # from the config files generated from eclipse...
-
 OPT_INCLUDE = $(foreach d,$(INCLUDE_PATH),$(addprefix -I,$(call native_path,$d)))
 
+
+
+##
 # OPT_AR: options for library generation
-OPT_AR = -r --create
+##
 
-## OPT_CC are the options for c compiler invocation
-#Note: all warnings are enabled by default
-#Note: C is the default language
+# MM: Check!!!
+OPT_AR = r
+
+
+##
+# OPT_CC are the options for c compiler invocation
+##
+
+# Define HW architecture
 ifeq ($(call iseeopt, __CORTEX_M4__), yes)
-#OPT_CC += --cpu Cortex-M4.fp
-OPT_CC += --cpu Cortex-M4
+#OPT_CC += -march=armv7e-m -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -mthumb-interwork -mlong-calls
+OPT_CC += -march=armv7e-m -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mthumb -mthumb-interwork 
 endif
 
+# Debug support and optimization level
 ifeq ($(call iseeopt, DEBUG), yes)
-OPT_CC += -g -O0
+OPT_CC += -ggdb -O0 -Wno-attributes
+else
+OPT_CC += -Os
 endif
 
-OPT_CC += -c
+# Compile and assemble, but do not link 
+OPT_CC += -c 
 
 # Specific option from the application makefile
 OPT_CC += $(CFLAGS)
 
-##OPT_ASM are the options for assembler invocation
+
+##
+# OPT_ASM are the options for assembler invocation
+##
+
+# Define HW architecture
 ifeq ($(call iseeopt, __CORTEX_M4__), yes)
-#OPT_ASM += --cpu Cortex-M4.fp
-OPT_ASM += --cpu Cortex-M4
+# MM: Check!!!
+OPT_ASM += -march=armv7e-m -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mthumb -mthumb-interwork 
 endif
 
+# Debug support
 ifeq ($(call iseeopt, DEBUG), yes)
-OPT_ASM += -g
+OPT_ASM += -ggdb
 endif
 
-OPT_ASM += --xref --cpreproc
+
+
+# Enable C preprocessor
+#OPT_ASM += --cpreproc
+ifeq ($(call iseeopt, DEBUG), yes)
+OPT_ASM += -ggdb -O0
+else
+OPT_ASM += -Os
+endif
+
+# Assemble, but do not link 
+OPT_ASM += -c 
 
 # Specific option from the application makefile
-OPT_ASM += $(ASFLAGS)
+OPT_ASM += $(ASFLAGS) 
 
-## OPT_LINK represents the options for linker invocation
+
+##
+# OPT_LINK represents the options for linker invocation
+##
+
+OPT_LINK += -static 
+
+# Define HW architecture
 ifeq ($(call iseeopt, __CORTEX_M4__), yes)
-#OPT_LINK += --cpu Cortex-M4.fp
-OPT_LINK += --cpu Cortex-M4
+# MM: Check!!!
+OPT_LINK += -march=armv7e-m -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mthumb -mthumb-interwork 
 endif
 
+# Debug support
 ifeq ($(call iseeopt, DEBUG), yes)
-OPT_LINK += --debug --no_remove
+OPT_LINK += -ggdb
 endif
 
 ## Put here the link options --userlibpath (instead of -L).
 ifneq ($(ONLY_LIBS), TRUE)
 
 ifdef CG_LIB_DIR
-ifeq ($(call iseeopt, __KEIL_4_54_OLDER__), yes)
-OPT_LINK += --libpath $(call native_path, $(CG_LIB_DIR))
-else
-OPT_LINK += $(foreach d,$(CG_LIB_DIR),$(addprefix --libpath ,$(call native_path,$d)))
-endif
+OPT_LINK += -L$(CG_LIB_DIR)
+OPT_LINK += $(foreach d,$(CG_LIB_DIR),$(addprefix -L,$(call native_path,$d)))
 endif
 
 ifneq ($(call iseeopt, __BIN_DISTR), yes)
-OPT_LINK += --userlibpath .
+OPT_LINK += -L.
 else
-OPT_LINK += --userlibpath $(EEBASE)/lib
+OPT_LINK += -L$(EEBASE)/lib
 endif
 
 endif	# !ONLY_LIB
@@ -206,54 +281,43 @@ OPT_LINK += --verbose
 endif
 
 ## FIX ME.
-OPT_LINK += --strict --map --xref --callgraph  --symbols \
-	    --summary_stderr --info summarysizes --info sizes --info totals \
-	    --info unused --info veneers --info libraries 
+## MM: ToDo!!!
+#OPT_LINK += --strict --map --xref --callgraph  --symbols \
+#	    --summary_stderr --info summarysizes --info sizes --info totals \
+#	    --info unused --info veneers --info libraries
 
+
+# Stellaris
 ifeq ($(call iseeopt, __STELLARIS__), yes)
 ifndef STELLARIS_LINKERSCRIPT
-
+## MM: ToDo!!!
 OPT_LINK += --ro-base 0x00000000 --rw-base 0x20000000 \
 	    --first EE_cortex_mx_vtable
-
 ifdef EE_CORTEX_MX_RESET_ISR
-OPT_LINK += --entry $(EE_CORTEX_MX_RESET_ISR)
+OPT_LINK += -e $(EE_CORTEX_MX_RESET_ISR)
 else
-OPT_LINK += --entry EE_cortex_mx_default_reset_ISR
+OPT_LINK += -e EE_cortex_mx_default_reset_ISR
 endif
-
 endif	# STELLARIS_LINKERSCRIPT
 endif	# __STELLARIS__
 
-ifeq ($(call iseeopt, __STM32F4xx__), yes)
-ifndef STM32_LINKERSCRIPT
-
-OPT_LINK += --ro-base 0x08000000 --rw-base 0x20000000 \
-	    --first EE_cortex_mx_vtable
-
-ifdef EE_CORTEX_MX_RESET_ISR
-OPT_LINK += --entry $(EE_CORTEX_MX_RESET_ISR)
-else
-OPT_LINK += --entry EE_cortex_mx_default_reset_ISR
-endif
-
-endif	# STM32_LINKERSCRIPT
-endif	# __STM32F4xx__
 
 # Specific option from the application makefile
 OPT_LINK += $(LDFLAGS)
 
 
-# Options for FROMELF
+##
+# OPT_AR: options for library generation
+##
 
-OPT_FROMELF += --bin
+OPT_OBJCOPY += -Obinary
+
 
 # Defining EEOPT Macros
 # Each identifier that is listed in EEOPT is also inserted as a 
 # command-line macro in the compiler...
 
-DEFS_ASM = $(foreach d,$(EEOPT),--pd "$d SETA 1")
-
+DEFS_ASM = $(addprefix -D, $(EEOPT))
 DEFS_CC  = $(addprefix -D, $(EEOPT))
 
 
@@ -261,14 +325,16 @@ DEFS_CC  = $(addprefix -D, $(EEOPT))
 ifeq ($(call iseeopt, NODEPS), yes)
 DEPENDENCY_OPT = 
 make-depend =
-else	# NODEPS
-DEPENDENCY_OPT = --depend=$(call native_path,$(subst .o,.d_tmp,$@))
+else # NODEPS
 ifeq ($(call iseeopt, __RTD_CYGWIN__), yes)
 # Dependencies on Windows need path translation
+DEPENDENCY_OPT = -MMD -MF $(call native_path,$(subst .o,.d_tmp,$@)) -MP -MT $@
 make-depend = sed -e 's_\\\(.\)_/\1_g' \
 	      -e 's_\<\([a-zA-Z]\):/_/cygdrive/\l\1/_g' < $3_tmp \
 	      > $3 && rm $3_tmp
 else # __RTD_CYGWIN__
+DEPENDENCY_OPT = -MMD -MF $(subst .o,.d_tmp,$@) -MP -MT $@
 make-depend = mv $3_tmp $3
-endif	# __RTD_CYGWIN__
-endif	# NODEPS
+endif # __RTD_CYGWIN__
+endif # NODEPS
+

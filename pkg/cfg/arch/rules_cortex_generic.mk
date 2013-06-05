@@ -84,7 +84,11 @@ LIBDEP += $(LDDEPS)
 
 include $(PKGBASE)/cfg/cfg.mk
 
+##
 # MCU
+##
+
+# Stellaris
 ifeq ($(call iseeopt, __STELLARIS__), yes)
 #~ STELLARIS_MODEL
 #~ STELLARIS_LINKERSCRIPT
@@ -108,6 +112,7 @@ endif	# __LM4F232xxxx__
 TARGET_NAME = c_mX
 endif	# __STELLARIS__
 
+# STM32
 ifeq ($(call iseeopt, __STM32__), yes)
 #~ STM32_MODEL
 #~ STM32_LINKERSCRIPT
@@ -123,10 +128,25 @@ CORTEX_MCU_MODEL = __STM32F4xx__
 ifeq ($(call iseeopt, __KEIL__), yes)
 CORTEX_MCU_STARTUP = $(CRT0_SRCS)
 endif	# __KEIL__
+ifeq ($(call iseeopt, __GNU__), yes)
+## MM: Check files!!!
+CORTEX_MCU_STARTUP = $(CRT0_SRCS)
+ifdef STM32_LINKERSCRIPT
+CORTEX_MCU_LINKERSCRIPT = $(STM32_LINKERSCRIPT)
+else
+CORTEX_MCU_LINKERSCRIPT = $(EEBASE)/pkg/mcu/st_stm32_stm32f4xx/src/stm32f40x_gnu.ld
+endif	# STM32_LINKERSCRIPT
+ifdef EE_CORTEX_MX_RESET_ISR
+OPT_LINK += -Wl,-e,$(EE_CORTEX_MX_RESET_ISR)
+else
+OPT_LINK += -Wl,-e,EE_cortex_mx_default_reset_ISR
+endif	# EE_CORTEX_MX_RESET_ISR
+endif	# __GNU__
 endif	# __STM32F4xx__
 TARGET_NAME = c_mX
 endif	# __STM32__
 
+# LPCXPRESSO
 ifeq ($(call iseeopt, __LPCXPRESSO__), yes)
 #~ LPCXPRESSO_MODEL
 #~ LPCXPRESSO_LINKERSCRIPT
@@ -151,6 +171,32 @@ endif	# __LPC12xx__
 TARGET_NAME = c_m0
 endif	# __LPCXPRESSO__
 
+# NORDIC
+ifeq ($(call iseeopt, __NORDIC__), yes)
+#~ LPCXPRESSO_MODEL
+#~ LPCXPRESSO_LINKERSCRIPT
+#~ LPCXPRESSO_INCLUDE_C
+#~ LPCXPRESSO_INCLUDE_S
+#~ LPCXPRESSO_STARTUP
+ifneq ($(call iseeopt, __NRF51X22__), yes)
+CORTEX_MCU_MODEL = $(NORDIC_MODEL)
+CORTEX_MCU_STARTUP = $(NORDIC_STARTUP)
+CORTEX_MCU_LINKERSCRIPT = $(NORDIC_LINKERSCRIPT)
+else	# !__NRF51X22__
+CORTEX_MCU_MODEL = NRF51X22
+ifeq ($(call iseeopt, __KEIL__), yes)
+ifeq ($(call iseeopt, __NORDIC_S110_BLE__), yes)
+CORTEX_MCU_LINKERSCRIPT = $(EEBASE)/pkg/mcu/nordic_nrf51x22/src/template_ble.sct
+else
+CORTEX_MCU_LINKERSCRIPT = $(EEBASE)/pkg/mcu/nordic_nrf51x22/src/template.sct
+endif # __NORDIC_S110_BLE__
+endif # __KEIL__
+CORTEX_MCU_STARTUP = $(CRT0_SRCS)
+endif	# __NRF51X22__
+TARGET_NAME = c_m0
+endif	# __NORDIC__
+
+# No MCU model
 ifndef CORTEX_MCU_MODEL
 $(error No known MCU model found in EE_OPT)
 endif	# CORTEX_MCU_MODEL
@@ -186,19 +232,20 @@ endif
 ##
 ## Source files and paths
 ##
+
 LIBEESRCS += $(EE_SRCS)
 LIBEEOBJS := $(addprefix $(OBJDIR)/, $(patsubst %.c, %.o, $(patsubst %.s, %.o, \
-$(patsubst %.asm, %.o, $(LIBEESRCS)))))
+$(patsubst %.asm, %.o, $(patsubst %.S, %.o, $(LIBEESRCS))))))
 
 LIBOBJS := $(addprefix $(OBJDIR)/, $(patsubst %.c, %.o, $(patsubst %.s, %.o, \
-$(patsubst %.asm, %.o, $(LIBSRCS)))))
+$(patsubst %.asm, %.o, $(patsubst %.S, %.o, $(LIBSRCS))))))
 
 SRCS += $(APP_SRCS)
 
 OBJS := $(addprefix $(OBJDIR)/, $(sort $(patsubst %.cpp, %.o, \
 $(patsubst %.cxx, %.o, $(patsubst %.cc, %.o, $(patsubst %.C, %.o, \
 $(CXX_SRCS))))) $(patsubst %.c, %.o, $(patsubst %.s, %.o, \
-$(patsubst %.asm, %.o, $(SRCS))))))
+$(patsubst %.asm, %.o, $(patsubst %.S, %.o, $(SRCS)))))))
 
 # Variable used to import dependencies
 ALLOBJS = $(LIBEEOBJS) $(LIBOBJS) $(OBJS) 
@@ -209,6 +256,7 @@ INCLUDE_PATH += $(PKGBASE) $(call short_native_path,$(APPBASE)) . $(CG_INLCUDE_D
 
 vpath %.c $(EE_VPATH) $(APPBASE)
 vpath %.s $(EE_VPATH) $(APPBASE)
+vpath %.S $(EE_VPATH) $(APPBASE)
 
 ## Compute common variables ##
 COMPUTED_INCLUDE_PATH := $(OPT_INCLUDE)
@@ -217,6 +265,9 @@ COMPUTED_OPT_ASM := $(OPT_ASM)
 COMPUTED_OPT_CC := $(OPT_CC)
 COMPUTED_OPT_AR := $(OPT_AR)
 COMPUTED_OPT_OBJDUMP := $(OPT_OBJDUMP)
+COMPUTED_OPT_OBJCOPY := $(OPT_OBJCOPY)
+COMPUTED_OPT_FROMELF := $(OPT_FROMELF)
+
 ifeq ($(call iseeopt, __KEIL__), yes)
 ifdef CORTEX_MCU_LINKERSCRIPT
 COMPUTED_LINKERSCRIPT := --scatter $(call native_path, $(CORTEX_MCU_LINKERSCRIPT))
@@ -226,22 +277,29 @@ COMPUTED_LINKERSCRIPT := $(call native_path, $(CORTEX_MCU_LINKERSCRIPT))
 endif	# !__KEIL__
 
 ifeq ($(call iseeopt, __IAR__), yes)
-
 COMPUTED_OPT_BIN2HEX := $(OPT_BIN2HEX)
-
 else	# __IAR__ (Default compiler toolchain)
-
 ifeq ($(call iseeopt, __CCS__), yes)
 COMPUTED_OPT_HEX2BIN := $(OPT_HEX2BIN)
 COMPUTED_OPT_OBJDUMP2HEX := $(OPT_OBJDUMP2HEX)
 endif	# __CCS__
-
 endif	# !__IAR__ (Default compiler toolchain)
 
-## Select input filename format ##
+##
+# Select input filename format ##
+##
+
+ifeq ($(call iseeopt, __GNU__), yes)
+
+SOURCEFILE = $(call native_path,$<)
+else	# __GNU__
+
 SOURCEFILE = $(call short_native_path,$(dir $<))\\$(notdir $<)
+endif	# !__GNU__
+
 TARGETFILE = $(call native_path,$@)
-## 
+
+ 
 
 ## Main rules: all clean ##
 
@@ -253,7 +311,7 @@ all: make_directories $(ALL_LIBS) $(TARGET)
 
 clean:
 	@-rm -rf obj *.a *.map *.sim workspace *.htm *.$(CG_BIN_EXTENSION) \
-	*.$(CG_OUT_EXTENSION) *.$(CG_OBJDUMP_EXTENSION) *.$(CG_HEX_EXTENSION)
+	*.$(CG_OUT_EXTENSION) 
 # deps deps.pre ee_c_m0regs.h
 	@echo "CLEAN";
 
@@ -272,8 +330,8 @@ $(TARGET_NAME).$(CG_HEX_EXTENSION): $(TARGET_NAME).$(CG_OUT_EXTENSION)
 	$(TARGET_NAME).$(CG_OUT_EXTENSION) $(TARGET_NAME).$(CG_HEX_EXTENSION)
 
 else	# __IAR__ (Default compiler toolchain)
-
 ifeq ($(call iseeopt, __CCS__), yes)
+
 $(TARGET_NAME).$(CG_BIN_EXTENSION): $(TARGET_NAME).$(CG_OUT_EXTENSION) \
 				    $(TARGET_NAME).$(CG_HEX_EXTENSION)
 	@echo "HEX2BIN";
@@ -289,8 +347,26 @@ $(TARGET_NAME).$(CG_OBJDUMP_EXTENSION): $(TARGET_NAME).$(CG_OUT_EXTENSION)
 	@echo "OBJDUMP";
 	$(QUIET)$(EE_OBJDUMP) $(COMPUTED_OPT_OBJDUMP) \
 	$(SOURCEFILE) > $(TARGETFILE)
-endif
 
+else	# __CCS__ (Default compiler toolchain)
+ifeq ($(call iseeopt, __GNU__), yes)
+
+$(TARGET_NAME).$(CG_BIN_EXTENSION): $(TARGET_NAME).$(CG_OUT_EXTENSION)
+	@echo "OBJCOPY";
+	$(QUIET)$(EE_OBJCOPY) $(COMPUTED_OPT_OBJCOPY) \
+	$(SOURCEFILE) $(TARGETFILE)
+	
+else	# __GNU__ 
+ifeq ($(call iseeopt, __KEIL__), yes)
+
+$(TARGET_NAME).$(CG_BIN_EXTENSION): $(TARGET_NAME).$(CG_OUT_EXTENSION)
+	@echo "FROMELF";
+	$(QUIET)$(EE_FROMELF) $(COMPUTED_OPT_FROMELF) \
+	$(SOURCEFILE) --output $(TARGETFILE)
+
+endif	# __KEIL__	
+endif	# __GNU__
+endif	# __CCS__
 endif	# __IAR__ (Default compiler toolchain)
 
 $(TARGET_NAME).$(CG_OUT_EXTENSION): $(OBJS) $(LINKDEP) $(LIBDEP) 
@@ -309,8 +385,13 @@ ifeq ($(call iseeopt, __KEIL__), yes)
 	$(call native_path, $(patsubst %.$(CG_OUT_EXTENSION), %.map, $@)) \
 	$(COMPUTED_LINKERSCRIPT) --output $@ $(OBJS) $(OPT_LIBS)
 else	# __KEIL__
+ifeq ($(call iseeopt, __GNU__), yes)
+	$(QUIET)$(EE_LINK) $(COMPUTED_OPT_LINK) -o $@ $(OBJS) $(OPT_LIBS) \
+	-Wl,-T$(COMPUTED_LINKERSCRIPT)  -Wl,-Map,$(TARGET_NAME).map
+else	# __GNU__
 	$(QUIET)$(EE_LINK) $(COMPUTED_OPT_LINK) -o $@ $(OBJS) $(OPT_LIBS) \
 	$(COMPUTED_LINKERSCRIPT)
+endif	# !__GNU__
 endif	# !__KEIL__
 endif	# !__CCS__
 endif	# !__IAR__
@@ -318,6 +399,17 @@ endif	# !__IAR__
 ### Object file creation ###
 
 # produce the object file from assembly code in a single step
+## Fix me!!! - Only one rule for .s and .S
+$(OBJDIR)/%.o: %.S
+ifneq ($(call iseeopt, __CCS__), yes)
+	$(VERBOSE_PRINTASM) $(EE_ASM) $(COMPUTED_OPT_ASM) \
+	$(COMPUTED_INCLUDE_PATH) $(DEFS_ASM) $(SOURCEFILE) -o $(TARGETFILE)
+else
+	$(VERBOSE_PRINTASM) $(EE_ASM) $(COMPUTED_OPT_ASM) \
+	$(COMPUTED_INCLUDE_PATH) $(DEFS_ASM) $(SOURCEFILE) \
+	--output_file $(TARGETFILE)
+endif
+
 $(OBJDIR)/%.o: %.s
 ifneq ($(call iseeopt, __CCS__), yes)
 	$(VERBOSE_PRINTASM) $(EE_ASM) $(COMPUTED_OPT_ASM) \
@@ -330,7 +422,11 @@ endif
 
 # produce the object file from C code in a single step
 $(OBJDIR)/%.o: %.c
+	
 ifneq ($(call iseeopt, __CCS__), yes)
+	
+	
+	
 	$(VERBOSE_PRINTCC) $(EE_CC) $(COMPUTED_OPT_CC) \
 	$(COMPUTED_INCLUDE_PATH) $(DEFS_CC) $(DEFS_ISR) $(DEPENDENCY_OPT) \
 	$(SOURCEFILE) -o $(TARGETFILE)
