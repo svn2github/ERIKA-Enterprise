@@ -66,7 +66,12 @@ EEOPT += __USE_SPD_MISC__
 EEOPT += __USE_SPD_HASH_RCC__
 EEOPT += __USE_SPD_HASH_SYSCFG__
 
+ifeq ($(call iseeopt, __RTD_CYGWIN__), yes) 
 INCLUDE_PATH += "$(shell cygpath -w $(EEBASE)/contrib/st/STM32_EVAL/inc)"
+else
+INCLUDE_PATH += "$(EEBASE)/contrib/st/STM32_EVAL/inc"
+endif
+
 EE_SRCS_EVAL += contrib/st/STM32_EVAL/src/stm32f4_discovery.c
 
 EE_OBJS_EVAL := $(addprefix $(OBJDIR)/, $(patsubst %.c,%.o,$(patsubst %.s,%.o,$(EE_SRCS_EVAL))))

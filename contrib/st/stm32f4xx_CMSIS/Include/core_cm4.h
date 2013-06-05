@@ -89,8 +89,12 @@
   #define __INLINE        inline                                      /*!< inline keyword for IAR Compiler. Only available in High optimization mode! */
 
 #elif defined ( __GNUC__ )
-  #define __ASM            __asm                                      /*!< asm keyword for GNU Compiler          */
-  #define __INLINE         inline                                     /*!< inline keyword for GNU Compiler       */
+  #ifndef __ASM 
+    #define __ASM            __asm                                      /*!< asm keyword for GNU Compiler          */
+  #endif
+  #ifndef __INLINE
+    #define __INLINE         inline                                     /*!< inline keyword for GNU Compiler       */
+  #endif
 
 #elif defined ( __TASKING__ )
   #define __ASM            __asm                                      /*!< asm keyword for TASKING Compiler      */

@@ -50,7 +50,12 @@ EEOPT += __USE_SPD_MISC__
 EEOPT += __USE_SPD_RCC__
 EEOPT += __USE_SPD_SYSCFG__
 
+ifeq ($(call iseeopt, __RTD_CYGWIN__), yes) 
 INCLUDE_PATH += "$(shell cygpath -w $(EEBASE)/contrib/st/STM32_EVAL/inc)"
+else
+INCLUDE_PATH += "$(EEBASE)/contrib/st/STM32_EVAL/inc"
+endif
+
 SRCS += contrib/st/STM32_EVAL/src/stm32f4_discovery.c
 
 
