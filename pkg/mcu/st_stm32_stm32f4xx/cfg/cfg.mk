@@ -48,14 +48,19 @@ EEOPT += STM32F4XX
 
 # Provide a default crt0, but don't overwrite it if it's been already defined
 # (by the board)
+ifndef CRT0_SRCS
 
 ifeq ($(call iseeopt, __KEIL__), yes)
+CRT0_SRCS = pkg/mcu/st_stm32_stm32f4xx/src/startup_stm32f4xx_keil.s
+endif	# __KEIL__
 
-ifndef CRT0_SRCS
-CRT0_SRCS = pkg/mcu/st_stm32_stm32f4xx/src/startup_stm32f4xx.s
+ifeq ($(call iseeopt, __GNU__), yes)
+CRT0_SRCS = pkg/mcu/st_stm32_stm32f4xx/src/startup_stm32f4xx_gnu.S
+endif	# __GNU__
+
 endif	# !CRT0_SRCS
+
 
 SRCS += pkg/mcu/st_stm32_stm32f4xx/src/system_stm32f4xx.c
 
-endif	# __KEIL__
 endif	# __STM32__ && __STM32F4xx__
