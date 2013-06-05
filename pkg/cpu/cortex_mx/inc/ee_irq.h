@@ -144,9 +144,10 @@ do{\
 while(0)
 
 
+
 #define ISR1(f)			\
 void ISR1_ ## f(void);		\
-__IRQ void f(void)		\
+__IRQ void f(void) \
 {				\
 	ISR1_ ## f();		\
 }				\
@@ -155,7 +156,7 @@ void ISR1_ ## f(void)
 
 #define ISR2(f)			\
 void ISR2_ ## f(void);		\
-__IRQ void f(void)		\
+__IRQ void f(void) \
 {				\
 	EE_UREG ipl = 0;	\
 	EE_ISR2_prestub();	\

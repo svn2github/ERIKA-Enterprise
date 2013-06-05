@@ -59,7 +59,11 @@
 #ifdef __KEIL__
 #include "cpu/common/inc/ee_compiler_keil.h"
 #else	/* __KEIL__ */
+#ifdef __GNU__
+#include "cpu/common/inc/ee_compiler_gcc.h"
+#else	/* __GNU__ */
 #error Unsupported compiler
+#endif	/* !__GNU__ */
 #endif	/* !__KEIL__ */
 #endif	/* !__CCS__ */
 #endif	/* !__IAR__ */

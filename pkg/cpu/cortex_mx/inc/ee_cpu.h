@@ -60,7 +60,11 @@
 #ifdef __KEIL__
 #include "cpu/common/inc/ee_compiler_keil.h"
 #else	/* __KEIL__ */
+#ifdef __GNU__
+#include "cpu/common/inc/ee_compiler_gcc.h"
+#else	/* __GNU__ */
 #error Unsupported compiler
+#endif	/* !__GNU__ */
 #endif	/* !__KEIL__ */
 #endif	/* !__CCS__ */
 #endif	/* !__IAR__ */
@@ -85,6 +89,16 @@ typedef EE_UINT32 EE_FREG;
 #define	EE_HWREG_PTR		volatile EE_UREG *
 #define	EE_HWREG_ADDR(x)	((EE_HWREG_PTR)(x))
 #define	EE_HWREG(x)		(*EE_HWREG_ADDR(x))
+
+#ifdef __GNU__
+/* Get current SP */
+__INLINE__ EE_UINT32 __ALWAYS_INLINE__ __current_sp(void)
+{
+EE_UINT32 temp;
+__ASM ("mov %0, sp" :: "r" (temp));
+return temp;
+}
+#endif
 
 /* ISR Priority representation type */
 typedef EE_UREG EE_TYPEISR2PRIO;
@@ -294,7 +308,11 @@ __INLINE__ EE_TYPEISR2PRIO __ALWAYS_INLINE__ EE_cortex_mx_get_int_prio(void)
 #ifdef __KEIL__
 	prio = BASEPRI;
 #else	/* __KEIL__ */
+#ifdef __GNU__
+	__ASM volatile("MRS %0, BASEPRI" : "=r" (prio) :: );
+#else
 	__ASM volatile("MRS %0, BASEPRI" :: "=r" (prio));
+#endif	/* !__GNU__ */
 #endif	/* !__KEIL__ */
 #endif	/* !__CCS__ */
 
@@ -323,7 +341,11 @@ __INLINE__ void __ALWAYS_INLINE__ EE_cortex_mx_set_int_prio(
 	register EE_FREG BASEPRI __ASM("basepri");
 	BASEPRI = (prio << NVIC_INT_PRI_S);
 #else	/* __KEIL__ */
+#ifdef __GNU__
+	__ASM volatile("MSR BASEPRI, %0" :: "r" (prio << NVIC_INT_PRI_S) : );
+#else
 	__ASM volatile("MSR BASEPRI, %0" :: "r" (prio << NVIC_INT_PRI_S));
+#endif	/* !__GNU__ */
 #endif	/* !__KEIL__ */
 #endif	/* !__CCS__ */
 #endif	/* __CORTEX_M4__ */
