@@ -120,7 +120,7 @@ int main(void)
 		break;
 		case SCI_RX_ERROR:
 		/* Rx Error Error */
-			Sci_DeInit(SCI_CONFIG_DEFAULT_PTR);
+			Sci_DeInit();
 			Sci_Init(SCI_CONFIG_DEFAULT_PTR);
 			TxData = ASCII_BELL;
 		break;
