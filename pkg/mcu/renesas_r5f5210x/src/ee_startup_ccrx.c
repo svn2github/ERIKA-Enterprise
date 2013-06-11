@@ -68,8 +68,16 @@
 void main(void);
 void _INITSCT(void);
 
-/* Enable interrupt (bit16 PWS register) */ 
+#if	(	\
+  defined(__OO_BCC1__) || defined(__OO_BCC2__) || \
+  defined(__OO_ECC1__) || defined(__OO_ECC2__) \
+)
+/* OSEK Kernels should be enable interrupt inside StartOS() */
+#define EE_PSW_INIT_MASK 0x00000000
+#else
+/* Enable interrupt (bit16 PWS register) */
 #define EE_PSW_INIT_MASK 0x00010000
+#endif
 
 #pragma section EE_RX200_RES_REG
 
