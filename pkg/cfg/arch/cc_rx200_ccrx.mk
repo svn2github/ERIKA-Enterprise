@@ -58,7 +58,7 @@ BINDIR_CYG := /usr/bin
 
 #CCRX_ROOT: CCRX Renesas Root Folder.
 #          Default "C:\Programmi\Renesas\Hew\Tools\Renesas\RX\1_2_0".
-RX_TOOL_ROOT := $(call short_native_path,$(CCRX_ROOT))
+RX_TOOL_ROOT := $(shell cygpath -u $(call short_native_path,$(CCRX_ROOT)))
 
 RX_BIN_DIR := $(RX_TOOL_ROOT)/bin
 #RX_LIB_DIR := $(RX_TOOL_ROOT)/lib
@@ -72,7 +72,7 @@ ifndef INC_RX
 export INC_RX := $(shell cygpath -lw '$(CCRX_ROOT)\\Include')
 endif
 
-export PATH := $(PATH):$(shell cygpath -lw '$(RX_BIN_DIR)')
+export PATH := $(PATH):$(BIN_RX)
 
 # Bin directories used for compilation
 # BINDIR_ASM      - directory of the Assembler
