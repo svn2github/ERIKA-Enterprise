@@ -41,12 +41,42 @@
 #include	"ee_internal.h"
 #include	"cpu/rx200/inc/ee_utils.h"
 
-void EE_delay_us(EE_UINT32 delay)
+#pragma inline_asm (EE_rx200_delay_us, EE_rx200_delay_ticks)
+
+static void EE_rx200_delay_us(EE_UREG t)
 {
-	if (delay == 0)
-		return;	
-	__rx200_delay_us(delay);
+/*
+ * Every loop is about 3 cycles.
+ * Whit a clock of 50Hz, it is 20 nsec/cycle.
+ * 16 * 20 * 3 = 0,96 usec
+ */
+DelayusLoop:
+	MOV.L #128, R2;
+
+DelayusInnerLoop:
+	SUB #1, R2;
+	BNZ DelayusInnerLoop;
+
+	SUB #1, R1;		/* t--     */
+	BNZ DelayusLoop;	/* t == 0? */
 }
 
+void EE_delay_us(EE_UREG delay)
+{
+  if (delay == 0)
+	  return;	
+  EE_rx200_delay_us(delay);
+}
 
+static void EE_rx200_delay_ticks(EE_UREG t)
+{
+DelayTicksLoop:
+	SUB #1, R1;		/* t--      */
+	BNZ DelayTicksLoop;	/* t == 0 ? */
+}
 
+void EE_delay_ticks(EE_UREG ticks)
+{
+  ticks >>= 0x02U;	/* t /= 4; */
+  if (ticks) { EE_rx200_delay_ticks(ticks); }
+}

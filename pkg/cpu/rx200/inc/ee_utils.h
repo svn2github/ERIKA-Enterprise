@@ -54,27 +54,8 @@
 #error Unsupported compiler
 #endif
 
-void EE_delay_us(EE_UINT32 delay);
+void EE_delay_us(EE_UREG delay);
 
-
-#pragma inline_asm (__rx200_delay_us)
-
-static void __rx200_delay_us(EE_FREG t)
-{
-/* Every loop is about 3 cycles.
-  Whit a clock of 50Hz, it is 20 nsec/cycle.
-  16 * 20 * 3 = 0,96 usec
-*/
-DelayLoop:
-	MOV.L #128, R2;
-	
-InnerLoop:	
-	SUB #1, R2;
-	BNZ InnerLoop;
-	
-	SUB #1, R1; /* t--*/
-	BNZ DelayLoop; /* t=0?*/	
-}
-
+void EE_delay_ticks(EE_UREG ticks);
 
 #endif /* __INCLUDE_RX200_UTILS_H__ */
