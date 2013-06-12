@@ -42,14 +42,8 @@
 
 ifeq ($(call iseeopt, __USE_STM32F4XX_CMSIS__), yes)
 
-ifeq ($(call iseeopt, __RTD_CYGWIN__), yes) 
-INCLUDE_PATH += "$(shell cygpath -w $(EEBASE)/contrib/st/stm32f4xx_CMSIS/Include)"
-INCLUDE_PATH += "$(shell cygpath -w $(EEBASE)/contrib/st/stm32f4xx_CMSIS/Device/STM32F4xx/Include)"
-INCLUDE_PATH += "$(shell cygpath -w $(EEBASE)/contrib/st/stm32f4xx_StdPeriph_Driver/inc)"
-else
-INCLUDE_PATH += "$(EEBASE)/contrib/st/stm32f4xx_CMSIS/Include"
-INCLUDE_PATH += "$(EEBASE)/contrib/st/stm32f4xx_CMSIS/Device/STM32F4xx/Include"
-INCLUDE_PATH += "$(EEBASE)/contrib/st/stm32f4xx_StdPeriph_Driver/inc"
-endif
+INCLUDE_PATH += $(EEBASE)/contrib/st/stm32f4xx_CMSIS/Include
+INCLUDE_PATH += $(EEBASE)/contrib/st/stm32f4xx_CMSIS/Device/STM32F4xx/Include
+INCLUDE_PATH += $(EEBASE)/contrib/st/stm32f4xx_StdPeriph_Driver/inc
 
 endif
