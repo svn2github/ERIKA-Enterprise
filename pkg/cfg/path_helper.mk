@@ -227,11 +227,11 @@ native_path = $(strip $1)
 
 endif
 
-ifeq ($(findstring Linux, $(MYOS)), Linux)
-unix_path = $1
-else
+ifeq ($(call iseeopt, __RTD_CYGWIN__), yes)
 #unix_path = $(shell cygpath -u -a '$1' | sed -e 's/ /\\ /g')
 unix_path = $(shell cygpath -u -a '$1')
+else
+unix_path = $1
 endif
 
 ifeq ($(call iseeopt, __RTD_CYGWIN__), yes)
