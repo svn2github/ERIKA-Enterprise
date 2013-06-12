@@ -62,7 +62,6 @@ CG_TOOL_ROOT := $(GNU_ARM_ROOT)
 ifeq ($(call iseeopt, __RTD_CYGWIN__), yes) 
 CG_BIN_DIR = $(shell cygpath -u "$(CG_TOOL_ROOT)/bin")
 else
-#AB: FIXME
 CG_BIN_DIR = $(CG_TOOL_ROOT)/bin
 endif
 
@@ -72,14 +71,20 @@ ifndef EABI_GCC_PREFIX
 EABI_GCC_PREFIX := arm-none-eabi
 endif
 
-# MM: Check!!!
 ifndef CG_LIB_DIR
+ifeq ($(call iseeopt, __RTD_CYGWIN__), yes) 
+CG_LIB_DIR = $(shell cygpath -u "$(CG_TOOL_ROOT)/$(EABI_GCC_PREFIX)/lib")
+else
 CG_LIB_DIR := $(CG_TOOL_ROOT)/$(EABI_GCC_PREFIX)/lib
 endif
+endif
 
-# MM: Check!!!
 ifndef CG_INCLUDE_DIR
+ifeq ($(call iseeopt, __RTD_CYGWIN__), yes) 
+CG_INCLUDE_DIR = $(shell cygpath -u "$(CG_TOOL_ROOT)/$(EABI_GCC_PREFIX)/include")
+else
 CG_INCLUDE_DIR := $(CG_TOOL_ROOT)/$(EABI_GCC_PREFIX)/include
+endif
 endif
 
 ifdef TMPDIR
@@ -176,6 +181,8 @@ endif	# !ONLY_LIBS
 # we also consider the current directory because the app could be compiled
 # from the config files generated from eclipse...
 OPT_INCLUDE = $(foreach d,$(INCLUDE_PATH),$(addprefix -I,$(call native_path,$d)))
+
+
 
 
 
