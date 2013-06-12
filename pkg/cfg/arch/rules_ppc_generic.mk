@@ -40,6 +40,7 @@
 
 ## Author: 2010 Fabio Checconi
 ## 2010-2011 Bernardo  Dal Seno
+## 2013 Eugen Kleinschmidt
 
 # Enable verbose output from EE_OPT
 ifeq ($(call iseeopt, VERBOSE), yes)
@@ -83,6 +84,10 @@ else
 LOCK_STEP = 0
 LS_FLAG =
 endif
+endif
+ifeq ($(call iseeopt, EE_MPC5644A), yes)
+PPC_MCU_MODEL = mpc5644a
+T32_FLASH_BIN = c90fl5674.bin
 endif
 ifndef PPC_MCU_MODEL
 $(error No known PPC MCU model found in EE_OPT)

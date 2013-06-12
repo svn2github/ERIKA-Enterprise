@@ -43,6 +43,7 @@
 ## 2005 Antonio Romano
 ## 2010 Bernardo  Dal Seno
 ## CVS: $Id: rules.mk,v 1.33 2008/01/14 10:35:34 pj Exp $
+## 2013 Eugen Kleinschmidt
 
 # Include templates and functions to handle paths
 include $(EEBASE)/pkg/cfg/path_helper.mk
@@ -170,7 +171,7 @@ EEOPT +=  __PPCE200ZX__
 endif
 ifeq ($(call iseeopt, __PPCE200ZX__), yes)
 ifeq ($(or $(call iseeopt, __MPC5674F__), $(call iseeopt, __MPC5668__), \
-	$(call iseeopt, __MPC5668G__), $(call iseeopt, EE_MPC5643L)), yes)
+	$(call iseeopt, __MPC5668G__), $(call iseeopt, EE_MPC5643L) , $(call iseeopt, EE_MPC5644A)), yes)
 include $(EEBASE)/pkg/cfg/arch/rules_ppc_generic.mk
 endif
 endif # __PPCE200ZX__

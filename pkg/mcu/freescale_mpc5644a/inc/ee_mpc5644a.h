@@ -39,27 +39,34 @@
  * ###*E*### */
 
 /*
- * MCU register map
- * Author: 2011 Bernardo  Dal Seno
- *         2012 Francesco Esposito
+ * MPC5644A register map
  *         2013 Eugen Kleinschmidt
  */
 
-#ifndef EE_E200ZX_MCU_REGS_H
-#define EE_E200ZX_MCU_REGS_H
+#ifndef EE_MCU_MPC5644A_H
+#define EE_MCU_MPC5644A_H
 
-/* Include the appropriate file according to the target MCU */
+/* ISO int types used by MPC5644A.h */
+#define __EE_STDINT_SKIP_64BIT__
+#include <cpu/common/inc/ee_stdint.h>
 
-#ifdef __MPC5668__
-#include <mcu/freescale_mpc5668/inc/ee_mpc5668.h>
-#elif defined __MPC5674F__
-#include <mcu/freescale_mpc5674f/inc/ee_mpc5674f.h>
-#elif defined EE_MPC5643L
-#include <mcu/freescale_mpc5643l/inc/ee_mpc5643l.h>
-#elif defined EE_MPC5644A
-#include <mcu/freescale_mpc5644a/inc/ee_mpc5644a.h>
-#else
-#error "No known MCU found"
-#endif
+#include "MPC5644A.h"
 
-#endif /* EE_E200ZX_MCU_REGS_H */
+#define EE_E200ZX_MAX_EXT_IRQ 256
+
+/* These are used for compatibility with multi-core CPUs */
+#define INTC_CPR (INTC.CPR)
+#define INTC_IACKR (INTC.IACKR)
+#define INTC_EOIR (INTC.EOIR)
+/* Default external interrupt priority */
+#define EE_E200ZX_INTC_CURRPROC 0U
+
+#ifndef EE_ISR_DYNAMIC_TABLE
+void EE_mpc5644a_initialize_external_IRQ_priorities(void);
+#endif /* __STATIC_ISR_TABLE__ */
+
+#define SET_INT_PRIO(level, pri) \
+			INTC.PSR[level - EE_E200ZX_MAX_CPU_EXCP].R \
+			= (uint8_t)(pri)
+
+#endif /* EE_MCU_MPC5644A_H */

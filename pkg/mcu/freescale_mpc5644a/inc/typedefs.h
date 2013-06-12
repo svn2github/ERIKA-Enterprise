@@ -37,29 +37,21 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
-
 /*
- * MCU register map
+ * Type definitions for Freescale headers
  * Author: 2011 Bernardo  Dal Seno
- *         2012 Francesco Esposito
- *         2013 Eugen Kleinschmidt
  */
 
-#ifndef EE_E200ZX_MCU_REGS_H
-#define EE_E200ZX_MCU_REGS_H
+#ifndef FREESCALE_TYPEDEFS_H
+#define FREESCALE_TYPEDEFS_H
 
-/* Include the appropriate file according to the target MCU */
+typedef volatile int8_t vint8_t;
+typedef volatile uint8_t vuint8_t;
 
-#ifdef __MPC5668__
-#include <mcu/freescale_mpc5668/inc/ee_mpc5668.h>
-#elif defined __MPC5674F__
-#include <mcu/freescale_mpc5674f/inc/ee_mpc5674f.h>
-#elif defined EE_MPC5643L
-#include <mcu/freescale_mpc5643l/inc/ee_mpc5643l.h>
-#elif defined EE_MPC5644A
-#include <mcu/freescale_mpc5644a/inc/ee_mpc5644a.h>
-#else
-#error "No known MCU found"
-#endif
+typedef volatile int16_t vint16_t;
+typedef volatile uint16_t vuint16_t;
 
-#endif /* EE_E200ZX_MCU_REGS_H */
+typedef volatile int32_t vint32_t;
+typedef volatile uint32_t vuint32_t;
+
+#endif /* FREESCALE_TYPEDEFS_H */
