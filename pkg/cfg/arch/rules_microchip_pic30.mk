@@ -161,10 +161,14 @@ include $(PKGBASE)/cfg/cfg.mk
 ##
 ## Source files and paths
 ##
-## TODO - Select if compile crt0.s or link libpic30-$(PIC30_OFF).a
+## Select with an EE-option if compile crt0.s or link libpic30-$(PIC30_OFF).a
 ##
 
+ifeq ($(call iseeopt, __USE_CRT0_S__), yes)
 EE_BOOT_SRCS := frommchp/crt0.s
+else
+EE_BOOT_SRCS := 
+endif
 
 # Boot code containing _start should stay outside of the library in
 # case of normal compilation
