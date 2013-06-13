@@ -72,7 +72,7 @@
 #define EE_INTERNAL_ERR_INVALID_PIN    -1
 #define EE_INTERNAL_ERR_INVALID_SIGNAL -2
 
-#ifdef _RP0R0 /* Register Programmable Pin 0 (chosen to as proof of programmable I/O) */
+#if defined(_RP0R0) || defined(_RPOR0_RP20R_MASK) /* Register Programmable Pin 0 (chosen to as proof of programmable I/O) */
 EE_INT8 EE_conf_dspic_pin_in(EE_UINT8 pin, EE_UINT8 signal);
 EE_INT8 EE_conf_dspic_pin_out(EE_UINT8 pin, EE_UINT8 signal);
 #else
@@ -109,9 +109,9 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_stop_budget_timer(void)
 
 #endif /* __FRSH__ */
 
-#ifndef _RP0R0 /* Implementation for model that don't have riconfigurable pins */
-#if defined(__dsPIC33F__)  || defined(__PIC24H__) || defined(__dsPIC33E__) || defined(__PIC24E__) || \
-    defined(__dsPIC30F1010__) || defined(__dsPIC30F2020__) || defined(__dsPIC30F2023__)
+#if !defined(_RP0R0) && !defined(_RPOR0_RP20R_MASK) /* Implementation for model that don't have riconfigurable pins */
+#if defined(__dsPIC33F__)  || defined(__PIC24H__) \
+    || defined(__dsPIC30F1010__) || defined(__dsPIC30F2020__) || defined(__dsPIC30F2023__)
 
 __INLINE__ EE_INT8 EE_conf_dspic_pin_in(EE_UINT8 pin, EE_UINT8 signal){
     switch (signal) {
@@ -119,13 +119,21 @@ __INLINE__ EE_INT8 EE_conf_dspic_pin_in(EE_UINT8 pin, EE_UINT8 signal){
             TRISFbits.TRISF2 = 1;     /* Set UART1 In RX Pin */
         break;
         case U1CTS_SIGNAL:
+            #ifdef _TRISD14
             TRISDbits.TRISD14 = 1;    /* Set UART1 In CTS Pin */
+            #else
+            TRISDbits.TRISD9 = 1;    /* Set UART1 In CTS Pin */
+            #endif
         break;
         case U2RX_SIGNAL:
             TRISFbits.TRISF4 = 1;     /* Set UART2 In RX Pin */
         break;
         case U2CTS_SIGNAL:
+            #ifdef _TRISF12
             TRISFbits.TRISF12 = 1;    /* Set UART2 In CTS Pin */
+            #else
+            TRISBbits.TRISB8 = 1;    /* Set UART2 In CTS Pin */
+            #endif
         break;
         /* TODO: add all possible configurable INs */
         default:
@@ -139,12 +147,20 @@ __INLINE__ EE_INT8 EE_conf_dspic_pin_out(EE_UINT8 pin, EE_UINT8 signal){
             TRISFbits.TRISF3 = 0;        /* Set UART1 Out TX Pin */
         break;
         case U1RTS_SIGNAL:
+            #ifdef _TRISD15
             TRISDbits.TRISD15 = 0;       /* Set UART1 Out RTS Pin */
+            #else
+            TRISFbits.TRISF6 = 0;       /* Set UART1 Out RTS Pin */
+            #endif
         break;
         case U2TX_SIGNAL:
             TRISFbits.TRISF5 = 0;        /* Set UART2 Out TX Pin */
         case U2RTS_SIGNAL:
+            #ifdef _TRISF13
             TRISFbits.TRISF13 = 0;       /* Set UART2 Out RTS Pin */
+            #else
+            TRISBbits.TRISB14 = 0;       /* Set UART2 Out RTS Pin */
+            #endif
         break;
         /* TODO: add all possible configurable OUTs */
         default:
