@@ -119,18 +119,18 @@ CPU mySystem {
 	/* this is the OIL part for the ISRs */
 	ISR EE_RX200_TXI0_ISR {
 		CATEGORY = 2;
-		ENTRY = "EE_RX200_TXI0_ISR";
+		ENTRY = "TXI0";
 		PRIORITY = 1;
 	};
 	
 	ISR EE_RX200_ERI0_ISR {
 		CATEGORY = 2;
-		ENTRY = "EE_RX200_ERI0_ISR";
+		ENTRY = "ERI0";
 	};
 	
 	ISR EE_RX200_RXI0_ISR {
 		CATEGORY = 2;
-		ENTRY = "EE_RX200_RXI0_ISR";
+		ENTRY = "RXI0";
 	};
 
 };
