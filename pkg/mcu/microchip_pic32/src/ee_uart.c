@@ -102,7 +102,7 @@ static EE_INT8 uart_init_port1A (EE_UINT32 baud, EE_UINT16 byte_format,
 
 	if ((mode & EE_UART_CTRL_MASK) == EE_UART_CTRL_FLOW) {
 		U1AMODEbits.RTSMD = 1;
-		U1AMODEbits.UEN = 0x10;
+		U1AMODEbits.UEN = 0b10;
 	} else {
 		U1AMODEbits.RTSMD = 0;
 		U1AMODEbits.UEN = 0;
@@ -217,7 +217,7 @@ static EE_INT8 uart_init_port2A (EE_UINT32 baud, EE_UINT16 byte_format,
 
 	if ((mode & EE_UART_CTRL_MASK) == EE_UART_CTRL_FLOW) {
 		U2AMODEbits.RTSMD = 1;
-		U2AMODEbits.UEN = 0x10;
+		U2AMODEbits.UEN = 0b10;
 	} else {
 		U2AMODEbits.RTSMD = 0;
 		U2AMODEbits.UEN = 0;
@@ -332,7 +332,7 @@ static EE_INT8 uart_init_port3A (EE_UINT32 baud, EE_UINT16 byte_format,
 
 	if ((mode & EE_UART_CTRL_MASK) == EE_UART_CTRL_FLOW) {
 		U3AMODEbits.RTSMD = 1;
-		U3AMODEbits.UEN = 0x10;
+		U3AMODEbits.UEN = 0b10;
 	} else {
 		U3AMODEbits.RTSMD = 0;
 		U3AMODEbits.UEN = 0;
