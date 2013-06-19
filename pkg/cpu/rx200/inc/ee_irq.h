@@ -49,6 +49,23 @@
 #ifndef __INCLUDE_RX200_IRQ_H__
 #define __INCLUDE_RX200_IRQ_H__
 
+#define	EE_ISR_UNMASKED	0x00000000U
+#define	EE_ISR_PRI_1	0x00000001U
+#define	EE_ISR_PRI_2	0x00000002U
+#define	EE_ISR_PRI_3	0x00000003U
+#define	EE_ISR_PRI_4	0x00000004U
+#define	EE_ISR_PRI_5	0x00000005U
+#define	EE_ISR_PRI_6	0x00000006U
+#define	EE_ISR_PRI_7	0x00000007U
+#define	EE_ISR_PRI_8	0x00000008U
+#define	EE_ISR_PRI_9	0x00000009U
+#define	EE_ISR_PRI_10	0x0000000AU
+#define	EE_ISR_PRI_11	0x0000000BU
+#define	EE_ISR_PRI_12	0x0000000CU
+#define	EE_ISR_PRI_13	0x0000000DU
+#define	EE_ISR_PRI_14	0x0000000EU
+#define	EE_ISR_PRI_15	0x0000000FU
+
 /* Use angled parenthesis to include the main "ee_internal.h" */
 #include "cpu/rx200/inc/ee_cpu.h"
 #include "cpu/common/inc/ee_context.h"
