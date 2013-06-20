@@ -71,5 +71,6 @@
 #define SYS_RESC_SW	0x0040U	/**< Software Reset */
 #define SYS_RESC_DSS	0x0080U	/**< Deep Software Stand-by Reset */
 #define SYS_RESC_CWS	0x0100U	/**< Cold (0) / Warm (1) Start Determination */
+#define SYS_RESC_EXT	0x0200U	/**< External Reset */
 
 #endif	/* __INCLUDE_RENESAS_R5F5210X_MCUREGS_H__ */
