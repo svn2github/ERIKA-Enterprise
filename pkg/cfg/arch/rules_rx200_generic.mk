@@ -239,7 +239,7 @@ $(OBJDIR)/%.obj: %.c
 #produce the runtime library
 $(RUNTIMELIB):
 	@echo "AR $(RUNTIMELIB)";
-	$(QUIET)$(EE_AR) -cpu=rx200 -output=$@ -head=runtime
+	$(QUIET)$(EE_AR) -nologo -cpu=rx200 -output=$@ -head=runtime
 
 	
 ##
