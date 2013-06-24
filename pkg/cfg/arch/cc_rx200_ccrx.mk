@@ -151,7 +151,7 @@ ifeq ($(call iseeopt, DEBUG), yes)
 OPT_ASM += -debug -listfile
 endif
 
-OPT_ASM += -goptimize 
+OPT_ASM += -goptimize -nologo
 
 # Specific option from the application makefile
 OPT_ASM += $(ASFLAGS)
