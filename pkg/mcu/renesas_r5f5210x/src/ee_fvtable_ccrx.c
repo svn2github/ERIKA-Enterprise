@@ -43,88 +43,124 @@
 	@brief Fixed Interrupt Vector Table for use with Renesas HEW.
 	@author Gianluca Franchino
 	@date 2012
+	@author Giuseppe Serano
+	@date 2013
  */
 
 #include "ee.h"
-#include "eecfg.h"
+#include "mcu/renesas_r5f5210x/inc/ee_nmi.h"
 
-//#pragma interrupt (EE_dummy)
-void EE_dummy(void){/* brk(){  } */}
+/* Dummy Trap */
+#pragma interrupt (EE_dummy_trap)
+void EE_dummy_trap(void)
+{
+    /* Go into an infinite loop.*/
+    while(1)
+    {
+    }
+}
 
-#ifndef EE_RX200_NON_MASKABLE_INT_ISR
-//#pragma interrupt (EE_rx200_non_maskable_int)
-void	EE_rx200_non_maskable_int(void) { while(1);}
+/* NMI Trap */
+#ifndef	EE_RX200_NMI_TRAP
+#define	EE_RX200_NMI_TRAP	EE_rx200_nmi_trap
+#pragma interrupt (EE_RX200_NMI_TRAP)
+void EE_RX200_NMI_TRAP(void)
+{
+    /* Go into an infinite loop.*/
+    while(1)
+    {
+    }
+}
 #else
-extern void	EE_rx200_non_maskable_int(void);
+extern void EE_RX200_NMI_TRAP(void);
 #endif
 
-#ifndef EE_RX200_SUPER_VIS_EXC_ISR
-//#pragma interrupt (EE_rx200_super_vis_exc)
-void	EE_rx200_super_vis_exc(void) {	while(1); }
+/* Supervisor Instruction Trap */
+#ifndef	EE_RX200_SVI_TRAP
+#define	EE_RX200_SVI_TRAP	EE_rx200_svi_trap
+#pragma interrupt (EE_RX200_SVI_TRAP)
+void EE_RX200_SVI_TRAP(void)
+{ 
+    /* Go into an infinite loop.*/
+    while(1)
+    {
+    }
+}
 #else
-extern void	EE_rx200_super_vis_exc(void);
+extern void EE_RX200_SVI_TRAP(void);
 #endif
 
-#ifndef EE_RX200_UNDEF_INST_EXC_ISR
-//#pragma interrupt (EE_rx200_undef_inst_exc)
-void	EE_rx200_undef_inst_exc(void) {	while(1); }
+/* Undefined Instruction Trap */
+#ifndef	EE_RX200_UI_TRAP
+#define	EE_RX200_UI_TRAP	EE_rx200_ui_trap
+#pragma interrupt (EE_RX200_UI_TRAP)
+void EE_RX200_UI_TRAP(void)
+{
+    /* Go into an infinite loop.*/
+    while(1)
+    {
+    }
+}
 #else
-extern void	EE_rx200_undef_inst_exc(void);
+extern void EE_RX200_UI_TRAP(void);
 #endif
 
-
-#ifndef EE_RX200_FLOTING_P_EXC_ISR
-//#pragma interrupt (EE_rx200_floting_p_exc)
-void	EE_rx200_floting_p_exc(void) {	while(1); }
+/* Floating Point Trap */
+#ifndef	EE_RX200_FP_TRAP
+#define	EE_RX200_FP_TRAP	EE_rx200_fp_trap
+#pragma interrupt (EE_RX200_FP_TRAP)
+void EE_RX200_FP_TRAP(void)
+{
+    /* Go into an infinite loop.*/
+    while(1)
+    {
+    }
+}
 #else
-extern void	EE_rx200_floting_p_exc(void);
+extern void EE_RX200_FP_TRAP(void);
 #endif
 
-#ifdef EE_RX200_RESET_ISR				// The reset handler
-extern void EE_rx200_RESET_ISR(void);
-#define EE_rx200_power_on_res EE_RX200_RESET_ISR
-#else
-extern void EE_rx200_power_on_res(void);
+/* Reset Trap */
+#ifndef	EE_RX200_RESET_TRAP
+#define	EE_RX200_RESET_TRAP	EE_rx200_reset_trap
 #endif
-
-
-/*GF: simile a questa*/
+extern void EE_RX200_RESET_TRAP(void);
 
 #pragma section C FIXEDVECT
 
 void (*const Fixed_Vectors[])(void) = {
-//;0xffffffd0  Exception(Supervisor Instruction)
-    EE_rx200_super_vis_exc,
-//;0xffffffd4  Reserved
-    EE_dummy,
-//;0xffffffd8  Reserved
-    EE_dummy,
-//;0xffffffdc  Exception(Undefined Instruction)
-    EE_rx200_undef_inst_exc,
-//;0xffffffe0  Reserved
-    EE_dummy,
-//;0xffffffe4  Exception(Floating Point)
-    EE_rx200_floting_p_exc,
-//;0xffffffe8  Reserved
-    EE_dummy,
-//;0xffffffec  Reserved
-    EE_dummy,
-//;0xfffffff0  Reserved
-    EE_dummy,
-//;0xfffffff4  Reserved
-    EE_dummy,
-//;0xfffffff8  NMI
-    EE_rx200_non_maskable_int,
-//;0xfffffffc  RESET
-//;<<VECTOR DATA START (POWER ON RESET)>>
-//;Power On Reset PC
-	EE_rx200_power_on_res                                                                                                                            
-//;<<VECTOR DATA END (POWER ON RESET)>>
+/* ;0xffffffd0  Exception (Supervisor Instruction) */
+	EE_RX200_SVI_TRAP,
+/* ;0xffffffd4  Reserved */
+	EE_dummy_trap,
+/* ;0xffffffd8  Reserved */
+	EE_dummy_trap,
+/* ;0xffffffdc  Exception (Undefined Instruction) */
+	EE_RX200_UI_TRAP,
+/* ;0xffffffe0  Reserved */
+	EE_dummy_trap,
+/* ;0xffffffe4  Exception (Floating Point) */
+	EE_RX200_FP_TRAP,
+/* ;0xffffffe8  Reserved */
+	EE_dummy_trap,
+/* ;0xffffffec  Reserved */
+	EE_dummy_trap,
+/* ;0xfffffff0  Reserved */
+	EE_dummy_trap,
+/* ;0xfffffff4  Reserved */
+	EE_dummy_trap,
+/* ;0xfffffff8  NMI */
+	EE_RX200_NMI_TRAP,
+/* ;0xfffffffc  RESET
+ * ;<<VECTOR DATA START (POWER ON RESET)>>
+ * ;Power On Reset PC */
+	EE_RX200_RESET_TRAP                                                                                                                            
+/* ;<<VECTOR DATA END (POWER ON RESET)>> */
 };
 
-#pragma address _MDEreg=0xffffff80 // MDE register (Single Chip Mode)
+#pragma address _MDEreg=0xffffff80	/* MDE register (Single Chip Mode) */
 #ifdef __BIG
-	const unsigned long _MDEreg = 0xfffffff8; // big
+const unsigned long _MDEreg = 0xfffffff8;	/* big endian */
 #else
-	const unsigned long _MDEreg = 0xffffffff; // little
+const unsigned long _MDEreg = 0xffffffff;	/* little endian */
 #endif

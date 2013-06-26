@@ -41,11 +41,13 @@
 /*
  * Initialization routines and startup code.
  * Author: 2012 Gianluca Franchino
+ * 	   2013 Gianluca Franchino
  */
 
 #include <machine.h>
 #include "mcu/renesas_r5f5210x/inc/ee_mcuregs.h"
 #include "mcu/renesas_r5f5210x/inc/ee_isr.h"
+#include "mcu/renesas_r5f5210x/inc/ee_nmi.h"
 
 #ifndef EE_USTACK_SIZE
 /* Define the user stack size */
@@ -72,7 +74,7 @@ void _INITSCT(void);
   defined(__OO_BCC1__) || defined(__OO_BCC2__) || \
   defined(__OO_ECC1__) || defined(__OO_ECC2__) \
 )
-/* OSEK Kernels should be enable interrupt inside StartOS() */
+/* OSEK Kernels should enable interrupt inside StartOS() */
 #define EE_PSW_INIT_MASK 0x00000000
 #else
 /* Enable interrupt (bit16 PWS register) */
@@ -81,55 +83,67 @@ void _INITSCT(void);
 
 #pragma section EE_RX200_RES_REG
 
-/*Set EE_rx200_power_on_res() as the entry routine.*/
-#pragma entry EE_rx200_power_on_res
+#ifndef	EE_RX200_RESET_TRAP
+#define	EE_RX200_RESET_TRAP	EE_rx200_reset_trap
+#endif
+
+/*Set EE_RX200_RESET_TRAP() as the entry routine.*/
+#pragma entry EE_RX200_RESET_TRAP
 /*
  * This is entry function, called just after the power on.
  * EE_rx200_power_on_res() follows the example provided by the
  * Renesas ccrx compiler manual.
  */
-void EE_rx200_power_on_res(void)
+void EE_RX200_RESET_TRAP(void)
 {
 	/*
-	* Set base address of interrupt vectore table (INTB) 
-	* at the start address of variable vector table section (ROM section).  
-	*/
+	 * Set base address of interrupt vectore table (INTB) 
+	 * at the start address of variable vector table section (ROM section).
+	 */
 	set_intb(__sectop("C$VECT"));
 
-	/*Initialize RAM are section. Quoting the compiler manual:
-	* Uninitialized data sections are initialized to zero. 
-	* For initialized data sections, the initial values of 
-	* the ROM area are copied to the RAM area."
-	*/
-	_INITSCT();					
-	
-	/*
-	 *Note: We assume that C/C++ library functions are note used.
-	 *To use those library functions, we have to add the initialization
-	 *code as suggested by the toolchain manual. 
-	 *See RX Family Compiler package manual.
+	/* Initialize RAM are section. Quoting the compiler manual:
+	 * Uninitialized data sections are initialized to zero. 
+	 * For initialized data sections, the initial values of 
+	 * the ROM area are copied to the RAM area."
+	 */
+	_INITSCT();
+
+	/* Note: We assume that C/C++ library functions are not used.
+	 * To use those library functions, we have to add the initialization
+	 * code as suggested by the toolchain manual.
+	 * See RX Family Compiler package manual.
 	 * We may enable this code using EEOPT
 	 */
-	 /*
-	 _INITLIB(); //This routine has to be written following the examples 
-				 //provided in the manual (pages 218-219).
+#if	0
+	/*
+	 * This routine has to be written following the examples provided in the
+	 * manual.
 	 */
+	 _INITLIB();
+#endif	/* 0 */
 
-    nop();
-	
+#ifdef	EE_RX200_NMI_TRAP
+	/* NMI Initialization. */
+	EE_rx200_init_nmi();
+#endif	/* EE_RX200_NMI_TRAP */
+
+	/* ISR Initialization. */
+	EE_rx200_init_isr();
+
 	/*
-	*Set PSW register
-	*/
+	 * Set PSW register
+	 */
 	set_psw(EE_PSW_INIT_MASK);
-	
+
 	/*
-	* Call main function.
-	*/
+	 * Call main function.
+	 */
 	main();
-	
+
 	/*
-	* Call a break interrupt.
-	*/
+	 * Call a break interrupt.
+	 */
 	brk();
 
 }

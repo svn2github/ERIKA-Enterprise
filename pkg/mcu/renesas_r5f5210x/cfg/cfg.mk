@@ -54,6 +54,7 @@ CRT0_SRCS += pkg/mcu/renesas_r5f5210x/src/ee_fvtable_ccrx.c
 CRT0_SRCS += pkg/mcu/renesas_r5f5210x/src/ee_vtable_ccrx.c
 CRT0_SRCS += pkg/mcu/renesas_r5f5210x/src/ee_dbsct_ccrx.c
 CRT0_SRCS += pkg/mcu/renesas_r5f5210x/src/ee_sbrk_ccrx.c
+CRT0_SRCS += pkg/mcu/renesas_r5f5210x/src/ee_nmi_ccrx.c
 endif	# !CRT0_SRCS
 
 
