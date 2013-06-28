@@ -100,7 +100,7 @@ const Port_PinModeConfType Port3Pin1_3_4Conf[] = {
  * Modes Configuration Container.
  */
 const Port_PinModeConfType PortTXDPinConf[] = {
-	{ /* SCI TXD0*/
+	{ /* SCI TXDx*/
 		PORT_PIN_MODE_SCI,		/* Port pin mode: SCI */
 		PORT_PIN_PFS_TXD		/* Select as IRQ pin  */
 	}
@@ -112,7 +112,7 @@ const Port_PinModeConfType PortTXDPinConf[] = {
  * Modes Configuration Container.
  */
 const Port_PinModeConfType PortRXDPinConf[] = {
-	{ /* SCI RXD0*/
+	{ /* SCI RXDx*/
 		PORT_PIN_MODE_SCI,		/* Port pin mode: SCI */
 		PORT_PIN_PFS_RXD		/* Select as IRQ pin  */
 	}
@@ -224,11 +224,11 @@ const Port_PinConfType SCIPortPins[] = {
 		&PortRXDPinConf[0],		/* PortPinSupportedModes	   	*/
 		FALSE					/* PortPinModeChangeable		*/
 	},
-#if 0	
+	
 	{
 		PORT_PIN_OUT,			/* PortPinDirection		      	*/
 		FALSE,					/* PortPinDirectionChangeable 	*/
-		PORT_1_PIN_5,			/* PortPinId			      	*/
+		PORT_2_PIN_6,			/* PortPinId			      	*/
 		PORT_PIN_MODE_SCI,		/* PortPinInitialMode		   	*/
 		PORT_PIN_LEVEL_HIGH,	/* PortPinLevelValue		   	*/
 		0x00000001,				/* PortPinModeNumber		   	*/
@@ -238,13 +238,14 @@ const Port_PinConfType SCIPortPins[] = {
 	{
 		PORT_PIN_IN,			/* PortPinDirection		      	*/
 		FALSE,					/* PortPinDirectionChangeable	*/
-		PORT_1_PIN_6,			/* PortPinId			      	*/
+		PORT_3_PIN_0,			/* PortPinId			      	*/
 		PORT_PIN_MODE_SCI,		/* PortPinInitialMode		   	*/
 		PORT_PIN_LEVEL_HIGH,	/* PortPinLevelValue		   	*/
 		0x00000001,				/* PortPinModeNumber		   	*/
 		&PortRXDPinConf[0],		/* PortPinSupportedModes	   	*/
 		FALSE					/* PortPinModeChangeable	   	*/
 	},
+#if 0	
 	{
 		PORT_PIN_OUT,			/* PortPinDirection		      	*/
 		FALSE,					/* PortPinDirectionChangeable 	*/
@@ -265,7 +266,7 @@ const Port_PinConfType SCIPortPins[] = {
 		&PortRXDPinConf[0],		/* PortPinSupportedModes	   	*/
 		FALSE					/* PortPinModeChangeable	   	*/
 	},
-		{
+	{
 		PORT_PIN_OUT,			/* PortPinDirection		      	*/
 		FALSE,					/* PortPinDirectionChangeable 	*/
 		PORT_3_PIN_3,			/* PortPinId			      	*/
@@ -285,6 +286,7 @@ const Port_PinConfType SCIPortPins[] = {
 		&PortRXDPinConf[0],		/* PortPinSupportedModes	   	*/
 		FALSE					/* PortPinModeChangeable	   	*/
 	},
+#endif
 	{
 		PORT_PIN_OUT,			/* PortPinDirection		      	*/
 		FALSE,					/* PortPinDirectionChangeable 	*/
@@ -305,6 +307,7 @@ const Port_PinConfType SCIPortPins[] = {
 		&PortRXDPinConf[0],		/* PortPinSupportedModes	   	*/
 		FALSE					/* PortPinModeChangeable	   	*/
 	},
+#if 0	
 	{
 		PORT_PIN_OUT,			/* PortPinDirection		      	*/
 		FALSE,					/* PortPinDirectionChangeable 	*/
@@ -365,7 +368,7 @@ const Port_ConfigType Port_Config[] = {
 #if 0
 			14U, /* PortNumberOfPortPins	*/
 #else
-			2U, /* PortNumberOfPortPins	*/
+			6U, /* PortNumberOfPortPins	*/
 #endif
 			&SCIPortPins[0] /*PortPins */
 		}
