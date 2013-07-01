@@ -144,6 +144,12 @@ EE_SRCS += contrib/as/arch/rx200_5f5210x/ccrx/drivers/Gpt.c
 EE_SRCS += contrib/as/arch/rx200_5f5210x/ccrx/drivers/Gpt_Irq.c
 endif
 
+ifeq ($(call iseeopt, __AS_SPI_DRIVER__), yes)
+EE_SRCS += contrib/as/arch/rx200_5f5210x/ccrx/drivers/Spi.c
+EE_SRCS += contrib/as/arch/rx200_5f5210x/ccrx/drivers/Spi_Irq.c
+EE_SRCS += contrib/as/arch/rx200_5f5210x/ccrx/drivers/Spi_Handler.c
+endif
+
 ifeq ($(call iseeopt, __AS_WDG_IWDT_DRIVER__), yes)
 EE_SRCS += contrib/as/arch/rx200_5f5210x/ccrx/drivers/Wdg_IWDT.c
 EE_SRCS += contrib/as/arch/rx200_5f5210x/ccrx/drivers/Wdg_IWDT_Irq.c

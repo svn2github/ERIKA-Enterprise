@@ -268,6 +268,19 @@ endif
 endif	# __NO_APP__
 endif	# __AS_GPT_DRIVER__
 
+ifeq ($(call iseeopt, __AS_SPI_DRIVER__), yes)
+EE_SRCS_AUTOSAR += contrib/as/arch/rx200_5f5210x/ccrx/drivers/Spi.c
+EE_SRCS_AUTOSAR += contrib/as/arch/rx200_5f5210x/ccrx/drivers/Spi_Irq.c
+EE_SRCS_AUTOSAR += contrib/as/arch/rx200_5f5210x/ccrx/drivers/Spi_Handler.c
+ifeq ($(call iseeopt, __NO_APP__), yes)
+ifneq ($(filter %Spi_Cfg.c, $(APP_SRCS)),)
+EE_SRCS_AUTOSAR += $(filter %Spi_Cfg.c, $(APP_SRCS))
+else
+EE_SRCS_AUTOSAR += $(OUTBASE)/Spi_Cfg.c
+endif
+endif	# __NO_APP__
+endif	# __AS_SPI_DRIVER__
+
 ifeq ($(call iseeopt, __AS_WDG_IWDT_DRIVER__), yes)
 EE_SRCS_AUTOSAR += contrib/as/arch/rx200_5f5210x/ccrx/drivers/Wdg_IWDT.c
 EE_SRCS_AUTOSAR += contrib/as/arch/rx200_5f5210x/ccrx/drivers/Wdg_IWDT_Irq.c
