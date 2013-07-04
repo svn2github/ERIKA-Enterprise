@@ -1,7 +1,7 @@
 # ###*B*###
 # ERIKA Enterprise - a tiny RTOS for small microcontrollers
 # 
-# Copyright (C) 20011  Evidence Srl
+# Copyright (C) 2011  Evidence Srl
 # 
 # This file is part of ERIKA Enterprise.
 # 
@@ -45,7 +45,7 @@
 ##
 
 # Select object file format
-CG_OUT_EXTENSION := out
+CG_OUT_EXTENSION := axf
 
 CG_BIN_EXTENSION := bin
 

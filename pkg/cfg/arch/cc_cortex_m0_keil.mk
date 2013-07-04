@@ -139,12 +139,11 @@ OPT_AR = -r --create
 #Note: all warnings are enabled by default
 #Note: C is the default language
 ifeq ($(call iseeopt, __CORTEX_M0__), yes)
-#OPT_CC += --cpu Cortex-M4.fp
 OPT_CC += --cpu Cortex-M0
 endif
 
 ifeq ($(call iseeopt, DEBUG), yes)
-OPT_CC += -g
+OPT_CC += -g -O0
 endif
 
 OPT_CC += -c -D__EVAL
@@ -154,7 +153,6 @@ OPT_CC += $(CFLAGS)
 
 ##OPT_ASM are the options for assembler invocation
 ifeq ($(call iseeopt, __CORTEX_M0__), yes)
-#OPT_ASM += --cpu Cortex-M4.fp
 OPT_ASM += --cpu Cortex-M0
 endif
 
@@ -169,7 +167,6 @@ OPT_ASM += $(ASFLAGS)
 
 ## OPT_LINK represents the options for linker invocation
 ifeq ($(call iseeopt, __CORTEX_M0__), yes)
-#OPT_LINK += --cpu Cortex-M4.fp
 OPT_LINK += --cpu Cortex-M0
 endif
 
