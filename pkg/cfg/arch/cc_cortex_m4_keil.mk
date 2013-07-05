@@ -45,7 +45,11 @@
 ##
 
 # Select object file format
+ifeq ($(call iseeopt, __KEIL_USE_AXF_EXT__), yes)
 CG_OUT_EXTENSION := axf
+else
+CG_OUT_EXTENSION := out
+endif
 
 CG_BIN_EXTENSION := bin
 
