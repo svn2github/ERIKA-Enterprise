@@ -60,6 +60,21 @@ void EE_e200zx_system_timer_handler(void);
 
 #ifdef EE_ISR_DYNAMIC_TABLE
 void EE_e200zx_system_timer_handler(void)
+
+/*
+ * The following definitions handle the case of decrementer
+ * used as system timer in case of dynamic ISRs table. Notice
+ * that while EE_DECREMENTER_LEVEL equal to 10 makes sense
+ * since decrementer is mapped to IVOR10, the priority
+ * set to 0 does not because PowerPC CPU exception
+ * priorities cannot be manipulated (they are fixed).
+ * It represents a dummy value just to provide a parameter
+ * to pass to EE_e200z7_register_ISR() function, but
+ * consider that such value is not internally used.
+ */
+#define EE_DECREMENTER_LEVEL    10
+#define EE_DECREMENTER_PRIORITY 0
+
 #else
 ISR2_INT(EE_e200zx_system_timer_handler)
 #endif
