@@ -49,8 +49,17 @@
 #ifndef __INCLUDE_CPU_COMMON_EE_STDINT_H__
 #define __INCLUDE_CPU_COMMON_EE_STDINT_H__
 
-#if (defined(__PIC32__) && defined(__GNUC__)) || \
-  (defined(__CORTEX_MX__) && (defined(__CCS__) || defined(__IAR__) || defined(__KEIL__)))
+#if	(					\
+  (defined(__PIC32__) && defined(__GNUC__)) ||	\
+  (						\
+	defined(__CORTEX_MX__) &&		\
+	(					\
+		defined(__CCS__) ||		\
+		defined(__IAR__) ||		\
+		defined(__KEIL__)		\
+	)					\
+  ) ||						\
+  (defined(__RX200__) && defined(__CCRX__))
 /* When supported, include stdint.h to avoid conflicting definitions of
  * exact-size types. */
 #include <stdint.h>
