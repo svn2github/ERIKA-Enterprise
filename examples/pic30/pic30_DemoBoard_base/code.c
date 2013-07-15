@@ -379,7 +379,7 @@ int main(void)
 	
 	EE_accelerometer_init();
 	EE_accelerometer_wakeup();
-	EE_eccelerometer_setglevel(0);	// set the level to 1.5 g*/
+	EE_accelerometer_setglevel(0);	// set the level to 1.5 g*/
 	/* Init analog sensors */
 	EE_analog_init();
 

@@ -992,27 +992,13 @@ __INLINE__ EE_UINT16 __ALWAYS_INLINE__ EE_analog_get_light( void )
 
 extern EE_UINT8 EE_accelerometer_g;
 
-__INLINE__ void __ALWAYS_INLINE__ EE_accelerometer_init( void )
-{
-	EE_analog_init();
+__INLINE__ void __ALWAYS_INLINE__ EE_accelerometer_sleep( void )  { LATDbits.LATD3 = 0; }
 
-	// Set output pins for g-select and sleep options
-	TRISDbits.TRISD3  = 0;
-	TRISGbits.TRISG15 = 0;   // GS1
-	TRISCbits.TRISC13 = 0;   // GS2
+__INLINE__ void __ALWAYS_INLINE__ EE_accelerometer_wakeup( void ) { LATDbits.LATD3 = 1; }
 
-	// Set g-selet to 6g
-	LATGbits.LATG15 = 1;
-	LATCbits.LATC13 = 1;
-	EE_accelerometer_g = 3;
+__INLINE__ EE_UINT8 __ALWAYS_INLINE__ EE_accelerometer_getglevel( void ) { return EE_accelerometer_g; }
 
-	// Disable Sleep mode
-	LATDbits.LATD3 = 1;
-}
-
-__INLINE__ EE_UINT8 __ALWAYS_INLINE__ EE_eccelerometer_getglevel( void ) { return EE_accelerometer_g; }
-
-__INLINE__ void __ALWAYS_INLINE__ EE_eccelerometer_setglevel( EE_UINT8 level)
+__INLINE__ void __ALWAYS_INLINE__ EE_accelerometer_setglevel( EE_UINT8 level)
 {
 	if (level <= 0) {
 		EE_accelerometer_g = 0;
@@ -1033,9 +1019,27 @@ __INLINE__ void __ALWAYS_INLINE__ EE_eccelerometer_setglevel( EE_UINT8 level)
 	}
 }
 
-__INLINE__ void __ALWAYS_INLINE__ EE_accelerometer_sleep( void )  { LATDbits.LATD3 = 0; }
+__INLINE__ void __ALWAYS_INLINE__ EE_accelerometer_config( void )
+{
+	// Set output pins for g-select and sleep options
+	TRISDbits.TRISD3  = 0;
+	TRISGbits.TRISG15 = 0;   // GS1
+	TRISCbits.TRISC13 = 0;   // GS2
 
-__INLINE__ void __ALWAYS_INLINE__ EE_accelerometer_wakeup( void ) { LATDbits.LATD3 = 1; }
+	// Set g-selet to 6g
+	EE_accelerometer_setglevel(0);
+
+	// Disable Sleep mode
+	EE_accelerometer_wakeup();
+}
+
+__INLINE__ void __ALWAYS_INLINE__ EE_accelerometer_init( void )
+{
+	EE_analog_init();
+
+	// Set output pins for g-select and sleep options
+	EE_accelerometer_config();
+}
 
 __INLINE__ float __ALWAYS_INLINE__ EE_accelerometer_getx( void )
 {
