@@ -53,6 +53,10 @@
 
 #include "cpu/pic30/inc/ee_irqstub.h"
 
+#ifdef __USE_DAC__
+volatile int ee_flexdmb_dac_init = 0;
+#endif
+
 //Start GF
 /* /\************************************************************************* */
 /*  Buttons and PICDEM Z */

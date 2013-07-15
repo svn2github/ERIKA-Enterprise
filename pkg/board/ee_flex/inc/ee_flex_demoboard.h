@@ -1489,29 +1489,33 @@ __INLINE__ EE_INT8 __ALWAYS_INLINE__ EE_dac_write( EE_UINT16 data, EE_UINT8 port
 	return 0;
 }
 
+extern volatile int ee_flexdmb_dac_init;
 __INLINE__ void __ALWAYS_INLINE__ EE_dac_init( void )
 {
-	/* Configre SCL/SDA pin as open-drain */
-	ODCGbits.ODCG2 = 1;
-	ODCGbits.ODCG3 = 1;
+	if(ee_flexdmb_dac_init==0){
+		/* Configre SCL/SDA pin as open-drain */
+		ODCGbits.ODCG2 = 1;
+		ODCGbits.ODCG3 = 1;
 
-	/* Clear Address and mask */
-	I2C1ADD = 0;
-	I2C1MSK = 0;
+		/* Clear Address and mask */
+		I2C1ADD = 0;
+		I2C1MSK = 0;
 
-	/* Set baudrate */
-	I2C1BRG = (40000ul / EE_DAC_I2C_KCLOCK) - 37;	// With Fcy = 40MHz !!!
-	//I2C1BRG = 363;
+		/* Set baudrate */
+		I2C1BRG = (40000ul / EE_DAC_I2C_KCLOCK) - 37;	// With Fcy = 40MHz !!!
+		//I2C1BRG = 363;
 
-	/* Configure I2C port */
-	I2C1CON = 0;
-	I2C1CONbits.ACKDT  = 1;
-	I2C1CONbits.DISSLW = 1;
+		/* Configure I2C port */
+		I2C1CON = 0;
+		I2C1CONbits.ACKDT  = 1;
+		I2C1CONbits.DISSLW = 1;
 
-	/* Start I2C port */
-	I2C1CONbits.I2CEN = 1;
+		/* Start I2C port */
+		I2C1CONbits.I2CEN = 1;
 
-	EE_dac_general_call(EE_DAC_GENERAL_CALL_RESET);
+		EE_dac_general_call(EE_DAC_GENERAL_CALL_RESET);
+		ee_flexdmb_dac_init = 1;
+	}
 }
 
 #endif
