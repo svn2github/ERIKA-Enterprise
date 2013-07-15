@@ -5,10 +5,10 @@ LOG CMDLINE = ON, CMDFILE = OFF, RESPONSES = ON, ERRORS = ON, NOTICES = ON
 
 WAIT 1
 
-cd ..\..\tmp
+cd tmp
 lf logfile.txt
 printf("MODISTARC regression tests in progress...")
-cf s12xs_jobs.cmd        
+cf s12_jobs.cmd        
 printf("...Done!!!")
 nolf
 cd ..\common\s12
