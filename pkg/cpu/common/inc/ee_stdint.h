@@ -59,7 +59,8 @@
 		defined(__KEIL__)		\
 	)					\
   ) ||						\
-  (defined(__RX200__) && defined(__CCRX__))
+  (defined(__RX200__) && defined(__CCRX__)) \
+)
 /* When supported, include stdint.h to avoid conflicting definitions of
  * exact-size types. */
 #include <stdint.h>
