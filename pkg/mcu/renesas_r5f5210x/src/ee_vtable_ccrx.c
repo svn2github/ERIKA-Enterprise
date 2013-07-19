@@ -571,7 +571,7 @@ extern void EE_RX200_ICU_SWINT_ISR(void);
  * Compare Match 0 interrupt.
  */
 #ifdef	EE_RX200_CMT0_CMI0_ISR
-extern void EE_RX200_ICU_SWINT_ISR(void);
+extern void EE_RX200_CMT0_CMI0_ISR(void);
 #endif	/* EE_RX200_CMT0_CMI0_ISR */
 
 /*
@@ -3494,7 +3494,7 @@ void* const EE_rx200_vtable[] =
  * Compare Match 0 interrupt.
  */
 #ifdef	EE_RX200_CMT0_CMI0_ISR
-	(void *) EE_RX200_ICU_SWINT_ISR,
+	(void *) EE_RX200_CMT0_CMI0_ISR,
 #else
 	EE_rx200_default_ISR,
 #endif	/* EE_RX200_CMT0_CMI0_ISR */
