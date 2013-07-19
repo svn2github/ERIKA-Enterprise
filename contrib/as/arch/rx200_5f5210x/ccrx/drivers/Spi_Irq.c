@@ -92,13 +92,13 @@ extern Spi_NumberOfDataType TableLen[SPI_JOBS_CHANNELS_MAX_NUMBER];
  * */
 extern Spi_ChannelType TxChIdx, RxChIdx;
 extern Spi_NumberOfDataType TxPosIdx, RxPosIdx;
+extern Spi_ChannelType  NumAssChIdx;
 
 
-#if ( defined(EE_RX200_ERI0_ISR) || defined(EE_RX200_ERI1_ISR) || \
-		defined(EE_RX200_ERI5_ISR) || defined(EE_RX200_ERI6_ISR) || \
-		defined(EE_RX200_ERI8_ISR) || defined(EE_RX200_ERI9_ISR) || \
-		defined(EE_RX200_ERI12_ISR) || defined(EE_RX200_SPEI0_ISR) )
-
+#if ( defined(EE_RX200_SCI0_ERI0_ISR) || defined(EE_RX200_SCI1_ERI1_ISR) || \
+		defined(EE_RX200_SCI5_ERI5_ISR) || defined(EE_RX200_SCI6_ERI6_ISR) || \
+		defined(EE_RX200_SCI8_ERI8_ISR) || defined(EE_RX200_SCI9_ERI9_ISR) || \
+		defined(EE_RX200_SCI9_ERI12_ISR) || defined(EE_RX200_RSPI0_SPEI0_ISR) )
 /*
  * @brief 	SPI Receiveng Error ISR.
  * @param	HWUint	SPI Hardware Unit who fired Interrupt.
@@ -136,10 +136,10 @@ void Spi_RxErrISR(Spi_HWUnitType HWUnit)
 #endif
 
 
-#if ( defined(EE_RX200_RXI0_ISR) || defined(EE_RX200_RXI1_ISR) || \
-		defined(EE_RX200_RXI5_ISR) || defined(EE_RX200_RXI6_ISR) || \
-		defined(EE_RX200_RXI8_ISR) || defined(EE_RX200_RXI9_ISR) || \
-		defined(EE_RX200_RXI12_ISR) || defined(EE_RX200_SPRI0_ISR))
+#if ( defined(EE_RX200_SCI0_RXI0_ISR) || defined(EE_RX200_SCI1_RXI1_ISR) || \
+		defined(EE_RX200_SCI5_RXI5_ISR) || defined(EE_RX200_SCI6_RXI6_ISR) || \
+		defined(EE_RX200_SCI8_RXI8_ISR) || defined(EE_RX200_SCI9_RXI9_ISR) || \
+		defined(EE_RX200_SCI12_RXI12_ISR) || defined(EE_RX200_RSPI0_SPRI0_ISR))
 
 /*
  * @brief 	SPI RX buffer full ISR.
@@ -147,14 +147,10 @@ void Spi_RxErrISR(Spi_HWUnitType HWUnit)
  */
 void Spi_RxISR(Spi_HWUnitType HWUnit)
 {
-	/* If the end of the channel list has not been reached, transmit the
-	 * next datum of current channel, else call the end job funciton if also the
-	 * transmission buffer is full.
-	 * */
-	if (RxChIdx < SPI_JOBS_CHANNELS_MAX_NUMBER) {
+
+	if (RxChIdx < NumAssChIdx) {
 		Spi_store(HWUnit); 
-	} 
-	
+	}
 	/* If the end of the channel rx buffer has been reached, go to the next
 	 * channel in the list
 	 * */
@@ -162,21 +158,31 @@ void Spi_RxISR(Spi_HWUnitType HWUnit)
 		RxPosIdx = 0;
 		RxChIdx++;
 	}
-	
-	if (TxChIdx >= SPI_JOBS_CHANNELS_MAX_NUMBER) {
+
+	/*	If the received character has been got by pi_RxISR() then transmit the 
+		next one, if any.
+	*/
+	if ((TxPosIdx == RxPosIdx)) {
+		/* If the end of the channel list has not been reached, transmit the
+		* next character of current channel, else call the end job funciton if also the
+		* transmission buffer is full.
+		* */
+			if (TxChIdx < NumAssChIdx) {
+				Spi_trx(HWUnit); 
+		} else if (RxChIdx >= NumAssChIdx) {
 			Spi_JobEnd(HWUnit, SPI_JOB_OK);
+		}
 	}
-		
 
 }
 
 
 #endif
 
-#if ( defined(EE_RX200_TXI0_ISR) || defined(EE_RX200_TXI1_ISR) || \
-		defined(EE_RX200_TXI5_ISR) || defined(EE_RX200_TXI6_ISR) || \
-		defined(EE_RX200_TXI8_ISR) || defined(EE_RX200_TXI9_ISR) || \
-		defined(EE_RX200_TXI12_ISR) || defined(EE_RX200_SPTI0_ISR) )
+#if ( defined(EE_RX200_SCI0_TXI0_ISR) || defined(EE_RX200_SCI1_TXI1_ISR) || \
+		defined(EE_RX200_SCI5_TXI5_ISR) || defined(EE_RX200_SCI6_TXI6_ISR) || \
+		defined(EE_RX200_SCI8_TXI8_ISR) || defined(EE_RX200_SCI9_TXI9_ISR) || \
+		defined(EE_RX200_SCI12_TXI12_ISR) || defined(EE_RX200_RSPI0_SPTI0_ISR) )
 
 /*
  * @brief 	SPI TX buffer empty ISR.
@@ -198,15 +204,21 @@ void Spi_TxISR(Spi_HWUnitType HWUnit)
 		}
 	}
 	
-	/* If the end of the channel list has not been reached, transmit the
-	 * next datum of current channel, else call the end job funciton if also the
-	 * receiving buffer is full.
-	 * */
-	if (TxChIdx < SPI_JOBS_CHANNELS_MAX_NUMBER) {
-		Spi_trx(HWUnit); 
-	} else if (RxChIdx >= SPI_JOBS_CHANNELS_MAX_NUMBER) {
-		Spi_JobEnd(HWUnit, SPI_JOB_OK);
+	/*	If the received character has been got by Spi_RxISR() then transmit the 
+		next one, if any.
+	*/
+	if ((TxPosIdx == RxPosIdx)) {
+		/* If the end of the channel list has not been reached, transmit the
+		* next datum of current channel, else call the end job funciton if also the
+		* receiving buffer is full.
+		* */
+		if (TxChIdx < NumAssChIdx) {
+			Spi_trx(HWUnit); 
+		} else if (RxChIdx >= NumAssChIdx) {
+			Spi_JobEnd(HWUnit, SPI_JOB_OK);
+		}
 	}
+	
 }
 
 
@@ -335,164 +347,164 @@ void Spi_JobEnd(Spi_HWUnitType	HWUnit, Spi_JobResultType	JobResult)
 
 }
 #endif	/*
-	 * EE_RX200_ERI0_ISR || EE_RX200_ERI1_ISR || EE_RX200_ERI5_ISR || 
-	 * EE_RX200_ERI6_ISR) || EE_RX200_ERI8_ISR || EE_RX200_ERI9_ISR || 
-	 * EE_RX200_ERI12_ISR || EE_RX200_TXI0_ISR || EE_RX200_TXI1_ISR || 
-	 * EE_RX200_TXI5_ISR || EE_RX200_TXI6_ISR || EE_RX200_TXI8_ISR || 
-	 * EE_RX200_TXI9_ISR || EE_RX200_TXI12_ISR ||
+	 * EE_RX200_SCI0_ERI0_ISR || EE_RX200_SCI1_ERI1_ISR || EE_RX200_SCI5_ERI5_ISR || 
+	 * EE_RX200_SCI6_ERI6_ISR) || EE_RX200_SCI8_ERI8_ISR || EE_RX200_SCI9_ERI9_ISR || 
+	 * EE_RX200_SCI12_ERI12_ISR || EE_RX200_SCI0_TXI0_ISR || EE_RX200_SCI1_TXI1_ISR || 
+	 * EE_RX200_SCI5_TXI5_ISR || EE_RX200_SCI6_TXI6_ISR || EE_RX200_SCI8_TXI8_ISR || 
+	 * EE_RX200_SCI9_TXI9_ISR || EE_RX200_SCI12_TXI12_ISR || EE_RX200_RSPI0_SPTI0_ISR
 	 */
 
 
 
-#ifdef	EE_RX200_ERI0_ISR
-#pragma interrupt (EE_RX200_ERI0_ISR)
-ISR2(EE_RX200_ERI0_ISR) 
+#ifdef	EE_RX200_SCI0_ERI0_ISR
+#pragma interrupt (EE_RX200_SCI0_ERI0_ISR)
+ISR2(EE_RX200_SCI0_ERI0_ISR) 
 { 
 	Spi_RxErrISR(SPI_HW_UNIT_0); 
 	while (EE_HWREG8(HW_ICU_IR_SCI0_ERX) == 1);
 }
 #endif
 
-#ifdef	EE_RX200_RXI0_ISR
-#pragma interrupt (EE_RX200_RXI0_ISR)
-ISR2(EE_RX200_RXI0_ISR) { Spi_RxISR(SPI_HW_UNIT_0); }
+#ifdef	EE_RX200_SCI0_RXI0_ISR
+#pragma interrupt (EE_RX200_SCI0_RXI0_ISR)
+ISR2(EE_RX200_SCI0_RXI0_ISR) { Spi_RxISR(SPI_HW_UNIT_0); }
 #endif
 
-#ifdef	EE_RX200_TXI0_ISR
-#pragma interrupt (EE_RX200_TXI0_ISR)
-ISR2(EE_RX200_TXI0_ISR) { Spi_TxISR(SPI_HW_UNIT_0); }
+#ifdef	EE_RX200_SCI0_TXI0_ISR
+#pragma interrupt (EE_RX200_SCI0_TXI0_ISR)
+ISR2(EE_RX200_SCI0_TXI0_ISR) { Spi_TxISR(SPI_HW_UNIT_0); }
 #endif
 
 
-#ifdef	EE_RX200_ERI1_ISR
-#pragma interrupt (EE_RX200_ERI1_ISR)
-ISR2(EE_RX200_ERI1_ISR) 
+#ifdef	EE_RX200_SCI1_ERI1_ISR
+#pragma interrupt (EE_RX200_SCI1_ERI1_ISR)
+ISR2(EE_RX200_SCI1_ERI1_ISR) 
 { 
 	Spi_RxErrISR(SPI_HW_UNIT_1); 
 	while (EE_HWREG8(HW_ICU_IR_SCI1_ERX));
 }
 #endif
 
-#ifdef	EE_RX200_RXI1_ISR
-#pragma interrupt (EE_RX200_RXI1_ISR)
-ISR2(EE_RX200_RXI1_ISR) { Spi_RxISR(SPI_HW_UNIT_1); }
+#ifdef	EE_RX200_SCI1_RXI1_ISR
+#pragma interrupt (EE_RX200_SCI1_RXI1_ISR)
+ISR2(EE_RX200_SCI1_RXI1_ISR) { Spi_RxISR(SPI_HW_UNIT_1); }
 #endif
 
-#ifdef	EE_RX200_TXI1_ISR
-#pragma interrupt (EE_RX200_TXI1_ISR)
-ISR2(EE_RX200_TXI1_ISR) { Spi_TxISR(SPI_HW_UNIT_1); }
+#ifdef	EE_RX200_SCI1_TXI1_ISR
+#pragma interrupt (EE_RX200_SCI1_TXI1_ISR)
+ISR2(EE_RX200_SCI1_TXI1_ISR) { Spi_TxISR(SPI_HW_UNIT_1); }
 #endif
 
-#ifdef	EE_RX200_ERI5_ISR
-#pragma interrupt (EE_RX200_ERI5_ISR)
-ISR2(EE_RX200_ERI5_ISR) 
+#ifdef	EE_RX200_SCI5_ERI5_ISR
+#pragma interrupt (EE_RX200_SCI5_ERI5_ISR)
+ISR2(EE_RX200_SCI5_ERI5_ISR) 
 { 
 	Spi_RxErrISR(SPI_HW_UNIT_5); 
 	while (EE_HWREG8(HW_ICU_IR_SCI5_ERX));
 }
 #endif
 
-#ifdef	EE_RX200_RXI5_ISR
-#pragma interrupt (EE_RX200_RXI5_ISR)
-ISR2(EE_RX200_RXI5_ISR) { Spi_RxISR(SPI_HW_UNIT_5); }
+#ifdef	EE_RX200_SCI5_RXI5_ISR
+#pragma interrupt (EE_RX200_SCI5_RXI5_ISR)
+ISR2(EE_RX200_SCI5_RXI5_ISR) { Spi_RxISR(SPI_HW_UNIT_5); }
 #endif
 
-#ifdef	EE_RX200_TXI5_ISR
-#pragma interrupt (EE_RX200_TXI5_ISR)
-ISR2(EE_RX200_TXI5_ISR) { Spi_TxISR(SPI_HW_UNIT_5); }
+#ifdef	EE_RX200_SCI5_TXI5_ISR
+#pragma interrupt (EE_RX200_SCI5_TXI5_ISR)
+ISR2(EE_RX200_SCI5_TXI5_ISR) { Spi_TxISR(SPI_HW_UNIT_5); }
 #endif
 
-#ifdef	EE_RX200_ERI6_ISR
-#pragma interrupt (EE_RX200_ERI6_ISR)
-ISR2(EE_RX200_ERI6_ISR) 
+#ifdef	EE_RX200_SCI6_ERI6_ISR
+#pragma interrupt (EE_RX200_SCI6_ERI6_ISR)
+ISR2(EE_RX200_SCI6_ERI6_ISR) 
 { 
 	Spi_RxErrISR(SPI_HW_UNIT_6); 
 	while (EE_HWREG8(HW_ICU_IR_SCI6_ERX));	
 }
 #endif
 
-#ifdef	EE_RX200_RXI6_ISR
-#pragma interrupt (EE_RX200_RXI6_ISR)
-ISR2(EE_RX200_RXI6_ISR) { Spi_RxISR(SPI_HW_UNIT_6); }
+#ifdef	EE_RX200_SCI6_RXI6_ISR
+#pragma interrupt (EE_RX200_SCI6_RXI6_ISR)
+ISR2(EE_RX200_SCI6_RXI6_ISR) { Spi_RxISR(SPI_HW_UNIT_6); }
 #endif
 
-#ifdef	EE_RX200_TXI6_ISR
-#pragma interrupt (EE_RX200_TXI6_ISR)
-ISR2(EE_RX200_TXI6_ISR) { Spi_TxISR(SPI_HW_UNIT_6); }
+#ifdef	EE_RX200_SCI6_TXI6_ISR
+#pragma interrupt (EE_RX200_SCI6_TXI6_ISR)
+ISR2(EE_RX200_SCI6_TXI6_ISR) { Spi_TxISR(SPI_HW_UNIT_6); }
 #endif
 
-#ifdef	EE_RX200_ERI8_ISR
-#pragma interrupt (EE_RX200_ERI8_ISR)
-ISR2(EE_RX200_ERI8_ISR) 
+#ifdef	EE_RX200_SCI8_ERI8_ISR
+#pragma interrupt (EE_RX200_SCI8_ERI8_ISR)
+ISR2(EE_RX200_SCI8_ERI8_ISR) 
 { 
 	Spi_RxErrISR(SPI_HW_UNIT_8); 
 	while (EE_HWREG8(HW_ICU_IR_SCI8_ERX));	
 }
 #endif
 
-#ifdef	EE_RX200_RXI8_ISR
-#pragma interrupt (EE_RX200_RXI8_ISR)
-ISR2(EE_RX200_RXI8_ISR) { Spi_RxISR(SPI_HW_UNIT_8); }
+#ifdef	EE_RX200_SCI8_RXI8_ISR
+#pragma interrupt (EE_RX200_SCI8_RXI8_ISR)
+ISR2(EE_RX200_SCI8_RXI8_ISR) { Spi_RxISR(SPI_HW_UNIT_8); }
 #endif
 
-#ifdef	EE_RX200_TXI_ISR
-#pragma interrupt (EE_RX200_TXI8_ISR)
-ISR2(EE_RX200_TXI8_ISR) { Spi_TxISR(SPI_HW_UNIT_8); }
+#ifdef	EE_RX200_SCI8_TXI8_ISR
+#pragma interrupt (EE_RX200_SCI8_TXI8_ISR)
+ISR2(EE_RX200_SCI8_TXI8_ISR) { Spi_TxISR(SPI_HW_UNIT_8); }
 #endif
 
-#ifdef	EE_RX200_ERI9_ISR
-#pragma interrupt (EE_RX200_ERI9_ISR)
-ISR2(EE_RX200_ERI9_ISR) 
+#ifdef	EE_RX200_SCI9_ERI9_ISR
+#pragma interrupt (EE_RX200_SCI9_ERI9_ISR)
+ISR2(EE_RX200_SCI9_ERI9_ISR) 
 { 
 	Spi_RxErrISR(SPI_HW_UNIT_9); 
 	while (EE_HWREG8(HW_ICU_IR_SCI9_ERX));	
 }
 #endif
 
-#ifdef	EE_RX200_RXI9_ISR
-#pragma interrupt (EE_RX200_RXI9_ISR)
-ISR2(EE_RX200_RXI9_ISR) { Spi_RxISR(SPI_HW_UNIT_9); }
+#ifdef	EE_RX200_SCI9_RXI9_ISR
+#pragma interrupt (EE_RX200_SCI9_RXI9_ISR)
+ISR2(EE_RX200_SCI9_RXI9_ISR) { Spi_RxISR(SPI_HW_UNIT_9); }
 #endif
 
-#ifdef	EE_RX200_TXI9_ISR
-#pragma interrupt (EE_RX200_TXI9_ISR)
-ISR2(EE_RX200_TXI9_ISR) { Spi_TxISR(SPI_HW_UNIT_9); }
+#ifdef	EE_RX200_SCI9_TXI9_ISR
+#pragma interrupt (EE_RX200_SCI9_TXI9_ISR)
+ISR2(EE_RX200_SCI9_TXI9_ISR) { Spi_TxISR(SPI_HW_UNIT_9); }
 #endif
 
-#ifdef	EE_RX200_ERI12_ISR
-#pragma interrupt (EE_RX200_ERI12_ISR)
-ISR2(EE_RX200_ERI12_ISR)
+#ifdef	EE_RX200_SCI12_ERI12_ISR
+#pragma interrupt (EE_RX200_SCI12_ERI12_ISR)
+ISR2(EE_RX200_SCI12_ERI12_ISR)
 { 
 	Spi_RxErrISR(SPI_HW_UNIT_12); 
 	while (EE_HWREG8(HW_ICU_IR_SCI12_ERX));	
 }
 #endif
 
-#ifdef	EE_RX200_RXI12_ISR
+#ifdef	EE_RX200_SCI12_RXI12_ISR
 #pragma interrupt (EE_RX200_RXI12_ISR)
-ISR2(EE_RX200_RXI12_ISR) { Spi_RxISR(SPI_HW_UNIT_12); }
+ISR2(EE_RX200_SCI12_RXI12_ISR) { Spi_RxISR(SPI_HW_UNIT_12); }
 #endif
 
-#ifdef	EE_RX200_TXI12_ISR
-#pragma interrupt (EE_RX200_TXI12_ISR)
-ISR2(EE_RX200_TXI12_ISR) { Spi_TxISR(SPI_HW_UNIT_12); }
+#ifdef	EE_RX200_SCI12_TXI12_ISR
+#pragma interrupt (EE_RX200_SCI12_TXI12_ISR)
+ISR2(EE_RX200_SCI12_TXI12_ISR) { Spi_TxISR(SPI_HW_UNIT_12); }
 #endif
 
-#ifdef	EE_RX200_SPEI0_ISR
-#pragma interrupt (EE_RX200_SPEI0_ISR)
-ISR2(EE_RX200_SPEI0_ISR) 
+#ifdef	EE_RX200_RSPI0_SPEI0_ISR
+#pragma interrupt (EE_RX200_RSPI0_SPEI0_ISR)
+ISR2(EE_RX200_RSPI0_SPEI0_ISR) 
 { 
 	Spi_RxErrISR(SPI_HW_UNIT_13); 
 	while (EE_HWREG8(HW_ICU_IER_RSPI_SPEI) == 1);
 }
 #endif
 
-#ifdef	EE_RX200_SPRI0_ISR
-#pragma interrupt (EE_RX200_SPRI0_ISR)
-ISR2(EE_RX200_SPRI0_ISR) { Spi_RxISR(SPI_HW_UNIT_13); }
+#ifdef	EE_RX200_RSPI0_SPRI0_ISR
+#pragma interrupt (EE_RX200_RSPI0_SPRI0_ISR)
+ISR2(EE_RX200_RSPI0_SPRI0_ISR) { Spi_RxISR(SPI_HW_UNIT_13); }
 #endif
 
-#ifdef	EE_RX200_SPTI0_ISR
-#pragma interrupt (EE_RX200_SPTI0_ISR)
-ISR2(EE_RX200_SPTI0_ISR) { Spi_TxISR(SPI_HW_UNIT_13); }
+#ifdef	EE_RX200_RSPI0_SPTI0_ISR
+#pragma interrupt (EE_RX200_RSPI0_SPTI0_ISR)
+ISR2(EE_RX200_RSPI0_SPTI0_ISR) { Spi_TxISR(SPI_HW_UNIT_13); }
 #endif

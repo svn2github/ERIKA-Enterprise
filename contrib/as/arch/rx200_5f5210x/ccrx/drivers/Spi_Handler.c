@@ -126,14 +126,13 @@ Spi_NumberOfDataType TableLen[SPI_JOBS_CHANNELS_MAX_NUMBER];
  * */
 Spi_ChannelType TxChIdx, RxChIdx;
 Spi_NumberOfDataType TxPosIdx, RxPosIdx;
+Spi_ChannelType  NumAssChIdx;
 
 /*
  * @brief SPI JOB Buffers Setup.
  *
  * @param	JobIdx		Job Index.
  * @param	AssChIdx	Channel Pointer.
- * @param	RxBuff		Rx Job buffer Pointer.
- * @param	TxBuff		Tx Job buffer Pointer.
  *
  * NOTES:
  * - Interrupts Disabled.
@@ -364,6 +363,8 @@ static void Spi_JobStart(
 	/*Reset the indexes of buffers.*/ 
 	TxChIdx = RxChIdx = 0;
 	TxPosIdx = RxChIdx = 0;
+	/*Set the number of associated channel for current job .*/
+	NumAssChIdx = AssChIdx;  
 	
 	ExtDevCfgPtr	= &Spi_Global.ConfigPtr->SpiExternalDevice[HWUnitIdx];
 

@@ -81,6 +81,8 @@
 
 #include "Spi_Internal.h"
 
+/*GF: FIXME*/
+#if 0
 /** @brief	Enable Sci channel interrupts in the Interrupt Control Unit (ICU).
  *	@param  _mod SCI Module Identifier.
  *  
@@ -140,6 +142,7 @@ static void Spi_EnableICU(Spi_HWUnitType _mod)
 		break;
 	}
 }
+#endif
 
 /** @brief	Disable Spi channel interrupts in the Interrupt Control Unit (ICU).
  *	@param  _mod SPI Module Identifier.
@@ -297,7 +300,7 @@ static void Spi_InitSpiHWUnit(const Spi_ExternalDeviceConfigType *ConfigPtr)
 										SPI_CLOCK_SEL_MODE_MASK) );
 
 		/* Enable SCI interrupts in the ICU. */
-		Spi_EnableICU(ConfigPtr->SpiHwUnit);
+		//GF: Spi_EnableICU(ConfigPtr->SpiHwUnit);
 		
 		/* Enable SCI RTX, TXI and RXI IRQs. */
 		/* GF: SCI_SPI_START(ConfigPtr->SpiHwUnit);*/
@@ -331,7 +334,7 @@ static void Spi_InitSpiHWUnit(const Spi_ExternalDeviceConfigType *ConfigPtr)
 		RSPI_SET_SPCR(RSPI_SET_MODE_BITS(ConfigPtr->SpiHwUnitMode, 
 						ConfigPtr->SpiEnableCs));
 		/* Enable SPI interrupts in the ICU. */
-		Spi_EnableICU(ConfigPtr->SpiHwUnit);				
+		//GF: Spi_EnableICU(ConfigPtr->SpiHwUnit);				
 		/* 
 		 * Enable the Spi module, enable TX and RX IRQs, configure Master or 
 		 * Slave or Multi-Master, enable chip select mode.
