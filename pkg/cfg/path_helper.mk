@@ -209,12 +209,14 @@ endif
 
 endef # check_and_set_mico32_platform_path
 
-# Function to test EEOPT, useful in conditionals and in or/and expressions
+# Functions to test EEOPT and LIB_OPT, useful in conditionals and in or/and expressions
 # Examples:
 #   ifeq ($(call iseeopt,__MULTI__), yes)
 #   ifeq ($(and $(call iseeopt,__MULTI__), $(call iseeopt,__IRQ_STACK_NEEDED__)), yes)
 #   ifneq ($(call iseeopt,__MULTI__), yes)
 iseeopt = $(if $(filter $1,$(EEOPT)),yes,)
+
+islibopt = $(if $(filter $1,$(LIB_OPT)),yes,)
 
 # `native_path' is used to convert Unix-style names to native names
 ifeq ($(call iseeopt, __RTD_CYGWIN__), yes)
