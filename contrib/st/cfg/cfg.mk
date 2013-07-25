@@ -1,7 +1,7 @@
 # ###*B*###
 # ERIKA Enterprise - a tiny RTOS for small microcontrollers
 # 
-# Copyright (C) 2002-2012  Evidence Srl
+# Copyright (C) 2002-2013  Evidence Srl
 # 
 # This file is part of ERIKA Enterprise.
 # 
@@ -38,48 +38,21 @@
 # Boston, MA 02110-1301 USA.
 # ###*E*###
 
-## Author: 2012 Carlo Caione
-
-ifeq ($(call iseeopt, __USE_STM32F4XX_EVAL__), yes)
-EEOPT += __USE_STM32F4XX_CMSIS__
-EEOPT += __USE_STM32F4XX_SPD__
-endif
-
-ifeq ($(call iseeopt, __USE_STM32F4XX_SPD__), yes)
-EEOPT += __USE_STM32F4XX_CMSIS__
-endif
+## Author: 2013 Mauro Marinoni
 
 # Add application-related files
 ifneq ($(ONLY_LIBS), TRUE)
 
-ifeq ($(call iseeopt, __USE_STM32F4XX_CMSIS__), yes)
-include $(EEBASE)/contrib/st/stm32f4xx_CMSIS/cfg/cfg.mk
+ifeq ($(call islibopt, __LIB_STM32F4_DISCOVERY__), yes)
+include $(EEBASE)/contrib/st/STM32F4-Discovery/cfg/cfg.mk
 endif
 
-ifeq ($(call iseeopt, __USE_STM32F4XX_EVAL__), yes)
-include $(EEBASE)/contrib/st/STM32_EVAL/cfg/cfg.mk
+ifeq ($(call islibopt, __LIB_STM32F4XX_SPD__), yes)
+include $(EEBASE)/contrib/st/STM32F4xx_StdPeriph_Driver/cfg/cfg.mk
 endif
 
-ifeq ($(call iseeopt, __USE_STM32F4XX_SPD__), yes)
-include $(EEBASE)/contrib/st/stm32f4xx_StdPeriph_Driver/cfg/cfg.mk
-endif
-
-endif
-
-# Add libs-related files
-ifeq ($(ENABLE_LIBS), TRUE)
-
-ifeq ($(call iseeopt, __USE_STM32F4XX_CMSIS__), yes)
-include $(EEBASE)/contrib/st/stm32f4xx_CMSIS/cfg/libcfg.mk
-endif
-
-ifeq ($(call iseeopt, __USE_STM32F4XX_EVAL__), yes)
-include $(EEBASE)/contrib/st/STM32_EVAL/cfg/libcfg.mk
-endif
-
-ifeq ($(call iseeopt, __USE_STM32F4XX_SPD__), yes)
-include $(EEBASE)/contrib/st/stm32f4xx_StdPeriph_Driver/cfg/libcfg.mk
+ifeq ($(call islibopt, __LIB_ST_CMSIS__), yes)
+include $(EEBASE)/contrib/st/CMSIS/cfg/cfg.mk
 endif
 
 endif
-
