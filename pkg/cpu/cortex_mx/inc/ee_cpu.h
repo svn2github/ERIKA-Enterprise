@@ -131,7 +131,7 @@ typedef EE_UINT32 EE_UTID;
  CPU Peripherals
  ******************************************************************************/
 
-#ifdef __CORTEX_M4__
+#ifdef __CORTEX_MX__
 #include "cpu/cortex_mx/inc/ee_nvic.h"
 #include "cpu/cortex_mx/inc/ee_systick.h"
 #endif

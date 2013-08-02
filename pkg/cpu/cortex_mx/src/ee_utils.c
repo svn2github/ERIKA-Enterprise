@@ -66,7 +66,7 @@ void EE_system_init(void)
 	 */
 	EE_set_switch_context_pri();
 
-#ifdef	__CORTEX_M4__
+#ifdef	__CORTEX_MX__
 
 #ifdef	EE_CORTEX_MX_SYSTICK_ISR
 #ifdef	EE_CORTEX_MX_SYSTICK_ISR_PRI

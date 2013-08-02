@@ -51,7 +51,7 @@
 #define __INCLUDE_CORTEX_MX_IRQ_H__
 
 
-#ifdef	__CORTEX_M4__
+#ifdef	__CORTEX_MX__
 #define EE_ISR_UNMASKED 0x00000000
 #define EE_ISR_PRI_1 0x00000006U
 #define EE_ISR_PRI_2 0x00000005U
