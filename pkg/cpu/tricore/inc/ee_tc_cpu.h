@@ -45,6 +45,14 @@
   *  @date      2012
   */
 
+/* Infineon modifications, integration to Infineon Build environment:
+ * Fixes for compilation issues with Tasking Compiler:
+ * Updates for compilation issues with Dcc Compiler:
+ * Usage of generic compiler independent register header file:
+ * Author: 
+ *         Ashok Abbi, <Ashok.Abbi@infineon.com> 18.07.2013
+ */
+
 #ifndef INCLUDE_EE_TC_CPU_H__
 #define INCLUDE_EE_TC_CPU_H__
 
@@ -55,7 +63,7 @@
     defined(__CORE_TC16X__)
 /* All defines needed by kernel too */
 #include "eecfg.h"
-
+#include "ee_tc_cpu_reg.h"
 #ifdef __GNUC__
 
 /* GNUC Intrinsic functions */
@@ -81,10 +89,19 @@
 #elif defined (__TASKING__)
 /* This let you include right SFR (Special Function Registers).
    1.3.2. Accessing Hardware from C */
-#ifdef __CPU__
-#include __SFRFILE__(__CPU__)
-#endif
+#define   EE_INCLUDE_MCU_REGS __SFRFILE__(__CPU__)
+#include  EE_INCLUDE_MCU_REGS
+
 #include "cpu/common/inc/ee_compiler_tasking.h"
+
+#elif defined (__DCC__)
+/* DIAB MCU SFR inclusion. TODO: handle this better */
+#define  EE_INCLUDE_MCU_REGS <sfr/TC27x/Ifx_reg.h>
+#include EE_INCLUDE_MCU_REGS
+
+/* DCC Intrinsic functions */
+#include <diab/tcasm.h>
+#include "cpu/common/inc/ee_compiler_diab.h"
 #else
 #error Unsupported compiler!
 #endif
@@ -167,16 +184,17 @@ typedef EE_UINT32 EE_STACK_T;
 #define EE_TC_STACK_FILL_PATTERN 0xA5A5A5A5U
 #endif /* EE_TC_STACK_FILL_PATTERN */
 
-#if defined(__OO_ORTI_STACK__) && defined(EE_EXECUTE_FROM_RAM)
+#if defined(__OO_ORTI_STACK__) && defined(EE_EXECUTE_FROM_RAM) && \
+  (!defined(__DCC__))
 /* Use Range Designated Initializers (GNU extension implemented by TASKING
    too) */
 /* ! THIS WON'T BE USED TO INITIALIZE STACKS WHEN THE APPLICATION IS NOT
      LOCATED IN RAM BECAUSE USELESS COPY IN FLASH ! */
 #define EE_TC_FILL_STACK(stack) \
   = {[0 ... (sizeof(stack)/sizeof(stack[0]) - 1U)] = EE_TC_STACK_FILL_PATTERN}
-#else /* __OO_ORTI_STACK__ && EE_EXECUTE_FROM_RAM */
+#else /* __OO_ORTI_STACK__ && EE_EXECUTE_FROM_RAM && !__DCC__ */
 #define EE_TC_FILL_STACK(stack)
-#endif /* __OO_ORTI_STACK__ && EE_EXECUTE_FROM_RAM */
+#endif /* __OO_ORTI_STACK__ && EE_EXECUTE_FROM_RAM && !__DCC__ */
 
 /*******************************************************************************
             Common Context Types and Data Structures Declarations
@@ -258,7 +276,7 @@ typedef struct {
       EE_UREG D6;
       EE_UREG D7;
     } lcx;
-  };
+  } cx;
 } EE_CSA;
 
 /* Interrupt control register */
@@ -320,7 +338,166 @@ __INLINE__ EE_UREG __ALWAYS_INLINE__ EE_tc_clz( EE_UREG data )
 {
   return (EE_UREG)__clz(data);
 }
-#else /* __TASKING__ */ 
+
+/* Data barrier */
+__INLINE__ void __ALWAYS_INLINE__ EE_tc_dsync( void )
+{
+  __dsync();
+}
+
+/* Instruction barrier */
+__INLINE__ void __ALWAYS_INLINE__ EE_tc_isync( void )
+{
+  __isync();
+}
+
+/* Debug instruction */
+__INLINE__ void __ALWAYS_INLINE__ EE_tc_debug( void )
+{
+  __debug();
+}
+
+/*Core info*/
+__INLINE__ EE_UREG __ALWAYS_INLINE__ EE_tc_cpu_model( void )
+{
+  register EE_UREG r = __mfcr(EE_CPU_REG_CPU_ID);
+  return (r >> 2U);
+}
+
+__INLINE__ EE_UREG __ALWAYS_INLINE__ EE_tc_cpu_revision( void )
+{
+  register EE_UREG r = __mfcr(EE_CPU_REG_CPU_ID);
+  return (r & 0xFFU);
+}
+
+/* Reads the CPU Clock Cycle Counter (includes overflow bit) */
+__INLINE__  EE_UREG __ALWAYS_INLINE__ EE_tc_get_CCNT( void )
+{
+  return __mfcr(EE_CPU_REG_CCNT);
+}
+
+/* Functions to Access ICR register */
+__INLINE__ EE_ICR __ALWAYS_INLINE__ EE_tc_get_ICR( void )
+{
+  register EE_ICR icr;
+  icr.reg = __mfcr(EE_CPU_REG_ICR);
+  return icr;
+}
+
+__INLINE__ void __ALWAYS_INLINE__ EE_tc_set_ICR( EE_ICR icr )
+{
+  __mtcr(EE_CPU_REG_ICR, icr.reg);
+  /* When you write a CSFR you need to force syncronization (isync) to
+     avoid side-effects, TASKING __mtcr do that by implementation */
+}
+
+/* Enable interrupts */
+__INLINE__ void __ALWAYS_INLINE__ EE_tc_enableIRQ( void )
+{
+  __enable();
+}
+/* Disable interrupts */
+__INLINE__ void __ALWAYS_INLINE__ EE_tc_disableIRQ( void )
+{
+  __disable();
+}
+
+/*Functions to select the call method*/
+__INLINE__ void __ALWAYS_INLINE__ EE_tc_call( EE_THREAD_PTR t )
+{
+  __asm volatile ("calli %0" : : "a"(t));
+}
+
+__INLINE__ void __ALWAYS_INLINE__ EE_tc_jump( EE_THREAD_PTR t )
+{
+  __asm volatile ("ji %0" : : "a"(t));
+}
+
+__INLINE__ void __ALWAYS_INLINE__ EE_tc_jump_and_link( EE_THREAD_PTR t )
+{
+  __asm volatile ("jli %0" : : "a"(t));
+}
+
+/*Context handling functions for Tasking*/
+__INLINE__ EE_ADDR __ALWAYS_INLINE__ EE_tc_get_RA( void )
+{
+  register EE_ADDR reg = 0U;
+  __asm volatile ("mov.aa %0, a11" : "=a"(reg));
+  return reg;
+}
+
+__INLINE__ void __ALWAYS_INLINE__ EE_tc_set_RA( EE_CONST_ADDR reg )
+{
+  __asm volatile ("mov.aa a11, %0" : : "a"(reg));
+}
+
+__INLINE__ EE_ADDR __ALWAYS_INLINE__ EE_tc_get_SP( void )
+{
+  register EE_ADDR reg = 0U;
+  __asm volatile ("mov.aa %0, sp" : "=a"(reg));
+  return reg;
+}
+
+__INLINE__ void __ALWAYS_INLINE__ EE_tc_set_SP( EE_CONST_ADDR reg )
+{
+  __asm volatile ("mov.aa sp, %0" : : "a"(reg));
+}
+
+/* Lower Context Handling Functions */
+__INLINE__ void __ALWAYS_INLINE__ EE_tc_svlcx( void )
+{
+  __svlcx();
+}
+
+__INLINE__ void __ALWAYS_INLINE__ EE_tc_rslcx( void )
+{
+  __rslcx();
+}
+
+/*Functions to access the CSFRs*/
+
+#define EE_tc_get_psw()        __mfcr(EE_CPU_REG_PSW)
+
+__INLINE__ void __ALWAYS_INLINE__ EE_tc_set_psw( EE_UREG reg )
+{
+  __mtcr(EE_CPU_REG_PSW, reg);
+  /* When you write a CSFR you need to force syncronization (isync) to
+     avoid side-effects, TASKING __mtcr do that by implementation */
+}
+
+#define EE_tc_get_pcxi()       __mfcr(EE_CPU_REG_PCXI)
+
+__INLINE__ void __ALWAYS_INLINE__ EE_tc_set_pcxi( EE_UREG reg )
+{
+  __mtcr(EE_CPU_REG_PCXI, reg);
+  /* When you write a CSFR you need to force syncronization (isync) to
+     avoid side-effects, TASKING __mtcr do that by implementation */
+}
+
+#define EE_tc_get_fcx()       __mfcr(EE_CPU_REG_FCX)
+
+__INLINE__ void __ALWAYS_INLINE__ EE_tc_set_fcx( EE_UREG reg )
+{
+  __mtcr(EE_CPU_REG_FCX, reg);
+  /* When you write a CSFR you need to force syncronization (isync) to
+     avoid side-effects, TASKING __mtcr do that by implementation */
+}
+
+#define EE_tc_get_syscon() __mfcr(EE_CPU_REG_SYSCON)
+
+__INLINE__ void __ALWAYS_INLINE__ EE_tc_set_syscon( EE_UREG reg )
+{
+  __mtcr(EE_CPU_REG_SYSCON, reg);
+  /* When you write a CSFR you need to force syncronization (isync) to
+     avoid side-effects, TASKING __mtcr do that by implementation */
+}
+
+#define EE_tc_get_cfr(reg_id) __mfcr(reg_id)
+
+/* When used this isync have to be put by hand */
+#define EE_tc_set_cfr(reg_id, reg) __mtcr((reg_id), (reg));
+
+#elif (__GNUC__)
 /* Count Leading Zeros */
 __INLINE__ EE_UREG __ALWAYS_INLINE__ EE_tc_clz( EE_UREG data )
 {
@@ -352,33 +529,9 @@ __INLINE__ EE_UREG __ALWAYS_INLINE__ EE_tc_read_return_value( void )
   __asm volatile ("mov %0, %%d2" : "=d"(reg));
   return reg;
 }
-#endif /* __TASKING__ */
 
-/*******************************************************************************
-                            Execution Barriers
- ******************************************************************************/
-#ifdef __TASKING__
 /* Data barrier */
-__INLINE__ void __ALWAYS_INLINE__ EE_tc_dsync( void ) 
-{
-  __dsync();
-}
-
-/* Instruction barrier */
-__INLINE__ void __ALWAYS_INLINE__ EE_tc_isync( void )
-{
-  __isync();
-}
-
-/* Debug instruction */
-__INLINE__ void __ALWAYS_INLINE__ EE_tc_debug( void )
-{
-  __debug();
-}
-
-#elif defined(__GNUC__)
-/* Data barrier */
-__INLINE__ void __ALWAYS_INLINE__ EE_tc_dsync( void ) 
+__INLINE__ void __ALWAYS_INLINE__ EE_tc_dsync( void )
 {
   _dsync();
 }
@@ -394,73 +547,43 @@ __INLINE__ void __ALWAYS_INLINE__ EE_tc_debug( void )
 {
   _debug();
 }
-#endif /* __TASKING__ || __GNUC__ */
 
-/* Utility Macro for debugging purposes */
-#ifdef EE_DEBUG
-#define EE_BREAK_POINT() EE_tc_debug()
-#else  /* EE_DEBUG */
-#define EE_BREAK_POINT() ((void)0U)
-#endif /* EE_DEBUG */
-
-/*******************************************************************************
-                              TRICORE Information
-*******************************************************************************/
-
+/* Core info */
 __INLINE__ EE_UREG __ALWAYS_INLINE__ EE_tc_cpu_model( void )
 {
-  register EE_UREG r = __mfcr(CPU_ID);
+  register EE_UREG r = _mfcr(EE_CPU_REG_CPU_ID);
   return (r >> 2U);
 }
 
 __INLINE__ EE_UREG __ALWAYS_INLINE__ EE_tc_cpu_revision( void )
 {
-  register EE_UREG r = __mfcr(CPU_ID);
+  register EE_UREG r = _mfcr(EE_CPU_REG_CPU_ID);
   return (r & 0xFFU);
 }
 
 /* Reads the CPU Clock Cycle Counter (includes overflow bit) */
 __INLINE__  EE_UREG __ALWAYS_INLINE__ EE_tc_get_CCNT( void )
 {
-  return __mfcr(CCNT);
+  return _mfcr(EE_CPU_REG_CCNT);
 }
-
-/*******************************************************************************
-                        Interrupt Handling Functions
- ******************************************************************************/
 
 /* Functions to Access ICR register */
 __INLINE__ EE_ICR __ALWAYS_INLINE__ EE_tc_get_ICR( void )
 {
   register EE_ICR icr;
-  icr.reg = __mfcr(ICR);
+  icr.reg = _mfcr(EE_CPU_REG_ICR);
   return icr;
 }
 
 __INLINE__ void __ALWAYS_INLINE__ EE_tc_set_ICR( EE_ICR icr )
 {
-  __mtcr(ICR, icr.reg);
+  _mtcr(EE_CPU_REG_ICR, icr.reg);
   /* When you write a CSFR you need to force syncronization (isync) to
      avoid side-effects, TASKING __mtcr do that by implementation */
-#ifdef __GNUC__
   /* HIGHTEC GNUC intrinsic __mtcr do not put an isync natively */
   EE_tc_isync();
-#endif /* __GNUC__ */
 }
 
-#ifdef __TASKING__
-/* Enable interrupts */
-__INLINE__ void __ALWAYS_INLINE__ EE_tc_enableIRQ( void )
-{
-  __enable();
-}
-/* Disable interrupts */
-__INLINE__ void __ALWAYS_INLINE__ EE_tc_disableIRQ( void )
-{
-  __disable();
-}
-
-#elif defined(__GNUC__)
 /* Enable interrupts */
 __INLINE__ void __ALWAYS_INLINE__ EE_tc_enableIRQ( void )
 {
@@ -472,7 +595,299 @@ __INLINE__ void __ALWAYS_INLINE__ EE_tc_disableIRQ( void )
   _disable();
 }
 
-#endif /* __TASKING__ || __GNUC__ */
+/* Functions to select the call method */
+__INLINE__ void __ALWAYS_INLINE__ EE_tc_call( EE_THREAD_PTR t )
+{
+  __asm volatile ("calli %0" : : "a"(t));
+}
+
+__INLINE__ void __ALWAYS_INLINE__ EE_tc_jump( EE_THREAD_PTR t )
+{
+  __asm volatile ("ji %0" : : "a"(t));
+}
+
+__INLINE__ void __ALWAYS_INLINE__ EE_tc_jump_and_link( EE_THREAD_PTR t )
+{
+  __asm volatile ("jli %0" : : "a"(t));
+}
+
+/* Context handling functions for Gnuc */
+
+__INLINE__ EE_ADDR __ALWAYS_INLINE__ EE_tc_get_RA( void )
+{
+  register EE_ADDR reg = 0U;
+  __asm volatile ("mov.aa %0, %%a11" : "=a"(reg));
+  return reg;
+}
+
+__INLINE__ void __ALWAYS_INLINE__ EE_tc_set_RA( EE_CONST_ADDR reg )
+{
+  __asm volatile ("mov.aa %%a11, %0" : : "a"(reg));
+}
+
+__INLINE__ EE_ADDR __ALWAYS_INLINE__ EE_tc_get_SP( void )
+{
+  register EE_ADDR reg = 0U;
+  __asm volatile ("mov.aa %0, %%a10" : "=a"(reg));
+  return reg;
+}
+
+__INLINE__ void __ALWAYS_INLINE__ EE_tc_set_SP( EE_CONST_ADDR reg )
+{
+  /* Inform The GCC that this instruction "clobber" the memory (stack) */
+  __asm volatile ("mov.aa %%a10, %0" : : "a"(reg) : "memory");
+}
+
+/* Lower Context Handling Functions */
+__INLINE__ void __ALWAYS_INLINE__ EE_tc_svlcx( void )
+{
+  _svlcx();
+}
+
+__INLINE__ void __ALWAYS_INLINE__ EE_tc_rslcx( void )
+{
+  _rslcx();
+}
+
+/* Functions to access the CSFRs */
+
+#define EE_tc_get_psw()        __mfcr(EE_CPU_REG_PSW)
+
+__INLINE__ void __ALWAYS_INLINE__ EE_tc_set_psw( EE_UREG reg )
+{
+  __mtcr(EE_CPU_REG_PSW, reg);
+  /* When you write a CSFR you need to force syncronization (isync) to
+     avoid side-effects, TASKING __mtcr do that by implementation */
+  /* HIGHTEC GNUC intrinsic __mtcr do not put an isync natively */
+  EE_tc_isync();
+}
+
+#define EE_tc_get_pcxi()       __mfcr(EE_CPU_REG_PCXI)
+
+__INLINE__ void __ALWAYS_INLINE__ EE_tc_set_pcxi( EE_UREG reg )
+{
+  __mtcr(EE_CPU_REG_PCXI, reg);
+  /* When you write a CSFR you need to force syncronization (isync) to
+     avoid side-effects, TASKING __mtcr do that by implementation */
+  /* HIGHTEC GNUC intrinsic __mtcr do not put an isync natively */
+  EE_tc_isync();
+}
+
+#define EE_tc_get_fcx()       __mfcr(EE_CPU_REG_FCX)
+
+__INLINE__ void __ALWAYS_INLINE__ EE_tc_set_fcx( EE_UREG reg )
+{
+  __mtcr(EE_CPU_REG_FCX, reg);
+  /* When you write a CSFR you need to force syncronization (isync) to
+     avoid side-effects, TASKING __mtcr do that by implementation */
+  /* HIGHTEC GNUC intrinsic __mtcr do not put an isync natively */
+  EE_tc_isync();
+}
+
+#define EE_tc_get_syscon() __mfcr(EE_CPU_REG_SYSCON)
+
+__INLINE__ void __ALWAYS_INLINE__ EE_tc_set_syscon( EE_UREG reg )
+{
+  __mtcr(EE_CPU_REG_SYSCON, reg);
+  /* When you write a CSFR you need to force syncronization (isync) to
+     avoid side-effects, TASKING __mtcr do that by implementation */
+  /* HIGHTEC GNUC intrinsic __mtcr do not put an isync natively */
+  EE_tc_isync();
+}
+
+#define EE_tc_get_cfr(reg_id) __mfcr(reg_id)
+
+/* When used this isync have to be put by hand */
+#define EE_tc_set_cfr(reg_id, reg) __mtcr((reg_id), (reg));
+
+#elif defined(__DCC__)
+
+/* Count Leading Zeros */
+__INLINE__ EE_UREG __ALWAYS_INLINE__ EE_tc_clz( EE_UREG data )
+{
+  return (EE_UREG)_clz(data);
+}
+
+/* Data barrier */
+__INLINE__ void __ALWAYS_INLINE__ EE_tc_dsync( void )
+{
+  _dsync();
+}
+
+/* Instruction barrier */
+__INLINE__ void __ALWAYS_INLINE__ EE_tc_isync( void )
+{
+  _isync();
+}
+
+/* Debug instruction */
+__INLINE__ void __ALWAYS_INLINE__ EE_tc_debug( void )
+{
+  _debug();
+}
+
+/* Core info */
+__INLINE__ EE_UREG __ALWAYS_INLINE__ EE_tc_cpu_model( void )
+{
+  register EE_UREG r = _mfcr(EE_CPU_REG_CPU_ID);
+  return (r >> 2U);
+}
+
+__INLINE__ EE_UREG __ALWAYS_INLINE__ EE_tc_cpu_revision( void )
+{
+  register EE_UREG r = _mfcr(EE_CPU_REG_CPU_ID);
+  return (r & 0xFFU);
+}
+
+/* Reads the CPU Clock Cycle Counter (includes overflow bit) */
+__INLINE__  EE_UREG __ALWAYS_INLINE__ EE_tc_get_CCNT( void )
+{
+  return _mfcr(EE_CPU_REG_CCNT);
+}
+
+/* Functions to Access ICR register */
+__INLINE__ EE_ICR __ALWAYS_INLINE__ EE_tc_get_ICR( void )
+{
+  register EE_ICR icr;
+  icr.reg = _mfcr(EE_CPU_REG_ICR);
+  return icr;
+}
+
+__INLINE__ void __ALWAYS_INLINE__ EE_tc_set_ICR( EE_ICR icr )
+{
+  _mtcr(EE_CPU_REG_ICR, icr.reg);
+  /* When you write a CSFR you need to force syncronization (isync) to
+     avoid side-effects, TASKING __mtcr do that by implementation */
+  /* DCC intrinsic __mtcr do not put an isync natively */
+  EE_tc_isync();
+}
+
+/* Enable interrupts */
+__INLINE__ void __ALWAYS_INLINE__ EE_tc_enableIRQ( void )
+{
+  _enable();
+}
+/* Disable interrupts */
+__INLINE__ void __ALWAYS_INLINE__ EE_tc_disableIRQ( void )
+{
+  _disable();
+}
+
+/* Functions to select the call method */
+asm volatile void EE_tc_call(EE_THREAD_PTR t)
+{
+% reg t
+  calli t
+}
+
+asm volatile void EE_tc_jump( EE_THREAD_PTR t )
+{
+% reg t
+  ji t
+}
+
+asm volatile void EE_tc_jump_and_link(EE_THREAD_PTR ptr)
+{
+% reg ptr
+  jli ptr
+}
+
+/* Context handling functions for Diab */
+
+asm volatile EE_ADDR EE_tc_get_RA( void )
+{
+! "%a2"
+  mov.aa %a2, %a11
+}
+
+asm volatile void EE_tc_set_RA(EE_CONST_ADDR ptr)
+{
+% reg ptr
+  mov.aa %a11, ptr
+}
+
+asm volatile EE_ADDR EE_tc_get_SP(void)
+{
+! "%a2"
+  mov.aa %a2, %a10
+}
+
+asm volatile __attribute__((use_frame_pointer)) void EE_tc_set_SP(EE_CONST_ADDR ptr)
+{
+% reg ptr
+  mov.aa %a10, ptr
+}
+
+/* Lower Context Handling Functions */
+__INLINE__ void __ALWAYS_INLINE__ EE_tc_svlcx( void )
+{
+  _svlcx();
+}
+
+__INLINE__ void __ALWAYS_INLINE__ EE_tc_rslcx( void )
+{
+  _rslcx();
+}
+
+/* Functions to access the CSFRs */
+
+#define EE_tc_get_psw()        _mfcr(EE_CPU_REG_PSW)
+
+__INLINE__ void __ALWAYS_INLINE__ EE_tc_set_psw( EE_UREG reg )
+{
+  _mtcr(EE_CPU_REG_PSW, reg);
+  /* When you write a CSFR you need to force syncronization (isync) to
+     avoid side-effects, TASKING __mtcr do that by implementation */
+  /* DCC intrinsic __mtcr do not put an isync natively */
+  EE_tc_isync();
+}
+
+#define EE_tc_get_pcxi()       _mfcr(EE_CPU_REG_PCXI)
+
+__INLINE__ void __ALWAYS_INLINE__ EE_tc_set_pcxi( EE_UREG reg )
+{
+  _mtcr(EE_CPU_REG_PCXI, reg);
+  /* When you write a CSFR you need to force syncronization (isync) to
+     avoid side-effects, TASKING __mtcr do that by implementation */
+  /* DCC intrinsic __mtcr do not put an isync natively */
+  EE_tc_isync();
+}
+
+#define EE_tc_get_fcx()       _mfcr(EE_CPU_REG_FCX)
+
+__INLINE__ void __ALWAYS_INLINE__ EE_tc_set_fcx( EE_UREG reg )
+{
+  _mtcr(EE_CPU_REG_FCX, reg);
+  /* When you write a CSFR you need to force syncronization (isync) to
+     avoid side-effects, TASKING __mtcr do that by implementation */
+  /* DCC intrinsic __mtcr do not put an isync natively */
+  EE_tc_isync();
+}
+
+#define EE_tc_get_syscon() _mfcr(EE_CPU_REG_SYSCON)
+
+__INLINE__ void __ALWAYS_INLINE__ EE_tc_set_syscon( EE_UREG reg )
+{
+  _mtcr(EE_CPU_REG_SYSCON, reg);
+  /* When you write a CSFR you need to force syncronization (isync) to
+     avoid side-effects, TASKING __mtcr do that by implementation */
+  /* DCC intrinsic __mtcr do not put an isync natively */
+  EE_tc_isync();
+}
+
+#define EE_tc_get_cfr(reg_id) _mfcr(reg_id)
+
+/* When used this isync have to be put by hand */
+#define EE_tc_set_cfr(reg_id, reg) _mtcr((reg_id), (reg));
+
+#endif /* __TASKING__ || __GNUC__ || __DCC__ */
+
+/* Utility Macro for debugging purposes */
+#ifdef EE_DEBUG
+#define EE_BREAK_POINT() EE_tc_debug()
+#else  /* EE_DEBUG */
+#define EE_BREAK_POINT() ((void)0U)
+#endif /* EE_DEBUG */
 
 /* Suspend/Resume Interrupts */
 __INLINE__ void __ALWAYS_INLINE__ EE_tc_resumeIRQ( EE_FREG flags )
@@ -508,155 +923,6 @@ __INLINE__ void __ALWAYS_INLINE__ EE_tc_set_int_prio( EE_TYPEISR2PRIO prio )
   icr.bits.CCPN = prio;
   EE_tc_set_ICR(icr);
 }
-
-/*******************************************************************************
-    Functions used to select witch kind of "call method" we want use
-    on a symbol.
- ******************************************************************************/
-
-__INLINE__ void __ALWAYS_INLINE__ EE_tc_call( EE_THREAD_PTR t )
-{
-  __asm volatile ("calli %0" : : "a"(t));
-}
-
-__INLINE__ void __ALWAYS_INLINE__ EE_tc_jump( EE_THREAD_PTR t )
-{
-  __asm volatile ("ji %0" : : "a"(t));
-}
-
-__INLINE__ void __ALWAYS_INLINE__ EE_tc_jump_and_link( EE_THREAD_PTR t )
-{
-  __asm volatile ("jli %0" : : "a"(t));
-}
-
-/*******************************************************************************
-                        TRICORE Context Handling
- ******************************************************************************/
-
-#ifdef __TASKING__
-__INLINE__ EE_ADDR __ALWAYS_INLINE__ EE_tc_get_RA( void )
-{
-  register EE_ADDR reg = 0U;
-  __asm volatile ("mov.aa %0, a11" : "=a"(reg));
-  return reg;
-}
-
-__INLINE__ void __ALWAYS_INLINE__ EE_tc_set_RA( EE_CONST_ADDR reg )
-{
-  __asm volatile ("mov.aa a11, %0" : : "a"(reg));
-}
-
-__INLINE__ EE_ADDR __ALWAYS_INLINE__ EE_tc_get_SP( void )
-{
-  register EE_ADDR reg = 0U;
-  __asm volatile ("mov.aa %0, sp" : "=a"(reg));
-  return reg;
-}
-
-__INLINE__ void __ALWAYS_INLINE__ EE_tc_set_SP( EE_CONST_ADDR reg )
-{
-  __asm volatile ("mov.aa sp, %0" : : "a"(reg));
-}
-
-#else /* __TASKING__ */
-__INLINE__ EE_ADDR __ALWAYS_INLINE__ EE_tc_get_RA( void )
-{
-  register EE_ADDR reg = 0U;
-  __asm volatile ("mov.d %0, %%a11" : "=d"(reg));
-  return reg;
-}
-
-__INLINE__ void __ALWAYS_INLINE__ EE_tc_set_RA( EE_CONST_ADDR reg )
-{
-  __asm volatile ("mov.aa %%a11, %0" : : "a"(reg));
-}
-
-__INLINE__ EE_ADDR __ALWAYS_INLINE__ EE_tc_get_SP( void )
-{
-  register EE_ADDR reg = 0U;
-  __asm volatile ("mov.aa %0, %%a10" : "=a"(reg));
-  return reg;
-}
-
-__INLINE__ void __ALWAYS_INLINE__ EE_tc_set_SP( EE_CONST_ADDR reg )
-{
-  /* Inform The GCC that this instruction "clobber" the memory (stack) */
-  __asm volatile ("mov.aa %%a10, %0" : : "a"(reg) : "memory");
-}
-
-#endif /* __TASKING__ */
-
-/* Lower Context Handling Functions */
-__INLINE__ void __ALWAYS_INLINE__ EE_tc_svlcx( void )
-{
-  __asm volatile ("svlcx");
-}
-
-__INLINE__ void __ALWAYS_INLINE__ EE_tc_rslcx( void )
-{
-  __asm volatile ("rslcx");
-}
-
-/*******************************************************************************
-                              TRICORE CSFR Access
- ******************************************************************************/
-
-#define EE_tc_get_psw()        __mfcr(PSW)
-
-__INLINE__ void __ALWAYS_INLINE__ EE_tc_set_psw( EE_UREG reg )
-{
-  __mtcr(PSW, reg);
-  /* When you write a CSFR you need to force syncronization (isync) to
-     avoid side-effects, TASKING __mtcr do that by implementation */
-#ifdef __GNUC__
-  /* HIGHTEC GNUC intrinsic __mtcr do not put an isync natively */
-  EE_tc_isync();
-#endif /* __GNUC__ */
-}
-
-#define EE_tc_get_pcxi()       __mfcr(PCXI)
-
-__INLINE__ void __ALWAYS_INLINE__ EE_tc_set_pcxi( EE_UREG reg )
-{
-  __mtcr(PCXI, reg);
-  /* When you write a CSFR you need to force syncronization (isync) to
-     avoid side-effects, TASKING __mtcr do that by implementation */
-#ifdef __GNUC__
-  /* HIGHTEC GNUC intrinsic __mtcr do not put an isync natively */
-  EE_tc_isync();
-#endif /* __GNUC__ */
-}
-
-#define EE_tc_get_fcx()       __mfcr(FCX)
-
-__INLINE__ void __ALWAYS_INLINE__ EE_tc_set_fcx( EE_UREG reg )
-{
-  __mtcr(FCX, reg);
-  /* When you write a CSFR you need to force syncronization (isync) to
-     avoid side-effects, TASKING __mtcr do that by implementation */
-#ifdef __GNUC__
-  /* HIGHTEC GNUC intrinsic __mtcr do not put an isync natively */
-  EE_tc_isync();
-#endif /* __GNUC__ */
-}
-
-#define EE_tc_get_syscon() __mfcr(SYSCON)
-
-__INLINE__ void __ALWAYS_INLINE__ EE_tc_set_syscon( EE_UREG reg )
-{
-  __mtcr(SYSCON, reg);
-  /* When you write a CSFR you need to force syncronization (isync) to
-     avoid side-effects, TASKING __mtcr do that by implementation */
-#ifdef __GNUC__
-  /* HIGHTEC GNUC intrinsic __mtcr do not put an isync natively */
-  EE_tc_isync();
-#endif /* __GNUC__ */
-}
-
-#define EE_tc_get_cfr(reg_id) __mfcr(reg_id)
-
-/* When used this isync have to be put by hand */
-#define EE_tc_set_cfr(reg_id, reg) __mtcr((reg_id), (reg));
 
 /*******************************************************************************
                             TRICORE CSA handling
@@ -745,6 +1011,7 @@ __INLINE__ EE_FREG __ALWAYS_INLINE__ EE_hal_suspendIRQ( void )
 {
   return EE_tc_suspendIRQ();
 }
+
 /*******************************************************************************
                   ENDINIT e SAFETY_ENDINIT support functions
  This function are declared here but defined inside MCU because completly MCU

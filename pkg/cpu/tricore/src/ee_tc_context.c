@@ -73,7 +73,8 @@ __INLINE__ void __ALWAYS_INLINE__ EE_tc_stack_save( EE_UREG tos )
   p_tos->pcxi_tos  = EE_tc_get_pcxi();
 }
 
-__INLINE__ void __ALWAYS_INLINE__ EE_tc_stack_restore( EE_UREG tos )
+__INLINE__ void __ALWAYS_INLINE__ EE_CHANGE_STACK_POINTER
+  EE_tc_stack_restore( EE_UREG tos )
 {
   struct EE_TC_TOS  * const p_tos = &EE_tc_system_tos[tos];
   EE_ADDR             const sp    = p_tos->ram_tos;

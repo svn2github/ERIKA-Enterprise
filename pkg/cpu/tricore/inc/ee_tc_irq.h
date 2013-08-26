@@ -324,20 +324,6 @@
 #define DeclareIsr(f) void f ( void )
 
 /* ISR Management Macros */
-
-#ifdef __TASKING__
-/* Declare an ISR (category 1) */
-#define ISR1(f) void f ( void )
-
-/* Define an ISR (category 2). Used only for client code. The wrapper is moved
-   inside ee_tricore_intvec.c to isulate better user code from Kernell code.
-   In TriCore Architecture ISR ID and ISR Priority are the same.
-   I Use ISR ID as interrupt vector entry because is tied to handler name
-   and I can easily reconstruct that here */
-#define ISR2(f) ISR1(f)
-#elif defined (__GNUC__)
-
-/* TODO: Add this for TASKING too */
 #ifdef EE_ERIKA_ISR_HANDLING_OFF
 /* If the user want generate his own Interrupt Vector give to him
    enriched macros for code generation */
@@ -368,20 +354,19 @@ void EE_PREPROC_JOIN(ISR2_,f) ( void )
 #else /* EE_ERIKA_ISR_HANDLING_OFF */
 
 /* Declare an ISR (category 1) */
-#define ISR1(f) void __attribute__((used)) f ( void )
+#define ISR1(f) void f ( void )
 
 /* Define an ISR (category 2). Used only for client code. The wrapper is moved
-   inside ee_tricore_intvec.c to isulate better user code from Kernell code.
+   inside ee_tricore_intvec.c to isolate better user code from Kernel code.
    In TriCore Architecture ISR ID and ISR Priority are the same.
    I Use ISR ID as interrupt vector entry because is tied to handler name
    and I can easily reconstruct that here */
 #define ISR2(f) ISR1(f)
 
-#endif /* EE_ERIKA_ISR_HANDLING_OFF */
-#endif /* __TASKING__ || __GNUC__ */
-
 /* OSEK Standard Macro for ISR declaration */
 #define ISR(f) void f ( void )
+
+#endif /* EE_ERIKA_ISR_HANDLING_OFF */
 
 /* Used To resolve Interrupt Vector */
 #if (!defined(EE_ERIKA_ISR_HANDLING_OFF)) && defined (__TASKING__)

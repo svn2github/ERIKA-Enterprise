@@ -108,6 +108,9 @@ endif # EE_TASKING__
 ifeq ($(call iseeopt, EE_GNU__), yes)
 include $(PKGBASE)/cfg/arch/cc_tricore_gnu_new.mk
 endif # EE_GNU__
+ifeq ($(call iseeopt, EE_DIAB__), yes)
+include $(PKGBASE)/cfg/arch/cc_tricore_diab.mk
+endif # EE_DIAB__
 endif # EE_TRICORE__
 
 # -------------------------------------------------------------

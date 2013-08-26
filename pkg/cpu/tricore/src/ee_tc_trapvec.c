@@ -154,8 +154,9 @@ void EE_TRAP( EE_CLASS_TRAPNMI ) EE_VECTOR_TABLE EE_COMPILER_EXPORT EE_tc_trap_n
 }
 #endif /* !EE_TC_TRAP_NMI_TRAP */
 
-#elif defined (__GNUC__)
+#elif defined (__GNUC__) || defined(__DCC__)
 
+#if defined(__GNUC__)
 #define EE_TRAP_DEFINITION2(t,h)                      \
   __asm (".globl " EE_PREPROC_STRING(t));             \
   __asm (EE_PREPROC_STRING(t) ":");                   \
@@ -168,6 +169,18 @@ void EE_TRAP( EE_CLASS_TRAPNMI ) EE_VECTOR_TABLE EE_COMPILER_EXPORT EE_tc_trap_n
 
 /* Two pre-processor steps to let macros explode */
 #define EE_TRAP_DEFINITION(t,h) EE_TRAP_DEFINITION2(t,h)
+
+#define EE_TRAP_DEFINITION_WITH_CALL(t,h)             \
+  __asm (".globl " EE_PREPROC_STRING(t));             \
+  __asm (EE_PREPROC_STRING(t) ":");                   \
+  __asm ("svlcx");                                    \
+  __asm ("movh.a %a15,hi:" EE_PREPROC_STRING(h));     \
+  __asm ("lea %a15,[%a15]lo:" EE_PREPROC_STRING(h));  \
+  __asm ("mov %d4,%d15");                             \
+  __asm ("calli %a15");                               \
+  __asm ("rslcx");                                    \
+  __asm ("rfe");                                      \
+  __asm (".align 5");
 
 #ifdef EE_DEBUG
 #define EE_TRAP_DEFAULT(t)                \
@@ -191,8 +204,62 @@ __asm ("                                \n\
   .globl EE_tc_trap_table               \n\
 EE_tc_trap_table:                       \n\
 ");
+#elif defined (__DCC__)
 
-#if defined(EE_TC_TRAP_MMU_TRAP)
+#define EE_TRAP_DEFINITION2(t,h)                          \
+  __asm ("  .globl " EE_PREPROC_STRING(t));               \
+  __asm (EE_PREPROC_STRING(t) ":");                       \
+  __asm ("  svlcx");                                      \
+  __asm ("  movh.a %a15," EE_PREPROC_STRING(h) "@ha" );   \
+  __asm ("  lea %a15,[%a15]" EE_PREPROC_STRING(h) "@l");  \
+  __asm ("  mov %d4,%d15");                               \
+  __asm ("  ji %a15");                                    \
+  __asm ("  .align 5");
+
+/* Two pre-processor steps to let macros explode */
+#define EE_TRAP_DEFINITION(t,h) EE_TRAP_DEFINITION2(t,h)
+
+#define EE_TRAP_DEFINITION_WITH_CALL(t,h)                   \
+  __asm ("  .globl " EE_PREPROC_STRING(t));                 \
+  __asm (EE_PREPROC_STRING(t) ":");                         \
+  __asm ("  svlcx");                                        \
+  __asm ("  movh.a %a15" EE_PREPROC_STRING(h) "@ha" );      \
+  __asm ("  lea %a15,[%a15]lo:" EE_PREPROC_STRING(h) "@l"); \
+  __asm ("  mov %d4,%d15");                                 \
+  __asm ("  calli %a15");                                   \
+  __asm ("  rslcx");                                        \
+  __asm ("  rfe");                                          \
+  __asm ("  .align 5");
+
+#ifdef EE_DEBUG
+#define EE_TRAP_DEFAULT(t)                  \
+  __asm ("  .globl " EE_PREPROC_STRING(t)); \
+  __asm (EE_PREPROC_STRING(t) ":");         \
+  __asm ("  debug");                        \
+  __asm ("  j " EE_PREPROC_STRING(t));      \
+  __asm ("  .align 5");
+#else
+#define EE_TRAP_DEFAULT(t)                  \
+  __asm ("  .globl " EE_PREPROC_STRING(t)); \
+  __asm (EE_PREPROC_STRING(t) ":");         \
+  __asm ("  j _exit");                      \
+  __asm ("  .align 5");
+#endif /* EE_DEBUG */
+
+__asm ("                                \n\
+  .section .traptab,4,rx                \n\
+  .set noreorder                        \n\
+  .align 8                              \n\
+  .globl _exit                          \n\
+  .globl EE_tc_trap_table               \n\
+EE_tc_trap_table:                       \n\
+");
+
+#endif /* __GNUC__ || __DCC__ */
+
+#if defined(__EE_MEMORY_PROTECTION__) && defined(__EE_USE_MMU__)
+EE_TRAP_DEFINITION(EE_tc_trap_mmu, EE_tc_mmu_handler)
+#elif defined(EE_TC_TRAP_MMU_TRAP)
 EE_TRAP_DEFINITION(EE_tc_trap_mmu, EE_TC_TRAP_MMU_TRAP)
 #else
 EE_TRAP_DEFAULT(EE_tc_trap_mmu)
@@ -240,4 +307,4 @@ EE_TRAP_DEFINITION(EE_tc_trap_nmi, EE_TC_TRAP_NMI_TRAP)
 EE_TRAP_DEFAULT(EE_tc_trap_nmi)
 #endif /* EE_TC_TRAP_NMI_TRAP */
 
-#endif /* TASKING */
+#endif /* __TASKING__ || __GNUC___ || __DCC__ */

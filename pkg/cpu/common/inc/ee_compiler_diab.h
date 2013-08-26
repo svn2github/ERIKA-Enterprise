@@ -44,6 +44,11 @@
  * Author: 2010 Fabio Checconi
  */
 
+/* Infinion modifications, to integrate Ifx Build environment:
+ * Author: 
+ *         Ashok Abbi, <Ashok.Abbi@infineon.com> 18.07.2013
+ */
+
 /* This file MUST contain only #defines, because it is also included
    by the .S files */
 
@@ -69,7 +74,9 @@
 
 #define __ALWAYS_INLINE__
 
-#define NORETURN
+#define __NEVER_INLINE__  __attribute__ ((noinline))
+
+#define NORETURN  __attribute__ ((noreturn))
 
 #define EE_COMPILER_ALIGN(a) __attribute__((aligned(a)))
 #define EE_COMPILER_SECTION(s) __attribute__((section(s)))
@@ -113,5 +120,7 @@ EE_PREPROC_JOIN(SDATA "" "ee_fast_mcglobalu", far-absolute)
 /* Pragma section tail for CONST/SCONST classes */
 #define EE_SHARED_CONST_END CONST
 #define EE_SHARED_SCONST_END SCONST
+
+#define EE_barrier() _nop()
 
 #endif /* __INCLUDE_CPU_COMMON_EE_COMPILER_DIAB__ */

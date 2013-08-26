@@ -87,8 +87,8 @@
 
 /* C initialization function for TASKING is inside libc */
 #define EE_tc27x_cinit _c_init
-/* C initialization function */
-void EE_tc27x_cinit( void );
+/* C initialization function declaration */
+extern void EE_tc27x_cinit( void );
 
 /* Utility macros to set registers: */
 
@@ -109,7 +109,7 @@ extern void _exit (int status);
 /* libc exit function remapping  */
 #define EE_EXIT _exit
 
-/* GNUC meaninless fucnctions or data specificators */
+/* GNUC meaningless function or data specificators */
 #define EE_FAR
 #define JUMP
 
@@ -136,9 +136,69 @@ static void EE_tc27x_cinit( void );
 
 __asm ("\t .weak _SMALL_DATA3_,_SMALL_DATA4_");
 
+#elif defined(__DCC__)
+/* never profile nor run-time check this code */
+#pragma option -Xprof-all=0
+#pragma option -Xrtc=0
+
+extern void exit (int status);
+
+#ifndef EE_EXECUTE_FROM_RAM
+/*
+  DCC Library does not contain copytable.h where find struct copytable
+  declaration end __copy_multiple function declaration (what a shame). So
+  instead do the clean thing I have to work around with void * */
+/* #pragma weak __COPY_TABLE_BEGIN__
+#pragma weak __COPY_TABLE_END__ */
+__asm ("\t .weak __COPY_TABLE_BEGIN__,__COPY_TABLE_END__");
+extern /* struct copytable */ void * __COPY_TABLE_BEGIN__[];
+extern /* struct copytable */ void * __COPY_TABLE_END__[];
+extern void __copy_multiple (/* struct copytable */void *begin,
+  /* struct copytable */ void *end);
+#endif /* !EE_EXECUTE_FROM_RAM */
+
+/* libc exit function remapping  */
+#define EE_EXIT exit
+
+/* DCC meaninless fucnctions or data specificators */
+#define EE_FAR
+#define JUMP
+
+/* Utility macros to set registers: */
+
+/* we need to use a15 for the address register and not direct that the compiler
+   this will not remove */
+#define EE_tc27x_setareg2(areg, val)          \
+  { __asm("#$$bp");                           \
+    __asm ("  movh.a\t %a15,"#val"@ha\n");    \
+    __asm ("  lea\t %a15,[%a15]"#val"@l\n");  \
+    __asm ("  mov.aa %"#areg", %a15\n");      \
+    __asm ("#$$ep");                          \
+  }
+#define EE_tc27x_setareg(areg,val) EE_tc27x_setareg2(areg,val)
+
+asm volatile int EE_tc27x_extru (int src, int start, int size)
+{
+%reg src; con start, size;
+!"%d2" 
+  mov.d	 %d2, src               # pointer src ís not casted by compiler
+  extr.u %d2, %d2, start, size
+}
+
+/* C initialization function */
+#ifdef EE_EXECUTE_FROM_RAM
+#define EE_tc27x_cinit() ((void)0)
+#else /* EE_EXECUTE_FROM_RAM */
+#define EE_tc27x_cinit()  \
+  __copy_multiple(__COPY_TABLE_BEGIN__, __COPY_TABLE_END__)
+#endif /* EE_EXECUTE_FROM_RAM */
+
+/* __asm ("\t .weak __SDA8_BASE, __SDA9_BASE"); */
+__asm ("\t .weak _SMALL_DATA3_,_SMALL_DATA4_");
+
 #else
 #error Unsupported compiler!
-#endif
+#endif /* __TASKING__ || __GNUC__ || __DCC__ */
 
 extern EE_FAR EE_UINT32 EE_E_USTACK[];    /* user stack end */
 /* extern EE_FAR EE_UINT32 EE_LC_UE_ISTACK[]; interrupt stack end */
@@ -184,10 +244,10 @@ EE_COMPILER_EXTERN(_trapsystem)
 EE_COMPILER_EXTERN(_trapnmi)
 #endif /* __TASKING__ && EE_DEFAULT_TRAP_HANDLING_OFF */
 
-#ifdef __TASKING__
 /*******************************************************************************
  * _START() - Startup Code
  ******************************************************************************/
+#ifdef __TASKING__
 /* Labelled Pragmas are Bugged in TASKING 4.0r1 Compiler */
 /* EE_PRAGMA_SECTION(_START,libc.reset) */
 EE_DO_PRAGMA(section code libc.reset)
@@ -196,12 +256,13 @@ void _START( void )
   EE_tc27x_start();
 }
 EE_DO_PRAGMA(section code restore)
-#elif defined (__GNUC__)
+#elif defined (__GNUC__) || defined (__DCC__)
 
-/*******************************************************************************
- * _START() - Startup Code
- ******************************************************************************/
+#if defined (__GNUC__)
 #pragma section ".startup_code" ax 4
+#elif defined (__DCC__)
+#pragma section CODE ".startup_code" X
+#endif /* __GNUC__ || __DCC__ */
 void RESET_(void);
 
 void RESET_(void)
@@ -215,14 +276,17 @@ void RESET_(void)
   __asm (".word 0x00000000");
   __asm (".word 0x791eb864");
   __asm (".word 0x86e1479b");
-  /* we must make a jump to cached segment, why trap_tab follow */
-  __asm ("_START: ja  EE_tc27x_start");
+  __asm ("_START: j EE_tc27x_start");
 }
 
 /* we switch to normal region */
+#ifdef __GNUC__
 #pragma section
+#elif defined (__DCC__)
+#pragma section CODE X
+#endif /* __GNUC__ || __DCC__ */
 
-#endif /* __TASKING__ || __GNUC__ */
+#endif /* __TASKING__ || __GNUC__ || __DCC__ */
 
 /*******************************************************************************
  * @brief startup code
@@ -294,27 +358,27 @@ void __NEVER_INLINE__ JUMP EE_TC27X_START( void )
    * Disable this if not started from RESET vector. (E.g.
    * ROM monitors require to keep in control of vectors)
    */
-  __mtcr(BTV, (EE_UINT32)&EE_TRAP_TAB);
+  EE_tc_set_cfr(EE_CPU_REG_BTV, (EE_UINT32)&EE_TRAP_TAB);
 
   /*
    * Load Base Address of Interrupt Vector Table.
    * Disable this if not started from RESET vector. (E.g.
    * ROM monitors require to keep in control of vectors)
    */
-  __mtcr(BIV, (EE_UINT32)&EE_INT_TAB);
+  EE_tc_set_cfr(EE_CPU_REG_BIV, (EE_UINT32)&EE_INT_TAB);
 
 #ifdef EE_ICACHE_ENABLED
   /*
    * PCON0 configuration.
    */
-  __mtcr(PCON0, 0U);
+  EE_tc_set_cfr(EE_CPU_REG_PCON0, 0U);
 #endif
 
 #ifdef EE_DCACHE_ENABLED
   /*
    * DCON0 configuration.
    */
-  __mtcr(DCON0, 0U);
+  EE_tc_set_cfr(EE_CPU_REG_DCON0, 0U);
 #endif
 
 #if (!defined(__OO_BCC1__)) && (!defined(__OO_BCC2__)) && \
@@ -390,7 +454,7 @@ void __NEVER_INLINE__ JUMP EE_TC27X_START( void )
    */
   /* EE_UINT32 isp = (EE_UINT32)(_lc_ue_istack) & EE_STACK_ALIGN; */
   isp = (EE_UINT32)EE_tc_IRQ_tos.SYS_tos & EE_STACK_ALIGN;
-  __mtcr(ISP, isp);
+  EE_tc_set_cfr(EE_CPU_REG_ISP, isp);
 #endif /* __MULTI__ &&  __IRQ_STACK_NEEDED__ */
 
   /*
@@ -479,7 +543,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_tc27x_csa_init( void )
     --fcd_needed_csa;
     if (fcd_needed_csa == 0U)
     {
-      __mtcr(LCX, pcxi_val);
+      EE_tc_set_cfr(EE_CPU_REG_LCX, pcxi_val);
     }
   }
   /* Initialize the HEAD of Free Context List */

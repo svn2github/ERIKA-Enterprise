@@ -44,6 +44,14 @@
   *  @date 2012
   */
 
+/* Infineon modifications, integration to Infineon Build environment:
+ * Fixes for compilation issues with Tasking Compiler:
+ * Updates for compilation issues with Dcc Compiler:
+ * Usage of generic compiler independent register header file:
+ * Author: 
+ *         Ashok Abbi, <Ashok.Abbi@infineon.com> 18.07.2013
+ */
+
 #ifndef INCLUDE_EE_TC_INTERNAL_H__
 #define INCLUDE_EE_TC_INTERNAL_H__
 
@@ -61,6 +69,14 @@ EE_DO_PRAGMA(warning 557)
 /* It should have been worked according to documentation but it doesn't */
 /* EE_DO_PRAGMA(EE_oo_TerminateTask:warning 588) */
 #endif /* __TASKING__ */
+
+/* I have to inform DCC when a function touch SP adding the following attribute
+   to the function definition */
+#if defined(__DCC__)
+#define EE_CHANGE_STACK_POINTER __attribute__(( use_frame_pointer ))
+#else
+#define EE_CHANGE_STACK_POINTER
+#endif /* __DCC__ */
 
 /*******************************************************************************
                               Generic Primitives
@@ -267,6 +283,8 @@ __INLINE__ EE_PCXI __ALWAYS_INLINE__ EE_tc_get_original_pcxi( void )
   return res;
 }
 
+#ifdef __IRQ_STACK_NEEDED__
+
 /**
  *  This code crawl the CSA list and search the Context Holding SP to be set
  *  back before scheduling. It makes some assumption about Interrupt and
@@ -278,12 +296,10 @@ __INLINE__ EE_ADDR __ALWAYS_INLINE__ EE_tc_get_prev_stack( void )
   EE_ADDR res = (EE_ADDR)NULL;
   EE_CSA* csa_ptr = EE_tc_csa_make_addr(EE_tc_get_original_pcxi());
   if (csa_ptr != NULL) {
-    res = csa_ptr->ucx.A10;
+    res = csa_ptr->cx.ucx.A10;
   }
   return res;
 }
-
-#ifdef __IRQ_STACK_NEEDED__
 
 /* Masked used to clean bit corresponding to PSW.IS in bitmask. */
 #define EE_TC_PSW_IS_CLEAN_MASK (~((EE_UINT32)1U << 9U))
@@ -299,24 +315,28 @@ __INLINE__ void __ALWAYS_INLINE__ EE_tc_set_psw_user_stack( void )
  *  back before scheduling. It makes some assumption about Interrupt and
  *  Vector tables implementations.
  */
-__INLINE__ void __ALWAYS_INLINE__ EE_tc_set_prev_stack_back( void )
+__INLINE__ void __ALWAYS_INLINE__ EE_CHANGE_STACK_POINTER
+  EE_tc_set_prev_stack_back( void )
 {
-  /* Configure "User" Stack */
-  EE_tc_set_psw_user_stack();
   /* Switch back to interrupted "User Stack" */
   EE_tc_set_SP( EE_tc_get_prev_stack( ) );
-}
-
-__INLINE__ void __ALWAYS_INLINE__
-  EE_tc_set_interrupted_stack( EE_CONST_ADDR sp )
-{
   /* Configure "User" Stack */
   EE_tc_set_psw_user_stack();
+}
+
+__INLINE__ void __ALWAYS_INLINE__ EE_CHANGE_STACK_POINTER
+  EE_tc_set_interrupted_stack( EE_CONST_ADDR sp )
+{
   /* Switch back to interrupted "User Stack" */
   EE_tc_set_SP( sp );
+  /* Configure "User" Stack */
+  EE_tc_set_psw_user_stack();
 }
 #else /* __IRQ_STACK_NEEDED__ */
-
+__INLINE__ EE_ADDR __ALWAYS_INLINE__ EE_tc_get_prev_stack( void )
+{
+  return EE_tc_get_SP();
+}
 /* Do not clean anything, I can't */
 #define EE_TC_PSW_IS_CLEAN_MASK                     ((EE_UREG)-1)
 /* If there's only one stack you must be in "Global Shared Stack" flagged by

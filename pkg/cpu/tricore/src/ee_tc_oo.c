@@ -44,6 +44,14 @@
     @author Errico Guidieri
     @date 2012
   */
+
+/* Infineon modifications, integration to Infineon Build environment:
+ * Fixes for compilation issues with Tasking Compiler:
+ * Updates for compilation issues with Dcc Compiler:
+ * Usage of generic compiler independent register header file:
+ * Author: 
+ *         Ashok Abbi, <Ashok.Abbi@infineon.com> 18.07.2013
+ */
 /* I need EE_NIL symbol from the kernel so I include the whole internals */
 #include "ee_internal.h"
 
@@ -77,7 +85,7 @@ void EE_hal_terminate_task(EE_TID tid)
 
     if (p_task_tail_csa != NULL) {
       cp = p_task_tail_csa->next;
-      ra = p_task_tail_csa->ucx.A11;
+      ra = p_task_tail_csa->cx.ucx.A11;
 
       /* "Try to Ensure" that compiler doesn't schedule beyond this point */
       EE_barrier();

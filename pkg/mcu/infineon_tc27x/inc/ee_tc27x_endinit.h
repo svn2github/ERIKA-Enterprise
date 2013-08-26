@@ -53,8 +53,14 @@
 #include "mcu/infineon_tc27x/inc/ee_tc27x_mcu.h"
 
 /* Multicore ENDINIT Support */
+#if defined (__DCC__)
+/* DIAB support new naming convention for SCU WDT registers */
+#define EE_WDTCPUCON0   SCU_WDTCPU0_CON0
+#define EE_WDTCPUCON1   SCU_WDTCPU0_CON1
+#else
 #define EE_WDTCPUCON0   SCU_WDTCPU0CON0
 #define EE_WDTCPUCON1   SCU_WDTCPU0CON1
+#endif /* __DCC__ */
 
 /* ENDINIT support functions */
 __INLINE__ void __ALWAYS_INLINE__ EE_tc27x_endinit_set( EE_tc_endinit_t

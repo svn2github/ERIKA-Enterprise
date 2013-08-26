@@ -213,7 +213,7 @@ orti.men: system.orti
 ### Target file creation ###
 $(TARGET_NAME).elf: $(OBJS) $(LIBDEP) $(LINKDEP)
 	@echo "LD $@";
-	$(QUIET)$(EE_LINK) $(OPT_LINK) $(TARGET_LD_FILE) $(OBJS) $(LIBDEP)
+	-$(QUIET)$(EE_LINK) $(OPT_LINK) $(TARGET_LD_FILE) $(OBJS) $(LIBDEP) $(LINK_REDIRECT)
 	@echo "************************************"
 	@echo "Compilation terminated successfully!"
 

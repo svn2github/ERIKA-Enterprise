@@ -44,6 +44,14 @@
   *  @date 2012
   */
 
+/* Infineon modifications, integration to Infineon Build environment:
+ * Fixes for compilation issues with Tasking Compiler:
+ * Updates for compilation issues with Dcc Compiler:
+ * Usage of generic compiler independent register header file:
+ * Author: 
+ *         Ashok Abbi, <Ashok.Abbi@infineon.com> 18.07.2013
+ */
+
 #ifndef INCLUDE_EE_TC_TRAP_H__
 #define INCLUDE_EE_TC_TRAP_H__
 
@@ -167,6 +175,9 @@
 #elif defined(__GNUC__)
 #define TRAP(class,f) \
   void  __attribute__((interrupt_handler, used)) f (EE_TIN tin)
+#elif defined(__DCC__)
+#define TRAP(class,f) \
+__interrupt__ void f (EE_TIN tin)
 #else
 #error Unsupported compiler!
 #endif

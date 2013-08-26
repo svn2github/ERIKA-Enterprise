@@ -73,7 +73,7 @@
 /* Core Start-up code entry */
 #define EE_TC27X_START      EE_COMPILER_SECTION(ee_kernel_start) EE_tc27x_start
 
-#elif defined (__GNUC__)
+#elif defined (__GNUC__) || defined (__DCC__)
 
 #define EE_B_USTACK     __USTACK_BEGIN  /* user stack base */
 #define EE_E_USTACK     __USTACK        /* user stack end */
@@ -97,7 +97,7 @@
 
 #else
 #error Unsupported compiler!
-#endif /* __TASKING__ || __GNUC__ */
+#endif /* __TASKING__ || __GNUC__ || __DCC__ */
 
 /*****************************************************************************
                           CCU Clock Control Support
@@ -232,52 +232,57 @@ __INLINE__ void __ALWAYS_INLINE__ EE_tc27x_fill_stacks( void )
   /* User Stack Base. */
   extern EE_UINT32 EE_B_USTACK[];
 
-#if defined(__GNUC__) && (!defined(EE_EXECUTE_FROM_RAM))
+#if (defined(__GNUC__) && (!defined(EE_EXECUTE_FROM_RAM))) || defined(__DCC__)
   /* ERIKA stacks table entry */
   extern EE_UINT32 ee_stacks_table[];
   /* Pointer used to traverse stack table */
   EE_UINT32 *stack_table_ptr;
   /* Actual Stack length (first in bytes then, in words) */
   EE_UINT32 stack_length;
-#endif /* __GNUC__ && !EE_EXECUTE_FROM_RAM */
+#endif /* (__GNUC__ && !EE_EXECUTE_FROM_RAM) ||  __DCC__ */
 
   /* Pointer used to traverse stacks */
   register EE_UINT32 * stack_fill_ptr;
 
+  /* Initialize the main stack with fill pattern */
   for(stack_fill_ptr = EE_B_USTACK;
       stack_fill_ptr < EE_E_USTACK; ++stack_fill_ptr)
   {
     *stack_fill_ptr = EE_TC_STACK_FILL_PATTERN;
   }
 
-#if defined(__GNUC__) && (!defined(EE_EXECUTE_FROM_RAM))
+#if (defined(__GNUC__) && (!defined(EE_EXECUTE_FROM_RAM))) || defined(__DCC__)
   /* Stack table */
   stack_table_ptr = ee_stacks_table;
   /* Traverse it */
   while (stack_table_ptr)
   {
+    /* Get a stack section base address */
     stack_fill_ptr = (EE_UINT32 *)*stack_table_ptr;
+    /* next field of the table */
     stack_table_ptr++;
+    /* Get the stack section length */
     stack_length = *stack_table_ptr;
-    stack_table_ptr++;
-    /* we are finished when next length == -1 */
-    if (stack_length == 0xFFFFFFFFU) {
+    
+    /* we have finished when next length == -1 */
+    if ( stack_length == 0xFFFFFFFFU ) {
       break;
     }
 
     /* Normalize the length with the variable's size used to fill the stack */
     stack_length = stack_length / (EE_UINT32)sizeof(*stack_fill_ptr);
 
-    while (stack_length)
-    {
+    while ( stack_length ) {
       *stack_fill_ptr = EE_TC_STACK_FILL_PATTERN;
       stack_length--;
       stack_fill_ptr++;
     }
+    /* Prepare to access to next entry on stacks table */
+    stack_table_ptr++;
   }
-#elif (!defined(__GNUC__)) && (!defined(EE_EXECUTE_FROM_RAM))
-#error Fix Stack Filling code in Other compiler Than GNUC!
-#endif /* !__GNUC__ && !EE_EXECUTE_FROM_RAM */
+#elif ((!defined(__GNUC__)) && (!defined(__DCC__))) && (!defined(EE_EXECUTE_FROM_RAM))
+#error Fix Stack Filling code in Other compiler Than GNUC and DCC !
+#endif /* (!__GNUC__ && !EE_EXECUTE_FROM_RAM) ||  __DCC__ */
 }
 #else
 /* If ORTI STACKs is not enabled stack filling is not active */
