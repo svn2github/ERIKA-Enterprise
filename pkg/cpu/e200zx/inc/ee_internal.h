@@ -191,7 +191,15 @@ __INLINE__ EE_BIT __ALWAYS_INLINE__ EE_hal_check_int_prio_if_higher(
   defined(__OO_ECC2__)
 
 void EE_hal_terminate_savestk(EE_TID tid);
+#ifdef USE_PRAGMAS
+/* The use of __attribute__ in NORETURN macro is deprected for MISRA
+compliance, if necessary (and if the MISRA deviation is allowed)
+use #pragma no_return ... or similar (e.g: see Diab compiler
+documentation for details) */
+void EE_hal_terminate_task(EE_TID tid);
+#else
 void EE_hal_terminate_task(EE_TID tid) NORETURN;
+#endif
 
 #endif /* __OO_BCCx */
 
