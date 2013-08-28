@@ -81,6 +81,12 @@ typedef struct ee_barrier {
 	volatile EE_UINT32 value;
 } EE_TYPEBARRIER;
 
+/*
+ * New type added to allow RT-Druid providing the same generated
+ * code for different architectures (using and not using this type)
+ */
+typedef EE_UINT32           EE_TYPESPINSTATUS;
+
 /* Synchronize on the given barrier.  Wait until all CPUs have called this
  * function on the same barrier. */
 void EE_e200zx_sync_barrier(EE_TYPEBARRIER *bar);
