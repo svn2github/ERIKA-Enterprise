@@ -67,6 +67,16 @@
 #define EE_ISR_PRI_14 14U
 #define EE_ISR_PRI_15 15U
 
+#ifdef __RN__
+#if defined(EE_PPCE200ZX_7_ISR) || defined(EE_PPCE200ZX_7_ISR_PRI)
+#error In multicore environment IRQ priority 7 is already used by ERIKA\
+ for Inter Cores Communication.
+#endif /* EE_PPCE200ZX_7_ISR || EE_PPCE200ZX_7_ISR_PRI */
+
+#define EE_PPCE200ZX_7_ISR     EE_e200zx_iirq_handler
+#define EE_PPCE200ZX_7_ISR_PRI EE_ISR_PRI_1
+#endif /* __MSRP__ */
+
 
 /* I include context because is needed by common ee_irqstub.h */
 #include "cpu/common/inc/ee_context.h"
