@@ -44,10 +44,10 @@
  * - 2 Jobs
  *   - 4 Channels 
  *   - 7 Channels
- * - All 6 SCI Hardware Units
+ * - 3 SCI Hardware Units
  *	 - Loop-back Mode (MOSI and MISO pins connected by a wire)
- *	 - 6 Units Asynchronous
- *	 - 6 Units Synchronous
+ *	 - 2 Units Asynchronous
+ *	 - 1 Units Synchronous
  * - Write/AsyncTransmit/Read (IB)
  *	 - Interrupt Mode
  *	 - Polling Mode
@@ -1193,7 +1193,13 @@ int main(void)
 	}
 
 	test++;
-
+  
+	EE_assert(
+		EE_ASSERT_SPI_EB_POLL_MODE,
+		( Spi_SetAsyncMode(SPI_POLLING_MODE) == E_OK ),
+		EE_ASSERT_SPI_EB_INT_VALIDATE_10
+	);
+	
 	EE_assert(
 		EE_ASSERT_SPI_EB_POLL_SETUP_0,
 		(

@@ -43,10 +43,10 @@
  * - 1 Sequence
  *   - 1 Job
  *     - 4 Channel
- * - 4 SSI Hardware Modules
+ * - 3 SSI Hardware Modules
  *   - Loop-back Mode
  *   - 2 Unit Asynchronous
- *   - 2 Unit Synchronous
+ *   - 1 Unit Synchronous
   * - Write/AsyncTransmit/Read (IB)
  *   - Interrupt Mode
  *   - Polling Mode
@@ -151,52 +151,57 @@ CPU mySystem {
 	};
 	
 	/* this is the OIL part for the ISRs */
-	ISR EE_RX200_TXI0_ISR {
+	ISR EE_RX200_SCI0_TXI0_ISR {
 		CATEGORY = 2;
-		ENTRY = "TXI0";
+		ENTRY = "SCI0_TXI0";
 		PRIORITY = 2;
 	};
 	
-	ISR EE_RX200_ERI0_ISR {
+	ISR EE_RX200_SCI0_ERI0_ISR {
 		CATEGORY = 2;
-		ENTRY = "ERI0";
+		ENTRY = "SCI0_ERI0";
 	};
 	
-	ISR EE_RX200_RXI0_ISR {
+	ISR EE_RX200_SCI0_RXI0_ISR {
 		CATEGORY = 2;
-		ENTRY = "RXI0";
+		ENTRY = "SCI0_RXI0";
 	};
 	
-	ISR EE_RX200_TXI1_ISR {
+	ISR EE_RX200_SCI1_TXI1_ISR {
 		CATEGORY = 2;
-		ENTRY = "TXI1";
+		ENTRY = "SCI1_TXI1";
 		PRIORITY = 2;
+
 	};
 	
-	ISR EE_RX200_ERI1_ISR {
+	ISR EE_RX200_SCI1_ERI1_ISR {
 		CATEGORY = 2;
-		ENTRY = "ERI1";
+		ENTRY = "SCI1_ERI1";
 	};
 	
-	ISR EE_RX200_RXI1_ISR {
+	ISR EE_RX200_SCI1_RXI1_ISR {
 		CATEGORY = 2;
-		ENTRY = "RXI1";
+		ENTRY = "SCI1_RXI1";
+		PRIORITY = 3;
 	};
-	
-	ISR EE_RX200_SPTI0_ISR {
+
+	ISR EE_RX200_SCI5_TXI5_ISR {
 		CATEGORY = 2;
-		ENTRY = "SPTI0";
+		ENTRY = "SCI5_TXI5";
 		PRIORITY = 2;
+
 	};
 	
-	ISR EE_RX200_SPEI0_ISR {
+	ISR EE_RX200_SCI5_ERI5_ISR {
 		CATEGORY = 2;
-		ENTRY = "SPEI0";
+		ENTRY = "SCI5_ERI5";
 	};
 	
-	ISR EE_RX200_SPRI0_ISR {
+	ISR EE_RX200_SCI5_RXI5_ISR {
 		CATEGORY = 2;
-		ENTRY = "SPRI0";
+		ENTRY = "SCI5_RXI5";
+		PRIORITY = 3;
 	};
+
 
 };

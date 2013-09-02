@@ -44,10 +44,10 @@
  *   - 1 Job
  *     - 1 Channel
  *       - Max 3 bytes
- * - All 6 SCI Hardware Units
+ * - 3 SCI Hardware Units
  *   - Loop-back Mode (MOSI and MISO pins connected by a wire)
- *   - 6 Units Asynchronous
- *   - 6 Units Synchronous
+ *   - 2 Units Asynchronous
+ *   - 1 Units Synchronous
  * - Write/AsyncTransmit/Read (IB)
  *   - Interrupt Mode
  *   - Polling Mode
@@ -477,7 +477,7 @@ int main(void)
 	if (Spi_GetSequenceResult(SPI_LBM_SEQ_3_EB) == SPI_SEQ_OK) {
 
 		EE_assert(EE_ASSERT_SPI_EB_INT_VALIDATE, 
-			cmp_buff(rx, SPI_LBM_CHANNEL_2_IB_N_BUFFERS), 
+			cmp_buff(rx, SPI_LBM_CHANNEL_2_IB_N_BUFFERS),
 			EE_ASSERT_SPI_EB_INT_ASYNC_TX);
 	}
 
@@ -506,7 +506,7 @@ int main(void)
 	if (Spi_GetSequenceResult(SPI_LBM_SEQ_3_EB) == SPI_SEQ_OK) {
 
 		EE_assert(EE_ASSERT_SPI_EB_POLL_VALIDATE, 
-			cmp_buff(rx, SPI_LBM_CHANNEL_2_IB_N_BUFFERS - 1), 
+			cmp_buff(rx, SPI_LBM_CHANNEL_2_IB_N_BUFFERS), 
 			EE_ASSERT_SPI_EB_POLL_ASYNC_TX);
 
 
@@ -568,7 +568,7 @@ int main(void)
 	if (Spi_GetSequenceResult(SPI_LBM_SEQ_3_EB_SYNC) == SPI_SEQ_OK) {
 
 		EE_assert(EE_ASSERT_SPI_EB_SYNC_VALIDATE, 
-			cmp_buff(rx, SPI_LBM_CHANNEL_2_IB_N_BUFFERS - 2), 
+			cmp_buff(rx, SPI_LBM_CHANNEL_2_IB_N_BUFFERS), 
 			EE_ASSERT_SPI_EB_SYNC_SEQ_OK);
 	}
 

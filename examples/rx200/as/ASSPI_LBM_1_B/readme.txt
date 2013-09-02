@@ -4,10 +4,10 @@ ASSPI_LBM_1_B
  - 1 Sequence
    - 1 Job
      - 4 Channel
- - All 6 SCI Hardware Units
+ - 3 SCI Hardware Units
    - Loop-back Mode (MOSI and MISO connected by a physical wire )
-   - 3 Units Asynchronous
-   - 3 Units Synchronous
+   - 2 Units Asynchronous
+   - 1 Units Synchronous
  - Write/AsyncTransmit/Read (IB)
    - Interrupt Mode
    - Polling Mode

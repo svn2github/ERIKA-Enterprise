@@ -40,24 +40,23 @@
 
 /*
  * Simple project to test the AUTOSAR SPI Handler/Driver:
- * - 1 Sequence
- * - 2 Jobs
- *   - 4 Channels 
- *   - 7 Channels
- * - All 6 SCI Hardware Units
- *	 - Loop-back Mode (MOSI and MISO pins connected by a wire)
- *	 - 6 Units Asynchronous
- *	 - 6 Units Synchronous
+ * - 2 Sequence
+ *   - Interruptible Sequence
+ *     - 2 Jobs
+ *       - 4 Channels 
+ *       - 7 Channels
+ *   - Non-Interruptible Sequence
+ *      - 1 Job
+ *      - 3 Channels
+ * - Only 2 SSI Hardware Unit
+ *   - Asynchronous
+ *   - Loop-back Mode
  * - Write/AsyncTransmit/Read (IB)
- *	 - Interrupt Mode
- *	 - Polling Mode
+ *   - Polling Mode ( to test internal scheduler )
  * - Setup/AsyncTransmit (EB)
- *	 - Interrupt Mode
- *	 - Polling Mode
- * - Write/SyncTransmit/Read (IB)
- * - Setup/SyncTransmit (EB)
+ *   - Polling Mode ( to test internal scheduler )
  *
- * Author: 2013	 Gianluca Franchino
+ * Author: 2013  Gianluca Franchino
  */
 
 #include "Mcu.h"

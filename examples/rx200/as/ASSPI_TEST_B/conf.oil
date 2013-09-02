@@ -40,19 +40,28 @@
 
 
 /*
- * Simple project to to estimate the SPI Handler/Driver MINIMAL services:
+ * Simple project to test the AUTOSAR SPI Handler/Driver:
  * - 1 Sequence
  *   - 1 Job
  *     - 1 Channel
  *       - One Byte Only.
- * - 1 SSI Hardware Modules
- *   - Synchronous
+ * - 2 SSI Hardware Modules
  *   - Loop-back Mode
+ *   - 1 Unit Asynchronous
+ *   - 1 Unit Synchronous
+ * - Write/AsyncTransmit/Read (IB)
+ *   - Interrupt Mode
+ *   - Polling Mode
+ * - Setup/AsyncTransmit (EB)
+ *   - Interrupt Mode
+ *   - Polling Mode
+ * - SyncTransmit/Read (IB)
  * - Setup/SyncTransmit (EB)
- *
+ *   - No Source Buffer.
  *
  * Author: 2013  Gianluca Franchino
  */
+ 
 CPU test_application {
 
 	OS EE {
@@ -141,36 +150,38 @@ CPU test_application {
 		STACK = SHARED;
 	};
 	
-	/* this is the OIL part for the ISRs */
-	ISR EE_RX200_TXI0_ISR {
+/* this is the OIL part for the ISRs */
+	ISR EE_RX200_SCI0_TXI0_ISR {
 		CATEGORY = 2;
-		ENTRY = "TXI0";
+		ENTRY = "SCI0_TXI0";
 		PRIORITY = 2;
 	};
 	
-	ISR EE_RX200_ERI0_ISR {
+	ISR EE_RX200_SCI0_ERI0_ISR {
 		CATEGORY = 2;
-		ENTRY = "ERI0";
+		ENTRY = "SCI0_ERI0";
 	};
 	
-	ISR EE_RX200_RXI0_ISR {
+	ISR EE_RX200_SCI0_RXI0_ISR {
 		CATEGORY = 2;
-		ENTRY = "RXI0";
+		ENTRY = "SCI0_RXI0";
 	};
 	
-	ISR EE_RX200_TXI1_ISR {
+	ISR EE_RX200_SCI1_TXI1_ISR {
 		CATEGORY = 2;
-		ENTRY = "TXI1";
+		ENTRY = "SCI1_TXI1";
 		PRIORITY = 2;
+
 	};
 	
-	ISR EE_RX200_ERI1_ISR {
+	ISR EE_RX200_SCI1_ERI1_ISR {
 		CATEGORY = 2;
-		ENTRY = "ERI1";
+		ENTRY = "SCI1_ERI1";
 	};
 	
-	ISR EE_RX200_RXI1_ISR {
+	ISR EE_RX200_SCI1_RXI1_ISR {
 		CATEGORY = 2;
-		ENTRY = "RXI1";
+		ENTRY = "SCI1_RXI1";
+		PRIORITY = 3;
 	};
 };

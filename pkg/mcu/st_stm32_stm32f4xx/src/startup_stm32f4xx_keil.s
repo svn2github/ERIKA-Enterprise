@@ -949,10 +949,14 @@ EE_cortex_mx_default_ISR
 ; the location of the stack and heap.
 ;
 ;******************************************************************************
-    IF	:DEF:	__MICROLIB
+
+	IF	:DEF:__MICROLIB
+
 	EXPORT	__heap_base
 	EXPORT	__heap_limit
-    ELSE
+
+    	ELSE
+
 	IMPORT	__use_two_region_memory
 	EXPORT	__user_initial_stackheap
 __user_initial_stackheap
@@ -961,7 +965,8 @@ __user_initial_stackheap
 	LDR	R2, =(HeapMem + Heap)
 	LDR	R3, =StackMem
 	BX	LR
-    ENDIF
+
+    	ENDIF
 
 ;******************************************************************************
 ;

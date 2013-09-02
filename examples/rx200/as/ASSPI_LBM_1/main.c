@@ -43,10 +43,10 @@
  * - 1 Sequence
  *	 - 1 Job
  *	   - 4 Channel
- * - All 6 SCI Hardware Units
- *	 - Loop-back Mode (MOSI and MISO pins connected by a wire)
- *	 - 6 Units Asynchronous
- *	 - 6 Units Synchronous
+ * - 3 SSI Hardware Modules
+ *   - Loop-back Mode
+ *   - 2 Unit Asynchronous
+ *   - 1 Unit Synchronous
  * - Write/AsyncTransmit/Read (IB)
  *	 - Interrupt Mode
  *	 - Polling Mode

@@ -112,6 +112,8 @@ int main(void)
 
 	Dio_Init(DIO_CONFIG_DEFAULT_PTR);
 
+	Port_Init(PORT_CONFIG_SCI_PTR);
+	
 	Spi_Init(SPI_CONFIG_DEFAULT_PTR);
 
 	EE_assert(EE_ASSERT_SPI_INIT, ( Spi_GetStatus() == SPI_IDLE ), 
@@ -151,7 +153,7 @@ int main(void)
 	
 	/* Forever loop: background activities (if any) should go here */
 	for (;result == 1;) {
-		while (counter % 100000) counter++;
+		while (counter % 200) counter++;
 		
 		lvl = Dio_ReadChannel(DIO_CHANNEL_USER_LED_0);
 		

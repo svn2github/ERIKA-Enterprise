@@ -44,10 +44,10 @@
  *   - 1 Job
  *     - 1 Channel
  *       - Max 3 bytes
- * - All 6 SCI Hardware Units
+ * - 3 SCI Hardware Units
  *   - Loop-back Mode (MOSI and MISO pins connected by a wire)
- *   - 6 Units Asynchronous
- *   - 6 Units Synchronous
+ *   - 2 Units Asynchronous
+ *   - 1 Units Synchronous
  * - Write/AsyncTransmit/Read (IB)
  *   - Interrupt Mode
  *   - Polling Mode
@@ -345,7 +345,7 @@ int main(void)
 	Std_VersionInfoType	version;
 	Dio_PortLevelType	lvl;
 
-	counter = 0;
+	counter = 1;
 
 	EE_assert(EE_ASSERT_INIT, TRUE, EE_ASSERT_NIL);
 
