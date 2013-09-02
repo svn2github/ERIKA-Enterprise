@@ -152,7 +152,7 @@
 #define SCI_CLEAR_ERR_FLAGS			0xC7 /*< Clear RX Errors bits mask */
 #define RSPI_MULTI_MASTER_MODE_MASK	0x04 /*< RSPI Multi-Master Mode mask   */
 #define RSPI_MASTER_SLAVE_MODE_MASK	0x02 /*< RSPI Master/Slave select mask */
-#define RSPI_MASTER_SLAVE_SHIFT_MASK 0x03/*< RSPI Master/Slave shift mask */
+#define RSPI_MASTER_SLAVE_SHIFT_MASK 0x02/*< RSPI Master/Slave shift mask */
 #define RSPI_SPPCR_02_MASK			0x38 /*< RSPI SPPCR b0,b1,b2 mask*/
 #define RSPI_SPPCR_02_SHIFT_MASK	0x03 /*< RSPI SPPCR b0,b1,b2  shift mask*/
 #define RSPI_SPPCR_45_MASK			0xC0 /*< RSPI SPPCR b4,b5, mask*/
@@ -240,7 +240,11 @@
 				(_mode & SPI_MULTI_MASTER_MODE_MASK) )
 
 #define SCI_SPI_EN(_ch) \
-	SCI_REG_OR_SET(_ch, HW_SCI_SCR_OFFSET, SCI_ENABLE_SPI_RTX | SCI_ENABLE_SPI_TXI_RXI)
+	do {\
+		SCI_REG_OR_SET(_ch, HW_SCI_SCR_OFFSET, SCI_ENABLE_SPI_RTX);\
+		SCI_REG_OR_SET(_ch, HW_SCI_SCR_OFFSET, SCI_ENABLE_SPI_TXI_RXI);\
+	} while(0)
+		
 
 #define SCI_SPI_DIS(_ch) \
 	SCI_REG_AND_SET(_ch, HW_SCI_SCR_OFFSET, \
@@ -320,13 +324,14 @@
 	EE_HWREG16(HW_RSPI_SPCMD0_ADDR) = (\
 							((uint16)(_val0) << RSPI_SPCMD_CPOL_SHIFT_MASK) |\
 							(((uint16)(_val1 - SPI_HW_UNIT_13) & \
-										RSPI_SPCMD_SSLA_MASK) << \
+										RSPI_SPCMD_SSLA_MASK) >> \
 										RSPI_SPCMD_SSLA_SHIFT_MASK) | \
 							(uint16)((_val2 & RSPI_SPCMD_CPHA_MASK) >> \
 									RSPI_SPCMD_CPHA_SHIFT_MASK) |\
-							(uint16)((_val2 & RSPI_SPCMD_MASK) << \
-									RSPI_SPCMD_SHIFT_MASK))
+							(uint16)((_val2 & RSPI_SPCMD_MASK) >> \
+									RSPI_SPCMD_SHIFT_MASK) )
 
+									
 #define RSPI_SET_SPCR2(_val) \
 	EE_HWREG8(HW_RSPI_SPCR2_ADDR) = \
 			(uint8)( (_val & RSPI_SPCR2_MASK) >> RSPI_SPCR2_SHIFT_MASK )

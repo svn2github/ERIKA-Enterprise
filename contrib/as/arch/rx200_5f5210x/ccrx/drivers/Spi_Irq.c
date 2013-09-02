@@ -93,6 +93,7 @@ extern Spi_NumberOfDataType TableLen[SPI_JOBS_CHANNELS_MAX_NUMBER];
 extern Spi_ChannelType TxChIdx, RxChIdx;
 extern Spi_NumberOfDataType TxPosIdx, RxPosIdx;
 extern Spi_ChannelType  NumAssChIdx;
+extern boolean SpiTxNoInc;
 
 
 #if ( defined(EE_RX200_SCI0_ERI0_ISR) || defined(EE_RX200_SCI1_ERI1_ISR) || \
@@ -147,7 +148,6 @@ void Spi_RxErrISR(Spi_HWUnitType HWUnit)
  */
 void Spi_RxISR(Spi_HWUnitType HWUnit)
 {
-
 	if (RxChIdx < NumAssChIdx) {
 		Spi_store(HWUnit); 
 	}
@@ -159,17 +159,17 @@ void Spi_RxISR(Spi_HWUnitType HWUnit)
 		RxChIdx++;
 	}
 
-	/*	If the received character has been got by pi_RxISR() then transmit the 
+	/*	If the received character has been got by Spi_RxISR() then transmit the 
 		next one, if any.
 	*/
-	if ((TxPosIdx == RxPosIdx)) {
+	if ((TxPosIdx == RxPosIdx) && (TxChIdx == RxChIdx)) {
 		/* If the end of the channel list has not been reached, transmit the
 		* next character of current channel, else call the end job funciton if also the
 		* transmission buffer is full.
 		* */
-			if (TxChIdx < NumAssChIdx) {
+		if (TxChIdx < NumAssChIdx) {
 				Spi_trx(HWUnit); 
-		} else if (RxChIdx >= NumAssChIdx) {
+		} else {
 			Spi_JobEnd(HWUnit, SPI_JOB_OK);
 		}
 	}
@@ -183,14 +183,12 @@ void Spi_RxISR(Spi_HWUnitType HWUnit)
 		defined(EE_RX200_SCI5_TXI5_ISR) || defined(EE_RX200_SCI6_TXI6_ISR) || \
 		defined(EE_RX200_SCI8_TXI8_ISR) || defined(EE_RX200_SCI9_TXI9_ISR) || \
 		defined(EE_RX200_SCI12_TXI12_ISR) || defined(EE_RX200_RSPI0_SPTI0_ISR) )
-
 /*
  * @brief 	SPI TX buffer empty ISR.
  * @param	HWUint	SPI Hardware Unit who fired Interrupt.
  */
 void Spi_TxISR(Spi_HWUnitType HWUnit)
 {
-
 	/* If the end of the channel tx buffer has been reached, go to the next
 	 * channel in the list
 	 * */
@@ -207,14 +205,14 @@ void Spi_TxISR(Spi_HWUnitType HWUnit)
 	/*	If the received character has been got by Spi_RxISR() then transmit the 
 		next one, if any.
 	*/
-	if ((TxPosIdx == RxPosIdx)) {
+	if ((TxPosIdx == RxPosIdx) && (TxChIdx == RxChIdx)) {
 		/* If the end of the channel list has not been reached, transmit the
-		* next datum of current channel, else call the end job funciton if also the
+		* next datum of current channel, else call the end job routine if also the
 		* receiving buffer is full.
 		* */
 		if (TxChIdx < NumAssChIdx) {
 			Spi_trx(HWUnit); 
-		} else if (RxChIdx >= NumAssChIdx) {
+		} else {
 			Spi_JobEnd(HWUnit, SPI_JOB_OK);
 		}
 	}
@@ -240,6 +238,7 @@ void Spi_JobEnd(Spi_HWUnitType	HWUnit, Spi_JobResultType	JobResult)
 	flags = EE_hal_suspendIRQ();
 	
 	Spi_HwDisable(HWUnit);
+	SpiTxNoInc = FALSE;
 
 	/* External Device Look-up. */
 	for (HWUnitIdx = 0;
@@ -255,7 +254,7 @@ void Spi_JobEnd(Spi_HWUnitType	HWUnit, Spi_JobResultType	JobResult)
 
 	JobIdx = SpiHwUnitStatus[HWUnitIdx].SpiOwnerIdx;
 
-	/* This prevent possible problems if Spi_JobEnd() is called when a job is 
+	/* This prevents possible problems if Spi_JobEnd() is called when a job is 
 	 * already ended.
 	 */
 	if (SpiHwUnitStatus[HWUnitIdx].SpiOwnerIdx == SPI_JOB_END_LIST) {

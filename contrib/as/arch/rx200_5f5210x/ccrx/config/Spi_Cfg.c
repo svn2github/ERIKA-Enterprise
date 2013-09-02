@@ -838,13 +838,22 @@ const Spi_ExternalDeviceConfigType	Spi_TestExternalDeviceConfig[] = {
 
 };
 
-/*GF: to fix*/
-#if 0
 
 #ifdef	__AS_CFG_SPI_LBM__
 /*
  * Loop-back Mode External Devices Configuration.
  */
+/*
+NOTE: Hw units are SPI_HW_UNIT_0, SPI_HW_UNIT_1, 
+SPI_HW_UNIT_5, SPI_HW_UNIT_6, SPI_HW_UNIT_8, SPI_HW_UNIT_9, SPI_HW_UNIT_12 and
+SPI_HW_UNIT_13. The others are fake hw units used to fill in the data structure.
+Note that, the fake configuration is equal to the preceding one. 
+This is necessary for the correct operation of the driver. To avoid this unuseful 
+memory waste we need to change the driver code.  
+See for instance, Spi_SeqSyncAsyncValidate() routine. 
+An other possible solution is to keep this kind of structure and use the same 
+hw unit with a different CS pin.
+*/
 const Spi_ExternalDeviceConfigType	Spi_LBMExternalDeviceConfig[] = {
 	{
 		2E6,				/* SpiBaudrate			      	*/
@@ -859,11 +868,68 @@ const Spi_ExternalDeviceConfigType	Spi_LBMExternalDeviceConfig[] = {
 		SPI_LOW,			/* SpiShiftClockIdleLevel		*/
 		0x00000000U,		/* SpiTimeClk2Cs		      	*/
 #if	( SPI_LEVEL_DELIVERED == 2 )
-		SPI_ASYNCHRONOUS,	/* SpiHwUnitSynchronous.	    */
+		SPI_ASYNCHRONOUS,	/* SpiHwUnitSynchronous.		*/
 #endif
 				/* SpiHwUnitMode:			      					*/
 		0x0000,				/* - Master mode			    */
-									/* - Use internal CLK			*/
+							/* - Use internal CLK			*/
+	},
+	{
+		3E6,				/* SpiBaudrate			      	*/
+		SPI_LBM_CS_1,		/* SpiCsIdentifier		      	*/
+		SPI_LOW,			/* SpiCsPolarity		      	*/
+#if 0				
+		SPI_LEADING,		/* SpiDataShiftEdge		      	*/
+#endif					
+		FALSE,				/* SpiEnableCs			      	*/
+		0x00U,				/* SpiCsChannelId		      	*/
+		SPI_HW_UNIT_1,		/* SpiHwUnit			      	*/
+		SPI_LOW,			/* SpiShiftClockIdleLevel		*/
+		0x00000000U,		/* SpiTimeClk2Cs		      	*/
+#if	( SPI_LEVEL_DELIVERED == 2 )
+		SPI_ASYNCHRONOUS,	/* SpiHwUnitSynchronous.		*/
+#endif
+		/* SpiHwUnitMode:			      					*/
+		0x0000,				/* - Master mode			    */
+							/* - Use internal CLK			*/
+	},
+	{
+		3E6,				/* SpiBaudrate			      	*/
+		SPI_LBM_CS_1,		/* SpiCsIdentifier		      	*/
+		SPI_LOW,			/* SpiCsPolarity		      	*/
+#if 0				
+		SPI_LEADING,		/* SpiDataShiftEdge		      	*/
+#endif					
+		FALSE,				/* SpiEnableCs			      	*/
+		0x00U,				/* SpiCsChannelId		      	*/
+		SPI_HW_UNIT_1,		/* SpiHwUnit			      	*/
+		SPI_LOW,			/* SpiShiftClockIdleLevel		*/
+		0x00000000U,		/* SpiTimeClk2Cs		      	*/
+#if	( SPI_LEVEL_DELIVERED == 2 )
+		SPI_ASYNCHRONOUS,	/* SpiHwUnitSynchronous.		*/
+#endif
+		/* SpiHwUnitMode:			      					*/
+		0x0000,				/* - Master mode			    */
+							/* - Use internal CLK			*/
+	},
+	{
+		3E6,				/* SpiBaudrate			      	*/
+		SPI_LBM_CS_1,		/* SpiCsIdentifier		      	*/
+		SPI_LOW,			/* SpiCsPolarity		      	*/
+#if 0				
+		SPI_LEADING,		/* SpiDataShiftEdge		      	*/
+#endif					
+		FALSE,				/* SpiEnableCs			      	*/
+		0x00U,				/* SpiCsChannelId		      	*/
+		SPI_HW_UNIT_1,		/* SpiHwUnit			      	*/
+		SPI_LOW,			/* SpiShiftClockIdleLevel		*/
+		0x00000000U,		/* SpiTimeClk2Cs		      	*/
+#if	( SPI_LEVEL_DELIVERED == 2 )
+		SPI_ASYNCHRONOUS,	/* SpiHwUnitSynchronous.		*/
+#endif
+		/* SpiHwUnitMode:			      					*/
+		0x0000,				/* - Master mode			    */
+							/* - Use internal CLK			*/
 	},
 	{
 		3E6,				/* SpiBaudrate			      	*/
@@ -897,17 +963,17 @@ const Spi_ExternalDeviceConfigType	Spi_LBMExternalDeviceConfig[] = {
 		SPI_LOW,			/* SpiShiftClockIdleLevel		*/
 		0x00000000U,		/* SpiTimeClk2Cs		      	*/
 #if	( SPI_LEVEL_DELIVERED == 2 )
-		SPI_ASYNCHRONOUS,	/* SpiHwUnitSynchronous.	      */
+		SPI_SYNCHRONOUS,	/* SpiHwUnitSynchronous.	      */
 #endif
 		/* SpiHwUnitMode:			      					*/
 		0x0000,				/* - Master mode			    */
 							/* - Use internal CLK			*/
 	},
 	{
-		5E6,				/* SpiBaudrate			      	*/
+		1E6,				/* SpiBaudrate			      	*/
 		SPI_LBM_CS_6,		/* SpiCsIdentifier		      	*/
 		SPI_LOW,			/* SpiCsPolarity		      	*/
-#if 0				
+#if 0					
 		SPI_LEADING,		/* SpiDataShiftEdge		      	*/
 #endif
 		FALSE,				/* SpiEnableCs			      	*/
@@ -916,44 +982,6 @@ const Spi_ExternalDeviceConfigType	Spi_LBMExternalDeviceConfig[] = {
 		SPI_LOW,			/* SpiShiftClockIdleLevel		*/
 		0x00000000U,		/* SpiTimeClk2Cs		      	*/
 #if	( SPI_LEVEL_DELIVERED == 2 )
-		SPI_ASYNCHRONOUS,	/* SpiHwUnitSynchronous.	   	*/
-#endif
-							/* SpiHwUnitMode:			    */
-		0x0000,				/* - Master mode			    */
-							/* - Use internal CLK			*/
-	},
-	{
-		5E6,				/* SpiBaudrate			      	*/
-		SPI_LBM_CS_8,		/* SpiCsIdentifier		      	*/
-		SPI_LOW,			/* SpiCsPolarity		      	*/
-#if 0				
-		SPI_LEADING,		/* SpiDataShiftEdge		      	*/
-#endif
-		FALSE,				/* SpiEnableCs			      	*/
-		0x00U,				/* SpiCsChannelId		      	*/
-		SPI_HW_UNIT_8,		/* SpiHwUnit			      	*/
-		SPI_LOW,			/* SpiShiftClockIdleLevel		*/
-		0x00000000U,		/* SpiTimeClk2Cs		      	*/
-#if	( SPI_LEVEL_DELIVERED == 2 )
-		SPI_ASYNCHRONOUS,	/* SpiHwUnitSynchronous.	    */
-#endif
-		/* SpiHwUnitMode:			      					*/
-		0x0000,				/* - Master mode			    */
-							/* - Use internal CLK			*/
-	},
-	{
-		5E6,				/* SpiBaudrate			      	*/
-		SPI_LBM_CS_9,		/* SpiCsIdentifier		      	*/
-		SPI_LOW,			/* SpiCsPolarity		      	*/
-#if 0				
-		SPI_LEADING,		/* SpiDataShiftEdge		      	*/
-#endif
-		FALSE,				/* SpiEnableCs			      	*/
-		0x00U,				/* SpiCsChannelId		      	*/
-		SPI_HW_UNIT_9,		/* SpiHwUnit			      	*/
-		SPI_LOW,			/* SpiShiftClockIdleLevel		*/
-		0x00000000U,		/* SpiTimeClk2Cs		      	*/
-#if	( SPI_LEVEL_DELIVERED == 2 )
 		SPI_ASYNCHRONOUS,	/* SpiHwUnitSynchronous.	      */
 #endif
 		/* SpiHwUnitMode:			      					*/
@@ -961,107 +989,19 @@ const Spi_ExternalDeviceConfigType	Spi_LBMExternalDeviceConfig[] = {
 							/* - Use internal CLK			*/
 	},
 	{
-		5E6,				/* SpiBaudrate			      	*/
-		SPI_LBM_CS_12,		/* SpiCsIdentifier		      	*/
+		1E6,				/* SpiBaudrate			      	*/
+		SPI_LBM_CS_6,		/* SpiCsIdentifier		      	*/
 		SPI_LOW,			/* SpiCsPolarity		      	*/
-#if 0				
+#if 0					
 		SPI_LEADING,		/* SpiDataShiftEdge		      	*/
 #endif
 		FALSE,				/* SpiEnableCs			      	*/
 		0x00U,				/* SpiCsChannelId		      	*/
-		SPI_HW_UNIT_12,		/* SpiHwUnit			      	*/
+		SPI_HW_UNIT_6,		/* SpiHwUnit			      	*/
 		SPI_LOW,			/* SpiShiftClockIdleLevel		*/
 		0x00000000U,		/* SpiTimeClk2Cs		      	*/
 #if	( SPI_LEVEL_DELIVERED == 2 )
-		SPI_ASYNCHRONOUS,	/* SpiHwUnitSynchronous.	     */
-#endif
-		/* SpiHwUnitMode:			      					*/
-		0x0000,				/* - Master mode			    */
-							/* - Use internal CLK			*/
-	},
-	{
-		5E6,				/* SpiBaudrate			      	*/
-		SPI_LBM_CS_13,		/* SpiCsIdentifier		      	*/
-		SPI_LOW,			/* SpiCsPolarity		      	*/
-#if 0				
-		SPI_LEADING,		/* SpiDataShiftEdge		      	*/
-#endif
-		FALSE,				/* SpiEnableCs			      	*/
-		0x00U,				/* SpiCsChannelId		      	*/
-		SPI_HW_UNIT_13,		/* SpiHwUnit			      	*/
-		SPI_LOW,			/* SpiShiftClockIdleLevel		*/
-		0x00000000U,		/* SpiTimeClk2Cs		      	*/
-#if	( SPI_LEVEL_DELIVERED == 2 )
-		SPI_ASYNCHRONOUS,	/* SpiHwUnitSynchronous.		*/
-#endif
-		/* SpiHwUnitMode:	
-		 * Master, loop-back mode, 
-		 * MOSI output value equals final data from previous transfer,
-		 * CMOS output pins, SSLx pins all output, 1 frame buffer,
-		 * SPDR is accessed in words, 
-		 * SPDR values are read from the receive buffer,
-		 * Clock delay -> 8*RSPCK,
-		 * Next access dealy ->  RSPCK + 2 * PCLK,
-		 * Keeps the SSL signal level from the end of transfer until the
-		 * beginning of the next access,
-		 * 8 bits data length, data start with MSB,
-		 * Enable SPND, SSLND and SPCKD registers,  
-		 * Data sampling on odd edge, data variation on even edge,
-		 * Clock low when idle,
-		 * Parity mode disabled.
-		 **/
-									/* - Master			   		*/
-		SPI_HW_UNIT_LOOPBACK |		/* - Loop-back mode			*/
-		SPI_HW_UNIT_RSPCK_DEL8 |	/* Clock delay -> 8RSPCK	*/
-		SPI_HW_UNIT_KEEP_SSL |
-		SPI_HW_UNIT_8B_DATA_LEN |
-		SPI_HW_ENABLE_ALL_DELAYS,
-		},
-};
-#endif	/* __AS_CFG_SPI_LBM__ */
-
-#endif /*if 0*/
-
-#ifdef	__AS_CFG_SPI_LBM__
-/*
- * Loop-back Mode External Devices Configuration.
- */
-
-
-const Spi_ExternalDeviceConfigType	Spi_LBMExternalDeviceConfig[] = {
-	{
-		2E6,				/* SpiBaudrate			      	*/
-		SPI_LBM_CS_0,		/* SpiCsIdentifier		      	*/
-		SPI_LOW,			/* SpiCsPolarity		      	*/
-#if 0				
-		SPI_LEADING,		/* SpiDataShiftEdge		      	*/
-#endif
-		FALSE,				/* SpiEnableCs			      	*/
-		0x00U,				/* SpiCsChannelId		      	*/
-		SPI_HW_UNIT_0,		/* SpiHwUnit			      	*/
-		SPI_LOW,			/* SpiShiftClockIdleLevel		*/
-		0x00000000U,		/* SpiTimeClk2Cs		      	*/
-#if	( SPI_LEVEL_DELIVERED == 2 )
-		SPI_ASYNCHRONOUS,	/* SpiHwUnitSynchronous.	    */
-#endif
-				/* SpiHwUnitMode:			      					*/
-		0x0000,				/* - Master mode			    */
-									/* - Use internal CLK			*/
-	},
-	{
-		3E6,				/* SpiBaudrate			      	*/
-		SPI_LBM_CS_1,		/* SpiCsIdentifier		      	*/
-		SPI_LOW,			/* SpiCsPolarity		      	*/
-#if 0				
-		SPI_LEADING,		/* SpiDataShiftEdge		      	*/
-#endif					
-		FALSE,				/* SpiEnableCs			      	*/
-		0x00U,				/* SpiCsChannelId		      	*/
-		SPI_HW_UNIT_1,		/* SpiHwUnit			      	*/
-		SPI_LOW,			/* SpiShiftClockIdleLevel		*/
-		0x00000000U,		/* SpiTimeClk2Cs		      	*/
-#if	( SPI_LEVEL_DELIVERED == 2 )
-		SPI_ASYNCHRONOUS,	/* SpiHwUnitSynchronous.		*/
+		SPI_ASYNCHRONOUS,	/* SpiHwUnitSynchronous.	      */
 #endif
 		/* SpiHwUnitMode:			      					*/
 		0x0000,				/* - Master mode			    */
@@ -1080,12 +1020,88 @@ const Spi_ExternalDeviceConfigType	Spi_LBMExternalDeviceConfig[] = {
 		SPI_LOW,			/* SpiShiftClockIdleLevel		*/
 		0x00000000U,		/* SpiTimeClk2Cs		      	*/
 #if	( SPI_LEVEL_DELIVERED == 2 )
+		SPI_SYNCHRONOUS,	/* SpiHwUnitSynchronous.	      */
+#endif
+		/* SpiHwUnitMode:			      					*/
+		0x0000,				/* - Master mode			    */
+							/* - Use internal CLK			*/
+	},
+	{
+		1E6,				/* SpiBaudrate			      	*/
+		SPI_LBM_CS_9,		/* SpiCsIdentifier		      	*/
+		SPI_LOW,			/* SpiCsPolarity		      	*/
+#if 0					
+		SPI_LEADING,		/* SpiDataShiftEdge		      	*/
+#endif
+		FALSE,				/* SpiEnableCs			      	*/
+		0x00U,				/* SpiCsChannelId		      	*/
+		SPI_HW_UNIT_9,		/* SpiHwUnit			      	*/
+		SPI_LOW,			/* SpiShiftClockIdleLevel		*/
+		0x00000000U,		/* SpiTimeClk2Cs		      	*/
+#if	( SPI_LEVEL_DELIVERED == 2 )
 		SPI_ASYNCHRONOUS,	/* SpiHwUnitSynchronous.	      */
 #endif
 		/* SpiHwUnitMode:			      					*/
 		0x0000,				/* - Master mode			    */
 							/* - Use internal CLK			*/
 	},
+	{
+		1E6,				/* SpiBaudrate			      	*/
+		SPI_LBM_CS_9,		/* SpiCsIdentifier		      	*/
+		SPI_LOW,			/* SpiCsPolarity		      	*/
+#if 0					
+		SPI_LEADING,		/* SpiDataShiftEdge		      	*/
+#endif
+		FALSE,				/* SpiEnableCs			      	*/
+		0x00U,				/* SpiCsChannelId		      	*/
+		SPI_HW_UNIT_9,		/* SpiHwUnit			      	*/
+		SPI_LOW,			/* SpiShiftClockIdleLevel		*/
+		0x00000000U,		/* SpiTimeClk2Cs		      	*/
+#if	( SPI_LEVEL_DELIVERED == 2 )
+		SPI_ASYNCHRONOUS,	/* SpiHwUnitSynchronous.	      */
+#endif
+		/* SpiHwUnitMode:			      					*/
+		0x0000,				/* - Master mode			    */
+							/* - Use internal CLK			*/
+	},
+	{
+		1E6,				/* SpiBaudrate			      	*/
+		SPI_LBM_CS_9,		/* SpiCsIdentifier		      	*/
+		SPI_LOW,			/* SpiCsPolarity		      	*/
+#if 0					
+		SPI_LEADING,		/* SpiDataShiftEdge		      	*/
+#endif
+		FALSE,				/* SpiEnableCs			      	*/
+		0x00U,				/* SpiCsChannelId		      	*/
+		SPI_HW_UNIT_9,		/* SpiHwUnit			      	*/
+		SPI_LOW,			/* SpiShiftClockIdleLevel		*/
+		0x00000000U,		/* SpiTimeClk2Cs		      	*/
+#if	( SPI_LEVEL_DELIVERED == 2 )
+		SPI_ASYNCHRONOUS,	/* SpiHwUnitSynchronous.	      */
+#endif
+		/* SpiHwUnitMode:			      					*/
+		0x0000,				/* - Master mode			    */
+							/* - Use internal CLK			*/
+	},
+	{
+		1E6,				/* SpiBaudrate			      	*/
+		SPI_LBM_CS_12,		/* SpiCsIdentifier		      	*/
+		SPI_LOW,			/* SpiCsPolarity		      	*/
+#if 0					
+		SPI_LEADING,		/* SpiDataShiftEdge		      	*/
+#endif
+		FALSE,				/* SpiEnableCs			      	*/
+		0x00U,				/* SpiCsChannelId		      	*/
+		SPI_HW_UNIT_12,		/* SpiHwUnit			      	*/
+		SPI_LOW,			/* SpiShiftClockIdleLevel		*/
+		0x00000000U,		/* SpiTimeClk2Cs		      	*/
+#if	( SPI_LEVEL_DELIVERED == 2 )
+		SPI_ASYNCHRONOUS,	/* SpiHwUnitSynchronous.	      */
+#endif
+		/* SpiHwUnitMode:			      					*/
+		0x0000,				/* - Master mode			    */
+							/* - Use internal CLK			*/
+	},	
 	{
 		5E6,				/* SpiBaudrate			      	*/
 		SPI_LBM_CS_13,		/* SpiCsIdentifier		      	*/
@@ -1117,17 +1133,18 @@ const Spi_ExternalDeviceConfigType	Spi_LBMExternalDeviceConfig[] = {
 		 * Clock low when idle,
 		 * Parity mode disabled.
 		 **/
-									/* - Master			   		*/
+		SPI_HW_UNIT_RSPI_MASTER |	/* - Master			   		*/
 		SPI_HW_UNIT_LOOPBACK |		/* - Loop-back mode			*/
 		SPI_HW_UNIT_RSPCK_DEL8 |	/* Clock delay -> 8RSPCK	*/
 		SPI_HW_UNIT_KEEP_SSL |
 		SPI_HW_UNIT_8B_DATA_LEN |
+		SPI_HW_UNIT_SPDR_ACCESS_LONG |
 		SPI_HW_ENABLE_ALL_DELAYS,
-		},
+	},
 };
 #endif	/* __AS_CFG_SPI_LBM__ */
 
-//#endif
+
 /*
  * Spi Jobs Configuration.
  */
@@ -1291,265 +1308,6 @@ const Spi_ChannelType	Spi_LBMJob3ChannelEBList[] = {
 #endif	/* ( SPI_CHANNEL_BUFFERS_ALLOWED == 2 ) */
 
 
-/*GF: FIXME*/
-#if 0
-/*
- * Loop-back Mode Jobs Configuration.
- */
-const Spi_JobConfigType	Spi_LBMJobConfig[] = {
-	{
-#if	( ( SPI_LEVEL_DELIVERED == 1 ) || ( SPI_LEVEL_DELIVERED == 2 ) )
-#ifdef	__AS_CFG_SPI_LBM_JOB_0_END_NOTIFICATION__
-		&Spi_LBMJob0EndNotification,	/* SpiJobEndNotification.	      */
-#else
-		NULL_PTR,				/* SpiJobEndNotification.	      */
-#endif
-#endif	/* ( ( SPI_LEVEL_DELIVERED == 1 ) || ( SPI_LEVEL_DELIVERED == 2 ) ) */
-		SPI_LBM_JOB_0,			/* SpiJobId.			      */
-#if	( ( SPI_LEVEL_DELIVERED == 1 ) || ( SPI_LEVEL_DELIVERED == 2 ) )
-#if	( SPI_INTERRUPTIBLE_SEQ_ALLOWED == STD_ON )
-		SPI_LBM_JOB_0_PRI,			/* SpiJobPriority.		      */
-#endif	/* ( SPI_INTERRUPTIBLE_SEQ_ALLOWED == STD_ON ) */
-#endif	/* ( ( SPI_LEVEL_DELIVERED == 1 ) || ( SPI_LEVEL_DELIVERED == 2 ) ) */
-		SPI_LBM_CS_0,			/* SpiDeviceAssignment.		      */
-		&Spi_LBMJob0ChannelList[0]		/* SpiChannelList.		      */
-	},
-	{
-#if	( ( SPI_LEVEL_DELIVERED == 1 ) || ( SPI_LEVEL_DELIVERED == 2 ) )
-#ifdef	__AS_CFG_SPI_LBM_JOB_1_END_NOTIFICATION__
-		&Spi_LBMJob1EndNotification,	/* SpiJobEndNotification.	      */
-#else
-		NULL_PTR,				/* SpiJobEndNotification.	      */
-#endif
-#endif	/* ( ( SPI_LEVEL_DELIVERED == 1 ) || ( SPI_LEVEL_DELIVERED == 2 ) ) */
-		SPI_LBM_JOB_1,			/* SpiJobId.			      */
-#if	( ( SPI_LEVEL_DELIVERED == 1 ) || ( SPI_LEVEL_DELIVERED == 2 ) )
-#if	( SPI_INTERRUPTIBLE_SEQ_ALLOWED == STD_ON )
-		SPI_LBM_JOB_1_PRI,			/* SpiJobPriority.		      */
-#endif	/* ( SPI_INTERRUPTIBLE_SEQ_ALLOWED == STD_ON ) */
-#endif	/* ( ( SPI_LEVEL_DELIVERED == 1 ) || ( SPI_LEVEL_DELIVERED == 2 ) ) */
-		SPI_LBM_CS_1,			/* SpiDeviceAssignment.		      */
-		&Spi_LBMJob1ChannelList[0]		/* SpiChannelList.		      */
-	},
-	{
-#if	( ( SPI_LEVEL_DELIVERED == 1 ) || ( SPI_LEVEL_DELIVERED == 2 ) )
-#ifdef	__AS_CFG_SPI_LBM_JOB_2_END_NOTIFICATION__
-		&Spi_LBMJob2EndNotification,	/* SpiJobEndNotification.	      */
-#else
-		NULL_PTR,				/* SpiJobEndNotification.	      */
-#endif
-#endif	/* ( ( SPI_LEVEL_DELIVERED == 1 ) || ( SPI_LEVEL_DELIVERED == 2 ) ) */
-		SPI_LBM_JOB_2,			/* SpiJobId.			      */
-#if	( ( SPI_LEVEL_DELIVERED == 1 ) || ( SPI_LEVEL_DELIVERED == 2 ) )
-#if	( SPI_INTERRUPTIBLE_SEQ_ALLOWED == STD_ON )
-		SPI_LBM_JOB_2_PRI,			/* SpiJobPriority.		      */
-#endif	/* ( SPI_INTERRUPTIBLE_SEQ_ALLOWED == STD_ON ) */
-#endif	/* ( ( SPI_LEVEL_DELIVERED == 1 ) || ( SPI_LEVEL_DELIVERED == 2 ) ) */
-		SPI_LBM_CS_0,			/* SpiDeviceAssignment.		      */
-		&Spi_LBMJob2ChannelList[0]		/* SpiChannelList.		      */
-	},
-	{
-#if	( ( SPI_LEVEL_DELIVERED == 1 ) || ( SPI_LEVEL_DELIVERED == 2 ) )
-#ifdef	__AS_CFG_SPI_LBM_JOB_3_END_NOTIFICATION__
-			&Spi_LBMJob3EndNotification,	/* SpiJobEndNotification.	      */
-#else
-		NULL_PTR,				/* SpiJobEndNotification.	      */
-#endif
-#endif	/* ( ( SPI_LEVEL_DELIVERED == 1 ) || ( SPI_LEVEL_DELIVERED == 2 ) ) */
-		SPI_LBM_JOB_3,			/* SpiJobId.			      */
-#if	( ( SPI_LEVEL_DELIVERED == 1 ) || ( SPI_LEVEL_DELIVERED == 2 ) )
-#if	( SPI_INTERRUPTIBLE_SEQ_ALLOWED == STD_ON )
-		SPI_LBM_JOB_3_PRI,			/* SpiJobPriority.		      */
-#endif	/* ( SPI_INTERRUPTIBLE_SEQ_ALLOWED == STD_ON ) */
-#endif	/* ( ( SPI_LEVEL_DELIVERED == 1 ) || ( SPI_LEVEL_DELIVERED == 2 ) ) */
-		SPI_LBM_CS_1,			/* SpiDeviceAssignment.		      */
-		&Spi_LBMJob3ChannelList[0]		/* SpiChannelList.		      */
-	},
-#if	( SPI_CHANNEL_BUFFERS_ALLOWED == 2 )
-	{
-#if	( ( SPI_LEVEL_DELIVERED == 1 ) || ( SPI_LEVEL_DELIVERED == 2 ) )
-#ifdef	__AS_CFG_SPI_LBM_JOB_0_END_NOTIFICATION__
-		&Spi_LBMJob0EndNotification,	/* SpiJobEndNotification.	      */
-#else
-		NULL_PTR,				/* SpiJobEndNotification.	      */
-#endif
-#endif	/* ( ( SPI_LEVEL_DELIVERED == 1 ) || ( SPI_LEVEL_DELIVERED == 2 ) ) */
-		SPI_LBM_JOB_0_EB,			/* SpiJobId.			      */
-#if	( ( SPI_LEVEL_DELIVERED == 1 ) || ( SPI_LEVEL_DELIVERED == 2 ) )
-#if	( SPI_INTERRUPTIBLE_SEQ_ALLOWED == STD_ON )
-		SPI_LBM_JOB_0_PRI,			/* SpiJobPriority.		      */
-#endif	/* ( SPI_INTERRUPTIBLE_SEQ_ALLOWED == STD_ON ) */
-#endif	/* ( ( SPI_LEVEL_DELIVERED == 1 ) || ( SPI_LEVEL_DELIVERED == 2 ) ) */
-		SPI_LBM_CS_0,			/* SpiDeviceAssignment.		      */
-		&Spi_LBMJob0ChannelEBList[0]	/* SpiChannelList.		      */
-	},
-	{
-#if	( ( SPI_LEVEL_DELIVERED == 1 ) || ( SPI_LEVEL_DELIVERED == 2 ) )
-#ifdef	__AS_CFG_SPI_LBM_JOB_1_END_NOTIFICATION__
-		&Spi_LBMJob1EndNotification,	/* SpiJobEndNotification.	      */
-#else
-		NULL_PTR,				/* SpiJobEndNotification.	      */
-#endif
-#endif	/* ( ( SPI_LEVEL_DELIVERED == 1 ) || ( SPI_LEVEL_DELIVERED == 2 ) ) */
-		SPI_LBM_JOB_1_EB,			/* SpiJobId.			      */
-#if	( ( SPI_LEVEL_DELIVERED == 1 ) || ( SPI_LEVEL_DELIVERED == 2 ) )
-#if	( SPI_INTERRUPTIBLE_SEQ_ALLOWED == STD_ON )
-		SPI_LBM_JOB_1_PRI,			/* SpiJobPriority.		      */
-#endif	/* ( SPI_INTERRUPTIBLE_SEQ_ALLOWED == STD_ON ) */
-#endif	/* ( ( SPI_LEVEL_DELIVERED == 1 ) || ( SPI_LEVEL_DELIVERED == 2 ) ) */
-		SPI_LBM_CS_1,			/* SpiDeviceAssignment.		      */
-		&Spi_LBMJob1ChannelEBList[0]	/* SpiChannelList.		      */
-	},
-	{
-#if	( ( SPI_LEVEL_DELIVERED == 1 ) || ( SPI_LEVEL_DELIVERED == 2 ) )
-#ifdef	__AS_CFG_SPI_LBM_JOB_2_END_NOTIFICATION__
-		&Spi_LBMJob2EndNotification,	/* SpiJobEndNotification.	      */
-#else
-		NULL_PTR,				/* SpiJobEndNotification.	      */
-#endif
-#endif	/* ( ( SPI_LEVEL_DELIVERED == 1 ) || ( SPI_LEVEL_DELIVERED == 2 ) ) */
-		SPI_LBM_JOB_2_EB,			/* SpiJobId.			      */
-#if	( ( SPI_LEVEL_DELIVERED == 1 ) || ( SPI_LEVEL_DELIVERED == 2 ) )
-#if	( SPI_INTERRUPTIBLE_SEQ_ALLOWED == STD_ON )
-		SPI_LBM_JOB_2_PRI,			/* SpiJobPriority.		      */
-#endif	/* ( SPI_INTERRUPTIBLE_SEQ_ALLOWED == STD_ON ) */
-#endif	/* ( ( SPI_LEVEL_DELIVERED == 1 ) || ( SPI_LEVEL_DELIVERED == 2 ) ) */
-		SPI_LBM_CS_0,			/* SpiDeviceAssignment.		      */
-		&Spi_LBMJob2ChannelEBList[0]	/* SpiChannelList.		      */
-	},
-	{
-#if	( ( SPI_LEVEL_DELIVERED == 1 ) || ( SPI_LEVEL_DELIVERED == 2 ) )
-#ifdef	__AS_CFG_SPI_LBM_JOB_3_END_NOTIFICATION__
-		&Spi_LBMJob3EndNotification,	/* SpiJobEndNotification.	      */
-#else
-		NULL_PTR,				/* SpiJobEndNotification.	      */
-#endif
-#endif	/* ( ( SPI_LEVEL_DELIVERED == 1 ) || ( SPI_LEVEL_DELIVERED == 2 ) ) */
-		SPI_LBM_JOB_3_EB,			/* SpiJobId.			      */
-#if	( ( SPI_LEVEL_DELIVERED == 1 ) || ( SPI_LEVEL_DELIVERED == 2 ) )
-#if	( SPI_INTERRUPTIBLE_SEQ_ALLOWED == STD_ON )
-		SPI_LBM_JOB_3_PRI,			/* SpiJobPriority.		      */
-#endif	/* ( SPI_INTERRUPTIBLE_SEQ_ALLOWED == STD_ON ) */
-#endif	/* ( ( SPI_LEVEL_DELIVERED == 1 ) || ( SPI_LEVEL_DELIVERED == 2 ) ) */
-		SPI_LBM_CS_1,			/* SpiDeviceAssignment.		      */
-    	&Spi_LBMJob3ChannelEBList[0]	/* SpiChannelList.		      */
-	},
-#endif	/* ( SPI_CHANNEL_BUFFERS_ALLOWED == 2 ) */
-#if	( SPI_LEVEL_DELIVERED == 2 )
-	{
-#ifdef	__AS_CFG_SPI_LBM_JOB_0_END_NOTIFICATION__
-		&Spi_LBMJob0EndNotification,	/* SpiJobEndNotification.	      */
-#else
-		NULL_PTR,				/* SpiJobEndNotification.	      */
-#endif
-		SPI_LBM_JOB_0_SYNC,		/* SpiJobId.			      */
-#if	( SPI_INTERRUPTIBLE_SEQ_ALLOWED == STD_ON )
-		SPI_LBM_JOB_0_PRI,			/* SpiJobPriority.		      */
-#endif	/* ( SPI_INTERRUPTIBLE_SEQ_ALLOWED == STD_ON ) */
-		SPI_LBM_CS_5,			/* SpiDeviceAssignment.		      */
-		&Spi_LBMJob0ChannelList[0]		/* SpiChannelList.		      */
-	},
-	{
-#ifdef	__AS_CFG_SPI_LBM_JOB_1_END_NOTIFICATION__
-		&Spi_LBMJob1EndNotification,	/* SpiJobEndNotification.	      */
-#else
-		NULL_PTR,				/* SpiJobEndNotification.	      */
-#endif
-		SPI_LBM_JOB_1_SYNC,		/* SpiJobId.			      */
-#if	( SPI_INTERRUPTIBLE_SEQ_ALLOWED == STD_ON )
-		SPI_LBM_JOB_1_PRI,			/* SpiJobPriority.		      */
-#endif	/* ( SPI_INTERRUPTIBLE_SEQ_ALLOWED == STD_ON ) */
-		SPI_LBM_CS_13,			/* SpiDeviceAssignment.		      */
-		&Spi_LBMJob1ChannelList[0]		/* SpiChannelList.		      */
-	},
-	{
-#ifdef	__AS_CFG_SPI_LBM_JOB_2_END_NOTIFICATION__
-		&Spi_LBMJob2EndNotification,	/* SpiJobEndNotification.	      */
-#else
-		NULL_PTR,				/* SpiJobEndNotification.	      */
-#endif
-		SPI_LBM_JOB_2_SYNC,		/* SpiJobId.			      */
-#if	( SPI_INTERRUPTIBLE_SEQ_ALLOWED == STD_ON )
-		SPI_LBM_JOB_2_PRI,			/* SpiJobPriority.		      */
-#endif	/* ( SPI_INTERRUPTIBLE_SEQ_ALLOWED == STD_ON ) */
-		SPI_LBM_CS_5,			/* SpiDeviceAssignment.		      */
-		&Spi_LBMJob2ChannelList[0]		/* SpiChannelList.		      */
-	},
-	{
-#ifdef	__AS_CFG_SPI_LBM_JOB_3_END_NOTIFICATION__
-		&Spi_LBMJob3EndNotification,	/* SpiJobEndNotification.	      */
-#else
-		NULL_PTR,				/* SpiJobEndNotification.	      */
-#endif
-		SPI_LBM_JOB_3_SYNC,		/* SpiJobId.			      */
-#if	( SPI_INTERRUPTIBLE_SEQ_ALLOWED == STD_ON )
-		SPI_LBM_JOB_3_PRI,			/* SpiJobPriority.		      */
-#endif	/* ( SPI_INTERRUPTIBLE_SEQ_ALLOWED == STD_ON ) */
-		SPI_LBM_CS_13,			/* SpiDeviceAssignment.		      */
-		&Spi_LBMJob3ChannelList[0]		/* SpiChannelList.		      */
-	},
-#endif	/* ( SPI_LEVEL_DELIVERED == 2 ) */
-#if	( ( SPI_CHANNEL_BUFFERS_ALLOWED == 2 ) && ( SPI_LEVEL_DELIVERED == 2 ) )
-	{
-#ifdef	__AS_CFG_SPI_LBM_JOB_0_END_NOTIFICATION__
-		&Spi_LBMJob0EndNotification,	/* SpiJobEndNotification.	      */
-#else
-		NULL_PTR,				/* SpiJobEndNotification.	      */
-#endif
-		SPI_LBM_JOB_0_EB_SYNC,		/* SpiJobId.			      */
-#if	( SPI_INTERRUPTIBLE_SEQ_ALLOWED == STD_ON )
-		SPI_LBM_JOB_0_PRI,			/* SpiJobPriority.		      */
-#endif	/* ( SPI_INTERRUPTIBLE_SEQ_ALLOWED == STD_ON ) */
-		SPI_LBM_CS_5,			/* SpiDeviceAssignment.		      */
-		&Spi_LBMJob0ChannelEBList[0]	/* SpiChannelList.		      */
-	},
-	{
-#ifdef	__AS_CFG_SPI_LBM_JOB_1_END_NOTIFICATION__
-		&Spi_LBMJob1EndNotification,	/* SpiJobEndNotification.	      */
-#else
-		NULL_PTR,				/* SpiJobEndNotification.	      */
-#endif
-		SPI_LBM_JOB_1_EB_SYNC,		/* SpiJobId.			      */
-#if	( SPI_INTERRUPTIBLE_SEQ_ALLOWED == STD_ON )
-		SPI_LBM_JOB_1_PRI,			/* SpiJobPriority.		      */
-#endif	/* ( SPI_INTERRUPTIBLE_SEQ_ALLOWED == STD_ON ) */
-		SPI_LBM_CS_13,			/* SpiDeviceAssignment.		      */
-		&Spi_LBMJob1ChannelEBList[0]	/* SpiChannelList.		      */
-	},
-	{
-#ifdef	__AS_CFG_SPI_LBM_JOB_2_END_NOTIFICATION__
-		&Spi_LBMJob2EndNotification,	/* SpiJobEndNotification.	      */
-#else
-		NULL_PTR,				/* SpiJobEndNotification.	      */
-#endif
-		SPI_LBM_JOB_2_EB_SYNC,		/* SpiJobId.			      */
-#if	( SPI_INTERRUPTIBLE_SEQ_ALLOWED == STD_ON )
-		SPI_LBM_JOB_2_PRI,			/* SpiJobPriority.		      */
-#endif	/* ( SPI_INTERRUPTIBLE_SEQ_ALLOWED == STD_ON ) */
-		SPI_LBM_CS_5,			/* SpiDeviceAssignment.		      */
-		&Spi_LBMJob2ChannelEBList[0]	/* SpiChannelList.		      */
-	},
-	{
-#ifdef	__AS_CFG_SPI_LBM_JOB_3_END_NOTIFICATION__
-		&Spi_LBMJob3EndNotification,	/* SpiJobEndNotification.	      */
-#else
-		NULL_PTR,				/* SpiJobEndNotification.	      */
-#endif
-		SPI_LBM_JOB_3_EB_SYNC,		/* SpiJobId.			      */
-#if	( SPI_INTERRUPTIBLE_SEQ_ALLOWED == STD_ON )
-		SPI_LBM_JOB_3_PRI,			/* SpiJobPriority.		      */
-#endif	/* ( SPI_INTERRUPTIBLE_SEQ_ALLOWED == STD_ON ) */
-		SPI_LBM_CS_13,			/* SpiDeviceAssignment.		      */
-		&Spi_LBMJob3ChannelEBList[0]	/* SpiChannelList.		      */
-	},
-#endif	/*
-	 * ( SPI_CHANNEL_BUFFERS_ALLOWED == 2 ) &&
-	 * ( SPI_LEVEL_DELIVERED == 2 )
-	 */
-};
-
-#endif
-
 
 /*
  * Loop-back Mode Jobs Configuration.
@@ -1704,7 +1462,7 @@ const Spi_JobConfigType	Spi_LBMJobConfig[] = {
 #if	( SPI_INTERRUPTIBLE_SEQ_ALLOWED == STD_ON )
 		SPI_LBM_JOB_0_PRI,			/* SpiJobPriority.		      */
 #endif	/* ( SPI_INTERRUPTIBLE_SEQ_ALLOWED == STD_ON ) */
-		SPI_LBM_CS_5,			/* SpiDeviceAssignment.		      */
+		SPI_LBM_CS_5,
 		&Spi_LBMJob0ChannelList[0]		/* SpiChannelList.		      */
 	},
 	{
@@ -1717,7 +1475,7 @@ const Spi_JobConfigType	Spi_LBMJobConfig[] = {
 #if	( SPI_INTERRUPTIBLE_SEQ_ALLOWED == STD_ON )
 		SPI_LBM_JOB_1_PRI,			/* SpiJobPriority.		      */
 #endif	/* ( SPI_INTERRUPTIBLE_SEQ_ALLOWED == STD_ON ) */
-		SPI_LBM_CS_13,			/* SpiDeviceAssignment.		      */
+		SPI_LBM_CS_5,			/* SpiDeviceAssignment.		      */
 		&Spi_LBMJob1ChannelList[0]		/* SpiChannelList.		      */
 	},
 	{
@@ -1730,7 +1488,7 @@ const Spi_JobConfigType	Spi_LBMJobConfig[] = {
 #if	( SPI_INTERRUPTIBLE_SEQ_ALLOWED == STD_ON )
 		SPI_LBM_JOB_2_PRI,			/* SpiJobPriority.		      */
 #endif	/* ( SPI_INTERRUPTIBLE_SEQ_ALLOWED == STD_ON ) */
-		SPI_LBM_CS_8,			/* SpiDeviceAssignment.		      */
+		SPI_LBM_CS_5,
 		&Spi_LBMJob2ChannelList[0]		/* SpiChannelList.		      */
 	},
 	{
@@ -1743,7 +1501,7 @@ const Spi_JobConfigType	Spi_LBMJobConfig[] = {
 #if	( SPI_INTERRUPTIBLE_SEQ_ALLOWED == STD_ON )
 		SPI_LBM_JOB_3_PRI,			/* SpiJobPriority.		      */
 #endif	/* ( SPI_INTERRUPTIBLE_SEQ_ALLOWED == STD_ON ) */
-		SPI_LBM_CS_13,			/* SpiDeviceAssignment.		      */
+		SPI_LBM_CS_5,
 		&Spi_LBMJob3ChannelList[0]		/* SpiChannelList.		      */
 	},
 #endif	/* ( SPI_LEVEL_DELIVERED == 2 ) */
@@ -1758,7 +1516,7 @@ const Spi_JobConfigType	Spi_LBMJobConfig[] = {
 #if	( SPI_INTERRUPTIBLE_SEQ_ALLOWED == STD_ON )
 		SPI_LBM_JOB_0_PRI,			/* SpiJobPriority.		      */
 #endif	/* ( SPI_INTERRUPTIBLE_SEQ_ALLOWED == STD_ON ) */
-		SPI_LBM_CS_8,			/* SpiDeviceAssignment.		      */
+		SPI_LBM_CS_5,
 		&Spi_LBMJob0ChannelEBList[0]	/* SpiChannelList.		      */
 	},
 	{
@@ -1771,7 +1529,7 @@ const Spi_JobConfigType	Spi_LBMJobConfig[] = {
 #if	( SPI_INTERRUPTIBLE_SEQ_ALLOWED == STD_ON )
 		SPI_LBM_JOB_1_PRI,			/* SpiJobPriority.		      */
 #endif	/* ( SPI_INTERRUPTIBLE_SEQ_ALLOWED == STD_ON ) */
-		SPI_LBM_CS_13,			/* SpiDeviceAssignment.		      */
+		SPI_LBM_CS_5,
 		&Spi_LBMJob1ChannelEBList[0]	/* SpiChannelList.		      */
 	},
 	{
@@ -1784,7 +1542,7 @@ const Spi_JobConfigType	Spi_LBMJobConfig[] = {
 #if	( SPI_INTERRUPTIBLE_SEQ_ALLOWED == STD_ON )
 		SPI_LBM_JOB_2_PRI,			/* SpiJobPriority.		      */
 #endif	/* ( SPI_INTERRUPTIBLE_SEQ_ALLOWED == STD_ON ) */
-		SPI_LBM_CS_8,			/* SpiDeviceAssignment.		      */
+		SPI_LBM_CS_5,			/* SpiDeviceAssignment.		      */
 		&Spi_LBMJob2ChannelEBList[0]	/* SpiChannelList.		      */
 	},
 	{
@@ -1797,7 +1555,7 @@ const Spi_JobConfigType	Spi_LBMJobConfig[] = {
 #if	( SPI_INTERRUPTIBLE_SEQ_ALLOWED == STD_ON )
 		SPI_LBM_JOB_3_PRI,			/* SpiJobPriority.		      */
 #endif	/* ( SPI_INTERRUPTIBLE_SEQ_ALLOWED == STD_ON ) */
-		SPI_LBM_CS_13,			/* SpiDeviceAssignment.		      */
+		SPI_LBM_CS_5,
 		&Spi_LBMJob3ChannelEBList[0]	/* SpiChannelList.		      */
 	},
 #endif	/*

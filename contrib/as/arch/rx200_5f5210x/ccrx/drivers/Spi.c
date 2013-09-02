@@ -81,121 +81,6 @@
 
 #include "Spi_Internal.h"
 
-/*GF: FIXME*/
-#if 0
-/** @brief	Enable Sci channel interrupts in the Interrupt Control Unit (ICU).
- *	@param  _mod SCI Module Identifier.
- *  
- */
-static void Spi_EnableICU(Spi_HWUnitType _mod)
-{
-	switch (_mod) {
-	case SPI_HW_UNIT_0:
-		/*Enable Rx Error and Rx interrupts.*/
-		EE_HWREG8(HW_ICU_IER_SCI0_ERX) |= 
-				(HW_ICU_SCI0_IER_ER_MASK | HW_ICU_SCI0_IER_RX_MASK);
-		/*Enable Tx End interrupt.*/
-		EE_HWREG8(HW_ICU_IER_SCI0_TX) |=  HW_ICU_SCI0_IER_TX_MASK;
-		/*Set IRQ priority*/
-		EE_HWREG8(HW_ICU_IPR_SCI0) = HW_IPR_PRI_LEVEL_1;
-		break;
-	case SPI_HW_UNIT_1:
-		EE_HWREG8(HW_ICU_IER_SCI1_ERX) |= 
-				(HW_ICU_SCI1_IER_ER_MASK | HW_ICU_SCI1_IER_RX_MASK);
-		EE_HWREG8(HW_ICU_IER_SCI1_TX) |= HW_ICU_SCI1_IER_TX_MASK;
-		EE_HWREG8(HW_ICU_IPR_SCI1) = HW_IPR_PRI_LEVEL_1;
-		break;
-	case SPI_HW_UNIT_5:
-		EE_HWREG8(HW_ICU_IER_SCI5_ERX) |= 
-				(HW_ICU_SCI5_IER_ER_MASK | HW_ICU_SCI5_IER_RX_MASK);
-		EE_HWREG8(HW_ICU_IER_SCI5_TX) |= HW_ICU_SCI5_IER_TX_MASK;
-		EE_HWREG8(HW_ICU_IPR_SCI5) = HW_IPR_PRI_LEVEL_1;
-		break;
-	case SPI_HW_UNIT_6:
-		EE_HWREG8(HW_ICU_IER_SCI6_ERX) |= 
-				(HW_ICU_SCI6_IER_ER_MASK | HW_ICU_SCI6_IER_RX_MASK);
-		EE_HWREG8(HW_ICU_IER_SCI6_TX) |= HW_ICU_SCI6_IER_TX_MASK;
-		EE_HWREG8(HW_ICU_IPR_SCI6) = HW_IPR_PRI_LEVEL_1;
-		break;
-	case SPI_HW_UNIT_8:
-		EE_HWREG8(HW_ICU_IER_SCI8_ERX) |= 
-				(HW_ICU_SCI8_IER_ER_MASK | HW_ICU_SCI8_IER_RX_MASK);
-		EE_HWREG8(HW_ICU_IER_SCI8_TX) |= HW_ICU_SCI8_IER_TX_MASK;
-		EE_HWREG8(HW_ICU_IPR_SCI8) = HW_IPR_PRI_LEVEL_1;
-		break;
-	case SPI_HW_UNIT_9:
-		EE_HWREG8(HW_ICU_IER_SCI9_ERX) |= 
-				(HW_ICU_SCI9_IER_ER_MASK | HW_ICU_SCI9_IER_RX_MASK);
-		EE_HWREG8(HW_ICU_IER_SCI9_TX) |= HW_ICU_SCI9_IER_TX_MASK;
-		EE_HWREG8(HW_ICU_IPR_SCI9) = HW_IPR_PRI_LEVEL_1;
-		break;
-	case SPI_HW_UNIT_12:
-		EE_HWREG8(HW_ICU_IER_SCI12_ERX) |= HW_ICU_SCI12_IER_RX_MASK;
-		EE_HWREG8(HW_ICU_IER_SCI12_TX) |= HW_ICU_SCI12_IER_TX_MASK;
-		EE_HWREG8(HW_ICU_IPR_SCI12) = HW_IPR_PRI_LEVEL_1;
-	case SPI_HW_UNIT_13:
-		EE_HWREG8(HW_ICU_IER_RSPI_SPEI) |= HW_ICU_RSPI_IER_SPEI_MASK;
-		EE_HWREG8(HW_ICU_IER_RSPI_SPRI) |= HW_ICU_RSPI_IER_SPRI_MASK;
-		EE_HWREG8(HW_ICU_IER_RSPI_SPTI) |= HW_ICU_RSPI_IER_SPTI_MASK;
-		EE_HWREG8(HW_ICU_IER_RSPI_SPII) |= HW_ICU_RSPI_IER_SPII_MASK;
-		EE_HWREG8(HW_ICU_IPR_RSPI) = HW_IPR_PRI_LEVEL_1;
-		break;
-	}
-}
-#endif
-
-/** @brief	Disable Spi channel interrupts in the Interrupt Control Unit (ICU).
- *	@param  _mod SPI Module Identifier.
- *  
- */
-static void Spi_DisableICU(Spi_HWUnitType _mod)
-{
-	switch (_mod) {
-	case SPI_HW_UNIT_0:
-		/*Disable Rx Error and Rx interrupts.*/
-		EE_HWREG8(HW_ICU_IER_SCI0_ERX) &= 
-				(~(HW_ICU_SCI0_IER_ER_MASK | HW_ICU_SCI0_IER_RX_MASK));
-		/*Disable Tx End interrupts.*/
-		EE_HWREG8(HW_ICU_IER_SCI0_TX) &= (~HW_ICU_SCI0_IER_TX_MASK);
-		break;
-	case SPI_HW_UNIT_1:
-		EE_HWREG8(HW_ICU_IER_SCI1_ERX) &= 
-				(~(HW_ICU_SCI1_IER_ER_MASK | HW_ICU_SCI1_IER_RX_MASK));
-		EE_HWREG8(HW_ICU_IER_SCI1_TX) &= (~HW_ICU_SCI1_IER_TX_MASK);
-		break;
-	case SPI_HW_UNIT_5:
-		EE_HWREG8(HW_ICU_IER_SCI5_ERX) &= 
-				(~(HW_ICU_SCI5_IER_ER_MASK | HW_ICU_SCI5_IER_RX_MASK));
-		EE_HWREG8(HW_ICU_IER_SCI5_TX) &= (~HW_ICU_SCI5_IER_TX_MASK);
-		break;
-	case SPI_HW_UNIT_6:
-		EE_HWREG8(HW_ICU_IER_SCI6_ERX) &= 
-				(~(HW_ICU_SCI6_IER_ER_MASK | HW_ICU_SCI6_IER_RX_MASK));
-		EE_HWREG8(HW_ICU_IER_SCI6_TX) &= (~HW_ICU_SCI6_IER_TX_MASK);
-		break;
-	case SPI_HW_UNIT_8:
-		EE_HWREG8(HW_ICU_IER_SCI8_ERX) &= 
-				(~(HW_ICU_SCI8_IER_ER_MASK | HW_ICU_SCI8_IER_RX_MASK));
-		EE_HWREG8(HW_ICU_IER_SCI8_TX) &= (~HW_ICU_SCI8_IER_TX_MASK);
-		break;
-	case SPI_HW_UNIT_9:
-		EE_HWREG8(HW_ICU_IER_SCI9_ERX) &= 
-				(~(HW_ICU_SCI9_IER_ER_MASK | HW_ICU_SCI9_IER_RX_MASK));
-		EE_HWREG8(HW_ICU_IER_SCI9_TX) &= (~HW_ICU_SCI9_IER_TX_MASK);
-		break;
-	case SPI_HW_UNIT_12:
-		EE_HWREG8(HW_ICU_IER_SCI12_ERX) &= 
-				(~(HW_ICU_SCI12_IER_ER_MASK | HW_ICU_SCI12_IER_RX_MASK));
-		EE_HWREG8(HW_ICU_IER_SCI12_TX) &= (~HW_ICU_SCI12_IER_TX_MASK);
-		break;
-	case SPI_HW_UNIT_13:
-		EE_HWREG8(HW_ICU_IER_RSPI_SPEI) &= (~HW_ICU_RSPI_IER_SPEI_MASK);
-		EE_HWREG8(HW_ICU_IER_RSPI_SPRI) &= (~HW_ICU_RSPI_IER_SPRI_MASK);
-		EE_HWREG8(HW_ICU_IER_RSPI_SPTI) &= (~HW_ICU_RSPI_IER_SPTI_MASK);
-		EE_HWREG8(HW_ICU_IER_RSPI_SPII) &= (~HW_ICU_RSPI_IER_SPII_MASK);
-		break;	
-	}
-}
 
 /*
  * SCI Harware Unit Baudrate Parameters Computing.
@@ -299,12 +184,6 @@ static void Spi_InitSpiHWUnit(const Spi_ExternalDeviceConfigType *ConfigPtr)
 										SPI_MASTER_SLAVE_MODE_MASK & 
 										SPI_CLOCK_SEL_MODE_MASK) );
 
-		/* Enable SCI interrupts in the ICU. */
-		//GF: Spi_EnableICU(ConfigPtr->SpiHwUnit);
-		
-		/* Enable SCI RTX, TXI and RXI IRQs. */
-		/* GF: SCI_SPI_START(ConfigPtr->SpiHwUnit);*/
-
 	} else {
 
 		/* NOTES:
@@ -327,19 +206,13 @@ static void Spi_InitSpiHWUnit(const Spi_ExternalDeviceConfigType *ConfigPtr)
 				ConfigPtr->SpiShiftClockIdleLevel, 
 				ConfigPtr->SpiCsIdentifier,
 				ConfigPtr->SpiHwUnitMode);
+		
 		/* Set Baudrate */
 		Rspi_SetHWUnitBRParms(ConfigPtr->SpiBaudrate, 
 				Mcu_Global.ConfigPtr->McuClockSettingConfig[
 				      Mcu_Global.ClockSetting].McuClockReferencePointFrequency);
 		RSPI_SET_SPCR(RSPI_SET_MODE_BITS(ConfigPtr->SpiHwUnitMode, 
 						ConfigPtr->SpiEnableCs));
-		/* Enable SPI interrupts in the ICU. */
-		//GF: Spi_EnableICU(ConfigPtr->SpiHwUnit);				
-		/* 
-		 * Enable the Spi module, enable TX and RX IRQs, configure Master or 
-		 * Slave or Multi-Master, enable chip select mode.
-		 */
-		/*GF: RSPI_START(); */
 	}
 	
 }
@@ -354,13 +227,6 @@ void Spi_Init(const Spi_ConfigType *ConfigPtr)
 	register uint32	idx;
 
 	VALIDATE( ( ConfigPtr != NULL ), SPI_INIT_SERVICE_ID, SPI_E_PARAM_POINTER );
-
-/*GF: At the moment the DMA system is not used. */
-  /* DMA Driver Check */
-/*	VALIDATE( ( Dma_GetStatus() != DMA_UNINIT ), 
-				SPI_INIT_SERVICE_ID, 
-				SPI_E_UNINIT);
-*/
 	
 	flags = EE_hal_suspendIRQ();
 
@@ -472,8 +338,6 @@ static void Spi_DeInitSpiHWUnit(Spi_HWUnitType	SpiHwUnit)
 	} else {
 		RSPI_RESET();	
 	}
-	/* Disable SPI interrupts in the ICU */
-	Spi_DisableICU(SpiHwUnit);
 	
 	/* Stop Spi Module */
 	Spi_DisableChannel(SpiHwUnit);
@@ -1244,17 +1108,6 @@ Spi_StatusType Spi_GetHWUnitStatus(Spi_HWUnitType HWUnit)
 	VALIDATE_IRQ_W_RV(( Spi_IsChannelEnabled(HWUnit) ), 
 			SPI_GETHWUNITSTATUS_SERVICE_ID, SPI_E_UNINIT, SPI_UNINIT, flags);
 	
-	
-
-#if	0
-	rv = SPI_IDLE;
-/*TODO:*/
-	/* Hardware Check */
-	if ( SSI_GET_SR(HWUnit) & SSI_SR_BSY ) {
-
-		rv = SPI_BUSY;
-	}
-#endif
 
 	/* SPI Handler/Driver Hardware Unit Status. */
 	if ( SpiHwUnitStatus[HWUnit].SpiOwnerIdx == SPI_JOB_END_LIST ) {

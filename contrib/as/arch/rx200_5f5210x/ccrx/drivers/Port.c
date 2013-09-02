@@ -313,7 +313,6 @@ void Port_SetPortPinHWMode (Port_PinType	Pin,
  */
 static void Port_InitPortPin( const Port_PinConfType *	ConfigPtr)
 {
-	//register uint32 port;
 	register uint32 mode;
 
 	/* Sets Port Pin Initial Mode. */

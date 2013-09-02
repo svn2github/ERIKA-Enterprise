@@ -879,10 +879,17 @@ typedef struct {
 
 /** @brief	SPI Hardware Unit Slave.
  *
- *  This macro sets-up the SPI Hardware Unit in Slave Mode: <b>SPI External
+ *  This macro sets-up the SPI Hardware Unit (SCI unit) in Slave Mode: <b>SPI External
+ *  Device is SLAVE.</b>
+ */
+#define	SPI_HW_UNIT_SCI_SLAVE			0x00000002U
+
+/** @brief	SPI Hardware Unit Master.
+ *
+ *  This macro sets-up the SPI Hardware Unit (RSPI unit) in Master Mode: <b>SPI External
  *  Device is MASTER.</b>
  */
-#define	SPI_HW_UNIT_SLAVE			0x00000002U
+#define	SPI_HW_UNIT_RSPI_MASTER			0x00000002U
 
 /** @brief	SPI Harware Unit Slave Output Disable.
  *
@@ -1161,18 +1168,21 @@ typedef struct {
  */
 #define	SPI_LBM_CS_0	0x00U	/**< Loop-back Mode Chip-Select 0.	*/
 #define	SPI_LBM_CS_1	0x01U	/**< Loop-back Mode Chip-Select 1.	*/
-#define	SPI_LBM_CS_5	0x05U	/**< Loop-back Mode Chip-Select 2.	*/
-#define	SPI_LBM_CS_6	0x06U	/**< Loop-back Mode Chip-Select 3.	*/
-#define	SPI_LBM_CS_8	0x08U	/**< Loop-back Mode Chip-Select 0.	*/
-#define	SPI_LBM_CS_9	0x09U	/**< Loop-back Mode Chip-Select 1.	*/
-#define	SPI_LBM_CS_12	0x0CU	/**< Loop-back Mode Chip-Select 2.	*/
-#define	SPI_LBM_CS_13	0x0DU	/**< Loop-back Mode Chip-Select 3.	*/
-#define	SPI_LBM_CS_14	0x0EU	/**< Loop-back Mode Chip-Select 3.	*/
-#define	SPI_LBM_CS_15	0x0FU	/**< Loop-back Mode Chip-Select 3.	*/
-#define	SPI_LBM_CS_16	0x10U	/**< Loop-back Mode Chip-Select 3.	*/
+#define	SPI_LBM_CS_2	0x02U	/**< Loop-back Mode Chip-Select 2.	*/
+#define	SPI_LBM_CS_3	0x03U	/**< Loop-back Mode Chip-Select 3.	*/
+#define	SPI_LBM_CS_4	0x04U	/**< Loop-back Mode Chip-Select 4.	*/
+#define	SPI_LBM_CS_5	0x05U	/**< Loop-back Mode Chip-Select 5.	*/
+#define	SPI_LBM_CS_6	0x06U	/**< Loop-back Mode Chip-Select 6.	*/
+#define	SPI_LBM_CS_7	0x07U	/**< Loop-back Mode Chip-Select 7.	*/
+#define	SPI_LBM_CS_8	0x08U	/**< Loop-back Mode Chip-Select 8.	*/
+#define	SPI_LBM_CS_9	0x09U	/**< Loop-back Mode Chip-Select 9.	*/
+#define	SPI_LBM_CS_10	0x0AU	/**< Loop-back Mode Chip-Select 10.	*/
+#define	SPI_LBM_CS_11	0x0BU	/**< Loop-back Mode Chip-Select 11.	*/
+#define	SPI_LBM_CS_12	0x0CU	/**< Loop-back Mode Chip-Select 12.	*/
+#define	SPI_LBM_CS_13	0x0DU	/**< Loop-back Mode Chip-Select 13.	*/
 
 /** @brief	Number of Configured Loop-back Mode External Devices.	*/
-#define	SPI_LBM_EXTERNAL_DEVICES_NUMBER		4 /*SPI_LBM_CS_13 + 1*/
+#define	SPI_LBM_EXTERNAL_DEVICES_NUMBER		SPI_LBM_CS_13 + 1  /*SPI_LBM_CS_13 + 1*/
 
 #endif	/* __AS_CFG_SPI_LBM__ */
 
@@ -1356,23 +1366,6 @@ typedef	struct {
 	*/
 	uint32		SpiHwUnitMode;
 
-
-	/** @brief	SPI Hardware Unit DMA Channel.
-	*
-	*  This parameter contains the identification (ID) for the DMA Channel
-	*  associated to Reception of HW SPI Hardware microcontroller peripheral
-	*  allocated to this Job.
-	*/
-	//Dma_ChannelType	SpiDmaRxChannel;
-
-	/** @brief	SPI Hardware Unit DMA Channel.
-	*
-	*  This parameter contains the identification (ID) for the DMA Channel
-	*  associated to Transmission of HW SPI Hardware microcontroller peripheral
-	*  allocated to this Job.
-	*/
-	//Dma_ChannelType	SpiDmaTxChannel;
-
 } Spi_ExternalDeviceConfigType;
 
 /*
@@ -1395,17 +1388,6 @@ void Spi_TestJob0EndNotification(
 #endif	/* __AS_CFG_SPI_TEST_JOB_0_END_NOTIFICATION__ */
 
 #endif	/* ( ( SPI_LEVEL_DELIVERED == 1 ) || ( SPI_LEVEL_DELIVERED == 2 ) ) */
-/*FIXME: Verify the need of two buffers for asynch and synch comm */
-/*** NOTE:	Needed to DMA Scatter-Gather Tables. ***/
-// #if	( SPI_CHANNEL_BUFFERS_ALLOWED == 2 )
-// /** @brief	Configured SPI TEST Asynchronous Jobs Channels Max Number.    */
-// #define	SPI_TEST_ASYNC_JOBS_CHANNELS_MAX_NUMBER	1
-// /** @brief	Configured SPI TEST Synchronous Jobs Channels Max Number.     */
-// #define	SPI_TEST_SYNC_JOBS_CHANNELS_MAX_NUMBER	1
-// #else	/* ( SPI_CHANNEL_BUFFERS_ALLOWED == 2 )	 */
-// /** @brief	Configured SPI TEST Jobs Channels Max Number.		      */
-// #define	SPI_TEST_JOBS_CHANNELS_MAX_NUMBER	1
-// #endif	/* !( SPI_CHANNEL_BUFFERS_ALLOWED == 2 ) */
 
 /** @brief	Configured SPI TEST Jobs Channels Max Number.		      */
 #define	SPI_TEST_JOBS_CHANNELS_MAX_NUMBER	1
@@ -1480,18 +1462,6 @@ void Spi_LBMJob3EndNotification(
 
 #endif	/* ( ( SPI_LEVEL_DELIVERED == 1 ) || ( SPI_LEVEL_DELIVERED == 2 ) ) */
 
-/*** NOTE:	Needed to DMA Scatter-Gather Tables. **
-#if	( SPI_CHANNEL_BUFFERS_ALLOWED == 2 )
-* @brief	Configured SPI LBM Asynchronous Jobs Channels Max Number.     
-#define	SPI_LBM_ASYNC_JOBS_CHANNELS_MAX_NUMBER	7
-* @brief	Configured SPI LBM Synchronous Jobs Channels Max Number.      
-#define	SPI_LBM_SYNC_JOBS_CHANNELS_MAX_NUMBER	7
-#else	 ( SPI_CHANNEL_BUFFERS_ALLOWED == 2 )	 
-* @brief	Configured SPI LBM Jobs Channels Max Number.		      
-#define	SPI_LBM_JOBS_CHANNELS_MAX_NUMBER	7
-#endif	 !( SPI_CHANNEL_BUFFERS_ALLOWED == 2 ) */
-
-
 #define	SPI_LBM_JOBS_CHANNELS_MAX_NUMBER	7
 
 #define	SPI_LBM_JOB_0		0x0000U		/**< Loop-back Mode Job 0.    */
@@ -1565,35 +1535,6 @@ void Spi_LBMJob3EndNotification(
 #define	SPI_JOBS_MAX_NUMBER	SPI_TEST_JOBS_NUMBER
 #endif	/* !__AS_CFG_SPI_ENC28J60__ */
 #endif	/* !__AS_CFG_SPI_LBM__ */
-
-/*FIXME: Verify the need of two buffers for asynch and synch comm */
-// #ifdef	__AS_CFG_SPI_LBM__
-// #if	( SPI_LEVEL_DELIVERED == 2 )
-// /** @brief	Configured SPI Asynchronous Jobs Channels Max Number.	      */
-// #define	SPI_ASYNC_JOBS_CHANNELS_MAX_NUMBER	\
-	// SPI_LBM_ASYNC_JOBS_CHANNELS_MAX_NUMBER
-// /** @brief	Configured SPI Synchronous Jobs Channels Max Number.	      */
-// #define	SPI_SYNC_JOBS_CHANNELS_MAX_NUMBER	\
-	// SPI_LBM_SYNC_JOBS_CHANNELS_MAX_NUMBER
-// #else	/* ( SPI_LEVEL_DELIVERED == 2 )	 */
-// /** @brief	Configured SPI Jobs Channels Max Number.		      */
-// #define	SPI_JOBS_CHANNELS_MAX_NUMBER	\
-	// SPI_LBM_JOBS_CHANNELS_MAX_NUMBER
-// #endif	/* !( SSPI_LEVEL_DELIVERED == 2 ) */
-// #else	/* __AS_CFG_SPI_LBM__ */
-// #if	( SPI_LEVEL_DELIVERED == 2 )
-// /** @brief	Configured SPI Asynchronous Jobs Channels Max Number.	      */
-// #define	SPI_ASYNC_JOBS_CHANNELS_MAX_NUMBER	\
-	// SPI_TEST_ASYNC_JOBS_CHANNELS_MAX_NUMBER
-// /** @brief	Configured SPI Synchronous Jobs Channels Max Number.	      */
-// #define	SPI_SYNC_JOBS_CHANNELS_MAX_NUMBER	\
-	// SPI_TEST_SYNC_JOBS_CHANNELS_MAX_NUMBER
-// #else	/* ( SPI_LEVEL_DELIVERED == 2 )	 */
-// /** @brief	Configured SPI Jobs Channels Max Number.		      */
-// #define	SPI_JOBS_CHANNELS_MAX_NUMBER	\
-	// SPI_TEST_JOBS_CHANNELS_MAX_NUMBER
-// #endif	/* !( SPI_LEVEL_DELIVERED == 2 ) */
-// #endif	/* __AS_CFG_SPI_LBM__ */
 
 #ifdef	__AS_CFG_SPI_LBM__
 

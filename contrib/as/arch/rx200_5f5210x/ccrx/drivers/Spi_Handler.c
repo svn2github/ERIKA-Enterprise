@@ -128,6 +128,12 @@ Spi_ChannelType TxChIdx, RxChIdx;
 Spi_NumberOfDataType TxPosIdx, RxPosIdx;
 Spi_ChannelType  NumAssChIdx;
 
+/*Used to transmit the data without incrementing TxPosIdx. This is used when 
+the pointer to external buffer is null. 
+Ex: SpiChannelStatus[ChIdx].SpiSrcEbPtr == NULL_PTR; 
+*/
+boolean SpiTxNoInc = FALSE; 
+
 /*
  * @brief SPI JOB Buffers Setup.
  *
@@ -178,7 +184,9 @@ static void Spi_Job_buffer_setup(Spi_JobType JobIdx, Spi_ChannelType AssChIdx)
     		SpiChannelStatus[ChIdx].SpiSrcEb = 
     				Spi_Global.ConfigPtr->SpiChannel[ChIdx].SpiDefaultData;
     		SpiTxTable[AssChIdx] = &SpiChannelStatus[ChIdx].SpiSrcEb;
+			SpiTxNoInc = TRUE;
     	} else {
+			SpiTxNoInc = FALSE;
     		SpiTxTable[AssChIdx] = (Spi_DataType *) SpiChannelStatus[ChIdx].SpiSrcEbPtr;
     	}
 
@@ -237,11 +245,24 @@ void Spi_trx(Spi_HWUnitType HWUnit)
 	uint8 n_of_fr;
 	
 	if (HWUnit != SPI_HW_UNIT_13) {
-		SCI_SPI_SET_TDR(HWUnit, SpiTxTable[TxChIdx][TxPosIdx++]);
+		if (!SpiTxNoInc) { 
+			SCI_SPI_SET_TDR(HWUnit, SpiTxTable[TxChIdx][TxPosIdx++]);
+		} else {
+			TxPosIdx++;
+			SCI_SPI_SET_TDR(HWUnit, SpiTxTable[TxChIdx][0]);
+		}
 	} else {
-		n_of_fr =  (RSPI_GET_SPDR() & 0x038) + 1;
-		while (n_of_fr--)
-			RSPI_SET_SPDR(SpiTxTable[TxChIdx][TxPosIdx++]);
+		n_of_fr =  (RSPI_GET_SPDCR() & 0x03) + 1;
+		if (!SpiTxNoInc) {
+			while (n_of_fr--) 
+				RSPI_SET_SPDR(SpiTxTable[TxChIdx][TxPosIdx++]);
+		} else {
+			while (n_of_fr--) {
+				RSPI_SET_SPDR(SpiTxTable[TxChIdx][0]);
+				TxPosIdx++;
+			}
+		}
+				
 	}	                  
 }
 
@@ -257,7 +278,7 @@ void Spi_store(Spi_HWUnitType HWUnit)
 	if (HWUnit != SPI_HW_UNIT_13) {
 		SpiRxTable[RxChIdx][RxPosIdx++] = SCI_SPI_GET_RDR(HWUnit);
 	} else {
-		n_of_fr = (RSPI_GET_SPDR() & 0x038) + 1;
+		n_of_fr = (RSPI_GET_SPDCR() & 0x03) + 1;
 		while (n_of_fr--)
 			SpiRxTable[RxChIdx][RxPosIdx++] = RSPI_GET_SPDR();
 	}	                  
@@ -351,7 +372,6 @@ static void Spi_JobStart(
 	for ( AssChIdx = 0; 
 			Spi_Global.ConfigPtr->SpiJob[JobIdx].SpiChannelList[AssChIdx] != 
 					SPI_CHANNEL_END_LIST; AssChIdx++) {
-//		Spi_Job_buffer_setup(JobIdx, AssChIdx, RxTable, TxTable, TableLen);
 		Spi_Job_buffer_setup(JobIdx, AssChIdx);
 	}
 
