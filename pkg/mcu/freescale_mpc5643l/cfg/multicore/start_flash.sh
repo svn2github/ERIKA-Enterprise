@@ -12,7 +12,7 @@ else
 fi
 
 # first step: write flash (only)
-t32mppc -c config-mc.t32,rom_multi.cmm 10000 e200z4 $dev CORE=1
+t32mppc -c config-mc.t32,rom_multi.cmm 10000 e200z4-Master $dev CORE=1
 
 # second step: exewcute two instances (GUIs) of t32
-t32mppc -c config-mc.t32,start-mc.cmm 10000 e200z4 $dev CORE=1
+t32mppc -c config-mc.t32,start-mc.cmm 10000 e200z4-Master $dev CORE=1

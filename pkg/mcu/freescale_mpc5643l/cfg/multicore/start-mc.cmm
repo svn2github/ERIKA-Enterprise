@@ -10,12 +10,12 @@ if !intercom.ping(localhost:10001)
 	if "&nodename"==""
 	(
 		print "assuming connection is USB"
-		os t32mppc -c config-mc.t32 10001 e200z4 USB CORE=2 &
+		os t32mppc -c config-mc.t32 10001 e200z4-Slave USB CORE=2 &
 	)
 	else
 	(
 		print "connection is ETH"
-		os t32mppc -c config-mc.t32 10001 e200z4 NET NODE=&nodename PACKLEN=1024 CORE=2 &
+		os t32mppc -c config-mc.t32 10001 e200z4-Slave NET NODE=&nodename PACKLEN=1024 CORE=2 &
 	)
 	;wait some time until the software finished booting
 	;if you get and intercom timeout error on the following framepos commands
