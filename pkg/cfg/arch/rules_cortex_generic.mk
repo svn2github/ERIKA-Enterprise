@@ -196,6 +196,37 @@ endif	# __NRF51X22__
 TARGET_NAME = c_m0
 endif	# __NORDIC__
 
+# ATMEL SAM
+ifeq ($(call iseeopt, __ATMEL__), yes)
+#~ ATMEL_SAM_MODEL
+#~ ATMEL_SAM_LINKERSCRIPT
+#~ ATMEL_SAM_INCLUDE_C
+#~ ATMEL_SAM_INCLUDE_S
+#~ ATMEL_SAM_STARTUP
+ifeq ($(call iseeopt, __SAM3X8E__), yes)
+CORTEX_MCU_MODEL = __SAM3X8E__
+ifeq ($(call iseeopt, __GNU__), yes)
+## MM: Check files!!!
+CORTEX_MCU_STARTUP = $(CRT0_SRCS)
+ifdef ATMEL_SAM_LINKERSCRIPT
+CORTEX_MCU_LINKERSCRIPT = $(ATMEL_SAM_LINKERSCRIPT)
+else
+CORTEX_MCU_LINKERSCRIPT = $(EEBASE)/pkg/mcu/atmel_sam3/src/sam3x8_gnu.ld
+endif	# ATMEL_SAM_LINKERSCRIPT
+ifdef EE_CORTEX_MX_RESET_ISR
+OPT_LINK += -Wl,-e,$(EE_CORTEX_MX_RESET_ISR)
+else
+OPT_LINK += -Wl,-e,EE_cortex_mx_default_reset_ISR
+endif	# EE_CORTEX_MX_RESET_ISR
+endif	# __GNU__
+else	# !__SAM3X8E__
+CORTEX_MCU_MODEL = $(ATMEL_SAM_MODEL)
+CORTEX_MCU_STARTUP = $(ATMEL_SAM_STARTUP)
+CORTEX_MCU_LINKERSCRIPT = $(ATMEL_SAM_LINKERSCRIPT)
+endif	# __SAM3X8E__
+TARGET_NAME = c_m3
+endif	# __SAM__
+
 # No MCU model
 ifndef CORTEX_MCU_MODEL
 $(error No known MCU model found in EE_OPT)
