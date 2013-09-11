@@ -113,7 +113,7 @@ EE_hal_terminate_savestk:
 	LDR	R0, =EPSR_T_BIT_VAL	@ R0 = 0x01000000
 	ORRS	R2, R2, R0		@ R2 = (xPSR OR 0x01000000). This guarantees that Thumbs bit is set
 					@ to avoid an hard_fault exception
-	MSR	PSR, R2			@ Restore xPSR register
+	MSR	XPSR_NZCVQ, R2		@ Restore xPSR register
 	POP	{R0}			@ Get link register from stack
 	MOV	LR, R0			@ Restore the link register
 	@ Restore R8, R9, R10, R11 from stack
@@ -149,7 +149,7 @@ EE_hal_terminate_task:
 	LDR	R0, =EPSR_T_BIT_VAL	@ R0 = 0x01000000
 	ORRS	R2, R2, R0		@ R2 = (xPSR OR 0x01000000). This guarantees that Thumbs bit is set
 					@ to avoid an hard_fault exception
-	MSR	PSR, R2			@ Restore xPSR register
+	MSR	XPSR_NZCVQ, R2		@ Restore xPSR register
 	POP	{R3}			@ Get link register from stack
 	MOV	LR, R3			@ Restore the link register
 	@ Restore R8, R9, R10, R11 from stack

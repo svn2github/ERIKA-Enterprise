@@ -91,13 +91,18 @@ typedef EE_UINT32 EE_FREG;
 #define	EE_HWREG(x)		(*EE_HWREG_ADDR(x))
 
 #ifdef __GNU__
+
 /* Get current SP */
 __INLINE__ EE_UINT32 __ALWAYS_INLINE__ __current_sp(void)
 {
 EE_UINT32 temp;
-__ASM ("mov %0, sp" :: "r" (temp));
+__ASM ("mov %0, sp" : "=r" (temp) : );
 return temp;
 }
+
+/* Set a breakpoint */
+#define __breakpoint(value)	__ASM ("bkpt "#value)
+
 #endif
 
 /* ISR Priority representation type */
