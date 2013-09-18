@@ -78,10 +78,10 @@
 
 # Place obj files for the unbanked section here
 "obj\crtsx.o"
-# Place libraries and Erika RTOS obj-files list here
+# Place libraries and Erika RTOS obj-files list here (Please note: to use libee.x12 you need clib.exe)
 "obj\eecfg.o"
 "libee.x12"
-"C:/PROGRA~1/COSMIC/EVAL12X/Lib/libe.x12"
-"C:/PROGRA~1/COSMIC/EVAL12X/Lib/libf.x12"
-"C:/PROGRA~1/COSMIC/EVAL12X/Lib/libi.x12"
-"C:/PROGRA~1/COSMIC/EVAL12X/Lib/libm.x12"
+"libe.x12"
+"libf.x12"
+"libi.x12"
+"libm.x12"
