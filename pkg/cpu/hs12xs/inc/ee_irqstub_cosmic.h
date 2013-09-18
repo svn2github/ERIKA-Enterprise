@@ -68,7 +68,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_ISR2_prestub(void) {
 #ifdef	__IRQ_STACK_NEEDED__
   if (EE_IRQ_nesting_level==1) {
     EE_s12_temp_tos =  EE_READ_SP();         /* save the stack pointer */
-    EE_WRITE_SP( EE_s12xs_IRQ_tos.SYS_tos );   /* change the stack pointer */  
+    EE_WRITE_SP( EE_s12_IRQ_tos.SYS_tos );   /* change the stack pointer */  
   }
 #endif	// __IRQ_STACK_NEEDED__
 #endif	// __MULTI__
