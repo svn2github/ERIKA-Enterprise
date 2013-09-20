@@ -45,9 +45,7 @@
 
 #include "mcu/freescale_mpc5643l/inc/ee_FlashConfig.h"
 
-void FlashConfig(void)
-{
-    unsigned int mem_write_code [] = {
+const unsigned int mem_write_code [] = {
 #if defined (__VLE__)
         /* for processors which support VLE only or for 'VLE on' option
          * 1) stw r3,(0)r4 machine code: writes r3 contents to addr
@@ -70,7 +68,9 @@ void FlashConfig(void)
 #endif // __option(vle)
         };
 
-typedef void (*mem_write_code_ptr_t)(unsigned int, unsigned int);
+void FlashConfig(void)
+{
+    typedef void (*mem_write_code_ptr_t)(unsigned int, unsigned int);
 
     /*
      * cast mem_write_code as func ptr
