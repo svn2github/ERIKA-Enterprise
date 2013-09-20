@@ -77,6 +77,9 @@ d.load.elf &filename /PlusVM
 
 #ORTICMD#
 
+; enable HTM feature
+NEXUS.HTM ON
+
 ENDDO
 
 setup_mmu:

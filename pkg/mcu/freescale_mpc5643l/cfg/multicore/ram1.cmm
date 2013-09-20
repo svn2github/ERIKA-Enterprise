@@ -15,4 +15,7 @@ d.load.elf &filename /NOCODE
 
 #ORTICMD#
 
+; enable HTM feature
+NEXUS.HTM ON
+
 ENDDO
