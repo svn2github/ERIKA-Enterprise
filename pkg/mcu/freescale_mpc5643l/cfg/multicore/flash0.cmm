@@ -70,6 +70,8 @@ if POWERNEXUS()
 
 d.load.elf &filename /NOCODE
 
+#ORTICMD#
+
 ENDDO
 
 setup_mmu:

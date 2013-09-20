@@ -172,7 +172,7 @@ sYmbol.NEW.Function _SSCM 0xC3FD8000--0xC3FDBFFF ;(SSCM dimension: 16 Kbyte)
 SYStem.BdmClock 4MHz
 
 ; evi - call orti.cmm if needed
-
+#ORTICMD#
 
 ENDDO
 
