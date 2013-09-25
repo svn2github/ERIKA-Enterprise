@@ -72,11 +72,13 @@ EABI_GCC_PREFIX := arm-none-eabi
 endif
 
 ifndef CG_LIB_DIR
-ifeq ($(call iseeopt, __RTD_CYGWIN__), yes) 
-CG_LIB_DIR = $(shell cygpath -u "$(CG_TOOL_ROOT)/$(EABI_GCC_PREFIX)/lib")
-else
-CG_LIB_DIR := $(CG_TOOL_ROOT)/$(EABI_GCC_PREFIX)/lib
-endif
+# Automatically detected by gcc through -m options
+
+#ifeq ($(call iseeopt, __RTD_CYGWIN__), yes) 
+#CG_LIB_DIR = $(shell cygpath -u "$(CG_TOOL_ROOT)/$(EABI_GCC_PREFIX)/lib")
+#else
+#CG_LIB_DIR := $(CG_TOOL_ROOT)/$(EABI_GCC_PREFIX)/lib
+#endif
 endif
 
 ifndef CG_INCLUDE_DIR
@@ -201,7 +203,8 @@ OPT_AR = r
 # Define HW architecture
 ifeq ($(call iseeopt, __CORTEX_M4__), yes)
 #OPT_CC += -march=armv7e-m -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -mthumb-interwork -mlong-calls
-OPT_CC += -march=armv7e-m -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mthumb -mthumb-interwork 
+#OPT_CC += -march=armv7e-m -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mthumb -mthumb-interwork
+OPT_CC += -march=armv7e-m -mcpu=cortex-m4 -mthumb -mthumb-interwork 
 endif
 
 # Debug support and optimization level
@@ -225,7 +228,8 @@ OPT_CC += $(CFLAGS)
 # Define HW architecture
 ifeq ($(call iseeopt, __CORTEX_M4__), yes)
 # MM: Check!!!
-OPT_ASM += -march=armv7e-m -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mthumb -mthumb-interwork 
+#OPT_ASM += -march=armv7e-m -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mthumb -mthumb-interwork
+OPT_ASM += -march=armv7e-m -mcpu=cortex-m4 -mthumb -mthumb-interwork
 endif
 
 # Debug support
@@ -254,13 +258,16 @@ OPT_ASM += $(ASFLAGS)
 # OPT_LINK represents the options for linker invocation
 ##
 
-OPT_LINK += -static 
+OPT_LINK += -static
 
 # Define HW architecture
 ifeq ($(call iseeopt, __CORTEX_M4__), yes)
 # MM: Check!!!
-OPT_LINK += -march=armv7e-m -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mthumb -mthumb-interwork 
+#OPT_LINK += -march=armv7e-m -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mthumb -mthumb-interwork
+OPT_LINK += -march=armv7e-m -mcpu=cortex-m4 -mthumb -mthumb-interwork 
 endif
+
+OPT_LINK += -lnosys -lc -lgcc 
 
 # Debug support
 ifeq ($(call iseeopt, DEBUG), yes)
@@ -292,22 +299,6 @@ endif
 #OPT_LINK += --strict --map --xref --callgraph  --symbols \
 #	    --summary_stderr --info summarysizes --info sizes --info totals \
 #	    --info unused --info veneers --info libraries
-
-
-# Stellaris
-ifeq ($(call iseeopt, __STELLARIS__), yes)
-ifndef STELLARIS_LINKERSCRIPT
-## MM: ToDo!!!
-OPT_LINK += --ro-base 0x00000000 --rw-base 0x20000000 \
-	    --first EE_cortex_mx_vtable
-ifdef EE_CORTEX_MX_RESET_ISR
-OPT_LINK += -e $(EE_CORTEX_MX_RESET_ISR)
-else
-OPT_LINK += -e EE_cortex_mx_default_reset_ISR
-endif
-endif	# STELLARIS_LINKERSCRIPT
-endif	# __STELLARIS__
-
 
 # Specific option from the application makefile
 OPT_LINK += $(LDFLAGS)
