@@ -390,10 +390,21 @@ $(TARGET_NAME).$(CG_BIN_EXTENSION): $(TARGET_NAME).$(CG_OUT_EXTENSION)
 else	# __GNU__ 
 ifeq ($(call iseeopt, __KEIL__), yes)
 
+ifeq ($(call iseeopt, __STM32__), yes)
+#Generate .bin file required by ST/LINK V2 flash application
 $(TARGET_NAME).$(CG_BIN_EXTENSION): $(TARGET_NAME).$(CG_OUT_EXTENSION)
 	@echo "FROMELF";
 	$(QUIET)$(EE_FROMELF) $(COMPUTED_OPT_FROMELF) \
 	$(SOURCEFILE) --output $(TARGETFILE)
+endif	# __STM32__	
+
+ifeq ($(call iseeopt, __NRF51X22__), yes)
+#Generate .hex (Intel32) file required by nRFgo Studio
+$(TARGET_NAME).$(CG_HEX_EXTENSION): $(TARGET_NAME).$(CG_OUT_EXTENSION)
+	@echo "FROMELF";
+	$(QUIET)$(EE_FROMELF) $(COMPUTED_OPT_FROMELF) \
+	$(SOURCEFILE) --output $(TARGETFILE)
+endif	# __NRF51X22__	
 
 endif	# __KEIL__	
 endif	# __GNU__

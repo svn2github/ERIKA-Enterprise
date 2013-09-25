@@ -46,7 +46,16 @@
 ##
 
 # Select object file format
+ifeq ($(call iseeopt, __KEIL_USE_AXF_EXT__), yes)
+CG_OUT_EXTENSION := axf
+else
 CG_OUT_EXTENSION := out
+endif
+
+ifeq ($(call iseeopt, __NRF51X22__), yes)
+# Hex file (Intel32) required by nRFgo Studio
+CG_HEX_EXTENSION := hex
+endif
 
 BINDIR_CYG := /usr/bin
 
@@ -111,6 +120,10 @@ ifndef EE_AR
 EE_AR:=$(CG_BIN_DIR)/armar.exe
 endif
 
+ifndef EE_FROMELF
+EE_FROMELF:=$(CG_BIN_DIR)/fromelf.exe
+endif
+
 #Add application file to dependencies
 ifneq ($(ONLY_LIBS), TRUE)
 
@@ -118,7 +131,11 @@ ifneq ($(ONLY_LIBS), TRUE)
 ## Libraries from Keil-uVision-MKD-Lite.
 OPT_LIBS += $(ERIKALIB)
 
+ifeq ($(call iseeopt, __NRF51X22__), yes)
+TARGET = $(TARGET_NAME).$(CG_HEX_EXTENSION)
+else
 TARGET = $(TARGET_NAME).$(CG_OUT_EXTENSION)
+endif 	#__NRF51X22__
 
 else	# ONLY_LIBS
 
@@ -133,7 +150,11 @@ endif	# !ONLY_LIBS
 OPT_INCLUDE = $(foreach d,$(INCLUDE_PATH),$(addprefix -I,$(call native_path,$d)))
 
 # OPT_AR: options for library generation
-OPT_AR = -r --create
+OPT_AR += -r --create
+
+ifeq ($(call iseeopt, DEBUG), yes)
+OPT_AR += --debug_symbols
+endif
 
 ## OPT_CC are the options for c compiler invocation
 #Note: all warnings are enabled by default
@@ -146,10 +167,20 @@ ifeq ($(call iseeopt, DEBUG), yes)
 OPT_CC += -g -O0
 endif
 
+#AB: FIXME why __EVAL?
 OPT_CC += -c -D__EVAL
 
 # Specific option from the application makefile
 OPT_CC += $(CFLAGS)
+
+ifeq ($(call iseeopt, __NRF51X22__), yes)
+OPT_CC += -DNRF51 -DSETUPA -D__MICROLIB --apcs=interwork --split_sections --li --c99
+INCLUDE_PATH += $(ARM_ROOT)/CMSIS/Include
+#Option to generate hex file (Intel 32 format)
+OPT_FROMELF += --i32
+endif
+
+OPT_CC += --omf_browse $(TARGET_NAME).crf --depend $(TARGET_NAME).d
 
 ##OPT_ASM are the options for assembler invocation
 ifeq ($(call iseeopt, __CORTEX_M0__), yes)
