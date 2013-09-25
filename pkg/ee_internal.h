@@ -222,6 +222,11 @@ extern "C" {
 #include "mcu/st_stm32_stm32f4xx/inc/ee_internal.h"
 #endif
 
+/* NORDIC */
+#if defined( __NORDIC__ ) && defined( __NRF51X22__ )
+#include "mcu/nordic_nrf51x22/inc/ee_internal.h"
+#endif
+
 /* Renesas RX200*/
 #if defined( __RX200__ ) && defined( __R5F5210x__ )
 #include "mcu/renesas_r5f5210x/inc/ee_internal.h"

@@ -241,6 +241,11 @@ extern "C" {
 #include "mcu/st_stm32_stm32f4xx/inc/ee_mcu.h"
 #endif
 
+/* NORDIC */
+#if defined( __NORDIC__ ) && defined( __NRF51X22__ )
+#include "mcu/nordic_nrf51x22/inc/ee_mcu.h"
+#endif
+
 /* Renesas RX200*/
 #if defined( __RX200__ ) && defined( __R5F5210x__ )
 #include "mcu/renesas_r5f5210x/inc/ee_mcu.h"
@@ -358,6 +363,11 @@ extern "C" {
 
 #ifdef __RSKRX210__
 #include "board/renesas_rskrx210/inc/ee_board.h"
+#endif
+
+/* Nordic NRF51x22 */
+#ifdef __EE_NORDIC_PCA__
+#include "board/nordic_pca/inc/ee_board.h"
 #endif
 
   /*
