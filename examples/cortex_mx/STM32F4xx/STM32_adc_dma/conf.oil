@@ -1,7 +1,7 @@
 /* ###*B*###
  * ERIKA Enterprise - a tiny RTOS for small microcontrollers
  *
- * Copyright (C) 2002-2013  Evidence Srl
+ * Copyright (C) 2002-2011  Evidence Srl
  *
  * This file is part of ERIKA Enterprise.
  *
@@ -60,7 +60,7 @@ CPU mySystem {
 			COMPILER_TYPE = GNU;
 			MULTI_STACK = FALSE;
 		};
-		EE_OPT = "__USE_SYSTICK__";
+		EE_OPT = "__USE_SYSTICK__"; /* Why not an OIL option? */
 
 		MCU_DATA = STM32 {
 			MODEL = STM32F4xx;

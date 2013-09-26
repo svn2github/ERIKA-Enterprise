@@ -44,11 +44,9 @@ CPU mySystem {
 	OS myOs {
 
 		EE_OPT = "DEBUG";
-		//EE_OPT = "VERBOSE";
 		//EE_OPT = "__KEIL_4_54_OLDER__";
 		//EE_OPT = "__KEIL_USE_AXF_EXT__";
-		LDFLAGS =" --specs=rdimon.specs -lrdimon";
-		
+		//LDFLAGS =" --specs=rdimon.specs -lrdimon";
 		
 		CPU_DATA = CORTEX_MX {
 			MODEL = M4;
