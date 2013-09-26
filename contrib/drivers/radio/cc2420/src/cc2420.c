@@ -7,7 +7,7 @@
 * @date 2009-03-24
 *
 * File Contents: a set of functions to manage the EasyBee/CC2420
-* radio transceiver for the Flex Board featuring dsPIC33FJ256MC710.
+* radio transceiver.
 *
 * \todo Reformat the following text using doxygen
 *
@@ -414,14 +414,19 @@ ISR2(_CNInterrupt)
 }
 #else
 
-#ifdef __PIC30__
+#if defined ( __PIC30__ ) || defined( __STM32__)
 COMPILER_ISR(CC2420_INTERRUPT_NAME)
 #elif defined __AVR5__
 void irq_cc2420_type2(void)
 #endif
 {
+#ifdef __STM32__
+	//debug_print("ISR CC2420: ");
+	CC2420_CLEAR_ISR(CC2420_INTERRUPT_LINE); //CC2420_INTERRUPT_FLAG = 0;
+#else
 	//debug_print("ISR CC2420: ");
 	CC2420_CLEAR_PIN(CC2420_INTERRUPT_FLAG); //CC2420_INTERRUPT_FLAG = 0;
+#endif
 	if (rx_callback != NULL) 
 		rx_callback();
 }

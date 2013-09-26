@@ -382,6 +382,259 @@ COMPILER_INLINE uint8_t cc2420_get_sfd(void)
 #define CC2420_INTERRUPT_NAME	irq_cc2420_type2
 #endif
 
+/* Discovery board feautiring STM32F407 */
+#elif defined __USE_STM32F4_DISCOVERY__
+
+#include "stm32f4xx.h"
+
+
+#ifndef __USE_STM32F4XX_SPD_SPI__
+#error "CC2420 HAL EE : The SPI module from MCU is required!"
+#endif
+
+#ifndef __USE_STM32F4XX_SPD_EXTI__
+#error "CC2420 HAL EE : The SPI EXTI driver is required!"
+#endif
+
+#ifndef __USE_STM32F4XX_SPD_GPIO__
+#error "CC2420 HAL EE : The SPI GPIO driver is required!"
+#endif
+
+#define CC2420_SPI_PORT_1	1
+#define CC2420_SPI_PORT_2	2
+#define CC2420_SPI_PORT_3	3
+
+
+#ifndef CC2420_RESETn_STM_PORT
+#define CC2420_RESETn_STM_PORT	GPIOB
+#endif
+
+#ifndef CC2420_RESETn_STM_PIN
+#define CC2420_RESETn_STM_PIN	GPIO_Pin_5
+#endif
+
+#ifndef RCC_AHB1Periph_CC2420_RESETn_STM
+#define RCC_AHB1Periph_CC2420_RESETn_STM	RCC_AHB1Periph_GPIOB
+#endif
+
+#ifndef CC2420_VREG_EN_STM_PORT
+#define CC2420_VREG_EN_STM_PORT	GPIOB
+#endif
+
+#ifndef CC2420_VREG_EN_STM_PIN
+#define CC2420_VREG_EN_STM_PIN	GPIO_Pin_1 
+#endif
+
+#ifndef RCC_AHB1Periph_CC2420_VREG_EN_STM
+#define RCC_AHB1Periph_CC2420_VREG_EN_STM	RCC_AHB1Periph_GPIOB
+#endif
+
+#ifndef CC2420_FIFO_STM_PORT
+#define CC2420_FIFO_STM_PORT	GPIOB
+#endif
+
+#ifndef CC2420_FIFO_STM_PIN
+#define CC2420_FIFO_STM_PIN		GPIO_Pin_14
+#endif
+
+#ifndef RCC_AHB1Periph_CC2420_FIFO_STM
+#define RCC_AHB1Periph_CC2420_FIFO_STM	RCC_AHB1Periph_GPIOB
+#endif
+
+#ifndef CC2420_FIFOP_STM_PORT
+#define CC2420_FIFOP_STM_PORT	GPIOB
+#endif
+
+#ifndef CC2420_FIFOP_STM_PIN
+#define CC2420_FIFOP_STM_PIN	GPIO_Pin_4
+#endif
+
+#ifndef RCC_AHB1Periph_CC2420_FIFOP_STM
+#define RCC_AHB1Periph_CC2420_FIFOP_STM	RCC_AHB1Periph_GPIOB
+#endif
+
+/* Note: the interrupt line should be coupled with FIFOP pin number. 
+ If for instance FIFOP -> PB4 then use EXTI4, 
+ if FIFOP -> PC5 then use EXTI5 etc..
+ */
+
+#ifndef CC2420_INTERRUPT_LINE
+#define CC2420_INTERRUPT_LINE	EXTI_Line4
+#endif
+
+#ifndef CC2420_INTERRUPT_SRC
+#define CC2420_INTERRUPT_SRC	EXTI_PinSource4
+#endif
+
+#ifndef EXTI_PortSource_CC2420_FIFOP_STM_PORT
+#define EXTI_PortSource_CC2420_FIFOP_STM_PORT	EXTI_PortSourceGPIOB
+#endif
+
+#ifndef CC2420_CCA_STM_PORT
+#define CC2420_CCA_STM_PORT	GPIOD
+#endif
+
+#ifndef CC2420_CCA_STM_PIN
+#define CC2420_CCA_STM_PIN	GPIO_Pin_1
+#endif
+
+#ifndef RCC_AHB1Periph_CC2420_CCA_STM
+#define RCC_AHB1Periph_CC2420_CCA_STM	RCC_AHB1Periph_GPIOD
+#endif
+
+#ifndef CC2420_SFD_STM_PORT
+#define CC2420_SFD_STM_PORT	GPIOA
+#endif
+
+#ifndef CC2420_SFD_STM_PIN
+#define CC2420_SFD_STM_PIN	GPIO_Pin_5
+#endif
+
+#ifndef RCC_AHB1Periph_CC2420_SFD_STM
+#define RCC_AHB1Periph_CC2420_SFD_STM	RCC_AHB1Periph_GPIOA
+#endif
+
+#ifndef CC2420_CSn_STM_PORT
+#define CC2420_CSn_STM_PORT	GPIOB
+#endif
+
+#ifndef CC2420_CSn_STM_PIN
+#define CC2420_CSn_STM_PIN	GPIO_Pin_0
+#endif
+
+#ifndef RCC_AHB1Periph_CC2420_CSn_STM
+#define RCC_AHB1Periph_CC2420_CSn_STM	RCC_AHB1Periph_GPIOB
+#endif
+
+#ifndef CC2420_SDO_STM_PORT
+#define CC2420_SDO_STM_PORT	GPIOC
+#endif
+
+#ifndef CC2420_SDO_STM_PIN
+#define CC2420_SDO_STM_PIN	GPIO_Pin_2
+#endif
+
+#ifndef RCC_AHB1Periph_CC2420_SDO_STM
+#define RCC_AHB1Periph_CC2420_SDO_STM	RCC_AHB1Periph_GPIOC
+#endif
+
+#ifndef CC2420_SDO_STM_PIN_SRC
+#define CC2420_SDO_STM_PIN_SRC	GPIO_PinSource2
+#endif
+
+#ifndef CC2420_SDI_STM_PORT
+#define CC2420_SDI_STM_PORT	GPIOC
+#endif
+
+#ifndef CC2420_SDI_STM_PIN
+#define CC2420_SDI_STM_PIN	GPIO_Pin_3
+#endif
+
+#ifndef RCC_AHB1Periph_CC2420_SDI_STM
+#define RCC_AHB1Periph_CC2420_SDI_STM	RCC_AHB1Periph_GPIOC
+#endif
+
+#ifndef CC2420_SDI_STM_PIN_SRC
+#define CC2420_SDI_STM_PIN_SRC	GPIO_PinSource3
+#endif
+
+#ifndef CC2420_SCK_STM_PORT
+#define CC2420_SCK_STM_PORT	GPIOB
+#endif
+
+#ifndef CC2420_SCK_STM_PIN
+#define CC2420_SCK_STM_PIN	GPIO_Pin_10
+#endif
+
+#ifndef RCC_AHB1Periph_CC2420_SCK_STM
+#define RCC_AHB1Periph_CC2420_SCK_STM	RCC_AHB1Periph_GPIOB
+#endif
+
+#ifndef CC2420_SCK_STM_PIN_SRC
+#define CC2420_SCK_STM_PIN_SRC	GPIO_PinSource10
+#endif
+
+#define CC2420_SET_PIN_IN(PIN) do {\
+	/*Enable PORT clock */\
+	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_##PIN##_STM, ENABLE);\
+	GPIO_InitStructure.GPIO_Pin = PIN##_STM_PIN;\
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;\
+	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;\
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_25MHz;\
+	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;\
+	GPIO_Init(PIN##_STM_PORT, &GPIO_InitStructure);\
+} while(0)
+
+#define CC2420_SET_PIN_OUT(PIN) do {\
+	/* Enable PORT clock */\
+	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_##PIN##_STM, ENABLE);\
+	GPIO_InitStructure.GPIO_Pin = PIN##_STM_PIN;\
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;\
+	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;\
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_25MHz;\
+	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;\
+	GPIO_Init(PIN##_STM_PORT, &GPIO_InitStructure);\
+} while(0)
+
+
+
+#define CC2420_SET_PIN(PIN) {\
+	GPIO_SetBits(PIN##_STM_PORT, PIN##_STM_PIN);\
+}
+
+#define CC2420_CLEAR_PIN(PIN) {\
+	GPIO_ResetBits(PIN##_STM_PORT, PIN##_STM_PIN);\
+}
+
+#define CC2420_GET_PIN(PIN)	\
+	GPIO_ReadInputDataBit(PIN##_STM_PORT, PIN##_STM_PIN)
+
+
+#define CC2420_SET_ISR_RE() do {\
+	/* Enable SYSCFG clock */\
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG, ENABLE);\
+	/* Configure FIFOP as input floating */\
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;\
+	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;\
+	GPIO_InitStructure.GPIO_Pin = CC2420_FIFOP_STM_PIN;\
+	GPIO_Init(CC2420_FIFOP_STM_PORT, &GPIO_InitStructure);\
+	/* Connect EXTI Line0 to FIFOP pin */\
+	SYSCFG_EXTILineConfig(EXTI_PortSource##_CC2420_FIFOP_STM_PORT,\
+				CC2420_INTERRUPT_SRC);\
+	/* Configure EXTI Line */\
+	EXTI_InitStructure.EXTI_Line = CC2420_INTERRUPT_LINE;\
+	EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;\
+	EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Falling;\
+	EXTI_InitStructure.EXTI_LineCmd = ENABLE;\
+	EXTI_Init(&EXTI_InitStructure);\
+} while(0)
+
+#define CC2420_CLEAR_ISR(INT_LINE) do {\
+	if (EXTI_GetITStatus(INT_LINE) != RESET) {\
+	/* Clear the EXTI line pending bit */\
+		EXTI_ClearITPendingBit(INT_LINE);\
+	}\
+} while(0)
+
+
+int8_t	cc2420_hal_init(void);
+void	cc2420_delay_us(uint16_t delay_count);
+int8_t	cc2420_spi_init(uint8_t port);
+int8_t	cc2420_spi_close(void);
+int8_t	cc2420_spi_put(uint8_t in, uint8_t *out);
+int8_t	cc2420_spi_get(uint8_t *out);
+
+COMPILER_INLINE uint8_t cc2420_get_cca(void)
+{
+	return CC2420_GET_PIN(CC2420_CCA);
+}
+
+COMPILER_INLINE uint8_t cc2420_get_sfd(void)
+{
+	return CC2420_GET_PIN(CC2420_SFD);
+}
+
+
 #else
 
 #error "CC2420_HAL: Architecture not supported!"

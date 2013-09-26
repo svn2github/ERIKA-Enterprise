@@ -1,4 +1,4 @@
-/**
+ /**
 * @file cc2420_compiler_ee.h
 * @brief Erika Enterprise Compiler support for CC2420.
 * @author Gianluca Franchino
@@ -14,11 +14,13 @@
 
 #include <ee.h>
 
+
 // TODO: (Nino) Needed also by AVR5?
 #ifdef __PIC30__
 #include <cpu/pic30/inc/ee_irqstub.h>
 #endif
 
+#if !defined (__STM32__) ||  !defined(__GNU__)
 /**
 * @name Basic type representations.
 * @{ */
@@ -53,16 +55,19 @@ typedef EE_INT32 int32_t;	/**< Unsigned 32 bit intgerer. */
 #endif
 /**  @} */
 
+#endif //!defined(__STM32__) ||  !defined(__GNU__)
+
 #ifndef COMPILER_INLINE
 #define COMPILER_INLINE __INLINE__
 #endif
 
 #ifndef COMPILER_ISR
-#ifdef __PIC30__
+#if defined (__PIC30__) || defined (__STM32__)
 #define COMPILER_ISR(func) ISR2(func)
 #elif defined __AVR5__
 #define COMPILER_ISR(func) void func(void)
 #endif
 #endif
+
 
 #endif /* Header Protection */

@@ -485,7 +485,7 @@ void	cc2420_set_rx(void);
 * @param[in] sleep_level 	The sleep mode: POWER_DOWN or IDLE
 *
  */
-void	cc2420_set_sleep(int);
+void	cc2420_set_sleep(int16_t);
 
 /**
 * @brief Start the radio
