@@ -54,11 +54,11 @@ __StackTop:
 
     .section .heap
     .align 3
-//#ifdef __HEAP_SIZE
-//    .equ    Heap_Size, __HEAP_SIZE
-//#else
+#ifdef __HEAP_SIZE
+    .equ    Heap_Size, __HEAP_SIZE
+#else
     .equ    Heap_Size, 0x100
-//#endif
+#endif
     .globl    __HeapBase
     .globl    __HeapLimit
 __HeapBase:
@@ -187,6 +187,22 @@ EE_cortex_mx_as_hard_fault_ISR:
 	.size  EE_cortex_mx_as_hard_fault_ISR, .-EE_cortex_mx_as_hard_fault_ISR
 #endif	/* __AUTOSAR_R4_0__ */
 
+/******************************************************************************
+*
+* This is the code used to provide _exit
+*
+*******************************************************************************/
+	.section  .text._exit,"ax",%progbits
+	.align 1
+	.thumb_func
+	.weak _exit
+	.type _exit, %function	
+_exit:
+#ifdef	DEBUG
+	bkpt	#0x00
+#endif	/* DEBUG */
+	b	_exit
+	.size  _exit, .-_exit
 
 /******************************************************************************
 *
