@@ -267,7 +267,9 @@ ifeq ($(call iseeopt, __CORTEX_M4__), yes)
 OPT_LINK += -march=armv7e-m -mcpu=cortex-m4 -mthumb -mthumb-interwork 
 endif
 
-OPT_LINK += -lnosys -lc -lgcc 
+OPT_LINK += -lnosys -lc -lgcc
+# Enable support for semihosting 
+#OPT_LINK += -lrdimon --specs=rdimon.specs
 
 # Debug support
 ifeq ($(call iseeopt, DEBUG), yes)
