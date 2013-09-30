@@ -26,10 +26,13 @@
  *   __CcmLen
  *   __stack
  */
+
 /* Entry Point */
 /* FIX ME! - Support entry redefinition */
 ENTRY(EE_cortex_mx_default_reset_ISR)
 
+/* Config Libraries */
+GROUP(libgcc.a libc.a libm.a libnosys.a)
 
 /* Specify the memory areas */
 MEMORY
