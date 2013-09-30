@@ -1,9 +1,21 @@
 
-# Configuration for CORTEX_MX
-EEOPT += __STM32__
-EEOPT += __STM32F4xx__
-STM32_MODEL           := STM32F4xx
 
+############################################################################
+#
+# STM32F4XX_SPD Options
+#
+############################################################################
+EEOPT += __USE_STM32F4XX_SPD__
+
+
+
+############################################################################
+#
+# STM32F4_DISCOVERY Options
+#
+############################################################################
+EEOPT += __USE_STM32F4_DISCOVERY__
+EEOPT += __USE_STM32F4_DISCOVERY_LEDS__
 
 ### Setting Erika's variables:
 # ERIKA_FILES= ../../..
@@ -25,17 +37,15 @@ EEOPT += DEBUG
 EEOPT += VERBOSE
 EEOPT += __ASSERT__
 EEOPT += __ADD_LIBS__
-EEOPT += __USE_STM32F4XX_CMSIS__
-EEOPT += __USE_STM32F4XX_SPD__
-EEOPT += __USE_STM32F4XX_EVAL__
-
 
 ############################################################################
 #
 # Automatic options
 #
 ############################################################################
-EEOPT += __RTD_CYGWIN__
+EEOPT += __RTD_LINUX__
+EEOPT += __STM32__
+EEOPT += __STM32F4xx__
 EEOPT += __CORTEX_MX__
 EEOPT += __CORTEX_M4__
 EEOPT += __GNU__
@@ -74,6 +84,7 @@ $(info Using erika files in $(EEBASE))
 # CORTEX M4
 #
 ############################################################################
+include $(EEBASE)/pkg/cfg/path_helper.mk
 APPBASE := 
 OUTBASE := Debug
 
@@ -81,7 +92,14 @@ ifndef GNU_ARM_ROOT
     GNU_ARM_ROOT := $(shell cygpath `cygpath -ms 'C:\Programmi\GNU Tools ARM Embedded\4.7 2013q1'`)
 endif
 
-EABI_GCC_VERSION := -4.7.3
+
+############################################################################
+#
+# Init MCU for CORTEX Mx (STM32F4xx)
+#
+############################################################################
+STM32_MODEL           := STM32F4xx
+
 
 ############################################################################
 #
@@ -94,9 +112,9 @@ LDFLAGS +=
 LDDEPS  += 
 LIBS    += 
 
-LIB_OPT  += __LIB_CMSIS__
-LIB_OPT  += __LIB_SPD__
-LIB_OPT  += __LIB_EVAL__
+LIB_OPT  += __LIB_ST_CMSIS__
+LIB_OPT  += __LIB_STM32F4XX_SPD__
+LIB_OPT  += __LIB_STM32F4_DISCOVERY__
 
 
 ############################################################################

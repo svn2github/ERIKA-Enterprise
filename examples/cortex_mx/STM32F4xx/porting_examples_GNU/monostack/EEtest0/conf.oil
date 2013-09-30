@@ -55,7 +55,8 @@ CPU test_application {
 		CPU_DATA = CORTEX_MX {
 			MODEL = M4;
 			APP_SRC = "main.c";
-			COMPILER_TYPE = KEIL;
+			//COMPILER_TYPE = KEIL;
+			COMPILER_TYPE = GNU;
 			MULTI_STACK = FALSE;
 		};
 
@@ -64,16 +65,12 @@ CPU test_application {
 		};
 
 		EE_OPT = "__ADD_LIBS__";
-		LIB = ENABLE { NAME = "CMSIS"; };
-		LIB = ENABLE { NAME = "SPD"; };
-		LIB = ENABLE { NAME = "EVAL"; };
-
-		EE_OPT = "__USE_STM32F4XX_CMSIS__";
-		EE_OPT = "__USE_STM32F4XX_SPD__";
-		EE_OPT = "__USE_STM32F4XX_EVAL__";
 		
-		/* Uncomment the following EE_OPT to include all library functions */
-		//EE_OPT = "__USE_SPD_ALL__";
+		LIB = ENABLE { NAME = "ST_CMSIS"; };
+		
+		LIB = ENABLE { NAME = "STM32F4XX_SPD"; };
+		
+		LIB = ENABLE { NAME = "STM32F4_DISCOVERY"; };
 
 		STATUS = EXTENDED;
 		STARTUPHOOK = FALSE;
@@ -99,4 +96,3 @@ CPU test_application {
 	};
 
 };
-

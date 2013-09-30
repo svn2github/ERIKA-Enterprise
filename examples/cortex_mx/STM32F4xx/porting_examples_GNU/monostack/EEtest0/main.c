@@ -90,7 +90,7 @@ int main(void)
   /* Forever loop: background activities (if any) should go here */
   for (;result == 1;)
   {
-    while (counter % 100000) counter++;
+    while (counter % 1000000) counter++;
     STM_EVAL_LEDToggle(LED3);
     counter++;
   }
