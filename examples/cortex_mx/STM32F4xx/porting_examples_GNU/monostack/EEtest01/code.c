@@ -122,7 +122,7 @@ int main(void)
       main_sp = curr_sp;
     }
 
-    while (counter % 100000) counter++;
+    while (counter % 1000000) counter++;
 
     STM_EVAL_LEDToggle(LED3);
 
