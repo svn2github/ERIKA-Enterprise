@@ -257,7 +257,7 @@ clean:
 ##
 T32GENMENU ?= $(T32SYS)/demo/kernel/orti/genmenu
 
-T32TARGETS := t32.cmm
+T32TARGETS := t32.cmm t32_launcher.sh
 ifneq ($(wildcard system.orti),)
 T32TARGETS += orti.cmm orti.men ortiperf.men
 T32ORTISTR := do orti.cmm
@@ -279,6 +279,20 @@ orti.cmm ortiperf.men: %: $(PKGBASE)/mcu/freescale_$(PPC_MCU_MODEL)/cfg/%
 
 orti.men: system.orti
 	$(QUIET) $(T32GENMENU) $<
+
+# Lauterbach launcher (only for single core: SRAM & FLASH)
+ifeq ($(call iseeopt, __MSRP__),yes)
+# empty target for multicore
+t32_launcher.sh:
+else
+t32_launcher.sh:
+	@echo "Creating t32_launcher.sh..."
+	@echo
+	@echo "#!/bin/bash" >> $@;
+	@echo "# Launch Lauterbach, it checks for t32.cmm file in the current directory" >> $@;
+	@echo "t32mppc" >> $@;
+	$(QUIET)chmod uog+x $@;
+endif
 
 ##
 ## ELF file creation

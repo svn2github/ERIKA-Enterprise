@@ -86,48 +86,20 @@ GOSUB setup_mmu 0
 
 FLASH.RESet
 
-DIALOG.YESNO "Would you like to preserve first flash area (0x00000000)?"
-entry &low_memory_area
+; Low address blocks (16 KB)
+FLASH.Create 1. (&flashbase+0x00000000)++0x03FFF TARGET Quad 0. ; L0 - 16 kB
 
-; Erase low_memory_area if required by the user
-if !&low_memory_area
-(
-    ; Low address blocks (16 KB)
-    FLASH.Create 1. (&flashbase+0x00000000)++0x03FFF TARGET Quad 0. ; L0 - 16 kB
-)
+; L4 and L5 areas (64Kb + 64Kb)
+FLASH.Create 1. (&flashbase+0x00020000)++0x0FFFF TARGET Quad 4. ; L4 - 64 kB
+FLASH.Create 1. (&flashbase+0x00030000)++0x0FFFF TARGET Quad 5. ; L5 - 64 kB
 
-DIALOG.YESNO "Would you like to preserve Bootloader flash area (0x00020000)?"
-entry &bootloader_memory_area
-
-; Erase bootloader_memory_area if required by the user
-if !&bootloader_memory_area
-(
-    ; L4 and L5 areas (64Kb + 64Kb)
-    FLASH.Create 1. (&flashbase+0x00020000)++0x0FFFF TARGET Quad 4. ; L4 - 64 kB
-    FLASH.Create 1. (&flashbase+0x00030000)++0x0FFFF TARGET Quad 5. ; L5 - 64 kB
-)
-
-DIALOG.YESNO "Would you like to preserve NvRam flash area?"
-entry &nvram
-
-; Erase nvram if required by the user
-if !&nvram
-(
-    FLASH.Create 1. (&flashbase+0x00004000)++0x0BFFF TARGET Quad 1. ; L1 - 48 kB
-    FLASH.Create 1. (&flashbase+0x00010000)++0x0BFFF TARGET Quad 2. ; L2 - 48 kB
-    FLASH.Create 1. (&flashbase+0x0001c000)++0x03FFF TARGET Quad 3. ; L3 - 16 kB
-)
+FLASH.Create 1. (&flashbase+0x00004000)++0x0BFFF TARGET Quad 1. ; L1 - 48 kB
+FLASH.Create 1. (&flashbase+0x00010000)++0x0BFFF TARGET Quad 2. ; L2 - 48 kB
+FLASH.Create 1. (&flashbase+0x0001c000)++0x03FFF TARGET Quad 3. ; L3 - 16 kB
 
 ; Mid address blocks (256 KB)
-DIALOG.YESNO "Would you like to preserve calibrations flash area?"
-entry &calibration
-
-; Erase calibrations if required by the user
-if !&calibration
-(
-    FLASH.Create 2. (&flashbase+0x00040000)++0x1FFFF TARGET Quad 0. ; L6 - 128 kB
-    FLASH.Create 2. (&flashbase+0x00060000)++0x1FFFF TARGET Quad 1. ; L7 - 128 kB
-)
+FLASH.Create 2. (&flashbase+0x00040000)++0x1FFFF TARGET Quad 0. ; L6 - 128 kB
+FLASH.Create 2. (&flashbase+0x00060000)++0x1FFFF TARGET Quad 1. ; L7 - 128 kB
 
 ; Mid address blocks (512 KB)
 FLASH.Create 3. (&flashbase+0x00080000)++0x3FFFF TARGET Quad 0. ; L8 - 256 kB
