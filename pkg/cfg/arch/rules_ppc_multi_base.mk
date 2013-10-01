@@ -55,7 +55,7 @@ endif
 .PHONY: all clean
 
 .DEFAULT_GOAL := all
-all: $(foreach c, $(CPU_LIST), $(c)-all) $(START_SH) config-mc.t32 start-mc.cmm $(MULTI_FLASH_T32_SCRIPT)
+all: $(foreach c, $(CPU_LIST), $(c)-all) $(START_SH) config-mc.t32 start-mc.cmm $(MULTI_FLASH_T32_SCRIPT) exec_lauterbach.sh
 
 clean: $(foreach c, $(CPU_LIST), $(c)-clean)
 
@@ -114,6 +114,12 @@ rom_multi.cmm: \
 		) $< > $@
 
 endif
+
+exec_lauterbach.sh:  %: $(PKGBASE)/mcu/freescale_$(PPC_MCU_MODEL)/cfg/%
+	@echo
+	@echo "Copying exec_lauterbach.sh..."
+	@echo
+	$(QUIET)cp $< $@
 
 MASTER_ELF = $(CPU_MASTER_DIR)/$(CPU_MASTER_ELF)
 

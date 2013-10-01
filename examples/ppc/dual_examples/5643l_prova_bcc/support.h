@@ -79,13 +79,10 @@ static inline void unlock_var(void)
 }
 #endif
 
-#define VLE_MODE 1UL
-#define PPC_MODE 0UL
-
 #ifdef __MSRP__
 static inline void sys_start_up(unsigned int mode)
 {
-	EE_mpc5643l_start_slave((unsigned int)0x40020000U, mode);
+	EE_mpc5643l_start_slave((unsigned int)0x50000000U, mode);
 }
 #else
 static inline void sys_start_up(void)

@@ -21,7 +21,7 @@ CPU test_application {
 		ASFLAGS = "";
 		LDFLAGS = ""; 
 
-		//EE_OPT = "__E200ZX_EXECUTE_FROM_RAM__";
+		EE_OPT = "__E200ZX_EXECUTE_FROM_RAM__"; // This demo works from SRAM only (to run from flash change the call to EE_mpc5643l_start_slave in support.h, e.g. add a flash valid address)
 		EE_OPT = "DEBUG";
 		EE_OPT = "EE_ISR_DYNAMIC_TABLE";
 

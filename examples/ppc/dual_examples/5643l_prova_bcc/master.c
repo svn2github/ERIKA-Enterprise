@@ -155,7 +155,7 @@ static void Buttons_Interrupt0(void)
    static EE_UINT8 recall = 0;
 
    if (recall == (EE_UINT8)0U) {
-      EE_led_set(0, 0);;
+      EE_led_set(0, 0);
       recall = (EE_UINT8)1U;
    }
    else {
@@ -171,7 +171,7 @@ static void Buttons_Interrupt1(void)
    static EE_UINT8 recall = 0;
 
    if (recall == (EE_UINT8)0U) {
-      EE_led_set(1, 0);;
+      EE_led_set(1, 0);
       recall = (EE_UINT8)1U;
    }
    else {
@@ -187,7 +187,7 @@ static void Buttons_Interrupt2(void)
    static EE_UINT8 recall = 0;
 
    if (recall == (EE_UINT8)0U) {
-      EE_led_set(2, 0);;
+      EE_led_set(2, 0);
       recall = (EE_UINT8)1U;
    }
    else {
@@ -204,7 +204,7 @@ static void Buttons_Interrupt3(void)
    static EE_UINT8 recall = 0;
 
    if (recall == (EE_UINT8)0U) {
-      EE_led_set(3, 0);;
+      EE_led_set(3, 0);
       recall = (EE_UINT8)1U;
    }
    else {

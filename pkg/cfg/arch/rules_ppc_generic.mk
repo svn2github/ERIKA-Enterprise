@@ -257,7 +257,7 @@ clean:
 ##
 T32GENMENU ?= $(T32SYS)/demo/kernel/orti/genmenu
 
-T32TARGETS := t32.cmm t32_launcher.sh
+T32TARGETS := t32.cmm exec_lauterbach.sh
 ifneq ($(wildcard system.orti),)
 T32TARGETS += orti.cmm orti.men ortiperf.men
 T32ORTISTR := do orti.cmm
@@ -282,16 +282,13 @@ orti.men: system.orti
 
 # Lauterbach launcher (only for single core: SRAM & FLASH)
 ifeq ($(call iseeopt, __MSRP__),yes)
-# empty target for multicore
-t32_launcher.sh:
+# empty target for multicore, this is defined in rules_ppc_multi_base.sh
+exec_lauterbach.sh:
 else
-t32_launcher.sh:
-	@echo "Creating t32_launcher.sh..."
+exec_lauterbach.sh:  %: $(PKGBASE)/mcu/freescale_$(PPC_MCU_MODEL)/cfg/%
+	@echo "Copying exec_lauterbach.sh..."
 	@echo
-	@echo "#!/bin/bash" >> $@;
-	@echo "# Launch Lauterbach, it checks for t32.cmm file in the current directory" >> $@;
-	@echo "t32mppc" >> $@;
-	$(QUIET)chmod uog+x $@;
+	$(QUIET)cp $< $@
 endif
 
 ##
