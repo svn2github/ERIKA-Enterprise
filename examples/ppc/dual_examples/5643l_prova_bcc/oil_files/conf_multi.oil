@@ -24,6 +24,8 @@ CPU test_application {
 		EE_OPT = "__E200ZX_EXECUTE_FROM_RAM__"; // This demo works from SRAM only (to run from flash change the call to EE_mpc5643l_start_slave in support.h, e.g. add a flash valid address)
 		EE_OPT = "DEBUG";
 		EE_OPT = "EE_ISR_DYNAMIC_TABLE";
+        EE_OPT = "MPC5643L_STD_SW_MMU_CONFIG";
+        EE_OPT = "__OO_STARTOS_OLD__";
 
 		EE_OPT = "__CODEWARRIOR__";
 
@@ -68,7 +70,6 @@ CPU test_application {
 		USEREMOTETASK = ALWAYS;
 
 		KERNEL_TYPE = BCC1;
-                EE_OPT = "__OO_STARTOS_OLD__";
 	};
 	
 	TASK TaskZ6_1 {
