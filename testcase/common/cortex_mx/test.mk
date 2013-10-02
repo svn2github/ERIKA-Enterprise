@@ -59,35 +59,56 @@ GLOBAL_RTDRUID += \
 # configurations
 #
 
-# Cortex-M0 with IAR compiler toolchain
-TESTLIST 			+= cortex_m0_iar
-OUTDIR_COMMANDS_cortex_m0_iar 	= $(OUTDIR_COMMANDS_cortex_mx_source)
-CONF_cortex_m0_iar		= $(CONF_cortex_mx_source)
-GLOBAL_CONF 			+=
-DIST_cortex_m0_iar		=
-RTDRUID_cortex_m0_iar		= $(RTDRUID_cortex_mx_source)
-CLEAN_cortex_m0_iar		=
-COMPILE_cortex_m0_iar		= $(COMPILE_cortex_mx_source)
+# NXP LPC12xx Cortex-M0 with IAR compiler toolchain
+TESTLIST 				+= cortexm0_lpc12xx_iar
+OUTDIR_COMMANDS_cortexm0_lpc12xx_iar	= $(OUTDIR_COMMANDS_cortex_mx_source)
+CONF_cortexm0_lpc12xx_iar		= $(CONF_cortex_mx_source)
+GLOBAL_CONF 				+=
+DIST_cortexm0_lpc12xx_iar		=
+RTDRUID_cortexm0_lpc12xx_iar		= $(RTDRUID_cortex_mx_source)
+CLEAN_cortexm0_lpc12xx_iar		=
+COMPILE_cortexm0_lpc12xx_iar		= $(COMPILE_cortex_mx_source)
 
-# Cortex-M4 with TI CCS compiler toolchain
-TESTLIST 			+= cortex_m4_ccs
-OUTDIR_COMMANDS_cortex_m4_ccs 	= $(OUTDIR_COMMANDS_cortex_mx_source)
-CONF_cortex_m4_ccs		= $(CONF_cortex_mx_source)
-GLOBAL_CONF 			+=
-DIST_cortex_m4_ccs		=
-RTDRUID_cortex_m4_ccs		= $(RTDRUID_cortex_mx_source)
-CLEAN_cortex_m4_ccs		=
-COMPILE_cortex_m4_ccs		= $(COMPILE_cortex_mx_source)
+# TI Stellaris LM4F232 Cortex-M4 with TI CCS compiler toolchain
+TESTLIST 				+= cortexm4_lm4f232xxxx_ccs
+OUTDIR_COMMANDS_cortexm4_lm4f232xxxx_ccs = $(OUTDIR_COMMANDS_cortex_mx_source)
+CONF_cortexm4_lm4f232xxxx		= $(CONF_cortex_mx_source)
+GLOBAL_CONF 				+=
+DIST_cortexm4_lm4f232xxxx_ccs		=
+RTDRUID_cortexm4_lm4f232xxxx_ccs	= $(RTDRUID_cortex_mx_source)
+CLEAN_cortexm4_lm4f232xxxx_ccs		=
+COMPILE_cortexm4_lm4f232xxxx_ccs	= $(COMPILE_cortex_mx_source)
 
-# Cortex-M4 with Keil uVision MDK-Lite compiler toolchain
-TESTLIST 			+= cortex_m4_keil
-OUTDIR_COMMANDS_cortex_m4_keil 	= $(OUTDIR_COMMANDS_cortex_mx_source)
-CONF_cortex_m4_keil		= $(CONF_cortex_mx_source)
-GLOBAL_CONF 			+=
-DIST_cortex_m4_keil		=
-RTDRUID_cortex_m4_keil		= $(RTDRUID_cortex_mx_source)
-CLEAN_cortex_m4_keil		=
-COMPILE_cortex_m4_keil		= $(COMPILE_cortex_mx_source)
+# TI Stellaris LM4F232 Cortex-M4 with Keil uVision MDK-Lite compiler toolchain
+TESTLIST 				+= cortexm4_lm4f232xxxx_keil
+OUTDIR_COMMANDS_cortexm4_lm4f232xxxx_keil = $(OUTDIR_COMMANDS_cortex_mx_source)
+CONF_cortexm4_lm4f232xxxx_keil		= $(CONF_cortex_mx_source)
+GLOBAL_CONF 				+=
+DIST_cortexm4_lm4f232xxxx_keil		=
+RTDRUID_cortexm4_lm4f232xxxx_keil	= $(RTDRUID_cortex_mx_source)
+CLEAN_cortexm4_lm4f232xxxx_keil		=
+COMPILE_cortexm4_lm4f232xxxx_keil	= $(COMPILE_cortex_mx_source)
+
+# ST STM32F4 Cortex-M4 with Keil uVision MDK-Lite compiler toolchain
+TESTLIST 				+= cortexm4_stm32f4xx_keil
+OUTDIR_COMMANDS_cortexm4_stm32f4xx_keil	= $(OUTDIR_COMMANDS_cortex_mx_source)
+CONF_cortexm4_stm32f4xx_keil		= $(CONF_cortex_mx_source)
+GLOBAL_CONF 				+=
+DIST_cortexm4_stm32f4xx_keil		=
+RTDRUID_cortexm4_stm32f4xx_keil		= $(RTDRUID_cortex_mx_source)
+CLEAN_cortexm4_stm32f4xx_keil		=
+COMPILE_cortexm4_stm32f4xx_keil		= $(COMPILE_cortex_mx_source)
+
+# ST STM32F4 Cortex-M4 with GNU GCC compiler toolchain
+TESTLIST 				+= cortexm4_stm32f4xx_gnu
+OUTDIR_COMMANDS_cortexm4_stm32f4xx_gnu	= $(OUTDIR_COMMANDS_cortex_mx_source)
+CONF_cortexm4_stm32f4xx_gnu		= $(CONF_cortex_mx_source)
+GLOBAL_CONF 				+=
+DIST_cortexm4_stm32f4xx_gnu		=
+RTDRUID_cortexm4_stm32f4xx_gnu		= $(RTDRUID_cortex_mx_source)
+CLEAN_cortexm4_stm32f4xx_gnu		=
+COMPILE_cortexm4_stm32f4xx_gnu		= $(COMPILE_cortex_mx_source)
+
 
 # -------------------------------------------------------------------
 

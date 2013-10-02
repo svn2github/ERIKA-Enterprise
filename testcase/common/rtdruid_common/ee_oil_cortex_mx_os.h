@@ -41,6 +41,8 @@
 #ifdef cortex_mx
 
 #ifdef cortex_m0
+
+#ifdef lpc12xx
 		EE_OPT = "__ADD_LIBS__";
 		LIB = ENABLE {
 			NAME = "CMSIS";
@@ -50,12 +52,29 @@
 		MCU_DATA = LPCXPRESSO {
 			MODEL = LPC12xx;
 		};
+#endif	/* lpc12xx */
+
 #else	/* cortex_m0 */
 
 #ifdef cortex_m4
+
+#ifdef lm4f232xxxx
 		MCU_DATA = STELLARIS {
 			MODEL = LM4F232xxxx;
 		};
+#else	/* lm4f232xxxx */
+
+#ifdef stm32f4xx
+		EE_OPT = "__ADD_LIBS__";
+		LIB = ENABLE { NAME = "ST_CMSIS"; };
+
+		MCU_DATA = STM32 {
+			MODEL = STM32F4xx;
+		};
+#endif	/* stm32f4xx */
+
+#endif	/* !lm4f232xxxx */
+
 #endif	/* !cortex_m4 */
 
 #endif	/* !cortex_m0 */
@@ -89,7 +108,13 @@
 
 #ifdef keil
 			COMPILER_TYPE = KEIL;
-#endif	/* keil */
+#else	/* keil */
+
+#ifdef gnu
+			COMPILER_TYPE = GNU;
+#endif	/* gnu */
+			
+#endif	/* !keil */
 
 #endif	/* !ccs */
 

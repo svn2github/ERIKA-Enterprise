@@ -83,22 +83,39 @@
 #define pic30
 #endif
 
-#ifdef cortex_m0_iar
+#ifdef cortexm0_lpc12xx_iar
 #define cortex_mx
 #define cortex_m0
+#define lpc12xx
 #define iar
 #endif
 
-#ifdef cortex_m4_ccs
+#ifdef cortexm4_lm4f232xxxx_ccs
 #define cortex_mx
 #define cortex_m4
+#define lm4f232xxxx
 #define ccs
 #endif
 
-#ifdef cortex_m4_keil
+#ifdef cortexm4_lm4f232xxxx_keil
 #define cortex_mx
 #define cortex_m4
+#define lm4f232xxxx
 #define keil
+#endif
+
+#ifdef cortexm4_stm32f4xx_keil
+#define cortex_mx
+#define cortex_m4
+#define stm32f4xx
+#define keil
+#endif
+
+#ifdef cortexm4_stm32f4xx_gnu
+#define cortex_mx
+#define cortex_m4
+#define stm32f4xx
+#define gnu
 #endif
 
 #ifdef rx200_ccrx
