@@ -205,6 +205,7 @@ int8_t	cc2420_hal_init(void)
 	/* Set interrupt with rising edge mode.*/
 	CC2420_SET_ISR_RE();
 	
+
 	return 1;
 }
 

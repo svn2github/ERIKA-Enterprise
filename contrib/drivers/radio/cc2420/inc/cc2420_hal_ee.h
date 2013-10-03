@@ -604,7 +604,7 @@ COMPILER_INLINE uint8_t cc2420_get_sfd(void)
 	/* Configure EXTI Line */\
 	EXTI_InitStructure.EXTI_Line = CC2420_INTERRUPT_LINE;\
 	EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;\
-	EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Falling;\
+	EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising;\
 	EXTI_InitStructure.EXTI_LineCmd = ENABLE;\
 	EXTI_Init(&EXTI_InitStructure);\
 } while(0)
