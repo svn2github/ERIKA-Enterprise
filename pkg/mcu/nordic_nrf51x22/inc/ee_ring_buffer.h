@@ -59,7 +59,7 @@ typedef struct
 {
   EE_UINT8 front;
   EE_UINT8 rear;
-  EE_UINT8 size;
+  EE_UINT16 size;
 } EE_type_ring_buffer_info;
 
 typedef struct
@@ -69,7 +69,7 @@ typedef struct
 } EE_type_ring_buffer;
 
 
-__INLINE__ void __ALWAYS_INLINE__ EE_ring_buffer_init(EE_type_ring_buffer *buff, EE_UINT8 *mem_area, EE_UINT8 size)
+__INLINE__ void __ALWAYS_INLINE__ EE_ring_buffer_init(EE_type_ring_buffer *buff, EE_UINT8 *mem_area, EE_UINT16 size)
 {
 	buff->info.front = buff->info.rear = 0; 
 	buff->info.size  = size+1;

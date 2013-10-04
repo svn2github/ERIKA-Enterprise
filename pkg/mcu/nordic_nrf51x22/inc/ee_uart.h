@@ -132,7 +132,6 @@ void EE_uart_send(EE_UINT8 c);
 EE_INT8 EE_uart_send_str(EE_UINT8 *str);
 
 
-//FIXME
 EE_UINT8 EE_uart_get(void);
 
 #endif /* __INCLUDE_NORDIC_NRF51X22_UART_H__ */

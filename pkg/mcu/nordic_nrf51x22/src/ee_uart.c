@@ -48,7 +48,7 @@
 //------------------------------------------------------------------
 
 EE_RING_BUFFER_ALLOC(mem_area_txd,EE_UART_RING_BUFFER_SIZE_TXD);
-EE_RING_BUFFER_ALLOC(mem_area_rxd,EE_UART_RING_BUFFER_SIZE_TXD);
+EE_RING_BUFFER_ALLOC(mem_area_rxd,EE_UART_RING_BUFFER_SIZE_RXD);
 
 EE_type_ring_buffer ring_buff_txd;
 EE_type_ring_buffer ring_buff_rxd;
