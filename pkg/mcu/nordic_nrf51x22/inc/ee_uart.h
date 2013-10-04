@@ -129,7 +129,7 @@ void EE_uart_send(EE_UINT8 c);
     @return EE_UART_NO_ERRORS if no errors happend.
         Otherwise appropriate error value.
  */
-EE_INT8 EE_uart_send_str(EE_UINT8 *str);
+EE_INT8 EE_uart_send_str(char *str);
 
 
 EE_UINT8 EE_uart_get(void);

@@ -130,7 +130,7 @@ void EE_uart_send(EE_UINT8 c)
 }
 
 //AB - FIXME: check on string size?
-EE_INT8 EE_uart_send_str(EE_UINT8 *str)
+EE_INT8 EE_uart_send_str(char *str)
 {
 	EE_INT8 error = EE_UART_NO_ERRORS;
 	EE_UINT8 i=0;
