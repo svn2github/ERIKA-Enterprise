@@ -39,7 +39,8 @@ ifneq ($(call iseeopt, __LM32__), yes)
 libmemory.a: $(EE_OBJS_MEMORY)
 	@echo $(EE_SRC_MEMORY)
 	@printf "AR  libmemory.a\n" ;
-	$(QUIET)$(EE_AR) rs libmemory.a $(EE_OBJS_MEMORY)
+	$(QUIET)$(EE_AR) $(COMPUTED_OPT_AR) $@ $^
+
 ##
 ## Add the library to the linker list and list of lib files
 ##
@@ -50,6 +51,7 @@ $(OUTPUT_DIR)/libmemory.a: $(EE_OBJS_MEMORY)
 	@echo $(EE_SRC_MEMORY)
 	@printf "AR  libmemory.a\n" ;
 	$(QUIET)$(EE_AR) rs $(OUTPUT_DIR)/libmemory.a $(EE_OBJS_MEMORY)
+
 ##
 ## Add the library to the linker list and list of lib files
 ##
