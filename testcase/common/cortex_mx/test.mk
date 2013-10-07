@@ -72,7 +72,7 @@ COMPILE_cortexm0_lpc12xx_iar		= $(COMPILE_cortex_mx_source)
 # TI Stellaris LM4F232 Cortex-M4 with TI CCS compiler toolchain
 TESTLIST 				+= cortexm4_lm4f232xxxx_ccs
 OUTDIR_COMMANDS_cortexm4_lm4f232xxxx_ccs = $(OUTDIR_COMMANDS_cortex_mx_source)
-CONF_cortexm4_lm4f232xxxx		= $(CONF_cortex_mx_source)
+CONF_cortexm4_lm4f232xxxx_ccs		= $(CONF_cortex_mx_source)
 GLOBAL_CONF 				+=
 DIST_cortexm4_lm4f232xxxx_ccs		=
 RTDRUID_cortexm4_lm4f232xxxx_ccs	= $(RTDRUID_cortex_mx_source)
