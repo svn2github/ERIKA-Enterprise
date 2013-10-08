@@ -211,27 +211,32 @@ int8_t mrf24j40_init(uint8_t int_setup, uint8_t ch, uint8_t port)
 
 	#ifdef MRF24J40_DISABLE_AUTOMATIC_ACK
 	mrf24j40_dbg_print("\r\nMRF24J40 Init NO_AUTO_ACK");
-	i = i | 0b00100000;
+	//i = i | 0b00100000;
+	i |= 0x20;
 	#endif
 
 	#ifdef MRF24J40_PAN_COORDINATOR
 	mrf24j40_dbg_print("\r\nMRF24J40 Init PAN COORD");
-	i = i | 0b00001000;
+	//i = i | 0b00001000;
+	i |= 0x08;
 	#endif
 
 	#ifdef MRF24J40_COORDINATOR
 	mrf24j40_dbg_print("\r\nMRF24J40 Init COORD");
-	i = i | 0b00000100;
+	//i = i | 0b00000100;
+	i |= 0x04;
 	#endif
 
 	#ifdef MRF24J40_ACCEPT_WRONG_CRC_PKT
 	mrf24j40_dbg_print("\r\nMRF24J40 Init Accept Wrong CRC");
-	i = i | 0b00000010;
+	//i = i | 0b00000010;
+	i |= 0x02;
 	#endif
 
 	#ifdef MRF24J40_PROMISCUOUS_MODE
 	mrf24j40_dbg_print("\r\nMRF24J40 Init PROMISUOUS MODE");
-	i = i | 0b00000001;
+	//i = i | 0b00000001;
+	i |= 0x01;
 	#endif
 
 	/*

@@ -31,6 +31,8 @@
 #include <mrf24j40_hal_ee_pic32.h>
 #elif defined __LM32__
 #include <mrf24j40_hal_ee_mico32.h>
+#elif defined __STM32__
+#include <mrf24j40_hal_ee_stm32.h>
 #else		/* NO Architecture */
 #error "MRF24J40_HAL: Architecture not supported"
 #endif

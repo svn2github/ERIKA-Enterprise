@@ -18,4 +18,8 @@ ifeq ($(call iseeopt, __LM32__), yes)
 EE_SRCS += contrib/drivers/radio/mrf24j40/src/mrf24j40_hal_ee_mico32.c
 endif
 
+ifeq ($(call iseeopt, __STM32__), yes)
+EE_SRCS += contrib/drivers/radio/mrf24j40/src/mrf24j40_hal_ee_stm32.c
+endif
+
 endif
