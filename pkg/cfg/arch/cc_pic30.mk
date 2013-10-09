@@ -208,6 +208,9 @@ OPT_LINK =
 # Specific option from the application makefile
 OPT_LINK += $(LDFLAGS)
 
+# OPT_AR: options for library generation
+OPT_AR = rs
+
 # Defining EEOPT Macros
 # Each identifier that is listed in EEOPT is also inserted as a 
 # command-line macro in the compiler...

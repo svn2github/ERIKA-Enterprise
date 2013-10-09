@@ -212,6 +212,7 @@ COMPUTED_OPT_LINK := $(OPT_LINK)
 COMPUTED_OPT_ASM_VAR := -Wa,
 COMPUTED_OPT_ASM := $(addprefix $(COMPUTED_OPT_ASM_VAR), $(OPT_ASM))
 COMPUTED_OPT_CC := $(OPT_CC)
+COMPUTED_OPT_AR := $(OPT_AR)
 
 ## Select input filename format
 SOURCEFILE = $(call native_path,$<)
