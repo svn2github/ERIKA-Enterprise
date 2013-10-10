@@ -56,6 +56,7 @@
 	(					\
 		defined(__CCS__) ||		\
 		defined(__IAR__) ||		\
+		defined(__KEIL__) ||	\
 		defined(__GNU__)	\
 	)					\
   ) ||						\

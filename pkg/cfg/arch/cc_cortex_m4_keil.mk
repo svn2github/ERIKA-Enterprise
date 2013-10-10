@@ -158,6 +158,10 @@ endif
 
 OPT_CC += -c
 
+ifeq ($(call iseeopt, __KEIL_USE_C99__), yes)
+OPT_CC += --c99
+endif
+
 # Specific option from the application makefile
 OPT_CC += $(CFLAGS)
 
