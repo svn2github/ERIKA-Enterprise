@@ -318,9 +318,13 @@ COMPILER_INLINE uint8_t mrf24j40_get_short_add_mem(uint8_t addr)
 	mrf24j40_hal_spi_write(&addr, 1);
 	mrf24j40_hal_spi_read(&ret_val, 1);
 	mrf24j40_hal_csn_high();
+
+	while(ret_val !=0);
+	
 	if (tmp) 
 		mrf24j40_hal_irq_enable();
 	return ret_val;
+
 }
 
 /**

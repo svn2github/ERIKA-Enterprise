@@ -271,7 +271,7 @@ int8_t uwl_simple154_get_mac_error(void);
 *
 * @return Zero if no TX GTS is allocated
 */
-static inline uint8_t uwl_simple154_is_tx_gts_allocated(void) {
+__INLINE__ uint8_t uwl_simple154_is_tx_gts_allocated(void) {
 	return uwl_mac_is_tx_gts_allocated();
 }
 

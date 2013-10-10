@@ -27,6 +27,9 @@
 
 #include <hal/uwl_timer_mico32.h>
 
+#elif defined __STM32__
+
+#include <hal/uwl_timer_stm32.h>
 
 #else			/* No timer */
 #error "UWL_HAL ERROR: timer hw interface not specified"

@@ -59,6 +59,8 @@ int8_t mrf24j40_init(uint8_t int_setup, uint8_t ch, uint8_t port)
 	uint8_t i;
 	int8_t retv;
 	int8_t iteration;
+	
+	uint16_t jj;
 
 	//return 0;
 	if (radio_initialized)
@@ -76,6 +78,19 @@ int8_t mrf24j40_init(uint8_t int_setup, uint8_t ch, uint8_t port)
 	mrf24j40_hal_delay_us(2500);
 	mrf24j40_hal_retsetn_high();
 	mrf24j40_hal_delay_us(2500);
+	
+	
+	i = 0;
+	
+	while(1) {
+		mrf24j40_get_short_add_mem(MRF24J40_PACON2);
+		jj = 1;
+		while (++jj < 5000);
+	}
+	
+	//while(1)
+	//	mrf24j40_hal_spi_write(data_test, 5);
+	
 	/**
 	 * Software reset:
 	 * 7:3 = '00'  = Reserved
@@ -105,7 +120,7 @@ int8_t mrf24j40_init(uint8_t int_setup, uint8_t ch, uint8_t port)
 	 * Read back to value just written.
 	 * This trick is used to verify if the radio is connected.
 	 */
-
+	
 	if (mrf24j40_get_short_add_mem(MRF24J40_PACON2) != 0x98)
 		return -1;
 

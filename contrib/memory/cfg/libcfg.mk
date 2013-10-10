@@ -44,17 +44,22 @@ libmemory.a: $(EE_OBJS_MEMORY)
 ##
 ## Add the library to the linker list and list of lib files
 ##
+##
+## Add the library to the linker list and list of lib files
+##
+ifeq ($(call iseeopt, __KEIL__), yes) 
+OPT_LIBS += --userlibpath $(OUTPUT_DIR)/ libmemory.a
+else
 OPT_LIBS += -lmemory
+endif
 ALL_LIBS += libmemory.a
+
 else
 $(OUTPUT_DIR)/libmemory.a: $(EE_OBJS_MEMORY)
 	@echo $(EE_SRC_MEMORY)
 	@printf "AR  libmemory.a\n" ;
 	$(QUIET)$(EE_AR) rs $(OUTPUT_DIR)/libmemory.a $(EE_OBJS_MEMORY)
 
-##
-## Add the library to the linker list and list of lib files
-##
 OPT_LIBS += -lmemory
 ALL_LIBS += $(OUTPUT_DIR)/libmemory.a
 endif

@@ -30,6 +30,9 @@ endif
 ifeq ($(call iseeopt, __LM32__), yes)
 EE_SRCS += contrib/network/uWireless/src/hal/uwl_timer_mico32.c
 endif
+ifeq ($(call iseeopt, __STM32__), yes)
+EE_SRCS += contrib/network/uWireless/src/hal/uwl_timer_stm32.c
+endif
 endif
 
 EE_SRCS += contrib/network/uWireless/src/phy/uwl_phy.c

@@ -171,7 +171,7 @@ int8_t	cc2420_spi_get(uint8_t *out)
 }
 
 /* STM32 */
-#elif defined __USE_STM32F4_DISCOVERY__
+#elif defined __STM32__
 
 
 void cc2420_delay_us( uint16_t delay_count )

@@ -258,6 +258,8 @@ COMPILER_INLINE int8_t uwl_radio_get_rx_data(uint8_t *msg, uint8_t *fcs_chk,
 {
 	/*FIXME: try to remove this buffer */
 	uint8_t buf[130];
+	uint8_t i = 0;
+	
 	/* len is the length of the packet with the appended LQI and RSSI plus
 	 * one (since the buffer contains the lenght itself */
 	int16_t len = cc2420_get_fifo_msg(buf);
@@ -277,7 +279,7 @@ COMPILER_INLINE int8_t uwl_radio_get_rx_data(uint8_t *msg, uint8_t *fcs_chk,
 	/* remove the FCS/LQI, RSSI, and lenght from the length */
 	len -= 3;
 	//memcpy(msg, buf+1, len);
-	int i = 0;
+
 	for (i = 0; i < len; i++) {
 		msg[i] = buf[i+1];
 	}

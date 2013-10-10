@@ -45,7 +45,7 @@ void mrf24j40_hal_delay_us( uint16_t delay_count )
 	 */
 	volatile uint16_t i;
 	i=0;
-	while (++i < 10000);
+	while (++i < 30000);
 }
 
 
@@ -129,7 +129,7 @@ int8_t	mrf24j40_hal_spi_init(uint8_t port)
 	SPI_InitStructure.SPI_Direction = SPI_Direction_2Lines_FullDuplex;
 	SPI_InitStructure.SPI_DataSize = SPI_DataSize_8b;
 	SPI_InitStructure.SPI_CPOL = SPI_CPOL_Low;
-	SPI_InitStructure.SPI_CPHA = SPI_CPHA_1Edge;
+	SPI_InitStructure.SPI_CPHA = SPI_CPHA_2Edge;
 	SPI_InitStructure.SPI_NSS = SPI_NSS_Soft;
 	/* 
 	 *	Note, this configuration assumes:
@@ -146,10 +146,10 @@ int8_t	mrf24j40_hal_spi_init(uint8_t port)
 	if (spi_port == SPI1)
 		SPI_InitStructure.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_16;
 	else
-		SPI_InitStructure.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_32;
+		SPI_InitStructure.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_64;
 	
 	SPI_InitStructure.SPI_FirstBit = SPI_FirstBit_MSB;
-	SPI_InitStructure.SPI_CRCPolynomial = 7;
+	//SPI_InitStructure.SPI_CRCPolynomial = 7;
 	SPI_InitStructure.SPI_Mode = SPI_Mode_Master;
 	
 	SPI_Init(spi_port, &SPI_InitStructure);
@@ -172,14 +172,14 @@ int8_t	mrf24j40_spi_close(void)
 
 int8_t	mrf24j40_hal_spi_write(uint8_t *data, uint16_t len)
 {
-
 	
 	uint16_t i;
 
 	for (i = 0; i < len; i++) {
 		/* Wait until the end of an ongoing transmission. */
 		while (SPI_I2S_GetFlagStatus(spi_port, SPI_I2S_FLAG_TXE) == RESET); 
-		SPI_I2S_SendData(spi_port, data[i]);
+		//SPI_I2S_SendData(spi_port, (uint16_t) data[i]);
+		SPI_I2S_SendData(spi_port, (uint16_t) 0xAA);
 	}
 	
 	return 1;
@@ -190,6 +190,10 @@ int8_t	mrf24j40_hal_spi_read(uint8_t *data, uint16_t len)
 	uint16_t i;
 
 	for (i = 0; i < len; i++) {
+		/* Wait until the end of an ongoing transmission. */
+		//while (SPI_I2S_GetFlagStatus(spi_port, SPI_I2S_FLAG_TXE) == RESET); 
+		SPI_I2S_SendData(spi_port, 0x0000);
+		while (SPI_I2S_GetFlagStatus(spi_port, SPI_I2S_FLAG_RXNE) == RESET); 
 		data[i] = (uint8_t) SPI_I2S_ReceiveData(spi_port);
 	}
 	return 1;

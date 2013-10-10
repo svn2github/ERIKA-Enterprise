@@ -12,6 +12,7 @@
 
 #include <ee.h>
 #include <ee_irq.h>
+
 #include "../../../../misc/inc/ee_stdint.h"
 
 #ifndef COMPILER_INLINE 
@@ -27,7 +28,8 @@
 #endif
 
 #ifndef COMPILER_ISR
-#if (defined(__PIC30__) || defined(__PIC32__) || defined(__LM32__))
+#if (defined(__PIC30__) || defined(__PIC32__) || defined(__LM32__) \
+|| defined(__STM32__))
 #define COMPILER_ISR(func) ISR2(func)
 #elif defined __AVR5__
 #define COMPILER_ISR(func) void func(void)

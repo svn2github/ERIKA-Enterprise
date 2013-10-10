@@ -94,13 +94,17 @@ enum uwl_debug_tim_clock_id_t {
 #define UWL_DEBUG_STAT_STRLEN 	26	/**<head(3)+tail(3) + (DAQ_TIME_STRLEN *
 					     UWL_DEBUG_TIME_CLOCK_NUMBER) */
 
+#ifdef UWL_DEBUG_TIME
+
 struct uwl_debug_stat_t {
-	#ifdef UWL_DEBUG_TIME
+	
 	struct daq_time_t time_clock[UWL_DEBUG_TIME_CLOCK_NUMBER];
-	#endif /* UWL_DEBUG_TIME */
+	
 };
 
 extern struct uwl_debug_stat_t uwl_debug_stats;
+
+#endif /* UWL_DEBUG_TIME */
 
 COMPILER_INLINE int8_t uwl_debug_time_start(uint8_t ck_id) 
 {
