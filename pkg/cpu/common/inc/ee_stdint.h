@@ -56,7 +56,7 @@
 	(					\
 		defined(__CCS__) ||		\
 		defined(__IAR__) ||		\
-		defined(__KEIL__)		\
+		defined(__GNU__)	\
 	)					\
   ) ||						\
   (defined(__RX200__) && defined(__CCRX__)) \
