@@ -51,6 +51,8 @@
 
 volatile unsigned int ERROR_FLAG = 0;
 
+extern void prova_leds(EE_UREG led);
+
 DeclareTask(Task1);
 DeclareTask(Task2);
 DeclareEvent(TimerEvent);
@@ -81,7 +83,7 @@ void led_blink(unsigned char theled)
   EE_leds(led_status);
   EnableAllInterrupts();
 
-  mydelay((long int)220000);
+  mydelay((long int)1200000);   // about 2 sec at 120 Mhz clock
 
   DisableAllInterrupts();
   led_status &= ~theled;
@@ -106,8 +108,10 @@ static void Counter_Interrupt(void)
   CounterTick(Counter1);
 
   /* reset the decrementer to fire again */
-  EE_e200z7_setup_decrementer(200000);
+  EE_e200z7_setup_decrementer(120000);  // set to 120 Mhz
 }
+
+EE_UINT32 b0, b1, b2, b3;
 
 TASK(Task1)
 {
@@ -156,13 +160,16 @@ void StartupHook(void)
   EE_e200z7_register_ISR(41 + 16, Buttons_Interrupt, 1);
 
   EE_e200z7_register_ISR(10, Counter_Interrupt, 0);
-  EE_e200z7_setup_decrementer(200000);
+  EE_e200z7_setup_decrementer(120000);  // set to 120 Mhz
 }
 
 
 /* MAIN */
 int main(void)
 {
+  /* Init HW: PLLs, clock (120 Mhz), clear error flags, etc */
+  InitHW();
+
   /* Init leds */
   EE_leds_init();
 

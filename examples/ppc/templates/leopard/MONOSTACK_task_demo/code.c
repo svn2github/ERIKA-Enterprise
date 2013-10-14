@@ -120,7 +120,7 @@ void led_blink(unsigned char theled)
   EE_leds(led_status);
   EnableAllInterrupts();
 
-  mydelay((long int)300000);
+  mydelay((long int)3000000);
 
   DisableAllInterrupts();
   led_status &= ~theled;
@@ -143,9 +143,7 @@ TASK(Task1)
 #endif
 
   /* Second half of the christmas tree */
-  /* we use led 4 5 and 6 because the board has two rows of 4 leds each */
   led_blink(LED_2);
-  led_blink(LED_3);
   
   TerminateTask();
 }
@@ -154,20 +152,10 @@ TASK(Task1)
 /* Task2: Print the counters on the JTAG UART */
 TASK(Task2)
 {
-  static int which_led = 0;
   /* count the number of Task2 activations */
   task2_fired++;
 
-  /* let blink leds 3 or 7 */
-  if (which_led) {
-    led_blink(LED_1);
-    which_led = 0;
-  }
-  else 
-  {
-    led_blink(LED_2);
-    which_led = 1;
-  }
+  led_blink(LED_3);
 
   TerminateTask();
 }
@@ -205,6 +193,9 @@ static void setup_interrupts(void)
 
 int main(void)
 {
+  /* Init HW: PLLs, clock (120 Mhz), clear error flags, etc */
+  InitHW();
+
   /* Init devices */
   EE_buttons_init();
   

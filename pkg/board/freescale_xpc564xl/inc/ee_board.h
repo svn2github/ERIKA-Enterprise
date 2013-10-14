@@ -40,10 +40,34 @@
 /*
  * MPC564XL register mappings
  * Author: 2012 Francesco Esposito
+ *
+ * The following APIs work for XPC56XX mother board and XPC56XL
+ * 144LQFP Mini-module.
+ * All J8 jumpers ON (Enable leds)
+ * J9 jumpers (buttons):
+ * - pin2 (J9) - pin1 (PJ9)
+ * - pin4 (J9) - pin16 (PJ9)
+ * - pin6 (J9) - pin2 (PJ7)
+ * - pin8 (J9) - pin14 (PJ5)
+ * Note: the default button pins cannot be used since PD0, PD1,
+ *       PD2 and PD3 of the MPC5643L do not support external IRQs
  */
 
 #ifndef INCLUDE_EE_FREESCALE_MPC564XL_BOARD_H
 #define INCLUDE_EE_FREESCALE_MPC564XL_BOARD_H
+
+#include <mcu/freescale_mpc5643l/inc/MPC5643L.h>
+
+/* Macro used to manage fault conditions */
+#define FCCU_NCFK_KEY 0xAB3498FE
+#define FCCU_CFK_KEY  0x618B7A50
+
+__INLINE__ void __ALWAYS_INLINE__ InitHW(void);
+__INLINE__ void __ALWAYS_INLINE__ InitSysclk(void);
+__INLINE__ void __ALWAYS_INLINE__ DisableWatchdog(void);
+__INLINE__ void __ALWAYS_INLINE__ InitModesAndClks(void);
+__INLINE__ void __ALWAYS_INLINE__ InitPeriClkGen(void);
+__INLINE__ void __ALWAYS_INLINE__ ClearFails(void);
 
 #define SIU_BASE	0xc3f90000
 
@@ -56,20 +80,16 @@
 #define SIU_PCR55	SIU_PCRS[55]
 
 /* Button */
-#define SIU_PCR0	SIU_PCRS[0]
-#define SIU_PCR8	SIU_PCRS[8]
-#define SIU_PCR17	SIU_PCRS[17]
-#define SIU_PCR38	SIU_PCRS[38]
+#define SIU_PCR0    SIU_PCRS[0]
+#define SIU_PCR15   SIU_PCRS[15]
+#define SIU_PCR17   SIU_PCRS[17]
+#define SIU_PCR77   SIU_PCRS[77]
 
 #define SIU_GPIO	((volatile EE_UINT8 *)(SIU_BASE + 0x0600))
-
 #define SIU_IREER	(*(volatile EE_UINT32 *)(SIU_BASE + 0x0028))
 #define SIU_IFEER	(*(volatile EE_UINT32 *)(SIU_BASE + 0x002c))
-
 #define SIU_ISR		(*(volatile EE_UINT32 *)(SIU_BASE + 0x0014))
-
 #define SIU_IRER	(*(volatile EE_UINT32 *)(SIU_BASE + 0x0018))
-
 #define SIU_IFER	(*(volatile EE_UINT32 *)(SIU_BASE + 0x0030))
 
 #ifdef __USE_LEDS__
@@ -96,10 +116,10 @@ __INLINE__ void __ALWAYS_INLINE__ EE_leds_init(void)
 
 __INLINE__ void __ALWAYS_INLINE__ EE_leds(EE_UREG led)
 {
-	SIU_GPIO[52] = led & 1;
-	SIU_GPIO[53] = (led >> 1) & 1;
-	SIU_GPIO[54] = (led >> 2) & 1;
-	SIU_GPIO[55] = (led >> 3) & 1;
+	SIU_GPIO[52] = ~(led & 1) & 1;
+	SIU_GPIO[53] = ~((led >> 1) & 1) & 1;
+	SIU_GPIO[54] = ~((led >> 2) & 1) & 1;
+	SIU_GPIO[55] = ~((led >> 3) & 1) & 1;
 }
 
 /* Turn ALL leds on */
@@ -108,7 +128,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_leds_on(void)
 	SIU_GPIO[52] = 0;
 	SIU_GPIO[53] = 0;
 	SIU_GPIO[54] = 0;
-	SIU_GPIO[55] = 0; /* fourth led not working (bug in the PD7) */
+	SIU_GPIO[55] = 0;
 }
 
 /* Turn ALL leds off */
@@ -140,31 +160,65 @@ __INLINE__ void __ALWAYS_INLINE__ EE_led_set(EE_UREG idx, EE_UREG val)
 
 #ifdef __USE_BUTTONS__
 
-#define BUTTON_0	0U
-#define BUTTON_1	1U
-#define BUTTON_2	2U
-#define BUTTON_3	3U
+#define BUTTON_0	1U
+#define BUTTON_1	2U
+#define BUTTON_2	4U
+#define BUTTON_3	8U
 
 /* input parameter necessary to guarantee backward compatibility of demos */
 __INLINE__ void __ALWAYS_INLINE__ EE_buttons_disable_interrupts(EE_UREG btn)
 {
-	EE_UINT32 val;
+	EE_UINT32 old_irer;
 
-	val = SIU_IRER;
+	old_irer = SIU_IRER;
 
-	/* Disable  IRQ_0 IRQ_1 IRQ_2 IRQ_3 */
-	SIU_IRER = val & ~0x01010101;
+	/* Disable EIRQ[0], EIRQ[14], EIRQ[16], EIRQ[25] */
+    if (btn == BUTTON_0) {
+		SIU_IRER = old_irer & ~0x1U;
+	}
+	else if(btn == BUTTON_1) {
+		SIU_IRER = old_irer & ~0x8000U;
+	}
+	else if(btn == BUTTON_2) {
+		SIU_IRER = old_irer & ~0x20000U;
+	}
+	else if(btn == BUTTON_3) {
+		SIU_IRER = old_irer & ~0x02000000U;
+	}
+	else {
+		/* button not supported */
+	}
 }
 
 /* input parameter necessary to guarantee backward compatibility of demos */
 __INLINE__ void __ALWAYS_INLINE__ EE_buttons_enable_interrupts(EE_UREG btn)
 {
-	EE_UINT32 val;
+	EE_UINT32 old_irer;
+	EE_UINT32 old_ifeer;
 
-	val = SIU_IRER;
+	old_irer = SIU_IRER;
+    old_ifeer = SIU_IFEER;
 
-	/* Eneble IRQ_0 IRQ_1 IRQ_2 IRQ_3 */
-	SIU_IRER = val | 0x01010101;
+	/* Enable EIRQ[0], EIRQ[14], EIRQ[16], EIRQ[25] */
+    if (btn == BUTTON_0) {
+		SIU_IRER = old_irer | 0x1U;
+        SIU_IFEER = old_ifeer | 0x1;
+	}
+	else if(btn == BUTTON_1) {
+		SIU_IRER = old_irer | 0x8000U;
+        SIU_IFEER = old_ifeer | 0x8000U;
+	}
+	else if(btn == BUTTON_2) {
+		SIU_IRER = old_irer | 0x20000U;
+        SIU_IFEER = old_ifeer | 0x20000U;
+	}
+	else if(btn == BUTTON_3) {
+		SIU_IRER = old_irer | 0x02000000U;
+        SIU_IFEER = old_ifeer | 0x02000000U;
+	}
+	else {
+		/* button not supported */
+	}
 }
 
 /* Clear specific ISR flag associated to a specific button */
@@ -175,65 +229,217 @@ __INLINE__ void __ALWAYS_INLINE__ EE_buttons_clear_ISRflag(EE_UREG btn)
 	/* Save old ISR value */
 	val = SIU_ISR;
 
-	if (btn == 0U) {
+	if (btn == BUTTON_0) {
 		SIU_ISR = val | 0x1U;
 	}
-	else if(btn == 1U) {
-		SIU_ISR = val | 0x100U;
+	else if(btn == BUTTON_1) {
+		SIU_ISR = val | 0x8000U;
 	}
-	else if(btn == 2U) {
-		SIU_ISR = val | 0x10000U;
+	else if(btn == BUTTON_2) {
+		SIU_ISR = val | 0x20000U;
 	}
-	else if(btn == 3U) {
-		SIU_ISR = val | 0x1000000U;
+	else if(btn == BUTTON_3) {
+		SIU_ISR = val | 0x02000000U;
 	}
 	else {
 		/* button not supported */
-	} 
+	}
 }
 
-/* Get button 0 status */
+/* Get button 0 status: 1 if button is pressed */
 __INLINE__ EE_UINT32 __ALWAYS_INLINE__ EE_button_get_B0(void)
 {
 	return !((*(volatile EE_UINT32 *)(SIU_BASE + 0x0800))&0x01000000);
 }
 
-/* Get button 1 status */
+/* Get button 1 status: 1 if button is pressed */
 __INLINE__ EE_UINT32 __ALWAYS_INLINE__ EE_button_get_B1(void)
 {
-	return !((*(volatile EE_UINT32 *)(SIU_BASE + 0x0808))&0x01000000);
+	return !((*(volatile EE_UINT32 *)(SIU_BASE + 0x080C))&0x00000001);
 }
 
-/* Get button 2 status */
+/* Get button 2 status: 1 if button is pressed */
 __INLINE__ EE_UINT32 __ALWAYS_INLINE__ EE_button_get_B2(void)
 {
 	return !((*(volatile EE_UINT32 *)(SIU_BASE + 0x0810))&0x00010000);
 }
 
-/* Get button 3 status */
+/* Get button 3 status: 1 if button is pressed */
 __INLINE__ EE_UINT32 __ALWAYS_INLINE__ EE_button_get_B3(void)
 {
-	return !((*(volatile EE_UINT32 *)(SIU_BASE + 0x0824))&0x00000100);
+	return !((*(volatile EE_UINT32 *)(SIU_BASE + 0x084C))&0x00010000);
 }
 
 /* Buttons initialization */
 __INLINE__ void __ALWAYS_INLINE__ EE_buttons_init(void)
 {
-	EE_UINT32 val;
+	/* Enable PRC0/15/17/77 as inputs */
+	SIU_PCR0 = 0x100;   /* PA0  (default pin muxing) */
+    SIU_PCR15 = 0x100;  /* PA15 (default pin muxing) */
+    SIU_PCR17 = 0x100;  /* PB1  (default pin muxing) */
+    SIU_PCR77 = 0x100;  /* PE13 (default pin muxing) */
 
-	/* Enable PRC0/8/17/93 as inputs */
-	SIU_PCR0 = 0x100;
-	SIU_PCR8 = 0x100;
-	SIU_PCR17 = 0x100;
-	SIU_PCR38 = 0x100;
-
-	/* Eneble IRQ_0 IRQ_1 IRQ_2 IRQ_3 */
-	SIU_IRER = 0x01010101;
-
-	/* Eneble external irqs (0,8,16,24) on falling edge */
-	SIU_IREER = 0x01010101;
+    /* Enable ISRs for ALL available buttons */
+    EE_buttons_enable_interrupts(BUTTON_0);
+    EE_buttons_enable_interrupts(BUTTON_1);
+    EE_buttons_enable_interrupts(BUTTON_2);
+    EE_buttons_enable_interrupts(BUTTON_3);
 }
 
 #endif
+
+/* HW specific configuration */
+__INLINE__ void __ALWAYS_INLINE__ InitHW(void)
+{
+    DisableWatchdog();
+    ClearFails();
+    InitSysclk();
+}
+
+__INLINE__ void __ALWAYS_INLINE__ InitSysclk(void)
+{
+    InitModesAndClks();
+    InitPeriClkGen();
+}
+
+__INLINE__ void __ALWAYS_INLINE__ InitModesAndClks(void) 
+{
+    int32_t cnt = 0;
+    
+    ME.MER.R = 0x0000003D;        /* Enable DRUN, RUN0, RUN1 SAFE, RESET modes */
+    
+    /* Mode Transition to enter RUN1 mode: */    
+    ME.RUN[1].R = 0x001F0030;       /* RUN1 cfg: 16MHzIRCON,OSC0ON,PLL0OFF,PLL1OFF,syclk=16MIRC */
+    ME.MCTL.R = 0x50005AF0;         /* Enter RUN1 Mode & Key */        
+    ME.MCTL.R = 0x5000A50F;         /* Enter RUN1 Mode & Inverted Key */
+    while(0 == ME.GS.B.S_XOSC) {};               /* Wait for mode entry to complete */
+    while(1 == ME.GS.B.S_MTRANS) {}    /* Wait for mode transition to complete */
+    while(5 != ME.GS.B.S_CURRENT_MODE) {};       /* Check RUN1 mode has been entered */ 
+    
+    
+    /* Initialize PLL before turning it on: */
+    /* fsys = fcrystal*ndiv/idf/odf */
+    /* fvco must be from 256 MHz to 512 MHz */
+    /* we want fsys = 120 MHz. fvco = fsys*odf = 120 MHz * 4 = 480 MHz */
+    /* fsys =  40*72/6/4 = 120 MHz */
+
+    CGM.AC3SC.R = 0x01000000; /* Select Xosc as PLL0 source clock */
+    CGM.AC4SC.R = 0x01000000; /* Select Xosc as PLL1 source clock */
+
+    /* 120 MHz */
+    CGM.FMPLL[0].CR.B.IDF = 0x5;    /* FMPLL0 IDF=5 --> divide by 6 */
+    CGM.FMPLL[0].CR.B.ODF = 0x1;    /* FMPLL0 ODF=1 --> divide by 4*/
+    CGM.FMPLL[0].CR.B.NDIV = 72;    /* FMPLL0 NDIV=72 --> divide by 72 */
+    
+    /* 80 MHz */
+    CGM.FMPLL[1].CR.B.IDF = 0x7;    /* FMPLL0 IDF=5 --> divide by 8 */
+    CGM.FMPLL[1].CR.B.ODF = 0x1;    /* FMPLL0 ODF=1 --> divide by 4*/
+    CGM.FMPLL[1].CR.B.NDIV = 64;    /* FMPLL0 NDIV=72 --> divide by 64 */
+
+    CGM.FMPLL[0].CR.B.EN_PLL_SW = 1; 	/* enable progressive clock switching */
+    CGM.FMPLL[1].CR.B.EN_PLL_SW = 1; 	/* enable progressive clock switching */
+    
+    ME.RUNPC[0].R = 0x000000FE; /* enable peripherals run in all modes */
+    ME.LPPC[0].R = 0x00000000;  /* disable peripherals run in LP modes */
+    
+    /* Mode Transition to enter RUN0 mode: */
+    ME.RUN[0].R = 0x001F00F0;       /* RUN0 cfg: 16MHzIRCON,OSC0ON,PLL0ON,PLL1ON,syclk=16M IRC */
+    ME.MCTL.R = 0x40005AF0;         /* Enter RUN0 Mode & Key */
+    ME.MCTL.R = 0x4000A50F;         /* Enter RUN0 Mode & Inverted Key */      
+    while (1 == ME.GS.B.S_MTRANS) {}    /* Wait for mode transition to complete */
+    while(4 != ME.GS.B.S_CURRENT_MODE) {};       /* Check RUN0 mode has been entered */ 
+    
+    /* Mode Transition to enter RUN1 mode: */    
+    ME.RUN[1].R = 0x001F00F4;       /* RUN1 cfg: 16MHzIRCON,OSC0ON,PLL0ON,PLL1ON,syclk=PLL0 */
+    ME.MCTL.R = 0x50005AF0;         /* Enter RUN1 Mode & Key */        
+    ME.MCTL.R = 0x5000A50F;         /* Enter RUN1 Mode & Inverted Key */
+    while(1 == ME.GS.B.S_MTRANS) {}    /* Wait for mode transition to complete */
+    while(5 != ME.GS.B.S_CURRENT_MODE) {};       /* Check RUN1 mode has been entered */
+    
+    /* enable CLKOUT on PB6 */
+    /* ALT1 - PCR[22] - PA = 0b01 */
+    SIU.PCR[22].R = 0x0600;
+    
+    /* set CLKOUT divider of 8 */
+    CGM.OCDS_SC.R = 0x32000000; /* div by 8, system FMPLL, cut2 */ 
+    CGM.OCEN.B.EN = 1; 			/* enable CLKOUT signal */
+}
+
+__INLINE__ void __ALWAYS_INLINE__ InitPeriClkGen(void) 
+{
+    CGM.AC0SC.R = 0x04000000;  /* MPC56xxP: Select PLL0 for aux clk 0  */
+    CGM.AC0DC.R = 0x80800000;  /* MPC56xxP: Enable aux clk 0 div by 1 */
+    CGM.AC1SC.R = 0x04000000;  /* MPC56xxP: Select PLL0 for aux clk 1  */
+    CGM.AC1DC.R = 0x80000000;  /* MPC56xxP: Enable aux clk 1 div by 1 */
+    CGM.AC2SC.R = 0x04000000;  /* MPC56xxP: Select PLL0 for aux clk 2  */
+    CGM.AC2DC.R = 0x80000000;  /* MPC56xxP: Enable aux clk 2 div by 1 */
+}
+
+__INLINE__ void __ALWAYS_INLINE__ DisableWatchdog(void) 
+{
+    SWT.SR.R = 0x0000c520;     /* Write keys to clear soft lock bit */
+    SWT.SR.R = 0x0000d928; 
+    SWT.CR.R = 0x8000010A;     /* Clear watchdog enable (WEN) */
+    
+    /* e200 Core Watchdog Timer */
+    asm
+    {
+        li  r3, 0
+        mtspr   340, r3
+    }
+}
+
+__INLINE__ void __ALWAYS_INLINE__ ClearNCF(void)
+{
+    uint32_t i,b[4];
+    for(i=0;i<4;i++)
+    {
+        FCCU.NCFK.R = FCCU_NCFK_KEY;
+        FCCU.NCF_S[i].R = 0xFFFFFFFF;
+        while(FCCU.CTRL.B.OPS != 0x3)
+        {
+        
+        };              /* wait for the completion of the operation */
+        b[i]=FCCU.NCF_S[i].R;
+    }
+}
+
+__INLINE__ void __ALWAYS_INLINE__ ClearCF(void)
+{
+    uint32_t i,a[4];
+    for(i=0;i<4;i++)
+    {
+        FCCU.CFK.R = FCCU_CFK_KEY;
+   
+        FCCU.CF_S[i].R = 0xFFFFFFFF;
+  
+        while(FCCU.CTRL.B.OPS != 0x3)
+        {
+            
+        };      /* wait for the completion of the operation */
+
+        a[i]=FCCU.CF_S[i].R;
+    }
+}
+
+__INLINE__ void __ALWAYS_INLINE__ ClearFails(void)
+{
+    uint16_t reset_register;
+    
+    if(RGM.FES.B.F_FCCU_SAFE || RGM.FES.B.F_FCCU_HARD)
+    {
+        reset_register = RGM.FES.R;
+        ME.IMTS.R = 0x00000001;
+        ClearCF();
+        ClearNCF();
+        
+        RGM.FES.R = 0xFFFF;
+        RGM.DES.R = 0xFFFF;
+        
+        /* re-enter DRUN */
+        ME.MCTL.R = 0x30005AF0; /* Enter DRUN Mode & Key */        
+        ME.MCTL.R = 0x3000A50F; /* Enter DRUN Mode & Inverted Key */
+    }
+}
 
 #endif

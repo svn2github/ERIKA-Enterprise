@@ -85,13 +85,13 @@ TASK(LowTask)
 
   /* do something long */
   EE_led_1_on();
-  mydelay((long int)300000);
+  mydelay((long int)3000000);
   EE_led_1_off();
   EE_led_2_on();
-  mydelay((long int)300000);
+  mydelay((long int)3000000);
   EE_led_2_off();
   EE_led_3_on();
-  mydelay((long int)300000);
+  mydelay((long int)3000000);
   EE_led_3_off();
   
   /* Release the lock */
@@ -118,7 +118,7 @@ TASK(HighTask)
   GetResource(Resource);
 
   EE_led_0_on();
-  mydelay((long int)200000);
+  mydelay((long int)2000000);
   
   /* decrement or increment the counter depending on the application mode */
   if ( currentmode==ModeIncrement )
@@ -167,6 +167,9 @@ int main(void)
 {
 
   AppModeType startupmode;
+
+  /* Init HW: PLLs, clock (120 Mhz), clear error flags, etc */
+  InitHW();
 
   EE_buttons_init();
   EE_leds_init();
