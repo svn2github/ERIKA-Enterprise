@@ -39,11 +39,7 @@ ifneq ($(call iseeopt, __LM32__), yes)
 libmemory.a: $(EE_OBJS_MEMORY)
 	@echo $(EE_SRC_MEMORY)
 	@printf "AR  libmemory.a\n" ;
-ifneq ($(call iseeopt, __STM32__), yes) 
-	$(QUIET)$(EE_AR) rs $(COMPUTED_OPT_AR) $@ $^
-else
 	$(QUIET)$(EE_AR) $(COMPUTED_OPT_AR) $@ $^
-endif
 
 ##
 ## Add the library to the linker list and list of lib files
