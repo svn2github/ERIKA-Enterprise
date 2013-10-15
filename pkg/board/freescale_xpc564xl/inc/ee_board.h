@@ -45,7 +45,7 @@
  * 144LQFP Mini-module.
  * All J8 jumpers ON (Enable leds)
  * J9 jumpers (buttons):
- * - pin2 (J9) - pin1 (PJ9)
+ * - pin2 (J9) - pin1 (PJ9, pinX X+1,2,3,...)
  * - pin4 (J9) - pin16 (PJ9)
  * - pin6 (J9) - pin2 (PJ7)
  * - pin8 (J9) - pin14 (PJ5)
@@ -177,10 +177,10 @@ __INLINE__ void __ALWAYS_INLINE__ EE_buttons_disable_interrupts(EE_UREG btn)
 		SIU_IRER = old_irer & ~0x1U;
 	}
 	else if(btn == BUTTON_1) {
-		SIU_IRER = old_irer & ~0x8000U;
+		SIU_IRER = old_irer & ~0x4000U;
 	}
 	else if(btn == BUTTON_2) {
-		SIU_IRER = old_irer & ~0x20000U;
+		SIU_IRER = old_irer & ~0x10000U;
 	}
 	else if(btn == BUTTON_3) {
 		SIU_IRER = old_irer & ~0x02000000U;
@@ -205,12 +205,12 @@ __INLINE__ void __ALWAYS_INLINE__ EE_buttons_enable_interrupts(EE_UREG btn)
         SIU_IFEER = old_ifeer | 0x1;
 	}
 	else if(btn == BUTTON_1) {
-		SIU_IRER = old_irer | 0x8000U;
-        SIU_IFEER = old_ifeer | 0x8000U;
+		SIU_IRER = old_irer | 0x4000U;
+        SIU_IFEER = old_ifeer | 0x4000U;
 	}
 	else if(btn == BUTTON_2) {
-		SIU_IRER = old_irer | 0x20000U;
-        SIU_IFEER = old_ifeer | 0x20000U;
+		SIU_IRER = old_irer | 0x10000U;
+        SIU_IFEER = old_ifeer | 0x10000U;
 	}
 	else if(btn == BUTTON_3) {
 		SIU_IRER = old_irer | 0x02000000U;
@@ -229,14 +229,15 @@ __INLINE__ void __ALWAYS_INLINE__ EE_buttons_clear_ISRflag(EE_UREG btn)
 	/* Save old ISR value */
 	val = SIU_ISR;
 
+    /* Clear EIRQ[0], EIRQ[14], EIRQ[16], EIRQ[25] */
 	if (btn == BUTTON_0) {
 		SIU_ISR = val | 0x1U;
 	}
 	else if(btn == BUTTON_1) {
-		SIU_ISR = val | 0x8000U;
+		SIU_ISR = val | 0x4000U;
 	}
 	else if(btn == BUTTON_2) {
-		SIU_ISR = val | 0x20000U;
+		SIU_ISR = val | 0x10000U;
 	}
 	else if(btn == BUTTON_3) {
 		SIU_ISR = val | 0x02000000U;
