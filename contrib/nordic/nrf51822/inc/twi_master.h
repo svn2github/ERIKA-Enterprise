@@ -8,6 +8,8 @@
  * WARRANTY of ANY KIND is provided. This heading must NOT be removed from
  * the file.
  *
+ * NOTE: This file has been modified in order to support fixed APIs for HW TWI
+ *
  */
 
 #ifndef TWI_MASTER_H
@@ -90,6 +92,13 @@ bool twi_master_init(void);
  * @retval false Data transfer failed.
  */
 bool twi_master_transfer(uint8_t address, uint8_t *data, uint8_t data_length, bool issue_stop_condition);
+
+#ifdef __USE_NRF51822_SYSLIB_FIXED__
+bool fixed_twi_master_write(uint8_t devAddr, uint8_t address, uint8_t *data, uint8_t data_length);
+bool fixed_twi_master_read(uint8_t devAddr, uint8_t address, uint8_t *data, uint8_t data_length);
+void twi_reset(void);
+bool twi_master_clear_bus(void);
+#endif
 
 /**
  *@}

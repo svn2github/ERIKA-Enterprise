@@ -144,8 +144,13 @@ ifeq ($(or $(call iseeopt, __USE_NRF51822_SYSLIB_ALL__), $(call iseeopt, __USE_N
 EE_SRCS += contrib/nordic/nrf51822/src/spi_master/spi_master.c
 endif
 
+
 ifeq ($(or $(call iseeopt, __USE_NRF51822_SYSLIB_ALL__), $(call iseeopt, __USE_NRF51822_SYSLIB_TWI_MASTER__)), yes) 
+ifeq ($(call iseeopt, __USE_NRF51822_SYSLIB_FIXED__), yes) 
+EE_SRCS += contrib/nordic/nrf51822/src/fixed/twi_hw_master.c
+else
 EE_SRCS += contrib/nordic/nrf51822/src/twi_master/twi_hw_master.c
+endif
 EE_SRCS += contrib/nordic/nrf51822/src/twi_master/twi_sw_master.c
 endif
 
