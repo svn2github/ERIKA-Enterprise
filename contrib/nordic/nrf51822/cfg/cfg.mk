@@ -45,6 +45,8 @@ ifeq ($(call iseeopt, __USE_NRF51822_SYSLIB__), yes)
 INCLUDE_PATH += $(EEBASE)/contrib/nordic/nrf51822/inc
 INCLUDE_PATH += $(EEBASE)/contrib/nordic/nrf51822/inc/app_common
 INCLUDE_PATH += $(EEBASE)/contrib/nordic/nrf51822/inc/ble
+INCLUDE_PATH += $(EEBASE)/contrib/nordic/nrf51822/inc/ble/softdevice
+INCLUDE_PATH += $(EEBASE)/contrib/nordic/nrf51822/inc/ble/ble_services
 INCLUDE_PATH += $(EEBASE)/contrib/nordic/nrf51822/inc/boards
 INCLUDE_PATH += $(EEBASE)/contrib/nordic/nrf51822/inc/esb
 INCLUDE_PATH += $(EEBASE)/contrib/nordic/nrf51822/inc/ext_sensors
