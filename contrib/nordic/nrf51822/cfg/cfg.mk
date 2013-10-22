@@ -81,8 +81,35 @@ EE_SRCS += contrib/nordic/nrf51822/src/app_common/app_uart.c
 endif
 
 ifeq ($(or $(call iseeopt, __USE_NRF51822_SYSLIB_ALL__), $(call iseeopt, __USE_NRF51822_SYSLIB_BLE__)), yes) 
-EE_SRCS += $(wildcard contrib/nordic/nrf51822/src/ble/*.c)
-EE_SRCS += $(wildcard contrib/nordic/nrf51822/src/ble/ble_services/*.c)
+EE_SRCS += contrib/nordic/nrf51822/src/ble/ble_advdata.c
+EE_SRCS += contrib/nordic/nrf51822/src/ble/ble_conn_params.c
+EE_SRCS += contrib/nordic/nrf51822/src/ble/ble_dtm.c
+EE_SRCS += contrib/nordic/nrf51822/src/ble/ble_flash.c
+EE_SRCS += contrib/nordic/nrf51822/src/ble/ble_radio_notification.c
+EE_SRCS += contrib/nordic/nrf51822/src/ble/ble_services
+EE_SRCS += contrib/nordic/nrf51822/src/ble/ble_bondmngr.c
+EE_SRCS += contrib/nordic/nrf51822/src/ble/ble_debug_assert_handler.c
+EE_SRCS += contrib/nordic/nrf51822/src/ble/ble_error_log.c
+EE_SRCS += contrib/nordic/nrf51822/src/ble/ble_racp.c
+EE_SRCS += contrib/nordic/nrf51822/src/ble/ble_sensorsim.c
+EE_SRCS += contrib/nordic/nrf51822/src/ble/ble_stack_handler.c
+
+EE_SRCS += contrib/nordic/nrf51822/src/ble/ble_services/ble_ans_c.c
+EE_SRCS += contrib/nordic/nrf51822/src/ble/ble_services/ble_bps.c
+EE_SRCS += contrib/nordic/nrf51822/src/ble/ble_services/ble_dis.c
+EE_SRCS += contrib/nordic/nrf51822/src/ble/ble_services/ble_gls_db.c
+EE_SRCS += contrib/nordic/nrf51822/src/ble/ble_services/ble_hrs.c
+EE_SRCS += contrib/nordic/nrf51822/src/ble/ble_services/ble_ias.c
+EE_SRCS += contrib/nordic/nrf51822/src/ble/ble_services/ble_lls.c
+EE_SRCS += contrib/nordic/nrf51822/src/ble/ble_services/ble_srv_common.c
+EE_SRCS += contrib/nordic/nrf51822/src/ble/ble_services/ble_bas.c
+EE_SRCS += contrib/nordic/nrf51822/src/ble/ble_services/ble_cscs.c
+EE_SRCS += contrib/nordic/nrf51822/src/ble/ble_services/ble_gls.c
+EE_SRCS += contrib/nordic/nrf51822/src/ble/ble_services/ble_hids.c
+EE_SRCS += contrib/nordic/nrf51822/src/ble/ble_services/ble_hts.c
+EE_SRCS += contrib/nordic/nrf51822/src/ble/ble_services/ble_ias_c.c
+EE_SRCS += contrib/nordic/nrf51822/src/ble/ble_services/ble_rscs.c
+EE_SRCS += contrib/nordic/nrf51822/src/ble/ble_services/ble_tps.c
 endif
 
 ifeq ($(or $(call iseeopt, __USE_NRF51822_SYSLIB_ALL__), $(call iseeopt, __USE_NRF51822_SYSLIB_CONSOLE__)), yes) 
