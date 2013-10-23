@@ -97,6 +97,10 @@ ifneq ($(PIC32_MODEL),)
 OPT_LINK += -mprocessor=$(PIC32_MODEL)
 endif
 
+# OPT_AR: options for library generation
+OPT_AR = rs
+
+
 # Defining EEOPT Macros
 # Each identifier that is listed in EEOPT is also inserted as a 
 # command-line macro in the compiler...
