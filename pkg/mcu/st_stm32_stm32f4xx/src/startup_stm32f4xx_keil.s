@@ -950,12 +950,12 @@ EE_cortex_mx_default_ISR
 ;
 ;******************************************************************************
 
-	IF	:DEF:__MICROLIB
-
+;	IF	:DEF: __MICROLIB
+#ifdef __MICROLIB
 	EXPORT	__heap_base
 	EXPORT	__heap_limit
-
-    	ELSE
+#else
+;    	ELSE
 
 	IMPORT	__use_two_region_memory
 	EXPORT	__user_initial_stackheap
@@ -966,14 +966,14 @@ __user_initial_stackheap
 	LDR	R3, =StackMem
 	BX	LR
 
-    	ENDIF
-
+#endif
 ;******************************************************************************
 ;
 ; Make sure the end of this section is aligned.
 ;
 ;******************************************************************************
 	ALIGN
+
 
 ;******************************************************************************
 ;

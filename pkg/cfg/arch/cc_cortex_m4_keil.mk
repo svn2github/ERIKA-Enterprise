@@ -70,7 +70,7 @@ CG_BINUTILS_DIR := $(CG_TOOL_ROOT)/BIN
 ifeq ($(call iseeopt, __KEIL_4_54_OLDER__), yes)
 CG_LIB_DIR := $(CG_TOOL_ROOT)/RV31/LIB
 else
-CG_LIB_DIR := $(CG_TOOL_ROOT)/ARMCC/lib $(CG_TOOL_ROOT)/RV31/LIB
+CG_LIB_DIR := $(CG_TOOL_ROOT)/ARMCC/lib/ $(CG_TOOL_ROOT)/RV31/LIB/
 endif
 
 ifeq ($(call iseeopt, __KEIL_4_54_OLDER__), yes)
@@ -168,7 +168,7 @@ OPT_CC += $(CFLAGS)
 ##OPT_ASM are the options for assembler invocation
 ifeq ($(call iseeopt, __CORTEX_M4__), yes)
 #OPT_ASM += --cpu Cortex-M4.fp
-OPT_ASM += --cpu Cortex-M4
+OPT_ASM += --cpu Cortex-M4  
 endif
 
 ifeq ($(call iseeopt, DEBUG), yes)
@@ -247,6 +247,7 @@ endif
 
 endif	# STM32_LINKERSCRIPT
 endif	# __STM32F4xx__
+
 
 # Specific option from the application makefile
 OPT_LINK += $(LDFLAGS)

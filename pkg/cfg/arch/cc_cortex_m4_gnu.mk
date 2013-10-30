@@ -73,12 +73,11 @@ endif
 
 ifndef CG_LIB_DIR
 # Automatically detected by gcc through -m options
-
-#ifeq ($(call iseeopt, __RTD_CYGWIN__), yes) 
-#CG_LIB_DIR = $(shell cygpath -u "$(CG_TOOL_ROOT)/$(EABI_GCC_PREFIX)/lib")
-#else
-#CG_LIB_DIR := $(CG_TOOL_ROOT)/$(EABI_GCC_PREFIX)/lib
-#endif
+ifeq ($(call iseeopt, __RTD_CYGWIN__), yes) 
+CG_LIB_DIR = $(shell cygpath -u "$(CG_TOOL_ROOT)/$(EABI_GCC_PREFIX)/lib/thumb")
+else
+CG_LIB_DIR := $(CG_TOOL_ROOT)/$(EABI_GCC_PREFIX)/lib/thumb
+endif
 endif
 
 ifndef CG_INCLUDE_DIR
@@ -184,10 +183,6 @@ endif	# !ONLY_LIBS
 # from the config files generated from eclipse...
 OPT_INCLUDE = $(foreach d,$(INCLUDE_PATH),$(addprefix -I,$(call native_path,$d)))
 
-
-
-
-
 ##
 # OPT_AR: options for library generation
 ##
@@ -203,8 +198,7 @@ OPT_AR = r
 # Define HW architecture
 ifeq ($(call iseeopt, __CORTEX_M4__), yes)
 #OPT_CC += -march=armv7e-m -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -mthumb-interwork -mlong-calls
-#OPT_CC += -march=armv7e-m -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mthumb -mthumb-interwork
-OPT_CC += -march=armv7e-m -mcpu=cortex-m4 -mthumb -mthumb-interwork 
+OPT_CC += -mcpu=cortex-m4 -mthumb
 endif
 
 # Debug support and optimization level
@@ -296,12 +290,6 @@ endif	# !ONLY_LIB
 ifdef VERBOSE
 OPT_LINK += --verbose
 endif
-
-## FIX ME.
-## MM: ToDo!!!
-#OPT_LINK += --strict --map --xref --callgraph  --symbols \
-#	    --summary_stderr --info summarysizes --info sizes --info totals \
-#	    --info unused --info veneers --info libraries
 
 # Specific option from the application makefile
 OPT_LINK += $(LDFLAGS)
