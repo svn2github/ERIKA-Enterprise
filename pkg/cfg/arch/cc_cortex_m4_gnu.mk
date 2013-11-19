@@ -198,7 +198,7 @@ OPT_AR = r
 # Define HW architecture
 ifeq ($(call iseeopt, __CORTEX_M4__), yes)
 #OPT_CC += -march=armv7e-m -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -mthumb-interwork -mlong-calls
-OPT_CC += -mcpu=cortex-m4 -mthumb
+OPT_CC += -mcpu=cortex-m4 -mthumb -mthumb-interwork
 endif
 
 # Debug support and optimization level
@@ -223,7 +223,7 @@ OPT_CC += $(CFLAGS)
 ifeq ($(call iseeopt, __CORTEX_M4__), yes)
 # MM: Check!!!
 #OPT_ASM += -march=armv7e-m -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mthumb -mthumb-interwork
-OPT_ASM += -march=armv7e-m -mcpu=cortex-m4 -mthumb -mthumb-interwork
+OPT_ASM += -mcpu=cortex-m4 -mthumb -mthumb-interwork
 endif
 
 # Debug support
@@ -257,8 +257,8 @@ OPT_LINK += -static
 # Define HW architecture
 ifeq ($(call iseeopt, __CORTEX_M4__), yes)
 # MM: Check!!!
-#OPT_LINK += -march=armv7e-m -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mthumb -mthumb-interwork
-OPT_LINK += -march=armv7e-m -mcpu=cortex-m4 -mthumb -mthumb-interwork 
+#OPT_CC += -march=armv7e-m -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -mthumb-interwork -mlong-calls
+OPT_LINK += -mcpu=cortex-m4 -mthumb -mthumb-interwork
 endif
 
 # FixMe: Not accepted, put in the linker script as temporal solution

@@ -61,9 +61,13 @@
 #ifdef __GNUC__
 /* With GCC/RAISONANCE, small printf (option LD Linker->Libraries->Small printf
    set to 'Yes') calls __io_putchar() */
-#define PUTCHAR_PROTOTYPE int __io_putchar(int ch)
+#ifdef __GNU__ /* GCC-LAUNCHPAD version */
+#define PUTCHAR_PROTOTYPE int _write(int fd, char *ptr, int len)
+#else  
+#define PUTCHAR_PROTOTYPE int __io_putchar(int ch) 
+#endif /*__GNU__*/
 #else
-#define PUTCHAR_PROTOTYPE int fputc(int ch, FILE *f)
+#define PUTCHAR_PROTOTYPE int fputc(int ch, FILE *f) 
 #endif /* __GNUC__ */
 
 /** These value can be changed by user */

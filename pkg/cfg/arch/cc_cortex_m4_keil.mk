@@ -209,6 +209,10 @@ endif
 
 endif	# !ONLY_LIB
 
+ifeq ($(call iseeopt, __MICROLIB), yes)
+OPT_LINK += --library_type=microlib
+endif
+
 ifdef VERBOSE
 OPT_LINK += --verbose
 endif
