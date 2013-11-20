@@ -198,7 +198,11 @@ int8_t	cc2420_hal_init(void)
 	CC2420_SET_PIN_OUT(CC2420_VREG_EN);
 	CC2420_SET_PIN_IN(CC2420_FIFOP);
 	CC2420_SET_PIN_IN(CC2420_FIFO);
+	/* FIXME: With the current version of the CC2420 module, the CCA pin is shared with a LCD pin, so
+	  we cannot enable this pin when using the LCD of DM-STF4BB board.*/
+#ifdef __ENABLE_CC2420_CCA_PIN__	
 	CC2420_SET_PIN_IN(CC2420_CCA);
+#endif
 	CC2420_SET_PIN_IN(CC2420_SFD);
 	CC2420_SET_PIN_OUT(CC2420_CSn);
 	
