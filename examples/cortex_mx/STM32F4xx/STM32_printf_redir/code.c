@@ -38,6 +38,13 @@
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
 
+/*
+ * Simple demo that shows a to redirect printf() to USART.
+ *
+ * Author: 2013  Gianluca Franchino.
+ *
+ */
+
 #include "ee.h"
 
 #include "stm32f4xx.h"

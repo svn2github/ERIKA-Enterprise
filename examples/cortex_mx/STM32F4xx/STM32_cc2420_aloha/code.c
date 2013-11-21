@@ -37,12 +37,15 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
+
 /*
- * Author: Gianluca Franchino. 2013
- * Affiliation: Retis Lab. Scuola Superiore Sant'Anna. Pisa (Italy).
- * Contacts: g.franchino@sssup.it; gianluca@evidence.eu.com
+ * Simple demo that shows how to use the CC2420 radio driver.
+ * It implements a simple Aloha based communication.
+ *
+ * Author: 2013  Gianluca Franchino.
  *
  */
+
 #include "ee.h"
 #include "stm32f4xx.h"
 #include "stm32f4_discovery.h"

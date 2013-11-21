@@ -39,8 +39,10 @@
  * ###*E*### */
 
 /*
- * Author: 2013 Gianluca Franchino
- * 
+ * Simple demo that shows a to redirect printf() to USART.
+ *
+ * Author: 2013  Gianluca Franchino.
+ *
  */
 
 CPU mySystem {

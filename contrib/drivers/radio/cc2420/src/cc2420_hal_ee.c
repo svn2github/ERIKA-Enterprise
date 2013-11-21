@@ -170,7 +170,10 @@ int8_t	cc2420_spi_get(uint8_t *out)
 		return EE_spi_read_byte(&dummy);
 }
 
-/* STM32 */
+/*******************************************************************************/
+/*  STM32 Discovery board.													   */
+/*******************************************************************************/
+
 #elif defined __STM32__
 
 
@@ -200,7 +203,7 @@ int8_t	cc2420_hal_init(void)
 	CC2420_SET_PIN_IN(CC2420_FIFO);
 	/* FIXME: With the current version of the CC2420 module, the CCA pin is shared with a LCD pin, so
 	  we cannot enable this pin when using the LCD of DM-STF4BB board.*/
-#ifdef __ENABLE_CC2420_CCA_PIN__	
+#ifndef __NOT_USE_CC2420_CCA_PIN__	
 	CC2420_SET_PIN_IN(CC2420_CCA);
 #endif
 	CC2420_SET_PIN_IN(CC2420_SFD);

@@ -39,8 +39,10 @@
  * ###*E*### */
 
 /*
- * Author: 2013 Gianluca Franchino
- * 
+ * Simple demo that shows how to use the USART peripheral.
+ *
+ * Author: 2013  Gianluca Franchino.
+ *
  */
 
 CPU mySystem {

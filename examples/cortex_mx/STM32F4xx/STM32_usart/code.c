@@ -38,6 +38,14 @@
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
 
+/*
+ * Simple demo that shows how to use the USART peripheral.
+ *
+ * Author: 2013  Gianluca Franchino.
+ *
+ */
+
+
 #include "ee.h"
 
 #include "stm32f4xx.h"
