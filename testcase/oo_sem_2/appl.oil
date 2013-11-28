@@ -48,7 +48,9 @@ CPU test_application {
 		// da rimpiazzare poi con qualcosa di + sensato
 		EE_OPT = "__OO_SEM__";
 		EE_OPT = "__ASSERT__";
+#if (!defined(tricore_tc27x_gnu)) && (!defined(tricore_tc27x_tasking))
 		EE_OPT = "DEBUG";
+#endif
 		EE_OPT = "EE_DEBUG";
 
 #include "../common/rtdruid_common/ee_oil_nios2_os.h"
