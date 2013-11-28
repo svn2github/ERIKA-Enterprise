@@ -39,10 +39,9 @@
  * ###*E*### */
 
 /*
- * Simple demo that shows how to use the CC2420 radio driver.
- * It implements a simple Aloha based communication.
- *
- * Author: 2013  Gianluca Franchino.
+ * Author: Gianluca Franchino. 2013
+ * Affiliation: Retis Lab. Scuola Superiore Sant'Anna. Pisa (Italy).
+ * Contacts: g.franchino@sssup.it; gianluca@evidence.eu.com
  *
  */
 
@@ -51,7 +50,7 @@ CPU mySystem {
 	OS myOs {
 		EE_OPT = "DEBUG";
 		//EE_OPT = "__KEIL_4_54_OLDER__";
-		EE_OPT = "__KEIL_USE_AXF_EXT__";
+		//EE_OPT = "__KEIL_USE_AXF_EXT__";
 		
 		CPU_DATA = CORTEX_MX {
 			MODEL = M4;
@@ -70,6 +69,15 @@ CPU mySystem {
 		
 		EE_OPT = "__ADD_LIBS__";
 		
+				
+/* NOTE: with the current radio adapter board, the CCA pin of the 
+ * CC2420 transceiver is connected to a MCU pin also used to control
+ * the LCD, hence, we must disable the CCA pin, otherwise
+ * the LCD does not work. 
+ */
+		EE_OPT = "__NOT_USE_CC2420_CCA_PIN__";
+		EE_OPT = "USE_LCD_LOG";
+		
 		LIB = ENABLE { NAME = "ST_CMSIS"; };
 		
 		LIB = ENABLE { NAME = "STM32F4XX_SPD"; 
@@ -86,8 +94,9 @@ CPU mySystem {
 		LIB = ENABLE {
 			NAME = "STM32F4_DISCOVERY";
 			STM32F4_DISCOVERY = ENABLE {
-                		USELEDS = TRUE;
-                		USECOM = TRUE;
+                USELEDS = TRUE;
+                USECOM = TRUE;
+				USELCDLOG = TRUE;
 			};			
 		};
 		

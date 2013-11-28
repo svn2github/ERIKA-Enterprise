@@ -10,7 +10,8 @@
  </small_descr>
 
  <long_descr>
-This example shows how to use the basic API of the radio driver to transmit and receive data packet. The channel access is based on the Aloha approach: a ready packet is sent without sensing the channel. &lt;br&gt;
+This example shows how to use the basic API of the radio driver to transmit and receive data packet. The channel access is based on the Aloha approach: a ready packet is sent without sensing the channel. 
+&lt;br&gt;
 &lt;br&gt;
  </long_descr>
 

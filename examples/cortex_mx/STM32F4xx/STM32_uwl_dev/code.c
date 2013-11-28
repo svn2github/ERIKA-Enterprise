@@ -41,9 +41,6 @@ uint16_t rx_counter = 0;
 uint16_t rx_seq_errors = 0;
 uint16_t packet_ack = 0;
 
-USART_InitTypeDef USART_InitStructure;
-
-char str[80];
 
 #ifdef USE_LCD_LOG
 
@@ -139,7 +136,7 @@ ISR2(systick_handler)
 /******************************************************************************/
 /* Press button actions:                                                      */
 /*                                                                            */
-/* Reset the wait_button variable (allow active wait)						  */
+/* Reset the wait_button variable (allow active wait)			      */
 /*																			  */
 /******************************************************************************/
 

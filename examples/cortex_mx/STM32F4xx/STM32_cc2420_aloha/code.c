@@ -37,19 +37,17 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
-
 /*
- * Simple demo that shows how to use the CC2420 radio driver.
- * It implements a simple Aloha based communication.
- *
- * Author: 2013  Gianluca Franchino.
+ * Author: Gianluca Franchino. 2013
+ * Affiliation: Retis Lab. Scuola Superiore Sant'Anna. Pisa (Italy).
+ * Contacts: g.franchino@sssup.it; gianluca@evidence.eu.com
  *
  */
-
 #include "ee.h"
 #include "stm32f4xx.h"
 #include "stm32f4_discovery.h"
 #include "cc2420.h"
+#include "lcd_log.h"
 
 #include <stdio.h>
 
@@ -65,10 +63,8 @@ USART_InitTypeDef USART_InitStructure;
 
 #define MY_PACKET_SIZE 8
 
-//#define BOARD_0
+#define BOARD_0
 
-
-#define CONSOLE_OUT(msg) console_out(msg)
 
 //EE_UINT8 rx_msg[PACKET_SIZE];
 char rx_msg[PACKET_SIZE];
@@ -86,6 +82,83 @@ EE_UINT8 lqi, rssi;
 EE_UINT16 n_msg_sent = 0;
 EE_UINT16 n_msg_rec = 0;
 
+#ifdef USE_LCD_LOG
+
+void console_init()
+{
+	/*Initialize the LCD*/
+	STM32f4_Discovery_LCD_Init();
+	LCD_LOG_Init();
+	LCD_LOG_SetHeader("Powered by Erika RTOS");
+	LCD_LOG_SetFooter("Erika RTOS LCD log Demo");
+}
+
+#else /* USE_LCD_LOG */
+
+USART_InitTypeDef USART_InitStructure;
+
+void console_init()
+{
+	/* USARTx configured as follow:
+	 - BaudRate = 115200 baud
+	 - Word Length = 8 Bits
+	 - One Stop Bit
+	 - No parity
+	 - Hardware flow control disabled (RTS and CTS signals)
+	 - Receive and transmit enabled
+	 */
+	USART_InitStructure.USART_BaudRate = 115200;
+	USART_InitStructure.USART_WordLength = USART_WordLength_8b;
+	USART_InitStructure.USART_StopBits = USART_StopBits_1;
+	USART_InitStructure.USART_Parity = USART_Parity_No;
+	USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
+	USART_InitStructure.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;
+
+	STM_EVAL_COMInit(COM1, &USART_InitStructure);
+}
+
+#ifdef __GNUC__
+/* With GCC/RAISONANCE, small printf (option LD Linker->Libraries->Small printf
+ set to 'Yes') calls _write() */
+#define PUTCHAR_PROTOTYPE int _write(int fd, char *ptr, int len)
+#else
+#define PUTCHAR_PROTOTYPE int fputc(int ch, FILE *f)
+#endif /* __GNUC__ */
+
+/**
+ * @brief  Retargets the C library printf function to the USART.
+ * @param  None
+ * @retval None
+ */
+PUTCHAR_PROTOTYPE
+{
+
+#ifdef __GNUC__
+	/* Write "len" of char from "ptr" to file id "fd"
+	 * Return number of char written.
+	 * Need implementing with UART here. */
+	EE_INT32 i;
+
+	for (i = 0; i < len; i++) {
+		/* Place your implementation of fputc here */
+		/* e.g. write a character to the USART */
+		USART_SendData(EVAL_COM1, (uint8_t) ptr[i]);
+		/* Loop until the end of transmission */
+		while (USART_GetFlagStatus(EVAL_COM1, USART_FLAG_TC) == RESET);
+	}
+
+	return len;
+#else
+
+	USART_SendData(EVAL_COM1, (uint8_t) ch);
+	while (USART_GetFlagStatus(EVAL_COM1, USART_FLAG_TC) == RESET);
+
+	return ch;
+
+#endif
+}
+
+#endif /* USE_LCD_LOG*/
 
 
 /*
@@ -93,25 +166,8 @@ EE_UINT16 n_msg_rec = 0;
  */
 ISR2(systick_handler)
 {
-	/* count the interrupts, waking up expired alarms */
+	/* counconsole_init()t the interrupts, waking up expired alarms */
 	CounterTick(myCounter);
-}
-
-/**
-  * @brief  Send out string str through the USART.
-  * @param  str: pointer to string str.
-  *
-  * @retval None
-  */
-void console_out(char* str)
-{
-	EE_UINT8 i = 0;
-
-	while (str[i] != '\0') {
-		USART_SendData(EVAL_COM1, (uint8_t) str[i++]);
-		/* Loop until the end of transmission */
-		while (USART_GetFlagStatus(EVAL_COM1, USART_FLAG_TC) == RESET);
-	}
 }
 
 
@@ -188,15 +244,16 @@ TASK(TaskSender)
 {
 	if (radio_aloha_send(my_packet, MY_PACKET_SIZE ) == -1) {
 		GetResource(CONSOLE_MUTEX);
-		CONSOLE_OUT("\r\nradio_aloha_send() ERROR!!!!");
+		printf("\r\nradio_aloha_send() ERROR!!!!");
 		ReleaseResource(CONSOLE_MUTEX);
 	} else {
 		n_msg_sent++;
 		GetResource(CONSOLE_MUTEX);
-		sprintf(str, "\r\nNumber of msg sent = %u", n_msg_sent);
-		CONSOLE_OUT(str);
+		printf("\r\nNumber of msg sent = %u", n_msg_sent);
 		ReleaseResource(CONSOLE_MUTEX);
+#ifndef USE_LCD_LOG
 		STM_EVAL_LEDToggle(LED5);
+#endif
 	}
 
 }
@@ -210,25 +267,24 @@ TASK(TaskReceiver)
 
 	if (rx_ret == -1) {
 		GetResource(CONSOLE_MUTEX);
-		CONSOLE_OUT("\r\nrx_data() MSG length ERROR!!!");
+		printf("\r\nrx_data() MSG length ERROR!!!");
 		ReleaseResource(CONSOLE_MUTEX);
 	} else if (rx_ret == -2) {
 		GetResource(CONSOLE_MUTEX);
-		CONSOLE_OUT("\r\nrx_data() MSG Corrupted!!!");
+		printf("\r\nrx_data() MSG Corrupted!!!");
 		ReleaseResource(CONSOLE_MUTEX);
 	} else {
 		n_msg_rec++;
 		GetResource(CONSOLE_MUTEX);
-		sprintf(str, "\r\nNumber of msg received = %u", n_msg_rec);
-		CONSOLE_OUT(str);
+		printf(str, "\r\nNumber of msg received = %u", n_msg_rec);
 		ReleaseResource(CONSOLE_MUTEX);
 		rx_msg[rx_ret]='\0';
 		GetResource(CONSOLE_MUTEX);
-		CONSOLE_OUT("\r\nMessage Received: ");
-		CONSOLE_OUT((char*)rx_msg);
+		printf("\r\nMessage Received: %s", (char*) rx_msg);
 		ReleaseResource(CONSOLE_MUTEX);
-
-		STM_EVAL_LEDToggle(LED4);
+#ifndef USE_LCD_LOG
+		STM_EVAL_LEDToggle(LED3);
+#endif
 	}
 
 }
@@ -253,31 +309,21 @@ int main(void)
 	EE_systick_enable_int();
 	EE_systick_start();
 
+#ifndef USE_LCD_LOG
 	/*Initialize Leds. */
-	STM_EVAL_LEDInit(LED4);
+	STM_EVAL_LEDInit(LED3);
 	STM_EVAL_LEDInit(LED5);
+#endif
 
-	/* USARTx configured as follow:
-		- BaudRate = 115200 baud
-		- Word Length = 8 Bits
-		- One Stop Bit
-		- No parity
-		- Hardware flow control disabled (RTS and CTS signals)
-		- Receive and transmit enabled
-	*/
-	USART_InitStructure.USART_BaudRate = 115200;
-	USART_InitStructure.USART_WordLength = USART_WordLength_8b;
-	USART_InitStructure.USART_StopBits = USART_StopBits_1;
-	USART_InitStructure.USART_Parity = USART_Parity_No;
-	USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
-	USART_InitStructure.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;
-
-	STM_EVAL_COMInit(COM1, &USART_InitStructure);
-
+	/*
+	 * Initialize the console.
+	 */
+	console_init();
+	printf("\r\nConsole initialized!");
 
 	/* Initialize the radio */
 	if (cc2420_radio_init(CC2420_SPI_PORT_2) < 0 ) {
-		CONSOLE_OUT("\r\nRadio initialization error!");
+		printf("\r\nRadio initialization error!");
 		while(1);
 	}
 	/* Set the function to be called when receiving a packet */
@@ -285,7 +331,7 @@ int main(void)
 	cc2420_set_channel(RADIO_CHANNEL);
 	cc2420_set_rx();
 
-	CONSOLE_OUT("\r\nRadio initialization OK!");
+	printf("\r\nRadio initialization OK!");
 
 	/*
 	 * Program a cyclic alarm which will fire after an offset of 10 counter
