@@ -90,7 +90,7 @@ void console_init()
 	STM32f4_Discovery_LCD_Init();
 	LCD_LOG_Init();
 	LCD_LOG_SetHeader("Powered by Erika RTOS");
-	LCD_LOG_SetFooter("Erika RTOS LCD log Demo");
+	LCD_LOG_SetFooter("Erika RTOS CC2420 Aloha Demo");
 }
 
 #else /* USE_LCD_LOG */

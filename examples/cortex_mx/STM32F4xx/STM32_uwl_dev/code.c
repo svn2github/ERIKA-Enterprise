@@ -50,7 +50,7 @@ void console_init()
 	STM32f4_Discovery_LCD_Init();
 	LCD_LOG_Init();
 	LCD_LOG_SetHeader("Powered by Erika RTOS");
-	LCD_LOG_SetFooter("Erika RTOS LCD log Demo");
+	LCD_LOG_SetFooter("Erika RTOS UWL Device Demo");
 }
 
 #else /* USE_LCD_LOG */
