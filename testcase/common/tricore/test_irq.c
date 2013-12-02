@@ -38,14 +38,14 @@
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
 /*
- * IRQ functions used in test cases for PPC e200zX
- * Author: 2011 Bernardo  Dal Seno
+ * IRQ functions used in test cases for TriCore 1.6.1
+ * Author: 2012 Errico Guidieri
  */
 
 #include <ee_irq.h>
 #include "../test_common.h"
 
-typedef SRC_AGBT_type * p_SRC_reg;
+typedef volatile Ifx_SRC_SRCR *p_SRC_reg;
 
 static p_SRC_reg test_get_irq_register(unsigned int irq) {
   switch(irq) {
