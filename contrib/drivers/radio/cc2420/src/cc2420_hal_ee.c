@@ -206,7 +206,9 @@ int8_t	cc2420_hal_init(void)
 #ifndef __NOT_USE_CC2420_CCA_PIN__	
 	CC2420_SET_PIN_IN(CC2420_CCA);
 #endif
+#ifndef __NOT_USE_CC2420_SFD_PIN__	
 	CC2420_SET_PIN_IN(CC2420_SFD);
+#endif	
 	CC2420_SET_PIN_OUT(CC2420_CSn);
 	
 	/* Set interrupt with rising edge mode.*/
