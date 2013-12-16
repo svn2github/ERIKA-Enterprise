@@ -56,34 +56,34 @@
 #define EE_TC_CPU_REG_H__
 
 /* Program Control 0 */
-#define EE_CPU_REG_PCON0    0x920CU
+#define EE_CPU_REG_PCON0    0x920C
 /* Data Memory Control Register */
-#define EE_CPU_REG_DCON0    0x9040U
+#define EE_CPU_REG_DCON0    0x9040
 /* CPU Clock Cycle Count */
-#define EE_CPU_REG_CCNT     0xFC04U
+#define EE_CPU_REG_CCNT     0xFC04
 /* Previous Context Information Register */
-#define EE_CPU_REG_PCXI     0xFE00U
+#define EE_CPU_REG_PCXI     0xFE00
 /* Program Status Word */
-#define EE_CPU_REG_PSW      0xFE04U
+#define EE_CPU_REG_PSW      0xFE04
 /* Program Counter */
-#define EE_CPU_REG_PC       0xFE08U
+#define EE_CPU_REG_PC       0xFE08
 /* System Configuration Register */
-#define EE_CPU_REG_SYSCON   0xFE14U
+#define EE_CPU_REG_SYSCON   0xFE14
 /* CPUn Identification Register TC1.6P */
-#define EE_CPU_REG_CPU_ID   0xFE18U
+#define EE_CPU_REG_CPU_ID   0xFE18
 /* CPUn Core Identification Register */
-#define EE_CPU_REG_CORE_ID  0xFE1CU
+#define EE_CPU_REG_CORE_ID  0xFE1C
 /* Base Interrupt Vector Table Pointer */
-#define EE_CPU_REG_BIV      0xFE20U
+#define EE_CPU_REG_BIV      0xFE20
 /* Base Trap Vector Table Pointer */
-#define EE_CPU_REG_BTV      0xFE24U
+#define EE_CPU_REG_BTV      0xFE24
 /* Interrupt Stack Pointer */
-#define EE_CPU_REG_ISP      0xFE28U
+#define EE_CPU_REG_ISP      0xFE28
 /* Interrupt Control Register */
-#define EE_CPU_REG_ICR      0xFE2CU
+#define EE_CPU_REG_ICR      0xFE2C
 /* Free CSA List Head Pointer */
-#define EE_CPU_REG_FCX      0xFE38U
+#define EE_CPU_REG_FCX      0xFE38
 /* Free CSA List Limit Pointer */
-#define EE_CPU_REG_LCX      0xFE3CU
+#define EE_CPU_REG_LCX      0xFE3C
 
 #endif /* EE_TC_CPU_REG_H__ */

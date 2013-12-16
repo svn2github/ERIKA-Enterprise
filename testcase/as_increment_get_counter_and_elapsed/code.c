@@ -182,30 +182,30 @@ int main(int argc, char **argv)
   /* Check set absolute alarm wrap around handling */
   s = SetAbsAlarm(Alarm1, (Value - 1), 0);
   EE_assert(12, (s == E_OK), 11);
-#ifdef EE_TRICORE__
+#if defined(EE_TRICORE__) && defined(EE_NO_TUX)
   EE_assert(13,
     (EE_oo_counter_object_RAM[Alarm1].delta == EE_counter_ROM[Counter1].maxallowedvalue - 1U),
      12);
-#else /* EE_TRICORE__ */
+#else /* EE_TRICORE__ && EE_NO_TUX */
   EE_assert(13,
     (EE_alarm_RAM[Alarm1].delta == EE_counter_ROM[Counter1].maxallowedvalue - 1U),
      12);
-#endif /* EE_TRICORE__ */
+#endif /* EE_TRICORE__ && EE_NO_TUX */
   CancelAlarm(Alarm1);
 
   /* Check set absolute alarm 'NOW' handling: that means next time counter has
      actual value*/
   s = SetAbsAlarm(Alarm1, Value, 0);
   EE_assert(14, (s == E_OK), 13);
-#ifdef EE_TRICORE__
+#ifdef defined(EE_TRICORE__) && defined(EE_NO_TUX)
   EE_assert(15,
    (EE_oo_counter_object_RAM[Alarm1].delta == EE_counter_ROM[Counter1].maxallowedvalue),
    14);
-#else /* EE_TRICORE__ */
+#else /* EE_TRICORE__ && EE_NO_TUX */
   EE_assert(15,
    (EE_alarm_RAM[Alarm1].delta == EE_counter_ROM[Counter1].maxallowedvalue),
    14);
-#endif /* EE_TRICORE__ */
+#endif /* EE_TRICORE__ && EE_NO_TUX */
 
   EE_assert_range(0, 1, MAX_ASSERT);
   EE_assert_last();

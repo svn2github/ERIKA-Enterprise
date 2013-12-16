@@ -278,8 +278,13 @@ int main(int argc, char **argv)
 #endif
 
 #if defined(EE_TRICORE__)
+#ifdef EE_NO_TUX
   EE_tc2Yx_stm_set_clockpersec();
   EE_tc2Yx_stm_set_sr0(10000000U, EE_ISR2_ID_STM_handler);
+#else
+  EE_tc27x_stm_set_clockpersec();
+  EE_tc27x_stm_set_sr0(10000000U, EE_ISR2_ID_STM_handler);
+#endif
 #endif
 
   StartOS(OSDEFAULTAPPMODE);
