@@ -197,7 +197,7 @@ int main(int argc, char **argv)
      actual value*/
   s = SetAbsAlarm(Alarm1, Value, 0);
   EE_assert(14, (s == E_OK), 13);
-#ifdef defined(EE_TRICORE__) && defined(EE_NO_TUX)
+#if defined(EE_TRICORE__) && defined(EE_NO_TUX)
   EE_assert(15,
    (EE_oo_counter_object_RAM[Alarm1].delta == EE_counter_ROM[Counter1].maxallowedvalue),
    14);
