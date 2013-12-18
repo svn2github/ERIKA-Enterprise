@@ -55,77 +55,82 @@
 #ifndef __PRIVATE_CANCELALARM__
 StatusType EE_oo_CancelAlarm(AlarmType AlarmID)
 {
-  register AlarmType current, previous;
-  register EE_FREG flag;
-  
+  /* Error Value */
+  register StatusType ev;
+  /* Primitive Lock Procedure */
+  EE_OS_DECLARE_AND_ENTER_CRITICAL_SECTION();
+
   EE_ORTI_set_service_in(EE_SERVICETRACE_CANCELALARM);
 
-  if(EE_oo_check_disableint_error()) {
-    EE_ORTI_set_lasterror(E_OS_DISABLEDINT);
+  EE_as_monitoring_the_stack();
 
-    flag = EE_hal_begin_nested_primitive();
-    EE_oo_notify_error_CancelAlarm(AlarmID, E_OS_DISABLEDINT);
-    EE_hal_end_nested_primitive(flag);
+#ifdef EE_SERVICE_PROTECTION__
+  /* [OS093]: If interrupts are disabled/suspended by a Task/OsIsr and the
+      Task/OsIsr calls any OS service (excluding the interrupt services)
+      then the Operating System shall ignore the service AND shall return
+      E_OS_DISABLEDINT if the service returns a StatusType value. */
+  /* [OS088]: If an OS-Application makes a service call from the wrong context
+      AND is currently not inside a Category 1 ISR the Operating System module
+      shall not perform the requested action (the service call shall have no
+      effect), and return E_OS_CALLEVEL (see [12], section 13.1) or the
+      "invalid value" of  the service. (BSW11009, BSW11013) */
+  /* CancelAlarm is callable by Task and ISR2 */
+  if ( EE_as_execution_context > ISR2_Context ) {
+    ev = E_OS_CALLEVEL;
+  } else if ( EE_oo_check_disableint_error() ) {
+    ev = E_OS_DISABLEDINT;
+  } else
+#endif /* EE_SERVICE_PROTECTION__ */
 
-    EE_ORTI_set_service_out(EE_SERVICETRACE_CANCELALARM);
-
-    return E_OS_DISABLEDINT;
-  }
-
-
-#ifdef __OO_EXTENDED_STATUS__
-  if ((AlarmID < 0) || (AlarmID >= EE_MAX_ALARM)) {
-    EE_ORTI_set_lasterror(E_OS_ID);
-
-    flag = EE_hal_begin_nested_primitive();
-    EE_oo_notify_error_CancelAlarm(AlarmID, E_OS_ID);
-    EE_hal_end_nested_primitive(flag);
-
-    EE_ORTI_set_service_out(EE_SERVICETRACE_CANCELALARM);
-
-    return E_OS_ID;
-  }
-#endif
-
-  flag = EE_hal_begin_nested_primitive();
-  if (EE_alarm_RAM[AlarmID].used == 0U) {
-    EE_ORTI_set_lasterror(E_OS_NOFUNC);
-
-    EE_oo_notify_error_CancelAlarm(AlarmID, E_OS_NOFUNC);
-
-    EE_hal_end_nested_primitive(flag);
-    EE_ORTI_set_service_out(EE_SERVICETRACE_CANCELALARM);
-
-    return E_OS_NOFUNC;
-  }
-
-  /* to compute the relative value in ticks, we have to follow the counter
-     delay chain */
-  current = EE_counter_RAM[EE_alarm_ROM[AlarmID].c].first;
-
-  if (current == AlarmID) {
-    /* the alarm is the first one in the delta queue */
-    EE_counter_RAM[EE_alarm_ROM[AlarmID].c].first = 
-      EE_alarm_RAM[AlarmID].next;
+#ifdef EE_AS_RPC__
+  if ( EE_AS_ID_REMOTE(AlarmID) )
+  {
+    EE_os_param const unmarked_alarm_id = { EE_AS_UNMARK_REMOTE_ID(AlarmID) };
+    /* forward the request to another CPU in synchronous way */
+    ev = EE_as_rpc(OSServiceId_CancelAlarm, unmarked_alarm_id,
+      EE_OS_INVALID_PARAM, EE_OS_INVALID_PARAM);
   } else {
-    /* the alarm is not the first one in the delta queue */
-    do {
-      previous = current;
-      current = EE_alarm_RAM[current].next;
-    } while (current != AlarmID);
-    EE_alarm_RAM[previous].next = EE_alarm_RAM[AlarmID].next;
+#endif /* EE_AS_RPC__ */
+
+/* If local alarm are not defined cut everything else */
+#if defined(EE_MAX_ALARM) && (EE_MAX_ALARM > 0)
+
+#if EE_FULL_SERVICE_PROTECTION
+    if ( AlarmID >= EE_MAX_ALARM ) {
+      ev = E_OS_ID;
+    } else if ( EE_ALARM_ACCESS_ERR(AlarmID, EE_as_active_app) ) {
+      ev = E_OS_ACCESS;
+    } else
+#elif defined(__OO_EXTENDED_STATUS__)
+    if ( AlarmID >= EE_MAX_ALARM ) {
+      ev = E_OS_ID;
+    } else
+#endif /* EE_FULL_SERVICE_PROTECTION || __OO_EXTENDED_STATUS__ */
+    if ( EE_oo_counter_object_RAM[AlarmID].used == 0U ) {
+      ev = E_OS_NOFUNC;
+    } else {
+      /* Actually cancel the alarm */
+      EE_oo_handle_counter_object_cancellation( AlarmID );
+      ev = E_OK;
+    }
+#else  /* EE_MAX_ALARM > 0U */
+    {
+      ev = E_OS_ID;
+    }
+#endif /* EE_MAX_ALARM > 0U */
+
+#ifdef EE_AS_RPC__
+  }
+#endif /* EE_AS_RPC__ */
+
+  if ( ev != E_OK ) {
+    EE_ORTI_set_lasterror(ev);
+    EE_oo_notify_error_CancelAlarm(AlarmID, ev);
   }
 
-  if (EE_alarm_RAM[AlarmID].next != (EE_SREG)-1) {
-    EE_alarm_RAM[EE_alarm_RAM[AlarmID].next].delta +=
-      EE_alarm_RAM[AlarmID].delta;
-  }
-
-  EE_alarm_RAM[AlarmID].used = 0U;
-
-  EE_hal_end_nested_primitive(flag);
   EE_ORTI_set_service_out(EE_SERVICETRACE_CANCELALARM);
+  EE_OS_EXIT_CRITICAL_SECTION();
 
-  return E_OK;
+  return ev;
 }
 #endif /* __PRIVATE_CANCELALARM__ */

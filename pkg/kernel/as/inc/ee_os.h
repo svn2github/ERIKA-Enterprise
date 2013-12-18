@@ -50,25 +50,6 @@
 #if defined(__AS_SC4__)
 
 /*
- * 7.11 Error classification
- * NOTE: the values start from EE_OS_SYS_INIT in oo/inc/ee_common.h
- */
-
-#define EE_AUTOSAR_E_BASE		E_OS_SYS_INIT
-
-#define E_OS_SERVICEID              (EE_AUTOSAR_E_BASE + 1U)
-#define E_OS_ILLEGAL_ADDRESS        (EE_AUTOSAR_E_BASE + 2U)
-#define E_OS_MISSINGEND             (EE_AUTOSAR_E_BASE + 3U)
-#define E_OS_DISABLEDINT            (EE_AUTOSAR_E_BASE + 4U)
-#define E_OS_STACKFAULT             (EE_AUTOSAR_E_BASE + 5U)
-#define E_OS_PARAMETER_POINTER      (EE_AUTOSAR_E_BASE + 6U)
-#define E_OS_PROTECTION_MEMORY      (EE_AUTOSAR_E_BASE + 7U)
-#define E_OS_PROTECTION_TIME        (EE_AUTOSAR_E_BASE + 8U)
-#define E_OS_PROTECTION_ARRIVAL     (EE_AUTOSAR_E_BASE + 9U)
-#define E_OS_PROTECTION_LOCKED      (EE_AUTOSAR_E_BASE + 10U)
-#define E_OS_PROTECTION_EXCEPTION   (EE_AUTOSAR_E_BASE + 11U)
-
-/*
  * 8.2 Macros
  */
 #define OSMEMORY_IS_READABLE(acc) (((acc) & EE_ACCESS_READ) != (AccessType)0)
@@ -250,5 +231,26 @@ void EE_as_ORTI_set_service(EE_UINT8 srv);
 #endif
 
 #endif /* defined(__AS_SC4__) */
+
+/* Placeholders for Integration */
+#define EE_as_tp_active_set(tp_id)                                    ((void)0)
+#define EE_as_tp_active_set_from_TASK(task_id)                        ((void)0)
+#define EE_as_tp_active_set_from_id_with_restart(tp_id)               ((void)0)
+#define EE_as_tp_active_start_on_TASK_stacking(task_id)               ((void)0)
+#define EE_as_tp_active_start_for_ISR2(isr2_id)                       ((void)0)
+#define EE_as_tp_active_stop()                                        ((void)0)
+#define EE_as_tp_active_start_idle()                                  ((void)0)
+#define EE_as_tp_active_reset_budgets()                               ((void)0)
+#define EE_as_tp_active_pause_and_update_budgets()                    ((void)0)
+#define EE_as_tp_active_update_budgets_and_restart()                  ((void)0)
+#define EE_as_tp_active_activate_budget(b_type, obj_id, start_first)  ((void)0)
+#define EE_as_tp_active_stop_budget(b_type, obj_id, start_first)      ((void)0)
+#define EE_as_tp_active_budget_expired()                              ((void)0)
+#define EE_as_tp_stop_budget(tp_ram_ref, budget_id)                   ((void)0)
+#define EE_as_tp_reset_budgets(tp_id)                                 ((void)0)
+#define EE_as_tp_stop_interarrival_frame(tp_id)                       ((void)0)
+#define EE_as_tp_handle_interarrival(tp_id)                           EE_TRUE
+#define EE_as_monitoring_the_stack()                                  ((void)0)
+#define EE_hal_tp_stop()                                              ((void)0)
 
 #endif /* __INCLUDE_KERNEL_AS_EE_OS__ */

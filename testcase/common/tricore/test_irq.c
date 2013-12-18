@@ -45,11 +45,7 @@
 #include <ee_irq.h>
 #include "../test_common.h"
 
-#ifdef EE_NO_TUX
 typedef volatile Ifx_SRC_SRCR *p_SRC_reg;
-#else /* EE_NO_TUX */
-typedef SRC_AGBT_type *p_SRC_reg;
-#endif /* EE_NO_TUX */
 
 static p_SRC_reg test_get_irq_register(unsigned int irq) {
   switch(irq) {

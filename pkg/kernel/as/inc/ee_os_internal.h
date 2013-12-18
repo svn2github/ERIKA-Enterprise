@@ -47,6 +47,8 @@
 #ifndef __INCLUDE_AS_EE_OS_INTERNAL_H__
 #define __INCLUDE_AS_EE_OS_INTERNAL_H__
 
+#if defined(__AS_SC4__)
+
 #include "kernel/as/inc/ee_os.h"
 
 /**
@@ -123,5 +125,7 @@ AccessType EE_hal_get_app_mem_access(ApplicationType app,
 #define EE_SERVICETRACE_GETAPPLICATIONID         72U
 #define EE_SERVICETRACE_GETISRID                 74U
 #endif /* __OO_ORTI_SERVICETRACE__ */
+
+#endif /* __AS_SC4__ */
 
 #endif /* __INCLUDE_AS_EE_OS_INTERNAL_H__ */

@@ -55,34 +55,35 @@ void EE_thread_not_terminated(void)
 {
   register EE_TID current;
 
-  /* IRQ disabling for primitive atomicity (It doesn't make sense use 
+  /* IRQ disabling for primitive atomicity (It doesn't make sense use
      EE_hal_begin_nested_primitive because at the end of the function I won't
      call EE_hal_end_nested_primitive) */
   EE_hal_disableIRQ();
 
   current = EE_stk_queryfirst();
 
-  /* OS069: If a task returns from its entry function without making a 
+  /* [OS069]: If a task returns from its entry function without making a
       TerminateTask() or ChainTask() call AND the error hook is configured,
       the Operating System shall call the ErrorHook() 
       (this is done regardless of whether the task causes other errors,
        e.g. E_OS_RESOURCE) with status E_OS_MISSINGEND before the task leaves
-      the RUNNING state.
-  */
+      the RUNNING state. */
   EE_ORTI_set_lasterror(E_OS_MISSINGEND);
   EE_oo_notify_error_service(OSId_TaskBody, E_OS_MISSINGEND);
 
-  /* OS070: If a task returns from the entry function without making a 
-      TerminateTask() or ChainTask() call and still holds OSEK Resources, 
-      the Operating System shall release them. 
-  */
+  /* [OS070]: If a task returns from the entry function without making a
+      TerminateTask() or ChainTask() call and still holds OSEK Resources,
+      the Operating System shall release them. */
   (void)EE_oo_release_all_resources(current);
 
-  /* OS052, OS239: terminate task + call PostTaskHook + ISRs counters reset
-     in EE_thread_end_instance. Interrupts enabling is done by
-     EE_std_run_task_code (cpu/common ee_context.c)
-  */
+  /* Force spinlocks release */
+#ifdef EE_AS_USER_SPINLOCKS__
+  (void)EE_as_release_all_spinlocks(current);
+#endif /* EE_AS_USER_SPINLOCKS__ */
 
+  /* [OS052], [OS239]: terminate task + call PostTaskHook + ISRs counters reset
+      in EE_thread_end_instance. Interrupts enabling is done by
+      EE_std_run_task_code (cpu/common ee_context.c) */
   EE_hal_terminate_task(current);
 }
 #endif /* PRIVATE_THREANTERMINATED */

@@ -198,7 +198,7 @@ void EE_TRAP( EE_CLASS_TRAPNMI ) EE_VECTOR_TABLE EE_COMPILER_EXPORT EE_tc_trap_n
 #endif /* EE_DEBUG */
 
 __asm ("                                \n\
-  .section .traptab, \"awx\", @progbits \n\
+  .section .traptab, \"ax\", @progbits \n\
   .align 8                              \n\
   .globl _exit                          \n\
   .globl EE_tc_trap_table               \n\
@@ -223,8 +223,8 @@ EE_tc_trap_table:                       \n\
   __asm ("  .globl " EE_PREPROC_STRING(t));                 \
   __asm (EE_PREPROC_STRING(t) ":");                         \
   __asm ("  svlcx");                                        \
-  __asm ("  movh.a %a15" EE_PREPROC_STRING(h) "@ha" );      \
-  __asm ("  lea %a15,[%a15]lo:" EE_PREPROC_STRING(h) "@l"); \
+  __asm ("  movh.a %a15," EE_PREPROC_STRING(h) "@ha" );     \
+  __asm ("  lea %a15,[%a15]" EE_PREPROC_STRING(h) "@l");    \
   __asm ("  mov %d4,%d15");                                 \
   __asm ("  calli %a15");                                   \
   __asm ("  rslcx");                                        \

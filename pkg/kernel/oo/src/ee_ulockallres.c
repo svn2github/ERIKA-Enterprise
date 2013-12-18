@@ -52,11 +52,11 @@
 #if ((defined(__OO_EXTENDED_STATUS__)) || defined(__OO_ISR2_RESOURCES__)) && \
     (!defined(__PRIVATE_RELEASEALLRESOURCE__))
 
-#if 0
+/*
 #ifdef __MSRP__
 #warning "MSRP multiprocessor kernel protocol is not completly supported!"
 static void EE_oo_unlock_others(EE_UREG ResID)
-{
+{*/
   /* TODO Understand what I need to do for global resources
    * PSEUDO code:
    *  if(EE_oo_isGlobal(ResID))
@@ -65,19 +65,19 @@ static void EE_oo_unlock_others(EE_UREG ResID)
    * EG:
    * Global resources are going to disappear!
    */
-}
+/*}
 #else
 #define EE_oo_unlock_others(ResID)  ((void)0)
-#endif /* __MSRP__ */
-#endif /* comment */
+#endif
+*/
 
-EE_UREG EE_oo_release_all_resources(EE_TID tid)
-{
+EE_UREG EE_oo_release_all_resources( EE_TID tid ) {
   /* ALLERT! this method have to be called only inside a critical section
      (e.g. interrupt disabled) */
   register EE_UREG curRes, ResID = EE_UREG_MINUS1;
 
-  while((curRes = EE_th_resource_last[tid]) != EE_UREG_MINUS1) {
+  curRes = EE_th_resource_last[tid];
+  while ( curRes != EE_UREG_MINUS1 ) {
     ResID = curRes;
     /* remove the last entry from the data structure */
     EE_th_resource_last[tid] =
@@ -89,11 +89,12 @@ EE_UREG EE_oo_release_all_resources(EE_TID tid)
     /* TODO choose the fate of global resources */
     /* commented just to prevent from misra non-compliance */
     /*EE_oo_unlock_others(ResID);*/
+
+    curRes = EE_th_resource_last[tid];
   }
 
   /* Check if at least one resource have been freed */
-  if(ResID != EE_UREG_MINUS1)
-  {
+  if ( ResID != EE_UREG_MINUS1 ) {
     /* Restore the sys-ceiling with the old value from the bottom of the
        resource stack */
     EE_sys_ceiling = EE_resource_oldceiling[ResID];

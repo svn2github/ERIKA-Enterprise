@@ -43,4 +43,24 @@ ifeq ($(call iseeopt, __AS_SC4__), yes)
 EE_SRCS += pkg/kernel/as/src/ee_mem_prot.c
 EE_SRCS += pkg/kernel/as/src/ee_as_base.c
 EE_SRCS += pkg/kernel/as/src/ee_osapp.c
+else # __AS_SC4__
+
+ifeq ($(call iseeopt, __OO_BCC1__), yes)
+KERNEL_OO=yes
 endif
+ifeq ($(call iseeopt, __OO_BCC2__), yes)
+KERNEL_OO=yes
+endif
+ifeq ($(call iseeopt, __OO_ECC1__), yes)
+KERNEL_OO=yes
+endif
+ifeq ($(call iseeopt, __OO_ECC2__), yes)
+KERNEL_OO=yes
+endif
+
+ifeq ($(call iseeopt, EE_SERVICE_PROTECTION__), yes)
+ifeq ($(KERNEL_OO), yes)
+EE_SRCS += pkg/kernel/as/src/ee_as_base.c
+endif # KERNEL_OO
+endif # EE_AS_SERVICE_PROTECTION__
+endif # __AS_SC4__

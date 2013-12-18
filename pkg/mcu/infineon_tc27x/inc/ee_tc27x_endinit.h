@@ -62,27 +62,6 @@
 #define EE_WDTCPUCON1   SCU_WDTCPU0CON1
 #endif /* __DCC__ */
 
-/* ENDINIT support functions */
-__INLINE__ void __ALWAYS_INLINE__ EE_tc27x_endinit_set( EE_tc_endinit_t
-  endinit_value );
-
-#ifdef EE_SUPPORT_MEMMAP_H
-#define API_START_SEC_CODE
-#include "MemMap.h"
-#endif /* EE_SUPPORT_MEMMAP_H */
-
-void EE_tc_endint_disable( void ) { 
-  EE_tc27x_endinit_set(EE_TC_ENDINIT_DISABLE);
-}
-
-void EE_tc_endint_enable( void ) { 
-  EE_tc27x_endinit_set(EE_TC_ENDINIT_ENABLE);
-}
-
-#ifdef EE_SUPPORT_MEMMAP_H
-#define API_STOP_SEC_CODE
-#include "MemMap.h"
-#endif /* EE_SUPPORT_MEMMAP_H */
 
 /**************************************************************************
  *
@@ -94,7 +73,7 @@ void EE_tc_endint_enable( void ) {
  *               (ie. BTV, BIV, ISP, PCON0, DCON0).
  *
  *************************************************************************/
-__INLINE__ void __ALWAYS_INLINE__  EE_tc27x_endinit_set( EE_tc_endinit_t
+__INLINE__ void __ALWAYS_INLINE__ EE_tc27x_endinit_set( EE_tc_endinit_t
   endinit_value )
 {
   EE_UINT32 wdt_con0;
@@ -131,28 +110,6 @@ __INLINE__ void __ALWAYS_INLINE__  EE_tc27x_endinit_set( EE_tc_endinit_t
  *               safety-critical registers protected via the EndInit feature.
  *
  *************************************************************************/
-
-/* SAFETY_ENDINIT support functions */
-__INLINE__ void __ALWAYS_INLINE__ EE_tc27x_safety_endinit_set(EE_tc_endinit_t
-  endinit_value);
-
-#ifdef EE_SUPPORT_MEMMAP_H
-#define API_START_SEC_CODE
-#include "MemMap.h"
-#endif /* EE_SUPPORT_MEMMAP_H */
-
-void EE_tc_safety_endinit_disable( void ) { 
-  EE_tc27x_safety_endinit_set(EE_TC_ENDINIT_DISABLE);
-}
-
-void EE_tc_safety_endinit_enable( void ) { 
-  EE_tc27x_safety_endinit_set(EE_TC_ENDINIT_ENABLE);
-}
-
-#ifdef EE_SUPPORT_MEMMAP_H
-#define API_STOP_SEC_CODE
-#include "MemMap.h"
-#endif /* EE_SUPPORT_MEMMAP_H */
 
 __INLINE__ void __ALWAYS_INLINE__ EE_tc27x_safety_endinit_set( EE_tc_endinit_t
   endinit_value )

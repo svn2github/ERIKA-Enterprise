@@ -57,27 +57,69 @@
 #ifndef __PRIVATE_TRYWAITSEM__
 int EE_oo_TryWaitSem(SemRefType Sem)
 {
+  /* Error Value */
+  register StatusType ev;
   int returnvalue = EE_NIL;
-  register EE_FREG flag;
+
+  /* Primitive Lock Procedure */
+  EE_OS_DECLARE_AND_ENTER_CRITICAL_SECTION();
 
   EE_ORTI_set_service_in(EE_SERVICETRACE_TRYWAITSEM);
 
-  flag = EE_hal_begin_nested_primitive();
+  EE_as_monitoring_the_stack();
+
+#ifdef EE_SERVICE_PROTECTION__
+  /* [OS093]: If interrupts are disabled/suspended by a Task/OsIsr and the
+      Task/OsIsr calls any OS service (excluding the interrupt services)
+      then the Operating System shall ignore the service AND shall return
+      E_OS_DISABLEDINT if the service returns a StatusType value. */
+  if ( EE_as_execution_context > ISR2_Context ) {
+    ev = E_OS_CALLEVEL;
+  } else if ( EE_oo_check_disableint_error() ) {
+    ev = E_OS_DISABLEDINT;
+  } else
+#endif /* EE_SERVICE_PROTECTION__ */
 
   /* check if we have to wait */
-  if (Sem != NULL) {
-    if (Sem->count) {
-      Sem->count--;
-      returnvalue = 0;
+  if ( Sem != NULL ) {
+#if defined(__EE_MEMORY_PROTECTION__) && defined(EE_SERVICE_PROTECTION__)
+    /* [SWS_Os_00051]: If an invalid address (address is not writable by this
+        OS-Application) is passed as an out-parameter to an Operating System
+        service, the Operating System module shall return the status code
+        E_OS_ILLEGAL_ADDRESS. (SRS_Os_11009, SRS_Os_11013) */
+    if ( !OSMEMORY_IS_WRITEABLE(EE_hal_get_app_mem_access(EE_as_active_app,
+      Sem, sizeof(*Sem))) )
+    {
+      ev = E_OS_ILLEGAL_ADDRESS;
+      returnvalue = -1;
+    } else {
+#else /* __EE_MEMORY_PROTECTION__ && EE_SERVICE_PROTECTION__ */
+    {
+#endif /* __EE_MEMORY_PROTECTION__ && EE_SERVICE_PROTECTION__ */
+      if ( Sem->count ) {
+        Sem->count--;
+        returnvalue = 0;
+      }
+      else {
+        returnvalue = 1;
+      }
+      ev = E_OK;
     }
-    else {
-      returnvalue = 1;
-    }
+  } else {
+    ev = E_OS_PARAM_POINTER;
   }
 
-  EE_hal_end_nested_primitive(flag);
-  
+  if ( ev != E_OK )
+  {
+    EE_OS_PARAM(os_sem);
+    EE_OS_PARAM_REF(os_sem, sem_ref, Sem);
+    EE_os_notify_error(OSServiceId_TryWaitSem, os_sem,
+      EE_OS_INVALID_PARAM, EE_OS_INVALID_PARAM, ev);
+  }
+
   EE_ORTI_set_service_out(EE_SERVICETRACE_TRYWAITSEM);
+
+  EE_OS_EXIT_CRITICAL_SECTION();
 
   return returnvalue;
 }

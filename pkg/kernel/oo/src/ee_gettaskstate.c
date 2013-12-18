@@ -54,64 +54,98 @@
 
 StatusType EE_oo_GetTaskState(TaskType TaskID, TaskStateRefType State)
 {
-  register EE_FREG    flag;
-  register StatusType retVal;
+  register StatusType ev;
 
   EE_ORTI_set_service_in(EE_SERVICETRACE_GETTASKSTATE);
 
-  /*
-    OS093: If interrupts are disabled/suspended by a Task/OsIsr and the
+#ifdef EE_SERVICE_PROTECTION__
+  /* [OS093]: If interrupts are disabled/suspended by a Task/OsIsr and the
       Task/OsIsr calls any OS service (excluding the interrupt services)
       then the Operating System shall ignore the service AND shall return
-      E_OS_DISABLEDINT if the service returns a StatusType value.
-  */
-  if(EE_oo_check_disableint_error()) {
-    EE_ORTI_set_lasterror(E_OS_DISABLEDINT);
+      E_OS_DISABLEDINT if the service returns a StatusType value. */
+  /* [OS088]: If an OS-Application makes a service call from the wrong context
+      AND is currently not inside a Category 1 ISR the Operating System module
+      shall not perform the requested action (the service call shall have no
+      effect), and return E_OS_CALLEVEL (see [12], section 13.1) or the
+      "invalid value" of  the service. (BSW11009, BSW11013) */
+  /* GetTaskID is callable by Task, ISR2, ErrorHook, ProtectionHook, Pre and
+     Post TaskHook */
+  if ( (EE_as_execution_context > ErrorHook_Context) &&
+       (EE_as_execution_context != PreTaskHook_Context) &&
+       (EE_as_execution_context != PostTaskHook_Context) )
+  {
+    ev = E_OS_CALLEVEL;
+  } else if ( EE_oo_check_disableint_error() ) {
+    ev = E_OS_DISABLEDINT;
+  } else
+#endif /* EE_SERVICE_PROTECTION__ */
 
-    flag = EE_hal_begin_nested_primitive();
-    EE_oo_notify_error_GetTaskState(TaskID, State, E_OS_DISABLEDINT);
-    EE_hal_end_nested_primitive(flag);
+  /* [OS566]: The Operating System API shall check in extended mode all pointer
+     argument for NULL pointer and return OS_E_PARAMETER_POINTER
+     if such argument is NULL. 
+     + 
+     MISRA dictate NULL check for pointers always. */
+  if ( State == NULL ) {
+    ev = E_OS_PARAM_POINTER;
+  } else
+#ifdef __EE_MEMORY_PROTECTION__
+  /* [SWS_Os_00051]: If an invalid address (address is not writable by this
+      OS-Application) is passed as an out-parameter to an Operating System
+      service, the Operating System module shall return the status code
+      E_OS_ILLEGAL_ADDRESS. (SRS_Os_11009, SRS_Os_11013) */
+  if ( !OSMEMORY_IS_WRITEABLE( EE_hal_get_app_mem_access(EE_as_active_app,
+    State, sizeof(*State))) )
+  {
+    ev = E_OS_ILLEGAL_ADDRESS;
+  } else
+#endif /* __EE_MEMORY_PROTECTION__ */
 
-    EE_ORTI_set_service_out(EE_SERVICETRACE_GETTASKSTATE);
+#ifdef EE_AS_RPC__
+  if ( EE_IS_TID_REMOTE(TaskID) )
+  {
+    EE_os_param as_state;
+    EE_os_param const unmarked_tid = { EE_UNMARK_REMOTE_TID(TaskID) };
+    as_state.task_state_ref = State;
 
-    return E_OS_DISABLEDINT;
-  }
-
-#ifdef __OO_EXTENDED_STATUS__
-  if ((TaskID < 0) || (TaskID >= EE_MAX_TASK)) {
-    EE_ORTI_set_lasterror(E_OS_ID);
-
-    flag = EE_hal_begin_nested_primitive();
-    EE_oo_notify_error_GetTaskState(TaskID, State, E_OS_ID);
-    EE_hal_end_nested_primitive(flag);
-
-    EE_ORTI_set_service_out(EE_SERVICETRACE_GETTASKSTATE);
-    return E_OS_ID;
-  }
-#endif /* __OO_EXTENDED_STATUS__ */
-
-  flag = EE_hal_begin_nested_primitive();
-  if (State != (TaskStateRefType)NULL) {
-    *State = EE_th_status[TaskID];
-    retVal = E_OK;
+    /* forward the request to another CPU in synchronous way */
+    ev = EE_as_rpc_from_us(OSServiceId_GetTaskState, unmarked_tid, as_state,
+      EE_OS_INVALID_PARAM);
   } else {
-    /* OS566: The Operating System API shall check in extended mode all pointer
-        argument for NULL pointer and return OS_E_PARAMETER_POINTER
-        if such argument is NULL.
-       +
-       MISRA dictate NULL check for pointers always.
-    */
-    EE_ORTI_set_lasterror(E_OS_PARAMETER_POINTER);
+#endif /* EE_AS_RPC__ */
 
-    EE_oo_notify_error_GetTaskState(TaskID, State, E_OS_PARAMETER_POINTER);
+#if EE_FULL_SERVICE_PROTECTION
+    /* check if the task Id is valid */
+    if ( (TaskID < 0) || (TaskID >= EE_MAX_TASK) ) {
+      ev = E_OS_ID;
+    } else if ( EE_TASK_ACCESS_ERR(TaskID, EE_as_active_app) ) {
+      ev = E_OS_ACCESS;
+    } else
+#elif defined(__OO_EXTENDED_STATUS__)
+    /* check if the task Id is valid */
+    if ( (TaskID < 0) || (TaskID >= EE_MAX_TASK) ) {
+      ev = E_OS_ID;
+    } else
+#endif /* EE_FULL_SERVICE_PROTECTION || __OO_EXTENDED_STATUS__ */
+    {
+    /* XXX: This SHALL be atomic. Check this architectures other than TriCore */
+      *State = EE_th_status[TaskID];
+      ev = E_OK;
+    }
+#ifdef EE_AS_RPC__
+  }
+#endif /*  EE_AS_RPC__ */
 
-    retVal = E_OS_PARAMETER_POINTER;
+  if ( ev != E_OK ) {
+    EE_OS_ERROR_PARAMETERS();
+    EE_OS_ERROR_PARAMETERS_PARAM1_REF(task_state_ref,State);
+
+    EE_os_notify_error_from_us(OSServiceId_GetTaskState, &error_parameters, ev);
+    EE_ORTI_set_service_out(EE_SERVICETRACE_GETTASKSTATE);
+  } else {
+    EE_ORTI_set_service_out(EE_SERVICETRACE_GETTASKSTATE);
   }
 
-  EE_hal_end_nested_primitive(flag);
-  EE_ORTI_set_service_out(EE_SERVICETRACE_GETTASKSTATE);
-
-  return   retVal;
+  return ev;
 }
 #endif /* __PRIVATE_GETTASKSTATE__ */
 

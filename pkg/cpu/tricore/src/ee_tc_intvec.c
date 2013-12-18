@@ -185,7 +185,7 @@ __asm ("  .align 5");
 /* To Align the ISR vector */                                   \
 __asm ("  .globl EE_tc_isr_dummy_entry_" EE_PREPROC_STRING(p)); \
 __asm ("EE_tc_isr_dummy_entry_" EE_PREPROC_STRING(p) ":");      \
-__asm ("  .org . + 32")
+__asm ("  .org . + 32");
 /* Two pre-processor steps to let macros explode */
 #define EE_ISR_ENTRY_ALIGN(p) EE_ISR_ENTRY_ALIGN2(p)
 
@@ -2012,15 +2012,9 @@ __asm(".set reorder");
 #endif /* __GNUC__ || __TASKING__ || __DCC__ */
 #endif /* !EE_SUPPORT_MEMMAP_H */
 
-#if defined(__GNUC__)
-void __attribute__((interrupt_handler))
-#elif defined(__TASKING__) || defined(__DCC__)
-void
-#endif /* __GNUC__ || __TASKING__ || __DCC__ */
-  EE_tc_isr2_global_wrapper ( EE_tc_ISR_handler f ) {
+void EE_TC_INTERRUPT_HANDER EE_tc_isr2_global_wrapper ( EE_tc_ISR_handler f )
+{
   EE_ISR2_WRAPPER_BODY(f);
-#if defined(__TASKING__) || defined(__DCC__)
-  EE_tc_rslcx();
-  __asm volatile ("rfe");
-#endif /* __TASKING__ || __DCC__ */
+
+  EE_TC_RFE();
 }

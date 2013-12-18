@@ -73,10 +73,22 @@ EE_DO_PRAGMA(warning 557)
 /* I have to inform DCC when a function touch SP adding the following attribute
    to the function definition */
 #if defined(__DCC__)
-#define EE_CHANGE_STACK_POINTER __attribute__(( use_frame_pointer ))
+#define EE_TC_CHANGE_STACK_POINTER __attribute__(( use_frame_pointer ))
 #else
-#define EE_CHANGE_STACK_POINTER
+#define EE_TC_CHANGE_STACK_POINTER
 #endif /* __DCC__ */
+
+#ifdef __GNUC__
+#define EE_TC_INTERRUPT_HANDER  __attribute__(( interrupt_handler, used ))
+#else  /* __GNUC__ */
+#define EE_TC_INTERRUPT_HANDER
+#endif /* __GNUC__ */
+
+#if defined(__DCC__) || defined(__TASKING__)
+#define EE_TC_RFE() do { EE_tc_rslcx(); __asm volatile("rfe"); } while ( 0 )
+#else /* __DCC__ || __TASKING__ */
+#define EE_TC_RFE() ((void)0U)
+#endif /* __DCC__ || __TASKING__ */
 
 /*******************************************************************************
                               Generic Primitives
@@ -112,9 +124,9 @@ __INLINE__ EE_FREG __ALWAYS_INLINE__ EE_hal_begin_nested_primitive( void )
 
 /* Called as _last_ function of a primitive that can be called from
  * within an IRQ or a task. */
-__INLINE__ void __ALWAYS_INLINE__ EE_hal_end_nested_primitive( EE_FREG flags )
+__INLINE__ void __ALWAYS_INLINE__ EE_hal_end_nested_primitive( EE_FREG flag )
 {
-  EE_hal_resumeIRQ(flags);
+  EE_hal_resumeIRQ(flag);
 }
 
 /* Used to get internal CPU priority. */
@@ -315,7 +327,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_tc_set_psw_user_stack( void )
  *  back before scheduling. It makes some assumption about Interrupt and
  *  Vector tables implementations.
  */
-__INLINE__ void __ALWAYS_INLINE__ EE_CHANGE_STACK_POINTER
+__INLINE__ void __ALWAYS_INLINE__ EE_TC_CHANGE_STACK_POINTER
   EE_tc_set_prev_stack_back( void )
 {
   /* Switch back to interrupted "User Stack" */
@@ -324,7 +336,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_CHANGE_STACK_POINTER
   EE_tc_set_psw_user_stack();
 }
 
-__INLINE__ void __ALWAYS_INLINE__ EE_CHANGE_STACK_POINTER
+__INLINE__ void __ALWAYS_INLINE__ EE_TC_CHANGE_STACK_POINTER
   EE_tc_set_interrupted_stack( EE_CONST_ADDR sp )
 {
   /* Switch back to interrupted "User Stack" */
@@ -341,11 +353,11 @@ __INLINE__ EE_ADDR __ALWAYS_INLINE__ EE_tc_get_prev_stack( void )
 #define EE_TC_PSW_IS_CLEAN_MASK                     ((EE_UREG)-1)
 /* If there's only one stack you must be in "Global Shared Stack" flagged by
    PSW.IS bit at true: that means, no PSW.IS clean up is allowed */
-#define EE_tc_set_psw_user_stack()                  ((void)0U)
+#define EE_tc_set_psw_user_stack()                  ((void)0)
 /* Automatic switch to ISR stack is disabled: I'm always in "previous" stack */
 #define EE_tc_set_prev_stack_back()                 ((void)0)
 /* "Shared Global Stack": nothing to do */
-#define EE_tc_set_interrupted_stack(isr_stack_ptr)  ((void)0U)
+#define EE_tc_set_interrupted_stack(isr_stack_ptr)  ((void)0)
 #endif /* __IRQ_STACK_NEEDED__ */
 
 #endif /* INCLUDE_EE_TC_INTERNAL_H__ */

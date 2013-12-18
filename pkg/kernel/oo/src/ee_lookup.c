@@ -45,6 +45,16 @@
 
 #include "ee_internal.h"
 
+#if defined(__OO_HAS_ERRORHOOK__) && (!defined(__OO_ERRORHOOK_NOMACROS__))
+#ifndef __MSRP__
+OSServiceIdType                        EE_oo_ErrorHook_ServiceID;
+EE_oo_ErrorHook_parameters             EE_oo_ErrorHook_data;
+#elif defined(EE_CURRENTCPU) && (EE_CURRENTCPU == 0)
+OSServiceIdType EE_SHARED_UDATA        EE_oo_ErrorHook_ServiceID[EE_MAX_CPU];
+EE_oo_ErrorHook_parameters EE_SHARED_UDATA  EE_oo_ErrorHook_data[EE_MAX_CPU];
+#endif /* !__MSRP__ && (EE_CURRENTCPU != 0) */
+#endif /* __OO_HAS_ERRORHOOK__ && !__OO_ERRORHOOK_NOMACROS__ */
+
 /* used for nested interrupt enabling/disabling */
 EE_UREG EE_oo_IRQ_disable_count;
 
@@ -54,21 +64,11 @@ EE_UREG EE_oo_IRQ_disable_count;
  ***************************************************************************/
 #ifndef EE_OLD_HAL
 EE_FREG EE_oo_IRQ_suspend_status;
-#endif
+#endif /* EE_OLD_HAL */
 
-#ifdef __OO_HAS_ERRORHOOK__
-#ifndef __OO_ERRORHOOK_NOMACROS__
-OSServiceIdType EE_oo_ErrorHook_ServiceID;
-union EE_oo_ErrorHook_parameters EE_oo_ErrorHook_data;
-#endif
-EE_TYPEBOOL EE_ErrorHook_nested_flag = 0U;
-#endif
-
-#if defined(__OO_HAS_STARTUPHOOK__) || defined(__OO_AUTOSTART_TASK__) || \
-  defined(__OO_AUTOSTART_ALARM__)
-EE_TYPEBOOL EE_oo_no_preemption = 0U;
-#endif
-
+#if defined(__OO_HAS_ERRORHOOK__) && (!defined(__OO_ERRORHOOK_NOMACROS__))
+EE_TYPEBOOL EE_ErrorHook_nested_flag;
+#endif /* __OO_HAS_ERRORHOOK__ && !__OO_ERRORHOOK_NOMACROS__ */
 
 #if defined(__OO_BCC2__) || defined(__OO_ECC2__)
 
@@ -114,4 +114,16 @@ const EE_INT8 EE_rq_lookup[] =
      7,  7,  7,  7,  7,  7,  7,  7,  
   };
 
-#endif
+#endif /* __OO_BCC2__ || __OO_ECC2__ */
+
+#ifdef __EE_MEMORY_PROTECTION__
+void EE_oo_notify_error_from_us_internal( OSServiceIdType ServiceID,
+  EE_oo_ErrorHook_parameters * const error_parameters_ref, StatusType Error )
+{
+  if ( error_parameters_ref != NULL ) {
+    EE_os_notify_error(ServiceID, error_parameters_ref->param1,
+      error_parameters_ref->param2, error_parameters_ref->param3, Error);
+  }
+}
+#endif /* __EE_MEMORY_PROTECTION__ */
+

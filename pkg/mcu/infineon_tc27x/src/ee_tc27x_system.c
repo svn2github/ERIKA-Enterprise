@@ -50,12 +50,24 @@
 #include <time.h>
 #include "ee_internal.h"
 #include "cpu/tricore/inc/ee_tc_irq.h"
-
-/* If default start-up has not been used include ENDINT support for the system */
-#ifdef EE_USE_CUSTOM_STARTUP_CODE
-/* ENDINIT Support (Must be included only by one Kernel Module) */
 #include "mcu/infineon_tc27x/inc/ee_tc27x_endinit.h"
-#endif /* EE_USE_CUSTOM_STARTUP_CODE */
+
+/* ENDINIT and SAFETY ENDINIT WATCHDOG Support */
+void EE_tc_endint_disable( void ) { 
+  EE_tc27x_endinit_set(EE_TC_ENDINIT_DISABLE);
+}
+
+void EE_tc_endint_enable( void ) { 
+  EE_tc27x_endinit_set(EE_TC_ENDINIT_ENABLE);
+}
+
+void EE_tc_safety_endinit_disable( void ) { 
+  EE_tc27x_safety_endinit_set(EE_TC_ENDINIT_DISABLE);
+}
+
+void EE_tc_safety_endinit_enable( void ) { 
+  EE_tc27x_safety_endinit_set(EE_TC_ENDINIT_ENABLE);
+}
 
 /* STM Compare Register Selector */
 #define EE_STM_CMCON    STM0_CMCON
@@ -116,14 +128,18 @@ ISR2(EE_tc_system_timer_handler) {
   EE_tc27x_stm_set_sr0_next_match(OSTICKDURATION / 1000U);
 #elif (EE_SYSTEM_TIMER_DEVICE == EE_TC_STM_SR1)
   EE_tc27x_stm_set_sr1_next_match(OSTICKDURATION / 1000U);
-#endif
+#endif /* EE_SYSTEM_TIMER_DEVICE */
+
+#ifndef EE_AS_OSAPPLICATIONS__
+  EE_as_set_execution_context( Kernel_Context );
+#endif /* !EE_AS_OSAPPLICATIONS__ */
 
 #if defined(__OO_BCC1__) || defined(__OO_BCC2__) || defined(__OO_ECC1__) || \
-    defined(__OO_ECC2__) || defined(__AS_SC4__)
+    defined(__OO_ECC2__)
   (void)IncrementCounterHardware(EE_SYSTEM_TIMER);
-#else
-  IncremetCounter(EE_SYSTEM_TIMER);
-#endif
+#else /* OO Kernels */
+  CounterTick(EE_SYSTEM_TIMER);
+#endif /* OO Kernels */
 }
 
 /* System Timer Initialization */
@@ -138,13 +154,6 @@ void EE_tc27x_initialize_system_timer(void) {
 }
 
 #endif /* ENABLE_SYSTEM_TIMER && EE_SYSTEM_TIMER_DEVICE */
-
-/* If MemMap. support is enabled (i.e. because protection memory): use it */
-#ifdef EE_SUPPORT_MEMMAP_H
-#define API_START_SEC_CODE
-#define API_START_SEC_VAR_NOINIT
-#include "MemMap.h"
-#endif /* EE_SUPPORT_MEMMAP_H */
 
 /****************************************************************
                     SCU Clock Support
@@ -187,8 +196,20 @@ EE_UREG EE_tc27x_get_clock( void ) {
 /****************************************************************
                         STM Support
  ****************************************************************/
-/* Global variable with freq in Mhz value */
-static EE_UINT32 EE_tc27x_stm_freq_mhz;
+/* Global variable with freq in Khz value */
+static EE_UINT32 EE_tc27x_stm_freq_khz;
+
+static EE_UINT32 EE_tc27x_stm_us_ticks ( EE_UINT32 usec ) {
+  EE_UINT32 ticks;
+  if ( EE_tc27x_stm_freq_khz >= EE_KILO ) {
+    ticks = usec * ( EE_tc27x_stm_freq_khz / EE_KILO );
+  } else if ( usec >= EE_KILO ) {
+    ticks = ( usec / EE_KILO ) * EE_tc27x_stm_freq_khz;
+  } else {
+    ticks = ( usec * EE_tc27x_stm_freq_khz ) / EE_KILO;
+  }
+  return ticks;
+}
 
 /* Set inside std time reference  */
 void EE_tc27x_stm_set_clockpersec(void)
@@ -202,8 +223,8 @@ void EE_tc27x_stm_set_clockpersec(void)
   /* Standard Timer Module period */
   EE_UREG const fstm = fpll / SCU_CCUCON1.B.STMDIV;
 
-  /* Set Global variable with freq in Mhz value */
-  EE_tc27x_stm_freq_mhz = fstm / EE_MEGA;
+  /* Set Global variable with freq in Khz value */
+  EE_tc27x_stm_freq_khz = fstm / EE_KILO;
 
 #ifdef __TASKING__
   setfoschz ( fstm );
@@ -231,7 +252,7 @@ EE_STM_SR0_STORAGE void EE_tc27x_stm_set_sr0(EE_UINT32 usec,
 
   /*  Evaluate next compare value (actual value + increment,
       I don't need to handle wrap around) */
-  compare_value = ( usec * EE_tc27x_stm_freq_mhz ) +
+  compare_value = EE_tc27x_stm_us_ticks(usec) +
     EE_tc27x_stm_get_time_lower_word();
   /* Adjust the size of the mask */
   size_of_compare = 31U - EE_tc_clz(compare_value);
@@ -277,7 +298,7 @@ EE_STM_SR0_STORAGE void EE_tc27x_stm_set_sr0_next_match(EE_UINT32 usec)
     EE_tc_disableIRQ();
   /* Evaluate next compare value (previous one + increment,
      I don't need to handle wrap around) */
-  compare_value = ( usec * EE_tc27x_stm_freq_mhz ) +
+  compare_value = EE_tc27x_stm_us_ticks(usec) +
     EE_tc27x_stm_get_time_lower_word();
   /* Adjust the size of the mask */
   size_of_compare = 31U - EE_tc_clz(compare_value);
@@ -305,7 +326,7 @@ EE_STM_SR1_STORAGE void EE_tc27x_stm_set_sr1(EE_UINT32 usec,
   EE_tc_disableIRQ();
   /*  Evaluate next compare value (actual value + increment,
       I don't need to handle wrap around) */
-  compare_value = ( usec * EE_tc27x_stm_freq_mhz ) +
+  compare_value = EE_tc27x_stm_us_ticks(usec) +
     EE_tc27x_stm_get_time_lower_word();
   /* Adjust the size of the mask */
   size_of_compare = 31U - EE_tc_clz(compare_value);
@@ -350,7 +371,7 @@ EE_STM_SR1_STORAGE void EE_tc27x_stm_set_sr1_next_match(EE_UINT32 usec)
   EE_tc_disableIRQ();
   /* Evaluate next compare value (previous one + increment,
      I don't need to handle wrap around) */
-  compare_value = ( usec * EE_tc27x_stm_freq_mhz ) +
+  compare_value = EE_tc27x_stm_us_ticks(usec) +
     EE_tc27x_stm_get_time_lower_word();
   /* Adjust the size of the mask */
   size_of_compare = 31U - EE_tc_clz(compare_value);
@@ -369,21 +390,10 @@ void EE_tc27x_delay( EE_UREG usec )
   /* Read Start Point */
   EE_UREG const start = EE_tc27x_stm_get_time_lower_word();
   /* Evaluate End Point */
-  EE_UREG const end =  ( usec * EE_tc27x_stm_freq_mhz ) + start;
+  EE_UREG const ticks = EE_tc27x_stm_us_ticks(usec);
 
-  /* usec == 0 -> fake delay, just return */
-  if ( usec != 0U ) {
-    /* If end is less than start I wrapped around so I'll wait until
-       counter wrap around it self. */
-    if ( end > start ) {
-      while ( end > EE_tc27x_stm_get_time_lower_word() ) {
-        ; /* Wait */
-      }
-    } else {
-      while ( end < EE_tc27x_stm_get_time_lower_word() ) {
-        ; /* Wait */
-      }
-    }
+  while ( ticks > EE_tc27x_stm_get_time_lower_word() - start ) {
+    ; /* Wait */
   }
 }
 

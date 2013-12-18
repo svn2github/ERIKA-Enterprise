@@ -51,74 +51,109 @@
 #ifndef __PRIVATE_GETCOUNTERVALUE__
 StatusType EE_oo_GetCounterValue(CounterType CounterID, TickRefType Value)
 {
-  register EE_FREG flag;
-  register StatusType retVal;
+  register StatusType ev;
+  /* Primitive Lock Procedure */
+  EE_OS_DECLARE_AND_ENTER_CRITICAL_SECTION();
 
   EE_ORTI_set_service_in(EE_SERVICETRACE_GETCOUNTERVALUE);
 
-  /*
-    OS093: If interrupts are disabled/suspended by a Task/OsIsr and the
+  EE_as_monitoring_the_stack();
+
+#ifdef EE_SERVICE_PROTECTION__
+  /*  [OS093]: If interrupts are disabled/suspended by a Task/OsIsr and the
       Task/OsIsr calls any OS service (excluding the interrupt services)
       then the Operating System shall ignore the service AND shall return
-      E_OS_DISABLEDINT if the service returns a StatusType value.
-  */
-  if(EE_oo_check_disableint_error()) {
-    EE_ORTI_set_lasterror(E_OS_DISABLEDINT);
+      E_OS_DISABLEDINT if the service returns a StatusType value. */
+  /*  [OS088]: If an OS-Application makes a service call from the wrong context
+      AND is currently not inside a Category 1 ISR the Operating System module
+      shall not perform the requested action (the service call shall have no
+      effect), and return E_OS_CALLEVEL (see [12], section 13.1) or the
+      “invalid value” of  the service. (BSW11009, BSW11013) */
+  /* GetCounterValue is callable by Task and ISR2 */
+  if ( EE_as_execution_context > ISR2_Context ) {
+    ev = E_OS_CALLEVEL;
+  } else if ( EE_oo_check_disableint_error() ) {
+    ev = E_OS_DISABLEDINT;
+  } else
+#endif /* EE_SERVICE_PROTECTION__ */
 
-    flag = EE_hal_begin_nested_primitive();
-    EE_oo_notify_error_GetCounterValue(CounterID, Value, E_OS_DISABLEDINT);
-    EE_hal_end_nested_primitive(flag);
+  /* [OS566]: The Operating System API shall check in extended mode all pointer
+      argument for NULL pointer and return OS_E_PARAMETER_POINTER
+      if such argument is NULL.
+      +
+      MISRA dictate NULL check for pointers always. */
 
-    EE_ORTI_set_service_out(EE_SERVICETRACE_GETCOUNTERVALUE);
+  if ( Value == NULL ) {
+      ev = E_OS_PARAM_POINTER;
+  } else 
+#if defined(__EE_MEMORY_PROTECTION__) && defined(EE_SERVICE_PROTECTION__)
+  /* [SWS_Os_00051]: If an invalid address (address is not writable by this
+      OS-Application) is passed as an out-parameter to an Operating System
+      service, the Operating System module shall return the status code
+      E_OS_ILLEGAL_ADDRESS. (SRS_Os_11009, SRS_Os_11013) */
+  if ( !OSMEMORY_IS_WRITEABLE(EE_hal_get_app_mem_access(EE_as_active_app, Value,
+    sizeof(*Value))) )
+  {
+    ev = E_OS_ILLEGAL_ADDRESS;
+  } else
+#endif /* __EE_MEMORY_PROTECTION__ && EE_SERVICE_PROTECTION__ */
 
-    return E_OS_DISABLEDINT;
-  }
+#ifdef EE_AS_RPC__
+  if ( EE_AS_ID_REMOTE(CounterID) )
+  {
+    EE_os_param       as_value;
+    EE_os_param const unmarked_alarm_id = { EE_AS_UNMARK_REMOTE_ID(CounterID) };
+    as_value.tick_ref = Value;
 
-#ifdef __OO_EXTENDED_STATUS__
-  /* OS376: If the input parameter <CounterID> in a call of GetElapsedValue()
-     is not valid GetElapsedValue() shall return E_OS_ID.
-     <Only in Extended Status: look at Return value in specifiation table>
-  */
-  if ((CounterID < 0) || (CounterID >= EE_MAX_COUNTER)) {
-    EE_ORTI_set_lasterror(E_OS_ID);
-
-    flag = EE_hal_begin_nested_primitive();
-    EE_oo_notify_error_GetCounterValue(CounterID, Value, E_OS_ID);
-    EE_hal_end_nested_primitive(flag);
-
-    EE_ORTI_set_service_out(EE_SERVICETRACE_GETCOUNTERVALUE);
-    return E_OS_ID;
-  }
-#endif
-
-  /* OS377: If the input parameter <CounterID> in a call of GetCounterValue()
-     is valid, GetCounterValue() shall return the current tick value of the
-     counter via <Value> and return E_OK.
-     OS531: ... for counters of OsCounterType = SOFTWARE the current “software”
-     tick value is returned.
-   */
-
-  flag = EE_hal_begin_nested_primitive();
-  if(Value != (TickRefType)NULL) {
-    *Value = EE_counter_RAM[CounterID].value;
-    retVal = E_OK;
+    /* forward the request to another CPU in synchronous way */
+    ev = EE_as_rpc(OSServiceId_GetCounterValue, unmarked_alarm_id,
+      as_value, EE_OS_INVALID_PARAM);
   } else {
-    /* OS566: The Operating System API shall check in extended mode all pointer
-        argument for NULL pointer and return OS_E_PARAMETER_POINTER
-        if such argument is NULL.
-        +
-        MISRA dictate NULL check for pointers always.
-    */
-    EE_ORTI_set_lasterror(E_OS_PARAMETER_POINTER);
+#endif /* EE_AS_RPC__ */
 
-    EE_oo_notify_error_GetCounterValue(CounterID, Value,
-      E_OS_PARAMETER_POINTER);
+/* If counters are not defined cut everything */
+#if defined(EE_MAX_COUNTER) && (EE_MAX_COUNTER > 0)
 
-    retVal = E_OS_PARAMETER_POINTER;
+#if EE_FULL_SERVICE_PROTECTION
+    if ( CounterID >= EE_MAX_COUNTER ) {
+      ev = E_OS_ID;
+    } else if ( EE_COUNTER_ACCESS_ERR(CounterID, EE_as_active_app) ) {
+      ev = E_OS_ACCESS;
+    } else
+#elif defined(__OO_EXTENDED_STATUS__)
+    /* OS376: If the input parameter <CounterID> in a call of GetElapsedValue()
+       is not valid GetElapsedValue() shall return E_OS_ID.
+       <Only in Extended Status: look at Return value in specification table> */
+    if ( CounterID >= EE_MAX_COUNTER ) {
+      ev = E_OS_ID;
+    } else
+#endif /* EE_FULL_SERVICE_PROTECTION || __OO_EXTENDED_STATUS__ */
+    {
+      /* [OS377]: If the input parameter <CounterID> in a call of
+          GetCounterValue() is valid, GetCounterValue() shall return the current
+          tick value of the counter via <Value> and return E_OK.
+         [OS531]: ... for counters of OsCounterType = SOFTWARE the current
+          “software” tick value is returned. */
+      *Value = EE_counter_RAM[CounterID].value;
+
+      ev = E_OK;
+    }
+#else   /* EE_MAX_COUNTER > 0 */
+    {
+      ev = E_OS_ID;
+    }
+#endif  /* EE_MAX_COUNTER > 0 */
+#ifdef EE_AS_RPC__
+  }
+#endif /* EE_AS_RPC__ */
+  if ( ev != E_OK ){
+    EE_ORTI_set_lasterror(ev);
+    EE_oo_notify_error_GetCounterValue(CounterID, Value, ev);
   }
 
-  EE_hal_end_nested_primitive(flag);
   EE_ORTI_set_service_out(EE_SERVICETRACE_GETCOUNTERVALUE);
-  return retVal;
+  EE_OS_EXIT_CRITICAL_SECTION();
+
+  return ev;
 }
 #endif /* __PRIVATE_GETCOUNTERVALUE__ */

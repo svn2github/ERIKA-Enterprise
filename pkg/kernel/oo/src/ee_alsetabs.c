@@ -61,107 +61,91 @@
 StatusType EE_oo_SetAbsAlarm(AlarmType AlarmID, 
     TickType start, TickType cycle)
 {
-  register EE_FREG flag;
-  /* these are used to evaluate alarm time handling wrap around */
-  register TickType counter_value;
-  register TickType alarm_time;
-  register EE_SREG  start_rel;
+  /* Error Value */
+  register StatusType ev;
+  /* Primitive Lock Procedure */
+  EE_OS_DECLARE_AND_ENTER_CRITICAL_SECTION();
 
   EE_ORTI_set_service_in(EE_SERVICETRACE_SETABSALARM);
 
-  /*
-    OS093: If interrupts are disabled/suspended by a Task/OsIsr and the
+  EE_as_monitoring_the_stack();
+
+#ifdef EE_SERVICE_PROTECTION__
+  /* [OS093]: If interrupts are disabled/suspended by a Task/OsIsr and the
       Task/OsIsr calls any OS service (excluding the interrupt services)
       then the Operating System shall ignore the service AND shall return
-      E_OS_DISABLEDINT if the service returns a StatusType value.
-  */
-  if(EE_oo_check_disableint_error()) {
-    EE_ORTI_set_lasterror(E_OS_DISABLEDINT);
+      E_OS_DISABLEDINT if the service returns a StatusType value. */
+  /* [OS088]: If an OS-Application makes a service call from the wrong context
+      AND is currently not inside a Category 1 ISR the Operating System module
+      shall not perform the requested action (the service call shall have no
+      effect), and return E_OS_CALLEVEL (see [12], section 13.1) or the
+      “invalid value” of  the service. (BSW11009, BSW11013) */
+  /* SetAbsAlarm is callable by Task and ISR2 */
+  if ( EE_as_execution_context > ISR2_Context ) {
+    ev = E_OS_CALLEVEL;
+  } else if ( EE_oo_check_disableint_error() ) {
+    ev = E_OS_DISABLEDINT;
+  } else
+#endif /* EE_SERVICE_PROTECTION__ */
 
-    flag = EE_hal_begin_nested_primitive();
-    EE_oo_notify_error_SetAbsAlarm(AlarmID, start, cycle, E_OS_DISABLEDINT);
-    EE_hal_end_nested_primitive(flag);
-
-    EE_ORTI_set_service_out(EE_SERVICETRACE_SETABSALARM);
-
-    return E_OS_DISABLEDINT;
-  }
-
-#ifdef __OO_EXTENDED_STATUS__
-  if ((AlarmID < 0) || (AlarmID >= EE_MAX_ALARM)) {
-
-    EE_ORTI_set_lasterror(E_OS_ID);
-
-    flag = EE_hal_begin_nested_primitive();
-    EE_oo_notify_error_SetAbsAlarm(AlarmID, start, cycle, E_OS_ID);
-    EE_hal_end_nested_primitive(flag);
-
-    EE_ORTI_set_service_out(EE_SERVICETRACE_SETABSALARM);
-
-    return E_OS_ID;
-  }
-#endif /* __OO_EXTENDED_STATUS__ */
-
-#ifdef __OO_EXTENDED_STATUS__
-  if ((start > EE_counter_ROM[EE_alarm_ROM[AlarmID].c].maxallowedvalue)
-      || 
-      ((cycle != 0U) && 
-       ((cycle < EE_counter_ROM[EE_alarm_ROM[AlarmID].c].mincycle) ||
-        (cycle > EE_counter_ROM[EE_alarm_ROM[AlarmID].c].maxallowedvalue)))
-      ) {
-    EE_ORTI_set_lasterror(E_OS_VALUE);
-
-    flag = EE_hal_begin_nested_primitive();
-    EE_oo_notify_error_SetAbsAlarm(AlarmID, start, cycle, E_OS_VALUE);
-    EE_hal_end_nested_primitive(flag);
-
-    EE_ORTI_set_service_out(EE_SERVICETRACE_SETABSALARM);
-
-    return E_OS_VALUE;
-  }
-#endif /* __OO_EXTENDED_STATUS__ */
-
-  flag = EE_hal_begin_nested_primitive();
-
-  if (EE_alarm_RAM[AlarmID].used) {
-    EE_ORTI_set_lasterror(E_OS_STATE);
-
-    EE_oo_notify_error_SetAbsAlarm(AlarmID, start, cycle, E_OS_STATE);
-
-    EE_hal_end_nested_primitive(flag);
-    EE_ORTI_set_service_out(EE_SERVICETRACE_SETABSALARM);
-
-    return E_OS_STATE;
-  }
-
-  /* first, use the alarm and set the cycle */
-  EE_alarm_RAM[AlarmID].used = 1U;
-  EE_alarm_RAM[AlarmID].cycle = cycle;
-
-  /* Handling wrap around for alarm time */
-  counter_value = EE_counter_RAM[EE_alarm_ROM[AlarmID].c].value;
-  start_rel = (EE_SREG)start - (EE_SREG)counter_value;
-  if(start_rel > 0) {
-    /* Normal behavior */
-    alarm_time = (TickType)start_rel - 1U;
-  } else if (start_rel == 0){
-    /* start_rel == 0 -> the alarm should start now or next time that counter
-       has this value. Has been chosen the second option */
-    alarm_time = EE_counter_ROM[EE_alarm_ROM[AlarmID].c].maxallowedvalue;
+#ifdef EE_AS_RPC__
+  if ( EE_AS_ID_REMOTE(AlarmID) )
+  {
+    EE_os_param const unmarked_alarm_id = { EE_AS_UNMARK_REMOTE_ID(AlarmID) },
+      as_start = { start }, as_cycle = { cycle };
+    /* forward the request to another CPU in synchronous way */
+    ev = EE_as_rpc(OSServiceId_SetAbsAlarm, unmarked_alarm_id,
+      as_start, as_cycle);
   } else {
-    /* start_rel is negative in this case (unsigned conversion +
-       wrap around do the work) */
-    alarm_time = EE_counter_ROM[EE_alarm_ROM[AlarmID].c].maxallowedvalue +
-      (TickType)start_rel;
+#endif /* EE_AS_RPC__ */
+
+/* If local alarm are not defined cut everything else */
+#if defined(EE_MAX_ALARM) && (EE_MAX_ALARM > 0)
+
+#if EE_FULL_SERVICE_PROTECTION
+    if ( AlarmID >= EE_MAX_ALARM ) {
+      ev = E_OS_ID;
+    } else if ( EE_ALARM_ACCESS_ERR(AlarmID, EE_as_active_app) ) {
+      ev = E_OS_ACCESS;
+    } else
+#elif defined(__OO_EXTENDED_STATUS__)
+    if ( AlarmID >= EE_MAX_ALARM ) {
+      ev = E_OS_ID;
+    } else
+#endif /* EE_FULL_SERVICE_PROTECTION || __OO_EXTENDED_STATUS__ */
+#ifdef __OO_EXTENDED_STATUS__
+    if ( (start > EE_counter_ROM[EE_oo_counter_object_ROM[AlarmID].c].
+          maxallowedvalue) || ((cycle != 0U) &&
+      ((cycle < EE_counter_ROM[EE_oo_counter_object_ROM[AlarmID].c].mincycle) ||
+        (cycle > EE_counter_ROM[EE_oo_counter_object_ROM[AlarmID].c].
+          maxallowedvalue))) )
+    {
+      ev = E_OS_VALUE;
+    } else
+#endif /* __OO_EXTENDED_STATUS__ */
+
+    if ( EE_oo_counter_object_RAM[AlarmID].used ) {
+      ev = E_OS_STATE;
+    } else {
+      EE_oo_handle_abs_counter_object_insertion(AlarmID, start, cycle);
+      ev = E_OK;
+    }
+#else /* EE_MAX_ALARM > 0U */
+    {
+      ev = E_OS_ID;
+    }
+#endif /* EE_MAX_ALARM > 0U */
+#ifdef EE_AS_RPC__
+  }
+#endif /* EE_AS_RPC__ */
+  if ( ev != E_OK ) {
+    EE_ORTI_set_lasterror(ev);
+    EE_oo_notify_error_SetAbsAlarm(AlarmID, start, cycle, ev);
   }
 
-  /* Set alarm with a relative ammount of time (alarm_time already is a "0 as
-     next tick" value)*/
-  EE_oo_alarm_insert(AlarmID, alarm_time);
-
-  EE_hal_end_nested_primitive(flag);
   EE_ORTI_set_service_out(EE_SERVICETRACE_SETABSALARM);
+  EE_OS_EXIT_CRITICAL_SECTION();
 
-  return E_OK;
+  return ev;
 }
 #endif /* !__PRIVATE_SETABSALARM__ */

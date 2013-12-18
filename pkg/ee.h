@@ -216,9 +216,9 @@ extern "C" {
 #include "mcu/tc179x/inc/ee_mcu.h"
 #endif
 
-/* Tricore TC27x */
-#if defined(EE_TRICORE__) && defined(EE_TC27X__)
-#include "mcu/infineon_tc27x/inc/ee_tc27x_mcu.h"
+/* Tricore TC26X || TC27x */
+#if defined(EE_TRICORE__) && (defined(EE_TC26X__) || defined(EE_TC27X__))
+#include "mcu/infineon_common_tc2Yx/inc/ee_tc2Yx_mcu.h"
 #endif
 
 /* MSP430 */
@@ -392,10 +392,14 @@ extern "C" {
 #endif
 
 /* OO */
-#if defined(__OO_BCC1__) || defined(__OO_BCC2__) || defined(__OO_ECC1__) || \
-defined(__OO_ECC2__) || defined(__AS_SC4__)
-#include "kernel/oo/inc/ee_kernel.h"
-#endif
+#if defined(__OO_BCC1__) || defined(__OO_BCC2__) || defined(__OO_ECC1__) ||\
+  defined(__OO_ECC2__) || defined(__AS_SC4__)
+#include "kernel/oo/inc/ee_oo_kernel.h"
+#include "kernel/as/inc/ee_os.h"
+/* Moved inline interrupt services inclusion here, because they need to see TP
+   declarations */
+#include "kernel/oo/inc/ee_oo_inline.h"
+#endif /* OO */
 
 /* SEM */
 #ifdef __SEM__
@@ -408,9 +412,9 @@ defined(__OO_ECC2__) || defined(__AS_SC4__)
 #endif
 
 /* RN */
-#ifdef __RN__
+#if defined(__RN__) || defined(EE_AS_RPC__)
 #include "kernel/rn/inc/ee_rn.h"
-#endif
+#endif /* __RN__ || EE_AS_RPC__ */
 
   /*
    *
@@ -427,6 +431,11 @@ defined(__OO_ECC2__) || defined(__AS_SC4__)
    */
 
 #include "ee_irq.h"
+
+/* Assert inclusion if enabled */
+#ifdef __ASSERT__
+#include "test/assert/inc/ee_assert.h"
+#endif /* __ASSERT__ */
 
 #if defined(__cplusplus)
 };

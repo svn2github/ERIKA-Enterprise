@@ -9,7 +9,7 @@
 ; initialize and start the debugger
 
   RESet
-  SYStem.CPU TC275TE
+  SYStem.CPU TC275TE-ASTEP
 
   SYStem.Up
 

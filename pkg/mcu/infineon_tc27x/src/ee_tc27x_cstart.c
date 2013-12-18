@@ -44,7 +44,7 @@
   *  The system startup code initializes the processor's registers
   *  and the application C variables.
   *  Has been created starting from cstart.c TASKING start-up code and has
-  *  been custumed to compile with HIGHTEC GNUC compiler (v4.6.1.2) too.
+  *  been customized to compile with HIGHTEC GNUC compiler (v4.6.1.2) too.
   *  We used TASKING 4.0r1 as compiler and you can find the
   *  documentation pdf file for compiler at:
   *  http://www.tasking.com/support/tricore/tc_user_guide_v4.0.pdf
@@ -66,7 +66,7 @@
 #include "cpu/tricore/inc/ee_tc_irq.h"
 /* MCU defines to populate registers + PLL configuration utility */
 #include "mcu/infineon_tc27x/inc/ee_tc27x_internal.h"
-/* ENDINIT Support (Must be included only by one Kernel Module) */
+/* ENDINIT Support */
 #include "mcu/infineon_tc27x/inc/ee_tc27x_endinit.h"
 
 #ifdef __TASKING__
@@ -248,7 +248,7 @@ EE_COMPILER_EXTERN(_trapnmi)
  * _START() - Startup Code
  ******************************************************************************/
 #ifdef __TASKING__
-/* Labelled Pragmas are Bugged in TASKING 4.0r1 Compiler */
+/* Labeled Pragmas are Bugged in TASKING 4.0r1 Compiler */
 /* EE_PRAGMA_SECTION(_START,libc.reset) */
 EE_DO_PRAGMA(section code libc.reset)
 void _START( void )
@@ -263,7 +263,6 @@ EE_DO_PRAGMA(section code restore)
 #elif defined (__DCC__)
 #pragma section CODE ".startup_code" X
 #endif /* __GNUC__ || __DCC__ */
-void RESET_(void);
 
 void RESET_(void)
 {
@@ -276,7 +275,13 @@ void RESET_(void)
   __asm (".word 0x00000000");
   __asm (".word 0x791eb864");
   __asm (".word 0x86e1479b");
-  __asm ("_START: j EE_tc27x_start");
+#ifdef __GNUC__
+  __asm ("_START: ja EE_tc27x_start");
+#elif defined(__DCC__)
+  __asm ("_START: movh.a %a15,EE_tc27x_start@ha");
+  __asm ("  lea  %a15,[%a15]EE_tc27x_start@l");
+  __asm ("  ji %a15");
+#endif /* __GNUC__ || __DCC__ */
 }
 
 /* we switch to normal region */
@@ -358,27 +363,27 @@ void __NEVER_INLINE__ JUMP EE_TC27X_START( void )
    * Disable this if not started from RESET vector. (E.g.
    * ROM monitors require to keep in control of vectors)
    */
-  EE_tc_set_cfr(EE_CPU_REG_BTV, (EE_UINT32)&EE_TRAP_TAB);
+  EE_tc_set_csfr(EE_CPU_REG_BTV, (EE_UINT32)&EE_TRAP_TAB);
 
   /*
    * Load Base Address of Interrupt Vector Table.
    * Disable this if not started from RESET vector. (E.g.
    * ROM monitors require to keep in control of vectors)
    */
-  EE_tc_set_cfr(EE_CPU_REG_BIV, (EE_UINT32)&EE_INT_TAB);
+  EE_tc_set_csfr(EE_CPU_REG_BIV, (EE_UINT32)&EE_INT_TAB);
 
 #ifdef EE_ICACHE_ENABLED
   /*
    * PCON0 configuration.
    */
-  EE_tc_set_cfr(EE_CPU_REG_PCON0, 0U);
+  EE_tc_set_csfr(EE_CPU_REG_PCON0, 0U);
 #endif
 
 #ifdef EE_DCACHE_ENABLED
   /*
    * DCON0 configuration.
    */
-  EE_tc_set_cfr(EE_CPU_REG_DCON0, 0U);
+  EE_tc_set_csfr(EE_CPU_REG_DCON0, 0U);
 #endif
 
 #if (!defined(__OO_BCC1__)) && (!defined(__OO_BCC2__)) && \
@@ -448,13 +453,13 @@ void __NEVER_INLINE__ JUMP EE_TC27X_START( void )
 
 #if defined (__MULTI__) && defined(__IRQ_STACK_NEEDED__)
   /*
-   * Load interupt stack pointer.
+   * Load interrupt stack pointer.
    * Disable this if not started from RESET vector. (E.g.
    * ROM monitors require to keep in control of vectors)
    */
   /* EE_UINT32 isp = (EE_UINT32)(_lc_ue_istack) & EE_STACK_ALIGN; */
   isp = (EE_UINT32)EE_tc_IRQ_tos.SYS_tos & EE_STACK_ALIGN;
-  EE_tc_set_cfr(EE_CPU_REG_ISP, isp);
+  EE_tc_set_csfr(EE_CPU_REG_ISP, isp);
 #endif /* __MULTI__ &&  __IRQ_STACK_NEEDED__ */
 
   /*
@@ -543,7 +548,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_tc27x_csa_init( void )
     --fcd_needed_csa;
     if (fcd_needed_csa == 0U)
     {
-      EE_tc_set_cfr(EE_CPU_REG_LCX, pcxi_val);
+      EE_tc_set_csfr(EE_CPU_REG_LCX, pcxi_val);
     }
   }
   /* Initialize the HEAD of Free Context List */

@@ -47,6 +47,16 @@
 #ifndef __KERNEL_RN_RN_H__
 #define __KERNEL_RN_RN_H__
 
+#ifdef __MSRP__
+#define EE_MARK_REMOTE_TID(tid)   ((tid) + (EE_TID)EE_REMOTE_TID)
+#define EE_UNMARK_REMOTE_TID(tid) ((tid) - (EE_TID)EE_REMOTE_TID)
+#define EE_IS_TID_REMOTE(tid)     ((EE_UTID)(tid) & (EE_UTID)EE_REMOTE_TID)
+#else /* __MSRP__ */
+#define EE_MARK_REMOTE_TID(tid)   (tid)
+#define EE_UNMARK_REMOTE_TID(tid) (tid)
+#define EE_IS_TID_REMOTE(tid)     (0)
+#endif /* __MSRP__ */
+
 #ifdef  __RN__
 
 /*
@@ -95,10 +105,6 @@
 #ifndef EE_TYPERN_NOTIFY
 #define EE_TYPERN_NOTIFY EE_UREG
 #endif
-
-#define EE_MARK_REMOTE_TID(tid)   ((tid) + (EE_TID)EE_REMOTE_TID)
-#define EE_UNMARK_REMOTE_TID(tid) ((tid) - (EE_TID)EE_REMOTE_TID)
-#define EE_IS_TID_REMOTE(tid)     ((EE_UTID)tid & (EE_UTID)EE_REMOTE_TID)
 
 /* CPU numbers start from 0: 0,1,2,... */
 

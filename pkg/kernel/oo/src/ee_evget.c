@@ -58,86 +58,102 @@
 #if defined(__OO_ECC1__) || defined(__OO_ECC2__)
 #ifndef __PRIVATE_GETEVENT__
 
-#ifdef __OO_EXTENDED_STATUS__
 StatusType EE_oo_GetEvent(TaskType TaskID, EventMaskRefType Event)
-#else
-void EE_oo_GetEvent(TaskType TaskID, EventMaskRefType Event)
-#endif
 {
-  register EE_FREG flag;
-  
+  /* Error Value */
+  register StatusType ev;
   EE_ORTI_set_service_in(EE_SERVICETRACE_GETEVENT);
 
-#ifdef __OO_EXTENDED_STATUS__
-  /*
-    OS093: If interrupts are disabled/suspended by a Task/OsIsr and the
+#ifdef EE_SERVICE_PROTECTION__
+  /*  [OS093]: If interrupts are disabled/suspended by a Task/OsIsr and the
       Task/OsIsr calls any OS service (excluding the interrupt services)
       then the Operating System shall ignore the service AND shall return
-      E_OS_DISABLEDINT if the service returns a StatusType value.
-  */
-  if(EE_oo_check_disableint_error()) {
-    EE_ORTI_set_lasterror(E_OS_DISABLEDINT);
+      E_OS_DISABLEDINT if the service returns a StatusType value. */
+  /*  [OS088]: If an OS-Application makes a service call from the wrong context
+      AND is currently not inside a Category 1 ISR the Operating System module
+      shall not perform the requested action (the service call shall have no
+      effect), and return E_OS_CALLEVEL (see [12], section 13.1) or the
+      “invalid value” of  the service. (BSW11009, BSW11013) */
+  /* GetEvent is callable by Task, ISR2, ErrorHook Pre and Post TaskHook */
+  if ( (EE_as_execution_context > ErrorHook_Context) &&
+       (EE_as_execution_context != PreTaskHook_Context) &&
+       (EE_as_execution_context != PostTaskHook_Context) )
+  {
+    ev = E_OS_CALLEVEL;
+  } else if ( EE_oo_check_disableint_error() ) {
+    ev = E_OS_DISABLEDINT;
+  } else
+#endif /* EE_SERVICE_PROTECTION__ */
 
-    flag = EE_hal_begin_nested_primitive();
-    EE_oo_notify_error_GetEvent(TaskID, Event, E_OS_DISABLEDINT);
-    EE_hal_end_nested_primitive(flag);
 
-    EE_ORTI_set_service_out(EE_SERVICETRACE_GETEVENT);
-
-    return E_OS_DISABLEDINT;
-  }
-
+#if EE_FULL_SERVICE_PROTECTION
+#ifdef EE_AS_RPC__
+  /*  [OS589] All functions that are not allowed to operate cross core shall
+        return E_OS_CORE in extended status if called with parameters that
+        require a cross core operation. (BSW4080013) */
+  if ( EE_IS_TID_REMOTE(TaskID) ) {
+    ev = E_OS_CORE;
+  } else
+#endif /* EE_AS_RPC__ */
   /* check if the task Id is valid */
-  if ((TaskID < 0) || (TaskID >= EE_MAX_TASK)) {
-    EE_ORTI_set_lasterror(E_OS_ID);
-
-    flag = EE_hal_begin_nested_primitive();
-    EE_oo_notify_error_GetEvent(TaskID, Event, E_OS_ID);
-    EE_hal_end_nested_primitive(flag);
-
-    EE_ORTI_set_service_out(EE_SERVICETRACE_GETEVENT);
-
-    return E_OS_ID;
-  }
-
-  if (EE_th_is_extended[TaskID] == 0U) {
-    EE_ORTI_set_lasterror(E_OS_ACCESS);
-
-    flag = EE_hal_begin_nested_primitive();
-    EE_oo_notify_error_GetEvent(TaskID, Event, E_OS_ACCESS);
-    EE_hal_end_nested_primitive(flag);
-
-    EE_ORTI_set_service_out(EE_SERVICETRACE_GETEVENT);
-
-    return E_OS_ACCESS;
-  }
-#endif /* __OO_EXTENDED_STATUS__ */
-
-  flag = EE_hal_begin_nested_primitive();
-
-#ifdef __OO_EXTENDED_STATUS__    
-  if (EE_th_status[TaskID] == SUSPENDED) {
-    EE_ORTI_set_lasterror(E_OS_STATE);
-
-    EE_oo_notify_error_GetEvent(TaskID, Event, E_OS_STATE);
-
-    EE_hal_end_nested_primitive(flag);
-    EE_ORTI_set_service_out(EE_SERVICETRACE_GETEVENT);
-
-    return E_OS_STATE;
-  }
-#endif /* __OO_EXTENDED_STATUS__ */
-
-  if (Event != (EventMaskRefType)NULL) {
-    *Event = EE_th_event_active[TaskID];
-  }
-
-  EE_hal_end_nested_primitive(flag);
-  EE_ORTI_set_service_out(EE_SERVICETRACE_GETEVENT);
-
+  if ( (TaskID < 0) || (TaskID >= EE_MAX_TASK) ) {
+    ev = E_OS_ID;
+  } else if ( EE_TASK_ACCESS_ERR(TaskID, EE_as_active_app) ) {
+    ev = E_OS_ACCESS;
+  } else
+#elif defined(__OO_EXTENDED_STATUS__)
+#ifdef EE_AS_RPC__
+  /*  [OS589] All functions that are not allowed to operate cross core shall
+        return E_OS_CORE in extended status if called with parameters that
+        require a cross core operation. (BSW4080013) */
+  if ( EE_IS_TID_REMOTE(TaskID) ) {
+    ev = E_OS_CORE;
+  } else
+#endif /* EE_AS_RPC__ */
+  /* check if the task Id is valid */
+  if ( (TaskID < 0) || (TaskID >= EE_MAX_TASK) ) {
+    ev = E_OS_ID;
+  } else
+#endif /* EE_FULL_SERVICE_PROTECTION || __OO_EXTENDED_STATUS__ */
 #ifdef __OO_EXTENDED_STATUS__
-  return E_OK;
-#endif
+  if ( EE_th_is_extended[TaskID] == 0U ) {
+    ev = E_OS_ACCESS;
+  } else if ( EE_th_status[TaskID] == SUSPENDED ) {
+    ev = E_OS_STATE;
+  } else
+#endif /* __OO_EXTENDED_STATUS__ */
+  if ( Event == NULL ) {
+    ev = E_OS_PARAM_POINTER;
+  } else
+#if defined(__EE_MEMORY_PROTECTION__) && defined(EE_SERVICE_PROTECTION__)
+  /* [SWS_Os_00051] If an invalid address (address is not writable by this
+      OS-Application) is passed as an out-parameter to an Operating System
+      service, the Operating System module shall return the status code
+      E_OS_ILLEGAL_ADDRESS. (SRS_Os_11009, SRS_Os_11013) */
+  if ( !OSMEMORY_IS_WRITEABLE(EE_hal_get_app_mem_access(EE_as_active_app,
+    Event, sizeof(*Event))) )
+  {
+    ev = E_OS_ILLEGAL_ADDRESS;
+  } else
+#endif /* __EE_MEMORY_PROTECTION__ && EE_SERVICE_PROTECTION__ */
+  {
+    /* XXX: This SHALL be atomic. Check this architectures other than TriCore */
+    *Event = EE_th_event_active[TaskID];
+    ev = E_OK;
+  }
+
+  if ( ev != E_OK ) {
+    EE_OS_ERROR_PARAMETERS();
+    EE_OS_ERROR_PARAMETERS_PARAM1_VALUE(TaskID);
+    EE_OS_ERROR_PARAMETERS_PARAM2_REF(event_ref,Event);
+
+    EE_os_notify_error_from_us(OSServiceId_GetEvent, &error_parameters, ev);
+    EE_ORTI_set_service_out(EE_SERVICETRACE_GETEVENT);
+  } else {
+    EE_ORTI_set_service_out(EE_SERVICETRACE_GETEVENT);
+  }
+
+  return ev;
 }
 
 #endif /* __PRIVATE_GETEVENT__ */

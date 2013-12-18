@@ -44,7 +44,7 @@
  */
 
 
-#include <ee_internal.h>
+#include "ee_internal.h"
 
 /* This version should work for both the monostack and multistack versions of
  * the kernel, thanks to the macros defined in cpu/common/inc/ee_context.h.

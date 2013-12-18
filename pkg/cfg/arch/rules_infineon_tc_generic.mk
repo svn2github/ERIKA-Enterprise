@@ -176,11 +176,12 @@ clean:
 ## Lauterbach targets
 ##
 
-T32GENMENU ?= $(T32SYS)/demo/kernel/orti/genmenu
+#T32GENMENU ?= $(T32SYS)/demo/kernel/orti/genmenu
 
 T32TARGETS := t32.cmm
 ifneq ($(wildcard system.orti),)
-T32TARGETS += orti.cmm orti.men ortiperf.men
+#T32TARGETS += orti.cmm markers.cmm orti.men ortiperf.men
+T32TARGETS += orti.cmm markers.cmm
 T32ORTISTR := do orti.cmm
 else
 T32ORTISTR :=
@@ -195,16 +196,32 @@ endif
 t32: $(T32TARGETS)
 
 t32.cmm: $(PKGBASE)/mcu/infineon_$(TRICORE_MODEL)/cfg/$(T32SOURCE)
-	@echo "GEN $@ from $(notdir $<)"
+	@echo "GEN $@ from $<"
 	$(QUIET)sed -e 's:#ORTICMD#:$(T32ORTISTR):'			\
 				-e 's:#EXE_NAME#:$(TARGET_NAME).elf:g'	\
 			$< > $@
 
-orti.cmm ortiperf.men: %:  $(PKGBASE)/mcu/infineon_$(TRICORE_MODEL)/cfg/%
+ifeq ($(call iseeopt,__MSRP__), yes)
+ifeq ($(CPU_NUMID),0)
+orti.cmm markers.cmm: %:  $(PKGBASE)/mcu/infineon_common_tc2Yx/cfg/%
+	@echo "GEN $@ from $<"
 	$(QUIET) cp $< $@
+else #CPU_NUMID == 0
+orti.cmm: %:  $(PKGBASE)/mcu/infineon_common_tc2Yx/cfg/multicore/orti_slave.cmm
+	@echo "GEN $@ from $<"
+	$(QUIET) cp $< $@
+markers.cmm: %:  $(PKGBASE)/mcu/infineon_common_tc2Yx/cfg/%
+	@echo "GEN $@ from $<"
+	$(QUIET) cp $< $@
+endif #CPU_NUMID == 0
+else #__MSRP__
+orti.cmm markers.cmm: %:  $(PKGBASE)/mcu/infineon_common_tc2Yx/cfg/%
+	@echo "GEN $@ from $<"
+	$(QUIET) cp $< $@
+endif #__MSRP__
 
-orti.men: system.orti
-	$(QUIET) $(T32GENMENU) $<
+#orti.men: system.orti
+#	$(QUIET) $(T32GENMENU) $<
 
 #
 # --------------------------------------------------------------------------
@@ -213,7 +230,7 @@ orti.men: system.orti
 ### Target file creation ###
 $(TARGET_NAME).elf: $(OBJS) $(LIBDEP) $(LINKDEP)
 	@echo "LD $@";
-	-$(QUIET)$(EE_LINK) $(OPT_LINK) $(TARGET_LD_FILE) $(OBJS) $(LIBDEP) $(LINK_REDIRECT)
+	$(QUIET)$(EE_LINK) $(OPT_LINK) $(TARGET_LD_FILE) $(OBJS) $(LIBDEP) $(LINK_REDIRECT)
 	@echo "************************************"
 	@echo "Compilation terminated successfully!"
 
@@ -278,3 +295,4 @@ endif
 endif
 
 endif  # __MSRP__ and __BASE_MAKEFILE__
+

@@ -205,7 +205,10 @@ void PostTaskHook(void)
 
 void ErrorHook(StatusType Error)
 {
+  /* This trick will filter the first error generated in StartupHook */
+  if ( Error != E_OS_CALLEVEL ) {
     EE_assert(17, TRUE, 16);
+  }
 }
 
 int main(int argc, char **argv)

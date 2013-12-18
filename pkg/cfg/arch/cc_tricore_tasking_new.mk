@@ -208,3 +208,4 @@ DEPENDENCY_OPT_ASM = -Wa--dep-file=$(call native_path,$(subst .o,.d_tmp,$(@))) -
 # Dependencies on Windows need path translation and quote remotion
 make-depend = sed -e 's_"__g' -e 's_\\\(.\)_/\1_g' -e 's_\<\([a-zA-Z]\):/_/cygdrive/\l\1/_g' < $1_tmp > $1 && rm $1_tmp
 endif # NODEPS
+

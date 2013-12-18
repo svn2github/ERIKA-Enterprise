@@ -357,7 +357,7 @@ void EE_PREPROC_JOIN(ISR2_,f) ( void )
 #define ISR1(f) void f ( void )
 
 /* Define an ISR (category 2). Used only for client code. The wrapper is moved
-   inside ee_tricore_intvec.c to isolate better user code from Kernel code.
+   inside ee_tricore_intvec.c to isulate better user code from Kernel code.
    In TriCore Architecture ISR ID and ISR Priority are the same.
    I Use ISR ID as interrupt vector entry because is tied to handler name
    and I can easily reconstruct that here */

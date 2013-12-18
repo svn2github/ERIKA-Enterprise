@@ -48,7 +48,7 @@
   IF SYStem.MODE()<5
   (
     SYStem.RESet
-    SYStem.CPU TC275TE
+    SYStem.CPU TC275TE-ASTEP
     CORE.ASSIGN 1         ; CPU0 is selected for flash programming.
     SYStem.Up
   )

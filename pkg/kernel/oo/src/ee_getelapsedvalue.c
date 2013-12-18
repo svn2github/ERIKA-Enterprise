@@ -50,73 +50,89 @@
 
 #ifndef __PRIVATE_GETELAPSEDVALUE__
 
-#ifdef __OO_EXTENDED_STATUS__
 StatusType EE_oo_GetElapsedValue(CounterType CounterID, TickRefType Value,
     TickRefType ElapsedValue)
 {
-  register EE_FREG flag;
+  register StatusType ev;
+  /* Primitive Lock Procedure */
+  EE_OS_DECLARE_AND_ENTER_CRITICAL_SECTION();
 
   EE_ORTI_set_service_in(EE_SERVICETRACE_GETELAPSEDVALUE);
 
-  /*
-    OS093: If interrupts are disabled/suspended by a Task/OsIsr and the
+  EE_as_monitoring_the_stack();
+
+#ifdef EE_SERVICE_PROTECTION__
+  /*  [OS093]: If interrupts are disabled/suspended by a Task/OsIsr and the
       Task/OsIsr calls any OS service (excluding the interrupt services)
       then the Operating System shall ignore the service AND shall return
-      E_OS_DISABLEDINT if the service returns a StatusType value.
-  */
-  if(EE_oo_check_disableint_error()) {
-    EE_ORTI_set_lasterror(E_OS_DISABLEDINT);
+      E_OS_DISABLEDINT if the service returns a StatusType value. */
+  /*  [OS088]: If an OS-Application makes a service call from the wrong context
+      AND is currently not inside a Category 1 ISR the Operating System module
+      shall not perform the requested action (the service call shall have no
+      effect), and return E_OS_CALLEVEL (see [12], section 13.1) or the
+      “invalid value” of  the service. (BSW11009, BSW11013) */
+  /* GetElapsedValue is callable by Task and ISR2 */
+  if ( EE_as_execution_context > ISR2_Context ) {
+    ev = E_OS_CALLEVEL;
+  } else if ( EE_oo_check_disableint_error() ) {
+    ev = E_OS_DISABLEDINT;
+  } else
+#endif /* EE_SERVICE_PROTECTION__ */
 
-    flag = EE_hal_begin_nested_primitive();
-    EE_oo_notify_error_GetElapsedValue(CounterID, Value, ElapsedValue,
-      E_OS_DISABLEDINT);
-    EE_hal_end_nested_primitive(flag);
+  if ( (Value == NULL) || (ElapsedValue == NULL) ) {
+    ev = E_OS_PARAM_POINTER;
+  } else
+#if defined(__EE_MEMORY_PROTECTION__) && defined(EE_SERVICE_PROTECTION__)
+  /* [SWS_Os_00051]: If an invalid address (address is not writable by this
+      OS-Application) is passed as an out-parameter to an Operating System
+      service, the Operating System module shall return the status code
+      E_OS_ILLEGAL_ADDRESS. (SRS_Os_11009, SRS_Os_11013) */
+  if ( (!OSMEMORY_IS_WRITEABLE(EE_hal_get_app_mem_access(EE_as_active_app,
+          Value, sizeof(*Value)))) || 
+      (!OSMEMORY_IS_WRITEABLE( EE_hal_get_app_mem_access(EE_as_active_app,
+          ElapsedValue, sizeof(*ElapsedValue)))) )
+  {
+    ev = E_OS_ILLEGAL_ADDRESS;  
+  } else
+#endif /* __EE_MEMORY_PROTECTION__  && EE_SERVICE_PROTECTION__ */
 
-    EE_ORTI_set_service_out(EE_SERVICETRACE_GETELAPSEDVALUE);
+#ifdef EE_AS_RPC__
+  if ( EE_AS_ID_REMOTE(CounterID) )
+  {
+    EE_os_param       as_value, as_elapsed_value;
+    EE_os_param const unmarked_alarm_id = { EE_AS_UNMARK_REMOTE_ID(CounterID) };
+    as_value.tick_ref         = Value;
+    as_elapsed_value.tick_ref = ElapsedValue;
+    /* forward the request to another CPU in synchronous way */
+    ev = EE_as_rpc(OSServiceId_GetElapsedValue, unmarked_alarm_id, as_value,
+      as_elapsed_value);
+  } else {
+#endif /* EE_AS_RPC__ */
 
-    return E_OS_DISABLEDINT;
-  }
-
-  /* OS381: If the input parameter <CounterID> in a call of GetElapsedValue()
-     is not Valid GetElapsedValue() shall return E_OS_ID.
-  */
-  if ((CounterID < 0) || (CounterID >= EE_MAX_COUNTER)) {
-    EE_ORTI_set_lasterror(E_OS_ID);
-
-    flag = EE_hal_begin_nested_primitive();
-    EE_oo_notify_error_GetElapsedValue(CounterID, Value, ElapsedValue, E_OS_ID);
-    EE_hal_end_nested_primitive(flag);
-
-    EE_ORTI_set_service_out(EE_SERVICETRACE_GETELAPSEDVALUE);
-    return E_OS_ID;
-  }
-
-  flag = EE_hal_begin_nested_primitive();
-  if(Value != (TickRefType)NULL) {
-    /* Access to a READ ONLY kernel global structure: I don't need to,
-       syncronize but i need it for following check.
-     */
-
-    if(*Value > EE_counter_ROM[CounterID].maxallowedvalue) {
-      EE_ORTI_set_lasterror(E_OS_VALUE);
-
-      EE_oo_notify_error_GetElapsedValue(CounterID, Value, ElapsedValue,
-        E_OS_VALUE);
-
-      EE_hal_end_nested_primitive(flag);
-      EE_ORTI_set_service_out(EE_SERVICETRACE_GETELAPSEDVALUE);
-
-      return E_OS_VALUE;
-    }
-    /* OS382: If the input parameters in a call of GetElapsedValue() are valid,
-        GetElapsedValue() shall return the number of elapsed ticks since the
-        given <Value> value via <ElapsedValue> and shall return E_OK.
-
-      OS533: Caveats of GetCounterValue():If the timer already passed the
+/* If counters are not defined cut everything */
+#if defined(EE_MAX_COUNTER) && (EE_MAX_COUNTER > 0)
+    /* [OS381]: If the input parameter <CounterID> in a call of
+        GetElapsedValue() is not Valid GetElapsedValue() shall return
+        E_OS_ID. */
+    if ( CounterID >= EE_MAX_COUNTER ) {
+      ev = E_OS_ID;
+    } else
+#if EE_FULL_SERVICE_PROTECTION
+    if ( EE_COUNTER_ACCESS_ERR(CounterID, EE_as_active_app) ) {
+      ev = E_OS_ACCESS;
+    } else
+#endif /* EE_FULL_SERVICE_PROTECTION */
+    if ( *Value > EE_counter_ROM[CounterID].maxallowedvalue ) {
+      ev = E_OS_VALUE;
+    } else {
+      /* [OS382]: If the input parameters in a call of GetElapsedValue() are
+          valid, GetElapsedValue() shall return the number of elapsed ticks
+          since the given <Value> value via <ElapsedValue> and shall return
+          E_OK.
+        [OS533]: Caveats of GetCounterValue():If the timer already passed the
         <Value> value a second (or multiple) time, the result returned is wrong.
         The reason is that the service can not detect such a relative overflow.
-    */
-    if(ElapsedValue != (TickRefType)NULL) {
+      */
       *ElapsedValue = (EE_counter_RAM[CounterID].value >= *Value) ?
         /* Timer did not pass the <value> yet */
         (EE_counter_RAM[CounterID].value - *Value) :
@@ -124,88 +140,27 @@ StatusType EE_oo_GetElapsedValue(CounterType CounterID, TickRefType Value,
         ((EE_counter_ROM[CounterID].maxallowedvalue -
         (*Value - EE_counter_RAM[CounterID].value)) + 1U);
 
-      EE_hal_end_nested_primitive(flag);
-      EE_ORTI_set_service_out(EE_SERVICETRACE_GETELAPSEDVALUE);
-
-      return E_OK;
+        ev = E_OK;
     }
+#else   /* EE_MAX_COUNTER > 0 */
+    {
+      ev = E_OS_ID;
+    }
+#endif  /* EE_MAX_COUNTER > 0 */
+#ifdef EE_AS_RPC__
   }
-  /* OS566: The Operating System API shall check in extended mode all pointer
-      argument for NULL pointer and return OS_E_PARAMETER if such argument is
-      NULL.
-  */
-  EE_ORTI_set_lasterror(E_OS_PARAMETER_POINTER);
+#endif /* EE_AS_RPC__ */
 
-  EE_oo_notify_error_GetElapsedValue(CounterID, Value, ElapsedValue,
-    E_OS_PARAMETER_POINTER);
-
-  EE_hal_end_nested_primitive(flag);
-  EE_ORTI_set_service_out(EE_SERVICETRACE_GETELAPSEDVALUE);
-  return E_OS_PARAMETER_POINTER;
-}
-#else /* __OO_EXTENDED_STATUS__ */
-StatusType EE_oo_GetElapsedValue(CounterType CounterID, TickRefType Value,
-    TickRefType ElapsedValue)
-{
-  register EE_FREG flag;
-  register StatusType retVal;
-
-  EE_ORTI_set_service_in(EE_SERVICETRACE_GETELAPSEDVALUE);
-
-  /*
-    OS093: If interrupts are disabled/suspended by a Task/OsIsr and the
-      Task/OsIsr calls any OS service (excluding the interrupt services)
-      then the Operating System shall ignore the service AND shall return
-      E_OS_DISABLEDINT if the service returns a StatusType value.
-  */
-  if(EE_oo_check_disableint_error()) {
-    EE_ORTI_set_lasterror(E_OS_DISABLEDINT);
-
-    flag = EE_hal_begin_nested_primitive();
+  if ( ev != E_OK ) {
+    EE_ORTI_set_lasterror(ev);
     EE_oo_notify_error_GetElapsedValue(CounterID, Value, ElapsedValue,
-      E_OS_DISABLEDINT);
-    EE_hal_end_nested_primitive(flag);
-
-    EE_ORTI_set_service_out(EE_SERVICETRACE_GETELAPSEDVALUE);
-
-    return E_OS_DISABLEDINT;
+      ev);
   }
 
-  /* OS382: If the input parameters in a call of GetElapsedValue() are valid,
-      GetElapsedValue() shall return the number of elapsed ticks since the given
-      <Value> value via <ElapsedValue> and shall return E_OK.
-
-    OS533: Caveats of GetCounterValue():If the timer already passed the <Value>
-      value a second (or multiple) time, the result returned is wrong. The
-      reason is that the service can not detect such a relative overflow.
-  */
-  flag = EE_hal_begin_nested_primitive();
-  if((Value != (TickRefType)NULL) && (ElapsedValue != (TickRefType)NULL)) {
-    *ElapsedValue = (EE_counter_RAM[CounterID].value >= *Value) ?
-        /* Timer did not pass the <value> yet */
-        (EE_counter_RAM[CounterID].value - *Value) :
-        /* Timer already passed the <value> */
-        ((EE_counter_ROM[CounterID].maxallowedvalue -
-        (*Value - EE_counter_RAM[CounterID].value)) + 1U);
-
-    retVal = E_OK;
-  } else {
-    /* OS566: The Operating System API shall check in extended mode all pointer
-        argument for NULL pointer and return OS_E_PARAMETER if such argument is
-        NULL.
-    */
-    EE_ORTI_set_lasterror(E_OS_PARAMETER_POINTER);
-
-    EE_oo_notify_error_GetElapsedValue(CounterID, Value, ElapsedValue,
-      E_OS_PARAMETER_POINTER);
-
-    retVal = E_OS_PARAMETER_POINTER;
-  }
-
-  EE_hal_end_nested_primitive(flag);
   EE_ORTI_set_service_out(EE_SERVICETRACE_GETELAPSEDVALUE);
+  EE_OS_EXIT_CRITICAL_SECTION();
 
-  return retVal;
+  return ev;
 }
-#endif /* __OO_EXTENDED_STATUS__ */
+
 #endif /* __PRIVATE_GETELAPSEDVALUE__ */

@@ -196,9 +196,9 @@ extern "C" {
 
 /* Tricore */
 
-/* Tricore TC27x */
-#if defined(EE_TRICORE__) && defined(EE_TC27X__)
-#include "mcu/infineon_tc27x/inc/ee_tc27x_internal.h"
+/* Tricore TC26X || TC27x */
+#if defined(EE_TRICORE__) && (defined(EE_TC26X__) || defined(EE_TC27X__))
+#include "mcu/infineon_common_tc2Yx/inc/ee_tc2Yx_internal.h"
 #endif
 
 /* Tricore1 */
@@ -325,12 +325,19 @@ extern "C" {
 #include "kernel/frsh/inc/ee_internal.h"
 #endif
 
-#if defined(__OO_BCC1__) || defined(__OO_BCC2__) || defined(__OO_ECC1__) || \
+#if defined(__OO_BCC1__) || defined(__OO_BCC2__) || defined(__OO_ECC1__) ||\
   defined(__OO_ECC2__)
 /* API prototypes should be visible when defining API functions */
-#include "kernel/oo/inc/ee_kernel.h"
-#include "kernel/oo/inc/ee_internal.h"
-#endif
+#include "kernel/oo/inc/ee_oo_kernel.h"
+#include "kernel/as/inc/ee_os.h"
+/* Moved inline interrupt services inclusion here, because they need to see TP
+   declarations */
+#include "kernel/oo/inc/ee_oo_inline.h"
+
+/* XXX: IT CAN HAPPEN THAT SOME OSEK INLINES NEED SOME INTERNALS FROM AS LAYER */
+#include "kernel/as/inc/ee_os_internal.h"
+#include "kernel/oo/inc/ee_oo_internal.h"
+#endif /* OO */
 
 #ifdef __SEM__
 #include "kernel/sem/inc/ee_sem.h"
@@ -340,9 +347,9 @@ extern "C" {
 #include "kernel/alarms/inc/ee_alarms.h"
 #endif
 
-#ifdef __RN__
+#if defined(__RN__) || defined(EE_AS_RPC__)
 #include "kernel/rn/inc/ee_rn_internal.h"
-#endif
+#endif /* __RN__ || EE_AS_RPC__ */
 
 #if defined(__AS_SC4__)
 #include "kernel/as/inc/ee_os_internal.h"

@@ -48,26 +48,80 @@
 
 /* I need cpu internals for multistack global structures */
 #include "cpu/tricore/inc/ee_tc_internal.h"
+/* I need Kernel inclusion for Common Context and Service Protection */
+#include "ee.h"
 /* I need Kernel inclusion for IRQ callbacks */
 #include "ee_irq.h"
-/* I need Common Context Implementation */
-#include "cpu/common/inc/ee_context.h"
 /* Plus I need Common End-ISR Scheduler Implementation */
 #include "cpu/common/inc/ee_irqstub.h"
 /* Plus I need TriCore IRQ handling defines */
 #include "cpu/tricore/inc/ee_tc_irq.h"
 
+/* Labels for Kernel Tracing. It has been used an utility function to generate
+   only one copy of Tracing Labels.
+   Enabled when ORTI is enabled and ISR are handled by ERIKA's intvec */
+#if defined(__OO_ORTI_SERVICETRACE__) && ((!defined(EE_ERIKA_ISR_HANDLING_OFF))\
+  || defined(EE_MM_OPT))
+
+void __NEVER_INLINE__ EE_tc_isr2_call_handler( EE_tc_ISR_handler f )
+{
+  /* Call The ISR User Handler */
+  if ( f != NULL ) {
+    f();
+  }
+}
+
+#else /* __OO_ORTI_SERVICETRACE__ &&
+  (!EE_ERIKA_ISR_HANDLING_OFF || EE_MM_OPT) */
+__INLINE__ void __ALWAYS_INLINE__ EE_tc_isr2_call_handler( EE_tc_ISR_handler f )
+{
+  /* Call The ISR User Handler */
+  if ( f != NULL ) {
+    f();
+  }
+}
+#endif /* __OO_ORTI_SERVICETRACE__ &&
+    (!EE_ERIKA_ISR_HANDLING_OFF || EE_MM_OPT) */
+
+
+#if defined(__OO_ORTI_RUNNINGISR2__)
+/* Only ORTI local */
+#define EE_generate_locals()  \
+  register EE_ORTI_runningisr2_type orti_old
+#else /* __OO_ORTI_RUNNINGISR2__ */
+/* No locals */
+#define EE_generate_locals()  ((void)0)
+#endif /*__OO_ORTI_RUNNINGISR2__ || EE_TIMING_PROTECTION__ */
+
+#ifdef __OO_ORTI_RUNNINGISR2__
+/* Keep the old ORTI and switch to new one */
+#define EE_ORTI_running_isr2_begin(f)         \
+  do {                                        \
+    orti_old = EE_ORTI_get_runningisr2();     \
+    EE_ORTI_set_runningisr2(f);               \
+  } while ( 0 )
+/* Restore old ORTI */
+#define EE_ORTI_running_isr2_end()  EE_ORTI_set_runningisr2(orti_old)
+#else /* __OO_ORTI_RUNNINGISR2__ */
+#define EE_ORTI_running_isr2_begin(f) ((void)0)
+#define EE_ORTI_running_isr2_end()    ((void)0)
+#endif /* __OO_ORTI_RUNNINGISR2__ */
+
 __INLINE__ void __ALWAYS_INLINE__ EE_tc_isr2_wrapper_body( EE_tc_ISR_handler f )
 {
+  /* This macro generate the local variables eventually needed */
+  EE_generate_locals();
+  /* Keep the old ORTI ISR2 and switch to new one */
+  EE_ORTI_running_isr2_begin(f);
   /* Increment nesting level here, with IRQ disabled */
   EE_increment_IRQ_nesting_level();
+  /* Set the context execution at ISR2 */
+  EE_as_set_execution_context( ISR2_Context );
   /* Enable IRQ if nesting  is allowed */
   EE_std_enableIRQ_nested();
 
-  if ( f != NULL ) {
-    /* Call The ISR User Handler */
-    f();
-  }
+  /* Call The ISR User Handler */
+  EE_tc_isr2_call_handler(f);
 
   /* Disable IRQ if nesting is allowed.
      Note: if nesting is not allowed, the IRQs are
@@ -78,6 +132,8 @@ __INLINE__ void __ALWAYS_INLINE__ EE_tc_isr2_wrapper_body( EE_tc_ISR_handler f )
   EE_std_end_IRQ_post_stub();
   /* Decrement nesting level here, with IRQ disabled */
   EE_decrement_IRQ_nesting_level();
+  /* Restore the old ORTI ISR2 value */
+  EE_ORTI_running_isr2_end();
   /* If the ISR at the lowest level is ended, restore old
      SP, reset CCPN and call the scheduler. */
   /* Check for scheduling point */

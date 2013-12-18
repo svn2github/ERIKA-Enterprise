@@ -59,172 +59,154 @@
 
 #ifndef __PRIVATE_RELEASERESOURCE__
 
-#ifdef __OO_EXTENDED_STATUS__
 StatusType EE_oo_ReleaseResource(ResourceType ResID)
-#else
-void EE_oo_ReleaseResource(ResourceType ResID)
-#endif
 {
-#if defined(__OO_EXTENDED_STATUS__) || defined(__OO_ISR2_RESOURCES__) ||\
-    defined(__OO_ORTI_PRIORITY__)
-  register EE_TID current;
-#endif
-
+  /* Error Value */
+  register StatusType ev;
+  /* Primitive Lock Variable */
+#if (!defined(__EE_MEMORY_PROTECTION__)) || defined(__OO_ISR2_RESOURCES__)
+  register EE_FREG flag;
+#endif /* !__EE_MEMORY_PROTECTION__ || __OO_ISR2_RESOURCES__ */
 #ifdef __MSRP__
   register EE_UREG isGlobal;
-#endif
-  register EE_FREG flag;
-  register EE_SREG inside_task;
+#endif /* __MSRP__ */
+#if defined(__OO_EXTENDED_STATUS__) || defined(__OO_ISR2_RESOURCES__) ||\
+    defined(__OO_ORTI_PRIORITY__)
+  register EE_TID current = EE_stk_queryfirst();
+#endif /* __OO_EXTENDED_STATUS__ || __OO_ISR2_RESOURCES__ ||
+  __OO_ORTI_PRIORITY__ */
+  /* To cache inside task info */
+  register EE_SREG inside_task = (EE_hal_get_IRQ_nesting_level() == 0U);
+  /* Primitive Lock Procedure */
+  EE_OS_ENTER_CRITICAL_SECTION();
 
   EE_ORTI_set_service_in(EE_SERVICETRACE_RELEASERESOURCE);
+
+  EE_as_monitoring_the_stack();
 
 #ifdef __MSRP__
   isGlobal = EE_oo_isGlobal(ResID);
   ResID = ResID & ~EE_GLOBAL_MUTEX;
-#endif
-
-#ifdef __OO_EXTENDED_STATUS__
-
-  /*
-    OS093: If interrupts are disabled/suspended by a Task/OsIsr and the
-      Task/OsIsr calls any OS service (excluding the interrupt services)
-      then the Operating System shall ignore the service AND shall return
-      E_OS_DISABLEDINT if the service returns a StatusType value.
-  */
-  if(EE_oo_check_disableint_error()) {
-    EE_ORTI_set_lasterror(E_OS_DISABLEDINT);
-
-    flag = EE_hal_begin_nested_primitive();
-    EE_oo_notify_error_ReleaseResource(ResID, E_OS_DISABLEDINT);
-    EE_hal_end_nested_primitive(flag);
-
-    EE_ORTI_set_service_out(EE_SERVICETRACE_RELEASERESOURCE);
-
-    return E_OS_DISABLEDINT;
-  }
-
-  /* no comparison for ResID < 0, the type is unsigned! */
-  if (ResID >= EE_MAX_RESOURCE) {
-    EE_ORTI_set_lasterror(E_OS_ID);
-
-    flag = EE_hal_begin_nested_primitive();
-    EE_oo_notify_error_ReleaseResource(ResID, E_OS_ID);
-    EE_hal_end_nested_primitive(flag);
-
-    EE_ORTI_set_service_out(EE_SERVICETRACE_RELEASERESOURCE);
-
-    return E_OS_ID;
-  }
-#endif /* __OO_EXTENDED_STATUS__ */
-
-  /* I begin the primitive */
-  flag = EE_hal_begin_nested_primitive();
-
-#if defined(__OO_EXTENDED_STATUS__) || defined(__OO_ISR2_RESOURCES__) ||\
-    defined(__OO_ORTI_PRIORITY__)
-  current = EE_stk_queryfirst();
-#endif
-
-  inside_task = (EE_hal_get_IRQ_nesting_level() == 0U);
+#endif /* __MSRP__ */
 
 #ifdef __OO_ISR2_RESOURCES__
   /* If actually we are inside an ISR2 get the fake TID to access stack */
-  if(inside_task == 0) {
-    current  = EE_oo_get_ISR2_TID();
+  if ( inside_task == 0 ) {
+    current = EE_oo_get_ISR2_TID();
   }
 #endif /* __OO_ISR2_RESOURCES__ */
 
+#ifdef EE_SERVICE_PROTECTION__
+  /*  [OS093]: If interrupts are disabled/suspended by a Task/OsIsr and the
+       Task/OsIsr calls any OS service (excluding the interrupt services)
+       then the Operating System shall ignore the service AND shall return
+       E_OS_DISABLEDINT if the service returns a StatusType value. */
+  /*  [OS088]: If an OS-Application makes a service call from the wrong context
+       AND is currently not inside a Category 1 ISR the Operating System module
+       shall not perform the requested action (the service call shall have no
+       effect), and return E_OS_CALLEVEL (see [12], section 13.1) or the
+       "invalid value" of the service. (BSW11009, BSW11013) */
+  /* ReleaseResource is callable by Task and ISR2 */
+  if ( EE_as_execution_context > ISR2_Context ) {
+    ev = E_OS_CALLEVEL;
+  } else if ( EE_oo_check_disableint_error() ) {
+    ev = E_OS_DISABLEDINT;
+  } else
+#endif /* EE_SERVICE_PROTECTION__ */
+
+#if EE_FULL_SERVICE_PROTECTION
+  /* no comparison for ResID < 0, the type is unsigned! */
+  if ( ResID >= EE_MAX_RESOURCE ) {
+    ev = E_OS_ID;
+  } else if ( EE_RESOURCE_ACCESS_ERR(ResID, EE_as_active_app) ) {
+    ev = E_OS_ACCESS;
+  } else
+#elif defined(__OO_EXTENDED_STATUS__)
+  /* no comparison for ResID < 0, the type is unsigned! */
+  if ( ResID >= EE_MAX_RESOURCE ) {
+    ev = E_OS_ID;
+  } else
+#endif /* EE_FULL_SERVICE_PROTECTION || __OO_EXTENDED_STATUS__ */
+
 #ifdef __OO_EXTENDED_STATUS__
-  if ((EE_resource_locked[ResID] == 0U) ||
-      (EE_th_resource_last[current] != ResID)) {
-    EE_ORTI_set_lasterror(E_OS_NOFUNC);
-
-    EE_oo_notify_error_ReleaseResource(ResID, E_OS_NOFUNC);
-
-    EE_hal_end_nested_primitive(flag);
-    EE_ORTI_set_service_out(EE_SERVICETRACE_RELEASERESOURCE);
-
-    return E_OS_NOFUNC;
-  }
+  if ( (EE_resource_locked[ResID] == 0U) ||
+        (EE_th_resource_last[current] != ResID) ) {
+    ev = E_OS_NOFUNC;
+  } else if ( inside_task && ((current == EE_NIL) ||
+      (EE_th_ready_prio[current] > EE_resource_ceiling[ResID])) ) {
+    ev = E_OS_ACCESS;
+  } else
+#ifdef __OO_ISR2_RESOURCES__
+  /* Check if interrupt controller priority is greater than priority
+     of resource to be realeased */
+  if ( (!inside_task) &&
+      EE_hal_check_int_prio_if_higher(EE_resource_isr2_priority[ResID]) )
   {
-    /* Resource access error block flag */
-    register EE_BIT  res_access_error_flag = 0U;
-    /* If I'm really in a Task */
-    if(inside_task != 0) {
-      if ((current == EE_NIL) ||
-          (EE_th_ready_prio[current] > EE_resource_ceiling[ResID])) {
-        res_access_error_flag = 1U;
-      }
-    } else {
-#ifdef __OO_ISR2_RESOURCES__
-      /* Check if interrupt controller priority is greater than priority
-         of resource to be realeased */
-      if(EE_hal_check_int_prio_if_higher(EE_resource_isr2_priority[ResID])) {
-        res_access_error_flag = 1U;
-      }
-#else
-      res_access_error_flag = 1U;
-#endif
-    }
-
-    if(res_access_error_flag != 0U) {
-      EE_ORTI_set_lasterror(E_OS_ACCESS);
-      EE_oo_notify_error_ReleaseResource(ResID, E_OS_ACCESS);
-      EE_hal_end_nested_primitive(flag);
-      EE_ORTI_set_service_out(EE_SERVICETRACE_RELEASERESOURCE);
-      return E_OS_ACCESS;
-    }
-  }
+    ev = E_OS_ACCESS;
+  } else
+#else /* __OO_ISR2_RESOURCES__ */
+  if ( !inside_task ) {
+    ev = E_OS_ACCESS;
+  } else
+#endif /* __OO_ISR2_RESOURCES__ */
 #endif /* __OO_EXTENDED_STATUS__ */
+  {
+    /* Stop TP Lock Budget, if needed */
+    EE_as_tp_active_stop_budget(EE_RESOURCE_LOCK_BUDGET, ResID, EE_FALSE);
 
 #ifdef __OO_ISR2_RESOURCES__
-  /* Restore old ISR2 priority */
-  flag = EE_hal_change_int_prio(EE_isr2_oldpriority[ResID], flag);
+    /* Restore old ISR2 priority */
+    flag = EE_hal_change_int_prio(EE_isr2_oldpriority[ResID], flag);
 #endif /* __OO_ISR2_RESOURCES__ */
 
 #if defined(__OO_EXTENDED_STATUS__) || defined(__OO_ISR2_RESOURCES__)
-  /* remove the last entry from the data structure */
-  EE_th_resource_last[current] = 
-    EE_resource_stack[EE_th_resource_last[current]];
+    /* remove the last entry from the data structure */
+    EE_th_resource_last[current] = 
+      EE_resource_stack[EE_th_resource_last[current]];
 #endif /* __OO_EXTENDED_STATUS__ || __OO_ISR2_RESOURCES__ */
 
 #if defined(__OO_EXTENDED_STATUS__) || defined(__OO_ORTI_RES_ISLOCKED__)
-  /* ok, we have to free that resource! */
-  EE_resource_locked[ResID] = 0U;
-#endif
+    /* ok, we have to free that resource! */
+    EE_resource_locked[ResID] = 0U;
+#endif /* __OO_EXTENDED_STATUS__ || __OO_ORTI_RES_ISLOCKED__ */
 
 #ifdef __MSRP__
-  /* if this is a global resource, unlock the others CPUs */
-  if (isGlobal) {
-    EE_hal_spin_out((EE_TYPESPIN)ResID);
-  }
-#endif
+    /* if this is a global resource, unlock the others CPUs */
+    if ( isGlobal ) {
+      EE_hal_spin_out((EE_TYPESPIN)ResID);
+    }
+#endif /* __MSRP__ */
 
-  /* there is no need to store that the resource has no more lockers,
-     because we inserted an if expression into the ORTI File */
-  /* #ifdef __OO_ORTI_RES_LOCKER_TASK__ */
-  /*  EE_ORTI_res_locker[ResID] = EE_NIL; */
-  /* #endif */
+    /* there is no need to store that the resource has no more lockers,
+       because we inserted an if expression into the ORTI File */
+    /* #ifdef __OO_ORTI_RES_LOCKER_TASK__ */
+    /*  EE_ORTI_res_locker[ResID] = EE_NIL; */
+    /* #endif */
 
-  EE_sys_ceiling = EE_resource_oldceiling[ResID];
+    EE_sys_ceiling = EE_resource_oldceiling[ResID];
 
 #ifdef __OO_ORTI_PRIORITY__
-  EE_ORTI_th_priority[current] = EE_ORTI_resource_oldpriority[ResID];
-#endif
+    EE_ORTI_th_priority[current] = EE_ORTI_resource_oldpriority[ResID];
+#endif /* __OO_ORTI_PRIORITY__ */
 
-  /* Check if there is a preemption
-     this test has to be done only if we are inside a task */
-  if(inside_task != 0) {
-    /* we are inside a task */
-    EE_oo_preemption_point();
+    /* Check if there is a preemption
+       this test has to be done only if we are inside a task */
+    if ( inside_task ) {
+      /* we are inside a task */
+      EE_oo_preemption_point();
+    }
+    ev = E_OK;
   }
 
-  EE_hal_end_nested_primitive(flag); 
-  EE_ORTI_set_service_out(EE_SERVICETRACE_RELEASERESOURCE);
+  if ( ev != E_OK ) {
+    EE_ORTI_set_lasterror(ev);
+    EE_oo_notify_error_ReleaseResource(ResID, ev);
+  }
 
-#ifdef __OO_EXTENDED_STATUS__
-  return E_OK;
-#endif
+  EE_ORTI_set_service_out(EE_SERVICETRACE_RELEASERESOURCE);
+  EE_OS_EXIT_CRITICAL_SECTION();
+
+  return ev;
 }
 
 #endif /* __PRIVATE_RELEASERESOURCE__ */

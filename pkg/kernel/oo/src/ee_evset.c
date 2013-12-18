@@ -65,128 +65,119 @@
 #if defined(__OO_ECC1__) || defined(__OO_ECC2__)
 #ifndef __PRIVATE_SETEVENT__
 
-#ifdef __OO_EXTENDED_STATUS__
 StatusType EE_oo_SetEvent(TaskType TaskID, EventMaskType Mask)
-#else
-void EE_oo_SetEvent(TaskType TaskID, EventMaskType Mask)
-#endif
 {
-  register EE_FREG flag;
+  /* Error Value */
+  register StatusType ev;
+  /* Primitive Lock Procedure */
+  EE_OS_DECLARE_AND_ENTER_CRITICAL_SECTION();
 
   EE_ORTI_set_service_in(EE_SERVICETRACE_SETEVENT);
 
-#ifdef __RN_EVENT__
-  if (EE_IS_TID_REMOTE(TaskID)) {
-    /* forward the request to another CPU when the task does
+  EE_as_monitoring_the_stack();
+
+#ifdef EE_SERVICE_PROTECTION__
+  /* [OS093]: If interrupts are disabled/suspended by a Task/OsIsr and the
+      Task/OsIsr calls any OS service (excluding the interrupt services)
+      then the Operating System shall ignore the service AND shall return
+      E_OS_DISABLEDINT if the service returns a StatusType value. */
+  /* [OS088]: If an OS-Application makes a service call from the wrong context
+      AND is currently not inside a Category 1 ISR the Operating System module
+      shall not perform the requested action (the service call shall have no
+      effect), and return E_OS_CALLEVEL (see [12], section 13.1) or the
+      "invalid value" of  the service. (BSW11009, BSW11013) */
+  /* SetEvent is callable by Task and ISR2 */
+  if ( EE_as_execution_context > ISR2_Context ) {
+    ev = E_OS_CALLEVEL;
+  } else if ( EE_oo_check_disableint_error() ) {
+    ev = E_OS_DISABLEDINT;
+  } else
+#endif /* EE_SERVICE_PROTECTION__ */
+
+#if defined(__RN_EVENT__) || defined(EE_AS_RPC__)
+  if ( EE_IS_TID_REMOTE(TaskID) )
+  {
+#ifdef EE_AS_RPC__
+    EE_os_param const unmarked_tid = { EE_UNMARK_REMOTE_TID(TaskID) };
+    EE_os_param const as_mask = { Mask };
+
+    /* Forward the request to another CPU in synchronous way */
+    ev = EE_as_rpc(OSServiceId_SetEvent, unmarked_tid, as_mask,
+      EE_OS_INVALID_PARAM);
+#else /* EE_AS_RPC__ */
+    /* Forward the request to another CPU when the task does
        not belong to the current CPU */
     register EE_TYPERN_PARAM par;
     par.ev = Mask;
     (void)EE_rn_send((EE_SREG)EE_MARK_REMOTE_TID(TaskID),
       EE_RN_EVENT, par);
-    
-    EE_ORTI_set_service_out(EE_SERVICETRACE_SETEVENT);
-
-#ifdef __OO_EXTENDED_STATUS__
-    return E_OK;
-#else
-    return;
-#endif /* __OO_EXTENDED_STATUS__ */
-  }
-#endif /* __RN_EVENT__ */
-
-#ifdef __OO_EXTENDED_STATUS__
-
-  /*
-    OS093: If interrupts are disabled/suspended by a Task/OsIsr and the
-      Task/OsIsr calls any OS service (excluding the interrupt services)
-      then the Operating System shall ignore the service AND shall return
-      E_OS_DISABLEDINT if the service returns a StatusType value.
-  */
-  if(EE_oo_check_disableint_error()) {
-    EE_ORTI_set_lasterror(E_OS_DISABLEDINT);
-
-    flag = EE_hal_begin_nested_primitive();
-    EE_oo_notify_error_SetEvent(TaskID, Mask, E_OS_DISABLEDINT);
-    EE_hal_end_nested_primitive(flag);
-
-    EE_ORTI_set_service_out(EE_SERVICETRACE_SETEVENT);
-
-    return E_OS_DISABLEDINT;
-  }
-
-  /* check if the task Id is valid */
-  if ((TaskID < 0) || (TaskID >= EE_MAX_TASK)) {
-    EE_ORTI_set_lasterror(E_OS_ID);
-
-    flag = EE_hal_begin_nested_primitive();
-    EE_oo_notify_error_SetEvent(TaskID, Mask, E_OS_ID);
-    EE_hal_end_nested_primitive(flag);
-
-    EE_ORTI_set_service_out(EE_SERVICETRACE_SETEVENT);
-
-    return E_OS_ID;
-  }
-
-  if (EE_th_is_extended[TaskID] == 0U) {
-    EE_ORTI_set_lasterror(E_OS_ACCESS);
-
-    flag = EE_hal_begin_nested_primitive();
-    EE_oo_notify_error_SetEvent(TaskID, Mask, E_OS_ACCESS);
-    EE_hal_end_nested_primitive(flag);
-
-    EE_ORTI_set_service_out(EE_SERVICETRACE_SETEVENT);
-
-    return E_OS_ACCESS;
-  }
-#endif /* __OO_EXTENDED_STATUS__ */
-
-  flag = EE_hal_begin_nested_primitive();
-
-  if (EE_th_status[TaskID] == SUSPENDED) {
-#ifdef __OO_EXTENDED_STATUS__
-    EE_ORTI_set_lasterror(E_OS_STATE);
-
-    EE_oo_notify_error_SetEvent(TaskID, Mask, E_OS_STATE);
-
-    EE_hal_end_nested_primitive(flag);
-    EE_ORTI_set_service_out(EE_SERVICETRACE_SETEVENT);
-
-    return E_OS_STATE;
-#endif /* __OO_EXTENDED_STATUS__ */
+    ev = E_OK;
+#endif /* EE_AS_RPC__ */
   } else {
-    /* Set the event mask only if the task is not suspended */
-    EE_th_event_active[TaskID] |= Mask;
+#endif /* __RN_EVENT__ || EE_AS_RPC__ */
 
-    /* Check if the task was waiting for an event we just set
-     *
-     * WARNING:
-     * the test with status==WAITING is FUNDAMENTAL to avoid double
-     * insertion of the task in the ready queue!!! Example, when I call
-     * two times the same setevent... the first time the task must go in
-     * the ready queue, the second time NOT!!!
-     */
-    if (EE_th_event_waitmask[TaskID] & Mask) {
-      if (EE_th_status[TaskID] == WAITING) {
-        /* if yes, the task must go back into the READY state */
-        EE_th_status[TaskID] = READY;
-        /* insert the task in the ready queue */
-        EE_rq_insert(TaskID);
+#ifdef __OO_EXTENDED_STATUS__
+    /* Check if the TASK Id is valid */
+    if ( (TaskID < 0) || (TaskID >= EE_MAX_TASK) ) {
+      ev = E_OS_ID;
+    } else if ( EE_th_is_extended[TaskID] == 0U ) {
+      ev = E_OS_ACCESS;
+    } else
+#endif /* __OO_EXTENDED_STATUS__ */
 
-        /* and if I am at task level, check for preemption... */
-        if (EE_hal_get_IRQ_nesting_level() == 0U) {
-          /* we are inside a task */
-          EE_oo_preemption_point();
+    if ( EE_th_status[TaskID] == SUSPENDED ) {
+      ev = E_OS_STATE;
+    } else {
+      /* Set the event mask only if the task is not suspended */
+      EE_th_event_active[TaskID] |= Mask;
+
+      /* Check if the TASK was waiting for an event we just set
+       *
+       * WARNING:
+       * the test with status==WAITING is FUNDAMENTAL to avoid double
+       * insertion of the task in the ready queue!!! Example, when I call
+       * two times the same setevent... the first time the task must go in
+       * the ready queue, the second time NOT!!!
+       */
+      if ( ((EE_th_event_waitmask[TaskID] & Mask) != 0U) &&
+        (EE_th_status[TaskID] == WAITING) )
+      {
+        /* [SWS_Os_00472] The Operating System module shall start an
+            OsTaskTimeFrame when a task is released successfully.
+            (SRS_Os_11008) */
+        /* [SWS_Os_00467] If an attempt is made to release a task before
+            the end of an OsTaskTimeFrame then the Operating System module
+            shall not perform the release AND shall call the
+            ProtectionHook() with E_OS_PROTECTION_ARRIVAL AND the EVENT
+            SHALL BE SET. */
+        if ( EE_as_tp_handle_interarrival(EE_AS_TP_ID_FROM_TASK(TaskID)) ) {
+          /* If yes, the task must go back into the READY state */
+          EE_th_status[TaskID] = READY;
+          /* Insert the task in the ready queue... */
+          EE_rq_insert(TaskID);
+
+          /* If I am at task level, check for preemption... */
+          if ( EE_hal_get_IRQ_nesting_level() == 0U ) {
+            /* We are inside a task */
+            EE_oo_preemption_point();
+          }
         }
       }
+      ev = E_OK;
     }
+#if defined(__RN_EVENT__) || defined(EE_AS_RPC__)
+  }
+#endif /* __RN_EVENT__ || EE_AS_RPC__ */
+
+  if ( ev != E_OK ) {
+    EE_ORTI_set_lasterror(ev);
+    EE_oo_notify_error_SetEvent(TaskID, Mask, ev);
   }
 
-  EE_hal_end_nested_primitive(flag);
   EE_ORTI_set_service_out(EE_SERVICETRACE_SETEVENT);
+  EE_OS_EXIT_CRITICAL_SECTION();
 
-#ifdef __OO_EXTENDED_STATUS__
-  return E_OK;
-#endif
+  return ev;
 }
 
 #endif /* __PRIVATE_SETEVENT__ */

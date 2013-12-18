@@ -48,29 +48,70 @@
 #ifndef __PRIVATE_GETVALUESEM__
 int EE_oo_GetValueSem(const SemType *Sem)
 {
+  /* Error Value */
+  register StatusType ev;
   int      returnvalue = EE_NIL;
-  register EE_FREG flag;
+
+  /* Primitive Lock Procedure */
+  EE_OS_DECLARE_AND_ENTER_CRITICAL_SECTION();
 
   EE_ORTI_set_service_in(EE_SERVICETRACE_GETVALUESEM);
-	
-  flag = EE_hal_begin_nested_primitive();
 
-  if (Sem != NULL) {
-#if defined(__OO_ECC1__) || defined(__OO_ECC2__)
-    if (Sem->first == EE_NIL) {
-      returnvalue = (int)(Sem->count);
-    }
-    else {
+  EE_as_monitoring_the_stack();
+
+#ifdef EE_SERVICE_PROTECTION__
+  /* [OS093]: If interrupts are disabled/suspended by a Task/OsIsr and the
+      Task/OsIsr calls any OS service (excluding the interrupt services)
+      then the Operating System shall ignore the service AND shall return
+      E_OS_DISABLEDINT if the service returns a StatusType value. */
+  if ( EE_oo_check_disableint_error() ) {
+    ev = E_OS_DISABLEDINT;
+    returnvalue = -1;
+  } else
+#endif /* EE_SERVICE_PROTECTION__ */
+
+  if ( Sem != NULL ) {
+#if defined(__EE_MEMORY_PROTECTION__) && defined(EE_SERVICE_PROTECTION__)
+    /* [SWS_Os_00051]: If an invalid address (address is not writable by this
+        OS-Application) is passed as an out-parameter to an Operating System
+        service, the Operating System module shall return the status code
+        E_OS_ILLEGAL_ADDRESS. (SRS_Os_11009, SRS_Os_11013) */
+    if ( !OSMEMORY_IS_WRITEABLE(EE_hal_get_app_mem_access(EE_as_active_app,
+      Sem, sizeof(*Sem))) )
+    {
+      ev = E_OS_ILLEGAL_ADDRESS;
       returnvalue = -1;
+    } else {
+#else /* __EE_MEMORY_PROTECTION__ && EE_SERVICE_PROTECTION__ */
+    {
+#endif /* __EE_MEMORY_PROTECTION__ && EE_SERVICE_PROTECTION__ */
+#if defined(__OO_ECC1__) || defined(__OO_ECC2__)
+      if ( Sem->first == EE_NIL ) {
+        returnvalue = (int)(Sem->count);
+      } else {
+        returnvalue = -1;
+      }
+#else /* __OO_ECC1__ || __OO_ECC2__ */
+      returnvalue = (int)(Sem->count);
+#endif /* __OO_ECC1__ || __OO_ECC2__ */
+      ev = E_OK;
     }
-#else
-    returnvalue = (int)(Sem->count);
-#endif
+  } else {
+    ev = E_OS_PARAM_POINTER;
+    returnvalue = -1;
   }
 
-  EE_hal_end_nested_primitive(flag);
+  if ( ev != E_OK )
+  {
+    EE_OS_PARAM(os_sem);
+    EE_OS_PARAM_REF(os_sem, sem_ref, (SemRefType)Sem);
+    EE_os_notify_error(OSServiceId_GetValueSem, os_sem,
+      EE_OS_INVALID_PARAM, EE_OS_INVALID_PARAM, ev);
+  }
 
   EE_ORTI_set_service_out(EE_SERVICETRACE_GETVALUESEM);
+
+  EE_OS_EXIT_CRITICAL_SECTION();
 
   return returnvalue;
 }

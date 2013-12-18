@@ -60,76 +60,92 @@
 
 StatusType EE_oo_Schedule(void)
 {
-  EE_TID current, rq;
-  register EE_FREG flag;
+  register EE_TID current, rq;
+  /* Error Value */
+  register StatusType ev;
+  /* Primitive Lock Procedure */
+  EE_OS_DECLARE_AND_ENTER_CRITICAL_SECTION();
 
   EE_ORTI_set_service_in(EE_SERVICETRACE_SCHEDULE);
 
+  EE_as_monitoring_the_stack();
+
   current = EE_stk_queryfirst();
+  rq = EE_rq_queryfirst();
 
-#ifdef __OO_EXTENDED_STATUS__
-
-  /*
-    OS093: If interrupts are disabled/suspended by a Task/OsIsr and the
+#ifdef EE_SERVICE_PROTECTION__
+  /* [OS093]: If interrupts are disabled/suspended by a Task/OsIsr and the
       Task/OsIsr calls any OS service (excluding the interrupt services)
       then the Operating System shall ignore the service AND shall return
-      E_OS_DISABLEDINT if the service returns a StatusType value.
-  */
-  if(EE_oo_check_disableint_error()) {
-    EE_ORTI_set_lasterror(E_OS_DISABLEDINT);
+      E_OS_DISABLEDINT if the service returns a StatusType value. */
+  if ( EE_oo_check_disableint_error() ) {
+    ev = E_OS_DISABLEDINT;
+  } else
+#endif /* EE_SERVICE_PROTECTION__ */
 
-    flag = EE_hal_begin_nested_primitive();
-    EE_oo_notify_error_service(OSServiceId_Schedule, E_OS_DISABLEDINT);
-    EE_hal_end_nested_primitive(flag);
-
-    EE_ORTI_set_service_out(EE_SERVICETRACE_SCHEDULE);
-
-    return E_OS_DISABLEDINT;
-  }
-
+#if defined(__OO_EXTENDED_STATUS__) || defined(EE_SERVICE_PROTECTION__)
+  /* [OS088]: If an OS-Application makes a service call from the wrong context
+      AND is currently not inside a Category 1 ISR the Operating System module
+      shall not perform the requested action (the service call shall have no
+      effect), and return E_OS_CALLEVEL (see [12], section 13.1) or the
+      "invalid value" of  the service. (BSW11009, BSW11013) */
   /* check for a call at interrupt level */
-  if (EE_hal_get_IRQ_nesting_level()) {
-    EE_ORTI_set_lasterror(E_OS_CALLEVEL);
+  if ( EE_hal_get_IRQ_nesting_level() || (current == EE_NIL) ||
+       (EE_as_get_execution_context() > TASK_Context) )
+  {
+    ev = E_OS_CALLEVEL;
+  } else
+#endif /* __OO_EXTENDED_STATUS__ || EE_SERVICE_PROTECTION__ */
 
-    flag = EE_hal_begin_nested_primitive();
-    EE_oo_notify_error_service(OSServiceId_Schedule, E_OS_CALLEVEL);
-    EE_hal_end_nested_primitive(flag);
-
-    EE_ORTI_set_service_out(EE_SERVICETRACE_SCHEDULE);
-
-    return E_OS_CALLEVEL;
-  }
-
-
+#ifdef __OO_EXTENDED_STATUS__
 #ifndef __OO_NO_RESOURCES__
   /* check for busy resources */
-  if (EE_th_resource_last[current] != EE_UREG_MINUS1) {
-    EE_ORTI_set_lasterror(E_OS_RESOURCE);
-
-    flag = EE_hal_begin_nested_primitive();
-    EE_oo_notify_error_service(OSServiceId_Schedule, E_OS_RESOURCE);
-    EE_hal_end_nested_primitive(flag);
-
-    EE_ORTI_set_service_out(EE_SERVICETRACE_SCHEDULE);
-
-    return E_OS_RESOURCE;
-  }
+  if ( EE_th_resource_last[current] != EE_UREG_MINUS1 )
+  {
+    ev = E_OS_RESOURCE;
+  } else
 #endif /* __OO_NO_RESOURCES__ */
+
+#ifdef EE_AS_USER_SPINLOCKS__
+  /* [OS624]: The AUTOSAR Operating System Schedule API service shall check if it
+      has been called while the calling TASK has occupied a spinlock. In
+      extended status an error E_OS_SPINLOCK shall be returned and the scheduler
+      shall not be called. (BSW4080021) */
+  if ( EE_as_spinlocks_last[EE_CURRENTCPU] != INVALID_SPINLOCK ) {
+    ev = E_OS_SPINLOCK;
+  } else
+#endif /* EE_AS_USER_SPINLOCKS__ */
 
 #endif /* __OO_EXTENDED_STATUS__ */
 
-  flag = EE_hal_begin_nested_primitive();
-  
-  /* check if there is a preemption */
-  rq = EE_rq_queryfirst();
-  if (rq != EE_NIL) {
+#if defined(EE_SYSCALL_NR) && defined(EE_MAX_SYS_SERVICEID) &&\
+  (EE_SYSCALL_NR > EE_MAX_SYS_SERVICEID)
+  /*  If a TASK is inside CallTrustedFunction() and TASK
+      rescheduling takes place within the same OSApplication scheduling of
+      other TASKs which belong to the same OS-Application as the caller needs
+      to be restricted.
+      EG: To Assure that I CANNOT let a TASK release internal resource, if this
+        means schedule a TASK of the same OSApplication, unless the
+        OSApplication is TRUSTED. */
+  if (  (EE_as_active_app == EE_th_app[rq + 1]) &&
+        (EE_as_Application_RAM[EE_as_active_app].
+          TrustedFunctionCallsCounter != 0U) &&
+        (EE_as_Application_ROM[EE_as_active_app].Mode != EE_MEMPROT_TRUST_MODE )
+     )
+  {
+    ev = E_OK;
+  } else
+#endif /* EE_SYSCALL_NR > EE_MAX_SYS_SERVICEID */
+
+  /* Check if there is a preemption */
+  if ( rq != EE_NIL ) {
     /* The standard says that "Schedule enables a processor assignment
-       to other tasks with lower priority than the ceiling priority of
+       to other TASKs with lower priority than the ceiling priority of
        the internal resource and higher priority than the priority of
-       the calling task". That means that only tasks currently in the
+       the calling TASK". That means that only TASKs currently in the
        ready queue with the ready priority > than the ready priority
-       of the running task can be executed... */
-    if (EE_th_ready_prio[current] < EE_th_ready_prio[rq]) {
+       of the running TASK can be executed... */
+    if ( EE_th_ready_prio[current] < EE_th_ready_prio[rq] ) {
       EE_oo_call_PostTaskHook();
       /* release the internal resource */
       EE_sys_ceiling &= ~EE_th_dispatch_prio[current];
@@ -160,10 +176,9 @@ StatusType EE_oo_Schedule(void)
 
       EE_ORTI_set_th_eq_dispatch_prio(current);
       EE_ORTI_set_th_eq_dispatch_prio(rq);
-      
+
       /* Execute context SWITCH, this method return when we have a switch
-         back on the previous TASK contest.
-       */
+         back on the previous TASK contest. */
       EE_oo_run_next_task();
 
       /* release the ready priority bit and... */
@@ -176,13 +191,21 @@ StatusType EE_oo_Schedule(void)
       /* Call PreTaskHook in the first TASK context */
       EE_oo_call_PreTaskHook();
     }
+    ev = E_OK;
+  } else {
+    ev = E_OK;
   }
-  
-  EE_hal_end_nested_primitive(flag);
-  EE_ORTI_set_service_out(EE_SERVICETRACE_SCHEDULE);
 
-  return E_OK;
+  if ( ev != E_OK ) {
+    EE_ORTI_set_lasterror(ev);
+    EE_oo_notify_error_service(OSServiceId_Schedule, ev);
+  }
+
+  EE_ORTI_set_service_out(EE_SERVICETRACE_SCHEDULE);
+  EE_OS_EXIT_CRITICAL_SECTION();
+
+  return ev;
 }
 
-#endif
+#endif /* __PRIVATE_SCHEDULE__ */
 

@@ -55,116 +55,122 @@
        E_OS_CALLEVEL called at interrupt level
 */
 
-
 #if defined(__OO_ECC1__) || defined(__OO_ECC2__)
 #ifndef __PRIVATE_WAITEVENT__
 
-#ifdef __OO_EXTENDED_STATUS__
 StatusType EE_oo_WaitEvent(EventMaskType Mask)
-#else
-void EE_oo_WaitEvent(EventMaskType Mask)
-#endif
 {
-  TaskType current;
-  register EE_FREG flag;
+  register TaskType current;
+  /* Error Value */
+  register StatusType ev;
+  /* Primitive Lock Procedure */
+  EE_OS_DECLARE_AND_ENTER_CRITICAL_SECTION();
 
   EE_ORTI_set_service_in(EE_SERVICETRACE_WAITEVENT);
 
+  EE_as_monitoring_the_stack();
+
   current = EE_stk_queryfirst();
 
-#ifdef __OO_EXTENDED_STATUS__
-
-  /*
-    OS093: If interrupts are disabled/suspended by a Task/OsIsr and the
+#ifdef EE_SERVICE_PROTECTION__
+  /* [OS093]: If interrupts are disabled/suspended by a Task/OsIsr and the
       Task/OsIsr calls any OS service (excluding the interrupt services)
       then the Operating System shall ignore the service AND shall return
-      E_OS_DISABLEDINT if the service returns a StatusType value.
-  */
-  if(EE_oo_check_disableint_error()) {
-    EE_ORTI_set_lasterror(E_OS_DISABLEDINT);
+      E_OS_DISABLEDINT if the service returns a StatusType value. */
+  /* [OS088]: If an OS-Application makes a service call from the wrong context
+      AND is currently not inside a Category 1 ISR the Operating System module
+      shall not perform the requested action (the service call shall have no
+      effect), and return E_OS_CALLEVEL (see [12], section 13.1) or the
+      "invalid value" of  the service. (BSW11009, BSW11013) */
+  if ( EE_oo_check_disableint_error() ) {
+    ev = E_OS_DISABLEDINT;
+  } else
+#endif /* EE_SERVICE_PROTECTION__ */
 
-    flag = EE_hal_begin_nested_primitive();
-    EE_oo_notify_error_WaitEvent(Mask, E_OS_DISABLEDINT);
-    EE_hal_end_nested_primitive(flag);
-
-    EE_ORTI_set_service_out(EE_SERVICETRACE_WAITEVENT);
-
-    return E_OS_DISABLEDINT;
-  }
-
-  /* check for a call at interrupt level:
-   * Note: this must be the FIRST error check!!!
-   */
-  if ((EE_hal_get_IRQ_nesting_level() != 0U) || (current==EE_NIL)) {
-    EE_ORTI_set_lasterror(E_OS_CALLEVEL);
-
-    flag = EE_hal_begin_nested_primitive();
-    EE_oo_notify_error_WaitEvent(Mask, E_OS_CALLEVEL);
-    EE_hal_end_nested_primitive(flag);
-
-    EE_ORTI_set_service_out(EE_SERVICETRACE_WAITEVENT);
-
-    return E_OS_CALLEVEL;
-  }
-
-#ifndef __OO_NO_RESOURCES__
-  /* check for busy resources */ 
-  if (EE_th_resource_last[current] != EE_UREG_MINUS1) {
-    EE_ORTI_set_lasterror(E_OS_RESOURCE);
-
-    flag = EE_hal_begin_nested_primitive();
-    EE_oo_notify_error_WaitEvent(Mask, E_OS_RESOURCE);
-    EE_hal_end_nested_primitive(flag);
-
-    EE_ORTI_set_service_out(EE_SERVICETRACE_WAITEVENT);
-
-    return E_OS_RESOURCE;
-  }
-#endif /* __OO_NO_RESOURCES__ */
-
-  /* check if the task is an extended task */
-  if (EE_th_is_extended[current] == 0U) {
-    EE_ORTI_set_lasterror(E_OS_ACCESS);
-
-    flag = EE_hal_begin_nested_primitive();
-    EE_oo_notify_error_WaitEvent(Mask, E_OS_ACCESS);
-    EE_hal_end_nested_primitive(flag);
-
-    EE_ORTI_set_service_out(EE_SERVICETRACE_WAITEVENT);
-
-    return E_OS_ACCESS;
-  }
-#endif /* __OO_EXTENDED_STATUS__ */
-
-  flag = EE_hal_begin_nested_primitive();
-
-  /* check if we have to wait */
-  if ((EE_th_event_active[current] & Mask) == 0U) {
-    /* set the waiting mask */
-    EE_th_event_waitmask[current] = Mask;
-
-    /* Prepare current Task to block */
-    EE_oo_prepare_to_block();
-
-    /* then, the task is not inserted in any queue! it will be woken
-       up by a SetEvent using a EE_hal_stkchange... */
-
-    /* Reschedule next task:
-     * check if there is to schedule a ready thread or pop a preempted
-     * thread 
-     */
-    EE_oo_reschedule_on_block();
-
-    /* reset the waiting mask */
-    EE_th_event_waitmask[current] = 0U;
-  }
-
-  EE_hal_end_nested_primitive(flag);
-  EE_ORTI_set_service_out(EE_SERVICETRACE_WAITEVENT);
+#if defined(__OO_EXTENDED_STATUS__) || defined(EE_SERVICE_PROTECTION__)
+  /* Check for a call at interrupt level:
+   * Note: this must be the FIRST error check!!! */
+  if ( (EE_hal_get_IRQ_nesting_level() != 0U) || (current == EE_NIL) ||
+       (EE_as_get_execution_context() > TASK_Context) )
+  {
+    ev = E_OS_CALLEVEL;
+  } else
+#endif /* __OO_EXTENDED_STATUS__ || EE_SERVICE_PROTECTION__ */
 
 #ifdef __OO_EXTENDED_STATUS__
-  return E_OK;
-#endif
+#ifndef __OO_NO_RESOURCES__
+  /* Check for busy resources */
+  if ( EE_th_resource_last[current] != EE_UREG_MINUS1 )
+  {
+    ev = E_OS_RESOURCE;
+  } else
+#endif /* __OO_NO_RESOURCES__ */
+
+  /* Check if the task is an extended TASK */
+  if ( EE_th_is_extended[current] == 0U ) {
+    ev = E_OS_ACCESS;
+  } else
+
+#ifdef EE_AS_USER_SPINLOCKS__
+  /* [OS622]: The AUTOSAR Operating System WaitEvent API service shall check if
+      it has been called while the calling TASK has occupied a spinlock.
+      In extended status an error E_OS_SPINLOCK shall be returned and the TASK
+      shall not enter the wait state. (BSW4080021) */
+  if ( EE_as_spinlocks_last[EE_CURRENTCPU] != INVALID_SPINLOCK ) {
+    ev = E_OS_SPINLOCK;
+  } else
+#endif /* EE_AS_USER_SPINLOCKS__ */
+
+#endif /* __OO_EXTENDED_STATUS__ */
+
+#if defined(EE_SYSCALL_NR) && defined(EE_MAX_SYS_SERVICEID) &&\
+  (EE_SYSCALL_NR > EE_MAX_SYS_SERVICEID)
+  /* If a TASK is inside CallTrustedFunction() and TASK
+     rescheduling takes place within the same OSApplication scheduling of
+     other TASKs which belong to the same OS-Application as the caller needs
+     to be restricted.
+     EG:To assure that I CANNOT let WAIT take place in a
+        Trusted Function Call!!! */
+  if ( EE_as_Application_RAM[EE_as_active_app].
+        TrustedFunctionCallsCounter != 0U )
+  {
+    ev = E_OS_ACCESS;
+  } else
+#endif /* EE_SYSCALL_NR > EE_MAX_SYS_SERVICEID */
+
+  /* Check if we have to wait */
+  if ( (EE_th_event_active[current] & Mask) == 0U ) {
+    /* Set the waiting mask */
+    EE_th_event_waitmask[current] = Mask;
+
+    /* Prepare current TASK to block */
+    EE_oo_prepare_to_block();
+
+    /* The TASK is not inserted in any queue! it will be woken
+       up by a SetEvent using a EE_hal_stkchange... */
+
+    /* Reschedule next TASK:
+     * check if there is to schedule a ready thread or pop a preempted
+     * thread */
+    EE_oo_reschedule_on_block();
+
+    /* Reset the waiting mask */
+    EE_th_event_waitmask[current] = 0U;
+
+    ev = E_OK;
+  } else {
+    ev = E_OK;
+  }
+
+  if ( ev != E_OK ) {
+    EE_ORTI_set_lasterror(ev);
+    EE_oo_notify_error_WaitEvent(Mask, ev);
+  }
+
+  EE_ORTI_set_service_out(EE_SERVICETRACE_WAITEVENT);
+  EE_OS_EXIT_CRITICAL_SECTION();
+
+  return ev;
 }
 
 #endif /* __PRIVATE_WAITEVENT__ */

@@ -61,109 +61,94 @@
 StatusType EE_oo_SetRelAlarm(AlarmType AlarmID, 
     TickType increment, TickType cycle)
 {
-  register EE_FREG flag;
+  /* Error Value */
+  register StatusType ev;
+  /* Primitive Lock Procedure */
+  EE_OS_DECLARE_AND_ENTER_CRITICAL_SECTION();
+
   EE_ORTI_set_service_in(EE_SERVICETRACE_SETRELALARM);
 
-  /*
-    OS093: If interrupts are disabled/suspended by a Task/OsIsr and the
+  EE_as_monitoring_the_stack();
+
+#ifdef EE_SERVICE_PROTECTION__
+  /* [OS093]: If interrupts are disabled/suspended by a Task/OsIsr and the
       Task/OsIsr calls any OS service (excluding the interrupt services)
       then the Operating System shall ignore the service AND shall return
-      E_OS_DISABLEDINT if the service returns a StatusType value.
-  */
-  if(EE_oo_check_disableint_error()) {
-    EE_ORTI_set_lasterror(E_OS_DISABLEDINT);
+      E_OS_DISABLEDINT if the service returns a StatusType value. */
+  /* [OS088]: If an OS-Application makes a service call from the wrong context
+      AND is currently not inside a Category 1 ISR the Operating System module
+      shall not perform the requested action (the service call shall have no
+      effect), and return E_OS_CALLEVEL (see [12], section 13.1) or the
+      “invalid value” of  the service. (BSW11009, BSW11013) */
+  if ( EE_as_execution_context > ISR2_Context ) {
+    ev = E_OS_CALLEVEL;
+  } else if ( EE_oo_check_disableint_error() ) {
+    ev = E_OS_DISABLEDINT;
+  } else
+#endif /* EE_SERVICE_PROTECTION__ */
 
-    flag = EE_hal_begin_nested_primitive();
-    EE_oo_notify_error_SetRelAlarm(AlarmID, increment, cycle, E_OS_DISABLEDINT);
-    EE_hal_end_nested_primitive(flag);
+#ifdef EE_AS_RPC__
+  if ( EE_AS_ID_REMOTE(AlarmID) ) {
+    EE_os_param const unmarked_alarm_id = { EE_AS_UNMARK_REMOTE_ID(AlarmID) },
+      as_increment = { increment }, as_cycle = { cycle };
+    /* forward the request to another CPU in synchronous way */
+    ev = EE_as_rpc(OSServiceId_SetRelAlarm, unmarked_alarm_id, as_increment,
+      as_cycle);
+  } else {
+#endif /* EE_AS_RPC__ */
 
-    EE_ORTI_set_service_out(EE_SERVICETRACE_SETRELALARM);
+/* If local alarm are not defined cut everything else */
+#if defined(EE_MAX_ALARM) && (EE_MAX_ALARM > 0)
 
-    return E_OS_DISABLEDINT;
-  }
-
+#if EE_FULL_SERVICE_PROTECTION
+    if ( AlarmID >= EE_MAX_ALARM ) {
+      ev = E_OS_ID;
+    } else if ( EE_ALARM_ACCESS_ERR(AlarmID, EE_as_active_app) ) {
+      ev = E_OS_ACCESS;
+    } else
+#elif defined(__OO_EXTENDED_STATUS__)
+    if ( AlarmID >= EE_MAX_ALARM ) {
+      ev = E_OS_ID;
+    } else
+#endif /* EE_FULL_SERVICE_PROTECTION || __OO_EXTENDED_STATUS__ */
 #ifdef __OO_EXTENDED_STATUS__
-  if ((AlarmID < 0) || (AlarmID >= EE_MAX_ALARM)) {
-    EE_ORTI_set_lasterror(E_OS_ID);
-
-    flag = EE_hal_begin_nested_primitive();
-    EE_oo_notify_error_SetRelAlarm(AlarmID, increment, cycle, E_OS_ID);
-    EE_hal_end_nested_primitive(flag);
-
-    EE_ORTI_set_service_out(EE_SERVICETRACE_SETRELALARM);
-
-    return E_OS_ID;
-  }
+    if ( (increment > EE_counter_ROM[EE_oo_counter_object_ROM[AlarmID].c].
+        maxallowedvalue) || ((cycle != 0U) &&
+      ((cycle < EE_counter_ROM[EE_oo_counter_object_ROM[AlarmID].c].mincycle) ||
+        (cycle > EE_counter_ROM[EE_oo_counter_object_ROM[AlarmID].c].
+          maxallowedvalue))) )
+    {
+      ev = E_OS_VALUE;
+    } else
 #endif /* __OO_EXTENDED_STATUS__ */
 
-  /* OS304: If in a call to SetRelAlarm() the parameter “increment” is set to
-     zero, the service shall return E_OS_VALUE in standard and extended status
-   */
-  if(increment == (TickType)0U) {
-    EE_ORTI_set_lasterror(E_OS_VALUE);
+    /* OS304: */
+    if ( increment == 0U ) {
+      ev = E_OS_VALUE;
+    } else if ( EE_oo_counter_object_RAM[AlarmID].used ) {
+      ev = E_OS_STATE;
+    } else {
+      EE_oo_handle_rel_counter_object_insertion(AlarmID, increment, cycle);
+      ev = E_OK;
+    }
+#else /* EE_MAX_ALARM > 0U */
+    {
+      ev = E_OS_ID;
+    }
+#endif /* EE_MAX_ALARM > 0U */
 
-    flag = EE_hal_begin_nested_primitive();
-    EE_oo_notify_error_SetRelAlarm(AlarmID, increment, cycle, E_OS_VALUE);
-    EE_hal_end_nested_primitive(flag);
+#ifdef EE_AS_RPC__
+  }
+#endif /* EE_AS_RPC__ */
 
-    EE_ORTI_set_service_out(EE_SERVICETRACE_SETRELALARM);
-
-    return E_OS_VALUE;
+  if ( ev != E_OK ) {
+    EE_ORTI_set_lasterror(ev);
+    EE_oo_notify_error_SetRelAlarm(AlarmID, increment, cycle, ev);
   }
 
-  /* let the system still work if the increment parameter is 0 note that 0
-   * is still an invalid value, so I decided arbitrarily to let it
-   * fire the next tick.
-   */
-  /* commented for OS304 */
-  /* if (increment == (TickType)0U) {
-    increment = 1U;
-  } */
-
-#ifdef __OO_EXTENDED_STATUS__
-  if ((increment > EE_counter_ROM[EE_alarm_ROM[AlarmID].c].maxallowedvalue)
-      || 
-      ((cycle != 0U) && 
-       ((cycle < EE_counter_ROM[EE_alarm_ROM[AlarmID].c].mincycle) ||
-        (cycle > EE_counter_ROM[EE_alarm_ROM[AlarmID].c].maxallowedvalue)))
-      ) {
-    EE_ORTI_set_lasterror(E_OS_VALUE);
-
-    flag = EE_hal_begin_nested_primitive();
-    EE_oo_notify_error_SetRelAlarm(AlarmID, increment, cycle, E_OS_VALUE);
-    EE_hal_end_nested_primitive(flag);
-
-    EE_ORTI_set_service_out(EE_SERVICETRACE_SETRELALARM);
-
-    return E_OS_VALUE;
-  }
-#endif /* __OO_EXTENDED_STATUS__ */
-
-  flag = EE_hal_begin_nested_primitive();
-
-  if (EE_alarm_RAM[AlarmID].used) {
-
-    EE_ORTI_set_lasterror(E_OS_STATE);
-
-    EE_oo_notify_error_SetRelAlarm(AlarmID, increment, cycle, E_OS_STATE);
-
-    EE_hal_end_nested_primitive(flag);
-    EE_ORTI_set_service_out(EE_SERVICETRACE_SETRELALARM);
-
-    return E_OS_STATE;
-  }
-
-  /* first, use the alarm and set the cycle */
-  EE_alarm_RAM[AlarmID].used = 1U;
-  EE_alarm_RAM[AlarmID].cycle = cycle;
-
-  /* then, insert the task into the delta queue with an increment equal
-     (increment -1U) increment equal to 0 means next tick */
-  EE_oo_alarm_insert(AlarmID, (increment - 1U));
-
-  EE_hal_end_nested_primitive(flag);
   EE_ORTI_set_service_out(EE_SERVICETRACE_SETRELALARM);
+  EE_OS_EXIT_CRITICAL_SECTION();
 
-  return E_OK;
+  return ev;
 }
 #endif /* !__PRIVATE_SETRELALARM__ */

@@ -46,15 +46,17 @@
 #ifndef INCLUDE_EE_TC2X5_BOARD_H__
 #define INCLUDE_EE_TC2X5_BOARD_H__
 
-/* View all the API */
-#include "mcu/infineon_tc27x/inc/ee_tc27x_mcu.h"
+/* This file have to be included after all API have been */
 
 /* TriBoard 2x5 default clock frequency (20MHz) */
 #define EE_TRIBOARD_2X5_FOSC    20000000U
-/** Interface Board Oscillator Frequency Define **/
+/* Interface Board Oscillator Frequency Define */
+#define EE_TC2YX_BOARD_FOSC     EE_TRIBOARD_2X5_FOSC
+/* Interface Board Oscillator Frequency Define */
 #define EE_TC27X_BOARD_FOSC     EE_TRIBOARD_2X5_FOSC
 
 enum EE_tc2x5_led_id {
+  EE_TRIBOARD_2X5_NO_LEDS = 0x00,
   EE_TRIBOARD_2X5_LED_1 = 0x01,
   EE_TRIBOARD_2X5_LED_2 = 0x02,
   EE_TRIBOARD_2X5_LED_3 = 0x04,
@@ -156,25 +158,14 @@ __INLINE__ void __ALWAYS_INLINE__ EE_tc2x5_leds_init( void )
 {
   EE_tc2x5_leds_off();
 
-#if defined ( __DCC__ )
-  P33_IOCR12.B.PC13  =   EE_TC27X_OUTPUT_PUSH_PULL_GP;
-  P33_IOCR12.B.PC12  =   EE_TC27X_OUTPUT_PUSH_PULL_GP;
-  P33_IOCR8.B.PC11   =   EE_TC27X_OUTPUT_PUSH_PULL_GP;
-  P33_IOCR8.B.PC10   =   EE_TC27X_OUTPUT_PUSH_PULL_GP;
-  P33_IOCR8.B.PC9    =   EE_TC27X_OUTPUT_PUSH_PULL_GP;
-  P33_IOCR8.B.PC8    =   EE_TC27X_OUTPUT_PUSH_PULL_GP;
-  P33_IOCR4.B.PC7    =   EE_TC27X_OUTPUT_PUSH_PULL_GP;
-  P33_IOCR4.B.PC6    =   EE_TC27X_OUTPUT_PUSH_PULL_GP;
-#else
-  P33_IOCR12.B1.PC13  =   EE_TC27X_OUTPUT_PUSH_PULL_GP;
-  P33_IOCR12.B1.PC12  =   EE_TC27X_OUTPUT_PUSH_PULL_GP;
-  P33_IOCR8.B1.PC11   =   EE_TC27X_OUTPUT_PUSH_PULL_GP;
-  P33_IOCR8.B1.PC10   =   EE_TC27X_OUTPUT_PUSH_PULL_GP;
-  P33_IOCR8.B1.PC9    =   EE_TC27X_OUTPUT_PUSH_PULL_GP;
-  P33_IOCR8.B1.PC8    =   EE_TC27X_OUTPUT_PUSH_PULL_GP;
-  P33_IOCR4.B1.PC7    =   EE_TC27X_OUTPUT_PUSH_PULL_GP;
-  P33_IOCR4.B1.PC6    =   EE_TC27X_OUTPUT_PUSH_PULL_GP;
-#endif
+  P33_IOCR12.B.PC13  =   EE_TC2YX_OUTPUT_PUSH_PULL_GP;
+  P33_IOCR12.B.PC12  =   EE_TC2YX_OUTPUT_PUSH_PULL_GP;
+  P33_IOCR8.B.PC11   =   EE_TC2YX_OUTPUT_PUSH_PULL_GP;
+  P33_IOCR8.B.PC10   =   EE_TC2YX_OUTPUT_PUSH_PULL_GP;
+  P33_IOCR8.B.PC9    =   EE_TC2YX_OUTPUT_PUSH_PULL_GP;
+  P33_IOCR8.B.PC8    =   EE_TC2YX_OUTPUT_PUSH_PULL_GP;
+  P33_IOCR4.B.PC7    =   EE_TC2YX_OUTPUT_PUSH_PULL_GP;
+  P33_IOCR4.B.PC6    =   EE_TC2YX_OUTPUT_PUSH_PULL_GP;
 }
 
 
@@ -197,7 +188,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_tc2x5_button_irq_init( EE_TYPEISR2PRIO intv
       as input connceted to pull-up, that is what we need, so we wont change
       it, but if the internal pull-up will have problem with button pull-up
       I have just to enable the following line */
-  /* P15_IOCR8.PC8 = EE_TC27X_INPUT_TRISTATE; */
+  /* P15_IOCR8.PC8 = EE_TC2YX_INPUT_TRISTATE; */
 
   /* P15.8 is input selection 0 so I don't need to configure EIS */
   /* SCU_EICR2.B.EIS1 = 0U; */
@@ -215,8 +206,8 @@ __INLINE__ void __ALWAYS_INLINE__ EE_tc2x5_button_irq_init( EE_TYPEISR2PRIO intv
    *  [10] Service Request enable
    *  [11..12] Type Of Service (means which CPU will handle it)
    */
-  SRC_SCUERU0.U = EE_TC27X_SRN_TYPE_OF_SERVICE(EE_CURRENTCPU) |
-    EE_TC27X_SRN_ENABLE | EE_TC27X_SRN_PRIORITY(intvec);
+  SRC_SCUERU0.U = EE_TC2YX_SRN_TYPE_OF_SERVICE(EE_CURRENTCPU) |
+    EE_TC2YX_SRN_ENABLE | EE_TC2YX_SRN_PRIORITY(intvec);
 }
 
 __INLINE__ void __ALWAYS_INLINE__ EE_tc2x5_button_irq_clear_request( void )

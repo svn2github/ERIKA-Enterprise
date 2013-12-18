@@ -47,9 +47,9 @@
 #ifndef __KERNEL_RN_RN_INTERNAL_H__
 #define __KERNEL_RN_RN_INTERNAL_H__
 
-#ifdef  __RN__
-
 #include "kernel/rn/inc/ee_rn.h"
+
+#ifdef  __RN__
 
 /* For each CPU: an index that says informations about the queuing data
    structure should be used by the rn_send function. Init value=0 

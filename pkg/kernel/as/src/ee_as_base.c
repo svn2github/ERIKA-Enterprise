@@ -43,8 +43,16 @@
  * Author: 2011, Bernardo  Dal Seno
  */
 
-#include <ee_internal.h>
+#include "ee_internal.h"
 
+#ifdef EE_SERVICE_PROTECTION__
+/* Used by the kernel to flag in witch context is executing */
+/* Initialized to Idle so no API other than StartOS and Start(NonAutosar)Core
+   can be called i main function */
+EE_TYPECONTEXT EE_as_execution_context = Idle_Context;
+#endif /* EE_SERVICE_PROTECTION__ */
+
+#ifdef __AS_SC4__
 ISRType GetISRID(void)
 {
 	ISRType irq;
@@ -60,3 +68,4 @@ ISRType GetISRID(void)
 	EE_ORTI_ext_set_service_out(EE_SERVICETRACE_GETISRID);
 	return irq;
 }
+#endif /* __AS_SC4__ */

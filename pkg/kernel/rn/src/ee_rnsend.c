@@ -55,15 +55,14 @@
 */
 
 #ifndef __PRIVATE_RN_SEND__
+/* This function is called inside a primitive so I don't need to handle
+   interrupts here */
 int EE_rn_send(EE_TYPERN rn, EE_TYPERN_NOTIFY t, EE_TYPERN_PARAM par)
 {
   register EE_UINT8 cpu;
   register EE_TYPERN_SWITCH sw;
   register int newIRQ;
-  register EE_FREG flag;
   int retvalue = 0;
-  
-  flag = EE_hal_begin_nested_primitive();
 
   /* here we suppose that inter-processor interrupts can not preempt
      this function. For that reason, it is not necessary to lock the
@@ -74,13 +73,12 @@ int EE_rn_send(EE_TYPERN rn, EE_TYPERN_NOTIFY t, EE_TYPERN_PARAM par)
 
   cpu = EE_rn_cpu[rn];
 
-  if (cpu == (EE_UINT8)EE_CURRENTCPU) {
+  if ( cpu == (EE_UINT8)EE_CURRENTCPU ) {
     /* THIS SHOULD NEVER HAPPEN!!!
        Local notification not allowed 
        CHECK YOUR CONFIGURATION FOR THE REMOTE NOTIFICATIONS!!!
        should we return an error?
     */
-    EE_hal_end_nested_primitive(flag);
     return 1;
   } else {
     /* Remote notification */
@@ -101,12 +99,12 @@ int EE_rn_send(EE_TYPERN rn, EE_TYPERN_NOTIFY t, EE_TYPERN_PARAM par)
       (EE_rn_first[cpu][sw] == (EE_TYPERN)-1);
 
     /* the interrupt handler have to do the cycle again */
-    if (EE_rn_switch[cpu] & EE_RN_SWITCH_INSIDEIRQ) {
+    if ( EE_rn_switch[cpu] & EE_RN_SWITCH_INSIDEIRQ ) {
       EE_rn_switch[cpu] |= EE_RN_SWITCH_NEWRN;
     }
 
     /* Queuing request */
-    if (EE_rn_type[rn][sw] == 0U) {
+    if ( EE_rn_type[rn][sw] == 0U ) {
       /* request was not queued before */
 
       /* insert it into the pending requests */
@@ -118,30 +116,30 @@ int EE_rn_send(EE_TYPERN rn, EE_TYPERN_NOTIFY t, EE_TYPERN_PARAM par)
 
     /* if it is an event, count the event */
 #ifdef __RN_EVENT__
-    if (t & EE_RN_EVENT) {
-      EE_rn_event[rn][sw] |= par.ev; 
+    if ( t & EE_RN_EVENT ) {
+      EE_rn_event[rn][sw] |= par.ev;
     } else
 #endif
 
       /* if it is a bind, set the bind value, or error */
 #ifdef __RN_BIND__
-    if (t & EE_RN_BIND) {
+    if ( t & EE_RN_BIND ) {
       if (EE_rn_type[rn][sw] & (EE_RN_BIND|EE_RN_UNBIND) ) {
-	retvalue = 1;
+        retvalue = 1;
       } else {
-	EE_rn_vres[rn][sw] = par.vres; 
-	retvalue = 0;
+        EE_rn_vres[rn][sw] = par.vres;
+        retvalue = 0;
       }
     } else
 #endif
 
       /* if it is an unbind, set the unbind flag, or error */
 #ifdef __RN_UNBIND__
-    if (t & EE_RN_UNBIND) {
+    if ( t & EE_RN_UNBIND ) {
       if (EE_rn_type[rn][sw] & (EE_RN_BIND|EE_RN_UNBIND) ) {
-	retvalue = 1;
+        retvalue = 1;
       } else {
-	retvalue = 0;
+        retvalue = 0;
       }
     } else
 #endif
@@ -169,15 +167,12 @@ int EE_rn_send(EE_TYPERN rn, EE_TYPERN_NOTIFY t, EE_TYPERN_PARAM par)
     -1. anyway, it's not worth to add this test on the Janus
     architecture.
     */
-    if (newIRQ) {
+    if ( newIRQ ) {
       EE_hal_IRQ_interprocessor(cpu);
     }
   }
-  
-  EE_hal_end_nested_primitive(flag);
 
   return retvalue;
 }
-#endif
-
-#endif
+#endif /* !__PRIVATE_RN_SEND__ */
+#endif /* __RN__ */

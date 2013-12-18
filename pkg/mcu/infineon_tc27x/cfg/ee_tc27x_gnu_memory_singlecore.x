@@ -17,44 +17,41 @@ ENTRY(_START)
 /* Start-up Program Flash Memory */
 __PMU_PFLASH_STARTUP_BEGIN = 0x80000000;
 __PMU_PFLASH_STARTUP_SIZE  = 1k;
-/* Start-up Program Flash Memory */
-__PMU_PFLASH_STARTUP_BEGIN = 0x80000000;
-__PMU_PFLASH_STARTUP_SIZE  = 15k;
-/*Program Flash Memory (PFLASH0)*/
+/* Program Flash Memory (PFLASH0) */
 __PMU_PFLASH_BEGIN = 0x80004000;
 __PMU_PFLASH_SIZE  = 1984k;
-/*Program Flash Memory (PFLASH1)*/ 
+/* Program Flash Memory (PFLASH1) */
 __PMU_PFLASH1_BEGIN = 0x80200000;
 __PMU_PFLASH1_SIZE = 2M;
-/*Data Flash Memory (DFLASH0)*/ 
+/* Data Flash Memory (DFLASH0) */
 __PMU_DFLASH0_BEGIN = 0xAF000000;
 __PMU_DFLASH0_SIZE = 1M;
-/*Data Flash Memory (DFLASH0_1)*/ 
+/* Data Flash Memory (DFLASH0_1) */
 __PMU_DFLASH0_1_BEGIN = 0xAF100000;
 __PMU_DFLASH0_1_SIZE = 16K;
-/*Data Flash Memory (DFLASH1)*/ 
+/* Data Flash Memory (DFLASH1) */
 __PMU_DFLASH1_BEGIN = 0xAF110000;
 __PMU_DFLASH1_SIZE = 64K;
-/*Boot ROM (BROM)*/ 
+/* Boot ROM (BROM) */
 __BROM_BEGIN = 0x8FFF8000;
 __BROM_SIZE = 32K;
-/*Scratch-Pad RAM (PSPR)*/ 
+/* Scratch-Pad RAM (PSPR) */
 __PMI_PSPR_BEGIN = 0xC0000000;
 __PMI_PSPR_SIZE = 24K;
-/*Local Data RAM (DSPR)*/ 
+/* Local Data RAM (DSPR) */
 __DMI_DSPR_BEGIN = 0xD0000000;
 __DMI_DSPR_SIZE = 112K;
-/*Local Data RAM (DSPR)*/ 
+/* Local Data RAM (DSPR) */
 __LMU_SRAM_BEGIN = 0x90000000;
 __LMU_SRAM_SIZE = 32K;
 
-  /* CSA list size */
+/* CSA list size */
 __CSA_SIZE = DEFINED (__CSA_SIZE) ? __CSA_SIZE : 8k ;
-  /* User stack Size */ 
+/* User stack Size */
 __USTACK_SIZE = DEFINED (__USTACK_SIZE) ? __USTACK_SIZE : 2K;
-  /* Interrupt Stack Size */
+/* Interrupt Stack Size */
 __ISTACK_SIZE = DEFINED (__ISTACK_SIZE) ? __ISTACK_SIZE : 0K;
-  /* Heap size */
+/* Heap size */
 __HEAP_SIZE = DEFINED (__HEAP_SIZE) ? __HEAP_SIZE : 0;
 
 MEMORY
@@ -74,21 +71,21 @@ MEMORY
   PMU_PFLASH  (rx!p):  org = 0x80000400, len = 1999k
   /* - Program Flash Memory (PFLASH1) */
   PMU_PFLASH1 (rx!p):  org = 0x80200000, len = 2M
-  /* - Data Flash Memory (DFLASH0) */ 
+  /* - Data Flash Memory (DFLASH0) */
   PMU_DFLASH0 (r!xp):  org = 0xAF000000, len = 1M
   /* - Data Flash Memory (DFLASH0_1) */
   PMU_DFLASH0_1 (r!xp):  org = 0xAF100000, len = 16K
-  /* - Data Flash Memory (DFLASH1) */ 
+  /* - Data Flash Memory (DFLASH1) */
   PMU_DFLASH1 (r!xp):  org = 0xAF110000, len = 64K
-  /* - Boot ROM (BROM) */ 
+  /* - Boot ROM (BROM) */
   BROM (rx!p):  org = 0x8FFF8000, len = 32K
 
-  /* - Scratch-Pad RAM (PSPR) (0x2500 + 0x3B00 = 24k) */
-  PMI_PSPR_STARTUP  (wx!p):  org = 0xC0000000, len = 0x2500
-  PMI_PSPR          (wx!p):  org = 0xC0002500, len = 0x3B00
+  /* - Scratch-Pad RAM (PSPR) */
+  PMI_PSPR          (wx!p):  org = 0xC0000000, len = 24k
+
   /* - Local Data Scratch-Pad RAM (DSPR) */
   DMI_DSPR (w!xp): org = 0xD0000000, len = 112K
-  /* - Global Data RAM */ 
+  /* - Global Data RAM */
   LMU_SRAM (w!xp):  org = 0x90000000, len = 32K
 }
 
@@ -99,7 +96,7 @@ REGION_ALIAS("SDATA_MEM", int_dram)
 REGION_ALIAS("BSS_MEM", int_dram)
 REGION_ALIAS("ZDATA_MEM", int_dram)
 REGION_ALIAS("CSA_MEM", int_dram)
- dummy mapping (needed by default linker script) 
+ dummy mapping (needed by default linker script)
 REGION_ALIAS("PCP_CODE", int_cflash)
 REGION_ALIAS("PCP_DATA", int_dflash)
 */

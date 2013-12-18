@@ -106,6 +106,12 @@ OPT_CC += -c -Xkeep-assembly-file=2 $(DIAB_TRICORE_TARGET) -D__TC161__ -ei5388,2
  -Xc-new -Xdialect-c99 -Xsection-split=3 -Xdebug-inline-on  -Xinline=64 -Xbss-common-off\
  -Xunroll-size=200 -Xname-const=.rodata -Xname-uconst=.bss -Xmacro-in-pragma
 
+ifeq ($(call iseeopt, __EE_MEMORY_PROTECTION__), yes)
+# handling small data with memory protection is a little pain and nobody paid us
+# to do that
+OPT_CC += -Xsmall-data=0
+endif #__EE_MEMORY_PROTECTION__
+
 ifeq ($(call iseeopt, EE_DEBUG), yes)
 OPT_CC += -Xdiagnose-inline-verbose -g -O
 else # EE_DEBUG
@@ -140,6 +146,28 @@ source_asm_file=$(strip $1)
 target_asm_file=$(addprefix -o ,$1)
 
 ##
+## Templates handling target and rules
+##
+
+ifneq ($(call iseeopt, EE_AS_OSAPPLICATIONS__), yes)
+# apps.conf is not generated if there is no Memory Protection
+apps.conf:
+	@touch $@
+endif # EE_AS_OSAPPLICATIONS__
+
+# Generate configuration files for Os-Applications
+ifeq ($(call iseeopt, EE_AS_OSAPPLICATIONS__), yes)
+# Rule to generate MemMap.h File
+MemMap.h: apps.conf $(PKGBASE)/mcu/infineon_$(TRICORE_MODEL)/cfg/MemMap.h.diab.tmpl
+# Preprocess MemMap.h.tmpl
+	@echo GEN $@ from TEMPLATE $(word 2,$^)
+	$(QUIET) awk -f $(PKGBASE)/cpu/common/cfg/memprot_generator.awk $^ > $@
+
+# Add MemMap.h as dependency for OBJS
+OBJDEP += MemMap.h
+endif # EE_AS_OSAPPLICATIONS__
+
+##
 ## Specific linker option from the application makefile
 ##
 
@@ -154,14 +182,53 @@ endif # EE_EXECUTE_FROM_RAM
 
 # Linker script start folder
 EE_LINKERSCRIPT_FOLDER = $(PKGBASE)/mcu/infineon_$(TRICORE_MODEL)/cfg
+# Linker Script Template
+EE_LINKERSCRIPT_TEMPLATE = $(EE_LINKERSCRIPT_FOLDER)/$(EE_LINKERSCRIPT).tmpl
+
+# The default linker script is made by a memory description part and a rules part
+# (Select the right memory part in case of multicore build)
+ifeq ($(call iseeopt, __MSRP__), yes)
+EE_LINKERMEMORY = $(EE_LINKERSCRIPT_FOLDER)/multicore/ee_tc27x_diab_memory_core$(CPU_NUMID).x
+# Slave CPUs: add linkerscript with global shared symbols
+ifneq ($(CPU_NUMID), 0)
+ADDITIONAL_LINKSCRIPT = $(GLOBAL_LINKSCRIPT)
+endif # CPU_NUMID not eq 0
+else # __MSRP__
+EE_LINKERMEMORY = $(EE_LINKERSCRIPT_FOLDER)/ee_tc27x_diab_memory_singlecore.x
+endif # __MSRP__
+
+# Handle Copytable command generation
+ifeq ($(call iseeopt, EE_EXECUTE_FROM_RAM), yes)
+HANDLE_COPY_TABLE = $(QUIET) echo "/* -Xgenerate-copytables  When you work directly on RAM you don't need copy tables */" > $@
+else # EE_EXECUTE_FROM_RAM
+HANDLE_COPY_TABLE = $(QUIET) echo -Xgenerate-copytables > $@
+endif # EE_EXECUTE_FROM_RAM
+
+# If shared symbol container in slaves multicore build is defined, it has to be
+# concatenated with linker memory descriptions and linker rules to obtain the
+# complete linker script
+$(EE_LINKERSCRIPT): apps.conf $(EE_LINKERMEMORY) $(EE_LINKERSCRIPT_TEMPLATE) $(ADDITIONAL_LINKSCRIPT)
+	@echo GEN $@ from TEMPLATE $(notdir $(EE_LINKERSCRIPT_TEMPLATE))
+	$(HANDLE_COPY_TABLE)
+	$(QUIET) awk -f $(PKGBASE)/cpu/common/cfg/memprot_generator.awk $^ >> $@
+else # EE_LINKERSCRIPT
+
+# Slave CPUs: queue linkerscript with global shared symbols
+ifeq ($(call iseeopt, __MSRP__), yes)
+ifneq ($(CPU_NUMID), 0)
+ADDITIONAL_LINKSCRIPT = $(GLOBAL_LINKSCRIPT)
+endif # CPU_NUMID not eq 0
+endif # __MSRP__
 
 # Copy EE_LINKERSCRIPT in building folder eventually enqueuing shared symbols
 # informations
-$(EE_LINKERSCRIPT) : $(EE_LINKERSCRIPT_FOLDER)/$(EE_LINKERSCRIPT)
-	@echo CP $@
-	$(QUIET)cp $< $@
+$(EE_LINKERSCRIPT) : $(APPBASE)/$(EE_LINKERSCRIPT) $(ADDITIONAL_LINKSCRIPT)
+	@echo GEN $@
+	$(QUIET) rm -f $@
+	$(QUIET) cat $^ >> $@
 
 endif # EE_LINKERSCRIPT
+
 # Add the Linker Script as dependency for linking process
 LINKDEP += $(EE_LINKERSCRIPT)
 
@@ -206,3 +273,4 @@ DEPENDENCY_OPT = -Xmake-dependency=d -Xmake-dependency-target=$@ -Xmake-dependen
 # Dependencies on Windows need path translation and quote remotion
 make-depend = sed -e 's_\\\(.\)_/\1_g' -e 's_\<\([a-zA-Z]\):/_/cygdrive/\l\1/_g' < $1_tmp > $1 && rm $1_tmp
 endif # NODEPS
+

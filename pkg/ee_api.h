@@ -87,7 +87,7 @@
 
 #if defined(__OO_BCC1__) || defined(__OO_BCC2__) || defined(__OO_ECC1__) || defined(__OO_ECC2__)
 #ifndef __EE_MEMORY_PROTECTION__
-#include "kernel/oo/inc/ee_api.h"
+#include "kernel/oo/inc/ee_oo_api.h"
 #endif /* ! __EE_MEMORY_PROTECTION__ */
 #endif /* __OO_XXXX__ */
 

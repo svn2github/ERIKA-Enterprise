@@ -73,7 +73,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_tc_stack_save( EE_UREG tos )
   p_tos->pcxi_tos  = EE_tc_get_pcxi();
 }
 
-__INLINE__ void __ALWAYS_INLINE__ EE_CHANGE_STACK_POINTER
+__INLINE__ void __ALWAYS_INLINE__ EE_TC_CHANGE_STACK_POINTER
   EE_tc_stack_restore( EE_UREG tos )
 {
   struct EE_TC_TOS  * const p_tos = &EE_tc_system_tos[tos];
@@ -115,7 +115,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_CHANGE_STACK_POINTER
     access to interrupted TASK to get Active OS-Application*/
 EE_UTID volatile EE_tc_active_utid;
 
-void EE_std_change_context( EE_TID tid )
+void EE_TC_CHANGE_STACK_POINTER EE_std_change_context( EE_TID tid )
 {
   register EE_UTID utid;
   register EE_UREG tos_new;

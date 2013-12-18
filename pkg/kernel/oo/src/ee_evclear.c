@@ -53,80 +53,69 @@
        E_OS_ACCESS   if the task is not an extended task
 */
 
-
 #if defined(__OO_ECC1__) || defined(__OO_ECC2__)
 #ifndef __PRIVATE_CLEAREVENT__
 
-#ifdef __OO_EXTENDED_STATUS__
 StatusType EE_oo_ClearEvent(EventMaskType Mask)
-#else
-void EE_oo_ClearEvent(EventMaskType Mask)
-#endif
 {
-  EE_TID current;
-  register EE_FREG flag;
+  register EE_TID current;
+  /* Error Value */
+  register StatusType ev;
+  /* Primitive Lock Procedure */
+  EE_OS_DECLARE_AND_ENTER_CRITICAL_SECTION();
 
   EE_ORTI_set_service_in(EE_SERVICETRACE_CLEAREVENT);
 
+  EE_as_monitoring_the_stack();
+
   current = EE_stk_queryfirst();
 
-#ifdef __OO_EXTENDED_STATUS__
-  /*
-    OS093: If interrupts are disabled/suspended by a Task/OsIsr and the
+#ifdef EE_SERVICE_PROTECTION__
+  /*  [OS093]: If interrupts are disabled/suspended by a Task/OsIsr and the
       Task/OsIsr calls any OS service (excluding the interrupt services)
       then the Operating System shall ignore the service AND shall return
-      E_OS_DISABLEDINT if the service returns a StatusType value.
-  */
-  if(EE_oo_check_disableint_error()) {
-    EE_ORTI_set_lasterror(E_OS_DISABLEDINT);
+      E_OS_DISABLEDINT if the service returns a StatusType value. */
+  if ( EE_oo_check_disableint_error() ) {
+    ev = E_OS_DISABLEDINT;
+  } else
+#endif /* EE_SERVICE_PROTECTION__ */
 
-    flag = EE_hal_begin_nested_primitive();
-    EE_oo_notify_error_ClearEvent(Mask, E_OS_DISABLEDINT);
-    EE_hal_end_nested_primitive(flag);
-
-    EE_ORTI_set_service_out(EE_SERVICETRACE_CLEAREVENT);
-
-    return E_OS_DISABLEDINT;
-  }
-
-  /* check for a call at interrupt level; This must be the FIRST check! */
-  if (EE_hal_get_IRQ_nesting_level()) {
-    EE_ORTI_set_lasterror(E_OS_CALLEVEL);
-
-    flag = EE_hal_begin_nested_primitive();
-    EE_oo_notify_error_ClearEvent(Mask, E_OS_CALLEVEL);
-    EE_hal_end_nested_primitive(flag);
-
-    EE_ORTI_set_service_out(EE_SERVICETRACE_CLEAREVENT);
-
-    return E_OS_CALLEVEL;
-  }
-  
-  /* check if the task Id is valid */
-  if (EE_th_is_extended[current] == 0U) {
-    EE_ORTI_set_lasterror(E_OS_ACCESS);
-
-    flag = EE_hal_begin_nested_primitive();
-    EE_oo_notify_error_ClearEvent(Mask, E_OS_ACCESS);
-    EE_hal_end_nested_primitive(flag);
-
-    EE_ORTI_set_service_out(EE_SERVICETRACE_CLEAREVENT);
-
-    return E_OS_ACCESS;
-  }
-#endif /* __OO_EXTENDED_STATUS__ */
-
-  flag = EE_hal_begin_nested_primitive();
-
-  /* clear the event */
-  EE_th_event_active[current] &= ~Mask;
-
-  EE_ORTI_set_service_out(EE_SERVICETRACE_CLEAREVENT);
-  EE_hal_end_nested_primitive(flag);
+#if defined(__OO_EXTENDED_STATUS__) || defined(EE_SERVICE_PROTECTION__)
+  /*  [OS088]: If an OS-Application makes a service call from the wrong context
+      AND is currently not inside a Category 1 ISR the Operating System module
+      shall not perform the requested action (the service call shall have no
+      effect), and return E_OS_CALLEVEL (see [12], section 13.1) or the
+      “invalid value” of  the service. (BSW11009, BSW11013) */
+  /* ClearEvent can be callable only by Task */
+  /* Check for a call at interrupt level; This must be the FIRST check! */
+  if ( EE_hal_get_IRQ_nesting_level() || (current == EE_NIL) ||
+      (EE_as_get_execution_context() > TASK_Context) )
+  {
+    ev = E_OS_CALLEVEL;
+  } else
+#endif /* __OO_EXTENDED_STATUS__ || EE_SERVICE_PROTECTION__ */
 
 #ifdef __OO_EXTENDED_STATUS__
-  return E_OK;
-#endif
+  /* Check if the task Id is valid */
+  if ( EE_th_is_extended[current] == 0U ) {
+    ev = E_OS_ACCESS;
+  } else
+#endif /* __OO_EXTENDED_STATUS__ */
+  {
+    /* clear the event */
+    EE_th_event_active[current] &= ~Mask;
+    ev = E_OK;
+  }
+
+  if ( ev != E_OK ) {
+    EE_ORTI_set_lasterror(ev);
+    EE_oo_notify_error_ClearEvent(Mask, ev);
+  }
+
+  EE_ORTI_set_service_out(EE_SERVICETRACE_CLEAREVENT);
+  EE_OS_EXIT_CRITICAL_SECTION();
+
+  return ev;
 }
 
 #endif /* __PRIVATE_CLEAREVENT__ */

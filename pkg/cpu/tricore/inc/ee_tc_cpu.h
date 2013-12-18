@@ -40,7 +40,6 @@
 
  /** @file      ee_tc_cpu.h
   *  @brief     CPU-dependent part of HAL
-  *  @author    Jan C. Kleinsorge, TU Dortmund University
   *  @author    Errico Guidieri
   *  @date      2012
   */
@@ -84,7 +83,25 @@
 #define EE_INCLUDE_MCU_REGS       EE_INCLUDE_MCU_REGS1(__CPU__)
 
 /* MCU SFR inclusion */
-#include EE_INCLUDE_MCU_REGS
+/* #include EE_INCLUDE_MCU_REGS */
+
+/* The above solution: smart and clean, cannot be used with "ERIKA flattening"
+   and for MISRA Compliance. So
+   TODO: Add some horrible switch to select the right file for registers in
+   case of multiple MCUs support */
+#ifdef EE_TC27X__
+#include <tc27xa/Ifx_reg.h>
+#elif defined(EE_TC26X__)
+/* Hightec Tricore compiler has a bugged support for tc26xx mcpu */
+/* #include <tc26xx/Ifx_reg.h> */
+#include "mcu/infineon_tc26x/sfr/Ifx_reg.h"
+#endif /* EE_TC27X__ || EE_TC26X__ */
+
+/* Macros to abstract mfcr & mtcr intrinsic functions */
+#define EE_tc_get_csfr(reg_id) __mfcr(reg_id)
+
+/* When used this isync have to be put by hand */
+#define EE_tc_set_csfr(reg_id, reg) __mtcr((reg_id), (reg));
 
 #elif defined (__TASKING__)
 /* This let you include right SFR (Special Function Registers).
@@ -94,6 +111,12 @@
 
 #include "cpu/common/inc/ee_compiler_tasking.h"
 
+/* Macros to abstract mfcr & mtcr intrinsic functions */
+#define EE_tc_get_csfr(reg_id) __mfcr(reg_id)
+
+/* When used this isync have to be put by hand */
+#define EE_tc_set_csfr(reg_id, reg) __mtcr((reg_id), (reg));
+
 #elif defined (__DCC__)
 /* DIAB MCU SFR inclusion. TODO: handle this better */
 #define  EE_INCLUDE_MCU_REGS <sfr/TC27x/Ifx_reg.h>
@@ -102,6 +125,13 @@
 /* DCC Intrinsic functions */
 #include <diab/tcasm.h>
 #include "cpu/common/inc/ee_compiler_diab.h"
+
+/* Macros to abstract mfcr & mtcr intrinsic functions */
+#define EE_tc_get_csfr(reg_id) _mfcr(reg_id)
+
+/* When used this isync have to be put by hand */
+#define EE_tc_set_csfr(reg_id, reg) _mtcr((reg_id), (reg));
+
 #else
 #error Unsupported compiler!
 #endif
@@ -116,8 +146,13 @@
 #define EE_STACK_ALIGN          0xFFFFFFF8U
 #define EE_STACK_ALIGN_SIZE     8U
 
+/******************************************************************************
+                        Useful Generic Defines
+ ******************************************************************************/
+#define EE_KILO         1000U
+#define EE_MEGA         1000000U
 /* Single bit bitmask generator. */
-#define EE_BIT(bit) (1U << ((EE_UREG)(bit)))
+#define EE_BIT(bit)     (1U << ((EE_UREG)(bit)))
 
 /* Define HAL types */
 typedef EE_UINT32 EE_UREG;
@@ -136,6 +171,21 @@ typedef EE_UINT8 EE_TYPEISR2PRIO;
 /* Type pointing to an ISR (Here because ISR macro code generation) */
 typedef void (*EE_tc_ISR_handler)(void);
 
+#ifdef __OO_ORTI_RUNNINGISR2__
+/* ISR2 ORTI types and NO_ISR2 value define */
+typedef EE_tc_ISR_handler EE_ORTI_runningisr2_type;
+#define EE_NO_ISR2  ((EE_ORTI_runningisr2_type)0)
+#if defined(__OO_ORTI_USE_OTM__)
+__INLINE__ void __ALWAYS_INLINE__
+  EE_ORTI_send_otm_runningisr2(EE_ORTI_runningisr2_type isr2)
+{
+  /* TODO: If possible/needed: add OTM messages */
+}
+#else /* __OO_ORTI_USE_OTM__ */
+#define EE_ORTI_send_otm_runningisr2(isr2)    ((void)0)
+#endif /* __OO_ORTI_USE_OTM__ */
+#endif /* __OO_ORTI_RUNNINGISR2__ */
+
 /*******************************************************************************
                     Data Structures for Multi-Stack
   They must be visible in API because eecfg.c ERIKA configuration module define
@@ -146,7 +196,7 @@ typedef void (*EE_tc_ISR_handler)(void);
 
 /* Used to save "context info" for multistack switch */
 struct EE_TC_TOS {
-  EE_ADDR ram_tos;        /* Top Of the Stack in RAM */
+  EE_ADDR ram_tos;        /* Top of the Stack in RAM */
   EE_UREG pcxi_tos;       /* Top of the Stack in CSA */
 };
 
@@ -206,7 +256,7 @@ typedef EE_UINT32 EE_STACK_T;
 #if  (!defined(EE_CURRENTCPU)) || (EE_CURRENTCPU == 0)
 /* Used as short-cut for previous condition */
 #define EE_MASTER_CPU
-#endif
+#endif /* EE_CURRENTCPU == 0 */
 
 /*******************************************************************************
  *  IMPORTANT:
@@ -221,15 +271,15 @@ typedef EE_UINT32 EE_STACK_T;
 typedef union {
   EE_UINT32 reg;
   struct {
-    EE_UINT32 PCXO   :16; /* Previous Context Pointer Offset Address  */
-    EE_UINT32 PCXS   :4;  /* Previous Context Pointer Segment Address */
+    EE_UINT32 PCXO  :16; /* Previous Context Pointer Offset Address  */
+    EE_UINT32 PCXS  :4;  /* Previous Context Pointer Segment Address */
 #if defined(__TC13__) || defined(__TC131__)
-    EE_UINT32 bit20_ :1;  /* Reserved */
-    EE_UINT32 bit21_ :1;  /* Reserved */
+    EE_UINT32       :1;  /* In TC 1.3 bit20 is Reserved */
+    EE_UINT32       :1;  /* In TC 1.3 bit21 is Reserved */
 #endif /* __TC13__ || __TC131__ */
-    EE_UINT32 UL     :1;  /* Upper or Lower Context Tag */
-    EE_UINT32 PIE    :1;  /* Previous Interrupt Enable */
-    EE_UINT32 PCPN   :8;  /* Previous CPU Priority Number */ 
+    EE_UINT32 UL    :1;  /* Upper or Lower Context Tag */
+    EE_UINT32 PIE   :1;  /* Previous Interrupt Enable */
+    EE_UINT32 PCPN  :8;  /* Previous CPU Priority Number */ 
   } bits;
 } EE_PCXI;
 
@@ -370,10 +420,28 @@ __INLINE__ EE_UREG __ALWAYS_INLINE__ EE_tc_cpu_revision( void )
   return (r & 0xFFU);
 }
 
+/* Start performance counter [CCNT] in normal mode */
+__INLINE__ void __ALWAYS_INLINE__ EE_tc_start_CCNT( void )
+{
+  __mtcr(EE_CPU_REG_CCTRL, 0x2U);
+}
+
 /* Reads the CPU Clock Cycle Counter (includes overflow bit) */
 __INLINE__  EE_UREG __ALWAYS_INLINE__ EE_tc_get_CCNT( void )
 {
   return __mfcr(EE_CPU_REG_CCNT);
+}
+
+/* Read temporal protection configuration register */
+__INLINE__ EE_UREG __ALWAYS_INLINE__ EE_tc_get_TPS_CON( void )
+{
+  return __mfcr(EE_CPU_REG_TPS_CON);
+}
+
+/* Write temporal protection configuration register */
+__INLINE__ void __ALWAYS_INLINE__ EE_tc_set_TPS_CON( EE_UREG tps_con )
+{
+  __mtcr(EE_CPU_REG_TPS_CON, tps_con);
 }
 
 /* Functions to Access ICR register */
@@ -387,7 +455,7 @@ __INLINE__ EE_ICR __ALWAYS_INLINE__ EE_tc_get_ICR( void )
 __INLINE__ void __ALWAYS_INLINE__ EE_tc_set_ICR( EE_ICR icr )
 {
   __mtcr(EE_CPU_REG_ICR, icr.reg);
-  /* When you write a CSFR you need to force syncronization (isync) to
+  /* When you write a CSFR you need to force synchronization (isync) to
      avoid side-effects, TASKING __mtcr do that by implementation */
 }
 
@@ -492,12 +560,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_tc_set_syscon( EE_UREG reg )
      avoid side-effects, TASKING __mtcr do that by implementation */
 }
 
-#define EE_tc_get_cfr(reg_id) __mfcr(reg_id)
-
-/* When used this isync have to be put by hand */
-#define EE_tc_set_cfr(reg_id, reg) __mtcr((reg_id), (reg));
-
-#elif (__GNUC__)
+#elif defined(__GNUC__)
 /* Count Leading Zeros */
 __INLINE__ EE_UREG __ALWAYS_INLINE__ EE_tc_clz( EE_UREG data )
 {
@@ -561,10 +624,29 @@ __INLINE__ EE_UREG __ALWAYS_INLINE__ EE_tc_cpu_revision( void )
   return (r & 0xFFU);
 }
 
+/* Start performance counter [CCNT] in normal mode */
+__INLINE__ void __ALWAYS_INLINE__ EE_tc_start_CCNT( void )
+{
+  _mtcr(EE_CPU_REG_CCTRL, 0x2U);
+}
+
 /* Reads the CPU Clock Cycle Counter (includes overflow bit) */
 __INLINE__  EE_UREG __ALWAYS_INLINE__ EE_tc_get_CCNT( void )
 {
   return _mfcr(EE_CPU_REG_CCNT);
+}
+
+/* Read temporal protection configuration register */
+__INLINE__ EE_UREG __ALWAYS_INLINE__ EE_tc_get_TPS_CON( void )
+{
+  return _mfcr(EE_CPU_REG_TPS_CON);
+}
+
+/* Write temporal protection configuration register */
+__INLINE__ void __ALWAYS_INLINE__ EE_tc_set_TPS_CON( EE_UREG tps_con )
+{
+  _mtcr(EE_CPU_REG_TPS_CON, tps_con);
+  EE_tc_isync();
 }
 
 /* Functions to Access ICR register */
@@ -695,12 +777,13 @@ __INLINE__ void __ALWAYS_INLINE__ EE_tc_set_syscon( EE_UREG reg )
   EE_tc_isync();
 }
 
-#define EE_tc_get_cfr(reg_id) __mfcr(reg_id)
-
-/* When used this isync have to be put by hand */
-#define EE_tc_set_cfr(reg_id, reg) __mtcr((reg_id), (reg));
-
 #elif defined(__DCC__)
+
+asm volatile EE_UREG EE_tc_read_return_value( void )
+{
+! "%d2"
+  mov %d2, %d2
+}
 
 /* Count Leading Zeros */
 __INLINE__ EE_UREG __ALWAYS_INLINE__ EE_tc_clz( EE_UREG data )
@@ -739,10 +822,29 @@ __INLINE__ EE_UREG __ALWAYS_INLINE__ EE_tc_cpu_revision( void )
   return (r & 0xFFU);
 }
 
+/* Start performance counter [CCNT] in normal mode */
+__INLINE__ void __ALWAYS_INLINE__ EE_tc_start_CCNT( void )
+{
+  _mtcr(EE_CPU_REG_CCTRL, 0x2U);
+}
+
 /* Reads the CPU Clock Cycle Counter (includes overflow bit) */
 __INLINE__  EE_UREG __ALWAYS_INLINE__ EE_tc_get_CCNT( void )
 {
   return _mfcr(EE_CPU_REG_CCNT);
+}
+
+/* Read temporal protection configuration register */
+__INLINE__ EE_UREG __ALWAYS_INLINE__ EE_tc_get_TPS_CON( void )
+{
+  return _mfcr(EE_CPU_REG_TPS_CON);
+}
+
+/* Write temporal protection configuration register */
+__INLINE__ void __ALWAYS_INLINE__ EE_tc_set_TPS_CON( EE_UREG tps_con )
+{
+  _mtcr(EE_CPU_REG_TPS_CON, tps_con);
+  EE_tc_isync();
 }
 
 /* Functions to Access ICR register */
@@ -875,18 +977,19 @@ __INLINE__ void __ALWAYS_INLINE__ EE_tc_set_syscon( EE_UREG reg )
   EE_tc_isync();
 }
 
-#define EE_tc_get_cfr(reg_id) _mfcr(reg_id)
-
-/* When used this isync have to be put by hand */
-#define EE_tc_set_cfr(reg_id, reg) _mtcr((reg_id), (reg));
-
 #endif /* __TASKING__ || __GNUC__ || __DCC__ */
 
-/* Utility Macro for debugging purposes */
+/* Utility Macros for debugging and tracing purposes */
+
+/* One step indirection more to let a macro explode */
+#define EE_STRINGIFY(m) EE_PREPROC_STRING(m)
+
 #ifdef EE_DEBUG
-#define EE_BREAK_POINT() EE_tc_debug()
+#define EE_BREAK_POINT()        EE_tc_debug()
+#define EE_GLOBAL_LABEL(label)  __asm__(".globl " #label "\n" #label ":")
 #else  /* EE_DEBUG */
-#define EE_BREAK_POINT() ((void)0U)
+#define EE_BREAK_POINT()        ((void)0U)
+#define EE_GLOBAL_LABEL(label)  ((void)0U)
 #endif /* EE_DEBUG */
 
 /* Suspend/Resume Interrupts */
@@ -1002,9 +1105,9 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_disableIRQ( void )
   EE_tc_disableIRQ();
 }
 /* Suspend/Resume Interrupts */
-__INLINE__ void __ALWAYS_INLINE__ EE_hal_resumeIRQ( EE_FREG flags )
+__INLINE__ void __ALWAYS_INLINE__ EE_hal_resumeIRQ( EE_FREG flag )
 {
-  EE_tc_resumeIRQ(flags);
+  EE_tc_resumeIRQ(flag);
 }
 
 __INLINE__ EE_FREG __ALWAYS_INLINE__ EE_hal_suspendIRQ( void )

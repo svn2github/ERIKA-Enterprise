@@ -55,46 +55,64 @@
 #ifndef __PRIVATE_GETTASKID__
 StatusType EE_oo_GetTaskID(TaskRefType TaskID)
 {
-  register StatusType retVal;
-  register EE_FREG flag;
+  register StatusType ev;
+
   EE_ORTI_set_service_in(EE_SERVICETRACE_GETTASKID);
 
-  /*
-    OS093: If interrupts are disabled/suspended by a Task/OsIsr and the
+#ifdef EE_SERVICE_PROTECTION__
+  /*  [OS093]: If interrupts are disabled/suspended by a Task/OsIsr and the
       Task/OsIsr calls any OS service (excluding the interrupt services)
       then the Operating System shall ignore the service AND shall return
-      E_OS_DISABLEDINT if the service returns a StatusType value.
-  */
-  if(EE_oo_check_disableint_error()) {
-    EE_ORTI_set_lasterror(E_OS_DISABLEDINT);
+      E_OS_DISABLEDINT if the service returns a StatusType value. */
+  /*  [OS088]: If an OS-Application makes a service call from the wrong context
+      AND is currently not inside a Category 1 ISR the Operating System module
+      shall not perform the requested action (the service call shall have no
+      effect), and return E_OS_CALLEVEL (see [12], section 13.1) or the
+      “invalid value” of  the service. (BSW11009, BSW11013) */
+  /* GetTaskID is callable by Task, ISR2, ErrorHook, ProtectionHook, Pre and
+     Post TaskHook */
+  if ( EE_as_execution_context > PostTaskHook_Context ) {
+    ev = E_OS_CALLEVEL;
+  } else if( EE_oo_check_disableint_error() ) {
+    ev = E_OS_DISABLEDINT;
+  } else
+#endif /* EE_SERVICE_PROTECTION__ */
 
-    flag = EE_hal_begin_nested_primitive();
-    EE_oo_notify_error_GetTaskID(TaskID, E_OS_DISABLEDINT);
-    EE_hal_end_nested_primitive(flag);
-
-    EE_ORTI_set_service_out(EE_SERVICETRACE_GETTASKID);
-
-    return E_OS_DISABLEDINT;
-  }
-
-  if (TaskID != (TaskRefType)NULL) {
+  /* [OS566]: The Operating System API shall check in extended mode all pointer
+     argument for NULL pointer and return OS_E_PARAMETER_POINTER
+     if such argument is NULL. 
+     + 
+     MISRA dictate NULL check for pointers always. */
+  if ( TaskID == NULL ) {
+    ev = E_OS_PARAM_POINTER;
+  } else
+#ifdef __EE_MEMORY_PROTECTION__
+  /* [SWS_Os_00051]: If an invalid address (address is not writable by this
+      OS-Application) is passed as an out-parameter to an Operating System
+      service, the Operating System module shall return the status code
+      E_OS_ILLEGAL_ADDRESS. (SRS_Os_11009, SRS_Os_11013) */
+  if ( !OSMEMORY_IS_WRITEABLE(EE_hal_get_app_mem_access(EE_as_active_app,
+    TaskID, sizeof(*TaskID))) )
+  {
+    ev = E_OS_ILLEGAL_ADDRESS;  
+  } else
+#endif /* __EE_MEMORY_PROTECTION__ */
+  {
+    /* XXX: This SHALL be atomic. Check this architectures other than TriCore */
     *TaskID = EE_stk_queryfirst();
-    retVal = E_OK;
-  } else {
-    /* OS566: The Operating System API shall check in extended mode all pointer
-       argument for NULL pointer and return OS_E_PARAMETER_POINTER
-       if such argument is NULL. 
-       + 
-       MISRA dictate NULL check for pointers always.
-    */
-    EE_ORTI_set_lasterror(E_OS_PARAMETER_POINTER);
-    flag = EE_hal_begin_nested_primitive();
-    EE_oo_notify_error_GetTaskID(TaskID, E_OS_PARAMETER_POINTER);
-    EE_hal_end_nested_primitive(flag);
-
-    retVal = E_OS_PARAMETER_POINTER;
+    ev = E_OK;
   }
-  EE_ORTI_set_service_out(EE_SERVICETRACE_GETTASKID);
-  return retVal;
+
+  if ( ev != E_OK ) {
+    EE_OS_ERROR_PARAMETERS();
+    EE_OS_ERROR_PARAMETERS_PARAM1_REF(task_ref,TaskID);
+
+    EE_os_notify_error_from_us(OSServiceId_GetTaskID, &error_parameters, ev);
+    EE_ORTI_set_service_out(EE_SERVICETRACE_GETTASKID);
+  } else {
+    EE_ORTI_set_service_out(EE_SERVICETRACE_GETTASKID);
+  }
+
+  return ev;
 }
-#endif
+#endif /* __PRIVATE_GETTASKID__ */

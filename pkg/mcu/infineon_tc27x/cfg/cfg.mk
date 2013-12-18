@@ -43,9 +43,11 @@
 ##
 
 ifeq ($(and $(call iseeopt, EE_TRICORE__), $(call iseeopt, EE_TC27X__)),yes)
+ifeq ($(or $(call iseeopt, EE_TASKING__), $(call iseeopt, EE_DIAB__)),yes)
 ifneq ($(call iseeopt,EE_USE_CUSTOM_STARTUP_CODE), yes)
 EE_BOOT_SRCS += pkg/mcu/infineon_tc27x/src/ee_tc27x_cstart.c
 endif # !EE_USE_CUSTOM_STARTUP_CODE
 EE_SRCS += pkg/mcu/infineon_tc27x/src/ee_tc27x_system.c
 
-endif # TRICORE TC27X && TASKING
+endif # TASKING || DIAB
+endif # TRICORE TC27X

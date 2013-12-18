@@ -70,11 +70,13 @@ endif # EE_FIND_COMPILER_IN_PATH
 
 # WORK AROUND TO PERSUADE LINKER TO PRESERVE SECTIONS IN SLAVE ELFs
 ifeq ($(call iseeopt, __MSRP__), yes)
+ifneq  ($(call iseeopt, EE_BUILD_SINGLE_ELF), yes)
 ifneq ($(call iseeopt, EE_USE_CUSTOM_STARTUP_CODE), yes)
 ifneq ($(CPU_NUMID), 0)
-OBJS += ../$(CPU_MASTER_DIR)/$(OBJDIR)/pkg/mcu/infineon_$(TRICORE_MODEL)/src/ee_tc27x_cstart.o
+OBJS += ../$(CPU_MASTER_DIR)/$(OBJDIR)/pkg/mcu/infineon_common_tc2Yx/src/ee_tc2Yx_cstart.o
 endif # CPU_NUMID not eq 0
 endif # !EE_USE_CUSTOM_STARTUP_CODE
+endif # !EE_BUILD_SINGLE_ELF
 endif # __MSRP__
 
 # Suffix used for Linker Scripts Files for TASKING
@@ -103,17 +105,40 @@ CFLAGS  += -D__CPU__=$(TRICORE_MODEL)
 ASFLAGS += -D__CPU__=$(TRICORE_MODEL)
 GNUC_TRICORE_MODEL := tc27xx
 endif
+ifeq ($(TRICORE_MODEL),tc26x)
+CFLAGS  += -D__CPU__=$(TRICORE_MODEL)
+ASFLAGS += -D__CPU__=$(TRICORE_MODEL)
+GNUC_TRICORE_MODEL := tc26xx
+endif
 
 ## OPT_CC are the options for compiler invocation
-# -fomit-frame-pointer is neeeded to avoid that additional instructions are inserted before _START symbol
-OPT_CC += -c -mcpu=$(GNUC_TRICORE_MODEL) -Wall -ffunction-sections -fomit-frame-pointer -fshort-double -Winline -finline-functions\
- -fzero-initialized-in-bss -std=gnu99
+ifeq ($(call iseeopt, EE_MM_OPT), yes)
+# -fomit-frame-pointer (neeeded to avoid that additional instructions are inserted before _START symbol),
+# -ffunction-sections (needed to easily pick function in linker scripts and place them wherever you want),
+# -fzero-initialized-in-bss, -finline-functions are all set in CFLAGS_tricore_gcc.txt file
+OPT_CC += -c @$(call native_path,$(EEBASE))/pkg/cfg/arch/CFLAGS_tricore_gcc.txt -mcpu=$(GNUC_TRICORE_MODEL)\
+ -Wdisabled-optimization -mcpu114
+
+else # EE_MM_OPT
+# -fomit-frame-pointer  is needed to avoid that additional instructions are
+#                       inserted before _START symbol
+# -fno-tree-loop-optimize needed to work around to a compiler bug
+# TODO: TO BE ADDED -Wextra
+# TODO: use -msmall-pid to introduce support for small data addressing
+OPT_CC += -c -mcpu=$(GNUC_TRICORE_MODEL) -Wall -fno-common -fomit-frame-pointer\
+ -fstrict-volatile-bitfields -fshort-double -Winline -finline-functions\
+ -fzero-initialized-in-bss -std=gnu99 -fno-tree-loop-optimize\
+ -ffunction-sections -fdata-sections -Wdiv-by-zero -Wdouble-promotion\
+ -Wcast-align -Wformat-security -Wignored-qualifiers -fselective-scheduling\
+ -mversion-info
 
 ifeq ($(call iseeopt, EE_DEBUG), yes)
 OPT_CC += -g3 -ggdb -O1
 else # EE_DEBUG
 OPT_CC += -g -O3
 endif # EE_DEBUG
+
+endif # EE_MM_OPT
 
 ifeq ($(call iseeopt, EE_SAVE_TEMP_FILES), yes)
 OPT_CC += -save-temps=obj
@@ -160,22 +185,18 @@ source_asm_file=$(strip $1)
 ##--create stop  "control program" after object file is created
 target_asm_file=$(addprefix -o ,$1)
 
-##
-## Templates handling target and rules
-##
-
 ifneq ($(call iseeopt, EE_AS_OSAPPLICATIONS__), yes)
 # apps.conf is not generated if there is no Memory Protection
 apps.conf:
 	@touch $@
-endif # EE_AS_OSAPPLICATIONS__
+endif # EE_AS_OSAPPLICATIONS__ 
 
 # Generate configuration files for Os-Applications
 ifeq ($(call iseeopt, EE_AS_OSAPPLICATIONS__), yes)
 # Rule to generate MemMap.h File
-MemMap.h: apps.conf $(PKGBASE)/mcu/infineon_$(TRICORE_MODEL)/cfg/MemMap.h.tmpl
+MemMap.h: apps.conf $(PKGBASE)/mcu/infineon_common_tc2Yx/cfg/MemMap.h.gnu.tmpl
 # Preprocess MemMap.h.tmpl
-	@echo GEN $@ from TEMPLATE $(PKGBASE)/mcu/infineon_$(TRICORE_MODEL)/cfg/$@.tmpl
+	@echo GEN $@ from TEMPLATE $(word 2,$^)
 	$(QUIET) awk -f $(PKGBASE)/cpu/common/cfg/memprot_generator.awk $^ > $@
 
 # Add MemMap.h as dependency for OBJS
@@ -183,44 +204,112 @@ OBJDEP += MemMap.h
 endif # EE_AS_OSAPPLICATIONS__
 
 ##
-## Specific linker option from the application makefile
+## Linker scripts templates handling rules
 ##
+ifeq ($(and $(call iseeopt, __MSRP__), $(call iseeopt, EE_BUILD_SINGLE_ELF)), yes)
+EE_LINKERSCRIPT_MODEL_FOLDER = $(PKGBASE)/mcu/infineon_$(TRICORE_MODEL)/cfg
 
-# Custom Linker Script Should be Provided with EE_LINK_SCRIPT variable
-ifndef EE_LINKERSCRIPT
-# Use The Erika Default One
 ifeq ($(call iseeopt, EE_EXECUTE_FROM_RAM), yes)
-EE_LINKERSCRIPT := ee_tc27x_gnu_ram.ld
+EE_LINKERSCRIPT_PREFIX := ram
 else # EE_EXECUTE_FROM_RAM
-EE_LINKERSCRIPT := ee_tc27x_gnu_flash.ld
+EE_LINKERSCRIPT_PREFIX := flash
 endif # EE_EXECUTE_FROM_RAM
 
+## Handle Global Linking in multicore environment with single ELF
+ifeq ($(__BASE_MAKEFILE__), yes)
+
+EE_LINKERSCRIPT := ee_$(TRICORE_MODEL)_gnu_$(EE_LINKERSCRIPT_PREFIX)_recollect.ld
+EE_LINKERSCRIPT_TEMPLATE := $(PKGBASE)/mcu/infineon_common_tc2Yx/cfg/multicore/ee_tc2Yx_gnu_$(EE_LINKERSCRIPT_PREFIX)_recollect.ld.tmpl
+EE_LINKERMEMORY += $(EE_LINKERSCRIPT_MODEL_FOLDER)/ee_$(TRICORE_MODEL)_gnu_memory_map.x
+
+EE_RECOLLECT_LINKERSCRIPTS += $(PKGBASE)/mcu/infineon_common_tc2Yx/cfg/multicore/ee_tc2Yx_gnu_$(EE_LINKERSCRIPT_PREFIX)_startup_recollect.ld
+EE_RECOLLECT_LINKERSCRIPTS += $(PKGBASE)/mcu/infineon_common_tc2Yx/cfg/multicore/ee_tc2Yx_gnu_$(EE_LINKERSCRIPT_PREFIX)_recollect_prefix.ld
+EE_RECOLLECT_LINKERSCRIPTS += $(addsuffix ee_$(TRICORE_MODEL)_gnu_flash_recollect.ld.frag, $(EE_CORE_DIRS))
+EE_RECOLLECT_LINKERSCRIPTS += $(PKGBASE)/mcu/infineon_common_tc2Yx/cfg/multicore/ee_tc2Yx_gnu_$(EE_LINKERSCRIPT_PREFIX)_recollect_suffix.ld
+
+$(EE_LINKERSCRIPT): $(EE_LINKERMEMORY) $(EE_RECOLLECT_LINKERSCRIPTS)
+	@echo GEN $@ from $(EE_LINKERSCRIPT_TEMPLATE)
+	$(QUIET) cat $^ > $@
+
+# Add Linker Script to Link Dependencies
+LINKDEP += $(EE_LINKERSCRIPT)
+else # __BASE_MAKEFILE__
+EE_LINKERSCRIPT       := ee_$(TRICORE_MODEL)_gnu_relocable.ld
+EE_LINKERSCRIPT_TEMPLATE := $(PKGBASE)/mcu/infineon_common_tc2Yx/cfg/multicore/ee_tc2Yx_gnu_relocable.ld.tmpl
+
+EE_PARTIAL_RECOLLECT_LINKERSCRIPT := ee_$(TRICORE_MODEL)_gnu_flash_recollect.ld.frag
+EE_PARTIAL_RECOLLECT_LINKERSCRIPT_TEMPLATE += $(PKGBASE)/mcu/infineon_common_tc2Yx/cfg/multicore/ee_tc2Yx_gnu_$(EE_LINKERSCRIPT_PREFIX)_recollect.ld.tmpl
+
+$(EE_LINKERSCRIPT): apps.conf $(EE_LINKERSCRIPT_TEMPLATE)
+	@echo GEN $@ from $(EE_LINKERSCRIPT_TEMPLATE)
+	$(QUIET) awk -f $(PKGBASE)/cpu/common/cfg/memprot_generator.awk $^ > $@
+
+$(EE_PARTIAL_RECOLLECT_LINKERSCRIPT): apps.conf $(EE_PARTIAL_RECOLLECT_LINKERSCRIPT_TEMPLATE)
+	@echo GEN $@ from $(EE_PARTIAL_RECOLLECT_LINKERSCRIPT_TEMPLATE)
+	$(QUIET) echo "\nCORE_ID = CPU$(CPU_NUMID);" > $@ ;
+	$(QUIET) awk -f $(PKGBASE)/cpu/common/cfg/memprot_generator.awk $^ >> $@
+
+#$(EE_PARTIAL_RECOLLECT_LINKERSCRIPT): $(EE_PARTIAL_RECOLLECT_LINKERSCRIPT).tbs
+#	@echo GEN $@ from $<
+#	$(QUIET) sed -e 's-#c#-$(CPU_NUMID)-g' $< > $@
+
+# Add Linker Script to Link Dependencies
+LINKDEP += $(EE_LINKERSCRIPT) $(EE_PARTIAL_RECOLLECT_LINKERSCRIPT)
+endif # __BASE_MAKEFILE__
+else # __MSRP__ && EE_BUILD_SINGLE_ELF
+##
+## Specific linker option from the application makefile
+##
+# Custom Linker Script Should be Provided with EE_LINK_SCRIPT variable
+ifndef EE_LINKERSCRIPT
 # Linker script start folder
-EE_LINKERSCRIPT_FOLDER = $(PKGBASE)/mcu/infineon_$(TRICORE_MODEL)/cfg
-# Linker Script Template
-EE_LINKERSCRIPT_TEMPLATE = $(EE_LINKERSCRIPT_FOLDER)/$(EE_LINKERSCRIPT).tmpl
+EE_LINKERSCRIPT_MODEL_FOLDER = $(PKGBASE)/mcu/infineon_$(TRICORE_MODEL)/cfg
+
+# Use The Erika Default One
+ifeq ($(call iseeopt, EE_EXECUTE_FROM_RAM), yes)
+
+EE_LINKERSCRIPT       := ee_$(TRICORE_MODEL)_gnu_ram.ld
+EE_LINKERSCRIPT_TEMPLATE := $(PKGBASE)/mcu/infineon_common_tc2Yx/cfg/ee_tc2Yx_gnu_ram.ld.tmpl
+EE_LINKERMEMORY += $(EE_LINKERSCRIPT_MODEL_FOLDER)/multicore/ee_$(TRICORE_MODEL)_gnu_ram_slaves_entry_points.ld
+else # EE_EXECUTE_FROM_RAM
+
+EE_LINKERSCRIPT       := ee_$(TRICORE_MODEL)_gnu_flash.ld
+
+ifneq ($(call iseeopt, __MSRP__), yes)
+EE_LINKERSCRIPT_TEMPLATE := $(addprefix $(PKGBASE)/mcu/infineon_common_tc2Yx/cfg/, ee_tc2Yx_gnu_flash_startup.ld ee_tc2Yx_gnu_flash.ld.tmpl)
+else #!__MSRP__
+ifeq ($(CPU_NUMID),0)
+EE_LINKERSCRIPT_TEMPLATE := $(addprefix $(PKGBASE)/mcu/infineon_common_tc2Yx/cfg/, ee_tc2Yx_gnu_flash_startup.ld ee_tc2Yx_gnu_flash.ld.tmpl)
+else # CPU_NUMID eq 0
+EE_LINKERSCRIPT_TEMPLATE = $(EE_LINKERSCRIPT_MODEL_FOLDER)/multicore/ee_$(TRICORE_MODEL)_gnu_flash_startup_core$(CPU_NUMID).ld
+EE_LINKERSCRIPT_TEMPLATE += $(PKGBASE)/mcu/infineon_common_tc2Yx/cfg/ee_tc2Yx_gnu_flash.ld.tmpl
+endif # CPU_NUMID eq 0
+endif # !__MSRP__
+EE_LINKERMEMORY += $(EE_LINKERSCRIPT_MODEL_FOLDER)/multicore/ee_$(TRICORE_MODEL)_gnu_flash_slaves_entry_points.ld
+endif # EE_EXECUTE_FROM_RAM
 
 # The default linker script is made by a memory description part and a rules part
 # (Select the right memory part in case of multicore build)
 ifeq ($(call iseeopt, __MSRP__), yes)
-EE_LINKERMEMORY = $(EE_LINKERSCRIPT_FOLDER)/multicore/ee_tc27x_gnu_memory_core$(CPU_NUMID).x
-# Slave CPUs: add linkerscript with global shared symbols
+EE_LINKERMEMORY += $(EE_LINKERSCRIPT_MODEL_FOLDER)/multicore/ee_$(TRICORE_MODEL)_gnu_memory_core$(CPU_NUMID).x
+# Slave CPUs: add linkerscript with global shared symbols (No more needed)
 ifneq ($(CPU_NUMID), 0)
 ADDITIONAL_LINKSCRIPT = $(GLOBAL_LINKSCRIPT)
 endif # CPU_NUMID not eq 0
 else # __MSRP__
-EE_LINKERMEMORY = $(EE_LINKERSCRIPT_FOLDER)/ee_tc27x_gnu_memory_singlecore.x
+
+EE_LINKERMEMORY += $(EE_LINKERSCRIPT_MODEL_FOLDER)/ee_$(TRICORE_MODEL)_gnu_memory_singlecore.x
 endif # __MSRP__
 
 # If shared symbol container in slaves multicore build is defined, it has to be
 # concatenated with linker memory descriptions and linker rules to obtain the
 # complete linker script
 $(EE_LINKERSCRIPT): apps.conf $(EE_LINKERMEMORY) $(EE_LINKERSCRIPT_TEMPLATE) $(ADDITIONAL_LINKSCRIPT)
-	@echo GEN $@ from TEMPLATE $(notdir $(EE_LINKERSCRIPT_TEMPLATE))
+	@echo GEN $@ from $(EE_LINKERSCRIPT_TEMPLATE)
 	$(QUIET) awk -f $(PKGBASE)/cpu/common/cfg/memprot_generator.awk $^ > $@
-else # EE_LINKERSCRIPT
+else # !EE_LINKERSCRIPT
 
-# Slave CPUs: queue linkerscript with global shared symbols
+# Slave CPUs: queue linkerscript with global shared symbols (No more needed)
 ifeq ($(call iseeopt, __MSRP__), yes)
 ifneq ($(CPU_NUMID), 0)
 ADDITIONAL_LINKSCRIPT = $(GLOBAL_LINKSCRIPT)
@@ -233,8 +322,8 @@ $(EE_LINKERSCRIPT) : $(APPBASE)/$(EE_LINKERSCRIPT) $(ADDITIONAL_LINKSCRIPT)
 	@echo GEN $@
 	$(QUIET) rm -f $@
 	$(QUIET) cat $^ >> $@
-
-endif # EE_LINKERSCRIPT
+endif # !EE_LINKERSCRIPT
+endif # __MSRP__ && EE_BUILD_SINGLE_ELF
 
 # If default compiler behaviour is chosen do not add linkerscript to dependencies and
 # do not add it to linker options. Moreover do not disable startup code linking.
@@ -244,10 +333,32 @@ ifneq ($(call iseeopt, EE_COMPILER_DEFAULT),yes)
 LINKDEP += $(EE_LINKERSCRIPT)
 
 OPT_LINK += -T $(EE_LINKERSCRIPT) -nostartfiles
-endif
+endif # EE_COMPILER_DEFAULT
 
-OPT_LINK += -mcpu=$(GNUC_TRICORE_MODEL) -Wl,--gc-sections -Wl,--mem-holes\
- -Wl,-Map="$(basename $(notdir $@)).map" -Wl,--cref -fshort-double -Wl,--extmap="a"
+## Handle relocating code if needed
+ifeq ($(and $(call iseeopt, __MSRP__), $(call iseeopt, EE_BUILD_SINGLE_ELF)), yes)
+ifneq ($(__BASE_MAKEFILE__), yes)
+##Use always the export file to MASK replicated symbols
+EXPORT_FILE := export_ee_global
+ifeq ($(CPU_NUMID),0)
+$(EXPORT_FILE): $(PKGBASE)/mcu/infineon_common_tc2Yx/cfg/multicore/$(EXPORT_FILE)
+	@echo CP symbols export file $@ $<
+	$(QUIET) cp -f $< $@
+else # CPU_NUMID eq 0
+$(EXPORT_FILE):
+	@echo "EXPORT FUNCTION EE_tc2Yx_cpu$(CPU_NUMID)_start ;" > $@
+endif  # CPU_NUMID eq 0
+
+##Put the EXPORT_FILE into linking dependencies
+LINKDEP += $(EXPORT_FILE)
+
+##Relocatable linking in case of multicore
+OPT_LINK += -Wl,-r -mcpu=$(GNUC_TRICORE_MODEL) -Wl,--core=CPU$(CPU_NUMID) -Wl,--export=$(EXPORT_FILE)\
+ -Wl,-Map="$(basename $(notdir $@)).map" -Wl,--extmap="a"
+else #  !__BASE_MAKEFILE__
+#Recollection in Single elf build
+OPT_LINK += -mcpu=$(GNUC_TRICORE_MODEL) -Wl,--gc-sections\
+  -Wl,--mem-holes -Wl,-warn-flags -Wl,-Map="$(basename $(notdir $@)).map" -Wl,--cref -fshort-double -Wl,--extmap="a"
 
 ifeq ($(call iseeopt, EE_DEBUG), yes)
 OPT_LINK +=
@@ -257,6 +368,22 @@ endif
 # Add those flags at the end should be enough to give to user the option to
 # completly customize build process (because last options will ovveride previous ones).
 OPT_LINK += $(LDFLAGS)
+endif # !__BASE_MAKEFILE__
+
+else # __MSRP__ && EE_BUILD_SINGLE_ELF
+#Normal build
+OPT_LINK += -Wl,--core=GLOBAL -mcpu=$(GNUC_TRICORE_MODEL) -Wl,--gc-sections\
+  -Wl,--mem-holes -Wl,-warn-flags -Wl,-Map="$(basename $(notdir $@)).map" -Wl,--cref -fshort-double -Wl,--extmap="a"
+
+ifeq ($(call iseeopt, EE_DEBUG), yes)
+OPT_LINK +=
+endif
+
+# Specific option from the application makefile
+# Add those flags at the end should be enough to give to user the option to
+# completly customize build process (because last options will ovveride previous ones).
+OPT_LINK += $(LDFLAGS)
+endif # __MSRP__ && EE_BUILD_SINGLE_ELF
 
 #Functions to be used to wrap with right options target for Linker:
 target_ld_file=$(addprefix -o ,$1)
@@ -282,3 +409,4 @@ DEPENDENCY_OPT_ASM = -MD -MF $(call native_path,$(subst .o,.d_tmp,$(@)))
 # Dependencies on Windows need path translation and quote remotion
 make-depend = sed -e 's_\\\(.\)_/\1_g' -e 's_\<\([a-zA-Z]\):/_/cygdrive/\l\1/_g' < $1_tmp > $1 && rm $1_tmp
 endif # NODEPS
+

@@ -96,10 +96,13 @@ EE_SRCS += pkg/kernel/oo/src/ee_algetbase.c
 EE_SRCS += pkg/kernel/oo/src/ee_alget.c
 EE_SRCS += pkg/kernel/oo/src/ee_alsetabs.c
 EE_SRCS += pkg/kernel/oo/src/ee_alsetrel.c
+endif
+
+ifeq ($(or $(if $(call iseeopt, __OO_NO_ALARMS__),,yes), $(call iseeopt, EE_AS_SCHEDULETABLES__)), yes)
 EE_SRCS += pkg/kernel/oo/src/ee_altick.c
 EE_SRCS += pkg/kernel/oo/src/ee_getcountervalue.c
 EE_SRCS += pkg/kernel/oo/src/ee_getelapsedvalue.c
-endif
+endif # !__OO_NO_ALARMS__ || EE_AS_SCHEDULETABLES__
 
 ifeq ($(OO_ECC) , YES)
 EE_SRCS += pkg/kernel/oo/src/ee_evclear.c

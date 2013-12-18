@@ -56,78 +56,78 @@
 */
 
 #ifndef __PRIVATE_TERMINATETASK__
-#ifdef __OO_EXTENDED_STATUS__
-
 StatusType EE_oo_TerminateTask(void)
 {
-  register EE_FREG np_flags;
+  /* Error Value */
+  register StatusType ev;
+  /* Primitive Lock Procedure */
+  EE_OS_DECLARE_AND_ENTER_CRITICAL_SECTION();
 
   EE_ORTI_set_service_in(EE_SERVICETRACE_TERMINATETASK);
 
+  EE_as_monitoring_the_stack();
+
+#ifdef EE_SERVICE_PROTECTION__
+  /*  [OS093]: If interrupts are disabled/suspended by a Task/OsIsr and the
+      Task/OsIsr calls any OS service (excluding the interrupt services)
+      then the Operating System shall ignore the service AND shall return
+      E_OS_DISABLEDINT if the service returns a StatusType value. */
+  if ( EE_oo_check_disableint_error() ) {
+    ev = E_OS_DISABLEDINT;
+  } else
+#endif /* EE_SERVICE_PROTECTION__ */
+#if defined(__OO_EXTENDED_STATUS__) || defined(EE_SERVICE_PROTECTION__)
+  /*  [OS088]: If an OS-Application makes a service call from the wrong context
+      AND is currently not inside a Category 1 ISR the Operating System module
+      shall not perform the requested action (the service call shall have no
+      effect), and return E_OS_CALLEVEL (see [12], section 13.1) or the
+      “invalid value” of  the service. (BSW11009, BSW11013) */
   /* check for a call at interrupt level
    * This must be the FIRST Check!!!
    */
-  if (EE_hal_get_IRQ_nesting_level()) 
+  if ( EE_hal_get_IRQ_nesting_level() ||
+      (EE_as_get_execution_context() > TASK_Context) )
   {
-    EE_ORTI_set_lasterror(E_OS_CALLEVEL);
+    ev = E_OS_CALLEVEL;
+  } else
+#endif /* __OO_EXTENDED_STATUS__ || EE_SERVICE_PROTECTION__ */
 
-    np_flags = EE_hal_begin_nested_primitive();
-    EE_oo_notify_error_service(OSServiceId_TerminateTask, E_OS_CALLEVEL);
-    EE_hal_end_nested_primitive(np_flags);
-
-    EE_ORTI_set_service_out(EE_SERVICETRACE_TERMINATETASK);
-
-    return E_OS_CALLEVEL;
-  }
-
+#ifdef __OO_EXTENDED_STATUS__
 #ifndef __OO_NO_RESOURCES__
   /* check for busy resources */ 
-
-  if (EE_th_resource_last[EE_stk_queryfirst()] != EE_UREG_MINUS1) 
-  {
-    EE_ORTI_set_lasterror(E_OS_RESOURCE);
-
-    np_flags = EE_hal_begin_nested_primitive();
-    EE_oo_notify_error_service(OSServiceId_TerminateTask, E_OS_RESOURCE);
-    EE_hal_end_nested_primitive(np_flags);
-
-    EE_ORTI_set_service_out(EE_SERVICETRACE_TERMINATETASK);
-
-    return E_OS_RESOURCE;
-  }
+  if ( EE_th_resource_last[EE_stk_queryfirst()] != EE_UREG_MINUS1 ) {
+    ev = E_OS_RESOURCE;
+  } else
 #endif /* __OO_NO_RESOURCES__ */
 
-  np_flags = EE_hal_begin_nested_primitive();
-
-#ifndef __OO_NO_CHAINTASK__
-  EE_th_terminate_nextask[EE_stk_queryfirst()] = EE_NIL;
-#endif
-
-  EE_ORTI_set_service_out(EE_SERVICETRACE_TERMINATETASK);
-
-  EE_hal_terminate_task(EE_stk_queryfirst());
-  /* This return instruction usually is optimized by the compiler,
-     because hal_terminate_task does not return... */
-  return E_OK;
-}
-
-#else /* __OO_EXTENDED_STATUS__ */
-
-void EE_oo_TerminateTask(void)
-{
-  /* both assignment to enable smart debuggers to notice the entry and
-     exit from terminatetask */
-  EE_ORTI_set_service_in(EE_SERVICETRACE_TERMINATETASK);
-
-#ifndef __OO_NO_CHAINTASK__
-  EE_th_terminate_nextask[EE_stk_queryfirst()] = EE_NIL;
-#endif
-
-  EE_ORTI_set_service_out(EE_SERVICETRACE_TERMINATETASK);
-
-  /* just terminate without any check */
-  EE_hal_terminate_task(EE_stk_queryfirst());
-}
-
+#ifdef EE_AS_USER_SPINLOCKS__
+  /* [OS612]: In extended status TerminateTask / ChainTask shall return with an
+      error (E_OS_SPINLOCK), which can be evaluated in the application.
+      (BSW4080021) */
+  if (EE_as_spinlocks_last[EE_CURRENTCPU] != INVALID_SPINLOCK) {
+    ev = E_OS_SPINLOCK;
+  } else
+#endif /* EE_AS_USER_SPINLOCKS__ */
 #endif /* __OO_EXTENDED_STATUS__ */
+  {
+#ifndef __OO_NO_CHAINTASK__
+    EE_th_terminate_nextask[EE_stk_queryfirst()] = EE_NIL;
+#endif /* __OO_NO_CHAINTASK__ */
+    ev = E_OK;
+  }
+
+  if ( ev != E_OK ) {
+    EE_ORTI_set_lasterror(ev);
+    EE_oo_notify_error_service(OSServiceId_TerminateTask, ev);
+  } else {
+    /* The following won't never return */
+    EE_ORTI_set_service_out(EE_SERVICETRACE_TERMINATETASK);
+    EE_hal_terminate_task(EE_stk_queryfirst());  
+  }
+
+  EE_ORTI_set_service_out(EE_SERVICETRACE_TERMINATETASK);
+  EE_OS_EXIT_CRITICAL_SECTION();
+
+  return ev;
+}
 #endif /* __PRIVATE_TERMINATETASK__ */
