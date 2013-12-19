@@ -287,8 +287,6 @@ StatusType EE_oo_StartOS(AppModeType Mode)
   register EE_TID     rq;
   /* Error Value */
   register StatusType ev;
-  /* Primitive Lock Declaration */
-  EE_OS_DECLARE_CRITICAL_SECTION();
 
   EE_ORTI_set_service_in(EE_SERVICETRACE_STARTOS);
 
@@ -304,7 +302,7 @@ StatusType EE_oo_StartOS(AppModeType Mode)
 #endif /* __OO_CPU_HAS_STARTOS_ROUTINE__ */
     {
       /* Primitive Lock Procedure */
-      EE_OS_ENTER_CRITICAL_SECTION();
+      EE_hal_disableIRQ();
       /* Initialize ORTI variables, so the debugger can see their
          initial value */
       EE_ORTI_set_runningisr2((EE_ORTI_runningisr2_type)NULL);
@@ -487,10 +485,11 @@ StatusType EE_oo_StartOS(AppModeType Mode)
   }
 
   if ( ev != E_OK ) {
+    register EE_FREG flag = EE_hal_begin_nested_primitive();
     EE_ORTI_set_lasterror(ev);
     EE_oo_notify_error_StartOS(Mode, ev);
     EE_ORTI_set_service_out(EE_SERVICETRACE_STARTOS);
-    EE_OS_EXIT_CRITICAL_SECTION();
+    EE_hal_end_nested_primitive(flag);
   }
 
   return ev;

@@ -288,7 +288,7 @@ static void EE_oo_handle_action_callback ( const EE_oo_action_ROM_type *
 }
 #endif /* EE_AS_OSAPPLICATIONS__ && EE_SERVICE_PROTECTION__ */
 
-void EE_oo_handle_action(EE_oo_action_ROM_type const * const p_action)
+static void EE_oo_handle_action(EE_oo_action_ROM_type const * const p_action)
 {
   switch ( p_action->action_kind ) {
 
@@ -534,9 +534,12 @@ StatusType EE_oo_IncrementCounterHardware(CounterType CounterID)
     ev = E_OS_CALLEVEL;
   } else
 #endif /* EE_SERVICE_PROTECTION__ */
+#if (EE_SOFT_COUNTERS_START > 0)
   if ( CounterID >= EE_SOFT_COUNTERS_START ) {
     ev = E_OS_ID;
-  } else {
+  } else
+#endif /* (EE_SOFT_COUNTERS_START > 0) */
+  {
     EE_oo_IncrementCounterImplementation(CounterID);
     ev = E_OK;
   }
@@ -594,11 +597,14 @@ StatusType EE_oo_IncrementCounter(CounterType CounterID)
     ev = E_OS_CORE;
   } else
 #endif /* EE_AS_RPC__ */
-  /* OS285: If the input parameter CounterID in a call of IncrementCounter() is
+  /* [OS285]: If the input parameter CounterID in a call of IncrementCounter() is
       not valid OR the counter is a hardware counter, IncrementCounter() shall
-      return E_OS_ID.
-  */
-  if ( (CounterID < EE_SOFT_COUNTERS_START) || (CounterID >= EE_MAX_COUNTER) )
+      return E_OS_ID. */
+  if (
+#if (EE_SOFT_COUNTERS_START > 0)
+    (CounterID < EE_SOFT_COUNTERS_START) ||
+#endif /* (EE_SOFT_COUNTERS_START > 0) */
+    (CounterID >= EE_MAX_COUNTER) )
   {
     ev = E_OS_ID;
   } else

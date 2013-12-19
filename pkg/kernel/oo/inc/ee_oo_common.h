@@ -395,8 +395,11 @@ extern const EE_TYPEBOOL EE_th_is_extended[];
 
 /* Resource ceiling */
 extern const EE_TYPEPRIO   EE_resource_ceiling[];
-/* Isr2 priority tied to an resource */
+
+#ifdef __OO_ISR2_RESOURCES__
+/* ISR2 priority tied to an resource */
 extern const EE_TYPEISR2PRIO  EE_resource_isr2_priority[];
+#endif /* __OO_ISR2_RESOURCES__ */
 
 /* If MemMap.h support is enabled (i.e. because memory protection): use it */
 #ifdef EE_SUPPORT_MEMMAP_H
@@ -411,11 +414,12 @@ extern const EE_TYPEISR2PRIO  EE_resource_isr2_priority[];
 /* Old resource ceiling */
 extern EE_TYPEPRIO   EE_resource_oldceiling[];
 
+#ifdef __OO_ISR2_RESOURCES__
 /* New data structures to handle resource sharing with isr2 and isr2 hardware
-   priority ceiling.
- */
-/* Old isr2 priority */
+   priority ceiling. */
+/* Old ISR2 priority */
 extern EE_TYPEISR2PRIO  EE_isr2_oldpriority[];
+#endif /* __OO_ISR2_RESOURCES__ */
 
 #if defined(__OO_EXTENDED_STATUS__) || defined(__OO_ORTI_RES_ISLOCKED__)
 /* Only in extended status or when using ORTI with resources; for each
@@ -439,7 +443,7 @@ extern EE_TYPEBOOL EE_resource_locked[];
 #include "MemMap.h"
 #endif /* EE_SUPPORT_MEMMAP_H */
 
-#if  defined( __OO_EXTENDED_STATUS__ ) || defined(__OO_ISR2_RESOURCES__)
+#if defined(__OO_EXTENDED_STATUS__) || defined(__OO_ISR2_RESOURCES__)
 /* Only in extended status; for each task, we allocate a data
    structure that keeps track of the order in which every task has
    allocated a resource. This is needed to return a meaningful
@@ -776,7 +780,7 @@ typedef EE_TYPEAPPMODE AppModeType;
 #ifndef STATUSTYPEDEFINED
 #define STATUSTYPEDEFINED
 typedef unsigned char StatusType;
-#define E_OK                      ((StatusType)0U)
+#define E_OK                        ((StatusType)0U)
 #endif
 
 #define E_OS_ACCESS                 ((StatusType)1U)
@@ -793,10 +797,21 @@ typedef unsigned char StatusType;
 #define E_OS_DISABLEDINT            ((StatusType)12U)
 #define E_OS_STACKFAULT             ((StatusType)13U)
 #define E_OS_PARAM_POINTER          ((StatusType)14U)
+#define E_OS_PROTECTION_MEMORY      ((StatusType)15U)
+#define E_OS_PROTECTION_TIME        ((StatusType)16U)
+#define E_OS_PROTECTION_ARRIVAL     ((StatusType)17U)
+#define E_OS_PROTECTION_LOCKED      ((StatusType)18U)
+#define E_OS_PROTECTION_EXCEPTION   ((StatusType)19U)
+/* Spinlocks errors */
+#define E_OS_SPINLOCK               ((StatusType)20U)
+#define E_OS_INTERFERENCE_DEADLOCK  ((StatusType)21U)
+#define E_OS_NESTING_DEADLOCK       ((StatusType)22U)
+/* RPC errors */
+#define E_OS_CORE                   ((StatusType)23U)
 
 /* Implementation specific errors: they must start with E_OS_SYS_ */
-/* error during StartOS */
-#define E_OS_SYS_INIT               ((StatusType)15U)
+/* Error during StartOS */
+#define E_OS_SYS_INIT               ((StatusType)24U)
 
 /***************************************************************************
  * ORTI support
