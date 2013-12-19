@@ -90,10 +90,10 @@ StatusType EE_oo_GetResource( ResourceType ResID )
   register TaskType current = EE_stk_queryfirst();
 #endif /* __OO_EXTENDED_STATUS__ || __OO_ORTI_PRIORITY__ ||
   __OO_ISR2_RESOURCES__ */
-#if defined(__OO_EXTENDED_STATUS__) || defined(__OO_ISR2_RESOURCES__)
+#ifdef __OO_EXTENDED_STATUS__
   /* To cache inside task info */
   register EE_SREG inside_task = (EE_hal_get_IRQ_nesting_level() == 0U);
-#endif /* __OO_EXTENDED_STATUS__ || __OO_ISR2_RESOURCES__ */
+#endif /* __OO_EXTENDED_STATUS__ */
 
   /* Primitive Lock Variable */
   EE_OS_ENTER_CRITICAL_SECTION();

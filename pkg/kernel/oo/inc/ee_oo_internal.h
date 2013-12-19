@@ -63,8 +63,7 @@
 /* Error Parameters Utilities Macros */
 #define EE_OS_PARAM(param_name)   EE_os_param param_name
 #define EE_OS_PARAM_VALUE(param_name, param_value)  \
-    EE_os_param param_name;                         \
-    param_name.value_param = param_value
+  EE_os_param param_name = {param_value}
 
 #define EE_OS_PARAM_REF(param_name, param_field, param_ref) \
   EE_OS_VALUE(param_name).EE_OS_VALUE(param_field) = param_ref
