@@ -603,6 +603,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_oo_preemption_point(void)
   current = EE_stk_queryfirst();
   rq      = EE_rq_queryfirst();
 
+#ifdef __EE_MEMORY_PROTECTION__
 #if defined(EE_SYSCALL_NR) && defined(EE_MAX_SYS_SERVICEID) &&\
   (EE_SYSCALL_NR > EE_MAX_SYS_SERVICEID)
   /* Reaction to timing protection can be defined to terminate the
@@ -623,6 +624,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_oo_preemption_point(void)
         (EE_as_Application_ROM[EE_as_active_app].Mode == EE_MEMPROT_TRUST_MODE)
      )
 #endif /* EE_SYSCALL_NR > EE_MAX_SYS_SERVICEID */
+#endif /* __EE_MEMORY_PROTECTION__ */
   {
     if ( rq != EE_NIL ) {
       /* We check if the system ceiling is greater or not the first task

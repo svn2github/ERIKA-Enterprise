@@ -129,7 +129,7 @@ StatusType EE_oo_GetAlarmBase(AlarmType AlarmID, AlarmBaseRefType Info)
     {
       /* Fill the informations required */
       register EE_oo_counter_ROM_type const * c_ref =
-        c_ref = &EE_counter_ROM[EE_oo_counter_object_ROM[AlarmID].c];
+        &EE_counter_ROM[EE_oo_counter_object_ROM[AlarmID].c];
 
       Info->maxallowedvalue = c_ref->maxallowedvalue;
       Info->ticksperbase    = c_ref->ticksperbase;

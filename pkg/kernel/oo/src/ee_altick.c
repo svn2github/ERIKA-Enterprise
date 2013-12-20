@@ -52,21 +52,28 @@
 
 #ifdef __OO_ORTI_ALARMTIME__
 EE_TYPETICK EE_ORTI_alarmtime[EE_MAX_ALARM
-#if defined(EE_MAX_SCHEDULETABLE) && (EE_MAX_SCHEDULETABLE > 0)
+#ifdef EE_AS_SCHEDULETABLES__
   + EE_MAX_SCHEDULETABLE
-#endif /* EE_MAX_SCHEDULETABLE > 0U */
+#endif /* EE_AS_SCHEDULETABLES__ */
   ];
 #endif /* __OO_ORTI_ALARMTIME__ */
 
 #endif /* RTDRUID_CONFIGURATOR_NUMBER */
 
-/* If local alarm are not defined cut everything */
-#if (defined(EE_MAX_ALARM) && (EE_MAX_ALARM > 0)) ||\
-  (defined(EE_MAX_SCHEDULETABLE) && (EE_MAX_SCHEDULETABLE > 0))
+/* If local alarm or schedule tables are not defined: cut everything */
+#if defined(EE_MAX_ALARM) && (EE_MAX_ALARM > 0)
+#define EE_KEEP_ALARM_QUEUE_CODE
+#endif /* EE_MAX_ALARM > 0 */
 
-/*
-  Increment equal to 0 means next tick. Has been used this convention to
-  utilize all values from zero to counter.maxallowedvalue range */
+#ifdef EE_AS_SCHEDULETABLES__
+#if defined(EE_MAX_SCHEDULETABLE) && (EE_MAX_SCHEDULETABLE > 0)
+#define EE_KEEP_ALARM_QUEUE_CODE
+#endif /* EE_MAX_SCHEDULETABLE > 0 */
+#endif /* EE_AS_SCHEDULETABLES__ */
+
+#ifdef EE_KEEP_ALARM_QUEUE_CODE
+/* Increment equal to 0 means next tick. Has been used this convention to
+   utilize all values from zero to counter.maxallowedvalue range */
 void EE_oo_counter_object_insert( CounterObjectType ObjectID,
   TickType increment )
 {
@@ -109,8 +116,7 @@ void EE_oo_counter_object_insert( CounterObjectType ObjectID,
   EE_oo_counter_object_RAM[ObjectID].delta = increment;
   EE_oo_counter_object_RAM[ObjectID].next = current;
 }
-
-#endif /* ( EE_MAX_ALARM > 0 ) || ( EE_MAX_SCHEDULETABLE > 0 ) */
+#endif /* EE_KEEP_ALARM_QUEUE_CODE */
 
 /* If counters are not defined cut everything */
 #if defined(EE_MAX_COUNTER) && (EE_MAX_COUNTER > 0)
@@ -263,6 +269,9 @@ static void EE_oo_handle_action_event(EE_oo_action_ROM_type const * const
 #endif /* EE_AS_RPC__ || __RN_TASK__ */
 
   if ( ev != E_OK ) {
+    EE_OS_PARAM(os_task_id);
+    EE_OS_PARAM(os_mask);
+    EE_OS_PARAM(os_action_type);
     EE_OS_PARAM_VALUE(os_task_id,TaskID);
     EE_OS_PARAM_VALUE(os_mask,Mask);
     EE_OS_PARAM_VALUE(os_action_type,EE_ACTION_EVENT);
@@ -318,9 +327,8 @@ static void EE_oo_handle_action(EE_oo_action_ROM_type const * const p_action)
        * it will be fully supported and recursive call is
        * unavoidable, thus consider a MISRA deviation.
        */
-      /* recursive call
-         TODO: HANDLE CYCLIC COUNTERS !!!
-       */
+      /* Recursive Call
+         TODO: HANDLE CYCLIC COUNTERS !!! */
       /*EE_oo_IncrementCounterImplementation(p_action->inccount);*/
       break;
 
@@ -331,6 +339,7 @@ static void EE_oo_handle_action(EE_oo_action_ROM_type const * const p_action)
   }
 }
 
+#ifdef EE_AS_SCHEDULETABLES__
 #if defined(EE_MAX_SCHEDULETABLE) && (EE_MAX_SCHEDULETABLE > 0)
 static void  EE_as_handle_schedule_table( ScheduleTableType STId )
 {
@@ -423,6 +432,7 @@ static void  EE_as_handle_schedule_table( ScheduleTableType STId )
   }
 }
 #endif /* EE_MAX_SCHEDULETABLE > 0 */
+#endif /* EE_AS_SCHEDULETABLES__ */
 
 void EE_oo_IncrementCounterImplementation(CounterType CounterID)
 {
@@ -482,12 +492,14 @@ void EE_oo_IncrementCounterImplementation(CounterType CounterID)
               EE_oo_counter_object_ROM[to_fire].spec_id].action_id]);
               break;
 #endif /* EE_MAX_ALARM > 0 */
+#ifdef EE_AS_SCHEDULETABLES__
 #if defined(EE_MAX_SCHEDULETABLE) && (EE_MAX_SCHEDULETABLE > 0)
           case EE_SCHEDULETABLE:
               EE_as_handle_schedule_table(EE_oo_counter_object_ROM[to_fire].
                 spec_id);
               break;
 #endif /* EE_MAX_SCHEDULETABLE > 0 */
+#endif /* EE_AS_SCHEDULETABLES__ */
           default:
             /* Invalid counter object kind: this should never happen, as
                `counter object` is initialized by RT-Druid */
@@ -522,7 +534,6 @@ void EE_oo_IncrementCounterImplementation(CounterType CounterID)
 #define EE_SOFT_COUNTERS_START 0
 #endif /* EE_MAX_COUNTER_HW */
 
-
 /* Internal primitive */
 StatusType EE_oo_IncrementCounterHardware(CounterType CounterID)
 {
@@ -556,10 +567,7 @@ StatusType EE_oo_IncrementCounterHardware(CounterType CounterID)
 }
 
 #ifndef __PRIVATE_INCREMENTCOUNTER__
-
-/*
-  OS399: IncrementCounter
-*/
+/* [OS399]: IncrementCounter */
 StatusType EE_oo_IncrementCounter(CounterType CounterID)
 {
   /* Error Value */
@@ -580,7 +588,7 @@ StatusType EE_oo_IncrementCounter(CounterType CounterID)
       AND is currently not inside a Category 1 ISR the Operating System module
       shall not perform the requested action (the service call shall have no
       effect), and return E_OS_CALLEVEL (see [12], section 13.1) or the
-      “invalid value” of  the service. (BSW11009, BSW11013) */
+      "invalid value" of  the service. (BSW11009, BSW11013) */
   /* IncrementCounter is callable by Task and ISR2 */
   if ( EE_as_execution_context > ISR2_Context ) {
     ev = E_OS_CALLEVEL;
@@ -591,17 +599,17 @@ StatusType EE_oo_IncrementCounter(CounterType CounterID)
 
 #if EE_FULL_SERVICE_PROTECTION || defined(__OO_EXTENDED_STATUS__)
 #ifdef EE_AS_RPC__
-  /*  [OS589] All functions that are not allowed to operate cross core shall
-        return E_OS_CORE in extended status if called with parameters that
-        require a cross core operation. (BSW4080013) */
+  /* [OS589]: All functions that are not allowed to operate cross core shall
+      return E_OS_CORE in extended status if called with parameters that
+      require a cross core operation. (BSW4080013) */
   if ( EE_AS_ID_REMOTE(CounterID) )
   {
     ev = E_OS_CORE;
   } else
 #endif /* EE_AS_RPC__ */
-  /* [OS285]: If the input parameter CounterID in a call of IncrementCounter() is
-      not valid OR the counter is a hardware counter, IncrementCounter() shall
-      return E_OS_ID. */
+  /* [OS285]: If the input parameter CounterID in a call of IncrementCounter()
+      is not valid OR the counter is a hardware counter, IncrementCounter()
+      shall return E_OS_ID. */
   if (
 #if (EE_SOFT_COUNTERS_START > 0)
     (CounterID < EE_SOFT_COUNTERS_START) ||
@@ -621,8 +629,7 @@ StatusType EE_oo_IncrementCounter(CounterType CounterID)
     EE_oo_IncrementCounterImplementation(CounterID);
 
     /* After all counter updates check if I'm not in a ISR2 and then
-       execute rescheduling.
-     */
+       execute rescheduling. */
     if ( EE_hal_get_IRQ_nesting_level() == 0U ) {
       EE_oo_preemption_point();
     }
