@@ -108,7 +108,8 @@ StatusType EE_oo_WaitSem( SemRefType Sem )
   /* handle a local semaphore queue */
   /* check if we have to wait */
   if ( Sem != NULL ) {
-#if defined(__EE_MEMORY_PROTECTION__) && defined(EE_SERVICE_PROTECTION__)
+#if defined(EE_AS_OSAPPLICATIONS__) && (defined(EE_SERVICE_PROTECTION__) &&\
+  defined(__EE_MEMORY_PROTECTION__))
     /* [SWS_Os_00051]: If an invalid address (address is not writable by this
         OS-Application) is passed as an out-parameter to an Operating System
         service, the Operating System module shall return the status code
@@ -119,9 +120,11 @@ StatusType EE_oo_WaitSem( SemRefType Sem )
       ev = E_OS_ILLEGAL_ADDRESS;
       returnvalue = -1;
     } else {
-#else /* __EE_MEMORY_PROTECTION__ && EE_SERVICE_PROTECTION__ */
+#else /* EE_AS_OSAPPLICATIONS__ && __EE_MEMORY_PROTECTION__ &&
+  EE_SERVICE_PROTECTION__ */
     {
-#endif /* __EE_MEMORY_PROTECTION__ && EE_SERVICE_PROTECTION__ */
+#endif /* EE_AS_OSAPPLICATIONS__ && __EE_MEMORY_PROTECTION__ &&
+  EE_SERVICE_PROTECTION__ */
       if ( Sem->count != 0U ) {
         Sem->count--;
       } else {

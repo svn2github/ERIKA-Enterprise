@@ -86,7 +86,8 @@ StatusType EE_oo_GetCounterValue(CounterType CounterID, TickRefType Value)
   if ( Value == NULL ) {
       ev = E_OS_PARAM_POINTER;
   } else 
-#if defined(__EE_MEMORY_PROTECTION__) && defined(EE_SERVICE_PROTECTION__)
+#if defined(EE_AS_OSAPPLICATIONS__) && (defined(EE_SERVICE_PROTECTION__) &&\
+  defined(__EE_MEMORY_PROTECTION__))
   /* [SWS_Os_00051]: If an invalid address (address is not writable by this
       OS-Application) is passed as an out-parameter to an Operating System
       service, the Operating System module shall return the status code
@@ -96,7 +97,8 @@ StatusType EE_oo_GetCounterValue(CounterType CounterID, TickRefType Value)
   {
     ev = E_OS_ILLEGAL_ADDRESS;
   } else
-#endif /* __EE_MEMORY_PROTECTION__ && EE_SERVICE_PROTECTION__ */
+#endif /* EE_AS_OSAPPLICATIONS__ && __EE_MEMORY_PROTECTION__ &&
+  EE_SERVICE_PROTECTION__ */
 
 #ifdef EE_AS_RPC__
   if ( EE_AS_ID_REMOTE(CounterID) )

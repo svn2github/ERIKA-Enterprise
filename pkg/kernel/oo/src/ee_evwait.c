@@ -105,12 +105,10 @@ StatusType EE_oo_WaitEvent(EventMaskType Mask)
     ev = E_OS_RESOURCE;
   } else
 #endif /* __OO_NO_RESOURCES__ */
-
   /* Check if the task is an extended TASK */
   if ( EE_th_is_extended[current] == 0U ) {
     ev = E_OS_ACCESS;
   } else
-
 #ifdef EE_AS_USER_SPINLOCKS__
   /* [OS622]: The AUTOSAR Operating System WaitEvent API service shall check if
       it has been called while the calling TASK has occupied a spinlock.
@@ -120,9 +118,9 @@ StatusType EE_oo_WaitEvent(EventMaskType Mask)
     ev = E_OS_SPINLOCK;
   } else
 #endif /* EE_AS_USER_SPINLOCKS__ */
-
 #endif /* __OO_EXTENDED_STATUS__ */
 
+#if defined(EE_AS_OSAPPLICATIONS__) && defined(__EE_MEMORY_PROTECTION__)
 #if defined(EE_SYSCALL_NR) && defined(EE_MAX_SYS_SERVICEID) &&\
   (EE_SYSCALL_NR > EE_MAX_SYS_SERVICEID)
   /* If a TASK is inside CallTrustedFunction() and TASK
@@ -137,7 +135,7 @@ StatusType EE_oo_WaitEvent(EventMaskType Mask)
     ev = E_OS_ACCESS;
   } else
 #endif /* EE_SYSCALL_NR > EE_MAX_SYS_SERVICEID */
-
+#endif /* EE_AS_OSAPPLICATIONS__ && __EE_MEMORY_PROTECTION__ */
   /* Check if we have to wait */
   if ( (EE_th_event_active[current] & Mask) == 0U ) {
     /* Set the waiting mask */
@@ -172,6 +170,5 @@ StatusType EE_oo_WaitEvent(EventMaskType Mask)
 
   return ev;
 }
-
 #endif /* __PRIVATE_WAITEVENT__ */
-#endif /* defined(__OO_ECC1__) || defined(__OO_ECC2__) */
+#endif /* __OO_ECC1__ || __OO_ECC2__ */

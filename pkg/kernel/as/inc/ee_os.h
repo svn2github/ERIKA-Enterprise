@@ -114,7 +114,7 @@ typedef EE_UREG	MemorySizeType;
 
 /* This data type identifies an interrupt service routine (ISR). */
 typedef EE_UREG	ISRType;
-#define INVALID_ISR		((ISRType)~(ISRType)0)
+/* #define INVALID_ISR		((ISRType)~(ISRType)0) EG: Moved in ee_oo_common.h */
 
 /* This data type identifies a schedule table. */
 typedef EE_TID	ScheduleTableType;
@@ -252,5 +252,6 @@ void EE_as_ORTI_set_service(EE_UINT8 srv);
 #define EE_as_tp_handle_interarrival(tp_id)                           EE_TRUE
 #define EE_as_monitoring_the_stack()                                  ((void)0)
 #define EE_hal_tp_stop()                                              ((void)0)
-
+#define EE_ORTI_ext_set_service_in(serv)                              ((void)0)
+#define EE_ORTI_ext_set_service_out(serv)                             ((void)0)
 #endif /* __INCLUDE_KERNEL_AS_EE_OS__ */

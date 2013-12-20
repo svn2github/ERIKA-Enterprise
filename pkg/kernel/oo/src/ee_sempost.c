@@ -112,7 +112,8 @@ StatusType EE_oo_PostSem(SemRefType Sem)
     }
     ev = E_OK;
   } else if ( Sem != NULL ) {
-#if defined(__EE_MEMORY_PROTECTION__) && defined(EE_SERVICE_PROTECTION__)
+#if defined(EE_AS_OSAPPLICATIONS__) && (defined(EE_SERVICE_PROTECTION__) &&\
+  defined(__EE_MEMORY_PROTECTION__))
     /* [SWS_Os_00051]: If an invalid address (address is not writable by this
         OS-Application) is passed as an out-parameter to an Operating System
         service, the Operating System module shall return the status code
@@ -122,7 +123,8 @@ StatusType EE_oo_PostSem(SemRefType Sem)
     {
       ev = E_OS_ILLEGAL_ADDRESS;
     } else
-#endif /* __EE_MEMORY_PROTECTION__ && EE_SERVICE_PROTECTION__ */
+#endif /* EE_AS_OSAPPLICATIONS__ && __EE_MEMORY_PROTECTION__ &&
+  EE_SERVICE_PROTECTION__ */
     if ( Sem->count == EE_MAX_SEM_COUNTER ) {
       ev = E_OS_VALUE;
     } else {
@@ -168,7 +170,8 @@ StatusType EE_oo_PostSem(SemRefType Sem)
 
   /* the wake up check is removed because there is no blocking wait! */
   if ( Sem != NULL ) {
-#if defined(__EE_MEMORY_PROTECTION__) && defined(EE_SERVICE_PROTECTION__)
+#if defined(EE_AS_OSAPPLICATIONS__) && (defined(EE_SERVICE_PROTECTION__) &&\
+  defined(__EE_MEMORY_PROTECTION__))
     /* [SWS_Os_00051]: If an invalid address (address is not writable by this
         OS-Application) is passed as an out-parameter to an Operating System
         service, the Operating System module shall return the status code
@@ -178,7 +181,8 @@ StatusType EE_oo_PostSem(SemRefType Sem)
     {
       ev = E_OS_ILLEGAL_ADDRESS;
     } else
-#endif /* __EE_MEMORY_PROTECTION__ && EE_SERVICE_PROTECTION__ */
+#endif /* EE_AS_OSAPPLICATIONS__ && __EE_MEMORY_PROTECTION__ &&
+  EE_SERVICE_PROTECTION__ */
     if ( Sem->count == EE_MAX_SEM_COUNTER ) {
       ev = E_OS_VALUE;
     } else {

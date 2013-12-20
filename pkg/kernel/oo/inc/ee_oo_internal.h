@@ -603,7 +603,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_oo_preemption_point(void)
   current = EE_stk_queryfirst();
   rq      = EE_rq_queryfirst();
 
-#ifdef __EE_MEMORY_PROTECTION__
+#if defined(EE_AS_OSAPPLICATIONS__) && defined(__EE_MEMORY_PROTECTION__)
 #if defined(EE_SYSCALL_NR) && defined(EE_MAX_SYS_SERVICEID) &&\
   (EE_SYSCALL_NR > EE_MAX_SYS_SERVICEID)
   /* Reaction to timing protection can be defined to terminate the
@@ -624,7 +624,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_oo_preemption_point(void)
         (EE_as_Application_ROM[EE_as_active_app].Mode == EE_MEMPROT_TRUST_MODE)
      )
 #endif /* EE_SYSCALL_NR > EE_MAX_SYS_SERVICEID */
-#endif /* __EE_MEMORY_PROTECTION__ */
+#endif /* EE_AS_OSAPPLICATIONS__ && __EE_MEMORY_PROTECTION__ */
   {
     if ( rq != EE_NIL ) {
       /* We check if the system ceiling is greater or not the first task
@@ -670,9 +670,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_oo_preemption_point(void)
 
 #if defined(__OO_ECC1__) || defined(__OO_ECC2__)
 
-/*
-  Prepare current Task to Block if Extended Task is configured
- */
+/* Prepare current Task to Block if Extended Task is configured */
 __INLINE__ void __ALWAYS_INLINE__ EE_oo_prepare_to_block(void) {
   /* Get the current TASK */
   register EE_TID current = EE_stk_queryfirst();
@@ -680,7 +678,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_oo_prepare_to_block(void) {
   /* The task must go into the WAITING state */
   EE_th_status[current] = WAITING;
 
-  /* [SWS_Os_00473] The Operating System module shall reset a task’s
+  /* [SWS_Os_00473]: The Operating System module shall reset a task’s
       OsTaskExecutionBudget on a transition to the SUSPENDED or WAITING states.
       (SRS_Os_11008) */
   EE_as_tp_stop_budget(EE_as_tp_active.active_tp_RAM_ref, EE_EXECUTION_BUDGET);
@@ -702,9 +700,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_oo_prepare_to_block(void) {
   (void)EE_stk_getfirst();
 }
 
-/*
-    Reschedule on task blocking if Extended Task is configured
- */
+/* Reschedule on task blocking if Extended Task is configured */
 __INLINE__ void __ALWAYS_INLINE__ EE_oo_reschedule_on_block(void)
 {
   register EE_TID next;

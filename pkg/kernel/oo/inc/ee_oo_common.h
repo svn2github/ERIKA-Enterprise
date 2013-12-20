@@ -1573,18 +1573,16 @@ typedef union EE_os_param_type {
 #ifdef EE_AS_SCHEDULETABLES__
   ScheduleTableStatusRefType      schedule_table_status_ref;
 #endif /* EE_AS_SCHEDULETABLES__ */
-#ifdef __EE_MEMORY_PROTECTION__
+#ifdef EE_AS_OSAPPLICATIONS__
 #if defined(EE_SYSCALL_NR) && defined(EE_MAX_SYS_SERVICEID) &&\
   (EE_SYSCALL_NR > EE_MAX_SYS_SERVICEID)
   TrustedFunctionParameterRefType trusted_function_parameter_ref;
 #endif /* EE_SYSCALL_NR > EE_MAX_SYS_SERVICEID */
-#endif /* __EE_MEMORY_PROTECTION__ */
-#ifdef EE_AS_OSAPPLICATIONS__
   ApplicationStateRefType         application_state_ref;
-#endif /* EE_AS_OSAPPLICATIONS__ */
 #ifdef __EE_MEMORY_PROTECTION__
   MemoryStartAddressType          memory_address;
 #endif /* __EE_MEMORY_PROTECTION__ */
+#endif /* EE_AS_OSAPPLICATIONS__ */
 #ifdef __OO_SEM__
   SemRefType                      sem_ref;
 #endif /* __OO_SEM__ */

@@ -60,15 +60,15 @@ StatusType EE_oo_GetTaskID(TaskRefType TaskID)
   EE_ORTI_set_service_in(EE_SERVICETRACE_GETTASKID);
 
 #ifdef EE_SERVICE_PROTECTION__
-  /*  [OS093]: If interrupts are disabled/suspended by a Task/OsIsr and the
+  /* [OS093]: If interrupts are disabled/suspended by a Task/OsIsr and the
       Task/OsIsr calls any OS service (excluding the interrupt services)
       then the Operating System shall ignore the service AND shall return
       E_OS_DISABLEDINT if the service returns a StatusType value. */
-  /*  [OS088]: If an OS-Application makes a service call from the wrong context
+  /* [OS088]: If an OS-Application makes a service call from the wrong context
       AND is currently not inside a Category 1 ISR the Operating System module
       shall not perform the requested action (the service call shall have no
       effect), and return E_OS_CALLEVEL (see [12], section 13.1) or the
-      “invalid value” of  the service. (BSW11009, BSW11013) */
+      "invalid value" of  the service. (BSW11009, BSW11013) */
   /* GetTaskID is callable by Task, ISR2, ErrorHook, ProtectionHook, Pre and
      Post TaskHook */
   if ( EE_as_execution_context > PostTaskHook_Context ) {
@@ -79,14 +79,15 @@ StatusType EE_oo_GetTaskID(TaskRefType TaskID)
 #endif /* EE_SERVICE_PROTECTION__ */
 
   /* [OS566]: The Operating System API shall check in extended mode all pointer
-     argument for NULL pointer and return OS_E_PARAMETER_POINTER
-     if such argument is NULL. 
-     + 
-     MISRA dictate NULL check for pointers always. */
+      argument for NULL pointer and return OS_E_PARAMETER_POINTER
+      if such argument is NULL.
+      +
+      MISRA dictate NULL check for pointers always. */
   if ( TaskID == NULL ) {
     ev = E_OS_PARAM_POINTER;
   } else
-#ifdef __EE_MEMORY_PROTECTION__
+#if defined(EE_AS_OSAPPLICATIONS__) && (defined(EE_SERVICE_PROTECTION__) &&\
+  defined(__EE_MEMORY_PROTECTION__))
   /* [SWS_Os_00051]: If an invalid address (address is not writable by this
       OS-Application) is passed as an out-parameter to an Operating System
       service, the Operating System module shall return the status code
@@ -96,7 +97,8 @@ StatusType EE_oo_GetTaskID(TaskRefType TaskID)
   {
     ev = E_OS_ILLEGAL_ADDRESS;  
   } else
-#endif /* __EE_MEMORY_PROTECTION__ */
+#endif /* EE_AS_OSAPPLICATIONS__ && EE_SERVICE_PROTECTION__ &&
+  __EE_MEMORY_PROTECTION__ */
   {
     /* XXX: This SHALL be atomic. Check this architectures other than TriCore */
     *TaskID = EE_stk_queryfirst();

@@ -54,8 +54,7 @@ ifndef RTDRUID_SCRIPT_DIR
 RTDRUID_SCRIPT_DIR=$(RTDRUID_ECLIPSE_HOME)/evidence
 endif
 
-RTDRUID_OUTPUT = $(addprefix $(OUTPUT_DIR)/, makefile eecfg.c eecfg.h apps.conf \
- system.orti)
+RTDRUID_OUTPUT = $(addprefix $(OUTPUT_DIR)/, makefile eecfg.c eecfg.h apps.conf)
 
 .PHONY: all clean
 
@@ -67,18 +66,7 @@ clean:
 	rm -f -r $(OUTPUT_DIR)
 
 
-ifeq ($(RUN_RTDRUID),1)
-ifneq (ok,$(shell test -d "$(RTDRUID_ECLIPSE_HOME)" && echo ok ))
-$(error The variable RTDRUID_ECLIPSE_HOME must point to a valid Eclipse RT-Druid installation)
-endif
-
-# Run RT-Druid
-$(RTDRUID_OUTPUT): conf.oil
-	@echo "Running RT-Druid..."
-	exec bash $(RTDRUID_SCRIPT_DIR)/generate_code.sh \
-	$(RTDRUID_ECLIPSE_HOME) $< $(OUTPUT_DIR) \
-
-else
+ifeq ($(FAKE_RTDRUID),1)
 # Simulate RT-Druid
 ifndef EEBASE
 EEBASE=../../../..
@@ -88,4 +76,16 @@ $(RTDRUID_OUTPUT): $(OUTPUT_DIR)/% : fake_druid/%
 	@echo "Substituing RT-Druid in generating $@..."
 	@mkdir -p $(dir $@)
 	cp $< $@
+else
+
+ifneq (ok,$(shell test -d "$(RTDRUID_ECLIPSE_HOME)" && echo ok ))
+$(error The variable RTDRUID_ECLIPSE_HOME must point to a valid Eclipse RT-Druid installation)
+endif
+
+# Run RT-Druid
+$(RTDRUID_OUTPUT): conf.oil
+	@echo "Running RT-Druid..."
+	bash $(RTDRUID_SCRIPT_DIR)/generate_code.sh \
+	$(RTDRUID_ECLIPSE_HOME) $< $(OUTPUT_DIR) \
+
 endif

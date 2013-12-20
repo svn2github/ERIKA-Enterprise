@@ -103,14 +103,14 @@ StatusType EE_oo_GetEvent(TaskType TaskID, EventMaskRefType Event)
   } else
 #elif defined(__OO_EXTENDED_STATUS__)
 #ifdef EE_AS_RPC__
-  /*  [OS589] All functions that are not allowed to operate cross core shall
-        return E_OS_CORE in extended status if called with parameters that
-        require a cross core operation. (BSW4080013) */
+  /* [OS589]: All functions that are not allowed to operate cross core shall
+      return E_OS_CORE in extended status if called with parameters that
+      require a cross core operation. (BSW4080013) */
   if ( EE_IS_TID_REMOTE(TaskID) ) {
     ev = E_OS_CORE;
   } else
 #endif /* EE_AS_RPC__ */
-  /* check if the task Id is valid */
+  /* Check if the TASK ID is valid */
   if ( (TaskID < 0) || (TaskID >= EE_MAX_TASK) ) {
     ev = E_OS_ID;
   } else
@@ -125,7 +125,8 @@ StatusType EE_oo_GetEvent(TaskType TaskID, EventMaskRefType Event)
   if ( Event == NULL ) {
     ev = E_OS_PARAM_POINTER;
   } else
-#if defined(__EE_MEMORY_PROTECTION__) && defined(EE_SERVICE_PROTECTION__)
+#if defined(EE_AS_OSAPPLICATIONS__) && (defined(EE_SERVICE_PROTECTION__) &&\
+  defined(__EE_MEMORY_PROTECTION__))
   /* [SWS_Os_00051] If an invalid address (address is not writable by this
       OS-Application) is passed as an out-parameter to an Operating System
       service, the Operating System module shall return the status code
@@ -135,7 +136,8 @@ StatusType EE_oo_GetEvent(TaskType TaskID, EventMaskRefType Event)
   {
     ev = E_OS_ILLEGAL_ADDRESS;
   } else
-#endif /* __EE_MEMORY_PROTECTION__ && EE_SERVICE_PROTECTION__ */
+#endif /* EE_AS_OSAPPLICATIONS__ && __EE_MEMORY_PROTECTION__ &&
+  EE_SERVICE_PROTECTION__ */
   {
     /* XXX: This SHALL be atomic. Check this architectures other than TriCore */
     *Event = EE_th_event_active[TaskID];

@@ -181,7 +181,7 @@ static void EE_oo_handle_action_task(EE_oo_action_ROM_type const * const
   if ( ev != E_OK ) {
     EE_OS_PARAM(os_task_id);
     EE_OS_PARAM(os_action_type);
-    EE_OS_PARAM_VALUE(os_task_id,TaskID);
+    EE_OS_PARAM_VALUE(os_task_id,(EE_UREG)TaskID);
     EE_OS_PARAM_VALUE(os_action_type,EE_ACTION_TASK);
     EE_os_notify_error(OSId_Action, os_task_id, EE_OS_INVALID_PARAM,
       os_action_type, ev);
@@ -272,7 +272,7 @@ static void EE_oo_handle_action_event(EE_oo_action_ROM_type const * const
     EE_OS_PARAM(os_task_id);
     EE_OS_PARAM(os_mask);
     EE_OS_PARAM(os_action_type);
-    EE_OS_PARAM_VALUE(os_task_id,TaskID);
+    EE_OS_PARAM_VALUE(os_task_id,(EE_UREG)TaskID);
     EE_OS_PARAM_VALUE(os_mask,Mask);
     EE_OS_PARAM_VALUE(os_action_type,EE_ACTION_EVENT);
     EE_os_notify_error(OSId_Action, os_task_id, os_mask,

@@ -118,6 +118,7 @@ StatusType EE_oo_Schedule(void)
 
 #endif /* __OO_EXTENDED_STATUS__ */
 
+#if defined(EE_AS_OSAPPLICATIONS__) && defined(__EE_MEMORY_PROTECTION__)
 #if defined(EE_SYSCALL_NR) && defined(EE_MAX_SYS_SERVICEID) &&\
   (EE_SYSCALL_NR > EE_MAX_SYS_SERVICEID)
   /*  If a TASK is inside CallTrustedFunction() and TASK
@@ -136,7 +137,7 @@ StatusType EE_oo_Schedule(void)
     ev = E_OK;
   } else
 #endif /* EE_SYSCALL_NR > EE_MAX_SYS_SERVICEID */
-
+#endif /* EE_AS_OSAPPLICATIONS__ && __EE_MEMORY_PROTECTION__ */
   /* Check if there is a preemption */
   if ( rq != EE_NIL ) {
     /* The standard says that "Schedule enables a processor assignment
