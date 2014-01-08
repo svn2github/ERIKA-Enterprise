@@ -70,9 +70,15 @@
 
 /** Utility Macro that convert an amount of us in number of ticks of a given
     frequency **/
-#define MICROSECONDS_TO_TICKS(X_MICROSECS, REF_FREQ_HZ)                     \
+#define MICROSECONDS_TO_TICKS(X_MICROSECS, REF_FREQ_HZ)   \
+  EE_MICRO_TO_TICKS(X_MICROSECS, REF_FREQ_HZ)
 
-/* 
+/** Utility Macro that convert an amount of ms in number of ticks of a given
+    frequency **/
+#define MILLISECONDS_TO_TICKS(X_MILLISECS, REF_FREQ_HZ)   \
+  EE_MILLI_TO_TICKS(X_MILLISECS, REF_FREQ_HZ)
+
+/*
 The Kernel constants like NIL and other thread statuses are defined
 in the following sections: 
 
