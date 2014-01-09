@@ -109,4 +109,26 @@ typedef EE_VOID_CALLBACK EE_ISR_callback;
 
 #endif /* __EE_HAL_CUSTOM_POINTERS__ */
 
+/** Utility Macro that convert an amount of ms in number of ticks of a given
+    frequency **/
+#define EE_MILLI_TO_TICKS(X_MS, REF_FREQ_HZ)  \
+  ((X_MS) * ((REF_FREQ_HZ) / 1000UL))
+
+/** Utility Macro that convert an amount of us in number of ticks of a given
+    frequency **/
+#define EE_MICRO_TO_TICKS(X_US, REF_FREQ_HZ)              \
+  (((X_US) / 1000UL)?                                     \
+      EE_MILLI_TO_TICKS(((X_US) / 1000UL), REF_FREQ_HZ):  \
+      EE_MILLI_TO_TICKS(X_US, REF_FREQ_HZ) / 1000UL)
+
+/** Utility Macro that convert an amount of us in number of ticks of a given
+    frequency **/
+#define MICROSECONDS_TO_TICKS(X_MICROSECS, REF_FREQ_HZ)   \
+  EE_MICRO_TO_TICKS(X_MICROSECS, REF_FREQ_HZ)
+
+/** Utility Macro that convert an amount of ms in number of ticks of a given
+    frequency **/
+#define MILLISECONDS_TO_TICKS(X_MILLISECS, REF_FREQ_HZ)   \
+  EE_MILLI_TO_TICKS(X_MILLISECS, REF_FREQ_HZ)
+
 #endif /* __INCLUDE_CPU_COMMON_EE_TYPES__ */
