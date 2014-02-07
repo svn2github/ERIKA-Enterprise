@@ -1,7 +1,7 @@
 /* ###*B*###
  * ERIKA Enterprise - a tiny RTOS for small microcontrollers
  *
- * Copyright (C) 2002-2008  Evidence Srl
+ * Copyright (C) 2002-2014  Evidence Srl
  *
  * This file is part of ERIKA Enterprise.
  *
@@ -40,15 +40,19 @@
 
 /*
  * Author: 2005 Antonio Romano
- * CVS: $Id: ee_board.h,v 1.1 2007/06/22 13:47:22 romano Exp $
+ * 	   2014 Giuseppe Serano
  */
 
-#ifndef __INCLUDE_MIB510_BOARD_H__
-#define __INCLUDE_MIB510_BOARD_H__
+#ifndef __INCLUDE_MIB5X0_BOARD_H__
+#define __INCLUDE_MIB5X0_BOARD_H__
 
+#ifdef	__ATMEGA128__
 #include "mcu/atmel_atmega128/inc/ee_mcu.h"
+#endif
 
-
+#ifdef	__ATMEGA__
+#include "mcu/atmel_atmega/inc/ee_mcu.h"
+#endif
 
 /*************************************************************************
  LEDs
@@ -59,25 +63,30 @@
 
 /* On MIB510 there are 3 leds connected through IO Port A */
 
+void EE_xbow_mib5x0_led_3_on(void);
 __INLINE__ void EE_led_3_on(void) {
-led_3_on();
+EE_xbow_mib5x0_led_3_on();
 }
+void EE_xbow_mib5x0_led_2_on(void);
 __INLINE__ void EE_led_2_on(void) {
-led_2_on();
+EE_xbow_mib5x0_led_2_on();
 }
+void EE_xbow_mib5x0_led_1_on(void);
 __INLINE__ void EE_led_1_on(void) {
-led_1_on();
+EE_xbow_mib5x0_led_1_on();
 }
-
+void EE_xbow_mib5x0_led_3_off(void);
 __INLINE__ void EE_led_3_off(void) {
-led_3_off();
+EE_xbow_mib5x0_led_3_off();
 }
+void EE_xbow_mib5x0_led_2_off(void);
 __INLINE__ void EE_led_2_off(void) {
-led_2_off();
+EE_xbow_mib5x0_led_2_off();
 }
+void EE_xbow_mib5x0_led_1_off(void);
 __INLINE__ void EE_led_1_off(void) {
-led_1_off();
+EE_xbow_mib5x0_led_1_off();
 }
 #endif /* __LEDS_USED__ */
 
-#endif
+#endif	/* __INCLUDE_MIB5X0_BOARD_H__ */

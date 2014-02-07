@@ -1,7 +1,7 @@
 /* ###*B*###
  * ERIKA Enterprise - a tiny RTOS for small microcontrollers
  *
- * Copyright (C) 2002-2008  Evidence Srl
+ * Copyright (C) 2002-2014  Evidence Srl
  *
  * This file is part of ERIKA Enterprise.
  *
@@ -40,59 +40,57 @@
 
 /*
  * Author: 2005 Antonio Romano
- * CVS: $Id: ee_led.S,v 1.1 2007/06/22 13:47:22 romano Exp $
+ * 	   2014 Giuseppe Serano
  */
 
 
-
+#ifdef	__ATMEGA128__
 #include "mcu/atmel_atmega128/inc/ee_avr5def.S"
+#endif
+
+#ifdef	__ATMEGA__
+#include <avr/io.h>
+#endif
 
 
-.global led_1_on
+.global	EE_xbow_mib5x0_led_1_on
+EE_xbow_mib5x0_led_1_on: 
+	in	r18,	DDRA
+	ori	r18,	0x01
+	out	DDRA,	r18	; data direction = out
+	ret
 
-led_1_on: 
-			in r18, DDRA
-			ori r18, 0x01
-			out DDRA,r18 ;   direzione dati = uscita
-			ret
-			
-.global led_2_on
+.global	EE_xbow_mib5x0_led_2_on
+EE_xbow_mib5x0_led_2_on: 
+	in	r18,	DDRA
+	ori	r18,	0x02
+	out	DDRA,	r18	; data direction = out
+	ret
 
-led_2_on: 
-			in r18, DDRA
-			ori r18, 0x02
-			out DDRA,r18 ;   direzione dati = uscita
-			ret
-.global led_3_on
+.global	EE_xbow_mib5x0_led_3_on
+EE_xbow_mib5x0_led_3_on:
+	in	r18,	DDRA
+	ori	r18,	0x04
+	out	DDRA,	r18	; data direction = out
+	ret
 
-led_3_on: 
-			in r18, DDRA
-			ori r18, 0x04
-			out DDRA,r18 ;   direzione dati = uscita
-			ret
-	
-			
-			
-			
-			
-.global led_1_off
-led_1_off:
-			in r18, DDRA
-			andi r18, 0xfe
-			out DDRA,r18
-			ret
-			
-.global led_2_off
-led_2_off:
-			in r18, DDRA
-			andi r18, 0xfd
-			out DDRA,r18
-			ret
-			
-.global led_3_off
-led_3_off:
-			in r18, DDRA
-			andi r18, 0xfb
-			out DDRA,r18
-			ret
-			
+.global	EE_xbow_mib5x0_led_1_off
+EE_xbow_mib5x0_led_1_off:
+	in	r18,	DDRA
+	andi	r18,	0xfe
+	out	DDRA,	r18
+	ret
+
+.global	EE_xbow_mib5x0_led_2_off
+EE_xbow_mib5x0_led_2_off:
+	in	r18,	DDRA
+	andi	r18,	0xfd
+	out	DDRA,	r18
+	ret
+
+.global	EE_xbow_mib5x0_led_3_off
+EE_xbow_mib5x0_led_3_off:
+	in	r18,	DDRA
+	andi	r18,	0xfb
+	out	DDRA,	r18
+	ret

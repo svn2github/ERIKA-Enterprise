@@ -1,7 +1,7 @@
 /* ###*B*###
  * ERIKA Enterprise - a tiny RTOS for small microcontrollers
  *
- * Copyright (C) 2002-2008  Evidence Srl
+ * Copyright (C) 2002-2014  Evidence Srl
  *
  * This file is part of ERIKA Enterprise.
  *
@@ -40,7 +40,7 @@
 
 /*
  * Author: 2005 Antonio Romano
- * CVS: $Id: ee_internal.h,v 1.1 2007/06/22 13:47:22 romano Exp $
+ * 	   2014 Giuseppe Serano
  */
 
-#include "board/xbow_mib510/inc/ee_board.h"
+#include "board/xbow_mib5x0/inc/ee_board.h"
