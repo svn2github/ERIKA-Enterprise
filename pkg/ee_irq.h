@@ -1,7 +1,7 @@
 /* ###*B*###
  * ERIKA Enterprise - a tiny RTOS for small microcontrollers
  *
- * Copyright (C) 2002-2012  Evidence Srl
+ * Copyright (C) 2002-2013  Evidence Srl
  *
  * This file is part of ERIKA Enterprise.
  *
@@ -62,6 +62,10 @@ extern "C" {
    *
    */
 
+#ifdef __AVR8__
+#include "cpu/avr8/inc/ee_avr8_cpu.h"
+#endif
+
  /* Freescale */
 #if defined(__MC9S12__) || defined(__HCS12XS__)
 #include "cpu/hs12xs/inc/ee_cpu.h"
@@ -117,6 +121,11 @@ defined(__OO_ECC2__) || defined(__AS_SC4__)
 /*
  * CPU
  */
+
+#ifdef __AVR8__
+#include "cpu/avr8/inc/ee_avr8_irq.h"
+#endif
+
 /* Freescale */
 #if defined(__MC9S12__) || defined(__HCS12XS__)
 #include "cpu/hs12xs/inc/ee_irqstub.h"

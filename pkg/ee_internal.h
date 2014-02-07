@@ -68,6 +68,10 @@ extern "C" {
 #include "cpu/avr5/inc/ee_internal.h"
 #endif
 
+#ifdef __AVR8__
+#include "cpu/avr8/inc/ee_avr8_internal.h"
+#endif
+
 #ifdef __ST10__
 #include "st10mono/internal.h"
 #endif

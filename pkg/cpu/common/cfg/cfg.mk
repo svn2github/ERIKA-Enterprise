@@ -40,6 +40,14 @@
 
 ## Author: 2009 Bernardo Dal Seno
 ##         2011 Giuseppe Serano: pic30 integration.
+##         2012 Giuseppe Serano: cortex_mx integration.
+##         2012 Giuseppe Serano: avr8 integration.
+
+# Atmel AVR8
+ifeq ($(call iseeopt, __AVR8__), yes)
+EE_SRCS += pkg/cpu/common/src/ee_hal_structs.c
+EE_SRCS += pkg/cpu/common/src/ee_context.c
+endif
 
 # Microchip dsPIC
 ifeq ($(call iseeopt, __PIC30__), yes)

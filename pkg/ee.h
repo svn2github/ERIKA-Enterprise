@@ -83,6 +83,10 @@ extern "C" {
 #include "cpu/avr5/inc/ee_cpu.h"
 #endif
 
+#ifdef __AVR8__
+#include "cpu/avr8/inc/ee_avr8_cpu.h"
+#endif
+
 #ifdef __H8__
 #include "h8/arch.h"
 #include "h8/drivers.h"

@@ -60,7 +60,8 @@
 		defined(__GNU__)	\
 	)					\
   ) ||						\
-  (defined(__RX200__) && defined(__CCRX__)) \
+  (defined(__RX200__) && defined(__CCRX__)) ||	\
+  (defined(__AVR8__) && defined(__GNUC__))	\
 )
 /* When supported, include stdint.h to avoid conflicting definitions of
  * exact-size types. */

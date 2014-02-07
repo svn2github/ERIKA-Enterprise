@@ -220,6 +220,14 @@ endif # __AVR5__
 
 
 ##
+## AVR8
+##########################################################################
+ifeq ($(call iseeopt, __AVR8__), yes)
+include $(EEBASE)/pkg/cfg/arch/rules_avr8.mk
+endif
+
+
+##
 ## ST10 - Tasking 6.0 under Windows
 ##########################################################################
 ifeq ($(call iseeopt, __ST10__), yes)

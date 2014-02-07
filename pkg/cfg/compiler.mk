@@ -1,7 +1,7 @@
 # ###*B*###
 # ERIKA Enterprise - a tiny RTOS for small microcontrollers
 # 
-# Copyright (C) 2009  Evidence Srl
+# Copyright (C) 2002-2013  Evidence Srl
 # 
 # This file is part of ERIKA Enterprise.
 # 
@@ -49,6 +49,10 @@
 
 ifeq ($(call iseeopt, __AVR5__), yes)
 include $(PKGBASE)/cfg/arch/cc_avr5gnu.mk
+endif
+
+ifeq ($(call iseeopt, __AVR8__), yes)
+include $(PKGBASE)/cfg/arch/cc_avr8gnu.mk
 endif
 
 # -------------------------------------------------------------
