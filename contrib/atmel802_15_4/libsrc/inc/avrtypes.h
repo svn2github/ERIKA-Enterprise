@@ -1,49 +1,49 @@
-// * @file
-// * @brief Compatibility definitions for compilers (IAR, GCC)
-// *
-// * This file contains AVR type definitions that enable Atmel's 802.15.4
-// * contains compiler conditional subsystems for AVR functions such as:
-// * interrupts, sleep mode, USARTs, etc.
- //*
- //* \note Before including avrtypes.h, \c F_CPU has to be defined,
-// * because avrtypes.h includes <util/delay.h> (for AVR-GCC/avr-libc)
-// * which needs \c F_CPU.  This is done by including board.h right
- //* before avrtypes.h.
-// *
-// * $Id: avrtypes.h,v 1.1 2007/06/22 13:50:48 romano Exp $
-// *
-// */
-///**
-// *  \author
-// *      Atmel Corporation: http://www.atmel.com
-// *      Support email: avr@atmel.com
-// */
-///*
-// * Copyright (c) 2006, Atmel Corporation All rights reserved.
- //*
-// * Redistribution and use in source and binary forms, with or without
-// * modification, are permitted provided that the following conditions are met:
-// *
-// * 1. Redistributions of source code must retain the above copyright notice,
-// * this list of conditions and the following disclaimer.
- //*
- //* 2. Redistributions in binary form must reproduce the above copyright notice,
-// * this list of conditions and the following disclaimer in the documentation
-// * and/or other materials provided with the distribution.
-// *
-// * 3. The name of ATMEL may not be used to endorse or promote products derived
- //* from this software without specific prior written permission.
-// *
-// * THIS SOFTWARE IS PROVIDED BY ATMEL ``AS IS'' AND ANY EXPRESS OR IMPLIED
-//// * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE EXPRESSLY AND
- //* SPECIFICALLY DISCLAIMED. IN NO EVENT SHALL ATMEL BE LIABLE FOR ANY DIRECT,
-// * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-// * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-// * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
-// * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
-// * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-// */
+/** @file
+ * @brief Compatibility definitions for compilers (IAR, GCC)
+ *
+ * This file contains AVR type definitions that enable Atmel's 802.15.4
+ * contains compiler conditional subsystems for AVR functions such as:
+ * interrupts, sleep mode, USARTs, etc.
+ *
+ * \note Before including avrtypes.h, \c F_CPU has to be defined,
+ * because avrtypes.h includes <util/delay.h> (for AVR-GCC/avr-libc)
+ * which needs \c F_CPU.  This is done by including board.h right 
+ * before avrtypes.h.
+ *
+ * $Id: avrtypes.h,v 1.1 2007/06/22 13:50:48 romano Exp $
+ *
+ */
+/**
+ *  \author
+ *      Atmel Corporation: http://www.atmel.com
+ *      Support email: avr@atmel.com
+ */
+/*
+ * Copyright (c) 2006, Atmel Corporation All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright notice,
+ * this list of conditions and the following disclaimer.
+ *
+ * 2. Redistributions in binary form must reproduce the above copyright notice,
+ * this list of conditions and the following disclaimer in the documentation
+ * and/or other materials provided with the distribution.
+ *
+ * 3. The name of ATMEL may not be used to endorse or promote products derived
+ * from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY ATMEL ``AS IS'' AND ANY EXPRESS OR IMPLIED
+ * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE EXPRESSLY AND
+ * SPECIFICALLY DISCLAIMED. IN NO EVENT SHALL ATMEL BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+ * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+*/
 
 
 #ifndef AVRTYPES_H
@@ -297,7 +297,7 @@ char __low_level_init(void)
 #define SHORTENUM __attribute__ ((packed))
 
 /* program memory space abstraction */
-#define FLASH_DECLARE(x) x __attribute__((__progmem__))
+#define FLASH_DECLARE(x) const x __attribute__((__progmem__))
 #define FLASH_STRING(x) PSTR(x)
 #define FLASH_STRING_T  PGM_P
 #define PGM_READ_BYTE(x) pgm_read_byte(x)

@@ -10,7 +10,9 @@
 #include "ieee_const.h"
 #include "wpan_mac.h"
 #include "ee.h"
+#ifdef	__ATMEGA128__
 #include "mcu/atmel_atmega128/inc/ee_ic.h"
+#endif	/* __ATMEGA128__ */
 
 /* ==== Macros for Coordinator=============================================== */
 #ifndef RF_CHANNEL

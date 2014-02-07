@@ -2,9 +2,9 @@
 ## CVS: $Id: 
 
 ##
-## Only for AVR5 cpu
+## Only for AVR5 and AVR8 cpu
 ##
-ifeq ($(call iseeopt, __AVR5__), yes)
+ifneq (($or ($(call iseeopt, __AVR5__), yes), ($(call iseeopt, __AVR8__), yes)),)
 
 ifeq ($(findstring __LIB_ATMEL802154__,$(LIB_OPT)) , __LIB_ATMEL802154__)
 INCLUDE_ATMEL802154 = YES
@@ -107,8 +107,8 @@ ALLINCPATH += -I"$(EEBASE)/contrib/atmel802_15_4/inc" -I"$(EEBASE)/contrib/atmel
 LIBSRCS += $(EE_SRCS_ATMEL802154)
 		
 libZigbEE.a: $(EE_OBJS_ATMEL802154)
-	@printf "AR  libZigbEE.a\n" ;
-	$(QUIET)$(EE_AR) rs libZigbEE.a $(EE_OBJS_ATMEL802154)
+	@printf "AR    libZigbEE.a\n" ;
+	$(QUIET)$(EE_AR) crs libZigbEE.a $(EE_OBJS_ATMEL802154)
 	
 ALL_LIBS += libZigbEE.a
 
