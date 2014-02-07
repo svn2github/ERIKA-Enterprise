@@ -279,6 +279,10 @@ extern "C" {
 #include "board/arduino_uno/inc/ee_internal.h"
 #endif
 
+#ifdef __ATMEL_STK600__
+#include "board/atmel_stk600/inc/ee_atmel_stk600_internal.h"
+#endif
+
   /* ARM */
 #ifdef __EVALUATOR7T__
 #include "board/arm_evaluator7t/inc/ee_internal.h"
