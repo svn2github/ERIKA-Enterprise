@@ -291,6 +291,10 @@ extern "C" {
 #include "board/xbow_mib5x0/inc/ee_board.h"
 #endif
 
+#ifdef __ARDUINO_UNO__
+#include "board/arduino_uno/inc/ee_board.h"
+#endif
+
   /* ARM */
 #ifdef __EVALUATOR7T__
 #include "board/arm_evaluator7t/inc/ee_board.h"
