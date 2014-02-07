@@ -630,7 +630,6 @@ EE_Gpio_Init(
 
   if ( 
     !( Flags & EE_GPIO_FLAG_RISE_EDGE ) || !( Flags & EE_GPIO_FLAG_FALL_EDGE )
-    //~ ( Flags & EE_GPIO_FLAG_RISE_EDGE ) || ( Flags & EE_GPIO_FLAG_FALL_EDGE )
   ) {
 
     pin_ctrl = 
