@@ -46,7 +46,7 @@
 #include "ee_internal.h"
 
 #ifndef __PRIVATE_SEM_GETVALUE__
-// returns -1 or the value of the semaphore
+/* returns -1 or the value of the semaphore */
 int EE_sem_GetValueSem(SemRefType s)
 {
   register int value;

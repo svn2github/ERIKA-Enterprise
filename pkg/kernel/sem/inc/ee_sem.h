@@ -58,7 +58,7 @@
    because these semaphore primitives are BLOCKING primitives.
 */
 
-// The semaphore descriptor
+/* The semaphore descriptor */
 typedef struct {
   int count;
   EE_TID    first;

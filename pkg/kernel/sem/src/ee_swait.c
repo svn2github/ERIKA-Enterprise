@@ -75,10 +75,10 @@ void EE_sem_WaitSem(SemRefType s)
     EE_sys_ceiling &= ~EE_th_dispatch_prio[current];
 
     if (s->first != EE_NIL)
-      // the semaphore queue is not empty
+      /* the semaphore queue is not empty */
       EE_th_next[s->last] = current;
     else
-      // the semaphore queue is empty
+      /* the semaphore queue is empty */
       s->first = current;
 
     s->last = current;
@@ -91,10 +91,15 @@ void EE_sem_WaitSem(SemRefType s)
     if (EE_rq_queryfirst() == EE_NIL ||
 	EE_sys_ceiling >= EE_th_ready_prio[EE_rq_queryfirst()])
 #else
-    // check if there is to schedule a ready thread or pop a preempted thread
-    //th_absdline[stk_queryfirst()] <= th_absdline[rq_queryfirst()] 
-    // see also src/srpt/thendin.c
-    if (EE_rq_queryfirst() == EE_NIL || // note that this test work also for the main task!
+    /*
+     * check if there is to schedule a ready thread or pop a preempted thread
+     * th_absdline[stk_queryfirst()] <= th_absdline[rq_queryfirst()] 
+     *
+     * see also src/srpt/thendin.c
+     *
+     * note that this test work also for the main task!
+     */
+    if (EE_rq_queryfirst() == EE_NIL || 
         (EE_stk_queryfirst() != EE_NIL && 
           (
             (EE_STIME)(EE_th_absdline[EE_stk_queryfirst()] - 

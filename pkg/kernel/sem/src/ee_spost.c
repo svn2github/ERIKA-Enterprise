@@ -56,7 +56,7 @@ void EE_sem_PostSem(SemRefType s)
   if (s->first != EE_NIL) {
     newthread = s->first;
 
-      // wake up blocked thread
+      /* wake up blocked thread */
       if ((s->first = EE_th_next[newthread]) == EE_NIL)
         s->last = EE_NIL;
       
@@ -78,7 +78,7 @@ void EE_sem_PostSem(SemRefType s)
 #endif
 	EE_sys_ceiling |= EE_th_dispatch_prio[newthread];
 	
-	// insert the extracted task on the topo of the stack
+	/* insert the extracted task on the topo of the stack */
 	EE_th_next[newthread] = EE_stk_queryfirst();
 	EE_stkfirst = newthread;
 	
