@@ -61,7 +61,9 @@
 */
 
 #if defined(__MULTI__) || defined(__WITH_STATUS__)
-//#define EE_READY      1 in ee_common.h
+#if	0	/* defined in ee_common.h */
+#define EE_READY      1 in ee_common.h
+#endif	/* 0 - defined in ee_common.h */
 #define EE_STACKED    2
 
 /* used by semaphores and blocking primitives in general */
