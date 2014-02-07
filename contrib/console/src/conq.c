@@ -17,7 +17,7 @@ void conq_flush (conq_t *q)
 char conq_insert(conq_t *q, char x)
 {
 	if (q->nElementNumber >= CONQ_DIMENSION)
-		// Warning: queue overflow enqueue
+		/* Warning: queue overflow enqueue */
 #ifdef	__CORTEX_MX__
 		return (char)-1;
 #else
@@ -37,7 +37,7 @@ char conq_extract(conq_t *q)
 	char x;
 
 	if (q->nElementNumber <= 0)
-		//Warning: empty queue dequeue
+		/* Warning: empty queue dequeue */
 #ifdef	__CORTEX_MX__
 		return (char)-1;
 #else
@@ -55,9 +55,9 @@ char conq_extract(conq_t *q)
 int conq_isempty(conq_t *q)
 {
 	if (q->nElementNumber <= 0){
-		return 1; //TRUE
+		return 1; /* TRUE */
 	} else {
-		return 0; //FALSE
+		return 0; /* FLSE */
 	}
 }
 

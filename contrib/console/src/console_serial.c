@@ -22,10 +22,12 @@ static console_descriptor_t serial_des[CONSOLE_SERIAL_NUMBER];
 * @brief Serial console parameters.
 */
 static console_serial_t	serial_params[CONSOLE_SERIAL_NUMBER];
-///** 
-//* @brief Number of console port currently initialized.
-//*/
-//static uint8_t ports = 0;
+#if	0
+/** 
+* @brief Number of console port currently initialized.
+*/
+static uint8_t ports = 0;
+#endif	/* 0 */
 
 /* ************************************************************************** */
 /*                       Private Functions Definition                         */
@@ -74,43 +76,48 @@ console_descriptor_t *console_serial_config(uint8_t port, uint32_t baudrate,
 	return (serial_des + port);
 	
 
-	///* Set console serial parameters */
-	//serial_params[ports].port = port;
-	//serial_params[ports].baudrate	= baudrate;
-	//serial_params[ports].flags = flags;
-	///* Set abstract console hooks */
-	//serial_des[ports].params = (void *)(serial_params + ports);
-	//serial_des[ports].open = console_serial_open;
-	//serial_des[ports].close = console_serial_close;
-	//serial_des[ports].write = console_serial_write;
-	//serial_des[ports].read = console_serial_read;
-	//ports++;
-	//return (serial_des + ports - 1);
+#if	0
+	/* Set console serial parameters */
+	serial_params[ports].port = port;
+	serial_params[ports].baudrate	= baudrate;
+	serial_params[ports].flags = flags;
+	/* Set abstract console hooks */
+	serial_des[ports].params = (void *)(serial_params + ports);
+	serial_des[ports].open = console_serial_open;
+	serial_des[ports].close = console_serial_close;
+	serial_des[ports].write = console_serial_write;
+	serial_des[ports].read = console_serial_read;
+	ports++;
+	return (serial_des + ports - 1);
+#endif	/* 0 */
 }
 
-/*console_descriptor_t* console_serial_create(uint8_t port, uint16_t baudrate, uint16_t flags)
+#if	0
+console_descriptor_t *
+console_serial_create(uint8_t port, uint16_t baudrate, uint16_t flags)
 {
 	console_descriptor_t			*parms;
 	console_serial_t	*serial_params;
 
-	// Serial console parameters structure - Allocate
+	/* Serial console parameters structure - Allocate */
 	serial_params = malloc( sizeof(console_serial_t) );
 	
-	// Serial console parameters structure - Assign user values
+	/* Serial console parameters structure - Assign user values */
 	serial_params->port		= port;
 	serial_params->baudrate	= baudrate;
 	serial_params->flags	= flags;
 	
-	// Console parameters structure - Allocate
+	/* Console parameters structure - Allocate */
 	parms = malloc( sizeof(console_descriptor_t) );
 
-	// Serial console parameters structure - Assign user values
+	/* Serial console parameters structure - Assign user values */
 	parms->params = (void *)serial_params;
 	parms->open	 = NULL;
 	parms->close = NULL;
 	parms->write = NULL;
 	parms->read  = NULL;
-} */
+}
+#endif	/* 0 */
 
 #endif	/* USE_CONSOLE && USE_CONSOLE_SERIAL */
 #endif	/* __console__serial_c__ */

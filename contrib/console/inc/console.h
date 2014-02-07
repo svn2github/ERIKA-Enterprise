@@ -43,8 +43,9 @@
 *
 */
 
-
-//#include <string.h>
+#if	0
+#include <string.h>
+#endif	/* 0 */
 #include "hal/compiler.h"
 
 /* ************************************************************************** */

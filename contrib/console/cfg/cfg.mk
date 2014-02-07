@@ -103,6 +103,10 @@ ifeq ($(call iseeopt, __AVR5__), yes)
 EE_SRCS += contrib/console/src/hal/avr5.c
 endif
 
+ifeq ($(call iseeopt, __AVR8__), yes)
+EE_SRCS += contrib/console/src/hal/avr8.c
+endif
+
 ifeq ($(call iseeopt, __LM32__), yes)
 EE_SRCS += contrib/console/src/hal/mico32.c
 endif

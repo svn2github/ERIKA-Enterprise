@@ -57,7 +57,11 @@ typedef signed long int int32_t;	/**< Signed 32 bit intgerer. */
 #ifdef __COSMIC__
 #define COMPILER_INLINE	static @inline
 #else
+#ifdef __AVR8__
+#define COMPILER_INLINE	static
+#else
 #define COMPILER_INLINE	static inline	
+#endif
 #endif
 #endif
 #endif	/* __compiler_h__ */

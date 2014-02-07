@@ -20,13 +20,15 @@
 #define CONSOLE_SERIAL_NUMBER 2	/**< Default max number of serial consoles */
 #endif
 
-// TODO - Remap console constants to hal ones!
-//#define CONSOLE_SERIALFLAG_BIT9			0x06
-//#define CONSOLE_SERIALFLAG_BIT8_ODD		0x04
-//#define CONSOLE_SERIALFLAG_BIT8_EVEN	0x02
-//#define CONSOLE_SERIALFLAG_BIT8_NO		0x00
-//#define CONSOLE_SERIALFLAG_BIT_STOP_1	0x00
-//#define CONSOLE_SERIALFLAG_BIT_STOP_2	0x01
+#if	0
+/* TODO - Remap console constants to hal ones! */
+#define CONSOLE_SERIALFLAG_BIT9		0x06
+#define CONSOLE_SERIALFLAG_BIT8_ODD	0x04
+#define CONSOLE_SERIALFLAG_BIT8_EVEN	0x02
+#define CONSOLE_SERIALFLAG_BIT8_NO	0x00
+#define CONSOLE_SERIALFLAG_BIT_STOP_1	0x00
+#define CONSOLE_SERIALFLAG_BIT_STOP_2	0x01
+#endif	/* 0 */
 
 /* ************************************************************************** */
 /*                          HAL Macros Declaration                            */
