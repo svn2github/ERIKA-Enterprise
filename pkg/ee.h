@@ -1,7 +1,7 @@
 /* ###*B*###
  * ERIKA Enterprise - a tiny RTOS for small microcontrollers
  *
- * Copyright (C) 2002-2009  Evidence Srl
+ * Copyright (C) 2002-2014  Evidence Srl
  *
  * This file is part of ERIKA Enterprise.
  *
@@ -41,7 +41,6 @@
 /*
  * Author: 2000-2004 Paolo Gai
  *         2009 Bernardo Dal Seno
- * CVS: $Id: ee.h,v 1.26 2008/07/04 14:26:59 francesco Exp $
  */
 
 
@@ -173,6 +172,10 @@ extern "C" {
 #include "mcu/atmel_atmega1281/inc/ee_mcu.h"
 #endif
 
+#ifdef __ATMEGA328__
+#include "mcu/atmel_atmega328/inc/ee_mcu.h"
+#endif
+
   /* ARM */
 #ifdef __SAMSUNG_KS32C50100__
 #include "mcu/samsung_ks32c50100/inc/ee_mcu.h"
@@ -275,6 +278,7 @@ extern "C" {
 #ifdef __XBOW_MIB5X0__
 #include "board/xbow_mib5x0/inc/ee_board.h"
 #endif
+
   /* ARM */
 #ifdef __EVALUATOR7T__
 #include "board/arm_evaluator7t/inc/ee_board.h"

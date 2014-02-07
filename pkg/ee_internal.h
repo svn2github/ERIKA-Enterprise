@@ -1,7 +1,7 @@
 /* ###*B*###
  * ERIKA Enterprise - a tiny RTOS for small microcontrollers
  *
- * Copyright (C) 2002-2008  Evidence Srl
+ * Copyright (C) 2002-2014  Evidence Srl
  *
  * This file is part of ERIKA Enterprise.
  *
@@ -40,7 +40,6 @@
 
 /*
  * Author: 2000-2006 Paolo Gai
- * CVS: $Id: ee_internal.h,v 1.24 2008/07/04 14:26:59 francesco Exp $
  */
 
 #ifndef __EE_INTERNAL_H__
@@ -154,6 +153,11 @@ extern "C" {
 
 #if defined __ATMEGA1281__
 #include "mcu/atmel_atmega1281/inc/ee_internal.h"
+#endif
+
+
+#if defined __ATMEGA328__
+#include "mcu/atmel_atmega328/inc/ee_internal.h"
 #endif
 
 
