@@ -180,6 +180,10 @@ extern "C" {
 #include "mcu/atmel_atmega328/inc/ee_mcu.h"
 #endif
 
+#ifdef __ATMEGA__
+#include "mcu/atmel_atmega/inc/ee_mcu.h"
+#endif
+
   /* ARM */
 #ifdef __SAMSUNG_KS32C50100__
 #include "mcu/samsung_ks32c50100/inc/ee_mcu.h"

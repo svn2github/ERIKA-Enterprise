@@ -165,6 +165,11 @@ extern "C" {
 #endif
 
 
+#ifdef __ATMEGA__
+#include "mcu/atmel_atmega/inc/ee_internal.h"
+#endif
+
+
   /* ARM */
 #if defined(__SAMSUNG_KS32C50100__)
 #include "mcu/samsung_ks32c50100/inc/ee_internal.h"
