@@ -102,6 +102,18 @@ void EE_alarm_CounterTick(CounterType c)
     /* execute all the alarms with counter 0 */
     current = EE_counter_RAM[c].first;
     while (EE_alarm_RAM[current].delta == 0) {
+
+      /* remove the current entry */
+      EE_counter_RAM[c].first = EE_alarm_RAM[current].next;
+
+      /* the alarm is cyclic? */
+      if (EE_alarm_RAM[current].cycle) {
+	/* enqueue it again 
+	   note: this can modify EE_counter_RAM[c].first!!! see (*)
+	*/
+	EE_alarm_insert(current,EE_alarm_RAM[current].cycle);
+      }
+
       /* execute it */
       switch (EE_alarm_ROM[current].action) {
 
@@ -168,17 +180,7 @@ EE_RN_TASK, par);
            initialized by RT-Druid */
         break;
       }
-      
-      /* remove the current entry */
-      EE_counter_RAM[c].first = EE_alarm_RAM[current].next;
 
-      /* the alarm is cyclic? */
-      if (EE_alarm_RAM[current].cycle) {
-	/* enqueue it again 
-	   note: this can modify EE_counter_RAM[c].first!!! see (*)
-	*/
-	EE_alarm_insert(current,EE_alarm_RAM[current].cycle);
-      }
       /* (*) here we need EE_counter_RAM[c].first again... */
       if ((current = EE_counter_RAM[c].first) == (EE_TYPEALARM)-1) {
           break;
