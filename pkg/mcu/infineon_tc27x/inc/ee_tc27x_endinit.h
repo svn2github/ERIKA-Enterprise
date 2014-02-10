@@ -53,6 +53,7 @@
 #include "mcu/infineon_tc27x/inc/ee_tc27x_mcu.h"
 
 /* Multicore ENDINIT Support */
+#ifdef EE_MASTER_CPU
 #if defined (__DCC__)
 /* DIAB support new naming convention for SCU WDT registers */
 #define EE_WDTCPUCON0   SCU_WDTCPU0_CON0
@@ -61,7 +62,27 @@
 #define EE_WDTCPUCON0   SCU_WDTCPU0CON0
 #define EE_WDTCPUCON1   SCU_WDTCPU0CON1
 #endif /* __DCC__ */
-
+#elif (EE_CURRENTCPU == 1)
+#if defined (__DCC__)
+/* DIAB support new naming convention for SCU WDT registers */
+#define EE_WDTCPUCON0   SCU_WDTCPU1_CON0
+#define EE_WDTCPUCON1   SCU_WDTCPU1_CON1
+#else
+#define EE_WDTCPUCON0   SCU_WDTCPU1CON0
+#define EE_WDTCPUCON1   SCU_WDTCPU1CON1
+#endif /* __DCC__ */
+#elif (EE_CURRENTCPU == 2)
+#if defined (__DCC__)
+/* DIAB support new naming convention for SCU WDT registers */
+#define EE_WDTCPUCON0   SCU_WDTCPU2_CON0
+#define EE_WDTCPUCON1   SCU_WDTCPU2_CON1
+#else
+#define EE_WDTCPUCON0   SCU_WDTCPU2CON0
+#define EE_WDTCPUCON1   SCU_WDTCPU2CON1
+#endif /* __DCC__ */
+#else
+#error Unknown CPU ID
+#endif
 
 /**************************************************************************
  *

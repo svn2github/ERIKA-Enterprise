@@ -58,9 +58,26 @@ ifeq ($(call iseeopt, __OO_ECC2__), yes)
 KERNEL_OO=yes
 endif
 
-ifeq ($(call iseeopt, EE_SERVICE_PROTECTION__), yes)
-ifeq ($(KERNEL_OO), yes)
+ifeq ($(and $(call iseeopt, EE_SERVICE_PROTECTION__), $(KERNEL_OO)), yes)
 EE_SRCS += pkg/kernel/as/src/ee_as_base.c
-endif # KERNEL_OO
-endif # EE_AS_SERVICE_PROTECTION__
+endif # EE_AS_SERVICE_PROTECTION__ && KERNEL_OO
+
+# FIXME: WORKAROUND until other architectures will support full AS porting
+ifeq ($(and $(call iseeopt, __MSRP__), $(KERNEL_OO), $(call iseeopt, EE_TRICORE__)), yes)
+EE_SRCS += pkg/kernel/as/src/ee_as_multicore.c
+
+ifeq ($(call iseeopt, EE_AS_USER_SPINLOCKS__), yes)
+EE_SRCS += pkg/kernel/as/src/ee_as_spinlocks.c
+endif # EE_AS_USER_SPINLOCKS__
+
+ifeq ($(call iseeopt, EE_AS_RPC__), yes)
+EE_SRCS += pkg/kernel/as/src/ee_as_rpc.c
+endif # EE_AS_RPC__
+
+ifeq ($(call iseeopt, EE_AS_IOC__), yes)
+EE_SRCS += pkg/kernel/as/src/ee_as_ioc.c
+endif # EE_AS_IOC__
+
+endif # __MSRP__ && KERNEL_OO
 endif # __AS_SC4__
+

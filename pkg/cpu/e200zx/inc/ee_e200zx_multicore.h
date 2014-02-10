@@ -77,6 +77,13 @@
  System startup
  *************************************************************************/
 
+/** @brief ID type for cores */
+typedef enum EE_tc_core_id {
+  OS_CORE_ID_0 = 0x0,
+  OS_CORE_ID_MASTER = OS_CORE_ID_0,
+  OS_CORE_ID_1 = (OS_CORE_ID_MASTER + 0x1),
+} EE_TYPECOREID;
+
 typedef struct ee_barrier {
 	volatile EE_UINT32 value;
 } EE_TYPEBARRIER;
@@ -91,6 +98,9 @@ typedef EE_UINT32           EE_TYPESPINSTATUS;
  * function on the same barrier. */
 void EE_e200zx_sync_barrier(EE_TYPEBARRIER *bar);
 
+/* TODO: Add syncronization support for AS multicore StartOs requirements */
+#define EE_AS_MULTICORE_NO_SYNC
+#define EE_hal_sync_barrier(bar,mask) ((void)0)
 
 /* Startup barrier data */
 #ifdef USE_PRAGMAS

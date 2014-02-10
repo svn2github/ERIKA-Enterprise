@@ -61,8 +61,93 @@
 #define EE_TC2YX_SRN_SET_REQUEST          ((EE_UINT32)1U << 26U)
 
 
-#define EE_CPU_SUFFIX(sym)  sym
+/******************************************************************************
+              Multicore with single ELF x Core Symbols Remapping
+ *****************************************************************************/
+/* Generate the CORE_SYM suffux has is done by HIGHTEC ld binutils */
+#if defined(__MSRP__) && defined(EE_BUILD_SINGLE_ELF)
+#ifndef __GNUC__
+#error Multicore Single ELF buil is supported only by HIGHTEC GNU Compiler
+#endif /* __GNUC__ */
 
+#define EE_CPU_SUFFIX3(sym3)      EE_PREPROC_JOIN(sym3,_)
+#define EE_CPU_SUFFIX2(sym2,cpu)  EE_CPU_SUFFIX3(EE_PREPROC_JOIN(sym2,cpu))
+#define EE_CPU_SUFFIX(sym)        EE_CPU_SUFFIX2(EE_PREPROC_JOIN(sym,_CPU),\
+  EE_CURRENTCPU)
+
+#define __USTACK_BEGIN  EE_CPU_SUFFIX(__USTACK_BEGIN) /* user stack base */
+#define __USTACK        EE_CPU_SUFFIX(__USTACK)       /* user stack end */
+#define __ISTACK        EE_CPU_SUFFIX(__ISTACK)       /* interrupt stack end */
+/* centre of A0 addressable area */
+#define _SMALL_DATA_    EE_CPU_SUFFIX(_SMALL_DATA_)
+/* centre of A1 addressable area */
+#define _SMALL_DATA2_   EE_CPU_SUFFIX(_SMALL_DATA2_)
+/* centre of A8 addressable area */
+#define _SMALL_DATA3_   EE_CPU_SUFFIX(_SMALL_DATA3_)
+/* centre of A9 addressable area */
+#define _SMALL_DATA4_   EE_CPU_SUFFIX(_SMALL_DATA4_)
+/* Context Save Area base */
+#define __CSA_BEGIN     EE_CPU_SUFFIX(__CSA_BEGIN)
+/* Context Save Area end  */
+#define __CSA_END       EE_CPU_SUFFIX(__CSA_END)
+
+/* Begin Code Range */
+#define ee_sall_code    EE_CPU_SUFFIX(ee_sall_code)
+/* End Code Range */
+#define ee_eall_code    EE_CPU_SUFFIX(ee_eall_code)
+
+/* Ram Begin Address */
+#define ee_skernel_ram  EE_CPU_SUFFIX(ee_skernel_ram)
+/* Kernel Ram End Address */
+#define ee_ekernel_ram  EE_CPU_SUFFIX(ee_ekernel_ram)
+
+/* Begin Const API Section Address */
+#define ee_sapi_const   EE_CPU_SUFFIX(ee_sapi_const)
+/* End Const API Flash End Address */
+#define ee_eapi_const   EE_CPU_SUFFIX(ee_eapi_const)
+
+/* API Ram Begin Address */
+#define ee_sapi_ram     EE_CPU_SUFFIX(ee_sapi_ram)
+/* API Ram End Address */
+#define ee_eapi_ram     EE_CPU_SUFFIX(ee_eapi_ram)
+
+/* Kernel Data Structures range Begin Address */
+#define ee_sbss_kernel  EE_CPU_SUFFIX(ee_sbss_kernel)
+/* Kernel Data Structures End Address */
+#define ee_edata_kernel EE_CPU_SUFFIX(ee_edata_kernel)
+
+/* Kernel Data Structures range Begin Address */
+#define ee_sbss_kernel  EE_CPU_SUFFIX(ee_sbss_kernel)
+/* Kernel Data Structures End Address */
+#define ee_edata_kernel EE_CPU_SUFFIX(ee_edata_kernel)
+
+/* Kernel Code Section Begin Address */
+#define ee_skernel_code EE_CPU_SUFFIX(ee_skernel_code)
+/* Kernel Code Section End Address */
+#define ee_ekernel_code EE_CPU_SUFFIX(ee_ekernel_code)
+
+/* API Code Section Begin Address */
+#define ee_sapi_code EE_CPU_SUFFIX(ee_sapi_code)
+/* API Code Section End Address */
+#define ee_eapi_code EE_CPU_SUFFIX(ee_eapi_code)
+
+/* Stacks Table Address */
+#define ee_stacks_table EE_CPU_SUFFIX(ee_stacks_table)
+/* Kernel Stacks Section Start Address */
+#define ee_sstack_kernel EE_CPU_SUFFIX(ee_sstack_kernel)
+/* Kernel Stacks Section End Address */
+#define ee_estack_kernel EE_CPU_SUFFIX(ee_estack_kernel)
+
+/* Clear table entry */
+#define __clear_table EE_CPU_SUFFIX(__clear_table)
+/* Copy table entry */
+#define __copy_table  EE_CPU_SUFFIX(__copy_table)
+
+#else /* __MSRP__ && EE_BUILD_SINGLE_ELF */
+#define EE_CPU_SUFFIX(sym)  sym
+#endif /* __MSRP__ && EE_BUILD_SINGLE_ELF */
+
+#ifdef  EE_MASTER_CPU
 /******************************************************************************
                         Startup Symbols Remapping
  *****************************************************************************/
@@ -109,6 +194,13 @@
 #else
 #error Unsupported compiler!
 #endif /* __TASKING__ || __GNUC__ || __DCC__ */
+#endif /* EE_MASTER_CPU */
+
+/*********************************************************************
+                Multicore and multiprocessor support
+ *********************************************************************/
+/* Include multicore support there's a guard inside */
+#include "mcu/infineon_common_tc2Yx/inc/ee_tc2Yx_multicore.h"
 
 /****************************************************************
                     System Timer Support
@@ -224,8 +316,10 @@ __INLINE__ void __ALWAYS_INLINE__ EE_tc2Yx_set_osccon( EE_UREG value )
 #define EE_TC2YX_CLOCK_MIN          20000000U
 #define EE_TC2YX_CLOCK_MAX          200000000U
 
+#ifdef EE_MASTER_CPU
 /** @brief  Set PLL frequency. This function accept fpll HZ **/
 void EE_tc2Yx_configure_clock( EE_UREG fpll );
+#endif /* EE_MASTER_CPU */
 
 /** @brief  Return PLL frequency in HZ. **/
 EE_UREG EE_tc2Yx_get_clock( void );
@@ -275,9 +369,19 @@ void EE_tc2Yx_stm_set_sr1_next_match( EE_UINT32 usec );
 #endif /* EE_SYSTEM_TIMER_DEVICE != EE_TC_STM_SR0 */
 
 /* STM TIM0 and CAP(ture) Register Selector */
+#ifdef EE_MASTER_CPU
 /* registers */
 #define EE_STM_TIM0     STM0_TIM0
 #define EE_STM_CAP      STM0_CAP
+#elif (EE_CURRENTCPU == 1)
+#define EE_STM_TIM0     STM1_TIM0
+#define EE_STM_CAP      STM1_CAP
+#elif (EE_CURRENTCPU == 2)
+#define EE_STM_TIM0     STM2_TIM0
+#define EE_STM_CAP      STM2_CAP
+#else 
+#error Unknown CPU ID
+#endif /* EE_CURRENTCPU */
 
 /**
   * @brief  Used to read lower word of STM peripheral's 64 bit counter.

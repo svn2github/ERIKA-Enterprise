@@ -57,6 +57,7 @@ extern void EE_tc_interrupt_table ( void );
 /** Trap table */
 extern void EE_tc_trap_table ( void );
 
+#ifdef  EE_MASTER_CPU
 /*****************************************************************************
                           CCU Clock Control Support
  ****************************************************************************/
@@ -175,6 +176,13 @@ __INLINE__ void __ALWAYS_INLINE__ EE_tc2Yx_configure_osc_ctrl ( void )
   SCU_PLLCON0.B.OSCDISCDIS = 0U;
 }
 
+#else
+#define EE_tc2Yx_configure_clock_ctrl() ((void)0)
+#define EE_tc2Yx_configure_osc_ctrl()   ((void)0)
+#define EE_tc2Yx_configure_clock()      ((void)0)
+
+#endif /* EE_MASTER_CPU */
+
 #if defined(__OO_ORTI_STACK__)
 /******************************************************************************
                             ORTI Stack Filling
@@ -260,6 +268,7 @@ void EE_tc2Yx_initialize_system_timer(void);
 
 __INLINE__ int __ALWAYS_INLINE__ EE_cpu_startos( void )
 {
+#ifdef EE_MASTER_CPU
 /* If a CPU CLOCK frequency is defined configure the SCU registers */
 #if defined(EE_CPU_CLOCK) && (!defined(EE_MM_OPT))
   /* Disable SAFETY ENDINIT Protection */
@@ -276,6 +285,9 @@ __INLINE__ int __ALWAYS_INLINE__ EE_cpu_startos( void )
   EE_tc_safety_endinit_enable();
 #endif /* EE_CPU_CLOCK && !EE_MM_OPT */
 
+  /* Initialize intercore IRQs (in multicore environment) */
+  EE_tc2Yx_setup_inter_irqs();
+#endif /* EE_MASTER_CPU */
 
   /* Fill Stacks With Known Path for monitoring usage, if ORTI is enabled */
   EE_tc2Yx_fill_stacks();

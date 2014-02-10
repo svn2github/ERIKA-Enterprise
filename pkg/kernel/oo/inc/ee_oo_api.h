@@ -49,6 +49,8 @@
 
 #if defined(__OO_BCC1__) || defined(__OO_BCC2__) || defined(__OO_ECC1__) || defined(__OO_ECC2__)
 /* These function are always called directly, never by syscall */
+
+#ifndef __EE_MEMORY_PROTECTION__
 #ifndef StartOS
 #define StartOS                   EE_oo_StartOS
 #endif
@@ -76,8 +78,6 @@
 #ifndef GetElapsedValue
 #define GetElapsedValue           EE_oo_GetElapsedValue
 #endif
-
-#ifndef __EE_MEMORY_PROTECTION__
 
 #ifndef ActivateTask
 #define ActivateTask              EE_oo_ActivateTask

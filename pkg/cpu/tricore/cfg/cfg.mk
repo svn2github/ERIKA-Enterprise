@@ -47,7 +47,13 @@ ifeq  ($(call iseeopt, EE_TRICORE__), yes)
 ifneq ($(call iseeopt, EE_USE_CUSTOM_STARTUP_CODE), yes)
 ifeq  ($(call iseeopt, EE_DEBUG), yes)
 ifeq  ($(call iseeopt, EE_TASKING__), yes)
+ifeq  ($(call iseeopt, __MSRP__), yes)
+ifeq  ($(CPU_NUMID), 0)
 EE_BOOT_SRCS += pkg/cpu/tricore/src/ee_tc_tasking_sync_on_halt.c
+endif # CPU_NUMID eq 0
+else  # __MSRP__
+EE_BOOT_SRCS += pkg/cpu/tricore/src/ee_tc_tasking_sync_on_halt.c
+endif # __MSRP__
 endif # EE_TASKING__
 endif # EE_DEBUG
 endif # !EE_USE_CUSTOM_STARTUP_CODE
@@ -80,5 +86,9 @@ endif
 ifeq ($(call iseeopt, __MULTI__), yes)
 EE_SRCS += pkg/cpu/tricore/src/ee_tc_context.c
 endif
+
+ifeq ($(call iseeopt, __MSRP__), yes)
+EE_SRCS += pkg/cpu/tricore/src/ee_tc_multicore.c
+endif # __MSRP__
 
 endif # EE_TRICORE__

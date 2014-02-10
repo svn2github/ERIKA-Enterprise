@@ -198,7 +198,7 @@ static void  EE_oo_autostart_schedule_tables ( AppModeType Mode )
             sched_data_ref->start_value);
           break;
         case EE_ST_START_RELATIVE:
-          EE_as_StartScheduleTableAbs(sched_data_ref->scheduletable_id,
+          EE_as_StartScheduleTableRel(sched_data_ref->scheduletable_id,
             sched_data_ref->start_value);
           break;
         case EE_ST_START_SYNCHRON:
@@ -245,13 +245,13 @@ static void EE_oo_call_StartupHook(void)
 /** @brief Flag that the OS is started */
 EE_UREG volatile EE_oo_started;
 
-#if defined(__OO_STARTOS_OLD__) && (!defined(__MSRP__))
+#if defined(__OO_STARTOS_OLD__)
 /*
  * If __OO_STARTOS_OLD__ is defined, the StartOS() returns,
  * (this is the old behaviour before the Autosar compliance).
  */
 #define EE_oo_start_os()    ((void)0)
-#else /* __OO_STARTOS_OLD__ && !__MSRP__ */
+#else /* __OO_STARTOS_OLD__ */
 /*
  * If __OO_STARTOS_OLD__ is not defined the system behaves 
  * like Autosar requires: infinite loop (do not return).
@@ -269,11 +269,11 @@ static void EE_oo_start_os(void)
     ;
   }
 }
-#endif /* __OO_STARTOS_OLD__ && !__MSRP__ */
+#endif /* __OO_STARTOS_OLD__ */
 
 StatusType EE_oo_StartOS(AppModeType Mode)
 {
-#ifdef __MSRP__
+#if defined(__MSRP__) && (!defined(EE_AS_MULTICORE_NO_SYNC))
   /* The following contains cores application modes */
   extern AppModeType volatile EE_as_os_application_mode[];
   /* Mask for Autosar cores started */
@@ -282,7 +282,7 @@ StatusType EE_oo_StartOS(AppModeType Mode)
   register  EE_UREG i;
   /* Hold the value of application mode to be checked */
   register  AppModeType mode_to_check = DONOTCARE;
-#endif /* __MSRP__ */
+#endif /* __MSRP__ && !EE_AS_MULTICORE_NO_SYNC */
   /* Ready Queue Head Index */
   register EE_TID     rq;
   /* Error Value */
@@ -308,11 +308,11 @@ StatusType EE_oo_StartOS(AppModeType Mode)
       EE_ORTI_set_runningisr2((EE_ORTI_runningisr2_type)NULL);
 
       /* Multicore Startup */
-#ifdef __MSRP__
-      /* [OS609] If StartOS is called with the AppMode "DONOTCARE" the
+#if defined(__MSRP__) && (!defined(EE_AS_MULTICORE_NO_SYNC))
+      /* [OS609]: If StartOS is called with the AppMode "DONOTCARE" the
           application mode of the other core(s) (differing from "DONOTCARE")
           shall be used. (BSW4080006) */
-      /* [OS610] At least one core shall define an AppMode other than
+      /* [OS610]: At least one core shall define an AppMode other than
           "DONOTCARE". (BSW4080006) */
 
       /* It is not allowed to call StartOS on Cores that are not started by
@@ -383,7 +383,7 @@ StatusType EE_oo_StartOS(AppModeType Mode)
            using OSDEFAULTAPPMODE */
         Mode = OSDEFAULTAPPMODE;
       }
-#endif /* __MSRP__ */
+#endif /* __MSRP__ && !EE_AS_MULTICORE_NO_SYNC */
 
       /* Set EE_ApplicationMode for this core */
       EE_ApplicationMode = Mode;
@@ -428,14 +428,14 @@ StatusType EE_oo_StartOS(AppModeType Mode)
       }
 #endif /* EE_AS_OSAPPLICATIONS__ */
 
-#ifdef __MSRP__
+#if defined(__MSRP__) && (!defined(EE_AS_MULTICORE_NO_SYNC))
       /* [OS579]: All cores that belong to the AUTOSAR system shall be
           synchronized within the StartOS function before the scheduling is
           started and after the global StartupHook is called.
           (BSW4080001, BSW4080006) */
       EE_hal_sync_barrier(&EE_startos_before_scheduling_barrier,
         EE_as_core_mask);
-#endif /* __MSRP__ */
+#endif /* __MSRP__ && !EE_AS_MULTICORE_NO_SYNC */
 
       /* Check if there is a preemption.
           This code is optimized for this case, but for code readability we
@@ -452,7 +452,7 @@ StatusType EE_oo_StartOS(AppModeType Mode)
         /* [SWS_Os_00469]: The Operating System module shall start an
             OsTaskTimeFrame when a task is activated successfully.
             (SRS_Os_11008) */
-        /* Enable the interarrival for the stacking TASK */
+        /* Enable the inter-arrival for the stacking TASK */
         (void)EE_as_tp_handle_interarrival(EE_AS_TP_ID_FROM_TASK(rq));
 
         /* "Press TP start for the first time" for this new activation of the
@@ -460,7 +460,7 @@ StatusType EE_oo_StartOS(AppModeType Mode)
         EE_as_tp_active_start_on_TASK_stacking(rq);
 
         /* Since we are into the StartOS, the task was NOT previously on
-          the stack... (we do not have to check the wasstacked field)
+          the stack... (we do not have to check the was stacked field)
           So the code is equal for basic and extended task
           (all classes: BCC1, BCC2, ECC1, ECC2 are equal here)
           Look at EE_oo_run_next_task in ee_internal.h to see the usual

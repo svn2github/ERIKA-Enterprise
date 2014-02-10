@@ -107,6 +107,11 @@ __INLINE__ void __ALWAYS_INLINE__ EE_tc_isr2_call_handler( EE_tc_ISR_handler f )
 #define EE_ORTI_running_isr2_end()    ((void)0)
 #endif /* __OO_ORTI_RUNNINGISR2__ */
 
+#if (!defined(__OO_BCC1__)) && (!defined(__OO_BCC2__)) && \
+    (!defined(__OO_ECC1__)) && (!defined(__OO_ECC2__))
+#define EE_as_set_execution_context(ctx)  ((void)0)
+#endif /* !__OO_BCC1__ && !__OO_BCC2__ && !__OO_ECC1__ && !__OO_ECC2__ */
+
 __INLINE__ void __ALWAYS_INLINE__ EE_tc_isr2_wrapper_body( EE_tc_ISR_handler f )
 {
   /* This macro generate the local variables eventually needed */

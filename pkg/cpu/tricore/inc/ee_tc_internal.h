@@ -105,8 +105,29 @@ EE_DO_PRAGMA(warning 557)
    start-up routine */
 #define __OO_CPU_HAS_STARTOS_ROUTINE__
 
+#ifdef __MSRP__
 /*******************************************************************************
-                      HAL For Primitives Syncronization
+                        HAL For Multicore Startup
+ ******************************************************************************/
+
+__INLINE__ void __ALWAYS_INLINE__ EE_hal_start_core( EE_TYPECOREID core_id,
+  EE_ADDR start_up_addr )
+{
+  EE_tc_start_core(core_id, start_up_addr);
+}
+
+/** @brief HAL for core synchronization inside the Kernel */
+void EE_hal_sync_barrier ( EE_TYPEBARRIER *bar, EE_UREG wait_mask );
+
+#ifndef EE_USE_CUSTOM_STARTUP_CODE
+/* EE Default Startup code used: declare Slave Cores entry points */
+extern void EE_tc27x_cpu1_start ( void );
+extern void EE_tc27x_cpu2_start ( void );
+#endif /* !EE_USE_CUSTOM_STARTUP_CODE */
+#endif /* __MSRP__ */
+
+/*******************************************************************************
+                    HAL For Primitives Synchronization
  ******************************************************************************/
 
 /* Mask used to reset CCPN field in flags dull variable */

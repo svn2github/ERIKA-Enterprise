@@ -253,10 +253,15 @@ typedef EE_UINT32 EE_STACK_T;
    declaration in eecf.c */
 #include "cpu/common/inc/ee_hal_structs.h"
 
-#if  (!defined(EE_CURRENTCPU)) || (EE_CURRENTCPU == 0)
+/*******************************************************************************
+                    Multicore and multiprocessor support
+ ******************************************************************************/
+#if (!defined(EE_CURRENTCPU)) || (EE_CURRENTCPU == 0)
 /* Used as short-cut for previous condition */
 #define EE_MASTER_CPU
 #endif /* EE_CURRENTCPU == 0 */
+/* Include multicore support there's a guard inside */
+#include "cpu/tricore/inc/ee_tc_multicore.h"
 
 /*******************************************************************************
  *  IMPORTANT:

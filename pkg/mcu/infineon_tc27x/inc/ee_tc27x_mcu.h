@@ -66,6 +66,61 @@
 #define EE_TC27X_SRN_CLEAR_REQUEST        ((EE_UINT32)1U << 25U)
 #define EE_TC27X_SRN_SET_REQUEST          ((EE_UINT32)1U << 26U)
 
+#ifdef  EE_MASTER_CPU
+/******************************************************************************
+                        Startup Symbols Remapping
+ *****************************************************************************/
+
+#ifdef __TASKING__
+/* Start-Up Symbols Remapping */
+#define EE_B_USTACK       _lc_ub_ustack_tc0 /* user stack base */
+#define EE_E_USTACK       _lc_ue_ustack     /* user stack end */
+#define EE_E_ISTACK       _lc_ue_istack     /* interrupt stack end */
+#define EE_INT_TAB        _lc_u_int_tab     /* interrupt table */
+#define EE_TRAP_TAB       _lc_u_trap_tab    /* trap table */
+#define EE_SMALL_DATA     _SMALL_DATA_      /* centre of A0 addressable area */
+#define EE_LITERAL_DATA   _LITERAL_DATA_    /* centre of A1 addressable area */
+#define EE_A8_DATA        _A8_DATA_         /* centre of A8 addressable area */
+#define EE_A9_DATA        _A9_DATA_         /* centre of A9 addressable area */
+#define EE_B_CSA          _lc_ub_csa_01     /* Context Save Area base */
+#define EE_E_CSA          _lc_ue_csa_01     /* Context Save Area end  */
+
+/* Core Start-up code entry */
+#define EE_TC27X_START      EE_COMPILER_SECTION(ee_kernel_start) EE_tc27x_start
+
+#elif defined (__GNUC__) || defined (__DCC__)
+
+#define EE_B_USTACK     __USTACK_BEGIN  /* user stack base */
+#define EE_E_USTACK     __USTACK        /* user stack end */
+#define EE_E_ISTACK     __ISTACK        /* interrupt stack end */
+
+/* #define EE_INT_TAB  __inttab_start   interrupt table (linker symbol) */
+/* #define EE_TRAP_TAB __traptab_start trap table (linker symbol) */
+/* Generated in code */
+#define EE_INT_TAB      EE_tc_interrupt_table /* interrupt table */
+#define EE_TRAP_TAB     EE_tc_trap_table      /* trap table */
+
+#define EE_SMALL_DATA     _SMALL_DATA_    /* centre of A0 addressable area */
+#define EE_LITERAL_DATA   _SMALL_DATA2_   /* centre of A1 addressable area */
+#define EE_A8_DATA        _SMALL_DATA3_   /* centre of A8 addressable area */
+#define EE_A9_DATA        _SMALL_DATA4_   /* centre of A9 addressable area */
+#define EE_B_CSA          __CSA_BEGIN     /* Context Save Area base */
+#define EE_E_CSA          __CSA_END       /* Context Save Area end  */
+
+/* Core Start-up code entry */
+#define EE_TC27X_START  EE_tc27x_start
+
+#else
+#error Unsupported compiler!
+#endif /* __TASKING__ || __GNUC__ || __DCC__ */
+#endif /* EE_MASTER_CPU */
+
+/*********************************************************************
+                Multicore and multiprocessor support
+ *********************************************************************/
+/* Include multicore support there's a guard inside */
+#include "mcu/infineon_tc27x/inc/ee_tc27x_multicore.h"
+
 /****************************************************************
                     System Timer Support
  ****************************************************************/
@@ -180,8 +235,10 @@ __INLINE__ void __ALWAYS_INLINE__ EE_tc27x_set_osccon( EE_UREG value )
 #define EE_TC27X_CLOCK_MIN          20000000U
 #define EE_TC27X_CLOCK_MAX          200000000U
 
+#ifdef EE_MASTER_CPU
 /** @brief  Set PLL frequency. This function accept fpll HZ **/
 void EE_tc27x_configure_clock( EE_UREG fpll );
+#endif /* EE_MASTER_CPU */
 
 /** @brief  Return PLL frequency in HZ. **/
 EE_UREG EE_tc27x_get_clock( void );
@@ -231,9 +288,19 @@ void EE_tc27x_stm_set_sr1_next_match( EE_UINT32 usec );
 #endif /* EE_SYSTEM_TIMER_DEVICE != EE_TC_STM_SR0 */
 
 /* STM TIM0 and CAP(ture) Register Selector */
+#ifdef EE_MASTER_CPU
 /* registers */
 #define EE_STM_TIM0     STM0_TIM0
 #define EE_STM_CAP      STM0_CAP
+#elif (EE_CURRENTCPU == 1)
+#define EE_STM_TIM0     STM1_TIM0
+#define EE_STM_CAP      STM1_CAP
+#elif (EE_CURRENTCPU == 2)
+#define EE_STM_TIM0     STM2_TIM0
+#define EE_STM_CAP      STM2_CAP
+#else 
+#error Unknown CPU ID
+#endif /* EE_CURRENTCPU */
 
 /**
   * @brief  Used to read lower word of STM peripheral's 64 bit counter.

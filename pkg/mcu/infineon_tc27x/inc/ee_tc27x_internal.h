@@ -52,53 +52,7 @@
 /* TODO: Protect this with some kind of selector */
 #include "board/infineon_TriBoard_TC2X5/inc/ee_tc2x5_board.h"
 
-/******************************************************************************
-                        Startup Symbols Remapping
- *****************************************************************************/
-
-#ifdef __TASKING__
-/* Start-Up Symbols Remapping */
-#define EE_B_USTACK       _lc_ub_ustack_tc0 /* user stack base */
-#define EE_E_USTACK       _lc_ue_ustack     /* user stack end */
-#define EE_E_ISTACK       _lc_ue_istack     /* interrupt stack end */
-#define EE_INT_TAB        _lc_u_int_tab     /* interrupt table */
-#define EE_TRAP_TAB       _lc_u_trap_tab    /* trap table */
-#define EE_SMALL_DATA     _SMALL_DATA_      /* centre of A0 addressable area */
-#define EE_LITERAL_DATA   _LITERAL_DATA_    /* centre of A1 addressable area */
-#define EE_A8_DATA        _A8_DATA_         /* centre of A8 addressable area */
-#define EE_A9_DATA        _A9_DATA_         /* centre of A9 addressable area */
-#define EE_B_CSA          _lc_ub_csa_01     /* Context Save Area base */
-#define EE_E_CSA          _lc_ue_csa_01     /* Context Save Area end  */
-
-/* Core Start-up code entry */
-#define EE_TC27X_START      EE_COMPILER_SECTION(ee_kernel_start) EE_tc27x_start
-
-#elif defined (__GNUC__) || defined (__DCC__)
-
-#define EE_B_USTACK     __USTACK_BEGIN  /* user stack base */
-#define EE_E_USTACK     __USTACK        /* user stack end */
-#define EE_E_ISTACK     __ISTACK        /* interrupt stack end */
-
-/* #define EE_INT_TAB  __inttab_start   interrupt table (linker symbol) */
-/* #define EE_TRAP_TAB __traptab_start trap table (linker symbol) */
-/* Generated in code */
-#define EE_INT_TAB      EE_tc_interrupt_table /* interrupt table */
-#define EE_TRAP_TAB     EE_tc_trap_table      /* trap table */
-
-#define EE_SMALL_DATA     _SMALL_DATA_    /* centre of A0 addressable area */
-#define EE_LITERAL_DATA   _SMALL_DATA2_   /* centre of A1 addressable area */
-#define EE_A8_DATA        _SMALL_DATA3_   /* centre of A8 addressable area */
-#define EE_A9_DATA        _SMALL_DATA4_   /* centre of A9 addressable area */
-#define EE_B_CSA          __CSA_BEGIN     /* Context Save Area base */
-#define EE_E_CSA          __CSA_END       /* Context Save Area end  */
-
-/* Core Start-up code entry */
-#define EE_TC27X_START  EE_tc27x_start
-
-#else
-#error Unsupported compiler!
-#endif /* __TASKING__ || __GNUC__ || __DCC__ */
-
+#ifdef  EE_MASTER_CPU
 /*****************************************************************************
                           CCU Clock Control Support
  ****************************************************************************/
@@ -217,6 +171,13 @@ __INLINE__ void __ALWAYS_INLINE__ EE_tc27x_configure_osc_ctrl ( void )
   SCU_PLLCON0.B.OSCDISCDIS = 0U;
 }
 
+#else
+#define EE_tc27x_configure_clock_ctrl() ((void)0)
+#define EE_tc27x_configure_osc_ctrl()   ((void)0)
+#define EE_tc27x_configure_clock()      ((void)0)
+
+#endif /* EE_MASTER_CPU */
+
 #ifdef __OO_ORTI_STACK__
 /******************************************************************************
                             ORTI Stack Filling
@@ -302,6 +263,7 @@ void EE_tc27x_initialize_system_timer(void);
 
 __INLINE__ int __ALWAYS_INLINE__ EE_cpu_startos( void )
 {
+#ifdef EE_MASTER_CPU
 /* If a CPU CLOCK frequency is defined configure the SCU registers */
 #ifdef EE_CPU_CLOCK
   /* Disable SAFETY ENDINIT Protection */
@@ -317,6 +279,10 @@ __INLINE__ int __ALWAYS_INLINE__ EE_cpu_startos( void )
   /* Re-enable SAFETY ENDINIT Protection */
   EE_tc_safety_endinit_enable();
 #endif /* EE_CPU_CLOCK */
+
+  /* Initialize intercore IRQs (in multicore environment) */
+  EE_tc27x_setup_inter_irqs();
+#endif /* EE_MASTER_CPU */
 
   /* Fill Stacks With Known Path for monitoring usage, if ORTI is enabled */
   EE_tc27x_fill_stacks();

@@ -218,6 +218,15 @@ void EE_IRQ_end_post_stub( void ) {
       without calling the corresponding ReleaseResource(), the Operating System
       shall perform the ReleaseResource() call and shall call the ErrorHook()
       (if configured) with the status E_OS_RESOURCE. */
+  /* [OS109]: If the Operating System module forcibly terminates an interrupt
+      service routine, it clears the interrupt request, aborts the interrupt
+      service routine (The interrupt source stays in the current state.)
+      and releases all OSEK resources the interrupt service routine has
+      allocated and calls EnableAllInterrupts() / ResumeOSInterrupts() /
+      ResumeAllInterrupts() if the interrupt called DisableAllInterrupts() /
+      SuspendOSInterrupts() / SuspendAllInterrupts() before without the
+      corresponding EnableAllInterrupts() / ResumeOSInterrupts() /
+      ResumeAllInterrupts() call. */
   EE_IRQ_release_all_items();
 }
 #endif /* __PRIVATE_IRQ_END_INSTANCE__ */

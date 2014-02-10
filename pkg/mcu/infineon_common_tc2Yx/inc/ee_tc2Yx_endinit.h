@@ -53,8 +53,18 @@
 #include "mcu/infineon_common_tc2Yx/inc/ee_tc2Yx_mcu.h"
 
 /* Multicore ENDINIT Support */
+#ifdef EE_MASTER_CPU
 #define EE_WDTCPUCON0   SCU_WDTCPU0_CON0
 #define EE_WDTCPUCON1   SCU_WDTCPU0_CON1
+#elif (EE_CURRENTCPU == 1)
+#define EE_WDTCPUCON0   SCU_WDTCPU1_CON0
+#define EE_WDTCPUCON1   SCU_WDTCPU1_CON1
+#elif (EE_CURRENTCPU == 2)
+#define EE_WDTCPUCON0   SCU_WDTCPU2_CON0
+#define EE_WDTCPUCON1   SCU_WDTCPU2_CON1
+#else
+#error Unknown CPU ID
+#endif
 
 /**************************************************************************
  *

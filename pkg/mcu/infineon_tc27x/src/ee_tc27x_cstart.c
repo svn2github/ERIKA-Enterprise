@@ -244,6 +244,7 @@ EE_COMPILER_EXTERN(_trapsystem)
 EE_COMPILER_EXTERN(_trapnmi)
 #endif /* __TASKING__ && EE_DEFAULT_TRAP_HANDLING_OFF */
 
+#ifdef EE_MASTER_CPU
 /*******************************************************************************
  * _START() - Startup Code
  ******************************************************************************/
@@ -292,12 +293,17 @@ void RESET_(void)
 #endif /* __GNUC__ || __DCC__ */
 
 #endif /* __TASKING__ || __GNUC__ || __DCC__ */
+#endif /* EE_MASTER_CPU */
 
 /*******************************************************************************
  * @brief startup code
  ******************************************************************************/
 #define EE_TC_START_PSW         0x00000B80U
 #define EE_TC_START_PSW_ISP     0x00000980U
+
+#if defined(__MSRP__) && (EE_CURRENTCPU == 0) && defined(__GNUC__)
+#pragma section "ee_kernel_start" ax 4
+#endif /* defined(__MSRP__) && (EE_CURRENTCPU == 0) && __GNUC__ */
 
 void __NEVER_INLINE__ JUMP EE_TC27X_START( void )
 {
@@ -311,6 +317,29 @@ void __NEVER_INLINE__ JUMP EE_TC27X_START( void )
   EE_ADDR const sp = (EE_ADDR)
       ((EE_UINT32)(EE_E_USTACK) & EE_STACK_ALIGN);
   EE_tc_set_SP(sp);
+
+#if (!defined(__OO_BCC1__)) && (!defined(__OO_BCC2__)) && \
+    (!defined(__OO_ECC1__)) && (!defined(__OO_ECC2__)) && (!defined(__AS_SC4__))
+/* Multicore initialization needed for non OSEK Kernels */
+#ifdef EE_MASTER_CPU
+#ifdef EE_START_CPU1
+  /*
+   * Set start address of CPU1
+   * Reset value is 0xAFFFC000
+   */
+  CPU1_PC.U = (EE_UINT32)EE_tc27x_cpu1_start;
+#endif /* EE_START_CPU1 */
+
+#ifdef EE_START_CPU2
+  /*
+   * Set start address of CPU2
+   * Reset value is 0xAFFFC000
+   */
+  CPU2_PC.U = (EE_UINT32)EE_tc27x_cpu2_start;
+#endif /* EE_START_CPU2 */
+#endif /* EE_MASTER_CPU */
+#endif /* !__OO_BCC1__ && !__OO_BCC2__ && !__OO_ECC1__ && !__OO_ECC2__ &&
+  !__AS_SC4__ */
 
   /* Do a dsync before changing any of the csfr values, thus any previous
    * background state gets flushed first. Required for applications that jump
@@ -344,6 +373,7 @@ void __NEVER_INLINE__ JUMP EE_TC27X_START( void )
    */
   EE_WDTCPUCON1.U |= 0x8;
 
+#ifdef EE_MASTER_CPU
   /*
    * Clear the ENDINIT bit in the WDTSCON0 register in order
    * to disable the write-protection for safety-critical registers
@@ -357,6 +387,7 @@ void __NEVER_INLINE__ JUMP EE_TC27X_START( void )
    * ENDINIT is set by safety_endinit_set().
    */
   SCU_WDTSCON1.U |= 0x8;
+#endif /* EE_MASTER_CPU */
 
   /*
    * Load Base Address of Trap Vector Table.
@@ -389,7 +420,7 @@ void __NEVER_INLINE__ JUMP EE_TC27X_START( void )
 #if (!defined(__OO_BCC1__)) && (!defined(__OO_BCC2__)) && \
     (!defined(__OO_ECC1__)) && (!defined(__OO_ECC2__)) && (!defined(__AS_SC4__))
 /* Clock Initialization needed for non OSEK Kernels */
-#if defined(EE_CPU_CLOCK)
+#if defined(EE_MASTER_CPU) && defined(EE_CPU_CLOCK)
 /******** Configure CCU Clock Control. ********/
   EE_tc27x_configure_clock_ctrl();
 
@@ -416,7 +447,7 @@ void __NEVER_INLINE__ JUMP EE_TC27X_START( void )
   !__AS_SC4__ */
 
 
-#endif /* EE_CPU_CLOCK */
+#endif /* EE_MASTER_CPU && EE_CPU_CLOCK */
 
   /*
    * Inititialize global address registers a0/a1 to support
@@ -468,11 +499,13 @@ void __NEVER_INLINE__ JUMP EE_TC27X_START( void )
    */
   EE_tc27x_endinit_set(EE_TC_ENDINIT_ENABLE);
 
+#ifdef EE_MASTER_CPU
   /*
    * Set the ENDINIT bit in the WDTSCON0 register to enable the
    * safety-critical register write-protection.
    */
   EE_tc27x_safety_endinit_set(EE_TC_ENDINIT_ENABLE);
+#endif /* EE_MASTER_CPU */
 
 #ifdef EE_START_UP_USER_ENDINIT
   /*  Call the user callback to let him do initial configuration with
@@ -480,10 +513,14 @@ void __NEVER_INLINE__ JUMP EE_TC27X_START( void )
       registers are unlocked for the duration of the Time-out
       Period only! */
   EE_tc27x_endinit_set(EE_TC_ENDINIT_DISABLE);
+#ifdef EE_MASTER_CPU
   EE_tc27x_safety_endinit_set(EE_TC_ENDINIT_DISABLE);
+#endif /* EE_MASTER_CPU */
   EE_START_UP_USER_ENDINIT();
   EE_tc27x_endinit_set(EE_TC_ENDINIT_ENABLE);
+#ifdef EE_MASTER_CPU
   EE_tc27x_safety_endinit_set(EE_TC_ENDINIT_ENABLE);
+#endif /* EE_MASTER_CPU */
 #endif /* EE_START_UP_USER_ENDINIT */
 
   /*

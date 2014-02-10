@@ -245,6 +245,7 @@ EE_COMPILER_EXTERN(_trapsystem)
 EE_COMPILER_EXTERN(_trapnmi)
 #endif /* __TASKING__ && EE_DEFAULT_TRAP_HANDLING_OFF */
 
+#ifdef EE_MASTER_CPU
 /*******************************************************************************
 **                      Boot Mode Headers                                     **
 *******************************************************************************/
@@ -365,12 +366,17 @@ void _START(void)
 #if defined(__DCC__)
 #pragma section CODE
 #endif
+#endif /* EE_MASTER_CPU */
 
 /*******************************************************************************
  * @brief startup code
  ******************************************************************************/
 #define EE_TC_START_PSW         0x00000B80U
 #define EE_TC_START_PSW_ISP     0x00000980U
+
+#if defined(__MSRP__) && defined(EE_MASTER_CPU) && defined(__GNUC__)
+#pragma section "ee_kernel_start" ax 4
+#endif /* __MSRP__ && EE_MASTER_CPU && __GNUC__ */
 
 void __NEVER_INLINE__ JUMP EE_TC2YX_START( void )
 {
@@ -384,6 +390,30 @@ void __NEVER_INLINE__ JUMP EE_TC2YX_START( void )
   EE_ADDR const sp = (EE_ADDR)
       ((EE_UINT32)(EE_E_USTACK) & EE_STACK_ALIGN);
   EE_tc_set_SP(sp);
+
+#if (!defined(__OO_BCC1__)) && (!defined(__OO_BCC2__)) && \
+    (!defined(__OO_ECC1__)) && (!defined(__OO_ECC2__))
+/* Multicore initialization needed for non OSEK Kernels */
+#ifdef EE_MASTER_CPU
+#ifdef EE_START_CPU1
+  /*
+   * Set start address of CPU1
+   * Reset value is 0xAFFFC000
+   */
+  extern void EE_tc2Yx_cpu1_start ( void );
+  CPU1_PC.U = (EE_UINT32)EE_tc2Yx_cpu1_start;
+#endif /* EE_START_CPU1 */
+
+#ifdef EE_START_CPU2
+  /*
+   * Set start address of CPU2
+   * Reset value is 0xAFFFC000
+   */
+  extern void EE_tc2Yx_cpu2_start ( void );
+  CPU2_PC.U = (EE_UINT32)EE_tc2Yx_cpu2_start;
+#endif /* EE_START_CPU2 */
+#endif /* EE_MASTER_CPU */
+#endif /* !__OO_BCC1__ && !__OO_BCC2__ && !__OO_ECC1__ && !__OO_ECC2__ */
 
   /* Do a dsync before changing any of the csfr values, thus any previous
    * background state gets flushed first. Required for applications that jump
@@ -411,12 +441,14 @@ void __NEVER_INLINE__ JUMP EE_TC2YX_START( void )
    */
   EE_tc2Yx_endinit_set(EE_TC_ENDINIT_DISABLE);
 
+#ifdef EE_MASTER_CPU
   /*
    * Clear the ENDINIT bit in the WDTSCON0 register in order
    * to disable the write-protection for safety-critical registers
    * protected via the safety EndInit feature.
    */
   EE_tc2Yx_safety_endinit_set(EE_TC_ENDINIT_DISABLE);
+#endif /* EE_MASTER_CPU */
 
   /*
    * Load Base Address of Trap Vector Table.
@@ -449,7 +481,7 @@ void __NEVER_INLINE__ JUMP EE_TC2YX_START( void )
 #if (!defined(__OO_BCC1__)) && (!defined(__OO_BCC2__)) && \
     (!defined(__OO_ECC1__)) && (!defined(__OO_ECC2__))
 /* Clock Initialization needed for non OSEK Kernels */
-#if defined(EE_CPU_CLOCK)
+#if defined(EE_MASTER_CPU) && defined(EE_CPU_CLOCK)
 /******** Configure CCU Clock Control. ********/
   EE_tc2Yx_configure_clock_ctrl();
 
@@ -474,7 +506,7 @@ void __NEVER_INLINE__ JUMP EE_TC2YX_START( void )
 #endif /* __TASKING__ */
 #endif /* !__OO_BCC1__ && !__OO_BCC2__ && !__OO_ECC1__ && !__OO_ECC2__ */
 
-#endif /* EE_CPU_CLOCK */
+#endif /* EE_MASTER_CPU && EE_CPU_CLOCK */
 
   /*
    * Inititialize global address registers a0/a1 to support
@@ -526,11 +558,13 @@ void __NEVER_INLINE__ JUMP EE_TC2YX_START( void )
    */
   EE_tc2Yx_endinit_set(EE_TC_ENDINIT_ENABLE);
 
+#ifdef EE_MASTER_CPU
   /*
    * Set the ENDINIT bit in the WDTSCON0 register to enable the
    * safety-critical register write-protection.
    */
   EE_tc2Yx_safety_endinit_set(EE_TC_ENDINIT_ENABLE);
+#endif /* EE_MASTER_CPU */
 
 #ifdef EE_START_UP_USER_ENDINIT
   /*  Call the user callback to let him do initial configuration with
@@ -538,10 +572,14 @@ void __NEVER_INLINE__ JUMP EE_TC2YX_START( void )
       registers are unlocked for the duration of the Time-out
       Period only! */
   EE_tc2Yx_endinit_set(EE_TC_ENDINIT_DISABLE);
+#ifdef EE_MASTER_CPU
   EE_tc2Yx_safety_endinit_set(EE_TC_ENDINIT_DISABLE);
+#endif /* EE_MASTER_CPU */
   EE_START_UP_USER_ENDINIT();
   EE_tc2Yx_endinit_set(EE_TC_ENDINIT_ENABLE);
+#ifdef EE_MASTER_CPU
   EE_tc2Yx_safety_endinit_set(EE_TC_ENDINIT_ENABLE);
+#endif /* EE_MASTER_CPU */
 #endif /* EE_START_UP_USER_ENDINIT */
 
   /*
@@ -709,11 +747,20 @@ static void EE_tc2Yx_cinit( void ) {
   extern EE_UINT32 __clear_table[];
   /* copy table entry */
   extern EE_UINT32 __copy_table[];
+#if (defined(__MSRP__) && defined(EE_BUILD_SINGLE_ELF)) && defined(EE_MASTER_CPU)
+  /* copy table entry */
+  extern EE_UINT32 ee_mcglobald_copy_table[];
+#endif /* __MSRP__ && EE_BUILD_SINGLE_ELF && EE_MASTER_CPU */
 
   /* clear table */
   EE_tc2Y_apply_clear_table(__clear_table);
   /* copy table */
   EE_tc2Y_apply_copy_table(__copy_table);
+
+#if (defined(__MSRP__) && defined(EE_BUILD_SINGLE_ELF)) && defined(EE_MASTER_CPU)
+  /* Initialize global data */
+  EE_tc2Y_apply_copy_table(ee_mcglobald_copy_table);
+#endif /* __MSRP__ && EE_BUILD_SINGLE_ELF && EE_MASTER_CPU */
 }
 #endif /* __GNUC__ && !EE_EXECUTE_FROM_RAM */
 

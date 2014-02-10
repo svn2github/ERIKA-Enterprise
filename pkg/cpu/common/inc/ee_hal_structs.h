@@ -72,9 +72,9 @@
  */
 #ifdef __MULTI__
 struct EE_TOS {
-    EE_ADDR SYS_tos;
+  EE_ADDR SYS_tos;
 };
-#endif
+#endif /* __MULTI__ */
 
 
 /*************************************************************************

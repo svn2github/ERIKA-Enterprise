@@ -70,12 +70,31 @@ void EE_tc_safety_endinit_enable( void ) {
 }
 
 /* STM Compare Register Selector */
+#ifdef EE_MASTER_CPU
+/* registers */
 #define EE_STM_CMCON    STM0_CMCON
 #define EE_STM_ICR      STM0_ICR
 #define EE_STM_CMP0     STM0_CMP0
 #define EE_STM_CMP1     STM0_CMP1
 #define EE_STM_SR0      SRC_STM0SR0
 #define EE_STM_SR1      SRC_STM0SR1
+#elif (EE_CURRENTCPU == 1)
+#define EE_STM_CMCON    STM1_CMCON
+#define EE_STM_ICR      STM1_ICR
+#define EE_STM_CMP0     STM1_CMP0
+#define EE_STM_CMP1     STM1_CMP1
+#define EE_STM_SR0      SRC_STM1SR0
+#define EE_STM_SR1      SRC_STM1SR1
+#elif (EE_CURRENTCPU == 2)
+#define EE_STM_CMCON    STM2_CMCON
+#define EE_STM_ICR      STM2_ICR
+#define EE_STM_CMP0     STM2_CMP0
+#define EE_STM_CMP1     STM2_CMP1
+#define EE_STM_SR0      SRC_STM2SR0
+#define EE_STM_SR1      SRC_STM2SR1
+#else
+#error Unknown CPU ID
+#endif
 
 /* STM_SR Function Static storage declaration (if needed) */
 #if (EE_SYSTEM_TIMER_DEVICE == EE_TC_STM_SR0)
@@ -155,13 +174,21 @@ void EE_tc27x_initialize_system_timer(void) {
 
 #endif /* ENABLE_SYSTEM_TIMER && EE_SYSTEM_TIMER_DEVICE */
 
+/* If MemMap. support is enabled (i.e. because protection memory): use it */
+#ifdef EE_SUPPORT_MEMMAP_H
+#define API_START_SEC_CODE
+#define API_START_SEC_VAR_NOINIT
+#include "MemMap.h"
+#endif /* EE_SUPPORT_MEMMAP_H */
+
 /****************************************************************
                     SCU Clock Support
  ****************************************************************/
-
+#ifdef EE_MASTER_CPU
 void EE_tc27x_configure_clock(EE_UREG fpll) {
   EE_tc27x_configure_clock_internal(fpll);
 }
+#endif /* EE_MASTER_CPU */
 
 EE_UREG EE_tc27x_get_clock( void ) {
   /* PLL dividers */
