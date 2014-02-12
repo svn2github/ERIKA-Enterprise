@@ -346,6 +346,10 @@ extern "C" {
 #include "board/ipermob_board_v2/inc/ee_board.h"
 #endif
 
+#ifdef __MICROCHIP_ESK__
+#include "board/microchip_esk/inc/ee_board.h"
+#endif
+
  /* MICO32 */
 #ifdef __FPG_EYE__
 #include "board/fpg-eye/inc/ee_board.h"

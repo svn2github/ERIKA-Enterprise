@@ -309,6 +309,10 @@ extern "C" {
 #include "board/ee_miniflex/inc/ee_internal.h"
 #endif
 
+#ifdef __MICROCHIP_ESK__
+#include "board/microchip_esk/inc/ee_internal.h"
+#endif
+
  /* MICO32 */
 #ifdef __LM32__
 #include "board/fpg-eye/inc/ee_internal.h"
