@@ -230,7 +230,7 @@ extern struct EE_TC_TOS EE_tc_system_tos[];
 
 /* Used to hold the Tasks return addresses (that ccan be lost in context
    switches) */
-extern EE_ADDR EE_tc_tasks_RA[];
+extern EE_tc_task_save_data EE_tc_tasks_RA[];
 
 /* Stack used by IRQ handlers */
 #ifdef __IRQ_STACK_NEEDED__

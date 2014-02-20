@@ -171,6 +171,9 @@ typedef EE_UINT8 EE_TYPEISR2PRIO;
 /* Type pointing to an ISR (Here because ISR macro code generation) */
 typedef void (*EE_tc_ISR_handler)(void);
 
+/* Placeholder abstraction type for future features */
+typedef EE_ADDR EE_tc_task_save_data;
+
 #ifdef __OO_ORTI_RUNNINGISR2__
 /* ISR2 ORTI types and NO_ISR2 value define */
 typedef EE_tc_ISR_handler EE_ORTI_runningisr2_type;
