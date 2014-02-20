@@ -169,7 +169,7 @@ endif
 
 
 # OPT_AR: options for library generation
-OPT_AR = -library -o
+OPT_AR = -library $(OPT_TARGET) -o
 
 DEFS_ASM = $(addprefix -D, $(EEOPT) )
 DEFS_CC  = $(addprefix -D, $(EEOPT) )
