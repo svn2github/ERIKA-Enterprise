@@ -49,11 +49,11 @@
 static void (*Rx1IsrFunction)(EE_UINT8 data) = NULL;
 #endif
 
-#ifdef	__AVR_ATmega328__
+#if	( defined(__AVR_ATmega328__) || defined(__AVR_ATmega328P__) )
 #ifndef	F_CPU
 #define F_CPU 16000000
 #endif
-#endif	/* __AVR_ATmega128__ */
+#endif	/* __AVR_ATmega328__ || __AVR_ATmega328P__ */
 
 /*
  * TODO: Check if control flow is present in hw or remove mode
@@ -71,14 +71,14 @@ EE_uart_init(
 		return -EE_UART_ERR_BAD_PORT;
 		
 	/* Initialize UART Port */
-#ifdef	__AVR_ATmega328__
+#if	( defined(__AVR_ATmega328__) || defined(__AVR_ATmega328P__) )
 	UCSR0A = (1<<U2X0); 			/* Double speed mode USART0 */
 	UBRR0L = (uint8_t)(F_CPU/(baud*8L)-1);
 	UBRR0H = (F_CPU/(baud*8L)-1) >> 8;
 
 	UCSR0C = (1<<UCSZ00) | (1<<UCSZ01);	/* 1 stop bit, no parity */
 	UCSR0B = (1<<RXEN0) | (1<<TXEN0);	/* enable tx and rx */
-#else	/* __AVR_ATmega328__ */
+#else	/* __AVR_ATmega328__ || __AVR_ATmega328P__ */
 	/* Enable double speed mode (Allow it to be selected?) */
 	UCSR0A |= 0x02;
 	
@@ -101,7 +101,7 @@ EE_uart_init(
 	 * UBRR register
 	 */
 	UBRR0H = (baudregs >> 8);
-#endif	/* __AVR_ATmega328__ */
+#endif	/* __AVR_ATmega328__ || __AVR_ATmega328P__ */
 	return 1;
 }
 
@@ -113,10 +113,10 @@ EE_uart_close(
 		return -EE_UART_ERR_BAD_PORT;
 	
 	/* chris: TODO: Release something */
-#ifdef	__AVR_ATmega328__
+#if	( defined(__AVR_ATmega328__) || defined(__AVR_ATmega328P__) )
 	/* TODO: disable interrupts? */
 	UCSR0B = ~((1<<RXEN0) | (1<<TXEN0));	/* disable tx and rx */
-#endif	/* __AVR_ATmega328__ */
+#endif	/* __AVR_ATmega328__ || __AVR_ATmega328P__ */
 	return 1;
 }
 

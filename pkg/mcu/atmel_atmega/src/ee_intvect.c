@@ -131,7 +131,11 @@ EE_AVR8_ISR_NOT_DEFINED(INT7_vect)
 #endif /* EE_AVR8_INT7_ISR */
 #endif	/* __AVR_ATmega128__ || __AVR_ATmega1281__ */
 
-#if	( defined(__AVR_ATmega328__) || defined(__AVR_ATmega1281__) )
+#if	(			   \
+  defined(__AVR_ATmega328__)	|| \
+  defined(__AVR_ATmega328P__)	|| \
+  defined(__AVR_ATmega1281__)	   \
+)
 /* PCINT0 interrupt vector */
 #if defined(EE_AVR8_PCINT0_ISR) && (EE_AVR8_PCINT0_ISR_CAT == 2)
 EE_AVR8_ISR2_DEFINITION(PCINT0_vect, EE_AVR8_PCINT0_ISR)
@@ -167,7 +171,7 @@ EE_AVR8_ISR1_DEFINITION(WDT_vect, EE_AVR8_WDT_ISR)
 #elif defined(__MCU_EXTENDED_STATUS__)
 EE_AVR8_ISR_NOT_DEFINED(WDT_vect)
 #endif /* EE_AVR8_WDT_ISR */
-#endif	/* __AVR_ATmega128__ || __AVR_ATmega1281__ */
+#endif	/* __AVR_ATmega328__ || __AVR_ATmega328P__ || __AVR_ATmega1281__ */
 
 #ifdef	__AVR_ATmega128__
 /* TIMER2_COMP interrupt vector */
@@ -180,7 +184,11 @@ EE_AVR8_ISR_NOT_DEFINED(TIMER2_COMP_vect)
 #endif /* EE_AVR8_TIMER2_COMP_ISR */
 #endif	/* __AVR_ATmega128__ */
 
-#if	( defined(__AVR_ATmega328__) || defined(__AVR_ATmega1281__) )
+#if	(			   \
+  defined(__AVR_ATmega328__)	|| \
+  defined(__AVR_ATmega328P__)	|| \
+  defined(__AVR_ATmega1281__)	   \
+)
 /* TIMER2_COMPA interrupt vector */
 #if defined(EE_AVR8_TIMER2_COMPA_ISR) && (EE_AVR8_TIMER2_COMPA_ISR_CAT == 2)
 EE_AVR8_ISR2_DEFINITION(TIMER2_COMPA_vect, EE_AVR8_TIMER2_COMPA_ISR)
@@ -198,7 +206,7 @@ EE_AVR8_ISR1_DEFINITION(TIMER2_COMPB_vect, EE_AVR8_TIMER2_COMPB_ISR)
 #elif defined(__MCU_EXTENDED_STATUS__)
 EE_AVR8_ISR_NOT_DEFINED(TIMER2_COMPB_vect)
 #endif /* EE_AVR8_TIMER2_COMPB_ISR */
-#endif	/* __AVR_ATmega128__ || __AVR_ATmega1281__ */
+#endif	/* __AVR_ATmega328__ || __AVR_ATmega328P__ || __AVR_ATmega1281__ */
 
 /* TIMER2_OVF interrupt vector */
 #if defined(EE_AVR8_TIMER2_OVF_ISR) && (EE_AVR8_TIMER2_OVF_ISR_CAT == 2)
@@ -267,7 +275,11 @@ EE_AVR8_ISR_NOT_DEFINED(TIMER0_COMP_vect)
 #endif /* EE_AVR8_TIMER0_COMP_ISR */
 #endif	/* __AVR_ATmega128__ */
 
-#if	( defined(__AVR_ATmega328__) || defined(__AVR_ATmega1281__) )
+#if	(			   \
+  defined(__AVR_ATmega328__)	|| \
+  defined(__AVR_ATmega328P__)	|| \
+  defined(__AVR_ATmega1281__)	   \
+)
 /* TIMER2_COMPA interrupt vector */
 #if defined(EE_AVR8_TIMER0_COMPA_ISR) && (EE_AVR8_TIMER0_COMPA_ISR_CAT == 2)
 EE_AVR8_ISR2_DEFINITION(TIMER0_COMPA_vect, EE_AVR8_TIMER0_COMPA_ISR)
@@ -285,7 +297,7 @@ EE_AVR8_ISR1_DEFINITION(TIMER0_COMPB_vect, EE_AVR8_TIMER0_COMPB_ISR)
 #elif defined(__MCU_EXTENDED_STATUS__)
 EE_AVR8_ISR_NOT_DEFINED(TIMER0_COMPB_vect)
 #endif /* EE_AVR8_TIMER0_COMPB_ISR */
-#endif	/* __AVR_ATmega328__ || __AVR_ATmega1281__ */
+#endif	/* __AVR_ATmega328__ || __AVR_ATmega328P__ || __AVR_ATmega1281__ */
 
 /* TIMER0_OVF interrupt vector */
 #if defined(EE_AVR8_TIMER0_OVF_ISR) && (EE_AVR8_TIMER0_OVF_ISR_CAT == 2)
@@ -334,7 +346,7 @@ EE_AVR8_ISR_NOT_DEFINED(USART0_TX_vect)
 #endif /* EE_AVR8_USART0_TX_ISR */
 #endif	/* __AVR_ATmega128__ || __AVR_ATmega1281__ */
 
-#ifdef	__AVR_ATmega328__
+#if	( defined (__AVR_ATmega328__) || defined(__AVR_ATmega328P__) )
 /* USART_RX interrupt vector */
 #if defined(EE_AVR8_USART_RX_ISR) && (EE_AVR8_USART_RX_ISR_CAT == 2)
 EE_AVR8_ISR2_DEFINITION(USART_RX_vect, EE_AVR8_USART_RX_ISR)
@@ -361,7 +373,7 @@ EE_AVR8_ISR1_DEFINITION(USART_TX_vect, EE_AVR8_USART_TX_ISR)
 #elif defined(__MCU_EXTENDED_STATUS__)
 EE_AVR8_ISR_NOT_DEFINED(USART_TX_vect)
 #endif /* EE_AVR8_USART_TX_ISR */
-#endif	/* __AVR_ATmega328__ */
+#endif	/* __AVR_ATmega328__ || __AVR_ATmega328P__ */
 
 /* ADC interrupt vector */
 #if defined(EE_AVR8_ADC_ISR) && (EE_AVR8_ADC_ISR_CAT == 2)
@@ -482,7 +494,7 @@ EE_AVR8_ISR1_DEFINITION(SPM_READY_vect, EE_AVR8_SPM_READY_ISR)
 EE_AVR8_ISR_NOT_DEFINED(SPM_READY_vect)
 #endif /* EE_AVR8_SPM_READY_ISR */
 
-#ifdef	__AVR_ATmega328__
+#if	( defined(__AVR_ATmega328__) || defined(__AVR_ATmega328P__) )
 /* TIMER4_CAPT interrupt vector */
 #if defined(EE_AVR8_TIMER4_CAPT_ISR) && (EE_AVR8_TIMER4_CAPT_ISR_CAT == 2)
 EE_AVR8_ISR2_DEFINITION(TIMER4_CAPT_vect, EE_AVR8_TIMER4_CAPT_ISR)
@@ -626,4 +638,4 @@ EE_AVR8_ISR1_DEFINITION(USART3_TX_vect, EE_AVR8_USART3_TX_ISR)
 #elif defined(__MCU_EXTENDED_STATUS__)
 EE_AVR8_ISR_NOT_DEFINED(USART3_TX_vect)
 #endif /* EE_AVR8_USART3_TX_ISR */
-#endif	/* __AVR_ATmega328__ */
+#endif	/* __AVR_ATmega328__ || __AVR_ATmega328P__ */
