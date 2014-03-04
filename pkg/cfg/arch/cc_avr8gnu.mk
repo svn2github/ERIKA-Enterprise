@@ -79,6 +79,10 @@ ifndef	EE_CC
 EE_CC = $(BINDIR)/$(AVR_GCCPREFIX)-gcc
 endif
 
+ifndef	EE_CXX
+EE_CXX = $(BINDIR)/$(AVR_GCCPREFIX)-g++
+endif
+
 ifndef	EE_AR
 EE_AR = $(BINDIR)/$(AVR_GCCPREFIX)-ar
 endif
@@ -109,6 +113,12 @@ endif
 ################################################################################
 
 ## OPT_CC are the options for avr compiler invocation
+ifeq ($(call iseeopt, __ARDUINO_SDK__), yes)
+OPT_CC += -c -g -Os -Wall -fdata-sections -ffunction-sections
+ifneq ($(AVR8_MCU),)
+OPT_CC += -mmcu=$(AVR8_MCU)
+endif	# AVR8_MCU
+else	# __ARDUINO_SDK__
 OPT_CC = -Wall -Winline -w -c
 ifeq ($(call iseeopt, __AVR8_GCC_C99__), yes)
 OPT_CC += -std=gnu99
@@ -128,9 +138,33 @@ OPT_CC += -Werror-implicit-function-declaration -Wmissing-prototypes
 OPT_CC += -Wpointer-arith -Wstrict-prototypes -mrelax
 OPT_CC += -mmcu=$(AVR8_MCU)
 endif	# AVR8_MCU
+endif	# __ARDUINO_SDK__
 # Specific option from the application makefile
 OPT_CC += $(CFLAGS)
 
+## OPT_CXX are the options for avr compiler invocation
+ifeq ($(call iseeopt, __ARDUINO_SDK__), yes)
+OPT_CXX += -c -g -Os -Wall -fdata-sections -ffunction-sections -fno-exceptions
+ifneq ($(AVR8_MCU),)
+OPT_CXX += -mmcu=$(AVR8_MCU)
+endif	# AVR8_MCU
+else	# __ARDUINO_SDK__
+OPT_CXX = -Wall -Winline -w -c
+ifeq ($(call iseeopt, __AVR8_GCC_C99__), yes)
+OPT_CXX += -std=gnu99
+else
+OPT_CXX += -std=c89
+endif
+ifeq ($(call iseeopt, DEBUG), yes)
+OPT_CXX += -gdwarf-2
+endif
+OPT_CXX += -fdata-sections -ffunction-sections
+OPT_CXX += -Werror-implicit-function-declaration
+OPT_CXX += -Wpointer-arith -mrelax
+OPT_CXX += -mmcu=$(AVR8_MCU)
+endif	# __ARDUINO_SDK__
+# Specific option from the application makefile
+OPT_CXX += $(CFLAGS) $(CXXFLAGS)
 
 ## OPT_ASM are the options for avr assembler invocation
 # --gdwarf2     = generate dwarf2 debbugging information for each assembler line
@@ -157,6 +191,12 @@ endif	# AVR8_MCU
 OPT_AR = rcs
 
 # OPT_LINK represents the options for avr linker invocation
+ifeq ($(call iseeopt, __ARDUINO_SDK__), yes)
+OPT_LINK += -Os -Wl,--gc-sections -lm
+ifneq ($(AVR8_MCU),)
+OPT_LINK += -mmcu=$(AVR8_MCU)
+endif	# AVR8_MCU
+else	# __ARDUINO_SDK__
 OPT_LINK = $(LDFLAGS)
 ifneq ($(AVR8_MCU),)
 OPT_LINK += -Wl,--start-group -Wl,--end-group -Wl,--gc-sections
@@ -166,6 +206,7 @@ OPT_LINK += -Wl,--section-start=.BOOT=0x4000
 endif	# ATXMEGA
 OPT_LINK += -mmcu=$(AVR8_MCU)
 endif	# AVR8_MCU
+endif	# __ARDUINO_SDK__
 
 # Defining EEOPT Macros
 # Each identifier that is listed in EEOPT is also inserted as a 
@@ -173,12 +214,14 @@ endif	# AVR8_MCU
 
 DEFS_ASM = $(addprefix -D,$(EEOPT))
 DEFS_CC  = $(addprefix -D,$(EEOPT))
+DEFS_CXX  = $(addprefix -D,$(EEOPT))
 
 ifeq ($(call iseeopt, __BIN_DISTR), yes) 
 # Note: the defines used in EEOPT to compile the library
 # are already added in the eecfg.h
 DEFS_ASM += -D__CONFIG_$(EELIB)__
 DEFS_CC  += -D__CONFIG_$(EELIB)__
+DEFS_CXX  += -D__CONFIG_$(EELIB)__
 endif
 
 # Automatic dependency generation

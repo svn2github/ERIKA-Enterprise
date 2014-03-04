@@ -79,7 +79,11 @@ LIBDEP += $(LDDEPS)
 ifeq ($(findstring atxmega, $(AVR8_MCU)), atxmega)
 TARGET_NAME := $(AVR8_MCU)
 else	# ATXMEGA
+ifeq ($(call iseeopt, __ARDUINO_SDK__), yes)
+TARGET_NAME := arduino
+else	# __ARDUINO_SDK__
 TARGET_NAME := avr
+endif	# __ARDUINO_SDK__
 endif	# ATXMEGA
 
 # Add application file to dependencies
@@ -112,16 +116,34 @@ include $(PKGBASE)/cfg/cfg.mk
 #endif
 
 LIBEESRCS	+= $(EE_SRCS)
-LIBEEOBJS	:= \
-$(addprefix $(OBJDIR)/, $(patsubst %.c,%.o,$(patsubst %.S,%.o,$(LIBEESRCS))))
+LIBEEOBJS	:=							\
+	$(addprefix $(OBJDIR)/,						\
+		$(patsubst %.cpp,%.o,					\
+			$(patsubst %.c,%.o,				\
+				$(patsubst %.S,%.o,$(LIBEESRCS))	\
+			)						\
+		)							\
+	)
 
 LIBEESRCS	+= $(LIB_SRCS)
-LIBOBJS		:= \
-$(addprefix $(OBJDIR)/, $(patsubst %.c,%.o,$(patsubst %.S,%.o,$(LIBSRCS))))
+LIBOBJS		:=							\
+	$(addprefix $(OBJDIR)/,						\
+		$(patsubst %.cpp,%.o,					\
+			$(patsubst %.c,%.o,				\
+				$(patsubst %.S,%.o,$(LIBSRCS))		\
+			)						\
+		)							\
+	)
 
 SRCS		+= $(APP_SRCS)
-OBJS		:= \
-$(addprefix $(OBJDIR)/, $(patsubst %.c,%.o,$(patsubst %.S,%.o, $(SRCS))))
+OBJS		:=							\
+	$(addprefix $(OBJDIR)/,						\
+		$(patsubst %.cpp,%.o,					\
+			$(patsubst %.c,%.o,				\
+				$(patsubst %.S,%.o, $(SRCS))		\
+			)						\
+		)							\
+	)
 
 # Variable used to import dependencies
 ALLOBJS = $(LIBEEOBJS) $(LIBOBJS) $(OBJS) 
@@ -129,10 +151,16 @@ ALLOBJS = $(LIBEEOBJS) $(LIBOBJS) $(OBJS)
 OBJDIRS=$(sort $(dir $(ALLOBJS)))
 
 # Add basic include paths
-INCLUDE_PATH += $(PKGBASE) $(APPBASE) .
+INCLUDE_PATH += $(PKGBASE)
+INCLUDE_PATH += $(shell cygpath $(call short_native_path,$(abspath $(APPBASE))))
+INCLUDE_PATH += .
 
-vpath %.c $(EE_VPATH) $(APPBASE)
-vpath %.S $(EE_VPATH) $(APPBASE)
+vpath %.c	$(EE_VPATH)	\
+		$(shell cygpath $(call short_native_path,$(abspath $(APPBASE))))
+vpath %.S	$(EE_VPATH)	\
+		$(shell cygpath $(call short_native_path,$(abspath $(APPBASE))))
+vpath %.cpp	$(EE_VPATH)	\
+		$(shell cygpath $(call short_native_path,$(abspath $(APPBASE))))
 
 ##
 ## Compute common variables
@@ -143,18 +171,26 @@ COMPUTED_OPT_LINK := $(OPT_LINK)
 COMPUTED_OPT_ASM := $(OPT_ASM)
 COMPUTED_OPT_AR := $(OPT_AR)
 COMPUTED_OPT_CC := $(OPT_CC)
+COMPUTED_OPT_CXX := $(OPT_CXX)
 
 ## Intel Hex file production flags
-ifeq ($(AVR8_MCU),atxmega16d4)
+ifeq ($(findstring atxmega, $(AVR8_MCU)), atxmega)
 FLASH_FLAGS = -R .eeprom -R .fuse -R .lock -R .signature
 EEPROM_FLAGS = -j .eeprom
 EEPROM_FLAGS += --set-section-flags=.eeprom="alloc,load"
 EEPROM_FLAGS += --change-section-lma .eeprom=0 --no-change-warnings
 else	# ATXMEGA
-HEX_FLASH_FLAGS = -R .eeprom
-HEX_EEPROM_FLAGS = -j .eeprom
-HEX_EEPROM_FLAGS += --set-section-flags=.eeprom="alloc,load"
-HEX_EEPROM_FLAGS += --change-section-lma .eeprom=0
+ifeq ($(call iseeopt, __ARDUINO_SDK__), yes)
+FLASH_FLAGS = -R .eeprom
+EEPROM_FLAGS = -j .eeprom
+EEPROM_FLAGS += --set-section-flags=.eeprom="alloc,load"
+EEPROM_FLAGS += --change-section-lma .eeprom=0 --no-change-warnings
+else	# __ARDUINO_SDK__
+FLASH_FLAGS = -R .eeprom
+EEPROM_FLAGS = -j .eeprom
+EEPROM_FLAGS += --set-section-flags=.eeprom="alloc,load"
+EEPROM_FLAGS += --change-section-lma .eeprom=0 --no-change-warnings
+endif	# __ARDUINO_SDK__
 endif	# ATXMEGA
 
 SOURCEFILE = $(call native_path,$<)
@@ -173,11 +209,7 @@ all:: make_directories  $(ALL_LIBS) $(TARGET)
 clean::
 	@printf "CLEAN\n";
 	@-rm -rf *.a *.map *.elf obj
-ifeq ($(AVR8_MCU),atxmega16d4)
 	@-rm -rf *.eep *.hex *.lss *.srec
-else
-	@-rm -rf *.hex *.lss *.srec
-endif
 
 
 #
@@ -185,42 +217,54 @@ endif
 #
 
 
-VERBOSE_PRINTEEP=$(QUIET)printf "EEP  $(EXPERIMENT) $(TARGET_NAME)\\n";
 $(TARGET_NAME).eep: $(TARGET_NAME).elf
 	$(VERBOSE_PRINTEEP) $(EE_OBJCOPY) -O ihex $(EEPROM_FLAGS) \
 	$(SOURCEFILE) $(TARGETFILE)
 
 ifeq ($(findstring atxmega, $(AVR8_MCU)), atxmega)
 
-VERBOSE_PRINTHEX=$(QUIET)printf "HEX  $(EXPERIMENT) $(TARGET_NAME)\\n";
 $(TARGET_NAME).hex: $(TARGET_NAME).elf
 	$(VERBOSE_PRINTHEX) $(EE_OBJCOPY) -O ihex $(FLASH_FLAGS) $(SOURCEFILE) \
 	$(TARGETFILE)
 
-VERBOSE_PRINTLSS=$(QUIET)printf "LSS  $(EXPERIMENT) $(TARGET_NAME)\\n";
 $(TARGET_NAME).lss: $(TARGET_NAME).elf
 	$(VERBOSE_PRINTLSS) $(EE_OBJDUMP) -h -S  $(SOURCEFILE) > $(TARGETFILE)
 
-VERBOSE_PRINTSREC=$(QUIET)printf "SREC $(EXPERIMENT) $(TARGET_NAME)\\n";
 $(TARGET_NAME).srec: $(TARGET_NAME).elf
 	$(VERBOSE_PRINTSREC) $(EE_OBJCOPY) -O srec $(FLASH_FLAGS) \
 	$(SOURCEFILE) $(TARGETFILE)
 
-else
+else	# atxmega
 
-avr.hex: avr.elf
-	@printf "HEX\n";
-	$(QUIET)$(EE_OBJCOPY) -O ihex $(HEX_FLASH_FLAGS) $(SOURCEFILE) $(TARGETFILE)
+ifeq ($(call iseeopt, __ARDUINO_SDK__), yes)
 
-avr.lss: avr.elf
-	@printf "LSS\n";
-	$(QUIET)$(EE_OBJDUMP) -h -D  $(SOURCEFILE) > $(TARGETFILE)
+$(TARGET_NAME).hex: $(TARGET_NAME).elf
+	$(VERBOSE_PRINTHEX) $(EE_OBJCOPY) -O ihex $(FLASH_FLAGS) $(SOURCEFILE) \
+	$(TARGETFILE)
 
-avr.srec: avr.hex
-	@printf "SREC\n";
-	$(QUIET)$(EE_OBJCOPY) --output-target=srec avr.hex avr.srec
+$(TARGET_NAME).lss: $(TARGET_NAME).elf
+	$(VERBOSE_PRINTLSS) $(EE_OBJDUMP) -h -S  $(SOURCEFILE) > $(TARGETFILE)
 
-endif
+$(TARGET_NAME).srec: $(TARGET_NAME).elf
+	$(VERBOSE_PRINTSREC) $(EE_OBJCOPY) -O srec $(FLASH_FLAGS) \
+	$(SOURCEFILE) $(TARGETFILE)
+
+else	# __ARDUINO_SDK__
+
+$(TARGET_NAME).hex: $(TARGET_NAME).elf
+	$(VERBOSE_PRINTHEX) $(EE_OBJCOPY) -O ihex $(FLASH_FLAGS) \
+	$(SOURCEFILE) $(TARGETFILE)
+
+$(TARGET_NAME).lss: $(TARGET_NAME).elf
+	$(VERBOSE_PRINTLSS) $(EE_OBJDUMP) -h -D  $(SOURCEFILE) > $(TARGETFILE)
+
+$(TARGET_NAME).srec: $(TARGET_NAME).hex
+	$(VERBOSE_PRINTSREC) $(EE_OBJCOPY) --output-target=srec \
+	$(TARGET_NAME).hex $(TARGET_NAME).srec
+
+endif	# __ARDUINO_SDK__
+
+endif	# atxmega
 
 
 ##
@@ -228,7 +272,6 @@ endif
 ##
 
 
-VERBOSE_PRINTLD=$(QUIET)printf "LD   $(EXPERIMENT) $(TARGET_NAME)\\n";
 $(TARGET_NAME).elf: $(OBJS) $(LIBDEP)
 	$(VERBOSE_PRINTLD) $(EE_LINK) $(COMPUTED_OPT_LINK) $(OBJS) \
 	-o $(TARGETFILE) $(OPT_LIBS) -Wl,-Map=$(TARGET_NAME).map
@@ -244,15 +287,18 @@ $(OBJDIR)/%.o: %.c
 	$(COMPUTED_OPT_CC) $(DEPENDENCY_OPT) -o $(TARGETFILE) $(SOURCEFILE)
 	$(QUIET)$(call make-depend, $(subst .o,.d,$(@)))
 
+$(OBJDIR)/%.o: %.cpp
+	$(VERBOSE_PRINTCXX) $(EE_CXX) $(DEFS_CXX) $(COMPUTED_ALLINCPATH) \
+	$(COMPUTED_OPT_CXX) $(DEPENDENCY_OPT) -o $(TARGETFILE) $(SOURCEFILE)
+	$(QUIET)$(call make-depend, $(subst .o,.d,$(@)))
 
 ##
 ## EE Library
 ##
 
 
-VERBOSE_PRINTAR=$(QUIET)printf "AR   $(EXPERIMENT) $(ERIKALIB_NAME)\\n";
 $(ERIKALIB): $(LIBEEOBJS)
-	$(VERBOSE_PRINTAR) $(EE_AR) $(COMPUTED_OPT_AR) $(ERIKALIB) $(LIBEEOBJS)
+	$(VERBOSE_PRINTAR) $(EE_AR) $(COMPUTED_OPT_AR) $@ $^
 
 
 ##
