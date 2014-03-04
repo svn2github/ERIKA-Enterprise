@@ -59,6 +59,9 @@ VERBOSE_PRINTCPP=$(QUIET)printf "CPP  $(EXPERIMENT) $(notdir $<)\\n";
 VERBOSE_PRINTASM=$(QUIET)printf "ASM  $(EXPERIMENT) $(notdir $<)\\n";
 VERBOSE_PRINTPRE=$(QUIET)printf "PRE  $(EXPERIMENT) $(notdir $<)\\n";
 
+VERBOSE_PRINTCXX=$(QUIET)printf "CXX  $(EXPERIMENT) $(notdir $<)\\n";
+VERBOSE_PRINTLD= $(QUIET)printf "LD   $(EXPERIMENT) $(notdir $@)\\n";
+VERBOSE_PRINTAR= $(QUIET)printf "AR   $(EXPERIMENT) $(notdir $@)\\n";
 
 #
 # ST_Janus related
@@ -77,3 +80,12 @@ VERBOSE_PRINTTCC1=$(QUIET)printf "1 TCC $(notdir $<)\\n";
 VERBOSE_PRINTCPP1=$(QUIET)printf "1 CPP $(notdir $<)\\n";
 VERBOSE_PRINTASM1=$(QUIET)printf "1 ASM $(notdir $<)\\n";
 VERBOSE_PRINTPRE1=$(QUIET)printf "1 PRE $(notdir $<)\\n";
+
+#
+# AVR8 related
+#
+
+VERBOSE_PRINTEEP= $(QUIET)printf "EEP  $(EXPERIMENT) $(notdir $<)\\n";
+VERBOSE_PRINTHEX= $(QUIET)printf "HEX  $(EXPERIMENT) $(notdir $<)\\n";
+VERBOSE_PRINTLSS= $(QUIET)printf "LSS  $(EXPERIMENT) $(notdir $<)\\n";
+VERBOSE_PRINTSREC=$(QUIET)printf "SREC $(EXPERIMENT) $(notdir $<)\\n";
