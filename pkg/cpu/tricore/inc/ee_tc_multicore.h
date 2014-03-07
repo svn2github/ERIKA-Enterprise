@@ -144,6 +144,8 @@ __INLINE__ EE_TYPECOREID __ALWAYS_INLINE__ EE_tc_get_core_id( void )
  ******************************************************************************/
 #define EE_hal_get_core_id() EE_tc_get_core_id()
 
+/* Value that have to be write to DBGSR to put the Core on RUN at reset time */
+#define EE_RESET_DBGSR_HALT 2
 /** @brief start the core represented by id param from start_up_addr */
 __INLINE__ void __ALWAYS_INLINE__ EE_tc_start_core( EE_TYPECOREID core_id,
     EE_ADDR start_up_addr)
@@ -155,10 +157,12 @@ __INLINE__ void __ALWAYS_INLINE__ EE_tc_start_core( EE_TYPECOREID core_id,
     break;
     case OS_CORE_ID_1:
       CPU1_PC.U = (EE_UINT32)start_up_addr;
+      CPU1_DBGSR.B.HALT = EE_RESET_DBGSR_HALT;
     break;
 #if (EE_NUMBER_OF_CORES > 2)
     case OS_CORE_ID_2:
       CPU2_PC.U = (EE_UINT32)start_up_addr;
+      CPU2_DBGSR.B.HALT = EE_RESET_DBGSR_HALT;
     break;
 #endif /* EE_NUMBER_OF_CORES > 2 */
     default:
