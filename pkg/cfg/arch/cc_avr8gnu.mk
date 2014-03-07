@@ -114,7 +114,7 @@ endif
 
 ## OPT_CC are the options for avr compiler invocation
 ifeq ($(call iseeopt, __ARDUINO_SDK__), yes)
-OPT_CC += -c -g -Os -Wall -fdata-sections -ffunction-sections
+OPT_CC += -c -g -Os -w -fdata-sections -ffunction-sections
 ifneq ($(AVR8_MCU),)
 OPT_CC += -mmcu=$(AVR8_MCU)
 endif	# AVR8_MCU
@@ -144,7 +144,7 @@ OPT_CC += $(CFLAGS)
 
 ## OPT_CXX are the options for avr compiler invocation
 ifeq ($(call iseeopt, __ARDUINO_SDK__), yes)
-OPT_CXX += -c -g -Os -Wall -fdata-sections -ffunction-sections -fno-exceptions
+OPT_CXX += -c -g -Os -w -fdata-sections -ffunction-sections -fno-exceptions
 ifneq ($(AVR8_MCU),)
 OPT_CXX += -mmcu=$(AVR8_MCU)
 endif	# AVR8_MCU
@@ -192,7 +192,7 @@ OPT_AR = rcs
 
 # OPT_LINK represents the options for avr linker invocation
 ifeq ($(call iseeopt, __ARDUINO_SDK__), yes)
-OPT_LINK += -Os -Wl,--gc-sections -lm
+OPT_LINK += -Os -Wl,--gc-sections
 ifneq ($(AVR8_MCU),)
 OPT_LINK += -mmcu=$(AVR8_MCU)
 endif	# AVR8_MCU

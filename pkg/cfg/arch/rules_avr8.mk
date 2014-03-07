@@ -271,11 +271,21 @@ endif	# atxmega
 ## ELF file creation
 ##
 
+ifeq ($(call iseeopt, __ARDUINO_SDK__), yes)
+
+$(TARGET_NAME).elf: $(OBJS) $(LIBDEP)
+	$(VERBOSE_PRINTLD) $(EE_LINK) $(COMPUTED_OPT_LINK) $(OBJS) \
+	-o $(TARGETFILE) $(OPT_LIBS) -Wl,-Map=$(TARGET_NAME).map -lm
+	$(QUIET)$(EE_SIZE) $(TARGETFILE)
+
+else	# __ARDUINO_SDK__
 
 $(TARGET_NAME).elf: $(OBJS) $(LIBDEP)
 	$(VERBOSE_PRINTLD) $(EE_LINK) $(COMPUTED_OPT_LINK) $(OBJS) \
 	-o $(TARGETFILE) $(OPT_LIBS) -Wl,-Map=$(TARGET_NAME).map
 	$(QUIET)$(EE_SIZE) $(TARGETFILE)
+
+endif	# __ARDUINO_SDK__
 
 $(OBJDIR)/%.o: %.S
 	$(VERBOSE_PRINTASM) $(EE_ASM) $(DEFS_ASM) $(COMPUTED_ALLINCPATH) \
