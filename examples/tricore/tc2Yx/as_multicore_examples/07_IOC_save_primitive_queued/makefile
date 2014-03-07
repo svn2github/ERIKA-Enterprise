@@ -45,18 +45,6 @@
 export OUTPUT_DIR = Output
 
 # Check the environment and use reasonable defaults
-ifndef ERIKA_FILES
-export ERIKA_FILES := $(abspath ../../../../..)
-else
-export ERIKA_FILES := $(subst \,/,$(ERIKA_FILES))
-endif
-
-ifndef RTDRUID_ECLIPSE_HOME
-RTDRUID_ECLIPSE_HOME := C:/Evidence/eclipse
-else
-RTDRUID_ECLIPSE_HOME := $(subst \,/,$(RTDRUID_ECLIPSE_HOME))
-endif
-
 ifndef RTDRUID_SCRIPT_DIR
 RTDRUID_SCRIPT_DIR := $(RTDRUID_ECLIPSE_HOME)/evidence
 endif
