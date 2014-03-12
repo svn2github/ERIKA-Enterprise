@@ -59,6 +59,10 @@
 /* I need AVR Sleep */
 #include <avr/sleep.h>
 
+#ifndef	EE_TYPEPRIO
+#define	EE_TYPEPRIO	EE_UREG
+#endif
+
 /*
  * ISR Priorities.
 */
