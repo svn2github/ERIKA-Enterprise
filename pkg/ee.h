@@ -419,6 +419,11 @@ extern "C" {
 #include "kernel/frsh/inc/ee_kernel.h"
 #endif
 
+/* HR */
+#ifdef __HR__
+#include "kernel/hr/inc/ee_kernel.h"
+#endif
+
 /* OO */
 #if defined(__OO_BCC1__) || defined(__OO_BCC2__) || defined(__OO_ECC1__) ||\
   defined(__OO_ECC2__) || defined(__AS_SC4__)

@@ -355,6 +355,10 @@ extern "C" {
 #include "kernel/frsh/inc/ee_internal.h"
 #endif
 
+#ifdef __HR__
+#include "kernel/hr/inc/ee_internal.h"
+#endif
+
 #if defined(__OO_BCC1__) || defined(__OO_BCC2__) || defined(__OO_ECC1__) ||\
   defined(__OO_ECC2__)
 /* API prototypes should be visible when defining API functions */

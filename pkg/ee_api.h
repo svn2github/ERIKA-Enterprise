@@ -111,6 +111,10 @@
 #include "kernel/frsh/inc/ee_api.h"
 #endif
 
+#ifdef __HR__
+#include "kernel/hr/inc/ee_api.h"
+#endif
+
   /*
    *
    * Com
