@@ -50,6 +50,13 @@ EE_VPATH += $(PKGBASE)/mcu/altera_nios2/src
 EE_SRCS += ee_nios2_timers.c
 endif
 
+ifeq ($(call iseeopt, __HR__), yes)
+# directory name containing the sources
+EE_VPATH += $(PKGBASE)/mcu/altera_nios2/src
+
+EE_SRCS += ee_nios2_timers.c
+endif
+
 # typically empty, the crt0.S function is typically provided by the
 # ASM30 Assembler
 # EE_BOOT_SRCS +=

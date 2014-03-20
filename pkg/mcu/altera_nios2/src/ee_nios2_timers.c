@@ -40,6 +40,7 @@
 
 /*
  * Author: 2006 Paolo Gai
+ * Edited to support HR kernel by Alessandro Biondi (2013)
  * CVS: $Id: ee_mcu.h,v 1.2 2008/07/24 14:26:55 francesco Exp $
  */
 
@@ -47,7 +48,25 @@
 #include "system.h"
 #include "ee_internal.h"
 
+#if defined(__FRSH__) || defined(__HR__)
+
 #if defined(__FRSH__)
+	#define EE__IRQ_budget EE_frsh_IRQ_budget
+	#define EE__IRQ_timer_multiplexer EE_frsh_IRQ_timer_multiplexer
+	#define EE__IRQ_recharging EE_frsh_IRQ_recharging
+	#define EE__IRQ_dlcheck EE_frsh_IRQ_dlcheck
+	#define EE__set_dline_timer EE_frsh_set_dline_timer
+#endif
+
+#if defined(__HR__)
+	#define EE__IRQ_budget EE_hr_IRQ_budget
+	#define EE__IRQ_timer_multiplexer EE_hr_IRQ_timer_multiplexer
+	#define EE__IRQ_recharging EE_hr_IRQ_recharging
+	#define EE__IRQ_dlcheck EE_hr_IRQ_dlcheck
+	#define EE__set_dline_timer EE_hr_set_dline_timer
+#endif
+
+
 
 #ifndef __PRIVATE_IRQ_SYNCHOBJ_TIMEOUT__
 void EE_frsh_IRQ_synchobj_timeout(void);
@@ -89,16 +108,16 @@ void EE_nios2_IRQ_budget(void* context, alt_u32 id)
   /* clear the interrupt */
   IOWR_ALTERA_AVALON_TIMER_STATUS (TIMER_CAPACITY_BASE, 0);
 
-#ifndef __FRSH_SINGLEIRQ__ 
-  EE_frsh_IRQ_budget();
+#if !defined(__FRSH_SINGLEIRQ__) || !defined(__HR_SINGLEIRQ__)
+  EE__IRQ_budget();
 #else
-  EE_frsh_IRQ_timer_multiplexer();
+  EE__IRQ_timer_multiplexer();
 #endif
 }
 #endif
 
 
-#ifndef __FRSH_SINGLEIRQ__ 
+#if !defined(__FRSH_SINGLEIRQ__) || !defined(__HR_SINGLEIRQ__)
 // the other three IRQ sources are available only when 4 timers are available
 
 #ifndef __PRIVATE_NIOS2_IRQ_RECHARGING__
@@ -107,7 +126,7 @@ void EE_nios2_IRQ_recharging(void* context, alt_u32 id)
   /* clear the interrupt */
   IOWR_ALTERA_AVALON_TIMER_STATUS (TIMER_RECHARGING_BASE, 0);
 
-  EE_frsh_IRQ_recharging();
+  EE__IRQ_recharging();
 }
 #endif
 
@@ -118,7 +137,7 @@ void EE_nios2_IRQ_dlcheck(void* context, alt_u32 id)
   /* clear the interrupt */
   IOWR_ALTERA_AVALON_TIMER_STATUS (TIMER_DLCHECK_BASE, 0);
 
-  EE_frsh_IRQ_dlcheck();
+  EE__IRQ_dlcheck();
 }
 #endif
 
@@ -140,8 +159,16 @@ void EE_nios2_IRQ_synchobj_timeout(void* context, alt_u32 id)
 /* This function is used to initialize the two timers used for 
  * budget exaustion and for the recharging queue
  */
-#ifndef __PRIVATE_FRSH_TIME_INIT__
+ 
+#if !defined(__PRIVATE_HR_TIME_INIT__) || !defined(__PRIVATE_HR_TIME_INIT__)
+ 
+#if defined(__FRSH__)
 void EE_frsh_time_init(void)
+#endif
+
+#if defined(__HR__) 
+void EE_hr_time_init(void)
+#endif
 {
   IOWR_ALTERA_AVALON_TIMER_PERIODH(TIMER_CAPACITY_BASE, 0xFFFF);
   IOWR_ALTERA_AVALON_TIMER_PERIODL(TIMER_CAPACITY_BASE, 0xFFFF);
@@ -152,7 +179,7 @@ void EE_frsh_time_init(void)
 
   alt_irq_register (TIMER_CAPACITY_IRQ, NULL, EE_nios2_IRQ_budget);    
 
-#ifndef __FRSH_SINGLEIRQ__  
+#if !defined(__FRSH_SINGLEIRQ__) || !defined(__HR_SINGLEIRQ__)
   IOWR_ALTERA_AVALON_TIMER_PERIODH(TIMER_RECHARGING_BASE, 0xFFFF);
   IOWR_ALTERA_AVALON_TIMER_PERIODL(TIMER_RECHARGING_BASE, 0xFFFF);
   IOWR_ALTERA_AVALON_TIMER_CONTROL (TIMER_RECHARGING_BASE, 
@@ -184,8 +211,8 @@ void EE_frsh_time_init(void)
 
   EE_hal_set_nios2_timer(TIMER_DLCHECK_BASE, 0xffff);  
 #else
-  // only a single timer available. Program the deadline timer with the FRSH function...
-  EE_frsh_set_dline_timer(0xffff);
+  // only a single timer available. Program the deadline timer...
+  EE__set_dline_timer(0xffff);
 #endif
 }
 #endif

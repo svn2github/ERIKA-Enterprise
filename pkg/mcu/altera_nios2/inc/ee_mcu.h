@@ -103,5 +103,8 @@ EE_TIME EE_hal_gettime(void);
 void EE_frsh_time_init(void);
 #endif
 
+#if defined(__HR__)
+void EE_hr_time_init(void);
+#endif
 
 #endif  // initial include
