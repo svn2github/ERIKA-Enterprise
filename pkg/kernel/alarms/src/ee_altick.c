@@ -137,22 +137,38 @@ EE_RN_TASK, par);
 
 
 
-#if defined (__FRSH__)
+#if defined (__FRSH__) || defined(__HR__)
+
 	    {
 	      register EE_TIME tmp_time;
 	      tmp_time = EE_hal_gettime();
+	  
+		  
 	      if (EE_th[t].nact == 0) {
+#ifdef __HR__			  
+		  if(EE_ct[EE_th[t].vres].sched_algo==EE_SCHED_EDF)
+			EE_th[t].absdline = tmp_time+EE_th[t].reldline;
+			
+		  if (EE_hr_updatecapacity(t, tmp_time) == EE_UC_InsertRDQueue){
+#else
 		if (EE_frsh_updatecapacity(t, tmp_time) == EE_UC_InsertRDQueue){
+#endif
 		  EE_rq_insert(t);
 		}
+#ifdef __HR__			  
+		else { // EE_UC_InsertedRCGQueue
+			EE_insert_in_vres(t);
+        }
+		EE_vres[EE_th[t].vres].act_tasks++;
+#endif		
 		EE_th[t].status = EE_TASK_READY;
 	      } 
 	      EE_th[t].nact++;
 	    }
 #else
-	    if (EE_th_nact[t] == (EE_TYPENACT)0U) {
+	   if (EE_th_nact[t] == (EE_TYPENACT)0U) {
 #ifdef __EDF__
-	      /* compute the deadline */
+	      // compute the deadline 
 	      EE_th_absdline[t] = EE_hal_gettime()+EE_th_reldline[t];
 #endif
 #if defined(__MULTI__) || defined(__WITH_STATUS__)
