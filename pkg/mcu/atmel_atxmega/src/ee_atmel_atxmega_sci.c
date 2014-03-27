@@ -1188,7 +1188,7 @@ EE_Sci_WriteTxData(
 
 #endif	/* __SCI_EXTENDED_STATUS__ */
 
-#ifndef	__SCI_WRITETXDATA__NTS__
+#ifndef	__SCI_WRITETXDATA_NTS__
   /* Suspend IRQs */
   flags = EE_hal_suspendIRQ();
 #endif
@@ -1197,7 +1197,7 @@ EE_Sci_WriteTxData(
 
 #ifdef	__SCI_EXTENDED_STATUS__
 
-#ifndef	__SCI_WRITETXDATA__NTS__
+#ifndef	__SCI_WRITETXDATA_NTS__
   EE_ATXMEGA_VALIDATE_IRQ_W_RV(
     ( EE_Sci_Status[Channel].Flags & EE_SCI_INIT_MASK ),
     E_NOT_OK,

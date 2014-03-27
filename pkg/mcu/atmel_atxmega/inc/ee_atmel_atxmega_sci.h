@@ -80,13 +80,8 @@
  * SCI Channels Definition
  */
 
-#ifdef	__SCI_CHANNEL_C_0__
 #define	EE_SCI_CHANNEL_C_0	0x00U	/**< USARTC0 */
-#endif	/* __SCI_CHANNEL_C_0__ */
-
-#ifdef	__SCI_CHANNEL_D_0__
 #define	EE_SCI_CHANNEL_D_0	0x01U	/**< USARTD0 */
-#endif	/* __SCI_CHANNEL_D_0__ */
 
 /*
  * SCI Configuration Flags.
