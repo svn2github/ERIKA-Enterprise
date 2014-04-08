@@ -119,8 +119,10 @@ CPU test_application {
 	};
 
 	ISR timer_interrupt {
-		CATEGORY = 2;
-		ENTRY = "DECREMENTER";
+        CATEGORY = 2;
+		PRIORITY = 3;   // this is required by RT-druid but it is ignored
+		ENTRY = "DECREMENTER";   // Decrementer
+        CPU_ID = "master";
 	};
 
 };
