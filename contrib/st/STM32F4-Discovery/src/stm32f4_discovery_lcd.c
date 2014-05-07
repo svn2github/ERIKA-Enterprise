@@ -678,6 +678,185 @@ void LCD_Clear(uint16_t Color)
 }
 
 /**
+  * @brief  Clears the hole LCD.
+  * @param  Color: the color of the background.
+  * @retval None
+  */
+  /*
+void LCD_DrawPicture(uint16_t startX, uint16_t startY, uint16_t width, uint16_t height, uint8_t* picture)
+{
+  uint32_t index = startY*LCD_PIXEL_WIDTH + startX;
+  uint32_t picIndex = 0;
+  uint8_t firstPart, secondPart;
+  uint16_t lastX = startX + width;
+  uint16_t lastY = startY + height;
+  uint16_t x = startX;
+  uint16_t y = startY;
+  uint16_t pixel;
+  
+  LCD_SetCursor(startX, startY); 
+  LCD_WriteRAM_Prepare(); 
+  while(y <= lastY)
+  {
+		firstPart = picture[picIndex];
+		picIndex++;
+		secondPart = picture[picIndex];
+		pixel = secondPart>>8;
+		pixel = firstPart | pixel;
+		LCD_Data = pixel;
+		if(x == lastX){
+			x = startX;
+			y++;
+			index = y*LCD_PIXEL_WIDTH + startX;
+			LCD_SetCursor(x, y);
+			LCD_WriteRAM_Prepare(); 
+		}
+		else{
+			x++;
+			index++;
+		}
+		picIndex++;
+  }  
+}*/
+
+void LCD_DrawPicture(uint16_t startX, uint16_t startY, uint16_t width, uint16_t height, uint8_t* picture)
+{
+  uint16_t lastX = startX + (width - 1);
+  uint16_t lastY = startY + (height - 1);
+  uint16_t x = startX;
+  uint16_t y = lastY, oldY = y;
+  //uint16_t size = width * height;
+  //uint16_t size = 153654;
+  uint32_t index = 0;
+  /* Get bitmap data address offset */
+  index = *(__IO uint16_t *) (picture + 10);
+  index |= (*(__IO uint16_t *) (picture + 12)) << 16;
+  picture += index;
+  
+  uint16_t *pointer = (uint16_t *)picture;
+  //pointer += size;
+  //LCD_SetCursor(LCD_PIXEL_WIDTH - startX - 1, LCD_PIXEL_HEIGHT - startY - 1); 
+  LCD_SetCursor(startX, lastY); 
+  LCD_WriteRAM_Prepare(); 
+  do
+  {
+		LCD_WriteRAM_Prepare(); 
+		LCD_Data = *pointer;
+		if(x == lastX){
+			x = startX;
+			oldY = y;
+			y--;
+			//LCD_WriteRAM_Prepare(); 
+		}
+		else{
+			x++;
+		}
+		LCD_SetCursor(x , y);
+		pointer++;
+  }  
+  while(oldY != startY);
+}
+/* BACKUP
+void LCD_DrawPicture(uint16_t startX, uint16_t startY, uint16_t width, uint16_t height, uint8_t* picture)
+{
+  uint16_t lastX = startX + (width - 1);
+  uint16_t lastY = startY + (height - 1);
+  uint16_t x = lastX;
+  uint16_t y = startY;
+  //uint16_t size = width * height;
+  //uint16_t size = 153654;
+  uint32_t index = 0;
+
+  index = *(__IO uint16_t *) (picture + 10);
+  index |= (*(__IO uint16_t *) (picture + 12)) << 16;
+  picture += index;
+  
+  uint16_t *pointer = (uint16_t *)picture;
+  //pointer += size;
+  LCD_SetCursor(LCD_PIXEL_WIDTH - startX, LCD_PIXEL_HEIGHT - startY); 
+  LCD_WriteRAM_Prepare(); 
+  while(y <= lastY)
+  {
+		LCD_WriteRAM_Prepare(); 
+		LCD_Data = *pointer;
+		if(x == startX){
+			x = lastX;
+			y++;
+			LCD_WriteRAM_Prepare(); 
+		}
+		else{
+			x--;
+		}
+		LCD_SetCursor(LCD_PIXEL_WIDTH - x, LCD_PIXEL_HEIGHT - y);
+		pointer++;
+  }  
+}
+*/
+
+
+/*
+void LCD_DrawPicture(uint16_t startX, uint16_t startY, uint16_t width, uint16_t height, uint8_t* picture)
+{
+  uint16_t lastX = startX + (width - 1);
+  uint16_t lastY = startY + (height - 1);
+  uint16_t x = startX;
+  uint16_t y = startY;
+  uint16_t *pointer = (uint16_t *)picture;
+  uint32_t index = &picture;
+  index += 10;
+  uint32_t temp = &picture;
+  temp += 12;
+  temp = temp<<16;
+  index |= temp;
+  //size = (size - index)/2;
+  pointer += index;
+  //LCD_WriteRAM_Prepare(); 
+  while(y <= lastY)
+  {
+		LCD_SetTextColor(*pointer);
+		PutPixel(x, y);
+		//LCD_Data = *pointer;
+		if(x == lastX){
+			x = startX;
+			y++;
+			//LCD_WriteRAM_Prepare(); 
+		}
+		else{
+			x++;
+		}
+		//LCD_SetCursor(x, y);
+		pointer++;
+  }  
+}*/
+/*
+void LCD_DrawPicture(uint16_t startX, uint16_t startY, uint16_t width, uint16_t height, uint8_t* picture)
+{
+  uint16_t lastX = startX + width;
+  uint16_t lastY = startY + height;
+  uint16_t x = 0;
+  uint16_t y = 0;
+  uint16_t *pointer = (uint16_t *)picture;
+  
+  LCD_SetCursor(0x00, 0x00); 
+  LCD_WriteRAM_Prepare(); 
+  while(y < LCD_PIXEL_HEIGHT)
+  {
+		if(x >=  startX && x<= lastX && y>= startY && y<= lastY){
+			LCD_WriteRAM_Prepare(); 
+			LCD_Data = *pointer;
+			pointer++;
+		}
+		
+		if(x == LCD_PIXEL_WIDTH - 1){
+			x = 0;
+			y++;
+		}
+		else{
+			x++;
+		}
+  }  
+}*/
+/**
   * @brief  Displays a pixel.
   * @param  x: pixel x.
   * @param  y: pixel y.  
@@ -779,6 +958,7 @@ void LCD_DisplayStringLine(uint16_t Line, uint8_t *ptr)
   * @param  Width: display window Height.
   * @retval None
   */
+  /*
 void LCD_SetDisplayWindow(uint16_t Xpos, uint16_t Ypos, uint16_t width, uint16_t Height)
 {
   uint32_t value = 0;	
@@ -799,6 +979,29 @@ void LCD_SetDisplayWindow(uint16_t Xpos, uint16_t Ypos, uint16_t width, uint16_t
   value |= Xpos;
   LCD_WriteReg(SSD2119_V_RAM_POS_REG, value);
   LCD_SetCursor(Xpos, Ypos);
+}*/
+
+void LCD_SetDisplayWindow(uint16_t Xpos, uint16_t Ypos, uint16_t Height, uint16_t Width)
+{
+  if(Xpos >= Height)
+  {
+    LCD_WriteReg(0x0044, (Xpos - Height +1));
+  }
+  else
+  {
+    LCD_WriteReg(0x0044, 0x0000);
+  }
+  if(Ypos >= Width)
+  {
+    LCD_WriteReg(0x0045, (Ypos - Width +1));
+  } 
+  else
+  {
+    LCD_WriteReg(0x0045, 0x0000);
+  }
+  LCD_WriteReg(0x0046, Ypos);
+  LCD_SetCursor(Xpos, Ypos);
+ 
 }
 
 /**
@@ -810,7 +1013,7 @@ void LCD_WindowModeDisable(void)
 {
 #if 0
   LCD_SetDisplayWindow(239, 0x13F, 240, 320);
-  LCD_WriteReg(LCD_REG_3, 0x1018);    
+  LCD_WriteReg(LCD_REG_3, 0x1018);  
 #endif
 }
 
@@ -863,6 +1066,24 @@ void LCD_DrawRect(uint16_t Xpos, uint16_t Ypos, uint8_t Height, uint16_t Width)
   
   LCD_DrawLine(Xpos, Ypos, Height, LCD_DIR_HORIZONTAL);
   LCD_DrawLine(Xpos, (Ypos + Width), Height, LCD_DIR_HORIZONTAL);
+}
+
+/**
+  * @brief  Displays a filled circle.
+  * @param  Xpos: 				specifies the X position.
+  * @param  Ypos: 				specifies the Y position.
+  * @param  Radius				
+  * @param  BorderColor:		specifies the color of the circle
+  * @param  BackgroundColor:	specifies the color of the filling
+  * @retval None
+  */
+void LCD_DrawFilledCircle(uint16_t Xpos, uint16_t Ypos, uint16_t Radius, uint16_t BorderColor, uint16_t BackgroundColor){
+	LCD_SetTextColor(BorderColor);
+	LCD_DrawCircle(Xpos, Ypos, Radius--);
+	LCD_SetTextColor(BackgroundColor);
+	PutPixel(Xpos, Ypos);
+	while(Radius != 0)
+		LCD_DrawCircle(Xpos, Ypos, Radius--);
 }
 
 /**
@@ -954,7 +1175,7 @@ void LCD_DrawMonoPict(const uint32_t *Pict)
   */
 void LCD_WriteBMP(uint32_t BmpAddress)
 {
-#if 0
+#if 1
   uint32_t index = 0, size = 0;
   /* Read bitmap size */
   size = *(__IO uint16_t *) (BmpAddress + 2);
@@ -982,6 +1203,48 @@ void LCD_WriteBMP(uint32_t BmpAddress)
   /* AM = 1 (address is updated in vertical writing direction) */
   LCD_WriteReg(LCD_REG_3, 0x1018);
 #endif
+}
+
+/**
+  * @brief  Displays a filled rectangle.
+  * @param  X_tl: 				specifies the X top left corner position.
+  * @param  Y_tl: 				specifies the Y top left corner position.
+  * @param  X_br: 				specifies the X bottom right corner position.
+  * @param  Y_br: 				specifies the Y bottom right corner position.
+  * @param  BorderColor:		specifies the color of the circle
+  * @param  BackgroundColor:	specifies the color of the filling
+  * @retval None
+  */
+void LCD_DrawFilledRect(uint16_t X_tl, uint16_t Y_tl, uint16_t X_br, uint16_t Y_br, uint16_t BorderColor, uint16_t BackgroundColor)
+{
+	LCD_SetTextColor(BorderColor);
+	LCD_DrawUniLine(X_tl,
+					Y_tl,
+					X_br,
+					Y_tl);
+	LCD_DrawUniLine(X_tl,
+					Y_tl,
+					X_tl,
+					Y_br);
+	LCD_DrawUniLine(X_br,
+					Y_tl,
+					X_br,
+					Y_br);
+	LCD_DrawUniLine(X_br,
+					Y_br,
+					X_tl,
+					Y_br);		
+	LCD_SetTextColor(BackgroundColor);
+	X_tl++;
+	Y_tl++;
+	Y_br--;
+	while(X_tl != X_br ){
+		LCD_DrawUniLine(X_tl,
+						Y_tl,
+						X_tl,
+						Y_br);
+		X_tl++;
+	}
 }
 
 /**
@@ -1014,6 +1277,30 @@ void LCD_DrawFullRect(uint16_t Xpos, uint16_t Ypos, uint16_t Width, uint16_t Hei
 
   LCD_SetTextColor(TextColor);
 }
+
+/*
+void LCD_DrawFilledRect(uint16_t Xpos, uint16_t Ypos, uint16_t Width, uint16_t Height)
+{
+  LCD_SetTextColor(TextColor);
+
+  LCD_DrawLine(Xpos, Ypos, Width, LCD_DIR_HORIZONTAL);
+  LCD_DrawLine(Xpos, (Ypos+Height), Width, LCD_DIR_HORIZONTAL);
+  
+  LCD_DrawLine(Xpos, Ypos, Height, LCD_DIR_VERTICAL);
+  LCD_DrawLine((Xpos+Width-1), Ypos, Height, LCD_DIR_VERTICAL);
+
+  Height--;
+  Ypos++;
+
+  LCD_SetTextColor(BackColor);
+
+  while(Height--)
+  {
+    LCD_DrawLine(Xpos, Ypos++, Width, LCD_DIR_HORIZONTAL);    
+  }
+
+  LCD_SetTextColor(TextColor);
+}*/
 
 /**
   * @brief  Displays a full circle.
