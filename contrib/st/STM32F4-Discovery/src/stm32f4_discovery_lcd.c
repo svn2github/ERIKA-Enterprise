@@ -677,49 +677,18 @@ void LCD_Clear(uint16_t Color)
   }  
 }
 
-/**
-  * @brief  Clears the hole LCD.
-  * @param  Color: the color of the background.
-  * @retval None
-  */
-  /*
-void LCD_DrawPicture(uint16_t startX, uint16_t startY, uint16_t width, uint16_t height, uint8_t* picture)
-{
-  uint32_t index = startY*LCD_PIXEL_WIDTH + startX;
-  uint32_t picIndex = 0;
-  uint8_t firstPart, secondPart;
-  uint16_t lastX = startX + width;
-  uint16_t lastY = startY + height;
-  uint16_t x = startX;
-  uint16_t y = startY;
-  uint16_t pixel;
-  
-  LCD_SetCursor(startX, startY); 
-  LCD_WriteRAM_Prepare(); 
-  while(y <= lastY)
-  {
-		firstPart = picture[picIndex];
-		picIndex++;
-		secondPart = picture[picIndex];
-		pixel = secondPart>>8;
-		pixel = firstPart | pixel;
-		LCD_Data = pixel;
-		if(x == lastX){
-			x = startX;
-			y++;
-			index = y*LCD_PIXEL_WIDTH + startX;
-			LCD_SetCursor(x, y);
-			LCD_WriteRAM_Prepare(); 
-		}
-		else{
-			x++;
-			index++;
-		}
-		picIndex++;
-  }  
-}*/
 
-void LCD_DrawPicture(uint16_t startX, uint16_t startY, uint16_t width, uint16_t height, uint8_t* picture)
+/**
+ * @brief  Displays a picture.
+ * @param  startX: starting point x coordinate.
+ * @param  startY: starting point y coordinate.
+ * @param  width:  picture width.
+ * @param  height: picture height.
+ * @param  picture: pointer to picture to be displayed.
+ * @retval None
+ */
+void LCD_DrawPicture(uint16_t startX, uint16_t startY, uint16_t width, 
+					 uint16_t height, uint8_t* picture)
 {
   uint16_t lastX = startX + (width - 1);
   uint16_t lastY = startY + (height - 1);
@@ -753,109 +722,9 @@ void LCD_DrawPicture(uint16_t startX, uint16_t startY, uint16_t width, uint16_t 
 		}
 		LCD_SetCursor(x , y);
 		pointer++;
-  }  
-  while(oldY != startY);
+  }  while(oldY != startY);
 }
-/* BACKUP
-void LCD_DrawPicture(uint16_t startX, uint16_t startY, uint16_t width, uint16_t height, uint8_t* picture)
-{
-  uint16_t lastX = startX + (width - 1);
-  uint16_t lastY = startY + (height - 1);
-  uint16_t x = lastX;
-  uint16_t y = startY;
-  //uint16_t size = width * height;
-  //uint16_t size = 153654;
-  uint32_t index = 0;
 
-  index = *(__IO uint16_t *) (picture + 10);
-  index |= (*(__IO uint16_t *) (picture + 12)) << 16;
-  picture += index;
-  
-  uint16_t *pointer = (uint16_t *)picture;
-  //pointer += size;
-  LCD_SetCursor(LCD_PIXEL_WIDTH - startX, LCD_PIXEL_HEIGHT - startY); 
-  LCD_WriteRAM_Prepare(); 
-  while(y <= lastY)
-  {
-		LCD_WriteRAM_Prepare(); 
-		LCD_Data = *pointer;
-		if(x == startX){
-			x = lastX;
-			y++;
-			LCD_WriteRAM_Prepare(); 
-		}
-		else{
-			x--;
-		}
-		LCD_SetCursor(LCD_PIXEL_WIDTH - x, LCD_PIXEL_HEIGHT - y);
-		pointer++;
-  }  
-}
-*/
-
-
-/*
-void LCD_DrawPicture(uint16_t startX, uint16_t startY, uint16_t width, uint16_t height, uint8_t* picture)
-{
-  uint16_t lastX = startX + (width - 1);
-  uint16_t lastY = startY + (height - 1);
-  uint16_t x = startX;
-  uint16_t y = startY;
-  uint16_t *pointer = (uint16_t *)picture;
-  uint32_t index = &picture;
-  index += 10;
-  uint32_t temp = &picture;
-  temp += 12;
-  temp = temp<<16;
-  index |= temp;
-  //size = (size - index)/2;
-  pointer += index;
-  //LCD_WriteRAM_Prepare(); 
-  while(y <= lastY)
-  {
-		LCD_SetTextColor(*pointer);
-		PutPixel(x, y);
-		//LCD_Data = *pointer;
-		if(x == lastX){
-			x = startX;
-			y++;
-			//LCD_WriteRAM_Prepare(); 
-		}
-		else{
-			x++;
-		}
-		//LCD_SetCursor(x, y);
-		pointer++;
-  }  
-}*/
-/*
-void LCD_DrawPicture(uint16_t startX, uint16_t startY, uint16_t width, uint16_t height, uint8_t* picture)
-{
-  uint16_t lastX = startX + width;
-  uint16_t lastY = startY + height;
-  uint16_t x = 0;
-  uint16_t y = 0;
-  uint16_t *pointer = (uint16_t *)picture;
-  
-  LCD_SetCursor(0x00, 0x00); 
-  LCD_WriteRAM_Prepare(); 
-  while(y < LCD_PIXEL_HEIGHT)
-  {
-		if(x >=  startX && x<= lastX && y>= startY && y<= lastY){
-			LCD_WriteRAM_Prepare(); 
-			LCD_Data = *pointer;
-			pointer++;
-		}
-		
-		if(x == LCD_PIXEL_WIDTH - 1){
-			x = 0;
-			y++;
-		}
-		else{
-			x++;
-		}
-  }  
-}*/
 /**
   * @brief  Displays a pixel.
   * @param  x: pixel x.
@@ -892,7 +761,8 @@ void LCD_DrawChar(uint16_t Xpos, uint16_t Ypos, const uint16_t *c)
     for(i = 0; i < LCD_Currentfonts->Width; i++)
     {
   
-      if((((c[index] & ((0x80 << ((LCD_Currentfonts->Width / 12 ) * 8 ) ) >> i)) == 0x00) &&(LCD_Currentfonts->Width <= 12))||
+      if((((c[index] & ((0x80 << ((LCD_Currentfonts->Width / 12 ) * 8 ) ) >> i)) 
+		   == 0x00) &&(LCD_Currentfonts->Width <= 12))||
         (((c[index] & (0x1 << i)) == 0x00)&&(LCD_Currentfonts->Width > 12 )))
 
       {
@@ -1215,7 +1085,8 @@ void LCD_WriteBMP(uint32_t BmpAddress)
   * @param  BackgroundColor:	specifies the color of the filling
   * @retval None
   */
-void LCD_DrawFilledRect(uint16_t X_tl, uint16_t Y_tl, uint16_t X_br, uint16_t Y_br, uint16_t BorderColor, uint16_t BackgroundColor)
+void LCD_DrawFilledRect(uint16_t X_tl, uint16_t Y_tl, uint16_t X_br, uint16_t Y_br, 
+						uint16_t BorderColor, uint16_t BackgroundColor)
 {
 	LCD_SetTextColor(BorderColor);
 	LCD_DrawUniLine(X_tl,

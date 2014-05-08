@@ -317,9 +317,11 @@ void LCD_SetDisplayWindow(uint16_t Xpos, uint16_t Ypos, uint16_t Height, uint16_
 void LCD_WindowModeDisable(void);
 void LCD_DrawLine(uint16_t Xpos, uint16_t Ypos, uint16_t Length, uint8_t Direction);
 void LCD_DrawRect(uint16_t Xpos, uint16_t Ypos, uint8_t Height, uint16_t Width);
-void LCD_DrawFilledRect(uint16_t X_tl, uint16_t Y_tl, uint16_t X_br, uint16_t Y_br, uint16_t BorderColor, uint16_t BackgroundColor);
+void LCD_DrawFilledRect(uint16_t X_tl, uint16_t Y_tl, uint16_t X_br, uint16_t Y_br, 
+						uint16_t BorderColor, uint16_t BackgroundColor);
 void LCD_DrawCircle(uint16_t Xpos, uint16_t Ypos, uint16_t Radius);
-void LCD_DrawFilledCircle(uint16_t Xpos, uint16_t Ypos, uint16_t Radius, uint16_t BorderColor, uint16_t BackgroundColor);
+void LCD_DrawFilledCircle(uint16_t Xpos, uint16_t Ypos, uint16_t Radius, 
+						  uint16_t BorderColor, uint16_t BackgroundColor);
 void LCD_DrawMonoPict(const uint32_t *Pict);
 void LCD_WriteBMP(uint32_t BmpAddress);
 void LCD_DrawUniLine(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2);
@@ -331,7 +333,7 @@ void LCD_ClosedPolyLine(pPoint Points, uint16_t PointCount);
 void LCD_ClosedPolyLineRelative(pPoint Points, uint16_t PointCount);
 void LCD_FillPolyLine(pPoint Points, uint16_t PointCount);
 void LCD_DrawPicture(uint16_t startX, uint16_t startY, uint16_t width, uint16_t height, uint8_t* picture);
-//void Lcd_DrawPicture(uint16_t StartX,uint16_t StartY,uint16_t EndX,uint16_t EndY,uint8_t *pic);
+
 /**
   * @}
   */ 
