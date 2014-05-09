@@ -16,7 +16,8 @@ This example shows how to use the basic API of the radio driver to transmit and 
  </long_descr>
 
  <file_section>
-  <file     name="code.c"/> 
+  <file     name="code.c"/>
+  <file     name="lcd_log_conf.h"/>
   <file     name="conf.oil"/>
  </file_section>
 
