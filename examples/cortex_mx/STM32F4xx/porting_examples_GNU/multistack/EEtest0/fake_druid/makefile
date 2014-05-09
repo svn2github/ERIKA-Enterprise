@@ -1,10 +1,25 @@
 
-# Configuration for CORTEX_MX
-EEOPT += __STM32__
-EEOPT += __STM32F4xx__
-STM32_MODEL           := STM32F4xx
+
+############################################################################
+#
+# STM32F4XX_SPD Options
+#
+############################################################################
+EEOPT += __USE_STM32F4XX_SPD__
 
 
+
+############################################################################
+#
+# STM32F4_DISCOVERY Options
+#
+############################################################################
+EEOPT += __USE_STM32F4_DISCOVERY__
+
+
+EEOPT += __USE_STM32F4_DISCOVERY_LEDS__
+EEOPT += __USE_STM32F4XX_SPD_GPIO__
+EEOPT += __USE_STM32F4XX_SPD_RCC__
 ### Setting Erika's variables:
 # ERIKA_FILES= ../../..
 # APPBASE = .
@@ -12,7 +27,7 @@ STM32_MODEL           := STM32F4xx
 # EEOPT =
 
 
-RTDRUID_CONFIGURATOR_NUMBER:=1277
+RTDRUID_CONFIGURATOR_NUMBER:=1278
 
 
 
@@ -24,10 +39,7 @@ RTDRUID_CONFIGURATOR_NUMBER:=1277
 EEOPT += DEBUG
 EEOPT += __ASSERT__
 EEOPT += __ADD_LIBS__
-EEOPT += __USE_STM32F4XX_CMSIS__
-EEOPT += __USE_STM32F4XX_SPD__
-EEOPT += __USE_STM32F4XX_EVAL__
-EEOPT += __USE_SPD_TIM__
+EEOPT += __USE_SYSTICK__
 
 
 ############################################################################
@@ -35,13 +47,14 @@ EEOPT += __USE_SPD_TIM__
 # Automatic options
 #
 ############################################################################
-EEOPT += __RTD_LINUX__
+EEOPT += __STM32__
+EEOPT += __STM32F4xx__
 EEOPT += __CORTEX_MX__
 EEOPT += __CORTEX_M4__
 EEOPT += __GNU__
 EEOPT += __FP__
 EEOPT += __MULTI__
-EEOPT += __FP_NO_RESOURCES__
+EEOPT += __FP_NO_RESOURCE__
 EEOPT += __DISABLE_EEOPT_DEFINES__
 
 
@@ -54,12 +67,12 @@ ifdef ERIKA_FILES
 ifdef EEBASE
     $(warning EEBASE is set, but it has been overridden by ERIKA_FILES)
 endif
-EEBASE := $(shell cygpath `cygpath -ms '${ERIKA_FILES}'`)
+EEBASE := ${ERIKA_FILES}
 
 else # ERIKA_FILES
 
 ifndef EEBASE
-        EEBASE := /opt/erika/svn/ee
+        EEBASE := /Users/DeusExMachina/Documents/area_lavoro/eclipseMAC/plugins/com.eu.evidence.ee_2.3.0.N20140424_1122/ee_files
 else
         $(warning The usage of EEBASE is deprecated. Please use ERIKA_FILES)
 endif
@@ -74,13 +87,19 @@ $(info Using erika files in $(EEBASE))
 # CORTEX M0
 #
 ############################################################################
-APPBASE := 
+-include $(EEBASE)/pkg/cfg/path_helper.mk
+APPBASE := ..
 OUTBASE := Debug
 
-ifndef GNU_ARM_ROOT
-    GNU_ARM_ROOT := /usr
-endif
+$(eval $(call check_and_set_linux_compiler_path,GNU_ARM_ROOT,/Users/DeusExMachina/Documents/area_lavoro/gcc-arm-none-eabi-4_7-2013q3/))
 
+
+############################################################################
+#
+# Init MCU for CORTEX Mx (STM32F4xx)
+#
+############################################################################
+STM32_MODEL           := STM32F4xx
 
 
 ############################################################################
@@ -94,9 +113,9 @@ LDFLAGS +=
 LDDEPS  += 
 LIBS    += 
 
-LIB_OPT  += __LIB_CMSIS__
-LIB_OPT  += __LIB_SPD__
-LIB_OPT  += __LIB_EVAL__
+LIB_OPT  += __LIB_ST_CMSIS__
+LIB_OPT  += __LIB_STM32F4XX_SPD__
+LIB_OPT  += __LIB_STM32F4_DISCOVERY__
 
 
 ############################################################################

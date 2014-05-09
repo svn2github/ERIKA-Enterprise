@@ -72,6 +72,13 @@ CPU test_application {
 		
 		LIB = ENABLE { NAME = "STM32F4_DISCOVERY"; };
 
+		LIB = ENABLE {
+			NAME = "STM32F4_DISCOVERY";
+			STM32F4_DISCOVERY = ENABLE {
+                		USELEDS = TRUE;
+			};			
+		};
+
 		STATUS = EXTENDED;
 		STARTUPHOOK = FALSE;
 		ERRORHOOK = FALSE;
