@@ -15,8 +15,20 @@ EEOPT += __USE_STM32F4XX_SPD__
 #
 ############################################################################
 EEOPT += __USE_STM32F4_DISCOVERY__
-EEOPT += __USE_STM32F4_DISCOVERY_LEDS__
 
+
+
+############################################################################
+#
+# STM32F4_DISCOVERY Options
+#
+############################################################################
+EEOPT += __USE_STM32F4_DISCOVERY__
+
+
+EEOPT += __USE_STM32F4_DISCOVERY_LEDS__
+EEOPT += __USE_STM32F4XX_SPD_GPIO__
+EEOPT += __USE_STM32F4XX_SPD_RCC__
 ### Setting Erika's variables:
 # ERIKA_FILES= ../../..
 # APPBASE = .
@@ -24,7 +36,7 @@ EEOPT += __USE_STM32F4_DISCOVERY_LEDS__
 # EEOPT =
 
 
-RTDRUID_CONFIGURATOR_NUMBER:=1277
+RTDRUID_CONFIGURATOR_NUMBER:=1278
 
 
 
@@ -34,16 +46,15 @@ RTDRUID_CONFIGURATOR_NUMBER:=1277
 #
 ############################################################################
 EEOPT += DEBUG
-EEOPT += VERBOSE
 EEOPT += __ASSERT__
 EEOPT += __ADD_LIBS__
+
 
 ############################################################################
 #
 # Automatic options
 #
 ############################################################################
-EEOPT += __RTD_LINUX__
 EEOPT += __STM32__
 EEOPT += __STM32F4xx__
 EEOPT += __CORTEX_MX__
@@ -51,7 +62,7 @@ EEOPT += __CORTEX_M4__
 EEOPT += __GNU__
 EEOPT += __FP__
 EEOPT += __MONO__
-EEOPT += __FP_NO_RESOURCES__
+EEOPT += __FP_NO_RESOURCE__
 EEOPT += __DISABLE_EEOPT_DEFINES__
 
 
@@ -69,7 +80,7 @@ EEBASE := ${ERIKA_FILES}
 else # ERIKA_FILES
 
 ifndef EEBASE
-        EEBASE := $(shell cygpath `cygpath -ms 'C:\Users\Alessandro\Documenti\ee_VM\ee'`)
+        EEBASE := /Users/DeusExMachina/Documents/area_lavoro/eclipseMAC/plugins/com.eu.evidence.ee_2.3.0.N20140424_1122/ee_files
 else
         $(warning The usage of EEBASE is deprecated. Please use ERIKA_FILES)
 endif
@@ -81,16 +92,14 @@ $(info Using erika files in $(EEBASE))
 
 ############################################################################
 #
-# CORTEX M4
+# CORTEX M0
 #
 ############################################################################
-include $(EEBASE)/pkg/cfg/path_helper.mk
-APPBASE := 
+-include $(EEBASE)/pkg/cfg/path_helper.mk
+APPBASE := ..
 OUTBASE := Debug
 
-ifndef GNU_ARM_ROOT
-    GNU_ARM_ROOT := $(shell cygpath `cygpath -ms 'C:\Programmi\GNU Tools ARM Embedded\4.7 2013q1'`)
-endif
+$(eval $(call check_and_set_linux_compiler_path,GNU_ARM_ROOT,/Users/DeusExMachina/Documents/area_lavoro/gcc-arm-none-eabi-4_7-2013q3/))
 
 
 ############################################################################
