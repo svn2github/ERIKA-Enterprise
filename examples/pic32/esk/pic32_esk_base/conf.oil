@@ -1,7 +1,7 @@
 /* ###*B*###
  * ERIKA Enterprise - a tiny RTOS for small microcontrollers
  *
- * Copyright (C) 2002-2008  Evidence Srl
+ * Copyright (C) 2002-2014  Evidence Srl
  *
  * This file is part of ERIKA Enterprise.
  *
@@ -49,43 +49,43 @@ CPU mySystem {
 			MULTI_STACK = FALSE;
 			ICD2 = TRUE;
 		};
+
 		MCU_DATA = PIC32 {
 			MODEL = PIC32MX795F512L;
 		};
 
-		BOARD_DATA = NO_BOARD {
-		};
-		
-		KERNEL_TYPE = FP;
-		
-		EE_OPT = "__ADD_LIBS__";
 		EE_OPT = "__USE_TIMER__";
 		EE_OPT = "__USE_EE_TIMER_1__";
-		EE_OPT = "__MICROCHIP_ESK__";
-		EE_OPT = "__USE_LEDS__";
-		EE_OPT = "__USE_BUTTONS__";
+
+		BOARD_DATA = MICROCHIP_ESK {
+			USELEDS = TRUE;
+			USEBUTTONS = TRUE;
+		};
+
+		KERNEL_TYPE = FP;
+
 	};
 
 	COUNTER myCounter;
-	
+
 	TASK TaskLed1 {
 		PRIORITY = 1;
 		STACK = SHARED;
 		SCHEDULE = FULL;
 	};
-	
+
 	TASK TaskLed2 {
 		PRIORITY = 2;
 		STACK = SHARED;
 		SCHEDULE = FULL;
 	};
-	
+
 	TASK TaskLed3 {
 		PRIORITY = 3;
 		STACK = SHARED;
 		SCHEDULE = FULL;
 	};
-	
+
 	COUNTER myCounter;
 
 	ALARM AlarmLed1 {
@@ -102,6 +102,5 @@ CPU mySystem {
 		COUNTER = myCounter;
 		ACTION = ACTIVATETASK { TASK = TaskLed3; };
 	};
-	
 
 };
