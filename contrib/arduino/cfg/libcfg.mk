@@ -300,11 +300,6 @@ EE_SRCS_ARDUINO_SDK += libraries/Wire/Wire.cpp
 EE_SRCS_ARDUINO_SDK += libraries/Wire/utility/twi.cpp
 endif
 
-ifeq	($(call iseeopt, __ARDUINO_SDK_LIB_TIMER1__), yes)
-INCLUDE_PATH :=	$(ARDUINO_SDK_ROOT)/libraries/Timer1 $(INCLUDE_PATH)
-EE_SRCS_ARDUINO_SDK += libraries/Timer1/Timer1.cpp
-endif
-
 EE_OBJS_ARDUINO_SDK := 							       \
 	$(addprefix $(OBJDIR)/,						       \
 		$(patsubst %.cpp,%.o,					       \

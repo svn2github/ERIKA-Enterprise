@@ -285,11 +285,6 @@ EE_SRCS += libraries/Wire/Wire.cpp
 EE_SRCS += libraries/Wire/utility/twi.cpp
 endif
 
-ifeq	($(call iseeopt, __ARDUINO_SDK_LIB_TIMER1__), yes)
-INCLUDE_PATH :=	$(ARDUINO_SDK_ROOT)/libraries/Timer1 $(INCLUDE_PATH)
-EE_SRCS += libraries/Timer1/Timer1.cpp
-endif
-
 endif	# __AVR8__
 
 endif	# __ATMEGA__
