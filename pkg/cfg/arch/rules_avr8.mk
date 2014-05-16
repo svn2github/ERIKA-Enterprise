@@ -94,6 +94,8 @@ TARGET := 	$(TARGET_NAME).eep \
 		$(TARGET_NAME).srec
 endif	# EEOPT __BUILD_LIBS__
 
+# Explicit the default target
+.DEFAULT_GOAL := all
 
 include $(PKGBASE)/cfg/cfg.mk
 
