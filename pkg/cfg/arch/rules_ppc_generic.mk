@@ -107,7 +107,16 @@ SCRIPT_SUBPATH := multicore/
 endif
 ifeq ($(call iseeopt, __E200ZX_EXECUTE_FROM_RAM__), yes)
 BASE_LD_SCRIPT := $(SCRIPT_SUBPATH)ram$(CPU_NUMID)$(CC_LD_SUFFIX)
+# Add Lauterbach Simulator support if required (only for MPC5674F mamba)
+ifeq ($(and $(call iseeopt, EE_LAUTERBACH_DEMO_SIM), $(call iseeopt, __MPC5674F__)),yes)
+ifneq ($(call iseeopt, __MSRP__), yes)
+T32CMM_SRC += $(SCRIPT_SUBPATH)ram_sim.cmm
+else
+$(error Lauterbach Simulator is supported only for MPC5674F single core configuration)
+endif
+else
 T32CMM_SRC := $(SCRIPT_SUBPATH)ram$(CPU_NUMID).cmm
+endif
 else
 BASE_LD_SCRIPT := $(SCRIPT_SUBPATH)rom$(CPU_NUMID)$(CC_LD_SUFFIX)
 T32CMM_SRC := $(SCRIPT_SUBPATH)flash$(CPU_NUMID).cmm
@@ -265,6 +274,12 @@ else
 T32ORTISTR :=
 endif
 
+# Add Lauterbach Simulator support if required (only for MPC5674F mamba)
+ifeq ($(and $(call iseeopt, EE_LAUTERBACH_DEMO_SIM), $(call iseeopt, __MPC5674F__)),yes)
+T32TARGETS += button_led.per demo.cmm menmpc55xx.men press.cmm t32pro.ps \
+config.t32 helpdemo.t32 permpc55xx.per t32.men win.cmm
+endif
+
 t32: $(T32TARGETS)
 
 t32.cmm: $(PKGBASE)/mcu/freescale_$(PPC_MCU_MODEL)/cfg/$(T32CMM_SRC) $(MAKEFILE_LIST)
@@ -279,6 +294,29 @@ orti.cmm ortiperf.men: %: $(PKGBASE)/mcu/freescale_$(PPC_MCU_MODEL)/cfg/%
 
 orti.men: system.orti
 	$(QUIET) $(T32GENMENU) $<
+
+# Targets for Lauterbach simulator demo
+demo.cmm: %: $(PKGBASE)/mcu/freescale_$(PPC_MCU_MODEL)/cfg/lauterbach_demo/%
+	$(QUIET) cp $< $@
+menmpc55xx.men: %: $(PKGBASE)/mcu/freescale_$(PPC_MCU_MODEL)/cfg/lauterbach_demo/%
+	$(QUIET) cp $< $@
+press.cmm: %: $(PKGBASE)/mcu/freescale_$(PPC_MCU_MODEL)/cfg/lauterbach_demo/%
+	$(QUIET) cp $< $@
+t32pro.ps: %: $(PKGBASE)/mcu/freescale_$(PPC_MCU_MODEL)/cfg/lauterbach_demo/%
+	$(QUIET) cp $< $@
+config.t32: %: $(PKGBASE)/mcu/freescale_$(PPC_MCU_MODEL)/cfg/lauterbach_demo/%
+	$(QUIET) cp $< $@
+helpdemo.t32: %: $(PKGBASE)/mcu/freescale_$(PPC_MCU_MODEL)/cfg/lauterbach_demo/%
+	$(QUIET) cp $< $@
+permpc55xx.per: %: $(PKGBASE)/mcu/freescale_$(PPC_MCU_MODEL)/cfg/lauterbach_demo/%
+	$(QUIET) cp $< $@
+t32.men: %: $(PKGBASE)/mcu/freescale_$(PPC_MCU_MODEL)/cfg/lauterbach_demo/%
+	$(QUIET) cp $< $@
+win.cmm: %: $(PKGBASE)/mcu/freescale_$(PPC_MCU_MODEL)/cfg/lauterbach_demo/%
+	$(QUIET) cp $< $@
+button_led.per: %: $(PKGBASE)/mcu/freescale_$(PPC_MCU_MODEL)/cfg/lauterbach_demo/%
+	$(QUIET) cp $< $@
+
 
 # Lauterbach launcher (only for single core: SRAM & FLASH)
 ifeq ($(call iseeopt, __MSRP__),yes)
