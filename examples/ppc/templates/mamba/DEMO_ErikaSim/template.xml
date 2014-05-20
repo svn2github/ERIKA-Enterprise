@@ -3,7 +3,7 @@
 <evidence_example version="1" ID="E200Z7_EE_DEMO_ERIKA_SIM_MPC5674F">
 
  <category>e200z7</category>
- <title>task_demo</title>
+ <title>demo sim</title>
    
  <small_descr>
  A minimal Demo developd in collaboration with Lauterbach and Windriver, it runs under Lauterbach simulation environment.
