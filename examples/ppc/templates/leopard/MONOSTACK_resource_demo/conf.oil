@@ -76,7 +76,7 @@ CPU test_application {
         KERNEL_TYPE = BCC1;
         EE_OPT = "__OO_STARTOS_OLD__";
 
-//		ORTI_SECTIONS = ALL;
+		ORTI_SECTIONS = ALL;
     };
 
     APPMODE ModeIncrement;

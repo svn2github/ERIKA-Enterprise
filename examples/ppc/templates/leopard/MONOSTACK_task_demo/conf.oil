@@ -73,7 +73,7 @@ CPU test_application {
 		USEPARAMETERACCESS = FALSE;
 		USERESSCHEDULER = FALSE;
 		
-//		ORTI_SECTIONS = ALL;
+		ORTI_SECTIONS = ALL;
     };
 
 	/* this is the OIL part for the task displaying the christmas tree */

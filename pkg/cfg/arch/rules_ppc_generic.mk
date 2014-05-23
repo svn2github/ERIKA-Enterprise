@@ -264,11 +264,10 @@ clean:
 ##
 ## Lauterbach targets
 ##
-T32GENMENU ?= $(T32SYS)/demo/kernel/orti/genmenu
 
 T32TARGETS := t32.cmm exec_lauterbach.sh
 ifneq ($(wildcard system.orti),)
-T32TARGETS += orti.cmm orti.men ortiperf.men
+T32TARGETS += orti.cmm ortiperf.men
 T32ORTISTR := do orti.cmm
 else
 T32ORTISTR :=
@@ -291,9 +290,6 @@ t32.cmm: $(PKGBASE)/mcu/freescale_$(PPC_MCU_MODEL)/cfg/$(T32CMM_SRC) $(MAKEFILE_
 
 orti.cmm ortiperf.men: %: $(PKGBASE)/mcu/freescale_$(PPC_MCU_MODEL)/cfg/%
 	$(QUIET) cp $< $@
-
-orti.men: system.orti
-	$(QUIET) $(T32GENMENU) $<
 
 # Targets for Lauterbach simulator demo
 demo.cmm: %: $(PKGBASE)/mcu/freescale_$(PPC_MCU_MODEL)/cfg/lauterbach_demo/%
@@ -323,10 +319,17 @@ ifeq ($(call iseeopt, __MSRP__),yes)
 # empty target for multicore, this is defined in rules_ppc_multi_base.sh
 exec_lauterbach.sh:
 else
+ifeq ($(call iseeopt, EE_LAUTERBACH_DEMO_SIM),yes)
+# Special target used for Lauterbach simulated demo
+exec_lauterbach.sh:  %: $(PKGBASE)/mcu/freescale_$(PPC_MCU_MODEL)/cfg/lauterbach_demo/%
+else
+# Standard target
 exec_lauterbach.sh:  %: $(PKGBASE)/mcu/freescale_$(PPC_MCU_MODEL)/cfg/%
+endif
 	@echo "Copying exec_lauterbach.sh..."
 	@echo
 	$(QUIET)cp $< $@
+	$(QUIET)chmod o+x $@
 endif
 
 ##

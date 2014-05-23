@@ -7,8 +7,6 @@
 print "initializing ORTI support..."
 
 TASK.ORTI system.orti      ; ORTI awareness
-MENU.ReProgram orti        ; OSEK objects menu
-MENU.ReProgram ortiperf    ; trace and performance menu
 
 print "load complete."
 
