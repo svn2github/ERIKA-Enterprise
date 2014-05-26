@@ -154,6 +154,17 @@ OBJDIRS=$(sort $(dir $(ALLOBJS)))
 
 # Add basic include paths
 INCLUDE_PATH += $(PKGBASE)
+ifeq ($(call iseeopt, __RTD_LINUX__), yes) 
+INCLUDE_PATH += $(call short_native_path,$(abspath $(APPBASE)))
+INCLUDE_PATH += .
+
+vpath %.c       $(EE_VPATH)     \
+                $(call short_native_path,$(abspath $(APPBASE)))
+vpath %.S       $(EE_VPATH)     \
+                $(call short_native_path,$(abspath $(APPBASE)))
+vpath %.cpp     $(EE_VPATH)     \
+                $(call short_native_path,$(abspath $(APPBASE)))
+else
 INCLUDE_PATH += $(shell cygpath $(call short_native_path,$(abspath $(APPBASE))))
 INCLUDE_PATH += .
 
@@ -163,6 +174,7 @@ vpath %.S	$(EE_VPATH)	\
 		$(shell cygpath $(call short_native_path,$(abspath $(APPBASE))))
 vpath %.cpp	$(EE_VPATH)	\
 		$(shell cygpath $(call short_native_path,$(abspath $(APPBASE))))
+endif
 
 ##
 ## Compute common variables
