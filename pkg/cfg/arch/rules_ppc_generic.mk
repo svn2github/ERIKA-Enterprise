@@ -329,7 +329,7 @@ endif
 	@echo "Copying exec_lauterbach.sh..."
 	@echo
 	$(QUIET)cp $< $@
-	$(QUIET)chmod o+x $@
+	$(QUIET)chmod 755 $@
 endif
 
 ##

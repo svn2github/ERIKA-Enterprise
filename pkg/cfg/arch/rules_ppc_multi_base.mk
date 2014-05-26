@@ -120,6 +120,7 @@ exec_lauterbach.sh:  %: $(PKGBASE)/mcu/freescale_$(PPC_MCU_MODEL)/cfg/%
 	@echo "Copying exec_lauterbach.sh..."
 	@echo
 	$(QUIET)cp $< $@
+	$(QUIET)chmod 755 $@
 
 MASTER_ELF = $(CPU_MASTER_DIR)/$(CPU_MASTER_ELF)
 
