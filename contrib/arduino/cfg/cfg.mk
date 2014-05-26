@@ -50,8 +50,13 @@ ifndef	ARDUINO_SDK_FILES
 export	ARDUINO_SDK_FILES = C:/arduino-1.0.5-r2
 endif
 
+ifeq ($(call iseeopt, __RTD_LINUX__), yes)
+ARDUINO_SDK_ROOT := \
+                $(call short_native_path, $(ARDUINO_SDK_FILES))
+else
 ARDUINO_SDK_ROOT := \
 		$(shell cygpath $(call short_native_path, $(ARDUINO_SDK_FILES)))
+endif
 
 EE_VPATH += $(ARDUINO_SDK_ROOT)
 
