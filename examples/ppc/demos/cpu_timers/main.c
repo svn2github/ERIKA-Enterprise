@@ -25,10 +25,13 @@
 DeclareTask(Task1);
 DeclareTask(Task2);
 
+DeclareIsr(DecrIsr);
+DeclareIsr(FixedIntvIsr);
+
 #ifdef EE_ISR_DYNAMIC_TABLE
 #define ISR(f) ISR2(f)
 #else
-#define ISR(f) ISR2_INT(f)
+#define ISR(f) ISR2(f)
 #endif /* EE_ISR_DYNAMIC_TABLE */
 
 ISR(DecrIsr)

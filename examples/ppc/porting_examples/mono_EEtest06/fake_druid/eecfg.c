@@ -11,11 +11,6 @@
 
     extern void timer_interrupt(void);
 
-    EE_e200z7_ISR_handler EE_e200z7_ISR_table[488] = {
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        timer_interrupt
-    };
-
 
 #include "ee.h"
 

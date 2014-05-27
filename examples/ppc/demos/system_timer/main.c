@@ -14,8 +14,8 @@
  * ###*E*### */
 
 /*
- * Example of use of the decrementer and the fixed-interval interrupts
- * Author: 2011 Bernardo  Dal Seno
+ * Example of use of the decrementer, fixed-interval interrupts and system timer
+ * Author: 2012 Francesco Esposito
  */
 
 #include <ee.h>

@@ -116,7 +116,7 @@
     EE_TYPEBOOL EE_th_waswaiting[EE_MAX_TASK] =
         { 0, 0, 0, 0, 0, 0};
 
-    EE_TYPEPRIO EE_th_is_extended[EE_MAX_TASK] =
+    const EE_TYPEBOOL EE_th_is_extended[EE_MAX_TASK] =
         { 0, 0, 1, 0, 0, 0};
 
 

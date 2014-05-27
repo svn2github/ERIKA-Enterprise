@@ -16,6 +16,7 @@
 /*
  * Example of use of the decrementer and the fixed-interval interrupts
  * Author: 2011 Bernardo  Dal Seno
+ *         2012 Francesco Esposito
  */
 
 #include <ee.h>
