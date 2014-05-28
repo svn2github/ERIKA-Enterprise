@@ -20,10 +20,10 @@
     #define EE_MAX_RESOURCE 0U
 
     /* ALARM definition */
-    #define EE_MAX_ALARM 0
+    #define EE_MAX_ALARM 0U
 
     /* COUNTER definition */
-    #define EE_MAX_COUNTER 0
+    #define EE_MAX_COUNTER 0U
 
     /* APPMODE definition */
     #define EE_MAX_APPMODE 0U

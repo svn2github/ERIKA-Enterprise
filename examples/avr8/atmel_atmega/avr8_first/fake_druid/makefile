@@ -34,8 +34,6 @@ EEOPT += __RTD_LINUX__
 else
 EEOPT += __RTD_CYGWIN__
 endif
-#EEOPT += __HAS_TYPES_H__
-#EEOPT += __AVR_PGMSPACE__
 EEOPT += __AVR8_GCC_C99__
 EEOPT += __AVR8__
 EEOPT += __ATMEGA__

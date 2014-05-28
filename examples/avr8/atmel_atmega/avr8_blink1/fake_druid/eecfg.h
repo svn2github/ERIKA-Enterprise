@@ -22,10 +22,10 @@
     #define MUTEX_sync 0U
 
     /* ALARM definition */
-    #define EE_MAX_ALARM 0
+    #define EE_MAX_ALARM 0U
 
     /* COUNTER definition */
-    #define EE_MAX_COUNTER 0
+    #define EE_MAX_COUNTER 0U
 
     /* APPMODE definition */
     #define EE_MAX_APPMODE 0U
@@ -43,11 +43,11 @@
  **************************************************************************/
 
 #define EE_AVR8_TIMER1_COMPA_ISR	irq_1_f__type1
-/* #define EE_AVR8_TIMER1_COMPA_ISR_PRI	EE_ISR_PRI_LOW */
+/* #define EE_AVR8_TIMER1_COMPA_ISR_PRI	EE_ISR_PRI_1 */
 #define EE_AVR8_TIMER1_COMPA_ISR_CAT	2
 
 #define EE_AVR8_TIMER3_COMPA_ISR	irq_1_f__type3
-/* #define EE_AVR8_TIMER3_COMPA_ISR_PRI	EE_ISR_PRI_LOW */
+/* #define EE_AVR8_TIMER3_COMPA_ISR_PRI	EE_ISR_PRI_1 */
 #define EE_AVR8_TIMER3_COMPA_ISR_CAT	2
 
 
@@ -72,9 +72,6 @@
 #define __RTD_CYGWIN__
 #define __RTD_LINUX__
 */
-/* #define __HAS_TYPES_H__ */
-/* #define __AVR_PGMSPACE__ */
-/* #define __AVR8_GCC_C99__ */
 #define __AVR8__
 #define __ATMEGA__
 #define __TIMER_USED__

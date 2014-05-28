@@ -21,10 +21,10 @@
     #define EE_MAX_RESOURCE 0U
 
     /* ALARM definition */
-    #define EE_MAX_ALARM 0
+    #define EE_MAX_ALARM 0U
 
     /* COUNTER definition */
-    #define EE_MAX_COUNTER 0
+    #define EE_MAX_COUNTER 0U
 
     /* APPMODE definition */
     #define EE_MAX_APPMODE 0U
@@ -41,11 +41,11 @@
  **************************************************************************/
 
 #define EE_AVR8_TIMER0_COMP_ISR		irq_1_f__type0
-/* #define EE_AVR8_TIMER0_COMP_ISR_PRI	EE_ISR_PRI_LOW */
+/* #define EE_AVR8_TIMER0_COMP_ISR_PRI	EE_ISR_PRI_1 */
 #define EE_AVR8_TIMER0_COMP_ISR_CAT	2
 
 #define EE_AVR8_TIMER2_COMP_ISR		irq_1_f__type2
-/* #define EE_AVR8_TIMER2_COMP_ISR_PRI	EE_ISR_PRI_LOW */
+/* #define EE_AVR8_TIMER2_COMP_ISR_PRI	EE_ISR_PRI_1 */
 #define EE_AVR8_TIMER2_COMP_ISR_CAT	2
 
 

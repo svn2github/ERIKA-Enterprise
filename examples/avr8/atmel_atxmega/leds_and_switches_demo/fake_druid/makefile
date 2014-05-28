@@ -19,16 +19,26 @@ RTDRUID_CONFIGURATOR_NUMBER:=1275
 #
 ############################################################################
 EEOPT += DEBUG
+
 # TODO: Set correct EEOPT.
+
 # MCU
+EEOPT += __MCU_EXTENDED_STATUS__
+
+# GPIO
 EEOPT += __GPIO_DRIVER__
 EEOPT += __GPIO_EXTENDED_STATUS__
 EEOPT += __GPIO_READCHANNEL_API__
 EEOPT += __GPIO_WRITECHANNEL_API__
 EEOPT += __GPIO_FLIPCHANNEL_API__
+
 # BOARD
-EEOPT += __LED_DRIVER__
-EEOPT += __LED_PORT_B__
+#EEOPT += __BOARD_EXTENDED_STATUS__
+
+# LED
+#EEOPT += __LED_DRIVER__
+#EEOPT += __LED_PORT_D__
+#EEOPT += __LED_EXTENDED_STATUS__
 
 
 ############################################################################
@@ -44,7 +54,7 @@ endif
 EEOPT += __HAS_TYPES_H__
 EEOPT += __AVR8__
 EEOPT += __ATXMEGA__
-EEOPT += __ATMEL_STK600__
+#EEOPT += __ATMEL_STK600__
 EEOPT += __FP__
 EEOPT += __MONO__
 EEOPT += __ALARMS__
@@ -98,13 +108,6 @@ else
 $(eval $(call check_and_set_cygwin_compiler_path,AVR_TOOLS,C:\\Programmi\\Atmel\\AVR Tools\\AVR Toolchain))
 endif
 
-
-############################################################################
-#
-# Init MCU for AVR (XMEGA)
-#
-############################################################################
-AVR8_MCU := atxmega16d4
 
 ############################################################################
 #

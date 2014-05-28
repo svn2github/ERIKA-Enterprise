@@ -5,7 +5,7 @@
 # ---------------------------------------------------------
 
 # list of all architectures
-ARCH_LIST = PIC30 ARM7 AVR5 ESI_RISC NIOS2 E200ZX S12XS TRICORE MICO32 S12G_CW S12XS_CW S12XS_COSMIC CORTEX_MX
+ARCH_LIST = PIC30 ARM7 AVR8 ESI_RISC NIOS2 E200ZX S12XS TRICORE MICO32 S12G_CW S12XS_CW S12XS_COSMIC CORTEX_MX
 
 # PIC30 templates
 # -----------------------------------------------------------
@@ -49,16 +49,18 @@ TEMPLATE_LIST_PIC30 += pic30_easylab_demo
 # -----------------------------------------------------------
 TEMPLATE_LIST_ARM7 += e7t_fp
 
-# AVR5 templates
+# AVR8 templates
 # -----------------------------------------------------------
-TEMPLATE_LIST_IGNORE_AVR5 +=
-TEMPLATE_LIST_AVR5 += avr5_blink
-TEMPLATE_LIST_AVR5 += avr5_blink_timers
-TEMPLATE_LIST_AVR5 += avr5_ConsoleLib
-TEMPLATE_LIST_AVR5 += avr5_first
-TEMPLATE_LIST_AVR5 += avr5_serial
-TEMPLATE_LIST_AVR5 +=
-TEMPLATE_LIST_AVR5 +=
+TEMPLATE_LIST_IGNORE_AVR8 +=
+TEMPLATE_LIST_AVR8 += avr8_blink
+TEMPLATE_LIST_AVR8 += avr8_blink_timers
+TEMPLATE_LIST_AVR8 += avr8_ConsoleLib
+TEMPLATE_LIST_AVR8 += avr8_first
+TEMPLATE_LIST_AVR8 += avr8_serial
+TEMPLATE_LIST_AVR8 += avr8_alarms_demo
+TEMPLATE_LIST_AVR8 += avr8_clock_demo
+TEMPLATE_LIST_AVR8 += avr8_leds_and_switches_demo
+TEMPLATE_LIST_AVR8 += avr8_pwm_demo
 
 # ESI_RISC templates
 # -----------------------------------------------------------

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<evidence_example version="1" ID="leds_and_switches_demo">
+<evidence_example version="1" ID="avr8_leds_and_switches_demo">
 
- <category>avr8/Atmel ATxmega</category>
+ <category>avr8/Atmel ATxmega16D4</category>
  <title>Leds and Switches Demo</title>
    
  <small_descr>
@@ -16,6 +16,7 @@
  </long_descr>
 
  <file_section>
+  <file     name="ee_types.h"/>
   <file     name="code.c"/> 
   <file     name="conf.oil"/>
  </file_section>

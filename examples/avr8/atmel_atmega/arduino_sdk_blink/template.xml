@@ -2,7 +2,7 @@
 
 <evidence_example version="1" ID="arduino_sdk_blink">
 
- <category>avr8/Arduino SDK</category>
+ <category>avr8/Arduino </category>
  <title>Blink Demo</title>
    
  <small_descr>
@@ -15,9 +15,10 @@
  </long_descr>
 
  <file_section>
-  <file     name="task.c"/> 
-  <file     name="code.cpp"/> 
+  <file     name="task.c"/>
+  <file     name="code.cpp"/>
   <file     name="conf.oil"/>
+  <file     name="makefile"/>
  </file_section>
 
 </evidence_example>

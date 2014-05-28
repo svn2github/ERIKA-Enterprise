@@ -51,29 +51,41 @@ CPU mySystem {
 
 		EE_OPT = "__HAS_TYPES_H__";
 
-		CPU_DATA = AVR {
-			MODEL = AVR8
+		CPU_DATA = AVR8 {
 			APP_SRC = "code.c";
 			MULTI_STACK = FALSE;
 		};
 
 		MCU_DATA = XMEGA {
-			MODEL = 16A4;
+			MODEL = XMEGA_16d4;
+
+			ENABLE_MCU_DRIVER = TRUE {
+				MCU_STATUS = EXTENDED;
+			};
+
+			ENABLE_GPIO_DRIVER = TRUE {
+				GPIO_STATUS = EXTENDED;
+				GPIO_DEINIT_API = TRUE;
+				GPIO_READCHANNEL_API = TRUE;
+				GPIO_WRITECHANNEL_API = TRUE;
+				GPIO_FLIPCHANNEL_API = TRUE;
+				GPIO_ENABLENOTIF_API = TRUE;
+			};
+
 		};
 
-		EE_OPT = "__GPIO_DRIVER__";
-		EE_OPT = "__GPIO_EXTENDED_STATUS__";
-		EE_OPT = "__GPIO_READCHANNEL_API__";
-		EE_OPT = "__GPIO_WRITECHANNEL_API__";
-		EE_OPT = "__GPIO_FLIPCHANNEL_API__";
-
+		/* NOTE: BOARD not implemented for now!!! 
 		BOARD_DATA = ATMEL {
 			MODEL = STK600;
 		};
 
-		EE_OPT = "__LED_DRIVER__";	/* TODO: Set correct EE_OPT. */
-		EE_OPT = "__LED_PORT_B__";	/* TODO: Set correct EE_OPT. */
+		EE_OPT = "__BOARD_EXTENDED_STATUS__";
+		EE_OPT = "__LED_DRIVER__";
+		EE_OPT = "__LED_PORT_D__";
+		EE_OPT = "__LED_EXTENDED_STATUS__";
+		*/
 
+		USERESSCHEDULER = FALSE;
 		KERNEL_TYPE = FP;
 
 	};
@@ -99,13 +111,13 @@ CPU mySystem {
 	ISR timer1_handler {
 		CATEGORY = 2;
 		ENTRY = "TCC0_OVF";	/* TODO: Set correct ENTRY name. */
-		PRIORITY = LOW;
+		PRIORITY = 1;
 	};
 
 	ISR timer2_handler {
 		CATEGORY = 2;
 		ENTRY = "TCC1_OVF";	/* TODO: Set correct ENTRY name. */
-		PRIORITY = LOW;
+		PRIORITY = 1;
 	};
 
 	COUNTER Counter320us;

@@ -50,13 +50,13 @@ CPU mySystem {
 		  MULTI_STACK = FALSE;
 		};
 
-		MCU_DATA = ATMEGA {
-			MODEL = 328p;
+		MCU_DATA = MEGA {
+			MODEL = MEGA_328p;
 		};
 
 		EE_OPT = "__ARDUINO_SDK__";
-		/* EE_OPT = "__ARDUINO_UNO_328__"; */
-		EE_OPT = "__ARDUINO_NANO_328__";
+		EE_OPT = "__ARDUINO_UNO_328__";
+		/* EE_OPT = "__ARDUINO_NANO_328__"; */
 		/* Used to build separate libarduino.a */
 		EE_OPT = "__ADD_LIBS__";
 		LIB = ENABLE {

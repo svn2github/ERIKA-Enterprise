@@ -50,7 +50,7 @@ ifndef	AVR_TOOLS
 ifeq	($(shell uname), Linux)
 export AVR_TOOLS = $(HOME)/avr8-gnu-toolchain
 else
-export AVR_TOOLS =  C:\\Program Files (x86)\\Atmel\\Atmel Toolchain\\AVR8 GCC\\Native\\3.4.2.1002\\avr8-gnu-toolchain
+export AVR_TOOLS = $(shell cygpath -ms "C:\\Program Files (x86)\\Atmel\\Atmel Toolchain\\AVR8 GCC\\Native\\3.4.1051\\avr8-gnu-toolchain")
 endif
 endif
 
@@ -91,7 +91,7 @@ $(RTDRUID_OUTPUT): conf.oil
 	@echo "Running RT-Druid..."
 	@ECLIPSE_HOME="$(RTDRUID_ECLIPSE_HOME)" ;\
 	export ECLIPSE_HOME ;\
-	exec sh $(RTDRUID_SCRIPT_DIR)/start_ant.sh -buildfile $(RTDRUID_SCRIPT_DIR)/build.xml -Din_conf_oil=$< -Dconf_output_dir=$(OUTPUT_DIR) compile
+	exec sh $(RTDRUID_SCRIPT_DIR)/generate_code.sh $(RTDRUID_ECLIPSE_HOME) conf.oil $(OUTPUT_DIR)
 
 else
 # Simulate RT-Druid

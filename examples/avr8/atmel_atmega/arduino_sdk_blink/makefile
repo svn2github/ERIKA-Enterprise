@@ -58,12 +58,12 @@ export AVR_TOOLS = $(ARDUINO_SDK_FILES)/hardware/tools/avr
 endif
 
 ifndef	ARDUINO_COM_PORT
-export	ARDUINO_COM_PORT = COM23
+export	ARDUINO_COM_PORT = COM24
 endif
 
 ifndef	ARDUINO_BAUDRATE
-#export	ARDUINO_BAUDRATE = 115200	# ARDUINO UNO 328
-export	ARDUINO_BAUDRATE = 57600	# ARDUINO NANO 328
+export	ARDUINO_BAUDRATE = 115200	# ARDUINO UNO 328
+#export	ARDUINO_BAUDRATE = 57600	# ARDUINO NANO 328
 endif
 
 ifndef	ARDUINO_MCU
@@ -115,7 +115,7 @@ $(RTDRUID_OUTPUT): conf.oil
 	@echo "Running RT-Druid..."
 	@ECLIPSE_HOME="$(RTDRUID_ECLIPSE_HOME)" ;\
 	export ECLIPSE_HOME ;\
-	exec sh $(RTDRUID_SCRIPT_DIR)/start_ant.sh -buildfile $(RTDRUID_SCRIPT_DIR)/build.xml -Din_conf_oil=$< -Dconf_output_dir=$(OUTPUT_DIR) compile
+	exec sh $(RTDRUID_SCRIPT_DIR)/generate_code.sh $(RTDRUID_ECLIPSE_HOME) conf.oil $(OUTPUT_DIR)
 
 else
 # Simulate RT-Druid

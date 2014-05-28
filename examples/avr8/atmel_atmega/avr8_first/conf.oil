@@ -68,27 +68,20 @@ CPU mySystem {
 
 		EE_OPT = "__AVR8_GCC_C99__";
 
-		MCU_DATA = ATMEGA {
-			MODEL = 128;
+		MCU_DATA = MEGA {
+			MODEL = MEGA_128;
+			USEIC = TRUE;
+			TIMER0 = DIV64;
+			TIMER1 = DIV64;
+			TIMER2 = DIV64;
+			TIMER3 = DIV64;
 		};
-
-		EE_OPT = "__IC_USED__";
-
-		EE_OPT = "__TIMER_USED__";
-		EE_OPT = "__TIMER_0_USED__";
-		EE_OPT = "__TIMER0_CLK_DIV64__";
-		EE_OPT = "__TIMER_1_USED__";
-		EE_OPT = "__TIMER1_CLK_DIV64__";
-		EE_OPT = "__TIMER_2_USED__";
-		EE_OPT = "__TIMER2_CLK_DIV64__";
-		EE_OPT = "__TIMER_3_USED__";
-		EE_OPT = "__TIMER3_CLK_DIV64__";
 
 		BOARD_DATA = XBOW_MIB5X0 {
+			USELEDS = TRUE;
 		};
 
-		EE_OPT = "__LEDS_USED__";
-
+		USERESSCHEDULER = FALSE;
 		KERNEL_TYPE = FP;
 
 		EE_OPT = "__ADD_LIBS__";
@@ -117,13 +110,13 @@ CPU mySystem {
 	ISR irq_1_f__type0 {	/* TODO: Set correct handler name. */
 		CATEGORY = 2;
 		ENTRY = "TIMER0_COMP";	/* TODO: Set correct ENTRY name. */
-		/* PRIORITY = LOW; */	/* FIXED HARDWARE PRIORITY */
+		/* PRIORITY = 1; */	/* FIXED HARDWARE PRIORITY */
 	};
 
 	ISR irq_1_f__type2 {	/* TODO: Set correct handler name. */
 		CATEGORY = 2;
 		ENTRY = "TIMER2_COMP";	/* TODO: Set correct ENTRY name. */
-		/* PRIORITY = LOW; */	/* FIXED HARDWARE PRIORITY */
+		/* PRIORITY = 1; */	/* FIXED HARDWARE PRIORITY */
 	};
 
 	/* RESOURCE MUTEX_sync { RESOURCEPROPERTY = STANDARD; }; */

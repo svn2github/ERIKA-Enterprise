@@ -22,13 +22,13 @@
     #define EE_MAX_RESOURCE 0U
 
     /* ALARM definition */
-    #define EE_MAX_ALARM 3
+    #define EE_MAX_ALARM 3U
     #define AlarmL1 0
     #define AlarmL2 1
     #define AlarmL3 2
 
     /* COUNTER definition */
-    #define EE_MAX_COUNTER 2
+    #define EE_MAX_COUNTER 2U
     #define Counter400us 0
     #define Counter1ms   1
 
@@ -45,15 +45,15 @@
  *
  **************************************************************************/
 #define EE_AVR8_TCC0_OVF_ISR		EE_Gpt_C_0_OVF_ISR
-#define EE_AVR8_TCC0_OVF_ISR_PRI	EE_ISR_PRI_LOW
+#define EE_AVR8_TCC0_OVF_ISR_PRI	EE_ISR_PRI_1
 #define EE_AVR8_TCC0_OVF_ISR_CAT	2
 
 #define EE_AVR8_TCD0_OVF_ISR		EE_Gpt_D_0_OVF_ISR
-#define EE_AVR8_TCD0_OVF_ISR_PRI	EE_ISR_PRI_LOW
+#define EE_AVR8_TCD0_OVF_ISR_PRI	EE_ISR_PRI_1
 #define EE_AVR8_TCD0_OVF_ISR_CAT	2
 
 #define EE_AVR8_PORTA_INT0_ISR		EE_Gpio_PortA_ISR
-#define EE_AVR8_PORTA_INT0_ISR_PRI	EE_ISR_PRI_HIGH
+#define EE_AVR8_PORTA_INT0_ISR_PRI	EE_ISR_PRI_2
 #define EE_AVR8_PORTA_INT0_ISR_CAT	2
 
 #ifndef __DISABLE_EEOPT_DEFINES__

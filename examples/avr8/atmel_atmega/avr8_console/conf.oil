@@ -65,20 +65,17 @@ CPU mySystem {
 */
 		};
 
-		MCU_DATA = ATMEGA {
-			MODEL = 128;
+		MCU_DATA = MEGA {
+			MODEL = MEGA_128;
+			TIMER1 = DIV256;
+			USEUART = TRUE;
 		};
-
-		EE_OPT = "__TIMER_USED__";
-		EE_OPT = "__TIMER_1_USED__";
-		EE_OPT = "__TIMER1_CLK_DIV256__";
-		EE_OPT = "__USE_UART__";
 
 		BOARD_DATA = XBOW_MIB5X0 {
+			USELEDS = TRUE;
 		};
 
-		EE_OPT = "__LEDS_USED__";
-
+		USERESSCHEDULER = FALSE;
 		KERNEL_TYPE = FP;
 
 		/* NOT MEANINGFULL WITH FP KERNEL */
@@ -105,7 +102,7 @@ CPU mySystem {
 	ISR irq_1_f__type1 {	/* TODO: Set correct handler name. */
 		CATEGORY = 2;
 		ENTRY = "TIMER1_COMPA";	/* TODO: Set correct ENTRY name. */
-		/* PRIORITY = LOW; */	/* FIXED HARDWARE PRIORITY */
+		/* PRIORITY = 1; */	/* FIXED HARDWARE PRIORITY */
 	};
 
 	COUNTER myCounter;

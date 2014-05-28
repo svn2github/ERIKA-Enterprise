@@ -1,13 +1,13 @@
 /* ###*B*###
  * ERIKA Enterprise - a tiny RTOS for small microcontrollers
  *
- * Copyright (C) 2002-2014  Evidence Srl
+ * Copyright (C) 2002-2013  Evidence Srl
  *
  * This file is part of ERIKA Enterprise.
  *
  * ERIKA Enterprise is free software; you can redistribute it
  * and/or modify it under the terms of the GNU General Public License
- * version 2 as published by the Free Software Foundation, 
+ * version 2 as published by the Free Software Foundation,
  * (with a special exception described below).
  *
  * Linking this code statically or dynamically with other modules is
@@ -38,87 +38,14 @@
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
 
-CPU mySystem {
-
-	OS myOs {
 
 /*
-		STRING EE_OPT[];
-		STRING CFLAGS[];
-		STRING ASFLAGS[];
-		STRING LDFLAGS[];
-		STRING LDDEPS[];
-		STRING LIBS[];
-*/
+ * Author: 2013  Giuseppe Serano
+ */
 
-		EE_OPT = "DEBUG";
+#ifndef	EE_AVR8_PWM_DEMO_TYPES_H
+#define	EE_AVR8_PWM_DEMO_TYPES_H
 
-		CPU_DATA = AVR8 {
-			APP_SRC = "code.c";
-			MULTI_STACK = FALSE;
+#define	EE_TYPETICK	EE_INT16
 
-			/* NOT MEANINGFULL WITH AVR8 CORE */
-/*
-			STACK_BOTTOM = 0x10FF;
-			SYS_SIZE = 0x1000; 
-			SHARED_MIN_SYS_SIZE = 0x100;
-*/
-		};
-
-		MCU_DATA = MEGA {
-			MODEL = MEGA_128;
-			TIMER1 = DIV256;
-			TIMER3 = DIV64;
-		};
-
-		BOARD_DATA = XBOW_MIB5X0 {
-			USELEDS = TRUE;
-		};
-
-		USERESSCHEDULER = FALSE;
-		KERNEL_TYPE = FP;
-
-		/* NOT MEANINGFULL WITH FP KERNEL */
-/*
-		STATUS = EXTENDED;
-		STARTUPHOOK = FALSE;
-		ERRORHOOK = FALSE;
-		SHUTDOWNHOOK = FALSE;
-		PRETASKHOOK = FALSE;
-		POSTTASKHOOK = FALSE;
-		USEGETSERVICEID = FALSE;
-		USEPARAMETERACCESS = FALSE;
-		USERESSCHEDULER = FALSE;
-*/
-
-	};
-  	
-	TASK Task0 {
-		PRIORITY = 1;
-		STACK = SHARED;
-		SCHEDULE = FULL;
-		/* ESOURCE = MUTEX_sync; */
-	};
-  
-   
-	TASK Task1 {
-		PRIORITY = 2;
-		STACK = SHARED;
-		SCHEDULE = FULL;
-	};
-
-	ISR irq_1_f__type1 {	/* TODO: Set correct handler name. */
-		CATEGORY = 2;
-		ENTRY = "TIMER1_COMPA";	/* TODO: Set correct ENTRY name. */
-		/* PRIORITY = LOW; */	/* FIXED HARDWARE PRIORITY */
-	};
-
-	ISR irq_1_f__type3 {	/* TODO: Set correct handler name. */
-		CATEGORY = 2;
-		ENTRY = "TIMER3_COMPA";	/* TODO: Set correct ENTRY name. */
-		/* PRIORITY = LOW; */	/* FIXED HARDWARE PRIORITY */
-	};
-
-	/* RESOURCE MUTEX_sync { RESOURCEPROPERTY = STANDARD; }; */
-
-};
+#endif	/* EE_AVR8_PWM_DEMO_TYPES_H */

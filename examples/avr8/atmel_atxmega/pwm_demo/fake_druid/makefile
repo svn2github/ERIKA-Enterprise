@@ -1,6 +1,6 @@
 ### fake-druid makefile
 #
-# Author: 2014  Giuseppe Serano
+# Author: 2013  Giuseppe Serano
 
 ### Setting Erika's variables:
 # ERIKA_FILES= ../../..
@@ -9,7 +9,7 @@
 # EEOPT =
 
 
-RTDRUID_CONFIGURATOR_NUMBER:=1277
+RTDRUID_CONFIGURATOR_NUMBER:=1275
 
 
 
@@ -19,9 +19,38 @@ RTDRUID_CONFIGURATOR_NUMBER:=1277
 #
 ############################################################################
 EEOPT += DEBUG
-EEOPT += __ADD_LIBS__
-EEOPT += USE_CONSOLE
-EEOPT += USE_CONSOLE_SERIAL
+
+# TODO: Set correct EEOPT.
+
+# MCU
+EEOPT += __MCU_EXTENDED_STATUS__
+
+# GPIO
+EEOPT += __GPIO_DRIVER__
+EEOPT += __GPIO_EXTENDED_STATUS__
+EEOPT += __GPIO_READCHANNEL_API__
+EEOPT += __GPIO_WRITECHANNEL_API__
+EEOPT += __GPIO_FLIPCHANNEL_API__
+EEOPT += __GPIO_ENABLENOTIF_API__
+
+# PWM
+EEOPT += __PWM_DRIVER__
+EEOPT += __PWM_CHANNEL_D_0__
+EEOPT += __PWM_D_0_CCA__
+EEOPT += __PWM_CHANNEL_E_0__
+EEOPT += __PWM_E_0_CCD__
+EEOPT += __PWM_EXTENDED_STATUS__
+EEOPT += __PWM_ENABLENOTIF_API__
+EEOPT += __PWM_SETDUTYCYCLE_API__
+EEOPT += __PWM_SETOUTPUTTOIDLE_API__
+
+# BOARD
+#EEOPT += __BOARD_EXTENDED_STATUS__
+
+# LED
+#EEOPT += __LED_DRIVER__
+#EEOPT += __LED_PORT_C__
+#EEOPT += __LED_EXTENDED_STATUS__
 
 
 ############################################################################
@@ -34,14 +63,10 @@ EEOPT += __RTD_LINUX__
 else
 EEOPT += __RTD_CYGWIN__
 endif
+EEOPT += __HAS_TYPES_H__
 EEOPT += __AVR8__
-EEOPT += __ATMEGA__
-EEOPT += __TIMER_USED__
-EEOPT += __TIMER_1_USED__
-EEOPT += __TIMER1_CLK_DIV256__
-EEOPT += __USE_UART__
-EEOPT += __XBOW_MIB5X0__
-EEOPT += __LEDS_USED__
+EEOPT += __ATXMEGA__
+#EEOPT += __ATMEL_STK600__
 EEOPT += __FP__
 EEOPT += __MONO__
 EEOPT += __ALARMS__
@@ -93,16 +118,16 @@ include $(EEBASE)/pkg/cfg/path_helper.mk
 ifeq	($(shell uname), Linux)
 $(eval $(call check_and_set_linux_compiler_path,AVR_TOOLS,$(HOME)/avr8-gnu-toolchain))
 else
-$(eval $(call check_and_set_cygwin_compiler_path,AVR_TOOLS,C:\\Program Files (x86)\\Atmel\\Atmel Toolchain\\AVR8 GCC\\Native\\3.4.2.1002\\avr8-gnu-toolch))
+$(eval $(call check_and_set_cygwin_compiler_path,AVR_TOOLS,C:\\Programmi\\Atmel\\AVR Tools\\AVR Toolchain))
 endif
 
 
 ############################################################################
 #
-# Init MCU for AVR (MEGA)
+# Init MCU for AVR (XMEGA)
 #
 ############################################################################
-AVR8_MCU := atmega128
+AVR8_MCU := atxmega16d4
 
 ############################################################################
 #
@@ -115,7 +140,6 @@ LDFLAGS +=
 LDDEPS  += 
 LIBS    += 
 
-LIB_OPT  += __LIB_CONSOLE__
 
 
 ############################################################################
