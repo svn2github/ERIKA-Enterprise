@@ -759,8 +759,10 @@ EE_Gpio_DeInit(
 
 #if	( defined(__AVR_ATxmega16D4__) || defined(__AVR_ATxmega32D4__) )
   /* NOTE: Ports from F to Q are not available on ATxmega16D4 MCU */
+  EE_ATXMEGA_VALIDATE_W_RV( ( port <= EE_GPIO_PORT_E ), E_GPIO_PARAM_CHANNEL );
+#else
   EE_ATXMEGA_VALIDATE_W_RV(
-    ( ( port <= EE_GPIO_PORT_E) || ( port == EE_GPIO_PORT_R) ),
+    ( ( port <= EE_GPIO_PORT_E ) || ( port == EE_GPIO_PORT_R ) ),
     E_GPIO_PARAM_CHANNEL
   );
 #endif	/* __AVR_ATxmega16D4__ || __AVR_ATxmega32D4__ */
