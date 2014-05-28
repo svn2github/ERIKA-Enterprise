@@ -78,11 +78,6 @@ extern "C" {
 #include "cpu/arm7tdmi/inc/ee_cpu.h"
 #endif
 
-
-#ifdef __AVR5__
-#include "cpu/avr5/inc/ee_cpu.h"
-#endif
-
 #ifdef __AVR8__
 #include "cpu/avr8/inc/ee_avr8_cpu.h"
 #endif
@@ -165,19 +160,6 @@ extern "C" {
   /* Freescale */
 #if defined(__MC9S12__) || defined(__HCS12XS__)
 #include "mcu/hs12xs/inc/ee_mcu.h"
-#endif
-
-  /* Atmel */
-#ifdef __ATMEGA128__
-#include "mcu/atmel_atmega128/inc/ee_mcu.h"
-#endif
-
-#ifdef __ATMEGA1281__
-#include "mcu/atmel_atmega1281/inc/ee_mcu.h"
-#endif
-
-#ifdef __ATMEGA328__
-#include "mcu/atmel_atmega328/inc/ee_mcu.h"
 #endif
 
 #ifdef __ATMEGA__

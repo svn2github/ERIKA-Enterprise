@@ -64,10 +64,6 @@ extern "C" {
  #include "cpu/hs12xs/inc/ee_internal.h"
 #endif
 
-#ifdef __AVR5__
-#include "cpu/avr5/inc/ee_internal.h"
-#endif
-
 #ifdef __AVR8__
 #include "cpu/avr8/inc/ee_avr8_internal.h"
 #endif
@@ -148,22 +144,6 @@ extern "C" {
 #if defined(__MC9S12__) || defined(__HCS12XS__)
  #include "mcu/hs12xs/inc/ee_internal.h"
 #endif
-
-  /* Atmel */
-#if defined __ATMEGA128__
-#include "mcu/atmel_atmega128/inc/ee_internal.h"
-#endif
-
-
-#if defined __ATMEGA1281__
-#include "mcu/atmel_atmega1281/inc/ee_internal.h"
-#endif
-
-
-#if defined __ATMEGA328__
-#include "mcu/atmel_atmega328/inc/ee_internal.h"
-#endif
-
 
 #ifdef __ATMEGA__
 #include "mcu/atmel_atmega/inc/ee_internal.h"
