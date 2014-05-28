@@ -65,11 +65,16 @@
 
 /*
  * ISR Priorities.
-*/
-#define	EE_ISR_PRI_OFF	0x00U
-#define	EE_ISR_PRI_LOW	0x01U
-#define	EE_ISR_PRI_MED	0x02U
-#define	EE_ISR_PRI_HIGH	0x03U
+ */
+#define	EE_ISR_UNMASKED	0x00U
+#define	EE_ISR_PRI_1	0x01U
+#define	EE_ISR_PRI_2	0x02U
+#define	EE_ISR_PRI_3	0x03U
+
+#define	EE_ISR_PRI_OFF	EE_ISR_UNMASKED
+#define	EE_ISR_PRI_LOW	EE_ISR_PRI_1
+#define	EE_ISR_PRI_MED	EE_ISR_PRI_2
+#define	EE_ISR_PRI_HIGH	EE_ISR_PRI_3
 
 #include "mcu/atmel_atxmega/inc/ee_atmel_atxmega_mcu.h"
 #include "mcu/atmel_atxmega/inc/ee_atmel_atxmega_pmic.h"
