@@ -341,13 +341,24 @@ ifeq ($(and $(call iseeopt, __MSRP__), $(call iseeopt, EE_BUILD_SINGLE_ELF)), ye
 ifneq ($(__BASE_MAKEFILE__), yes)
 ##Use always the export file to MASK replicated symbols
 EXPORT_FILE := export_ee_global
+## Create the right path to reach EE_USER_EXPORT_FILE
+ifneq ($(EE_USER_EXPORT_FILE),)
+EE_USER_EXPORT_FILE := $(APPBASE)/$(EE_USER_EXPORT_FILE)
+endif # !EE_USER_EXPORT_FILE
+
 ifeq ($(CPU_NUMID),0)
-$(EXPORT_FILE): $(PKGBASE)/mcu/infineon_common_tc2Yx/cfg/multicore/$(EXPORT_FILE)
-	@echo CP symbols export file $@ $<
-	$(QUIET) cp -f $< $@
+$(EXPORT_FILE): $(PKGBASE)/mcu/infineon_common_tc2Yx/cfg/multicore/$(EXPORT_FILE) $(EE_USER_EXPORT_FILE)
+	@echo GEN symbols export file $@ from $^
+	$(QUIET)cat $^ > $@
 else # CPU_NUMID eq 0
-$(EXPORT_FILE):
-	@echo "EXPORT FUNCTION EE_tc2Yx_cpu$(CPU_NUMID)_start ;" > $@
+$(EXPORT_FILE): $(EE_USER_EXPORT_FILE)
+ifneq ($(EE_USER_EXPORT_FILE),)
+	@echo GEN symbols export file $@ from $^
+endif # !EE_USER_EXPORT_FILE
+	$(QUIET)echo "EXPORT FUNCTION EE_tc2Yx_cpu$(CPU_NUMID)_start ;" > $@
+ifneq ($(EE_USER_EXPORT_FILE),)
+	$(QUIET)cat $^ >> $@
+endif # !EE_USER_EXPORT_FILE
 endif  # CPU_NUMID eq 0
 
 ##Put the EXPORT_FILE into linking dependencies
