@@ -694,6 +694,8 @@ void LCD_DrawPicture(uint16_t startX, uint16_t startY, uint16_t width,
   uint16_t lastY = startY + (height - 1);
   uint16_t x = startX;
   uint16_t y = lastY, oldY = y;
+  uint16_t *pointer;
+  
   //uint16_t size = width * height;
   //uint16_t size = 153654;
   uint32_t index = 0;
@@ -702,7 +704,7 @@ void LCD_DrawPicture(uint16_t startX, uint16_t startY, uint16_t width,
   index |= (*(__IO uint16_t *) (picture + 12)) << 16;
   picture += index;
   
-  uint16_t *pointer = (uint16_t *)picture;
+  pointer = (uint16_t *)picture;
   //pointer += size;
   //LCD_SetCursor(LCD_PIXEL_WIDTH - startX - 1, LCD_PIXEL_HEIGHT - startY - 1); 
   LCD_SetCursor(startX, lastY); 
