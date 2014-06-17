@@ -78,7 +78,7 @@
    * suspend/resume ISR1 interrupts use SuspendAllInterrupts()/ResumeAllInterrupts()
    * See also NOTE01 below.
    */
-/* Todo: Do we need this? #define QF_INT_KEY_TYPE */
+
 #define QF_CRIT_ENTRY(dummy)       SuspendOSInterrupts() 
 #define QF_CRIT_EXIT(dummy)        ResumeOSInterrupts() 
 
@@ -88,7 +88,7 @@
 #include "qf.h"			/* QF platform-independent public interface */
 
 /*Routine and data structure called by each task*/
-extern QActive *pdata[QF_MAX_ACTIVE];
+extern void *pdata[QF_MAX_ACTIVE];
 void task_function(void *pdata);
 
 /*****************************************************************************

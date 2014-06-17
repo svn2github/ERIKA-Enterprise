@@ -41,7 +41,7 @@ Q_DEFINE_THIS_MODULE("qf_port")
 
 /* Global objects ----------------------------------------------------------*/
 
-QActive *pdata[QF_MAX_ACTIVE];
+void *pdata[QF_MAX_ACTIVE];
 
 static TaskType NextTaskID = 0;
 
@@ -77,8 +77,6 @@ void task_function(void *pdata) { /* routine called by each task. */
     }
 
     QF_remove_((QActive *)pdata);  /* remove this object from the framework */
-    
-    TerminateTask();        /* Terminate Erika task */
 }
 /*..........................................................................*/
 void QActive_start_(QActive *me, uint_t prio,
@@ -102,16 +100,23 @@ void QActive_start_(QActive *me, uint_t prio,
 	 * Object priority must by lower than the maximum value allowed by Erika RTOS.
 	 * Note: the maximum priority number depends on the CPU register size.
 	 */
-	if (me->prio > sizeof(EE_TYPEPRIO)* 8)
+#ifdef EE_UREG_SIZE
+	if (me->prio > EE_UREG_SIZE * 8)		
 		Q_ERROR();
+#else
+	if (me->prio > sizeof(EE_TYPEPRIO)* 8)		
+		Q_ERROR();
+#endif
 	/* 
 	 * Priority of AO must match the priority of next available task. 
      */	
     if ((0x1 << (me->prio -1)) & EE_th_ready_prio[NextTaskID]) {
     	
-    	me->thread = NextTaskID + 1;
-    	
     	pdata[NextTaskID++] = me;
+    	/* Note: Erika task Id starts from 0, instead me-> thread must star 
+    	 * from 1.
+    	 */
+    	me->thread = NextTaskID;
     	
     } else {
 
