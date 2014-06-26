@@ -28,9 +28,28 @@
 #ifndef qs_port_h
 #define qs_port_h
 
+#if ( \
+  defined(__CORTEX_M0__) || \
+  defined(__CORTEX_M3__) || \
+  defined(__CORTEX_M4__) || \
+  defined(__RX200__) || \
+  defined(__PIC32__) \
+)
 #define QS_TIME_SIZE            4
 #define QS_OBJ_PTR_SIZE         4
 #define QS_FUN_PTR_SIZE         4
+
+#elif ( \
+  defined(__PIC30__) || \
+  defined(__MC9S12__) || \
+  defined(__HCS12XS__) || \
+  defined(__MSP430__) \
+)
+#define QS_TIME_SIZE            2
+#define QS_OBJ_PTR_SIZE         2
+#define QS_FUN_PTR_SIZE         2
+
+#endif
 
 /*****************************************************************************
 * NOTE: QS might be used with or without other QP components, in which
