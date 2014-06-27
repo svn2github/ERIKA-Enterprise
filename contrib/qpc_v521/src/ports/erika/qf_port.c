@@ -51,16 +51,26 @@
 
 Q_DEFINE_THIS_MODULE("qf_port")
 
+#ifndef NULL
+#define NULL 0
+#endif
+
+
 /* Global objects ----------------------------------------------------------*/
 
-void *pdata[QF_MAX_ACTIVE];
-
-static TaskType NextTaskID = 0;
+void *pdata[EE_MAX_TASK];
 
 
 /*..........................................................................*/
 void QF_init(void) {
-	/* Nothing to do. Erika does not require special initialization steps. */
+	
+	unsigned int i;
+	
+	/*Initialize to NULL the array containing the pointers to AOs.*/
+	for (i = 0; i < EE_MAX_TASK; i++) {
+		pdata[i] = NULL; 
+	}
+	
 }
 /*..........................................................................*/
 int_t QF_run(void) {
@@ -96,6 +106,9 @@ void QActive_start_(QActive *me, uint_t prio,
                     void *stkSto, uint_t stkSize,
                     QEvt const *ie)
 {
+	EE_UINT8 done = 0;
+	TaskType NextTaskID = 0;
+	
 
     Q_REQUIRE(stkSto == (void *)0);  /* Erika tasks allocate stack internally */
 
@@ -119,22 +132,37 @@ void QActive_start_(QActive *me, uint_t prio,
 	if (me->prio > sizeof(EE_TYPEPRIO)* 8)		
 		Q_ERROR();
 #endif
-	/* 
-	 * Priority of AO must match the priority of next available task. 
-     */	
-    if ((0x1 << (me->prio -1)) & EE_th_ready_prio[NextTaskID]) {
-    	
-    	pdata[NextTaskID++] = me;
-    	/* Note: Erika task Id starts from 0, instead me-> thread must star 
-    	 * from 1.
-    	 */
-    	me->thread = NextTaskID;
-    	
-    } else {
-
-    	Q_ERROR();
-    }
-    
+	
+	while (EE_MAX_TASK > NextTaskID && !done) {
+		/* 
+		 * Note: the association between a Task and Active Object (AO) is based 
+		 * on the and priority. Thus, each time an AO is activated, the following
+		 * code looks for an avaiable Task with prioirity equal 
+		 
+		 Priority of AO must match the priority of available task. 
+		 */	
+		if ((0x1 << (me->prio - 1)) & EE_th_ready_prio[NextTaskID]) {
+			
+			/*Check if the Task identified by NextTaskID is available.*/
+			if (NULL == pdata[NextTaskID]) {
+				/*This matches the AO and the Task*/
+				pdata[NextTaskID] = me; 
+				
+				/* Note: Erika task Id starts from 0, 
+				 * instead me->thread must start from 1.
+				 */
+				me->thread = NextTaskID + 1;
+				
+				done = 1;
+			}
+		}
+		NextTaskID++;
+	}
+	
+	/* If there are not available Tasks that match the AO priority through an error.*/
+	if (!done) {
+		Q_ERROR();
+	}
     
    
 }

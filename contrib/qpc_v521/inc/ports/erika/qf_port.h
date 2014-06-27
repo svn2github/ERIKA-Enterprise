@@ -74,13 +74,13 @@
 
   /* Erika Ent. critical section operations.
    * Note: the Erika critical section must be able to nest.
-   * Note: SuspendOSInterrupts()/ suspend/resume all ISR2 type interrupts, to also 
+   * Note: SuspendOSInterrupts()/ suspends/resumes all ISR2 type interrupts, to also 
    * suspend/resume ISR1 interrupts use SuspendAllInterrupts()/ResumeAllInterrupts()
    * See also NOTE01 below.
    */
 
-#define QF_CRIT_ENTRY(dummy)       SuspendOSInterrupts() 
-#define QF_CRIT_EXIT(dummy)        ResumeOSInterrupts() 
+#define QF_CRIT_ENTRY(dummy)       SuspendAllInterrupts() 
+#define QF_CRIT_EXIT(dummy)        ResumeAllInterrupts() 
 
 #include "qep_port.h"	/* QEP port, includes the master Erika Ent. include */
 #include "qequeue.h"	/* Native QF event queue for deferring events */
@@ -88,7 +88,7 @@
 #include "qf.h"			/* QF platform-independent public interface */
 
 /*Routine and data structure called by each task*/
-extern void *pdata[QF_MAX_ACTIVE];
+extern void *pdata[EE_MAX_TASK];
 void task_function(void *pdata);
 
 /*****************************************************************************

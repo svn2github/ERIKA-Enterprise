@@ -104,7 +104,7 @@ CPU mySystem {
 		USERESSCHEDULER = TRUE;
 
         KERNEL_TYPE = ECC2;
-        //EE_OPT = "__OO_STARTOS_OLD__";
+
 	};
 	
 	
