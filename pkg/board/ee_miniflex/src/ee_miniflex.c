@@ -47,7 +47,9 @@
 /*  Analog input */
 /*  *************************************************************************\/ */
 
-#if defined(__USE_BATTERY_MONITOR__) || defined(__USE_TEMPERATURE__) || defined(__USE_LIGHT__) || defined(__USE_ACCELEROMETER__)
+#if defined(__USE_BATTERY_MONITOR__) || defined(__USE_TEMPERATURE__) || \
+	defined(__USE_LIGHT__) || defined(__USE_ACCELEROMETER__) \
+	|| defined(__USE_ANALOG_IN__)
 EE_UINT8 EE_adc_init = 0;
 #endif
 

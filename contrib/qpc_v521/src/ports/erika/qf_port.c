@@ -159,7 +159,7 @@ void QActive_start_(QActive *me, uint_t prio,
 		NextTaskID++;
 	}
 	
-	/* If there are not available Tasks that match the AO priority through an error.*/
+	/* If there are not available Tasks matching the AO priority throw an error.*/
 	if (!done) {
 		Q_ERROR();
 	}
