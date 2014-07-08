@@ -420,7 +420,7 @@ static volatile const EE_UREG
 static const EE_UREG
 #endif
 #ifdef	__AVR_PGMSPACE__
-EE_Gpt_Div[EE_TC_HW_UNITS_NUMBER] = PROGMEM {
+EE_Gpt_Div[EE_TC_HW_UNITS_NUMBER] PROGMEM = {
 #else	__AVR_PGMSPACE__
 EE_Gpt_Div[EE_TC_HW_UNITS_NUMBER] = {
 #endif	/* __AVR_PGMSPACE__ */
@@ -1900,7 +1900,7 @@ EE_Gpt_StartTimer(
 
   EE_HWREG(addr + EE_TC_HW_TCX0_CTRLA_REG_OFS) =
 #ifdef	__AVR_PGMSPACE__
-  (EE_URGE) pgm_read_byte(&EE_Gpt_Div[Channel]);
+  (EE_UREG) pgm_read_byte(&EE_Gpt_Div[Channel]);
 #else	/* __AVR_PGMSPACE__ */
   EE_Gpt_Div[Channel];
 #endif	/* __AVR_PGMSPACE__ */
