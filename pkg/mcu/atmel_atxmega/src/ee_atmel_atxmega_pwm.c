@@ -5818,7 +5818,7 @@ EE_Pwm_SetPeriodAndDuty(
     abs_dc,
     stat,
 #ifdef	__AVR_PGMSPACE__
-    (EE_UREG) pgm_read_bye(&EE_Pwm_Ccx_Div[Channel])
+    (EE_UREG) pgm_read_byte(&EE_Pwm_Ccx_Div[Channel])
 #else	/* __AVR_PGMSPACE__ */
     EE_Pwm_Ccx_Div[Channel]
 #endif	/* __AVR_PGMSPACE__ */
@@ -5933,7 +5933,7 @@ EE_Pwm_SetDutyCycle(
     abs_dc,
     stat,
 #ifdef	__AVR_PGMSPACE__
-    (EE_UREG) pgm_read_bye(&EE_Pwm_Ccx_Div[Channel])
+    (EE_UREG) pgm_read_byte(&EE_Pwm_Ccx_Div[Channel])
 #else	/* __AVR_PGMSPACE__ */
     EE_Pwm_Ccx_Div[Channel]
 #endif	/* __AVR_PGMSPACE__ */
