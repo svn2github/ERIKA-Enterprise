@@ -8,7 +8,7 @@ CPU test_application {
     //EE_OPT = "EE_MM_OPT";
     EE_OPT = "EE_ICACHE_ENABLED";
     EE_OPT = "EE_DCACHE_ENABLED";
-    EE_OPT = "EE_BUILD_SINGLE_ELF";
+    //EE_OPT = "EE_BUILD_SINGLE_ELF";
     
     //EE_OPT = "TEST_ERROR_CONF";
     //CFLAGS = "-DTEST_SLAVE1_APPMODE=2";

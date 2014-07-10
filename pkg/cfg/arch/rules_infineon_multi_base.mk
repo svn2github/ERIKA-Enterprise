@@ -106,7 +106,8 @@ else # EE_BUILD_SINGLE_ELF
 EE_T32_SCRIPTS_SOURCE_FOLDER = $(PKGBASE)/mcu/infineon_$(TRICORE_MODEL)/cfg/multicore
 endif # EE_BUILD_SINGLE_ELF
 
-.PHONY: all clean
+.PHONY: all all_cpus clean
+.DEFAULT_GOAL := all
 
 #List of CPU directories
 EE_CORE_DIRS = $(CPU_MASTER_DIR)/ $(CPU1_DIR)/
@@ -119,7 +120,6 @@ ifeq ($(call iseeopt, EE_BUILD_SINGLE_ELF),yes)
 #XXX: Supported only by gcc compiler (undefined behaviour with other compilers)
 # Define the TARGET
 TARGET_ELF_NAME ?= $(TRICORE_MODEL)_multicore.elf
-.DEFAULT_GOAL := $(TARGET_ELF_NAME)
 
 EEOPT += EE_GNU__
 
@@ -131,16 +131,20 @@ include $(PKGBASE)/cfg/compiler.mk
 SOURCEFILE = $(call native_path,$<)
 TARGETFILE = $(call native_path,$@)
 
-$(TARGET_ELF_NAME): all $(EE_GLOBAL_OBJS) $(LINKDEP)
+#Default Target
+all: $(TARGET_ELF_NAME)
+
+$(TARGET_ELF_NAME): all_cpus $(EE_GLOBAL_OBJS) $(LINKDEP)
 	@echo "GLOBAL LD $@";
 	$(QUIET)$(EE_LINK) $(OPT_LINK)  $(call target_ld_file,$(TARGETFILE)) $(EE_GLOBAL_OBJS) $(MASTER_ELF_PATH) $(CPU1_ELF_PATH) $(CPU2_ELF_PATH)
 	@echo "************************************"
 	@echo "Global Compilation terminated successfully!"
 else # EE_BUILD_SINGLE_ELF
-.DEFAULT_GOAL := all
+#Default Target
+all: all_cpus
 endif # EE_BUILD_SINGLE_ELF
 
-all: $(foreach c, $(CPU_LIST), $(c)-all) $(EE_SCRIPTS) $(T32SCRIPT)
+all_cpus: $(foreach c, $(CPU_LIST), $(c)-all) $(EE_SCRIPTS) $(T32SCRIPT)
 
 clean: $(foreach c, $(CPU_LIST), $(c)-clean)
 
