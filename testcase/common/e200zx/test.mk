@@ -42,6 +42,10 @@
 # Freescale PowerPc e200zX testcases
 #
 
+# The list of supported targets
+ifneq ($(MCU_TARGET),$(filter $(MCU_TARGET),k2 cobra55 mamba))
+$(error BAD TARGET!!! This testsuite configured for PowerPC supports these target list: cobra55, k2 or mamba. For instance: make ARCH=e200zx_diab_5_8_vle MCU_TARGET=cobra55)
+endif
 
 #
 # Global scripts
@@ -147,7 +151,7 @@ OUTDIR_COMMANDS_e200zx_source = \
 # - compiler: can be either codewarrior or diab
 CONF_e200zx_source_template = \
 	echo CONF $(OUTDIR_PREFIX)$*; \
-	cat $(OUTDIR_PREFIX)$*/appl.oil | gcc -c - -E -P -I$(EEBASE)/pkg $(addprefix -D, $(shell $(DEMUX2) $*)) -De200zx $(e200zx_compiler_def) $(e200zx_vle_def) -o - >$(OUTDIR_PREFIX)$*/ee.oil;
+	cat $(OUTDIR_PREFIX)$*/appl.oil | gcc -c - -E -P -I$(EEBASE)/pkg $(addprefix -D, $(shell $(DEMUX2) $*)) -De200zx -D$(MCU_TARGET) $(e200zx_compiler_def) $(e200zx_vle_def) -o - >$(OUTDIR_PREFIX)$*/ee.oil;
 e200zx_compiler_def=$(if $(filter codewarrior_10_0_2,$1 $2),-DUSE_CODEWARRIOR,$(if $(filter diab_5_5_1,$1 $2),-DUSE_DIAB,$(if $(filter diab_5_8,$1 $2),-DUSE_DIAB_5_8,$(error Neither "codewarrior" nor "diab" found in arguments of CONF_e200zx_source_template))))
 e200zx_vle_def=$(if $(filter vle,$1 $2),-DUSE_VLE,$(if $(filter fle,$1 $2),-DUSE_FLE,$(error Neither "fle" nor "vle" found in arguments of CONF_e200zx_source_template)))
 
@@ -166,7 +170,7 @@ COMPILE_e200zx_source = \
 # The template receives one argument
 # - instruction set: can be either vle or fle
 DEBUG_e200zx_source_template = \
-	sed -e 's:\#USE_VLE\#:$(e200zx_vle_debug):g' < e200zx/t32.cmm > $(OUTDIR_PREFIX)$*/t32.cmm; \
+	sed -e 's:\#USE_VLE\#:$(e200zx_vle_debug):g' < e200zx/$(MCU_TARGET)/t32.cmm > $(OUTDIR_PREFIX)$*/t32.cmm; \
 	$(LOCKFILE) $(FILE_LOCK); \
 		echo "&count=&count+1" >> $(EE_TMPDIR)/t32_jobs.cmm; \
 		echo chdir $(OUTDIR_PREFIX)$* >> $(EE_TMPDIR)/t32_jobs.cmm; \
@@ -178,6 +182,6 @@ DEBUG_e200zx_source_template = \
 		echo print \"$(OUTDIR_PREFIX)$*\" >> $(EE_TMPDIR)/t32_jobs.cmm; \
 		echo area.select A000 >> $(EE_TMPDIR)/t32_jobs.cmm; \
 		echo do t32.cmm >> $(EE_TMPDIR)/t32_jobs.cmm; \
-		cp -u e200zx/t32_quit.cmm $(EE_TMPDIR)/t32.cmm; \
+		cp -u e200zx/$(MCU_TARGET)/t32_quit.cmm $(EE_TMPDIR)/t32.cmm; \
 	rm -f $(FILE_LOCK);
 e200zx_vle_debug = $(if $(filter vle,$1),1,$(if $(filter fle,$1),0,$(error Neither "fle" nor "vle" found in arguments of DEBUG_e200zx_source_template)))

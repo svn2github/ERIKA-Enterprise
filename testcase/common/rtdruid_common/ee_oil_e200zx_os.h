@@ -50,11 +50,21 @@ EE_OPT = "EEOPT_DIAB_5_8";
 #endif
 
 MCU_DATA = PPCE200ZX {
+#if defined (cobra55)
+   MODEL = MPC5777C;
+#elif defined (k2)
+  MODEL = SPC574K;
+#elif defined (mamba)
   MODEL = MPC5674F;
+#endif
 };
 
 CPU_DATA = PPCE200ZX {
-  MODEL = E200Z7;
+#if defined(cobra55) || defined (mamba)
+   MODEL = E200Z7;
+#elif defined (k2)
+  MODEl = E200Z225;
+#endif
   APP_SRC = "code.c";
 #ifdef USEIRQ
   APP_SRC = "../../common/e200zx/test_irq.c";
