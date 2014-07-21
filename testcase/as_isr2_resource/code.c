@@ -57,14 +57,6 @@
 #define IRQ_MEDIUM_PRIO EE_ISR_PRI_2
 #define IRQ_HIGH_PRIO   EE_ISR_PRI_3
 
-#ifdef __PPCE200ZX__
-/* Ack the IRQ */
-#define ACK_IRQ(x) (INTC.SSCIR[(x)].B.CLR = 1)
-#else
-/* Ack the IRQ */
-#define ACK_IRQ(x)    ((void)0)
-#endif  /* __CORTEX_M4__ */
-
 static StatusType last_error;
 static unsigned int error_count;
 

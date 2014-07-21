@@ -61,7 +61,7 @@ static SoftIRQHandler soft_irq_handlers[E200ZX_SOFT_IRQ_NUM];
 static void handler_wrapper_isr##IRQ(void) \
 { \
 	SoftIRQHandler real_handler = soft_irq_handlers[(IRQ)]; \
-	INTC.SSCIR[(IRQ)].R = 1; /* Ack the IRQ */ \
+	ACK_IRQ(IRQ); /* Ack the IRQ */ \
 	if(real_handler != NULL) { /* check if the real handler is null */ \
 		real_handler(); /* call the real handler */ \
 	} \
@@ -101,8 +101,11 @@ void test_fire_irq(unsigned int irq)
 {
 	if(irq > 5U)
 		return;
-
+#if defined (EE_MPC5777C)
+	INTC_SSCIR(irq) = 2;
+#else
 	INTC.SSCIR[irq].R = 2;
+#endif
 	EE_e200zx_mbar();
 }
 

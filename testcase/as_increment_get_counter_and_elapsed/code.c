@@ -46,16 +46,6 @@
 #define TRUE  1U
 #define FALSE 0U
 
-#ifdef __PPCE200ZX__
-/* Ack the IRQ */
-#define ISR_LOW 0
-#define ACK_IRQ(x) (INTC.SSCIR[(x)].B.CLR = 1)
-#else
-/* Ack the IRQ */
-#define ISR_LOW 0
-#define ACK_IRQ(x)    ((void)0)
-#endif  /* __PPCE200ZX__ */
-
 /* assertion data */
 #define MAX_ASSERT 15
 /* Leave one position as guard */

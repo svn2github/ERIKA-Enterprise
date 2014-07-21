@@ -44,6 +44,7 @@
 #include <ee_irq.h>
 #include <ee_internal.h>
 #include "test/assert/inc/ee_assert.h"
+#include "../../common/test_common.h"
 
 #define TRUE  1U
 #define FALSE 0U
@@ -61,9 +62,6 @@
 #define STACK_IRQ_SIZE      512U
 
 #define MAX_ASSERT 30
-
-/* Ack the IRQ */
-#define ACK_IRQ(x) (INTC.SSCIR[(x)].B.CLR = 1)
 
 /* IRQ tos defined in eecfg.c */
 extern struct EE_TOS EE_e200z7_IRQ_tos;
@@ -84,7 +82,7 @@ static void fire_irq(unsigned int irq)
   if(irq > 5U)
     return;
   /* SHOOT THE IRQ */
-  INTC.SSCIR[irq].B.SET = 1;
+  test_fire_irq(irq);
   EE_e200zx_mbar();
 }
 

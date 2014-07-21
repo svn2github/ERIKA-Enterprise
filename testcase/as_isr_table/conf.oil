@@ -70,6 +70,7 @@ CPU test_application {
     CPU_DATA = PPCE200ZX {
       MODEL = E200Z7;
       APP_SRC = "code.c";
+	  APP_SRC = "../common/tricore/test_irq.c";
       VLE = FALSE;
       SYS_STACK_SIZE=2048;
 

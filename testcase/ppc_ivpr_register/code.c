@@ -32,73 +32,21 @@
 
 EE_TYPEASSERTVALUE EE_assertions[3];
 
+#ifndef TRUE
 #define TRUE  1U
+#endif
+
+#ifndef FALSE
 #define FALSE 0U
+#endif
 
 DeclareTask(Task1);
-
-void mpc5674f_stm_freeze_on(void);
-void mpc5674f_stm_freeze_off(void);
-void mpc5674f_stm_set_prescaler(unsigned int val);
-void mpc5674f_stm_select_channel(unsigned int ch);
-void mpc5674f_stm_unselect_channel(unsigned int ch);
-void mpc5674f_stm_channel_cmp(unsigned int ch, unsigned int val);
-void mpc5674f_stm_clear_int(unsigned int ch);
-void mpc5674f_stm_set_counter(unsigned int val);
-void mpc5674f_stm_enable(void);
-void mpc5674f_stm_disable(void);
-
 
 void delay(unsigned int value)
 {
         volatile int i=0;
         for (i=0; i<value; i++)
                 ;
-}
-
-void alert_stm(void)
-{
-        /* perform a dummy activity */
-        ActivateTask(Task1);
-
-        /* clear request */
-        mpc5674f_stm_clear_int(0);
-
-          /* stop timer */
-        mpc5674f_stm_disable();
-
-        /* enable channel 0 to raise a new interrupt*/
-        mpc5674f_stm_select_channel(0);
-
-        /* initial counter value (equal to 0) */
-        mpc5674f_stm_set_counter(0);
-
-        /* start timer */
-        mpc5674f_stm_enable();
-}
-
-static void init_stm_timer(void)
-{
-        /* register isr */
-        EE_e200z7_register_ISR(216, alert_stm, 15);
-
-        /* freeze anabled */
-        mpc5674f_stm_freeze_on();
-
-        /* set prescaler to 0x0 */
-        mpc5674f_stm_set_prescaler(1);
-
-        /* set compare register to 0x400000 */
-        mpc5674f_stm_channel_cmp(0,0x400000);
-
-        /* enable channel 0 */
-        mpc5674f_stm_select_channel(0);
-
-        /* initial counter value */
-        mpc5674f_stm_set_counter(0);
-
-        /* start timer */
-        mpc5674f_stm_enable();
 }
 
 __asm static EE_UREG get_IVPR(void)
@@ -133,120 +81,23 @@ TASK(Task1)
     /* Get IVOR0 */
     ivor0 = get_IVOR0();
 
-    if (first_time == 0U) {
-        /*
-         * Check if IVPR is as expected
-         * We expect the higher 16-bit part of ivpr == 0x4000
-         * and the lower 16-bit part of ivor0 being
-         * negative (16-th bit set to 1, e.g.: 0x8YYY)
-         */
-        EE_assert(2, ((ivpr>>16)==0x4000) && ((ivor0 & 0x8000) == 0x8000), 1);
+    /*
+     * Check if IVPR is as expected
+     * We expect the higher 16-bit part of ivpr == 0x4000
+     * and the lower 16-bit part of ivor0 being
+     * negative (16-th bit set to 1, e.g.: 0x8YYY)
+     */
+    EE_assert(2, ((ivpr>>16)==0x4000) && ((ivor0 & 0x8000) == 0x8000), 1);
 
-        EE_assert_range(0,1,2);
-        EE_assert_last();
+    EE_assert_range(0,1,2);
+    EE_assert_last();
 
-        /* Execute this test the only first time */
-        first_time = 1U;
-    }
+    /* Execute this test the only first time */
+    first_time = 1U;
 }
 
 void main(void)
 {
-    init_stm_timer();
 	StartOS(OSDEFAULTAPPMODE);
-}
-
-void mpc5674f_stm_freeze_on(void)
-{
-        STM.CR.B.FRZ = 1;
-}
-
-void mpc5674f_stm_freeze_off(void)
-{
-        STM.CR.B.FRZ = 0;
-}
-
-void mpc5674f_stm_set_prescaler(unsigned int val)
-{
-        STM.CR.B.CPS = val-1;
-}
-
-void mpc5674f_stm_select_channel(unsigned int ch)
-{
-        if (ch == 0) {
-                STM.CCR0.B.CEN = 1;
-        }
-        else if (ch == 1) {
-                STM.CCR1.B.CEN = 1;
-        }
-        else if (ch == 2) {
-                STM.CCR2.B.CEN = 1;
-        }
-        else if (ch == 3) {
-                STM.CCR3.B.CEN = 1;
-        }
-}
-
-void mpc5674f_stm_unselect_channel(unsigned int ch)
-{
-        if (ch == 0) {
-                STM.CCR0.B.CEN = 0;
-        }
-        else if (ch == 1) {
-                STM.CCR1.B.CEN = 0;
-        }
-        else if (ch == 2) {
-                STM.CCR2.B.CEN = 0;
-        }
-        else if (ch == 3) {
-                STM.CCR3.B.CEN = 0;
-        }
-}
-
-void mpc5674f_stm_channel_cmp(unsigned int ch, unsigned int val)
-{
-        if (ch == 0) {
-                STM.CMP0.R = val;
-        }
-        else if (ch == 1) {
-                STM.CMP1.R = val;
-        }
-        else if (ch == 2) {
-                STM.CMP2.R = val;
-        }
-        else if (ch == 3) {
-                STM.CMP3.R = val;
-        }
-}
-
-void mpc5674f_stm_clear_int(unsigned int ch)
-{
-        if (ch == 0) {
-                STM.CIR0.B.CIF = 1;
-        }
-        else if (ch == 1) {
-                STM.CIR1.B.CIF = 1;
-        }
-        else if (ch == 2) {
-                STM.CIR2.B.CIF = 1;
-        }
-        else if (ch == 3) {
-                STM.CIR3.B.CIF = 1;
-        }
-}
-
-void mpc5674f_stm_set_counter(unsigned int val)
-{
-        STM.CNT.R = val;
-}
-
-void mpc5674f_stm_enable(void)
-{
-        STM.CR.B.TEN = 1;
-}
-
-void mpc5674f_stm_disable(void)
-{
-        STM.CR.B.TEN = 0;
 }
 
