@@ -80,9 +80,9 @@ void EE_std_change_context(EE_TID tid);
      begin:
       tos_index = EE_std_thread_tos[tid+1];
       if is_not_the_current_stack(tos_index) {
-          save_caller_saved_registers();
+          save_callee_saved_registers();
           switch_stacks(tos_index);
-          restore_caller_saved_registers();
+          restore_callee_saved_registers();
       }
       if (is_not_marked_stacked(tid)) {
           tid = EE_std_run_task_code(tid);
