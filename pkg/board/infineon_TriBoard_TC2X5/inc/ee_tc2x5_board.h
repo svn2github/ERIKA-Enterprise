@@ -169,12 +169,12 @@ __INLINE__ void __ALWAYS_INLINE__ EE_tc2x5_leds_init( void )
 }
 
 
-/* Infineon TriBoard-TC2X5_V2.0 come without button but RESET button.
+/* Infineon TriBoard-TC2X5_V2.0 come without buttons, but RESET button.
    We put a flying button connected with signal REQ1 <-> pin P15.8 on
    pin 71 of PERIPHERALS (Xx02,Xx02) connector.
 
-   Pin P15.8 is a valid input for the ESR5 (External Request Selecter 5),
-   that can be configured with EICR1.EIS1 (External Input Channel Register 1,
+   Pin P15.8 is a valid input for the ESR5 (External Service Requests 5),
+   that can be configured with EICR2.EIS1 (External Input Channel Register 1,
    External Input Selection 1 (the rule is EICRx.EISy -> ESR(2x + y) with
    x [0..3] and y [0,1]).
 
@@ -185,7 +185,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_tc2x5_leds_init( void )
 __INLINE__ void __ALWAYS_INLINE__ EE_tc2x5_button_irq_init( EE_TYPEISR2PRIO intvec )
 {
   /*  On reset all IOCR (input/output configuration register) configure port
-      as input connceted to pull-up, that is what we need, so we wont change
+      as input connected to pull-up, that is what we need, so we wont change
       it, but if the internal pull-up will have problem with button pull-up
       I have just to enable the following line */
   /* P15_IOCR8.PC8 = EE_TC2YX_INPUT_TRISTATE; */
@@ -193,7 +193,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_tc2x5_button_irq_init( EE_TYPEISR2PRIO intv
   /* P15.8 is input selection 0 so I don't need to configure EIS */
   /* SCU_EICR2.B.EIS1 = 0U; */
 
-  /*  The button will shortcut the pin with gnd when pressed ->
+  /*  The button will shortcut the pin with GND when pressed ->
       we will use the falling edge to generate the interrupt */
   SCU_EICR2.B.FEN1    = 1U;
   SCU_EICR2.B.EIEN1   = 1U;
@@ -201,7 +201,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_tc2x5_button_irq_init( EE_TYPEISR2PRIO intv
   /* Configure OGU0 to respond on triggers (no pattern matching) */
   SCU_IGCR0.B.IGP0 = 1U;
 
-  /* I will use OGU0 (Output Gatein Unit 0) -> SRC_SCUERU0
+  /* I will use OGU0 (Output Gate-in Unit 0) -> SRC_SCUERU0
    *  [0..7] SRPN = INTERRUPT_NR
    *  [10] Service Request enable
    *  [11..12] Type Of Service (means which CPU will handle it)
