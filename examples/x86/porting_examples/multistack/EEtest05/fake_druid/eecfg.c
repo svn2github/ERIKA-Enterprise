@@ -12,8 +12,6 @@
     #define STACK_2_SIZE 256
     #define STACK_3_SIZE 256
 
-    #define STACK_OFFSET 16
-
     int EE_x86_stack_1[STACK_1_SIZE];	// Task 0 (Task1)
     int EE_x86_stack_2[STACK_2_SIZE];	// Task 1 (Task2)
     int EE_x86_stack_3[STACK_3_SIZE];	// IRQ stack
@@ -26,8 +24,8 @@
 
     struct EE_TOS EE_std_system_tos[3] = {
        {0},	// Task   (dummy)
-       {(EE_ADDR)(&EE_x86_stack_1[STACK_1_SIZE-STACK_OFFSET])},// Task 0 (Task1)
-       {(EE_ADDR)(&EE_x86_stack_2[STACK_2_SIZE-STACK_OFFSET])} // Task 1 (Task2)
+       {(EE_ADDR)(&EE_x86_stack_1[STACK_1_SIZE-X86_INIT_TOS_OFFSET])},// Task 0 (Task1)
+       {(EE_ADDR)(&EE_x86_stack_2[STACK_2_SIZE-X86_INIT_TOS_OFFSET])} // Task 1 (Task2)
     };
 
     EE_UREG EE_x86_active_tos = 0; /* dummy */

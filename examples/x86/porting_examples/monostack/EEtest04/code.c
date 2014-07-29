@@ -71,8 +71,6 @@ volatile int isr1_fired = 0;
 volatile int counter = 0;
 
 
-#define TEST_IRQ 42
-
 void EE_pit_handler(void) {
   isr1_fired++;
   printf("----------Timer ISR, cnt: %d----------\n", isr1_fired);

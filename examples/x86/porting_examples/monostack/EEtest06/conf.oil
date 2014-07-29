@@ -46,18 +46,20 @@ CPU test_application {
 
 	OS EE {
 		EE_OPT = "DEBUG";
-
 		EE_OPT = "__ASSERT__";
-		EE_OPT = "__X86__";
 
 		CFLAGS = "";
 		ASFLAGS = "";
 		LDFLAGS = "";
 
 		CPU_DATA = X86 {
-			APP_SRC = "main.c";
+			APP_SRC = "code.c";
+			COMPILER_TYPE = GCC;
 			MULTI_STACK = FALSE;
 		};
+
+    		KERNEL_TYPE = BCC1;
+		EE_OPT = "__OO_STARTOS_OLD__"
 
 		STATUS = EXTENDED;
 		STARTUPHOOK = FALSE;
@@ -81,7 +83,7 @@ CPU test_application {
 	};
 
      TASK Task2 {
-		PRIORITY = 0x02;   /* Low priority */
+		PRIORITY = 0x01;   /* Low priority */
 		AUTOSTART = FALSE;
 		STACK = SHARED;
 		ACTIVATION = 1;    /* only one pending activation */
@@ -89,5 +91,4 @@ CPU test_application {
 	};
 
 
-    OS EE { KERNEL_TYPE = FP; };
 };

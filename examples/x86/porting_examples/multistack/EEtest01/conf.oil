@@ -48,14 +48,9 @@ CPU test_application {
 		EE_OPT = "DEBUG";
 
 		EE_OPT = "__ASSERT__";
-		EE_OPT = "__X86__";
-
-		CFLAGS = "";
-		ASFLAGS = "";
-		LDFLAGS = "";
-
 		CPU_DATA = X86 {
 			APP_SRC = "code.c";
+			COMPILER_TYPE = GCC;
 			MULTI_STACK = FALSE;
 		};
 
@@ -69,6 +64,7 @@ CPU test_application {
 		USEPARAMETERACCESS = FALSE;
 		USERESSCHEDULER = FALSE;
 
+		KERNEL_TYPE = FP;
     };
 
 	/* this is the OIL part for the first task */
@@ -76,7 +72,7 @@ CPU test_application {
 		PRIORITY = 0x01;   /* Low priority */
 		AUTOSTART = FALSE;
 		STACK = PRIVATE {
-			SYS_SIZE = 512;
+			SYS_SIZE = 256;
 		};
 			ACTIVATION = 1;    /* only one pending activation */
 		SCHEDULE = FULL;
@@ -85,11 +81,12 @@ CPU test_application {
      TASK Task2 {
 		PRIORITY = 0x02;   /* Low priority */
 		AUTOSTART = FALSE;
-		STACK = SHARED;
+		STACK = PRIVATE {
+			SYS_SIZE = 256;
+		};
 		ACTIVATION = 1;    /* only one pending activation */
 		SCHEDULE = FULL;
 	};
 
 
-    OS EE { KERNEL_TYPE = FP; };
 };

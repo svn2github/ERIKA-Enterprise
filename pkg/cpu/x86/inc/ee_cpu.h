@@ -85,6 +85,7 @@ typedef EE_UINT32 EE_UTID;
 #ifdef __MULTI__
 // Multistack variant
 /* Top-Of-Stacks (tos) structure defined by RT-Druid in eecfg.c */
+#define X86_INIT_TOS_OFFSET	 0x10U /* edi, esi, ebp, ebx  */
 
 extern	EE_UREG EE_x86_active_tos;
 #define	EE_hal_active_tos EE_x86_active_tos

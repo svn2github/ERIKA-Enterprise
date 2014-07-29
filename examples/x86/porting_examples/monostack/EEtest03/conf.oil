@@ -55,7 +55,8 @@ CPU test_application {
 		LDFLAGS = "";
 
 		CPU_DATA = X86 {
-			APP_SRC = "main.c";
+			APP_SRC = "code.c";
+			COMPILER_TYPE = GCC;
 			MULTI_STACK = FALSE;
 		};
 

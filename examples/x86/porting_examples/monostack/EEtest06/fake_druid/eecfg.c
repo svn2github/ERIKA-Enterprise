@@ -26,13 +26,13 @@
 
     /* ready priority */
     const EE_TYPEPRIO EE_th_ready_prio[EE_MAX_TASK] = {
-        0x2U, 		/* thread Task1 */
+        0x1U, 		/* thread Task1 */
         0x1U 		/* thread Task2 */
     };
 
     /* dispatch priority */
     const EE_TYPEPRIO EE_th_dispatch_prio[EE_MAX_TASK] = {
-        0x2U, 		/* thread Task1 */
+        0x1U, 		/* thread Task1 */
         0x1U 		/* thread Task2 */
     };
 

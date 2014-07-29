@@ -46,28 +46,18 @@ CPU test_application {
 
 	OS EE {
 		EE_OPT = "DEBUG";
-
 		EE_OPT = "__ASSERT__";
-		EE_OPT = "__X86__";
 
 		CFLAGS = "";
 		ASFLAGS = "";
 		LDFLAGS = "";
 
 		CPU_DATA = X86 {
-			APP_SRC = "main.c";
+			APP_SRC = "code.c";
+			COMPILER_TYPE = GCC;
 			MULTI_STACK = FALSE;
 		};
-
-		STATUS = EXTENDED;
-		STARTUPHOOK = FALSE;
-		ERRORHOOK = FALSE;
-		SHUTDOWNHOOK = FALSE;
-		PRETASKHOOK = FALSE;
-		POSTTASKHOOK = FALSE;
-		USEGETSERVICEID = FALSE;
-		USEPARAMETERACCESS = FALSE;
-		USERESSCHEDULER = FALSE;
+		KERNEL_TYPE = FP;
 
     };
 
@@ -78,6 +68,7 @@ CPU test_application {
 		STACK = SHARED;
 		ACTIVATION = 1;    /* only one pending activation */
 		SCHEDULE = FULL;
+		RESOURCE = Resource;
 	};
 
      TASK Task2 {
@@ -86,8 +77,9 @@ CPU test_application {
 		STACK = SHARED;
 		ACTIVATION = 1;    /* only one pending activation */
 		SCHEDULE = FULL;
+		RESOURCE = Resource;
 	};
 
+     RESOURCE Resource { RESOURCEPROPERTY = STANDARD; };
 
-    OS EE { KERNEL_TYPE = FP; };
 };

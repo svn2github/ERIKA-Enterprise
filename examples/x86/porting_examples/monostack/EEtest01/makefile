@@ -56,7 +56,7 @@ export OUTPUT_DIR = Debug
 
 RTDRUID_OUTPUT = $(addprefix $(OUTPUT_DIR)/, makefile eecfg.h eecfg.c)
 
-APPSRC=main.c
+APPSRC=code.c
 
 .PHONY: all clean
 

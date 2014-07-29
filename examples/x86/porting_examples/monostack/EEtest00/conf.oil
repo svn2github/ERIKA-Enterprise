@@ -53,7 +53,7 @@ CPU mySystem {
 
 		CPU_DATA = X86 {
 			APP_SRC = "code.c";
-			COMPILER_TYPE = CCRX;
+			COMPILER_TYPE = GCC;
 			MULTI_STACK = FALSE;
 		};
 

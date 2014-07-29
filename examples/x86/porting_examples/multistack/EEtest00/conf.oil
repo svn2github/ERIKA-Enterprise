@@ -48,27 +48,17 @@ CPU test_application {
 		EE_OPT = "DEBUG";
 
 		EE_OPT = "__ASSERT__";
-		EE_OPT = "__X86__";
 
 		CFLAGS = "";
 		ASFLAGS = "";
 		LDFLAGS = "";
 
 		CPU_DATA = X86 {
-			APP_SRC = "main.c";
-			MULTI_STACK = FALSE;
+			APP_SRC = "code.c";
+			COMPILER_TYPE = GCC;
+			MULTI_STACK = TRUE;
 		};
-
-		STATUS = EXTENDED;
-		STARTUPHOOK = FALSE;
-		ERRORHOOK = FALSE;
-		SHUTDOWNHOOK = FALSE;
-		PRETASKHOOK = FALSE;
-		POSTTASKHOOK = FALSE;
-		USEGETSERVICEID = FALSE;
-		USEPARAMETERACCESS = FALSE;
-		USERESSCHEDULER = FALSE;
-
+		KERNEL_TYPE = FP;
     };
 
 	/* this is the OIL part for the first task */
@@ -89,5 +79,4 @@ CPU test_application {
 	};
 
 
-    OS EE { KERNEL_TYPE = FP; };
 };

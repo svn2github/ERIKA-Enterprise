@@ -55,32 +55,18 @@ CPU test_application {
 		LDFLAGS = "";
 
 		CPU_DATA = X86 {
-			APP_SRC = "main.c";
+			APP_SRC = "code.c";
+			COMPILER_TYPE = GCC;
 			MULTI_STACK = FALSE;
 		};
 
-		STATUS = EXTENDED;
-		STARTUPHOOK = FALSE;
-		ERRORHOOK = FALSE;
-		SHUTDOWNHOOK = FALSE;
-		PRETASKHOOK = FALSE;
-		POSTTASKHOOK = FALSE;
-		USEGETSERVICEID = FALSE;
-		USEPARAMETERACCESS = FALSE;
-		USERESSCHEDULER = FALSE;
-
+		KERNEL_TYPE = FP {
+			NESTED_IRQ = TRUE;
+		};
     };
 
 	/* this is the OIL part for the first task */
     TASK Task1 {
-		PRIORITY = 0x01;   /* Low priority */
-		AUTOSTART = FALSE;
-		STACK = SHARED;
-		ACTIVATION = 1;    /* only one pending activation */
-		SCHEDULE = FULL;
-	};
-
-     TASK Task2 {
 		PRIORITY = 0x02;   /* Low priority */
 		AUTOSTART = FALSE;
 		STACK = SHARED;
@@ -88,6 +74,13 @@ CPU test_application {
 		SCHEDULE = FULL;
 	};
 
+     TASK Task2 {
+		PRIORITY = 0x01;   /* Low priority */
+		AUTOSTART = FALSE;
+		STACK = SHARED;
+		ACTIVATION = 1;    /* only one pending activation */
+		SCHEDULE = FULL;
+	};
 
-    OS EE { KERNEL_TYPE = FP; };
+
 };
