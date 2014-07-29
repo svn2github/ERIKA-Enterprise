@@ -64,6 +64,10 @@ extern "C" {
  #include "cpu/hs12xs/inc/ee_internal.h"
 #endif
 
+#ifdef __X86__
+#include "cpu/x86/inc/ee_internal.h"
+#endif
+
 #ifdef __AVR8__
 #include "cpu/avr8/inc/ee_avr8_internal.h"
 #endif
@@ -229,7 +233,7 @@ extern "C" {
 #if defined( __RX200__ ) && defined( __R5F5210x__ )
 #include "mcu/renesas_r5f5210x/inc/ee_internal.h"
 #endif
-	
+
   /*
    *
    * Board

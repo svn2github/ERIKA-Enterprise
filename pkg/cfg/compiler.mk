@@ -202,4 +202,9 @@ ifeq ($(call iseeopt, __RX200__), yes)
 include $(EEBASE)/pkg/cfg/arch/cc_rx200_ccrx.mk
 endif
 
+ifeq ($(call iseeopt, __X86__), yes)
+include $(EEBASE)/pkg/cfg/arch/cc_x86_gcc.mk
+endif
+
+
 

@@ -87,6 +87,11 @@ extern "C" {
 #include "cpu/cortex_mx/inc/ee_cpu.h"
 #endif
 
+#ifdef __X86__
+#include "cpu/x86/inc/ee_cpu.h"
+#endif
+
+
 #ifdef EE_TRICORE__
 #include "cpu/tricore/inc/ee_tc_cpu.h"
 #endif /* EE_TRICORE__ */
@@ -135,6 +140,10 @@ defined(__OO_ECC2__) || defined(__AS_SC4__)
 #include "cpu/pic30/inc/ee_irqstub.h"
 #endif
 
+#ifdef __X86__
+#include "cpu/x86/inc/ee_irqstub.h"
+#endif
+
 #ifdef __LM32__
 #include "cpu/mico32/inc/ee_irq.h"
 #endif
@@ -146,7 +155,7 @@ defined(__OO_ECC2__) || defined(__AS_SC4__)
 #ifdef __CORTEX_MX__
 #include "cpu/cortex_mx/inc/ee_irq.h"
 #endif
-	
+
 #ifdef __RX200__
 #include "cpu/rx200/inc/ee_irq.h"
 #endif

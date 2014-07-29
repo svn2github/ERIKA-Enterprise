@@ -337,6 +337,13 @@ include $(EEBASE)/pkg/cfg/arch/rules_cortex_generic.mk
 endif
 
 ##
+## x86 clang/gcc
+##########################################################################
+ifeq ($(call iseeopt, __X86__), yes)
+include $(EEBASE)/pkg/cfg/arch/rules_x86_generic.mk
+endif
+
+##
 ## RX210 - Renesas High-performance Embedded Workshop with ccrx compiler
 ## compilers toolchains under windows
 ##########################################################################

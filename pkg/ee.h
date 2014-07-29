@@ -78,6 +78,11 @@ extern "C" {
 #include "cpu/arm7tdmi/inc/ee_cpu.h"
 #endif
 
+#ifdef __X86__
+#include "cpu/x86/inc/ee_cpu.h"
+#endif
+
+
 #ifdef __AVR8__
 #include "cpu/avr8/inc/ee_avr8_cpu.h"
 #endif
@@ -213,6 +218,11 @@ extern "C" {
 #include "mcu/tc179x/inc/ee_mcu.h"
 #endif
 
+/* X86 */
+#ifdef __X86__
+#include "mcu/x86/inc/ee_mcu.h"
+#endif
+
 /* Tricore TC26X || TC27x */
 #if defined(EE_TRICORE__) && (defined(EE_TC26X__) || defined(EE_TC27X__))
 #include "mcu/infineon_common_tc2Yx/inc/ee_tc2Yx_mcu.h"
@@ -314,7 +324,7 @@ extern "C" {
 #ifdef __EE_FLEX32__
 #include "board/ee_flex32/inc/ee_board.h"
 #endif
- 
+
  /* PIC32 */
 #ifdef __IPERMOB_MB_PIC32__
 #include "board/ipermob_mb_pic32/inc/ee_board.h"
