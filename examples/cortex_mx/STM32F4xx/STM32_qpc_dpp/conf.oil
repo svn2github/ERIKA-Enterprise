@@ -84,7 +84,7 @@ CPU mySystem {
 		
 		LIB = ENABLE { NAME = "QPC_V521"; };
 		EE_OPT = "__LIB_QPC_V521__";
-		//EE_OPT = "Q_SPY";
+		EE_OPT = "Q_SPY";
 		
 		LIB = ENABLE { NAME = "ST_CMSIS"; };
 		
@@ -102,7 +102,7 @@ CPU mySystem {
 				USELEDS = TRUE;
 				USEBUTTONS = TRUE;
 				/*Uncomment the following line is EE_OPT = "Q_SPY"; is defined*/
-				//USECOM = TRUE;
+				USECOM = TRUE;
 				};
 		};
 		

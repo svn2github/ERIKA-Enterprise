@@ -94,7 +94,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_analog_init( void )
 	AD1CON1bits.ADON = 0;
 
 	/* Set control register 1 */
-	/* 12-bit, unsigned integer format, autosampling */
+	/* 10-bit, unsigned integer format, autosampling */
 	AD1CON1 = 0x04E0;
 
 	/* Set control register 2 */
