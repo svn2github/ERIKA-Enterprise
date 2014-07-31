@@ -42,7 +42,7 @@
 ## Author: 2013 Mauro Marinoni
 ##
 
-ifeq ($(and $(call iseeopt, __ATMEL__), $(call iseeopt, __SAM3__)), yes)
+ifeq ($(call iseeopt, __ATMEL_SAM3__), yes)
 
 EEOPT += SAM3
 
@@ -67,4 +67,4 @@ ifeq ($(call iseeopt, __SAM3X8E__), yes)
 SRCS += pkg/mcu/atmel_sam3/src/system_sam3xa.c
 endif	# __SAM3X8E__
 
-endif	# __ATMEL__ && __SAM3__
+endif	# __ATMEL_SAM3__

@@ -52,7 +52,7 @@
 /* MM: To be rewritten with SAM3 vector table!!! */
 #warning Wrong vector table match
 
-#if defined( __ATMEL__ ) && defined( __SAM3__ )
+#if defined( __ATMEL_SAM3__ )
 
 
 #ifdef	EE_CORTEX_MX_WWDG_ISR
@@ -711,6 +711,6 @@
 #endif	/* EE_CORTEX_MX_FPU_M4_ISR */
 
 
-#endif	/* __ATMEL__ && __SAM3__ */
+#endif	/* __ATMEL_SAM3__ */
 
 #endif /* __INCLUDE_ATMEL_SAM3_IRQ_SOURCES_H__ */
