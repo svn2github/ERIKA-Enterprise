@@ -51,7 +51,7 @@ EE_OPT = "EEOPT_DIAB_5_8";
 
 MCU_DATA = PPCE200ZX {
 #if defined (cobra55)
-   MODEL = MPC5777C;
+  MODEL = MPC5777C;
 #elif defined (k2)
   MODEL = SPC574K;
 #elif defined (mamba)
@@ -61,9 +61,9 @@ MCU_DATA = PPCE200ZX {
 
 CPU_DATA = PPCE200ZX {
 #if defined(cobra55) || defined (mamba)
-   MODEL = E200Z7;
+  MODEL = E200Z7;
 #elif defined (k2)
-  MODEl = E200Z225;
+  MODEL = E200Z225;
 #endif
   APP_SRC = "code.c";
 #ifdef USEIRQ
