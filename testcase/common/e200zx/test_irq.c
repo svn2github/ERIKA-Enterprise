@@ -101,7 +101,7 @@ void test_fire_irq(unsigned int irq)
 {
 	if(irq > 5U)
 		return;
-#if defined (EE_MPC5777C)
+#if defined (EE_MPC5777C) || defined (EE_SPC574K)
 	INTC_SSCIR(irq) = 2;
 #else
 	INTC.SSCIR[irq].R = 2;

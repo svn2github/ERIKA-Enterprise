@@ -45,6 +45,15 @@
 # The list of supported targets
 ifneq ($(MCU_TARGET),$(filter $(MCU_TARGET),k2 cobra55 mamba))
 $(error BAD TARGET!!! This testsuite configured for PowerPC supports these target list: cobra55, k2 or mamba. For instance: make ARCH=e200zx_diab_5_8_vle MCU_TARGET=cobra55)
+else
+
+# K2-specific filters
+ifeq ($(MCU_TARGET), k2)
+ifneq ($(ARCH), $(filter $(ARCH), e200zx_diab_5_8_vle))
+$(error BAD ARCH!!! K2 can can be tested only with ARCH=e200zx_diab_5_8_vle!!!)
+endif
+endif
+
 endif
 
 #

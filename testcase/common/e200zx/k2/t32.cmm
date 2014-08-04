@@ -1,8 +1,5 @@
 ; script used to load modistarc tests
 
-
-==================================================================
-
 &sim=SIMULATOR()
   
 ;settings for JTAG debugger / simulator

@@ -43,12 +43,8 @@
 #ifdef __PPCE200ZX__
 /* Ack the IRQ */
 #define ISR_LOW 0
-#if defined (EE_MPC5777C)
-/* INTC Base */
-#define INTC_BASE 0xFFF48000U
-/* INTC SSCIR Base */
-#define INTC_SSCIR_BASE (INTC_BASE + 0x20U)
-/* Macros to access MPC5777C INTC properly */
+#if defined (EE_MPC5777C) || defined (EE_SPC574K)
+/* Macros to access MPC5777C/SPC574K INTC properly */
 #define INTC_SSCIR(n)   (*(EE_UINT8 volatile *)(INTC_SSCIR_BASE + (n)))
 #define ACK_IRQ(x) (INTC_SSCIR(x) = 1)
 #else

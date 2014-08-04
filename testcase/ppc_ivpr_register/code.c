@@ -73,6 +73,18 @@ TASK(Task1)
         EE_assert(1, TRUE, EE_ASSERT_NIL);
     }
 
+    /*
+     * Check if IVPR is as expected
+     * We expect the higher 16-bit part of ivpr == 0x4000
+     * and the lower 16-bit part of ivor0 being
+     * negative (16-th bit set to 1, e.g.: 0x8YYY)
+     */
+#if defined (EE_SPC574K)
+	/* K2 does not need this test (it does not have IVOR0),
+	 * hence set it to TRUE and go further
+	 */
+	EE_assert(2, 1, 1);
+#else
 	delay(1000);
 
     /* Get IVPR */
@@ -81,13 +93,9 @@ TASK(Task1)
     /* Get IVOR0 */
     ivor0 = get_IVOR0();
 
-    /*
-     * Check if IVPR is as expected
-     * We expect the higher 16-bit part of ivpr == 0x4000
-     * and the lower 16-bit part of ivor0 being
-     * negative (16-th bit set to 1, e.g.: 0x8YYY)
-     */
+	/* For Cobra55 and mamba this test makes sense */
     EE_assert(2, ((ivpr>>16)==0x4000) && ((ivor0 & 0x8000) == 0x8000), 1);
+#endif
 
     EE_assert_range(0,1,2);
     EE_assert_last();
