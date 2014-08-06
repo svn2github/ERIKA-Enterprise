@@ -183,10 +183,19 @@ CPU test_application {
 #endif
 
 #ifdef e200zx
+#ifdef k2
+	// For K2 (SPC574K) use the STM_2 since it hasn't decrementers
+	ISR STM_2_handler {
+		CATEGORY = 2;
+		PRIORITY = 1;
+		ENTRY = 44;
+	};
+#else
 	ISR decrementer_handler {
 		CATEGORY = 2;
 		ENTRY = "DECREMENTER";
 	};
+#endif
 #endif
 #ifdef tricore
 	ISR STM_handler {

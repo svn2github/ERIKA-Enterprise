@@ -54,6 +54,10 @@
 #include "lpc12xx_libcfg_default.h"
 #endif
 
+#ifdef EE_PPCE200Z225
+#include "mcu/st_spc574k/inc/ee_spc574k_stm.h"
+#endif
+
 /* Assertions */
 #include "test/assert/inc/ee_assert.h"
 #define TRUE 1
@@ -191,7 +195,7 @@ static void handle_timer_interrupt(void* context, alt_u32 id)
 	}
 #endif
 
-#if defined(__PPCE200Z7__) || defined (EE_PPCE200Z4)
+#if defined(__PPCE200Z7__) || defined (EE_PPCE200Z4) || defined (EE_PPCE200Z225)
 static void handle_timer_interrupt(void)
 {
   StatusType s;
@@ -214,6 +218,11 @@ static void handle_timer_interrupt(void)
   EE_assert(5, (v = EE_MAX_SEM_COUNTER), 4);
 
   wecanstart=1;
+/* K2 (SPC574K) specific interrupt handling */
+#if defined (EE_PPCE200Z225)
+  spc574k_STM_clear_int();		/* Clear isr */
+  spc574k_STM_set_counter(0);	/* Reset initial counter value to 0 */
+#endif
 }
 #endif
 
@@ -269,6 +278,15 @@ void StartupHook(void)
 	#if defined(__PPCE200Z7__) || defined (EE_PPCE200Z4)
 		EE_e200z7_register_ISR(10, handle_timer_interrupt, 0);
 		EE_e200z7_setup_decrementer(2000000);
+	#elif defined (EE_PPCE200Z225) /* K2 does not have decrementers */
+		/* K2 (SPC574K) specific interrupt handling.STM_2 is mapped to isr 44 */
+		/* Register ISR */
+		EE_e200z7_register_ISR(16 + 44, handle_timer_interrupt, 1);
+		/* STM_2 initialization */
+		spc574k_STM_set_prescaler(1);	/* Set prescaler to 0 */
+		spc574k_STM_cmp(2000000);		/* Set timer match value to 3000000 */
+		spc574k_STM_set_counter(0); 	/* Reset initial counter value to 0 */
+		spc574k_STM_enable();			/* Enable STM_2 and start counting */
 	#endif
 #if defined(__CORTEX_M0__)
   /* Generate systemtick interrupt */

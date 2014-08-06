@@ -54,6 +54,10 @@
 #include "lpc12xx_libcfg_default.h"
 #endif
 
+#ifdef EE_PPCE200Z225
+#include "mcu/st_spc574k/inc/ee_spc574k_stm.h"
+#endif
+
 #define TRUE 1
 #define FALSE 0
 
@@ -167,7 +171,11 @@ _ISR2(myISR2)
 			ISR2(cmia0_handler)
 			#else
 				#if defined (__PPCE200ZX__)
-					ISR2(decrementer_handler)
+					#if defined (EE_PPCE200Z225)
+						ISR2(STM_2_handler)
+					#else
+						ISR2(decrementer_handler)
+					#endif
 				#else
 					#if defined (EE_TRICORE__)
 						ISR2(STM_handler)
@@ -198,6 +206,12 @@ _ISR2(myISR2)
 	EE_timer_clear_ISRflag(EE_TIMER_0); 
 	EE_timer_disable_ISR(EE_TIMER_0);
 	EE_timer_stop();
+#endif
+
+/* K2 (SPC574K) specific interrupt handling */
+#if defined (EE_PPCE200Z225)
+	spc574k_STM_clear_int();	/* Clear isr */
+	spc574k_STM_set_counter(0);	/* Reset initial counter value to 0 */
 #endif
 }
 
@@ -243,7 +257,16 @@ int main(int argc, char **argv)
 #endif
 
 #if defined(__PPCE200ZX__)
+#if defined (EE_PPCE200Z225)
+  /* K2 (SPC574K) specific interrupt handling */
+  /* STM_2 initialization */
+  spc574k_STM_set_prescaler(1);	/* Set prescaler to 0 */
+  spc574k_STM_cmp(3000000);		/* Set timer match value to 3000000 */
+  spc574k_STM_set_counter(0); 	/* Reset initial counter value to 0 */
+  spc574k_STM_enable();			/* Enable STM_2 and start counting */
+#else
   EE_e200z7_setup_decrementer(3000000);
+#endif
 #endif
 
 #if defined(__PIC30__)

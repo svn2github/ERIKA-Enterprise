@@ -27,7 +27,7 @@
 SYStem.UP
 
 ;initialize internal SRAM
-DATA.SET EA:0x40000000--0x40007FFF %quad 0x55AA55AA55AA55AA
+DATA.SET EA:0x40000000--0x4000FFFF %quad 0x55AA55AA55AA55AA
 
 ;load demo application
 DATA.LOAD.ELF Debug/ppc.elf
