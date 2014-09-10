@@ -73,6 +73,9 @@
 #ifdef __MULTI__
 struct EE_TOS {
   EE_ADDR SYS_tos;
+#ifdef EE_STACK_MONITORING__
+  EE_ADDR SYS_bos;
+#endif /* EE_STACK_MONITORING__ */
 };
 #endif /* __MULTI__ */
 
@@ -82,15 +85,19 @@ struct EE_TOS {
  *************************************************************************/
 
 /* Thread function body pointer */
-extern const EE_THREAD_PTR EE_hal_thread_body[];
+extern const EE_THREAD_PTR EE_hal_thread_body[EE_MAX_TASK];
 
 #ifdef __MULTI__
 
 /* each task uses a system (IRQ) stack and a user (SYS) stack */
+/* The guard is needed to suppress MISRA warning because only these two
+   architectures are still using this data structure. */
+#if defined (__ESI_RISC__) && defined (__MSP430__)
 extern struct EE_TOS EE_std_system_tos[];
+#endif
 
 /* std_system_tos[] index that points to the thread tos (one for each thread) */
-extern const EE_UREG EE_std_thread_tos[];
+extern const EE_UREG EE_std_thread_tos[EE_MAX_TASK+1];
 
 /* std_system_tos[] index that points to the active thread tos */
 extern EE_UREG EE_std_active_tos;
@@ -102,11 +109,11 @@ extern EE_UREG EE_std_active_tos;
 
 /* this is a safe place to put sp_sys when EE_hal_terminate_savestk
    is called into EE_oo_thread_stub */
-extern EE_UINT32 EE_terminate_data[];
+extern EE_UINT32 EE_terminate_data[EE_MAX_TASK];
 
 /* this is the real thread body that is called if the thread use the
    TerminateTask function */
-extern const EE_THREAD_PTR EE_terminate_real_th_body[];
+extern const EE_THREAD_PTR EE_terminate_real_th_body[EE_MAX_TASK];
 
 #endif /* __OO_BCCx__ */
 

@@ -7,7 +7,7 @@
  *
  * ERIKA Enterprise is free software; you can redistribute it
  * and/or modify it under the terms of the GNU General Public License
- * version 2 as published by the Free Software Foundation, 
+ * version 2 as published by the Free Software Foundation,
  * (with a special exception described below).
  *
  * Linking this code statically or dynamically with other modules is
@@ -61,15 +61,17 @@
  */
 
 /* After a task terminates, the scheduler puts the id of the new task to launch
- * or switch to in this variable.  If the is stacked, its id is marked so. */
+ * or switch to in this variable. If the thread is stacked, its id is marked
+ * so.
+ */
 extern EE_TID EE_std_endcycle_next_tid;
 
 
 /* The multistack version must be implemented in ASM; no standard
  * implementation, sorry.  This is the only function that performs context
  * switching.  The multistack version doesn't jump to the task body if its TID
- * has been maked as stacked.  This is used to switch to a task that has been
- * suspend by a previous call to EE_std_change_contex(). */
+ * has been marked as stacked.  This is used to switch to a task that has been
+ * suspend by a previous call to EE_std_change_context(). */
 #ifdef __MONO__
 __DECLARE_INLINE__ void EE_std_change_context(EE_TID tid);
 #endif
@@ -91,7 +93,7 @@ void EE_std_change_context(EE_TID tid);
 
       Please notice that the "goto begin" is actually a recursive call to
       EE_std_change_context_multi(), but in this way there is no stack growing.
-      
+
       Please notice also that 'tid' must NOT be saved onto the stack before
       switching stacks, otherwise when switching from another stack back to the
       current one, you would overwrite its value.
@@ -101,16 +103,6 @@ void EE_std_change_context(EE_TID tid);
 
       switch_stacks() should also update EE_hal_active_tos.
 */
-
-
-/* Call a the body of a task */
-#if defined(__OO_BCC1__) || defined(__OO_BCC2__) || \
- defined(__OO_ECC1__) || defined(__OO_ECC2__)
-#define EE_call_task_body(tid)  EE_oo_thread_stub()
-#else
-#define EE_call_task_body(tid)  ((EE_hal_thread_body[tid])())
-#endif
-
 
 /* Launch a new task, possibly switching to a different stack, clean up the task
  * after it ends, and call the scheduler (and switch to other tasks/stacks)
@@ -151,11 +143,11 @@ __INLINE__ void __ALWAYS_INLINE__ EE_std_change_context(EE_TID tid)
 
 #ifdef __MULTI__
 
-/*  TID_IS_STACKED_MARK must set the most significative bit
+/*  TID_IS_STACKED_MARK must set the most significant bit
 
     #1
     FIXME:
-    This works only with two's complements architecture. Casting beetween
+    This works only with two's complements architecture. Casting between
     signed/unsigned integer in C is defined by value not by representation and
     only two's complements grant the the equivalence between the two.
 
@@ -183,7 +175,7 @@ __INLINE__ int __ALWAYS_INLINE__ EE_std_need_context_change(EE_TID tid)
     if ( EE_std_tid_is_marked_stacked(tid) )
     {
       /* Unmark the tid to access the EE_std_thread_tos, otherwise undefined
-         behaviour. (Index out of arrays boundaries)
+         behavior. (Index out of arrays boundaries)
          FIXME: #1
       */
       utid = (((EE_UTID)tid + 1U)) & (~(EE_UTID)TID_IS_STACKED_MARK);
@@ -220,11 +212,18 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_endcycle_ready(EE_TID tid)
     EE_std_endcycle_next_tid = tid;
 }
 
-
+#ifdef __MULTI__
 __INLINE__ void __ALWAYS_INLINE__ EE_hal_endcycle_stacked(EE_TID tid)
 {
     EE_UTID utid_tmp = (EE_UTID)EE_std_mark_tid_stacked(tid);
     EE_std_endcycle_next_tid = (EE_TID)utid_tmp;
 }
+#else
+#define EE_hal_endcycle_stacked(x) EE_hal_endcycle_stacked_impl()
+__INLINE__ void __ALWAYS_INLINE__ EE_hal_endcycle_stacked_impl(void)
+{
+    EE_std_endcycle_next_tid = ((EE_TID)-1);
+}
+#endif
 
 #endif /* __INCLUDE_CPU_COMMON_EE_CONTEXT__ */

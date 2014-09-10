@@ -7,7 +7,7 @@
  *
  * ERIKA Enterprise is free software; you can redistribute it
  * and/or modify it under the terms of the GNU General Public License
- * version 2 as published by the Free Software Foundation, 
+ * version 2 as published by the Free Software Foundation,
  * (with a special exception described below).
  *
  * Linking this code statically or dynamically with other modules is
@@ -45,7 +45,7 @@
 
 /*******************************************************************************
  *                        !!!WARNING!!!
- * This header depends on "cpu/common/inc/ee_context.h" or your own 
+ * This header depends on "cpu/common/inc/ee_context.h" or your own
  * implementation of the same. You should include it file before including this
  * file
  ******************************************************************************/

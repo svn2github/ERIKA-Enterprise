@@ -52,7 +52,17 @@
 EE_TID EE_std_run_task_code(EE_TID tid)
 {
     EE_hal_enableIRQ();
-    EE_call_task_body(tid); /* Call the task body */
+/* Call a the body of a task */
+#if defined(__OO_BCC1__) || defined(__OO_BCC2__) || \
+ defined(__OO_ECC1__) || defined(__OO_ECC2__)
+    EE_oo_thread_stub();
+    (void)tid;
+#else
+    /* Useless check to make MISRA-C happy. */
+    if ( EE_hal_thread_body[tid] != 0 ) {
+        EE_hal_thread_body[tid]();
+    }
+#endif
     EE_hal_disableIRQ();
     EE_thread_end_instance(); /* Call the scheduler */
     return EE_std_endcycle_next_tid;

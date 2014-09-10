@@ -53,7 +53,20 @@
  * Nested Interrupts Handling
  */
 
+/* If MemMap.h support is enabled (i.e. because memory protection): use it */
+#ifdef EE_SUPPORT_MEMMAP_H
+/* The following variables belong to ERIKA OS section: ee_kernel_bss */
+#define OS_START_SEC_VAR_NOINIT
+#include "MemMap.h"
+#endif /* EE_SUPPORT_MEMMAP_H */
+
 extern EE_UREG EE_IRQ_nesting_level;
+
+/* If MemMap.h support is enabled (i.e. because memory protection): use it */
+#ifdef EE_SUPPORT_MEMMAP_H
+#define OS_STOP_SEC_VAR_NOINIT
+#include "MemMap.h"
+#endif /* EE_SUPPORT_MEMMAP_H */
 
 /* can be called with interrupt enabled */
 __INLINE__ EE_UREG __ALWAYS_INLINE__ EE_hal_get_IRQ_nesting_level(void)
