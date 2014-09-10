@@ -251,6 +251,189 @@ __INLINE__ void __ALWAYS_INLINE__ EE_tc27x_fill_stacks( void )
 #endif /* __OO_ORTI_STACK__ */
 
 /******************************************************************************
+              Memory Protection & Timing Protection Configuration
+ ******************************************************************************/
+#if defined(__EE_MEMORY_PROTECTION__) || defined(EE_TIMING_PROTECTION__)
+/* N.B EE_TIMING_PROTECTION__ is just a placeholder not implemented yet */
+/* Compiler check has been already done inside EE_tc_cpu.h */
+
+#ifdef __EE_MEMORY_PROTECTION__
+
+/*
+ * Utility function that group the common configuration code between the two
+ * memory implemented protection configurations(i.e. OS-Application directly
+ * mapped on Protection sets or dinamically associated).
+ */
+__INLINE__ EE_UREG __ALWAYS_INLINE__ EE_tc27x_conf_common_memory_prot( void )
+{
+  /* Ram Begin Address */
+  extern EE_UINT32 ee_skernel_ram[];
+  /* Kernel Ram End Address */
+  extern EE_UINT32 ee_ekernel_ram[];
+
+  /* Kernel Data Structures range Begin Address */
+  extern EE_UINT32 ee_sbss_kernel[];
+  /* Kernel Data Structures End Address
+     (These two symbols are the boundaries of kernel data structures sections:
+      all the OSApplications will have read permission for this segment */
+  extern EE_UINT32 ee_edata_kernel[];
+
+  /* Begin Code Range */
+  extern void ee_sall_code ( void );
+  /* End Code Range */
+  extern void ee_eall_code ( void );
+
+  /* API Ram Begin Address */
+  extern EE_UINT32 ee_sapi_ram[];
+  /* API Ram End Adddress */
+  extern EE_UINT32 ee_eapi_ram[];
+
+  /* Begin Const API Section Address */
+  extern EE_UINT32 ee_sapi_const[];
+  /* End Const API Flash End Address */
+  extern EE_UINT32 ee_eapi_const[];
+
+  /* Code protection is not yet implemented so all the code will be
+     made executable */
+  EE_tc_set_csfr(EE_CPU_REG_CPR0_L, (EE_UREG)ee_sall_code);
+  EE_tc_set_csfr(EE_CPU_REG_CPR0_U, (EE_UREG)ee_eall_code);
+
+  /* Range Registers 0 are kernel Range Registers for RAM  */
+  EE_tc_set_csfr(EE_CPU_REG_DPR0_L, (EE_UREG)ee_skernel_ram);
+  EE_tc_set_csfr(EE_CPU_REG_DPR0_U, (EE_UREG)ee_ekernel_ram);
+
+  /* READ ONLY Parameters are accessible by all the code */
+  EE_tc_set_csfr(EE_CPU_REG_DPR1_L, (EE_UREG)ee_sapi_const);
+  EE_tc_set_csfr(EE_CPU_REG_DPR1_U, (EE_UREG)ee_eapi_const);
+
+  /* Range Registers 2 are ERIKA API Range Registers for RAM  */
+  EE_tc_set_csfr(EE_CPU_REG_DPR2_L, (EE_UREG)ee_sapi_ram);
+  EE_tc_set_csfr(EE_CPU_REG_DPR2_U, (EE_UREG)ee_eapi_ram);
+
+  /* Range Registers 6 are ERIKA Data Structures Range Registers:
+     All OSApplication will have reading permission for this segment */
+  EE_tc_set_csfr(EE_CPU_REG_DPR6_L, (EE_UREG)ee_sbss_kernel);
+  EE_tc_set_csfr(EE_CPU_REG_DPR6_U, (EE_UREG)ee_edata_kernel);
+
+  /* !!! XXX WORKAROUND: TriCore aurix specification states that in supervisor
+     mode you can access Peripheral Space (Segment 0xF) even without a
+     configured data protection range for that. Moreover states that
+     setting bit 17 in SYSCON  the same behaviour should be granted even for
+     User-1 mode.
+     Well said that for TC275TE MCU SIMPLY THIS IS NOT THE TRUTH !!! 
+
+     Range Registers 15 will be used for peripheral space WORKAROUND:
+     so EE_BIT(15) will be added in oring in all data protection sets active
+   */
+  EE_tc_set_csfr(EE_CPU_REG_DPR15_L, 0xF0000000U);
+  /* Range Addresses have to be 8 byte aligned so I'll use 0xFFFFFFF8U
+     instead of 0xFFFFFFFFU */
+  EE_tc_set_csfr(EE_CPU_REG_DPR15_U, 0xFFFFFFF8U);
+
+  /* PSW.PRS is automatically set to 0 by hardware after a TRAP or an IRQ, so
+     set 0 of DPR is implicitly reserved to the kernel */
+
+  /* Set 0 of Data Protection Registers is reserved for kernel ->
+     enable ranges 0-1 registers (RAM and FLASH) for Read Access */
+  EE_tc_set_csfr(EE_CPU_REG_DPRE_0, EE_BIT(15U) |  EE_BIT(2U) | EE_BIT(1U) |
+    EE_BIT(0U));
+
+  /* Set 0 of Data Protection Registers are reserved for kernel ->
+     enable ranges 0 registers (RAM) for Write Access */
+  EE_tc_set_csfr(EE_CPU_REG_DPWE_0, EE_BIT(15U) | EE_BIT(2U) | EE_BIT(0U));
+
+  /* XXX: Temporarily all the code is executable */
+  EE_tc_set_csfr(EE_CPU_REG_CPXE_0, EE_BIT(0U));
+
+  /* Start to configure the syscon register value to be set */
+  return EE_TC_ENABLE_MEMORY_PROTECTION |
+    EE_TC_USER1_PERIPHERAL_ACCESS_AS_SUPERVISOR;
+}
+#else /* __EE_MEMORY_PROTECTION__ */
+#define EE_tc27x_conf_common_memory_prot() 0U;
+#endif /* __EE_MEMORY_PROTECTION__ */
+
+/*
+ * Set the given bitmask on SYSCON register
+ */
+__INLINE__ void __ALWAYS_INLINE__ EE_tc27x_set_syscon( EE_UREG syscon_value )
+{
+  /* Disable SAFETY ENDINIT Protection */
+  EE_tc_safety_endinit_disable();
+
+  /* Disable Safety Compatibility with TC 1.3 (I want use all the AURIX
+     features). This maybe should not be here, but it doesn't harm */
+  EE_tc_set_csfr(EE_CPU_REG_COMPAT, ~EE_BIT(4U));
+
+  /* Assure that all the changes to CFSR are taken in count after this point */
+  EE_tc_isync();
+
+  /* Enable protections */
+  EE_tc_set_syscon(syscon_value);
+
+  /* Re-enable SAFETY ENDINIT Protection */
+  EE_tc_safety_endinit_enable();
+}
+
+#ifdef EE_OS_APP_MAPPED_ON_PROTECTION_SETS
+/* In this configuration each Os-Application is directly mapped on a protection
+ * set register, so each  OS-Application context switch consist of setting the
+ * right PSW.PSR and PSW.IO values, in other words a bitmask operation plus a
+ * CSFR write.
+ * Configuration is made once here during the StartOS procedure, so Kernel data
+ * structures for OS-Application need to be seen by this here.
+ *
+ * N.B. Implementation has been moved in a "dedicated" file, because this
+ *      function need to access at some AS Kernel data structures and types
+ *      and it wasn't easy do that in this header file.
+ */
+void EE_tc27x_enable_protections( void );
+
+#else /* EE_OS_APP_MAPPED_ON_PROTECTION_SETS */
+/*
+ *  When OS-Application are not directly mapped on protection set,
+ *  OS-Application boundaries are dynamically set in data protection range
+ *  set 2 at each OS-Application Context switch.
+ */
+__INLINE__ void __ALWAYS_INLINE__ EE_tc27x_enable_protections( void )
+{
+  /* Configure Memory Protection common part and obtain the starting mask for
+     syscon register */
+  register EE_UREG syscon_value = EE_tc27x_conf_common_memory_prot();
+
+  /* Set 1 of Data Protection Registers are reserved for OS-Applications ->
+     enable ranges 2-1 registers (RAM and FLASH) for Read Access.
+     N.B IN ANY CASE READS ALL OVER THE MEMORY ARE ALLOWED SO
+     "Kernel RAM range" (EE_BIT(0U)) IS ADDED TO DPRE_1 bitmask */
+  EE_tc_set_csfr(EE_CPU_REG_DPRE_1, EE_BIT(15U) | EE_BIT(6U) | EE_BIT(3U) |
+    EE_BIT(2U) | EE_BIT(1U) | EE_BIT(0U));
+
+  /* Set 1 of Data Protection Registers are reserverd for OS-Applications ->
+     enable ranges 2 registers (RAM) for Write Access */
+  EE_tc_set_csfr(EE_CPU_REG_DPWE_1, EE_BIT(15U) | EE_BIT(3U) | EE_BIT(2U));
+
+  /* XXX: Temporarily all the code is executable */
+  EE_tc_set_csfr(EE_CPU_REG_CPXE_1, EE_BIT(0U));
+
+  /* XXX TODO: !!! Add Code Protection Configuration !!! */
+
+#ifdef EE_TIMING_PROTECTION__
+  syscon_value |= EE_TC_ENABLE_TEMPORAL_PROTECTION;
+  /* XXX TODO: Add here TC Temporal Protection Code */
+#endif /* EE_TIMING_PROTECTION__ */
+
+  /* Set the given bitmask on SYSCON register */
+  EE_tc27x_set_syscon(syscon_value);
+}
+#endif /* EE_OS_APP_MAPPED_ON_PROTECTION_SETS */
+#else /* __EE_MEMORY_PROTECTION__ || EE_TIMING_PROTECTION__ */
+
+/* Memory protection is not enabled */
+#define EE_tc27x_enable_protections() ((void)0U)
+#endif /* __EE_MEMORY_PROTECTION__ || EE_TIMING_PROTECTION__ */
+
+
+/******************************************************************************
                               System startup
  *****************************************************************************/
 /* If system is defined I have to initialize it*/
@@ -286,6 +469,10 @@ __INLINE__ int __ALWAYS_INLINE__ EE_cpu_startos( void )
 
   /* Fill Stacks With Known Path for monitoring usage, if ORTI is enabled */
   EE_tc27x_fill_stacks();
+
+  /* Configure hardware for memory protection or timing protection:
+     if enabled */
+  EE_tc27x_enable_protections();
 
   /* Initialize stdlib time reference (or internal variable) with STM
       frequency. */

@@ -525,7 +525,7 @@ FOR_EACH_APP
     PROVIDE(ee_esec_${APP_NAME} = .);
 
     /* Application Dimension Check Condition */
-    _. = ASSERT(((ee_esec_${APP_NAME} <= ${APP_BASE} + ${APP_SIZE}) || (${APP_SIZE} == 0)), "${APP_NAME} size is bigger than reserved space");
+    _. = ASSERT(((ee_esec_${APP_NAME} <= ee_ssec_${APP_NAME} + ${APP_SIZE}) || (${APP_SIZE} == 0)), "${APP_NAME} size is bigger than reserved space");
 
     /* ALIGN(16) the begin of OS_Application data and the following do the
        trick to move next OS-Application section 16 byte forward (at least) */

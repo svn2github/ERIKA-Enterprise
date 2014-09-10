@@ -183,7 +183,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_tc2Yx_configure_osc_ctrl ( void )
 
 #endif /* EE_MASTER_CPU */
 
-#if defined(__OO_ORTI_STACK__)
+#if defined(__OO_ORTI_STACK__) || defined(EE_STACK_MONITORING__)
 /******************************************************************************
                             ORTI Stack Filling
  ******************************************************************************/
@@ -250,10 +250,10 @@ __INLINE__ void __ALWAYS_INLINE__ EE_tc2Yx_fill_stacks( void )
 #error Fix Stack Filling code in Other compiler Than GNUC and DCC !
 #endif /* (!__GNUC__ && !EE_EXECUTE_FROM_RAM) ||  __DCC__ */
 }
-#else  /* __OO_ORTI_STACK__ */
+#else  /* __OO_ORTI_STACK__ || EE_STACK_MONITORING__ */
 /* If ORTI STACKs is not enabled stack filling is not active */
 #define EE_tc2Yx_fill_stacks() ((void)0U)
-#endif /* __OO_ORTI_STACK__ */
+#endif /* __OO_ORTI_STACK__ || EE_STACK_MONITORING__ */
 
 /******************************************************************************
                               System startup
@@ -268,6 +268,15 @@ void EE_tc2Yx_initialize_system_timer(void);
 
 __INLINE__ int __ALWAYS_INLINE__ EE_cpu_startos( void )
 {
+#if (defined(__EE_MEMORY_PROTECTION__) || defined(EE_TIMING_PROTECTION__)) &&\
+  (defined(EE_USE_CUSTOM_STARTUP_CODE) || defined(EE_MM_OPT))
+  /* In case of "User Boot" and "sytem protections" play SAFE and force
+     the set of the right Trap Table. */
+  EE_tc_endint_disable();
+  EE_tc_set_csfr(EE_CPU_REG_BTV, (EE_UINT32)&EE_tc_trap_table);
+  EE_tc_endint_enable();
+#endif /* (__EE_MEMORY_PROTECTION__ || EE_TIMING_PROTECTION__) &&
+   (EE_USE_CUSTOM_STARTUP_CODE || EE_MM_OPT) */
 #ifdef EE_MASTER_CPU
 /* If a CPU CLOCK frequency is defined configure the SCU registers */
 #if defined(EE_CPU_CLOCK) && (!defined(EE_MM_OPT))
@@ -291,6 +300,10 @@ __INLINE__ int __ALWAYS_INLINE__ EE_cpu_startos( void )
 
   /* Fill Stacks With Known Path for monitoring usage, if ORTI is enabled */
   EE_tc2Yx_fill_stacks();
+
+  /* Configure hardware for memory protection or timing protection:
+     if enabled */
+  EE_tc_enable_protections();
 
   /* Initialize stdlib time reference (or internal variable) with STM
       frequency. */

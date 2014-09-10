@@ -174,6 +174,13 @@ void EE_tc2Yx_initialize_system_timer(void) {
 
 #endif /* ENABLE_SYSTEM_TIMER && EE_SYSTEM_TIMER_DEVICE */
 
+/* If MemMap. support is enabled (i.e. because protection memory): use it */
+#ifdef EE_SUPPORT_MEMMAP_H
+#define API_START_SEC_CODE
+#define API_START_SEC_VAR_NOINIT
+#include "MemMap.h"
+#endif /* EE_SUPPORT_MEMMAP_H */
+
 /****************************************************************
                     SCU Clock Support
  ****************************************************************/
