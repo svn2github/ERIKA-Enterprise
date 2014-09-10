@@ -143,7 +143,7 @@ static void EE_oo_autostart_tasks(AppModeType Mode)
 static EE_TYPEALARM compute_alarm_id(const EE_TYPEALARM alarm_id_vec[],
   EE_UREG t)
 {
-  EE_TID res = EE_NIL;
+  EE_TYPEALARM res = (EE_TYPEALARM)EE_NIL;
 
   if ( alarm_id_vec != NULL ) {
     res = alarm_id_vec[t];
@@ -269,7 +269,7 @@ static void EE_oo_start_os(void)
     ;
   }
 }
-#endif /* __OO_STARTOS_OLD__ */
+#endif /* __OO_STARTOS_OLD__ && !__MSRP__ */
 
 StatusType EE_oo_StartOS(AppModeType Mode)
 {
@@ -286,7 +286,7 @@ StatusType EE_oo_StartOS(AppModeType Mode)
   /* Ready Queue Head Index */
   register EE_TID     rq;
   /* Error Value */
-  register StatusType ev;
+  register StatusType ev = E_OK;
 
   EE_ORTI_set_service_in(EE_SERVICETRACE_STARTOS);
 
@@ -325,13 +325,14 @@ StatusType EE_oo_StartOS(AppModeType Mode)
           controlled by the AUTOSAR OS on AUSTOSAR specification
           (v 4.0 rev 3.0)).
           So I decide to handle it jumping in an endless loop. */
-#if defined (OS_CORE_ID_MASTER) && (EE_CURRENTCPU != OS_CORE_ID_MASTER)
+/* TODO: maybe we need a special macro to identify the master core */
+#if defined(EE_CURRENTCPU) && (EE_CURRENTCPU != 0)
       if( ((EE_as_core_mask & ((EE_UREG)1U << EE_CURRENTCPU)) == 0U) )
       {
         /* Enter in an endless loop if it happened */
         EE_oo_start_os();
       }
-#endif /* OS_CORE_ID_MASTER && (EE_CURRENTCPU != OS_CORE_ID_MASTER) */
+#endif /* EE_CURRENTCPU != 0 */
 
       /* Set on current CPU position the actual application mode */
       EE_as_os_application_mode[EE_CURRENTCPU] = Mode;
@@ -479,8 +480,6 @@ StatusType EE_oo_StartOS(AppModeType Mode)
       EE_hal_enableIRQ();
       /* If __OO_STARTOS_OLD__ is defined -> return, otherwise endless cycle. */
       EE_oo_start_os();
-
-      ev = E_OK;
     }
   }
 

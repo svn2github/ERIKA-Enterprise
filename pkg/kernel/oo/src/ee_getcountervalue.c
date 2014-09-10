@@ -103,8 +103,10 @@ StatusType EE_oo_GetCounterValue(CounterType CounterID, TickRefType Value)
 #ifdef EE_AS_RPC__
   if ( EE_AS_ID_REMOTE(CounterID) )
   {
-    EE_os_param       as_value;
-    EE_os_param const unmarked_alarm_id = { EE_AS_UNMARK_REMOTE_ID(CounterID) };
+    EE_os_param as_value;
+    EE_os_param unmarked_alarm_id;
+
+    unmarked_alarm_id.value_param = EE_AS_UNMARK_REMOTE_ID(CounterID);
     as_value.tick_ref = Value;
 
     /* forward the request to another CPU in synchronous way */
@@ -114,9 +116,9 @@ StatusType EE_oo_GetCounterValue(CounterType CounterID, TickRefType Value)
 #endif /* EE_AS_RPC__ */
 
 /* If counters are not defined cut everything */
-#if defined(EE_MAX_COUNTER) && (EE_MAX_COUNTER > 0)
+#if defined(EE_MAX_COUNTER) && (EE_MAX_COUNTER > 0U)
 
-#if EE_FULL_SERVICE_PROTECTION
+#if ( defined(EE_AS_OSAPPLICATIONS__) && defined(EE_SERVICE_PROTECTION__) )
     if ( CounterID >= EE_MAX_COUNTER ) {
       ev = E_OS_ID;
     } else if ( EE_COUNTER_ACCESS_ERR(CounterID, EE_as_active_app) ) {
@@ -129,7 +131,8 @@ StatusType EE_oo_GetCounterValue(CounterType CounterID, TickRefType Value)
     if ( CounterID >= EE_MAX_COUNTER ) {
       ev = E_OS_ID;
     } else
-#endif /* EE_FULL_SERVICE_PROTECTION || __OO_EXTENDED_STATUS__ */
+#endif /* EE_AS_OSAPPLICATIONS__ || E_SERVICE_PROTECTION__ ||
+__OO_EXTENDED_STATUS__ */
     {
       /* [OS377]: If the input parameter <CounterID> in a call of
           GetCounterValue() is valid, GetCounterValue() shall return the current

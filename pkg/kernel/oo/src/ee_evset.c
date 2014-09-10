@@ -98,8 +98,16 @@ StatusType EE_oo_SetEvent(TaskType TaskID, EventMaskType Mask)
   if ( EE_IS_TID_REMOTE(TaskID) )
   {
 #ifdef EE_AS_RPC__
-    EE_os_param const unmarked_tid = { EE_UNMARK_REMOTE_TID(TaskID) };
-    EE_os_param const as_mask = { Mask };
+    /* Tmp Tid (introduced to meet MISRA requirements) */
+    EE_TID tmp_tid;
+
+    EE_os_param unmarked_tid;
+    EE_os_param as_mask;
+
+    /* Two steps macro assignment to meet MISRA 10.3 required rule */
+    tmp_tid = EE_UNMARK_REMOTE_TID(TaskID);
+    unmarked_tid.value_param = (EE_UREG)tmp_tid;
+    as_mask.value_param      = Mask;
 
     /* Forward the request to another CPU in synchronous way */
     ev = EE_as_rpc(OSServiceId_SetEvent, unmarked_tid, as_mask,

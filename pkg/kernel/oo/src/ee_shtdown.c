@@ -88,7 +88,12 @@ static void EE_oo_call_ShutdownHook(StatusType Error)
   ShutdownHook(Error);
 }
 #else
-#define EE_oo_call_ShutdownHook(Error)   ((void)0)
+__INLINE__ void __ALWAYS_INLINE__ EE_oo_call_ShutdownHook(StatusType Error)
+{
+  /* Useless operations to meet Linters requirements */
+  volatile StatusType dummy_assignment = Error;
+  (void)dummy_assignment;
+}
 #endif
 
 void EE_oo_ShutdownOS_internal(StatusType Error)
@@ -187,7 +192,7 @@ void EE_oo_ShutdownOS_internal(StatusType Error)
 void EE_oo_ShutdownOS( StatusType Error )
 {
   /* Primitive Lock Procedure */
-  EE_OS_DECLARE_AND_ENTER_CRITICAL_SECTION();
+  EE_OS_FOREVER_CRITICAL_SECTION();
 
   EE_ORTI_set_service_in(EE_SERVICETRACE_SHUTDOWNOS);
 
@@ -203,27 +208,24 @@ void EE_oo_ShutdownOS( StatusType Error )
       "invalid value" of the service. (BSW11009, BSW11013) */
   /* ShutdownOS is callable by Task and ISR2, ErrorHook and StartupHook */
   if ( EE_oo_check_disableint_error() ) {
-    ; /* Nothing to do, just get that this an Error */
+    EE_ORTI_set_service_out(EE_SERVICETRACE_SHUTDOWNOS);
   } else if ( (EE_as_execution_context > ErrorHook_Context) &&
     (EE_as_execution_context != StartupHook_Context) )
   {
-    ; /* Nothing to do, just get that this an Error */
+	EE_ORTI_set_service_out(EE_SERVICETRACE_SHUTDOWNOS);
   } else
 #endif /* EE_SERVICE_PROTECTION__ */
 #ifdef EE_AS_OSAPPLICATIONS__
   /* [OS054]: The Operating System module shall ignore calls to ShutdownOS()
       from non-trusted OS-Applications. */
   if ( EE_as_Application_ROM[EE_as_active_app].Mode != EE_MEMPROT_TRUST_MODE ) {
-    ; /* Nothing to do, just get that this an Error */
+    EE_ORTI_set_service_out(EE_SERVICETRACE_SHUTDOWNOS);
   } else
 #endif /* EE_AS_OSAPPLICATIONS__ */
   {
     /* This won't never return... */
     EE_oo_ShutdownOS_internal(Error);
   }
-
-  EE_ORTI_set_service_out(EE_SERVICETRACE_SHUTDOWNOS);
-  EE_OS_EXIT_CRITICAL_SECTION();
 
   return;
 }

@@ -105,8 +105,13 @@ StatusType EE_oo_GetTaskState(TaskType TaskID, TaskStateRefType State)
 #ifdef EE_AS_RPC__
   if ( EE_IS_TID_REMOTE(TaskID) )
   {
+    /* Tmp Tid (introduced to meet MISRA requirements) */
+    EE_TID tmp_tid;
     EE_os_param as_state;
-    EE_os_param const unmarked_tid = { EE_UNMARK_REMOTE_TID(TaskID) };
+    EE_os_param unmarked_tid;
+	/* Two steps macro assignment to meet MISRA 10.3 required rule */
+    tmp_tid = EE_UNMARK_REMOTE_TID(TaskID);
+    unmarked_tid.value_param = (EE_UREG)tmp_tid;
     as_state.task_state_ref = State;
 
     /* forward the request to another CPU in synchronous way */
@@ -115,7 +120,7 @@ StatusType EE_oo_GetTaskState(TaskType TaskID, TaskStateRefType State)
   } else {
 #endif /* EE_AS_RPC__ */
 
-#if EE_FULL_SERVICE_PROTECTION
+#if ( defined(EE_AS_OSAPPLICATIONS__) && defined(EE_SERVICE_PROTECTION__) )
     /* check if the task Id is valid */
     if ( (TaskID < 0) || (TaskID >= EE_MAX_TASK) ) {
       ev = E_OS_ID;
@@ -127,7 +132,8 @@ StatusType EE_oo_GetTaskState(TaskType TaskID, TaskStateRefType State)
     if ( (TaskID < 0) || (TaskID >= EE_MAX_TASK) ) {
       ev = E_OS_ID;
     } else
-#endif /* EE_FULL_SERVICE_PROTECTION || __OO_EXTENDED_STATUS__ */
+#endif /* EE_AS_OSAPPLICATIONS__ || E_SERVICE_PROTECTION__ ||
+__OO_EXTENDED_STATUS__ */
     {
     /* XXX: This SHALL be atomic. Check this architectures other than TriCore */
       *State = EE_th_status[TaskID];

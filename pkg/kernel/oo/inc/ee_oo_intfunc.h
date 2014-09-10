@@ -191,7 +191,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_oo_fill_error_data_ActivateTask(TaskType
   TaskID)
 {
   (*EE_oo_get_errorhook_service_id()) = OSServiceId_ActivateTask;
-  EE_oo_get_errorhook_data()->param1.value_param = TaskID;
+  EE_oo_get_errorhook_data()->param1.value_param = (EE_UREG)TaskID;
 }
 
 #ifndef __OO_NO_CHAINTASK__
@@ -199,7 +199,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_oo_fill_error_data_ChainTask(TaskType
   TaskID)
 {
   (*EE_oo_get_errorhook_service_id())= OSServiceId_ChainTask;
-  EE_oo_get_errorhook_data()->param1.value_param = TaskID;
+  EE_oo_get_errorhook_data()->param1.value_param = (EE_UREG)TaskID;
 }
 #else /* __OO_NO_CHAINTASK__ */
 #define EE_oo_fill_error_data_ChainTask(TaskID)         ((void)0)
@@ -218,7 +218,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_oo_fill_error_data_GetTaskState(TaskType
   register EE_oo_ErrorHook_parameters * const
     p_errorhook_parameter = EE_oo_get_errorhook_data();
   (*EE_oo_get_errorhook_service_id()) = OSServiceId_GetTaskState;
-  p_errorhook_parameter->param1.value_param    = TaskID;
+  p_errorhook_parameter->param1.value_param    = (EE_UREG)TaskID;
   p_errorhook_parameter->param2.task_state_ref = State;
 }
 
@@ -249,7 +249,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_oo_fill_error_data_SetEvent(TaskType
     p_errorhook_parameter = EE_oo_get_errorhook_data();
 
   (*EE_oo_get_errorhook_service_id()) = OSServiceId_SetEvent;
-  p_errorhook_parameter->param1.value_param = TaskID;
+  p_errorhook_parameter->param1.value_param = (EE_UREG)TaskID;
   p_errorhook_parameter->param2.value_param = Mask;
 }
 
@@ -267,7 +267,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_oo_fill_error_data_GetEvent(TaskType
     p_errorhook_parameter = EE_oo_get_errorhook_data();
 
   (*EE_oo_get_errorhook_service_id()) = OSServiceId_GetEvent;
-  p_errorhook_parameter->param1.value_param = TaskID;
+  p_errorhook_parameter->param1.value_param = (EE_UREG)TaskID;
   p_errorhook_parameter->param2.event_ref   = Event;
 }
 
@@ -707,7 +707,8 @@ __INLINE__ void __ALWAYS_INLINE__ EE_oo_notify_error_StartOS(AppModeType
 /* XXX: Here because have to be seen in eecfg.c to generate syscall array */
 #if defined(__EE_MEMORY_PROTECTION__) && defined(__OO_HAS_ERRORHOOK__)
 void EE_oo_notify_error_from_us_internal( OSServiceIdType ServiceID,
-  EE_oo_ErrorHook_parameters * const error_parameters_ref, StatusType Error );
+  const EE_oo_ErrorHook_parameters * const error_parameters_ref,
+  StatusType Error );
 #endif /* __INCLUDE_OO_INTFUNC_H__ && __OO_HAS_ERRORHOOK__*/
 
 #endif /* __INCLUDE_OO_INTFUNC_H__ */

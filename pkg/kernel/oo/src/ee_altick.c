@@ -45,25 +45,25 @@
 
 #include "ee_internal.h"
 
+/* If local alarm or schedule tables are not defined: cut everything */
+#if (defined(EE_MAX_ALARM) && (EE_MAX_ALARM > 0U)) || \
+  (defined(EE_MAX_SCHEDULETABLE) && (EE_MAX_SCHEDULETABLE > 0U))
+#define EE_KEEP_ALARM_QUEUE_CODE
+#endif /* (EE_MAX_ALARM > 0) || (EE_MAX_SCHEDULETABLE > 0U) */
+
 #if defined(RTDRUID_CONFIGURATOR_NUMBER) \
  && (RTDRUID_CONFIGURATOR_NUMBER >= RTDRUID_CONFNUM_NO_ORTI_VARS)
 
 /* ORTI variables */
-
-#ifdef __OO_ORTI_ALARMTIME__
-EE_TYPETICK EE_ORTI_alarmtime[EE_MAX_ALARM
+#if defined(__OO_ORTI_ALARMTIME__) && defined (EE_KEEP_ALARM_QUEUE_CODE)
+static EE_TYPETICK EE_ORTI_alarmtime[EE_MAX_ALARM
 #ifdef EE_AS_SCHEDULETABLES__
   + EE_MAX_SCHEDULETABLE
 #endif /* EE_AS_SCHEDULETABLES__ */
   ];
-#endif /* __OO_ORTI_ALARMTIME__ */
+#endif /* __OO_ORTI_ALARMTIME__ && EE_KEEP_ALARM_QUEUE_CODE */
 
 #endif /* RTDRUID_CONFIGURATOR_NUMBER */
-
-/* If local alarm or schedule tables are not defined: cut everything */
-#if defined(EE_MAX_ALARM) && (EE_MAX_ALARM > 0)
-#define EE_KEEP_ALARM_QUEUE_CODE
-#endif /* EE_MAX_ALARM > 0 */
 
 #ifdef EE_AS_SCHEDULETABLES__
 #if defined(EE_MAX_SCHEDULETABLE) && (EE_MAX_SCHEDULETABLE > 0)
@@ -119,7 +119,7 @@ void EE_oo_counter_object_insert( CounterObjectType ObjectID,
 #endif /* EE_KEEP_ALARM_QUEUE_CODE */
 
 /* If counters are not defined cut everything */
-#if defined(EE_MAX_COUNTER) && (EE_MAX_COUNTER > 0)
+#if defined(EE_MAX_COUNTER) && (EE_MAX_COUNTER > 0U)
 
 static void EE_oo_handle_action_task(EE_oo_action_ROM_type const * const
   p_action)
@@ -128,11 +128,16 @@ static void EE_oo_handle_action_task(EE_oo_action_ROM_type const * const
   register StatusType ev;
 /* Activate the task; NOTE: no pre-emption at all...
    This code was directly copied from ActivateTask */
-  register TaskType TaskID = p_action->TaskID;
+  register TaskType TaskID = 0;
+
+  if ( p_action != NULL ) {
+    TaskID = p_action->TaskID;
+  }
 
 #ifdef EE_AS_RPC__
   if ( EE_IS_TID_REMOTE(TaskID) ) {
-    EE_os_param const unmarked_tid = { EE_UNMARK_REMOTE_TID(TaskID) };
+    EE_os_param unmarked_tid;
+    unmarked_tid.value_param = EE_UNMARK_REMOTE_TID(TaskID);
     /* forward the request to another CPU in synchronous way */
     ev = EE_as_rpc(OSServiceId_ActivateTask, unmarked_tid,
       EE_OS_INVALID_PARAM, EE_OS_INVALID_PARAM);
@@ -179,10 +184,12 @@ static void EE_oo_handle_action_task(EE_oo_action_ROM_type const * const
 #endif /* EE_AS_RPC__ || __RN_TASK__ */
 
   if ( ev != E_OK ) {
+#ifdef __OO_HAS_ERRORHOOK__
     EE_OS_PARAM(os_task_id);
     EE_OS_PARAM(os_action_type);
     EE_OS_PARAM_VALUE(os_task_id,(EE_UREG)TaskID);
-    EE_OS_PARAM_VALUE(os_action_type,EE_ACTION_TASK);
+    EE_OS_PARAM_VALUE(os_action_type,(EE_UREG)EE_ACTION_TASK);
+#endif /* __OO_HAS_ERRORHOOK__ */
     EE_os_notify_error(OSId_Action, os_task_id, EE_OS_INVALID_PARAM,
       os_action_type, ev);
   }
@@ -196,13 +203,20 @@ static void EE_oo_handle_action_event(EE_oo_action_ROM_type const * const
   register StatusType     ev;
   /* Set an event for a task... NOTE: no pre-emption at all...
      This code was directly copied from SetEvent */
-  register TaskType       TaskID  = p_action->TaskID;
-  register EventMaskType  Mask    = p_action->Mask;
+  register TaskType       TaskID  = 0;
+  register EventMaskType  Mask    = 0U;
+
+  if ( p_action != NULL ) {
+    TaskID = p_action->TaskID;
+    Mask = p_action->Mask;
+  }
 
 #ifdef EE_AS_RPC__
   if ( EE_IS_TID_REMOTE(TaskID) ) {
-    EE_os_param const unmarked_tid = { EE_UNMARK_REMOTE_TID(TaskID) };
-    EE_os_param const as_mask = { Mask };
+    EE_os_param unmarked_tid, as_mask;
+
+    unmarked_tid.value_param = EE_UNMARK_REMOTE_TID(TaskID);
+    as_mask.value_param      = Mask;
 
     /* forward the request to another CPU in synchronous way */
     ev = EE_as_rpc(OSServiceId_SetEvent, unmarked_tid,
@@ -269,12 +283,14 @@ static void EE_oo_handle_action_event(EE_oo_action_ROM_type const * const
 #endif /* EE_AS_RPC__ || __RN_TASK__ */
 
   if ( ev != E_OK ) {
+#ifdef __OO_HAS_ERRORHOOK__
     EE_OS_PARAM(os_task_id);
     EE_OS_PARAM(os_mask);
     EE_OS_PARAM(os_action_type);
     EE_OS_PARAM_VALUE(os_task_id,(EE_UREG)TaskID);
     EE_OS_PARAM_VALUE(os_mask,Mask);
-    EE_OS_PARAM_VALUE(os_action_type,EE_ACTION_EVENT);
+    EE_OS_PARAM_VALUE(os_action_type,(EE_UREG)EE_ACTION_EVENT);
+#endif /* __OO_HAS_ERRORHOOK__ */
     EE_os_notify_error(OSId_Action, os_task_id, os_mask,
       os_action_type, ev);
   }
@@ -295,47 +311,52 @@ static void EE_oo_handle_action_callback ( const EE_oo_action_ROM_type *
 #else /* EE_AS_OSAPPLICATIONS__ && EE_SERVICE_PROTECTION__ */
 static void EE_oo_handle_action_callback ( const EE_oo_action_ROM_type *
   const p_action ) {
-  (p_action->f)();
+  if ( p_action != NULL ) {
+    (p_action->f)();
+  }
 }
 #endif /* EE_AS_OSAPPLICATIONS__ && EE_SERVICE_PROTECTION__ */
 
 static void EE_oo_handle_action(EE_oo_action_ROM_type const * const p_action)
 {
-  switch ( p_action->action_kind ) {
+  if ( p_action != NULL ) {
 
-    case  EE_ACTION_TASK:
-      /* activate the task */
-      EE_oo_handle_action_task(p_action);
-      break;
+    switch ( p_action->action_kind ) {
+
+      case  EE_ACTION_TASK:
+        /* activate the task */
+        EE_oo_handle_action_task(p_action);
+        break;
 
 #if defined(__OO_ECC1__) || defined(__OO_ECC2__)
-    case EE_ACTION_EVENT:
-      /* set an event for a task */
-      EE_oo_handle_action_event(p_action);
-      break;
+      case EE_ACTION_EVENT:
+        /* set an event for a task */
+        EE_oo_handle_action_event(p_action);
+        break;
 #endif /* defined(__OO_ECC1__) || defined(__OO_ECC2__) */
 
-    case  EE_ACTION_CALLBACK:
-      EE_oo_handle_action_callback(p_action);
-      break;
+      case  EE_ACTION_CALLBACK:
+        EE_oo_handle_action_callback(p_action);
+        break;
 
-    case EE_ACTION_COUNTER:
-      /*
-       * This "case" statement is not fully supported.
-       * It has been temporary commented to prevent from MISRA
-       * error dealing with recursive functions. If
-       * it will be fully supported and recursive call is
-       * unavoidable, thus consider a MISRA deviation.
-       */
-      /* Recursive Call
-         TODO: HANDLE CYCLIC COUNTERS !!! */
-      /*EE_oo_IncrementCounterImplementation(p_action->inccount);*/
-      break;
+      case EE_ACTION_COUNTER:
+        /*
+         * This "case" statement is not fully supported.
+         * It has been temporary commented to prevent from MISRA
+         * error dealing with recursive functions. If
+         * it will be fully supported and recursive call is
+         * unavoidable, thus consider a MISRA deviation.
+         */
+        /* Recursive Call
+           TODO: HANDLE CYCLIC COUNTERS !!! */
+        /*EE_oo_IncrementCounterImplementation(p_action->inccount);*/
+        break;
 
-    default:
-      /* Invalid action: this should never happen, as `action' is
-         initialized by RT-Druid */
-      break;
+      default:
+        /* Invalid action: this should never happen, as `action' is
+           initialized by RT-Druid */
+        break;
+    }
   }
 }
 
@@ -462,7 +483,7 @@ void EE_oo_IncrementCounterImplementation(CounterType CounterID)
       /* current point to the first alarm at the beginning */
       register CounterObjectType current = to_fire;
       /* previous: Is a temporary copy of the index used as utility */
-      register CounterObjectType previous = INVALID_COUNTER_OBJECT;
+      register CounterObjectType previous;
 
       do {
         /* Now I will use previous to hold the previous checked alarm */
@@ -486,7 +507,7 @@ void EE_oo_IncrementCounterImplementation(CounterType CounterID)
       do {
         /* Select which handler call */
         switch ( EE_oo_counter_object_ROM[to_fire].kind ) {
-#if defined(EE_MAX_ALARM) && (EE_MAX_ALARM > 0)
+#if defined(EE_MAX_ALARM) && (EE_MAX_ALARM > 0U)
           case EE_ALARM:
             EE_oo_handle_action(&EE_oo_action_ROM[EE_alarm_ROM[
               EE_oo_counter_object_ROM[to_fire].spec_id].action_id]);
@@ -548,7 +569,7 @@ StatusType EE_oo_IncrementCounterHardware(CounterType CounterID)
   } else
 #endif /* EE_SERVICE_PROTECTION__ */
 #if (EE_SOFT_COUNTERS_START > 0)
-  if ( CounterID >= EE_SOFT_COUNTERS_START ) {
+  if ( CounterID >= (CounterType)EE_SOFT_COUNTERS_START ) {
     ev = E_OS_ID;
   } else
 #endif /* (EE_SOFT_COUNTERS_START > 0) */
@@ -556,11 +577,16 @@ StatusType EE_oo_IncrementCounterHardware(CounterType CounterID)
     EE_oo_IncrementCounterImplementation(CounterID);
     ev = E_OK;
   }
+/* This if statement is not always necessary */
+#if defined(EE_SERVICE_PROTECTION__) || (EE_SOFT_COUNTERS_START > 0)
   if ( ev != E_OK ) {
+#endif
     EE_ORTI_set_lasterror(ev);
     EE_oo_notify_error_service(OSId_Kernel, ev);
     /* XXX: This is in any case a Kernel Bug it should never happens */
+#if defined(EE_SERVICE_PROTECTION__) || (EE_SOFT_COUNTERS_START > 0)
   }
+#endif
 
   EE_hal_end_nested_primitive(flag);
   return ev;
@@ -597,7 +623,8 @@ StatusType EE_oo_IncrementCounter(CounterType CounterID)
   } else
 #endif /* EE_SERVICE_PROTECTION__ */
 
-#if EE_FULL_SERVICE_PROTECTION || defined(__OO_EXTENDED_STATUS__)
+#if ( ( defined(EE_AS_OSAPPLICATIONS__) && defined(EE_SERVICE_PROTECTION__) )||\
+defined (__OO_EXTENDED_STATUS__) )
 #ifdef EE_AS_RPC__
   /* [OS589]: All functions that are not allowed to operate cross core shall
       return E_OS_CORE in extended status if called with parameters that
@@ -612,18 +639,20 @@ StatusType EE_oo_IncrementCounter(CounterType CounterID)
       shall return E_OS_ID. */
   if (
 #if (EE_SOFT_COUNTERS_START > 0)
-    (CounterID < EE_SOFT_COUNTERS_START) ||
+    (CounterID < (CounterType)EE_SOFT_COUNTERS_START) ||
 #endif /* (EE_SOFT_COUNTERS_START > 0) */
     (CounterID >= EE_MAX_COUNTER) )
   {
     ev = E_OS_ID;
   } else
-#if EE_FULL_SERVICE_PROTECTION
+#if ( defined(EE_AS_OSAPPLICATIONS__) && defined(EE_SERVICE_PROTECTION__) )
   if ( EE_COUNTER_ACCESS_ERR(CounterID, EE_as_active_app) ) {
     ev = E_OS_ACCESS;
   } else
-#endif /* EE_FULL_SERVICE_PROTECTION */
-#endif /* EE_FULL_SERVICE_PROTECTION || __OO_EXTENDED_STATUS__ */
+#endif /* EE_AS_OSAPPLICATIONS__ || E_SERVICE_PROTECTION__ */
+#endif /* EE_AS_OSAPPLICATIONS__ || E_SERVICE_PROTECTION__ ||
+E_SERVICE_PROTECTION__ ||
+__OO_EXTENDED_STATUS__ */
   {
     /* Call to function that actually increment the counter */
     EE_oo_IncrementCounterImplementation(CounterID);

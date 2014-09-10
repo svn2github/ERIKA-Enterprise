@@ -63,12 +63,13 @@
 /* Error Parameters Utilities Macros */
 #define EE_OS_PARAM(param_name)   EE_os_param param_name
 #define EE_OS_PARAM_VALUE(param_name, param_value)  \
-  param_name.value_param = param_value
+  (param_name.value_param = param_value)
 
 #define EE_OS_PARAM_REF(param_name, param_field, param_ref) \
-  EE_OS_VALUE(param_name).EE_OS_VALUE(param_field) = param_ref
+  (EE_OS_VALUE(param_name).EE_OS_VALUE(param_field) = param_ref)
 
- /* Error Parameters Data Structure Utilities Macros from user space */
+#ifdef __OO_HAS_ERRORHOOK__
+/* Error Parameters Data Structure Utilities Macros from user space */
 #define EE_OS_ERROR_PARAMETERS()  EE_oo_ErrorHook_parameters error_parameters
 
 #define EE_OS_ERROR_PARAMETERS_INIT(param1_in,param2_in,param3_in)  \
@@ -76,18 +77,31 @@
     param3_in }
 
 #define EE_OS_ERROR_PARAMETERS_PARAM1_VALUE(param1_value) \
-  error_parameters.param1.value_param = param1_value
+  (error_parameters.param1.value_param = param1_value)
 #define EE_OS_ERROR_PARAMETERS_PARAM2_VALUE(param2_value) \
-  error_parameters.param2.value_param = param2_value
+  (error_parameters.param2.value_param = param2_value)
 #define EE_OS_ERROR_PARAMETERS_PARAM3_VALUE(param3_value) \
-  error_parameters.param3.value_param = param3_value
+  (error_parameters.param3.value_param = param3_value)
 
 #define EE_OS_ERROR_PARAMETERS_PARAM1_REF(param_field,param_ref)  \
-  error_parameters.param1.EE_OS_VALUE(param_field) = param_ref
+  (error_parameters.param1.EE_OS_VALUE(param_field) = param_ref)
 #define EE_OS_ERROR_PARAMETERS_PARAM2_REF(param_field,param_ref)  \
-  error_parameters.param2.EE_OS_VALUE(param_field) = param_ref
+  (error_parameters.param2.EE_OS_VALUE(param_field) = param_ref)
 #define EE_OS_ERROR_PARAMETERS_PARAM3_REF(param_field,param_ref)  \
-  error_parameters.param3.EE_OS_VALUE(param_field) = param_ref
+  (error_parameters.param3.EE_OS_VALUE(param_field) = param_ref)
+#else /* __OO_HAS_ERRORHOOK__ */
+#define EE_OS_ERROR_PARAMETERS()                                    ((void)0)
+
+#define EE_OS_ERROR_PARAMETERS_INIT(param1_in,param2_in,param3_in)  ((void)0)
+
+#define EE_OS_ERROR_PARAMETERS_PARAM1_VALUE(param1_value)           ((void)0)
+#define EE_OS_ERROR_PARAMETERS_PARAM2_VALUE(param2_value)           ((void)0)
+#define EE_OS_ERROR_PARAMETERS_PARAM3_VALUE(param3_value)           ((void)0)
+
+#define EE_OS_ERROR_PARAMETERS_PARAM1_REF(param_field,param_ref)    ((void)0)
+#define EE_OS_ERROR_PARAMETERS_PARAM2_REF(param_field,param_ref)    ((void)0)
+#define EE_OS_ERROR_PARAMETERS_PARAM3_REF(param_field,param_ref)    ((void)0)
+#endif /* __OO_HAS_ERRORHOOK__ */
 
 /* Error Handling */
 #ifdef __OO_HAS_ERRORHOOK__
@@ -124,7 +138,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_os_notify_error( OSServiceIdType ServiceID,
 
 #ifndef __EE_MEMORY_PROTECTION__
 __INLINE__ void __ALWAYS_INLINE__ EE_os_notify_error_from_us(
-  OSServiceIdType ServiceID, EE_oo_ErrorHook_parameters * const
+  OSServiceIdType ServiceID, const EE_oo_ErrorHook_parameters * const
     error_parameters_ref, StatusType Error )
 {
   if ( error_parameters_ref != NULL ) {
@@ -143,7 +157,8 @@ __INLINE__ void __ALWAYS_INLINE__ EE_os_notify_error_from_us(
 #endif /* EE_SUPPORT_MEMMAP_H */
 
 void EE_os_notify_error_from_us( OSServiceIdType ServiceID,
-  EE_oo_ErrorHook_parameters * const error_parameters_ref, StatusType Error );
+  const EE_oo_ErrorHook_parameters * const error_parameters_ref,
+  StatusType Error );
 
 #ifdef EE_SUPPORT_MEMMAP_H
 #define API_STOP_SEC_CODE
@@ -152,22 +167,23 @@ void EE_os_notify_error_from_us( OSServiceIdType ServiceID,
 #endif /* !__EE_MEMORY_PROTECTION__ */
 #else /* __OO_HAS_ERRORHOOK__ */
 
-__INLINE__ void __ALWAYS_INLINE__ EE_os_notify_error( OSServiceIdType ServiceID,
-  EE_os_param param1, EE_os_param param2, EE_os_param param3, StatusType Error )
+/* Macro used for remapping to prevent compiler warnings on unused parameters */
+#define EE_os_notify_error(k,j,x,y,z) EE_os_notify_error_impl(z)
+
+__INLINE__ void __ALWAYS_INLINE__ EE_os_notify_error_impl(StatusType Error)
 {
   EE_ORTI_set_lasterror(Error);
 }
-__INLINE__ void __ALWAYS_INLINE__ EE_os_notify_error_from_us(
-  OSServiceIdType ServiceID, EE_oo_ErrorHook_parameters * const
-    error_parameters_ref, StatusType Error )
+
+/* Macro used for remapping to prevent compiler warnings on unused parameters */
+#define EE_os_notify_error_from_us(x,y,z) EE_os_notify_error_from_us_impl(z)
+
+__INLINE__ void __ALWAYS_INLINE__ EE_os_notify_error_from_us_impl(
+  StatusType Error )
 {
   EE_ORTI_set_lasterror(Error);
 }
 #endif /* __OO_HAS_ERRORHOOK__ */
-
-/** @brief Useful macro to short checks in services implementation */
-#define EE_FULL_SERVICE_PROTECTION ( defined(EE_AS_OSAPPLICATIONS__) &&\
-  defined(EE_SERVICE_PROTECTION__) )
 
 /*******************************************************************************
  *                  Kernel Critical Section Utility Macros
@@ -180,7 +196,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_os_notify_error_from_us(
   do {                                          \
     flag = EE_hal_begin_nested_primitive();     \
     EE_as_tp_active_pause_and_update_budgets(); \
-  } while ( 0 )
+  } while ( ( 0 ) )
 
 #define EE_OS_DECLARE_AND_ENTER_CRITICAL_SECTION()  \
   EE_OS_DECLARE_CRITICAL_SECTION();                 \
@@ -190,7 +206,13 @@ __INLINE__ void __ALWAYS_INLINE__ EE_os_notify_error_from_us(
   do {                                            \
     EE_as_tp_active_update_budgets_and_restart(); \
     EE_hal_end_nested_primitive(flag);            \
-  } while ( 0 )
+  } while ( ( 0 ) )
+
+#define EE_OS_FOREVER_CRITICAL_SECTION()          \
+  do {                                            \
+    EE_hal_disableIRQ();                          \
+    EE_as_tp_active_pause_and_update_budgets();   \
+  } while ( ( 0 ) )
 
 #else /* !__EE_MEMORY_PROTECTION__ */
 /* TP in any case have to be handled in Service Implementation. Syscall
@@ -203,6 +225,8 @@ __INLINE__ void __ALWAYS_INLINE__ EE_os_notify_error_from_us(
   EE_as_tp_active_pause_and_update_budgets()
 #define EE_OS_EXIT_CRITICAL_SECTION()               \
   EE_as_tp_active_update_budgets_and_restart()
+#define EE_OS_FOREVER_CRITICAL_SECTION()			\
+  EE_as_tp_active_pause_and_update_budgets()
 #endif /* !__EE_MEMORY_PROTECTION__ */
 
 /* return the first stacked task (the running task) without extracting it 
@@ -243,6 +267,8 @@ void       EE_oo_IncrementCounterImplementation(CounterType CounterID);
 void EE_oo_counter_object_insert( CounterObjectType ObjectID, TickType
   increment );
 
+#if defined (EE_COUNTER_OBJECTS_ROM_SIZE)
+#if (EE_COUNTER_OBJECTS_ROM_SIZE > 0)
 __INLINE__ void __ALWAYS_INLINE__
   EE_oo_handle_abs_counter_object_insertion( CounterObjectType ObjectID,
     TickType start, TickType cycle ) 
@@ -326,6 +352,8 @@ __INLINE__ void __ALWAYS_INLINE__ EE_oo_handle_counter_object_cancellation(
 
   EE_oo_counter_object_RAM[ObjectID].used = 0U;
 }
+#endif /* EE_COUNTER_OBJECTS_ROM_SIZE */
+#endif /* EE_COUNTER_OBJECTS_ROM_SIZE > 0 */
 #endif /* !__OO_NO_ALARMS__ || EE_AS_SCHEDULETABLES__ */
 
 /*************************************************************************
@@ -391,7 +419,7 @@ __INLINE__ EE_SREG __ALWAYS_INLINE__ EE_oo_check_disableint_error(void)
 
 #if defined(__OO_BCC2__) || defined(__OO_ECC2__)
 /* A lookup table to speedup ready queue handling */
-extern const EE_INT8 EE_rq_lookup[];
+extern const EE_INT8 EE_rq_lookup[256];
 /* Lookup functions */
 #if defined(__OO_ECC2__)
 __INLINE__ EE_INT8 __ALWAYS_INLINE__ EE_rq_get_first_not_empty_queue( void )

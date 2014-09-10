@@ -7,7 +7,7 @@
  *
  * ERIKA Enterprise is free software; you can redistribute it
  * and/or modify it under the terms of the GNU General Public License
- * version 2 as published by the Free Software Foundation, 
+ * version 2 as published by the Free Software Foundation,
  * (with a special exception described below).
  *
  * Linking this code statically or dynamically with other modules is
@@ -58,13 +58,13 @@
 
 /*
 The Kernel constants like NIL and other thread statuses are defined
-in the following sections: 
+in the following sections:
 
-- invalid see 13.2.4 
+- invalid see 13.2.4
 - thread statuses see 13.2.4
 */
 
-/* Moreover, the user must specify (into types.h) in a fashion like 
+/* Moreover, the user must specify (into types.h) in a fashion like
    #define identifier unique_number
    the following identifiers:
    - The resource identifiers declared with the macro
@@ -78,7 +78,7 @@ in the following sections:
    - EE_MAX_RESOURCE maximum number of resources
    - EE_MAX_ALARM maximum number of alarms
 
-   For TASK/ALARM Autostart support: 
+   For TASK/ALARM Autostart support:
    - EE_MAX_APPMODE maximum number of Application modes (typically
      >0, because there is always the mode OSDEFAULTAPPMODE.
 */
@@ -180,12 +180,12 @@ typedef EE_UTID                ApplicationType;
 
 #if defined(__OO_BCC2__) || defined(__OO_ECC2__)
 /* Maximum number of pending activations */
-extern const EE_TYPENACT   EE_th_rnact_max[];
+extern const EE_TYPENACT   EE_th_rnact_max[EE_MAX_TASK];
 #endif /* __OO_BCC2__ || __OO_ECC2__ */
 
 /* priorities (NB: they are bit fields!!!) */
-extern const EE_TYPEPRIO EE_th_ready_prio[];
-extern const EE_TYPEPRIO EE_th_dispatch_prio[];
+extern const EE_TYPEPRIO EE_th_ready_prio[EE_MAX_TASK];
+extern const EE_TYPEPRIO EE_th_dispatch_prio[EE_MAX_TASK];
 
 /* If MemMap.h support is enabled (i.e. because memory protection): use it */
 #ifdef EE_SUPPORT_MEMMAP_H
@@ -199,7 +199,7 @@ extern const EE_TYPEPRIO EE_th_dispatch_prio[];
  *************************************************************************/
 
 /* thread status, all initialized to SUSPENDED */
-extern EE_TYPESTATUS EE_th_status[];
+extern EE_TYPESTATUS EE_th_status[EE_MAX_TASK];
 
 /* next: is used for:
    - the stacked queue
@@ -207,19 +207,19 @@ extern EE_TYPESTATUS EE_th_status[];
    - the ready queue (BCC1, ECC1)
    all initialized with EE_NIL
 */
-extern EE_TID EE_th_next[];
+extern EE_TID EE_th_next[EE_MAX_TASK];
 
-/* 
- * remaining nact: init= maximum pending activations of a Task 
- * =1 for BCC1 and ECC1, >= 0 for BCC2 and ECC2 
+/*
+ * remaining nact: init= maximum pending activations of a Task
+ * =1 for BCC1 and ECC1, >= 0 for BCC2 and ECC2
  *
  * all initialized with 1 (ECC2, BCC2: or with a value >1)
  */
-extern EE_TYPENACT   EE_th_rnact[];
+extern EE_TYPENACT   EE_th_rnact[EE_MAX_TASK];
 
 #ifndef __OO_NO_CHAINTASK__
 /* The next task to be activated after a ChainTask. initvalue=all EE_NIL */
-extern EE_TID EE_th_terminate_nextask[];
+extern EE_TID EE_th_terminate_nextask[EE_MAX_TASK];
 #endif
 
 /* The first stacked task (initvalue = EE_NIL) */
@@ -282,22 +282,22 @@ typedef EE_UINT16 EE_TYPE_RQ_MASK;
 
 /* The following data structure gives the link between a task and its
    priority queue.  The values of this data structure are the same of
-   EE_ready_prio, except that they are not stored as bitfields 
+   EE_ready_prio, except that they are not stored as bitfields
 
    Initvalue: each TID = x such that th_ready_prio[TID]= 1<<x
 */
-extern EE_TYPEPRIO EE_rq_link[];
+extern EE_TYPEPRIO EE_rq_link[EE_MAX_TASK];
 
-/* The priority queues  (initvalue: all -1; 
+/* The priority queues  (initvalue: all -1;
    number of elements: 8(BCC2) or 16(ECC2) ) */
-extern EE_TYPEPAIR EE_rq_queues_head[];
-extern EE_TYPEPAIR EE_rq_queues_tail[];
+extern EE_TYPEPAIR EE_rq_queues_head[EE_RQ_QUEUES_HEAD_SIZE];
+extern EE_TYPEPAIR EE_rq_queues_tail[EE_RQ_QUEUES_TAIL_SIZE];
 
 /* The pairs that are enqueued into the priority queues */
-/* initvalue: something like {1,2,3,4,5,...,-1}. 
-   the number of elements is equal to the sum of the elements of 
+/* initvalue: something like {1,2,3,4,5,...,-1}.
+   the number of elements is equal to the sum of the elements of
    EE_th_rnact */
-extern EE_TYPEPAIR EE_rq_pairs_next[];
+extern EE_TYPEPAIR EE_rq_pairs_next[EE_RQ_PAIRS_NEXT_SIZE];
 /* If MemMap.h support is enabled (i.e. because memory protection): use it */
 #ifdef EE_SUPPORT_MEMMAP_H
 #define OS_STOP_SEC_VAR_DATA
@@ -313,7 +313,7 @@ extern EE_TYPEPAIR EE_rq_pairs_next[];
 
 /* init value=0 (no init value); the number of elements is equal to the
    sum of the elements of EE_th_rnact */
-extern EE_TID      EE_rq_pairs_tid[];
+extern EE_TID      EE_rq_pairs_tid[EE_RQ_PAIRS_TID_SIZE];
 
 /* RQ priority Mask */
 extern EE_TYPE_RQ_MASK EE_rq_bitmask;
@@ -345,18 +345,18 @@ extern EE_TYPEPAIR EE_rq_free; /* pointer to a free pair; initvalue=0 */
 
 /* thread events already active; these events are set using the
    SetEvent primitive. initvalue = 0 */
-extern EE_TYPEEVENTMASK EE_th_event_active[];
+extern EE_TYPEEVENTMASK EE_th_event_active[EE_MAX_TASK];
 
-/* thread wait mask. this is the event mask the task is waiting using 
+/* thread wait mask. this is the event mask the task is waiting using
    WaitEvent. A task IS waiting only if the value in this array IS != 0.
    initvalue = 0 */
-extern EE_TYPEEVENTMASK EE_th_event_waitmask[];
+extern EE_TYPEEVENTMASK EE_th_event_waitmask[EE_MAX_TASK];
 
 /* this structure contains a flag that is 1 if a thread has been
    suspended using EE_hal_stkchange. In that case, the task have to
    be wakened again using the same function. initvalue = 0
 */
-extern EE_TYPEBOOL EE_th_waswaiting[];
+extern EE_TYPEBOOL EE_th_waswaiting[EE_MAX_TASK];
 
 /* If MemMap.h support is enabled (i.e. because memory protection): use it */
 #ifdef EE_SUPPORT_MEMMAP_H
@@ -369,7 +369,7 @@ extern EE_TYPEBOOL EE_th_waswaiting[];
    EXTENDED status. The need for this flag in standard status is
    because task activations of an extended task clears its pending
    event mask. */
-extern const EE_TYPEBOOL EE_th_is_extended[];
+extern const EE_TYPEBOOL EE_th_is_extended[EE_MAX_TASK];
 
 #endif /* __OO_ECC1__ || __OO_ECC2__ */
 
@@ -378,11 +378,11 @@ extern const EE_TYPEBOOL EE_th_is_extended[];
 #ifndef __OO_NO_RESOURCES__
 
 /* Resource ceiling */
-extern const EE_TYPEPRIO   EE_resource_ceiling[];
+extern const EE_TYPEPRIO   EE_resource_ceiling[EE_MAX_RESOURCE];
 
 #ifdef __OO_ISR2_RESOURCES__
 /* ISR2 priority tied to an resource */
-extern const EE_TYPEISR2PRIO  EE_resource_isr2_priority[];
+extern const EE_TYPEISR2PRIO  EE_resource_isr2_priority[EE_MAX_RESOURCE];
 #endif /* __OO_ISR2_RESOURCES__ */
 
 /* If MemMap.h support is enabled (i.e. because memory protection): use it */
@@ -396,13 +396,13 @@ extern const EE_TYPEISR2PRIO  EE_resource_isr2_priority[];
 /* Note: There is no constraint on the index that is assigned
    RES_SCHEDULER!!! */
 /* Old resource ceiling */
-extern EE_TYPEPRIO   EE_resource_oldceiling[];
+extern EE_TYPEPRIO   EE_resource_oldceiling[EE_MAX_RESOURCE];
 
 #ifdef __OO_ISR2_RESOURCES__
 /* New data structures to handle resource sharing with isr2 and isr2 hardware
    priority ceiling. */
 /* Old ISR2 priority */
-extern EE_TYPEISR2PRIO  EE_isr2_oldpriority[];
+extern EE_TYPEISR2PRIO  EE_isr2_oldpriority[EE_MAX_RESOURCE];
 #endif /* __OO_ISR2_RESOURCES__ */
 
 #if defined(__OO_EXTENDED_STATUS__) || defined(__OO_ORTI_RES_ISLOCKED__)
@@ -411,7 +411,7 @@ extern EE_TYPEISR2PRIO  EE_isr2_oldpriority[];
    not.  Note that this information cannot be easily knew from the
    previous two data structures. initvalue=0
 */
-extern EE_TYPEBOOL EE_resource_locked[];
+extern EE_TYPEBOOL EE_resource_locked[EE_MAX_RESOURCE];
 #endif /*__OO_EXTENDED_STATUS__ || __OO_ORTI_RES_ISLOCKED__ */
 
 /* If MemMap.h support is enabled (i.e. because memory protection): use it */
@@ -436,11 +436,15 @@ extern EE_TYPEBOOL EE_resource_locked[];
 /* This is the last resource that the task has locked. This array
    contains one entry for each task.  Initvalue= all -1. at runtime,
    it points to the first item in the EE_resource_stack data structure */
-extern EE_UREG EE_th_resource_last[];
+#ifndef EE_MAX_ISR2_WITH_RESOURCES
+extern EE_UREG EE_th_resource_last[EE_MAX_TASK];
+#else /* !EE_MAX_ISR2_WITH_RESOURCES */
+extern EE_UREG EE_th_resource_last[EE_MAX_TASK + EE_MAX_ISR2_WITH_RESOURCES];
+#endif /* !EE_MAX_ISR2_WITH_RESOURCES */
 /* this array is used to store a list of resources locked by a
    task. there is one entry for each resource, initvalue = -1. the
    list of resources locked by a task is ended by -1. */
-extern EE_UREG EE_resource_stack[];
+extern EE_UREG EE_resource_stack[EE_MAX_RESOURCE];
 #endif /* __OO_EXTENDED_STATUS__ || __OO_ISR2_RESOURCES__ */
 
 /* If MemMap.h support is enabled (i.e. because memory protection): use it */
@@ -460,8 +464,16 @@ extern EE_UREG EE_resource_stack[];
 #include "MemMap.h"
 #endif /* EE_SUPPORT_MEMMAP_H */
 
+#if defined (EE_MAX_ISR2_WITH_RESOURCES)
+#if (EE_MAX_ISR2_WITH_RESOURCES > 0)
 /* Array to hold corresponding isr2 nesting levels */
-extern EE_UREG                EE_isr2_nesting_level[];
+extern EE_UREG                EE_isr2_nesting_level[EE_MAX_ISR2_WITH_RESOURCES];
+#endif /* EE_MAX_ISR2_WITH_RESOURCES > 0 */
+#elif defined (EE_MAX_ISR2)
+#if (EE_MAX_ISR2 > 0)
+extern EE_UREG                EE_isr2_nesting_level[EE_MAX_ISR2];
+#endif /* EE_MAX_ISR2 > 0 */
+#endif
 
 /* If MemMap.h support is enabled (i.e. because memory protection): use it */
 #ifdef EE_SUPPORT_MEMMAP_H
@@ -481,7 +493,7 @@ extern void EE_oo_thread_stub(void);
 /* see top of the file */
 
 /***************************************************************************
- * 13.2 Task management 
+ * 13.2 Task management
  ***************************************************************************/
 
 /* 13.2.1 Data types                                                       */
@@ -500,7 +512,7 @@ typedef EE_TYPESTATUS TaskStateType;
 typedef EE_TYPESTATUS *TaskStateRefType;
 
 /***************************************************************************
- * ISR2 management 
+ * ISR2 management
  ***************************************************************************/
 /** @typedef This data type identifies an interrupt service routine (ISR). */
 typedef EE_UTID ISRType;
@@ -523,7 +535,7 @@ typedef EE_UTID ISRType;
 
 
 /***************************************************************************
- * 13.4 Resource management 
+ * 13.4 Resource management
  ***************************************************************************/
 
 /* 13.4.1 Data types                                                       */
@@ -534,7 +546,7 @@ typedef EE_TYPERESOURCE ResourceType;
 #endif
 
 /***************************************************************************
- * 13.5 Event control 
+ * 13.5 Event control
  ***************************************************************************/
 
 /* 13.5.1 Data types                                                       */
@@ -697,29 +709,47 @@ typedef struct {
 
 /* This array contains, for each counter, the characteristics of the counter.
    The initialization value is implementation dependent */
-extern const EE_oo_counter_ROM_type EE_counter_ROM[];
+#if defined (EE_COUNTER_ROM_SIZE)
+#if EE_COUNTER_ROM_SIZE > 0
+extern const EE_oo_counter_ROM_type EE_counter_ROM[EE_COUNTER_ROM_SIZE];
+#endif
+#endif
 
 #ifdef EE_MAX_COUNTER_HW
 /* Add supplementary support info for HARDWARE counters.
-   This array contains, for each HARDWARE counter, the supplementary 
+   This array contains, for each HARDWARE counter, the supplementary
    characteristics of the counter.The initialization value is implementation
    dependent */
-extern const EE_oo_counter_hw_ROM_type EE_counter_hw_ROM[];
+extern const EE_oo_counter_hw_ROM_type
+  EE_counter_hw_ROM[EE_COUNTER_HW_ROM_SIZE];
 #endif /* EE_MAX_COUNTER_HW */
 
-/* this part is the fixed part of a counter object.  
+/* this part is the fixed part of a counter object.
    Initvalue= depends on how the alarm or the schedule table represented by this
    have been configured */
-extern const EE_oo_counter_object_ROM_type EE_oo_counter_object_ROM[];
+#if defined (EE_COUNTER_OBJECTS_ROM_SIZE)
+#if (EE_COUNTER_OBJECTS_ROM_SIZE > 0)
+extern const EE_oo_counter_object_ROM_type
+  EE_oo_counter_object_ROM[EE_COUNTER_OBJECTS_ROM_SIZE];
+#endif
+#endif
 
 /* this part represent the list of the configured actions.
    Initvalue= depends on how the alarms and the schedule tables have been
    have been configured */
-extern const EE_oo_action_ROM_type EE_oo_action_ROM[];
+#if defined (EE_ACTION_ROM_SIZE)
+#if (EE_ACTION_ROM_SIZE > 0)
+extern const EE_oo_action_ROM_type EE_oo_action_ROM[EE_ACTION_ROM_SIZE];
+#endif
+#endif
 
 /* this is the fixed part of the configuration of an alarm
    Initvalue= depends on how the alarm have been configured */
-extern const EE_oo_alarm_ROM_type   EE_alarm_ROM[];
+#if defined (EE_ALARM_ROM_SIZE)
+#if (EE_ALARM_ROM_SIZE > 0)
+extern const EE_oo_alarm_ROM_type   EE_alarm_ROM[EE_ALARM_ROM_SIZE];
+#endif
+#endif
 
 /* If MemMap.h support is enabled (i.e. because memory protection): use it */
 #ifdef EE_SUPPORT_MEMMAP_H
@@ -728,15 +758,20 @@ extern const EE_oo_alarm_ROM_type   EE_alarm_ROM[];
 #include "MemMap.h"
 #endif /* EE_SUPPORT_MEMMAP_H */
 
-/* This is the RAM part of a counter. 
+/* This is the RAM part of a counter.
    Initialization value = an array of {0,-1} elements */
-extern EE_oo_counter_RAM_type       EE_counter_RAM[];
+extern EE_oo_counter_RAM_type       EE_counter_RAM[EE_MAX_COUNTER];
 
-/* this part is the variable part of a counter object.  
+/* this part is the variable part of a counter object.
    Initvalue: all zeros. Note that setting the next value to 0 and
    not -1 does not give problems because used=0; the next field will
    be set by counter_object_insert when inserting the alarm in the queue */
-extern EE_oo_counter_object_RAM_type  EE_oo_counter_object_RAM[];
+#if defined (EE_COUNTER_OBJECTS_ROM_SIZE)
+#if (EE_COUNTER_OBJECTS_ROM_SIZE > 0)
+extern EE_oo_counter_object_RAM_type
+  EE_oo_counter_object_RAM[EE_COUNTER_OBJECTS_ROM_SIZE];
+#endif
+#endif
 
 /* If MemMap.h support is enabled (i.e. because memory protection): use it */
 #ifdef EE_SUPPORT_MEMMAP_H
@@ -747,7 +782,7 @@ extern EE_oo_counter_object_RAM_type  EE_oo_counter_object_RAM[];
 #endif /* !__OO_NO_ALARMS__ || EE_AS_SCHEDULETABLES__ */
 
 /***************************************************************************
- * 13.7 Operating system execution control 
+ * 13.7 Operating system execution control
  ***************************************************************************/
 
 /* 13.7.1 Data types                                                       */
@@ -909,14 +944,16 @@ __INLINE__ void EE_ORTI_set_service(EE_UINT8 srv)
    that is read by the ORTI debugger
    Initvalue: the ready priority set for the task
 */
-extern EE_TYPEPRIO EE_ORTI_th_priority[];
+extern EE_TYPEPRIO EE_ORTI_th_priority[EE_MAX_TASK];
 
 /* this variable contains the current task priority saved when a task
    locked a resource. It works because a resource can be
-   locked only by one task at a time. 
+   locked only by one task at a time.
    InitValue: all 0
 */
-extern EE_TYPEPRIO EE_ORTI_resource_oldpriority[];
+#if defined (EE_MAX_RESOURCE) && (EE_MAX_RESOURCE > 0U)
+extern EE_TYPEPRIO EE_ORTI_resource_oldpriority[EE_MAX_RESOURCE];
+#endif /* EE_MAX_RESOURCE && EE_MAX_RESOURCE > 0U */
 
 #define EE_ORTI_set_th_eq_dispatch_prio(tmp) \
   (EE_ORTI_th_priority[(tmp)] = EE_th_dispatch_prio[(tmp)])
@@ -930,26 +967,6 @@ __INLINE__ void __ALWAYS_INLINE__ EE_ORTI_set_th_priority(EE_TID index,
 #define EE_ORTI_set_th_eq_dispatch_prio(tmp)    ((void)0)
 #define EE_ORTI_set_th_priority(index, prio)    ((void)0)
 #endif /*__OO_ORTI_PRIORITY__ */
-
-#ifdef __OO_ORTI_ALARMTIME__
-/* this variable stores the time until an alarm expires; it is only
-   valid if an alarm is running. 
-   initvalue: all 0
-*/
-extern EE_TYPETICK EE_ORTI_alarmtime[];
-#endif
-
-#ifdef __OO_ORTI_RES_LOCKER_TASK__
-/* This is task that has currently locked the resource. 
-   Initvalue: all 0
-*/
-#if defined(RTDRUID_CONFIGURATOR_NUMBER) \
- && (RTDRUID_CONFIGURATOR_NUMBER >= RTDRUID_CONFNUM_NO_ORTI_VARS)
-extern EE_TID EE_ORTI_res_locker[];
-#else
-extern EE_UREG EE_ORTI_res_locker[];
-#endif
-#endif /* __OO_ORTI_RES_LOCKER_TASK__ */
 
 /* If MemMap.h support is enabled (i.e. because memory protection): use it */
 #ifdef EE_SUPPORT_MEMMAP_H
@@ -1014,7 +1031,8 @@ struct EE_oo_autostart_task_type {
 
 /* For each valid APPMODE (that ranges from 0 to EE_MAX_APPMODE-1) there must
    be an item in this array with the tasks that are activated at startup. */
-extern const struct EE_oo_autostart_task_type EE_oo_autostart_task_data[];
+extern const struct EE_oo_autostart_task_type
+  EE_oo_autostart_task_data[EE_MAX_APPMODE];
 
 #endif
 
@@ -1036,16 +1054,17 @@ struct EE_oo_autostart_alarm_type {
 
 /* For each valid APPMODE (that ranges from 0 to EE_MAX_APPMODE-1) there must
    be an item in this array with the tasks that are activated at startup. */
-extern const struct EE_oo_autostart_alarm_type EE_oo_autostart_alarm_data[];
+extern const struct EE_oo_autostart_alarm_type
+  EE_oo_autostart_alarm_data[EE_MAX_APPMODE];
 
 /* For each Alarm that is activated there should be an item in these
    arrays that contains the cycle and increment values that have to be
    used when activating a given alarm ID. Note that cycle/increment
-   are unique for each alarm activation time. 
+   are unique for each alarm activation time.
    The size of these two arrays is MAXALARM.
 */
-extern const EE_TYPETICK EE_oo_autostart_alarm_increment[];
-extern const EE_TYPETICK EE_oo_autostart_alarm_cycle[];
+extern const EE_TYPETICK EE_oo_autostart_alarm_increment[EE_MAX_ALARM];
+extern const EE_TYPETICK EE_oo_autostart_alarm_cycle[EE_MAX_ALARM];
 #endif
 
 #ifdef __MSRP__
@@ -1125,7 +1144,8 @@ __INLINE__ void __ALWAYS_INLINE__ EE_as_set_execution_context ( EE_TYPECONTEXT
 #define EE_as_get_execution_context()     Kernel_Context
 __INLINE__ void __ALWAYS_INLINE__ EE_as_set_execution_context ( EE_TYPECONTEXT
   ctx ) {
-  /* Nothing to do */
+  /* Unusefull operation to meet Linters requirements */
+  (void)ctx;
 }
 #endif /* EE_SERVICE_PROTECTION__ */
 
@@ -1525,7 +1545,7 @@ extern EE_as_Schedule_Table_RAM_type
 #endif /* EE_AS_SCHEDULETABLES__ */
 
 /***************************************************************************
- * 13.8 Hook routines 
+ * 13.8 Hook routines
  ***************************************************************************/
 
 
@@ -1577,6 +1597,7 @@ typedef union EE_os_param_type {
 
 /* To be used as place holder when an API doesn't have a parameter */
 static const EE_os_param EE_os_invalid_param = { EE_UREG_MINUS1 };
+
 #define EE_OS_INVALID_PARAM  (EE_os_invalid_param)
 
 /* unique identifier of system service xx */
@@ -1639,7 +1660,7 @@ static const EE_os_param EE_os_invalid_param = { EE_UREG_MINUS1 };
 
 /* The following type MUST be visible always, because the "New Error Handling"
    implementation */
-/** @var structure that hold the service that caused an Error parameter value */ 
+/** @var structure that hold the service that caused an Error parameter value */
 typedef struct EE_oo_ErrorHook_parameters_type {
   EE_os_param param1;
   EE_os_param param2;
@@ -1655,23 +1676,6 @@ typedef struct EE_oo_ErrorHook_parameters_type {
 #include "MemMap.h"
 #endif /* EE_SUPPORT_MEMMAP_H */
 
-#ifndef __MSRP__
-extern OSServiceIdType            EE_oo_ErrorHook_ServiceID;
-extern EE_oo_ErrorHook_parameters EE_oo_ErrorHook_data;
-
-#define EE_oo_get_errorhook_service_id()  (&EE_oo_ErrorHook_ServiceID)
-#define EE_oo_get_errorhook_data()        (&EE_oo_ErrorHook_data)
-
-#else /* !__MSRP__ */
-extern OSServiceIdType            EE_oo_ErrorHook_ServiceID[EE_MAX_CPU];
-extern EE_oo_ErrorHook_parameters EE_oo_ErrorHook_data[EE_MAX_CPU];
-
-#define EE_oo_get_errorhook_service_id()  \
-  (&EE_oo_ErrorHook_ServiceID[ EE_hal_get_core_id() ])
-#define EE_oo_get_errorhook_data()        \
-  (&EE_oo_ErrorHook_data[ EE_hal_get_core_id() ])
-#endif /* !__MSRP__ */
-
 /* Used to flag if we are already in a ErrorHook */
 extern EE_TYPEBOOL                EE_ErrorHook_nested_flag;
 
@@ -1680,6 +1684,47 @@ extern EE_TYPEBOOL                EE_ErrorHook_nested_flag;
 #define OS_STOP_SEC_VAR_NOINIT
 #include "MemMap.h"
 #endif /* EE_SUPPORT_MEMMAP_H */
+
+#ifndef __MSRP__
+/* If MemMap.h support is enabled (i.e. because memory protection): use it */
+#ifdef EE_SUPPORT_MEMMAP_H
+/* The following variables belong to ERIKA OS section: ee_kernel_bss */
+#define OS_START_SEC_VAR_NOINIT
+#include "MemMap.h"
+#endif /* EE_SUPPORT_MEMMAP_H */
+
+extern OSServiceIdType            EE_oo_ErrorHook_ServiceID;
+extern EE_oo_ErrorHook_parameters EE_oo_ErrorHook_data;
+
+#define EE_oo_get_errorhook_service_id()  (&EE_oo_ErrorHook_ServiceID)
+#define EE_oo_get_errorhook_data()        (&EE_oo_ErrorHook_data)
+
+#ifdef EE_SUPPORT_MEMMAP_H
+/* Stop ERIKA API */
+#define OS_STOP_SEC_VAR_NOINIT
+#include "MemMap.h"
+#endif /* EE_SUPPORT_MEMMAP_H */
+
+#else /* !__MSRP__ */
+
+#ifdef EE_SUPPORT_MEMMAP_H
+#define SHARED_START_SEC_VAR_NOINIT
+#include "MemMap.h"
+#endif /* EE_SUPPORT_MEMMAP_H */
+
+extern OSServiceIdType  EE_SHARED_UDATA EE_oo_ErrorHook_ServiceID[EE_MAX_CPU];
+extern EE_oo_ErrorHook_parameters EE_SHARED_UDATA
+    EE_oo_ErrorHook_data[EE_MAX_CPU];
+#ifdef EE_SUPPORT_MEMMAP_H
+#define SHARED_STOP_SEC_VAR_NOINIT
+#include "MemMap.h"
+#endif /* EE_SUPPORT_MEMMAP_H */
+
+#define EE_oo_get_errorhook_service_id()  \
+  (&EE_oo_ErrorHook_ServiceID[ EE_hal_get_core_id() ])
+#define EE_oo_get_errorhook_data()        \
+  (&EE_oo_ErrorHook_data[ EE_hal_get_core_id() ])
+#endif /* !__MSRP__ */
 
 #endif /* __OO_ERRORHOOK_NOMACROS__ && !__OO_HAS_ERRORHOOK__ */
 

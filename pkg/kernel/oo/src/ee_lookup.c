@@ -118,7 +118,8 @@ const EE_INT8 EE_rq_lookup[] =
 
 #ifdef __EE_MEMORY_PROTECTION__
 void EE_oo_notify_error_from_us_internal( OSServiceIdType ServiceID,
-  EE_oo_ErrorHook_parameters * const error_parameters_ref, StatusType Error )
+  const EE_oo_ErrorHook_parameters * const error_parameters_ref,
+  StatusType Error )
 {
   if ( error_parameters_ref != NULL ) {
     EE_os_notify_error(ServiceID, error_parameters_ref->param1,

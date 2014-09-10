@@ -86,7 +86,7 @@ StatusType EE_oo_GetEvent(TaskType TaskID, EventMaskRefType Event)
 #endif /* EE_SERVICE_PROTECTION__ */
 
 
-#if EE_FULL_SERVICE_PROTECTION
+#if ( defined(EE_AS_OSAPPLICATIONS__) && defined(EE_SERVICE_PROTECTION__) )
 #ifdef EE_AS_RPC__
   /*  [OS589] All functions that are not allowed to operate cross core shall
         return E_OS_CORE in extended status if called with parameters that
@@ -114,7 +114,8 @@ StatusType EE_oo_GetEvent(TaskType TaskID, EventMaskRefType Event)
   if ( (TaskID < 0) || (TaskID >= EE_MAX_TASK) ) {
     ev = E_OS_ID;
   } else
-#endif /* EE_FULL_SERVICE_PROTECTION || __OO_EXTENDED_STATUS__ */
+#endif /* EE_AS_OSAPPLICATIONS__ || E_SERVICE_PROTECTION__ ||
+__OO_EXTENDED_STATUS__ */
 #ifdef __OO_EXTENDED_STATUS__
   if ( EE_th_is_extended[TaskID] == 0U ) {
     ev = E_OS_ACCESS;
@@ -146,7 +147,7 @@ StatusType EE_oo_GetEvent(TaskType TaskID, EventMaskRefType Event)
 
   if ( ev != E_OK ) {
     EE_OS_ERROR_PARAMETERS();
-    EE_OS_ERROR_PARAMETERS_PARAM1_VALUE(TaskID);
+    EE_OS_ERROR_PARAMETERS_PARAM1_VALUE((EE_UREG)TaskID);
     EE_OS_ERROR_PARAMETERS_PARAM2_REF(event_ref,Event);
 
     EE_os_notify_error_from_us(OSServiceId_GetEvent, &error_parameters, ev);

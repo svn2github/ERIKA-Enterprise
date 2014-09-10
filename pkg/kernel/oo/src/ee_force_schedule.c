@@ -96,8 +96,13 @@ StatusType EE_oo_ForceSchedule( void )
       effect), and return E_OS_CALLEVEL (see [12], section 13.1) or the
       "invalid value" of  the service. (BSW11009, BSW11013) */
   /* check for a call at interrupt level: This must be the FIRST check!*/
-  if ( EE_hal_get_IRQ_nesting_level() ||
-      (EE_as_get_execution_context() > TASK_Context) )
+  if ( (EE_hal_get_IRQ_nesting_level() != 0U)
+#if !defined (EE_SERVICE_PROTECTION__)
+  ) /* If EE_SERVICE_PROTECTION__ is not defined the succeeding
+	 * check is always FALSE, hence it is not needed  */
+#else
+  || (EE_as_get_execution_context() > TASK_Context) )
+#endif
   {
     ev = E_OS_CALLEVEL;
   } else

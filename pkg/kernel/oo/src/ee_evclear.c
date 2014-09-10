@@ -88,8 +88,13 @@ StatusType EE_oo_ClearEvent(EventMaskType Mask)
       “invalid value” of  the service. (BSW11009, BSW11013) */
   /* ClearEvent can be callable only by Task */
   /* Check for a call at interrupt level; This must be the FIRST check! */
-  if ( EE_hal_get_IRQ_nesting_level() || (current == EE_NIL) ||
-      (EE_as_get_execution_context() > TASK_Context) )
+  if ( (EE_hal_get_IRQ_nesting_level() != 0U) || (current == EE_NIL)
+#if !defined (EE_SERVICE_PROTECTION__)
+  ) /* If EE_SERVICE_PROTECTION__ is not defined the succeeding
+	 * check is always FALSE, hence it is not needed  */
+#else
+  || (EE_as_get_execution_context() > TASK_Context) )
+#endif
   {
     ev = E_OS_CALLEVEL;
   } else

@@ -85,8 +85,13 @@ StatusType EE_oo_TerminateTask(void)
   /* check for a call at interrupt level
    * This must be the FIRST Check!!!
    */
-  if ( EE_hal_get_IRQ_nesting_level() ||
-      (EE_as_get_execution_context() > TASK_Context) )
+  if ( (EE_hal_get_IRQ_nesting_level() != 0U)
+#if !defined (EE_SERVICE_PROTECTION__)
+  ) /* If EE_SERVICE_PROTECTION__ is not defined the succeeding
+	 * check is always FALSE, hence it is not needed  */
+#else
+  || (EE_as_get_execution_context() > TASK_Context) )
+#endif
   {
     ev = E_OS_CALLEVEL;
   } else

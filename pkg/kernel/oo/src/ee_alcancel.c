@@ -85,7 +85,8 @@ StatusType EE_oo_CancelAlarm(AlarmType AlarmID)
 #ifdef EE_AS_RPC__
   if ( EE_AS_ID_REMOTE(AlarmID) )
   {
-    EE_os_param const unmarked_alarm_id = { EE_AS_UNMARK_REMOTE_ID(AlarmID) };
+    EE_os_param unmarked_alarm_id;
+    unmarked_alarm_id.value_param = EE_AS_UNMARK_REMOTE_ID(AlarmID);
     /* forward the request to another CPU in synchronous way */
     ev = EE_as_rpc(OSServiceId_CancelAlarm, unmarked_alarm_id,
       EE_OS_INVALID_PARAM, EE_OS_INVALID_PARAM);
@@ -93,9 +94,9 @@ StatusType EE_oo_CancelAlarm(AlarmType AlarmID)
 #endif /* EE_AS_RPC__ */
 
 /* If local alarm are not defined cut everything else */
-#if defined(EE_MAX_ALARM) && (EE_MAX_ALARM > 0)
+#if defined(EE_MAX_ALARM) && (EE_MAX_ALARM > 0U)
 
-#if EE_FULL_SERVICE_PROTECTION
+#if ( defined(EE_AS_OSAPPLICATIONS__) && defined(EE_SERVICE_PROTECTION__) )
     if ( AlarmID >= EE_MAX_ALARM ) {
       ev = E_OS_ID;
     } else if ( EE_ALARM_ACCESS_ERR(AlarmID, EE_as_active_app) ) {
@@ -105,7 +106,8 @@ StatusType EE_oo_CancelAlarm(AlarmType AlarmID)
     if ( AlarmID >= EE_MAX_ALARM ) {
       ev = E_OS_ID;
     } else
-#endif /* EE_FULL_SERVICE_PROTECTION || __OO_EXTENDED_STATUS__ */
+#endif /* EE_AS_OSAPPLICATIONS__ || E_SERVICE_PROTECTION__ ||
+__OO_EXTENDED_STATUS__ */
     if ( EE_oo_counter_object_RAM[AlarmID].used == 0U ) {
       ev = E_OS_NOFUNC;
     } else {

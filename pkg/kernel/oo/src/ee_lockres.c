@@ -55,7 +55,7 @@ EE_TYPEPRIO EE_ORTI_resource_oldpriority[EE_MAX_RESOURCE];
 #endif /* __OO_ORTI_PRIORITY__ */
 
 #ifdef __OO_ORTI_RES_LOCKER_TASK__
-EE_TID EE_ORTI_res_locker[EE_MAX_RESOURCE];
+static EE_TID EE_ORTI_res_locker[EE_MAX_RESOURCE];
 #endif /* __OO_ORTI_RES_LOCKER_TASK__ */
 
 #endif /* RTDRUID_CONFIGURATOR_NUMBER */
@@ -125,7 +125,7 @@ StatusType EE_oo_GetResource( ResourceType ResID )
   } else
 #endif /* EE_SERVICE_PROTECTION__ */
 
-#if EE_FULL_SERVICE_PROTECTION
+#if ( defined(EE_AS_OSAPPLICATIONS__) && defined(EE_SERVICE_PROTECTION__) )
   /* no comparison for ResID < 0, the type is unsigned! */
   if ( ResID >= EE_MAX_RESOURCE ) {
     ev = E_OS_ID;
@@ -137,25 +137,27 @@ StatusType EE_oo_GetResource( ResourceType ResID )
   if ( ResID >= EE_MAX_RESOURCE ) {
     ev = E_OS_ID;
   } else
-#endif /* EE_FULL_SERVICE_PROTECTION || __OO_EXTENDED_STATUS__ */
+#endif /* EE_AS_OSAPPLICATIONS__ || E_SERVICE_PROTECTION__ ||
+__OO_EXTENDED_STATUS__ */
 #ifdef __OO_EXTENDED_STATUS__
   if ( EE_resource_locked[ResID] != 0U ) {
     /* Check if the resource is already gotten */
     ev = E_OS_ACCESS;
-  } else if ( inside_task && ((current == EE_NIL) ||
+  } else if ( (inside_task != 0) && ((current == EE_NIL) ||
     (EE_th_ready_prio[current] > EE_resource_ceiling[ResID])) )
   {
     /* If I'm in a Task check invalid task and ceiling */
     ev = E_OS_ACCESS;
   } else
 #ifdef __OO_ISR2_RESOURCES__
-  if ( (!inside_task) &&
-    (EE_hal_check_int_prio_if_higher(EE_resource_isr2_priority[ResID])) )
+  if ( (inside_task == 0) &&
+    (EE_hal_check_int_prio_if_higher(EE_resource_isr2_priority[ResID]) !=
+     0U) )
   {
     ev = E_OS_ACCESS;
   } else
 #else /* __OO_ISR2_RESOURCES__ */
-  if ( !inside_task ) {
+  if ( inside_task == 0 ) {
     ev = E_OS_ACCESS;
   } else
 #endif /* __OO_ISR2_RESOURCES__ */

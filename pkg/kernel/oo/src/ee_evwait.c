@@ -90,8 +90,13 @@ StatusType EE_oo_WaitEvent(EventMaskType Mask)
 #if defined(__OO_EXTENDED_STATUS__) || defined(EE_SERVICE_PROTECTION__)
   /* Check for a call at interrupt level:
    * Note: this must be the FIRST error check!!! */
-  if ( (EE_hal_get_IRQ_nesting_level() != 0U) || (current == EE_NIL) ||
-       (EE_as_get_execution_context() > TASK_Context) )
+  if ( (EE_hal_get_IRQ_nesting_level() != 0U) || (current == EE_NIL)
+#if !defined (EE_SERVICE_PROTECTION__)
+  ) /* If EE_SERVICE_PROTECTION__ is not defined the succeeding
+	 * check is always FALSE, hence it is not needed  */
+#else
+  || (EE_as_get_execution_context() > TASK_Context) )
+#endif
   {
     ev = E_OS_CALLEVEL;
   } else

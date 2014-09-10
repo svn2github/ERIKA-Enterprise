@@ -89,7 +89,13 @@ StatusType EE_oo_ActivateTask(TaskType TaskID)
 #if defined(__RN_TASK__) || defined(EE_AS_RPC__)
   if ( EE_IS_TID_REMOTE(TaskID) ) {
 #ifdef EE_AS_RPC__
-    EE_os_param const unmarked_tid = { EE_UNMARK_REMOTE_TID(TaskID) };
+    /* Tmp Tid (introduced to meet MISRA requirements) */
+    EE_TID tmp_tid;
+
+    EE_os_param unmarked_tid;
+    /* Two steps macro assignment to meet MISRA 10.3 required rule */
+	tmp_tid = EE_UNMARK_REMOTE_TID(TaskID);
+    unmarked_tid.value_param = (EE_UREG)tmp_tid;
     /* Forward the request to another CPU in synchronous way */
     ev = EE_as_rpc( OSServiceId_ActivateTask, unmarked_tid,
       EE_OS_INVALID_PARAM, EE_OS_INVALID_PARAM );
@@ -103,7 +109,7 @@ StatusType EE_oo_ActivateTask(TaskType TaskID)
   } else {
 #endif /* __RN_TASK__ || EE_AS_RPC__ */
 
-#if EE_FULL_SERVICE_PROTECTION
+#if ( defined(EE_AS_OSAPPLICATIONS__) && defined(EE_SERVICE_PROTECTION__) )
     /* Check if the task Id is valid */
     if ( (TaskID < 0) || (TaskID >= EE_MAX_TASK) ) {
       ev = E_OS_ID;
@@ -115,7 +121,8 @@ StatusType EE_oo_ActivateTask(TaskType TaskID)
     if ( (TaskID < 0) || (TaskID >= EE_MAX_TASK) ) {
       ev = E_OS_ID;
     } else
-#endif /* EE_FULL_SERVICE_PROTECTION || __OO_EXTENDED_STATUS__ */
+#endif /* EE_AS_OSAPPLICATIONS__ || E_SERVICE_PROTECTION__ ||
+__OO_EXTENDED_STATUS__ */
     /* Check for pending activations */
     if ( EE_th_rnact[TaskID] == 0U ) {
       ev = E_OS_LIMIT;

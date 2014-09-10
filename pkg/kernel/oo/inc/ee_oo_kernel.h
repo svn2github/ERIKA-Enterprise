@@ -431,9 +431,9 @@ int EE_oo_GetValueSem(const SemType *Sem);
    And DO RESCHEDULING.
    see also internal.h
 */
-#if (!defined(__PRIVATE_INCREMENTCOUNTER__)) && (EE_MAX_COUNTER > 0)
+#if (!defined(__PRIVATE_INCREMENTCOUNTER__)) && (EE_MAX_COUNTER > 0U)
 StatusType EE_oo_IncrementCounter(CounterType CounterID);
-#endif  /* __PRIVATE_INCREMENTCOUNTER__ */
+#endif  /* !__PRIVATE_INCREMENTCOUNTER__ && EE_MAX_COUNTER > 0 */
 
 /*
   AS 4.0 OS SWS 8.4.17 GetCounterValue
@@ -620,18 +620,18 @@ __INLINE__ OSServiceIdType __ALWAYS_INLINE__ OSErrorGetServiceId(void)
 
 
 __INLINE__ TaskType __ALWAYS_INLINE__ OSError_ActivateTask_TaskID(void) 
-{ return EE_oo_get_errorhook_data()->param1.value_param; }
+{ return (TaskType)(EE_oo_get_errorhook_data()->param1.value_param); }
 
 #ifndef __OO_NO_CHAINTASK__
 __INLINE__ TaskType __ALWAYS_INLINE__ OSError_ChainTask_TaskID(void)
-{ return EE_oo_get_errorhook_data()->param1.value_param; }
+{ return (TaskType)(EE_oo_get_errorhook_data()->param1.value_param); }
 #endif /* __OO_NO_CHAINTASK__ */
 
 __INLINE__ TaskRefType __ALWAYS_INLINE__ OSError_GetTaskID_TaskID(void)
 { return EE_oo_get_errorhook_data()->param1.task_ref; }
 
 __INLINE__ TaskType __ALWAYS_INLINE__ OSError_GetTaskState_TaskID(void)
-{ return EE_oo_get_errorhook_data()->param1.value_param; }
+{ return (TaskType)(EE_oo_get_errorhook_data()->param1.value_param); }
 __INLINE__ TaskStateRefType __ALWAYS_INLINE__ OSError_GetTaskState_State(void)
 { return EE_oo_get_errorhook_data()->param2.task_state_ref; }
 
@@ -645,7 +645,7 @@ __INLINE__ ResourceType __ALWAYS_INLINE__ OSError_ReleaseResource_ResID(void)
 
 #if defined(__OO_ECC1__) || defined(__OO_ECC2__)
 __INLINE__ TaskType __ALWAYS_INLINE__ OSError_SetEvent_TaskID(void)
-{ return EE_oo_get_errorhook_data()->param1.value_param; }
+{ return (TaskType)(EE_oo_get_errorhook_data()->param1.value_param); }
 __INLINE__ EventMaskType __ALWAYS_INLINE__ OSError_SetEvent_Mask(void)
 { return EE_oo_get_errorhook_data()->param2.value_param; }
 
@@ -653,7 +653,7 @@ __INLINE__ EventMaskType __ALWAYS_INLINE__ OSError_ClearEvent_Mask(void)
 { return EE_oo_get_errorhook_data()->param1.value_param; }
 
 __INLINE__ TaskType __ALWAYS_INLINE__ OSError_GetEvent_TaskID(void)
-{ return EE_oo_get_errorhook_data()->param1.value_param; }
+{ return (TaskType)(EE_oo_get_errorhook_data()->param1.value_param); }
 __INLINE__ EventMaskRefType __ALWAYS_INLINE__ OSError_GetEvent_Event(void)
 { return EE_oo_get_errorhook_data()->param2.event_ref; }
 

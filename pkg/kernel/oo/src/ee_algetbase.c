@@ -105,8 +105,9 @@ StatusType EE_oo_GetAlarmBase(AlarmType AlarmID, AlarmBaseRefType Info)
 
 #ifdef EE_AS_RPC__
   if ( EE_AS_ID_REMOTE(AlarmID) ) {
-    EE_os_param       os_info;
-    EE_os_param const unmarked_alarm_id = { EE_AS_UNMARK_REMOTE_ID(AlarmID) };
+    EE_os_param os_info;
+    EE_os_param unmarked_alarm_id;
+    unmarked_alarm_id.value_param = EE_AS_UNMARK_REMOTE_ID(AlarmID);
     os_info.alarm_base_ref = Info;
     /* forward the request to another CPU in synchronous way */
     ev = EE_as_rpc(OSServiceId_GetAlarmBase, unmarked_alarm_id, os_info,
@@ -115,9 +116,9 @@ StatusType EE_oo_GetAlarmBase(AlarmType AlarmID, AlarmBaseRefType Info)
 #endif /* EE_AS_RPC__ */
 
 /* If local alarm are not defined cut everything else */
-#if defined(EE_MAX_ALARM) && (EE_MAX_ALARM > 0)
+#if defined(EE_MAX_ALARM) && (EE_MAX_ALARM > 0U)
 
-#if EE_FULL_SERVICE_PROTECTION
+#if ( defined(EE_AS_OSAPPLICATIONS__) && defined(EE_SERVICE_PROTECTION__) )
     if ( AlarmID >= EE_MAX_ALARM ) {
       ev = E_OS_ID;
     } else if ( EE_ALARM_ACCESS_ERR(AlarmID, EE_as_active_app) ) {
@@ -127,7 +128,8 @@ StatusType EE_oo_GetAlarmBase(AlarmType AlarmID, AlarmBaseRefType Info)
     if ( AlarmID >= EE_MAX_ALARM ) {
       ev = E_OS_ID;
     } else
-#endif /* EE_FULL_SERVICE_PROTECTION || __OO_EXTENDED_STATUS__ */
+#endif /* EE_AS_OSAPPLICATIONS__ || E_SERVICE_PROTECTION__ ||
+__OO_EXTENDED_STATUS__ */
     {
       /* Fill the informations required */
       register EE_oo_counter_ROM_type const * c_ref =

@@ -91,8 +91,10 @@ StatusType EE_oo_SetAbsAlarm(AlarmType AlarmID,
 #ifdef EE_AS_RPC__
   if ( EE_AS_ID_REMOTE(AlarmID) )
   {
-    EE_os_param const unmarked_alarm_id = { EE_AS_UNMARK_REMOTE_ID(AlarmID) },
-      as_start = { start }, as_cycle = { cycle };
+    EE_os_param unmarked_alarm_id, as_start, as_cycle;
+    unmarked_alarm_id.value_param = EE_AS_UNMARK_REMOTE_ID(AlarmID);
+    as_start.value_param = start;
+    as_cycle.value_param = cycle;
     /* forward the request to another CPU in synchronous way */
     ev = EE_as_rpc(OSServiceId_SetAbsAlarm, unmarked_alarm_id,
       as_start, as_cycle);
@@ -100,9 +102,9 @@ StatusType EE_oo_SetAbsAlarm(AlarmType AlarmID,
 #endif /* EE_AS_RPC__ */
 
 /* If local alarm are not defined cut everything else */
-#if defined(EE_MAX_ALARM) && (EE_MAX_ALARM > 0)
+#if defined(EE_MAX_ALARM) && (EE_MAX_ALARM > 0U)
 
-#if EE_FULL_SERVICE_PROTECTION
+#if ( defined(EE_AS_OSAPPLICATIONS__) && defined(EE_SERVICE_PROTECTION__) )
     if ( AlarmID >= EE_MAX_ALARM ) {
       ev = E_OS_ID;
     } else if ( EE_ALARM_ACCESS_ERR(AlarmID, EE_as_active_app) ) {
@@ -112,7 +114,8 @@ StatusType EE_oo_SetAbsAlarm(AlarmType AlarmID,
     if ( AlarmID >= EE_MAX_ALARM ) {
       ev = E_OS_ID;
     } else
-#endif /* EE_FULL_SERVICE_PROTECTION || __OO_EXTENDED_STATUS__ */
+#endif /* EE_AS_OSAPPLICATIONS__ || E_SERVICE_PROTECTION__ ||
+__OO_EXTENDED_STATUS__ */
 #ifdef __OO_EXTENDED_STATUS__
     if ( (start > EE_counter_ROM[EE_oo_counter_object_ROM[AlarmID].c].
           maxallowedvalue) || ((cycle != 0U) &&
