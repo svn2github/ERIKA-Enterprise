@@ -140,6 +140,13 @@
 #define EE_ASSERT_NO          ((EE_TYPEASSERTVALUE)2)
 #define EE_ASSERT_ALREADYUSED ((EE_TYPEASSERTVALUE)3)
 
+/* If MemMap.h support is enabled (i.e. because memory protection): use it */
+#ifdef EE_SUPPORT_MEMMAP_H
+#define API_START_SEC_VAR_NOINIT
+#define API_START_SEC_CODE
+#include "MemMap.h"
+#endif /* EE_SUPPORT_MEMMAP_H */
+
 /* the assertion array */
 extern EE_TYPEASSERTVALUE EE_assertions[];
 
@@ -195,5 +202,12 @@ EE_TYPEASSERTVALUE EE_assert_range(EE_TYPEASSERT id,
 #ifndef __PRIVATE_ASSERT_LAST__
 EE_TYPEASSERTVALUE EE_assert_last(void);
 #endif
+
+/* If MemMap.h support is enabled (i.e. because memory protection): use it */
+#ifdef EE_SUPPORT_MEMMAP_H
+#define API_STOP_SEC_VAR_NOINIT
+#define API_STOP_SEC_CODE
+#include "MemMap.h"
+#endif /* EE_SUPPORT_MEMMAP_H */
 
 #endif
