@@ -1,7 +1,7 @@
 /* ###*B*###
  * ERIKA Enterprise - a tiny RTOS for small microcontrollers
  *
- * Copyright (C) 2002-2008  Evidence Srl
+ * Copyright (C) 2002-2014  Evidence Srl
  *
  * This file is part of ERIKA Enterprise.
  *
@@ -144,7 +144,10 @@
 #ifdef __PPCE200ZX__
 #include "cpu/e200zx/inc/ee_as_cpu.h"
 #endif
-
 #endif /* __AS_SC4__ */
+
+#if defined(__EE_MEMORY_PROTECTION__) && (!defined(__AS_SC4__))
+#include "kernel/as/inc/ee_as_api.h"
+#endif /* __EE_MEMORY_PROTECTION__ && !__AS_SC4__ */
 
 #endif /* __INCLUDE_EE_API_H__ */

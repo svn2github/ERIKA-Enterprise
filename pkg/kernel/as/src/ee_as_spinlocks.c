@@ -88,7 +88,7 @@ StatusType EE_as_GetSpinlock( SpinlockIdType SpinlockId )
   } else
 #endif /* EE_SERVICE_PROTECTION__ */
 
-#if EE_FULL_SERVICE_PROTECTION
+#if ( defined(EE_AS_OSAPPLICATIONS__) && defined(EE_SERVICE_PROTECTION__) )
   /* [OS692]: The function GetSpinlock shall return E_OS_ACCESS if the accessing
       OS-Application was not listed in the configuration (OsSpinlock).
       (BSW4080021) */
@@ -169,8 +169,10 @@ StatusType EE_as_GetSpinlock( SpinlockIdType SpinlockId )
   }
 
   if ( ev != E_OK ) {
+#ifdef __OO_HAS_ERRORHOOK__
     EE_OS_PARAM(os_spinlock_id);
     EE_OS_PARAM_VALUE(os_spinlock_id,SpinlockId);
+#endif /* __OO_HAS_ERRORHOOK__ */
     EE_os_notify_error(OSServiceId_GetSpinlock, os_spinlock_id,
       EE_OS_INVALID_PARAM, EE_OS_INVALID_PARAM, ev);
   }
@@ -219,7 +221,7 @@ StatusType EE_as_ReleaseSpinlock( SpinlockIdType SpinlockId )
     ev = E_OS_CALLEVEL;
   } else
 #endif /* EE_SERVICE_PROTECTION__ */
-#if EE_FULL_SERVICE_PROTECTION
+#if ( defined(EE_AS_OSAPPLICATIONS__) && defined(EE_SERVICE_PROTECTION__) )
   /* [OS700]: The function ReleaseSpinlock shall return E_OS_ACCESS if the TASK
       has no access to the spinlock referred by the parameter SpinlockID
       (BSW4080021) */
@@ -272,8 +274,10 @@ StatusType EE_as_ReleaseSpinlock( SpinlockIdType SpinlockId )
       detected. The spinlock is now free and can be occupied by the same or
       other TASKs. (BSW4080021) */
   if ( ev != E_OK ) {
+#ifdef __OO_HAS_ERRORHOOK__
     EE_OS_PARAM(os_spinlock_id);
     EE_OS_PARAM_VALUE(os_spinlock_id,SpinlockId);
+#endif /* __OO_HAS_ERRORHOOK__ */
     EE_os_notify_error(OSServiceId_ReleaseSpinlock, os_spinlock_id,
       EE_OS_INVALID_PARAM, EE_OS_INVALID_PARAM, ev);
   }
@@ -328,7 +332,7 @@ StatusType EE_as_TryToGetSpinlock( SpinlockIdType SpinlockId,
   } else
 #endif /* EE_SERVICE_PROTECTION__ */
 
-#if EE_FULL_SERVICE_PROTECTION
+#if ( defined(EE_AS_OSAPPLICATIONS__) && defined(EE_SERVICE_PROTECTION__) )
   /* [OS710]: The function TryToGetSpinlock shall return E_OS_ACCESS if the
       TASK has no access to the spinlock referred by the parameter SpinlockID
       (BSW4080021) */
@@ -413,10 +417,12 @@ StatusType EE_as_TryToGetSpinlock( SpinlockIdType SpinlockId,
   }
 
   if ( ev != E_OK ) {
+#ifdef __OO_HAS_ERRORHOOK__
     EE_OS_PARAM(os_spinlock_id);
     EE_OS_PARAM(os_success);
     EE_OS_PARAM_VALUE(os_spinlock_id,SpinlockId);
     EE_OS_PARAM_REF(os_success,try_to_get_spinlock_ref,Success);
+#endif /* __OO_HAS_ERRORHOOK__ */
     EE_os_notify_error(OSServiceId_TryToGetSpinlock, os_spinlock_id,
       os_success, EE_OS_INVALID_PARAM, ev);
   }

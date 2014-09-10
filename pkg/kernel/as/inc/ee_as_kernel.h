@@ -47,8 +47,6 @@
 #ifndef INCLUDE_EE_KERNEL_AS_KERNEL__
 #define INCLUDE_EE_KERNEL_AS_KERNEL__
 
-#ifndef __AS_SC4__
-
 #define OSId_AS_Sevices_Begin                   OSId_OO_Services_End
 
 #define OSServiceId_GetNumberOfActivatedCores   OSId_AS_Sevices_Begin
@@ -124,7 +122,7 @@
 #define EE_SERVICETRACE_CHECKOBJECTOWNERSHIP  (EE_SERVICETRACE_AS_BEGIN + 32U)
 #define EE_SERVICETRACE_CALLTRUSTEDFUNCTION   (EE_SERVICETRACE_AS_BEGIN + 34U)
 #define EE_SERVICETRACE_STARTSCHEDULETABLEREL (EE_SERVICETRACE_AS_BEGIN + 36U)
-#define EE_SERVICETRACE_STARTSCHEDULETABLEABS (EE_SERVICETRACE_AS_BEGIN + 38U)
+#define EE_SERVICETRACE_STARTSCHEDTABABS      (EE_SERVICETRACE_AS_BEGIN + 38U)
 #define EE_SERVICETRACE_STOPSCHEDULETABLE     (EE_SERVICETRACE_AS_BEGIN + 40U)
 #define EE_SERVICETRACE_NEXTSCHEDULETABLE     (EE_SERVICETRACE_AS_BEGIN + 42U)
 #define EE_SERVICETRACE_GETSCHEDULETABLESTATUS  \
@@ -132,13 +130,20 @@
 #define EE_SERVICETRACE_SYNCSCHEDULETABLE     (EE_SERVICETRACE_AS_BEGIN + 46U)
 #endif /* __OO_ORTI_SERVICETRACE__ */
 
+/*******************************************************************************
+ *                            System services
+ ******************************************************************************/
+/* This inclusion is put here instead of inter layer because eecfg.c need to see
+   declarations inside to configure the feature */
+#include  "kernel/as/inc/ee_as_timing_prot.h"
+
 #ifdef __MSRP__
 /*******************************************************************************
  *               System Services Implemented Inline inclusion
  ******************************************************************************/
 #include "kernel/as/inc/ee_as_inline.h"
 
-/* Fololwing types and services declaration have reason only in multicore
+/* Following types and services declaration have reason only in multicore
    environment */
 #ifndef __PRIVATE_STARTOS__
 void EE_as_StartCore( CoreIdType CoreID, StatusType *Status );
@@ -194,6 +199,189 @@ __INLINE__ TryToGetSpinlockType * __ALWAYS_INLINE__
   return EE_oo_get_errorhook_data()->param2.try_to_get_spinlock_ref;
 }
 #endif /* EE_AS_USER_SPINLOCKS__ */
+#ifdef EE_AS_SCHEDULETABLES__
+__INLINE__ ScheduleTableType __ALWAYS_INLINE__
+  OSError_GetScheduleTableStatus_ScheduleTableID( void )
+{
+  return EE_oo_get_errorhook_data()->param1.value_param;
+}
+
+__INLINE__ ScheduleTableStatusRefType __ALWAYS_INLINE__
+  OSError_GetScheduleTableStatus_ScheduleStatus( void )
+{
+  return EE_oo_get_errorhook_data()->param2.schedule_table_status_ref;
+}
+
+__INLINE__ ScheduleTableType __ALWAYS_INLINE__
+  OSError_StartScheduleTableRel_ScheduleTableID( void )
+{
+  return EE_oo_get_errorhook_data()->param1.value_param;
+}
+
+__INLINE__ TickType __ALWAYS_INLINE__
+  OSError_StartScheduleTableRel_Offset( void )
+{
+  return EE_oo_get_errorhook_data()->param2.value_param;
+}
+
+__INLINE__ ScheduleTableType __ALWAYS_INLINE__
+  OSError_StartScheduleTableAbs_ScheduleTableID( void )
+{
+  return EE_oo_get_errorhook_data()->param1.value_param;
+}
+
+__INLINE__ TickType __ALWAYS_INLINE__
+  OSError_StartScheduleTableAbs_Start( void )
+{
+  return EE_oo_get_errorhook_data()->param2.value_param;
+}
+
+__INLINE__ ScheduleTableType __ALWAYS_INLINE__
+  OSError_StopScheduleTable_ScheduleTableID( void )
+{
+  return EE_oo_get_errorhook_data()->param1.value_param;
+}
+
+__INLINE__ ScheduleTableType __ALWAYS_INLINE__
+  OSError_NextScheduleTable_ScheduleTableID_From( void )
+{
+  return EE_oo_get_errorhook_data()->param1.value_param;
+}
+
+__INLINE__ ScheduleTableType __ALWAYS_INLINE__
+  OSError_NextScheduleTable_ScheduleTableID_To( void )
+{
+  return EE_oo_get_errorhook_data()->param2.value_param;
+}
+
+__INLINE__ ScheduleTableType __ALWAYS_INLINE__
+  OSError_SyncScheduleTable_ScheduleTableID( void )
+{
+  return EE_oo_get_errorhook_data()->param1.value_param;
+}
+ 
+__INLINE__ TickType __ALWAYS_INLINE__
+  OSError_SyncScheduleTable_Value( void )
+{
+  return EE_oo_get_errorhook_data()->param2.value_param;
+}
+/* TODO: Add Macro to read error informations of last Scheduletable API */
+
+#endif  /* EE_AS_SCHEDULETABLES__ */
+#ifdef EE_AS_OSAPPLICATIONS__
+
+__INLINE__ ApplicationType __ALWAYS_INLINE__
+  OSError_TerminateApplication_Application( void )
+{
+  return EE_oo_get_errorhook_data()->param1.value_param;
+}
+
+__INLINE__ RestartType __ALWAYS_INLINE__
+  OSError_TerminateApplication_RestartOption( void )
+{
+  return EE_oo_get_errorhook_data()->param2.value_param;
+}
+
+__INLINE__ ApplicationType __ALWAYS_INLINE__
+  OSError_GetApplicationState_Application( void )
+{
+  return EE_oo_get_errorhook_data()->param1.value_param;
+}
+
+__INLINE__ ApplicationStateRefType __ALWAYS_INLINE__
+  OSError_GetApplicationState_Value( void )
+{
+  return EE_oo_get_errorhook_data()->param2.application_state_ref;
+}
+
+__INLINE__ ApplicationType __ALWAYS_INLINE__
+  OSError_CheckObjectAccess_ApplID( void )
+{
+  return EE_oo_get_errorhook_data()->param1.value_param;
+}
+
+__INLINE__ ObjectTypeType __ALWAYS_INLINE__
+  OSError_CheckObjectAccess_ObjectType( void )
+{
+  return EE_oo_get_errorhook_data()->param2.value_param;
+}
+
+__INLINE__ EE_os_param_id __ALWAYS_INLINE__
+  OSError_CheckObjectAccess_ObjectID( void )
+{
+  return EE_oo_get_errorhook_data()->param3.value_param;
+}
+
+#ifdef EE_SERVICE_PROTECTION__
+
+__INLINE__ ObjectTypeType __ALWAYS_INLINE__
+  OSError_CheckObjectOwnership_ObjectType( void )
+{
+  return EE_oo_get_errorhook_data()->param1.value_param;
+}
+
+__INLINE__ EE_os_param_id __ALWAYS_INLINE__
+  OSError_CheckObjectOwnership_ObjectID( void )
+{
+  return EE_oo_get_errorhook_data()->param2.value_param;
+}
+#endif /* EE_SERVICE_PROTECTION__ */
+
+#ifdef  __EE_MEMORY_PROTECTION__
+__INLINE__ TaskType __ALWAYS_INLINE__
+  OSError_CheckTaskMemoryAccess_TaskID( void )
+{
+  return EE_oo_get_errorhook_data()->param1.value_param;
+}
+
+__INLINE__ MemoryStartAddressType __ALWAYS_INLINE__
+  OSError_CheckTaskMemoryAccess_Address( void )
+{
+  return EE_oo_get_errorhook_data()->param2.memory_address;
+}
+
+__INLINE__ MemorySizeType __ALWAYS_INLINE__
+  OSError_CheckTaskMemoryAccess_Size( void )
+{
+  return EE_oo_get_errorhook_data()->param3.value_param;
+}
+
+__INLINE__ ISRType __ALWAYS_INLINE__
+  OSError_CheckISRMemoryAccess_ISRID( void )
+{
+  return EE_oo_get_errorhook_data()->param1.value_param;
+}
+
+__INLINE__ MemoryStartAddressType __ALWAYS_INLINE__
+  OSError_CheckISRMemoryAccess_Address( void )
+{
+  return EE_oo_get_errorhook_data()->param2.memory_address;
+}
+
+__INLINE__ MemorySizeType __ALWAYS_INLINE__
+  OSError_CheckISRMemoryAccess_Size( void )
+{
+  return EE_oo_get_errorhook_data()->param3.value_param;
+}
+
+#if defined(EE_SYSCALL_NR) && defined(EE_MAX_SYS_SERVICEID) &&\
+  (EE_SYSCALL_NR > EE_MAX_SYS_SERVICEID)
+
+__INLINE__ TrustedFunctionIndexType __ALWAYS_INLINE__
+  OSError_CallTrustedFunction_FunctionIndex( void )
+{
+  return EE_oo_get_errorhook_data()->param1.value_param;
+}
+
+__INLINE__ TrustedFunctionParameterRefType __ALWAYS_INLINE__
+  OSError_CallTrustedFunction_FunctionParams( void )
+{
+  return EE_oo_get_errorhook_data()->param2.trusted_function_parameter_ref;
+}
+
+#endif /* EE_SYSCALL_NR > EE_MAX_SYS_SERVICEID */
+#endif /* __EE_MEMORY_PROTECTION__ */
+#endif /* EE_AS_OSAPPLICATIONS__ */
 #endif /* __OO_HAS_ERRORHOOK__ && !__OO_ERRORHOOK_NOMACROS__ */
 
 #ifdef EE_AS_RPC__
@@ -201,7 +389,7 @@ __INLINE__ TryToGetSpinlockType * __ALWAYS_INLINE__
  *                   Synchronous Remote Procedure Calls
  ******************************************************************************/
 
-/** @brief type tha hold params and retur value for a RPC */
+/** @brief type that hold params and return value for a RPC */
 typedef struct
 {
   CoreIdType      serving_core;
@@ -225,18 +413,540 @@ typedef EE_TYPEASREMOTEID const * EE_TYPEASREMOTEIDCONSTREF;
 /* The following are moved in interface because used by inline generated code
    for IOC */
 
+#ifdef EE_SUPPORT_MEMMAP_H
+#define SHARED_START_SEC_CONST_DATA
+#include "MemMap.h"
+#endif /* EE_SUPPORT_MEMMAP_H */
 /** @brief Map the core id with his corresponding spinlock */
-extern EE_TYPESPIN const EE_as_core_spinlocks[];
+extern EE_TYPESPIN const EE_SHARED_CDATA EE_as_core_spinlocks[];
+#ifdef EE_SUPPORT_MEMMAP_H
+#define SHARED_STOP_SEC_CONST_DATA
+#include "MemMap.h"
+#endif /* EE_SUPPORT_MEMMAP_H */
+
+#ifdef EE_SUPPORT_MEMMAP_H
+#define SHARED_START_SEC_VAR_NOINIT
+#include "MemMap.h"
+#endif /* EE_SUPPORT_MEMMAP_H */
 /** @brief Flag that a core is serving a RPCs */
 extern EE_BIT volatile EE_SHARED_IDATA EE_as_rpc_serving[EE_MAX_CPU];
+#ifdef EE_SUPPORT_MEMMAP_H
+#define SHARED_STOP_SEC_VAR_NOINIT
+#include "MemMap.h"
+#endif /* EE_SUPPORT_MEMMAP_H */
+
+#ifdef __EE_MEMORY_PROTECTION__
+/** @typedef   Autosar RPC with memory protection temporary return parameters */
+typedef union EE_as_rpc_outparam_type {
+  TaskStateType                task_state;
+#ifndef __OO_NO_ALARMS__
+  AlarmBaseType                alarm_base;
+  TickType                     tick;
+#endif /* !__OO_NO_ALARMS__ */
+#ifdef EE_AS_SCHEDULETABLES__
+  ScheduleTableStatusType      schedule_table_status;
+#endif /* EE_AS_SCHEDULETABLES__ */
+#ifdef EE_AS_OSAPPLICATIONS__
+  ApplicationStateType         application_state;
+#endif /* EE_AS_OSAPPLICATIONS__ */
+} EE_as_rpc_outparam;
+
+#endif /* __EE_MEMORY_PROTECTION__ */
 
 /** @brief The following implement a synchronous RPC kernel primitive. */
 /* This is put here because have to be seen in eecfg.c in case of
    __EE_MEMORY_PROTECTION__ */
 extern StatusType EE_as_rpc( OSServiceIdType ServiceId, EE_os_param param1,
   EE_os_param param2, EE_os_param param3 );
+
 #endif /* EE_AS_RPC__ */
 
-#endif /* !__AS_SC4__ */
+#ifdef EE_AS_OSAPPLICATIONS__
+/*******************************************************************************
+ *                          OSApplication API
+ *            (Types & Hooks are declared in ee_oo_common.h)
+ ******************************************************************************/
+
+/*  Autosar Kernel Functions Declarations
+ *  8.4 Function definitions
+ */
+
+/** @brief This service determines the currently running OS-Application.
+ *         (a unique identifier has to be allocated to each application).
+ */
+ApplicationType EE_as_GetApplicationID( void );
+
+/** @brief This service returns the identifier of the currently executing ISR.
+ */
+ISRType         EE_as_GetISRID( void );
+
+/**
+ *  @brief  This service terminates the OS-Application to which the calling
+ *    Task/Category 2 ISR/application specific error hook belongs.
+ *  Sync/Async: Synchronous.
+ *  Reentrancy: Reentrant.
+ *  @param Application The identifier of the OS-Application to be terminated.
+ *    If the caller belongs to <Application> the call results in a self
+ *    termination.
+ *  @param RestartOption Either RESTART for doing a restart of the
+ *    OS-Application or NO_RESTART if OS-Application shall not be restarted.
+ *  @return E_OK: No errors
+ *          E_OS_ID: <Application> was not valid (only in EXTENDED status)
+ *          E_OS_VALUE: <RestartOption> was neither RESTART nor NO_RESTART
+ *            (only in EXTENDED status)
+ *          E_OS_ACCESS: The caller does not have the right to terminate
+ *             <Application> (only in EXTENDED status)
+ *          E_OS_STATE: The state of <Application> does not allow
+ *             terminating <Application>
+ */
+StatusType  EE_as_TerminateApplication( ApplicationType Application,
+  RestartType RestartOption );
+
+/**
+ *  @brief This service sets the own state of an OS-Application from
+ *    APPLICATION_RESTARTING to APPLICATION_ACCESSIBLE. (Supposed to be called
+ *    by OS-Application restarting TASK).
+ *  Sync/Async: Synchronous.
+ *  Reentrancy: Reentrant.
+ *  @return E_OK: No errors
+ *          E_OS_STATE: The OS-Application of the caller is in the wrong state
+ */
+StatusType  EE_as_AllowAccess( void );
+
+/**
+ *  @brief This service returns the current state of an OS-Application.
+ *  Sync/Async: Synchronous.
+ *  Reentrancy: Reentrant.
+ *  @param Application: The OS-Application from which the state is requested.
+ *  @param Value: The current state of the application.
+ *  @return E_OK: No errors
+ *          E_OS_ID: <Application> is not valid (only in EXTENDED status)
+ */
+StatusType  EE_as_GetApplicationState( ApplicationType Application,
+  ApplicationStateRefType Value );
+
+/**
+ *  @brief This service determines if the OS-Applications, given by ApplID, is
+ *    allowed to use the IDs of a Task, ISR, Resource, Counter, Alarm or
+ *    Schedule Table in API calls.
+ *  Sync/Async: Synchronous
+ *  Reentrancy: Reentrant
+ *  @param ApplID: OS-Application identifier
+ *  @param ObjectType: Type of the following parameter
+ *  @param ObjectID: The object to be examined
+ *  @return ObjectAccessType ACCESS if the ApplID has access to the object
+ *    NO_ACCESS otherwise
+ */
+ObjectAccessType EE_as_CheckObjectAccess( ApplicationType ApplID,
+  ObjectTypeType ObjectType, EE_os_param_id ObjectID );
+
+#ifdef EE_SERVICE_PROTECTION__
+/**
+ *  @brief This service determines to which OS-Application a given Task, ISR,
+ *    Counter, Alarm or Schedule Table belongs.
+ *  Sync/Async: Synchronous
+ *  Reentrancy: Reentrant
+ *  @param ObjectType: Type of the following parameter
+ *  @param ObjectID: The object to be examined
+ *  @return ApplicationType: <OS-Application> the OS-Application to which the
+ *    object ObjectType belongs or INVALID_OSAPPLICATION if the object does not
+ *    exists
+ */
+ApplicationType EE_as_CheckObjectOwnership( ObjectTypeType ObjectType,
+  EE_os_param_id ObjectID );
+#endif /* EE_SERVICE_PROTECTION__ */
+
+/** @brief Called at the end of an ISR2 for termination */
+StatusType EE_as_TerminateISR2(void);
+
+/* The following functions are always called directly, never by syscall */
+#define GetApplicationID      EE_as_GetApplicationID
+#define GetISRID              EE_as_GetISRID
+#define GetApplicationState   EE_as_GetApplicationState
+#define CheckObjectOwnership  EE_as_CheckObjectOwnership
+#define CheckObjectAccess     EE_as_CheckObjectAccess
+
+#ifdef  __EE_MEMORY_PROTECTION__
+/*******************************************************************************
+ *                        Memory Protection Support
+ ******************************************************************************/
+
+/* If MemMap.h support is enabled (i.e. because memory protection): use it */
+#ifdef EE_SUPPORT_MEMMAP_H
+#define API_START_SEC_CODE
+#include "MemMap.h"
+#endif /* EE_SUPPORT_MEMMAP_H */
+
+/*  Autosar Kernel Functions Declarations
+ *  8.4 Function definitions
+ */
+
+/**
+ *  @brief  This service checks if a memory region is write/read/execute
+ *          accessible for a TASK and also returns information if the memory
+ *          region is part of the stack space.
+ *  Sync/Async: Synchronous.
+ *  Reentrancy: Reentrant.
+ *
+ *  @param ISRID Index: ISR reference.
+ *  @param Address: Start of memory area
+ *  @param Size: Size of memory area
+ *  @return AccessType: Value which contains the access rights to the memory
+ *    area
+ */
+AccessType EE_as_CheckTaskMemoryAccess( TaskType TaskID,
+  MemoryStartAddressType Address, MemorySizeType Size );
+
+/**
+ *  @brief  This service checks if a memory region is write/read/execute
+ *          accessible for an ISR and also returns information if the memory
+ *          region is part of the stack space.
+ *  Sync/Async: Synchronous.
+ *  Reentrancy: Reentrant.
+ *
+ *  @param ISRID Index: ISR reference.
+ *  @param Address: Start of memory area
+ *  @param Size: Size of memory area
+ *  @return AccessType: Value which contains the access rights to the memory
+ *    area
+ */
+AccessType EE_as_CheckISRMemoryAccess( ISRType ISRID, MemoryStartAddressType
+  Address, MemorySizeType Size );
+
+/* The following functions are always called directly never by a syscall */
+#define CheckTaskMemoryAccess EE_as_CheckTaskMemoryAccess
+#define CheckISRMemoryAccess EE_as_CheckISRMemoryAccess
+
+/* If MemMap.h support is enabled (i.e. because memory protection): use it */
+#ifdef EE_SUPPORT_MEMMAP_H
+#define API_STOP_SEC_CODE
+#include "MemMap.h"
+#endif /* EE_SUPPORT_MEMMAP_H */
+
+#if defined(EE_SYSCALL_NR) && defined(EE_MAX_SYS_SERVICEID) &&\
+  (EE_SYSCALL_NR > EE_MAX_SYS_SERVICEID)
+/**
+ *  @brief  A (trusted or non-trusted) OS-Application uses this service to call
+ *          a trusted function
+ *  Sync/Async: Depends on called function. If called function is synchronous
+ *          then service is synchronous. May cause rescheduling.
+ *  Reentrancy: Reentrant.
+ *  @param FunctionIndex Index of the function to be called.
+ *  @param FunctionParams Pointer to the parameters for the function - specified
+ *    by the FunctionIndex - to be called. If no parameters are provided,
+ *    a NULL pointer has to be passed.
+ *  @return StatusType E_OK: No Error E_OS_SERVICEID: No function defined for
+ *    this index
+ */
+StatusType EE_as_CallTrustedFunction( TrustedFunctionIndexType FunctionIndex,
+  TrustedFunctionParameterRefType FunctionParams );
+#endif /* EE_SYSCALL_NR > EE_MAX_SYS_SERVICEID */
+
+/**
+ * The APIs below should modify the state of interrupts, but they cannot
+ * manipulate the state register directly when a syscall is used. So they take
+ * the value of the state register before the syscall and return the value to be
+ * set after the syscall. The syscall handler code takes care of updating the
+ * state register. */
+
+/* DisableAllInterrupts() body */
+EE_FREG EE_as_DisableAllInterrupts(EE_FREG prev);
+/* EnableAllInterrupts() body */
+EE_FREG EE_as_EnableAllInterrupts(EE_FREG prev);
+/* SuspendAllInterrupts() body */
+EE_FREG EE_as_SuspendAllInterrupts(EE_FREG prev);
+/* ResumeAllInterrupts() body */
+EE_FREG EE_as_ResumeAllInterrupts(EE_FREG prev);
+/* SuspendOSInterrupts() body */
+EE_FREG EE_as_SuspendOSInterrupts(EE_FREG prev);
+/* ResumeOSInterrupts() body */
+EE_FREG EE_as_ResumeOSInterrupts(EE_FREG prev);
+
+#else  /* __EE_MEMORY_PROTECTION__ */
+/* TerminateApplication & AllowAccess services remapping on body functions
+  (is an part API in the ERIKA's meaning of that) */
+#define TerminateApplication  EE_as_TerminateApplication
+#define AllowAccess           EE_as_AllowAccess
+#endif /* __EE_MEMORY_PROTECTION__ */
+
+#endif /* EE_AS_OSAPPLICATIONS__ */
+
+#ifdef EE_AS_HAS_PROTECTIONHOOK__
+/*******************************************************************************
+ *                        Protection Hook Support
+ ******************************************************************************/
+/**
+ * @typedef ProtectionReturnType
+ *
+ * Defines what to do after returning from ProtectionHook.
+ *
+ * See paragraph 8.3.16 of AUTOSAR OS SWS 5.0.0
+ */
+typedef enum
+{
+  PRO_IGNORE,                 /**< do nothing */
+  PRO_TERMINATETASKISR,       /**< terminate the faulty task or ISR2 */
+  PRO_TERMINATEAPPL,          /**< terminate the faulty application */
+  PRO_TERMINATEAPPL_RESTART,  /**< restart the faulty application */
+  PRO_SHUTDOWN                /**< shutdown the OS */
+} ProtectionReturnType;
+
+/**
+ * User protection hook callback function.
+ *
+ * @param FatalError the kind of error
+ *
+ * @return what to do after this error
+ *
+ * see paragraph 8.7.1 of AUTOSAR OS SWS 5.0.0
+ */
+extern ProtectionReturnType ProtectionHook( StatusType FatalError );
+#endif /* EE_AS_HAS_PROTECTIONHOOK__ */
+
+/*******************************************************************************
+ *            Multicore Startup synchronization data structures
+ ******************************************************************************/
+#ifdef __MSRP__
+
+/* If MemMap.h support is enabled (i.e. because memory protection): use it */
+#ifdef EE_SUPPORT_MEMMAP_H
+#define SHARED_START_SEC_VAR_NOINIT
+#include "MemMap.h"
+#endif /* EE_SUPPORT_MEMMAP_H */
+/* The following contains cores application modes */
+extern AppModeType volatile EE_SHARED_UDATA
+  EE_as_os_application_mode[EE_MAX_CPU];
+
+/* If MemMap.h support is enabled (i.e. because memory protection): use it */
+#ifdef EE_SUPPORT_MEMMAP_H
+#define SHARED_STOP_SEC_VAR_NOINIT
+#include "MemMap.h"
+#endif /* EE_SUPPORT_MEMMAP_H */
+
+/* If MemMap.h support is enabled (i.e. because memory protection): use it */
+#ifdef EE_SUPPORT_MEMMAP_H
+#define SHARED_START_SEC_VAR_DATA
+#include "MemMap.h"
+#endif /* EE_SUPPORT_MEMMAP_H */
+/* Mask for Autosar cores started */
+extern EE_UREG EE_SHARED_IDATA volatile EE_as_core_mask;
+/* If MemMap.h support is enabled (i.e. because memory protection): use it */
+#ifdef EE_SUPPORT_MEMMAP_H
+#define SHARED_STOP_SEC_VAR_DATA
+#include "MemMap.h"
+#endif /* EE_SUPPORT_MEMMAP_H */
+
+#endif /* __MSRP__ */
+
+#ifdef EE_AS_USER_SPINLOCKS__
+/*******************************************************************************
+ *                      Spinlocks data Structures
+ ******************************************************************************/
+/* If MemMap.h support is enabled (i.e. because memory protection): use it */
+#ifdef EE_SUPPORT_MEMMAP_H
+#define SHARED_START_SEC_VAR_DATA
+#include "MemMap.h"
+#endif /* EE_SUPPORT_MEMMAP_H */
+
+#if defined (EE_MAX_SPINLOCK_USER) && (EE_MAX_SPINLOCK_USER > 0)
+/** @brief Hold which core is locking the spinlock */
+extern CoreIdType volatile EE_SHARED_IDATA EE_as_spinlocks_locker_core[EE_MAX_SPINLOCK_USER];
+
+/** @brief Spinlock Stack */
+extern SpinlockIdType volatile EE_SHARED_IDATA EE_as_spinlocks_stack[EE_MAX_SPINLOCK_USER];
+#endif /* EE_MAX_SPINLOCK_USER && EE_MAX_SPINLOCK_USER */
+
+#if defined (EE_MAX_CPU) && (EE_MAX_CPU > 0)
+/** @brief Spinlock Stack head */
+extern SpinlockIdType volatile EE_SHARED_IDATA EE_as_spinlocks_last[EE_MAX_CPU];
+#endif /* EE_MAX_CPU && EE_MAX_CPU */
+
+/* If MemMap.h support is enabled (i.e. because memory protection): use it */
+#ifdef EE_SUPPORT_MEMMAP_H
+#define SHARED_STOP_SEC_VAR_DATA
+#include "MemMap.h"
+#endif /* EE_SUPPORT_MEMMAP_H */
+#endif /* EE_AS_USER_SPINLOCKS__ */
+
+#if defined (EE_MAX_TASK) && defined (EE_MAX_ISR2)
+#define ARRAY_DIM (EE_MAX_TASK + EE_MAX_ISR2)
+
+#ifdef EE_SUPPORT_MEMMAP_H
+#define OS_START_SEC_VAR_DATA
+#include "MemMap.h"
+#endif /* EE_SUPPORT_MEMMAP_H */
+/** @brief Hold which task is locking the spinlock */
+extern TaskType EE_as_spinlocks_locker_task_or_isr2[ARRAY_DIM];
+#ifdef EE_SUPPORT_MEMMAP_H
+#define OS_STOP_SEC_VAR_DATA
+#include "MemMap.h"
+#endif /* EE_SUPPORT_MEMMAP_H */
+
+#endif /* EE_MAX_TASK && EE_MAX_ISR2 */
+
+#ifdef EE_AS_RPC__
+/*******************************************************************************
+ *            Synchronous Remote Procedure Calls Data Structures
+ ******************************************************************************/
+
+#if defined (EE_AS_RPC_SERVICES_TABLE_SIZE) && \
+  (EE_AS_RPC_SERVICES_TABLE_SIZE > 0)
+
+#ifdef EE_SUPPORT_MEMMAP_H
+#define SHARED_START_SEC_CONST_DATA
+#include "MemMap.h"
+#endif /* EE_SUPPORT_MEMMAP_H */
+
+/** @brief used to map global ids on local ids */
+extern EE_TYPEASREMOTEIDCONSTREF const EE_SHARED_CDATA
+  EE_as_rpc_services_table[EE_AS_RPC_SERVICES_TABLE_SIZE];
+
+#ifdef EE_SUPPORT_MEMMAP_H
+#define SHARED_STOP_SEC_CONST_DATA
+#include "MemMap.h"
+#endif /* EE_SUPPORT_MEMMAP_H */
+
+#endif /* EE_AS_RPC_SERVICES_TABLE_SIZE > 0 */
+
+#ifdef EE_SUPPORT_MEMMAP_H
+#define SHARED_START_SEC_VAR_DATA
+#include "MemMap.h"
+#endif /* EE_SUPPORT_MEMMAP_H */
+
+/** @brief Mask used in shutdown all cores procedure for synchronization */
+extern EE_UREG volatile EE_SHARED_IDATA EE_as_shutdown_mask;
+
+#ifdef EE_SUPPORT_MEMMAP_H
+#define SHARED_STOP_SEC_VAR_DATA
+#include "MemMap.h"
+#endif /* EE_SUPPORT_MEMMAP_H */
+
+#ifdef EE_SUPPORT_MEMMAP_H
+#define SHARED_START_SEC_CONST_DATA
+#include "MemMap.h"
+#endif /* EE_SUPPORT_MEMMAP_H */
+
+#if defined (EE_AS_RPC_TASKS_SIZE) && (EE_AS_RPC_TASKS_SIZE > 0)
+extern EE_TYPEASREMOTEID const EE_SHARED_CDATA
+  EE_as_rpc_tasks[EE_AS_RPC_TASKS_SIZE];
+#endif /* EE_AS_RPC_TASKS_SIZE > 0 */
+
+#if defined (EE_AS_RPC_ALARMS_SIZE) && (EE_AS_RPC_ALARMS_SIZE  > 0)
+extern EE_TYPEASREMOTEID const EE_SHARED_CDATA
+  EE_as_rpc_alarms[EE_AS_RPC_ALARMS_SIZE];
+#endif /* EE_AS_RPC_ALARMS_SIZE > 0 */
+
+#if defined (EE_AS_RPC_COUNTERS_SIZE) && (EE_AS_RPC_COUNTERS_SIZE  > 0)
+extern EE_TYPEASREMOTEID const EE_SHARED_CDATA
+  EE_as_rpc_counters[EE_AS_RPC_COUNTERS_SIZE];
+#endif /* EE_AS_RPC_COUNTERS_SIZE > 0 */
+
+#if defined(EE_AS_RPC_SCHEDTABS_SIZE) && (EE_AS_RPC_SCHEDTABS_SIZE > 0)
+extern EE_TYPEASREMOTEID const EE_SHARED_CDATA
+  EE_as_rpc_schedTabs[EE_AS_RPC_SCHEDTABS_SIZE];
+#endif /* EE_AS_RPC_SCHEDTABS_SIZE > 0 */
+
+#if defined (EE_AS_RPC_OSAPPLS_SIZE) && (EE_AS_RPC_OSAPPLS_SIZE > 0)
+extern EE_TYPEASREMOTEID const EE_SHARED_CDATA
+  EE_as_rpc_osAppls[EE_AS_RPC_OSAPPLS_SIZE];
+#endif /* EE_AS_RPC_OSAPPLS_SIZE > 0 */
+
+#ifdef EE_SUPPORT_MEMMAP_H
+#define SHARED_STOP_SEC_CONST_DATA
+#include "MemMap.h"
+#endif /* EE_SUPPORT_MEMMAP_H */
+
+#ifdef __EE_MEMORY_PROTECTION__
+
+#ifdef EE_SUPPORT_MEMMAP_H
+#define SHARED_START_SEC_VAR_NOINIT
+#include "MemMap.h"
+#endif /* EE_SUPPORT_MEMMAP_H */
+
+/** @brief array used to crossing memory protection between cores when call a
+    service with param2 as some kind of reference */
+extern EE_as_rpc_outparam EE_SHARED_UDATA EE_as_rpc_out_param2[EE_MAX_CPU];
+/** @brief array used to crossing memory protection between cores when call a
+    service with param3 as some kind of reference */
+extern EE_as_rpc_outparam EE_SHARED_UDATA EE_as_rpc_out_param3[EE_MAX_CPU];
+
+#ifdef EE_SUPPORT_MEMMAP_H
+#define SHARED_STOP_SEC_VAR_NOINIT
+#include "MemMap.h"
+#endif /* EE_SUPPORT_MEMMAP_H */
+
+#endif /* __EE_MEMORY_PROTECTION__ */
+
+#if defined (EE_MAX_CPU) && (EE_MAX_CPU > 0)
+/* If MemMap.h support is enabled (i.e. because memory protection): use it */
+#ifdef EE_SUPPORT_MEMMAP_H
+#define SHARED_START_SEC_VAR_NOINIT
+#include "MemMap.h"
+#endif /* EE_SUPPORT_MEMMAP_H */
+/** @brief Data structures to pass RPC parameters */
+extern EE_TYPEASRPC volatile EE_SHARED_IDATA EE_as_rpc_RAM[EE_MAX_CPU];
+
+/* If MemMap.h support is enabled (i.e. because memory protection): use it */
+#ifdef EE_SUPPORT_MEMMAP_H
+#define OS_STOP_SEC_VAR_NOINIT
+#include "MemMap.h"
+#endif /* EE_SUPPORT_MEMMAP_H */
+#endif /* EE_MAX_CPU > 0 */
+
+#ifdef EE_SUPPORT_MEMMAP_H
+#define SHARED_START_SEC_VAR_NOINIT
+#include "MemMap.h"
+#endif /* EE_SUPPORT_MEMMAP_H */
+
+/** @brief Flag used to signal that ShutdownAllCores have been called */
+extern EE_BIT volatile EE_SHARED_UDATA EE_as_shutdown_all_cores_flag;
+
+/** @brief Used to pass ShutdownAllCores error parameter to other cores */
+extern StatusType volatile EE_SHARED_UDATA EE_as_shutdown_all_cores_error;
+
+#ifdef EE_SUPPORT_MEMMAP_H
+#define SHARED_STOP_SEC_VAR_NOINIT
+#include "MemMap.h"
+#endif /* EE_SUPPORT_MEMMAP_H */
+#endif /* EE_AS_RPC__ */
+
+#ifdef EE_AS_IOC__
+/*******************************************************************************
+ *          Inter OSApplication Communication (IOC) Data Structures
+ ******************************************************************************/
+
+#ifdef EE_SUPPORT_MEMMAP_H
+#define SHARED_START_SEC_VAR_NOINIT
+#include "MemMap.h"
+#endif /* EE_SUPPORT_MEMMAP_H */
+
+/** @brief Flag used to signal a IOC request */
+extern EE_BIT EE_SHARED_UDATA EE_as_rpc_IOC[ EE_MAX_CPU ];
+
+#ifdef EE_SUPPORT_MEMMAP_H
+#define SHARED_STOP_SEC_VAR_NOINIT
+#include "MemMap.h"
+#endif /* EE_SUPPORT_MEMMAP_H */
+#endif /* EE_AS_IOC__ */
+
+#if (defined(EE_AS_OSAPPLICATIONS__)  && defined(EE_SERVICE_PROTECTION__)) &&\
+  defined(EE_AS_RPC__)
+/*******************************************************************************
+ *     OSApplication Service Protection Access Shared Data Structures
+ ******************************************************************************/
+/* Extra info used to implement service protection in Multi-core environment */
+#ifdef EE_SUPPORT_MEMMAP_H
+#define SHARED_START_SEC_CONST_DATA
+#include "MemMap.h"
+#endif /* EE_SUPPORT_MEMMAP_H */
+
+extern EE_TYPEACCESSMASK const EE_SHARED_CDATA EE_as_rpc_remote_access_rules[
+  /*EE_AS_RPC_REMOTE_ACCESS_RULES_SIZE */];
+
+#ifdef EE_SUPPORT_MEMMAP_H
+#define SHARED_STOP_SEC_CONST_DATA
+#include "MemMap.h"
+#endif /* EE_SUPPORT_MEMMAP_H */
+#endif /* EE_AS_OSAPPLICATIONS__ && EE_SERVICE_PROTECTION__ && EE_AS_RPC__ */
 
 #endif /* INCLUDE_EE_KERNEL_AS_KERNEL__ */

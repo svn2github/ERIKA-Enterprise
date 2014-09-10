@@ -420,7 +420,6 @@ extern "C" {
 #if defined(__OO_BCC1__) || defined(__OO_BCC2__) || defined(__OO_ECC1__) ||\
   defined(__OO_ECC2__) || defined(__AS_SC4__)
 #include "kernel/oo/inc/ee_oo_kernel.h"
-#include "kernel/as/inc/ee_os.h"
 #include "kernel/as/inc/ee_as_kernel.h"
 /* Moved inline interrupt services inclusion here, because they need to see TP
    declarations */
@@ -434,6 +433,10 @@ extern "C" {
    project root. */
 #include "ioc_common.h"
 #endif /* EE_AS_IOC__ */
+
+#ifdef EE_AS_SCHEDULETABLES__
+#include "kernel/as/inc/ee_as_schedule_tables.h"
+#endif /* EE_AS_SCHEDULETABLES__ */
 
 #endif /* OO */
 

@@ -165,7 +165,7 @@ EE_UINT16 buffer_length, EE_UINT8 * memory)
 static EE_IOC_BufferError EE_IOC_Buffer_push(EE_IOC_Buffer * cbuffer,
 const EE_UINT8 * ele, EE_UINT16 data_length)
 {
-    EE_UINT8 * write_addr = NULL;
+    EE_UINT8 * write_addr;
     EE_IOC_BufferError error = (EE_IOC_BufferError)EE_CBUFF_OK;
 
     if((cbuffer == EE_NULL_CBUFF) || (ele == NULL) || (data_length == 0U)) {
@@ -273,7 +273,7 @@ EE_UINT8 * ele, EE_UINT16 data_length)
 EE_INT8 IocSend(EE_UINT8 id, EE_IOC_DATA_PTR_CONST data)
 {
     /* Initialise return value of the following internal library call */
-    EE_INT8 result = EE_CBUFF_OK;
+    EE_INT8 result;
 
     /*
      * Use id to access auto-generated data
@@ -306,7 +306,7 @@ EE_INT8 IocWrite(EE_UINT8 id, EE_IOC_DATA_PTR_CONST data)
 EE_INT8 IocReceive(EE_UINT8 id, EE_IOC_DATA_PTR data)
 {
     /* Initialise return value of the following internal library call */
-    EE_INT8 result = (EE_INT8)IOC_E_OK;
+    EE_INT8 result;
 
     /*
      * Use id to access auto-generated data
@@ -380,7 +380,6 @@ EE_UINT8 parameter_number)
 }
 
 #ifdef EE_MASTER_CPU
-
 /** @brief Flag used to signal a IOC request */
 EE_BIT EE_SHARED_UDATA EE_as_rpc_IOC[ EE_MAX_CPU ];
 #endif /* EE_MASTER_CPU */

@@ -40,10 +40,10 @@
 
 
 ifeq ($(call iseeopt, __AS_SC4__), yes)
-EE_SRCS += pkg/kernel/as/src/ee_mem_prot.c
+EE_SRCS += pkg/kernel/as/src/ee_as_mem_prot.c
 EE_SRCS += pkg/kernel/as/src/ee_as_base.c
-EE_SRCS += pkg/kernel/as/src/ee_osapp.c
-else # __AS_SC4__
+EE_SRCS += pkg/kernel/as/src/ee_as_osapp.c
+endif
 
 ifeq ($(call iseeopt, __OO_BCC1__), yes)
 KERNEL_OO=yes
@@ -58,12 +58,8 @@ ifeq ($(call iseeopt, __OO_ECC2__), yes)
 KERNEL_OO=yes
 endif
 
-ifeq ($(and $(call iseeopt, EE_SERVICE_PROTECTION__), $(KERNEL_OO)), yes)
-EE_SRCS += pkg/kernel/as/src/ee_as_base.c
-endif # EE_AS_SERVICE_PROTECTION__ && KERNEL_OO
+ifeq ($(and $(call iseeopt, __MSRP__), $(KERNEL_OO)), yes)
 
-# FIXME: WORKAROUND until other architectures will support full AS porting
-ifeq ($(and $(call iseeopt, __MSRP__), $(KERNEL_OO), $(call iseeopt, EE_TRICORE__)), yes)
 EE_SRCS += pkg/kernel/as/src/ee_as_multicore.c
 
 ifeq ($(call iseeopt, EE_AS_USER_SPINLOCKS__), yes)
@@ -73,11 +69,39 @@ endif # EE_AS_USER_SPINLOCKS__
 ifeq ($(call iseeopt, EE_AS_RPC__), yes)
 EE_SRCS += pkg/kernel/as/src/ee_as_rpc.c
 endif # EE_AS_RPC__
+endif # __MSRP__
 
-ifeq ($(call iseeopt, EE_AS_IOC__), yes)
+ifeq ($(and $(call iseeopt, EE_AS_IOC__), $(KERNEL_OO)), yes)
 EE_SRCS += pkg/kernel/as/src/ee_as_ioc.c
-endif # EE_AS_IOC__
+endif # EE_AS_IOC__ && KERNEL_OO
 
-endif # __MSRP__ && KERNEL_OO
-endif # __AS_SC4__
+ifneq ($(call iseeopt, __AS_SC4__), yes)
+
+ifeq ($(or $(call iseeopt, __MSRP__), $(call iseeopt, EE_AS_OSAPPLICATIONS__), $(call iseeopt, EE_SERVICE_PROTECTION__)), yes)
+ifeq ($(KERNEL_OO), yes)
+EE_SRCS += pkg/kernel/as/src/ee_as_base.c
+endif # KERNEL_OO
+endif # __MSRP__ || EE_AS_OSAPPLICATIONS__ || EE_AS_SERVICE_PROTECTION__
+
+ifeq ($(and $(call iseeopt, EE_AS_OSAPPLICATIONS__), $(KERNEL_OO)), yes) 
+EE_SRCS += pkg/kernel/as/src/ee_as_osapp.c
+endif # EE_AS_OSAPPLICATIONS__
+
+ifeq ($(and $(call iseeopt, __EE_MEMORY_PROTECTION__), $(KERNEL_OO)), yes)
+EE_SRCS += pkg/kernel/as/src/ee_as_mem_prot.c
+endif # __EE_MEMORY_PROTECTION__ && KERNEL_OO
+
+ifeq ($(and $(call iseeopt, EE_AS_SCHEDULETABLES__), $(KERNEL_OO)), yes)
+EE_SRCS += pkg/kernel/as/src/ee_as_schedule_tables.c
+endif # EE_AS_SCHEDULETABLES__ && KERNEL_OO
+
+ifeq ($(and $(call iseeopt, EE_TIMING_PROTECTION__), $(KERNEL_OO)), yes)
+EE_SRCS += pkg/kernel/as/src/ee_as_timing_prot.c
+endif # EE_TIMING_PROTECTION__ && KERNEL_OO
+
+ifeq ($(and $(call iseeopt, EE_AS_HAS_PROTECTIONHOOK__), $(KERNEL_OO)), yes)
+EE_SRCS += pkg/kernel/as/src/ee_as_prot_error.c
+endif # EE_AS_HAS_PROTECTIONHOOK__ && KERNEL_OO
+
+endif # !__AS_SC4__
 

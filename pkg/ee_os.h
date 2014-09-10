@@ -98,7 +98,7 @@ extern "C" {
 defined(__OO_ECC2__) || defined(__AS_SC4__)
 #include "kernel/oo/inc/ee_oo_kernel.h"
 #include "kernel/oo/inc/ee_oo_irq.h"
-#if defined(__MSRP__)
+#if defined(__MSRP__) || defined(EE_AS_OSAPPLICATIONS__)
 #include "kernel/as/inc/ee_as_kernel.h"
 
 #ifdef EE_AS_IOC__
@@ -109,7 +109,7 @@ defined(__OO_ECC2__) || defined(__AS_SC4__)
    project root. */
 #include "ioc_common.h"
 #endif /* EE_AS_IOC__ */
-#endif /* __MSRP__ */
+#endif /* __MSRP__ || EE_AS_OSAPPLICATIONS__ */
 #endif
 
 /*

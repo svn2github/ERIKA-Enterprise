@@ -50,17 +50,20 @@
 /* Flag set by StartOs to signal that the OS is started */
 extern EE_UREG  volatile EE_oo_started;
 
-/** @brief The following containg cores start addresses */
-extern EE_ADDR const EE_as_core_start_addresses[];
+#if defined (EE_MAX_CPU) && (EE_MAX_CPU > 1)
+/** @brief The following contains cores start addresses */
+extern EE_ADDR const EE_as_core_start_addresses[EE_MAX_CPU - 1];
+#endif /* EE_MAX_CPU */
 
 #ifdef EE_MASTER_CPU
-
-/** @brief The following containg cores application modes: N.B it is used inside
+/** @brief The following contains cores application modes: N.B it is used inside
       StartOS */
 AppModeType volatile EE_SHARED_UDATA EE_as_os_application_mode[EE_MAX_CPU];
 
 /** @brief mask for Autosar cores started */
-EE_UREG volatile EE_SHARED_IDATA EE_as_core_mask = ((EE_UREG)1U << OS_CORE_ID_MASTER);
+EE_UREG volatile EE_SHARED_IDATA
+  EE_as_core_mask = ((EE_UREG)1U << OS_CORE_ID_MASTER);
+
 /** @brief counter for Autosar cores started (OS_CORE_ID_MASTER is always an
       AUTOSAR by default) */
 EE_UREG volatile EE_SHARED_IDATA EE_as_core_started = 1U;
@@ -69,11 +72,6 @@ EE_UREG volatile EE_SHARED_IDATA EE_as_core_started = 1U;
 EE_UREG volatile  EE_SHARED_UDATA EE_as_not_as_core_mask;
 
 #else /* EE_MASTER_CPU */
-
-/** @brief The following containg cores start addresses */
-extern EE_ADDR const EE_as_core_start_addresses[];
-/** @brief mask for Autosar cores started */
-extern EE_UREG volatile EE_as_core_mask;
 /** @brief counter for Autosar cores started (OS_CORE_ID_MASTER is always an
       AUTOSAR by default) */
 extern EE_UREG volatile EE_as_core_started;
@@ -108,7 +106,7 @@ void EE_as_StartCore( CoreIdType CoreID, StatusType *Status )
           ORDER OF ID AUTOMATICALLY. THERE IS NO WAY FOR USER TO SELECT
           EXPLICITLY WICH CORE ASSIGN TO AN SPECIFIC SLAVE CONFIGURATION.
           So if an ID is lower than EE_MAX_CPU is valid to call StartCore on.
-        FIXME: Probably this behaviour could be not perfectly compliant so it
+        FIXME: Probably this behavior could be not perfectly compliant so it
           should be checked */
       ev = E_OS_ID;
   } else if ( EE_oo_started != 0U ) {
@@ -175,7 +173,7 @@ void EE_as_StartNonAutosarCore( CoreIdType CoreID, StatusType *Status )
 
   /* EE_NUMBER_OF_CORES SHALL be defined in MCU layer (ideally in multicore
       support header */
-  if ( CoreID > EE_NUMBER_OF_CORES ) {
+  if ( CoreID >= EE_NUMBER_OF_CORES ) {
     /*  [OS685] If the parameter CoreID refers to an unknown core the function
         StartNonAutosarCore has effect and sets "Status" to E_OS_ID.
         (BSW4080006, BSW4080026, BSW4080027) */

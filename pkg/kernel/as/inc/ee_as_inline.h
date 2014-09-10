@@ -49,13 +49,22 @@
 
 #ifdef __MSRP__
 
-#if defined(OsNumberOfCores) && (OsNumberOfCores > 1)
+#ifdef EE_SUPPORT_MEMMAP_H
+#define SHARED_START_SEC_VAR_DATA
+#include "MemMap.h"
+#endif /* EE_SUPPORT_MEMMAP_H */
+/* EG: The following should have been declared in ee_as_internal.h,
+       but in-line services implementation force me to declare it here. */
+extern EE_UREG volatile EE_SHARED_IDATA EE_as_core_started;
+#ifdef EE_SUPPORT_MEMMAP_H
+#define SHARED_STOP_SEC_VAR_DATA
+#include "MemMap.h"
+#endif /* EE_SUPPORT_MEMMAP_H */
 
 #ifndef EE_PRIVATE_GETNUMBEROFACTIVATEDCORES__
 __INLINE__ EE_UINT32 __ALWAYS_INLINE__
   EE_as_GetNumberOfActivatedCores( void )
 {
-  extern EE_UINT32 volatile EE_as_core_started;
   /* EG: XXX Add Service Protection? (I think is just overkilling, can we
      just count this as features extension?) */
   /* Both assignment to enable smart debuggers to notice the entry and
@@ -84,8 +93,6 @@ __INLINE__ CoreIdType __ALWAYS_INLINE__ EE_as_GetCoreID( void )
   return  core_id;
 }
 #endif /* EE_PRIVATE_GETCOREID__ */
-
-#endif /* OsNumberOfCores > 1 */
 
 #endif /* __MSRP__ */
 

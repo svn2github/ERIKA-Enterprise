@@ -95,7 +95,10 @@ static EE_UREG EE_as_get_service_index_and_limit(
     case OSServiceId_GetTaskState:
     case OSServiceId_SetEvent:
       service_index = 0U;
-      *limit_id_ref = EE_AS_RPC_TASKS_SIZE;
+      if (limit_id_ref != NULL)
+      {
+        *limit_id_ref = (EE_os_param_id)EE_AS_RPC_TASKS_SIZE;
+      }
       break;
 #ifndef __OO_NO_ALARMS__
     case OSServiceId_GetAlarmBase:
@@ -104,12 +107,18 @@ static EE_UREG EE_as_get_service_index_and_limit(
     case OSServiceId_SetAbsAlarm:
     case OSServiceId_CancelAlarm:
       service_index = 1U;
-      *limit_id_ref = EE_AS_RPC_ALARMS_SIZE;
+      if (limit_id_ref != NULL)
+      {
+        *limit_id_ref = EE_AS_RPC_ALARMS_SIZE;
+      }
       break;
     case OSServiceId_GetCounterValue:
     case OSServiceId_GetElapsedValue:
       service_index = 2U;
-      *limit_id_ref = EE_AS_RPC_COUNTERS_SIZE;
+      if (limit_id_ref != NULL)
+      {
+        *limit_id_ref = EE_AS_RPC_COUNTERS_SIZE;
+      }
       break;
 #endif /* !__OO_NO_ALARMS__ */
 #ifdef EE_AS_SCHEDULETABLES__
@@ -118,27 +127,39 @@ static EE_UREG EE_as_get_service_index_and_limit(
     case OSServiceId_StopScheduleTable:
     case OSServiceId_GetScheduleTableStatus:
       service_index = 3U;
-      *limit_id_ref = EE_AS_RPC_SCHEDTABS_SIZE;
+      if (limit_id_ref != NULL)
+      {
+        *limit_id_ref = EE_AS_RPC_SCHEDTABS_SIZE;
+      }
       break;
 #endif /* EE_AS_SCHEDULETABLES__ */
 #ifdef EE_AS_OSAPPLICATIONS__
     case OSServiceId_GetApplicationState:
     case OSServiceId_TerminateApplication:
       service_index = 4U;
-      *limit_id_ref = EE_AS_RPC_OSAPPLS_SIZE;
+      if (limit_id_ref != NULL)
+      {
+        *limit_id_ref = EE_AS_RPC_OSAPPLS_SIZE;
+      }
       break;
 #endif /* EE_AS_OSAPPLICATIONS__ */
 #ifdef EE_AS_IOC__
 /*                  Inter OSApplication Communication (IOC)                   */
     case OSServiceId_IOCService:
       service_index = 5U;
-      *limit_id_ref = ((EE_os_param_id)-1); /* TODO EG: Check This better !!! */
+      if (limit_id_ref != NULL)
+      {
+        *limit_id_ref = ((EE_os_param_id)-1); /* TODO EG: Check This better !!! */
+      }
       break;
 #endif /* EE_AS_IOC__ */
     default:
       /* Wrong Service ID return a Error Value */
       service_index = EE_UREG_MINUS1;
-      *limit_id_ref = 0U;
+      if (limit_id_ref != NULL)
+      {
+        *limit_id_ref = 0U;
+      }
       break;
   }
 
@@ -249,10 +270,13 @@ __INLINE__ void __ALWAYS_INLINE__ EE_as_rpc_conf_call_params(
   EE_TYPEASRPC  volatile  * rpc_ref, OSServiceIdType ServiceId,
     EE_os_param_id param1_id, EE_os_param param2, EE_os_param param3 )
 {
-  rpc_ref->remote_procedure   = ServiceId;
-  rpc_ref->param1.value_param = param1_id;
-  rpc_ref->param2             = param2;
-  rpc_ref->param3             = param3;
+  if (rpc_ref != NULL)
+  {
+    rpc_ref->remote_procedure   = ServiceId;
+    rpc_ref->param1.value_param = param1_id;
+    rpc_ref->param2             = param2;
+    rpc_ref->param3             = param3;
+  }
 }
 /* Nothing to do in case of no memory protection */
 #define EE_as_rpc_get_inout_params(ServiceId, param2_ref, param3_ref) ((void)0)
@@ -267,7 +291,7 @@ StatusType EE_as_rpc( OSServiceIdType ServiceId, EE_os_param param1,
   register  EE_TYPEASREMOTEIDCONSTREF r_id_ref;
   register  StatusType                ret_value;
   register  CoreIdType                rp_cpu;
-  EE_os_param_id                      limit_id;
+  EE_os_param_id                      limit_id = INVALID_OBJECTID;
   /* Initialized locals */
   register  EE_UREG const service_index =
     EE_as_get_service_index_and_limit(ServiceId, &limit_id);
@@ -298,8 +322,9 @@ StatusType EE_as_rpc( OSServiceIdType ServiceId, EE_os_param param1,
     } else
 #ifdef EE_SERVICE_PROTECTION__
     /* Check for service access right */
-    if ( (EE_as_rpc_remote_access_rules[r_id_ref->core0_index + EE_CURRENTCPU] &
-      EE_APP_TO_MASK(EE_as_active_app)) == 0 )
+    if ( (r_id_ref->core0_index != EE_UREG_MINUS1) &&
+      ((EE_as_rpc_remote_access_rules[r_id_ref->core0_index + EE_CURRENTCPU] &
+        EE_APP_TO_MASK(EE_as_active_app)) == 0) )
     {
       ret_value = E_OS_ACCESS;
     } else
@@ -332,7 +357,7 @@ StatusType EE_as_rpc( OSServiceIdType ServiceId, EE_os_param param1,
         {
           /* In any case we shall assure that EE_hal_IRQ_interprocessor can
              handle multiple sequential calls */
-          EE_hal_IRQ_interprocessor(rp_cpu);
+          EE_hal_IRQ_interprocessor((EE_UINT8)rp_cpu);
         }
         /* Exit RPC Critical Section */
         EE_hal_spin_out(spinlock_id);
@@ -350,8 +375,13 @@ StatusType EE_as_rpc( OSServiceIdType ServiceId, EE_os_param param1,
   return ret_value;
 }
 
+#ifndef __OO_NO_ALARMS__
 static StatusType EE_as_rpc_execute( OSServiceIdType ServiceId, EE_os_param
   param1, EE_os_param param2, EE_os_param param3 )
+#else
+static StatusType EE_as_rpc_execute( OSServiceIdType ServiceId, EE_os_param
+  param1, EE_os_param param2 )
+#endif /* __OO_NO_ALARMS__ */
 {
   register StatusType ret_value;
 
@@ -449,7 +479,7 @@ static StatusType EE_as_rpc_execute( OSServiceIdType ServiceId, EE_os_param
 }
 
 #define EE_AS_RPC_INCREMENT_AND_HANDLE_WRAPAROUND(v) \
-  ((v) = (((EE_SREG)(v)) == (EE_MAX_CPU - 1))? 0: ((v) + 1))
+  ((v) = ((v) == (EE_UREG)(EE_MAX_CPU - 1))? 0U: ((v) + 1U))
 
 void EE_as_rpc_handler( void ) {
   /* Uninitialized locals */
@@ -459,7 +489,9 @@ void EE_as_rpc_handler( void ) {
   register  EE_TYPESPIN const spinlock_id = EE_as_core_spinlocks[EE_CURRENTCPU];
   /* Initialized locals */
   register  EE_TYPEASRPC  volatile  * rpc_ref = 0U;
-  register  EE_SREG                   requiring_core_index = EE_CURRENTCPU;
+  register  EE_UREG                   requiring_core_index =
+    (EE_UREG)EE_CURRENTCPU;
+
   register  EE_BIT                    to_shutdown = 0U;
 #if defined(EE_AS_IOC__) && defined(EE_AS_IOC_HAS_CALLBACKS__)
   register  EE_BIT                    to_IOC= 0U;
@@ -489,14 +521,14 @@ void EE_as_rpc_handler( void ) {
     EE_as_rpc_serving[EE_CURRENTCPU] = 1U;
 
     /* Search the requiring core */
-    for ( requiring_core_index = 0; requiring_core_index < EE_MAX_CPU;
+    for ( requiring_core_index = 0U; requiring_core_index < (EE_UREG)EE_MAX_CPU;
           ++requiring_core_index )
     {
       /*
        * Perform the following operation only for
        * index values other then current cpu id.
        */
-      if (requiring_core_index != EE_CURRENTCPU) {
+      if (requiring_core_index != (EE_UREG)EE_CURRENTCPU) {
 
         /* Select the RPC Structure */
         rpc_ref = &EE_as_rpc_RAM[requiring_core_index];
@@ -528,8 +560,13 @@ void EE_as_rpc_handler( void ) {
     {
       if ( rpc_ref != NULL ) {
         /* Otherwise call the service */
+#ifndef __OO_NO_ALARMS__
         rpc_ref->error = EE_as_rpc_execute( rpc_ref->remote_procedure,
           rpc_ref->param1, rpc_ref->param2, rpc_ref->param3 );
+#else
+        rpc_ref->error = EE_as_rpc_execute( rpc_ref->remote_procedure,
+          rpc_ref->param1, rpc_ref->param2);
+#endif /* __OO_NO_ALARMS__ */
       }
     }
 
@@ -582,7 +619,7 @@ void EE_as_rpc_handler( void ) {
       EE_AS_RPC_INCREMENT_AND_HANDLE_WRAPAROUND(requiring_core_index);
       while ( requiring_core_index != prev_requiring_core_index )
       {
-        if ( requiring_core_index != EE_CURRENTCPU ) {
+        if ( requiring_core_index != (EE_UREG)EE_CURRENTCPU ) {
           /* Select the RPC Structure */
           rpc_ref = &EE_as_rpc_RAM[requiring_core_index];
 
@@ -599,7 +636,7 @@ void EE_as_rpc_handler( void ) {
       {
         EE_as_rpc_serving[EE_CURRENTCPU] = 0U;
         /* Acknowledge current IIRQ */
-        EE_hal_IRQ_interprocessor_served((EE_TYPECOREID)EE_CURRENTCPU);
+        EE_hal_IRQ_interprocessor_served((EE_UINT8)EE_CURRENTCPU);
       }
     }
 
@@ -677,7 +714,7 @@ void EE_as_ShutdownAllCores( StatusType Error )
         if ( EE_as_rpc_serving[i] == 0U ) {
           /* In any case we shall assure that EE_hal_IRQ_interprocessor can
              handle multiple sequential calls */
-          EE_hal_IRQ_interprocessor((EE_TYPECOREID)i);
+          EE_hal_IRQ_interprocessor((EE_UINT8)i);
         }
       }
     }

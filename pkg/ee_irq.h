@@ -1,7 +1,7 @@
 /* ###*B*###
  * ERIKA Enterprise - a tiny RTOS for small microcontrollers
  *
- * Copyright (C) 2002-2013  Evidence Srl
+ * Copyright (C) 2002-2014  Evidence Srl
  *
  * This file is part of ERIKA Enterprise.
  *
@@ -90,7 +90,6 @@ extern "C" {
 #ifdef __X86__
 #include "cpu/x86/inc/ee_cpu.h"
 #endif
-
 
 #ifdef EE_TRICORE__
 #include "cpu/tricore/inc/ee_tc_cpu.h"

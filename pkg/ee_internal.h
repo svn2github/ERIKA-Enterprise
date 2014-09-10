@@ -347,14 +347,12 @@ extern "C" {
   defined(__OO_ECC2__)
 /* API prototypes should be visible when defining API functions */
 #include "kernel/oo/inc/ee_oo_kernel.h"
-#include "kernel/as/inc/ee_os.h"
 #include "kernel/as/inc/ee_as_kernel.h"
 /* Moved inline interrupt services inclusion here, because they need to see TP
    declarations */
 #include "kernel/oo/inc/ee_oo_inline.h"
 
 /* XXX: IT CAN HAPPEN THAT SOME OSEK INLINES NEED SOME INTERNALS FROM AS LAYER */
-#include "kernel/as/inc/ee_os_internal.h"
 #include "kernel/as/inc/ee_as_internal.h"
 #include "kernel/oo/inc/ee_oo_internal.h"
 
@@ -366,6 +364,10 @@ extern "C" {
    project root. */
 #include "ioc_common.h"
 #endif /* EE_AS_IOC__ */
+
+#ifdef EE_AS_SCHEDULETABLES__
+#include "kernel/as/inc/ee_as_schedule_tables.h"
+#endif /* EE_AS_SCHEDULETABLES__ */
 
 #endif /* OO */
 
