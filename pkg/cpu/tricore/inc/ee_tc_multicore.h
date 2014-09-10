@@ -51,6 +51,19 @@
  *********************************************************************/
 #ifdef __MSRP__
 
+#ifndef EE_AS_OSAPPLICATIONS__
+/* Shared data use separate sections; potentially, three different sections
+ * could be used for constant, uninitialized, and initialized data */
+#define EE_SHARED_CDATA  EE_COMPILER_SECTION("ee_mcglobalc")
+#define EE_SHARED_UDATA  EE_COMPILER_SECTION("ee_mcglobald")
+#define EE_SHARED_IDATA  EE_COMPILER_SECTION("ee_mcglobald")
+#else /* EE_AS_OSAPPLICATIONS__ */
+/* If MemMap.h is used do not use attributes */
+#define EE_SHARED_CDATA
+#define EE_SHARED_UDATA
+#define EE_SHARED_IDATA
+#endif /* EE_AS_OSAPPLICATIONS__ */
+
 /*
   ISR priority 1 (and this means ID 1 for TriCore Architecture) is already
   taken by Inter Cores Interrupts in multicore environment. So I raise an
@@ -85,8 +98,16 @@ typedef struct ee_tc_barrier {
  */
 void EE_tc_sync_barrier( EE_TYPEBARRIER *bar );
 
+#ifdef EE_AS_OSAPPLICATIONS__
+#define SHARED_START_SEC_VAR_NOINIT
+#include "MemMap.h"
+#endif /* EE_AS_OSAPPLICATIONS__ */
 /* declaration EE_TYPEBARRIER EE_SHARED_UDATA EE_tc27x_start_barrier */
-extern EE_TYPEBARRIER EE_tc_kernel_barrier;
+extern EE_TYPEBARRIER EE_SHARED_UDATA EE_tc_kernel_barrier;
+#ifdef EE_AS_OSAPPLICATIONS__
+#define SHARED_STOP_SEC_VAR_NOINIT
+#include "MemMap.h"
+#endif /* EE_AS_OSAPPLICATIONS__ */
 
 /* Standard Name Mapping for kernel */
 #define EE_startos_before_hook_barrier          EE_tc_kernel_barrier
@@ -169,12 +190,6 @@ __INLINE__ void __ALWAYS_INLINE__ EE_tc_start_core( EE_TYPECOREID core_id,
     break;
   }
 }
-
-/* Shared data use separate sections; potentially, three different sections
- * could be used for constant, unitialized, and initialized data */
-#define EE_SHARED_CDATA  EE_COMPILER_SECTION("ee_mcglobalc")
-#define EE_SHARED_UDATA  EE_COMPILER_SECTION("ee_mcglobald")
-#define EE_SHARED_IDATA  EE_COMPILER_SECTION("ee_mcglobald")
 
 /*  Spin Lock implementation valid fore new TriCore core 1.6x that has cmpswapw
     instruction */
@@ -265,10 +280,19 @@ typedef EE_UINT32           EE_TYPESPINSTATUS;
 typedef EE_UINT16           EE_TYPESPINVALUE;
 typedef EE_TYPESPINVALUE  * EE_TYPESPINVALUEREF;
 
+#ifdef EE_AS_OSAPPLICATIONS__
+#define SHARED_START_SEC_VAR_NOINIT
+#include "MemMap.h"
+#endif /* EE_AS_OSAPPLICATIONS__ */
+
 /* Global shared variables used as real spin locks */
-/* definition:
-  EE_TYPESPINSTATUS EE_SHARED_UDATA EE_hal_spinlock_status[EE_MAX_CPU]; */
-extern EE_TYPESPINSTATUS EE_hal_spinlock_status[];
+/* definition: */
+extern EE_TYPESPINSTATUS EE_SHARED_UDATA EE_hal_spinlock_status[];
+
+#ifdef EE_AS_OSAPPLICATIONS__
+#define SHARED_STOP_SEC_VAR_NOINIT
+#include "MemMap.h"
+#endif /* EE_AS_OSAPPLICATIONS__ */
 
 #ifdef EE_QUEUEING_SPINLOCKS
 #ifdef __TASKING__
@@ -327,10 +351,17 @@ EE_DO_PRAGMA(warning 557)
  *  for each cpu, for each i.
  *
  */
-/*  definition:
-    EE_TYPESPINVALUEREF const EE_SHARED_CDATA
-      EE_hal_spinlock_status[][EE_MAX_CPU] = { .. }; */
-extern EE_TYPESPINVALUEREF const EE_hal_spinlock_value[];
+/* definition: */
+#ifdef EE_AS_OSAPPLICATIONS__
+#define SHARED_START_SEC_CONST_DATA
+#include "MemMap.h"
+#endif /* EE_AS_OSAPPLICATIONS__ */
+extern EE_TYPESPINVALUEREF const EE_SHARED_CDATA EE_hal_spinlock_value[];
+
+#ifdef EE_AS_OSAPPLICATIONS__
+#define SHARED_STOP_SEC_CONST_DATA
+#include "MemMap.h"
+#endif /* EE_AS_OSAPPLICATIONS__ */
 
 /* Utility macros */
 #define EE_TC_WAIT_ADDR_MASK 0xFFFFFFFEU

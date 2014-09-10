@@ -261,48 +261,98 @@ EE_tc_trap_table:                       \n\
 EE_TRAP_DEFINITION(EE_tc_trap_mmu, EE_tc_mmu_handler)
 #elif defined(EE_TC_TRAP_MMU_TRAP)
 EE_TRAP_DEFINITION(EE_tc_trap_mmu, EE_TC_TRAP_MMU_TRAP)
+#elif defined(__EE_MEMORY_PROTECTION__) || defined(EE_TIMING_PROTECTION__)
+EE_TRAP_DEFINITION_WITH_CALL(EE_tc_trap_mmu, EE_tc_default_trap_handler)
 #else
 EE_TRAP_DEFAULT(EE_tc_trap_mmu)
 #endif /* EE_TC_TRAP_MMU_TRAP */
 
-#if defined(EE_TC_TRAP_PROT_TRAP)
+#if defined(__EE_MEMORY_PROTECTION__)
+EE_TRAP_DEFINITION(EE_tc_trap_protection, EE_tc_protection_handler)
+#elif defined(EE_TC_TRAP_PROT_TRAP)
 EE_TRAP_DEFINITION(EE_tc_trap_protection, EE_TC_TRAP_PROT_TRAP)
+#elif defined(EE_TIMING_PROTECTION__)
+EE_TRAP_DEFINITION_WITH_CALL(EE_tc_trap_protection, EE_tc_default_trap_handler)
 #else
 EE_TRAP_DEFAULT(EE_tc_trap_protection)
 #endif /* EE_TC_TRAP_PROT_TRAP */
 
 #if defined(EE_TC_TRAP_INST_TRAP)
 EE_TRAP_DEFINITION(EE_tc_trap_instruction, EE_TC_TRAP_INST_TRAP)
+#elif defined(__EE_MEMORY_PROTECTION__) || defined(EE_TIMING_PROTECTION__)
+EE_TRAP_DEFINITION_WITH_CALL(EE_tc_trap_instruction, EE_tc_default_trap_handler)
 #else
 EE_TRAP_DEFAULT(EE_tc_trap_instruction)
 #endif /* EE_TC_TRAP_INST_TRAP */
 
 #if defined(EE_TC_TRAP_CONT_TRAP)
 EE_TRAP_DEFINITION(EE_tc_trap_context, EE_TC_TRAP_CONT_TRAP)
+#elif defined(__EE_MEMORY_PROTECTION__) || defined(EE_TIMING_PROTECTION__)
+EE_TRAP_DEFINITION_WITH_CALL(EE_tc_trap_context, EE_tc_default_trap_handler)
 #else
 EE_TRAP_DEFAULT(EE_tc_trap_context)
 #endif /* EE_TC_TRAP_CONT_TRAP */
 
-#if defined(EE_TC_TRAP_BUS_TRAP)
+#if defined(EE_TIMING_PROTECTION__)
+EE_TRAP_DEFINITION(EE_tc_trap_bus, EE_tc_bus_handler)
+#elif defined(EE_TC_TRAP_BUS_TRAP)
 EE_TRAP_DEFINITION(EE_tc_trap_bus, EE_TC_TRAP_BUS_TRAP)
+#elif defined(__EE_MEMORY_PROTECTION__)
+EE_TRAP_DEFINITION_WITH_CALL(EE_tc_trap_bus, EE_tc_default_trap_handler)
 #else
 EE_TRAP_DEFAULT(EE_tc_trap_bus)
 #endif /* EE_TC_TRAP_BUS_TRAP */
 
 #if defined(EE_TC_TRAP_ASS_TRAP)
 EE_TRAP_DEFINITION(EE_tc_trap_assertion, EE_TC_TRAP_ASS_TRAP)
+#elif defined(__EE_MEMORY_PROTECTION__) || defined(EE_TIMING_PROTECTION__)
+EE_TRAP_DEFINITION_WITH_CALL(EE_tc_trap_assertion, EE_tc_default_trap_handler)
 #else
 EE_TRAP_DEFAULT(EE_tc_trap_assertion)
 #endif /* EE_TC_TRAP_ASS_TRAP */
 
-#if defined(EE_TC_TRAP_SYS_TRAP)
+#if defined(__EE_MEMORY_PROTECTION__)
+
+/* Generate the call to system call handler in case of memory protection
+   active: Save in d12 and d13 two pcxi value for saved Upper/Lower Context
+   respectively, used inside EE_tc_syscall_handler for stack, ISR status
+   restoring and for return value.
+ */
+#ifdef __GNUC__
+__asm ("                                      \n\
+  .globl EE_tc_trap_system                    \n\
+EE_tc_trap_system:                            \n\
+  mfcr %d12," EE_STRINGIFY(EE_CPU_REG_PCXI) " \n\
+  svlcx                                       \n\
+  mfcr %d13," EE_STRINGIFY(EE_CPU_REG_PCXI) " \n\
+  movh.a %a15,hi:EE_tc_syscall_handler        \n\
+  lea %a15,[%a15]lo:EE_tc_syscall_handler     \n\
+  ji %a15                                     \n\
+  .align 5                                    \n\
+");
+#elif defined(__DCC__)
+__asm ("                                      \n\
+  .globl EE_tc_trap_system                    \n\
+EE_tc_trap_system:                            \n\
+  mfcr %d12," EE_STRINGIFY(EE_CPU_REG_PCXI) " \n\
+  svlcx                                       \n\
+  mfcr %d13," EE_STRINGIFY(EE_CPU_REG_PCXI) " \n\
+  j EE_tc_syscall_handler                     \n\
+  .align 5                                    \n\
+");
+#endif /* __GNUC__ || __DCC__ */
+#elif defined(EE_TC_TRAP_SYS_TRAP)
 EE_TRAP_DEFINITION(EE_tc_trap_system, EE_TC_TRAP_SYS_TRAP)
+#elif defined(EE_TIMING_PROTECTION__)
+EE_TRAP_DEFINITION_WITH_CALL(EE_tc_trap_system, EE_tc_default_trap_handler)
 #else
 EE_TRAP_DEFAULT(EE_tc_trap_system)
 #endif /* EE_TC_TRAP_SYS_TRAP */
 
 #if defined(EE_TC_TRAP_NMI_TRAP)
 EE_TRAP_DEFINITION(EE_tc_trap_nmi, EE_TC_TRAP_NMI_TRAP)
+#elif defined(__EE_MEMORY_PROTECTION__) || defined(EE_TIMING_PROTECTION__)
+EE_TRAP_DEFINITION_WITH_CALL(EE_tc_trap_nmi, EE_tc_default_trap_handler)
 #else
 EE_TRAP_DEFAULT(EE_tc_trap_nmi)
 #endif /* EE_TC_TRAP_NMI_TRAP */

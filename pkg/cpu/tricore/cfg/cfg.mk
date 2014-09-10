@@ -81,6 +81,7 @@ endif
 
 ifeq ($(CPU_OO), YES)
 EE_SRCS += pkg/cpu/tricore/src/ee_tc_oo.c
+EE_SRCS += pkg/cpu/tricore/src/ee_tc_internal.c
 endif
 
 ifeq ($(call iseeopt, __MULTI__), yes)
@@ -90,5 +91,10 @@ endif
 ifeq ($(call iseeopt, __MSRP__), yes)
 EE_SRCS += pkg/cpu/tricore/src/ee_tc_multicore.c
 endif # __MSRP__
+
+ifeq ($(or $(call iseeopt, __EE_MEMORY_PROTECTION__), $(call iseeopt, EE_TIMING_PROTECTION__)), yes)
+EE_SRCS += pkg/cpu/tricore/src/ee_tc_mem_and_time_prot.c
+EE_SRCS += pkg/cpu/tricore/src/ee_tc_as_api.c
+endif # __EE_MEMORY_PROTECTION__ || EE_TIMING_PROTECTION__
 
 endif # EE_TRICORE__

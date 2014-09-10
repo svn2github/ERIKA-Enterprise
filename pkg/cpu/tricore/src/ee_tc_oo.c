@@ -54,6 +54,14 @@
  */
 /* I need EE_NIL symbol from the kernel so I include the whole internals */
 #include "ee_internal.h"
+/* Change protection set code in case of memory protection */
+#include "cpu/tricore/inc/ee_tc_mem_prot_internal.h"
+
+/* If MemMap.h support is enabled (i.e. because memory protection): use it */
+#ifdef EE_SUPPORT_MEMMAP_H
+#define OS_START_SEC_CODE
+#include "MemMap.h"
+#endif /* EE_SUPPORT_MEMMAP_H */
 
 #if defined(__OO_BCC1__) || defined(__OO_BCC2__) \
     || defined(__OO_ECC1__) || defined(__OO_ECC2__)
@@ -103,6 +111,34 @@ void EE_hal_terminate_task(EE_TID tid)
     }
 }
 
+#ifndef __EE_MEMORY_PROTECTION__
+__INLINE__ void __ALWAYS_INLINE__
+  EE_tc_call_thread_not_terminated( void )
+{
+  EE_thread_not_terminated();
+}
+#else /* !__EE_MEMORY_PROTECTION__ */
+/* In case of Memory Protection I make a syscall to switch back in
+   "kernel domain" in case of unterinated TASKs */
+__INLINE__ void __ALWAYS_INLINE__
+  EE_tc_call_thread_not_terminated( void )
+{
+  EE_tc_syscall(EE_ID_thread_not_terminated);
+}
+#endif /* !__EE_MEMORY_PROTECTION__ */
+
+#ifdef EE_AS_OSAPPLICATIONS__
+/* Transform tid in an index and then modify OSApplication and protection set */
+__INLINE__ void __ALWAYS_INLINE__ EE_tc_set_os_app_term_prot_set( EE_TID tid )
+{
+  EE_UTID utid = EE_tc_tid_as_index(tid);
+  EE_tc_set_os_app_prot_set_from_task_utid(utid);
+}
+#else /* EE_AS_OSAPPLICATIONS__ */
+/* If OSApplications are not configured I don't need to do anything */
+#define EE_tc_set_os_app_term_prot_set(tid) ((void)0)
+#endif /* EE_AS_OSAPPLICATIONS__ */
+
 /* Used to save the first context that can be freed.
    I need this dummy call because. I want the context already in previous
    context queue, to protetct my self from interrupt that could change
@@ -110,11 +146,27 @@ void EE_hal_terminate_task(EE_TID tid)
  */
 static void __NEVER_INLINE__ EE_tc_dummy_context( EE_TID tid )
 {
+  /* In case of memory protection i nedd to read EE_terminate_real_th_body
+     vector before changing protection set. */
+  register EE_THREAD_PTR task_body;
+
   /* Previous Context from this point is the first context to be freed */
   EE_terminate_data[tid] = EE_tc_get_pcxi();
 
-  /* Task funtion call */
-  EE_terminate_real_th_body[tid]();
+  /* Read EE_terminate_real_th_body still in kernel protection set */
+  task_body = EE_terminate_real_th_body[tid];
+
+  /* Set protection domain for the new created TASK */
+  EE_tc_set_os_app_term_prot_set(tid);
+
+  /* Enable Interrupts: (It works even with memory protection,
+     because User Tasks run in User-1 mode that has ISR handling enabled) */
+  EE_tc_enableIRQ();
+  /* Task function call. */
+  task_body();
+  /* Disable Interrupts: (It works even with memory protection,
+     because User Tasks run in User-1 mode that has ISR handling enabled) */
+  EE_tc_disableIRQ();
 
   /* When TerminateTask is not invoked, we simply return here,
    * and we handle the error calling EE_thread_not_terminated,
@@ -125,7 +177,7 @@ static void __NEVER_INLINE__ EE_tc_dummy_context( EE_TID tid )
    *
    * AS requirements (OS052, OS069, OS070, OS239)
    */
-  EE_thread_not_terminated();
+  EE_tc_call_thread_not_terminated();
 }
 
 /* Used to call the dummy context in the right way */

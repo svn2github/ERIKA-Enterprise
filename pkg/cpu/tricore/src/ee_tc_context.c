@@ -49,17 +49,67 @@
 /* Include the whole internal because I need EE_NIL from Kernel + In case of
    Memory protection i need some types and data structures declarations */
 #include "ee_internal.h"
+/* Change protection set code in case of memory protection */
+#include "cpu/tricore/inc/ee_tc_mem_prot_internal.h"
 
 #ifdef __MULTI__
 
+#ifdef EE_AS_KERNEL_STACKS__
+
 /* Saves necessary context information to resume a thread later */
-__INLINE__ void __ALWAYS_INLINE__ EE_tc_task_save( EE_UTID utid )
+__INLINE__ void __ALWAYS_INLINE__ EE_tc_task_save( EE_UTID utid, EE_UREG tos )
+{
+  EE_tc_tasks_RA[utid].ra         = EE_tc_get_RA();
+  EE_tc_tasks_RA[utid].kernel_sp  = EE_tc_system_tos[tos].ram_tos;
+  EE_tc_system_tos[tos].ram_tos   = EE_tc_get_SP();
+}
+
+/* Restores previously saved context information of a thread */
+__INLINE__ void __ALWAYS_INLINE__ EE_TC_CHANGE_STACK_POINTER
+  EE_tc_task_restore( EE_UTID utid, EE_UREG tos )
+{
+  EE_ADDR const ra  = EE_tc_tasks_RA[utid].ra;
+  EE_ADDR const sp  = EE_tc_tasks_RA[utid].ram_tos;
+
+  EE_tc_system_tos[tos].ram_tos = EE_tc_tasks_RA[utid].kernel_sp;
+
+  EE_tc_set_RA(ra);
+  EE_tc_get_SP(sp);
+}
+
+__INLINE__ void __ALWAYS_INLINE__ EE_tc_stack_save( EE_UREG tos )
+{
+  EE_tc_system_tos[tos].pcxi_tos  = EE_tc_get_pcxi();
+}
+
+__INLINE__ void __ALWAYS_INLINE__
+  EE_tc_stack_restore( EE_UREG tos )
+{
+  struct EE_TC_TOS  * const p_tos = &EE_tc_system_tos[tos];
+  EE_UREG             const pcxi  = p_tos->pcxi_tos;
+
+  /* Save a dummy context if it's the first time that a Task goes in
+     execution in this stack (At start-up or after an OS-Application restart)
+  */
+  if ( pcxi == 0U ) {
+    EE_tc_svlcx();
+    p_tos->pcxi_bos = EE_tc_get_pcxi();
+  } else {
+    /* Otherwise simply restore the stack PCXI head */
+    EE_tc_set_pcxi(pcxi);
+  }
+}
+
+#else /* EE_AS_KERNEL_STACKS__ */
+/* Saves necessary context information to resume a thread later */
+__INLINE__ void __ALWAYS_INLINE__ EE_tc_task_save( EE_UTID utid, EE_UREG tos )
 {
   EE_tc_tasks_RA[utid] = EE_tc_get_RA();
 }
 
 /* Restores previously saved context information of a thread */
-__INLINE__ void __ALWAYS_INLINE__ EE_tc_task_restore( EE_UTID utid )
+__INLINE__ void __ALWAYS_INLINE__ EE_tc_task_restore( EE_UTID utid,
+  EE_UREG tos )
 {
   EE_ADDR const ra    = EE_tc_tasks_RA[utid];
   EE_tc_set_RA(ra);
@@ -73,6 +123,29 @@ __INLINE__ void __ALWAYS_INLINE__ EE_tc_stack_save( EE_UREG tos )
   p_tos->pcxi_tos  = EE_tc_get_pcxi();
 }
 
+#ifdef EE_AS_OSAPPLICATIONS__
+__INLINE__ void __ALWAYS_INLINE__ EE_TC_CHANGE_STACK_POINTER
+  EE_tc_stack_restore( EE_UREG tos )
+{
+  struct EE_TC_TOS  * const p_tos = &EE_tc_system_tos[tos];
+  EE_ADDR             const sp    = p_tos->ram_tos;
+  EE_UREG             const pcxi  = p_tos->pcxi_tos;
+
+  EE_tc_set_SP(sp);
+
+  /* Save a dummy context if it's the first time that a Task goes in
+     execution in this stack (At start-up or after an OS-Application restart)
+  */
+  if ( pcxi == 0U ) {
+    EE_tc_svlcx();
+    p_tos->pcxi_bos = EE_tc_get_pcxi();
+  } else {
+    /* Otherwise simply restore the stack PCXI head */
+    EE_tc_set_pcxi(pcxi);
+  }
+}
+#else /* EE_AS_OSAPPLICATIONS__ */
+
 __INLINE__ void __ALWAYS_INLINE__ EE_TC_CHANGE_STACK_POINTER
   EE_tc_stack_restore( EE_UREG tos )
 {
@@ -85,6 +158,35 @@ __INLINE__ void __ALWAYS_INLINE__ EE_TC_CHANGE_STACK_POINTER
      of a EE_TC_TOS struct because we won't return from the first context
      of a stack */
   EE_tc_set_pcxi(pcxi);
+}
+#endif /* EE_AS_OSAPPLICATIONS__ */
+#endif /* EE_AS_KERNEL_STACKS__ */
+
+/*
+   I needed to move here the TASK runner otherwise I could have race conditions
+   that could lead in a wrong behavior in case of OS-Application Termination.
+                                  IMPORTANT
+   I would stress that these race conditions could have happened only if
+   support for OS-Application would have been activated: so previous
+   implementation were safe.
+*/
+static EE_TID EE_tc_run_task_code(EE_TID tid)
+{
+#ifdef __FP__
+  /* Call directly the body */
+  /* Enable Interrupts */
+  EE_tc_enableIRQ();
+  /* Task function call */
+  EE_hal_thread_body[tid]();
+  /* Disable Interrupts */
+  EE_tc_disableIRQ();
+#else /* __FP__ */
+  /* Call the stub that call the body */
+  EE_oo_thread_stub();
+#endif /* __FP__ */
+  /* Call the scheduler */
+  EE_thread_end_instance();
+  return EE_std_endcycle_next_tid;
 }
 
 /*  Pseudo code for EE_std_change_context in multistack environment:
@@ -127,7 +229,7 @@ void EE_TC_CHANGE_STACK_POINTER EE_std_change_context( EE_TID tid )
     tos_from    =   EE_tc_active_tos;
 
     /* Save context information per Task */
-    EE_tc_task_save(EE_tc_active_utid);
+    EE_tc_task_save(EE_tc_active_utid, tos_from);
 
     /* Switch Stack */
     if ( tos_from != tos_new ) {
@@ -142,11 +244,16 @@ void EE_TC_CHANGE_STACK_POINTER EE_std_change_context( EE_TID tid )
 
     if ( EE_std_tid_is_marked_stacked(tid) ) {
       /* Return to Preempted Task */
-      EE_tc_task_restore(utid);
+      EE_tc_task_restore(utid, tos_new);
+#ifdef EE_AS_OSAPPLICATIONS__
+      /* Restore the OSApplication (but wait to change the protection set: too
+         early) */
+      EE_as_active_app = EE_th_app[utid];
+#endif /* EE_AS_OSAPPLICATIONS__ */
       break;
     } else {
       /* Run New Task */
-      tid = EE_std_run_task_code(tid);
+      tid = EE_tc_run_task_code(tid);
     }
   } while ( 1U );
 
