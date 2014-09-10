@@ -81,6 +81,10 @@ include $(PKGBASE)/cfg/arch/cc_ppc_codewarrior.mk
 else # CODEWARRIOR
 ifeq ($(call iseeopt, __DIAB__), yes)
 include $(PKGBASE)/cfg/arch/cc_ppc_diab.mk
+else # DIAB
+ifeq ($(call iseeopt, EE_GNU__), yes)
+include $(PKGBASE)/cfg/arch/cc_ppc_gnu.mk
+endif # GNU
 endif # DIAB
 endif # CODEWARRIOR
 endif # PPCE200ZX
@@ -205,6 +209,5 @@ endif
 ifeq ($(call iseeopt, __X86__), yes)
 include $(EEBASE)/pkg/cfg/arch/cc_x86_gcc.mk
 endif
-
 
 

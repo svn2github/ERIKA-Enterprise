@@ -48,12 +48,16 @@ VERBOSE = 1
 endif
 
 # VLE
-USE_VLE:=$(if $(call iseeopt, __VLE__),1,0)
-#ifeq ($(call iseeopt, __VLE__), yes)
-#USE_VLE = 1
-#else
-#USE_VLE = 0
-#endif
+#USE_VLE:=$(if $(call iseeopt, __VLE__),1,0)
+ifeq ($(call iseeopt, __VLE__), yes)
+ifeq ($(call iseeopt, EE_GNU__), yes)
+$(error Freeware GNU GCC toolchain DOES NOT supports VLE!!!)
+else
+USE_VLE = 1
+endif
+else
+USE_VLE = 0
+endif
 
 # For compatibility with old code
 ifeq ($(call iseeopt, __E200Z7_EXECUTE_FROM_RAM__), yes)
@@ -243,6 +247,7 @@ COMPUTED_OPT_TCC := $(OPT_TCC)
 SOURCEFILE = $(call native_path,$<)
 TARGETFILE = $(call native_path,$@)
 SRCFILE = $(call native_path,$(patsubst %.o,%.src,$@))
+ASMSRCFILE = $(call native_path,$(patsubst %.o,%.s,$@))
 
 
 ##
@@ -292,8 +297,13 @@ orti.cmm ortiperf.men: %: $(PKGBASE)/mcu/freescale_$(PPC_MCU_MODEL)/cfg/%
 	$(QUIET) cp $< $@
 
 # Targets for Lauterbach simulator demo
+ifeq ($(call iseeopt, __VLE__),yes)
 demo.cmm: %: $(PKGBASE)/mcu/freescale_$(PPC_MCU_MODEL)/cfg/lauterbach_demo/%
 	$(QUIET) cp $< $@
+else
+demo.cmm: $(PKGBASE)/mcu/freescale_$(PPC_MCU_MODEL)/cfg/lauterbach_demo/demo_no_vle.cmm
+	$(QUIET) cp $< $@
+endif
 menmpc55xx.men: %: $(PKGBASE)/mcu/freescale_$(PPC_MCU_MODEL)/cfg/lauterbach_demo/%
 	$(QUIET) cp $< $@
 press.cmm: %: $(PKGBASE)/mcu/freescale_$(PPC_MCU_MODEL)/cfg/lauterbach_demo/%
@@ -337,6 +347,15 @@ endif
 ##
 # if is specified __NO_APP__ the user want Erika as libee.a and noting else
 ifneq ($(call iseeopt, __NO_APP__), yes)
+ifeq ($(call iseeopt, EE_GNU__),yes)
+$(TARGET): $(LINKDEP) $(CRT0) $(APPOBJS) $(LIBDEP)
+	@printf "LD\n";
+	$(QUIET)$(EE_LINK) $(COMPUTED_OPT_LINK)				\
+		-o $(TARGETFILE) $(MAP_OPT) $(APPOBJS) $(OPT_CRT0) $(OPT_LIBS)
+	@echo
+	@echo "Compilation terminated successfully"
+	@echo
+else
 $(TARGET): $(CRT0) $(APPOBJS) $(LINKDEP) $(LIBDEP)
 	@printf "LD\n";
 	$(QUIET)$(EE_LINK) $(COMPUTED_OPT_LINK)				\
@@ -344,12 +363,14 @@ $(TARGET): $(CRT0) $(APPOBJS) $(LINKDEP) $(LIBDEP)
 	@echo
 	@echo "Compilation terminated successfully"
 	@echo
-endif
+endif # EE_GNU__
+endif # __NO_APP__
+
 ##
 ## Object file creation
 ##
 
-$(OBJDIR)/%.o: %.S
+$(OBJDIR)/%.o: %.S $(OBJDEP)
 ifdef PREPROC_ASM_2_PASS
 	$(VERBOSE_PRINTPRE)	$(EE_CC)  $(COMPUTED_OPT_INCLUDE) $(DEFS_ASM) $(DEPENDENCY_OPT) -E $(SOURCEFILE) > $(SRCFILE)
 	$(VERBOSE_PRINTASM)	$(EE_ASM) $(COMPUTED_OPT_ASM) -o $(TARGETFILE) $(SRCFILE)
@@ -358,7 +379,21 @@ else
 endif
 	$(QUIET) $(call make-depend, $<, $@, $(subst .o,.d,$@))
 
-$(OBJDIR)/%.o: %.c
+$(OBJDIR)/%.o: %.c $(OBJDEP)
+# Generates assembly source file is required
+ifeq ($(call iseeopt, EE_GEN_ASS_FILE),yes)
+ifeq ($(call iseeopt, EE_GNU__),yes)
+	@$(EE_CC) $(COMPUTED_OPT_CC) $(COMPUTED_OPT_INCLUDE) $(DEFS_CC) $(DEPENDENCY_OPT) -S -c $(SOURCEFILE) -o $(ASMSRCFILE)
+endif
+endif
+# Generates preprocessed file is required
+ifeq ($(call iseeopt, EE_GEN_PREPROC_FILE),yes)
+ifeq ($(call iseeopt, EE_GNU__),yes)
+	$(VERBOSE_PRINTPRE)	$(EE_CPP) $(COMPUTED_OPT_INCLUDE) -P $(SOURCEFILE) > $(SRCFILE)
+else
+	$(VERBOSE_PRINTPRE)	$(EE_CPP) $(COMPUTED_OPT_INCLUDE) -P $(SOURCEFILE)
+endif
+endif
 	$(VERBOSE_PRINTCC)  $(EE_CC) $(COMPUTED_OPT_CC) $(COMPUTED_OPT_INCLUDE) $(DEFS_CC) $(DEPENDENCY_OPT) -c $(SOURCEFILE) -o $(TARGETFILE)
 	$(QUIET) $(call make-depend, $<, $@, $(subst .o,.d,$@))
 

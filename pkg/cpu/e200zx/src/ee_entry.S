@@ -146,7 +146,11 @@ EE_e200zx_external_input_handler:
 EE_e200zx_decrementer_handler:
 	handler_prologue
 	addis	r0, 0, (1 << TSR_DIS)@h
+#ifdef	EE_GNU__
+	mtspr	SPRG_TSR, r0
+#else
 	mtspr	tsr, r0
+#endif
 	li	r3, 10
 	bl	EE_e200z7_irq
 	handler_epilogue
@@ -159,7 +163,11 @@ EE_e200zx_decrementer_handler:
 EE_e200zx_fixed_intv_handler:
 	handler_prologue
 	addis	r0, 0, (1 << TSR_FIS)@h
+#ifdef	EE_GNU__
+	mtspr	SPRG_TSR, r0
+#else
 	mtspr	tsr, r0
+#endif
 	li	r3, 11
 	bl	EE_e200z7_irq
 	handler_epilogue
@@ -188,7 +196,12 @@ cpu_setup:
 
 
 
+#ifdef	EE_GNU__
+	.section .boot, "ax", @progbits
+  	.align 8
+#else
 	text_section(.boot)
+#endif
 
 
 

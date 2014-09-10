@@ -186,48 +186,80 @@ __asm static EE_UREG EE_e200zx_get_pvr(void)
 __INLINE__ EE_UREG EE_e200zx_get_tcr(void)
 {
 	EE_UREG tcr;
-	__asm volatile ("mfspr %0, tcr" : "=r"(tcr));
+/*
+ *	__asm volatile ("mfspr %0, tcr" : "=r"(tcr));
+ *	tcr = 340
+ */
+	__asm volatile ("mfspr %0, 340" : "=r"(tcr));
 	return tcr;
 }
 
 __INLINE__ void EE_e200zx_set_tcr(EE_UREG val)
 {
-	__asm volatile ("mtspr tcr, %0" :: "r"(val) );
+/*
+ *	__asm volatile ("mtspr tcr, %0" :: "r"(val) );
+ *	tcr = 340
+ */
+	__asm volatile ("mtspr 340, %0" :: "r"(val) );
 }
 
 __INLINE__ EE_UREG EE_e200zx_get_tsr(void)
 {
 	EE_UREG tsr;
-	__asm volatile ("mfspr %0, tsr" : "=r"(tsr));
+/*
+ *	__asm volatile ("mfspr %0, tsr" : "=r"(tsr));
+ *	tsr = 336
+ */
+	__asm volatile ("mfspr %0, 336" : "=r"(tsr));
 	return tsr;
 }
 
 __INLINE__ void EE_e200zx_set_tsr(EE_UREG val)
 {
-	__asm volatile ("mtspr tsr, %0" :: "r"(val) );
+/*
+ *	__asm volatile ("mtspr tsr, %0" :: "r"(val) );
+ *	tsr = 336
+ */
+	__asm volatile ("mtspr 336, %0" :: "r"(val) );
 }
 
 __INLINE__ void EE_e200zx_set_dec(EE_UREG val)
 {
-	__asm volatile ("mtspr dec, %0" :: "r"(val) );
+/*
+ *	__asm volatile ("mtspr dec, %0" :: "r"(val) );
+ *	dec = 22
+ */
+	__asm volatile ("mtspr 22, %0" :: "r"(val) );
 }
 
 __INLINE__ void EE_e200zx_set_decar(EE_UREG val)
 {
-	__asm volatile ("mtspr decar, %0" :: "r"(val) );
+/*
+ *	__asm volatile ("mtspr decar, %0" :: "r"(val) );
+ *	decar = 54
+ */
+	__asm volatile ("mtspr 54, %0" :: "r"(val) );
 }
 
 __INLINE__ EE_UREG EE_e200zx_get_tbl(void)
 {
 	EE_UINT32 tbl;
-	__asm volatile ("mfspr %0, tbl" : "=r"(tbl));
+/*
+ *	__asm volatile ("mfspr %0, tbl" : "=r"(tbl));
+ *	tbl = 284
+ */
+	__asm volatile ("mfspr %0, 284" : "=r"(tbl));
 	return tbl;
 }
 
 __INLINE__ EE_UREG EE_e200zx_get_pvr(void)
 {
 	EE_UINT32 pvr;
-	__asm volatile ("mfspr %0, pvr" : "=r"(pvr));
+/*
+ *	__asm volatile ("mfspr %0, pvr" : "=r"(pvr));
+ *	pvr = 287
+ */
+	__asm volatile ("mfspr %0, 287" : "=r"(pvr));
 	return pvr;
 }
 #endif /* else __DCC__ */
@@ -441,6 +473,7 @@ void EE_hal_app_init(const EE_APP_SEC_INFO_T *app_info);
 	EE_COMPILER_SECTION("ee_data_" EE_PREPROC_STRING(app))
 #endif /* USE_PRAGMAS */
 
+#ifdef  __EE_MEMORY_PROTECTION__
 #ifdef __DCC__
 
 __asm static EE_UINT8 EE_as_raw_call_trusted_func(EE_UINT32 FunctionIndex,
@@ -461,5 +494,5 @@ __INLINE__ EE_UINT8 EE_as_raw_call_trusted_func(EE_UINT32 FunctionIndex,
 	asm volatile ("sc");
 }
 #endif
-
+#endif /* __EE_MEMORY_PROTECTION__ */
 #endif /* __INCLUDE_E200ZX_EE_CPU_H__ */

@@ -46,12 +46,32 @@
 
 #include <cpu/e200zx/inc/ee_regs.h>
 
+#ifdef	EE_GNU__
+ 	.section .text, "ax", @progbits
+  	.align 8
+#else
 	text_section(.text)
+#endif
 
 	ASM_REORDER_OFF
 
 	/* Compute a suitable value for IVPR, depending on the CPU */
 	/* Don't use r0 as `reg' */
+#ifdef	EE_GNU__
+.macro	load_ivpr reg, lab
+#ifdef __PPCE200Z0__
+	e_lis	\reg, \lab@ha
+	e_add16i \reg, \reg, \lab@l
+#elif defined __PPCE200Z6__ || defined __PPCE200Z7__ || defined EE_PPCE200Z4
+#ifdef __VLE__
+	e_lis	\reg, \lab@h
+#else
+	addis	\reg, 0, \lab@h
+#endif
+#else
+#error "Unknown CPU"
+#endif
+#else /* EE_GNU__ */
 load_ivpr: .macro reg, lab
 #ifdef __PPCE200Z0__
 	e_lis	reg, lab@ha
@@ -65,9 +85,22 @@ load_ivpr: .macro reg, lab
 #else
 #error "Unknown CPU"
 #endif
+#endif /* EE_GNU__ */
 	.endm
 
 
+#ifdef	EE_GNU__
+.macro	set_ivor n, label
+#ifdef __VLE__
+	se_li	r0, 0
+	e_add16i r0, r0, \label@l
+	mtspr	SPRG_IVOR_BASE + \n, r0
+#else
+	li	r0, 0
+	addi	r0, 0, \label@l
+	mtspr	SPRG_IVOR_BASE + \n, r0
+#endif
+#else	/* EE_GNU__ */
 set_ivor: .macro n,label
 #ifdef __VLE__
 	se_li	r0, 0
@@ -78,9 +111,28 @@ set_ivor: .macro n,label
 	addi	r0, 0, label@l
 	mtspr	SPRG_IVOR_BASE + n, r0
 #endif
+#endif	/* EE_GNU__ */
 	.endm
 
 
+#ifdef	EE_GNU__
+.macro	vector label, handler
+	.balign	E200ZX_IRQ_ENTRY_ALIGN
+	.type	\label, @function
+\label:
+#ifdef __VLE__
+	e_add16i sp, sp, -80
+	e_stw	r0, 8(sp)
+	se_mflr	r0
+	e_b	\handler
+#else
+	addi	sp, sp, -80
+	stw	r0, 8(sp)
+	mfspr	r0, lr
+	b	\handler
+#endif
+	.size	\label, .-\label
+#else	/* EE_GNU__ */
 vector: .macro label,handler
 	.balign	E200ZX_IRQ_ENTRY_ALIGN
 	.type	label, @function
@@ -97,6 +149,7 @@ label:
 	b	handler
 #endif
 	.size	label, .-label
+#endif	/* EE_GNU__ */
 	.endm
 
 
@@ -157,7 +210,11 @@ ivor_setup:
 #endif /* ifndef __PPCE200Z0__ */
 
 	load_ivpr r3, vector_base
+#ifdef	EE_GNU__
+	mtspr	SPRG_IVPR, r3
+#else	/* EE_GNU__ */
 	mtspr	ivpr, r3
+#endif	/* EE_GNU__ */
 #ifdef __VLE__
 	se_blr
 #else

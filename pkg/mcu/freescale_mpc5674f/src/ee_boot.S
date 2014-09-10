@@ -49,6 +49,7 @@
 #include <mcu/freescale_mpc5674f/inc/ee_regs_asm.h>
 #include <cpu/e200zx/inc/ee_cpu_asm.h>
 
+#ifndef	EE_GNU__
 	.extern ee_load_ram, ee_sdata, ee_sbss, ee_ebss, sram_setup
 	.extern EE_e200zx_mmu_entries, EE_e200zx_mmu_num_entries
 	.extern ee_ssbss2, ee_esbss2
@@ -56,6 +57,7 @@
 #ifndef EE_ISR_DYNAMIC_TABLE
 	.extern EE_mpc5674_initialize_external_IRQ_priorities
 #endif /* !EE_ISR_DYNAMIC_TABLE */
+#endif /* EE_GNU__ */
 
 #ifdef __ASM_CONVERTED_TO_C__
 __asm void ee_start(void);
@@ -77,7 +79,12 @@ void EE_mpc5674_initialize_external_IRQ_priorities(void);
 		EE_COMPILER_SECTION(".boot_data") bam_data =
 		{ BAM_RCHW, ee_start };
 	*/
+#ifdef EE_GNU__
+	.section .boot_data, "ax", @progbits
+  	.align 8
+#else
 	.section .boot_data
+#endif
 	.global	_bam_data
 	.type	_bam_data, @object
 _bam_data:
@@ -87,10 +94,17 @@ _bam_data:
 #endif /* __E200ZX_EXECUTE_FROM_RAM__ */
 
 
+#ifndef EE_GNU__
 	.extern	EE_e200zx_sys_stack
+#endif
 #define _stack0	(EE_e200zx_sys_stack + EE_SYS_STACK_SIZE - 16)
 
+#ifdef EE_GNU__
+	.section .boot, "ax", @progbits
+  	.align 8
+#else
 	.section .boot, , c
+#endif
 
 	/* CW-FUNC-DEFINITION: void ee_start(void) */
 	.global	__start
