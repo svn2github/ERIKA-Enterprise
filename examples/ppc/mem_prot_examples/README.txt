@@ -1,3 +1,9 @@
+################################################################################
+                         !!! WARNING !!!
+     These examples rely to the old memory protection implementation, so
+     RIGHT NOW ARE NOT WORKING, UNTIL THE NEW MEMORY PROTECTION IMPLEMENTATION
+     WILL PORTED TO PPC
+################################################################################
 Short description of the programs in this directory:
 test01: tasks, irqs, and trusted apps
 test02: tasks, irqs, and trusted apps

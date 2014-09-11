@@ -67,7 +67,7 @@
 /* Generate the CORE_SYM suffux has is done by HIGHTEC ld binutils */
 #if defined(__MSRP__) && defined(EE_BUILD_SINGLE_ELF)
 #ifndef __GNUC__
-#error Multicore Single ELF buil is supported only by HIGHTEC GNU Compiler
+#error Multicore Single ELF build is supported only by HIGHTEC GNU Compiler
 #endif /* __GNUC__ */
 
 #define EE_CPU_SUFFIX3(sym3)      EE_PREPROC_JOIN(sym3,_)

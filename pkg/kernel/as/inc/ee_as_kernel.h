@@ -418,7 +418,7 @@ typedef EE_TYPEASREMOTEID const * EE_TYPEASREMOTEIDCONSTREF;
 #include "MemMap.h"
 #endif /* EE_SUPPORT_MEMMAP_H */
 /** @brief Map the core id with his corresponding spinlock */
-extern EE_TYPESPIN const EE_SHARED_CDATA EE_as_core_spinlocks[];
+extern EE_TYPESPIN const EE_SHARED_CDATA EE_as_core_spinlocks[EE_MAX_CPU];
 #ifdef EE_SUPPORT_MEMMAP_H
 #define SHARED_STOP_SEC_CONST_DATA
 #include "MemMap.h"
@@ -769,14 +769,14 @@ extern SpinlockIdType volatile EE_SHARED_IDATA EE_as_spinlocks_last[EE_MAX_CPU];
 #endif /* EE_AS_USER_SPINLOCKS__ */
 
 #if defined (EE_MAX_TASK) && defined (EE_MAX_ISR2)
-#define ARRAY_DIM (EE_MAX_TASK + EE_MAX_ISR2)
+#define EE_TASK_PLUS_ISR2 (EE_MAX_TASK + EE_MAX_ISR2)
 
 #ifdef EE_SUPPORT_MEMMAP_H
 #define OS_START_SEC_VAR_DATA
 #include "MemMap.h"
 #endif /* EE_SUPPORT_MEMMAP_H */
 /** @brief Hold which task is locking the spinlock */
-extern TaskType EE_as_spinlocks_locker_task_or_isr2[ARRAY_DIM];
+extern TaskType EE_as_spinlocks_locker_task_or_isr2[EE_TASK_PLUS_ISR2];
 #ifdef EE_SUPPORT_MEMMAP_H
 #define OS_STOP_SEC_VAR_DATA
 #include "MemMap.h"
@@ -880,7 +880,7 @@ extern EE_as_rpc_outparam EE_SHARED_UDATA EE_as_rpc_out_param3[EE_MAX_CPU];
 #if defined (EE_MAX_CPU) && (EE_MAX_CPU > 0)
 /* If MemMap.h support is enabled (i.e. because memory protection): use it */
 #ifdef EE_SUPPORT_MEMMAP_H
-#define SHARED_START_SEC_VAR_NOINIT
+#define SHARED_START_SEC_VAR_DATA
 #include "MemMap.h"
 #endif /* EE_SUPPORT_MEMMAP_H */
 /** @brief Data structures to pass RPC parameters */
@@ -888,7 +888,7 @@ extern EE_TYPEASRPC volatile EE_SHARED_IDATA EE_as_rpc_RAM[EE_MAX_CPU];
 
 /* If MemMap.h support is enabled (i.e. because memory protection): use it */
 #ifdef EE_SUPPORT_MEMMAP_H
-#define OS_STOP_SEC_VAR_NOINIT
+#define SHARED_STOP_SEC_VAR_DATA
 #include "MemMap.h"
 #endif /* EE_SUPPORT_MEMMAP_H */
 #endif /* EE_MAX_CPU > 0 */
