@@ -137,7 +137,7 @@ static void EE_oo_handle_action_task(EE_oo_action_ROM_type const * const
 #ifdef EE_AS_RPC__
   if ( EE_IS_TID_REMOTE(TaskID) ) {
     EE_os_param unmarked_tid;
-    unmarked_tid.value_param = EE_UNMARK_REMOTE_TID(TaskID);
+    unmarked_tid.value_param = (EE_UREG)EE_UNMARK_REMOTE_TID(TaskID);
     /* forward the request to another CPU in synchronous way */
     ev = EE_as_rpc(OSServiceId_ActivateTask, unmarked_tid,
       EE_OS_INVALID_PARAM, EE_OS_INVALID_PARAM);

@@ -349,7 +349,7 @@ struct EE_TC_BOS {
 /*******************************************************************************
  *  IMPORTANT:
  *  These struct layouts are packet by construction so I don't add 
- *  __attribute__((packed)) because it could harm performaces.
+ *  __attribute__((packed)) because it could harm performances.
  *  Look at:
  *  http://digitalvampire.org/blog/index.php/2006/07/31/\
  *  why-you-shouldnt-use-__attribute__packed
@@ -617,7 +617,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_tc_rslcx( void )
 __INLINE__ void __ALWAYS_INLINE__ EE_tc_set_psw( EE_UREG reg )
 {
   __mtcr(EE_CPU_REG_PSW, reg);
-  /* When you write a CSFR you need to force syncronization (isync) to
+  /* When you write a CSFR you need to force synchronization (isync) to
      avoid side-effects, TASKING __mtcr do that by implementation */
 }
 
@@ -626,7 +626,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_tc_set_psw( EE_UREG reg )
 __INLINE__ void __ALWAYS_INLINE__ EE_tc_set_pcxi( EE_UREG reg )
 {
   __mtcr(EE_CPU_REG_PCXI, reg);
-  /* When you write a CSFR you need to force syncronization (isync) to
+  /* When you write a CSFR you need to force synchronization (isync) to
      avoid side-effects, TASKING __mtcr do that by implementation */
 }
 
@@ -635,7 +635,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_tc_set_pcxi( EE_UREG reg )
 __INLINE__ void __ALWAYS_INLINE__ EE_tc_set_fcx( EE_UREG reg )
 {
   __mtcr(EE_CPU_REG_FCX, reg);
-  /* When you write a CSFR you need to force syncronization (isync) to
+  /* When you write a CSFR you need to force synchronization (isync) to
      avoid side-effects, TASKING __mtcr do that by implementation */
 }
 
@@ -644,7 +644,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_tc_set_fcx( EE_UREG reg )
 __INLINE__ void __ALWAYS_INLINE__ EE_tc_set_syscon( EE_UREG reg )
 {
   __mtcr(EE_CPU_REG_SYSCON, reg);
-  /* When you write a CSFR you need to force syncronization (isync) to
+  /* When you write a CSFR you need to force synchronization (isync) to
      avoid side-effects, TASKING __mtcr do that by implementation */
 }
 
@@ -748,7 +748,7 @@ __INLINE__ EE_ICR __ALWAYS_INLINE__ EE_tc_get_ICR( void )
 __INLINE__ void __ALWAYS_INLINE__ EE_tc_set_ICR( EE_ICR icr )
 {
   _mtcr(EE_CPU_REG_ICR, icr.reg);
-  /* When you write a CSFR you need to force syncronization (isync) to
+  /* When you write a CSFR you need to force synchronization (isync) to
      avoid side-effects, TASKING __mtcr do that by implementation */
   /* HIGHTEC GNUC intrinsic __mtcr do not put an isync natively */
   EE_tc_isync();
@@ -826,7 +826,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_tc_rslcx( void )
 __INLINE__ void __ALWAYS_INLINE__ EE_tc_set_psw( EE_UREG reg )
 {
   __mtcr(EE_CPU_REG_PSW, reg);
-  /* When you write a CSFR you need to force syncronization (isync) to
+  /* When you write a CSFR you need to force synchronization (isync) to
      avoid side-effects, TASKING __mtcr do that by implementation */
   /* HIGHTEC GNUC intrinsic __mtcr do not put an isync natively */
   EE_tc_isync();
@@ -837,7 +837,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_tc_set_psw( EE_UREG reg )
 __INLINE__ void __ALWAYS_INLINE__ EE_tc_set_pcxi( EE_UREG reg )
 {
   __mtcr(EE_CPU_REG_PCXI, reg);
-  /* When you write a CSFR you need to force syncronization (isync) to
+  /* When you write a CSFR you need to force synchronization (isync) to
      avoid side-effects, TASKING __mtcr do that by implementation */
   /* HIGHTEC GNUC intrinsic __mtcr do not put an isync natively */
   EE_tc_isync();
@@ -848,7 +848,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_tc_set_pcxi( EE_UREG reg )
 __INLINE__ void __ALWAYS_INLINE__ EE_tc_set_fcx( EE_UREG reg )
 {
   __mtcr(EE_CPU_REG_FCX, reg);
-  /* When you write a CSFR you need to force syncronization (isync) to
+  /* When you write a CSFR you need to force synchronization (isync) to
      avoid side-effects, TASKING __mtcr do that by implementation */
   /* HIGHTEC GNUC intrinsic __mtcr do not put an isync natively */
   EE_tc_isync();
@@ -859,7 +859,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_tc_set_fcx( EE_UREG reg )
 __INLINE__ void __ALWAYS_INLINE__ EE_tc_set_syscon( EE_UREG reg )
 {
   __mtcr(EE_CPU_REG_SYSCON, reg);
-  /* When you write a CSFR you need to force syncronization (isync) to
+  /* When you write a CSFR you need to force synchronization (isync) to
      avoid side-effects, TASKING __mtcr do that by implementation */
   /* HIGHTEC GNUC intrinsic __mtcr do not put an isync natively */
   EE_tc_isync();
@@ -946,7 +946,7 @@ __INLINE__ EE_ICR __ALWAYS_INLINE__ EE_tc_get_ICR( void )
 __INLINE__ void __ALWAYS_INLINE__ EE_tc_set_ICR( EE_ICR icr )
 {
   _mtcr(EE_CPU_REG_ICR, icr.reg);
-  /* When you write a CSFR you need to force syncronization (isync) to
+  /* When you write a CSFR you need to force synchronization (isync) to
      avoid side-effects, TASKING __mtcr do that by implementation */
   /* DCC intrinsic __mtcr do not put an isync natively */
   EE_tc_isync();
@@ -1026,7 +1026,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_tc_rslcx( void )
 __INLINE__ void __ALWAYS_INLINE__ EE_tc_set_psw( EE_UREG reg )
 {
   _mtcr(EE_CPU_REG_PSW, reg);
-  /* When you write a CSFR you need to force syncronization (isync) to
+  /* When you write a CSFR you need to force synchronization (isync) to
      avoid side-effects, TASKING __mtcr do that by implementation */
   /* DCC intrinsic __mtcr do not put an isync natively */
   EE_tc_isync();
@@ -1037,7 +1037,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_tc_set_psw( EE_UREG reg )
 __INLINE__ void __ALWAYS_INLINE__ EE_tc_set_pcxi( EE_UREG reg )
 {
   _mtcr(EE_CPU_REG_PCXI, reg);
-  /* When you write a CSFR you need to force syncronization (isync) to
+  /* When you write a CSFR you need to force synchronization (isync) to
      avoid side-effects, TASKING __mtcr do that by implementation */
   /* DCC intrinsic __mtcr do not put an isync natively */
   EE_tc_isync();
@@ -1048,7 +1048,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_tc_set_pcxi( EE_UREG reg )
 __INLINE__ void __ALWAYS_INLINE__ EE_tc_set_fcx( EE_UREG reg )
 {
   _mtcr(EE_CPU_REG_FCX, reg);
-  /* When you write a CSFR you need to force syncronization (isync) to
+  /* When you write a CSFR you need to force synchronization (isync) to
      avoid side-effects, TASKING __mtcr do that by implementation */
   /* DCC intrinsic __mtcr do not put an isync natively */
   EE_tc_isync();
@@ -1059,7 +1059,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_tc_set_fcx( EE_UREG reg )
 __INLINE__ void __ALWAYS_INLINE__ EE_tc_set_syscon( EE_UREG reg )
 {
   _mtcr(EE_CPU_REG_SYSCON, reg);
-  /* When you write a CSFR you need to force syncronization (isync) to
+  /* When you write a CSFR you need to force synchronization (isync) to
      avoid side-effects, TASKING __mtcr do that by implementation */
   /* DCC intrinsic __mtcr do not put an isync natively */
   EE_tc_isync();
@@ -1205,7 +1205,7 @@ __INLINE__ EE_FREG __ALWAYS_INLINE__ EE_hal_suspendIRQ( void )
 
 /*******************************************************************************
                   ENDINIT e SAFETY_ENDINIT support functions
- This function are declared here but defined inside MCU because completly MCU
+ This function are declared here but defined inside MCU because completely MCU
  dependent. TriCore architecture states only that ENDINIT protection will exist
  in a TriCore implementation.
 *******************************************************************************/
@@ -1261,7 +1261,7 @@ void EE_tc_safety_endinit_enable( void );
 #endif /* !__GNUC__ && !__DCC__ */
 
 /*
- * Markers for application private areas (OLD Custom Erika Method tpo locate
+ * Markers for application private areas (OLD Custom Erika Method to locate
  * OS-Applications data and code
  */
 
@@ -1269,7 +1269,7 @@ void EE_tc_safety_endinit_enable( void );
 /* XXX: In the following macros I MUST use stringify preprocessor operator (#)
         directly, without using a wrapping macro, because OSApplications ID's
         macros are equal to the string that have to be passed to the following
-        macros, so with a layer of indirection we will incour in a WRONG macro
+        macros, so with a layer of indirection we will incur in a WRONG macro
         expansion */
 /* The default is OK */
 #define EE_APPLICATION_CDATA(app)  /* EE_COMPILER_SECTION(".rodata") */
@@ -1311,11 +1311,11 @@ typedef struct {
 /*
  * Choose between two mode:
  * 1) OS-Application directly mapped on PSR.
- *    PRO: Configuraton done Once, Context Switch is just a
+ *    PRO: Configuration done Once, Context Switch is just a
  *      read/modify/write of PSW register.
- *    CONS: Only 3 OS-Applications configuarable.
- * 2) OS-Application dinamically set.
- *    PRO: No theoric upper limit in OS-Applications configuration.
+ *    CONS: Only 3 OS-Applications configurable.
+ * 2) OS-Application dynamically set.
+ *    PRO: No theoretical upper limit in OS-Applications configuration.
  *    CONS: Context switch need two more memory reads and two more CSFR writes.
  */
 #ifdef EE_OS_APP_MAPPED_ON_PROTECTION_SETS

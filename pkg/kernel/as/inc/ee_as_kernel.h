@@ -413,6 +413,7 @@ typedef EE_TYPEASREMOTEID const * EE_TYPEASREMOTEIDCONSTREF;
 /* The following are moved in interface because used by inline generated code
    for IOC */
 
+/** @brief Map the core id with his corresponding spinlock */
 #ifdef EE_SUPPORT_MEMMAP_H
 #define SHARED_START_SEC_CONST_DATA
 #include "MemMap.h"
@@ -841,7 +842,7 @@ extern EE_TYPEASREMOTEID const EE_SHARED_CDATA
   EE_as_rpc_counters[EE_AS_RPC_COUNTERS_SIZE];
 #endif /* EE_AS_RPC_COUNTERS_SIZE > 0 */
 
-#if defined(EE_AS_RPC_SCHEDTABS_SIZE) && (EE_AS_RPC_SCHEDTABS_SIZE > 0)
+#if defined (EE_AS_RPC_SCHEDTABS_SIZE) && (EE_AS_RPC_SCHEDTABS_SIZE > 0)
 extern EE_TYPEASREMOTEID const EE_SHARED_CDATA
   EE_as_rpc_schedTabs[EE_AS_RPC_SCHEDTABS_SIZE];
 #endif /* EE_AS_RPC_SCHEDTABS_SIZE > 0 */
@@ -908,6 +909,7 @@ extern StatusType volatile EE_SHARED_UDATA EE_as_shutdown_all_cores_error;
 #define SHARED_STOP_SEC_VAR_NOINIT
 #include "MemMap.h"
 #endif /* EE_SUPPORT_MEMMAP_H */
+
 #endif /* EE_AS_RPC__ */
 
 #ifdef EE_AS_IOC__
@@ -927,6 +929,7 @@ extern EE_BIT EE_SHARED_UDATA EE_as_rpc_IOC[ EE_MAX_CPU ];
 #define SHARED_STOP_SEC_VAR_NOINIT
 #include "MemMap.h"
 #endif /* EE_SUPPORT_MEMMAP_H */
+
 #endif /* EE_AS_IOC__ */
 
 #if (defined(EE_AS_OSAPPLICATIONS__)  && defined(EE_SERVICE_PROTECTION__)) &&\
@@ -941,7 +944,7 @@ extern EE_BIT EE_SHARED_UDATA EE_as_rpc_IOC[ EE_MAX_CPU ];
 #endif /* EE_SUPPORT_MEMMAP_H */
 
 extern EE_TYPEACCESSMASK const EE_SHARED_CDATA EE_as_rpc_remote_access_rules[
-  /*EE_AS_RPC_REMOTE_ACCESS_RULES_SIZE */];
+  EE_AS_RPC_REMOTE_ACCESS_RULES_SIZE];
 
 #ifdef EE_SUPPORT_MEMMAP_H
 #define SHARED_STOP_SEC_CONST_DATA

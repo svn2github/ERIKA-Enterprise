@@ -71,13 +71,6 @@ EE_UREG volatile EE_SHARED_IDATA EE_as_core_started = 1U;
 /** @brief mask for non Autosar cores started */
 EE_UREG volatile  EE_SHARED_UDATA EE_as_not_as_core_mask;
 
-#else /* EE_MASTER_CPU */
-/** @brief counter for Autosar cores started (OS_CORE_ID_MASTER is always an
-      AUTOSAR by default) */
-extern EE_UREG volatile EE_as_core_started;
-/** @brief mask for non Autosar cores started */
-extern EE_UREG volatile EE_as_not_as_core_mask;
-
 #endif /* EE_MASTER_CPU */
 
 void EE_as_StartCore( CoreIdType CoreID, StatusType *Status )

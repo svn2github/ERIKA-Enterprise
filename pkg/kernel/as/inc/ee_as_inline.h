@@ -49,15 +49,28 @@
 
 #ifdef __MSRP__
 
+/* EG: The following should have been declared in ee_as_internal.h,
+       but in-line services implementation force me to declare it here. */
 #ifdef EE_SUPPORT_MEMMAP_H
 #define SHARED_START_SEC_VAR_DATA
 #include "MemMap.h"
 #endif /* EE_SUPPORT_MEMMAP_H */
-/* EG: The following should have been declared in ee_as_internal.h,
-       but in-line services implementation force me to declare it here. */
+/** @brief counter for Autosar cores started (OS_CORE_ID_MASTER is always an
+      AUTOSAR by default) */
 extern EE_UREG volatile EE_SHARED_IDATA EE_as_core_started;
 #ifdef EE_SUPPORT_MEMMAP_H
 #define SHARED_STOP_SEC_VAR_DATA
+#include "MemMap.h"
+#endif /* EE_SUPPORT_MEMMAP_H */
+
+#ifdef EE_SUPPORT_MEMMAP_H
+#define SHARED_START_SEC_VAR_NOINIT
+#include "MemMap.h"
+#endif /* EE_SUPPORT_MEMMAP_H */
+/** @brief mask for non Autosar cores started */
+extern EE_UREG volatile  EE_SHARED_UDATA EE_as_not_as_core_mask;
+#ifdef EE_SUPPORT_MEMMAP_H
+#define SHARED_STOP_SEC_VAR_NOINIT
 #include "MemMap.h"
 #endif /* EE_SUPPORT_MEMMAP_H */
 
