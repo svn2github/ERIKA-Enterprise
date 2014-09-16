@@ -119,7 +119,6 @@ TASK(LowTask)
  */
 TASK(HighTask)
 {
-  int i;
   AppModeType currentmode;
   
   taskhigh_fired++;
