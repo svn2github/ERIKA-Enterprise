@@ -66,7 +66,7 @@ volatile int task6_fired=0;
 volatile int task7_fired=0;
 
 /* Added for a finest debugger (run-time) tuning */
-static int tunable_delay = 50000;
+int tunable_delay = 50000;
 
 /* Let's declare the tasks identifiers */
 DeclareTask(Task1);

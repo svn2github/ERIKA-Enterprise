@@ -105,7 +105,7 @@ void mydelay(long int end)
 }
 
 /* Added for a finest debugger (run-time) tuning */
-static int tunable_delay = 50000;
+int tunable_delay = 50000;
 
 /* sets and resets a led configuration passed as parameter, leaving the other
  * bits unchanged

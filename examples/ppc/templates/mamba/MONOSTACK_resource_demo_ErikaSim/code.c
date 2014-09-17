@@ -69,7 +69,7 @@ void mydelay(long int end)
 }
 
 /* Added for a finest debugger (run-time) tuning */
-static int tunable_delay = 50000;
+int tunable_delay = 50000;
 
 /*
  * This is the Low priority task.
