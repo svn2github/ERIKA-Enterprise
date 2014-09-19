@@ -47,9 +47,9 @@
 #include <cpu/e200zx/inc/ee_irq.h>
 #endif
 
-#ifndef	EE_GNU__
 /* IRQ tos defined in eecfg.c */
 /* CW-VAR-DEFINITION: extern struct EE_TOS EE_e200z7_IRQ_tos; */
+#ifndef	EE_GNU__
   .extern EE_e200z7_IRQ_tos
 #endif
 
