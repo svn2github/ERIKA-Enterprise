@@ -69,6 +69,9 @@ CPU_DATA = PPCE200ZX {
 #ifdef USEIRQ
   APP_SRC = "../../common/e200zx/test_irq.c";
 #endif
+#ifdef USE_HIGHTEC
+  COMPILER_TYPE = HIGHTEC;
+#endif
 #ifdef USE_VLE
   VLE = TRUE;
 #else

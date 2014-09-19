@@ -50,8 +50,10 @@
 
             EE_OPT = "EE_ISR_DYNAMIC_TABLE";
 
+#ifndef	USE_HIGHTEC
             EE_OPT = "__USE_CUSTOM_LINKER_SCRIPT__";
             LDFLAGS = "../../custom_linkerscript.dld";
+#endif
 
 #ifdef STD
             STATUS = STANDARD;

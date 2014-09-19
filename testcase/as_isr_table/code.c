@@ -92,6 +92,13 @@ static void assert(int test)
   ++assert_count;
 }
 
+#ifdef EE_GNU__
+__INLINE__ EE_ADDR __ALWAYS_INLINE__ read_stack_pointer(void) {
+  register EE_ADDR ret;
+  __asm volatile ("mr %0, r1" : "=r"(ret));
+  return ret;
+}
+#else
 __asm static EE_ADDR read_stack_pointer(void) {
 #ifdef __DCC__
   ! "r1","r3"
@@ -100,6 +107,7 @@ __asm static EE_ADDR read_stack_pointer(void) {
   /* PPC EABI States that r3 is return register so I copy sp on r3 */
   mr r3, r1
 }
+#endif
 
 
 #ifdef __IRQ_STACK_NEEDED__

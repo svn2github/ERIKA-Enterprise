@@ -49,6 +49,7 @@ void delay(unsigned int value)
                 ;
 }
 
+#ifndef	EE_GNU__
 __asm static EE_UREG get_IVPR(void)
 {
 ! "r3"
@@ -60,6 +61,21 @@ __asm static EE_UREG get_IVOR0(void)
 ! "r3"
 	mfspr	r3, ivor0
 }
+#else
+__INLINE__ EE_UREG __ALWAYS_INLINE__ get_IVPR(void)
+{
+  register EE_UREG ret;
+  __asm volatile ("mfspr %0, ivpr" : "=r"(ret));
+  return ret;
+}
+
+__INLINE__ EE_UREG __ALWAYS_INLINE__ get_IVOR0(void)
+{
+  register EE_UREG ret;
+  __asm volatile ("mfspr %0, ivor0" : "=r"(ret));
+  return ret;
+}
+#endif
 
 TASK(Task1)
 {
