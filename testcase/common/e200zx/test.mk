@@ -148,6 +148,16 @@ CLEAN_e200zx_hightec_4_6_4_0_vle               =
 COMPILE_e200zx_hightec_4_6_4_0_vle             = $(COMPILE_e200zx_source)
 DEBUG_e200zx_hightec_4_6_4_0_vle               = $(call DEBUG_e200zx_source_template,vle)
 
+# e200zx_gnu_fle
+TESTLIST				+= e200zx_gnu_fle
+OUTDIR_COMMANDS_e200zx_gnu_fle		= $(OUTDIR_COMMANDS_e200zx_source)
+CONF_e200zx_gnu_fle			= $(call CONF_e200zx_source_template,gnu,fle)
+GLOBAL_CONF				+=
+DIST_e200zx_gnu_fle			=
+RTDRUID_e200zx_gnu_fle			= $(RTDRUID_e200zx_source)
+CLEAN_e200zx_gnu_fle			=
+COMPILE_e200zx_gnu_fle			= $(COMPILE_e200zx_source)
+DEBUG_e200zx_gnu_fle			= $(call DEBUG_e200zx_source_template,fle)
 
 # -------------------------------------------------------------------
 
@@ -173,7 +183,7 @@ OUTDIR_COMMANDS_e200zx_source = \
 CONF_e200zx_source_template = \
 	echo CONF $(OUTDIR_PREFIX)$*; \
 	cat $(OUTDIR_PREFIX)$*/appl.oil | gcc -c - -E -P -I$(EEBASE)/pkg $(addprefix -D, $(shell $(DEMUX2) $*)) -De200zx -D$(MCU_TARGET) $(e200zx_compiler_def) $(e200zx_vle_def) -o - >$(OUTDIR_PREFIX)$*/ee.oil;
-e200zx_compiler_def=$(if $(filter codewarrior_10_0_2,$1 $2),-DUSE_CODEWARRIOR,$(if $(filter diab_5_5_1,$1 $2),-DUSE_DIAB,$(if $(filter diab_5_8,$1 $2),-DUSE_DIAB_5_8,$(if $(filter hightec_4_6_4_0,$1 $2),-DUSE_HIGHTEC,$(error Neither "codewarrior" nor "diab" nor "hightec" found in arguments of CONF_e200zx_source_template)))))
+e200zx_compiler_def=$(if $(filter codewarrior_10_0_2,$1 $2),-DUSE_CODEWARRIOR,$(if $(filter diab_5_5_1,$1 $2),-DUSE_DIAB,$(if $(filter diab_5_8,$1 $2),-DUSE_DIAB_5_8,$(if $(filter hightec_4_6_4_0,$1 $2),-DUSE_HIGHTEC,$(if $(filter gnu,$1 $2),-DUSE_GNU,$(error Neither "codewarrior" nor "diab" nor "hightec" nor "GNU" found in arguments of CONF_e200zx_source_template))))))
 e200zx_vle_def=$(if $(filter vle,$1 $2),-DUSE_VLE,$(if $(filter fle,$1 $2),-DUSE_FLE,$(error Neither "fle" nor "vle" found in arguments of CONF_e200zx_source_template)))
 
 # Generate the rt-druid files...

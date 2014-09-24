@@ -71,6 +71,8 @@ CPU_DATA = PPCE200ZX {
 #endif
 #ifdef USE_HIGHTEC
   COMPILER_TYPE = HIGHTEC;
+#elif  USE_GNU
+  COMPILER_TYPE = GNU;
 #endif
 #ifdef USE_VLE
   VLE = TRUE;
