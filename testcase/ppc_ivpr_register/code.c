@@ -95,9 +95,10 @@ TASK(Task1)
      * and the lower 16-bit part of ivor0 being
      * negative (16-th bit set to 1, e.g.: 0x8YYY)
      */
-#if defined (EE_SPC574K)
+#if defined (EE_SPC574K) || defined (EE_MPC5777C)
 	/* K2 does not need this test (it does not have IVOR0),
-	 * hence set it to TRUE and go further
+	 * hence set it to TRUE and go further.
+	 * Cobra55 does not need this test since the problem does not affect cobra55
 	 */
 	EE_assert(2, 1, 1);
 #else
