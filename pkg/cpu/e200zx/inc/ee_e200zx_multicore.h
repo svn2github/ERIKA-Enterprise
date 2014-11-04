@@ -49,6 +49,10 @@
 
 #ifdef __MSRP__
 
+/* Temporary workaround, to make compile Multicore PPC, until full AS porting
+   will be completed */
+#define EE_PRIVATE_GETCOREID__
+
 #ifdef __MPC5668G__
 #include <mcu/freescale_mpc5668/inc/ee_dual.h>
 #define EE_hal_spin_in EE_mpc5668_spin_in

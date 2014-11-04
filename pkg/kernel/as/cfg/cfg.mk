@@ -60,7 +60,13 @@ endif
 
 ifeq ($(and $(call iseeopt, __MSRP__), $(KERNEL_OO)), yes)
 
+#
+# Temporary workaround, to make compile Multicore PPC,
+# until full AS porting will be completed!!!
+#
+ifneq ($(or $(call iseeopt, __PPCE200ZX__), $(call iseeopt, __PPCE200Z7__)), yes)
 EE_SRCS += pkg/kernel/as/src/ee_as_multicore.c
+endif # !(__PPCE200ZX__ || __PPCE200Z7__)
 
 ifeq ($(call iseeopt, EE_AS_USER_SPINLOCKS__), yes)
 EE_SRCS += pkg/kernel/as/src/ee_as_spinlocks.c
