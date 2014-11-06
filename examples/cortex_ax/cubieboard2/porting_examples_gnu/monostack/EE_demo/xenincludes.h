@@ -338,6 +338,7 @@ typedef struct _ev_action_t {
 } ev_action_t;
 #define NR_EVS 1024
 static ev_action_t ev_actions[NR_EVS];
+static unsigned long bound_ports[NR_EVS/(8*sizeof(unsigned long))];
 
 extern shared_info_t shared_info;
 extern shared_info_t *HYPERVISOR_shared_info;
@@ -368,6 +369,17 @@ int do_event(evtchn_port_t port, struct pt_regs *regs)
 
     return 1;
 
+}
+
+evtchn_port_t bind_evtchn(evtchn_port_t port, evtchn_handler_t handler,
+                                                  void *data)
+{
+        ev_actions[port].data = data;
+        wmb();
+        ev_actions[port].handler = handler;
+        set_bit(port, bound_ports);
+
+        return port;
 }
 
 void timer_handler(evtchn_port_t port, struct pt_regs *regs, void *ign)

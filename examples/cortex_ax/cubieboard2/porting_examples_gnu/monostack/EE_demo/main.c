@@ -62,8 +62,11 @@ EE_TYPEASSERTVALUE result;
 
 #include "xendebug.h"
 #include "xenincludes.h"
+#include "xenevents.h"
 
 extern int HYPERVISOR_memory_op(int what, struct xen_add_to_physmap *xatp);
+extern int HYPERVISOR_event_channel_op(int what, evtchn_alloc_unbound_t *op);
+extern int HYPERVISOR_sched_op(int what, void *arg);
 
 void *dtb_global;
 extern char _end;
@@ -112,11 +115,39 @@ void EE_oo_Xen_init_xenbus(void)
 	printk("EE: xenbus init\n");
 }
 
+void EE_Xen_idc_handler(evtchn_port_t port, struct pt_regs *regs, void *data)
+{
+	return;
+}
+
+#define	EE_Xen_idc_chan	8
+
+/* On how to bind channels: extras/mini-os/events.c */
+void EE_Xen_init_idc(void)
+{
+	evtchn_alloc_unbound_t op;
+	op.dom = DOMID_SELF;
+	op.remote_dom = 0;
+	op.port = EE_Xen_idc_chan;
+	if (HYPERVISOR_event_channel_op(EVTCHNOP_alloc_unbound, &op)) {
+		printk("EE: ERROR: cannot alloc idc chan\n");
+		return;
+	}
+	if (bind_evtchn(EE_Xen_idc_chan, EE_Xen_idc_handler, NULL) !=
+	    EE_Xen_idc_chan) {
+		printk("EE: ERROR: idc chan bind\n");
+		return;
+	}
+	printk("EE: init idc\n");
+}
+
 void EE_oo_Xen_Start(void)
 {
 	printk("EE: Xen start\n");
+	/* XXX: MAPPING SHARED AFTER GIC HERE? */
 	EE_oo_Xen_map_shared();
 	EE_oo_Xen_init_mm();
+	EE_Xen_init_idc();
 	//EE_oo_Xen_init_xenbus();
 }
 #endif /*__EE_OO_XEN_PV__*/
@@ -224,7 +255,8 @@ int main(void)
     ActivateTask(Hello_world_task);
 
     // Forever loop: background activities (if any) should go here
-    for (;;) ;
+    // Xen: loop handling events
+    for (;;) HYPERVISOR_sched_op(SCHEDOP_block, NULL);
 
     return 0;
 }
