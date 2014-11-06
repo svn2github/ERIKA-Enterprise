@@ -88,6 +88,7 @@ _start:
 	str     r2, [r1]
 
 @XXX
+#if 0
 	/*
 	 * Set up Domain Access Control Reg
 	 * ----------------------------------
@@ -99,7 +100,9 @@ _start:
 	 */
 	mov 	r0, #0x01
 	mcr 	p15, 0, r0, c3, c0, 0
+#endif
 
+#if 0
 	ldr 	r0, =__mmu_tbl_start
 	mov	r2, #1024
 	mov 	r1, r0
@@ -139,6 +142,16 @@ l1_pg_table_loop:
 	orr 	r1, r1, r3
 	str 	r1, [r4, r2]
 
+	@ GPIO configuration
+	ldr	r1, =0x01C20800		@ PIO base address: 0x01c20800
+	lsr	r1, r1, #20
+	lsl	r2, r1, #2
+	lsl	r1, r1, #20
+	ldr	r3, =TTB_DEVICE
+	orr	r1, r1, r3
+	str	r1, [r4, r2]
+
+#if 0
 	/*UART2*/
 	ldr 	r1,=0x021E8000
 	lsr 	r1, r1, #20
@@ -147,6 +160,7 @@ l1_pg_table_loop:
 	ldr 	r3, =TTB_DEVICE
 	orr 	r1, r1, r3
 	str 	r1, [r4, r2]
+#endif
 
 	/* remap phy addr of __vector_start to va 0x00000000 & 0xffff0000 */
 	ldr 	r1, =_vector_table
@@ -181,14 +195,36 @@ ee_mcglobal_loop:
 
 	/* set phy address of l1 page table */
 	mcr 	p15, 0, r4, c2, c0, 0
-
-#if 0
-	/* enable MMU */
-	mrc 	p15, 0, r0, c1, c0, 0 	/* read control register */
-	orr 	r0, r0, #0x01 		/* set M bit */
-	mcr 	p15, 0, r0, c1, c0, 0 	/* set control register */
 #endif
 
+#if 0
+@ Build pagetables
+	bl	build_pagetables
+
+	ldr	r2, =page_dir
+	MCR	p15, 0, r2, c2, c0, 0	@ set ttbr0
+
+	@ Set access permission for domains
+	mov	r0, #0x3
+	MCR	p15, 0, r0, c3, c0, 0
+	isb
+
+	ldr	r0, =mmu_switched
+
+	@ enable mmu / sctlr
+	mrc	p15, 0, r1, c1, c0, 0	@ read sctlr
+	orr	r1, r1, #0x1		@ enable mmu
+	@orr	r1, r1, #0x4		@ enable cache
+	orr	r1, r1, #0x02		@ enable barrier enable
+	@mcr	p15, 0, r1, c1, c0, 0	@ write sctlr
+	isb
+
+	@ jump to the virtual address now
+	mov	pc, r0
+#endif
+
+@ If we're here, then we're very lucky
+mmu_switched:
 @XXX
         /* enable branch prediction */
         mrc     p15, 0, r0, c1, c0, 0   /* get SCTLR */
@@ -246,19 +282,40 @@ bss_loop:
         bne     bss_loop
 
 #if 0
-	@ GPIO configuration
-	ldr	r1, =0x01C20800		@ PIO base address: 0x01c20800
-	ldr	r2, [r1, #0x6c]		@ PD_CFG0 offset  : 0x6c
+	ldr	r1, =0x01C20800
+	ldr	r2, [r1]		@ PD_CFG0 offset  : 0x6c
 	@ Set bit 6:4 to 001 (output)
 	@ Default value for PD_CFG0 is 0, so all we have to do is
 	@ set bit 4 to 1
 	orr	r2, r2, #4
 	str	r2, [r1]
 	ldr	r1, =0x01C2087C		@ PD_DAT offset   : 0x7c
-	orr	r1, r1, #0
+	ldr	r2, [r1]
+	orr	r2, r2, #0
+	str	r2, [r1]
 #endif
 
+#if 0
+	mov     lr, pc
+	ldr     pc, =EE_gic_dist_init
+#endif
 	b	main
+
+@ Populate the whole pagedir with 1MB section descriptors for now (1-1 mapping)
+build_pagetables:
+	ldr	r0, =(0x2 + (1 << 16) + (1<<19)) @ First section entry (sharable + NS ).
+	ldr	r1, =page_dir
+	add	r2, r1, #(4*4*1024) @ Limit
+
+1:
+	str	r0, [r1] @ write the section entry
+
+	add	r0, r0, #(1 << 20) @ next physical page.
+	add	r1, r1, #4 @ next pagedir entry
+	cmp	r1, r2
+	bne	1b
+
+	mov	pc, lr
 
 .pushsection .data
 .globl shared_info
