@@ -81,6 +81,7 @@ SECTIONS
     *(.ee_start)
     KEEP(*(.ee_symtab))
     *(.boot_board)
+    *(.crt0)
     *(.text.*)
     . = ALIGN(0x100000);
     __vector_start = .;

@@ -117,8 +117,6 @@ void EE_oo_Xen_Start(void)
 	printk("EE: Xen start\n");
 	EE_oo_Xen_map_shared();
 	EE_oo_Xen_init_mm();
-	gic_init();
-	printk("EE: gic init\n");
 	//EE_oo_Xen_init_xenbus();
 }
 #endif /*__EE_OO_XEN_PV__*/

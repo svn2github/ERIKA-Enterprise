@@ -223,6 +223,12 @@ ee_mcglobal_loop:
 	mov	pc, r0
 #endif
 
+	mov	r0, pc
+	@ set VBAR = exception_vector_table
+	@ SCTLR.V = 0
+	adr     r0, exception_vector_table
+	mcr     p15, 0, r0, c12, c0, 0
+
 @ If we're here, then we're very lucky
 mmu_switched:
 @XXX
@@ -236,70 +242,8 @@ mmu_switched:
         bic     r0, r0, #(1 << 6)       /* reset bit 6 (SMP) */
         mcr     p15, 0, r0, c1, c0, 1   /* write aux ctrl reg (ACTLR) */
 
-@ load stack
-	@ Interrupt stack (IRQ)
-        mov     r1, #I_bit | F_bit | Mode_IRQ
-        msr     cpsr_c, r1
-        ldr	sp, =EE_irq_stack_end
-
-	@ Abort stack (ABT)
-        mov     r1, #I_bit | F_bit | Mode_ABT
-        msr     cpsr_c, r1
-        ldr     sp, =EE_abt_stack_end
-
-	@ Fast interrupt stack (FIQ)
-	mov     r1, #I_bit | F_bit | Mode_FIQ
-	msr     cpsr_c, r1
-	ldr     sp, =EE_fiq_stack_end
-
-        @ Supervisor stack (SWI)
-        mov     r1, #I_bit | F_bit | Mode_SVC
-        msr     cpsr_c, r1
-        ldr     sp, =EE_svc_stack_end
-
-        @ System stack (default running mode)
-	mov     r1, #I_bit | F_bit | Mode_SYS
-        msr     cpsr_c, r1
-        ldr     sp, =EE_stack_end
-
-#ifdef __OO_ORTI_STACK__
-        ldr     r0, =EE_stack_start
-        ldr     r1, =EE_stack_end
-        ldr     r2, =0xa5a5a5a5
-_orti_stack_fill:
-        str     r2, [r1], #4
-        cmp     r1, r0;
-        bcc     _orti_stack_fill
-#endif
-
-        ldr     r0, =__bss_start__
-        ldr     r1, =__bss_end__
-        mov     r2, #0
-bss_loop:
-        str     r2, [r0]
-        cmp     r0, r1
-        add     r0, r0, #4
-        bne     bss_loop
-
-#if 0
-	ldr	r1, =0x01C20800
-	ldr	r2, [r1]		@ PD_CFG0 offset  : 0x6c
-	@ Set bit 6:4 to 001 (output)
-	@ Default value for PD_CFG0 is 0, so all we have to do is
-	@ set bit 4 to 1
-	orr	r2, r2, #4
-	str	r2, [r1]
-	ldr	r1, =0x01C2087C		@ PD_DAT offset   : 0x7c
-	ldr	r2, [r1]
-	orr	r2, r2, #0
-	str	r2, [r1]
-#endif
-
-#if 0
-	mov     lr, pc
-	ldr     pc, =EE_gic_dist_init
-#endif
-	b	main
+	b	_crt_section
+@ HERE
 
 @ Populate the whole pagedir with 1MB section descriptors for now (1-1 mapping)
 build_pagetables:

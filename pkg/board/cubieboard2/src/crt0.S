@@ -47,4 +47,53 @@
 
 .section .crt0
 .global _crt_section
+_crt_section:
+@ load stack
+	@ Interrupt stack (IRQ)
+        mov     r1, #I_bit | F_bit | Mode_IRQ
+        msr     cpsr_c, r1
+        ldr	sp, =EE_irq_stack_end
+
+	@ Abort stack (ABT)
+        mov     r1, #I_bit | F_bit | Mode_ABT
+        msr     cpsr_c, r1
+        ldr     sp, =EE_abt_stack_end
+
+	@ Fast interrupt stack (FIQ)
+	mov     r1, #I_bit | F_bit | Mode_FIQ
+	msr     cpsr_c, r1
+	ldr     sp, =EE_fiq_stack_end
+
+        @ Supervisor stack (SWI)
+        mov     r1, #I_bit | F_bit | Mode_SVC
+        msr     cpsr_c, r1
+        ldr     sp, =EE_svc_stack_end
+
+        @ System stack (default running mode)
+	mov     r1, #I_bit | F_bit | Mode_SYS
+        msr     cpsr_c, r1
+        ldr     sp, =EE_stack_end
+
+#ifdef __OO_ORTI_STACK__
+        ldr     r0, =EE_stack_start
+        ldr     r1, =EE_stack_end
+        ldr     r2, =0xa5a5a5a5
+_orti_stack_fill:
+        str     r2, [r1], #4
+        cmp     r1, r0;
+        bcc     _orti_stack_fill
+#endif
+
+        ldr     r0, =__bss_start__
+        ldr     r1, =__bss_end__
+        mov     r2, #0
+bss_loop:
+        str     r2, [r0]
+        cmp     r0, r1
+        add     r0, r0, #4
+        bne     bss_loop
+
+	mov     lr, pc
+	ldr     pc, =gic_init
+	ldr	pc, =main
 .end

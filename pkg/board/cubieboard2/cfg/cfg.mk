@@ -58,7 +58,7 @@ EXT_LIBS += -L$(gcclibdir) -lgcc
 LINKDEP = gnu_cubieboard2.lds
 
 EE_SRCS += pkg/board/cubieboard2/src/core_init.S
-#EE_SRCS += pkg/board/cubieboard2/src/crt0.S
+EE_SRCS += pkg/board/cubieboard2/src/crt0.S
 EE_SRCS += pkg/board/cubieboard2/src/eabi_compat.c
 
 OPT_CC +=  -fno-strict-aliasing -fno-common -msoft-float -fno-builtin -ffreestanding\
