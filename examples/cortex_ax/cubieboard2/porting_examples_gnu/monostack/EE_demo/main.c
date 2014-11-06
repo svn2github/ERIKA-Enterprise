@@ -65,7 +65,6 @@ volatile int led_active = 0;
 ISR2(Timer_isr2)
 {
     ActivateTask(Blinking_led_task);
-    ActivateTask(Saw_tooth_task);
 }
 
 #define TICKS_IN_SEC 20
@@ -132,60 +131,6 @@ TASK(Activate_led_task)
         led_active = 1;
 }
 
-extern EE_IO_BUFFER saw_tooth_data;
-extern EE_IO_BUFFER saw_tooth_data_max;
-static unsigned int saw_tooth_min = 100;
-static unsigned int saw_tooth_max = 150;
-static unsigned int saw_tooth = 100;
-TASK(Saw_tooth_task)
-{
-    /* 99:59 -- mins:secs */
-    static char timer[7] = "00:00\r";
-    static int cpu_time = TICKS_IN_SEC;
-    unsigned int tmp;
-
-    ++counter_task2;
-    if (buffer_out_read(&saw_tooth_data_max, (char*)&tmp,
-                        sizeof(tmp)) == sizeof(tmp)) {
-        if (tmp > saw_tooth_min)
-            saw_tooth_max = tmp;
-    }
-
-    ++saw_tooth;
-
-    if (saw_tooth > saw_tooth_max)
-        saw_tooth = saw_tooth_min;
-
-    buffer_out_write(&saw_tooth_data, (char*)&saw_tooth,
-                     sizeof(saw_tooth));
-
-
-    ++cpu_time;
-    if (cpu_time < TICKS_IN_SEC) {
-        return;
-    }
-
-    cpu_time = 0;
-
-//    EE_serial_puts(timer);
-
-    ++timer[4];
-    if (timer[4] > '9') {
-        timer[4] = '0';
-        ++timer[3];
-        if (timer[3] > '5') {
-            timer[3] = '0';
-            ++timer[1];
-            if (timer[1] > '9') {
-                timer[1] = '0';
-                ++timer[0];
-                if (timer[0] > '9')
-                    timer[0] = '0';
-            }
-        }
-    }
-}
-
 /*
  * MAIN TASK
 */
@@ -199,8 +144,25 @@ void ErrorHook(StatusType Error)
     return;
 }
 
+#ifdef __EE_OO_XEN_PV__
+
+#include "xenincludes.h"
+
+void EE_oo_Xen_Start(start_info_page *sip)
+{
+    start_info = stp;
+    HYPERVISOR_console_io(CONSOLEIO_write, 13, "Hello ERIKA!\n");
+}
+
+#endif /*__EE_OO_XEN_PV__*/
+
 int main(void)
 {
+#ifdef __EE_OO_XEN_PV__
+    __asm__("mov r0, r4\n"
+            "b EE_oo_Xen_start");
+#endif /*__EE_OO_XEN_PV__*/
+
 //    EE_serial_init();
     EnableAllInterrupts();
     EE_assert(1, TRUE, EE_ASSERT_NIL);

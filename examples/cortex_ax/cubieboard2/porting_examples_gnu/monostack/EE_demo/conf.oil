@@ -111,14 +111,6 @@ CPU mySystem {
     SCHEDULE = FULL;
   };
 
-  TASK Saw_tooth_task {
-    CPU_ID = "master";
-    PRIORITY = 1;
-    ACTIVATION = 1;
-    STACK = SHARED;
-    SCHEDULE = FULL;
-  };
-
   TASK Activate_led_task {
     CPU_ID = "master";
     PRIORITY = 3;
