@@ -29,5 +29,56 @@ struct evtchn_alloc_unbound {
 };
 typedef struct evtchn_alloc_unbound evtchn_alloc_unbound_t;
 
+struct evtchn_bind_vcpu {
+    /* IN parameters. */
+    evtchn_port_t port;
+    uint32_t vcpu;
+};
+typedef struct evtchn_bind_vcpu evtchn_bind_vcpu_t;
+
+#define EVTCHNOP_unmask           9
+struct evtchn_unmask {
+        /* IN parameters. */
+        evtchn_port_t port;
+};
+typedef struct evtchn_unmask evtchn_unmask_t;
+
 #define SCHEDOP_block		1
 #define SCHEDOP_yield		0
+
+#define smp_processor_id() 0
+
+static __inline__ int test_and_set_bit(int nr, volatile void * addr)
+{
+        unsigned long *tmp = (unsigned long *)addr;
+        int x = tmp[nr >> 5] & (1 << (nr & 0x1f));
+        tmp[nr >> 5] |= (1 << (nr & 0x1f));
+        return x;
+}
+
+static __inline__ int synch_test_and_set_bit(int nr, volatile void * addr)
+{
+        //TODO:
+        return test_and_set_bit(nr, addr);
+}
+
+#define test_bit(nr,addr) (((unsigned long *)addr)[nr >> 5] & (1 << (nr & 0x1f)))
+#define synch_test_bit(nr,addr) test_bit(nr, addr)
+
+#define force_evtchn_callback(void) do {} while(0)
+
+inline void unmask_evtchn(uint32_t port)
+{
+    shared_info_t *s = HYPERVISOR_shared_info;
+    vcpu_info_t *vcpu_info = &s->vcpu_info[smp_processor_id()];
+
+    synch_clear_bit(port, &s->evtchn_mask[0]);
+
+    if (  synch_test_bit        (port,    &s->evtchn_pending[0]) &&
+         !synch_test_and_set_bit(port / (sizeof(unsigned long) * 8),
+              &vcpu_info->evtchn_pending_sel) )
+    {
+        vcpu_info->evtchn_upcall_pending = 1;
+        force_evtchn_callback();
+    }
+}

@@ -65,14 +65,17 @@ EE_TYPEASSERTVALUE result;
 #include "xenevents.h"
 
 extern int HYPERVISOR_memory_op(int what, struct xen_add_to_physmap *xatp);
-extern int HYPERVISOR_event_channel_op(int what, evtchn_alloc_unbound_t *op);
+extern int HYPERVISOR_event_channel_op(int what, void *op);
 extern int HYPERVISOR_sched_op(int what, void *arg);
+extern int HYPERVISOR_set_callbacks(
+        unsigned long event_address, unsigned long failsafe_address,
+	        unsigned long syscall_address);
 
 void *dtb_global;
 extern char _end;
 shared_info_t *HYPERVISOR_shared_info;
 
-void EE_oo_Xen_map_shared(void)
+void EE_Xen_map_shared(void)
 {
 	struct xen_add_to_physmap xatp;
 	/* Map shared info page */
@@ -91,123 +94,89 @@ void EE_oo_Xen_map_shared(void)
 #define PHYS_SIZE		(40*1024*1024)
 unsigned long start_pfn_p, max_pfn_p;
 
-void EE_oo_Xen_init_mm(void)
+void EE_Xen_init_mm(void)
 {
-        // FIXME Get from dt!
         start_pfn_p = (((unsigned long)&_end) >> PAGE_SHIFT) + 1000;
         max_pfn_p = ((unsigned long)&_end + PHYS_SIZE) >> PAGE_SHIFT;
 	printk("EE: init mm\n");
 }
 
 #include "gic.c"
+
+static struct xenstore_domain_interface xenstore_buf;
+static uint32_t store_evtchn;
+
 #include "xenstore.c"
 
-struct xenstore_domain_interface xenstore_buf;
-uint32_t store_evtchn;
+int task_state = 0;
 
-void EE_oo_Xen_init_xenbus(void)
+void EE_Xen_init_xenbus(void)
 {
-	struct xenstore_domain_interface *xsb = &xenstore_buf;
+	static struct xenstore_domain_interface *xsb = &xenstore_buf;
 	arch_init_xenbus(&xsb, &store_evtchn);
-	// XXX: create xenstore task
-	//      bind xenstore evtchn
-	//      unmask xenstore evtchn
 	printk("EE: xenbus init\n");
 }
 
+#include "gpio.h"
+#include "gpio.c"
+
 void EE_Xen_idc_handler(evtchn_port_t port, struct pt_regs *regs, void *data)
 {
+	printk("EE: idc handler\n");
+	if (task_state == 0) {
+		task_state = 1;
+		gpio_output(PD12, HIGH);
+	} else {
+		task_state = 0;
+		gpio_output(PD12, LOW);
+	}
 	return;
 }
 
-#define	EE_Xen_idc_chan	8
+static evtchn_port_t erika_idc_port;
 
 /* On how to bind channels: extras/mini-os/events.c */
 void EE_Xen_init_idc(void)
 {
 	evtchn_alloc_unbound_t op;
+	char buffer[1024];
+	buffer[1023] = '\0';
+
 	op.dom = DOMID_SELF;
 	op.remote_dom = 0;
-	op.port = EE_Xen_idc_chan;
+	char port[10];
 	if (HYPERVISOR_event_channel_op(EVTCHNOP_alloc_unbound, &op)) {
 		printk("EE: ERROR: cannot alloc idc chan\n");
 		return;
 	}
-	if (bind_evtchn(EE_Xen_idc_chan, EE_Xen_idc_handler, NULL) !=
-	    EE_Xen_idc_chan) {
-		printk("EE: ERROR: idc chan bind\n");
-		return;
-	}
+	erika_idc_port = bind_evtchn(op.port, EE_Xen_idc_handler, &task_state);
 	printk("EE: init idc\n");
+	itoa(erika_idc_port, port);
+
+#if 0
+	xenstore_read("/local/domain/1/name", buffer, 1023);
+	printk(buffer);
+
+	if (xenstore_write("erika_task", port) == -1)
+		printk("EE: ERROR: xenstore_write\n");
+#endif
+
+	printk(port);
+	printk("EE: port advertised\n");
+	unmask_evtchn(erika_idc_port);
+	printk("EE: unmask port\n");
 }
 
-void EE_oo_Xen_Start(void)
+void EE_Xen_Start(void)
 {
 	printk("EE: Xen start\n");
-	/* XXX: MAPPING SHARED AFTER GIC HERE? */
-	EE_oo_Xen_map_shared();
-	EE_oo_Xen_init_mm();
+	EE_Xen_map_shared();
+	EE_Xen_init_mm();
+	gic_init();
+	//EE_Xen_init_xenbus();
 	EE_Xen_init_idc();
-	//EE_oo_Xen_init_xenbus();
 }
 #endif /*__EE_OO_XEN_PV__*/
-
-#include "gpio.h"
-
-unsigned int SUNXI_PIO_BASE = 0;
-
-void gpio_init(void)
-{
-	unsigned int PageSize, PageMask,
-		     addr_start, addr_offset;
-
-	PageSize = 4096;
-	PageMask = (~(PageSize-1));
-	addr_start = SW_PORTC_IO_BASE & PageMask;
-	addr_offset = SW_PORTC_IO_BASE & ~PageMask;
-
-	SUNXI_PIO_BASE = addr_start + addr_offset;
-}
-
-int gpio_cfg_pin(unsigned int pin, unsigned int val)
-{
-	unsigned int cfg;
-	unsigned int bank = GPIO_BANK(pin);
-	unsigned int index = GPIO_CFG_INDEX(pin);
-	unsigned int offset = GPIO_CFG_OFFSET(pin);
-
-	if (!SUNXI_PIO_BASE)
-		return -1;
-
-	struct sunxi_gpio *pio =
-		&((struct sunxi_gpio_reg *)SUNXI_PIO_BASE)->gpio_bank[bank];
-
-	cfg = *(&pio->cfg[0] + index);
-	cfg &= ~(0xf << offset);
-	cfg |= val << offset;
-
-	*(&pio->cfg[0] + index) = cfg;
-
-	return 0;
-}
-
-int gpio_output(unsigned int pin, unsigned int val)
-{
-	unsigned int bank = GPIO_BANK(pin);
-	unsigned int num = GPIO_NUM(pin);
-
-	if (!SUNXI_PIO_BASE)
-		return -1;
-
-	struct sunxi_gpio *pio =&((struct sunxi_gpio_reg *)SUNXI_PIO_BASE)->gpio_bank[bank];
-
-	if (val)
-		*(&pio->dat) |= 1 << num;
-	else
-		*(&pio->dat) &= ~(1 << num);
-
-	return 0;
-}
 
 TASK(Hello_world_task)
 {
@@ -238,13 +207,11 @@ int main(void)
 //    EE_serial_init();
 #ifdef __EE_OO_XEN_PV__
     printk("ERIKA Enterprise\n");
-    EE_oo_Xen_Start();
-#endif /* __EE_OO_XEN_PV__ */
-    EnableAllInterrupts();
-#ifdef __EE_OO_XEN_PV__
-    printk("EE: interrupts enabled\n");
+    EE_Xen_Start();
 #endif /* __EE_OO_XEN_PV__ */
     gpio_init();
+    gpio_cfg_pin(PD12, OUTPUT);
+    gpio_output(PD12, LOW);
 #ifdef __EE_OO_XEN_PV__
     printk("EE: GPIO initialized\n");
 #endif /* __EE_OO_XEN_PV__ */
@@ -254,9 +221,14 @@ int main(void)
 
     ActivateTask(Hello_world_task);
 
+    printk("EE: background activity\n");
+
     // Forever loop: background activities (if any) should go here
     // Xen: loop handling events
-    for (;;) HYPERVISOR_sched_op(SCHEDOP_block, NULL);
+    for (;;) {
+        printk("EE: about to block waiting for events\n");
+        HYPERVISOR_sched_op(SCHEDOP_block, 0);
+    }
 
     return 0;
 }

@@ -30,8 +30,7 @@ static struct gic gic;
 
 static inline uint32_t REG_READ32(volatile uint32_t *addr)
 {
-	uint32_t value, tmp;
-	tmp = (uint32_t)addr & 0x3; // 32-bit aligned
+	uint32_t value;
 	__asm__ __volatile__("ldr %0, [%1]":"=&r"(value):"r"(addr));
 	rmb();
 	return value;
@@ -39,8 +38,6 @@ static inline uint32_t REG_READ32(volatile uint32_t *addr)
 
 static inline void REG_WRITE32(volatile uint32_t *addr, unsigned int value)
 {
-	uint32_t tmp;
-	tmp = (uint32_t)addr & 0x3; // 32-bit aligned
 	__asm__ __volatile__("str %0, [%1]"::"r"(value), "r"(addr));
 	wmb();
 }
@@ -124,11 +121,8 @@ static void gic_eoir(struct gic *gic, uint32_t irq) {
 	REG_WRITE32(REG(gicc(gic, GICC_EOIR)), irq & 0x000003FF);
 }
 
-//FIXME Get event_irq from dt
 #define EVENTS_IRQ 31
 #define VIRTUALTIMER_IRQ 27
-
-//FIXME Move to a header file
 #define VTIMER_TICK 0x6000000
 void timer_handler(evtchn_port_t port, struct pt_regs *regs, void *ign);
 void increment_vtimer_compare(uint64_t inc);
@@ -179,6 +173,7 @@ static void gic_handler(void) {
 		increment_vtimer_compare(VTIMER_TICK);
 		break;
 	default:
+		printk("ERIKA: unknown GIC\n");
 		break;
 	}
 
@@ -198,4 +193,6 @@ void gic_init(void) {
 	gic_enable_interrupt(&gic, EVENTS_IRQ /* interrupt number */, 0x1 /*cpu_set*/, 1 /*level_sensitive*/, 0 /* ppi */);
 	gic_enable_interrupt(&gic, VIRTUALTIMER_IRQ /* interrupt number */, 0x1 /*cpu_set*/, 1 /*level_sensitive*/, 1 /* ppi */);
 	gic_enable_interrupts(&gic);
+
+	printk("EE: GIC init\n");
 }

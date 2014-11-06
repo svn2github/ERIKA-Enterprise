@@ -111,6 +111,7 @@ void EE_gic_dist_init(void)
 	/* disable gic dist */
 	writel(0, EE_IC_DISTRIBUTOR_BASE_ADDR + EE_GIC_DIST_CTRL);
 
+	printk("EE: here\n");
 	max_irq = readl(EE_IC_DISTRIBUTOR_BASE_ADDR + EE_GIC_DIST_CTR) & 0x1f;
 	max_irq = (max_irq + 1) * 32;
 	max_irq = (max_irq > 1020) ? 1020 : max_irq;
@@ -118,6 +119,8 @@ void EE_gic_dist_init(void)
 	writel(0xffffffff, EE_IC_DISTRIBUTOR_BASE_ADDR + EE_GIC_DIST_ENABLE_CLEAR);
 
 	for (i = 0; i < IP_TABLE_SIZE; ++i) {
+		if (intID != 31 && intID != 27)
+			continue;
 		intID = ip_table[i].intID;
 		prio = ip_table[i].prio;
 		if (intID < 32) {

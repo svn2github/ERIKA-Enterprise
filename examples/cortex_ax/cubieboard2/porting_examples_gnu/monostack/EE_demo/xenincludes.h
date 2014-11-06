@@ -228,6 +228,7 @@ struct xen_add_to_physmap {
 
 #define wmb() __asm__("dmb");
 #define rmb() __asm__("dmb");
+#define mb()  do { dsb(); } while (0)
 static __inline__ void clear_bit(int nr, volatile void * addr)
 {
         //TODO
@@ -357,7 +358,7 @@ int do_event(evtchn_port_t port, struct pt_regs *regs)
 
     if ( port >= NR_EVS )
     {
-        printk("do_event WARN\n");
+        printk("EE: ERROR: do_event\n");
         return 1;
     }
 
@@ -410,8 +411,8 @@ void increment_vtimer_compare(uint64_t inc) {
                                 "isb":"=r"(x));
 }
 
-#define L1_PAGETABLE_SHIFT      12
-#define PFN_PHYS(x)     ((uint64_t)(x) << L1_PAGETABLE_SHIFT)
+#define L1_PAGETABLE_SHIFT     	   12
+#define PFN_PHYS(x)   		   ((uint64_t)(x) << L1_PAGETABLE_SHIFT)
 #define VIRT_START                 ((unsigned long)0)
 #define to_virt(x)                 ((void *)((unsigned long)(x)+VIRT_START))
 #define pfn_to_virt(_pfn)          (to_virt(PFN_PHYS(_pfn)))

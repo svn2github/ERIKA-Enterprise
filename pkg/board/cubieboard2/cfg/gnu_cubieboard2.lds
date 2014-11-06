@@ -75,6 +75,7 @@ SECTIONS
 {
   . = 0x80008000;
   . = ALIGN(4);
+  _text = .;
   .text : {
     *(.ee_start)
     __stack_base__ = .;

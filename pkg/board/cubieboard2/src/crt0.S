@@ -93,7 +93,9 @@ bss_loop:
         add     r0, r0, #4
         bne     bss_loop
 
+#if 0
 	mov     lr, pc
-	ldr     pc, =gic_init
+	ldr     pc, =EE_gic_dist_init
+#endif
 	ldr	pc, =main
 .end
