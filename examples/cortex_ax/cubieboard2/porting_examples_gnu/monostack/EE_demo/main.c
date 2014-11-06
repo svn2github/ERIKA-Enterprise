@@ -57,8 +57,8 @@ EE_TYPEASSERTVALUE EE_assertions[10];
 /* Final result */
 EE_TYPEASSERTVALUE result;
 
-#define __EE_OO_XEN_PV__
-#ifdef __EE_OO_XEN_PV__
+#define __EE_XEN_PV__
+#ifdef __EE_XEN_PV__
 
 #include "xendebug.h"
 #include "xenincludes.h"
@@ -184,17 +184,17 @@ void EE_Xen_Start(void)
 	EE_Xen_init_xenbus();
 	EE_Xen_init_idc();
 }
-#endif /*__EE_OO_XEN_PV__*/
+#endif /*__EE_XEN_PV__*/
 
 TASK(Hello_world_task)
 {
-#ifdef __EE_OO_XEN_PV__
+#ifdef __EE_XEN_PV__
 	printk("EE: task\n");
 	gpio_cfg_pin(PD1, OUTPUT);
 	printk("EE: task: GPIO configured\n");
 	gpio_output(PD1, HIGH);
 	printk("EE: task: GPIO pin high\n");
-#endif /*__EE_OO_XEN_PV__*/
+#endif /*__EE_XEN_PV__*/
 }
 
 /*
@@ -213,16 +213,16 @@ void ErrorHook(StatusType Error)
 int main(void)
 {
 //    EE_serial_init();
-#ifdef __EE_OO_XEN_PV__
+#ifdef __EE_XEN_PV__
     printk("ERIKA Enterprise\n");
     EE_Xen_Start();
-#endif /* __EE_OO_XEN_PV__ */
+#endif /* __EE_XEN_PV__ */
     gpio_init();
     gpio_cfg_pin(PD12, OUTPUT);
     gpio_output(PD12, LOW);
-#ifdef __EE_OO_XEN_PV__
+#ifdef __EE_XEN_PV__
     printk("EE: GPIO initialized\n");
-#endif /* __EE_OO_XEN_PV__ */
+#endif /* __EE_XEN_PV__ */
     EE_assert(1, TRUE, EE_ASSERT_NIL);
 
     StartOS(OSDEFAULTAPPMODE);
