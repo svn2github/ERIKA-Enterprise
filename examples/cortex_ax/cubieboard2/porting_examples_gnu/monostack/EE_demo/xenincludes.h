@@ -196,9 +196,12 @@ typedef struct { unsigned long pte_low, pte_high; } pte_t;
 #define L1_PAGETABLE_SHIFT      12
 #define VIRT_START              ((unsigned long)0)
 #define to_phys(x)              ((unsigned long)(x)-VIRT_START)
+#define to_virt(x)		((void *)((unsigned long)(x)+VIRT_START))
 #define PFN_DOWN(x)     	((x) >> L1_PAGETABLE_SHIFT)
+#define PFN_PHYS(x)		((uint64_t)(x) << L1_PAGETABLE_SHIFT)
 
 #define virt_to_pfn(_virt)      (PFN_DOWN(to_phys(_virt)))
+#define pfn_to_virt(_pfn)	(to_virt(PFN_PHYS(_pfn)))
 
 typedef unsigned short uint16_t;
 typedef uint16_t domid_t;
@@ -414,5 +417,7 @@ void increment_vtimer_compare(uint64_t inc) {
 #define VIRT_START                 ((unsigned long)0)
 #define to_virt(x)                 ((void *)((unsigned long)(x)+VIRT_START))
 #define pfn_to_virt(_pfn)          (to_virt(PFN_PHYS(_pfn)))
+#define paddr_to_pfn(pa) ((unsigned long )((pa) >> PAGE_SHIFT))
+#define pfn_to_paddr(pf) ((pf) << PAGE_SHIFT)
 
 #endif

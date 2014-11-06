@@ -87,7 +87,7 @@ OPT_INCLUDE = $(foreach d,$(INCLUDE_PATH),$(addprefix -I,$(call native_path,$d))
 
 ## OPT_CC are the options for compiler invocation
 # -fomit-frame-pointer is neeeded to avoid that additional instructions are inserted before _START symbol
-OPT_CC += -c -mcpu=$(GNUC_CORTEX_AX_XENPV_MODEL) -D__ARM_PCS_VFP -D__XEN_INTERFACE_VERSION__=0x00030203 -Wall -ffunction-sections -fomit-frame-pointer -Winline -finline-functions\
+OPT_CC += -c -mcpu=$(GNUC_CORTEX_AX_XENPV_MODEL) -D__ARM_PCS_VFP -D__XEN_INTERFACE_VERSION__=0x0003020a -Wall -ffunction-sections -fomit-frame-pointer -Winline -finline-functions\
  -fzero-initialized-in-bss -std=gnu99
 
 ifeq ($(call iseeopt, EE_DEBUG), yes)

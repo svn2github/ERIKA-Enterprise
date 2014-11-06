@@ -130,9 +130,13 @@ void EE_Xen_init_xenbus(void)
 #include "gpio.h"
 #include "gpio.c"
 
+extern char idc_page;
+int *idc_page_pointer;
+
 void EE_Xen_idc_handler(evtchn_port_t port, struct pt_regs *regs, void *data)
 {
 	printk("EE: idc handler\n");
+	print_number(*idc_page_pointer);
 	if (task_state == 0) {
 		task_state = 1;
 		gpio_output(PD12, HIGH);
@@ -141,6 +145,69 @@ void EE_Xen_idc_handler(evtchn_port_t port, struct pt_regs *regs, void *data)
 		gpio_output(PD12, LOW);
 	}
 	return;
+}
+
+#include "xengnttab.h"
+
+int HYPERVISOR_grant_table_op(unsigned int cmd, void *uop, unsigned int count);
+
+#define XENMAPSPACE_grant_table 1
+extern unsigned long grant_table;
+#define MAX_GNTTAB	32
+static grant_entry_t *gnttab_table[MAX_GNTTAB];
+#define GRANT_IDX	0
+
+void EE_Xen_map_gnttab(int idx_start, int idx_end)
+{
+	struct xen_add_to_physmap xatp;
+	int i = idx_end;
+
+	if (idx_end >= MAX_GNTTAB || idx_start < 0)
+		return;
+
+	/* Map grant table ensuring to let it grow only once */
+	for (; i >= idx_start ; i--) {
+		xatp.domid = DOMID_SELF;
+		xatp.space = XENMAPSPACE_grant_table;
+		xatp.idx = i;
+		xatp.gpfn = virt_to_pfn(&grant_table);
+		if (HYPERVISOR_memory_op(XENMEM_add_to_physmap, &xatp))
+			BUG();
+		gnttab_table[i] = (grant_entry_t *)&grant_table;
+#if 0
+		print_number(i);
+		print_number(gnttab_table[i][2].domid);
+		print_number(gnttab_table[i][2].frame);
+		print_number(gnttab_table[i][2].flags);
+		printk("---\n");
+#endif
+	}
+
+	printk("EE: grant table mapped\n");
+}
+
+void EE_Xen_init_gnttab(void)
+{
+	EE_Xen_map_gnttab(GRANT_IDX, GRANT_IDX);
+
+	printk("EE: gnttab frames init\n");
+}
+
+/*
+ * XXX: this is hardcoded, but should be computed with
+ *      sizeof(gnttab_entry_t) and PAGE_SIZE
+ */
+#define GSTRUCT_IDX 2
+
+static void gnttab_update_entry_v2(grant_ref_t ref, int idx,
+				   domid_t domid,
+                                   unsigned long frame,
+                                   unsigned flags)
+{
+	gnttab_table[ref][idx].domid = domid;
+        gnttab_table[ref][idx].frame = frame;
+        wmb();
+        gnttab_table[ref][idx].flags = GTF_permit_access | flags;
 }
 
 static evtchn_port_t erika_idc_port;
@@ -169,8 +236,15 @@ void EE_Xen_init_idc(void)
 #endif
 	if (xenstore_write("/local/erika_task_evtchn", port) == -1)
 		printk("EE: ERROR: xenstore_write\n");
-
 	printk("EE: port advertised\n");
+
+	/* Shared memory */
+	gnttab_update_entry_v2(GRANT_IDX, GSTRUCT_IDX, 0, virt_to_pfn(&idc_page), 0);
+	idc_page = 8;
+	idc_page_pointer = (int *)&idc_page;
+	print_number(virt_to_pfn(&idc_page));
+	printk("EE: memory shared\n");
+
 	unmask_evtchn(erika_idc_port);
 	printk("EE: unmask port\n");
 }
@@ -182,6 +256,7 @@ void EE_Xen_Start(void)
 	EE_Xen_init_mm();
 	gic_init();
 	EE_Xen_init_xenbus();
+	EE_Xen_init_gnttab();
 	EE_Xen_init_idc();
 }
 #endif /*__EE_XEN_PV__*/

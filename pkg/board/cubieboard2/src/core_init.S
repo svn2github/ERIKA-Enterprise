@@ -212,9 +212,16 @@ ee_mcglobal_loop:
 
 .pushsection .data
 .globl shared_info
-.globl xenbus
+.globl grant_table
+.globl idc_page
 .align 13
 shared_info:
+	.fill (1024), 4, 0x0
+.align 13
+grant_table:
+	.fill (1024), 4, 0x0
+.align 13
+idc_page:
 	.fill (1024), 4, 0x0
 .align	14
 page_dir:
