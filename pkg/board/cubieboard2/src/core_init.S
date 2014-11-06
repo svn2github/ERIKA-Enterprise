@@ -186,19 +186,12 @@ ee_mcglobal_loop:
         mcr     p15, 0, r4, c2, c0, 0
 
 #if 0
-	ldr	r1, =mmu_switched
-
         /* enable MMU */
         mrc     p15, 0, r0, c1, c0, 0   /* current control register */
         orr     r0, r0, #0x01           /* set M bit */
         mcr     p15, 0, r0, c1, c0, 0   /* current control register */
-
-	isb
-
-	mov	pc, r1
-
-mmu_switched:
 #endif
+
         /* enable branch prediction */
         mrc     p15, 0, r0, c1, c0, 0   /* get SCTLR */
         orr     r0, r0, #(1 << 11)      /* set Z bit */
