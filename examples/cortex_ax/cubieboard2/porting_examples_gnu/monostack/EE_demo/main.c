@@ -156,12 +156,11 @@ void *dtb_global;
 extern shared_info_t shared_info;
 shared_info_t *HYPERVISOR_shared_info;
 
-void EE_oo_Xen_Start(void *dtb)
+void EE_oo_Xen_Start(void)
 {
 	struct xen_add_to_physmap xatp;
 
-	dtb_global = dtb;
-	printk("EE: saved dtb\n");
+	printk("EE: Xen start\n");
 	/* Map shared info page */
 	xatp.domid = DOMID_SELF;
 	xatp.idx = 0;
@@ -175,17 +174,19 @@ void EE_oo_Xen_Start(void *dtb)
 
 #endif /*__EE_OO_XEN_PV__*/
 
-#ifdef __EE_OO_XEN_PV__
-int main(void *dtb)
-#else
 int main(void)
-#endif /* __EE_OO_XEN_PV__ */
 {
 //    EE_serial_init();
 #ifdef __EE_OO_XEN_PV__
     printk("ERIKA Enterprise\n");
-    EE_oo_Xen_Start(dtb);
+    EE_oo_Xen_Start();
 #endif /* __EE_OO_XEN_PV__ */
+#if 0
+    EE_gic_dist_init();
+#ifdef __EE_OO_XEN_PV__
+    printk("EE: dist init\n");
+#endif /* __EE_OO_XEN_PV__ */
+#endif
     EnableAllInterrupts();
 #ifdef __EE_OO_XEN_PV__
     printk("EE: interrupts enabled\n");
