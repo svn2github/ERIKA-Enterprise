@@ -70,18 +70,18 @@ EE_stack_start = EE_abt_stack_start - EE_stack_size;
 EE_stack_end = EE_stack_start + EE_stack_size;
 
 
-ENTRY(_start)
+ENTRY(_start_0)
 SECTIONS
 {
   . = 0x80008000;
   . = ALIGN(4);
   .text : {
-    *(.text)
-    __stack_base__ = .;
     *(.ee_start)
+    __stack_base__ = .;
     KEEP(*(.ee_symtab))
     *(.boot_board)
     *(.crt0)
+    *(.text)
     *(.text.*)
     . = ALIGN(0x100000);
     __vector_start = .;

@@ -50,22 +50,25 @@
 /*#define TTB_DEVICE            0x00000c06*/
 #define TTB_DEVICE              0x00000c02
 
-#include "cpu/cortex_ax/inc/ee_cax_defs.h"
+.global _start_0
+.global _start_cubieboard2
 
-.section .text
-
-.globl _start
 .extern dtb_global
-_start:
+
+.section .ee_start,"ax"
+_start_0:
 	@ zImage header
 .rept   8
         mov     r0, r0
 .endr
-        b       1f
+        b       _start_cubieboard2
         .word   0x016f2818      @ Magic numbers to help the loader
-        .word   _start		@ absolute load/run zImage address
-        .word   _end - _start   @ zImage size
+        .word   _start_0	@ absolute load/run zImage address
+        .word   _end - _start_0	@ zImage size
 	@ end of zImage header
+
+.section .boot_board,"ax"
+_start_cubieboard2:
 
 1:
 @ core processor specific initialization
