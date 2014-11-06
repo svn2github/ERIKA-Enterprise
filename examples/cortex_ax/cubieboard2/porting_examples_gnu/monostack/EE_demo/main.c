@@ -139,10 +139,10 @@ void EE_Xen_idc_handler(evtchn_port_t port, struct pt_regs *regs, void *data)
 	print_number(*idc_page_pointer);
 	if (task_state == 0) {
 		task_state = 1;
-		gpio_output(PD12, HIGH);
+		gpio_output(SUNXI_GPD(*idc_page_pointer), HIGH);
 	} else {
 		task_state = 0;
-		gpio_output(PD12, LOW);
+		gpio_output(SUNXI_GPD(*idc_page_pointer), LOW);
 	}
 	return;
 }
@@ -240,10 +240,9 @@ void EE_Xen_init_idc(void)
 
 	/* Shared memory */
 	gnttab_update_entry_v2(GRANT_IDX, GSTRUCT_IDX, 0, virt_to_pfn(&idc_page), 0);
-	idc_page = 8;
 	idc_page_pointer = (int *)&idc_page;
 	print_number(virt_to_pfn(&idc_page));
-	printk("EE: memory shared\n");
+	printk("EE: memory page shared for idc\n");
 
 	unmask_evtchn(erika_idc_port);
 	printk("EE: unmask port\n");
