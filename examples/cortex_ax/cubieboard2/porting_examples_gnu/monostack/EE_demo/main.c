@@ -144,39 +144,43 @@ void ErrorHook(StatusType Error)
     return;
 }
 
+#define __EE_OO_XEN_PV__
 #ifdef __EE_OO_XEN_PV__
 
-#include "xenincludes.h"
+#define CONSOLEIO_write 0
 
-void EE_oo_Xen_Start(start_info_page *sip)
+extern void HYPERVISOR_console_io(int what, int len, char *msg);
+
+void *dtb_global;
+
+void EE_oo_Xen_Start(void *dtb)
 {
-    start_info = stp;
-    HYPERVISOR_console_io(CONSOLEIO_write, 13, "Hello ERIKA!\n");
+	dtb_global = dtb;
+	HYPERVISOR_console_io(CONSOLEIO_write, 14, "EE: Saved dtb\n");
 }
 
 #endif /*__EE_OO_XEN_PV__*/
 
-int main(void)
+int main(void *dtb)
 {
-#ifdef __EE_OO_XEN_PV__
-    __asm__("mov r0, r4\n"
-            "b EE_oo_Xen_start");
-#endif /*__EE_OO_XEN_PV__*/
-
 //    EE_serial_init();
-    EnableAllInterrupts();
-    EE_assert(1, TRUE, EE_ASSERT_NIL);
+#ifdef __EE_OO_XEN_PV__
+    HYPERVISOR_console_io(CONSOLEIO_write, 17, "ERIKA Enterprise\n");
+    EE_oo_Xen_Start(dtb);
+#endif /* __EE_OO_XEN_PV__ */
+    //EnableAllInterrupts();
+    //EE_assert(1, TRUE, EE_ASSERT_NIL);
 
-    StartOS(OSDEFAULTAPPMODE);
+    //StartOS(OSDEFAULTAPPMODE);
 
 //    EE_serial_puts("GO!\n\n");
-    EE_timer_init();
+//    EE_timer_init();
     //ActivateTask(Task1);
 
-    EE_assert(6, counter_task1==1 && counter_task2==1, 5);
+//    EE_assert(6, counter_task1==1 && counter_task2==1, 5);
 
-    EE_assert_range(0,1,6);
-    result = EE_assert_last();
+//    EE_assert_range(0,1,6);
+//    result = EE_assert_last();
 
     // Forever loop: background activities (if any) should go here
     for (;;) ;

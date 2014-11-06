@@ -76,18 +76,18 @@ CPU mySystem {
       MAX_MESSAGE_SIZE = 8;
     };
 */
-    MCU_DATA = FREESCALE {
-      MODEL = IMX6Q;
+    MCU_DATA = ALLWINNER {
+      MODEL = A20;
     };
 
-    BOARD_DATA = ENGICAM_ICOREM6;
+    BOARD_DATA = CUBIEBOARD2;
 
     MASTER_CPU = "master";
-      CPU_DATA = CORTEX_AX {
+      CPU_DATA = CORTEX_AX_XENPV {
       CPU_CLOCK = 660.0;
       APP_SRC = "main.c";
       COMPILER_TYPE = GNU;
-      MODEL = A9;
+      MODEL = A7;
       ID = "master";
     };
 
