@@ -147,31 +147,52 @@ void ErrorHook(StatusType Error)
 #define __EE_OO_XEN_PV__
 #ifdef __EE_OO_XEN_PV__
 
-#define CONSOLEIO_write 0
+#include "xenincludes.h"
+#include "xendebug.h"
 
-extern void HYPERVISOR_console_io(int what, int len, char *msg);
+extern int HYPERVISOR_memory_op(int what, struct xen_add_to_physmap *xatp);
 
 void *dtb_global;
+extern shared_info_t shared_info;
+shared_info_t *HYPERVISOR_shared_info;
 
 void EE_oo_Xen_Start(void *dtb)
 {
+	struct xen_add_to_physmap xatp;
+
 	dtb_global = dtb;
-	HYPERVISOR_console_io(CONSOLEIO_write, 14, "EE: Saved dtb\n");
+	printk("EE: saved dtb\n");
+	/* Map shared info page */
+	xatp.domid = DOMID_SELF;
+	xatp.idx = 0;
+	xatp.space = XENMAPSPACE_shared_info;
+	xatp.gpfn = virt_to_pfn(&shared_info);
+	if (HYPERVISOR_memory_op(XENMEM_add_to_physmap, &xatp) != 0)
+		BUG();
+	HYPERVISOR_shared_info = (struct shared_info *)&shared_info;
+	printk("EE: shared info page mapped\n");
 }
 
 #endif /*__EE_OO_XEN_PV__*/
 
+#ifdef __EE_OO_XEN_PV__
 int main(void *dtb)
+#else
+int main(void)
+#endif /* __EE_OO_XEN_PV__ */
 {
 //    EE_serial_init();
 #ifdef __EE_OO_XEN_PV__
-    HYPERVISOR_console_io(CONSOLEIO_write, 17, "ERIKA Enterprise\n");
+    printk("ERIKA Enterprise\n");
     EE_oo_Xen_Start(dtb);
 #endif /* __EE_OO_XEN_PV__ */
-    //EnableAllInterrupts();
-    //EE_assert(1, TRUE, EE_ASSERT_NIL);
+    EnableAllInterrupts();
+#ifdef __EE_OO_XEN_PV__
+    printk("EE: interrupts enabled\n");
+#endif /* __EE_OO_XEN_PV__ */
+    EE_assert(1, TRUE, EE_ASSERT_NIL);
 
-    //StartOS(OSDEFAULTAPPMODE);
+    StartOS(OSDEFAULTAPPMODE);
 
 //    EE_serial_puts("GO!\n\n");
 //    EE_timer_init();

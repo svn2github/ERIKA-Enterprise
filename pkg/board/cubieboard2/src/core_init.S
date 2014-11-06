@@ -91,9 +91,21 @@ EE_stack_start:
 .globl EE_irq_stack_start
 EE_irq_stack_start:
 	.fill (1024), 4, 0x0
-.globl shared_info_page
 .align 13
-shared_info_page:
+.globl EE_fiq_stack_start
+EE_fiq_stack_start:
+        .fill (1024), 1, 0x0
+.align 13
+.globl EE_svc_stack_start
+EE_svc_stack_start:
+        .fill (1024), 1, 0x0
+.align 13
+.globl EE_abt_stack_start
+EE_abt_stack_start:
+        .fill (1024), 1, 0x0
+.globl shared_info
+.align 13
+shared_info:
 	.fill (1024), 4, 0x0
 .align	14
 page_dir:

@@ -57,13 +57,13 @@ EE_stack_size = 8192;
 /*EE_irq_stack_start = ORIGIN(erika_main_memory) + LENGTH(erika_main_memory) - EE_irq_stack_size;*/
 EE_irq_stack_end = EE_irq_stack_start + EE_irq_stack_size;
 
-EE_fiq_stack_start = EE_irq_stack_start - EE_fiq_stack_size;
+/*EE_fiq_stack_start = EE_irq_stack_start - EE_fiq_stack_size;*/
 EE_fiq_stack_end = EE_fiq_stack_start + EE_fiq_stack_size;
 
-EE_svc_stack_start = EE_fiq_stack_start - EE_svc_stack_size;
+/*EE_svc_stack_start = EE_fiq_stack_start - EE_svc_stack_size;*/
 EE_svc_stack_end = EE_svc_stack_start + EE_svc_stack_size;
 
-EE_abt_stack_start = EE_svc_stack_start - EE_abt_stack_size;
+/*EE_abt_stack_start = EE_svc_stack_start - EE_abt_stack_size;*/
 EE_abt_stack_end = EE_abt_stack_start + EE_abt_stack_size;
 
 /*EE_stack_start = EE_abt_stack_start - EE_stack_size;*/

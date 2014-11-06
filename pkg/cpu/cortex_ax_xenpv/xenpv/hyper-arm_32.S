@@ -1,6 +1,7 @@
 #ifndef _HYPER_ARM_32_H_
 #define _HYPER_ARM_32_H_
 
+#define __HYPERVISOR_memory_op				12
 #define __HYPERVISOR_console_io				18
 
 #define __HVC(imm16) .long ((0xE1400070 | (((imm16) & 0xFFF0) << 4) | ((imm16) & 0x000F)) & 0xFFFFFFFF)
@@ -15,8 +16,10 @@
 		__HVC(XEN_IMM);				\
 		mov pc, lr;
 
+#define _hypercall2 HYPERCALL_SIMPLE
 #define _hypercall3 HYPERCALL_SIMPLE
 
+_hypercall2(memory_op);
 _hypercall3(console_io);
 
 #endif /*_HYPER_ARM_32_H_*/
