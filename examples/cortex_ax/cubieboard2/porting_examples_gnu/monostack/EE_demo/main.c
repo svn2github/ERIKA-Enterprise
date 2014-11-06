@@ -131,9 +131,9 @@ void EE_Xen_init_xenbus(void)
 #include "gpio.c"
 
 struct erika_idc_struct {
-	/* spinlock */
 	int pin_number;
 	int pin_value;
+	int return_value;
 };
 extern char idc_page;
 struct erika_idc_struct *idc_page_pointer;
@@ -180,7 +180,6 @@ void notify_back_Linux(void)
 	printk("EE: notifying back Linux\n");
 	buffer[9] = '\0';
 	xenstore_read("/local/linux_erika_evtchn", buffer, 9);
-	//printk(buffer);
 	if (bind_to_interdomain_evtchn(0, 7)) {
 		printk("EE: error while binding to Linux\n");
 		return;
@@ -195,11 +194,15 @@ void EE_Xen_idc_handler(evtchn_port_t port, struct pt_regs *regs, void *data)
 	printk("EE: idc handler\n");
 	print_number(idc_page_pointer->pin_number);
 	print_number(idc_page_pointer->pin_value);
+	gpio_cfg_pin(SUNXI_GPD(idc_page_pointer->pin_number), OUTPUT);
 	if (idc_page_pointer->pin_value == 0) {
-		gpio_output(SUNXI_GPD(idc_page_pointer->pin_number), HIGH);
-	} else {
+		printk("EE: setting pin to LOW\n");
 		gpio_output(SUNXI_GPD(idc_page_pointer->pin_number), LOW);
+	} else {
+		printk("EE: setting pin to HIGH\n");
+		gpio_output(SUNXI_GPD(idc_page_pointer->pin_number), HIGH);
 	}
+	idc_page_pointer->return_value = 0;
 
 	notify_back_Linux();
 
@@ -344,8 +347,6 @@ int main(void)
     EE_Xen_Start();
 #endif /* __EE_XEN_PV__ */
     gpio_init();
-    gpio_cfg_pin(PD12, OUTPUT);
-    gpio_output(PD12, LOW);
 #ifdef __EE_XEN_PV__
     printk("EE: GPIO initialized\n");
 #endif /* __EE_XEN_PV__ */
@@ -358,11 +359,7 @@ int main(void)
     printk("EE: background activity\n");
 
     // Forever loop: background activities (if any) should go here
-    // Xen: loop handling events
-    for (;;) {
-        printk("EE: about to block waiting for events\n");
-        HYPERVISOR_sched_op(SCHEDOP_block, 0);
-    }
+    for (;;);
 
     return 0;
 }
