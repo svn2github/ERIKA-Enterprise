@@ -121,6 +121,12 @@ include $(PKGBASE)/cfg/arch/cc_tricore_diab.mk
 endif # EE_DIAB__
 endif # EE_TRICORE__
 
+ifeq ($(call iseeopt, EE_CORTEX_AX_XENPV__), yes)
+ifeq ($(call iseeopt, EE_GNU__), yes)
+include $(PKGBASE)/cfg/arch/cc_cortex_ax_gnu_armv7.mk
+endif # EE_GNU__
+endif # EE_CORTEX_AX_XENPV__
+
 # -------------------------------------------------------------
 
 ifeq ($(call iseeopt, __MC9S12__), yes)

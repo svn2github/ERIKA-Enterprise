@@ -275,6 +275,13 @@ include $(EEBASE)/pkg/cfg/arch/rules_infineon_tc_generic.mk
 endif
 
 ##
+## arm cortex ax with XEN
+##########################################################################
+ifeq ($(call iseeopt, EE_CORTEX_AX_XENPV__), yes)
+include $(EEBASE)/pkg/cfg/arch/rules_cortex_ax_generic.mk
+endif
+
+##
 ## Infineon Tricore - GNU
 ##########################################################################
 ifeq ($(call iseeopt, __TRICORE_GNU__), yes)

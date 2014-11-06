@@ -95,6 +95,10 @@ extern "C" {
 #include "cpu/tricore/inc/ee_tc_cpu.h"
 #endif /* EE_TRICORE__ */
 
+#ifdef EE_CORTEX_AX_XENPV__
+#include "cpu/cortex_ax_xenpv/inc/ee_cax_cpu.h"
+#endif /* EE_CORTEX_AX_XENPV__ */
+
 /*
  * I need kernel inclusion before IRQ CPU inclusion because is CPU layer that
  * have to see Kernel API for IRQ Handling

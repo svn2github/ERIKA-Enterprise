@@ -98,6 +98,11 @@ EE_SRCS += pkg/cpu/common/src/ee_hal_structs.c
 EE_SRCS += pkg/cpu/common/src/ee_context.c
 endif
 
+ifeq ($(call iseeopt, EE_CORTEX_AX_XENPV__), yes)
+EE_SRCS += pkg/cpu/common/src/ee_hal_structs.c
+EE_SRCS += pkg/cpu/common/src/ee_context.c
+endif
+
 ifeq ($(call iseeopt, __MC9S12__), yes)
 EE_HC12_COMMON=YES
 endif
