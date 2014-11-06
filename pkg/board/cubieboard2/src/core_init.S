@@ -133,6 +133,7 @@ l1_pg_table_loop:
         ldr     r3, =TTB_DEVICE
         orr     r1, r1, r3
         str     r1, [r4, r2]
+#if 0
         /*UART2*/
         ldr     r1,=0x021E8000
         lsr     r1, r1, #20
@@ -141,6 +142,17 @@ l1_pg_table_loop:
         ldr     r3, =TTB_DEVICE
         orr     r1, r1, r3
         str     r1, [r4, r2]
+#endif
+	@ GPIO configuration
+	ldr	r1, =0x01C2086C		@ PIO base address: 0x01c20800
+					@ PD_CFG0 offset  : 0x6c
+	@ Set bit 6:4 to 001 (output)
+	@ Default value for PD_CFG0 is 0, so all we have to do is
+	@ set bit 4 to 1
+	orr	r1, r1, #4
+	ldr	r1, =0x01C2087C		@ PD_DAT offset   : 0x7c
+	orr	r1, r1, #0
+
         /* remap phy addr of __vector_start to va 0x00000000 & 0xffff0000 */
         ldr     r1, =_vector_table
         lsr     r1, r1, #20
@@ -174,12 +186,19 @@ ee_mcglobal_loop:
         mcr     p15, 0, r4, c2, c0, 0
 
 #if 0
+	ldr	r1, =mmu_switched
+
         /* enable MMU */
         mrc     p15, 0, r0, c1, c0, 0   /* current control register */
         orr     r0, r0, #0x01           /* set M bit */
         mcr     p15, 0, r0, c1, c0, 0   /* current control register */
-#endif
 
+	isb
+
+	mov	pc, r1
+
+mmu_switched:
+#endif
         /* enable branch prediction */
         mrc     p15, 0, r0, c1, c0, 0   /* get SCTLR */
         orr     r0, r0, #(1 << 11)      /* set Z bit */
