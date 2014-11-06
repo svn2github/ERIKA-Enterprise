@@ -67,7 +67,7 @@ static __inline__ int synch_test_and_set_bit(int nr, volatile void * addr)
 
 #define force_evtchn_callback(void) do {} while(0)
 
-inline void unmask_evtchn(uint32_t port)
+static inline void unmask_evtchn(uint32_t port)
 {
     shared_info_t *s = HYPERVISOR_shared_info;
     vcpu_info_t *vcpu_info = &s->vcpu_info[smp_processor_id()];

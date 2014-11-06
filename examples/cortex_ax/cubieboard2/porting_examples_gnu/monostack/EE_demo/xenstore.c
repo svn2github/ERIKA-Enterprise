@@ -35,27 +35,29 @@ static inline int hvm_get_parameter(int idx, uint64_t *value)
         xhv.index = idx;
         ret = HYPERVISOR_hvm_op(HVMOP_get_param, &xhv);
         if (ret < 0) {
-                BUG();
+		printk("EE: ERROR: cannot get parameter\n");
+		goto out;
         }
         *value = xhv.value;
-	print_number((int)*value);
+out:
         return ret;
 }
-
-extern char _text;
 
 void arch_init_xenbus(struct xenstore_domain_interface **xenstore_buf, uint32_t *store_evtchn) {
         uint64_t value;
         uint64_t xenstore_pfn;
 
-	if (hvm_get_parameter(HVM_PARAM_STORE_EVTCHN, &value))
-                BUG();
+	if (hvm_get_parameter(HVM_PARAM_STORE_EVTCHN, &value)) {
+		printk("EE: ERROR: cannot get xenstore evtchn\n");
+		return;
+	}
 
         *store_evtchn = (int)value;
-	print_number((int)value);
 
-        if (hvm_get_parameter(HVM_PARAM_STORE_PFN, &value))
-                BUG();
+        if (hvm_get_parameter(HVM_PARAM_STORE_PFN, &value)) {
+		printk("EE: ERROR: cannot get xenstore pfn\n");
+		return;
+	}
         xenstore_pfn = value;
 
         *xenstore_buf = pfn_to_virt(xenstore_pfn);
@@ -63,37 +65,36 @@ void arch_init_xenbus(struct xenstore_domain_interface **xenstore_buf, uint32_t 
 
 int xenstore_write_request(char *message, int length)
 {
+	int i;
 	if (length > XENSTORE_RING_SIZE)
 		return -1;
-	int i;
-	for (i = xenstore_buf.req_prod ; length > 0 ; i++, length--) {
+	for (i = xenstore_buf->req_prod ; length > 0 ; i++, length--) {
 		XENSTORE_RING_IDX data;
 		do {
-			data = i - xenstore_buf.req_cons;
+			data = i - xenstore_buf->req_cons;
 			mb();
-		} while (data >= sizeof(xenstore_buf.req));
-		xenstore_buf.req[MASK_XENSTORE_IDX(i)] = *message;
+		} while (data >= sizeof(xenstore_buf->req));
+		xenstore_buf->req[MASK_XENSTORE_IDX(i)] = *message;
 		message++;
 	}
 	wmb();
-	xenstore_buf.req_prod = i;
+	xenstore_buf->req_prod = i;
 	return 0;
 }
 
 int xenstore_read_response(char *message, int length)
 {
-	int i, lind = 0;
-	for (i = xenstore_buf.rsp_cons ; length > 0 ; i++, length--) {
+	int i;
+	for (i = xenstore_buf->rsp_cons ; length > 0 ; i++, length--) {
 		XENSTORE_RING_IDX data;
 		do {
-			data = xenstore_buf.rsp_prod - i;
-			lind++;
+			data = xenstore_buf->rsp_prod - i;
 			mb();
 		} while (data == 0);
-		*message = xenstore_buf.rsp[MASK_XENSTORE_IDX(i)];
+		*message = xenstore_buf->rsp[MASK_XENSTORE_IDX(i)];
 		message++;
 	}
-	xenstore_buf.rsp_cons = i;
+	xenstore_buf->rsp_cons = i;
 	return 0;
 }
 
@@ -114,10 +115,16 @@ int xenstore_write(char *key, char *value)
 	msg.type = XS_WRITE;
 	msg.req_id = req_id;
 	msg.tx_id = 0;
-	msg.len = 2 + key_length + value_length;
+	msg.len = 1 + key_length + value_length;
 	xenstore_write_request((char *)&msg, sizeof(msg));
+	/*
+	 * NOTE: key must be null-terminated, but value
+	 *       must NOT be null-terminated, or the
+	 *       inserted value will include trailing
+	 *       characters...
+	 */
 	xenstore_write_request(key, key_length + 1);
-	xenstore_write_request(value, value_length + 1);
+	xenstore_write_request(value, value_length);
 	NOTIFY();
 	xenstore_read_response((char *)&msg, sizeof(msg));
 	IGNORE(msg.len);
@@ -152,30 +159,3 @@ int xenstore_read(char *key, char *value, int value_length)
 	return -2;
 }
 
-
-#if 0
-struct write_req {
-    const void *data;
-    unsigned len;
-};
-
-
-char *xenbus_read(xenbus_transaction_t xbt, const char *path, char **value)
-{
-    struct write_req req[] = { {path, strlnx(path) + 1} };
-    struct xsd_sockmsg *rep;
-    char *res, *msg;
-    rep = xenbus_msg_reply(XS_READ, xbt, req, ARRAY_SIZE(req));
-    msg = errmsg(rep);
-    if (msg) {
-	*value = NULL;
-	return msg;
-    }
-    res = malloc(rep->len + 1);
-    memcpy(res, rep + 1, rep->len);
-    res[rep->len] = 0;
-    free(rep);
-    *value = res;
-    return NULL;
-}
-#endif

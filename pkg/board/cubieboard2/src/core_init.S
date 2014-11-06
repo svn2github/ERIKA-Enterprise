@@ -212,6 +212,7 @@ ee_mcglobal_loop:
 
 .pushsection .data
 .globl shared_info
+.globl xenbus
 .align 13
 shared_info:
 	.fill (1024), 4, 0x0

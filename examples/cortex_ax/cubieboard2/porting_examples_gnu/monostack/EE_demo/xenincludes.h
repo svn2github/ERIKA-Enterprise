@@ -272,7 +272,7 @@ struct pt_regs {
 static inline unsigned long __xchg(unsigned long x, volatile void * ptr, int size)
 {
 	//TODO
-	unsigned volatile long y, tmp = 0;
+	unsigned volatile long y;
 	switch(size){
 	case 1:
 #if CPU_EXCLUSIVE_LDST
@@ -344,7 +344,7 @@ static unsigned long bound_ports[NR_EVS/(8*sizeof(unsigned long))];
 extern shared_info_t shared_info;
 extern shared_info_t *HYPERVISOR_shared_info;
 
-inline void clear_evtchn(uint32_t port)
+static inline void clear_evtchn(uint32_t port)
 {
     shared_info_t *s = HYPERVISOR_shared_info;
     synch_clear_bit(port, &s->evtchn_pending[0]);
@@ -356,8 +356,7 @@ int do_event(evtchn_port_t port, struct pt_regs *regs)
 
     clear_evtchn(port);
 
-    if ( port >= NR_EVS )
-    {
+    if ( port >= NR_EVS ) {
         printk("EE: ERROR: do_event\n");
         return 1;
     }
@@ -390,7 +389,6 @@ void timer_handler(evtchn_port_t port, struct pt_regs *regs, void *ign)
         update_wallclock();*/
 }
 
-#define VTIMER_TICK 0x10000000
 void increment_vtimer_compare(uint64_t inc) {
         uint32_t x, y;
         uint64_t value;

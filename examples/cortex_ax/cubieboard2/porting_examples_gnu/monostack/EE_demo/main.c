@@ -103,17 +103,27 @@ void EE_Xen_init_mm(void)
 
 #include "gic.c"
 
-static struct xenstore_domain_interface xenstore_buf;
+static struct xenstore_domain_interface *xenstore_buf;
 static uint32_t store_evtchn;
 
 #include "xenstore.c"
 
 int task_state = 0;
 
+void EE_xenbus_handler(evtchn_port_t port, struct pt_regs *regs, void *data)
+{
+	printk("EE: xenbus handler\n");
+}
+
 void EE_Xen_init_xenbus(void)
 {
-	static struct xenstore_domain_interface *xsb = &xenstore_buf;
-	arch_init_xenbus(&xsb, &store_evtchn);
+	arch_init_xenbus(&xenstore_buf, &store_evtchn);
+	/*
+	 * NOTE: evtchn must be unmasked even if we don't want to use it for
+	 *       other than send operations.
+	 */
+	bind_evtchn(store_evtchn, EE_xenbus_handler, NULL);
+	unmask_evtchn(store_evtchn);
 	printk("EE: xenbus init\n");
 }
 
@@ -139,12 +149,10 @@ static evtchn_port_t erika_idc_port;
 void EE_Xen_init_idc(void)
 {
 	evtchn_alloc_unbound_t op;
-	char buffer[1024];
-	buffer[1023] = '\0';
+	char port[10];
 
 	op.dom = DOMID_SELF;
 	op.remote_dom = 0;
-	char port[10];
 	if (HYPERVISOR_event_channel_op(EVTCHNOP_alloc_unbound, &op)) {
 		printk("EE: ERROR: cannot alloc idc chan\n");
 		return;
@@ -154,14 +162,14 @@ void EE_Xen_init_idc(void)
 	itoa(erika_idc_port, port);
 
 #if 0
+	char buffer[1024];
+	buffer[1023] = '\0';
 	xenstore_read("/local/domain/1/name", buffer, 1023);
 	printk(buffer);
-
-	if (xenstore_write("erika_task", port) == -1)
-		printk("EE: ERROR: xenstore_write\n");
 #endif
+	if (xenstore_write("/local/erika_task_evtchn", port) == -1)
+		printk("EE: ERROR: xenstore_write\n");
 
-	printk(port);
 	printk("EE: port advertised\n");
 	unmask_evtchn(erika_idc_port);
 	printk("EE: unmask port\n");
@@ -173,7 +181,7 @@ void EE_Xen_Start(void)
 	EE_Xen_map_shared();
 	EE_Xen_init_mm();
 	gic_init();
-	//EE_Xen_init_xenbus();
+	EE_Xen_init_xenbus();
 	EE_Xen_init_idc();
 }
 #endif /*__EE_OO_XEN_PV__*/
