@@ -327,4 +327,44 @@ page_dir:
 	.fill (4*1024), 4, 0x0
 
 .popsection
+@ exception base address
+.align 5
+.globl exception_vector_table
+exception_vector_table:
+	b	. @ reset
+	b	. @ undefined instruction
+	b	. @ supervisor call
+	b	. @ prefetch call
+	b	. @ prefetch abort
+	b	. @ data abort //FIXME CLREX
+	b	irq_handler @ irq
+	b	firq_handler @ firq
+
+irq_handler:
+firq_handler:
+	@ Save registers
+	stmda	sp!, {r0 - r12}
+	stmda	sp!, {lr}
+
+	@ FIXME Find interrupt id and dispatch to the correct handler.
+	@ If event_irq
+	ldr	r0, IRQ_handler
+	cmp	r0, #0
+	beq	. @ If no IRQ handler was setup, just get stuck here!
+
+	adr	lr, 1f
+	mov	pc, r0
+1:
+	@bl	do_hypervisor_callback
+
+	@ Restore registers
+	ldmib	sp!, {lr}
+	ldmib	sp!, {r0 - r12}
+
+	@ Return from IRQ
+	subs	pc, lr, #4
+
+.globl IRQ_handler
+IRQ_handler:
+	.long	0x0
 .end

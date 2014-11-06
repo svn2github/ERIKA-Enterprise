@@ -60,20 +60,18 @@ EE_TYPEASSERTVALUE result;
 #define __EE_OO_XEN_PV__
 #ifdef __EE_OO_XEN_PV__
 
-#include "xenincludes.h"
 #include "xendebug.h"
+#include "xenincludes.h"
 
 extern int HYPERVISOR_memory_op(int what, struct xen_add_to_physmap *xatp);
 
 void *dtb_global;
-extern shared_info_t shared_info;
+extern char _end;
 shared_info_t *HYPERVISOR_shared_info;
 
-void EE_oo_Xen_Start(void)
+void EE_oo_Xen_map_shared(void)
 {
 	struct xen_add_to_physmap xatp;
-
-	printk("EE: Xen start\n");
 	/* Map shared info page */
 	xatp.domid = DOMID_SELF;
 	xatp.idx = 0;
@@ -83,6 +81,30 @@ void EE_oo_Xen_Start(void)
 		BUG();
 	HYPERVISOR_shared_info = (struct shared_info *)&shared_info;
 	printk("EE: shared info page mapped\n");
+}
+
+#define PAGE_SHIFT		12
+#define PAGE_SIZE		(1 << PAGE_SHIFT)
+#define PHYS_SIZE		(40*1024*1024)
+unsigned long start_pfn_p, max_pfn_p;
+
+void EE_oo_Xen_init_mm(void)
+{
+        // FIXME Get from dt!
+        start_pfn_p = (((unsigned long)&_end) >> PAGE_SHIFT) + 1000;
+        max_pfn_p = ((unsigned long)&_end + PHYS_SIZE) >> PAGE_SHIFT;
+	printk("EE: init mm\n");
+}
+
+#include "gic.c"
+
+void EE_oo_Xen_Start(void)
+{
+	printk("EE: Xen start\n");
+	EE_oo_Xen_map_shared();
+	EE_oo_Xen_init_mm();
+	gic_init();
+	printk("EE: gic init\n");
 }
 #endif /*__EE_OO_XEN_PV__*/
 
@@ -113,12 +135,6 @@ int main(void)
     printk("ERIKA Enterprise\n");
     EE_oo_Xen_Start();
 #endif /* __EE_OO_XEN_PV__ */
-#if 0
-    EE_gic_dist_init();
-#ifdef __EE_OO_XEN_PV__
-    printk("EE: dist init\n");
-#endif /* __EE_OO_XEN_PV__ */
-#endif
     EnableAllInterrupts();
 #ifdef __EE_OO_XEN_PV__
     printk("EE: interrupts enabled\n");
