@@ -77,7 +77,7 @@ _start:
 @ clear branch prediction array
 	mov     r0, #0
 	mcr     p15, 0, r0, c7, c5, 6   @ BPIALL invalidate entire branch
-			                @ predictor array
+					@ predictor array
 @ invalidate TLBs
         mov     r0, #0
         mcr     p15, 0, r0, c8, c7, 0   @ TLBIALL Invalidate entire
@@ -87,110 +87,32 @@ _start:
         ldr     r1, =dtb_global
 	str     r2, [r1]
 
-        /*
-         * Set up Domain Access Control Reg
-         * ----------------------------------
-         * b00 - No Access (abort)
-         * b01 - Client (respect table entry)
-         * b10 - RESERVED
-         * b11 - Manager (ignore access permissions)
-         * Setting D0 to client, all others to No Access
-         */
-        mov     r0, #0x01
-        mcr     p15, 0, r0, c3, c0, 0
+@ Build pagetables
+	bl	build_pagetables
 
-        ldr     r0, =__mmu_tbl_start
-        mov     r2, #1024
-        mov     r1, r0
-        mov     r3, #0
-        mov     r4, #0
-        mov     r5, #0
-        mov     r6, #0
-l1_pg_table_zero_loop:
-        stmia   r1!, {r3-r6}
-        subs    r2, r2, #1
-        bne     l1_pg_table_zero_loop
-/* r4 -> mmu table */
-        ldr     r0, =__mmu_tbl_start
-        mov     r4, r0
-        mov     r1, #0
-@       mov     r3, #4096               /* 4gb address */
-        mov     r3, #384                /* first 384MB: 128MB +
-                                           256MB peripherals + romboot */
-        ldr     r2, =TTB_COHERENT
-        orr     r1, r1, r2
-l1_pg_table_loop:
-        str     r1, [r0]
-        add     r0, r0, #4
-        add     r1, r1, #0x100000
-        subs    r3, r3, #1
-        bne     l1_pg_table_loop
+	ldr	r2, =page_dir
+	MCR	p15, 0, r2, c2, c0, 0	@ set ttbr0
 
-        mrc     p15, 4, r1, c15, c0, 0  /* periph base */
-        lsr     r1, r1, #20
-        lsl     r2, r1, #2
-        lsl     r1, r1, #20
-        ldr     r3, =TTB_DEVICE
-        orr     r1, r1, r3
-        str     r1, [r4, r2]
-#if 0
-        /*UART2*/
-        ldr     r1,=0x021E8000
-        lsr     r1, r1, #20
-        lsl     r2, r1, #2
-        lsl     r1, r1, #20
-        ldr     r3, =TTB_DEVICE
-        orr     r1, r1, r3
-        str     r1, [r4, r2]
-#endif
-	@ GPIO configuration
-	ldr	r1, =0x01C2086C		@ PIO base address: 0x01c20800
-					@ PD_CFG0 offset  : 0x6c
-	@ Set bit 6:4 to 001 (output)
-	@ Default value for PD_CFG0 is 0, so all we have to do is
-	@ set bit 4 to 1
-	orr	r1, r1, #4
-	ldr	r1, =0x01C2087C		@ PD_DAT offset   : 0x7c
-	orr	r1, r1, #0
+	@ Set access permission for domains
+	mov	r0, #0x3
+	MCR	p15, 0, r0, c3, c0, 0
+	isb
 
-        /* remap phy addr of __vector_start to va 0x00000000 & 0xffff0000 */
-        ldr     r1, =_vector_table
-        lsr     r1, r1, #20
-        lsl     r1, r1, #20
-        mov     r2, #0
-        ldr     r3, =TTB_COHERENT
-        orr     r1, r1, r3
-        str     r1, [r4, r2]
-        ldr     r2, =0xffff0000
-        lsr     r2, #20
-        lsl     r2, #2
-        str     r1, [r4, r2]
-        ldr     r6, =__ee_mcglobal_end
-        lsr     r6, r6, #20
-        ldr     r1, =__ee_mcglobal_start
-        lsr     r1, r1, #20
-        ldr     r3, =TTB_STRONGREORDER_NS
-ee_mcglobal_loop:
-        mov     r2, r1
-        lsl     r2, #2
-        lsl     r5, r1, #20
-        orr     r5, r5, r3
-        str     r5, [r4, r2]
-        cmp     r1, r6
-        addlt   r1, r1, #1
-        blt     ee_mcglobal_loop
+	ldr	r0, =mmu_switched
 
-        mov     r7, #0                  /* dsb cp15 emulation (deprecated) */
-        mcr     p15, 0, r7, c7, c10, 4  /* dsb instruction on non armv7 cpu */
-        /* set phy address of l1 page table */
-        mcr     p15, 0, r4, c2, c0, 0
+	@ enable mmu / sctlr
+	mrc	p15, 0, r1, c1, c0, 0	@ read sctlr
+	orr	r1, r1, #0x1		@ enable mmu
+	@orr	r1, r1, #0x4		@ enable cache
+	orr	r1, r1, #0x02		@ enable barrier enable
+	@mcr	p15, 0, r1, c1, c0, 0	@ write sctlr
+	isb
 
-#if 0
-        /* enable MMU */
-        mrc     p15, 0, r0, c1, c0, 0   /* current control register */
-        orr     r0, r0, #0x01           /* set M bit */
-        mcr     p15, 0, r0, c1, c0, 0   /* current control register */
-#endif
+	@ jump to the virtual address now
+	mov	pc, r0
+
+@ If we're here, then we're very lucky
+mmu_switched:
 
         /* enable branch prediction */
         mrc     p15, 0, r0, c1, c0, 0   /* get SCTLR */
@@ -251,7 +173,37 @@ bss_loop:
         cmp     r0, r1
         add     r0, r0, #4
         bne     bss_loop
+
+#if 0
+	@ GPIO configuration
+	ldr	r1, =0x01C20800		@ PIO base address: 0x01c20800
+	ldr	r2, [r1, #0x6c]		@ PD_CFG0 offset  : 0x6c
+	@ Set bit 6:4 to 001 (output)
+	@ Default value for PD_CFG0 is 0, so all we have to do is
+	@ set bit 4 to 1
+	orr	r2, r2, #4
+	str	r2, [r1]
+	ldr	r1, =0x01C2087C		@ PD_DAT offset   : 0x7c
+	orr	r1, r1, #0
+#endif
+
 	b	main
+
+@ Populate the whole pagedir with 1MB section descriptors for now (1-1 mapping)
+build_pagetables:
+	ldr	r0, =(0x2 + (1 << 16) + (1<<19)) @ First section entry (sharable + NS ).
+	ldr	r1, =page_dir
+	add	r2, r1, #(4*4*1024) @ Limit
+
+1:
+	str	r0, [r1] @ write the section entry
+
+	add	r0, r0, #(1 << 20) @ next physical page.
+	add	r1, r1, #4 @ next pagedir entry
+	cmp	r1, r2
+	bne	1b
+
+	mov	pc, lr
 
 .pushsection .data
 .align 13
