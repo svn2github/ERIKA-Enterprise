@@ -398,4 +398,10 @@ void increment_vtimer_compare(uint64_t inc) {
                                 "isb":"=r"(x));
 }
 
+#define L1_PAGETABLE_SHIFT      12
+#define PFN_PHYS(x)     ((uint64_t)(x) << L1_PAGETABLE_SHIFT)
+#define VIRT_START                 ((unsigned long)0)
+#define to_virt(x)                 ((void *)((unsigned long)(x)+VIRT_START))
+#define pfn_to_virt(_pfn)          (to_virt(PFN_PHYS(_pfn)))
+
 #endif

@@ -3,6 +3,7 @@
 
 #define __HYPERVISOR_memory_op				12
 #define __HYPERVISOR_console_io				18
+#define __HYPERVISOR_hvm_op				34
 
 #define __HVC(imm16) .long ((0xE1400070 | (((imm16) & 0xFFF0) << 4) | ((imm16) & 0x000F)) & 0xFFFFFFFF)
 
@@ -20,6 +21,7 @@
 #define _hypercall3 HYPERCALL_SIMPLE
 
 _hypercall2(memory_op);
+_hypercall2(hvm_op);
 _hypercall3(console_io);
 
 #endif /*_HYPER_ARM_32_H_*/

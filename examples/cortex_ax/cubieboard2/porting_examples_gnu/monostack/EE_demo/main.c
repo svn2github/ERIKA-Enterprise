@@ -97,6 +97,20 @@ void EE_oo_Xen_init_mm(void)
 }
 
 #include "gic.c"
+#include "xenstore.c"
+
+struct xenstore_domain_interface xenstore_buf;
+uint32_t store_evtchn;
+
+void EE_oo_Xen_init_xenbus(void)
+{
+	struct xenstore_domain_interface *xsb = &xenstore_buf;
+	arch_init_xenbus(&xsb, &store_evtchn);
+	// XXX: create xenstore task
+	//      bind xenstore evtchn
+	//      unmask xenstore evtchn
+	printk("EE: xenbus init\n");
+}
 
 void EE_oo_Xen_Start(void)
 {
@@ -105,6 +119,7 @@ void EE_oo_Xen_Start(void)
 	EE_oo_Xen_init_mm();
 	gic_init();
 	printk("EE: gic init\n");
+	EE_oo_Xen_init_xenbus();
 }
 #endif /*__EE_OO_XEN_PV__*/
 
