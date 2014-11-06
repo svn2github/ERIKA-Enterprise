@@ -142,7 +142,7 @@ l1_pg_table_loop:
 	subs 	r3, r3, #1
 	bne 	l1_pg_table_loop
 
-	mrc 	p15, 4, r1, c15, c0, 0 	/* periph base */
+@	mrc 	p15, 4, r1, c15, c0, 0 	/* periph base */
 	lsr 	r1, r1, #20
 	lsl 	r2, r1, #2
 	lsl 	r1, r1, #20
