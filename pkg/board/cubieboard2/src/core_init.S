@@ -58,8 +58,8 @@ mmu_switched:
 	mcr	p15, 0, r0, c12, c0, 0
 
 @ load stack
-	ldr	sp, =stack
-	add	sp, sp, #(4*4*1024)
+	ldr	sp, =EE_stack_start
+	add	sp, sp, #(4*2*1024)
 
 
 	mov	r0, r4		@ set r0 = dtb pointer
@@ -84,11 +84,12 @@ build_pagetables:
 
 .pushsection .data
 .align 13
-.globl stack
-stack:
-	.fill (4*1024), 4, 0x0
+.globl EE_stack_start
+EE_stack_start:
+	.fill (2048), 4, 0x0
 .align 13
-irqstack:
+.globl EE_irq_stack_start
+EE_irq_stack_start:
 	.fill (1024), 4, 0x0
 .globl shared_info_page
 .align 13
@@ -115,7 +116,7 @@ exception_vector_table:
 
 irq_handler:
 firq_handler:
-	ldr	sp, =irqstack
+	ldr	sp, =EE_irq_stack_start
 	add	sp, sp, #(4*1024)
 
 	@ Save registers

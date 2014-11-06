@@ -53,9 +53,9 @@ $(TARGET_NAME).bin: $(TARGET_NAME).elf
 	$(QUIET)$(EE_OBJCOPY) -O binary $(TARGET_NAME).elf $@ 2>/dev/null
 
 
-OPT_LINK += -T gnu_icore_amp.lds -Ttext 0x80008000
+OPT_LINK += -T gnu_cubieboard2.lds -Ttext 0x80008000
 EXT_LIBS += -L$(gcclibdir) -lgcc
-LINKDEP = gnu_icore_amp.lds
+LINKDEP = gnu_cubieboard2.lds
 
 EE_SRCS += pkg/board/cubieboard2/src/core_init.S
 #EE_SRCS += pkg/board/cubieboard2/src/crt0.S
@@ -66,8 +66,8 @@ OPT_CC +=  -fno-strict-aliasing -fno-common -msoft-float -fno-builtin -ffreestan
 
 OPT_CC += -DEE_ARM_PERIPHBASE=0x00A00000
 
-gnu_icore_amp.lds: $(PKGBASE)/board/cubieboard2/cfg/gnu_icore_amp.lds
+gnu_cubieboard2.lds: $(PKGBASE)/board/cubieboard2/cfg/gnu_cubieboard2.lds
 	@printf "LOC\n" ;
-	@cp $(PKGBASE)/board/cubieboard2/cfg/gnu_icore_amp.lds .
+	@cp $(PKGBASE)/board/cubieboard2/cfg/gnu_cubieboard2.lds .
 endif
 endif
