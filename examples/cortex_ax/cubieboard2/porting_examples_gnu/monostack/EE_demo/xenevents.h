@@ -13,6 +13,19 @@
 #define EVTCHNOP_expand_array    12
 #define EVTCHNOP_set_priority    13
 
+struct evtchn_close {
+        /* IN parameters. */
+        evtchn_port_t port;
+};
+
+struct evtchn_bind_interdomain {
+        /* IN parameters. */
+        domid_t remote_dom;
+        evtchn_port_t remote_port;
+        /* OUT parameters. */
+        evtchn_port_t local_port;
+};
+
 /*
  * EVTCHNOP_alloc_unbound: Allocate a port in domain <dom> and mark as
  * accepting interdomain bindings from domain <remote_dom>. A fresh port

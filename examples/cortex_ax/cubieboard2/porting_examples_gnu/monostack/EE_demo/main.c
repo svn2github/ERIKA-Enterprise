@@ -130,20 +130,79 @@ void EE_Xen_init_xenbus(void)
 #include "gpio.h"
 #include "gpio.c"
 
+struct erika_idc_struct {
+	/* spinlock */
+	int pin_number;
+	int pin_value;
+};
 extern char idc_page;
-int *idc_page_pointer;
+struct erika_idc_struct *idc_page_pointer;
+
+int linux_idc_evtchn = 0;
+
+int bind_to_interdomain_evtchn(int domid, int evtchn)
+{
+	struct evtchn_bind_interdomain op;
+	int ret = 0;
+
+	op.remote_dom = domid;
+	op.remote_port = evtchn;
+	ret = HYPERVISOR_event_channel_op(EVTCHNOP_bind_interdomain, &op);
+	if (ret)
+		return ret;
+	linux_idc_evtchn = op.local_port;
+	printk("EE: bound with Linux evtchn\n");
+
+	return ret;
+}
+
+int notify_interdomain_evtchn(int port)
+{
+	struct evtchn_send send = { .port = port };
+	return HYPERVISOR_event_channel_op(EVTCHNOP_send, &send);
+}
+
+int close_interdomain_evtchn(int port)
+{
+	struct evtchn_close op = { .port = port };
+	int ret;
+
+	ret = HYPERVISOR_event_channel_op(EVTCHNOP_close, &op);
+	linux_idc_evtchn = 0;
+
+	return ret;
+}
+
+void notify_back_Linux(void)
+{
+	char buffer[10];
+
+	printk("EE: notifying back Linux\n");
+	buffer[9] = '\0';
+	xenstore_read("/local/linux_erika_evtchn", buffer, 9);
+	//printk(buffer);
+	if (bind_to_interdomain_evtchn(0, 7)) {
+		printk("EE: error while binding to Linux\n");
+		return;
+	}
+	unmask_evtchn(linux_idc_evtchn);
+	notify_interdomain_evtchn(linux_idc_evtchn);
+	close_interdomain_evtchn(linux_idc_evtchn);
+}
 
 void EE_Xen_idc_handler(evtchn_port_t port, struct pt_regs *regs, void *data)
 {
 	printk("EE: idc handler\n");
-	print_number(*idc_page_pointer);
-	if (task_state == 0) {
-		task_state = 1;
-		gpio_output(SUNXI_GPD(*idc_page_pointer), HIGH);
+	print_number(idc_page_pointer->pin_number);
+	print_number(idc_page_pointer->pin_value);
+	if (idc_page_pointer->pin_value == 0) {
+		gpio_output(SUNXI_GPD(idc_page_pointer->pin_number), HIGH);
 	} else {
-		task_state = 0;
-		gpio_output(SUNXI_GPD(*idc_page_pointer), LOW);
+		gpio_output(SUNXI_GPD(idc_page_pointer->pin_number), LOW);
 	}
+
+	notify_back_Linux();
+
 	return;
 }
 
@@ -155,7 +214,13 @@ int HYPERVISOR_grant_table_op(unsigned int cmd, void *uop, unsigned int count);
 extern unsigned long grant_table;
 #define MAX_GNTTAB	32
 static grant_entry_t *gnttab_table[MAX_GNTTAB];
-#define GRANT_IDX	0
+int last_mapped_idx = 0;
+
+#define IDC_REF			2
+#define GSTRUCT_NUM		(PAGE_SIZE / sizeof(grant_entry_t))
+#define GTABLE_LINE(ref)	(ref / GSTRUCT_NUM)
+#define GTABLE_COL(ref)		(ref % GSTRUCT_NUM)
+
 
 void EE_Xen_map_gnttab(int idx_start, int idx_end)
 {
@@ -174,40 +239,32 @@ void EE_Xen_map_gnttab(int idx_start, int idx_end)
 		if (HYPERVISOR_memory_op(XENMEM_add_to_physmap, &xatp))
 			BUG();
 		gnttab_table[i] = (grant_entry_t *)&grant_table;
-#if 0
-		print_number(i);
-		print_number(gnttab_table[i][2].domid);
-		print_number(gnttab_table[i][2].frame);
-		print_number(gnttab_table[i][2].flags);
-		printk("---\n");
-#endif
 	}
+
+	last_mapped_idx = idx_end;
 
 	printk("EE: grant table mapped\n");
 }
 
 void EE_Xen_init_gnttab(void)
 {
-	EE_Xen_map_gnttab(GRANT_IDX, GRANT_IDX);
+	EE_Xen_map_gnttab(last_mapped_idx, 0);
 
 	printk("EE: gnttab frames init\n");
 }
 
-/*
- * XXX: this is hardcoded, but should be computed with
- *      sizeof(gnttab_entry_t) and PAGE_SIZE
- */
-#define GSTRUCT_IDX 2
-
-static void gnttab_update_entry_v2(grant_ref_t ref, int idx,
+static void gnttab_update_entry_v2(grant_ref_t ref,
 				   domid_t domid,
                                    unsigned long frame,
                                    unsigned flags)
 {
-	gnttab_table[ref][idx].domid = domid;
-        gnttab_table[ref][idx].frame = frame;
+	grant_ref_t line = GTABLE_LINE(ref);
+	grant_ref_t col = GTABLE_COL(ref);
+
+	gnttab_table[line][col].domid = domid;
+        gnttab_table[line][col].frame = frame;
         wmb();
-        gnttab_table[ref][idx].flags = GTF_permit_access | flags;
+        gnttab_table[line][col].flags = GTF_permit_access | flags;
 }
 
 static evtchn_port_t erika_idc_port;
@@ -228,20 +285,15 @@ void EE_Xen_init_idc(void)
 	printk("EE: init idc\n");
 	itoa(erika_idc_port, port);
 
-#if 0
-	char buffer[1024];
-	buffer[1023] = '\0';
-	xenstore_read("/local/domain/1/name", buffer, 1023);
-	printk(buffer);
-#endif
 	if (xenstore_write("/local/erika_task_evtchn", port) == -1)
 		printk("EE: ERROR: xenstore_write\n");
 	printk("EE: port advertised\n");
 
 	/* Shared memory */
-	gnttab_update_entry_v2(GRANT_IDX, GSTRUCT_IDX, 0, virt_to_pfn(&idc_page), 0);
-	idc_page_pointer = (int *)&idc_page;
+	gnttab_update_entry_v2(IDC_REF, 0, virt_to_pfn(&idc_page), 0);
+	idc_page_pointer = (struct erika_idc_struct *)&idc_page;
 	print_number(virt_to_pfn(&idc_page));
+
 	printk("EE: memory page shared for idc\n");
 
 	unmask_evtchn(erika_idc_port);

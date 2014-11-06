@@ -7,6 +7,19 @@
 
 extern void HYPERVISOR_console_io(int what, int len, char *msg);
 
+int cut_string(char *buffer, int length)
+{
+	int i = 0;
+
+	for (i = 0 ; i < length ; i++)
+		if (buffer[i] == 0) {
+			buffer[i] = '\n';
+			break;
+		}
+
+	return i+1;
+}
+
 char *itoa(int i, char *b)
 {
 	char const digit[] = "0123456789";
