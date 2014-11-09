@@ -39,12 +39,13 @@
 # ###*E*###
 
 ##
-## Cortex M4 compilation rules
+## Cortex compilation rules
 ##
 ## Author: 2011,  Giuseppe Serano
 ##
 ## Based on rules_cortex_m0.mk and on ARMv7-M Architecture Reference Manual
 ##
+## Edited: 2014,  Christoph Kreuzberger
 
 
 # Enable verbose output from EE_OPT
@@ -87,6 +88,29 @@ include $(PKGBASE)/cfg/cfg.mk
 ##
 # MCU
 ##
+
+#####################################
+
+# TI
+ifeq ($(call iseeopt, __TI__), yes)
+#~ TI_MODEL
+#~ TI_LINKERSCRIPT
+#~ TI_INCLUDE_C
+#~ TI_INCLUDE_S
+#~ TI_STARTUP
+
+ifeq ($(call iseeopt, __TMS570__), yes)
+CORTEX_MCU_MODEL = TMS570
+ifeq ($(call iseeopt, __CCS__), yes)
+CORTEX_MCU_LINKERSCRIPT = $(EEBASE)/contrib/ti_tms570/source/sys_link.cmd
+CORTEX_MCU_STARTUP = $(CRT0_SRCS)
+else	# __CCS__
+endif	# !__CCS__
+endif	# __TMS570__
+TARGET_NAME = _tms570
+endif	# __TI__
+#####################################################################
+
 
 # Stellaris
 ifeq ($(call iseeopt, __STELLARIS__), yes)
@@ -288,6 +312,7 @@ INCLUDE_PATH += $(PKGBASE) $(call short_native_path,$(APPBASE)) . $(CG_INLCUDE_D
 vpath %.c $(EE_VPATH) $(APPBASE)
 vpath %.s $(EE_VPATH) $(APPBASE)
 vpath %.S $(EE_VPATH) $(APPBASE)
+vpath %.asm $(EE_VPATH) $(APPBASE)
 
 ## Compute common variables ##
 COMPUTED_INCLUDE_PATH := $(OPT_INCLUDE)
@@ -336,7 +361,7 @@ TARGETFILE = $(call native_path,$@)
 
 .PHONY: all clean
 
-all: make_directories $(ALL_LIBS) $(TARGET)
+all: make_directories $(ALL_LIBS) $(TARGET) flasher
 	@echo "************************************"
 	@echo "Compilation terminated successfully!"
 
@@ -346,6 +371,19 @@ clean:
 # deps deps.pre ee_c_m0regs.h
 	@echo "CLEAN";
 
+
+flasher: 
+ifeq ($(call iseeopt, __TMS570__), yes)
+	@echo "GEN flasher/flash.bat"
+	$(QUIET) mkdir -p $@
+	$(QUIET) cp $(PKGBASE)/mcu/ti_tms570/cfg/flash/tms570.uniflashsession $@
+	$(QUIET) cp $(PKGBASE)/mcu/ti_tms570/cfg/flash/tms570.ccxml $@
+	$(QUIET) cp $(PKGBASE)/mcu/ti_tms570/cfg/flash/flash.bat $@
+endif
+
+
+	
+	
 ### Target file creation ###
 
 ifeq ($(call iseeopt, __IAR__), yes)
@@ -454,16 +492,24 @@ ifneq ($(call iseeopt, __CCS__), yes)
 	$(COMPUTED_INCLUDE_PATH) $(DEFS_ASM) $(SOURCEFILE) -o $(TARGETFILE)
 else
 	$(VERBOSE_PRINTASM) $(EE_ASM) $(COMPUTED_OPT_ASM) \
-	$(COMPUTED_INCLUDE_PATH) $(DEFS_ASM) $(SOURCEFILE) \
-	--output_file $(TARGETFILE)
+	$(COMPUTED_INCLUDE_PATH) $(DEFS_ASM) $(DEPENDENCY_OPT) \
+  $(SOURCEFILE) --output_file $(TARGETFILE)
+endif
+
+$(OBJDIR)/%.o: %.asm
+ifneq ($(call iseeopt, __CCS__), yes)
+	$(VERBOSE_PRINTASM) $(EE_ASM) $(COMPUTED_OPT_ASM) \
+	$(COMPUTED_INCLUDE_PATH) $(DEFS_ASM) $(SOURCEFILE) -o $(TARGETFILE)
+else
+	$(VERBOSE_PRINTASM) $(EE_ASM) $(COMPUTED_OPT_ASM) \
+	$(COMPUTED_INCLUDE_PATH) $(DEFS_ASM) $(DEPENDENCY_OPT) \
+  $(SOURCEFILE) --output_file $(TARGETFILE)
 endif
 
 # produce the object file from C code in a single step
 $(OBJDIR)/%.o: %.c
 	
 ifneq ($(call iseeopt, __CCS__), yes)
-	
-	
 	
 	$(VERBOSE_PRINTCC) $(EE_CC) $(COMPUTED_OPT_CC) \
 	$(COMPUTED_INCLUDE_PATH) $(DEFS_CC) $(DEFS_ISR) $(DEPENDENCY_OPT) \

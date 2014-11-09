@@ -160,6 +160,10 @@ extern "C" {
 #include "cpu/rx200/inc/ee_cpu.h"
 #endif
 
+#ifdef __CORTEX_RX__
+#include "cpu/cortex_rx/inc/ee_cpu.h"
+#endif
+
   /*
    *
    * MCU
@@ -260,6 +264,10 @@ extern "C" {
 /* Renesas RX200*/
 #if defined( __RX200__ ) && defined( __R5F5210x__ )
 #include "mcu/renesas_r5f5210x/inc/ee_mcu.h"
+#endif
+
+#if defined( __TI__ ) && defined( __TMS570__ )
+#include "mcu/ti_tms570/inc/ee_mcu.h"
 #endif
 
   /*
@@ -392,6 +400,12 @@ extern "C" {
 /* Nordic NRF51x22 */
 #ifdef __EE_NORDIC_PCA__
 #include "board/nordic_pca/inc/ee_board.h"
+#endif
+
+/* TMS570 */
+#if defined( __TI__ ) && defined ( __TMS570__ )
+#include "board/ti_tms570/inc/ee_board.h"
+
 #endif
 
   /*

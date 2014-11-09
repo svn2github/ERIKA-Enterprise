@@ -44,6 +44,7 @@
 ## 2010 Bernardo  Dal Seno
 ## CVS: $Id: rules.mk,v 1.33 2008/01/14 10:35:34 pj Exp $
 ## 2013 Eugen Kleinschmidt
+## 2014 Christoph Kreuzberger
 
 # Include templates and functions to handle paths
 include $(EEBASE)/pkg/cfg/path_helper.mk
@@ -340,6 +341,14 @@ endif
 ## compilers toolchains under windows
 ##########################################################################
 ifeq ($(call iseeopt, __CORTEX_MX__), yes)
+include $(EEBASE)/pkg/cfg/arch/rules_cortex_generic.mk
+endif
+
+##
+## CORTEX RX - Texas Instruments Code Composer Studio
+## compilers toolchains under windows
+##########################################################################
+ifeq ($(call iseeopt, __CORTEX_RX__), yes)
 include $(EEBASE)/pkg/cfg/arch/rules_cortex_generic.mk
 endif
 

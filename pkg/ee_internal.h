@@ -142,6 +142,10 @@ extern "C" {
 #include "cpu/rx200/inc/ee_internal.h"
 #endif
 
+#ifdef __CORTEX_RX__
+#include "cpu/cortex_rx/inc/ee_internal.h"
+#endif
+
   /*
    *
    * MCU
@@ -236,6 +240,10 @@ extern "C" {
 /* Renesas RX200*/
 #if defined( __RX200__ ) && defined( __R5F5210x__ )
 #include "mcu/renesas_r5f5210x/inc/ee_internal.h"
+#endif
+
+#if defined( __TI__ ) && defined( __TMS570__ )
+#include "mcu/ti_tms570/inc/ee_internal.h"
 #endif
 
   /*

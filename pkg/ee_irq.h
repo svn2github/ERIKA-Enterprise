@@ -99,6 +99,9 @@ extern "C" {
 #include "cpu/cortex_ax_xenpv/inc/ee_cax_cpu.h"
 #endif /* EE_CORTEX_AX_XENPV__ */
 
+#ifdef __CORTEX_RX__
+#include "cpu/cortex_rx/inc/ee_cpu.h"
+#endif
 /*
  * I need kernel inclusion before IRQ CPU inclusion because is CPU layer that
  * have to see Kernel API for IRQ Handling
@@ -157,6 +160,10 @@ defined(__OO_ECC2__) || defined(__AS_SC4__)
 
 #ifdef __CORTEX_MX__
 #include "cpu/cortex_mx/inc/ee_irq.h"
+#endif
+	
+#ifdef __CORTEX_RX__
+#include "cpu/cortex_rx/inc/ee_irq.h"
 #endif
 
 #ifdef __RX200__

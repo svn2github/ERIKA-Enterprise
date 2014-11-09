@@ -57,7 +57,5 @@
 //#include "cpu/common/inc/ee_stdint.h"
 //#include "cpu/common/inc/ee_types.h"
 
-#define __ASM __asm
-#define __IRQ interrupt
 
 #endif /* __INCLUDE_CPU_COMMON_EE_COMPILER_CCS__ */

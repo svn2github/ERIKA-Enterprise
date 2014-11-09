@@ -216,4 +216,10 @@ ifeq ($(call iseeopt, __X86__), yes)
 include $(EEBASE)/pkg/cfg/arch/cc_x86_gcc.mk
 endif
 
+## Added: 2014,  Christoph Kreuzberger
+ifeq ($(call iseeopt, __CORTEX_R4__), yes)
+ifeq ($(call iseeopt, __CCS__), yes)
+include $(EEBASE)/pkg/cfg/arch/cc_cortex_r4_ccs.mk
+endif	# !__CCS__
+endif	# __CORTEX_R4__
 
