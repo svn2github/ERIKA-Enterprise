@@ -46,8 +46,6 @@ INCLUDE_PATH += $(EEBASE)/contrib/ti_tms570/include/
 
 ifeq ($(call iseeopt, __CCS__), yes)
 
-# MCU Functions
-EE_SRCS += pkg/mcu/ti_tms570/src/ee_mcu.c
 
 # Startup Code
 ifndef CRT0_SRCS

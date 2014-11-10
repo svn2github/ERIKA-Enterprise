@@ -44,7 +44,7 @@ ifeq ($(and $(call iseeopt, __TI__), $(call iseeopt, __TMS570__)), yes)
 
 ifeq ($(call iseeopt, __USE_DISPLAY__), yes)
 EE_SRCS += pkg/board/ti_tms570/src/EMIF.c
-EE_SRCS += pkg/board/ti_tms570/src/DISPLAY.c
+EE_SRCS += pkg/board/ti_tms570/src/Display.c
 endif # __USE_DISPLAY__
 
 

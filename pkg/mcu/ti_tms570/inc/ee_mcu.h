@@ -50,8 +50,9 @@
 #ifndef	__INCLUDE_TI_TMS570_MCU_H__
 #define	__INCLUDE_TI_TMS570_MCU_H__
 
+#include "board/ti_tms570/inc/ee_board.h"
 #include "mcu/ti_tms570/inc/ee_mcu.h"
-//#include "../contrib/ti_tms570/include/sys_common.h"
+
 #include "../contrib/ti_tms570/include/system.h"
 #include "../contrib/ti_tms570/include/adc.h"
 #include "../contrib/ti_tms570/include/can.h"
@@ -65,6 +66,47 @@
 #include "../contrib/ti_tms570/include/sys_mpu.h"
 
 // Called in the Main to initialise needed modules
-void EE_mcu_init(void);
+static void EE_mcu_init(void)
+{
+  /* Initialize Error Signaling Module */
+  esmInit();
+  _enable_interrupts();
+  rtiInit();
+
+#ifdef __USE_DISPLAY__
+  EMIF_Init();
+  DISPLAY_Init();
+#endif /*__USE_GLCD__*/
+
+
+#if defined(__USE_GIO__) || defined(__USE_LEDS__)
+  gioInit();
+#endif
+
+#if defined(__USE_HET__) || defined(__USE_LEDS__)
+  hetInit();
+#endif
+
+#ifdef __USE_ADC__
+  adcInit();
+#endif
+
+#ifdef __USE_CAN__
+  canInit();
+#endif
+
+#ifdef __USE_LIN__
+  linInit();
+#endif
+
+#ifdef __USE_SCI__
+  sciInit();
+#endif
+
+#ifdef __USE_SPI__
+  spiInit();
+#endif
+
+}
 
 #endif	/* __INCLUDE_TI_TMS570_MCU_H__ */

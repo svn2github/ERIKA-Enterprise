@@ -4,7 +4,7 @@
 #define CHAR_H      24                  /* Character Height (in pixels)       */
 #define CHAR_W      16                  /* Character Width (in pixels)        */
 
-uint16_t Font[] = {
+static uint16_t Font[] = {
   /* Space ' ' */
   0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
   0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,

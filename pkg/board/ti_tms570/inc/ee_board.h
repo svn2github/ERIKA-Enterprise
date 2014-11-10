@@ -47,7 +47,8 @@
  * User Led
  */
 #ifdef __USE_LEDS__
-
+#include "gio.h"
+#include "het.h"
 
 #define LED_NUM    6                    /* Number of user LEDs                */
 static const unsigned long led_gioMask[]  = { 1UL<< 0, 1UL<< 3, 1UL<< 4,  1UL<< 5};
@@ -127,7 +128,7 @@ static void EE_LED_Toggle (unsigned int num) {
  */
 #ifdef __USE_DISPLAY__
 #include "board/ti_tms570/inc/TMS570_emif.h"
-#include "board/ti_tms570/inc/EMIF_Config.h"
+#include "board/ti_tms570/inc/EMIF.h"
 #include "board/ti_tms570/inc/Display.h"
 #include "board/ti_tms570/inc/Font.h"
 #include <stdint.h>

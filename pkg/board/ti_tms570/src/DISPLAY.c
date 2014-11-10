@@ -67,7 +67,7 @@ static unsigned short rd_reg (unsigned char reg) {
 
 
 /* Initialize the Graphic LCD controller                                        */
-void GLCD_Init (void) { 
+void DISPLAY_Init (void) { 
   static unsigned short DriverCode;
 
   DriverCode = rd_reg(0x00);
@@ -173,7 +173,7 @@ void GLCD_Init (void) {
 
 
 /* Set draw window region to whole screen                                       */
-void GLCD_WindowMax (void) {
+void DISPLAY_WindowMax (void) {
   wr_reg(0x50, 0);                      /* Horizontal GRAM Start Address      */
   wr_reg(0x51, HEIGHT-1);               /* Horizontal GRAM End   Address (-1) */
   wr_reg(0x52, 0);                      /* Vertical   GRAM Start Address      */
@@ -183,7 +183,7 @@ void GLCD_WindowMax (void) {
 
 
 /* Draw a pixel in foreground color                                             */
-void GLCD_PutPixel (unsigned int x, unsigned int y) {
+void DISPLAY_PutPixel (unsigned int x, unsigned int y) {
   wr_reg(0x20, y);
   wr_reg(0x21, x);
   wr_cmd(0x22);
@@ -193,24 +193,24 @@ void GLCD_PutPixel (unsigned int x, unsigned int y) {
 
 
 /* Set foreground color                                                         */
-void GLCD_SetTextColor (unsigned short color) {
+void DISPLAY_SetTextColor (unsigned short color) {
   TextColor = color;
 }
 
 
 
 /* Set background color                                                         */
-void GLCD_SetBackColor (unsigned short color) {
+void DISPLAY_SetBackColor (unsigned short color) {
   BackColor = color;
 }
 
 
 
 /* Clear display                                                                */
-void GLCD_Clear (unsigned short color) {
+void DISPLAY_Clear (unsigned short color) {
   unsigned int   i;
 
-  GLCD_WindowMax();
+  DISPLAY_WindowMax();
 
   wr_reg(0x20, 0);
   wr_reg(0x21, 0);
@@ -222,7 +222,7 @@ void GLCD_Clear (unsigned short color) {
 
 
 /* Draw character on given position                                             */
-void GLCD_DrawChar(unsigned int x, unsigned int y, unsigned short *c) {
+void DISPLAY_DrawChar(unsigned int x, unsigned int y, unsigned short *c) {
   int i, j;
 	
   wr_reg(0x50, y);                      /* Horizontal GRAM Start Address      */
@@ -247,32 +247,32 @@ void GLCD_DrawChar(unsigned int x, unsigned int y, unsigned short *c) {
 
 
 /* Disply character on given line                                               */
-void GLCD_DisplayChar (unsigned int ln, unsigned int col, unsigned char c) {
+void DISPLAY_DisplayChar (unsigned int ln, unsigned int col, unsigned char c) {
   c -= 32;
-  GLCD_DrawChar(col * CHAR_W, ln * CHAR_H, &Font_24x16[c * CHAR_H]);
+  DISPLAY_DrawChar(col * CHAR_W, ln * CHAR_H, &Font[c * CHAR_H]);
 }
 
 
 
 /* Disply string on given line                                                  */
-void GLCD_DisplayString (unsigned int ln, unsigned int col, char *s) {
-  GLCD_WindowMax();
+void DISPLAY_DisplayString (unsigned int ln, unsigned int col, char *s) {
+  DISPLAY_WindowMax();
   while (*s) {
-    GLCD_DisplayChar(ln, col++, *s++);
+    DISPLAY_DisplayChar(ln, col++, *s++);
   }
 }
 
 
 
 /* Clear given line                                                             */
-void GLCD_ClearLn (unsigned int ln) {
-  GLCD_WindowMax();
-  GLCD_DisplayString(ln, 0, "                    ");
+void DISPLAY_ClearLn (unsigned int ln) {
+  DISPLAY_WindowMax();
+  DISPLAY_DisplayString(ln, 0, "                    ");
 }
 
 
 /* Draw bargraph                                                                */
-void GLCD_Bargraph (unsigned int x, unsigned int y, unsigned int w, unsigned int h, unsigned int val) {
+void DISPLAY_Bargraph (unsigned int x, unsigned int y, unsigned int w, unsigned int h, unsigned int val) {
   int i,j;
 
   wr_reg(0x50, y);                      /* Horizontal GRAM Start Address      */
@@ -298,7 +298,7 @@ void GLCD_Bargraph (unsigned int x, unsigned int y, unsigned int w, unsigned int
 
 
 /* Display graphical bitmap image at position x horizontally and y vertically   */
-void GLCD_Bitmap (unsigned int x, unsigned int y, unsigned int w, unsigned int h, unsigned char const *bitmap) {
+void DISPLAY_Bitmap (unsigned int x, unsigned int y, unsigned int w, unsigned int h, unsigned char const *bitmap) {
   unsigned int   i;
   unsigned int   len = w*h;
   unsigned short *bitmap_ptr = (unsigned short *)bitmap;
@@ -320,7 +320,7 @@ void GLCD_Bitmap (unsigned int x, unsigned int y, unsigned int w, unsigned int h
 
 
 /* Display graphical bmp file image at position x horizontally and y vertically */
-void GLCD_Bmp (unsigned int x, unsigned int y, unsigned int w, unsigned int h, unsigned char const *bmp) {
+void DISPLAY_Bmp (unsigned int x, unsigned int y, unsigned int w, unsigned int h, unsigned char const *bmp) {
   unsigned int    i, j;
   unsigned short pixel;
 
