@@ -28,36 +28,36 @@ CPU example {
         CFLAGS = "-I../sources/Appl";
 
         /* Erika Autosar inclusion paths */
-        CFLAGS = "-I../../../../../erika/contrib/as/include";
-        CFLAGS = "-I../../../../../erika/contrib/as/arch/mpc56xx/codewarrior/include";
+        CFLAGS = "-I../../../../../../../erika/contrib/as/include";
+        CFLAGS = "-I../../../../../../../erika/contrib/as/arch/mpc56xx/codewarrior/include";
 
 		/* Appl Inclusions */
-        CFLAGS = "-I../../../../../erika/contrib/drivers/leopard";
-        CFLAGS = "-I../../../../../erika/contrib/drivers/leopard/ApplCfg";
-        CFLAGS = "-I../../../../../erika/contrib/drivers/leopard/ApplCfg/AdcCfg";
-        CFLAGS = "-I../../../../../erika/contrib/drivers/leopard/ApplCfg/CanCfg";
-        CFLAGS = "-I../../../../../erika/contrib/drivers/leopard/ApplCfg/ErrorCfg";
-        CFLAGS = "-I../../../../../erika/contrib/drivers/leopard/ApplCfg/SpiCfg";
+        CFLAGS = "-I../../../../../../../erika/contrib/drivers/leopard";
+        CFLAGS = "-I../../../../../../../erika/contrib/drivers/leopard/ApplCfg";
+        CFLAGS = "-I../../../../../../../erika/contrib/drivers/leopard/ApplCfg/AdcCfg";
+        CFLAGS = "-I../../../../../../../erika/contrib/drivers/leopard/ApplCfg/CanCfg";
+        CFLAGS = "-I../../../../../../../erika/contrib/drivers/leopard/ApplCfg/ErrorCfg";
+        CFLAGS = "-I../../../../../../../erika/contrib/drivers/leopard/ApplCfg/SpiCfg";
 
 		/* Bsw inclusions */
-		CFLAGS = "-I../../../../../erika/contrib/drivers/leopard/Bsw/CanCom";
-		CFLAGS = "-I../../../../../erika/contrib/drivers/leopard/Bsw/Error";
-		CFLAGS = "-I../../../../../erika/contrib/drivers/leopard/Bsw/include";
-		CFLAGS = "-I../../../../../erika/contrib/drivers/leopard/Bsw/Kwp";
-		CFLAGS = "-I../../../../../erika/contrib/drivers/leopard/Bsw/Os";
-		CFLAGS = "-I../../../../../erika/contrib/drivers/leopard/Bsw/State";
+		CFLAGS = "-I../../../../../../../erika/contrib/drivers/leopard/Bsw/CanCom";
+		CFLAGS = "-I../../../../../../../erika/contrib/drivers/leopard/Bsw/Error";
+		CFLAGS = "-I../../../../../../../erika/contrib/drivers/leopard/Bsw/include";
+		CFLAGS = "-I../../../../../../../erika/contrib/drivers/leopard/Bsw/Kwp";
+		CFLAGS = "-I../../../../../../../erika/contrib/drivers/leopard/Bsw/Os";
+		CFLAGS = "-I../../../../../../../erika/contrib/drivers/leopard/Bsw/State";
 
 		/* Drivers inclusions */
-		CFLAGS = "-I../../../../../erika/contrib/drivers/leopard/Drivers/AdcDrv";
-		CFLAGS = "-I../../../../../erika/contrib/drivers/leopard/Drivers/CanDrv";
-		CFLAGS = "-I../../../../../erika/contrib/drivers/leopard/Drivers/FasterLoop";
-		CFLAGS = "-I../../../../../erika/contrib/drivers/leopard/Drivers/FlashDrv";
-		CFLAGS = "-I../../../../../erika/contrib/drivers/leopard/Drivers/PwmDrv";
-		CFLAGS = "-I../../../../../erika/contrib/drivers/leopard/Drivers/SpiDrv";
-		CFLAGS = "-I../../../../../erika/contrib/drivers/leopard/Drivers/WdDrv";
+		CFLAGS = "-I../../../../../../../erika/contrib/drivers/leopard/Drivers/AdcDrv";
+		CFLAGS = "-I../../../../../../../erika/contrib/drivers/leopard/Drivers/CanDrv";
+		CFLAGS = "-I../../../../../../../erika/contrib/drivers/leopard/Drivers/FasterLoop";
+		CFLAGS = "-I../../../../../../../erika/contrib/drivers/leopard/Drivers/FlashDrv";
+		CFLAGS = "-I../../../../../../../erika/contrib/drivers/leopard/Drivers/PwmDrv";
+		CFLAGS = "-I../../../../../../../erika/contrib/drivers/leopard/Drivers/SpiDrv";
+		CFLAGS = "-I../../../../../../../erika/contrib/drivers/leopard/Drivers/WdDrv";
 
 		/* CCP inclusion */
-		CFLAGS = "-I../../../../../erika/contrib/Ccp";
+		CFLAGS = "-I../../../../../../../erika/contrib/Ccp";
 
         /* Linker options used to execute from SRAM/FLASH */
         EE_OPT = "__USE_CUSTOM_LINKER_SCRIPT__";
