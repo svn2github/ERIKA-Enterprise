@@ -1,7 +1,7 @@
 /* ###*B*###
  * ERIKA Enterprise - a tiny RTOS for small microcontrollers
  *
- * Copyright (C) 2009-2011  Evidence Srl
+ * Copyright (C) 2002-2013  Evidence Srl
  *
  * This file is part of ERIKA Enterprise.
  *
@@ -38,14 +38,13 @@
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
 
+/*
+ * Author: 2014 Arianna Avanzini
+ */
+
 #include "ee.h"
 #include "ee_irq.h"
 #include "test/assert/inc/ee_assert.h"
-
-#include "cpu/cortex_ax/inc/ee_private_timer.h"
-#include "mcu/freescale_imx6/inc/serial.h"
-
-#include "cpu/cortex_ax/inc/ee_buffer_io.h"
 
 #ifndef TRUE
 #define TRUE 1
@@ -60,9 +59,10 @@ EE_TYPEASSERTVALUE result;
 #define __EE_XEN_PV__
 #ifdef __EE_XEN_PV__
 
-#include "xendebug.h"
-#include "xenincludes.h"
-#include "xenevents.h"
+#include "cpu/cortex_ax_xenpv/inc/xendebug.h"
+#include "cpu/cortex_ax_xenpv/inc/xenincludes.h"
+#include "cpu/cortex_ax_xenpv/inc/xenevents.h"
+#include "cpu/cortex_ax_xenpv/inc/xengnttab.h"
 
 extern int HYPERVISOR_memory_op(int what, struct xen_add_to_physmap *xatp);
 extern int HYPERVISOR_event_channel_op(int what, void *op);
@@ -89,9 +89,6 @@ void EE_Xen_map_shared(void)
 	printk("EE: shared info page mapped\n");
 }
 
-#define PAGE_SHIFT		12
-#define PAGE_SIZE		(1 << PAGE_SHIFT)
-#define PHYS_SIZE		(40*1024*1024)
 unsigned long start_pfn_p, max_pfn_p;
 
 void EE_Xen_init_mm(void)
@@ -101,12 +98,12 @@ void EE_Xen_init_mm(void)
 	printk("EE: init mm\n");
 }
 
-#include "gic.c"
+#include "cpu/cortex_ax_xenpv/inc/gic.h"
 
 static struct xenstore_domain_interface *xenstore_buf;
 static uint32_t store_evtchn;
 
-#include "xenstore.c"
+#include "cpu/cortex_ax_xenpv/inc/xenstore.h"
 
 int task_state = 0;
 
@@ -127,8 +124,7 @@ void EE_Xen_init_xenbus(void)
 	printk("EE: xenbus init\n");
 }
 
-#include "gpio.h"
-#include "gpio.c"
+#include "mcu/allwinner_a20/inc/gpio.h"
 
 struct erika_idc_struct {
 	int pin_number;
@@ -179,7 +175,8 @@ void notify_back_Linux(void)
 
 	printk("EE: notifying back Linux\n");
 	buffer[9] = '\0';
-	xenstore_read("/local/linux_erika_evtchn", buffer, 9);
+
+	xenstore_read(xenstore_buf, store_evtchn, "/local/linux_erika_evtchn", buffer, 9);
 	if (bind_to_interdomain_evtchn(0, 7)) {
 		printk("EE: error while binding to Linux\n");
 		return;
@@ -209,66 +206,7 @@ void EE_Xen_idc_handler(evtchn_port_t port, struct pt_regs *regs, void *data)
 	return;
 }
 
-#include "xengnttab.h"
-
-int HYPERVISOR_grant_table_op(unsigned int cmd, void *uop, unsigned int count);
-
-#define XENMAPSPACE_grant_table 1
-extern unsigned long grant_table;
-#define MAX_GNTTAB	32
-static grant_entry_t *gnttab_table[MAX_GNTTAB];
-int last_mapped_idx = 0;
-
 #define IDC_REF			2
-#define GSTRUCT_NUM		(PAGE_SIZE / sizeof(grant_entry_t))
-#define GTABLE_LINE(ref)	(ref / GSTRUCT_NUM)
-#define GTABLE_COL(ref)		(ref % GSTRUCT_NUM)
-
-
-void EE_Xen_map_gnttab(int idx_start, int idx_end)
-{
-	struct xen_add_to_physmap xatp;
-	int i = idx_end;
-
-	if (idx_end >= MAX_GNTTAB || idx_start < 0)
-		return;
-
-	/* Map grant table ensuring to let it grow only once */
-	for (; i >= idx_start ; i--) {
-		xatp.domid = DOMID_SELF;
-		xatp.space = XENMAPSPACE_grant_table;
-		xatp.idx = i;
-		xatp.gpfn = virt_to_pfn(&grant_table);
-		if (HYPERVISOR_memory_op(XENMEM_add_to_physmap, &xatp))
-			BUG();
-		gnttab_table[i] = (grant_entry_t *)&grant_table;
-	}
-
-	last_mapped_idx = idx_end;
-
-	printk("EE: grant table mapped\n");
-}
-
-void EE_Xen_init_gnttab(void)
-{
-	EE_Xen_map_gnttab(last_mapped_idx, 0);
-
-	printk("EE: gnttab frames init\n");
-}
-
-static void gnttab_update_entry_v2(grant_ref_t ref,
-				   domid_t domid,
-                                   unsigned long frame,
-                                   unsigned flags)
-{
-	grant_ref_t line = GTABLE_LINE(ref);
-	grant_ref_t col = GTABLE_COL(ref);
-
-	gnttab_table[line][col].domid = domid;
-        gnttab_table[line][col].frame = frame;
-        wmb();
-        gnttab_table[line][col].flags = GTF_permit_access | flags;
-}
 
 static evtchn_port_t erika_idc_port;
 
@@ -288,7 +226,7 @@ void EE_Xen_init_idc(void)
 	printk("EE: init idc\n");
 	itoa(erika_idc_port, port);
 
-	if (xenstore_write("/local/erika_task_evtchn", port) == -1)
+	if (xenstore_write(xenstore_buf, store_evtchn, "/local/erika_task_evtchn", port) == -1)
 		printk("EE: ERROR: xenstore_write\n");
 	printk("EE: port advertised\n");
 
