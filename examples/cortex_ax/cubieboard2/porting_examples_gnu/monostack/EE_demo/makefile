@@ -61,8 +61,7 @@ ifndef RTDRUID_SCRIPT_DIR
 RTDRUID_SCRIPT_DIR := $(RTDRUID_ECLIPSE_HOME)/evidence
 endif
 
-RTDRUID_OUTPUT = $(addprefix $(OUTPUT_DIR)/, makefile common.mk master/common.c\
-master/eecfg.h master/eecfg.c master/makefile)
+RTDRUID_OUTPUT = $(addprefix $(OUTPUT_DIR)/, makefile eecfg.h eecfg.c)
 
 .PHONY: all clean config
 

@@ -63,14 +63,8 @@ CPU mySystem {
       ID = "master";
     };
 
-    CPU_DATA = LINUX;
-
     EE_OPT = "__OO_STARTOS_OLD__";
     KERNEL_TYPE = BCC1;
-
-    REMOTENOTIFICATION = USE_RPC;
-    USEREMOTETASK = ALWAYS;
-    USEREMOTEEVENT = ALWAYS;
 
     ORTI_SECTIONS = ALL;
   };
