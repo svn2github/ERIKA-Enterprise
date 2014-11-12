@@ -1,6 +1,6 @@
 #!/bin/bash
-#export RTDRUID_ECLIPSE_HOME=/home/bruno/gea_kern/imx6/rt_druid/eclipse/
-export RTDRUID_ECLIPSE_HOME=/home/ava/heavy/tirocinio/source/linux_plus_erika/imx6-linerika-erika/rtdruid/bin
+export ECLIPSE_HOME=/home/bruno/usr/ee2/eclipse
+export RTDRUID_ECLIPSE_HOME=/home/bruno/gea_kern/xen/rt_tux_web_CLEAN/
 export CORTEX_AX_XENPV_GCCDIR=/usr/
 
 #make FAKE_DRUID=1 $@
