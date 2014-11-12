@@ -1,3 +1,5 @@
+#include "mcu/allwinner_a20/inc/gpio.h"
+
 unsigned int SUNXI_PIO_BASE = 0;
 
 void gpio_init(void)

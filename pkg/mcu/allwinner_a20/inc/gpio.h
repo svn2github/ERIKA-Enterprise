@@ -66,4 +66,8 @@ enum sunxi_gpio_number {
 #define PD1    SUNXI_GPD(1)
 #define PD12    SUNXI_GPD(12)
 
+void gpio_init(void);
+int gpio_cfg_pin(unsigned int pin, unsigned int val);
+int gpio_output(unsigned int pin, unsigned int val);
+
 #endif /* __ERIKA_GPIO__ */
