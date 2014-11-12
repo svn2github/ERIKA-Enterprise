@@ -1,211 +1,198 @@
-/* ###*B*###
- * ERIKA Enterprise - a tiny RTOS for small microcontrollers
- *
- * Copyright (C) 2002-2013  Evidence Srl
- *
- * This file is part of ERIKA Enterprise.
- *
- * ERIKA Enterprise is free software; you can redistribute it
- * and/or modify it under the terms of the GNU General Public License
- * version 2 as published by the Free Software Foundation,
- * (with a special exception described below).
- *
- * Linking this code statically or dynamically with other modules is
- * making a combined work based on this code.  Thus, the terms and
- * conditions of the GNU General Public License cover the whole
- * combination.
- *
- * As a special exception, the copyright holders of this library give you
- * permission to link this code with independent modules to produce an
- * executable, regardless of the license terms of these independent
- * modules, and to copy and distribute the resulting executable under
- * terms of your choice, provided that you also meet, for each linked
- * independent module, the terms and conditions of the license of that
- * module.  An independent module is a module which is not derived from
- * or based on this library.  If you modify this code, you may extend
- * this exception to your version of the code, but you are not
- * obligated to do so.  If you do not wish to do so, delete this
- * exception statement from your version.
- *
- * ERIKA Enterprise is distributed in the hope that it will be
- * useful, but WITHOUT ANY WARRANTY; without even the implied warranty
- * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License version 2 for more details.
- *
- * You should have received a copy of the GNU General Public License
- * version 2 along with ERIKA Enterprise; if not, write to the
- * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301 USA.
- * ###*E*### */
+// ARM GIC implementation
 
-/*
- * Author: 2013 Bruno Morelli
- */
+extern unsigned long IRQ_handler;
 
-#include "cpu/common/inc/ee_types.h"
-#include "cpu/cortex_ax_xenpv/inc/ee_gic_maps.h"
-#include "cpu/cortex_ax_xenpv/inc/ee_cax_utils.h"
+struct gic {
+	volatile char *gicd_base;
+	volatile char *gicc_base;
+};
 
-#include "eecfg.h"
-#include "cpu/cortex_ax_xenpv/inc/ee_cax_irq.h"
-#include "cpu/cortex_ax_xenpv/src/ee_gic_prio_table.h"
+static struct gic gic;
 
-#if 0
-void gic_dist_init()
+// Distributor Interface
+#define GICD_CTLR		0x0
+#define GICD_ISENABLER	0x100
+#define GICD_PRIORITY	0x400
+#define GICD_ITARGETSR	0x800
+#define GICD_ICFGR		0xC00
+
+// CPU Interface
+#define GICC_CTLR	0x0
+#define GICC_PMR	0x4
+#define GICC_IAR	0xc
+#define GICC_EOIR	0x10
+#define GICC_HPPIR	0x18
+
+#define gicd(gic, offset) ((gic)->gicd_base + (offset))
+#define gicc(gic, offset) ((gic)->gicc_base + (offset))
+
+#define REG(addr) ((uint32_t *)(addr))
+
+static inline uint32_t REG_READ32(volatile uint32_t *addr)
 {
-	unsigned int max_irq;
-	unsigned int i;
-
-	EE_UINT32 cpu_mask = 1 << cortex_ax_smp_cpu_id();
-	cpu_mask |= cpu_mask << 8;
-	cpu_mask |= cpu_mask << 16;
-
-	/* disable gic */
-	writel(0, EE_IC_DISTRIBUTOR_BASE_ADDR + EE_GIC_DIST_CTRL);
-
-	max_irq = readl(EE_IC_DISTRIBUTOR_BASE_ADDR + EE_GIC_DIST_CTR) & 0x1f;
-	max_irq = (max_irq + 1) * 32;
-	max_irq = (max_irq > 1020) ? 1020 : max_irq;
-
-	/* Set all global interrupts to be level triggered, active low */
-	for (i = 32; i < max_irq; i += 16)
-		writel(0, EE_IC_DISTRIBUTOR_BASE_ADDR + EE_GIC_DIST_CONFIG
-			  + i * 4 /16);
-
-	/* Set all global interrupts to this CPU only */
-	for (i = 32; i < max_irq; i += 4)
-		writel(cpu_mask, EE_IC_DISTRIBUTOR_BASE_ADDR + EE_GIC_DIST_TARGET
-				 + i * 4 / 4);
-
-	/* Set priority on all global interrupts */
-	for (i = 32; i < max_irq; i += 4)
-		writel(0xa0a0a0a0, EE_IC_DISTRIBUTOR_BASE_ADDR + EE_GIC_DIST_PRI +
-				   + i * 4 / 4);
-
-	for (i = 32; i < max_irq; i += 32)
-		writel(0xffffffff, EE_IC_DISTRIBUTOR_BASE_ADDR
-				   + EE_GIC_DIST_ENABLE_CLEAR + i * 4 / 32);
-
-	/* enable gic */
-	writel(1, EE_IC_DISTRIBUTOR_BASE_ADDR + EE_GIC_DIST_CTRL);
+	uint32_t value;
+	__asm__ __volatile__("ldr %0, [%1]":"=&r"(value):"r"(addr));
+	rmb();
+	return value;
 }
-#endif
 
-
-void EE_gic_dist_init(void)
+static inline void REG_WRITE32(volatile uint32_t *addr, unsigned int value)
 {
-	unsigned int max_irq;
-	unsigned int i;
-	unsigned int intID;
-	unsigned int prio;
-	EE_UINT32 cpu_int_en = 0;
-	EE_UINT32 reg_off;
-	EE_UINT32 byte_off;
-	EE_UINT32 tmp;
-	EE_UINT32 cpu_mask = 1 << cortex_ax_smp_cpu_id();
+	__asm__ __volatile__("str %0, [%1]"::"r"(value), "r"(addr));
+	wmb();
+}
 
-#if 0
-	cpu_mask |= cpu_mask << 8;
-	cpu_mask |= cpu_mask << 16;
-#endif
-	/* disable gic dist */
-	writel(0, EE_IC_DISTRIBUTOR_BASE_ADDR + EE_GIC_DIST_CTRL);
+static void gic_set_priority(struct gic *gic, unsigned char irq_number, unsigned char priority)
+{
+	uint32_t value;
+	value = REG_READ32(REG(gicd(gic, GICD_PRIORITY)) + irq_number);
+	value &= ~(0xff << (8 * (irq_number & 0x3))); // set priority to '0'
+	value |= priority << (8 * (irq_number & 0x3)); // add our priority
+	REG_WRITE32(REG(gicd(gic, GICD_PRIORITY)) + irq_number, value);
+}
 
-	printk("EE: here\n");
-	max_irq = readl(EE_IC_DISTRIBUTOR_BASE_ADDR + EE_GIC_DIST_CTR) & 0x1f;
-	max_irq = (max_irq + 1) * 32;
-	max_irq = (max_irq > 1020) ? 1020 : max_irq;
+static void gic_route_interrupt(struct gic *gic, unsigned char irq_number, unsigned char cpu_set)
+{
+	uint32_t value;
+	value = REG_READ32(REG(gicd(gic, GICD_ITARGETSR)) + irq_number);
+	value &= ~(0xff << (8 * (irq_number & 0x3))); // set priority to '0'
+	value |= cpu_set << (8 * (irq_number & 0x3)); // add our priority
+	REG_WRITE32(REG(gicd(gic, GICD_ITARGETSR)) + irq_number, value);
+}
 
-	writel(0xffffffff, EE_IC_DISTRIBUTOR_BASE_ADDR + EE_GIC_DIST_ENABLE_CLEAR);
+static void gic_enable_interrupt(struct gic *gic, unsigned char irq_number,
+		unsigned char cpu_set, unsigned char level_sensitive, unsigned char ppi)
+{
+	void *set_enable_reg;
+	void *cfg_reg;
 
-	for (i = 0; i < IP_TABLE_SIZE; ++i) {
-		if (intID != 31 && intID != 27)
-			continue;
-		intID = ip_table[i].intID;
-		prio = ip_table[i].prio;
-		if (intID < 32) {
-			reg_off = (intID / 4) * 4; /*  (* 4 means word) */
-			byte_off = (intID % 4) * 8;
-			tmp = readl(EE_IC_DISTRIBUTOR_BASE_ADDR
-				    + EE_GIC_DIST_PRI + reg_off);
-			tmp = (tmp & ~(0xff << byte_off))
-			      | ((prio & 0xff) << byte_off);
-			writel(tmp, EE_IC_DISTRIBUTOR_BASE_ADDR + EE_GIC_DIST_PRI +
-				    + reg_off);
-			cpu_int_en |= (1 << intID);
-		} else {
-		/* Set global interrupts to be level triggered, active low */
-			reg_off = (intID / 16) * 4; /* (* 4 means word) */
-			byte_off = (intID % 16) * 2;
-			tmp = readl(EE_IC_DISTRIBUTOR_BASE_ADDR
-				    + EE_GIC_DIST_CONFIG + reg_off);
-			tmp = tmp & ~(0x3 << byte_off);
-			writel(tmp, EE_IC_DISTRIBUTOR_BASE_ADDR
-				    + EE_GIC_DIST_CONFIG + reg_off);
+	// set priority
+	gic_set_priority(gic, irq_number, 0x0);
 
-		/* Set global interrupts to this CPU */
-			reg_off = (intID / 4) * 4; /* (* 4 means word) */
-			byte_off = (intID % 4) * 8;
-			tmp = readl(EE_IC_DISTRIBUTOR_BASE_ADDR
-				    + EE_GIC_DIST_TARGET + reg_off);
-			tmp = (tmp & ~(0xff << byte_off))
-			      | ((cpu_mask & 0xff) << byte_off);
-			writel(tmp, EE_IC_DISTRIBUTOR_BASE_ADDR
-				    + EE_GIC_DIST_TARGET + reg_off);
-		/* Set priority on global interrupts */
-			tmp = readl(EE_IC_DISTRIBUTOR_BASE_ADDR
-				    + EE_GIC_DIST_PRI + reg_off);
-			tmp = (tmp & ~(0xff << byte_off))
-			      | ((prio & 0xff) << byte_off);
-			writel(tmp, EE_IC_DISTRIBUTOR_BASE_ADDR
-				    + EE_GIC_DIST_PRI + reg_off);
-		/* Enable global interrupt forwarding from distributor to cpu interface */
-			reg_off = (intID / 32) * 4; /* (* 4 measn word) */
-			byte_off = (intID % 32) * 1;
-			tmp = 1 << byte_off;
-			writel(tmp, EE_IC_DISTRIBUTOR_BASE_ADDR
-				    + EE_GIC_DIST_ENABLE_SET + reg_off);
-		}
+	// set target cpus for this interrupt
+	gic_route_interrupt(gic, irq_number, cpu_set);
+
+	// set level/edge triggered
+	cfg_reg = (void *)gicd(gic, GICD_ICFGR);
+	level_sensitive ? clear_bit((irq_number * 2) + 1, cfg_reg) : set_bit((irq_number * 2) + 1, cfg_reg);
+	if(ppi)
+		clear_bit((irq_number * 2), cfg_reg);
+
+	wmb();
+
+	// enable forwarding interrupt from distributor to cpu interface
+	set_enable_reg = (void *)gicd(gic, GICD_ISENABLER);
+	set_bit(irq_number, set_enable_reg);
+	wmb();
+}
+
+static void gic_enable_interrupts(struct gic *gic)
+{
+	// Global enable forwarding interrupts from distributor to cpu interface
+	REG_WRITE32(REG(gicd(gic, GICD_CTLR)), 0x00000001);
+
+	// Global enable signalling of interrupt from the cpu interface
+	REG_WRITE32(REG(gicc(gic, GICC_CTLR)), 0x00000001);
+}
+
+static void gic_disable_interrupts(struct gic *gic)
+{
+	// Global disable signalling of interrupt from the cpu interface
+	REG_WRITE32(REG(gicc(gic, GICC_CTLR)), 0x00000000);
+
+	// Global disable forwarding interrupts from distributor to cpu interface
+	REG_WRITE32(REG(gicd(gic, GICD_CTLR)), 0x00000000);
+}
+
+static void gic_cpu_set_priority(struct gic *gic, char priority)
+{
+	REG_WRITE32(REG(gicc(gic, GICC_PMR)), priority & 0x000000FF);
+}
+
+static void gic_set_handler(unsigned long gic_handler) {
+	IRQ_handler = gic_handler;
+}
+
+static unsigned long gic_readiar(struct gic *gic) {
+	return REG_READ32(REG(gicc(gic, GICC_IAR))) & 0x000003FF; // Interrupt ID
+}
+
+static void gic_eoir(struct gic *gic, uint32_t irq) {
+	REG_WRITE32(REG(gicc(gic, GICC_EOIR)), irq & 0x000003FF);
+}
+
+#define EVENTS_IRQ 31
+#define VIRTUALTIMER_IRQ 27
+#define VTIMER_TICK 0x6000000
+void timer_handler(evtchn_port_t port, struct pt_regs *regs, void *ign);
+void increment_vtimer_compare(uint64_t inc);
+
+int in_callback;
+
+void do_hypervisor_callback(struct pt_regs *regs)
+{
+    unsigned long  l1, l2, l1i, l2i;
+    unsigned int   port;
+    int            cpu = 0;
+    shared_info_t *s = HYPERVISOR_shared_info;
+    vcpu_info_t   *vcpu_info = &s->vcpu_info[cpu];
+
+    in_callback = 1;
+
+    vcpu_info->evtchn_upcall_pending = 0;
+    /* Clear master flag /before/ clearing selector flag. */
+    wmb();
+    l1 = xchg(&vcpu_info->evtchn_pending_sel, 0);
+    while ( l1 != 0 )
+    {
+        l1i = __ffs(l1);
+        l1 &= ~(1UL << l1i);
+
+        while ( (l2 = active_evtchns(cpu, s, l1i)) != 0 )
+        {
+            l2i = __ffs(l2);
+            l2 &= ~(1UL << l2i);
+
+            port = (l1i * (sizeof(unsigned long) * 8)) + l2i;
+			do_event(port, regs);
+        }
+    }
+
+    in_callback = 0;
+}
+
+static void gic_handler(void) {
+	unsigned int irq = gic_readiar(&gic);
+
+	switch(irq) {
+	case EVENTS_IRQ:
+		do_hypervisor_callback(NULL);
+		break;
+	case VIRTUALTIMER_IRQ:
+		timer_handler(0, NULL, 0);
+		increment_vtimer_compare(VTIMER_TICK);
+		break;
+	default:
+		printk("ERIKA: unknown GIC\n");
+		break;
 	}
 
-	writel(cpu_int_en, EE_IC_DISTRIBUTOR_BASE_ADDR + EE_GIC_DIST_ENABLE_SET);
-
-	/* enable gic dist */
-	writel(1, EE_IC_DISTRIBUTOR_BASE_ADDR + EE_GIC_DIST_CTRL);
-
-	/* enable gic cpu */
-	writel(EE_GIC_MIN_PRIO, EE_IC_INTERFACES_BASE_ADDR + EE_GIC_CPU_PRIMASK);
-	writel(1, EE_IC_INTERFACES_BASE_ADDR + EE_GIC_CPU_CTRL);
+	gic_eoir(&gic, irq);
 }
 
-void gic_cpu_init(void)
-{
-	int i;
-	//unsigned int val = 0x0000ffff; /* all the private sgi */
-	unsigned int val = 0x00000000; /* all the private sgi */
+void gic_init(void) {
+	// FIXME Get from dt!
+	gic.gicd_base = (char *)0x2c001000ULL;
+	gic.gicc_base = (char *)0x2c002000ULL;
+	wmb();
 
-	/* SGI & PPI stuffs */
-	writel(0xffffffff, EE_IC_DISTRIBUTOR_BASE_ADDR + EE_GIC_DIST_ENABLE_CLEAR);
-//	writel(0x0000ffff, EE_IC_DISTRIBUTOR_BASE_ADDR + EE_GIC_DIST_ENABLE_SET);
-//	val |= (1 << 29); /* private local timer interrupt */
-	writel(val, EE_IC_DISTRIBUTOR_BASE_ADDR + EE_GIC_DIST_ENABLE_SET);
+	gic_set_handler((unsigned long)gic_handler);
 
-	for (i = 0; i < 32; i += 4)
-		writel(0xf0f0f0f0, EE_IC_DISTRIBUTOR_BASE_ADDR + EE_GIC_DIST_PRI +
-				   + i * 4 / 4);
+	gic_disable_interrupts(&gic);
+	gic_cpu_set_priority(&gic, 0xff);
+	gic_enable_interrupt(&gic, EVENTS_IRQ /* interrupt number */, 0x1 /*cpu_set*/, 1 /*level_sensitive*/, 0 /* ppi */);
+	gic_enable_interrupt(&gic, VIRTUALTIMER_IRQ /* interrupt number */, 0x1 /*cpu_set*/, 1 /*level_sensitive*/, 1 /* ppi */);
+	gic_enable_interrupts(&gic);
 
-	writel(0xf0, EE_IC_INTERFACES_BASE_ADDR + EE_GIC_CPU_PRIMASK);
-	writel(1, EE_IC_INTERFACES_BASE_ADDR + EE_GIC_CPU_CTRL);
-
-}
-
-void EE_gic_send_sgi(EE_UINT32 id, EE_UINT32 target_list, EE_UINT32 filter_list)
-{
-	EE_UINT32 reg = 0;
-	/* NSATT = 0 --> only to group 0 */
-	reg = ((filter_list & 0x3) << 24)
-	      | ((target_list & 0xff)) << 16
-	      | (id & 0x0f);
-
-	writel(reg, EE_IC_DISTRIBUTOR_BASE_ADDR + EE_GIC_DIST_SOFTINT);
+	printk("EE: GIC init\n");
 }
