@@ -48,22 +48,22 @@
 ifeq ($(call iseeopt, EE_FIND_COMPILER_IN_PATH), yes)
 ## If this EE_OPT is used, the toolchain expects the compiler present in path
 ## This solution has been introduced because Lin does not like compiler paths
-EE_LINK ?= armv7a-hardfloat-linux-gnueabi-ld
-EE_ASM  ?= armv7a-hardfloat-linux-gnueabi-gcc
-EE_CC   ?= armv7a-hardfloat-linux-gnueabi-gcc
-EE_AR   ?= armv7a-hardfloat-linux-gnueabi-ar
-EE_OBJDUMP ?= armv7a-hardfloat-linux-gnueabi-objdump
-EE_OBJCOPY ?= armv7a-hardfloat-linux-gnueabi-objcopy
+EE_LINK ?= arm-linux-gnueabihf-ld
+EE_ASM  ?= arm-linux-gnueabihf-gcc
+EE_CC   ?= arm-linux-gnueabihf-gcc
+EE_AR   ?= arm-linux-gnueabihf-ar
+EE_OBJDUMP ?= arm-linux-gnueabihf-objdump
+EE_OBJCOPY ?= arm-linux-gnueabihf-objcopy
 else # EE_FIND_COMPILER_IN_PATH
 ## We will use "control program" gcc instead specific single tool,
 ## because it understand better implicit options (empirical knowledge)
 ## and because we can easily use HIGHTEC IDE to get the right options.
-EE_LINK ?= $(CORTEX_AX_XENPV_GCCDIR)/bin/armv7a-hardfloat-linux-gnueabi-ld
-EE_ASM  ?= $(CORTEX_AX_XENPV_GCCDIR)/bin/armv7a-hardfloat-linux-gnueabi-gcc
-EE_CC   ?= $(CORTEX_AX_XENPV_GCCDIR)/bin/armv7a-hardfloat-linux-gnueabi-gcc
-EE_AR   ?= $(CORTEX_AX_XENPV_GCCDIR)/bin/armv7a-hardfloat-linux-gnueabi-ar
-EE_OBJDUMP ?= $(CORTEX_AX_XENPV_GCCDIR)/bin/armv7a-hardfloat-linux-gnueabi-objdump
-EE_OBJCOPY ?= $(CORTEX_AX_XENPV_GCCDIR)/bin/armv7a-hardfloat-linux-gnueabi-objcopy
+EE_LINK ?= $(CORTEX_AX_XENPV_GCCDIR)/bin/arm-linux-gnueabihf-ld
+EE_ASM  ?= $(CORTEX_AX_XENPV_GCCDIR)/bin/arm-linux-gnueabihf-gcc
+EE_CC   ?= $(CORTEX_AX_XENPV_GCCDIR)/bin/arm-linux-gnueabihf-gcc
+EE_AR   ?= $(CORTEX_AX_XENPV_GCCDIR)/bin/arm-linux-gnueabihf-ar
+EE_OBJDUMP ?= $(CORTEX_AX_XENPV_GCCDIR)/bin/arm-linux-gnueabihf-objdump
+EE_OBJCOPY ?= $(CORTEX_AX_XENPV_GCCDIR)/bin/arm-linux-gnueabihf-objcopy
 endif # EE_FIND_COMPILER_IN_PATH
 
 # Suffix used for Linker Scripts Files for TASKING
