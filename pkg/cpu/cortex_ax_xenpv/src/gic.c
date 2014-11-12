@@ -1,3 +1,53 @@
+/* ###*B*###
+ * ERIKA Enterprise - a tiny RTOS for small microcontrollers
+ *
+ * Copyright (C) 2002-2013  Evidence Srl
+ *
+ * This file is part of ERIKA Enterprise.
+ *
+ * ERIKA Enterprise is free software; you can redistribute it
+ * and/or modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation,
+ * (with a special exception described below).
+ *
+ * Linking this code statically or dynamically with other modules is
+ * making a combined work based on this code.  Thus, the terms and
+ * conditions of the GNU General Public License cover the whole
+ * combination.
+ *
+ * As a special exception, the copyright holders of this library give you
+ * permission to link this code with independent modules to produce an
+ * executable, regardless of the license terms of these independent
+ * modules, and to copy and distribute the resulting executable under
+ * terms of your choice, provided that you also meet, for each linked
+ * independent module, the terms and conditions of the license of that
+ * module.  An independent module is a module which is not derived from
+ * or based on this library.  If you modify this code, you may extend
+ * this exception to your version of the code, but you are not
+ * obligated to do so.  If you do not wish to do so, delete this
+ * exception statement from your version.
+ *
+ * ERIKA Enterprise is distributed in the hope that it will be
+ * useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License version 2 for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * version 2 along with ERIKA Enterprise; if not, write to the
+ * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+ * Boston, MA 02110-1301 USA.
+ * ###*E*### */
+
+/*
+ * Author: 2014 Arianna Avanzini
+ */
+
+#include "cpu/common/inc/ee_types.h"
+#include "cpu/cortex_ax_xenpv/inc/ee_cax_cpu.h"
+#include "cpu/cortex_ax_xenpv/inc/xenincludes.h"
+#include "cpu/cortex_ax_xenpv/inc/xendebug.h"
+#include "cpu/cortex_ax_xenpv/inc/gic.h"
+
 // ARM GIC implementation
 
 extern unsigned long IRQ_handler;
@@ -26,17 +76,17 @@ static struct gic gic;
 #define gicd(gic, offset) ((gic)->gicd_base + (offset))
 #define gicc(gic, offset) ((gic)->gicc_base + (offset))
 
-#define REG(addr) ((uint32_t *)(addr))
+#define REG(addr) ((EE_UINT32 *)(addr))
 
-static inline uint32_t REG_READ32(volatile uint32_t *addr)
+static inline EE_UINT32 REG_READ32(volatile EE_UINT32 *addr)
 {
-	uint32_t value;
+	EE_UINT32 value;
 	__asm__ __volatile__("ldr %0, [%1]":"=&r"(value):"r"(addr));
 	rmb();
 	return value;
 }
 
-static inline void REG_WRITE32(volatile uint32_t *addr, unsigned int value)
+static inline void REG_WRITE32(volatile EE_UINT32 *addr, unsigned int value)
 {
 	__asm__ __volatile__("str %0, [%1]"::"r"(value), "r"(addr));
 	wmb();
@@ -44,7 +94,7 @@ static inline void REG_WRITE32(volatile uint32_t *addr, unsigned int value)
 
 static void gic_set_priority(struct gic *gic, unsigned char irq_number, unsigned char priority)
 {
-	uint32_t value;
+	EE_UINT32 value;
 	value = REG_READ32(REG(gicd(gic, GICD_PRIORITY)) + irq_number);
 	value &= ~(0xff << (8 * (irq_number & 0x3))); // set priority to '0'
 	value |= priority << (8 * (irq_number & 0x3)); // add our priority
@@ -53,7 +103,7 @@ static void gic_set_priority(struct gic *gic, unsigned char irq_number, unsigned
 
 static void gic_route_interrupt(struct gic *gic, unsigned char irq_number, unsigned char cpu_set)
 {
-	uint32_t value;
+	EE_UINT32 value;
 	value = REG_READ32(REG(gicd(gic, GICD_ITARGETSR)) + irq_number);
 	value &= ~(0xff << (8 * (irq_number & 0x3))); // set priority to '0'
 	value |= cpu_set << (8 * (irq_number & 0x3)); // add our priority
@@ -117,7 +167,7 @@ static unsigned long gic_readiar(struct gic *gic) {
 	return REG_READ32(REG(gicc(gic, GICC_IAR))) & 0x000003FF; // Interrupt ID
 }
 
-static void gic_eoir(struct gic *gic, uint32_t irq) {
+static void gic_eoir(struct gic *gic, EE_UINT32 irq) {
 	REG_WRITE32(REG(gicc(gic, GICC_EOIR)), irq & 0x000003FF);
 }
 
