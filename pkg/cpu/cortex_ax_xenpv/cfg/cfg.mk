@@ -45,12 +45,15 @@
 #
 ifeq ($(call iseeopt, EE_CORTEX_AX_XENPV__), yes)
 EE_SRCS += pkg/cpu/cortex_ax_xenpv/xenpv/hyper-arm_32.S
-EE_SRCS += pkg/cpu/cortex_ax/src/ee_hal.S
-EE_SRCS += pkg/cpu/cortex_ax/src/gic.c
-EE_SRCS += pkg/cpu/cortex_ax/src/ee_cax_vtable.c
-EE_SRCS += pkg/cpu/cortex_ax/src/private_timer.c
-EE_SRCS += pkg/cpu/cortex_ax/src/ee_irqv.S
-EE_SRCS += pkg/cpu/cortex_ax/src/ee_irq_handlers.S
+EE_SRCS += pkg/cpu/cortex_ax_xenpv/src/ee_hal.S
+EE_SRCS += pkg/cpu/cortex_ax_xenpv/src/gic.c
+EE_SRCS += pkg/cpu/cortex_ax_xenpv/src/ee_cax_vtable.c
+EE_SRCS += pkg/cpu/cortex_ax_xenpv/src/private_timer.c
+EE_SRCS += pkg/cpu/cortex_ax_xenpv/src/ee_irqv.S
+EE_SRCS += pkg/cpu/cortex_ax_xenpv/src/ee_irq_handlers.S
+EE_SRCS += pkg/cpu/cortex_ax_xenpv/src/xendebug.c
+EE_SRCS += pkg/cpu/cortex_ax_xenpv/src/xenincludes.c
+EE_SRCS += pkg/cpu/cortex_ax_xenpv/src/xenstore.c
 
 ifeq ($(call iseeopt, __OO_BCC1__), yes)
 CPU_OO=YES
