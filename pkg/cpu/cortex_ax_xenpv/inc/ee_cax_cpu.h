@@ -121,7 +121,7 @@ extern const EE_ADDR EE_hal_thread_body[];
 #ifdef __MULTI__
 
 /* each task use a system (IRQ) stack and a user (SYS) stack */
-extern struct EE_TOS EE_cortex_ax_system_tos[];
+extern struct EE_TOS EE_cortex_ax_xenpv_system_tos[];
 
 /* arm7_system_tos[] index that point to the thread tos (one for each thread) */
 extern EE_UREG EE_cortex_ax_thread_tos[];
@@ -131,7 +131,7 @@ extern EE_UREG EE_cortex_ax_active_tos;
 
 /* stack used by IRQ handlers */
 #ifdef __IRQ_STACK_NEEDED__
-extern struct EE_TOS EE_cortex_ax_IRQ_tos;
+extern struct EE_TOS EE_cortex_ax_xenpv_IRQ_tos;
 #endif
 
 #endif /* __MULTI__ */

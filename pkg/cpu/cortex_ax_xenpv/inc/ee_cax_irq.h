@@ -73,7 +73,7 @@
 
 #ifdef __ALLOW_NESTED_IRQ__
 
-extern struct EE_TOS EE_cortex_ax_IRQ_tos;
+extern struct EE_TOS EE_cortex_ax_xenpv_IRQ_tos;
 
 #define EE_std_enableIRQ_nested() EE_cortex_ax_enableIRQ()
 #define EE_std_disableIRQ_nested() EE_cortex_ax_disableIRQ()
