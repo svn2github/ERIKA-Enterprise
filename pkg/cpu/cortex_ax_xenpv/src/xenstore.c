@@ -158,4 +158,3 @@ int xenstore_read(char *key, char *value, int value_length)
 	IGNORE(msg.len - value_length);
 	return -2;
 }
-
