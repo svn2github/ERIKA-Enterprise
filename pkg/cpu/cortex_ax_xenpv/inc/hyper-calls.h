@@ -42,61 +42,14 @@
  * Author: 2014 Arianna Avanzini
  */
 
-#include "cpu/common/inc/ee_types.h"
-#include "cpu/cortex_ax_xenpv/inc/xenincludes.h"
-#include "cpu/cortex_ax_xenpv/inc/xendebug.h"
-#include "cpu/cortex_ax_xenpv/inc/xengnttab.h"
-#include "cpu/cortex_ax_xenpv/inc/hyper-calls.h"
+#ifndef _HYPER_CALLS_H_
+#define _HYPER_CALLS_H_
 
-#define MAX_GNTTAB	32
-#define XENMAPSPACE_grant_table 1
+extern int HYPERVISOR_memory_op(int what, struct xen_add_to_physmap *xatp);
+extern int HYPERVISOR_event_channel_op(int what, void *op);
+extern int HYPERVISOR_sched_op(int what, void *arg);
+extern int HYPERVISOR_set_callbacks(
+        unsigned long event_address, unsigned long failsafe_address,
+	        unsigned long syscall_address);
 
-extern unsigned long grant_table;
-
-static grant_entry_t *gnttab_table[MAX_GNTTAB];
-static int last_mapped_idx = 0;
-
-void gnttab_update_entry_v2(grant_ref_t ref,
-			    domid_t domid,
-                            unsigned long frame,
-                            unsigned flags)
-{
-	grant_ref_t line = GTABLE_LINE(ref);
-	grant_ref_t col = GTABLE_COL(ref);
-
-	gnttab_table[line][col].domid = domid;
-        gnttab_table[line][col].frame = frame;
-        wmb();
-        gnttab_table[line][col].flags = GTF_permit_access | flags;
-}
-
-void EE_Xen_map_gnttab(int idx_start, int idx_end)
-{
-	struct xen_add_to_physmap xatp;
-	int i = idx_end;
-
-	if (idx_end >= MAX_GNTTAB || idx_start < 0)
-		return;
-
-	/* Map grant table ensuring to let it grow only once */
-	for (; i >= idx_start ; i--) {
-		xatp.domid = DOMID_SELF;
-		xatp.space = XENMAPSPACE_grant_table;
-		xatp.idx = i;
-		xatp.gpfn = virt_to_pfn(&grant_table);
-		if (HYPERVISOR_memory_op(XENMEM_add_to_physmap, &xatp))
-			BUG();
-		gnttab_table[i] = (grant_entry_t *)&grant_table;
-	}
-
-	last_mapped_idx = idx_end;
-
-	printk("EE: grant table mapped\n");
-}
-
-void EE_Xen_init_gnttab(void)
-{
-	EE_Xen_map_gnttab(last_mapped_idx, 0);
-
-	printk("EE: gnttab frames init\n");
-}
+#endif /*_HYPER_CALLS_H_*/

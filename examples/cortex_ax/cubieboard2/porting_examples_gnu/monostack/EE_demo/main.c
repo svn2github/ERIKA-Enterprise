@@ -63,13 +63,7 @@ EE_TYPEASSERTVALUE result;
 #include "cpu/cortex_ax_xenpv/inc/xenincludes.h"
 #include "cpu/cortex_ax_xenpv/inc/xenevents.h"
 #include "cpu/cortex_ax_xenpv/inc/xengnttab.h"
-
-extern int HYPERVISOR_memory_op(int what, struct xen_add_to_physmap *xatp);
-extern int HYPERVISOR_event_channel_op(int what, void *op);
-extern int HYPERVISOR_sched_op(int what, void *arg);
-extern int HYPERVISOR_set_callbacks(
-        unsigned long event_address, unsigned long failsafe_address,
-	        unsigned long syscall_address);
+#include "cpu/cortex_ax_xenpv/inc/hyper-calls.h"
 
 void *dtb_global;
 extern char _end;

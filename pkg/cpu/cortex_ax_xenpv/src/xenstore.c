@@ -48,6 +48,7 @@
 #include "cpu/cortex_ax_xenpv/inc/xenstore.h"
 #include "cpu/cortex_ax_xenpv/inc/xenevents.h"
 #include "cpu/cortex_ax_xenpv/inc/xendebug.h"
+#include "cpu/cortex_ax_xenpv/inc/hyper-calls.h"
 
 #define HVMOP_set_param           0
 #define HVMOP_get_param           1
