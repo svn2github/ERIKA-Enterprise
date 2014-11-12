@@ -54,6 +54,7 @@ EE_SRCS += pkg/cpu/cortex_ax_xenpv/src/ee_irq_handlers.S
 EE_SRCS += pkg/cpu/cortex_ax_xenpv/src/xendebug.c
 EE_SRCS += pkg/cpu/cortex_ax_xenpv/src/xenincludes.c
 EE_SRCS += pkg/cpu/cortex_ax_xenpv/src/xenstore.c
+EE_SRCS += pkg/cpu/cortex_ax_xenpv/src/xengnttab.c
 
 ifeq ($(call iseeopt, __OO_BCC1__), yes)
 CPU_OO=YES
