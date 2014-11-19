@@ -50,8 +50,8 @@ void gioInit(void)
                    | (1U << 3U)  /* Bit 3 */
                    | (1U << 4U)  /* Bit 4 */
                    | (1U << 5U)  /* Bit 5 */
-                   | (1U << 6U)  /* Bit 6 */
-                   | (1U << 7U); /* Bit 7 */
+                   | (0U << 6U)  /* Bit 6 */
+                   | (0U << 7U); /* Bit 7 */
 
     /** - Port A open drain enable */
     gioPORTA->PDR  =  0U         /* Bit 0 */
@@ -70,8 +70,8 @@ void gioInit(void)
                    | (0U << 3U)  /* Bit 3 */
                    | (0U << 4U)  /* Bit 4 */
                    | (0U << 5U)  /* Bit 5 */
-                   | (0U << 6U)  /* Bit 6 */
-                   | (0U << 7U); /* Bit 7 */
+                   | (1U << 6U)  /* Bit 6 */
+                   | (1U << 7U); /* Bit 7 */
 
     /** - Port A pullup / pulldown enable*/
     gioPORTA->PULDIS  =  0U         /* Bit 0 */

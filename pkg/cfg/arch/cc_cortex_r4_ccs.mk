@@ -58,29 +58,40 @@ BINDIR_CYG := /usr/bin
 #CCS_INSTALL_ROOT: Code Composer Studio Installation Root Folder.
 #                  Default "C:\Programmi\Texas Instruments\ccsv4".
 
-
-
-ifeq ($(call iseeopt, __CCS_4_2_4_00033_OLDER__), yes)
-CG_TOOL_PREFIX := 
-CG_TOOL_SUFFIX := 470
-CG_TOOL_ROOT := $(call short_native_path, $(CCS_INSTALL_ROOT)/tools/compiler/tms$(CG_TOOL_SUFFIX))
-else
-ifeq ($(call iseeopt, __CCS_4_2_5_00005_TMS470_4_9_3__), yes)
-CG_TOOL_PREFIX := 
-CG_TOOL_SUFFIX := 470
-CG_TOOL_ROOT := $(call short_native_path, $(CCS_INSTALL_ROOT)/tools/compiler/TMS470 Code Generation Tools 4.9.3)
-else
-ifeq ($(call iseeopt, __CCS_4_2_5_00005_TMS470_4_9_7__), yes)
-CG_TOOL_PREFIX := 
-CG_TOOL_SUFFIX := 470
-CG_TOOL_ROOT := $(call short_native_path, $(CCS_INSTALL_ROOT)/tools/compiler/TMS470 Code Generation Tools 4.9.7)
-else
+COMPILER_VERSION = arm_5.1.8
+ifeq (0,$(shell test -d  `cygpath $(CCS_INSTALL_ROOT)/tools/compiler/$(COMPILER_VERSION)`; echo $$? ))
 CG_TOOL_PREFIX := arm
 CG_TOOL_SUFFIX := 
-CG_TOOL_ROOT :=$(call short_native_path, $(CCS_INSTALL_ROOT)/tools/compiler/arm_5.1.8)
+else 
+COMPILER_VERSION = arm_5.1.6
+ifeq (0,$(shell test -d  `cygpath $(CCS_INSTALL_ROOT)/tools/compiler/$(COMPILER_VERSION)`; echo $$? ))
+CG_TOOL_PREFIX := arm
+CG_TOOL_SUFFIX := 
+else
+COMPILER_VERSION = TMS470 Code Generation Tools 4.9.7
+ifeq (0,$(shell test -d  `cygpath $(CCS_INSTALL_ROOT)/tools/compiler/$(COMPILER_VERSION)`; echo $$? ))
+CG_TOOL_PREFIX := 
+CG_TOOL_SUFFIX := 470
+else
+COMPILER_VERSION = TMS470 Code Generation Tools 4.9.3
+ifeq (0,$(shell test -d  `cygpath $(CCS_INSTALL_ROOT)/tools/compiler/$(COMPILER_VERSION)`; echo $$? ))
+CG_TOOL_PREFIX := 
+CG_TOOL_SUFFIX := 470
+else
+COMPILER_VERSION = tms470
+ifeq (0,$(shell test -d  `cygpath $(CCS_INSTALL_ROOT)/tools/compiler/$(COMPILER_VERSION)`; echo $$? ))
+CG_TOOL_PREFIX := 
+CG_TOOL_SUFFIX := 470
 endif
 endif
 endif
+endif
+endif
+
+CG_TOOL_ROOT := $(call short_native_path, $(CCS_INSTALL_ROOT)/tools/compiler/$(COMPILER_VERSION))
+$(info Using Compiler in $(shell cygpath $(CG_TOOL_ROOT)))
+
+
 
 CG_BIN_DIR := $(CG_TOOL_ROOT)/bin
 

@@ -68,13 +68,13 @@ static const hetINSTRUCTION_t hetPROGRAM[] =
     *         - Next instruction             = 2
     *         - Conditional next instruction = 2
     *         - Interrupt                    = 1
-    *         - Pin                          = 8
+    *         - Pin                          = 2
     */
     {
         /* Program */
         0x000055C0U,
         /* Control */
-        (0x00004006U | (8U << 8U) | (3U << 3U)),
+        (0x00004006U | (2U << 8U) | (3U << 3U)),
         /* Data */
         0x00000000U,
 		/* Reserved */
@@ -102,13 +102,13 @@ static const hetINSTRUCTION_t hetPROGRAM[] =
     *         - Next instruction             = 4
     *         - Conditional next instruction = 4
     *         - Interrupt                    = 3
-    *         - Pin                          = 10
+    *         - Pin                          = 4
     */
     {
         /* Program */
         0x000095C0U,
         /* Control */
-        (0x00008006U | (10U << 8U) | (3U << 3U)),
+        (0x00008006U | (4U << 8U) | (3U << 3U)),
         /* Data */
         0x00000000U,
 		/* Reserved */
@@ -748,13 +748,13 @@ static const hetINSTRUCTION_t hetPROGRAM[] =
     *         - Next instruction             = 42
     *         - Conditional next instruction = 2
     *         - Interrupt                    = 1
-    *         - Pin                          = 8
+    *         - Pin                          = 2
     */
     {
         /* Program */
         0x00054201U,
         /* Control */
-        (0x00004007U | (0U << 22U) | (8U << 8U) | (3U << 3U)),
+        (0x00004007U | (0U << 22U) | (2U << 8U) | (3U << 3U)),
         /* Data */
         80128U,
 		/* Reserved */
@@ -782,13 +782,13 @@ static const hetINSTRUCTION_t hetPROGRAM[] =
     *         - Next instruction             = 44
     *         - Conditional next instruction = 4
     *         - Interrupt                    = 3
-    *         - Pin                          = 10
+    *         - Pin                          = 4
     */
     {
         /* Program */
         0x00058203U,
         /* Control */
-        (0x00008007U | (0U << 22U) | (10U << 8U) | (3U << 3U)),
+        (0x00008007U | (0U << 22U) | (4U << 8U) | (3U << 3U)),
         /* Data */
         80128U,
 		/* Reserved */
@@ -1050,7 +1050,7 @@ void hetInit(void)
                  | (0U << 29U)
                  | (1U << 28U) 
                  | (0U << 27U)  
-                 | (1U << 26U)  
+                 | (0U << 26U)  
                  | (0U << 25U)  
                  | (0U << 24U)  
                  | (0U << 23U)  
@@ -1070,7 +1070,7 @@ void hetInit(void)
                  | (0U << 9U)
                  | (0U << 8U)
                  | (0U << 7U)
-                 | (0U << 6U)
+                 | (1U << 6U)
                  | (0U << 5U)
                  | (0U << 4U)
                  | (0U << 3U)
@@ -1096,19 +1096,19 @@ void hetInit(void)
                 | 0x00000000U 
                 | 0x00000000U 
                 | 0x00000000U 
+                | 0x00004000U 
                 | 0x00000000U 
                 | 0x00000000U 
                 | 0x00000000U 
                 | 0x00000000U 
-                | 0x00000000U 
                 | 0x00000000U
                 | 0x00000000U
                 | 0x00000000U
+                | 0x00000040U
                 | 0x00000000U
+                | 0x00000010U
                 | 0x00000000U
-                | 0x00000000U
-                | 0x00000000U
-                | 0x00000000U
+                | 0x00000004U
                 | 0x00000002U
                 | 0x00000000U;
 
@@ -1164,7 +1164,7 @@ void hetInit(void)
                    | 0x00000000U 
                    | 0x00000000U 
                    | 0x00000000U 
-                   | 0x00000000U 
+                   | 0x00004000U 
                    | 0x00000000U 
                    | 0x00000000U 
                    | 0x00000000U 
@@ -1198,7 +1198,7 @@ void hetInit(void)
                 | 0x00020000U 
                 | 0x00010000U 
                 | 0x00008000U 
-                | 0x00004000U 
+                | 0x00000000U 
                 | 0x00002000U 
                 | 0x00001000U 
                 | 0x00000800U 
@@ -1208,9 +1208,9 @@ void hetInit(void)
                 | 0x00000080U
                 | 0x00000040U
                 | 0x00000020U
-                | 0x00000010U
+                | 0x00000000U
                 | 0x00000008U
-                | 0x00000004U
+                | 0x00000000U
                 | 0x00000002U
                 | 0x00000001U;
 

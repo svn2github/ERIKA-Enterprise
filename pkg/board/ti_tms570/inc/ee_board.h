@@ -41,14 +41,32 @@
 #ifndef __INCLUDE_TI_TMS570_BOARD_H__
 #define __INCLUDE_TI_TMS570_BOARD_H__
 
+#include "gio.h"
+#include "het.h"
+#include "board/ti_tms570/inc/TMS570_emif.h"
+#include "board/ti_tms570/inc/EMIF.h"
+#include "board/ti_tms570/inc/Display.h"
+#include "board/ti_tms570/inc/Font.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+/*
+ * Check Button 1
+ */
+static int CheckSwitch1 (void) {         // Switch 1 is connected to pin GIOB3 (active low)
+  return (1 - ((gioPORTB->DIN >> 3) & 0x01));
+}
 
+/*
+ * Check Button 2
+ */
+static int CheckSwitch2 (void) {         // Switch 2 is connected to pin GIOB6 (active low)
+  return (1 - ((gioPORTB->DIN >> 6) & 0x01));
+}
 
 /*
  * User Led
  */
-#ifdef __USE_LEDS__
-#include "gio.h"
-#include "het.h"
 
 #define LED_NUM    6                    /* Number of user LEDs                */
 static const unsigned long led_gioMask[]  = { 1UL<< 0, 1UL<< 3, 1UL<< 4,  1UL<< 5};
@@ -119,21 +137,6 @@ static void EE_LED_Toggle (unsigned int num) {
 
 }
 
-#endif /* __USE_LEDS__ */
 
-
-
-/*
- * GLCD Display
- */
-#ifdef __USE_DISPLAY__
-#include "board/ti_tms570/inc/TMS570_emif.h"
-#include "board/ti_tms570/inc/EMIF.h"
-#include "board/ti_tms570/inc/Display.h"
-#include "board/ti_tms570/inc/Font.h"
-#include <stdint.h>
-#include <stdlib.h>
-#include <string.h>
-#endif /* __USE_DISPLAY__*/
 
 #endif /*__INCLUDE_TI_TMS570_BOARD_H__ */
