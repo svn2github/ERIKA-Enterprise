@@ -91,7 +91,12 @@
    case of multiple MCUs support */
 #ifdef EE_TC27X__
 #ifndef EE_MM_OPT
+
+#ifdef APPKIT_TC2X5
+#include <tc27xc/Ifx_reg.h>
+#else
 #include <tc27xa/Ifx_reg.h>
+#endif
 #else /* !EE_MM_OPT */
 #include "Ifx_reg.h"
 #endif /* !EE_MM_OPT */

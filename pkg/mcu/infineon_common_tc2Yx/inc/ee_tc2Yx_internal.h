@@ -50,7 +50,12 @@
 #include "mcu/infineon_common_tc2Yx/inc/ee_tc2Yx_mcu.h"
 /* Board inclusion for Oscillator Frequency Define EE_TC2YX_BOARD_FOSC */
 /* TODO: Protect this with some kind of selector */
+
+#if defined EE_TRIBOARD_TC2X5
 #include "board/infineon_TriBoard_TC2X5/inc/ee_tc2x5_board.h"
+#elif defined APPKIT_TC2X5
+#include "board/infineon_Applikation_Kit_TC2X5/inc/ee_board.h"
+#endif
 
 /** Interrupt table */
 extern void EE_tc_interrupt_table ( void );
@@ -68,7 +73,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_tc2Yx_configure_clock_ctrl ( void )
   SCU_CCUCON0.U = EE_TC2YX_CCUCON0_BAUD1DIV(1U) |
     EE_TC2YX_CCUCON0_SRI(1U) | EE_TC2YX_CCUCON0_SPB(2U) |
     EE_TC2YX_CCUCON0_FSI2(2U) | EE_TC2YX_CCUCON0_FSI(2U) |
-    EE_TC2YX_CCUCON0_CLKSEL(1U);
+    EE_TC2YX_CCUCON0_CLKSEL(1U) | EE_TC2YX_CCUCON0_BAUD2DIV(1U);
 
   /* Configure CCUCON1 and Update all CCU */
   SCU_CCUCON1.U =  EE_TC2YX_CCUCON1_STMDIV(1U) |
@@ -198,14 +203,14 @@ __INLINE__ void __ALWAYS_INLINE__ EE_tc2Yx_fill_stacks( void )
   /* User Stack Base. */
   extern EE_UINT32 EE_B_USTACK[];
 
-#if (defined(__GNUC__) && (!defined(EE_EXECUTE_FROM_RAM))) || defined(__DCC__)
+#if (defined(__GNUC__) && (!defined(EE_EXECUTE_FROM_RAM))) || defined(__DCC__) || defined(__TASKING__)
   /* ERIKA stacks table entry */
   extern EE_UINT32 ee_stacks_table[];
   /* Pointer used to traverse stack table */
   EE_UINT32 *stack_table_ptr;
   /* Actual Stack length (first in bytes then, in words) */
   EE_UINT32 stack_length;
-#endif /* (__GNUC__ && !EE_EXECUTE_FROM_RAM) ||  __DCC__ */
+#endif /* (__GNUC__ && !EE_EXECUTE_FROM_RAM) ||  __DCC__ || __TASKING__ */
 
   /* Pointer used to traverse stacks */
   register EE_UINT32 * stack_fill_ptr;
@@ -217,7 +222,11 @@ __INLINE__ void __ALWAYS_INLINE__ EE_tc2Yx_fill_stacks( void )
     *stack_fill_ptr = EE_TC_STACK_FILL_PATTERN;
   }
 
-#if (defined(__GNUC__) && (!defined(EE_EXECUTE_FROM_RAM))) || defined(__DCC__)
+#ifdef __TASKING__
+EE_DO_PRAGMA(warning 589) /* pointer assumed to be nonzero - test removed */
+#endif /* __TASKING__ */
+
+#if (defined(__GNUC__) && (!defined(EE_EXECUTE_FROM_RAM))) || defined(__DCC__) || defined(__TASKING__)
   /* Stack table */
   stack_table_ptr = ee_stacks_table;
   /* Traverse it */
@@ -246,9 +255,9 @@ __INLINE__ void __ALWAYS_INLINE__ EE_tc2Yx_fill_stacks( void )
     /* Prepare to access to next entry on stacks table */
     stack_table_ptr++;
   }
-#elif ((!defined(__GNUC__)) && (!defined(__DCC__))) && (!defined(EE_EXECUTE_FROM_RAM))
+#elif ((!defined(__GNUC__)) && (!defined(__DCC__)) && (!defined(__TASKING__))) && (!defined(EE_EXECUTE_FROM_RAM))
 #error Fix Stack Filling code in Other compiler Than GNUC and DCC !
-#endif /* (!__GNUC__ && !EE_EXECUTE_FROM_RAM) ||  __DCC__ */
+#endif /* (!__GNUC__ && !EE_EXECUTE_FROM_RAM) ||  __DCC__ || __TASKING__ */
 }
 #else  /* __OO_ORTI_STACK__ || EE_STACK_MONITORING__ */
 /* If ORTI STACKs is not enabled stack filling is not active */

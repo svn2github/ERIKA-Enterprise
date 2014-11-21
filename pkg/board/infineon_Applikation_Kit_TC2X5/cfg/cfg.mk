@@ -1,7 +1,7 @@
 # ###*B*###
 # ERIKA Enterprise - a tiny RTOS for small microcontrollers
 # 
-# Copyright (C) 2010, TU Dortmund University, Faculty of Computer Science 12
+# Copyright (C) 2011 Steve Langstaff
 # 
 # This file is part of ERIKA Enterprise.
 # 
@@ -38,18 +38,21 @@
 # Boston, MA 02110-1301 USA.
 # ###*E*###
 
-## Author: Errico Guidieri 2012
-## 
-##
+## Author: 2014 Christoph Kreuzberger
 
-ifeq ($(and $(call iseeopt, EE_TRICORE__), $(call iseeopt, EE_TC27X__)),yes)
-ifeq ($(or $(call iseeopt, EE_TASKING__), $(call iseeopt, EE_DIAB__)),yes)
-ifneq ($(call iseeopt, EE_TASKING_4_3),yes)
-ifneq ($(call iseeopt,EE_USE_CUSTOM_STARTUP_CODE), yes)
-EE_BOOT_SRCS += pkg/mcu/infineon_tc27x/src/ee_tc27x_cstart.c
-endif # !EE_USE_CUSTOM_STARTUP_CODE
-EE_SRCS += pkg/mcu/infineon_tc27x/src/ee_tc27x_system.c
-EE_SRCS += pkg/mcu/infineon_tc27x/src/ee_tc27x_internal.c
-endif # EE_TASKING_4_3
-endif # TASKING || DIAB
-endif # TRICORE TC27X
+
+ifeq ($(call iseeopt, APPKIT_TC2X5), yes)
+#INCLUDE_PATH += $(call short_native_path, $(EEBASE)/pkg/board/infineon_Applikation_Kit_TC2X5/inc)
+
+ifeq ($(call iseeopt, EE_USE_LEDS), yes)
+EE_SRCS += pkg/board/infineon_Applikation_Kit_TC2X5/src/led.c
+endif # __USE_LEDS__
+
+ifeq ($(call iseeopt, EE_USE_DISPLAY), yes)
+EE_SRCS += pkg/board/infineon_Applikation_Kit_TC2X5/src/display.c
+EE_SRCS += pkg/board/infineon_Applikation_Kit_TC2X5/src/font1.c
+EE_SRCS += pkg/board/infineon_Applikation_Kit_TC2X5/src/util.c
+endif # __USE_DISPLAY__
+
+
+endif

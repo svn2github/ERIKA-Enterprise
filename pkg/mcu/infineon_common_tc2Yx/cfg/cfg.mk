@@ -39,14 +39,16 @@
 # ###*E*###
 
 ## Author: Errico Guidieri 2012
+## Editor: Christoph Kreuzberger 2014
 ## 
 ##
 
-ifeq ($(and $(call iseeopt, EE_TRICORE__), $(call iseeopt, EE_GNU__)),yes)
+ifeq ($(call iseeopt, EE_TRICORE__),yes)
+ifeq ($(or $(call iseeopt, EE_TASKING_4_3), $(call iseeopt, EE_GNU__)),yes)
 ifneq ($(call iseeopt,EE_USE_CUSTOM_STARTUP_CODE), yes)
 EE_BOOT_SRCS += pkg/mcu/infineon_common_tc2Yx/src/ee_tc2Yx_cstart.c
 endif # !EE_USE_CUSTOM_STARTUP_CODE
 EE_SRCS += pkg/mcu/infineon_common_tc2Yx/src/ee_tc2Yx_system.c
-
-endif # TRICORE && GNU
+endif # TASKING_4_3 && GNU
+endif # TRICORE
 

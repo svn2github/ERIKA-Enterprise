@@ -54,7 +54,13 @@ include $(PKGBASE)/cfg/compiler.mk
 # Read MCU-specific file, if it exists, but don't make it.
 -include $(PKGBASE)/cfg/arch/rules_infineon_$(TRICORE_MODEL).mk
 
-# T32SYS is the environemnt variable recognized by Trace32
+ifeq ($(call iseeopt, APPKIT_TC2X5),yes)
+TRICORE_STEP = c
+else
+TRICORE_STEP =
+endif
+
+# T32SYS is the environment variable recognized by Trace32
 T32SYS ?= C:/T32
 T32ARCH ?= windows64
 
@@ -159,13 +165,23 @@ TARGET_ASM_FILE = $(call target_asm_file,$(TARGETFILE))
 ## make
 TARGET_LD_FILE = $(call target_ld_file,$(TARGETFILE))
 
+
+ifeq ($(call iseeopt, EE_EXECUTE_FROM_RAM), yes)
+T32SOURCE := t32_$(TRICORE_MODEL)$(TRICORE_STEP)_ram.cmm
+EE_SCRIPTS :=
+else
+T32SOURCE := t32_$(TRICORE_MODEL)$(TRICORE_STEP).cmm 
+EE_SCRIPTS := $(TRICORE_MODEL)_flash.bat
+endif # EE_EXECUTE_FROM_RAM
+
+
 ##
 ## Main rules: all clean
 ##
 
 .PHONY: all clean t32
 
-all: make_directories $(ALL_LIBS) $(TARGET) t32
+all: make_directories $(ALL_LIBS) $(TARGET) t32 $(EE_SCRIPTS)
 # The success message is printed by the $(TARGET) rule, so we get a "Nothing
 # do be done" message when everything is up to date
 
@@ -187,13 +203,21 @@ else
 T32ORTISTR :=
 endif
 
-ifeq ($(call iseeopt, EE_EXECUTE_FROM_RAM), yes)
-T32SOURCE := t32_$(TRICORE_MODEL)_ram.cmm
-else
-T32SOURCE := t32_$(TRICORE_MODEL).cmm
-endif
 
 t32: $(T32TARGETS)
+
+$(TRICORE_MODEL)_flash.bat:
+	@echo GEN $@
+	@echo "@ECHO OFF" > $@
+	@echo "REM script to flash TriCore". >> $@
+	@echo pushd "%~dp0" >> $@
+ifeq ($(call iseeopt, APPKIT_TC2X5),yes)
+	@echo $(call native_path, $(T32SYS))/bin/$(T32ARCH)/t32mtc -s t32.cmm CPU=TC275T >> $@
+else
+	@echo $(call native_path, $(T32SYS))/bin/$(T32ARCH)/t32mtc -s t32.cmm >> $@
+endif
+	@echo popd >> $@
+	$(QUIET) chmod 777 $@
 
 t32.cmm: $(PKGBASE)/mcu/infineon_$(TRICORE_MODEL)/cfg/$(T32SOURCE)
 	@echo "GEN $@ from $<"
@@ -273,7 +297,7 @@ $(OBJDIRS):
 # the eeopt file is generated when dealing with ONLY_LIBS!
 #
 # this is a phony because the source code does not depend on this file
-# and its content higly depends on the EEOPT variables...
+# and its content highly depends on the EEOPT variables...
 #
 .PHONY: generate_eeopt
 generate_eeopt:

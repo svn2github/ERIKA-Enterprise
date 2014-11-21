@@ -75,9 +75,10 @@
 #pragma extern _Exit
 #pragma profiling off           /* prevent profiling information on cstart */
 #pragma tradeoff 4              /* preset tradeoff level (for size) */
-#pragma runtime B               /* disable runtime error checking for cstart */
+#pragma runtime BCM             /* disable runtime error checking for cstart */
 #pragma nomisrac                /* disable MISRA-C checking */
 #pragma noclear                 /* bss clearing not before cinit */
+#pragma immediate_in_code       /* no external ROM access before bus configuration */
 
 /* libc exit function remapping  */
 #define EE_EXIT exit
@@ -210,6 +211,10 @@ extern EE_FAR void * EE_LITERAL_DATA;     /* centre of A1 addressable area */
 #ifdef __TASKING__
 extern EE_FAR void * EE_A8_DATA;          /* centre of A8 addressable area */
 extern EE_FAR void * EE_A9_DATA;          /* centre of A9 addressable area */
+#ifdef EE_TASKING_4_3
+extern EE_FAR void * EE_INT_TAB;          /* interrupt table */
+extern EE_FAR void * EE_TRAP_TAB;         /* trap table */
+#endif /* EE_TASKING_4_3 */
 #endif /* __TASKING__ */
 
 #ifdef EE_C_INIT_TC
@@ -254,9 +259,12 @@ EE_COMPILER_EXTERN(_trapnmi)
 #pragma section
 #pragma section ".bmhd0" a
 #endif
+
 #if defined(__TASKING__)
+#ifndef EE_TASKING_4_3
 #pragma protect on
 #pragma section farrom "bmhd0"
+#endif /* EE_TASKING_4_3 */
 #endif
 #if defined(__DCC__)
 #pragma section CONST ".bmhd0" R
@@ -264,6 +272,7 @@ EE_COMPILER_EXTERN(_trapnmi)
 /** \brief Boot Mode Header 0
  * Boot mode header at memory location 0c8000 0000.
  */
+#ifndef EE_TASKING_4_3
 const EE_UINT32 BootModeHeader0[] = {
     0x00000000,                 /* STADBM first user code at 0x8000 0020h */
     0xb3590070,                 /* BMI = 0070h BMHDID = B359h */
@@ -274,14 +283,17 @@ const EE_UINT32 BootModeHeader0[] = {
     0x791eb864,                 /* CRChead */
     0x86e1479b                  /* !CRChead */
 };
+#endif /* EE_TASKING_4_3 */
 
 /*reset the sections defined above */
 #if defined(__GNUC__)
 #pragma section
 #endif
 #if defined(__TASKING__)
+#ifndef EE_TASKING_4_3
 #pragma protect restore
 #pragma section farrom restore
+#endif /* EE_TASKING_4_3 */
 #endif
 #if defined(__DCC__)
 #pragma section CONST
@@ -294,8 +306,10 @@ const EE_UINT32 BootModeHeader0[] = {
 #pragma section ".bmhd1" a
 #endif
 #if defined(__TASKING__)
+#ifndef EE_TASKING_4_3
 #pragma protect on
 #pragma section farrom "bmhd1"
+#endif /* EE_TASKING_4_3 */
 #endif
 #if defined(__DCC__)
 #pragma section CONST ".bmhd1" R
@@ -304,6 +318,7 @@ const EE_UINT32 BootModeHeader0[] = {
 /** \brief Boot Mode Header 1
  * Boot mode header at memory location 0c8002 0000.
  */
+#ifndef EE_TASKING_4_3
 const EE_UINT32 BootModeHeader1[] = {
     0x00000000,                 /* STADBM first user code at 0x8000 0020h */
     0xB3590070,                 /* BMI = 0070h BMHDID = B359h */
@@ -314,14 +329,16 @@ const EE_UINT32 BootModeHeader1[] = {
     0x791eb864,                 /* CRChead */
     0x86e1479b                  /* !CRChead */
 };
-
+#endif /* EE_TASKING_4_3 */
 /*reset the sections defined above */
 #if defined(__GNUC__)
 #pragma section
 #endif
 #if defined(__TASKING__)
+#ifndef EE_TASKING_4_3
 #pragma protect restore
 #pragma section farrom restore
+#endif /* EE_TASKING_4_3 */
 #endif
 #if defined(__DCC__)
 #pragma section CONST
@@ -441,6 +458,12 @@ void __NEVER_INLINE__ JUMP EE_TC2YX_START( void )
    */
   EE_tc2Yx_endinit_set(EE_TC_ENDINIT_DISABLE);
 
+  /*
+   * Disable the Watchdog if requested. Watchdog is enabled by default.
+   * The Watchdog is disabled after ENDINIT is set by endinit_set().
+   */
+  EE_WDTCPUCON1.U |= 0x8;
+
 #ifdef EE_MASTER_CPU
   /*
    * Clear the ENDINIT bit in the WDTSCON0 register in order
@@ -448,6 +471,14 @@ void __NEVER_INLINE__ JUMP EE_TC2YX_START( void )
    * protected via the safety EndInit feature.
    */
   EE_tc2Yx_safety_endinit_set(EE_TC_ENDINIT_DISABLE);
+
+  /*
+   * Disable the safety watchdog if requested. Safety watchdog
+   * is enabled by default. The safety watchdog is disabled after
+   * ENDINIT is set by safety_endinit_set().
+   */
+  SCU_WDTSCON1.U |= 0x8;
+
 #endif /* EE_MASTER_CPU */
 
   /*

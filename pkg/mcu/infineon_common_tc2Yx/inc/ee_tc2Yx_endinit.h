@@ -54,19 +54,37 @@
 
 /* Multicore ENDINIT Support */
 #ifdef EE_MASTER_CPU
+#if defined(__TASKING__)
+#define EE_WDTCPUCON0   SCU_WDTCPU0CON0
+#define EE_WDTCPUCON1   SCU_WDTCPU0CON1
+#else /* __DCC__ || __GNUC__ */
 #define EE_WDTCPUCON0   SCU_WDTCPU0_CON0
 #define EE_WDTCPUCON1   SCU_WDTCPU0_CON1
+#endif
 #elif (EE_CURRENTCPU == 1)
+#if defined (__TASKING__)
+#define EE_WDTCPUCON0   SCU_WDTCPU1CON0
+#define EE_WDTCPUCON1   SCU_WDTCPU1CON1
+#else /* __DCC__ || __GNUC__ */
 #define EE_WDTCPUCON0   SCU_WDTCPU1_CON0
 #define EE_WDTCPUCON1   SCU_WDTCPU1_CON1
+#endif
 #elif (EE_CURRENTCPU == 2)
+#if defined (__TASKING__)
+#define EE_WDTCPUCON0   SCU_WDTCPU2CON0
+#define EE_WDTCPUCON1   SCU_WDTCPU2CON1
+#else /* __DCC__ || __GNUC__ */
 #define EE_WDTCPUCON0   SCU_WDTCPU2_CON0
 #define EE_WDTCPUCON1   SCU_WDTCPU2_CON1
+#endif
 #else
 #error Unknown CPU ID
 #endif
 
-/**************************************************************************
+#ifndef __TASKING__
+#define SCU_WDTCPU0CON0_type Ifx_SCU_WDTCPU_CON0
+#endif
+/*************************************************************************
  *
  * FUNCTION:     endinit_set
  *
@@ -76,8 +94,7 @@
  *               (ie. BTV, BIV, ISP, PCON0, DCON0).
  *
  *************************************************************************/
-__INLINE__ void __ALWAYS_INLINE__ EE_tc2Yx_endinit_set( EE_tc_endinit_t
-  endinit_value )
+__INLINE__ void __ALWAYS_INLINE__ EE_tc2Yx_endinit_set( EE_tc_endinit_t endinit_value )
 {
   EE_UINT32 wdt_con0;
   /*
@@ -86,9 +103,9 @@ __INLINE__ void __ALWAYS_INLINE__ EE_tc2Yx_endinit_set( EE_tc_endinit_t
   wdt_con0 = EE_WDTCPUCON0.U;
 
   wdt_con0 &= 0xFFFFFF01U;    /* clear WDTLCK, WDTHPW0, WDTHPW1 */
-  wdt_con0 |= 0xF1U;          /* set WDTHPW1 to 0xF  1 must be written to
-                                 ENDINIT for password access 
-                                (but this will not actually modify the bit) */
+  wdt_con0 |= 0xF0U;               /* set WDTHPW1 to 0xf */
+  wdt_con0 |= 0x1U;                /* 1 must be written to ENDINIT for password access
+                                   * (but this will not actually modify the bit) */
   EE_WDTCPUCON0.U = wdt_con0;
 
   /*
@@ -96,8 +113,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_tc2Yx_endinit_set( EE_tc_endinit_t
    *           registers: WDT_CON1, BTV, BIV, ISP and mod_CLC
    */
   wdt_con0 &= 0xFFFFFFF0U;          /* clear WDTHPW0, WDTLCK, ENDINIT  */
-  /* WDTHPW0=0, WDTLCK=1, ENDINIT=endinit_value */
-  wdt_con0 |= (EE_UINT32)0x02U | (EE_UINT32)endinit_value;
+  wdt_con0 |= 0x02U | endinit_value;  /* WDTHPW0=0, WDTLCK=1, ENDINIT=endinit_value */
   EE_tc_isync();
   EE_WDTCPUCON0.U = wdt_con0;
 
@@ -114,8 +130,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_tc2Yx_endinit_set( EE_tc_endinit_t
  *
  *************************************************************************/
 
-__INLINE__ void __ALWAYS_INLINE__ EE_tc2Yx_safety_endinit_set( EE_tc_endinit_t
-  endinit_value )
+__INLINE__ void __ALWAYS_INLINE__ EE_tc2Yx_safety_endinit_set( EE_tc_endinit_t endinit_value )
 {
   EE_UINT32 wdtscon0;
 
@@ -125,9 +140,9 @@ __INLINE__ void __ALWAYS_INLINE__ EE_tc2Yx_safety_endinit_set( EE_tc_endinit_t
   wdtscon0 = SCU_WDTSCON0.U;
 
   wdtscon0 &= 0xFFFFFF01U;    /* clear WDTLCK, WDTHPW0, WDTHPW1 */
-  wdtscon0 |= 0xF1U;          /* set WDTHPW1 to 0xF  1 must be written to
-                                 ENDINIT for password access 
-                                (but this will not actually modify the bit) */
+  wdtscon0 |= 0xF0U;               /* set WDTHPW1 to 0xf */
+  wdtscon0 |= 0x1U;                /* 1 must be written to ENDINIT for password access
+                                   * (but this will not actually modify the bit) */
   SCU_WDTSCON0.U = wdtscon0;
 
   /*
@@ -135,8 +150,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_tc2Yx_safety_endinit_set( EE_tc_endinit_t
    *           registers: SCU_WDTSCON1, BTV, BIV, ISP and mod_CLC
    */
   wdtscon0 &= 0xFFFFFFF0U;        /* clear WDTHPW0, WDTLCK, ENDINIT  */
-  /* WDTHPW0=0, WDTLCK=1, ENDINIT=endinit_value */
-  wdtscon0 |= (EE_UINT32)0x02 | (EE_UINT32)endinit_value;
+  wdtscon0 |= (EE_UINT32)0x02 | (EE_UINT32)endinit_value; /* WDTHPW0=0, WDTLCK=1, ENDINIT=endinit_value */
   EE_tc_isync();
   SCU_WDTSCON0.U = wdtscon0;
   SCU_WDTSCON0.U;                 /* read is required */

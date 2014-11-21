@@ -372,6 +372,11 @@ extern "C" {
 #include "board/infineon_TriBoard_TC2X5/inc/ee_tc2x5_board.h"
 #endif
 
+/* Infineon Applikation Kit */
+#if defined(EE_TRICORE__) && defined(APPKIT_TC2X5)
+#include "board/infineon_Applikation_Kit_TC2X5/inc/ee_board.h"
+#endif
+
 #ifdef __ESI_RISC__
 #include "board/esi_risc/inc/ee_board.h"
 #endif

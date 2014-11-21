@@ -8,12 +8,13 @@
 **	                                                                      *
 **	This code is linked in by default. At the risk of debugging           *
 **	problems resulting from e.g. cache incoherence, it can be             *
-**	left out.                                                             *
+**	left out by right-clicking on the file in the C/C++ Projects      *
+**	view and selecting "Exclude from build...".                       *
 **	                                                                      *
 **	If a user-defined TriCore processor is being used, this file          *
 **	may have to be adapted.                                               *
 **                                                                        *
-**  Copyright 1996-2012 Altium BV                                         *
+**  Copyright 1996-2013 Altium BV                                         *
 **                                                                        *
 **************************************************************************/
 
@@ -43,8 +44,13 @@
 
 __asm(".include <sfr/reg" _SYNC_ON_HALT_STRINGIFY1(__CPU__) ".def>");
 
-#if defined(_REGTC27X_H) || defined(_REGTC27XB_H) || defined(_REGTC2D5T_H)
+
+#if defined(_REGTC27X_H) || defined(_REGTC27XB_H) || defined(_REGTC2D5T_H) || defined(_REGTC26X_H) || defined(_REGTC29X_H)
+#if !defined(__CORE_TC0__) && !defined(__CORE_TC1__) && !defined(__CORE_TC2__)
 #define __CLONE	__clone
+#else
+#define __CLONE										  
+#endif
 #define __DSPR_SYNC_ON_HALT_LCX	__at(0xd0003f80)
 #define __DSPR_SYNC_ON_HALT_UCX __at(0xd0003fc0)
 #else
@@ -149,6 +155,18 @@ extern void __protect__ _sync_on_halt(void)
 
 #  define _DCACHE_OFFSET	0x80000000U
 
+#elif	   defined(_REGTC26X_H) || defined(_REGTC29X_H)
+#  if !defined(__CORE_TC16X__)
+#    error Internal inconsistency.
+#  endif
+
+/* Cache way number occupies bit 0, index number occupies bits 5...11. */
+#  define _DCACHE_LINES		128
+#  define _DCACHE_WAYS		2
+#  define _DCACHE_LINE_INDEX	5
+
+#  define _DCACHE_OFFSET	0x80000000U
+
 #else
 #  error Unknown device. For user-defined devices, this code may have to be adapted.
 #endif
@@ -229,7 +247,8 @@ extern void __protect__ _sync_on_halt(void)
 #  define _ICACHE_BIT1	PMI_CON1.B.PBINV
 
 #elif	   defined(_REGTC1798_H) || defined(_REGTC1748_H) || defined(_REGTC1791_H) || defined(_REGTC1793_H) \
-	|| defined(_REGTC27X_H)  || defined(_REGTC27XB_H) || defined(_REGTC2D5T_H)
+	|| defined(_REGTC27X_H)  || defined(_REGTC27XB_H) || defined(_REGTC2D5T_H)				\
+	|| defined(_REGTC26X_H)  || defined(_REGTC29X_H)
 
 #  define _ICACHE_BIT0_W(bit_val) \
         __mtcr(PCON1, (int) (((unsigned int) __mfcr(PCON1) & 0xfffffffeU) | (bit_val ? 1 : 0)))
