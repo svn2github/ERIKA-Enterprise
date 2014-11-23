@@ -5,8 +5,8 @@
  *      Author: Fusseneg
  */
 
-#ifndef __INCLUDE_APPKIT_TC2X5_BOARD_FONT_H__
-#define __INCLUDE_APPKIT_TC2X5_BOARD_FONT_H__
+#ifndef INCLUDE_EE_APPKIT_TC2X5_BOARD_FONT_H__
+#define INCLUDE_EE_APPKIT_TC2X5_BOARD_FONT_H__
 
 typedef struct font {
 
@@ -23,4 +23,4 @@ extern const TFont FONT_STANDARD;
 extern const TFont FONT_CONSOLAS_LARGE;
 extern const TFont FONT_CONSOLAS_SMALL;
 
-#endif /* __INCLUDE_APPKIT_TC2X5_BOARD_FONT_H__ */
+#endif /* INCLUDE_EE_APPKIT_TC2X5_BOARD_FONT_H__ */

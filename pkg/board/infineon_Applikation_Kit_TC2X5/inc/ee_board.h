@@ -45,8 +45,8 @@
  *
  */
 
-#ifndef __INCLUDE_APPKIT_TC2X5_EE_BOARD_H__
-#define __INCLUDE_APPKIT_TC2X5_EE_BOARD_H__
+#ifndef INCLUDE_EE_APPKIT_TC2X5_EE_BOARD_H__
+#define INCLUDE_EE_APPKIT_TC2X5_EE_BOARD_H__
 
 /* TriBoard 2x5 default clock frequency (20MHz) */
 #define EE_TRIBOARD_2X5_FOSC    20000000U
@@ -68,4 +68,4 @@
 #endif
 
 
-#endif /* end ee_board.h*/
+#endif /* INCLUDE_EE_APPKIT_TC2X5_EE_BOARD_H__ */

@@ -10,12 +10,8 @@
  *    08.08.2010  initial version
  */
 
-#ifndef __INCLUDE_APPKIT_TC2X5_BOARD_SYSTIME_H__
-#define __INCLUDE_APPKIT_TC2X5_BOARD_SYSTIME_H__
-
-#ifdef __cplusplus
-extern "C" {
-#endif /* __cplusplus */
+#ifndef INCLUDE_EE_APPKIT_TC2X5_BOARD_SYSTIME_H__
+#define INCLUDE_EE_APPKIT_TC2X5_BOARD_SYSTIME_H__
 
 /*! \brief Periodic timer callback function prototype
  */
@@ -47,8 +43,4 @@ void SYSTIME_Reset(void);
  */
 void SYSTIME_Delay(unsigned long WaitTime);
 
-#ifdef __cplusplus
-}
-#endif /* __cplusplus */
-
-#endif /* __INCLUDE_APPKIT_TC2X5_BOARD_SYSTIME_H__ */
+#endif /* INCLUDE_EE_APPKIT_TC2X5_BOARD_SYSTIME_H__ */

@@ -54,7 +54,7 @@ include $(PKGBASE)/cfg/compiler.mk
 # Read MCU-specific file, if it exists, but don't make it.
 -include $(PKGBASE)/cfg/arch/rules_infineon_$(TRICORE_MODEL).mk
 
-ifeq ($(call iseeopt, APPKIT_TC2X5),yes)
+ifeq ($(call iseeopt, EE_APPKIT_TC2X5),yes)
 TRICORE_STEP = c
 else
 TRICORE_STEP =
@@ -211,7 +211,7 @@ $(TRICORE_MODEL)_flash.bat:
 	@echo "@ECHO OFF" > $@
 	@echo "REM script to flash TriCore". >> $@
 	@echo pushd "%~dp0" >> $@
-ifeq ($(call iseeopt, APPKIT_TC2X5),yes)
+ifeq ($(call iseeopt, EE_APPKIT_TC2X5),yes)
 	@echo $(call native_path, $(T32SYS))/bin/$(T32ARCH)/t32mtc -s t32.cmm CPU=TC275T >> $@
 else
 	@echo $(call native_path, $(T32SYS))/bin/$(T32ARCH)/t32mtc -s t32.cmm >> $@

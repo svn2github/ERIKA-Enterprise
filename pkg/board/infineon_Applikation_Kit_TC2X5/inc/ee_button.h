@@ -43,8 +43,8 @@
  */
 
 
-#ifndef __INCLUDE_APPKIT_TC2X5_BOARD_BUTTON_H__
-#define __INCLUDE_APPKIT_TC2X5_BOARD_BUTTON_H__
+#ifndef INCLUDE_EE_APPKIT_TC2X5_BOARD_BUTTON_H__
+#define INCLUDE_EE_APPKIT_TC2X5_BOARD_BUTTON_H__
 
 #include "mcu/infineon_common_tc2Yx/inc/ee_tc2Yx_mcu.h"
 
@@ -98,4 +98,4 @@ __INLINE__ EE_BIT __ALWAYS_INLINE__ EE_tc2x5_read_button( void )
 
 
 
-#endif
+#endif /* INCLUDE_EE_APPKIT_TC2X5_BOARD_BUTTON_H__ */

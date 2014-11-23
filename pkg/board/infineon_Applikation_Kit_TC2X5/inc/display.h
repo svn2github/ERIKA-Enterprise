@@ -28,8 +28,8 @@
  *
  */
 
-#ifndef __INCLUDE_APPKIT_TC2X5_BOARD_DISPLAY_H__
-#define __INCLUDE_APPKIT_TC2X5_BOARD_DISPLAY_H__
+#ifndef INCLUDE_EE_APPKIT_TC2X5_BOARD_DISPLAY_H__
+#define INCLUDE_EE_APPKIT_TC2X5_BOARD_DISPLAY_H__
 
 #include "ee.h"
 #include "mcu/infineon_common_tc2Yx/inc/ee_tc2Yx_endinit.h"
@@ -75,10 +75,6 @@
 
 #define BGCOLOR		COL_WHITE
 
-#ifdef __cplusplus
-extern "C" {
-#endif /* __cplusplus */
-
 void setPx(int x, int y, uint8_t color); //for direct use
 void printScrn(void); //for direct use
 void drawChar(char ch,int x0, int y0, int color, TFont font); //for direct use
@@ -97,10 +93,4 @@ void DISPLAY_colorTable_StdInit(void);
 void DISPLAY_BackgroundColor(uint8_t color);
 void clearDisplayBuffer(void);
 
-
-
-#ifdef __cplusplus
-}
-#endif /* __cplusplus */
-
-#endif /* __INCLUDE_APPKIT_TC2X5_BOARD_DISPLAY_H__ */
+#endif /* INCLUDE_EE_APPKIT_TC2X5_BOARD_DISPLAY_H__ */

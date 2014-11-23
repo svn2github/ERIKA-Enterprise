@@ -22,14 +22,10 @@
  *
  */
 
-#ifndef __INCLUDE_APPKIT_TC2X5_BOARD_GRAPH_H__
-#define __INCLUDE_APPKIT_TC2X5_BOARD_GRAPH_H__
+#ifndef INCLUDE_EE_APPKIT_TC2X5_BOARD_GRAPH_H__
+#define INCLUDE_EE_APPKIT_TC2X5_BOARD_GRAPH_H__
 
 #include "display.h"
-
-#ifdef __cplusplus
-extern "C" {
-#endif /* __cplusplus */
 
 void graph_line(int x1, int y1, int x2, int y2, int width, int color);
 void graph_drawZPoint(float z, float range);
@@ -44,8 +40,4 @@ void graph_drawRectangle(int x, int y, int width, int height, int color, int lin
 void graph_fillRectangle(int x, int y, int width, int height, int color);
 void graph_drawColorMap(int entries);
 
-#ifdef __cplusplus
-}
-#endif /* __cplusplus */
-
-#endif /* __INCLUDE_APPKIT_TC2X5_BOARD_GRAPH_H__ */
+#endif /* INCLUDE_EE_APPKIT_TC2X5_BOARD_GRAPH_H__ */

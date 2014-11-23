@@ -6,8 +6,8 @@
  * The RTC makes a serialization and shift the bits out to deserialization device.
  * The RTC does not provide a upstream of status information.
  */
-#ifndef __INCLUDE_APPKIT_TC2X5_BOARD_RTC_H__
-#define __INCLUDE_APPKIT_TC2X5_BOARD_RTC_H__
+#ifndef INCLUDE_EE_APPKIT_TC2X5_BOARD_RTC_H__
+#define INCLUDE_EE_APPKIT_TC2X5_BOARD_RTC_H__
 
 #include <stdint.h>
 
@@ -43,10 +43,6 @@
 
 #define	TIME_AM				0x00
 #define TIME_PM				0x01
-
-#ifdef __cplusplus
-extern "C" {
-#endif /* __cplusplus */
 
 // this is for our time from the RTC (BCD coded)
 typedef volatile struct
@@ -101,8 +97,4 @@ void rtc_calcYearControl(uint32_t *data, TIME *pActTime);
 void getDayString(TIME* time, char* buf);
 void getAlarmMatchString(TIME* time, char* buf);
 
-#ifdef __cplusplus
-}
-#endif /* __cplusplus */
-
-#endif /* __INCLUDE_APPKIT_TC2X5_BOARD_RTC_H__ */
+#endif /* INCLUDE_EE_APPKIT_TC2X5_BOARD_RTC_H__ */

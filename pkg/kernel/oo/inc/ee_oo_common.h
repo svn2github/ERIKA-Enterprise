@@ -83,10 +83,6 @@ in the following sections:
      >0, because there is always the mode OSDEFAULTAPPMODE.
 */
 
-/* TODO: Fix that somewhere else? */
-#ifdef __TASKING__
-EE_DO_PRAGMA(warning 537) /* unused variable "EE_os_invalid_param" */
-#endif /* __TASKING__ */
 
 /*************************************************************************
  Kernel Types

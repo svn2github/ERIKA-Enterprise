@@ -373,7 +373,7 @@ extern "C" {
 #endif
 
 /* Infineon Applikation Kit */
-#if defined(EE_TRICORE__) && defined(APPKIT_TC2X5)
+#if defined(EE_TRICORE__) && defined(EE_APPKIT_TC2X5)
 #include "board/infineon_Applikation_Kit_TC2X5/inc/ee_board.h"
 #endif
 

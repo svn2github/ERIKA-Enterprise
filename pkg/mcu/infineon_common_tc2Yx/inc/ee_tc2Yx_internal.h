@@ -53,7 +53,7 @@
 
 #if defined EE_TRIBOARD_TC2X5
 #include "board/infineon_TriBoard_TC2X5/inc/ee_tc2x5_board.h"
-#elif defined APPKIT_TC2X5
+#elif defined EE_APPKIT_TC2X5
 #include "board/infineon_Applikation_Kit_TC2X5/inc/ee_board.h"
 #endif
 
@@ -222,15 +222,12 @@ __INLINE__ void __ALWAYS_INLINE__ EE_tc2Yx_fill_stacks( void )
     *stack_fill_ptr = EE_TC_STACK_FILL_PATTERN;
   }
 
-#ifdef __TASKING__
-EE_DO_PRAGMA(warning 589) /* pointer assumed to be nonzero - test removed */
-#endif /* __TASKING__ */
 
 #if (defined(__GNUC__) && (!defined(EE_EXECUTE_FROM_RAM))) || defined(__DCC__) || defined(__TASKING__)
   /* Stack table */
   stack_table_ptr = ee_stacks_table;
   /* Traverse it */
-  while (stack_table_ptr)
+  while (stack_table_ptr != 0)
   {
     /* Get a stack section base address */
     stack_fill_ptr = (EE_UINT32 *)*stack_table_ptr;

@@ -92,7 +92,7 @@
 #ifdef EE_TC27X__
 #ifndef EE_MM_OPT
 
-#ifdef APPKIT_TC2X5
+#ifdef EE_APPKIT_TC2X5
 #include <tc27xc/Ifx_reg.h>
 #else
 #include <tc27xa/Ifx_reg.h>

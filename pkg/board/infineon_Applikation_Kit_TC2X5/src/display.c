@@ -427,11 +427,11 @@ static void tft_init(void)
 	    if (tft_get_data() == 0x41)
 		  tft_id = 0x9341;
 	tft_terminate_access();
-#ifdef APPKIT_TC2X5
+#ifdef EE_APPKIT_TC2X5
 	/* There is a problem with C step devices: read ID is wrong (0x200) */
 	/* this is the correct LCD controller type */
 	tft_id = 0x9341;
-#endif /* APPKIT_TC2X5 */
+#endif /* EE_APPKIT_TC2X5 */
   }
 
   if (tft_id == 0x9341)

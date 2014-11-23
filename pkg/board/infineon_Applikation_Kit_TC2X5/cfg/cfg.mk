@@ -41,12 +41,8 @@
 ## Author: 2014 Christoph Kreuzberger
 
 
-ifeq ($(call iseeopt, APPKIT_TC2X5), yes)
+ifeq ($(call iseeopt, EE_APPKIT_TC2X5), yes)
 #INCLUDE_PATH += $(call short_native_path, $(EEBASE)/pkg/board/infineon_Applikation_Kit_TC2X5/inc)
-
-ifeq ($(call iseeopt, EE_USE_LEDS), yes)
-EE_SRCS += pkg/board/infineon_Applikation_Kit_TC2X5/src/led.c
-endif # __USE_LEDS__
 
 ifeq ($(call iseeopt, EE_USE_DISPLAY), yes)
 EE_SRCS += pkg/board/infineon_Applikation_Kit_TC2X5/src/display.c

@@ -29,11 +29,11 @@
  * The RTC does not provide a upstream of status information.
  */
 
-#ifdef APPKIT_TC2X5
+#ifdef EE_APPKIT_TC2X5
 #include "tc27xc/Ifx_reg.h"
 #else
 #include "tc27xa/Ifx_reg.h"
-#endif /* APPKIT_TC2X5 */
+#endif /* EE_APPKIT_TC2X5 */
 #include <string.h>
 #include "system.h"
 #include "system_tc27x.h"
