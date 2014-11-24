@@ -94,7 +94,8 @@
  *               (ie. BTV, BIV, ISP, PCON0, DCON0).
  *
  *************************************************************************/
-__INLINE__ void __ALWAYS_INLINE__ EE_tc2Yx_endinit_set( EE_tc_endinit_t endinit_value )
+__INLINE__ void __ALWAYS_INLINE__
+  EE_tc2Yx_endinit_set( EE_tc_endinit_t endinit_value )
 {
   EE_UINT32 wdt_con0;
   /*
@@ -102,18 +103,20 @@ __INLINE__ void __ALWAYS_INLINE__ EE_tc2Yx_endinit_set( EE_tc_endinit_t endinit_
    */
   wdt_con0 = EE_WDTCPUCON0.U;
 
-  wdt_con0 &= 0xFFFFFF01U;    /* clear WDTLCK, WDTHPW0, WDTHPW1 */
-  wdt_con0 |= 0xF0U;               /* set WDTHPW1 to 0xf */
-  wdt_con0 |= 0x1U;                /* 1 must be written to ENDINIT for password access
-                                   * (but this will not actually modify the bit) */
+  wdt_con0 &= 0xFFFFFF01U;        /* clear WDTLCK, WDTHPW0, WDTHPW1 */
+  wdt_con0 |= 0xF0U;              /* set WDTHPW1 to 0xf */
+  wdt_con0 |= 0x1U;               /* 1 must be written to ENDINIT for password
+                                     access (but this will not actually modify
+                                     the bit) */
   EE_WDTCPUCON0.U = wdt_con0;
 
   /*
    * 2nd step: Modify access, set the bit ENDINIT to 1 or 0 to allow access to
    *           registers: WDT_CON1, BTV, BIV, ISP and mod_CLC
    */
-  wdt_con0 &= 0xFFFFFFF0U;          /* clear WDTHPW0, WDTLCK, ENDINIT  */
-  wdt_con0 |= 0x02U | endinit_value;  /* WDTHPW0=0, WDTLCK=1, ENDINIT=endinit_value */
+  wdt_con0 &= 0xFFFFFFF0U;            /* clear WDTHPW0, WDTLCK, ENDINIT  */
+  /* WDTHPW0=0, WDTLCK=1, ENDINIT=endinit_value */
+  wdt_con0 |= 0x02U | endinit_value;
   EE_tc_isync();
   EE_WDTCPUCON0.U = wdt_con0;
 
@@ -130,7 +133,8 @@ __INLINE__ void __ALWAYS_INLINE__ EE_tc2Yx_endinit_set( EE_tc_endinit_t endinit_
  *
  *************************************************************************/
 
-__INLINE__ void __ALWAYS_INLINE__ EE_tc2Yx_safety_endinit_set( EE_tc_endinit_t endinit_value )
+__INLINE__ void __ALWAYS_INLINE__
+  EE_tc2Yx_safety_endinit_set( EE_tc_endinit_t endinit_value )
 {
   EE_UINT32 wdtscon0;
 
@@ -139,10 +143,11 @@ __INLINE__ void __ALWAYS_INLINE__ EE_tc2Yx_safety_endinit_set( EE_tc_endinit_t e
    */
   wdtscon0 = SCU_WDTSCON0.U;
 
-  wdtscon0 &= 0xFFFFFF01U;    /* clear WDTLCK, WDTHPW0, WDTHPW1 */
-  wdtscon0 |= 0xF0U;               /* set WDTHPW1 to 0xf */
-  wdtscon0 |= 0x1U;                /* 1 must be written to ENDINIT for password access
-                                   * (but this will not actually modify the bit) */
+  wdtscon0 &= 0xFFFFFF01U;         /* Clear WDTLCK, WDTHPW0, WDTHPW1 */
+  wdtscon0 |= 0xF0U;               /* Set WDTHPW1 to 0xf */
+  wdtscon0 |= 0x1U;                /* 1 must be written to ENDINIT for password
+                                      access(but this will not actually modify
+                                      the bit) */
   SCU_WDTSCON0.U = wdtscon0;
 
   /*
@@ -150,7 +155,8 @@ __INLINE__ void __ALWAYS_INLINE__ EE_tc2Yx_safety_endinit_set( EE_tc_endinit_t e
    *           registers: SCU_WDTSCON1, BTV, BIV, ISP and mod_CLC
    */
   wdtscon0 &= 0xFFFFFFF0U;        /* clear WDTHPW0, WDTLCK, ENDINIT  */
-  wdtscon0 |= (EE_UINT32)0x02 | (EE_UINT32)endinit_value; /* WDTHPW0=0, WDTLCK=1, ENDINIT=endinit_value */
+  /* WDTHPW0=0, WDTLCK=1, ENDINIT=endinit_value */
+  wdtscon0 |= 0x02U | (EE_UINT32)endinit_value;
   EE_tc_isync();
   SCU_WDTSCON0.U = wdtscon0;
   SCU_WDTSCON0.U;                 /* read is required */
