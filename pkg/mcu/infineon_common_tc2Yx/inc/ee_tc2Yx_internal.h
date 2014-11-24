@@ -51,10 +51,15 @@
 /* Board inclusion for Oscillator Frequency Define EE_TC2YX_BOARD_FOSC */
 /* TODO: Protect this with some kind of selector */
 
-#if defined EE_TRIBOARD_TC2X5
+#if defined (EE_TRIBOARD_TC2X5)
 #include "board/infineon_TriBoard_TC2X5/inc/ee_tc2x5_board.h"
-#elif defined EE_APPKIT_TC2X5
+#elif defined (EE_APPKIT_TC2X5)
 #include "board/infineon_Applikation_Kit_TC2X5/inc/ee_board.h"
+#else
+/* Some tests do not define a board, but EE_TC2YX_BOARD_FOSC macro is needed
+   I will use the define from EE_TRIBOARD_TC2X5 */
+/* Board Oscillator Frequency default (20MHz) - TriBoard quartz */
+#define EE_TC2YX_BOARD_FOSC 20000000U
 #endif
 
 /** Interrupt table */
