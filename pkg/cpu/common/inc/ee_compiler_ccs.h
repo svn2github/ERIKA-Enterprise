@@ -57,5 +57,18 @@
 //#include "cpu/common/inc/ee_stdint.h"
 //#include "cpu/common/inc/ee_types.h"
 
+#ifndef	__CORTEX_RX__
+
+#ifdef	__ASM
+#undef	__ASM
+#endif
+#define __ASM __asm
+
+#ifdef	__IRQ
+#undef	__IRQ
+#endif
+#define __IRQ interrupt
+
+#endif	/* !__CORTEX_RX__ */
 
 #endif /* __INCLUDE_CPU_COMMON_EE_COMPILER_CCS__ */
