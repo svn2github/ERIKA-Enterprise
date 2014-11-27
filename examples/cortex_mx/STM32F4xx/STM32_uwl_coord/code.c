@@ -229,7 +229,7 @@ TASK(UwlSend)
 	STM_EVAL_LEDToggle(LED4);
 #else
 	GetResource(CONS_MUTEX);
-	printf("\r\nPKT TX");
+	printf("PKT TX\r\n");
 	ReleaseResource(CONS_MUTEX);
 #endif
 	/* Send chat packet */
@@ -239,7 +239,7 @@ TASK(UwlSend)
 	
 	if (retv < 0) {
 		GetResource(CONS_MUTEX);
-		printf("\r\nUwlSend: error SEND");
+		printf("UwlSend: error SEND\r\n");
 		ReleaseResource(CONS_MUTEX);
 		/* NOTE: leds_blink() never returns!!!*/
 		leds_blink();
@@ -263,7 +263,7 @@ TASK(UwlReceive)
 	    uwl_packet[4] != 0xEE || uwl_packet[5] != 0xFF) {
 
 		GetResource(CONS_MUTEX);
-		printf("\r\nUwlReceive: wrong packet type!");
+		printf("UwlReceive: wrong packet type!\r\n");
 		ReleaseResource(CONS_MUTEX);
 #ifndef	USE_LCD_LOG
 		STM_EVAL_LEDToggle(LED6);
@@ -283,7 +283,7 @@ TASK(UwlReceive)
 	STM_EVAL_LEDToggle(LED5);
 #else
 	GetResource(CONS_MUTEX);
-	printf("\r\nPKT RX");
+	printf("PKT RX\r\n");
 	ReleaseResource(CONS_MUTEX);
 #endif
 
@@ -362,14 +362,14 @@ int main(void)
 			UWL_SO);
 
 	if (retv < 0) {
-		printf("\r\nS_154 error\ninit device");
+		printf("\r\nS_154 error\ninit device\r\n");
 		printf("ERROR = %d\r\n", retv);
 		/* NOTE: this function never returns!!!*/
 		leds_blink();
 	}
 	retv = uwl_simple154_gts_clear();
 	if (retv < 0) {
-		printf("\r\nS_154 error\nclear GTS");
+		printf("\r\nS_154 error\nclear GTS\r\n");
 		/* NOTE: leds_blink() never returns!!!*/
 		leds_blink();
 	}
@@ -377,7 +377,7 @@ int main(void)
 	retv = uwl_simple154_gts_add(UWL_DEV_A_ADDR, UWL_DEV_GTS_LEN,
 				     UWL_MAC_GTS_DIRECTION_OUT);
 	if (retv < 0) {
-		printf("\r\nS_154 error\nAdd GTS A");
+		printf("\r\nS_154 error\nAdd GTS A\r\n");
 		/* NOTE: this function never returns!!!*/
 		leds_blink();
 	}
@@ -385,14 +385,14 @@ int main(void)
 	retv = uwl_simple154_gts_add(UWL_DEV_B_ADDR, UWL_DEV_GTS_LEN,
 				     UWL_MAC_GTS_DIRECTION_OUT);
 	if (retv < 0) {
-		printf("\r\nS_154 error\nAdd GTS B");
+		printf("\r\nS_154 error\nAdd GTS B\r\n");
 		/* NOTE: this function never returns!!!*/
 		leds_blink();
 	}
 	retv = uwl_simple154_gts_add(UWL_DEV_C_ADDR, UWL_DEV_GTS_LEN,
 				     UWL_MAC_GTS_DIRECTION_OUT);
 	if (retv < 0) {
-		printf("\r\nS_154 error\nAdd GTS C");
+		printf("\r\nS_154 error\nAdd GTS C\r\n");
 		/* NOTE: this function never returns!!!*/
 		leds_blink();
 	}
@@ -400,7 +400,7 @@ int main(void)
 	retv = uwl_simple154_gts_add(UWL_DEV_A_ADDR, UWL_DEV_GTS_LEN,
 				     UWL_MAC_GTS_DIRECTION_IN);
 	if (retv < 0) {
-		printf("\r\nS_154 error\nAdd GTS A+");
+		printf("\r\nS_154 error\nAdd GTS A+\r\n");
 		/* NOTE: this function never returns!!!*/
 		leds_blink();
 	}
@@ -408,15 +408,15 @@ int main(void)
 	retv = uwl_simple154_gts_add(UWL_DEV_B_ADDR, UWL_DEV_GTS_LEN,
 				     UWL_MAC_GTS_DIRECTION_IN);
 	if (retv < 0) {
-		printf("\r\nS_154 error\nAdd GTS B+");
+		printf("\r\nS_154 error\nAdd GTS B+\r\n");
 		/* NOTE: this function never returns!!!*/
 		leds_blink();
 	}
 
-	printf("\r\nCoordinator is ready!");
+	printf("Coordinator is ready!\r\n");
 
 	/* Demo started */
-	printf("\r\nOk, let's go!");
+	printf("Ok, let's go!\r\n");
 
 #ifndef USE_LCD_LOG
 	STM_EVAL_LEDOn(LED6);

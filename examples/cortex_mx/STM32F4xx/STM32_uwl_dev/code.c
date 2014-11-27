@@ -217,7 +217,7 @@ TASK(UwlSend)
 	STM_EVAL_LEDToggle(LED4);
 #else
 	GetResource(CONS_MUTEX);
-	printf("\r\nPKT TX");
+	printf("PKT TX\r\n");
 	ReleaseResource(CONS_MUTEX);
 #endif
 	retv = uwl_simple154_send(packet, UWL_PACKET_SIZE, UWL_COORD_ADDR, USE_GTS);
@@ -225,7 +225,7 @@ TASK(UwlSend)
 	
 	if (retv < 0) {
 		GetResource(CONS_MUTEX);
-		printf("\r\nUwlSend: error SEND");
+		printf("UwlSend: error SEND\r\n");
 		ReleaseResource(CONS_MUTEX);
 		/* NOTE: leds_blink() never returns!!!*/
 		leds_blink();
@@ -247,7 +247,7 @@ TASK(UwlReceive)
 	    rx_packet[4] != 0x0E || rx_packet[5] != 0x0F) {
 
 		GetResource(CONS_MUTEX);
-		printf("\r\nUwlReceive: wrong packet type!");
+		printf("UwlReceive: wrong packet type!\r\n");
 		ReleaseResource(CONS_MUTEX);
 
 		return;
@@ -264,12 +264,12 @@ TASK(UwlReceive)
 	STM_EVAL_LEDToggle(LED5);
 #else
 	GetResource(CONS_MUTEX);
-	printf("\r\nPKT RX ");
+	printf("PKT RX\r\n");
 	ReleaseResource(CONS_MUTEX);
 #endif
 	
 	GetResource(CONS_MUTEX);
-	printf("\r\nUwlReceive:D ETX=%u  RX=%u ESEQ=%u",
+	printf("UwlReceive:D ETX=%u  RX=%u ESEQ=%u\r\n",
 			tx_counter - tx_success, rx_counter, rx_seq_errors);
 	ReleaseResource(CONS_MUTEX);
 }
@@ -337,17 +337,17 @@ int main(void)
 			UWL_CHANNEL);
 
 	if (retv < 0) {
-		printf("\r\nS_154 error\nclear GTS");
+		printf("\r\nS_154 error\nclear GTS\r\n");
 		/* NOTE: leds_blink() never returns!!!*/
 		leds_blink();
 	}
 	
 	SetRelAlarm(UwlSendAlarm, UWL_SEND_OFFSET, UWL_SEND_PERIOD);
 
-	printf("\r\nDevice node is ready!");
+	printf("Device node is ready!\r\n");
 
 	/* Demo started */
-	printf("\r\nOk, let's go!");
+	printf("Ok, let's go!\r\n");
 
 #ifndef USE_LCD_LOG
 	STM_EVAL_LEDOn(LED6);
