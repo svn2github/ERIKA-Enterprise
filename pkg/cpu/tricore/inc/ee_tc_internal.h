@@ -117,7 +117,8 @@ __INLINE__ void __ALWAYS_INLINE__ EE_hal_start_core( EE_TYPECOREID core_id,
 }
 
 /** @brief HAL for core synchronization inside the Kernel */
-void EE_hal_sync_barrier ( EE_TYPEBARRIER *bar, EE_UREG wait_mask );
+void EE_hal_sync_barrier ( EE_TYPEBARRIER *bar,
+  EE_UREG volatile * p_wait_mask );
 
 #ifndef EE_USE_CUSTOM_STARTUP_CODE
 /* EE Default Startup code used: declare Slave Cores entry points */

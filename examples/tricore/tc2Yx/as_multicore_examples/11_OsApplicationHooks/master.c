@@ -61,8 +61,12 @@ void EE_COMPILER_SECTION("ee_mcglobalt") test_assert ( int test )
 EE_BIT volatile master_app_startup_flag;
 EE_BIT volatile master_app_shutdown_flag;
 
-EE_BIT volatile EE_SHARED_UDATA slave2_app_startup_flag;
-EE_BIT volatile EE_SHARED_UDATA slave2_app_shutdown_flag;
+#define SHARED_START_SEC_VAR_NOINIT
+#include "MemMap.h"
+EE_BIT volatile slave2_app_startup_flag;
+EE_BIT volatile slave2_app_shutdown_flag;
+#define SHARED_STOP_SEC_VAR_NOINIT
+#include "MemMap.h"
 
 TASK(TaskMaster)
 {

@@ -168,7 +168,7 @@ void EE_oo_ShutdownOS_internal(StatusType Error)
 
       /* [OS587]: Before calling the global ShutdownHook, all cores shall be
           synchronized. (BSW4080007) */
-      EE_hal_sync_barrier(&EE_shutdownos_barrier, EE_as_shutdown_mask);
+      EE_hal_sync_barrier(&EE_shutdownos_barrier, &EE_as_shutdown_mask);
     } else {
       /* Remove this core from the waiting mask: this core has already reached
          the barrier */
@@ -212,7 +212,7 @@ void EE_oo_ShutdownOS( StatusType Error )
   } else if ( (EE_as_execution_context > ErrorHook_Context) &&
     (EE_as_execution_context != StartupHook_Context) )
   {
-	EE_ORTI_set_service_out(EE_SERVICETRACE_SHUTDOWNOS);
+    EE_ORTI_set_service_out(EE_SERVICETRACE_SHUTDOWNOS);
   } else
 #endif /* EE_SERVICE_PROTECTION__ */
 #ifdef EE_AS_OSAPPLICATIONS__

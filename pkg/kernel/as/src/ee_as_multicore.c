@@ -124,13 +124,14 @@ void EE_as_StartCore( CoreIdType CoreID, StatusType *Status )
   } else {
     /* Really start the core if we are not in MASTER core */
     if ( CoreID != OS_CORE_ID_MASTER ) {
+      /* Flag that core is started as Autosar core */
+      EE_as_core_mask |= ((EE_UREG)1U << CoreID);
+      /* Increment the Autosar Cores counter */
+      ++EE_as_core_started;
+
       EE_hal_start_core(CoreID, EE_as_core_start_addresses[CoreID - 1]);
     }
 
-    /* Flag that core is started as Autosar core */
-    EE_as_core_mask |= ((EE_UREG)1U << CoreID);
-    /* Increment the Autosar Cores counter */
-    ++EE_as_core_started;
     ev = E_OK;
   }
 
@@ -183,11 +184,11 @@ void EE_as_StartNonAutosarCore( CoreIdType CoreID, StatusType *Status )
   } else {
     /* Really start the core if we are not in MASTER core */
     if ( CoreID != OS_CORE_ID_MASTER ) {
+      /* Flag that core is started as non Autosar core */
+      EE_as_not_as_core_mask |= ((EE_UREG)1U << CoreID);
+
       EE_hal_start_core(CoreID, EE_as_core_start_addresses[CoreID - 1]);
     }
-
-    /* Flag that core is started as non Autosar core */
-    EE_as_not_as_core_mask |= ((EE_UREG)1U << CoreID);
 
     ev = E_OK;
   }

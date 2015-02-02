@@ -350,7 +350,7 @@ StatusType EE_oo_StartOS(AppModeType Mode)
           StartCore but do not call StartOS may cause the system to hang.
           It is in the responsibility of the integrator to avoid such
           behavior." */
-      EE_hal_sync_barrier(&EE_startos_before_hook_barrier, EE_as_core_mask);
+      EE_hal_sync_barrier(&EE_startos_before_hook_barrier, &EE_as_core_mask);
 
       /* [OS608]: If more than one core calls StartOS with an AppMode other than
           "DONOTCARE", the AppModes shall be the same. StartOS shall check this
@@ -435,7 +435,7 @@ StatusType EE_oo_StartOS(AppModeType Mode)
           started and after the global StartupHook is called.
           (BSW4080001, BSW4080006) */
       EE_hal_sync_barrier(&EE_startos_before_scheduling_barrier,
-        EE_as_core_mask);
+        &EE_as_core_mask);
 #endif /* __MSRP__ && !EE_AS_MULTICORE_NO_SYNC */
 
       /* Check if there is a preemption.

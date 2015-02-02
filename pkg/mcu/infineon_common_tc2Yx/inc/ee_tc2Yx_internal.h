@@ -53,13 +53,25 @@
 
 #if defined (EE_TRIBOARD_TC2X5)
 #include "board/infineon_TriBoard_TC2X5/inc/ee_tc2x5_board.h"
+#define EE_SCU_CCUCON0 (EE_TC2YX_CCUCON0_BAUD1DIV(1U) |\
+  EE_TC2YX_CCUCON0_SRI(1U) | EE_TC2YX_CCUCON0_SPB(2U) |\
+  EE_TC2YX_CCUCON0_FSI2(2U) | EE_TC2YX_CCUCON0_FSI(2U) |\
+  EE_TC2YX_CCUCON0_CLKSEL(1U))
 #elif defined (EE_APPKIT_TC2X5)
 #include "board/infineon_Applikation_Kit_TC2X5/inc/ee_board.h"
+#define EE_SCU_CCUCON0 (EE_TC2YX_CCUCON0_BAUD1DIV(1U) |\
+  EE_TC2YX_CCUCON0_SRI(1U) | EE_TC2YX_CCUCON0_SPB(2U) |\
+  EE_TC2YX_CCUCON0_FSI2(2U) | EE_TC2YX_CCUCON0_FSI(2U) |\
+  EE_TC2YX_CCUCON0_CLKSEL(1U) | EE_TC2YX_CCUCON0_BAUD2DIV(1U))
 #else
 /* Some tests do not define a board, but EE_TC2YX_BOARD_FOSC macro is needed
    I will use the define from EE_TRIBOARD_TC2X5 */
 /* Board Oscillator Frequency default (20MHz) - TriBoard quartz */
 #define EE_TC2YX_BOARD_FOSC 20000000U
+#define EE_SCU_CCUCON0 (EE_TC2YX_CCUCON0_BAUD1DIV(1U) |\
+  EE_TC2YX_CCUCON0_SRI(1U) | EE_TC2YX_CCUCON0_SPB(2U) |\
+  EE_TC2YX_CCUCON0_FSI2(2U) | EE_TC2YX_CCUCON0_FSI(2U) |\
+  EE_TC2YX_CCUCON0_CLKSEL(1U))
 #endif
 
 /** Interrupt table */
@@ -75,10 +87,7 @@ extern void EE_tc_trap_table ( void );
 __INLINE__ void __ALWAYS_INLINE__ EE_tc2Yx_configure_clock_ctrl ( void )
 {
   /* Configure CCUCON0 */
-  SCU_CCUCON0.U = EE_TC2YX_CCUCON0_BAUD1DIV(1U) |
-    EE_TC2YX_CCUCON0_SRI(1U) | EE_TC2YX_CCUCON0_SPB(2U) |
-    EE_TC2YX_CCUCON0_FSI2(2U) | EE_TC2YX_CCUCON0_FSI(2U) |
-    EE_TC2YX_CCUCON0_CLKSEL(1U) | EE_TC2YX_CCUCON0_BAUD2DIV(1U);
+  SCU_CCUCON0.U = EE_SCU_CCUCON0;
 
   /* Configure CCUCON1 and Update all CCU */
   SCU_CCUCON1.U =  EE_TC2YX_CCUCON1_STMDIV(1U) |

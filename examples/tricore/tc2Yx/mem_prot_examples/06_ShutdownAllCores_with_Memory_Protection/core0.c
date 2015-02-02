@@ -11,8 +11,12 @@ void test_assert(int test)
   assert_count = next_assert;
 }
 
-EE_UREG volatile EE_SHARED_UDATA sync_shutdown_asserts;
-EE_UREG volatile EE_SHARED_UDATA shutdown_flag;
+#define SHARED_START_SEC_VAR_NOINIT
+#include "MemMap.h"
+EE_UREG volatile sync_shutdown_asserts;
+EE_UREG volatile shutdown_flag;
+#define SHARED_STOP_SEC_VAR_NOINIT
+#include "MemMap.h"
 
 EE_UREG volatile core0App_startup;
 EE_UREG volatile core0App_shutdown;

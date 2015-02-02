@@ -34,7 +34,7 @@ CPU test_application {
     MASTER_CPU = "master";
 
     MCU_DATA = TRICORE {
-      MODEL = TC26x;
+      MODEL = TC27x;
     };
 
     STATUS        = EXTENDED; /* @Nicola: se la Service Protection è abilitata NON essere in status EXTENDED sarebbe un warning!  */
