@@ -179,11 +179,16 @@ endif # EE_EXECUTE_FROM_RAM
 ## Main rules: all clean
 ##
 
-.PHONY: all clean t32
+.PHONY: all clean t32 rm_elfs
 
-all: make_directories $(ALL_LIBS) $(TARGET) t32 $(EE_SCRIPTS)
+all: rm_elfs make_directories $(ALL_LIBS) $(TARGET) t32 $(EE_SCRIPTS)
 # The success message is printed by the $(TARGET) rule, so we get a "Nothing
 # do be done" message when everything is up to date
+
+# Necessary to ensure changed shared symbols are linked again in the slave cpus
+rm_elfs:
+	@echo "RM " $(TARGET)
+	@-rm -rf $(TARGET)
 
 clean:
 	@printf "CLEAN\n" ;
