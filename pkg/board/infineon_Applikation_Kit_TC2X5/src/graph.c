@@ -23,9 +23,15 @@
  */
 
 
-//#include <stdlib.h>
-#include <math.h>
-#include "graph.h"
+#include "../inc/graph.h"
+
+// #ifdef __TASKING__
+// double round(double number)
+// {
+    // return (double)((number >= 0) ? (int)(number + 0.5) : (int)(number - 0.5));
+// }
+// #endif
+
 
 #define GRAPH_X_TRANS		-30
 #define GRAPH_Y_TRANS		+10
@@ -104,7 +110,7 @@ void graph_line(int x1, int y1, int x2, int y2, int width, int color)
 			{
 				for (j = 0; j < width; j++)
 				{
-					setPx(i, (int)round(((sl * (float)(i - x1)) + y1) + j - (width / 2)), color);
+					setPx(i, (int)round(((sl * (float)(i - x1)) + y1) + j - (width / 2)), (uint8_t) color);
 				}
 			}
 		}
@@ -126,7 +132,7 @@ void graph_line(int x1, int y1, int x2, int y2, int width, int color)
 			{
 				for (j = 0; j < width; j++)
 				{
-					setPx((int)round(((sl * (float)(i - y1)) + x1) + j - (width/2)), i, color);
+					setPx((int)round(((sl * (float)(i - y1)) + x1) + j - (width/2)), i, (uint8_t) color);
 				}
 			}
 		}
@@ -150,7 +156,7 @@ void graph_drawXYPoint(float x, float y, float range)
 
 int graph_pointOnAxis(float v, float range)
 {
-	return (int)((v / range) * ((AXIS_LENGTH * AXIS_USAGE) / 2));
+	return ((int)(v / range) * ((AXIS_LENGTH * AXIS_USAGE) / 2));
 }
 
 void graph_hLine(int x, int y, int length, int width, int color)
@@ -166,14 +172,14 @@ void graph_hLine(int x, int y, int length, int width, int color)
 	{
 		if (width == 1)
 		{
-			setPx(i, y, color);
+			setPx(i, y, (uint8_t) color);
 		}
 		else
 		{
 			int j = 0;
 			for (j = 0; j < width; j++)
 			{
-				setPx(i, y-(width/2)+j, color);
+				setPx(i, y-(width/2)+j, (uint8_t) color);
 			}
 		}
 	}
@@ -193,14 +199,14 @@ void graph_vLine(int x, int y, int length, int width, int color)
 
 		if (width == 1)
 		{
-			setPx(x, i, color);
+			setPx(x, i, (uint8_t) color);
 		}
 		else
 		{
 			int j = 0;
 			for (j = 0; j < width; j++)
 			{
-				setPx(x-(width/2)+j, i, color);
+				setPx(x-(width/2)+j, i, (uint8_t) color);
 			}
 
 		}
@@ -217,7 +223,7 @@ void graph_squarePoint(int x, int y, int width, int color)
 
 	if (width == 1)
 	{
-		setPx(x, y, color);
+		setPx(x, y, (uint8_t) color);
 	}
 
 	int i = 0;
@@ -227,7 +233,7 @@ void graph_squarePoint(int x, int y, int width, int color)
 	{
 		for (j = 0; j < width; j++)
 		{
-			setPx(x-(width/2)+i, y-(width/2)+j, color);
+			setPx(x-(width/2)+i, y-(width/2)+j, (uint8_t) color);
 		}
 	}
 
@@ -240,10 +246,10 @@ void graph_rasterCircle(int x0, int y0, int radius, int color)
 	int errorX = -2 * radius;
 	int x = radius, y = 0;
 
-	setPx(x0, y0 + radius, color);
-	setPx(x0, y0 - radius, color);
-	setPx(x0 + radius, y0, color);
-	setPx(x0 - radius, y0, color);
+	setPx(x0, y0 + radius, (uint8_t) color);
+	setPx(x0, y0 - radius, (uint8_t) color);
+	setPx(x0 + radius, y0, (uint8_t) color);
+	setPx(x0 - radius, y0, (uint8_t) color);
 
 	while (y < x)
 	{
@@ -256,14 +262,14 @@ void graph_rasterCircle(int x0, int y0, int radius, int color)
 		y++;
 		errorY += 2;
 		error += errorY;
-		setPx(x0 + x, y0 + y, color);
-		setPx(x0 - x, y0 + y, color);
-		setPx(x0 + x, y0 - y, color);
-		setPx(x0 - x, y0 - y, color);
-		setPx(x0 + y, y0 + x, color);
-		setPx(x0 - y, y0 + x, color);
-		setPx(x0 + y, y0 - x, color);
-		setPx(x0 - y, y0 - x, color);
+		setPx(x0 + x, y0 + y, (uint8_t) color);
+		setPx(x0 - x, y0 + y, (uint8_t) color);
+		setPx(x0 + x, y0 - y, (uint8_t) color);
+		setPx(x0 - x, y0 - y, (uint8_t) color);
+		setPx(x0 + y, y0 + x, (uint8_t) color);
+		setPx(x0 - y, y0 + x, (uint8_t) color);
+		setPx(x0 + y, y0 - x, (uint8_t) color);
+		setPx(x0 - y, y0 - x, (uint8_t) color);
 	}
 }
 
@@ -274,7 +280,7 @@ void graph_fillCircle (int ix, int iy, int radius, int color)
 	for (y = -radius; y <= radius; y++)
 		for (x = -radius; x <= radius; x++)
 			if ((x * x) + (y * y) <= (radius * radius))
-				setPx(ix+x, iy+y, color);
+				setPx(ix+x, iy+y, (uint8_t) color);
 }
 
 void graph_drawRectangle(int x, int y, int width, int height, int color, int line_width)
@@ -299,7 +305,7 @@ void graph_fillRectangle(int x, int y, int width, int height, int color)
 	{
 		for (j = 0; j < height; j++)
 		{
-			setPx(x + i, y + j, color);
+			setPx(x + i, y + j, (uint8_t) color);
 		}
 	}
 

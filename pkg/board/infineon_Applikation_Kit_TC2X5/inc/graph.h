@@ -25,6 +25,8 @@
 #ifndef INCLUDE_EE_APPKIT_TC2X5_BOARD_GRAPH_H__
 #define INCLUDE_EE_APPKIT_TC2X5_BOARD_GRAPH_H__
 
+#include <stdlib.h>
+#include <math.h>
 #include "display.h"
 
 void graph_line(int x1, int y1, int x2, int y2, int width, int color);

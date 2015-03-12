@@ -46,6 +46,7 @@ ifeq ($(call iseeopt, EE_APPKIT_TC2X5), yes)
 
 ifeq ($(call iseeopt, EE_USE_DISPLAY), yes)
 EE_SRCS += pkg/board/infineon_Applikation_Kit_TC2X5/src/display.c
+EE_SRCS += pkg/board/infineon_Applikation_Kit_TC2X5/src/graph.c
 EE_SRCS += pkg/board/infineon_Applikation_Kit_TC2X5/src/font1.c
 EE_SRCS += pkg/board/infineon_Applikation_Kit_TC2X5/src/util.c
 endif # __USE_DISPLAY__

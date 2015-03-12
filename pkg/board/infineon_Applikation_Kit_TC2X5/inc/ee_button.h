@@ -70,11 +70,17 @@ __INLINE__ void __ALWAYS_INLINE__ EE_tc2x5_button_irq_init( EE_TYPEISR2PRIO intv
 
   /*  The button will shortcut the pin with GND when pressed ->
       we will use the falling edge to generate the interrupt */
-  SCU_EICR0.B.REN0    = 1U;
-  SCU_EICR0.B.EIEN0   = 1U;
-
-  /* Configure OGU0 to respond on triggers (no pattern matching) */
-  SCU_IGCR0.B.IGP0 = 1U;
+	
+  SCU_EICR0.B.FEN0      = 0;
+  SCU_EICR0.B.REN0      = 1;
+  SCU_EICR0.B.EIEN0     = 0;
+  SCU_EICR0.B.LDEN0		= 0;
+  SCU_EICR0.B.INP0 		= 0;
+  SCU_IGCR0.B.IPEN00 	= 1;
+  SCU_IGCR0.B.IGP0 		= 2;
+  SCU_IGCR0.B.GEEN0 	= 1;
+	
+	
 
   /* I will use OGU0 (Output Gate-in Unit 0) -> SRC_SCUERU0
    *  [0..7] SRPN = INTERRUPT_NR

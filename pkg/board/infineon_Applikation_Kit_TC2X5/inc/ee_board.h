@@ -48,15 +48,15 @@
 #ifndef INCLUDE_EE_APPKIT_TC2X5_EE_BOARD_H__
 #define INCLUDE_EE_APPKIT_TC2X5_EE_BOARD_H__
 
-/* TriBoard 2x5 default clock frequency (20MHz) */
-#define EE_TRIBOARD_2X5_FOSC    20000000U
+/* Appkit 2x5 default clock frequency (20MHz) */
+#define EE_APPKIT_2X5_FOSC    	20000000U
 /* Interface Board Oscillator Frequency Define */
-#define EE_TC2YX_BOARD_FOSC     EE_TRIBOARD_2X5_FOSC
+#define EE_TC2YX_BOARD_FOSC     EE_APPKIT_2X5_FOSC
 /* Interface Board Oscillator Frequency Define */
-#define EE_TC27X_BOARD_FOSC     EE_TRIBOARD_2X5_FOSC
+#define EE_TC27X_BOARD_FOSC     EE_APPKIT_2X5_FOSC
 
 #ifdef EE_USE_DISPLAY
-#include "display.h"
+#include "graph.h"
 #endif
 
 #ifdef EE_USE_LEDS
