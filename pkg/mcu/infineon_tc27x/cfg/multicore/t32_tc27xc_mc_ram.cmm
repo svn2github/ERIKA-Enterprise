@@ -193,14 +193,14 @@ other_guis:
   IF !INTERCOM.PING(&addressGUI1)
   (
     PRINT "no debugger / GUI at &addressGUI1 detected, launching second GUI..."
-    &launchGUI=OS.PEF()+" -c "+OS.PPD()+"/config_tc27x_mc.t32 &portGUI1 Trace32_CORE1 &p3_tmp &p4_sys &p5_help &p6_pbi &p7_opt &p8_opt CORE=2 &p9_bgnd"
+    &launchGUI=OS.PEF()+" -c "+OS.PPD()+"/config_tc27xc_mc.t32 &portGUI1 Trace32_CORE1 &p3_tmp &p4_sys &p5_help &p6_pbi &p7_opt &p8_opt CORE=2 &p9_bgnd"
     OS &launchGUI
   )
   WAIT INTERCOM.PING(&addressGUI2) 5.s
   IF !INTERCOM.PING(&addressGUI2)
   (
     PRINT "no debugger / GUI at &addressGUI2 detected, launching third GUI..."
-    &launchGUI=OS.PEF()+" -c "+OS.PPD()+"/config_tc27x_mc.t32 &portGUI2 Trace32_CORE2 &p3_tmp &p4_sys &p5_help &p6_pbi &p7_opt &p8_opt CORE=3 &p9_bgnd"
+    &launchGUI=OS.PEF()+" -c "+OS.PPD()+"/config_tc27xc_mc.t32 &portGUI2 Trace32_CORE2 &p3_tmp &p4_sys &p5_help &p6_pbi &p7_opt &p8_opt CORE=3 &p9_bgnd"
     OS &launchGUI
   )
   WAIT INTERCOM.PING(&addressGUI1) 5.s

@@ -512,7 +512,11 @@ void EE_hal_terminate_other_task( EE_TID tid );
 /* Name remapping for compiler Abstraction (I cannot use inline function,
    because _syscall is a macro that stringify her param, so I have to rely
    on preprocessor macro substitution) */
+#ifdef __TASKING__
+#define EE_tc_syscall(tin) __syscallfunc(tin)
+#else
 #define EE_tc_syscall(tin) _syscall(tin)
+#endif
 
 #endif /* __EE_MEMORY_PROTECTION__ */
 #endif /* EE_AS_OSAPPLICATIONS__ */

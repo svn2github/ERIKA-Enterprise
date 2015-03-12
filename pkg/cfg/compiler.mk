@@ -111,7 +111,11 @@ endif
 
 ifeq ($(call iseeopt, EE_TRICORE__), yes)
 ifeq ($(call iseeopt, EE_TASKING__), yes)
+ifeq ($(call iseeopt, EE_TASKING_4_0), yes)
 include $(PKGBASE)/cfg/arch/cc_tricore_tasking_new.mk
+else
+include $(PKGBASE)/cfg/arch/cc_tricore_tasking_4_3.mk
+endif # EE_TASKING_4_0
 endif # EE_TASKING__
 ifeq ($(call iseeopt, EE_GNU__), yes)
 include $(PKGBASE)/cfg/arch/cc_tricore_gnu_new.mk

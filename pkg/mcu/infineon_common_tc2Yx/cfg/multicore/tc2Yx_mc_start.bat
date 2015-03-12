@@ -21,6 +21,6 @@ IF "%1"=="" (
   SET P8_OPT=PACKLEN=1024
   SET P9_OPT=CORE=1
 )
-
+pushd %~dp0
 start %P4_SYS%\bin\%P11_ARCH%\t32mtc -c config_#TC2YX#_mc.t32 %P1_PORT% %P2_TITLE% %P3_TMP% %P4_SYS% %P5_HELP% %P6_PBI% %P7_OPT% %P8_OPT% %P9_OPT% -s %P10_SCRIPT%
-
+popd

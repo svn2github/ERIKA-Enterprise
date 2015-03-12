@@ -89,12 +89,12 @@
    It cannot be used with the construct __attribute__, I don't know
    why because, as I said, is not documented. */
 #define JUMP                    __jump__
-
+#define EE_FAR 					__far
 /* Alignment, Section, Used attributes as are used in GCC compiler */
 /* attribute __align() (1.1.4. Changing the Alignment: __align()) */
 #define EE_COMPILER_ALIGN(a)    EE_DO_ATTRIBUTE(__align(a))
 #define EE_COMPILER_SECTION(s)  EE_DO_ATTRIBUTE(section(s))
-#define EE_COMPILER_KEEP        EE_DO_ATTRIBUTE(used)
+#define EE_COMPILER_KEEP        EE_DO_ATTRIBUTE(used) EE_DO_ATTRIBUTE(protect)
 
 /* More useful attributes */
 #define EE_COMPILER_UNUSED      EE_DO_ATTRIBUTE(unused)

@@ -152,15 +152,15 @@ __INLINE__ void __ALWAYS_INLINE__ EE_tc2Yx_ack_signal( EE_TYPECOREID cpu )
 #define EE_E_ISTACK       _lc_ue_istack_tc1   /* interrupt stack end */
 #define EE_INT_TAB        _lc_u_int_tab_tc1   /* interrupt table */
 #define EE_TRAP_TAB       _lc_u_trap_tab_tc1  /* trap table */
-#define EE_SMALL_DATA     _SMALL_DATA_TC1     /* centre of A0 addr. area */
-#define EE_LITERAL_DATA   _LITERAL_DATA_TC1   /* centre of A1 addr. area */
-#define EE_A8_DATA        _A8_DATA_TC1        /* centre of A8 addr. area */
-#define EE_A9_DATA        _A9_DATA_TC1        /* centre of A9 addr. area */
+#define EE_SMALL_DATA     _SMALL_DATA_        /* centre of A0 addr. area */
+#define EE_LITERAL_DATA   _LITERAL_DATA_      /* centre of A1 addr. area */
+#define EE_A8_DATA        _A8_DATA_           /* centre of A8 addr. area */
+#define EE_A9_DATA        _A9_DATA_           /* centre of A9 addr. area */
 #define EE_B_CSA          _lc_ub_csa_tc1      /* Context Save Area base */
 #define EE_E_CSA          _lc_ue_csa_tc1      /* Context Save Area end  */
 
 #define EE_C_INIT_TC      _c_init_tc1         /* C initialization function */
-#define EE_TC2YX_START    EE_tc2Yx_cpu1_start /* Core Start-up code entry */
+#define EE_TC2YX_START    EE_COMPILER_SECTION(EE_tc2Yx_cpu1_start) EE_tc2Yx_cpu1_start /* Core Start-up code entry */
 
 #elif (EE_CURRENTCPU == 2)
 /* Start-Up Symbols Remapping */
@@ -169,15 +169,15 @@ __INLINE__ void __ALWAYS_INLINE__ EE_tc2Yx_ack_signal( EE_TYPECOREID cpu )
 #define EE_E_ISTACK       _lc_ue_istack_tc2   /* interrupt stack end */
 #define EE_INT_TAB        _lc_u_int_tab_tc2   /* interrupt table */
 #define EE_TRAP_TAB       _lc_u_trap_tab_tc2  /* trap table */
-#define EE_SMALL_DATA     _SMALL_DATA_TC2     /* centre of A0 addr. area */
-#define EE_LITERAL_DATA   _LITERAL_DATA_TC2   /* centre of A1 addr. area */
-#define EE_A8_DATA        _A8_DATA_TC2        /* centre of A8 addr. area */
-#define EE_A9_DATA        _A9_DATA_TC2        /* centre of A9 addr. area */
+#define EE_SMALL_DATA     _SMALL_DATA_        /* centre of A0 addr. area */
+#define EE_LITERAL_DATA   _LITERAL_DATA_      /* centre of A1 addr. area */
+#define EE_A8_DATA        _A8_DATA_           /* centre of A8 addr. area */
+#define EE_A9_DATA        _A9_DATA_           /* centre of A9 addr. area */
 #define EE_B_CSA          _lc_ub_csa_tc2      /* Context Save Area base */
 #define EE_E_CSA          _lc_ue_csa_tc2      /* Context Save Area end  */
 
 #define EE_C_INIT_TC      _c_init_tc2         /* C initialization function */
-#define EE_TC2YX_START    EE_tc2Yx_cpu2_start /* Core Start-up code entry */
+#define EE_TC2YX_START    EE_COMPILER_SECTION(EE_tc2Yx_cpu2_start) EE_tc2Yx_cpu2_start /* Core Start-up code entry */
 
 #else
 #error Unknown CPU ID

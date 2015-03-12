@@ -92,12 +92,12 @@ T32_SED_COMMAND := $(addprefix -e , $(T32_SED_COMMAND)) -e 's-\#ORTICDMASTER\#-$
  -e 's-\#ORTICDBACKCPU2\#-$(CPU2_ORTI_CD_BACK)-g'
 
 ifeq ($(call iseeopt, EE_EXECUTE_FROM_RAM), yes)
-T32SCRIPT  := t32_$(TRICORE_MODEL)_mc_ram.cmm
-EE_SCRIPTS := config_$(TRICORE_MODEL)_mc.t32 $(TRICORE_MODEL)_mc_start.bat $(TRICORE_MODEL)_mc_start.sh $(T32_STRIPSECTIONS_SCRIPT)
+T32SCRIPT  := t32_$(TRICORE_MODEL)$(TRICORE_STEP)_mc_ram.cmm
+EE_SCRIPTS := config_$(TRICORE_MODEL)$(TRICORE_STEP)_mc.t32 $(TRICORE_MODEL)$(TRICORE_STEP)_mc_start.bat $(TRICORE_MODEL)$(TRICORE_STEP)_mc_start.sh $(T32_STRIPSECTIONS_SCRIPT)
 else # EE_EXECUTE_FROM_RAM
-T32SCRIPT  := t32_$(TRICORE_MODEL)_mc.cmm
-EE_SCRIPTS := config_$(TRICORE_MODEL)_mc.t32 $(TRICORE_MODEL)_mc_start.bat $(TRICORE_MODEL)_mc_start.sh $(TRICORE_MODEL)_mc_flash.bat\
-  $(TRICORE_MODEL)_mc_flash.sh t32_$(TRICORE_MODEL)_mc_flash.cmm $(T32_STRIPSECTIONS_SCRIPT)
+T32SCRIPT  := t32_$(TRICORE_MODEL)$(TRICORE_STEP)_mc.cmm
+EE_SCRIPTS := config_$(TRICORE_MODEL)$(TRICORE_STEP)_mc.t32 $(TRICORE_MODEL)$(TRICORE_STEP)_mc_start.bat $(TRICORE_MODEL)$(TRICORE_STEP)_mc_start.sh $(TRICORE_MODEL)$(TRICORE_STEP)_mc_flash.bat\
+  $(TRICORE_MODEL)$(TRICORE_STEP)_mc_flash.sh t32_$(TRICORE_MODEL)$(TRICORE_STEP)_mc_flash.cmm $(T32_STRIPSECTIONS_SCRIPT)
 endif # EE_EXECUTE_FROM_RAM
 
 ifeq ($(call iseeopt, EE_BUILD_SINGLE_ELF),yes)
@@ -160,35 +160,37 @@ $(foreach c, $(CPU_LIST), $(eval $(call all-clean-template,$c)))
 #Targets Dependencies
 $(foreach s, $(SLAVE_CPUS), $(s)-all): $(GLOBAL_LINKSCRIPT)
 
-config_$(TRICORE_MODEL)_mc.t32: $(PKGBASE)/mcu/infineon_common_tc2Yx/cfg/multicore/config_tc2Yx_mc.t32
+config_$(TRICORE_MODEL)$(TRICORE_STEP)_mc.t32: $(PKGBASE)/mcu/infineon_common_tc2Yx/cfg/multicore/config_tc2Yx_mc.t32
 	@echo "CP $@ from $<"
 	$(QUIET) cp $< $@
 
-$(TRICORE_MODEL)_mc_start.bat: $(PKGBASE)/mcu/infineon_common_tc2Yx/cfg/multicore/tc2Yx_mc_start.bat
+$(TRICORE_MODEL)$(TRICORE_STEP)_mc_start.bat: $(PKGBASE)/mcu/infineon_common_tc2Yx/cfg/multicore/tc2Yx_mc_start.bat
 	@echo "GEN $@ from $<"
-	$(QUIET) sed -e 's-#T32SYS#-$(T32SYS)-g'	\
-		-e 's-#T32TMP#-$(T32TMP)-g'				\
-		-e 's-#T32SCRIPT#-$(T32SCRIPT)-g'		\
-		-e 's-#T32ARCH#-$(T32ARCH)-g'			\
-		-e 's-#TC2YX#-$(TRICORE_MODEL)-g'	\
+	$(QUIET) sed -e 's-#T32SYS#-$(T32SYS)-g'	                    \
+		           -e 's-#T32TMP#-$(T32TMP)-g'				        \
+		           -e 's-#T32SCRIPT#-$(T32SCRIPT)-g'		        \
+		           -e 's-#T32ARCH#-$(T32ARCH)-g'			        \
+		           -e 's-#TC2YX#-$(TRICORE_MODEL)$(TRICORE_STEP)-g'	\
 		$< > $@
 	$(QUIET) chmod 777 $@
 
-$(TRICORE_MODEL)_mc_start.sh: $(PKGBASE)/mcu/infineon_common_tc2Yx/cfg/multicore/tc2Yx_mc_start.sh
+$(TRICORE_MODEL)$(TRICORE_STEP)_mc_start.sh: $(PKGBASE)/mcu/infineon_common_tc2Yx/cfg/multicore/tc2Yx_mc_start.sh
 	@echo "GEN $@ from $<"
-	$(QUIET) sed -e 's-#T32SYS#-$(T32SYS)-g'	\
-		-e 's-#T32TMP#-$(T32TMP)-g'				\
-		-e 's-#T32SCRIPT#-$(T32SCRIPT)-g'		\
-		-e 's-#T32ARCH#-$(T32ARCH)-g'			\
-		-e 's-#TC2YX#-$(TRICORE_MODEL)-g'	\
+	$(QUIET) sed -e 's-#T32SYS#-$(T32SYS)-g'	                    \
+		           -e 's-#T32TMP#-$(T32TMP)-g'				        \
+		           -e 's-#T32SCRIPT#-$(T32SCRIPT)-g'	            \
+		           -e 's-#T32ARCH#-$(T32ARCH)-g'			        \
+		           -e 's-#TC2YX#-$(TRICORE_MODEL)$(TRICORE_STEP)-g'	\
 		$< > $@
 	$(QUIET) chmod 777 $@
 
-$(TRICORE_MODEL)_mc_flash.bat:
+$(TRICORE_MODEL)$(TRICORE_STEP)_mc_flash.bat:
 	@echo GEN $@
 	@echo "@ECHO OFF" > $@
 	@echo "REM script to flash TriCore". >> $@
-	@echo $(T32SYS)/bin/$(T32ARCH)/t32mtc -s t32_$(TRICORE_MODEL)_mc_flash.cmm >> $@
+	@echo "pushd %~dp0" >> $@
+	@echo "$(T32SYS)/bin/$(T32ARCH)/t32mtc -s t32_$(TRICORE_MODEL)$(TRICORE_STEP)_mc_flash.cmm  CPU=TC275T" >> $@
+	@echo "popd" >> $@
 	$(QUIET) chmod 777 $@
 
 #	@echo GEN $@
@@ -208,13 +210,13 @@ $(TRICORE_MODEL)_mc_flash.bat:
 #	@echo $(T32SYS)/bin/windows/t32mtc >> $@
 #	@echo cd .. >> $@
 
-$(TRICORE_MODEL)_mc_flash.sh:
+$(TRICORE_MODEL)$(TRICORE_STEP)_mc_flash.sh:
 	@echo "GEN $@"
 	@echo "#! /bin/bash" > $@
-	@echo $(T32SYS)/bin/$(T32ARCH)/t32mtc -s t32_$(TRICORE_MODEL)_mc_flash.cmm >> $@
+	@echo $(T32SYS)/bin/$(T32ARCH)/t32mtc -s t32_$(TRICORE_MODEL)$(TRICORE_STEP)_mc_flash.cmm >> $@
 	$(QUIET) chmod 777 $@
 
-$(T32SCRIPT) t32_$(TRICORE_MODEL)_mc_flash.cmm: %: $(EE_T32_SCRIPTS_SOURCE_FOLDER)/%
+$(T32SCRIPT) t32_$(TRICORE_MODEL)$(TRICORE_STEP)_mc_flash.cmm: %: $(EE_T32_SCRIPTS_SOURCE_FOLDER)/%
 	@echo "GEN $@ from $<"
 	$(QUIET) sed $(T32_SED_COMMAND) $< > $@
 

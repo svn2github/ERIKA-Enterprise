@@ -11,15 +11,16 @@
 #define INTTAB0                   0x70100000
 #define TRAPTAB0                  0x70102000
 #define RESET                     0x70102100
-#define EE_TC27X_START_ADDR       0x70102104
+#define EE_TC2YX_START_ADDR       0x70102104
 
 #define INTTAB1                   0x60100000
 #define TRAPTAB1                  0x60102000
-#define EE_TC27X_CPU1_START_ADDR  0x60102100
+#define EE_TC2YX_CPU1_START_ADDR  0x60102100
 
 #define INTTAB2                   0x50100000
 #define TRAPTAB2                  0x50102000
-#define EE_TC27X_CPU2_START_ADDR  0x50102100
+#define EE_TC2YX_CPU2_START_ADDR  0x50102100
+
 
 /* Needed to redefine memories */
 #define  __REDEFINE_ON_CHIP_ITEMS
@@ -27,6 +28,8 @@
 #ifdef EE_SINGLE_CPU
 #include "tc27x_singlecore.lsl"
 #else /* EE_SINGLE_CPU */
+#define __BMHD0_CONFIG __BMHD_GENERATE
+#define __BMHD1_CONFIG __BMHD_GENERATE
 #include "tc27x.lsl"
 #endif /* EE_SINGLE_CPU */
 
@@ -176,14 +179,14 @@ derivative ee_tc27x extends tc27x {
     section_layout :vtc:linear
     {
 #ifndef EE_SINGLE_CPU
-    group (ordered, run_addr=EE_TC27X_START_ADDR)
+    group (ordered, run_addr=EE_TC2YX_START_ADDR)
       {
         select "ee_kernel_start";
       }
 #endif /* !EE_SINGLE_CPU */
 #ifdef EE_MASTER_CPU
-      "EE_tc27x_cpu1_start" := EE_TC27X_CPU1_START_ADDR;
-      "EE_tc27x_cpu2_start" := EE_TC27X_CPU2_START_ADDR;
+      "EE_tc27x_cpu1_start" := EE_TC2YX_CPU1_START_ADDR;
+      "EE_tc27x_cpu2_start" := EE_TC2YX_CPU2_START_ADDR;
 
       // "shared data" group
       group ee_shared_data(run_addr=mem:lmuram/not_cached[0 .. 8k])
@@ -212,7 +215,7 @@ derivative ee_tc27x extends tc27x {
 #endif /* EE_SINGLE_CPU || EE_MASTER_CPU */
 #if (CPU_NUMID == 1)
       // "start-up code" groups
-      group (ordered, run_addr=EE_TC27X_CPU1_START_ADDR)
+      group (ordered, run_addr=EE_TC2YX_CPU1_START_ADDR)
       {
         select "*.EE_tc27x_cpu1_start";
       }
@@ -236,7 +239,7 @@ derivative ee_tc27x extends tc27x {
 #endif /* CPU_NUMID == 1 */
 #if (CPU_NUMID == 2)
       // "start-up code" group
-      group (ordered, run_addr=EE_TC27X_CPU2_START_ADDR)
+      group (ordered, run_addr=EE_TC2YX_CPU2_START_ADDR)
       {
         select "*.EE_tc27x_cpu2_start";
       }

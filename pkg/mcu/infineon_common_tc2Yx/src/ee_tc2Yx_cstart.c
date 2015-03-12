@@ -324,6 +324,7 @@ const EE_UINT32 BootModeHeader1[] = {
 #endif
 #endif /* !EE_TC_BMH01_NOT_NEEDED */
 #endif /* !__TASKING__*/
+#endif /* EE_MASTER_CPU */
 
 /******************************************************************************
  * reset vector address, user section to inform linker to locate the code at
@@ -341,6 +342,7 @@ const EE_UINT32 BootModeHeader1[] = {
 #pragma section CODE ".startup" X
 #endif
 
+#if defined(EE_MASTER_CPU)
 void _START(void)
 {
 #if defined(__GNUC__) || defined(__TASKING__)
@@ -351,6 +353,12 @@ void _START(void)
   __asm ("  ji %a15");
 #endif /* __GNUC__ || __TASKING__ || __DCC__ */
 }
+#endif /* EE_MASTER_CPU */
+
+#if defined(EE_MASTER_CPU) && defined(__TASKING__)
+void _START(void){}
+#endif
+
 
 /* reset the sections defined above, to normal region */
 #if defined(__GNUC__)
@@ -363,7 +371,7 @@ void _START(void)
 #if defined(__DCC__)
 #pragma section CODE
 #endif
-#endif /* EE_MASTER_CPU */
+
 
 /*******************************************************************************
  * @brief startup code

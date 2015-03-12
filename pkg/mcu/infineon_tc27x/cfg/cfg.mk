@@ -39,17 +39,16 @@
 # ###*E*###
 
 ## Author: Errico Guidieri 2012
+## Edited: Chris Kreuzberger 2014
 ## 
 ##
 
 ifeq ($(and $(call iseeopt, EE_TRICORE__), $(call iseeopt, EE_TC27X__)),yes)
-ifeq ($(or $(call iseeopt, EE_TASKING__), $(call iseeopt, EE_DIAB__)),yes)
-ifneq ($(call iseeopt, EE_TASKING_4_3),yes)
+ifeq ($(or $(call iseeopt, EE_TASKING_4_0), $(call iseeopt, EE_DIAB__)),yes)
 ifneq ($(call iseeopt,EE_USE_CUSTOM_STARTUP_CODE), yes)
 EE_BOOT_SRCS += pkg/mcu/infineon_tc27x/src/ee_tc27x_cstart.c
 endif # !EE_USE_CUSTOM_STARTUP_CODE
 EE_SRCS += pkg/mcu/infineon_tc27x/src/ee_tc27x_system.c
 EE_SRCS += pkg/mcu/infineon_tc27x/src/ee_tc27x_internal.c
-endif # EE_TASKING_4_3
 endif # TASKING || DIAB
 endif # TRICORE TC27X

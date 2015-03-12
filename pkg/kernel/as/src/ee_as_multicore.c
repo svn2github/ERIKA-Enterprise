@@ -52,7 +52,7 @@ extern EE_UREG  volatile EE_oo_started;
 
 #if defined (EE_MAX_CPU) && (EE_MAX_CPU > 1)
 /** @brief The following contains cores start addresses */
-extern EE_ADDR const EE_as_core_start_addresses[EE_MAX_CPU - 1];
+extern EE_ADDR const EE_SHARED_CDATA EE_as_core_start_addresses[EE_MAX_CPU - 1];
 #endif /* EE_MAX_CPU */
 
 #ifdef EE_MASTER_CPU

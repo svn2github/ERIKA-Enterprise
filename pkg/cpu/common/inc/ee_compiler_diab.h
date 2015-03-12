@@ -74,6 +74,8 @@
 
 #define __ALWAYS_INLINE__
 
+#define EE_FAR
+
 #define __NEVER_INLINE__  __attribute__ ((noinline))
 
 #define NORETURN  __attribute__ ((noreturn))

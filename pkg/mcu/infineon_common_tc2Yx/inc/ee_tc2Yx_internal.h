@@ -217,14 +217,14 @@ __INLINE__ void __ALWAYS_INLINE__ EE_tc2Yx_fill_stacks( void )
   /* User Stack Base. */
   extern EE_UINT32 EE_B_USTACK[];
 
-#if (defined(__GNUC__) && (!defined(EE_EXECUTE_FROM_RAM))) || defined(__DCC__) || defined(__TASKING__)
+#if (defined(__GNUC__) && (!defined(EE_EXECUTE_FROM_RAM))) || defined(__DCC__) 
   /* ERIKA stacks table entry */
   extern EE_UINT32 ee_stacks_table[];
   /* Pointer used to traverse stack table */
   EE_UINT32 *stack_table_ptr;
   /* Actual Stack length (first in bytes then, in words) */
   EE_UINT32 stack_length;
-#endif /* (__GNUC__ && !EE_EXECUTE_FROM_RAM) ||  __DCC__ || __TASKING__ */
+#endif /* (__GNUC__ && !EE_EXECUTE_FROM_RAM) ||  __DCC__*/
 
   /* Pointer used to traverse stacks */
   register EE_UINT32 * stack_fill_ptr;
@@ -237,11 +237,11 @@ __INLINE__ void __ALWAYS_INLINE__ EE_tc2Yx_fill_stacks( void )
   }
 
 
-#if (defined(__GNUC__) && (!defined(EE_EXECUTE_FROM_RAM))) || defined(__DCC__) || defined(__TASKING__)
+#if (defined(__GNUC__) && (!defined(EE_EXECUTE_FROM_RAM))) || defined(__DCC__) 
   /* Stack table */
   stack_table_ptr = ee_stacks_table;
   /* Traverse it */
-  while (stack_table_ptr != 0)
+  while (1)
   {
     /* Get a stack section base address */
     stack_fill_ptr = (EE_UINT32 *)*stack_table_ptr;
@@ -268,7 +268,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_tc2Yx_fill_stacks( void )
   }
 #elif ((!defined(__GNUC__)) && (!defined(__DCC__)) && (!defined(__TASKING__))) && (!defined(EE_EXECUTE_FROM_RAM))
 #error Fix Stack Filling code in Other compiler Than GNUC and DCC !
-#endif /* (!__GNUC__ && !EE_EXECUTE_FROM_RAM) ||  __DCC__ || __TASKING__ */
+#endif /* (!__GNUC__ && !EE_EXECUTE_FROM_RAM) ||  __DCC__ */
 }
 #else  /* __OO_ORTI_STACK__ || EE_STACK_MONITORING__ */
 /* If ORTI STACKs is not enabled stack filling is not active */

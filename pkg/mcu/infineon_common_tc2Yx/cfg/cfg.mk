@@ -44,11 +44,13 @@
 ##
 
 ifeq ($(call iseeopt, EE_TRICORE__),yes)
-ifeq ($(or $(call iseeopt, EE_TASKING_4_3), $(call iseeopt, EE_GNU__)),yes)
+ifeq ($(or $(call iseeopt, EE_TASKING__), $(call iseeopt, EE_GNU__)),yes)
+ifneq ($(call iseeopt,EE_TASKING_4_0), yes)
 ifneq ($(call iseeopt,EE_USE_CUSTOM_STARTUP_CODE), yes)
 EE_BOOT_SRCS += pkg/mcu/infineon_common_tc2Yx/src/ee_tc2Yx_cstart.c
 endif # !EE_USE_CUSTOM_STARTUP_CODE
 EE_SRCS += pkg/mcu/infineon_common_tc2Yx/src/ee_tc2Yx_system.c
-endif # TASKING_4_3 && GNU
+endif # EE_TASKING_4_0
+endif # TASKING && GNU
 endif # TRICORE
 

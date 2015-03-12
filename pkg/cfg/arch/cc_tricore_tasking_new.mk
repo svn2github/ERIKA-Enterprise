@@ -92,13 +92,6 @@ OPT_CC += -C$(TRICORE_MODEL) -t -Wa-gAHLs -Wa-Ogs -Wa--error-limit=42 --no-prepr
 --iso=99 --language=+gcc,-volatile,+strings --switch=auto --align=0 \
 --default-near-size=8 --default-a0-size=0 --default-a1-size=0 --tradeoff=4 --compact-max-size=200 --source
 
-ifeq ($(call iseeopt, EE_TASKING_4_3), yes)
-#Defined when multicore support is needed, used to preprocess Multicore Linker Script
-ifndef CPU_NUMID
-OPT_CC += --lsl-core=tc0
-endif
-endif
-
 ifeq ($(call iseeopt, EE_DEBUG), yes)
 OPT_CC += --emit-locals=+equ,+symbols -g -O1
 else
@@ -131,13 +124,6 @@ target_c_file=$(addprefix --create --output=,$1)
 #For ASM I leave --tasking-sfr option active
 OPT_ASM += -C$(TRICORE_MODEL) -t -Wa--tasking-sfr -Wa-gAHLs -Wa-Ogs -Wa--error-limit=42
 
-ifeq ($(call iseeopt, EE_TASKING_4_3), yes)
-#Defined when multicore support is needed, used to preprocess Multicore Linker Script
-ifndef CPU_NUMID
-OPT_ASM += --lsl-core=tc0
-endif
-endif
-
 ifeq ($(call iseeopt, EE_DEBUG), yes)
 OPT_ASM += --emit-locals=+equ,+symbols
 else
@@ -161,11 +147,7 @@ ifndef EE_LINKERSCRIPT
 ifeq ($(call iseeopt, EE_EXECUTE_FROM_RAM), yes)
 EE_LINKERSCRIPT := ee_tc27x_tasking_ram.lsl
 else
-ifeq ($(call iseeopt, EE_TASKING_4_3), yes)
-EE_LINKERSCRIPT := ee_tc27x_tasking_4.3_flash.lsl
-else
 EE_LINKERSCRIPT := ee_tc27x_tasking_flash.lsl
-endif
 endif
 $(EE_LINKERSCRIPT) : % : $(PKGBASE)/mcu/infineon_$(TRICORE_MODEL)/cfg/%
 	@echo CP $@
@@ -174,19 +156,7 @@ endif
 # Add Linker Script to Link Dependencies
 LINKDEP += $(EE_LINKERSCRIPT)
 
-OPT_LINK += -C$(TRICORE_MODEL)
-
-#Defined when multicore support is needed, used to preprocess Multicore Linker Script
-ifdef CPU_NUMID
-OPT_LINK += -Wl-DCPU_NUMID=$(CPU_NUMID)
-else
-ifeq ($(call iseeopt, EE_TASKING_4_3), yes)
-OPT_LINK += --lsl-core=tc0
-endif
-endif
-
-
-OPT_LINK += -t $(EE_LINKERSCRIPT) -Wl-O1 -Wl--map-file=$(TARGET_NAME).mapxml:XML -Wl-m2 -Wl--error-limit=42 -Wl--no-warnings=159 -g
+OPT_LINK += -C$(TRICORE_MODEL) -t $(EE_LINKERSCRIPT) -Wl-O1 -Wl--map-file=$(TARGET_NAME).mapxml:XML -Wl-m2 -Wl--error-limit=42 -Wl--no-warnings=159 -g
 #no warning is needed for following warning message in TC0:
 #ltc W159: LSL: section ".text.libc.reset" (function _START) was not selected because it already has an absolute restriction
 
@@ -199,6 +169,11 @@ ifeq ($(call iseeopt, EE_EXECUTE_FROM_RAM), yes)
 #-Wl--non-romable SHOULD BE ADDED to the options but it doens't work
 #(conflict with INTTAB & TRAPTAB) -> TASKING BUG
 OPT_LINK += --no-rom-copy -Wl-DEE_EXECUTE_FROM_RAM
+endif
+
+#Defined when multicore support is needed, used to preprocess Multicore Linker Script
+ifdef CPU_NUMID
+OPT_LINK += -Wl-DCPU_NUMID=$(CPU_NUMID)
 endif
 
 # Specific option from the application makefile
