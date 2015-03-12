@@ -58,30 +58,34 @@ BINDIR_CYG := /usr/bin
 #CCS_INSTALL_ROOT: Code Composer Studio Installation Root Folder.
 #                  Default "C:\Programmi\Texas Instruments\ccsv4".
 
+CCS_COMPILERS = $(shell ls `cygpath "$(CCS_INSTALL_ROOT)/tools/compiler/"`)
+
 COMPILER_VERSION = arm_5.1.8
-ifeq (0,$(shell test -d  `cygpath $(CCS_INSTALL_ROOT)/tools/compiler/$(COMPILER_VERSION)`; echo $$? ))
+ifneq (,$(findstring $(COMPILER_VERSION), $(CCS_COMPILERS)))
 CG_TOOL_PREFIX := arm
 CG_TOOL_SUFFIX := 
 else 
 COMPILER_VERSION = arm_5.1.6
-ifeq (0,$(shell test -d  `cygpath $(CCS_INSTALL_ROOT)/tools/compiler/$(COMPILER_VERSION)`; echo $$? ))
+ifneq (,$(findstring $(COMPILER_VERSION), $(CCS_COMPILERS)))
 CG_TOOL_PREFIX := arm
 CG_TOOL_SUFFIX := 
 else
 COMPILER_VERSION = TMS470 Code Generation Tools 4.9.7
-ifeq (0,$(shell test -d  `cygpath $(CCS_INSTALL_ROOT)/tools/compiler/$(COMPILER_VERSION)`; echo $$? ))
+ifneq (,$(findstring $(COMPILER_VERSION), $(CCS_COMPILERS)))
 CG_TOOL_PREFIX := 
 CG_TOOL_SUFFIX := 470
 else
 COMPILER_VERSION = TMS470 Code Generation Tools 4.9.3
-ifeq (0,$(shell test -d  `cygpath $(CCS_INSTALL_ROOT)/tools/compiler/$(COMPILER_VERSION)`; echo $$? ))
+ifneq (,$(findstring $(COMPILER_VERSION), $(CCS_COMPILERS)))
 CG_TOOL_PREFIX := 
 CG_TOOL_SUFFIX := 470
 else
 COMPILER_VERSION = tms470
-ifeq (0,$(shell test -d  `cygpath $(CCS_INSTALL_ROOT)/tools/compiler/$(COMPILER_VERSION)`; echo $$? ))
+ifneq (,$(findstring $(COMPILER_VERSION), $(CCS_COMPILERS)))
 CG_TOOL_PREFIX := 
 CG_TOOL_SUFFIX := 470
+else
+$(error No Compiler found! Please check CCS installation and CCS_INSTALL_ROOT)
 endif
 endif
 endif
