@@ -355,7 +355,7 @@ void _START(void)
 }
 #endif /* EE_MASTER_CPU */
 
-#if defined(EE_MASTER_CPU) && defined(__TASKING__)
+#if !defined(EE_MASTER_CPU) && defined(__TASKING__)
 void _START(void){}
 #endif
 
