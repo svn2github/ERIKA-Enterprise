@@ -89,6 +89,7 @@
    and for MISRA Compliance. So
    TODO: Add some horrible switch to select the right file for registers in
    case of multiple MCUs support */
+#ifndef EE_NO_SFR
 #ifdef EE_TC27X__
 #ifndef EE_MM_OPT
 
@@ -105,6 +106,7 @@
 /* #include <tc26xx/Ifx_reg.h> */
 #include "mcu/infineon_tc26x/sfr/Ifx_reg.h"
 #endif /* EE_TC27X__ || EE_TC26X__ */
+#endif /* EE_NO_SFR */
 
 /* Macros to abstract mfcr & mtcr intrinsic functions */
 #define EE_tc_get_csfr(reg_id) __mfcr(reg_id)
@@ -115,9 +117,10 @@
 #elif defined (__TASKING__)
 /* This let you include right SFR (Special Function Registers).
    1.3.2. Accessing Hardware from C */
+#ifndef EE_NO_SFR
 #define   EE_INCLUDE_MCU_REGS __SFRFILE__(__CPU__)
 #include  EE_INCLUDE_MCU_REGS
-
+#endif /* EE_NO_SFR */
 #include "cpu/common/inc/ee_compiler_tasking.h"
 
 /* Macros to abstract mfcr & mtcr intrinsic functions */
