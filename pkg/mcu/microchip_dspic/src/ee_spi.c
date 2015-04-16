@@ -11,13 +11,18 @@ EE_INT8 EE_spi_init(EE_UINT8 port)
 	/* Note: because the chip select pin (SS1)
 	   does not work properly, we drive this pin
 	   directly setting it as a normal I/O pin.  */
+
 	if (port == EE_SPI_PORT_1) {
 		SPI1STATbits.SPIEN = 0; /* Disable the SPI module */
+
 		#if defined (__PIC24FJ32GA004__) || defined (__PIC24FJ64GA004__)
 		SPI1CON1 = 0x13E;
-		#else // !__PIC24FJ32GA004__
+		#elif defined (__EE_MOODLIGHT_BRD__) || defined (__EE_USB2SSI_BRD__)
+		SPI1CON1 = 0x13A;
+		#else
 		SPI1CON1 = 0x13E;
 		#endif
+
 		SPI1CON2 = 0;
 		SPI1STATbits.SPIEN = 1; /* Enable the SPI module */
 		return 1;
@@ -25,10 +30,11 @@ EE_INT8 EE_spi_init(EE_UINT8 port)
 		SPI2STATbits.SPIEN = 0; /* Disable the SPI module */
 		#if defined (__PIC24FJ32GA004__) || defined (__PIC24FJ64GA004__)
 		SPI2CON1 = 0x13E;
-		#else //!__PIC24FJ32GA004__
+		#elif defined (__EE_MOODLIGHT_BRD__) || defined (__EE_USB2SSI_BRD__)
+		SPI2CON1 = 0x13A;
+		#else
 		SPI2CON1 = 0x13E;
 		#endif
-
 		SPI2CON2 = 0;
 		SPI2STATbits.SPIEN = 1; /* Enable the SPI module */
 		return 1;

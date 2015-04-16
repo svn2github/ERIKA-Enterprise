@@ -174,7 +174,7 @@ endif
 OPT_INCLUDE = $(foreach d,$(INCLUDE_PATH),$(addprefix -I,$(call native_path,$d)))
 
 ## OPT_CC are the options for arm compiler invocation
-OPT_CC = -O2 -Wall -Winline
+OPT_CC = -O3 -Wall -Winline
 ifeq ($(call iseeopt, DEBUG), yes)
 OPT_CC += -ggdb
 endif

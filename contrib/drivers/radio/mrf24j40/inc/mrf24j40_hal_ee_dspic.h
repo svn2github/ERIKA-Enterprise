@@ -28,22 +28,31 @@
 #define MRF24J40_SPI_PORT_2	EE_SPI_PORT_2
 
 #ifndef MRF24J40_RESETn
-#ifndef __EE_MINIFLEX__
-#define MRF24J40_RESETn	PORTGbits.RG0
-#else
+
+#if defined (__EE_MOODLIGHT_BRD__)
+#define MRF24J40_RESETn	PORTGbits.RG13
+#elif defined (__EE_USB2SSI_BRD__)
+#define MRF24J40_RESETn	PORTCbits.RC13
+#elif defined (__EE_MINIFLEX__)
 #define MRF24J40_RESETn	PORTAbits.RA7
-#endif
+#else
+#define MRF24J40_RESETn	PORTGbits.RG0
 #endif
 
-#ifndef __EE_MINIFLEX__
-	#ifndef MRF24J40_VREG_EN
-	#define MRF24J40_VREG_EN	PORTGbits.RG12
-	#endif
 #endif
+
+#if !defined(__EE_MINIFLEX__) && !defined(__EE_MOODLIGHT_BRD__) && !defined(__EE_USB2SSI_BRD__)
+
+#ifndef MRF24J40_VREG_EN
+#define MRF24J40_VREG_EN	PORTGbits.RG12
+#endif
+
+#endif
+
 
 #ifndef MRF24J40_FIFO
 
-#ifndef __EE_MINIFLEX__
+//#ifndef __EE_MINIFLEX__
 
 #if defined (__USE_DEMOBOARD__) || defined (__USE_MOTIONBOARD__)	/* Demoboard defaults */
 #define MRF24J40_FIFO		PORTDbits.RD14
@@ -51,7 +60,7 @@
 #define MRF24J40_FIFO		PORTEbits.RE9
 #endif
 
-#endif
+//#endif
 
 #endif
 
@@ -68,24 +77,35 @@
 #endif
 
 #ifndef MRF24J40_CSn
-#ifndef __EE_MINIFLEX__
-#define MRF24J40_CSn		PORTGbits.RG9
+
+#if defined (__EE_MOODLIGHT_BRD__)
+#define MRF24J40_CSn	PORTGbits.RG15
+#elif defined (__EE_USB2SSI_BRD__)
+#define MRF24J40_CSn	PORTFbits.RF12
+#elif defined (__EE_MINIFLEX__)
+#define MRF24J40_CSn	PORTCbits.RC4
 #else
-#define MRF24J40_CSn		PORTCbits.RC4
+#define MRF24J40_CSn	PORTGbits.RG9
 #endif
+
 #endif
 
 #ifndef MRF24J40_TRIS_RESETn
-#ifdef __EE_MINIFLEX__
+
+#if defined (__EE_MOODLIGHT_BRD__)
+#define MRF24J40_TRIS_RESETn	TRISGbits.TRISG13
+#elif defined (__EE_USB2SSI_BRD__)
+#define MRF24J40_TRIS_RESETn	TRISCbits.TRISC13
+#elif defined (__EE_MINIFLEX__)
 #define MRF24J40_TRIS_RESETn	TRISAbits.TRISA7
 #else
 #define MRF24J40_TRIS_RESETn	TRISGbits.TRISG0
-
 #endif
+
 #endif
 
 #ifndef MRF24J40_TRIS_VREG_EN
-#ifndef __EE_MINIFLEX__
+#if !defined(__EE_MINIFLEX__) && !defined(__EE_MOODLIGHT_BRD__) && !defined(__EE_USB2SSI_BRD__)
 #define MRF24J40_TRIS_VREG_EN	TRISGbits.TRISG12
 #endif
 #endif
@@ -102,7 +122,6 @@
 
 #ifndef MRF24J40_TRIS_FIFOP
 #ifndef __EE_MINIFLEX__
-
 #if defined (__USE_DEMOBOARD__) || defined (__USE_MOTIONBOARD__) /* Demoboard defaults */
 #define MRF24J40_TRIS_FIFOP	TRISAbits.TRISA15
 #else				/* Gianluca's board default*/
@@ -113,15 +132,28 @@
 #endif
 #endif
 
-#ifndef MRF24J40_TRIS_CSn
-#ifndef __EE_MINIFLEX__
-#define MRF24J40_TRIS_CSn	TRISGbits.TRISG9
-#else
-#define MRF24J40_TRIS_CSn	TRISCbits.TRISC4
-#endif
+#ifndef MRF24J40_TRIS_INTERRUPT_PIN
+
+#if defined (__EE_MOODLIGHT_BRD__) || defined (__EE_USB2SSI_BRD__)
+#define MRF24J40_TRIS_INTERRUPT_PIN TRISDbits.TRISD0
 #endif
 
-#ifndef __EE_MINIFLEX__
+#endif
+
+#ifndef MRF24J40_TRIS_CSn
+
+#if defined (__EE_MOODLIGHT_BRD__)
+#define MRF24J40_TRIS_CSn	TRISGbits.TRISG15
+#elif defined (__EE_USB2SSI_BRD__)
+#define MRF24J40_TRIS_CSn	TRISFbits.TRISF12
+#elif defined (__EE_MINIFLEX__)
+#define MRF24J40_TRIS_CSn	TRISCbits.TRISC4
+#else
+#define MRF24J40_TRIS_CSn	TRISGbits.TRISG9
+#endif
+
+#endif
+
 #if defined (__USE_DEMOBOARD__) //|| defined (__USE_MOTIONBOARD__) /* Demoboard defaults */
 
 #ifndef MRF24J40_INTERRUPT_NAME
@@ -170,7 +202,31 @@
 */
 #endif
 
-#endif //#ifndef __EE_MINIFLEX__
+
+#if defined (__EE_MOODLIGHT_BRD__) || defined (__EE_USB2SSI_BRD__)
+
+#ifndef MRF24J40_INTERRUPT_NAME
+#define MRF24J40_INTERRUPT_NAME	_INT0Interrupt
+#endif
+
+#ifndef MRF24J40_INTERRUPT_FLAG
+#define MRF24J40_INTERRUPT_FLAG	IFS0bits.INT0IF
+#endif
+
+#ifndef MRF24J40_INTERRUPT_ENABLE
+#define MRF24J40_INTERRUPT_ENABLE IEC0bits.INT0IE
+#endif
+
+#ifndef MRF24J40_INTERRUPT_PRIORITY
+#define MRF24J40_INTERRUPT_PRIORITY IPC0bits.INT0IP
+#endif
+
+#ifndef MRF24J40_INTERRUPT_EDGE_POLARITY
+#define MRF24J40_INTERRUPT_EDGE_POLARITY	 INTCON2bits.INT0EP
+#endif
+
+#endif
+
 
 //#else /* Gianluca's board and MiniFlex default*/
 #if defined (__EE_MINIFLEX__) || (!defined (__USE_DEMOBOARD__) && !defined (__USE_MOTIONBOARD__))

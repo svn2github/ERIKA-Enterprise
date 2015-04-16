@@ -44,15 +44,23 @@ int8_t	mrf24j40_hal_init(void)
 {
 	/* Set the IO pins direction */
 	MRF24J40_TRIS_RESETn = 0;
-	#ifndef __EE_MINIFLEX__
+#if defined(__EE_USB2SSI_BRD__)
+	ANSELCbits.ANSC13   = 0; //Set MRF24J40_RESETn as digital I/O
+#endif
+
+#if !defined(__EE_MINIFLEX__) && !defined(__EE_MOODLIGHT_BRD__) && !defined(__EE_USB2SSI_BRD__)
 	MRF24J40_TRIS_VREG_EN = 0;
-	#endif
-	#ifndef __EE_MINIFLEX__
 	MRF24J40_TRIS_FIFO = 1;
-	#endif
-	
+#endif
+
+#if defined(__EE_MOODLIGHT_BRD__) || defined(__EE_USB2SSI_BRD__)
+	MRF24J40_TRIS_INTERRUPT_PIN = 1;
+#else
 	MRF24J40_TRIS_FIFOP = 1;
+#endif
 	MRF24J40_TRIS_CSn = 0;
+	mrf24j40_hal_csn_high();
+
 	/* Set interrupt registers */
 	MRF24J40_INTERRUPT_PRIORITY = 1;
 	#ifdef INT_POLARITY_HIGH
@@ -63,6 +71,7 @@ int8_t	mrf24j40_hal_init(void)
 	
 	mrf24j40_hal_irq_clean();
 	mrf24j40_hal_irq_enable();
+
 	return 1;
 }
 
