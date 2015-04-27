@@ -1,6 +1,3 @@
-// TASKING VX-toolset for TriCore
-// Eclipse project linker script file
-// 
 
 #ifndef CPU_NUMID
 #define EE_SINGLE_CPU
@@ -19,7 +16,6 @@
 #define __BMHD0_CONFIG __BMHD_GENERATE
 #define __BMHD1_CONFIG __BMHD_GENERATE
 #define __REDEFINE_ON_CHIP_ITEMS
-// #define __REDEFINE_BASE_ADDRESS_GROUPS
 
 #include "tc27x.lsl"
 

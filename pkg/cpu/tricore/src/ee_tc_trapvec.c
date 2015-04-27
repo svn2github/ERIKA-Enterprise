@@ -64,71 +64,116 @@
   exit(class_trap << 4U | trap_number)
 #endif /* EE_DEBUG */
 
+extern void EE_TC_TRAP_MMU_TRAP	( EE_TIN tin );
+extern void EE_TC_TRAP_PROT_TRAP( EE_TIN tin );
+extern void EE_TC_TRAP_INST_TRAP( EE_TIN tin );
+extern void EE_TC_TRAP_CONT_TRAP( EE_TIN tin );
+extern void EE_TC_TRAP_BUS_TRAP ( EE_TIN tin );
+extern void EE_TC_TRAP_ASS_TRAP ( EE_TIN tin );
+extern void EE_TC_TRAP_SYS_TRAP ( EE_TIN tin );
+
+extern void EE_tc_default_trap_handler	( EE_TIN tin );
+extern void EE_tc_mmu_handler			( EE_TIN tin );
+extern void EE_tc_protection_handler	( EE_TIN tin );
+extern void EE_tc_bus_handler 			( EE_TIN tin );
+
+
 /**
   Skeleton for MMU trap handler (Trap Class 0).
  */
-#ifndef EE_TC_TRAP_MMU_TRAP
 void EE_TRAP( EE_CLASS_TRAPMMU ) EE_VECTOR_TABLE EE_COMPILER_EXPORT EE_tc_trap_mmu( void )
 {
-  EE_TIN tin = EE_tc_get_TIN();
-  EE_TC_DEFAULT_TRAP_HANDLER(EE_CLASS_TRAPMMU, tin);
+	EE_TIN tin = EE_tc_get_TIN();
+#if defined(__EE_MEMORY_PROTECTION__) && defined(__EE_USE_MMU__)
+	EE_tc_mmu_handler(tin);
+#elif defined(EE_TC_TRAP_MMU_TRAP)
+	EE_TC_TRAP_MMU_TRAP(tin);
+#elif defined(__EE_MEMORY_PROTECTION__) || defined(EE_TIMING_PROTECTION__)
+	EE_tc_default_trap_handler(tin);
+#else
+	EE_TC_DEFAULT_TRAP_HANDLER(EE_CLASS_TRAPMMU, tin);
+#endif /* EE_TC_TRAP_MMU_TRAP */
 }
-#endif /* !EE_TC_TRAP_MMU_TRAP */
 
 /**
   Skeleton for PROTECTION trap handler (Trap Class 1).
  */
-#ifndef EE_TC_TRAP_PROT_TRAP
 void EE_TRAP( EE_CLASS_TRAPPROT ) EE_VECTOR_TABLE EE_COMPILER_EXPORT EE_tc_trap_protection( void )
 {
-  EE_TIN tin = EE_tc_get_TIN();
-  EE_TC_DEFAULT_TRAP_HANDLER(EE_CLASS_TRAPPROT, tin);
+	EE_TIN tin = EE_tc_get_TIN();
+#if defined(__EE_MEMORY_PROTECTION__)
+	EE_tc_protection_handler(tin);
+#elif defined(EE_TC_TRAP_PROT_TRAP)
+	EE_TC_TRAP_PROT_TRAP(tin);
+#elif defined(EE_TIMING_PROTECTION__)
+	EE_tc_default_trap_handler ( tin );
+#else
+	EE_TC_DEFAULT_TRAP_HANDLER(EE_CLASS_TRAPPROT, tin);
+#endif /* EE_TC_TRAP_PROT_TRAP */
 }
-#endif /* !EE_TC_TRAP_PROT_TRAP */
 
 /**
   Skeleton for INSTRUCTION trap handler (Trap Class 2).
  */
-#ifndef EE_TC_TRAP_INST_TRAP
 void EE_TRAP( EE_CLASS_TRAPINST ) EE_VECTOR_TABLE EE_COMPILER_EXPORT EE_tc_trap_instruction( void )
 {
-  EE_TIN tin = EE_tc_get_TIN();
-  EE_TC_DEFAULT_TRAP_HANDLER(EE_CLASS_TRAPINST, tin);
+	EE_TIN tin = EE_tc_get_TIN();
+#if defined(EE_TC_TRAP_INST_TRAP)
+	EE_TC_TRAP_INST_TRAP (tin);
+#elif defined(__EE_MEMORY_PROTECTION__) || defined(EE_TIMING_PROTECTION__)
+	EE_tc_default_trap_handler(tin);
+#else
+	EE_TC_DEFAULT_TRAP_HANDLER(EE_CLASS_TRAPINST, tin);
+#endif /* EE_TC_TRAP_INST_TRAP */
 }
-#endif /* !EE_TC_TRAP_INST_TRAP */
 
 /** 
   Skeleton for CONTEXT trap handler (Trap Class 3).
  */
-#ifndef EE_TC_TRAP_CONT_TRAP
 void EE_TRAP( EE_CLASS_TRAPCONT ) EE_VECTOR_TABLE EE_COMPILER_EXPORT EE_tc_trap_context( void )
 {
-  EE_TIN tin = EE_tc_get_TIN();
-  EE_TC_DEFAULT_TRAP_HANDLER(EE_CLASS_TRAPCONT, tin);
+	EE_TIN tin = EE_tc_get_TIN();
+#if defined(EE_TC_TRAP_CONT_TRAP)
+	EE_TC_TRAP_CONT_TRAP(tin);
+#elif defined(__EE_MEMORY_PROTECTION__) || defined(EE_TIMING_PROTECTION__)
+	EE_tc_default_trap_handler(tin);
+#else
+	EE_TC_DEFAULT_TRAP_HANDLER(EE_CLASS_TRAPCONT, tin);
+#endif /* EE_TC_TRAP_CONT_TRAP */
 }
-#endif /* !EE_TC_TRAP_CONT_TRAP */
 
 /**
   Skeleton for BUS trap handler (Trap Class 4).
  */
-#ifndef EE_TC_TRAP_BUS_TRAP
+
 void EE_TRAP( EE_CLASS_TRAPBUS ) EE_VECTOR_TABLE EE_COMPILER_EXPORT EE_tc_trap_bus( void )
 {
-  EE_TIN tin = EE_tc_get_TIN();
-  EE_TC_DEFAULT_TRAP_HANDLER(EE_CLASS_TRAPBUS, tin);
+	EE_TIN tin = EE_tc_get_TIN();
+#if defined(EE_TIMING_PROTECTION__)
+	EE_tc_bus_handler ( tin );
+#elif defined(EE_TC_TRAP_BUS_TRAP)
+	EE_TC_TRAP_BUS_TRAP(tin)
+#elif defined(__EE_MEMORY_PROTECTION__)
+	EE_tc_default_trap_handler(tin)
+#else
+	EE_TC_DEFAULT_TRAP_HANDLER(EE_CLASS_TRAPBUS, tin);
+#endif /* EE_TC_TRAP_BUS_TRAP */
 }
-#endif /* !EE_TC_TRAP_BUS_TRAP */
 
 /**
   Skeleton for ASSERTION trap handler (Trap Class 5).
  */
-#ifndef EE_TC_TRAP_ASS_TRAP
 void EE_TRAP( EE_CLASS_TRAPASS ) EE_VECTOR_TABLE EE_COMPILER_EXPORT EE_tc_trap_assertion( void )
 {
-  EE_TIN tin = EE_tc_get_TIN();
-  EE_TC_DEFAULT_TRAP_HANDLER(EE_CLASS_TRAPASS, tin);
+	EE_TIN tin = EE_tc_get_TIN();
+#if defined(EE_TC_TRAP_ASS_TRAP)
+	EE_TC_TRAP_ASS_TRAP(tin);
+#elif defined(__EE_MEMORY_PROTECTION__) || defined(EE_TIMING_PROTECTION__)
+	EE_tc_default_trap_handler(tin);
+#else
+	EE_TC_DEFAULT_TRAP_HANDLER(EE_CLASS_TRAPASS, tin);
+#endif /* EE_TC_TRAP_ASS_TRAP */
 }
-#endif /* !EE_TC_TRAP_ASS_TRAP */
 
 /**
   Skeleton for SYSTEM trap handler (Trapp Class 6).
@@ -136,23 +181,37 @@ void EE_TRAP( EE_CLASS_TRAPASS ) EE_VECTOR_TABLE EE_COMPILER_EXPORT EE_tc_trap_a
   n   SYS  Synchronous Software System call
   (n=8-bit unsigned immediate constant int the SYSCALL instruction) *
  */
-#ifndef EE_TC_TRAP_SYS_TRAP
+#if defined(__EE_MEMORY_PROTECTION__)
+#error Memory protection not supported yet for Tasking!
+#else
 void EE_TRAP( EE_CLASS_TRAPSYS ) EE_VECTOR_TABLE EE_COMPILER_EXPORT EE_tc_trap_system( void )
 {
-  EE_TIN tin = EE_tc_get_TIN();
-  EE_TC_DEFAULT_TRAP_HANDLER(EE_CLASS_TRAPSYS, tin);
+	EE_TIN tin = EE_tc_get_TIN();
+#if defined(EE_TC_TRAP_SYS_TRAP)
+	EE_TC_TRAP_SYS_TRAP(tin);
+#elif defined(EE_TIMING_PROTECTION__)
+	EE_tc_default_trap_handler(tin);
+#else
+	EE_TC_DEFAULT_TRAP_HANDLER(EE_CLASS_TRAPSYS, tin);
+#endif /* EE_TC_TRAP_SYS_TRAP */
 }
-#endif /* !EE_TC_TRAP_SYS_TRAP */
+#endif /* __EE_MEMORY_PROTECTION__ */
 
 /**
   Skeleton for NMI trap handler (Trap Class 7).
  */
-#ifndef EE_TC_TRAP_NMI_TRAP
 void EE_TRAP( EE_CLASS_TRAPNMI ) EE_VECTOR_TABLE EE_COMPILER_EXPORT EE_tc_trap_nmi( void )
 {
-  EE_TC_DEFAULT_TRAP_HANDLER(EE_CLASS_TRAPNMI, EE_TRAPNMI_NMI);
+	EE_TIN tin = EE_tc_get_TIN();
+#if defined(EE_TC_TRAP_NMI_TRAP)
+	EE_TC_TRAP_NMI_TRAP(tin);
+#elif defined(__EE_MEMORY_PROTECTION__) || defined(EE_TIMING_PROTECTION__)
+	EE_tc_default_trap_handler(tin);
+#else
+	EE_TC_DEFAULT_TRAP_HANDLER(EE_CLASS_TRAPNMI, EE_TRAPNMI_NMI);
+#endif /* EE_TC_TRAP_NMI_TRAP */
 }
-#endif /* !EE_TC_TRAP_NMI_TRAP */
+
 
 #elif defined (__GNUC__) || defined(__DCC__)
 
@@ -256,6 +315,8 @@ EE_tc_trap_table:                       \n\
 ");
 
 #endif /* __GNUC__ || __DCC__ */
+
+
 
 #if defined(__EE_MEMORY_PROTECTION__) && defined(__EE_USE_MMU__)
 EE_TRAP_DEFINITION(EE_tc_trap_mmu, EE_tc_mmu_handler)

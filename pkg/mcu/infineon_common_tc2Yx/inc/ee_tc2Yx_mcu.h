@@ -366,7 +366,8 @@ void EE_tc2Yx_stm_set_sr1( EE_UINT32 usec, EE_TYPEISR2PRIO intvec );
   * @param  usec microseconds after you want get an IRQ on intvec
   */
 void EE_tc2Yx_stm_set_sr1_next_match( EE_UINT32 usec );
-#endif /* EE_SYSTEM_TIMER_DEVICE != EE_TC_STM_SR0 */
+#endif /* EE_SYSTEM_TIMER_DEVICE != EE_TC_STM_SR1 */
+
 
 /* STM TIM0 and CAP(ture) Register Selector */
 #ifdef EE_MASTER_CPU
@@ -390,7 +391,7 @@ void EE_tc2Yx_stm_set_sr1_next_match( EE_UINT32 usec );
  */
 __INLINE__ EE_UREG __ALWAYS_INLINE__ EE_tc2Yx_stm_get_time_lower_word( void )
 {
-  return EE_STM_TIM0.U;
+ return EE_STM_TIM0.U;
 }
 
 /**

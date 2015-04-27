@@ -113,7 +113,6 @@ void DISPLAY_colorTable_StdInit(void)
 //Paint the whole Display Buffer onto the display
 void writeDisplay(void)
 {
-	SuspendAllInterrupts();
 	tft_display_home (0, 0);
 	tft_write_command(0x2C);
 
@@ -121,7 +120,6 @@ void writeDisplay(void)
 	for(i = 0; i < FRAMEBUFFER_LEN; i++){
 		tft_write_data_last(colorTable[frameBuffer[i]], (i < FRAMEBUFFER_LEN-1)?0x00:0x01);
 	}
-	ResumeAllInterrupts();
 }
 
 //change the color of one pixel in the display buffer with the specified color
