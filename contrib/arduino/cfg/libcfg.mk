@@ -114,6 +114,9 @@ EE_SRCS_ARDUINO_SDK += hardware/arduino/cores/arduino/wiring_analog.c
 EE_SRCS_ARDUINO_SDK += hardware/arduino/cores/arduino/wiring_pulse.c
 EE_SRCS_ARDUINO_SDK += hardware/arduino/cores/arduino/wiring_shift.c
 EE_SRCS_ARDUINO_SDK += hardware/arduino/cores/arduino/WInterrupts.c
+ifeq	($(call iseeopt, __ARDUINO_SDK_PCINT__), yes)
+EE_SRCS_ARDUINO_SDK += hardware/arduino/cores/arduino/WPCInterrupts.c
+endif
 
 EE_SRCS_ARDUINO_SDK += hardware/arduino/cores/arduino/CDC.cpp
 EE_SRCS_ARDUINO_SDK += hardware/arduino/cores/arduino/HardwareSerial.cpp
