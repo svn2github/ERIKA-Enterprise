@@ -460,6 +460,19 @@ COMPILER_INLINE void mrf24j40_set_pa(uint8_t pwr)
 }
 
 /**
+* @brief Get radio TX power
+*
+* This routine returns the transmission power of the MRF24J40.
+*
+* @return The MRF24J40 tx power.
+*
+*/
+COMPILER_INLINE uint8_t mrf24j40_get_pa()
+{
+	return mrf24j40_get_long_add_mem(MRF24J40_RFCON3);
+}
+
+/**
 * @brief Get radio status
 *
 * This routine returns the MRF24J40 status.
