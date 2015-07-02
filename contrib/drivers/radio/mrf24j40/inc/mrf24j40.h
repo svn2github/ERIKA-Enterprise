@@ -365,10 +365,12 @@ COMPILER_INLINE void mrf24j40_flush_rx_fifo(void)
 * This routine flushes the rx fifo
 *
 */
-COMPILER_INLINE void mrf24j40_set_channel(uint16_t ch)
+COMPILER_INLINE void mrf24j40_set_channel(uint8_t ch)
 {   
-	mrf24j40_set_long_add_mem(MRF24J40_RFCON0, ((ch - 11) << 4) | 0x02);
-	//mrf24j40_set_long_add_mem(MRF24J40_RFCON0, (ch | 0x02));
+
+	//mrf24j40_set_long_add_mem(MRF24J40_RFCON0, ((ch - 11) << 4) | 0x02);
+	
+	mrf24j40_set_long_add_mem(MRF24J40_RFCON0, (ch | 0x03));
 	/**
 	* Reset RF state machine as suggested by the datasheet
 	*/ 
