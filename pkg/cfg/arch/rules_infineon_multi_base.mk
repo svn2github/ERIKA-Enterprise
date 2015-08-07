@@ -136,7 +136,7 @@ all: $(TARGET_ELF_NAME)
 
 $(TARGET_ELF_NAME): all_cpus $(EE_GLOBAL_OBJS) $(LINKDEP)
 	@echo "GLOBAL LD $@";
-	$(QUIET)$(EE_LINK) $(OPT_LINK)  $(call target_ld_file,$(TARGETFILE)) $(EE_GLOBAL_OBJS) $(MASTER_ELF_PATH) $(CPU1_ELF_PATH) $(CPU2_ELF_PATH)
+	$(EE_LINK) $(OPT_LINK)  $(call target_ld_file,$(TARGETFILE)) $(EE_GLOBAL_OBJS) $(MASTER_ELF_PATH) $(CPU1_ELF_PATH) $(CPU2_ELF_PATH) $(LIBS)
 	@echo "************************************"
 	@echo "Global Compilation terminated successfully!"
 else # EE_BUILD_SINGLE_ELF

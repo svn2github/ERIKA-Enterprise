@@ -218,6 +218,7 @@ endif # EE_EXECUTE_FROM_RAM
 ## Handle Global Linking in multicore environment with single ELF
 ifeq ($(__BASE_MAKEFILE__), yes)
 
+ifeq ($(EE_LINKERSCRIPT),)
 EE_LINKERSCRIPT := ee_$(TRICORE_MODEL)_gnu_$(EE_LINKERSCRIPT_PREFIX)_recollect.ld
 EE_LINKERSCRIPT_TEMPLATE := $(PKGBASE)/mcu/infineon_common_tc2Yx/cfg/multicore/ee_tc2Yx_gnu_$(EE_LINKERSCRIPT_PREFIX)_recollect.ld.tmpl
 EE_LINKERMEMORY += $(EE_LINKERSCRIPT_MODEL_FOLDER)/ee_$(TRICORE_MODEL)_gnu_memory_map.x
@@ -230,6 +231,7 @@ EE_RECOLLECT_LINKERSCRIPTS += $(PKGBASE)/mcu/infineon_common_tc2Yx/cfg/multicore
 $(EE_LINKERSCRIPT): $(EE_LINKERMEMORY) $(EE_RECOLLECT_LINKERSCRIPTS)
 	@echo GEN $@ from $(EE_LINKERSCRIPT_TEMPLATE)
 	$(QUIET) cat $^ > $@
+endif
 
 # Add Linker Script to Link Dependencies
 LINKDEP += $(EE_LINKERSCRIPT)

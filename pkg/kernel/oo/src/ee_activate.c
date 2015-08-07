@@ -94,7 +94,7 @@ StatusType EE_oo_ActivateTask(TaskType TaskID)
 
     EE_os_param unmarked_tid;
     /* Two steps macro assignment to meet MISRA 10.3 required rule */
-	tmp_tid = EE_UNMARK_REMOTE_TID(TaskID);
+    tmp_tid = EE_UNMARK_REMOTE_TID(TaskID);
     unmarked_tid.value_param = (EE_UREG)tmp_tid;
     /* Forward the request to another CPU in synchronous way */
     ev = EE_as_rpc( OSServiceId_ActivateTask, unmarked_tid,
