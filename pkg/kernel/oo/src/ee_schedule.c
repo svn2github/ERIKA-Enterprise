@@ -193,9 +193,6 @@ StatusType EE_oo_Schedule(void)
       EE_sys_ceiling |= EE_th_dispatch_prio[current];
 
       EE_ORTI_set_th_eq_dispatch_prio(current);
-
-      /* Call PreTaskHook in the first TASK context */
-      EE_oo_call_PreTaskHook();
     }
     ev = E_OK;
   } else {

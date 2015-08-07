@@ -50,12 +50,16 @@ OO2=YES
 endif
 ifeq ($(call iseeopt, __OO_ECC1__), yes)
 OO=YES
+ifeq ($(call iseeopt, __MULTI__), yes)
 OO_ECC=YES
+endif
 endif
 ifeq ($(call iseeopt, __OO_ECC2__), yes)
 OO=YES
-OO_ECC=YES
 OO2=YES
+ifeq ($(call iseeopt, __MULTI__), yes)
+OO_ECC=YES
+endif
 endif
 
 ifeq ($(OO), YES)

@@ -64,9 +64,11 @@ typedef int EE_INT16;
 typedef unsigned int EE_UINT16;
 typedef long int EE_INT32;
 typedef unsigned long int EE_UINT32;
+#ifndef __STRICT_ANSI__
 #ifdef ULLONG_MAX
 #if ULLONG_MAX == 0xffffffffffffffffUL
 typedef unsigned long long int EE_UINT64;
+#endif
 #endif
 #endif
 #elif (INT_MAX == 2147483647) && (SHRT_MAX == 32767) /* 32-bit architecture */
@@ -76,8 +78,10 @@ typedef int EE_INT32;
 typedef unsigned int EE_UINT32;
 #if (ULONG_MAX > 0xffffffffUL)
 typedef unsigned long int EE_UINT64;
-#elif defined(ULLONG_MAX) && (ULLONG_MAX > 0xffffffffUL)
+#elif !defined (__STRICT_ANSI__)
+#if defined(ULLONG_MAX) && (ULLONG_MAX > 0xffffffffUL)
 typedef unsigned long long int EE_UINT64;
+#endif
 #endif
 #else /* Unknown architecture */
 #error Unknow/unsupported architecture

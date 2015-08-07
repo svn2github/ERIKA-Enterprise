@@ -153,8 +153,7 @@ void EE_thread_end_instance(void)
       (maybe Idle) */
     if ( current != EE_NIL ) {
       EE_th_status[current] = RUNNING;
-      /* The call the PreTaskHook is done inside EE_oo_preemption_point */
-      /* EE_oo_call_PreTaskHook(); */
+      EE_oo_call_PreTaskHook();
       /* Enable the TASK Timing Protection Set */
       EE_as_tp_active_set_from_TASK(current);
     } else {

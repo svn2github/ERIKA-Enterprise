@@ -553,20 +553,29 @@ __INLINE__ void __ALWAYS_INLINE__ EE_oo_reset_th_event_active(TaskType TaskID)
 /* 
   This method actually do a CONTEXT SWITCH, with the highest priority TASK
 */
+#ifdef __MULTI__
 __INLINE__ void __ALWAYS_INLINE__ EE_oo_run_next_task(void)
 {
     register TaskType tmp;
     /* swap from ready queue to stack queue */
     tmp = EE_rq2stk_exchange();
-    if (EE_th_waswaiting[tmp]) {
+    if ( EE_th_waswaiting[tmp] ) {
       /* if the task was waiting switch the context to restart it */
       EE_th_waswaiting[tmp] = 0U;
+      /* Call the PreTaskHook, here no stub will do that for you */
+      EE_oo_call_PreTaskHook();
       EE_hal_stkchange(tmp);
     } else {
       /* the next task have to be started */
       EE_hal_ready2stacked(tmp);
     }
 }
+#else
+__INLINE__ void __ALWAYS_INLINE__ EE_oo_run_next_task(void)
+{
+    EE_hal_ready2stacked(EE_rq2stk_exchange());
+}
+#endif /* __MULTI__ */
 #else
 #define EE_oo_reset_th_event_active(TaskID)    ((void) 0)
 
@@ -681,22 +690,12 @@ __INLINE__ void __ALWAYS_INLINE__ EE_oo_preemption_point(void)
         /* Execute context SWITCH, this method return when we have a switch
            back on the previous TASK contest. */
         EE_oo_run_next_task();
-
-        /* Call PreTaskHook in the first TASK context, after have checked that
-           the current TASK is not main. */
-        if ( current != EE_NIL ) {
-          EE_oo_call_PreTaskHook();
-        } else {
-          /* We are going to get back in idle cycle */
-          EE_as_set_execution_context( Idle_Context );
-          EE_as_tp_active_start_idle();
-        }
       }
     }
   }
 }
 
-#if defined(__OO_ECC1__) || defined(__OO_ECC2__)
+#if (defined(__OO_ECC1__) || defined(__OO_ECC2__)) && defined(__MULTI__)
 
 /* Prepare current Task to Block if Extended Task is configured */
 __INLINE__ void __ALWAYS_INLINE__ EE_oo_prepare_to_block(void) {
@@ -740,14 +739,14 @@ __INLINE__ void __ALWAYS_INLINE__ EE_oo_reschedule_on_block(void)
     next = EE_stk_queryfirst();
     if ( next != EE_NIL ) {
       EE_th_status[next] = RUNNING;
+      EE_oo_call_PreTaskHook();
+      /* Enable the TASK Timing Protection Set */
+      EE_as_tp_active_set_from_TASK(next);
     } else {
       /* We are switching back to the Idle loop */
       EE_as_set_execution_context( Idle_Context );
       EE_as_tp_active_start_idle();
     }
-
-    /* Enable the TASK Timing Protection Set */
-    EE_as_tp_active_set_from_TASK(next);
 
     /* CONTEXT SWITCH to a previous stacked Task */
     EE_hal_stkchange(next);
@@ -768,14 +767,8 @@ __INLINE__ void __ALWAYS_INLINE__ EE_oo_reschedule_on_block(void)
        back on the previous TASK contest. */
     EE_oo_run_next_task();
   }
-  /* We do not have to set the thread priority bit in the system_ceiling,
-     it will be set by the primitives that put the task in the RUNNING state */
-
-  /* I don't need to check if the TASK we are returning to is the IDLE Task
-     (current == EE_NIL). Waiting is not allowed in IDLE Task. */
-  EE_oo_call_PreTaskHook();
 }
-#endif /* __OO_ECC1__ || __OO_ECC2__ */
+#endif /* (__OO_ECC1__ || __OO_ECC2__) && __MULTI__ */
 #endif /* __PRIVATE_PREEMPTION_POINTS__ */
 
 /** Internal part of ShutdownOS Service */
