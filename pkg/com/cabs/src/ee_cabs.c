@@ -68,8 +68,8 @@ void EE_cab_reserve(const struct EE_cab_ROM_desc *c, void **msg, EE_CAB_INDEX *m
     
   i = --(c->ram_desc->free);
 
-  *msg = (void *)(c->msgs + i*c->dim_msg);
   *msg_num = c->freestk[i];
+  *msg = (void *)(c->msgs + *msg_num * c->dim_msg);
 
   EE_hal_end_nested_primitive(flags);
 }
