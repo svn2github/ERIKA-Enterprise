@@ -43,8 +43,7 @@
  * CVS: $Id: ee_cabs.c,v 1.1.1.1 2004/11/05 16:03:03 pj Exp $
  */
 
-#include "ee.h"
-#include "cabs/cabs.h"
+#include "com/cabs/inc/ee_cabs.h"
 
 #ifndef __PRIVATE_CAB_INIT__
 void EE_cab_init(const struct EE_cab_ROM_desc *c)
@@ -64,14 +63,15 @@ void EE_cab_reserve(const struct EE_cab_ROM_desc *c, void **msg, EE_CAB_INDEX *m
   EE_CAB_INDEX i;
   register EE_FREG flags;
 
-  flags = EE_hal_begin_nested_primitive();
+  flags = EE_hal_suspendIRQ();
     
   i = --(c->ram_desc->free);
 
   *msg_num = c->freestk[i];
+
   *msg = (void *)(c->msgs + *msg_num * c->dim_msg);
 
-  EE_hal_end_nested_primitive(flags);
+  EE_hal_resumeIRQ(flags);
 }
 #endif
 
@@ -81,7 +81,7 @@ void EE_cab_putmes(const struct EE_cab_ROM_desc *c, EE_CAB_INDEX msg_num)
   EE_CAB_INDEX old;
   register EE_FREG flags;
 
-  flags = EE_hal_begin_nested_primitive();
+  flags = EE_hal_suspendIRQ();
 
   old = c->ram_desc->mrd;
 
@@ -91,7 +91,7 @@ void EE_cab_putmes(const struct EE_cab_ROM_desc *c, EE_CAB_INDEX msg_num)
   
   c->ram_desc->mrd = msg_num;
 
-  EE_hal_end_nested_primitive(flags);
+  EE_hal_resumeIRQ(flags);
 }
 #endif
 
@@ -101,7 +101,7 @@ void EE_cab_getmes(const struct EE_cab_ROM_desc *c, void **msg, EE_CAB_INDEX *ms
   EE_CAB_INDEX mrd;
   register EE_FREG flags;
 
-  flags = EE_hal_begin_nested_primitive();
+  flags = EE_hal_suspendIRQ();
 
   mrd = c->ram_desc->mrd;
   c->used[mrd]++;
@@ -109,15 +109,14 @@ void EE_cab_getmes(const struct EE_cab_ROM_desc *c, void **msg, EE_CAB_INDEX *ms
   *msg = (void *)(c->msgs + mrd*c->dim_msg);
   *msg_num = mrd;
 
-  EE_hal_end_nested_primitive(flags);
+  EE_hal_resumeIRQ(flags);
 }
 #endif
 
 #ifndef __PRIVATE_CAB_UNGET__
 void EE_cab_unget(const struct EE_cab_ROM_desc *c, EE_CAB_INDEX msg_num)
 {
-  register EE_FREG flags;
-  flags = EE_hal_begin_nested_primitive();
+  register const EE_FREG flags = EE_hal_suspendIRQ();
 
   c->used[msg_num]--;
 
@@ -125,6 +124,6 @@ void EE_cab_unget(const struct EE_cab_ROM_desc *c, EE_CAB_INDEX msg_num)
     c->freestk[c->ram_desc->free++] = msg_num;
   }
 
-  EE_hal_end_nested_primitive(flags);
+  EE_hal_resumeIRQ(flags);
 }
 #endif

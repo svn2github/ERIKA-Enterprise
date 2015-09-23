@@ -116,6 +116,8 @@ the corresponding symbol should be defined.
 
 */
 
+#include "ee.h"
+
 /* types */
 #ifndef EE_CAB_INDEX
 #define EE_CAB_INDEX  EE_UREG
