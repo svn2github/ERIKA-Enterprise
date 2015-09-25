@@ -124,18 +124,28 @@ StatusType EE_oo_SetEvent(TaskType TaskID, EventMaskType Mask)
   } else {
 #endif /* __RN_EVENT__ || EE_AS_RPC__ */
 
-#ifdef __OO_EXTENDED_STATUS__
+#if ( defined(EE_AS_OSAPPLICATIONS__) && defined(EE_SERVICE_PROTECTION__) )
+    /* check if the task Id is valid */
+    if ( (TaskID < 0) || (TaskID >= EE_MAX_TASK) ) {
+      ev = E_OS_ID;
+    } else if ( EE_TASK_ACCESS_ERR(TaskID, EE_as_active_app) ) {
+      ev = E_OS_ACCESS;
+    } else
+#elif defined(__OO_EXTENDED_STATUS__)
     /* Check if the TASK Id is valid */
     if ( (TaskID < 0) || (TaskID >= EE_MAX_TASK) ) {
       ev = E_OS_ID;
-    } else if ( EE_th_is_extended[TaskID] == 0U ) {
-      ev = E_OS_ACCESS;
     } else
-#endif /* __OO_EXTENDED_STATUS__ */
-
-    if ( EE_th_status[TaskID] == SUSPENDED ) {
+#endif /* EE_AS_OSAPPLICATIONS__ || E_SERVICE_PROTECTION__ ||
+__OO_EXTENDED_STATUS__ */
+#if defined(__OO_EXTENDED_STATUS__)
+    if ( EE_th_is_extended[TaskID] == 0U ) {
+      ev = E_OS_ACCESS;
+    } else if ( EE_th_status[TaskID] == SUSPENDED ) {
       ev = E_OS_STATE;
-    } else {
+    } else 
+#endif /* __OO_EXTENDED_STATUS__ */
+    {
       /* Set the event mask only if the task is not suspended */
       EE_th_event_active[TaskID] |= Mask;
 
