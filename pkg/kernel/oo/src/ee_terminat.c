@@ -60,6 +60,9 @@ StatusType EE_oo_TerminateTask(void)
 {
   /* Error Value */
   register StatusType ev;
+  /* Current TID */
+  register EE_TID current;
+
   /* Primitive Lock Procedure */
   EE_OS_DECLARE_AND_ENTER_CRITICAL_SECTION();
 
@@ -67,6 +70,7 @@ StatusType EE_oo_TerminateTask(void)
 
   EE_as_monitoring_the_stack();
 
+  current = EE_stk_queryfirst();
 #ifdef EE_SERVICE_PROTECTION__
   /*  [OS093]: If interrupts are disabled/suspended by a Task/OsIsr and the
       Task/OsIsr calls any OS service (excluding the interrupt services)
@@ -100,7 +104,7 @@ StatusType EE_oo_TerminateTask(void)
 #ifdef __OO_EXTENDED_STATUS__
 #ifndef __OO_NO_RESOURCES__
   /* check for busy resources */ 
-  if ( EE_th_resource_last[EE_stk_queryfirst()] != EE_UREG_MINUS1 ) {
+  if ( EE_th_resource_last[current] != EE_UREG_MINUS1 ) {
     ev = E_OS_RESOURCE;
   } else
 #endif /* __OO_NO_RESOURCES__ */
@@ -109,14 +113,14 @@ StatusType EE_oo_TerminateTask(void)
   /* [OS612]: In extended status TerminateTask / ChainTask shall return with an
       error (E_OS_SPINLOCK), which can be evaluated in the application.
       (BSW4080021) */
-  if (EE_as_spinlocks_last[EE_CURRENTCPU] != INVALID_SPINLOCK) {
+  if ( EE_as_has_spinlocks_locked(current) ) {
     ev = E_OS_SPINLOCK;
   } else
 #endif /* EE_AS_USER_SPINLOCKS__ */
 #endif /* __OO_EXTENDED_STATUS__ */
   {
 #ifndef __OO_NO_CHAINTASK__
-    EE_th_terminate_nextask[EE_stk_queryfirst()] = EE_NIL;
+    EE_th_terminate_nextask[current] = EE_NIL;
 #endif /* __OO_NO_CHAINTASK__ */
     ev = E_OK;
   }
@@ -127,7 +131,7 @@ StatusType EE_oo_TerminateTask(void)
   } else {
     /* The following won't never return */
     EE_ORTI_set_service_out(EE_SERVICETRACE_TERMINATETASK);
-    EE_hal_terminate_task(EE_stk_queryfirst());  
+    EE_hal_terminate_task(current);  
   }
 
   EE_ORTI_set_service_out(EE_SERVICETRACE_TERMINATETASK);

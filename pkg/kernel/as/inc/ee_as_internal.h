@@ -53,6 +53,15 @@
 /*******************************************************************************
  *                        Spinlock Internal Clean-Up
  ******************************************************************************/
+
+__INLINE__ EE_TYPEBOOL __ALWAYS_INLINE__
+    EE_as_has_spinlocks_locked( EE_TID tid )
+{
+  SpinlockIdType const spinlock_id = EE_as_spinlocks_last[EE_CURRENTCPU];
+  return ( (spinlock_id != INVALID_SPINLOCK) &&
+      (EE_as_spinlocks_locker_task_or_isr2[spinlock_id] == tid) );
+}
+
 /* Internal Clean-up function */
 SpinlockIdType EE_as_release_all_spinlocks( EE_TID tid );
 

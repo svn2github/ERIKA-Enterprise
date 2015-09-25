@@ -13,6 +13,8 @@ CPU test_application {
     //EE_OPT = "TEST_ERROR_CONF";
     //CFLAGS = "-DTEST_SLAVE1_APPMODE=2";
 
+    //REMOTENOTIFICATION = USE_RPC; 
+
     SPINLOCKS = QUEUED;
 
     MASTER_CPU = "master";
@@ -72,8 +74,6 @@ CPU test_application {
     };
     ACTIVATION = 1;
     SCHEDULE = FULL;
-    EVENT = Event1;
-    EVENT = Event2;
   };
 
   TASK TaskSlave1 {
@@ -94,6 +94,4 @@ CPU test_application {
     SCHEDULE = FULL;
   };
 
-  EVENT Event1 { MASK = AUTO; };
-  EVENT Event2 { MASK = AUTO; };
 };

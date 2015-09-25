@@ -44,6 +44,7 @@ EXPORT OBJECT EE_rn_first ;
 EXPORT OBJECT EE_as_spinlocks_locker_core ;
 EXPORT OBJECT EE_as_spinlocks_last ;
 EXPORT OBJECT EE_as_spinlocks_stack ;
+EXPORT OBJECT EE_as_spinlocks_locker_task_or_isr2 ;
 EXPORT OBJECT EE_hal_spinlock_value ;
 EXPORT OBJECT EE_hal_spinlock_status ;
 

@@ -122,7 +122,7 @@ StatusType EE_oo_ChainTask(TaskType TaskID)
 /* [OS612] In extended status TerminateTask / ChainTask shall return with an
     error (E_OS_SPINLOCK), which can be evaluated in the application.
     (BSW4080021) */
-  if ( EE_as_spinlocks_last[EE_CURRENTCPU] != INVALID_SPINLOCK ) {
+  if ( EE_as_has_spinlocks_locked(current) ) {
     ev = E_OS_SPINLOCK;
   } else
 #endif /* EE_AS_USER_SPINLOCKS__ */

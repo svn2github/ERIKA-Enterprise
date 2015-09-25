@@ -116,7 +116,7 @@ StatusType EE_oo_Schedule(void)
       has been called while the calling TASK has occupied a spinlock. In
       extended status an error E_OS_SPINLOCK shall be returned and the scheduler
       shall not be called. (BSW4080021) */
-  if ( EE_as_spinlocks_last[EE_CURRENTCPU] != INVALID_SPINLOCK ) {
+  if ( EE_as_has_spinlocks_locked(current) ) {
     ev = E_OS_SPINLOCK;
   } else
 #endif /* EE_AS_USER_SPINLOCKS__ */

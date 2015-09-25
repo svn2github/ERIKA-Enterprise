@@ -755,6 +755,9 @@ extern CoreIdType volatile EE_SHARED_IDATA EE_as_spinlocks_locker_core[EE_MAX_SP
 
 /** @brief Spinlock Stack */
 extern SpinlockIdType volatile EE_SHARED_IDATA EE_as_spinlocks_stack[EE_MAX_SPINLOCK_USER];
+
+/** @brief Hold which task is locking the spinlock */
+extern TaskType volatile EE_SHARED_IDATA EE_as_spinlocks_locker_task_or_isr2[EE_MAX_SPINLOCK_USER];
 #endif /* EE_MAX_SPINLOCK_USER && EE_MAX_SPINLOCK_USER */
 
 #if defined (EE_MAX_CPU) && (EE_MAX_CPU > 0)
@@ -768,22 +771,6 @@ extern SpinlockIdType volatile EE_SHARED_IDATA EE_as_spinlocks_last[EE_MAX_CPU];
 #include "MemMap.h"
 #endif /* EE_SUPPORT_MEMMAP_H */
 #endif /* EE_AS_USER_SPINLOCKS__ */
-
-#if defined (EE_MAX_TASK) && defined (EE_MAX_ISR2)
-#define EE_TASK_PLUS_ISR2 (EE_MAX_TASK + EE_MAX_ISR2)
-
-#ifdef EE_SUPPORT_MEMMAP_H
-#define OS_START_SEC_VAR_DATA
-#include "MemMap.h"
-#endif /* EE_SUPPORT_MEMMAP_H */
-/** @brief Hold which task is locking the spinlock */
-extern TaskType EE_as_spinlocks_locker_task_or_isr2[EE_TASK_PLUS_ISR2];
-#ifdef EE_SUPPORT_MEMMAP_H
-#define OS_STOP_SEC_VAR_DATA
-#include "MemMap.h"
-#endif /* EE_SUPPORT_MEMMAP_H */
-
-#endif /* EE_MAX_TASK && EE_MAX_ISR2 */
 
 #ifdef EE_AS_RPC__
 /*******************************************************************************

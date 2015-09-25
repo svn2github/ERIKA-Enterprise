@@ -10,6 +10,7 @@ CPU test_application {
     EE_OPT = "EE_DCACHE_ENABLED";
 
     //SPINLOCKS = QUEUED;
+    //REMOTENOTIFICATION = USE_RPC;
 
     MASTER_CPU = "master";
 
@@ -83,7 +84,6 @@ CPU test_application {
     ACTIVATION = 1;
     SCHEDULE = FULL;
     EVENT = Event1;
-    EVENT = Event2;
   };
 
   TASK TaskSlave1 {
@@ -115,5 +115,4 @@ CPU test_application {
   SPINLOCK spinlock_3 {  };
 
   EVENT Event1 { MASK = AUTO; };
-  EVENT Event2 { MASK = AUTO; };
 };
