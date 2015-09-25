@@ -271,6 +271,13 @@ static void EE_oo_start_os(void)
 }
 #endif /* __OO_STARTOS_OLD__ && !__MSRP__ */
 
+#if (!defined(EE_MASTER_CPU))
+#if (!defined(EE_CURRENTCPU)) || (EE_CURRENTCPU == 0)
+/* Used as short-cut for previous condition */
+#define EE_MASTER_CPU
+#endif /* EE_CURRENTCPU == 0 */
+#endif /* !EE_MASTER_CPU */
+
 StatusType EE_oo_StartOS(AppModeType Mode)
 {
 #if defined(__MSRP__) && (!defined(EE_AS_MULTICORE_NO_SYNC))
@@ -294,12 +301,12 @@ StatusType EE_oo_StartOS(AppModeType Mode)
   if ( EE_oo_started != 0U ) {
     ev = E_OS_STATE;
   } else {
-#ifdef __OO_CPU_HAS_STARTOS_ROUTINE__
+#if defined(__OO_CPU_HAS_STARTOS_ROUTINE__) && defined(EE_MASTER_CPU)
     /* the CPU initialization can return an error; 0 if all ok */
     if ( EE_cpu_startos() ) {
       ev = E_OS_SYS_INIT;
     } else
-#endif /* __OO_CPU_HAS_STARTOS_ROUTINE__ */
+#endif /* __OO_CPU_HAS_STARTOS_ROUTINE__ && EE_MASTER_CPU */
     {
       /* Primitive Lock Procedure */
       EE_hal_disableIRQ();
@@ -352,6 +359,17 @@ StatusType EE_oo_StartOS(AppModeType Mode)
           behavior." */
       EE_hal_sync_barrier(&EE_startos_before_hook_barrier, &EE_as_core_mask);
 
+      /* Initialize Slaves Hardware after First syncronization point:
+         This assure that all the Master Initializations have been done. */
+#if defined(EE_CURRENTCPU) && (EE_CURRENTCPU != 0)
+#if defined(__OO_CPU_HAS_STARTOS_ROUTINE__)
+      /* the CPU initialization can return an error; 0 if all ok */
+      if ( EE_cpu_startos() ) {
+        /* Enter in an endless loop if it happened */
+        EE_oo_start_os();
+      }
+#endif /* __OO_CPU_HAS_STARTOS_ROUTINE__ */
+#endif /* EE_CURRENTCPU != 0 */
       /* [OS608]: If more than one core calls StartOS with an AppMode other than
           "DONOTCARE", the AppModes shall be the same. StartOS shall check this
           at the first synchronization point. In case of violation, StartOS
