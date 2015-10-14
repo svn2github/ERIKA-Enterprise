@@ -734,11 +734,11 @@ StatusType EE_as_NextScheduleTable( ScheduleTableType ScheduleTableID_From,
       SCHEDULETABLE_NEXT, NextScheduleTable() shall leave the state of
       <ScheduleTable_From> and <ScheduleTable_To> unchanged and return
       E_OS_NOFUNC. */
+  /*   XXX: !!! Contradiction with SWS_Os_00324 && SWS_Os_00453 !!!  */
   /* [SWS_Os_00309] If the schedule table <ScheduleTableID_To> in a call of
       NextScheduleTable() is not in state SCHEDULETABLE_STOPPED,
       NextScheduleTable() shall leave the state of <ScheduleTable_From> and
       <ScheduleTable_To> unchanged and return E_OS_STATE. */
-  /*   XXX: !!! Contradiction with SWS_Os_00324 && SWS_Os_00453 !!!  */
   if ( (EE_oo_counter_object_ROM[EE_MAX_ALARM + ScheduleTableID_From].c !=
           EE_oo_counter_object_ROM[EE_MAX_ALARM + ScheduleTableID_To].c) ||
        (EE_as_Schedule_Table_ROM[ScheduleTableID_From].sync_strategy != 
@@ -770,7 +770,8 @@ StatusType EE_as_NextScheduleTable( ScheduleTableType ScheduleTableID_From,
         AND the <ScheduleTableID_From> already has a "next" schedule table then
         NextScheduleTable()shall replace the previous "next" schedule table with
         <ScheduleTableID_To> and shall change the old "next" schedule table state
-        to SCHEDULETABLE_STOPPED. XXX: !!! Contradiction with SWS_Os_00309 !!! */
+        to SCHEDULETABLE_STOPPED.
+        XXX: !!! Contradiction with SWS_Os_00283 !!! */
     /* [SWS_Os_00505] If OsScheduleTblSyncStrategy of the schedule tables
         <ScheduleTableID_From> and <ScheduleTableID_To> in a call of
         NextScheduleTable() is EXPLICIT and the Operating System module already
@@ -779,7 +780,7 @@ StatusType EE_as_NextScheduleTable( ScheduleTableType ScheduleTableID_From,
     /* [SWS_Os_00453] If the <ScheduleTableID_From> in a call of
         NextScheduleTable() is stopped, NextScheduleTable() shall not start the
         "next" schedule table and change its state to SCHEDULETABLE_STOPPED.
-         XXX: !!! Contradiction with SWS_Os_00309 !!! */
+         XXX: !!! Contradiction with SWS_Os_00283 !!! */
     EE_as_Schedule_Table_RAM[ScheduleTableID_From].
       next_table = ScheduleTableID_To;
     EE_as_Schedule_Table_RAM[ScheduleTableID_To].status = SCHEDULETABLE_NEXT;

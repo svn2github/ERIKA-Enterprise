@@ -396,6 +396,46 @@ int EE_oo_GetValueSem(const SemType *Sem);
 #endif /* __OO_SEM__ */
 
 /***************************************************************************
+ * AS 4.0 Counters
+ ***************************************************************************/
+#if (defined(EE_MAX_COUNTER)) && (EE_MAX_COUNTER > 0U)
+/*
+   AS 4.0 OS SWS 8.4.16
+   AS OS requirement OS399:
+
+   This function notifies a tick to a counter. That is, the counter is
+   incremented by 1.
+
+   The function will also implement the notification of expired alarms
+   (calling an alarm callback, setting an event, or activating a
+   task). 
+
+   And DO RESCHEDULING.
+   see also internal.h
+*/
+#ifndef __PRIVATE_INCREMENTCOUNTER__
+StatusType EE_oo_IncrementCounter(CounterType CounterID);
+#endif  /* !__PRIVATE_INCREMENTCOUNTER__ && EE_MAX_COUNTER > 0 */
+
+/*
+  AS 4.0 OS SWS 8.4.17 GetCounterValue
+  AS OS requirement OS383:
+ */
+#ifndef __PRIVATE_GETCOUNTERVALUE__
+StatusType EE_oo_GetCounterValue(CounterType CounterID, TickRefType Value);
+#endif
+
+/*
+  AS 4.0 OS SWS 8.4.18 GetElapsedValue
+  AS OS requirement OS392:
+ */
+#ifndef __PRIVATE_GETELAPSEDVALUE__
+StatusType EE_oo_GetElapsedValue(CounterType CounterID, TickRefType Value,
+    TickRefType ElapsedValue);
+#endif
+#endif /* EE_MAX_COUNTER > 0 */
+
+/***************************************************************************
  * 13.6 Alarms
  ***************************************************************************/
 #ifndef __OO_NO_ALARMS__
@@ -416,42 +456,6 @@ int EE_oo_GetValueSem(const SemType *Sem);
    values.
 
 */
-
-/*
-   AS 4.0 OS SWS 8.4.16
-   AS OS requirement OS399:
-
-   This function notifies a tick to a counter. That is, the counter is
-   incremented by 1.
-
-   The function will also implement the notification of expired alarms
-   (calling an alarm callback, setting an event, or activating a
-   task). 
-
-   And DO RESCHEDULING.
-   see also internal.h
-*/
-#if (!defined(__PRIVATE_INCREMENTCOUNTER__)) && (EE_MAX_COUNTER > 0U)
-StatusType EE_oo_IncrementCounter(CounterType CounterID);
-#endif  /* !__PRIVATE_INCREMENTCOUNTER__ && EE_MAX_COUNTER > 0 */
-
-/*
-  AS 4.0 OS SWS 8.4.17 GetCounterValue
-  AS OS requirement OS383:
- */
-#ifndef __PRIVATE_GETCOUNTERVALUE__
-StatusType EE_oo_GetCounterValue(CounterType CounterID, TickRefType Value);
-#endif
-
-/*
-  AS 4.0 OS SWS 8.4.18 GetElapsedValue
-  AS OS requirement OS392:
- */
-#ifndef __PRIVATE_GETELAPSEDVALUE__
-StatusType EE_oo_GetElapsedValue(CounterType CounterID, TickRefType Value,
-    TickRefType ElapsedValue);
-#endif
-
 
 /* 13.6.1 Data types                                                       */
 /* ----------------------------------------------------------------------- */
