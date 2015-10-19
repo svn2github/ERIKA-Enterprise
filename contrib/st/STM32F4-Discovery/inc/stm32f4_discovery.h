@@ -254,7 +254,7 @@ typedef enum
  #define SD_SDIO_DMA_FLAG_HTIF         DMA_FLAG_HTIF3
  #define SD_SDIO_DMA_FLAG_TCIF         DMA_FLAG_TCIF3 
  #define SD_SDIO_DMA_IRQn              DMA2_Stream3_IRQn
- #define SD_SDIO_DMA_IRQHANDLER        DMA2_Stream3_IRQHandler 
+ #define SD_SDIO_DMA_IRQHANDLER        SD_SDIO_DMA_IRQHandler //DMA2_Stream3_IRQHandler
 #elif defined SD_SDIO_DMA_STREAM6
  #define SD_SDIO_DMA_STREAM            DMA2_Stream6
  #define SD_SDIO_DMA_CHANNEL           DMA_Channel_4
@@ -264,7 +264,7 @@ typedef enum
  #define SD_SDIO_DMA_FLAG_HTIF         DMA_FLAG_HTIF6
  #define SD_SDIO_DMA_FLAG_TCIF         DMA_FLAG_TCIF6 
  #define SD_SDIO_DMA_IRQn              DMA2_Stream6_IRQn
- #define SD_SDIO_DMA_IRQHANDLER        DMA2_Stream6_IRQHandler
+ #define SD_SDIO_DMA_IRQHANDLER        SD_SDIO_DMA_IRQHandler //DMA2_Stream6_IRQHandler
 #endif /* SD_SDIO_DMA_STREAM3 */
 
 #endif

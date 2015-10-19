@@ -329,7 +329,8 @@ typedef struct
 #define SD_CMD_SD_APP_SECURE_ERASE                 ((uint8_t)38) /*!< For SD Card only */
 #define SD_CMD_SD_APP_CHANGE_SECURE_AREA           ((uint8_t)49) /*!< For SD Card only */
 #define SD_CMD_SD_APP_SECURE_WRITE_MKB             ((uint8_t)48) /*!< For SD Card only */
-  
+
+//#define SD_POLLING_MODE
 /* Uncomment the following line to select the SDIO Data transfer mode */  
 #if !defined (SD_DMA_MODE) && !defined (SD_POLLING_MODE)
 #define SD_DMA_MODE                                ((uint32_t)0x00000000)

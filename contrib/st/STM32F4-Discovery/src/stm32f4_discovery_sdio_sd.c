@@ -1217,7 +1217,13 @@ SD_Error SD_ReadBlock(uint8_t *readbuff, uint32_t ReadAddr, uint16_t BlockSize)
   SDIO_DataInitStructure.SDIO_TransferMode = SDIO_TransferMode_Block;
   SDIO_DataInitStructure.SDIO_DPSM = SDIO_DPSM_Enable;
   SDIO_DataConfig(&SDIO_DataInitStructure);
-
+    
+#if defined (SD_DMA_MODE)
+    SDIO_ITConfig(SDIO_IT_DCRCFAIL | SDIO_IT_DTIMEOUT | SDIO_IT_DATAEND | SDIO_IT_RXOVERR | SDIO_IT_STBITERR, ENABLE);
+    SDIO_DMACmd(ENABLE);
+    SD_LowLevel_DMA_RxConfig((uint32_t *)readbuff, BlockSize);
+#endif
+    
   /*!< Send CMD17 READ_SINGLE_BLOCK */
   SDIO_CmdInitStructure.SDIO_Argument = (uint32_t)ReadAddr;
   SDIO_CmdInitStructure.SDIO_CmdIndex = SD_CMD_READ_SINGLE_BLOCK;
@@ -1284,9 +1290,9 @@ SD_Error SD_ReadBlock(uint8_t *readbuff, uint32_t ReadAddr, uint16_t BlockSize)
   SDIO_ClearFlag(SDIO_STATIC_FLAGS);
 
 #elif defined (SD_DMA_MODE)
-    SDIO_ITConfig(SDIO_IT_DCRCFAIL | SDIO_IT_DTIMEOUT | SDIO_IT_DATAEND | SDIO_IT_RXOVERR | SDIO_IT_STBITERR, ENABLE);
+ /*   SDIO_ITConfig(SDIO_IT_DCRCFAIL | SDIO_IT_DTIMEOUT | SDIO_IT_DATAEND | SDIO_IT_RXOVERR | SDIO_IT_STBITERR, ENABLE);
     SDIO_DMACmd(ENABLE);
-    SD_LowLevel_DMA_RxConfig((uint32_t *)readbuff, BlockSize);
+    SD_LowLevel_DMA_RxConfig((uint32_t *)readbuff, BlockSize);*/
 #endif
 
   return(errorstatus);
@@ -1378,7 +1384,7 @@ SD_Error SD_ReadMultiBlocks(uint8_t *readbuff, uint32_t ReadAddr, uint16_t Block
 SD_Error SD_WaitReadOperation(void)
 {
   SD_Error errorstatus = SD_OK;
-  uint32_t timeout;
+  volatile uint32_t timeout;
 
   timeout = SD_DATATIMEOUT;
   
