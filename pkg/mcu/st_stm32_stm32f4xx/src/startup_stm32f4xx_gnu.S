@@ -246,13 +246,13 @@ __isr_vector:
 	.word     EE_CORTEX_MX_EXTI2_ISR              /* EXTI Line2                   */                          
 	.word     EE_CORTEX_MX_EXTI3_ISR              /* EXTI Line3                   */                          
 	.word     EE_CORTEX_MX_EXTI4_ISR              /* EXTI Line4                   */                          
-	.word     EE_CORTEX_MX_DMA1_Stream0_ISR       /* DMA1 Stream 0                */                  
-	.word     EE_CORTEX_MX_DMA1_Stream1_ISR       /* DMA1 Stream 1                */                   
-	.word     EE_CORTEX_MX_DMA1_Stream2_ISR       /* DMA1 Stream 2                */                   
-	.word     EE_CORTEX_MX_DMA1_Stream3_ISR       /* DMA1 Stream 3                */                   
-	.word     EE_CORTEX_MX_DMA1_Stream4_ISR       /* DMA1 Stream 4                */                   
-	.word     EE_CORTEX_MX_DMA1_Stream5_ISR       /* DMA1 Stream 5                */                   
-	.word     EE_CORTEX_MX_DMA1_Stream6_ISR       /* DMA1 Stream 6                */                   
+	.word     EE_CORTEX_MX_DMA1_STREAM0_ISR       /* DMA1 Stream 0                */
+	.word     EE_CORTEX_MX_DMA1_STREAM1_ISR       /* DMA1 Stream 1                */
+	.word     EE_CORTEX_MX_DMA1_STREAM2_ISR       /* DMA1 Stream 2                */
+	.word     EE_CORTEX_MX_DMA1_STREAM3_ISR       /* DMA1 Stream 3                */
+	.word     EE_CORTEX_MX_DMA1_STREAM4_ISR       /* DMA1 Stream 4                */
+	.word     EE_CORTEX_MX_DMA1_STREAM5_ISR       /* DMA1 Stream 5                */
+	.word     EE_CORTEX_MX_DMA1_STREAM6_ISR       /* DMA1 Stream 6                */
 	.word     EE_CORTEX_MX_ADC_ISR                /* ADC1, ADC2 and ADC3s         */                   
 	.word     EE_CORTEX_MX_CAN1_TX_ISR            /* CAN1 TX                      */                         
 	.word     EE_CORTEX_MX_CAN1_RX0_ISR           /* CAN1 RX0                     */                          
@@ -291,11 +291,11 @@ __isr_vector:
 	.word     EE_CORTEX_MX_UART5_ISR              /* UART5                        */                   
 	.word     EE_CORTEX_MX_TIM6_DAC_ISR           /* TIM6 and DAC1&2 underrun errors */                   
 	.word     EE_CORTEX_MX_TIM7_ISR               /* TIM7                         */
-	.word     EE_CORTEX_MX_DMA2_Stream0_ISR       /* DMA2 Stream 0                */                   
-	.word     EE_CORTEX_MX_DMA2_Stream1_ISR       /* DMA2 Stream 1                */                   
-	.word     EE_CORTEX_MX_DMA2_Stream2_ISR       /* DMA2 Stream 2                */                   
-	.word     EE_CORTEX_MX_DMA2_Stream3_ISR       /* DMA2 Stream 3                */                   
-	.word     EE_CORTEX_MX_DMA2_Stream4_ISR       /* DMA2 Stream 4                */                   
+	.word     EE_CORTEX_MX_DMA2_STREAM0_ISR       /* DMA2 Stream 0                */
+	.word     EE_CORTEX_MX_DMA2_STREAM1_ISR       /* DMA2 Stream 1                */
+	.word     EE_CORTEX_MX_DMA2_STREAM2_ISR       /* DMA2 Stream 2                */
+	.word     EE_CORTEX_MX_DMA2_STREAM3_ISR       /* DMA2 Stream 3                */
+	.word     EE_CORTEX_MX_DMA2_STREAM4_ISR       /* DMA2 Stream 4                */
 	.word     EE_CORTEX_MX_ETH_ISR                /* Ethernet                     */                   
 	.word     EE_CORTEX_MX_ETH_WKUP_ISR           /* Ethernet Wakeup through EXTI line */                     
 	.word     EE_CORTEX_MX_CAN2_TX_ISR            /* CAN2 TX                      */                          
@@ -303,9 +303,9 @@ __isr_vector:
 	.word     EE_CORTEX_MX_CAN2_RX1_ISR           /* CAN2 RX1                     */                          
 	.word     EE_CORTEX_MX_CAN2_SCE_ISR           /* CAN2 SCE                     */                          
 	.word     EE_CORTEX_MX_OTG_FS_ISR             /* USB OTG FS                   */                   
-	.word     EE_CORTEX_MX_DMA2_Stream5_ISR       /* DMA2 Stream 5                */                   
-	.word     EE_CORTEX_MX_DMA2_Stream6_ISR       /* DMA2 Stream 6                */                   
-	.word     EE_CORTEX_MX_DMA2_Stream7_ISR       /* DMA2 Stream 7                */                   
+	.word     EE_CORTEX_MX_DMA2_STREAM5_ISR       /* DMA2 Stream 5                */
+	.word     EE_CORTEX_MX_DMA2_STREAM6_ISR       /* DMA2 Stream 6                */
+	.word     EE_CORTEX_MX_DMA2_STREAM7_ISR       /* DMA2 Stream 7                */
 	.word     EE_CORTEX_MX_USART6_ISR             /* USART6                       */                    
 	.word     EE_CORTEX_MX_I2C3_EV_ISR            /* I2C3 event                   */                          
 	.word     EE_CORTEX_MX_I2C3_ER_ISR            /* I2C3 error                   */                          
@@ -397,26 +397,26 @@ __isr_vector:
    .weak      EE_CORTEX_MX_EXTI4_ISR         
    .thumb_set EE_CORTEX_MX_EXTI4_ISR,EE_cortex_mx_default_ISR
                   
-   .weak      EE_CORTEX_MX_DMA1_Stream0_ISR               
-   .thumb_set EE_CORTEX_MX_DMA1_Stream0_ISR,EE_cortex_mx_default_ISR
+   .weak      EE_CORTEX_MX_DMA1_STREAM0_ISR
+   .thumb_set EE_CORTEX_MX_DMA1_STREAM0_ISR,EE_cortex_mx_default_ISR
          
-   .weak      EE_CORTEX_MX_DMA1_Stream1_ISR               
-   .thumb_set EE_CORTEX_MX_DMA1_Stream1_ISR,EE_cortex_mx_default_ISR
+   .weak      EE_CORTEX_MX_DMA1_STREAM1_ISR
+   .thumb_set EE_CORTEX_MX_DMA1_STREAM1_ISR,EE_cortex_mx_default_ISR
                   
-   .weak      EE_CORTEX_MX_DMA1_Stream2_ISR               
-   .thumb_set EE_CORTEX_MX_DMA1_Stream2_ISR,EE_cortex_mx_default_ISR
+   .weak      EE_CORTEX_MX_DMA1_STREAM2_ISR
+   .thumb_set EE_CORTEX_MX_DMA1_STREAM2_ISR,EE_cortex_mx_default_ISR
                   
-   .weak      EE_CORTEX_MX_DMA1_Stream3_ISR               
-   .thumb_set EE_CORTEX_MX_DMA1_Stream3_ISR,EE_cortex_mx_default_ISR 
+   .weak      EE_CORTEX_MX_DMA1_STREAM3_ISR
+   .thumb_set EE_CORTEX_MX_DMA1_STREAM3_ISR,EE_cortex_mx_default_ISR
                  
-   .weak      EE_CORTEX_MX_DMA1_Stream4_ISR              
-   .thumb_set EE_CORTEX_MX_DMA1_Stream4_ISR,EE_cortex_mx_default_ISR
+   .weak      EE_CORTEX_MX_DMA1_STREAM4_ISR
+   .thumb_set EE_CORTEX_MX_DMA1_STREAM4_ISR,EE_cortex_mx_default_ISR
                   
-   .weak      EE_CORTEX_MX_DMA1_Stream5_ISR               
-   .thumb_set EE_CORTEX_MX_DMA1_Stream5_ISR,EE_cortex_mx_default_ISR
+   .weak      EE_CORTEX_MX_DMA1_STREAM5_ISR
+   .thumb_set EE_CORTEX_MX_DMA1_STREAM5_ISR,EE_cortex_mx_default_ISR
                   
-   .weak      EE_CORTEX_MX_DMA1_Stream6_ISR               
-   .thumb_set EE_CORTEX_MX_DMA1_Stream6_ISR,EE_cortex_mx_default_ISR
+   .weak      EE_CORTEX_MX_DMA1_STREAM6_ISR
+   .thumb_set EE_CORTEX_MX_DMA1_STREAM6_ISR,EE_cortex_mx_default_ISR
                   
    .weak      EE_CORTEX_MX_ADC_ISR      
    .thumb_set EE_CORTEX_MX_ADC_ISR,EE_cortex_mx_default_ISR
@@ -532,20 +532,20 @@ __isr_vector:
    .weak      EE_CORTEX_MX_TIM7_ISR            
    .thumb_set EE_CORTEX_MX_TIM7_ISR,EE_cortex_mx_default_ISR
          
-   .weak      EE_CORTEX_MX_DMA2_Stream0_ISR               
-   .thumb_set EE_CORTEX_MX_DMA2_Stream0_ISR,EE_cortex_mx_default_ISR
+   .weak      EE_CORTEX_MX_DMA2_STREAM0_ISR
+   .thumb_set EE_CORTEX_MX_DMA2_STREAM0_ISR,EE_cortex_mx_default_ISR
                
-   .weak      EE_CORTEX_MX_DMA2_Stream1_ISR               
-   .thumb_set EE_CORTEX_MX_DMA2_Stream1_ISR,EE_cortex_mx_default_ISR
+   .weak      EE_CORTEX_MX_DMA2_STREAM1_ISR
+   .thumb_set EE_CORTEX_MX_DMA2_STREAM1_ISR,EE_cortex_mx_default_ISR
                   
-   .weak      EE_CORTEX_MX_DMA2_Stream2_ISR               
-   .thumb_set EE_CORTEX_MX_DMA2_Stream2_ISR,EE_cortex_mx_default_ISR
+   .weak      EE_CORTEX_MX_DMA2_STREAM2_ISR
+   .thumb_set EE_CORTEX_MX_DMA2_STREAM2_ISR,EE_cortex_mx_default_ISR
             
-   .weak      EE_CORTEX_MX_DMA2_Stream3_ISR               
-   .thumb_set EE_CORTEX_MX_DMA2_Stream3_ISR,EE_cortex_mx_default_ISR
+   .weak      EE_CORTEX_MX_DMA2_STREAM3_ISR
+   .thumb_set EE_CORTEX_MX_DMA2_STREAM3_ISR,EE_cortex_mx_default_ISR
             
-   .weak      EE_CORTEX_MX_DMA2_Stream4_ISR               
-   .thumb_set EE_CORTEX_MX_DMA2_Stream4_ISR,EE_cortex_mx_default_ISR
+   .weak      EE_CORTEX_MX_DMA2_STREAM4_ISR
+   .thumb_set EE_CORTEX_MX_DMA2_STREAM4_ISR,EE_cortex_mx_default_ISR
             
    .weak      EE_CORTEX_MX_ETH_ISR      
    .thumb_set EE_CORTEX_MX_ETH_ISR,EE_cortex_mx_default_ISR
@@ -568,14 +568,14 @@ __isr_vector:
    .weak      EE_CORTEX_MX_OTG_FS_ISR      
    .thumb_set EE_CORTEX_MX_OTG_FS_ISR,EE_cortex_mx_default_ISR
                      
-   .weak      EE_CORTEX_MX_DMA2_Stream5_ISR               
-   .thumb_set EE_CORTEX_MX_DMA2_Stream5_ISR,EE_cortex_mx_default_ISR
+   .weak      EE_CORTEX_MX_DMA2_STREAM5_ISR
+   .thumb_set EE_CORTEX_MX_DMA2_STREAM5_ISR,EE_cortex_mx_default_ISR
                   
-   .weak      EE_CORTEX_MX_DMA2_Stream6_ISR               
-   .thumb_set EE_CORTEX_MX_DMA2_Stream6_ISR,EE_cortex_mx_default_ISR
+   .weak      EE_CORTEX_MX_DMA2_STREAM6_ISR
+   .thumb_set EE_CORTEX_MX_DMA2_STREAM6_ISR,EE_cortex_mx_default_ISR
                   
-   .weak      EE_CORTEX_MX_DMA2_Stream7_ISR               
-   .thumb_set EE_CORTEX_MX_DMA2_Stream7_ISR,EE_cortex_mx_default_ISR
+   .weak      EE_CORTEX_MX_DMA2_STREAM7_ISR
+   .thumb_set EE_CORTEX_MX_DMA2_STREAM7_ISR,EE_cortex_mx_default_ISR
                   
    .weak      EE_CORTEX_MX_USART6_ISR      
    .thumb_set EE_CORTEX_MX_USART6_ISR,EE_cortex_mx_default_ISR
