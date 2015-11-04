@@ -78,7 +78,7 @@
 #define EE_COMPILER_ALIGN(a) __attribute__((aligned(a)))
 #define EE_COMPILER_SECTION(s) __attribute__((section(s)))
 #define EE_COMPILER_KEEP __attribute__((used))
-#define EE_COMPILER_IRQ  __attribute__((interrupt(IRQ)))
+#define EE_COMPILER_IRQ  __attribute__((interrupt("IRQ")))
 
 /* FIXME: MISRA states that symbols and defines with leading two underscores are
    reserverd for compilers: the following have to be changed (EG: I suggest
