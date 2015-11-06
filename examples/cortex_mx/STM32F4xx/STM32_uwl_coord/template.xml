@@ -6,11 +6,11 @@
  <title>uWireless Demo - Coordinator</title>
    
  <small_descr>
- This is the a simple demo shown the coordinator side of the uWireless  (IEEE 802.15.4) stack.
+ This is a simple demo that shows the coordinator side of the uWireless  (IEEE 802.15.4) stack.
  </small_descr>
 
- <long_descr>
- This is the a simple demo shown the coordinator side of the uWireless  (IEEE 802.15.4) stack.
+<long_descr>
+ This is a simple demo that shows the coordinator side of the uWireless  (IEEE 802.15.4) stack.
  </long_descr>
 
  <file_section>

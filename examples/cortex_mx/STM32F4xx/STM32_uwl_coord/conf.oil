@@ -27,8 +27,6 @@ CPU mySystem {
 
 		KERNEL_TYPE = FP;
 		
-		EE_OPT = "__USE_SYSTICK__";
-		
 
 /* ********************************************************** */
 /*                Contrib Library Inlcusion                   */
@@ -96,7 +94,6 @@ CPU mySystem {
 		EE_OPT = "UWL_DEBUG_LOG_HAS_PRINT";*/
 	};
 
-	COUNTER taskCounter;
 	
 	/* ****************************************************************** */
 	/*                      Application TASKs                             */
@@ -108,10 +105,6 @@ CPU mySystem {
 		RESOURCE = "CONS_MUTEX";
 		RESOURCE = "UWL_EE_RESOURCE_MAC_MUTEX";
 		RESOURCE = "UWL_EE_RESOURCE_MAC_SEND_MUTEX";
-	};
-	ALARM UwlSendAlarm {
-		COUNTER = "taskCounter";
-		ACTION = ACTIVATETASK { TASK =  "UwlSend"; };
 	};
 
 	TASK UwlReceive {

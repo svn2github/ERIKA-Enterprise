@@ -134,14 +134,7 @@ PUTCHAR_PROTOTYPE
 /*                          Function Definitions                              */
 /******************************************************************************/
 
-/*
- * SysTick ISR2
- */
-ISR2(systick_handler)
-{
-	/* count the interrupts, waking up expired alarms */
-	CounterTick(taskCounter);
-}
+
 
 /******************************************************************************/
 /* Press button actions:                                                      */
@@ -315,10 +308,6 @@ int main(void)
 	/*Initialize Erika related stuffs*/
 	EE_system_init();
 	
-	/*Initialize systick */
-	EE_systick_set_period(MILLISECONDS_TO_TICKS(1, SystemCoreClock));
-	EE_systick_enable_int();
-	EE_systick_start();
 
 #ifndef USE_LCD_LOG
 	/*Initialize Leds. */
