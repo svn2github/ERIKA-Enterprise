@@ -45,8 +45,8 @@
  *         2013 Eugen Kleinschmidt
  */
 
-#ifndef EE_E200ZX_MCU_REGS_H
-#define EE_E200ZX_MCU_REGS_H
+#ifndef PKG_CPU_E200ZX_INC_EE_MCU_REGS_H
+#define PKG_CPU_E200ZX_INC_EE_MCU_REGS_H
 
 /* Include the appropriate file according to the target MCU */
 
@@ -62,4 +62,4 @@
 #error "No known MCU found"
 #endif
 
-#endif /* EE_E200ZX_MCU_REGS_H */
+#endif

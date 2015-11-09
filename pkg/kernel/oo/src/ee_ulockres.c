@@ -64,19 +64,19 @@ StatusType EE_oo_ReleaseResource(ResourceType ResID)
   /* Error Value */
   register StatusType ev;
   /* Primitive Lock Variable */
-#if (!defined(__EE_MEMORY_PROTECTION__)) || defined(__OO_ISR2_RESOURCES__)
+#if (!defined(__EE_MEMORY_PROTECTION__)) || (defined(__OO_ISR2_RESOURCES__))
   register EE_FREG flag;
 #endif /* !__EE_MEMORY_PROTECTION__ || __OO_ISR2_RESOURCES__ */
 #ifdef __MSRP__
   register EE_UREG isGlobal;
 #endif /* __MSRP__ */
-#if defined(__OO_EXTENDED_STATUS__) || defined(__OO_ISR2_RESOURCES__) ||\
-    defined(__OO_ORTI_PRIORITY__)
+#if (defined(__OO_EXTENDED_STATUS__)) || (defined(__OO_ISR2_RESOURCES__)) \
+  || (defined(__OO_ORTI_PRIORITY__))
   register EE_TID current = EE_stk_queryfirst();
 #endif /* __OO_EXTENDED_STATUS__ || __OO_ISR2_RESOURCES__ ||
   __OO_ORTI_PRIORITY__ */
   /* To cache inside task info */
-  register EE_SREG inside_task = (EE_hal_get_IRQ_nesting_level() == 0U);
+  register EE_TYPEBOOL inside_task = (EE_hal_get_IRQ_nesting_level() == 0U);
   /* Primitive Lock Procedure */
   EE_OS_ENTER_CRITICAL_SECTION();
 
@@ -91,7 +91,7 @@ StatusType EE_oo_ReleaseResource(ResourceType ResID)
 
 #ifdef __OO_ISR2_RESOURCES__
   /* If actually we are inside an ISR2 get the fake TID to access stack */
-  if ( inside_task == 0 ) {
+  if ( inside_task == EE_FALSE ) {
     current = EE_oo_get_ISR2_TID();
   }
 #endif /* __OO_ISR2_RESOURCES__ */
@@ -114,7 +114,7 @@ StatusType EE_oo_ReleaseResource(ResourceType ResID)
   } else
 #endif /* EE_SERVICE_PROTECTION__ */
 
-#if ( defined(EE_AS_OSAPPLICATIONS__) && defined(EE_SERVICE_PROTECTION__) )
+#if (defined(EE_AS_OSAPPLICATIONS__)) && (defined(EE_SERVICE_PROTECTION__))
   /* no comparison for ResID < 0, the type is unsigned! */
   if ( ResID >= EE_MAX_RESOURCE ) {
     ev = E_OS_ID;
@@ -130,24 +130,24 @@ StatusType EE_oo_ReleaseResource(ResourceType ResID)
 __OO_EXTENDED_STATUS__ */
 
 #ifdef __OO_EXTENDED_STATUS__
-  if ( (EE_resource_locked[ResID] == 0U) ||
+  if ( (EE_resource_locked[ResID] == EE_FALSE) ||
         (EE_th_resource_last[current] != ResID) ) {
     ev = E_OS_NOFUNC;
-  } else if ( (inside_task != 0) && ((current == EE_NIL) ||
+  } else if ( (inside_task != EE_FALSE) && ((current == EE_NIL) ||
       (EE_th_ready_prio[current] > EE_resource_ceiling[ResID])) ) {
     ev = E_OS_ACCESS;
   } else
 #ifdef __OO_ISR2_RESOURCES__
   /* Check if interrupt controller priority is greater than priority
      of resource to be realeased */
-  if ( (inside_task == 0) &&
+  if ( (inside_task == EE_FALSE) &&
     (EE_hal_check_int_prio_if_higher(EE_resource_isr2_priority[ResID]) !=
      0U) )
   {
     ev = E_OS_ACCESS;
   } else
 #else /* __OO_ISR2_RESOURCES__ */
-  if ( inside_task == 0 ) {
+  if ( inside_task == EE_FALSE ) {
     ev = E_OS_ACCESS;
   } else
 #endif /* __OO_ISR2_RESOURCES__ */
@@ -161,15 +161,15 @@ __OO_EXTENDED_STATUS__ */
     flag = EE_hal_change_int_prio(EE_isr2_oldpriority[ResID], flag);
 #endif /* __OO_ISR2_RESOURCES__ */
 
-#if defined(__OO_EXTENDED_STATUS__) || defined(__OO_ISR2_RESOURCES__)
+#if (defined(__OO_EXTENDED_STATUS__)) || (defined(__OO_ISR2_RESOURCES__))
     /* remove the last entry from the data structure */
     EE_th_resource_last[current] = 
       EE_resource_stack[EE_th_resource_last[current]];
 #endif /* __OO_EXTENDED_STATUS__ || __OO_ISR2_RESOURCES__ */
 
-#if defined(__OO_EXTENDED_STATUS__) || defined(__OO_ORTI_RES_ISLOCKED__)
+#if (defined(__OO_EXTENDED_STATUS__)) || (defined(__OO_ORTI_RES_ISLOCKED__))
     /* ok, we have to free that resource! */
-    EE_resource_locked[ResID] = 0U;
+    EE_resource_locked[ResID] = EE_FALSE;
 #endif /* __OO_EXTENDED_STATUS__ || __OO_ORTI_RES_ISLOCKED__ */
 
 #ifdef __MSRP__
@@ -181,10 +181,12 @@ __OO_EXTENDED_STATUS__ */
 
     /* there is no need to store that the resource has no more lockers,
        because we inserted an if expression into the ORTI File */
-    /* #ifdef __OO_ORTI_RES_LOCKER_TASK__ */
-    /*  EE_ORTI_res_locker[ResID] = EE_NIL; */
-    /* #endif */
-
+#if 0    
+#ifdef __OO_ORTI_RES_LOCKER_TASK__
+    EE_ORTI_res_locker[ResID] = EE_NIL;
+#endif
+#endif
+    
     EE_sys_ceiling = EE_resource_oldceiling[ResID];
 
 #ifdef __OO_ORTI_PRIORITY__

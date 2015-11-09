@@ -43,8 +43,8 @@
  * Author: 2012 Errico Guidieri
  */
 
-#ifndef INCLUDE_E200ZX_EE_CPU_OS_H__
-#define INCLUDE_E200ZX_EE_CPU_OS_H__
+#ifndef PKG_CPU_E200ZX_INC_EE_CPU_OS_H
+#define PKG_CPU_E200ZX_INC_EE_CPU_OS_H
 
 /* All defines needed by kernel too */
 #include "eecfg.h"
@@ -67,9 +67,7 @@
 #include "cpu/common/inc/ee_types.h"
 
 /* Define HAL types */
-typedef EE_UINT32 EE_UREG;
-typedef EE_INT32  EE_SREG;
-typedef EE_UINT32 EE_FREG;
+#include "cpu/e200zx/inc/ee_e200zx_types.h"
 
 /* Use the "standard" implementation 
   (I need to put this here because it needs to see HAL types) */
@@ -127,9 +125,15 @@ typedef void (*EE_e200z7_ISR_handler)(void);
 /* ORTI types */
 typedef EE_e200z7_ISR_handler EE_ORTI_runningisr2_type;
 #ifdef __OO_ORTI_RUNNINGISR2__
-#define EE_ORTI_build_isr2id(f) (f)
+__INLINE__ EE_ORTI_runningisr2_type __ALWAYS_INLINE__
+EE_ORTI_build_isr2id(EE_ORTI_runningisr2_type orti_isr2id) {
+  return orti_isr2id;
+}
 #else /* __OO_ORTI_RUNNINGISR2__ */
-#define EE_ORTI_build_isr2id(f) ((EE_ORTI_runningisr2_type)0)
+__INLINE__ EE_ORTI_runningisr2_type __ALWAYS_INLINE__
+EE_ORTI_build_isr2id(EE_ORTI_runningisr2_type orti_isr2id) {
+  return (EE_ORTI_runningisr2_type)0;
+}
 #endif /* else __OO_ORTI_RUNNINGISR2__ */
 
 #ifdef __MULTI__
@@ -140,7 +144,7 @@ typedef EE_e200z7_ISR_handler EE_ORTI_runningisr2_type;
  ***************************************************************************/
 
 /* Top of each private stack. */
-extern struct EE_TOS EE_e200z7_system_tos[];
+extern struct EE_TOS EE_e200z7_system_tos[EE_E200Z7_SYSTEM_TOS_SIZE];
 
 /* Index of the current stack. */
 extern EE_UREG EE_e200z7_active_tos;
@@ -222,7 +226,7 @@ __asm static EE_FREG EE_e200z7_isIRQEnabled(void)
   rlwinm   r3,r3,0x11,0x1F,0x1F
 }
 #else
-__INLINE__ EE_BIT __ALWAYS_INLINE__ EE_e200z7_isIRQEnabled(void)
+__INLINE__ EE_TYPEBOOL __ALWAYS_INLINE__ EE_e200z7_isIRQEnabled(void)
 {
   EE_FREG msr;
 
@@ -254,26 +258,34 @@ __asm static void EE_e200z7_switch_to_supervisor_mode(void)
 }
 
 #else
+
+#define READ_MSR(msr) \
+  do { \
+    __asm volatile ("mfmsr %0 \n" \
+                    : "=r"(msr)); \
+  } while (0)
+
+#define WRITE_MSR(msr) \
+  do { \
+  __asm volatile ("mtmsr %0   \n" \
+		  :: "r"(msr));	  \
+  } while (0)
+
 __INLINE__ void EE_e200z7_switch_to_user_mode(void)
 {
   EE_FREG msr;
-
-  __asm volatile ("mfmsr %0   \n"
-      : "=r"(msr));
+  READ_MSR(msr);
   msr |= MSR_PR;
-  __asm volatile ("mtmsr %0   \n"
-      :: "r"(msr));
+  WRITE_MSR(msr);
 }
+
 
 __INLINE__  void EE_e200z7_switch_to_supervisor_mode(void)
 {
   EE_FREG msr;
-
-  __asm volatile ("mfmsr %0   \n"
-      : "=r"(msr));
+  READ_MSR(msr);
   msr &= ~MSR_PR;
-  __asm volatile ("mtmsr %0   \n"
-      :: "r"(msr));
+  WRITE_MSR(msr);
 }
 #endif
 
@@ -327,7 +339,7 @@ void EE_e200zx_send_otm32(EE_UINT8 id, EE_UINT32 data);
 #define EE_e200zx_send_otm32(id, data)  ((void)0)
 #endif /* else __OO_ORTI_USE_OTM__ */
 
-#if defined(__OO_ORTI_RUNNINGISR2__) && defined(__OO_ORTI_USE_OTM__)
+#if (defined(__OO_ORTI_RUNNINGISR2__)) && (defined(__OO_ORTI_USE_OTM__))
 __INLINE__ void EE_ORTI_send_otm_runningisr2(EE_ORTI_runningisr2_type isr2)
 {
 	EE_e200zx_send_otm32(EE_ORTI_OTM_ID_RUNNINGISR2, (EE_UINT32)isr2);

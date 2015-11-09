@@ -1,7 +1,7 @@
 #include "ee_internal.h"
 #include "cpu/cortex_ax_xenpv/inc/ee_cax_irq.h"
 
-//DeclareIsr(EE_cax_iirq_handler);
+void EE_cax_iirq_handler(void);
 
 extern void  EE_as_rpc_handler(void);
 /* Declare ISR handler */

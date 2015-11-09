@@ -53,8 +53,8 @@ EE_TID EE_std_run_task_code(EE_TID tid)
 {
     EE_hal_enableIRQ();
 /* Call a the body of a task */
-#if defined(__OO_BCC1__) || defined(__OO_BCC2__) || \
- defined(__OO_ECC1__) || defined(__OO_ECC2__)
+#if (defined(__OO_BCC1__)) || (defined(__OO_BCC2__))			\
+  || (defined(__OO_ECC1__)) || (defined(__OO_ECC2__))
     EE_oo_thread_stub();
     (void)tid;
 #else

@@ -83,6 +83,22 @@ typedef EE_INT32  EE_SREG;
 typedef EE_UINT32 EE_FREG;
 #define EE_UREG_SIZE 4
 
+/* boolean type */
+#ifndef EE_TYPEBOOL
+typedef EE_UREG EE_TYPEBOOL;
+#endif
+
+/* boolean true define */
+#ifndef EE_TRUE
+#define EE_TRUE ((EE_TYPEBOOL)1U)
+#endif
+
+/* boolean false define */
+#ifndef EE_FALSE
+#define EE_FALSE ((EE_TYPEBOOL)0U)
+#endif
+
+
 /* Thread IDs */
 typedef EE_INT32 EE_TID;
 typedef EE_UINT32 EE_UTID;

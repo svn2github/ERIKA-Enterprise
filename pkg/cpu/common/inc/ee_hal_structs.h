@@ -46,18 +46,16 @@
  */
 
 
-#ifndef __INCLUDE_CPU_COMMON_EE_HAL_STRUCTS__
-#define __INCLUDE_CPU_COMMON_EE_HAL_STRUCTS__
+#ifndef PKG_CPU_COMMON_INC_EE_HAL_STRUCTS_H
+#define PKG_CPU_COMMON_INC_EE_HAL_STRUCTS_H
 
   
 /*************************************************************************
  HAL Constants
  *************************************************************************/
 
-/* invalid pointer */
-#ifndef NULL
-#define NULL 0
-#endif
+/* defines the NULL invalid pointer */
+#include <stddef.h>
 
 
 /*************************************************************************
@@ -92,20 +90,24 @@ extern const EE_THREAD_PTR EE_hal_thread_body[EE_MAX_TASK];
 /* each task uses a system (IRQ) stack and a user (SYS) stack */
 /* The guard is needed to suppress MISRA warning because only these two
    architectures are still using this data structure. */
-#if defined (__ESI_RISC__) && defined (__MSP430__)
+#if (defined (__ESI_RISC__)) && (defined (__MSP430__))
 extern struct EE_TOS EE_std_system_tos[];
 #endif
 
 /* std_system_tos[] index that points to the thread tos (one for each thread) */
 extern const EE_UREG EE_std_thread_tos[EE_MAX_TASK+1];
 
+#if 0
+/* seems never used. to be verified */
 /* std_system_tos[] index that points to the active thread tos */
 extern EE_UREG EE_std_active_tos;
+#endif
 
 #endif /* __MULTI__ */
 
 
-#if defined(__OO_BCC1__) || defined(__OO_BCC2__) || defined(__OO_ECC1__) || defined(__OO_ECC2__)
+#if (defined(__OO_BCC1__)) || (defined(__OO_BCC2__)) \
+  || (defined(__OO_ECC1__)) || (defined(__OO_ECC2__))
 
 /* this is a safe place to put sp_sys when EE_hal_terminate_savestk
    is called into EE_oo_thread_stub */

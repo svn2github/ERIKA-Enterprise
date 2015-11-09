@@ -25,8 +25,8 @@
 DeclareTask(Task1);
 DeclareTask(Task2);
 
-DeclareIsr(DecrIsr);
-DeclareIsr(FixedIntvIsr);
+void DecrIsr(void);
+void FixedIntvIsr(void);
 
 #ifdef EE_ISR_DYNAMIC_TABLE
 #define ISR(f) ISR2(f)

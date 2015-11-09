@@ -54,11 +54,11 @@
 #define MODULE_ID   (2)
 
 // RTOS macros to declare ISRs routines
-DeclareIsr(Spi0RxIsr);
-DeclareIsr(Spi1RxIsr);
+void Spi0RxIsr(void);
+void Spi1RxIsr(void);
 
 // Uncomment the following line to provide support for EOQ
-//DeclareIsr(Spi0EoqfIsr);
+//void Spi0EoqfIsr(void);
 
 ISR2(Spi0RxIsr)
 {

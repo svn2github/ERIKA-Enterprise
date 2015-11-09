@@ -78,6 +78,5 @@
  * evaluation order of arguments */
 #define EE_PREPROC_JOIN(a,b) a ## b
 #define EE_PREPROC_STRING(s) # s
-#define EE_PREPROC_EVAL(e) e
 
 #endif /* __INCLUDE_CPU_COMMON_EE_COMPILER_IAR__ */

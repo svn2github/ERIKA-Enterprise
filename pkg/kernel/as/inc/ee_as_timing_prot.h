@@ -45,8 +45,9 @@
   *  @date      2013
   */
 
-#ifndef INCLUDE_EE_KERNEL_AS_TIMING_PROT__
-#define INCLUDE_EE_KERNEL_AS_TIMING_PROT__
+#ifndef PKG_KERNEL_AS_INC_EE_AS_TIMING_PROT_H
+#define PKG_KERNEL_AS_INC_EE_AS_TIMING_PROT_H
+
 /* Declare something only if the timing protection feature is enabled */
 #ifdef EE_TIMING_PROTECTION__
 
@@ -88,7 +89,7 @@ typedef enum {
   EE_ALL_INTERRUPT_LOCK_BUDGET,
 #ifndef EE_NO_RECLAMATION_TIME_FRAMES
   /** Special Budget to reclaim expired time frames */
-  EE_RECLAMATION_TIME_FRAMES_BUDGET,
+  EE_RECLAMATION_TIME_FRAMES_BUDGET
 #endif /* !EE_NO_RECLAMATION_TIME_FRAMES */
 } EE_as_tp_budget_type;
 

@@ -43,8 +43,8 @@
  * @date  2012
  **/
 
-#ifndef INCLUDE_OO_IRQ_H__
-#define INCLUDE_OO_IRQ_H__
+#ifndef PKG_KERNEL_OO_INC_EE_OO_IRQ_H
+#define PKG_KERNEL_OO_INC_EE_OO_IRQ_H
 
 /**************************************************************************
   This header contains kernel API that have to be called by IRQ handlers
@@ -84,10 +84,10 @@ __INLINE__ EE_ORTI_runningisr2_type EE_ORTI_get_runningisr2(void)
     return EE_ORTI_runningisr2;
 }
 
-__INLINE__ void EE_ORTI_set_runningisr2(EE_ORTI_runningisr2_type isr2)
+__INLINE__ void EE_ORTI_set_runningisr2(EE_ORTI_runningisr2_type i2number)
 {
-    EE_ORTI_runningisr2 = isr2;
-    EE_ORTI_send_otm_runningisr2(isr2);
+    EE_ORTI_runningisr2 = i2number;
+    EE_ORTI_send_otm_runningisr2(i2number);
 }
 
 #else /* if __OO_ORTI_RUNNINGISR2__ */

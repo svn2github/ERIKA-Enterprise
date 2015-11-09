@@ -71,6 +71,7 @@ EE_SRCS += pkg/kernel/oo/src/ee_gettaskid.c
 EE_SRCS += pkg/kernel/oo/src/ee_terminat.c
 EE_SRCS += pkg/kernel/oo/src/ee_thendin.c
 EE_SRCS += pkg/kernel/oo/src/ee_irqendin.c
+EE_SRCS += pkg/kernel/oo/src/ee_iparam.c
 EE_SRCS += pkg/kernel/oo/src/ee_tstub.c
 EE_SRCS += pkg/kernel/oo/src/ee_tnterm.c
 EE_SRCS += pkg/kernel/oo/src/ee_lookup.c

@@ -44,8 +44,8 @@
   *  @date      2012
   */
 
-#ifndef INCLUDE_EE_KERNEL_AS_KERNEL__
-#define INCLUDE_EE_KERNEL_AS_KERNEL__
+#ifndef PKG_KERNEL_AS_INC_EE_AS_KERNEL_H
+#define PKG_KERNEL_AS_INC_EE_AS_KERNEL_H
 
 #define OSId_AS_Sevices_Begin                   OSId_OO_Services_End
 
@@ -173,7 +173,7 @@ void EE_as_ShutdownAllCores( StatusType Error );
     (OSError...()) to all configured error hooks AND there shall be two
     (like in OIL) global configuration parameters to switch these macros on
     or off. */
-#if defined(__OO_HAS_ERRORHOOK__) && (!defined(__OO_ERRORHOOK_NOMACROS__))
+#if (defined(__OO_HAS_ERRORHOOK__)) && (!defined(__OO_ERRORHOOK_NOMACROS__))
 #ifdef EE_AS_USER_SPINLOCKS__
 __INLINE__ SpinlockIdType __ALWAYS_INLINE__
   OSError_GetSpinlock_SpinlockId( void )
@@ -749,7 +749,7 @@ extern EE_UREG EE_SHARED_IDATA volatile EE_as_core_mask;
 #include "MemMap.h"
 #endif /* EE_SUPPORT_MEMMAP_H */
 
-#if defined (EE_MAX_SPINLOCK_USER) && (EE_MAX_SPINLOCK_USER > 0)
+#if (defined (EE_MAX_SPINLOCK_USER)) && (EE_MAX_SPINLOCK_USER > 0)
 /** @brief Hold which core is locking the spinlock */
 extern CoreIdType volatile EE_SHARED_IDATA EE_as_spinlocks_locker_core[EE_MAX_SPINLOCK_USER];
 
@@ -760,7 +760,7 @@ extern SpinlockIdType volatile EE_SHARED_IDATA EE_as_spinlocks_stack[EE_MAX_SPIN
 extern TaskType volatile EE_SHARED_IDATA EE_as_spinlocks_locker_task_or_isr2[EE_MAX_SPINLOCK_USER];
 #endif /* EE_MAX_SPINLOCK_USER && EE_MAX_SPINLOCK_USER */
 
-#if defined (EE_MAX_CPU) && (EE_MAX_CPU > 0)
+#if (defined (EE_MAX_CPU)) && (EE_MAX_CPU > 0)
 /** @brief Spinlock Stack head */
 extern SpinlockIdType volatile EE_SHARED_IDATA EE_as_spinlocks_last[EE_MAX_CPU];
 #endif /* EE_MAX_CPU && EE_MAX_CPU */
@@ -919,8 +919,8 @@ extern EE_BIT EE_SHARED_UDATA EE_as_rpc_IOC[ EE_MAX_CPU ];
 
 #endif /* EE_AS_IOC__ */
 
-#if (defined(EE_AS_OSAPPLICATIONS__)  && defined(EE_SERVICE_PROTECTION__)) &&\
-  defined(EE_AS_RPC__)
+#if (defined(EE_AS_OSAPPLICATIONS__))  && (defined(EE_SERVICE_PROTECTION__)) \
+  && (defined(EE_AS_RPC__))
 /*******************************************************************************
  *     OSApplication Service Protection Access Shared Data Structures
  ******************************************************************************/

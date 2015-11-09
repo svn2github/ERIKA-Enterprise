@@ -19,8 +19,8 @@
  * against RT-Druid's version in RTDRUID_CONFIGURATOR_NUMBER.
  */
 
-#ifndef EE_RTDRUID_VERSIONS_H
-#define EE_RTDRUID_VERSIONS_H
+#ifndef PKG_EE_RTDRUID_VERSIONS_H
+#define PKG_EE_RTDRUID_VERSIONS_H
 
 /* ORTI variables are no longer defined inside eecfg.c */
 #define RTDRUID_CONFNUM_NO_ORTI_VARS 1273

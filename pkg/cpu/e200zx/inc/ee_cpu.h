@@ -46,21 +46,22 @@
  */
 
 
-#ifndef __INCLUDE_E200ZX_EE_CPU_H__
-#define __INCLUDE_E200ZX_EE_CPU_H__
+#ifndef PKG_CPU_E200ZX_INC_EE_CPU_H
+#define PKG_CPU_E200ZX_INC_EE_CPU_H
 
 /* Include types and functions for the kernel */
 #include "ee_cpu_os.h"
+/* defines used both by C and assembly */
+#include "ee_cpu_asm.h"
+/* INTC symbols */
+#include "ee_mcu_regs.h"
+
 
 /* This instruction should cause a trap when executed. Handy to mark invalid
  * functions */
 /* XXX */
 #define INVALID_ASM_INSTR  __asm volatile ( ".word 0xcccc" )
 
-/* defines used both by C and assembly */
-#include "ee_cpu_asm.h"
-/* INTC symbols */
-#include "ee_mcu_regs.h"
 
 /* Alignment and section for program stacks */
 #define EE_STACK_SEC "ee_stack"
@@ -186,68 +187,68 @@ __asm static EE_UREG EE_e200zx_get_pvr(void)
 __INLINE__ EE_UREG EE_e200zx_get_tcr(void)
 {
 	EE_UREG tcr;
-/*
- *	__asm volatile ("mfspr %0, tcr" : "=r"(tcr));
- *	tcr = 340
- */
+#if 0
+	__asm volatile ("mfspr %0, tcr" : "=r"(tcr));
+	tcr = 340
+#endif
 	__asm volatile ("mfspr %0, 340" : "=r"(tcr));
 	return tcr;
 }
 
 __INLINE__ void EE_e200zx_set_tcr(EE_UREG val)
 {
-/*
- *	__asm volatile ("mtspr tcr, %0" :: "r"(val) );
- *	tcr = 340
- */
+#if 0
+	__asm volatile ("mtspr tcr, %0" :: "r"(val) );
+	tcr = 340
+#endif
 	__asm volatile ("mtspr 340, %0" :: "r"(val) );
 }
 
 __INLINE__ EE_UREG EE_e200zx_get_tsr(void)
 {
 	EE_UREG tsr;
-/*
- *	__asm volatile ("mfspr %0, tsr" : "=r"(tsr));
- *	tsr = 336
- */
+#if 0
+	__asm volatile ("mfspr %0, tsr" : "=r"(tsr));
+	tsr = 336
+#endif
 	__asm volatile ("mfspr %0, 336" : "=r"(tsr));
 	return tsr;
 }
 
 __INLINE__ void EE_e200zx_set_tsr(EE_UREG val)
 {
-/*
- *	__asm volatile ("mtspr tsr, %0" :: "r"(val) );
- *	tsr = 336
- */
+#if 0
+	__asm volatile ("mtspr tsr, %0" :: "r"(val) );
+	tsr = 336
+#endif
 	__asm volatile ("mtspr 336, %0" :: "r"(val) );
 }
 
 __INLINE__ void EE_e200zx_set_dec(EE_UREG val)
 {
-/*
- *	__asm volatile ("mtspr dec, %0" :: "r"(val) );
- *	dec = 22
- */
+#if 0
+	__asm volatile ("mtspr dec, %0" :: "r"(val) );
+	dec = 22
+#endif
 	__asm volatile ("mtspr 22, %0" :: "r"(val) );
 }
 
 __INLINE__ void EE_e200zx_set_decar(EE_UREG val)
 {
-/*
- *	__asm volatile ("mtspr decar, %0" :: "r"(val) );
- *	decar = 54
- */
+#if 0
+	__asm volatile ("mtspr decar, %0" :: "r"(val) );
+	decar = 54
+#endif
 	__asm volatile ("mtspr 54, %0" :: "r"(val) );
 }
 
 __INLINE__ EE_UREG EE_e200zx_get_tbl(void)
 {
 	EE_UINT32 tbl;
-/*
- *	__asm volatile ("mfspr %0, tbl" : "=r"(tbl));
- *	tbl = 284
- */
+#if 0
+	__asm volatile ("mfspr %0, tbl" : "=r"(tbl));
+	tbl = 284
+#endif
 	__asm volatile ("mfspr %0, 284" : "=r"(tbl));
 	return tbl;
 }
@@ -255,10 +256,10 @@ __INLINE__ EE_UREG EE_e200zx_get_tbl(void)
 __INLINE__ EE_UREG EE_e200zx_get_pvr(void)
 {
 	EE_UINT32 pvr;
-/*
- *	__asm volatile ("mfspr %0, pvr" : "=r"(pvr));
- *	pvr = 287
- */
+#if 0
+	__asm volatile ("mfspr %0, pvr" : "=r"(pvr));
+	pvr = 287
+#endif
 	__asm volatile ("mfspr %0, 287" : "=r"(pvr));
 	return pvr;
 }
@@ -305,9 +306,9 @@ void EE_e200zx_setup_fixed_intv(EE_UREG bitpos);
 void EE_e200zx_stop_fixed_intv(void);
 
 /* Configure the decrementer to raise an interrupt every `delay' cycles */
-void EE_e200z7_setup_decrementer(EE_UINT32 value);
+void EE_e200z7_setup_decrementer(EE_UINT32 dec_value);
 /* Configure the decrementer to raise an interrupt once after `delay' cycles */
-void EE_e200z7_setup_decrementer_oneshot(EE_UINT32 value);
+void EE_e200z7_setup_decrementer_oneshot(EE_UINT32 oneshotvalue);
 /* Stop the decrementer from generating interrupts */
 void EE_e200z7_stop_decrementer(void);
 
@@ -412,21 +413,32 @@ typedef EE_MMU_ENTRY_T EE_MEMPROT_ENTRY_T;
 		  | ((EE_UREG)(((type) & 0xffff0000U) >> 16) & 0xffffU), \
 		(base) | ((EE_UREG)(type) & 0xffffU) }
 
-#define EE_MEMPROT_SYSTEM_ENTRY	\
-	{ EE_E200ZX_MMU_VALID | EE_E200ZX_MMU_IPROT | EE_E200ZX_MMU_SIZE_1M,	\
-		0xfff00000U | EE_E200ZX_MMU_FLAG_CD | EE_E200ZX_MMU_FLAG_GUARD, \
-		0xfff00000U | EE_E200ZX_MMU_PROT_SRWX },		\
-	{ EE_E200ZX_MMU_VALID | EE_E200ZX_MMU_IPROT | EE_E200ZX_MMU_SIZE_16M,	\
-		/*0x00000000U |*/ EE_E200ZX_MMU_FLAG_CE | EE_MEMPROT_USE_VLE,	\
-		/*0x00000000U |*/ EE_E200ZX_MMU_PROT_SR | EE_E200ZX_MMU_PROT_SX \
-		| EE_E200ZX_MMU_PROT_UR | EE_E200ZX_MMU_PROT_UX },	\
-	{ EE_E200ZX_MMU_VALID | EE_E200ZX_MMU_IPROT | EE_E200ZX_MMU_SIZE_1M,	\
-		0xc3f00000U | EE_E200ZX_MMU_FLAG_CD | EE_E200ZX_MMU_FLAG_GUARD, \
-		0xc3f00000U | EE_E200ZX_MMU_PROT_SR | EE_E200ZX_MMU_PROT_SW },	\
-	{ EE_E200ZX_MMU_VALID | EE_E200ZX_MMU_IPROT | EE_E200ZX_MMU_SIZE_64K,	\
-		0x40000000U | EE_E200ZX_MMU_FLAG_CE,			\
-		0x40000000U | EE_E200ZX_MMU_PROT_SR | EE_E200ZX_MMU_PROT_SW \
-		| EE_E200ZX_MMU_PROT_UR }
+
+
+#define EE_MEMPROT_SYSTEM_ENTRY0   					 \
+    { EE_E200ZX_MMU_VALID | EE_E200ZX_MMU_IPROT | EE_E200ZX_MMU_SIZE_1M,    \
+   	 0xfff00000U | EE_E200ZX_MMU_FLAG_CD | EE_E200ZX_MMU_FLAG_GUARD, \
+   	 0xfff00000U | EE_E200ZX_MMU_PROT_SRWX }
+#define EE_MEMPROT_SYSTEM_ENTRY1   					 \
+    { EE_E200ZX_MMU_VALID | EE_E200ZX_MMU_IPROT | EE_E200ZX_MMU_SIZE_16M,    \
+   	 /*0x00000000U |*/ EE_E200ZX_MMU_FLAG_CE | EE_MEMPROT_USE_VLE,    \
+   	 /*0x00000000U |*/ EE_E200ZX_MMU_PROT_SR | EE_E200ZX_MMU_PROT_SX \
+   	 | EE_E200ZX_MMU_PROT_UR | EE_E200ZX_MMU_PROT_UX }
+#define EE_MEMPROT_SYSTEM_ENTRY2   					 \
+    { EE_E200ZX_MMU_VALID | EE_E200ZX_MMU_IPROT | EE_E200ZX_MMU_SIZE_1M,    \
+   	 0xc3f00000U | EE_E200ZX_MMU_FLAG_CD | EE_E200ZX_MMU_FLAG_GUARD, \
+   	 0xc3f00000U | EE_E200ZX_MMU_PROT_SR | EE_E200ZX_MMU_PROT_SW }
+#define EE_MEMPROT_SYSTEM_ENTRY3   					 \
+    { EE_E200ZX_MMU_VALID | EE_E200ZX_MMU_IPROT | EE_E200ZX_MMU_SIZE_64K,    \
+   	 0x40000000U | EE_E200ZX_MMU_FLAG_CE,   			 \
+   	 0x40000000U | EE_E200ZX_MMU_PROT_SR | EE_E200ZX_MMU_PROT_SW    \
+   	 | EE_E200ZX_MMU_PROT_UR }
+#define EE_MEMPROT_SYSTEM_ENTRY   	 \
+    EE_MEMPROT_SYSTEM_ENTRY0,    \
+    EE_MEMPROT_SYSTEM_ENTRY1,    \
+    EE_MEMPROT_SYSTEM_ENTRY2,    \
+    EE_MEMPROT_SYSTEM_ENTRY3
+
 
 #define EE_HAL_MEMPROT_ENTRIES(numapps)	((numapps) + 4U)
 
@@ -440,7 +452,7 @@ extern const EE_MEMPROT_ENTRY_T EE_hal_memprot_entries[EE_HAL_MEMPROT_ENTRIES(EE
 typedef struct {
 	/* Inizialized data section, Flash address */
 	const void *data_flash;
-#if defined(RTDRUID_CONFIGURATOR_NUMBER) \
+#if (defined(RTDRUID_CONFIGURATOR_NUMBER))	\
  && (RTDRUID_CONFIGURATOR_NUMBER >= RTDRUID_CONFNUM_STACK_IN_APP_SEC_INFO)
 	/* Stack section.  Its end coincides with data start */
 	void *stack_start;

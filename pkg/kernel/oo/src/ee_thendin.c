@@ -47,7 +47,7 @@
 
 #ifndef __PRIVATE_THREAD_END_INSTANCE__
 
-#if defined(__OO_BCC2__) || defined(__OO_ECC2__)
+#if (defined(__OO_BCC2__)) || (defined(__OO_ECC2__))
 static EE_BIT EE_thread_rnact_max(EE_TID current) {
   return (EE_th_rnact[current] == EE_th_rnact_max[current]) ? 1U : 0U;
 }
@@ -55,17 +55,19 @@ static EE_BIT EE_thread_rnact_max(EE_TID current) {
 #define EE_thread_rnact_max(current)  (1U)
 #endif /* __OO_BCC2__ || __OO_ECC2__ */
 
-#if defined(__OO_ECC1__) || defined(__OO_ECC2__)
+static void EE_thread_endcycle_next(void);
+
+#if (defined(__OO_ECC1__)) || (defined(__OO_ECC2__))
 static void EE_thread_endcycle_next(void)
 {
-  register EE_TID next;
-  next = EE_rq2stk_exchange();
-  if (EE_th_waswaiting[next]) {
-    EE_th_waswaiting[next] = 0U;
+  register EE_TID nexttid;
+  nexttid = EE_rq2stk_exchange();
+  if (EE_th_waswaiting[nexttid]) {
+    EE_th_waswaiting[nexttid] = EE_FALSE;
     EE_oo_call_PreTaskHook();
-    EE_hal_endcycle_stacked(next);
+    EE_hal_endcycle_stacked(nexttid);
   } else {
-    EE_hal_endcycle_ready(next);
+    EE_hal_endcycle_ready(nexttid);
   }
   /* Remember: after hal_endcycle_XXX there MUST be NOTHING!!! */
 }
@@ -80,7 +82,7 @@ static void EE_thread_endcycle_next(void)
 void EE_thread_end_instance(void)
 {
   EE_TID current, rqfirst;
-  EE_TID TaskID;
+  EE_TID ntask;
 
   current = EE_stk_queryfirst();
 
@@ -101,17 +103,17 @@ void EE_thread_end_instance(void)
 #ifndef __OO_NO_CHAINTASK__
   /* If we called a ChainTask, 
      EE_th_terminate_nextask[current] != NIL */
-  TaskID = EE_th_terminate_nextask[current];
+  ntask = EE_th_terminate_nextask[current];
 #else /* __OO_NO_CHAINTASK__ */
-  TaskID = EE_NIL;
+  ntask = EE_NIL;
 #endif  /* __OO_NO_CHAINTASK__ */
 
   /* The task state switch from STACKED TO READY because it end its
    * instance. Note that status=READY and
    * rnact==maximum number of pending activations ==>> the task is
    * SUSPENDED!!! */
-#if defined(__OO_BCC2__) || defined(__OO_ECC2__)
-  if( (1U == EE_thread_rnact_max(current)) || (current == TaskID) ) {
+#if (defined(__OO_BCC2__)) || (defined(__OO_ECC2__))
+  if( (1U == EE_thread_rnact_max(current)) || (current == ntask) ) {
     EE_th_status[current] = SUSPENDED;
   } else {   
     EE_th_status[current] = READY;
@@ -131,7 +133,7 @@ void EE_thread_end_instance(void)
 #ifndef __OO_NO_CHAINTASK__
   /* If we called a ChainTask, 
      EE_th_terminate_nextask[current] != NIL */
-  if ( TaskID != EE_NIL ) {
+  if ( ntask != EE_NIL ) {
 
     /* See also activate.c
        Put the task in the ready state:
@@ -139,10 +141,10 @@ void EE_thread_end_instance(void)
          it had rnact=1 before the call, and so it is in suspended state
        - if the task is basic/BCC2 it can be that it is ready or 
          running. In that case we have to check and queue it anyway */
-    EE_oo_set_th_status_ready(TaskID);
+    EE_oo_set_th_status_ready(ntask);
 
     /* insert the task in the ready queue */
-    EE_rq_insert(TaskID);
+    EE_rq_insert(ntask);
   }
 #endif /* __OO_NO_CHAINTASK__ */
 

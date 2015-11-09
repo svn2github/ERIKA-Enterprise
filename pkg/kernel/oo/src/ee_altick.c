@@ -46,16 +46,16 @@
 #include "ee_internal.h"
 
 /* If local alarm or schedule tables are not defined: cut everything */
-#if (defined(EE_MAX_ALARM) && (EE_MAX_ALARM > 0U)) || \
-  (defined(EE_MAX_SCHEDULETABLE) && (EE_MAX_SCHEDULETABLE > 0U))
+#if ( (defined(EE_MAX_ALARM)) && (EE_MAX_ALARM > 0U) ) 			\
+  || ( (defined(EE_MAX_SCHEDULETABLE)) && (EE_MAX_SCHEDULETABLE > 0U) )
 #define EE_KEEP_ALARM_QUEUE_CODE
 #endif /* (EE_MAX_ALARM > 0) || (EE_MAX_SCHEDULETABLE > 0U) */
 
-#if defined(RTDRUID_CONFIGURATOR_NUMBER) \
+#if (defined(RTDRUID_CONFIGURATOR_NUMBER))				\
  && (RTDRUID_CONFIGURATOR_NUMBER >= RTDRUID_CONFNUM_NO_ORTI_VARS)
 
 /* ORTI variables */
-#if defined(__OO_ORTI_ALARMTIME__) && defined (EE_KEEP_ALARM_QUEUE_CODE)
+#if (defined(__OO_ORTI_ALARMTIME__)) && (defined(EE_KEEP_ALARM_QUEUE_CODE))
 static EE_TYPETICK EE_ORTI_alarmtime[EE_MAX_ALARM
 #ifdef EE_AS_SCHEDULETABLES__
   + EE_MAX_SCHEDULETABLE
@@ -66,7 +66,7 @@ static EE_TYPETICK EE_ORTI_alarmtime[EE_MAX_ALARM
 #endif /* RTDRUID_CONFIGURATOR_NUMBER */
 
 #ifdef EE_AS_SCHEDULETABLES__
-#if defined(EE_MAX_SCHEDULETABLE) && (EE_MAX_SCHEDULETABLE > 0)
+#if (defined(EE_MAX_SCHEDULETABLE)) && (EE_MAX_SCHEDULETABLE > 0)
 #define EE_KEEP_ALARM_QUEUE_CODE
 #endif /* EE_MAX_SCHEDULETABLE > 0 */
 #endif /* EE_AS_SCHEDULETABLES__ */
@@ -78,22 +78,22 @@ void EE_oo_counter_object_insert( CounterObjectType ObjectID,
   TickType increment )
 {
   register CounterObjectType  current, previous;
-  register CounterType        c = EE_oo_counter_object_ROM[ObjectID].c;
+  register CounterType        ctr = EE_oo_counter_object_ROM[ObjectID].c;
 
 #ifdef __OO_ORTI_ALARMTIME__
-  EE_ORTI_alarmtime[ObjectID] = increment + 1U + EE_counter_RAM[c].value;
+  EE_ORTI_alarmtime[ObjectID] = increment + 1U + EE_counter_RAM[ctr].value;
 #endif /* __OO_ORTI_ALARMTIME__ */
 
-  current = EE_counter_RAM[c].first;
+  current = EE_counter_RAM[ctr].first;
 
   if ( current == INVALID_COUNTER_OBJECT ) {
     /* The alarm becomes the first into the delta queue, because the queue was
        empty */
-    EE_counter_RAM[c].first = ObjectID;
+    EE_counter_RAM[ctr].first = ObjectID;
   } else if ( EE_oo_counter_object_RAM[current].delta > increment ) {
     /* The alarm becomes the first into the delta queue, because increment is
        less than previous delta */
-    EE_counter_RAM[c].first = ObjectID;
+    EE_counter_RAM[ctr].first = ObjectID;
     EE_oo_counter_object_RAM[current].delta -= increment;
   } else {
     /* The alarm is not the first into the delta queue */
@@ -119,7 +119,9 @@ void EE_oo_counter_object_insert( CounterObjectType ObjectID,
 #endif /* EE_KEEP_ALARM_QUEUE_CODE */
 
 /* If counters are not defined cut everything */
-#if defined(EE_MAX_COUNTER) && (EE_MAX_COUNTER > 0U)
+#if (defined(EE_MAX_COUNTER)) && (EE_MAX_COUNTER > 0U)
+
+static void EE_oo_handle_action_task(EE_oo_action_ROM_type const * const p_action);
 
 static void EE_oo_handle_action_task(EE_oo_action_ROM_type const * const
   p_action)
@@ -131,7 +133,7 @@ static void EE_oo_handle_action_task(EE_oo_action_ROM_type const * const
   register TaskType TaskID = 0;
 
   if ( p_action != NULL ) {
-    TaskID = p_action->TaskID;
+    TaskID = p_action->action_task;
   }
 
 #ifdef EE_AS_RPC__
@@ -179,7 +181,7 @@ static void EE_oo_handle_action_task(EE_oo_action_ROM_type const * const
       }
       ev = E_OK;
     }
-#if defined(EE_AS_RPC__) || defined(__RN_TASK__)
+#if (defined(EE_AS_RPC__)) || (defined(__RN_TASK__))
   }
 #endif /* EE_AS_RPC__ || __RN_TASK__ */
 
@@ -195,7 +197,9 @@ static void EE_oo_handle_action_task(EE_oo_action_ROM_type const * const
   }
 }
 
-#if defined(__OO_ECC1__) || defined(__OO_ECC2__)
+#if (defined(__OO_ECC1__)) || (defined(__OO_ECC2__))
+static void EE_oo_handle_action_event(EE_oo_action_ROM_type const * const p_action);
+  
 static void EE_oo_handle_action_event(EE_oo_action_ROM_type const * const
   p_action)
 {
@@ -207,8 +211,8 @@ static void EE_oo_handle_action_event(EE_oo_action_ROM_type const * const
   register EventMaskType  Mask    = 0U;
 
   if ( p_action != NULL ) {
-    TaskID = p_action->TaskID;
-    Mask = p_action->Mask;
+    TaskID = p_action->action_task;
+    Mask = p_action->action_mask;
   }
 
 #ifdef EE_AS_RPC__
@@ -237,7 +241,7 @@ static void EE_oo_handle_action_event(EE_oo_action_ROM_type const * const
     /* check if the task Id is valid */
     if ( (TaskID < 0) || (TaskID >= EE_MAX_TASK) ) {
       ev = E_OS_ID;
-    } else if ( EE_th_is_extended[TaskID] == 0U ) {
+    } else if ( EE_th_is_extended[TaskID] == EE_FALSE ) {
       ev = E_OS_ACCESS;
     } else
     /* XXX: These means a configuration Error: it should never happens! */
@@ -278,7 +282,7 @@ static void EE_oo_handle_action_event(EE_oo_action_ROM_type const * const
 
       ev = E_OK;
     }
-#if defined(EE_AS_RPC__) || defined(__RN_TASK__)
+#if (defined(EE_AS_RPC__)) || (defined(__RN_TASK__))
   }
 #endif /* EE_AS_RPC__ || __RN_TASK__ */
 
@@ -297,7 +301,10 @@ static void EE_oo_handle_action_event(EE_oo_action_ROM_type const * const
 }
 #endif /* __OO_ECC1__ || __OO_ECC2__ */
 
-#if defined(EE_AS_OSAPPLICATIONS__) && defined(EE_SERVICE_PROTECTION__)
+static void EE_oo_handle_action_callback ( const EE_oo_action_ROM_type *
+					   const p_action );
+
+#if (defined(EE_AS_OSAPPLICATIONS__)) && (defined(EE_SERVICE_PROTECTION__))
 static void EE_oo_handle_action_callback ( const EE_oo_action_ROM_type *
   const p_action )
 {
@@ -317,6 +324,8 @@ static void EE_oo_handle_action_callback ( const EE_oo_action_ROM_type *
 }
 #endif /* EE_AS_OSAPPLICATIONS__ && EE_SERVICE_PROTECTION__ */
 
+static void EE_oo_handle_action(EE_oo_action_ROM_type const * const p_action);
+
 static void EE_oo_handle_action(EE_oo_action_ROM_type const * const p_action)
 {
   if ( p_action != NULL ) {
@@ -328,7 +337,7 @@ static void EE_oo_handle_action(EE_oo_action_ROM_type const * const p_action)
         EE_oo_handle_action_task(p_action);
         break;
 
-#if defined(__OO_ECC1__) || defined(__OO_ECC2__)
+#if (defined(__OO_ECC1__)) || (defined(__OO_ECC2__))
       case EE_ACTION_EVENT:
         /* set an event for a task */
         EE_oo_handle_action_event(p_action);
@@ -349,7 +358,9 @@ static void EE_oo_handle_action(EE_oo_action_ROM_type const * const p_action)
          */
         /* Recursive Call
            TODO: HANDLE CYCLIC COUNTERS !!! */
-        /*EE_oo_IncrementCounterImplementation(p_action->inccount);*/
+#if 0
+        EE_oo_IncrementCounterImplementation(p_action->inccount);
+#endif
         break;
 
       default:
@@ -361,7 +372,7 @@ static void EE_oo_handle_action(EE_oo_action_ROM_type const * const p_action)
 }
 
 #ifdef EE_AS_SCHEDULETABLES__
-#if defined(EE_MAX_SCHEDULETABLE) && (EE_MAX_SCHEDULETABLE > 0)
+#if (defined(EE_MAX_SCHEDULETABLE)) && (EE_MAX_SCHEDULETABLE > 0)
 static void  EE_as_handle_schedule_table( ScheduleTableType STId )
 {
   do {
@@ -391,7 +402,7 @@ static void  EE_as_handle_schedule_table( ScheduleTableType STId )
         /* This is needed to stop the underlying alarm tied to the schedule
             table, otherwise the alarm handling cycle will be reschedule
             this alarm */
-        EE_oo_counter_object_RAM[EE_MAX_ALARM + STId].cycle = 0;
+        EE_oo_counter_object_RAM[EE_MAX_ALARM + STId].cntcycle = 0;
         p_schedule_table_RAM->next_table = INVALID_SCHEDULETABLE;
 
         /* nextSTId handling */
@@ -438,7 +449,7 @@ static void  EE_as_handle_schedule_table( ScheduleTableType STId )
         if ( nextOffset > 0U ) {
           /* This is an Hack to let alarm handling cycle reschedule the schedule
              table alarm with the right offset (increment) */
-          EE_oo_counter_object_RAM[EE_MAX_ALARM + STId].cycle = nextOffset;
+          EE_oo_counter_object_RAM[EE_MAX_ALARM + STId].cntcycle = nextOffset;
           /* Exit From The Loop */
           STId = INVALID_SCHEDULETABLE;
         }
@@ -469,7 +480,7 @@ static void  EE_as_handle_schedule_table( ScheduleTableType STId )
           /*  This is needed to stop the underlying alarm tied to the schedule
               table, otherwise the alarm handling cycle will be reschedule this
               alarm */
-          EE_oo_counter_object_RAM[EE_MAX_ALARM + STId].cycle = 0;
+          EE_oo_counter_object_RAM[EE_MAX_ALARM + STId].cntcycle = 0;
           /* Exit From The Loop */
           STId = INVALID_SCHEDULETABLE;
         } else {
@@ -487,7 +498,7 @@ static void  EE_as_handle_schedule_table( ScheduleTableType STId )
               instead I will handle this case as I have done for the
               'next table' */
           if ( p_schedule_table_ROM->duration > p_expiry_point->offset ) {
-            EE_oo_counter_object_RAM[EE_MAX_ALARM + STId].cycle =
+            EE_oo_counter_object_RAM[EE_MAX_ALARM + STId].cntcycle =
               p_schedule_table_ROM->duration - p_expiry_point->offset;
             /* Exit From The Loop */
             STId = INVALID_SCHEDULETABLE;
@@ -504,7 +515,7 @@ static void  EE_as_handle_schedule_table( ScheduleTableType STId )
         if ( nextOffset > p_expiry_point->offset ) {
           /* This is an Hack to let alarm handling cycle reschedule the schedule
              table alarm with the right offset (increment) */
-          EE_oo_counter_object_RAM[EE_MAX_ALARM + STId].cycle =
+          EE_oo_counter_object_RAM[EE_MAX_ALARM + STId].cntcycle =
             nextOffset - p_expiry_point->offset;
           /* Exit From The Loop */
           STId = INVALID_SCHEDULETABLE;
@@ -568,14 +579,14 @@ void EE_oo_IncrementCounterImplementation(CounterType CounterID)
       do {
         /* Select which handler call */
         switch ( EE_oo_counter_object_ROM[to_fire].kind ) {
-#if defined(EE_MAX_ALARM) && (EE_MAX_ALARM > 0U)
+#if (defined(EE_MAX_ALARM)) && (EE_MAX_ALARM > 0U)
           case EE_ALARM:
             EE_oo_handle_action(&EE_oo_action_ROM[EE_alarm_ROM[
               EE_oo_counter_object_ROM[to_fire].spec_id].action_id]);
               break;
 #endif /* EE_MAX_ALARM > 0 */
 #ifdef EE_AS_SCHEDULETABLES__
-#if defined(EE_MAX_SCHEDULETABLE) && (EE_MAX_SCHEDULETABLE > 0)
+#if (defined(EE_MAX_SCHEDULETABLE)) && (EE_MAX_SCHEDULETABLE > 0)
           case EE_SCHEDULETABLE:
               EE_as_handle_schedule_table(EE_oo_counter_object_ROM[to_fire].
                 spec_id);
@@ -593,13 +604,13 @@ void EE_oo_IncrementCounterImplementation(CounterType CounterID)
         to_fire = EE_oo_counter_object_RAM[to_fire].next;
 
         /* The previous alarm is cyclic? */
-        if (EE_oo_counter_object_RAM[previous].cycle > 0U) {
+        if (EE_oo_counter_object_RAM[previous].cntcycle > 0U) {
           /* Enqueue it again */
           EE_oo_counter_object_insert(previous,
-            (EE_oo_counter_object_RAM[previous].cycle - 1U));
+            (EE_oo_counter_object_RAM[previous].cntcycle - 1U));
         } else {
           /* Counter Object no more used! */
-          EE_oo_counter_object_RAM[previous].used = 0U;
+          EE_oo_counter_object_RAM[previous].used = EE_FALSE;
         }
       } while ( to_fire != INVALID_COUNTER_OBJECT );
     } else {
@@ -639,13 +650,13 @@ StatusType EE_oo_IncrementCounterHardware(CounterType CounterID)
     ev = E_OK;
   }
 /* This if statement is not always necessary */
-#if defined(EE_SERVICE_PROTECTION__) || (EE_SOFT_COUNTERS_START > 0)
+#if (defined(EE_SERVICE_PROTECTION__)) || (EE_SOFT_COUNTERS_START > 0)
   if ( ev != E_OK ) {
 #endif
     EE_ORTI_set_lasterror(ev);
     EE_oo_notify_error_service(OSId_Kernel, ev);
     /* XXX: This is in any case a Kernel Bug it should never happens */
-#if defined(EE_SERVICE_PROTECTION__) || (EE_SOFT_COUNTERS_START > 0)
+#if (defined(EE_SERVICE_PROTECTION__)) || (EE_SOFT_COUNTERS_START > 0)
   }
 #endif
 
@@ -684,8 +695,8 @@ StatusType EE_oo_IncrementCounter(CounterType CounterID)
   } else
 #endif /* EE_SERVICE_PROTECTION__ */
 
-#if ( ( defined(EE_AS_OSAPPLICATIONS__) && defined(EE_SERVICE_PROTECTION__) )||\
-defined (__OO_EXTENDED_STATUS__) )
+#if ( (defined(EE_AS_OSAPPLICATIONS__)) && (defined(EE_SERVICE_PROTECTION__)) ) \
+  || (defined (__OO_EXTENDED_STATUS__))
 #ifdef EE_AS_RPC__
   /* [OS589]: All functions that are not allowed to operate cross core shall
       return E_OS_CORE in extended status if called with parameters that
@@ -706,7 +717,7 @@ defined (__OO_EXTENDED_STATUS__) )
   {
     ev = E_OS_ID;
   } else
-#if ( defined(EE_AS_OSAPPLICATIONS__) && defined(EE_SERVICE_PROTECTION__) )
+#if (defined(EE_AS_OSAPPLICATIONS__)) && (defined(EE_SERVICE_PROTECTION__))
   if ( EE_COUNTER_ACCESS_ERR(CounterID, EE_as_active_app) ) {
     ev = E_OS_ACCESS;
   } else

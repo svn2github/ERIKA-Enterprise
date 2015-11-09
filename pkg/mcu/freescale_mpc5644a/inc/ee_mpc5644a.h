@@ -47,12 +47,12 @@
 #define EE_MCU_MPC5644A_H
 
 /* ISO int types used by MPC5644A.h */
-#define __EE_STDINT_SKIP_64BIT__
+#define STDINT_SKIP_64BIT
 #include <cpu/common/inc/ee_stdint.h>
 
 #include "MPC5644A.h"
 
-#define EE_E200ZX_MAX_EXT_IRQ 256
+#define EE_E200ZX_MAX_EXT_IRQ 256U
 
 /* These are used for compatibility with multi-core CPUs */
 #define INTC_CPR (INTC.CPR)

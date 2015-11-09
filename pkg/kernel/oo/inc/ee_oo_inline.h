@@ -46,8 +46,8 @@
 /* This file is ONLY included when we are NOT compiling a library that
    will be used in BINARY DISTRIBUTIONS */
 
-#ifndef __INCLUDE_OO_INLINE_H__
-#define __INCLUDE_OO_INLINE_H__
+#ifndef PKG_KERNEL_OO_INC_EE_OO_INLINE_H
+#define PKG_KERNEL_OO_INC_EE_OO_INLINE_H
 
 /***************************************************************************
  * 13.2 Task management 

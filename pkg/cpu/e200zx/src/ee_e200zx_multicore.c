@@ -88,7 +88,7 @@ static void EE_e200zx_iirq_handler(void)
 /* STATIC ISR TABLE IMPLEMENTATION */
 #define EE_e200zx_setup_inter_irqs()  ((void)0)
 /* Declare ISR handler */
-DeclareIsr(EE_e200zx_iirq_handler);
+void EE_e200zx_iirq_handler(void);
 
 ISR2 (EE_e200zx_iirq_handler)
 {
@@ -96,7 +96,7 @@ ISR2 (EE_e200zx_iirq_handler)
 }
 #endif /* EE_ISR_DYNAMIC_TABLE */
 
-int EE_cpu_startos(void)
+EE_TYPEBOOL EE_cpu_startos(void)
 {
 	EE_e200zx_setup_inter_irqs();
 

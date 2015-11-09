@@ -45,7 +45,7 @@
 
 #include "ee_internal.h"
 
-#if defined(RTDRUID_CONFIGURATOR_NUMBER) \
+#if (defined(RTDRUID_CONFIGURATOR_NUMBER))				\
  && (RTDRUID_CONFIGURATOR_NUMBER >= RTDRUID_CONFNUM_NO_ORTI_VARS)
 
 /* ORTI variables */
@@ -79,20 +79,20 @@ StatusType EE_oo_GetResource( ResourceType ResID )
   /* Error Value */
   register StatusType ev;
   /* Primitive Lock Variable */
-#if (!defined(__EE_MEMORY_PROTECTION__)) || defined(__OO_ISR2_RESOURCES__)
+#if (!defined(__EE_MEMORY_PROTECTION__)) || (defined(__OO_ISR2_RESOURCES__))
   register EE_FREG flag;
 #endif /* !__EE_MEMORY_PROTECTION__ || __OO_ISR2_RESOURCES__ */
 #ifdef __MSRP__
   register EE_UREG isGlobal;
 #endif /* __MSRP__ */
-#if defined(__OO_EXTENDED_STATUS__) || defined(__OO_ORTI_PRIORITY__) || \
-    defined(__OO_ISR2_RESOURCES__)
+#if (defined(__OO_EXTENDED_STATUS__)) || (defined(__OO_ORTI_PRIORITY__)) \
+  || (defined(__OO_ISR2_RESOURCES__))
   register TaskType current = EE_stk_queryfirst();
 #endif /* __OO_EXTENDED_STATUS__ || __OO_ORTI_PRIORITY__ ||
   __OO_ISR2_RESOURCES__ */
 #ifdef __OO_EXTENDED_STATUS__
   /* To cache inside task info */
-  register EE_SREG inside_task = (EE_hal_get_IRQ_nesting_level() == 0U);
+  register EE_TYPEBOOL inside_task = (EE_hal_get_IRQ_nesting_level() == 0U);
 #endif /* __OO_EXTENDED_STATUS__ */
 
   /* Primitive Lock Variable */
@@ -125,7 +125,7 @@ StatusType EE_oo_GetResource( ResourceType ResID )
   } else
 #endif /* EE_SERVICE_PROTECTION__ */
 
-#if ( defined(EE_AS_OSAPPLICATIONS__) && defined(EE_SERVICE_PROTECTION__) )
+#if (defined(EE_AS_OSAPPLICATIONS__)) && (defined(EE_SERVICE_PROTECTION__))
   /* no comparison for ResID < 0, the type is unsigned! */
   if ( ResID >= EE_MAX_RESOURCE ) {
     ev = E_OS_ID;
@@ -140,24 +140,24 @@ StatusType EE_oo_GetResource( ResourceType ResID )
 #endif /* EE_AS_OSAPPLICATIONS__ || E_SERVICE_PROTECTION__ ||
 __OO_EXTENDED_STATUS__ */
 #ifdef __OO_EXTENDED_STATUS__
-  if ( EE_resource_locked[ResID] != 0U ) {
+  if ( EE_resource_locked[ResID] != EE_FALSE ) {
     /* Check if the resource is already gotten */
     ev = E_OS_ACCESS;
-  } else if ( (inside_task != 0) && ((current == EE_NIL) ||
+  } else if ( (inside_task != EE_FALSE) && ((current == EE_NIL) ||
     (EE_th_ready_prio[current] > EE_resource_ceiling[ResID])) )
   {
     /* If I'm in a Task check invalid task and ceiling */
     ev = E_OS_ACCESS;
   } else
 #ifdef __OO_ISR2_RESOURCES__
-  if ( (inside_task == 0) &&
+  if ( (inside_task == EE_FALSE) &&
     (EE_hal_check_int_prio_if_higher(EE_resource_isr2_priority[ResID]) !=
      0U) )
   {
     ev = E_OS_ACCESS;
   } else
 #else /* __OO_ISR2_RESOURCES__ */
-  if ( inside_task == 0 ) {
+  if ( inside_task == EE_FALSE ) {
     ev = E_OS_ACCESS;
   } else
 #endif /* __OO_ISR2_RESOURCES__ */
@@ -177,14 +177,14 @@ __OO_EXTENDED_STATUS__ */
     }
 #endif /* __OO_ISR2_RESOURCES__ */
 
-#if defined(__OO_EXTENDED_STATUS__) || defined(__OO_ISR2_RESOURCES__)
+#if (defined(__OO_EXTENDED_STATUS__)) || (defined(__OO_ISR2_RESOURCES__))
     /* insert the resource into the data structure */
     EE_resource_stack[ResID] = EE_th_resource_last[current];
     EE_th_resource_last[current] = ResID;
 #endif /* __OO_EXTENDED_STATUS__ || __OO_ISR2_RESOURCES__ */
 
-#if defined(__OO_EXTENDED_STATUS__) || defined(__OO_ORTI_RES_ISLOCKED__)
-    EE_resource_locked[ResID] = 1U;
+#if (defined(__OO_EXTENDED_STATUS__)) || (defined(__OO_ORTI_RES_ISLOCKED__))
+    EE_resource_locked[ResID] = EE_TRUE;
 #endif /* __OO_EXTENDED_STATUS__ || __OO_ORTI_RES_ISLOCKED__ */
 
 #ifdef __OO_ORTI_RES_LOCKER_TASK__

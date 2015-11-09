@@ -444,7 +444,7 @@ void EE_tc27x_initialize_system_timer(void);
 #define EE_tc27x_initialize_system_timer() ((void) 0)
 #endif /* ENABLE_SYSTEM_TIMER && EE_SYSTEM_TIMER_DEVICE */
 
-__INLINE__ int __ALWAYS_INLINE__ EE_cpu_startos( void )
+__INLINE__ EE_TYPEBOOL __ALWAYS_INLINE__ EE_cpu_startos( void )
 {
 #ifdef EE_MASTER_CPU
 /* If a CPU CLOCK frequency is defined configure the SCU registers */

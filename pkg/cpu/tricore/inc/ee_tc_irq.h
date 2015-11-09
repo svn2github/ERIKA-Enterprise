@@ -320,9 +320,6 @@
 #define EE_ISR_PRI_254 254
 #define EE_ISR_PRI_255 255
 
-/* Macro to declare ISR: always valid */
-#define DeclareIsr(f) void f ( void )
-
 /* ISR Management Macros */
 #ifdef EE_ERIKA_ISR_HANDLING_OFF
 /* If the user want generate his own Interrupt Vector give to him

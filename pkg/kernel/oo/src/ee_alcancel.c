@@ -94,9 +94,9 @@ StatusType EE_oo_CancelAlarm(AlarmType AlarmID)
 #endif /* EE_AS_RPC__ */
 
 /* If local alarm are not defined cut everything else */
-#if defined(EE_MAX_ALARM) && (EE_MAX_ALARM > 0U)
+#if (defined(EE_MAX_ALARM)) && (EE_MAX_ALARM > 0U)
 
-#if ( defined(EE_AS_OSAPPLICATIONS__) && defined(EE_SERVICE_PROTECTION__) )
+#if (defined(EE_AS_OSAPPLICATIONS__)) && (defined(EE_SERVICE_PROTECTION__))
     if ( AlarmID >= EE_MAX_ALARM ) {
       ev = E_OS_ID;
     } else if ( EE_ALARM_ACCESS_ERR(AlarmID, EE_as_active_app) ) {
@@ -108,7 +108,7 @@ StatusType EE_oo_CancelAlarm(AlarmType AlarmID)
     } else
 #endif /* EE_AS_OSAPPLICATIONS__ || E_SERVICE_PROTECTION__ ||
 __OO_EXTENDED_STATUS__ */
-    if ( EE_oo_counter_object_RAM[AlarmID].used == 0U ) {
+    if ( EE_oo_counter_object_RAM[AlarmID].used == EE_FALSE ) {
       ev = E_OS_NOFUNC;
     } else {
       /* Actually cancel the alarm */

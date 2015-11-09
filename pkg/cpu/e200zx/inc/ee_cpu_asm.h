@@ -43,8 +43,8 @@
  * Author: 2011 Bernardo  Dal Seno
  */
 
-#ifndef __INCLUDE_E200ZX_EE_CPU_ASM_H__
-#define __INCLUDE_E200ZX_EE_CPU_ASM_H__
+#ifndef PKG_CPU_E200ZX_INC_EE_CPU_ASM_H
+#define PKG_CPU_E200ZX_INC_EE_CPU_ASM_H
 
 /* Needed for EE_SYS_STACK_SIZE */
 #include "eecfg.h"
@@ -57,6 +57,7 @@
 
 /* Number of CPU exceptions */
 #define EE_E200ZX_MAX_CPU_EXCP 16
+#define EE_E200ZX_MAX_CPU_EXCP_C 16U
 
 /* TCR register bits */
 #define TCR_DIE		26

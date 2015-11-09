@@ -94,8 +94,8 @@ DeclareTask(Task1);
 DeclareTask(Task2);
 DeclareTask(Task3);
 
-DeclareIsr(DecrIsr);
-DeclareIsr(FixedIntvIsr);
+void DecrIsr(void);
+void FixedIntvIsr(void);
 
 #ifdef __MSRP__
 EE_TYPEBARRIER fake_barrier;

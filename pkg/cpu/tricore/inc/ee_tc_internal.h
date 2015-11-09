@@ -103,7 +103,7 @@ EE_DO_PRAGMA(warning 557)
  ******************************************************************************/
 /* Inform StartOS kernel primitive that have to call EE_cpu_startos
    start-up routine */
-#define __OO_CPU_HAS_STARTOS_ROUTINE__
+#define OO_CPU_HAS_STARTOS_ROUTINE
 
 #ifdef __MSRP__
 /*******************************************************************************

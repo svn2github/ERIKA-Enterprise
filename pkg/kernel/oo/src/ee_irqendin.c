@@ -45,7 +45,7 @@
 
 #include "ee_internal.h"
 
-#if defined(__OO_ISR2_RESOURCES__) || defined(EE_AS_USER_SPINLOCKS__)
+#if (defined(__OO_ISR2_RESOURCES__)) || (defined(EE_AS_USER_SPINLOCKS__))
 /* Index used to give ISR2 Temporary TID value and to access at
    EE_isr2_nesting_level array */
 EE_UREG EE_isr2_index = EE_UREG_MINUS1;
@@ -71,6 +71,7 @@ EE_TID EE_oo_assign_TID_to_ISR2( void ) {
     without calling the corresponding ReleaseResource(), the Operating System
     shall perform the ReleaseResource() call and shall call the ErrorHook()
     (if configured) with the status E_OS_RESOURCE. */
+static void EE_IRQ_release_all_items( void );
 static void EE_IRQ_release_all_items( void ) {
   /* Check if the index is valid -> at least one ISR2 got a resource */
   if ( EE_isr2_index != EE_UREG_MINUS1 ) {
@@ -105,22 +106,25 @@ static void EE_IRQ_release_all_items( void ) {
   }
 }
 #else /* __OO_ISR2_RESOURCES__ || EE_AS_USER_SPINLOCKS__ */
-#define EE_IRQ_release_all_items()    ((void)0)
+__INLINE__ void __ALWAYS_INLINE__ EE_IRQ_release_all_items( void );
+__INLINE__ void __ALWAYS_INLINE__ EE_IRQ_release_all_items( void ) {}
 #endif /* __OO_ISR2_RESOURCES__ || EE_AS_USER_SPINLOCKS__ */
 
 #ifndef __PRIVATE_IRQ_END_INSTANCE__
 
-#if defined(__OO_ECC1__) || defined(__OO_ECC2__)
+static void EE_IRQ_run_next_task( void );
+
+#if (defined(__OO_ECC1__)) || (defined(__OO_ECC2__))
 static void EE_IRQ_run_next_task( void )
 {
-  register EE_TID next;
-  next = EE_rq2stk_exchange();
-  if ( EE_th_waswaiting[next] ) {
-    EE_th_waswaiting[next] = 0U;
+  register EE_TID tnext;
+  tnext = EE_rq2stk_exchange();
+  if ( EE_th_waswaiting[tnext] ) {
+    EE_th_waswaiting[tnext] = EE_FALSE;
     EE_oo_call_PreTaskHook();
-    EE_hal_IRQ_stacked(next);
+    EE_hal_IRQ_stacked(tnext);
   } else {
-    EE_hal_IRQ_ready(next);
+    EE_hal_IRQ_ready(tnext);
   }
 }
 #else /* __OO_ECC1__ || __OO_ECC2__ */

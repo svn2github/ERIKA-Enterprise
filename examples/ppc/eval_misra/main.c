@@ -90,7 +90,6 @@ __INLINE__ void __ALWAYS_INLINE__ ShutdownOS(StatusType s)
 
 #ifndef __EE_MEMORY_PROTECTION__
 #define ISR2(f) static void f(void)
-#define DeclareIsr(f) ISR2(f)
 #endif
 
 
@@ -98,8 +97,8 @@ DeclareTask(Task1);
 DeclareTask(Task2);
 DeclareTask(Task3);
 
-DeclareIsr(DecrIsr);
-DeclareIsr(FixedIntvIsr);
+void DecrIsr(void);
+void FixedIntvIsr(void);
 
 
 static void body1(void)

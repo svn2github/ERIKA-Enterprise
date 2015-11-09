@@ -88,8 +88,8 @@ StatusType EE_oo_GetTaskState(TaskType TaskID, TaskStateRefType State)
   if ( State == NULL ) {
     ev = E_OS_PARAM_POINTER;
   } else
-#if defined(EE_AS_OSAPPLICATIONS__) && (defined(EE_SERVICE_PROTECTION__) &&\
-  defined(__EE_MEMORY_PROTECTION__))
+#if (defined(EE_AS_OSAPPLICATIONS__)) && (defined(EE_SERVICE_PROTECTION__)) \
+  && (defined(__EE_MEMORY_PROTECTION__))
   /* [SWS_Os_00051]: If an invalid address (address is not writable by this
       OS-Application) is passed as an out-parameter to an Operating System
       service, the Operating System module shall return the status code
@@ -120,7 +120,7 @@ StatusType EE_oo_GetTaskState(TaskType TaskID, TaskStateRefType State)
   } else {
 #endif /* EE_AS_RPC__ */
 
-#if ( defined(EE_AS_OSAPPLICATIONS__) && defined(EE_SERVICE_PROTECTION__) )
+#if (defined(EE_AS_OSAPPLICATIONS__)) && (defined(EE_SERVICE_PROTECTION__))
     /* check if the task Id is valid */
     if ( (TaskID < 0) || (TaskID >= EE_MAX_TASK) ) {
       ev = E_OS_ID;

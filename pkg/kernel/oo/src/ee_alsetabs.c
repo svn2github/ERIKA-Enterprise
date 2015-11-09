@@ -79,7 +79,7 @@ StatusType EE_oo_SetAbsAlarm(AlarmType AlarmID,
       AND is currently not inside a Category 1 ISR the Operating System module
       shall not perform the requested action (the service call shall have no
       effect), and return E_OS_CALLEVEL (see [12], section 13.1) or the
-      “invalid value” of  the service. (BSW11009, BSW11013) */
+      invalid value of  the service. (BSW11009, BSW11013) */
   /* SetAbsAlarm is callable by Task and ISR2 */
   if ( EE_as_execution_context > ISR2_Context ) {
     ev = E_OS_CALLEVEL;
@@ -102,9 +102,9 @@ StatusType EE_oo_SetAbsAlarm(AlarmType AlarmID,
 #endif /* EE_AS_RPC__ */
 
 /* If local alarm are not defined cut everything else */
-#if defined(EE_MAX_ALARM) && (EE_MAX_ALARM > 0U)
+#if (defined(EE_MAX_ALARM)) && (EE_MAX_ALARM > 0U)
 
-#if ( defined(EE_AS_OSAPPLICATIONS__) && defined(EE_SERVICE_PROTECTION__) )
+#if (defined(EE_AS_OSAPPLICATIONS__)) && (defined(EE_SERVICE_PROTECTION__))
     if ( AlarmID >= EE_MAX_ALARM ) {
       ev = E_OS_ID;
     } else if ( EE_ALARM_ACCESS_ERR(AlarmID, EE_as_active_app) ) {

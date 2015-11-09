@@ -48,14 +48,8 @@
 /* I need base API */
 #include "cpu/avr8/inc/ee_avr8_cpu.h"
 
-/* Macro to declare ISR1: always valid */
-#define	DeclareIsr1(f)	void f ( void )
-
 /* Macro to define ISR1: always valid */
 #define	ISR1(f)	void EE_COMPILER_KEEP f ( void )
-
-/* Macro to declare ISR2: always valid */
-#define	DeclareIsr2(f)	void f ( void )
 
 /* Macro to define ISR2: always valid */
 #define	ISR2(f)	void EE_COMPILER_KEEP f ( void )

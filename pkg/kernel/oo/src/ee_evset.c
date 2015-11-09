@@ -62,7 +62,7 @@
 */
 
 
-#if defined(__OO_ECC1__) || defined(__OO_ECC2__)
+#if (defined(__OO_ECC1__)) || (defined(__OO_ECC2__))
 #ifndef __PRIVATE_SETEVENT__
 
 StatusType EE_oo_SetEvent(TaskType TaskID, EventMaskType Mask)
@@ -94,7 +94,7 @@ StatusType EE_oo_SetEvent(TaskType TaskID, EventMaskType Mask)
   } else
 #endif /* EE_SERVICE_PROTECTION__ */
 
-#if defined(__RN_EVENT__) || defined(EE_AS_RPC__)
+#if (defined(__RN_EVENT__)) || (defined(EE_AS_RPC__))
   if ( EE_IS_TID_REMOTE(TaskID) )
   {
 #ifdef EE_AS_RPC__
@@ -124,7 +124,7 @@ StatusType EE_oo_SetEvent(TaskType TaskID, EventMaskType Mask)
   } else {
 #endif /* __RN_EVENT__ || EE_AS_RPC__ */
 
-#if ( defined(EE_AS_OSAPPLICATIONS__) && defined(EE_SERVICE_PROTECTION__) )
+#if (defined(EE_AS_OSAPPLICATIONS__)) && (defined(EE_SERVICE_PROTECTION__))
     /* check if the task Id is valid */
     if ( (TaskID < 0) || (TaskID >= EE_MAX_TASK) ) {
       ev = E_OS_ID;
@@ -139,7 +139,7 @@ StatusType EE_oo_SetEvent(TaskType TaskID, EventMaskType Mask)
 #endif /* EE_AS_OSAPPLICATIONS__ || E_SERVICE_PROTECTION__ ||
 __OO_EXTENDED_STATUS__ */
 #if defined(__OO_EXTENDED_STATUS__)
-    if ( EE_th_is_extended[TaskID] == 0U ) {
+    if ( EE_th_is_extended[TaskID] == EE_FALSE ) {
       ev = E_OS_ACCESS;
     } else if ( EE_th_status[TaskID] == SUSPENDED ) {
       ev = E_OS_STATE;
@@ -183,7 +183,7 @@ __OO_EXTENDED_STATUS__ */
       }
       ev = E_OK;
     }
-#if defined(__RN_EVENT__) || defined(EE_AS_RPC__)
+#if (defined(__RN_EVENT__)) || (defined(EE_AS_RPC__))
   }
 #endif /* __RN_EVENT__ || EE_AS_RPC__ */
 

@@ -42,8 +42,8 @@
  * Author: 2010 Fabio Checconi
  */
 
-#ifndef __INCLUDE_E200ZX_IRQ_H__
-#define __INCLUDE_E200ZX_IRQ_H__
+#ifndef PKG_CPU_E200ZX_INC_EE_IRQ_H
+#define PKG_CPU_E200ZX_INC_EE_IRQ_H
 
 /* CPU-dependent part of HAL that have to be seen by user code */
 #include "ee_cpu_os.h"
@@ -67,7 +67,7 @@
 #define EE_ISR_PRI_14 14U
 #define EE_ISR_PRI_15 15U
 
-#if defined(__RN__) && defined (EE_ISR_DYNAMIC_TABLE) 
+#if (defined(__RN__)) && (defined (EE_ISR_DYNAMIC_TABLE))
 
 #if defined(EE_PPCE200ZX_7_ISR) || defined(EE_PPCE200ZX_7_ISR_PRI)
 #error In multicore environment IRQ priority 7 is already used by ERIKA\
@@ -84,19 +84,17 @@
 #include "cpu/common/inc/ee_context.h"
 #include "cpu/common/inc/ee_irqstub.h"
 
-#if defined(__ALLOW_NESTED_IRQ__) && (!defined(__EE_MEMORY_PROTECTION__))
+#if (defined(__ALLOW_NESTED_IRQ__)) && (!defined(__EE_MEMORY_PROTECTION__))
 #define EE_std_enableIRQ_nested()   EE_e200z7_enableIRQ()
 #define EE_std_disableIRQ_nested()  EE_e200z7_disableIRQ()
 #endif  /* defined(__ALLOW_NESTED_IRQ__) &&
   (!defined(__EE_MEMORY_PROTECTION__)) */
 
-/* Macro to declare ISR: always valid */
-#define DeclareIsr(f) void f(void)
 
 /*
   For memory protection the stack is changed within the prestub and the postub
  */
-#if defined(__IRQ_STACK_NEEDED__) && (!defined(__EE_MEMORY_PROTECTION__))
+#if (defined(__IRQ_STACK_NEEDED__)) && (!defined(__EE_MEMORY_PROTECTION__))
 /*
  * Call an ISR. If the ISR is to be called on a new stack we need to
  * resort to the black magic of assembly programming, and here we're
@@ -147,7 +145,7 @@ void EE_e200zx_call_ISR(EE_e200z7_ISR_handler fun, EE_UREG nesting);
  * This function is available only if the system is configured to use a dynamic
  * interrupt table (i.e., the EEOPT EE_ISR_DYNAMIC_TABLE is defined).
  */
-void EE_e200z7_register_ISR(int level, EE_e200z7_ISR_handler fun, EE_UINT8 pri);
+void EE_e200z7_register_ISR(EE_UINT16 level, EE_e200z7_ISR_handler fun, EE_UINT8 pri);
 #else
 /*
   ISR2 pre-stub and post-stub shared between normal and memory protection
@@ -210,7 +208,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_ISR2_INT_poststub(
 #ifdef EE_ISR_DYNAMIC_TABLE
 /* Macro for ISR declaration. ISR1 macro doesn't exist because only ISR2 exists
    in Dynamic ISR table implementation */
-#define ISR2(f)   void f(void)
+#define ISR2(f)   void (f)(void)
 #else /* EE_ISR_DYNAMIC_TABLE */
 /*                        Static ISR Table implementation.                    */
 /*                               !!! WARNING !!!
@@ -223,65 +221,88 @@ __INLINE__ void __ALWAYS_INLINE__ EE_ISR2_INT_poststub(
     To obviate this problem two more macro are given: ISR1_INT and ISR2_INT to
     register handlers for internal exception.
 */
-#define ISR1(f)                                                       \
-void EE_PREPROC_JOIN(ISR1_,f)(void);                                  \
-void f(void)                                                          \
-{                                                                     \
+
+#define ISR1_PART1(f)						      \
   EE_increment_IRQ_nesting_level();                                   \
   /* This handle stack change and nesting */                          \
   EE_e200zx_call_ISR(EE_PREPROC_JOIN(ISR1_,f), EE_IRQ_nesting_level); \
   /* Pop priority for external interrupts */                          \
   /* 9.4.3.1.2 EOIE Handler NOTE */                                   \
-  EE_e200zx_mbar();                                                   \
-  EE_INTC_EOIR = 0U;                                                   \
+  EE_e200zx_mbar();
+
+#define ISR1_PART2 \
+  EE_INTC_EOIR = 0U;                                                  \
   /* decrement nesting level */                                       \
   EE_decrement_IRQ_nesting_level();                                   \
-}                                                                     \
+
+
+#define ISR1(f)                     \
+void EE_PREPROC_JOIN(ISR1_,f)(void);\
+void f(void)                        \
+{                                   \
+ISR1_PART1(f)			    \
+ISR1_PART2			    \
+}                                   \
 void EE_PREPROC_JOIN(ISR1_,f)(void)
 
-#define ISR2(f)                                                       \
-void EE_PREPROC_JOIN(ISR2_,f)(void);                                  \
-void f(void)                                                          \
-{                                                                     \
-  /* keep the old ORTI */                                             \
-  EE_ORTI_runningisr2_type ortiold;                                   \
-  /* handle ORTI ID */                                                \
-  ortiold = EE_ISR2_prestub(f);                                       \
+
+#define ISR2_PART1(f) \
+  /* keep the old ORTI */           \
+  EE_ORTI_runningisr2_type ortiold; \
+  /* handle ORTI ID */              \
+  ortiold = EE_ISR2_prestub(f);
+
+#define ISR2_PART2(f) \
   /* This handle stack change and nesting */                          \
   EE_e200zx_call_ISR(EE_PREPROC_JOIN(ISR2_,f), EE_IRQ_nesting_level); \
   /* poststub do clean-up and scheduling and INTC PRIO pop */         \
-  EE_ISR2_poststub(ortiold);                                          \
-}                                                                     \
+  EE_ISR2_poststub(ortiold);
+
+#define ISR2(f)                      \
+void EE_PREPROC_JOIN(ISR2_,f)(void); \
+void f(void)                         \
+{                                    \
+ISR2_PART1(f)                        \
+ISR2_PART2(f)			     \
+}                                    \
 void EE_PREPROC_JOIN(ISR2_,f)(void)
 
 /*
   Following macros SHOULD BE used for internal interrupt handlers.
  */
-#define ISR1_INT(f)                                                       \
-void EE_PREPROC_JOIN(ISR1_INT_,f)(void);                                  \
-void f(void)                                                              \
-{                                                                         \
-  EE_increment_IRQ_nesting_level();                                       \
-  /* This handle stack change and nesting */                              \
-  EE_e200zx_call_ISR(EE_PREPROC_JOIN(ISR1_INT_,f), EE_IRQ_nesting_level); \
-  /* decrement nesting level */                                           \
-  EE_decrement_IRQ_nesting_level();                                       \
-}                                                                         \
+
+#define ISR1_INT_PART1(f)                     \
+  EE_increment_IRQ_nesting_level();           \
+  /* This handle stack change and nesting */  \
+  EE_e200zx_call_ISR(EE_PREPROC_JOIN(ISR1_INT_,f), EE_IRQ_nesting_level);
+
+#define ISR1_INT(f)                      \
+void EE_PREPROC_JOIN(ISR1_INT_,f)(void); \
+void f(void)                             \
+{                                        \
+  ISR1_INT_PART1(f)			 \
+  /* decrement nesting level */          \
+  EE_decrement_IRQ_nesting_level();      \
+}                                        \
 void EE_PREPROC_JOIN(ISR1_INT_,f)(void)
 
-#define ISR2_INT(f)                                                       \
-void EE_PREPROC_JOIN(ISR2_INT_,f)(void);                                  \
-void f(void)                                                              \
-{                                                                         \
-  /* keep the old ORTI */                                                 \
-  EE_ORTI_runningisr2_type ortiold;                                       \
-  /* Save the old ORTI ID */                                              \
-  ortiold = EE_ISR2_prestub(f);                                           \
-  /* This handle stack change and nesting */                              \
-  EE_e200zx_call_ISR(EE_PREPROC_JOIN(ISR2_INT_,f), EE_IRQ_nesting_level); \
-  /* post-stub internal do clean-up and scheduling */                     \
-  EE_ISR2_INT_poststub(ortiold);                                          \
-}                                                                         \
+#define ISR2_INT_PART1(f)                    \
+  /* keep the old ORTI */                    \
+  EE_ORTI_runningisr2_type ortiold;          \
+  /* Save the old ORTI ID */                 \
+  ortiold = EE_ISR2_prestub(f);              \
+  /* This handle stack change and nesting */ \
+  EE_e200zx_call_ISR(EE_PREPROC_JOIN(ISR2_INT_,f), EE_IRQ_nesting_level);
+
+
+#define ISR2_INT(f)                                   \
+void EE_PREPROC_JOIN(ISR2_INT_,f)(void);              \
+void f(void)                                          \
+{                                                     \
+  ISR2_INT_PART1(f)                                   \
+  /* post-stub internal do clean-up and scheduling */ \
+  EE_ISR2_INT_poststub(ortiold);                      \
+}                                                     \
 void EE_PREPROC_JOIN(ISR2_INT_,f)(void)
 
 #endif /*else EE_ISR_DYNAMIC_TABLE */
@@ -290,4 +311,4 @@ void EE_PREPROC_JOIN(ISR2_INT_,f)(void)
 #include "ee_irq_mem_prot.h"
 #endif /* else __EE_MEMORY_PROTECTION__ */
 
-#endif /*  __INCLUDE_E200ZX_IRQ_H__ */
+#endif

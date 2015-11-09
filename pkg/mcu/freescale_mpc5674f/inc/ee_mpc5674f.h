@@ -43,17 +43,19 @@
  * Author: 2011 Bernardo  Dal Seno
  */
 
-#ifndef EE_MCU_MPC5674F_H
-#define EE_MCU_MPC5674F_H
+#ifndef PKG_MCU_FREESCALE_MPC5674F_INC_EE_MPC5674F_H
+#define PKG_MCU_FREESCALE_MPC5674F_INC_EE_MPC5674F_H
 
 /* ISO int types used by mpc5674f.h */
-#define __EE_STDINT_SKIP_64BIT__
+#ifndef STDINT_SKIP_64BIT
+#define STDINT_SKIP_64BIT
+#endif
 #include <cpu/common/inc/ee_stdint.h>
 
 #include "mpc5674f.h"
 
 /* Number of externa interrupts */
-#define EE_E200ZX_MAX_EXT_IRQ 474
+#define EE_E200ZX_MAX_EXT_IRQ 474U
 
 /* These are used for compatibility with multi-core CPUs */
 #define INTC_CPR (INTC.CPR)
@@ -66,8 +68,9 @@
 void EE_mpc5674_initialize_external_IRQ_priorities(void);
 #endif /* __STATIC_ISR_TABLE__ */
 
-#define SET_INT_PRIO(level, pri) \
-			INTC.PSR[level - EE_E200ZX_MAX_CPU_EXCP].R \
-			= (uint8_t)(pri)
+__INLINE__ void __ALWAYS_INLINE__ SET_INT_PRIO(EE_UINT16 level, EE_UINT8 pri)
+{
+  INTC.PSR[(level) - EE_E200ZX_MAX_CPU_EXCP_C].R = (uint8_t)(pri);
+}
 
 #endif /* EE_MCU_MPC5674F_H */

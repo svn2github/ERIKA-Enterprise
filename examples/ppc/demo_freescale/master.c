@@ -148,7 +148,7 @@ static void init_decrementer_timer(void)
 #include <ee_irq.h>
 
 /* Declare ISR handler */
-DeclareIsr(timer_interrupt);
+void timer_interrupt(void);
 
 ISR2_INT(timer_interrupt)
 {

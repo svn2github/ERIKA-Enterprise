@@ -40,11 +40,10 @@
 
 /*
  * Author: 2004 Paolo Gai
- * CVS: $Id: ee_api.h,v 1.11 2008/07/04 14:26:59 francesco Exp $
  */
 
-#ifndef __INCLUDE_EE_API_H__
-#define __INCLUDE_EE_API_H__
+#ifndef PKG_EE_API_H
+#define PKG_EE_API_H
 
 /*
   ee_api.h contains the definition of all the interfaces exported to
@@ -85,7 +84,8 @@
 #include "kernel/fp/inc/ee_api.h"
 #endif
 
-#if defined(__OO_BCC1__) || defined(__OO_BCC2__) || defined(__OO_ECC1__) || defined(__OO_ECC2__)
+#if (defined(__OO_BCC1__)) || (defined(__OO_BCC2__)) \
+  || (defined(__OO_ECC1__)) || (defined(__OO_ECC2__))
 #include "kernel/oo/inc/ee_oo_api.h"
 
 /* Multicore API introduced from AS */
@@ -121,7 +121,8 @@
    *
    */
 
-#if defined(__COM_CCCA__) || defined(__COM_CCCB__) || defined(__COM_CCC0__) || defined(__COM_CCC1__)
+#if (defined(__COM_CCCA__)) || (defined(__COM_CCCB__)) \
+  || (defined(__COM_CCC0__)) || (defined(__COM_CCC1__))
 #include "com/com/inc/ee_api.h"
 #endif
 
@@ -146,7 +147,7 @@
 #endif
 #endif /* __AS_SC4__ */
 
-#if defined(__EE_MEMORY_PROTECTION__) && (!defined(__AS_SC4__))
+#if (defined(__EE_MEMORY_PROTECTION__)) && (!defined(__AS_SC4__))
 #include "kernel/as/inc/ee_as_api.h"
 #endif /* __EE_MEMORY_PROTECTION__ && !__AS_SC4__ */
 

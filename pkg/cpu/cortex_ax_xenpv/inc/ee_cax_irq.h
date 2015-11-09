@@ -95,8 +95,6 @@ extern struct EE_TOS EE_cortex_ax_xenpv_IRQ_tos;
 
 #endif	/* end __MULTI__ && __IRQ_STACK_NEEDED__*/
 
-#define DeclareIsr(f) void f(void)
-
 /* Define an ISR (category 1). */
 #define ISR1(f)                          \
 void EE_PREPROC_JOIN(ISR1_,f) ( void );  \

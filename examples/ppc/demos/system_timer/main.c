@@ -28,7 +28,7 @@
 DeclareTask(time_slow);
 DeclareTask(time_fast);
 DeclareTask(fixed_interval);
-DeclareIsr(fixed_intv_handler);
+void fixed_intv_handler(void);
 
 TASK(time_slow)
 {

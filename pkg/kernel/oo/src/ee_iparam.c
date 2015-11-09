@@ -1,13 +1,13 @@
 /* ###*B*###
  * ERIKA Enterprise - a tiny RTOS for small microcontrollers
  *
- * Copyright (C) 2002-2010  Evidence Srl
+ * Copyright (C) 2015  Evidence Srl
  *
  * This file is part of ERIKA Enterprise.
  *
  * ERIKA Enterprise is free software; you can redistribute it
  * and/or modify it under the terms of the GNU General Public License
- * version 2 as published by the Free Software Foundation,
+ * version 2 as published by the Free Software Foundation, 
  * (with a special exception described below).
  *
  * Linking this code statically or dynamically with other modules is
@@ -39,19 +39,14 @@
  * ###*E*### */
 
 /*
- * Derived from the mico32 code.
- * Author: 2010 Fabio Checconi
+ * Author: 2015 Paolo Gai
+ * CVS: $Id: ee_startos.c,v 1.5 2006/12/03 22:07:50 pj Exp $
  */
 
-#ifndef PKG_CPU_E200ZX_INC_EE_IRQ_INTERNAL_H
-#define PKG_CPU_E200ZX_INC_EE_IRQ_INTERNAL_H
-
 #include "ee_internal.h"
-#include "ee_irq.h"
 
-/* Software ISR Table - see cpu/e200zx/src/ee_irq.c */
+/* Invalid parameter for macros, see ee_oo_common.h */
+/* To be used as place holder when an API doesn't have a parameter */
+/* it is in a separate file to avoid wrong inclusions */
+const EE_os_param EE_os_invalid_param = { EE_UREG_MINUS1 };
 
-/* IRQ handler */
-void EE_e200z7_irq(EE_UREG level);
-
-#endif /* __INCLUDE_E200ZX_IRQ_INTERNAL_H__ */

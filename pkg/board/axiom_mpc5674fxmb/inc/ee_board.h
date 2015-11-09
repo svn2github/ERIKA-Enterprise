@@ -42,115 +42,115 @@
  * Author: 2010 Fabio Checconi
  */
 
-#ifndef __INCLUDE_EE_AXIOM_MPC5674FXMB_BOARD_H__
-#define __INCLUDE_EE_AXIOM_MPC5674FXMB_BOARD_H__
+#ifndef AXIOM_MPC5674FXMB_BOARD_H
+#define AXIOM_MPC5674FXMB_BOARD_H
 
-#define SIU_BASE	0xc3f90000
+#define SIU_BASE	0xc3f90000U
 
 #define SIU_PCRS	((volatile EE_UINT16 *)SIU_BASE)
 
 /* Leds */
-#define SIU_PCR147	SIU_PCRS[179]
-#define SIU_PCR148	SIU_PCRS[180]
-#define SIU_PCR149	SIU_PCRS[181]
-#define SIU_PCR150	SIU_PCRS[182]
-#define SIU_PCR151	SIU_PCRS[183]
-#define SIU_PCR152	SIU_PCRS[184]
-#define SIU_PCR153	SIU_PCRS[185]
-#define SIU_PCR154	SIU_PCRS[186]
+#define SIU_PCR147	SIU_PCRS[179U]
+#define SIU_PCR148	SIU_PCRS[180U]
+#define SIU_PCR149	SIU_PCRS[181U]
+#define SIU_PCR150	SIU_PCRS[182U]
+#define SIU_PCR151	SIU_PCRS[183U]
+#define SIU_PCR152	SIU_PCRS[184U]
+#define SIU_PCR153	SIU_PCRS[185U]
+#define SIU_PCR154	SIU_PCRS[186U]
 /* Button */
-#define SIU_PCR450	SIU_PCRS[482]
+#define SIU_PCR450	SIU_PCRS[482U]
 
-#define SIU_GPIO	((volatile EE_UINT8 *)(SIU_BASE + 0x0600))
+#define SIU_GPIO	((volatile EE_UINT8 *)(SIU_BASE + 0x0600U))
 
-#define SIU_IREER	(*(volatile EE_UINT32 *)(SIU_BASE + 0x0028))
-#define SIU_IFEER	(*(volatile EE_UINT32 *)(SIU_BASE + 0x002c))
+#define SIU_IREER	(*(volatile EE_UINT32 *)(SIU_BASE + 0x0028U))
+#define SIU_IFEER	(*(volatile EE_UINT32 *)(SIU_BASE + 0x002cU))
 
-#define SIU_EISR	(*(volatile EE_UINT32 *)(SIU_BASE + 0x0014))
+#define SIU_EISR	(*(volatile EE_UINT32 *)(SIU_BASE + 0x0014U))
 
-#define SIU_DIRER	(*(volatile EE_UINT32 *)(SIU_BASE + 0x0018))
+#define SIU_DIRER	(*(volatile EE_UINT32 *)(SIU_BASE + 0x0018U))
 
-#define SIU_DIRSR	(*(volatile EE_UINT32 *)(SIU_BASE + 0x001c))
+#define SIU_DIRSR	(*(volatile EE_UINT32 *)(SIU_BASE + 0x001cU))
 
-#define SIU_EIISR	(*(volatile EE_UINT32 *)(SIU_BASE + 0x0904))
+#define SIU_EIISR	(*(volatile EE_UINT32 *)(SIU_BASE + 0x0904U))
 
 #ifdef __USE_LEDS__
 
-#define LED_0	1
-#define LED_1	2
-#define LED_2	4
-#define LED_3	8
-#define LED_4	16
-#define LED_5	32
-#define LED_6	64
-#define LED_7	128
+#define LED_0	1U
+#define LED_1	2U
+#define LED_2	4U
+#define LED_3	8U
+#define LED_4	16U
+#define LED_5	32U
+#define LED_6	64U
+#define LED_7	128U
 
 __INLINE__ void __ALWAYS_INLINE__ EE_leds_init(void)
 {
-	SIU_PCR147 = 0x200;
-	SIU_PCR148 = 0x200;
-	SIU_PCR149 = 0x200;
-	SIU_PCR150 = 0x200;
-        SIU_PCR151 = 0x200;
-        SIU_PCR152 = 0x200;
-        SIU_PCR153 = 0x200;
-        SIU_PCR154 = 0x200;
-	SIU_GPIO[147] = 1;
-	SIU_GPIO[148] = 1;
-	SIU_GPIO[149] = 1;
-	SIU_GPIO[150] = 1;
-        SIU_GPIO[151] = 1;
-	SIU_GPIO[152] = 1;
-	SIU_GPIO[153] = 1;
-	SIU_GPIO[154] = 1;
+	SIU_PCR147 = 0x200U;
+	SIU_PCR148 = 0x200U;
+	SIU_PCR149 = 0x200U;
+	SIU_PCR150 = 0x200U;
+        SIU_PCR151 = 0x200U;
+        SIU_PCR152 = 0x200U;
+        SIU_PCR153 = 0x200U;
+        SIU_PCR154 = 0x200U;
+	SIU_GPIO[147] = 1U;
+	SIU_GPIO[148] = 1U;
+	SIU_GPIO[149] = 1U;
+	SIU_GPIO[150] = 1U;
+        SIU_GPIO[151] = 1U;
+	SIU_GPIO[152] = 1U;
+	SIU_GPIO[153] = 1U;
+	SIU_GPIO[154] = 1U;
 }
 
 __INLINE__ void __ALWAYS_INLINE__ EE_leds(EE_UREG led)
 {
-	SIU_GPIO[147] = led & 1;
-	SIU_GPIO[148] = (led >> 1) & 1;
-	SIU_GPIO[149] = (led >> 2) & 1;
-	SIU_GPIO[150] = (led >> 3) & 1;
-        SIU_GPIO[151] = (led >> 4) & 1;
-        SIU_GPIO[152] = (led >> 5) & 1;
-        SIU_GPIO[153] = (led >> 6) & 1;
-        SIU_GPIO[154] = (led >> 7) & 1;
+        SIU_GPIO[147] =  (EE_UINT8)led & 1U;
+	SIU_GPIO[148] = ((EE_UINT8)led >> 1U) & 1U;
+	SIU_GPIO[149] = ((EE_UINT8)led >> 2U) & 1U;
+	SIU_GPIO[150] = ((EE_UINT8)led >> 3U) & 1U;
+        SIU_GPIO[151] = ((EE_UINT8)led >> 4U) & 1U;
+        SIU_GPIO[152] = ((EE_UINT8)led >> 5U) & 1U;
+        SIU_GPIO[153] = ((EE_UINT8)led >> 6U) & 1U;
+        SIU_GPIO[154] = ((EE_UINT8)led >> 7U) & 1U;
 }
 
 __INLINE__ void __ALWAYS_INLINE__ EE_led_set(EE_UREG idx, EE_UREG val)
 {
-	SIU_GPIO[147 + idx] = val;
+  SIU_GPIO[147U + idx] = (EE_UINT8)val;
 }
 
-#define EE_led_0_on()	EE_led_set(0, 1);
-#define EE_led_0_off()	EE_led_set(0, 0);
-#define EE_led_1_on()	EE_led_set(1, 1);
-#define EE_led_1_off()	EE_led_set(1, 0);
-#define EE_led_2_on()	EE_led_set(2, 1);
-#define EE_led_2_off()	EE_led_set(2, 0);
-#define EE_led_3_on()	EE_led_set(3, 1);
-#define EE_led_3_off()	EE_led_set(3, 0);
-#define EE_led_4_on()	EE_led_set(4, 1);
-#define EE_led_4_off()	EE_led_set(4, 0);
-#define EE_led_5_on()	EE_led_set(5, 1);
-#define EE_led_5_off()	EE_led_set(5, 0);
-#define EE_led_6_on()	EE_led_set(6, 1);
-#define EE_led_6_off()	EE_led_set(6, 0);
-#define EE_led_7_on()	EE_led_set(7, 1);
-#define EE_led_7_off()	EE_led_set(7, 0);
+__INLINE__ void __ALWAYS_INLINE__ EE_led_0_on(void)  { EE_led_set(0U, 1U); }
+__INLINE__ void __ALWAYS_INLINE__ EE_led_0_off(void) { EE_led_set(0U, 0U); }
+__INLINE__ void __ALWAYS_INLINE__ EE_led_1_on(void)  { EE_led_set(1U, 1U); }
+__INLINE__ void __ALWAYS_INLINE__ EE_led_1_off(void) { EE_led_set(1U, 0U); }
+__INLINE__ void __ALWAYS_INLINE__ EE_led_2_on(void)  { EE_led_set(2U, 1U); }
+__INLINE__ void __ALWAYS_INLINE__ EE_led_2_off(void) { EE_led_set(2U, 0U); }
+__INLINE__ void __ALWAYS_INLINE__ EE_led_3_on(void)  { EE_led_set(3U, 1U); }
+__INLINE__ void __ALWAYS_INLINE__ EE_led_3_off(void) { EE_led_set(3U, 0U); }
+__INLINE__ void __ALWAYS_INLINE__ EE_led_4_on(void)  { EE_led_set(4U, 1U); }
+__INLINE__ void __ALWAYS_INLINE__ EE_led_4_off(void) { EE_led_set(4U, 0U); }
+__INLINE__ void __ALWAYS_INLINE__ EE_led_5_on(void)  { EE_led_set(5U, 1U); }
+__INLINE__ void __ALWAYS_INLINE__ EE_led_5_off(void) { EE_led_set(5U, 0U); }
+__INLINE__ void __ALWAYS_INLINE__ EE_led_6_on(void)  { EE_led_set(6U, 1U); }
+__INLINE__ void __ALWAYS_INLINE__ EE_led_6_off(void) { EE_led_set(6U, 0U); }
+__INLINE__ void __ALWAYS_INLINE__ EE_led_7_on(void)  { EE_led_set(7U, 1U); }
+__INLINE__ void __ALWAYS_INLINE__ EE_led_7_off(void) { EE_led_set(7U, 0U); }
 
 #endif
 
 #ifdef __USE_BUTTONS__
 
-#define BUTTON_0	1
+#define BUTTON_0	1U
 
 __INLINE__ void __ALWAYS_INLINE__ EE_buttons_disable_interrupts(EE_UREG btn)
 {
 	EE_UINT32 val;
 
 	val = SIU_DIRER;
-	SIU_DIRER = val & ~1UL;
+	SIU_DIRER = val & ~1U;
 }
 
 __INLINE__ void __ALWAYS_INLINE__ EE_buttons_enable_interrupts(EE_UREG btn)
@@ -158,31 +158,31 @@ __INLINE__ void __ALWAYS_INLINE__ EE_buttons_enable_interrupts(EE_UREG btn)
 	EE_UINT32 val;
 
 	val = SIU_DIRER;
-	SIU_DIRER = val | 1;
+	SIU_DIRER = val | 1U;
 }
 
 __INLINE__ void __ALWAYS_INLINE__ EE_buttons_clear_ISRflag(EE_UREG btn)
 {
-	SIU_EISR = 1;
+	SIU_EISR = 1U;
 }
 
-__INLINE__ EE_UINT32 __ALWAYS_INLINE__ EE_button_get_B0(void)
+__INLINE__ EE_TYPEBOOL __ALWAYS_INLINE__ EE_button_get_B0(void)
 {
-	return !((*(volatile EE_UINT32 *)(SIU_BASE + 0x0FC0))&0x100);
+	return !((*(volatile EE_UINT32 *)(SIU_BASE + 0x0FC0U))&0x100U);
 }
 
 __INLINE__ void __ALWAYS_INLINE__ EE_buttons_init(EE_UREG btn, int n)
 {
 	EE_UINT32 val;
 
-	SIU_PCR450 = 0x900;
+	SIU_PCR450 = 0x900U;
 	val = SIU_EIISR;
-	SIU_EIISR = val & ~3UL;
+	SIU_EIISR = val & ~3U;
 	val = SIU_IFEER;
-	SIU_IREER = val | 1;
+	SIU_IREER = val | 1U;
 	val = SIU_DIRER;
-	SIU_DIRER = val | 1;
-	SIU_DIRSR = 0;
+	SIU_DIRER = val | 1U;
+	SIU_DIRSR = 0U;
 }
 
 #endif

@@ -52,7 +52,7 @@
 #define	TRUE	1
 #endif
 
-DeclareIsr(systick_handler);
+void systick_handler(void);
 DeclareTask(Task1);
 
 /* Assertions */

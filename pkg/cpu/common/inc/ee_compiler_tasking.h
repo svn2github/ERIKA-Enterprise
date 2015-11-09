@@ -144,7 +144,6 @@
  * evaluation order of arguments */
 #define EE_PREPROC_JOIN(a,b) a ## b
 #define EE_PREPROC_STRING(s) # s
-#define EE_PREPROC_EVAL(e) e
 
 /* Software "memory barrier" (or "memory clobber") to enforce NOT code
    reordering. At compile level.

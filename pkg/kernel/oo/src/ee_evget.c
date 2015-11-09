@@ -55,7 +55,7 @@
 */
 
 
-#if defined(__OO_ECC1__) || defined(__OO_ECC2__)
+#if (defined(__OO_ECC1__)) || (defined(__OO_ECC2__))
 #ifndef __PRIVATE_GETEVENT__
 
 StatusType EE_oo_GetEvent(TaskType TaskID, EventMaskRefType Event)
@@ -73,7 +73,7 @@ StatusType EE_oo_GetEvent(TaskType TaskID, EventMaskRefType Event)
       AND is currently not inside a Category 1 ISR the Operating System module
       shall not perform the requested action (the service call shall have no
       effect), and return E_OS_CALLEVEL (see [12], section 13.1) or the
-      “invalid value” of  the service. (BSW11009, BSW11013) */
+      invalid value of  the service. (BSW11009, BSW11013) */
   /* GetEvent is callable by Task, ISR2, ErrorHook Pre and Post TaskHook */
   if ( (EE_as_execution_context > ErrorHook_Context) &&
        (EE_as_execution_context != PreTaskHook_Context) &&
@@ -86,7 +86,7 @@ StatusType EE_oo_GetEvent(TaskType TaskID, EventMaskRefType Event)
 #endif /* EE_SERVICE_PROTECTION__ */
 
 
-#if ( defined(EE_AS_OSAPPLICATIONS__) && defined(EE_SERVICE_PROTECTION__) )
+#if (defined(EE_AS_OSAPPLICATIONS__)) && (defined(EE_SERVICE_PROTECTION__))
 #ifdef EE_AS_RPC__
   /*  [OS589] All functions that are not allowed to operate cross core shall
         return E_OS_CORE in extended status if called with parameters that
@@ -117,7 +117,7 @@ StatusType EE_oo_GetEvent(TaskType TaskID, EventMaskRefType Event)
 #endif /* EE_AS_OSAPPLICATIONS__ || E_SERVICE_PROTECTION__ ||
 __OO_EXTENDED_STATUS__ */
 #ifdef __OO_EXTENDED_STATUS__
-  if ( EE_th_is_extended[TaskID] == 0U ) {
+  if ( EE_th_is_extended[TaskID] == EE_FALSE ) {
     ev = E_OS_ACCESS;
   } else if ( EE_th_status[TaskID] == SUSPENDED ) {
     ev = E_OS_STATE;
@@ -126,8 +126,8 @@ __OO_EXTENDED_STATUS__ */
   if ( Event == NULL ) {
     ev = E_OS_PARAM_POINTER;
   } else
-#if defined(EE_AS_OSAPPLICATIONS__) && (defined(EE_SERVICE_PROTECTION__) &&\
-  defined(__EE_MEMORY_PROTECTION__))
+#if (defined(EE_AS_OSAPPLICATIONS__)) && (defined(EE_SERVICE_PROTECTION__)) \
+  && (defined(__EE_MEMORY_PROTECTION__))
   /* [SWS_Os_00051] If an invalid address (address is not writable by this
       OS-Application) is passed as an out-parameter to an Operating System
       service, the Operating System module shall return the status code
@@ -160,4 +160,4 @@ __OO_EXTENDED_STATUS__ */
 }
 
 #endif /* __PRIVATE_GETEVENT__ */
-#endif /* #ifndef __PRIVATE_GETEVENT__ */
+#endif

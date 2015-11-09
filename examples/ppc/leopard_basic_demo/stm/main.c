@@ -61,7 +61,7 @@ Revision History:
 #include "initHW.h"
 
 #ifndef EE_ISR_DYNAMIC_TABLE
-DeclareIsr(STM_isr_handler);
+void STM_isr_handler(void);
 
 ISR2(STM_isr_handler)
 {

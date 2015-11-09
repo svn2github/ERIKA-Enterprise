@@ -1,7 +1,7 @@
 /* ###*B*###
  * ERIKA Enterprise - a tiny RTOS for small microcontrollers
  *
- * Copyright (C) 2002-2010  Evidence Srl
+ * Copyright (C) 2002-2012  Evidence Srl
  *
  * This file is part of ERIKA Enterprise.
  *
@@ -39,19 +39,30 @@
  * ###*E*### */
 
 /*
- * Derived from the mico32 code.
- * Author: 2010 Fabio Checconi
+ * CPU-dependent part of HAL that have to be seen by user code
+ * Author: 2012 Errico Guidieri
  */
 
-#ifndef PKG_CPU_E200ZX_INC_EE_IRQ_INTERNAL_H
-#define PKG_CPU_E200ZX_INC_EE_IRQ_INTERNAL_H
+#ifndef PKG_CPU_E200ZX_INC_EE_E200ZX_TYPES_H
+#define PKG_CPU_E200ZX_INC_EE_E200ZX_TYPES_H
 
-#include "ee_internal.h"
-#include "ee_irq.h"
+typedef EE_UINT32 EE_UREG;
+typedef EE_INT32  EE_SREG;
+typedef EE_UINT32 EE_FREG;
 
-/* Software ISR Table - see cpu/e200zx/src/ee_irq.c */
+/* boolean type */
+#ifndef EE_TYPEBOOL
+typedef EE_UREG EE_TYPEBOOL;
+#endif
 
-/* IRQ handler */
-void EE_e200z7_irq(EE_UREG level);
+/* boolean true define */
+#ifndef EE_TRUE
+#define EE_TRUE ((EE_TYPEBOOL)1U)
+#endif
 
-#endif /* __INCLUDE_E200ZX_IRQ_INTERNAL_H__ */
+/* boolean false define */
+#ifndef EE_FALSE
+#define EE_FALSE ((EE_TYPEBOOL)0U)
+#endif
+
+#endif

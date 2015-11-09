@@ -18,7 +18,7 @@ EEOPT += DEBUG
 EEOPT += __ASSERT__
 EEOPT += __CODEWARRIOR__
 EEOPT += CW_EVAL_VERSION
-EEOPT += __OO_CPU_HAS_STARTOS_ROUTINE__
+EEOPT += OO_CPU_HAS_STARTOS_ROUTINE
 
 
 ############################################################################

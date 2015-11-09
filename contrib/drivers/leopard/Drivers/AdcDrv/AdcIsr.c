@@ -50,7 +50,7 @@
 #include "eecfg.h"
 #include <ee.h>
 
-DeclareIsr(WD_isr_handler);
+void WD_isr_handler(void);
 
 /* Threashold overcome isr handler: it only manages the fault coming from CH0 */
 ISR2(WD_isr_handler)

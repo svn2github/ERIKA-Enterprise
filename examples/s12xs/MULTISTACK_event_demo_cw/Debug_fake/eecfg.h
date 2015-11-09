@@ -52,7 +52,7 @@
 #define __ASSERT__
 #define __CODEWARRIOR__
 #define CW_EVAL_VERSION
-#define __OO_CPU_HAS_STARTOS_ROUTINE__
+#define OO_CPU_HAS_STARTOS_ROUTINE
 
 
 //////////////////////////////////////////////////////////////////////////////

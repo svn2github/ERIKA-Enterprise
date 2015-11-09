@@ -100,9 +100,9 @@ StatusType EE_oo_SetRelAlarm(AlarmType AlarmID,
 #endif /* EE_AS_RPC__ */
 
 /* If local alarm are not defined cut everything else */
-#if defined(EE_MAX_ALARM) && (EE_MAX_ALARM > 0U)
+#if (defined(EE_MAX_ALARM)) && (EE_MAX_ALARM > 0U)
 
-#if ( defined(EE_AS_OSAPPLICATIONS__) && defined(EE_SERVICE_PROTECTION__) )
+#if (defined(EE_AS_OSAPPLICATIONS__)) && (defined(EE_SERVICE_PROTECTION__))
     if ( AlarmID >= EE_MAX_ALARM ) {
       ev = E_OS_ID;
     } else if ( EE_ALARM_ACCESS_ERR(AlarmID, EE_as_active_app) ) {

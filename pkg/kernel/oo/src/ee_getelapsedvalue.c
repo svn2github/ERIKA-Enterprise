@@ -70,7 +70,7 @@ StatusType EE_oo_GetElapsedValue(CounterType CounterID, TickRefType Value,
       AND is currently not inside a Category 1 ISR the Operating System module
       shall not perform the requested action (the service call shall have no
       effect), and return E_OS_CALLEVEL (see [12], section 13.1) or the
-      “invalid value” of  the service. (BSW11009, BSW11013) */
+      invalid value of  the service. (BSW11009, BSW11013) */
   /* GetElapsedValue is callable by Task and ISR2 */
   if ( EE_as_execution_context > ISR2_Context ) {
     ev = E_OS_CALLEVEL;
@@ -82,8 +82,8 @@ StatusType EE_oo_GetElapsedValue(CounterType CounterID, TickRefType Value,
   if ( (Value == NULL) || (ElapsedValue == NULL) ) {
     ev = E_OS_PARAM_POINTER;
   } else
-#if defined(EE_AS_OSAPPLICATIONS__) && (defined(EE_SERVICE_PROTECTION__) &&\
-  defined(__EE_MEMORY_PROTECTION__))
+#if (defined(EE_AS_OSAPPLICATIONS__)) && (defined(EE_SERVICE_PROTECTION__)) \
+  && (defined(__EE_MEMORY_PROTECTION__))
   /* [SWS_Os_00051]: If an invalid address (address is not writable by this
       OS-Application) is passed as an out-parameter to an Operating System
       service, the Operating System module shall return the status code
@@ -113,14 +113,14 @@ StatusType EE_oo_GetElapsedValue(CounterType CounterID, TickRefType Value,
 #endif /* EE_AS_RPC__ */
 
 /* If counters are not defined cut everything */
-#if defined(EE_MAX_COUNTER) && (EE_MAX_COUNTER > 0U)
+#if (defined(EE_MAX_COUNTER)) && (EE_MAX_COUNTER > 0U)
     /* [OS381]: If the input parameter <CounterID> in a call of
         GetElapsedValue() is not Valid GetElapsedValue() shall return
         E_OS_ID. */
     if ( CounterID >= EE_MAX_COUNTER ) {
       ev = E_OS_ID;
     } else
-#if ( defined(EE_AS_OSAPPLICATIONS__) && defined(EE_SERVICE_PROTECTION__) )
+#if (defined(EE_AS_OSAPPLICATIONS__)) && (defined(EE_SERVICE_PROTECTION__))
     if ( EE_COUNTER_ACCESS_ERR(CounterID, EE_as_active_app) ) {
       ev = E_OS_ACCESS;
     } else

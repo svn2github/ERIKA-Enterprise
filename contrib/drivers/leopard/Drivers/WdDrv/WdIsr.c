@@ -49,7 +49,7 @@
 #include <ee.h>
 
 /* RTOS macros to declare ISRs routines */
-DeclareIsr(WatchDog_SWT0_Timer_handler);
+void WatchDog_SWT0_Timer_handler(void);
 
 /* Isr for WatchDog timer */
 ISR2(WatchDog_SWT0_Timer_handler)

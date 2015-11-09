@@ -46,28 +46,28 @@
  * Copyright (C) 2011 Evidence srl
  */
 
-#ifndef __INCLUDE_CPU_COMMON_EE_STDINT_H__
-#define __INCLUDE_CPU_COMMON_EE_STDINT_H__
+#ifndef PKG_CPU_COMMON_INC_EE_STDINT_H
+#define PKG_CPU_COMMON_INC_EE_STDINT_H
 
 #if	(					\
-  (defined(__PIC32__) && defined(__GNUC__)) ||	\
+  ((defined(__PIC32__)) && (defined(__GNUC__))) ||	\
   (						\
-	defined(__CORTEX_MX__) &&		\
+   (defined(__CORTEX_MX__)) &&			\
 	(					\
-		defined(__CCS__) ||		\
-		defined(__IAR__) ||		\
-		defined(__KEIL__) ||	\
-		defined(__GNU__)	\
+	 (defined(__CCS__)) ||			\
+	 (defined(__IAR__)) ||			\
+	 (defined(__KEIL__)) ||			\
+	 (defined(__GNU__))			\
 	)					\
   ) ||						\
-  (defined(__RX200__) && defined(__CCRX__)) ||	\
-  (defined(__AVR8__) && defined(__GNUC__))	\
+  ((defined(__RX200__)) && (defined(__CCRX__))) ||	\
+  ((defined(__AVR8__)) && (defined(__GNUC__)))		\
 )
 /* When supported, include stdint.h to avoid conflicting definitions of
  * exact-size types. */
 #include <stdint.h>
 
-#elif defined(__PPCE200ZX__) && defined(__CODEWARRIOR__)
+#elif (defined(__PPCE200ZX__)) && (defined(__CODEWARRIOR__))
 /* EWL CodeWarrior standard library.
    I need all types so I need to eneble C99 support */
 #if defined(_EWL_C99) && (!_EWL_C99)
@@ -175,7 +175,7 @@ typedef __EE_UINT32     uint_fast32_t;
 #endif
 
 /* Some real guesswork is needed here, as 64-bit types are not standard */
-#ifndef __EE_STDINT_SKIP_64BIT__
+#ifndef STDINT_SKIP_64BIT
 
 #ifndef UINT64_T
 #ifdef ULLONG_MAX
@@ -214,7 +214,7 @@ typedef long long int64_t;	/**< Signed 64 bit integer. */
 #endif
 #endif /* ifndef INT64_T */
 
-#endif /* __EE_STDINT_SKIP_64BIT__ */
+#endif /* STDINT_SKIP_64BIT */
 
 #endif /* No <stdint.h> */
 

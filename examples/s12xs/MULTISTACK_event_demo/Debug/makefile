@@ -17,7 +17,7 @@ RTDRUID_CONFIGURATOR_NUMBER:=1275
 EEOPT += DEBUG
 EEOPT += __ASSERT__
 EEOPT += __S12XS_INCLUDE_REGS__
-EEOPT += __OO_CPU_HAS_STARTOS_ROUTINE__
+EEOPT += OO_CPU_HAS_STARTOS_ROUTINE
 
 
 ############################################################################

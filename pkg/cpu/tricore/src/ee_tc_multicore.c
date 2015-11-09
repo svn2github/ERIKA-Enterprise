@@ -92,7 +92,7 @@ void EE_tc_sync_barrier( EE_TYPEBARRIER * bar )
 }
 
 /* Prototype in scope required */
-DeclareIsr(EE_TC_iirq_handler);
+void EE_TC_iirq_handler(void);
 
 /* Declare ISR handler */
 ISR2(EE_TC_iirq_handler)

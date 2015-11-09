@@ -45,8 +45,8 @@
  * Author: 2009-2010 Bernardo Dal Seno
  */
 
-#ifndef __INCLUDE_CPU_COMMON_EE_CONTEXT__
-#define __INCLUDE_CPU_COMMON_EE_CONTEXT__
+#ifndef PKG_CPU_COMMON_INC_EE_CONTEXT_H
+#define PKG_CPU_COMMON_INC_EE_CONTEXT_H
 
 /*
  * Instructions
@@ -127,7 +127,10 @@ EE_TID EE_std_run_task_code(EE_TID tid);
 /* With monostack, we need only the information that the task is stacked.  We
  * don't need to know which task it is, as there is no new stack to switch
  * to. */
-#define EE_std_mark_tid_stacked(tid) ((EE_TID)-1)
+__INLINE__ EE_TID __ALWAYS_INLINE__ EE_std_mark_tid_stacked( EE_TID tid)
+{
+  return ((EE_TID)-1);
+}
 
 #define EE_std_need_context_change(tid) ((tid) >= 0)
 
@@ -157,20 +160,24 @@ __INLINE__ void __ALWAYS_INLINE__ EE_std_change_context(EE_TID tid)
     unsigned integer congruent to the source integer (modulo 2^n where n is
     the number of bits used to represent the unsigned type).
 
-    Note: In a two’s complement representation, this conversion is conceptual
+    Note: In a two's complement representation, this conversion is conceptual
     and there is no change in the bit pattern (if there is no truncation).
  */
-#define EE_std_mark_tid_stacked(tid) \
-    ((EE_UTID)(tid) | (EE_UTID)TID_IS_STACKED_MARK)
+__INLINE__ EE_UTID __ALWAYS_INLINE__ EE_std_mark_tid_stacked( EE_TID tid)
+{
+  return ((EE_UTID)(tid) | (EE_UTID)TID_IS_STACKED_MARK);
+}
 
-  /* Check if the TID is Marked Stacked */
-#define EE_std_tid_is_marked_stacked(tid)\
-    (((EE_UTID)(tid) & TID_IS_STACKED_MARK) != 0U)
+/* Check if the TID is Marked Stacked */
+__INLINE__ EE_TYPEBOOL __ALWAYS_INLINE__ EE_std_tid_is_marked_stacked( EE_TID tid)
+{
+  return ((EE_UTID)(tid) & TID_IS_STACKED_MARK) != 0U;
+}
 
-__INLINE__ int __ALWAYS_INLINE__ EE_std_need_context_change(EE_TID tid)
+__INLINE__ EE_TYPEBOOL __ALWAYS_INLINE__ EE_std_need_context_change(EE_TID tid)
 {
     EE_UTID utid;
-    int need_context_change;
+    EE_TYPEBOOL need_context_change;
 
     if ( EE_std_tid_is_marked_stacked(tid) )
     {
@@ -181,7 +188,7 @@ __INLINE__ int __ALWAYS_INLINE__ EE_std_need_context_change(EE_TID tid)
       utid = (((EE_UTID)tid + 1U)) & (~(EE_UTID)TID_IS_STACKED_MARK);
       need_context_change = (EE_hal_active_tos != EE_std_thread_tos[utid]);
     } else {
-      need_context_change = 1;
+      need_context_change = EE_TRUE;
     }
 
     return need_context_change;

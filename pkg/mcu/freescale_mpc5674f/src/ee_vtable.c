@@ -2914,7 +2914,7 @@ extern void EE_PPCE200ZX_473_ISR(void);
   Number of internal CPU exceptions (in cpu/e200zx/inc/ee_cpu_asm.h)
   EE_E200ZX_MAX_CPU_EXCP 16 
   Max External IRQ (in mcu/freescale_mpc5674f/ee_mpc5674f.h)
-  EE_E200ZX_MAX_EXT_IRQ 474
+  EE_E200ZX_MAX_EXT_IRQ 474U
 
   It has been made const so it can be put in flash
  */

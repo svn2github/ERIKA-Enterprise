@@ -43,6 +43,7 @@ ifeq ($(or $(call iseeopt, __PPCE200ZX__), $(call iseeopt, __PPCE200Z7__)), yes)
 # for CodeWarrior FLE-to-VLE conversion to work
 EE_CASM_SRCS += pkg/cpu/e200zx/src/ee_entry.S
 EE_SRCS += pkg/cpu/e200zx/src/ee_e200zx_cpu.c
+EE_SRCS += pkg/cpu/e200zx/src/ee_e200zx_decrementer.c
 
 ifneq ($(call iseeopt, EE_ISR_EXTERNAL_TABLE), yes)
 EE_SRCS += pkg/cpu/e200zx/src/ee_ivor.S

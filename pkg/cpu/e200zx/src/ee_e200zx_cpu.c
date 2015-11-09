@@ -53,78 +53,8 @@ EE_STACK_T EE_e200zx_sys_stack[EE_STACK_WLEN(EE_SYS_STACK_SIZE)];
 EE_STACK_T EE_STACK_ATTRIB EE_e200zx_sys_stack[EE_STACK_WLEN(EE_SYS_STACK_SIZE)];
 #endif
 
-#ifndef __PPCE200Z0__
-/* e200z0 has no internal timer, so the functions below are not defined */
-
-void EE_e200zx_setup_fixed_intv(EE_UREG bitpos)
-{
-	EE_UREG tcr;
-	tcr = EE_e200zx_get_tcr();
-	tcr |= ((EE_UREG)1 << TCR_FIE);
-	tcr &= ~(EE_UREG)TCR_FPALL_MASK;
-	tcr |= ((bitpos & (EE_UREG)0x3) << TCR_FP)
-		| (((bitpos >> 2) & (EE_UREG)0xf) << TCR_FPEXT);
-	EE_e200zx_set_tcr(tcr);
-}
-
-void EE_e200zx_stop_fixed_intv(void)
-{
-	EE_UREG tcr;
-	tcr = EE_e200zx_get_tcr();
-	tcr &= ~((EE_UREG)1 << TCR_FIE);
-	EE_e200zx_set_tcr(tcr);
-}
-
-void EE_e200z7_setup_decrementer(EE_UINT32 value)
-{
-	EE_UREG tcr;
-	EE_e200zx_set_decar(value);
-	EE_e200zx_set_dec(value);
-	tcr = EE_e200zx_get_tcr();
-	tcr |= ((EE_UREG)1 << TCR_DIE) | ((EE_UREG)1 << TCR_ARE);
-	EE_e200zx_set_tcr(tcr);
-}
-
-void EE_e200z7_setup_decrementer_oneshot(EE_UINT32 value)
-{
-	EE_UREG tcr;
-	EE_e200zx_set_dec(value);
-	tcr = EE_e200zx_get_tcr();
-	tcr |= ((EE_UREG)1 << TCR_DIE);
-	tcr &= ~((EE_UREG)1 << TCR_ARE);
-	EE_e200zx_set_tcr(tcr);
-}
-
-void EE_e200z7_stop_decrementer(void)
-{
-	EE_UREG tcr;
-	tcr = EE_e200zx_get_tcr();
-	tcr &= ~((EE_UREG)1 << TCR_ARE);
-	EE_e200zx_set_tcr(tcr);
-	EE_e200zx_set_dec(0U);
-	EE_e200zx_set_decar(0U);
-	tcr = EE_e200zx_get_tcr();
-	tcr &= ~((EE_UREG)1 << TCR_DIE);
-	EE_e200zx_set_tcr(tcr);
-	EE_e200zx_set_tsr((EE_UREG)1 << TSR_DIS);
-}
-
-void EE_e200zx_delay(EE_UINT32 ticks)
-{
-	EE_UINT32 start;
-	start = EE_e200zx_get_tbl();
-	/* (EE_e200zx_get_tbl() - start) is always the number of ticks from the
-	 * beginning, even if a wrap-around has occurred. */
-	while ((EE_e200zx_get_tbl() - start) < ticks) {
-		/* Wait */
-	}
-}
-
-#endif /* ! __PPCE200Z0__ */
-
-
-#if defined(__EE_MEMORY_PROTECTION__) && defined(__OO_CPU_HAS_STARTOS_ROUTINE__)
-int EE_cpu_startos(void)
+#if (defined(__EE_MEMORY_PROTECTION__)) && (defined(OO_CPU_HAS_STARTOS_ROUTINE))
+EE_TYPEBOOL EE_cpu_startos(void)
 {
 	EE_UREG i;
 	for (i = 0U; i < EE_MAX_APP; i++) {
@@ -140,7 +70,7 @@ int EE_cpu_startos(void)
 	EE_initialize_system_timer();
 	return 0;
 }
-#endif /* __EE_MEMORY_PROTECTION__ && __OO_CPU_HAS_STARTOS_ROUTINE__ */
+#endif /* __EE_MEMORY_PROTECTION__ && OO_CPU_HAS_STARTOS_ROUTINE */
 
 
 #ifdef __EE_MEMORY_PROTECTION__

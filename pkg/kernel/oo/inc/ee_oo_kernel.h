@@ -44,8 +44,8 @@
  */
 
 
-#ifndef __INCLUDE_OO_KERNEL_H__
-#define __INCLUDE_OO_KERNEL_H__
+#ifndef PKG_KERNEL_OO_INC_EE_OO_KERNEL_H
+#define PKG_KERNEL_OO_INC_EE_OO_KERNEL_H
 
 /* Symbols that can be defined into EEOPT
    __OO_EXTENDED_STATUS__ 
@@ -104,7 +104,7 @@
    __OO_AUTOSTART_ALARM__ if defined, StartOS() will processthe OIL
                           Alarm AUTOSTART informations.
                           
-   __OO_CPU_HAS_STARTOS_ROUTINE__ This is defined internally by the CPU
+   OO_CPU_HAS_STARTOS_ROUTINE This is defined internally by the CPU
 */
 
 
@@ -318,7 +318,7 @@ StatusType EE_oo_ReleaseResource(ResourceType ResID);
 /* ----------------------------------------------------------------------- */
 
 /* see also internal.h */
-#if defined(__OO_ECC1__) || defined(__OO_ECC2__)
+#if (defined(__OO_ECC1__)) || (defined(__OO_ECC2__))
 
 /* 13.5.3.1: ECC1, ECC2 */
 #ifndef __PRIVATE_SETEVENT__
@@ -506,21 +506,21 @@ StatusType EE_oo_CancelAlarm(AlarmType AlarmID);
    x is the counter */
 
 /* Maximum possible allowed value of counter x in ticks. */
-/*#define OSMAXALLOWEDVALUE_x */
+/* define OSMAXALLOWEDVALUE_x */
 
 /* Number of ticks required to reach a specific unit of counter x. */
-/*#define OSTICKSPERBASE_x */
+/* define OSTICKSPERBASE_x */
 /* Minimum allowed number of ticks for a cyclic alarm of counter x. */
-/*#define OSMINCYCLE_x */
+/* define OSMINCYCLE_x */
 /* Maximum possible allowed value of the system counter in ticks. */
-/*#define OSMAXALLOWEDVALUE */
+/* define OSMAXALLOWEDVALUE */
 /* Number of ticks required to reach a specific unit of the system counter. */
-/*#define OSTICKSPERBASE */
+/* define OSTICKSPERBASE */
 /* Minimum allowed number of ticks for a cyclic alarm of the system counter. */
-/*#define OSMINCYCLE */
+/* define OSMINCYCLE */
 
 /* Duration of a tick of the system counter in nanoseconds. */
-/*#define OSTICKDURATION */
+/* define OSTICKDURATION */
 
 /* 13.6.5 Naming convention                                                */
 /* ----------------------------------------------------------------------- */
@@ -727,7 +727,7 @@ __INLINE__ AppModeType __ALWAYS_INLINE__ OSError_StartOS_Mode(void)
 /* Error handling data structures and functions plus other stuff that have to
    be moved */
 #include "kernel/oo/inc/ee_oo_intfunc.h"
-/* #include "kernel/oo/inc/ee_oo_inline.h" XXX: Moved inside
+/* include "kernel/oo/inc/ee_oo_inline.h" XXX: Moved inside
    {ee.h,ee_internal.h} because Disable/Suspend/Resume API depends upon TP
    (Timing Protection) declarations. */
 #endif /* __INCLUDE_OO_KERNEL_H__ */

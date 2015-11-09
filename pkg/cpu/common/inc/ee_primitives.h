@@ -46,8 +46,8 @@
  */
 
 
-#ifndef __INCLUDE_CPU_COMMON_EE_PRIMITIVES__
-#define __INCLUDE_CPU_COMMON_EE_PRIMITIVES__
+#ifndef PKG_CPU_COMMON_INC_EE_PRIMITIVES_H
+#define PKG_CPU_COMMON_INC_EE_PRIMITIVES_H
 
 /*
  * Nested Interrupts Handling
@@ -75,4 +75,4 @@ __INLINE__ EE_UREG __ALWAYS_INLINE__ EE_hal_get_IRQ_nesting_level(void)
 }
 
 
-#endif /* __INCLUDE_CPU_COMMON_EE_PRIMITIVES__ */
+#endif /* PKG_CPU_COMMON_INC_EE_PRIMITIVES_H */

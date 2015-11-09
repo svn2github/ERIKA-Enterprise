@@ -69,8 +69,7 @@
 #include "MemMap.h"
 #endif /* EE_SUPPORT_MEMMAP_H */
 
-/* StartOS Flag defined inside ee_startos.c */
-extern EE_UREG volatile EE_oo_started;
+static void EE_oo_shutdown(void);
 
 static void EE_oo_shutdown(void)
 {
@@ -81,6 +80,8 @@ static void EE_oo_shutdown(void)
 }
 
 #ifdef __OO_HAS_SHUTDOWNHOOK__
+static void EE_oo_call_ShutdownHook(StatusType Error);
+
 static void EE_oo_call_ShutdownHook(StatusType Error)
 {
   /* Set the context excution at ShutdownHook */
@@ -88,11 +89,10 @@ static void EE_oo_call_ShutdownHook(StatusType Error)
   ShutdownHook(Error);
 }
 #else
+__INLINE__ void __ALWAYS_INLINE__ EE_oo_call_ShutdownHook(StatusType Error);
+
 __INLINE__ void __ALWAYS_INLINE__ EE_oo_call_ShutdownHook(StatusType Error)
 {
-  /* Useless operations to meet Linters requirements */
-  volatile StatusType dummy_assignment = Error;
-  (void)dummy_assignment;
 }
 #endif
 
@@ -100,8 +100,10 @@ void EE_oo_ShutdownOS_internal(StatusType Error)
 {
   /* [OS071]: If the PostTaskHook() is configured, the Operating System shall
       not call the hook if ShutdownOS() is called. */
-  /* EE_oo_call_PostTaskHook(); */
-
+#if 0
+  EE_oo_call_PostTaskHook();
+#endif
+  
   /* Definitely stop the timing protection. I cannot use EE_as_tp_active_stop,
      because it will restart Reclamation Time Frames Budget */
   EE_hal_tp_stop();

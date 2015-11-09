@@ -71,14 +71,14 @@
  *************************************************************************/
 
 /* defining this let the StartOS routine to call this function */
-#define __OO_CPU_HAS_STARTOS_ROUTINE__
+#define OO_CPU_HAS_STARTOS_ROUTINE
 
 /* This function starts ths system,
  * register the IPIC and synchronize the CPUs 
  * returns 1 in case of error (typically a mutex name error)
  */
 #ifdef __OO_EXTENDED_STATUS__
-int EE_cpu_startos(void);
+EE_TYPEBOOL EE_cpu_startos(void);
 #else
 void EE_cpu_startos(void);
 #endif

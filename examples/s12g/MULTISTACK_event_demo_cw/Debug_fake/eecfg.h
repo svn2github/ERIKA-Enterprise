@@ -52,7 +52,7 @@
 #define __ASSERT__
 #define __S12XS_INCLUDE_REGS__
 #define __CODEWARRIOR__
-#define __OO_CPU_HAS_STARTOS_ROUTINE__
+#define OO_CPU_HAS_STARTOS_ROUTINE
 
 
 //////////////////////////////////////////////////////////////////////////////

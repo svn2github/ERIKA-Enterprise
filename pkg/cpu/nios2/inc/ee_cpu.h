@@ -135,6 +135,21 @@ typedef EE_INT32  EE_SREG;
 // was alt_irq_context from altera_nios2/HAL/inc/sys/alt_irq.h
 typedef int EE_FREG;
 
+/* boolean type */
+#ifndef EE_TYPEBOOL
+typedef EE_UREG EE_TYPEBOOL;
+#endif
+
+/* boolean true define */
+#ifndef EE_TRUE
+#define EE_TRUE ((EE_TYPEBOOL)1U)
+#endif
+
+/* boolean false define */
+#ifndef EE_FALSE
+#define EE_FALSE ((EE_TYPEBOOL)0U)
+#endif
+
 /* Thread IDs */
 typedef EE_INT32 EE_TID;
 typedef EE_UINT32 EE_UTID;

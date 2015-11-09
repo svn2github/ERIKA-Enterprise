@@ -91,8 +91,8 @@ StatusType EE_oo_GetAlarm(AlarmType AlarmID, TickRefType Tick)
   if ( Tick == NULL ) {
     ev = E_OS_PARAM_POINTER;
   } else
-#if defined(EE_AS_OSAPPLICATIONS__) && (defined(EE_SERVICE_PROTECTION__) &&\
-  defined(__EE_MEMORY_PROTECTION__))
+#if (defined(EE_AS_OSAPPLICATIONS__)) && (defined(EE_SERVICE_PROTECTION__)) \
+  && (defined(__EE_MEMORY_PROTECTION__))
     /* [SWS_Os_00051]: If an invalid address (address is not writable by this
         OS-Application) is passed as an out-parameter to an Operating System
         service, the Operating System module shall return the status code
@@ -120,9 +120,9 @@ StatusType EE_oo_GetAlarm(AlarmType AlarmID, TickRefType Tick)
 #endif /* EE_AS_RPC__ */
 
 /* If local alarm are not defined cut everything else */
-#if defined(EE_MAX_ALARM) && (EE_MAX_ALARM > 0U)
+#if (defined(EE_MAX_ALARM)) && (EE_MAX_ALARM > 0U)
 
-#if ( defined(EE_AS_OSAPPLICATIONS__) && defined(EE_SERVICE_PROTECTION__) )
+#if (defined(EE_AS_OSAPPLICATIONS__)) && (defined(EE_SERVICE_PROTECTION__))
     if ( AlarmID >= EE_MAX_ALARM ) {
       ev = E_OS_ID;
     } else if ( EE_ALARM_ACCESS_ERR(AlarmID, EE_as_active_app) ) {
@@ -134,7 +134,7 @@ StatusType EE_oo_GetAlarm(AlarmType AlarmID, TickRefType Tick)
     } else
 #endif /* EE_AS_OSAPPLICATIONS__ || E_SERVICE_PROTECTION__ ||
 __OO_EXTENDED_STATUS__ */
-    if ( EE_oo_counter_object_RAM[AlarmID].used == 0U ) {
+    if ( EE_oo_counter_object_RAM[AlarmID].used == EE_FALSE ) {
       ev = E_OS_NOFUNC;
     } else {
       register CounterObjectType  current;

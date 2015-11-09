@@ -140,7 +140,7 @@ static void EE_tc2Yx_stm_set_sr1_next_match(EE_UINT32 usec);
 #error Unsupported Device as System Timer!
 #endif
 
-DeclareIsr(EE_tc_system_timer_handler);
+void EE_tc_system_timer_handler(void);
 
 ISR2(EE_tc_system_timer_handler) {
 #if (EE_SYSTEM_TIMER_DEVICE == EE_TC_STM_SR0)

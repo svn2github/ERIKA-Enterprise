@@ -10,7 +10,7 @@ Full documentation of the testcase architecture is inside common/readme.txt
 usage:
 
 make ARCH=prefix
-make ARCH=prefix DIRS=<list of examples you want to test>
+make ARCH=prefix DIRS=<list of examples you want to test> MCU_TARGET=sub-prefix
 make clean
 make supported ARCH=prefix
 
@@ -27,6 +27,10 @@ where
   - "triscend" - Triscend A7, GNU gcc
   - "janusg_manual" - Janus, GNU gcc, manual code generation
   ... and others
+
+- "sub-prefix" - Specific chip informations, actually needed only for PowerPC.
+     It supports this target list: cobra55, k2 or mamba.
+     For instance: make ARCH=e200zx_diab_5_5_1_vle MCU_TARGET=mamba
 
 - the "clean" rule removes all the */out* directories
 

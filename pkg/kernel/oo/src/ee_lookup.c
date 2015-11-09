@@ -45,11 +45,11 @@
 
 #include "ee_internal.h"
 
-#if defined(__OO_HAS_ERRORHOOK__) && (!defined(__OO_ERRORHOOK_NOMACROS__))
+#if (defined(__OO_HAS_ERRORHOOK__)) && (!defined(__OO_ERRORHOOK_NOMACROS__))
 #ifndef __MSRP__
 OSServiceIdType                        EE_oo_ErrorHook_ServiceID;
 EE_oo_ErrorHook_parameters             EE_oo_ErrorHook_data;
-#elif defined(EE_CURRENTCPU) && (EE_CURRENTCPU == 0)
+#elif (defined(EE_CURRENTCPU)) && (EE_CURRENTCPU == 0)
 OSServiceIdType EE_SHARED_UDATA        EE_oo_ErrorHook_ServiceID[EE_MAX_CPU];
 EE_oo_ErrorHook_parameters EE_SHARED_UDATA  EE_oo_ErrorHook_data[EE_MAX_CPU];
 #endif /* !__MSRP__ && (EE_CURRENTCPU != 0) */
@@ -66,11 +66,11 @@ EE_UREG EE_oo_IRQ_disable_count;
 EE_FREG EE_oo_IRQ_suspend_status;
 #endif /* EE_OLD_HAL */
 
-#if defined(__OO_HAS_ERRORHOOK__) && (!defined(__OO_ERRORHOOK_NOMACROS__))
+#if (defined(__OO_HAS_ERRORHOOK__)) && (!defined(__OO_ERRORHOOK_NOMACROS__))
 EE_TYPEBOOL EE_ErrorHook_nested_flag;
 #endif /* __OO_HAS_ERRORHOOK__ && !__OO_ERRORHOOK_NOMACROS__ */
 
-#if defined(__OO_BCC2__) || defined(__OO_ECC2__)
+#if (defined(__OO_BCC2__)) || (defined(__OO_ECC2__))
 
 const EE_INT8 EE_rq_lookup[] = 
   {  -1, 0,  1,  1,  2,  2,  2,  2, 

@@ -43,8 +43,8 @@
  * Author: 2009 Bernardo Dal Seno
  */
 
-#ifndef __INCLUDE_CPU_COMMON_EE_TYPES__
-#define __INCLUDE_CPU_COMMON_EE_TYPES__
+#ifndef PKG_CPU_COMMON_INC_EE_TYPES_H
+#define PKG_CPU_COMMON_INC_EE_TYPES_H
 
 /* For Gcc we could use __XXX_MAX__ built-in macros, instead */
 #include <limits.h>
@@ -79,7 +79,7 @@ typedef unsigned int EE_UINT32;
 #if (ULONG_MAX > 0xffffffffUL)
 typedef unsigned long int EE_UINT64;
 #elif !defined (__STRICT_ANSI__)
-#if defined(ULLONG_MAX) && (ULLONG_MAX > 0xffffffffUL)
+#if (defined(ULLONG_MAX)) && (ULLONG_MAX > 0xffffffffUL)
 typedef unsigned long long int EE_UINT64;
 #endif
 #endif
@@ -122,17 +122,17 @@ typedef EE_VOID_CALLBACK EE_ISR_callback;
     frequency **/
 #define EE_MICRO_TO_TICKS(X_US, REF_FREQ_HZ)              \
   (((X_US) / 1000UL)?                                     \
-      EE_MILLI_TO_TICKS(((X_US) / 1000UL), REF_FREQ_HZ):  \
-      EE_MILLI_TO_TICKS(X_US, REF_FREQ_HZ) / 1000UL)
+   EE_MILLI_TO_TICKS(((X_US) / 1000UL), (REF_FREQ_HZ)):	  \
+   EE_MILLI_TO_TICKS((X_US), (REF_FREQ_HZ)) / 1000UL)
 
 /** Utility Macro that convert an amount of us in number of ticks of a given
     frequency **/
 #define MICROSECONDS_TO_TICKS(X_MICROSECS, REF_FREQ_HZ)   \
-  EE_MICRO_TO_TICKS(X_MICROSECS, REF_FREQ_HZ)
+  EE_MICRO_TO_TICKS((X_MICROSECS), (REF_FREQ_HZ))
 
 /** Utility Macro that convert an amount of ms in number of ticks of a given
     frequency **/
 #define MILLISECONDS_TO_TICKS(X_MILLISECS, REF_FREQ_HZ)   \
-  EE_MILLI_TO_TICKS(X_MILLISECS, REF_FREQ_HZ)
+  EE_MILLI_TO_TICKS((X_MILLISECS), (REF_FREQ_HZ))
 
 #endif /* __INCLUDE_CPU_COMMON_EE_TYPES__ */

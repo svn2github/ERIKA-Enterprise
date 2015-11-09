@@ -42,8 +42,8 @@
  * Author: 2000-2006 Paolo Gai
  */
 
-#ifndef __EE_INTERNAL_H__
-#define __EE_INTERNAL_H__
+#ifndef PKG_EE_INTERNAL_H
+#define PKG_EE_INTERNAL_H
 
 #include "eecfg.h"
 
@@ -60,7 +60,7 @@ extern "C" {
    */
 
  /* Freescale */
-#if defined(__MC9S12__) || defined(__HCS12XS__)
+#if (defined(__MC9S12__)) || (defined(__HCS12XS__))
  #include "cpu/hs12xs/inc/ee_internal.h"
 #endif
 
@@ -80,7 +80,7 @@ extern "C" {
 #include "st10segm/internal.h"
 #endif
 
-#if defined(__ARM7GNU__) || defined(__ARM7ADS__)
+#if (defined(__ARM7GNU__)) || (defined(__ARM7ADS__))
 #include "cpu/arm7tdmi/inc/ee_internal.h"
 #endif
 
@@ -120,7 +120,7 @@ extern "C" {
 #include "cpu/mico32/inc/ee_internal.h"
 #endif
 
-#if defined(__PPCE200Z7__) || defined(__PPCE200ZX__)
+#if (defined(__PPCE200Z7__)) || (defined(__PPCE200ZX__))
 #include "cpu/e200zx/inc/ee_internal.h"
 #endif
 
@@ -153,7 +153,7 @@ extern "C" {
    */
 
  /* Freescale */
-#if defined(__MC9S12__) || defined(__HCS12XS__)
+#if (defined(__MC9S12__)) || (defined(__HCS12XS__))
  #include "mcu/hs12xs/inc/ee_internal.h"
 #endif
 
@@ -207,7 +207,7 @@ extern "C" {
 /* Tricore */
 
 /* Tricore TC26X || TC27x */
-#if defined(EE_TRICORE__) && (defined(EE_TC26X__) || defined(EE_TC27X__))
+#if (defined(EE_TRICORE__)) && ( (defined(EE_TC26X__)) || (defined(EE_TC27X__)) )
 #include "mcu/infineon_common_tc2Yx/inc/ee_tc2Yx_internal.h"
 #endif
 
@@ -218,31 +218,31 @@ extern "C" {
 #endif
 
 /* LPCXpresso */
-#if defined( __LPCXPRESSO__ ) && defined( __LPC12xx__ )
+#if (defined( __LPCXPRESSO__ )) && (defined( __LPC12xx__ ))
 #include "mcu/nxp_lpcxpresso_lpc12xx/inc/ee_internal.h"
 #endif
 
 /* Stellaris */
-#if defined( __STELLARIS__ ) && defined( __LM4F232xxxx__ )
+#if (defined( __STELLARIS__ )) && (defined( __LM4F232xxxx__ ))
 #include "mcu/ti_stellaris_lm4f232xxxx/inc/ee_internal.h"
 #endif
 
 /* ST */
-#if defined( __STM32__ ) && defined( __STM32F4xx__ )
+#if (defined( __STM32__ )) && (defined( __STM32F4xx__ ))
 #include "mcu/st_stm32_stm32f4xx/inc/ee_internal.h"
 #endif
 
 /* NORDIC */
-#if defined( __NORDIC__ ) && defined( __NRF51X22__ )
+#if (defined( __NORDIC__ )) && (defined( __NRF51X22__ ))
 #include "mcu/nordic_nrf51x22/inc/ee_internal.h"
 #endif
 
 /* Renesas RX200*/
-#if defined( __RX200__ ) && defined( __R5F5210x__ )
+#if (defined( __RX200__ )) && (defined( __R5F5210x__ ))
 #include "mcu/renesas_r5f5210x/inc/ee_internal.h"
 #endif
 
-#if defined( __TI__ ) && defined( __TMS570__ )
+#if (defined( __TI__ )) && (defined( __TMS570__ ))
 #include "mcu/ti_tms570/inc/ee_internal.h"
 #endif
 
@@ -253,7 +253,7 @@ extern "C" {
    */
 
  /* Freescale */
-#if defined(__MC9S12__) || defined(__HCS12XS__)
+#if (defined(__MC9S12__)) || (defined(__HCS12XS__))
   #ifdef __DEMO9S12XSFAME__
     #include "board/hs12xs_demo9s12xsfame/inc/ee_internal.h"
   #endif
@@ -355,8 +355,8 @@ extern "C" {
 #include "kernel/hr/inc/ee_internal.h"
 #endif
 
-#if defined(__OO_BCC1__) || defined(__OO_BCC2__) || defined(__OO_ECC1__) ||\
-  defined(__OO_ECC2__)
+#if (defined(__OO_BCC1__)) || (defined(__OO_BCC2__))  \
+  || (defined(__OO_ECC1__)) || (defined(__OO_ECC2__))
 /* API prototypes should be visible when defining API functions */
 #include "kernel/oo/inc/ee_oo_kernel.h"
 #include "kernel/as/inc/ee_as_kernel.h"
@@ -391,7 +391,7 @@ extern "C" {
 #include "kernel/alarms/inc/ee_alarms.h"
 #endif
 
-#if defined(__RN__) || defined(EE_AS_RPC__)
+#if (defined(__RN__)) || (defined(EE_AS_RPC__))
 #include "kernel/rn/inc/ee_rn_internal.h"
 #endif /* __RN__ || EE_AS_RPC__ */
 

@@ -43,8 +43,8 @@
  * CVS: $Id: ee_common.h,v 1.7 2006/05/03 05:59:55 pj Exp $
  */
 
-#ifndef __INCLUDE_OO_COMMON_H__
-#define __INCLUDE_OO_COMMON_H__
+#ifndef PKG_KERNEL_OO_INC_EE_OO_COMMON_H
+#define PKG_KERNEL_OO_INC_EE_OO_COMMON_H
 
 /*************************************************************************
                             Kernel Constants
@@ -106,21 +106,6 @@ in the following sections:
 #define EE_TYPENACT EE_UREG
 #endif
 
-/* boolean type */
-#ifndef EE_TYPEBOOL
-#define EE_TYPEBOOL EE_UREG
-#endif
-
-/* boolean true define */
-#ifndef EE_TRUE
-#define EE_TRUE ((EE_TYPEBOOL)1)
-#endif
-
-/* boolean false define */
-#ifndef EE_FALSE
-#define EE_FALSE ((EE_TYPEBOOL)0)
-#endif
-
 /* event mask type */
 #ifndef EE_TYPEEVENTMASK
 #define EE_TYPEEVENTMASK EE_UREG
@@ -178,7 +163,7 @@ typedef EE_UTID                ApplicationType;
 #define KERNEL_OSAPPLICATION  ((ApplicationType)0U)
 #endif /* EE_AS_OSAPPLICATIONS__ */
 
-#if defined(__OO_BCC2__) || defined(__OO_ECC2__)
+#if (defined(__OO_BCC2__)) || (defined(__OO_ECC2__))
 /* Maximum number of pending activations */
 extern const EE_TYPENACT   EE_th_rnact_max[EE_MAX_TASK];
 #endif /* __OO_BCC2__ || __OO_ECC2__ */
@@ -225,7 +210,7 @@ extern EE_TID EE_th_terminate_nextask[EE_MAX_TASK];
 /* The first stacked task (initvalue = EE_NIL) */
 extern EE_TID       EE_stkfirst;
 
-#if defined(__OO_BCC1__) || defined(__OO_ECC1__)
+#if (defined(__OO_BCC1__)) || (defined(__OO_ECC1__))
 /* First task in the ready queue (initvalue = EE_NIL) */
 extern EE_TID EE_rq_first;
 #endif /*  __OO_BCC1__ || __OO_ECC1__ */
@@ -252,7 +237,7 @@ extern EE_TYPEPRIO   EE_sys_ceiling;
 #include "MemMap.h"
 #endif /* EE_SUPPORT_MEMMAP_H */
 
-#if defined(__OO_BCC2__) || defined(__OO_ECC2__)
+#if (defined(__OO_BCC2__)) || (defined(__OO_ECC2__))
 
 /*
  * ready queue implementation:
@@ -334,7 +319,7 @@ extern EE_TYPEPAIR EE_rq_free; /* pointer to a free pair; initvalue=0 */
    number into the task data structures. In that way, the following
    data structures can be sized to exactly the number of the extended
    tasks */
-#if defined(__OO_ECC1__) || defined(__OO_ECC2__)
+#if (defined(__OO_ECC1__)) || (defined(__OO_ECC2__))
 
 /* If MemMap.h support is enabled (i.e. because memory protection): use it */
 #ifdef EE_SUPPORT_MEMMAP_H
@@ -405,7 +390,7 @@ extern EE_TYPEPRIO   EE_resource_oldceiling[EE_MAX_RESOURCE];
 extern EE_TYPEISR2PRIO  EE_isr2_oldpriority[EE_MAX_RESOURCE];
 #endif /* __OO_ISR2_RESOURCES__ */
 
-#if defined(__OO_EXTENDED_STATUS__) || defined(__OO_ORTI_RES_ISLOCKED__)
+#if (defined(__OO_EXTENDED_STATUS__)) || (defined(__OO_ORTI_RES_ISLOCKED__))
 /* Only in extended status or when using ORTI with resources; for each
    resource, a flag is allocated to see if the resource is locked or
    not.  Note that this information cannot be easily knew from the
@@ -427,7 +412,7 @@ extern EE_TYPEBOOL EE_resource_locked[EE_MAX_RESOURCE];
 #include "MemMap.h"
 #endif /* EE_SUPPORT_MEMMAP_H */
 
-#if defined(__OO_EXTENDED_STATUS__) || defined(__OO_ISR2_RESOURCES__)
+#if (defined(__OO_EXTENDED_STATUS__)) || (defined(__OO_ISR2_RESOURCES__))
 /* Only in extended status; for each task, we allocate a data
    structure that keeps track of the order in which every task has
    allocated a resource. This is needed to return a meaningful
@@ -455,7 +440,7 @@ extern EE_UREG EE_resource_stack[EE_MAX_RESOURCE];
 
 #endif /* __OO_NO_RESOURCES__ */
 
-#if defined(__OO_ISR2_RESOURCES__) || defined(EE_AS_USER_SPINLOCKS__)
+#if (defined(__OO_ISR2_RESOURCES__)) || (defined(EE_AS_USER_SPINLOCKS__))
 
 /* If MemMap.h support is enabled (i.e. because memory protection): use it */
 #ifdef EE_SUPPORT_MEMMAP_H
@@ -578,7 +563,7 @@ typedef TickType *TickRefType;
 #endif /* EE_CPU_CLOCK */
 
 /* Alarms Handling */
-#if (!defined(__OO_NO_ALARMS__)) || defined(EE_AS_SCHEDULETABLES__)
+#if (!defined(__OO_NO_ALARMS__)) || (defined(EE_AS_SCHEDULETABLES__))
 
 /* Used to handle some corner cases with TickType */
 #define EE_TYPETICK_HALF_VALUE ((((EE_TYPETICK)-1) >> 1) + 1U)
@@ -669,10 +654,10 @@ typedef struct {
 /** These data structures represent a generic counter object. Object of this
     kind will build a counter's expire list */
 typedef struct {
-  EE_TYPEBOOL       used;   /**< a flag that is 1 when the alarm is armed */
-  TickType          cycle;  /**< cycle for periodic alarms */
-  TickType          delta;  /**< delta expiration time (into a queue!) */
-  CounterObjectType next;  /**< next counter object in the delta queue */
+  EE_TYPEBOOL       used;     /**< a flag that is 1 when the alarm is armed */
+  TickType          cntcycle; /**< cycle for periodic alarms */
+  TickType          delta;    /**< delta expiration time (into a queue!) */
+  CounterObjectType next;     /**< next counter object in the delta queue */
 } EE_oo_counter_object_RAM_type;
 
 /** These are the different kind of counter object actions */
@@ -689,9 +674,9 @@ typedef EE_oo_action_kind_type ActionKindType;
 /** This data structure represent an counter object action */
 typedef struct {
   ActionKindType    action_kind;
-  TaskType          TaskID;
-#if defined(__OO_ECC1__) || defined(__OO_ECC2__)
-  EventMaskType     Mask;
+  TaskType          action_task;
+#if (defined(__OO_ECC1__)) || (defined(__OO_ECC2__))
+  EventMaskType     action_mask;
 #endif /* __OO_ECC1__ || __OO_ECC2__ */
   EE_VOID_CALLBACK  f;
   /* Counter to increment when the alarm expire.*/
@@ -848,13 +833,14 @@ typedef unsigned char StatusType;
 /* a lasterror value that can be used with ORTI */
 extern StatusType EE_ORTI_lasterror;
 /* Macro to set lasterror value that can be used with ORTI */
-#define EE_ORTI_set_lasterror(ERR) (EE_ORTI_lasterror = (ERR))
+__INLINE__ void __ALWAYS_INLINE__ EE_ORTI_set_lasterror ( StatusType err ) {
+  EE_ORTI_lasterror = err;
+}
 #else /* __OO_ORTI_LASTERROR__ */
 
 #define EE_ORTI_set_lasterror(ERR) ((void)0)
 #endif  /* __OO_ORTI_LASTERROR__ */
 
-#ifdef __OO_ORTI_SERVICETRACE__
 /* the last OO service called by the application.  SERVICETRACE IDs
    are even numbers. The LSBit is used as a flag and it is set to 1
    when the servce is entered, to 0 at exit.
@@ -902,6 +888,7 @@ extern StatusType EE_ORTI_lasterror;
 #define EE_SERVICETRACE_OO_LAST                   62U
 #endif /* __OO_SEM__ */
 
+#ifdef __OO_ORTI_SERVICETRACE__
 extern volatile EE_UINT8 EE_ORTI_servicetrace;
 
 __INLINE__ void EE_ORTI_set_service(EE_UINT8 srv)
@@ -914,7 +901,7 @@ __INLINE__ void EE_ORTI_set_service(EE_UINT8 srv)
 
 #else /* __OO_ORTI_SERVICETRACE__ */
 
-#define EE_ORTI_set_service(srv) ((void)0)
+__INLINE__ void __ALWAYS_INLINE__ EE_ORTI_set_service(EE_UINT8 srv) {}
 
 #endif /* else __OO_ORTI_SERVICETRACE__ */
 
@@ -926,8 +913,15 @@ __INLINE__ void EE_ORTI_set_service(EE_UINT8 srv)
 #endif /* EE_SUPPORT_MEMMAP_H */
 
 /* Mapping for ORTI service In and Out */
-#define EE_ORTI_set_service_in(id) EE_ORTI_set_service((id) + 1U)
-#define EE_ORTI_set_service_out(id) EE_ORTI_set_service(id)
+__INLINE__ void __ALWAYS_INLINE__ EE_ORTI_set_service_in (EE_UINT8 id)
+{
+  EE_ORTI_set_service(id + 1U);
+}
+
+__INLINE__ void __ALWAYS_INLINE__ EE_ORTI_set_service_out (EE_UINT8 id)
+{
+  EE_ORTI_set_service(id);
+}
 
 /* If MemMap.h support is enabled (i.e. because memory protection): use it */
 #ifdef EE_SUPPORT_MEMMAP_H
@@ -951,12 +945,14 @@ extern EE_TYPEPRIO EE_ORTI_th_priority[EE_MAX_TASK];
    locked only by one task at a time.
    InitValue: all 0
 */
-#if defined (EE_MAX_RESOURCE) && (EE_MAX_RESOURCE > 0U)
+#if (defined (EE_MAX_RESOURCE)) && (EE_MAX_RESOURCE > 0U)
 extern EE_TYPEPRIO EE_ORTI_resource_oldpriority[EE_MAX_RESOURCE];
 #endif /* EE_MAX_RESOURCE && EE_MAX_RESOURCE > 0U */
 
-#define EE_ORTI_set_th_eq_dispatch_prio(tmp) \
-  (EE_ORTI_th_priority[(tmp)] = EE_th_dispatch_prio[(tmp)])
+__INLINE__ void __ALWAYS_INLINE__ EE_ORTI_set_th_eq_dispatch_prio ( EE_TID tmp)
+{
+  EE_ORTI_th_priority[tmp] = EE_th_dispatch_prio[tmp];
+}
 
 __INLINE__ void __ALWAYS_INLINE__ EE_ORTI_set_th_priority(EE_TID index,
     EE_TYPEPRIO prio)
@@ -964,8 +960,8 @@ __INLINE__ void __ALWAYS_INLINE__ EE_ORTI_set_th_priority(EE_TID index,
     EE_ORTI_th_priority[index] = prio;
 }
 #else
-#define EE_ORTI_set_th_eq_dispatch_prio(tmp)    ((void)0)
-#define EE_ORTI_set_th_priority(index, prio)    ((void)0)
+__INLINE__ void __ALWAYS_INLINE__ EE_ORTI_set_th_eq_dispatch_prio ( EE_TID tmp) {}
+__INLINE__ void __ALWAYS_INLINE__ EE_ORTI_set_th_priority(EE_TID index, EE_TYPEPRIO prio) {}
 #endif /*__OO_ORTI_PRIORITY__ */
 
 /* If MemMap.h support is enabled (i.e. because memory protection): use it */
@@ -1025,8 +1021,8 @@ typedef SemType *SemRefType;
 */
 
 struct EE_oo_autostart_task_type {
-  EE_UREG n;
-  const EE_TID *task;
+  EE_UREG nt;
+  const EE_TID (*task)[]; /* pointer to array of TIDs */
 };
 
 /* For each valid APPMODE (that ranges from 0 to EE_MAX_APPMODE-1) there must
@@ -1048,8 +1044,8 @@ extern const struct EE_oo_autostart_task_type
 */
 
 struct EE_oo_autostart_alarm_type {
-  EE_UREG n;
-  const EE_TYPEALARM *alarm;
+  EE_UREG na;
+  const EE_TYPEALARM (*alarm)[];
 };
 
 /* For each valid APPMODE (that ranges from 0 to EE_MAX_APPMODE-1) there must
@@ -1568,7 +1564,7 @@ typedef union EE_os_param_type {
   AlarmBaseRefType                alarm_base_ref;
   TickRefType                     tick_ref;
 #endif /* !__OO_NO_ALARMS__ */
-#if defined(__OO_ECC1__) || defined(__OO_ECC2__)
+#if (defined(__OO_ECC1__)) || (defined(__OO_ECC2__))
   EventMaskRefType                event_ref;
 #endif /* __OO_ECC1__ || __OO_ECC2__ */
 #ifdef EE_AS_USER_SPINLOCKS__
@@ -1578,8 +1574,8 @@ typedef union EE_os_param_type {
   ScheduleTableStatusRefType      schedule_table_status_ref;
 #endif /* EE_AS_SCHEDULETABLES__ */
 #ifdef EE_AS_OSAPPLICATIONS__
-#if defined(EE_SYSCALL_NR) && defined(EE_MAX_SYS_SERVICEID) &&\
-  (EE_SYSCALL_NR > EE_MAX_SYS_SERVICEID)
+#if (defined(EE_SYSCALL_NR) && defined(EE_MAX_SYS_SERVICEID) &&	\
+     (EE_SYSCALL_NR > EE_MAX_SYS_SERVICEID))
   TrustedFunctionParameterRefType trusted_function_parameter_ref;
 #endif /* EE_SYSCALL_NR > EE_MAX_SYS_SERVICEID */
   ApplicationStateRefType         application_state_ref;
@@ -1596,7 +1592,8 @@ typedef union EE_os_param_type {
 /* ----------------------------------------------------------------------- */
 
 /* To be used as place holder when an API doesn't have a parameter */
-static const EE_os_param EE_os_invalid_param = { EE_UREG_MINUS1 };
+/* defined in ee_startos.c */
+extern const EE_os_param EE_os_invalid_param;
 
 #define EE_OS_INVALID_PARAM  (EE_os_invalid_param)
 
@@ -1667,7 +1664,7 @@ typedef struct EE_oo_ErrorHook_parameters_type {
   EE_os_param param3;
 } EE_oo_ErrorHook_parameters;
 
-#if defined(__OO_HAS_ERRORHOOK__) && (!defined(__OO_ERRORHOOK_NOMACROS__))
+#if (defined(__OO_HAS_ERRORHOOK__)) && (!defined(__OO_ERRORHOOK_NOMACROS__))
 
 /* If MemMap.h support is enabled (i.e. because memory protection): use it */
 #ifdef EE_SUPPORT_MEMMAP_H

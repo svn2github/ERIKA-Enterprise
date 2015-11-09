@@ -56,8 +56,8 @@
  * Compiler dependent interface
  */
 
-#ifndef __INCLUDE_CPU_COMMON_EE_COMPILER_DIAB__
-#define __INCLUDE_CPU_COMMON_EE_COMPILER_DIAB__
+#ifndef PKG_CPU_COMMON_INC_EE_COMPILER_DIAB_H
+#define PKG_CPU_COMMON_INC_EE_COMPILER_DIAB_H
 
 /* __INLINE__ is a macro already used by a lot of libraries: protect it for
    integration */
@@ -88,7 +88,6 @@
  * evaluation order of arguments */
 #define EE_PREPROC_JOIN(a,b) a ## b
 #define EE_PREPROC_STRING(s) # s
-#define EE_PREPROC_EVAL(e) e
 
 /* Diab Pragma Header/Footer for "pragma section" used in memory protection */
 #define PRAGMA_SECTION_BEGIN_SYS_STACK DATA ".stack" ".stack"

@@ -55,7 +55,7 @@
  * \return			Only in case of __OO_EXTENDED_STATUS__ the function returns
                     the result of the initialization (0 if there is no error).
 */
-int EE_cpu_startos(void) {
+EE_TYPEBOOL EE_cpu_startos(void) {
 	return EE_s12_hal_cpu_startos(); 
 }
 #else

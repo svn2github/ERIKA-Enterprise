@@ -55,7 +55,7 @@
        E_OS_CALLEVEL called at interrupt level
 */
 
-#if defined(__OO_ECC1__) || defined(__OO_ECC2__)
+#if (defined(__OO_ECC1__)) || (defined(__OO_ECC2__))
 #ifndef __PRIVATE_WAITEVENT__
 
 StatusType EE_oo_WaitEvent(EventMaskType Mask)
@@ -87,7 +87,7 @@ StatusType EE_oo_WaitEvent(EventMaskType Mask)
   } else
 #endif /* EE_SERVICE_PROTECTION__ */
 
-#if defined(__OO_EXTENDED_STATUS__) || defined(EE_SERVICE_PROTECTION__)
+#if (defined(__OO_EXTENDED_STATUS__)) || (defined(EE_SERVICE_PROTECTION__))
   /* Check for a call at interrupt level:
    * Note: this must be the FIRST error check!!! */
   if ( (EE_hal_get_IRQ_nesting_level() != 0U) || (current == EE_NIL)
@@ -111,7 +111,7 @@ StatusType EE_oo_WaitEvent(EventMaskType Mask)
   } else
 #endif /* __OO_NO_RESOURCES__ */
   /* Check if the task is an extended TASK */
-  if ( EE_th_is_extended[current] == 0U ) {
+  if ( EE_th_is_extended[current] == EE_FALSE ) {
     ev = E_OS_ACCESS;
   } else
 #ifdef EE_AS_USER_SPINLOCKS__
@@ -125,9 +125,9 @@ StatusType EE_oo_WaitEvent(EventMaskType Mask)
 #endif /* EE_AS_USER_SPINLOCKS__ */
 #endif /* __OO_EXTENDED_STATUS__ */
 
-#if defined(EE_AS_OSAPPLICATIONS__) && defined(__EE_MEMORY_PROTECTION__)
-#if defined(EE_SYSCALL_NR) && defined(EE_MAX_SYS_SERVICEID) &&\
-  (EE_SYSCALL_NR > EE_MAX_SYS_SERVICEID)
+#if (defined(EE_AS_OSAPPLICATIONS__)) && (defined(__EE_MEMORY_PROTECTION__))
+#if (defined(EE_SYSCALL_NR)) && (defined(EE_MAX_SYS_SERVICEID)) \
+  && (EE_SYSCALL_NR > EE_MAX_SYS_SERVICEID)
   /* If a TASK is inside CallTrustedFunction() and TASK
      rescheduling takes place within the same OSApplication scheduling of
      other TASKs which belong to the same OS-Application as the caller needs

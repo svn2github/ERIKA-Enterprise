@@ -44,8 +44,8 @@
   *  @date      2012
   */
 
-#ifndef INCLUDE_EE_KERNEL_AS_INTERNAL__
-#define INCLUDE_EE_KERNEL_AS_INTERNAL__
+#ifndef PKG_KERNEL_AS_INC_EE_AS_INTERNAL_H
+#define PKG_KERNEL_AS_INC_EE_AS_INTERNAL_H
 
 #include "kernel/as/inc/ee_as_kernel.h"
 
@@ -178,7 +178,9 @@ void EE_as_after_IRQ_interrupted_app ( ApplicationType interrupted_app );
 /* @brief Function determines the currently running OS-Application.
  *         (a unique identifier has to be allocated to each application).
  */
-/* ApplicationType EE_as_GetApplicationID_internal( void ); */
+#if 0
+ApplicationType EE_as_GetApplicationID_internal( void );
+#endif
 
 /** @brief his service determines if the OS-Applications, given by ApplID, is
  *    allowed to use the IDs of a Task, ISR, Resource, Counter, Alarm or
@@ -397,11 +399,11 @@ __INLINE__ EE_TYPEBOOL __ALWAYS_INLINE__
 /* Functions used to check and handle Stack Overflow, with short cut to
    pass current application */
 void EE_as_check_and_handle_stack_overflow( ApplicationType appid,
-  EE_UREG tos );
+  EE_UREG stktop );
 #else /* EE_AS_OSAPPLICATIONS__ */
 /* Functions used to check and handle Stack Overflow. Have to be to be
    implemented in each porting that support stack monitoring */
-void EE_as_check_and_handle_stack_overflow( EE_UREG tos );
+void EE_as_check_and_handle_stack_overflow( EE_UREG stktop );
 #endif  /* EE_AS_OSAPPLICATIONS__ */
 
 /* Used Internally in Kernel primitives */
@@ -409,11 +411,14 @@ void EE_as_monitoring_the_stack( void );
 
 #else /* EE_STACK_MONITORING__ */
 #ifdef EE_AS_OSAPPLICATIONS__
-#define EE_as_check_and_handle_stack_overflow( appid, tos )   ((void)0)
+__INLINE__ void __ALWAYS_INLINE__
+EE_as_check_and_handle_stack_overflow( ApplicationType appid, EE_UREG stktop ) {}
 #else /* EE_AS_OSAPPLICATIONS__ */
-#define EE_as_check_and_handle_stack_overflow( tos )          ((void)0)
+__INLINE__ void __ALWAYS_INLINE__
+EE_as_check_and_handle_stack_overflow( EE_UREG stktop ) {}
 #endif /* EE_AS_OSAPPLICATIONS__ */
-#define EE_as_monitoring_the_stack()                          ((void)0)
+
+__INLINE__ void __ALWAYS_INLINE__ EE_as_monitoring_the_stack( void ) {}
 #endif /* EE_STACK_MONITORING__ */
 
 /* Used to select witch system ERROR handling function call */
@@ -427,7 +432,7 @@ void EE_as_monitoring_the_stack( void );
 #endif /* EE_AS_OSAPPLICATIONS__ */
 #else /* EE_AS_HAS_PROTECTIONHOOK__ */
 #define EE_as_call_protection_error(app, error)  \
-  EE_oo_ShutdownOS_internal(error);
+  EE_oo_ShutdownOS_internal(error)
 #endif /* EE_AS_HAS_PROTECTIONHOOK__ */
 
 #endif /* INCLUDE_EE_KERNEL_AS_INTERNAL__ */

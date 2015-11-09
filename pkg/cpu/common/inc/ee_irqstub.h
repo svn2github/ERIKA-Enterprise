@@ -50,14 +50,17 @@
  * file
  ******************************************************************************/
 
-#ifndef __INCLUDE_CPU_COMMON_EE_IRQSTUB__
-#define __INCLUDE_CPU_COMMON_EE_IRQSTUB__
+#ifndef PKG_CPU_COMMON_INC_EE_IRQSTUB_H
+#define PKG_CPU_COMMON_INC_EE_IRQSTUB_H
 
 /* this bring EE_IRQ_nesting_level definition */
 #include "cpu/common/inc/ee_primitives.h"
 
 /* True if we are inside an interrupt-serving routine */
-#define EE_is_inside_ISR_call() (EE_IRQ_nesting_level > 0U)
+__INLINE__ EE_TYPEBOOL __ALWAYS_INLINE__ EE_is_inside_ISR_call( void )
+{
+  return (EE_IRQ_nesting_level > 0U);
+}
 
 
 /* EE_decrement_IRQ_nesting_level() and EE_increment_IRQ_nesting_level() are
@@ -67,25 +70,25 @@
  */
 #if defined(__AS_SC4__)
 /* For SC4 the nesting level is updated inside the prestub and postub */
-#define EE_decrement_IRQ_nesting_level() ((void)0)
-#define EE_increment_IRQ_nesting_level() ((void)0)
-#define EE_std_enableIRQ_nested() ((void)0)
-#define EE_std_disableIRQ_nested() ((void)0)
+__INLINE__ void __ALWAYS_INLINE__ EE_decrement_IRQ_nesting_level(void) {}
+__INLINE__ void __ALWAYS_INLINE__ EE_increment_IRQ_nesting_level(void) {}
+__INLINE__ void __ALWAYS_INLINE__ EE_std_enableIRQ_nested(void) {}
+__INLINE__ void __ALWAYS_INLINE__ EE_std_disableIRQ_nested(void) {}
 #elif defined(__ALLOW_NESTED_IRQ__)
-#define EE_decrement_IRQ_nesting_level() (--EE_IRQ_nesting_level)
-#define EE_increment_IRQ_nesting_level() (++EE_IRQ_nesting_level)
+__INLINE__ void __ALWAYS_INLINE__ EE_decrement_IRQ_nesting_level(void) { --EE_IRQ_nesting_level; }
+__INLINE__ void __ALWAYS_INLINE__ EE_increment_IRQ_nesting_level(void) { ++EE_IRQ_nesting_level; }
 /*  EE_std_enableIRQ_nested() and EE_std_disableIRQ_nested() must be defined in
  *  the platform-dependent part, as they dependend on the particular way
  *  interrupts are handled by the CPU. */
 #else
-#define EE_decrement_IRQ_nesting_level() (EE_IRQ_nesting_level = 0U)
-#define EE_increment_IRQ_nesting_level() (EE_IRQ_nesting_level = 1U)
-#define EE_std_enableIRQ_nested() ((void)0)
-#define EE_std_disableIRQ_nested() ((void)0)
+__INLINE__ void __ALWAYS_INLINE__ EE_decrement_IRQ_nesting_level(void) { EE_IRQ_nesting_level = 0U; }
+__INLINE__ void __ALWAYS_INLINE__ EE_increment_IRQ_nesting_level(void) { EE_IRQ_nesting_level = 1U; }
+__INLINE__ void __ALWAYS_INLINE__ EE_std_enableIRQ_nested(void) {}
+__INLINE__ void __ALWAYS_INLINE__ EE_std_disableIRQ_nested(void) {}
 #endif
 
-#if defined(__OO_BCC1__) || defined(__OO_BCC2__) || defined(__OO_ECC1__) || \
-    defined(__OO_ECC2__) || defined(__AS_SC4__)
+#if (defined(__OO_BCC1__)) || (defined(__OO_BCC2__)) || (defined(__OO_ECC1__)) \
+  || (defined(__OO_ECC2__)) || (defined(__AS_SC4__))
 /* Function to be called at the end of a function service interrupt, to execute
    clean-up specifiend in Autosar standard */
 __INLINE__ void __ALWAYS_INLINE__ EE_std_end_IRQ_post_stub(void)
@@ -108,4 +111,4 @@ __INLINE__ void __ALWAYS_INLINE__ EE_std_after_IRQ_schedule(void)
     }
 }
 
-#endif /* __INCLUDE_CPU_COMMON_EE_IRQSTUB__ */
+#endif /* PKG_CPU_COMMON_INC_EE_IRQSTUB_H */

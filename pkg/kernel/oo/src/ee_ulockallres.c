@@ -49,14 +49,14 @@
   used to fulfill AS requirement OS070
 */
 
-#if ((defined(__OO_EXTENDED_STATUS__)) || defined(__OO_ISR2_RESOURCES__)) && \
-    (!defined(__PRIVATE_RELEASEALLRESOURCE__))
+#if ( (defined(__OO_EXTENDED_STATUS__)) || (defined(__OO_ISR2_RESOURCES__)) ) \
+  && (!defined(__PRIVATE_RELEASEALLRESOURCE__))
 
-/*
+#if 0
 #ifdef __MSRP__
 #warning "MSRP multiprocessor kernel protocol is not completly supported!"
 static void EE_oo_unlock_others(EE_UREG ResID)
-{*/
+{
   /* TODO Understand what I need to do for global resources
    * PSEUDO code:
    *  if(EE_oo_isGlobal(ResID))
@@ -65,11 +65,11 @@ static void EE_oo_unlock_others(EE_UREG ResID)
    * EG:
    * Global resources are going to disappear!
    */
-/*}
+}
 #else
 #define EE_oo_unlock_others(ResID)  ((void)0)
 #endif
-*/
+#endif 
 
 EE_UREG EE_oo_release_all_resources( EE_TID tid ) {
   /* ALLERT! this method have to be called only inside a critical section
@@ -84,11 +84,12 @@ EE_UREG EE_oo_release_all_resources( EE_TID tid ) {
       EE_resource_stack[ResID];
 #ifdef __OO_EXTENDED_STATUS__
     /* free the resource */
-    EE_resource_locked[ResID] = 0U;
+    EE_resource_locked[ResID] = EE_FALSE;
 #endif /* __OO_EXTENDED_STATUS__ */
     /* TODO choose the fate of global resources */
-    /* commented just to prevent from misra non-compliance */
-    /*EE_oo_unlock_others(ResID);*/
+#if 0
+    EE_oo_unlock_others(ResID);
+#endif
 
     curRes = EE_th_resource_last[tid];
   }

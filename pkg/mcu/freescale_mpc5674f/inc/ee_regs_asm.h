@@ -42,12 +42,12 @@
  * Author: 2010 Fabio Checconi
  */
 
-#ifndef __MCU_EE_REGS_ASM_H__
-#define __MCU_EE_REGS_ASM_H__
+#ifndef PKG_MCU_FREESCALE_MPC5674F_INC_EE_REGS_ASM_H
+#define PKG_MCU_FREESCALE_MPC5674F_INC_EE_REGS_ASM_H
 
 #define INTC_MCR_ADDR   0xfff48000
 #define INTC_CPR_ADDR   0xfff48008
 #define INTC_IACKR_ADDR 0xfff48010
 #define INTC_EOIR_ADDR  0xfff48018
 
-#endif /* __MCU_EE_REGS_ASM_H__ */
+#endif

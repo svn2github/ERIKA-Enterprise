@@ -43,8 +43,8 @@
  * CVS: $Id: ee_intfunc.h,v 1.2 2006/04/08 21:15:23 pj Exp $
  */
 
-#ifndef __INCLUDE_OO_INTFUNC_H__
-#define __INCLUDE_OO_INTFUNC_H__
+#ifndef PKG_KERNEL_OO_INC_EE_OO_INTFUNC_H
+#define PKG_KERNEL_OO_INC_EE_OO_INTFUNC_H
 
 /* If MemMap.h support is enabled (i.e. because memory protection): use it */
 #ifdef EE_SUPPORT_MEMMAP_H
@@ -97,7 +97,7 @@ __INLINE__ AppModeType __ALWAYS_INLINE__ EE_oo_GetActiveApplicationMode( void )
 }
 #endif /* __PRIVATE_GETACTIVEAPPLICATIONMODE__ */
 
-#if defined(__MSRP__) && (!defined(__OO_NO_RESOURCES__))
+#if (defined(__MSRP__)) && (!defined(__OO_NO_RESOURCES__))
 __INLINE__ EE_UREG __ALWAYS_INLINE__ EE_oo_isGlobal(ResourceType ResID)
 {
   register EE_UREG isGlobal, ureg_tmp1, ureg_tmp2;
@@ -553,12 +553,12 @@ __INLINE__ void __ALWAYS_INLINE__ EE_oo_notify_error_WaitEvent(EventMaskType
       EE_ErrorHook_nested_flag = 0U;
     }
 }
-#else /* #if defined(__OO_ECC1__) || defined(__OO_ECC2__) */
+#else /* if defined __OO_ECC1__ or defined __OO_ECC2__ */
 #define EE_oo_notify_error_SetEvent(TaskID, Mask, Error)        ((void)0)
 #define EE_oo_notify_error_ClearEvent(Mask, Error)              ((void)0)
 #define EE_oo_notify_error_GetEvent(TaskID, Event, Error)       ((void)0)
 #define EE_oo_notify_error_WaitEvent(Mask, Error)               ((void)0)
-#endif /* #if defined(__OO_ECC1__) || defined(__OO_ECC2__) */
+#endif /* if defined __OO_ECC1__ or defined __OO_ECC2__ */
 
 #ifndef __OO_NO_ALARMS__
 __INLINE__ void __ALWAYS_INLINE__ EE_oo_notify_error_GetAlarmBase(AlarmType
@@ -705,7 +705,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_oo_notify_error_StartOS(AppModeType
 #endif /* __OO_HAS_ERRORHOOK__ */
 
 /* XXX: Here because have to be seen in eecfg.c to generate syscall array */
-#if defined(__EE_MEMORY_PROTECTION__) && defined(__OO_HAS_ERRORHOOK__)
+#if (defined(__EE_MEMORY_PROTECTION__)) && (defined(__OO_HAS_ERRORHOOK__))
 void EE_oo_notify_error_from_us_internal( OSServiceIdType ServiceID,
   const EE_oo_ErrorHook_parameters * const error_parameters_ref,
   StatusType Error );

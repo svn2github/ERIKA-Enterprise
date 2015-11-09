@@ -100,7 +100,7 @@ StatusType EE_oo_WaitSem( SemRefType Sem )
 #endif /* __OO_NO_RESOURCES__ */
 
   /* check if the task is an extended task */
-  if ( EE_th_is_extended[current] == 0U) {
+  if ( EE_th_is_extended[current] == EE_FALSE) {
     ev = E_OS_ACCESS;
   } else
 #endif /* __OO_EXTENDED_STATUS__ */

@@ -47,7 +47,7 @@
 
 #ifndef __PRIVATE_RQ_INSERT__
 
-#if defined(__OO_BCC1__) || defined(__OO_ECC1__)
+#if (defined(__OO_BCC1__)) || (defined(__OO_ECC1__))
 /* this function inserts a task into the ready queue */
 void EE_rq_insert(EE_TID t)
 {
@@ -73,7 +73,7 @@ void EE_rq_insert(EE_TID t)
 }
 #endif
 
-#if defined(__OO_BCC2__) || defined(__OO_ECC2__)
+#if (defined(__OO_BCC2__)) || (defined(__OO_ECC2__))
 void EE_rq_insert(EE_TID t)
 {
   EE_TYPEPAIR temp;

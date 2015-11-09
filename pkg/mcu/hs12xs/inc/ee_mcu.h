@@ -89,7 +89,7 @@ extern volatile unsigned int ee_s12_peripheral_frequency_mhz;
 /*************************************************************************
  System startup
  *************************************************************************/
-#ifdef __OO_CPU_HAS_STARTOS_ROUTINE__
+#ifdef OO_CPU_HAS_STARTOS_ROUTINE
 
 /**
  * \brief			This function is used to initialize the peripherals and start some activity inside the EE_cpu_startos.
@@ -102,11 +102,11 @@ int EE_s12_hal_cpu_startos(void);
  * \return			Only in case of __OO_EXTENDED_STATUS__ the function returns the result of the timer initialization.
  */
 #ifdef __OO_EXTENDED_STATUS__
-int EE_cpu_startos(void);
+EE_TYPEBOOL EE_cpu_startos(void);
 #else
 void EE_cpu_startos(void);
 #endif	/* __OO_EXTENDED_STATUS__ */
 
-#endif	/* __OO_CPU_HAS_STARTOS_ROUTINE__ */
+#endif	/* OO_CPU_HAS_STARTOS_ROUTINE */
 
 #endif	/* __INCLUDE_FREESCALE_S12XS_MCU_H__ */

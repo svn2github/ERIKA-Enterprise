@@ -69,7 +69,7 @@
                             System startup
  *************************************************************************/
 
-#define __OO_CPU_HAS_STARTOS_ROUTINE__
+#define OO_CPU_HAS_STARTOS_ROUTINE
 
 /* If system is defined I have to initialize it*/
 #if	( defined(ENABLE_SYSTEM_TIMER) && defined(EE_SYSTEM_TIMER_DEVICE) )
@@ -78,8 +78,8 @@ void EE_cortex_rx_initialize_system_timer(void);
 #define EE_cortex_rx_initialize_system_timer() ((void) 0)
 #endif /* ENABLE_SYSTEM_TIMER */
 
-static int __ALWAYS_INLINE__ EE_cpu_startos(void);
-__INLINE__ int __ALWAYS_INLINE__ EE_cpu_startos(void)
+__INLINE__ EE_TYPEBOOL __ALWAYS_INLINE__ EE_cpu_startos(void);
+__INLINE__ EE_TYPEBOOL __ALWAYS_INLINE__ EE_cpu_startos(void)
 {
   EE_system_init();
   EE_cortex_rx_initialize_system_timer();

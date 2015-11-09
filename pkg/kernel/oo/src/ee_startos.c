@@ -48,7 +48,7 @@
 /*
  * ORTI variables
  */
-#if defined(RTDRUID_CONFIGURATOR_NUMBER) \
+#if (defined(RTDRUID_CONFIGURATOR_NUMBER))				\
  && (RTDRUID_CONFIGURATOR_NUMBER >= RTDRUID_CONFNUM_NO_ORTI_VARS)
 
 #ifdef __OO_ORTI_SERVICETRACE__
@@ -80,6 +80,10 @@ EE_TYPEPRIO EE_ORTI_th_priority[EE_MAX_TASK];
 volatile EE_ORTI_runningisr2_type EE_ORTI_runningisr2;
 #endif /* __OO_ORTI_RUNNINGISR2__ */
 
+
+
+
+
 /* StartOS
 
   - called to start the operating system in a specific Application
@@ -89,16 +93,11 @@ volatile EE_ORTI_runningisr2_type EE_ORTI_runningisr2;
 #ifndef __PRIVATE_STARTOS__
 
 #ifdef __OO_AUTOSTART_TASK__
-/*
- * MISRA NOTE: This function is a workaround to provide
- * the capability to access task id array as a real array
- * although it is declared as pointer.
- * This measure prevents from misra error:
- * "pointer arithmetic other than array indexing used".
- * Furthermore, in order to prevent from the following error:
- * Possible use of null pointer 'task_id_vec' of type 'const EE_TID *'
- * a check on task_id_vec has been added
- */
+
+static EE_TID compute_task_tid(const EE_TID task_id_vec[], EE_UREG t);
+static void EE_oo_autostart_tasks(AppModeType Mode);
+
+  
 static EE_TID compute_task_tid(const EE_TID task_id_vec[], EE_UREG t)
 {
   EE_TID res = EE_NIL;
@@ -112,11 +111,11 @@ static EE_TID compute_task_tid(const EE_TID task_id_vec[], EE_UREG t)
 
 static void EE_oo_autostart_tasks(AppModeType Mode)
 {
-  register EE_UREG n, t;
-  n = EE_oo_autostart_task_data[Mode].n;
-  for ( t = 0U; t < n; t++ ) {
+  register EE_UREG ntask, t;
+  ntask = EE_oo_autostart_task_data[Mode].nt;
+  for ( t = 0U; t < ntask; t++ ) {
     /* Insert the TID in Ready Queue */
-    EE_TID tid = compute_task_tid(EE_oo_autostart_task_data[Mode].task, t);
+    EE_TID tid = compute_task_tid(*EE_oo_autostart_task_data[Mode].task, t);
     EE_oo_task_in_ready_queue(tid);
   }
 }
@@ -125,21 +124,12 @@ static void EE_oo_autostart_tasks(AppModeType Mode)
 #endif /* __OO_AUTOSTART_TASK__ */
 
 #ifdef __OO_AUTOSTART_ALARM__
-/*
- * MISRA NOTE: This function is a workaround to provide
- * the capability to access alarm id array as a real array
- * although it is declared as pointer.
- * This measure prevents from Misra error:
- * "pointer arithmetic other than array indexing used"
- * please note that this function is very similiar to
- * compute_task_tid but the first argument is a vector
- * and Misra does not allow the cast from EE_TYPEALARM*
- * to EE_TID* and viceversa. Therefore the two function,
- * although similar need to be kept separated.
- * Furthermore, in order to prevent from the following error:
- * Possible use of null pointer 'alarm_id_vec' of type 'const EE_TID *'
- * a check on alarm_id_vec has been added
- */
+
+static EE_TYPEALARM compute_alarm_id(const EE_TYPEALARM alarm_id_vec[],
+				     EE_UREG t);
+
+static void  EE_oo_autostart_alarms(AppModeType Mode);
+
 static EE_TYPEALARM compute_alarm_id(const EE_TYPEALARM alarm_id_vec[],
   EE_UREG t)
 {
@@ -154,11 +144,11 @@ static EE_TYPEALARM compute_alarm_id(const EE_TYPEALARM alarm_id_vec[],
 
 static void  EE_oo_autostart_alarms(AppModeType Mode)
 {
-  register EE_UREG n, t;
-  n = EE_oo_autostart_alarm_data[Mode].n;
-  for ( t = 0U; t < n; t++ ) {
+  register EE_UREG nalarm, t;
+  nalarm = EE_oo_autostart_alarm_data[Mode].na;
+  for ( t = 0U; t < nalarm; t++ ) {
     EE_TYPEALARM alarm_temp = compute_alarm_id(
-      EE_oo_autostart_alarm_data[Mode].alarm, t);
+      *EE_oo_autostart_alarm_data[Mode].alarm, t);
     EE_oo_handle_rel_counter_object_insertion(alarm_temp,
       EE_oo_autostart_alarm_increment[alarm_temp],
       EE_oo_autostart_alarm_cycle[alarm_temp]);
@@ -217,8 +207,11 @@ static void  EE_oo_autostart_schedule_tables ( AppModeType Mode )
 #define EE_oo_autostart_schedule_tables(Mode)   ((void)0)
 #endif /* EE_AS_AUTOSTART_SCHEDULETABLE__ */
 
-#if defined(__OO_AUTOSTART_TASK__) || defined(__OO_AUTOSTART_ALARM__) ||\
-  defined(EE_AS_AUTOSTART_SCHEDULETABLE__)
+#if (defined(__OO_AUTOSTART_TASK__)) || (defined(__OO_AUTOSTART_ALARM__)) \
+  || (defined(EE_AS_AUTOSTART_SCHEDULETABLE__))
+
+static void EE_oo_autostart_os ( AppModeType Mode );
+
 static void EE_oo_autostart_os ( AppModeType Mode )
 {
   if ( Mode < EE_MAX_APPMODE ) {
@@ -234,24 +227,31 @@ static void EE_oo_autostart_os ( AppModeType Mode )
   EE_AS_AUTOSTART_SCHEDULETABLE__ */
 
 #ifdef __OO_HAS_STARTUPHOOK__
+static void EE_oo_call_StartupHook(void);
 static void EE_oo_call_StartupHook(void)
 {
   StartupHook();
 }
 #else /*  __OO_HAS_STARTUPHOOK__ */
-#define EE_oo_call_StartupHook()    ((void)0)
+__INLINE__ void  __ALWAYS_INLINE__ EE_oo_call_StartupHook(void);
+__INLINE__ void  __ALWAYS_INLINE__ EE_oo_call_StartupHook(void) {}
 #endif /* __OO_HAS_STARTUPHOOK__ */
 
 /** @brief Flag that the OS is started */
 EE_UREG volatile EE_oo_started;
 
 #if defined(__OO_STARTOS_OLD__)
+__INLINE__ void __ALWAYS_INLINE__ EE_oo_start_os(void);
+
 /*
  * If __OO_STARTOS_OLD__ is defined, the StartOS() returns,
  * (this is the old behaviour before the Autosar compliance).
  */
-#define EE_oo_start_os()    ((void)0)
+__INLINE__ void __ALWAYS_INLINE__ EE_oo_start_os(void) {}
 #else /* __OO_STARTOS_OLD__ */
+static void EE_oo_start_os(void);
+
+
 /*
  * If __OO_STARTOS_OLD__ is not defined the system behaves 
  * like Autosar requires: infinite loop (do not return).
@@ -280,7 +280,7 @@ static void EE_oo_start_os(void)
 
 StatusType EE_oo_StartOS(AppModeType Mode)
 {
-#if defined(__MSRP__) && (!defined(EE_AS_MULTICORE_NO_SYNC))
+#if (defined(__MSRP__)) && (!defined(EE_AS_MULTICORE_NO_SYNC))
   /* The following contains cores application modes */
   extern AppModeType volatile EE_as_os_application_mode[];
   /* Mask for Autosar cores started */
@@ -301,12 +301,12 @@ StatusType EE_oo_StartOS(AppModeType Mode)
   if ( EE_oo_started != 0U ) {
     ev = E_OS_STATE;
   } else {
-#if defined(__OO_CPU_HAS_STARTOS_ROUTINE__) && defined(EE_MASTER_CPU)
+#if (defined(OO_CPU_HAS_STARTOS_ROUTINE)) && (defined(EE_MASTER_CPU))
     /* the CPU initialization can return an error; 0 if all ok */
-    if ( EE_cpu_startos() ) {
+    if ( EE_cpu_startos() != EE_FALSE ) {
       ev = E_OS_SYS_INIT;
     } else
-#endif /* __OO_CPU_HAS_STARTOS_ROUTINE__ && EE_MASTER_CPU */
+#endif /* OO_CPU_HAS_STARTOS_ROUTINE && EE_MASTER_CPU */
     {
       /* Primitive Lock Procedure */
       EE_hal_disableIRQ();
@@ -315,7 +315,7 @@ StatusType EE_oo_StartOS(AppModeType Mode)
       EE_ORTI_set_runningisr2((EE_ORTI_runningisr2_type)NULL);
 
       /* Multicore Startup */
-#if defined(__MSRP__) && (!defined(EE_AS_MULTICORE_NO_SYNC))
+#if (defined(__MSRP__)) && (!defined(EE_AS_MULTICORE_NO_SYNC))
       /* [OS609]: If StartOS is called with the AppMode "DONOTCARE" the
           application mode of the other core(s) (differing from "DONOTCARE")
           shall be used. (BSW4080006) */
@@ -333,7 +333,7 @@ StatusType EE_oo_StartOS(AppModeType Mode)
           (v 4.0 rev 3.0)).
           So I decide to handle it jumping in an endless loop. */
 /* TODO: maybe we need a special macro to identify the master core */
-#if defined(EE_CURRENTCPU) && (EE_CURRENTCPU != 0)
+#if (defined(EE_CURRENTCPU)) && (EE_CURRENTCPU != 0)
       if( ((EE_as_core_mask & ((EE_UREG)1U << EE_CURRENTCPU)) == 0U) )
       {
         /* Enter in an endless loop if it happened */
@@ -362,13 +362,13 @@ StatusType EE_oo_StartOS(AppModeType Mode)
       /* Initialize Slaves Hardware after First syncronization point:
          This assure that all the Master Initializations have been done. */
 #if defined(EE_CURRENTCPU) && (EE_CURRENTCPU != 0)
-#if defined(__OO_CPU_HAS_STARTOS_ROUTINE__)
+#if defined(OO_CPU_HAS_STARTOS_ROUTINE)
       /* the CPU initialization can return an error; 0 if all ok */
       if ( EE_cpu_startos() ) {
         /* Enter in an endless loop if it happened */
         EE_oo_start_os();
       }
-#endif /* __OO_CPU_HAS_STARTOS_ROUTINE__ */
+#endif /* OO_CPU_HAS_STARTOS_ROUTINE */
 #endif /* EE_CURRENTCPU != 0 */
       /* [OS608]: If more than one core calls StartOS with an AppMode other than
           "DONOTCARE", the AppModes shall be the same. StartOS shall check this
@@ -411,8 +411,8 @@ StatusType EE_oo_StartOS(AppModeType Mode)
          code in StartupHook */
       EE_oo_started = 1U;
 
-#if defined(__OO_HAS_STARTUPHOOK__) || defined(__OO_AUTOSTART_TASK__) || \
-  defined(__OO_AUTOSTART_ALARM__) || defined(EE_AS_AUTOSTART_SCHEDULETABLE__)
+#if (defined(__OO_HAS_STARTUPHOOK__)) || (defined(__OO_AUTOSTART_TASK__)) \
+  || (defined(__OO_AUTOSTART_ALARM__)) || (defined(EE_AS_AUTOSTART_SCHEDULETABLE__))
 
       /* Set the context execution at StartupHook */
       EE_as_set_execution_context( StartupHook_Context );
@@ -447,7 +447,7 @@ StatusType EE_oo_StartOS(AppModeType Mode)
       }
 #endif /* EE_AS_OSAPPLICATIONS__ */
 
-#if defined(__MSRP__) && (!defined(EE_AS_MULTICORE_NO_SYNC))
+#if (defined(__MSRP__)) && (!defined(EE_AS_MULTICORE_NO_SYNC))
       /* [OS579]: All cores that belong to the AUTOSAR system shall be
           synchronized within the StartOS function before the scheduling is
           started and after the global StartupHook is called.

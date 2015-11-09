@@ -86,8 +86,8 @@ StatusType EE_oo_GetTaskID(TaskRefType TaskID)
   if ( TaskID == NULL ) {
     ev = E_OS_PARAM_POINTER;
   } else
-#if defined(EE_AS_OSAPPLICATIONS__) && (defined(EE_SERVICE_PROTECTION__) &&\
-  defined(__EE_MEMORY_PROTECTION__))
+#if (defined(EE_AS_OSAPPLICATIONS__)) && (defined(EE_SERVICE_PROTECTION__)) \
+  && (defined(__EE_MEMORY_PROTECTION__))
   /* [SWS_Os_00051]: If an invalid address (address is not writable by this
       OS-Application) is passed as an out-parameter to an Operating System
       service, the Operating System module shall return the status code

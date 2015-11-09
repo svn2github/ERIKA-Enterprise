@@ -47,8 +47,8 @@
  * Interface header to access IRQ API and Macros support.
  ******************************************************************************/
 
-#ifndef INCLUDE_PKG_EE_IRQ_H__
-#define INCLUDE_PKG_EE_IRQ_H__
+#ifndef PKG_EE_IRQ_H
+#define PKG_EE_IRQ_H
 
 #include "eecfg.h"
 
@@ -67,7 +67,7 @@ extern "C" {
 #endif
 
  /* Freescale */
-#if defined(__MC9S12__) || defined(__HCS12XS__)
+#if (defined(__MC9S12__)) || (defined(__HCS12XS__))
 #include "cpu/hs12xs/inc/ee_cpu.h"
 #endif
 
@@ -79,7 +79,7 @@ extern "C" {
 #include "cpu/mico32/inc/ee_cpu.h"
 #endif
 
-#if defined(__PPCE200Z7__) || defined(__PPCE200ZX__)
+#if (defined(__PPCE200Z7__)) || (defined(__PPCE200ZX__))
 #include "cpu/e200zx/inc/ee_cpu.h"
 #endif /* defined __PPCE200Z7__ || defined __PPCE200ZX__ */
 
@@ -124,8 +124,8 @@ extern "C" {
 #endif
 
 /* OO */
-#if defined(__OO_BCC1__) || defined(__OO_BCC2__) || defined(__OO_ECC1__) || \
-defined(__OO_ECC2__) || defined(__AS_SC4__)
+#if (defined(__OO_BCC1__)) || (defined(__OO_BCC2__)) \
+  || (defined(__OO_ECC1__)) || (defined(__OO_ECC2__)) || (defined(__AS_SC4__))
 #include "kernel/oo/inc/ee_oo_irq.h"
 #endif
 
@@ -138,7 +138,7 @@ defined(__OO_ECC2__) || defined(__AS_SC4__)
 #endif
 
 /* Freescale */
-#if defined(__MC9S12__) || defined(__HCS12XS__)
+#if (defined(__MC9S12__)) || (defined(__HCS12XS__))
 #include "cpu/hs12xs/inc/ee_irqstub.h"
 #endif
 
@@ -154,7 +154,7 @@ defined(__OO_ECC2__) || defined(__AS_SC4__)
 #include "cpu/mico32/inc/ee_irq.h"
 #endif
 
-#if defined(__PPCE200Z7__) || defined(__PPCE200ZX__)
+#if (defined(__PPCE200Z7__)) || (defined(__PPCE200ZX__))
 #include "cpu/e200zx/inc/ee_irq.h"
 #endif
 

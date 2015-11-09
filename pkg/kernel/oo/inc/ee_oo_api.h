@@ -44,10 +44,11 @@
  */
 
 
-#ifndef __INCLUDE_KERNEL_OO_EE_API__
-#define __INCLUDE_KERNEL_OO_EE_API__
+#ifndef PKG_KERNEL_OO_INC_EE_OO_API_H
+#define PKG_KERNEL_OO_INC_EE_OO_API_H
 
-#if defined(__OO_BCC1__) || defined(__OO_BCC2__) || defined(__OO_ECC1__) || defined(__OO_ECC2__)
+#if (defined(__OO_BCC1__)) || (defined(__OO_BCC2__)) \
+  || (defined(__OO_ECC1__)) || (defined(__OO_ECC2__))
 /* These function are always called directly, never by syscall */
 #ifndef StartOS
 #define StartOS                   EE_oo_StartOS

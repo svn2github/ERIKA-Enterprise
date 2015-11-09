@@ -78,7 +78,7 @@ ISRType EE_as_GetISRID( void )
       AND is currently not inside a Category 1 ISR the Operating System module
       shall not perform the requested action (the service call shall have no
       effect), and return E_OS_CALLEVEL (see [12], section 13.1) or the
-      “invalid value” of  the service. (BSW11009, BSW11013) */
+      invalid value of  the service. (BSW11009, BSW11013) */
   /* GetISRID is callable by Task, ISR2, ErrorHook and ProtectionHook */
   if ( EE_as_execution_context > ProtectionHook_Context ) {
     ev = E_OS_CALLEVEL;

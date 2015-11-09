@@ -68,7 +68,7 @@ alt_mutex_dev* EE_nios2_avalon_mutex;
 
 
 #ifdef __OO_EXTENDED_STATUS__
-int EE_cpu_startos(void)
+EE_TYPEBOOL EE_cpu_startos(void)
 #else
 void EE_cpu_startos(void)
 #endif

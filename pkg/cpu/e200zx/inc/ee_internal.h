@@ -44,8 +44,8 @@
  *         2011 Bernardo  Dal Seno
  */
 
-#ifndef __INCLUDE_E200ZX_INTERNAL_H__
-#define __INCLUDE_E200ZX_INTERNAL_H__
+#ifndef PKG_CPU_E200ZX_INC_EE_INTERNAL_H
+#define PKG_CPU_E200ZX_INC_EE_INTERNAL_H
 
 #include "cpu/e200zx/inc/ee_cpu.h"
 
@@ -54,6 +54,9 @@
  */
 
 #include "cpu/common/inc/ee_primitives.h"
+
+/* Common Context Handling implementation */
+#include "cpu/common/inc/ee_context.h"
 
 
 /*************************************************************************
@@ -72,28 +75,29 @@ extern EE_STACK_T EE_STACK_ATTRIB EE_e200zx_sys_stack[EE_STACK_WLEN(EE_SYS_STACK
                             System startup
  *************************************************************************/
 
-#define __OO_CPU_HAS_STARTOS_ROUTINE__
+#define OO_CPU_HAS_STARTOS_ROUTINE
 
 /* If system timer is defined with a device. I have to initialize it */
-#if defined(ENABLE_SYSTEM_TIMER) && defined(EE_SYSTEM_TIMER_DEVICE)
+#if (defined(ENABLE_SYSTEM_TIMER)) && (defined(EE_SYSTEM_TIMER_DEVICE))
 void EE_initialize_system_timer(void);
 #else /* ENABLE_SYSTEM_TIMER && EE_SYSTEM_TIMER_DEVICE */
-#define EE_initialize_system_timer() ((void) 0)
+__INLINE__ void __ALWAYS_INLINE__ EE_initialize_system_timer(void) {}
 #endif /* ENABLE_SYSTEM_TIMER && EE_SYSTEM_TIMER_DEVICE */
 
-#if defined(__MSRP__) || (defined(__EE_MEMORY_PROTECTION__) \
-	&& (defined(__OO_BCC1__) || defined(__OO_BCC2__)    \
-		|| defined(__OO_ECC1__) || defined(__OO_ECC2__)))
+#if (defined(__MSRP__)) \
+  || ( (defined(__EE_MEMORY_PROTECTION__)) \
+       && ( (defined(__OO_BCC1__)) || (defined(__OO_BCC2__))	\
+	    || (defined(__OO_ECC1__)) || (defined(__OO_ECC2__)) ))
 /* On multi-core this is used also as a synchronization point */
-int EE_cpu_startos(void);
+EE_TYPEBOOL EE_cpu_startos(void);
 
-#else /* if __MSRP__ || __EE_MEMORY_PROTECTION__ ... */
+#else /* if __MSRP__ or __EE_MEMORY_PROTECTION__ ... */
 /* Nothing to do but initializing system timer */
-static int __ALWAYS_INLINE__ EE_cpu_startos(void);
-__INLINE__ int __ALWAYS_INLINE__ EE_cpu_startos(void)
+__INLINE__ EE_TYPEBOOL __ALWAYS_INLINE__ EE_cpu_startos(void);
+__INLINE__ EE_TYPEBOOL __ALWAYS_INLINE__ EE_cpu_startos(void)
 {
   EE_initialize_system_timer();
-  return 0;
+  return EE_FALSE;
 }
 
 #endif /* else if __MSRP__ || __EE_MEMORY_PROTECTION__ ... */
@@ -113,9 +117,9 @@ __INLINE__ EE_FREG __ALWAYS_INLINE__ EE_hal_begin_nested_primitive(void)
 
 /* Called as _last_ function of a primitive that can be called in
    an IRQ and in a task.  Enable IRQs if they were enabled before entering. */
-__INLINE__ void __ALWAYS_INLINE__ EE_hal_end_nested_primitive(EE_FREG f)
+__INLINE__ void __ALWAYS_INLINE__ EE_hal_end_nested_primitive(EE_FREG endflags)
 {
-	EE_hal_resumeIRQ(f);
+	EE_hal_resumeIRQ(endflags);
 }
 
 /* Used to get internal CPU priority. */
@@ -177,8 +181,6 @@ __INLINE__ EE_BIT __ALWAYS_INLINE__ EE_hal_check_int_prio_if_higher(
 	return (actual_prio > new_prio)?1U:0U;
 }
 
-/* Common Context Handling implementation */
-#include "cpu/common/inc/ee_context.h"
 /* typically called at the end of an interrupt by kernel */
 #define EE_hal_IRQ_stacked  EE_hal_endcycle_stacked
 #define EE_hal_IRQ_ready    EE_hal_endcycle_ready
@@ -187,8 +189,8 @@ __INLINE__ EE_BIT __ALWAYS_INLINE__ EE_hal_check_int_prio_if_higher(
  * OO TerminateTask related stuffs
  */
 
-#if defined(__OO_BCC1__) || defined(__OO_BCC2__) || defined(__OO_ECC1__) || \
-  defined(__OO_ECC2__)
+#if (defined(__OO_BCC1__)) || (defined(__OO_BCC2__)) || (defined(__OO_ECC1__)) \
+  || (defined(__OO_ECC2__))
 
 void EE_hal_terminate_savestk(EE_TID tid);
 #ifdef USE_PRAGMAS

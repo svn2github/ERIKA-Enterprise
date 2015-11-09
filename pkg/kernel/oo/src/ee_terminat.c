@@ -80,12 +80,12 @@ StatusType EE_oo_TerminateTask(void)
     ev = E_OS_DISABLEDINT;
   } else
 #endif /* EE_SERVICE_PROTECTION__ */
-#if defined(__OO_EXTENDED_STATUS__) || defined(EE_SERVICE_PROTECTION__)
+#if (defined(__OO_EXTENDED_STATUS__)) || (defined(EE_SERVICE_PROTECTION__))
   /*  [OS088]: If an OS-Application makes a service call from the wrong context
       AND is currently not inside a Category 1 ISR the Operating System module
       shall not perform the requested action (the service call shall have no
       effect), and return E_OS_CALLEVEL (see [12], section 13.1) or the
-      “invalid value” of  the service. (BSW11009, BSW11013) */
+      "invalid value" of  the service. (BSW11009, BSW11013) */
   /* check for a call at interrupt level
    * This must be the FIRST Check!!!
    */

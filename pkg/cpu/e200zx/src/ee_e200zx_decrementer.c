@@ -1,7 +1,7 @@
 /* ###*B*###
  * ERIKA Enterprise - a tiny RTOS for small microcontrollers
  *
- * Copyright (C) 2002-2008  Evidence Srl
+ * Copyright (C) 2002-2011  Evidence Srl
  *
  * This file is part of ERIKA Enterprise.
  *
@@ -39,73 +39,77 @@
  * ###*E*### */
 
 /*
- * Author: 2002-2004 Paolo Gai
- * CVS: $Id: ee_rq_exchg.c,v 1.1 2005/07/16 12:23:42 pj Exp $
+ * Author: 2011  Bernardo  Dal Seno
+ *         2010  Fabio Checconi
  */
 
-#include "ee_internal.h"
+#include <ee_internal.h>
 
-#ifndef __PRIVATE_RQ2STK_EXCHANGE__
+#ifndef __PPCE200Z0__
+/* e200z0 has no internal timer, so the functions below are not defined */
 
-#if (defined(__OO_BCC1__)) || (defined(__OO_ECC1__))
-EE_TID EE_rq2stk_exchange(void)
+void EE_e200zx_setup_fixed_intv(EE_UREG bitpos)
 {
-  EE_TID temp;
-
-  temp = EE_rq_first;
-  
-  /* extract the first task from the ready queue */
-  EE_rq_first = EE_th_next[temp]; 
-  /* insert the extracted task on the topo of the stack */
-  EE_th_next[temp] = EE_stkfirst;
-  EE_stkfirst = temp;
-
-  return temp;
+	EE_UREG tcr;
+	tcr = EE_e200zx_get_tcr();
+	tcr |= ((EE_UREG)1 << TCR_FIE);
+	tcr &= ~(EE_UREG)TCR_FPALL_MASK;
+	tcr |= ((bitpos & (EE_UREG)0x3) << TCR_FP)
+		| (((bitpos >> 2) & (EE_UREG)0xf) << TCR_FPEXT);
+	EE_e200zx_set_tcr(tcr);
 }
-#endif
 
-#if (defined(__OO_BCC2__)) || (defined(__OO_ECC2__))
-EE_TID EE_rq2stk_exchange(void)
+void EE_e200zx_stop_fixed_intv(void)
 {
-  EE_INT8 x;    /* the first non-empty queue */
-  EE_TID temp;   /* the TID to be inserted in the top of the stack */
-  EE_TYPEPAIR y; /* used to free the descriptor */
-
-#if defined(__OO_ECC2__)
-  /* lookup at bits 15-9 */
-  x = EE_rq_lookup[(EE_rq_bitmask & 0xFF00U) >> 8];
-  if (x == (EE_INT8)-1) {
-    x = EE_rq_lookup[EE_rq_bitmask];
-  } else {
-    x += (EE_INT8)8;
-  }
-#else
-  x = EE_rq_lookup[EE_rq_bitmask];
-#endif
-
-  /* now x contains the highest priority non-empty queue number */
-
-  /* get the TID to insert in the stacked queue */
-  temp = EE_rq_pairs_tid[EE_rq_queues_head[x]];
-
-  /* free the descriptor */
-  y = EE_rq_queues_head[x];
-  EE_rq_queues_head[x] = EE_rq_pairs_next[EE_rq_queues_head[x]];
-  EE_rq_pairs_next[y] = EE_rq_free;
-  EE_rq_free = y;
-  
-  if (EE_rq_queues_head[x] == (EE_SREG)-1) {
-    EE_rq_queues_tail[x] = -1;
-    /* reset the (x)th bit in the bitfield; casts are for MISRA compliance */
-    EE_rq_bitmask &= (EE_TYPE_RQ_MASK)~((EE_TYPE_RQ_MASK)((EE_TYPE_RQ_MASK)1U << x));
-  }
-
-  /* insert the extracted task on the top of the stack */
-  EE_th_next[temp] = EE_stkfirst;
-  EE_stkfirst = temp;
-
-  return temp;
+	EE_UREG tcr;
+	tcr = EE_e200zx_get_tcr();
+	tcr &= ~((EE_UREG)1 << TCR_FIE);
+	EE_e200zx_set_tcr(tcr);
 }
-#endif
 
-#endif
+void EE_e200z7_setup_decrementer(EE_UINT32 dec_value)
+{
+	EE_UREG tcr;
+	EE_e200zx_set_decar(dec_value);
+	EE_e200zx_set_dec(dec_value);
+	tcr = EE_e200zx_get_tcr();
+	tcr |= ((EE_UREG)1 << TCR_DIE) | ((EE_UREG)1 << TCR_ARE);
+	EE_e200zx_set_tcr(tcr);
+}
+
+void EE_e200z7_setup_decrementer_oneshot(EE_UINT32 oneshotvalue)
+{
+	EE_UREG tcr;
+	EE_e200zx_set_dec(oneshotvalue);
+	tcr = EE_e200zx_get_tcr();
+	tcr |= ((EE_UREG)1 << TCR_DIE);
+	tcr &= ~((EE_UREG)1 << TCR_ARE);
+	EE_e200zx_set_tcr(tcr);
+}
+
+void EE_e200z7_stop_decrementer(void)
+{
+	EE_UREG tcr;
+	tcr = EE_e200zx_get_tcr();
+	tcr &= ~((EE_UREG)1 << TCR_ARE);
+	EE_e200zx_set_tcr(tcr);
+	EE_e200zx_set_dec(0U);
+	EE_e200zx_set_decar(0U);
+	tcr = EE_e200zx_get_tcr();
+	tcr &= ~((EE_UREG)1 << TCR_DIE);
+	EE_e200zx_set_tcr(tcr);
+	EE_e200zx_set_tsr((EE_UREG)1 << TSR_DIS);
+}
+
+void EE_e200zx_delay(EE_UINT32 ticks)
+{
+	EE_UINT32 start;
+	start = EE_e200zx_get_tbl();
+	/* (EE_e200zx_get_tbl() - start) is always the number of ticks from the
+	 * beginning, even if a wrap-around has occurred. */
+	while ((EE_e200zx_get_tbl() - start) < ticks) {
+		/* Wait */
+	}
+}
+
+#endif /* ! __PPCE200Z0__ */

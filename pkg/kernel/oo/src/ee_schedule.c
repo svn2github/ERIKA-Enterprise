@@ -83,7 +83,7 @@ StatusType EE_oo_Schedule(void)
   } else
 #endif /* EE_SERVICE_PROTECTION__ */
 
-#if defined(__OO_EXTENDED_STATUS__) || defined(EE_SERVICE_PROTECTION__)
+#if (defined(__OO_EXTENDED_STATUS__)) || (defined(EE_SERVICE_PROTECTION__))
   /* [OS088]: If an OS-Application makes a service call from the wrong context
       AND is currently not inside a Category 1 ISR the Operating System module
       shall not perform the requested action (the service call shall have no
@@ -123,8 +123,8 @@ StatusType EE_oo_Schedule(void)
 
 #endif /* __OO_EXTENDED_STATUS__ */
 
-#if defined(EE_AS_OSAPPLICATIONS__) && defined(__EE_MEMORY_PROTECTION__)
-#if defined(EE_SYSCALL_NR) && defined(EE_MAX_SYS_SERVICEID) &&\
+#if (defined(EE_AS_OSAPPLICATIONS__)) && (defined(__EE_MEMORY_PROTECTION__))
+#if (defined(EE_SYSCALL_NR)) && (defined(EE_MAX_SYS_SERVICEID)) &&	\
   (EE_SYSCALL_NR > EE_MAX_SYS_SERVICEID)
   /*  If a TASK is inside CallTrustedFunction() and TASK
       rescheduling takes place within the same OSApplication scheduling of

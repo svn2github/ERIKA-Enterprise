@@ -51,9 +51,9 @@
 #include <ee.h>
 
 /* RTOS macros to declare ISRs routines */
-DeclareIsr(FlexCan0_0_3_isr_handler);
-DeclareIsr(FlexCan0_ESR_ERR_INT);
-DeclareIsr(FlexCan0_ESR_BOFF_TX_RX_WARN_handler);
+void FlexCan0_0_3_isr_handler(void);
+void FlexCan0_ESR_ERR_INT(void);
+void FlexCan0_ESR_BOFF_TX_RX_WARN_handler(void);
 
 extern void ManageCanIsr(uint8 isrSourceIndex, uint32 bufferFlags, CanChannelType canChannel);  // The 'extern' is here (and not in a .h file) because ManageCanIsr() must be called only by CanIsr.c
 

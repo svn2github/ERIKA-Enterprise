@@ -47,12 +47,12 @@
 #define EE_MCU_MPC5643L_H
 
 /* ISO int types used by MPC5643L.h */
-#define __EE_STDINT_SKIP_64BIT__
+#define STDINT_SKIP_64BIT
 #include <cpu/common/inc/ee_stdint.h>
 
 #include "MPC5643L.h"
 
-#define EE_E200ZX_MAX_EXT_IRQ 256
+#define EE_E200ZX_MAX_EXT_IRQ 256U
 
 #if (! defined EE_CURRENTCPU) || (EE_CURRENTCPU == 0)
 /* INTC Base */

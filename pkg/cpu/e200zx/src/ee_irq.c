@@ -54,10 +54,10 @@
     and the Software ISR Table declared.
  */
 /* Software Isr Table */
-EE_e200z7_ISR_handler EE_e200z7_ISR_table[EE_E200ZX_MAX_CPU_EXCP
+static EE_e200z7_ISR_handler EE_e200z7_ISR_table[EE_E200ZX_MAX_CPU_EXCP_C
 	+ EE_E200ZX_MAX_EXT_IRQ];
 
-void EE_e200z7_register_ISR(int level, EE_e200z7_ISR_handler fun, EE_UINT8 pri)
+void EE_e200z7_register_ISR(EE_UINT16 level, EE_e200z7_ISR_handler fun, EE_UINT8 pri)
 {
 	/*EE_UINT8 proc;*/
 	EE_FREG intst = EE_e200z7_suspendIRQ();
@@ -65,8 +65,10 @@ void EE_e200z7_register_ISR(int level, EE_e200z7_ISR_handler fun, EE_UINT8 pri)
 	EE_e200z7_ISR_table[level] = fun;
 
 	/* Set priority for external interrupts */
-	if (level >= EE_E200ZX_MAX_CPU_EXCP) {
-		/*proc = EE_E200ZX_INTC_CURRPROC;*/
+	if (level >= EE_E200ZX_MAX_CPU_EXCP_C) {
+	        #if 0
+		proc = EE_E200ZX_INTC_CURRPROC;
+		#endif
 		SET_INT_PRIO(level, pri);
 	}
 
@@ -77,18 +79,18 @@ void EE_e200z7_register_ISR(int level, EE_e200z7_ISR_handler fun, EE_UINT8 pri)
     The "complete" interrupt dispatcher EE_e200z7_irq is needed for handling
     dynamic ISR table.
  */
-void EE_e200z7_irq(EE_SREG level)
+void EE_e200z7_irq(EE_UREG level)
 {
-	EE_e200z7_ISR_handler f;
+	EE_e200z7_ISR_handler fh;
 	EE_ORTI_runningisr2_type ortiold;
 
 	EE_increment_IRQ_nesting_level();
-	f = EE_e200z7_ISR_table[level];
-	if (f != (EE_e200z7_ISR_handler)0) {
+	fh = EE_e200z7_ISR_table[level];
+	if (fh != (EE_e200z7_ISR_handler)0) {
 		ortiold = EE_ORTI_get_runningisr2();
-		EE_ORTI_set_runningisr2(EE_ORTI_build_isr2id(f));
+		EE_ORTI_set_runningisr2(EE_ORTI_build_isr2id(fh));
 		/* eventually call ISR handler in a new stack (it need nesting level) */
-		EE_e200zx_call_ISR(f, EE_IRQ_nesting_level);
+		EE_e200zx_call_ISR(fh, EE_IRQ_nesting_level);
 		EE_ORTI_set_runningisr2(ortiold);
 	}
 
@@ -96,7 +98,7 @@ void EE_e200z7_irq(EE_SREG level)
 	EE_std_end_IRQ_post_stub();
 
 	/* Pop priority for external interrupts */
-	if (level >= EE_E200ZX_MAX_CPU_EXCP) {
+	if (level >= EE_E200ZX_MAX_CPU_EXCP_C) {
 		/* Look at reference manual:
 			 9.4.3.1.2 End-of-Interrupt Exception Handler NOTE
 		*/
@@ -117,8 +119,11 @@ void EE_e200z7_irq(EE_SREG level)
 
 #else /* EE_ISR_DYNAMIC_TABLE */
 
+extern EE_e200z7_ISR_handler EE_e200z7_ISR_table[EE_E200ZX_MAX_CPU_EXCP_C
+	+ EE_E200ZX_MAX_EXT_IRQ];
+
 /* Simplified interrupt dispatcher used with static ISR table. */
-void EE_e200z7_irq(EE_SREG level)
+void EE_e200z7_irq(EE_UREG level)
 {
   EE_e200z7_ISR_handler f;
   f = EE_e200z7_ISR_table[level];

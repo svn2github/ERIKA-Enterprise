@@ -54,7 +54,7 @@ CPU test_application {
 		   EE_OPT = "CW_EVAL_VERSION"; 
 		*/
 		EE_OPT = "CW_EVAL_VERSION"; 
-		EE_OPT = "__OO_CPU_HAS_STARTOS_ROUTINE__";
+		EE_OPT = "OO_CPU_HAS_STARTOS_ROUTINE";
 		CFLAGS = "-D__FAR_DATA -Onf";
 		ASFLAGS = "";
 		LDFLAGS = "-addansixb.lib"; 

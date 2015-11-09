@@ -54,7 +54,7 @@ volatile uint32 Result;	/* Expressed as ADC measure */
 uint32 FinalResult;	/* Expressed in uVolt */
 
 /* RTOS macro to declare ISR1 customized routines */
-DeclareIsr(TRIGGER_isr_handler);
+void TRIGGER_isr_handler(void);
 
 ISR1(TRIGGER_isr_handler)
 {

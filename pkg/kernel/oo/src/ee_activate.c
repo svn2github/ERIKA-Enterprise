@@ -86,7 +86,7 @@ StatusType EE_oo_ActivateTask(TaskType TaskID)
   } else
 #endif /* EE_SERVICE_PROTECTION__ */
 
-#if defined(__RN_TASK__) || defined(EE_AS_RPC__)
+#if (defined(__RN_TASK__)) || (defined(EE_AS_RPC__))
   if ( EE_IS_TID_REMOTE(TaskID) ) {
 #ifdef EE_AS_RPC__
     /* Tmp Tid (introduced to meet MISRA requirements) */
@@ -109,7 +109,7 @@ StatusType EE_oo_ActivateTask(TaskType TaskID)
   } else {
 #endif /* __RN_TASK__ || EE_AS_RPC__ */
 
-#if ( defined(EE_AS_OSAPPLICATIONS__) && defined(EE_SERVICE_PROTECTION__) )
+#if (defined(EE_AS_OSAPPLICATIONS__)) && (defined(EE_SERVICE_PROTECTION__))
     /* Check if the task Id is valid */
     if ( (TaskID < 0) || (TaskID >= EE_MAX_TASK) ) {
       ev = E_OS_ID;
@@ -149,7 +149,7 @@ __OO_EXTENDED_STATUS__ */
       }
       ev = E_OK;
     }
-#if defined(__RN_TASK__) || defined(EE_AS_RPC__)
+#if (defined(__RN_TASK__)) || (defined(EE_AS_RPC__))
   }
 #endif /* __RN_TASK__ || EE_AS_RPC__ */
 

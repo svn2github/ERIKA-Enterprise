@@ -224,7 +224,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_tc27x_ack_signal( EE_TYPECOREID cpu )
 #error Unsupported compiler!
 #endif /* __TASKING__ || __GNUC__ || __DCC__ */
 #else /* __MSRP__ */
-/* DUMMY EE_tc27x_setup_inter_irqs declaration for Singlecore EE_cpu_startos */
+/* DUMMY EE_tc27x_setup_inter_irqs declaration for Singlecore EE_cpu_startos*/
 #define EE_tc27x_setup_inter_irqs() ((void)0)
 #endif /* __MSRP__ */
 #endif /* INCLUDE_EE_TC27X_MULTICORE_H__ */

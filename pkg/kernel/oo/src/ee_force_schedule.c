@@ -89,7 +89,7 @@ StatusType EE_oo_ForceSchedule( void )
   } else
 #endif /* EE_SERVICE_PROTECTION__ */ 
 
-#if defined(__OO_EXTENDED_STATUS__) || defined(EE_SERVICE_PROTECTION__)
+#if (defined(__OO_EXTENDED_STATUS__)) || (defined(EE_SERVICE_PROTECTION__))
   /* [OS088]: If an OS-Application makes a service call from the wrong context
       AND is currently not inside a Category 1 ISR the Operating System module
       shall not perform the requested action (the service call shall have no

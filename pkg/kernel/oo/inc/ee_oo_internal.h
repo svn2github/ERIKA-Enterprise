@@ -43,8 +43,8 @@
  * CVS: $Id: ee_internal.h,v 1.6 2006/12/03 22:07:50 pj Exp $
  */
 
-#ifndef __INCLUDE_OO_INTERNAL_H__
-#define __INCLUDE_OO_INTERNAL_H__
+#ifndef PKG_KERNEL_OO_INC_EE_OO_INTERNAL_H
+#define PKG_KERNEL_OO_INC_EE_OO_INTERNAL_H
 
 #include "kernel/oo/inc/ee_oo_common.h"
 #include "kernel/oo/inc/ee_oo_intfunc.h"
@@ -54,19 +54,13 @@
  *                    New Error Handling Internal Utilities
  ******************************************************************************/
 
- /* Handler macro to join strings and transform label in string */
-#define EE_OS_VALUE(s)                      s
-#define EE_OS_STRINGIFY(s)                  #s
-#define EE_OS_STRING_JOIN(s1,s2)            s1##s2
-#define EE_OS_STRING_JOIN_INDIRECT(s1,s2)   EE_OS_STRING_JOIN(s1,s2)
-
 /* Error Parameters Utilities Macros */
-#define EE_OS_PARAM(param_name)   EE_os_param param_name
+#define EE_OS_PARAM(param_name)   EE_os_param (param_name)
 #define EE_OS_PARAM_VALUE(param_name, param_value)  \
-  (param_name.value_param = param_value)
+  ((param_name).value_param = (param_value))
 
 #define EE_OS_PARAM_REF(param_name, param_field, param_ref) \
-  (EE_OS_VALUE(param_name).EE_OS_VALUE(param_field) = param_ref)
+  ((param_name).param_field = (param_ref))
 
 #ifdef __OO_HAS_ERRORHOOK__
 /* Error Parameters Data Structure Utilities Macros from user space */
@@ -84,11 +78,11 @@
   (error_parameters.param3.value_param = param3_value)
 
 #define EE_OS_ERROR_PARAMETERS_PARAM1_REF(param_field,param_ref)  \
-  (error_parameters.param1.EE_OS_VALUE(param_field) = param_ref)
+  (error_parameters.param1.param_field = (param_ref))
 #define EE_OS_ERROR_PARAMETERS_PARAM2_REF(param_field,param_ref)  \
-  (error_parameters.param2.EE_OS_VALUE(param_field) = param_ref)
+  (error_parameters.param2.param_field = (param_ref))
 #define EE_OS_ERROR_PARAMETERS_PARAM3_REF(param_field,param_ref)  \
-  (error_parameters.param3.EE_OS_VALUE(param_field) = param_ref)
+  (error_parameters.param3.param_field = (param_ref))
 #else /* __OO_HAS_ERRORHOOK__ */
 #define EE_OS_ERROR_PARAMETERS()                                    ((void)0)
 
@@ -196,7 +190,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_os_notify_error_from_us_impl(
   do {                                          \
     flag = EE_hal_begin_nested_primitive();     \
     EE_as_tp_active_pause_and_update_budgets(); \
-  } while ( ( 0 ) )
+  } while ( 0 )
 
 #define EE_OS_DECLARE_AND_ENTER_CRITICAL_SECTION()  \
   EE_OS_DECLARE_CRITICAL_SECTION();                 \
@@ -206,13 +200,13 @@ __INLINE__ void __ALWAYS_INLINE__ EE_os_notify_error_from_us_impl(
   do {                                            \
     EE_as_tp_active_update_budgets_and_restart(); \
     EE_hal_end_nested_primitive(flag);            \
-  } while ( ( 0 ) )
+  } while ( 0 )
 
 #define EE_OS_FOREVER_CRITICAL_SECTION()          \
   do {                                            \
     EE_hal_disableIRQ();                          \
     EE_as_tp_active_pause_and_update_budgets();   \
-  } while ( ( 0 ) )
+  } while ( 0 )
 
 #else /* !__EE_MEMORY_PROTECTION__ */
 /* TP in any case have to be handled in Service Implementation. Syscall
@@ -255,7 +249,7 @@ __INLINE__ EE_TID __ALWAYS_INLINE__ EE_stk_queryfirst(void)
 
    see also internal.h
 */
-#if (!defined(__OO_NO_ALARMS__)) || defined(EE_AS_SCHEDULETABLES__)
+#if (!defined(__OO_NO_ALARMS__)) || (defined(EE_AS_SCHEDULETABLES__))
 
 StatusType EE_oo_IncrementCounterHardware(CounterType CounterID);
 void       EE_oo_IncrementCounterImplementation(CounterType CounterID);
@@ -271,33 +265,33 @@ void EE_oo_counter_object_insert( CounterObjectType ObjectID, TickType
 #if (EE_COUNTER_OBJECTS_ROM_SIZE > 0)
 __INLINE__ void __ALWAYS_INLINE__
   EE_oo_handle_abs_counter_object_insertion( CounterObjectType ObjectID,
-    TickType start, TickType cycle ) 
+    TickType absstart, TickType abscycle ) 
 {
   /* These are used to evaluate alarm time handling wrap around */
   register TickType           alarm_time;
   register TickType           start_rel;
-  register CounterType const  c = EE_oo_counter_object_ROM[ObjectID].c;
+  register CounterType const  cnt = EE_oo_counter_object_ROM[ObjectID].c;
 
   /* first, use the alarm and set the cycle */
-  EE_oo_counter_object_RAM[ObjectID].used = 1U;
-  EE_oo_counter_object_RAM[ObjectID].cycle = cycle;
+  EE_oo_counter_object_RAM[ObjectID].used = EE_TRUE;
+  EE_oo_counter_object_RAM[ObjectID].cntcycle = abscycle;
 
   /* Handling wrap around for alarm time */
-  start_rel = start - EE_counter_RAM[c].value;
+  start_rel = absstart - EE_counter_RAM[cnt].value;
 
   /*  When will be here start value will be already checked against counter
       max allowed value */
   if ( start_rel == 0U ) {
     /* start_rel == 0U -> the alarm should start now or next time that counter
        has this value. Has been chosen the second option */
-    alarm_time = EE_counter_ROM[c].maxallowedvalue;
+    alarm_time = EE_counter_ROM[cnt].maxallowedvalue;
   } else if ( start_rel < EE_TYPETICK_HALF_VALUE ) {
     /* Normal behavior */
     alarm_time = start_rel - 1U;
   } else {
     /* start_rel is "negative" in this case (unsigned wrap around do the
        work) */
-    alarm_time = EE_counter_ROM[c].maxallowedvalue + start_rel;
+    alarm_time = EE_counter_ROM[cnt].maxallowedvalue + start_rel;
   }
 
   /* Set alarm with a relative amount of time (alarm_time already is a "0 as
@@ -307,12 +301,12 @@ __INLINE__ void __ALWAYS_INLINE__
 
 __INLINE__ void __ALWAYS_INLINE__
   EE_oo_handle_rel_counter_object_insertion( CounterObjectType ObjectID,
-    TickType increment, TickType cycle )
+    TickType increment, TickType relcycle )
 {
 
   /* first, use the alarm and set the cycle */
-  EE_oo_counter_object_RAM[ObjectID].used = 1U;
-  EE_oo_counter_object_RAM[ObjectID].cycle = cycle;
+  EE_oo_counter_object_RAM[ObjectID].used = EE_TRUE;
+  EE_oo_counter_object_RAM[ObjectID].cntcycle = relcycle;
 
   /* then, insert the task into the delta queue with an increment equal
      (increment - 1U) increment equal to 0 means next tick */
@@ -324,15 +318,15 @@ __INLINE__ void __ALWAYS_INLINE__ EE_oo_handle_counter_object_cancellation(
   CounterObjectType ObjectID )
 {
   register CounterObjectType current, previous;
-  register CounterType       c      = EE_oo_counter_object_ROM[ObjectID].c;
+  register CounterType       ct      = EE_oo_counter_object_ROM[ObjectID].c;
 
   /* to compute the relative value in ticks, we have to follow the counter
      delay chain */
-  current = EE_counter_RAM[c].first;
+  current = EE_counter_RAM[ct].first;
 
   if ( current == ObjectID ) {
     /* the alarm is the first one in the delta queue */
-    EE_counter_RAM[c].first = EE_oo_counter_object_RAM[ObjectID].next;
+    EE_counter_RAM[ct].first = EE_oo_counter_object_RAM[ObjectID].next;
   } else {
     /* the alarm is not the first one in the delta queue */
     /* Find it */
@@ -350,7 +344,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_oo_handle_counter_object_cancellation(
       EE_oo_counter_object_RAM[ObjectID].delta;
   }
 
-  EE_oo_counter_object_RAM[ObjectID].used = 0U;
+  EE_oo_counter_object_RAM[ObjectID].used = EE_FALSE;
 }
 #endif /* EE_COUNTER_OBJECTS_ROM_SIZE */
 #endif /* EE_COUNTER_OBJECTS_ROM_SIZE > 0 */
@@ -407,17 +401,22 @@ __INLINE__ void __ALWAYS_INLINE__ EE_oo_call_PostTaskHook(void)
   PostTaskHook();
 }
 #else /* __OO_HAS_POSTTASKHOOK__ */
-#define EE_oo_call_PostTaskHook()   ((void)0)
+__INLINE__ void __ALWAYS_INLINE__ EE_oo_call_PostTaskHook(void) {}
 #endif /* __OO_HAS_POSTTASKHOOK__ */
+
+
+/* StartOS Flag defined inside ee_startos.c to check that the system has correctly started */
+extern EE_UREG volatile EE_oo_started;
+
 
 /* Used to check if we are in disable interrupt error. It return
    'signed register type' because usually it is native integer type. */
-__INLINE__ EE_SREG __ALWAYS_INLINE__ EE_oo_check_disableint_error(void)
+__INLINE__ EE_TYPEBOOL __ALWAYS_INLINE__ EE_oo_check_disableint_error(void)
 {
   return ( EE_oo_IRQ_disable_count != 0U );
 }
 
-#if defined(__OO_BCC2__) || defined(__OO_ECC2__)
+#if (defined(__OO_BCC2__)) || (defined(__OO_ECC2__))
 /* A lookup table to speedup ready queue handling */
 extern const EE_INT8 EE_rq_lookup[256];
 /* Lookup functions */
@@ -445,12 +444,12 @@ __INLINE__ EE_INT8 __ALWAYS_INLINE__ EE_rq_get_first_not_empty_queue( void )
 
 /* return the first ready task without extracting it */
 #ifndef __PRIVATE_RQ_QUERYFIRST__
-#if defined(__OO_BCC1__) || defined(__OO_ECC1__)
+#if (defined(__OO_BCC1__)) || (defined(__OO_ECC1__))
 __INLINE__ EE_TID __ALWAYS_INLINE__ EE_rq_queryfirst(void)
 { return EE_rq_first; }
 #endif
 
-#if defined(__OO_BCC2__) || defined(__OO_ECC2__)
+#if (defined(__OO_BCC2__)) || (defined(__OO_ECC2__))
 EE_TID EE_rq_queryfirst(void);
 #endif
 #endif
@@ -523,7 +522,7 @@ extern void EE_thread_not_terminated( void );
 void EE_thread_end_instance(void);
 #endif
 
-#if defined(__OO_ISR2_RESOURCES__) || defined(EE_AS_USER_SPINLOCKS__)
+#if (defined(__OO_ISR2_RESOURCES__)) || (defined(EE_AS_USER_SPINLOCKS__))
 /* Index used to give ISR2 Temporary TID value and to access at
    EE_isr2_nesting_level array */
 extern EE_UREG EE_isr2_index;
@@ -538,16 +537,16 @@ __INLINE__ EE_TID __ALWAYS_INLINE__ EE_oo_get_ISR2_TID(void) {
 }
 #endif /* __OO_ISR2_RESOURCES__ || EE_AS_USER_SPINLOCKS__ */
 
-#if defined(__OO_ECC1__) || defined(__OO_ECC2__)
+#if (defined(__OO_ECC1__)) || (defined(__OO_ECC2__))
 /*
     Reset Active Events  THREAD utility method.
 
     When an extended task is transferred from suspended state
     into ready state all its events have to be cleared cleared
 */
-__INLINE__ void __ALWAYS_INLINE__ EE_oo_reset_th_event_active(TaskType TaskID)
+__INLINE__ void __ALWAYS_INLINE__ EE_oo_reset_th_event_active(TaskType tnotactive)
 {
-    EE_th_event_active[TaskID] = 0U;
+    EE_th_event_active[tnotactive] = 0U;
 }
 
 /* 
@@ -561,7 +560,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_oo_run_next_task(void)
     tmp = EE_rq2stk_exchange();
     if ( EE_th_waswaiting[tmp] ) {
       /* if the task was waiting switch the context to restart it */
-      EE_th_waswaiting[tmp] = 0U;
+      EE_th_waswaiting[tmp] = EE_FALSE;
       /* Call the PreTaskHook, here no stub will do that for you */
       EE_oo_call_PreTaskHook();
       EE_hal_stkchange(tmp);
@@ -589,7 +588,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_oo_run_next_task(void)
 #endif /* defined(__OO_ECC1__) || defined(__OO_ECC2__) */
 
 
-#if defined(__OO_BCC2__) || defined(__OO_ECC2__)
+#if (defined(__OO_BCC2__)) || (defined(__OO_ECC2__))
   /*
     Set THREAD ready utility method.
     If the task is BCC2/ECC2 it can be that it is ready or 
@@ -608,10 +607,10 @@ __INLINE__ void __ALWAYS_INLINE__ EE_oo_set_th_status_ready(TaskType TaskID)
     If the task is BCC1/ECC1 it can be here only because
     it had rnact=1 before the call, and so it is in suspended state
   */
-__INLINE__ void __ALWAYS_INLINE__ EE_oo_set_th_status_ready(TaskType TaskID)
+__INLINE__ void __ALWAYS_INLINE__ EE_oo_set_th_status_ready(TaskType tready)
 {
-    EE_th_status[TaskID] = READY;
-    EE_oo_reset_th_event_active(TaskID);
+    EE_th_status[tready] = READY;
+    EE_oo_reset_th_event_active(tready);
 }
 #endif /* defined(__OO_BCC2__) || defined(__OO_ECC2__) */
 
@@ -640,9 +639,9 @@ __INLINE__ void __ALWAYS_INLINE__ EE_oo_preemption_point(void)
   current = EE_stk_queryfirst();
   rq      = EE_rq_queryfirst();
 
-#if defined(EE_AS_OSAPPLICATIONS__) && defined(__EE_MEMORY_PROTECTION__)
-#if defined(EE_SYSCALL_NR) && defined(EE_MAX_SYS_SERVICEID) &&\
-  (EE_SYSCALL_NR > EE_MAX_SYS_SERVICEID)
+#if (defined(EE_AS_OSAPPLICATIONS__)) && (defined(__EE_MEMORY_PROTECTION__))
+#if (defined(EE_SYSCALL_NR)) && (defined(EE_MAX_SYS_SERVICEID)) \
+  && (EE_SYSCALL_NR > EE_MAX_SYS_SERVICEID)
   /* Reaction to timing protection can be defined to terminate the
      OSApplication. If a task is inside CallTrustedFunction() and task
      rescheduling takes place within the same OSApplication,
@@ -695,7 +694,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_oo_preemption_point(void)
   }
 }
 
-#if (defined(__OO_ECC1__) || defined(__OO_ECC2__)) && defined(__MULTI__)
+#if ( (defined(__OO_ECC1__)) || (defined(__OO_ECC2__)) ) && (defined(__MULTI__))
 
 /* Prepare current Task to Block if Extended Task is configured */
 __INLINE__ void __ALWAYS_INLINE__ EE_oo_prepare_to_block(void) {
@@ -705,7 +704,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_oo_prepare_to_block(void) {
   /* The task must go into the WAITING state */
   EE_th_status[current] = WAITING;
 
-  /* [SWS_Os_00473]: The Operating System module shall reset a task’s
+  /* [SWS_Os_00473]: The Operating System module shall reset a task's
       OsTaskExecutionBudget on a transition to the SUSPENDED or WAITING states.
       (SRS_Os_11008) */
   EE_as_tp_stop_budget(EE_as_tp_active.active_tp_RAM_ref, EE_EXECUTION_BUDGET);
@@ -721,7 +720,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_oo_prepare_to_block(void) {
   EE_ORTI_set_th_priority(current, 0U);
 
   /* Since the task blocks, it has to be woken up by another EE_hal_stkchange */
-  EE_th_waswaiting[current] = 1U;
+  EE_th_waswaiting[current] = EE_TRUE;
 
   /* Extract the TASK from the stacked queue */
   (void)EE_stk_getfirst();
@@ -730,18 +729,18 @@ __INLINE__ void __ALWAYS_INLINE__ EE_oo_prepare_to_block(void) {
 /* Reschedule on task blocking if Extended Task is configured */
 __INLINE__ void __ALWAYS_INLINE__ EE_oo_reschedule_on_block(void)
 {
-  register EE_TID next;
+  register EE_TID nexttask;
 
-  next = EE_rq_queryfirst();
-  if ( (next == EE_NIL) || (EE_sys_ceiling >= EE_th_ready_prio[next]) ) {
+  nexttask = EE_rq_queryfirst();
+  if ( (nexttask == EE_NIL) || (EE_sys_ceiling >= EE_th_ready_prio[nexttask]) ) {
     /* we have to schedule an interrupted thread that is on the top
      * of its stack; the state is already STACKED! */
-    next = EE_stk_queryfirst();
-    if ( next != EE_NIL ) {
-      EE_th_status[next] = RUNNING;
+    nexttask = EE_stk_queryfirst();
+    if ( nexttask != EE_NIL ) {
+      EE_th_status[nexttask] = RUNNING;
       EE_oo_call_PreTaskHook();
       /* Enable the TASK Timing Protection Set */
-      EE_as_tp_active_set_from_TASK(next);
+      EE_as_tp_active_set_from_TASK(nexttask);
     } else {
       /* We are switching back to the Idle loop */
       EE_as_set_execution_context( Idle_Context );
@@ -749,19 +748,19 @@ __INLINE__ void __ALWAYS_INLINE__ EE_oo_reschedule_on_block(void)
     }
 
     /* CONTEXT SWITCH to a previous stacked Task */
-    EE_hal_stkchange(next);
+    EE_hal_stkchange(nexttask);
   } else { 
     /* We have to schedule a ready thread that is not yet on the stack.
        This means that the TASK set in excution for the first time or that it
        was waiting. */
-    EE_th_status[next] = RUNNING;
-    EE_sys_ceiling |= EE_th_dispatch_prio[next];
+    EE_th_status[nexttask] = RUNNING;
+    EE_sys_ceiling |= EE_th_dispatch_prio[nexttask];
 
-    EE_ORTI_set_th_eq_dispatch_prio(next);
+    EE_ORTI_set_th_eq_dispatch_prio(nexttask);
 
     /* "Press TP start for the first time" for this new release of the
         TASK */
-    EE_as_tp_active_start_on_TASK_stacking(next);
+    EE_as_tp_active_start_on_TASK_stacking(nexttask);
 
     /* Execute context SWITCH, this method return when we have a switch
        back on the previous TASK contest. */
