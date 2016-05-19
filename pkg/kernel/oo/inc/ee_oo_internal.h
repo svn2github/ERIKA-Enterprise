@@ -55,7 +55,7 @@
  ******************************************************************************/
 
 /* Error Parameters Utilities Macros */
-#define EE_OS_PARAM(param_name)   EE_os_param (param_name)
+#define EE_OS_PARAM(param_name)   EE_os_param param_name
 #define EE_OS_PARAM_VALUE(param_name, param_value)  \
   ((param_name).value_param = (param_value))
 

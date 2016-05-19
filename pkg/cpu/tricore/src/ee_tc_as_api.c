@@ -309,7 +309,7 @@ void EE_TC_INTERRUPT_HANDER EE_TC_CHANGE_STACK_POINTER
       service_ptr = EE_syscall_table[tin];
       /* If the tin correspond to a IRQ handling service I have to handle it in
          a special way  */
-      if( tin <= EE_ID_interrupts_last ) {
+      if ( tin <= EE_ID_interrupts_last ) {
         /* Let the return be the new pcxi value */
         original_ucx_pcxi.reg =
           ((EE_as_IRQ_handling_func_ptr)service_ptr)( original_ucx_pcxi.reg );
@@ -408,6 +408,47 @@ void EE_TC_INTERRUPT_HANDER EE_tc_protection_handler ( EE_TIN tin )
 #endif /* __EE_MEMORY_PROTECTION__ */
 
 #if defined(EE_TIMING_PROTECTION__)
+
+#define EE_TC_MAX_ISR2_RACE_DEPTH 3U
+
+/* XXX: There is a small chance of race condition between TP and the
+    beginning of a ISR2, following code handle that.
+    If this function return EE_TRUE means that we was entering in an ISR2,
+    we just postpone the budget expiration handling at the end of
+    EE_tc_isr2_wrapper_body or EE_as_TerminateISR2. */
+static int EE_tc_tp_is_isr2_race ( void ) {
+  EE_UREG   i;
+  int       is_isr2_race     = EE_FALSE;
+  /* Start the research from the context (CSA) after the Timing TRAP */
+  EE_CSA *  p_after_isr2_csa = EE_tc_csa_make_addr( EE_tc_get_trap_PCXI() );
+
+  if ( p_after_isr2_csa != NULL ) {
+    /* Initialize this variable with a reasonable value */
+    EE_TYPEISR2PRIO after_isr2_pcpn = p_after_isr2_csa->next.bits.PCPN;
+    for ( i = 0U; i < EE_TC_MAX_ISR2_RACE_DEPTH; ++i ) {
+      /* Check if the next PCXI point to a Low Context (PCXI.UL == 0U),
+         the one after it's the one we are serching for */
+      if ( p_after_isr2_csa->next.bits.UL == 0U ) {
+        after_isr2_pcpn  = p_after_isr2_csa->next.bits.PCPN;
+        p_after_isr2_csa = EE_tc_csa_make_addr( p_after_isr2_csa->next );
+        break;
+      } else if ( i < (EE_TC_MAX_ISR2_RACE_DEPTH - 1U) ) {
+        p_after_isr2_csa = EE_tc_csa_make_addr( p_after_isr2_csa->next );
+      } else {
+        p_after_isr2_csa = NULL;
+      }
+      if ( p_after_isr2_csa == NULL ) {
+        break;
+      }
+    }
+  
+    if ( p_after_isr2_csa != NULL ) {
+      is_isr2_race = (p_after_isr2_csa->next.bits.PCPN != after_isr2_pcpn);
+    }
+  }
+  return is_isr2_race;
+}
+
 void EE_TC_INTERRUPT_HANDER EE_tc_bus_handler ( EE_TIN tin )
 {
   /*  Macros for System Bus and Peripheral Errors Class Trap Numbers:
@@ -421,30 +462,19 @@ void EE_TC_INTERRUPT_HANDER EE_tc_bus_handler ( EE_TIN tin )
    *  7   TAE  Asynchronous Hardware Temporal Asynchronous Error
    */
 
-  /* Actual PCXI is the one after svlcx: this handler is not called but
-     jumped into. */
-  EE_PCXI pcxi;
   switch ( tin ) {
     /* TPS_TIMERX trap: timing protection budget expired */
     case EE_TRAPBUS_TAE:
-      /* I need previous PCXI register to check PIE bit */
-      pcxi = EE_tc_get_trap_PCXI();
       /* Write zero on TPS_TIMER to reset TRAP request... */
       EE_tc_set_csfr(EE_CPU_REG_TPS_TIMER0, 0U);
-      /* And update reset TTRAP to re-enable the TP. */
+      /* And update reset TTRAP to be ready to re-enable the TP.
+         (This probably is redundant, but NOT wrong)*/
       EE_tc_tps_reset_ttrap();
-      /* XXX: There is a small chance of race condition between TP and the
-          beginning of a ISR2, following code handle that.
-          If the (PCXI.PIE == 0) && (EE_as_tp_active.active_tp <=
-          EE_RESOURCE_LOCK_BUDGET) means that we was entering in an ISR2, we
-          just postpone the budget expiration handling at the end of
-          EE_tc_isr2_wrapper_body or EE_as_TerminateISR2.
-          If the active tp is invalid means that we are here because Time
-          Frame Reclamation budget: it is always harmless handle that. */
+      /* If the active tp is invalid means that we are here because Time
+         Frame Reclamation budget: it is always harmless handle that;
+         otherwise I need to not be in ISR2 race condition. */
       if ( (EE_as_tp_active.active_tp == INVALID_TIMING_PROTECTION) ||
-          (pcxi.bits.PIE != 0U) || (EE_as_tp_budget_confs[EE_as_tp_active.
-            active_tp_RAM_ref->first_expiring].budget_type >
-              EE_RESOURCE_LOCK_BUDGET) )
+          (!EE_tc_tp_is_isr2_race()) )
       {
         EE_as_tp_active_budget_expired();
       }

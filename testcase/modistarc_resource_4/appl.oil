@@ -44,7 +44,7 @@ CPU test_application {
 
     OS EE {
         EE_OPT = "__ASSERT__";
-#if (!defined(tricore_tc27x_gnu)) && (!defined(tricore_tc27x_tasking))
+#ifndef	tricore
         EE_OPT = "DEBUG";
 #endif
         EE_OPT = "EE_DEBUG";

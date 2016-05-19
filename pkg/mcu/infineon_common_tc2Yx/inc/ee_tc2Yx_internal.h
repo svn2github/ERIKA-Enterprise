@@ -90,7 +90,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_tc2Yx_configure_clock_ctrl ( void )
   SCU_CCUCON0.U = EE_SCU_CCUCON0;
 
   /* Configure CCUCON1 and Update all CCU */
-  SCU_CCUCON1.U =  EE_TC2YX_CCUCON1_STMDIV(1U) |
+  SCU_CCUCON1.U = EE_TC2YX_CCUCON1_STMDIV(EE_TC2YX_STMDIV_VALUE) |
     EE_TC2YX_CCUCON1_GTMDIV(1U) | EE_TC2YX_CCUCON1_INSEL(1U) |
     EE_TC2YX_CCUCONX_UP;
 }
@@ -201,6 +201,89 @@ __INLINE__ void __ALWAYS_INLINE__ EE_tc2Yx_configure_osc_ctrl ( void )
 #define EE_tc2Yx_configure_clock()      ((void)0)
 
 #endif /* EE_MASTER_CPU */
+
+/*******************************************************************************
+  Erika internal software free running counter HAL support (STM implementation)
+ ******************************************************************************/
+#if (!defined(EE_SWFRT_CCNT))
+
+__INLINE__ EE_UREG __ALWAYS_INLINE__ EE_hal_swfrt_get_current_time ( void )
+{
+  /* The masking is not needed here, added only because
+     it makes easier read tp data structures values */
+  return (EE_tc2Yx_stm_get_time_lower_word() & EE_HAL_SWFRT_TIMER_DURATION);
+}
+
+__INLINE__ EE_UREG __ALWAYS_INLINE__ EE_hal_swfrt_eval_elapsed_time (
+  EE_UREG after, EE_UREG before )
+{
+  /* Handle the preescaler between CPU and SMT clock with the mask. */
+  return ((after - before) & EE_HAL_SWFRT_TIMER_DURATION);
+}
+
+__INLINE__ EE_UREG __ALWAYS_INLINE__ EE_hal_swfrt_get_elapsed_time (
+  EE_UREG before )
+{
+  return EE_hal_swfrt_eval_elapsed_time(EE_hal_swfrt_get_current_time(),
+    before);
+}
+#endif /* !EE_SWFRT_CCNT */
+
+#if (defined(EE_TIMING_PROTECTION__))
+/*******************************************************************************
+                    Timing Protection Internal Support
+ ******************************************************************************/
+/* XXX: Timing protection will use only TPS_TIMER0. In this way we will have a
+        "reference implementation" more portable on multiple architectures */
+
+/* Internal API to deal with TPS_CON Register */
+#define EE_TC_TPS_CON_TTRAP         EE_BIT(16)
+#define EE_TC_TPS_CON_RESET_TTRAP   (~EE_TC_TPS_CON_TTRAP)
+__INLINE__ void __ALWAYS_INLINE__ EE_tc_tps_reset_ttrap ( void )
+{
+  /* XXX: EG: Probably ALL the following are too much, but just to be
+          conservative... */
+  EE_UREG tps_con = (EE_tc_get_TPS_CON() & EE_TC_TPS_CON_RESET_TTRAP);
+  EE_tc_set_TPS_CON(tps_con);
+}
+
+__INLINE__ void __ALWAYS_INLINE__ EE_hal_tp_stop ( void ) {
+  /* Write zero on TPS_TIMER registers stop the corresponding timer */
+  EE_tc_set_csfr(EE_CPU_REG_TPS_TIMER0, 0U);
+}
+
+__INLINE__ EE_UREG __ALWAYS_INLINE__
+  EE_hal_tp_get_current_time_and_pause ( void )
+{
+  /* Write zero on TPS_TIMER registers stop the corresponding timer ( Pause ) */
+  EE_tc_set_csfr(EE_CPU_REG_TPS_TIMER0, 0U);
+  return EE_hal_swfrt_get_current_time();
+}
+
+#if (defined(EE_SWFRT_CCNT))
+__INLINE__ void __ALWAYS_INLINE__ EE_hal_tp_set_expiration ( EE_UREG
+  expiration )
+{
+  /* Write zero on TPS_TIMER register something != from zero restart the
+     protection */
+  EE_tc_set_csfr(EE_CPU_REG_TPS_TIMER0, expiration);
+}
+#else
+__INLINE__ void __ALWAYS_INLINE__ EE_hal_tp_set_expiration ( EE_UREG
+  expiration )
+{
+  /* Instead of CCNT we are using SMT.
+     Clock frequency of SMT has a prescaler so in order to set the right ammount
+     of bit in TPS, I need to multiply of the prescaler factor.
+     XXX: For efficency (I don't want to use division in
+     EE_hal_swfrt_eval_elapsed_time) The implementation proposed here works with
+     EE_TC2YX_STMDIV_VALUE value of: 1,2,4,8; that are not all the allowed
+     values. 5,6,10,12,15 cannot be used */
+  EE_tc_set_csfr(EE_CPU_REG_TPS_TIMER0,
+    (expiration << (EE_TC2YX_STMDIV_VALUE - 1U)));
+}
+#endif /* !EE_SWFRT_CCNT */
+#endif /* EE_TIMING_PROTECTION__ */
 
 #if defined(__OO_ORTI_STACK__) || defined(EE_STACK_MONITORING__)
 /******************************************************************************
@@ -328,7 +411,12 @@ __INLINE__ EE_TYPEBOOL __ALWAYS_INLINE__ EE_cpu_startos( void )
   /* Initialize stdlib time reference (or internal variable) with STM
       frequency. */
   EE_tc2Yx_stm_set_clockpersec();
+#ifdef	ENABLE_SYSTEM_TIMER
+#ifdef	EE_DEBUG
+  EE_tc2Yx_stm_ocds_suspend_control();
+#endif	/* EE_DEBUG */
   EE_tc2Yx_initialize_system_timer();
+#endif	/* ENABLE_SYSTEM_TIMER */
 
   return 0;
 }

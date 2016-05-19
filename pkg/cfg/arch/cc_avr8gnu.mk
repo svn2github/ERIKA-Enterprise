@@ -1,7 +1,7 @@
 # ###*B*###
 # ERIKA Enterprise - a tiny RTOS for small microcontrollers
 # 
-# Copyright (C) 2002-2013  Evidence Srl
+# Copyright (C) 2002-2016  Evidence Srl
 # 
 # This file is part of ERIKA Enterprise.
 # 
@@ -38,7 +38,7 @@
 # Boston, MA 02110-1301 USA.
 # ###*E*###
 
-## Author: 2013,  Giuseppe Serano
+## Author: 2016,  Giuseppe Serano
 
 ##
 ## Compiler related options
@@ -57,6 +57,7 @@ BINDIR := $(call native_path,$(AVR_TOOLS))/bin
 # from the config files generated from eclipse...
 ALLINCPATH += \
 $(foreach d,$(INCLUDE_PATH),$(addprefix -I,$(call native_path,$d)))
+#$(foreach d,$(INCLUDE_PATH),$(addprefix -I,$d))
 
 ifndef	AVR_GCCPREFIX
 AVR_GCCPREFIX = avr
@@ -114,7 +115,24 @@ endif
 
 ## OPT_CC are the options for avr compiler invocation
 ifeq ($(call iseeopt, __ARDUINO_SDK__), yes)
-OPT_CC += -c -g -Os -w -fdata-sections -ffunction-sections
+OPT_CC += -c
+ifeq ($(call iseeopt, DEBUG), yes)
+OPT_CC += -g
+endif
+OPT_CC += -Os
+ifeq ($(call iseeopt, __ARDUINO_SDK_CC__), yes)
+OPT_CC += -std=gnu11
+else	# __ARDUINO_SDK_CC__
+OPT_CC += -w
+endif	# __ARDUINO_SDK_CC__
+ifeq ($(or	\
+		$(call iseeopt, __ARDUINO_SDK_CC__),	\
+		$(call iseeopt, __ARDUINO_SDK_ORG__)	\
+	), yes)
+OPT_CC += -ffunction-sections -fdata-sections
+else	# __ARDUINO_SDK_CC__ && __ARDUINO_SDK_ORG__
+OPT_CC += -fdata-sections -ffunction-sections
+endif	# __ARDUINO_SDK_CC__ && __ARDUINO_SDK_ORG__
 ifneq ($(AVR8_MCU),)
 OPT_CC += -mmcu=$(AVR8_MCU)
 endif	# AVR8_MCU
@@ -144,7 +162,25 @@ OPT_CC += $(CFLAGS)
 
 ## OPT_CXX are the options for avr compiler invocation
 ifeq ($(call iseeopt, __ARDUINO_SDK__), yes)
-OPT_CXX += -c -g -Os -w -fdata-sections -ffunction-sections -fno-exceptions
+OPT_CXX += -c
+ifeq ($(call iseeopt, DEBUG), yes)
+OPT_CXX += -g
+endif
+OPT_CXX += -Os
+ifeq ($(call iseeopt, __ARDUINO_SDK_CC__), yes)
+OPT_CXX += -std=gnu++11
+else	# __ARDUINO_SDK_CC__
+OPT_CXX += -w
+endif	# __ARDUINO_SDK_CC__
+ifeq ($(or	\
+		$(call iseeopt, __ARDUINO_SDK_CC__),	\
+		$(call iseeopt, __ARDUINO_SDK_ORG__)	\
+	), yes)
+OPT_CXX += -fno-exceptions -ffunction-sections -fdata-sections
+OPT_CXX += -fno-threadsafe-statics
+else	# __ARDUINO_SDK_CC__ && __ARDUINO_SDK_ORG__
+OPT_CXX += -fdata-sections -ffunction-sections -fno-exceptions
+endif	# __ARDUINO_SDK_CC__ && __ARDUINO_SDK_ORG__
 ifneq ($(AVR8_MCU),)
 OPT_CXX += -mmcu=$(AVR8_MCU)
 endif	# AVR8_MCU
@@ -170,18 +206,24 @@ OPT_CXX += $(CFLAGS) $(CXXFLAGS)
 # --gdwarf2     = generate dwarf2 debbugging information for each assembler line
 ## -x assembler-with-cpp -gdwarf2
 OPT_ASM = -c -x assembler-with-cpp
+ifneq ($(call iseeopt, __ARDUINO_SDK__), yes)
 ifeq ($(call iseeopt, __AVR8_GCC_C99__), yes)
 OPT_ASM += -std=gnu99
 else
 OPT_ASM += -std=c89
 endif
+endif	# !__ARDUINO_SDK__
 ifneq ($(AVR8_MCU),)
 OPT_ASM += -mrelax
 ifeq ($(findstring atxmega, $(AVR8_MCU)), atxmega)
 OPT_ASM += -Wa,-gdwarf2
 else	# ATXMEGA
 ifeq ($(call iseeopt, DEBUG), yes)
+ifeq ($(call iseeopt, __ARDUINO_SDK__), yes)
+OPT_ASM += -g
+else	# __ARDUINO_SDK__
 OPT_ASM += -Wa,-gdwarf2
+endif	# __ARDUINO_SDK__
 endif	# DEBUG
 endif	# ATXMEGA
 OPT_ASM += -mmcu=$(AVR8_MCU)

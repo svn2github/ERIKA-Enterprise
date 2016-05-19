@@ -1,7 +1,7 @@
 # ###*B*###
 # ERIKA Enterprise - a tiny RTOS for small microcontrollers
 # 
-# Copyright (C) 2002-2013  Evidence Srl
+# Copyright (C) 2002-2016  Evidence Srl
 # 
 # This file is part of ERIKA Enterprise.
 # 
@@ -38,7 +38,7 @@
 # Boston, MA 02110-1301 USA.
 # ###*E*###
 
-## Author: 2013,  Giuseppe Serano
+## Author: 2016,  Giuseppe Serano
 
 # Enable verbose output from EE_OPT
 ifeq ($(call iseeopt, VERBOSE), yes)
@@ -117,6 +117,40 @@ include $(PKGBASE)/cfg/cfg.mk
 #SRCS += $(EE_BOOT_SRCS)
 #endif
 
+ifeq ($(and	\
+		$(call iseeopt, __ARDUINO_SDK__),	\
+		$(call iseeopt, __ARDUINO_SDK_CC__)	\
+	), yes)
+LIBEESRCS	+= $(EE_SRCS)
+LIBEEOBJS	:=							\
+	$(addprefix $(OBJDIR)/,						\
+		$(patsubst %.cpp,%.cpp.o,				\
+			$(patsubst %.c,%.c.o,				\
+				$(patsubst %.S,%.S.o,$(LIBEESRCS))	\
+			)						\
+		)							\
+	)
+
+LIBEESRCS	+= $(LIB_SRCS)
+LIBOBJS		:=							\
+	$(addprefix $(OBJDIR)/,						\
+		$(patsubst %.cpp,%.cpp.o,				\
+			$(patsubst %.c,%.c.o,				\
+				$(patsubst %.S,%.S.o,$(LIBSRCS))	\
+			)						\
+		)							\
+	)
+
+SRCS		+= $(APP_SRCS)
+OBJS		:=							\
+	$(addprefix $(OBJDIR)/,						\
+		$(patsubst %.cpp,%.cpp.o,				\
+			$(patsubst %.c,%.c.o,				\
+				$(patsubst %.S,%.S.o, $(SRCS))		\
+			)						\
+		)							\
+	)
+else	# __ARDUINO_SDK__ && __ARDUINO_SDK_CC__
 LIBEESRCS	+= $(EE_SRCS)
 LIBEEOBJS	:=							\
 	$(addprefix $(OBJDIR)/,						\
@@ -146,6 +180,7 @@ OBJS		:=							\
 			)						\
 		)							\
 	)
+endif	# __ARDUINO_SDK__ && __ARDUINO_SDK_CC__
 
 # Variable used to import dependencies
 ALLOBJS = $(LIBEEOBJS) $(LIBOBJS) $(OBJS) 
@@ -301,6 +336,25 @@ $(TARGET_NAME).elf: $(OBJS) $(LIBDEP)
 
 endif	# __ARDUINO_SDK__
 
+ifeq ($(and	\
+		$(call iseeopt, __ARDUINO_SDK__),	\
+		$(call iseeopt, __ARDUINO_SDK_CC__)	\
+	), yes)
+$(OBJDIR)/%.S.o: %.S
+	$(VERBOSE_PRINTASM) $(EE_ASM) $(DEFS_ASM) $(COMPUTED_ALLINCPATH) \
+	$(COMPUTED_OPT_ASM) $(DEPENDENCY_OPT) -o $(TARGETFILE) $(SOURCEFILE)
+	$(QUIET)$(call make-depend, $(subst .o,.d,$(@)))
+
+$(OBJDIR)/%.c.o: %.c
+	$(VERBOSE_PRINTCC) $(EE_CC) $(DEFS_CC) $(COMPUTED_ALLINCPATH) \
+	$(COMPUTED_OPT_CC) $(DEPENDENCY_OPT) -o $(TARGETFILE) $(SOURCEFILE)
+	$(QUIET)$(call make-depend, $(subst .o,.d,$(@)))
+
+$(OBJDIR)/%.cpp.o: %.cpp
+	$(VERBOSE_PRINTCXX) $(EE_CXX) $(DEFS_CXX) $(COMPUTED_ALLINCPATH) \
+	$(COMPUTED_OPT_CXX) $(DEPENDENCY_OPT) -o $(TARGETFILE) $(SOURCEFILE)
+	$(QUIET)$(call make-depend, $(subst .o,.d,$(@)))
+else	# __ARDUINO_SDK__ && __ARDUINO_SDK_CC__
 $(OBJDIR)/%.o: %.S
 	$(VERBOSE_PRINTASM) $(EE_ASM) $(DEFS_ASM) $(COMPUTED_ALLINCPATH) \
 	$(COMPUTED_OPT_ASM) $(DEPENDENCY_OPT) -o $(TARGETFILE) $(SOURCEFILE)
@@ -315,6 +369,7 @@ $(OBJDIR)/%.o: %.cpp
 	$(VERBOSE_PRINTCXX) $(EE_CXX) $(DEFS_CXX) $(COMPUTED_ALLINCPATH) \
 	$(COMPUTED_OPT_CXX) $(DEPENDENCY_OPT) -o $(TARGETFILE) $(SOURCEFILE)
 	$(QUIET)$(call make-depend, $(subst .o,.d,$(@)))
+endif	# __ARDUINO_SDK__ && __ARDUINO_SDK_CC__
 
 ##
 ## EE Library

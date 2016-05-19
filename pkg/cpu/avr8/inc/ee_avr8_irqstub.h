@@ -1,7 +1,7 @@
 /* ###*B*###
  * ERIKA Enterprise - a tiny RTOS for small microcontrollers
  *
- * Copyright (C) 2002-2012  Evidence Srl
+ * Copyright (C) 2002-2016  Evidence Srl
  *
  * This file is part of ERIKA Enterprise.
  *
@@ -41,7 +41,7 @@
 /*
  * ISR2 Stub declaration
  *
- * Author: 2013,  Giuseppe Serano
+ * Author: 2016,  Giuseppe Serano
  */
 
 #ifndef INCLUDE_EE_AVR8_IRQSTUB_H__
@@ -52,6 +52,8 @@
 
 /* Plus I need IRQ handling defines */
 #include "ee_irq.h"
+
+#include "cpu/common/inc/ee_irqstub.h"
 
 /*
  * ISR Type 1 stub.

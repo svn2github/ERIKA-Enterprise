@@ -287,15 +287,18 @@ void EE_tc27x_stm_set_sr1( EE_UINT32 usec, EE_TYPEISR2PRIO intvec );
 void EE_tc27x_stm_set_sr1_next_match( EE_UINT32 usec );
 #endif /* EE_SYSTEM_TIMER_DEVICE != EE_TC_STM_SR0 */
 
-/* STM TIM0 and CAP(ture) Register Selector */
+/* STM TIM0, CAP(ture) and OCDS Register Selector */
 #ifdef EE_MASTER_CPU
 /* registers */
+#define EE_STM_OCS      STM0_OCS
 #define EE_STM_TIM0     STM0_TIM0
 #define EE_STM_CAP      STM0_CAP
 #elif (EE_CURRENTCPU == 1)
+#define EE_STM_OCS      STM1_OCS
 #define EE_STM_TIM0     STM1_TIM0
 #define EE_STM_CAP      STM1_CAP
 #elif (EE_CURRENTCPU == 2)
+#define EE_STM_OCS      STM2_OCS
 #define EE_STM_TIM0     STM2_TIM0
 #define EE_STM_CAP      STM2_CAP
 #else 
@@ -320,6 +323,17 @@ __INLINE__ EE_UREG __ALWAYS_INLINE__ EE_tc27x_stm_get_time_lower_word( void )
 __INLINE__ EE_UREG __ALWAYS_INLINE__ EE_tc27x_stm_get_time_upper_word( void )
 {
   return EE_STM_CAP.U;
+}
+
+/** @brief Mask for STM OCDS suspension: SUS := 2, SUS_P := 1 */
+#define EE_TC27X_STM_OCS_SUS_CTRL_MASK ((1U << 28U) | (2U << 24U))
+
+/**
+  * @brief  Used to set STM suspension when OCDS take control
+  */
+__INLINE__ void __ALWAYS_INLINE__ EE_tc27x_stm_ocds_suspend_control( void )
+{
+  EE_STM_OCS.U = EE_TC27X_STM_OCS_SUS_CTRL_MASK;
 }
 
 /**

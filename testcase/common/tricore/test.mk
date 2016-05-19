@@ -80,6 +80,17 @@ CLEAN_tricore_tc27x_gnu                  =
 COMPILE_tricore_tc27x_gnu                =   $(COMPILE_tricore_source)
 DEBUG_tricore_tc27x_gnu                  =   $(DEBUG_tricore_tasking_source)
 
+# tricore_tc29x_gnu
+TESTLIST                                +=  tricore_tc29x_gnu
+OUTDIR_COMMANDS_tricore_tc29x_gnu        =   $(OUTDIR_COMMANDS_tricore_source)
+CONF_tricore_tc29x_gnu                   =   $(CONF_tricore_source)
+GLOBAL_CONF                             +=
+DIST_tricore_tc29x_gnu                   =
+RTDRUID_tricore_tc29x_gnu                =   $(RTDRUID_tricore_source)
+CLEAN_tricore_tc29x_gnu                  =
+COMPILE_tricore_tc29x_gnu                =   $(COMPILE_tricore_source)
+DEBUG_tricore_tc29x_gnu                  =   $(DEBUG_tricore_t29x_source)
+
 # -------------------------------------------------------------------
 
 EE_TMPDIR = $(EEBASE)/testcase/tmp
@@ -116,6 +127,22 @@ COMPILE_tricore_source = \
 
 DEBUG_tricore_tasking_source = \
 	cp tricore/t32_tc27x.cmm $(OUTDIR_PREFIX)$*/t32.cmm; \
+	$(LOCKFILE) $(FILE_LOCK); \
+		echo "&count=&count+1" >> $(EE_TMPDIR)/t32_jobs.cmm; \
+		echo chdir $(NATIVE_OUTDIR_PREFIX)$* >> $(EE_TMPDIR)/t32_jobs.cmm; \
+		echo "write \#1 \"$(NATIVE_OUTDIR_PREFIX)$*\"" >> $(EE_TMPDIR)/t32_jobs.cmm; \
+		echo area.select Messages >> $(EE_TMPDIR)/t32_jobs.cmm; \
+		echo print >> $(EE_TMPDIR)/t32_jobs.cmm; \
+		echo print '"Test no. "' '%Decimal' '&count' '" ("' '&failed' \
+		'" errors so far)"' >> $(EE_TMPDIR)/t32_jobs.cmm; \
+		echo print \"$(NATIVE_OUTDIR_PREFIX)$*\" >> $(EE_TMPDIR)/t32_jobs.cmm; \
+		echo area.select A000 >> $(EE_TMPDIR)/t32_jobs.cmm; \
+		echo do t32.cmm >> $(EE_TMPDIR)/t32_jobs.cmm; \
+		cp -u tricore/t32_quit.cmm $(EE_TMPDIR)/t32.cmm; \
+	rm -f $(FILE_LOCK);
+
+DEBUG_tricore_t29x_source = \
+	cp tricore/t32_tc29x.cmm $(OUTDIR_PREFIX)$*/t32.cmm; \
 	$(LOCKFILE) $(FILE_LOCK); \
 		echo "&count=&count+1" >> $(EE_TMPDIR)/t32_jobs.cmm; \
 		echo chdir $(NATIVE_OUTDIR_PREFIX)$* >> $(EE_TMPDIR)/t32_jobs.cmm; \

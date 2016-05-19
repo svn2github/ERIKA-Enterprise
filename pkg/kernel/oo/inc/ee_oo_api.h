@@ -40,7 +40,6 @@
 
 /*
  * Author: Paolo Gai
- * CVS: $Id: ee_api.h,v 1.5 2006/12/03 22:07:50 pj Exp $
  */
 
 

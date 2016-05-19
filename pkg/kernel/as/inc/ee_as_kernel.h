@@ -99,8 +99,6 @@
     are even numbers. The LSBit is used as a flag and it is set to 1
     when the servce is entered, to 0 at exit.
     (Needed here, not in intenal, for services inline implementation). */
-#ifdef __OO_ORTI_SERVICETRACE__
-
 #define EE_SERVICETRACE_AS_BEGIN                    EE_SERVICETRACE_OO_LAST
 
 #define EE_SERVICETRACE_GETNUMBEROFACTIVATEDCORES   EE_SERVICETRACE_AS_BEGIN
@@ -128,7 +126,6 @@
 #define EE_SERVICETRACE_GETSCHEDULETABLESTATUS  \
   (EE_SERVICETRACE_AS_BEGIN + 44U)
 #define EE_SERVICETRACE_SYNCSCHEDULETABLE     (EE_SERVICETRACE_AS_BEGIN + 46U)
-#endif /* __OO_ORTI_SERVICETRACE__ */
 
 /*******************************************************************************
  *                            System services

@@ -449,11 +449,11 @@ extern EE_UREG EE_resource_stack[EE_MAX_RESOURCE];
 #include "MemMap.h"
 #endif /* EE_SUPPORT_MEMMAP_H */
 
-#if defined (EE_MAX_ISR2_WITH_RESOURCES)
+#if (defined(EE_MAX_ISR2_WITH_RESOURCES)) && (!defined(EE_AS_USER_SPINLOCKS__))
 #if (EE_MAX_ISR2_WITH_RESOURCES > 0)
 /* Array to hold corresponding isr2 nesting levels */
 extern EE_UREG                EE_isr2_nesting_level[EE_MAX_ISR2_WITH_RESOURCES];
-#endif /* EE_MAX_ISR2_WITH_RESOURCES > 0 */
+#endif /* (EE_MAX_ISR2_WITH_RESOURCES > 0) && !EE_AS_USER_SPINLOCKS__ */
 #elif defined (EE_MAX_ISR2)
 #if (EE_MAX_ISR2 > 0)
 extern EE_UREG                EE_isr2_nesting_level[EE_MAX_ISR2];
@@ -1091,7 +1091,7 @@ typedef enum {
 /*[OS088] If an OS-Application makes a service call from the wrong context AND
   is currently not inside a Category 1 ISR the Operating System module shall
   not perform the requested action (the service call shall have no effect),
-  and return E_OS_CALLEVEL (see [12], section 13.1) or the “invalid value” of
+  and return E_OS_CALLEVEL (see [12], section 13.1) or the "invalid value" of
   the service. (BSW11009, BSW11013) */
 /** @typedef OS-Application contexts enum used to implement Autosar OS O0S88
     requirement */
@@ -1252,21 +1252,21 @@ typedef void (* EE_STATUSHOOKTYPE) ( StatusType );
 
 /** @var Static OS Application info. The first entry is reserved for Kernel
     OS-Application. */
-extern const EE_as_Application_ROM_type EE_as_Application_ROM[/*EE_MAX_APP*/];
+extern const EE_as_Application_ROM_type EE_as_Application_ROM[EE_MAX_APP];
 /** @var Mapping from tasks to applications */
-extern const ApplicationType EE_th_app[/*EE_MAX_TASK*/];
+extern const ApplicationType EE_th_app[EE_MAX_TASK + 1U];
 
 /** @var Mapping from ISRs to applications */
-extern const EE_as_ISR_ROM_type EE_as_ISR_ROM[/* No Macro */];
+extern const EE_as_ISR_ROM_type EE_as_ISR_ROM[EE_MAX_ISR_ID];
 
 /** @brief OS Applications STARTUPHOOKs List */
-extern EE_HOOKTYPE const EE_as_Application_startuphook[/*EE_MAX_APP*/];
+extern EE_HOOKTYPE const EE_as_Application_startuphook[EE_MAX_APP];
 
 /** @brief OS Applications SHUTDOWNHOOKs List */
-extern EE_STATUSHOOKTYPE const EE_as_Application_shutdownhook[/*EE_MAX_APP*/];
+extern EE_STATUSHOOKTYPE const EE_as_Application_shutdownhook[EE_MAX_APP];
 
 /** @brief OS Applications ERRORHOOKs List */
-extern EE_STATUSHOOKTYPE const EE_as_Application_errorhook[/*EE_MAX_APP*/];
+extern EE_STATUSHOOKTYPE const EE_as_Application_errorhook[EE_MAX_APP];
 
 /* If MemMap.h support is enabled (i.e. because memory protection): use it */
 #ifdef EE_SUPPORT_MEMMAP_H
@@ -1293,11 +1293,13 @@ extern ApplicationType EE_as_active_app;
 
 /** @var Run-time info about applications. The first entry is reserved for
     Kernel OS-Application. */
-extern EE_as_Application_RAM_type EE_as_Application_RAM[/*EE_MAX_APP*/];
+extern EE_as_Application_RAM_type EE_as_Application_RAM[EE_MAX_APP];
 
+#if (defined(EE_MAX_NESTING_LEVEL))
 /** @var LIFO list of running ISRs. The current record is given by
    (EE_hal_get_IRQ_nesting_level() - 1U), when an ISR is running. */
-extern EE_as_ISR_RAM_type EE_as_ISR_stack[/*EE_MAX_NESTING_LEVEL*/];
+extern EE_as_ISR_RAM_type EE_as_ISR_stack[EE_MAX_NESTING_LEVEL];
+#endif /* EE_MAX_NESTING_LEVEL */
 
 /* If MemMap.h support is enabled (i.e. because memory protection): use it */
 #ifdef EE_SUPPORT_MEMMAP_H

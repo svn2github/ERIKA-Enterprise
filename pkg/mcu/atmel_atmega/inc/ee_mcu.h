@@ -110,17 +110,22 @@ __INLINE__ void EE_mcu_init(void)
 #define __TIMER_USED__
 #endif
 
-__INLINE__ void EE_timer_0_start(void)
+extern void EE_atmega_timer0_start(void);
+extern void EE_atmega_timer0_stop(void);
+extern EE_UREG EE_atmega_timer0_get(void);
+extern void EE_atmega_init_timer0(EE_UREG);
+
+__INLINE__ void __ALWAYS_INLINE__ EE_timer_0_start(void)
 { 
 	EE_atmega_timer0_start();
 }
 	
-__INLINE__ void EE_timer_0_stop(void)
+__INLINE__ void __ALWAYS_INLINE__ EE_timer_0_stop(void)
 { 
 	EE_atmega_timer0_stop();
 }
 
-__INLINE__ EE_UREG EE_timer_0_get(void)
+__INLINE__ EE_UREG __ALWAYS_INLINE__ EE_timer_0_get(void)
 {
 	EE_UREG time0=0;
 
@@ -128,7 +133,7 @@ __INLINE__ EE_UREG EE_timer_0_get(void)
 	return time0;
 }
 
-__INLINE__ void EE_timer_0_set(EE_UREG count_down) 
+__INLINE__ void __ALWAYS_INLINE__ EE_timer_0_set(EE_UREG count_down) 
 { 
 	/*EE_atmega_timer0_set(count_down); */
 }
@@ -142,17 +147,22 @@ __INLINE__ void EE_timer_0_set(EE_UREG count_down)
 #define __TIMER_USED__
 #endif
 
-__INLINE__ void EE_timer_2_start(void) 
+extern void EE_atmega_timer2_start(void);
+extern void EE_atmega_timer2_stop(void);
+extern EE_UREG EE_atmega_timer2_get(void);
+extern void EE_atmega_init_timer2(EE_UREG);
+
+__INLINE__ void __ALWAYS_INLINE__ EE_timer_2_start(void) 
 {
 	EE_atmega_timer2_start();
 }
 
-__INLINE__ void EE_timer_2_stop(void) 
+__INLINE__ void __ALWAYS_INLINE__ EE_timer_2_stop(void) 
 {
 	EE_atmega_timer2_stop();
 }
 
-__INLINE__ EE_UREG EE_timer_2_get(void)
+__INLINE__ EE_UREG __ALWAYS_INLINE__ EE_timer_2_get(void)
 {  
 	EE_UINT8 time2=0;
 
@@ -160,7 +170,7 @@ __INLINE__ EE_UREG EE_timer_2_get(void)
 	return time2;
 }
 
-__INLINE__ void EE_timer_2_set(EE_UREG count_down)
+__INLINE__ void __ALWAYS_INLINE__ EE_timer_2_set(EE_UREG count_down)
 {
 
 }
@@ -174,17 +184,22 @@ __INLINE__ void EE_timer_2_set(EE_UREG count_down)
 #define __TIMER_USED__
 #endif
 
-__INLINE__ void EE_timer_1_start(void) 
+extern void EE_atmega_timer1_start(void);
+extern void EE_atmega_timer1_stop(void);
+extern EE_UREG EE_atmega_timer1_get(void);
+extern void EE_atmega_init_timer1(EE_UREG);
+
+__INLINE__ void __ALWAYS_INLINE__ EE_timer_1_start(void) 
 {
 	EE_atmega_timer1_start();
 }
 
-__INLINE__ void EE_timer_1_stop(void) 
+__INLINE__ void __ALWAYS_INLINE__ EE_timer_1_stop(void) 
 { 
 	EE_atmega_timer1_stop();
 }
 
-__INLINE__ EE_UREG EE_timer_1_get(void) 
+__INLINE__ EE_UREG __ALWAYS_INLINE__ EE_timer_1_get(void) 
 { 
 	EE_UINT16 time1;
 	
@@ -192,7 +207,7 @@ __INLINE__ EE_UREG EE_timer_1_get(void)
 	return time1;
 }
 
-__INLINE__ void EE_timer_1_set(EE_UREG count_down)
+__INLINE__ void __ALWAYS_INLINE__ EE_timer_1_set(EE_UREG count_down)
 {
 
 }
@@ -206,17 +221,22 @@ __INLINE__ void EE_timer_1_set(EE_UREG count_down)
 #define __TIMER_USED__
 #endif
 
-__INLINE__ void EE_timer_3_start(void) 
+extern void EE_atmega_timer3_start(void);
+extern void EE_atmega_timer3_stop(void);
+extern EE_UREG EE_atmega_timer3_get(void);
+extern void EE_atmega_init_timer3(EE_UREG);
+
+__INLINE__ void __ALWAYS_INLINE__ EE_timer_3_start(void) 
 {
 	EE_atmega_timer3_start();
 }
 
-__INLINE__ void EE_timer_3_stop(void) 
+__INLINE__ void __ALWAYS_INLINE__ EE_timer_3_stop(void) 
 {
 	EE_atmega_timer3_stop();
 }
 
-__INLINE__ EE_INT16 EE_timer_3_get(void) 
+__INLINE__ EE_INT16 __ALWAYS_INLINE__ EE_timer_3_get(void) 
 {
 	EE_UINT16 time3=0;
 
@@ -224,7 +244,7 @@ __INLINE__ EE_INT16 EE_timer_3_get(void)
 	return time3;
 }
 
-__INLINE__ void EE_timer_3_set(EE_UREG count_down)
+__INLINE__ void __ALWAYS_INLINE__ EE_timer_3_set(EE_UREG count_down)
 {
 
 }
@@ -234,21 +254,21 @@ __INLINE__ void EE_timer_3_set(EE_UREG count_down)
 
 
 #ifdef __TIMER_USED__
-__INLINE__ void EE_timer_init0(EE_UINT8 max_tick)
+__INLINE__ void __ALWAYS_INLINE__ EE_timer_init0(EE_UINT8 max_tick)
 {
 #ifdef __TIMER_0_USED__
 	EE_atmega_init_timer0(max_tick);
 #endif
 }
 
-__INLINE__ void EE_timer_init1(EE_UINT16 max_tick)
+__INLINE__ void __ALWAYS_INLINE__ EE_timer_init1(EE_UINT16 max_tick)
 {
 #ifdef __TIMER_1_USED__
 	EE_atmega_init_timer1(max_tick);
 #endif
 }
 
-__INLINE__ void EE_timer_init2(EE_UINT8 max_tick)
+__INLINE__ void __ALWAYS_INLINE__ EE_timer_init2(EE_UINT8 max_tick)
 {
 #ifdef __TIMER_2_USED__
 	EE_atmega_init_timer2(max_tick);
@@ -256,7 +276,7 @@ __INLINE__ void EE_timer_init2(EE_UINT8 max_tick)
 }
 
 #ifdef	__AVR_ATmega128__
-__INLINE__ void EE_timer_init3(EE_UINT16 max_tick)
+__INLINE__ void __ALWAYS_INLINE__ EE_timer_init3(EE_UINT16 max_tick)
 {
 #ifdef __TIMER_3_USED__
 	EE_atmega_init_timer3(max_tick);
@@ -274,7 +294,7 @@ __INLINE__ void EE_timer_init3(EE_UINT16 max_tick)
 typedef EE_UINT16 EE_TIME;
 
 /* read current time (used by EDF scheduler) */
-__INLINE__ EE_TIME EE_hal_gettime(void)
+__INLINE__ EE_TIME __ALWAYS_INLINE__ EE_hal_gettime(void)
 {
 	return EE_timer_1_get();
 }

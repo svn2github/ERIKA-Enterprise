@@ -1370,15 +1370,23 @@ typedef struct {
 #endif /* EE_AS_OSAPPLICATIONS__ */
 
 /******************************************************************************
-                           Timing Protection Support
-
-  N.B. Software Free Running Timer (SWFRT) could be configured in any case, but
-       for now it is tied to Timing Protection
+                Software Free Running Timer (SWFRT) (CCNT implementation)
 *******************************************************************************/
-#ifdef EE_TIMING_PROTECTION__
-/** Macro to abstract free running timer duration in Kernel Layer */
+#if (defined(EE_SWFRT_CCNT))
+/** @brief Macro for SWFRT clock frequency */
+#define EE_SWFRT_CLOCK EE_CPU_CLOCK
+/** @brief Macro to abstract free running timer duration in Kernel Layer.
+    there are two SWFRT implementation one that use CCNT debug counter
+    (deprecated since it seems that cannot be used without a debugger connected
+    to the board) and one that use SMT.
+    In the first case we need to take in account 31 bits of the reading:
+    for CCNT to handle the "sticky" bit.
+    For STM it depends of pll preescaler value (SCU_CCUCON1.B.STMDIV), how many
+    bits you can take: for example if the frequency of the clock is the same
+    of the CPU (SCU_CCUCON1.B.STMDIV = 1) we can use all the 32 bits, if it's
+    half (SCU_CCUCON1.B.STMDIV = 2) you have to 31 bits, and so on... */
 #define EE_HAL_SWFRT_TIMER_DURATION (((EE_UREG)-1) >> 1U)
-#endif /* EE_TIMING_PROTECTION__ */
+#endif /* EE_SWFRT_CCNT */
 
 #else /* __TC13__ || __TC131__ || __TC161__ || __CORE_TC16X__ */
 #error CPU not supported.

@@ -307,8 +307,12 @@ void EE_tc_enable_protections( void )
 
 #ifdef EE_TIMING_PROTECTION__
   syscon_value |= EE_TC_ENABLE_TEMPORAL_PROTECTION;
+#if (defined(EE_SWFRT_CCNT))
+  /* Deprecated since it seams that cannot be used without an attacched
+     debugger */ 
   /* Start the CPU Clock Cycle Counter used as Free Timer */
   EE_tc_start_CCNT();
+#endif /* EE_SWFRT_CCNT */
   /* EE_tc_set_csfr(EE_CPU_REG_CCTRL, 0x2U); */
 #endif /* EE_TIMING_PROTECTION__ */
 
@@ -349,9 +353,13 @@ void EE_tc_enable_protections( void )
 
 #ifdef EE_TIMING_PROTECTION__
   syscon_value |= EE_TC_ENABLE_TEMPORAL_PROTECTION;
+#if (defined(EE_SWFRT_CCNT))
+  /* Deprecated since it seams that cannot be used without an attacched
+     debugger */ 
   /* Start the CPU Clock Cycle Counter used as Free Timer */
   EE_tc_start_CCNT();
   /* EE_tc_set_csfr(EE_CPU_REG_CCTRL, 0x2U); */
+#endif /* EE_SWFRT_CCNT */
 #endif /* EE_TIMING_PROTECTION__ */
 
   /* Set the given bitmask on SYSCON register */

@@ -136,6 +136,12 @@
 #define gnu
 #endif
 
+#ifdef  tricore_tc29x_gnu
+#define tricore
+#define tricore_tc29x
+#define gnu
+#endif
+
 //#ifdef s12xs_...
 //#define s12xs
 //#endif

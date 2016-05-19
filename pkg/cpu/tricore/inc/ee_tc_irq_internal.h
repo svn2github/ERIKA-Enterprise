@@ -198,8 +198,8 @@ __INLINE__ void __ALWAYS_INLINE__ EE_TC_CHANGE_STACK_POINTER
     /* PCXI Saving */
     isr_stack_ptr->ISR_Terminate_data = EE_tc_get_pcxi();
 
-  /* Set the right execution context */
-#ifdef EE_SERVICE_PROTECTION__
+    /* Set the right execution context */
+#if (defined(EE_SERVICE_PROTECTION__))
     if ( app_to == KERNEL_OSAPPLICATION ) {
       EE_as_set_execution_context( Kernel_Context );
     } else {
@@ -245,7 +245,14 @@ __INLINE__ void __ALWAYS_INLINE__ EE_TC_CHANGE_STACK_POINTER
 
     /* Enable IRQ if nesting  is allowed (It works even with memory protection,
        because User Tasks run in User-1 mode that has ISR handling enabled) */
-    EE_std_enableIRQ_nested();
+#if (defined(EE_SERVICE_PROTECTION__))
+    /* In case of Service Protection we don't want to make Kernel ISR2
+       preemptables to not handle previous Execution Context. */
+    if ( app_to != KERNEL_OSAPPLICATION )
+#endif /* EE_SERVICE_PROTECTION__ */
+    {
+      EE_std_enableIRQ_nested();
+    }
 
     /* Call The ISR User Handler */
     EE_tc_isr2_call_handler(f);
@@ -294,7 +301,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_TC_CHANGE_STACK_POINTER
 #else /* __OO_ORTI_RUNNINGISR2__ || EE_TIMING_PROTECTION__ */
 /* No locals */
 #define EE_generate_locals()  ((void)0)
-#endif /*__OO_ORTI_RUNNINGISR2__ || EE_TIMING_PROTECTION__ */
+#endif /* __OO_ORTI_RUNNINGISR2__ || EE_TIMING_PROTECTION__ */
 
 #ifdef __OO_ORTI_RUNNINGISR2__
 /* Keep the old ORTI and switch to new one */
@@ -360,8 +367,18 @@ __INLINE__ void __ALWAYS_INLINE__ EE_tc_isr2_wrapper_body( EE_tc_ISR_handler f )
     /* Start TP protection for this ISR2 */
     EE_as_tp_active_start_for_ISR2(isr2_id);
     /* Enable IRQ if nesting  is allowed */
-    EE_std_enableIRQ_nested();
-
+#if (defined(EE_SERVICE_PROTECTION__))
+    /* In case of Service Protection we don't want to make Kernel ISR2
+       preemptables to not handle previous Execution Context. */
+#if (defined(EE_SYSTEM_TIMER)) && (defined(__MSRP__))
+    if ( EE_tc_get_int_prio() > 2U )
+#elif (defined(EE_SYSTEM_TIMER)) || (defined(__MSRP__))
+    if ( EE_tc_get_int_prio() > 1U )
+#endif /* EE_SYSTEM_TIMER {&&,||} MSRP */
+#endif /* EE_SERVICE_PROTECTION__ */
+    {
+      EE_std_enableIRQ_nested();
+    }
     /* Call The ISR User Handler */
     EE_tc_isr2_call_handler(f);
 

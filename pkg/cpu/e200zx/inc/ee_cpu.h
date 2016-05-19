@@ -305,7 +305,7 @@ void EE_e200zx_setup_fixed_intv(EE_UREG bitpos);
 /* Disable the fixed-interval interrupt */
 void EE_e200zx_stop_fixed_intv(void);
 
-/* Configure the decrementer to raise an interrupt every `delay' cycles */
+/* Configure the decrementer to raise an interrupt every 'delay' cycles */
 void EE_e200z7_setup_decrementer(EE_UINT32 dec_value);
 /* Configure the decrementer to raise an interrupt once after `delay' cycles */
 void EE_e200z7_setup_decrementer_oneshot(EE_UINT32 oneshotvalue);

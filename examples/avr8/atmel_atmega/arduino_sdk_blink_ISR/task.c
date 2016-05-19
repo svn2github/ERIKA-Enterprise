@@ -1,13 +1,13 @@
 /* ###*B*###
  * ERIKA Enterprise - a tiny RTOS for small microcontrollers
  *
- * Copyright (C) 2002-2012  Evidence Srl
+ * Copyright (C) 2002-2014  Evidence Srl
  *
  * This file is part of ERIKA Enterprise.
  *
  * ERIKA Enterprise is free software; you can redistribute it
  * and/or modify it under the terms of the GNU General Public License
- * version 2 as published by the Free Software Foundation, 
+ * version 2 as published by the Free Software Foundation,
  * (with a special exception described below).
  *
  * Linking this code statically or dynamically with other modules is
@@ -38,30 +38,23 @@
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
 
-#ifdef	tricore
+#include "ee.h"
+#include "Arduino.h"
 
-EE_OPT = "EE_EXECUTE_FROM_RAM";
+extern int led;
 
-MCU_DATA = TRICORE {
-#ifdef	tricore_tc27x
-    MODEL = TC27x;
-#endif	/* tricore_tc27x */
-#ifdef	tricore_tc29x
-    MODEL = TC29x;
-#endif	/* tricore_tc29x */
+TASK(TaskL1) {
+#if	0
+  digitalWrite(led, HIGH);   // turn the LED on (HIGH is the voltage level)
+  delay(1000);               // wait for a second
+  digitalWrite(led, LOW);    // turn the LED off by making the voltage LOW
+  delay(1000);               // wait for a second
+#else	/* 0 */
+  if (digitalRead(led) == HIGH) {
+    digitalWrite(led, LOW);    // turn the LED off by making the voltage LOW
+  }
+  else {
+    digitalWrite(led, HIGH);   // turn the LED on (HIGH is the voltage level)
+  }
+#endif	/* 0 */
 };
-
-CPU_DATA = TRICORE {
-    APP_SRC = "code.c";
-#ifdef	USEIRQ
-    APP_SRC = "../../common/tricore/test_irq.c";
-#endif	/* USEIRQ */
-    SYS_STACK_SIZE=4096;
-#ifdef	tasking
-    COMPILER_TYPE = TASKING;
-#endif	/* tasking */
-#ifdef	gnu
-    COMPILER_TYPE = GNU;
-#endif	/* gnu */
-
-#endif	/* tricore */

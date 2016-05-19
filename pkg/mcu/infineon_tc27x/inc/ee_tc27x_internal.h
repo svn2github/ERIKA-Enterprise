@@ -234,7 +234,7 @@ __INLINE__ void __ALWAYS_INLINE__ EE_tc27x_fill_stacks( void )
     stack_length = stack_length / (EE_UINT32)sizeof(*stack_fill_ptr);
 
     while ( stack_length ) {
-      *stack_fill_ptr = EE_TC_STACK_FILL_PATTERN;
+      *stack_fill_ptr = EE_STACK_FILL_PATTERN;
       stack_length--;
       stack_fill_ptr++;
     }
@@ -477,6 +477,8 @@ __INLINE__ EE_TYPEBOOL __ALWAYS_INLINE__ EE_cpu_startos( void )
   /* Initialize stdlib time reference (or internal variable) with STM
       frequency. */
   EE_tc27x_stm_set_clockpersec();
+  /* If there's no OCDS enabled, the following is a nop */
+  EE_tc27x_stm_ocds_suspend_control();
   EE_tc27x_initialize_system_timer();
 
   return 0;

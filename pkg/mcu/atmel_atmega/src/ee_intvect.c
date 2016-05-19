@@ -1,7 +1,7 @@
 /* ###*B*###
  * ERIKA Enterprise - a tiny RTOS for small microcontrollers
  *
- * Copyright (C) 2002-2014  Evidence Srl
+ * Copyright (C) 2002-2016  Evidence Srl
  *
  * This file is part of ERIKA Enterprise.
  *
@@ -41,7 +41,7 @@
 /*
  * Atmel ATMEGA MCUs Interrupts vector.
  *
- * Author: 2014,  Giuseppe Serano
+ * Author: 2016,  Giuseppe Serano
  */
 
 /* I need ISR2 Stub */
@@ -50,11 +50,11 @@
 /* Erika Interrupt Vector Definition */
 
 /* DUMMY interrupt vector */
-EE_AVR8_ISR_NOT_DEFINED(DUMMY_vect)
+EE_AVR8_ISR_NOT_DEFINED(BADISR_vect)
 
 /* Interrupt Vector Table Recall. */
 void EE_atmega_intvect(void) {
-  EE_AVR8_REQUEST_IRQ_ENTRY(DUMMY_vect);
+  EE_AVR8_REQUEST_IRQ_ENTRY(BADISR_vect);
 }
 
 /* INT0 interrupt vector */

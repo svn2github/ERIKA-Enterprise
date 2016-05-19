@@ -1,13 +1,13 @@
 /* ###*B*###
  * ERIKA Enterprise - a tiny RTOS for small microcontrollers
  *
- * Copyright (C) 2002-2012  Evidence Srl
+ * Copyright (C) 2002-2014  Evidence Srl
  *
  * This file is part of ERIKA Enterprise.
  *
  * ERIKA Enterprise is free software; you can redistribute it
  * and/or modify it under the terms of the GNU General Public License
- * version 2 as published by the Free Software Foundation, 
+ * version 2 as published by the Free Software Foundation,
  * (with a special exception described below).
  *
  * Linking this code statically or dynamically with other modules is
@@ -38,30 +38,64 @@
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
 
-#ifdef	tricore
+#include "ee.h"
+#include "Arduino.h"
+#include "Timer1.h"
 
-EE_OPT = "EE_EXECUTE_FROM_RAM";
+#define	TIMER1_US	1000000U
 
-MCU_DATA = TRICORE {
-#ifdef	tricore_tc27x
-    MODEL = TC27x;
-#endif	/* tricore_tc27x */
-#ifdef	tricore_tc29x
-    MODEL = TC29x;
-#endif	/* tricore_tc29x */
-};
+// Pin 13 has an LED connected on most Arduino boards.
+// give it a name:
+int led = 13;
 
-CPU_DATA = TRICORE {
-    APP_SRC = "code.c";
-#ifdef	USEIRQ
-    APP_SRC = "../../common/tricore/test_irq.c";
-#endif	/* USEIRQ */
-    SYS_STACK_SIZE=4096;
-#ifdef	tasking
-    COMPILER_TYPE = TASKING;
-#endif	/* tasking */
-#ifdef	gnu
-    COMPILER_TYPE = GNU;
-#endif	/* gnu */
 
-#endif	/* tricore */
+/*
+ * ISR2 MUST BE C SYMBOL
+ */
+extern "C" {
+
+/* Timer1 ISR2 */
+ISR2(timer1_handler)
+{
+	resetTimer1();
+
+	ActivateTask(TaskL1);
+}
+
+};	/* extern "C" */
+
+void loop(void)
+{
+	;
+}
+
+void setup(void)
+{
+	// initialize the digital pin as an output.
+	pinMode(led, OUTPUT);
+}
+
+int main(void)
+{
+	EE_mcu_init();
+
+	init();
+
+#if defined(USBCON)
+	USBDevice.attach();
+#endif
+	
+	setup();
+
+	/* Prepare Timer1 to send notifications every ALARMS_GCD_US. */
+	startTimer1(TIMER1_US);
+
+
+	for (;;) {
+		loop();
+		if (serialEventRun) serialEventRun();
+	}
+
+	return 0;
+
+}

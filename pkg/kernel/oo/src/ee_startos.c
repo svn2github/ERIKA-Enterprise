@@ -295,6 +295,9 @@ StatusType EE_oo_StartOS(AppModeType Mode)
   /* Error Value */
   register StatusType ev = E_OK;
 
+  /* Primitive Lock Procedure */
+  register EE_FREG const flag = EE_hal_begin_nested_primitive();
+
   EE_ORTI_set_service_in(EE_SERVICETRACE_STARTOS);
 
   /* Check if this is the first time that I call StartOS */
@@ -308,8 +311,6 @@ StatusType EE_oo_StartOS(AppModeType Mode)
     } else
 #endif /* OO_CPU_HAS_STARTOS_ROUTINE && EE_MASTER_CPU */
     {
-      /* Primitive Lock Procedure */
-      EE_hal_disableIRQ();
       /* Initialize ORTI variables, so the debugger can see their
          initial value */
       EE_ORTI_set_runningisr2((EE_ORTI_runningisr2_type)NULL);
@@ -502,7 +503,6 @@ StatusType EE_oo_StartOS(AppModeType Mode)
   }
 
   if ( ev != E_OK ) {
-    register EE_FREG flag = EE_hal_begin_nested_primitive();
     EE_ORTI_set_lasterror(ev);
     EE_oo_notify_error_StartOS(Mode, ev);
     EE_ORTI_set_service_out(EE_SERVICETRACE_STARTOS);

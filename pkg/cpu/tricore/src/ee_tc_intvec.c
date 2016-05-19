@@ -70,7 +70,9 @@ void EE_tc_isr2_global_wrapper(EE_tc_ISR_handler f);
 #define API_STOP_SEC_CODE
 #include "MemMap.h"
 #endif /* EE_SUPPORT_MEMMAP_H */
-
+#else
+/* In any case I need the Header with definitions for ISRs */
+#include "cpu/tricore/inc/ee_tc_irq.h"
 #endif /* EE_MAX_ISR2 > 0 */
 
 #ifdef __TASKING__

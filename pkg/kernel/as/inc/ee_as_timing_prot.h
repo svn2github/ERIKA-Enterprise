@@ -61,10 +61,14 @@
 /** @brief Macro that represent no time (time equal to zero */
 #define EE_OS_NO_TIME ((TickType)0U)
 
+/** @brief Macro used to convert microseconds to SWFRT ticks */
+#define EE_MICRO_TO_SWFRT_TICKS(X_US) EE_MICRO_TO_TICKS(X_US, EE_SWFRT_CLOCK)
+
 /** @brief Macro used to populate TP data structures, with saturation
            handling. */
 #define EE_AS_TP_MICRO_TO_TICKS_SATURATED(X_US, SAT) \
-  ((EE_MICRO_TO_CPU_TICKS(X_US) > (SAT))? (SAT): EE_MICRO_TO_CPU_TICKS(X_US))
+  ((EE_MICRO_TO_SWFRT_TICKS(X_US) > (SAT))? (SAT):\
+    EE_MICRO_TO_SWFRT_TICKS(X_US))
 
 /** @typedef Used as index to access timing protection informations */
 typedef EE_UTID TimingProtectionType;

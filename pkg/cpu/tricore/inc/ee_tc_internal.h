@@ -355,12 +355,12 @@ __INLINE__ EE_ADDR __ALWAYS_INLINE__ EE_tc_get_prev_stack( void )
 #endif /* __IRQ_STACK_NEEDED__ */
 
 /*******************************************************************************
-          Erika internal software free running counter HAL support
-
-  N.B. Software Free Running Timer (SWFRT) could be configured in any case, but
-       for now it is tied to Timing Protection.
+        Erika internal software free running counter HAL support (CCNT)
 *******************************************************************************/
-#ifdef EE_TIMING_PROTECTION__
+/* Deprecated since it seems that cannot be used without a debugger connected
+   to the board */
+#if (defined(EE_SWFRT_CCNT))
+
 /** CCNT has a bit that is set once until software reset:
     "obnoxious sticky bit" */
 __INLINE__ EE_UREG __ALWAYS_INLINE__ EE_hal_swfrt_get_current_time ( void )
@@ -383,7 +383,7 @@ __INLINE__ EE_UREG __ALWAYS_INLINE__ EE_hal_swfrt_get_elapsed_time (
   return EE_hal_swfrt_eval_elapsed_time(EE_hal_swfrt_get_current_time(),
     before);
 }
-#endif /* EE_TIMING_PROTECTION__ */
+#endif /* EE_SWFRT_CCNT */
 
 /*******************************************************************************
                 OS-Applications & Memory Protection Support
@@ -521,51 +521,13 @@ void EE_hal_terminate_other_task( EE_TID tid );
 #endif /* __EE_MEMORY_PROTECTION__ */
 #endif /* EE_AS_OSAPPLICATIONS__ */
 
-#ifdef EE_TIMING_PROTECTION__
-/*******************************************************************************
-                    Timing Protection Internal Support
- ******************************************************************************/
-/* XXX: Timing protection will use only TPS_TIMER0. In this way we will have a
-        "reference implementation" more portable on multiple architectures */
-
-/* Internal API to deal with TPS_CON Register */
-#define EE_TC_TPS_CON_TTRAP         EE_BIT(16)
-#define EE_TC_TPS_CON_RESET_TTRAP   (~EE_TC_TPS_CON_TTRAP)
-__INLINE__ void __ALWAYS_INLINE__ EE_tc_tps_reset_ttrap ( void )
-{
-  /* XXX: EG: Probably ALL the following are too much, but just to be
-          conservative... */
-  EE_UREG tps_con = (EE_tc_get_TPS_CON() & EE_TC_TPS_CON_RESET_TTRAP);
-  EE_tc_set_TPS_CON(tps_con);
-}
-
-__INLINE__ void __ALWAYS_INLINE__ EE_hal_tp_stop ( void ) {
-  /* Write zero on TPS_TIMER registers stop the corresponding timer */
-  EE_tc_set_csfr(EE_CPU_REG_TPS_TIMER0, 0U);
-}
-
-__INLINE__ EE_UREG __ALWAYS_INLINE__
-  EE_hal_tp_get_current_time_and_pause ( void )
-{
-  /* Write zero on TPS_TIMER registers stop the corresponding timer ( Pause ) */
-  EE_tc_set_csfr(EE_CPU_REG_TPS_TIMER0, 0U);
-  return EE_hal_swfrt_get_current_time();
-}
-
-__INLINE__ void __ALWAYS_INLINE__ EE_hal_tp_set_expiration ( EE_UREG
-  expiration )
-{
-  /* Write zero on TPS_TIMER register something != from zero restart the
-     protection */
-  EE_tc_set_csfr(EE_CPU_REG_TPS_TIMER0, expiration);
-}
-#else /* EE_TIMING_PROTECTION__ */
+#if (!defined(EE_TIMING_PROTECTION__))
 /* Moved in ee_as_timing_prot.h because it is directly used in
    EE_oo_ShutdownOS_internal */
 /* #define EE_hal_tp_stop()                        ((void)0) */
 #define EE_hal_tp_get_current_time_and_pause()  ((void)0)
 #define EE_hal_tp_set_expiration(expiration)    ((void)0)
-#endif /* EE_TIMING_PROTECTION__ */
+#endif /* !EE_TIMING_PROTECTION__ */
 
 /*******************************************************************************
            Enable Protection Procedure called inside EE_cpu_startos

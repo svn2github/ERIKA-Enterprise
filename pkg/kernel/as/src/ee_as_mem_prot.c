@@ -299,6 +299,30 @@ StatusType EE_as_CallTrustedFunction(TrustedFunctionIndexType FunctionIndex,
      be handled by the syscall handler, but TP have to be handled here... */
   register EE_as_Application_RAM_type * const app_RAM_ptr =
     &EE_as_Application_RAM[EE_as_active_app];
+
+  /*  Reaction to timing protection can be defined to terminate the
+      OSApplication. If a task is inside CallTrustedFunction() and task
+      rescheduling takes place within the same OSApplication, the newly running
+      higher priority task may cause timing protection and terminate the
+      OSApplication, thus indirectly aborting the trusted function.
+      To avoid this, the scheduling of other Tasks which belong to the same
+      OS-Application as the caller needs to be restricted, as well as the
+      availability of interrupts of the same OS-Application. */
+  /* [SWS_Os_00565]: When CallTrustedFunction() is called and the caller of
+      CallTrustedFunction() is supervised with timing protection, the Operating
+      System shall delay any timing protection errors until the return of
+      CallTrustedFunction(). */
+  /* [SWS_Os_00564]: If such a violation is detected inside a nested call
+      sequence of CallTrustedFunction() of a task, the delay shall last until
+      the return of the last CallTrustedFunction(). */
+  /* The following handle enventual TP errors. The check if we are inside a
+     Trusted Function Call inside, because the following function is called at
+     the end of all ERIKA Services, and the check have to be done at every
+     service's call */
+
+  /* Primitive Lock Procedure */
+  EE_OS_DECLARE_AND_ENTER_CRITICAL_SECTION();
+
   EE_ORTI_set_service_in(EE_SERVICETRACE_CALLTRUSTEDFUNCTION);
 
 #ifdef EE_SERVICE_PROTECTION__
@@ -357,37 +381,20 @@ StatusType EE_as_CallTrustedFunction(TrustedFunctionIndexType FunctionIndex,
   }
 
   if ( ev != E_OK ) {
+#ifdef __OO_HAS_ERRORHOOK__
     EE_OS_PARAM(os_function_index);
     EE_OS_PARAM(os_function_params);
     EE_OS_PARAM_VALUE(os_function_index, FunctionIndex);
     EE_OS_PARAM_REF(os_function_params, trusted_function_parameter_ref,
       FunctionParams);
+#endif /* __OO_HAS_ERRORHOOK__ */
     EE_os_notify_error(OSServiceId_CallTrustedFunction, os_function_index,
       os_function_params, EE_OS_INVALID_PARAM, ev);
   }
 
-  /*  Reaction to timing protection can be defined to terminate the
-      OSApplication. If a task is inside CallTrustedFunction() and task
-      rescheduling takes place within the same OSApplication, the newly running
-      higher priority task may cause timing protection and terminate the
-      OSApplication, thus indirectly aborting the trusted function.
-      To avoid this, the scheduling of other Tasks which belong to the same
-      OS-Application as the caller needs to be restricted, as well as the
-      availability of interrupts of the same OS-Application. */
-  /* [SWS_Os_00565]: When CallTrustedFunction() is called and the caller of
-      CallTrustedFunction() is supervised with timing protection, the Operating
-      System shall delay any timing protection errors until the return of
-      CallTrustedFunction(). */
-  /* [SWS_Os_00564]: If such a violation is detected inside a nested call
-      sequence of CallTrustedFunction() of a task, the delay shall last until
-      the return of the last CallTrustedFunction(). */
-  /* The following handle enventual TP errors. The check if we are inside a
-     Trusted Function Call inside, because the following function is called at
-     the end of all ERIKA Services, and the check have to be done at every
-     service's call */
-  EE_as_tp_active_update_budgets_and_restart();
-
   EE_ORTI_set_service_out(EE_SERVICETRACE_CALLTRUSTEDFUNCTION);
+  EE_OS_EXIT_CRITICAL_SECTION();
+
   return ev;
 }
 #endif /* EE_SYSCALL_NR > EE_MAX_SYS_SERVICEID */

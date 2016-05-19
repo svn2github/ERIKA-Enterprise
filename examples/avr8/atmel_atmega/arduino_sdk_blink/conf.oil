@@ -1,7 +1,7 @@
 /* ###*B*###
  * ERIKA Enterprise - a tiny RTOS for small microcontrollers
  *
- * Copyright (C) 2002-2014  Evidence Srl
+ * Copyright (C) 2002-2016  Evidence Srl
  *
  * This file is part of ERIKA Enterprise.
  *
@@ -38,6 +38,11 @@
  * Boston, MA 02110-1301 USA.
  * ###*E*### */
 
+/* 
+ * conf.oil for Erika Arduino demos
+ * Author: 2016,  Giuseppe Serano
+ */
+
 CPU mySystem {
 
 	OS myOs {
@@ -55,6 +60,10 @@ CPU mySystem {
 		};
 
 		EE_OPT = "__ARDUINO_SDK__";
+		/* EE_OPT = "__ARDUINO_SDK_CC__"; */
+		/* EE_OPT = "__ARDUINO_SDK_CC_1_6_8__"; */
+		EE_OPT = "__ARDUINO_SDK_ORG__";
+		EE_OPT = "__ARDUINO_SDK_ORG_1_7_9__";
 		EE_OPT = "__ARDUINO_UNO_328__";
 		/* EE_OPT = "__ARDUINO_NANO_328__"; */
 		/* Used to build separate libarduino.a */

@@ -147,8 +147,8 @@ OBJDIRS=$(sort $(dir $(ALLOBJS)))
 # Add basic include paths
 INCLUDE_PATH += $(PKGBASE) $(APPBASE) .
 
-vpath %.c $(EE_VPATH) $(APPBASE)
-vpath %.S $(EE_VPATH) $(APPBASE)
+vpath %.c $(EE_VPATH) $(call short_native_path,$(APPBASE))
+vpath %.S $(EE_VPATH) $(call short_native_path,$(APPBASE))
 
 ## Select input filename format
 SOURCEFILE = $(call native_path,$<)
@@ -208,6 +208,7 @@ else
 T32ORTISTR :=
 endif
 
+RTD_MAKEFILE := $(call short_native_path, $(abspath .))/makefile
 
 t32: $(T32TARGETS)
 
@@ -224,7 +225,7 @@ endif
 	@echo popd >> $@
 	$(QUIET) chmod 777 $@
 
-t32.cmm: $(PKGBASE)/mcu/infineon_$(TRICORE_MODEL)/cfg/$(T32SOURCE)
+t32.cmm: $(PKGBASE)/mcu/infineon_$(TRICORE_MODEL)/cfg/$(T32SOURCE) $(RTD_MAKEFILE)
 	@echo "GEN $@ from $<"
 	$(QUIET)sed -e 's:#ORTICMD#:$(T32ORTISTR):'			\
 				-e 's:#EXE_NAME#:$(TARGET_NAME).elf:g'	\
@@ -232,19 +233,19 @@ t32.cmm: $(PKGBASE)/mcu/infineon_$(TRICORE_MODEL)/cfg/$(T32SOURCE)
 
 ifeq ($(call iseeopt,__MSRP__), yes)
 ifeq ($(CPU_NUMID),0)
-orti.cmm markers.cmm: %:  $(PKGBASE)/mcu/infineon_common_tc2Yx/cfg/%
+orti.cmm markers.cmm: %:  $(PKGBASE)/mcu/infineon_common_tc2Yx/cfg/% $(RTD_MAKEFILE)
 	@echo "GEN $@ from $<"
 	$(QUIET) cp $< $@
 else #CPU_NUMID == 0
-orti.cmm: %:  $(PKGBASE)/mcu/infineon_common_tc2Yx/cfg/multicore/orti_slave.cmm
+orti.cmm: %:  $(PKGBASE)/mcu/infineon_common_tc2Yx/cfg/multicore/orti_slave.cmm $(RTD_MAKEFILE)
 	@echo "GEN $@ from $<"
 	$(QUIET) cp $< $@
-markers.cmm: %:  $(PKGBASE)/mcu/infineon_common_tc2Yx/cfg/%
+markers.cmm: %:  $(PKGBASE)/mcu/infineon_common_tc2Yx/cfg/% $(RTD_MAKEFILE)
 	@echo "GEN $@ from $<"
 	$(QUIET) cp $< $@
 endif #CPU_NUMID == 0
 else #__MSRP__
-orti.cmm markers.cmm: %:  $(PKGBASE)/mcu/infineon_common_tc2Yx/cfg/%
+orti.cmm markers.cmm: %:  $(PKGBASE)/mcu/infineon_common_tc2Yx/cfg/% $(RTD_MAKEFILE)
 	@echo "GEN $@ from $<"
 	$(QUIET) cp $< $@
 endif #__MSRP__

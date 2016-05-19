@@ -212,7 +212,7 @@ void EE_IRQ_end_post_stub( void ) {
     EE_oo_IRQ_disable_count = 0U;
   }
 
-  /* [SWS_Os_00474] The Operating System module shall reset an ISR’s
+  /* [SWS_Os_00474] The Operating System module shall reset an ISR's
       OsIsrExecutionBudget when the ISR returns control to the OS or terminates.
       (SRS_Os_11008) */
   /* Reset ALL TP Budgets, safest approach */
