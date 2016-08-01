@@ -62,10 +62,26 @@ ifeq ($(INCLUDE_ARDUINO_SDK), YES)
 
 ifndef	ARDUINO_SDK_FILES
 ifeq ($(call iseeopt, __ARDUINO_SDK_CC__), yes)
+ifeq ($(call iseeopt, __ARDUINO_SDK_CC_1_6_10__), yes)
+export	ARDUINO_SDK_FILES = C:/arduino-1.6.10
+else	# __ARDUINO_SDK_CC_1_6_10__
+ifeq ($(call iseeopt, __ARDUINO_SDK_CC_1_6_9__), yes)
+export	ARDUINO_SDK_FILES = C:/arduino-1.6.9
+else	# __ARDUINO_SDK_CC_1_6_9__
 export	ARDUINO_SDK_FILES = C:/arduino-1.6.8
+endif	# __ARDUINO_SDK_CC_1_6_9__
+endif	# __ARDUINO_SDK_CC_1_6_10__
 else	# __ARDUINO_SDK_CC__
 ifeq ($(call iseeopt, __ARDUINO_SDK_ORG__), yes)
+ifeq ($(call iseeopt, __ARDUINO_SDK_ORG_1_7_10__), yes)
+export	ARDUINO_SDK_FILES = C:/arduino-1.7.10
+else	# __ARDUINO_SDK_ORG_1_7_10__
+ifeq ($(call iseeopt, __ARDUINO_SDK_ORG_1_7_9__), yes)
 export	ARDUINO_SDK_FILES = C:/arduino-1.7.9
+else	# __ARDUINO_SDK_ORG_1_7_9__
+export	ARDUINO_SDK_FILES = C:/arduino-1.7.8
+endif	# __ARDUINO_SDK_ORG_1_7_9__
+endif	# __ARDUINO_SDK_ORG_1_7_10__
 else	# __ARDUINO_SDK_ORG__
 export	ARDUINO_SDK_FILES = C:/arduino-1.0.5-r2
 endif	# __ARDUINO_SDK_ORG__
@@ -76,6 +92,8 @@ ifeq ($(call iseeopt, __RTD_LINUX__), yes)
 ARDUINO_SDK_ROOT := \
 		$(call short_native_path, $(ARDUINO_SDK_FILES))
 else
+#ARDUINO_SDK_ROOT := \
+#		$(shell cygpath $(call short_native_path, $(ARDUINO_SDK_FILES)))
 ARDUINO_SDK_ROOT := \
 		$(call short_native_path, $(ARDUINO_SDK_FILES))
 endif
@@ -86,18 +104,28 @@ ifeq ($(or	\
 		$(call iseeopt, __ARDUINO_SDK_CC__),	\
 		$(call iseeopt, __ARDUINO_SDK_ORG__)	\
 	), yes)
-ifeq ($(and	\
-		$(call iseeopt, __ARDUINO_SDK_CC__),	\
-		$(call iseeopt, __ARDUINO_SDK_CC_1_6_8__)	\
-	), yes)
+ifeq ($(call iseeopt, __ARDUINO_SDK_CC__), yes)
+ifeq ($(call iseeopt, __ARDUINO_SDK_CC_1_6_10__), yes)
+EEOPT += ARDUINO=10610
+else	# __ARDUINO_SDK_CC_1_6_10__
+ifeq ($(call iseeopt, __ARDUINO_SDK_CC_1_6_9__), yes)
+EEOPT += ARDUINO=10609
+else	# __ARDUINO_SDK_CC_1_6_9__
 EEOPT += ARDUINO=10608
-endif	# __ARDUINO_SDK_CC__ && __ARDUINO_SDK_CC_1_6_8__
-ifeq ($(and	\
-		$(call iseeopt, __ARDUINO_SDK_ORG__),	\
-		$(call iseeopt, __ARDUINO_SDK_ORG_1_7_9__)	\
-	), yes)
+endif	# __ARDUINO_SDK_CC_1_6_9__
+endif	# __ARDUINO_SDK_CC_1_6_10__
+endif	# __ARDUINO_SDK_CC__
+ifeq ($(call iseeopt, __ARDUINO_SDK_ORG__), yes)
+ifeq ($(call iseeopt, __ARDUINO_SDK_ORG_1_7_10__), yes)
+EEOPT += ARDUINO=10710
+else	# __ARDUINO_SDK_ORG_1_7_10__
+ifeq ($(call iseeopt, __ARDUINO_SDK_ORG_1_7_9__), yes)
 EEOPT += ARDUINO=10709
-endif	# __ARDUINO_SDK_ORG__ && __ARDUINO_SDK_ORG_1_7_9__
+else	# __ARDUINO_SDK_ORG_1_7_9__
+EEOPT += ARDUINO=10708
+endif	# __ARDUINO_SDK_ORG_1_7_9__
+endif	# __ARDUINO_SDK_ORG_1_7_10__
+endif	# __ARDUINO_SDK_ORG__
 ifeq	($(call iseeopt, __ARDUINO_UNO_328__),yes)
 EEOPT += ARDUINO_AVR_UNO
 endif	# __ARDUINO_UNO_328__
@@ -212,10 +240,29 @@ EE_SRCS_ARDUINO_SDK += hardware/arduino/avr/cores/arduino/USBCore.cpp
 EE_SRCS_ARDUINO_SDK += hardware/arduino/avr/cores/arduino/WMath.cpp
 EE_SRCS_ARDUINO_SDK += hardware/arduino/avr/cores/arduino/WString.cpp
 
+ifeq	($(call iseeopt, __ARDUINO_SDK_LIB_ARDUINO_WIFI__), yes)
+ifeq ($(call iseeopt, __ARDUINO_SDK_ORG__), yes)
+ifeq ($(call iseeopt, __ARDUINO_SDK_ORG_1_7_10__), yes)
+INCLUDE_PATH :=	$(ARDUINO_SDK_ROOT)/libraries/ArduinoWiFi/src		\
+		$(ARDUINO_SDK_ROOT)/libraries/ArduinoWiFi/src/lib	\
+		$(INCLUDE_PATH)
+EE_SRCS_ARDUINO_SDK += libraries/ArduinoWiFi/src/lib/ArduinoWiFi.cpp
+EE_SRCS_ARDUINO_SDK += libraries/ArduinoWiFi/src/lib/crc16.c
+EE_SRCS_ARDUINO_SDK += libraries/ArduinoWiFi/src/lib/espduino.cpp
+EE_SRCS_ARDUINO_SDK += libraries/ArduinoWiFi/src/lib/FP.cpp
+EE_SRCS_ARDUINO_SDK += libraries/ArduinoWiFi/src/lib/rest.cpp
+EE_SRCS_ARDUINO_SDK += libraries/ArduinoWiFi/src/lib/ringbuf.c
+EE_SRCS_ARDUINO_SDK += libraries/ArduinoWiFi/src/lib/SC16IS750.cpp
+endif	# __ARDUINO_SDK_ORG_1_7_10__
+endif	# __ARDUINO_SDK_ORG__
+endif	# __ARDUINO_SDK_LIB_ARDUINO_WIFI__
+
 ifeq	($(call iseeopt, __ARDUINO_SDK_LIB_BRACCIO__), yes)
 ifeq ($(call iseeopt, __ARDUINO_SDK_ORG__), yes)
+ifeq ($(call iseeopt, __ARDUINO_SDK_ORG_1_7_9__), yes)
 INCLUDE_PATH :=	$(ARDUINO_SDK_ROOT)/libraries/Braccio/src	$(INCLUDE_PATH)
 EE_SRCS_ARDUINO_SDK += libraries/Braccio/src/Braccio.cpp
+endif	# __ARDUINO_SDK_ORG_1_7_9__
 endif	# __ARDUINO_SDK_ORG__
 endif	# __ARDUINO_SDK_LIB_BRACCIO__
 
@@ -232,6 +279,9 @@ ifeq ($(call iseeopt, __ARDUINO_SDK_CC__), yes)
 EE_SRCS_ARDUINO_SDK += libraries/Bridge/src/BridgeClient.cpp
 EE_SRCS_ARDUINO_SDK += libraries/Bridge/src/BridgeServer.cpp
 EE_SRCS_ARDUINO_SDK += libraries/Bridge/src/BridgeUdp.cpp
+ifeq ($(call iseeopt, __ARDUINO_SDK_CC_1_6_9__), yes)
+EE_SRCS_ARDUINO_SDK += libraries/Bridge/src/BridgeSSLClient.cpp
+endif	# __ARDUINO_SDK_CC_1_6_9__
 endif	# __ARDUINO_SDK_CC__
 ifeq ($(call iseeopt, __ARDUINO_SDK_ORG__), yes)
 EE_SRCS_ARDUINO_SDK += libraries/Bridge/src/YunClient.cpp
@@ -241,6 +291,20 @@ endif	# __ARDUINO_SDK_LIB_BRIDGE__
 
 ifeq	($(call iseeopt, __ARDUINO_SDK_LIB_CIAO__), yes)
 ifeq ($(call iseeopt, __ARDUINO_SDK_ORG__), yes)
+ifeq ($(call iseeopt, __ARDUINO_SDK_ORG_1_7_10__), yes)
+INCLUDE_PATH :=	$(ARDUINO_SDK_ROOT)/libraries/Ciao/src		\
+		$(ARDUINO_SDK_ROOT)/libraries/Ciao/src/lib	\
+		$(INCLUDE_PATH)
+EE_SRCS_ARDUINO_SDK += libraries/Braccio/src/lib/Ciao.cpp
+EE_SRCS_ARDUINO_SDK += libraries/Braccio/src/lib/crc16.cpp
+EE_SRCS_ARDUINO_SDK += libraries/Braccio/src/lib/espduino.cpp
+EE_SRCS_ARDUINO_SDK += libraries/Braccio/src/lib/FP.cpp
+EE_SRCS_ARDUINO_SDK += libraries/Braccio/src/lib/rest.cpp
+EE_SRCS_ARDUINO_SDK += libraries/Braccio/src/lib/ringbuf.c
+EE_SRCS_ARDUINO_SDK += libraries/Braccio/src/lib/SC16IS750.cpp
+EE_SRCS_ARDUINO_SDK += libraries/Braccio/src/lib/wifi.cpp
+else	# __ARDUINO_SDK_ORG_1_7_10__
+ifeq ($(call iseeopt, __ARDUINO_SDK_ORG_1_7_9__), yes)
 INCLUDE_PATH :=	$(ARDUINO_SDK_ROOT)/libraries/Ciao/src		\
 		$(ARDUINO_SDK_ROOT)/libraries/Ciao/src/lib	\
 		$(INCLUDE_PATH)
@@ -252,6 +316,12 @@ EE_SRCS_ARDUINO_SDK += libraries/Braccio/src/lib/rest.cpp
 EE_SRCS_ARDUINO_SDK += libraries/Braccio/src/lib/ringbuf.c
 EE_SRCS_ARDUINO_SDK += libraries/Braccio/src/lib/SC16IS750.cpp
 EE_SRCS_ARDUINO_SDK += libraries/Braccio/src/lib/UnowifiCiao.cpp
+else	# __ARDUINO_SDK_ORG_1_7_9__
+INCLUDE_PATH :=	$(ARDUINO_SDK_ROOT)/libraries/Ciao/src		\
+		$(INCLUDE_PATH)
+EE_SRCS += libraries/Braccio/src/Ciao.cpp
+endif	# __ARDUINO_SDK_ORG_1_7_9__
+endif	# __ARDUINO_SDK_ORG_1_7_10__
 endif	# __ARDUINO_SDK_ORG__
 endif	# __ARDUINO_SDK_LIB_CIAO__
 
@@ -301,6 +371,39 @@ EE_SRCS_ARDUINO_SDK += libraries/Ethernet2/src/utility/socket.cpp
 EE_SRCS_ARDUINO_SDK += libraries/Ethernet2/src/utility/w5500.cpp
 endif	# __ARDUINO_SDK_LIB_ETHERNET2__
 
+ifeq	($(call iseeopt, __ARDUINO_SDK_LIB_FIRMATA__), yes)
+ifeq ($(call iseeopt, __ARDUINO_SDK_CC__), yes)
+INCLUDE_PATH :=	$(ARDUINO_SDK_ROOT)/libraries/Firmata		\
+		$(ARDUINO_SDK_ROOT)/libraries/Firmata/utility	\
+		$(INCLUDE_PATH)
+EE_SRCS_ARDUINO_SDK += libraries/Firmata/Firmata.cpp
+EE_SRCS_ARDUINO_SDK += libraries/Firmata/utility/EthernetClientStream.cpp
+EE_SRCS_ARDUINO_SDK += libraries/Firmata/utility/SerialFirmata.cpp
+ifeq ($(call iseeopt, __ARDUINO_SDK_CC_1_6_10__), yes)
+EE_SRCS_ARDUINO_SDK += libraries/Firmata/utility/BLEStream.cpp
+else	# __ARDUINO_SDK_CC_1_6_10__
+EE_SRCS_ARDUINO_SDK += libraries/Firmata/utility/WiFi101Stream.cpp
+endif	# __ARDUINO_SDK_CC_1_6_10__
+EE_SRCS_ARDUINO_SDK += libraries/Firmata/utility/WiFiStream.cpp
+endif	# __ARDUINO_SDK_CC__
+ifeq ($(call iseeopt, __ARDUINO_SDK_ORG__), yes)
+ifeq ($(call iseeopt, __ARDUINO_SDK_ORG_1_7_10__), yes)
+INCLUDE_PATH :=	$(ARDUINO_SDK_ROOT)/libraries/Firmata		\
+		$(ARDUINO_SDK_ROOT)/libraries/Firmata/utility	\
+		$(INCLUDE_PATH)
+EE_SRCS += libraries/Firmata/utility/BLEStream.cpp
+EE_SRCS += libraries/Firmata/utility/EthernetClientStream.cpp
+EE_SRCS += libraries/Firmata/utility/SerialFirmata.cpp
+EE_SRCS += libraries/Firmata/utility/WiFi101Stream.cpp
+EE_SRCS += libraries/Firmata/utility/WiFiStream.cpp
+EE_SRCS += libraries/Firmata/Firmata.cpp
+else	# __ARDUINO_SDK_ORG_1_7_10__
+INCLUDE_PATH :=	$(ARDUINO_SDK_ROOT)/libraries/Firmata/src	$(INCLUDE_PATH)
+EE_SRCS_ARDUINO_SDK += libraries/Firmata/src/Firmata.cpp
+endif	# __ARDUINO_SDK_ORG_1_7_10__
+endif	# __ARDUINO_SDK_ORG__
+endif	# __ARDUINO_SDK_LIB_FIRMATA__
+
 ifeq	($(call iseeopt, __ARDUINO_SDK_LIB_GSM__), yes)
 ifeq ($(call iseeopt, __ARDUINO_SDK_CC__), yes)
 INCLUDE_PATH :=	$(ARDUINO_SDK_ROOT)/libraries/GSM/src		$(INCLUDE_PATH)
@@ -339,6 +442,7 @@ EE_SRCS_ARDUINO_SDK += libraries/GSM/src/GSM3SoftSerial.cpp
 EE_SRCS_ARDUINO_SDK += libraries/GSM/src/GSM3VoiceCallService.cpp
 endif	# __ARDUINO_SDK_CC__
 ifeq ($(call iseeopt, __ARDUINO_SDK_ORG__), yes)
+ifeq ($(call iseeopt, __ARDUINO_SDK_ORG_1_7_9__), yes)
 INCLUDE_PATH :=	$(ARDUINO_SDK_ROOT)/hardware/arduino/avr/libraries/GSM/src \
 		$(INCLUDE_PATH)
 EE_SRCS_ARDUINO_SDK += hardware/arduino/avr/libraries/GSM/src/GSM3CircularBuffer.cpp
@@ -375,6 +479,44 @@ EE_SRCS_ARDUINO_SDK += hardware/arduino/avr/libraries/GSM/src/GSM3ShieldV2.cpp
 EE_SRCS_ARDUINO_SDK += hardware/arduino/avr/libraries/GSM/src/GSM3SMSService.cpp
 EE_SRCS_ARDUINO_SDK += hardware/arduino/avr/libraries/GSM/src/GSM3SoftSerial.cpp
 EE_SRCS_ARDUINO_SDK += hardware/arduino/avr/libraries/GSM/src/GSM3VoiceCallService.cpp
+else	# __ARDUINO_SDK_ORG_1_7_9__
+INCLUDE_PATH :=	$(ARDUINO_SDK_ROOT)/libraries/GSM/src \
+		$(INCLUDE_PATH)
+EE_SRCS_ARDUINO_SDK += libraries/GSM/src/GSM3CircularBuffer.cpp
+EE_SRCS_ARDUINO_SDK += libraries/GSM/src/GSM3MobileAccessProvider.cpp
+EE_SRCS_ARDUINO_SDK += libraries/GSM/src/GSM3MobileCellManagement.cpp
+EE_SRCS_ARDUINO_SDK += libraries/GSM/src/GSM3MobileClientProvider.cpp
+EE_SRCS_ARDUINO_SDK += libraries/GSM/src/GSM3MobileClientService.cpp
+EE_SRCS_ARDUINO_SDK += libraries/GSM/src/GSM3MobileDataNetworkProvider.cpp
+EE_SRCS_ARDUINO_SDK += libraries/GSM/src/GSM3MobileMockupProvider.cpp
+EE_SRCS_ARDUINO_SDK += libraries/GSM/src/GSM3MobileNetworkProvider.cpp
+EE_SRCS_ARDUINO_SDK += libraries/GSM/src/GSM3MobileNetworkRegistry.cpp
+EE_SRCS_ARDUINO_SDK += libraries/GSM/src/GSM3MobileServerProvider.cpp
+EE_SRCS_ARDUINO_SDK += libraries/GSM/src/GSM3MobileServerService.cpp
+EE_SRCS_ARDUINO_SDK += libraries/GSM/src/GSM3MobileSMSProvider.cpp
+EE_SRCS_ARDUINO_SDK += libraries/GSM/src/GSM3MobileVoiceProvider.cpp
+EE_SRCS_ARDUINO_SDK += libraries/GSM/src/GSM3ShieldV1.cpp
+EE_SRCS_ARDUINO_SDK += libraries/GSM/src/GSM3ShieldV1AccessProvider.cpp
+EE_SRCS_ARDUINO_SDK += libraries/GSM/src/GSM3ShieldV1BandManagement.cpp
+EE_SRCS_ARDUINO_SDK += libraries/GSM/src/GSM3ShieldV1BaseProvider.cpp
+EE_SRCS_ARDUINO_SDK += libraries/GSM/src/GSM3ShieldV1CellManagement.cpp
+EE_SRCS_ARDUINO_SDK += libraries/GSM/src/GSM3ShieldV1ClientProvider.cpp
+EE_SRCS_ARDUINO_SDK += libraries/GSM/src/GSM3ShieldV1DataNetworkProvider.cpp
+EE_SRCS_ARDUINO_SDK += libraries/GSM/src/GSM3ShieldV1DirectModemProvider.cpp
+EE_SRCS_ARDUINO_SDK += libraries/GSM/src/GSM3ShieldV1ModemCore.cpp
+EE_SRCS_ARDUINO_SDK += libraries/GSM/src/GSM3ShieldV1ModemVerification.cpp
+EE_SRCS_ARDUINO_SDK += libraries/GSM/src/GSM3ShieldV1MultiClientProvider.cpp
+EE_SRCS_ARDUINO_SDK += libraries/GSM/src/GSM3ShieldV1MultiServerProvider.cpp
+EE_SRCS_ARDUINO_SDK += libraries/GSM/src/GSM3ShieldV1PinManagement.cpp
+EE_SRCS_ARDUINO_SDK += libraries/GSM/src/GSM3ShieldV1ScanNetworks.cpp
+EE_SRCS_ARDUINO_SDK += libraries/GSM/src/GSM3ShieldV1ServerProvider.cpp
+EE_SRCS_ARDUINO_SDK += libraries/GSM/src/GSM3ShieldV1SMSProvider.cpp
+EE_SRCS_ARDUINO_SDK += libraries/GSM/src/GSM3ShieldV1VoiceProvider.cpp
+EE_SRCS_ARDUINO_SDK += libraries/GSM/src/GSM3ShieldV2.cpp
+EE_SRCS_ARDUINO_SDK += libraries/GSM/src/GSM3SMSService.cpp
+EE_SRCS_ARDUINO_SDK += libraries/GSM/src/GSM3SoftSerial.cpp
+EE_SRCS_ARDUINO_SDK += libraries/GSM/src/GSM3VoiceCallService.cpp
+endif	# __ARDUINO_SDK_ORG_1_7_9__
 endif	# __ARDUINO_SDK_ORG__
 endif	#__ARDUINO_SDK_LIB_GSM__
 
@@ -400,6 +542,7 @@ endif	# __ARDUINO_SDK_LIB_LIQUID_CRYSTAL__
 
 ifeq	($(call iseeopt, __ARDUINO_SDK_LIB_LUCKY_SHIELD__), yes)
 ifeq ($(call iseeopt, __ARDUINO_SDK_ORG__), yes)
+ifeq ($(call iseeopt, __ARDUINO_SDK_ORG_1_7_9__), yes)
 INCLUDE_PATH :=	$(ARDUINO_SDK_ROOT)/libraries/LuckyShield/src		\
 		$(ARDUINO_SDK_ROOT)/libraries/LuckyShield/src/lib	\
 		$(INCLUDE_PATH)
@@ -410,6 +553,7 @@ EE_SRCS_ARDUINO_SDK += libraries/LuckyShield/src/lib/CAT9555.cpp
 EE_SRCS_ARDUINO_SDK += libraries/LuckyShield/src/lib/glcdfont.cpp
 EE_SRCS_ARDUINO_SDK += libraries/LuckyShield/src/lib/MAG3110.c
 EE_SRCS_ARDUINO_SDK += libraries/LuckyShield/src/lib/MMA8491Q.cpp
+endif	# __ARDUINO_SDK_ORG_1_7_9__
 endif	# __ARDUINO_SDK_ORG__
 endif	# __ARDUINO_SDK_LIB_LUCKY_SHIELD__
 
@@ -432,8 +576,10 @@ endif	# __ARDUINO_SDK_LIB_N_AXES_MOTION__
 
 ifeq	($(call iseeopt, __ARDUINO_SDK_LIB_REST__), yes)
 ifeq ($(call iseeopt, __ARDUINO_SDK_ORG__), yes)
+ifneq ($(call iseeopt, __ARDUINO_SDK_ORG_1_7_10__), yes)
 INCLUDE_PATH :=	$(ARDUINO_SDK_ROOT)/libraries/Rest/src		$(INCLUDE_PATH)
 EE_SRCS_ARDUINO_SDK += libraries/Rest/src/rest.cpp
+endif	# !__ARDUINO_SDK_ORG_1_7_10__
 endif	# __ARDUINO_SDK_ORG__
 endif	# __ARDUINO_SDK_LIB_REST__
 
@@ -611,6 +757,13 @@ INCLUDE_PATH :=	$(ARDUINO_SDK_ROOT)/hardware/arduino/avr/libraries/Timer1 \
 EE_SRCS_ARDUINO_SDK += hardware/arduino/avr/libraries/Timer1/Timer1.cpp
 endif	#__ARDUINO_SDK_LIB_TIMER1__
 
+ifeq	($(call iseeopt, __ARDUINO_SDK_LIB_TIMER1_CTC__), yes)
+INCLUDE_PATH :=	$(ARDUINO_SDK_ROOT)/hardware/arduino/avr/libraries/Timer1CTC \
+		$(INCLUDE_PATH)
+#EE_SRCS_ARDUINO_SDK += hardware/arduino/avr/libraries/Timer1CTC/Timer1CTC.cpp
+EE_SRCS_ARDUINO_SDK += hardware/arduino/avr/libraries/Timer1CTC/Timer1CTC.c
+endif	#__ARDUINO_SDK_LIB_TIMER1_CTC__
+
 ifeq	($(call iseeopt, __ARDUINO_SDK_LIB_USB_HOST__), yes)
 ifeq ($(call iseeopt, __ARDUINO_SDK_ORG__), yes)
 INCLUDE_PATH :=	$(ARDUINO_SDK_ROOT)/libraries/USBHost/src	\
@@ -625,6 +778,7 @@ endif	# __ARDUINO_SDK_ORG__
 endif	#__ARDUINO_SDK_LIB_USB_HOST__
 
 ifeq	($(call iseeopt, __ARDUINO_SDK_LIB_WIFI__), yes)
+ifneq ($(call iseeopt, __ARDUINO_SDK_ORG_1_7_10__), yes)
 INCLUDE_PATH :=	$(ARDUINO_SDK_ROOT)/libraries/WiFi/src		\
 		$(ARDUINO_SDK_ROOT)/libraries/WiFi/src/utility	\
 		$(INCLUDE_PATH)
@@ -635,7 +789,23 @@ EE_SRCS_ARDUINO_SDK += libraries/WiFi/src/WiFiUdp.cpp
 EE_SRCS_ARDUINO_SDK += libraries/WiFi/src/utility/server_drv.cpp
 EE_SRCS_ARDUINO_SDK += libraries/WiFi/src/utility/spi_drv.cpp
 EE_SRCS_ARDUINO_SDK += libraries/WiFi/src/utility/wifi_drv.cpp
+endif	# !__ARDUINO_SDK_ORG_1_7_10__
 endif	# __ARDUINO_SDK_LIB_WIFI__
+
+ifeq	($(call iseeopt, __ARDUINO_SDK_LIB_WIFI_SHIELD__), yes)
+ifeq ($(call iseeopt, __ARDUINO_SDK_ORG_1_7_10__), yes)
+INCLUDE_PATH :=	$(ARDUINO_SDK_ROOT)/libraries/WiFiShield/src		\
+		$(ARDUINO_SDK_ROOT)/libraries/WiFiShiled/src/utility	\
+		$(INCLUDE_PATH)
+EE_SRCS_ARDUINO_SDK += libraries/WiFiShield/src/WiFi.cpp
+EE_SRCS_ARDUINO_SDK += libraries/WiFiShield/src/WiFiClient.cpp
+EE_SRCS_ARDUINO_SDK += libraries/WiFiShield/src/WiFiServer.cpp
+EE_SRCS_ARDUINO_SDK += libraries/WiFiShield/src/WiFiUdp.cpp
+EE_SRCS_ARDUINO_SDK += libraries/WiFiShield/src/utility/server_drv.cpp
+EE_SRCS_ARDUINO_SDK += libraries/WiFiShield/src/utility/spi_drv.cpp
+EE_SRCS_ARDUINO_SDK += libraries/WiFiShield/src/utility/wifi_drv.cpp
+endif	# __ARDUINO_SDK_ORG_1_7_10__
+endif	# __ARDUINO_SDK_LIB_WIFI_SHIELD__
 
 ifeq	($(call iseeopt, __ARDUINO_SDK_LIB_WIRE__), yes)
 ifeq ($(call iseeopt, __ARDUINO_SDK_CC__), yes)
@@ -839,6 +1009,12 @@ INCLUDE_PATH :=	$(ARDUINO_SDK_ROOT)/libraries/Timer1		$(INCLUDE_PATH)
 EE_SRCS_ARDUINO_SDK += libraries/Timer1/Timer1.cpp
 endif	# __ARDUINO_SDK_LIB_TIMER1__
 
+ifeq	($(call iseeopt, __ARDUINO_SDK_LIB_TIMER1_CTC__), yes)
+INCLUDE_PATH :=	$(ARDUINO_SDK_ROOT)/libraries/Timer1CTC		$(INCLUDE_PATH)
+#EE_SRCS_ARDUINO_SDK += libraries/Timer1CTC/Timer1CTC.cpp
+EE_SRCS_ARDUINO_SDK += libraries/Timer1CTC/Timer1CTC.c
+endif	# __ARDUINO_SDK_LIB_TIMER1_CTC__
+
 ifeq	($(call iseeopt, __ARDUINO_SDK_LIB_WIFI__), yes)
 INCLUDE_PATH :=	$(ARDUINO_SDK_ROOT)/libraries/WiFi		\
 		$(ARDUINO_SDK_ROOT)/libraries/WiFi/utility	\
@@ -862,10 +1038,6 @@ endif	# __ARDUINO_SDK_LIB_WIRE__
 
 endif	# __ARDUINO_SDK_CC__ && __ARDUINO_SDK_ORG__
 
-ifeq ($(and	\
-		$(call iseeopt, __ARDUINO_SDK__),	\
-		$(call iseeopt, __ARDUINO_SDK_CC__)	\
-	), yes)
 EE_OBJS_ARDUINO_SDK := 							       \
 	$(addprefix $(OBJDIR)/,						       \
 		$(patsubst %.cpp,%.cpp.o,				       \
@@ -874,16 +1046,6 @@ EE_OBJS_ARDUINO_SDK := 							       \
 			)						       \
 		)							       \
 	)
-else	# __ARDUINO_SDK__ && __ARDUINO_SDK_CC__
-EE_OBJS_ARDUINO_SDK := 							       \
-	$(addprefix $(OBJDIR)/,						       \
-		$(patsubst %.cpp,%.o,					       \
-			$(patsubst %.c,%.o,				       \
-				$(patsubst %.S,%.o,$(EE_SRCS_ARDUINO_SDK))     \
-			)						       \
-		)							       \
-	)
-endif	# __ARDUINO_SDK__ && __ARDUINO_SDK_CC__
 
 LIBSRCS += $(EE_SRCS_ARDUINO_SDK)
 
