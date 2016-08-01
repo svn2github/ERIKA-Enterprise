@@ -62,8 +62,9 @@
 #define __AVR8__
 #define __ATMEGA__
 #define __ARDUINO_SDK__
-/* #define __ARDUINO_UNO_328__ */
-#define __ARDUINO_NANO_328__
+#define __ARDUINO_SDK_CC__
+#define __ARDUINO_SDK_CC_1_6_10__
+#define __ARDUINO_UNO_328__
 #define __FP__
 #define __MONO__
 #define __FP_NO_RESOURCE__

@@ -60,10 +60,14 @@ CPU mySystem {
 		};
 
 		EE_OPT = "__ARDUINO_SDK__";
-		/* EE_OPT = "__ARDUINO_SDK_CC__"; */
+		EE_OPT = "__ARDUINO_SDK_CC__";
 		/* EE_OPT = "__ARDUINO_SDK_CC_1_6_8__"; */
-		EE_OPT = "__ARDUINO_SDK_ORG__";
-		EE_OPT = "__ARDUINO_SDK_ORG_1_7_9__";
+		/* EE_OPT = "__ARDUINO_SDK_CC_1_6_9__"; */
+		EE_OPT = "__ARDUINO_SDK_CC_1_6_10__";
+		/* EE_OPT = "__ARDUINO_SDK_ORG__"; */
+		/* EE_OPT = "__ARDUINO_SDK_ORG_1_7_8__"; */
+		/* EE_OPT = "__ARDUINO_SDK_ORG_1_7_9__"; */
+		/* EE_OPT = "__ARDUINO_SDK_ORG_1_7_10__"; */
 		EE_OPT = "__ARDUINO_UNO_328__";
 		/* EE_OPT = "__ARDUINO_NANO_328__"; */
 		/* Used to build separate libarduino.a */

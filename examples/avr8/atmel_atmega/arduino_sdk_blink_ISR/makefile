@@ -53,8 +53,12 @@ else
 #export	ARDUINO_SDK_FILES = C:/arduino-1.0.5-r2
 # For Arduino.cc.
 #export	ARDUINO_SDK_FILES = C:/arduino-1.6.8
+#export	ARDUINO_SDK_FILES = C:/arduino-1.6.9
+export	ARDUINO_SDK_FILES = C:/arduino-1.6.10
 # For Arduino.org.
-export	ARDUINO_SDK_FILES = C:/arduino-1.7.9
+#export	ARDUINO_SDK_FILES = C:/arduino-1.7.8
+#export	ARDUINO_SDK_FILES = C:/arduino-1.7.9
+#export	ARDUINO_SDK_FILES = C:/arduino-1.7.10
 endif
 endif
 
