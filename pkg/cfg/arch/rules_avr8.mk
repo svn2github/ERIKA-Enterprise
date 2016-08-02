@@ -117,6 +117,13 @@ include $(PKGBASE)/cfg/cfg.mk
 #SRCS += $(EE_BOOT_SRCS)
 #endif
 
+ifeq ($(and							\
+		$(call iseeopt, __ARDUINO_SDK__),		\
+		$(or						\
+			$(call iseeopt, __ARDUINO_SDK_CC__),	\
+			$(call iseeopt, __ARDUINO_SDK_ORG__)	\
+		)						\
+	), yes)
 LIBEESRCS	+= $(EE_SRCS)
 LIBEEOBJS	:=							\
 	$(addprefix $(OBJDIR)/,						\
@@ -146,6 +153,37 @@ OBJS		:=							\
 			)						\
 		)							\
 	)
+else	# __ARDUINO_SDK__ && ( __ARDUINO_SDK_CC__ || __ARDUINO_SDK_ORG__ )
+LIBEESRCS	+= $(EE_SRCS)
+LIBEEOBJS	:=							\
+	$(addprefix $(OBJDIR)/,						\
+		$(patsubst %.cpp,%.o,					\
+			$(patsubst %.c,%.o,				\
+				$(patsubst %.S,%.o,$(LIBEESRCS))	\
+			)						\
+		)							\
+	)
+
+LIBEESRCS	+= $(LIB_SRCS)
+LIBOBJS		:=							\
+	$(addprefix $(OBJDIR)/,						\
+		$(patsubst %.cpp,%.o,					\
+			$(patsubst %.c,%.o,				\
+				$(patsubst %.S,%.o,$(LIBSRCS))		\
+			)						\
+		)							\
+	)
+
+SRCS		+= $(APP_SRCS)
+OBJS		:=							\
+	$(addprefix $(OBJDIR)/,						\
+		$(patsubst %.cpp,%.o,					\
+			$(patsubst %.c,%.o,				\
+				$(patsubst %.S,%.o, $(SRCS))		\
+			)						\
+		)							\
+	)
+endif	# __ARDUINO_SDK__ && ( __ARDUINO_SDK_CC__ || __ARDUINO_SDK_ORG__ )
 
 # Variable used to import dependencies
 ALLOBJS = $(LIBEEOBJS) $(LIBOBJS) $(OBJS) 
@@ -301,6 +339,13 @@ $(TARGET_NAME).elf: $(OBJS) $(LIBDEP)
 
 endif	# __ARDUINO_SDK__
 
+ifeq ($(and							\
+		$(call iseeopt, __ARDUINO_SDK__),		\
+		$(or						\
+			$(call iseeopt, __ARDUINO_SDK_CC__),	\
+			$(call iseeopt, __ARDUINO_SDK_ORG__)	\
+		)						\
+	), yes)
 $(OBJDIR)/%.S.o: %.S
 	$(VERBOSE_PRINTASM) $(EE_ASM) $(DEFS_ASM) $(COMPUTED_ALLINCPATH) \
 	$(COMPUTED_OPT_ASM) $(DEPENDENCY_OPT) -o $(TARGETFILE) $(SOURCEFILE)
@@ -315,6 +360,22 @@ $(OBJDIR)/%.cpp.o: %.cpp
 	$(VERBOSE_PRINTCXX) $(EE_CXX) $(DEFS_CXX) $(COMPUTED_ALLINCPATH) \
 	$(COMPUTED_OPT_CXX) $(DEPENDENCY_OPT) -o $(TARGETFILE) $(SOURCEFILE)
 	$(QUIET)$(call make-depend, $(subst .o,.d,$(@)))
+else	# __ARDUINO_SDK__ && ( __ARDUINO_SDK_CC__ || __ARDUINO_SDK_ORG__ )
+$(OBJDIR)/%.o: %.S
+	$(VERBOSE_PRINTASM) $(EE_ASM) $(DEFS_ASM) $(COMPUTED_ALLINCPATH) \
+	$(COMPUTED_OPT_ASM) $(DEPENDENCY_OPT) -o $(TARGETFILE) $(SOURCEFILE)
+	$(QUIET)$(call make-depend, $(subst .o,.d,$(@)))
+
+$(OBJDIR)/%.o: %.c
+	$(VERBOSE_PRINTCC) $(EE_CC) $(DEFS_CC) $(COMPUTED_ALLINCPATH) \
+	$(COMPUTED_OPT_CC) $(DEPENDENCY_OPT) -o $(TARGETFILE) $(SOURCEFILE)
+	$(QUIET)$(call make-depend, $(subst .o,.d,$(@)))
+
+$(OBJDIR)/%.o: %.cpp
+	$(VERBOSE_PRINTCXX) $(EE_CXX) $(DEFS_CXX) $(COMPUTED_ALLINCPATH) \
+	$(COMPUTED_OPT_CXX) $(DEPENDENCY_OPT) -o $(TARGETFILE) $(SOURCEFILE)
+	$(QUIET)$(call make-depend, $(subst .o,.d,$(@)))
+endif	# __ARDUINO_SDK__ && ( __ARDUINO_SDK_CC__ || __ARDUINO_SDK_ORG__ )
 
 ##
 ## EE Library
