@@ -381,8 +381,6 @@ void EE_TC_INTERRUPT_HANDER EE_tc_protection_handler ( EE_TIN tin )
    *  6   MPN  Synchronous Hardware Memory Protection: Null Address
    *  7   GRWP Synchronous Hardware Global Register Write Protection
    */
-  /* Set a break point in debug */
-  EE_BREAK_POINT();
   switch ( tin ) {
     case EE_TRAPPROT_MPR:
     case EE_TRAPPROT_MPW:

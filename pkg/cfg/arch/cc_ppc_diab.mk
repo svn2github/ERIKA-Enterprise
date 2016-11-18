@@ -52,11 +52,13 @@ ifdef PPC_DIAB_BASEDIR
 EE_LINK ?= $(PPC_DIAB_BASEDIR)/dld
 EE_ASM  ?= $(PPC_DIAB_BASEDIR)/das
 EE_CC   ?= $(PPC_DIAB_BASEDIR)/dcc
+EE_CPP  ?= $(PPC_DIAB_BASEDIR)/dcc
 EE_AR   ?= $(PPC_DIAB_BASEDIR)/dar
 else
 EE_LINK ?= dld
 EE_ASM  ?= das
 EE_CC   ?= dcc
+EE_CPP  ?= dcc
 EE_AR   ?= dar
 endif
 
@@ -80,11 +82,11 @@ OPT_CC += -Xlicense-wait -Xstderr-fully-buffered -Xbss-common-off	\
 	-Xeieio -XO -Xsavefpr-avoid -Xsmall-data=8 -Xswitch-table=0	\
 	-Xinline=40 -Xsmall-const=8 -Xenum-is-best -Xunroll=4		\
 	-Xunroll-size=5 -Xsize-opt -Xsemi-is-comment -Xstop-on-warning	\
-	-Xforce-prototypes -Xmacro-in-pragma -Xdialect-c89
+	-Xforce-prototypes -Xmacro-in-pragma
 endif # __MINIMAL_CC_OPTIONS__
 
 ## OPT_ASM are the options for asm invocation
-OPT_ASM = $(OPT_TARGET)
+OPT_ASM = $(OPT_TARGET) $(ASFLAGS)
 
 ifneq ($(call iseeopt, __BIN_DISTR), yes)
 ifeq ($(call iseeopt, DEBUG), yes)
@@ -96,7 +98,7 @@ endif
 # OPT_LINK represents the options for ld invocation
 OPT_LINK += $(LDFLAGS) $(OPT_TARGET)
 OPT_LINK += -e __start -lc
-MAP_OPT = -m > $(MAP_FILE)
+MAP_OPT = -m63 > $(MAP_FILE)
 # Linker script
 ifneq ($(call iseeopt, __USE_CUSTOM_LINKER_SCRIPT__), yes)
 EE_LINK_SCRIPT = loc_diab.dld
