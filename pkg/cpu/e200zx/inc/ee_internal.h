@@ -181,6 +181,13 @@ __INLINE__ EE_BIT __ALWAYS_INLINE__ EE_hal_check_int_prio_if_higher(
 	return (actual_prio > new_prio)?1U:0U;
 }
 
+/*******************************************************************************
+                      Special Stacks Data Structures
+ ******************************************************************************/
+#if (defined(__IRQ_STACK_NEEDED__))
+extern struct EE_TOS EE_e200z7_IRQ_tos;
+#endif /* __IRQ_STACK_NEEDED__ */
+
 /* typically called at the end of an interrupt by kernel */
 #define EE_hal_IRQ_stacked  EE_hal_endcycle_stacked
 #define EE_hal_IRQ_ready    EE_hal_endcycle_ready
