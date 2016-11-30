@@ -201,3 +201,4 @@ flat_assert:
 	@find . -iname "code.c" -type f | while read  file; do \
 	echo "$${file}"; sed -i.bak -e "s-\#include\s*\"test/assert/inc/ee_assert.h\"-\#include \"ee_assert.h\"-" "$${file}"  ; rm "$${file}.bak" ; \
 	done
+	@sed -i.bak -e "s-\#include\s*\"cpu/e200zx/inc/ee_mcu_regs.h\"-\#include \"ee_mcu_regs.h\"-" "common/e200zx/test_irq.c"  ; rm "common/e200zx/test_irq.c.bak"
