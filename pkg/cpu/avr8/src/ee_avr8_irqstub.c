@@ -117,6 +117,7 @@ void EE_COMPILER_KEEP EE_NAKED EE_avr8_isr1_stub(EE_VOID_CALLBACK f)
   /* Decrement nesting level here, with IRQ disabled */
   EE_decrement_IRQ_nesting_level();
 
+#ifdef	__IRQ_STACK_NEEDED__
   /* Check for scheduling point */
   if ( !EE_is_inside_ISR_call() ) {
 
@@ -124,6 +125,7 @@ void EE_COMPILER_KEEP EE_NAKED EE_avr8_isr1_stub(EE_VOID_CALLBACK f)
     EE_std_IRQ_stack_back();
 
   }
+#endif	/* __IRQ_STACK_NEEDED__ */
 
   EE_AVR8_ISR_POSTINSTUB();
 
@@ -190,7 +192,7 @@ void EE_COMPILER_KEEP EE_NAKED EE_avr8_isr2_stub(EE_VOID_CALLBACK f)
   EE_avr8_after_IRQ_schedule();
 #endif	/* __ATXMEGA__ */
 
-#ifdef	__ATMEGA__
+#if	( defined(__ATMEGA__) || defined(__ATTINY__) )
   if ( !EE_is_inside_ISR_call() ) {
 
 #ifdef	__IRQ_STACK_NEEDED__
@@ -201,7 +203,7 @@ void EE_COMPILER_KEEP EE_NAKED EE_avr8_isr2_stub(EE_VOID_CALLBACK f)
 
   }
 
-#endif	/* __ATMEGA__ */
+#endif	/* __ATMEGA__ || __ATTINY__ */
 
   EE_AVR8_ISR_POSTINSTUB();
 

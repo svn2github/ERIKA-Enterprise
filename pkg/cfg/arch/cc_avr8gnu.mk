@@ -38,7 +38,7 @@
 # Boston, MA 02110-1301 USA.
 # ###*E*###
 
-## Author: 2016,  Giuseppe Serano
+## Author: 2017,  Giuseppe Serano
 
 ##
 ## Compiler related options
@@ -144,12 +144,14 @@ else
 OPT_CC += -std=c89
 endif
 ifeq ($(findstring atxmega, $(AVR8_MCU)), atxmega)
-OPT_CC += -gdwarf-2 -Os
-else	# ATXMEGA
+EEOPT += __AVR8_GCC_OSIZE__
+endif	# ATXMEGA
 ifeq ($(call iseeopt, DEBUG), yes)
 OPT_CC += -gdwarf-2
 endif
-endif	# ATXMEGA
+ifeq ($(call iseeopt, __AVR8_GCC_OSIZE__), yes)
+OPT_CC += -Os
+endif
 ifneq ($(AVR8_MCU),)
 OPT_CC += -fdata-sections -ffunction-sections
 OPT_CC += -Werror-implicit-function-declaration -Wmissing-prototypes

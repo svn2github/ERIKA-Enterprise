@@ -175,8 +175,13 @@ extern "C" {
 #include "mcu/hs12xs/inc/ee_mcu.h"
 #endif
 
+/* Atmel AVR */
 #ifdef __ATMEGA__
 #include "mcu/atmel_atmega/inc/ee_mcu.h"
+#endif
+
+#ifdef __ATTINY__
+#include "mcu/atmel_attiny/inc/ee_mcu.h"
 #endif
 
 #ifdef __ATXMEGA__
