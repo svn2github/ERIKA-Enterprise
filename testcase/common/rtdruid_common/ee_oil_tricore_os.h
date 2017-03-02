@@ -41,6 +41,9 @@
 #ifdef	tricore
 
 EE_OPT = "EE_EXECUTE_FROM_RAM";
+#ifdef	tricore_tc29x
+EE_OPT = "EE_BYPASS_CLOCK_CONFIGURATION";
+#endif	/* tricore_tc29x */
 
 MCU_DATA = TRICORE {
 #ifdef	tricore_tc27x
@@ -57,6 +60,9 @@ CPU_DATA = TRICORE {
     APP_SRC = "../../common/tricore/test_irq.c";
 #endif	/* USEIRQ */
     SYS_STACK_SIZE=4096;
+#ifdef	tricore_tc29x
+    CPU_CLOCK = 100.0;
+#endif	/* tricore_tc29x */
 #ifdef	tasking
     COMPILER_TYPE = TASKING;
 #endif	/* tasking */
