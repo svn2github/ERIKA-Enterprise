@@ -63,6 +63,9 @@
 
 #define MAX_ASSERT 30
 
+/* IRQ tos defined in eecfg.c */
+extern struct EE_TOS EE_e200z7_IRQ_tos;
+
 static unsigned int low_isr_hit;
 static unsigned int medium_isr_hit;
 static unsigned int high_isr_hit;
