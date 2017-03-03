@@ -367,6 +367,12 @@ ifeq ($(call iseeopt, __RX200__), yes)
 include $(EEBASE)/pkg/cfg/arch/rules_rx200_generic.mk
 endif
 
+## Renesas RH850
+##########################################################################
+ifeq ($(call iseeopt, __RH850__), yes)
+include $(EEBASE)/pkg/cfg/arch/rules_rh850_generic.mk
+endif
+
 ##
 ## error checking in EEOPT
 ##########################################################################

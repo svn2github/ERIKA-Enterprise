@@ -115,6 +115,10 @@ extern "C" {
 #include "cpu/pic32/inc/ee_cpu.h"
 #endif
 
+#ifdef __RH850__
+#include "cpu/rh850/inc/ee_cpu.h"
+#endif
+
 #ifdef __TRICORE1__
 #include "cpu/tricore1/inc/ee_cpu.h"
 
@@ -271,6 +275,16 @@ extern "C" {
 #include "mcu/renesas_r5f5210x/inc/ee_mcu.h"
 #endif
 
+/* Renesas R7F701503 F1H */
+#if defined( __R7F701503__ )
+#include "mcu/renesas_r7f701503/inc/ee_mcu.h"
+#endif
+
+/* Renesas R7F701057 F1L */
+#if defined( __R7F701057__ )
+#include "mcu/renesas_r7f701057/inc/ee_mcu.h"
+#endif
+
 #if (defined( __TI__ )) && (defined( __TMS570__ ))
 #include "mcu/ti_tms570/inc/ee_mcu.h"
 #endif
@@ -415,7 +429,11 @@ extern "C" {
 /* TMS570 */
 #if (defined( __TI__ )) && (defined ( __TMS570__ ))
 #include "board/ti_tms570/inc/ee_board.h"
+#endif
 
+/* Renesas RH850F1x StarterKit V2 */
+#ifdef __Y_ASK_RH850F1X_V2__
+#include "board/y_ask_rh850f1x_v2/inc/ee_board.h"
 #endif
 
   /*

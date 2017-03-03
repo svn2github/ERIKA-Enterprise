@@ -216,6 +216,18 @@ ifeq ($(call iseeopt, __RX200__), yes)
 include $(EEBASE)/pkg/cfg/arch/cc_rx200_ccrx.mk
 endif
 
+# Renesas RH850
+ifeq ($(call iseeopt, __RH850__), yes)
+ifeq ($(call iseeopt, __GHS__), yes)
+include $(EEBASE)/pkg/cfg/arch/cc_rh850_ghs.mk
+else # __GHS__
+ifeq ($(call iseeopt, __IAR__), yes)
+include $(EEBASE)/pkg/cfg/arch/cc_rh850_iar.mk
+endif # __IAR__ 
+endif # !__GHS__
+endif # __RH850__
+#----------------------
+
 ifeq ($(call iseeopt, __X86__), yes)
 include $(EEBASE)/pkg/cfg/arch/cc_x86_gcc.mk
 endif

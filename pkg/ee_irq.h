@@ -170,6 +170,10 @@ extern "C" {
 #include "cpu/rx200/inc/ee_irq.h"
 #endif
 
+#ifdef __RH850__
+#include "cpu/rh850/inc/ee_irq.h"
+#endif
+
 #ifdef  EE_TRICORE__
 #include "cpu/tricore/inc/ee_tc_irq.h"
 #include "cpu/tricore/inc/ee_tc_trap.h"

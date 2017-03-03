@@ -142,6 +142,11 @@ extern "C" {
 #include "cpu/rx200/inc/ee_internal.h"
 #endif
 
+/* Renesas RH850 */
+#ifdef __RH850__
+#include "cpu/rh850/inc/ee_internal.h"
+#endif
+
 #ifdef __CORTEX_RX__
 #include "cpu/cortex_rx/inc/ee_internal.h"
 #endif
@@ -244,6 +249,16 @@ extern "C" {
 /* Renesas RX200*/
 #if (defined( __RX200__ )) && (defined( __R5F5210x__ ))
 #include "mcu/renesas_r5f5210x/inc/ee_internal.h"
+#endif
+
+/* Renesas R7F701503 */
+#if defined( __RH850__ ) && defined( __R7F701503__ )
+#include "mcu/renesas_r7f701503/inc/ee_internal.h"
+#endif
+
+/* Renesas R7F701057 */
+#if defined( __RH850__ ) && defined( __R7F701057__ )
+#include "mcu/renesas_r7f701057/inc/ee_internal.h"
 #endif
 
 #if (defined( __TI__ )) && (defined( __TMS570__ ))
