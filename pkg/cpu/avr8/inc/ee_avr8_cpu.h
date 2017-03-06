@@ -103,7 +103,7 @@ typedef	EE_UREG			EE_UTID;
 
 /* Top-Of-Stacks (tos) structures defined by RT-Druid in eecfg.c */
 
-#define	AVR8_INIT_TOS_OFFSET	0x12U	/* r2-r17, r28, r29 */
+#define	AVR8_INIT_TOS_OFFSET	0x13U	/* r2-r17, r28, r29 */
 
 extern	EE_UREG			EE_avr8_active_tos;
 #define	EE_hal_active_tos	EE_avr8_active_tos
