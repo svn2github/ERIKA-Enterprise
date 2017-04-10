@@ -341,8 +341,8 @@ extern struct EE_com_ipdu_RAM_TYPE * EE_com_ipdu_RAM[EE_COM_N_IPDU];
 #endif
 
 /* Message descriptors (rom/ram) */
-extern struct EE_com_msg_RAM_TYPE * EE_com_msg_RAM[EE_COM_N_MSG];
-extern const struct EE_com_msg_ROM_TYPE * EE_com_msg_ROM[EE_COM_N_MSG];
+extern struct EE_com_msg_RAM_TYPE * const EE_com_msg_RAM[EE_COM_N_MSG];
+extern const struct EE_com_msg_ROM_TYPE * const EE_com_msg_ROM[EE_COM_N_MSG];
 
 
 
