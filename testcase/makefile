@@ -31,16 +31,6 @@ SDIRS = $(addsuffix /,$(subst /,,$(sort $(DIRS))))
 
 .PHONY: help clean
 
-
-#
-# Ensure that confparser is compiled before everything else
-.PHONY: compile_confparser
-compile_confparser :
-	+@$(MAKE) -C common/confparser
-
--include compile_confparser
-
-
 #
 # The sequence of compilation for each target is the following:
 #
@@ -66,9 +56,6 @@ compile_confparser :
 #
 # 5) all: Compilation of the testcases
 
-
-
-
 #
 # Compiling the targets
 #
@@ -92,6 +79,14 @@ all: $(all_dirs)
 		echo ALL ended successfully!		;\
 	fi
 
+#
+# Ensure that confparser is compiled before everything else
+#
+.PHONY: compile_confparser
+compile_confparser :
+	+@$(MAKE) -C common/confparser
+
+-include compile_confparser
 
 
 
