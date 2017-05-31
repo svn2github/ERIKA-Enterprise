@@ -208,7 +208,7 @@ else
 T32ORTISTR :=
 endif
 
-RTD_MAKEFILE := $(call short_native_path, $(abspath .))/makefile
+RTD_MAKEFILE := makefile
 
 t32: $(T32TARGETS)
 
