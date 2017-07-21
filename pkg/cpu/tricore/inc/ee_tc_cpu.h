@@ -96,7 +96,13 @@
 #ifdef EE_APPKIT_TC2X5
 #include <tc27xc/Ifx_reg.h>
 #else
+#if	defined(EE_TC27XC__)
+#include <tc27xc/Ifx_reg.h>
+#elif	defined(EE_TC27XB__)
+#include <tc27xb/Ifx_reg.h>
+#else
 #include <tc27xa/Ifx_reg.h>
+#endif
 #endif
 #else /* !EE_MM_OPT */
 #include "Ifx_reg.h"
