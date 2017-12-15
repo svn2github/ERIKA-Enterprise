@@ -277,7 +277,7 @@ else	# EEOPT NODEPS
 DEPENDENCY_OPT = -MP -MMD -MF $(call native_path,$(subst .o,.d_tmp,$(@)))
 ifeq ($(call iseeopt, __RTD_CYGWIN__), yes)
 # Dependencies on Windows need path translation and quote remotion
-make-depend = sed -e 's_\\\(.\)_/\1_g' \
+make-depend = sed -e 's_\\\(.\)\(.\)_/\1\2_g' \
 	-e 's_\<\([a-zA-Z]\):/_/cygdrive/\l\1/_g' < $1_tmp > $1 && rm $1_tmp
 else	# EEOPT __RTD_CYGWIN__
 make-depend = mv $1_tmp $1
