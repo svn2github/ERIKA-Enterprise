@@ -68,21 +68,6 @@ EE_AR   ?= $(TRICORE_GCCDIR)/bin/tricore-ar
 EE_OBJDUMP ?= $(TRICORE_GCCDIR)/bin/tricore-objdump
 endif # EE_FIND_COMPILER_IN_PATH
 
-# WORK AROUND TO PERSUADE LINKER TO PRESERVE SECTIONS IN SLAVE ELFs
-ifeq ($(call iseeopt, __MSRP__), yes)
-ifneq  ($(call iseeopt, EE_BUILD_SINGLE_ELF), yes)
-ifneq ($(call iseeopt, EE_USE_CUSTOM_STARTUP_CODE), yes)
-ifneq ($(CPU_NUMID), 0)
-ifdef EE_FLAT_LAYOUT
-OBJS += ../$(CPU_MASTER_DIR)/$(OBJDIR)/ee_tc2Yx_cstart.o
-else  # EE_FLAT_LAYOUT
-OBJS += ../$(CPU_MASTER_DIR)/$(OBJDIR)/pkg/mcu/infineon_common_tc2Yx/src/ee_tc2Yx_cstart.o
-endif # !EE_FLAT_LAYOUT
-endif # CPU_NUMID not eq 0
-endif # !EE_USE_CUSTOM_STARTUP_CODE
-endif # !EE_BUILD_SINGLE_ELF
-endif # __MSRP__
-
 # Suffix used for Linker Scripts Files for TASKING
 CC_LD_SUFFIX := ld
 

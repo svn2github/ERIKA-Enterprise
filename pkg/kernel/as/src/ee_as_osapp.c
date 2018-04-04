@@ -704,10 +704,10 @@ void EE_as_TerminateApplication_internal ( ApplicationType Application,
           &EE_oo_counter_object_RAM[alarm];
 
         /* RESET COUNTER OBJECT */
-        pCounterObjectRAM->used  = 0U;
-        pCounterObjectRAM->cycle = 0U;
-        pCounterObjectRAM->delta = 0U;
-        pCounterObjectRAM->next  = INVALID_COUNTER_OBJECT;
+        pCounterObjectRAM->used     = 0U;
+        pCounterObjectRAM->cntcycle = 0U;
+        pCounterObjectRAM->delta    = 0U;
+        pCounterObjectRAM->next     = INVALID_COUNTER_OBJECT;
 
         if ( EE_counter_ROM[counter].ApplID == Application )
         {
@@ -743,10 +743,10 @@ void EE_as_TerminateApplication_internal ( ApplicationType Application,
           &EE_as_Schedule_Table_RAM[sched_id];
 
         /* RESET COUNTER OBJECT */
-        pCounterObjectRAM->used  = 0U;
-        pCounterObjectRAM->cycle = 0U;
-        pCounterObjectRAM->delta = 0U;
-        pCounterObjectRAM->next  = INVALID_COUNTER_OBJECT;
+        pCounterObjectRAM->used     = 0U;
+        pCounterObjectRAM->cntcycle = 0U;
+        pCounterObjectRAM->delta    = 0U;
+        pCounterObjectRAM->next     = INVALID_COUNTER_OBJECT;
 
         /* RESET SCHEDULE TABLE RAM TOO */
         p_schedule_table_RAM->status      = SCHEDULETABLE_STOPPED;

@@ -281,10 +281,6 @@ static void EE_oo_start_os(void)
 StatusType EE_oo_StartOS(AppModeType Mode)
 {
 #if (defined(__MSRP__)) && (!defined(EE_AS_MULTICORE_NO_SYNC))
-  /* The following contains cores application modes */
-  extern AppModeType volatile EE_as_os_application_mode[];
-  /* Mask for Autosar cores started */
-  extern EE_UREG volatile EE_as_core_mask;
   /* Index used to cycle on cores an OS-Applications */
   register  EE_UREG i;
   /* Hold the value of application mode to be checked */

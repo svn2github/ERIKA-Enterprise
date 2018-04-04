@@ -54,7 +54,7 @@ include $(PKGBASE)/cfg/compiler.mk
 # Read MCU-specific file, if it exists, but don't make it.
 -include $(PKGBASE)/cfg/arch/rules_infineon_$(TRICORE_MODEL).mk
 
-ifeq ($(call iseeopt, EE_APPKIT_TC2X5),yes)
+ifeq ($(or $(call iseeopt, EE_APPKIT_TC2X5), $(call iseeopt, EE_TC27XC__)), yes)
 TRICORE_STEP = c
 else
 TRICORE_STEP =

@@ -41,7 +41,7 @@
 ## Author: 2012 Errico Guidieri
 
 #Used by start scripts
-T32TMP ?= C:/Temp
+T32TMP ?= TEMP
 
 ifneq ($(call iseeopt, EE_BUILD_SINGLE_ELF), yes)
 #Used to export symbols to slave cpus
@@ -67,16 +67,16 @@ endif #CPU2_ELF
 #ORTI Support
 ifneq ($(wildcard $(CPU_MASTER_DIR)/system.orti),)
 MASTER_ORTI_CD      := \&core0 cd $(CPU_MASTER_DIR)
-MASTER_ORTI_CMD     := \&core0 do orti.cmm\n\&core0 do markers.cmm
+MASTER_ORTI_CMD     := \&core0 do orti.cmm\n;\&core0 do markers.cmm
 MASTER_ORTI_CD_BACK := \&core0 cd ..
 ifdef CPU1_ELF
 CPU1_ORTI_CD        := \&core1 cd $(CPU1_DIR)
-CPU1_ORTI_CMD       := \&core1 do orti.cmm\n\&core1 do markers.cmm
+CPU1_ORTI_CMD       := \&core1 do orti.cmm\n;\&core1 do markers.cmm
 CPU1_ORTI_CD_BACK   := \&core1 cd ..
 endif # CPU1_ELF
 ifdef CPU2_ELF
 CPU2_ORTI_CD        := \&core2 cd $(CPU2_DIR)
-CPU2_ORTI_CMD       := \&core2 do orti.cmm\n\&core2 do markers.cmm
+CPU2_ORTI_CMD       := \&core2 do orti.cmm\n;\&core2 do markers.cmm
 CPU2_ORTI_CD_BACK   := \&core2 cd ..
 endif # CPU2_ELF
 
@@ -167,7 +167,7 @@ config_$(TRICORE_MODEL)$(TRICORE_STEP)_mc.t32: $(PKGBASE)/mcu/infineon_common_tc
 $(TRICORE_MODEL)$(TRICORE_STEP)_mc_start.bat: $(PKGBASE)/mcu/infineon_common_tc2Yx/cfg/multicore/tc2Yx_mc_start.bat
 	@echo "GEN $@ from $<"
 	$(QUIET) sed -e 's-#T32SYS#-$(T32SYS)-g'	                    \
-		           -e 's-#T32TMP#-$(T32TMP)-g'				        \
+		           -e 's-#T32TMP#-%$(T32TMP)%-g'			        \
 		           -e 's-#T32SCRIPT#-$(T32SCRIPT)-g'		        \
 		           -e 's-#T32ARCH#-$(T32ARCH)-g'			        \
 		           -e 's-#TC2YX#-$(TRICORE_MODEL)$(TRICORE_STEP)-g'	\
@@ -177,7 +177,7 @@ $(TRICORE_MODEL)$(TRICORE_STEP)_mc_start.bat: $(PKGBASE)/mcu/infineon_common_tc2
 $(TRICORE_MODEL)$(TRICORE_STEP)_mc_start.sh: $(PKGBASE)/mcu/infineon_common_tc2Yx/cfg/multicore/tc2Yx_mc_start.sh
 	@echo "GEN $@ from $<"
 	$(QUIET) sed -e 's-#T32SYS#-$(T32SYS)-g'	                    \
-		           -e 's-#T32TMP#-$(T32TMP)-g'				        \
+		           -e 's-#T32TMP#-$$$(T32TMP)-g'			        \
 		           -e 's-#T32SCRIPT#-$(T32SCRIPT)-g'	            \
 		           -e 's-#T32ARCH#-$(T32ARCH)-g'			        \
 		           -e 's-#TC2YX#-$(TRICORE_MODEL)$(TRICORE_STEP)-g'	\
@@ -189,7 +189,7 @@ $(TRICORE_MODEL)$(TRICORE_STEP)_mc_flash.bat:
 	@echo "@ECHO OFF" > $@
 	@echo "REM script to flash TriCore". >> $@
 	@echo "pushd %~dp0" >> $@
-	@echo "$(T32SYS)/bin/$(T32ARCH)/t32mtc -s t32_$(TRICORE_MODEL)$(TRICORE_STEP)_mc_flash.cmm  CPU=TC275T" >> $@
+	@echo "$(T32SYS)/bin/$(T32ARCH)/t32mtc -s t32_$(TRICORE_MODEL)$(TRICORE_STEP)_mc_flash.cmm" >> $@
 	@echo "popd" >> $@
 	$(QUIET) chmod 777 $@
 

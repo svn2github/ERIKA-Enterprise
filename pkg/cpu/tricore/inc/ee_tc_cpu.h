@@ -848,6 +848,15 @@ __INLINE__ void __ALWAYS_INLINE__ EE_tc_rslcx( void )
   _rslcx();
 }
 
+__INLINE__ void __ALWAYS_INLINE__ EE_tc_stlcx(EE_CSA * const p_ctx) {
+  __asm__ volatile ("stlcx [%0]0" : : "a"(p_ctx): "memory");
+}
+
+__INLINE__ void __ALWAYS_INLINE__ EE_tc_ldlcx(EE_CSA * const p_ctx) {
+  __asm__ volatile ("ldlcx [%0]0" : : "a"(p_ctx): "memory", "d0", "d1", "d2",
+    "d3", "d4", "d5", "d6", "d7", "a2", "a3", "a4", "a5", "a6", "a7", "a11");
+}
+
 /* Functions to access the CSFRs */
 
 #define EE_tc_get_psw()        __mfcr(EE_CPU_REG_PSW)

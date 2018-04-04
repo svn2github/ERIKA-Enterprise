@@ -289,7 +289,7 @@ END_EACH_APP
     PROVIDE(CORE_SYM(__sdata_end) = .);
   } > CORE_SYM(DMI_DSPR)
 
-  CORE_SYM(_SMALL_DATA_) = (SIZEOF(CORE_SEC(.sbss)) + SIZEOF(CORE_SEC(.sdata))) ? ADDR(CORE_SEC(.sbss)) + 32k : (ADDR(CORE_SEC(.sbss)) & 0xF0000000) ;
+  CORE_SYM(_SMALL_DATA_) = (SIZEOF(CORE_SEC(.sbss)) + SIZEOF(CORE_SEC(.sdata))) ? ADDR(CORE_SEC(.sbss)) + 32k : (ADDR(CORE_SEC(.sbss)) & 0xF0000000) + 32k ;
   CORE_SYM(__A0_MEM) = CORE_SYM(_SMALL_DATA_) ;
 
   /*
@@ -401,6 +401,22 @@ END_EACH_APP
 
   /* ERIKA Kernel Sections */
 
+  /* ERIKA Kenel Stacks (Don't belong to any OS-Applications, special section
+     is needed to handle memory protection and stack monitoring) */
+  CORE_SEC(.ee_kernel_stack) : ALIGN(8) FLAGS(aw)
+  {
+    PROVIDE(CORE_SYM(ee_sstack_kernel) = .);
+    *(CORE_SEC(.ee_kernel_stack*))
+    /* Put the first OS-Application Section 16 forward respect the system
+       sections to assure cross sections access protection.
+       (Read the Note: at page 9-5 of
+        TC_Architecture_vol1_TC161_TCS_TC16P_TC16E.pdf manual) */
+    . += 15;
+    . = ALIGN(8);
+    /* each range address have to be 8 byte aligned */
+    PROVIDE(CORE_SYM(ee_estack_kernel) = .);
+  } > CORE_SYM(DMI_DSPR)
+
   /* ERIKA Kernel private unitializated data section */
   CORE_SEC(.ee_kernel_bss) : ALIGN(8) FLAGS(aw)
   {
@@ -430,22 +446,6 @@ END_EACH_APP
        region (Load Memory Address) for other data region are valid for
        __copy_table */
     . = ALIGN(8);
-  } > CORE_SYM(DMI_DSPR)
-
-  /* ERIKA Kenel Stacks (Don't belong to any OS-Applications, special section
-     is needed to handle memory protection and stack monitoring) */
-  CORE_SEC(.ee_kernel_stack) : ALIGN(8) FLAGS(awl)
-  {
-    PROVIDE(CORE_SYM(ee_sstack_kernel) = .);
-    *(CORE_SEC(.ee_kernel_stack*))
-    /* Put the first OS-Application Section 16 forward respect the system
-       sections to assure cross sections access protection.
-       (Read the Note: at page 9-5 of
-        TC_Architecture_vol1_TC161_TCS_TC16P_TC16E.pdf manual) */
-    . += 15;
-    . = ALIGN(8);
-    /* each range address have to be 8 byte aligned */
-    PROVIDE(CORE_SYM(ee_estack_kernel) = .);
   } > CORE_SYM(DMI_DSPR)
 
   /* GENERATED APPLICATION DATA SECTIONS - BEGIN */

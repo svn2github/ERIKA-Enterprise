@@ -11,7 +11,7 @@
 
 OUTPUT_FORMAT("elf32-tricore")
 OUTPUT_ARCH(tricore)
-ENTRY(_START)
+ENTRY(EE_tc2Yx_cpu1_start)
 
 __TRICORE_DERIVATE_MEMORY_MAP__ = 0x260;
 

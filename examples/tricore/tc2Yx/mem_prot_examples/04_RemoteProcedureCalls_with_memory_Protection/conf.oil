@@ -52,7 +52,7 @@ CPU test_application {
     };
 
     MCU_DATA = TRICORE {
-      MODEL = TC27x;
+      MODEL = TC27xC;
     };
 
     STATUS = EXTENDED;

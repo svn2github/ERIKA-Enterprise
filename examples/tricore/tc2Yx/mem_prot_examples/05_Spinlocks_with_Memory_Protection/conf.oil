@@ -13,8 +13,6 @@ CPU test_application {
     MEMORY_PROTECTION   = TRUE;
     REMOTENOTIFICATION  = USE_RPC;
 
-    //EE_OPT = "EE_BUILD_SINGLE_ELF";
-
     MASTER_CPU = "master";
 
     CPU_DATA = TRICORE {
@@ -50,7 +48,7 @@ CPU test_application {
     };
 
     MCU_DATA = TRICORE {
-      MODEL = TC27x;
+      MODEL = TC27xC;
     };
 
     STATUS = EXTENDED;

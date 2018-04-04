@@ -33,5 +33,6 @@ MCDS.SOURCE CPUMUX0 WriteAddr ON
 MCDS.SOURCE CPUMUX0 WriteData ON 
 
 ; Read Kernel Markers
+; EG: Markers do not works
 ;do markers.cmm
 enddo

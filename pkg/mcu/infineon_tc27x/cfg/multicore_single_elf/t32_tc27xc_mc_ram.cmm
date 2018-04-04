@@ -2,11 +2,8 @@
 ;
 ; Initializes the TriCore opens AMP environment.
 ;
-LOCAL &master_elf &cpu1_elf &cpu2_elf
-&master_elf="#MASTER_ELF#"
-&cpu1_elf="#CPU1_ELF#"
-&cpu2_elf="#CPU2_ELF#"
-
+LOCAL &multicore_elf
+&multicore_elf="tc27x_multicore.elf"
 
 ; script-local macros:
 LOCAL &portGUI0 &portGUI1 &portGUI2
@@ -64,39 +61,13 @@ GOSUB other_guis
 ;========================================================================
 ; Load elf file (uses internal RAM only)
 
-  ;; This Approach doesn't work. Maintened as reference for ELFs load order.
-  ; if !("&cpu1_elf"=="")
-  ; (
-  ;   &core1 Data.LOAD.Elf "&cpu1_elf"
-  ; )
-  ; if !("&cpu2_elf"=="")
-  ; (
-  ;   &core2 Data.LOAD.Elf "&cpu2_elf"
-  ; )
-  ; &core0 Data.LOAD.Elf "&master_elf"
+  &core0 Data.LOAD.Elf "&multicore_elf" /NAME master
+  &core1 Data.LOAD.Elf "&multicore_elf" /NOREG /NAME slave1
+  &core2 Data.LOAD.Elf "&multicore_elf" /NOREG /NAME slave2
 
-  ;; Neither this Approach work. Maintained as reference about RAMs memories ranges.
-  ;&core0 Data.LOAD.Elf "&master_elf" 0x70000000--0x7001C000       ; 112k  dspr0
-  ;&core0 Data.LOAD.Elf "&master_elf" 0x70100000--0x70106000       ; 24k   pspr0
-  ;&core0 Data.LOAD.Elf "&master_elf" 0x90000000--0x90004000       ; 16k   lmuram cached
-  ;&core0 Data.LOAD.Elf "&master_elf" 0xb0000000--0xb0004000       ; 16k   same lmuram not-cached
-
-  &core0 Data.LOAD.Elf "&master_elf"
-  if !("&cpu1_elf"=="")
-  (
-    &core1 Data.LOAD.Elf "&cpu1_elf" 0x60000000--0x6001E000 /NOREG ; 120k dspr1
-    &core1 Data.LOAD.Elf "&cpu1_elf" 0x60100000--0x60106000 /NOREG ; 24k  pspr1
-    &core1 Data.LOAD.Elf "&cpu1_elf" 0x90004000--0x90006000 /NOREG ; 8k   lmuram cached
-    &core1 Data.LOAD.Elf "&cpu1_elf" 0xb0004000--0xb0006000 /NOREG ; 8k   same lmuram not-cached
-  )
-
-  if !("&cpu2_elf"=="")
-  (
-    &core2 Data.LOAD.Elf "&cpu2_elf" 0x50000000--0x5001E000 /NOREG ; 120k dspr2
-    &core2 Data.LOAD.Elf "&cpu2_elf" 0x50100000--0x50106000 /NOREG ; 24k  pspr2
-    &core2 Data.LOAD.Elf "&cpu2_elf" 0x90006000--0x90008000 /NOREG ; 8k   lmuram cached
-    &core2 Data.LOAD.Elf "&cpu2_elf" 0xb0006000--0xb0008000 /NOREG ; 8k   same lmuram not-cached
-  )
+  &core0 DO ~~~~/stripCPUSections.cmm CPU1 CPU2
+  &core1 DO ~~~~/stripCPUSections.cmm CPU0 CPU2
+  &core2 DO ~~~~/stripCPUSections.cmm CPU0 CPU1
 
 IF Analyzer()
 (

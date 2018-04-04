@@ -315,6 +315,7 @@ const EE_UINT32 BootModeHeader1[] = {
     0x791eb864,                 /* CRChead */
     0x86e1479b                  /* !CRChead */
 };
+
 /*reset the sections defined above */
 #if defined(__GNUC__)
 #pragma section
@@ -679,106 +680,144 @@ __INLINE__ void __ALWAYS_INLINE__ EE_tc2Yx_csa_init( void )
  *
  *************************************************************************/
 /* Clear, Copy Tables pointers */
-typedef volatile union
+typedef union EE_tc_init_table_entry_ptr_tag
 {
-  EE_UINT8  ucPtr;
-  EE_UINT16 usPtr;
-  EE_UINT32 uiPtr;
-  EE_UINT64 ullPtr;
-} EE_TABLE_PTR;
+  EE_UINT8  * p_uc;
+  EE_UINT16 * p_us;
+  EE_UINT32 * p_ui;
+  EE_UINT64 * p_ull;
+} EE_tc_init_table_entry_ptr;
 
-static void EE_tc2Y_apply_clear_table ( EE_UINT32 * pTable ) {
-  EE_UINT32 uiLength, uiCnt;
-  EE_TABLE_PTR *pBlockDest;
+typedef struct EE_tc_clear_table_tag
+{
+  EE_tc_init_table_entry_ptr  block_to_clear;
+  EE_UINT32                   table_entry_length;
+} EE_tc_clear_table;
 
-  while (pTable)
-  {
-    pBlockDest = (EE_TABLE_PTR *) * pTable;
-    pTable++;
-    uiLength = *pTable;
-    pTable++;
-    /* we are finished when length == -1 */
-    if (uiLength == 0xFFFFFFFFU) {
-      break;
-    }
-    uiCnt = uiLength / 8U;
-    while (uiCnt) {
-      (*pBlockDest).ullPtr = (EE_UINT64)0U;
-      pBlockDest++;
-      uiCnt--;
-    }
-    if ((uiLength) & 0x4U) {
-      (*pBlockDest).uiPtr = (EE_UINT32)0U;
-      pBlockDest++;
-    }
-    if ((uiLength) & 0x2U) {
-      (*pBlockDest).usPtr = (EE_UINT16)0U;
-      pBlockDest++;
-    }
-    if ((uiLength) & 0x1U) {
-      (*pBlockDest).ucPtr = 0U;
+typedef struct EE_tc_copy_table_tag
+{
+  EE_tc_init_table_entry_ptr  block_src;
+  EE_tc_init_table_entry_ptr  block_dest;
+  EE_UINT32                   table_entry_length;
+} EE_tc_copy_table;
+
+static void EE_tc_apply_clear_table(EE_tc_clear_table * p_clear_table) {
+  while (p_clear_table) {
+    EE_tc_init_table_entry_ptr  block_to_clear;
+    size_t                      table_entry_length;
+
+/* Get pointer to the block to be cleared */
+    block_to_clear = p_clear_table->block_to_clear;
+
+/* Get the lenght of the table entry (in bytes) */
+    table_entry_length = p_clear_table->table_entry_length;
+    
+/* We have finished when length == -1 */
+    if (table_entry_length != 0xFFFFFFFFU) {
+/* Prepare to clear as much unsigned long long as you can... */
+      size_t ull_cnt = table_entry_length / sizeof(EE_UINT64);
+
+      while (ull_cnt) {
+        *block_to_clear.p_ull = 0ULL;
+        ++block_to_clear.p_ull;
+        --ull_cnt;
+      }
+
+/*  Clear the remaining bytes */
+      if ((table_entry_length) & 0x4U) {
+        *block_to_clear.p_ui = 0x0U;
+        ++block_to_clear.p_ui;
+      }
+
+      if ((table_entry_length) & 0x2U) {
+        *block_to_clear.p_us = 0x0U;
+        ++block_to_clear.p_us;
+      }
+
+      if ((table_entry_length) & 0x1U) {
+        *block_to_clear.p_uc = 0x0U;
+      }
+
+/* Prepare the table pointer for the next iteration */
+      ++p_clear_table;
+    } else {
+/* Set out condition */
+      p_clear_table = NULL;
     }
   }
 }
 
-static void EE_tc2Y_apply_copy_table ( EE_UINT32 * pTable ) {
-  EE_UINT32 uiLength, uiCnt;
-  EE_TABLE_PTR *pBlockDest;
-  EE_TABLE_PTR *pBlockSrc;
+static void EE_tc_apply_copy_table(EE_tc_copy_table * p_copy_table) {
+  while (p_copy_table) {
+    EE_tc_init_table_entry_ptr  block_src;
+    EE_tc_init_table_entry_ptr  block_dest;
+    size_t                      table_entry_length;
 
-  while (pTable)
-  {
-    pBlockSrc = (EE_TABLE_PTR *) * pTable;
-    pTable++;
-    pBlockDest = (EE_TABLE_PTR *) * pTable;
-    pTable++;
-    uiLength = *pTable;
-    pTable++;
-    /* we are finished when length == -1 */
-    if (uiLength == 0xFFFFFFFFU) {
-      break;
-    }
-    uiCnt = uiLength / 8U;
-    while (uiCnt) {
-      (*pBlockDest).ullPtr = (*pBlockSrc).ullPtr;
-      uiCnt--;
-      pBlockDest++;
-      pBlockSrc++;
-    }
-    if ((uiLength) & 0x4U) {
-      (*pBlockDest).uiPtr = (*pBlockSrc).uiPtr;
-      pBlockDest++;
-      pBlockSrc++;
-    }
-    if ((uiLength) & 0x2U) {
-      (*pBlockDest).usPtr = (*pBlockSrc).usPtr;
-      pBlockDest++;
-      pBlockSrc++;
-    }
-    if ((uiLength) & 0x1U) {
-      (*pBlockDest).ucPtr = (*pBlockSrc).ucPtr;
+/* Get pointer to the data source block */
+    block_src = p_copy_table->block_src;
+
+/* Get pointer to the data destination block */
+    block_dest = p_copy_table->block_dest;
+
+/* Get the lenght of the table entry (in bytes) */
+    table_entry_length = p_copy_table->table_entry_length;
+    
+/* We have finished when length == -1 */
+    if (table_entry_length != 0xFFFFFFFFU) {
+/* Prepare to copy as much unsigned long long as you can... */
+      size_t ull_cnt = table_entry_length / sizeof(EE_UINT64);
+
+      while (ull_cnt) {
+        *block_dest.p_ull = *block_src.p_ull;
+        ++block_src.p_ull;
+        ++block_dest.p_ull;
+        --ull_cnt;
+      }
+
+/* Copy the remaning bytes */
+      if ((table_entry_length) & 0x4U) {
+        *block_dest.p_ui = *block_src.p_ui;
+        ++block_src.p_ui;
+        ++block_dest.p_ui;
+      }
+
+      if ((table_entry_length) & 0x2U) {
+        *block_dest.p_us = *block_src.p_us;
+        ++block_src.p_us;
+        ++block_dest.p_us;
+      }
+
+      if ((table_entry_length) & 0x1U) {
+        *block_dest.p_uc = *block_src.p_uc;
+      }
+
+/* Prepare the table pointer for the next iteration */
+      ++p_copy_table;
+    } else {
+/* Set out condition */
+      p_copy_table = NULL;
     }
   }
 }
 
 static void EE_tc2Yx_cinit( void ) {
   /* clear table entry */
-  extern EE_UINT32 __clear_table[];
+  extern EE_tc_clear_table __clear_table[];
   /* copy table entry */
-  extern EE_UINT32 __copy_table[];
+  extern EE_tc_copy_table __copy_table[];
 #if (defined(__MSRP__) && defined(EE_BUILD_SINGLE_ELF)) && defined(EE_MASTER_CPU)
   /* copy table entry */
-  extern EE_UINT32 ee_mcglobald_copy_table[];
+  extern EE_tc_copy_table ee_mcglobald_copy_table[];
 #endif /* __MSRP__ && EE_BUILD_SINGLE_ELF && EE_MASTER_CPU */
 
   /* clear table */
-  EE_tc2Y_apply_clear_table(__clear_table);
+  EE_tc_apply_clear_table(__clear_table);
   /* copy table */
-  EE_tc2Y_apply_copy_table(__copy_table);
+  EE_tc_apply_copy_table(__copy_table);
 
 #if (defined(__MSRP__) && defined(EE_BUILD_SINGLE_ELF)) && defined(EE_MASTER_CPU)
   /* Initialize global data */
-  EE_tc2Y_apply_copy_table(ee_mcglobald_copy_table);
+  EE_tc_apply_copy_table(ee_mcglobald_copy_table);
 #endif /* __MSRP__ && EE_BUILD_SINGLE_ELF && EE_MASTER_CPU */
 }
 #endif /* __GNUC__ && !EE_EXECUTE_FROM_RAM */

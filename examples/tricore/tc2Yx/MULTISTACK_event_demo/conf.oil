@@ -50,7 +50,7 @@ CPU test_application {
         SERVICE_PROTECTION = TRUE;
 
         MCU_DATA = TRICORE {
-            MODEL = TC27x;
+            MODEL = TC27xC;
         };
 
         CPU_DATA = TRICORE {

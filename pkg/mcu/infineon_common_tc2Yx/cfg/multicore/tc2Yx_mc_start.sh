@@ -29,6 +29,7 @@ unamestr=`uname -o`
 
 if [[ "$unamestr" == 'Cygwin' ]]; then
 T32_BASE_DIR=$P4_SYS/bin/$P11_ARCH
+P3_TMP=$APPDATA
 else
 # Maybe here I should use P11_ARCH the same
 T32_BASE_DIR=$P4_SYS/bin/pc_linux

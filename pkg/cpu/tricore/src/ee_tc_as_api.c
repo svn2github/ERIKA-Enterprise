@@ -333,8 +333,11 @@ void EE_TC_INTERRUPT_HANDER EE_TC_CHANGE_STACK_POINTER
       } else
 #endif /* EE_MAX_ISR2 > 0 */
       {
-        /* The service function parameters are already in the right place so
-           I can just do the CALL */
+        /* The service function parameters have to be in the right place,
+           otherwise have to be restored */
+#if (defined(__GNUC__))
+        EE_tc_ldlcx(EE_tc_csa_make_addr(original_lcx_pcxi));
+#endif
         service_ptr();
 
         /* Save return value after the service call on private lower saved lower
@@ -776,6 +779,8 @@ StatusType ReleaseResource(ResourceType ResID)
 /* 13.5.3.1: ECC1, ECC2 */
 #if defined(__OO_ECC1__) || defined(__OO_ECC2__)
 
+/* Check if Event API are really needed */
+#if (defined(EE_ID_SetEvent))
 #ifndef __PRIVATE_SETEVENT__
 StatusType SetEvent(TaskType TaskID, EventMaskType Mask)
 {
@@ -831,6 +836,7 @@ StatusType WaitEvent(EventMaskType Mask)
   EE_RETURN_STATUS();
 }
 #endif /* __PRIVATE_WAITEVENT__ */
+#endif /* EE_ID_SetEvent */
 
 #endif /* __OO_ECC1__ || __OO_ECC2__ */
 

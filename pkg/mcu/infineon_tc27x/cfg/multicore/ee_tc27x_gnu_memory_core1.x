@@ -11,7 +11,7 @@
 
 OUTPUT_FORMAT("elf32-tricore")
 OUTPUT_ARCH(tricore)
-ENTRY(_START)
+ENTRY(EE_tc2Yx_cpu1_start)
 
  __TRICORE_DERIVATE_MEMORY_MAP__ = 0x270;
 
@@ -41,10 +41,10 @@ __BROM_SIZE = 32K;
 
 /*Scratch-Pad RAM (PSPR)*/
 __PMI_PSPR_BEGIN = 0x60100000;
-__PMI_PSPR_SIZE = 24K;
+__PMI_PSPR_SIZE = 32K;
 /*Local Data RAM (DSPR)*/
 __DMI_DSPR_BEGIN = 0x60000000;
-__DMI_DSPR_SIZE = 112K;
+__DMI_DSPR_SIZE = 120K;
 
 /*Data RAM (LMU)*/
 __LMU_SRAM_BEGIN = 0x90004000;
@@ -81,9 +81,9 @@ MEMORY
   BROM (rx!p):  org = 0x8FFF8000, len = 32k
 
   /* - Scratch-Pad RAM (PSPR) */
-  PMI_PSPR (wx!p): org = 0x60100000, len = 24k
+  PMI_PSPR (wx!p): org = 0x60100000, len = 32k
   /* - Local Data Scratch-Pad RAM (DSPR) */
-  DMI_DSPR (w!xp): org = 0x60000000, len = 112k
+  DMI_DSPR (w!xp): org = 0x60000000, len = 120k
   /* - Data RAM */
   LMU_SRAM (w!xp):  org = 0x90004000, len = 8K
 }

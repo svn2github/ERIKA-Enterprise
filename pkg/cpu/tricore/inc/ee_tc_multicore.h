@@ -60,7 +60,8 @@
 #define EE_SHARED_IDATA  EE_COMPILER_SECTION("ee_mcglobald") EE_FAR EE_COMPILER_KEEP
 #define EE_SHARED_TDATA  EE_COMPILER_SECTION("ee_mcglobalt") EE_FAR EE_COMPILER_KEEP
 #elif defined(__GNUC__) || defined(__DCC__)
-#define EE_SHARED_CDATA  EE_COMPILER_SECTION("ee_mcglobalc")
+/* WORKAROUND for wrong section flags generation */
+#define EE_SHARED_CDATA  EE_COMPILER_SECTION("ee_mcglobalc, \"a\", @progbits #")
 #define EE_SHARED_UDATA  EE_COMPILER_SECTION("ee_mcglobald")
 #define EE_SHARED_IDATA  EE_COMPILER_SECTION("ee_mcglobald")
 #define EE_SHARED_TDATA  EE_COMPILER_SECTION("ee_mcglobalt")

@@ -60,14 +60,14 @@
 
 /* If MemMap.h support is enabled (i.e. because memory protection): use it */
 #ifdef EE_SUPPORT_MEMMAP_H
-#define API_START_SEC_CODE
+#define OS_START_SEC_CODE
 #include "MemMap.h"
 #endif /* EE_SUPPORT_MEMMAP_H */
 /* ISR2 Global Handler Declaration */
 void EE_tc_isr2_global_wrapper(EE_tc_ISR_handler f);
 /* If MemMap.h support is enabled (i.e. because memory protection): use it */
 #ifdef EE_SUPPORT_MEMMAP_H
-#define API_STOP_SEC_CODE
+#define OS_STOP_SEC_CODE
 #include "MemMap.h"
 #endif /* EE_SUPPORT_MEMMAP_H */
 #else
@@ -2040,7 +2040,7 @@ void EE_TC_INTERRUPT_HANDER EE_tc_isr2_global_wrapper ( EE_tc_ISR_handler f )
 
 /* If MemMap.h support is enabled (i.e. because memory protection): use it */
 #ifdef EE_SUPPORT_MEMMAP_H
-#define API_STOP_SEC_CODE
+#define OS_STOP_SEC_CODE
 #include "MemMap.h"
 #endif /* EE_SUPPORT_MEMMAP_H */
 

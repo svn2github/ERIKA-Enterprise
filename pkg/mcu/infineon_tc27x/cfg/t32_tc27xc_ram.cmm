@@ -9,9 +9,26 @@
 ; initialize and start the debugger
 
   RESet
-  ;SYStem.CPU TC275TE-ASTEP
-  ; CK
-  SYStem.CPU TC275T
+
+  SYStem.CPU TC27*
+
+  IF CPUIS("TC27*A")||CPUIS("TC27*E")||CPUIS("TC27*F")
+  (
+    ; Emulation Devices in LQFP packages (except Fusion Quad and A-Step)
+    ; do not support JTAG (TDI pin is used as VDDPSB)
+    IF (ID.CABLE()==0x0029)||(ID.CABLE()==0x4155)
+    (
+      ; DAP only supported by 
+      ; - Bi-directional OCDS Debug Cable (0x0029)
+      ; - Automotive Debug Cable (0x4155)
+      SYStem.CONFIG DEBUGPORTTYPE DAP2
+    )
+    ELSE 
+    (
+      DIALOG.OK &core0 CPU()+" not supported by debug cable."
+      ENDDO
+    )
+  )
 
   SYStem.Up
 

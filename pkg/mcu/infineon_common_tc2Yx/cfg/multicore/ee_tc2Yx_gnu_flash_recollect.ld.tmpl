@@ -44,7 +44,7 @@ SECTIONS
   /*
    * Section for interrupt table
    */
-  CORE_SEC(.inttab) : ALIGN(32) FLAGS(ax)
+  CORE_SEC(.inttab) : ALIGN(8192) FLAGS(ax)
   {
     KEEP (*(CORE_SEC(.inttab*)));
     . = ALIGN(8);
@@ -357,7 +357,7 @@ END_EACH_APP
   /*
    * Section for ustack
    */  
-  CORE_SEC(.ustack) : ALIGN(8) FLAGS(awl)
+  CORE_SEC(.ustack) (NOLOAD) : ALIGN(8) FLAGS(aw)
   {
     PROVIDE(CORE_SYM(__USTACK_BEGIN) = .);
     . += __USTACK_SIZE ;
@@ -369,7 +369,7 @@ END_EACH_APP
   /*
    * Section for istack
    */  
-  CORE_SEC(.istack) : ALIGN(8) FLAGS(awl)
+  CORE_SEC(.istack) (NOLOAD) : ALIGN(8) FLAGS(aw)
   {
     PROVIDE(CORE_SYM(__ISTACK_BEGIN) = .);
     . += __ISTACK_SIZE ;
@@ -381,7 +381,7 @@ END_EACH_APP
   /*
    * Section for heap
    */  
-  CORE_SEC(.heap) : ALIGN(8) FLAGS(awl)
+  CORE_SEC(.heap) (NOLOAD) : ALIGN(8) FLAGS(aw)
   {
     PROVIDE(CORE_SYM(__HEAP_BEGIN) = .);
     PROVIDE(CORE_SYM(__HEAP) = .);
@@ -393,7 +393,7 @@ END_EACH_APP
   /*
    * Section for CSA
    */  
-  CORE_SEC(.csa) : ALIGN(64) FLAGS(awl)
+  CORE_SEC(.csa) (NOLOAD) : ALIGN(64) FLAGS(aw)
   {
     CORE_SYM(__CSA_BEGIN) = .;
     PROVIDE(CORE_SYM(__CSA) = .);
@@ -405,7 +405,7 @@ END_EACH_APP
   /* ERIKA API Sections */
 
   /* ERIKA API public unitializated data section */
-  CORE_SEC(.ee_api_bss) :  ALIGN(8) FLAGS(aw)
+  CORE_SEC(.ee_api_bss) (NOLOAD) :  ALIGN(8) FLAGS(aw)
   {
     /* begin ERIKA API public unitializated data section symbol */
     PROVIDE(CORE_SYM(ee_sbss_api) = .);
@@ -437,8 +437,24 @@ END_EACH_APP
 
   /* ERIKA Kernel Sections */
 
+  /* ERIKA Kernel Stacks (Don't belong to any OS-Applications, special section
+     is needed to handle memory protection and stack monitoring) */
+  CORE_SEC(.ee_kernel_stack) (NOLOAD) : ALIGN(8) FLAGS(aw)
+  {
+    PROVIDE(CORE_SYM(ee_sstack_kernel) = .);
+    *(CORE_SEC(.ee_kernel_stack*))
+    /* Put the first OS-Application Section 16 forward respect the system
+       sections to assure cross sections access protection.
+       (Read the Note: at page 9-5 of
+        TC_Architecture_vol1_TC161_TCS_TC16P_TC16E.pdf manual) */
+    . += 15;
+    . = ALIGN(8);
+    /* each range address have to be 8 byte aligned */
+    PROVIDE(CORE_SYM(ee_estack_kernel) = .);
+  } > CORE_SYM(DMI_DSPR)
+
   /* ERIKA Kernel private unitializated data section */
-  CORE_SEC(.ee_kernel_bss) : ALIGN(8) FLAGS(aw)
+  CORE_SEC(.ee_kernel_bss) (NOLOAD) : ALIGN(8) FLAGS(aw)
   {
     /* begin ERIKA Kernel private unitializated data section symbol */
     PROVIDE(CORE_SYM(ee_sbss_kernel) = .);
@@ -468,27 +484,11 @@ END_EACH_APP
     . = ALIGN(8);
   } > CORE_SYM(DMI_DSPR) AT> PMU_PFLASH
 
-  /* ERIKA Kenel Stacks (Don't belong to any OS-Applications, special section
-     is needed to handle memory protection and stack monitoring) */
-  CORE_SEC(.ee_kernel_stack) : ALIGN(8) FLAGS(awl)
-  {
-    PROVIDE(CORE_SYM(ee_sstack_kernel) = .);
-    *(CORE_SEC(.ee_kernel_stack*))
-    /* Put the first OS-Application Section 16 forward respect the system
-       sections to assure cross sections access protection.
-       (Read the Note: at page 9-5 of
-        TC_Architecture_vol1_TC161_TCS_TC16P_TC16E.pdf manual) */
-    . += 15;
-    . = ALIGN(8);
-    /* each range address have to be 8 byte aligned */
-    PROVIDE(CORE_SYM(ee_estack_kernel) = .);
-  } > CORE_SYM(DMI_DSPR)
-
   /* GENERATED APPLICATION DATA SECTIONS - BEGIN */
 FOR_EACH_APP
   /* Start OS-Application Data Section Symbol. */
   /* OS-Application Section Private Stack */
-  CORE_SEC(.ee_${APP_NAME}_stack) : ALIGN(16) FLAGS(awl)
+  CORE_SEC(.ee_${APP_NAME}_stack) (NOLOAD) : ALIGN(16) FLAGS(aw)
   {
     /* The begin of an OS-Application section "group" is aligned to 16 to
        ensure space requiremente for cross sections access protection.
@@ -504,7 +504,7 @@ FOR_EACH_APP
   } > CORE_SYM(DMI_DSPR)
 
   /* OS-Application Section Private Unitializated DATA */
-  CORE_SEC(.ee_${APP_NAME}_bss) : ALIGN(4) FLAGS(aw)
+  CORE_SEC(.ee_${APP_NAME}_bss) (NOLOAD) : ALIGN(4) FLAGS(aw)
   {
     PROVIDE(ee_sbss_${APP_NAME} = .);
     *(CORE_SEC(.ee_${APP_NAME}_bss*))

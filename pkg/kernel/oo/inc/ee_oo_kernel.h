@@ -398,7 +398,8 @@ int EE_oo_GetValueSem(const SemType *Sem);
 /***************************************************************************
  * AS 4.0 Counters
  ***************************************************************************/
-#if (defined(EE_MAX_COUNTER)) && (EE_MAX_COUNTER > 0U)
+#if ((defined(EE_MAX_COUNTER)) && (EE_MAX_COUNTER > 0U)) ||\
+  (!defined(__OO_NO_ALARMS__)) || (defined(EE_AS_SCHEDULETABLES__))
 /*
    AS 4.0 OS SWS 8.4.16
    AS OS requirement OS399:
@@ -415,7 +416,7 @@ int EE_oo_GetValueSem(const SemType *Sem);
 */
 #ifndef __PRIVATE_INCREMENTCOUNTER__
 StatusType EE_oo_IncrementCounter(CounterType CounterID);
-#endif  /* !__PRIVATE_INCREMENTCOUNTER__ && EE_MAX_COUNTER > 0 */
+#endif /* !__PRIVATE_INCREMENTCOUNTER__ */
 
 /*
   AS 4.0 OS SWS 8.4.17 GetCounterValue
@@ -423,7 +424,7 @@ StatusType EE_oo_IncrementCounter(CounterType CounterID);
  */
 #ifndef __PRIVATE_GETCOUNTERVALUE__
 StatusType EE_oo_GetCounterValue(CounterType CounterID, TickRefType Value);
-#endif
+#endif /* !__PRIVATE_GETCOUNTERVALUE__ */
 
 /*
   AS 4.0 OS SWS 8.4.18 GetElapsedValue
@@ -432,8 +433,9 @@ StatusType EE_oo_GetCounterValue(CounterType CounterID, TickRefType Value);
 #ifndef __PRIVATE_GETELAPSEDVALUE__
 StatusType EE_oo_GetElapsedValue(CounterType CounterID, TickRefType Value,
     TickRefType ElapsedValue);
-#endif
-#endif /* EE_MAX_COUNTER > 0 */
+#endif /* __PRIVATE_GETELAPSEDVALUE__ */
+#endif /* (EE_MAX_COUNTER > 0) || !(__OO_NO_ALARMS__) ||
+  EE_AS_SCHEDULETABLES__ */
 
 /***************************************************************************
  * 13.6 Alarms

@@ -25,7 +25,32 @@ GOSUB other_guis
 ; initialize and start the debugger:
 
   &coreAll RESet
-  &coreAll SYStem.CPU TC275T
+
+; Select the right CPU
+  PRIVATE &cpu
+  &core0 SYStem.CPU TC27*
+  &cpu=CPU()
+  &core1 SYStem.CPU &cpu
+  &core2 SYStem.CPU &cpu
+
+  IF CPUIS("TC27*A")||CPUIS("TC27*E")||CPUIS("TC27*F")
+  (
+    ; Emulation Devices in LQFP packages (except Fusion Quad and A-Step)
+    ; do not support JTAG (TDI pin is used as VDDPSB)
+    IF (ID.CABLE()==0x0029)||(ID.CABLE()==0x4155)
+    (
+      ; DAP only supported by 
+      ; - Bi-directional OCDS Debug Cable (0x0029)
+      ; - Automotive Debug Cable (0x4155)
+      &coreAll SYStem.CONFIG DEBUGPORTTYPE DAP2
+    )
+    ELSE 
+    (
+      DIALOG.OK &core0 CPU()+" not supported by debug cable."
+      ENDDO
+    )
+  )
+
   ; mount all cores into the same chip:
   &core0 SYStem.CONFIG CORE 1. 1.
   &core1 SYStem.CONFIG CORE 2. 1.
