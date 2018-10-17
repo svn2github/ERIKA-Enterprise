@@ -358,6 +358,9 @@ LINKDEP += $(EXPORT_FILE)
 ##Relocatable linking in case of multicore
 OPT_LINK += -Wl,-r -mcpu=$(GNUC_TRICORE_MODEL) -Wl,--core=CPU$(CPU_NUMID) -Wl,--export=$(EXPORT_FILE)\
  -Wl,-Map="$(basename $(notdir $@)).map" -Wl,--extmap="a"
+
+#Turn off LIBS for intermediate linkage
+LIBS :=
 else #  !__BASE_MAKEFILE__
 #Recollection in Single elf build
 OPT_LINK += -mcpu=$(GNUC_TRICORE_MODEL) -Wl,--gc-sections\
